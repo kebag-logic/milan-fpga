@@ -1372,6 +1372,315 @@ int main(int argc, char** argv) {
     }
 
     // ==================================================================
+    //  EVERY AAF TALKER ROW HAS A PROVISIONER  (2026-07-30)
+    //
+    //  The block above provisions rows THROUGH THE WINDOW, which is how
+    //  every previous test reached them - and it hid the defect, because
+    //  nothing on the board drives that window. Measured on silicon:
+    //  A_STRMW_SRP read 0x0000_037E at talker idx 0 (a live alias of the
+    //  legacy flat row, which is why idx-0-only tests looked healthy) and
+    //  0x0000_0000 at idx 1/2/3 - the row's OWN valid bit clear. On the
+    //  wire, with a licensed stream running, MSRP declared a Talker
+    //  Advertise for exactly {02:00:00:00:00:02, uid 0} and {..., uid 4 =
+    //  the CRF output} and NOTHING for uid 1/2/3: the two stream_ids on
+    //  the wire were the two rows that had a provisioner. Milan v1.2
+    //  5.3.7.3 conditions streaming on declaring a Talker Advertise AND
+    //  receiving a Listener Ready, so no talker but 0 could be licensed.
+    //
+    //  So this case provisions NOTHING through the SRP staging path: it
+    //  stages a ZERO stream_id for every row (the fabric owns a row no
+    //  software has named - the CRFT_SID precedent per row) and asks only
+    //  that the talker be ENABLED. Every index, because idx 0 is the
+    //  alias/legacy path and the least representative one there is.
+    //
+    //  It also runs the two STARVATION legs in their worst shape:
+    //  A_STRM_SEL is parked on a talker row for the whole burst (that
+    //  level-high poll is exactly what pinned the first fabric requester
+    //  off forever), the CRF slot requests at the same time as all N-1 AAF
+    //  slots, and a CSR WRITE is committed while every fabric slot has a
+    //  request pending.
+    // ==================================================================
+    printf("-- lwSRP: EVERY AAF talker row declares on its own enable --\n");
+    {
+        enum { A_MAC_LO = 0x108, A_MAC_HI = 0x10C,
+               A_AAF_DMLO = 0x658, A_AAF_DMHI = 0x65C,
+               A_CRFT_CTRL = 0x750, A_LWSRP_STATUS = 0x694,
+               A_SW_SRP = 0x85C };
+        const uint32_t mac_lo0 = axi_read(A_MAC_LO);
+        const uint32_t mac_hi0 = axi_read(A_MAC_HI);
+        // THE BOARD'S MAC, so the derived stream_ids are the ones the
+        // ProfiShark capture recorded: 02:00:00:00:00:02. Wire byte order is
+        // {MAC_LO[7:0], [15:8], [23:16], [31:24], MAC_HI[7:0], [15:8]}, so
+        // stream_id = {02,00,00,00,00,02, uid} -> HI 0x02000000,
+        // LO 0x0002_0000 | uid.
+        axi_write(A_MAC_LO, 0x00000002);
+        axi_write(A_MAC_HI, 0x00000200);
+        const uint32_t SID_HI_C = 0x02000000;
+        const uint64_t dbase = ((uint64_t)(axi_read(A_AAF_DMHI) & 0xFFFF) << 32)
+                             | (uint64_t)axi_read(A_AAF_DMLO);
+        auto chans_of = [](int t) { return 2u * (1u + (unsigned)(t % 4)); };
+        auto sid_lo_of = [&](int t) { return (uint32_t)(0x00020000u + t); };
+
+        axi_write(A_LWSRP_CTRL, 0x17);   // enable + talker declare, queue 5
+        // the CRF slot wants its row at the same time as every AAF slot, so
+        // the rotating arbiter is exercised with SRP_TALKERS_C-1 requesters
+        axi_write(A_CRFT_CTRL, 0x3);     // CRF talker en + class A asked
+        for (int c = 0; c < 256; c++) step();
+
+        // ---- arm every talker t>0 in ONE burst, staging NO stream_id ----
+        for (int t = 1; t < NSTREAMS_TB; t++) {
+            const uint64_t dm = dbase + (uint64_t)t;
+            axi_write(A_STRM_SEL, 0x100 + t);
+            axi_write(A_SW_SID_LO, 0);     // stage NO sid -> fabric-owned row
+            axi_write(A_SW_SID_HI, 0);
+            axi_write(A_SW_DMAC_LO, (uint32_t)(dm & 0xFFFFFFFFu));   // TCTX w1
+            axi_write(A_SW_DMAC_HI, ((uint32_t)t << 16) |
+                                    (uint32_t)((dm >> 32) & 0xFFFFu)); // w2
+            axi_write(A_SW_CTRL, (2u << 5) | (chans_of(t) << 1) | 1u);
+        }
+        // A_STRM_SEL is left on the LAST talker row from here on: the window
+        // master polls it level-high for the rest of the case.
+
+        // ---- what actually left the port ------------------------------
+        int      ta_hit[NSTREAMS_TB + 1], ta_mf[NSTREAMS_TB + 1];
+        int      ta_pr[NSTREAMS_TB + 1], ta_vid[NSTREAMS_TB + 1];
+        uint64_t ta_dm[NSTREAMS_TB + 1];
+        uint32_t ta_shi[NSTREAMS_TB + 1];
+        for (int t = 0; t <= NSTREAMS_TB; t++) {
+            ta_hit[t] = 0; ta_mf[t] = -1; ta_pr[t] = -1; ta_vid[t] = -1;
+            ta_dm[t] = 0;  ta_shi[t] = 0;
+        }
+        {
+            std::vector<uint8_t> cur;
+            dut->m_axis_mac_tx_tready = 1;
+            int want = 0;
+            for (int c = 0; c < 600000; c++) {
+                lo();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        // MSRP MRPDU, first message TalkerAdvertise: eth 14 +
+                        // ver 1 + msg hdr 4, then 28-octet single-value
+                        // vectors (802.1Q 35.2.2.4 FirstValue is 25 octets
+                        // behind a 2-octet VectorHeader)
+                        if (cur.size() >= 47 && cur[12] == 0x22 &&
+                            cur[13] == 0xEA && cur[15] == 1) {
+                            size_t listlen = ((size_t)cur[17] << 8) | cur[18];
+                            for (size_t o = 0;
+                                 o + 28 <= listlen - 2 && 19 + o + 28 <= cur.size();
+                                 o += 28) {
+                                const uint8_t* v = &cur[19 + o];
+                                uint32_t slo = ((uint32_t)v[6] << 24) |
+                                               ((uint32_t)v[7] << 16) |
+                                               ((uint32_t)v[8] << 8) | v[9];
+                                int uid = -1;
+                                for (int t = 1; t <= NSTREAMS_TB; t++)
+                                    if (slo == sid_lo_of(t)) uid = t;
+                                if (uid < 0) continue;
+                                ta_shi[uid] = ((uint32_t)v[2] << 24) |
+                                              ((uint32_t)v[3] << 16) |
+                                              ((uint32_t)v[4] << 8) | v[5];
+                                ta_dm[uid] = 0;
+                                for (int i = 0; i < 6; i++)
+                                    ta_dm[uid] = (ta_dm[uid] << 8) | v[10+i];
+                                ta_vid[uid] = (v[16] << 8) | v[17];
+                                ta_mf[uid]  = (v[18] << 8) | v[19];
+                                ta_pr[uid]  = v[22];
+                                ta_hit[uid] = 1;
+                            }
+                        }
+                        cur.clear();
+                    }
+                }
+                hi();
+                want = 0;
+                for (int t = 1; t < NSTREAMS_TB; t++) want += ta_hit[t];
+                if (want == NSTREAMS_TB - 1) break;
+            }
+        }
+
+        // ---- the per-index verdict, EVERY index -----------------------
+        // Reading a non-zero SRP/SID word is itself the proof that the
+        // window's POLL was served: milan_csr gates both behind srp_fresh_r,
+        // which only a granted poll sets (and i_srp_ctx_stolen clears).
+        for (int t = 1; t < NSTREAMS_TB; t++) {
+            char nm[96];
+            axi_write(A_STRM_SEL, 0x100 + t);
+            uint32_t sl = axi_read(A_SW_SID_LO);
+            for (int g = 0; g < 64 && sl != sid_lo_of(t); g++) {
+                for (int c = 0; c < 512; c++) step();
+                sl = axi_read(A_SW_SID_LO);
+            }
+            const uint32_t sh  = axi_read(A_SW_SID_HI);
+            const uint32_t srp = axi_read(A_SW_SRP);
+            snprintf(nm, sizeof nm, "talker idx%d: SRP row VALID, nothing staged", t);
+            ck(nm, (srp >> 15) & 1, 1);
+            snprintf(nm, sizeof nm, "talker idx%d: row dir = talker", t);
+            ck(nm, (srp >> 14) & 1, 0);
+            snprintf(nm, sizeof nm, "talker idx%d: row DECLARED (on the wire)", t);
+            ck(nm, (srp >> 13) & 1, 1);
+            snprintf(nm, sizeof nm, "talker idx%d: BACKED, not the 0xDEAD alias", t);
+            ck(nm, (srp & 0xFFFF) == 0xDEAD ? 1 : 0, 0);
+            snprintf(nm, sizeof nm, "talker idx%d: derived sid LO {MAC,uid}", t);
+            ck(nm, sl, sid_lo_of(t));
+            snprintf(nm, sizeof nm, "talker idx%d: derived sid HI = station MAC", t);
+            ck(nm, sh, SID_HI_C);
+            snprintf(nm, sizeof nm, "MSRP idx%d: a TalkerAdvertise IS on the wire", t);
+            ck(nm, ta_hit[t], 1);
+            snprintf(nm, sizeof nm, "MSRP idx%d: sid HI = the station MAC", t);
+            ck(nm, ta_shi[t], SID_HI_C);
+            snprintf(nm, sizeof nm, "MSRP idx%d: DMAC = MAAP block base+idx", t);
+            ck(nm, ta_dm[t], dbase + (uint64_t)t);
+            snprintf(nm, sizeof nm, "MSRP idx%d: MaxFrameSize = 24 + 24*C", t);
+            ck(nm, (unsigned)ta_mf[t], 24u + 24u * chans_of(t));
+            snprintf(nm, sizeof nm, "MSRP idx%d: PriorityAndRank 0x70", t);
+            ck(nm, (unsigned)ta_pr[t], 0x70);
+            snprintf(nm, sizeof nm, "MSRP idx%d: VID = the SR VID 2", t);
+            ck(nm, (unsigned)ta_vid[t], 2);
+        }
+        // NEGATIVE LEGS: the rows are not one aliased row, and no row fell
+        // back to the shared LWSRP_TSPEC MaxFrameSize (0x00E0 = 224)
+        {
+            int same = 1, shared = 0;
+            for (int t = 2; t < NSTREAMS_TB; t++)
+                if (ta_mf[t] != ta_mf[1]) same = 0;
+            for (int t = 1; t < NSTREAMS_TB; t++)
+                if (ta_mf[t] == 224) shared = 1;
+            ck("per-row TSpec: the derived rows do NOT share one MaxFrameSize",
+               same, 0);
+            ck("per-row TSpec: none fell back to the shared LWSRP_TSPEC 224",
+               shared, 0);
+        }
+        // the row map did not run off the end of the table (this is a
+        // PROVISIONING fix, not a re-fix of the 0x0010 SIZING bug)
+        ck("LWSRP_STATUS[11] ctx shortfall STILL clear",
+           (axi_read(A_LWSRP_STATUS) >> 11) & 1, 0);
+        // ...and the CRF slot was served in the same storm: no fabric slot
+        // starves another (rotating grant, served slot -> lowest priority)
+        ck("no fabric starvation: the CRF row is declared too (0x750[4])",
+           (axi_read(A_CRFT_CTRL) >> 4) & 1, 1);
+
+        // ---- WITHDRAWAL: the want drops, the row goes -----------------
+        // Disable EVERY talker in one burst - N-1 pending fabric writes -
+        // and commit a LISTENER row (a CSR WRITE) in the same breath. The
+        // write must not be dropped, and the withdrawals must all complete.
+        for (int t = 1; t < NSTREAMS_TB; t++) {
+            axi_write(A_STRM_SEL, 0x100 + t);
+            axi_write(A_SW_CTRL, (2u << 5) | (chans_of(t) << 1) | 0u);
+        }
+        axi_write(A_STRM_SEL, 0x002);          // listener idx 2 -> ctx row 2
+        axi_write(A_SW_SID_LO, 0x00C0FFEE);
+        axi_write(A_SW_SID_HI, 0x0000C0DE);
+        axi_write(A_SW_CTRL, (RT_DMA << 1) | 1u);
+        for (int c = 0; c < 4096; c++) step();
+        {
+            uint32_t l = axi_read(A_SW_SRP);
+            for (int g = 0; g < 64 && ((l >> 15) & 1) == 0; g++) {
+                for (int c = 0; c < 256; c++) step();
+                l = axi_read(A_SW_SRP);
+            }
+            ck("no window starvation: the CSR WRITE landed under the burst",
+               (l >> 15) & 1, 1);
+            ck("no window starvation: ...and it is the LISTENER direction",
+               (l >> 14) & 1, 1);
+        }
+        for (int t = 1; t < NSTREAMS_TB; t++) {
+            char nm[96];
+            axi_write(A_STRM_SEL, 0x100 + t);
+            uint32_t sl = axi_read(A_SW_SID_LO);
+            for (int g = 0; g < 64 && sl != sid_lo_of(t); g++) {
+                for (int c = 0; c < 512; c++) step();
+                sl = axi_read(A_SW_SID_LO);
+            }
+            uint32_t srp = axi_read(A_SW_SRP);
+            for (int g = 0; g < 64 && ((srp >> 15) & 1); g++) {
+                for (int c = 0; c < 512; c++) step();
+                srp = axi_read(A_SW_SRP);
+            }
+            // the sid still reads back, so the word IS fresh - the valid bit
+            // is a withdrawal, not a stale snapshot
+            snprintf(nm, sizeof nm, "talker idx%d: withdrawal CLEARED the row", t);
+            ck(nm, (srp >> 15) & 1, 0);
+            snprintf(nm, sizeof nm, "talker idx%d: ...and the read is fresh", t);
+            ck(nm, axi_read(A_SW_SID_LO), sid_lo_of(t));
+        }
+        // ---- and it re-arms (a withdrawal is not a one-way latch) -----
+        for (int t = 1; t < NSTREAMS_TB; t++) {
+            axi_write(A_STRM_SEL, 0x100 + t);
+            axi_write(A_SW_CTRL, (2u << 5) | (chans_of(t) << 1) | 1u);
+        }
+        for (int c = 0; c < 8192; c++) step();
+        for (int t = 1; t < NSTREAMS_TB; t++) {
+            char nm[96];
+            axi_write(A_STRM_SEL, 0x100 + t);
+            uint32_t srp = axi_read(A_SW_SRP);
+            for (int g = 0; g < 64 && ((srp >> 15) & 1) == 0; g++) {
+                for (int c = 0; c < 512; c++) step();
+                srp = axi_read(A_SW_SRP);
+            }
+            snprintf(nm, sizeof nm, "talker idx%d: re-enable re-declares", t);
+            ck(nm, (srp >> 15) & 1, 1);
+        }
+
+        // ---- SOFTWARE STILL WINS IF IT NAMES A STREAM_ID -------------
+        // The CRFT_SID precedent, per row: a window commit carrying a
+        // NON-ZERO staged sid takes the row outright and the fabric stands
+        // down WITHOUT withdrawing it.
+        {
+            const uint32_t SWLO = 0x0000BEE1, SWHI = 0x0BADF00D;
+            axi_write(A_STRM_SEL, 0x101);
+            axi_write(A_SW_SID_LO, SWLO);
+            axi_write(A_SW_SID_HI, SWHI);
+            axi_write(A_SW_CTRL, (2u << 5) | (chans_of(1) << 1) | 1u);
+            uint32_t sl = axi_read(A_SW_SID_LO);
+            for (int g = 0; g < 64 && sl != SWLO; g++) {
+                for (int c = 0; c < 512; c++) step();
+                sl = axi_read(A_SW_SID_LO);
+            }
+            ck("software staging still WINS: idx1 keeps the named sid", sl, SWLO);
+            ck("software staging still WINS: ...both halves", axi_read(A_SW_SID_HI),
+               SWHI);
+            ck("software staging still WINS: the row stays VALID",
+               (axi_read(A_SW_SRP) >> 15) & 1, 1);
+            // and it did not disturb its neighbour, which the fabric owns
+            axi_write(A_STRM_SEL, 0x102);
+            uint32_t s2 = axi_read(A_SW_SID_LO);
+            for (int g = 0; g < 64 && s2 != sid_lo_of(2); g++) {
+                for (int c = 0; c < 512; c++) step();
+                s2 = axi_read(A_SW_SID_LO);
+            }
+            ck("software staging on idx1 leaves idx2 fabric-derived", s2,
+               sid_lo_of(2));
+            // RELEASE-TO-FABRIC: commit a ZERO sid and the fabric retakes it
+            axi_write(A_STRM_SEL, 0x101);
+            axi_write(A_SW_SID_LO, 0);
+            axi_write(A_SW_SID_HI, 0);
+            axi_write(A_SW_CTRL, (2u << 5) | (chans_of(1) << 1) | 1u);
+            sl = axi_read(A_SW_SID_LO);
+            for (int g = 0; g < 64 && sl != sid_lo_of(1); g++) {
+                for (int c = 0; c < 512; c++) step();
+                sl = axi_read(A_SW_SID_LO);
+            }
+            ck("release-to-fabric: a zero sid hands idx1 back", sl,
+               sid_lo_of(1));
+        }
+
+        // leave the shape as the CRF case below expects it
+        for (int t = 1; t < NSTREAMS_TB; t++) {
+            axi_write(A_STRM_SEL, 0x100 + t);
+            axi_write(A_SW_CTRL, (2u << 5) | (2u << 1) | 0u);
+        }
+        axi_write(A_STRM_SEL, 0x000);
+        axi_write(A_CRFT_CTRL, 0x0);
+        axi_write(A_LWSRP_CTRL, 0x0);
+        axi_write(A_MAC_LO, mac_lo0);
+        axi_write(A_MAC_HI, mac_hi0);
+        for (int c = 0; c < 1024; c++) step();
+    }
+
+    // ==================================================================
     //  CRF Media Clock Output as an ACMP talker source  (item 5, §3.5)
     //
     //  With N >= 2 AAF sinks the CRF output is mandatory, and a controller

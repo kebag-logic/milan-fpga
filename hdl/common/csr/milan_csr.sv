@@ -949,6 +949,21 @@ module milan_csr #(
   logic [3:0]  strm_idx_r;               //! A_STRM_SEL[3:0]: stream index
   logic [31:0] stg_sid_lo_r, stg_sid_hi_r;   //! window write staging: stream_id
   logic [31:0] stg_dmac_lo_r, stg_dmac_hi_r; //! window write staging: DMAC
+  //! WHICH {dir, idx} THE STAGING SET BELONGS TO (2026-07-30). The four
+  //! staging words above are ONE register set shared by every index, so a
+  //! CTRL commit must only spend them when they were staged FOR THAT
+  //! selection - exactly the guard milan_datapath's win_commit_glue already
+  //! applies to the stream-table side of the same staging ABI (and the same
+  //! defect shape as the VERSION 0x000F stream-table fix: staging for one
+  //! index then committing another armed the second with the first's sid).
+  //! The SRP provisioning record had no such guard, so ANY leftover staged
+  //! sid was written into whatever row was next committed - a Talker
+  //! Advertise for a stream this station does not emit, and (since the
+  //! fabric requesters landed) a silent claim of a row the fabric owns.
+  //! A staging write that rebinds the set to a different selection CLEARS
+  //! the other three words rather than mixing two streams' halves.
+  logic [4:0]  stg_sel_r;
+  logic        stg_vld_r;
   logic        lctx_wr_p_r;              //! LCTX CFG-word write pulse
   logic [7:0]  lctx_wr_addr_r;
   logic [31:0] lctx_wr_data_r;
@@ -1139,6 +1154,7 @@ module milan_csr #(
       strm_dir_r <= 1'b0; strm_idx_r <= 4'd0;
       stg_sid_lo_r <= 32'h0; stg_sid_hi_r <= 32'h0;
       stg_dmac_lo_r <= 32'h0; stg_dmac_hi_r <= 32'h0;
+      stg_sel_r <= 5'h0; stg_vld_r <= 1'b0;
       lctx_wr_p_r <= 1'b0; lctx_wr_addr_r <= 8'h0; lctx_wr_data_r <= 32'h0;
       tctx_wr_p_r <= 1'b0; tctx_wr_addr_r <= 7'h0; tctx_wr_data_r <= 32'h0;
       rest_tklo <= 32'h0; rest_tkhi <= 32'h0; rest_meta <= 32'h0;
@@ -1322,6 +1338,12 @@ module milan_csr #(
           end
           A_STRMW_SID_LO: if (win_in_range_w) begin
             stg_sid_lo_r <= s_axi_wdata;
+            if (!stg_hit_w) begin        //! rebind: never mix two selections
+              stg_sid_hi_r <= 32'h0;
+              stg_dmac_lo_r <= 32'h0; stg_dmac_hi_r <= 32'h0;
+            end
+            stg_sel_r <= {strm_dir_r, strm_idx_r};
+            stg_vld_r <= 1'b1;
             if (!strm_dir_r) begin
               lctx_wr_p_r    <= 1'b1;
               lctx_wr_addr_r <= {strm_idx_r[2:0], 5'd0};
@@ -1330,6 +1352,12 @@ module milan_csr #(
           end
           A_STRMW_SID_HI: if (win_in_range_w) begin
             stg_sid_hi_r <= s_axi_wdata;
+            if (!stg_hit_w) begin
+              stg_sid_lo_r <= 32'h0;
+              stg_dmac_lo_r <= 32'h0; stg_dmac_hi_r <= 32'h0;
+            end
+            stg_sel_r <= {strm_dir_r, strm_idx_r};
+            stg_vld_r <= 1'b1;
             if (!strm_dir_r) begin
               lctx_wr_p_r    <= 1'b1;
               lctx_wr_addr_r <= {strm_idx_r[2:0], 5'd1};
@@ -1338,6 +1366,12 @@ module milan_csr #(
           end
           A_STRMW_DMAC_LO: if (win_in_range_w) begin
             stg_dmac_lo_r <= s_axi_wdata;
+            if (!stg_hit_w) begin
+              stg_sid_lo_r <= 32'h0; stg_sid_hi_r <= 32'h0;
+              stg_dmac_hi_r <= 32'h0;
+            end
+            stg_sel_r <= {strm_dir_r, strm_idx_r};
+            stg_vld_r <= 1'b1;
             if (strm_dir_r) begin
               if (strm_idx_r == 4'd0) aaf_dmlo <= s_axi_wdata;  // = AAF_DMLO
               else begin
@@ -1349,6 +1383,12 @@ module milan_csr #(
           end
           A_STRMW_DMAC_HI: if (win_in_range_w) begin
             stg_dmac_hi_r <= s_axi_wdata;
+            if (!stg_hit_w) begin
+              stg_sid_lo_r <= 32'h0; stg_sid_hi_r <= 32'h0;
+              stg_dmac_lo_r <= 32'h0;
+            end
+            stg_sel_r <= {strm_dir_r, strm_idx_r};
+            stg_vld_r <= 1'b1;
             if (strm_dir_r) begin
               if (strm_idx_r == 4'd0) aaf_dmhi <= s_axi_wdata;  // = AAF_DMHI
               else begin
@@ -2237,6 +2277,16 @@ module milan_csr #(
       : strm_idx_r;
   wire       srp_prov_w    = wr_fire && (wr_addr == A_STRMW_CTRL) &&
                              win_in_range_w && (strm_idx_r != 4'd0);
+  //! ...and the staging set is only spendable by a commit to the SAME
+  //! selection it was staged for (see the stg_sel_r banner). A commit that
+  //! names no stream_id of its own provisions the row with a ZERO sid, which
+  //! is what hands an AAF talker row to the fabric requester that derives
+  //! {station MAC, uid} for it - the CRFT_SID "non-zero wins" rule per row.
+  //! Ownership is by SELECTION, not spent by the commit: repeated CTRL writes
+  //! at the index a sid was staged for keep that sid, so a re-enable cannot
+  //! change a running stream's declared identity underneath it.
+  wire       stg_hit_w     = stg_vld_r && (stg_sel_r == {strm_dir_r,
+                                                         strm_idx_r});
 
   always_ff @(posedge aclk) begin : strm_srp_master_S
     if (!aresetn) begin
@@ -2258,8 +2308,9 @@ module milan_csr #(
         srp_wr_valid_r <= s_axi_wdata[0];
         srp_wr_dir_r   <= ~strm_dir_r;    //! ctx encoding: 0=talker,1=listener
         srp_wr_row_r   <= srp_sel_row_w;
-        srp_wr_sid_r   <= {stg_sid_hi_r, stg_sid_lo_r};
-        srp_wr_dmac_r  <= {stg_dmac_hi_r[15:0], stg_dmac_lo_r};
+        srp_wr_sid_r   <= stg_hit_w ? {stg_sid_hi_r, stg_sid_lo_r} : 64'h0;
+        srp_wr_dmac_r  <= stg_hit_w ? {stg_dmac_hi_r[15:0], stg_dmac_lo_r}
+                                    : 48'h0;
         srp_fresh_r    <= 1'b0;
       end
       //! LAST, so it beats the grant above: a beat we did not win cannot
