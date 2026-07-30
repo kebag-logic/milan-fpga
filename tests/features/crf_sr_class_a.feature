@@ -52,7 +52,7 @@ Feature: CRF Media Clock Output is an SR class A stream (Milan v1.2 7.3.3)
 
   @clause:8021Q-35.2.2.4
   Scenario: The TSpec describes the frame that is actually emitted
-    Then the declared MaxFrameSize is the emitted frame minus the tagged header
+    Then the declared MaxFrameSize is Table 4.4's, and its reservation still covers the emitted frame
     And the declared MaxIntervalFrames is 1
     And the reservation fits the 75 percent class A budget on a 100 Mb link
     And the reservation fits the 75 percent class A budget on a 1000 Mb link

@@ -101,3 +101,16 @@ def step_ctx_lanes(context):
         body = " ".join(arm.split())
         assert "LEAVE_TIME_MS_C" not in body, (
             "a per-lane rLv still arms the leave timer: %s" % body)
+
+
+# The 802.1Q conformance feature words the same two assertions differently;
+# both phrasings ride the SAME registrar read, so the two features cannot
+# drift into disagreeing about what 4.2.7.2.2 requires.
+@then("the MSRP Registrar state is MT")
+def step_registrar_state_mt(context):
+    step_registrar_mt(context)
+
+
+@then("no LeaveTime wait is required")
+def step_registrar_no_wait_alias(context):
+    step_registrar_no_timer(context)

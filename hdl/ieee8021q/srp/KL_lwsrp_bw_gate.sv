@@ -128,8 +128,28 @@ module KL_lwsrp_bw_gate #(
       cidx_r    <= (32'(cidx_r) == N_STREAMS_P-1) ? '0 : cidx_r + 1'b1;
       cidx_q1_r <= cidx_r;
       cidx_q2_r <= cidx_q1_r;
-      frame_bytes_r <= 17'(max_frame_i[16*cidx_r +: 16])
-                       + 17'(MSRP_FRAME_OVERHEAD_C);
+      //! MILAN v1.2 4.3.3.2, the four-step bandwidth recipe, INCLUDING its
+      //! step 2 (added 2026-07-30 - it was missing, and its absence
+      //! UNDER-reserved every small stream):
+      //!   1) F = MaxFrameSize + 22   (Ethernet header incl. the VLAN tag,
+      //!                               plus the FCS)
+      //!   2) if F < 68 then F = 68   (a tagged minimum-size frame - THIS)
+      //!   3) W = F + 20              (preamble 8 + inter-packet gap 12)
+      //!   4) bits/s = W * MaxIntervalFrames * 8000 * 8
+      //! The old single `+ MSRP_FRAME_OVERHEAD_C` (= 22 + 20) is steps 1 and
+      //! 3 folded together, which is exact ONLY while F >= 68, i.e.
+      //! MaxFrameSize >= 46. Below that the padding a short frame carries to
+      //! reach the minimum size was simply not reserved: the CRF Media Clock
+      //! stream (Table 4.4 MaxFrameSize 29) came out at 5376 kbps against
+      //! the mandated 5632, so the bridge granted credit for less than the
+      //! frames actually occupy - and starving CRF destabilises the media
+      //! clock of every listener downstream.
+      frame_bytes_r <= ((17'(max_frame_i[16*cidx_r +: 16])
+                         + 17'(MSRP_L2_OVERHEAD_C)) < 17'(MSRP_MIN_L2_BYTES_C)
+                        ? 17'(MSRP_MIN_L2_BYTES_C)
+                        : 17'(max_frame_i[16*cidx_r +: 16])
+                          + 17'(MSRP_L2_OVERHEAD_C))
+                       + 17'(MSRP_WIRE_OVERHEAD_C);
       iv_bytes_r    <= 33'(interval_frames_i[16*cidx_q1_r +: 16])
                        * 33'(frame_bytes_r);
       //! saturating 30-bit slope (see header): iv_bytes <= IV_MAX_C is the

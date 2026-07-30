@@ -2764,8 +2764,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       assign tctx_chans_w[gc] =
           (tctx_w0_wr_w && (32'(csr_tctx_wr_addr_w[6:4]) == gc))
               ? aaf_chn_clamp(csr_tctx_wr_data_w[4:1]) : tctx_chans_r[gc];
+      //! MILAN v1.2 4.3.3.2 Table 4.4, "AAF PCM32, 48kHz, N channels":
+      //! MaxFrameSize = 24*N + 24 + 1. The trailing +1 is NOT slack we may
+      //! round away - the table's own note says "One more byte is added to
+      //! take the fact into account, that the sampling clock of the PAAD may
+      //! be a bit faster than the nominal frequency". Omitting it (2026-07-30)
+      //! declared 72 bytes for a 2-channel stream where the clause says 73,
+      //! and since MaxFrameSize is what the bandwidth is computed from, the
+      //! reservation came out at 7296 kbps against the mandated 7360 - an
+      //! UNDER-reservation, i.e. the bridge grants less credit than the
+      //! stream actually occupies.
       assign tctx_maxf_w[gc] =
-          16'(AVTP_AAF_HDR_C) +
+          16'(AVTP_AAF_HDR_C) + 16'd1 +
           16'(AAF_SPF_C * AAF_SMP_OCTETS_C) * 16'(tctx_chans_w[gc]);
     end
   endgenerate
@@ -2829,7 +2839,20 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ==========================================================================
   localparam int unsigned CRF_L2_BYTES_C  = 60;   //! KL_crf_tx FRAME_BYTES
   localparam int unsigned CRF_TAGGED_HDR_C = 18;  //! eth 14 + 802.1Q tag 4
-  localparam [15:0] CRF_SRP_MAXF_C = 16'(CRF_L2_BYTES_C - CRF_TAGGED_HDR_C);
+  localparam int unsigned CRF_PDU_OCTETS_C = 28;  //! KL_crf_tx CRF_PDU_C
+  //! MILAN v1.2 4.3.3.2 Table 4.4, row "CRF, 1 ts/pdu": MaxFrameSize = 28 + 1
+  //! (the CRF AVTPDU plus the same clock-tolerance byte every AAF row gets),
+  //! and the clause says a Talker "shall use the Tspec parameters" the table
+  //! defines. This used to derive 42 from the padded wire frame
+  //! (CRF_L2_BYTES_C - CRF_TAGGED_HDR_C) because declaring the bare payload
+  //! once left a 60-octet slot reserved for an 84-octet frame - but the real
+  //! fix for that was step 2 of the bandwidth recipe, the minimum-frame
+  //! clamp, which KL_lwsrp_bw_gate was missing and now implements. With the
+  //! clamp the clause's own 29 reserves 88 wire octets, which COVERS this
+  //! stream's actual 84, so the table value and the padding are consistent
+  //! rather than in tension. Declaring 42 with no clamp reserved 5376 kbps
+  //! where Table 4.4 mandates 5632.
+  localparam [15:0] CRF_SRP_MAXF_C = 16'(CRF_PDU_OCTETS_C + 1);
   localparam [15:0] CRF_SRP_INTV_C = 16'd1;
 
   //! request/grant state for the fabric-owned CRF row. The provisioning port

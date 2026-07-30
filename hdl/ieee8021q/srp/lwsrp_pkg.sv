@@ -109,7 +109,18 @@ package lwsrp_pkg;
   // ---- Class-A bandwidth math (LWSRP_FPGA_ARCHITECTURE.md §2) -------------
   //! idleSlope[bps] = MaxIntervalFrames * (MaxFrameSize + 42) * 8 * 8000
   //! 42 = preamble 8 + eth hdr 14 + VLAN 4 + FCS 4 + IPG 12
-  localparam int unsigned MSRP_FRAME_OVERHEAD_C   = 42;
+  //! Milan v1.2 4.3.3.2's bandwidth recipe, split into the three constants
+  //! its four steps actually need. The single folded 42 that used to live
+  //! here is steps 1 and 3 added together, which silently DROPPED step 2 -
+  //! the minimum-frame clamp - and so under-reserved every stream whose
+  //! frame is short enough to be padded on the wire (see KL_lwsrp_bw_gate).
+  localparam int unsigned MSRP_L2_OVERHEAD_C      = 22;  //! eth+VLAN 18 + FCS 4
+  localparam int unsigned MSRP_MIN_L2_BYTES_C     = 68;  //! min TAGGED frame
+  localparam int unsigned MSRP_WIRE_OVERHEAD_C    = 20;  //! preamble 8 + IPG 12
+  //! kept as the sum for the callers that only need "L2 + wire" on a frame
+  //! already known to exceed the minimum
+  localparam int unsigned MSRP_FRAME_OVERHEAD_C   =
+      MSRP_L2_OVERHEAD_C + MSRP_WIRE_OVERHEAD_C;
   localparam int unsigned CLASS_A_INTERVALS_PS_C  = 8000;   //! per second
 
   //! 75 % reservation ceiling (Milan §5.6 / 802.1Q §34.3.1)

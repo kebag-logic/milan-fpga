@@ -215,23 +215,48 @@ def step_vid_is_declared_vid(context):
         "the CRF tag VID is not LWSRP_VID (the declaration's VID)"
 
 
+
+def _milan_wire_slot(max_frame, interval_frames=1):
+    """Milan v1.2 4.3.3.2 steps 1-3, including the minimum-frame clamp."""
+    f = max_frame + 22                  # eth hdr incl VLAN tag, plus FCS
+    if f < 68:                          # a tagged minimum-size frame
+        f = 68
+    return f + 20                       # preamble 8 + inter-packet gap 12
+
+
 # ------------------------------------------------------------- the TSpec
-@then('the declared MaxFrameSize is the emitted frame minus the tagged header')
+@then('the declared MaxFrameSize is Table 4.4\'s, and its reservation still '
+      'covers the emitted frame')
 def step_maxframe(context):
-    # 802.1Q 35.2.2.4 TSpec MaxFrameSize is the MSDU. For this frame that is
-    # the padded payload: L2 frame - (14 eth + 4 tag). Deriving it from the
-    # emitter's own FRAME_BYTES is what stops a reservation that does not
-    # match the bytes on the wire.
+    # MILAN v1.2 4.3.3.2 Table 4.4, row "CRF, 1 ts/pdu": MaxFrameSize =
+    # 28 + 1, and the clause makes the table a "shall use". This check used
+    # to demand the PADDED MSDU (frame - tagged header = 42) instead, on the
+    # reasoning that a reservation must not be smaller than the bytes on the
+    # wire. That reasoning is right and is KEPT below - but the clause's own
+    # remedy for it is step 2 of the bandwidth recipe, the 68-octet
+    # minimum-frame clamp, which KL_lwsrp_bw_gate was missing. With the
+    # clamp, the clause's 29 reserves MORE wire than the padded 42 did
+    # (88 octets against 84), so following the table is now both conformant
+    # AND the safer of the two. Declaring 42 with no clamp reserved
+    # 5376 kbps where Table 4.4 mandates 5632.
     frame = _localparam_int(context.crf_src, "FRAME_BYTES")
     eth = _localparam_int(context.dp_src, "CRF_L2_BYTES_C")
     hdr = _localparam_int(context.dp_src, "CRF_TAGGED_HDR_C")
+    pdu = _localparam_int(context.dp_src, "CRF_PDU_OCTETS_C")
     maxf = _localparam_int(context.dp_src, "CRF_SRP_MAXF_C")
     assert eth == frame, \
         "milan_datapath CRF_L2_BYTES_C (%d) != KL_crf_tx FRAME_BYTES (%d)" \
         % (eth, frame)
     assert hdr == 14 + 4, "the tagged Ethernet header is not 14 + 4"
-    assert maxf == frame - hdr, \
-        "CRF_SRP_MAXF_C (%d) is not the padded MSDU %d" % (maxf, frame - hdr)
+    assert maxf == pdu + 1, \
+        "CRF_SRP_MAXF_C (%d) is not Table 4.4's 28 + 1" % maxf
+    # ...and the property the old assertion existed to protect: the octets
+    # the reservation buys must still be at least the octets we emit.
+    reserved = _milan_wire_slot(maxf)
+    emitted = frame + 4 + 20            # + FCS, + preamble and IPG
+    assert reserved >= emitted, \
+        "reservation %d octets < emitted %d - the clamp is missing" \
+        % (reserved, emitted)
     context.crf_maxf = maxf
 
 

@@ -226,7 +226,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0016 (the AVTP tu bit is driven; 0x778 clock validity)",
-       axi_read(A_VERSION), 0x0001001F);
+       axi_read(A_VERSION), 0x00010020);
 
     printf("-- 5.5.2.7 SRP-only licence at t>0 STRAIGHT FROM RESET "
            "(2026-07-30 bite) --\n");
@@ -1521,10 +1521,10 @@ int main(int argc, char** argv) {
             }
             hi();
         }
-        ck("talker idx1 TalkerAdvertise MaxFrameSize = 24 + 24*8",
-           (unsigned)mf1, 216);
-        ck("talker idx2 TalkerAdvertise MaxFrameSize = 24 + 24*2",
-           (unsigned)mf2, 72);
+        ck("talker idx1 TalkerAdvertise MaxFrameSize = 24*8 + 24 + 1 (Table 4.4)",
+           (unsigned)mf1, 24*8 + 24 + 1);
+        ck("talker idx2 TalkerAdvertise MaxFrameSize = 24*2 + 24 + 1 (Table 4.4)",
+           (unsigned)mf2, 24*2 + 24 + 1);
         // NEGATIVE LEG: the two rows do NOT share one value, and neither
         // fell back to the shared LWSRP_TSPEC reset (0x00E0 = 224)
         ck("per-row TSpec: the two rows differ", mf1 == mf2 ? 1 : 0, 0);
@@ -1706,8 +1706,9 @@ int main(int argc, char** argv) {
             ck(nm, ta_shi[t], SID_HI_C);
             snprintf(nm, sizeof nm, "MSRP idx%d: DMAC = MAAP block base+idx", t);
             ck(nm, ta_dm[t], dbase + (uint64_t)t);
-            snprintf(nm, sizeof nm, "MSRP idx%d: MaxFrameSize = 24 + 24*C", t);
-            ck(nm, (unsigned)ta_mf[t], 24u + 24u * chans_of(t));
+            snprintf(nm, sizeof nm,
+                     "MSRP idx%d: MaxFrameSize = 24*C + 24 + 1 (Table 4.4)", t);
+            ck(nm, (unsigned)ta_mf[t], 24u * chans_of(t) + 24u + 1u);
             snprintf(nm, sizeof nm, "MSRP idx%d: PriorityAndRank 0x70", t);
             ck(nm, (unsigned)ta_pr[t], 0x70);
             snprintf(nm, sizeof nm, "MSRP idx%d: VID = the SR VID 2", t);
@@ -2227,7 +2228,16 @@ int main(int argc, char** argv) {
         // MaxFrameSize is the MSDU: the 60-octet L2 frame minus the tagged
         // Ethernet header (14 + 4). NOT the 28-octet AVTPDU - the pad is on
         // the wire and the bridge has to budget for it.
-        ck("MSRP: TSpec MaxFrameSize = padded MSDU 42", ta_mf, 42);
+        // MILAN v1.2 4.3.3.2 Table 4.4 row "CRF, 1 ts/pdu": MaxFrameSize =
+        // 28 + 1, and the clause makes the table's values a "shall use".
+        // This used to declare the PADDED wire MSDU (42) because the bare
+        // payload once left a 60-octet slot reserved for an 84-octet frame -
+        // but the clause's own remedy for that is step 2 of the bandwidth
+        // recipe, the 68-octet minimum-frame clamp, which the bw gate now
+        // implements. With the clamp, 29 reserves 88 wire octets and covers
+        // the real 84; without it, 42 reserved 5376 kbps where the table
+        // mandates 5632.
+        ck("MSRP: TSpec MaxFrameSize = Table 4.4 CRF 28 + 1", ta_mf, 29);
         // class A measurement interval is 125 us and CRF sends every 2 ms,
         // so 1 is the FLOOR a TSpec can express (16x over-provision, on
         // record; not to be "fixed" by weakening the class)
