@@ -897,8 +897,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .m_axis_tvalid(aaf_tx_tvalid), .m_axis_tlast (aaf_tx_tlast),
     .m_axis_tready(aaf_tx_tready),
     .frames_sent_o (aaf_frames_w),
-    //! Milan Table 5.4 event feed (KL_talker_diag_ctx)
-    .frame_p_o (aaf_frame_p_w), .frame_idx_o (aaf_frame_idx_w)
+    //! IEEE 1722-2016 4.4.4.3 media clock restart level, per talker
+    .mr_i (aaf_mr_w),
+    //! Milan Table 5.4 event feed (KL_talker_diag_ctx): the strobe, the
+    //! talker, and the mr bit that PDU actually carried
+    .frame_p_o (aaf_frame_p_w), .frame_idx_o (aaf_frame_idx_w),
+    .frame_mr_o (aaf_frame_mr_w)
   );
   // arbiter out -> MAC-facing TX
   assign m_axis_mac_tx_tdata  = tx_axis_to_mac.tdata;
@@ -2205,6 +2209,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ==========================================================================
   wire        aaf_frame_p_w;
   wire [3:0]  aaf_frame_idx_w;
+  wire        aaf_frame_mr_w;
+  wire [N_STREAMS-1:0] aaf_mr_w;
   wire [3:0]  aecp_diag_idx_w;
   wire [12*32-1:0] mon_diag_cnt_w;
   wire [5*32-1:0]  tkdiag_cnt_w;
@@ -2233,6 +2239,38 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end else begin : g_tkd_nocrf
     assign tkd_streaming_w = aaf_stream_en_w[ACMP_SRC_C-1:0];
   end endgenerate
+  // --------------------------------------------------------------------------
+  //  IEEE 1722-2016 4.4.4.3: the mr (media clock restart) level. The clause
+  //  is a shall for a talker whose timestamps come from a received CRF
+  //  stream - "any streams deriving timestamps from the CRF stream shall
+  //  toggle the mr bit if a disruption of the CRF stream occurs" - and that
+  //  is exactly this fabric when clk_src selects the CRF media clock (2).
+  //  crf_locked_w falling IS the disruption: KL_crf_rx drops lock after
+  //  100 ms of CRF silence (and needs 8 clean PDUs to re-lock), so the edge
+  //  is the debounced verdict, not a per-PDU twitch.
+  //
+  //  Restart requests are IGNORED unless the CRF clock is the one in use: on
+  //  an internal media clock there is no CRF stream to be disrupted, so
+  //  toggling mr would be a false alarm to every listener.
+  // --------------------------------------------------------------------------
+  logic tkd_crflk_q_r;
+  always_ff @(posedge axis_clk) begin : mcr_trigger
+    if (!axis_resetn) tkd_crflk_q_r <= 1'b0;
+    else              tkd_crflk_q_r <= crf_locked_w;
+  end : mcr_trigger
+  wire mcr_restart_p_w = (aecp_clk_src == 16'd2)
+                       & tkd_crflk_q_r & ~crf_locked_w;
+
+  KL_media_clock_restart #(.N_TALKERS_P(N_STREAMS)) media_clock_restart (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .restart_p_i (mcr_restart_p_w),
+    .streaming_i (aaf_stream_en_w),
+    .frame_p_i   (aaf_frame_p_w),
+    .frame_idx_i (aaf_frame_idx_w),
+    .frame_mr_i  (aaf_frame_mr_w),
+    .mr_o        (aaf_mr_w)
+  );
+
   KL_talker_diag_ctx #(
     .N_CTX_P    (ACMP_SRC_C),
     .TICK_CYC_P (DIAG_TICK_CYC_P)
@@ -2242,8 +2280,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .frame_p_i   (aaf_frame_p_w | tkd_crf_p_w),
     .frame_idx_i (aaf_frame_p_w ? aaf_frame_idx_w : 4'(N_STREAMS)),
     .tu_i        (clkv_tu_w),
-    .mr_p_i      (1'b0),          //! no mr source in this fabric (banner)
-    .mr_idx_i    (4'd0),
+    //! the mr bit the announced PDU carried. The CRF talker stamps a
+    //! constant mr = 0 (KL_crf_tx pdu[1], 10.4.3 not yet implemented on the
+    //! CRF TX side), so the CRF context's wire truth IS 0 - and MEDIA_RESET
+    //! reading 0 there is a counted fact about the wire, not a tie-off.
+    .frame_mr_i  (aaf_frame_p_w & aaf_frame_mr_w),
     .rd_idx_i    (aecp_diag_idx_w),
     .rd_start_o  (tkdiag_cnt_w[0*32 +: 32]),
     .rd_stop_o   (tkdiag_cnt_w[1*32 +: 32]),

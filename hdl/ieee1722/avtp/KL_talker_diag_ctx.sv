@@ -43,11 +43,35 @@
                   is what distinguishes this counter from the free-running
                   CLKV_TUCNT (0x780) interval count.
                 * MEDIA_RESET counts intervals in which mr toggled on a
-                  transmitted PDU. This fabric never toggles mr (media-clock
-                  discontinuities surface through CLKV + tu), so the counter
-                  is validly zero - and it is COUNTED here, not faked, so
-                  the day an mr source exists it starts moving with no AECP
-                  change.
+                  transmitted PDU. It is derived HERE from the mr bit the
+                  packetizer actually stamped into the PDU that frame_p_i
+                  announces (frame_mr_i), compared against the previous
+                  transmitted PDU of the SAME context - which is the clause
+                  sentence turned into logic, and which is why this counter
+                  cannot become a claimed-but-unbacked zero. It used to take
+                  an mr_p_i EVENT STROBE, and milan_datapath tied that strobe
+                  to 1'b0: mask bit 2 (Table 5.17 value 0x00000004) was
+                  claimed over a counter with no source, the exact shape of
+                  the RMON tie-off that read zero for months (VERSION 0x0013,
+                  the STATS_CAP 0x204 rule). A strobe port invites a tie-off
+                  and a tie-off is indistinguishable from silence; a port
+                  carrying the WIRE'S OWN BIT cannot lie, because if the wire
+                  really always carries mr = 0 then "never toggled" is the
+                  true answer and 0 is the counted, correct value.
+
+                THE OBSERVATION-INTERVAL BOUNDARY. An event strobe landing on
+                the same cycle as the interval tick is harvested INTO THE
+                CLOSING interval (the tick marks the interval's end, so a PDU
+                transmitted on it was transmitted during it). Folding it only
+                into seen_*_r would lose it outright: the tick's whole-vector
+                clear is a later nonblocking assignment than the per-bit fold,
+                so it wins, and the strobe is one cycle wide and never comes
+                back. That cost nothing for FRAMES_TX at 8 kPDU/s (the closing
+                interval holds 7999 other frames) but silently dropped SPARSE
+                events - a lone tu-stamped PDU, a single mr toggle - from both
+                intervals. Same rule at a start edge: the three counters zero
+                per Table 5.4, and this cycle's event survives into the fresh
+                interval rather than being erased with them.
 
                 The read side is an indexed combinational port: the AECP
                 response builder presents the descriptor_index it is
@@ -84,10 +108,11 @@ module KL_talker_diag_ctx #(
   input  wire [3:0]          frame_idx_i,
   //! AVTP "tu" level stamped into outgoing PDUs (KL_ptp_clock_validity)
   input  wire                tu_i,
-  //! mr-toggled-on-a-transmitted-PDU strobe (none exists in this fabric
-  //! today; wired 0 at the instantiation - the counter stays validly zero)
-  input  wire                mr_p_i,
-  input  wire [3:0]          mr_idx_i,
+  //! AVTP "mr" bit AS STAMPED into the PDU frame_p_i announces (1722-2016
+  //! 4.4.4.3). MEDIA_RESET is derived from a change in THIS bit between
+  //! consecutive transmitted PDUs of the same context - see the banner on
+  //! why the counter takes the wire's bit and not an event strobe.
+  input  wire                frame_mr_i,
 
   //! indexed read: all five Table 5.4 counters for one Stream Output
   input  wire [3:0]          rd_idx_i,
@@ -101,6 +126,9 @@ module KL_talker_diag_ctx #(
   if (N_CTX_P < 1 || N_CTX_P > 16)
     $error("KL_talker_diag_ctx: N_CTX_P=%0d outside 1..16 (the 4-bit index feeds).",
            N_CTX_P);
+
+  //! context-index width (N_CTX_P == 1 still needs a 1-bit select)
+  localparam int unsigned IXW_C = $clog2(N_CTX_P == 1 ? 2 : N_CTX_P);
 
   //! observation-interval divider (free-running; the clause fixes only an
   //! upper bound on the interval, not its phase)
@@ -130,6 +158,28 @@ module KL_talker_diag_ctx #(
   logic [N_CTX_P-1:0] seen_tu_r;   //! ... with tu set
   logic [N_CTX_P-1:0] seen_mr_r;   //! ... with mr toggled
   logic [N_CTX_P-1:0] strm_q_r;    //! streaming level, for the edge
+  //! mr of each context's LAST transmitted PDU (1722-2016 4.4.4.3: the bit
+  //! "stays at its new value until a new media clock restart is needed", so
+  //! the toggle IS the difference between consecutive transmitted PDUs).
+  //! Reset 0 = the wire's own reset state, so a first PDU carrying mr = 1
+  //! counts - a restart really did happen before it.
+  logic [N_CTX_P-1:0] mr_q_r;
+
+  //! this cycle's per-context events, decoded once (the interval close reads
+  //! them alongside the seen_* flags so a tick-cycle strobe is not lost)
+  logic [N_CTX_P-1:0] ev_f_w, ev_tu_w, ev_mr_w;
+  always_comb begin : diag_events
+    ev_f_w  = '0;
+    ev_tu_w = '0;
+    ev_mr_w = '0;
+    if (frame_p_i && (32'(frame_idx_i) < N_CTX_P)) begin
+      ev_f_w[frame_idx_i[IXW_C-1:0]] = 1'b1;
+      if (tu_i)
+        ev_tu_w[frame_idx_i[IXW_C-1:0]] = 1'b1;
+      if (frame_mr_i != mr_q_r[frame_idx_i[IXW_C-1:0]])
+        ev_mr_w[frame_idx_i[IXW_C-1:0]] = 1'b1;
+    end
+  end : diag_events
 
   always_ff @(posedge clk_i) begin : diag_track
     if (!rst_n) begin
@@ -144,25 +194,25 @@ module KL_talker_diag_ctx #(
       seen_tu_r <= '0;
       seen_mr_r <= '0;
       strm_q_r  <= '0;
+      mr_q_r    <= '0;
     end else begin
       //! PDU events fold into the current interval's flags
-      if (frame_p_i && (32'(frame_idx_i) < N_CTX_P)) begin
-        seen_f_r[frame_idx_i[$clog2(N_CTX_P == 1 ? 2 : N_CTX_P)-1:0]]
-            <= 1'b1;
-        if (tu_i)
-          seen_tu_r[frame_idx_i[$clog2(N_CTX_P == 1 ? 2 : N_CTX_P)-1:0]]
-              <= 1'b1;
-      end
-      if (mr_p_i && (32'(mr_idx_i) < N_CTX_P))
-        seen_mr_r[mr_idx_i[$clog2(N_CTX_P == 1 ? 2 : N_CTX_P)-1:0]] <= 1'b1;
+      seen_f_r  <= seen_f_r  | ev_f_w;
+      seen_tu_r <= seen_tu_r | ev_tu_w;
+      seen_mr_r <= seen_mr_r | ev_mr_w;
+      //! remember the mr this context just put on the wire
+      if (frame_p_i && (32'(frame_idx_i) < N_CTX_P))
+        mr_q_r[frame_idx_i[IXW_C-1:0]] <= frame_mr_i;
 
-      //! interval close: harvest the flags (last-wins over the folds above
-      //! is fine - a strobe ON the tick cycle lands in the next interval)
+      //! interval close: harvest the flags AND this cycle's events - a strobe
+      //! on the tick cycle belongs to the interval the tick is closing, and
+      //! folding it only above would lose it (the clear below is the later
+      //! nonblocking assignment, and the strobe never returns)
       if (tick_p_r) begin
         for (int c = 0; c < N_CTX_P; c++) begin
-          if (seen_f_r[c])  ftx_r[c]    <= ftx_r[c] + 32'd1;
-          if (seen_tu_r[c]) tuiv_r[c]   <= tuiv_r[c] + 32'd1;
-          if (seen_mr_r[c]) mreset_r[c] <= mreset_r[c] + 32'd1;
+          if (seen_f_r[c]  | ev_f_w[c])  ftx_r[c]    <= ftx_r[c] + 32'd1;
+          if (seen_tu_r[c] | ev_tu_w[c]) tuiv_r[c]   <= tuiv_r[c] + 32'd1;
+          if (seen_mr_r[c] | ev_mr_w[c]) mreset_r[c] <= mreset_r[c] + 32'd1;
         end
         seen_f_r  <= '0;
         seen_tu_r <= '0;
@@ -180,10 +230,12 @@ module KL_talker_diag_ctx #(
           tuiv_r[c]   <= '0;
           ftx_r[c]    <= '0;
           //! and the pending flags: a stop->start inside one interval must
-          //! not carry the pre-stop activity into the fresh counters
-          seen_f_r[c]  <= 1'b0;
-          seen_tu_r[c] <= 1'b0;
-          seen_mr_r[c] <= 1'b0;
+          //! not carry the pre-stop activity into the fresh counters - but
+          //! THIS cycle's event belongs to the stream that just started, so
+          //! it survives the wipe instead of being erased with the history
+          seen_f_r[c]  <= ev_f_w[c];
+          seen_tu_r[c] <= ev_tu_w[c];
+          seen_mr_r[c] <= ev_mr_w[c];
         end
         else if (!streaming_i[c] && strm_q_r[c])
           stop_r[c] <= stop_r[c] + 32'd1;
@@ -194,10 +246,9 @@ module KL_talker_diag_ctx #(
   //! indexed combinational read (out-of-range index reads context 0's
   //! shape of zeros? No - it reads a CLAMPED index; the AECP builder only
   //! presents directory-served indexes, and a clamp can never invent data)
-  wire [$clog2(N_CTX_P == 1 ? 2 : N_CTX_P)-1:0] ridx_w =
-      (32'(rd_idx_i) < N_CTX_P)
-      ? rd_idx_i[$clog2(N_CTX_P == 1 ? 2 : N_CTX_P)-1:0]
-      : '0;
+  wire [IXW_C-1:0] ridx_w = (32'(rd_idx_i) < N_CTX_P)
+                            ? rd_idx_i[IXW_C-1:0]
+                            : '0;
   always_comb begin : diag_read
     rd_start_o  = start_r[ridx_w];
     rd_stop_o   = stop_r[ridx_w];

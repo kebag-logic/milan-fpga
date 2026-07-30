@@ -553,7 +553,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/avtp/avtp_subtype_pkg.sv", "hdl/ieee1722/avtp/avtp_stream_parser.sv",
     "hdl/ieee1722/avtp/KL_stream_table.sv",
     "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv",
-    "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv", "hdl/ieee1722/avtp/KL_talker_diag_ctx.sv", "hdl/ieee17221/aecp/KL_persist_journal.sv",
+    "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv", "hdl/ieee1722/avtp/KL_talker_diag_ctx.sv", "hdl/ieee1722/avtp/KL_media_clock_restart.sv", "hdl/ieee17221/aecp/KL_persist_journal.sv",
     "hdl/ieee1722/aaf/KL_pcm_route.sv",
     "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_tdm_capture.sv", "hdl/ieee1722/aaf/KL_tdm_capture_master.sv", "hdl/ieee1722/aaf/KL_pair_blend.sv", "hdl/ieee1722/aaf/KL_pair_zero_fill.sv", "hdl/ieee1722/aaf/KL_tdm_render.sv", "hdl/ieee1722/aaf/KL_chan_map_render.sv", "hdl/ieee1722/aaf/KL_chan_map_capture.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv", "hdl/ieee1722/maap/KL_maap.sv",

@@ -17,6 +17,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -CFLAGS "-std=c++17 -O2"
 
 SRCS = $(RTL_DIR)/ieee1722/avtp/KL_talker_diag_ctx.sv \
+       $(RTL_DIR)/ieee1722/avtp/KL_media_clock_restart.sv \
        tkdiag_tb_top.sv
 CPP  = sim_main.cpp
 

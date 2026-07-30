@@ -79,6 +79,8 @@ module aaf_audio_loop_wrap #(
     //! tu: this harness is not about clock validity - the honest
     //! synchronised case, and the pre-2026-07-27 wire bytes
     .ts_uncertain_i (1'b0),
+    //! mr held 0: the wire stays byte-identical to the pre-4.4.4.3 shape
+    .mr_i ('0),
     .tctx_wr_en_i (1'b0), .tctx_wr_addr_i (7'd0), .tctx_wr_data_i (32'd0),
     .tctx_wr_rdy_o (),
     .tctx_rd_en_i (1'b0), .tctx_rd_addr_i (7'd0),

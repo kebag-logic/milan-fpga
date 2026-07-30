@@ -138,6 +138,16 @@ module KL_aaf_packetizer #(
   //! is the same for every talker context. Drive 0 and the wire bytes are
   //! byte-identical to the pre-2026-07-27 shape.
   input  wire         ts_uncertain_i,
+  //! AVTP "mr" (media clock restart) level per talker, IEEE 1722-2016
+  //! 4.4.4.3: the Talker toggles it when the SOURCE of the media clock
+  //! changes, and it "stays at its new value until a new media clock restart
+  //! is needed" - so this is a LEVEL, not a pulse, and the >= 8-AVTPDU hold
+  //! the clause requires is enforced by its producer
+  //! (KL_media_clock_restart), which is what owns the per-stream PDU count.
+  //! Latched per epoch beside tu so it cannot change part-way through a
+  //! frame. Drive 0 and the wire bytes are byte-identical to the
+  //! pre-2026-07-30 shape.
+  input  wire [N_TALKERS_P-1:0] mr_i,
 
   //! --- TCTX window port (P11 CSR window / TB; engine-arbitrated) --------
   input  wire         tctx_wr_en_i,      //! write request (poll wr_rdy)
@@ -163,7 +173,12 @@ module KL_aaf_packetizer #(
   //! tu-qualified TIMESTAMP_UNCERTAIN are per-OBSERVATION-INTERVAL counts
   //! over TRANSMITTED PDUs, so they need the emission event, not a total)
   output logic        frame_p_o,         //! one-cycle pulse per emitted PDU
-  output logic [3:0]  frame_idx_o        //! that PDU's talker index
+  output logic [3:0]  frame_idx_o,       //! that PDU's talker index
+  //! the mr bit that PDU actually carried. Milan v1.2 Table 5.4 counts
+  //! intervals "during which the mr bit has been toggled in any of the
+  //! TRANSMITTED Stream Data AVTPDUs", so the counter is fed the wire's own
+  //! bit rather than an event strobe it could be tied off from.
+  output logic        frame_mr_o
 );
 
   localparam int unsigned SAMPLES_PER_FRAME_C = 6;
@@ -333,6 +348,9 @@ module KL_aaf_packetizer #(
   //! already computed, and the holdover (0.25 s) dwarfs the 125 us frame
   //! period, so no arming edge can slip between the two points.
   logic        etu_r;
+  //! mr latched at the epoch grant, same reason as tu: the bit a listener
+  //! sees must be one consistent verdict for the whole frame
+  logic        emr_r;
   logic [47:0] edmac_r;
   logic [15:0] euid_r;
   logic [11:0] evid_r;
@@ -380,7 +398,8 @@ module KL_aaf_packetizer #(
     fb[16]=8'h22; fb[17]=8'hF0;
     // AAF-PCM AVTPDU (IEEE 1722-2016 clause 7)
     fb[18]=8'h02;                       // subtype AAF
-    fb[19]=8'h81;                       // sv=1, ver=0, mr=0, tv=1
+    // sv=1, version=0, mr (4.4.4.3), reserved[1:0], tv=1
+    fb[19]={1'b1, 3'b000, emr_r, 2'b00, 1'b1};
     fb[20]=eseq_r;                      // sequence_num
     fb[21]={7'h00, etu_r};              // reserved[7:1], tu (4.4.4.7)
     {fb[22],fb[23],fb[24],fb[25],fb[26],fb[27],fb[28],fb[29]} = stream_id_w;
@@ -500,6 +519,7 @@ module KL_aaf_packetizer #(
       eseq_r  <= '0;
       ets_r   <= '0;
       etu_r   <= 1'b0;
+      emr_r   <= 1'b0;
       edmac_r <= '0;
       euid_r  <= '0;
       evid_r  <= '0;
@@ -526,6 +546,7 @@ module KL_aaf_packetizer #(
       frames_sent_o   <= '0;
       frame_p_o       <= 1'b0;
       frame_idx_o     <= 4'd0;
+      frame_mr_o      <= 1'b0;
       tctx_rd_data_o  <= '0;
       tctx_rd_valid_o <= 1'b0;
       ext_trd_q_r     <= 1'b0;
@@ -546,6 +567,7 @@ module KL_aaf_packetizer #(
           if (grant_v_w) begin
             et_r    <= grant_t_w;
             etu_r   <= ts_uncertain_i;        //! frozen for the whole frame
+            emr_r   <= mr_i[grant_t_w];        //! ... and so is mr
             ebank_r <= !wbank_r[grant_t_w];   //! the just-filled bank
             rr_r    <= grant_t_w;
             //! t0 uses the legacy CFG aliases: skip the CFG reads.
@@ -626,6 +648,7 @@ module KL_aaf_packetizer #(
             //! Table 5.4 event feed: this PDU is complete
             frame_p_o   <= 1'b1;
             frame_idx_o <= 4'(et_r);
+            frame_mr_o  <= emr_r;
             est_r <= E_IDLE_S;
           end
         end

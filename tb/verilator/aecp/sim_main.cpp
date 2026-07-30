@@ -1264,7 +1264,7 @@ int main(int argc, char** argv) {
         (void)collect_resp(); (void)collect_resp(); (void)collect_resp();
         dut->tkdiag_cnt_i[0] = 2;          // STREAM_START
         dut->tkdiag_cnt_i[1] = 2;          // STREAM_STOP
-        dut->tkdiag_cnt_i[2] = 0;          // MEDIA_RESET (no mr source)
+        dut->tkdiag_cnt_i[2] = 3;          // MEDIA_RESET intervals
         dut->tkdiag_cnt_i[3] = 7;          // TIMESTAMP_UNCERTAIN intervals
         dut->tkdiag_cnt_i[4] = 0x00012345; // FRAMES_TX intervals
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2103,
@@ -1274,9 +1274,42 @@ int main(int argc, char** argv) {
         ckbytes("[21c] valid 0x1F", r, 42, {0,0,0,0x1F});
         ck("[21c] STREAM_START", be32_at(r, 46), 2);
         ck("[21c] STREAM_STOP", be32_at(r, 50), 2);
-        ck("[21c] MEDIA_RESET", be32_at(r, 54), 0);
+        ck("[21c] MEDIA_RESET SERVED (mr now has a wire source)",
+           be32_at(r, 54), 3);
         ck("[21c] TIMESTAMP_UNCERTAIN SERVED (Table 5.4)", be32_at(r, 58), 7);
         ck("[21c] FRAMES_TX (interval count)", be32_at(r, 62), 0x00012345);
+
+        // (c2) CLAIMED IMPLIES BACKED. Milan v1.2 Table 5.17 makes all five
+        // STREAM_OUTPUT counters a "shall implement and return", so the mask
+        // is 0x1F and MUST stay 0x1F - the resolution for an unbacked
+        // counter can therefore never be "stop claiming it", only "give it a
+        // real source". The rule this case holds is the other half: EVERY bit
+        // the mask claims must reach a slot that a live source can move off
+        // zero. Drive all five to distinct nonzero values and require all
+        // five to appear; a slot that stays 0 while its mask bit is set is
+        // the RMON tie-off shape (STATS_CAP 0x204, VERSION 0x0013) - the
+        // exact state MEDIA_RESET was in until 2026-07-30, when its event
+        // port was an mr_p_i strobe wired to 1'b0 in milan_datapath.
+        static const uint32_t BACKED[5] = { 0x11111111u, 0x22222222u,
+                                            0x33333333u, 0x44444444u,
+                                            0x55555555u };
+        for (int w = 0; w < 5; w++) dut->tkdiag_cnt_i[w] = BACKED[w];
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2113,
+                         gc_pl(0x0006, 0)));
+        r = collect_resp();
+        ck("[21c2] mask still the Table 5.17 mandatory 0x1F",
+           (long)be32_at(r, 42), 0x1F);
+        for (int w = 0; w < 5; w++) {
+            static const char* SYM[5] = { "STREAM_START", "STREAM_STOP",
+                                          "MEDIA_RESET", "TIMESTAMP_UNCERTAIN",
+                                          "FRAMES_TX" };
+            char nm[96];
+            // mask bit w -> counter block byte 4w -> frame offset 46 + 4w
+            snprintf(nm, sizeof nm,
+                     "[21c2] mask bit %d (%s) is BACKED, not a tied zero",
+                     w, SYM[w]);
+            ck(nm, be32_at(r, 46 + 4 * w), BACKED[w]);
+        }
 
         // (d) GET_MAX_TRANSIT_TIME reflects the SET_STREAM_INFO latency
         //     (test 13g left pres_offset at 1600000 ns)
