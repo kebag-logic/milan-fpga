@@ -487,6 +487,34 @@ int main(int argc, char** argv) {
         r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 0));
         ck("... and the responder still serves the next command",
            r_status(r), 0);
+
+        //! EXACT BOUNDARY (-8), the case a wrong CDL_ORIGIN_C lets through:
+        //! one 64-bit beat missing = exactly ONE mapping record forged from
+        //! cbuf residue. This 2-record ADD is payload 24 -> cdl 36 -> frame
+        //! 62 -> 50 stream octets, and 14 + 36 = 50 EXACTLY, so -8 must be
+        //! refused while the honest frame at +-0 is accepted. With the
+        //! pre-fix origin of 6 the threshold was 42 and this frame passed
+        //! (Opus verify 2026-07-30). The -12 case above sits PAST the loose
+        //! threshold and therefore could not expose it - the boundary is
+        //! where the check has to be exact.
+        take_wrs();
+        auto f8 = aem_cmd(CMD_ADD_MAP, seq++, full);
+        f8.resize(f8.size() - 8);
+        feed_rx(f8);
+        auto rr8 = collect_resp();
+        ck("-8 boundary frame: NO response", (long)rr8.size(), 0);
+        ck("-8 boundary frame: NOTHING committed",
+           (long)take_wrs().size(), 0);
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));
+        ck("-8 boundary frame: store untouched", r_be16(r, 46), 3);
+        ck("-8: row2 is still the honest row (not residue)",
+           row_is(r, 50, 2, 0,1,2,0), 1);
+        //! and the honest frame of the SAME shape still works: the check is
+        //! exact, not merely conservative
+        r = xact(CMD_RM_MAP, am_pl(SPI, 0, {{{0,0,0,0}}, {{0,1,1,0}}}));
+        ck("-8: the honest 2-record command still SUCCEEDs", r_status(r), 0);
+        r = xact(CMD_ADD_MAP, full);
+        ck("-8: and re-ADDing it SUCCEEDs", r_status(r), 0);
     }
 
     printf("\n----------------------------------------------------------\n");

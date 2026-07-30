@@ -117,13 +117,24 @@ module KL_aecp_packet_validator (
   // controller. Two bugs, one missing compare.                            //
   //                                                                      //
   // The arithmetic, from the beat-0 map above: this stream begins at the  //
-  // EtherType, so control_data_length counts octets from ITS byte 6       //
-  // (target_entity_id) onward, and a well-formed frame therefore carries  //
-  // at least 6 + control_data_length octets. Padding makes frames LONGER  //
-  // than that (a 60-byte Ethernet minimum), never shorter, so the test is //
-  // one-sided.                                                            //
+  // EtherType. control_data_length counts the control_data_payload only   //
+  // (1722-2016 4.4.5.4): for an AECPDU that region begins at AECPDU octet //
+  // 12 = controller_entity_id - it EXCLUDES target_entity_id, which       //
+  // occupies the stream_id position at octets 4..11. This module's stream //
+  // starts 2 octets earlier than the AECPDU (at the EtherType), so the    //
+  // cdl region begins at STREAM byte 14 = EtherType(2) + subtype(1) +     //
+  // sv/ver/msg(1) + status/cdl(2) + target_entity_id(8), and a well-formed//
+  // frame carries at least 14 + control_data_length octets. Cross-checks: //
+  // the module's own minimum-AECPDU comment above (controller_entity_id 8 //
+  // + sequence_id 2 + u/command 2 = 12 = the cdl FLOOR), every cdl the    //
+  // response builder emits (12 + payload), and 1722-2016 B.2's "cdl shall //
+  // be set to 16 in all MAAP frames" against MAAP's 16 post-stream_id     //
+  // octets. ORIGIN 6 (Opus verify 2026-07-30) left an 8-octet hole =      //
+  // exactly one 64-bit beat = one forgeable mapping record from cbuf      //
+  // residue. Padding makes frames LONGER (a 60-byte Ethernet minimum),    //
+  // never shorter, so the test stays one-sided.                           //
   // ------------------------------------------------------------------ //
-  localparam int unsigned CDL_ORIGIN_C = 6;   //! octets before the cdl region
+  localparam int unsigned CDL_ORIGIN_C = 14;  //! octets before the cdl region
   logic [12:0] blen_r;        //! octets accepted so far THIS frame
   logic [10:0] cdl_r;        //! this frame's declared control_data_length
   //! octets in the beat being handshaken (tkeep is contiguous, but count it
