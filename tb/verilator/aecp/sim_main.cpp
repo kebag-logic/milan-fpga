@@ -543,6 +543,105 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
+    // 11b. ENTITY_DISCOVER TARGETING — IEEE 1722.1-2021 6.2.7 Fig 6-5   //
+    //      is the whole rule and it has two arms:                       //
+    //        "entity_id == 0 || entity_id == entityInfo.entity_id"      //
+    //            -> DISCOVER { needsAdvertise = TRUE }                  //
+    //        "entity_id != 0 && entity_id != entityInfo.entity_id"      //
+    //            -> back to WAITING, advertise NOTHING                  //
+    //      5.3.1 makes 6.2.7 a shall for a discoverable Entity, so the  //
+    //      NEGATIVE arm is as normative as the positive one and had no  //
+    //      test anywhere in this repo before 2026-07-30. All three arms  //
+    //      PASS on the pre-existing RTL: these are REGRESSION LOCKS on   //
+    //      correct behaviour, not bug finds. adp_disc_seen_o is the new  //
+    //      unqualified witness (A_ADP_DIAG2[23:16]) and must pulse for   //
+    //      ALL of them, including the one we correctly ignore.          //
+    // ---------------------------------------------------------------- //
+    printf("\n[11b] ENTITY_DISCOVER targeting (6.2.7 Figure 6-5)\n");
+    {
+        auto discover_frame = [](uint64_t target, uint8_t msg_type) {
+            std::vector<uint8_t> f;
+            for (uint8_t b : {0x91,0xe0,0xf0,0x01,0x00,0x00}) f.push_back(b);
+            for (int i=0;i<6;i++) f.push_back(CTL_MAC[i]);
+            put_be16(f, 0x22F0); f.push_back(0xFA);
+            f.push_back((0<<4)|msg_type);
+            f.push_back(0x00); f.push_back(0x38);   // valid_time 0 | cdl 0x38
+            put_be64(f, target);                     // ADPDU bytes 18..25
+            while (f.size() < 82) f.push_back(0);    // a real 82-byte ADPDU
+            return f;
+        };
+        // returns {qualified pulses, seen pulses}
+        auto run = [&](const std::vector<uint8_t>& f) {
+            int q = 0, s = 0;
+            int n = f.size();
+            for (int off = 0; off < n; off += 8) {
+                uint64_t d=0; uint8_t keep=0;
+                for (int l=0;l<8;l++){ if(off+l<n){ d|=(uint64_t)f[off+l]<<(8*l); keep|=(1<<l);} }
+                dut->rx_tvalid_i=1; dut->rx_tdata_i=d; dut->rx_tkeep_i=keep;
+                dut->rx_tlast_i=(off+8>=n); tick();
+                if (dut->adp_discover_o)  q++;
+                if (dut->adp_disc_seen_o) s++;
+            }
+            dut->rx_tvalid_i=0; dut->rx_tlast_i=0; dut->rx_tkeep_i=0;
+            for (int c=0;c<8;c++){ tick();
+                if (dut->adp_discover_o)  q++;
+                if (dut->adp_disc_seen_o) s++; }
+            return std::pair<int,int>{q, s};
+        };
+
+        auto zero = run(discover_frame(0, 2));
+        ck("target 0 (discover all) -> ANSWERED", zero.first, 1);
+        ck("target 0 -> witnessed",               zero.second, 1);
+
+        auto mine = run(discover_frame(ENTITY_ID, 2));
+        ck("target == our entity_id -> ANSWERED", mine.first, 1);
+        ck("target == ours -> witnessed",         mine.second, 1);
+
+        auto other = run(discover_frame(0xDEADBEEFCAFEF00DULL, 2));
+        ck("target == ANOTHER entity -> SILENT (6.2.7 negative arm)",
+           other.first, 0);
+        ck("foreign target still WITNESSED (that is the point of DIAG2)",
+           other.second, 1);
+
+        // one bit off in the low byte must still be a miss: the compare spans
+        // beats 2 and 3 (bytes 18..23 then 24..25), so an off-by-one lane in
+        // that join would only show up on a NEAR miss
+        auto near = run(discover_frame(ENTITY_ID ^ 1ULL, 2));
+        ck("target == ours XOR 1 -> SILENT (byte 25 is in the compare)",
+           near.first, 0);
+        auto near_hi = run(discover_frame(ENTITY_ID ^ 0x0100000000000000ULL, 2));
+        ck("target == ours XOR bit56 -> SILENT (byte 18 is in the compare)",
+           near_hi.first, 0);
+
+        // ENTITY_AVAILABLE / ENTITY_DEPARTING from a peer are NOT a discover
+        auto avail = run(discover_frame(0, 0));
+        ck("ENTITY_AVAILABLE from a peer -> not a discover", avail.first, 0);
+        ck("ENTITY_AVAILABLE -> not witnessed as a discover", avail.second, 0);
+        auto depart = run(discover_frame(0, 1));
+        ck("ENTITY_DEPARTING from a peer -> not a discover", depart.first, 0);
+        ck("ENTITY_DEPARTING -> not witnessed as a discover", depart.second, 0);
+
+        // a discover STORM must produce exactly one qualified pulse per frame
+        // (the coalescing lives in the advertiser's TMR_DELAY, not here) and
+        // must never wedge the ingress classifier
+        int q = 0, s = 0;
+        for (int i = 0; i < 16; i++) {
+            auto r = run(discover_frame((i & 1) ? 0 : ENTITY_ID, 2));
+            q += r.first; s += r.second;
+        }
+        ck("16 back-to-back discovers -> 16 qualified pulses", q, 16);
+        ck("16 back-to-back discovers -> 16 witnesses", s, 16);
+
+        // and the AECP command path still works afterwards (the classifier
+        // shares wbeat_r/drop_rest_r with the discover decode)
+        std::vector<uint8_t> pl; put_be16(pl,0); put_be16(pl,0);
+        put_be16(pl,0x0000); put_be16(pl,0x0000);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x8010, pl));
+        auto r = collect_resp();
+        ck("AECP still answered after a discover storm", r.size() > 0, 1);
+    }
+
+    // ---------------------------------------------------------------- //
     // 12. Milan talker streaming state (docs/design/MILAN_TALKER_SM.md)  //
     //     GET_STREAM_INFO live values, SET_STREAM_INFO matrix,           //
     //     START/STOP_STREAMING = NOT_SUPPORTED on outputs                //

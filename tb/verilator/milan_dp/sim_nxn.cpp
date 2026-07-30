@@ -226,7 +226,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0016 (the AVTP tu bit is driven; 0x778 clock validity)",
-       axi_read(A_VERSION), 0x0001001C);
+       axi_read(A_VERSION), 0x0001001D);
 
     // ---- THE ADVERTISED SHAPE AT N > 1 (2026-07-27) --------------------
     // The CRF Media Clock Output lives at talker_unique_id = N_STREAMS and

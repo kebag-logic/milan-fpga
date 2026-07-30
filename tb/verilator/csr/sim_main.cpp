@@ -141,7 +141,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x0001001C);
+  ck("VERSION",       axi_read(A_VERSION), 0x0001001D);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -547,6 +547,37 @@ int main(int argc, char** argv) {
   axi_write(0x780, 0xFFFFFFFF);
   ck("CLKV_TUCNT stays RO", axi_read(0x780), 0x0000002A);
   axi_write(0x778, 0x00000080);          // restore the reset shape
+
+  // ---- ADP diagnostics: 0x668 forensics + 0x674 liveness (VERSION 0x001D) --
+  // 0x674 exists because 0x668 cannot answer "is it still advertising?": a
+  // healthy advertiser that never departed and never re-armed reads 0 there,
+  // and so would a stalled one (2026-07-30 cost a wire capture to tell those
+  // apart). This pins the BIT PACKING of both words - a diagnostic register
+  // whose fields are mis-shifted is worse than none, because it is believed.
+  dut->i_adp_depart_cnt  = 0x12;
+  dut->i_adp_rearm_cnt   = 0x34;
+  dut->i_adp_depart_src  = 0x2;      // last depart = shutdown
+  dut->i_adp_sent_cnt    = 0xA5;
+  dut->i_adp_disc_rx_cnt = 0x5A;
+  dut->i_adp_last_msg    = 0x1;      // ENTITY_DEPARTING
+  dut->i_adp_state       = 0x9;      // send_pending | available
+  dut->i_adp_disc_seen_p = 0; dut->eval();
+  ck("ADP_DIAG  0x668 {src,rearm,depart}", axi_read(0x668), 0x00023412u);
+  ck("ADP_DIAG2 0x674 {state,msg,seen,rx,sent}", axi_read(0x674), 0x91005AA5u);
+  // the discover-SEEN lane is a milan_csr-side counter over a 1-cycle pulse
+  // from KL_aecp_ingress: three pulses must read as three, and it must NOT
+  // count while the pulse is low (a level-sensitive miscount would make
+  // "nobody is discovering" unreadable, which is the lane's whole job)
+  for (int i = 0; i < 3; i++) { dut->i_adp_disc_seen_p = 1; posedge(); }
+  dut->i_adp_disc_seen_p = 0;
+  for (int i = 0; i < 8; i++) posedge();
+  ck("ADP_DIAG2 disc_seen counted 3 pulses, no more",
+     (axi_read(0x674) >> 16) & 0xFF, 3);
+  ck("ADP_DIAG2 other lanes untouched by the counter",
+     axi_read(0x674) & 0xFF00FFFFu, 0x91005AA5u);
+  dut->i_adp_depart_cnt = 0; dut->i_adp_rearm_cnt = 0; dut->i_adp_depart_src = 0;
+  dut->i_adp_sent_cnt = 0; dut->i_adp_disc_rx_cnt = 0;
+  dut->i_adp_last_msg = 0; dut->i_adp_state = 0; dut->eval();
 
   // link guard: RO status mux + LINK_CTRL[3:2] control outputs
   dut->i_linkg_stat = 0x00070013; dut->eval();

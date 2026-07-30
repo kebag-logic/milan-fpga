@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x0001001C);
+    ck("VERSION",       axi_read(A_VERSION), 0x0001001D);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
@@ -269,6 +269,58 @@ int main(int argc, char** argv) {
        adp.data.size() < 2 ? 0 : (unsigned long)(adp.data[1] & 0xFFFFFFFFUL),
        0x01000000UL);
     ck("available_index bumped", axi_read(A_ADP_STATUS) > ai0 ? 1 : 0, 1);
+
+    // --- 5b. A_ADP_DIAG2 0x674: ADP liveness from ONE read (VERSION 0x001D) -
+    // The case above IS the cold-boot order question ("does an entity that was
+    // enabled before the link came up advertise without a CSR toggle?") and it
+    // has answered YES since 2026-07-11: one ADP_CTRL write, no toggle, frame
+    // on the wire. What was missing was a way to ASK the fabric that question
+    // without a wire capture - on 2026-07-30 a bench session spent hours on a
+    // dormancy that a tcpdump then disproved, because A_ADP_DIAG 0x668 reads
+    // 0 both for a healthy advertiser and for a stalled one. 0x674 splits them:
+    //   [7:0] sent_cnt (ADPDUs EGRESSED)  [15:8] discovers accepted for us
+    //   [23:16] discovers SEEN on the wire (any target)
+    //   [27:24] last message_type sent    [31:28] {send_pend, busy, disc_pend, available}
+    {
+        enum { A_ADP_DIAG = 0x668, A_ADP_DIAG2 = 0x674, A_ADP_CMD = 0x640 };
+        uint32_t d2 = axi_read(A_ADP_DIAG2);
+        printf("[ADP] DIAG2 0x674 = 0x%08x (sent=%u discRx=%u discSeen=%u "
+               "lastMsg=%u state=0x%x)\n", d2, d2 & 0xFF, (d2 >> 8) & 0xFF,
+               (d2 >> 16) & 0xFF, (d2 >> 24) & 0xF, (d2 >> 28) & 0xF);
+        ck("DIAG2 sent_cnt counted the cold-boot ADPDU", d2 & 0xFF, 1);
+        ck("DIAG2 last_msg == ENTITY_AVAILABLE", (d2 >> 24) & 0xF, 0);
+        ck("DIAG2 state.available == 1 (the dormancy question, answered)",
+           (d2 >> 28) & 0x1, 1);
+        ck("DIAG2 state idle: no frame stuck pending/busy", (d2 >> 29) & 0x3, 0);
+        // nobody has sent us an ENTITY_DISCOVER, and BOTH discover lanes must
+        // say so - that is the reading that would have ended the 07-30 detour
+        ck("DIAG2 disc_rx == 0 (no discover was aimed at us)", (d2 >> 8) & 0xFF, 0);
+        ck("DIAG2 disc_seen == 0 (no discover on the wire at all)",
+           (d2 >> 16) & 0xFF, 0);
+        //! 0x668 = one STARTUP level arm, no departs (Milan v1.2 5.6.3.5.2:
+        //! an enabled entity on a live link advertises by itself, and that arm
+        //! is what rearm_cnt counts). The forensic signature is unchanged:
+        //! rearm_cnt climbing while depart_cnt stands still.
+        ck("A_ADP_DIAG 0x668: one startup arm, zero departs",
+           axi_read(A_ADP_DIAG), 1u << 8);
+        // and the liveness lane MOVES on the next ADPDU (ADP_CMD[0] = advertise
+        // now, the same lever a controller-side poke uses)
+        axi_write(A_ADP_CMD, 0x1);
+        //! 1600 cycles, not 400: the CONTROL lane runs through tx_ifg_gasket
+        //! with GAP_CYCLES = 512, so the ADPDU that follows another control
+        //! frame is deliberately spaced by more than 400 cycles (the 2026-07-19
+        //! MilanMAC back-to-back eater fix). A short window here would read
+        //! "sent_cnt did not move" and blame the counter for the gasket.
+        for (int c = 0; c < 1600; c++) {
+            step();
+            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready &&
+                dut->m_axis_mac_tx_tlast) break;
+        }
+        uint32_t d2b = axi_read(A_ADP_DIAG2);
+        ck("DIAG2 sent_cnt MOVED on the next ADPDU (the liveness read)",
+           (d2b & 0xFF) > (d2 & 0xFF) ? 1 : 0, 1);
+        ck("DIAG2 still available after it", (d2b >> 28) & 0x1, 1);
+    }
 
     // --- 6a-bis. THE ADVERTISED SHAPE, decoded off the wire (2026-07-27) ---
     // This is the exact field a controller reads to decide how many streams
@@ -496,7 +548,13 @@ int main(int argc, char** argv) {
     {
         printf("[ADP-DIAG] depart witness + enable-toggle recovery\n");
         enum { A_ADP_CMD = 0x640, A_ADP_DIAG = 0x668 };
-        ck("DIAG zero at boot", axi_read(A_ADP_DIAG), 0);
+        //! rearm_cnt = 1 at boot is CORRECT since the advertiser arms from a
+        //! LEVEL (Milan v1.2 5.6.3.5.2 "Startup of the PAAD-AE with link status
+        //! up"): that one arm IS the startup advertise, not an anomaly. The
+        //! signature the register exists for is UNCHANGED - rearm_cnt climbing
+        //! while depart_cnt stands still. depart_cnt must still be 0 here.
+        ck("DIAG at boot: no departs, one startup arm",
+           axi_read(A_ADP_DIAG), 1u << 8);
         uint32_t ai_pre = axi_read(A_ADP_STATUS);
         axi_write(A_ADP_CMD, 0x2);                 // software depart
         Res dep; dut->m_axis_mac_tx_tready = 1;
@@ -511,7 +569,8 @@ int main(int argc, char** argv) {
         // ADPDU byte 15 = {4'b0, message_type} sits in beat1 lane 7
         ck("message_type DEPARTING(1)",
            dep.data.size() < 2 ? 0xFF : (unsigned long)((dep.data[1] >> 56) & 0x0F), 1);
-        ck("DIAG: depart_cnt=1, src=shutdown", axi_read(A_ADP_DIAG), (2u << 16) | 1u);
+        ck("DIAG: depart_cnt=1, src=shutdown, startup arm kept",
+           axi_read(A_ADP_DIAG), (2u << 16) | (1u << 8) | 1u);
         ck("index bumped on depart", axi_read(A_ADP_STATUS), ai_pre + 1);
         // dormant: nothing else may emerge
         bool stray = false;
@@ -532,7 +591,14 @@ int main(int argc, char** argv) {
         ck("AVAILABLE after enable-toggle", rec.got ? 1 : 0, 1);
         ck("message_type AVAILABLE(0)",
            rec.data.size() < 2 ? 0xFF : (unsigned long)((rec.data[1] >> 56) & 0x0F), 0);
-        ck("recovery adds no depart count", axi_read(A_ADP_DIAG), (2u << 16) | 1u);
+        //! rearm_cnt stays at 1 and depart_cnt at 1: the enable-toggle
+        //! recovery arrives through the LINK_UP fast path (milan_datapath
+        //! synthesises adp_link_up_p on the ADP-enable rising edge), which is
+        //! deliberately NOT a level arm - the post-depart HOLD is still
+        //! counting down in 1 s ticks, unreachable at datapath scale. So the
+        //! reading is depart_cnt 1, rearm_cnt 1 (the boot arm), src shutdown.
+        ck("recovery adds neither a depart nor a level arm",
+           axi_read(A_ADP_DIAG), (2u << 16) | (1u << 8) | 1u);
     }
 
     // --- 9. Milan talker: PROBE_TX-gated AAF streaming end-to-end ---
