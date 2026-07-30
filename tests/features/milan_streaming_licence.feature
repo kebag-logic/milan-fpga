@@ -67,7 +67,13 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
     # the ProfiShark tap saw a Talker Advertise for uid 0 and uid 4 (the CRF
     # output) only, so no talker but 0 could ever be licensed.
     When I read the per-talker lwSRP provisioning want from milan_datapath
-    Then the want requires that talker's own context enable
+    # 5.3.7.2 makes the declaration UNCONDITIONAL for a declared Stream
+    # Output, so it must come from the SHAPE, not a runtime poke (USER "shape
+    # is STATIC"): the 0x001E provisioner gated it on the per-context enable
+    # A_STRMW_CTRL[0], which resets to 0 and which S50milan never writes, so a
+    # fresh boot still declared nothing for t>0 - the same silence, one layer
+    # in. The want must NOT depend on that enable.
+    Then the want does NOT require the per-context runtime enable
     And the want requires the lwSRP engine and its talker declaration
     And the want does NOT depend on the lwSRP stream gate
     And the want does NOT depend on ACMP talker_active, per 5.5.2.7

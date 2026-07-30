@@ -212,15 +212,26 @@ def step_read_srp_want(context):
     context.dp_src = _strip_comments(_read(path))
     # the AAF slot arm of the per-slot want vector (the generate branch that
     # covers talkers 1..N-1; the top slot is the CRF Media Clock Output)
-    m = re.search(r"assign\s+srp_fab_want_v_w\[gw\]\s*=\s*tctx_en_r(.*?);",
-                  context.dp_src, flags=re.S)
+    # the AAF slot arm is the FIRST srp_fab_want_v_w[gw] assign inside the
+    # `g_slot_aaf branch (slot 0 is a constant 0, the CRF slot uses
+    # crf_srp_want_w). Anchor on the branch label so a comment mentioning the
+    # signal cannot be mistaken for the arm.
+    aaf = re.search(r"g_slot_aaf(.*?)g_slot_crf",
+                    context.dp_src, flags=re.S)
+    assert aaf, "no g_slot_aaf branch in milan_datapath"
+    m = re.search(r"assign\s+srp_fab_want_v_w\[gw\]\s*=\s*(.*?);",
+                  aaf.group(1), flags=re.S)
     assert m, "no per-AAF-talker srp_fab_want_v_w arm in milan_datapath"
-    context.expr = " ".join(("tctx_en_r" + m.group(1)).split())
+    context.expr = " ".join(m.group(1).split())
 
 
-@then("the want requires that talker's own context enable")
-def step_want_tctx_en(context):
-    assert "tctx_en_r[gw]" in context.expr, context.expr
+@then("the want does NOT require the per-context runtime enable")
+def step_want_not_tctx_en(context):
+    # Milan 5.3.7.2 makes the declaration unconditional for a DECLARED Stream
+    # Output; gating it on the per-context runtime enable (tctx_en_r, reset 0,
+    # A_STRMW_CTRL[0]) is a runtime poke the shape-static directive forbids and
+    # left a fresh boot silent for t>0.
+    assert "tctx_en_r" not in context.expr, context.expr
 
 
 @then("the want requires the lwSRP engine and its talker declaration")
