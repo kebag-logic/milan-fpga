@@ -47,7 +47,13 @@ static const uint32_t CTRL_CAPS    = 0x00000000u;
 // mutable: case 14 re-provisions them for the GM-change scenario (ADP-9)
 static uint64_t GPTP_GM      = 0x0011223344556677ULL;
 static uint8_t  GPTP_DOMAIN  = 0;
-static const uint8_t  VALID_TIME   = 5;         // also the re-advertise period (ticks)
+static const uint8_t  VALID_TIME   = 5;
+//! The re-advertise period is NOT valid_time: Milan v1.2 Table 5.50 makes
+//! TMR_ADVERTISE "a timer with a fixed value of 5 seconds" and IEEE
+//! 1722.1-2021 Figure 6-2 makes it MAX(1, valid_time/2) SECONDS, and the
+//! engine takes the faster of the two = MIN(5, MAX(1, valid_time/2)).
+static const int      ADV_PERIOD   = (VALID_TIME / 2) < 1 ? 1
+                                   : ((VALID_TIME / 2) > 5 ? 5 : (VALID_TIME / 2));
 static const uint64_t STATION_MAC  = 0x001BC5AABBCCULL;
 static const uint16_t CUR_CFG = 0, IDENT_CTRL = 0, IFACE_IDX = 0;
 static const uint64_t ASSOC_ID = 0;
@@ -158,6 +164,16 @@ int main(int argc, char** argv) {
 
     printf("== adp_advertiser harness ==\n");
 
+    // Milan v1.2 5.6.3.5.2 "Startup of the PAAD-AE with link status up": an
+    // enabled entity whose link is already up advertises BY ITSELF, with no
+    // event. That is the first ADPDU of the session (index 1) and it is why
+    // every index below is one higher than it was before 2026-07-30. It also
+    // counts as a LEVEL arm in rearm_cnt (the STARTUP arm), which is the
+    // documented A_ADP_DIAG reading change.
+    auto f0 = capture_frame();
+    check_common("STARTUP AVAILABLE (level arm, no event)", f0, 0, 1);
+    ck("startup arm counted as a level arm", dut->rearm_cnt_o, 1);
+
     // available_index increments on EVERY transmitted ADPDU (IEEE 1722.1
     // §6.2.1.16 as enforced by la_avdecc/Hive — a repeated index makes the
     // controller treat the entity as offline/online-cycling; the pipewire
@@ -166,12 +182,12 @@ int main(int argc, char** argv) {
     // 1) link-up -> ENTITY_AVAILABLE, available_index 0 -> 1
     pulse(dut->link_up_i);
     auto f1 = capture_frame();
-    check_common("link-up AVAILABLE", f1, /*AVAILABLE*/0, /*index*/1);
+    check_common("link-up AVAILABLE", f1, /*AVAILABLE*/0, /*index*/2);
 
     // 2) periodic re-advertise after VALID_TIME ticks -> AVAILABLE, 1 -> 2
-    for (int t = 0; t < VALID_TIME; t++) pulse(dut->tick_i);
+    for (int t = 0; t < ADV_PERIOD; t++) pulse(dut->tick_i);
     auto f2 = capture_frame();
-    check_common("periodic AVAILABLE", f2, 0, 2);   // every send bumps
+    check_common("periodic AVAILABLE", f2, 0, 3);   // every send bumps
 
     // 3) discover response -> AVAILABLE, 2 -> 3, but DELAYED (es-2.1): the
     //    entity must NOT answer instantly. Verify no frame for a few cycles,
@@ -183,13 +199,13 @@ int main(int argc, char** argv) {
         ck("discover: no INSTANT response (DELAY state)", early ? 1 : 0, 0);
     }
     auto f3 = capture_frame();
-    check_common("discover-response AVAILABLE (delayed)", f3, 0, 3);
+    check_common("discover-response AVAILABLE (delayed)", f3, 0, 4);
 
     // 3b) COALESCING: a burst of discovers during the delay window yields
     //     ONE response, not one-per-discover.
     for (int i = 0; i < 6; i++) { dut->rcv_discover_i = 1; step(); dut->rcv_discover_i = 0; }
     auto fb = capture_frame();
-    check_common("discover burst -> one coalesced response", fb, 0, 4);
+    check_common("discover burst -> one coalesced response", fb, 0, 5);
     {
         bool extra = false;
         for (int c = 0; c < 60; c++) { step(); if (dut->m_axis_tvalid) extra = true; }
@@ -199,19 +215,19 @@ int main(int argc, char** argv) {
     // 4) info/gm change -> AVAILABLE, 3 -> 4
     pulse(dut->gm_change_i);
     auto f4 = capture_frame();
-    check_common("gm-change AVAILABLE", f4, 0, 5);
+    check_common("gm-change AVAILABLE", f4, 0, 6);
 
     // 5) link-down -> ENTITY_DEPARTING, 4 -> 5 (reference bumps on depart too)
     dut->link_level_i = 0;
     pulse(dut->link_down_i);
     auto f5 = capture_frame();
-    check_common("link-down DEPARTING", f5, /*DEPARTING*/1, 6);
+    check_common("link-down DEPARTING", f5, /*DEPARTING*/1, 7);
 
     // 6) re-up under AXIS back-pressure -> AVAILABLE, 5 -> 6, bytes intact
     dut->link_level_i = 1;
     pulse(dut->link_up_i);
     auto f6 = capture_frame(/*bp=*/1);
-    check_common("backpressure AVAILABLE", f6, 0, 7);
+    check_common("backpressure AVAILABLE", f6, 0, 8);
 
     // 7) once departed with the link DOWN, a periodic tick must NOT emit a
     //    frame (and the dormancy self-re-arm must stay gated by link level)
@@ -229,12 +245,12 @@ int main(int argc, char** argv) {
     dut->link_level_i = 1;
     pulse(dut->link_up_i);
     auto f8 = capture_frame();
-    check_common("link-restore AVAILABLE", f8, 0, 9);
+    check_common("link-restore AVAILABLE", f8, 0, 10);
 
     // 9) software depart (ADP_CMD[1]) with the link still UP -> DEPARTING, 9
     pulse(dut->shutdown_i);
     auto f9 = capture_frame();
-    check_common("cmd DEPARTING", f9, 1, 10);
+    check_common("cmd DEPARTING", f9, 1, 11);
 
     // 10) DORMANCY SELF-RE-ARM (silicon 2026-07-13): enabled + link up but
     //     not available (whatever cleared available_r) -> after 2 ticks the
@@ -244,13 +260,16 @@ int main(int argc, char** argv) {
     pulse(dut->tick_i);                         // dormant tick 1: arm watchdog
     pulse(dut->tick_i);                         // dormant tick 2: re-arm fires
     auto f10 = capture_frame();
-    check_common("dormancy self-re-arm AVAILABLE", f10, 0, 11);
-    ck("rearm_cnt after self-heal", dut->rearm_cnt_o, 1);
+    check_common("dormancy self-re-arm AVAILABLE", f10, 0, 12);
+    //! LEVEL arms are what rearm_cnt counts (it always did - the watchdog was
+    //! one): 1 = the 5.6.3.5.2 STARTUP arm, 2 = case 8's link level returning,
+    //! 3 = this post-depart heal.
+    ck("rearm_cnt after self-heal", dut->rearm_cnt_o, 3);
 
     // 11) periodic advertising must be fully restored after a self-re-arm
-    for (int t = 0; t < VALID_TIME; t++) pulse(dut->tick_i);
+    for (int t = 0; t < ADV_PERIOD; t++) pulse(dut->tick_i);
     auto f11 = capture_frame();
-    check_common("periodic after re-arm", f11, 0, 12);
+    check_common("periodic after re-arm", f11, 0, 13);
 
     // 12) DIAG counters: departs taken = case 5 + case 7 + case 9; last
     //     source = shutdown (bit1), not link_down (bit0)
@@ -261,7 +280,7 @@ int main(int argc, char** argv) {
     //     silent; re-enable -> self-re-arm resumes advertising
     pulse(dut->shutdown_i);
     auto f13 = capture_frame();
-    check_common("cmd DEPARTING pre-disable", f13, 1, 13);
+    check_common("cmd DEPARTING pre-disable", f13, 1, 14);
     dut->enable_i = 0;
     bool spurious13 = false;
     for (int t = 0; t < 4; t++) {
@@ -273,8 +292,8 @@ int main(int argc, char** argv) {
     pulse(dut->tick_i);
     pulse(dut->tick_i);
     auto f13b = capture_frame();
-    check_common("re-arm after re-enable", f13b, 0, 14);
-    ck("rearm_cnt after 2nd heal", dut->rearm_cnt_o, 2);
+    check_common("re-arm after re-enable", f13b, 0, 15);
+    ck("rearm_cnt after 2nd heal", dut->rearm_cnt_o, 4);
 
     // 14) GM CHANGE re-advertises the NEW grandmaster (traceability ADP-9 /
     //     M-ADP-2, IEEE 1722.1-2021 6.2.2.16-6.2.2.17 + Milan v1.2 5.6.3.5):
@@ -291,12 +310,12 @@ int main(int argc, char** argv) {
     dut->gptp_domain_number_i  = GPTP_DOMAIN;
     pulse(dut->gm_change_i);
     auto f14 = capture_frame();
-    check_common("gm-change advertises NEW GM fields", f14, 0, 15);
+    check_common("gm-change advertises NEW GM fields", f14, 0, 16);
     // and the next PERIODIC advertise keeps carrying the new GM (no
     // one-shot latch of the old value anywhere in the serializer)
-    for (int t = 0; t < VALID_TIME; t++) pulse(dut->tick_i);
+    for (int t = 0; t < ADV_PERIOD; t++) pulse(dut->tick_i);
     auto f14b = capture_frame();
-    check_common("periodic after GM change keeps NEW GM", f14b, 0, 16);
+    check_common("periodic after GM change keeps NEW GM", f14b, 0, 17);
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);

@@ -516,7 +516,16 @@ module adp_advertiser #(
       end
 
       // consumed when the serialiser starts the frame
-      if (state_r == S_IDLE && send_pending_r) send_pending_r <= 1'b0;
+      if (state_r == S_IDLE && send_pending_r) begin
+        send_pending_r <= 1'b0;
+        //! 5.6.3.5.9 ends every send in the WAITING state, i.e. with no
+        //! TMR_DELAY running: a frame that goes out NOW absorbs a delay window
+        //! that was scheduled to produce the same ENTITY_AVAILABLE (Table 5.51
+        //! ignores further advertise events while in DELAY - this is the mirror
+        //! of that rule and it is what stops one GM election, or a discover
+        //! answered by a coincident periodic, from costing two ADPDUs).
+        disc_pend_r <= 1'b0;
+      end
     end
   end
 
