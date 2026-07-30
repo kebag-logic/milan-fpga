@@ -660,7 +660,11 @@ multi-stream shapes behind `` `AEM_PER_STREAM_FMT`` (the deployed
 1-AAF-in shape keeps the legacy layout byte-identical).
 
 SET/GET_STREAM_FORMAT and the RX monitor's format-compare reference key
-the addressed descriptor's own entry (tb/verilator/aecp `sim_fmt2`).
+the addressed descriptor's own entry (tb/verilator/aecp `sim_fmt2`, and
+`sim_fmt4` on the shipped 4-AAF arty_4x4 input count, which round-trips
+SET→GET on the MIDDLE sinks idx 2 & 3 — the band index-0/1-only coverage
+hid; its `--else-arm` shape reproduces the pre-fix bite, idx≥2 →
+NO_SUCH_DESCRIPTOR).
 
 Remaining: GET_STREAM_INFO and GET_COUNTERS handlers keying the §1.5
 window by descriptor index. ADP source/sink counts already come honest
