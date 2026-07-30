@@ -297,12 +297,21 @@ int main(int argc, char** argv) {
         ck("DIAG2 disc_rx == 0 (no discover was aimed at us)", (d2 >> 8) & 0xFF, 0);
         ck("DIAG2 disc_seen == 0 (no discover on the wire at all)",
            (d2 >> 16) & 0xFF, 0);
-        ck("A_ADP_DIAG 0x668 still reads clean (no departs, no re-arms)",
-           axi_read(A_ADP_DIAG), 0);
+        //! 0x668 = one STARTUP level arm, no departs (Milan v1.2 5.6.3.5.2:
+        //! an enabled entity on a live link advertises by itself, and that arm
+        //! is what rearm_cnt counts). The forensic signature is unchanged:
+        //! rearm_cnt climbing while depart_cnt stands still.
+        ck("A_ADP_DIAG 0x668: one startup arm, zero departs",
+           axi_read(A_ADP_DIAG), 1u << 8);
         // and the liveness lane MOVES on the next ADPDU (ADP_CMD[0] = advertise
         // now, the same lever a controller-side poke uses)
         axi_write(A_ADP_CMD, 0x1);
-        for (int c = 0; c < 400; c++) {
+        //! 1600 cycles, not 400: the CONTROL lane runs through tx_ifg_gasket
+        //! with GAP_CYCLES = 512, so the ADPDU that follows another control
+        //! frame is deliberately spaced by more than 400 cycles (the 2026-07-19
+        //! MilanMAC back-to-back eater fix). A short window here would read
+        //! "sent_cnt did not move" and blame the counter for the gasket.
+        for (int c = 0; c < 1600; c++) {
             step();
             if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready &&
                 dut->m_axis_mac_tx_tlast) break;
@@ -582,12 +591,14 @@ int main(int argc, char** argv) {
         ck("AVAILABLE after enable-toggle", rec.got ? 1 : 0, 1);
         ck("message_type AVAILABLE(0)",
            rec.data.size() < 2 ? 0xFF : (unsigned long)((rec.data[1] >> 56) & 0x0F), 0);
-        //! the recovery is now a LEVEL arm, so rearm_cnt goes 1 -> 2 while
-        //! depart_cnt stays at 1: that is the intended reading, and it is the
-        //! same "arms but never departs" signature the 2026-07-13 episode
-        //! wanted to be able to see.
-        ck("recovery adds an arm, not a depart",
-           axi_read(A_ADP_DIAG), (2u << 16) | (2u << 8) | 1u);
+        //! rearm_cnt stays at 1 and depart_cnt at 1: the enable-toggle
+        //! recovery arrives through the LINK_UP fast path (milan_datapath
+        //! synthesises adp_link_up_p on the ADP-enable rising edge), which is
+        //! deliberately NOT a level arm - the post-depart HOLD is still
+        //! counting down in 1 s ticks, unreachable at datapath scale. So the
+        //! reading is depart_cnt 1, rearm_cnt 1 (the boot arm), src shutdown.
+        ck("recovery adds neither a depart nor a level arm",
+           axi_read(A_ADP_DIAG), (2u << 16) | (1u << 8) | 1u);
     }
 
     // --- 9. Milan talker: PROBE_TX-gated AAF streaming end-to-end ---
