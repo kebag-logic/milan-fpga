@@ -536,6 +536,46 @@ The bw-gate's per-row TSpec shadow captures on the **service beat**
 record RAM — not on the grant beat one cycle later, so a caller that drops
 `req/we` at the grant can no longer write a record whose slope is 0.
 
+#### 3.4.3 Who WRITES those rows  *(SHIPPED 2026-07-30)*
+
+§3.4.1 sized the table and §3.4.2 fixed what each row declares. Neither
+asked the question that mattered: **who provisions a talker row on a real
+board?** The answer was nobody. The port had two writers — this `0x800`
+window and, since the CRF round, the fabric's own CRF Media Clock Output
+row (§3.5) — and no board software drives the window. Measured twice on a
+4×4 board:
+
+| evidence | reading |
+|---|---|
+| `A_STRMW_SRP` `0x85C` via `A_STRM_SEL` `0x100+idx` | `0x0000_037E` at idx 0, **`0x0000_0000` at idx 1/2/3** |
+| ProfiShark inline, licensed stream running | MSRP Talker Advertise for `{02:00:00:00:00:02, uid 0}` and `{…, uid 4}` (the CRF output) — **nothing for uid 1/2/3** |
+
+Idx 0 is a live hard alias of the legacy flat row, which is why every
+idx-0-only read looked healthy. The two stream_ids on the wire were exactly
+the two rows that had a provisioner, and Milan v1.2 5.3.7.3 makes the
+Talker Advertise a *precondition* of the licence — so no talker but 0 could
+ever stream, whatever the registrar computed.
+
+Every AAF talker row now has a fabric requester (`milan_datapath`
+`aaf_srp_prov`), and the CRF requester became one **slot** of a shared
+rotating arbiter rather than the only fabric writer:
+
+| | rule | why |
+|---|---|---|
+| want | `tctx_en_r[t] & cfg_lwsrp_enable & cfg_lwsrp_talker_en` | UPSTREAM terms only. `lwsrp_stream_gate[t]` is an *output* of this engine (row provisioned AND Listener Ready), so wanting on it — or on the composed `aaf_stream_en_w`, which contains it — deadlocks: no row because no stream, no stream because no row |
+| not ACMP | `acmp_talker_active` is deliberately absent | Milan 5.5.2.7 licences a stream on SRP alone, so the advertisement must exist BEFORE a controller binds or fast-connect (5.5.3.5.3) finds no reservation to register against. Row 0 and the CRF row also declare on their enable alone |
+| identity | `{station MAC, uid = t}` / MAAP block base+t | literally the wires `acmp_src_dmac_w[t]` carries, so the declaration and the `PROBE_TX` answer for that `talker_unique_id` cannot disagree |
+| TSpec | `tctx_maxf_w[t]` (§3.4.2) | one derivation, two consumers |
+| withdrawal | want drops → `valid = 0` (+ one LV if it was on the wire) | a reservation outlives its stream otherwise |
+| software override | a `CTRL` commit carrying a NON-ZERO sid staged for THAT selection takes the row; one naming none is retaken | the `CRFT_SID` precedent (§3.5) per row — and the zero sid is a reservation for a stream this station does not emit |
+| arbitration | yield to a pending CSR **write**, never to its **poll**; rotate among fabric slots | the poll is level-high forever while a non-zero row is selected, which every boot script leaves in place — gating on it pinned the first fabric requester off permanently. A served slot becomes the lowest priority, so no slot can be starved by a busier neighbour, and a fabric beat that loses the port does not retire |
+
+Same round, in `milan_csr`: the provisioning record used to take the shared
+staging set unconditionally, so a sid staged for one selection was written
+into whatever row was committed next (desk-measured: talker idx2's row read
+back the sid staged for listener idx2). It now carries the same
+`{dir, idx}` guard the stream-table side has had since VERSION `0x000F`.
+
 ### 3.5 CRF Media Clock Output provisioning ([M-7.2.3])
 
 With N ≥ 2 AAF listener sinks, the CRF Media Clock Output is mandatory.
