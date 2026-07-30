@@ -43,6 +43,13 @@
 #include <cstdint>
 #include <vector>
 
+//! Milan v1.2 4.2.7.1.1 Table 4.3 LeaveTime, mirroring lwsrp_pkg
+//! LEAVE_TIME_MS_C. The LeaveAll aging waits below used to hardcode the
+//! IEEE 802.1Q Table 10-7 600 ms and went silently wrong the moment the
+//! package moved to Milan's 5 s.
+static const int LEAVE_MS = 5000;
+
+
 static VKL_lwsrp_rx* dut;
 static long checks = 0, fails = 0;
 static long la_pulses = 0;
@@ -272,24 +279,27 @@ int main(int argc, char** argv) {
         ck("miss: declaration unchanged", dut->listener_decl_o, D_ASKFAIL);
     }
 
-    // 5) Lv arms the leave timer: registered until 600 ms pass
+    // 5) an EXPLICIT Lv deregisters AT ONCE - Milan v1.2 4.2.7.2.2 replaces
+    //    802.1Q Table 10-4's "IN / rLv! -> (Start leavetimer) -> LV" with
+    //    "IN / rLv! -> (Lv) -> MT" for the MSRP application. This case used
+    //    to assert the opposite (registered until the 600 ms leavetimer
+    //    expired), which was the base-standard behaviour; the clause's own
+    //    Note says the instantaneous transition is what lets LeaveTime be
+    //    the 5 s Milan Table 4.3 mandates without taking 5 s to notice a
+    //    withdrawal. There is no "cancel the pending leave" window left to
+    //    test, because no leave is pending.
     {
         Vec v; v.fv = fv_listener(OUR_SID); v.evts = {EV_LV}; v.pars = {D_IGN};
         feed_parse(frame(true, {msg_listener(v)}), "lv: clean parse");
-        ck("lv: still registered", dut->listener_reg_o, 1);
+        ck("lv: deregistered immediately (4.2.7.2.2)", dut->listener_reg_o, 0);
+        ck("lv: not ready", dut->listener_ready_o, 0);
         ticks(300);
-        ck("lv: registered at 300 ms", dut->listener_reg_o, 1);
-        // a JoinIn before expiry cancels the leave
+        ck("lv: still deregistered", dut->listener_reg_o, 0);
+        // a fresh JoinIn re-registers from MT
         Vec r; r.fv = fv_listener(OUR_SID); r.evts = {EV_JOININ}; r.pars = {D_READY};
-        feed_parse(frame(true, {msg_listener(r)}), "lv-cancel: clean parse");
-        ticks(400);
-        ck("lv-cancel: still registered", dut->listener_reg_o, 1);
-        ck("lv-cancel: ready again", dut->listener_ready_o, 1);
-        // now let it actually expire
-        feed_parse(frame(true, {msg_listener(v)}), "lv2: clean parse");
-        ticks(601);
-        ck("lv-expiry: deregistered", dut->listener_reg_o, 0);
-        ck("lv-expiry: not ready", dut->listener_ready_o, 0);
+        feed_parse(frame(true, {msg_listener(r)}), "lv-rejoin: clean parse");
+        ck("lv-rejoin: registered again", dut->listener_reg_o, 1);
+        ck("lv-rejoin: ready again", dut->listener_ready_o, 1);
     }
 
     // 6) LeaveAll: pulse + ages the registration out unless re-declared
@@ -302,7 +312,7 @@ int main(int argc, char** argv) {
         feed_parse(frame(true, {msg_listener(v)}), "leaveall: clean parse");
         ck("leaveall: one pulse", la_pulses - la0, 1);
         ck("leaveall: still registered", dut->listener_reg_o, 1);
-        ticks(601);
+        ticks(LEAVE_MS + 1);            // Milan Table 4.3 LeaveTime
         ck("leaveall: aged out", dut->listener_reg_o, 0);
         // re-register, then LeaveAll + refresh before expiry -> survives
         feed_parse(frame(true, {msg_listener(r)}), "la2-setup: clean parse");
@@ -542,14 +552,15 @@ int main(int argc, char** argv) {
         feed_parse(frame(true, {msg_tadv(mt)}), "ta: Mt parse");
         ck("ta: Mt is not a leave", dut->ta_registered_o, 1);
 
-        // Lv arms the 600 ms leave window; expiry deregisters
+        // an EXPLICIT Lv deregisters at once - Milan 4.2.7.2.2 replaces
+        // 802.1Q Table 10-4's "IN / rLv! -> (Start leavetimer) -> LV" with
+        // "IN / rLv! -> (Lv) -> MT" for MSRP, on the TA registrar as much as
+        // on the Listener one. There is no leave WINDOW to sit inside any
+        // more; the timer covers the LeaveAll path only, below.
         Vec l; l.fv = fv_talker(BOUND); l.evts = {EV_LV};
         feed_parse(frame(true, {msg_tadv(l)}), "ta: lv parse");
-        ck("ta: still registered in leave window", dut->ta_registered_o, 1);
-        ticks(599);
-        ck("ta: window not lapsed at 599", dut->ta_registered_o, 1);
-        ticks(2);
-        ck("ta: deregistered after leave", dut->ta_registered_o, 0);
+        ck("ta: deregistered immediately on Lv (4.2.7.2.2)",
+           dut->ta_registered_o, 0);
 
         // re-register, then LeaveAll ages it out the same way
         Vec r2; r2.fv = fv_talker(BOUND); r2.evts = {EV_JOININ};
@@ -557,7 +568,7 @@ int main(int argc, char** argv) {
         ck("ta: re-registered", dut->ta_registered_o, 1);
         Vec la; la.lva = 1; la.fv = fv_talker(BOUND); la.evts = {EV_MT};
         feed_parse(frame(true, {msg_tadv(la)}), "ta: leaveall parse");
-        ticks(601);
+        ticks(LEAVE_MS + 1);            // Milan Table 4.3 LeaveTime
         ck("ta: aged out after LeaveAll", dut->ta_registered_o, 0);
 
         // TalkerFailed registers the failure with its code

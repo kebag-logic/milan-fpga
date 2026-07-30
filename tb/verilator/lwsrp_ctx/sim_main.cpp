@@ -81,6 +81,15 @@ static void step() {
     }
 }
 static void run(long n) { for (long i = 0; i < n; i++) step(); }
+//! This TB elaborates KL_lwsrp_top with CLK_FREQ_HZ_P = 10000, so the
+//! timers' 1 kHz strobe lands every 10 clocks: CYCLES_PER_MS converts a
+//! clause duration into run() cycles. LEAVE_MS mirrors lwsrp_pkg
+//! LEAVE_TIME_MS_C (Milan v1.2 Table 4.3). The aging wait below used to be
+//! a bare run(6600) - 660 ms, which was LeaveTime + margin only while the
+//! package still carried the IEEE 802.1Q 600 ms.
+static const int CYCLES_PER_MS = 10;
+static const int LEAVE_MS      = 5000;
+static void run_ms(long ms) { run(ms * CYCLES_PER_MS); }
 static void drain_tx() { tx_frames.clear(); }
 
 // frame classification
@@ -521,7 +530,7 @@ int main(int argc, char** argv) {
         auto g = wait_frame(is_legacy_msrp, 3000, "la: legacy re-declare");
         ck("la: legacy pair too", g.size() >= 16, 1);
         // both listener rows lose their TA registration after LeaveTime
-        run(6600);
+        run_ms(LEAVE_MS + 200);
         ck("la: CRF registration aged out", (dut->ctx_reg_o >> 1) & 1, 0);
         ck("la: row3 registration aged out", (dut->ctx_reg_o >> 3) & 1, 0);
         ck("la: CRF not ready", (dut->ctx_ready_o >> 1) & 1, 0);

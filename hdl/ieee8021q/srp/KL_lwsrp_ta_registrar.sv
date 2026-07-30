@@ -55,7 +55,13 @@ module KL_lwsrp_ta_registrar (
 );
 
   //! leave downcounters (ms); 0 = disarmed
-  reg [9:0] ta_leave_r, tf_leave_r;
+  //! WIDTH IS DERIVED, NOT GUESSED (2026-07-30). These were `reg [9:0]`,
+  //! which holds 1023 - fine for the IEEE 802.1Q Table 10-7 LeaveTime of
+  //! 600 ms, and a SILENT TRUNCATION the moment the package moved to the
+  //! 5000 ms Milan v1.2 Table 4.3 mandates: 10'(5000) is 904, so the leave
+  //! window would have been 904 ms while every other registrar used 5 s.
+  localparam int unsigned LV_W_C = $clog2(LEAVE_TIME_MS_C + 1);
+  reg [LV_W_C-1:0] ta_leave_r, tf_leave_r;
 
   wire w_join_evt = (l_evt_i == MRP_EVT_NEW_C)    || (l_evt_i == MRP_EVT_JOININ_C) ||
                     (l_evt_i == MRP_EVT_JOINMT_C) || (l_evt_i == MRP_EVT_IN_C);
@@ -69,31 +75,31 @@ module KL_lwsrp_ta_registrar (
       ta_vlan_o       <= 12'h0;
       ta_acclat_o     <= 32'h0;
       ta_fail_bridge_o<= 64'h0;
-      ta_leave_r      <= 10'd0;
-      tf_leave_r      <= 10'd0;
+      ta_leave_r      <= '0;
+      tf_leave_r      <= '0;
     end else if (!enable_i) begin
       // binding dropped: forget everything
       ta_registered_o <= 1'b0;
       ta_failed_o     <= 1'b0;
-      ta_leave_r      <= 10'd0;
-      tf_leave_r      <= 10'd0;
+      ta_leave_r      <= '0;
+      tf_leave_r      <= '0;
     end else begin
       // leave expiry
-      if (tick_1khz_i && ta_leave_r != 10'd0) begin
-        ta_leave_r <= ta_leave_r - 10'd1;
-        if (ta_leave_r == 10'd1) ta_registered_o <= 1'b0;
+      if (tick_1khz_i && ta_leave_r != '0) begin
+        ta_leave_r <= ta_leave_r - 1'b1;
+        if (ta_leave_r == LV_W_C'(1)) ta_registered_o <= 1'b0;
       end
-      if (tick_1khz_i && tf_leave_r != 10'd0) begin
-        tf_leave_r <= tf_leave_r - 10'd1;
-        if (tf_leave_r == 10'd1) ta_failed_o <= 1'b0;
+      if (tick_1khz_i && tf_leave_r != '0) begin
+        tf_leave_r <= tf_leave_r - 1'b1;
+        if (tf_leave_r == LV_W_C'(1)) ta_failed_o <= 1'b0;
       end
 
       // LeaveAll arms the leave window on whatever is registered
       if (leaveall_p_i) begin
-        if (ta_registered_o && ta_leave_r == 10'd0)
-          ta_leave_r <= 10'(LEAVE_TIME_MS_C);
-        if (ta_failed_o && tf_leave_r == 10'd0)
-          tf_leave_r <= 10'(LEAVE_TIME_MS_C);
+        if (ta_registered_o && ta_leave_r == '0)
+          ta_leave_r <= LV_W_C'(LEAVE_TIME_MS_C);
+        if (ta_failed_o && tf_leave_r == '0)
+          tf_leave_r <= LV_W_C'(LEAVE_TIME_MS_C);
       end
 
       if (l_tadv_p_i) begin
@@ -101,9 +107,16 @@ module KL_lwsrp_ta_registrar (
           ta_registered_o <= 1'b1;
           ta_vlan_o       <= tk_vlan_i;
           ta_acclat_o     <= tk_acclat_i;
-          ta_leave_r      <= 10'd0;      // reload: disarm the leave window
+          ta_leave_r      <= '0;         // reload: disarm the leave window
         end else if (w_lv_evt && ta_registered_o) begin
-          ta_leave_r <= 10'(LEAVE_TIME_MS_C);
+          //! MILAN 4.2.7.2.2: an EXPLICIT rLv is IN -> MT at once on THIS
+          //! registrar as much as on the Listener one and the per-lane
+          //! contexts - it is the MSRP Registrar state machine the clause
+          //! replaces, not one instance of it. The leave WINDOW below still
+          //! covers the LeaveAll path, where waiting for the re-declaration
+          //! round is the point.
+          ta_registered_o <= 1'b0;
+          ta_leave_r      <= '0;
         end
       end
       if (l_tfail_p_i) begin
@@ -113,9 +126,12 @@ module KL_lwsrp_ta_registrar (
           ta_vlan_o        <= tk_vlan_i;
           ta_acclat_o      <= tk_acclat_i;
           ta_fail_bridge_o <= tk_bridge_i;
-          tf_leave_r       <= 10'd0;
+          tf_leave_r       <= '0;
         end else if (w_lv_evt && ta_failed_o) begin
-          tf_leave_r <= 10'(LEAVE_TIME_MS_C);
+          //! ...and the bridge withdrawing its TalkerFailed declaration is
+          //! explicit news too, so the sticky failure clears now.
+          ta_failed_o <= 1'b0;
+          tf_leave_r  <= '0;
         end
       end
     end
