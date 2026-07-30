@@ -2267,6 +2267,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  an internal media clock there is no CRF stream to be disrupted, so
   //  toggling mr would be a false alarm to every listener.
   // --------------------------------------------------------------------------
+  //! IEEE 1722-2016 4.4.4.3 disruption pulse: crf_locked_w falls while CRF is
+  //! the selected media clock source. The clause's OTHER mandatory trigger, a
+  //! change of the media clock SOURCE (PICS Table F.7 AAF-5, AAF:M), is
+  //! detected INSIDE KL_media_clock_restart from clk_src_i, so all of 4.4.4.3
+  //! lives in the one module.
   logic tkd_crflk_q_r;
   always_ff @(posedge axis_clk) begin : mcr_trigger
     if (!axis_resetn) tkd_crflk_q_r <= 1'b0;
@@ -2278,6 +2283,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   KL_media_clock_restart #(.N_TALKERS_P(N_STREAMS)) media_clock_restart (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .restart_p_i (mcr_restart_p_w),
+    .clk_src_i   (aecp_clk_src),
     .streaming_i (aaf_stream_en_w),
     .frame_p_i   (aaf_frame_p_w),
     .frame_idx_i (aaf_frame_idx_w),

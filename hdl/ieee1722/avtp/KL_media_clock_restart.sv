@@ -52,12 +52,21 @@
                 current media-clock truth on its first PDU rather than
                 starting life with a stale bit.
 
-                WHAT IS NOT IMPLEMENTED. The second trigger of 4.4.4.3 - "or
+                THE SOURCE-CHANGE TRIGGER. 4.4.4.3's PRIMARY case is a change
+                of the media clock SOURCE (its S/PDIF A->B example), and PICS
+                Table F.7 AAF-5 makes it AAF:M MANDATORY. clk_src_i carries the
+                live clock_source_index (SET_CLOCK_SOURCE); a change of its
+                value toggles the level exactly like a disruption pulse, so
+                switching internal<->CRF or between two external sources
+                restarts the media clock on the wire (2026-07-30).
+
+                WHAT IS NOT IMPLEMENTED. The remaining 4.4.4.3 trigger - "or
                 if the mr bit in the CRF stream has been toggled" - needs the
                 received CRF PDU's own mr bit, and KL_crf_rx does not parse it
                 (it decodes pull/base/interval/dlen/type and the timestamps).
-                Only the DISRUPTION trigger is wired. Recorded, not hidden:
-                see docs/traceability/milan-v12.md.
+                The DISRUPTION and SOURCE-CHANGE triggers are wired; the
+                CRF-mr-echo one is not. Recorded, not hidden: see
+                docs/traceability/milan-v12.md.
 
   Spec refs   : IEEE 1722-2016 4.4.4.3 (+ 10.4.3 for the CRF talker side),
                 Milan v1.2 5.3.7.7 Table 5.4 MEDIA_RESET
@@ -80,11 +89,17 @@ module KL_media_clock_restart #(
   input  wire                    clk_i,
   input  wire                    rst_n,
 
-  //! media-clock restart request: one cycle per restart event. Today this is
-  //! a disruption of the CRF stream our media clock is slaved to; any future
-  //! "the media clock source changed" event (4.4.4.3's S/PDIF example) joins
-  //! here with no change below.
+  //! media-clock restart request: one cycle per restart event. This is the
+  //! disruption of the CRF stream our media clock is slaved to; the
+  //! source-change trigger has its own clk_src_i below.
   input  wire                    restart_p_i,
+  //! the live media clock SOURCE (SET_CLOCK_SOURCE / clock_source_index). A
+  //! CHANGE of this value is 4.4.4.3's PRIMARY restart trigger (the clause's
+  //! S/PDIF A->B example) and PICS Table F.7 AAF-5 makes it AAF:M MANDATORY -
+  //! it is detected here, beside the disruption pulse, so all of 4.4.4.3
+  //! lives in one place. Reset it to whatever clock_source_index resets to
+  //! (0 = internal) so power-up raises no spurious restart.
+  input  wire [15:0]             clk_src_i,
 
   //! per-talker streaming level (a stopped stream holds nothing)
   input  wire [N_TALKERS_P-1:0]  streaming_i,
@@ -110,6 +125,9 @@ module KL_media_clock_restart #(
 
   //! engine-wide target: one media clock, so one restart history
   logic                     tgt_r;
+  //! shadow of the media clock source; a difference is a source-change edge
+  logic [15:0]              clk_src_q_r;
+  wire                      src_change_w = (clk_src_q_r != clk_src_i);
   //! per-talker transmitted-PDU count since this talker's level last changed
   logic [HOLDW_C-1:0]       hold_r [N_TALKERS_P];
 
@@ -120,12 +138,16 @@ module KL_media_clock_restart #(
     if (!rst_n) begin
       tgt_r <= 1'b0;
       mr_o  <= '0;
+      clk_src_q_r <= 16'd0;
       for (int t = 0; t < N_TALKERS_P; t++)
         //! start satisfied: the first PDU of a fresh stream may carry the
         //! current truth immediately
         hold_r[t] <= HOLDW_C'(HOLD_PDU_P);
     end else begin
-      if (restart_p_i) tgt_r <= ~tgt_r;
+      clk_src_q_r <= clk_src_i;
+      //! toggle on EITHER 4.4.4.3 trigger: a CRF disruption pulse OR a
+      //! media-clock source change. A no-op SET (same source) does not fire.
+      if (restart_p_i | src_change_w) tgt_r <= ~tgt_r;
 
       //! a completed PDU that carried this talker's CURRENT level counts
       //! toward its hold (saturating - only the >= comparison matters)

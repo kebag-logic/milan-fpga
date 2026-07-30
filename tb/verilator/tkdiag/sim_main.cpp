@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
     dut = new Vtkdiag_tb_top;
     dut->rst_n = 0; dut->streaming_i = 0; dut->frame_p_i = 0;
     dut->tu_i = 0; dut->frame_mr_i = 0; dut->rd_idx_i = 0;
-    dut->mcr_restart_p_i = 0; dut->mcr_streaming_i = 0;
+    dut->mcr_restart_p_i = 0; dut->mcr_streaming_i = 0; dut->mcr_clk_src_i = 0;
     cyc(4); dut->rst_n = 1; cyc(4);
 
     printf("[T1] reset state + the START/STOP invariant at zero\n");
@@ -322,6 +322,35 @@ int main(int argc, char** argv) {
     // unsatisfied and its level must still be the pre-flip value
     ck("T12 talker 1 sent no PDUs -> its own hold blocks the flip",
        (dut->mcr_mr_o >> 1) & 1, 1);
+
+    // ---------------------------------------------------------------------
+    //  T13: the 4.4.4.3 SOURCE-CHANGE trigger (PICS Table F.7 AAF-5, AAF:M
+    //  MANDATORY - "Is the mr field toggled when the device's media clock
+    //  source has changed?"). Until 2026-07-30 only the CRF-disruption pulse
+    //  was wired, so a controller switching the media clock source produced
+    //  NO mr edge. BITES the pre-fix module (no clk_src_i trigger): every
+    //  source-change ck below reads the un-toggled level.
+    // ---------------------------------------------------------------------
+    printf("[T13] the 4.4.4.3 SOURCE-CHANGE mr trigger (PICS AAF-5)\n");
+    dut->rst_n = 0; dut->mcr_clk_src_i = 0; cyc(4); dut->rst_n = 1;
+    dut->mcr_streaming_i = 0b11; dut->frame_mr_i = 0; cyc(4);
+    ck("T13 reset level 0, source internal(0)", dut->mcr_mr_o & 1, 0);
+    for (int k = 0; k < 8; k++) frame_mr(0, 0, 0);   // hold satisfied, no change
+    cyc(2);
+    ck("T13 source unchanged -> no toggle", dut->mcr_mr_o & 1, 0);
+    // SET_CLOCK_SOURCE internal(0) -> CRF(2): a media-clock SOURCE change
+    dut->mcr_clk_src_i = 2; step(); cyc(2);
+    ck("T13 source change internal->CRF toggles mr to 1", dut->mcr_mr_o & 1, 1);
+    dut->frame_mr_i = 1;
+    for (int k = 0; k < 8; k++) frame_mr(0, 0, 1);   // hold the new level
+    cyc(2);
+    // a no-op SET (same source value) must NOT toggle
+    dut->mcr_clk_src_i = 2; step(); cyc(2);
+    ck("T13 no-op SET (same source) does NOT toggle", dut->mcr_mr_o & 1, 1);
+    // change back CRF(2) -> internal(0): toggles again
+    dut->mcr_clk_src_i = 0; step(); cyc(2);
+    ck("T13 source change CRF->internal toggles mr back to 0",
+       dut->mcr_mr_o & 1, 0);
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);

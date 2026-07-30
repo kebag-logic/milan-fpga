@@ -31,6 +31,8 @@ module tkdiag_tb_top (
   input  wire        frame_mr_i,
   //! media-clock restart request into the 4.4.4.3 generator
   input  wire        mcr_restart_p_i,
+  //! the live media clock source: a CHANGE here is 4.4.4.3's primary trigger
+  input  wire [15:0] mcr_clk_src_i,
   input  wire [1:0]  mcr_streaming_i,
   output wire [1:0]  mcr_mr_o,
   input  wire [3:0]  rd_idx_i,
@@ -57,6 +59,7 @@ module tkdiag_tb_top (
   KL_media_clock_restart #(.N_TALKERS_P (2), .HOLD_PDU_P (8)) u_mcr (
     .clk_i (clk_i), .rst_n (rst_n),
     .restart_p_i (mcr_restart_p_i),
+    .clk_src_i (mcr_clk_src_i),
     .streaming_i (mcr_streaming_i),
     .frame_p_i (frame_p_i), .frame_idx_i (frame_idx_i),
     .frame_mr_i (frame_mr_i),
