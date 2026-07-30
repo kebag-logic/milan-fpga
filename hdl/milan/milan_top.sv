@@ -262,6 +262,10 @@ module milan_top import ethernet_packet_pkg::*; #(
   wire [TDATA_WIDTH/8-1:0] aecp_tx_tkeep;
   wire                     aecp_tx_tvalid, aecp_tx_tlast, aecp_tx_tready;
   wire                     aecp_discover_p;    //! ENTITY_DISCOVER seen -> advertise
+  wire                     adp_disc_seen_p;    //! DIAG: any ENTITY_DISCOVER on the wire (A_ADP_DIAG2)
+  //! A_ADP_DIAG2 (0x674) sources - see the milan_datapath twin of this join
+  wire [7:0]               adp_sent_cnt, adp_disc_rx_cnt;
+  wire [3:0]               adp_last_msg, adp_state;
   wire                     aecp_locked;
   wire [15:0]              aecp_current_config, aecp_cmd_count, aecp_resp_count;
   wire [TDATA_WIDTH-1:0]   acmp_tx_tdata;
@@ -480,6 +484,11 @@ module milan_top import ethernet_packet_pkg::*; #(
     .i_adp_depart_cnt     (adp_depart_cnt),
     .i_adp_rearm_cnt      (adp_rearm_cnt),
     .i_adp_depart_src     (adp_depart_src),
+    .i_adp_sent_cnt       (adp_sent_cnt),
+    .i_adp_disc_rx_cnt    (adp_disc_rx_cnt),
+    .i_adp_disc_seen_p    (adp_disc_seen_p),
+    .i_adp_last_msg       (adp_last_msg),
+    .i_adp_state          (adp_state),
     .i_aecp_locked        (aecp_locked),
     .i_aecp_current_config(aecp_current_config),
     .i_aecp_cmd_count     (aecp_cmd_count),
@@ -756,7 +765,11 @@ module milan_top import ethernet_packet_pkg::*; #(
     .frame_sent_o (),
     .depart_cnt_o (adp_depart_cnt),
     .rearm_cnt_o  (adp_rearm_cnt),
-    .depart_src_o (adp_depart_src)
+    .depart_src_o (adp_depart_src),
+    .sent_cnt_o    (adp_sent_cnt),
+    .disc_rx_cnt_o (adp_disc_rx_cnt),
+    .last_msg_o    (adp_last_msg),
+    .state_o       (adp_state)
   );
 
   // ==========================================================================
@@ -815,6 +828,7 @@ module milan_top import ethernet_packet_pkg::*; #(
     .rx_tkeep_i  (rx_axis_to_dma.tkeep),
     .rx_tlast_i  (rx_axis_to_dma.tlast),
     .adp_discover_o (aecp_discover_p),
+    .adp_disc_seen_o(adp_disc_seen_p),
     .m_axis_tdata (aecp_tx_tdata), .m_axis_tkeep (aecp_tx_tkeep),
     .m_axis_tvalid(aecp_tx_tvalid), .m_axis_tlast (aecp_tx_tlast),
     .m_axis_tready(aecp_tx_tready),

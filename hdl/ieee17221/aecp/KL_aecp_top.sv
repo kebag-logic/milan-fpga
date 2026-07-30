@@ -149,6 +149,8 @@ module KL_aecp_top #(
 
   // ---- ADP discover-response trigger (-> adp_advertiser.rcv_discover_i)
   output wire          adp_discover_o,
+  //! DIAG: any ENTITY_DISCOVER on the wire, whoever it names (A_ADP_DIAG2)
+  output wire          adp_disc_seen_o,
 
   // ---- response AXIS master (little lane; -> TX arbiter) -------------
   output wire [63:0]   m_axis_tdata,
@@ -211,7 +213,8 @@ module KL_aecp_top #(
     .rx_tkeep_i(rx_tkeep_i), .rx_tlast_i(rx_tlast_i),
     .m_axis_tvalid(ig_to_val_tvalid), .m_axis_tready(ig_to_val_tready), .m_axis_tdata(ig_to_val_tdata), .m_axis_tkeep(ig_to_val_tkeep), .m_axis_tlast(ig_to_val_tlast),
     .req_src_mac_o(req_src_mac_w), .req_valid_o(req_valid_w), .req_pop_i(req_pop_w),
-    .adp_discover_o(adp_discover_o)
+    .adp_discover_o(adp_discover_o),
+    .adp_disc_seen_o(adp_disc_seen_o)
   );
 
   // ---- validator -----------------------------------------------------

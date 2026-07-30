@@ -41,6 +41,21 @@
                 us (subtype 0xFA, msg_type 2, target 0 or us) never enters
                 the replay path — it pulses adp_discover_o at frame end.
 
+                THE TARGET TEST IS IEEE Std 1722.1-2021 6.2.7 Figure 6-5
+                (Discovery Interface State Machine), verbatim: from RECEIVED
+                DISCOVER, "entity_id == 0 || entity_id ==
+                entityInfo.entity_id" reaches the DISCOVER state which sets
+                needsAdvertise = TRUE, while "entity_id != 0 && entity_id !=
+                entityInfo.entity_id" returns to WAITING and advertises
+                NOTHING. adp_discover_o is that qualified edge and nothing
+                else. adp_disc_seen_o is the UNQUALIFIED witness of the same
+                frames (any ADP ENTITY_DISCOVER on the wire, target ignored,
+                enable ignored): counted at A_ADP_DIAG2[23:16] it separates
+                "no controller is discovering at all" from "discovers arrive
+                but name another entity" - a distinction no register could
+                make before 2026-07-30, when proving the first case took a
+                peer-side wire capture.
+
                 Read side: pops one GOOD frame at a time (gated on the
                 requester-MAC slot being free), extracts the controller's
                 source MAC from the two header words while discarding them,
@@ -95,7 +110,8 @@ module KL_aecp_ingress #(
   input  wire          req_pop_i,
 
   // ---- ADP discover-response trigger ---------------------------------
-  output logic         adp_discover_o
+  output logic         adp_discover_o,   //! 1-cycle: an ENTITY_DISCOVER FOR US (6.2.7 target test passed)
+  output logic         adp_disc_seen_o   //! 1-cycle DIAG: any ENTITY_DISCOVER on the wire, target/enable ignored
 );
 
   // ------------------------------------------------------------------ //
@@ -124,6 +140,7 @@ module KL_aecp_ingress #(
   logic       is_avtp_r;
   logic [47:0] tgt_hi_r;      //! target_entity_id bytes 18..23
   logic       adp_pend_r;     //! ADP DISCOVER for us: pulse at frame end
+  logic       adp_seen_r;     //! ADP DISCOVER seen (any target): pulse at frame end
 
   //! beat-1 verdict, computed on the registered beat as it is pushed
   wire w_b1_full   = rxv_r && (wbeat_r == 3'd1) && (rxk_r == 8'hFF);
@@ -167,10 +184,11 @@ module KL_aecp_ingress #(
       drop_rest_r <= 1'b0; kill_pend_r <= 1'b0;
       dst_ok_r <= 1'b0;
       subtype_r <= '0; msgtype_r <= '0; is_avtp_r <= 1'b0;
-      tgt_hi_r <= '0; adp_pend_r <= 1'b0;
-      adp_discover_o <= 1'b0;
+      tgt_hi_r <= '0; adp_pend_r <= 1'b0; adp_seen_r <= 1'b0;
+      adp_discover_o <= 1'b0; adp_disc_seen_o <= 1'b0;
     end else begin
-      adp_discover_o <= 1'b0;
+      adp_discover_o  <= 1'b0;
+      adp_disc_seen_o <= 1'b0;
       if (kill_pend_r) kill_pend_r <= 1'b0;
 
       if (rxv_r) begin
@@ -181,11 +199,21 @@ module KL_aecp_ingress #(
                           rxd_r[31:24], rxd_r[39:32], rxd_r[47:40]}
                          == station_mac_i);
             adp_pend_r <= 1'b0;
+            adp_seen_r <= 1'b0;
           end
           3'd1: begin
             is_avtp_r <= w_b1_avtp;
             subtype_r <= rxd_r[55:48];
             msgtype_r <= rxd_r[63:56] & 8'h0F;
+            //! DIAG witness: subtype + message_type are complete at beat 1, so
+            //! an ENTITY_DISCOVER is recognisable HERE, before the target id
+            //! exists. Deliberately NOT gated by enable_i or by dst_ok_r: it
+            //! reports what is on the wire, which is the whole point of it.
+            //! A frame whose tlast lands on beat 1 (a 16-byte runt, never a
+            //! valid 82-byte ADPDU) is not counted - the tlast arm below
+            //! clears the flag in the same cycle and reads its old value.
+            adp_seen_r <= w_b1_avtp && (rxd_r[55:48] == 8'hFA) &&
+                          ((rxd_r[63:56] & 8'h0F) == 4'd2);
             // not an AECP command for us: terminate it into the FIFO now
             // (ADP frames included — they never replay)
             if (!rxl_r && pushing_r && !w_b1_aecp) begin
@@ -213,11 +241,13 @@ module KL_aecp_ingress #(
         wbeat_r <= (wbeat_r == 3'd4) ? 3'd4 : wbeat_r + 3'd1;
 
         if (rxl_r) begin
-          if (enable_i && adp_pend_r) adp_discover_o <= 1'b1;
+          if (enable_i && adp_pend_r) adp_discover_o  <= 1'b1;
+          if (adp_seen_r)             adp_disc_seen_o <= 1'b1;
           wbeat_r     <= 3'd0;
           pushing_r   <= 1'b0;
           drop_rest_r <= 1'b0;
           adp_pend_r  <= 1'b0;
+          adp_seen_r  <= 1'b0;
         end
       end
     end

@@ -317,6 +317,189 @@ int main(int argc, char** argv) {
     auto f14b = capture_frame();
     check_common("periodic after GM change keeps NEW GM", f14b, 0, 17);
 
+    // ================================================================== //
+    // 15) ENTITY_DISCOVER RESPONSE + the DIAG group 2 lanes.               //
+    //     IEEE 1722.1-2021 6.2.7 Figure 6-5: an ENTITY_DISCOVER whose      //
+    //     entity_id is 0 or ours reaches the DISCOVER state and sets       //
+    //     needsAdvertise = TRUE; Figure 6-2 then routes that through DELAY //
+    //     -> ADVERTISE -> WAITING, where "entityInfo.available_index =     //
+    //     entityInfo.available_index + 1". The TARGET TEST is upstream in  //
+    //     KL_aecp_ingress (it owns the RX bytes) and is locked in          //
+    //     tb/verilator/aecp case 11b; this locks what the engine owes: a   //
+    //     DELAYED, index-bumping ENTITY_AVAILABLE, and the A_ADP_DIAG2     //
+    //     lanes that make it readable from one CSR read.                   //
+    // ================================================================== //
+    printf("\n-- [15] discover response + DIAG group 2\n");
+    {
+        uint32_t sent0 = dut->sent_cnt_o, drx0 = dut->disc_rx_cnt_o;
+        ck("state.available before discover", dut->state_o & 1, 1);
+        pulse(dut->rcv_discover_i);
+        auto f15 = capture_frame();
+        check_common("discover response (delayed, index+1)", f15, 0, 18);
+        ck("disc_rx_cnt counted the discover", dut->disc_rx_cnt_o, drx0 + 1);
+        ck("sent_cnt counted the response",    dut->sent_cnt_o,    sent0 + 1);
+        ck("last_msg == ENTITY_AVAILABLE",     dut->last_msg_o,    0);
+        ck("state idle after send (nothing busy/pending)", dut->state_o & 0xC, 0);
+
+        // A DEPARTED entity has no Advertise Entity state machine to signal,
+        // so a discover must produce NOTHING while the depart HOLD stands.
+        // The DIAG still counts the arrival - "asked, and here is why we were
+        // silent" is the whole point of the lane.
+        pulse(dut->shutdown_i);
+        auto f15d = capture_frame();
+        check_common("depart before the negative case", f15d, 1, 19);
+        ck("last_msg == ENTITY_DEPARTING", dut->last_msg_o, 1);
+        ck("state.available == 0 after depart", dut->state_o & 1, 0);
+        uint32_t drx1 = dut->disc_rx_cnt_o, sent1 = dut->sent_cnt_o;
+        bool answered = false;
+        for (int i = 0; i < 4; i++) pulse(dut->rcv_discover_i);
+        for (int c = 0; c < 200; c++) { lo(); if (dut->m_axis_tvalid) answered = true; hi(); }
+        ck("no discover response while departed", answered ? 1 : 0, 0);
+        ck("disc_rx_cnt still witnesses the arrivals", dut->disc_rx_cnt_o, drx1 + 4);
+        ck("sent_cnt unchanged while silent", dut->sent_cnt_o, sent1);
+        // the depart HOLD expires after REARM_TICKS_C ticks and the LEVEL
+        // re-arms us (5.6.3.5.2), which is the state the next case needs
+        pulse(dut->tick_i); pulse(dut->tick_i);
+        auto f15u = capture_frame();
+        check_common("level re-arm after the depart hold", f15u, 0, 20);
+    }
+
+    // ================================================================== //
+    // 16) DISCOVER STORM - 256 ENTITY_DISCOVERs back to back must not     //
+    //     wedge the engine, must not emit one frame per discover, and     //
+    //     must keep available_index a strictly +1 sequence (a repeated or //
+    //     skipped index is what makes la_avdecc/Hive call an entity       //
+    //     incoherent). Also crosses the 8-bit disc_rx_cnt DIAG wrap.      //
+    // ================================================================== //
+    printf("\n-- [16] discover storm: coalesced, coherent, no wedge\n");
+    {
+        const int STORM = 256;                  // exactly one 8-bit DIAG wrap
+        uint32_t idx = 20, responses = 0;
+        uint32_t drx0 = dut->disc_rx_cnt_o, sent0 = dut->sent_cnt_o;
+        bool     order_ok = true, shape_ok = true;
+        std::vector<uint8_t> cur;
+        // ONE inline collector so the discover pulses stay exactly countable:
+        // capture_frame() would eat cycles in which no discover is delivered.
+        dut->m_axis_tready = 1;
+        for (int c = 0; c < 4096; c++) {
+            dut->rcv_discover_i = (c < STORM) ? 1 : 0;
+            lo();
+            bool beat = dut->m_axis_tvalid;
+            bool last = dut->m_axis_tlast;
+            if (beat)
+                for (int l = 0; l < 8; l++)
+                    if ((dut->m_axis_tkeep >> l) & 1)
+                        cur.push_back((dut->m_axis_tdata >> (8 * l)) & 0xFF);
+            hi();
+            if (beat && last) {
+                responses++;
+                if (cur.size() != 82 || (cur[15] & 0x0F) != 0) shape_ok = false;
+                if (cur.size() >= 54 && be(cur, 50, 4) != idx + 1) order_ok = false;
+                idx++;
+                cur.clear();
+            }
+        }
+        dut->rcv_discover_i = 0;
+        printf("   storm: %d discovers -> %u responses, last index %u\n",
+               STORM, responses, idx);
+        ck("storm: at least one response", responses >= 1, 1);
+        ck("storm: COALESCED (fewer responses than discovers)", responses < STORM, 1);
+        ck("storm: every response a well-formed AVAILABLE", shape_ok ? 1 : 0, 1);
+        ck("storm: available_index strictly +1, never repeated", order_ok ? 1 : 0, 1);
+        ck("storm: disc_rx_cnt wrapped exactly once through 256",
+           dut->disc_rx_cnt_o, drx0);           // +256 on an 8-bit lane == same value
+        ck("storm: sent_cnt tracks the responses",
+           dut->sent_cnt_o, (sent0 + responses) & 0xFF);
+        ck("storm: engine idle afterwards (no wedge)", dut->state_o & 0xC, 0);
+        ck("storm: still available", dut->state_o & 1, 1);
+        // the periodic contract must survive the storm
+        for (int t = 0; t < ADV_PERIOD; t++) pulse(dut->tick_i);
+        auto fp = capture_frame();
+        check_common("periodic advertise survives the storm", fp, 0, idx + 1);
+    }
+
+    // ================================================================== //
+    // 17) COLD BOOT ORDER, tested instead of assumed: reset, arm enable   //
+    //     with the link DOWN, then bring the link level up and touch      //
+    //     NOTHING else - no link_up pulse, no tick, no CSR write. Milan   //
+    //     v1.2 5.6.3.5.2 "Startup of the PAAD-AE with link status up"     //
+    //     makes that advertise mandatory, and it is the S50 boot-order    //
+    //     claim reduced to RTL: if this passes, flash_verify.sh's devmem  //
+    //     toggle is belt-and-braces rather than load-bearing.             //
+    // ================================================================== //
+    printf("\n-- [17] cold boot: arm before link, advertise with NO event at all\n");
+    {
+        dut->rst_n = 0; dut->enable_i = 0; clear_events(); dut->link_level_i = 0;
+        for (int i = 0; i < 4; i++) step();
+        dut->rst_n = 1;
+        for (int i = 0; i < 4; i++) step();          // reset released, link down
+        dut->enable_i = 1;                            // S50 arms ADP first...
+        bool early = false;
+        for (int c = 0; c < 60; c++) { lo(); if (dut->m_axis_tvalid) early = true; hi(); }
+        ck("no advertise while the link is down", early ? 1 : 0, 0);
+        ck("available_index reset to 0 by the reset", dut->available_index_o, 0);
+        ck("state.available == 0 with the link down", dut->state_o & 1, 0);
+        dut->link_level_i = 1;                        // ...the link comes up LATE
+        auto f17 = capture_frame();                   // no pulse, no tick, no write
+        check_common("cold-boot AVAILABLE from the LEVEL alone", f17, 0, 1);
+        ck("sent_cnt from a cold boot", dut->sent_cnt_o, 1);
+        ck("depart_cnt clean on a cold boot", dut->depart_cnt_o, 0);
+        ck("state.available == 1 once up", dut->state_o & 1, 1);
+    }
+
+    // ================================================================== //
+    // 18) LONG-RUN ADVERTISE LOCK - documents PROVEN-GOOD silicon         //
+    //     behaviour (2026-07-30 wire capture: ADPDUs at exactly 10.000 s  //
+    //     spacing with available_index 2681 -> 2682 -> 2683, i.e. ~7.4 h  //
+    //     unbroken) at the CLAUSE period this engine now keeps.           //
+    //                                                                     //
+    //     CYCLE ARITHMETIC against the real widths and reloads:           //
+    //       valid_time_i = 31 = the ADP_CTRL reset value. The period is    //
+    //         MIN(5, MAX(1, valid_time/2)) = 5 ticks (Milan Table 5.50's   //
+    //         fixed 5 s; 1722.1 Figure 6-2 would allow 15 s here).        //
+    //       5400 cycles = 27,000 ticks. tick_i is 1 s in the integration   //
+    //         (ADP_TICK_DIV = MILAN_CLK_FREQ_HZ), so this is 7.5 HOURS of  //
+    //         silicon wall time - the span the bench capture covered.      //
+    //       adv_tick_cnt_r is 5 bits reloading at 5: 5400 laps, so any     //
+    //         off-by-one or wrap in the reload compare shows up.          //
+    //       sent_cnt_o is 8 bits: 5400 sends = 21 full wraps, proving the  //
+    //         DIAG liveness lane keeps counting past 255.                 //
+    //       available_index_o is 32 bits and must simply keep going: no    //
+    //         reset, no repeat, +1 per ADPDU (6.2.2.15).                   //
+    // ================================================================== //
+    printf("\n-- [18] long run: 5400 advertise cycles at valid_time 31 (= 7.5 h)\n");
+    {
+        const int CYCLES = 5400;
+        dut->valid_time_i = 31;                  // the ADP_CTRL reset value
+        for (int i = 0; i < 2; i++) step();
+        uint32_t expect = dut->available_index_o;
+        uint32_t frames = 0, gaps = 0, bad = 0;
+        for (int cyc = 0; cyc < CYCLES; cyc++) {
+            for (int t = 0; t < 5; t++) pulse(dut->tick_i);   // MIN(5, 31/2) = 5
+            auto f = capture_frame();
+            if (f.size() != 82) { bad++; break; }
+            expect++;
+            if (be(f, 50, 4) != expect) gaps++;
+            if ((f[15] & 0x0F) != 0 || (f[16] >> 3) != 31) bad++;
+            frames++;
+        }
+        printf("   long run: %u frames, last index %u, gaps %u, malformed %u\n",
+               frames, expect, gaps, bad);
+        ck("long run: 5400 ADPDUs kept coming", frames, CYCLES);
+        ck("long run: every frame 82 B AVAILABLE with valid_time 31", bad, 0);
+        ck("long run: available_index +1 every frame, never reset", gaps, 0);
+        ck("long run: sent_cnt wrapped 21x and still tracks",
+           dut->sent_cnt_o, (uint32_t)((1 + CYCLES) & 0xFF));  // +1 = case 17's boot frame
+        ck("long run: no departs invented", dut->depart_cnt_o, 0);
+        ck("long run: still available at the end", dut->state_o & 1, 1);
+        // and still responsive to a discover after 7.5 simulated hours
+        pulse(dut->rcv_discover_i);
+        auto f18 = capture_frame();
+        ck("discover still answered after 7.5 h", f18.size(), 82);
+        ck("...and it bumped the index",
+           f18.size() >= 54 ? be(f18, 50, 4) : 0, expect + 1);
+    }
+
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
