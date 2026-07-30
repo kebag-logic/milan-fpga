@@ -258,6 +258,25 @@ YAML protocol models (`protocols/`); packet_gen is the engine the matrix's
    reservation is 5.376 Mb/s (`1 × (42+42) × 8 × 8000`), and the builder now
    counts it in the class-A ceiling check (arty_4x4 41.47 % → 46.85 %,
    ax7101_8x8 13.21 % → 13.75 %).
+   (c) *`MaxFrameSize 42` below is wrong in turn, and is superseded by 29
+   (2026-07-30).* Correction (b) reasoned from OUR wire — the padded MSDU —
+   when Milan v1.2 4.3.3.2 **Table 4.4** states the value outright: the row
+   "CRF, 1 timestamp per PDU" gives MaxFrameSize **28 + 1**, the CRF AVTPDU
+   plus the headroom octet every row of that table carries. The two readings
+   stop being in tension once the bandwidth recipe keeps its **step 2**: the
+   clause is `F = MaxFrameSize + 22; if F < 68 then F = 68; W = F + 20;
+   bits/s = W x MaxIntervalFrames x 8000 x 8`, so 29 clamps up to the 68-octet
+   minimum tagged frame and reserves an **88**-octet wire slot, which covers
+   the real 84 that (b) was worried about. Both the RTL gate (`0x0020`) and
+   `sw/builder` (`0x0021`) now run the four steps rather than a folded `+42`,
+   which had silently dropped the clamp. The CRF reservation is therefore
+   **5.632 Mb/s**, not 5.376 — the mandated figure, 4.8 % higher than what we
+   had been declaring. Measured class-A utilisation on the current shapes:
+   **arty_4x4 47.36 %**, **ax7101_8x8 13.82 %**, and the new 8-channel Arty
+   shape (`configs/endstation_arty_8ch.yaml`) **71.94 %** against the 75 %
+   ceiling. Every number below that predates this correction is stale by the
+   same 4.8 % on the CRF row and by Table 4.4's `+1` on each AAF row.
+
    **Budget this before building it (costed 2026-07-26).** The CRF Media Clock
    Output is **mandatory** whenever an AAF Media Listener has ≥2 AAF Media
    Inputs (Milan 7.2.3 — `endstation_builder` raises `ConfigError` without it),

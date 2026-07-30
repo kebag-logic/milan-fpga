@@ -292,9 +292,27 @@ SRP_RANK = 1                      #: PriorityAndRank rank bit (emergency = 0)
 AVTP_AAF_HDR_BYTES = 24           #: IEEE 1722-2016 Fig 26 AAF AVTPDU header
 AAF_SAMPLE_OCTETS = 4             #: AAF format INT_32BIT (§7.3.5)
 L2_HDR_BYTES = 18                 #: DA 6 + SA 6 + VLAN 4 + EtherType 2
+#: MILAN v1.2 4.3.3.2 Table 4.4's mandated trailing octet. The table reads
+#: MaxFrameSize = 24*N + 24 + 1 for AAF PCM32 48 kHz and its own note explains
+#: why the byte is there: "One more byte is added to take the fact into
+#: account, that the sampling clock of the PAAD may be a bit faster than the
+#: nominal frequency". It is a DECLARATION headroom, not a byte on the wire -
+#: so it belongs to max_frame_bytes and never to l2_frame_bytes.
+MILAN_TSPEC_HEADROOM_B = 1
+#: Milan v1.2 4.3.3.2's four-step bandwidth recipe, one constant per step, the
+#: same split hdl/ieee8021q/srp/lwsrp_pkg.sv carries (MSRP_L2_OVERHEAD_C /
+#: MSRP_MIN_L2_BYTES_C / MSRP_WIRE_OVERHEAD_C) and KL_lwsrp_bw_gate runs.
+#: test_builder gate 18d parses the package and refuses a divergence.
+SRP_L2_OVERHEAD_B = 22            #: step 1: eth hdr 14 + VLAN 4 + FCS 4
+SRP_MIN_L2_BYTES_B = 68           #: step 2: minimum TAGGED frame, a CLAMP
+SRP_WIRE_OVERHEAD_B = 20          #: step 3: preamble 8 + IPG 12
 #: 802.1Q idleSlope overhead: preamble 8 + eth hdr 14 + VLAN 4 + FCS 4 + IPG 12
 #: (= lwsrp_pkg::MSRP_FRAME_OVERHEAD_C). MaxFrameSize is therefore the MSDU
 #: (the AVTPDU), NOT the L2 frame: MaxFrameSize + 42 = the full wire slot.
+#: KEPT for the l2_frame_bytes reporting only - it is steps 1 and 3 ADDED
+#: TOGETHER, and folding the recipe into it is precisely the bug 0x0020 took
+#: out of the RTL: the fold silently deletes step 2's clamp, so every stream
+#: short enough to be padded on the wire reserves less than it occupies.
 SRP_FRAME_OVERHEAD_B = 42
 SRP_CTX_IDX_BITS = 4              #: KL_lwsrp_top ctx_idx_i width -> 16 rows
 #: MSRP TSpec MaxFrameSize of the CRF Media Clock Stream = the PADDED MSDU of
@@ -303,7 +321,14 @@ SRP_CTX_IDX_BITS = 4              #: KL_lwsrp_top ctx_idx_i width -> 16 rows
 #: it, so 42 + SRP_FRAME_OVERHEAD_B = the 84-octet wire slot the stream really
 #: occupies. MaxIntervalFrames is 1, the floor a TSpec can express for a 2 ms
 #: stream against class A's 125 us classMeasurementInterval.
-CRF_SRP_MAXFRAME_B = 42
+#: MILAN v1.2 4.3.3.2 Table 4.4 row "CRF, 1 timestamp per PDU" states this
+#: outright: MaxFrameSize = 28 + 1, the 28-octet CRF AVTPDU plus the same
+#: headroom octet every row in the table carries. Declaring the PADDED MSDU
+#: (42) instead was our own arithmetic standing in for the clause, and it
+#: reserved 5376 kb/s where the table mandates 5632. The two stop being in
+#: tension once the recipe keeps step 2: 29 clamps up to the 68-octet minimum
+#: tagged frame -> an 88-octet wire slot, which covers the real 84.
+CRF_SRP_MAXFRAME_B = 28 + MILAN_TSPEC_HEADROOM_B
 SRP_QUEUE_BITS = 3                #: LWSRP_CTRL[4:2] class-A queue select
 #: (widened from [3:2] with the 802.1Q-order map: class A lives on the TOP
 #: queue, q4 at NUMBER_OF_QUEUES = 5. The field keeps 3 bits at N=5 because
@@ -323,8 +348,13 @@ SRP_DEFAULTS = dict(
     enable_at_reset=False,
     talker_declare_at_reset=False,
     bandwidth_limit_pct=75,                  # Milan §5.6 / 802.1Q §34.3.1
-    join_time_ms=200,                        # 802.1Q Table 10-7 defaults
-    leave_time_ms=600,
+    # MILAN v1.2 4.2.7.1.1 Table 4.3, which SUPERSEDES 802.1Q Table 10-7 for a
+    # PAAD: LeaveTime is 5000 ms, not the base standard's 600. These words are
+    # emitted into lwsrp_csr_defaults.svh and programmed into the engine, so
+    # leaving 600 here would have quietly overridden the RTL reset the MRP
+    # timer round corrected - the generated default wins over the localparam.
+    join_time_ms=200,
+    leave_time_ms=5_000,
     leaveall_time_ms=10_000,
     tspec_policy="pinned",                   # pinned | derived
     max_frame_bytes=224,                     # pinned only (the 0x690 reset)
@@ -1296,14 +1326,32 @@ def srp_frame_geometry(channels, rate_hz, intervals_ps):
     payload = spf * channels * AAF_SAMPLE_OCTETS
     avtpdu = AVTP_AAF_HDR_BYTES + payload
     return dict(samples_per_frame=spf, payload_bytes=payload,
-                avtpdu_bytes=avtpdu, l2_frame_bytes=L2_HDR_BYTES + avtpdu)
+                avtpdu_bytes=avtpdu, l2_frame_bytes=L2_HDR_BYTES + avtpdu,
+                #: what the TSpec DECLARES: Table 4.4's 24*N + 24 + 1. Kept
+                #: apart from avtpdu_bytes on purpose - the headroom octet is
+                #: not on the wire, so l2_frame_bytes must not carry it.
+                max_frame_bytes=avtpdu + MILAN_TSPEC_HEADROOM_B)
 
 
 def srp_idle_slope_bps(max_frame_bytes, interval_frames, intervals_ps):
-    """Class-A idleSlope, bits/s (802.1Q §34.3.1, LWSRP_FPGA_ARCHITECTURE §2 /
-    KL_lwsrp_bw_gate): MaxIntervalFrames x (MaxFrameSize + 42) x 8 x 8000."""
-    return interval_frames * (max_frame_bytes + SRP_FRAME_OVERHEAD_B) * 8 \
-        * intervals_ps
+    """Class-A idleSlope, bits/s - MILAN v1.2 4.3.3.2's recipe run as FOUR
+    STEPS, the form KL_lwsrp_bw_gate uses since 0x0020.
+
+        F = MaxFrameSize + 22          eth hdr + VLAN tag + FCS
+        if F < 68: F = 68              minimum TAGGED frame - a CLAMP
+        W = F + 20                     preamble + IPG
+        bits/s = W x MaxIntervalFrames x 8000 x 8
+
+    The steps are kept separate rather than folded into (MaxFrameSize + 42)
+    because that fold IS steps 1 and 3 added together and DROPS step 2. The
+    result is right for every frame big enough not to need the clamp, so it
+    looks correct until a short stream hits it: the CRF Media Clock at
+    MaxFrameSize 29 reserves 5376 kb/s folded against the mandated 5632, and
+    starving CRF destabilises the media clock of every listener downstream."""
+    f = max_frame_bytes + SRP_L2_OVERHEAD_B
+    if f < SRP_MIN_L2_BYTES_B:
+        f = SRP_MIN_L2_BYTES_B
+    return (f + SRP_WIRE_OVERHEAD_B) * interval_frames * intervals_ps * 8
 
 
 def load_srp(raw, listeners, talkers, clocking, cons, binfo,
@@ -1426,7 +1474,7 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo,
         geo = srp_frame_geometry(
             wire_channels if wire_channels is not None else st["channels"],
             rate, cls["intervals_ps"])
-        mf = geo["avtpdu_bytes"] if s["tspec_policy"] == "derived" \
+        mf = geo["max_frame_bytes"] if s["tspec_policy"] == "derived" \
             else s["max_frame_bytes"]
         if mf > 0xFFFF:
             raise ConfigError(f"streams.talkers[{t}]: derived MaxFrameSize "

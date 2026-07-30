@@ -1,0 +1,213 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# Software-defined Milan End-Station config (gaps attack item 4).
+# Shape: ARTY 4x4 AT EIGHT WIRE CHANNELS - endstation_arty_4x4 with every AAF
+# stream widened from 4 to 8 channels (roadmap item 24, USER 2026-07-30). 4
+# AAF listener + 4 AAF talker streams, 8ch each, over the same TDM8 MASTER
+# header + blended I2S pair as the 4-channel shape.
+#
+# WHAT WIDENING ACTUALLY COSTS, all four figures MEASURED by the builder on
+# this file rather than estimated:
+#
+#   * BANDWIDTH. Milan v1.2 4.3.3.2 Table 4.4 gives 8ch AAF PCM32 48 kHz a
+#     MaxFrameSize of 24*8 + 24 + 1 = 217, and the clause's four-step recipe
+#     turns that into 16.576 Mb/s per stream. Four of them plus the mandatory
+#     CRF Media Clock Output (5.632 Mb/s) is 71.936 Mb/s = 71.9 % of the
+#     100 Mb/s MII port. That is INSIDE the 75 % class-A ceiling but with only
+#     3 points of headroom, so this shape cannot also carry a fifth AAF stream
+#     and the ceiling check is the thing that would refuse it.
+#   * ELABORATION. The milan_datapath wire-channel guard is per TALKER:
+#     8 channels need 4 fed pair slots and the TDM8+I2S blend supplies 5, so
+#     the guard passes. It would NOT pass on a plain-I2S build (1 pair).
+#   * AEM. 8 clusters per stream port = 64 AUDIO_CLUSTERs (from 32), taking
+#     the descriptor count 68 -> 100 and the ROM 6,441 -> 9,353 bytes. Both
+#     stay inside the 16-bit AEM store address space.
+#   * SOURCE COVERAGE, and this is the figure that gets WORSE. The blend
+#     feeds 5 real pair slots; each 8-channel talker consumes 4, so
+#     check_wire_accountability.py reports coverage of 1 OF 4 TALKERS here
+#     against 2 of 4 in the 4-channel shape - talkers 1..3 frame SILENCE
+#     entirely through KL_pair_zero_fill. That satisfies Milan 5.3.7.3 (a
+#     bound Stream Output shall be streaming) and is REPORTED as coverage
+#     rather than hidden by down-declaring the format, which is the
+#     2026-07-27 dade536 mistake reverted in e103d8e. Widening the wire
+#     without widening the front-end buys channels nothing is feeding: the
+#     honest reason to take this shape is a TDM8 device on pmodb, not the
+#     channel count on its own.
+#
+# The 4-channel endstation_arty_4x4 remains the shipping Arty shape (sweep.sh
+# names it) until this one is silicon-validated.
+#
+# INHERITED FROM THE 4-CHANNEL SHAPE - the TDM8 decision below is unchanged:
+# HANDOVER 8.3b, USER DECISION 2026-07-28, which supersedes Lane 10's refusal.
+#
+# WHY THE REVERSAL IS CORRECT. Lane 10 refused a TDM front-end here because
+# the board routed no `tdm` resource and a SLAVE bus nothing drives frames
+# digital silence; with real pins and a real MASTER that reasoning no longer
+# applies - a master needs nobody to drive it. The refusal MACHINERY stays
+# exactly as built: sw/litex/platforms/board_audio_routing.py READS routing,
+# and it answers "backed" now because sw/litex/milan_soc.py declares the
+# `tdm` resource on pmodb (high-speed Pmod: E15 E16 D15 C15 J17 = mclk bclk
+# fsync din dout). pmoda is UNTOUCHED: the Pmod I2S2 keeps all eight pins and
+# the CS5343 MCLK stays on pmoda:4 (ball D13) - the board-to-board analog
+# loop of docs/findings/BENCH_TOPOLOGY.md is preserved because the blend
+# gives the TDM header its OWN mclk pad instead of stealing the I2S one.
+#
+# THE CLOCKING IS FREE. TDM8 x 32-bit slots @ 48 kHz needs bclk = 12.288 MHz
+# = the existing 24.576 MHz audio MMCM / 2 (BCLK_HALF_P = 1): no new MMCM
+# output, no new clock domain, no new closure risk - unlike the AX7101's
+# TDM32, which needed its own 98.304 MHz output.
+#
+# CHANNEL BUDGET (stated honestly): the blend (milan_datapath
+# AUDIO_IF_I2S_PAIR_P -> KL_pair_blend) supplies FIVE pair slots - the I2S
+# pair at slot 0 ("channels 1/2 stay the I2S Pmod", USER 2026-07-28) and the
+# four TDM8 pairs at slots 1..4. Four 8-CHANNEL talkers consume SIXTEEN, so
+# only talker 0 is fully backed by physical sources and talkers 1-3 frame
+# SILENCE via KL_pair_zero_fill - they stream (Milan v1.2 5.3.7.3: a bound
+# Stream Output "shall be streaming AVTP packets"), and their missing
+# physical sources are REPORTED by scripts/check_wire_accountability.py as
+# source coverage, the same W3 shape as the AX7101 (1 of 4 talkers backed
+# here, 2 of 4 in the 4-channel shape, 4 of 8 there).
+# No TDM8 device is on the bench yet: until one is
+# plugged into pmodb the TDM pairs capture the header's idle level - the
+# scope acceptance is bclk 12.288 MHz / fsync 48.000 kHz on the header and
+# A_AAF_PAIRS ~= 240,000/s (5 pairs x 48 kHz).
+
+schema: kebag-logic/milan-endstation-config
+schema_version: "1.1.0"
+
+entity:
+  name: "Milan FPGA 4x4 8ch"
+  entity_model_id: hash-derived      # EUI-64 from the model shape (recipe in
+                                     # sw/builder/README-parameters.md); same
+                                     # shape -> same id, shape change -> new
+                                     # id. No pin: nothing flashed with this
+                                     # shape yet.
+  entity_id: mac-derived
+  vendor_name: "Kebag Logic"
+  # NO firmware_version KEY: it is DERIVED from the gateware's own VERSION
+  # parameter (hdl/common/csr/milan_csr.sv, the read-only 0x004 register) as
+  # major.minor.rev, and declaring one here is refused by the builder.
+  # Optional `firmware_rev: N` (default 0) bumps the third component for a
+  # respin that changes no CSR ABI.
+  serial_number: "ARTY-0002"
+  group_name: ""
+
+board:
+  target: arty
+  constraints:
+    sys_clk_hz: 83333000
+    milan_clk_hz: 50000000
+    l2_bytes: 16384                  # USER 2026-07-29: 16K next build (halved
+                                     # from the 07-28 32K reference; uniform
+                                     # with the AX 8x8 shape that closed, and
+                                     # the space lever for the 0x001B fabric)
+    phy: mii-100
+    gtx_tx_invert: false
+    floorplan: false
+    flashboot: full
+    uart_baudrate: 115200
+    rx_queues: 2
+    hs_page_bytes: 16384
+    strip_probes: true
+    num_queues: 5
+
+srp:
+  sr_class: A
+  vid: 2
+  stream_dmac_base: "0x91E0F000FE01"
+  class_queue: 4                     # 802.1Q order: q4 = SR class A
+  bandwidth_limit_pct: 75
+  tspec:
+    policy: derived                  # 8ch -> Table 4.4 MaxFrameSize 217 B ->
+                                     # 16.576 Mb/s per stream; 4 streams =
+                                     # 66.3 Mb/s, + CRF 5.632 = 71.9% of the
+                                     # 100 Mb/s port, inside the 75% class-A
+                                     # ceiling with ~3 points to spare
+    interval_frames: 1
+
+platform:
+  csr_base: 0x90000000
+  mac_address: "02:00:00:00:00:02"
+  interrupt: 3
+  pcm_ring_phys: 0x4fc00000          # 4 capture streams x 1 MiB stride: the
+  pcm_ring_bytes: 0x400000           # no-map region grows with N (the 1 MiB
+  pcm_ring_stride: 0x100000          # 1x1 region would be DMA-overrun)
+  boot_chain_pin:                    # 2-queue arty map (same as the deployed
+                                     # shape - this config keeps rx_queues 2)
+    dma-ts: 0xf0003100
+    pcm-dma: 0xf0003120
+
+clocking:
+  sampling_rate_hz: 48000
+  audio_unit_rates_hz: [48000]       # honest advertisement: 48k render only
+  media_clock_sources: [internal, input_stream, crf]
+  default_source: internal
+  crf_sink: true
+  crf_output:                        # Milan 7.2.3 (MANDATORY here: >=2 AAF
+    enabled: true                    # media inputs => CRF Media Clock Output;
+                                     # the builder rejects the config without
+                                     # it). Model half; RTL provisioning of
+                                     # KL_crf_tx rides with item-5 NxN.
+    format: "0x041060010000BB80"     # Milan 7.3.2 Table 7.1 (subtype 4 CRF,
+                                     # type 1 AUDIO_SAMPLE, 48k, interval 96,
+                                     # 1 ts/PDU)
+  audio_pll_hz: 24576000             # Pmod I2S2: MCLK /2, SCLK /8 = 64 fs,
+                                     # LRCK /512 = 48.000 kHz exactly
+                                     # (docs/design/AUDIO_STREAMING.md)
+
+audio_interface:
+  kind: tdm8                         # tdm8|tdm16|tdm32|i2s_philips|aes3|spdif
+                                     # HANDOVER 8.3b: TDM8 MASTER on pmodb +
+                                     # the I2S pair blended at slot 0 (see the
+                                     # header banner). The builder emits
+                                     # --audio-interface tdm8
+                                     # --audio-interface-master; the SoC adds
+                                     # the blend because the board routes BOTH
+                                     # pad sets.
+  word_length_bits: 24               # 24-in-32 TDM slots (and CS4344 Philips
+                                     # on the render side)
+  physical_channels:
+    capture: 8                       # the TDM8 header routes all 8 slot
+                                     # channels to pins; the I2S pair is
+                                     # EXTRA-familial supply (blend slot 0),
+                                     # counted by framer_pair_supply(), not
+                                     # here (this key is bounded by the
+                                     # declared interface family width)
+    render: 2                        # the REAL render device is the Pmod
+                                     # I2S2's CS4344 DAC (stereo); tdm dout
+                                     # is routed but no TDM device exists yet
+  cluster_mapping:
+    policy: cap-at-interface         # clusters model real endpoints only:
+                                     # per stream min(clusters, interface)
+
+streams:
+  listeners:
+    # map_mode dynamic on EVERY listener (roadmap 23). Milan v1.2 5.3.3.9:
+    # "The Stream Port Input of a Configuration shall not contain any
+    # AUDIO_MAP descriptor. Note: this means that a PAAD-AE implements
+    # dynamic mappings on all of its Stream Port Inputs." Each port drops
+    # its static AUDIO_MAP and advertises number_of_maps=0 (1722.1-2021
+    # 7.2.13); a controller then routes with ADD/REMOVE_AUDIO_MAPPINGS and
+    # reads back with GET_AUDIO_MAP (Milan 5.4.2.26-28). map_page defaults
+    # to min(clusters, 8) = 4 here, so each port is ONE fixed partition.
+    - { name: "Stream In 0", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
+    - { name: "Stream In 1", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
+    - { name: "Stream In 2", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
+    - { name: "Stream In 3", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
+    # 0x0205022002006000 = AAF PCM32 48k 8ch; 0x0215... = ut-bit family
+    # clusters default = channels (8 mono clusters per stream port)
+  talkers:
+    # clusters default = channels (8 mono clusters per stream port). The
+    # framer emits the declared 8 channels: the blend supplies 5 pair slots
+    # (I2S + TDM8) against the 4 one 8-channel talker needs, so
+    # TALKER_WIRE_CHANS_C = 8 and the
+    # milan_datapath elaboration guard holds the equation. Talkers 2-3 have
+    # no physical source behind their slots and frame SILENCE
+    # (KL_pair_zero_fill, Milan v1.2 5.3.7.3) - reported as source coverage
+    # by check_wire_accountability, not hidden by a down-declaration (the
+    # reverted dade536 mistake).
+    - { name: "Stream Out 0", channels: 8, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 1", channels: 8, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 2", channels: 8, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 3", channels: 8, formats: ["0x0205022002006000"] }

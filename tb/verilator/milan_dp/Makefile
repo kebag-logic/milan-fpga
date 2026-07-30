@@ -129,6 +129,19 @@ run: $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -CFLAGS -DNSTREAMS_TB=8 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
+# THE SHIPPING ARTY SHAPE, and until 2026-07-30 nothing in the suite
+# elaborated it. obj_nxn above builds endstation_arty_4x4's ENTITY (4 streams)
+# but leaves TALKER_WIRE_CHANS_P at its default 2, so every leg ran with the
+# framer width equal to the TSpec shadow's reset value - and a disagreement
+# between those two is invisible when they are the same number. The board
+# builds --talker-wire-chans 4 over the TDM8+I2S blend (AUDIO_IF_SLOTS_P=8,
+# master, I2S pair at slot 0), which is what these -G flags name. The
+# from-reset TSpec bite in sim_nxn.cpp only has teeth here: it compares the
+# declared MaxFrameSize against the emitted MSDU, and at width 2 both sides
+# agree even with the defect present.
+	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS) --Mdir obj_nxn4c -GN_STREAMS=4 \
+	  -GTALKER_WIRE_CHANS_P=4 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 \
+	  -GAUDIO_IF_I2S_PAIR_P=1 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn4c
 # LPF_P=0 is the SPENT area lever (docs/NXN_ARCHITECTURE.md 6.2/6.3): the
 # ax7101 shipping argv carries --no-render-lpf, so the pruned shape is a
 # SHIPPING shape and has to be in the suite. The claim being proved is
@@ -145,10 +158,12 @@ run: $(GEN_ALL)
 	./obj_dir/Vmilan_dp_sim
 	./obj_nxn/Vmilan_dp_nxn
 	./obj_nxn8/Vmilan_dp_nxn8
+	@echo "---- the shipping Arty shape: 4 streams x 4 wire channels ----"
+	./obj_nxn4c/Vmilan_dp_nxn4c
 	@echo "---- LPF_P=0 (pruned render tap, the ax7101 shipping shape) ----"
 	./obj_nolpf/Vmilan_dp_nolpf
 	@echo "---- all six tier-1 blocks pruned ----"
 	./obj_prune/Vmilan_dp_prune
 
 clean:
-	rm -rf obj_dir obj_nxn obj_nxn8 obj_nolpf obj_prune
+	rm -rf obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune

@@ -1300,9 +1300,29 @@ audio-unit directive define the next fabric round:
    `map_mode: dynamic` (outputs may stay static per 5.3.9.1's "If") and
    verify the 5.3.10.1/5.3.9.1 NVM persistence of the mapping list through
    the saved-state machinery. USER 2026-07-29: prerequisite for items 3-4.
-3. **8-channel streams** (USER): raise the Arty audio unit / stream formats
-   from the silicon-proven 4ch to 8ch (TDM8 front-end already elaborated;
-   TSpec self-derives `24 + 24*C`).
+3. **8-channel streams** (USER) — **DESK-CLOSED 2026-07-30, VERSION 0x0021**.
+   `configs/endstation_arty_8ch.yaml` is the 4x4 shape at 8 wire channels and
+   it validates: the milan_datapath wire-channel guard passes (per talker, 4
+   pair slots needed vs the TDM8+I2S blend's 5), the class-A budget lands at
+   **71.94 %** of the 100 Mb/s port against the 75 % ceiling, the AEM grows to
+   64 AUDIO_CLUSTERs / 100 descriptors / 9,353 ROM bytes, and
+   `check_sweep_shape.py` refuses (exit 1) any launch that points `SWEEP_CFG`
+   at it while the OPTS still say `--talker-wire-chans 4`.
+   The premise of this item — "TSpec self-derives `24 + 24*C`" — was FALSE and
+   that is what actually had to be fixed. `milan_datapath` derived it from
+   `tctx_chans_r`, a shadow of the TCTX w0 `chans` field that **no board
+   software writes** (the rows are fabric-provisioned), and it reset to `4'd2`
+   while `KL_aaf_packetizer` reset its own per-talker `chans_r` to the
+   elaborated `WIRE_CHANS_C`. So the shipping **4-channel** Arty was already
+   emitting a 120-octet AVTPDU while talkers 1..N-1 declared 73 — a live 29 %
+   under-reservation, index-0-clean in exactly the `0x001F` pattern. At 8
+   channels it would have been 217 vs 73. The reset now derives from
+   `TALKER_WIRE_CHANS_P`, the same parameter the framer is handed.
+   Not yet done: **silicon**. No 8-channel bitstream has been built or flashed,
+   and source coverage falls to 1 of 4 talkers (the blend feeds 5 pair slots;
+   each 8-channel talker consumes 4), so the honest trigger for taking this
+   shape is a TDM8 device on pmodb rather than the channel count alone. The
+   4-channel `endstation_arty_4x4` remains what `sweep.sh` names for the board.
 4. **Audio-unit typed stream ports + loopback + pilot tone** (USER,
    refined 07-29): one stream port per SOURCE/SINK TYPE so controllers
    route them independently through item 2's dynamic maps — **TONE**

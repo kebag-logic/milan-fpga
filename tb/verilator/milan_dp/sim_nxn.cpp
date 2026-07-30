@@ -225,8 +225,8 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x0016 (the AVTP tu bit is driven; 0x778 clock validity)",
-       axi_read(A_VERSION), 0x00010020);
+    ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
+       axi_read(A_VERSION), 0x00010021);
 
     printf("-- 5.5.2.7 SRP-only licence at t>0 STRAIGHT FROM RESET "
            "(2026-07-30 bite) --\n");
@@ -264,12 +264,85 @@ int main(int argc, char** argv) {
         lr[29]=36;                     // ThreePacked JoinIn
         lr[30]=128;                    // FourPacked Ready
         dut->m_axis_rx_tready = 1;
-        for (int c = 0; c < 1000; c++) step();
+        // ---- ONE TX SNIFFER, RUNNING FROM BEFORE THE GATE OPENS ---------
+        // It has to start here rather than after the checks below, and the
+        // reason is a measured timing fact: MRP declares the row ONCE
+        // immediately on the join event and then only every JoinTime, which
+        // lwsrp_pkg puts at 200 ms = 20,000,000 clocks at the harness's
+        // 100 MHz (KL_lwsrp_timers TICK_DIV_C). A capture window opened after
+        // the PDU poll misses the immediate declaration by ~3 ms and would
+        // have to run fifty times longer to see the next one. Both the AAF
+        // frame and the TalkerAdvertise are parsed out of the same beat
+        // stream so the two numbers describe the same instant.
+        std::vector<uint8_t> w3;
+        int seen3 = 0, id3 = 0, vid3 = -1; uint64_t dm3 = 0;
+        // TALKER 1 IS THE TSPEC SUBJECT, not t3, and that is a measured
+        // constraint rather than a preference: MRP declares each attribute
+        // once immediately and then per JoinTime, and lwsrp_pkg's JoinTime of
+        // 200 ms is 20,000,000 clocks here - so within this block exactly ONE
+        // TalkerAdvertise leaves the port, the first row the fabric arbiter
+        // reaches, uid 1. Waiting for uid 3's would cost ~600 ms of sim. t1
+        // is the same kind of witness: index > 0, fabric-provisioned, never
+        // written through the TCTX window.
+        int avt1 = -1, mf1 = -1;
+        auto pump = [&]() {
+            lo();
+            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                for (int l = 0; l < 8; l++)
+                    if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                        w3.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                if (dut->m_axis_mac_tx_tlast) {
+                    size_t off = (w3.size() > 17 && w3[12] == 0x81
+                                  && w3[13] == 0x00) ? 4 : 0;
+                    if (w3.size() >= 86 + off && w3[12+off] == 0x22
+                        && w3[13+off] == 0xF0 && w3[14+off] == 0x02) {
+                        int uid = (w3[24+off] << 8) | w3[25+off];
+                        if (uid == 3) {
+                            seen3 = 1; id3 = uid;
+                            dm3 = 0;
+                            for (int b = 0; b < 6; b++)
+                                dm3 = (dm3 << 8) | w3[b];
+                            if (off) vid3 = ((w3[14] & 0x0F) << 8) | w3[15];
+                        }
+                        // the MSDU: L2 frame less DA/SA/EtherType and the
+                        // C-TAG - exactly what 802.1Q 35.2.2.8.4 a) calls
+                        // MaxFrameSize ("the maximum frame size that the
+                        // Talker will produce")
+                        if (uid == 1) avt1 = (int)w3.size() - 14 - (int)off;
+                    }
+                    // MSRP MRPDU (untagged, 0x22EA), first message
+                    // TalkerAdvertise: v[0..1] VectorHeader, v[2..9] StreamID,
+                    // v[10..15] DA, v[16..17] VID, v[18..19] MaxFrameSize -
+                    // the same walk the per-row sweep further down uses
+                    if (w3.size() >= 47 && w3[12] == 0x22 && w3[13] == 0xEA) {
+                        size_t ll = ((size_t)w3[17] << 8) | w3[18];
+                        for (size_t o = 0;
+                             o + 28 <= ll - 2 && 19 + o + 28 <= w3.size();
+                             o += 28) {
+                            const uint8_t* v = &w3[19 + o];
+                            if ((((int)v[8] << 8) | v[9]) == 1)
+                                mf1 = ((int)v[18] << 8) | v[19];
+                        }
+                    }
+                    w3.clear();
+                }
+            }
+            hi();
+        };
+        dut->m_axis_mac_tx_tready = 1;
+        for (int c = 0; c < 1000; c++) pump();
         inject(lr, 60, 2000);
         inject(lr, 60, 2000);          // bridges re-declare every JoinTime
+        // ...and the same for uid 1, so the talker whose TalkerAdvertise this
+        // block can actually catch also puts frames on the wire. Same MRPDU,
+        // one byte different.
+        lr[28] = 0x01;                 // FirstValue = {0..0, uid 0x0001}
+        inject(lr, 60, 2000);
+        inject(lr, 60, 2000);
+        lr[28] = 0x03;
         int opened3 = 0;
         for (int g = 0; g < 400 && !opened3; g++) {
-            for (int c = 0; c < 64; c++) step();
+            for (int c = 0; c < 64; c++) pump();
             opened3 = (tap_stream_en() >> 3) & 1;
         }
         ck("t>0 reset licence: Ready(uid3) ALONE opens gate3 "
@@ -283,7 +356,7 @@ int main(int argc, char** argv) {
         // Zero-fill emits ~1 PDU per 6*512 audio-clock ticks, so poll.
         int t3pdus = 0;
         for (int g = 0; g < 60 && t3pdus < 2; g++) {
-            for (int c = 0; c < 3072; c++) step();
+            for (int c = 0; c < 3072; c++) pump();
             axi_write(A_STRM_SEL, 0x103);
             snap_and_wait();
             t3pdus = axi_read(A_SW_PDUS);
@@ -303,39 +376,31 @@ int main(int argc, char** argv) {
         const unsigned A_AAF_DML = 0x658, A_AAF_DMH = 0x65C;
         const uint64_t base3 = ((uint64_t)(axi_read(A_AAF_DMH) & 0xFFFF) << 32)
                              | (uint64_t)axi_read(A_AAF_DML);
-        std::vector<uint8_t> w3;
-        int seen3 = 0, id3 = 0, vid3 = -1; uint64_t dm3 = 0;
-        dut->m_axis_mac_tx_tready = 1;
-        for (int c = 0; c < 200000 && !seen3; c++) {
-            lo();
-            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
-                for (int l = 0; l < 8; l++)
-                    if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
-                        w3.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
-                if (dut->m_axis_mac_tx_tlast) {
-                    size_t off = (w3.size() > 17 && w3[12] == 0x81
-                                  && w3[13] == 0x00) ? 4 : 0;
-                    if (w3.size() >= 86 + off && w3[12+off] == 0x22
-                        && w3[13+off] == 0xF0 && w3[14+off] == 0x02) {
-                        int uid = (w3[24+off] << 8) | w3[25+off];
-                        if (uid == 3) {
-                            seen3 = 1; id3 = uid;
-                            dm3 = 0;
-                            for (int b = 0; b < 6; b++)
-                                dm3 = (dm3 << 8) | w3[b];
-                            if (off) vid3 = ((w3[14] & 0x0F) << 8) | w3[15];
-                        }
-                    }
-                    w3.clear();
-                }
-            }
-            hi();
-        }
+        // top up only if the poll above happened to end between frames
+        for (int c = 0; c < 200000 && !(seen3 && mf1 >= 0 && avt1 >= 0); c++)
+            pump();
         ck("t>0 identity: a t3 PDU appeared on the wire", seen3, 1);
         ck("t>0 identity: stream_id uid16 == 3 (not t0's 0)", id3, 3);
         ck("t>0 identity: dmac == MAAP base + 3 (not all-zeros)",
            dm3 == base3 + 3, 1);
         ck("t>0 identity: C-TAG VID == the engine VID 2 (not 0)", vid3, 2);
+        // MILAN v1.2 4.3.3.2 Table 4.4. MaxFrameSize is the MSDU the Talker
+        // "will produce" plus the table's one mandated headroom octet, so
+        // declared == emitted + 1 is the clause itself, and it holds at ANY
+        // elaborated width - 2, 4 or 8 channels - because neither side is a
+        // literal. THE DEFECT IT BITES: milan_datapath's tctx_chans_r reset
+        // to 4'd2 while KL_aaf_packetizer reset its chans_r to the elaborated
+        // WIRE_CHANS_C, so a 4-channel build emitted a 120-octet AVTPDU and
+        // declared 73 - reserving 7.36 Mb/s for a stream occupying 10.368,
+        // and the bridge grants CBS credit against the DECLARATION. Slot 0
+        // hid it (the fabric mux starts at s=1 and slot 0 keeps
+        // cfg_lwsrp_max_frame), the same index-0-works signature as 0x001F.
+        // Reverting the reset to 4'd2 reddens exactly the two checks below.
+        ck("t>0 TSpec: uid 1 both declared a TalkerAdvertise and framed",
+           (mf1 >= 0 && avt1 >= 0) ? 1 : 0, 1);
+        ck("t>0 TSpec: declared MaxFrameSize == emitted MSDU + Table 4.4's "
+           "one octet (reservation matches the wire at the elaborated width)",
+           mf1, avt1 + 1);
         // Restore the legacy flow posture. NO TCTX w0 writes: the per-context
         // lever is gone, so there is nothing to restore there - and writing
         // it would leave residue the flow reads back later ("talker 2 CTRL

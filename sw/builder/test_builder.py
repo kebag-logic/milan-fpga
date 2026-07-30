@@ -716,10 +716,30 @@ def test_model_id_hashing():
           f"arty_current pinned to {DEPLOYED_MODEL_ID}")
 
 
+def sweep_config(board):
+    """The end-station config sweep.sh itself builds for <board>, read out of
+    its own `CFG=${SWEEP_CFG:-...}` case arm.
+
+    READ, never restated. This gate compares the generated fragment against
+    sweep.sh's inline fallback, so it only means anything if it generates the
+    fragment from the SAME config sweep.sh would. Naming the config here
+    instead pinned the arty arm to endstation_arty_current (1x1, plain I2S,
+    L2 64K) long after sweep.sh moved the board to endstation_arty_4x4 (4x4,
+    TDM8 master, 4 wire channels, L2 16K) - and because sweep.sh SOURCES the
+    fragment when it exists and only falls back to the inline table when it
+    does not, a launch would have quietly built the 1x1 two-channel Arty while
+    every artifact said 4x4 TDM8. That is the same shape-downgrade this
+    fragment mechanism was added to prevent, wearing the test's own clothes."""
+    txt = open(SWEEP).read()
+    m = re.search(rf'{board}\)\s+NS=\d+;\s+CFG=\$\{{SWEEP_CFG:-([^}}]+)\}};', txt)
+    assert m, f"sweep.sh: no CFG case for {board}"
+    return os.path.join(ROOT, m.group(1).strip())
+
+
 def test_sweep_opts_fragments():
     frag = {}
-    for cfg_name, board in (("arty_current", "arty"), ("ax7101_8x8", "ax7101")):
-        r = eb.build(CONFIGS[cfg_name], OUT)
+    for board in ("arty", "ax7101"):
+        r = eb.build(sweep_config(board), OUT)
         p = r["paths"]["sweep_opts"]
         assert os.path.basename(p) == f"sweep_opts_{board}.sh"
         txt = open(p).read()
@@ -1497,8 +1517,13 @@ def test_lwsrp_class_constants_match_rtl():
          _sv_int(pkg, r"LEAVE_TIME_MS_C\s*=\s*([\d_]+);", "pkg")),
         ("leaveall ms", t["timers_ms"]["leaveall"],
          _sv_int(pkg, r"LEAVEALL_TIME_MS_C\s*=\s*([\d_]+);", "pkg")),
+        # MSRP_FRAME_OVERHEAD_C stopped being a literal when 0x0020 split
+        # Milan 4.3.3.2's recipe back into its steps; it is now the SUM of
+        # steps 1 and 3, so the emitter's folded constant is checked against
+        # that sum rather than against a number that no longer exists.
         ("frame overhead", t["bandwidth"]["frame_overhead_bytes"],
-         _sv_int(pkg, r"MSRP_FRAME_OVERHEAD_C\s*=\s*(\d+);", "pkg")),
+         _sv_int(pkg, r"MSRP_L2_OVERHEAD_C\s*=\s*(\d+);", "pkg") +
+         _sv_int(pkg, r"MSRP_WIRE_OVERHEAD_C\s*=\s*(\d+);", "pkg")),
         ("intervals/s", t["sr_class"]["intervals_per_second"],
          _sv_int(pkg, r"CLASS_A_INTERVALS_PS_C\s*=\s*([\d_]+);", "pkg")),
         ("bw limit pct", t["bandwidth"]["limit_pct"],
@@ -1506,6 +1531,35 @@ def test_lwsrp_class_constants_match_rtl():
     ]
     for label, got, want in checks:
         assert got == want, f"{label}: emitted {got} != lwsrp_pkg {want}"
+    # ---- gate 18c: Milan 4.3.3.2's recipe, STEP BY STEP, emitter vs RTL ----
+    # The builder computes the class-A ceiling a shape must pass; KL_lwsrp_bw_gate
+    # computes what the engine will actually admit. If those two use different
+    # arithmetic, a config sails through the builder and is refused on the wire -
+    # or worse, passes both while under-reserving, which is what happened when
+    # each side kept its own folded +42. Every step is compared, not the total:
+    # the fold hid the loss of step 2 precisely because the totals agreed for
+    # every frame that never needed the clamp.
+    for label, py, pat in (
+            ("step 1 L2 overhead", eb.SRP_L2_OVERHEAD_B,
+             r"MSRP_L2_OVERHEAD_C\s*=\s*(\d+);"),
+            ("step 2 min tagged frame", eb.SRP_MIN_L2_BYTES_B,
+             r"MSRP_MIN_L2_BYTES_C\s*=\s*(\d+);"),
+            ("step 3 wire overhead", eb.SRP_WIRE_OVERHEAD_B,
+             r"MSRP_WIRE_OVERHEAD_C\s*=\s*(\d+);")):
+        want = _sv_int(pkg, pat, "pkg")
+        assert py == want, f"{label}: builder {py} != lwsrp_pkg {want}"
+    # ...and the composed answer matches the RTL's own worked example: Milan
+    # Table 4.4's CRF row (MaxFrameSize 28 + 1) is the one that exercises the
+    # clamp, so it is the case worth pinning rather than a big AAF frame.
+    assert eb.CRF_SRP_MAXFRAME_B == 29, \
+        "CRF MaxFrameSize is Table 4.4's 28 + 1"
+    assert eb.srp_idle_slope_bps(29, 1, 8000) == 5_632_000, \
+        "CRF slope: 29 -> clamped to 68 -> 88 octets -> 5632 kb/s"
+    assert eb.srp_idle_slope_bps(121, 1, 8000) == 10_432_000, \
+        "4ch AAF slope: 121 -> 143 (no clamp) -> 163 octets -> 10432 kb/s"
+    print("  [gate 18d] Milan 4.3.3.2 bandwidth recipe: all three step "
+          "constants match lwsrp_pkg, and the clamped CRF row + an unclamped "
+          "4ch AAF row both compose to the clause's kb/s")
     pr = t["sr_class"]["prio_rank"]
     # milan_csr's literal duplicate is GONE: it drives o_srp_ctx_prio_rank from
     # the generated LWSRP_PRIO_RANK_C, so the chain is emitter -> header -> RTL.
@@ -1637,9 +1691,11 @@ def test_lwsrp_tspec_and_params():
         assert len(talkers) == T
         if cfg["srp"]["tspec_policy"] == "derived":
             for row in talkers:
+                # Table 4.4's declaration, which is the AVTPDU plus the one
+                # headroom octet - NOT avtpdu_bytes, which is the wire frame
                 assert row["max_frame_bytes"] == \
                     eb.srp_frame_geometry(row["channels"], 48000,
-                                          8000)["avtpdu_bytes"]
+                                          8000)["max_frame_bytes"]
         # per-stream DMAC = MAAP base + uid
         base = int(cfg["srp"]["stream_dmac_base"], 16)
         assert [int(row["dest_mac"], 16) for row in talkers] == \

@@ -30,7 +30,7 @@
 
   //! MRP timers (802.1Q Table 10-7)
   localparam int unsigned LWSRP_JOIN_TIME_MS_C     = 200;
-  localparam int unsigned LWSRP_LEAVE_TIME_MS_C    = 600;
+  localparam int unsigned LWSRP_LEAVE_TIME_MS_C    = 5000;
   localparam int unsigned LWSRP_LEAVEALL_TIME_MS_C = 10_000;
 
   //! Class-A bandwidth math: idleSlope[bps] = MaxIntervalFrames x
@@ -65,7 +65,7 @@
   //! verbatim; listener entries carry zeros (their sid + DMAC arrive
   //! from the ACMP bind at run time).
   localparam [119:0] LWSRP_ROW_C [0:1] = '{
-    120'h91E0F000FE01700048000100000000,  //! talker 0: 2ch, slope 7296000 bps
+    120'h91E0F000FE01700049000100000000,  //! talker 0: 2ch, slope 7360000 bps
     120'h000000000000700000000000000000  //! listener 0: 8ch, slope 0 bps
   };
 

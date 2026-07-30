@@ -2749,6 +2749,24 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                   : (c[0] ? (c + 4'd1) : c);
   endfunction
 
+  //! RESET VALUE OF THE TSPEC GEOMETRY = THE ELABORATED WIRE WIDTH, and this
+  //! is load-bearing rather than tidy. tctx_chans_r shadows TCTX w0 `chans`,
+  //! but NO board software writes that window - it is provisioned by the
+  //! fabric (srp_fab_rec_mux below), so on silicon this register never leaves
+  //! its reset value. It used to reset to 4'd2 while KL_aaf_packetizer reset
+  //! its own chans_r to the elaborated WIRE_CHANS_C, so on the shipping
+  //! 4-channel Arty the wire carried a 120-octet AAF frame and talkers
+  //! 1..N-1 DECLARED the 2-channel TSpec (73), reserving 7.36 Mb/s against
+  //! the 10.368 Mb/s the stream actually occupies - a 29% under-reservation,
+  //! i.e. the bridge grants less CBS credit than the traffic needs. Slot 0
+  //! escaped it because the fabric mux starts at s=1 and slot 0 keeps
+  //! cfg_lwsrp_max_frame, which is exactly the index-0-works / 1..N-1-broken
+  //! signature of 0x001F. Deriving the reset from the SAME parameter the
+  //! framer is given makes wire and reservation agree by construction at any
+  //! width, 8 channels included, and a CSR write still overrides.
+  localparam logic [3:0] TCTX_CHANS_RST_C =
+      aaf_chn_clamp(4'(TALKER_WIRE_CHANS_P));
+
   logic [3:0] tctx_chans_r [N_STREAMS];
   //! the window raises tctx_wr_p AND the SRP provisioning request on the
   //! SAME CTRL write, and the ctx record samples max_frame one cycle before
@@ -2782,7 +2800,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   always_ff @(posedge axis_clk) begin : tctx_chans_shadow
     if (!axis_resetn) begin
-      for (int t = 0; t < N_STREAMS; t++) tctx_chans_r[t] <= 4'd2;
+      for (int t = 0; t < N_STREAMS; t++) tctx_chans_r[t] <= TCTX_CHANS_RST_C;
     end else if (tctx_w0_wr_w && tctx_wr_rdy_w) begin
       tctx_chans_r[csr_tctx_wr_addr_w[6:4]] <=
           aaf_chn_clamp(csr_tctx_wr_data_w[4:1]);

@@ -95,7 +95,11 @@ srp:                                 # lwSRP (802.1Q MSRP/MVRP) reservation
   enable_at_reset: false             # LWSRP_CTRL[0]
   talker_declare_at_reset: false     # LWSRP_CTRL[1]
   bandwidth_limit_pct: 75            # Milan 5.6 / 802.1Q 34.3.1
-  timers_ms: { join: 200, leave: 600, leaveall: 10000 }
+  # MILAN v1.2 4.2.7.1.1 Table 4.3 supersedes 802.1Q Table 10-7 for a PAAD:
+  # LeaveTime 5000 ms, not 600. These words are emitted into the generated CSR
+  # defaults and programmed into the engine, so a stale 600 here would undo
+  # the RTL reset the MRP timer round corrected.
+  timers_ms: { join: 200, leave: 5000, leaveall: 10000 }
   tspec:
     policy: derived                  # pinned 224 until 2026-07-28: a
                                      # hand-picked "conservative" value that
