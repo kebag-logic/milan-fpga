@@ -87,6 +87,7 @@ REG = {
     # 0x800 indexed per-stream window
     "A_STRM_SEL":      0x800,
     "A_STRM_SNAP":     0x804,
+    "A_AAF_CTRL":      0x654,   # [0] en, [1] bypass, [27:16] VID
     "A_STRMW_CTRL":    0x810,
     "A_STRMW_SID_LO":  0x814,
     "A_STRMW_SID_HI":  0x818,
@@ -342,29 +343,48 @@ def _pair(words: dict, hi: str, lo: str):
 def _guard_write(csr: "Csr", off: int, value: int) -> None:
     """Refuse the writes that have taken a board off the network before.
 
-    Rail 1 - **never arm a `t > 0` talker with the lwSRP engine off.** Class-A
-    pacing on the extra-talker path comes from the reservation bandwidth gate,
-    not a timer: with the engine off an armed extra context transmits UNPACED
-    (measured ~56 k frames/s against the paced ~10.4 k/s) and drowns the peer.
-    The same condition also silently DROPS the arm - with the engine off the
-    provisioning coupling holds `wr_rdy` low and the CSR write completes on the
-    bus with nothing stored - so the sequence is doubly wrong.
+    Rail 1 - **never let a `t > 0` talker egress with the lwSRP engine off.**
+    Class-A pacing on the extra-talker path comes from the reservation
+    bandwidth gate, not a timer: an extra context that egresses with the engine
+    off transmits UNPACED (measured ~56 k frames/s against the paced ~10.4 k/s)
+    and drowns the peer.
+
+    RE-POINTED 2026-07-30 (gateware `0x001F`). This rail used to watch
+    `A_STRMW_CTRL[0]`, the per-context talker ARM. That bit is gone: it reset
+    to 0 with no board-software writer, so it held every talker above 0 dark
+    forever, and Milan v1.2 5.3.7.3/5.4.2.19/5.4.2.20/5.5.4.1 leave no room for
+    a per-stream software enable on a Stream Output. A `t > 0` context is now
+    armed by construction and egresses when SRP licenses it - and because the
+    per-stream lwSRP gate is REQUIRED for `t > 0`, engine-off now means
+    structurally dark, which is the safe half handled in hardware.
+
+    What remains dangerous is the ONE term that ORs past the gate:
+    `AAF_CTRL[1]`, `cfg_aaf_bypass`. Setting it with the engine off is exactly
+    the unpaced blast this rail exists to prevent, on every elaborated talker
+    at once rather than on whichever one software had armed. So the rail now
+    watches that write instead. (The old docstring also claimed the arm was
+    silently dropped because the provisioning coupling held `wr_rdy` low -
+    that was never true: `tctx_wr_rdy_o` deasserts only for packetizer port
+    contention and has no lwSRP term.)
 
     Rail 2 - **never write `A_STRMW_CTRL` without staging a sid for THIS index**
     first. Committing an unstaged CTRL at index 0 is what detached the ACMP
     alias and produced the accept blocker (`VERSION 0x000F` fixed the RTL; the
     procedural rule stands for every board still carrying older gateware).
     """
+    if off == REG["A_AAF_CTRL"] and (value & 0b11) == 0b11:
+        # en + bypass together: every elaborated talker egresses with no
+        # reservation behind it. Only refuse when the engine is off, which is
+        # when nothing else can pace them.
+        state = getattr(csr, "_arm_state", {})
+        if not state.get("lwsrp_on"):
+            raise SafetyViolation(
+                "refusing AAF_CTRL en+bypass with LWSRP_CTRL[0]=0: bypass ORs "
+                "past the reservation gate on EVERY elaborated talker and the "
+                "reservation IS the pacer, so the streams would run unpaced "
+                "(~56 kf/s) and take the peer board off the network")
     if off == REG["A_STRMW_CTRL"] and value & 1:
         state = getattr(csr, "_arm_state", {})
-        if state.get("dir") == 1 and int(state.get("idx", 0)) > 0:
-            if not state.get("lwsrp_on"):
-                raise SafetyViolation(
-                    "refusing to arm talker context t>0 with LWSRP_CTRL[0]=0: "
-                    "the reservation IS the pacer, so the stream would run "
-                    "unpaced (~56 kf/s) and take the peer board off the "
-                    "network - and with the engine off the arm is silently "
-                    "dropped anyway")
         if not state.get("sid_staged_for") == state.get("idx"):
             raise SafetyViolation(
                 "refusing an A_STRMW_CTRL commit with no stream_id staged for "

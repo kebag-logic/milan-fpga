@@ -382,9 +382,36 @@ module KL_aaf_packetizer #(
   // ----------------------------------------------------------------------
   //  Frame byte assembly (combinational over fetched/aliased fields)
   // ----------------------------------------------------------------------
-  wire [47:0] eff_dmac_w = (et_r == '0) ? dest_mac_i : edmac_r;
-  wire [11:0] eff_vid_w  = (et_r == '0) ? vlan_vid_i : evid_r;
-  wire [15:0] eff_uid_w  = (et_r == '0) ? 16'd0      : euid_r;
+  //! WIRE IDENTITY FOR t>0 IS DERIVED, NOT WAITED FOR (2026-07-30).
+  //!
+  //! THE DEFECT. edmac_r/evid_r/euid_r come from TCTX w0/w1/w2, which ONLY
+  //! the 0x800 CSR window writes - and no board software drives that window
+  //! (the same discovery that killed the per-context enable bit). A talker
+  //! above 0 therefore framed with dmac 00:00:00:00:00:00, VID 0 (the
+  //! unshaped-flood trap) and stream_id {station_mac, uid 0} - COLLIDING
+  //! with t0's - while the lwSRP row for that same talker declared
+  //! {station_mac, uid t} and the ACMP answer promised dmac base+t. Three
+  //! sources of truth for one stream, two of them fabric-derived since
+  //! 0x001E and this one left behind, so a listener that bound talker t
+  //! registered a Listener Ready for a stream_id nothing ever emitted.
+  //!
+  //! THE RULE, identical to the SRP row's (milan_datapath srp_fab_sid_w /
+  //! srp_fab_dmac_w) and the ACMP answer's (acmp_src_dmac_w): dmac =
+  //! MAAP-block base + t, vid = the engine VID, unique_id = t. dest_mac_i is
+  //! already that base and vlan_vid_i already that VID, so the derivation
+  //! needs no new port and cannot drift from what the other two publish.
+  //!
+  //! SOFTWARE STILL WINS IF IT NAMES ONE - the CRFT_SID precedent (a
+  //! non-zero staged value beats the auto value) per field. The zero
+  //! sentinels are unambiguous for t>0: an all-zero DMAC is never a valid
+  //! destination, uid 0 belongs to t0 alone, and VID 0 is the priority-tag
+  //! value this engine must never emit on (VID lives in AAF_CTRL[27:16]).
+  wire [47:0] eff_dmac_w = (et_r == '0) ? dest_mac_i
+                         : (|edmac_r ? edmac_r : dest_mac_i + 48'(et_r));
+  wire [11:0] eff_vid_w  = (et_r == '0) ? vlan_vid_i
+                         : (|evid_r  ? evid_r  : vlan_vid_i);
+  wire [15:0] eff_uid_w  = (et_r == '0) ? 16'd0
+                         : (|euid_r  ? euid_r  : 16'(et_r));
   wire [63:0] stream_id_w = {station_mac_i, eff_uid_w};
 
   logic [7:0] fb [0:NUM_BEATS_C*8-1];

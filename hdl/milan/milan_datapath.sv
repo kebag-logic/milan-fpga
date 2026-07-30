@@ -1355,33 +1355,71 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   //! ---- per-stream talker admission (P12 follow-up: t>0 arming) ----------
   //! [0] = aaf_gate above, bit-identical (the N=1 axiom). t>0 mirrors the
-  //! t0 composition TERM BY TERM (2026-07-26: the last honest gap - the
-  //! missing ACMP term - closed with the N-context responder):
-  //!   * enable        : TCTX w0 CTRL[0] (window-provisioned; shadowed
-  //!                     below from the accepted TCTX window writes - the
-  //!                     window is the only w0 writer). The flat
-  //!                     AAF_CTRL[0] is t0's enable only.
+  //! t0 composition TERM BY TERM:
+  //!   * enable        : cfg_aaf_enable (AAF_CTRL[0]) - the SAME flat bit
+  //!                     t0's aaf_gate uses, and NOTHING per-context.
+  //!                     Until 2026-07-30 there was a per-context ENABLE
+  //!                     (TCTX w0 CTRL[0] shadow, RESET 0) that no board
+  //!                     software writes, so on the shape-static builds
+  //!                     (VERSION >= 0x0015: stream counts are read-only
+  //!                     from elaboration) NO talker above 0 could ever
+  //!                     egress - bound, SRP-granted and clock-valid made
+  //!                     no difference. Measured on m001g: the soak's
+  //!                     t0.s0 leg fully green while t1/t2/t3 all sat at
+  //!                     tx-interval 0 despite CONNECT SUCCESS. The 0x001E
+  //!                     round had already dropped that term from the SRP
+  //!                     -declaration want for exactly this reason; the
+  //!                     egress AND kept it, and that kept the matrix dark
+  //!                     above stream 0.
+  //!                     IT IS GONE RATHER THAN INVERTED, because a
+  //!                     per-stream software enable is not ours to have:
+  //!                     1722.1-2021 Table 8-4 bit 12 makes STREAMING_WAIT
+  //!                     an OPTION, Milan v1.2 5.4.2.19/5.4.2.20 require
+  //!                     NOT_SUPPORTED for START_/STOP_STREAMING on a
+  //!                     Stream Output, 5.3.7.3 "excludes the possibility
+  //!                     for a Stream Output to be stopped", and 5.5.4.1
+  //!                     says a Talker "shall always stream AVTP packets as
+  //!                     long as bandwidth is reserved for its stream". A
+  //!                     disarm lever could only ever park a stream in the
+  //!                     state the specification excludes (its Talker
+  //!                     Advertise stays up while egress stops), so the
+  //!                     honest fix is no lever at all: a context the shape
+  //!                     elaborated streams when SRP licenses it, exactly
+  //!                     like t0 under AAF_CTRL[0]. TCTX w0 stays writable
+  //!                     for chans/vid; its bit 0 is simply not consulted.
   //!   * MAAP term     : ENGINE-WIDE, same expression as t0: ONE KL_maap
   //!                     instance claims ONE BLOCK of N_STREAMS addresses;
-  //!                     stream j uses base+j (probe answers and TCTX
-  //!                     provisioning agree on that rule).
+  //!                     stream j uses base+j (probe answers, the SRP row
+  //!                     and now the packetizer all derive that same rule).
   //!   * ACMP term     : per-stream talker_active from KL_acmp_tlkr_ctx
   //!                     at N_SRC_P = N_STREAMS (probe window per uid |
   //!                     per-stream listener observation), with t0's
   //!                     cfg_aaf_bypass escape hatch mirrored.
-  //!   * lwSRP term    : per-stream P5 gate (KL_lwsrp_bw_gate via the ctx
-  //!                     rows), with t0's ~cfg_lwsrp_enable escape.
+  //!   * lwSRP term    : the per-stream P5 gate, REQUIRED - t0's
+  //!                     ~cfg_lwsrp_enable escape is deliberately NOT
+  //!                     mirrored here. LWSRP_CTRL resets to engine-OFF
+  //!                     (0x10), so mirroring it would make every talker
+  //!                     admissible out of reset on a bare PROBE_TX with no
+  //!                     reservation and therefore no CBS pacing - the
+  //!                     documented board-killer (KNOWN_ISSUES: ~56 k
+  //!                     frames/s unpaced, the peer softcore drowns), whose
+  //!                     mitigation used to be "never arm a t>0 context
+  //!                     with the engine off" and is unenforceable once
+  //!                     arming is implicit. Requiring the gate is strictly
+  //!                     narrowing and costs no conformance: 5.3.7.3's
+  //!                     licence has no "unless SRP is off" branch, and it
+  //!                     keeps the board safety rail meaningful (engine off
+  //!                     => t>0 dark, so an armed-with-engine-off state
+  //!                     cannot exist).
   wire [N_STREAMS-1:0] aaf_stream_en_w /* verilator public_flat_rd */;
-  logic [N_STREAMS-1:0] tctx_en_r;
   assign aaf_stream_en_w[0] = aaf_gate;
   generate
     for (genvar gs = 1; gs < N_STREAMS; gs++) begin : g_aaf_stream_en
       assign aaf_stream_en_w[gs] =
-          tctx_en_r[gs] &
+          cfg_aaf_enable &
           (~cfg_maap_enable | maap_addr_valid) &
           (cfg_aaf_bypass |
-           (acmp_talker_active_aaf_w[gs] &
-            (~cfg_lwsrp_enable | lwsrp_stream_gate[gs])));
+           (acmp_talker_active_aaf_w[gs] & lwsrp_stream_gate[gs]));
     end
   endgenerate
   wire [63:0]              ptp_now_w;
@@ -2672,19 +2710,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     end
   end : win_commit_glue
 
-  //! P12 follow-up: TCTX CTRL[0] shadow for the t>0 admission gates. The
-  //! CSR window is the ONLY writer of TCTX w0 (the packetizer engine
-  //! writes w3/w4/w5 only), so mirroring the ACCEPTED window writes
-  //! (wr_p & wr_rdy, word 0) is exact. Bit 0 is never consumed - t0's
-  //! enable is the flat AAF_CTRL path inside aaf_gate.
-  always_ff @(posedge axis_clk) begin : tctx_en_shadow
-    if (!axis_resetn) tctx_en_r <= '0;
-    else if (csr_tctx_wr_p_w && tctx_wr_rdy_w &&
-             (csr_tctx_wr_addr_w[3:0] == 4'd0) &&
-             (32'(csr_tctx_wr_addr_w[6:4]) < N_STREAMS)) begin
-      tctx_en_r[csr_tctx_wr_addr_w[6:4]] <= csr_tctx_wr_data_w[0];
-    end
-  end : tctx_en_shadow
+  //! The TCTX CTRL[0] shadow that lived here (tctx_en_r, the t>0 admission
+  //! enable) is DELETED, 2026-07-30. It reset to 0 with no board-software
+  //! writer, so it held every talker above 0 dark forever on the
+  //! shape-static builds, and a per-stream software enable is not ours to
+  //! have in the first place (Milan v1.2 5.3.7.3 / 5.4.2.19 / 5.4.2.20 /
+  //! 5.5.4.1 - see the g_aaf_stream_en banner). TCTX w0 writes still land
+  //! in the packetizer's context RAM, so chans and VID stay provisionable;
+  //! bit 0 of that word is simply no longer consulted by anything.
 
   // ==========================================================================
   //  PER-ROW lwSRP TSpec (2026-07-26): MaxFrameSize is a property of the

@@ -75,11 +75,36 @@ package lwsrp_pkg;
   //! PriorityAndRank byte: priority[7:5]=3, rank[4]=1, reserved[3:0]=0
   localparam [7:0] SR_PRIO_RANK_C    = {SR_CLASS_A_PRIO_C[2:0], SR_RANK_C, 4'h0};
 
-  // ---- MRP timers (802.1Q Table 10-7 defaults; doc-normative values) ------
-  //! Reference (pipewire mrp.c) runs 100/1000/10000-15000 ms; both conform.
-  localparam int unsigned JOIN_TIME_MS_C     = 200;
-  localparam int unsigned LEAVE_TIME_MS_C    = 600;
-  localparam int unsigned LEAVEALL_TIME_MS_C = 10_000;
+  // ---- MRP timers -----------------------------------------------------
+  //! MILAN OVERRIDES THE BASE STANDARD HERE (fixed 2026-07-30). These used to
+  //! be the IEEE 802.1Q-2018 Table 10-7 values - JoinTime 20 cs, LeaveTime
+  //! 60-100 cs, LeaveAllTime 1000 cs - and the comment said so. But Milan v1.2
+  //! 4.2.7.1.1 Table 4.3 "MRP Timer Tolerances and Default Values" replaces
+  //! them for a PAAD:
+  //!
+  //!     periodictimer   +50%/-10%   default 1000 ms   (900 .. 1500)
+  //!     joinTime        +20%/-10%   default  200 ms   (180 .. 240)
+  //!     LeaveTime       +50%/-10%   default 5000 ms   (4500 .. 7500)
+  //!     leavealltimer   +/- 0.5 s   default 10-15 s   (9500 .. 15500)
+  //!
+  //! LeaveTime at the 802.1Q value of 600 ms was a factor of ~8 BELOW Milan's
+  //! own minimum. It is the time a Registrar holds a registration after a
+  //! LeaveAll before ageing it out, so at 600 ms a peer that does not
+  //! re-declare inside one LeaveAll round loses its registration - and losing
+  //! a Listener registration closes this talker's 5.3.7.3 streaming licence,
+  //! i.e. the stream stops. Milan sizes it at 5 s so an ordinary
+  //! re-declaration round can never do that.
+  //!
+  //! The long LeaveTime is only SAFE because of 4.2.7.2.2 (see
+  //! KL_lwsrp_registrar): an EXPLICIT rLv deregisters instantly instead of
+  //! arming this timer, so a real withdrawal is still detected at once and
+  //! only the LeaveAll path waits. The two belong together; changing one
+  //! without the other is a defect either way round.
+  //! Found by the hermes BDD conformance round, which asserted the Milan
+  //! bounds our own suite never checked.
+  localparam int unsigned JOIN_TIME_MS_C     = 200;     //! Table 4.3 default
+  localparam int unsigned LEAVE_TIME_MS_C    = 5_000;   //! Table 4.3 default
+  localparam int unsigned LEAVEALL_TIME_MS_C = 10_000;  //! Table 4.3 low edge
 
   // ---- Class-A bandwidth math (LWSRP_FPGA_ARCHITECTURE.md §2) -------------
   //! idleSlope[bps] = MaxIntervalFrames * (MaxFrameSize + 42) * 8 * 8000

@@ -63,6 +63,12 @@ static const uint16_t VID     = 2;
 static const uint16_t MAXFRM  = 224;
 static const uint32_t LATENCY = 500000;
 static const uint64_t BRIDGE  = 0x3CC0C6000001ULL;
+//! Milan v1.2 4.2.7.1.1 Table 4.3 LeaveTime (lwsrp_pkg LEAVE_TIME_MS_C).
+//! run() ticks in 0.1 ms, so LV_TICKS is one whole LeaveTime. Kept as a
+//! named constant because these waits used to hardcode the 802.1Q 600 ms
+//! and went silently wrong the moment the package moved to Milan's 5 s.
+static const int LEAVE_MS  = 5000;
+static const int LV_TICKS  = LEAVE_MS * 10;
 
 enum { EV_NEW = 0, EV_JOININ = 1, EV_IN = 2, EV_JOINMT = 3, EV_MT = 4, EV_LV = 5 };
 enum { D_IGN = 0, D_ASKFAIL = 1, D_READY = 2, D_READYFAIL = 3 };
@@ -330,7 +336,7 @@ int main(int argc, char** argv) {
     feed(bridge_listener(EV_MT, D_IGN, /*lva=*/1));
     run(3000);
     ck("rx-leaveall: prompt re-declare pair", tx_frames.size() >= 2 ? 1 : 0, 1);
-    run(6200);             // no listener refresh -> ages out
+    run(LV_TICKS + 2000);  // no listener refresh -> ages out
     ck("rx-leaveall: aged out", dut->listener_reg_o, 0);
     ck("rx-leaveall: reservation gone", dut->res_active_o, 0);
 
@@ -442,7 +448,7 @@ int main(int argc, char** argv) {
     feed(bridge_listener(EV_MT, D_IGN, /*lva=*/1));   // pure LeaveAll
     run(3000);                                        // 300 ms into LV
     feed(bridge_listener(EV_JOININ, D_READY));        // bridge re-declares
-    run(4000);                                        // past the 600 ms mark
+    run(4000);                                        // well inside LeaveTime
     ck("la-hold: licence never dropped", gate_dropped() ? 1 : 0, 0);
     ck("la-hold: still registered", dut->listener_reg_o, 1);
     ck("la-hold: reservation active", dut->res_active_o, 1);
@@ -454,7 +460,7 @@ int main(int argc, char** argv) {
     //     the licence-flap defect pin (STREAM_START=16/STOP=15 on silicon).
     trans.clear();
     feed(bridge_mvrp_vid(EV_JOININ, /*lva=*/1));
-    run(7000);                                        // LeaveTime + margin
+    run(LV_TICKS + 2000);                             // LeaveTime + margin
     ck("mvrp-la: licence never dropped", gate_dropped() ? 1 : 0, 0);
     ck("mvrp-la: still registered", dut->listener_reg_o, 1);
     ck("mvrp-la: reservation active", dut->res_active_o, 1);
@@ -463,7 +469,7 @@ int main(int argc, char** argv) {
     //     still deregisters (the Table 10-4 leavetimer! row survived the
     //     application-scope fix)
     feed(bridge_listener(EV_MT, D_IGN, /*lva=*/1));
-    run(6600);
+    run(LV_TICKS + 6000);
     ck("la-neg: aged out at LeaveTime", dut->listener_reg_o, 0);
     ck("la-neg: licence dropped", dut->stream_gate_o, 0);
 

@@ -289,9 +289,17 @@ module KL_lwsrp_ctx #(
               end else if (in_w[l] && areg_r[l]) begin
                 adecl_r[2*l +: 2]  <= lane_par_i[2*l +: 2];
                 rleave_r[LV_W_C*l +: LV_W_C] <= '0;
-              end else if (lv_w[l] && areg_r[l] &&
-                           rleave_r[LV_W_C*l +: LV_W_C] == '0) begin
-                rleave_r[LV_W_C*l +: LV_W_C] <= LV_W_C'(LEAVE_TIME_MS_C);
+              end else if (lv_w[l] && areg_r[l]) begin
+                //! MILAN 4.2.7.2.2: an EXPLICIT rLv goes IN -> MT at once
+                //! (the 802.1Q "start leavetimer -> LV" transition is
+                //! replaced for MSRP), which is what lets LeaveTime be the
+                //! 5 s Table 4.3 mandates without taking 5 s to notice a
+                //! withdrawal. The leave WINDOW below still covers the
+                //! LeaveAll path, where waiting for the re-declaration
+                //! round is the whole point.
+                areg_r[l]         <= 1'b0;
+                adecl_r[2*l +: 2] <= LSTN_DECL_IGNORE_C;
+                rleave_r[LV_W_C*l +: LV_W_C] <= '0;
               end
             end
             if (lane_tfail_p_i[l] && jn_w[l]) begin
@@ -307,7 +315,12 @@ module KL_lwsrp_ctx #(
                 areg_r[l] <= 1'b1;
                 rleave_r[LV_W_C*l +: LV_W_C] <= '0;
               end else if (lv_w[l] && areg_r[l]) begin
-                rleave_r[LV_W_C*l +: LV_W_C] <= LV_W_C'(LEAVE_TIME_MS_C);
+                //! MILAN 4.2.7.2.2, listener direction: an explicit rLv on
+                //! the Talker Advertise deregisters at once (IN -> MT), it
+                //! does not age out over LeaveTime. Same clause, same
+                //! reason, other direction.
+                areg_r[l] <= 1'b0;
+                rleave_r[LV_W_C*l +: LV_W_C] <= '0;
               end
             end
             if (lane_tfail_p_i[l]) begin
@@ -316,7 +329,11 @@ module KL_lwsrp_ctx #(
                 acode_r[8*l +: 8] <= lane_tfail_code_i;
                 fleave_r[LV_W_C*l +: LV_W_C] <= '0;
               end else if (lv_w[l] && afail_r[l]) begin
-                fleave_r[LV_W_C*l +: LV_W_C] <= LV_W_C'(LEAVE_TIME_MS_C);
+                //! ...and on the TalkerFailed attribute likewise: the bridge
+                //! withdrawing its failure declaration is explicit news, so
+                //! the sticky failure clears now rather than in LeaveTime.
+                afail_r[l] <= 1'b0;
+                fleave_r[LV_W_C*l +: LV_W_C] <= '0;
               end
             end
           end

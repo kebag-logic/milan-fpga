@@ -353,3 +353,73 @@ def step_mutate_to_lv(context):
 def step_withdrawal(context):
     lis = [m for m in context.msgs if m[0] == 3 and m[3] > 0][0]
     assert EVT_NAMES[lis[6][0]] == "Lv", lis[6]
+
+
+# ---------------------------------------------------------------------------
+# 0x001F - the t>0 admission and the t>0 wire identity
+# ---------------------------------------------------------------------------
+@when("I read the t>0 AAF admission expression from milan_datapath")
+def step_read_tgt0_admission(context):
+    path = os.path.join(_ROOT, "hdl", "milan", "milan_datapath.sv")
+    src = _strip_comments(_read(path))
+    m = re.search(r"g_aaf_stream_en(.*?)endgenerate", src, flags=re.S)
+    assert m, "no g_aaf_stream_en branch in milan_datapath"
+    a = re.search(r"assign\s+aaf_stream_en_w\[gs\]\s*=\s*(.*?);",
+                  m.group(1), flags=re.S)
+    assert a, "no aaf_stream_en_w[gs] arm in g_aaf_stream_en"
+    context.expr = " ".join(a.group(1).split())
+
+
+@then("the t>0 admission does NOT require a per-context runtime enable")
+def step_tgt0_no_ctx_enable(context):
+    # The deleted term. Named both ways it has existed so a revival under
+    # either polarity is caught.
+    for forbidden in ("tctx_en_r", "tctx_dis_r"):
+        assert forbidden not in context.expr, context.expr
+    # ...and the one enable that IS allowed is the flat AAF_CTRL[0] that t0
+    # already used, so the two talker classes share one switch.
+    assert "cfg_aaf_enable" in context.expr, context.expr
+
+
+@then("the t>0 admission requires the lwSRP stream gate unconditionally")
+def step_tgt0_gate_unconditional(context):
+    assert "lwsrp_stream_gate" in context.expr, context.expr
+    # no engine-off escape for t>0: LWSRP_CTRL resets to engine-OFF, so an
+    # escape here would admit unpaced streams out of reset.
+    assert "cfg_lwsrp_enable" not in context.expr, (
+        "t>0 must not mirror t0's ~cfg_lwsrp_enable escape: %s" % context.expr)
+
+
+@when("I read the t>0 wire identity from KL_aaf_packetizer")
+def step_read_tgt0_identity(context):
+    path = os.path.join(_ROOT, "hdl", "ieee1722", "aaf",
+                        "KL_aaf_packetizer.sv")
+    src = _strip_comments(_read(path))
+    context.ident = {}
+    for name in ("eff_dmac_w", "eff_vid_w", "eff_uid_w"):
+        m = re.search(r"wire\s*\[[^\]]*\]\s*%s\s*=\s*(.*?);" % name,
+                      src, flags=re.S)
+        assert m, "no %s in KL_aaf_packetizer" % name
+        context.ident[name] = " ".join(m.group(1).split())
+
+
+@then("the t>0 identity is derived from the same roots the declaration uses")
+def step_tgt0_identity_derived(context):
+    # dmac = the MAAP block base + t, vid = the engine VID, unique_id = t -
+    # literally the wires acmp_src_dmac_w and srp_fab_sid_w/dmac_w carry, so
+    # advertisement, ACMP answer and wire cannot disagree.
+    dmac = context.ident["eff_dmac_w"]
+    assert "dest_mac_i" in dmac and "et_r" in dmac, dmac
+    assert "vlan_vid_i" in context.ident["eff_vid_w"], context.ident
+    uid = context.ident["eff_uid_w"]
+    assert "et_r" in uid, uid
+
+
+@then("software may still name each identity field explicitly")
+def step_tgt0_identity_override(context):
+    # the CRFT_SID precedent, per field: a NON-ZERO staged value wins over
+    # the derived one, so a controller-named identity is never overwritten.
+    for name, reg in (("eff_dmac_w", "edmac_r"), ("eff_vid_w", "evid_r"),
+                      ("eff_uid_w", "euid_r")):
+        expr = context.ident[name]
+        assert ("|%s" % reg) in expr.replace(" ", ""), (name, expr)

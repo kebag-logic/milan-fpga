@@ -562,7 +562,7 @@ rotating arbiter rather than the only fabric writer:
 
 | | rule | why |
 |---|---|---|
-| want | `tctx_en_r[t] & cfg_lwsrp_enable & cfg_lwsrp_talker_en` | UPSTREAM terms only. `lwsrp_stream_gate[t]` is an *output* of this engine (row provisioned AND Listener Ready), so wanting on it — or on the composed `aaf_stream_en_w`, which contains it — deadlocks: no row because no stream, no stream because no row |
+| want | `cfg_lwsrp_enable & cfg_lwsrp_talker_en` (SHAPE-derived; the `tctx_en_r[t]` term was dropped in `0x001E` and the bit itself deleted in `0x001F`) | UPSTREAM terms only. `lwsrp_stream_gate[t]` is an *output* of this engine (row provisioned AND Listener Ready), so wanting on it — or on the composed `aaf_stream_en_w`, which contains it — deadlocks: no row because no stream, no stream because no row |
 | not ACMP | `acmp_talker_active` is deliberately absent | Milan 5.5.2.7 licences a stream on SRP alone, so the advertisement must exist BEFORE a controller binds or fast-connect (5.5.3.5.3) finds no reservation to register against. Row 0 and the CRF row also declare on their enable alone |
 | identity | `{station MAC, uid = t}` / MAAP block base+t | literally the wires `acmp_src_dmac_w[t]` carries, so the declaration and the `PROBE_TX` answer for that `talker_unique_id` cannot disagree |
 | TSpec | `tctx_maxf_w[t]` (§3.4.2) | one derivation, two consumers |

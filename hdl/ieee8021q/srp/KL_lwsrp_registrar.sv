@@ -113,7 +113,25 @@ module KL_lwsrp_registrar #(
       end else if (lstn_in_evt_w && listener_reg_o) begin
         listener_decl_o <= listener_decl_i;        // refresh declaration
         lstn_leave_r    <= '0;
-      end else if ((lstn_lv_evt_w || leaveall_p_i) && listener_reg_o &&
+      end else if (lstn_lv_evt_w && listener_reg_o) begin
+        //! MILAN 4.2.7.2.2 "Instantaneous transition from IN to MT": for the
+        //! MSRP application the 802.1Q Table 10-4 transition
+        //!     IN / rLv! -> (Start leavetimer) -> LV
+        //! SHALL be replaced by
+        //!     IN / rLv! -> (Lv) -> MT
+        //! so an EXPLICIT withdrawal deregisters at once rather than ageing
+        //! out. Until 2026-07-30 an rLv armed the leave timer exactly like a
+        //! LeaveAll, which was tolerable only while LEAVE_TIME_MS_C was the
+        //! 802.1Q 600 ms; at Milan's mandated 5 s it would have taken five
+        //! seconds to notice a stream had been withdrawn - which is precisely
+        //! the cost the clause's own Note says this transition exists to
+        //! avoid. The leave TIMER now covers the LeaveAll path only, where
+        //! waiting is the point: everyone re-declares after a LeaveAll and a
+        //! registration must survive that round.
+        listener_reg_o  <= 1'b0;
+        listener_decl_o <= LSTN_DECL_IGNORE_C;
+        lstn_leave_r    <= '0;
+      end else if (leaveall_p_i && listener_reg_o &&
                    (lstn_leave_r == '0)) begin
         lstn_leave_r <= LV_W_C'(LEAVE_TIME_MS_C);  // arm the leave timer
       end else if (tick_1khz_i && (lstn_leave_r != '0)) begin

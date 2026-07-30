@@ -226,7 +226,127 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0016 (the AVTP tu bit is driven; 0x778 clock validity)",
-       axi_read(A_VERSION), 0x0001001E);
+       axi_read(A_VERSION), 0x0001001F);
+
+    printf("-- 5.5.2.7 SRP-only licence at t>0 STRAIGHT FROM RESET "
+           "(2026-07-30 bite) --\n");
+    // The silicon defect this bites: TCTX w0 CTRL[0] was an ENABLE with
+    // reset 0 and NO board-software writer, so a shape-static build could
+    // never egress any talker above 0 - measured on m001g, the soak's
+    // t0.s0 leg fully green while t1/t2/t3 all failed with tx-interval 0
+    // despite CONNECT SUCCESS, SRP rows declared, and tu=0. The fix flips
+    // the lever to a DISARM (reset 0 = armed): a context the shape
+    // elaborated streams by construction, like t0 under AAF_CTRL[0].
+    // This case is the boot scenario verbatim - NO window op ever touches
+    // t3 before or during it; a registered Listener Ready alone must open
+    // its gate. Reverting the polarity (or restoring the tctx_en_r AND
+    // term) reddens exactly the two opened/flowed checks below.
+    {
+        axi_write(A_AAF_CTRL, 0x00020001);   // AAF en + VID 2, bypass CLEAR
+        axi_write(A_LWSRP_CTRL, 0x17);       // engine + TALKER-DECLARE
+        for (int c = 0; c < 512; c++) step();
+        ck("t>0 reset licence: gate3 CLOSED with no listener",
+           (tap_stream_en() >> 3) & 1, 0);
+        // Listener Ready MRPDU for t3's DERIVED sid {station_mac, uid 3} -
+        // the harness MAC is 0, so FirstValue = {0..0, 0x0003}. Same MRPDU
+        // shape as the t0 SRP-only case further down.
+        uint8_t lr[60]; memset(lr, 0, sizeof lr);
+        const uint8_t msrp_da3[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};
+        memcpy(lr, msrp_da3, 6);
+        lr[6]=0x02; lr[7]=0xAA; lr[8]=0xBB; lr[9]=0xCC; lr[10]=0xDD;
+        lr[11]=0x01;
+        lr[12]=0x22; lr[13]=0xEA;
+        lr[14]=0;                      // ProtocolVersion
+        lr[15]=3; lr[16]=8;            // Listener (type 3), AttributeLength
+        lr[17]=0; lr[18]=14;           // AttributeListLength
+        lr[19]=0; lr[20]=1;            // VectorHeader: LeaveAll 0, NOV 1
+        lr[28]=0x03;                   // FirstValue = {0..0, uid 0x0003}
+        lr[29]=36;                     // ThreePacked JoinIn
+        lr[30]=128;                    // FourPacked Ready
+        dut->m_axis_rx_tready = 1;
+        for (int c = 0; c < 1000; c++) step();
+        inject(lr, 60, 2000);
+        inject(lr, 60, 2000);          // bridges re-declare every JoinTime
+        int opened3 = 0;
+        for (int g = 0; g < 400 && !opened3; g++) {
+            for (int c = 0; c < 64; c++) step();
+            opened3 = (tap_stream_en() >> 3) & 1;
+        }
+        ck("t>0 reset licence: Ready(uid3) ALONE opens gate3 "
+           "(no window write, no ACMP)", opened3, 1);
+        ck("t>0 reset licence: t0 stayed dark (no Ready for uid0, no "
+           "bypass)", tap_stream_en() & 1, 0);
+        // FRAMES: the per-talker TCTX w5 counter through the window, POLLED.
+        // NOT A_AAF_FRAMES (0x660) - that alias counts t0 only
+        // (KL_aaf_packetizer frames_sent_o, `if (et_r == 0)`), so asserting
+        // it here would be unsatisfiable beside the t0-is-dark check above.
+        // Zero-fill emits ~1 PDU per 6*512 audio-clock ticks, so poll.
+        int t3pdus = 0;
+        for (int g = 0; g < 60 && t3pdus < 2; g++) {
+            for (int c = 0; c < 3072; c++) step();
+            axi_write(A_STRM_SEL, 0x103);
+            snap_and_wait();
+            t3pdus = axi_read(A_SW_PDUS);
+        }
+        ck("t>0 reset licence: t3 PDUs flowed under the licence",
+           t3pdus >= 2, 1);
+        // ---- AND THE FRAMES CARRY t3's OWN IDENTITY (2026-07-30) --------
+        // The bite that matters most. Nothing writes the talker window on a
+        // real board, and the packetizer used to read dmac/vid/uid ONLY from
+        // that window - so an armed t3 framed to dmac 00:00:00:00:00:00 on
+        // VID 0 with stream_id {mac, uid 0}, colliding with t0 and reaching
+        // no listener, while its own SRP row declared {mac, uid 3}. Frames
+        // existing is NOT the property under test; frames carrying the
+        // identity we advertised is. dmac must be the MAAP-block base + 3
+        // (the same rule acmp_src_dmac_w answers and srp_fab_dmac_w
+        // declares), vid the engine VID, uid16 = 3.
+        const unsigned A_AAF_DML = 0x658, A_AAF_DMH = 0x65C;
+        const uint64_t base3 = ((uint64_t)(axi_read(A_AAF_DMH) & 0xFFFF) << 32)
+                             | (uint64_t)axi_read(A_AAF_DML);
+        std::vector<uint8_t> w3;
+        int seen3 = 0, id3 = 0, vid3 = -1; uint64_t dm3 = 0;
+        dut->m_axis_mac_tx_tready = 1;
+        for (int c = 0; c < 200000 && !seen3; c++) {
+            lo();
+            if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                for (int l = 0; l < 8; l++)
+                    if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                        w3.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                if (dut->m_axis_mac_tx_tlast) {
+                    size_t off = (w3.size() > 17 && w3[12] == 0x81
+                                  && w3[13] == 0x00) ? 4 : 0;
+                    if (w3.size() >= 86 + off && w3[12+off] == 0x22
+                        && w3[13+off] == 0xF0 && w3[14+off] == 0x02) {
+                        int uid = (w3[24+off] << 8) | w3[25+off];
+                        if (uid == 3) {
+                            seen3 = 1; id3 = uid;
+                            dm3 = 0;
+                            for (int b = 0; b < 6; b++)
+                                dm3 = (dm3 << 8) | w3[b];
+                            if (off) vid3 = ((w3[14] & 0x0F) << 8) | w3[15];
+                        }
+                    }
+                    w3.clear();
+                }
+            }
+            hi();
+        }
+        ck("t>0 identity: a t3 PDU appeared on the wire", seen3, 1);
+        ck("t>0 identity: stream_id uid16 == 3 (not t0's 0)", id3, 3);
+        ck("t>0 identity: dmac == MAAP base + 3 (not all-zeros)",
+           dm3 == base3 + 3, 1);
+        ck("t>0 identity: C-TAG VID == the engine VID 2 (not 0)", vid3, 2);
+        // Restore the legacy flow posture. NO TCTX w0 writes: the per-context
+        // lever is gone, so there is nothing to restore there - and writing
+        // it would leave residue the flow reads back later ("talker 2 CTRL
+        // reads 0"). Engine off withdraws the rows (shape-derived want);
+        // AAF_CTRL back to its TRUE reset value 0x00020000 (VID 2, en 0,
+        // bypass 0) - writing plain 0 would clear the VID field and set up
+        // the VID-0 clobber the rest of the flow assumes away.
+        axi_write(A_LWSRP_CTRL, 0x10);
+        axi_write(A_AAF_CTRL, 0x00020000);
+        for (int c = 0; c < 256; c++) step();
+    }
 
     // ---- THE ADVERTISED SHAPE AT N > 1 (2026-07-27) --------------------
     // The CRF Media Clock Output lives at talker_unique_id = N_STREAMS and
@@ -448,8 +568,16 @@ int main(int argc, char** argv) {
     // was the defect (Milan v1.2 5.3.7.3 makes the licence to stream
     // conditional on RECEIVING a Listener Ready/Ready Failed), so the reset
     // is now 0x0002_0000 and this check was passing BECAUSE of it.
-    axi_write(A_AAF_CTRL, 0x00020002);   // bypass on, talker enable still 0
-    ck("t1 armed by the window CTRL commit", (tap_stream_en() >> 1) & 1, 1);
+    // 2026-07-30: the per-context TCTX CTRL[0] arming lever is GONE - it
+    // reset to 0 with no board-software writer, so it held every talker
+    // above 0 dark forever, and Milan v1.2 5.3.7.3 / 5.4.2.19 / 5.4.2.20 /
+    // 5.5.4.1 leave no room for a per-stream software enable on a Stream
+    // Output at all. So AAF_CTRL[0] is now the ONE enable for every talker,
+    // exactly as it always was for t0: with it clear, bypass alone must NOT
+    // light t1 (this check used to assert the opposite).
+    axi_write(A_AAF_CTRL, 0x00020002);   // bypass on, flat enable still 0
+    ck("AAF_CTRL.en=0 holds t1 too (one flat enable, no per-context lever)",
+       (tap_stream_en() >> 1) & 1, 0);
     ck("t0 still down (AAF_CTRL.en = 0)", tap_stream_en() & 1, 0);
     // t0 up via the legacy flat path (VID 2 + bypass + en - the VID-2 rule)
     axi_write(A_AAF_CTRL, 0x00020003);
@@ -493,7 +621,8 @@ int main(int argc, char** argv) {
     // TCTX section above); anything else armed here would be a defect.
     {
         std::vector<uint8_t> cur;
-        int t1f = 0, t1sil = 0, t1chans = -1, t1dlen = -1, foreign = 0;
+        int t1f = 0, t1sil = 0, t1chans = -1, t1dlen = -1, foreign = 0,
+            sibling = 0;
         dut->m_axis_mac_tx_tready = 1;
         for (int c = 0; c < 60000 && t1f < 3; c++) {
             lo();
@@ -518,8 +647,22 @@ int main(int argc, char** argv) {
                                  i < 38 + off + 48 && i < cur.size(); i++)
                                 if (cur[i]) z = false;
                             if (z) t1sil++;
+                        } else if (uid >= 2 && uid < NSTREAMS_TB) {
+                            // 2026-07-30: t2/t3 are ELABORATED contexts and
+                            // this posture has bypass on, so they are
+                            // licensed and MUST also be framing silence
+                            // (Milan 5.3.7.3). They are counted, not
+                            // condemned - and the count is only reachable
+                            // at all because their identity is now derived
+                            // (they used to emit uid 0, i.e. they were
+                            // silently booked as t0 and this classifier was
+                            // blind to them). The bound is the ELABORATED
+                            // shape, not a hard 4: at N=8 talkers 4..7 are
+                            // just as real, and hardcoding 4x4 here made the
+                            // 8x8 leg call them foreign.
+                            sibling++;
                         } else if (uid != 0) {
-                            foreign++;                 // t2/t3 must NOT stream
+                            foreign++;      // an uid we never elaborated
                         }
                     }
                     cur.clear();
@@ -532,7 +675,13 @@ int main(int argc, char** argv) {
         ck("silence fill: t1 stream_data_length = 48", t1dlen, 48);
         ck("silence fill: t1 payload is DIGITAL SILENCE, every PDU",
            t1sil, t1f);
-        ck("silence fill: unarmed talkers stayed silent", foreign, 0);
+        // no PDU may carry an unique_id this shape never elaborated
+        ck("silence fill: no PDU from an unelaborated uid", foreign, 0);
+        // ...and the sibling contexts ARE streaming under the same licence,
+        // each under its OWN derived stream_id (they emitted uid 0 before
+        // the identity fix, which is exactly what made this test blind)
+        ck("silence fill: sibling talkers t2/t3 frame too (5.3.7.3)",
+           sibling > 0, 1);
     }
 
     printf("-- 5.5.2.7 SRP-ONLY licence: a Listener Ready opens the gate "
@@ -664,13 +813,27 @@ int main(int argc, char** argv) {
     axi_write(A_MAAP_CTRL, 0x0800);
     for (int c = 0; c < 16; c++) step();
     ck("MAAP off: both restored", tap_stream_en() & 3, 3);
-    // window CTRL[0] = 0 disarms ONLY t1
+    // TCTX w0 CTRL[0] IS NO LONGER AN EGRESS LEVER (2026-07-30). The word
+    // still carries chans/VID and still lands in the packetizer's context
+    // RAM, but nothing consults bit 0: a Stream Output the shape elaborated
+    // streams when SRP licenses it (Milan 5.3.7.3's licence has no software
+    // term, and 5.4.2.20 forbids STOP_STREAMING on a Stream Output). So a
+    // w0 commit with bit 0 clear must leave egress exactly as it was - the
+    // check that used to assert it "disarms t1", inverted into the property
+    // that replaced it.
     axi_write(A_STRM_SEL, 0x101);
-    axi_write(A_SW_CTRL, (2u << 5) | 0u);            // TCTX w0: vid=2, en=0
+    axi_write(A_SW_CTRL, (2u << 5) | 0u);            // TCTX w0: vid=2, bit0=0
     for (int c = 0; c < 16; c++) step();
-    ck("window CTRL[0]=0 disarms t1", (tap_stream_en() >> 1) & 1, 0);
-    ck("t0 unaffected by the t1 disarm", tap_stream_en() & 1, 1);
-    ck("t2/t3 never armed", (tap_stream_en() >> 2) & 3, 0);
+    ck("w0 CTRL[0]=0 does NOT stop t1 (no per-stream software enable)",
+       (tap_stream_en() >> 1) & 1, 1);
+    ck("t0 unaffected by the t1 w0 commit", tap_stream_en() & 1, 1);
+    // ...and with bypass on (this posture) every ELABORATED talker is
+    // licensed, so t2/t3 stream too - the 5.3.7.3 zero-fill truth the old
+    // "never armed" expectation could only hold because the missing enable
+    // kept them dark. Their identity is asserted on the wire in the
+    // reset-licence case at the top of this file.
+    ck("t2/t3 armed too (shape-static, reset-armed)",
+       (tap_stream_en() >> 2) & 3, 3);
     printf("-- N-sink ACMP: ctx2 window bind end-to-end (0x800 tbl master) --\n");
     // enable the ACMP listener (ADP enable gates it) with our entity id
     axi_write(A_ADP_EIDHI, 0x020000FF);

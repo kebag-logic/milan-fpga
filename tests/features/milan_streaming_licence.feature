@@ -79,6 +79,38 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
     And the want does NOT depend on ACMP talker_active, per 5.5.2.7
     And the fabric yields the provisioning port to a CSR write, never to its poll
 
+  @class:structure @matrix:M-DEV-13e
+  Scenario: a talker above 0 egresses on the SRP licence alone, with its own identity
+    # The 0x001F round. 0x001E gave every talker row a DECLARATION and the
+    # streams still never left, because two more pieces of per-talker state
+    # had the same root cause - only the 0x800 window writes them, and no
+    # board software drives that window. Silicon m001g: the bind soak's t0
+    # leg fully green (listener FRAMES_RX ~18k/s) while t1/t2/t3 sat at zero
+    # frames despite CONNECT SUCCESS, declared SRP rows and tu=0.
+    When I read the t>0 AAF admission expression from milan_datapath
+    # (1) ADMISSION. The per-context TCTX CTRL[0] shadow reset to 0, so on a
+    # shape-static build no talker above 0 could EVER egress. It is deleted,
+    # not inverted: 1722.1-2021 Table 8-4 bit 12 makes STREAMING_WAIT an
+    # OPTION, Milan 5.4.2.19/5.4.2.20 require NOT_SUPPORTED for START_/
+    # STOP_STREAMING on a Stream Output, 5.3.7.3 "excludes the possibility
+    # for a Stream Output to be stopped", and 5.5.4.1 says a Talker "shall
+    # always stream AVTP packets as long as bandwidth is reserved". A
+    # per-stream software enable is not ours to have.
+    Then the t>0 admission does NOT require a per-context runtime enable
+    # ...and the lwSRP gate is REQUIRED, with no engine-off escape:
+    # LWSRP_CTRL resets to engine-OFF, so mirroring t0's ~cfg_lwsrp_enable
+    # escape would admit unpaced PROBE_TX-only streams straight out of reset
+    # (the ~56 kframe/s blast that takes the peer board off the network).
+    And the t>0 admission requires the lwSRP stream gate unconditionally
+    # (2) IDENTITY. The packetizer read dmac/VID/unique_id for t>0 from that
+    # same never-written window, so an armed talker framed to dmac all-zeros
+    # on VID 0 with stream_id {station_mac, uid 0} - colliding with t0 and
+    # reaching no listener - while its own SRP row declared {station_mac,
+    # uid t} and the ACMP answer promised dmac base+t.
+    When I read the t>0 wire identity from KL_aaf_packetizer
+    Then the t>0 identity is derived from the same roots the declaration uses
+    And software may still name each identity field explicitly
+
   @class:wire
   Scenario: the bench bridge declares Listener Ready for our StreamID
     Given the MSRPDU captured from the bench bridge on 2026-07-28
