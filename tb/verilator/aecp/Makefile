@@ -9,6 +9,13 @@
 #   sim_fmt2.cpp   -> 2-AAF-input shape (gen_fmt2_shape.py -> fmt2_inc/, which
 #     SHADOWS gen/ via include order) exercising the per-stream
 #     `AEM_PER_STREAM_FMT format tables per descriptor.
+#   sim_fmt4.cpp   -> 4-AAF-input shape (gen_fmt4_shape.py -> fmt4_inc/): the
+#     SHIPPED arty_4x4 listener input count. Round-trips SET then
+#     GET_STREAM_FORMAT on the MIDDLE sinks (descriptor_index 2 AND 3) - the
+#     band fmt2 (0,1) and sim_nxn (GET_STREAM_INFO only) never reach, i.e.
+#     where "SET/GET_STREAM_FORMAT works only on inputs 0 and 1" hid. The
+#     --else-arm shape (`AEM_PER_STREAM_FMT stripped) makes the same harness
+#     answer NO_SUCH_DESCRIPTOR on 2..4: the bite the per-descriptor fix closes.
 #   sim_amap.cpp   -> 8x8 ship shape, GET_AUDIO_MAP port-relative bounds
 #     (defect A: the served map came from a hardcoded AUDIO_MAP index with a
 #     hardcoded length, which only coincides with the right one at 1x1).
@@ -84,6 +91,9 @@ run: $(GEN)
 	python3 gen_fmt2_shape.py fmt2_inc
 	$(VERILATOR) -Ifmt2_inc $(VFLAGS) --Mdir obj_fmt2 \
 	  $(SRCS) sim_fmt2.cpp -o Vaecp_fmt2   # -Ifmt2_inc FIRST: shadows gen/
+	python3 gen_fmt4_shape.py fmt4_inc
+	$(VERILATOR) -Ifmt4_inc $(VFLAGS) --Mdir obj_fmt4 \
+	  $(SRCS) sim_fmt4.cpp -o Vaecp_fmt4   # 4-AAF-in: SET/GET round-trip idx 2,3
 	python3 gen_dynmap_shape.py dynmap_inc
 	$(VERILATOR) -Idynmap_inc $(VFLAGS) --Mdir obj_dynmap \
 	  $(SRCS) sim_dynmap.cpp -o Vaecp_dynmap   # -Idynmap_inc shadows gen/
@@ -101,6 +111,7 @@ run: $(GEN)
 	@echo "======================================================================"
 	./obj_dir/Vaecp_sim
 	./obj_fmt2/Vaecp_fmt2
+	./obj_fmt4/Vaecp_fmt4
 	./obj_dynmap/Vaecp_dynmap
 	./obj_nxn/Vaecp_nxn
 	./obj_amap/Vaecp_amap
@@ -120,8 +131,6 @@ cosim: $(GEN)
 	$(VERILATOR) $(COSIM_FLAGS) $(SRCS) cosim_main.cpp -o Vaecp_cosim
 
 clean:
-	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc obj_nxn obj_amap
-	rm -rf smap8_inc
-	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc obj_pools pools_inc
-	rm -rf obj_dir obj_fmt2 fmt2_inc obj_dynmap dynmap_inc \
-	       obj_dynmap2 dynmap2_inc
+	rm -rf obj_dir obj_fmt2 fmt2_inc obj_fmt4 fmt4_inc obj_dynmap dynmap_inc
+	rm -rf obj_nxn obj_amap smap8_inc
+	rm -rf obj_pools pools_inc obj_dynmap2 dynmap2_inc
