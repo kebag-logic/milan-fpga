@@ -1849,8 +1849,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! Output shares this port and a fabric grant must not retire a CSR write
     //! a grant belongs to whoever owned the SERVICE beat behind it, so the
     //! mask is the registered ownership flag and not the live request
-    .i_srp_ctx_gnt      (srp_ctx_gnt_w & ~crf_srp_own_r),
-    .i_srp_ctx_stolen   (crf_srp_svc_w | crf_srp_own_r),
+    .i_srp_ctx_gnt      (srp_ctx_gnt_w & ~srp_fab_own_r),
+    .i_srp_ctx_stolen   (srp_fab_svc_w | srp_fab_own_r),
     .i_srp_ctx_rd_sid   (srp_ctx_rd_sid_w),
     .i_srp_ctx_rd_stat  (srp_ctx_rd_stat_w),
     .i_bdbg0            (aecp_bdbg0_w),
@@ -2818,8 +2818,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! the fabric yields to a pending write only, and the yielded poll beat is
   //! declared stale to the window through i_srp_ctx_stolen (its ctx_rd_*
   //! snapshot registers hold the CRF row for that one beat).
-  wire crf_srp_gnt_w = crf_srp_req_r & ~csr_srp_ctx_we;
-  wire srp_ctx_req_w = csr_srp_ctx_req | crf_srp_gnt_w;
+  //! ...and since 2026-07-30 the CRF row is one SLOT of a rotating fabric
+  //! arbiter (srp_fab_pick below) rather than the only fabric requester: the
+  //! AAF talker rows t>0 joined it. The CRF grant is that arbiter's grant
+  //! restricted to the CRF slot, so there is exactly ONE place where the
+  //! window/fabric priority rule lives and the two cannot drift.
+  wire crf_srp_gnt_w = srp_fab_gnt_w & srp_fab_is_crf_w;
+  wire srp_ctx_req_w = csr_srp_ctx_req | srp_fab_gnt_w;
   //! THE BEAT THAT ACTUALLY WRITES. This must be KL_lwsrp_ctx's OWN service
   //! expression (`ctx_req_i && !ctx_gnt_o`) restricted to our ownership, and
   //! it is written that way ON PURPOSE so the two cannot drift.
@@ -2833,20 +2838,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! tagged-but-undeclared state this whole design exists to make
   //! unreachable, reached through the back door.
   wire crf_srp_svc_w = crf_srp_gnt_w & ~srp_ctx_gnt_w;
-  logic crf_srp_own_r;      //! we owned the service beat behind THIS grant
 
   always_ff @(posedge axis_clk or negedge axis_resetn) begin : crf_srp_prov
     if (!axis_resetn) begin
       crf_srp_req_r  <= 1'b0;
       crf_srp_val_r  <= 1'b0;
       crf_srp_last_r <= 1'b0;
-      crf_srp_own_r  <= 1'b0;
       crf_srp_sid_r  <= '0;
       crf_srp_dmac_r <= '0;
     end
     else begin
-      crf_srp_own_r <= crf_srp_svc_w;
-
       //! (re)declare on any change of the request or of the identity the row
       //! must carry - a stale sid/dmac in the TA is a reservation for a
       //! stream nobody emits
@@ -2867,6 +2868,248 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       end
     end
   end : crf_srp_prov
+
+  // ==========================================================================
+  //  EVERY AAF TALKER ROW GETS A PROVISIONER (2026-07-30).
+  //
+  //  THE DEFECT, measured twice. The lwSRP provisioning port had exactly TWO
+  //  writers - the 0x800 CSR window (software staging) and the CRF row above
+  //  (crf_srp_prov) - and NO board software stages the AAF talker rows. So:
+  //    * CSR, live read via A_STRM_SEL 0x100+idx: A_STRMW_SRP (0x85C) reads
+  //      0x0000_037E for talker 0 (idx 0 is a hard alias of the legacy flat
+  //      row, which is why it looked healthy) and 0x0000_0000 for talkers
+  //      1/2/3 on a 4x4 board - the row's OWN valid bit is 0.
+  //    * WIRE, ProfiShark inline on the board link with a licensed stream
+  //      running: MSRP declares a Talker Advertise for exactly
+  //      {02:00:00:00:00:02, uid 0x0000} and {..., uid 0x0004} - uid 4 is
+  //      N_STREAMS, i.e. the CRF Media Clock Output. NOTHING for uid 1/2/3.
+  //  The two stream_ids on the wire were exactly the two rows that had a
+  //  provisioner. Milan v1.2 5.3.7.3 conditions streaming on declaring a
+  //  Talker Advertise AND receiving a Listener Ready/Ready Failed, so an
+  //  unadvertised stream can NEVER be licensed: no talker but 0 could stream.
+  //
+  //  THE WANT IS THE ENABLE, NEVER THE STREAMING (the circular-dependency
+  //  trap). aaf_stream_en_w[t] already contains lwsrp_stream_gate[t], which
+  //  is an OUTPUT of this engine and goes high only once the row is
+  //  provisioned AND a Listener Ready is registered. Building the "want" from
+  //  the gate (or from aaf_stream_en_w) would deadlock: no row because the
+  //  talker is not streaming, no streaming because there is no row. So the
+  //  want is composed from UPSTREAM terms only - the same discipline
+  //  crf_srp_want_w uses (cfg_crft_en, not "CRF frames are leaving").
+  //
+  //  ...and it deliberately does NOT include acmp_talker_active_aaf_w[t]:
+  //    (a) row 0 and the CRF row both declare on their enable alone;
+  //    (b) Milan v1.2 5.5.2.7 - a Talker relies only on SRP, not ACMP, to
+  //        decide when to stream, so a registered Listener Ready starts the
+  //        stream with no ACMP involvement at all. The advertisement must
+  //        therefore EXIST BEFORE a controller binds, or fast-connect
+  //        (5.5.3.5.3) cannot work: the listener would find no reservation
+  //        to register against;
+  //    (c) the bandwidth is already budgeted - configs/endstation_arty_4x4
+  //        .yaml states 4 streams = 41.5 Mb/s = 55 % of the port, inside the
+  //        75 % class-A ceiling, so declaring all of them cannot over-commit.
+  //
+  //  IDENTITY is DERIVED, exactly as the CRF row's is: stream_id
+  //  {station MAC, uid = t} and DMAC = the MAAP block slot base+t - literally
+  //  the same wires acmp_src_dmac_w[t] carries, so the Talker Advertise and
+  //  the answer a controller was given for talker_unique_id t cannot
+  //  disagree. TSpec MaxFrameSize comes from the EXISTING per-row path
+  //  (tctx_maxf_w[t] = 24 + 24*C from that talker's own TCTX w0 chans), so a
+  //  2ch and an 8ch talker do not reserve identically; MaxIntervalFrames
+  //  stays shared because it is an SR-class property.
+  //
+  //  SOFTWARE STILL WINS IF IT NAMES A STREAM_ID - the CRFT_SID precedent
+  //  (`|cfg_crft_sid` beats crft_auto_sid_w) applied per row: a 0x800 window
+  //  commit that carries a NON-ZERO staged sid takes the row and the fabric
+  //  forgets it without a withdrawal, while a commit that names no sid (the
+  //  CTRL-write side effect every enable carries) is RETAKEN, because a row
+  //  holding the zero sid is a reservation for a stream this station does not
+  //  emit. One bit of state per row buys back the whole staging path.
+  // ==========================================================================
+  //! the stream_id MAC half, byte order as KL_aaf_packetizer's station_mac_i
+  wire [47:0] srp_station_mac_w = {cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                                   cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                                   cfg_mac_addr[39:32], cfg_mac_addr[47:40]};
+
+  //! the CSR window's OWN service beat (it owns the port on every cycle a
+  //! write is pending) naming an AAF talker row t in 1..N-1, and whether that
+  //! write named a stream_id. srp_tk_row_w/srp_tk_idx_w are the SAME decode
+  //! the per-row TSpec mux uses - one row map, one place.
+  wire csr_srp_tk_svc_w = srp_tk_row_w & ~srp_ctx_gnt_w;
+  wire csr_srp_tk_own_w = csr_srp_ctx_valid & (|csr_srp_ctx_sid);
+  //! software owns this talker row (reset-only assignment at t = 0: row 0 is
+  //! the legacy CSR/LWSRP_TSPEC pair and the fabric never touches it)
+  logic [N_STREAMS-1:0] srp_sw_own_r;
+
+  //! ---- the shared provisioning arbiter ----------------------------------
+  //! Slot s addresses ctx row (N_STREAMS-1)+s, the 0x800 window's talker map.
+  //! Slot 0 is never a requester (row 0 = the legacy pair, no-regression
+  //! axiom); slots 1..N-1 are the AAF talkers; slot N_STREAMS is the CRF
+  //! Media Clock Output when this shape has one (SRP_TALKERS_C).
+  localparam int SRP_SEL_W_C = (SRP_TALKERS_C > 1) ? $clog2(SRP_TALKERS_C) : 1;
+  wire  [SRP_TALKERS_C-1:0] srp_fab_want_v_w;  //! per-slot want LEVEL
+  wire  [SRP_TALKERS_C-1:0] srp_fab_req_v_w;   //! per-slot write owed
+  logic [SRP_SEL_W_C-1:0]   srp_fab_rr_r;      //! slot served last
+  logic                     srp_fab_any_c;
+  logic [SRP_SEL_W_C-1:0]   srp_fab_sel_c;
+
+  //! ROTATING GRANT, so no slot can be starved by a busier neighbour: the
+  //! scan starts at the slot AFTER the one served last (the KL_aaf_packetizer
+  //! rr_pick idiom - descending loop, so the nearest match wins), and every
+  //! service moves the pointer onto the slot just served, making it the
+  //! LOWEST priority. A pending slot is therefore passed over at most
+  //! SRP_TALKERS_C-1 times before it is the highest priority.
+  always_comb begin : srp_fab_pick
+    srp_fab_any_c = 1'b0;
+    srp_fab_sel_c = '0;
+    for (int k = SRP_TALKERS_C-1; k >= 0; k--) begin
+      int s;
+      s = (32'(srp_fab_rr_r) + k + 1) % SRP_TALKERS_C;
+      if (srp_fab_req_v_w[s]) begin
+        srp_fab_any_c = 1'b1;
+        srp_fab_sel_c = SRP_SEL_W_C'(s);
+      end
+    end
+  end : srp_fab_pick
+
+  //! the window/fabric priority rule, in ONE place (see the arbitration
+  //! banner above): yield to a pending CSR WRITE, never to its poll.
+  wire srp_fab_gnt_w = srp_fab_any_c & ~csr_srp_ctx_we;
+  //! KL_lwsrp_ctx's OWN service expression (`ctx_req_i && !ctx_gnt_o`)
+  //! restricted to our ownership - written that way so the two cannot drift
+  wire srp_fab_svc_w = srp_fab_gnt_w & ~srp_ctx_gnt_w;
+  logic srp_fab_own_r;      //! we owned the service beat behind THIS grant
+  wire srp_fab_is_crf_w = (SRP_CRF_TK_C != 0) &&
+                          (32'(srp_fab_sel_c) == N_STREAMS);
+  //! one-hot service pulse: ONLY the slot whose complete record the engine
+  //! sampled retires. Every ctx field is selected by this one {gnt, sel}
+  //! pair and KL_lwsrp_ctx latches the whole row in that single cycle, so a
+  //! beat writes exactly one source's record or writes nothing - a
+  //! half-CSR/half-fabric row cannot be composed even for one cycle.
+  wire [SRP_TALKERS_C-1:0] srp_fab_svc_v_w;
+  generate
+    for (genvar gv = 0; gv < SRP_TALKERS_C; gv++) begin : g_srp_fab_svc
+      assign srp_fab_svc_v_w[gv] = srp_fab_svc_w &
+                                   (32'(srp_fab_sel_c) == gv);
+    end
+  endgenerate
+
+  always_ff @(posedge axis_clk) begin : srp_fab_arb_S
+    if (!axis_resetn) begin
+      srp_fab_own_r <= 1'b0;
+      srp_fab_rr_r  <= '0;
+    end
+    else begin
+      srp_fab_own_r <= srp_fab_svc_w;
+      if (srp_fab_svc_w) srp_fab_rr_r <= srp_fab_sel_c;
+    end
+  end : srp_fab_arb_S
+
+  //! ---- the per-AAF-talker requesters ------------------------------------
+  logic [N_STREAMS-1:0] aafsrp_req_r;    //! a write is owed for this row
+  logic [N_STREAMS-1:0] aafsrp_last_r;   //! last committed want (edge detect)
+  //! the identity ROOTS every AAF row derives from. Shared, so ONE shadow
+  //! covers all of them: a MAC change or a fresh MAAP claim re-declares every
+  //! wanted row (a stale sid/dmac in a TA is a reservation for a stream
+  //! nobody emits - the crf_srp_prov rule, one level up).
+  logic [47:0] aafsrp_mac_r, aafsrp_dmac_r;
+  wire aafsrp_root_chg_w = (srp_station_mac_w != aafsrp_mac_r) ||
+                           (eff_aaf_dmac     != aafsrp_dmac_r);
+
+  generate
+    for (genvar gw = 0; gw < SRP_TALKERS_C; gw++) begin : g_srp_fab_want
+      if (gw == 0) begin : g_slot0_never
+        assign srp_fab_want_v_w[gw] = 1'b0;   //! row 0 = the legacy pair
+        assign srp_fab_req_v_w[gw]  = 1'b0;
+      end else if (gw < N_STREAMS) begin : g_slot_aaf
+        //! UPSTREAM terms only (see the banner): this talker context is
+        //! configured and enabled, software has not claimed the row, and the
+        //! engine is running as a talker.
+        assign srp_fab_want_v_w[gw] = tctx_en_r[gw] & ~srp_sw_own_r[gw] &
+                                      cfg_lwsrp_enable & cfg_lwsrp_talker_en;
+        assign srp_fab_req_v_w[gw]  = aafsrp_req_r[gw];
+      end else begin : g_slot_crf
+        assign srp_fab_want_v_w[gw] = crf_srp_want_w;
+        assign srp_fab_req_v_w[gw]  = crf_srp_req_r;
+      end
+    end
+  endgenerate
+
+  //! the record this beat presents. sid/dmac need no wide mux at all - they
+  //! are ARITHMETIC in the slot index, the same rule acmp_src_dmac_w[t] and
+  //! the packetizer's stream_id_w follow.
+  wire [3:0]  srp_fab_row_w  = 4'((N_STREAMS - 1) + 32'(srp_fab_sel_c));
+  wire [63:0] srp_fab_sid_w  = srp_fab_is_crf_w
+                               ? eff_crft_sid_w
+                               : {srp_station_mac_w, 16'(srp_fab_sel_c)};
+  wire [47:0] srp_fab_dmac_w = srp_fab_is_crf_w
+                               ? eff_crft_dmac_w
+                               : (eff_aaf_dmac + 48'(srp_fab_sel_c));
+  logic       srp_fab_valid_c;
+  logic [15:0] srp_fab_maxf_c, srp_fab_intv_c;
+  always_comb begin : srp_fab_rec_mux
+    srp_fab_valid_c = 1'b0;
+    srp_fab_maxf_c  = cfg_lwsrp_max_frame;
+    srp_fab_intv_c  = cfg_lwsrp_interval;
+    for (int s = 1; s < SRP_TALKERS_C; s++) begin
+      if (32'(srp_fab_sel_c) == s) begin
+        srp_fab_valid_c = srp_fab_want_v_w[s];
+        if (s < N_STREAMS) begin
+          //! per-row TSpec: 24 + 24*C from THIS talker's TCTX w0 chans
+          srp_fab_maxf_c = tctx_maxf_w[s];
+        end
+        else begin
+          srp_fab_maxf_c = CRF_SRP_MAXF_C;
+          srp_fab_intv_c = CRF_SRP_INTV_C;
+        end
+      end
+    end
+  end : srp_fab_rec_mux
+
+  always_ff @(posedge axis_clk) begin : aaf_srp_prov
+    if (!axis_resetn) begin
+      aafsrp_req_r  <= '0;
+      aafsrp_last_r <= '0;
+      aafsrp_mac_r  <= '0;
+      aafsrp_dmac_r <= '0;
+      srp_sw_own_r  <= '0;
+    end
+    else begin
+      for (int t = 1; t < N_STREAMS; t++) begin
+        //! (re)declare on a change of the want or of the identity the row
+        //! must carry
+        if ((srp_fab_want_v_w[t] != aafsrp_last_r[t]) ||
+            (srp_fab_want_v_w[t] && aafsrp_root_chg_w))
+          aafsrp_req_r[t] <= 1'b1;
+
+        //! a 0x800 window commit on THIS row settles ownership. It cannot
+        //! collide with a fabric service beat: a pending CSR write masks
+        //! every fabric grant, so the two are mutually exclusive by
+        //! construction.
+        if (csr_srp_tk_svc_w && (32'(srp_tk_idx_w) == t)) begin
+          srp_sw_own_r[t]  <= csr_srp_tk_own_w;
+          //! named a sid -> software's row: stand down, and forget the row
+          //! WITHOUT a withdrawal (last_r 0 means the want edge that would
+          //! request one never happens). Named none -> retake it.
+          aafsrp_req_r[t]  <= ~csr_srp_tk_own_w;
+          aafsrp_last_r[t] <= 1'b0;
+        end
+
+        //! ...and only the beat KL_lwsrp_ctx sampled us on retires it
+        if (srp_fab_svc_v_w[t]) begin
+          aafsrp_req_r[t]  <= 1'b0;
+          aafsrp_last_r[t] <= srp_fab_want_v_w[t];
+        end
+      end
+
+      //! the roots are latched from the SAME wires the mux presented on the
+      //! beat that was written, so the shadow and the rows cannot disagree
+      if (srp_fab_svc_w && !srp_fab_is_crf_w) begin
+        aafsrp_mac_r  <= srp_station_mac_w;
+        aafsrp_dmac_r <= eff_aaf_dmac;
+      end
+    end
+  end : aaf_srp_prov
 
   //! THE INTERLOCK. Frames are tagged only while the row is provisioned
   //! VALID and the applicant is running - i.e. only while the MSRP Talker
@@ -3655,24 +3898,26 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .m_axis_tready(lwsrp_tx_tready),
     // P11 CSR-window provisioning port (0x800 window CTRL/SID/DMAC commits;
     // extra attribute rows only exist when N_CTX_P > 1 — inert at N = 1)
-    //! TWO provisioners share this port: the 0x800 CSR window (priority) and
-    //! the fabric's CRF Media Clock Output row (crf_srp_prov above). The mux
-    //! is by SOURCE, not by field, so a half-CSR/half-CRF record cannot be
+    //! TWO KINDS of provisioner share this port: the 0x800 CSR window
+    //! (priority on its WRITES) and the fabric's own rotating requesters -
+    //! every AAF talker row t>0 plus the CRF Media Clock Output row
+    //! (srp_fab_pick / aaf_srp_prov / crf_srp_prov above). The mux is by
+    //! SOURCE, not by field, so a half-window/half-fabric record cannot be
     //! composed even for one cycle.
     .ctx_req_i (srp_ctx_req_w),
-    .ctx_we_i  (crf_srp_gnt_w ? 1'b1              : csr_srp_ctx_we),
-    .ctx_idx_i (crf_srp_gnt_w ? 4'(SRP_CRF_ROW_C) : csr_srp_ctx_idx),
-    .ctx_valid_i (crf_srp_gnt_w ? crf_srp_want_w  : csr_srp_ctx_valid),
-    .ctx_dir_i (crf_srp_gnt_w ? 1'b0              : csr_srp_ctx_dir),
-    .ctx_sid_i (crf_srp_gnt_w ? eff_crft_sid_w    : csr_srp_ctx_sid),
-    .ctx_dmac_i (crf_srp_gnt_w ? eff_crft_dmac_w  : csr_srp_ctx_dmac),
-    .ctx_prio_rank_i (crf_srp_gnt_w ? lwsrp_pkg::SR_PRIO_RANK_C
+    .ctx_we_i  (srp_fab_gnt_w ? 1'b1             : csr_srp_ctx_we),
+    .ctx_idx_i (srp_fab_gnt_w ? srp_fab_row_w    : csr_srp_ctx_idx),
+    .ctx_valid_i (srp_fab_gnt_w ? srp_fab_valid_c : csr_srp_ctx_valid),
+    .ctx_dir_i (srp_fab_gnt_w ? 1'b0             : csr_srp_ctx_dir),
+    .ctx_sid_i (srp_fab_gnt_w ? srp_fab_sid_w    : csr_srp_ctx_sid),
+    .ctx_dmac_i (srp_fab_gnt_w ? srp_fab_dmac_w  : csr_srp_ctx_dmac),
+    .ctx_prio_rank_i (srp_fab_gnt_w ? lwsrp_pkg::SR_PRIO_RANK_C
                                     : csr_srp_ctx_prio),
     //! per-row MaxFrameSize (see the tctx_chans_shadow block); the CSR's
     //! shared LWSRP_TSPEC word still serves row 0 and every listener row
-    .ctx_max_frame_i (crf_srp_gnt_w ? CRF_SRP_MAXF_C : srp_ctx_maxf_w),
-    .ctx_interval_i (crf_srp_gnt_w ? CRF_SRP_INTV_C : csr_srp_ctx_intv),
-    .ctx_latency_i (crf_srp_gnt_w ? cfg_lwsrp_latency : csr_srp_ctx_lat),
+    .ctx_max_frame_i (srp_fab_gnt_w ? srp_fab_maxf_c : srp_ctx_maxf_w),
+    .ctx_interval_i (srp_fab_gnt_w ? srp_fab_intv_c : csr_srp_ctx_intv),
+    .ctx_latency_i (srp_fab_gnt_w ? cfg_lwsrp_latency : csr_srp_ctx_lat),
     .ctx_gnt_o (srp_ctx_gnt_w), .ctx_rd_sid_o (srp_ctx_rd_sid_w),
     .ctx_rd_stat_o (srp_ctx_rd_stat_w), .ctx_oor_o (lwsrp_ctx_oor_w),
     .ctx_reg_o (), .ctx_ready_o (), .ctx_failed_o (), .ctx_tx_count_o (),
