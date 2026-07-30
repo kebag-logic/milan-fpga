@@ -98,7 +98,22 @@ static std::vector<uint8_t> state_dump() {
 static void reset_dut() {
     dut->rst_n = 0;
     dut->enable_i = 1;
-    dut->link_level_i = 1;
+    //! LINK DOWN AT RESET - what a power-on actually looks like, and what
+    //! makes the two checks either side of it mean anything (fixed
+    //! 2026-07-30). This used to assert link_level_i = 1 here and then the
+    //! campaign asserted the entity stays SILENT: it was telling the DUT
+    //! "you are enabled and your link is up" and demanding it say nothing.
+    //! That only held while arming was EDGE-driven, i.e. before the 0x001D
+    //! round replaced the never-edging link_up_i pulse with a LEVEL arm (the
+    //! SoC's link signal does not edge, so an ENABLED entity on a LIVE link
+    //! sat mute - the "dormancy" report). With the level arm, advertising
+    //! here is CORRECT and is exactly what IEEE 1722.1-2021's own advertise
+    //! state machine prescribes: INITIALIZE sets lastLinkIsUp = FALSE and
+    //! LINK STATE CHANGE fires needsAdvertise only `if(linkIsUp)`. Starting
+    //! the link DOWN restores both properties honestly - the down link is
+    //! the documented silence lever, and EV_LINK_UP below becomes a real
+    //! 0 -> 1 transition rather than a no-op re-assertion.
+    dut->link_level_i = 0;
     dut->m_axis_tready = 1;
     clear_events();
     apply_model();
