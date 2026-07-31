@@ -4672,7 +4672,7 @@ class MilanSoC(SoCCore):
                  rx_fifo_beats=2048, board="ax7101", eth_phy_index=0,
                  num_streams=1, audio_if_slots=0, talker_wire_chans=2,
                  audio_if_master=False,
-                 pcm_ring="dram", aaf_playback=False,
+                 pcm_ring="dram", aaf_playback=False, bus_standard="wishbone",
                  render_lpf=True, optional_blocks=None,
                  cbs_queues_mask=None, entity_gen_dir=None, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
@@ -4689,16 +4689,21 @@ class MilanSoC(SoCCore):
             VexiiRiscv.args_fill(_vex_parser)
             _vex_args, _ = _vex_parser.parse_known_args([])
             # cpu_variant is a SoCCore-level arg (not in the CPU parser)  -  set it here.
-            # "linux" = rv64imasu + sv39 MMU + L1$ + BTB/RAS/gshare (no C, no FPU);
+            # "linux" = rv{XLEN}imasu + MMU + L1$ + BTB/RAS/gshare (no C, no FPU);
             # "debian" additionally enables C + F + D. We use "linux" for the smallest,
-            # highest-fmax Linux core (matches our no-C/no-FPU kernel); the --xlen=64 in
-            # vexii-args makes it RV64 (the linux variant otherwise defaults to RV32).
+            # highest-fmax Linux core (matches our no-C/no-FPU kernel); the --xlen in
+            # vexii-args picks RV32 (sv32 MMU) or RV64 (sv39). The VexiiRiscv "linux"
+            # variant itself defaults to RV32, so the width MUST be stated explicitly.
             _vex_args.cpu_variant = "linux"
             _vex_args.cpu_count   = cpu_count
             _vex_args.with_dma    = coherent_dma          # coherent AXI dma_bus
             _vex_args.l2_bytes    = int(l2_bytes) if l2_bytes else 0
             vexii_extra = " ".join(extra_scala_args) if extra_scala_args else ""
-            _vex_args.vexii_args  = ("--xlen=64 " + vexii_extra).strip()
+            # --xlen is a REAL knob on this path, not a NaxRiscv-only one. It used to be
+            # hardcoded to 64 here, so `--cpu vexiiriscv --xlen 32` was accepted and
+            # silently built an RV64 core  -  the same "flag that does nothing" defect the
+            # --audio-interface-master check below refuses outright. Thread it through.
+            _vex_args.vexii_args  = (f"--xlen={int(xlen)} " + vexii_extra).strip()
             # NEVER pull the pinned VexiiRiscv/SpinalHDL repos at build time:
             # the wrapper's `git checkout dev && git pull` dies the moment
             # upstream dev touches the locally-patched Soc.scala (2026-07-23:
@@ -4753,8 +4758,25 @@ class MilanSoC(SoCCore):
         if not with_dram:
             kwargs.setdefault("integrated_main_ram_size", main_ram_size)
 
+        # MAIN SoC BUS STANDARD. LiteX defaults this to "wishbone", and because we never
+        # stated it, the control path ran AXI-Lite -> Wishbone -> AXI-Lite: the CPU pBus is
+        # an AXILiteInterface and the milan_csr window at 0x9000_0000 is an AXILiteInterface,
+        # with a Wishbone bus wedged between them purely by omission (build 0x0021 litex.log
+        # lines 43 and 81: "cpu_bus0 Bus adapted from AXI-Lite 32-bit to Wishbone 32-bit" and
+        # the same for milan_csr). Saying "axi-lite" deletes BOTH round-trip bridges - OOC
+        # measured 106 LUT (AXILite2Wishbone) + 150 LUT (Wishbone2AXILite) on xc7a100t - and
+        # turns the CSR bridge from Wishbone2CSR (48 LUT) into AXILite2CSR (66 LUT), +18.
+        # This bus carries NO bulk traffic: with VexiiRiscv the CPU reaches DRAM on its own
+        # 256-bit AXI4 mBus and the DMA masters live on the separate 64-bit AXI dma_bus, so
+        # the only slaves here are rom / sram / spiflash / milan_csr / csr.
+        kwargs.setdefault("bus_standard", bus_standard)
+
+        # DERIVE the ident from the core that was actually selected. It used to say
+        # "NaxRiscv" unconditionally, so every --cpu vexiiriscv build advertised the
+        # wrong core over the BIOS banner and the ident CSR that bench operators read.
+        _cpu_human = {"vexiiriscv": "VexiiRiscv", "naxriscv": "NaxRiscv"}[cpu]
         SoCCore.__init__(self, platform, sys_clk_freq,
-                         ident=f"Milan TSN SoC - NaxRiscv RV{xlen} {cpu_count}-core",
+                         ident=f"Milan TSN SoC - {_cpu_human} RV{xlen} {cpu_count}-core",
                          **kwargs)
 
         # item-4 TDM MASTER: the front-end generates the bus, so it needs a
@@ -5120,7 +5142,8 @@ class MilanSoC(SoCCore):
 def main():
     ap = argparse.ArgumentParser(description="Milan single-core RISC-V Linux SoC")
     ap.add_argument("--xlen", default=64, type=int, choices=[32, 64],
-                    help="NaxRiscv width (64 = RV64GC/sv39 default; 32 = RV32/sv32)")
+                    help="CPU register width, honoured by BOTH --cpu choices "
+                         "(64 = RV64/sv39 default; 32 = RV32/sv32)")
     ap.add_argument("--cpu-count",    default=1, type=int, help="number of cores (this config: 1)")
     ap.add_argument("--cpu",          default="naxriscv", choices=["naxriscv","vexiiriscv"], help="soft CPU (vexiiriscv = higher fmax, smaller  -  AVB-switch direction)")
     ap.add_argument("--with-fpu",     action="store_true", help="hardware FP unit (rv64imafd / lp64d)")
@@ -5292,6 +5315,12 @@ def main():
                     help="512 MB DDR3 via LiteDRAM (A7DDRPHY + MT41J256M16)  -  needed for Linux (§A.3)")
     ap.add_argument("--coherent-dma", action="store_true",
                     help="cache-coherent DMA (NaxRiscv snooping dma_bus; needed for correct DMA content without manual cache flushes)")
+    ap.add_argument("--bus-standard", default="wishbone", choices=["wishbone", "axi-lite"],
+                    help="main SoC bus standard. 'axi-lite' makes the control path AXI end "
+                         "to end and deletes the two round-trip bridges LiteX inserts when "
+                         "the default 'wishbone' sits between the CPU's AXI-Lite pBus and "
+                         "the AXI-Lite milan_csr window (OOC: 106 + 150 LUT, minus 18 for "
+                         "AXILite2CSR over Wishbone2CSR). Carries no DRAM or DMA traffic.")
     ap.add_argument("--with-spiflash", action="store_true",
                     help="memory-map the on-board N25Q128 QSPI flash (16 MB) so the BIOS can "
                          "flash-boot Linux images instead of the ~4-min serial upload (§QSPI). "
@@ -5417,7 +5446,7 @@ def main():
             "-loadbit \"up 0x0 {build_name}.bit\" -file {build_name}.bin"]
     soc = MilanSoC(platform, int(args.sys_clk_freq), xlen=args.xlen,
                    cpu_count=args.cpu_count, cpu=args.cpu, with_milan=not args.no_milan,
-                   board=args.board,
+                   board=args.board, bus_standard=args.bus_standard,
                    with_mac=args.with_mac or args.all_blocks,
                    with_dma=args.with_dma or args.all_blocks,
                    with_dram=args.with_dram or args.all_blocks,
