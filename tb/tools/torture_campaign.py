@@ -623,8 +623,18 @@ def interval_ticks_agree(talker_delta: Optional[int],
 
 #: The test machine's own loss lanes.  /sys/class/net/<iface>/statistics/ names
 #: (net_device_stats; Documentation/networking/statistics.rst).
-NIC_LOSS_KEYS = ("rx_dropped", "tx_dropped", "rx_errors", "tx_errors",
+#: ONLY counters that can falsify this instrument's readings belong here:
+#: rx_missed/over/fifo/errors mean a frame never reached rx_packets, and the
+#: tx lanes mean this host's own injections failed.
+NIC_LOSS_KEYS = ("tx_dropped", "rx_errors", "tx_errors",
                  "rx_missed_errors", "rx_over_errors", "rx_fifo_errors")
+#: rx_dropped is NOT a loss lane for this instrument: it counts kernel demux
+#: drops (typically no-protocol-handler, e.g. a switch's MVRP heartbeat on a
+#: host with no MRP stack) that happen AFTER the frame was counted in
+#: rx_packets and AFTER the AF_PACKET tap - measured on this bench at a steady
+#: ~0.1/s of pure MVRP, which used to poison every window with
+#: INSTRUMENT-SUSPECT.  Recorded in the detail, never in the verdict.
+NIC_DEMUX_KEYS = ("rx_dropped",)
 NIC_TRAFFIC_KEYS = ("rx_packets", "tx_packets", "rx_bytes", "tx_bytes")
 
 
@@ -648,6 +658,9 @@ def instrument_health(before: Optional[dict], after: Optional[dict]) -> tuple:
          if k in before and k in after}
     moved = {k: v for k, v in d.items() if v}
     detail = {"loss_delta": d, "moved": moved,
+              "demux_dropped": {k: after.get(k, 0) - before.get(k, 0)
+                                for k in NIC_DEMUX_KEYS
+                                if k in before and k in after},
               "traffic_delta": {k: after.get(k, 0) - before.get(k, 0)
                                 for k in NIC_TRAFFIC_KEYS
                                 if k in before and k in after}}
@@ -985,10 +998,12 @@ A_XSIDE_ERRORS_STATIC = AssertSpec(
 A_INSTRUMENT_LOSSLESS = AssertSpec(
     "instrument.test-machine-lossless",
     "the test machine is an instrument before it is a witness: if its "
-    "rx_dropped / rx_errors / rx_missed_errors moved during the window then "
-    "every listener-side and capture-derived verdict in that window was taken "
-    "through a lossy instrument, and those verdicts are downgraded to "
-    "INSTRUMENT-SUSPECT rather than reported as device failures.  A saturated "
+    "rx_errors / rx_missed / rx_over / rx_fifo or tx loss lanes moved during "
+    "the window then every listener-side and capture-derived verdict in that "
+    "window was taken through a lossy instrument, and those verdicts are "
+    "downgraded to INSTRUMENT-SUSPECT rather than reported as device "
+    "failures (rx_dropped is recorded but excluded: it counts post-tap "
+    "kernel demux drops such as unhandled MVRP, not capture loss).  A saturated "
     "test host manufacturing fake listener failures is a live history on this "
     "bench, not a hypothetical",
     severity="INFO")
@@ -2291,13 +2306,22 @@ def self_test() -> int:
                                          "frames": 1}})
 
         def test_the_test_machine_is_an_instrument_before_a_witness(self):
-            base = {k: 0 for k in NIC_LOSS_KEYS + NIC_TRAFFIC_KEYS}
+            base = {k: 0 for k in
+                    NIC_LOSS_KEYS + NIC_DEMUX_KEYS + NIC_TRAFFIC_KEYS}
             v, d = instrument_health(base, dict(base, rx_packets=8000))
             self.assertEqual(v, "PASS")
             self.assertEqual(d["traffic_delta"]["rx_packets"], 8000)
-            v, d = instrument_health(base, dict(base, rx_dropped=17))
+            v, d = instrument_health(base, dict(base, rx_missed_errors=17))
             self.assertEqual(v, "FAIL")
-            self.assertEqual(d["moved"]["rx_dropped"], 17)
+            self.assertEqual(d["moved"]["rx_missed_errors"], 17)
+            # rx_dropped alone is the switch's unhandled MVRP hitting kernel
+            # demux AFTER rx_packets and the capture tap: recorded, never a
+            # verdict (it used to poison every window on the live bench)
+            v, d = instrument_health(base, dict(base, rx_dropped=2,
+                                                rx_packets=9900))
+            self.assertEqual(v, "PASS")
+            self.assertEqual(d["demux_dropped"]["rx_dropped"], 2)
+            self.assertNotIn("rx_dropped", d["moved"])
             self.assertEqual(instrument_health(None, base)[0], "SKIP")
             # a lossy instrument DOWNGRADES a device verdict; it never fails it
             self.assertEqual(downgrade_for_instrument("FAIL", "FAIL"),
