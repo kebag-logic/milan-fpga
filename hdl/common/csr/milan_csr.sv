@@ -1000,30 +1000,8 @@ module milan_csr #(
   logic [3:0]  rest_idx_r;
   logic [15:0] rest_flags_r;
   //! SNAP shadow: the ONE permitted window shadow ([M-5.4.2.25] coherent
-  //! counter block): [0] STATE, [11] PDUS. CNT0..9 live in the two files
-  //! below; [1..10] are unused and optimise away.
+  //! counter block): [0] STATE, [1..10] CNT0..9, [11] PDUS
   logic [31:0] snap_shadow_r [0:11];
-  //! CNT0..9 storage is SPLIT BY SOURCE so that neither word file needs a
-  //! D-side multiplexer. Ten 32-bit words fed by two different buses cost a
-  //! 2:1 mux on every D pin - measured 328 LUT of the block's 454 (area-70,
-  //! OOC xc7a100t). Each file now has exactly ONE data source, which a flop
-  //! takes on its D pin for free:
-  //!   * index-0 listener latches all ten words from i_avtprx_cnt10 in ONE
-  //!     cycle, so [M-5.4.2.25] coherency is bit-for-bit what it was; that
-  //!     parallel load can never be a RAM write, so it stays in flops.
-  //!   * the extra-context walk lands ONE word per cycle, which IS a RAM
-  //!     write port, so it becomes LUTRAM and gives its 320 flops back.
-  //! CNT word k (0..9) is index k in BOTH files (the walk's wi = k + 1).
-  (* ram_style = "distributed" *) logic [31:0] snap_walk_ram [0:15];
-  logic [31:0] snap_cnt0_r   [0:9];
-  //! CNT read source, all latched WITH the snapshot so the read value
-  //! changes on exactly the cycle the old shadow write would have landed.
-  //! The two constant cases moved out of the storage on purpose: a word
-  //! file holding 0 / 0xDEADDEAD as *data* re-introduces the D mux that
-  //! this split exists to delete.
-  logic        snap_zero_r;      //! nothing valid latched (reset / out-of-range)
-  logic        snap_poison_r;    //! talker dir: no Table 7-157 block exists here
-  logic        snap_cnt0_sel_r;  //! index-0 listener: read the flat-alias latch
   logic        snap_busy_r;
   logic [2:0]  snap_st_r;                //! 0 idle,1 done-pulse,2 wait-free,3 arm,4 fetch
   logic        snap_dir_r;
@@ -1848,14 +1826,7 @@ module milan_csr #(
               : 32'hDEAD_DEAD;
         default:
           if (rd_addr_q >= A_STRMW_CNT0 && rd_addr_q < A_STRMW_CNT_END)
-            //! CNT0..9 source, in the order the snapshot latched it (see the
-            //! snap_*_r declarations): nothing-latched -> 0, talker -> POISON,
-            //! index-0 listener -> the parallel flat-alias latch, otherwise
-            //! the walk's LUTRAM. coff[5:2] is 0..9 here by the range guard.
-            strm_mux = snap_zero_r     ? 32'h0
-                     : snap_poison_r   ? 32'hDEAD_DEAD
-                     : snap_cnt0_sel_r ? snap_cnt0_r[32'(coff[5:2])]
-                     : snap_walk_ram[coff[5:2]];
+            strm_mux = snap_shadow_r[1 + 32'(coff[5:2])];
           else if (rd_addr_q == ADDR_WIDTH'('h86C))
             strm_mux = 32'hDEAD_DEAD;    //! window hole: POISON, not zero
       endcase
@@ -2161,24 +2132,14 @@ module milan_csr #(
       snap_wi_r   <= 4'd0; snap_cyc_r <= 2'd0; snap_word_r <= 5'd0;
       snap_req_r  <= 1'b0; snap_rden_r <= 1'b0; snap_m8_r <= 32'h0;
       for (int w = 0; w < 12; w++) snap_shadow_r[w] <= 32'h0;
-      for (int w = 0; w < 10; w++) snap_cnt0_r[w] <= 32'h0;
-      //! snap_walk_ram is LUTRAM and has no reset: snap_zero_r IS its reset,
-      //! and it is the read's highest-priority arm, so CNT reads before the
-      //! first in-range SNAP return 0 exactly as the wiped shadow used to.
-      snap_zero_r <= 1'b1; snap_poison_r <= 1'b0; snap_cnt0_sel_r <= 1'b0;
     end else begin
       unique case (snap_st_r)
         SN_IDLE_C: if (snap_go_w) begin
           snap_busy_r <= 1'b1;
           snap_dir_r  <= strm_dir_r;
           snap_idx_r  <= strm_idx_r;
-          //! CNT read source for THIS snapshot; the arms below override
-          snap_zero_r     <= 1'b0;
-          snap_poison_r   <= 1'b0;
-          snap_cnt0_sel_r <= 1'b0;
           if (!win_in_range_w) begin     //! out-of-range: shadow zeros
-            snap_shadow_r[0] <= 32'h0; snap_shadow_r[11] <= 32'h0;
-            snap_zero_r      <= 1'b1;    //! CNT0..9 read 0 (was a shadow wipe)
+            for (int w = 0; w < 12; w++) snap_shadow_r[w] <= 32'h0;
             snap_st_r <= SN_DONE_C;
           end else if (strm_idx_r == 4'd0) begin
             //! index 0 = flat hard alias, Table 7-157 offset order. STATE
@@ -2198,8 +2159,7 @@ module milan_csr #(
               //! RESET / LATE / EARLY_TIMESTAMP were hard 0 here while the
               //! monitor had been counting them all along.
               for (int w = 0; w < 10; w++)
-                snap_cnt0_r[w] <= i_avtprx_cnt10[w*32 +: 32];
-              snap_cnt0_sel_r   <= 1'b1;
+                snap_shadow_r[1+w] <= i_avtprx_cnt10[w*32 +: 32];
               snap_shadow_r[11] <= i_pcmrx_cnt;                   // = 0x6C4
             end else begin
               snap_shadow_r[0] <= {4'd0, i_lwsrp_status[8:0], 15'd0,
@@ -2207,16 +2167,16 @@ module milan_csr #(
                                    i_acmp_talker_active, i_acmp_probe_armed};
               //! talker CNT words don't exist (no Table 7-157 block):
               //! POISON, not zero, so software can discriminate
-              //! "not-backed-here" from a true zero count (2026-07-26).
-              //! Latched as a read-time arm, not written into a word file.
-              snap_poison_r     <= 1'b1;
+              //! "not-backed-here" from a true zero count (2026-07-26)
+              for (int w = 1; w < 11; w++) snap_shadow_r[w] <= 32'hDEAD_DEAD;
               snap_shadow_r[11] <= i_aaf_frames;                  // = 0x660
             end
             snap_st_r <= SN_DONE_C;
           end else begin
             //! talker contexts have no Table 7-157 block: pre-POISON CNT
             //! (0xDEADDEAD = not-backed-at-this-index, 2026-07-26 rule)
-            if (strm_dir_r) snap_poison_r <= 1'b1;
+            if (strm_dir_r)
+              for (int w = 1; w < 11; w++) snap_shadow_r[w] <= 32'hDEAD_DEAD;
             snap_st_r <= SN_WAIT_C;
           end
         end
@@ -2266,9 +2226,7 @@ module milan_csr #(
                                       acmp_fresh_r ? acmp_probing_q_r : 2'd0,
                                       acmp_fresh_r ? acmp_state_q_r   : 3'd0};
               end
-              //! walk word wi (1..10) IS CNT(wi-1). The decrement sits on
-              //! the write side so the AXI read address stays adder-free.
-              default: snap_walk_ram[snap_wi_r - 4'd1] <= i_lctx_rd_data;
+              default: snap_shadow_r[snap_wi_r] <= i_lctx_rd_data;
             endcase
             if (snap_wi_r == 4'd11) begin
               snap_rden_r <= 1'b0; snap_req_r <= 1'b0;
