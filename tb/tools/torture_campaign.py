@@ -739,6 +739,12 @@ def cross_side_growth(sides: dict, *, licensed: Optional[bool] = None,
     elif licensed:
         rec("xside.unlicensed-silent-everywhere", "SKIP",
             why="the stream IS licensed, so this invariant does not apply")
+    elif not any(s.get("frames") is not None for s in sides.values()
+                 if s["role"] in ("talker", "listener")):
+        rec("xside.unlicensed-silent-everywhere", "SKIP",
+            why="no device side could be read, so frames on the wire cannot "
+                "be attributed to this stream's gate - the test host's own "
+                "capture carries its own traffic too")
     else:
         movers = {l: s["frames"] for l, s in sides.items()
                   if s["role"] in ("talker", "listener", "wire")
@@ -2253,6 +2259,17 @@ def self_test() -> int:
             v, _ = one(cross_side_growth(sides(0, 0), licensed=False),
                        "xside.unlicensed-silent-everywhere")
             self.assertEqual(v, "PASS")
+            # both device sides unreadable: wire-only frames are the test
+            # host's own traffic, not evidence against the gate
+            v, d = one(cross_side_growth(sides(None, None, 42),
+                                         licensed=False),
+                       "xside.unlicensed-silent-everywhere")
+            self.assertEqual(v, "SKIP")
+            self.assertEqual(d["sides_unreadable"], ["dut", "peer"])
+            # but ONE readable device side keeps the invariant armed
+            v, _ = one(cross_side_growth(sides(7, None, 42), licensed=False),
+                       "xside.unlicensed-silent-everywhere")
+            self.assertEqual(v, "FAIL")
             # PRUNING: a bystander that never registered must see nothing
             byst = sides(8000, 8000, bystander={"role": "bystander",
                                                 "source": "pcap", "frames": 42,
