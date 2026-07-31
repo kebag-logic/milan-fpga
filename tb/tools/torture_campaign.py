@@ -1043,14 +1043,45 @@ class Device:
     #: 0x85C per-stream SRP row).  False means those readings are REQUIRED
     #: INPUTS and their assertions SKIP naming the register.
     csr_path: bool = False
+    #: EXPLICIT descriptor indices, when the served set is not a dense
+    #: 0..N-1 range.  A count cannot express a gap, and a gap is the normal
+    #: case for a REDUNDANT Milan device: Milan v1.2 seamless redundancy
+    #: declares each stream twice, a (p) primary on the primary network and an
+    #: (s) secondary on the secondary one, and a bench with only one network
+    #: can never carry the secondaries.  The PEER on this bench serves ten
+    #: STREAM_INPUTs that are five interleaved pairs - primaries at the EVEN
+    #: indices (USER 2026-07-31).
+    #:
+    #: This has to be stated rather than probed.  ACMP answers SUCCESS on a
+    #: secondary descriptor whether or not the secondary network exists (all
+    #: of peer 0..7 returned SUCCESS on 2026-07-31), and the device does not
+    #: serve GET_NAME (status 7 NOT_SUPPORTED), so neither the bind status nor
+    #: the descriptor names can separate them at runtime.  Binding a secondary
+    #: therefore looks exactly like a working bind that never carries audio -
+    #: a DUT defect that is not one, which is the most expensive kind of
+    #: fake red this campaign can produce.
+    talker_index_set: Optional[tuple] = None
+    listener_index_set: Optional[tuple] = None
 
     def talker_indices(self, include_crf=True) -> list:
+        if self.talker_index_set is not None:
+            idx = list(self.talker_index_set)
+            if include_crf and self.crf_out is not None \
+                    and self.crf_out not in idx:
+                idx.append(self.crf_out)
+            return idx
         idx = list(range(self.talkers))
         if include_crf and self.crf_out is not None:
             idx.append(self.crf_out)
         return idx
 
     def listener_indices(self, include_crf=True) -> list:
+        if self.listener_index_set is not None:
+            idx = list(self.listener_index_set)
+            if include_crf and self.crf_in is not None \
+                    and self.crf_in not in idx:
+                idx.append(self.crf_in)
+            return idx
         idx = list(range(self.listeners))
         if include_crf and self.crf_in is not None:
             idx.append(self.crf_in)
@@ -1082,8 +1113,16 @@ ARTY = Device(name="arty", entity_id="020000fffe000002", mac="020000000002",
               talkers=4, listeners=4, crf_out=4, crf_in=4,
               formats=("0205022001006000", "0205022000806000"),
               role="dut")
+#: The PEER is REDUNDANT (Milan v1.2 seamless redundancy): its ten
+#: STREAM_INPUTs are five interleaved pairs, a (p) primary at each even index
+#: and its (s) secondary at the odd one.  This bench has ONE network, so the
+#: secondaries can never carry a stream - and they still answer ACMP with
+#: SUCCESS, so binding them yields a connection that never passes audio and
+#: reads as a DUT defect.  USER 2026-07-31.  Override with
+#: --peer 'listener_index_set=...' on a bench that has both networks.
 PEER = Device(name="peer", entity_id="3cc0c60102030000", mac="3cc0c6010203",
                talkers=4, listeners=10, formats=("0205022001006000",),
+               listener_index_set=(0, 2, 4, 6, 8),
                reference=True, role="reference")
 #: The TEST MACHINE.  It carries the controller, and on this bench it also
 #: carries the capture, so it is the third measured party in every pair: its NIC
@@ -1100,6 +1139,9 @@ DEVICE_SPEC_FIELDS = {
     "name": str, "entity": str, "entity_id": str, "mac": str, "iface": str,
     "talkers": int, "listeners": int, "crf_out": int, "crf_in": int,
     "formats": "csv", "role": str, "reference": bool, "csr_path": bool,
+    #: e.g. --peer 'listener_index_set=0|2|4|6|8' for a redundant device whose
+    #: (s) secondaries cannot be reached on a single-network bench
+    "talker_index_set": "idxset", "listener_index_set": "idxset",
 }
 
 
@@ -1130,6 +1172,14 @@ def parse_device_spec(spec: str, base: Device) -> Device:
             out[k] = v.lower() in ("1", "true", "yes", "on")
         elif kind == "csv":
             out[k] = tuple(x for x in v.split("|") if x)
+        elif kind == "idxset":
+            #: refuse an EMPTY set rather than silently running no pairs - a
+            #: campaign that walks nothing exits clean and reads as coverage
+            ix = tuple(int(x, 0) for x in v.split("|") if x != "")
+            if not ix:
+                raise ValueError(f"{k}: an empty index set would run no "
+                                 f"pairs at all; omit the key instead")
+            out[k] = ix
         else:
             out[k] = v
     return dataclasses.replace(base, **out)
