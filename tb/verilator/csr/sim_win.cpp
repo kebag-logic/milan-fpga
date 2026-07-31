@@ -322,7 +322,26 @@ int main(int argc, char** argv) {
   uint32_t vt = axi_read(A_SW_PDUS);
   ck("talker PDUS = TCTX w5 epoch", vt != 0 && vt >= v2, 1);
   ck("talker CNT0 poison (not-backed rule 2026-07-26)", axi_read(A_SW_CNT0), 0xDEADDEADu);
+
+  // An out-of-range SNAP must WIPE the latched CNT block: re-selecting an
+  // IN-RANGE index afterwards, without re-arming, has to read 0 and never
+  // the previous selection's counters. Parking SEL out of range proves
+  // nothing on its own - win_in_range_w already returns 0 for that - so the
+  // read has to happen with SEL back in range, and the block has to hold
+  // real walk data first (a blank one passes whatever the RTL does).
+  axi_write(A_STRM_SEL, 0x002);              // dir=0 idx=2
+  for (int i = 0; i < 20; ++i) posedge();
+  snap_and_wait();
   pump_on = false;
+  uint32_t v3 = axi_read(A_SW_CNT0);
+  ck("re-latched listener CNT block is populated", v3 != 0, 1);
+  axi_write(A_STRM_SEL, 0x004);              // idx 4 >= N_LISTENERS_P=4
+  snap_and_wait();
+  axi_write(A_STRM_SEL, 0x002);              // back in range, NO re-arm
+  bool wiped = true;
+  for (int k = 0; k < 10; ++k)
+    if (axi_read(A_SW_CNT0 + 4*k) != 0) wiped = false;
+  ck("out-of-range SNAP wipes the CNT block", wiped, 1);
 
   printf("-- lwSRP ctx master: row map, provisioning, status readback --\n");
   axi_write(A_STRM_SEL, 0x003);              // dir=0 idx=3 -> poll row 3
