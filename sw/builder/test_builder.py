@@ -3529,7 +3529,11 @@ def test_d8_role_pools():
         # builder contract: it VALIDATES and lands in the plan, never errors
         assert "planned" in r["plan"]
         try:
-            eb.build(p, os.path.join(OUT, "_pools"), write_rtl=True)
+            # write_fragment=False: the refusal fires AFTER the fragment
+            # write, so the probe would otherwise hand the tracked
+            # sweep_opts_ax7101.sh to a throwaway tmp yaml on every run
+            eb.build(p, os.path.join(OUT, "_pools"), write_rtl=True,
+                     write_fragment=False)
             assert False, "--write-rtl must refuse a shape with no ROM"
         except eb.ConfigError as e:
             assert "cannot be built" in str(e), e
