@@ -826,6 +826,42 @@ module KL_aecp_response_builder (
   logic [3:0]                 dmap_ch_r [0:AEM_DMAP_KEYS_C-1];
   logic [2:0]                 dmap_si_r [0:AEM_DMAP_KEYS_C-1];
   logic [AEM_DMAP_KEYS_C-1:0] dmap_claim_r; //! intra-command same-key guard
+
+  //! Power-on IDENTITY default (USER directive 08-01): STREAM_PORT_INPUT p
+  //! wakes mapping ITS OWN stream's (Stream Input p's) channels 0..C-1
+  //! onto its own clusters 0..C-1, so a bare bind carries audio with no
+  //! mapping surgery. C is DERIVED, never restated: min(port clusters,
+  //! that stream's reset-format channel count, the ch[2:0] fabric bound),
+  //! and the key must clear the SAME physical-reachability bound
+  //! ADD_AUDIO_MAPPINGS enforces - the default is exactly a map a
+  //! controller could have ADDed, so store and render crossbar stay
+  //! wire-true. Clause basis: Milan 5.3.3.9 forbids static AUDIO_MAPs on
+  //! inputs (the default must live in the DYNAMIC store's reset image) and
+  //! 5.3.10.1 mandates restore-after-power-cycle while leaving the factory
+  //! contents open. A controller's ADD/REMOVE overrides; reset restores.
+  //! returns {v, ch[3:0], si[2:0]} for key k; the loops unroll at
+  //! elaboration so the reset image is constant in synthesis
+  function automatic logic [7:0] dmap_init_key(input int unsigned k);
+    logic [7:0]  r;
+    int unsigned c;
+    r = 8'd0;
+    for (int p = 0; p < AEM_DMAP_NPORTS_C; p++) begin
+      if (AEM_DMAP_PDYN_C[p] &&
+          k >= AEM_DMAP_PBASE_C[p] &&
+          k <  AEM_DMAP_PBASE_C[p] + AEM_DMAP_PCLS_C[p]) begin
+        c = k - AEM_DMAP_PBASE_C[p];
+        if (p < AEM_DMAP_NSTRIN_C && AEM_DMAP_SAAF_C[p] &&
+            c < AEM_DMAP_SCH_C[p] && c < DMAP_CHMAX_C &&
+            k < AEM_DMAP_PHYS_C)
+          r = {1'b1, 4'(c), 3'(p)};
+      end
+    end
+    return r;
+  endfunction
+  //! post-reset fabric seed cursor: replays the identity image into the
+  //! render crossbar (which resets EMPTY on its own side), one key per
+  //! IDLE_S cycle; == KEYS when done
+  logic [6:0] dmseed_r;
   //! live per-STREAM_INPUT channel count: resets to the ROM current_format
   //! and follows SET_STREAM_FORMAT, because 5.3.10.1 bounds a mapping by
   //! "the number of channels in the current format of the Stream Input"
@@ -1562,14 +1598,19 @@ module KL_aecp_response_builder (
       dmap_wr_p_o    <= 1'b0;
       dmap_wr_addr_o <= 6'd0;
       dmap_wr_word_o <= 8'd0;
+      //! the IDENTITY default, not empty: port p's clusters wake mapped to
+      //! stream p's channels (DMAP_INIT_C derivation above). Milan
+      //! 5.3.10.1 wants the CONTROLLER-set list restored after a power
+      //! cycle; with no non-volatile plane behind this store yet, the
+      //! restored image is the identity baseline - still the documented
+      //! deviation for controller edits, see the doc header.
       for (int k = 0; k < AEM_DMAP_KEYS_C; k++) begin
-        dmap_v_r[k]  <= 1'b0;
-        dmap_ch_r[k] <= 4'd0;
-        dmap_si_r[k] <= 3'd0;
+        automatic logic [7:0] ini = dmap_init_key(k);
+        dmap_v_r[k]  <= ini[7];
+        dmap_ch_r[k] <= ini[6:3];
+        dmap_si_r[k] <= ini[2:0];
       end
-      //! Milan 5.3.10.1 wants the mapping list restored after a power
-      //! cycle; this fabric store powers up EMPTY (no non-volatile plane
-      //! behind it yet) - the documented deviation, see the doc header.
+      dmseed_r <= 7'd0;
       for (int s = 0; s < AEM_DMAP_NSTRIN_C; s++)
         dm_sch_r[s] <= AEM_DMAP_SCH_C[s];
       dmap_claim_r <= '0;
@@ -1602,6 +1643,23 @@ module KL_aecp_response_builder (
       st_wr_o    <= 1'b0;
 `ifdef AEM_DYNMAP
       dmap_wr_p_o <= 1'b0;
+
+      // ---- post-reset fabric seed: mirror the identity default into ----
+      //      the render crossbar, one key per IDLE_S cycle. The store is
+      //      the truth (it woke as DMAP_INIT_C); the crossbar wakes empty
+      //      on its own reset, and the wire-truth rule forbids the two
+      //      disagreeing. Commits own dmap_wr_* only in DMAP_SCAN_S /
+      //      DMAP_PRUNE_S, never in IDLE_S, so the walker cannot collide;
+      //      a command edit that lands mid-walk is still served truthfully
+      //      because the walker reads the LIVE store, not the constant.
+      if (dmseed_r < 7'(AEM_DMAP_KEYS_C) && state_r == IDLE_S) begin
+        dmap_wr_p_o    <= dmap_v_r[dmseed_r[DMAP_KW_C-1:0]];
+        dmap_wr_addr_o <= 6'(dmseed_r);
+        dmap_wr_word_o <= {dmap_v_r[dmseed_r[DMAP_KW_C-1:0]], 1'b0,
+                           dmap_si_r[dmseed_r[DMAP_KW_C-1:0]],
+                           dmap_ch_r[dmseed_r[DMAP_KW_C-1:0]][2:0]};
+        dmseed_r <= dmseed_r + 7'd1;
+      end
 `endif
 
       // ---- output beat handshake (runs EVERY cycle, independent of the

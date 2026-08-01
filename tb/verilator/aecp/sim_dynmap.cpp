@@ -203,6 +203,30 @@ int main(int argc, char** argv) {
 
     printf("== AECP dynamic audio maps — AEM_DYNMAP shape ==\n");
 
+    printf("\n[0] power-on fabric seed mirrors the identity default\n");
+    {
+        // USER directive 08-01: the dynamic store wakes as the IDENTITY
+        // map (port p's clusters <- stream p's channels, C = min(clusters,
+        // stream channels)); Milan 5.3.3.9 forbids a static AUDIO_MAP on
+        // an input port, so the default lives in the dynamic store's reset
+        // image, and the render crossbar (which wakes empty) must be
+        // seeded to agree - the wire-truth rule. This shape: stream 0 is
+        // 2ch, so exactly clusters 0 and 1 wake mapped.
+        for (int i = 0; i < 12; i++) tick();     // walker: one key/cycle
+        auto w = take_wrs();
+        ck("seed wrote exactly the identity keys", (long)w.size(), 2);
+        if (w.size() == 2) {
+            ck("seed addr0/word {en,st0,ch0}", w[0].addr*256 + w[0].word,
+               0*256 + 0x80);
+            ck("seed addr1/word {en,st0,ch1}", w[1].addr*256 + w[1].word,
+               1*256 + 0x81);
+        }
+        ck("identity projects to render tap L (en, ch0)",
+           dut->dmap_l_en_o*16 + dut->dmap_l_ch_o, 0x10);
+        ck("identity projects to render tap R (en, ch1)",
+           dut->dmap_r_en_o*16 + dut->dmap_r_ch_o, 0x11);
+    }
+
     printf("\n[1] READ_DESCRIPTOR: 7.2.13 dynamic-map capability\n");
     {
         std::vector<uint8_t> pl; put_be16(pl,0); put_be16(pl,0);
@@ -223,12 +247,17 @@ int main(int argc, char** argv) {
         ck("AUDIO_MAP[1] gone (NO_SUCH_DESCRIPTOR)", r_status(r), 2);
     }
 
-    printf("\n[2] GET_AUDIO_MAP empty store + paging bounds\n");
+    printf("\n[2] GET_AUDIO_MAP identity default + paging bounds\n");
     {
+        // the store wakes as the identity map ([0] above), served as
+        // ordinary dynamic mappings (Milan 5.4.2.26 knows no other kind
+        // on an input port): page0 carries the 2ch identity, page1 none
         auto r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));
         ck("GET page0 SUCCESS", r_status(r), 0);
         ck("number_of_maps = 2 (fixed partition)", r_be16(r, 44), 2);
-        ck("page0 number_of_mappings = 0", r_be16(r, 46), 0);
+        ck("page0 number_of_mappings = 2 (identity)", r_be16(r, 46), 2);
+        ck("row0 = cl0 <- st0 ch0", row_is(r, 50, 0, 0,0,0,0), 1);
+        ck("row1 = cl1 <- st0 ch1", row_is(r, 50, 1, 0,1,1,0), 1);
         r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 1));
         ck("GET page1 SUCCESS", r_status(r), 0);
         ck("page1 number_of_maps = 2", r_be16(r, 44), 2);
@@ -416,6 +445,36 @@ int main(int argc, char** argv) {
         ck("ctlr2 UNLOCK SUCCESS", r_status(r), 0);
         r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));
         ck("locked ADD left the store empty", r_be16(r, 46), 0);
+    }
+
+    printf("\n[9] dynamic edits override the default; reset restores it\n");
+    {
+        // controller state right now: [7] removed BOTH identity rows (the
+        // override in the REMOVE direction). Put a custom row in, then
+        // power-cycle: Milan 5.3.10.1 restores the saved list, and with no
+        // non-volatile plane the restored image is the identity baseline.
+        auto r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,1,3,0}}}));
+        ck("custom ADD cl3 <- ch1 SUCCESS", r_status(r), 0);
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));
+        ck("pre-reset page0 n=1 (custom, identity stays removed)",
+           r_be16(r, 46), 1);
+        ck("pre-reset row is the custom one", row_is(r, 50, 0, 0,1,3,0), 1);
+
+        dut->rst_n = 0;
+        for (int i = 0; i < 4; i++) tick();
+        take_wrs();
+        dut->rst_n = 1;
+        for (int i = 0; i < 12; i++) tick();     // seed walker replays
+        auto w = take_wrs();
+        ck("reset re-seeded exactly the identity keys", (long)w.size(), 2);
+        if (w.size() == 2)
+            ck("... cl0 {en,st0,ch0} again", w[0].addr*256 + w[0].word, 0x80);
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));
+        ck("post-reset page0 n=2 (identity restored)", r_be16(r, 46), 2);
+        ck("post-reset row0 = cl0 <- st0 ch0", row_is(r, 50, 0, 0,0,0,0), 1);
+        ck("post-reset row1 = cl1 <- st0 ch1", row_is(r, 50, 1, 0,1,1,0), 1);
+        ck("custom cl3 row did NOT survive the cycle (documented NV gap)",
+           r_be16(r, 46) == 2, 1);
     }
 
     printf("\n----------------------------------------------------------\n");

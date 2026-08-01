@@ -231,9 +231,17 @@ int main(int argc, char** argv) {
             auto r = xact(CMD_GET_MAP, gm_pl(SPI, (uint16_t)p, 0));
             ck("page0 SUCCESS", r_status(r), 0);
             ck("number_of_maps = 2 (8 clusters / page 4)", r_be16(r, 44), 2);
-            ck("page0 number_of_mappings = 0", r_be16(r, 46), 0);
+            //! the store wakes as the PER-PORT identity (USER 08-01): port
+            //! p's clusters 0..1 <- stream p's channels 0..1 (2ch reset
+            //! format bounds C), each inside page0, stream_index = p
+            ck("page0 number_of_mappings = 2 (identity)", r_be16(r, 46), 2);
+            ck("row0 = cl0 <- st(p) ch0",
+               row_is(r, 50, 0, (uint16_t)p, 0, 0, 0), 1);
+            ck("row1 = cl1 <- st(p) ch1",
+               row_is(r, 50, 1, (uint16_t)p, 1, 1, 0), 1);
             r = xact(CMD_GET_MAP, gm_pl(SPI, (uint16_t)p, 1));
             ck("page1 SUCCESS", r_status(r), 0);
+            ck("page1 number_of_mappings = 0", r_be16(r, 46), 0);
             r = xact(CMD_GET_MAP, gm_pl(SPI, (uint16_t)p, 2));
             ck("page2 BAD_ARGUMENTS (7.4.44.1)", r_status(r), 7);
         }
@@ -274,11 +282,12 @@ int main(int argc, char** argv) {
             ck("... word = {en,src0,strm0,ch1} 0x81", w[0].word, 0x81); } }
 
         r = xact(CMD_GET_MAP, gm_pl(SPI, 1, 0));
-        ck("SPI1 page0 lists exactly its own mapping", r_be16(r, 46), 1);
-        ck("... offset is PORT-RELATIVE: {1,1,1,0}", row_is(r, 50, 0, 1,1,1,0), 1);
+        ck("SPI1 page0 = its identity + nothing leaked", r_be16(r, 46), 2);
+        ck("... row0 = identity {1,0,0,0}", row_is(r, 50, 0, 1,0,0,0), 1);
+        ck("... offset is PORT-RELATIVE: {1,1,1,0}", row_is(r, 50, 1, 1,1,1,0), 1);
         r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));
-        ck("SPI0 page0 lists exactly its own mapping", r_be16(r, 46), 1);
-        ck("... {0,1,2,0} — port 1's row is NOT visible", row_is(r, 50, 0, 0,1,2,0), 1);
+        ck("SPI0 page0 = its identity + its own ADD", r_be16(r, 46), 3);
+        ck("... {0,1,2,0} — port 1's row is NOT visible", row_is(r, 50, 2, 0,1,2,0), 1);
         r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 1));
         ck("SPI0 page1 (offsets 4-7) still empty", r_be16(r, 46), 0);
     }
@@ -371,12 +380,15 @@ int main(int argc, char** argv) {
         ck("... and GET no longer reports it", r_be16(r, 46), 0);
         //! the SAME command must not touch a mapping that is still in range
         r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));
-        ck("... while page0's in-range rows SURVIVE", r_be16(r, 46), 2);
+        ck("... while page0's in-range rows SURVIVE", r_be16(r, 46), 3);
         //! offset 0 = {st1,ch0} from [5] (a DIFFERENT stream: untouched),
+        //! offset 1 = identity {st0,ch1} (same stream, channel in range),
         //! offset 2 = {st0,ch1} (same stream, channel still in range)
         ck("... {1,0,0,0} untouched (other stream)", row_is(r, 50, 0, 1,0,0,0), 1);
+        ck("... identity {0,1,1,0} untouched (channel in range)",
+           row_is(r, 50, 1, 0,1,1,0), 1);
         ck("... {0,1,2,0} untouched (channel still in range)",
-           row_is(r, 50, 1, 0,1,2,0), 1);
+           row_is(r, 50, 2, 0,1,2,0), 1);
         r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,5,4,0}}}));
         ck("st0 ch5 BAD_ARG again (bound followed back down)", r_status(r), 7);
         r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,7,0,0}}}));
