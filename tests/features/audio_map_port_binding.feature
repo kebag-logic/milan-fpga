@@ -62,7 +62,10 @@ Feature: GET_AUDIO_MAP serves the ANSWERING PORT's own map, within that port's b
     # (1722.1-2021 7.2.13 number_of_maps=0) and index 1 is output port 1's.
     # The wrong-descriptor point is unchanged and if anything sharper - a
     # hardcoded AUDIO_MAP[1] still does not belong to the port being served.
-    Given the generated AEM model for config "endstation_ax7101_8x8"
+    # Moved again 08-01 (USER): the ship talkers went dynamic too, so the
+    # 8x8 carries no AUDIO_MAP at all and the demo needs the multi-static-
+    # map shape that still exists - arty_4x4 (4 static talker maps 0..3).
+    Given the generated AEM model for config "endstation_arty_4x4"
     Then AUDIO_MAP index 1 belongs to STREAM_PORT_OUTPUT 1, and NOT to the port the pre-fix constant served
     And STREAM_PORT_OUTPUT 0 is served from a different address than AUDIO_MAP index 1
 

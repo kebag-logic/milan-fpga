@@ -309,11 +309,11 @@ streams:
     # WIRE TRUTH 2 - today's framer RTL is stereo, only 2 physical channels
     # exist behind any talker stream until the item-5 NxN talker lands.
     # The legacy-8 layout stays expressible (see endstation_arty_current.yaml).
-    - { name: "Stream Out 0", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 1", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 2", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 3", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 4", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 5", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 6", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 7", channels: 8, clusters: 2, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 0", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 1", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 2", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 3", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 4", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 5", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 6", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 7", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }

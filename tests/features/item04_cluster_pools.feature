@@ -82,10 +82,14 @@ Feature: Item-4 D8/D10 - the cluster model a CONTROLLER enumerates
     And every AUDIO_CLUSTER object_name matches its role
 
   @class:posture
-  Scenario: Milan 5.4.2.28 - ports WITH Audio Maps refuse the dynamic commands
+  Scenario: Milan 5.4.2.27/28 - the fully dynamic ship refuses NOWHERE
+    # USER 08-01: every ship talker went map_mode dynamic alongside the
+    # listeners, so the shape carries ZERO Audio Maps and the dynamic
+    # commands are a SHALL on every stream port. The WITH-maps refusal
+    # posture is still proven below, on the deployed static shape.
     Given the end-station config "ax7101_8x8" is built
     When a controller sends ADD_AUDIO_MAPPINGS to every STREAM_PORT
-    Then every port with Audio Maps answers NOT_SUPPORTED
+    Then every port serves the dynamic commands (no Audio Maps anywhere)
 
   @class:posture
   Scenario: Milan 5.4.2.28 holds for the DEPLOYED shape too
