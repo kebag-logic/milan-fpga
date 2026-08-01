@@ -60,6 +60,11 @@
                 PLACEMENT. Downstream of the capture/playback pair mux and
                 upstream of the packetizer bypass mux, so it covers the
                 physical front-ends AND the ALSA-ring playback source. The
+                output stage is REGISTERED: every strobe (live pass-through
+                or fill) leaves one clk_i cycle after its decision cycle -
+                a timing cut, not a semantic one; the packetizer is
+                strobe-paced and the fed/pend bookkeeping keys on the
+                un-delayed inputs. The
                 CHMAP crossbar path (cfg_chmap_enable = 1) bypasses it: a
                 software-programmed map owns its own slot coverage. Fills
                 are NOT counted in A_AAF_PAIRS (that instrument reports
@@ -130,19 +135,34 @@ module KL_pair_zero_fill #(
   //! live strobes pass through with priority; fills take the idle cycles.
   //! A 48 kHz period is >1000 datapath cycles and TOTAL_P <= 32, so the
   //! pending set always drains long before the next tick.
-  always_comb begin : fill_mux
-    if (pair_valid_i) begin
-      pair_valid_o = 1'b1;
-      pair_slot_o  = pair_slot_i;
-      pair_l_o     = pair_l_i;
-      pair_r_o     = pair_r_i;
+  //!
+  //! OUTPUT STAGE IS REGISTERED (AX 100 MHz WNS -0.095: pend_r reached the
+  //! packetizer's staging-BRAM write enables through this mux and the
+  //! datapath bypass mux in one combinational cone). The DECISION stays in
+  //! this cycle - live pair wins, else the lowest pending fill - and the
+  //! chosen strobe leaves exactly one clk_i cycle later. One decision, one
+  //! output cycle, so no strobe is ever lost or doubled; the packetizer is
+  //! strobe-paced, so the whole pair stream shifting by a cycle is
+  //! invisible downstream. Bookkeeping (fed fold, pend drain, fill_cnt_o)
+  //! keys on the UN-delayed inputs, exactly as before.
+  always_ff @(posedge clk_i) begin : fill_out
+    if (!rst_n) begin
+      pair_valid_o <= 1'b0;
+      pair_slot_o  <= '0;
+      pair_l_o     <= 24'd0;
+      pair_r_o     <= 24'd0;
+    end else if (pair_valid_i) begin
+      pair_valid_o <= 1'b1;
+      pair_slot_o  <= pair_slot_i;
+      pair_l_o     <= pair_l_i;
+      pair_r_o     <= pair_r_i;
     end else begin
-      pair_valid_o = pend_any_c;
-      pair_slot_o  = pend_slot_c;
-      pair_l_o     = 24'd0;
-      pair_r_o     = 24'd0;
+      pair_valid_o <= pend_any_c;
+      pair_slot_o  <= pend_slot_c;
+      pair_l_o     <= 24'd0;
+      pair_r_o     <= 24'd0;
     end
-  end : fill_mux
+  end : fill_out
 
   //! this cycle's feed, folded combinationally so a strobe landing ON the
   //! tick cycle still counts for the period it closes (a nonblocking set

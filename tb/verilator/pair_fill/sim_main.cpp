@@ -43,11 +43,17 @@ struct Strobe { int slot; uint32_t l, r; };
 static Strobe b_log[64]; static int b_n = 0;
 static Strobe z_log[512]; static int z_n = 0;
 
-// Sample BEFORE the rising edge: the strobes are combinational and a
-// same-clock consumer (the packetizer) latches them AT the edge - sampling
-// after it reads the post-update register state and eats one-cycle strobes
-// the edge itself consumed (measured here first: pairs_merged_o said 7 while
-// a post-edge probe logged 5).
+// Sample BEFORE the rising edge: that is the value a same-clock consumer
+// (the packetizer) latches AT the edge - sampling after it reads the
+// post-update register state and eats one-cycle strobes the edge itself
+// consumed (measured here first: pairs_merged_o said 7 while a post-edge
+// probe logged 5).
+//
+// ZERO-FILL OUTPUT IS REGISTERED (AX 100 MHz timing closure): a strobe
+// DECIDED in cycle N - live pass-through or fill - is on z_pv_o/z_slot_o
+// during cycle N+1, so this harness always steps once past the driving
+// cycle before reading. Z7 pins that contract explicitly. The blend
+// outputs remain combinational.
 static void step() {
     dut->clk_i = 0; dut->eval();
     if (dut->b_pv_o && b_n < 64)
@@ -162,11 +168,12 @@ int main(int argc, char** argv) {
     int fills_slot3 = 0, passes_slot3 = 0;
     for (int p = 0; p < 10; p++) {
         tick();
-        // just after the tick: the live strobe
+        // just after the tick: the live strobe (decision cycle N; the
+        // registered output presents it during N+1)
         dut->z_pv_i = 1; dut->z_slot_i = 3;
         dut->z_l_i = 0x654321; dut->z_r_i = 0x123456;
         z_n = 0; step();
-        dut->z_pv_i = 0;
+        dut->z_pv_i = 0; step();
         if (z_n == 1 && z_log[0].slot == 3 && z_log[0].l == 0x654321)
             passes_slot3++;
         z_n = 0; quiet_cycles(20);
@@ -207,7 +214,7 @@ int main(int argc, char** argv) {
     // 8 pending fills)
     ck("Z5 live strobe + full pending walk", z_n, 9);
     bool live_first = (z_log[0].slot == 6 && z_log[0].l == 0x777777);
-    ck("Z5 the live strobe passed the SAME cycle", live_first ? 1 : 0, 1);
+    ck("Z5 the live strobe leads the walk out", live_first ? 1 : 0, 1);
 
     // Z6: an out-of-span slot passes through and is never tracked or filled
     // (settle TWO periods first so Z5's live slot 6 ages out of both windows)
@@ -217,12 +224,39 @@ int main(int argc, char** argv) {
     dut->z_pv_i = 1; dut->z_slot_i = 12; dut->z_l_i = 0x999999; dut->z_r_i = 0;
     step();
     dut->z_pv_i = 0;
+    step();                              // registered output: read at N+1
     ck("Z6 out-of-span slot passes through", z_n, 1);
     ck("Z6 slot preserved", z_log[0].slot, 12);
     int before = dut->z_fill_cnt_o;
     tick(); quiet_cycles(20);
     tick(); quiet_cycles(20);
     ck("Z6 fill span stays 8/period", (dut->z_fill_cnt_o - before) % 8, 0);
+
+    // Z7: REGISTERED-OUTPUT CONTRACT (the AX 100 MHz re-time). A strobe
+    // decided in cycle N is ABSENT from the outputs during N and present
+    // exactly during N+1; two back-to-back decisions leave back-to-back,
+    // none lost, and nothing trails. A combinational output (the old
+    // shape), a skipped valid delay, or a doubled register all fail here.
+    // No tick since Z6, so the pending walk is empty and cannot interleave.
+    quiet_cycles(4);
+    z_n = 0;
+    dut->z_pv_i = 1; dut->z_slot_i = 2;
+    dut->z_l_i = 0xABC123; dut->z_r_i = 0x00CAFE;
+    step();                              // N: decision only
+    ck("Z7 output silent in the decision cycle", z_n, 0);
+    dut->z_slot_i = 4; dut->z_l_i = 0x0DEF45; dut->z_r_i = 0x00BEEF;
+    step();                              // N+1: strobe N visible, N+1 decides
+    ck("Z7 strobe N sampled at N+1", z_n, 1);
+    ck("Z7 slot intact", z_log[0].slot, 2);
+    ck("Z7 L intact", z_log[0].l, 0xABC123);
+    ck("Z7 R intact", z_log[0].r, 0x00CAFE);
+    dut->z_pv_i = 0;
+    step();                              // N+2: strobe N+1 visible
+    ck("Z7 back-to-back: strobe N+1 at N+2", z_n, 2);
+    ck("Z7 second slot intact", z_log[1].slot, 4);
+    ck("Z7 second L intact", z_log[1].l, 0x0DEF45);
+    step();
+    ck("Z7 no trailing strobe", z_n, 2);
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
