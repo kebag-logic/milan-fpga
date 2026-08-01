@@ -831,7 +831,9 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # RTL sources for elaboration / P&R. Curated list (NOT add_source_dir) so the
     # Zynq-only milan_top.sv / milan_dma_wrapper.v are excluded from the fabric build
     #  -  same file set the tb/verilator/milan_dp + syn/yosys checks use.
-    base = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))  # milan-fpga/
+    # abspath: normalize a literal "./" in __file__ (e.g. `python ./milan_sim.py` on
+    # 3.14 keeps it) — an un-normalized "." component silently eats one dirname level.
+    base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # milan-fpga/
     # Include dirs for the ``include ...`` files (ethernet_packet_pkg.sv, *.svh).
     # Vivado auto-searches source dirs; Verilator (the sim backend) needs -I.
     # PER-CONFIG entity definition (USER 2026-07-28: both boards' 3-seed
