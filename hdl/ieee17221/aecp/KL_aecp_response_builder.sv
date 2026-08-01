@@ -193,6 +193,13 @@ module KL_aecp_response_builder (
   output logic [3:0]   gs_diag_idx_o,
   input  wire [12*32-1:0] rxdiag_cnt_i,
   input  wire [5*32-1:0]  tkdiag_cnt_i,
+  //! per-STREAM_OUTPUT "a Table 5.4 counter was written" pulses
+  //! (KL_talker_diag_ctx.dirty_p_o, zero-extended to the 4-bit index
+  //! space; unwired indexes stay tied 0 and their limiters synth away).
+  //! Milan 5.4.5 Table 5.22: each pulse owes every registered controller
+  //! an unsolicited GET_COUNTERS(STREAM_OUTPUT, idx), at most one per
+  //! descriptor per second.
+  input  wire [15:0]   tkdiag_dirty_p_i,
   //! AAF sink count: the sink at it (the CRF Media Clock Input) has no
   //! monitor context and answers the Milan-mandatory ten from KL_crf_rx
   input  wire [15:0]   n_aaf_sinks_i,
@@ -370,8 +377,15 @@ module KL_aecp_response_builder (
   wire [15:0] w_gs_index = {w_b4, w_b5};
   //! per-index counter mux select for the datapath (monitor mirror +
   //! talker diag): valid whenever w_gs_index is, i.e. through the whole
-  //! const-load cycle of a GET_COUNTERS dispatch
-  assign gs_diag_idx_o = w_gs_index[3:0];
+  //! const-load cycle of a GET_COUNTERS dispatch. Pre-mux: while a
+  //! STREAM_OUTPUT counter push waits in IDLE_S the read port serves the
+  //! PUSH's index instead (no command stands behind w_gs_index there, and
+  //! the push branch latches tkdiag_cnt_i in its own IDLE cycle); every
+  //! dispatched command samples from DECIDE_S onward, where the override
+  //! is structurally inactive.
+  assign gs_diag_idx_o = (state_r == IDLE_S && w_pend5_any)
+                       ? w_unsol_push5_oidx
+                       : w_gs_index[3:0];
   //! SET_STREAM_INFO (Milan §5.4.2.9): payload byte n = buf_r[n+2] — flags at
   //! payload 4-7, msrp_accumulated_latency at payload 24-27.
   wire [31:0] w_si_flags = {w_b6,  w_b7,  w_b8,  w_b9};
@@ -1133,6 +1147,21 @@ module KL_aecp_response_builder (
   logic [9:0]  in0_rl_ms_r;
   wire         in0_rl_ok = (in0_rl_ms_r >= 10'd1000);
 
+  //! STREAM_OUTPUT counter push state: the same dirty + 1 s window, PER
+  //! DESCRIPTOR - Table 5.22's restriction is "per descriptor per second"
+  //! and the talker has one Table 5.4 context per Stream Output (every
+  //! AAF source + the CRF Media Clock Output). Sized to the full 4-bit
+  //! index space; indexes the datapath never wires are tied 0 at the
+  //! instance and their limiters constant-propagate away.
+  localparam int unsigned TKD_MAX_C = 16;
+  logic [TKD_MAX_C-1:0] out_dirty_r;
+  logic [9:0]           out_rl_ms_r [TKD_MAX_C];
+  logic [TKD_MAX_C-1:0] w_out_rl_ok;
+  always_comb begin : out_rl_cmp
+    for (int k = 0; k < TKD_MAX_C; k++)
+      w_out_rl_ok[k] = (out_rl_ms_r[k] >= 10'd1000);
+  end : out_rl_cmp
+
   // ------------------------------------------------------------------ //
   // Unsolicited notifications (Milan §5.4.2.21 / IEEE 1722.1-2021 §7.5.2)
   // 4-slot registration table (reference uses 16; 4 bounds the fabric and
@@ -1154,6 +1183,9 @@ module KL_aecp_response_builder (
                                             //! (u=1 copy of the causing SET's
                                             //! response - reference
                                             //! reply-unsol-helpers rule)
+  //! per-slot bitmap of STREAM_OUTPUT descriptor indexes owed a
+  //! GET_COUNTERS push (Milan 5.4.5 Table 5.22, talker side)
+  logic [TKD_MAX_C-1:0]     unsol_pend5_r [0:UNSOL_SLOTS_C-1];
   logic                  unsol_frame_r;     //! current emit is a push (u=1, no meta pop)
   logic                  ta_prev_r, lo_prev_r;  //! edge detectors
 
@@ -1165,6 +1197,10 @@ module KL_aecp_response_builder (
   logic [1:0]               w_unsol_push2_idx;  //! lowest counters-pending slot
   logic [1:0]               w_unsol_push3_idx;  //! lowest AVB_IF-pending slot
   logic [1:0]               w_unsol_push4_idx;  //! lowest replay-pending slot
+  logic                     w_unsol_anyvalid;   //! any registered controller
+  logic                     w_pend5_any;        //! any talker-counters push owed
+  logic [3:0]               w_unsol_push5_oidx; //! its lowest descriptor index
+  logic [1:0]               w_unsol_push5_idx;  //! lowest slot owing THAT index
   always_comb begin
     for (int s = 0; s < UNSOL_SLOTS_C; s++) begin
       w_unsol_match[s] = unsol_valid_r[s] &&
@@ -1183,6 +1219,21 @@ module KL_aecp_response_builder (
       if (unsol_pend3_r[s]) w_unsol_push3_idx = 2'(s);
       if (unsol_pend4_r[s]) w_unsol_push4_idx = 2'(s);
     end
+    w_unsol_anyvalid = 1'b0;
+    for (int s = 0; s < UNSOL_SLOTS_C; s++)
+      if (unsol_valid_r[s]) w_unsol_anyvalid = 1'b1;
+    //! talker-counters push pick: lowest pending descriptor index, then
+    //! the lowest slot owing it (descending loops - last assignment wins)
+    w_pend5_any        = 1'b0;
+    w_unsol_push5_oidx = 4'd0;
+    w_unsol_push5_idx  = 2'd0;
+    for (int k = TKD_MAX_C-1; k >= 0; k--)
+      for (int s = UNSOL_SLOTS_C-1; s >= 0; s--)
+        if (unsol_pend5_r[s][k]) begin
+          w_pend5_any        = 1'b1;
+          w_unsol_push5_oidx = 4'(k);
+          w_unsol_push5_idx  = 2'(s);
+        end
   end
 
   // ------------------------------------------------------------------ //
@@ -1496,6 +1547,11 @@ module KL_aecp_response_builder (
       clk_src_r     <= 16'd0;
       in0_dirty_r   <= 1'b0;
       in0_rl_ms_r   <= 10'd1000;   // saturated: first change pushes at once
+      out_dirty_r   <= '0;
+      for (int k = 0; k < TKD_MAX_C; k++)
+        out_rl_ms_r[k] <= 10'd1000; // saturated, same first-change rule
+      for (int s = 0; s < UNSOL_SLOTS_C; s++)
+        unsol_pend5_r[s] <= '0;
       for (int s = 0; s < UNSOL_SLOTS_C; s++) begin
         unsol_valid_r[s] <= 1'b0;
         unsol_eid_r[s]   <= 64'd0;
@@ -1587,6 +1643,23 @@ module KL_aecp_response_builder (
           if (unsol_valid_r[s]) unsol_pend2_r[s] <= 1'b1;
         in0_dirty_r <= 1'b0;
         in0_rl_ms_r <= 10'd0;
+      end
+
+      // ---- STREAM_OUTPUT counter push (Milan §5.4.5): the same window,
+      //      PER descriptor - Table 5.22 restricts per descriptor --------
+      for (int k = 0; k < TKD_MAX_C; k++) begin
+        if (tick_1khz_i && !w_out_rl_ok[k])
+          out_rl_ms_r[k] <= out_rl_ms_r[k] + 10'd1;
+        if (tkdiag_dirty_p_i[k]) out_dirty_r[k] <= 1'b1;
+        if (out_dirty_r[k] && w_out_rl_ok[k]) begin
+          for (int s = 0; s < UNSOL_SLOTS_C; s++)
+            if (unsol_valid_r[s]) unsol_pend5_r[s][k] <= 1'b1;
+          out_dirty_r[k] <= 1'b0;
+          //! the window is consumed by SENDING (Table 5.22 restricts the
+          //! notifications), so an update with nobody registered neither
+          //! burns it nor leaves a stale push armed for a later REGISTER
+          if (w_unsol_anyvalid) out_rl_ms_r[k] <= 10'd0;
+        end
       end
 
       // ---- GET_COUNTERS event counting (edges) ------------------------
@@ -1766,6 +1839,48 @@ module KL_aecp_response_builder (
               const_q[4+k]  <= cnt_linkup_r[8*(3-k) +: 8];  // bit0
               const_q[8+k]  <= cnt_linkdn_r[8*(3-k) +: 8];  // bit1
               const_q[24+k] <= cnt_gmchg_r [8*(3-k) +: 8];  // bit5
+            end
+            cdl_q      <= 11'd148;   // 12 + 136
+            wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
+            cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
+            fi_r       <= 16'd0;
+            state_r    <= WRITE_S;
+          end else if (enable_i && w_pend5_any) begin
+            //! Unsolicited GET_COUNTERS for STREAM_OUTPUT[k] (u=1): one of
+            //! source k's Table 5.4 counters was updated (Milan 5.4.5 Table
+            //! 5.22; rate-limited per descriptor above). Payload = the
+            //! solicited arm's exact shape - mask 0x1F + the five live
+            //! KL_talker_diag_ctx counters, which tkdiag_cnt_i carries for
+            //! THIS k because gs_diag_idx_o is pre-muxed to the pending
+            //! index for as long as the push waits in IDLE_S.
+            unsol_pend5_r[w_unsol_push5_idx][w_unsol_push5_oidx] <= 1'b0;
+            unsol_seq_r[w_unsol_push5_idx] <= unsol_seq_r[w_unsol_push5_idx] + 16'd1;
+            unsol_frame_r <= 1'b1;
+            dst_mac_q     <= unsol_mac_r[w_unsol_push5_idx];
+            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push5_idx];
+            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push5_idx];
+            hdr_q.command_type         <= CMD_GET_COUNTERS;
+            vu_q       <= 1'b0;
+            msg_resp_q <= MSG_AEM_RESPONSE;
+            status_q   <= STATUS_SUCCESS;
+            for (int s = 4; s < SEGN_C; s++) begin
+              seg_kind_q[s] <= SEG_NONE; seg_len_q[s] <= 16'd0;
+            end
+            seg_kind_q[0] <= SEG_CONST; seg_addr_q[0] <= 16'd56; seg_len_q[0] <= 16'd4;
+            seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd28;
+            seg_kind_q[2] <= SEG_NONE;  seg_addr_q[2] <= 16'd0;  seg_len_q[2] <= 16'd104;
+            seg_kind_q[3] <= SEG_NONE;  seg_addr_q[3] <= 16'd0;  seg_len_q[3] <= 16'd0;
+            const_q[56] <= 8'h00; const_q[57] <= 8'h06;   // STREAM_OUTPUT
+            const_q[58] <= 8'h00;
+            const_q[59] <= {4'd0, w_unsol_push5_oidx};    // its index
+            for (int k = 0; k < 28; k++) const_q[k] <= 8'h00;
+            const_q[3] <= 8'h1F;   // START|STOP|MEDIA_RESET|TS_UNC|FRAMES_TX
+            for (int k = 0; k < 4; k++) begin
+              const_q[4+k]  <= tkdiag_cnt_i[0*32 + 8*(3-k) +: 8]; // bit0 START
+              const_q[8+k]  <= tkdiag_cnt_i[1*32 + 8*(3-k) +: 8]; // bit1 STOP
+              const_q[12+k] <= tkdiag_cnt_i[2*32 + 8*(3-k) +: 8]; // bit2 MR
+              const_q[16+k] <= tkdiag_cnt_i[3*32 + 8*(3-k) +: 8]; // bit3 TU
+              const_q[20+k] <= tkdiag_cnt_i[4*32 + 8*(3-k) +: 8]; // bit4 FTX
             end
             cdl_q      <= 11'd148;   // 12 + 136
             wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
@@ -2838,10 +2953,11 @@ module KL_aecp_response_builder (
                 cdl_q         <= 11'd12;
                 for (int s = 0; s < UNSOL_SLOTS_C; s++) begin
                   if (w_unsol_match[s]) begin
-                    unsol_valid_r[s] <= 1'b0;
-                    unsol_pend_r[s]  <= 1'b0;
-                    unsol_pend2_r[s] <= 1'b0;
-                    unsol_pend3_r[s] <= 1'b0;
+                    unsol_valid_r[s]  <= 1'b0;
+                    unsol_pend_r[s]   <= 1'b0;
+                    unsol_pend2_r[s]  <= 1'b0;
+                    unsol_pend3_r[s]  <= 1'b0;
+                    unsol_pend5_r[s]  <= '0;
                   end
                 end
               end

@@ -2339,6 +2339,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .mr_o        (aaf_mr_w)
   );
 
+  //! per-source Table 5.4 counter-update pulses -> the AECP unsolicited
+  //! GET_COUNTERS(STREAM_OUTPUT, idx) push source (Milan 5.4.5 Table 5.22);
+  //! zero-extended to the builder's fixed 4-bit index space
+  wire [ACMP_SRC_C-1:0] tkd_dirty_p_w;
   KL_talker_diag_ctx #(
     .N_CTX_P    (ACMP_SRC_C),
     .TICK_CYC_P (DIAG_TICK_CYC_P)
@@ -2348,6 +2352,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .frame_p_i   (aaf_frame_p_w | tkd_crf_p_w),
     .frame_idx_i (aaf_frame_p_w ? aaf_frame_idx_w : 4'(N_STREAMS)),
     .tu_i        (clkv_tu_w),
+    .dirty_p_o   (tkd_dirty_p_w),
     //! the mr bit the announced PDU carried. The CRF talker stamps a
     //! constant mr = 0 (KL_crf_tx pdu[1], 10.4.3 not yet implemented on the
     //! CRF TX side), so the CRF context's wire truth IS 0 - and MEDIA_RESET
@@ -2397,6 +2402,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .gs_diag_idx_o (aecp_diag_idx_w),
     .rxdiag_cnt_i  (mon_diag_cnt_w),
     .tkdiag_cnt_i  (tkdiag_cnt_w),
+    .tkdiag_dirty_p_i (16'(tkd_dirty_p_w)),
     .n_aaf_sinks_i (16'(N_STREAMS)),
     //! CRF Media Clock Input GET_COUNTERS (Milan Table 5.16 mandatory
     //! ten): served straight out of the KL_crf_rx sink engine - the same

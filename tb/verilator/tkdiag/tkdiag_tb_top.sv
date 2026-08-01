@@ -40,7 +40,9 @@ module tkdiag_tb_top (
   output wire [31:0] rd_stop_o,
   output wire [31:0] rd_mreset_o,
   output wire [31:0] rd_tu_o,
-  output wire [31:0] rd_ftx_o
+  output wire [31:0] rd_ftx_o,
+  //! per-context counter-update pulses (the Milan 5.4.5 push source)
+  output wire [2:0]  dirty_p_o
 );
 
   KL_talker_diag_ctx #(.N_CTX_P (3), .TICK_CYC_P (64)) u_diag (
@@ -51,7 +53,8 @@ module tkdiag_tb_top (
     .frame_mr_i (frame_mr_i),
     .rd_idx_i (rd_idx_i),
     .rd_start_o (rd_start_o), .rd_stop_o (rd_stop_o),
-    .rd_mreset_o (rd_mreset_o), .rd_tu_o (rd_tu_o), .rd_ftx_o (rd_ftx_o)
+    .rd_mreset_o (rd_mreset_o), .rd_tu_o (rd_tu_o), .rd_ftx_o (rd_ftx_o),
+    .dirty_p_o (dirty_p_o)
   );
 
   //! the 4.4.4.3 level generator on the same PDU feed. HOLD_PDU_P stays at

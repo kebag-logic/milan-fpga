@@ -70,9 +70,22 @@
 static VKL_aecp_top* dut;
 static long checks = 0, fails = 0;
 
+// Fabric-mux emulation for the Table 5.4 talker counters: the datapath
+// serves tkdiag_cnt_i COMBINATIONALLY from gs_diag_idx_o (one context per
+// STREAM_OUTPUT). When armed, every clock phase re-resolves the mux so the
+// DUT reads the index it presents - solicited (DECIDE) and unsolicited
+// (IDLE pre-mux) alike. That is the contract milan_datapath implements.
+static bool     tkmux_on = false;
+static uint32_t tktab[16][5];
+static void tkmux_apply() {
+    int k = dut->gs_diag_idx_o & 0xF;
+    for (int w = 0; w < 5; w++) dut->tkdiag_cnt_i[w] = tktab[k][w];
+}
 static void tick() {
     dut->clk_i = 0; dut->eval();
+    if (tkmux_on) { tkmux_apply(); dut->eval(); }
     dut->clk_i = 1; dut->eval();
+    if (tkmux_on) { tkmux_apply(); dut->eval(); }
 }
 static void ck(const char* what, long got, long exp) {
     checks++;
@@ -622,6 +635,76 @@ int main(int argc, char** argv) {
         ck("GSI(OUT,8) acc_lat = 700000", (long)be_at(r, O_LAT, 4), 700000);
         r = xact(CMD_GET_SI, ti_pl(OUT, 0));
         ck("GSI(OUT,0) acc_lat = 2000000", (long)be_at(r, O_LAT, 4), 2000000);
+    }
+
+    // ------------------------------------------------------------------ //
+    printf("\n[11] Milan 5.4.5 Table 5.22 GET_COUNTERS(STREAM_OUTPUT) push: "
+           "per-index sources, per-index payloads, per-index 1 s windows\n");
+    {
+        // arm the fabric mux: index k's context reads a k-keyed pattern,
+        // so a push serving the WRONG context is caught on every word
+        for (int k = 0; k < 16; k++) {
+            tktab[k][0] = 0x100u + k;   // STREAM_START
+            tktab[k][1] = 0x200u + k;   // STREAM_STOP
+            tktab[k][2] = 0x300u + k;   // MEDIA_RESET
+            tktab[k][3] = 0x400u + k;   // TIMESTAMP_UNCERTAIN
+            tktab[k][4] = 0x500u + k;   // FRAMES_TX
+        }
+        tkmux_on = true;
+
+        // (a) solicited: EVERY directory-served index (CRF at 8 included)
+        //     serves ITS OWN live context through the shared bus
+        for (int i = 0; i < N_STR; i++) {
+            auto ra = xact(0x0029, ti_pl(OUT, i));
+            char nm[96];
+            snprintf(nm, sizeof nm,
+                     "GET_COUNTERS(OUT,%d) START is index %d's own", i, i);
+            ck(nm, (long)be_at(ra, 46, 4), 0x100 + i);
+            snprintf(nm, sizeof nm,
+                     "GET_COUNTERS(OUT,%d) FRAMES_TX is index %d's own", i, i);
+            ck(nm, (long)be_at(ra, 62, 4), 0x500 + i);
+        }
+
+        // (b) unsolicited: updates on a MIDDLE source (5) and the CRF
+        //     output (8) in the same cycle -> two pushes, lowest first,
+        //     each carrying ITS index and ITS context's values
+        ck("[11] REGISTER", r_status(xact(36, {})), 0);
+        dut->tkdiag_dirty_p_i = (1u << 5) | (1u << 8);
+        tick();
+        dut->tkdiag_dirty_p_i = 0;
+        auto p1 = collect_resp();
+        ck("[11] first push arrived", p1.size() > 0, 1);
+        ck("[11] ... u=1", p1.size() > 36 ? (p1[36] >> 7) & 1 : -1, 1);
+        ckh("[11] ... STREAM_OUTPUT idx 5 (lowest first)",
+            be_at(p1, 38, 4), 0x00060005);
+        ck("[11] ... mask 0x1F", (long)be_at(p1, 42, 4), 0x1F);
+        ck("[11] ... START is idx 5's own", (long)be_at(p1, 46, 4), 0x105);
+        ck("[11] ... TS_UNCERTAIN is idx 5's own", (long)be_at(p1, 58, 4), 0x405);
+        ck("[11] ... FRAMES_TX is idx 5's own", (long)be_at(p1, 62, 4), 0x505);
+        auto p2 = collect_resp();
+        ck("[11] second push arrived", p2.size() > 0, 1);
+        ckh("[11] ... STREAM_OUTPUT idx 8 (the CRF output)",
+            be_at(p2, 38, 4), 0x00060008);
+        ck("[11] ... START is idx 8's own", (long)be_at(p2, 46, 4), 0x108);
+        ck("[11] ... FRAMES_TX is idx 8's own", (long)be_at(p2, 62, 4), 0x508);
+        auto p3 = collect_resp(4000);
+        ck("[11] exactly two pushes", p3.size(), 0);
+
+        // (c) Table 5.22's restriction is PER DESCRIPTOR: idx 5's window
+        //     is consumed, idx 3's is fresh - the same cycle's updates
+        //     push 3 and hold 5
+        dut->tkdiag_dirty_p_i = (1u << 5) | (1u << 3);
+        tick();
+        dut->tkdiag_dirty_p_i = 0;
+        auto p4 = collect_resp();
+        ckh("[11] fresh idx 3 pushes despite idx 5's window",
+            be_at(p4, 38, 4), 0x00060003);
+        auto p5 = collect_resp(4000);
+        ck("[11] idx 5 held by ITS OWN 1 s window", p5.size(), 0);
+        ck("[11] DEREGISTER", r_status(xact(37, {})), 0);
+
+        tkmux_on = false;
+        for (int w = 0; w < 5; w++) dut->tkdiag_cnt_i[w] = 0;
     }
 
     printf("\n----------------------------------------------------------\n");

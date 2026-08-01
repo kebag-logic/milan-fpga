@@ -120,7 +120,16 @@ module KL_talker_diag_ctx #(
   output logic [31:0]        rd_stop_o,
   output logic [31:0]        rd_mreset_o,
   output logic [31:0]        rd_tu_o,
-  output logic [31:0]        rd_ftx_o
+  output logic [31:0]        rd_ftx_o,
+
+  //! one-cycle per-context pulse the cycle a Table 5.4 counter is WRITTEN
+  //! (START/STOP edge or an interval-close increment) - the Milan 5.4.5
+  //! Table 5.22 unsolicited GET_COUNTERS trigger ("sent when one of the
+  //! counters is updated"). The 1/s-per-descriptor restriction is the
+  //! consumer's (KL_aecp_response_builder rate-limits per index); this
+  //! port only states the raw fact. A start edge zeroing the three
+  //! interval counters rides the SAME pulse as its START increment.
+  output logic [N_CTX_P-1:0] dirty_p_o
 );
 
   if (N_CTX_P < 1 || N_CTX_P > 16)
@@ -195,7 +204,9 @@ module KL_talker_diag_ctx #(
       seen_mr_r <= '0;
       strm_q_r  <= '0;
       mr_q_r    <= '0;
+      dirty_p_o <= '0;
     end else begin
+      dirty_p_o <= '0;
       //! PDU events fold into the current interval's flags
       seen_f_r  <= seen_f_r  | ev_f_w;
       seen_tu_r <= seen_tu_r | ev_tu_w;
@@ -213,6 +224,10 @@ module KL_talker_diag_ctx #(
           if (seen_f_r[c]  | ev_f_w[c])  ftx_r[c]    <= ftx_r[c] + 32'd1;
           if (seen_tu_r[c] | ev_tu_w[c]) tuiv_r[c]   <= tuiv_r[c] + 32'd1;
           if (seen_mr_r[c] | ev_mr_w[c]) mreset_r[c] <= mreset_r[c] + 32'd1;
+          //! an interval-close increment IS a counter update (Table 5.22)
+          if ((seen_f_r[c]  | ev_f_w[c]) | (seen_tu_r[c] | ev_tu_w[c]) |
+              (seen_mr_r[c] | ev_mr_w[c]))
+            dirty_p_o[c] <= 1'b1;
         end
         seen_f_r  <= '0;
         seen_tu_r <= '0;
@@ -236,9 +251,12 @@ module KL_talker_diag_ctx #(
           seen_f_r[c]  <= ev_f_w[c];
           seen_tu_r[c] <= ev_tu_w[c];
           seen_mr_r[c] <= ev_mr_w[c];
+          dirty_p_o[c] <= 1'b1;
         end
-        else if (!streaming_i[c] && strm_q_r[c])
-          stop_r[c] <= stop_r[c] + 32'd1;
+        else if (!streaming_i[c] && strm_q_r[c]) begin : g_stop
+          stop_r[c]    <= stop_r[c] + 32'd1;
+          dirty_p_o[c] <= 1'b1;
+        end : g_stop
       end
     end
   end : diag_track

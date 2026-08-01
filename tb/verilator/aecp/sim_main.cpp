@@ -2140,6 +2140,65 @@ int main(int argc, char** argv) {
         }
     }
 
+    // ---------------------------------------------------------------- //
+    // 27. unsolicited GET_COUNTERS push for STREAM_OUTPUT (Milan §5.4.5   //
+    //     Table 5.22: "sent when one of the counters is updated", at      //
+    //     most one per descriptor per second). Talker side of [22i]: the  //
+    //     source is KL_talker_diag_ctx's per-context dirty pulse, and     //
+    //     the payload is the SOLICITED arm's exact 0x1F shape with the    //
+    //     pushed index's own live tkdiag values.                          //
+    // ---------------------------------------------------------------- //
+    printf("\n[27] unsolicited GET_COUNTERS push, STREAM_OUTPUT\n");
+    {
+        auto u_bit = [](const std::vector<uint8_t>& b) {
+            return b.size() > 36 ? (b[36] >> 7) & 1 : -1;
+        };
+        auto be32_at = [](const std::vector<uint8_t>& b, int off) {
+            uint32_t v = 0;
+            for (int i = 0; i < 4; i++) v = (v << 8) | b[off + i];
+            return (long)v;
+        };
+        // not registered: a counter update owes nobody anything
+        dut->tkdiag_dirty_p_i = 0x0001; tick(); dut->tkdiag_dirty_p_i = 0;
+        auto r = collect_resp(800);
+        ck("[27] no registered controller -> no push", r.size(), 0);
+
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x2701, {}));
+        ck("[27] REGISTER A", r_status(collect_resp()), 0);
+        dut->tkdiag_cnt_i[0] = 5;          // STREAM_START
+        dut->tkdiag_cnt_i[1] = 4;          // STREAM_STOP
+        dut->tkdiag_cnt_i[2] = 1;          // MEDIA_RESET intervals
+        dut->tkdiag_cnt_i[3] = 2;          // TIMESTAMP_UNCERTAIN intervals
+        dut->tkdiag_cnt_i[4] = 0x77;       // FRAMES_TX intervals
+        dut->tkdiag_dirty_p_i = 0x0001; tick(); dut->tkdiag_dirty_p_i = 0;
+        r = collect_resp();
+        ck("[27] counters push arrived", r.size() > 0, 1);
+        ck("[27] push u-bit set", u_bit(r), 1);
+        ck("[27] push cmd GET_COUNTERS", r_cmd(r), 0x29);
+        ck("[27] push status SUCCESS", r_status(r), 0);
+        ck("[27] push desc STREAM_OUTPUT idx 0", be32_at(r, 38), 0x00060000);
+        ck("[27] push CDL 148 (full-size)", r_cdl(r), 148);
+        ck("[27] push valid mask 0x1F", be32_at(r, 42), 0x1F);
+        ck("[27] push STREAM_START live", be32_at(r, 46), 5);
+        ck("[27] push STREAM_STOP live", be32_at(r, 50), 4);
+        ck("[27] push MEDIA_RESET live", be32_at(r, 54), 1);
+        ck("[27] push TIMESTAMP_UNCERTAIN live", be32_at(r, 58), 2);
+        ck("[27] push FRAMES_TX live", be32_at(r, 62), 0x77);
+        // only A registered: exactly one frame per update
+        r = collect_resp(800);
+        ck("[27] no extra fan-out push", r.size(), 0);
+        // Table 5.22's restriction: a second update inside the 1 s window
+        // stays queued (per descriptor - the window belongs to idx 0)
+        dut->tkdiag_dirty_p_i = 0x0001; tick(); dut->tkdiag_dirty_p_i = 0;
+        r = collect_resp(800);
+        ck("[27] second update rate-limited (no push)", r.size(), 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x2702, {}));
+        ck("[27] DEREGISTER A", r_status(collect_resp()), 0);
+        // deregistration drops the queued pend too: nothing may arrive later
+        r = collect_resp(800);
+        ck("[27] deregistered -> queue drained silent", r.size(), 0);
+    }
+
     // counters
     printf("\n[counters] cmd=%u resp=%u\n", dut->cmd_count_o, dut->resp_count_o);
     ck("cmd_count >= 14", dut->cmd_count_o >= 14, 1);

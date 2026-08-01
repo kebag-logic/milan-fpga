@@ -59,6 +59,18 @@ static void cyc(int n) { for (int i = 0; i < n; i++) step(); }
 // one full observation interval, with margin for the divider phase
 static void interval() { cyc(70); }
 
+// step `cycles` clocks counting dirty_p_o pulses per context (Milan 5.4.5:
+// each pulse is "a Table 5.4 counter was updated" for that Stream Output)
+static int dpulses[3];
+static void count_dirty(int cycles) {
+    dpulses[0] = dpulses[1] = dpulses[2] = 0;
+    for (int i = 0; i < cycles; i++) {
+        step();
+        for (int b = 0; b < 3; b++)
+            if ((dut->dirty_p_o >> b) & 1) dpulses[b]++;
+    }
+}
+
 static void frame_mr(int idx, int tu, int mr) {
     dut->tu_i = tu; dut->frame_mr_i = mr;
     dut->frame_p_i = 1; dut->frame_idx_i = idx;
@@ -353,6 +365,38 @@ int main(int argc, char** argv) {
        dut->mcr_mr_o & 1, 0);
 
     printf("--------------------------------------------------------------\n");
+    // ---------------------------------------------------------------------
+    //  T14: dirty_p_o, the Milan 5.4.5 Table 5.22 push source. "GET_COUNTERS
+    //  [is] sent when one of the counters is updated" - so the pulse must
+    //  ride EVERY write (START edge, STOP edge, interval-close increment),
+    //  stay silent across idle intervals, and stay per-context. The 1/s
+    //  rate limit is the AECP builder's, NOT this module's: two starts in
+    //  one second are two pulses here.
+    // ---------------------------------------------------------------------
+    printf("[T14] dirty_p_o pulses on every Table 5.4 counter write\n");
+    dut->streaming_i = 0; dut->tu_i = 0; dut->frame_p_i = 0;
+    dut->frame_mr_i = 0;
+    cyc(200);                                // drain edges + open intervals
+    count_dirty(140);                        // two-plus idle intervals
+    ck("T14 idle intervals -> no pulses on any context",
+       dpulses[0] + dpulses[1] + dpulses[2], 0);
+    dut->streaming_i = 0b001;
+    count_dirty(6);
+    ck("T14 start edge -> ONE pulse on ctx0", dpulses[0], 1);
+    ck("T14 ... and none on ctx1/ctx2", dpulses[1] + dpulses[2], 0);
+    for (int f = 0; f < 3; f++) frame(0, 0); // 3 PDUs, one interval
+    count_dirty(70);                         // crosses exactly one close
+    ck("T14 active interval -> ONE pulse at its close", dpulses[0], 1);
+    count_dirty(70);
+    ck("T14 following idle interval -> silent", dpulses[0], 0);
+    dut->streaming_i = 0b000;
+    count_dirty(6);
+    ck("T14 stop edge -> ONE pulse on ctx0", dpulses[0], 1);
+    frame(2, 0);                             // CRF context activity only
+    count_dirty(70);
+    ck("T14 ctx2-only interval -> the pulse rides bit 2", dpulses[2], 1);
+    ck("T14 ... and not bit 0", dpulses[0], 0);
+
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
     dut->final(); delete dut;
