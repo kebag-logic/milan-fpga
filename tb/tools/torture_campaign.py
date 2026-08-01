@@ -621,8 +621,8 @@ def interval_ticks_agree(talker_delta: Optional[int],
     return ("PASS", d)
 
 
-def check_concurrent_flowing(pair_ticks, *, licensed=None,
-                             torn_down=None) -> tuple:
+def check_concurrent_flowing(pair_ticks, *, licensed=None, torn_down=None,
+                             under_load=None) -> tuple:
     """Do ALL concurrently bound pairs move TOGETHER, in INTERVAL terms?
 
     `pair_ticks` maps a pair label to {"tx_ticks": d, "rx_ticks": d} - the
@@ -652,8 +652,17 @@ def check_concurrent_flowing(pair_ticks, *, licensed=None,
     staged-teardown flavour: the survivors kept their own licences, so a
     neighbour going dead right after an unbind is the cross-stream-independence
     defect.
+
+    `under_load` names the best-effort load running during the window, for the
+    stress flavour: 802.1Q-2018 8.6.8.2/34 put admitted SR class A streams in
+    a reserved, credit-shaped queue ABOVE best-effort, so BE load SHALL NOT
+    disturb them - coexistence is the design point of the reservation itself.
+    (This is a different claim from the adverse-practice storm entries, which
+    are line-rate hostile traffic and stay RECOMMENDED; a cooperative BE load
+    inside the unreserved remainder is what the shaper exists to absorb.)
     """
-    ctx = f" after tearing down {torn_down}" if torn_down else ""
+    ctx = (f" after tearing down {torn_down}" if torn_down else
+           (f" while {under_load} best-effort load ran" if under_load else ""))
     if not pair_ticks:
         return ("SKIP", {"why": "no concurrently bound pairs were supplied, "
                                 "so there is no concurrency to verify"})
@@ -698,8 +707,12 @@ def check_concurrent_flowing(pair_ticks, *, licensed=None,
             + (": a teardown that kills a neighbour stream is the "
                "cross-stream-independence defect this step exists to catch"
                if torn_down else
-               ": one stream starving under aggregate load is invisible to a "
-                "pairwise walk, which is why this area exists"))
+               (": 802.1Q-2018 8.6.8.2/34 credit-based shaping reserves the "
+                "class A queue, so best-effort load SHALL NOT disturb "
+                "reserved streams - this is the shaping/coexistence defect"
+                if under_load else
+                ": one stream starving under aggregate load is invisible to "
+                 "a pairwise walk, which is why this area exists")))
         return ("FAIL", detail)
     if unreadable:
         detail["why"] = (f"{unreadable} could not be read on either side, so "
@@ -1228,6 +1241,28 @@ A_MULTI_SURVIVORS = AssertSpec(
     "stream is the cross-stream-independence defect this step exists to "
     "catch")
 
+A_STRESS_IMMUNE = AssertSpec(
+    "multi.streams-immune-to-best-effort-load",
+    "802.1Q-2018 8.6.8.2 (the credit-based shaper algorithm) + clause 34 "
+    "(FQTSS): an admitted SR class A stream travels in a reserved, "
+    "credit-shaped queue ABOVE best-effort traffic, so best-effort load "
+    "SHALL NOT disturb it - coexistence inside the unreserved remainder is "
+    "the design point of the reservation itself.  Measured in Milan Table "
+    "5.4/5.6 interval terms over one shared window WHILE the load runs.  "
+    "Distinct from the torture storm entries on purpose: those are line-rate "
+    "adverse traffic and stay RECOMMENDED per the adverse-conditions "
+    "recommended practice; a cooperative BE load is what the shaper exists "
+    "to absorb, so this one is SHALL")
+A_STRESS_HEADROOM = AssertSpec(
+    "multi.best-effort-headroom",
+    "info: no clause grades this - 802.1Q reserves the streams, not the "
+    "leftover - so the achieved best-effort throughput is recorded as the "
+    "measured BE headroom left by the reservations, a datum for capacity "
+    "planning and never a verdict.  The record names the load mode "
+    "(iperf3-tcp, or the udp-blast fallback whose number is a SEND rate, "
+    "not goodput) so the datum cannot be over-read",
+    severity="INFO")
+
 #: What each phase of a concurrency set owes.  The bind phase is deliberately
 #: lean - concurrency is the subject, format negotiation is the matrix's - and
 #: the verify phase reuses the pairwise per-index machinery (interval ticks,
@@ -1238,6 +1273,12 @@ MULTI_VERIFY_ASSERTS = (
     A_MULTI_ISOLATION, A_LOCK_INVARIANT, A_TALKER_INVARIANT,
     A_NO_LATE_EARLY, A_NO_SEQ_MISMATCH, A_NO_UNSUPPORTED,
     A_XSIDE_INTERVAL_AGREE, A_INSTRUMENT_LOSSLESS)
+#: The stress load step: streams immune (SHALL), the listener error counters
+#: static across the loaded window (Table 5.6 coexistence), the BE throughput
+#: recorded as INFO, the instrument as ever.
+MULTI_STRESS_LOAD_ASSERTS = (
+    A_SRP_LICENCE, A_STRESS_IMMUNE, A_NO_SEQ_MISMATCH, A_NO_LATE_EARLY,
+    A_STRESS_HEADROOM, A_INSTRUMENT_LOSSLESS)
 MULTI_TEARDOWN_ONE_ASSERTS = (
     A_ACMP_STATUS, A_STOP_TAKES_EFFECT, A_SRP_LICENCE, A_MULTI_SURVIVORS,
     A_INSTRUMENT_LOSSLESS)
@@ -1634,6 +1675,41 @@ def _multi_pairs_mixed(dut: Device, peer: Device, fmt) -> list:
     return out
 
 
+def _multi_pairs_stress(dut: Device, peer: Device, fmt) -> list:
+    """EVERYTHING the shapes allow, concurrently - the maximal stream set.
+
+    (a) every DUT AAF talker outbound: the peer's reachable listeners first
+        (cyclic when the DUT has fewer talkers than the peer has listeners,
+        exactly as the primaries set), then SELF-LOOPS to fill the talkers
+        the peer cannot absorb - on the AX 8x8 against the PEER that is
+        t0..t4 -> the five primaries and t5..t7 looped home;
+    (b) the INBOUND direction on top: peer AAF talkers into whatever DUT
+        listeners are still free, so RX is loaded by real wire ingress and
+        not only by the loopback path.
+
+    All of it from the device specs, never hardcoded; a peer with no
+    reachable listeners degenerates to self-loops plus inbound, which is
+    still a maximal set for that bench.
+    """
+    tks = dut.talker_indices(include_crf=False)
+    plss = peer.listener_indices(include_crf=False)
+    dlss = dut.listener_indices(include_crf=False)
+    out = []
+    if tks and plss:
+        out += [_multi_pair(dut, tks[i % len(tks)], peer, li, fmt)
+                for i, li in enumerate(plss)]
+    free = list(dlss)
+    for ti in tks[len(plss):]:
+        if not free:
+            break
+        out.append(_multi_pair(dut, ti, dut, free.pop(0), fmt))
+    for ti in peer.talker_indices(include_crf=False):
+        if not free:
+            break
+        out.append(_multi_pair(peer, ti, dut, free.pop(0), fmt))
+    return out
+
+
 def _multi_single_listener_pair(pairs: list) -> dict:
     """The pair the staged teardown unbinds FIRST: one whose talker serves
     exactly one listener in the set, so the stop-verification can expect
@@ -1652,11 +1728,16 @@ def _multi_single_listener_pair(pairs: list) -> dict:
 
 
 def _multi_set_steps(name: str, dut: Device, peer: Device, pairs: list,
-                     note: str) -> list:
-    """bind-all -> verify-concurrent -> teardown-one -> teardown-rest, for one
-    concurrency set.  The staged teardown is the point: unbind ONE stream,
-    prove the others keep flowing, THEN take the rest down with the same
-    stop-takes-effect discipline the matrix uses."""
+                     note: str, *, stress: bool = False) -> list:
+    """bind-all -> verify-concurrent [-> load-rx -> load-tx ->
+    verify-after-load, for a stress set] -> teardown-one -> teardown-rest.
+
+    The staged teardown is the point: unbind ONE stream, prove the others
+    keep flowing, THEN take the rest down with the same stop-takes-effect
+    discipline the matrix uses.  A stress set additionally runs best-effort
+    load over the same link, both directions sequentially, WHILE every stream
+    flows - and re-verifies with the load OFF, because the before/during/
+    after sandwich is what attributes a failure to the load."""
     sid = f"multi.{name}"
     bound = {(p["listener"], p["listener_index"]) for p in pairs}
     unbound = []
@@ -1670,7 +1751,7 @@ def _multi_set_steps(name: str, dut: Device, peer: Device, pairs: list,
     tear_alone = sum(1 for p in pairs
                      if (p["talker"], p["talker_index"]) ==
                      (tear["talker"], tear["talker_index"])) == 1
-    return [
+    steps = [
         Step(sid + ".bind-all", "multi", "multi_connect",
              {"set": name, "pairs": pairs},
              asserts=MULTI_BIND_ASSERTS,
@@ -1688,6 +1769,41 @@ def _multi_set_steps(name: str, dut: Device, peer: Device, pairs: list,
                   "licence gates the flow expectations exactly as the "
                   "pairwise steps' do, and the comparison is interval ticks, "
                   "never frames"),
+    ]
+    if stress:
+        for direction, what in (
+                ("rx", "host -> DUT best-effort TCP: RX stress on the "
+                       "RSC-less ingress path"),
+                ("tx", "DUT -> host best-effort TCP: TX stress against the "
+                       "shaped egress queues")):
+            steps.append(Step(
+                sid + f".load-{direction}", "multi", "multi_stress_load",
+                {"set": name, "pairs": pairs, "direction": direction,
+                 "measure_s": 4.0, "load_seconds": 16.0},
+                asserts=MULTI_STRESS_LOAD_ASSERTS,
+                clause="802.1Q-2018 8.6.8.2/34: admitted SR class A streams "
+                       "travel in a reserved, credit-shaped queue, so "
+                       "best-effort load SHALL NOT disturb them; Milan "
+                       "Table 5.4/5.6 interval terms for the measurement",
+                note=what + ".  iperf3 on the board is PROBED, never assumed "
+                            "(busybox rootfs); the RX fallback is a blind "
+                            "UDP blast from the controller host, named as "
+                            "such in every record; TX with no board tooling "
+                            "cannot be generated from the host and SKIPs "
+                            "naming what to supply"))
+        steps.append(Step(
+            sid + ".verify-after-load", "multi", "multi_verify",
+            {"set": name, "pairs": pairs, "unbound": unbound,
+             "measure_s": 4.0},
+            asserts=MULTI_VERIFY_ASSERTS,
+            clause="Milan v1.2 5.3.7.3 + Table 5.4/5.6: load OFF, the same "
+                   "full verification - a wound that persists past the load "
+                   "is a different finding from transient interference, and "
+                   "only the before/during/after sandwich can tell them "
+                   "apart",
+            note="identical machinery to verify-concurrent on purpose, so "
+                 "the two windows diff line for line"))
+    steps += [
         Step(sid + ".teardown-one", "multi", "multi_teardown_one",
              {"set": name, "unbind": tear, "survivors": survivors,
               "expect_talker_silent": tear_alone,
@@ -1710,6 +1826,7 @@ def _multi_set_steps(name: str, dut: Device, peer: Device, pairs: list,
                   "the full teardown verifies per talker exactly as the "
                   "matrix unbind does"),
     ]
+    return steps
 
 
 def plan_multi(dut: Device = ARTY, peer: Device = PEER) -> list:
@@ -1725,31 +1842,45 @@ def plan_multi(dut: Device = ARTY, peer: Device = PEER) -> list:
     deployments run many streams simultaneously, so a campaign that only ever
     binds one at a time certifies a shape no deployment uses.
 
-    Three sets, each derived from the device SPECS and never hardcoded:
+    Four sets, each derived from the device SPECS and never hardcoded:
       * primaries - every reachable reference listener fed concurrently
         (on the AX 8x8 against the PEER: t0..t4 -> l0/2/4/6/8);
       * selfloop  - the DUT's own tN -> lN, both directions of the fabric
         loaded at once, no peer needed;
-      * mixed     - outbound and loopback interleaved, when the shapes allow.
-    Each set runs bind-all -> verify-concurrent -> STAGED teardown (one
-    stream out, prove the others undisturbed, then the rest with per-talker
-    stop verification).  Sets run serially and each is fully torn down before
-    the next, so a set's verdicts are never polluted by a predecessor.
+      * mixed     - outbound and loopback interleaved, when the shapes allow;
+      * stress    - EVERYTHING the shapes allow at once (all outbound:
+        primaries + self-loop fill; plus the inbound direction), and then
+        best-effort iperf load over the same link, both directions
+        sequentially, WHILE it all flows - 802.1Q shaping says the reserved
+        streams SHALL NOT notice.  Load off, the set is re-verified before
+        the staged teardown.
+    Each set runs bind-all -> verify-concurrent [-> the stress load
+    sandwich] -> STAGED teardown (one stream out, prove the others
+    undisturbed, then the rest with per-talker stop verification).  Sets run
+    serially and each is fully torn down before the next, so a set's
+    verdicts are never polluted by a predecessor.
     """
     fmt = dut.formats[0] if dut.formats else None
     steps = []
-    for name, pairs, note in (
+    for name, pairs, note, stress in (
             ("primaries", _multi_pairs_primaries(dut, peer, fmt),
              "every reachable reference listener fed concurrently; the "
              "listener set comes from the peer's spec (on a redundant device "
-             "that is the (p) primaries only)"),
+             "that is the (p) primaries only)", False),
             ("selfloop", _multi_pairs_selfloop(dut, fmt),
              "the DUT's own talkers into its own listeners, tN -> lN, so "
-             "every packetizer and depacketizer works at once"),
+             "every packetizer and depacketizer works at once", False),
             ("mixed", _multi_pairs_mixed(dut, peer, fmt),
-             "outbound and loopback interleaved in one concurrent set")):
+             "outbound and loopback interleaved in one concurrent set",
+             False),
+            ("stress", _multi_pairs_stress(dut, peer, fmt),
+             "the MAXIMAL set: every DUT AAF talker outbound (reachable "
+             "reference listeners first, self-loops to fill) plus the "
+             "inbound direction, all concurrent - then best-effort load "
+             "both ways while it flows", True)):
         if pairs:
-            steps += _multi_set_steps(name, dut, peer, pairs, note)
+            steps += _multi_set_steps(name, dut, peer, pairs, note,
+                                      stress=stress)
     return steps
 
 
@@ -2395,7 +2526,12 @@ def area_index_expectations(dut: Device = ARTY, peer: Device = PEER) -> dict:
                                  else sorted(set(aaf_t[:len(p_l)])
                                              | set(aaf_t[:len(aaf_l)]))),
                   "dut_listener": aaf_l[:len(aaf_t)] if aaf_t else [],
-                  "peer_listener": p_l},
+                  "peer_listener": p_l,
+                  # the stress set's inbound leg: after the outbound fill
+                  # consumes max(0, talkers - peer listeners) DUT listeners
+                  # as self-loops, the peer's talkers take what is left
+                  "peer_talker": peer.talker_indices(include_crf=False)[
+                      :max(0, len(aaf_l) - max(0, len(aaf_t) - len(p_l)))]},
         "churn": {"dut_listener": dut.listener_indices(include_crf=False),
                   "peer_talker": peer.talker_indices()},
         "payload": {"dut_talker": dut.talker_indices()},
@@ -2936,13 +3072,20 @@ def self_test() -> int:
             plan = build_plan(["multi"])
             self.assertTrue(plan)
             sids = [s.sid for s in plan]
-            # every set runs its four phases in teardown-safe order
+            # every set runs its phases in teardown-safe order; the stress
+            # set carries the load sandwich between verify and teardown
             for name in ("primaries", "selfloop", "mixed"):
                 phases = [s.rsplit(".", 1)[1] for s in sids
                           if s.startswith(f"multi.{name}.")]
                 self.assertEqual(phases, ["bind-all", "verify-concurrent",
                                           "teardown-one", "teardown-rest"],
                                  name)
+            phases = [s.split(".", 2)[2] for s in sids
+                      if s.startswith("multi.stress.")]
+            self.assertEqual(phases, ["bind-all", "verify-concurrent",
+                                      "load-rx", "load-tx",
+                                      "verify-after-load",
+                                      "teardown-one", "teardown-rest"])
             # the primaries set feeds EVERY reachable reference listener
             # CONCURRENTLY - the listener set comes from the peer's SPEC (the
             # PEER's (p) primaries), never a hardcoded list
@@ -3002,6 +3145,70 @@ def self_test() -> int:
             ok2, d2 = area_covers_every_index(lonely, "multi")
             self.assertFalse(ok2)
             self.assertTrue(d2["missing"])
+
+        def test_multi_stress_set_is_maximal_and_loads_both_directions(self):
+            plan = build_plan(["multi"])
+            bind = next(s for s in plan if s.sid == "multi.stress.bind-all")
+            pairs = bind.args["pairs"]
+            # every DUT AAF talker is bound outbound (peer first, self-loops
+            # to fill) ...
+            self.assertEqual(sorted({p["talker_index"] for p in pairs
+                                     if p["talker"] == ARTY.entity_id}),
+                             ARTY.talker_indices(include_crf=False))
+            # ... every reachable reference listener is fed ...
+            self.assertEqual(sorted(p["listener_index"] for p in pairs
+                                    if p["listener"] == PEER.entity_id),
+                             PEER.listener_indices(include_crf=False))
+            # ... and the INBOUND direction rides on top
+            self.assertEqual(sorted({p["talker_index"] for p in pairs
+                                     if p["talker"] == PEER.entity_id}),
+                             PEER.talker_indices(include_crf=False))
+            # on the AX 8x8 shape: all 8 talkers out, t5..t7 looped home
+            ax = parse_device_spec("talkers=8,listeners=8,crf_out=8,"
+                                   "crf_in=8", ARTY)
+            axb = next(s for s in plan_multi(ax, PEER)
+                       if s.sid == "multi.stress.bind-all")
+            self.assertEqual(sorted({p["talker_index"]
+                                     for p in axb.args["pairs"]
+                                     if p["talker"] == ax.entity_id}),
+                             list(range(8)))
+            self.assertEqual(sorted(p["talker_index"]
+                                    for p in axb.args["pairs"]
+                                    if p["talker"] == ax.entity_id
+                                    and p["listener"] == ax.entity_id),
+                             [5, 6, 7])
+            # two load steps, rx then tx, each owing the stress asserts with
+            # honest severities: immune is SHALL on the 802.1Q shaping
+            # contract, the headroom is INFO with the info reasoning stated
+            loads = [s for s in plan if s.op == "multi_stress_load"]
+            self.assertEqual([s.args["direction"] for s in loads],
+                             ["rx", "tx"])
+            for s in loads:
+                names = {a.name: a for a in s.asserts}
+                imm = names["multi.streams-immune-to-best-effort-load"]
+                self.assertEqual(imm.severity, "SHALL")
+                self.assertIn("802.1Q", imm.clause)
+                hr = names["multi.best-effort-headroom"]
+                self.assertEqual(hr.severity, "INFO")
+                self.assertTrue(hr.clause.startswith("info:"))
+                self.assertIn(A_NO_SEQ_MISMATCH.name, names)
+                self.assertIn(A_NO_LATE_EARLY.name, names)
+            # the coverage expectation now includes the inbound peer talkers
+            self.assertIn("peer_talker", area_index_expectations()["multi"])
+            ok, d = area_covers_every_index(build_plan(), "multi")
+            self.assertTrue(ok, d)
+            # the flowing verdict's stress flavour BITES and names the load
+            v, d = check_concurrent_flowing(
+                {"a": {"tx_ticks": 0, "rx_ticks": 0},
+                 "b": {"tx_ticks": 4, "rx_ticks": 4}},
+                licensed=True, under_load="iperf3-tcp rx")
+            self.assertEqual(v, "FAIL")
+            self.assertIn("iperf3-tcp rx", d["why"])
+            self.assertIn("SHALL NOT disturb", d["why"])
+            # and the licence gates the stress flavour like everything else
+            self.assertEqual(check_concurrent_flowing(
+                {"a": {"tx_ticks": 0, "rx_ticks": 0}}, licensed=False,
+                under_load="iperf3-tcp rx")[0], "SKIP")
 
         def test_multi_concurrent_flowing_bites_every_way(self):
             def P(tx, rx):

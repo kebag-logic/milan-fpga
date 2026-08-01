@@ -27,7 +27,7 @@ cover.
 - **[1. The five pieces and why they are separate](#1-the-five-pieces-and-why-they-are-separate)** — Each script, the question it answers, and the one rule that decides where a new check belongs.
 - **[2. Prerequisites and the bench it assumes](#2-prerequisites-and-the-bench-it-assumes)** — What must be installed and reachable, what permissions, which hosts, and how to change the topology with flags instead of source edits.
 - **[3. How to run it](#3-how-to-run-it)** — Copy-pasteable invocations for every real case, with every flag, its default, and when to change it.
-- **[4. What it asserts — the full inventory](#4-what-it-asserts--the-full-inventory)** — All 68 plan assertions and all 31 wire-truth check families: name, clause, severity, what makes it FAIL, what a SKIP means, and which sides it measures.
+- **[4. What it asserts — the full inventory](#4-what-it-asserts--the-full-inventory)** — All 70 plan assertions and all 31 wire-truth check families: name, clause, severity, what makes it FAIL, what a SKIP means, and which sides it measures.
 - **[5. How to read the output](#5-how-to-read-the-output)** — The JSONL schema field by field, every verdict value, the exit-code contract, and worked examples of a pass, a failure and a skip.
 - **[6. How to extend it](#6-how-to-extend-it)** — One recipe per kind of addition, each with a worked example and its mandatory negative control.
 - **[7. The human-action checklist](#7-the-human-action-checklist)** — The physical interventions, what to do and what to observe.
@@ -43,7 +43,7 @@ cover.
 | the **plan** | [`tb/tools/torture_campaign.py`](../../tb/tools/torture_campaign.py) | L3 / the clause | Every pair, every index, every **concurrency set**, every churn sequence, every adverse condition — as **data**, with the assertions each step owes, the clause behind each, and the shared verdict functions (counter decode, the invariants, the licence decode, the cross-side and concurrency invariants). **No I/O at all.** | python3 |
 | the **payload / wire analyser** | [`tb/tools/avtp_wire_truth.py`](../../tb/tools/avtp_wire_truth.py) | L5 on a capture, L3 on byte vectors / the wire + the clause | AVTP AAF + CRF + AVDECC control decode, **and MSRP/MVRP decode**, with the declared-versus-actual invariants. A library **and** a CLI, so the runner and the desk suite use one decoder. | python3, a capture |
 | the **bench runner** | [`milan-tests-avb/tools/milan_torture.py`](#) | L5 / the wire on hardware | Turns plan steps into `avdecc_l2.py` calls, reads the test machine's own NIC statistics, and turns the answers into verdicts. The only piece that needs the bench. | python3, raw sockets, the peer host |
-| the **runner's unit tests** | `milan-tests-avb/tools/test_milan_torture.py` | L3 / a fake wire | 79 offline tests over a `FakeWire`, concentrating on the part that can be wrong *silently*: which verdict is drawn from which answer, and whether the runner says SKIP-with-a-reason instead of PASS when it measured nothing. | python3 |
+| the **runner's unit tests** | `milan-tests-avb/tools/test_milan_torture.py` | L3 / a fake wire | 87 offline tests over a `FakeWire`, concentrating on the part that can be wrong *silently*: which verdict is drawn from which answer, and whether the runner says SKIP-with-a-reason instead of PASS when it measured nothing. | python3 |
 | the **desk suite** | [`tests/features/`](../../tests) ×4 features | L3 + L1 | Audits the plan's own coverage, the analyser's decoders, the counter contract and the audio properties — in ~3 s, with no hardware. | `behave` |
 
 **The rule that decides where a new check goes:** *anything that can be decided
@@ -133,7 +133,7 @@ python3 tb/tools/torture_campaign.py --plan --dut 'talkers=8,listeners=8,crf_out
 # the entries a HUMAN has to perform, as a printable checklist
 python3 tb/tools/torture_campaign.py --checklist
 # the offline unit tests of the plan, the counter tables and the invariants
-python3 tb/tools/torture_campaign.py --self-test      # 27 tests
+python3 tb/tools/torture_campaign.py --self-test      # 28 tests
 # the offline byte-vector tests of every decoder and every payload check
 python3 tb/tools/avtp_wire_truth.py --self-test       # 24 tests
 # the desk conformance suite
@@ -238,7 +238,7 @@ sudo -E python3 tools/milan_torture.py --areas audio --pcap cap.pcap \
 sudo -E python3 tools/milan_torture.py --areas matrix --fail-on-skip
 
 # the runner's own offline tests (no hardware, no network, no sudo)
-python3 tools/test_milan_torture.py                      # 79 tests
+python3 tools/test_milan_torture.py                      # 87 tests
 ```
 
 **The documented licence pre-step.** `0x694` is a DUT-board CSR and no AVDECC
@@ -273,6 +273,9 @@ devmem2 0x90000694 w          # or the project's CSR read helper
 | `--tap-host` / `--tap-iface` | none | the tap host and interface, used in the capture hand-off commands |
 | `--dut` / `--peer` / `--test-machine` | Arty 4×4 / PEER / `--iface` | topology (§2) |
 | `--licence-status HEX` | none → the frames-advance verdicts SKIP | the DUT's `0x694` word |
+| `--board-addr IP` | none → the stress load steps SKIP naming it | the DUT's IP, the best-effort load's target (§4.2.1) |
+| `--board-cmd 'CMD {cmd}'` | none → iperf3 unprobeable, RX falls back to the UDP blast, TX SKIPs | a way to run one command on the DUT, e.g. `ssh root@dut {cmd}` |
+| `--host-addr IP` | none → the TX-direction load SKIPs | this host's IP as the board's iperf3 client target |
 | `--csr ADDR=WORD` | none | any other DUT CSR, repeatable |
 | `--csr-cmd 'CMD {addr}'` | none | a command the runner may run to fetch one |
 | `--fail-on-skip` | off | exit 2 if anything SKIPped |
@@ -370,10 +373,12 @@ hardcoded (`plan_multi()`):
 | `primaries` | every **reachable** reference listener fed at once — the listener set is the peer spec's `listener_indices()`, which on a redundant device names the (p) primaries only (the PEER: 0/2/4/6/8). Talkers are the DUT's AAF set, assigned cyclically, so on the AX 8×8 this is the plain zip t0..t4 → l0/2/4/6/8; a DUT with fewer talkers than the peer has listeners reuses a talker with **two listeners on one stream**, which 1722.1-2021 8.2.2.6.2.1 permits | the egress path, CBS and the wire under full concurrent load |
 | `selfloop` | the DUT's own tN → lN | every packetizer **and** depacketizer in the same fabric at once; needs no peer |
 | `mixed` | outbound and loopback interleaved, when the shapes allow | the egress path serving the wire and the loopback simultaneously |
+| `stress` | **everything the shapes allow at once**: every DUT AAF talker outbound (reachable reference listeners first, self-loops to fill — on the AX 8×8: t0..t4 → the primaries, t5..t7 looped home), **plus the inbound direction** (peer AAF talkers into whatever DUT listeners remain free) | the maximal concurrent stream set — and then **best-effort load over the same link while it all flows** (see below) |
 
-Each set runs `bind-all → verify-concurrent → teardown-one → teardown-rest`, and
-sets run **serially, each fully torn down before the next**, so a set's verdicts
-are never polluted by a predecessor.
+Each set runs `bind-all → verify-concurrent → teardown-one → teardown-rest`
+(the stress set inserts `load-rx → load-tx → verify-after-load` between verify
+and teardown), and sets run **serially, each fully torn down before the next**,
+so a set's verdicts are never polluted by a predecessor.
 
 **One shared window.** The verify step reads *every* side — each bound talker's
 `FRAMES_TX`, each bound listener's `FRAMES_RX` + lock + growth counters, and
@@ -398,6 +403,38 @@ The set-level assertions (the per-pair rows reuse the §4.1/§4.2 families, with
 | `multi.concurrent-all-flowing` | every bound talker + listener | Milan 5.3.7.3 **per Stream Output**: each pair holds its own licence, so with the gate open every pair's interval counters advance **together** (Table 5.4/5.6 interval terms, never frames) | any readable pair is static — including one-sided movement — while the licence is OPEN; the dead pairs are named. One stream starving under aggregate load is the defect a pairwise walk can never see | licence SHUT/UNKNOWN; or a pair unreadable on both sides (named) with nothing else dead — a **measured dead pair outranks a measurement gap** |
 | `multi.unbound-counters-static` | every **unbound** stream input, both devices | Milan 5.3.8.10 keeps the Table 5.6 counters **per Stream Input** | an unbound index's counters ticked while its neighbours streamed — the per-index aliasing/bleed class. Asserted regardless of the licence: an unbound index owes silence either way | no unbound index in the set, or none readable. A negative delta is INFO (reset/wrap — the window measured nothing) |
 | `multi.neighbour-streams-survive-teardown` | the survivors after **one** unbind | Milan 5.3.7.3: the unbind removes only the torn-down stream's Listener Ready, so every other pair keeps its licence and keeps streaming | a survivor went static in the shared window right after the neighbour's unbind — the cross-stream-independence defect the staged teardown exists to catch | licence SHUT/UNKNOWN, or a survivor unreadable on both sides with none dead |
+
+**The stress load steps** (`multi.stress.load-rx` / `load-tx`). While the
+maximal set flows, best-effort load runs over the **same link**, both
+directions sequentially: host → DUT TCP is RX stress on the RSC-less ingress
+path, DUT → host is TX stress against the shaped egress queues. Then the load
+goes **off** and `verify-after-load` re-runs the full verify machinery — the
+before/during/after sandwich is what attributes a failure to the load.
+
+* **The load engine is probed, never assumed.** The board is a busybox
+  rootfs: `--board-cmd` lets the runner probe `iperf3 --version` there and
+  drive the board-side pieces (`--board-addr` is the target, `--host-addr`
+  the board's client target for the TX direction). With iperf3 on both ends
+  the load is `iperf3-tcp` and the throughput comes from the `-J` summary.
+* **The RX fallback is named honestly.** With no board iperf3, the runner
+  blasts blind UDP from the controller host at the board's discard port —
+  `iperf3 -u` cannot do this, its UDP mode still opens the TCP control
+  connection a tool-less board can never answer — so the fallback is an
+  in-process socket loop. It loads the **link** honestly, but nothing
+  acknowledges it, so the recorded number is the **send rate, not goodput**,
+  and every record carries `load_mode: udp-blast-fallback` plus the reason.
+* **TX with no board tooling SKIPs.** Only the board can source board→host
+  traffic; the step names what to supply rather than pretending.
+* **The reads ride the loaded wire.** AVDECC is best-effort too, and the
+  adverse practice says control-plane responsiveness is *not* expected under
+  high-rate BE — so a pair whose `GET_COUNTERS` goes unanswered during the
+  load window is named and SKIPped, never failed.
+
+| assertion | sides | clause | FAILs when | SKIPs when |
+|---|---|---|---|---|
+| `multi.streams-immune-to-best-effort-load` | every bound talker + listener, during the load | 802.1Q-2018 8.6.8.2 (credit-based shaper) + clause 34 (FQTSS): an admitted class A stream travels in a reserved, shaped queue **above** best-effort, so BE load SHALL NOT disturb it. **Deliberately distinct from the torture storm entries**: those are line-rate adverse traffic and stay RECOMMENDED per the recommended practice; a cooperative BE load inside the unreserved remainder is the shaper's design point, so this is SHALL | any pair's interval ticks went static while the load ran — the shaping/coexistence defect | licence SHUT/UNKNOWN; no load could be generated (named); a pair unreadable on both sides with none dead |
+| `counters.stream_input.no-seq-mismatch-growth` / `no-late-or-early-growth` | each bound listener, across the loaded window | Milan Table 5.6: the error counters are static under coexistence — frames that keep flowing but arrive corrupted or late are what a ticks-only check calls a pass | the counter ticked in the loaded window | the load could not be generated, or the block was unreadable |
+| `multi.best-effort-headroom` | the load itself | *info:* no clause grades this — 802.1Q reserves the streams, not the leftover. The achieved BE throughput is the measured headroom left by the reservations, a datum for capacity planning | — (INFO by construction, never graded) | no load path (naming the flag to supply) |
 
 **The staged teardown.** `teardown-one` unbinds a pair whose talker serves
 exactly one listener in the set (so silence is owed and `stream.stop-takes-effect`
@@ -1011,6 +1048,13 @@ visible edge of the work, not a hole in it — but it *is* an edge:
   neither, which was the worse of the two failures.
 * **`wire.matches-declared-format` on a bind step** always SKIPs and hands off to
   the payload area — a control-plane step has no wire.
+* **The stress load needs `--board-addr`** (and `--board-cmd` + `--host-addr`
+  for the full iperf3 paths). Without the address there is no load of any kind
+  and the load steps SKIP naming it; without a board command path iperf3 is
+  unprobeable — never assumed on the busybox rootfs — so RX uses the
+  UDP-blast fallback (named in every record; its number is a send rate, not
+  goodput) and the TX direction SKIPs, because only the board can source
+  board→host traffic.
 
 ### 9.3 What it costs
 
@@ -1026,18 +1070,19 @@ spends about 50 s in deliberate measurement:
   the single largest cost and the price of not manufacturing phantom absences
   (§8.4).
 
-The `multi` area adds 12 steps (three sets × four phases). Its verify and
-survivor windows are **shared** across all pairs of a set, so a whole set costs
-roughly one bind round + two 4 s windows + one ≥ 11 s discovery per phase —
+The `multi` area adds 19 steps (three 4-phase sets plus the 7-phase stress
+set). Its verify, load and survivor windows are **shared** across all pairs of
+a set, so a whole set costs roughly one bind round + a few 4 s windows (+ two
+~16 s load windows for the stress set) + one ≥ 11 s discovery per phase —
 minutes, not the matrix's hours — while exercising the aggregate-load shape the
 matrix never reaches.
 
 `--plan` prints the totals for whatever shape you configure. Scope a run with
 `--areas`; the desk suite is the ~3 s half and should be run every time.
 
-Current totals for the default shape (from `--plan`): **339 steps, 2619
-assertions, 4 need a human**, across `matrix` 262 / `multi` 12 / `churn` 25 /
-`payload` 7 / `audio` 9 / `torture` 24 steps, and **68 distinct assertion
+Current totals for the default shape (from `--plan`): **346 steps, 2666
+assertions, 4 need a human**, across `matrix` 262 / `multi` 19 / `churn` 25 /
+`payload` 7 / `audio` 9 / `torture` 24 steps, and **70 distinct assertion
 names**.
 
 ### 9.4 What it cannot see at all
