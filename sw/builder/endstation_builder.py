@@ -1083,10 +1083,12 @@ def _streams(lst, ctx, direction):
         if map_mode not in ("static", "dynamic"):
             raise ConfigError(f"{sctx}: map_mode '{map_mode}' not "
                               "static|dynamic")
-        if map_mode == "dynamic" and direction != "listener":
-            raise ConfigError(f"{sctx}: map_mode dynamic is supported on "
-                              "listener stream ports only (Stream Port "
-                              "Outputs keep static maps per Milan 5.3.3.9)")
+        # USER 08-01: talkers may be dynamic too. Milan 5.3.3.9 leaves
+        # Stream Port Outputs free, and 5.4.2.26-28 make GET/ADD/REMOVE a
+        # SHALL for "each Stream Port Output that has no Audio Map" - a
+        # dynamic talker port drops its AUDIO_MAP descriptor and the RTL
+        # `AEM_ODYNMAP engine serves the commands and drives the capture
+        # crossbar.
         map_page = s.get("map_page")
         if map_page is not None:
             if map_mode != "dynamic":
@@ -1237,9 +1239,15 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
         else:
             n = eff(s)
             pool = legacy_pool(dir_base, n, ph_capture)
+        dyn = s.get("map_mode", "static") == "dynamic"
         ports_out.append(dict(index=j, stream_index=j, clusters=n,
-                              base_cluster=base, maps=1,
-                              base_map=next_map + j, pool=pool))
+                              base_cluster=base,
+                              maps=0 if dyn else 1,
+                              base_map=0 if dyn else next_map,
+                              map_mode=s.get("map_mode", "static"),
+                              pool=pool))
+        if not dyn:
+            next_map += 1
         base += n
         dir_base += n
     return ports_in, ports_out
@@ -3149,6 +3157,8 @@ def emit_aem_overlay(cfg):
             primary_role=primary_segment(p, "input")["role"],
             mappings=rows(p, "input", L[p["stream_index"]]["channels"])))
     for p in P_out:
+        if p.get("map_mode", "static") == "dynamic":
+            continue                    # USER 08-01: dynamic talker port
         audio_maps.append(dict(
             index=p["base_map"], direction="output", port_index=p["index"],
             primary_role=primary_segment(p, "output")["role"],

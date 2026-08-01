@@ -783,17 +783,38 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [4:0]  cmap_slot_w;
   wire [23:0] cmap_l_w, cmap_r_w;
 
+  //! talker-side AEM dynamic-map mirror (USER 08-01): the capture write
+  //! port gets the same two-writer mux as the render side - the AEM
+  //! ADD/REMOVE mirror is the canonical programmer, the CSR 0x900 window
+  //! is the debug port and yields on collision. Same drop-not-truncate
+  //! rule: a slot past N_STREAMS*4 is refused, never wrapped.
+  wire        aecp_odmap_wr_p_w;
+  wire [4:0]  aecp_odmap_wr_slot_w;
+  wire [11:0] aecp_odmap_wr_word_w;
   KL_chan_map_capture #(
     .N_SLOTS_P (N_STREAMS*4),
     .N_TDM_P   (8),
     .N_RING_P  (16)
   ) chan_map_capture (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .map_wr_en_i   (cfg_chmap_wr_en && cfg_chmap_wr_side),
-    .map_wr_addr_i (cfg_chmap_wr_addr[$clog2(N_STREAMS*4)-1:0]),
+    .map_wr_en_i   ((aecp_odmap_wr_p_w &&
+                     32'(aecp_odmap_wr_slot_w) < N_STREAMS*4) ||
+                    (!aecp_odmap_wr_p_w && cfg_chmap_wr_en &&
+                     cfg_chmap_wr_side &&
+                     32'(cfg_chmap_wr_addr) < N_STREAMS*4)),
+    .map_wr_addr_i (aecp_odmap_wr_p_w
+                    ? aecp_odmap_wr_slot_w[$clog2(N_STREAMS*4)-1:0]
+                    : cfg_chmap_wr_addr[$clog2(N_STREAMS*4)-1:0]),
     //! §5 16-bit word -> capture 8-bit {en[7], src[6:4], idx[3:0]}
-    .map_wr_data_i ({cfg_chmap_wr_data[15], cfg_chmap_wr_data[14:12],
-                     cfg_chmap_wr_data[3:0]}),
+    .map_wr_data_i (aecp_odmap_wr_p_w
+                    ? aecp_odmap_wr_word_w[7:0]
+                    : {cfg_chmap_wr_data[15], cfg_chmap_wr_data[14:12],
+                       cfg_chmap_wr_data[3:0]}),
+    //! §5 CHMAP_WORD[7:4] "source stream/lane" -> the LOOP bucket's stream
+    //! select (the documented one-line arming of that bucket from the CSR)
+    .map_wr_idxh_i (aecp_odmap_wr_p_w
+                    ? aecp_odmap_wr_word_w[11:8]
+                    : cfg_chmap_wr_data[7:4]),
     //! map-RAM readback -> CSR 0x910/0x914. The CSR holds map_rd_en_i with a
     //! stable address until map_rd_valid_o; this port is the ONLY way software
     //! can tell a mapped-and-never-fed slot from a mapped-and-quiet one.
@@ -2398,6 +2419,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .dmap_wr_p_o   (aecp_dmap_wr_p_w),
     .dmap_wr_addr_o(aecp_dmap_wr_addr_w),
     .dmap_wr_word_o(aecp_dmap_wr_word_w),
+    .odmap_wr_p_o   (aecp_odmap_wr_p_w),
+    .odmap_wr_slot_o(aecp_odmap_wr_slot_w),
+    .odmap_wr_word_o(aecp_odmap_wr_word_w),
     .link_up_i     (cnt_link_w),
     .gs_diag_idx_o (aecp_diag_idx_w),
     .rxdiag_cnt_i  (mon_diag_cnt_w),

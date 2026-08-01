@@ -697,6 +697,74 @@ def builtin_spec():
                           + [f"Virtual In {n}" for n in range(2, 8)],
     )
 
+def _out_identity_offset(p):
+    """Identity image origin for a dynamic output port: the port-relative
+    offset of its PRIMARY pool segment (the same segment the static map
+    wired at power-on - the builder's primary_role, carried by the
+    overlay). Ports without pools start at 0."""
+    prim = p.get("primary_role")
+    for g in p.get("pool", []):
+        if g["role"] == prim:
+            return int(g["offset"])
+    return 0
+
+
+def _out_cluster_sources(ovl, j, p):
+    """Capture-crossbar source templates for a dynamic OUTPUT port's
+    clusters, derived from the overlay's D8 role pool. One dict per
+    cluster: {src, idxh, idx, half, valid} in KL_chan_map_capture bucket
+    terms (1 I2S / 2 TDM / 3 RING / 4 TONE / 5 LOOP). Bounds are the
+    fabric's: 16 ring pairs, 4 TDM pairs, 8 loopback streams x 4 pairs.
+    Ports without role pools return None (the ring-identity default)."""
+    if p.get("map_mode", "static") != "dynamic" or not p.get("pool"):
+        return None
+    # the received stream channel space, mirroring the builder's
+    # cluster_names() walk: loopback cluster n of port j starts at rx
+    # stream j channel 0
+    rx = []
+    for si, s in enumerate(ovl["stream_inputs"]):
+        if s.get("kind", "aaf") != "aaf":
+            continue
+        ch = (int(s["formats"][0], 16) >> 22) & 0x3FF
+        rx.extend((si, c) for c in range(ch))
+    # global host-channel prefix across the OUTPUT ports before this one
+    host_pfx = 0
+    for q in ovl["stream_ports"]["output"][:j]:
+        host_pfx += sum(g["width"] for g in q.get("pool", [])
+                        if g["role"] == "host")
+    srcs = []
+    for g in p["pool"]:
+        for n in range(g["width"]):
+            if g["role"] == "physical":
+                a = n            # capture phys channel (role_pool first=0)
+                if a < 2:
+                    srcs.append(dict(src=1, idxh=0, idx=0, half=a % 2,
+                                     valid=True))
+                else:
+                    srcs.append(dict(src=2, idxh=0, idx=(a - 2) // 2,
+                                     half=(a - 2) % 2,
+                                     valid=(a - 2) // 2 < 4))
+            elif g["role"] == "host":
+                gch = host_pfx + n
+                srcs.append(dict(src=3, idxh=0, idx=gch // 2, half=gch % 2,
+                                 valid=gch // 2 < 16))
+            elif g["role"] == "pilot":
+                srcs.append(dict(src=4, idxh=0, idx=0, half=0, valid=True))
+            elif g["role"] == "loopback":
+                if rx:
+                    start = next((k for k, (si, c) in enumerate(rx)
+                                  if si == j and c == 0), 0)
+                    si, c = rx[(start + n) % len(rx)]
+                else:
+                    si, c = 0, n
+                srcs.append(dict(src=5, idxh=si, idx=c // 2, half=c % 2,
+                                 valid=si < 8 and c < 8))
+            else:                # virtual: nothing behind it
+                srcs.append(dict(src=0, idxh=0, idx=0, half=n % 2,
+                                 valid=False))
+    return srcs
+
+
 def spec_from_overlay(ovl):
     """Map a builder-emitted AEM overlay (kebag-logic/aem-overlay 2.x, see
     sw/builder/endstation_builder.py emit_aem_overlay) onto a build_model()
@@ -759,8 +827,12 @@ def spec_from_overlay(ovl):
                        map_page=p.get("map_page"))
                   for p in ovl["stream_ports"]["input"]],
         ports_out=[dict(clusters=p["clusters"], base_cluster=p["base_cluster"],
-                        maps=p["maps"], base_map=p["base_map"])
-                   for p in ovl["stream_ports"]["output"]],
+                        maps=p["maps"], base_map=p["base_map"],
+                        map_mode=p.get("map_mode", "static"),
+                        stream_index=p.get("stream_index", j),
+                        cluster_sources=_out_cluster_sources(ovl, j, p),
+                        identity_offset=_out_identity_offset(p))
+                   for j, p in enumerate(ovl["stream_ports"]["output"])],
         audio_maps=[m["mappings"] for m in
                     sorted(ovl["audio_maps"], key=lambda m: m["index"])],
         # D10 cluster names (overlay 2.1+). An older 2.0 overlay carries no
@@ -834,14 +906,18 @@ def build_model(spec):
                                     p["clusters"], p["base_cluster"],
                                     0 if dyn else p["maps"],
                                     0 if dyn else p["base_map"])))
+    # Outputs MAY be dynamic too (USER 08-01): Milan 5.3.3.9 leaves them
+    # free, and 5.4.2.26-28 make GET/ADD/REMOVE_AUDIO_MAPPINGS a SHALL for
+    # "each Stream Port Output that has no Audio Map" - so a dynamic output
+    # port drops its AUDIO_MAP descriptor and signals 7.2.13 exactly like a
+    # dynamic input.
     for k, p in enumerate(spec["ports_out"]):
-        if p.get("map_mode", "static") == "dynamic":
-            raise ValueError("map_mode dynamic on STREAM_PORT_OUTPUT is not "
-                             "supported (output maps stay static - follow-up)")
+        dyn = p.get("map_mode", "static") == "dynamic"
         descs.append((STREAM_PORT_OUTPUT, k,
                       d_stream_port(STREAM_PORT_OUTPUT, k, 0x0000,
                                     p["clusters"], p["base_cluster"],
-                                    p["maps"], p["base_map"])))
+                                    0 if dyn else p["maps"],
+                                    0 if dyn else p["base_map"])))
     n_in = sum(p["clusters"] for p in spec["ports_in"])
     n_out = sum(p["clusters"] for p in spec["ports_out"])
     # AUDIO_CLUSTER object_names (builder D10). Before 2026-07-28 every
@@ -1016,6 +1092,78 @@ def build_model(spec):
             NSTRIN=len(si), SAAF=si_aaf, SCH=si_ch,
             PHYS=CHMAP_PHYS_DEPTH)
 
+    # Talker-side dynamic-map engine constants (USER 08-01: "enable dynamic
+    # mapping on stream_output as well"). Gated like DYNMAP: emitted only
+    # when at least one OUTPUT port is map_mode dynamic. The engine's key is
+    # the port's STREAM channel (Milan 5.4.2.26 note: "at most one dynamic
+    # mapping per Stream Output's channel" - the stream channel is the
+    # natural unique key), 8 keys per port (the DMAP_CHMAX ch[2:0] fabric
+    # bound). Vendor validity rules (1722.1-2021 7.4.45.1 says validity "is
+    # governed by a set of vendor defined rules"):
+    #   * mapping_stream_index must be the port's OWN stream (the capture
+    #     crossbar routes port j's clusters into stream j - 1:1 fabric);
+    #   * records arrive in L/R-adjacent pairs mapping stream channels
+    #     {2m, 2m+1} to the two halves of ONE source pair (the capture map
+    #     is PAIR-slot granular; a half-armed slot would make GET report a
+    #     route that carries no audio - the same wire-truth refusal the
+    #     input side applies to keys past the render crossbar);
+    #   * a cluster is projectable only where CSRC marks a live source
+    #     behind it (ring/tone/loopback/physical bounds, resolved HERE).
+    # The partition of 5.4.2.26 is over the Stream Output's channels: <= 8
+    # of them, so every port is a single page (number_of_maps = 1).
+    dyn_out = [p for p in pout if p.get("map_mode", "static") == "dynamic"]
+    odmap = dict(EMIT=bool(dyn_out))
+    if odmap["EMIT"] and not dynmap["EMIT"]:
+        # the RTL nests `AEM_ODYNMAP inside `AEM_DYNMAP (the walk states are
+        # shared), and Milan 5.3.3.9 makes dynamic INPUTS mandatory anyway
+        raise ValueError("dynamic STREAM_PORT_OUTPUTs require dynamic "
+                         "STREAM_PORT_INPUTs (Milan 5.3.3.9 mandates them)")
+    if odmap["EMIT"]:
+        so_ch = [((s["formats"][0] >> 22) & 0x3FF) for s in so]
+        # packetizer pair-slot base per STREAM_OUTPUT (its prefix-sum space)
+        slotb_str, acc = [], 0
+        for c in so_ch:
+            slotb_str.append(acc)
+            acc += (c + 1) // 2
+        pcbase, csrc, init = [], [], []
+        for j, p in enumerate(pout):
+            pcbase.append(len(csrc))
+            stream = p.get("stream_index", j)
+            srcs = p.get("cluster_sources")
+            if srcs is None:
+                # default policy (no role pools declared): the port's
+                # clusters are its talker's own ALSA-ring pairs in order -
+                # cluster c = ring pair (slot base + c//2), half c%2
+                srcs = [dict(src=3, idxh=0, idx=slotb_str[stream] + c // 2,
+                             half=c % 2, valid=slotb_str[stream] + c // 2 < 16)
+                        for c in range(p["clusters"])]
+            if len(srcs) != p["clusters"]:
+                raise ValueError(
+                    f"ports_out[{j}]: {len(srcs)} cluster_sources for "
+                    f"{p['clusters']} clusters")
+            csrc.extend(srcs)
+            # identity image: stream channel c <- the port's primary
+            # cluster run (offset c of the identity rows the static map
+            # declared), kept only where the source pair really projects
+            ic0 = p.get("identity_offset", 0)
+            for c in range(8):
+                co = ic0 + c
+                ok = (c < so_ch[stream] and co < p["clusters"]
+                      and srcs[co].get("valid", True)
+                      and (srcs[co]["src"] == 4 or srcs[co]["half"] == c % 2))
+                init.append(dict(v=ok, co=co if ok else 0))
+        odmap.update(
+            KEYS=8 * len(pout), NPORTS=len(pout),
+            PDYN=[p.get("map_mode", "static") == "dynamic" for p in pout],
+            PCLS=[p["clusters"] for p in pout],
+            PCBASE=pcbase,
+            PSTR=[p.get("stream_index", j) for j, p in enumerate(pout)],
+            SLOTB=[slotb_str[p.get("stream_index", j)]
+                   for j, p in enumerate(pout)],
+            SCH=[so_ch[p.get("stream_index", j)]
+                 for j, p in enumerate(pout)],
+            CSRC=csrc, INIT=init)
+
     # Static AUDIO_MAP serving tables + the model's own bounds gate (defect B,
     # 2026-07-28). Emitted for EVERY shape, static or dynamic, because the
     # static GET_AUDIO_MAP path exists in every build - the tables are what let
@@ -1026,7 +1174,7 @@ def build_model(spec):
     return dict(rom=rom, directory=directory, ROM_SIZE=len(rom),
                 OVERLAYS=overlays, WB=wb, NAMED=named,
                 RATES=spec["rates"], FORMATS=fmts, CRF_FMTS=crf_fmts,
-                PER_STREAM=per_stream, DYNMAP=dynmap, SMAP=smap)
+                PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap)
 
 #: Render-crossbar DEPTH: how many physical output channels
 #: KL_chan_map_render holds a map word for, i.e. milan_datapath's
@@ -1242,6 +1390,36 @@ def emit_svh_text(M):
         arr("bit", "AEM_DMAP_SAAF_C", dm["SAAF"],
             lambda v: "1'b1" if v else "1'b0")
         arr("[9:0]", "AEM_DMAP_SCH_C", dm["SCH"], lambda v: f"10'd{v}")
+        a("")
+    od = M.get("ODMAP", {"EMIT": False})
+    if od["EMIT"]:
+        a("// Talker-side dynamic audio-map engine (USER 08-01). Key = the")
+        a("// port's STREAM channel (8 per port, ch[2:0] fabric bound);")
+        a("// Milan 5.4.2.26's output partition is over Stream Output")
+        a("// channels, <= 8, so number_of_maps is 1 for every port.")
+        a("// CSRC = per-output-cluster capture-source template")
+        a("// {valid, half, src[2:0], idxh[3:0], idx[3:0]}; INIT = the")
+        a("// power-on identity image per key {v, cluster_offset[4:0]}.")
+        a("`define AEM_ODYNMAP")
+        a(f"localparam int unsigned AEM_ODMAP_KEYS_C   = {od['KEYS']};")
+        a(f"localparam int unsigned AEM_ODMAP_NPORTS_C = {od['NPORTS']};")
+        arr("bit", "AEM_ODMAP_PDYN_C", od["PDYN"],
+            lambda v: "1'b1" if v else "1'b0")
+        arr("int unsigned", "AEM_ODMAP_PCLS_C", od["PCLS"])
+        arr("int unsigned", "AEM_ODMAP_PCBASE_C", od["PCBASE"])
+        arr("int unsigned", "AEM_ODMAP_PSTR_C", od["PSTR"])
+        arr("int unsigned", "AEM_ODMAP_SLOTB_C", od["SLOTB"])
+        arr("[9:0]", "AEM_ODMAP_SCH_C", od["SCH"], lambda v: f"10'd{v}")
+        arr("[12:0]", "AEM_ODMAP_CSRC_C", od["CSRC"],
+            lambda s: "13'h{:04X}".format(
+                ((1 if s.get("valid", True) else 0) << 12)
+                | ((s.get("half", 0) & 1) << 11)
+                | ((s["src"] & 7) << 8)
+                | ((s.get("idxh", 0) & 0xF) << 4)
+                | (s.get("idx", 0) & 0xF)))
+        arr("[5:0]", "AEM_ODMAP_INIT_C", od["INIT"],
+            lambda e: "6'h{:02X}".format(
+                ((1 if e["v"] else 0) << 5) | (e["co"] & 0x1F)))
         a("")
     return "\n".join(lines)
 

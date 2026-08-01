@@ -136,6 +136,12 @@ module KL_aecp_response_builder (
   output logic         dmap_wr_p_o,        //! 1-cycle map-RAM write strobe
   output logic [5:0]   dmap_wr_addr_o,     //! cluster_offset = phys channel idx
   output logic [7:0]   dmap_wr_word_o,     //! render map word (see above)
+  //! talker-side mirror (USER 08-01): every ACCEPTED output-map pair commit
+  //! is one CAPTURE-crossbar map write. Word = KL_chan_map_capture's entry
+  //! {idxh[11:8], en[7], src[6:4], idx[3:0]}; REMOVE/prune write 0 (en=0).
+  output logic         odmap_wr_p_o,       //! 1-cycle capture-map write strobe
+  output logic [4:0]   odmap_wr_slot_o,    //! packetizer pair slot
+  output logic [11:0]  odmap_wr_word_o,    //! capture map word (see above)
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
 
   // ---- listener sink state (KL_acmp_listener; STREAM_INPUT[0]) --------
@@ -862,6 +868,91 @@ module KL_aecp_response_builder (
   //! render crossbar (which resets EMPTY on its own side), one key per
   //! IDLE_S cycle; == KEYS when done
   logic [6:0] dmseed_r;
+
+`ifdef AEM_ODYNMAP
+  // ------------------------------------------------------------------ //
+  // Talker-side dynamic maps (USER 08-01: "enable dynamic mapping on    //
+  // stream_output as well"). Key = port*8 + STREAM channel: Milan       //
+  // 5.4.2.26's "at most one dynamic mapping per Stream Output's         //
+  // channel" makes the stream channel the unique key; the value is the  //
+  // cluster_offset feeding it. AEM_ODMAP_CSRC_C resolves a cluster to   //
+  // its capture-crossbar source pair {valid, half, src, idxh, idx}.     //
+  // VENDOR RULES (1722.1-2021 7.4.45.1 "governed by a set of vendor     //
+  // defined rules"): the mapping_stream_index must be the port's OWN    //
+  // stream (the capture fabric routes port j's clusters into stream j), //
+  // and records arrive as L/R-ADJACENT PAIRS mapping stream channels    //
+  // {2m, 2m+1} to the two halves of ONE source pair (or both to the     //
+  // mono TONE cluster) - the capture map is PAIR-slot granular, and a   //
+  // half-armed slot would make GET_AUDIO_MAP report a route carrying no //
+  // audio, the same wire-truth refusal the input side applies to keys   //
+  // past the render crossbar.                                           //
+  // ------------------------------------------------------------------ //
+  localparam int unsigned ODMAP_KW_C =
+      (AEM_ODMAP_KEYS_C <= 1) ? 1 : $clog2(AEM_ODMAP_KEYS_C);
+  logic                  ov_r  [0:AEM_ODMAP_KEYS_C-1];
+  logic [4:0]            oco_r [0:AEM_ODMAP_KEYS_C-1];
+  //! NOTE no live channel-count follower here: w_out_fmt_ok accepts ONLY
+  //! the declared output format (FR-STR-03 wire truth), so the Milan
+  //! 5.4.2.27 current-format bound IS the elaboration constant
+  //! AEM_ODMAP_SCH_C - derived once, never shadowed.
+  logic [7:0]            oclaim_r;   //! ADD same-channel guard (one command)
+  logic                  dm_out_q;   //! walk direction: 1 = output port
+  //! dispatch-latched addressed-port facts (the walk reads no descriptor)
+  logic [3:0]            od_pidx_q;
+  logic [ODMAP_KW_C-1:0] od_kb_q;    //! key base = pidx * 8
+  logic [6:0]            od_cb_q;    //! CSRC base (AEM_ODMAP_PCBASE_C)
+  logic [4:0]            od_pcls_q;
+  logic [3:0]            od_pstr_q;
+  logic [4:0]            od_slotb_q;
+  logic [9:0]            od_schx_q;
+  //! the pair's even (L) record, held for the odd (R) verdict + commit
+  logic [3:0]            odp_sc_q;
+  logic [4:0]            odp_co_q;
+  logic [12:0]           odp_t_q;
+  logic [7:0]            odseed_r;   //! post-reset capture-fabric seed
+
+  //! addressed-port decode (DISPATCH cone)
+  wire [3:0] w_od_pidx = (w_gs_index < 16'(AEM_ODMAP_NPORTS_C))
+                         ? 4'(w_gs_index) : '0;
+  wire w_od_ok  = (w_gs_type == DESC_STREAM_PORT_OUTPUT) &&
+                  (w_gs_index < 16'(AEM_ODMAP_NPORTS_C));
+  wire w_od_dyn = w_od_ok && AEM_ODMAP_PDYN_C[w_od_pidx];
+
+  //! record-verdict cone (registers only, same discipline as w_dm_*)
+  wire w_od_co_ok = (dm_co_q < {11'd0, od_pcls_q});
+  wire [12:0] w_od_t =
+      AEM_ODMAP_CSRC_C[w_od_co_ok ? 32'(od_cb_q) + 32'(dm_co_q[6:0]) : 0];
+  wire [ODMAP_KW_C-1:0] w_od_key  =
+      od_kb_q | ODMAP_KW_C'(dm_sc_q[2:0]);
+  wire [ODMAP_KW_C-1:0] w_od_keyp =
+      od_kb_q | ODMAP_KW_C'(odp_sc_q[2:0]);
+  //! even (L) record: its own bounds + a live L-half (or mono TONE) source
+  wire w_od_even_ok =
+      (dm_si_q == {12'd0, od_pstr_q}) && !dm_sc_q[0] &&
+      (dm_sc_q < od_schx_q) && (dm_sc_q < 16'd8) &&
+      w_od_co_ok && (dm_cc_q == 16'd0) &&
+      w_od_t[12] && ((w_od_t[10:8] == 3'd4) || !w_od_t[11]) &&
+      !oclaim_r[dm_sc_q[2:0]];
+  //! odd (R) record: the partner channel, the SAME source pair's R half
+  //! (or the SAME mono TONE cluster)
+  wire w_od_odd_ok =
+      (dm_si_q == {12'd0, od_pstr_q}) &&
+      (dm_sc_q == {12'd0, odp_sc_q} + 16'd1) &&
+      w_od_co_ok && (dm_cc_q == 16'd0) && w_od_t[12] &&
+      ((odp_t_q[10:8] == 3'd4)
+         ? (dm_co_q[4:0] == odp_co_q)
+         : (w_od_t[11] && (w_od_t[10:8] == odp_t_q[10:8]) &&
+            (w_od_t[7:0] == odp_t_q[7:0])));
+  //! REMOVE present-check (7.4.46.1: "invalid or not present" refuses)
+  wire w_od_rm_hit =
+      (dm_si_q == {12'd0, od_pstr_q}) && (dm_sc_q < 16'd8) &&
+      (dm_cc_q == 16'd0) && ov_r[w_od_key] &&
+      (oco_r[w_od_key] == dm_co_q[4:0]);
+  //! did this pair change the store (nochg replay suppressor)
+  wire w_od_pair_chg =
+      !ov_r[w_od_keyp] || (oco_r[w_od_keyp] != odp_co_q) ||
+      !ov_r[w_od_key]  || (oco_r[w_od_key]  != dm_co_q[4:0]);
+`endif
   //! live per-STREAM_INPUT channel count: resets to the ROM current_format
   //! and follows SET_STREAM_FORMAT, because 5.3.10.1 bounds a mapping by
   //! "the number of channels in the current format of the Stream Input"
@@ -1173,6 +1264,15 @@ module KL_aecp_response_builder (
   //! SET_STREAM_FORMAT channel-bound follower index
   wire [DMAP_SW_C-1:0] w_dm_fidx =
       (w_gs_index < 16'(AEM_DMAP_NSTRIN_C)) ? DMAP_SW_C'(w_gs_index) : '0;
+`endif
+
+`ifndef AEM_ODYNMAP
+  //! no dynamic output ports in this shape: the capture-map write port is
+  //! quiescent by construction (same tie discipline as -Werror-UNDRIVEN
+  //! demands of every conditional engine)
+  assign odmap_wr_p_o    = 1'b0;
+  assign odmap_wr_slot_o = 5'd0;
+  assign odmap_wr_word_o = 12'd0;
 `endif
 
   //! STREAM_INPUT counter push state (Milan §5.4.5: unsolicited GET_COUNTERS
@@ -1611,6 +1711,25 @@ module KL_aecp_response_builder (
         dmap_si_r[k] <= ini[2:0];
       end
       dmseed_r <= 7'd0;
+`ifdef AEM_ODYNMAP
+      //! the talker maps wake as the identity image too (same rule, same
+      //! derivation - AEM_ODMAP_INIT_C is generator-computed from the
+      //! port's primary cluster run, kept only where the source projects)
+      odmap_wr_p_o    <= 1'b0;
+      odmap_wr_slot_o <= 5'd0;
+      odmap_wr_word_o <= 12'd0;
+      for (int k = 0; k < AEM_ODMAP_KEYS_C; k++) begin
+        ov_r[k]  <= AEM_ODMAP_INIT_C[k][5];
+        oco_r[k] <= AEM_ODMAP_INIT_C[k][4:0];
+      end
+      oclaim_r  <= '0;
+      dm_out_q  <= 1'b0;
+      od_pidx_q <= 4'd0;  od_kb_q <= '0;   od_cb_q <= 7'd0;
+      od_pcls_q <= 5'd0;  od_pstr_q <= 4'd0;
+      od_slotb_q <= 5'd0; od_schx_q <= 10'd0;
+      odp_sc_q <= 4'd0;   odp_co_q <= 5'd0; odp_t_q <= 13'd0;
+      odseed_r   <= 8'd0;
+`endif
       for (int s = 0; s < AEM_DMAP_NSTRIN_C; s++)
         dm_sch_r[s] <= AEM_DMAP_SCH_C[s];
       dmap_claim_r <= '0;
@@ -1660,6 +1779,25 @@ module KL_aecp_response_builder (
                            dmap_ch_r[dmseed_r[DMAP_KW_C-1:0]][2:0]};
         dmseed_r <= dmseed_r + 7'd1;
       end
+`ifdef AEM_ODYNMAP
+      odmap_wr_p_o <= 1'b0;
+      //! the capture-crossbar seed: one PAIR slot per IDLE_S cycle (the
+      //! identity image is pair-complete by construction; the template
+      //! comes from the LIVE store so a pre-seed edit is still truthful)
+      if (odseed_r < 8'(AEM_ODMAP_KEYS_C) && state_r == IDLE_S) begin
+        if (ov_r[odseed_r[ODMAP_KW_C-1:0]] &&
+            ov_r[odseed_r[ODMAP_KW_C-1:0] + 1'b1]) begin
+          automatic logic [12:0] t = AEM_ODMAP_CSRC_C[
+              32'(AEM_ODMAP_PCBASE_C[32'(odseed_r) / 8])
+              + 32'(oco_r[odseed_r[ODMAP_KW_C-1:0]])];
+          odmap_wr_p_o    <= 1'b1;
+          odmap_wr_slot_o <= 5'(AEM_ODMAP_SLOTB_C[32'(odseed_r) / 8])
+                             + 5'(odseed_r[2:1]);
+          odmap_wr_word_o <= {t[7:4], 1'b1, t[10:8], t[3:0]};
+        end
+        odseed_r <= odseed_r + 8'd2;
+      end
+`endif
 `endif
 
       // ---- output beat handshake (runs EVERY cycle, independent of the
@@ -1973,6 +2111,9 @@ module KL_aecp_response_builder (
           msg_resp_q <= vu_q ? MSG_VENDOR_UNIQUE_RESPONSE : MSG_AEM_RESPONSE;
           status_q   <= STATUS_NOT_IMPLEMENTED;
           nochg_q    <= 1'b0;
+`ifdef AEM_ODYNMAP
+          dm_out_q <= 1'b0;
+`endif
           wbp_r      <= 1'b0;
           wb_used_q  <= 1'b0;
           wb_diff_q  <= 1'b0;
@@ -2299,6 +2440,34 @@ module KL_aecp_response_builder (
                     dmg_n_r     <= 4'd0;
                     state_r     <= DMAP_GET_S;
                   end
+`ifdef AEM_ODYNMAP
+                end else if (w_od_dyn) begin
+                  //! dynamic OUTPUT port (Milan 5.4.2.26: a Stream Port
+                  //! Output with NO Audio Map SHALL implement this). The
+                  //! output partition is over the Stream Output's channels
+                  //! - at most 8, so every port is ONE page.
+                  if (w_dmg_p != 16'd0) begin
+                    status_q      <= STATUS_BAD_ARGUMENTS;
+                    seg_len_q[0]  <= 16'd6;
+                    seg_kind_q[1] <= SEG_NONE; seg_addr_q[1] <= 16'd0;
+                    seg_len_q[1]  <= 16'd6;
+                    cdl_q         <= 11'd24;
+                  end else begin
+                    status_q      <= STATUS_SUCCESS;
+                    seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2;
+                    seg_len_q[0]  <= 16'd6;
+                    seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;
+                    seg_len_q[1]  <= 16'd6;
+                    dm_out_q    <= 1'b1;
+                    od_pstr_q   <= 4'(AEM_ODMAP_PSTR_C[w_od_pidx]);
+                    od_kb_q     <= ODMAP_KW_C'(32'(w_od_pidx) * 8);
+                    dmg_key_r   <= 7'(32'(w_od_pidx) * 8);
+                    dmg_end_r   <= 7'(32'(w_od_pidx) * 8 + 8);
+                    dmg_nmaps_q <= 8'd1;
+                    dmg_n_r     <= 4'd0;
+                    state_r     <= DMAP_GET_S;
+                  end
+`endif
                 end else if (w_smap_milan_ns) begin
                   //! Milan v1.2 5.4.2.26: "If a PAAD-AE receives a
                   //! GET_AUDIO_MAP command for a Stream Port Output that has
@@ -2351,6 +2520,42 @@ module KL_aecp_response_builder (
               CMD_ADD_AUDIO_MAPPINGS, CMD_REMOVE_AUDIO_MAPPINGS: begin
                 if (l0_reject_q) begin
                   status_q <= l0_status_q;   //! lock rule (5.4.2.27/28)
+`ifdef AEM_ODYNMAP
+                end else if (w_od_dyn) begin
+                  //! dynamic OUTPUT port (Milan 5.4.2.27/28 SHALL when the
+                  //! port has no Audio Map). Same command framing as the
+                  //! input engine, plus the pair rule: records arrive as
+                  //! L/R-adjacent pairs, so an odd count can never validate
+                  if (w_dm_n > 16'd60) begin
+                    status_q <= STATUS_BAD_ARGUMENTS;
+                  end else if (16'(hdr_q.control_data_length) !=
+                               16'd20 + {w_dm_n[12:0], 3'd0}) begin
+                    status_q <= STATUS_BAD_ARGUMENTS;   //! malformed length
+                  end else if (w_dm_n == 16'd0) begin
+                    status_q <= STATUS_SUCCESS;         //! empty edit
+                    nochg_q  <= 1'b1;
+                  end else if (w_dm_n[0]) begin
+                    status_q <= STATUS_BAD_ARGUMENTS;   //! half a pair
+                  end else begin
+                    status_q    <= STATUS_SUCCESS;      //! walk may demote
+                    dmn_q       <= 6'(w_dm_n);
+                    dmi_r       <= 6'd0;
+                    dmph_r      <= 4'd0;
+                    dm_out_q    <= 1'b1;
+                    od_pidx_q   <= w_od_pidx;
+                    od_kb_q     <= ODMAP_KW_C'(32'(w_od_pidx) * 8);
+                    od_cb_q     <= 7'(AEM_ODMAP_PCBASE_C[w_od_pidx]);
+                    od_pcls_q   <= 5'(AEM_ODMAP_PCLS_C[w_od_pidx]);
+                    od_pstr_q   <= 4'(AEM_ODMAP_PSTR_C[w_od_pidx]);
+                    od_slotb_q  <= 5'(AEM_ODMAP_SLOTB_C[w_od_pidx]);
+                    od_schx_q   <= 10'(AEM_ODMAP_SCH_C[w_od_pidx]);
+                    dm_remove_q <= (w_cmd_eff == CMD_REMOVE_AUDIO_MAPPINGS);
+                    dm_commit_q <= 1'b0;
+                    oclaim_r    <= '0;
+                    dmap_diff_q <= 1'b0;
+                    state_r     <= DMAP_SCAN_S;
+                  end
+`endif
                 end else if (w_smap_milan_ns ||
                              (w_dm_pin_ok && !w_dm_pin_dyn)) begin
                   //! a port that HAS Audio Map(s): Milan 5.4.2.27/28 word
@@ -2502,6 +2707,11 @@ module KL_aecp_response_builder (
                         state_r    <= DMAP_PRUNE_S;
                       end
                     end
+                    //! NO talker-side follower/prune: w_out_fmt_ok accepts
+                    //! ONLY the declared format (FR-STR-03 wire truth - the
+                    //! framer's channel count is an elaboration constant),
+                    //! so a Stream Output's format can never shrink and the
+                    //! output maps' channel bound stays AEM_ODMAP_SCH_C
 `endif
                   end
                 end
@@ -3331,6 +3541,66 @@ module KL_aecp_response_builder (
             dmph_r <= dmph_r + 4'd1;
           end else begin
             dmph_r <= 4'd0;
+`ifdef AEM_ODYNMAP
+            if (dm_out_q) begin
+              //! OUTPUT-port walk: even record stashes, odd record judges
+              //! the PAIR (see the vendor rules at the odmap declarations)
+              odp_sc_q <= dm_sc_q[3:0];
+              odp_co_q <= dm_co_q[4:0];
+              odp_t_q  <= w_od_t;
+              if (!dm_commit_q) begin
+                if (dm_remove_q
+                    ? !(w_od_rm_hit &&
+                        (dmi_r[0] ? (dm_sc_q == {12'd0, odp_sc_q} + 16'd1)
+                                  : !dm_sc_q[0]))
+                    : !(dmi_r[0] ? w_od_odd_ok : w_od_even_ok)) begin
+                  status_q <= STATUS_BAD_ARGUMENTS;
+                  state_r  <= WRITE_S;
+                end else begin
+                  if (!dm_remove_q && dmi_r[0]) begin
+                    oclaim_r[odp_sc_q[2:0]] <= 1'b1;
+                    oclaim_r[dm_sc_q[2:0]]  <= 1'b1;
+                  end
+                  if (dmi_r == dmn_q - 6'd1) begin
+                    dmi_r       <= 6'd0;
+                    dm_commit_q <= 1'b1;
+                  end else begin
+                    dmi_r <= dmi_r + 6'd1;
+                  end
+                end
+              end else begin
+                //! commit on the odd record: both store keys + exactly ONE
+                //! pair-slot write into the capture crossbar
+                if (dmi_r[0]) begin
+                  if (!dm_remove_q) begin
+                    ov_r [w_od_keyp] <= 1'b1;
+                    oco_r[w_od_keyp] <= odp_co_q;
+                    ov_r [w_od_key]  <= 1'b1;
+                    oco_r[w_od_key]  <= dm_co_q[4:0];
+                    if (w_od_pair_chg) dmap_diff_q <= 1'b1;
+                    odmap_wr_p_o    <= 1'b1;
+                    odmap_wr_slot_o <= od_slotb_q + 5'(odp_sc_q[3:1]);
+                    odmap_wr_word_o <= {odp_t_q[7:4], 1'b1,
+                                        odp_t_q[10:8], odp_t_q[3:0]};
+                  end else begin
+                    ov_r[w_od_keyp] <= 1'b0;
+                    ov_r[w_od_key]  <= 1'b0;
+                    dmap_diff_q     <= 1'b1;
+                    odmap_wr_p_o    <= 1'b1;
+                    odmap_wr_slot_o <= od_slotb_q + 5'(odp_sc_q[3:1]);
+                    odmap_wr_word_o <= 12'h000;
+                  end
+                end
+                if (dmi_r == dmn_q - 6'd1) begin
+                  nochg_q <= !(dmap_diff_q ||
+                               (dm_remove_q ? 1'b1 : w_od_pair_chg));
+                  state_r <= WRITE_S;
+                end else begin
+                  dmi_r <= dmi_r + 6'd1;
+                end
+              end
+            end else
+`endif
             if (!dm_commit_q) begin
               //! Validate pass — BOTH directions run it, because both
               //! clauses are all-or-nothing in the same words:
@@ -3399,6 +3669,36 @@ module KL_aecp_response_builder (
         // ---------------------------------------------------------- //
         DMAP_GET_S: begin   //! GET_AUDIO_MAP page scan: one key/cycle out
                             //! of the flop store into the const scratch
+`ifdef AEM_ODYNMAP
+          if (dm_out_q) begin
+            //! OUTPUT-port page: rows come from the ov/oco store; the
+            //! stream_index is the port's own stream, the stream channel
+            //! is the key's low bits, cluster_channel 0 (mono clusters)
+            if (dmg_key_r >= dmg_end_r ||
+                dmg_key_r >= 7'(AEM_ODMAP_KEYS_C)) begin
+              const_q[0] <= 8'h00; const_q[1] <= dmg_nmaps_q;
+              const_q[2] <= 8'h00; const_q[3] <= {4'd0, dmg_n_r};
+              const_q[4] <= 8'h00; const_q[5] <= 8'h00;
+              seg_len_q[1] <= 16'd6 + {9'd0, dmg_n_r, 3'd0};
+              cdl_q        <= 11'd24 + {4'd0, dmg_n_r, 3'd0};
+              state_r      <= WRITE_S;
+            end else begin
+              if (ov_r[dmg_key_r[ODMAP_KW_C-1:0]]) begin
+                const_q[w_dmg_base + 7'd0] <= 8'h00;
+                const_q[w_dmg_base + 7'd1] <= {4'd0, od_pstr_q};
+                const_q[w_dmg_base + 7'd2] <= 8'h00;
+                const_q[w_dmg_base + 7'd3] <= {5'd0, dmg_key_r[2:0]};
+                const_q[w_dmg_base + 7'd4] <= 8'h00;
+                const_q[w_dmg_base + 7'd5] <=
+                    {3'd0, oco_r[dmg_key_r[ODMAP_KW_C-1:0]]};
+                const_q[w_dmg_base + 7'd6] <= 8'h00;
+                const_q[w_dmg_base + 7'd7] <= 8'h00;
+                dmg_n_r <= dmg_n_r + 4'd1;
+              end
+              dmg_key_r <= dmg_key_r + 7'd1;
+            end
+          end else
+`endif
           if (dmg_key_r >= dmg_end_r || dmg_key_r >= 7'(AEM_DMAP_KEYS_C)) begin
             //! finalize now that the page's live count is known.
             //! number_of_maps is ALWAYS the addressed port's fixed

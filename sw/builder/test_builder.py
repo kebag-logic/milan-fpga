@@ -1337,13 +1337,50 @@ def test_dynamic_audio_map_overlay():
         os.unlink(p)
 
     # unsupported placements are rejected with clear errors
-    def dyn_talker(c):
-        c["streams"]["talkers"][0]["map_mode"] = "dynamic"
+    # gate 17d (USER 08-01): talkers may go dynamic too. On the role-pools
+    # 8x8 ship shape, flipping every talker+listener dynamic must emit the
+    # `AEM_ODYNMAP engine with the D8 pool projected into capture-crossbar
+    # source templates (loopback identity - the AX routes no audio pins).
+    def dyn_everything(c):
+        for s in c["streams"]["listeners"]:
+            s["map_mode"] = "dynamic"
+        for s in c["streams"]["talkers"]:
+            s["map_mode"] = "dynamic"
+    p = _variant(CONFIGS["ax7101_8x8"], dyn_everything)
+    try:
+        r = eb.build(p, OUT)
+        ovl = r["overlay"]
+        pout = ovl["stream_ports"]["output"]
+        assert all(q["maps"] == 0 and q["base_map"] == 0 for q in pout)
+        assert all(q.get("map_mode") == "dynamic" for q in pout)
+        assert ovl["descriptor_counts"]["AUDIO_MAP"] == 0
+        assert ovl["audio_maps"] == []
+        with tempfile.TemporaryDirectory() as td:
+            subprocess.run(
+                [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
+                 "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
+                check=True, capture_output=True)
+            svh = open(os.path.join(td, "aecp_aem_rom.svh")).read()
+        assert "`define AEM_ODYNMAP" in svh
+        assert "localparam int unsigned AEM_ODMAP_NPORTS_C = 8;" in svh
+        assert "localparam int unsigned AEM_ODMAP_KEYS_C   = 64;" in svh
+        assert "AEM_ODMAP_PSTR_C [0:7] = '{0, 1, 2, 3, 4, 5, 6, 7}" in svh
+        assert "AEM_ODMAP_SLOTB_C [0:7] = '{0, 4, 8, 12, 16, 20, 24, 28}" \
+            in svh
+        # the ship identity is the LOOPBACK lane (primary_role: the AX has
+        # no physical audio) - port 0's first identity template must be a
+        # LOOP source: {valid, half=0, src=5, idxh=0, idx=0} = 13'h1500
+        assert "13'h1500" in svh, "no loopback L-half template emitted"
+        print("  [gate 17d] ax7101_8x8 ALL streams dynamic: 8 output ports "
+              "n_maps=0, zero AUDIO_MAPs, `AEM_ODYNMAP keys=64 slotb "
+              "0..28, loopback identity templates emitted")
+    finally:
+        os.unlink(p)
+
     def dyn_page_static(c):
         c["streams"]["listeners"][0]["map_page"] = 4
     for label, mutate, needle in (
-            ("talker dynamic", dyn_talker, "listener stream ports only"),
-            ("map_page without dynamic", dyn_page_static, "map_mode dynamic")):
+            ("map_page without dynamic", dyn_page_static, "map_mode dynamic"),):
         p = _variant(CONFIGS["arty_current"], mutate)
         try:
             try:
@@ -1370,9 +1407,8 @@ def test_dynamic_audio_map_overlay():
             raise AssertionError("split map_page: accepted")
     finally:
         os.unlink(p)
-    print("  [gate 17] reject paths: talker map_mode dynamic, stray "
-          "map_page, and disagreeing map_page across dynamic listeners "
-          "all raise ConfigError")
+    print("  [gate 17] reject paths: stray map_page and disagreeing "
+          "map_page across dynamic listeners raise ConfigError")
 
 
 MILAN_CSR_SV = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")

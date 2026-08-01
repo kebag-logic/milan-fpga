@@ -108,6 +108,9 @@ run: $(GEN)
 	python3 gen_dynmap2_shape.py dynmap2_inc
 	$(VERILATOR) -Idynmap2_inc $(VFLAGS) --Mdir obj_dynmap2 \
 	  $(SRCS) sim_dynmap2.cpp -o Vaecp_dynmap2 # -Idynmap2_inc shadows gen/
+	python3 gen_odmap_shape.py odmap_inc
+	$(VERILATOR) -Iodmap_inc $(VFLAGS) --Mdir obj_odmap \
+	  $(SRCS) sim_odmap.cpp -o Vaecp_odmap     # dynamic STREAM_PORT_OUTPUTs
 	@echo "======================================================================"
 	./obj_dir/Vaecp_sim
 	./obj_fmt2/Vaecp_fmt2
@@ -117,6 +120,7 @@ run: $(GEN)
 	./obj_amap/Vaecp_amap
 	./obj_pools/Vaecp_pools
 	./obj_dynmap2/Vaecp_dynmap2
+	./obj_odmap/Vaecp_odmap
 
 $(GEN):
 	cd ../../.. && python3 avdecc/gen_aem_store.py
@@ -133,4 +137,4 @@ cosim: $(GEN)
 clean:
 	rm -rf obj_dir obj_fmt2 fmt2_inc obj_fmt4 fmt4_inc obj_dynmap dynmap_inc
 	rm -rf obj_nxn obj_amap smap8_inc
-	rm -rf obj_pools pools_inc obj_dynmap2 dynmap2_inc
+	rm -rf obj_pools pools_inc obj_dynmap2 dynmap2_inc obj_odmap odmap_inc
