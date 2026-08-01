@@ -25,7 +25,7 @@ Tally: 35 PASS / 0 FAIL / 1 SKIP / 4 BLOCKED.
 | `qemu.riscv32` | **PASS** | QEMU emulator version 11.0.3 |
 | `qemu.riscv64` | **PASS** | QEMU emulator version 11.0.3 |
 | `tsn-gen` | **PASS** | /home/alex/tsn-gen |
-| `sim.cached-model` | **PASS** | 28609720 B |
+| `sim.cached-model` | **PASS** | 28620528 B |
 | `ma2.driver` | **PASS** | 3653 B |
 | `verilator.threads` | **PASS** | VERILATOR_THREADS=(unset - single-threaded, the proven M-A2 path) |
 
@@ -58,7 +58,7 @@ Tally: 35 PASS / 0 FAIL / 1 SKIP / 4 BLOCKED.
 | `t3.cosim.header` | **PASS** | 5397 B |
 | `t3.cosim.driver` | **PASS** | 11362 B |
 | `t3.dut-sim` | **PASS** | 1238 B |
-| `t3.datapath.rtl` | **PASS** | 230717 B |
+| `t3.datapath.rtl` | **PASS** | 231020 B |
 | `t3.dpi.present` | **SKIP** | no DPI-C in hdl/ or tb/ (bridges are --exe C++ over UNIX sockets); --threads-dpi is a no-op until T3 adds one |
 | `t3.rv32.opensbi` | **PASS** | 265004 B |
 | `t3.bridge` | **BLOCKED** | socket/chardev bridge between the two verilated nodes not built yet |
