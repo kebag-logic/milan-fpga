@@ -2199,6 +2199,126 @@ int main(int argc, char** argv) {
         ck("[27] deregistered -> queue drained silent", r.size(), 0);
     }
 
+    // ---------------------------------------------------------------- //
+    // 28. DECIDE_S resolve/dispatch cycle contract                      //
+    //                                                                    //
+    // The descriptor directory (KL_aecp_accessor) and the name directory //
+    // (aem_name_lookup) are LINEAR SCANS over the entity image, and both //
+    // are resolved into registers by a DECIDE_S phase that runs one      //
+    // cycle BEFORE the dispatch reads them. That split is only sound if  //
+    // the resolve phase runs again for EVERY dispatch - including the    //
+    // second and later entries into DECIDE_S, which the 0x4B batch walk  //
+    // and the u=1 replay both produce.                                   //
+    //                                                                    //
+    // The invariant asserted here is predecessor-independence: a command //
+    // answer is a function of THAT command, never of the one before it.  //
+    // A resolve phase that is skipped on re-entry serves the PREVIOUS    //
+    // command's base/length/name pointer, which is exactly what these    //
+    // A-then-B / B-then-A pairs make visible. Expectations are the DUT's //
+    // own isolated answer, never a restated constant.                    //
+    // ---------------------------------------------------------------- //
+    printf("\n[28] DECIDE_S resolves once per dispatch\n");
+    {
+        uint16_t sq = 0x2800;
+        auto rd = [&](uint16_t t, uint16_t i) {
+            std::vector<uint8_t> pl; put_be16(pl, 0); put_be16(pl, 0);
+            put_be16(pl, t); put_be16(pl, i);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, sq++, pl));
+            return collect_resp();
+        };
+        auto gname = [&](uint16_t t, uint16_t i) {
+            std::vector<uint8_t> pl; put_be16(pl, t); put_be16(pl, i);
+            put_be16(pl, 0); put_be16(pl, 0);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 17, sq++, pl));
+            return collect_resp();
+        };
+        // neutral predecessor: ENTITY_AVAILABLE consults no directory
+        auto avail = [&]() {
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0, sq++, {}));
+            (void)collect_resp();
+        };
+        const uint16_t D_ENTITY = 0x0000, D_AUDIO_UNIT = 0x0002;
+        const uint16_t D_STREAM_OUT = 0x0006;
+
+        // Compare two answers ignoring only the fields that are ALLOWED to
+        // differ between two commands: the echoed sequence_id (wire 34-35).
+        // Everything else - status, cdl, descriptor image, frame length - is
+        // the oracle's product and must be identical.
+        auto same_answer = [](const std::vector<uint8_t>& a,
+                              const std::vector<uint8_t>& b) {
+            if (a.size() != b.size() || a.size() < 36) return 0L;
+            for (size_t i = 14; i < a.size(); i++)
+                if (i != 34 && i != 35 && a[i] != b[i]) return 0L;
+            return 1L;
+        };
+
+        // reference answers, each taken after the neutral command
+        avail(); auto ref_au   = rd(D_AUDIO_UNIT, 0);
+        avail(); auto ref_ent  = rd(D_ENTITY, 0);
+        avail(); auto ref_nm   = gname(D_AUDIO_UNIT, 0);
+        ck("[28] AUDIO_UNIT reference served", r_status(ref_au), 0);
+        ck("[28] ENTITY reference served", r_status(ref_ent), 0);
+        ck("[28] GET_NAME reference served", r_status(ref_nm), 0);
+        ck("[28] the two descriptors differ", same_answer(ref_au, ref_ent), 0);
+
+        // (a) after a DIFFERENT served descriptor - a carried-over base or
+        //     length would return the wrong descriptor's bytes/size
+        rd(D_ENTITY, 0);
+        ck("[28a] AUDIO_UNIT after ENTITY is unchanged",
+           same_answer(rd(D_AUDIO_UNIT, 0), ref_au), 1);
+
+        // (b) after an ABSENT descriptor - a carried-over not-found would
+        //     refuse a descriptor the directory does hold
+        auto absent = rd(D_STREAM_OUT, 0x0009);
+        ck("[28b] absent index -> NO_SUCH_DESCRIPTOR", r_status(absent), 2);
+        ck("[28b] AUDIO_UNIT after an absent read is unchanged",
+           same_answer(rd(D_AUDIO_UNIT, 0), ref_au), 1);
+
+        // (c) and the reverse: a carried-over FOUND would serve a descriptor
+        //     that is not there
+        rd(D_ENTITY, 0);
+        ck("[28c] absent after served still refused",
+           same_answer(rd(D_STREAM_OUT, 0x0009), absent), 1);
+
+        // (d) the NAME directory is a second scan on the same phase
+        gname(D_ENTITY, 0);
+        ck("[28d] GET_NAME after another descriptor is unchanged",
+           same_answer(gname(D_AUDIO_UNIT, 0), ref_nm), 1);
+
+        // (e) EMIT echo cadence: a batch record's echo is addressed from the
+        //     registered echo address (ec_addr_q = emit-phase-1 capture of
+        //     seg addr + offset + the record's virtual base). Two legal but
+        //     UNIMPLEMENTED records echo their own request data, so a shifted
+        //     or stale echo address shows up as a record carrying its
+        //     neighbour's bytes - or its own off by one. A served record
+        //     leads, so the batch itself still concludes SUCCESS.
+        {
+            const std::vector<uint8_t> d0 = {0xA0,0xA1,0xA2,0xA3};
+            const std::vector<uint8_t> d1 = {0xB0,0xB1,0xB2,0xB3};
+            std::vector<uint8_t> bp;
+            auto rec = [&](uint16_t cmd, const std::vector<uint8_t>& data) {
+                put_be16(bp, (uint16_t)data.size()); put_be16(bp, 0);
+                bp.push_back(0); bp.push_back(0); put_be16(bp, cmd);
+                bp.insert(bp.end(), data.begin(), data.end());
+            };
+            rec(7,  {});            // GET_CONFIGURATION   (implemented)
+            rec(19, d0);            // GET_ASSOCIATION_ID  (fixed-size, unimpl)
+            rec(29, d1);            // GET_SIGNAL_SELECTOR (fixed-size, unimpl)
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, sq++, bp));
+            auto b = collect_resp();
+            ck("[28e] echo batch SUCCESS", r_status(b), 0);
+            // walk the record headers rather than restating their offsets
+            int off = 38;
+            auto skip = [&]() { off += 8 + (((int)b[off] << 8) | b[off+1]); };
+            skip();                                     // past GET_CONFIGURATION
+            ck("[28e] record 1 is the echo record", (long)b[off+7], 19);
+            ckbytes("[28e] record 1 echoes its own data", b, off + 8, d0);
+            skip();
+            ck("[28e] record 2 is the echo record", (long)b[off+7], 29);
+            ckbytes("[28e] record 2 echoes its own data", b, off + 8, d1);
+        }
+    }
+
     // counters
     printf("\n[counters] cmd=%u resp=%u\n", dut->cmd_count_o, dut->resp_count_o);
     ck("cmd_count >= 14", dut->cmd_count_o >= 14, 1);

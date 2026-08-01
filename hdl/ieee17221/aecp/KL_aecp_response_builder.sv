@@ -451,6 +451,38 @@ module KL_aecp_response_builder (
   wire [16:0] w_name_ptr =
       aem_name_lookup(w_gs_type, w_gs_index, w_name_idx);   //! {valid, wb addr}
 
+  // ------------------------------------------------------------------ //
+  // REGISTERED directory oracles (AX 100 MHz WNS -0.384, 157 endpoints). //
+  //                                                                      //
+  // Both lookups above are LINEAR SCANS over the generated entity image  //
+  // - AEM_DESC_N_C is 252 on the 8x8 ship shape - and both were being    //
+  // evaluated INSIDE the DECIDE_S dispatch. The measured cone was one    //
+  // unbroken 14-16 level path: cw0_r (descriptor_type/index bytes) ->    //
+  // acc_type mux -> the 252-entry type/index match tree -> acc_found /   //
+  // acc_base -> the ~40-arm case -> status_q, wb_addr_q/wb_src_q enables //
+  // and const_q. EIGHT of the ten worst paths on the board shared its    //
+  // first nine levels, which is why this one cut moves the bulk of TNS.  //
+  //                                                                      //
+  // DECIDE_S therefore runs TWO phases (same shape the EMIT_ADDR_S       //
+  // re-time uses): phase 0 RESOLVES the oracles into these registers and //
+  // does nothing else; phase 1 is the unchanged dispatch, reading the    //
+  // registers. Splitting there is coherent because every oracle input    //
+  // (cw0_r/cw3_r, hdr_q, vu_q) is latched BEFORE DECIDE_S is entered and //
+  // nothing inside DECIDE_S writes one: s_axis_tready is low in DECIDE_S //
+  // so no beat can land, hdr_q is captured in IDLE_S/CAPTURE_S, and the  //
+  // batch record's virtual arg window is loaded in BREC_SETUP_S phase 4  //
+  // (the last write before its state_r <= DECIDE_S). One extra cycle per //
+  // command - free at AECP command pace, microseconds apart.             //
+  //                                                                      //
+  // Invariant: every entry into DECIDE_S arrives with dc_ph_r == 0. It   //
+  // is SET only in phase 0 and CLEARED unconditionally in phase 1, so a  //
+  // dispatch arm that re-enters DECIDE_S still starts at phase 0.        //
+  logic        dc_ph_r;       //! DECIDE_S phase (0 = resolve, 1 = dispatch)
+  logic        acc_found_q;   //! registered KL_aecp_accessor found_o
+  logic [15:0] acc_base_q;    //! ...base_o
+  logic [15:0] acc_len_q;     //! ...len_o
+  logic [16:0] name_ptr_q;    //! registered aem_name_lookup {valid, wb addr}
+
   //! A SET_SAMPLING_RATE is accepted iff the rate is one this entity actually
   //! ADVERTISES, so the check must range over the generated table, not over a
   //! hardcoded three. It read AEM_RATES_C[0], [1] and [2] literally, which was
@@ -1029,7 +1061,8 @@ module KL_aecp_response_builder (
       DMAP_SCAN_S:  cbuf_raddr = 9'(16'd10 + {7'd0, dmi_r, 3'd0}
                                    + {13'd0, dmph_r[2:0]});
 `endif
-      default:      cbuf_raddr = w_eaddr;    //! EMIT_DATA_S SEG_ECHO
+      default:      cbuf_raddr = ec_addr_q;  //! EMIT_DATA_S SEG_ECHO
+                                             //! (registered w_eaddr, ph1)
     endcase
   end
   wire [63:0] cbuf_rword_w = cbuf_r[cbuf_raddr[8:3]];
@@ -1149,6 +1182,14 @@ module KL_aecp_response_builder (
   //! from phase 0).
   logic        ea_ph_r;
   logic [15:0] st_addr_q;
+  //! ...and the matching ECHO read address. The capture-RAM read was still
+  //! combinational off w_eaddr, so a batch response paid
+  //! brec_abase_q -> 9-bit adder -> cbuf LUTRAM -> byte mux -> pack_r in
+  //! ONE cycle (AX 100 MHz -0.298, the second-worst cone on the board).
+  //! Phase 1 registers the sum - by then emseg_addr_r/emsoff_r hold phase
+  //! 0's resolution - and EMIT_DATA_S addresses the RAM from the register,
+  //! so the echo byte lands on the SAME cycle it always did.
+  logic [8:0]  ec_addr_q;
 
   //! meta-FIFO pop bookkeeping: pops can be requested by a concluded
   //! response AND an asynchronously dropped frame in the same cycle
@@ -1605,7 +1646,7 @@ module KL_aecp_response_builder (
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n) begin
       state_r      <= IDLE_S;
-      beat_r       <= 5'd0;
+      beat_r       <= 7'd0;   //! beat_r is [6:0] - reset it at its own width
       discard_q    <= 1'b0;
       vu_q         <= 1'b0;
       hdr_q        <= '0;
@@ -1624,6 +1665,12 @@ module KL_aecp_response_builder (
       emsoff_r     <= 16'd0;
       ea_ph_r      <= 1'b0;
       st_addr_q    <= 16'd0;
+      ec_addr_q    <= 9'd0;
+      dc_ph_r      <= 1'b0;
+      acc_found_q  <= 1'b0;
+      acc_base_q   <= 16'd0;
+      acc_len_q    <= 16'd0;
+      name_ptr_q   <= 17'd0;
       pack_r       <= 64'd0;
       pack_n_r     <= 3'd0;
       beat_pend_r  <= 1'b0;
@@ -2104,6 +2151,21 @@ module KL_aecp_response_builder (
 
         // ---------------------------------------------------------- //
         DECIDE_S: begin
+          if (!dc_ph_r) begin
+          // Phase 0: RESOLVE the directory oracles into registers and do
+          // nothing else (see the declaration block for why the split is
+          // coherent). The dispatch below reads acc_*_q / name_ptr_q only,
+          // so the 252-entry scans never appear in the same cone as the
+          // ~40-arm case that drives status_q / wb_* / const_q.
+          acc_found_q <= acc_found;
+          acc_base_q  <= acc_base;
+          acc_len_q   <= acc_len;
+          name_ptr_q  <= w_name_ptr;
+          dc_ph_r     <= 1'b1;
+          end else begin
+          // Phase 1: the dispatch. Cleared unconditionally, so an arm that
+          // re-enters DECIDE_S still resolves before it dispatches.
+          dc_ph_r <= 1'b0;
           // defaults: NOT_IMPLEMENTED echo of the command payload
           for (int s = 0; s < SEGN_C; s++) begin
             seg_kind_q[s] <= SEG_NONE; seg_addr_q[s] <= 16'd0; seg_len_q[s] <= 16'd0;
@@ -2241,13 +2303,13 @@ module KL_aecp_response_builder (
 
               // -------------------------------------------------- //
               CMD_READ_DESCRIPTOR: begin
-                if (acc_found && w_rd_cfg == 16'd0) begin
+                if (acc_found_q && w_rd_cfg == 16'd0) begin
                   status_q      <= STATUS_SUCCESS;
                   seg_kind_q[0] <= SEG_CONST; seg_addr_q[0] <= 16'd16; seg_len_q[0] <= 16'd4;
                   const_q[16] <= w_b2; const_q[17] <= w_b3;   // cfg echo
                   const_q[18] <= 8'h00;    const_q[19] <= 8'h00;      // reserved
-                  seg_kind_q[1] <= SEG_STORE; seg_addr_q[1] <= acc_base; seg_len_q[1] <= acc_len;
-                  cdl_q <= 11'(16 + (32)'(acc_len));
+                  seg_kind_q[1] <= SEG_STORE; seg_addr_q[1] <= acc_base_q; seg_len_q[1] <= acc_len_q;
+                  cdl_q <= 11'(16 + (32)'(acc_len_q));
                 end else begin
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd8;
@@ -2282,10 +2344,10 @@ module KL_aecp_response_builder (
               //! lengths agree at 72.
               CMD_GET_NAME, CMD_SET_NAME: begin
                 cdl_q <= 11'd84;   // 12 + 8 + 64
-                if (l0_reject_q || !acc_found || w_name_cfg != 16'd0 ||
-                    !w_name_ptr[16]) begin
+                if (l0_reject_q || !acc_found_q || w_name_cfg != 16'd0 ||
+                    !name_ptr_q[16]) begin
                   status_q      <= l0_reject_q ? l0_status_q
-                                 : acc_found   ? STATUS_BAD_ARGUMENTS
+                                 : acc_found_q ? STATUS_BAD_ARGUMENTS
                                                : STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0]  <= (hdr_q.command_type == CMD_SET_NAME)
                                    ? 16'd72 : 16'd8;
@@ -2296,10 +2358,10 @@ module KL_aecp_response_builder (
                   status_q      <= STATUS_SUCCESS;
                   seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd8;
                   seg_kind_q[1] <= SEG_STORE;
-                  seg_addr_q[1] <= w_name_ptr[15:0];
+                  seg_addr_q[1] <= name_ptr_q[15:0];
                   seg_len_q[1]  <= 16'd64;
                   if (hdr_q.command_type == CMD_SET_NAME) begin
-                    wb_addr_q <= w_name_ptr[15:0];
+                    wb_addr_q <= name_ptr_q[15:0];
                     wb_len_q  <= 7'd64;
                     wb_src_q  <= 7'd10;
                   end
@@ -2812,14 +2874,14 @@ module KL_aecp_response_builder (
                 //! size first, unconditionally: every exit below is 68
                 cdl_q         <= 11'd68;   // 12 + 4+4+8+40
                 seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2;  seg_len_q[0] <= 16'd4;
-                if (w_si_is_stream && acc_found) begin
+                if (w_si_is_stream && acc_found_q) begin
                   // D1: served iff the DIRECTORY has it — the same oracle
                   // READ_DESCRIPTOR uses, so the two commands cannot
                   // disagree about which descriptors exist.
                   status_q      <= STATUS_SUCCESS;
                   seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd4;
                   seg_kind_q[2] <= SEG_STORE;
-                  seg_addr_q[2] <= acc_base + STREAM_CUR_FMT_OFF_C;
+                  seg_addr_q[2] <= acc_base_q + STREAM_CUR_FMT_OFF_C;
                   seg_len_q[2]  <= 16'd8;
                   seg_kind_q[3] <= SEG_CONST; seg_addr_q[3] <= 16'd8;  seg_len_q[3] <= 16'd40;
                   if (w_gs_type == DESC_STREAM_OUTPUT) begin
@@ -2988,7 +3050,7 @@ module KL_aecp_response_builder (
                 seg_kind_q[2] <= SEG_NONE;  seg_addr_q[2] <= 16'd0; seg_len_q[2] <= 16'd104;
                 for (int k = 0; k < 28; k++) const_q[k] <= 8'h00;
                 cdl_q <= 11'd148;   // 12 + 136
-                if (w_gs_type == DESC_STREAM_OUTPUT && acc_found) begin
+                if (w_gs_type == DESC_STREAM_OUTPUT && acc_found_q) begin
                   //! Milan Table 5.17, per 5.4.2.25 "implement and return"
                   //! FOR EACH Stream Output: every directory-served index
                   //! (the CRF Media Clock Output included) answers its own
@@ -3027,7 +3089,7 @@ module KL_aecp_response_builder (
                     const_q[4+k] <= in0_cnt_locked_i  [8*(3-k) +: 8];  // bit0
                     const_q[8+k] <= in0_cnt_unlocked_i[8*(3-k) +: 8];  // bit1
                   end
-                end else if (w_gs_type == DESC_STREAM_INPUT && acc_found
+                end else if (w_gs_type == DESC_STREAM_INPUT && acc_found_q
                              && w_gs_index < n_aaf_sinks_i) begin
                   // EVERY AAF sink: its own live monitor context out of the
                   // all-stream mirror (Milan Table 5.16, per 5.4.2.25).
@@ -3037,7 +3099,7 @@ module KL_aecp_response_builder (
                   seg_len_q[1] <= 16'd52;
                   seg_len_q[2] <= 16'd80;
                   load_input_counters_consts;
-                end else if (w_gs_type == DESC_STREAM_INPUT && acc_found) begin
+                end else if (w_gs_type == DESC_STREAM_INPUT && acc_found_q) begin
                   //! The CRF Media Clock Input (index >= n_aaf_sinks_i):
                   //! it answered SUCCESS + the truthful EMPTY mask until
                   //! 2026-07-29, but Milan 5.3.8.10 keeps counters "for
@@ -3061,7 +3123,7 @@ module KL_aecp_response_builder (
                   //! implement none -> empty mask, full-size payload (the
                   //! 07-11 field report: size matters on every status).
                   status_q <= STATUS_SUCCESS;
-                end else if (acc_found) begin
+                end else if (acc_found_q) begin
                   status_q <= STATUS_BAD_ARGUMENTS;      // descriptor w/o counters
                 end else begin
                   status_q <= STATUS_NO_SUCH_DESCRIPTOR;
@@ -3097,7 +3159,7 @@ module KL_aecp_response_builder (
               // ADDRESSED INDEX's entry of the same per-STREAM_OUTPUT
               // presentation-offset file SET_STREAM_INFO(ACC_LAT) drives —
               // one source of truth per talker for its framer's timestamp
-              // offset. The directory oracle (acc_found) bounds the index
+              // offset. The directory oracle (acc_found_q) bounds the index
               // exactly as GET_STREAM_INFO's D1 rule; until 2026-07-29 any
               // index != 0 was hard-rejected while READ_DESCRIPTOR served
               // it, and one global register backed every talker.
@@ -3106,7 +3168,7 @@ module KL_aecp_response_builder (
                 if (l0_reject_q) begin
                   status_q     <= l0_status_q;
                   seg_len_q[0] <= 16'd12;
-                end else if (w_gs_type != DESC_STREAM_OUTPUT || !acc_found) begin
+                end else if (w_gs_type != DESC_STREAM_OUTPUT || !acc_found_q) begin
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd12;
                 end else if (hdr_q.command_type == CMD_SET_MAX_TRANSIT_TIME &&
@@ -3233,6 +3295,7 @@ module KL_aecp_response_builder (
               default: ;   // NOT_IMPLEMENTED echo (defaults above)
             endcase
           end
+          end
         end
 
         // ---------------------------------------------------------- //
@@ -3293,8 +3356,11 @@ module KL_aecp_response_builder (
           st_addr_q    <= seg_addr_q[w_seg] + w_soff;
           ea_ph_r      <= 1'b1;
           end else begin
-          // Phase 1: the store read issues from st_addr_q (w_emit_store);
-          // its data lands on EMIT_DATA_S, as the combinational shape did.
+          // Phase 1: the store read issues from st_addr_q (w_emit_store)
+          // and the ECHO read address is registered from the phase-0
+          // resolution; both land their byte on EMIT_DATA_S, as the
+          // combinational shape did.
+          ec_addr_q <= w_eaddr;
           ea_ph_r <= 1'b0;
           state_r <= EMIT_DATA_S;
           end
