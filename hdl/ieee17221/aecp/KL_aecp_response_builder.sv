@@ -933,19 +933,27 @@ module KL_aecp_response_builder (
       end
   end
 
-  //! Store READ port is COMBINATIONAL: presenting the address in EMIT_ADDR_S
-  //! (and holding it through EMIT_DATA_S) gives 1-cycle data latency that lands
-  //! exactly on EMIT_DATA_S. A registered address would add a second cycle and
-  //! deliver a stale byte. The write port stays registered (WRITE_S).
-  wire w_emit_store = (state_r == EMIT_ADDR_S || state_r == EMIT_DATA_S) &&
-                      (fi_r >= w_hdr_len) && (seg_kind_q[w_seg] == SEG_STORE);
+  //! Store READ address is REGISTERED (AX 100 MHz WNS -0.124: batch_q ->
+  //! segment walk -> store-address adder reached the BRAM address port in
+  //! one combinational cone). EMIT_ADDR_S runs TWO phases: phase 0 resolves
+  //! the byte source and registers the store address (st_addr_q, below with
+  //! the emit pipeline registers); phase 1 issues the store read from that
+  //! register, so the 1-cycle data latency lands exactly on EMIT_DATA_S -
+  //! the same landing cycle as the old combinational shape, one address
+  //! cycle earlier. Emit costs 3 cycles per byte instead of 2, free at
+  //! command pace. The qualifier terms come from the phase-0 registers too
+  //! (!is_hdr_r <=> fi_r >= w_hdr_len, emseg_kind_r <=> seg_kind_q[w_seg]),
+  //! so the read enable is register-shallow as well.
+  wire w_emit_store = (state_r == EMIT_ADDR_S) && ea_ph_r &&
+                      !is_hdr_r && (emseg_kind_r == SEG_STORE);
   //! WRITE_S phase-0 read of the OLD byte (nochg detection: a SET whose
   //! writeback changes nothing suppresses the u=1 replay - the 1722.1
   //! unsolicited rule notifies STATE CHANGES; generalizes the es-4.5
-  //! SET_STREAM_INFO case to every store-writeback SET)
+  //! SET_STREAM_INFO case to every store-writeback SET). Its address stays
+  //! combinational: wb_addr_q + wb_cnt_r is a single register-fed adder.
   wire w_wb_read = (state_r == WRITE_S) && (wb_len_q != 7'd0) && !wbp_r;
   assign st_addr_o = w_wb_read ? (wb_addr_q + 16'(wb_cnt_r))
-                               : seg_addr_q[w_seg] + w_soff;
+                               : st_addr_q;
   assign st_rd_o   = w_emit_store || w_wb_read;
 
   // byte -> beat packer
@@ -992,6 +1000,14 @@ module KL_aecp_response_builder (
   seg_kind_t   emseg_kind_r;
   logic [15:0] emseg_addr_r;
   logic [15:0] emsoff_r;
+  //! EMIT_ADDR_S phase bit (0 = resolve+register, 1 = store read issue) and
+  //! the registered emit-path store address it decouples from the BRAM.
+  //! Invariant: every entry into EMIT_ADDR_S arrives with ea_ph_r == 0 -
+  //! it is set only in phase 0 and cleared on phase 1's single exit, and
+  //! the EMIT loop has no other way out (the batch record branches leave
+  //! from phase 0).
+  logic        ea_ph_r;
+  logic [15:0] st_addr_q;
 
   //! meta-FIFO pop bookkeeping: pops can be requested by a concluded
   //! response AND an asynchronously dropped frame in the same cycle
@@ -1419,6 +1435,8 @@ module KL_aecp_response_builder (
       emseg_kind_r <= SEG_NONE;
       emseg_addr_r <= 16'd0;
       emsoff_r     <= 16'd0;
+      ea_ph_r      <= 1'b0;
+      st_addr_q    <= 16'd0;
       pack_r       <= 64'd0;
       pack_n_r     <= 3'd0;
       beat_pend_r  <= 1'b0;
@@ -2859,9 +2877,11 @@ module KL_aecp_response_builder (
         end
 
         // ---------------------------------------------------------- //
-        // Byte engine, 2-cycle cadence:                                //
-        //   EMIT_ADDR: resolve the byte source; issue store read       //
-        //   EMIT_DATA: capture the byte, feed the beat packer          //
+        // Byte engine, 3-cycle cadence:                                //
+        //   EMIT_ADDR ph0: resolve the byte source; REGISTER the       //
+        //                  store address (st_addr_q)                   //
+        //   EMIT_ADDR ph1: issue the store read from the register      //
+        //   EMIT_DATA:     capture the byte, feed the beat packer      //
         // ---------------------------------------------------------- //
         EMIT_ADDR_S: begin
           if (batch_q && fi_r == w_hdr_len + brec_base_q - 16'd8) begin
@@ -2876,17 +2896,23 @@ module KL_aecp_response_builder (
             brec_ph_r   <= 3'd7;
             bsub_q      <= 1'b0;
             state_r     <= BREC_SETUP_S;
-          end else begin
-          // Resolve + REGISTER the byte source for fi_r (the store read addr/
-          // enable are driven combinationally via w_emit_store, so store data
-          // lands next cycle). This moves the deep fi->{offset arithmetic,
-          // header positional mux} cone off the path into pack_r.
+          end else if (!ea_ph_r) begin
+          // Phase 0: resolve + REGISTER the byte source for fi_r AND the
+          // store read address. Nothing is issued to the store this cycle -
+          // the deep batch_q -> w_pi -> segment walk -> adder cone now
+          // terminates in st_addr_q, never the BRAM address port.
           is_hdr_r     <= (fi_r < w_hdr_len);
           hdrbyte_r    <= hdr_byte(fi_r);
           emseg_kind_r <= seg_kind_q[w_seg];
           emseg_addr_r <= seg_addr_q[w_seg];
           emsoff_r     <= w_soff;
-          state_r      <= EMIT_DATA_S;
+          st_addr_q    <= seg_addr_q[w_seg] + w_soff;
+          ea_ph_r      <= 1'b1;
+          end else begin
+          // Phase 1: the store read issues from st_addr_q (w_emit_store);
+          // its data lands on EMIT_DATA_S, as the combinational shape did.
+          ea_ph_r <= 1'b0;
+          state_r <= EMIT_DATA_S;
           end
         end
 
