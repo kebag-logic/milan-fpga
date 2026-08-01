@@ -5363,6 +5363,10 @@ def main():
                          "AreaOptimized_high for the AREA-70 density flow).")
     ap.add_argument("--opt-directive", default=None,
                     help="override the Vivado opt_design directive (e.g. ExploreArea).")
+    ap.add_argument("--route-directive", default=None,
+                    help="override the Vivado route_design directive (e.g. "
+                         "AlternateCLBRouting when routing dies on node overlaps "
+                         "at high fill; --timing-opt alone pins AggressiveExplore).")
     ap.add_argument("--area-flow", action="store_true",
                     help="AREA-70 density flow: synth AreaOptimized_high + opt "
                          "ExploreArea + a second opt_design -control_set_merge "
@@ -5529,6 +5533,8 @@ def main():
         build_kwargs["vivado_synth_directive"] = args.synth_directive
     if args.opt_directive:
         build_kwargs["vivado_opt_directive"] = args.opt_directive
+    if args.route_directive:
+        build_kwargs["vivado_route_directive"] = args.route_directive
     if args.area_flow:
         build_kwargs.setdefault("vivado_synth_directive", "AreaOptimized_high")
         build_kwargs.setdefault("vivado_opt_directive", "ExploreArea")
