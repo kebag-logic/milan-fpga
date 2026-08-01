@@ -1466,16 +1466,27 @@ def _pair_steps(prefix, area, tk: Device, ti: int, ls: Device, li: int,
     if fmt and not crf:
         steps.append(Step(
             sid + ".set-format", area, "set_format",
+            #: the talker identity rides along so the RUNNER can read the
+            #: talker's LIVE STREAM_OUTPUT format at execution time and write
+            #: THAT to the listener; `format` is only the fallback when the
+            #: live read fails.  The device-table tuple is a mirrored
+            #: constant, and mirrored constants rot: the ax-rv32-c/-d
+            #: out-matrix was refused end to end because the --dut spec
+            #: inherited the Arty's 4ch formats[0] while the flashed 8x8
+            #: talker (gateware 0x0021 derives its format from the elaborated
+            #: wire width) answers 0205022002006000.
             {"target": ls.entity_id, "target_mac": ls.mac,
-             "descriptor": "stream_input", "index": li, "format": fmt},
+             "descriptor": "stream_input", "index": li, "format": fmt,
+             "talker": tk.entity_id, "talker_mac": tk.mac,
+             "talker_index": ti},
             asserts=(A_FORMAT_READBACK,),
             clause="Milan v1.2 5.5.1.2 - a Controller SHALL make the "
                    "Listener's format match the Talker's before binding; "
                    "refusing the bind instead is the behaviour the USER "
                    "directive forbids",
-            note="listener adapts to the talker; a talker SET may conformantly "
-                 "answer NOT_SUPPORTED because its wire width is an "
-                 "elaboration fact"))
+            note="listener adapts to the talker's LIVE format; a talker SET "
+                 "may conformantly answer NOT_SUPPORTED because its wire "
+                 "width is an elaboration fact"))
     steps.append(Step(
         sid + ".connect", area, "connect",
         {"talker": tk.entity_id, "talker_index": ti, "talker_mac": tk.mac,
