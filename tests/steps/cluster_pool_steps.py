@@ -231,6 +231,16 @@ def step_map_lands_in_pool(context, role):
     for p in m.ports[DESC_STREAM_PORT_OUTPUT]:
         seg = next((g for g in p["pool"] if g["role"] == role), None)
         assert seg, f"talker port {p['index']} has no {role} pool"
+        if p["maps"] == 0:
+            # USER 08-01: the ship talkers are map_mode dynamic - the
+            # power-on identity moved from static AUDIO_MAP rows into the
+            # dynamic engine's reset image, whose origin is the PRIMARY
+            # pool segment (builder gate 24a checks the image bytes land
+            # inside it; here the overlay-level fact is the origin itself)
+            assert p["primary_role"] == role, (
+                f"dynamic talker port {p['index']} identity origin "
+                f"{p['primary_role']!r}, expected {role!r}")
+            continue
         amap = m.maps[p["base_map"]]
         for (_, _, off, _) in amap["mappings"]:
             assert seg["offset"] <= off < seg["offset"] + seg["width"], (
@@ -300,6 +310,23 @@ def step_static_posture(context):
                 f"port 0x{dtype:04X}[{idx}] has NO Audio Map, so Milan "
                 "5.4.2.27 REQUIRES ADD_AUDIO_MAPPINGS")
     assert n, "no port with Audio Maps in this shape - nothing was proven"
+
+
+@then('every port serves the dynamic commands (no Audio Maps anywhere)')
+def step_all_dynamic_posture(context):
+    """Milan v1.2 5.4.2.27/28, the other posture (USER 08-01): a fully
+    dynamic shape has NO port that may answer NOT_SUPPORTED - the dynamic
+    commands are a SHALL on every one of its stream ports."""
+    m = context.model
+    assert context.add_status, "no ports were exercised"
+    for (dtype, idx), st in context.add_status.items():
+        port = m.ports[dtype][idx]
+        assert port["maps"] == 0, (
+            f"port 0x{dtype:04X}[{idx}] still has {port['maps']} Audio "
+            "Map(s) in a shape declared fully dynamic")
+        assert st != STATUS_NOT_SUPPORTED, (
+            f"port 0x{dtype:04X}[{idx}] has NO Audio Map, so Milan "
+            "5.4.2.27/28 REQUIRE the dynamic commands")
 
 
 @then('the entity_model_id is {eid}')

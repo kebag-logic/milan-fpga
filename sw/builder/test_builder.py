@@ -987,10 +987,14 @@ def test_crf_output_overlay_structure():
         dc = ovl["descriptor_counts"]
         assert dc["STREAM_OUTPUT"] == n + 1
         assert dc["STREAM_PORT_OUTPUT"] == n      # CRF output: NO audio port
-        # ...and no map/cluster growth. Both NxN shapes run map_mode
-        # dynamic on every listener (Milan 5.3.3.9), so only the n talker
-        # ports carry AUDIO_MAP descriptors.
-        assert dc["AUDIO_MAP"] == n
+        # ...and no map/cluster growth. The AUDIO_MAP count is DERIVED
+        # from what the config declares - one descriptor per STATIC port,
+        # zero for dynamic ones (Milan 5.3.3.9 listeners; USER 08-01 made
+        # the ship talkers dynamic too, so ax7101_8x8 carries none at all)
+        cfg_l = eb.load_config(CONFIGS[name])
+        n_static = sum(1 for s in cfg_l["talkers"] + cfg_l["listeners"]
+                       if s.get("map_mode", "static") != "dynamic")
+        assert dc["AUDIO_MAP"] == n_static, (name, dc["AUDIO_MAP"], n_static)
         assert ovl["entity_counts"]["talker_stream_sources"] == n + 1
         # CLOCK_SOURCE set unchanged by the output: 1722.1 7.2.9.2 defines
         # INTERNAL/EXTERNAL/INPUT_STREAM only - internal + N inputs + CRF sink
@@ -3467,14 +3471,37 @@ def test_d8_role_pools():
     assert all(g["role"] != "physical" for p in P_in + P_out for g in p["pool"]), \
         "a board with 0 routed channels must emit NO physical clusters"
     # (b) the primary segment: listeners fall through to host, talkers to
-    #     LOOPBACK - which is the whole point (USER 2026-07-28)
+    #     LOOPBACK - which is the whole point (USER 2026-07-28). Since the
+    #     08-01 flip the ship talkers are map_mode dynamic (no AUDIO_MAP
+    #     descriptors), so the loopback identity now lives in the DYNAMIC
+    #     engine's power-on image (AEM_ODMAP_INIT_C) - same property, read
+    #     from where it moved to.
     assert all(p["primary_role"] == "host" for p in P_in)
     assert all(p["primary_role"] == "loopback" for p in P_out)
     for p in P_out:
-        m = next(m for m in ovl["audio_maps"] if m["index"] == p["base_map"])
         lb = next(g for g in p["pool"] if g["role"] == "loopback")
+        if p["maps"] == 0:
+            continue                    # dynamic port: image checked below
+        m = next(m for m in ovl["audio_maps"] if m["index"] == p["base_map"])
         assert all(lb["offset"] <= off < lb["offset"] + lb["width"]
                    for (_, _, off, _) in m["mappings"]), m
+    if all(p["maps"] == 0 for p in P_out):
+        with tempfile.TemporaryDirectory() as td:
+            subprocess.run(
+                [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
+                 "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
+                check=True, capture_output=True)
+            svh = open(os.path.join(td, "aecp_aem_rom.svh")).read()
+        mi = re.search(r"AEM_ODMAP_INIT_C \[0:(\d+)\] = '\{([^}]*)\}", svh)
+        assert mi, "dynamic ship talkers but no AEM_ODMAP_INIT_C image"
+        vals = [int(v.strip().split("'h")[1], 16)
+                for v in mi.group(2).split(",")]
+        lb = next(g for g in P_out[0]["pool"] if g["role"] == "loopback")
+        assert len(vals) == 8 * len(P_out)
+        for k, v in enumerate(vals):
+            assert v >> 5 == 1, f"identity key {k} not armed"
+            assert lb["offset"] <= (v & 0x1F) < lb["offset"] + lb["width"], \
+                f"identity key {k} cluster {v & 0x1F} outside loopback pool"
     # (c) per-talker DISTINCT loopback sources: talker t defaults to rx
     #     stream t, so eight talkers see eight different sources
     byport = {}
@@ -3713,12 +3740,19 @@ def test_d10_names_reach_the_rom():
          "byte-exact sweep red on all 16 AUDIO_CLUSTER descriptors.")
     for nm in ("I2S Out 0", "Virtual In 7"):
         assert nm.encode() in gbytes, f"golden ROM has no cluster '{nm}'"
-    # and the generated svh must equal the tracked one byte for byte
-    assert g.emit_svh_text(M).encode() == rom, \
-        "tracked aecp_aem_rom.svh is not what this config generates"
-    print("  [gate 24d] role names reach the ROM bytes; the tracked svh AND "
-          "tb/verilator/aecp/aem_golden.h both carry them (the file the "
-          "builder's --write-rtl does NOT write)")
+    # and the tracked svh must equal what ITS OWNER generates - the owner is
+    # READ from the tree (gate 17's rule: never a second answer to "who owns
+    # the tracked ROM"). Hardcoding arty_current here broke the day the
+    # 08-01 flip handed the pair to the ax7101_8x8 ship config.
+    src, owner = ces.tracked_owner(eb, adp_text=open(TRACKED_ADP_SVH).read())
+    assert owner is not None, f"tracked pair names no owner ({src})"
+    ovl_o = eb.build(os.path.join(ROOT, src), OUT)["overlay"]
+    M_o = g.build_model(g.spec_from_overlay(ovl_o))
+    assert g.emit_svh_text(M_o).encode() == rom, \
+        f"tracked aecp_aem_rom.svh is not what its owner ({src}) generates"
+    print(f"  [gate 24d] role names reach the ROM bytes; aem_golden.h "
+          f"matches the harness shape, and the tracked svh matches its "
+          f"OWNER ({owner['name']}) byte for byte")
 
 
 if __name__ == "__main__":

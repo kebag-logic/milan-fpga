@@ -49,11 +49,14 @@ SRC = os.path.join(ROOT, "configs/endstation_ax7101_8x8.yaml")
 with open(SRC) as f:
     cfg = copy.deepcopy(yaml.safe_load(f))
 
-#: the ONE mutation: put the listeners back on static maps. Everything else -
+#: the ONE mutation: put EVERY port back on static maps. Everything else -
 #: stream counts, formats, cluster policy, the CRF output - stays exactly as
 #: the shipped 8x8 declares it, so the shape under test is the ship shape in
-#: every respect that matters to the serving table.
-for s in cfg["streams"]["listeners"]:
+#: every respect that matters to the serving table. The talkers must revert
+#: WITH the listeners (USER 08-01 made the shipped talkers dynamic too):
+#: a static-input/dynamic-output half-revert is exactly the nonconformant
+#: combination gen_aem_store's 5.3.3.9 guard refuses to build.
+for s in (cfg["streams"]["listeners"] + cfg["streams"]["talkers"]):
     s.pop("map_mode", None)
     s.pop("map_page", None)
 

@@ -22,6 +22,9 @@ ROOT = os.path.dirname(os.path.dirname(HERE))
 
 AEM_ROM_SVH = os.path.join(ROOT, "hdl/ieee17221/aecp/gen/aecp_aem_rom.svh")
 AEM_GOLDEN_H = os.path.join(ROOT, "tb/verilator/aecp/aem_golden.h")
+#: the shape the golden's consumer (the aecp harness) actually compiles
+HARNESS_ROM_SVH = os.path.join(
+    ROOT, "configs/generated/endstation_arty_current/gen/aecp_aem_rom.svh")
 MILAN_CSR_SV = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
 
 ENTITY_DESC = 0x0000
@@ -134,8 +137,22 @@ def step_field_contradicts_rtl(context):
 
 @then('the TB golden image serves the same ENTITY descriptor')
 def step_golden_agrees(context):
+    # The golden's identity follows its CONSUMER (the aecp harness compiles
+    # configs/generated/endstation_arty_current), NOT the tracked pair,
+    # whose owner is whichever config last ran --write-rtl (the ax7101_8x8
+    # ship since 08-01). What this pins is staleness: a VERSION bump that
+    # regenerates the shape but not the golden.
+    h_rom, h_dir = _rom_from_svh(open(HARNESS_ROM_SVH).read())
     g_rom, g_dir = _rom_from_golden(open(AEM_GOLDEN_H).read())
-    assert _descriptor(g_rom, g_dir, ENTITY_DESC, 0) == context.entity_desc, (
-        "tb/verilator/aecp/aem_golden.h is not this ROM's: the aecp TB "
-        "EXCLUDES the ENTITY descriptor from its byte-exact sweep (it "
-        "carries live overlays), so a stale golden is silent there")
+    assert (_descriptor(g_rom, g_dir, ENTITY_DESC, 0)
+            == _descriptor(h_rom, h_dir, ENTITY_DESC, 0)), (
+        "tb/verilator/aecp/aem_golden.h is not the harness shape's: the "
+        "aecp TB EXCLUDES the ENTITY descriptor from its byte-exact sweep "
+        "(it carries live overlays), so a stale golden is silent there")
+    # and the golden's firmware_version is the SAME derived string the
+    # tracked entity serves - one VERSION register, however many shapes
+    base = [b for (t, i, b, _l) in g_dir if (t, i) == (ENTITY_DESC, 0)][0]
+    fld = g_rom[base + FW_OFFSET:base + FW_OFFSET + FW_LEN]
+    want = f"{context.fw_major}.{context.fw_minor}.0"
+    assert fld.split(b"\x00", 1)[0].decode() == want, (
+        f"golden firmware_version != gateware VERSION {want}")

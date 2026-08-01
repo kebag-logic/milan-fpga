@@ -110,6 +110,13 @@ DATAPATH = os.path.join(ROOT, "hdl/milan/milan_datapath.sv")
 CSR = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
 AEM_ROM = os.path.join(ROOT, "hdl/ieee17221/aecp/gen/aecp_aem_rom.svh")
 AEM_GOLDEN = os.path.join(ROOT, "tb/verilator/aecp/aem_golden.h")
+#: the shape the golden's ONE consumer compiles: tb/verilator/aecp's default
+#: VFLAGS put configs/generated/endstation_arty_current FIRST on the include
+#: path, so sim_main byte-compares its READ_DESCRIPTOR wire against THIS
+#: ROM - never against the tracked pair, whose owner is whichever config
+#: last ran --write-rtl (since 08-01 that is the ax7101_8x8 ship config)
+AEM_ROM_GOLDEN_SHAPE = os.path.join(
+    ROOT, "configs/generated/endstation_arty_current/gen/aecp_aem_rom.svh")
 CONFIG_DIR = os.path.join(ROOT, "configs")
 
 # IEEE 1722.1-2021 Table 7.1 descriptor types
@@ -438,11 +445,17 @@ def check_firmware_version(builder):
         ck(f"{what}: firmware_version == the gateware's VERSION",
            s.decode("utf-8", "replace"), want)
 
-    # 3. and the golden is THIS ROM's, not a previous one's. Regenerating the
-    #    ROM without regenerating the golden produces N byte-exact aecp
-    #    failures at the changed offset and nothing else; catching it here
-    #    names the cause instead of leaving it to a suite diff.
-    ck("TB golden image == the tracked AEM ROM", rom_g == rom_t, True)
+    # 3. and the golden is ITS CONSUMER'S ROM, not a previous one's.
+    #    Regenerating the shape without regenerating the golden produces N
+    #    byte-exact aecp failures at the changed offset and nothing else;
+    #    catching it here names the cause. The comparand is the shape
+    #    sim_main COMPILES (the arty_current per-config svh), NOT the
+    #    tracked pair: the tracked owner moved to the ax7101_8x8 ship
+    #    config on 08-01 and the golden's identity never followed the
+    #    owner - it follows the harness include path.
+    rom_c, _ = svh_rom(open(AEM_ROM_GOLDEN_SHAPE).read())
+    ck("TB golden image == the ROM the aecp harness compiles "
+       "(endstation_arty_current)", rom_g == rom_c, True)
 
 
 def _utf8(b):
