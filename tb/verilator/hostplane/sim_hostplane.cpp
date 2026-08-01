@@ -441,7 +441,17 @@ int main(int argc, char** argv) {
     ck("host frames delivered meanwhile (3)", host_frames.size() - hc, 3);
     axi_write(A_STRM_SEL, 0x001);
     snap_and_wait();
-    ck("stream1 FRAMES_RX total 9 (isolated)", axi_read(A_SW_CNT0 + 9 * 4), 9);
+    //! Milan v1.2 Table 5.6: FRAMES_RX counts OBSERVATION INTERVALS with
+    //! traffic (<= 1 s each; LDIAG_IVAL_CYC_P=1024 in this build), so the
+    //! 9 frames of the A/B/C bursts read as 1..9 ticks depending on how
+    //! bursts fall on the tick grid - never more than the frame total.
+    //! The frame-accurate isolation proof is the depkt PDUS attribution,
+    //! which stays per-frame by design.
+    { unsigned long frx = axi_read(A_SW_CNT0 + 9 * 4);
+      ck("stream1 FRAMES_RX interval ticks in 1..9",
+         frx >= 1 && frx <= 9, 1); }
+    ck("stream1 depkt PDUS total 9 (per-frame, isolated)",
+       axi_read(A_SW_PDUS) & 0xFFFF, 9);
     // C3: WHITELIST mode (default_pass=0 + accept entries) - the kernel's
     // non-promisc posture. Station MAC + broadcast + gPTP peer multicast
     // accepted; an unknown unicast dropped; the bound stream keeps flowing
@@ -520,8 +530,9 @@ int main(int argc, char** argv) {
     rxq.push_back(aaf_frame(sidB, 29, 0x66));
     drain();
     ck("taps off: stream data unaffected (2 ring frames)", pcm_frames.size() - pc, 2);
-    ck("taps off: payload byte-exact", pcm_frames[pc].bytes[0] == 0x55
-                                       && pcm_frames[pc + 1].bytes[0] == 0x66, 1);
+    if (pcm_frames.size() - pc == 2)     // guard: a miss must FAIL, not segfault
+        ck("taps off: payload byte-exact", pcm_frames[pc].bytes[0] == 0x55
+                                           && pcm_frames[pc + 1].bytes[0] == 0x66, 1);
     axi_write(A_LTAP_CTRL, 0x2);                 // taps back ON
     uint32_t ltap_r0 = axi_read(A_LTAP_RX_INFO) & 0xFFFF;
     pc = pcm_frames.size();

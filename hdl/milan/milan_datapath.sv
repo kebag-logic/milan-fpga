@@ -151,6 +151,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! Milan Table 5.4 observation interval (KL_talker_diag_ctx), in datapath
   //! clock cycles; the clause bounds it at <= 1 s. TBs shrink it.
   parameter int DIAG_TICK_CYC_P = MILAN_CLK_FREQ_HZ,
+  //! Milan Table 5.6 observation interval (KL_avtp_rx_monitor_ctx, the
+  //! listener side of the same clause), in datapath clock cycles; <= 1 s.
+  //! TBs shrink it so counter checks see interval boundaries.
+  parameter int LDIAG_IVAL_CYC_P = MILAN_CLK_FREQ_HZ,
   parameter int MCSERVO_P = 1,
   //! AAF latency taps (KL_aaf_latency_taps, 696 LUT / 614 FF measured).
   //! PURE INSTRUMENTATION: nothing in the media path reads a tap output -
@@ -3465,7 +3469,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   KL_avtp_rx_monitor_ctx #(
     .N_LISTENERS_P (N_STREAMS),
-    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ)
+    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+    .IVAL_CYC_P    (LDIAG_IVAL_CYC_P)
   ) avtp_rx_monitor (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .match_valid_i  (avtprx_match),

@@ -21,9 +21,12 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(A)/avtp_subtype_pkg.sv \
        ../../../third_party/verilog-axis/rtl/axis_fifo.v \
        avtp_rxmon_wrap.sv
 # NxN lane-A stack (NXN_ARCHITECTURE P1/P2/P3): table + parser + ctx monitor
-# + depacketizer + route at N=4
+# + depacketizer + route at N=4. Scaled clock 100 kHz: 100 ms unlock =
+# 10000 cyc, so the Table 5.6 observation interval (IVAL_CYC_P=2000) fits
+# WELL INSIDE the silence timeout - a flush over one interval must not
+# unlock the stream, exactly like 1 s vs 100 ms at speed.
 NXFLAGS = --cc --exe --build -j 0 --top-module avtp_rxmon_nx_wrap \
-         -GCLK_FREQ_HZ_P=10000 \
+         -GCLK_FREQ_HZ_P=100000 \
          +incdir+$(C) +incdir+$(A) \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-IMPORTSTAR -Wno-CASEINCOMPLETE \

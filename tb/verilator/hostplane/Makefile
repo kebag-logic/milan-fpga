@@ -35,7 +35,13 @@ VFLAGS_COMMON = --cc --exe --build -j 0 \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE \
          -Wno-TIMESCALEMOD \
+         -GLDIAG_IVAL_CYC_P=1024 \
          -CFLAGS "-std=c++17 -O2"
+# LDIAG_IVAL_CYC_P: Milan Table 5.6 observation interval, shrunk from the
+# silicon 1 s (= MILAN_CLK_FREQ_HZ cycles) so listener counter checks can
+# see interval commits in sim time. Observability-only - the semantics
+# under test (N events in one interval move a counter by 1) are identical
+# at any conformant interval length.
 
 # ---- silicon shape (cfg_ax8x8, sw/litex/build.sh -> milan_soc.py; README.md
 #      documents the argv->parameter derivation so drift is visible) --------

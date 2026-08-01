@@ -12,14 +12,36 @@
   Description : Shared NxN STREAM_INPUT diagnostic-counter engine
                 (docs/NXN_ARCHITECTURE.md §1.2/§1.4, phase P2): ONE monitor
                 datapath, N listener contexts in a BRAM-backed context RAM
-                (LCTX). Functional contract per stream = KL_avtp_rx_monitor
-                (the pipewire-extracted Milan Table 7-156 engine): lock on
-                first valid PDU / 8-PDU settle / SEQ_NUM_MISMATCH +
-                STREAM_INTERRUPTED(lost>=2) / 100 ms silence unlock /
-                per-PDU format compare (UNSUPPORTED_FORMAT counts nothing
-                else) / TIMESTAMP_UNCERTAIN / LATE+EARLY / MEDIA_RESET /
-                counter reset ONLY on that stream's not-bound->bound edge
-                [M-5.3.8.10].
+                (LCTX). Per-PDU verdict contract = KL_avtp_rx_monitor
+                (the pipewire-extracted engine): lock on first valid PDU /
+                8-PDU settle / mismatch detect + interrupt(lost>=2) /
+                100 ms silence unlock / per-PDU format compare (a rejected
+                PDU affects nothing else) / counter reset ONLY on that
+                stream's not-bound->bound edge [M-5.3.8.10].
+
+                COUNTER SEMANTICS split per Milan v1.2 Table 5.6, exactly:
+
+                * MEDIA_LOCKED / MEDIA_UNLOCKED / STREAM_INTERRUPTED are
+                  EVENT counters ("incremented each time ...") - they RMW
+                  the RAM at the event, as before.
+                * SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN,
+                  UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP and
+                  FRAMES_RX are OBSERVATION-INTERVAL counters ("incremented
+                  at the end of every observation interval during which
+                  ..."), interval <= 1 s. A per-PDU verdict only SETS a
+                  per-stream seen flag; the interval tick pends the stream
+                  and the walker commits +1 per flagged counter through the
+                  normal serial RMW walk. N frame events inside one
+                  interval therefore move each counter by AT MOST ONE -
+                  the per-frame reading is IEEE 1722.1-2021 Table 7-153's,
+                  not Milan's, and serving it read 8000x high at class A.
+                  The tick derives from CLK_FREQ_HZ_P (IVAL_CYC_P default =
+                  one second, the clause ceiling), the same derivation as
+                  the talker's KL_talker_diag_ctx tick.
+                * a flag set in the tick cycle itself is harvested INTO the
+                  closing interval (the talker-side boundary rule); events
+                  landing between a tick and its drain ride the closing
+                  commit - counted once, one interval early at worst.
 
                 LCTX record (spec §1.4, address {s, word[4:0]}, 32 words):
                   CFG  w0 SID_LO | w1 SID_HI | w2 FMT_LO | w3 FMT_HI
@@ -55,11 +77,15 @@
                     the RENDER stream's (render_sel_i); other streams lock
                     internal-style on the first valid PDU.
 
-                N=1 bit-compat deltas vs KL_avtp_rx_monitor (accepted,
-                TB-gated): pdu_accept_p/dirty_p/counter updates land 2-3
-                cycles later (serial walk); the silence unlock fires on the
-                ms grid (100-101 ms) instead of an exact cycle count. Wire
-                bytes, counter values and CSR semantics are unchanged.
+                N=1 deltas vs KL_avtp_rx_monitor (accepted, TB-gated):
+                pdu_accept_p/dirty_p/counter updates land 2-3 cycles later
+                (serial walk); the silence unlock fires on the ms grid
+                (100-101 ms) instead of an exact cycle count; and the seven
+                Table 5.6 interval counters count INTERVALS here where the
+                flat instrument counts FRAMES (the flat module keeps the
+                1722.1 per-frame reading on purpose - TBs use it as a
+                frame-accurate loop-integrity probe). Wire bytes and accept
+                verdicts are unchanged.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -68,16 +94,23 @@
 
 //! Shared NxN Milan STREAM_INPUT monitor (NXN_ARCHITECTURE §1.2/§1.4, P2):
 //! one engine, N listener contexts in the LCTX RAM (CNT region in Table
-//! 7-157 offset order), serial RMW walk per event, per-stream ms-tick
-//! silence watchdog in flops, stream-0 legacy outputs via write-through
-//! shadows. `pdu_accept_p_o`+`pdu_accept_idx_o` = the depacketizer's
-//! per-stream commit verdict.
+//! 7-157 offset order), serial RMW walk per lock/unlock/interrupt event,
+//! Milan Table 5.6 observation-interval commit for the seven interval
+//! counters (seen flags -> tick -> walk), per-stream ms-tick silence
+//! watchdog in flops, stream-0 legacy outputs via write-through shadows.
+//! `pdu_accept_p_o`+`pdu_accept_idx_o` = the depacketizer's per-stream
+//! commit verdict.
 
 `default_nettype none
 
 module KL_avtp_rx_monitor_ctx #(
   parameter int unsigned N_LISTENERS_P = 1,           //! listener contexts
-  parameter int unsigned CLK_FREQ_HZ_P = 50_000_000   //! for the 1 ms tick
+  parameter int unsigned CLK_FREQ_HZ_P = 50_000_000,  //! for the 1 ms tick
+  //! Milan Table 5.6 observation interval in clk_i cycles, "implementation-
+  //! specific and shall be less than or equal to 1 second" - the default
+  //! DERIVES the 1 s ceiling from the clock parameter (never a mirrored
+  //! cycle constant); TBs shrink it so a case sees interval boundaries
+  parameter int unsigned IVAL_CYC_P    = CLK_FREQ_HZ_P
 )(
   input  wire         clk_i,             //! Global clock
   input  wire         rst_n,             //! Active-low synchronous reset
@@ -136,9 +169,12 @@ module KL_avtp_rx_monitor_ctx #(
   output logic [31:0] cnt_late_ts_o,
   output logic [31:0] cnt_early_ts_o,
   //! Milan 1.3 5.3.8.10 additions: per-frame tv-bit tallies (1722.1-2021
-  //! Table 7-157 offsets 24/28). Counted where FRAMES_RX counts, so
-  //! TIMESTAMP_VALID + TIMESTAMP_NOT_VALID == FRAMES_RX (the reference
-  //! device's observable invariant).
+  //! Table 7-157 offsets 24/28, "increments on receipt" - a per-frame
+  //! definition, kept per-frame). TV + TNV = total accepted PDUs; the
+  //! identity TV + TNV == FRAMES_RX holds only under 1722.1's per-frame
+  //! FRAMES_RX reading, NOT under Milan Table 5.6's interval reading
+  //! served here (the torture campaign's tv_plus_tnv_identity() encodes
+  //! exactly this split).
   output wire [31:0] cnt_ts_valid_o,
   output wire [31:0] cnt_ts_not_valid_o,
   output logic        media_locked_o,    //! stream-0 lock state (level)
@@ -245,14 +281,24 @@ module KL_avtp_rx_monitor_ctx #(
   logic              w11_mode_r;
   logic              sil_mode_r;
   logic [15:0]       dpdu_add_r, ddrop_add_r;
-  logic [1:0]        mr_add_r;
 
   logic [N_LISTENERS_P-1:0] bind_pend_r;
   logic [N_LISTENERS_P-1:0] sil_pend_r;
   logic [N_LISTENERS_P-1:0] servo_pend_r;
-  logic [1:0] mreset_pend_r [N_LISTENERS_P];
   logic [2:0] dpdu_pend_r   [N_LISTENERS_P];
   logic [2:0] ddrop_pend_r  [N_LISTENERS_P];
+
+  //! Milan Table 5.6 interval machinery: per-stream seen-flag masks in
+  //! CNT-column format (only the seven interval columns are ever set, so
+  //! synthesis prunes the rest) + the per-stream commit-pending bit
+  logic [11:0]              iv_seen_r [N_LISTENERS_P];
+  logic [N_LISTENERS_P-1:0] iv_pend_r;
+  //! ONE parked counter-walk remainder (see the M_INC_S yield): the
+  //! depacketizer's commit verdict must land before the frame's tlast, so
+  //! a counter walk in flight when a PDU arrives parks here and resumes
+  //! right after the PDU walk - counts stay exact, media frames never wait
+  logic [11:0]       iv_res_list_r;
+  logic [IDXW_C-1:0] iv_res_s_r;
 
   logic [N_LISTENERS_P-1:0] locked_sh_r;     //! media_locked mirror (w8[12])
   logic [7:0] chans_sh_r [N_LISTENERS_P];    //! wire_chans mirror (w8[21:14])
@@ -301,6 +347,29 @@ module KL_avtp_rx_monitor_ctx #(
   end : ms_tick_gen
 
   // ======================================================================
+  //  Table 5.6 observation-interval tick (free-running; the clause fixes
+  //  only an upper bound on the interval, not its phase)
+  // ======================================================================
+  localparam int unsigned IVALW_C = (IVAL_CYC_P <= 2) ? 1
+                                                      : $clog2(IVAL_CYC_P);
+  logic [IVALW_C-1:0] iv_div_r;
+  logic               iv_tick_r;
+  always_ff @(posedge clk_i) begin : iv_tick_gen
+    if (!rst_n) begin
+      iv_div_r  <= '0;
+      iv_tick_r <= 1'b0;
+    end
+    else if (32'(iv_div_r) >= IVAL_CYC_P - 1) begin
+      iv_div_r  <= '0;
+      iv_tick_r <= 1'b1;
+    end
+    else begin
+      iv_div_r  <= iv_div_r + 1'b1;
+      iv_tick_r <= 1'b0;
+    end
+  end : iv_tick_gen
+
+  // ======================================================================
   //  Event capture combinationals
   // ======================================================================
   wire signed [31:0] tsd_w   = avtp_ts_i - ptp_now_i;
@@ -323,14 +392,11 @@ module KL_avtp_rx_monitor_ctx #(
   wire servo_unlock_w = locked_sh_r[rsel_w] && (clk_src_i != 16'd0) &&
                         !servo_conv_i;
 
-  logic mreset_any_w, depkt_any_w;
+  logic depkt_any_w;
   always_comb begin : pend_scans
-    mreset_any_w = 1'b0;
-    depkt_any_w  = 1'b0;
-    for (int s = 0; s < N_LISTENERS_P; s++) begin
-      if (mreset_pend_r[s] != '0) mreset_any_w = 1'b1;
+    depkt_any_w = 1'b0;
+    for (int s = 0; s < N_LISTENERS_P; s++)
       if (dpdu_pend_r[s] != '0 || ddrop_pend_r[s] != '0) depkt_any_w = 1'b1;
-    end
   end : pend_scans
 
   wire pdisp_w = (mst_r == M_IDLE_S) && (pq_cnt_r != '0);
@@ -338,11 +404,25 @@ module KL_avtp_rx_monitor_ctx #(
   //! directly (skips the queue hop - the depacketizer commit window on
   //! short PDUs is the reason: accept must land before the frame's tlast)
   wire pdisp_new_w = (mst_r == M_IDLE_S) && penq_w && (pq_cnt_r == '0);
+  //! interval-commit dispatch, same M_IDLE_S priority slot the FSM uses
+  //! (below depkt, above the window read) - defined ONCE so the FSM branch
+  //! and the flag-fold block can never disagree about the drain cycle
+  wire iv_go_w = (mst_r == M_IDLE_S) && !pdisp_w && !pdisp_new_w &&
+                 (bind_pend_r == '0) && (sil_pend_r == '0) &&
+                 (servo_pend_r == '0) && !depkt_any_w &&
+                 (iv_res_list_r == '0) && (iv_pend_r != '0);
+  logic [IDXW_C-1:0] iv_s_w;
+  always_comb begin : iv_pick
+    iv_s_w = '0;
+    for (int s = N_LISTENERS_P-1; s >= 0; s--)
+      if (iv_pend_r[s]) iv_s_w = IDXW_C'(s);
+  end : iv_pick
   //! the window read gets the port only when the engine is fully idle
   wire ext_rd_go_w = lctx_rd_en_i && (mst_r == M_IDLE_S) && !penq_w &&
                      (pq_cnt_r == '0) && (bind_pend_r == '0) &&
                      (sil_pend_r == '0) && (servo_pend_r == '0) &&
-                     !mreset_any_w && !depkt_any_w;
+                     (iv_pend_r == '0) && (iv_res_list_r == '0) &&
+                     !depkt_any_w;
   //! stream index being dispatched this idle cycle (drives the prefetch)
   wire [IDXW_C-1:0] disp_s_w = pdisp_new_w ? midx_w : pq_r[0].s;
 
@@ -406,8 +486,28 @@ module KL_avtp_rx_monitor_ctx #(
       if (inc_list_r[k]) inc_next_w = 4'(k);
   end : inc_pick
 
-  //! increment amount (MEDIA_RESET drains its latched count; others +1)
-  wire [31:0] inc_amt_w = (inc_next_w == C_MR_C) ? 32'(mr_add_r) : 32'd1;
+  //! this cycle's Table 5.6 interval-flag events, per stream: the M_PDEC_S
+  //! verdict raises the PDU-derived flags (the walk itself only writes
+  //! w8/w9/w10 and the EVENT counters), and the servo rail raises MR for
+  //! the RENDER stream. Decoded once so the fold below can harvest a
+  //! tick-cycle event into the closing interval instead of losing it.
+  logic [11:0] iv_set_w [N_LISTENERS_P];
+  always_comb begin : iv_events
+    for (int s = 0; s < N_LISTENERS_P; s++) iv_set_w[s] = '0;
+    if (mst_r == M_PDEC_S) begin
+      if (!fmt_ok_w)
+        iv_set_w[ev_s_r] = 12'b1 << C_UF_C;
+      else
+        iv_set_w[ev_s_r] =
+            (12'b1 << C_FRX_C)
+          | (cur_r.tu    ? (12'b1 << C_TU_C) : 12'b0)
+          | (cur_r.late  ? (12'b1 << C_LT_C) : 12'b0)
+          | (cur_r.early ? (12'b1 << C_ET_C) : 12'b0)
+          | (seq_mm_w    ? (12'b1 << C_SM_C) : 12'b0);
+    end
+    if (media_reset_p_i && bound_i[rsel_w])
+      iv_set_w[rsel_w] |= 12'b1 << C_MR_C;
+  end : iv_events
 
   // ======================================================================
   //  Engine write mux (combinational) + port arbitration
@@ -467,7 +567,7 @@ module KL_avtp_rx_monitor_ctx #(
         else if (inc_list_r != '0 && inc_rd_q_r) begin
           eng_we_w    = 1'b1;
           eng_waddr_w = laddr(ev_s_r, W_CNT0_C | 5'(inc_next_w));
-          eng_wdata_w = ram_q_r + inc_amt_w;
+          eng_wdata_w = ram_q_r + 32'd1;
         end
       end
       M_BDEC_S : begin
@@ -619,15 +719,17 @@ module KL_avtp_rx_monitor_ctx #(
       sil_mode_r  <= 1'b0;
       dpdu_add_r  <= '0;
       ddrop_add_r <= '0;
-      mr_add_r    <= '0;
       bind_pend_r  <= '0;
       sil_pend_r   <= '0;
       servo_pend_r <= '0;
+      iv_pend_r    <= '0;
+      iv_res_list_r <= '0;
+      iv_res_s_r    <= '0;
       locked_sh_r  <= '0;
       for (int s = 0; s < N_LISTENERS_P; s++) begin
         chans_sh_r[s]    <= '0;
         sil_ms_r[s]      <= '0;
-        mreset_pend_r[s] <= '0;
+        iv_seen_r[s]     <= '0;
         dpdu_pend_r[s]   <= '0;
         ddrop_pend_r[s]  <= '0;
       end
@@ -695,8 +797,6 @@ module KL_avtp_rx_monitor_ctx #(
           else sil_ms_r[s] <= sil_ms_r[s] + 7'd1;
         end
       end
-      if (media_reset_p_i && bound_i[rsel_w] && !(&mreset_pend_r[rsel_w]))
-        mreset_pend_r[rsel_w] <= mreset_pend_r[rsel_w] + 2'd1;
       if (servo_unlock_w) servo_pend_r[rsel_w] <= 1'b1;
 
       // ---- walker FSM ----------------------------------------------------
@@ -731,15 +831,6 @@ module KL_avtp_rx_monitor_ctx #(
             sil_mode_r <= 1'b1;
             mst_r      <= M_INC_S;
           end
-          else if (mreset_any_w) begin
-            for (int s = N_LISTENERS_P-1; s >= 0; s--)
-              if (mreset_pend_r[s] != '0) begin
-                ev_s_r   <= IDXW_C'(s);
-                mr_add_r <= mreset_pend_r[s];
-              end
-            inc_list_r <= 12'b1 << C_MR_C;
-            mst_r      <= M_INC_S;
-          end
           else if (depkt_any_w) begin
             for (int s = N_LISTENERS_P-1; s >= 0; s--)
               if (dpdu_pend_r[s] != '0 || ddrop_pend_r[s] != '0) begin
@@ -748,6 +839,23 @@ module KL_avtp_rx_monitor_ctx #(
                 ddrop_add_r <= 16'(ddrop_pend_r[s]);
               end
             w11_mode_r <= 1'b1;
+            mst_r      <= M_INC_S;
+          end
+          else if (iv_res_list_r != '0) begin
+            //! resume a parked counter walk first (its bits predate any
+            //! newly pending interval commit)
+            ev_s_r        <= iv_res_s_r;
+            inc_list_r    <= iv_res_list_r;
+            iv_res_list_r <= '0;
+            mst_r         <= M_INC_S;
+          end
+          else if (iv_go_w) begin
+            //! Table 5.6 interval commit: +1 per flagged counter through
+            //! the normal serial RMW walk (the fold block below clears the
+            //! flags and the pend bit this same cycle)
+            ev_s_r     <= iv_s_w;
+            inc_list_r <= iv_seen_r[iv_s_w];
+            if (iv_s_w == '0 && iv_seen_r[iv_s_w] != '0) dirty_p_o <= 1'b1;
             mst_r      <= M_INC_S;
           end
           else if (ext_rd_go_w) begin
@@ -766,10 +874,10 @@ module KL_avtp_rx_monitor_ctx #(
 
         M_PDEC_S : begin
           if (!fmt_ok_w) begin
-            //! counts nothing else (reference early-return)
-            inc_list_r <= 12'b1 << C_UF_C;
-            if (ev_s_r == '0) dirty_p_o <= 1'b1;
-            mst_r <= M_INC_S;
+            //! counts nothing else (reference early-return); UNSUPPORTED_
+            //! FORMAT is an interval counter now - iv_events raised the
+            //! flag this cycle, so there is nothing to walk
+            mst_r <= M_IDLE_S;
           end
           else begin
             pdu_accept_p_o     <= 1'b1;
@@ -782,16 +890,15 @@ module KL_avtp_rx_monitor_ctx #(
             //! TV/TNV live in flops (below), NOT in this serial walk: a
             //! 12th RMW step per accepted PDU delayed the next verdict
             //! enough that the hostplane ax8x8 shape dropped the 3rd of 3
-            //! back-to-back frames at the depacketizer commit
+            //! back-to-back frames at the depacketizer commit. They keep
+            //! the 1722.1-2021 Table 7-153 per-frame reading; the seven
+            //! Table 5.6 interval flags were raised by iv_events this
+            //! cycle and commit at the interval tick, so only the EVENT
+            //! counters walk here.
             if (cur_r.tv) tv_cnt_r[ev_s_r]  <= tv_cnt_r[ev_s_r]  + 32'd1;
             else          tnv_cnt_r[ev_s_r] <= tnv_cnt_r[ev_s_r] + 32'd1;
             inc_list_r <=
-                (12'b1 << C_FRX_C)
-              | (cur_r.tu    ? (12'b1 << C_TU_C) : 12'b0)
-              | (cur_r.late  ? (12'b1 << C_LT_C) : 12'b0)
-              | (cur_r.early ? (12'b1 << C_ET_C) : 12'b0)
-              | (lock_now_w  ? (12'b1 << C_ML_C) : 12'b0)
-              | (seq_mm_w    ? (12'b1 << C_SM_C) : 12'b0)
+                (lock_now_w  ? (12'b1 << C_ML_C) : 12'b0)
               | ((seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C))
                              ? (12'b1 << C_SI_C) : 12'b0);
             wrph_r <= '0;
@@ -859,14 +966,35 @@ module KL_avtp_rx_monitor_ctx #(
             mst_r <= M_IDLE_S;
           end
           else begin
-            if (!inc_rd_q_r) inc_rd_q_r <= 1'b1;
+            //! PDU pressure YIELDS the counter walk: the depacketizer's
+            //! commit verdict must land BEFORE the frame's tlast beat, and
+            //! an interval drain starting at an arbitrary tick phase pushed
+            //! it one cycle past that window (hostplane ax8x8 lost 1 of 2
+            //! back-to-back ring frames; the verdict landed ON the tlast).
+            //! The park happens in the SAME cycle - between RMWs it costs
+            //! the walk nothing, mid-RMW the in-flight write still lands
+            //! and only the remainder parks - so the queued dispatch runs
+            //! exactly one cycle behind the fast path. The remainder sits
+            //! in the ONE resume slot and finishes right after the PDU
+            //! walk - every bit still commits exactly once.
+            if (!inc_rd_q_r) begin
+              if ((penq_w || pq_cnt_r != '0) && (iv_res_list_r == '0)) begin
+                iv_res_list_r <= inc_list_r;
+                iv_res_s_r    <= ev_s_r;
+                inc_list_r    <= '0;
+                mst_r         <= M_IDLE_S;
+              end
+              else inc_rd_q_r <= 1'b1;
+            end
             else begin
-              if (inc_next_w == C_MR_C)
-                mreset_pend_r[ev_s_r] <= mreset_pend_r[ev_s_r] - mr_add_r
-                  + ((media_reset_p_i && bound_i[rsel_w] &&
-                      32'(rsel_w) == 32'(ev_s_r)) ? 2'd1 : 2'd0);
               inc_list_r[inc_next_w] <= 1'b0;
               inc_rd_q_r <= 1'b0;
+              if ((penq_w || pq_cnt_r != '0) && (iv_res_list_r == '0)) begin
+                iv_res_list_r <= inc_list_r & ~(12'b1 << inc_next_w);
+                iv_res_s_r    <= ev_s_r;
+                inc_list_r    <= '0;
+                mst_r         <= M_IDLE_S;
+              end
             end
           end
         end
@@ -879,6 +1007,9 @@ module KL_avtp_rx_monitor_ctx #(
             sil_ms_r[ev_s_r]    <= '0;
             tv_cnt_r[ev_s_r]    <= '0;   //! Milan era wipe (Table 5.6 rule)
             tnv_cnt_r[ev_s_r]   <= '0;
+            //! a parked walk remainder for THIS stream dies with the era
+            //! too (its counters are zeroed by the bind-zero walk below)
+            if (iv_res_s_r == ev_s_r) iv_res_list_r <= '0;
             //! only stream 0 records the legacy sid/fmt aliases; other
             //! streams' CFG words are CSR-window-owned
             wrph_r <= (ev_s_r == '0) ? 4'd1 : 4'd5;
@@ -912,6 +1043,29 @@ module KL_avtp_rx_monitor_ctx #(
 
         default : mst_r <= M_IDLE_S;
       endcase
+
+      // ---- Table 5.6 interval flags: fold / tick-pend / drain / era wipe
+      //      (single writer for iv_seen_r/iv_pend_r; a tick-cycle event is
+      //      harvested into the closing interval, a drain-cycle event
+      //      survives into the fresh one, and the bind wipe [M-5.3.8.10]
+      //      clears history while keeping this cycle's own event) ---------
+      for (int s = 0; s < N_LISTENERS_P; s++) begin
+        if ((mst_r == M_BDEC_S) && (wrph_r == 4'd0) && (32'(ev_s_r) == s))
+        begin
+          iv_seen_r[s] <= iv_set_w[s];
+          iv_pend_r[s] <= 1'b0;
+        end
+        else begin
+          if (iv_go_w && (32'(iv_s_w) == s))
+            iv_seen_r[s] <= iv_set_w[s];
+          else
+            iv_seen_r[s] <= iv_seen_r[s] | iv_set_w[s];
+          if (iv_tick_r && ((iv_seen_r[s] | iv_set_w[s]) != '0))
+            iv_pend_r[s] <= 1'b1;
+          else if (iv_go_w && (32'(iv_s_w) == s))
+            iv_pend_r[s] <= 1'b0;
+        end
+      end
 
       // ---- legacy stream-0 write-through view ---------------------------
       if (leg_hit_w) begin

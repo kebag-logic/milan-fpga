@@ -12,7 +12,11 @@
 
 module avtp_rxmon_nx_wrap #(
   parameter int unsigned N_STREAMS_P   = 4,
-  parameter int unsigned CLK_FREQ_HZ_P = 10000   //! scaled: 100 ms = 1000 cyc
+  parameter int unsigned CLK_FREQ_HZ_P = 10000,  //! scaled (nx TB: 100 kHz)
+  //! Milan Table 5.6 observation interval, scaled: 2000 cyc = 200 "ms" (the
+  //! clause allows any interval <= 1 s; short enough that a case sees
+  //! boundaries, long enough that a burst of feeds fits inside ONE interval)
+  parameter int unsigned IVAL_CYC_P    = 2000
 )(
   input  wire        clk,
   input  wire        resetn,
@@ -126,7 +130,8 @@ module avtp_rxmon_nx_wrap #(
   wire [3:0]  depkt_pdu_idx_w, depkt_drop_idx_w;
 
   KL_avtp_rx_monitor_ctx #(
-    .N_LISTENERS_P (N_STREAMS_P), .CLK_FREQ_HZ_P (CLK_FREQ_HZ_P)
+    .N_LISTENERS_P (N_STREAMS_P), .CLK_FREQ_HZ_P (CLK_FREQ_HZ_P),
+    .IVAL_CYC_P (IVAL_CYC_P)
   ) u_mon (
     .clk_i (clk), .rst_n (resetn),
     .match_valid_i (match_w), .match_index_i ({2'b00, midx_w}),

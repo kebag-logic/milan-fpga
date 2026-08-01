@@ -9,12 +9,24 @@
   Author      : Kebag Logic
 
   Date        : 2026-07-17
-  Description : Milan v1.2 STREAM_INPUT diagnostic-counter engine (IEEE
-                1722.1-2021 Table 7-156 / Milan §5.4.5.3 Table 5.16) for the
-                bound listener sink. Consumes the per-frame pulse bundle from
-                avtp_stream_parser (which already matched the bound stream_id)
-                and maintains the counters GET_COUNTERS serves and the
-                unsolicited push advertises.
+  Description : Single-sink STREAM_INPUT diagnostic-counter engine (IEEE
+                1722.1-2021 Table 7-153 PER-FRAME reading) - the per-PDU
+                verdict reference and the TBs' frame-accurate instrument.
+                Consumes the per-frame pulse bundle from avtp_stream_parser
+                (which already matched the bound stream_id).
+
+                NOT the shipping Milan counter engine: Milan v1.2 Table 5.6
+                defines SEQ_NUM_MISMATCH, MEDIA_RESET, TIMESTAMP_UNCERTAIN,
+                UNSUPPORTED_FORMAT, LATE_TIMESTAMP, EARLY_TIMESTAMP and
+                FRAMES_RX as OBSERVATION-INTERVAL counters (<= 1 s), and the
+                engine GET_COUNTERS serves - KL_avtp_rx_monitor_ctx - commits
+                them per interval. THIS module keeps every counter per-frame
+                ON PURPOSE: aaf_audio_loop's "FRAMES_RX == talker frames"
+                loop-integrity identity and the tsn_fuzz cosim model need a
+                frame-accurate probe, which an interval counter structurally
+                cannot be (torture_campaign.py CounterSemanticError). Lock/
+                settle/mismatch/format verdict logic here remains the ctx
+                engine's per-stream contract.
 
                 Contract byte-extracted from the pipewire module-avb reference
                 (stream.c handle_aaf_packet + cmd-get-counters.c):
@@ -62,17 +74,17 @@
 ------------------------------------------------------------------------------
 */
 
-//! Milan v1.2 STREAM_INPUT diagnostic-counter engine (IEEE 1722.1-2021
-//! Table 7-156 / Milan §5.4.5.3) for the bound listener sink. Consumes the
-//! per-frame pulse bundle from `avtp_stream_parser` and maintains the
-//! counters served by AECP `GET_COUNTERS` and its unsolicited push:
+//! Single-sink STREAM_INPUT counter engine in the IEEE 1722.1-2021
+//! Table 7-153 PER-FRAME reading — the TBs' frame-accurate instrument and
+//! the per-PDU verdict reference, NOT the shipping Milan engine (Milan
+//! v1.2 Table 5.6 interval semantics live in `KL_avtp_rx_monitor_ctx`).
 //! MEDIA_LOCKED/UNLOCKED (first-valid-PDU lock / 100 ms silence unlock),
 //! STREAM_INTERRUPTED (>= 2 PDUs lost), SEQ_NUM_MISMATCH (8-PDU settle
 //! window after every (re)lock), TIMESTAMP_UNCERTAIN (tu bit),
 //! UNSUPPORTED_FORMAT (per-PDU compare vs the current STREAM_INPUT format)
-//! and FRAMES_RX. Counters reset on the not-bound -> bound edge (Milan
-//! Table 5.6). `pdu_accept_p_o` pulses for every FRAMES_RX-counted PDU —
-//! the AAF RX depacketizer's commit verdict.
+//! and FRAMES_RX, each counted per frame. Counters reset on the not-bound
+//! -> bound edge (Milan Table 5.6). `pdu_accept_p_o` pulses for every
+//! FRAMES_RX-counted PDU — the AAF RX depacketizer's commit verdict.
 
 `default_nettype none
 
