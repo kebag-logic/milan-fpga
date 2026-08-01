@@ -762,12 +762,30 @@ def cross_side_growth(sides: dict, *, licensed: Optional[bool] = None,
         movers = {l: s["frames"] for l, s in sides.items()
                   if s["role"] in ("talker", "listener", "wire")
                   and (s.get("frames") or 0) > 0}
-        rec("xside.unlicensed-silent-everywhere",
-            "PASS" if not movers else "FAIL", movers=movers,
-            why=None if not movers else
-            "frames moved with the stream gate SHUT: Milan v1.2 5.3.7.3 "
-            "licenses streaming only while a Listener Ready or Listener Ready "
-            "Failed is being received, so these frames are unreserved")
+        # An interface-global wire counter ('nic' rx_packets) counts EVERY
+        # frame on the test host's port - campaign control chatter included -
+        # so it can corroborate silence but can never ATTRIBUTE movement to
+        # this stream.  Only a device side or a stream-scoped capture ('pcap')
+        # may convict.  Measured live 2026-08-02: 373 ambient frames/4 s
+        # (~93 pps, two orders below any audio stream) fired a false FAIL
+        # while the readable listener sat at 0.
+        attributable = {l: n for l, n in movers.items()
+                        if sides[l]["role"] in ("talker", "listener")
+                        or sides[l].get("source") == "pcap"}
+        if movers and not attributable:
+            rec("xside.unlicensed-silent-everywhere", "INFO", movers=movers,
+                why="only the interface-global wire counter moved while every "
+                    "readable device side was silent: ambient traffic on the "
+                    "test host's port cannot be attributed to this stream's "
+                    "gate, so this is not admissible evidence either way")
+        else:
+            rec("xside.unlicensed-silent-everywhere",
+                "PASS" if not attributable else "FAIL", movers=movers,
+                why=None if not attributable else
+                "frames moved with the stream gate SHUT: Milan v1.2 5.3.7.3 "
+                "licenses streaming only while a Listener Ready or Listener "
+                "Ready Failed is being received, so these frames are "
+                "unreserved")
 
     # (3) a listener that counts more than was sent
     if talkers and listeners and not unreadable:
@@ -2283,6 +2301,20 @@ def self_test() -> int:
             self.assertEqual(d["sides_unreadable"], ["dut", "peer"])
             # but ONE readable device side keeps the invariant armed
             v, _ = one(cross_side_growth(sides(7, None, 42), licensed=False),
+                       "xside.unlicensed-silent-everywhere")
+            self.assertEqual(v, "FAIL")
+            # ambient wire-only movement (interface-global 'nic' source) with
+            # every readable device side SILENT is unattributable: INFO, not
+            # FAIL (373 campaign-chatter frames fired a false FAIL on silicon)
+            v, d = one(cross_side_growth(sides(None, 0, 373), licensed=False),
+                       "xside.unlicensed-silent-everywhere")
+            self.assertEqual(v, "INFO")
+            self.assertEqual(d["movers"], {"testhost": 373})
+            # a stream-scoped pcap wire source still convicts alone
+            pc = sides(None, 0)
+            pc["tap"] = {"role": "wire", "source": "pcap", "frames": 99,
+                         "device": "profishark"}
+            v, _ = one(cross_side_growth(pc, licensed=False),
                        "xside.unlicensed-silent-everywhere")
             self.assertEqual(v, "FAIL")
             # PRUNING: a bystander that never registered must see nothing
