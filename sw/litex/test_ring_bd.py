@@ -1892,6 +1892,48 @@ def test_hs_stress_famine_interleave():
     h.run(stim)
     print("PASS hs: stress famine+interleave — pop-order + address pairing hold")
 
+def test_rsc_capable_false_plain():
+    """rxq2-sans-RSC fold: rsc_capable=False elaborates the coalescing engine
+    OUT. Driver-visible contract: rsc_en=1 (a deployed kl-eth writes it at
+    probe) changes NOTHING - every frame, INCLUDING an RSC-eligible same-flow
+    TCP train that capable gateware provably merges into one v2 (the
+    test_rsc_merge3 vector), delivers as one v1 single BD per frame,
+    byte-exact, seq-contiguous, v2 marker never set, RSC status CSRs read 0.
+    Runs both ring shapes (legacy kept + AREA-70 folded = the ship pairing)."""
+    w1, _ = tcp_frame(payload_len=100, flags=0x10, doff=8, seq=1000)
+    w2, _ = tcp_frame(payload_len=200, flags=0x10, doff=8, seq=1100)
+    w3, _ = tcp_frame(payload_len=48,  flags=0x18, doff=8, seq=1300)
+    plain = frame(0x5A, 5)
+    train = (w1, w2, w3, plain)
+    for lr in (True, False):
+        h = BDHarness(ring_size=4096, max_frame_beats=64, fifo_beats=512,
+                      cycles=120000, rsc_capable=False, legacy_ring=lr)
+        def stim(h=h):
+            yield from h.init_bd()
+            yield h.dut.rsc_en.storage.eq(1)          # kl-eth rsc=1 default
+            yield h.dut.rsc_bufsz.storage.eq(4096)
+            yield
+            for b in BUFS:
+                yield from h.post_buf(b)
+            for w in train:
+                yield from h.send_frame(w)
+            yield from h.wait_idle(settle=400)
+            assert (yield h.dut.frames.status) == 4, "one v1 BD per frame"
+            assert (yield h.dut.dropped.status) == 0
+            assert (yield h.dut.acks_merged.status) == 0
+            assert (yield h.dut.rsc_dbg.status) == 0, "absent parse reads 0"
+        h.run(stim)
+        for i, w in enumerate(train):
+            got = h.read_buf(BUFS[i], len(w))
+            assert got == w, f"frame {i} not byte-exact (legacy_ring={lr})"
+            w0, wv1 = h.read_bd(i)
+            assert (w0 & 0xFF) == 0xBD and ((w0 >> 8) & 0xFF) == i
+            assert ((w0 >> 16) & 0xFFFF) == len(w) * 8, f"BD{i} len"
+            assert ((w0 >> 56) & 1) == 0, "v2 marker must never appear"
+            assert (wv1 & 0xFFFFFFFF) == BUFS[i], "v1 w1 = posted buffer addr"
+    print("PASS rsc_capable=False (eligible train unmerged, v1-only, both ring shapes)")
+
+
 def test_bd_folded_equivalence():
     """AREA-70 byte-ring fold: the legacy_ring=False shape must be bit-identical
     in BD mode - the fold removes only the byte-ring arms. Mirrors
@@ -2068,6 +2110,7 @@ if __name__ == "__main__":
     test_hs_stress_famine_interleave()
     test_bd_folded_equivalence()
     test_bd_folded_unarmed_quiesce()
+    test_rsc_capable_false_plain()
     print("ALL PASS")
 
 

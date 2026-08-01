@@ -1403,7 +1403,7 @@ class RingDMAWriter(LiteXModule):
     """
     def __init__(self, bus, max_frame_beats=512, fifo_beats=2048, burst_beats=16,
                  n_slots=4, cq_depth=8, hs_capable=True, hs_page_bytes=4096,
-                 legacy_ring=True):
+                 legacy_ring=True, rsc_capable=True):
         # hs_page_bytes (hsq10): posted-page size the hs page-crossing arithmetic
         # assumes  -  MUST match the driver's page-pool order (STRICT pairing, kl-eth
         # hsplit12 `hs_pgsz`). 16384 quadruples the posted-pool burst absorbency
@@ -1417,6 +1417,16 @@ class RingDMAWriter(LiteXModule):
         # = frames back up the drop-FIFO (counted ingress drops), NEVER a DMA
         # write via base.storage/addr 0 (the lethal-pairing lesson applied to
         # old bd=0 drivers on folded gateware). See docs/fpga/PIPELINE_STAGES.md.
+        # rsc_capable (rxq2-sans-RSC fold, 2026-08-01): False elaborates OUT the
+        # RSC coalescing engine - the header-capture regfile + eth/IP/TCP parse,
+        # the n_slots aggregate state with its MATCH/DISPATCH pipeline and
+        # timers, ACK-run merging, the append rotator and every header-split
+        # state - keeping the plain single-frame BD path, which is ALSO the
+        # runtime rsc_en=0 path: drivers see a supported mode where every BD is
+        # a v1 single (the path all non-TCP traffic takes today) and coalescing
+        # simply never arms. Every RSC/hs CSR KEEPS its offset (the driver bakes
+        # them in): the storages stay, nothing reads them; status CSRs read 0.
+        # The 2-queue steering front-end is outside this class and untouched.
         assert hs_page_bytes & (hs_page_bytes - 1) == 0
         assert hs_page_bytes <= 32768   # v3 w0[31:16] carries the page fill length
         PGB = hs_page_bytes.bit_length() - 1
@@ -1525,6 +1535,10 @@ class RingDMAWriter(LiteXModule):
         # file and parse eth/IPv4/TCP fields. Phase A is OBSERVE-ONLY (frames still
         # stream unchanged as single-frame BDs); rsc_dbg exposes the parse for sims.
         self.rsc_en = CSRStorage(1, description="RSC parse enable (phase A: observe-only).")
+        # capability gate (rxq2-sans-RSC fold): the runtime enable, forced to a
+        # constant 0 when the engine is not elaborated - derived from the one
+        # elaboration param, never mirrored (same shape trick as hs below).
+        rsc_on = self.rsc_en.storage if rsc_capable else C(0)
         hdr_reg  = Array([Signal(64) for _ in range(9)])
         hdr_cnt  = Signal(4)
         hdr_take = Signal(4)            # beats to capture = min(total_beats, 9)
@@ -1667,23 +1681,24 @@ class RingDMAWriter(LiteXModule):
         agemax_v = Signal(24)
         s_exp = Signal(NS)
         s_expage = Signal(NS)
-        for i in range(NS):
-            self.sync += [
-                If(~s_open[i] | (slot_touch_sel & (slot_sel == i)),
-                    s_idle[i].eq(0),
-                ).Elif(s_idle[i] < self.rsc_tout.storage,
-                    s_idle[i].eq(s_idle[i] + 1),
-                ),
-                If(~s_open[i],
-                    s_age[i].eq(0),
-                ).Elif(s_age[i] < agemax_v,
-                    s_age[i].eq(s_age[i] + 1),
-                ),
-            ]
-            self.comb += [
-                s_expage[i].eq(s_open[i] & (s_age[i] >= agemax_v)),
-                s_exp[i].eq((s_open[i] & (s_idle[i] >= self.rsc_tout.storage)) | s_expage[i]),
-            ]
+        if rsc_capable:                 # folded: timers undriven => s_exp stays 0
+            for i in range(NS):
+                self.sync += [
+                    If(~s_open[i] | (slot_touch_sel & (slot_sel == i)),
+                        s_idle[i].eq(0),
+                    ).Elif(s_idle[i] < self.rsc_tout.storage,
+                        s_idle[i].eq(s_idle[i] + 1),
+                    ),
+                    If(~s_open[i],
+                        s_age[i].eq(0),
+                    ).Elif(s_age[i] < agemax_v,
+                        s_age[i].eq(s_age[i] + 1),
+                    ),
+                ]
+                self.comb += [
+                    s_expage[i].eq(s_open[i] & (s_age[i] >= agemax_v)),
+                    s_exp[i].eq((s_open[i] & (s_idle[i] >= self.rsc_tout.storage)) | s_expage[i]),
+                ]
         self.comb += exp_any.eq(s_exp != 0)
         _ei = [exp_idx.eq(0), exp_age.eq(s_expage[0])]
         for i in reversed(range(NS)):
@@ -1899,7 +1914,7 @@ class RingDMAWriter(LiteXModule):
         # relieving the datapath congestion that the full 2-queue hs build hit (mac_cam
         # WNS -0.105). q0-only hs is the first-silicon proof vehicle.
         self.comb += hs.eq(C(1 if hs_capable else 0) & self.hs_en.storage &
-                           bd_mode & self.rsc_en.storage)
+                           bd_mode & rsc_on)
         hdr_ctr = Signal(5)             # free-running header-slot allocator (32 slots:
                                         # outstanding v2s are BD-ring/pool bounded < 32)
         hw_cnt  = Signal(4)             # header-write beat counter (fbeat stays for payload)
@@ -1931,17 +1946,18 @@ class RingDMAWriter(LiteXModule):
         ap_needswap = Signal()          # append starts exactly on a page boundary
         cqf_disc    = Signal()          # CQ_FILL exits to DISCARD (famine mid-frame)
         self.comb += [        ]
-        self.sync += [
-            If(~ack_open | ack_touch,
-                ack_timer.eq(0),
-            ).Elif(~ack_expired,
-                ack_timer.eq(ack_timer + 1),
-            ),
-        ]
-        self.comb += in_hdrr.eq(bd_mode & self.rsc_en.storage &
+        if rsc_capable:                 # folded: ack_timer/rsc_dbg undriven (0)
+            self.sync += [
+                If(~ack_open | ack_touch,
+                    ack_timer.eq(0),
+                ).Elif(~ack_expired,
+                    ack_timer.eq(ack_timer + 1),
+                ),
+            ]
+            self.sync += If(hdr_cnt == hdr_take,
+                self.rsc_dbg.status.eq(Cat(p_totlen, p_flags, p_doff, p_eligible)))
+        self.comb += in_hdrr.eq(bd_mode & rsc_on &
                                 (ack_wb | (fbeat < hdr_cnt)))
-        self.sync += If(hdr_cnt == hdr_take,
-            self.rsc_dbg.status.eq(Cat(p_totlen, p_flags, p_doff, p_eligible)))
         # bd_mode REGISTERED (2026-07-29): the 64-bit bd_base != 0 compare was
         # computed combinationally from the CSR storage and fanned into every
         # dispatch site - the AX csfix build's worst path ran bd_base_storage
@@ -2192,7 +2208,8 @@ class RingDMAWriter(LiteXModule):
 
         self.fsm = fsm = FSM(reset_state="IDLE")
         # IDLE dispatch, built incrementally so the byte-ring arm is generated
-        # only when legacy_ring elaborates the fallback path (AREA-70 fold).
+        # only when legacy_ring elaborates the fallback path (AREA-70 fold),
+        # and the RSC arms only when rsc_capable elaborates the engine.
         idle_disp = (
             # While the ring is disabled, hold wr/seq/frames at 0 so a driver re-init (which
             # toggles enable) starts a truly-empty ring  -  no stale mid-ring `wr` for the fresh
@@ -2210,7 +2227,10 @@ class RingDMAWriter(LiteXModule):
                 # pop-ordered BD visibility: write back every ready head entry first
                 # (bd_room: never lap the driver's rd  -  stall here, not corrupt there)
                 NextState("WB_AW"),
-            ).Elif(bd_mode & exp_any & cq_room,
+            )
+        )
+        if rsc_capable:
+            idle_disp = idle_disp.Elif(bd_mode & exp_any & cq_room,
                 # RSC: close an idle-expired (or lifetime-capped) slot; its BD becomes
                 # drainable and the (possibly blocked) CQ head advances. 1-cycle action.
                 If(exp_age,
@@ -2224,33 +2244,52 @@ class RingDMAWriter(LiteXModule):
                 # fills behind it  -  force-close it so completions keep flowing.
                 NextValue(close_prs, close_prs + 1),
                 *stage_close(head_slot, cq_of_head, 0, 0),
-            ).Elif(len_fifo.source.valid & bd_mode,
-                # BD/zero-copy mode: payload -> the next POSTED buffer, meta -> a BD.
-                len_fifo.source.ready.eq(1),
-                NextValue(frame_beats, len_fifo.source.beats),
-                NextValue(pad_r, len_fifo.source.pad),
-                NextValue(total_beats, len_fifo.source.beats),   # no header beat
-                NextValue(frame_csum, len_fifo.source.csum),
-                NextValue(rem_r, len_fifo.source.beats),
-                NextValue(rem_z, len_fifo.source.beats == 0),
-                NextValue(off_r, 0),
-                NextValue(hdr_sent, 1),                          # suppress the header
-                If(self.rsc_en.storage,
-                    NextValue(hdr_cnt, 0),
-                    NextValue(fbeat, 0),
-                    NextValue(hdr_take, Mux(len_fifo.source.beats > 9, 9,
-                                            len_fifo.source.beats)),
-                    NextState("HDR_CAP"),        # buffer pop decided at DISPATCH
-                ).Elif(post_fifo.source.valid & cq_room,
-                    post_pop.eq(1),
-                    *cq_alloc(),
-                    NextValue(buf_addr_r, post_fifo.source.addr),
-                    NextState("PREP"),
-                ).Else(                                          # no buffer/CQ room -> drop
-                    NextValue(disc, len_fifo.source.beats),
-                    NextState("DISCARD"),
-                )
-            ).Elif(bd_mode & ack_expired & cq_room,
+            )
+        if rsc_capable:
+            # RSC gateware: head beats detour through the parse regfile; the
+            # posted-buffer pop is decided at DISPATCH.
+            bd_disp = If(rsc_on,
+                NextValue(hdr_cnt, 0),
+                NextValue(fbeat, 0),
+                NextValue(hdr_take, Mux(len_fifo.source.beats > 9, 9,
+                                        len_fifo.source.beats)),
+                NextState("HDR_CAP"),        # buffer pop decided at DISPATCH
+            ).Elif(post_fifo.source.valid & cq_room,
+                post_pop.eq(1),
+                *cq_alloc(),
+                NextValue(buf_addr_r, post_fifo.source.addr),
+                NextState("PREP"),
+            ).Else(                                          # no buffer/CQ room -> drop
+                NextValue(disc, len_fifo.source.beats),
+                NextState("DISCARD"),
+            )
+        else:
+            # folded: every frame is a plain single v1 BD (the runtime rsc_en=0
+            # dispatch, made the only shape)
+            bd_disp = If(post_fifo.source.valid & cq_room,
+                post_pop.eq(1),
+                *cq_alloc(),
+                NextValue(buf_addr_r, post_fifo.source.addr),
+                NextState("PREP"),
+            ).Else(                                          # no buffer/CQ room -> drop
+                NextValue(disc, len_fifo.source.beats),
+                NextState("DISCARD"),
+            )
+        idle_disp = idle_disp.Elif(len_fifo.source.valid & bd_mode,
+            # BD/zero-copy mode: payload -> the next POSTED buffer, meta -> a BD.
+            len_fifo.source.ready.eq(1),
+            NextValue(frame_beats, len_fifo.source.beats),
+            NextValue(pad_r, len_fifo.source.pad),
+            NextValue(total_beats, len_fifo.source.beats),   # no header beat
+            NextValue(frame_csum, len_fifo.source.csum),
+            NextValue(rem_r, len_fifo.source.beats),
+            NextValue(rem_z, len_fifo.source.beats == 0),
+            NextValue(off_r, 0),
+            NextValue(hdr_sent, 1),                          # suppress the header
+            bd_disp,
+        )
+        if rsc_capable:
+            idle_disp = idle_disp.Elif(bd_mode & ack_expired & cq_room,
                 # ACK-run idle-timeout  -  deliver the latest pending ACK. The historical
                 # ~agg_open gate (RX-wedge fix, 2026-07-08) is GONE: the completion
                 # queue serializes BD visibility to pop order by construction, so the
@@ -2258,7 +2297,6 @@ class RingDMAWriter(LiteXModule):
                 # turn behind theirs (bounded by rsc_tout/rsc_agemax).
                 *ack_flush(ret=0)
             )
-        )
         if legacy_ring:
             # byte-ring dispatch (the bd_base==0 fallback ABI): frame -> ring
             # header slot + wrapped payload. Folded builds do NOT generate this
@@ -2277,7 +2315,14 @@ class RingDMAWriter(LiteXModule):
                 NextState("CHECK"),
             )
         fsm.act("IDLE", idle_disp)
-        fsm.act("HDR_CAP",              # RSC: consume the head beats into the regfile
+        # RSC-only states: elaborated only when the engine exists. For capable
+        # builds act_rsc IS fsm.act (bit-identical elaboration); folded builds
+        # discard the constructed statement trees, so none of these states or
+        # their NextState targets are ever created (stage_close's k2 staging
+        # comb is the one construction side effect - a dangling wire nothing
+        # reads, swept at synthesis).
+        act_rsc = fsm.act if rsc_capable else (lambda name, *stmts: None)
+        act_rsc("HDR_CAP",              # RSC: consume the head beats into the regfile
             data_fifo.source.ready.eq(1),
             If(data_fifo.source.valid,
                 NextValue(hdr_reg[hdr_cnt], data_fifo.source.data),
@@ -2299,7 +2344,7 @@ class RingDMAWriter(LiteXModule):
         tl_lane   = Signal(3)
         self.comb += tl_lane.eq((m_sel_off + p_plen - 1)[:3])
 
-        fsm.act("MATCH",          # register the slot-selection cones (timing stage)
+        act_rsc("MATCH",          # register the slot-selection cones (timing stage)
             NextValue(m_hit, agg_match),
             NextValue(m_hit_idx, hit_idx),
             NextValue(m_free_any, free_any),
@@ -2310,8 +2355,8 @@ class RingDMAWriter(LiteXModule):
             NextValue(m_sel_buf, sel_buf),
             NextState("DISPATCH"),
         )
-        fsm.act("DISPATCH",
-            If(self.rsc_en.storage & p_mack,
+        act_rsc("DISPATCH",
+            If(rsc_on & p_mack,
                 # pure-ACK run: replace-in-place (cumulative ack), open, or flush
                 # the other flow's pending ACK (newcomer re-dispatches). The flush may
                 # run with aggregates open  -  the CQ keeps BD order == pop order.
@@ -2356,7 +2401,7 @@ class RingDMAWriter(LiteXModule):
                 # parked in hdr_reg and re-dispatches into a fresh aggregate)
                 NextValue(close_park, close_park + 1),          # M1 telemetry
                 *stage_close(m_flow_idx, cq_of_mflow, 0, 1),
-            ).Elif(p_eligible & self.rsc_en.storage & ~m_free_any & cq_room,
+            ).Elif(p_eligible & rsc_on & ~m_free_any & cq_room,
                 # all slots busy: park-close the round-robin victim (1-cycle CQ fill),
                 # then this frame re-dispatches into the freed slot. This is the only
                 # interleave park left  -  expect it rare (slots >= concurrent flows).
@@ -2415,7 +2460,7 @@ class RingDMAWriter(LiteXModule):
                 )
             )
         )
-        fsm.act("CQ_FILL",         # commit staged BDs (reg -> demux only). hs closes
+        act_rsc("CQ_FILL",         # commit staged BDs (reg -> demux only). hs closes
             If(pv3_pend,               # take two passes: last-page v3, then the meta.
                 *cq_write(pv3_cqi,
                     Cat(C(0xBD, 8), C(0, 8), pv3_fill, C(0, 16), C(0, 6),
@@ -2440,7 +2485,7 @@ class RingDMAWriter(LiteXModule):
                 )
             )
         )
-        fsm.act("ACK_POP",              # pending-ACK flush: needs a posted buffer
+        act_rsc("ACK_POP",              # pending-ACK flush: needs a posted buffer
             If(post_fifo.source.valid,
                 post_pop.eq(1),
                 *cq_alloc(),            # callers guarantee cq_room
@@ -2459,7 +2504,7 @@ class RingDMAWriter(LiteXModule):
                 )
             )
         )
-        fsm.act("APRIME",
+        act_rsc("APRIME",
             If(ap_prime,                             # consume ONE source beat into carry
                 If(in_hdrr,
                     NextValue(ap_carry, hdr_reg[fbeat[:4]]),
@@ -2488,17 +2533,26 @@ class RingDMAWriter(LiteXModule):
                     NextState("PREP"),
                 )
             )
-        fsm.act("PREP",                             # register this burst's geometry
-            If(hs & ap_append & ((off_r == hs_page_bytes) | ap_needswap),
-                NextState("HS_PGSWAP"),             # page full: v3 + JIT next-page pop
-            ).Else(
+        if rsc_capable:
+            fsm.act("PREP",                         # register this burst's geometry
+                If(hs & ap_append & ((off_r == hs_page_bytes) | ap_needswap),
+                    NextState("HS_PGSWAP"),         # page full: v3 + JIT next-page pop
+                ).Else(
+                    NextValue(blen_r, blen),
+                    NextValue(blen_m1, blen - 1),
+                    NextValue(addr_r, cur_addr),
+                    NextState("AW"),
+                )
+            )
+        else:
+            # folded: no hs page swaps (hs is a constant 0) - PREP is pure geometry
+            fsm.act("PREP",                         # register this burst's geometry
                 NextValue(blen_r, blen),
                 NextValue(blen_m1, blen - 1),
                 NextValue(addr_r, cur_addr),
                 NextState("AW"),
             )
-        )
-        fsm.act("HS_HAW",           # header-split opener: header -> ring slot
+        act_rsc("HS_HAW",           # header-split opener: header -> ring slot
             self.bus.aw.valid.eq(1),
             self.bus.aw.addr.eq(self.hs_hdr_base.storage[:32] + Cat(C(0, 7), cur_hidx)),
             self.bus.aw.len.eq(hdr_take - 1),
@@ -2508,7 +2562,7 @@ class RingDMAWriter(LiteXModule):
                 NextState("HS_HW"),
             )
         )
-        fsm.act("HS_HW",
+        act_rsc("HS_HW",
             self.bus.w.valid.eq(1),
             self.bus.w.data.eq(hdr_reg[hw_cnt]),
             self.bus.w.strb.eq(2**len(self.bus.w.strb) - 1),
@@ -2520,7 +2574,7 @@ class RingDMAWriter(LiteXModule):
                 )                           # by `outstanding`; WAIT_B syncs all)
             )
         )
-        fsm.act("HS_PGSWAP",
+        act_rsc("HS_PGSWAP",
             # the CURRENT page is complete: emit its v3 (reg->demux, shallow) and swap
             # to a freshly-popped page. Famine here = close the aggregate with what is
             # fully written (s_off excludes the in-flight frame) and discard its rest.
@@ -2640,9 +2694,10 @@ class RingDMAWriter(LiteXModule):
                 )
             )
         )
-        fsm.act("WAIT_B",
-            If(outstanding == 0,
-                If(bd_mode & ap_arm & ~p_flags[3],
+        # WAIT_B dispatch, built incrementally: folded builds keep only the
+        # plain single-BD commit arm (+ the legacy/quiesce Else).
+        if rsc_capable:
+            wb_disp = If(bd_mode & ap_arm & ~p_flags[3],
                     # RSC: first frame parked  -  slot_sel opens, BD deferred to close.
                     # hs mode: s_off counts PAYLOAD only (headers live in the side
                     # ring at s_hidx; the meta CQ entry pre-allocated at dispatch).
@@ -2743,7 +2798,17 @@ class RingDMAWriter(LiteXModule):
                     ).Else(
                         NextState("IDLE"),
                     )
-                ).Else(
+                )
+        else:
+            wb_disp = If(bd_mode,
+                # plain single v1 BD - the folded build's only BD commit arm
+                *cq_write(cur_cq,
+                    Cat(C(0xBD, 8), C(0, 8), bd_len, frame_csum, C(0, 16)),
+                    buf_addr_r),
+                NextValue(cq_done[cur_cq], 1),
+                NextState("IDLE"),
+            )
+        wb_disp = wb_disp.Else(
                     # legacy: byte-ring frame commit (wr advance + optional shadow
                     # writeback). Folded: quiesce  -  reachable only if bd_base is
                     # cleared mid-frame (drivers never do; enable-toggle re-inits);
@@ -2756,9 +2821,8 @@ class RingDMAWriter(LiteXModule):
                        ).Else(
                            NextState("IDLE"),
                        )] if legacy_ring else [NextState("IDLE")])
-                )
-            )
         )
+        fsm.act("WAIT_B", If(outstanding == 0, wb_disp))
         # ---- writeback: ring mode = one 8-byte {dropped, wr_ptr} shadow write (poll from
         # cache, not MMIO); BD mode = the 16-byte completion BD (meta + buf addr) to
         # bd_base+wr. Either way the write happens only AFTER the payload's last B response,
@@ -4017,7 +4081,7 @@ class MilanDMA(LiteXModule):
     upgrade  -  see docs/integration/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
     def __init__(self, soc, data_width=64, milan_cd="sys", rx_queues=1, hs_page_bytes=4096,
                  legacy_ring=True, rx_fifo_beats=2048, num_streams=1, pcm_ring="dram",
-                 aaf_playback=False):
+                 aaf_playback=False, rx_rsc=True):
         # rx_fifo_beats: store-and-forward ingress FIFO depth per RX queue (BRAM:
         # 2048 beats = 16KB = 4 RAMB36). Sized in the byte-ring era; in BD/hs
         # mode burst absorbency lives in the 60x16K posted-page pool, so 1024 is
@@ -4069,10 +4133,12 @@ class MilanDMA(LiteXModule):
         # famine => tail discard => TCP loss every burst clamped cwnd~27 (silicon
         # 2026-07-10: 138 Mbit; BUFSZ=16K config probe confirmed the model at 279).
         # 32 fits PAYCAP (meta+14 pages) plus a second aggregate with slack.
+        # rx_rsc=False (rxq2-sans-RSC): both queue writers elaborate WITHOUT the
+        # RSC engine; steering, BD/hs CSR maps and the plain v1 path are intact.
         self.rx = RingDMAWriter(axi.AXIInterface(data_width=data_width, address_width=32,
                                                  id_width=4), cq_depth=32,
                                 hs_page_bytes=hs_page_bytes, legacy_ring=legacy_ring,
-                                fifo_beats=rx_fifo_beats)
+                                fifo_beats=rx_fifo_beats, rsc_capable=rx_rsc)
         dma_bus.add_master("milan_dma_rx", master=self.rx.bus)
         # RX fan-out (rx_queues=2): a steering front-end splits the single RX stream
         # into 2 queues, each its own RingDMAWriter + IRQ + NAPI. Since the 802.1Q-ordered
@@ -4095,7 +4161,7 @@ class MilanDMA(LiteXModule):
                                      cq_depth=32, hs_capable=True,
                                      hs_page_bytes=hs_page_bytes,
                                      legacy_ring=legacy_ring,
-                                     fifo_beats=rx_fifo_beats)
+                                     fifo_beats=rx_fifo_beats, rsc_capable=rx_rsc)
             dma_bus.add_master("milan_dma_rx1", master=self.rx1.bus)
         self.ts = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
         dma_bus.add_master("milan_dma_ts", master=self.ts.bus)
@@ -4667,7 +4733,7 @@ class MilanSoC(SoCCore):
                  with_spiflash=False, flashboot="kernel", gtx_tx_invert=False,
                  main_ram_size=0x8000, milan_clk_freq=None, coherent_dma=False,
                  rgmii_tx_delay=2e-9, rgmii_rx_delay=2e-9, l2_bytes=None, with_fpu=False,
-                 extra_scala_args=None, cpu="naxriscv", rx_queues=1,
+                 extra_scala_args=None, cpu="naxriscv", rx_queues=1, rx_rsc=True,
                  strip_probes=False, hs_page_bytes=4096, legacy_ring=False,
                  rx_fifo_beats=2048, board="ax7101", eth_phy_index=0,
                  num_streams=1, audio_if_slots=0, talker_wire_chans=2,
@@ -4890,7 +4956,7 @@ class MilanSoC(SoCCore):
                 print("[milan] --aaf-playback ignored without --with-dma/--full")
             if with_dma:
                 self.milan_dma = MilanDMA(self, data_width=64, milan_cd=milan_cd,
-                                          rx_queues=rx_queues,
+                                          rx_queues=rx_queues, rx_rsc=rx_rsc,
                                           hs_page_bytes=hs_page_bytes,
                                           legacy_ring=legacy_ring,
                                           rx_fifo_beats=rx_fifo_beats,
@@ -5151,6 +5217,20 @@ def main():
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
     ap.add_argument("--rx-queues", default=1, type=int,
                     help="RX DMA queues (2 = flow-steered fan-out for parallel ACK/recv on 2 harts)")
+    ap.add_argument("--no-rx-rsc", action="store_true",
+                    help="AREA LEVER (rxq2-sans-RSC): elaborate OUT the RSC "
+                         "coalescing engine from EVERY RX queue writer - header "
+                         "parse regfile, 4-slot aggregate state, ACK-run merge, "
+                         "append rotator, header-split states - while KEEPING "
+                         "the 2-queue steering front-end (the D7 gPTP fix) and "
+                         "the whole CSR map (RSC/hs registers stay, inert). "
+                         "Every BD is then a v1 single frame, the path all "
+                         "non-TCP traffic takes today, so a deployed kl-eth "
+                         "(rsc=1 default) runs unmodified: coalescing simply "
+                         "never kicks in and SW GRO takes over (expect the "
+                         "pre-RSC ~43 Mbit/s TCP RX regime; AVTP/gPTP/UDP are "
+                         "unaffected). Default off => engine PRESENT, build "
+                         "byte-identical.")
     ap.add_argument("--hs-page-bytes", default=4096, type=lambda x: int(x, 0),
                     help="posted-page size the hs crossing arithmetic assumes (power of 2; "
                          "16384 = 4x burst absorbency, pairs STRICTLY with kl-eth hsplit12 "
@@ -5479,7 +5559,8 @@ def main():
                                    "tdm32": 32}[args.audio_interface],
                    talker_wire_chans=int(args.talker_wire_chans),
                    audio_if_master=bool(args.audio_interface_master),
-                   rx_queues=args.rx_queues, strip_probes=args.strip_probes,
+                   rx_queues=args.rx_queues, rx_rsc=not args.no_rx_rsc,
+                   strip_probes=args.strip_probes,
                    legacy_ring=args.legacy_ring,
                    rx_fifo_beats=int(args.rx_fifo_beats),
                    eth_phy_index=(1 if args.eth_port == "e2" else 0),
