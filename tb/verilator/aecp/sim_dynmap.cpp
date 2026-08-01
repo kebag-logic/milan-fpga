@@ -477,6 +477,60 @@ int main(int argc, char** argv) {
            r_be16(r, 46) == 2, 1);
     }
 
+    // ---------------------------------------------------------------- //
+    // 10. The walk's KEY-RESOLVE / VERDICT cycle contract                //
+    //                                                                    //
+    // DMAP_SCAN_S resolves the store key - and every value the verdict   //
+    // reaches THROUGH that key - one phase before the verdict renders.   //
+    // The contract is that the resolve runs again for EVERY record and   //
+    // reads the store as it stands BEFORE that record commits. A resolve //
+    // that did not re-run would judge record 1 with record 0's key, so   //
+    // the witness is order symmetry: the SAME pair of mappings presented //
+    // in both orders must reach the same verdict, and two DIFFERENT keys //
+    // in one command must land on two different keys.                    //
+    // ---------------------------------------------------------------- //
+    printf("\n[10] every record resolves its OWN key (walk phase contract)\n");
+    {
+        auto page = [&](int p) { return xact(CMD_GET_MAP, gm_pl(SPI, 0, p)); };
+        // compare two GET_AUDIO_MAP answers ignoring the echoed sequence_id
+        auto same_maps = [](const std::vector<uint8_t>& a,
+                            const std::vector<uint8_t>& b) {
+            if (a.size() != b.size() || a.size() < 38) return 0L;
+            return (long)(memcmp(&a[38], &b[38], a.size() - 38) == 0);
+        };
+        auto p1_before = page(1);              // keys 4..7, empty here
+
+        // (a) one valid + one invalid, BOTH orders: all-or-nothing either
+        //     way. A carried-over key makes the good-then-bad order pass.
+        auto r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,1,4,0}}, {{0,0,9,0}}}));
+        ck("[10a] good-then-bad ADD BAD_ARGUMENTS", r_status(r), 7);
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,0,9,0}}, {{0,1,4,0}}}));
+        ck("[10a] bad-then-good ADD BAD_ARGUMENTS", r_status(r), 7);
+        ck("[10a] neither attempt touched the store",
+           same_maps(page(1), p1_before), 1);
+
+        // (b) two DIFFERENT keys in one command land on two different keys
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,0,4,0}}, {{0,1,5,0}}}));
+        ck("[10b] two-key ADD SUCCESS", r_status(r), 0);
+        auto p1 = page(1);
+        ck("[10b] page1 carries TWO rows", r_be16(p1, 46), 2);
+        ck("[10b] cl4 <- st0 ch0", row_is(p1, 50, 0, 0,0,4,0), 1);
+        ck("[10b] cl5 <- st0 ch1", row_is(p1, 50, 1, 0,1,5,0), 1);
+
+        // (c) REMOVE present + absent, both orders: 7.4.46.1 refuses whole
+        r = xact(CMD_RM_MAP, am_pl(SPI, 0, {{{0,0,4,0}}, {{0,1,6,0}}}));
+        ck("[10c] present-then-absent REMOVE BAD_ARGUMENTS", r_status(r), 7);
+        ck("[10c] ...and removed nothing", same_maps(page(1), p1), 1);
+        r = xact(CMD_RM_MAP, am_pl(SPI, 0, {{{0,1,6,0}}, {{0,0,4,0}}}));
+        ck("[10c] absent-then-present REMOVE BAD_ARGUMENTS", r_status(r), 7);
+        ck("[10c] ...and removed nothing", same_maps(page(1), p1), 1);
+
+        // (d) and the pair really was two independent entries
+        r = xact(CMD_RM_MAP, am_pl(SPI, 0, {{{0,0,4,0}}, {{0,1,5,0}}}));
+        ck("[10d] both removed in one command SUCCESS", r_status(r), 0);
+        ck("[10d] page1 empty again", same_maps(page(1), p1_before), 1);
+    }
+
     printf("\n----------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");

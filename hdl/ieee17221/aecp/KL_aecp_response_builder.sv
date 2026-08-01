@@ -950,7 +950,8 @@ module KL_aecp_response_builder (
                   (w_gs_index < 16'(AEM_ODMAP_NPORTS_C));
   wire w_od_dyn = w_od_ok && AEM_ODMAP_PDYN_C[w_od_pidx];
 
-  //! record-verdict cone (registers only, same discipline as w_dm_*)
+  // ---- KEY-RESOLVE terms: read in DMAP_SCAN_S phase 8, consumed ONLY -----
+  // ---- by the odk_* registers below (never by the phase-9 verdict) ------
   wire w_od_co_ok = (dm_co_q < {11'd0, od_pcls_q});
   wire [12:0] w_od_t =
       AEM_ODMAP_CSRC_C[w_od_co_ok ? 32'(od_cb_q) + 32'(dm_co_q[6:0]) : 0];
@@ -958,32 +959,45 @@ module KL_aecp_response_builder (
       od_kb_q | ODMAP_KW_C'(dm_sc_q[2:0]);
   wire [ODMAP_KW_C-1:0] w_od_keyp =
       od_kb_q | ODMAP_KW_C'(odp_sc_q[2:0]);
+
+  //! phase-8 resolution of everything the verdict reaches through a KEY:
+  //! the CSRC source table (an adder off dm_co_q into a per-cluster table)
+  //! and the two pair-key reads of the output store. The odmap twin of the
+  //! w_dm_* split below - same reason, same phase, so neither branch can
+  //! become the other's critical path.
+  logic [12:0]           odk_t_q;      //! AEM_ODMAP_CSRC_C[..] for this record
+  logic                  odk_coq_ok_q; //! cluster_offset inside the port
+  logic [ODMAP_KW_C-1:0] odk_key_q;    //! this record's store key
+  logic [ODMAP_KW_C-1:0] odk_keyp_q;   //! the held even (L) record's key
+  logic                  odk_v_q,  odk_vp_q;   //! ov_r at those keys
+  logic [4:0]            odk_co_q, odk_cop_q;  //! oco_r at those keys
+
   //! even (L) record: its own bounds + a live L-half (or mono TONE) source
   wire w_od_even_ok =
       (dm_si_q == {12'd0, od_pstr_q}) && !dm_sc_q[0] &&
       (dm_sc_q < od_schx_q) && (dm_sc_q < 16'd8) &&
-      w_od_co_ok && (dm_cc_q == 16'd0) &&
-      w_od_t[12] && ((w_od_t[10:8] == 3'd4) || !w_od_t[11]) &&
+      odk_coq_ok_q && (dm_cc_q == 16'd0) &&
+      odk_t_q[12] && ((odk_t_q[10:8] == 3'd4) || !odk_t_q[11]) &&
       !oclaim_r[dm_sc_q[2:0]];
   //! odd (R) record: the partner channel, the SAME source pair's R half
   //! (or the SAME mono TONE cluster)
   wire w_od_odd_ok =
       (dm_si_q == {12'd0, od_pstr_q}) &&
       (dm_sc_q == {12'd0, odp_sc_q} + 16'd1) &&
-      w_od_co_ok && (dm_cc_q == 16'd0) && w_od_t[12] &&
+      odk_coq_ok_q && (dm_cc_q == 16'd0) && odk_t_q[12] &&
       ((odp_t_q[10:8] == 3'd4)
          ? (dm_co_q[4:0] == odp_co_q)
-         : (w_od_t[11] && (w_od_t[10:8] == odp_t_q[10:8]) &&
-            (w_od_t[7:0] == odp_t_q[7:0])));
+         : (odk_t_q[11] && (odk_t_q[10:8] == odp_t_q[10:8]) &&
+            (odk_t_q[7:0] == odp_t_q[7:0])));
   //! REMOVE present-check (7.4.46.1: "invalid or not present" refuses)
   wire w_od_rm_hit =
       (dm_si_q == {12'd0, od_pstr_q}) && (dm_sc_q < 16'd8) &&
-      (dm_cc_q == 16'd0) && ov_r[w_od_key] &&
-      (oco_r[w_od_key] == dm_co_q[4:0]);
+      (dm_cc_q == 16'd0) && odk_v_q &&
+      (odk_co_q == dm_co_q[4:0]);
   //! did this pair change the store (nochg replay suppressor)
   wire w_od_pair_chg =
-      !ov_r[w_od_keyp] || (oco_r[w_od_keyp] != odp_co_q) ||
-      !ov_r[w_od_key]  || (oco_r[w_od_key]  != dm_co_q[4:0]);
+      !odk_vp_q || (odk_cop_q != odp_co_q) ||
+      !odk_v_q  || (odk_co_q  != dm_co_q[4:0]);
 `endif
   //! live per-STREAM_INPUT channel count: resets to the ROM current_format
   //! and follows SET_STREAM_FORMAT, because 5.3.10.1 bounds a mapping by
@@ -1231,8 +1245,19 @@ module KL_aecp_response_builder (
   assign clk_src_o = clk_src_r;
 
 `ifdef AEM_DYNMAP
-  // ---- dynamic-map walk verdict terms (fed from REGISTERS only - the ---
-  // ---- BSCAN AX27 cone-split rule; consumed in DMAP_SCAN_S phase 8) ----
+  // ---- dynamic-map walk, KEY-RESOLVE terms (DMAP_SCAN_S phase 8) -------
+  //                                                                       //
+  // AX 100 MHz WNS -0.130, and eight of the ten worst paths on the board: //
+  // dm_co_q -> w_dm_gkey adder -> w_dm_key (fanout 94) -> the key-indexed //
+  // reads of the mapping store -> w_dm_rm_hit -> status_q/state_r ENABLE, //
+  // all inside the single verdict cycle. A key that indexes a 64-entry    //
+  // flop array is a mux as deep as the directory scans upstream, so it    //
+  // gets the same treatment the BSCAN walk already documents (AX27): the  //
+  // walk grows ONE phase - 8 RESOLVES the key and every value read        //
+  // THROUGH it, 9 renders the verdict from those registers. Free at       //
+  // command pace, and the store still sees pre-record contents because    //
+  // the resolve reads before the same record's commit writes.             //
+  // ---- these feed the dmk_* registers ONLY, never the verdict ----------
   //! GLOBAL store key = the latched port base + the record's cluster
   //! offset; a record outside the addressed port's own cluster block is
   //! invalid (7.2.19: the offset is "from the base_cluster of the
@@ -1258,12 +1283,26 @@ module KL_aecp_response_builder (
   //! behind it would have the entity report, through GET_AUDIO_MAP, a route
   //! that silently carries no audio - so it is refused at the door instead.
   wire w_dm_phys_ok  = (w_dm_gkey < 16'(AEM_DMAP_PHYS_C));
-  wire w_dm_shape_ok = (dm_cc_q == 16'd0) && w_dm_key_ok && w_dm_phys_ok
-                       && w_dm_si_in && AEM_DMAP_SAAF_C[w_dm_sidx];
-  wire w_dm_ch_ok    = (dm_sc_q < {6'd0, dm_sch_r[w_dm_sidx]}) &&
+
+  //! phase-8 resolution: the key itself, the two stream-indexed table
+  //! reads, and the four key-indexed store reads the verdict needs
+  logic [DMAP_KW_C-1:0] dmk_key_q;    //! this record's GLOBAL store key
+  logic                 dmk_keyok_q;  //! ...and whether it was in range
+  logic                 dmk_physok_q; //! cluster is physically renderable
+  logic                 dmk_siin_q;   //! stream index inside the model
+  logic                 dmk_saaf_q;   //! ...and that Stream Input is AAF
+  logic [9:0]           dmk_sch_q;    //! its live channel count
+  logic                 dmk_v_q;      //! dmap_v_r  at the key
+  logic [3:0]           dmk_ch_q;     //! dmap_ch_r at the key
+  logic [2:0]           dmk_si_q;     //! dmap_si_r at the key
+  logic                 dmk_claim_q;  //! dmap_claim_r at the key
+
+  // ---- phase-9 verdict: registers only --------------------------------
+  wire w_dm_shape_ok = (dm_cc_q == 16'd0) && dmk_keyok_q && dmk_physok_q
+                       && dmk_siin_q && dmk_saaf_q;
+  wire w_dm_ch_ok    = (dm_sc_q < {6'd0, dmk_sch_q}) &&
                        (dm_sc_q < 16'(DMAP_CHMAX_C));
-  wire w_dm_add_bad  = !w_dm_shape_ok || !w_dm_ch_ok
-                       || dmap_claim_r[w_dm_key];
+  wire w_dm_add_bad  = !w_dm_shape_ok || !w_dm_ch_ok || dmk_claim_q;
   //! 7.4.46.1, verbatim: "If any of the mappings in the command are invalid
   //! or not present then the command shall fail with a BAD_ARGUMENTS status
   //! and none of the mappings shall be removed." Only *invalid* is
@@ -1273,13 +1312,13 @@ module KL_aecp_response_builder (
   //! Duplicates still pass because validation runs to completion BEFORE any
   //! commit, so every copy sees the entry still present.
   wire w_dm_rm_bad   = !w_dm_rm_hit;
-  wire w_dm_add_chg  = !dmap_v_r[w_dm_key] ||
-                       (dmap_ch_r[w_dm_key] != dm_sc_q[3:0]) ||
-                       (dmap_si_r[w_dm_key] != dm_si_q[2:0]);
+  wire w_dm_add_chg  = !dmk_v_q ||
+                       (dmk_ch_q != dm_sc_q[3:0]) ||
+                       (dmk_si_q != dm_si_q[2:0]);
   wire w_dm_rm_hit   = w_dm_shape_ok && (dm_sc_q < 16'd16) &&
-                       dmap_v_r[w_dm_key] &&
-                       (dmap_ch_r[w_dm_key] == dm_sc_q[3:0]) &&
-                       (dmap_si_r[w_dm_key] == dm_si_q[2:0]);
+                       dmk_v_q &&
+                       (dmk_ch_q == dm_sc_q[3:0]) &&
+                       (dmk_si_q == dm_si_q[2:0]);
   wire [15:0] w_dm_n = {w_b6, w_b7};     //! number_of_mappings field
   wire [6:0]  w_dmg_base = 7'd6 + {dmg_n_r, 3'd0};  //! GET scratch cursor
 
@@ -1776,10 +1815,18 @@ module KL_aecp_response_builder (
       od_slotb_q <= 5'd0; od_schx_q <= 10'd0;
       odp_sc_q <= 4'd0;   odp_co_q <= 5'd0; odp_t_q <= 13'd0;
       odseed_r   <= 8'd0;
+      odk_t_q <= 13'd0;  odk_coq_ok_q <= 1'b0;
+      odk_key_q <= '0;   odk_keyp_q <= '0;
+      odk_v_q <= 1'b0;   odk_vp_q <= 1'b0;
+      odk_co_q <= 5'd0;  odk_cop_q <= 5'd0;
 `endif
       for (int s = 0; s < AEM_DMAP_NSTRIN_C; s++)
         dm_sch_r[s] <= AEM_DMAP_SCH_C[s];
       dmap_claim_r <= '0;
+      dmk_key_q <= '0;      dmk_keyok_q <= 1'b0; dmk_physok_q <= 1'b0;
+      dmk_siin_q <= 1'b0;   dmk_saaf_q <= 1'b0;  dmk_sch_q <= 10'd0;
+      dmk_v_q <= 1'b0;      dmk_ch_q <= 4'd0;    dmk_si_q <= 3'd0;
+      dmk_claim_q <= 1'b0;
       dmi_r <= 6'd0; dmn_q <= 6'd0; dmph_r <= 4'd0; dm_hi_r <= 8'd0;
       dm_si_q <= 16'd0; dm_sc_q <= 16'd0;
       dm_co_q <= 16'd0; dm_cc_q <= 16'd0;
@@ -3593,7 +3640,9 @@ module KL_aecp_response_builder (
         DMAP_SCAN_S: begin   //! ADD/REMOVE mapping walk (BSCAN pattern:
                              //! one byte/cycle through the single cbuf
                              //! port, verdict from registers only)
-          if (dmph_r != 4'd8) begin
+                             //! phases 0-7 field bytes · 8 KEY RESOLVE ·
+                             //! 9 verdict
+          if (dmph_r < 4'd8) begin
             unique case (dmph_r[2:0])
               3'd0: dm_hi_r <= cbuf_rbyte_w;
               3'd1: dm_si_q <= {dm_hi_r, cbuf_rbyte_w};
@@ -3605,6 +3654,33 @@ module KL_aecp_response_builder (
               default: dm_cc_q <= {dm_hi_r, cbuf_rbyte_w};
             endcase
             dmph_r <= dmph_r + 4'd1;
+          end else if (dmph_r == 4'd8) begin
+            //! Phase 8 - KEY RESOLVE. The record's four fields are all
+            //! captured by now, so every key and every value the verdict
+            //! reaches THROUGH a key is resolved here and nowhere else.
+            //! The reads are of the store as it stands BEFORE this
+            //! record's own commit, which is what both verdicts mean.
+            dmk_key_q    <= w_dm_key;
+            dmk_keyok_q  <= w_dm_key_ok;
+            dmk_physok_q <= w_dm_phys_ok;
+            dmk_siin_q   <= w_dm_si_in;
+            dmk_saaf_q   <= AEM_DMAP_SAAF_C[w_dm_sidx];
+            dmk_sch_q    <= dm_sch_r[w_dm_sidx];
+            dmk_v_q      <= dmap_v_r [w_dm_key];
+            dmk_ch_q     <= dmap_ch_r[w_dm_key];
+            dmk_si_q     <= dmap_si_r[w_dm_key];
+            dmk_claim_q  <= dmap_claim_r[w_dm_key];
+`ifdef AEM_ODYNMAP
+            odk_t_q      <= w_od_t;
+            odk_coq_ok_q <= w_od_co_ok;
+            odk_key_q    <= w_od_key;
+            odk_keyp_q   <= w_od_keyp;   //! odp_sc_q still holds the L record
+            odk_v_q      <= ov_r [w_od_key];
+            odk_co_q     <= oco_r[w_od_key];
+            odk_vp_q     <= ov_r [w_od_keyp];
+            odk_cop_q    <= oco_r[w_od_keyp];
+`endif
+            dmph_r <= 4'd9;
           end else begin
             dmph_r <= 4'd0;
 `ifdef AEM_ODYNMAP
@@ -3613,7 +3689,7 @@ module KL_aecp_response_builder (
               //! the PAIR (see the vendor rules at the odmap declarations)
               odp_sc_q <= dm_sc_q[3:0];
               odp_co_q <= dm_co_q[4:0];
-              odp_t_q  <= w_od_t;
+              odp_t_q  <= odk_t_q;   //! phase 8's resolution, same record
               if (!dm_commit_q) begin
                 if (dm_remove_q
                     ? !(w_od_rm_hit &&
@@ -3639,18 +3715,18 @@ module KL_aecp_response_builder (
                 //! pair-slot write into the capture crossbar
                 if (dmi_r[0]) begin
                   if (!dm_remove_q) begin
-                    ov_r [w_od_keyp] <= 1'b1;
-                    oco_r[w_od_keyp] <= odp_co_q;
-                    ov_r [w_od_key]  <= 1'b1;
-                    oco_r[w_od_key]  <= dm_co_q[4:0];
+                    ov_r [odk_keyp_q] <= 1'b1;
+                    oco_r[odk_keyp_q] <= odp_co_q;
+                    ov_r [odk_key_q]  <= 1'b1;
+                    oco_r[odk_key_q]  <= dm_co_q[4:0];
                     if (w_od_pair_chg) dmap_diff_q <= 1'b1;
                     odmap_wr_p_o    <= 1'b1;
                     odmap_wr_slot_o <= od_slotb_q + 5'(odp_sc_q[3:1]);
                     odmap_wr_word_o <= {odp_t_q[7:4], 1'b1,
                                         odp_t_q[10:8], odp_t_q[3:0]};
                   end else begin
-                    ov_r[w_od_keyp] <= 1'b0;
-                    ov_r[w_od_key]  <= 1'b0;
+                    ov_r[odk_keyp_q] <= 1'b0;
+                    ov_r[odk_key_q]  <= 1'b0;
                     dmap_diff_q     <= 1'b1;
                     odmap_wr_p_o    <= 1'b1;
                     odmap_wr_slot_o <= od_slotb_q + 5'(odp_sc_q[3:1]);
@@ -3687,7 +3763,7 @@ module KL_aecp_response_builder (
                 status_q <= STATUS_BAD_ARGUMENTS;
                 state_r  <= WRITE_S;
               end else begin
-                if (!dm_remove_q) dmap_claim_r[w_dm_key] <= 1'b1;
+                if (!dm_remove_q) dmap_claim_r[dmk_key_q] <= 1'b1;
                 if (dmi_r == dmn_q - 6'd1) begin
                   dmi_r       <= 6'd0;
                   dm_commit_q <= 1'b1;
@@ -3702,21 +3778,21 @@ module KL_aecp_response_builder (
               //! exact match and IGNORES everything else (5.4.2.28
               //! duplicate rule). Replays re-run this idempotently.
               if (!dm_remove_q) begin
-                dmap_v_r [w_dm_key] <= 1'b1;
-                dmap_ch_r[w_dm_key] <= dm_sc_q[3:0];
-                dmap_si_r[w_dm_key] <= dm_si_q[2:0];
+                dmap_v_r [dmk_key_q] <= 1'b1;
+                dmap_ch_r[dmk_key_q] <= dm_sc_q[3:0];
+                dmap_si_r[dmk_key_q] <= dm_si_q[2:0];
                 if (w_dm_add_chg) dmap_diff_q <= 1'b1;
                 //! fabric mirror: one render-map write per accepted record,
                 //! addressed by the GLOBAL cluster key = the physical
                 //! render channel (docs/CHMAP64_AEM_BINDING.md)
                 dmap_wr_p_o    <= 1'b1;
-                dmap_wr_addr_o <= 6'(w_dm_key);
+                dmap_wr_addr_o <= 6'(dmk_key_q);
                 dmap_wr_word_o <= {1'b1, 1'b0, dm_si_q[2:0], dm_sc_q[2:0]};
               end else if (w_dm_rm_hit) begin
-                dmap_v_r[w_dm_key] <= 1'b0;
+                dmap_v_r[dmk_key_q] <= 1'b0;
                 dmap_diff_q <= 1'b1;
                 dmap_wr_p_o    <= 1'b1;
-                dmap_wr_addr_o <= 6'(w_dm_key);
+                dmap_wr_addr_o <= 6'(dmk_key_q);
                 dmap_wr_word_o <= 8'h00;
               end
               if (dmi_r == dmn_q - 6'd1) begin
