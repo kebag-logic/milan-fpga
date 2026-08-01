@@ -621,6 +621,148 @@ def interval_ticks_agree(talker_delta: Optional[int],
     return ("PASS", d)
 
 
+def check_concurrent_flowing(pair_ticks, *, licensed=None,
+                             torn_down=None) -> tuple:
+    """Do ALL concurrently bound pairs move TOGETHER, in INTERVAL terms?
+
+    `pair_ticks` maps a pair label to {"tx_ticks": d, "rx_ticks": d} - the
+    talker's FRAMES_TX and the listener's FRAMES_RX OBSERVATION-INTERVAL deltas
+    (Milan v1.2 Table 5.4/5.6) over ONE shared window, never frames, and never
+    one window per pair: a serial walk cannot see cross-stream interference,
+    which is the defect class this verdict exists for (CBS shaping under
+    aggregate load, the multi-slot rings, a per-index datapath fault).  A side
+    that could not be read is None.
+
+    The licence gates the whole question exactly as it gates the pairwise
+    frames-advance verdicts: Milan v1.2 5.3.7.3 licenses each Stream Output by
+    its OWN Talker Advertise + Listener Ready conjunction, so with the gate
+    SHUT or UNKNOWN every bound talker may be correctly silent and the verdict
+    is SKIP, never a violation.
+
+    With the licence OPEN:
+      * every readable pair moving on every readable side -> PASS;
+      * ANY readable pair static - including one-sided movement, tx without rx
+        - -> FAIL naming the dead pairs.  A measured dead pair outranks a
+        measurement gap on another pair;
+      * pairs unreadable on BOTH sides are named; if nothing else is dead the
+        verdict is SKIP, because "every pair flows" cannot be certified
+        through a hole.
+
+    `torn_down` names the pair whose UNBIND preceded this window, for the
+    staged-teardown flavour: the survivors kept their own licences, so a
+    neighbour going dead right after an unbind is the cross-stream-independence
+    defect.
+    """
+    ctx = f" after tearing down {torn_down}" if torn_down else ""
+    if not pair_ticks:
+        return ("SKIP", {"why": "no concurrently bound pairs were supplied, "
+                                "so there is no concurrency to verify"})
+    if licensed is None:
+        return ("SKIP", {"why": "the streaming licence (LWSRP_STATUS "
+                                f"{LWSRP_STATUS_ADDR:#05x} bit 8) is UNKNOWN, "
+                                "so nothing is owed on any pair; supply "
+                                "--licence-status <word> from the documented "
+                                "pre-step",
+                         "pairs": dict(sorted(pair_ticks.items()))})
+    if licensed is False:
+        return ("SKIP", {"why": "the stream gate is SHUT, so Milan v1.2 "
+                                "5.3.7.3's licence is not complete and every "
+                                "bound talker is CORRECTLY silent; concurrent "
+                                "flow is not owed",
+                         "pairs": dict(sorted(pair_ticks.items()))})
+    flowing, dead, unreadable, one_sided = [], [], [], {}
+    for label, t in sorted(pair_ticks.items()):
+        tx, rx = t.get("tx_ticks"), t.get("rx_ticks")
+        vals = [v for v in (tx, rx) if v is not None]
+        if not vals:
+            unreadable.append(label)
+            continue
+        if tx is None or rx is None:
+            one_sided[label] = {"tx_ticks": tx, "rx_ticks": rx}
+        if all(v > 0 for v in vals):
+            flowing.append(label)
+        else:
+            dead.append(label)
+    detail = {"pairs": dict(sorted(pair_ticks.items())), "flowing": flowing,
+              "dead": dead, "unreadable": unreadable,
+              "readable_on_one_side_only": one_sided,
+              "compares": "OBSERVATION INTERVALS (Milan Table 5.4/5.6), "
+                          "NOT frames"}
+    if dead:
+        detail["why"] = (
+            f"{len(dead)} of {len(pair_ticks)} concurrently bound pairs "
+            f"{dead} went static{ctx} while the licence is OPEN and "
+            f"{len(flowing)} neighbour(s) flowed.  Milan v1.2 5.3.7.3 "
+            "licenses each Stream Output by its own conjunction, so every "
+            "bound pair owes movement simultaneously"
+            + (": a teardown that kills a neighbour stream is the "
+               "cross-stream-independence defect this step exists to catch"
+               if torn_down else
+               ": one stream starving under aggregate load is invisible to a "
+                "pairwise walk, which is why this area exists"))
+        return ("FAIL", detail)
+    if unreadable:
+        detail["why"] = (f"{unreadable} could not be read on either side, so "
+                         f"'every pair flows{ctx}' cannot be certified; this "
+                         f"is NOT a failure of the pairs that answered")
+        return ("SKIP", detail)
+    return ("PASS", detail)
+
+
+def check_unbound_static(deltas) -> tuple:
+    """Per-index counter ISOLATION: the UNBOUND Stream Inputs stay static while
+    their bound neighbours stream.
+
+    `deltas` maps an unbound side label to {counter: delta-or-None} over the
+    SAME shared window the bound pairs were measured in.  Milan v1.2 5.3.8.10
+    keeps the Table 5.6 counters "For each Stream Input of the currently set
+    Configuration" - PER Stream Input - so an unbound index that ticks while a
+    neighbour streams is the per-index aliasing/bleed defect class: four such
+    defects hid behind index-0-only testing on this fabric (GET_STREAM_INFO,
+    MAX_TRANSIT_TIME, GET_COUNTERS, the talker state bits), which is exactly
+    why this is asserted and not assumed.
+
+    A negative delta is INFO, not PASS and not FAIL: the block was reset or a
+    32-bit counter wrapped, so the window measured nothing on that index
+    (same doctrine as check_no_growth()).
+    """
+    if not deltas:
+        return ("SKIP", {"why": "no unbound stream inputs in this set - every "
+                                "index is bound, so isolation has no subject "
+                                "here (it is still asserted by the sets that "
+                                "leave indices unbound)"})
+    moved, wrapped, unreadable = {}, {}, []
+    for label, ctrs in sorted(deltas.items()):
+        vals = {k: v for k, v in (ctrs or {}).items() if v is not None}
+        if not vals:
+            unreadable.append(label)
+            continue
+        for k, v in vals.items():
+            if v > 0:
+                moved[f"{label}.{k}"] = v
+            elif v < 0:
+                wrapped[f"{label}.{k}"] = v
+    detail = {"deltas": dict(sorted(deltas.items())), "moved": moved,
+              "wrapped_or_reset": wrapped, "unreadable": unreadable}
+    if moved:
+        detail["why"] = ("an UNBOUND Stream Input's counters ticked while its "
+                         "neighbours streamed: Milan v1.2 5.3.8.10 keeps the "
+                         "counters PER Stream Input, so this is the per-index "
+                         "aliasing/bleed defect class that index-0-only "
+                         "testing can never see")
+        return ("FAIL", detail)
+    if unreadable and len(unreadable) == len(deltas):
+        detail["why"] = ("no unbound stream input was readable, so isolation "
+                         "was not measured; this is not evidence of health")
+        return ("SKIP", detail)
+    if wrapped:
+        detail["why"] = ("an unbound counter went DOWN: the block was reset "
+                         "or a 32-bit counter wrapped, so the window measured "
+                         "nothing on it")
+        return ("INFO", detail)
+    return ("PASS", detail)
+
+
 #: The test machine's own loss lanes.  /sys/class/net/<iface>/statistics/ names
 #: (net_device_stats; Documentation/networking/statistics.rst).
 #: ONLY counters that can falsify this instrument's readings belong here:
@@ -1050,6 +1192,58 @@ LICENSED_STREAMING_ASSERTS = (
     A_XSIDE_CORROBORATED, A_XSIDE_UNLICENSED_SILENT, A_XSIDE_NOT_MORE,
     A_XSIDE_PRUNED, A_XSIDE_INTERVAL_AGREE, A_INSTRUMENT_LOSSLESS)
 
+# ------------------------------------- the multi-stream concurrency asserts --
+#: Real deployments run MANY streams at once, and the pairwise matrix - bind
+#: one, verify, unbind, next - can never see what only happens under aggregate
+#: load: CBS shaping with several class A streams in the shaped queue, the
+#: multi-slot rings actually multiplexing, per-index counter isolation, and a
+#: teardown disturbing its neighbours.  These three assertions are the ones
+#: that only exist across concurrently bound pairs.
+A_MULTI_ALL_FLOWING = AssertSpec(
+    "multi.concurrent-all-flowing",
+    "Milan v1.2 5.3.7.3 applied PER Stream Output: each concurrently bound "
+    "pair holds its OWN licence (its Talker Advertise and its own Listener "
+    "Ready), so with the gate open EVERY bound pair's interval counters "
+    "(Table 5.4 FRAMES_TX / Table 5.6 FRAMES_RX) advance together over one "
+    "shared window.  One stream going static while its neighbours flow is the "
+    "aggregate-load defect class - CBS credit starvation, ring-slot "
+    "contention, a per-index datapath fault - and it is structurally "
+    "invisible to a pairwise walk")
+A_MULTI_ISOLATION = AssertSpec(
+    "multi.unbound-counters-static",
+    "Milan v1.2 5.3.8.10: 'For each Stream Input of the currently set "
+    "Configuration, the PAAD-AE shall keep track of the counters in Table "
+    "5.6' - PER Stream Input.  So while bound indices stream, the UNBOUND "
+    "indices' counters stay static; an unbound index ticking is the per-index "
+    "aliasing/bleed defect class, and four such defects hid behind "
+    "index-0-only testing on this fabric")
+A_MULTI_SURVIVORS = AssertSpec(
+    "multi.neighbour-streams-survive-teardown",
+    "Milan v1.2 5.3.7.3: the streaming licence is per Stream Output - a "
+    "Talker Advertise AND that stream's own Listener Ready.  An UNBIND "
+    "removes only the torn-down stream's Listener Ready, so every other "
+    "bound pair keeps its licence and shall keep streaming, undisturbed "
+    "(IEEE 1722.1-2021 8.2.2.6.2.1 makes the same independence argument for "
+    "multiple listeners on one talker).  A teardown that kills a neighbour "
+    "stream is the cross-stream-independence defect this step exists to "
+    "catch")
+
+#: What each phase of a concurrency set owes.  The bind phase is deliberately
+#: lean - concurrency is the subject, format negotiation is the matrix's - and
+#: the verify phase reuses the pairwise per-index machinery (interval ticks,
+#: invariants, growth) so the tolerance doctrine stays in one place.
+MULTI_BIND_ASSERTS = (A_ACMP_STATUS, A_FORMAT_READBACK, A_ADP_ALIVE)
+MULTI_VERIFY_ASSERTS = (
+    A_SRP_LICENCE, A_TX_TICKING, A_RX_TICKING, A_MULTI_ALL_FLOWING,
+    A_MULTI_ISOLATION, A_LOCK_INVARIANT, A_TALKER_INVARIANT,
+    A_NO_LATE_EARLY, A_NO_SEQ_MISMATCH, A_NO_UNSUPPORTED,
+    A_XSIDE_INTERVAL_AGREE, A_INSTRUMENT_LOSSLESS)
+MULTI_TEARDOWN_ONE_ASSERTS = (
+    A_ACMP_STATUS, A_STOP_TAKES_EFFECT, A_SRP_LICENCE, A_MULTI_SURVIVORS,
+    A_INSTRUMENT_LOSSLESS)
+MULTI_TEARDOWN_REST_ASSERTS = (A_ACMP_STATUS, A_STOP_TAKES_EFFECT,
+                               A_ADP_ALIVE)
+
 
 # ---------------------------------------------------------------- topology ----
 @dataclass
@@ -1362,6 +1556,189 @@ def plan_matrix(dut: Device = ARTY, peer: Device = PEER,
     for ti in dut.talker_indices():
         for li in dut.listener_indices():
             steps += _pair_steps("loop", "matrix", dut, ti, dut, li, fmt)
+    return steps
+
+
+def _multi_pair(tk: Device, ti: int, ls: Device, li: int,
+                fmt: Optional[str]) -> dict:
+    p = {"talker": tk.entity_id, "talker_index": ti, "talker_mac": tk.mac,
+         "listener": ls.entity_id, "listener_index": li,
+         "listener_mac": ls.mac, "label": f"{tk.name}t{ti}-{ls.name}l{li}"}
+    if fmt:
+        p["format"] = fmt
+    return p
+
+
+def _multi_pairs_primaries(dut: Device, peer: Device, fmt) -> list:
+    """EVERY reachable reference listener fed CONCURRENTLY.
+
+    The listener set comes from the peer's spec exactly as the matrix's does -
+    listener_indices(), which on a redundant device names the (p) primaries
+    only (the PEER serves 0/2/4/6/8; the (s) secondaries can never carry a
+    stream on a one-network bench) - so nothing here is hardcoded to any
+    device.  Talkers are the DUT's AAF set, assigned cyclically so every peer
+    listener is fed even when the DUT has fewer talkers than the peer has
+    listeners; a talker reused that way carries two listeners on ONE stream,
+    which IEEE 1722.1-2021 8.2.2.6.2.1 permits.  On the AX 8x8 against the
+    PEER this is a plain 1:1 zip: t0..t4 -> l0/2/4/6/8.
+    """
+    tks = dut.talker_indices(include_crf=False)
+    lss = peer.listener_indices(include_crf=False)
+    if not tks or not lss:
+        return []
+    return [_multi_pair(dut, tks[i % len(tks)], peer, li, fmt)
+            for i, li in enumerate(lss)]
+
+
+def _multi_pairs_selfloop(dut: Device, fmt) -> list:
+    """The DUT's own talkers into its own listeners, tN -> lN, concurrently.
+
+    This is the set that stresses the DUT on BOTH sides at once - every
+    packetizer and every depacketizer live in the same fabric - and, like the
+    matrix's loop prefix, it needs no peer at all.
+    """
+    tks = dut.talker_indices(include_crf=False)
+    lss = dut.listener_indices(include_crf=False)
+    return [_multi_pair(dut, t, dut, li, fmt) for t, li in zip(tks, lss)]
+
+
+def _multi_pairs_mixed(dut: Device, peer: Device, fmt) -> list:
+    """Outbound and self-loop pairs INTERLEAVED in one concurrent set, when
+    the shapes allow (two or more DUT talkers, and a listener on each side).
+    A defect that only appears when the egress path serves the wire and the
+    loopback simultaneously is invisible to both homogeneous sets."""
+    tks = dut.talker_indices(include_crf=False)
+    plss = peer.listener_indices(include_crf=False)
+    dlss = dut.listener_indices(include_crf=False)
+    if len(tks) < 2 or not plss or not dlss:
+        return []
+    out, pi, di = [], 0, 0
+    for n, ti in enumerate(tks):
+        if n % 2 == 0 and pi < len(plss):
+            out.append(_multi_pair(dut, ti, peer, plss[pi], fmt))
+            pi += 1
+        elif di < len(dlss):
+            out.append(_multi_pair(dut, ti, dut, dlss[di], fmt))
+            di += 1
+    return out
+
+
+def _multi_single_listener_pair(pairs: list) -> dict:
+    """The pair the staged teardown unbinds FIRST: one whose talker serves
+    exactly one listener in the set, so the stop-verification can expect
+    silence.  A talker feeding two listeners keeps its licence through the
+    remaining Listener Ready (Milan v1.2 5.3.7.3), so unbinding one of its
+    listeners owes CONTINUED streaming, not silence - the plan states which
+    expectation applies rather than leaving the runner to guess."""
+    counts = {}
+    for p in pairs:
+        k = (p["talker"], p["talker_index"])
+        counts[k] = counts.get(k, 0) + 1
+    for p in pairs:
+        if counts[(p["talker"], p["talker_index"])] == 1:
+            return p
+    return pairs[-1]
+
+
+def _multi_set_steps(name: str, dut: Device, peer: Device, pairs: list,
+                     note: str) -> list:
+    """bind-all -> verify-concurrent -> teardown-one -> teardown-rest, for one
+    concurrency set.  The staged teardown is the point: unbind ONE stream,
+    prove the others keep flowing, THEN take the rest down with the same
+    stop-takes-effect discipline the matrix uses."""
+    sid = f"multi.{name}"
+    bound = {(p["listener"], p["listener_index"]) for p in pairs}
+    unbound = []
+    for dev in (dut, peer) if peer is not dut else (dut,):
+        for li in dev.listener_indices(include_crf=False):
+            if (dev.entity_id, li) not in bound:
+                unbound.append({"entity": dev.entity_id, "mac": dev.mac,
+                                "index": li, "label": f"{dev.name}l{li}"})
+    tear = _multi_single_listener_pair(pairs)
+    survivors = [p for p in pairs if p is not tear]
+    tear_alone = sum(1 for p in pairs
+                     if (p["talker"], p["talker_index"]) ==
+                     (tear["talker"], tear["talker_index"])) == 1
+    return [
+        Step(sid + ".bind-all", "multi", "multi_connect",
+             {"set": name, "pairs": pairs},
+             asserts=MULTI_BIND_ASSERTS,
+             clause="Milan v1.2 5.5.3.5 BIND_RX, once per pair, with the "
+                    "5.5.1.2 listener-adapts format rule applied per pair",
+             note=note),
+        Step(sid + ".verify-concurrent", "multi", "multi_verify",
+             {"set": name, "pairs": pairs, "unbound": unbound,
+              "measure_s": 4.0},
+             asserts=MULTI_VERIFY_ASSERTS,
+             clause="Milan v1.2 5.3.7.3 per Stream Output + Table 5.4/5.6 "
+                    "interval terms + 5.3.8.10 per-input counters",
+             note="ONE shared window across every side, bound and unbound - "
+                  "a serial walk cannot see cross-stream interference.  The "
+                  "licence gates the flow expectations exactly as the "
+                  "pairwise steps' do, and the comparison is interval ticks, "
+                  "never frames"),
+        Step(sid + ".teardown-one", "multi", "multi_teardown_one",
+             {"set": name, "unbind": tear, "survivors": survivors,
+              "expect_talker_silent": tear_alone,
+              "stop_window_s": 4.0, "measure_s": 4.0},
+             asserts=MULTI_TEARDOWN_ONE_ASSERTS,
+             clause="Milan v1.2 5.5.3.5 UNBIND_RX + 5.3.7.3: only the "
+                    "torn-down stream's licence ends; the survivors keep "
+                    "flowing undisturbed",
+             note="the cross-stream-independence probe: a teardown that "
+                  "kills a neighbour stream is the defect this step exists "
+                  "to catch"),
+        Step(sid + ".teardown-rest", "multi", "multi_teardown_rest",
+             {"set": name, "pairs": survivors, "stop_window_s": 4.0},
+             asserts=MULTI_TEARDOWN_REST_ASSERTS,
+             clause="Milan v1.2 5.5.3.5 UNBIND_RX + 5.3.7.3 + IEEE "
+                    "1722.1-2021 7.4.36: after the last unbind each talker "
+                    "owes silence, verified per talker",
+             note="an unverified stop latches the talker and poisons every "
+                  "later measurement (the 94-of-95 false-PASS history), so "
+                  "the full teardown verifies per talker exactly as the "
+                  "matrix unbind does"),
+    ]
+
+
+def plan_multi(dut: Device = ARTY, peer: Device = PEER) -> list:
+    """MULTI-STREAM CONCURRENCY: many streams bound and verified AT ONCE.
+
+    The matrix walks pair by pair, and four whole defect classes are invisible
+    to that walk because they only exist under aggregate load: CBS shaping
+    with several class A streams in the shaped queue at once, the multi-slot
+    rings actually multiplexing, per-index counter ISOLATION (an unbound index
+    ticking while a neighbour streams - the alias/bleed class that produced
+    four real defects under index-0-only testing), and cross-stream
+    independence at teardown (an unbind that kills a neighbour).  Real
+    deployments run many streams simultaneously, so a campaign that only ever
+    binds one at a time certifies a shape no deployment uses.
+
+    Three sets, each derived from the device SPECS and never hardcoded:
+      * primaries - every reachable reference listener fed concurrently
+        (on the AX 8x8 against the PEER: t0..t4 -> l0/2/4/6/8);
+      * selfloop  - the DUT's own tN -> lN, both directions of the fabric
+        loaded at once, no peer needed;
+      * mixed     - outbound and loopback interleaved, when the shapes allow.
+    Each set runs bind-all -> verify-concurrent -> STAGED teardown (one
+    stream out, prove the others undisturbed, then the rest with per-talker
+    stop verification).  Sets run serially and each is fully torn down before
+    the next, so a set's verdicts are never polluted by a predecessor.
+    """
+    fmt = dut.formats[0] if dut.formats else None
+    steps = []
+    for name, pairs, note in (
+            ("primaries", _multi_pairs_primaries(dut, peer, fmt),
+             "every reachable reference listener fed concurrently; the "
+             "listener set comes from the peer's spec (on a redundant device "
+             "that is the (p) primaries only)"),
+            ("selfloop", _multi_pairs_selfloop(dut, fmt),
+             "the DUT's own talkers into its own listeners, tN -> lN, so "
+             "every packetizer and depacketizer works at once"),
+            ("mixed", _multi_pairs_mixed(dut, peer, fmt),
+             "outbound and loopback interleaved in one concurrent set")):
+        if pairs:
+            steps += _multi_set_steps(name, dut, peer, pairs, note)
     return steps
 
 
@@ -1883,6 +2260,7 @@ def plan_torture(dut: Device = ARTY, peer: Device = PEER) -> list:
 
 AREAS = {
     "matrix": plan_matrix,
+    "multi": plan_multi,
     "churn": plan_churn,
     "payload": plan_payload,
     "audio": plan_audio,
@@ -1933,6 +2311,21 @@ def plan_covers_every_index(plan, dut: Device = ARTY,
                 seen["peer_talker"].add(tk["index"])
             if tk.get("entity") == dut.entity_id:
                 seen["dut_talker"].add(tk["index"])
+        # the multi area's steps carry SETS of pairs, and the staged teardown
+        # carries the torn-down pair and the survivors separately
+        for p in (list(a.get("pairs", [])) + list(a.get("survivors", []))
+                  + ([a["unbind"]] if isinstance(a.get("unbind"), dict)
+                     else [])):
+            t2, ti2 = p.get("talker"), p.get("talker_index")
+            l2, li2 = p.get("listener"), p.get("listener_index")
+            if t2 == dut.entity_id and ti2 is not None:
+                seen["dut_talker"].add(ti2)
+            if t2 == peer.entity_id and ti2 is not None:
+                seen["peer_talker"].add(ti2)
+            if l2 == dut.entity_id and li2 is not None:
+                seen["dut_listener"].add(li2)
+            if l2 == peer.entity_id and li2 is not None:
+                seen["peer_listener"].add(li2)
     return {k: sorted(v) for k, v in seen.items()}
 
 
@@ -1960,6 +2353,11 @@ def area_index_expectations(dut: Device = ARTY, peer: Device = PEER) -> dict:
     The expectations differ because the areas differ, and pretending otherwise
     would produce false reds instead of real ones:
       * matrix - the full cross product, every index, CRF included;
+      * multi - every reachable PEER listener fed concurrently (the primaries
+        set), every DUT AAF listener a talker can reach (the selfloop set),
+        and every DUT AAF talker those two sets need; CRF EXCLUDED - a CRF
+        pair inside an AAF concurrency set would poison it with conformant
+        format refusals, and the CRF stream has its own matrix cells;
       * churn - every DUT listener index (the implicit rebind is a listener-side
         transition) and every peer talker index (the storm rotates them);
       * payload - every DUT talker index, CRF included (the CRF capture has its
@@ -1970,11 +2368,23 @@ def area_index_expectations(dut: Device = ARTY, peer: Device = PEER) -> dict:
       * torture - not per-index by nature; the adverse conditions apply to the
         device, and an empty expectation says so out loud instead of silently.
     """
+    aaf_t = dut.talker_indices(include_crf=False)
+    aaf_l = dut.listener_indices(include_crf=False)
+    p_l = peer.listener_indices(include_crf=False)
     return {
         "matrix": {"dut_talker": dut.talker_indices(),
                    "dut_listener": dut.listener_indices(),
                    "peer_talker": peer.talker_indices(),
                    "peer_listener": peer.listener_indices()},
+        # stated independently of the pair builders on purpose: an expectation
+        # derived from the same code it audits is a tautology that can never
+        # say no
+        "multi": {"dut_talker": (aaf_t if len(aaf_t) <= max(len(p_l),
+                                                            len(aaf_l), 1)
+                                 else sorted(set(aaf_t[:len(p_l)])
+                                             | set(aaf_t[:len(aaf_l)]))),
+                  "dut_listener": aaf_l[:len(aaf_t)] if aaf_t else [],
+                  "peer_listener": p_l},
         "churn": {"dut_listener": dut.listener_indices(include_crf=False),
                   "peer_talker": peer.talker_indices()},
         "payload": {"dut_talker": dut.talker_indices()},
@@ -2508,8 +2918,147 @@ def self_test() -> int:
             with self.assertRaises(ValueError):
                 build_plan(["nope"])
             self.assertEqual({s.area for s in build_plan()},
-                             {"matrix", "churn", "payload", "audio",
+                             {"matrix", "multi", "churn", "payload", "audio",
                               "torture"})
+
+        def test_multi_area_walks_concurrent_sets_and_serialises(self):
+            plan = build_plan(["multi"])
+            self.assertTrue(plan)
+            sids = [s.sid for s in plan]
+            # every set runs its four phases in teardown-safe order
+            for name in ("primaries", "selfloop", "mixed"):
+                phases = [s.rsplit(".", 1)[1] for s in sids
+                          if s.startswith(f"multi.{name}.")]
+                self.assertEqual(phases, ["bind-all", "verify-concurrent",
+                                          "teardown-one", "teardown-rest"],
+                                 name)
+            # the primaries set feeds EVERY reachable reference listener
+            # CONCURRENTLY - the listener set comes from the peer's SPEC (the
+            # PEER's (p) primaries), never a hardcoded list
+            bind = next(s for s in plan
+                        if s.sid == "multi.primaries.bind-all")
+            self.assertEqual(
+                sorted(p["listener_index"] for p in bind.args["pairs"]),
+                PEER.listener_indices(include_crf=False))
+            self.assertTrue(all(p["listener"] == PEER.entity_id
+                                for p in bind.args["pairs"]))
+            # the selfloop set pairs tN -> lN on the DUT itself
+            loop = next(s for s in plan
+                        if s.sid == "multi.selfloop.bind-all")
+            self.assertEqual([(p["talker_index"], p["listener_index"])
+                              for p in loop.args["pairs"]],
+                             [(i, i) for i in
+                              ARTY.talker_indices(include_crf=False)])
+            # within one set no listener is bound twice: the pairs must be
+            # able to run CONCURRENTLY, and a doubled listener is a rebind
+            for s in plan:
+                if s.op == "multi_connect":
+                    ls = [(p["listener"], p["listener_index"])
+                          for p in s.args["pairs"]]
+                    self.assertEqual(len(ls), len(set(ls)), s.sid)
+            # the verify step carries the UNBOUND inputs for the isolation
+            # verdict, and none of them is also bound in the set
+            ver = next(s for s in plan
+                       if s.sid == "multi.selfloop.verify-concurrent")
+            self.assertTrue(ver.args["unbound"])
+            bound = {(p["listener"], p["listener_index"])
+                     for p in ver.args["pairs"]}
+            for u in ver.args["unbound"]:
+                self.assertNotIn((u["entity"], u["index"]), bound)
+            # the staged teardown unbinds a SINGLE-listener talker (so silence
+            # is owed) and carries the survivors it must prove undisturbed
+            tear = next(s for s in plan
+                        if s.sid == "multi.primaries.teardown-one")
+            n = sum(1 for p in bind.args["pairs"]
+                    if (p["talker"], p["talker_index"]) ==
+                    (tear.args["unbind"]["talker"],
+                     tear.args["unbind"]["talker_index"]))
+            self.assertEqual(n, 1)
+            self.assertTrue(tear.args["expect_talker_silent"])
+            self.assertEqual(len(tear.args["survivors"]),
+                             len(bind.args["pairs"]) - 1)
+            # a plan step is DATA: everything serialises
+            json.dumps([s.as_dict() for s in plan])
+            # the per-area audit covers the multi area and passes
+            ok, d = area_covers_every_index(build_plan(), "multi")
+            self.assertTrue(ok, d)
+            # NEGATIVE CONTROL: a multi area truncated to one pair per set
+            # must redden the audit
+            import dataclasses as _dc
+            lonely = [_dc.replace(s, args={
+                k: (v[:1] if k in ("pairs", "survivors") else v)
+                for k, v in s.args.items()}) for s in plan]
+            ok2, d2 = area_covers_every_index(lonely, "multi")
+            self.assertFalse(ok2)
+            self.assertTrue(d2["missing"])
+
+        def test_multi_concurrent_flowing_bites_every_way(self):
+            def P(tx, rx):
+                return {"tx_ticks": tx, "rx_ticks": rx}
+            # all pairs flowing together, licence open -> PASS, and the
+            # comparison names itself as INTERVALS
+            v, d = check_concurrent_flowing({"a": P(4, 4), "b": P(5, 4)},
+                                            licensed=True)
+            self.assertEqual(v, "PASS")
+            self.assertIn("OBSERVATION INTERVALS", d["compares"])
+            # ONE DEAD AMONG MANY - the defect this area exists for
+            v, d = check_concurrent_flowing({"a": P(4, 4), "b": P(0, 0)},
+                                            licensed=True)
+            self.assertEqual(v, "FAIL")
+            self.assertEqual(d["dead"], ["b"])
+            self.assertEqual(d["flowing"], ["a"])
+            # one-sided movement is a dead pair, not a flowing one
+            v, d = check_concurrent_flowing({"a": P(4, 0)}, licensed=True)
+            self.assertEqual(v, "FAIL")
+            # the licence gates the whole question: SHUT and UNKNOWN are SKIP
+            # and never a violation, exactly as the pairwise steps
+            self.assertEqual(check_concurrent_flowing(
+                {"a": P(0, 0)}, licensed=False)[0], "SKIP")
+            v, d = check_concurrent_flowing({"a": P(0, 0)}, licensed=None)
+            self.assertEqual(v, "SKIP")
+            self.assertIn("--licence-status", d["why"])
+            # a pair unreadable on BOTH sides SKIPs and NAMES itself...
+            v, d = check_concurrent_flowing(
+                {"a": P(4, 4), "b": P(None, None)}, licensed=True)
+            self.assertEqual(v, "SKIP")
+            self.assertEqual(d["unreadable"], ["b"])
+            # ...but a MEASURED dead pair outranks a measurement gap
+            v, d = check_concurrent_flowing(
+                {"a": P(0, 0), "b": P(None, None), "c": P(4, 4)},
+                licensed=True)
+            self.assertEqual(v, "FAIL")
+            self.assertEqual(d["dead"], ["a"])
+            # the teardown flavour names the torn-down stream in the why
+            v, d = check_concurrent_flowing({"a": P(0, 0)}, licensed=True,
+                                            torn_down="artyt0-peerl0")
+            self.assertEqual(v, "FAIL")
+            self.assertIn("artyt0-peerl0", d["why"])
+            self.assertIn("cross-stream-independence", d["why"])
+            # and no pairs at all is a SKIP, not a vacuous pass
+            self.assertEqual(check_concurrent_flowing({}, licensed=True)[0],
+                             "SKIP")
+
+        def test_multi_unbound_isolation_bites(self):
+            v, d = check_unbound_static(
+                {"peerl2": {"FRAMES_RX": 0, "MEDIA_LOCKED": 0}})
+            self.assertEqual(v, "PASS")
+            # an unbound index that TICKS is the per-index bleed defect
+            v, d = check_unbound_static({"peerl2": {"FRAMES_RX": 37}})
+            self.assertEqual(v, "FAIL")
+            self.assertEqual(d["moved"]["peerl2.FRAMES_RX"], 37)
+            self.assertIn("5.3.8.10", d["why"])
+            # nothing to check / nothing readable / a wrap are not passes
+            self.assertEqual(check_unbound_static({})[0], "SKIP")
+            self.assertEqual(check_unbound_static(
+                {"x": {"FRAMES_RX": None}})[0], "SKIP")
+            self.assertEqual(check_unbound_static(
+                {"x": {"FRAMES_RX": -5}})[0], "INFO")
+            # a readable zero beside an unreadable neighbour still passes,
+            # with the unreadable one NAMED
+            v, d = check_unbound_static({"x": {"FRAMES_RX": 0},
+                                         "y": {"FRAMES_RX": None}})
+            self.assertEqual(v, "PASS")
+            self.assertEqual(d["unreadable"], ["y"])
 
         def test_plan_steps_serialise(self):
             for s in build_plan():

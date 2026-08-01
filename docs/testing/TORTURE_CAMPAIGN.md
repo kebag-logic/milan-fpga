@@ -1,6 +1,6 @@
 # The torture / compliance campaign — one entry point, one place to extend
 
-Status: 2026-07-30. The standing campaign the USER asked for: *"test everything,
+Status: 2026-08-01. The standing campaign the USER asked for: *"test everything,
 every combination of streams, analyse every aspect — payload, counters,
 controller information — against Milan v1.2, iterate until everything passes,
 create scripts/behave tests to be re-used every time, extend them on everything
@@ -27,7 +27,7 @@ cover.
 - **[1. The five pieces and why they are separate](#1-the-five-pieces-and-why-they-are-separate)** — Each script, the question it answers, and the one rule that decides where a new check belongs.
 - **[2. Prerequisites and the bench it assumes](#2-prerequisites-and-the-bench-it-assumes)** — What must be installed and reachable, what permissions, which hosts, and how to change the topology with flags instead of source edits.
 - **[3. How to run it](#3-how-to-run-it)** — Copy-pasteable invocations for every real case, with every flag, its default, and when to change it.
-- **[4. What it asserts — the full inventory](#4-what-it-asserts--the-full-inventory)** — All 65 plan assertions and all 31 wire-truth check families: name, clause, severity, what makes it FAIL, what a SKIP means, and which sides it measures.
+- **[4. What it asserts — the full inventory](#4-what-it-asserts--the-full-inventory)** — All 68 plan assertions and all 31 wire-truth check families: name, clause, severity, what makes it FAIL, what a SKIP means, and which sides it measures.
 - **[5. How to read the output](#5-how-to-read-the-output)** — The JSONL schema field by field, every verdict value, the exit-code contract, and worked examples of a pass, a failure and a skip.
 - **[6. How to extend it](#6-how-to-extend-it)** — One recipe per kind of addition, each with a worked example and its mandatory negative control.
 - **[7. The human-action checklist](#7-the-human-action-checklist)** — The physical interventions, what to do and what to observe.
@@ -40,10 +40,10 @@ cover.
 
 | piece | where | level / oracle | what it is | what it needs |
 |---|---|---|---|---|
-| the **plan** | [`tb/tools/torture_campaign.py`](../../tb/tools/torture_campaign.py) | L3 / the clause | Every pair, every index, every churn sequence, every adverse condition — as **data**, with the assertions each step owes, the clause behind each, and the shared verdict functions (counter decode, the invariants, the licence decode, the cross-side invariants). **No I/O at all.** | python3 |
+| the **plan** | [`tb/tools/torture_campaign.py`](../../tb/tools/torture_campaign.py) | L3 / the clause | Every pair, every index, every **concurrency set**, every churn sequence, every adverse condition — as **data**, with the assertions each step owes, the clause behind each, and the shared verdict functions (counter decode, the invariants, the licence decode, the cross-side and concurrency invariants). **No I/O at all.** | python3 |
 | the **payload / wire analyser** | [`tb/tools/avtp_wire_truth.py`](../../tb/tools/avtp_wire_truth.py) | L5 on a capture, L3 on byte vectors / the wire + the clause | AVTP AAF + CRF + AVDECC control decode, **and MSRP/MVRP decode**, with the declared-versus-actual invariants. A library **and** a CLI, so the runner and the desk suite use one decoder. | python3, a capture |
 | the **bench runner** | [`milan-tests-avb/tools/milan_torture.py`](#) | L5 / the wire on hardware | Turns plan steps into `avdecc_l2.py` calls, reads the test machine's own NIC statistics, and turns the answers into verdicts. The only piece that needs the bench. | python3, raw sockets, the peer host |
-| the **runner's unit tests** | `milan-tests-avb/tools/test_milan_torture.py` | L3 / a fake wire | 66 offline tests over a `FakeWire`, concentrating on the part that can be wrong *silently*: which verdict is drawn from which answer, and whether the runner says SKIP-with-a-reason instead of PASS when it measured nothing. | python3 |
+| the **runner's unit tests** | `milan-tests-avb/tools/test_milan_torture.py` | L3 / a fake wire | 79 offline tests over a `FakeWire`, concentrating on the part that can be wrong *silently*: which verdict is drawn from which answer, and whether the runner says SKIP-with-a-reason instead of PASS when it measured nothing. | python3 |
 | the **desk suite** | [`tests/features/`](../../tests) ×4 features | L3 + L1 | Audits the plan's own coverage, the analyser's decoders, the counter contract and the audio properties — in ~3 s, with no hardware. | `behave` |
 
 **The rule that decides where a new check goes:** *anything that can be decided
@@ -133,7 +133,7 @@ python3 tb/tools/torture_campaign.py --plan --dut 'talkers=8,listeners=8,crf_out
 # the entries a HUMAN has to perform, as a printable checklist
 python3 tb/tools/torture_campaign.py --checklist
 # the offline unit tests of the plan, the counter tables and the invariants
-python3 tb/tools/torture_campaign.py --self-test      # 24 tests
+python3 tb/tools/torture_campaign.py --self-test      # 27 tests
 # the offline byte-vector tests of every decoder and every payload check
 python3 tb/tools/avtp_wire_truth.py --self-test       # 24 tests
 # the desk conformance suite
@@ -143,7 +143,7 @@ cd tests && behave --tags ~@open-finding -f plain      # a clean gate (see §5.4
 ```
 
 `torture_campaign.py` flags: `--plan` (table), `--json` (the plan as JSON),
-`--areas a,b` (default: all five), `--coverage`, `--coverage-by-area`,
+`--areas a,b` (default: all six), `--coverage`, `--coverage-by-area`,
 `--checklist`, `--self-test`, `--dut`/`--peer` (topology, §2).
 
 ### 3.2 The wire analyser over a capture
@@ -238,7 +238,7 @@ sudo -E python3 tools/milan_torture.py --areas audio --pcap cap.pcap \
 sudo -E python3 tools/milan_torture.py --areas matrix --fail-on-skip
 
 # the runner's own offline tests (no hardware, no network, no sudo)
-python3 tools/test_milan_torture.py                      # 66 tests
+python3 tools/test_milan_torture.py                      # 79 tests
 ```
 
 **The documented licence pre-step.** `0x694` is a DUT-board CSR and no AVDECC
@@ -261,7 +261,7 @@ devmem2 0x90000694 w          # or the project's CSR read helper
 | flag | default | meaning / when to change |
 |---|---|---|
 | `--iface` | `enp6s0` | the test machine's interface: raw AVDECC sockets **and** its own NIC statistics both come from here |
-| `--areas a,b` | all five (`matrix,churn,payload,audio,torture`) | scope a run. A full run is ~2 h (§9.3) |
+| `--areas a,b` | all six (`matrix,multi,churn,payload,audio,torture`) | scope a run. A full run is ~2 h (§9.3) |
 | `--dry-run` | off | emit one SKIP per assertion so the whole assertion list is visible; exits 0, touches nothing |
 | `--checklist` / `--plan` | off | print and exit |
 | `--jsonl PATH` | none (stdout only) | append verdicts to a diffable file |
@@ -349,6 +349,64 @@ and mixing it into the bind made a conformant device read as a violation.
 | `xside.absent-where-not-registered` | all + bystanders | 802.1Q-2018 8.8.4 | stream frames reached an interface that never registered as a listener for them. This bench has measured untagged frames at 500 pps on a port with no listener, so **absence is asserted, not assumed** | no registration set supplied |
 | `xside.interval-ticks-agree` | talker + listener | Milan Table 5.4/5.6 | one side's **observation-interval** counter ticked and the other's did not, or they differ by more than the window edges explain. **Compares intervals, never frames** — the name says so on purpose (§8.6) | one side's interval counter unreadable |
 | `instrument.test-machine-lossless` | test machine | §4.6 | as §4.1 (INFO) | as §4.1 |
+
+### 4.2.1 The multi-stream concurrency area (`multi`)
+
+The matrix walks **pair by pair** — bind one, verify, unbind, next — and four
+whole defect classes are invisible to that walk because they only exist under
+**aggregate load**: CBS shaping with several class A streams in the shaped queue
+at once, the multi-slot rings actually multiplexing, per-index counter
+**isolation** (an unbound index ticking while a neighbour streams — the
+alias/bleed class that shipped four real defects under index-0-only testing),
+and **cross-stream independence at teardown**. Real deployments run many streams
+simultaneously; a campaign that only ever binds one at a time certifies a shape
+no deployment uses.
+
+Three concurrency sets, each derived from the device **specs** and never
+hardcoded (`plan_multi()`):
+
+| set | pairs | what it loads |
+|---|---|---|
+| `primaries` | every **reachable** reference listener fed at once — the listener set is the peer spec's `listener_indices()`, which on a redundant device names the (p) primaries only (the PEER: 0/2/4/6/8). Talkers are the DUT's AAF set, assigned cyclically, so on the AX 8×8 this is the plain zip t0..t4 → l0/2/4/6/8; a DUT with fewer talkers than the peer has listeners reuses a talker with **two listeners on one stream**, which 1722.1-2021 8.2.2.6.2.1 permits | the egress path, CBS and the wire under full concurrent load |
+| `selfloop` | the DUT's own tN → lN | every packetizer **and** depacketizer in the same fabric at once; needs no peer |
+| `mixed` | outbound and loopback interleaved, when the shapes allow | the egress path serving the wire and the loopback simultaneously |
+
+Each set runs `bind-all → verify-concurrent → teardown-one → teardown-rest`, and
+sets run **serially, each fully torn down before the next**, so a set's verdicts
+are never polluted by a predecessor.
+
+**One shared window.** The verify step reads *every* side — each bound talker's
+`FRAMES_TX`, each bound listener's `FRAMES_RX` + lock + growth counters, and
+every **unbound** stream input — around **one** sleep (`Wire.multi_deltas`).
+`deltas()`-per-pair would measure S serial windows in which cross-stream
+interference is invisible by construction.
+
+**The licence gates it exactly as the pairwise steps.** The supplied `0x694`
+word is the global/idx-0 gate (the per-index rows at `0x85C` sit behind the
+`0x800` window select — a board-side pre-step), so SHUT or UNKNOWN SKIPs every
+flow verdict, never fails one. `START_STREAMING` is probed **only when every
+readable pair is dead** (that is the pairwise STREAMING_WAIT finding again, and
+the probe records itself in `needed_start_streaming`); when only *some* pairs
+are dead the probe must **not** fire — the asymmetry *is* the defect, and
+starting streams mid-measurement would destroy the evidence.
+
+The set-level assertions (the per-pair rows reuse the §4.1/§4.2 families, with
+`pair` in the detail):
+
+| assertion | sides | clause | FAILs when | SKIPs when |
+|---|---|---|---|---|
+| `multi.concurrent-all-flowing` | every bound talker + listener | Milan 5.3.7.3 **per Stream Output**: each pair holds its own licence, so with the gate open every pair's interval counters advance **together** (Table 5.4/5.6 interval terms, never frames) | any readable pair is static — including one-sided movement — while the licence is OPEN; the dead pairs are named. One stream starving under aggregate load is the defect a pairwise walk can never see | licence SHUT/UNKNOWN; or a pair unreadable on both sides (named) with nothing else dead — a **measured dead pair outranks a measurement gap** |
+| `multi.unbound-counters-static` | every **unbound** stream input, both devices | Milan 5.3.8.10 keeps the Table 5.6 counters **per Stream Input** | an unbound index's counters ticked while its neighbours streamed — the per-index aliasing/bleed class. Asserted regardless of the licence: an unbound index owes silence either way | no unbound index in the set, or none readable. A negative delta is INFO (reset/wrap — the window measured nothing) |
+| `multi.neighbour-streams-survive-teardown` | the survivors after **one** unbind | Milan 5.3.7.3: the unbind removes only the torn-down stream's Listener Ready, so every other pair keeps its licence and keeps streaming | a survivor went static in the shared window right after the neighbour's unbind — the cross-stream-independence defect the staged teardown exists to catch | licence SHUT/UNKNOWN, or a survivor unreadable on both sides with none dead |
+
+**The staged teardown.** `teardown-one` unbinds a pair whose talker serves
+exactly one listener in the set (so silence is owed and `stream.stop-takes-effect`
+applies verbatim; if the set's shape forces a shared talker, the plan sets
+`expect_talker_silent: false` and the runner SKIPs the stop question with the
+reason — the talker keeps its licence through the remaining Listener Ready).
+`teardown-rest` then unbinds everything else and verifies the stop **per
+talker** once its last binding is gone, the same discipline that protects the
+next pair from a latched talker (§8.5).
 
 ### 4.3 The other control-plane assertions
 
@@ -521,7 +579,7 @@ changed.
 | `schema` | `milan-torture/1`. Bump it if the shape changes, so an old diff tool fails loudly |
 | `run` | the run id (`--run-id`, default a UTC timestamp), so two mornings sort and diff |
 | `step` | the plan step id. Stable across runs by construction; `no two steps share an id` is a desk-suite scenario |
-| `area` | `matrix` \| `churn` \| `payload` \| `audio` \| `torture` \| `precheck` \| `meta` |
+| `area` | `matrix` \| `multi` \| `churn` \| `payload` \| `audio` \| `torture` \| `precheck` \| `meta` |
 | `assertion` | the stable assertion name — the key you grep and diff on |
 | `verdict` | see §5.2 |
 | `severity` | `SHALL` \| `RECOMMENDED` \| `INFO`, straight from the plan |
@@ -956,23 +1014,31 @@ visible edge of the work, not a hole in it — but it *is* an edge:
 
 ### 9.3 What it costs
 
-A **full matrix run is roughly 1.5–2 hours, and it is not a smoke test.** The
-default 4×4-plus-CRF Arty against the PEER produces 95 talker×listener pairs
-(50 outbound, 20 return, 25 intra-DUT loopback) and 357 matrix steps. Each pair
+A **full matrix run is roughly 1–1.5 hours, and it is not a smoke test.** The
+default 4×4-plus-CRF Arty against the PEER's five reachable primaries produces
+70 talker×listener pairs (25 outbound, 20 return, 25 intra-DUT loopback) and
+262 matrix steps. Each pair
 spends about 50 s in deliberate measurement:
 
 * three 4 s counter windows (the bind's growth window, the licence step's
   TX/RX window, the unbind's stop window) plus the cross-side windows;
-* one ≥ 11 s ADP discovery per connect and per disconnect — 204 of them, which is
+* one ≥ 11 s ADP discovery per connect and per disconnect — 140 of them, which is
   the single largest cost and the price of not manufacturing phantom absences
   (§8.4).
+
+The `multi` area adds 12 steps (three sets × four phases). Its verify and
+survivor windows are **shared** across all pairs of a set, so a whole set costs
+roughly one bind round + two 4 s windows + one ≥ 11 s discovery per phase —
+minutes, not the matrix's hours — while exercising the aggregate-load shape the
+matrix never reaches.
 
 `--plan` prints the totals for whatever shape you configure. Scope a run with
 `--areas`; the desk suite is the ~3 s half and should be run every time.
 
-Current totals for the default shape (from `--plan`): **422 steps, 3320
-assertions, 4 need a human**, across `matrix` 357 / `churn` 25 / `payload` 7 /
-`audio` 9 / `torture` 24 steps, and **65 distinct assertion names**.
+Current totals for the default shape (from `--plan`): **339 steps, 2619
+assertions, 4 need a human**, across `matrix` 262 / `multi` 12 / `churn` 25 /
+`payload` 7 / `audio` 9 / `torture` 24 steps, and **68 distinct assertion
+names**.
 
 ### 9.4 What it cannot see at all
 
@@ -1000,8 +1066,16 @@ assertions, 4 need a human**, across `matrix` 357 / `churn` 25 / `payload` 7 /
   implements, and their per-command payload rules, are the `item10_*` behave
   features' subject.
 * **It does not exercise more than one listener per talker beyond the two
-  `churn.bind-while-streaming` steps**, and it does not test
+  `churn.bind-while-streaming` steps and the `multi` primaries set's cyclic
+  assignment** (which shares a talker only when the DUT has fewer AAF talkers
+  than the peer has reachable listeners), and it does not test
   `max_supported_streams` at its limit.
+* **The `multi` area's licence reading is the global/idx-0 gate (`0x694`).**
+  The per-index lwSRP rows (`0x85C`) sit behind the `0x800` window select,
+  which needs a board-side pre-step per index; until that is scripted, ONE
+  supplied word gates a whole concurrency set, and a per-stream licence
+  divergence inside a set is invisible to the runner (the set-level flow
+  verdict still catches its consequence).
 * **It does not test the CRF stream as an audio path** — a CRF Media Clock Stream
   carries timestamps, so the audio identity checks deliberately exclude the CRF
   index. Its format, rate and timestamp step *are* checked by the analyser.
