@@ -94,6 +94,14 @@ module KL_acmp_lstn_ctx #(
     input  wire [N_SINKS_P-1:0] ta_failed_i,     //! TalkerFailed registered
     output wire [N_SINKS_P-1:0] lstn_declare_o,  //! declare Listener attribute
     output wire [N_SINKS_P-1:0] stream_active_o, //! sink open (SETTLED_*)
+    //! per-context BIND view for the datapath's lwSRP listener-row
+    //! provisioner (the ACMP->lwSRP fabric half): bound level (state !=
+    //! UNBOUND), the bound stream_id, and a 1-cycle pulse per record write
+    //! so the consumer re-provisions on ANY change (bind, unbind, rebind
+    //! to a new sid) without shadowing the sid a second time
+    output wire [N_SINKS_P-1:0]    lstn_bound_o,
+    output wire [N_SINKS_P*64-1:0] lstn_sid_o,
+    output reg  [N_SINKS_P-1:0]    bind_upd_p_o,
 
     // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) -------
     input  wire         rx_tvalid_i,
@@ -217,6 +225,12 @@ module KL_acmp_lstn_ctx #(
   //! same edge as the RAM, from the same write data (never diverge)
   acmp_lstn_ctx_t          view0_r, view1_r;
   reg [N_SINKS_P-1:0]      active_vec_r;
+  //! per-context bind view (same rule: RAM write edge, same write data).
+  //! bound follows state, NOT `active`: a record-only bind parks
+  //! SETTLED_NO_RSV with active 0, yet it IS a Milan 5.5 binding and the
+  //! lwSRP Listener attribute for its sid hangs off exactly this level.
+  reg [N_SINKS_P-1:0]      bound_vec_r;
+  reg [N_SINKS_P*64-1:0]   sid_vec_r;
 
   assign view0_state_o    = view0_r.state;
   assign view0_talker_o   = view0_r.talker;
@@ -234,6 +248,8 @@ module KL_acmp_lstn_ctx #(
   //! is selected downstream from ta_registered_i)
   assign lstn_declare_o   = active_vec_r;
   assign stream_active_o  = active_vec_r;
+  assign lstn_bound_o     = bound_vec_r;
+  assign lstn_sid_o       = sid_vec_r;
 
   // -----------------------------------------------------------------------
   // Working context + probe bookkeeping
@@ -898,6 +914,7 @@ module KL_acmp_lstn_ctx #(
       probe_pend_r <= '0; probe_seq_r <= 16'd0;
       init_done_r <= 1'b0; init_idx_r <= '0;
       view0_r <= '0; view1_r <= '0; active_vec_r <= '0;
+      bound_vec_r <= '0; sid_vec_r <= '0; bind_upd_p_o <= '0;
       swp_active_r <= 1'b0; swp_idx_r <= '0;
       c_ms_r <= 1'b0; c_1s_r <= 1'b0; c_adp_r <= 1'b0;
       ms_pend_r <= 2'd0; s1_pend_r <= 1'b0; adp_pend_r <= 1'b0;
@@ -916,10 +933,15 @@ module KL_acmp_lstn_ctx #(
       end
 
       // ---- compatibility shadows (same edge as the RAM write) ----------
+      bind_upd_p_o <= '0;
       if (wr_en_w) begin
         if (wr_idx_w == IDX_W_C'(0)) view0_r <= wr_data_w;
         if (N_SINKS_P > 1 && wr_idx_w == IDX_W_C'(1)) view1_r <= wr_data_w;
         active_vec_r[wr_idx_w] <= wr_data_w.active;
+        bound_vec_r[wr_idx_w]  <= (wr_data_w.state != LSM_UNBOUND_S);
+        sid_vec_r[64*wr_idx_w +: 64] <= wr_data_w.sid;
+        //! the init walk is not a bind event
+        if (init_done_r) bind_upd_p_o[wr_idx_w] <= 1'b1;
       end
 
       // ---- table request/grant port ------------------------------------

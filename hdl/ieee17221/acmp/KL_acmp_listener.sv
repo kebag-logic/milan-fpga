@@ -70,6 +70,14 @@ module KL_acmp_listener #(
     output wire [47:0]  stream_dmac_o,
     output wire         stream_active_o,   //! sink open (SETTLED_*)
 
+    // ---- per-sink bind view (ALL contexts; lwSRP listener-row fabric) ---
+    //! bound level + bound stream_id per context, and a 1-cycle pulse per
+    //! record write — the datapath's lwSRP listener-row provisioner derives
+    //! ctx rows 1..N-1 from these (sink 0 keeps the legacy row-0 path)
+    output wire [N_SINKS_P-1:0]    lstn_bound_v_o,
+    output wire [N_SINKS_P*64-1:0] lstn_sid_v_o,
+    output wire [N_SINKS_P-1:0]    bind_upd_p_o,
+
     // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) -------
     input  wire         rx_tvalid_i,
     input  wire [63:0]  rx_tdata_i,
@@ -144,11 +152,16 @@ module KL_acmp_listener #(
     .station_mac_i   (station_mac_i),
     .entity_id_i     (entity_id_i),
     .tick_1s_i       (tick_1s_i),
-    //! lwSRP coupling stays sink-0 only (record-only contexts never attach)
+    //! lwSRP REGISTRAR coupling stays sink-0 only (the row-0 TA registrar);
+    //! ctx rows 1..N-1 carry their own registrar inside KL_lwsrp_ctx and
+    //! are provisioned from the lstn_bound_v/lstn_sid_v bind view below
     .ta_registered_i ({{(N_SINKS_P-1){1'b0}}, ta_registered_i}),
     .ta_failed_i     ({{(N_SINKS_P-1){1'b0}}, ta_failed_i}),
     .lstn_declare_o  (w_declare),
     .stream_active_o (w_active),
+    .lstn_bound_o    (lstn_bound_v_o),
+    .lstn_sid_o      (lstn_sid_v_o),
+    .bind_upd_p_o    (bind_upd_p_o),
     .rx_tvalid_i     (rx_tvalid_i),
     .rx_tdata_i      (rx_tdata_i),
     .rx_tkeep_i      (rx_tkeep_i),

@@ -1929,6 +1929,211 @@ int main(int argc, char** argv) {
     }
 
     // ==================================================================
+    //  TASK-21 FABRIC HALF: a CONNECT_RX provisions the lwSRP LISTENER row
+    //
+    //  The 07-29 PEER silicon finding: binding one of our STREAM_INPUTs
+    //  staged the ACMP record but NOTHING in the fabric wrote the lwSRP
+    //  LISTENER attribute row - ctx_dir_i was hardwired 0 on the fabric
+    //  grant path, so the only listener-direction writer was the 0x800
+    //  window (manual CSR staging). Milan v1.2 5.3.7.3 makes the remote
+    //  talker's streaming licence conditional on receiving a Listener
+    //  Ready/ReadyFailed, so an unstaged bind never pulled its stream.
+    //
+    //  The input here is the CONNECT_RX for listener_unique_id 2 injected
+    //  in the N-sink ACMP case above (explicit sid AA:BB:CC:DD:EE:FF:00:07,
+    //  still bound). This case only releases the window's software claim
+    //  on the row (earlier flow staged sids through it, and software that
+    //  NAMES a sid owns a row - the per-row CRFT_SID rule) and turns the
+    //  engine on. Everything that follows must come from the BIND alone.
+    // ==================================================================
+    printf("-- t21: CONNECT_RX -> lwSRP LISTENER row (fabric, no staging) --\n");
+    {
+        enum { A_LWSRP_STATUS = 0x694, A_SW_SRP = 0x85C };
+        const uint8_t SID2[8] = {0xAA,0xBB,0xCC,0xDD,0xEE,0xFF,0x00,0x07};
+
+        //! scan TX frames for an MSRP Listener vector carrying `sid`;
+        //! returns the three-packed event + four-packed declaration octets.
+        //! want_evt / want_par (-1 = any) filter the match: around an
+        //! ownership hand-off several frames for the same sid can be in
+        //! flight (refresh, NEW, LV) and the capture must name the one it
+        //! is asserting, not whichever drains first.
+        auto find_lstn = [&](const uint8_t sid[8], int want_evt, int want_par,
+                             int cyc, int* evt_out, int* par_out) -> bool {
+            std::vector<uint8_t> cur;
+            bool found = false;
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < cyc && !found; c++) {
+                lo();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        if (cur.size() >= 21 && cur[12] == 0x22 && cur[13] == 0xEA) {
+                            size_t p = 15;               // after ProtocolVersion
+                            while (p + 4 <= cur.size() && cur[p] != 0) {
+                                uint8_t at  = cur[p];
+                                size_t  ll  = ((size_t)cur[p+2] << 8) | cur[p+3];
+                                size_t  vp  = p + 4;
+                                if (at == 3 && ll >= 14 && vp + ll <= cur.size() + 2) {
+                                    for (size_t o = 0; o + 12 <= ll - 2 &&
+                                                       vp + o + 12 <= cur.size(); o += 12) {
+                                        const uint8_t* v = &cur[vp + o];
+                                        if (!memcmp(v + 2, sid, 8) &&
+                                            (want_evt < 0 || v[10] == want_evt) &&
+                                            (want_par < 0 || v[11] == want_par)) {
+                                            if (evt_out) *evt_out = v[10];
+                                            if (par_out) *par_out = v[11];
+                                            found = true;
+                                        }
+                                    }
+                                }
+                                p = vp + ll;
+                            }
+                        }
+                        cur.clear();
+                    }
+                }
+                hi();
+            }
+            return found;
+        };
+
+        // release the window's claim on listener row 2: stage the ZERO sid
+        // FOR this index (staging is spendable-by-selection), commit en=0
+        axi_write(A_STRM_SEL, 0x002);              // listener idx 2
+        axi_write(A_SW_SID_LO, 0);
+        axi_write(A_SW_SID_HI, 0);
+        axi_write(A_SW_CTRL, 0x0);
+        axi_write(A_LWSRP_CTRL, 0x15);             // engine ON, queue 5,
+                                                   // NO talker declare
+        // THE BITE: the fabric must now declare the Listener attribute for
+        // the bound sid on its own - capture the NEW declaration going out
+        int evt = -1, par = -1;
+        bool got = find_lstn(SID2, -1, -1, 400000, &evt, &par);
+        ck("t21 bind: Listener declaration for the BOUND sid on the wire",
+           got ? 1 : 0, 1);
+        ck("t21 bind: first declaration event = NEW", evt, 0);
+        ck("t21 bind: four-pack ASKING-FAILED before any TA", par, 0x40);
+
+        // ...and the row reads back VALID + LISTENER through the window
+        // (onwire follows the frame's tx_done, one poll behind the capture)
+        uint32_t srp = axi_read(A_SW_SRP);
+        for (int g = 0; g < 64 && ((srp >> 13) & 0x7) != 0x7; g++) {
+            for (int c = 0; c < 256; c++) step();
+            srp = axi_read(A_SW_SRP);
+        }
+        ck("t21 bind: SRP row VALID from the CONNECT_RX alone",
+           (srp >> 15) & 1, 1);
+        ck("t21 bind: SRP row direction = LISTENER", (srp >> 14) & 1, 1);
+        ck("t21 bind: row on wire (declared)", (srp >> 13) & 1, 1);
+        ck("t21 bind: row backed (not the 0xDEAD sentinel)",
+           (srp & 0xFFFF) == 0xDEAD ? 1 : 0, 0);
+
+        // a TalkerAdvertise for the bound sid: Ready must follow it
+        // (KL_lwsrp_ctx registrar; re-declared promptly on the edge)
+        {
+            uint8_t ta[64]; memset(ta, 0, sizeof ta);
+            const uint8_t msrp_da[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};
+            memcpy(ta, msrp_da, 6);
+            ta[6]=0x02; ta[7]=0xAA; ta[8]=0xBB; ta[9]=0xCC; ta[10]=0xDD; ta[11]=0x01;
+            ta[12]=0x22; ta[13]=0xEA;
+            ta[14]=0;                    // ProtocolVersion
+            ta[15]=1; ta[16]=25;         // TalkerAdvertise, AttributeLength 25
+            ta[17]=0; ta[18]=30;         // AttributeListLength 2+25+1+2
+            ta[19]=0; ta[20]=1;          // VectorHeader: LeaveAll 0, NOV 1
+            memcpy(ta+21, SID2, 8);      // StreamID
+            ta[29]=0x91; ta[30]=0xE0; ta[31]=0xF0; ta[32]=0x00;  // DFP DMAC
+            ta[33]=0x2A; ta[34]=0x99;
+            ta[35]=0x00; ta[36]=0x02;    // vlan 2
+            ta[37]=0x00; ta[38]=0x48;    // TSpec MaxFrameSize 72
+            ta[39]=0x00; ta[40]=0x01;    // MaxIntervalFrames 1
+            ta[41]=0x70;                 // PriorityAndRank
+            // AccumulatedLatency 42..45 = 0
+            ta[46]=36;                   // ThreePacked JoinIn
+            inject(ta, 60, 40);
+        }
+        got = find_lstn(SID2, -1, 0x80, 400000, &evt, &par);
+        ck("t21 TA: re-declared for the bound sid", got ? 1 : 0, 1);
+        ck("t21 TA: four-pack READY once the TA is registered", par, 0x80);
+        srp = axi_read(A_SW_SRP);
+        ck("t21 TA: row shows TA REGISTERED", (srp >> 12) & 1, 1);
+        ck("t21 TA: row shows READY", (srp >> 11) & 1, 1);
+        // the reservation architecture guard: a LISTENER row must never
+        // reach the bw-gate - our talker CBS stays untouched by it
+        uint32_t ls = axi_read(A_LWSRP_STATUS);
+        ck("t21 guard: no reservation-active from a listener row",
+           (ls >> 6) & 1, 0);
+        ck("t21 guard: talker stream gate still shut", (ls >> 8) & 1, 0);
+        ck("t21 guard: CBS slope mux untouched", (ls >> 9) & 1, 0);
+        ck("t21 guard: no ctx shortfall", (ls >> 11) & 1, 0);
+
+        // software that NAMES a sid still wins the row (0x800 override)...
+        const uint8_t SIDS[8] = {0x0B,0xAD,0x00,0x00,0xC0,0xDE,0x00,0x02};
+        axi_write(A_STRM_SEL, 0x002);
+        axi_write(A_SW_SID_LO, 0xC0DE0002);
+        axi_write(A_SW_SID_HI, 0x0BAD0000);
+        axi_write(A_SW_CTRL, 0x1);
+        got = find_lstn(SIDS, -1, -1, 400000, &evt, &par);
+        ck("t21 override: the window-named sid takes the row", got ? 1 : 0, 1);
+        // ...and a zero-sid release hands it straight back to the fabric,
+        // which re-declares the BIND identity (fresh row -> NEW again)
+        axi_write(A_STRM_SEL, 0x002);
+        axi_write(A_SW_SID_LO, 0);
+        axi_write(A_SW_SID_HI, 0);
+        axi_write(A_SW_CTRL, 0x0);
+        got = find_lstn(SID2, -1, -1, 400000, &evt, &par);
+        ck("t21 release: the fabric retakes the row with the bind sid",
+           got ? 1 : 0, 1);
+
+        // quiesce to the declared steady state before the unbind: the
+        // retake's own NEW frame can still be in flight behind the control
+        // TX arbiter, and a row invalidated before its declaration's
+        // tx_done is (correctly) treated as never-on-wire - no LV. The
+        // contract under test is the STEADY-STATE withdraw, so wait for
+        // valid+dir+onwire through the window and drain the stragglers.
+        srp = axi_read(A_SW_SRP);
+        for (int g = 0; g < 64 && ((srp >> 13) & 0x7) != 0x7; g++) {
+            for (int c = 0; c < 256; c++) step();
+            srp = axi_read(A_SW_SRP);
+        }
+        ck("t21 release: row back on wire (declared)", (srp >> 13) & 0x7, 0x7);
+        while (find_lstn(SID2, -1, -1, 20000, nullptr, nullptr)) { }
+
+        // UNBIND: the row must be withdrawn - one LV on the wire, then gone
+        {
+            uint8_t f[72]; memset(f, 0, sizeof f);
+            const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            memcpy(f, mc, 6);
+            const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+            memcpy(f+6, csrc, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x08;  // DISCONNECT_RX
+            f[16]=0x00; f[17]=44;
+            const uint8_t tk[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
+            memcpy(f+34, tk, 8);
+            const uint8_t us[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+            memcpy(f+42, us, 8);
+            f[50]=0x00; f[51]=0x01;                      // talker_unique_id
+            f[52]=0x00; f[53]=0x02;                      // listener_unique_id 2
+            f[62]=0x77; f[63]=0x24;
+            inject(f, 70, 40);
+        }
+        got = find_lstn(SID2, 5 * 36, -1, 400000, &evt, &par);
+        ck("t21 unbind: the withdraw (LV) went out", got ? 1 : 0, 1);
+        ck("t21 unbind: event = LV", evt, 5 * 36);
+        srp = axi_read(A_SW_SRP);
+        for (int g = 0; g < 64 && ((srp >> 15) & 1); g++) {
+            for (int c = 0; c < 256; c++) step();
+            srp = axi_read(A_SW_SRP);
+        }
+        ck("t21 unbind: SRP row withdrawn (invalid)", (srp >> 15) & 1, 0);
+
+        axi_write(A_STRM_SEL, 0x000);
+        axi_write(A_LWSRP_CTRL, 0x0);
+        for (int c = 0; c < 512; c++) step();
+    }
+
+    // ==================================================================
     //  CRF Media Clock Output as an ACMP talker source  (item 5, §3.5)
     //
     //  With N >= 2 AAF sinks the CRF output is mandatory, and a controller

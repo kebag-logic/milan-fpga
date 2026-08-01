@@ -502,9 +502,23 @@ hold.
     record RAM, multi-attribute single-MRPDU packing, one bridge vector
     covering several contexts at different +k, add/remove LV, LeaveAll
     aging.
+  - **AAF LISTENER rows are FABRIC-PROVISIONED from the ACMP bind
+    (2026-08-01, the task-21 fabric half).** The 07-29 PEER finding — a
+    CONNECT_RX of STREAM_INPUT k>0 staged the ACMP record but no lwSRP
+    Listener attribute row (`ctx_dir_i` was hardwired 0 on the fabric
+    grant path; software staging via 0x800 was the only listener-direction
+    writer) — is closed: `milan_datapath` `lsn_srp_prov` gives every AAF
+    sink k=1..N-1 a requester slot in the shared provisioning arbiter
+    (row k, dir=listener, sid = the bind record's, withdrawn with one LV
+    on DISCONNECT_RX; software still wins a row it names a sid for).
+    TB: `milan_dp` sim_nxn "t21" section (wire NEW/Ready/LV + window
+    readback + CBS-guard), `acmp_lstn` sim_ctx bind-view checks.
   - **REMAINING for the CRF reservation e2e:** the datapath/CSR
     integration lane (wire the CRF bind SM to the ctx port, VLAN-tag the
     CRF stream once Ready is registered) — the engine-side gap is gone.
+    The CRF **listener** row also stays open structurally: at 8x8+CRF the
+    4-bit ctx row space is exactly full (rows 0..15), so the row map has
+    no CRF-listener row to write.
 
 - 🔴 **`AAF_CTRL[1]` `gate bypass` defeats Milan 5.3.7.3, and its RESET
   VALUE IS 1.** This is the single reason SR-class-A-tagged AAF leaves this

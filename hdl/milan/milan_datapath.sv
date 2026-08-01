@@ -1137,6 +1137,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [15:0] acmpl_cmd_count, acmpl_probe_count;
   wire [7:0]  acmpl_tx_wedge;
   wire [31:0] acmpl_dbg;
+  //! per-sink ACMP bind view (task-21 fabric half): the lwSRP LISTENER-row
+  //! provisioner below derives ctx rows 1..N-1 from these — bound level,
+  //! bound stream_id, and a 1-cycle pulse per bind-record write
+  wire [ACMP_SINKS_C-1:0]    acmpl_bound_v_w;
+  wire [ACMP_SINKS_C*64-1:0] acmpl_sid_v_w;
+  wire [ACMP_SINKS_C-1:0]    acmpl_upd_p_w;
   wire        lwsrp_ta_registered, lwsrp_ta_failed;
   wire [7:0]  lwsrp_ta_fail_code;
   wire [11:0] lwsrp_ta_vlan;
@@ -2526,6 +2532,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .stream_vlan_o   (acmpl_vlan),
     .stream_dmac_o   (acmpl_dmac),
     .stream_active_o (acmpl_active),
+    .lstn_bound_v_o  (acmpl_bound_v_w),
+    .lstn_sid_v_o    (acmpl_sid_v_w),
+    .bind_upd_p_o    (acmpl_upd_p_w),
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
     .rx_tkeep_i  (rx_axis_to_dma.tkeep),
@@ -3021,34 +3030,49 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! the per-row TSpec mux uses - one row map, one place.
   wire csr_srp_tk_svc_w = srp_tk_row_w & ~srp_ctx_gnt_w;
   wire csr_srp_tk_own_w = csr_srp_ctx_valid & (|csr_srp_ctx_sid);
+  //! ...and the same beat naming a LISTENER row k in 1..N-1 (the window
+  //! maps listener k -> ctx row k and drives ctx dir = 1 for it; see
+  //! milan_csr srp_sel_row_w / o_srp_ctx_dir). Same ownership rule, same
+  //! sid test (csr_srp_tk_own_w is row-agnostic: valid + a named sid).
+  wire csr_srp_ls_svc_w = csr_srp_ctx_we && csr_srp_ctx_dir &&
+                          ~srp_ctx_gnt_w && (csr_srp_ctx_idx != 4'd0) &&
+                          (32'(csr_srp_ctx_idx) < N_STREAMS);
   //! software owns this talker row (reset-only assignment at t = 0: row 0 is
   //! the legacy CSR/LWSRP_TSPEC pair and the fabric never touches it)
   logic [N_STREAMS-1:0] srp_sw_own_r;
 
   //! ---- the shared provisioning arbiter ----------------------------------
-  //! Slot s addresses ctx row (N_STREAMS-1)+s, the 0x800 window's talker map.
-  //! Slot 0 is never a requester (row 0 = the legacy pair, no-regression
-  //! axiom); slots 1..N-1 are the AAF talkers; slot N_STREAMS is the CRF
-  //! Media Clock Output when this shape has one (SRP_TALKERS_C).
-  localparam int SRP_SEL_W_C = (SRP_TALKERS_C > 1) ? $clog2(SRP_TALKERS_C) : 1;
-  wire  [SRP_TALKERS_C-1:0] srp_fab_want_v_w;  //! per-slot want LEVEL
-  wire  [SRP_TALKERS_C-1:0] srp_fab_req_v_w;   //! per-slot write owed
-  logic [SRP_SEL_W_C-1:0]   srp_fab_rr_r;      //! slot served last
-  logic                     srp_fab_any_c;
-  logic [SRP_SEL_W_C-1:0]   srp_fab_sel_c;
+  //! Slot map (ONE place; every slot mux below derives from it):
+  //!   s = 0                       never a requester (row 0 = the legacy
+  //!                               pair, no-regression axiom)
+  //!   s = 1..N-1                  AAF talker t = s  -> ctx row (N-1)+s
+  //!   s = N_STREAMS               CRF Media Clock Output row, when this
+  //!                               shape has one (SRP_TALKERS_C)
+  //!   s = SRP_TALKERS_C ..        AAF LISTENER sink k = s-SRP_TALKERS_C+1
+  //!       SRP_FAB_SLOTS_C-1       -> ctx row k, direction LISTENER (the
+  //!                               task-21 ACMP->lwSRP fabric half below)
+  localparam int SRP_LSTN_SLOTS_C = (N_STREAMS > 1) ? N_STREAMS - 1 : 0;
+  localparam int SRP_FAB_SLOTS_C  = SRP_TALKERS_C + SRP_LSTN_SLOTS_C;
+  localparam int SRP_SEL_W_C = (SRP_FAB_SLOTS_C > 1) ? $clog2(SRP_FAB_SLOTS_C)
+                                                     : 1;
+  wire  [SRP_FAB_SLOTS_C-1:0] srp_fab_want_v_w;  //! per-slot want LEVEL
+  wire  [SRP_FAB_SLOTS_C-1:0] srp_fab_req_v_w;   //! per-slot write owed
+  logic [SRP_SEL_W_C-1:0]     srp_fab_rr_r;      //! slot served last
+  logic                       srp_fab_any_c;
+  logic [SRP_SEL_W_C-1:0]     srp_fab_sel_c;
 
   //! ROTATING GRANT, so no slot can be starved by a busier neighbour: the
   //! scan starts at the slot AFTER the one served last (the KL_aaf_packetizer
   //! rr_pick idiom - descending loop, so the nearest match wins), and every
   //! service moves the pointer onto the slot just served, making it the
   //! LOWEST priority. A pending slot is therefore passed over at most
-  //! SRP_TALKERS_C-1 times before it is the highest priority.
+  //! SRP_FAB_SLOTS_C-1 times before it is the highest priority.
   always_comb begin : srp_fab_pick
     srp_fab_any_c = 1'b0;
     srp_fab_sel_c = '0;
-    for (int k = SRP_TALKERS_C-1; k >= 0; k--) begin
+    for (int k = SRP_FAB_SLOTS_C-1; k >= 0; k--) begin
       int s;
-      s = (32'(srp_fab_rr_r) + k + 1) % SRP_TALKERS_C;
+      s = (32'(srp_fab_rr_r) + k + 1) % SRP_FAB_SLOTS_C;
       if (srp_fab_req_v_w[s]) begin
         srp_fab_any_c = 1'b1;
         srp_fab_sel_c = SRP_SEL_W_C'(s);
@@ -3065,14 +3089,21 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic srp_fab_own_r;      //! we owned the service beat behind THIS grant
   wire srp_fab_is_crf_w = (SRP_CRF_TK_C != 0) &&
                           (32'(srp_fab_sel_c) == N_STREAMS);
+  //! LISTENER slot decode + its sink index (clamped to a lane that always
+  //! exists so the wide sid select below never leaves acmpl_sid_v_w's range
+  //! on a non-listener beat, where the value is discarded anyway)
+  wire       srp_fab_is_lstn_w = (32'(srp_fab_sel_c) >= SRP_TALKERS_C);
+  wire [3:0] srp_fab_lsk_w     = srp_fab_is_lstn_w
+                                 ? 4'(32'(srp_fab_sel_c) - SRP_TALKERS_C + 1)
+                                 : 4'd1;
   //! one-hot service pulse: ONLY the slot whose complete record the engine
   //! sampled retires. Every ctx field is selected by this one {gnt, sel}
   //! pair and KL_lwsrp_ctx latches the whole row in that single cycle, so a
   //! beat writes exactly one source's record or writes nothing - a
   //! half-CSR/half-fabric row cannot be composed even for one cycle.
-  wire [SRP_TALKERS_C-1:0] srp_fab_svc_v_w;
+  wire [SRP_FAB_SLOTS_C-1:0] srp_fab_svc_v_w;
   generate
-    for (genvar gv = 0; gv < SRP_TALKERS_C; gv++) begin : g_srp_fab_svc
+    for (genvar gv = 0; gv < SRP_FAB_SLOTS_C; gv++) begin : g_srp_fab_svc
       assign srp_fab_svc_v_w[gv] = srp_fab_svc_w &
                                    (32'(srp_fab_sel_c) == gv);
     end
@@ -3100,11 +3131,32 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire aafsrp_root_chg_w = (srp_station_mac_w != aafsrp_mac_r) ||
                            (eff_aaf_dmac     != aafsrp_dmac_r);
 
+  //! LISTENER-slot requester state (declared before the want generate that
+  //! reads it; the provisioner process itself lives below, after
+  //! srp_fab_svc_v_w exists)
+  logic [N_STREAMS-1:0] lsnsrp_req_r;    //! a write is owed for ctx row k
+  logic [N_STREAMS-1:0] lsnsrp_last_r;   //! last committed want (edge detect)
+  logic [N_STREAMS-1:0] lsnsrp_sw_own_r; //! software claimed the row (sid)
+
   generate
-    for (genvar gw = 0; gw < SRP_TALKERS_C; gw++) begin : g_srp_fab_want
+    for (genvar gw = 0; gw < SRP_FAB_SLOTS_C; gw++) begin : g_srp_fab_want
       if (gw == 0) begin : g_slot0_never
         assign srp_fab_want_v_w[gw] = 1'b0;   //! row 0 = the legacy pair
         assign srp_fab_req_v_w[gw]  = 1'b0;
+      end else if (gw >= SRP_TALKERS_C) begin : g_slot_lstn
+        //! AAF LISTENER sink k -> ctx row k, direction LISTENER. The want
+        //! is the ACMP BIND level (Milan v1.2 5.5: a bound listener
+        //! declares the Listener attribute; Ready vs AskingFailed is the
+        //! engine's TA-registrar business, not ours) - upstream terms only,
+        //! never the engine's own outputs. cfg_lwsrp_talker_en is a TALKER
+        //! knob and deliberately absent. Software still WINS a row it
+        //! claims with a non-zero sid through the 0x800 window
+        //! (~lsnsrp_sw_own_r - the CRFT_SID precedent, listener direction).
+        localparam int unsigned SK = gw - SRP_TALKERS_C + 1;  //! sink index
+        assign srp_fab_want_v_w[gw] = ~lsnsrp_sw_own_r[SK] &
+                                      cfg_lwsrp_enable &
+                                      acmpl_bound_v_w[SK];
+        assign srp_fab_req_v_w[gw]  = lsnsrp_req_r[SK];
       end else if (gw < N_STREAMS) begin : g_slot_aaf
         //! SHAPE-DERIVED (USER "shape is STATIC, not a runtime poke"): every
         //! talker gw < N_STREAMS EXISTS in this elaborated shape and its AEM
@@ -3133,33 +3185,48 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     end
   endgenerate
 
-  //! the record this beat presents. sid/dmac need no wide mux at all - they
-  //! are ARITHMETIC in the slot index, the same rule acmp_src_dmac_w[t] and
-  //! the packetizer's stream_id_w follow.
-  wire [3:0]  srp_fab_row_w  = 4'((N_STREAMS - 1) + 32'(srp_fab_sel_c));
-  wire [63:0] srp_fab_sid_w  = srp_fab_is_crf_w
-                               ? eff_crft_sid_w
-                               : {srp_station_mac_w, 16'(srp_fab_sel_c)};
-  wire [47:0] srp_fab_dmac_w = srp_fab_is_crf_w
-                               ? eff_crft_dmac_w
-                               : (eff_aaf_dmac + 48'(srp_fab_sel_c));
+  //! the record this beat presents. Talker/CRF sid+dmac need no wide mux -
+  //! they are ARITHMETIC in the slot index, the same rule acmp_src_dmac_w[t]
+  //! and the packetizer's stream_id_w follow. A LISTENER slot's sid is DATA
+  //! (the bind's stream_id, whatever the controller named), so it comes off
+  //! the ACMP bind view - the same registers the engine writes on the bind's
+  //! own record-write edge, so the row and the binding cannot disagree.
+  wire [3:0]  srp_fab_row_w  = srp_fab_is_lstn_w
+                               ? srp_fab_lsk_w
+                               : 4'((N_STREAMS - 1) + 32'(srp_fab_sel_c));
+  wire [63:0] srp_fab_sid_w  = srp_fab_is_lstn_w
+                               ? acmpl_sid_v_w[64*srp_fab_lsk_w +: 64]
+                               : srp_fab_is_crf_w
+                                 ? eff_crft_sid_w
+                                 : {srp_station_mac_w, 16'(srp_fab_sel_c)};
+  //! listener rows carry no DataFrameParameters (the Listener attribute is
+  //! sid + four-pack only), so their record dmac is the harmless zero
+  wire [47:0] srp_fab_dmac_w = srp_fab_is_lstn_w
+                               ? 48'd0
+                               : srp_fab_is_crf_w
+                                 ? eff_crft_dmac_w
+                                 : (eff_aaf_dmac + 48'(srp_fab_sel_c));
+  wire        srp_fab_dir_w  = srp_fab_is_lstn_w;   //! ctx: 0 talker, 1 lstn
   logic       srp_fab_valid_c;
   logic [15:0] srp_fab_maxf_c, srp_fab_intv_c;
   always_comb begin : srp_fab_rec_mux
     srp_fab_valid_c = 1'b0;
     srp_fab_maxf_c  = cfg_lwsrp_max_frame;
     srp_fab_intv_c  = cfg_lwsrp_interval;
-    for (int s = 1; s < SRP_TALKERS_C; s++) begin
+    for (int s = 1; s < SRP_FAB_SLOTS_C; s++) begin
       if (32'(srp_fab_sel_c) == s) begin
         srp_fab_valid_c = srp_fab_want_v_w[s];
         if (s < N_STREAMS) begin
           //! per-row TSpec: 24 + 24*C from THIS talker's TCTX w0 chans
           srp_fab_maxf_c = tctx_maxf_w[s];
         end
-        else begin
+        else if (s < SRP_TALKERS_C) begin
           srp_fab_maxf_c = CRF_SRP_MAXF_C;
           srp_fab_intv_c = CRF_SRP_INTV_C;
         end
+        //! listener slots keep the shared LWSRP_TSPEC defaults: the wire
+        //! Listener declaration has no TSpec and the bw-gate never reads a
+        //! listener row (their reservation is the remote talker's)
       end
     end
   end : srp_fab_rec_mux
@@ -3202,12 +3269,79 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
       //! the roots are latched from the SAME wires the mux presented on the
       //! beat that was written, so the shadow and the rows cannot disagree
-      if (srp_fab_svc_w && !srp_fab_is_crf_w) begin
+      if (srp_fab_svc_w && !srp_fab_is_crf_w && !srp_fab_is_lstn_w) begin
         aafsrp_mac_r  <= srp_station_mac_w;
         aafsrp_dmac_r <= eff_aaf_dmac;
       end
     end
   end : aaf_srp_prov
+
+  // ==========================================================================
+  //  EVERY AAF LISTENER SINK GETS A PROVISIONER (task-21 fabric half,
+  //  2026-08-01). The 07-29 PEER silicon finding: a CONNECT_RX bind of
+  //  STREAM_INPUT k>0 staged the ACMP record but NOTHING wrote the lwSRP
+  //  LISTENER attribute row - the only listener-direction writer on the ctx
+  //  port was the 0x800 CSR window (ctx_dir_i was literally hardwired 0 on
+  //  the fabric grant path), so the talker's reservation could only complete
+  //  after manual CSR staging. Milan v1.2 5.3.7.3 makes the remote talker's
+  //  streaming licence CONDITIONAL on receiving a Listener Ready/ReadyFailed,
+  //  so an unstaged bind was a bind that never pulled its stream.
+  //
+  //  The requester is the aaf_srp_prov pattern, listener direction:
+  //    * want  = the ACMP bind LEVEL (acmpl_bound_v_w[k], state != UNBOUND)
+  //      qualified by the engine enable - upstream terms only, never the
+  //      engine's own outputs. Bind -> declare, unbind -> want falls and the
+  //      service writes valid=0, which KL_lwsrp_ctx turns into the one LV
+  //      withdraw if the attribute is on the wire. SRP loss handling
+  //      (TA lost -> Ready becomes AskingFailed) is the engine's registrar
+  //      contract and needs nothing from us.
+  //    * identity = DERIVED from the bind record: acmpl_sid_v_w[k] is
+  //      written by KL_acmp_lstn_ctx on the SAME edge as the bind record
+  //      itself, and the slot mux reads it LIVE at the service beat.
+  //    * re-provision on acmpl_upd_p_w[k] while wanted: a REBIND to a new
+  //      talker rewrites the record in place (bound never blinks), and a
+  //      row still carrying the old sid would be a reservation for a stream
+  //      nobody asked for - the crf_srp_prov identity rule.
+  //    * software still wins a row it names a sid for through the 0x800
+  //      window (csr_srp_ls_svc_w / lsnsrp_sw_own_r - the per-row CRFT_SID
+  //      precedent); a commit naming no sid hands the row back.
+  //  Listener rows never reach KL_lwsrp_bw_gate (it is T slots wide by
+  //  construction), so these declarations cannot gate our own talker CBS.
+  //  The CRF Media Clock Input sink stays a documented gap: at 8x8+CRF the
+  //  4-bit ctx row space is exactly full (rows 0..15) and the row map has
+  //  no CRF-listener row to write (MILAN_COMPLIANCE_GAPS.md 3).
+  // ==========================================================================
+  always_ff @(posedge axis_clk) begin : lsn_srp_prov
+    if (!axis_resetn) begin
+      lsnsrp_req_r    <= '0;
+      lsnsrp_last_r   <= '0;
+      lsnsrp_sw_own_r <= '0;
+    end
+    else begin
+      for (int k = 1; k < N_STREAMS; k++) begin
+        //! (re)provision on a want edge, or on any bind-record rewrite
+        //! while wanted (rebind = same row, new identity)
+        if ((srp_fab_want_v_w[SRP_TALKERS_C + k - 1] != lsnsrp_last_r[k]) ||
+            (srp_fab_want_v_w[SRP_TALKERS_C + k - 1] && acmpl_upd_p_w[k]))
+          lsnsrp_req_r[k] <= 1'b1;
+
+        //! a 0x800 window commit on THIS listener row settles ownership
+        //! (cannot collide with a fabric service beat: a pending CSR write
+        //! masks every fabric grant)
+        if (csr_srp_ls_svc_w && (32'(csr_srp_ctx_idx) == k)) begin
+          lsnsrp_sw_own_r[k] <= csr_srp_tk_own_w;
+          lsnsrp_req_r[k]    <= ~csr_srp_tk_own_w;
+          lsnsrp_last_r[k]   <= 1'b0;
+        end
+
+        //! ...and only the beat KL_lwsrp_ctx sampled us on retires it
+        if (srp_fab_svc_v_w[SRP_TALKERS_C + k - 1]) begin
+          lsnsrp_req_r[k]  <= 1'b0;
+          lsnsrp_last_r[k] <= srp_fab_want_v_w[SRP_TALKERS_C + k - 1];
+        end
+      end
+    end
+  end : lsn_srp_prov
 
   //! THE INTERLOCK. Frames are tagged only while the row is provisioned
   //! VALID and the applicant is running - i.e. only while the MSRP Talker
@@ -3958,6 +4092,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! SRP_CRF_TK_C = 0 the row index is a don't-care that is never driven
     assert ((SRP_CRF_TK_C == 0) || (SRP_CRF_ROW_C < SRP_CTX_ROWS_C)) else
       $error("milan_datapath: CRF lwSRP row %0d outside the %0d-row table", SRP_CRF_ROW_C, SRP_CTX_ROWS_C);
+    //! the lwSRP listener-row provisioner reads ACMP bind context k for
+    //! every AAF sink k < N_STREAMS - the entity shape must declare them
+    assert (ACMP_SINKS_C >= N_STREAMS) else
+      $error("milan_datapath: %0d ACMP sink contexts cannot back %0d AAF listener streams", ACMP_SINKS_C, N_STREAMS);
   end : srp_ctx_rows_guard
 
   KL_lwsrp_top #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ),
@@ -3999,15 +4137,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     // extra attribute rows only exist when N_CTX_P > 1 — inert at N = 1)
     //! TWO KINDS of provisioner share this port: the 0x800 CSR window
     //! (priority on its WRITES) and the fabric's own rotating requesters -
-    //! every AAF talker row t>0 plus the CRF Media Clock Output row
-    //! (srp_fab_pick / aaf_srp_prov / crf_srp_prov above). The mux is by
-    //! SOURCE, not by field, so a half-window/half-fabric record cannot be
-    //! composed even for one cycle.
+    //! every AAF talker row t>0, the CRF Media Clock Output row, and every
+    //! AAF LISTENER row k>0 bound over ACMP (srp_fab_pick / aaf_srp_prov /
+    //! crf_srp_prov / lsn_srp_prov above). The mux is by SOURCE, not by
+    //! field, so a half-window/half-fabric record cannot be composed even
+    //! for one cycle.
     .ctx_req_i (srp_ctx_req_w),
     .ctx_we_i  (srp_fab_gnt_w ? 1'b1             : csr_srp_ctx_we),
     .ctx_idx_i (srp_fab_gnt_w ? srp_fab_row_w    : csr_srp_ctx_idx),
     .ctx_valid_i (srp_fab_gnt_w ? srp_fab_valid_c : csr_srp_ctx_valid),
-    .ctx_dir_i (srp_fab_gnt_w ? 1'b0             : csr_srp_ctx_dir),
+    .ctx_dir_i (srp_fab_gnt_w ? srp_fab_dir_w    : csr_srp_ctx_dir),
     .ctx_sid_i (srp_fab_gnt_w ? srp_fab_sid_w    : csr_srp_ctx_sid),
     .ctx_dmac_i (srp_fab_gnt_w ? srp_fab_dmac_w  : csr_srp_ctx_dmac),
     .ctx_prio_rank_i (srp_fab_gnt_w ? lwsrp_pkg::SR_PRIO_RANK_C

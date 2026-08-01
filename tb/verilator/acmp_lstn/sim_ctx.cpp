@@ -48,6 +48,12 @@ static void ckh(const char* what, uint64_t got, uint64_t exp) {
     else            { printf("  [ ok ] %-52s = %llx\n", what, (unsigned long long)got); }
 }
 
+//! t21 bind view: per-context bound stream_id lane (lstn_sid_o is
+//! N_SINKS_P*64 wide -> VlWide, two 32-bit words per lane)
+static uint64_t sidv(int k) {
+    return ((uint64_t)dut->lstn_sid_o[2*k+1] << 32) | dut->lstn_sid_o[2*k];
+}
+
 static std::vector<uint8_t> partial;
 
 static void tick() {
@@ -298,6 +304,12 @@ int main(int argc, char** argv) {
     ck("[N2] ctx1 parked settled (record)", (long)c_state(), 6);
     ckh("[N2] ctx1 sid EXPLICIT", c_sid(), S1E);
     ckh("[N2] ctx1 dmac from command", c_dmac(), 0x91E0F0002A01ULL);
+    // t21 bind view (the datapath's lwSRP listener-row provisioner input):
+    // a record-only bind raises bound and exposes the bound sid, LIVE
+    ck("[N2] ctx1 bind view: BOUND", (dut->lstn_bound_o >> 1) & 1, 1);
+    ckh("[N2] ctx1 bind view: the bound sid", sidv(1), S1E);
+    ck("[N2] ctx0 bind view: bound too (probing is bound)",
+       dut->lstn_bound_o & 1, 1);
     ck("[N2] ctx1 no probe SM: no new probe", dut->probe_count_o, 1);
     ck("[N2] ctx1 never activates (no MSRP)",
        (dut->stream_active_o >> 1) & 1, 0);
@@ -432,6 +444,10 @@ int main(int argc, char** argv) {
     tbl_read(1);
     ck("[N6] ctx1 unbound", (long)c_state(), 0);
     ckh("[N6] ctx1 record cleared", c_talker(), 0);
+    // t21 bind view: the unbind drops bound and zeroes the sid lane, so
+    // the downstream lwSRP listener-row provisioner withdraws its row
+    ck("[N6] ctx1 bind view: bound CLEARED", (dut->lstn_bound_o >> 1) & 1, 0);
+    ckh("[N6] ctx1 bind view: sid cleared", sidv(1), 0);
     tbl_read(0);
     ck("[N6] ctx0 still bound (RETRY)", (long)c_state(), 5);
     ckh("[N6] ctx0 talker intact", c_talker(), T1_EID);
