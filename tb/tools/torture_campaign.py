@@ -2314,41 +2314,12 @@ def plan_torture(dut: Device = ARTY, peer: Device = PEER) -> list:
              "reservation together; a CSR-driven reset does not"))
 
     # --- 3. gPTP grandmaster changes and loss ------------------------------
-    S.append(Step(
-        "torture.gptp.gm-change", "torture", "human_action",
-        {"target": "bench"},
-        needs_human=True,
-        human_action="Force a grandmaster change: raise priority1 on the "
-                     "OTHER board (or the bridge) so BMCA deposes the current "
-                     "GM, and leave it there for 60 s.",
-        asserts=(AssertSpec("counters.avb_interface.gptp-gm-changed-advances",
-                            "IEEE 1722.1-2021 Table 7-153 GPTP_GM_CHANGED: "
-                            "'gPTP grandmaster change count'"),
-                 AssertSpec("adp.gptp-grandmaster-id-follows",
-                            "IEEE 1722.1-2021 6.2.2.13: the ADPDU carries "
-                            "gptp_grandmaster_id, so a controller sees the new "
-                            "GM without asking"),
-                 A_STREAM_CONTINUITY, A_LOCK_INVARIANT, A_TU_HANDLING),
-        clause="802.1AS-2020 10.3 BMCA + IEEE 1722.1-2021 6.2.2.13",
-        note="USER standing rule: recovery must be AUTOMATIC - never force the "
-             "GM back.  A board whose servo has no step threshold cannot "
-             "re-converge, and that is a finding about the board"))
-    S.append(Step(
-        "torture.gptp.gm-loss", "torture", "human_action",
-        {"target": "bench"},
-        needs_human=True,
-        human_action="Power off / unplug the current grandmaster and leave the "
-                     "domain without one for 60 s, then restore it.",
-        asserts=(A_TU_HANDLING,
-                 AssertSpec("wire.tu-set-when-clock-invalid",
-                            "IEEE 1722-2016 4.4.4.7 tu: the bit says the "
-                            "timestamps are uncertain, and an unknown clock "
-                            "state means NOT valid - so tu = 1 is the CORRECT "
-                            "state with no GM, and tu = 0 has to be earned"),
-                 A_STREAM_CONTINUITY, A_ADP_ALIVE),
-        clause="802.1AS-2020 10.3.13 + IEEE 1722-2016 4.4.4.7",
-        note="the assertion is that tu becomes 1, not that streaming stops - "
-             "1722-2016 does not stop a talker for an uncertain clock"))
+    #  MOVED to the `physical` area (plan_physical): powering the switch off
+    #  and back on IS the grandmaster loss (each end station becomes its own
+    #  island GM) and the re-join IS the grandmaster change (BMCA re-elects
+    #  with priority1 untouched - the USER standing rule that recovery must be
+    #  automatic, never a forced win).  The physical area runs LAST because a
+    #  partition mid-campaign would pollute every later verdict.
 
     # --- 4. malformed / truncated control frames --------------------------
     #  NOT from the adverse-conditions recommended practice, which covers only
@@ -2491,26 +2462,254 @@ def plan_torture(dut: Device = ARTY, peer: Device = PEER) -> list:
                             "invariant: losing the stream unlocks the media "
                             "clock, so MEDIA_LOCKED == MEDIA_UNLOCKED again")),
         clause="Milan v1.2 Table 5.6"))
+    #  The DUT power cycle MOVED to the `physical` area (plan_physical), where
+    #  it is powerstrip-automatable; its non-volatile assertions
+    #  (A_STATE_RESTORED / A_COUNTERS_ZEROED) travelled with it.
+    return S
+
+
+# ---------------------------------------------- the physical (power) family --
+#: docs/reference/REGISTER_MAP.md: `VERSION` (0x004) identifies the flashed
+#: gateware; `CLKV_STAT` (0x77C) bit 0 is the tu bit as currently stamped on
+#: every AVTPDU.  The CLKV lease behind that bit is SOFTWARE (gptp2csr.sh
+#: renews it), so a boot or a recovery that loses the lease writer stamps
+#: tu = 1 forever - exactly what the post-cycle tu assertion exists to catch.
+VERSION_ADDR = 0x004
+CLKV_STAT_ADDR = 0x77C
+#: The healthy boot posture of the DUT's kernel interface:
+#: /sys/class/net/eth0/flags == 0x1203 = IFF_UP | IFF_BROADCAST | IFF_ALLMULTI
+#: | IFF_MULTICAST with IFF_PROMISC (0x100) ABSENT.  Promisc outranks even an
+#: explicit TCAM drop in the RX filter's decision order (REGISTER_MAP.md), so
+#: a boot that comes up promiscuous has silently voided its own RX shield and
+#: starves the softcore under stream load.
+DUT_IFACE_HEALTHY_FLAGS = 0x1203
+
+A_PHYS_SNAPSHOT = AssertSpec(
+    "physical.pre-snapshot-taken",
+    "info: measure before AND after (the standing rule) - the retroactive "
+    "verdicts of a physical cycle (the GPTP_GM_CHANGED delta, the counter "
+    "reset, uptime monotonicity, the gateware VERSION word) are only decidable "
+    "against a snapshot taken BEFORE the power event, so the snapshot is a "
+    "step of its own and its absence turns those verdicts into SKIPs rather "
+    "than guesses",
+    severity="INFO")
+A_PARTITION_EXPECTED = AssertSpec(
+    "physical.partition-is-the-test",
+    "info: the controller host reaches BOTH end stations through the switch "
+    "under test, so total unreachability during the off-window is the "
+    "condition APPLIED, not a result - timeouts inside the window are never "
+    "failures, the CSR and board feeds are paused for its duration, and what "
+    "happened mid-partition (each island electing its own GM per 802.1AS-2020 "
+    "10.3) is verified RETROACTIVELY from the GPTP_GM_CHANGED counters and "
+    "the gPTP logs after recovery",
+    severity="INFO")
+A_GM_CHANGED_ADVANCES = AssertSpec(
+    "counters.avb_interface.gptp-gm-changed-advances",
+    "IEEE 1722.1-2021 Table 7-153 GPTP_GM_CHANGED: 'gPTP grandmaster change "
+    "count'.  A partition and a re-join are real BMCA elections, so the "
+    "counter advances by a small bounded amount; one that never moved says "
+    "the device slept through the partition")
+A_GM_ID_FOLLOWS = AssertSpec(
+    "adp.gptp-grandmaster-id-follows",
+    "IEEE 1722.1-2021 6.2.2.13: the ADPDU carries gptp_grandmaster_id, so a "
+    "controller sees the restored GM without asking")
+A_ONE_GM_RESTORED = AssertSpec(
+    "gptp.exactly-one-gm-after-heal",
+    "802.1AS-2020 10.3: BMCA converges the healed domain on exactly one "
+    "grandmaster - both end stations' ADPDUs carry the SAME non-zero "
+    "gptp_grandmaster_id within the recovery budget, with priority1 untouched "
+    "(USER standing rule: recovery must be automatic, never a forced win)")
+A_GM_NOT_FLAPPING = AssertSpec(
+    "gptp.gm-stable-not-flapping",
+    "802.1AS-2020 10.3.13: after convergence the elected GM STAYS elected - "
+    "GPTP_GM_CHANGED read twice across a settle gap advances by at most one "
+    "more tick; a counter still climbing is a domain that never actually "
+    "converged (the ever-changing-GM defect class)")
+A_AS_CAPABLE_RESTORED = AssertSpec(
+    "gptp.as-capable-restored",
+    "802.1AS-2020 10.2.4.1 asCapable: the healed links exchange Pdelay and "
+    "Announce again, evidenced by at least one end station following a REMOTE "
+    "grandmaster; two boards each still claiming themselves GM after the "
+    "budget are two islands that never re-joined")
+A_TU_LEASE_REARMED = AssertSpec(
+    "gptp.tu-lease-reestablished",
+    "IEEE 1722-2016 4.4.4.7 tu: tu = 1 is the fail-safe and tu = 0 has to be "
+    "EARNED - the CLKV lease (CLKV_STAT 0x77C bit 0, renewed by software in "
+    "gptp2csr.sh) must be re-established once the GM is back, or every AVTPDU "
+    "stamps tu = 1 forever.  The reading is a DUT CSR, so without a CSR path "
+    "this is a SKIP naming the register, never a guess")
+A_NO_REBOOT = AssertSpec(
+    "entity.survived-without-reboot",
+    "IEEE 1722.1-2021 6.2.6: the entity stays available through a network "
+    "partition - a link loss is not a reason to restart.  Graded from the "
+    "board's own uptime (monotonic across the cycle) when a board path "
+    "exists, else from counter monotonicity: IEEE 1722.1-2021 7.4.42 makes "
+    "the counters volatile, so a post-cycle value BELOW the pre-snapshot is "
+    "a restart")
+A_BOOT_UNATTENDED = AssertSpec(
+    "boot.reaches-network-unattended",
+    "Milan v1.2 5.3.10.1 + IEEE 1722.1-2021 6.2.6: the persisted state is "
+    "restored 'after a power cycle' and the entity advertises again, with "
+    "ZERO manual intervention.  The budget is a bench fact, not a clause: "
+    "QSPI bitstream load + kernel + link guard measured ~5.5 min worst case "
+    "on this DUT, so the default budget is 360 s and a boot that needs a "
+    "hand at any rung is exactly the FAIL this exists to catch")
+A_VERSION_UNCHANGED = AssertSpec(
+    "boot.same-gateware-version",
+    "the same-version rule (docs/testing/TORTURE_CAMPAIGN.md): a power cycle "
+    "boots the QSPI image, so the VERSION CSR (0x004) must read back what the "
+    "pre-snapshot read - a changed word means the golden-image fallback "
+    "engaged (or a mid-campaign reflash), and every later verdict would be "
+    "filed against the wrong gateware")
+A_SHIELD_POSTURE = AssertSpec(
+    "boot.shield-posture-restored",
+    "REGISTER_MAP.md RX filter decision order: promisc outranks even an "
+    "explicit TCAM drop, so the stream shield only exists while promisc "
+    "stays gated - the healthy posture is eth0 flags 0x1203 (UP | BROADCAST "
+    "| ALLMULTI | MULTICAST, PROMISC absent).  A boot that comes up "
+    "promiscuous has voided its own RX shield and starves the softcore "
+    "under stream load")
+A_STATE_RESTORED = AssertSpec(
+    "state.restored-after-power-cycle",
+    "Milan v1.2 5.3.10.1: 'The PAAD-AE shall maintain a list of all its "
+    "input channel mappings.  This list shall be saved in a non-volatile "
+    "memory and restored after a power cycle.'  5.3.8.1 says the same for "
+    "the current format and 5.3.7.6 for the presentation time offset")
+A_COUNTERS_ZEROED = AssertSpec(
+    "counters.zeroed-after-power-cycle",
+    "IEEE 1722.1-2021 7.4.42: the counters are volatile state; a non-zero "
+    "block straight after a power cycle is a restored-counter bug")
+
+
+def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
+    """The powerstrip-driven physical family - LAST, always, and never faked.
+
+    USER AUTHORIZATION (2026-08-02): the amx-pi powerstrip may drive OUT4 =
+    the AVB switch ("DN-1") and OUT0 = the DUT (the AX cold-cycle precedent).
+    Per-port CABLE PULLS stay needs_human in the torture area: a powerstrip
+    cannot pull one cable, and simulating a port bounce by cutting the whole
+    switch would assert something the cable-pull step does not claim.
+
+    Two families:
+      * switch-cycle - replaces the old gm-change and gm-loss human entries
+        and adds the trunk-link bounce.  Cutting the switch IS the GM loss
+        (each end station becomes its own island GM, verifiable only
+        retroactively - the controller host is inside the partition), and the
+        re-join IS the GM change (BMCA re-elects one GM with priority1
+        untouched).  Both edges are real PHY link events on every port at
+        once.
+      * dut-cycle - the old power-cycle human entry: the persistence story,
+        boot-to-healthy with zero manual intervention, plus the boot-posture
+        checks (VERSION unchanged, shield posture, tu lease).
+
+    Each family ends in a PROOF PAIR - a full set-format/bind/licence/unbind
+    walk at the HIGHEST AAF indices (index 0 is the alias path and the least
+    representative) - because "the bench recovered" is only a fact once a
+    stream flows again.
+
+    Ordering and safety are plan facts, not runner courtesy: the area is
+    registered LAST in AREAS (a partition mid-matrix would pollute every
+    later verdict), the two families are strictly serial, and the runner owes
+    the bench-alive guarantee - on a failed recovery it retries the power-on
+    ONCE with an extended wait, then STOPS the family and SKIPs the remaining
+    physical steps naming the reason.  The campaign ends with the bench alive
+    or loudly declared dead.
+
+    Budgets (step args, so a bench overrides them without a source edit):
+      * switch hold 20 s - an order of magnitude past the 802.1AS
+        announce-receipt timeout (3 announce intervals = 3 s), so both
+        islands provably re-elect their own GM before power returns;
+      * switch recovery 240 s to reachability (the DN-1 must BOOT before any
+        board is reachable through it - the 180 s floor plus switch boot
+        margin), then 180 s more to ONE GM (BMCA + Pdelay asCapable + the
+        servo, all automatic by standing rule; 120 s floor plus margin);
+      * DUT off 8 s (a real drain - the SRAM gateware is LOST and QSPI boots
+        it back, which is what makes it a true cold boot), 360 s to the
+        network (QSPI load + kernel + link guard measured ~5.5 min worst
+        case on this bench), then 120 s more for gPTP.
+    """
+    S = []
+    fmt = dut.formats[0] if dut.formats else None
+    # the proof-pair indices: highest AAF (non-CRF) on each side - never 0
+    tis = dut.talker_indices(include_crf=False)
+    lis = peer.listener_indices(include_crf=False)
+    ti = tis[-1] if tis else 0
+    li = lis[-1] if lis else 0
+    dlis = dut.listener_indices(include_crf=False)
+    dli = dlis[-1] if dlis else 0
+
+    # ---- family 1: the switch cycle (partition + re-join) -----------------
     S.append(Step(
-        "torture.power-cycle", "torture", "human_action",
-        {"target": dut.name},
+        "phys.switch-cycle.pre-snapshot", "physical", "phys_snapshot",
+        {"family": "switch-cycle", "version_addr": VERSION_ADDR,
+         "fmt_out_index": ti, "fmt_in_index": dli},
+        asserts=(A_PHYS_SNAPSHOT,),
+        clause="IEEE 1722.1-2021 Table 7-153 (the GM_CHANGED baseline) + the "
+               "standing measure-before-and-after rule",
+        note="GM identity on BOTH sides (ADPDU gptp_grandmaster_id), the "
+             "AVB_INTERFACE counters, the licence word, the board uptime and "
+             "the VERSION word - everything the retroactive verdicts need"))
+    S.append(Step(
+        "phys.switch-cycle.gm-partition", "physical", "switch_power_cycle",
+        {"outlet_role": "switch", "family": "switch-cycle",
+         "hold_s": 20, "ssh_budget_s": 240, "gptp_budget_s": 180,
+         "settle_gap_s": 10, "gm_changes_max": 8,
+         "clkv_stat_addr": CLKV_STAT_ADDR},
         needs_human=True,
-        human_action="Power-cycle the DUT at the outlet, wait for the network "
-                     "to come up, and re-run the matrix area.",
-        asserts=(A_ADP_ALIVE,
-                 AssertSpec("state.restored-after-power-cycle",
-                            "Milan v1.2 5.3.10.1: 'The PAAD-AE shall maintain "
-                            "a list of all its input channel mappings.  This "
-                            "list shall be saved in a non-volatile memory and "
-                            "restored after a power cycle.'  5.3.8.1 says the "
-                            "same for the current format and 5.3.7.6 for the "
-                            "presentation time offset"),
-                 AssertSpec("counters.zeroed-after-power-cycle",
-                            "IEEE 1722.1-2021 7.4.42: the counters are volatile "
-                            "state; a non-zero block straight after a power "
-                            "cycle is a restored-counter bug")),
+        human_action="Power off the AVB switch (DN-1) at the powerstrip for "
+                     "~20 s, then power it back on and wait for links, ssh "
+                     "and gPTP to recover.  AUTOMATED when the runner is "
+                     "given --powerstrip-cmd and --switch-outlet (bench: "
+                     "amx-pi outlet 4).",
+        asserts=(A_PARTITION_EXPECTED, A_GM_CHANGED_ADVANCES, A_GM_ID_FOLLOWS,
+                 A_ONE_GM_RESTORED, A_GM_NOT_FLAPPING, A_AS_CAPABLE_RESTORED,
+                 A_TU_LEASE_REARMED, A_NO_REBOOT, A_ADP_ALIVE),
+        clause="802.1AS-2020 10.3 BMCA + IEEE 1722.1-2021 Table 7-153 "
+               "GPTP_GM_CHANGED",
+        note="the partition IS the GM loss and the re-join IS the GM change: "
+             "priority1 is never touched (USER standing rule - recovery must "
+             "be automatic).  Mid-partition nothing is verifiable from the "
+             "controller host - it is inside the partition - so the "
+             "own-island-GM claim is verified retroactively from the "
+             "GM_CHANGED counters, and timeouts during the off-window are "
+             "the expected condition, never failures"))
+    S += _pair_steps("phys.switch-cycle.proof", "physical", dut, ti, peer, li,
+                     fmt)
+
+    # ---- family 2: the DUT power cycle (the persistence story) ------------
+    S.append(Step(
+        "phys.dut-cycle.pre-snapshot", "physical", "phys_snapshot",
+        {"family": "dut-cycle", "version_addr": VERSION_ADDR,
+         "fmt_out_index": ti, "fmt_in_index": dli},
+        asserts=(A_PHYS_SNAPSHOT,),
+        clause="Milan v1.2 5.3.10.1 / 5.3.8.1 (what must survive the cycle "
+               "is defined by what was set BEFORE it) + the standing "
+               "measure-before-and-after rule"))
+    S.append(Step(
+        "phys.dut-cycle.power-cycle", "physical", "dut_power_cycle",
+        {"outlet_role": "dut", "family": "dut-cycle",
+         "off_s": 8, "net_budget_s": 360, "gptp_budget_s": 120,
+         "settle_gap_s": 10, "version_addr": VERSION_ADDR,
+         "clkv_stat_addr": CLKV_STAT_ADDR,
+         "iface": "eth0", "iface_flags": DUT_IFACE_HEALTHY_FLAGS,
+         "fmt_out_index": ti, "fmt_in_index": dli},
+        needs_human=True,
+        human_action="Power-cycle the DUT at the outlet (off for at least "
+                     "8 s - the SRAM gateware is lost, QSPI boots it back), "
+                     "then wait for the network to come up with NO manual "
+                     "intervention.  AUTOMATED when the runner is given "
+                     "--powerstrip-cmd and --dut-outlet (bench: amx-pi "
+                     "outlet 0).",
+        asserts=(A_ADP_ALIVE, A_BOOT_UNATTENDED, A_VERSION_UNCHANGED,
+                 A_SHIELD_POSTURE, A_STATE_RESTORED, A_COUNTERS_ZEROED,
+                 A_ONE_GM_RESTORED, A_TU_LEASE_REARMED),
         clause="Milan v1.2 5.3.10.1 / 5.3.8.1 / 5.3.7.6",
-        note="the only test that can see the non-volatile requirements at all"))
+        note="the only test that can see the non-volatile requirements at "
+             "all - and the zero-touch boot ladder (network, VERSION, shield "
+             "posture, discovery, gPTP, tu lease) is the persistence story "
+             "the flash rounds keep re-earning"))
+    S += _pair_steps("phys.dut-cycle.proof", "physical", dut, ti, peer, li,
+                     fmt)
     return S
 
 
@@ -2521,6 +2720,11 @@ AREAS = {
     "payload": plan_payload,
     "audio": plan_audio,
     "torture": plan_torture,
+    #: LAST on purpose, and load-bearing: build_plan() emits areas in THIS
+    #: order, and a switch partition or a DUT power cycle mid-matrix would
+    #: pollute every verdict that follows it.  The runner additionally never
+    #: drives two outlets concurrently.
+    "physical": plan_physical,
 }
 
 
@@ -2654,6 +2858,11 @@ def area_index_expectations(dut: Device = ARTY, peer: Device = PEER) -> dict:
                                    dut.listener_indices(include_crf=False)
                                    if i < peer.listeners]},
         "torture": {},
+        # not per-index by nature either: the physical family's proof pair
+        # deliberately walks ONE pair (the highest AAF indices - never the
+        # index-0 alias path), and full per-index coverage already belongs to
+        # the matrix that ran before the power was touched
+        "physical": {},
     }
 
 
@@ -2685,10 +2894,13 @@ def checklist_text(plan) -> str:
         return "No human-action entries in this plan.\n"
     lines = ["MILAN TORTURE CAMPAIGN - HUMAN ACTION CHECKLIST",
              "=" * 62,
-             f"{len(hs)} entries need a person at the bench.  Nothing in this",
-             "list can be driven from software: it needs a cable moved, power",
-             "cut, or another box reconfigured.  Run the software areas first,",
-             "then work down this list, re-running the named area after each.",
+             f"{len(hs)} entries need a person at the bench: a cable moved,",
+             "power cut, or another box reconfigured.  The physical-area",
+             "power cycles run AUTOMATED instead when the runner is given",
+             "--powerstrip-cmd (with --switch-outlet / --dut-outlet); the",
+             "cable pulls always need a person.  Run the software areas",
+             "first, then work down this list, re-running the named area",
+             "after each.",
              ""]
     for i, s in enumerate(hs, 1):
         lines.append(f"[ ] {i}. {s.sid}")
@@ -3200,14 +3412,95 @@ def self_test() -> int:
                 self.assertEqual(sev["control.responsive"], "INFO")
 
         def test_human_entries_are_emitted_not_skipped(self):
-            plan = plan_torture()
+            plan = build_plan()
             hs = human_steps(plan)
-            self.assertGreaterEqual(len(hs), 4)
+            # the cable pull (torture) plus the two physical cycle steps -
+            # which stay needs_human in the PLAN so a bench without the
+            # powerstrip hook hands them back as NEEDS-HUMAN, exactly as
+            # before they were automatable
+            self.assertGreaterEqual(len(hs), 3)
             txt = checklist_text(plan)
             for s in hs:
                 self.assertIn(s.sid, txt)
                 self.assertIn(s.human_action[:24], txt)
             self.assertIn("No human-action entries", checklist_text([]))
+
+        def test_physical_family_contract(self):
+            plan = build_plan()
+            # LAST, always: a partition mid-matrix would pollute everything
+            areas_in_order = []
+            for s in plan:
+                if s.area not in areas_in_order:
+                    areas_in_order.append(s.area)
+            self.assertEqual(areas_in_order[-1], "physical")
+            phys = [s for s in plan if s.area == "physical"]
+            self.assertTrue(phys)
+            # the old human entries moved here and NOWHERE else
+            tort = plan_torture()
+            self.assertFalse([s for s in tort if "gm-change" in s.sid
+                              or "gm-loss" in s.sid
+                              or "power-cycle" in s.sid])
+            self.assertTrue(any("cable-pull" in s.sid and s.needs_human
+                                for s in tort))
+            # the two cycle steps: still needs_human in the PLAN (the
+            # no-regression guarantee), with the outlet role named for the
+            # runner that CAN automate them
+            cyc = {s.op: s for s in phys
+                   if s.op in ("switch_power_cycle", "dut_power_cycle")}
+            self.assertEqual(set(cyc), {"switch_power_cycle",
+                                        "dut_power_cycle"})
+            for s in cyc.values():
+                self.assertTrue(s.needs_human, s.sid)
+                self.assertTrue(s.human_action, s.sid)
+                self.assertIn("outlet_role", s.args)
+            self.assertEqual(cyc["switch_power_cycle"].args["outlet_role"],
+                             "switch")
+            self.assertEqual(cyc["dut_power_cycle"].args["outlet_role"],
+                             "dut")
+            # the assertion contract: the switch cycle owes the GM change AND
+            # the GM loss story, the DUT cycle owes the persistence story
+            sw = {a.name for a in cyc["switch_power_cycle"].asserts}
+            self.assertIn("counters.avb_interface.gptp-gm-changed-advances",
+                          sw)
+            self.assertIn("physical.partition-is-the-test", sw)
+            self.assertIn("gptp.exactly-one-gm-after-heal", sw)
+            self.assertIn("entity.survived-without-reboot", sw)
+            self.assertIn("gptp.tu-lease-reestablished", sw)
+            du = {a.name for a in cyc["dut_power_cycle"].asserts}
+            self.assertIn("state.restored-after-power-cycle", du)
+            self.assertIn("counters.zeroed-after-power-cycle", du)
+            self.assertIn("boot.reaches-network-unattended", du)
+            self.assertIn("boot.same-gateware-version", du)
+            self.assertIn("boot.shield-posture-restored", du)
+            # the budget floors from the bench facts: switch boot before any
+            # board is reachable, ~5.5 min worst-case DUT boot, and a hold an
+            # order of magnitude past the announce-receipt timeout
+            a = cyc["switch_power_cycle"].args
+            self.assertGreaterEqual(a["hold_s"], 15)
+            self.assertGreaterEqual(a["ssh_budget_s"], 180)
+            self.assertGreaterEqual(a["gptp_budget_s"], 120)
+            b = cyc["dut_power_cycle"].args
+            self.assertGreaterEqual(b["off_s"], 5)
+            self.assertGreaterEqual(b["net_budget_s"], 120)
+            # each family ends with a full PROOF PAIR at a NON-ZERO index
+            # (index 0 is the alias path)
+            for fam in ("switch-cycle", "dut-cycle"):
+                proof = [s for s in phys
+                         if s.sid.startswith(f"phys.{fam}.proof")]
+                conn = [s for s in proof if s.op == "connect"]
+                self.assertTrue(conn, fam)
+                self.assertGreater(conn[0].args["talker_index"], 0)
+                need = {x.name for x in BOUND_STREAMING_ASSERTS}
+                got = {x.name for x in conn[0].asserts}
+                self.assertTrue(need <= got, need - got)
+            # snapshot-before-cycle ordering, per family
+            sids = [s.sid for s in phys]
+            for fam, cyc_sid in (("switch-cycle",
+                                  "phys.switch-cycle.gm-partition"),
+                                 ("dut-cycle",
+                                  "phys.dut-cycle.power-cycle")):
+                self.assertLess(sids.index(f"phys.{fam}.pre-snapshot"),
+                                sids.index(cyc_sid))
 
         def test_churn_includes_the_implicit_rebind_to_a_different_talker(self):
             reb = [s for s in plan_churn() if s.sid.endswith(".rebind")]
@@ -3231,7 +3524,7 @@ def self_test() -> int:
                 build_plan(["nope"])
             self.assertEqual({s.area for s in build_plan()},
                              {"matrix", "multi", "churn", "payload", "audio",
-                              "torture"})
+                              "torture", "physical"})
 
         def test_multi_area_walks_concurrent_sets_and_serialises(self):
             plan = build_plan(["multi"])

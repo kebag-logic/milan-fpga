@@ -606,12 +606,20 @@ def step_tp_human_cable(context):
 
 @then("the human entries include a grandmaster change")
 def step_tp_human_gmchg(context):
-    assert any("gm-change" in s.sid for s in tp.human_steps(context.tp_plan))
+    # the switch cycle IS the grandmaster change: the re-join re-elects one GM
+    # (priority1 untouched), and the step owes the GM_CHANGED counter advance
+    assert any("counters.avb_interface.gptp-gm-changed-advances"
+               in {a.name for a in s.asserts}
+               for s in tp.human_steps(context.tp_plan))
 
 
 @then("the human entries include a grandmaster loss")
 def step_tp_human_gmloss(context):
-    assert any("gm-loss" in s.sid for s in tp.human_steps(context.tp_plan))
+    # the partition IS the grandmaster loss: each island elects its own GM,
+    # verified retroactively - the step owes the partition-is-the-test record
+    assert any("physical.partition-is-the-test"
+               in {a.name for a in s.asserts}
+               for s in tp.human_steps(context.tp_plan))
 
 
 @then("the human entries include a power cycle")
@@ -627,6 +635,78 @@ def step_tp_power_nv(context):
     names = {a.name for a in context.tp_power.asserts}
     assert "state.restored-after-power-cycle" in names, names
     assert "counters.zeroed-after-power-cycle" in names, names
+
+
+# ------------------------------------------------- the physical family --
+def _phys_cycles(context):
+    return [s for s in context.tp_plan
+            if s.op in ("switch_power_cycle", "dut_power_cycle")]
+
+
+@then("the physical area is the last thing the campaign runs")
+def step_tp_phys_last(context):
+    order = []
+    for s in context.tp_plan:
+        if s.area not in order:
+            order.append(s.area)
+    assert order[-1] == "physical", order
+    # and once it starts, nothing else interleaves
+    tail = [s.area for s in context.tp_plan
+            if s.area == "physical" or order.index(s.area) > order.index(
+                "physical")]
+    assert set(tail) == {"physical"}, tail
+
+
+@then("every physical cycle step is still a human entry in the plan")
+def step_tp_phys_human(context):
+    cycles = _phys_cycles(context)
+    assert len(cycles) == 2, [s.sid for s in cycles]
+    for s in cycles:
+        assert s.needs_human and s.human_action, s.sid
+
+
+@then("the physical cycle steps name the outlet role they need")
+def step_tp_phys_outlet(context):
+    roles = {s.op: s.args.get("outlet_role") for s in _phys_cycles(context)}
+    assert roles == {"switch_power_cycle": "switch",
+                     "dut_power_cycle": "dut"}, roles
+
+
+@then("the physical recovery budgets respect the bench floors")
+def step_tp_phys_budgets(context):
+    by = {s.op: s.args for s in _phys_cycles(context)}
+    sw, du = by["switch_power_cycle"], by["dut_power_cycle"]
+    # hold >> the 802.1AS announce-receipt timeout (3 announce intervals)
+    assert sw["hold_s"] >= 15, sw
+    # the DN-1 must BOOT before any board is reachable through it
+    assert sw["ssh_budget_s"] >= 180, sw
+    assert sw["gptp_budget_s"] >= 120, sw
+    # a real drain, and the measured ~5.5 min worst-case cold boot
+    assert du["off_s"] >= 5, du
+    assert du["net_budget_s"] >= 120, du
+
+
+@then("the partition window is asserted as the condition, not a failure")
+def step_tp_phys_partition(context):
+    sw = [s for s in _phys_cycles(context)
+          if s.op == "switch_power_cycle"][0]
+    spec = {a.name: a for a in sw.asserts}["physical.partition-is-the-test"]
+    # INFO severity: unreachability during the off-window can never grade the
+    # device - the controller host is INSIDE the partition
+    assert spec.severity == "INFO", spec
+
+
+@then("each physical family ends with a full proof pair at a non-zero index")
+def step_tp_phys_proof(context):
+    need = {a.name for a in tp.BOUND_STREAMING_ASSERTS}
+    for fam in ("switch-cycle", "dut-cycle"):
+        conn = [s for s in context.tp_plan
+                if s.sid.startswith(f"phys.{fam}.proof")
+                and s.op == "connect"]
+        assert conn, fam
+        assert conn[0].args["talker_index"] > 0, conn[0].args
+        got = {a.name for a in conn[0].asserts}
+        assert need <= got, (fam, need - got)
 
 
 # ------------------------------------------------------ runner integration --

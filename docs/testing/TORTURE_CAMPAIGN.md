@@ -30,7 +30,7 @@ cover.
 - **[4. What it asserts — the full inventory](#4-what-it-asserts--the-full-inventory)** — All 70 plan assertions and all 31 wire-truth check families: name, clause, severity, what makes it FAIL, what a SKIP means, and which sides it measures.
 - **[5. How to read the output](#5-how-to-read-the-output)** — The JSONL schema field by field, every verdict value, the exit-code contract, and worked examples of a pass, a failure and a skip.
 - **[6. How to extend it](#6-how-to-extend-it)** — One recipe per kind of addition, each with a worked example and its mandatory negative control.
-- **[7. The human-action checklist](#7-the-human-action-checklist)** — The physical interventions, what to do and what to observe.
+- **[7. The human-action checklist, and the physical (powerstrip) family](#7-the-human-action-checklist-and-the-physical-powerstrip-family)** — The physical interventions, what to do and what to observe — and the powerstrip hook (§7.1) that automates the two power cycles.
 - **[8. The traps](#8-the-traps)** — The semantic and measurement traps a future maintainer *will* hit, each with its evidence.
 - **[9. Limits, cost and non-coverage](#9-limits-cost-and-non-coverage)** — Exhaustive and honest, including runtime.
 
@@ -228,6 +228,12 @@ sudo -E python3 tools/milan_torture.py --areas matrix --iface enp6s0 \
 # ONE PAIR, for a bisect: --areas matrix over a one-talker one-listener shape
 sudo -E python3 tools/milan_torture.py --areas matrix \
      --dut 'talkers=1,listeners=1,crf_out=,crf_in=' --peer 'listeners=1'
+
+# THE PHYSICAL FAMILY (the powerstrip-driven switch cycle + DUT power cycle):
+# an explicit opt-in, runs LAST, full recipe and safety contract in §7.1
+sudo -E python3 tools/milan_torture.py --areas physical \
+     --powerstrip-cmd "ssh amx-pi 'powerstrip {action} {outlet}'" \
+     --switch-outlet 4 --dut-outlet 0
 
 # feed the payload / audio areas their captures
 sudo -E python3 tools/milan_torture.py --areas payload --pcap cap.pcap
@@ -565,13 +571,13 @@ asserted by `torture_campaign_plan.feature`:
 |---|---|---|---|
 | sustained high-rate traffic | non-priority broadcast, **unicast to our own MAC** (the case the recommendation names explicitly), AVDECC flood, AVB Management (`01:80:C2:00:00:00`/`:0E`/`:21`), SR class B | RECOMMENDED | **no runner op yet** → SKIP naming `background_load` |
 | link | software PHY bounce ×5 | SHALL | **no runner op yet** → SKIP naming `link_bounce` |
-| link | **cable pull, same port then a different port** | SHALL | human |
-| gPTP | **grandmaster change**, **grandmaster loss** — the assertion on loss is that `tu` becomes 1, *not* that streaming stops | SHALL | human |
+| link | **cable pull, same port then a different port** | SHALL | human — a powerstrip has no per-port outlet |
+| gPTP | **grandmaster change**, **grandmaster loss** — both now delivered by the `physical` area's **switch cycle** (§7.1): the partition *is* the loss, the re-join *is* the change | SHALL | physical: powerstrip, or human without the hook |
 | malformed | overstated / understated `control_data_length`, truncated AECP payload, short ACMPDU, bad AVTP version, overstated AAF `stream_data_length`, channel mismatch, unknown AEM command, wrong `target_entity_id` (**silence is correct there**) | SHALL | **no runner op yet** → SKIP naming `malformed_frame` |
 | MAAP | DMAC conflict → *withdraw, wait 2 LeaveAll periods, reallocate* (Milan Table 5.3) | SHALL | **no runner op yet** → SKIP naming `maap_conflict` |
 | VLAN | wrong SR VID; **VID 0 as its own case** | SHALL | **no runner op yet** → SKIP naming `vlan_misconfig` |
 | starvation | talker source removed (silence **with** frames); listener stream stops (`STREAM_INTERRUPTED` advances) | SHALL | **no runner op yet** → SKIP naming `starve_source` / `stop_talker` |
-| power | **power cycle** → the non-volatile requirements of Milan 5.3.10.1 / 5.3.8.1 / 5.3.7.6, and counters back at zero | SHALL | human |
+| power | **DUT power cycle** → the non-volatile requirements of Milan 5.3.10.1 / 5.3.8.1 / 5.3.7.6, counters back at zero, and the zero-touch boot ladder — the `physical` area (§7.1) | SHALL | physical: powerstrip, or human without the hook |
 
 ### 4.8 The three counter reading traps this campaign encodes rather than repeats
 
@@ -848,9 +854,9 @@ per-area coverage audit is what makes "we test every index" checkable.
 
 ---
 
-## 7. The human-action checklist
+## 7. The human-action checklist, and the physical (powerstrip) family
 
-Four entries need a person at the bench, and they are **printed, never silently
+Three entries need a person at the bench, and they are **printed, never silently
 skipped** — a skipped adverse-condition entry that nobody sees is how *"we tested
 link loss"* becomes true in a report and false on the bench.
 
@@ -859,16 +865,98 @@ python3 tb/tools/torture_campaign.py --checklist
 ```
 
 emits, for each: the step id, the exact action, the assertions to make
-afterwards, the clause, and the note explaining why software cannot do it. On a
-real run each becomes a `NEEDS-HUMAN` verdict, which grades the run to exit 2
-until it is performed.
+afterwards, the clause, and the note. On a real run each becomes a
+`NEEDS-HUMAN` verdict, which grades the run to exit 2 until it is performed —
+**unless** the runner has the powerstrip hook (§7.1), in which case the two
+power-cycle entries run automated and only the cable pull stays on the list.
 
 | # | do this | then observe |
 |---|---|---|
 | 1 `torture.link.cable-pull` | unplug the DUT's Ethernet cable for 5 s and plug it back into **the same** switch port; then repeat into a **different** port | `LINK_UP`/`LINK_DOWN` both advance and stay within one of each other; the entity is discoverable again; the stream returns **without a controller**; and the SRP reservation is re-established — a stream that returns without a reservation is streaming unshaped |
-| 2 `torture.gptp.gm-change` | raise `priority1` on the other board (or the bridge) so BMCA deposes the current grandmaster, and leave it there 60 s | `GPTP_GM_CHANGED` advances; the ADPDU's `gptp_grandmaster_id` follows; the stream is uninterrupted; the lock invariant still holds. **Never force the grandmaster back** — a forced win hides exactly the defect this looks for, and recovery must be automatic |
-| 3 `torture.gptp.gm-loss` | power off the current grandmaster, leave the domain without one for 60 s, then restore it | `tu` becomes **1** — the assertion is that `tu` is set, *not* that streaming stops: 1722-2016 4.4.4.7 makes an unknown clock state *not valid*, and 1722-2016 does not stop a talker for an uncertain clock |
-| 4 `torture.power-cycle` | power-cycle the DUT at the outlet, wait for the network, re-run the matrix area | the channel mappings, the current format and the presentation-time offset are **restored** (Milan 5.3.10.1 / 5.3.8.1 / 5.3.7.6 all require non-volatile storage); and the diagnostic counters read **zero** — a non-zero block straight after a power cycle is a restored-counter bug |
+| 2 `phys.switch-cycle.gm-partition` | power off the AVB switch (DN-1) for ~20 s, then power it back on and wait for links, ssh and gPTP | see §7.1 — the partition *is* the GM loss, the re-join *is* the GM change |
+| 3 `phys.dut-cycle.power-cycle` | power-cycle the DUT at the outlet (off ≥ 8 s), wait for the network with **no manual intervention** | see §7.1 — the persistence story: state restored, counters zeroed, boot-to-healthy unattended |
+
+### 7.1 The physical family: powerstrip-driven power cycles
+
+**Authorization.** USER authorization 2026-08-02: the `amx-pi` powerstrip may
+be driven by the campaign — **OUT4 = the AVB switch ("DN-1")**, **OUT0 = the
+DUT** (the established AX cold-cycle lever: cutting OUT0 loses the SRAM
+gateware and QSPI boots it back, which is exactly what makes it a *true* cold
+boot). **Per-port cable pulls remain NEEDS-HUMAN** — a powerstrip cannot pull
+one cable, and faking a port bounce by cutting the whole switch would assert
+something the cable-pull step does not claim.
+
+**Activation.** The hook is an explicit opt-in on the runner; without it the
+two cycle steps are handed back `NEEDS-HUMAN` exactly as before (the
+no-regression path), and the family's snapshot/proof steps SKIP naming the
+flag:
+
+```bash
+sudo ./milan_torture.py --areas physical \
+     --powerstrip-cmd "ssh amx-pi 'powerstrip {action} {outlet}'" \
+     --switch-outlet 4 --dut-outlet 0 \
+     --board-cmd 'ssh root@<dut> {cmd}' \
+     --csr-cmd 'ssh root@<dut> devmem2 0x90000{addr#0x} w'   # illustrative
+```
+
+The strip is probed at startup with a harmless `status` read (never a
+switch); a strip whose CLI has no such verb fails the probe harmlessly and is
+then **trusted as documented**. `--board-cmd` feeds the uptime and
+shield-posture readings, `--csr-cmd` (or `--csr`) the `VERSION` (0x004) and
+`CLKV_STAT` (0x77C) words — all optional, and every assertion that misses its
+input SKIPs naming it.
+
+**The switch cycle** (`phys.switch-cycle.*` — replaces the old gm-change and
+gm-loss human entries and adds a trunk-wide link bounce): pre-snapshot (GM
+identity on both sides from the ADPDUs, the `AVB_INTERFACE` counters, licence
+word, uptime, `VERSION`) → `off 4` → **the partition**: the controller host
+reaches both end stations *through* the switch under test, so total
+unreachability is the condition applied, not a result — the CSR/board feeds
+are paused, one bounded discovery probe records the darkness, and **timeouts
+inside the window are never failures** → hold ~20 s (an order of magnitude
+past the 3 s announce-receipt timeout, so each island provably elects its own
+GM — unverifiable live, verified retroactively) → `on 4` → the recovery
+ladder: both entities discoverable again (budget 240 s: the DN-1 must itself
+boot before any board is reachable), then exactly **one** non-zero GM in both
+ADPDUs (budget 180 s more; `priority1` untouched — recovery must be
+automatic, never a forced win) → the retroactive verdicts:
+`GPTP_GM_CHANGED` advanced by a small bounded amount (and, read twice across
+a settle gap, is **not still climbing**), asCapable evidenced by someone
+following a *remote* GM, the tu lease re-established (`CLKV_STAT` bit 0 back
+to 0 — the lease is software, so it is exactly what a recovery can lose), and
+the DUT **survived without a reboot** (uptime monotonic; counter
+monotonicity as the fallback) → a full **proof pair** (set-format / bind /
+licence / unbind at the highest AAF indices — never the index-0 alias path),
+because "the bench recovered" is only a fact once a stream flows again.
+
+**The DUT cycle** (`phys.dut-cycle.*` — the old power-cycle entry): 
+pre-snapshot → `off 0` → 8 s drain → `on 0` → the zero-touch boot ladder:
+discovered again within 360 s (QSPI load + kernel + link guard measured
+~5.5 min worst case on this bench — the budget is a bench fact, not a
+clause), `VERSION` unchanged (a changed word = the golden-image fallback
+engaged), shield posture restored (`eth0` flags `0x1203`, promisc **gated** —
+promisc outranks the TCAM drop, so a promiscuous boot has voided its own RX
+shield), the non-volatile state restored (the formats snapshotted before the
+cycle read back identical — Milan 5.3.10.1 / 5.3.8.1 / 5.3.7.6), the counter
+block back at zero (7.4.42 volatility), one GM within 120 s more, the tu
+lease re-armed → the proof pair.
+
+**Serialization and the bench-alive guarantee.** The physical area is
+registered **last** in `AREAS` — a partition mid-matrix would pollute every
+later verdict — and the two families are strictly serial; the `PowerStrip`
+interlock refuses to switch a second outlet off while one is dark, so no
+future plan edit can violate that silently. If a recovery misses its budget
+the runner issues **one** more `on` with an extended wait; if the bench is
+still unreachable it FAILs the rung loudly, latches the family dead, SKIPs
+every remaining physical step naming the reason, and never touches the strip
+again. The campaign ends with the bench alive or loudly declared dead —
+never silently dark. A refused `off` is the opposite case: the bench was
+never touched, so it is a SKIP and the family continues.
+
+**What still needs a person, and why:** the cable pull (no per-port outlet;
+it exercises the link guard, the MAC and the reservation for *one* port while
+its neighbours stay up — the switch cycle cannot claim that), and everything
+in §9.1's no-runner-op list. Neither is ever faked into a powerstrip step.
 
 ---
 
@@ -1033,6 +1121,10 @@ visible edge of the work, not a hole in it — but it *is* an edge:
 * `starve_source` and `stop_talker` — the two starvation cases;
 * `human_action` — by design: these become `NEEDS-HUMAN`.
 
+The physical family's `switch_power_cycle` / `dut_power_cycle` ops **are
+implemented**, but run only with the §7.1 powerstrip hook; without it they too
+become `NEEDS-HUMAN`, by design and not as a gap.
+
 ### 9.2 What is implemented but needs an input it cannot fetch
 
 * **The streaming licence.** `0x694` is a DUT-board CSR and no AVDECC command
@@ -1083,10 +1175,13 @@ matrix never reaches.
 `--plan` prints the totals for whatever shape you configure. Scope a run with
 `--areas`; the desk suite is the ~3 s half and should be run every time.
 
-Current totals for the default shape (from `--plan`): **346 steps, 2666
-assertions, 4 need a human**, across `matrix` 262 / `multi` 19 / `churn` 25 /
-`payload` 7 / `audio` 9 / `torture` 24 steps, and **70 distinct assertion
-names**.
+Current totals for the default shape (from `--plan`): **355 steps, 2739
+assertions, 3 need a human**, across `matrix` 262 / `multi` 19 / `churn` 25 /
+`payload` 7 / `audio` 9 / `torture` 21 / `physical` 12 steps. The physical
+area's two cycle steps count among the 3 human entries until the runner is
+given the §7.1 powerstrip hook; its budgets put a full physical run at
+roughly 10–20 minutes of mostly waiting (20 s hold + up to 240 s + 180 s
+switch recovery, 8 s + up to 360 s + 120 s DUT boot, two proof pairs).
 
 ### 9.4 What it cannot see at all
 
@@ -1095,8 +1190,11 @@ names**.
   gPTP timebase; comparing them yields a confident number that means nothing.
   Without `--gptp-ref-ns` the class-A transit check reports `SKIP` with that
   reason (methodology R5).
-* **It does not flash, reboot or power-cycle anything, and it never touches the
-  console bridge.**
+* **It does not flash anything and never touches the console bridge.** It
+  power-cycles **only** what it was explicitly armed for — the §7.1 powerstrip
+  hook (`--powerstrip-cmd` + the outlet flags), user-authorized 2026-08-02 for
+  the switch (OUT4) and the DUT (OUT0), last in the campaign, strictly serial,
+  with the bench-alive guard. Without the hook it power-cycles nothing.
 * **It does not verify SRP reservations at the *bridge*.** It reads the DUT's own
   `LWSRP_STATUS` as the licence precondition, and it decodes the MSRP/MVRP
   declarations from an inline tap — but whether the *bridge* actually admitted

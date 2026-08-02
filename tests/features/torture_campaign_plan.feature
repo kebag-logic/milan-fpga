@@ -265,18 +265,40 @@ Feature: The torture campaign's own coverage is auditable at a desk
     # A skipped adverse-condition entry that nobody sees is how "we tested link
     # loss" becomes true in a report and false on the bench.
     When the whole campaign is planned
-    Then at least 4 steps need a human
+    Then at least 3 steps need a human
     And the checklist names every human step with its action and its clause
     And an empty plan produces a checklist that says so
 
   @class:human
-  Scenario: the human entries are the ones software genuinely cannot drive
-    When the torture area is planned
+  Scenario: the physical conditions are still covered - by strip or by hand
+    # The gm-change, gm-loss and power-cycle entries moved to the physical
+    # area, where a runner with the powerstrip hook (USER authorization
+    # 2026-08-02: amx-pi OUT4 = the switch DN-1, OUT0 = the DUT) drives them
+    # automatically.  In the PLAN they stay needs_human, so a bench without
+    # the hook hands them back as NEEDS-HUMAN exactly as before - never a
+    # silent skip.  The cable pull stays human forever: a powerstrip cannot
+    # pull one cable.
+    When the whole campaign is planned
     Then the human entries include a cable pull
     And the human entries include a grandmaster change
     And the human entries include a grandmaster loss
     And the human entries include a power cycle
     And the power-cycle step asserts the non-volatile state is restored
+
+  @class:human @class:physical @rule:no-regression-without-hook
+  Scenario: the physical family is powerstrip-automatable, serialized, and runs last
+    # A partition mid-matrix would pollute every later verdict, so the
+    # physical area is the LAST thing the campaign runs; the partition window
+    # itself is the condition applied, so timeouts inside it are never
+    # failures; and the plan states the recovery budgets so a red is a
+    # measured miss, not an opinion.
+    When the whole campaign is planned
+    Then the physical area is the last thing the campaign runs
+    And every physical cycle step is still a human entry in the plan
+    And the physical cycle steps name the outlet role they need
+    And the physical recovery budgets respect the bench floors
+    And the partition window is asserted as the condition, not a failure
+    And each physical family ends with a full proof pair at a non-zero index
 
   # ------------------------------------------------------ runner integration
   @class:runner
