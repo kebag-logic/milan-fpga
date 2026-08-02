@@ -1502,9 +1502,31 @@ ARTY = Device(name="arty", entity_id="020000fffe000002", mac="020000000002",
 #: SUCCESS, so binding them yields a connection that never passes audio and
 #: reads as a DUT defect.  USER 2026-07-31.  Override with
 #: --peer 'listener_index_set=...' on a bench that has both networks.
+#: ...and index 8 is its CRF MEDIA CLOCK INPUT, not a fifth AAF sink.  MEASURED,
+#: not deduced: every peerl8 bind of ax-rv32-e came back with the listener's
+#: own format 041060010000bb80 - AVTP subtype 0x04 = CRF, base 0xbb80 = 48 kHz -
+#: and the message "Talker STREAM_OUTPUT and Listener STREAM_INPUT formats are
+#: incompatible", which is the reference device being CORRECT.  Listing it among
+#: the AAF primaries made every "highest AAF index" selector pick the one sink
+#: that can never carry AAF: ax-phys-a's two proof pairs both aimed at l8, and
+#: 32 of its 45 SKIPs are the post-bind contract of a bind that was never
+#: bindable.  So the AAF primaries and the CRF primary are now separate fields -
+#: include_crf=False really means AAF-only, and the matrix still walks the CRF.
+#: THE TALKER SIDE IS THE SAME SHAPE, and it is NOT four AAF sources.  Read off
+#: the device 2026-08-02 (hive_compliance C12/C4 against its own descriptors):
+#: STREAM_OUTPUT 0 and 1 both answer 0205022001006000 (4ch AAF) and 2 and 3 both
+#: answer 041060010000BB80 (AVTP subtype 0x04 = CRF, base 0xbb80 = 48 kHz).  So
+#: the four outputs are ONE AAF pair and ONE CRF pair on the same (p)/(s)
+#: interleave as the sinks: AAF primary 0, AAF secondary 1, CRF primary 2, CRF
+#: secondary 3.  USER 2026-08-02: "do not stream on the (s) of the PEER, they
+#: are the redundant part that is not connected" - one physical network, so only
+#: the even (p) descriptors are bindable.  Treating 2 and 3 as AAF sources is
+#: what produced ax-rv32-e's "ACMP nulls from t2 up" and the garbage the
+#: controller's format pre-flight read back: they were never AAF to begin with.
 PEER = Device(name="peer", entity_id="3cc0c60102030000", mac="3cc0c6010203",
                talkers=4, listeners=10, formats=("0205022001006000",),
-               listener_index_set=(0, 2, 4, 6, 8),
+               talker_index_set=(0,), crf_out=2,
+               listener_index_set=(0, 2, 4, 6), crf_in=8,
                reference=True, role="reference")
 #: The TEST MACHINE.  It carries the controller, and on this bench it also
 #: carries the capture, so it is the third measured party in every pair: its NIC
@@ -1734,13 +1756,13 @@ def _multi_pairs_primaries(dut: Device, peer: Device, fmt) -> list:
 
     The listener set comes from the peer's spec exactly as the matrix's does -
     listener_indices(), which on a redundant device names the (p) primaries
-    only (the PEER serves 0/2/4/6/8; the (s) secondaries can never carry a
-    stream on a one-network bench) - so nothing here is hardcoded to any
-    device.  Talkers are the DUT's AAF set, assigned cyclically so every peer
+    only (the PEER's AAF sinks are 0/2/4/6 and its CRF Media Clock Input is
+    8; the (s) secondaries can never carry a stream on a one-network bench) -
+    so nothing here is hardcoded to any device.  Talkers are the DUT's AAF set, assigned cyclically so every peer
     listener is fed even when the DUT has fewer talkers than the peer has
     listeners; a talker reused that way carries two listeners on ONE stream,
     which IEEE 1722.1-2021 8.2.2.6.2.1 permits.  On the AX 8x8 against the
-    PEER this is a plain 1:1 zip: t0..t4 -> l0/2/4/6/8.
+    PEER this is a plain 1:1 zip: t0..t3 -> l0/2/4/6.
     """
     tks = dut.talker_indices(include_crf=False)
     lss = peer.listener_indices(include_crf=False)
@@ -1952,7 +1974,7 @@ def plan_multi(dut: Device = ARTY, peer: Device = PEER) -> list:
 
     Four sets, each derived from the device SPECS and never hardcoded:
       * primaries - every reachable reference listener fed concurrently
-        (on the AX 8x8 against the PEER: t0..t4 -> l0/2/4/6/8);
+        (on the AX 8x8 against the PEER: t0..t3 -> l0/2/4/6);
       * selfloop  - the DUT's own tN -> lN, both directions of the fabric
         loaded at once, no peer needed;
       * mixed     - outbound and loopback interleaved, when the shapes allow;
@@ -2506,9 +2528,50 @@ A_PARTITION_EXPECTED = AssertSpec(
 A_GM_CHANGED_ADVANCES = AssertSpec(
     "counters.avb_interface.gptp-gm-changed-advances",
     "IEEE 1722.1-2021 Table 7-153 GPTP_GM_CHANGED: 'gPTP grandmaster change "
-    "count'.  A partition and a re-join are real BMCA elections, so the "
-    "counter advances by a small bounded amount; one that never moved says "
-    "the device slept through the partition")
+    "count' (Milan v1.2 Table 5.3: 'Number of gPTP GM changes, since boot').  "
+    "The counter counts changes of THE GRANDMASTER, so this assertion holds "
+    "ONLY for a device that was FOLLOWING a remote GM before the partition: "
+    "that device demonstrably lost its grandmaster, became its own island's "
+    "GM and was re-elected a follower on the re-join, which is two changes, "
+    "so its counter advances by a small bounded amount and one that never "
+    "moved slept through the partition.  A device that was ALREADY the "
+    "domain grandmaster is graded by gptp-gm-continuity instead: its own "
+    "grandmasterIdentity never changed, and demanding an advance would "
+    "demand a NON-conformant count.  (ax-phys-a 2026-08-02 filed exactly "
+    "that fake red against the AX, which holds priority1 238 against the "
+    "bridge's 246 and is GM before, during and after the partition.)")
+A_GM_CONTINUITY = AssertSpec(
+    "counters.avb_interface.gptp-gm-continuity",
+    "IEEE 1722.1-2021 Table 7-153 + 802.1AS-2020 10.3: when the DUT wins "
+    "BMCA on both sides of a partition (it is alone in its island while the "
+    "domain is cut, and its priority1 is never touched), its OWN "
+    "grandmasterIdentity is unchanged throughout - so the conformant "
+    "GPTP_GM_CHANGED delta is exactly ZERO and the ADPDU carries the same "
+    "gptp_grandmaster_id before and after.  A counter that moves here is "
+    "counting something that is not a grandmaster change - a torn latch, a "
+    "re-read of a partially written id, or a reset - which is the defect "
+    "class this direction exists to catch.  Undecidable if the DUT "
+    "restarted (7.4.42 makes the block volatile), so that case SKIPs")
+A_PEER_GM_CHANGED = AssertSpec(
+    "counters.avb_interface.peer-gptp-gm-changed-advances",
+    "IEEE 1722.1-2021 Table 7-153 GPTP_GM_CHANGED, read on the OTHER end "
+    "station: the side that was FOLLOWING the DUT's grandmaster is the side "
+    "that provably lost it when the domain was cut, so the partition is "
+    "observable there even when the DUT itself is the permanent GM.  A "
+    "reference device that does not answer GET_COUNTERS for AVB_INTERFACE "
+    "is a SKIP naming that, never a verdict about the DUT")
+A_LINK_EVENT_SEEN = AssertSpec(
+    "counters.avb_interface.link-event-observed",
+    "info: IEEE 1722.1-2021 Table 7-153 LINK_UP/LINK_DOWN ('Total number of "
+    "network link up/down events').  Whether a switch outage is a PHY event "
+    "for the DUT is a CABLING fact, not a clause: this bench runs an inline "
+    "regenerating tap on the DUT<->switch link (docs/findings/"
+    "BENCH_TOPOLOGY.md), and such a tap holds the board-side link up while "
+    "the switch side is dark - so a zero delta here is expected and a "
+    "non-zero delta is equally conformant.  Recorded as a datum so the "
+    "retroactive GM story can be read against what the DUT could actually "
+    "see, and NEVER graded",
+    severity="INFO")
 A_GM_ID_FOLLOWS = AssertSpec(
     "adp.gptp-grandmaster-id-follows",
     "IEEE 1722.1-2021 6.2.2.13: the ADPDU carries gptp_grandmaster_id, so a "
@@ -2571,10 +2634,40 @@ A_SHIELD_POSTURE = AssertSpec(
     "under stream load")
 A_STATE_RESTORED = AssertSpec(
     "state.restored-after-power-cycle",
-    "Milan v1.2 5.3.10.1: 'The PAAD-AE shall maintain a list of all its "
-    "input channel mappings.  This list shall be saved in a non-volatile "
-    "memory and restored after a power cycle.'  5.3.8.1 says the same for "
-    "the current format and 5.3.7.6 for the presentation time offset")
+    "Milan v1.2 5.3.8.1: 'The current format shall be saved in a "
+    "non-volatile memory and restored after a power cycle.'  5.3.7.1 says "
+    "the same for a Stream Output's format, 5.3.10.1 for the input channel "
+    "mappings, 5.3.8.2/5.3.8.3 for the bound state and binding parameters "
+    "and 5.3.7.6 for the presentation time offset - the clause is a SHALL "
+    "and it is unconditional.  The verdict is nonetheless only DECIDABLE "
+    "where a non-volatile store exists to hold it: on a build with no "
+    "writable flash the revert is a KNOWN-PENDING gap of the build, and "
+    "grading it FAIL every night would train the reader to ignore a red "
+    "that never changes.  So a diff is FAIL where a store is present, "
+    "KNOWN-PENDING where the store is provably absent (naming what must "
+    "persist and where it would have to live), and SKIP where undecidable - "
+    "and the day persistence lands the same assertion goes live untouched")
+A_STATE_SELF_CONSISTENT = AssertSpec(
+    "state.self-consistent-after-power-cycle",
+    "Milan v1.2 5.3.8.1 first sentence: 'A Stream Input shall always be "
+    "using a format that is one of the supported formats described by the "
+    "formats list' (5.3.7.1 for a Stream Output) + IEEE 1722.1-2021 7.4.10 "
+    "GET_STREAM_FORMAT.  This is what a build with NO non-volatile store "
+    "still owes after a cold boot: every descriptor that was readable "
+    "before the cycle answers again, with a well-formed format that the "
+    "entity declares as supported.  It is the half of the persistence story "
+    "that is gradable on this DUT today, so the cycle is never left with no "
+    "verdict at all on its own state")
+A_STATE_DEFAULTED = AssertSpec(
+    "state.format-after-power-cycle",
+    "info: what the dynamic formats actually READ BACK after the cycle, "
+    "per descriptor, against the pre-snapshot.  A revert to the elaborated "
+    "default is the expected shape of a build with no non-volatile store "
+    "(SHAPE is static-from-elaboration by standing directive, but the "
+    "per-stream CURRENT FORMAT is dynamic state under Milan 5.3.8.1), and "
+    "recording it as a datum is what makes the gap measurable before it is "
+    "fixed",
+    severity="INFO")
 A_COUNTERS_ZEROED = AssertSpec(
     "counters.zeroed-after-power-cycle",
     "IEEE 1722.1-2021 7.4.42: the counters are volatile state; a non-zero "
@@ -2661,7 +2754,8 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
                      "and gPTP to recover.  AUTOMATED when the runner is "
                      "given --powerstrip-cmd and --switch-outlet (bench: "
                      "amx-pi outlet 4).",
-        asserts=(A_PARTITION_EXPECTED, A_GM_CHANGED_ADVANCES, A_GM_ID_FOLLOWS,
+        asserts=(A_PARTITION_EXPECTED, A_GM_CHANGED_ADVANCES, A_GM_CONTINUITY,
+                 A_PEER_GM_CHANGED, A_LINK_EVENT_SEEN, A_GM_ID_FOLLOWS,
                  A_ONE_GM_RESTORED, A_GM_NOT_FLAPPING, A_AS_CAPABLE_RESTORED,
                  A_TU_LEASE_REARMED, A_NO_REBOOT, A_ADP_ALIVE),
         clause="802.1AS-2020 10.3 BMCA + IEEE 1722.1-2021 Table 7-153 "
@@ -2672,7 +2766,12 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
              "controller host - it is inside the partition - so the "
              "own-island-GM claim is verified retroactively from the "
              "GM_CHANGED counters, and timeouts during the off-window are "
-             "the expected condition, never failures"))
+             "the expected condition, never failures.  WHICH counter tells "
+             "the story is a TOPOLOGY question the runner answers from the "
+             "pre-snapshot GM view, not a constant: the permanent GM owes "
+             "CONTINUITY (zero delta, same id) and only a FOLLOWER owes an "
+             "ADVANCE, so on this bench the DUT is graded for continuity "
+             "and the PEER - which does lose its GM - carries the advance"))
     S += _pair_steps("phys.switch-cycle.proof", "physical", dut, ti, peer, li,
                      fmt)
 
@@ -2701,13 +2800,17 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
                      "--powerstrip-cmd and --dut-outlet (bench: amx-pi "
                      "outlet 0).",
         asserts=(A_ADP_ALIVE, A_BOOT_UNATTENDED, A_VERSION_UNCHANGED,
-                 A_SHIELD_POSTURE, A_STATE_RESTORED, A_COUNTERS_ZEROED,
+                 A_SHIELD_POSTURE, A_STATE_RESTORED, A_STATE_SELF_CONSISTENT,
+                 A_STATE_DEFAULTED, A_COUNTERS_ZEROED,
                  A_ONE_GM_RESTORED, A_TU_LEASE_REARMED),
         clause="Milan v1.2 5.3.10.1 / 5.3.8.1 / 5.3.7.6",
         note="the only test that can see the non-volatile requirements at "
              "all - and the zero-touch boot ladder (network, VERSION, shield "
              "posture, discovery, gPTP, tu lease) is the persistence story "
-             "the flash rounds keep re-earning"))
+             "the flash rounds keep re-earning.  Milan 5.3.8.1 is a SHALL, "
+             "so the restore assertion is never deleted; on a build with no "
+             "writable flash it grades KNOWN-PENDING naming the missing "
+             "store while the SELF-CONSISTENCY half stays a live SHALL"))
     S += _pair_steps("phys.dut-cycle.proof", "physical", dut, ti, peer, li,
                      fmt)
     return S
@@ -3466,8 +3569,20 @@ def self_test() -> int:
             self.assertIn("gptp.exactly-one-gm-after-heal", sw)
             self.assertIn("entity.survived-without-reboot", sw)
             self.assertIn("gptp.tu-lease-reestablished", sw)
+            # BOTH directions of the GM story are owed, plus the side that
+            # actually loses its GM and the link-event datum.  Owing only
+            # the ADVANCE is what filed a fake red against a permanent GM
+            # on 2026-08-02 (ax-phys-a).
+            self.assertIn("counters.avb_interface.gptp-gm-continuity", sw)
+            self.assertIn(
+                "counters.avb_interface.peer-gptp-gm-changed-advances", sw)
+            self.assertIn("counters.avb_interface.link-event-observed", sw)
             du = {a.name for a in cyc["dut_power_cycle"].asserts}
             self.assertIn("state.restored-after-power-cycle", du)
+            # and the half of the persistence story a build with no store
+            # still owes, plus the datum that makes the gap measurable
+            self.assertIn("state.self-consistent-after-power-cycle", du)
+            self.assertIn("state.format-after-power-cycle", du)
             self.assertIn("counters.zeroed-after-power-cycle", du)
             self.assertIn("boot.reaches-network-unattended", du)
             self.assertIn("boot.same-gateware-version", du)
@@ -3501,6 +3616,66 @@ def self_test() -> int:
                                   "phys.dut-cycle.power-cycle")):
                 self.assertLess(sids.index(f"phys.{fam}.pre-snapshot"),
                                 sids.index(cyc_sid))
+
+        def test_the_gm_story_states_its_own_precondition(self):
+            # ax-phys-a 2026-08-02: "a partition and a re-join are real BMCA
+            # elections, so the counter advances" was asserted against a DUT
+            # that IS the grandmaster - whose own grandmasterIdentity never
+            # changed, so 1722.1-2021 Table 7-153 requires exactly ZERO.
+            # The clause text must now name which device each direction is
+            # for, or the same fake red comes straight back.
+            adv = A_GM_CHANGED_ADVANCES.clause.lower()
+            self.assertIn("only for a device that was following", adv)
+            self.assertIn("gptp-gm-continuity", adv)
+            cont = A_GM_CONTINUITY.clause.lower()
+            self.assertIn("zero", cont)
+            self.assertIn("grandmasteridentity", cont)
+            # the link-event reading is a DATUM: the bench's inline tap can
+            # hold the DUT's PHY link up through a switch outage, so it must
+            # never be able to fail a run
+            self.assertEqual(A_LINK_EVENT_SEEN.severity, "INFO")
+            self.assertEqual(A_STATE_DEFAULTED.severity, "INFO")
+            for s in (A_GM_CHANGED_ADVANCES, A_GM_CONTINUITY,
+                      A_PEER_GM_CHANGED, A_STATE_RESTORED,
+                      A_STATE_SELF_CONSISTENT):
+                self.assertEqual(s.severity, "SHALL", s.name)
+
+        def test_the_peer_crf_input_is_not_an_aaf_sink(self):
+            # ax-phys-a aimed BOTH proof pairs at peer l8 - which is the
+            # CRF Media Clock INPUT, measured from the reference device's
+            # own refusals (listener_format 041060010000bb80: AVTP subtype
+            # 0x04 = CRF, 0xbb80 = 48 kHz).  An AAF talker can never bind
+            # it, so 32 of that run's 45 SKIPs were the post-bind contract
+            # of a bind that was never bindable.
+            self.assertEqual(PEER.crf_in, 8)
+            self.assertNotIn(8, PEER.listener_indices(include_crf=False))
+            self.assertIn(8, PEER.listener_indices(include_crf=True))
+            self.assertTrue(PEER.is_crf_listener(8))
+            # Every "highest AAF index" SELECTOR now lands on an AAF sink.
+            # The matrix is exempt by design - it is the full cross product
+            # on purpose, and a format-incompatible cell there is a wanted
+            # CONFORMANT-REFUSAL - but a step that CHOSE one index must not
+            # choose the CRF one with an AAF talker.
+            for s in build_plan():
+                if s.op != "connect" or s.area == "matrix":
+                    continue
+                if s.args.get("listener") != PEER.entity_id:
+                    continue
+                if PEER.is_crf_listener(s.args.get("listener_index")):
+                    self.assertTrue(
+                        ARTY.is_crf_talker(s.args.get("talker_index")), s.sid)
+
+        def test_persistence_clause_is_quoted_and_never_deleted(self):
+            # Milan v1.2 5.3.8.1 is an unconditional SHALL, so the assertion
+            # stays; what a build with no store changes is the VERDICT, not
+            # the requirement.  Both halves must be traceable from the text.
+            c = A_STATE_RESTORED.clause
+            self.assertIn("5.3.8.1", c)
+            self.assertIn("non-volatile memory and restored after a power "
+                          "cycle", c)
+            self.assertIn("KNOWN-PENDING", c)
+            self.assertIn("KNOWN-PENDING", VERDICTS)
+            self.assertIn("5.3.8.1", A_STATE_SELF_CONSISTENT.clause)
 
         def test_churn_includes_the_implicit_rebind_to_a_different_talker(self):
             reb = [s for s in plan_churn() if s.sid.endswith(".rebind")]
@@ -3621,7 +3796,11 @@ def self_test() -> int:
             self.assertEqual(sorted({p["talker_index"] for p in pairs
                                      if p["talker"] == PEER.entity_id}),
                              PEER.talker_indices(include_crf=False))
-            # on the AX 8x8 shape: all 8 talkers out, t5..t7 looped home
+            # on the AX 8x8 shape: all 8 talkers out, the overflow looped
+            # home.  The self-loop count is DERIVED from how many AAF sinks
+            # the peer really has - it went 3 -> 4 the moment index 8 was
+            # named as the PEER's CRF input instead of a fifth AAF sink,
+            # and a literal here would have hidden that
             ax = parse_device_spec("talkers=8,listeners=8,crf_out=8,"
                                    "crf_in=8", ARTY)
             axb = next(s for s in plan_multi(ax, PEER)
@@ -3630,11 +3809,12 @@ def self_test() -> int:
                                      for p in axb.args["pairs"]
                                      if p["talker"] == ax.entity_id}),
                              list(range(8)))
+            n_peer = len(PEER.listener_indices(include_crf=False))
             self.assertEqual(sorted(p["talker_index"]
                                     for p in axb.args["pairs"]
                                     if p["talker"] == ax.entity_id
                                     and p["listener"] == ax.entity_id),
-                             [5, 6, 7])
+                             list(range(n_peer, 8)))
             # two load steps, rx then tx, each owing the stress asserts with
             # honest severities: immune is SHALL on the 802.1Q shaping
             # contract, the headroom is INFO with the info reasoning stated
