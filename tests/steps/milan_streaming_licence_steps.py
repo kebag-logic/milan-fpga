@@ -266,18 +266,22 @@ def step_want_not_acmp(context):
 
 @then("the fabric yields the provisioning port to a CSR write, never to its poll")
 def step_arbiter_yields_write_only(context):
-    gnt = _assign(context.dp_src, "srp_fab_gnt_w")
-    assert "csr_srp_ctx_we" in gnt, gnt
-    # gating on the REQUEST is the recorded starvation bug: milan_csr's window
-    # master polls level-high for as long as a non-zero row is selected, which
-    # every boot script and TB leave in place, so the fabric would never be
-    # granted at all.
-    assert "csr_srp_ctx_req" not in gnt, (
-        "yielding to the CSR POLL pins the fabric requesters off forever: %s"
-        % gnt)
+    # 2026-08-02: the yield rule lives in the LAUNCH beat (the capture into
+    # the timing-closure launch stage) and in the captured record's own
+    # port-mux select - both must step aside for a pending CSR WRITE.
+    for lhs in ("srp_fab_launch_w", "srp_fab_qsel_w"):
+        expr = _assign(context.dp_src, lhs)
+        assert "csr_srp_ctx_we" in expr, expr
+        # gating on the REQUEST is the recorded starvation bug: milan_csr's
+        # window master polls level-high for as long as a non-zero row is
+        # selected, which every boot script and TB leave in place, so the
+        # fabric would never be granted at all.
+        assert "csr_srp_ctx_req" not in expr, (
+            "yielding to the CSR POLL pins the fabric requesters off forever:"
+            " %s" % expr)
     # and the beat that writes must be KL_lwsrp_ctx's own service expression
-    svc = _assign(context.dp_src, "srp_fab_svc_w")
-    assert "srp_fab_gnt_w" in svc and "srp_ctx_gnt_w" in svc, svc
+    svc = _assign(context.dp_src, "srp_fab_qsvc_w")
+    assert "srp_fab_qsel_w" in svc and "srp_ctx_gnt_w" in svc, svc
 
 
 @then("the escape hatch is recorded as a Milan 5.3.7.3 conformance defect")

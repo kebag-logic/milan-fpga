@@ -2714,6 +2714,225 @@ int main(int argc, char** argv) {
     }
 #endif
 
+    // ==================================================================
+    //  THE SRP FABRIC LAUNCH STAGE CYCLE CONTRACT  (2026-08-02)
+    //
+    //  Timing closure moved the ctx write one register behind the arbiter:
+    //  the LAUNCH beat captures the granted slot's record and retires the
+    //  requester; the KL_lwsrp_ctx row write lands on the q's own service
+    //  beat, >= 1 cycle later. This block pins that contract at CYCLE
+    //  resolution (the ms-scale suites above cannot see a one-cycle skew):
+    //
+    //   (a) +1 LANDING: on the very beat a requester retires, the ctx row
+    //       is NOT yet written; it lands within 4 cycles. Reverting to the
+    //       same-cycle combinational feed makes the row appear ON the
+    //       retire beat, which this check refuses.
+    //   (b) FRESH COHERENCE: row_fresh rises on the SAME edge as the row
+    //       write (both live inside KL_lwsrp_ctx), never on the retire
+    //       beat and never a cycle apart from the write.
+    //   (c) NO DOUBLE-GRANT / NOTHING LOST: over the whole burst the count
+    //       of fabric ctx write beats (srp_fab_own_r pulses) EQUALS the
+    //       count of requester retire edges - each retire buys exactly one
+    //       write. Breaking the q hold (recapture over an in-flight
+    //       record) makes writes outnumber retires.
+    //   (d) SERIALIZATION: back-to-back requesters (every talker armed by
+    //       ONE enable commit) drain one per q turnaround - two writes
+    //       never land on adjacent beats.
+    //
+    //  The probes are FLOPS (Verilator keeps them): requester req_r
+    //  vectors, srp_fab_own_r, and the ctx valid_r/row_fresh state.
+    // ==================================================================
+    printf("-- SRP fabric launch stage: cycle contract (+1, coherent) --\n");
+    {
+        enum { A_CRFT_CTRL = 0x750 };
+        auto* rp = dut->rootp;
+        // quiesce: engine off (rows clear, requesters settle), CRF want
+        // off, window poll parked OFF so the port timing is bare
+        axi_write(A_LWSRP_CTRL, 0x0);
+        axi_write(A_CRFT_CTRL, 0x0);
+        axi_write(A_STRM_SEL, 0);
+        for (int c = 0; c < 4000; c++) step();
+        ck("launch: talker requesters idle before the trigger",
+           rp->milan_datapath__DOT__aafsrp_req_r, 0);
+        ck("launch: no captured record in flight",
+           rp->milan_datapath__DOT__srp_fab_qv_r, 0);
+        ck("launch: every ctx row invalid",
+           (unsigned)rp->milan_datapath__DOT__lwsrp__DOT__ctx__DOT__valid_r,
+           0);
+
+        // trigger: ONE commit arms every talker requester at once. The
+        // commit lands DURING the write's own AXI cycles, so the handshake
+        // is stepped RAW and the per-cycle probe runs across it.
+        dut->s_axi_awaddr = A_LWSRP_CTRL; dut->s_axi_awvalid = 1;
+        dut->s_axi_wdata = 0x17; dut->s_axi_wvalid = 1;
+        dut->s_axi_wstrb = 0xF; dut->s_axi_bready = 1;
+
+        const int W = 1500;
+        int  t_ret[NSTREAMS_TB], t_wr[NSTREAMS_TB], ret_edges[NSTREAMS_TB];
+        int  val_at_ret[NSTREAMS_TB], fresh_rose_with_wr[NSTREAMS_TB];
+        for (int t = 0; t < NSTREAMS_TB; t++) {
+            t_ret[t] = -1; t_wr[t] = -1; ret_edges[t] = 0;
+            val_at_ret[t] = -1; fresh_rose_with_wr[t] = -1;
+        }
+        long own_pulses = 0, total_retires = 0;
+        int  own_adjacent = 0, own_prev = 0;
+        unsigned prev_aaf = rp->milan_datapath__DOT__aafsrp_req_r;
+        unsigned prev_lsn = rp->milan_datapath__DOT__lsnsrp_req_r;
+        unsigned prev_crf = rp->milan_datapath__DOT__crf_srp_req_r;
+        unsigned prev_val =
+            (unsigned)rp->milan_datapath__DOT__lwsrp__DOT__ctx__DOT__valid_r;
+        unsigned prev_fr =
+            (unsigned)rp->milan_datapath__DOT__lwsrp__DOT__row_fresh_w;
+        bool aw_done = false, b_done = false;
+        for (int c = 0; c < W; c++) {
+            if (!aw_done) {
+                dut->eval();
+                if (dut->s_axi_awready && dut->s_axi_wready) aw_done = true;
+            }
+            step();
+            if (aw_done && dut->s_axi_awvalid) {
+                dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0;
+            }
+            if (aw_done && !b_done && dut->s_axi_bvalid) b_done = true;
+
+            unsigned aaf = rp->milan_datapath__DOT__aafsrp_req_r;
+            unsigned lsn = rp->milan_datapath__DOT__lsnsrp_req_r;
+            unsigned crf = rp->milan_datapath__DOT__crf_srp_req_r;
+            unsigned val = (unsigned)
+                rp->milan_datapath__DOT__lwsrp__DOT__ctx__DOT__valid_r;
+            unsigned fr  = (unsigned)
+                rp->milan_datapath__DOT__lwsrp__DOT__row_fresh_w;
+            int own = rp->milan_datapath__DOT__srp_fab_own_r;
+
+            if (own) { own_pulses++; if (own_prev) own_adjacent++; }
+            own_prev = own;
+            for (int b = 0; b < NSTREAMS_TB; b++) {
+                if ((prev_aaf >> b) & 1 && !((aaf >> b) & 1)) total_retires++;
+                if ((prev_lsn >> b) & 1 && !((lsn >> b) & 1)) total_retires++;
+            }
+            if ((prev_crf & 1) && !(crf & 1)) total_retires++;
+
+            for (int t = 1; t < NSTREAMS_TB; t++) {
+                const int lane = (NSTREAMS_TB - 1) + t - 1;
+                if (((prev_aaf >> t) & 1) && !((aaf >> t) & 1)) {
+                    ret_edges[t]++;
+                    if (t_ret[t] < 0) {
+                        t_ret[t] = c;
+                        val_at_ret[t] = (val >> lane) & 1;
+                    }
+                }
+                if (t_wr[t] < 0 && !((prev_val >> lane) & 1) &&
+                    ((val >> lane) & 1)) {
+                    t_wr[t] = c;
+                    fresh_rose_with_wr[t] =
+                        !((prev_fr >> lane) & 1) && ((fr >> lane) & 1);
+                }
+            }
+            prev_aaf = aaf; prev_lsn = lsn; prev_crf = crf;
+            prev_val = val; prev_fr = fr;
+        }
+        dut->s_axi_bready = 0;
+
+        char nm[96];
+        for (int t = 1; t < NSTREAMS_TB; t++) {
+            snprintf(nm, sizeof nm, "launch t%d: retired exactly once", t);
+            ck(nm, ret_edges[t], 1);
+            snprintf(nm, sizeof nm,
+                     "launch t%d: row NOT yet written on the retire beat", t);
+            ck(nm, val_at_ret[t], 0);
+            snprintf(nm, sizeof nm,
+                     "launch t%d: write landed 1..4 beats after retire", t);
+            ck(nm, t_wr[t] > t_ret[t] && t_wr[t] - t_ret[t] <= 4, 1);
+            snprintf(nm, sizeof nm,
+                     "launch t%d: row_fresh rose WITH the write beat", t);
+            ck(nm, fresh_rose_with_wr[t], 1);
+        }
+        ck("launch: one ctx write per retire (no double-grant, none lost)",
+           own_pulses, total_retires);
+        ck("launch: retires happened at all", total_retires >= NSTREAMS_TB - 1,
+           1);
+        ck("launch: writes never land on adjacent beats", own_adjacent, 0);
+        ck("launch: all talker requesters drained",
+           rp->milan_datapath__DOT__aafsrp_req_r, 0);
+
+        // ---- SOFTWARE WINS OVER AN IN-FLIGHT CAPTURE (the qkill) -------
+        // The one-cycle overlap - a 0x800 window WRITE serviced while the
+        // fabric's captured record for the SAME row is in flight - cannot
+        // be staged through the sequential AXI BFM (its commits are >= 3
+        // cycles apart), so the overlap is FAULT-INJECTED at the flops:
+        // re-arm talker 1's requester directly, then land a window write
+        // commit (the CSR master's own staged-commit flops) d cycles
+        // later. Raw pokes become visible to the cached combinational
+        // regions one eval late, so d is SWEPT until the true overlap is
+        // hit. Detection is flop-based and latency-immune:
+        //   capture  = a srp_fab_qv_r rising edge
+        //   write    = a srp_fab_own_r pulse (only fabric ctx writes)
+        //   KILL     = a capture with NO write - the squashed q.
+        // The invariant holds at EVERY phase: software's sid is what the
+        // row carries once the dust settles; and at least one phase must
+        // actually exercise the squash.
+        {
+            const int      T    = 1;
+            const int      LANE = (NSTREAMS_TB - 1) + T - 1;
+            const uint64_t SWSID = 0x1122334455667788ULL;
+            auto lane_sid = [&]() -> uint64_t {
+                return (uint64_t)
+                    rp->milan_datapath__DOT__lwsrp__DOT__ctx__DOT__sid_r
+                        [2 * LANE] |
+                    ((uint64_t)
+                     rp->milan_datapath__DOT__lwsrp__DOT__ctx__DOT__sid_r
+                         [2 * LANE + 1] << 32);
+            };
+            const uint64_t fab_sid = lane_sid();   // the derived {mac, uid}
+            ck("qkill: row starts fabric-owned (derived sid)",
+               fab_sid != 0 && fab_sid != SWSID, 1);
+            int kills = 0, sid_wins = 0, retakes = 0;
+            const int SWEEP = 5;
+            for (int d = 0; d < SWEEP; d++) {
+                // re-arm the requester (flop poke = a want re-declare)
+                rp->milan_datapath__DOT__aafsrp_req_r |= (1u << T);
+                for (int c = 0; c < d; c++) step();
+                // ...and the window write commit for the SAME row
+                rp->milan_datapath__DOT__csr__DOT__srp_wr_pend_r  = 1;
+                rp->milan_datapath__DOT__csr__DOT__srp_wr_row_r   =
+                    (NSTREAMS_TB - 1) + T;
+                rp->milan_datapath__DOT__csr__DOT__srp_wr_dir_r   = 0;
+                rp->milan_datapath__DOT__csr__DOT__srp_wr_valid_r = 1;
+                rp->milan_datapath__DOT__csr__DOT__srp_wr_sid_r   = SWSID;
+                rp->milan_datapath__DOT__csr__DOT__srp_wr_dmac_r  = 0;
+                int caps = 0, wrs = 0, qv_prev =
+                    rp->milan_datapath__DOT__srp_fab_qv_r;
+                for (int c = 0; c < 40; c++) {
+                    step();
+                    int qv = rp->milan_datapath__DOT__srp_fab_qv_r;
+                    if (qv && !qv_prev) caps++;
+                    qv_prev = qv;
+                    if (rp->milan_datapath__DOT__srp_fab_own_r) wrs++;
+                }
+                if (caps > wrs) kills++;
+                if (lane_sid() == SWSID) sid_wins++;
+                // release: a commit naming NO sid hands the row back
+                axi_write(A_STRM_SEL, 0x100 + T);
+                axi_write(A_SW_SID_LO, 0);
+                axi_write(A_SW_SID_HI, 0);
+                axi_write(A_SW_CTRL, (2u << 5) | (4u << 1) | 1u);
+                axi_write(A_STRM_SEL, 0);
+                for (int c = 0; c < 200; c++) step();
+                if (lane_sid() == fab_sid) retakes++;
+            }
+            ck("qkill: SOFTWARE's sid wins at EVERY overlap phase",
+               sid_wins, SWEEP);
+            ck("qkill: the in-flight squash was exercised (>= 1 phase)",
+               kills >= 1, 1);
+            ck("qkill: the fabric retook the row after every release",
+               retakes, SWEEP);
+        }
+
+        axi_write(A_LWSRP_CTRL, 0x0);
+        for (int c = 0; c < 512; c++) step();
+    }
+
+
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");

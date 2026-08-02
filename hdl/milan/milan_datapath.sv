@@ -1969,7 +1969,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! a grant belongs to whoever owned the SERVICE beat behind it, so the
     //! mask is the registered ownership flag and not the live request
     .i_srp_ctx_gnt      (srp_ctx_gnt_w & ~srp_fab_own_r),
-    .i_srp_ctx_stolen   (srp_fab_svc_w | srp_fab_own_r),
+    .i_srp_ctx_stolen   (srp_fab_qsvc_w | srp_fab_own_r),
     .i_srp_ctx_rd_sid   (srp_ctx_rd_sid_w),
     .i_srp_ctx_rd_stat  (srp_ctx_rd_stat_w),
     .i_bdbg0            (aecp_bdbg0_w),
@@ -2993,24 +2993,22 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! snapshot registers hold the CRF row for that one beat).
   //! ...and since 2026-07-30 the CRF row is one SLOT of a rotating fabric
   //! arbiter (srp_fab_pick below) rather than the only fabric requester: the
-  //! AAF talker rows t>0 joined it. The CRF grant is that arbiter's grant
-  //! restricted to the CRF slot, so there is exactly ONE place where the
-  //! window/fabric priority rule lives and the two cannot drift.
-  wire crf_srp_gnt_w = srp_fab_gnt_w & srp_fab_is_crf_w;
-  wire srp_ctx_req_w = csr_srp_ctx_req | srp_fab_gnt_w;
-  //! THE BEAT THAT ACTUALLY WRITES. This must be KL_lwsrp_ctx's OWN service
-  //! expression (`ctx_req_i && !ctx_gnt_o`) restricted to our ownership, and
-  //! it is written that way ON PURPOSE so the two cannot drift.
-  //!
-  //! Retiring on `ctx_gnt_o` instead was a real defect the dp TB caught
-  //! (2026-07-28): the CSR window POLLS this port continuously, so ctx_gnt_o
-  //! is pulsing all the time for somebody else's read. The request retired on
-  //! the first foreign grant, crf_srp_val_r went high, the interlock opened
-  //! and the CRF frames went out TAGGED - while the attribute row had never
-  //! been written and no Talker Advertise existed. That is precisely the
-  //! tagged-but-undeclared state this whole design exists to make
-  //! unreachable, reached through the back door.
-  wire crf_srp_svc_w = crf_srp_gnt_w & ~srp_ctx_gnt_w;
+  //! AAF talker rows t>0 joined it. The CRF retire is that arbiter's LAUNCH
+  //! beat restricted to the CRF slot, so there is exactly ONE place where
+  //! the window/fabric priority rule lives and the two cannot drift.
+  wire srp_ctx_req_w = csr_srp_ctx_req | srp_fab_qv_r;
+  //! THE BEAT THAT RETIRES. Retiring on `ctx_gnt_o` was a real defect the
+  //! dp TB caught (2026-07-28): the CSR window POLLS this port continuously,
+  //! so ctx_gnt_o is pulsing all the time for somebody else's read. The
+  //! request retired on the first foreign grant, crf_srp_val_r went high,
+  //! the interlock opened and the CRF frames went out TAGGED - while the
+  //! attribute row had never been written and no Talker Advertise existed.
+  //! That is precisely the tagged-but-undeclared state this whole design
+  //! exists to make unreachable, reached through the back door. Retirement
+  //! is therefore OUR OWN capture beat only (srp_fab_launch_w latches this
+  //! slot's complete record into the launch stage below, whose delivery to
+  //! KL_lwsrp_ctx is guaranteed), never anybody's grant.
+  wire crf_srp_ret_w = srp_fab_launch_w & srp_fab_is_crf_w;
 
   always_ff @(posedge axis_clk or negedge axis_resetn) begin : crf_srp_prov
     if (!axis_resetn) begin
@@ -3029,10 +3027,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                               (eff_crft_dmac_w != crf_srp_dmac_r))))
         crf_srp_req_r <= 1'b1;
 
-      //! ...and only the beat KL_lwsrp_ctx sampled us on retires it. sid/dmac
-      //! are latched from the SAME wires the mux presented on that beat, so
-      //! the shadow and the row can never disagree.
-      if (crf_srp_svc_w) begin
+      //! ...and only the beat the launch stage captured us on retires it.
+      //! sid/dmac are latched from the SAME wires the record mux presented
+      //! on that beat, so the shadow and the row can never disagree.
+      if (crf_srp_ret_w) begin
         crf_srp_req_r  <= 1'b0;
         crf_srp_last_r <= crf_srp_want_w;
         crf_srp_val_r  <= crf_srp_want_w;
@@ -3160,13 +3158,53 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     end
   end : srp_fab_pick
 
+  // ==========================================================================
+  //  THE LAUNCH STAGE (2026-08-02 timing closure). The pick cone above -
+  //  request vector + rotating pointer -> slot select -> record mux - used
+  //  to feed KL_lwsrp_ctx's write port COMBINATIONALLY: grant resolution,
+  //  the 64-bit sid mux and the ctx row/flag write CEs all in ONE cycle,
+  //  and that cone was the whole design's critical path (WNS -0.62 ns,
+  //  lsnsrp_req_r/srp_fab_rr_r -> lwsrp/ctx/sid_r, 11 logic levels, ~80 %
+  //  route). SRP row writes are MRP-timescale - milliseconds between row
+  //  updates - so ONE registered stage is functionally free: the LAUNCH
+  //  beat captures the granted slot's COMPLETE record (the by-SOURCE mux
+  //  rule survives: a half-window/half-fabric row still cannot be
+  //  composed), retires the requester and advances the rotating pointer;
+  //  the ctx write lands on the q's own service beat, >= 1 cycle later.
+  //  row_fresh_o / fastjoin_p_o are generated INSIDE KL_lwsrp_ctx at the
+  //  write beat, so they move WITH the write, and the walker still sees
+  //  every row update whole on a single edge - the coherency contracts
+  //  are untouched.
+  //
+  //  ORDERING vs the 0x800 window (software must still WIN a row it names):
+  //  a CSR WRITE serviced while a captured record is in flight for the SAME
+  //  row SQUASHES the q - otherwise the stale fabric record would land ON
+  //  TOP of software's commit one cycle later. Nothing is lost: the
+  //  requester's own settle on that very beat (req <= ~csr_srp_tk_own_w)
+  //  already schedules a fresh fabric rewrite iff software named no sid.
+  //  A CSR write for a DIFFERENT row only delays the q (the port yields to
+  //  the write, the q holds), so no captured record is ever dropped.
+  // ==========================================================================
+  logic        srp_fab_qv_r;             //! captured record in flight
+  logic [3:0]  srp_fab_qrow_r;
+  logic        srp_fab_qvalid_r, srp_fab_qdir_r;
+  logic [63:0] srp_fab_qsid_r;
+  logic [47:0] srp_fab_qdmac_r;
+  logic [15:0] srp_fab_qmaxf_r, srp_fab_qintv_r;
+  logic [31:0] srp_fab_qlat_r;
   //! the window/fabric priority rule, in ONE place (see the arbitration
-  //! banner above): yield to a pending CSR WRITE, never to its poll.
-  wire srp_fab_gnt_w = srp_fab_any_c & ~csr_srp_ctx_we;
-  //! KL_lwsrp_ctx's OWN service expression (`ctx_req_i && !ctx_gnt_o`)
-  //! restricted to our ownership - written that way so the two cannot drift
-  wire srp_fab_svc_w = srp_fab_gnt_w & ~srp_ctx_gnt_w;
-  logic srp_fab_own_r;      //! we owned the service beat behind THIS grant
+  //! banner above): yield to a pending CSR WRITE, never to its poll; and
+  //! never capture over a record still in flight.
+  wire srp_fab_launch_w = srp_fab_any_c & ~csr_srp_ctx_we & ~srp_fab_qv_r;
+  //! the q's port-mux select, and KL_lwsrp_ctx's OWN service expression
+  //! (`ctx_req_i && !ctx_gnt_o`) restricted to it - written that way so the
+  //! two cannot drift
+  wire srp_fab_qsel_w  = srp_fab_qv_r & ~csr_srp_ctx_we;
+  wire srp_fab_qsvc_w  = srp_fab_qsel_w & ~srp_ctx_gnt_w;
+  //! software wins: a serviced CSR WRITE naming the in-flight row
+  wire srp_fab_qkill_w = srp_fab_qv_r & csr_srp_ctx_we & ~srp_ctx_gnt_w &
+                         (csr_srp_ctx_idx == srp_fab_qrow_r);
+  logic srp_fab_own_r;      //! we owned the service beat behind THIS write
   wire srp_fab_is_crf_w = (SRP_CRF_TK_C != 0) &&
                           (32'(srp_fab_sel_c) == N_STREAMS);
   //! LISTENER slot decode + its sink index (clamped to a lane that always
@@ -3176,27 +3214,52 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [3:0] srp_fab_lsk_w     = srp_fab_is_lstn_w
                                  ? 4'(32'(srp_fab_sel_c) - SRP_TALKERS_C + 1)
                                  : 4'd1;
-  //! one-hot service pulse: ONLY the slot whose complete record the engine
-  //! sampled retires. Every ctx field is selected by this one {gnt, sel}
-  //! pair and KL_lwsrp_ctx latches the whole row in that single cycle, so a
-  //! beat writes exactly one source's record or writes nothing - a
-  //! half-CSR/half-fabric row cannot be composed even for one cycle.
-  wire [SRP_FAB_SLOTS_C-1:0] srp_fab_svc_v_w;
+  //! one-hot LAUNCH pulse: ONLY the slot whose complete record the launch
+  //! stage captured retires. Every ctx field is selected by this one
+  //! {launch, sel} pair and the q latches the whole record on that single
+  //! edge, so a capture takes exactly one source's record or takes nothing -
+  //! a half-CSR/half-fabric row cannot be composed even for one cycle.
+  //! Delivery is guaranteed (the q holds until KL_lwsrp_ctx samples it; the
+  //! sole squash path re-arms through the CSR settle), so retiring at the
+  //! capture cannot lose a write.
+  wire [SRP_FAB_SLOTS_C-1:0] srp_fab_ret_v_w;
   generate
-    for (genvar gv = 0; gv < SRP_FAB_SLOTS_C; gv++) begin : g_srp_fab_svc
-      assign srp_fab_svc_v_w[gv] = srp_fab_svc_w &
+    for (genvar gv = 0; gv < SRP_FAB_SLOTS_C; gv++) begin : g_srp_fab_ret
+      assign srp_fab_ret_v_w[gv] = srp_fab_launch_w &
                                    (32'(srp_fab_sel_c) == gv);
     end
   endgenerate
 
   always_ff @(posedge axis_clk) begin : srp_fab_arb_S
     if (!axis_resetn) begin
-      srp_fab_own_r <= 1'b0;
-      srp_fab_rr_r  <= '0;
+      srp_fab_own_r    <= 1'b0;
+      srp_fab_rr_r     <= '0;
+      srp_fab_qv_r     <= 1'b0;
+      srp_fab_qrow_r   <= '0;
+      srp_fab_qvalid_r <= 1'b0;
+      srp_fab_qdir_r   <= 1'b0;
+      srp_fab_qsid_r   <= '0;
+      srp_fab_qdmac_r  <= '0;
+      srp_fab_qmaxf_r  <= '0;
+      srp_fab_qintv_r  <= '0;
+      srp_fab_qlat_r   <= '0;
     end
     else begin
-      srp_fab_own_r <= srp_fab_svc_w;
-      if (srp_fab_svc_w) srp_fab_rr_r <= srp_fab_sel_c;
+      srp_fab_own_r <= srp_fab_qsvc_w;
+      if (srp_fab_launch_w) begin
+        srp_fab_rr_r     <= srp_fab_sel_c;
+        srp_fab_qv_r     <= 1'b1;
+        srp_fab_qrow_r   <= srp_fab_row_w;
+        srp_fab_qvalid_r <= srp_fab_valid_c;
+        srp_fab_qdir_r   <= srp_fab_dir_w;
+        srp_fab_qsid_r   <= srp_fab_sid_w;
+        srp_fab_qdmac_r  <= srp_fab_dmac_w;
+        srp_fab_qmaxf_r  <= srp_fab_maxf_c;
+        srp_fab_qintv_r  <= srp_fab_intv_c;
+        srp_fab_qlat_r   <= cfg_lwsrp_latency;
+      end
+      else if (srp_fab_qsvc_w | srp_fab_qkill_w)
+        srp_fab_qv_r <= 1'b0;
     end
   end : srp_fab_arb_S
 
@@ -3213,7 +3276,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   //! LISTENER-slot requester state (declared before the want generate that
   //! reads it; the provisioner process itself lives below, after
-  //! srp_fab_svc_v_w exists)
+  //! srp_fab_ret_v_w exists)
   logic [N_STREAMS-1:0] lsnsrp_req_r;    //! a write is owed for ctx row k
   logic [N_STREAMS-1:0] lsnsrp_last_r;   //! last committed want (edge detect)
   logic [N_STREAMS-1:0] lsnsrp_sw_own_r; //! software claimed the row (sid)
@@ -3328,9 +3391,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
           aafsrp_req_r[t] <= 1'b1;
 
         //! a 0x800 window commit on THIS row settles ownership. It cannot
-        //! collide with a fabric service beat: a pending CSR write masks
-        //! every fabric grant, so the two are mutually exclusive by
-        //! construction.
+        //! collide with a fabric LAUNCH beat: a pending CSR write masks
+        //! every launch, so the two are mutually exclusive by construction
+        //! (an already-captured record for this row is squashed by
+        //! srp_fab_qkill_w on this very beat - software wins).
         if (csr_srp_tk_svc_w && (32'(srp_tk_idx_w) == t)) begin
           srp_sw_own_r[t]  <= csr_srp_tk_own_w;
           //! named a sid -> software's row: stand down, and forget the row
@@ -3340,16 +3404,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
           aafsrp_last_r[t] <= 1'b0;
         end
 
-        //! ...and only the beat KL_lwsrp_ctx sampled us on retires it
-        if (srp_fab_svc_v_w[t]) begin
+        //! ...and only the beat the launch stage captured us on retires it
+        if (srp_fab_ret_v_w[t]) begin
           aafsrp_req_r[t]  <= 1'b0;
           aafsrp_last_r[t] <= srp_fab_want_v_w[t];
         end
       end
 
       //! the roots are latched from the SAME wires the mux presented on the
-      //! beat that was written, so the shadow and the rows cannot disagree
-      if (srp_fab_svc_w && !srp_fab_is_crf_w && !srp_fab_is_lstn_w) begin
+      //! beat that was captured, so the shadow and the rows cannot disagree
+      if (srp_fab_launch_w && !srp_fab_is_crf_w && !srp_fab_is_lstn_w) begin
         aafsrp_mac_r  <= srp_station_mac_w;
         aafsrp_dmac_r <= eff_aaf_dmac;
       end
@@ -3377,7 +3441,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //      contract and needs nothing from us.
   //    * identity = DERIVED from the bind record: acmpl_sid_v_w[k] is
   //      written by KL_acmp_lstn_ctx on the SAME edge as the bind record
-  //      itself, and the slot mux reads it LIVE at the service beat.
+  //      itself, and the slot mux reads it LIVE at the launch beat (a
+  //      rewrite between capture and landing re-arms via acmpl_upd_p_w).
   //    * re-provision on acmpl_upd_p_w[k] while wanted: a REBIND to a new
   //      talker rewrites the record in place (bound never blinks), and a
   //      row still carrying the old sid would be a reservation for a stream
@@ -3406,16 +3471,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
           lsnsrp_req_r[k] <= 1'b1;
 
         //! a 0x800 window commit on THIS listener row settles ownership
-        //! (cannot collide with a fabric service beat: a pending CSR write
-        //! masks every fabric grant)
+        //! (cannot collide with a fabric LAUNCH beat: a pending CSR write
+        //! masks every launch; an in-flight capture is qkill-squashed)
         if (csr_srp_ls_svc_w && (32'(csr_srp_ctx_idx) == k)) begin
           lsnsrp_sw_own_r[k] <= csr_srp_tk_own_w;
           lsnsrp_req_r[k]    <= ~csr_srp_tk_own_w;
           lsnsrp_last_r[k]   <= 1'b0;
         end
 
-        //! ...and only the beat KL_lwsrp_ctx sampled us on retires it
-        if (srp_fab_svc_v_w[SRP_TALKERS_C + k - 1]) begin
+        //! ...and only the beat the launch stage captured us on retires it
+        if (srp_fab_ret_v_w[SRP_TALKERS_C + k - 1]) begin
           lsnsrp_req_r[k]  <= 1'b0;
           lsnsrp_last_r[k] <= srp_fab_want_v_w[SRP_TALKERS_C + k - 1];
         end
@@ -4223,23 +4288,24 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! (priority on its WRITES) and the fabric's own rotating requesters -
     //! every AAF talker row t>0, the CRF Media Clock Output row, and every
     //! AAF LISTENER row k>0 bound over ACMP (srp_fab_pick / aaf_srp_prov /
-    //! crf_srp_prov / lsn_srp_prov above). The mux is by SOURCE, not by
-    //! field, so a half-window/half-fabric record cannot be composed even
-    //! for one cycle.
+    //! crf_srp_prov / lsn_srp_prov above), presented THROUGH the launch
+    //! stage's captured record (srp_fab_q*, timing closure). The mux is by
+    //! SOURCE, not by field, so a half-window/half-fabric record cannot be
+    //! composed even for one cycle.
     .ctx_req_i (srp_ctx_req_w),
-    .ctx_we_i  (srp_fab_gnt_w ? 1'b1             : csr_srp_ctx_we),
-    .ctx_idx_i (srp_fab_gnt_w ? srp_fab_row_w    : csr_srp_ctx_idx),
-    .ctx_valid_i (srp_fab_gnt_w ? srp_fab_valid_c : csr_srp_ctx_valid),
-    .ctx_dir_i (srp_fab_gnt_w ? srp_fab_dir_w    : csr_srp_ctx_dir),
-    .ctx_sid_i (srp_fab_gnt_w ? srp_fab_sid_w    : csr_srp_ctx_sid),
-    .ctx_dmac_i (srp_fab_gnt_w ? srp_fab_dmac_w  : csr_srp_ctx_dmac),
-    .ctx_prio_rank_i (srp_fab_gnt_w ? lwsrp_pkg::SR_PRIO_RANK_C
-                                    : csr_srp_ctx_prio),
+    .ctx_we_i  (srp_fab_qsel_w ? 1'b1              : csr_srp_ctx_we),
+    .ctx_idx_i (srp_fab_qsel_w ? srp_fab_qrow_r    : csr_srp_ctx_idx),
+    .ctx_valid_i (srp_fab_qsel_w ? srp_fab_qvalid_r : csr_srp_ctx_valid),
+    .ctx_dir_i (srp_fab_qsel_w ? srp_fab_qdir_r    : csr_srp_ctx_dir),
+    .ctx_sid_i (srp_fab_qsel_w ? srp_fab_qsid_r    : csr_srp_ctx_sid),
+    .ctx_dmac_i (srp_fab_qsel_w ? srp_fab_qdmac_r  : csr_srp_ctx_dmac),
+    .ctx_prio_rank_i (srp_fab_qsel_w ? lwsrp_pkg::SR_PRIO_RANK_C
+                                     : csr_srp_ctx_prio),
     //! per-row MaxFrameSize (see the tctx_chans_shadow block); the CSR's
     //! shared LWSRP_TSPEC word still serves row 0 and every listener row
-    .ctx_max_frame_i (srp_fab_gnt_w ? srp_fab_maxf_c : srp_ctx_maxf_w),
-    .ctx_interval_i (srp_fab_gnt_w ? srp_fab_intv_c : csr_srp_ctx_intv),
-    .ctx_latency_i (srp_fab_gnt_w ? cfg_lwsrp_latency : csr_srp_ctx_lat),
+    .ctx_max_frame_i (srp_fab_qsel_w ? srp_fab_qmaxf_r : srp_ctx_maxf_w),
+    .ctx_interval_i (srp_fab_qsel_w ? srp_fab_qintv_r : csr_srp_ctx_intv),
+    .ctx_latency_i (srp_fab_qsel_w ? srp_fab_qlat_r : csr_srp_ctx_lat),
     .ctx_gnt_o (srp_ctx_gnt_w), .ctx_rd_sid_o (srp_ctx_rd_sid_w),
     .ctx_rd_stat_o (srp_ctx_rd_stat_w), .ctx_oor_o (lwsrp_ctx_oor_w),
     .ctx_reg_o (), .ctx_ready_o (), .ctx_failed_o (), .ctx_tx_count_o (),

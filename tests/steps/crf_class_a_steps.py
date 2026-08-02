@@ -324,15 +324,22 @@ def step_fabric_provisions(context):
     #
     # 2026-07-30: the CRF row became ONE SLOT of a rotating fabric arbiter
     # (every AAF talker row joined it), so the port is presented the slot's
-    # record rather than the CRF wires directly. The property is unchanged
-    # and now needs BOTH links: the port takes the fabric record under a
-    # fabric grant, and the fabric record resolves to the derived CRF
-    # identity on the CRF slot.
-    for port, rec, sig in (("ctx_sid_i", "srp_fab_sid_w", "eff_crft_sid_w"),
-                           ("ctx_dmac_i", "srp_fab_dmac_w", "eff_crft_dmac_w")):
-        assert re.search(r"\." + port + r"\s*\(srp_fab_gnt_w\s*\?\s*" + rec,
+    # record rather than the CRF wires directly; 2026-08-02: that record is
+    # presented THROUGH the timing-closure launch stage's capture register.
+    # The property is unchanged and now needs THREE links: the port takes
+    # the captured fabric record under the fabric's port select, the capture
+    # latches the fabric record mux, and the record mux resolves to the
+    # derived CRF identity on the CRF slot.
+    for port, q, rec, sig in (
+            ("ctx_sid_i", "srp_fab_qsid_r", "srp_fab_sid_w",
+             "eff_crft_sid_w"),
+            ("ctx_dmac_i", "srp_fab_qdmac_r", "srp_fab_dmac_w",
+             "eff_crft_dmac_w")):
+        assert re.search(r"\." + port + r"\s*\(srp_fab_qsel_w\s*\?\s*" + q,
                          context.dp_src), \
-            "%s is not the fabric record's own port arm" % port
+            "%s is not the captured fabric record's own port arm" % port
+        assert re.search(q + r"\s*<=\s*" + rec, context.dp_src), \
+            "%s does not capture the fabric record mux" % q
         assert re.search(r"wire.*" + rec +
                          r"\s*=\s*srp_fab_is_crf_w\s*\r?\n?\s*\?\s*" + sig,
                          context.dp_src), \
@@ -343,12 +350,17 @@ def step_fabric_provisions(context):
 def step_handshake(context):
     # The defect this pins: retiring on any ctx grant let a foreign grant
     # (the CSR window's continuous poll) mark the row provisioned while it
-    # had never been written - tag on, no Talker Advertise.
-    expr = _expr(context.dp_src, "crf_srp_svc_w")
-    assert "crf_srp_gnt_w" in expr and "srp_ctx_gnt_w" in expr, \
-        "crf_srp_svc_w is not {our request} AND NOT {a grant in flight}"
-    assert re.search(r"if\s*\(crf_srp_svc_w\)\s*begin", context.dp_src), \
-        "the provisioning shadow does not retire on the service beat"
+    # had never been written - tag on, no Talker Advertise. Since the
+    # 2026-08-02 launch stage the sampling beat is the fabric's OWN capture
+    # (srp_fab_launch_w, guaranteed delivery), still never anybody's grant.
+    expr = _expr(context.dp_src, "crf_srp_ret_w")
+    assert "srp_fab_launch_w" in expr and "srp_fab_is_crf_w" in expr, \
+        "crf_srp_ret_w is not {our own capture} restricted to the CRF slot"
+    launch = _expr(context.dp_src, "srp_fab_launch_w")
+    assert "srp_ctx_gnt_w" not in launch, \
+        "the launch depends on the port grant - a foreign grant can retire us"
+    assert re.search(r"if\s*\(crf_srp_ret_w\)\s*begin", context.dp_src), \
+        "the provisioning shadow does not retire on the capture beat"
 
 
 # ------------------------------------------------------------- the lane

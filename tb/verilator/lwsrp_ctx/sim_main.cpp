@@ -30,6 +30,7 @@
  */
 
 #include "VKL_lwsrp_top.h"
+#include "VKL_lwsrp_top___024root.h"
 #include "verilated.h"
 #include <cstdio>
 #include <cstdint>
@@ -577,6 +578,63 @@ int main(int argc, char** argv) {
         run(400);
         ck("wrap-ctx: base <= sid registers", (dut->ctx_reg_o >> 2) & 1, 1);
         ctx_write(2, 0, 0, 0);
+        run(400);
+        drain_tx();
+    }
+
+    // 12) THE PORT CYCLE CONTRACT (2026-08-02 - the datapath's launch-stage
+    //   retime leans on it): a write applies on the SERVICE beat, the one
+    //   cycle where `ctx_req_i && !ctx_gnt_o`, and on that beat's closing
+    //   edge the row identity, row_fresh AND ctx_gnt_o all register
+    //   TOGETHER - the walker/serializer can never see a written row
+    //   without its fresh mark, or a grant without its write. A held
+    //   request is serviced every OTHER cycle (gnt alternates), so two
+    //   writes never land on adjacent edges.
+    {
+        auto* rp = dut->rootp;
+        auto lane_sid = [&](int l) -> uint64_t {
+            return (uint64_t)rp->KL_lwsrp_top__DOT__ctx__DOT__sid_r[2*l] |
+                   ((uint64_t)
+                    rp->KL_lwsrp_top__DOT__ctx__DOT__sid_r[2*l + 1] << 32);
+        };
+        // row 3 (lane 2) known-invalid and quiet
+        ctx_write(3, 0, 0, 0);
+        run(400);
+        drain_tx();
+        ck("port: row 3 starts invalid",
+           (rp->KL_lwsrp_top__DOT__ctx__DOT__valid_r >> 2) & 1, 0);
+        ck("port: row 3 fresh clear",
+           (rp->KL_lwsrp_top__DOT__row_fresh_w >> 2) & 1, 0);
+        ck("port: gnt idle before the request", dut->ctx_gnt_o, 0);
+        // present the write RAW and watch the single service beat close
+        dut->ctx_req_i = 1; dut->ctx_we_i = 1; dut->ctx_idx_i = 3;
+        dut->ctx_valid_i = 1; dut->ctx_dir_i = 1; dut->ctx_sid_i = L3_SID;
+        dut->ctx_dmac_i = 0; dut->ctx_prio_rank_i = 0x70;
+        dut->ctx_max_frame_i = MAXFRM; dut->ctx_interval_i = 1;
+        dut->ctx_latency_i = LATENCY;
+        step();   // the service beat's closing edge: EVERYTHING lands here
+        ck("port: row valid ON the service edge",
+           (rp->KL_lwsrp_top__DOT__ctx__DOT__valid_r >> 2) & 1, 1);
+        ck("port: row_fresh ON the SAME edge",
+           (rp->KL_lwsrp_top__DOT__row_fresh_w >> 2) & 1, 1);
+        ck("port: sid ON the SAME edge", lane_sid(2) == L3_SID, 1);
+        ck("port: gnt ON the SAME edge (answers the write beat)",
+           dut->ctx_gnt_o, 1);
+        // held request: gnt alternates - a service beat is never adjacent
+        // to the previous one
+        int adj = 0, svcs = 0, prev_gnt = 1;
+        for (int c = 0; c < 6; c++) {
+            step();
+            if (dut->ctx_gnt_o) { svcs++; if (prev_gnt) adj++; }
+            prev_gnt = dut->ctx_gnt_o;
+        }
+        ck("port: held req services every OTHER cycle", svcs, 3);
+        ck("port: two grants never adjacent", adj, 0);
+        dut->ctx_req_i = 0; dut->ctx_we_i = 0;
+        step(); step();
+        ck("port: gnt idle after release", dut->ctx_gnt_o, 0);
+        // withdraw + settle so the finals below see the steady shape
+        ctx_write(3, 0, 0, 0);
         run(400);
         drain_tx();
     }
