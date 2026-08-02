@@ -105,7 +105,7 @@ _AAF / CRF / MAAP / AVTP common_
 | ✅ `KL_pcm_lpf` | `ieee1722/aaf/KL_pcm_lpf.sv` | `hostplane` · `milan_dp` · `pcmlpf` · 🔬`make aaf` | — |
 | ✅ `KL_pcm_ring_bram` | `ieee1722/aaf/KL_pcm_ring_bram.sv` | `hostplane` · `pcm_ring_bram` · 🔬`make aaf` | — |
 | ✅ `KL_pcm_route` | `ieee1722/aaf/KL_pcm_route.sv` | `avtp_rxmon` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
-| ✅ `KL_pcm_tx` | `ieee1722/aaf/KL_pcm_tx.sv` | `pcm_playback` · `pcm_tx` · ➰hostplane,milan_dp · 🔬`make aaf` | — |
+| ✅ `KL_pcm_tx` | `ieee1722/aaf/KL_pcm_tx.sv` | `hostplane` · `milan_dp` · `pcm_playback` · `pcm_tx` · 🔬`make aaf` | — |
 | ✅ `KL_tdm_capture` | `ieee1722/aaf/KL_tdm_capture.sv` | `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | 7.3.3 |
 | ✅ `KL_tdm_capture_master` | `ieee1722/aaf/KL_tdm_capture_master.sv` | `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | 7.3.3 |
 | ✅ `KL_tdm_render` | `ieee1722/aaf/KL_tdm_render.sv` | `hostplane` · `milan_dp` · `tdm_render` · 🔬`make aaf` | — |

@@ -88,6 +88,7 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/ieee17221/ad
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture_master.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_pair_blend.sv \
+       $(RTL_DIR)/ieee1722/aaf/KL_pcm_tx.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_pair_zero_fill.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_render.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_render.sv \
@@ -128,7 +129,10 @@ PRUNE_G = -GMCSERVO_P=0 -GLTAP_P=0 -GMAAP_P=0 -GI2SPB_P=0 -GRXFILT_P=0 -GLPF_P=0
 run: $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
-	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -CFLAGS -DNSTREAMS_TB=8 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
+# obj_nxn8 also elaborates AAF_PLAYBACK_P=1 (the task #31 cfg_ax8x8 ship
+# flip) and runs the host-ring -> RING-bucket -> talker-wire section
+# (-DAAF_PB_TB): the ALSA playback direction proven INSIDE the datapath.
+	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -GAAF_PLAYBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAAF_PB_TB=1" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
 # THE SHIPPING ARTY SHAPE, and until 2026-07-30 nothing in the suite
 # elaborated it. obj_nxn above builds endstation_arty_4x4's ENTITY (4 streams)
 # but leaves TALKER_WIRE_CHANS_P at its default 2, so every leg ran with the

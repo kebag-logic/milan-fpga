@@ -1203,7 +1203,14 @@ get a rate.
 status (`pb_enable`, ring base/len/stride, per-stream `wr_ptr`/`rd_ptr`,
 underrun/overrun) are **migen** CSRs generated inside the LiteX SoC
 (`sw/litex/milan_soc.py`), so they exist only on that build and never appear
-in this map. Nothing on the AXI-Lite control plane could answer the first
+in this map. Since the task #31 ship flip (`--aaf-playback` in `cfg_ax8x8`)
+that migen block is a REAL driver surface: it lands in the `milandma` CSR
+bank immediately after the capture PCM engine (DT window `pb-dma`,
+`0xf0003140/+0x84` on the 8x8 shape) and self-identifies through a leading
+`pb_cap` geometry word (`[31:24]`=0x4D, `[23:16]`=wire chans, `[15:8]`=T
+rings) exactly like the capture cap at `pcm-dma +0x1c`; `snd-kl-milan` maps
+it as the ALSA playback direction and `sw/litex/check_dtb_csr.py` gates the
+DT window against the build's `csr.csv` (`milan_dma_pb_cap`) at deploy time. Nothing on the AXI-Lite control plane could answer the first
 question you ask of a silent line-out: *did any audio frame reach the DAC at
 all, and if not, where did it stop?* These three words answer it end to end —
 `PBK_FEEDS` moving proves the chain is delivering, `PBK_STAT[15:0]` separates

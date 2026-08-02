@@ -221,8 +221,12 @@ module KL_chan_map_capture #(
   input  wire [23:0]  tdm_r_i,
 
   //! --- ALSA ring pair sources (KL_pcm_tx output, indexed by pair slot) ---
+  //! The slot bus is the widened 5-bit KL_pcm_tx space; pairs >= N_RING_P
+  //! are REFUSED by the bounds check below (dropped, never aliased), so a
+  //! 16-deep bucket covers ring pairs 0..15 = playback streams 0..3 of the
+  //! 8x8x8 shape and the rest need N_RING_P raised, not a wider idx.
   input  wire         ring_pair_valid_i, //! latch pulse
-  input  wire [3:0]   ring_pair_slot_i,  //! ring pair-channel index (0..N-1)
+  input  wire [4:0]   ring_pair_slot_i,  //! ring pair-channel index (0..N-1)
   input  wire [23:0]  ring_l_i,
   input  wire [23:0]  ring_r_i,
 

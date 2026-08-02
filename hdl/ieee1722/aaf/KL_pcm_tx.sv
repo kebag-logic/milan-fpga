@@ -62,6 +62,18 @@
                 substitute is the last sample (repeat, underrun_silence_i=0) or
                 digital silence (underrun_silence_i=1). Counted per stream; the
                 read pointer is NOT advanced (nothing was consumed).
+
+                CLEAN RESTART (the capture ring's enable 0->1 precedent, made
+                per-stream): a RISING edge of stream_en_i[s] clears that
+                stream's rd_ptr/rd_off/underrun/overrun and its hold pairs, so
+                every ALSA session starts at sub-ring offset 0 with fill = 0
+                regardless of what a previous session (possibly with another
+                ring_len) left behind. Without this, rd_off_r - maintained
+                incrementally as rd_ptr mod ring_len - silently disagrees with
+                a new ring_len and the engine fetches from the wrong offsets
+                forever. Other streams are untouched (a starting substream
+                must never disturb one mid-play); the global enable_i still
+                only gates/aborts the walk and preserves pointers.
                 OVERRUN (host lapped us: fill > ring_len): the oldest ring lap
                 was overwritten; rd_ptr is fast-forwarded one lap (rd_off
                 invariant, see above) to resume on the freshest intact ring, and
@@ -119,7 +131,8 @@ module KL_pcm_tx #(
 
   //! --- AAF pair stream out (the KL_aaf_packetizer capture contract) ------
   output logic        pair_valid_o,        //! one-cycle pulse per L/R pair
-  output logic [3:0]  pair_slot_o,         //! pair slot = t*(C/2) + chpair
+  output logic [4:0]  pair_slot_o,         //! pair slot = t*(C/2) + chpair
+                                           //! (5-bit 0..31, the widened space)
   output logic [23:0] pair_l_o,            //! left  sample (top 24 bits, MSB..)
   output logic [23:0] pair_r_o,            //! right sample
 
@@ -135,10 +148,18 @@ module KL_pcm_tx #(
   // Derived sizing                                                          //
   // ---------------------------------------------------------------------- //
   localparam int unsigned PAIRS_C = (CHANS_P < 2) ? 1 : CHANS_P / 2;
-  localparam int unsigned SLOTS_C = N_STREAMS_P * PAIRS_C;   //! <= 16 (pair_slot 4b)
+  localparam int unsigned SLOTS_C = N_STREAMS_P * PAIRS_C;   //! <= 32 (pair_slot 5b)
   localparam int unsigned TW_C = (N_STREAMS_P <= 1) ? 1 : $clog2(N_STREAMS_P);
   localparam int unsigned PW_C = (PAIRS_C     <= 1) ? 1 : $clog2(PAIRS_C);
   localparam int unsigned DIVW_C = (SAMPLE_DIV_C <= 1) ? 1 : $clog2(SAMPLE_DIV_C);
+
+  //! Elaboration guard: the pair-slot bus is the widened 5-bit space (0..31).
+  //! A shape past it would TRUNCATE slot ids and alias streams onto each
+  //! other's hold/bucket state - refuse it loudly, never wrap (the 8x8x8
+  //! ship shape is exactly 32 and fits).
+  generate if (SLOTS_C > 32) begin : g_slots_guard
+    $error("KL_pcm_tx: N_STREAMS_P*CHANS_P/2 pair slots exceed the 5-bit slot space (32)");
+  end endgenerate
 
   // ---------------------------------------------------------------------- //
   // Media-clock pace: internal divider or external strobe                   //
@@ -194,6 +215,7 @@ module KL_pcm_tx #(
   pstate_t         st_r;
   logic [TW_C-1:0] cur_t_r;              //! stream being emitted
   logic [PW_C-1:0] cur_p_r;              //! channel-pair within the stream
+  logic [N_STREAMS_P-1:0] sen_q_r;       //! stream_en_i delayed (edge detect)
 
   wire [TW_C-1:0] tmax_w = TW_C'(N_STREAMS_P - 1);
   wire [PW_C-1:0] pmax_w = PW_C'(PAIRS_C - 1);
@@ -201,12 +223,20 @@ module KL_pcm_tx #(
   wire last_slot_w = last_pair_w && (cur_t_r == tmax_w);
 
   //! absolute pair slot the packetizer sees (t owns [t*C/2, (t+1)*C/2))
-  wire [3:0] slot_w = 4'(32'(cur_t_r) * PAIRS_C + 32'(cur_p_r));
+  wire [4:0] slot_w = 5'(32'(cur_t_r) * PAIRS_C + 32'(cur_p_r));
+  //! hold index: same value, sized to the elaborated slot count (the walk
+  //! bounds guarantee slot_w < SLOTS_C, so the cast never truncates a live
+  //! value - it only right-sizes the array index at small shapes)
+  localparam int unsigned SW_C = (SLOTS_C <= 1) ? 1 : $clog2(SLOTS_C);
+  wire [SW_C-1:0] hidx_w = SW_C'(slot_w);
 
-  //! live fill / availability for the current stream
+  //! live fill / availability for the current stream. A stream is walk-
+  //! eligible only once its enable is STABLE (stream_en_i AND sen_q_r): on
+  //! the rising-edge cycle the clean-restart clear below owns its pointers,
+  //! so the walk must not issue a fetch off the half-cleared state.
   wire [31:0] cur_wr_w  = wr_ptr_i[cur_t_r*32 +: 32];
   wire [31:0] cur_fill_w = fill_f(cur_wr_w, rd_ptr_r[cur_t_r]);
-  wire        cur_en_w   = enable_i && stream_en_i[cur_t_r];
+  wire        cur_en_w   = enable_i && stream_en_i[cur_t_r] && sen_q_r[cur_t_r];
   wire        cur_avail_w = cur_en_w && (cur_fill_w >= 32'd8);
 
   //! fetch address for the current stream's next word
@@ -232,6 +262,7 @@ module KL_pcm_tx #(
       st_r         <= PT_IDLE_S;
       cur_t_r      <= '0;
       cur_p_r      <= '0;
+      sen_q_r      <= '0;
       pair_valid_o <= 1'b0;
       pair_slot_o  <= '0;
       pair_l_o     <= '0;
@@ -246,6 +277,7 @@ module KL_pcm_tx #(
     end
     else begin
       pair_valid_o <= 1'b0;              //! default: no pair this cycle
+      sen_q_r      <= stream_en_i;
 
       unique case (st_r)
         // -------- wait for the media tick; scan for overrun --------------
@@ -254,7 +286,7 @@ module KL_pcm_tx #(
           //! lapped us, so the oldest ring is gone - skip forward one lap and
           //! resume on the freshest intact ring (rd_off invariant under +len).
           for (int s = 0; s < N_STREAMS_P; s++) begin
-            if (enable_i && stream_en_i[s] &&
+            if (enable_i && stream_en_i[s] && sen_q_r[s] &&
                 (fill_f(wr_ptr_i[s*32 +: 32], rd_ptr_r[s]) > ring_len_i)) begin
               rd_ptr_r[s] <= rd_ptr_r[s] + ring_len_i;
               over_r[s]   <= over_r[s] + 16'd1;
@@ -285,8 +317,8 @@ module KL_pcm_tx #(
             //! count it, do NOT advance the ring
             pair_valid_o <= 1'b1;
             pair_slot_o  <= slot_w;
-            pair_l_o     <= underrun_silence_i ? 24'd0 : hold_r[slot_w][47:24];
-            pair_r_o     <= underrun_silence_i ? 24'd0 : hold_r[slot_w][23:0];
+            pair_l_o     <= underrun_silence_i ? 24'd0 : hold_r[hidx_w][47:24];
+            pair_r_o     <= underrun_silence_i ? 24'd0 : hold_r[hidx_w][23:0];
             under_r[cur_t_r] <= under_r[cur_t_r] + 16'd1;
             if (last_slot_w) st_r <= PT_IDLE_S;
             else if (last_pair_w) begin cur_t_r <= cur_t_r + 1'b1; cur_p_r <= '0; end
@@ -301,7 +333,7 @@ module KL_pcm_tx #(
             pair_slot_o  <= slot_w;
             pair_l_o     <= deint_l_w;
             pair_r_o     <= deint_r_w;
-            hold_r[slot_w] <= {deint_l_w, deint_r_w};
+            hold_r[hidx_w] <= {deint_l_w, deint_r_w};
             //! consume one word
             rd_ptr_r[cur_t_r] <= rd_ptr_r[cur_t_r] + 32'd8;
             rd_off_r[cur_t_r] <= noff_w;
@@ -321,6 +353,21 @@ module KL_pcm_tx #(
       if (!enable_i) begin
         st_r         <= PT_IDLE_S;
         pair_valid_o <= 1'b0;
+      end
+
+      //! per-stream CLEAN RESTART (header contract): a stream_en rising edge
+      //! zeroes that stream's ring state and hold pairs. Placed LAST so it
+      //! wins over any same-cycle FSM write; the sen_q_r walk gate above
+      //! guarantees no fetch is in flight for a stream on its edge cycle.
+      for (int s = 0; s < N_STREAMS_P; s++) begin
+        if (stream_en_i[s] && !sen_q_r[s]) begin
+          rd_ptr_r[s] <= '0;
+          rd_off_r[s] <= '0;
+          under_r[s]  <= '0;
+          over_r[s]   <= '0;
+          for (int p = 0; p < int'(PAIRS_C); p++)
+            hold_r[s*PAIRS_C + p] <= '0;
+        end
       end
     end
   end : emit_engine

@@ -42,7 +42,8 @@ mapping moves, this table (and the Makefile) is the place drift shows up:
 | `--num-streams 8` | `num_streams=8` | `N_STREAMS` | `8` |
 | `--milan-clk-freq 100e6` | `milan_clk_hz=100000000` | `MILAN_CLK_FREQ_HZ` | `100000000` |
 | *(no `--audio-interface`)* | `audio_if_slots=0` (`i2s_philips`) | `AUDIO_IF_SLOTS_P` | `0` |
-| *(no `--aaf-playback`)* | `aaf_playback=False` (param not passed) | `AAF_PLAYBACK_P` | `0` (SV default) |
+| `--aaf-playback` (task #31 ship flip, 2026-08-02) | `aaf_playback=True` -> `p_AAF_PLAYBACK_P=1` | `AAF_PLAYBACK_P` | `1` (KL_pcm_tx generate LIVE; pb ports idle in these lanes) |
+| *(no `--aaf-playback-streams`)* | `aaf_pb_streams=1` -> `p_AAF_PB_STREAMS_P=1` | `AAF_PB_STREAMS_P` | `1` (SV default = the ship START-SMALL one-ring shape) |
 | *(no `--no-*` optional-block flag)* | `board.features` all `true` | `MCSERVO_P` `LTAP_P` `MAAP_P` `I2SPB_P` `RXFILT_P` `LPF_P` | `1` each (SV defaults; every tier-1 block PRESENT) |
 | *(never emitted by the SoC)* | — | `PB_PREFILL_C` | `0` (SV default — `milan_dp` shrinks it to 2; we keep the silicon value) |
 | `--rx-queues 1`, `--strip-probes`, … | SoC-layer only | — | out of scope (no datapath parameter) |
@@ -51,8 +52,9 @@ Drift notes observed while deriving the mapping (2026-07-25):
 
 * `milan_soc.py` passes `p_AAF_PLAYBACK` when `--aaf-playback` is set, but
   the SV parameter is named `AAF_PLAYBACK_P` — a playback build would not
-  reach the generate. Not part of the shipped `cfg_ax8x8` shape (flag off),
-  flagged for the SoC lane; this suite keeps the silicon default (0).
+  reach the generate. HISTORICAL: fixed in the SoC (`p_AAF_PLAYBACK_P`),
+  and since the task #31 ship flip the flag is ON in `cfg_ax8x8`, so this
+  suite now elaborates `AAF_PLAYBACK_P=1` (see the table).
 * `KL_pcm_ring_bram.sv` sits in the SoC source list but is not instantiated
   inside `milan_datapath` (SoC-layer `--pcm-ring bram` glue) — excluded here.
 

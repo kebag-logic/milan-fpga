@@ -2537,6 +2537,183 @@ int main(int argc, char** argv) {
         axi_write(A_LWSRP_CTRL, 0x0);
     }
 
+#ifdef AAF_PB_TB
+    // ==================================================================
+    //  TASK #31 - HOST PLAYBACK RING -> chmap RING bucket -> TALKER WIRE
+    //  (AAF_PLAYBACK_P=1, the cfg_ax8x8 ship flip). The full playback
+    //  path IN the datapath: a host-written PCM ring is fetched over the
+    //  pb_mem word port, paced by KL_pcm_tx, latched by the capture
+    //  crossbar's RING bucket, and framed by the packetizer - the ALSA
+    //  aplay direction, ending at the MAC TX AXIS.
+    //
+    //  Placement decoupling is the point of the map: ring PAIR 0 (host
+    //  channels 0/1) is mapped onto BOTH talker 0's and talker 1's wire
+    //  slots - the mechanism that puts host stereo on the PEER-facing
+    //  stream channels of the USER's choice (ch2/3 in the 8ch target).
+    //
+    //  Underrun continuity (Milan 5.3.7.3): starving the ring must KEEP
+    //  the talkers framing - payload goes digital-silence, cadence never
+    //  stalls - and the starvation is CSR-observable (PBK_RAILS 0x8D0 +
+    //  the pb_underrun_o rail).
+    // ==================================================================
+    printf("-- task #31: host ring -> RING bucket -> talker wire (pb) --\n");
+    {
+        enum { A_CHMAP_CTRL = 0x900, A_CHMAP_SEL = 0x904, A_CHMAP_WORD = 0x908,
+               A_PBK_RAILS = 0x8D0 };
+        const uint32_t PB_LEN    = 512;      // 64-word sub-ring
+        const uint32_t PB_STRIDE = 4096;
+        const int      PB_LEAD   = 32;       // words kept ahead of the reader
+
+        // streaming posture (VID-2 rule + bypass licence), lwSRP off
+        axi_write(A_AAF_CTRL, 0x00020003);
+        axi_write(A_LWSRP_CTRL, 0x0);
+
+        // capture map: talker slot 0 AND talker slot 1 <- RING pair 0
+        // (capture word {en[15], src[14:12]=3 RING, idxh[7:4]=0, idx[3:0]})
+        axi_write(A_CHMAP_CTRL, 0x1);        // arm the fabric + the CSR port
+        axi_write(A_CHMAP_SEL, 0x100 | 0);   // side=1 capture, slot 0
+        axi_write(A_CHMAP_WORD, 0xB000);     // en | RING | idx 0
+        axi_write(A_CHMAP_SEL, 0x100 | 1);   // slot 1
+        axi_write(A_CHMAP_WORD, 0xB000);     // en | RING | idx 0
+
+        // playback engine: ring stream 0 only, silence-on-underrun
+        dut->pb_ring_base_i   = 0;
+        dut->pb_ring_len_i    = PB_LEN;
+        dut->pb_ring_stride_i = PB_STRIDE;
+        dut->pb_underrun_silence_i = 1;
+        dut->pb_enable_i    = 1;
+        dut->pb_stream_en_i = 0x01;
+
+        // host ring model: ramp-tagged S32BE pairs, L=0x7A0000|j R=0x7B0000|j
+        static uint8_t pbram[PB_STRIDE + PB_LEN + 64];
+        uint32_t pb_committed = 0;           // words written
+        auto pb_put = [&](uint32_t j) {
+            uint32_t a = (j * 8) % PB_LEN;
+            uint32_t L = 0x7A0000u | (j & 0xFFFF), R = 0x7B0000u | (j & 0xFFFF);
+            pbram[a+0] = L >> 16; pbram[a+1] = L >> 8; pbram[a+2] = L; pbram[a+3] = 0;
+            pbram[a+4] = R >> 16; pbram[a+5] = R >> 8; pbram[a+6] = R; pbram[a+7] = 0;
+        };
+        bool pb_feed = true;
+        bool mem_pend = false; uint32_t mem_addr = 0;
+        auto pb_service = [&](void) {        // call between lo() and hi()
+            // 1-cycle-latency word port (the BRAM-ring timing)
+            dut->pb_mem_valid_i = mem_pend ? 1 : 0;
+            if (mem_pend) {
+                uint64_t w = 0;
+                for (int b = 0; b < 8; b++)
+                    w |= (uint64_t)pbram[(mem_addr % (PB_STRIDE + PB_LEN)) + b] << (8*b);
+                dut->pb_mem_data_i = w;
+            }
+            mem_pend = dut->pb_mem_rd_o; mem_addr = dut->pb_mem_addr_o;
+            if (pb_feed) {
+                uint32_t rdw = dut->pb_rd_ptr_o[0] / 8;
+                while (pb_committed < rdw + PB_LEAD) pb_put(pb_committed++);
+            }
+            dut->pb_wr_ptr_i[0] = pb_committed * 8;
+        };
+
+        // AAF PDU capture with the ring-tag payload decode (t0 + t1)
+        struct Pdu { int uid; std::vector<uint32_t> smp; bool zero; };
+        auto collect = [&](int want_t0, int want_t1, int budget) {
+            std::vector<Pdu> got;
+            std::vector<uint8_t> cur;
+            int n0 = 0, n1 = 0;
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < budget && (n0 < want_t0 || n1 < want_t1); c++) {
+                lo();
+                pb_service();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        size_t off = (cur.size() > 17 && cur[12] == 0x81
+                                      && cur[13] == 0x00) ? 4 : 0;
+                        if (cur.size() >= 86 + off && cur[12+off] == 0x22
+                            && cur[13+off] == 0xF0 && cur[14+off] == 0x02) {
+                            Pdu p; p.uid = (cur[24+off] << 8) | cur[25+off];
+                            p.zero = true;
+                            for (int s = 0; s < 12; s++) {   // 6 events x 2ch
+                                size_t o = 38 + off + 4*s;
+                                uint32_t v = ((uint32_t)cur[o] << 16) |
+                                             ((uint32_t)cur[o+1] << 8) | cur[o+2];
+                                p.smp.push_back(v);
+                                if (v) p.zero = false;
+                            }
+                            if (p.uid == 0) { n0++; got.push_back(p); }
+                            else if (p.uid == 1) { n1++; got.push_back(p); }
+                        }
+                        cur.clear();
+                    }
+                }
+                hi();
+            }
+            return got;
+        };
+
+        // ---- LEG 1: both talkers carry the ring pair, ramp-exact -------
+        // settle: let the engine start fetching and the buckets fill
+        for (int c = 0; c < 4096; c++) { lo(); pb_service(); hi(); }
+        auto pdus = collect(3, 3, 200000);
+        int t0n = 0, t1n = 0; bool tags_ok = true, ramp_ok = true, lr_ok = true;
+        for (auto& p : pdus) {
+            (p.uid ? t1n : t0n)++;
+            for (int s = 0; s < 12; s += 2) {
+                uint32_t L = p.smp[s], R = p.smp[s+1];
+                if ((L >> 16) != 0x7A || (R >> 16) != 0x7B) tags_ok = false;
+                if ((L & 0xFFFF) != (R & 0xFFFF)) lr_ok = false;
+                if (s >= 2) {
+                    // consecutive sample events step the ramp by exactly 1
+                    // (same clk, same divisor: no repeats, no drops)
+                    if ((uint16_t)(p.smp[s] & 0xFFFF) !=
+                        (uint16_t)((p.smp[s-2] & 0xFFFF) + 1)) ramp_ok = false;
+                }
+            }
+        }
+        ck("pb: t0 frames the host ring (>= 3 PDUs)", t0n >= 3, 1);
+        ck("pb: t1 frames the SAME ring pair (>= 3)", t1n >= 3, 1);
+        ck("pb: every sample carries the ring tag (L=7A/R=7B)", tags_ok, 1);
+        ck("pb: L/R of one ring word stay a pair", lr_ok, 1);
+        ck("pb: ramp steps by 1 per sample event (no slip)", ramp_ok, 1);
+        ck("pb: engine consumed the ring (rd_ptr advanced)",
+           dut->pb_rd_ptr_o[0] > 0, 1);
+        ck("pb: no underrun while fed", dut->pb_underrun_o[0] & 0xFFFF, 0);
+
+        // ---- LEG 2: starvation = SILENCE payload, cadence NEVER stalls -
+        pb_feed = false;                      // freeze the host write pointer
+        // drain the PB_LEAD words still queued (one word per media sample
+        // at CHANS=2: ~PB_LEAD x 2083 cycles) until the engine reports the
+        // first real underrun - the rail IS the drain oracle
+        { int dg = 0;
+          while ((dut->pb_underrun_o[0] & 0xFFFF) == 0 && dg++ < 400000) {
+              lo(); pb_service(); hi(); } }
+        auto starved = collect(3, 0, 200000);
+        int zt0 = 0;
+        for (auto& p : starved) if (p.uid == 0 && p.zero) zt0++;
+        ck("pb starve: t0 KEEPS framing (5.3.7.3 cadence)",
+           starved.size() >= 3, 1);
+        ck("pb starve: payload is digital silence", zt0 >= 2, 1);
+        ck("pb starve: underruns counted on the rail",
+           (dut->pb_underrun_o[0] & 0xFFFF) > 0, 1);
+        uint32_t rails = axi_read(A_PBK_RAILS);
+        ck("pb starve: PBK_RAILS 0x8D0 shows the underruns",
+           (rails >> 16) > 0, 1);
+
+        // ---- LEG 3: refeed = audio returns (session survives a gap) ----
+        pb_feed = true;
+        for (int c = 0; c < 4096; c++) { lo(); pb_service(); hi(); }
+        auto back = collect(3, 0, 200000);
+        bool alive = false;
+        for (auto& p : back) if (p.uid == 0 && !p.zero &&
+                                 (p.smp[0] >> 16) == 0x7A) alive = true;
+        ck("pb refeed: ramp audio returns on the wire", alive, 1);
+
+        // restore: engine off, map disarmed (the legacy bit-identical path)
+        dut->pb_enable_i = 0; dut->pb_stream_en_i = 0;
+        axi_write(A_CHMAP_CTRL, 0x0);
+    }
+#endif
+
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");

@@ -48,10 +48,15 @@ VFLAGS_COMMON = --cc --exe --build -j 0 \
 #   --num-streams 8        -> N_STREAMS=8
 #   --milan-clk-freq 100e6 -> MILAN_CLK_FREQ_HZ=100000000
 #   (no --audio-interface) -> AUDIO_IF_SLOTS_P=0   (i2s_philips default)
-#   (no --aaf-playback)    -> AAF_PLAYBACK_P=0     (SV default, generate off)
+#   --aaf-playback         -> AAF_PLAYBACK_P=1     (task #31 ship flip: the
+#                             KL_pcm_tx generate is LIVE in silicon; the pb
+#                             ports idle at 0 in these lanes - playback
+#                             BEHAVIOR is covered by pcm_tx/pcm_playback and
+#                             the milan_dp NxN ring-source section)
 #   (never set by the SoC) -> PB_PREFILL_C=0       (silicon default kept -
 #                             milan_dp shrinks it to 2; we do NOT)
-G_AX8X8 = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0
+G_AX8X8 = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0 \
+          -GAAF_PLAYBACK_P=1
 
 # ---- cfg-sweep smoke shapes (case e) ---------------------------------------
 G_SMALL = -GN_STREAMS=1 -GMILAN_CLK_FREQ_HZ=50000000  -GAUDIO_IF_SLOTS_P=0
@@ -68,7 +73,8 @@ G_TDM8  = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=8
 #      -Werror-USERERROR above turns either $error into a build failure.
 #      98304000 = 2 x (32 slots x 32 bclk x 48000 fs) = 2 x 49.152 MHz.
 G_TDM32M = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=32 \
-           -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_CLK_HZ_P=98304000 -GTALKER_WIRE_CHANS_P=8
+           -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_CLK_HZ_P=98304000 -GTALKER_WIRE_CHANS_P=8 \
+           -GAAF_PLAYBACK_P=1
 
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
@@ -88,6 +94,7 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/ieee17221/ad
        $(P)/ptp_ts_core.sv $(P)/ptp_ts_top.sv $(P)/KL_ptp_clock_validity.sv \
        $(RTL_DIR)/ieee8021q/filtering/tcam.sv $(RTL_DIR)/ieee8021q/filtering/rx_mac_filter.sv \
        $(C)/tx_ifg_gasket.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_lpf.sv \
+       $(RTL_DIR)/ieee1722/aaf/KL_pcm_tx.sv \
        $(C)/KL_link_guard.sv \
        $(RTL_DIR)/ieee17221/adp/adp_advertiser.sv $(RTL_DIR)/ieee17221/adp/adp_tx_arbiter.sv \
        $(RTL_DIR)/ieee17221/aecp/aecp_pkg.sv \

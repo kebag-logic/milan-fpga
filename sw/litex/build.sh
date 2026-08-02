@@ -152,8 +152,17 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --num-streams 8 --audio-interface tdm32 --audio-interface-master \
           --talker-wire-chans 8 --no-latency-taps --no-i2s-playback \
+          --aaf-playback \
           --no-render-lpf --cbs-queues-mask 0x18 --synth-directive AreaOptimized_high \
           --opt-directive ExploreArea --place-directive AltSpreadLogic_high"
+                 # --aaf-playback (task #31, 2026-08-02) = KL_pcm_tx host
+                 # playback ring -> the chmap capture RING bucket: the ALSA
+                 # playback direction (snd-kl-milan pb-dma window; DT
+                 # kl,playback-streams). ONE ring served (the START-SMALL
+                 # --aaf-playback-streams default; full-N OOC'd 2216 LUT,
+                 # one-ring ~1/8th) - its 4 pairs reach any talker's wire
+                 # slots through the 64ch chmap. The render sample bank
+                 # behind it is unloaded on this padless board and sweeps.
                  # --no-render-lpf = the SPENT LPF_P area lever (2026-07-27,
                  # docs/NXN_ARCHITECTURE.md 6.2/6.3). 428 LUT / 756 FF / 0 DSP
                  # from the shipping 8x8 place report - the only Vivado-PROVEN

@@ -111,6 +111,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! front-end while pb_enable_i is set. 0 (default) prunes the whole block so
   //! the datapath is byte-identical to the pre-item-7 shape.
   parameter int AAF_PLAYBACK_P = 0,
+  //! task #31 START-SMALL lever: how many host playback RINGS KL_pcm_tx
+  //! serves (1..N_STREAMS). The full-N shape measured 2216 LUT / 2389 FF
+  //! OOC at 8x8x8 - unpayable at WNS +0.014 - while the USER target (host
+  //! audio into chosen channels of ONE talker) needs exactly one ring: the
+  //! 64ch chmap places its CHANS/2 ring pairs onto ANY talker's slots, so
+  //! one ring already reaches every wire channel. Ports stay N_STREAMS-
+  //! sized (ABI stable); rings past this count read zero and their
+  //! stream_en bits are ignored. Only meaningful with AAF_PLAYBACK_P != 0.
+  parameter int AAF_PB_STREAMS_P = 1,
   //! BANKED AREA LEVER (NXN_ARCHITECTURE section 6.2): 1 (default) keeps the
   //! render-tap Butterworth LPF; 0 prunes KL_pcm_lpf and ties its outputs to
   //! the exact nets the runtime bypass (LPF_CTRL[0] = 0) already produces, so
@@ -707,11 +716,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! chmap follow-up 2: the RAW KL_pcm_tx pair bus exposed as the capture
   //! mux's RING source (per-map-entry src selection, independent of the
   //! wholesale pb_enable replacement below). Zero when playback is pruned.
+  //! (slot buses are the widened 5-bit pair-slot space: the 8x8x8 ship shape
+  //! is 32 pair slots and a 4-bit bus aliased streams 4-7 onto 0-3)
   wire        ring_src_pv_w;
-  wire [3:0]  ring_src_slot_w;
+  wire [4:0]  ring_src_slot_w;
   wire [23:0] ring_src_l_w, ring_src_r_w;
   wire        cappb_pv_w;
-  wire [3:0]  cappb_slot_w;
+  wire [4:0]  cappb_slot_w;
   wire [23:0] cappb_l_w, cappb_r_w;
 
   //! internal sample-tick divider (local media-clock MVP, like aaf_talker_i2s:
@@ -721,11 +732,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                    ? 2 : MILAN_CLK_FREQ_HZ / 48000;
 
   generate if (AAF_PLAYBACK_P != 0) begin : g_aaf_playback
+    //! START-SMALL ring count (see the parameter): the engine serves
+    //! PB_T_C rings; the boundary ports stay N_STREAMS-sized and the
+    //! unserved tail reads/drives constant zero.
+    localparam int PB_T_C = (AAF_PB_STREAMS_P < 1) ? 1
+                          : (AAF_PB_STREAMS_P > N_STREAMS) ? N_STREAMS
+                          : AAF_PB_STREAMS_P;
     wire        pb_pv_w;
-    wire [3:0]  pb_slot_w;
+    wire [4:0]  pb_slot_w;
     wire [23:0] pb_l_w, pb_r_w;
+    wire [PB_T_C*32-1:0] pb_rd_ptr_w;
+    wire [PB_T_C*16-1:0] pb_under_w, pb_over_w;
     KL_pcm_tx #(
-      .N_STREAMS_P   (N_STREAMS),
+      .N_STREAMS_P   (PB_T_C),
       //! the ring de-interleaver produces exactly the width the framer emits
       //! (item-00 constant; was a literal 2 - one of the two places the
       //! stereo truth was hiding)
@@ -734,34 +753,39 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .USE_EXT_TICK_P(1'b0)
     ) pcm_tx (
       .clk_i (axis_clk), .rst_n (axis_resetn),
-      .enable_i (pb_enable_i), .stream_en_i (pb_stream_en_i),
+      .enable_i (pb_enable_i), .stream_en_i (pb_stream_en_i[PB_T_C-1:0]),
       .underrun_silence_i (pb_underrun_silence_i),
       .ring_base_i (pb_ring_base_i), .ring_len_i (pb_ring_len_i),
-      .ring_stride_i (pb_ring_stride_i), .wr_ptr_i (pb_wr_ptr_i),
+      .ring_stride_i (pb_ring_stride_i),
+      .wr_ptr_i (pb_wr_ptr_i[PB_T_C*32-1:0]),
       .smp_tick_i (1'b0),
       .mem_addr_o (pb_mem_addr_o), .mem_rd_o (pb_mem_rd_o),
       .mem_data_i (pb_mem_data_i), .mem_valid_i (pb_mem_valid_i),
       .pair_valid_o (pb_pv_w), .pair_slot_o (pb_slot_w),
       .pair_l_o (pb_l_w), .pair_r_o (pb_r_w),
-      .rd_ptr_o (pb_rd_ptr_o), .underrun_o (pb_underrun_o),
-      .overrun_o (pb_overrun_o), .smp_tick_o (), .playing_o (pb_playing_o)
+      .rd_ptr_o (pb_rd_ptr_w), .underrun_o (pb_under_w),
+      .overrun_o (pb_over_w), .smp_tick_o (), .playing_o (pb_playing_o)
     );
+    //! pad the served slice up to the N_STREAMS-sized boundary ports
+    assign pb_rd_ptr_o   = {{(N_STREAMS-PB_T_C)*32{1'b0}}, pb_rd_ptr_w};
+    assign pb_underrun_o = {{(N_STREAMS-PB_T_C)*16{1'b0}}, pb_under_w};
+    assign pb_overrun_o  = {{(N_STREAMS-PB_T_C)*16{1'b0}}, pb_over_w};
     assign ring_src_pv_w   = pb_pv_w;
     assign ring_src_slot_w = pb_slot_w;
     assign ring_src_l_w    = pb_l_w;
     assign ring_src_r_w    = pb_r_w;
     //! playback overrides the capture front-end at the packetizer's pair port
     assign cappb_pv_w   = pb_enable_i ? pb_pv_w   : aafcap_pv_w;
-    assign cappb_slot_w = pb_enable_i ? pb_slot_w : aafcap_slot_w;
+    assign cappb_slot_w = pb_enable_i ? pb_slot_w : {1'b0, aafcap_slot_w};
     assign cappb_l_w    = pb_enable_i ? pb_l_w    : aafcap_l_w;
     assign cappb_r_w    = pb_enable_i ? pb_r_w    : aafcap_r_w;
   end else begin : g_no_playback
     assign ring_src_pv_w   = 1'b0;
-    assign ring_src_slot_w = 4'd0;
+    assign ring_src_slot_w = 5'd0;
     assign ring_src_l_w    = 24'd0;
     assign ring_src_r_w    = 24'd0;
     assign cappb_pv_w   = aafcap_pv_w;
-    assign cappb_slot_w = aafcap_slot_w;
+    assign cappb_slot_w = {1'b0, aafcap_slot_w};
     assign cappb_l_w    = aafcap_l_w;
     assign cappb_r_w    = aafcap_r_w;
     assign pb_mem_addr_o = 32'd0;
@@ -876,7 +900,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [23:0] zf_l_w, zf_r_w;
   KL_pair_zero_fill #(.TOTAL_P (ZF_TOTAL_C), .SLOT_W_P (5)) pair_zero_fill (
     .clk_i (axis_clk), .rst_n (axis_resetn), .tick_i (zf_tick_w),
-    .pair_valid_i (cappb_pv_w), .pair_slot_i ({1'b0, cappb_slot_w}),
+    .pair_valid_i (cappb_pv_w), .pair_slot_i (cappb_slot_w),
     .pair_l_i (cappb_l_w), .pair_r_i (cappb_r_w),
     .pair_valid_o (zf_pv_w), .pair_slot_o (zf_slot_w),
     .pair_l_o (zf_l_w), .pair_r_o (zf_r_w),
@@ -3875,9 +3899,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .N_STREAMS_P  (N_STREAMS),
     .N_CH_P       (8),
     .N_PHYS_P     (CHMAP_PHYS_C),
-    //! item-7: one playback pair slot per talker stream (KL_pcm_tx is
-    //! elaborated CHANS_P=2, so slot == stream index)
-    .N_PB_SLOTS_P (N_STREAMS)
+    //! item-7 + item-00: KL_pcm_tx is elaborated CHANS_P=TALKER_WIRE_CHANS_P,
+    //! so the playback pair-slot space is streams x chans/2 (was N_STREAMS
+    //! from the stereo era - at 8x8x8 that refused ring pairs past slot 7)
+    .N_PB_SLOTS_P (N_STREAMS * (TALKER_WIRE_CHANS_P / 2))
   ) chan_map_render (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! clone tap: accepted-beat strobe (tvalid && tready); never backpressures

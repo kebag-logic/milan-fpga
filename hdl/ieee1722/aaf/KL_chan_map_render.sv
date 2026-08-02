@@ -119,7 +119,8 @@ module KL_chan_map_render #(
 
   //! --- host playback pair bus (KL_pcm_tx; src = 1 map entries) -----------
   input  wire                        pb_valid_i,    //! one pulse per L/R pair
-  input  wire [3:0]                  pb_slot_i,     //! pair slot t*(C/2)+chpair
+  input  wire [4:0]                  pb_slot_i,     //! pair slot t*(C/2)+chpair
+                                                    //! (widened 5-bit space)
   input  wire [23:0]                 pb_l_i,        //! left  sample (top 24)
   input  wire [23:0]                 pb_r_i,        //! right sample
 

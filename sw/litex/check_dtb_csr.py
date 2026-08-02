@@ -127,6 +127,20 @@ def main():
     if pcm and "milan_dma_pcm_base" in regs and pcm[0] != regs["milan_dma_pcm_base"]:
         bad.append("kl,milan-pcm reg[0] 0x%x != milan_dma_pcm_base 0x%x"
                    % (pcm[0], regs["milan_dma_pcm_base"]))
+    # task #31 playback window: kl,milan-pcm reg[2] must BE the pb CSR block
+    # (first register = milan_dma_pb_cap). Checked whenever both sides carry
+    # it; a DT with a pb-dma window against a gateware without the block (or
+    # vice versa) is the same stale-dtb corruption class as the kl-eth case.
+    if pcm and len(pcm) >= 6 and "milan_dma_pb_cap" not in regs:
+        bad.append("kl,milan-pcm declares a pb-dma window but csr.csv has no "
+                   "milan_dma_pb_cap (gateware built without --aaf-playback?)")
+    if pcm and len(pcm) >= 6 and "milan_dma_pb_cap" in regs \
+       and pcm[4] != regs["milan_dma_pb_cap"]:
+        bad.append("kl,milan-pcm reg[2] 0x%x != milan_dma_pb_cap 0x%x"
+                   % (pcm[4], regs["milan_dma_pb_cap"]))
+    if pcm and len(pcm) < 6 and "milan_dma_pb_cap" in regs:
+        bad.append("gateware has the playback CSR block (milan_dma_pb_cap) "
+                   "but kl,milan-pcm has no pb-dma reg window")
 
     if bad:
         print("check_dtb_csr: STALE device tree vs %s:" % sys.argv[2])

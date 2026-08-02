@@ -282,7 +282,50 @@ int main(int argc, char **argv) {
     ck_true("phase5 disabled stream1 emits nothing", s1 == 0);
     ck_true("phase5 enabled  stream0 still emits",   s0 == PAIRS);
     ck_true("phase5 cadence = only enabled slots",   (int)caps.size() == PAIRS);
-    dut->stream_en_i = 0x3;
+  }
+
+  // ====================================================================
+  //  Phase 6 - per-stream CLEAN RESTART (header contract): a stream_en
+  //  rising edge zeroes THAT stream's rd_ptr/rd_off/counters/holds and
+  //  leaves every other stream untouched - the ALSA session boundary.
+  // ====================================================================
+  {
+    // stream 1 is disabled since phase 5 and its rd/under/over carry
+    // non-zero history from phases 3/4; stream 0 is mid-play. Restart 1.
+    auto_feed = false;
+    ck_true("phase6 precondition: s1 rd_ptr nonzero", rd_of(1) != 0);
+    // host resets its side FIRST (the driver zeroes wr before arming)
+    committed[1] = 0; wrv[1] = 0; push_wr();
+    // park mid-period (walk drained) so the edge checks cannot cross a
+    // tick and pick up a legitimate fresh underrun
+    { int g = 0; while (!dut->smp_tick_o && g++ < 4 * SAMPLE_DIV) tick(); }
+    run(SAMPLE_DIV / 2);
+    uint32_t rd0_before = rd_of(0);
+    dut->stream_en_i = 0x3;               // rising edge on stream 1
+    run(4);
+    ck("phase6 s1 rd_ptr cleared on the edge",   rd_of(1), 0);
+    ck("phase6 s1 underruns cleared on the edge", under_of(1), 0);
+    ck("phase6 s1 overruns cleared on the edge",  over_of(1), 0);
+    ck("phase6 s0 rd_ptr untouched by s1's edge", rd_of(0), rd0_before);
+    // repeat policy + empty ring: the substitute must be ZERO (hold pairs
+    // cleared), never a stale sample from the previous session
+    dut->underrun_silence_i = 0;
+    // keep stream 0 fed by hand so only stream 1 underruns
+    feed_to(0, rd_of(0) / 8 + LEAD);
+    one_sample();
+    bool hold_clean = true; int s1p = 0;
+    for (auto &p : caps) if (p.slot / PAIRS == 1) { s1p++; if (p.l || p.r) hold_clean = false; }
+    ck_true("phase6 restart hold = digital zero (repeat policy)",
+            hold_clean && s1p == PAIRS);
+    // fresh feed from word 0: the very first fetched samples must be the
+    // word-0 model values => rd_off restarted at the sub-ring base
+    feed_to(1, LEAD); push_wr();
+    auto_feed = true;
+    one_sample();
+    bool fresh_ok = false;
+    for (auto &p : caps) if (p.slot == 1 * PAIRS)   // s1 pair 0
+      fresh_ok = (p.l == modelL(1, 0) && p.r == modelR(1, 0));
+    ck_true("phase6 restart reads from sub-ring offset 0", fresh_ok);
   }
 
   printf("\n%d checks: %d PASS, %d FAIL\n", pass + fail, pass, fail);
