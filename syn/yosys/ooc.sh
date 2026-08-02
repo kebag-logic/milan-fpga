@@ -32,7 +32,7 @@ DP_SRCS="$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fif
 # The area-relevant tops: the four zero-BRAM LUT hogs of the placer-overflow
 # report, their parents, and the crf_rx precedent for calibration.
 tops=(
-  "KL_aecp_response_builder|$C/ethernet_packet_pkg.sv $D/adp_pkg.sv $K/aecp_pkg.sv $K/KL_aecp_aem_store.sv $K/KL_aecp_aem_dyn_mux.sv $K/KL_aecp_response_builder.sv"
+  "KL_aecp_response_builder|$C/ethernet_packet_pkg.sv $D/adp_pkg.sv $K/aecp_pkg.sv $K/KL_aecp_accessor.sv $K/KL_aecp_aem_store.sv $K/KL_aecp_aem_dyn_mux.sv $K/KL_aecp_response_builder.sv"
   "KL_lwsrp_walker|$S/lwsrp_pkg.sv $S/KL_lwsrp_walker.sv"
   "KL_acmp_lstn_ctx|$M/acmp_pkg.sv $M/KL_acmp_lstn_ctx.sv"
   "KL_acmp_tlkr_ctx|$M/acmp_pkg.sv $M/KL_acmp_tlkr_ctx.sv"
