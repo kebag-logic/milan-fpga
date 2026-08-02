@@ -1731,6 +1731,43 @@ int main(int argc, char** argv) {
         r = collect_resp();
         ck("[22f] START(output) NOT_SUPPORTED", r_status(r), 11);
 
+        // (f3) Milan 5.4.2.19/20: EACH Stream Input owns its started level.
+        //      On this 1-sink shape input 1 is the CRF sink: STOP(in1) must
+        //      latch ITS OWN bit (the old single-bit level ignored every
+        //      index but 0 - STOP answered SUCCESS and changed nothing),
+        //      and in0's view must not move with it. Index 2 is outside the
+        //      shape (n_aaf_sinks=1 + CRF at 1) -> NOT_SUPPORTED.
+        {
+            dut->lstn1_bound_i = 1;
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35,
+                             0x2230, si_pl(0x0005, 1)));
+            r = collect_resp();
+            ck("[22f3] STOP(in1) SUCCESS", r_status(r), 0);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15,
+                             0x2231, si_pl(0x0005, 1)));
+            r = collect_resp();
+            ck("[22f3] in1 STREAMING_WAIT set", (be32_at(r, 42) >> 3) & 1, 1);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15,
+                             0x2232, si_pl(0x0005, 0)));
+            r = collect_resp();
+            ck("[22f3] in0 untouched by in1's stop",
+               (be32_at(r, 42) >> 3) & 1, 0);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34,
+                             0x2233, si_pl(0x0005, 1)));
+            r = collect_resp();
+            ck("[22f3] START(in1) SUCCESS", r_status(r), 0);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15,
+                             0x2234, si_pl(0x0005, 1)));
+            r = collect_resp();
+            ck("[22f3] in1 STREAMING_WAIT cleared",
+               (be32_at(r, 42) >> 3) & 1, 0);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35,
+                             0x2235, si_pl(0x0005, 2)));
+            r = collect_resp();
+            ck("[22f3] STOP(in2, off-shape) NOT_SUPPORTED", r_status(r), 11);
+            dut->lstn1_bound_i = 0;
+        }
+
         // (f2) adaptive listener: a 2-ch 48k variant is ACCEPTED (USER:
         //      the listener adapts to the talker); 9 ch is rejected
         {

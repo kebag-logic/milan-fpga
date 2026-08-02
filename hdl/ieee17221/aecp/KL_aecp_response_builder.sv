@@ -1548,7 +1548,9 @@ module KL_aecp_response_builder (
       fl = 32'hF200_0000;
       if (bnd) begin
         fl = fl | 32'h0400_0000;             // CONNECTED
-        if (!started_in_r) fl = fl | 32'h0000_0008;   // STREAMING_WAIT
+        //! per-input started level, keyed by the command's own index
+        if (!started_in_r[w_gs_index[3:0]])
+          fl = fl | 32'h0000_0008;           // STREAMING_WAIT
       end
       //! MSRP_FAILURE_VALID **with the real FailureInformation** (the
       //! Hive-visible "MSRP Failure" line: code + bridge_id from the
@@ -1685,8 +1687,13 @@ module KL_aecp_response_builder (
     end
   endtask
 
-  //! per-input "started" (START/STOP_STREAMING, Milan input-only commands)
-  logic started_in_r;
+  //! per-input "started" levels (START/STOP_STREAMING, Milan input-only
+  //! commands). Milan v1.2 5.4.2.19/20: "for EACH Stream Input, the PAAD-AE
+  //! shall implement" the pair - one bit per stream_input index (AAF sinks
+  //! 0..n_aaf_sinks_i-1 plus the CRF input at n_aaf_sinks_i). The former
+  //! single bit latched index 0 only and answered NOT_SUPPORTED above
+  //! index 1 (ax-rv32-e triage).
+  logic [15:0] started_in_r;
 
   // ------------------------------------------------------------------ //
   // Main FSM                                                             //
@@ -1755,7 +1762,7 @@ module KL_aecp_response_builder (
       evt_drop_o   <= 1'b0;
       for (int k = 0; k < int'(PRES_N_C); k++) pres_file_r[k] <= PRES_DFLT_C;
       identify_r   <= 1'b0;
-      started_in_r <= 1'b1;
+      started_in_r <= 16'hFFFF;   //! power-on: every input started
       sysuid_r     <= 32'd0;
       mcr_user_prio_r <= MCR_DEFAULT_PRIO_C;
       cnt_linkup_r <= 32'd0;
@@ -3009,12 +3016,20 @@ module KL_aecp_response_builder (
               // GET_STREAM_INFO; power-on started (no STREAMING_WAIT bind
               // plumbing yet — documented simplification).
               CMD_START_STREAMING, CMD_STOP_STREAMING: begin
-                if (w_gs_type == DESC_STREAM_INPUT && w_gs_index < 16'd2) begin
+                //! Milan 5.4.2.19/20: EACH Stream Input (AAF sinks plus the
+                //! CRF input at index n_aaf_sinks_i) SHALL implement the
+                //! pair; outputs answer NOT_SUPPORTED. The bound is derived
+                //! from the shape, never a literal - the old `< 16'd2`
+                //! matched the 1-sink TB shape by accident and refused
+                //! inputs 2..8 on the 8x8 build (ax-rv32-e triage).
+                if (w_gs_type == DESC_STREAM_INPUT
+                    && w_gs_index <= n_aaf_sinks_i) begin
                   status_q     <= l0_reject_q ? l0_status_q : STATUS_SUCCESS;
                   seg_kind_q[0] <= SEG_ECHO; seg_addr_q[0] <= 16'd2; seg_len_q[0] <= 16'd4;
                   cdl_q        <= 11'd16;
-                  if (!l0_reject_q && w_gs_index == 16'd0)
-                    started_in_r <= (hdr_q.command_type == CMD_START_STREAMING);
+                  if (!l0_reject_q)
+                    started_in_r[w_gs_index[3:0]] <=
+                        (hdr_q.command_type == CMD_START_STREAMING);
                 end else begin
                   status_q <= STATUS_NOT_SUPPORTED;
                 end
