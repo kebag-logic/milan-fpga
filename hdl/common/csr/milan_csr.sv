@@ -887,7 +887,20 @@ module milan_csr #(
   //! below). There is deliberately no register here - a register is what let
   //! the 8x8 board advertise 1 source / 2 sinks for weeks.
   logic [31:0] adp_ccaps;                //! ADP_CCAPS: controller_capabilities
-  logic [31:0] adp_gmlo, adp_gmhi;       //! ADP_GM: gptp_grandmaster_id
+  logic [31:0] adp_gmlo, adp_gmhi;       //! ADP_GM: gptp_grandmaster_id (COMMITTED pair)
+  //! GM pair atomic latch: the daemon publishes the 64-bit grandmaster id as
+  //! two 32-bit devmem writes (gptp2csr.sh, 0x624 LO then 0x628 HI).
+  //! Latching each half straight into the committed pair let every consumer
+  //! (ADPDU gptp_grandmaster_id, GET_AVB_INFO, the CLKV holdover arm and the
+  //! GPTP_GM_CHANGED edge detectors) sample a half-old/half-new identity
+  //! between the writes - an identity NO grandmaster ever had, and a second
+  //! counted "change" per real change. Milan v1.2 Table 5.1 defines
+  //! GPTP_GM_CHANGED as "Number of gPTP GM changes, since boot" - CSR write
+  //! phases are not GM changes. So a GMLO write only STAGES here and the
+  //! GMHI write commits both halves in ONE cycle; the deployed LO-then-HI
+  //! write order commits unmodified. Shadow-RAM readback is untouched
+  //! (readback = last written word, committed or staged).
+  logic [31:0] adp_gmlo_stg;
   logic [31:0] adp_domain;               //! ADP_DOMAIN: [7:0]=gptp_domain_number
   logic [31:0] adp_idx0;                 //! ADP_IDX0: {identify_control_index[31:16], current_config[15:0]}
   logic [31:0] adp_idx1;                 //! ADP_IDX1: [15:0]=interface_index
@@ -1146,7 +1159,8 @@ module milan_csr #(
       lwsrp_lat  <= LWSRP_LATENCY_RST_C;
       adp_eidlo <= 32'h0; adp_eidhi <= 32'h0; adp_midlo <= 32'h0; adp_midhi <= 32'h0;
       adp_ecaps <= 32'h0; adp_ccaps <= 32'h0;
-      adp_gmlo <= 32'h0; adp_gmhi <= 32'h0; adp_domain <= 32'h0;
+      adp_gmlo <= 32'h0; adp_gmhi <= 32'h0; adp_gmlo_stg <= 32'h0;
+      adp_domain <= 32'h0;
       adp_idx0 <= 32'h0; adp_idx1 <= 32'h0; adp_aslo <= 32'h0; adp_ashi <= 32'h0;
       tcam_ctrl <= 32'h1;   // default_pass = 1 (accept-all until software programs entries)
       tcam_klo <= 32'h0; tcam_khi <= 32'h0; tcam_mlo <= 32'h0; tcam_mhi <= 32'h0;
@@ -1303,8 +1317,13 @@ module milan_csr #(
           //! A_ADP_TALK / A_ADP_LIST: NO write arm. The shape is elaborated,
           //! not provisioned (VERSION 0x0015).
           A_ADP_CCAPS:  adp_ccaps <= s_axi_wdata;
-          A_ADP_GMLO:   adp_gmlo  <= s_axi_wdata;
-          A_ADP_GMHI:   adp_gmhi  <= s_axi_wdata;
+          //! GM pair atomic latch (see adp_gmlo_stg): LO stages, HI commits
+          //! both halves in one cycle so no consumer ever sees a torn id
+          A_ADP_GMLO:   adp_gmlo_stg <= s_axi_wdata;
+          A_ADP_GMHI:   begin
+            adp_gmlo <= adp_gmlo_stg;
+            adp_gmhi <= s_axi_wdata;
+          end
           A_ADP_DOMAIN: adp_domain<= s_axi_wdata;
           A_ADP_IDX0:   adp_idx0  <= s_axi_wdata;
           A_ADP_IDX1:   adp_idx1  <= s_axi_wdata;

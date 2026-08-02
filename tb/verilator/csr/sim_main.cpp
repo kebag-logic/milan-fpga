@@ -47,9 +47,21 @@ static bool seen_clkv_wr, seen_clkv_disc;
 static bool     seen_tcam_wr;
 static uint32_t tcam_wr_index, tcam_wr_valid, tcam_wr_action;
 static uint64_t tcam_wr_key, tcam_wr_mask;
+// GM torn-latch monitor: counts 64-bit value changes of o_adp_gptp_gm per
+// posedge while armed — every change IS a grandmaster change to the
+// GPTP_GM_CHANGED detectors / CLKV holdover / ADP re-advertise, so one
+// LO+HI write pair must produce exactly ONE change (Milan v1.2 Table 5.1:
+// "Number of gPTP GM changes, since boot")
+static bool     gm_mon_on;
+static uint64_t gm_mon_prev;
+static int      gm_mon_edges;
 
 static void posedge() {
   dut->aclk = 1; dut->eval();
+  if (gm_mon_on && dut->o_adp_gptp_gm != gm_mon_prev) {
+    gm_mon_edges++;
+    gm_mon_prev = dut->o_adp_gptp_gm;
+  }
   seen_ptp_load    |= dut->o_ptp_cmd_load;
   seen_ptp_adjust  |= dut->o_ptp_cmd_adjust;
   seen_ptp_snap    |= dut->o_ptp_cmd_snapshot;
@@ -404,6 +416,33 @@ int main(int argc, char** argv) {
   axi_write(A_ADP_GMHI, 0x00112233);
   dut->eval();
   ck("o_adp_gptp_gm", dut->o_adp_gptp_gm, 0x0011223344556677ULL);
+  // GM pair TORN-LATCH pin (2026-08-02): gptp2csr.sh publishes the id as
+  // two 32-bit devmem writes, 0x624 LO then 0x628 HI. A consumer sampling
+  // BETWEEN them must still see the full OLD identity — half-old/half-new
+  // is an identity no grandmaster ever had, and it counts as a spurious GM
+  // change. LO must STAGE, HI must commit both halves in one cycle.
+  // Mutation anchor: revert to per-half commit and the mid-pair sample
+  // reads 0x00112233EEEE5555 and the edge monitor counts 2, not 1.
+  gm_mon_prev  = dut->o_adp_gptp_gm;
+  gm_mon_edges = 0;
+  gm_mon_on    = true;
+  axi_write(A_ADP_GMLO, 0xEEEE5555);
+  for (int g = 0; g < 8; g++) posedge();           // dwell mid-pair
+  ck("GM LO staged: consumers still see the OLD pair",
+     dut->o_adp_gptp_gm, 0x0011223344556677ULL);
+  ck("GM LO readback = staged word (shadow)", axi_read(A_ADP_GMLO), 0xEEEE5555);
+  ck("GM still OLD after the readback", dut->o_adp_gptp_gm, 0x0011223344556677ULL);
+  axi_write(A_ADP_GMHI, 0x8899AABB);
+  dut->eval();
+  ck("GM HI commits both halves atomically",
+     dut->o_adp_gptp_gm, 0x8899AABBEEEE5555ULL);
+  gm_mon_on = false;
+  ck("exactly ONE 64-bit change across the LO+HI pair", gm_mon_edges, 1);
+  // restore the earlier identity for any later section (paired, of course)
+  axi_write(A_ADP_GMLO, 0x44556677);
+  axi_write(A_ADP_GMHI, 0x00112233);
+  dut->eval();
+  ck("GM restore committed", dut->o_adp_gptp_gm, 0x0011223344556677ULL);
   axi_write(A_ADP_DOMAIN, 0x00000005);
   dut->eval();
   ck("o_adp_gptp_domain", dut->o_adp_gptp_domain, 5);

@@ -778,7 +778,7 @@ int main(int argc, char** argv) {
             printf("[CLKV] clock validity -> AVTP tu on the wire (0x778)\n");
             enum { A_CLKV_CTRL = 0x778, A_CLKV_STAT = 0x77C,
                    A_CLKV_TUCNT = 0x780, A_PTP_CMD = 0x520,
-                   A_ADP_GMLO = 0x624 };
+                   A_ADP_GMLO = 0x624, A_ADP_GMHI = 0x628 };
 
             // grab the next AAF frame off the MAC TX port
             auto next_aaf = [&](std::vector<uint8_t>& out) -> bool {
@@ -837,14 +837,21 @@ int main(int argc, char** argv) {
             ck("CLKV: post-holdover frame emitted", next_aaf(f), 1);
             ck("CLKV: post-holdover byte 21 = 0", f.size() ? f[21] : 0xEE, 0x00);
 
-            // a grandmaster change (Milan v1.2 Annex B.1.1)
+            // a grandmaster change (Milan v1.2 Annex B.1.1). The GM id is an
+            // ATOMIC pair since 2026-08-02: a lone LO write only STAGES, the
+            // HI write commits both halves (gptp2csr.sh's LO-then-HI order)
+            // — so publish it the way the daemon does.
             axi_write(A_ADP_GMLO, 0xDEADBEEF);
+            ck("CLKV: staged LO alone is NOT a GM change (torn-latch fix)",
+               axi_read(A_CLKV_STAT) & 1, 0);
+            axi_write(A_ADP_GMHI, 0x00000000);       // commit the pair
             ck("CLKV: GM change -> tu asserts", axi_read(A_CLKV_STAT) & 1, 1);
             f.clear();
             ck("CLKV: GM change -> byte 21 bit 0 = 1 on the wire",
                next_aaf(f) ? f[21] : 0xEE, 0x01);
             for (int c = 0; c < 12000 && (axi_read(A_CLKV_STAT) & 1); c++) step();
-            axi_write(A_ADP_GMLO, 0x00000000);       // restore
+            axi_write(A_ADP_GMLO, 0x00000000);       // restore (paired)
+            axi_write(A_ADP_GMHI, 0x00000000);
             for (int c = 0; c < 12000 && (axi_read(A_CLKV_STAT) & 1); c++) step();
 
             // the lease EXPIRES: a claim written once and never renewed must
