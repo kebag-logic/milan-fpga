@@ -850,6 +850,145 @@ def spec_from_overlay(ovl):
     )
 
 # ------------------------------------------------------------- assembly ----
+def two_level_directory(directory):
+    """Level-1 (type-direct-indexed) view of the descriptor directory.
+
+    Derives, per descriptor type, {row of its first entry, entry count} and
+    ASSERTS the layout the RTL's direct-indexed lookup depends on: each
+    type's entries form ONE contiguous run of AEM_DIR_C rows, zero-based
+    and ascending in descriptor_index. build_model's append order gives
+    this structurally today; the assert turns a future interleave into a
+    loud generator refusal instead of a silent mis-serve by the accessor.
+
+    The table is zero-padded to a power of two (1 << AW rows) so the RTL
+    can index it with the type's low bits unclamped: an absent type reads
+    count 0 (miss) and a type at/above N is excluded by one range check.
+    """
+    runs = {}                       # type -> [first row, count]
+    prev_t = None
+    for row, (t, i, _b, _l) in enumerate(directory):
+        if t not in runs:
+            runs[t] = [row, 0]
+        elif prev_t != t:
+            raise ValueError(
+                f"descriptor type 0x{t:04X} rows are not contiguous in the "
+                f"directory (row {row} re-opens a run closed at row "
+                f"{runs[t][0] + runs[t][1]}) - the two-level accessor "
+                "needs one run per type; fix build_model's append order")
+        if i != runs[t][1]:
+            raise ValueError(
+                f"type 0x{t:04X} descriptor_index not zero-based ascending: "
+                f"row {row} carries index {i}, expected {runs[t][1]}")
+        runs[t][1] += 1
+        prev_t = t
+    max_t = max(runs)
+    if max_t >= 256:
+        raise ValueError(
+            f"descriptor type 0x{max_t:04X} would need a {max_t + 1}-row "
+            "direct-indexed level-1 table - add a sparse first level "
+            "before building models with types this high")
+    aw = max(1, (max_t).bit_length())
+    n = 1 << aw
+    return dict(AW=aw, N=n,
+                CNT=[runs.get(t, [0, 0])[1] for t in range(n)],
+                ROW=[runs.get(t, [0, 0])[0] for t in range(n)])
+
+
+def _two_level_resolve(l1, directory, t, i):
+    """The RTL accessor's answer, modelled bit-for-bit: (found, base, len)."""
+    if t >= l1["N"]:
+        return (0, 0, 0)
+    cnt, row = l1["CNT"][t], l1["ROW"][t]
+    if i >= cnt:
+        return (0, 0, 0)
+    _t, _i, b, l = directory[row + i]
+    return (1, b, l)
+
+
+def check_two_level(l1, directory):
+    """1:1 equivalence gate: the two-level resolve answers EXACTLY like the
+    linear scan it replaces, hits and misses alike, for every directory
+    entry plus a fence of miss probes (index past each run, absent types,
+    types past the table). Raises on the first divergence."""
+    def linear(t, i):
+        f = (0, 0, 0)
+        for (tt, ii, b, l) in directory:
+            if tt == t and ii == i:
+                f = (1, b, l)
+        return f
+
+    probes = set()
+    for (t, i, _b, _l) in directory:
+        probes |= {(t, i), (t, i + 1), (t, 0xFFFF)}
+    for t in range(l1["N"] + 4):
+        probes |= {(t, 0), (t, 1)}
+    probes.add((0xFFFF, 0))
+    for (t, i) in sorted(probes):
+        want = linear(t, i)
+        got = _two_level_resolve(l1, directory, t, i)
+        if got != want:
+            raise ValueError(
+                f"two-level directory diverges from the linear scan at "
+                f"type 0x{t:04X} index {i}: linear {want}, two-level {got}")
+
+
+def named_structure(l1, directory, named):
+    """Split the SET/GET_NAME table into the structural rule + exceptions.
+
+    Structural: a type whose EVERY directory entry is named, at name_index
+    0, with object_name at descriptor base + 4 - resolvable through the
+    two-level directory (mask hit -> AEM_DIR_C[row + index].base + 4).
+    Everything else (ENTITY's two names at 48/180) stays an explicit
+    emitted match line. Returns (mask, exceptions); raises if the split
+    does not reproduce the NAMED list 1:1, hits and misses alike."""
+    base = {(t, i): b for (t, i, b, _l) in directory}
+    per_type = {}
+    for (t, i, nidx, addr) in named:
+        per_type.setdefault(t, []).append((i, nidx, addr))
+    mask, exc = 0, []
+    for t, entries in sorted(per_type.items()):
+        structural = (
+            t < l1["N"]
+            and all(nidx == 0 and addr == base[(t, i)] + 4
+                    for (i, nidx, addr) in entries)
+            and sorted(i for (i, _n, _a) in entries)
+            == list(range(l1["CNT"][t])))
+        if structural:
+            mask |= 1 << t
+        else:
+            exc += [(t, i, nidx, addr) for (i, nidx, addr) in entries]
+    check_named(l1, directory, named, mask, exc)
+    return mask, exc
+
+
+def check_named(l1, directory, named, mask, exc):
+    """1:1 equivalence gate for the name split: mask + exceptions answer
+    EXACTLY like the flat NAMED table, hits and misses alike."""
+    def resolve(t, i, nidx):
+        for (et, ei, en, ea) in exc:
+            if (t, i, nidx) == (et, ei, en):
+                return (1, ea)
+        if (t < l1["N"] and nidx == 0 and (mask >> t) & 1
+                and i < l1["CNT"][t]):
+            return (1, directory[l1["ROW"][t] + i][2] + 4)
+        return (0, 0)
+
+    want = {(t, i, n): a for (t, i, n, a) in named}
+    probes = set(want)
+    for (t, i, n) in list(want):
+        probes |= {(t, i + 1, n), (t, i, n + 1), (t, 0xFFFF, n)}
+    for t in range(l1["N"] + 4):
+        probes.add((t, 0, 0))
+    for key in sorted(probes):
+        got = resolve(*key)
+        exp = (1, want[key]) if key in want else (0, 0)
+        if got != exp:
+            raise ValueError(
+                f"structural name lookup diverges from the NAMED table at "
+                f"type 0x{key[0]:04X} index {key[1]} name_index {key[2]}: "
+                f"table {exp}, structural {got}")
+
+
 def build_model(spec):
     """Assemble ROM + directory + overlay/write-back/name tables from a spec
     (builtin_spec() or spec_from_overlay()). Returns the model dict the
@@ -1171,8 +1310,17 @@ def build_model(spec):
     # descriptor index (defect A).
     smap = static_map_tables(spec, base_of, len(si), len(so))
 
+    # Two-level directory (accessor area lever): derive the level-1 table,
+    # prove it answers exactly like the linear scan, and split the NAMED
+    # table into structural-rule + exceptions. All three raise on a model
+    # whose layout the direct-indexed RTL could mis-serve.
+    l1 = two_level_directory(directory)
+    check_two_level(l1, directory)
+    name_mask, name_exc = named_structure(l1, directory, named)
+
     return dict(rom=rom, directory=directory, ROM_SIZE=len(rom),
                 OVERLAYS=overlays, WB=wb, NAMED=named,
+                L1=l1, NAME_MASK=name_mask, NAME_EXC=name_exc,
                 RATES=spec["rates"], FORMATS=fmts, CRF_FMTS=crf_fmts,
                 PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap)
 
@@ -1239,6 +1387,30 @@ def emit_svh_text(M):
         a(f"  64'h{t:04X}_{i:04X}_{b:04X}_{l:04X}{sep}")
     a("};")
     a("")
+    l1 = M["L1"]
+
+    def rows16(vals):
+        for k in range(0, len(vals), 8):
+            chunk = ", ".join(f"16'd{v}" for v in vals[k:k + 8])
+            yield "  " + chunk + ("," if k + 8 < len(vals) else "")
+    a("// Level 1 of the directory (type-direct-indexed): per-type runs in")
+    a("// AEM_DIR_C are CONTIGUOUS, ZERO-BASED and ASCENDING (generator-")
+    a("// asserted 1:1 against the linear scan - gen_aem_store.py")
+    a("// check_two_level), so (type, index) resolves by ROM indexing alone:")
+    a("//   hit = index < AEM_L1_CNT_C[type],")
+    a("//   {base, len} = AEM_DIR_C[AEM_L1_ROW_C[type] + index][31:0].")
+    a("// Zero-padded to 1 << AEM_L1_AW_C rows: an absent type reads count 0.")
+    a(f"localparam int unsigned AEM_L1_AW_C = {l1['AW']};")
+    a(f"localparam int unsigned AEM_L1_N_C  = {l1['N']};")
+    a(f"localparam [15:0] AEM_L1_CNT_C [0:{l1['N'] - 1}] = '{{")
+    for line in rows16(l1["CNT"]):
+        a(line)
+    a("};")
+    a(f"localparam [15:0] AEM_L1_ROW_C [0:{l1['N'] - 1}] = '{{")
+    for line in rows16(l1["ROW"]):
+        a(line)
+    a("};")
+    a("")
     a("// ROM image (network byte order, addr 0 = first byte of ENTITY)")
     a(f"localparam [7:0] AEM_ROM_INIT_C [0:{rom_size-1}] = '{{")
     row = []
@@ -1272,14 +1444,33 @@ def emit_svh_text(M):
         a(f"localparam [15:0] WB_{k}_C = 16'd{v};")
     a("")
     a("// SET/GET_NAME lookup: (type, index, name_index) -> {valid, rom addr}")
+    a("// Structural rule (generator-asserted 1:1 against the NAMED table -")
+    a("// gen_aem_store.py named_structure): a masked type's object_name sits")
+    a("// at descriptor base + 4, name_index 0, for every index of its run;")
+    a("// resolution reuses the two-level directory instead of a scan. The")
+    a("// exceptions (ENTITY's entity_name/group_name) are matched explicitly.")
+    l1_aw, dir_aw = M["L1"]["AW"], max(1, (len(directory_) - 1).bit_length())
+    a(f"localparam [{M['L1']['N'] - 1}:0] AEM_NAMED_MASK_C = "
+      f"{M['L1']['N']}'h{M['NAME_MASK']:X};")
     a("function automatic [16:0] aem_name_lookup(input [15:0] t,")
     a("                                          input [15:0] idx,")
     a("                                          input [15:0] nidx);")
+    a("  reg [15:0] row_v;")
+    a("  reg [63:0] rec_v;")
     a("  begin")
     a("    aem_name_lookup = 17'd0;")
-    for t, i, nidx, addr in M["NAMED"]:
+    a("    row_v = 16'd0;")
+    a("    rec_v = 64'd0;")
+    for t, i, nidx, addr in M["NAME_EXC"]:
         a(f"    if (t == 16'h{t:04X} && idx == 16'd{i} && nidx == 16'd{nidx})")
         a(f"      aem_name_lookup = {{1'b1, 16'd{addr}}};")
+    a("    if (t < 16'(AEM_L1_N_C) && nidx == 16'd0 &&")
+    a(f"        AEM_NAMED_MASK_C[t[{l1_aw - 1}:0]] &&")
+    a(f"        idx < AEM_L1_CNT_C[t[{l1_aw - 1}:0]]) begin")
+    a(f"      row_v = AEM_L1_ROW_C[t[{l1_aw - 1}:0]] + idx;")
+    a(f"      rec_v = AEM_DIR_C[row_v[{dir_aw - 1}:0]];")
+    a("      aem_name_lookup = {1'b1, rec_v[31:16] + 16'd4};")
+    a("    end")
     a("  end")
     a("endfunction")
     a("")
@@ -1544,6 +1735,56 @@ def self_test():
     except ValueError:
         print("  [ok  ] with an empty allowlist the deviation FAILS "
               "(the list is load-bearing)")
+
+    # Two-level directory gate: every vector is a layout the direct-indexed
+    # accessor would silently mis-serve, so each MUST be a refusal (a check
+    # that cannot fail is not a check).
+    print("\n=== two-level directory gate self-test ===")
+
+    def dir_refuses(name, tamper):
+        d = list(build_model(builtin_spec())["directory"])
+        tamper(d)
+        try:
+            l1t = two_level_directory(d)
+            check_two_level(l1t, d)
+        except ValueError as e:
+            print(f"  [ok  ] {name}\n         -> {str(e)[:150]}")
+            return
+        ok[0] = False
+        print(f"  [FAIL] {name}: accepted without complaint")
+
+    def swap(d, x, y):
+        d[x], d[y] = d[y], d[x]
+    # row 0 is ENTITY, rows 3/4 the STREAM_INPUT run: parking SI[0] at row 0
+    # splits that run around the descriptors between them
+    dir_refuses("a shuffled directory entry (contiguity)",
+                lambda d: swap(d, 0, 3))
+    # STREAM_INPUT[0]/[1] swapped: contiguous but not ascending
+    dir_refuses("same-type entries out of index order",
+                lambda d: swap(d, 3, 4))
+    # ...and the equivalence check itself bites on a corrupt level-1 row
+    # base even when the directory is pristine (the "shuffle one entry"
+    # bite at the TABLE tier)
+    Mtl = build_model(builtin_spec())
+    l1b = dict(Mtl["L1"], ROW=list(Mtl["L1"]["ROW"]))
+    l1b["ROW"][STREAM_INPUT] += 1
+    try:
+        check_two_level(l1b, Mtl["directory"])
+        ok[0] = False
+        print("  [FAIL] an off-by-one level-1 row base was accepted")
+    except ValueError as e:
+        print(f"  [ok  ] an off-by-one level-1 row base is refused\n"
+              f"         -> {str(e)[:150]}")
+    # name split: a mask bit on an unnamed type claims names that do not
+    # exist - the 1:1 gate must catch it
+    try:
+        check_named(Mtl["L1"], Mtl["directory"], Mtl["NAMED"],
+                    Mtl["NAME_MASK"] | (1 << STRINGS), Mtl["NAME_EXC"])
+        ok[0] = False
+        print("  [FAIL] a mask bit on the unnamed STRINGS type was accepted")
+    except ValueError as e:
+        print(f"  [ok  ] a mask bit on an unnamed type is refused\n"
+              f"         -> {str(e)[:150]}")
 
     print("\ngen_aem_store self-test:", "PASS" if ok[0] else "FAIL")
     return 0 if ok[0] else 1

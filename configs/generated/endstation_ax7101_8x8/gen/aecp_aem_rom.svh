@@ -265,6 +265,36 @@ localparam [63:0] AEM_DIR_C [0:251] = '{
   64'h0014_00C7_57CA_0057
 };
 
+// Level 1 of the directory (type-direct-indexed): per-type runs in
+// AEM_DIR_C are CONTIGUOUS, ZERO-BASED and ASCENDING (generator-
+// asserted 1:1 against the linear scan - gen_aem_store.py
+// check_two_level), so (type, index) resolves by ROM indexing alone:
+//   hit = index < AEM_L1_CNT_C[type],
+//   {base, len} = AEM_DIR_C[AEM_L1_ROW_C[type] + index][31:0].
+// Zero-padded to 1 << AEM_L1_AW_C rows: an absent type reads count 0.
+localparam int unsigned AEM_L1_AW_C = 6;
+localparam int unsigned AEM_L1_N_C  = 64;
+localparam [15:0] AEM_L1_CNT_C [0:63] = '{
+  16'd1, 16'd1, 16'd1, 16'd0, 16'd0, 16'd9, 16'd9, 16'd0,
+  16'd0, 16'd1, 16'd10, 16'd0, 16'd1, 16'd1, 16'd8, 16'd8,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd200, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd1, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd1, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0
+};
+localparam [15:0] AEM_L1_ROW_C [0:63] = '{
+  16'd0, 16'd1, 16'd2, 16'd0, 16'd0, 16'd3, 16'd12, 16'd0,
+  16'd0, 16'd21, 16'd22, 16'd0, 16'd34, 16'd35, 16'd36, 16'd44,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd52, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd33, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd32, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0
+};
+
 // ROM image (network byte order, addr 0 = first byte of ENTITY)
 localparam [7:0] AEM_ROM_INIT_C [0:22560] = '{
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
@@ -1748,481 +1778,32 @@ localparam [15:0] WB_CLOCK_SRC_IDX_C = 16'd4178;
 localparam [15:0] WB_CONTROL_CUR_C = 16'd4312;
 
 // SET/GET_NAME lookup: (type, index, name_index) -> {valid, rom addr}
+// Structural rule (generator-asserted 1:1 against the NAMED table -
+// gen_aem_store.py named_structure): a masked type's object_name sits
+// at descriptor base + 4, name_index 0, for every index of its run;
+// resolution reuses the two-level directory instead of a scan. The
+// exceptions (ENTITY's entity_name/group_name) are matched explicitly.
+localparam [63:0] AEM_NAMED_MASK_C = 64'h1004100666;
 function automatic [16:0] aem_name_lookup(input [15:0] t,
                                           input [15:0] idx,
                                           input [15:0] nidx);
+  reg [15:0] row_v;
+  reg [63:0] rec_v;
   begin
     aem_name_lookup = 17'd0;
+    row_v = 16'd0;
+    rec_v = 64'd0;
     if (t == 16'h0000 && idx == 16'd0 && nidx == 16'd0)
       aem_name_lookup = {1'b1, 16'd48};
     if (t == 16'h0000 && idx == 16'd0 && nidx == 16'd1)
       aem_name_lookup = {1'b1, 16'd180};
-    if (t == 16'h0001 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd316};
-    if (t == 16'h0002 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd422};
-    if (t == 16'h0005 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd570};
-    if (t == 16'h0005 && idx == 16'd1 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd718};
-    if (t == 16'h0005 && idx == 16'd2 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd866};
-    if (t == 16'h0005 && idx == 16'd3 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1014};
-    if (t == 16'h0005 && idx == 16'd4 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1162};
-    if (t == 16'h0005 && idx == 16'd5 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1310};
-    if (t == 16'h0005 && idx == 16'd6 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1458};
-    if (t == 16'h0005 && idx == 16'd7 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1606};
-    if (t == 16'h0005 && idx == 16'd8 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1754};
-    if (t == 16'h0006 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1894};
-    if (t == 16'h0006 && idx == 16'd1 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2034};
-    if (t == 16'h0006 && idx == 16'd2 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2174};
-    if (t == 16'h0006 && idx == 16'd3 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2314};
-    if (t == 16'h0006 && idx == 16'd4 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2454};
-    if (t == 16'h0006 && idx == 16'd5 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2594};
-    if (t == 16'h0006 && idx == 16'd6 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2734};
-    if (t == 16'h0006 && idx == 16'd7 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2874};
-    if (t == 16'h0006 && idx == 16'd8 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3014};
-    if (t == 16'h0009 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3154};
-    if (t == 16'h000A && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3252};
-    if (t == 16'h000A && idx == 16'd1 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3338};
-    if (t == 16'h000A && idx == 16'd2 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3424};
-    if (t == 16'h000A && idx == 16'd3 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3510};
-    if (t == 16'h000A && idx == 16'd4 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3596};
-    if (t == 16'h000A && idx == 16'd5 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3682};
-    if (t == 16'h000A && idx == 16'd6 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3768};
-    if (t == 16'h000A && idx == 16'd7 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3854};
-    if (t == 16'h000A && idx == 16'd8 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3940};
-    if (t == 16'h000A && idx == 16'd9 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4026};
-    if (t == 16'h0024 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4112};
-    if (t == 16'h001A && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4208};
-    if (t == 16'h0014 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5165};
-    if (t == 16'h0014 && idx == 16'd1 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5252};
-    if (t == 16'h0014 && idx == 16'd2 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5339};
-    if (t == 16'h0014 && idx == 16'd3 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5426};
-    if (t == 16'h0014 && idx == 16'd4 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5513};
-    if (t == 16'h0014 && idx == 16'd5 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5600};
-    if (t == 16'h0014 && idx == 16'd6 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5687};
-    if (t == 16'h0014 && idx == 16'd7 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5774};
-    if (t == 16'h0014 && idx == 16'd8 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5861};
-    if (t == 16'h0014 && idx == 16'd9 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5948};
-    if (t == 16'h0014 && idx == 16'd10 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6035};
-    if (t == 16'h0014 && idx == 16'd11 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6122};
-    if (t == 16'h0014 && idx == 16'd12 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6209};
-    if (t == 16'h0014 && idx == 16'd13 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6296};
-    if (t == 16'h0014 && idx == 16'd14 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6383};
-    if (t == 16'h0014 && idx == 16'd15 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6470};
-    if (t == 16'h0014 && idx == 16'd16 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6557};
-    if (t == 16'h0014 && idx == 16'd17 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6644};
-    if (t == 16'h0014 && idx == 16'd18 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6731};
-    if (t == 16'h0014 && idx == 16'd19 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6818};
-    if (t == 16'h0014 && idx == 16'd20 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6905};
-    if (t == 16'h0014 && idx == 16'd21 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6992};
-    if (t == 16'h0014 && idx == 16'd22 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd7079};
-    if (t == 16'h0014 && idx == 16'd23 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd7166};
-    if (t == 16'h0014 && idx == 16'd24 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd7253};
-    if (t == 16'h0014 && idx == 16'd25 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd7340};
-    if (t == 16'h0014 && idx == 16'd26 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd7427};
-    if (t == 16'h0014 && idx == 16'd27 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd7514};
-    if (t == 16'h0014 && idx == 16'd28 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd7601};
-    if (t == 16'h0014 && idx == 16'd29 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd7688};
-    if (t == 16'h0014 && idx == 16'd30 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd7775};
-    if (t == 16'h0014 && idx == 16'd31 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd7862};
-    if (t == 16'h0014 && idx == 16'd32 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd7949};
-    if (t == 16'h0014 && idx == 16'd33 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd8036};
-    if (t == 16'h0014 && idx == 16'd34 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd8123};
-    if (t == 16'h0014 && idx == 16'd35 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd8210};
-    if (t == 16'h0014 && idx == 16'd36 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd8297};
-    if (t == 16'h0014 && idx == 16'd37 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd8384};
-    if (t == 16'h0014 && idx == 16'd38 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd8471};
-    if (t == 16'h0014 && idx == 16'd39 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd8558};
-    if (t == 16'h0014 && idx == 16'd40 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd8645};
-    if (t == 16'h0014 && idx == 16'd41 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd8732};
-    if (t == 16'h0014 && idx == 16'd42 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd8819};
-    if (t == 16'h0014 && idx == 16'd43 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd8906};
-    if (t == 16'h0014 && idx == 16'd44 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd8993};
-    if (t == 16'h0014 && idx == 16'd45 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd9080};
-    if (t == 16'h0014 && idx == 16'd46 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd9167};
-    if (t == 16'h0014 && idx == 16'd47 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd9254};
-    if (t == 16'h0014 && idx == 16'd48 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd9341};
-    if (t == 16'h0014 && idx == 16'd49 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd9428};
-    if (t == 16'h0014 && idx == 16'd50 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd9515};
-    if (t == 16'h0014 && idx == 16'd51 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd9602};
-    if (t == 16'h0014 && idx == 16'd52 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd9689};
-    if (t == 16'h0014 && idx == 16'd53 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd9776};
-    if (t == 16'h0014 && idx == 16'd54 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd9863};
-    if (t == 16'h0014 && idx == 16'd55 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd9950};
-    if (t == 16'h0014 && idx == 16'd56 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd10037};
-    if (t == 16'h0014 && idx == 16'd57 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd10124};
-    if (t == 16'h0014 && idx == 16'd58 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd10211};
-    if (t == 16'h0014 && idx == 16'd59 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd10298};
-    if (t == 16'h0014 && idx == 16'd60 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd10385};
-    if (t == 16'h0014 && idx == 16'd61 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd10472};
-    if (t == 16'h0014 && idx == 16'd62 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd10559};
-    if (t == 16'h0014 && idx == 16'd63 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd10646};
-    if (t == 16'h0014 && idx == 16'd64 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd10733};
-    if (t == 16'h0014 && idx == 16'd65 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd10820};
-    if (t == 16'h0014 && idx == 16'd66 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd10907};
-    if (t == 16'h0014 && idx == 16'd67 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd10994};
-    if (t == 16'h0014 && idx == 16'd68 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd11081};
-    if (t == 16'h0014 && idx == 16'd69 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd11168};
-    if (t == 16'h0014 && idx == 16'd70 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd11255};
-    if (t == 16'h0014 && idx == 16'd71 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd11342};
-    if (t == 16'h0014 && idx == 16'd72 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd11429};
-    if (t == 16'h0014 && idx == 16'd73 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd11516};
-    if (t == 16'h0014 && idx == 16'd74 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd11603};
-    if (t == 16'h0014 && idx == 16'd75 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd11690};
-    if (t == 16'h0014 && idx == 16'd76 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd11777};
-    if (t == 16'h0014 && idx == 16'd77 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd11864};
-    if (t == 16'h0014 && idx == 16'd78 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd11951};
-    if (t == 16'h0014 && idx == 16'd79 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd12038};
-    if (t == 16'h0014 && idx == 16'd80 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd12125};
-    if (t == 16'h0014 && idx == 16'd81 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd12212};
-    if (t == 16'h0014 && idx == 16'd82 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd12299};
-    if (t == 16'h0014 && idx == 16'd83 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd12386};
-    if (t == 16'h0014 && idx == 16'd84 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd12473};
-    if (t == 16'h0014 && idx == 16'd85 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd12560};
-    if (t == 16'h0014 && idx == 16'd86 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd12647};
-    if (t == 16'h0014 && idx == 16'd87 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd12734};
-    if (t == 16'h0014 && idx == 16'd88 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd12821};
-    if (t == 16'h0014 && idx == 16'd89 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd12908};
-    if (t == 16'h0014 && idx == 16'd90 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd12995};
-    if (t == 16'h0014 && idx == 16'd91 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd13082};
-    if (t == 16'h0014 && idx == 16'd92 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd13169};
-    if (t == 16'h0014 && idx == 16'd93 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd13256};
-    if (t == 16'h0014 && idx == 16'd94 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd13343};
-    if (t == 16'h0014 && idx == 16'd95 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd13430};
-    if (t == 16'h0014 && idx == 16'd96 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd13517};
-    if (t == 16'h0014 && idx == 16'd97 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd13604};
-    if (t == 16'h0014 && idx == 16'd98 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd13691};
-    if (t == 16'h0014 && idx == 16'd99 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd13778};
-    if (t == 16'h0014 && idx == 16'd100 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd13865};
-    if (t == 16'h0014 && idx == 16'd101 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd13952};
-    if (t == 16'h0014 && idx == 16'd102 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd14039};
-    if (t == 16'h0014 && idx == 16'd103 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd14126};
-    if (t == 16'h0014 && idx == 16'd104 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd14213};
-    if (t == 16'h0014 && idx == 16'd105 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd14300};
-    if (t == 16'h0014 && idx == 16'd106 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd14387};
-    if (t == 16'h0014 && idx == 16'd107 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd14474};
-    if (t == 16'h0014 && idx == 16'd108 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd14561};
-    if (t == 16'h0014 && idx == 16'd109 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd14648};
-    if (t == 16'h0014 && idx == 16'd110 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd14735};
-    if (t == 16'h0014 && idx == 16'd111 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd14822};
-    if (t == 16'h0014 && idx == 16'd112 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd14909};
-    if (t == 16'h0014 && idx == 16'd113 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd14996};
-    if (t == 16'h0014 && idx == 16'd114 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd15083};
-    if (t == 16'h0014 && idx == 16'd115 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd15170};
-    if (t == 16'h0014 && idx == 16'd116 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd15257};
-    if (t == 16'h0014 && idx == 16'd117 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd15344};
-    if (t == 16'h0014 && idx == 16'd118 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd15431};
-    if (t == 16'h0014 && idx == 16'd119 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd15518};
-    if (t == 16'h0014 && idx == 16'd120 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd15605};
-    if (t == 16'h0014 && idx == 16'd121 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd15692};
-    if (t == 16'h0014 && idx == 16'd122 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd15779};
-    if (t == 16'h0014 && idx == 16'd123 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd15866};
-    if (t == 16'h0014 && idx == 16'd124 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd15953};
-    if (t == 16'h0014 && idx == 16'd125 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd16040};
-    if (t == 16'h0014 && idx == 16'd126 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd16127};
-    if (t == 16'h0014 && idx == 16'd127 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd16214};
-    if (t == 16'h0014 && idx == 16'd128 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd16301};
-    if (t == 16'h0014 && idx == 16'd129 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd16388};
-    if (t == 16'h0014 && idx == 16'd130 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd16475};
-    if (t == 16'h0014 && idx == 16'd131 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd16562};
-    if (t == 16'h0014 && idx == 16'd132 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd16649};
-    if (t == 16'h0014 && idx == 16'd133 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd16736};
-    if (t == 16'h0014 && idx == 16'd134 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd16823};
-    if (t == 16'h0014 && idx == 16'd135 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd16910};
-    if (t == 16'h0014 && idx == 16'd136 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd16997};
-    if (t == 16'h0014 && idx == 16'd137 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd17084};
-    if (t == 16'h0014 && idx == 16'd138 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd17171};
-    if (t == 16'h0014 && idx == 16'd139 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd17258};
-    if (t == 16'h0014 && idx == 16'd140 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd17345};
-    if (t == 16'h0014 && idx == 16'd141 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd17432};
-    if (t == 16'h0014 && idx == 16'd142 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd17519};
-    if (t == 16'h0014 && idx == 16'd143 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd17606};
-    if (t == 16'h0014 && idx == 16'd144 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd17693};
-    if (t == 16'h0014 && idx == 16'd145 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd17780};
-    if (t == 16'h0014 && idx == 16'd146 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd17867};
-    if (t == 16'h0014 && idx == 16'd147 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd17954};
-    if (t == 16'h0014 && idx == 16'd148 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd18041};
-    if (t == 16'h0014 && idx == 16'd149 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd18128};
-    if (t == 16'h0014 && idx == 16'd150 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd18215};
-    if (t == 16'h0014 && idx == 16'd151 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd18302};
-    if (t == 16'h0014 && idx == 16'd152 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd18389};
-    if (t == 16'h0014 && idx == 16'd153 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd18476};
-    if (t == 16'h0014 && idx == 16'd154 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd18563};
-    if (t == 16'h0014 && idx == 16'd155 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd18650};
-    if (t == 16'h0014 && idx == 16'd156 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd18737};
-    if (t == 16'h0014 && idx == 16'd157 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd18824};
-    if (t == 16'h0014 && idx == 16'd158 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd18911};
-    if (t == 16'h0014 && idx == 16'd159 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd18998};
-    if (t == 16'h0014 && idx == 16'd160 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd19085};
-    if (t == 16'h0014 && idx == 16'd161 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd19172};
-    if (t == 16'h0014 && idx == 16'd162 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd19259};
-    if (t == 16'h0014 && idx == 16'd163 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd19346};
-    if (t == 16'h0014 && idx == 16'd164 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd19433};
-    if (t == 16'h0014 && idx == 16'd165 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd19520};
-    if (t == 16'h0014 && idx == 16'd166 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd19607};
-    if (t == 16'h0014 && idx == 16'd167 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd19694};
-    if (t == 16'h0014 && idx == 16'd168 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd19781};
-    if (t == 16'h0014 && idx == 16'd169 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd19868};
-    if (t == 16'h0014 && idx == 16'd170 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd19955};
-    if (t == 16'h0014 && idx == 16'd171 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd20042};
-    if (t == 16'h0014 && idx == 16'd172 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd20129};
-    if (t == 16'h0014 && idx == 16'd173 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd20216};
-    if (t == 16'h0014 && idx == 16'd174 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd20303};
-    if (t == 16'h0014 && idx == 16'd175 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd20390};
-    if (t == 16'h0014 && idx == 16'd176 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd20477};
-    if (t == 16'h0014 && idx == 16'd177 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd20564};
-    if (t == 16'h0014 && idx == 16'd178 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd20651};
-    if (t == 16'h0014 && idx == 16'd179 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd20738};
-    if (t == 16'h0014 && idx == 16'd180 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd20825};
-    if (t == 16'h0014 && idx == 16'd181 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd20912};
-    if (t == 16'h0014 && idx == 16'd182 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd20999};
-    if (t == 16'h0014 && idx == 16'd183 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd21086};
-    if (t == 16'h0014 && idx == 16'd184 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd21173};
-    if (t == 16'h0014 && idx == 16'd185 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd21260};
-    if (t == 16'h0014 && idx == 16'd186 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd21347};
-    if (t == 16'h0014 && idx == 16'd187 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd21434};
-    if (t == 16'h0014 && idx == 16'd188 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd21521};
-    if (t == 16'h0014 && idx == 16'd189 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd21608};
-    if (t == 16'h0014 && idx == 16'd190 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd21695};
-    if (t == 16'h0014 && idx == 16'd191 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd21782};
-    if (t == 16'h0014 && idx == 16'd192 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd21869};
-    if (t == 16'h0014 && idx == 16'd193 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd21956};
-    if (t == 16'h0014 && idx == 16'd194 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd22043};
-    if (t == 16'h0014 && idx == 16'd195 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd22130};
-    if (t == 16'h0014 && idx == 16'd196 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd22217};
-    if (t == 16'h0014 && idx == 16'd197 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd22304};
-    if (t == 16'h0014 && idx == 16'd198 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd22391};
-    if (t == 16'h0014 && idx == 16'd199 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd22478};
+    if (t < 16'(AEM_L1_N_C) && nidx == 16'd0 &&
+        AEM_NAMED_MASK_C[t[5:0]] &&
+        idx < AEM_L1_CNT_C[t[5:0]]) begin
+      row_v = AEM_L1_ROW_C[t[5:0]] + idx;
+      rec_v = AEM_DIR_C[row_v[7:0]];
+      aem_name_lookup = {1'b1, rec_v[31:16] + 16'd4};
+    end
   end
 endfunction
 

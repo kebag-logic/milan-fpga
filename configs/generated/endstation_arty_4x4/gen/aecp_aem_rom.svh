@@ -81,6 +81,36 @@ localparam [63:0] AEM_DIR_C [0:67] = '{
   64'h0017_0003_1901_0028
 };
 
+// Level 1 of the directory (type-direct-indexed): per-type runs in
+// AEM_DIR_C are CONTIGUOUS, ZERO-BASED and ASCENDING (generator-
+// asserted 1:1 against the linear scan - gen_aem_store.py
+// check_two_level), so (type, index) resolves by ROM indexing alone:
+//   hit = index < AEM_L1_CNT_C[type],
+//   {base, len} = AEM_DIR_C[AEM_L1_ROW_C[type] + index][31:0].
+// Zero-padded to 1 << AEM_L1_AW_C rows: an absent type reads count 0.
+localparam int unsigned AEM_L1_AW_C = 6;
+localparam int unsigned AEM_L1_N_C  = 64;
+localparam [15:0] AEM_L1_CNT_C [0:63] = '{
+  16'd1, 16'd1, 16'd1, 16'd0, 16'd0, 16'd5, 16'd5, 16'd0,
+  16'd0, 16'd1, 16'd6, 16'd0, 16'd1, 16'd1, 16'd4, 16'd4,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd32, 16'd0, 16'd0, 16'd4,
+  16'd0, 16'd0, 16'd1, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd1, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0
+};
+localparam [15:0] AEM_L1_ROW_C [0:63] = '{
+  16'd0, 16'd1, 16'd2, 16'd0, 16'd0, 16'd3, 16'd8, 16'd0,
+  16'd0, 16'd13, 16'd14, 16'd0, 16'd22, 16'd23, 16'd24, 16'd28,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd32, 16'd0, 16'd0, 16'd64,
+  16'd0, 16'd0, 16'd21, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd20, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0,
+  16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0, 16'd0
+};
+
 // ROM image (network byte order, addr 0 = first byte of ENTITY)
 localparam [7:0] AEM_ROM_INIT_C [0:6440] = '{
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
@@ -556,121 +586,32 @@ localparam [15:0] WB_AUDIO_MAP_2_C = 16'd6361;
 localparam [15:0] WB_AUDIO_MAP_3_C = 16'd6401;
 
 // SET/GET_NAME lookup: (type, index, name_index) -> {valid, rom addr}
+// Structural rule (generator-asserted 1:1 against the NAMED table -
+// gen_aem_store.py named_structure): a masked type's object_name sits
+// at descriptor base + 4, name_index 0, for every index of its run;
+// resolution reuses the two-level directory instead of a scan. The
+// exceptions (ENTITY's entity_name/group_name) are matched explicitly.
+localparam [63:0] AEM_NAMED_MASK_C = 64'h1004100666;
 function automatic [16:0] aem_name_lookup(input [15:0] t,
                                           input [15:0] idx,
                                           input [15:0] nidx);
+  reg [15:0] row_v;
+  reg [63:0] rec_v;
   begin
     aem_name_lookup = 17'd0;
+    row_v = 16'd0;
+    rec_v = 64'd0;
     if (t == 16'h0000 && idx == 16'd0 && nidx == 16'd0)
       aem_name_lookup = {1'b1, 16'd48};
     if (t == 16'h0000 && idx == 16'd0 && nidx == 16'd1)
       aem_name_lookup = {1'b1, 16'd180};
-    if (t == 16'h0001 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd316};
-    if (t == 16'h0002 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd422};
-    if (t == 16'h0005 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd570};
-    if (t == 16'h0005 && idx == 16'd1 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd718};
-    if (t == 16'h0005 && idx == 16'd2 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd866};
-    if (t == 16'h0005 && idx == 16'd3 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1014};
-    if (t == 16'h0005 && idx == 16'd4 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1162};
-    if (t == 16'h0006 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1302};
-    if (t == 16'h0006 && idx == 16'd1 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1442};
-    if (t == 16'h0006 && idx == 16'd2 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1582};
-    if (t == 16'h0006 && idx == 16'd3 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1722};
-    if (t == 16'h0006 && idx == 16'd4 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd1862};
-    if (t == 16'h0009 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2002};
-    if (t == 16'h000A && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2100};
-    if (t == 16'h000A && idx == 16'd1 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2186};
-    if (t == 16'h000A && idx == 16'd2 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2272};
-    if (t == 16'h000A && idx == 16'd3 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2358};
-    if (t == 16'h000A && idx == 16'd4 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2444};
-    if (t == 16'h000A && idx == 16'd5 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2530};
-    if (t == 16'h0024 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2616};
-    if (t == 16'h001A && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd2704};
-    if (t == 16'h0014 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3501};
-    if (t == 16'h0014 && idx == 16'd1 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3588};
-    if (t == 16'h0014 && idx == 16'd2 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3675};
-    if (t == 16'h0014 && idx == 16'd3 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3762};
-    if (t == 16'h0014 && idx == 16'd4 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3849};
-    if (t == 16'h0014 && idx == 16'd5 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd3936};
-    if (t == 16'h0014 && idx == 16'd6 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4023};
-    if (t == 16'h0014 && idx == 16'd7 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4110};
-    if (t == 16'h0014 && idx == 16'd8 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4197};
-    if (t == 16'h0014 && idx == 16'd9 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4284};
-    if (t == 16'h0014 && idx == 16'd10 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4371};
-    if (t == 16'h0014 && idx == 16'd11 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4458};
-    if (t == 16'h0014 && idx == 16'd12 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4545};
-    if (t == 16'h0014 && idx == 16'd13 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4632};
-    if (t == 16'h0014 && idx == 16'd14 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4719};
-    if (t == 16'h0014 && idx == 16'd15 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4806};
-    if (t == 16'h0014 && idx == 16'd16 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4893};
-    if (t == 16'h0014 && idx == 16'd17 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd4980};
-    if (t == 16'h0014 && idx == 16'd18 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5067};
-    if (t == 16'h0014 && idx == 16'd19 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5154};
-    if (t == 16'h0014 && idx == 16'd20 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5241};
-    if (t == 16'h0014 && idx == 16'd21 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5328};
-    if (t == 16'h0014 && idx == 16'd22 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5415};
-    if (t == 16'h0014 && idx == 16'd23 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5502};
-    if (t == 16'h0014 && idx == 16'd24 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5589};
-    if (t == 16'h0014 && idx == 16'd25 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5676};
-    if (t == 16'h0014 && idx == 16'd26 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5763};
-    if (t == 16'h0014 && idx == 16'd27 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5850};
-    if (t == 16'h0014 && idx == 16'd28 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd5937};
-    if (t == 16'h0014 && idx == 16'd29 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6024};
-    if (t == 16'h0014 && idx == 16'd30 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6111};
-    if (t == 16'h0014 && idx == 16'd31 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd6198};
+    if (t < 16'(AEM_L1_N_C) && nidx == 16'd0 &&
+        AEM_NAMED_MASK_C[t[5:0]] &&
+        idx < AEM_L1_CNT_C[t[5:0]]) begin
+      row_v = AEM_L1_ROW_C[t[5:0]] + idx;
+      rec_v = AEM_DIR_C[row_v[6:0]];
+      aem_name_lookup = {1'b1, rec_v[31:16] + 16'd4};
+    end
   end
 endfunction
 
