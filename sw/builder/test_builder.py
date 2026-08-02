@@ -190,6 +190,14 @@ FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
 
 DEPLOYED_MODEL_ID = "0x001BC50AC1000001"     # flashed silicon identity
 
+#: The flashed image's boot script - the ONE piece of board software that
+#: programs the entity identity into the ADP/AEM CSRs. It lives in the sibling
+#: repo (that is where the rootfs is built), so gate 25 SKIPS when the repo is
+#: not on disk, exactly like the deployed-.dts cross-check in gate 19b. The
+#: path is built from the builder's own ROOTFS_OVERLAY_ETC: one spelling of
+#: "where the overlay is", never a second.
+S50MILAN = os.path.join(eb.ROOTFS_OVERLAY_ETC, "init.d/S50milan")
+
 # Real utilization report the estimator was calibrated against (flat place
 # report of the same build as the hierarchical calibration source).
 REAL_RPT = os.path.expanduser(
@@ -1960,9 +1968,24 @@ def test_platform_dt_and_driver_shape():
             int(sh["pcm"]["base"], 16), \
             f"{cfg_name}: PCM node base != deployed {dts}"
         assert f"kl,rsc-clk-mhz = <{sh['rsc_clk_mhz']}>" in txt
+        # ...and the STATION MAC, which the deployed DTB restates as
+        # local-mac-address. It was an unchecked mirror until 2026-08-02, and
+        # it stopped being a cosmetic one when the ATDECC entity_id started
+        # DERIVING from platform.mac_address (gate 25): a DTB that disagrees
+        # with the config gives the board one MAC on the wire and an
+        # entity_id - and therefore a stream_id {MAC, unique_id} - announcing
+        # another. Same defect class as the model id, one layer down.
+        mac = re.search(r"local-mac-address = \[([0-9a-fA-F ]+)\]", txt)
+        assert mac, f"{dts}: no local-mac-address"
+        got_mac = ":".join(mac.group(1).split()).lower()
+        assert got_mac == sh["mac_address"].lower(), (
+            f"{cfg_name}: config MAC {sh['mac_address']} != deployed {dts} "
+            f"{got_mac} - the entity_id derives from the config's, the wire "
+            f"carries the DTB's")
         checked += 1
         print(f"  [gate 19b] {cfg_name}: all 5 NIC reg bases + the PCM node "
-              f"base + kl,rsc-clk-mhz MATCH the deployed {os.path.basename(dts)}")
+              f"base + kl,rsc-clk-mhz + the station MAC MATCH the deployed "
+              f"{os.path.basename(dts)}")
     if not checked:
         print("  [gate 19b] SKIP deployed-.dts cross-check: sibling repo "
               "milan-tests-avb not on disk")
@@ -3755,6 +3778,109 @@ def test_d10_names_reach_the_rom():
           f"OWNER ({owner['name']}) byte for byte")
 
 
+#: The four ADP CSRs that carry the entity's IDENTITY. Every one of them is a
+#: value the builder computes, so every one must reach the board through the
+#: generated conf - never as a literal in the boot script.
+IDENTITY_CSRS = {"0x604": "entity_id lo", "0x608": "entity_id hi",
+                 "0x60C": "entity_model_id lo", "0x610": "entity_model_id hi"}
+
+
+def _sh_code(path):
+    """The shipped script with sh comments removed - what actually RUNS. A
+    grep over the raw text would be satisfied by moving a literal into the
+    comment that explains it, which is precisely the state this gate exists to
+    forbid; and the history the comments carry (which stale id was where) is
+    worth keeping, so the gate reads code and code only."""
+    return "\n".join(re.sub(r"#.*$", "", ln) for ln in open(path).read()
+                     .splitlines())
+
+
+def test_entity_identity_is_derived_not_mirrored():
+    """Gate 25: the flashed board's entity_model_id is DERIVED from the config
+    that board's bitstream is built from, and nothing restates it.
+
+    THE DEFECT (silicon 2026-08-02, the fifth mirrored-constant instance of
+    that week). S50milan carried `w 0x610 0x001BC52E` / `w 0x60C 0xD611DB08`
+    for the AX. The 8x8 config then gained dynamic output maps, the AEM ROM was
+    regenerated and the shape re-hashed to 0x001BC52B80A86C93 - and the script
+    did not move. The fabric serves the AEM ENTITY descriptor's
+    entity_model_id FROM those CSRs (the ROM's OVL_MODEL_ID_C overlay slot),
+    so the board advertised one model id over a different model's descriptors.
+    Controllers cache AEM by model id and 1722.1-2021 6.2.1.10 makes the id the
+    identity OF the model: two AEMs under one id is a conformance break. The
+    Arty branch had rotted identically (0x001BC578CBCE5FBD named, 4x4 config
+    hashing to 0x001BC5A10610BAB8).
+
+    Two halves, because either alone can be defeated:
+      a) no identity CSR in the shipped script is written from a LITERAL -
+         every one takes a shell variable - and the OUI 0x001BC5 appears
+         nowhere in the code. A literal cannot come back.
+      b) the generated /etc/milan-entity.<board>.conf that replaced them is
+         byte-for-byte what the builder emits TODAY for the config that board
+         builds (sweep_config(), READ from sweep.sh - never restated here, the
+         gate-9 rule). A stale file cannot survive."""
+    if not os.path.exists(S50MILAN):
+        print("  [gate 25] SKIP identity-derivation cross-check: sibling repo "
+              "milan-tests-avb not on disk")
+        return
+    code = _sh_code(S50MILAN)
+    seen = set()
+    for m in re.finditer(r"^\s*w\s+(0x[0-9A-Fa-f]+)\s+(\S+)", code, re.M):
+        reg = "0x" + m.group(1)[2:].upper()
+        if reg not in IDENTITY_CSRS:
+            continue
+        seen.add(reg)
+        assert m.group(2).startswith("$"), (
+            f"{S50MILAN}: {reg} ({IDENTITY_CSRS[reg]}) is written from the "
+            f"LITERAL {m.group(2)} - the 2026-08-02 defect verbatim. It must "
+            f"come from /etc/milan-entity.<board>.conf, which the builder "
+            f"generates in the same pass that writes the AEM ROM.")
+    assert seen == set(IDENTITY_CSRS), (
+        f"{S50MILAN}: identity CSRs {sorted(set(IDENTITY_CSRS) - seen)} are "
+        f"never written - the entity would advertise the reset value 0")
+    assert not re.search(r"0x0*01[Bb][Cc]5", code), (
+        f"{S50MILAN}: the Kebag Logic OUI 0x001BC5 appears in CODE - some "
+        f"model-id literal is back. It belongs only in the generated conf.")
+    assert re.search(r"/etc/milan-entity\.\$\w+\.conf", code), (
+        f"{S50MILAN}: nothing sources /etc/milan-entity.<board>.conf")
+    subprocess.run(["sh", "-n", S50MILAN], check=True)
+    print(f"  [gate 25] {os.path.basename(S50MILAN)}: all "
+          f"{len(IDENTITY_CSRS)} identity CSRs written from the sourced conf, "
+          f"zero model-id literals in code, sh -n clean")
+    for board in ("arty", "ax7101"):
+        p = eb.entity_conf_overlay_path(board)
+        assert p and os.path.exists(p), (
+            f"the rootfs overlay ships no identity for {board} ({p}) - "
+            f"S50milan would refuse to program the entity. Generate it: "
+            f"python3 sw/builder/endstation_builder.py --write-rtl "
+            f"<{board} config>")
+        cfg = eb.load_config(sweep_config(board))
+        want = eb.emit_entity_conf(cfg)
+        got = open(p).read()
+        assert got == want, (
+            f"{p} is STALE: it is not what {cfg['source']} - the config "
+            f"sweep.sh builds this board from - generates today. Regenerate: "
+            f"python3 sw/builder/endstation_builder.py --write-rtl "
+            f"{cfg['source']}")
+        kv = dict(re.findall(r"^(MILAN_\w+)=(\S+)$", got, re.M))
+        mid = (int(kv["MILAN_MODEL_ID_HI"], 16) << 32) \
+            | int(kv["MILAN_MODEL_ID_LO"], 16)
+        assert f"0x{mid:016X}" == cfg["entity"]["entity_model_id"], (
+            f"{p}: model id 0x{mid:016X} != the builder's "
+            f"{cfg['entity']['entity_model_id']} for {cfg['source']}")
+        eid = (int(kv["MILAN_ENTITY_ID_HI"], 16) << 32) \
+            | int(kv["MILAN_ENTITY_ID_LO"], 16)
+        assert eid == eb.derive_entity_id(cfg), f"{p}: entity_id drifted"
+        assert int(kv["MILAN_N_TALKERS"]) == len(cfg["talkers"]), \
+            f"{p}: talker count drifted (the MAAP claim size derives from it)"
+        assert int(kv["MILAN_SR_VID"]) == cfg["srp"]["vid"], f"{p}: SR VID"
+        subprocess.run(["sh", "-n", p], check=True)
+        print(f"  [gate 25] {board}: shipped identity == builder output for "
+              f"{os.path.basename(cfg['source'])} "
+              f"(model id {cfg['entity']['entity_model_id']}, "
+              f"{kv['MILAN_N_TALKERS']} talkers, SR VID {kv['MILAN_SR_VID']})")
+
+
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
@@ -3787,7 +3913,8 @@ if __name__ == "__main__":
                test_i2s_pair_blend_gate_bites,
                test_firmware_version_derived_from_rtl,
                test_d8_role_pools, test_d8_role_pools_reject,
-               test_d10_cluster_names, test_d10_names_reach_the_rom):
+               test_d10_cluster_names, test_d10_names_reach_the_rom,
+               test_entity_identity_is_derived_not_mirrored):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")

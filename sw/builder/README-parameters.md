@@ -46,10 +46,26 @@ configs/endstation_<x>.yaml
         ├─ out/<x>/platform_shape.json      kebag-logic/platform-shape 1.x
         ├─ out/<x>/milan-nic.dtsi           kl,dma-ether + kl,milan-pcm nodes
         ├─ out/<x>/build_plan.md        human-readable, "planned" marks
+        ├─ out/<x>/milan-entity.conf        board-software IDENTITY fragment
         ├─ configs/generated/sweep_opts_<board>.sh   (board-level)
         │     └─ sourced by sw/litex/sweep.sh (inline tables = fallback)
+        ├─ <rootfs overlay>/etc/milan-entity.<board>.conf   (board-level)
+        │     └─ sourced by the flashed /etc/init.d/S50milan, which programs
+        │        entity_id 0x604/0x608 + entity_model_id 0x60C/0x610 from it
         └─ hdl/ieee8021q/srp/gen/lwsrp_table.svh  (the srp.rtl_table config)
 ```
+
+The identity fragment and the sweep fragment move at the same moment
+(`--write-rtl`, or `--write-fragment` for the board that does not own the
+tracked RTL tree) because they answer the same question: **what is this
+board**. The fabric serves the AEM ENTITY descriptor's `entity_model_id` from
+CSR `0x60C/0x610`, not from a ROM constant, so a literal in the boot script is
+the entity's model id - and on 2026-08-02 silicon it was a *stale* one, an
+8x8 AEM with dynamic output maps advertised under `0x001BC52ED611DB08`, the
+id of a model that no longer existed. Gate 25 asserts that no identity CSR in
+the shipped `S50milan` is written from a literal and that the shipped fragment
+is byte-for-byte what the builder emits for the config `sweep.sh` builds that
+board from.
 
 ## lwSRP reservation table (`srp:`, CSR 0x680)
 

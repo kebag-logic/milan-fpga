@@ -34,10 +34,20 @@ Outputs (into OUTDIR/<config-stem>/):
   build_plan.md     - human-readable build plan. Shapes beyond current RTL
                       capability (NxN streams, TDM/AES3/SPDIF interfaces,
                       non-48k rates) VALIDATE but are marked "planned".
+  milan-entity.conf - the BOARD-SOFTWARE half of the identity: entity_id,
+                      entity_model_id, stream counts and SR VID as shell
+                      variables, sourced by the rootfs /etc/init.d/S50milan
+                      before it programs 0x604/0x608/0x60C/0x610. Also
+                      written into the buildroot rootfs overlay (see
+                      ROOTFS_OVERLAY_ETC) by --write-rtl/--write-fragment.
 Plus (repo-level, single-sourced so nothing can drift):
   configs/generated/sweep_opts_<board>.sh - shell fragment (OPTS/L2/RXQ)
                       sourced by sw/litex/sweep.sh; the inline tables there
                       are the loud FALLBACK only.
+  <rootfs overlay>/etc/milan-entity.<board>.conf - the identity the flashed
+                      board programs into the ADP/AEM CSRs. Same rule, same
+                      moment: the config that owns the board's bitstream owns
+                      its advertised identity.
   hdl/ieee8021q/srp/gen/lwsrp_table.svh   - the DEPLOYED shape's lwSRP table
                       (written by the one config carrying srp.rtl_table).
   hdl/common/csr/gen/lwsrp_csr_defaults.svh - the CSR-facing SUBSET of that
@@ -1636,6 +1646,36 @@ AEM_ROM_REL = "hdl/ieee17221/aecp/" + AEM_ROM_INCLUDE
 #: anything (tb/verilator/milan_dp elaborates the 4x4 and 8x8 shapes this way).
 GEN_CONFIG_DIR = "configs/generated"
 
+#: THE IDENTITY THE BOARD SOFTWARE PROGRAMS. The fabric serves the ADPDU AND
+#: the AEM ENTITY descriptor's entity_model_id from CSR 0x60C/0x610 (the ROM's
+#: OVL_MODEL_ID_C overlay slot), so whatever the boot script writes there IS
+#: the entity's model id - a literal in that script is a SECOND answer to a
+#: question the builder already answers, and on 2026-08-02 silicon it was the
+#: STALE one: the flashed ROM carried the dynamic-output-map descriptors while
+#: ADP advertised 001BC52ED611DB08, the id of a model that no longer exists.
+#: 1722.1-2021 6.2.1.10: entity_model_id identifies the AEM; two different AEMs
+#: must not share one. So the builder EMITS the identity and S50milan SOURCES
+#: it. Per BOARD (one shared rootfs serves both boards, S50milan branches on
+#: /proc/device-tree/model), written by the same --write-fragment moment that
+#: hands a board's bitstream flags over - one owner for "what this board is".
+ENTITY_CONF_NAME = "milan-entity.conf"
+#: `/etc` of the flashed rootfs overlay. In the SIBLING repo (milan-tests-avb)
+#: because that is where the image is built; overridable for a checkout that
+#: lives elsewhere, and simply SKIPPED when it is not on disk.
+ROOTFS_OVERLAY_ETC = os.environ.get(
+    "MILAN_ROOTFS_OVERLAY_ETC",
+    os.path.expanduser("~/milan-tests-avb/fpga/buildroot/br2-external/"
+                       "board/milan_naxriscv/rootfs_overlay/etc"))
+
+
+def entity_conf_overlay_path(board_target):
+    """Where <board>'s generated identity ships, or None when the rootfs
+    overlay is not on this disk (bare container / fpga repo alone)."""
+    if not os.path.isdir(ROOTFS_OVERLAY_ETC):
+        return None
+    return os.path.join(ROOTFS_OVERLAY_ETC,
+                        f"milan-entity.{board_target}.conf")
+
 
 def emit_lwsrp_table(cfg):
     """The lwSRP reservation table this config defines: SR-class + timer +
@@ -3065,6 +3105,73 @@ def emit_sweep_opts(cfg):
         f"RXQ={cfg['constraints']['rx_queues']}\n")
 
 
+# -------------------------------------------------------- entity identity ---
+def derive_entity_id(cfg):
+    """The ATDECC entity_id (1722.1-2021 6.2.1.7) as an int.
+
+    "mac-derived" is the EUI-48 -> EUI-64 expansion of the STATION MAC the
+    platform section already declares (IEEE 802-2014 8.2 / RFC 2464: FF-FE
+    injected at the OUI boundary), so the entity id and the DT `local-mac-
+    address` cannot disagree. An explicit EUI-64 in the config wins."""
+    eid = cfg["entity"]["entity_id"]
+    if eid != "mac-derived":
+        return int(eid, 16)
+    b = [int(x, 16) for x in cfg["platform"]["mac_address"].split(":")]
+    return int.from_bytes(bytes(b[:3] + [0xFF, 0xFE] + b[3:]), "big")
+
+
+def emit_entity_conf(cfg):
+    """The BOARD-SOFTWARE identity fragment - /etc/milan-entity.<board>.conf,
+    sourced by the rootfs /etc/init.d/S50milan before it programs the ADP CSRs.
+
+    Every value here is one the builder ALREADY computes and the boot script
+    used to restate as a hex literal. The 2026-08-02 silicon finding is the
+    reason the file exists: the flashed AEM ROM had moved (dynamic output maps)
+    and the config therefore hashed to a new entity_model_id, but S50milan's
+    `w 0x610 0x001BC52E` had not - and since the fabric serves the AEM ENTITY
+    descriptor's entity_model_id FROM that CSR (the ROM's OVL_MODEL_ID_C
+    overlay slot), the board advertised one model id over a different model.
+    A controller caches AEM by model id; 1722.1-2021 6.2.1.10 makes that id the
+    identity OF the model, so two AEMs under one id is a conformance break.
+
+    The stream count and the SR VID are here for exactly the same reason and
+    not one reason more: the MAAP claim COUNT is talkers+1 (the CRF Media Clock
+    Output sits one past the AAF talkers - REGISTER_MAP 0x75C), and a claim
+    sized for the old shape leaves the CRF's own destination address OUTSIDE
+    the defended block. entity_capabilities is deliberately NOT here: the
+    builder does not compute it, so this file would be its first home, not its
+    single source."""
+    eid = derive_entity_id(cfg)
+    mid = int(cfg["entity"]["entity_model_id"], 16)
+    return (
+        "# GENERATED by sw/builder/endstation_builder.py - DO NOT EDIT.\n"
+        f"# Milan end-station IDENTITY for {cfg['board_target']}, from\n"
+        f"# {cfg['source']} (the last-built config of this board OWNS this\n"
+        "# file, exactly like configs/generated/sweep_opts_<board>.sh owns\n"
+        "# its bitstream flags - one owner for 'what this board is').\n"
+        "#\n"
+        "# Sourced by /etc/init.d/S50milan, which programs entity_id into\n"
+        "# 0x604/0x608 and entity_model_id into 0x60C/0x610. DO NOT restate\n"
+        "# any of these values in a script: the fabric serves BOTH the ADPDU\n"
+        "# and the AEM ENTITY descriptor's entity_model_id from those CSRs,\n"
+        "# so a stale literal there advertises a model id that no longer\n"
+        "# matches the descriptors the same build put in the ROM.\n"
+        f"# Shape: {len(cfg['listeners'])} listener(s) + "
+        f"{len(cfg['talkers'])} talker(s); model id from the "
+        f"{cfg['model_id']['source']}.\n"
+        "# Regenerate WITH the ROM it names:\n"
+        "#   python3 sw/builder/endstation_builder.py --write-rtl <cfg.yaml>\n"
+        f"MILAN_ENTITY_CONF_BOARD={cfg['board_target']}\n"
+        f"MILAN_ENTITY_CONF_SOURCE={cfg['source']}\n"
+        f"MILAN_ENTITY_ID_HI=0x{(eid >> 32) & 0xFFFFFFFF:08X}\n"
+        f"MILAN_ENTITY_ID_LO=0x{eid & 0xFFFFFFFF:08X}\n"
+        f"MILAN_MODEL_ID_HI=0x{(mid >> 32) & 0xFFFFFFFF:08X}\n"
+        f"MILAN_MODEL_ID_LO=0x{mid & 0xFFFFFFFF:08X}\n"
+        f"MILAN_N_TALKERS={len(cfg['talkers'])}\n"
+        f"MILAN_N_LISTENERS={len(cfg['listeners'])}\n"
+        f"MILAN_SR_VID={cfg['srp']['vid']}\n")
+
+
 # ----------------------------------------------------------- aem_overlay ----
 def emit_aem_overlay(cfg):
     """AEM model overlay: descriptor counts + per-descriptor content that the
@@ -3617,6 +3724,7 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     est = estimate_resources(cfg, overlay)
     plan = emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape)
     sweep = emit_sweep_opts(cfg)
+    entity_conf = emit_entity_conf(cfg)
 
     outdir = outdir or os.path.join(HERE, "out")
     d = os.path.join(outdir, cfg["name"])
@@ -3679,6 +3787,26 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
         os.makedirs(gen_dir, exist_ok=True)
         with open(p_sweep, "w") as f:
             f.write(sweep)
+    # ...and the board-software half of the SAME transfer: the identity the
+    # flashed image programs into the ADP/AEM CSRs. It ships in the buildroot
+    # rootfs overlay (sibling repo), so it moves with `--write-fragment` /
+    # `--write-rtl` and never on a throwaway variant build. Same moment as the
+    # bitstream flags on purpose - a shape change that regenerates the AEM ROM
+    # regenerates the model id that names it, or neither.
+    p_ent = os.path.join(d, ENTITY_CONF_NAME)
+    with open(p_ent, "w") as f:
+        f.write(entity_conf)
+    p_ent_overlay = entity_conf_overlay_path(cfg["board_target"])
+    if write_fragment:
+        if p_ent_overlay:
+            with open(p_ent_overlay, "w") as f:
+                f.write(entity_conf)
+        else:
+            print(f"[endstation_builder] WARNING: rootfs overlay etc/ not on "
+                  f"disk ({ROOTFS_OVERLAY_ETC}) - the flashed image's "
+                  f"identity was NOT refreshed; re-run where milan-tests-avb "
+                  f"is checked out, or set MILAN_ROOTFS_OVERLAY_ETC",
+                  file=sys.stderr)
     # per-CONFIG (not per-board) shape include: an include dir whose `gen/`
     # holds this config's entity definition, so a harness or a build selects
     # a shape by pointing +incdir at it. The 1x1 copy is byte-identical to
@@ -3714,7 +3842,12 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
                  csr_defaults_svh=p_csr_svh, adp_shape_svh=p_adp_svh,
                  cfg_adp_shape_svh=p_cfg_adp,
                  platform_shape=p_shape, dt_overlay=p_dtsi,
-                 sweep_opts=p_sweep)
+                 sweep_opts=p_sweep, entity_conf=p_ent)
+    # only when it was actually written: the reader of this dict prints
+    # "wrote <path>", and the flashed image's identity is not a place to be
+    # imprecise about whether a file moved
+    if write_fragment and p_ent_overlay:
+        paths["rootfs_entity_conf"] = p_ent_overlay
     # The TRACKED RTL headers: exactly one config (the DEPLOYED shape, marked
     # srp.rtl_table) owns them. lwsrp_table.svh is the full contract for the
     # srp tree; lwsrp_csr_defaults.svh is the subset milan_csr.sv COMPILES,
@@ -3749,7 +3882,7 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
                 resource_estimate=est, sweep_opts=sweep, lwsrp=lwsrp,
                 lwsrp_svh=lwsrp_svh, csr_defaults_svh=csr_svh,
                 adp_shape_svh=adp_svh, aem_rom_svh=aem_rom,
-                aem_rom_unsupported=aem_rom_why,
+                aem_rom_unsupported=aem_rom_why, entity_conf=entity_conf,
                 interface_params=iparams,
                 platform=shape, dt_overlay=dtsi, paths=paths)
 
@@ -3793,7 +3926,10 @@ def main():
           + (", UPPER BOUND" if r["resource_estimate"]["upper_bound"] else "")
           + ")")
     for p in r["paths"].values():
-        print(f"  wrote {os.path.relpath(p, ROOT)}")
+        # the rootfs identity conf lives in the sibling repo: show it whole
+        # rather than as a ../../.. relpath nobody can paste
+        rel = os.path.relpath(p, ROOT)
+        print(f"  wrote {p if rel.startswith(os.pardir) else rel}")
 
 
 if __name__ == "__main__":
