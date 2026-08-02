@@ -2854,6 +2854,23 @@ int main(int argc, char** argv) {
         ck("launch: writes never land on adjacent beats", own_adjacent, 0);
         ck("launch: all talker requesters drained",
            rp->milan_datapath__DOT__aafsrp_req_r, 0);
+        ck("launch: pick stage idle after the burst",
+           rp->milan_datapath__DOT__srp_fab_pv_r, 0);
+        // the identity-root shadow latches on the CAPTURE beat from the
+        // same wires the record mux samples - so it must equal the MAC
+        // half of what the rows were actually written with
+        {
+            const int lane1 = NSTREAMS_TB - 1;         // talker 1's lane
+            uint64_t sid1 = (uint64_t)
+                rp->milan_datapath__DOT__lwsrp__DOT__ctx__DOT__sid_r
+                    [2 * lane1] |
+                ((uint64_t)
+                 rp->milan_datapath__DOT__lwsrp__DOT__ctx__DOT__sid_r
+                     [2 * lane1 + 1] << 32);
+            ck("launch: root shadow == the row's MAC half (same-edge latch)",
+               (uint64_t)rp->milan_datapath__DOT__aafsrp_mac_r ==
+                   (sid1 >> 16), 1);
+        }
 
         // ---- SOFTWARE WINS OVER AN IN-FLIGHT CAPTURE (the qkill) -------
         // The one-cycle overlap - a 0x800 window WRITE serviced while the
@@ -2865,12 +2882,13 @@ int main(int argc, char** argv) {
         // later. Raw pokes become visible to the cached combinational
         // regions one eval late, so d is SWEPT until the true overlap is
         // hit. Detection is flop-based and latency-immune:
-        //   capture  = a srp_fab_qv_r rising edge
+        //   pick     = a srp_fab_pv_r rising edge (the retire beat)
         //   write    = a srp_fab_own_r pulse (only fabric ctx writes)
-        //   KILL     = a capture with NO write - the squashed q.
+        //   KILL     = a pick with NO write - a squash at either stage
+        //              (pkill in the pick stage, qkill in the capture q).
         // The invariant holds at EVERY phase: software's sid is what the
         // row carries once the dust settles; and at least one phase must
-        // actually exercise the squash.
+        // actually exercise a squash.
         {
             const int      T    = 1;
             const int      LANE = (NSTREAMS_TB - 1) + T - 1;
@@ -2900,16 +2918,16 @@ int main(int argc, char** argv) {
                 rp->milan_datapath__DOT__csr__DOT__srp_wr_valid_r = 1;
                 rp->milan_datapath__DOT__csr__DOT__srp_wr_sid_r   = SWSID;
                 rp->milan_datapath__DOT__csr__DOT__srp_wr_dmac_r  = 0;
-                int caps = 0, wrs = 0, qv_prev =
-                    rp->milan_datapath__DOT__srp_fab_qv_r;
+                int picks = 0, wrs = 0, pv_prev =
+                    rp->milan_datapath__DOT__srp_fab_pv_r;
                 for (int c = 0; c < 40; c++) {
                     step();
-                    int qv = rp->milan_datapath__DOT__srp_fab_qv_r;
-                    if (qv && !qv_prev) caps++;
-                    qv_prev = qv;
+                    int pv = rp->milan_datapath__DOT__srp_fab_pv_r;
+                    if (pv && !pv_prev) picks++;
+                    pv_prev = pv;
                     if (rp->milan_datapath__DOT__srp_fab_own_r) wrs++;
                 }
-                if (caps > wrs) kills++;
+                if (picks > wrs) kills++;
                 if (lane_sid() == SWSID) sid_wins++;
                 // release: a commit naming NO sid hands the row back
                 axi_write(A_STRM_SEL, 0x100 + T);

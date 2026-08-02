@@ -3027,13 +3027,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                               (eff_crft_dmac_w != crf_srp_dmac_r))))
         crf_srp_req_r <= 1'b1;
 
-      //! ...and only the beat the launch stage captured us on retires it.
-      //! sid/dmac are latched from the SAME wires the record mux presented
-      //! on that beat, so the shadow and the row can never disagree.
+      //! ...and only the beat the pick stage took us on retires it (narrow
+      //! state here - the pick cone must load almost nothing)
       if (crf_srp_ret_w) begin
         crf_srp_req_r  <= 1'b0;
         crf_srp_last_r <= crf_srp_want_w;
         crf_srp_val_r  <= crf_srp_want_w;
+      end
+      //! the WIDE identity shadow latches on the CAPTURE beat, from the
+      //! SAME wires the record mux samples on this same edge - the shadow
+      //! and the row take the same value or nothing (its CE is flop terms
+      //! only; the x32fb2 critical path was this latch behind the scan)
+      if (srp_fab_cap_w && srp_fab_pcrf_r) begin
         crf_srp_sid_r  <= eff_crft_sid_w;
         crf_srp_dmac_r <= eff_crft_dmac_w;
       end
@@ -3185,6 +3190,31 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  A CSR write for a DIFFERENT row only delays the q (the port yields to
   //  the write, the q holds), so no captured record is ever dropped.
   // ==========================================================================
+  //  ...and the stage is TWO deep since the x32fb2 probe (2026-08-02): the
+  //  one-register version moved the violation, not the depth - the pick
+  //  scan still resolved the slot AND drove the record muxes (a 48-bit
+  //  DMAC add fed by the late select) and the wide shadow-latch CEs in the
+  //  same cycle (WNS -0.74, aafsrp_req_r -> crf_srp_sid_r/CE and
+  //  crf_srp_req_r -> srp_fab_qdmac_r/D). So:
+  //    PICK    beat: the scan resolves; ONLY narrow state registers - the
+  //            rotating pointer, the picked slot + its row/class decodes
+  //            (srp_fab_p*), and the requester retires. ~50 flops total.
+  //    CAPTURE beat (+1): the record muxes run FROM the p-registers
+  //            (the DMAC add starts at a flop, not behind the scan) into
+  //            the q; the wide identity shadows latch HERE on flop-term
+  //            CEs, from the very wires the record mux samples on this
+  //            same edge - shadow and row take the same value or nothing.
+  //    PORT    beat (+2..): the q presents to KL_lwsrp_ctx, as before.
+  //  A requester that re-arms during the pipeline (identity change under
+  //  an in-flight capture) simply buys one idempotent re-write - the
+  //  mismatch detector compares against the OLD shadow for one cycle,
+  //  which is a pending rewrite, never a lost one.
+  // ==========================================================================
+  logic                   srp_fab_pv_r;      //! picked slot awaiting capture
+  logic [SRP_SEL_W_C-1:0] srp_fab_psel_r;
+  logic [3:0]             srp_fab_prow_r;
+  logic                   srp_fab_pcrf_r, srp_fab_plstn_r;
+  logic [3:0]             srp_fab_plsk_r;
   logic        srp_fab_qv_r;             //! captured record in flight
   logic [3:0]  srp_fab_qrow_r;
   logic        srp_fab_qvalid_r, srp_fab_qdir_r;
@@ -3194,16 +3224,24 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic [31:0] srp_fab_qlat_r;
   //! the window/fabric priority rule, in ONE place (see the arbitration
   //! banner above): yield to a pending CSR WRITE, never to its poll; and
-  //! never capture over a record still in flight.
-  wire srp_fab_launch_w = srp_fab_any_c & ~csr_srp_ctx_we & ~srp_fab_qv_r;
+  //! never pick over a slot or record still in flight.
+  wire srp_fab_launch_w = srp_fab_any_c & ~csr_srp_ctx_we &
+                          ~srp_fab_pv_r & ~srp_fab_qv_r;
   //! the q's port-mux select, and KL_lwsrp_ctx's OWN service expression
   //! (`ctx_req_i && !ctx_gnt_o`) restricted to it - written that way so the
   //! two cannot drift
   wire srp_fab_qsel_w  = srp_fab_qv_r & ~csr_srp_ctx_we;
   wire srp_fab_qsvc_w  = srp_fab_qsel_w & ~srp_ctx_gnt_w;
-  //! software wins: a serviced CSR WRITE naming the in-flight row
-  wire srp_fab_qkill_w = srp_fab_qv_r & csr_srp_ctx_we & ~srp_ctx_gnt_w &
+  //! software wins: a serviced CSR WRITE naming the row in flight at EITHER
+  //! stage squashes that stage (the requester's settle on the same beat
+  //! re-arms the fabric iff software named no sid)
+  wire srp_fab_csrwr_w = csr_srp_ctx_we & ~srp_ctx_gnt_w;
+  wire srp_fab_pkill_w = srp_fab_pv_r & srp_fab_csrwr_w &
+                         (csr_srp_ctx_idx == srp_fab_prow_r);
+  wire srp_fab_qkill_w = srp_fab_qv_r & srp_fab_csrwr_w &
                          (csr_srp_ctx_idx == srp_fab_qrow_r);
+  //! the CAPTURE beat: pick -> record, all selects registered
+  wire srp_fab_cap_w   = srp_fab_pv_r & ~srp_fab_qv_r & ~srp_fab_pkill_w;
   logic srp_fab_own_r;      //! we owned the service beat behind THIS write
   wire srp_fab_is_crf_w = (SRP_CRF_TK_C != 0) &&
                           (32'(srp_fab_sel_c) == N_STREAMS);
@@ -3214,14 +3252,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [3:0] srp_fab_lsk_w     = srp_fab_is_lstn_w
                                  ? 4'(32'(srp_fab_sel_c) - SRP_TALKERS_C + 1)
                                  : 4'd1;
-  //! one-hot LAUNCH pulse: ONLY the slot whose complete record the launch
-  //! stage captured retires. Every ctx field is selected by this one
-  //! {launch, sel} pair and the q latches the whole record on that single
-  //! edge, so a capture takes exactly one source's record or takes nothing -
-  //! a half-CSR/half-fabric row cannot be composed even for one cycle.
-  //! Delivery is guaranteed (the q holds until KL_lwsrp_ctx samples it; the
-  //! sole squash path re-arms through the CSR settle), so retiring at the
-  //! capture cannot lose a write.
+  //! one-hot LAUNCH pulse: ONLY the slot the pick stage took retires. The
+  //! pipeline latches one whole record from one source per beat, so a
+  //! half-CSR/half-fabric row cannot be composed even for one cycle.
+  //! Delivery is guaranteed (p and q hold until KL_lwsrp_ctx samples the
+  //! record; the sole squash paths re-arm through the CSR settle), so
+  //! retiring at the pick cannot lose a write.
   wire [SRP_FAB_SLOTS_C-1:0] srp_fab_ret_v_w;
   generate
     for (genvar gv = 0; gv < SRP_FAB_SLOTS_C; gv++) begin : g_srp_fab_ret
@@ -3234,6 +3270,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     if (!axis_resetn) begin
       srp_fab_own_r    <= 1'b0;
       srp_fab_rr_r     <= '0;
+      srp_fab_pv_r     <= 1'b0;
+      srp_fab_psel_r   <= '0;
+      srp_fab_prow_r   <= '0;
+      srp_fab_pcrf_r   <= 1'b0;
+      srp_fab_plstn_r  <= 1'b0;
+      srp_fab_plsk_r   <= 4'd1;
       srp_fab_qv_r     <= 1'b0;
       srp_fab_qrow_r   <= '0;
       srp_fab_qvalid_r <= 1'b0;
@@ -3246,10 +3288,22 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     end
     else begin
       srp_fab_own_r <= srp_fab_qsvc_w;
+      //! stage P: the pick - narrow state only, retire happens here
       if (srp_fab_launch_w) begin
-        srp_fab_rr_r     <= srp_fab_sel_c;
+        srp_fab_rr_r    <= srp_fab_sel_c;
+        srp_fab_pv_r    <= 1'b1;
+        srp_fab_psel_r  <= srp_fab_sel_c;
+        srp_fab_prow_r  <= srp_fab_row_w;
+        srp_fab_pcrf_r  <= srp_fab_is_crf_w;
+        srp_fab_plstn_r <= srp_fab_is_lstn_w;
+        srp_fab_plsk_r  <= srp_fab_lsk_w;
+      end
+      else if (srp_fab_cap_w | srp_fab_pkill_w)
+        srp_fab_pv_r <= 1'b0;
+      //! stage Q: the capture - every mux below starts at a p-register
+      if (srp_fab_cap_w) begin
         srp_fab_qv_r     <= 1'b1;
-        srp_fab_qrow_r   <= srp_fab_row_w;
+        srp_fab_qrow_r   <= srp_fab_prow_r;
         srp_fab_qvalid_r <= srp_fab_valid_c;
         srp_fab_qdir_r   <= srp_fab_dir_w;
         srp_fab_qsid_r   <= srp_fab_sid_w;
@@ -3328,28 +3382,31 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     end
   endgenerate
 
-  //! the record this beat presents. Talker/CRF sid+dmac need no wide mux -
-  //! they are ARITHMETIC in the slot index, the same rule acmp_src_dmac_w[t]
-  //! and the packetizer's stream_id_w follow. A LISTENER slot's sid is DATA
-  //! (the bind's stream_id, whatever the controller named), so it comes off
-  //! the ACMP bind view - the same registers the engine writes on the bind's
-  //! own record-write edge, so the row and the binding cannot disagree.
+  //! the ROW is a pick-time decode (registered into srp_fab_prow_r); the
+  //! RECORD below is capture-time, keyed on the p-registers so no mux or
+  //! adder ever sits behind the pick scan. Talker/CRF sid+dmac need no wide
+  //! mux - they are ARITHMETIC in the slot index, the same rule
+  //! acmp_src_dmac_w[t] and the packetizer's stream_id_w follow. A LISTENER
+  //! slot's sid is DATA (the bind's stream_id, whatever the controller
+  //! named), so it comes off the ACMP bind view - the same registers the
+  //! engine writes on the bind's own record-write edge, so the row and the
+  //! binding cannot disagree.
   wire [3:0]  srp_fab_row_w  = srp_fab_is_lstn_w
                                ? srp_fab_lsk_w
                                : 4'((N_STREAMS - 1) + 32'(srp_fab_sel_c));
-  wire [63:0] srp_fab_sid_w  = srp_fab_is_lstn_w
-                               ? acmpl_sid_v_w[64*srp_fab_lsk_w +: 64]
-                               : srp_fab_is_crf_w
+  wire [63:0] srp_fab_sid_w  = srp_fab_plstn_r
+                               ? acmpl_sid_v_w[64*srp_fab_plsk_r +: 64]
+                               : srp_fab_pcrf_r
                                  ? eff_crft_sid_w
-                                 : {srp_station_mac_w, 16'(srp_fab_sel_c)};
+                                 : {srp_station_mac_w, 16'(srp_fab_psel_r)};
   //! listener rows carry no DataFrameParameters (the Listener attribute is
   //! sid + four-pack only), so their record dmac is the harmless zero
-  wire [47:0] srp_fab_dmac_w = srp_fab_is_lstn_w
+  wire [47:0] srp_fab_dmac_w = srp_fab_plstn_r
                                ? 48'd0
-                               : srp_fab_is_crf_w
+                               : srp_fab_pcrf_r
                                  ? eff_crft_dmac_w
-                                 : (eff_aaf_dmac + 48'(srp_fab_sel_c));
-  wire        srp_fab_dir_w  = srp_fab_is_lstn_w;   //! ctx: 0 talker, 1 lstn
+                                 : (eff_aaf_dmac + 48'(srp_fab_psel_r));
+  wire        srp_fab_dir_w  = srp_fab_plstn_r;     //! ctx: 0 talker, 1 lstn
   logic       srp_fab_valid_c;
   logic [15:0] srp_fab_maxf_c, srp_fab_intv_c;
   always_comb begin : srp_fab_rec_mux
@@ -3357,7 +3414,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     srp_fab_maxf_c  = cfg_lwsrp_max_frame;
     srp_fab_intv_c  = cfg_lwsrp_interval;
     for (int s = 1; s < SRP_FAB_SLOTS_C; s++) begin
-      if (32'(srp_fab_sel_c) == s) begin
+      if (32'(srp_fab_psel_r) == s) begin
         srp_fab_valid_c = srp_fab_want_v_w[s];
         if (s < N_STREAMS) begin
           //! per-row TSpec: 24 + 24*C from THIS talker's TCTX w0 chans
@@ -3411,9 +3468,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         end
       end
 
-      //! the roots are latched from the SAME wires the mux presented on the
-      //! beat that was captured, so the shadow and the rows cannot disagree
-      if (srp_fab_launch_w && !srp_fab_is_crf_w && !srp_fab_is_lstn_w) begin
+      //! the roots latch on the CAPTURE beat, from the SAME wires the
+      //! record mux samples on this same edge, so the shadow and the rows
+      //! cannot disagree (flop-term CE - never behind the pick scan; a
+      //! root change during the one-cycle pipeline re-arms the requester
+      //! against the old shadow, buying one idempotent rewrite)
+      if (srp_fab_cap_w && !srp_fab_pcrf_r && !srp_fab_plstn_r) begin
         aafsrp_mac_r  <= srp_station_mac_w;
         aafsrp_dmac_r <= eff_aaf_dmac;
       end
