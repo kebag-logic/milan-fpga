@@ -2195,7 +2195,7 @@ module KL_aecp_response_builder (
         // ---------------------------------------------------------- //
         CAPTURE_S: begin
           if (frame_ok_i) begin
-            if (discard_q) begin
+            if (discard_q || (hdr_i.hdr_valid && (mismatch_i || !enable_i))) begin
               evt_drop_o <= 1'b1;
               pop_pend_r <= pop_pend_r + 2'd1;
               discard_q  <= 1'b0;
