@@ -8,6 +8,17 @@
 #   SWEEP_CFG=configs/endstation_arty_4x4.yaml sweep.sh arty 4x4
 set -euo pipefail
 BOARD=${1:?board}; TAG=${2:?tag}
+# The CPU netlist must be the SAME netlist for every seed, or the sweep is not
+# measuring the place directive. LiteX builds the VexiiRiscv argument string
+# from a python SET (litex/soc/cores/cpu/vexiiriscv/core.py: `",".join(isa_map)`),
+# so without a fixed hash seed the --with-isa order is different in every
+# process, the netlist-cache key is different, and SpinalHDL regenerates the
+# core. MEASURED 2026-08-02 across six otherwise-identical ax7101 builds: the
+# regenerated cores placed at 12122, 12130, 12150, 12178, 12179 and 12661 LUTs
+# - a 539-LUT spread, on a design that fills 89% of the part, attached to
+# nothing anyone changed. That is larger than most RTL levers this campaign
+# spends a build on, and it lands as unexplained WNS noise between seeds.
+export PYTHONHASHSEED=0
 export PATH="$HOME/litex-milan/venv/bin:$PATH"
 source $HOME/Xilinx/2026.1/Vivado/settings64.sh
 W=$HOME/litex-milan/work
