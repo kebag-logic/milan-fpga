@@ -585,33 +585,32 @@ localparam [15:0] WB_AUDIO_MAP_1_C = 16'd6321;
 localparam [15:0] WB_AUDIO_MAP_2_C = 16'd6361;
 localparam [15:0] WB_AUDIO_MAP_3_C = 16'd6401;
 
-// SET/GET_NAME lookup: (type, index, name_index) -> {valid, rom addr}
-// Structural rule (generator-asserted 1:1 against the NAMED table -
-// gen_aem_store.py named_structure): a masked type's object_name sits
-// at descriptor base + 4, name_index 0, for every index of its run;
-// resolution reuses the two-level directory instead of a scan. The
-// exceptions (ENTITY's entity_name/group_name) are matched explicitly.
+// SET/GET_NAME qualifier: (type, index, name_index) + the directory
+// oracle's REGISTERED answer -> {valid, rom addr}. Reads no ROM of
+// its own (the level-2 directory is block RAM; a second read port
+// here would be a second BRAM or a distributed copy): a masked
+// type's object_name sits at descriptor base + 4, name_index 0, for
+// every index of its run (generator-asserted 1:1 against the NAMED
+// table - gen_aem_store.py named_structure/check_named), so the
+// accessor's (found, base) for the SAME (type, index) already carry
+// the lookup. Exceptions (ENTITY's entity_name/group_name) are
+// constant matches. CALLER CONTRACT: acc_found/acc_base must be
+// KL_aecp_accessor's answer for this (t, idx) at config 0.
 localparam [63:0] AEM_NAMED_MASK_C = 64'h1004100666;
-function automatic [16:0] aem_name_lookup(input [15:0] t,
-                                          input [15:0] idx,
-                                          input [15:0] nidx);
-  reg [15:0] row_v;
-  reg [63:0] rec_v;
+function automatic [16:0] aem_name_qual(input [15:0] t,
+                                        input [15:0] idx,
+                                        input [15:0] nidx,
+                                        input        acc_found,
+                                        input [15:0] acc_base);
   begin
-    aem_name_lookup = 17'd0;
-    row_v = 16'd0;
-    rec_v = 64'd0;
+    aem_name_qual = 17'd0;
     if (t == 16'h0000 && idx == 16'd0 && nidx == 16'd0)
-      aem_name_lookup = {1'b1, 16'd48};
+      aem_name_qual = {1'b1, 16'd48};
     if (t == 16'h0000 && idx == 16'd0 && nidx == 16'd1)
-      aem_name_lookup = {1'b1, 16'd180};
+      aem_name_qual = {1'b1, 16'd180};
     if (t < 16'(AEM_L1_N_C) && nidx == 16'd0 &&
-        AEM_NAMED_MASK_C[t[5:0]] &&
-        idx < AEM_L1_CNT_C[t[5:0]]) begin
-      row_v = AEM_L1_ROW_C[t[5:0]] + idx;
-      rec_v = AEM_DIR_C[row_v[6:0]];
-      aem_name_lookup = {1'b1, rec_v[31:16] + 16'd4};
-    end
+        AEM_NAMED_MASK_C[t[5:0]] && acc_found)
+      aem_name_qual = {1'b1, acc_base + 16'd4};
   end
 endfunction
 
