@@ -597,7 +597,8 @@ XSIDE_TOLERANCE = {
 def interval_ticks_agree(talker_delta: Optional[int],
                          listener_delta: Optional[int], *,
                          tolerance: int = None,
-                         window_s: float = None) -> tuple:
+                         window_s: float = None,
+                         self_loop: bool = False) -> tuple:
     """Do the talker's and the listener's OBSERVATION-INTERVAL ticks agree?
 
     Named for what it is: this compares INTERVAL TICKS and never frames.  While
@@ -658,6 +659,25 @@ def interval_ticks_agree(talker_delta: Optional[int],
                     "reading, not the Milan interval one"}
             for r in deviant]
     if (talker_delta > 0) != (listener_delta > 0):
+        if self_loop and talker_delta > 0:
+            # A single-port device bound to ITS OWN stream: the frames egress
+            # the one port, and IEEE 802.1Q-2018 8.6.1 forbids the bridge
+            # from forwarding a frame out the port it arrived on, so the
+            # listener can never receive them.  Wire-proven on ax-rv32-e
+            # triage (2026-08-02): 8000/s left the DUT port at the tap,
+            # zero came back, listener FRAMES_RX and per-frame TV/TNV all
+            # static - the honest zero.  The talker ticking IS conformant
+            # (its Listener Ready stands, Milan v1.2 5.3.7.3), so one-sided
+            # movement here is the topology, not a device.  A listener that
+            # DID move on a self-loop falls through to the normal compare -
+            # that would mean the network delivered after all.
+            d["why"] = ("self-loop pair on a single-port DUT: the bridge "
+                        "never returns a frame to its ingress port (802.1Q "
+                        "8.6.1), so the listener side is structurally "
+                        "unreachable and only the talker's licensed ticking "
+                        "is observable")
+            d["self_loop"] = True
+            return ("SKIP", d)
         d["why"] = ("one side ticked and the other did not: a one-sided claim "
                     "of streaming is itself the defect (Milan v1.2 5.3.7.3 "
                     "licenses the talker only while a Listener Ready is being "
