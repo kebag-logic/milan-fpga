@@ -570,9 +570,16 @@ def open_sock(iface):
 
 
 def aecp_cmd(src, dst, target, ctrlr, seq, cmd, payload):
-    """AEM command. control_data_length counts from target_entity_id on."""
+    """AEM command. control_data_length counts the octets FOLLOWING
+    target_entity_id (1722.1-2021 9.2.2.6) - controller_entity_id(8) +
+    sequence_id(2) + u/command_type(2) + payload = 12 + len(payload).
+    The old ``len(body)`` here counted the 8-octet target too; every small
+    GET survived only because Ethernet 60-byte padding covered the
+    over-declaration, and the A-F14 declared-vs-delivered validator
+    (x32p_aslm) silently drops any frame whose payload outgrows that slack
+    (first victims: ADD/REMOVE_AUDIO_MAPPINGS, bench 2026-08-02)."""
     body = struct.pack('!8s8sHH', target, ctrlr, seq, cmd) + payload
-    cdl = len(body)
+    cdl = len(body) - 8
     avtp = bytes([SUBTYPE_AECP, 0x00, 0x00 | ((cdl >> 8) & 0x07), cdl & 0xFF])
     return dst + src + struct.pack('!H', AVTP) + avtp + body, cdl
 

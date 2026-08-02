@@ -99,8 +99,10 @@ except ImportError:                                    # pragma: no cover
         return s
 
     def aecp_cmd(src, dst, target, ctrlr, seq, cmd, payload):
+        # cdl counts octets FOLLOWING target_entity_id (1722.1-2021
+        # 9.2.2.6), matching hive_compliance.aecp_cmd's 2026-08-02 fix.
         body = struct.pack('!8s8sHH', target, ctrlr, seq, cmd) + payload
-        cdl = len(body)
+        cdl = len(body) - 8
         avtp = bytes([SUBTYPE_AECP, 0x00, (cdl >> 8) & 0x07, cdl & 0xFF])
         return dst + src + struct.pack('!H', AVTP) + avtp + body, cdl
 
