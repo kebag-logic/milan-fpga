@@ -581,12 +581,23 @@ XSIDE_TOLERANCE = {
     "capture_edge_reason":
         "tcpdump starts and stops on its own schedule, so a capture can miss up "
         "to one second at each edge relative to a counter window",
+    "perframe_floor_ticks": 600,
+    "perframe_min_ticks_per_s": 150,
+    "perframe_reason":
+        "an observation interval is <= 1 s (Milan v1.2 Table 5.4/5.6) but has "
+        "no LOWER bound, so interval-conformance cannot be a 1-tick-per-second "
+        "test; 150 ticks/s (a 6.7 ms interval; 600 over the 4 s default "
+        "window) is 50x above the 1-3/s band every conformant implementation "
+        "on this bench sits in, while a per-frame deviant at class A rate "
+        "reads ~8000/s - the two populations never meet, so a side above the "
+        "floor is keeping the IEEE 1722.1-2021 Table 7-157 per-frame reading",
 }
 
 
 def interval_ticks_agree(talker_delta: Optional[int],
                          listener_delta: Optional[int], *,
-                         tolerance: int = None) -> tuple:
+                         tolerance: int = None,
+                         window_s: float = None) -> tuple:
     """Do the talker's and the listener's OBSERVATION-INTERVAL ticks agree?
 
     Named for what it is: this compares INTERVAL TICKS and never frames.  While
@@ -596,23 +607,77 @@ def interval_ticks_agree(talker_delta: Optional[int],
     implementation-specific, so the two sides may legitimately differ in
     interval LENGTH - which is why this asserts agreement about MOVEMENT and a
     small tick difference, not equality of counts.
+
+    EVERY PARTICIPANT IS A MEASURED PARTY.  A side whose delta exceeds what any
+    sub-second observation interval could tick over the window is not keeping
+    the Milan interval semantics at all - it is counting per frame (the IEEE
+    1722.1-2021 Table 7-157 reading; the PEER's known deviation, settled
+    2026-07-30).  That is a finding AGAINST THAT SIDE, returned in
+    d["peer_findings"] for the caller to attribute by name as
+    xside.peer-counter-semantics, while the pair verdict PASSes for the
+    interval-conformant side instead of smearing it with a FAIL it did not
+    earn.  Movement still binds both sides regardless of semantics: one side
+    moving while the other is static stays the original FAIL.  Two per-frame
+    sides leave no interval-conformant baseline, so that is a SKIP plus one
+    finding per side - never a silent pass for either.
     """
     tol = XSIDE_TOLERANCE["interval_ticks"] if tolerance is None else tolerance
     if talker_delta is None or listener_delta is None:
         return ("SKIP", {"why": "one side's interval counter was unreadable",
                          "talker_interval_ticks": talker_delta,
                          "listener_interval_ticks": listener_delta})
+    floor = XSIDE_TOLERANCE["perframe_floor_ticks"]
+    if window_s:
+        floor = max(floor,
+                    XSIDE_TOLERANCE["perframe_min_ticks_per_s"] * window_s)
+    ticks = {"talker": talker_delta, "listener": listener_delta}
+    sem = {r: ("per-frame" if ticks[r] > floor else "interval")
+           for r in ("talker", "listener")}
+    deviant = [r for r in ("talker", "listener") if sem[r] == "per-frame"]
     d = {"talker_interval_ticks": talker_delta,
          "listener_interval_ticks": listener_delta,
          "tolerance_ticks": tol,
          "tolerance_reason": XSIDE_TOLERANCE["interval_ticks_reason"],
-         "compares": "OBSERVATION INTERVALS (Milan Table 5.4/5.6), NOT frames"}
+         "compares": "OBSERVATION INTERVALS (Milan Table 5.4/5.6), NOT frames",
+         "talker_semantics": sem["talker"],
+         "listener_semantics": sem["listener"],
+         "perframe_bound_ticks": floor}
+    if window_s:
+        d["window_s"] = window_s
+    if deviant:
+        d["peer_findings"] = [
+            {"role": r, "ticks": ticks[r],
+             "ticks_per_s": (round(ticks[r] / window_s, 1)
+                             if window_s else None),
+             "perframe_bound_ticks": floor,
+             "counter": {"talker": "FRAMES_TX (Milan v1.2 Table 5.4)",
+                         "listener": "FRAMES_RX (Milan v1.2 Table 5.6)"}[r],
+             "why": "this side's counter advanced far beyond what any <= 1 s "
+                    "observation interval can tick over the window, so it is "
+                    "keeping the IEEE 1722.1-2021 Table 7-157 per-frame "
+                    "reading, not the Milan interval one"}
+            for r in deviant]
     if (talker_delta > 0) != (listener_delta > 0):
         d["why"] = ("one side ticked and the other did not: a one-sided claim "
                     "of streaming is itself the defect (Milan v1.2 5.3.7.3 "
                     "licenses the talker only while a Listener Ready is being "
                     "received, so the two sides move together or neither does)")
         return ("FAIL", d)
+    if len(deviant) == 2:
+        d["why"] = ("both sides tick per-frame, so there is no interval-"
+                    "conformant baseline to agree with; each side's deviation "
+                    "is its own attributed finding, never a silent pass")
+        return ("SKIP", d)
+    if deviant:
+        conf = "listener" if deviant == ["talker"] else "talker"
+        d["attributed"] = True
+        d["conformant_role"] = conf
+        d["why"] = (f"the {conf} ticked interval-conformant and both sides "
+                    f"moved; the {deviant[0]}'s per-frame counter semantics is "
+                    f"the {deviant[0]}'s own finding "
+                    f"(xside.peer-counter-semantics), not a pair disagreement "
+                    f"- a generic pair-FAIL would smear the conformant side")
+        return ("PASS", d)
     if abs(talker_delta - listener_delta) > tol:
         d["why"] = ("the two sides disagree by more than the window edges "
                     "explain; both are interval counters so the difference is "
@@ -1066,7 +1131,20 @@ A_COUNTER_RESET_ON_BIND = AssertSpec(
     "Milan v1.2 5.3.8.10: 'The PAAD-AE shall reset all of these counters to "
     "zero each time the Stream Input changes its state from not bound to "
     "bound.'  Note the asymmetry the same clause states: it does NOT reset "
-    "when going bound -> not bound")
+    "when going bound -> not bound.  And the trigger is the STATE TRANSITION, "
+    "not the BIND_RX message: 5.5.3.5.43 handles a BIND_RX at an already-"
+    "bound Stream Input by updating the binding parameters without ever "
+    "transiting UNBOUND, so an implicit rebind owes no reset")
+A_REBIND_NO_RESET = AssertSpec(
+    "counters.stream_input.rebind-not-a-reset-boundary",
+    "Milan v1.2 5.5.3.5.43 SETTLED_RSV_OK / RCV_BIND_RX_CMD: a BIND_RX at an "
+    "already-bound Stream Input updates the binding parameters (same talker: "
+    "step 2 exits immediately; different talker: steps 3-12 re-probe) and the "
+    "input never transits UNBOUND - so the 5.3.8.10 reset trigger ('changes "
+    "its state from not bound to bound') does not fire.  Whether the device "
+    "reset its counters anyway is RECORDED here, never judged: the clause is "
+    "silent on the rebind case in both directions",
+    severity="INFO")
 A_FORMAT_READBACK = AssertSpec(
     "aecp.stream-format-readback",
     "IEEE 1722.1-2021 7.4.9/7.4.10: a SET_STREAM_FORMAT that returns SUCCESS "
@@ -1160,6 +1238,16 @@ A_XSIDE_INTERVAL_AGREE = AssertSpec(
     "s.  So the two sides are compared in INTERVAL TERMS - both moving or both "
     "static - and NEVER frame for frame.  The assertion name says 'interval' so "
     "nobody later reads it as a frame count")
+A_XSIDE_PEER_SEMANTICS = AssertSpec(
+    "xside.peer-counter-semantics",
+    "Milan v1.2 Table 5.4 FRAMES_TX / Table 5.6 FRAMES_RX increment 'at the "
+    "end of every observation interval', the interval <= 1 s - a counter "
+    "advancing at wire frame rate is keeping the IEEE 1722.1-2021 Table 7-157 "
+    "per-frame semantics instead.  Every participant is a measured party: the "
+    "deviation is attributed BY NAME to the side that ticks per-frame, with "
+    "its measured rate against the clause bound, as that side's own finding - "
+    "never smeared onto the conformant side of the pair as a generic pair "
+    "disagreement, and never silently passed")
 A_XSIDE_ERRORS_STATIC = AssertSpec(
     "xside.errors-static-all-sides",
     "Milan v1.2 Table 5.6 (SEQ_NUM_MISMATCH, UNSUPPORTED_FORMAT, "
@@ -1917,11 +2005,17 @@ def plan_churn(dut: Device = ARTY, peer: Device = PEER) -> list:
              "talker_mac": peer.mac, "listener": dut.entity_id,
              "listener_index": li, "listener_mac": dut.mac,
              "no_unbind_first": True},
-            asserts=BOUND_STREAMING_ASSERTS + (A_COUNTER_RESET_ON_BIND,),
+            asserts=BOUND_STREAMING_ASSERTS + (A_COUNTER_RESET_ON_BIND,
+                                               A_REBIND_NO_RESET),
             clause="Milan v1.2 5.5.3.5.43 SETTLED_RSV_OK / RCV_BIND_RX_CMD: a "
                    "BIND_RX for an already-bound Stream Input is an implicit "
-                   "rebind, NOT an error; the counters reset because the input "
-                   "re-entered the bound state (5.3.8.10)",
+                   "rebind, NOT an error - and NOT a reset boundary: the "
+                   "input never transits UNBOUND (same talker: step 2 exits; "
+                   "different talker: steps 3-12 re-probe), so the 5.3.8.10 "
+                   "trigger 'from not bound to bound' does not fire; whether "
+                   "the counters reset anyway is recorded, never judged "
+                   "(campaign ax-rv32-e filed 31 conformant rebinds as SHALL "
+                   "violations before this distinction)",
             note="a refusal here is a known open finding on this fabric, and "
                  "the runner records the status rather than stopping"))
         steps.append(_start_if_needed_step(
@@ -2804,6 +2898,57 @@ def self_test() -> int:
             self.assertEqual(interval_ticks_agree(0, 0)[0], "PASS")
             self.assertEqual(interval_ticks_agree(9, 4)[0], "FAIL")
             self.assertEqual(interval_ticks_agree(None, 4)[0], "SKIP")
+
+        def test_interval_agreement_attributes_a_per_frame_side(self):
+            # EVERY PARTICIPANT IS A MEASURED PARTY.  The three shapes:
+            # (1) both interval-conformant and agreeing -> PASS, no finding
+            v, d = interval_ticks_agree(4, 4, window_s=4.0)
+            self.assertEqual(v, "PASS")
+            self.assertNotIn("peer_findings", d)
+            # (2) both interval-conformant and genuinely disagreeing -> the
+            #     ORIGINAL pair FAIL, untouched by attribution
+            v, d = interval_ticks_agree(9, 4, window_s=4.0)
+            self.assertEqual(v, "FAIL")
+            self.assertNotIn("peer_findings", d)
+            # (3) one side per-frame (the PEER deviation, ~8000/s): the pair
+            #     verdict PASSes FOR THE CONFORMANT SIDE and the deviation is
+            #     an attributed finding naming the deviant ROLE and its rate
+            v, d = interval_ticks_agree(4, 31982, window_s=4.0)
+            self.assertEqual(v, "PASS")
+            self.assertTrue(d["attributed"])
+            self.assertEqual(d["conformant_role"], "talker")
+            self.assertEqual(d["listener_semantics"], "per-frame")
+            pf = d["peer_findings"]
+            self.assertEqual([f["role"] for f in pf], ["listener"])
+            self.assertGreater(pf[0]["ticks_per_s"], 150)
+            self.assertIn("Table 7-157", pf[0]["why"])
+            # ... and mirrored, the talker can be the deviant
+            v, d = interval_ticks_agree(72880, 9, window_s=8.0)
+            self.assertEqual(v, "PASS")
+            self.assertEqual(d["conformant_role"], "listener")
+            self.assertEqual(d["peer_findings"][0]["role"], "talker")
+            # movement disagreement OUTRANKS attribution: a deviant side
+            # pumping frames while the conformant side saw nothing is the
+            # original one-sided-streaming FAIL, with the finding kept
+            v, d = interval_ticks_agree(0, 31982, window_s=4.0)
+            self.assertEqual(v, "FAIL")
+            self.assertEqual(d["peer_findings"][0]["role"], "listener")
+            # two per-frame sides leave no baseline: SKIP + one finding EACH,
+            # never a silent pass for either
+            v, d = interval_ticks_agree(31982, 31982, window_s=4.0)
+            self.assertEqual(v, "SKIP")
+            self.assertEqual(len(d["peer_findings"]), 2)
+            # without a window the absolute floor still catches wire rate
+            v, d = interval_ticks_agree(4, 31982)
+            self.assertEqual(v, "PASS")
+            self.assertEqual(d["peer_findings"][0]["role"], "listener")
+            self.assertIsNone(d["peer_findings"][0]["ticks_per_s"])
+            # and a fast-but-plausible interval implementation is NOT deviant:
+            # 40 ticks over 4 s (a legal 100 ms interval) stays an interval
+            # reading, so the disagreement with a 1/s peer is the pair's
+            v, d = interval_ticks_agree(4, 40, window_s=4.0)
+            self.assertEqual(v, "FAIL")
+            self.assertNotIn("peer_findings", d)
 
         def test_cross_side_growth_bites_every_way(self):
             def sides(t, l, w=None, **kw):
