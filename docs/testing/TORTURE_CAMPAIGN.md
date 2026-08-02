@@ -30,7 +30,7 @@ cover.
 - **[4. What it asserts — the full inventory](#4-what-it-asserts--the-full-inventory)** — All 70 plan assertions and all 31 wire-truth check families: name, clause, severity, what makes it FAIL, what a SKIP means, and which sides it measures.
 - **[5. How to read the output](#5-how-to-read-the-output)** — The JSONL schema field by field, every verdict value, the exit-code contract, and worked examples of a pass, a failure and a skip.
 - **[6. How to extend it](#6-how-to-extend-it)** — One recipe per kind of addition, each with a worked example and its mandatory negative control.
-- **[7. The human-action checklist, and the physical (powerstrip) family](#7-the-human-action-checklist-and-the-physical-powerstrip-family)** — The physical interventions, what to do and what to observe — and the powerstrip hook (§7.1) that automates the two power cycles.
+- **[7. The human-action checklist, and the physical (powerstrip) family](#7-the-human-action-checklist-and-the-physical-powerstrip-family)** — The physical interventions, what to do and what to observe — and the powerstrip hook (§7.1) that automates the two power cycles. §7.1 also holds the two verdicts a partition and a cold boot *actually* owe: the GM story is a topology question (a permanent grandmaster owes CONTINUITY, only a follower owes an advance), and the Milan 5.3.8.1 persistence *shall* grades `KNOWN-PENDING`, not `FAIL`, on a build with no store to hold it.
 - **[8. The traps](#8-the-traps)** — The semantic and measurement traps a future maintainer *will* hit, each with its evidence.
 - **[9. Limits, cost and non-coverage](#9-limits-cost-and-non-coverage)** — Exhaustive and honest, including runtime.
 
@@ -655,7 +655,7 @@ exit code.
 | `CONFORMANT-REFUSAL` | the device refused, and the clause permits the refusal (a talker's `SET_STREAM_FORMAT` `NOT_SUPPORTED`; `STREAM_IS_RUNNING` while bound) | no |
 | `NEEDS-HUMAN` | a physical intervention is outstanding | exit 2 |
 | `INSTRUMENT-SUSPECT` | the **test machine** lost frames in this window, so the measurement is inadmissible — not a device failure and not a pass | no |
-| `KNOWN-PENDING` | reserved for a behaviour recorded as pending | no |
+| `KNOWN-PENDING` | the clause is real and unsatisfiable **by construction on this build**, so the assertion is kept, the gap is named in `detail.why`, and the same assertion goes live untouched the day the build can satisfy it. First user: `state.restored-after-power-cycle` on a DUT with no non-volatile store (§7.1) | no |
 
 ### 5.3 Exit codes
 
@@ -901,10 +901,16 @@ sudo ./milan_torture.py --areas physical \
 
 The strip is probed at startup with a harmless `status` read (never a
 switch); a strip whose CLI has no such verb fails the probe harmlessly and is
-then **trusted as documented**. `--board-cmd` feeds the uptime and
-shield-posture readings, `--csr-cmd` (or `--csr`) the `VERSION` (0x004) and
-`CLKV_STAT` (0x77C) words — all optional, and every assertion that misses its
-input SKIPs naming it.
+then **trusted as documented**. `--board-cmd` feeds the uptime, the
+shield-posture flags and the `/proc/mtd` persistence probe, `--csr-cmd` (or
+`--csr`) the `VERSION` (0x004) and `CLKV_STAT` (0x77C) words — all optional,
+and every assertion that misses its input SKIPs naming it. A missing reading
+now says **which** of the two causes it was: no `--board-cmd` at all, or a
+`--board-cmd` whose command failed or timed out. (`ax-phys-a` supplied
+`--board-cmd` and still lost every board reading to a 25 s bound that
+`Csr.read` had already had to raise to 60 s for this bench — an ssh-via-pw0
+hop into a loaded single-hart softcore. Both are 60 s now, and the SKIP no
+longer blames a flag that is already there.)
 
 **The switch cycle** (`phys.switch-cycle.*` — replaces the old gm-change and
 gm-loss human entries and adds a trunk-wide link bounce): pre-snapshot (GM
@@ -919,15 +925,34 @@ GM — unverifiable live, verified retroactively) → `on 4` → the recovery
 ladder: both entities discoverable again (budget 240 s: the DN-1 must itself
 boot before any board is reachable), then exactly **one** non-zero GM in both
 ADPDUs (budget 180 s more; `priority1` untouched — recovery must be
-automatic, never a forced win) → the retroactive verdicts:
-`GPTP_GM_CHANGED` advanced by a small bounded amount (and, read twice across
-a settle gap, is **not still climbing**), asCapable evidenced by someone
-following a *remote* GM, the tu lease re-established (`CLKV_STAT` bit 0 back
-to 0 — the lease is software, so it is exactly what a recovery can lose), and
-the DUT **survived without a reboot** (uptime monotonic; counter
-monotonicity as the fallback) → a full **proof pair** (set-format / bind /
-licence / unbind at the highest AAF indices — never the index-0 alias path),
-because "the bench recovered" is only a fact once a stream flows again.
+automatic, never a forced win) → the retroactive verdicts: **the GM story,
+graded against the topology** (below), the counter read twice across a settle
+gap and **not still climbing**, asCapable evidenced by someone following a
+*remote* GM, the tu lease re-established (`CLKV_STAT` bit 0 back to 0 — the
+lease is software, so it is exactly what a recovery can lose), and the DUT
+**survived without a reboot** (uptime monotonic; counter monotonicity as the
+fallback) → a full **proof pair** (set-format / bind / licence / unbind at the
+highest **AAF** indices — never the index-0 alias path, and never the peer's
+CRF Media Clock Input), because "the bench recovered" is only a fact once a
+stream flows again.
+
+**The GM story is a topology question, not a constant.** `GPTP_GM_CHANGED` is
+"gPTP grandmaster change count" (1722.1-2021 Table 7-153; Milan v1.2: "Number
+of gPTP GM changes, since boot") — it counts **changes of the grandmaster**.
+So which verdict a partition owes depends on what the DUT *was* before it, and
+the runner reads that from the pre-snapshot's ADPDU GM view rather than
+assuming:
+
+| the DUT was… | assertion | requirement |
+|---|---|---|
+| the **domain grandmaster** (this bench: `priority1` 238 vs the bridge's 246, so it wins permanently, is alone in its island while the domain is cut, and wins again on the re-join) | `counters.avb_interface.gptp-gm-continuity` | the ADPDU `gptp_grandmaster_id` is **unchanged** and the delta is **exactly 0**. A counter that moves with an unchanged id is a torn latch / partial-id re-read; a changed id with `priority1` untouched is an election it should have held. `…gptp-gm-changed-advances` SKIPs naming why |
+| a **follower** of a remote GM | `counters.avb_interface.gptp-gm-changed-advances` | it really did lose its grandmaster, so a small bounded **advance** is owed and a frozen counter slept through the partition. `…gptp-gm-continuity` SKIPs naming why |
+| either | `counters.avb_interface.peer-gptp-gm-changed-advances` | the **other** end station is where a permanent-GM DUT's partition is observable, so its counter is read too; a reference device that does not serve `GET_COUNTERS` SKIPs naming that, never a verdict about the DUT |
+| either | `counters.avb_interface.link-event-observed` (**INFO**) | `LINK_UP`/`LINK_DOWN` deltas as context. Whether a switch outage is even a PHY event for the DUT is a **cabling** fact: tap1 is an inline regenerating tap on the DUT link and holds the board-side PHY up while the switch side is dark, so a zero delta is expected and is never graded |
+
+Demanding an advance from a permanent GM demands a *non-conformant* count.
+Run `ax-phys-a` (2026-08-02) filed exactly that fake red — see
+[PHYSICAL_FAMILY_TRIAGE_0802.md](../findings/PHYSICAL_FAMILY_TRIAGE_0802.md).
 
 **The DUT cycle** (`phys.dut-cycle.*` — the old power-cycle entry): 
 pre-snapshot → `off 0` → 8 s drain → `on 0` → the zero-touch boot ladder:
@@ -936,10 +961,37 @@ discovered again within 360 s (QSPI load + kernel + link guard measured
 clause), `VERSION` unchanged (a changed word = the golden-image fallback
 engaged), shield posture restored (`eth0` flags `0x1203`, promisc **gated** —
 promisc outranks the TCAM drop, so a promiscuous boot has voided its own RX
-shield), the non-volatile state restored (the formats snapshotted before the
-cycle read back identical — Milan 5.3.10.1 / 5.3.8.1 / 5.3.7.6), the counter
-block back at zero (7.4.42 volatility), one GM within 120 s more, the tu
-lease re-armed → the proof pair.
+shield), **the persistence story** (below), the counter block back at zero
+(7.4.42 volatility), one GM within 120 s more, the tu lease re-armed → the
+proof pair.
+
+**Persistence: the clause is unconditional, the verdict is not.** Milan v1.2
+**5.3.8.1**: *"The current format shall be saved in a non-volatile memory and
+restored after a power cycle"* (5.3.7.1 for a Stream Output, 5.3.8.2/5.3.8.3
+for the bound state and binding parameters, 5.3.10.1/5.3.9.1 for the channel
+mappings, 5.3.7.6 for the presentation time offset). It is a **shall**, so
+`state.restored-after-power-cycle` is never deleted. But a build with no
+writable flash cannot satisfy it by construction, and a red that can never go
+green is a red the reader learns to skip past. So the verdict is decided by a
+**probe** — `/proc/mtd` over `--board-cmd`, overridable with `--nvm
+present|absent`, never inferred from a failed read:
+
+| situation | verdict |
+|---|---|
+| nothing differs | `PASS` — a device that keeps it, passes, whatever the probe says |
+| differs, store **present** | `FAIL` — violated by something that could have held it |
+| differs, store **absent** | `KNOWN-PENDING`, naming the clause, what must persist and where it would have to live; it does not fail the run and goes live as a `FAIL` untouched the day the store lands |
+| differs, store **unknown** | `SKIP` naming `--nvm` |
+
+Two records sit beside it so a cycle is never left with no verdict on its own
+state: `state.self-consistent-after-power-cycle` (**SHALL**, gradable with no
+store at all — every descriptor that answered `GET_STREAM_FORMAT` before the
+cycle answers again after it with a well-formed 8-octet format: 5.3.8.1's
+first sentence plus 1722.1-2021 7.4.10) and `state.format-after-power-cycle`
+(**INFO** — what each descriptor actually read back, pre vs post, which is
+what makes the gap measurable before it is fixed). On the AX7101 today
+`/proc/mtd` lists a header and nothing else, so this grades `KNOWN-PENDING`:
+see [PHYSICAL_FAMILY_TRIAGE_0802.md](../findings/PHYSICAL_FAMILY_TRIAGE_0802.md).
 
 **Serialization and the bench-alive guarantee.** The physical area is
 registered **last** in `AREAS` — a partition mid-matrix would pollute every
