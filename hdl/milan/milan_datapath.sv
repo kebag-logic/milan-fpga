@@ -151,9 +151,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! Milan Table 5.4 observation interval (KL_talker_diag_ctx), in datapath
   //! clock cycles; the clause bounds it at <= 1 s. TBs shrink it.
   parameter int DIAG_TICK_CYC_P = MILAN_CLK_FREQ_HZ,
-  //! Milan Table 5.6 observation interval (KL_avtp_rx_monitor_ctx, the
-  //! listener side of the same clause), in datapath clock cycles; <= 1 s.
-  //! TBs shrink it so counter checks see interval boundaries.
+  //! Milan Table 5.6 observation interval (every server of the Stream
+  //! Input clause: KL_avtp_rx_monitor_ctx for the AAF listeners AND
+  //! KL_crf_rx for the CRF Media Clock Input), in datapath clock cycles;
+  //! <= 1 s. TBs shrink it so counter checks see interval boundaries.
   parameter int LDIAG_IVAL_CYC_P = MILAN_CLK_FREQ_HZ,
   parameter int MCSERVO_P = 1,
   //! AAF latency taps (KL_aaf_latency_taps, 696 LUT / 614 FF measured).
@@ -3501,7 +3502,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  the CLOCK_DOMAIN lock events for clock_source = CRF. The ACMP sink-1
   //  bind chain is the remaining CRF work (MILAN_COMPLIANCE_GAPS.md).
   // ==========================================================================
-  KL_crf_rx #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) crf_rx (
+  KL_crf_rx #(
+    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+    .IVAL_CYC_P    (LDIAG_IVAL_CYC_P)
+  ) crf_rx (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .frame_p_i   (avtprx_parse_p),
     .subtype_i   (avtprx_subtype),

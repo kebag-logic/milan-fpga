@@ -10,6 +10,14 @@
 #
 # CLK_FREQ_HZ_P is scaled to 200 kHz so the 100 ms lock timeout is
 # 20 000 cycles (drillable in-sim); the ts/rate math is cycle-count-free.
+#
+# IVAL_CYC: Milan v1.2 Table 5.6 observation interval, shrunk from the
+# silicon 1 s (= CLK_FREQ_HZ_P cycles) so counter checks see interval
+# commits in sim time. Semantics under test (N events in one interval move
+# a counter by 1) are identical at any conformant interval length. ONE
+# variable feeds the RTL parameter AND the C++ replica: derive, never
+# mirror.
+IVAL_CYC ?= 200
 
 VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
@@ -18,9 +26,10 @@ TOP        = KL_crf_rx
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
          -GCLK_FREQ_HZ_P=200000 \
+         -GIVAL_CYC_P=$(IVAL_CYC) \
          -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE \
-         -CFLAGS "-std=c++17 -O2"
+         -CFLAGS "-std=c++17 -O2 -DIVAL_CYC_C=$(IVAL_CYC)u"
 
 SRCS = $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
 CPP  = sim_main.cpp

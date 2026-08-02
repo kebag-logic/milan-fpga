@@ -36,6 +36,27 @@
                   lock/unlock event counters: CLOCK_DOMAIN GET_COUNTERS
                             LOCKED/UNLOCKED when clock_source = CRF.
 
+                COUNTER SEMANTICS split per Milan v1.2 Table 5.6, exactly
+                (5.3.8.10 keeps the Stream Input counters "for each Stream
+                Input" with no CRF exemption; KL_aecp_response_builder
+                serves this engine's tallies behind the 0x0F3F mask for the
+                CRF Media Clock Input, the KL_avtp_rx_monitor_ctx reading):
+
+                * cnt_locked / cnt_unlocked are EVENT counters
+                  ("incremented each time ...") - per event, as before.
+                * pdu_count (FRAMES_RX), fmt_err (UNSUPPORTED_FORMAT) and
+                  seq_err (SEQ_NUM_MISMATCH) are OBSERVATION-INTERVAL
+                  counters: "incremented at the end of every observation
+                  interval during which ..." where "the duration of the
+                  observation interval is implementation-specific and shall
+                  be less than or equal to 1 second". A PDU verdict only
+                  SETS a seen flag; the tick derived from CLK_FREQ_HZ_P
+                  (IVAL_CYC_P, default = the 1 s clause ceiling) commits +1
+                  per flagged counter, so N events inside one interval move
+                  a counter by AT MOST ONE. The per-frame reading is IEEE
+                  1722.1-2021 Table 7-153's, not Milan's, and serving it
+                  read ~500x high at the 500 PDU/s CRF cadence.
+
                 The stream to follow is selected by sid_i/en_i (CSR pair
                 today, the ACMP sink-1 SM once it exists - the remaining
                 CRF work is the sink-1 bind chain, see
@@ -51,7 +72,13 @@
 `default_nettype none
 
 module KL_crf_rx #(
-  parameter int CLK_FREQ_HZ_P = 50_000_000
+  parameter int CLK_FREQ_HZ_P = 50_000_000,
+  //! Milan v1.2 Table 5.6 observation interval in clk_i cycles,
+  //! "implementation-specific and shall be less than or equal to 1 second" -
+  //! the default DERIVES the 1 s ceiling from the clock parameter (never a
+  //! mirrored cycle constant); TBs shrink it so a case sees interval
+  //! boundaries
+  parameter int unsigned IVAL_CYC_P = CLK_FREQ_HZ_P
 )(
   input  wire         clk_i,
   input  wire         rst_n,
@@ -75,9 +102,9 @@ module KL_crf_rx #(
   //! measurement outputs (CSR)
   output logic signed [31:0] delta_o,     //! crf_ts - ptp_now @ last PDU
   output logic signed [31:0] rate_o,      //! ns error per 256-PDU window
-  output logic [15:0] pdu_count_o,        //! accepted CRF PDUs (wraps)
-  output logic [7:0]  fmt_err_o,          //! wrong pull/base/interval/dlen/type
-  output logic [7:0]  seq_err_o,          //! sequence_num discontinuities
+  output logic [15:0] pdu_count_o,        //! FRAMES_RX: intervals with >= 1 accepted PDU (wraps)
+  output logic [7:0]  fmt_err_o,          //! UNSUPPORTED_FORMAT: intervals with >= 1 profile reject
+  output logic [7:0]  seq_err_o,          //! SEQ_NUM_MISMATCH: intervals with >= 1 discontinuity
   output logic        locked_o,
   output logic [31:0] cnt_locked_o,       //! lock events (CLOCK_DOMAIN ctr)
   output logic [31:0] cnt_unlocked_o      //! unlock events
@@ -134,6 +161,37 @@ module KL_crf_rx #(
 
   wire w_acc = w_hit && w_fmt_ok;
 
+  //! this cycle's Table 5.6 interval-flag events. The engine keeps settle /
+  //! lock / delta / rate per-PDU (measurement is not a counter); only the
+  //! three interval counters' increments move to the tick commit. FRX = the
+  //! accepted PDU itself (w_acc), UF = a matched-but-rejected PDU, SM = an
+  //! accepted PDU with a non-sequential sequence_num.
+  wire w_ev_uf_w = w_hit && !w_fmt_ok;
+  wire w_ev_sm_w = w_acc && have_seq_r && (seq_i != exp_seq_r);
+
+  // ==========================================================================
+  //  Table 5.6 observation-interval tick (free-running; the clause fixes
+  //  only an upper bound on the interval, not its phase)
+  // ==========================================================================
+  localparam int unsigned IVALW_C = (IVAL_CYC_P <= 2) ? 1
+                                                      : $clog2(IVAL_CYC_P);
+  logic [IVALW_C-1:0] iv_div_r;
+  logic               iv_tick_r;
+  logic               iv_frx_r, iv_uf_r, iv_sm_r;  //! interval seen flags
+
+  always_ff @(posedge clk_i or negedge rst_n) begin : iv_tick_gen
+    if (!rst_n) begin
+      iv_div_r  <= '0;
+      iv_tick_r <= 1'b0;
+    end else if (32'(iv_div_r) >= IVAL_CYC_P - 1) begin
+      iv_div_r  <= '0;
+      iv_tick_r <= 1'b1;
+    end else begin
+      iv_div_r  <= iv_div_r + 1'b1;
+      iv_tick_r <= 1'b0;
+    end
+  end : iv_tick_gen
+
   //! the BRAM port: no reset (BRAM), enabled once per accepted PDU
   always_ff @(posedge clk_i) begin : ts_hist_port
     if (w_acc) begin
@@ -151,7 +209,29 @@ module KL_crf_rx #(
       exp_seq_r <= '0; have_seq_r <= 1'b0;
       settle_r <= '0; tout_r <= '0;
       ts_new_r <= '0; rate_pend_r <= 1'b0;
+      iv_frx_r <= 1'b0; iv_uf_r <= 1'b0; iv_sm_r <= 1'b0;
     end else begin
+      //! Table 5.6 interval commit: +1 per flagged counter at the tick,
+      //! then the flags restart clean. An event landing in the tick cycle
+      //! itself is harvested INTO the closing interval (the
+      //! KL_avtp_rx_monitor_ctx boundary rule) - counted once, never lost,
+      //! never doubled.
+      if (iv_tick_r) begin
+        if (iv_frx_r || w_acc)
+          pdu_count_o <= pdu_count_o + 16'd1;
+        if (iv_uf_r || w_ev_uf_w)
+          fmt_err_o <= (&fmt_err_o) ? fmt_err_o : fmt_err_o + 8'd1;
+        if (iv_sm_r || w_ev_sm_w)
+          seq_err_o <= (&seq_err_o) ? seq_err_o : seq_err_o + 8'd1;
+        iv_frx_r <= 1'b0;
+        iv_uf_r  <= 1'b0;
+        iv_sm_r  <= 1'b0;
+      end else begin
+        iv_frx_r <= iv_frx_r | w_acc;
+        iv_uf_r  <= iv_uf_r  | w_ev_uf_w;
+        iv_sm_r  <= iv_sm_r  | w_ev_sm_w;
+      end
+
       //! retimed rate math: one clk after the accepted PDU, when the BRAM
       //! read (hist_old_r) is valid. ts_new_r - hist_old_r is congruent
       //! mod 2^32 with the 64-bit timestamp difference. Placed before the
@@ -179,14 +259,14 @@ module KL_crf_rx #(
 
       if (w_hit) begin
         if (!w_fmt_ok) begin
-          fmt_err_o <= (&fmt_err_o) ? fmt_err_o : fmt_err_o + 8'd1;
-          //! a malformed PDU breaks the settle run
+          //! a malformed PDU breaks the settle run; the UNSUPPORTED_FORMAT
+          //! count itself commits at the interval tick (w_ev_uf_w above)
           settle_r  <= '0;
         end else begin
-          pdu_count_o <= pdu_count_o + 16'd1;
-
+          //! FRAMES_RX / SEQ_NUM_MISMATCH commit at the interval tick
+          //! (w_acc / w_ev_sm_w above); a discontinuity still breaks the
+          //! settle run per-PDU
           if (have_seq_r && (seq_i != exp_seq_r)) begin
-            seq_err_o <= (&seq_err_o) ? seq_err_o : seq_err_o + 8'd1;
             settle_r  <= '0;
           end else if (settle_r != 3'(SETTLE_C - 1)) begin
             settle_r <= settle_r + 3'd1;
