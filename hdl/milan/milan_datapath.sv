@@ -3502,6 +3502,20 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! VID 2}). The SAME constant the lwSRP applicant puts in the Talker
   //! Advertise PriorityAndRank octet, so the frame and the declaration agree.
   wire [2:0] crft_pcp_w = lwsrp_pkg::SR_CLASS_A_PRIO_C[2:0];
+  //! THE LICENCE (Milan v1.2 5.3.7.3): a talker streams while it declares a
+  //! Talker Advertise AND receives a Listener Ready - the CRF output is a
+  //! Stream Output like any other, so its emission rides the same bw-gate
+  //! the AAF talkers use (aaf_gate / aaf_stream_en_w), not the bare CSR
+  //! enable. ax-rv32-e wire truth: with zero listeners and no reservation
+  //! the old bare-CSR gate kept 500 PDU/s on the wire (FRAMES_TX +1/s,
+  //! stat[6]=0), which 5.3.7.3 does not license. The bring-up escapes
+  //! mirror the AAF term: AAF bypass, or an lwSRP that is not policing
+  //! (engine or talker declarations off - no TA can form, so silence would
+  //! deadlock the media clock during bring-up, same doctrine as the
+  //! untagged-but-alive fallback above).
+  wire crft_emit_en_w = cfg_crft_en &
+                        (cfg_aaf_bypass | ~cfg_lwsrp_enable |
+                         ~cfg_lwsrp_talker_en | crft_res_active_w);
 
   //! 0x750 live status (see milan_csr A_CRFT_CTRL); [1:0] come from the CSR
   logic [31:0] crft_stat_c;
@@ -3510,6 +3524,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     crft_stat_c[4]     = crf_srp_val_r;         //! TA row provisioned valid
     crft_stat_c[5]     = crft_class_a_w;        //! frames leaving tagged
     crft_stat_c[6]     = crft_res_active_w;     //! reservation ACTIVE
+    crft_stat_c[7]     = crft_emit_en_w;        //! emission licensed NOW
     crft_stat_c[19:8]  = crft_class_a_w ? cfg_lwsrp_vid : 12'd0;
     crft_stat_c[22:20] = crft_class_a_w ? crft_pcp_w    : 3'd0;
   end : crft_stat_pack
@@ -3706,7 +3721,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   KL_crf_tx crf_tx (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i (clk_audio_i),
-    .enable_i      (cfg_crft_en),
+    //! licence-gated, never the bare CSR bit: see crft_emit_en_w
+    .enable_i      (crft_emit_en_w),
     .sid_i         (eff_crft_sid_w),
     .dest_mac_i    (eff_crft_dmac_w),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],

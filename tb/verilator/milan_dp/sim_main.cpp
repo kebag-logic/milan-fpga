@@ -1621,7 +1621,9 @@ int main(int argc, char** argv) {
         // enable LAST, then capture immediately: no cycles may pass in
         // between or the first PDUs (seq 0..) drain unseen
         axi_write(A_CRFT_CTRL, 0x1);
-        ck("CRFT_CTRL readback en=1", axi_read(A_CRFT_CTRL), 1);
+        // en=1 plus stat[7] (emission licensed - lwSRP is off here, so the
+        // bring-up escape licenses the free-run; see crft_emit_en_w)
+        ck("CRFT_CTRL readback en=1 + stat[7]", axi_read(A_CRFT_CTRL), 0x81);
 
         // one CRF PDU per 512*96 = 49152 audio(=axis) cycles
         const int NCAP = 10;
@@ -1716,6 +1718,47 @@ int main(int argc, char** argv) {
         }
         ck("CRFTX disabled = silent wire", stray, 0);
         ck("CRFTX disabled = count frozen", axi_read(A_CRFT_COUNT), cnt_off);
+
+        // ---- the LICENCE gate (Milan v1.2 5.3.7.3): with lwSRP policing //
+        // (engine + talker declarations on) and NO listener-ready         //
+        // registered, the CRF talker owes silence - the ax-rv32-e wire    //
+        // showed 500 PDU/s with zero listeners through the old bare-CSR   //
+        // gate. Dropping lwSRP back off restores the bring-up free-run.   //
+        axi_write(A_CRFT_CTRL, 0x1);              // CSR enable back ON
+        axi_write(0x680, 0x013);                  // lwSRP en | talker | q4
+        long cnt_lic = axi_read(A_CRFT_COUNT);
+        long stray_lic = 0;
+        std::vector<uint8_t> lcur;
+        for (long c = 0; c < 120000; c++) {
+            step();
+            if (dut->m_axis_mac_tx_tvalid) {
+                uint64_t d = dut->m_axis_mac_tx_tdata;
+                for (int j = 0; j < 8; j++) lcur.push_back((uint8_t)(d >> (8*j)));
+                if (dut->m_axis_mac_tx_tlast) {
+                    // CRF = untagged 22F0 subtype 04, or C-tagged variant
+                    if (lcur.size() >= 19 &&
+                        ((lcur[12]==0x22 && lcur[13]==0xF0 && lcur[14]==0x04) ||
+                         (lcur[12]==0x81 && lcur[13]==0x00 &&
+                          lcur[16]==0x22 && lcur[17]==0xF0 && lcur[18]==0x04)))
+                        stray_lic++;
+                    lcur.clear();
+                }
+            }
+        }
+        ck("CRFTX unlicensed (lwSRP on, no listener-ready) = silent",
+           stray_lic, 0);
+        ck("CRFTX unlicensed = count frozen", axi_read(A_CRFT_COUNT), cnt_lic);
+        ck("CRFT stat[7] emission-licensed clear",
+           (axi_read(A_CRFT_CTRL) >> 7) & 1, 0);
+        axi_write(0x680, 0x010);                  // lwSRP back off (bring-up)
+        long cnt_byp = axi_read(A_CRFT_COUNT);
+        for (long c = 0; c < 120000; c++) step();
+        ck("CRFTX free-run restored with lwSRP off",
+           axi_read(A_CRFT_COUNT) > cnt_byp ? 1 : 0, 1);
+        ck("CRFT stat[7] emission-licensed set",
+           (axi_read(A_CRFT_CTRL) >> 7) & 1, 1);
+        axi_write(A_CRFT_CTRL, 0x0);              // leave as the block found it
+        for (int c = 0; c < 5000; c++) step();
     }
 
     // ---------------------------------------------------------------- //
