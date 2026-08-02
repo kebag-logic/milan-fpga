@@ -1,19 +1,25 @@
 # BENCH TOPOLOGY & WHERE-IS-WHAT — the context-reset handover
 
-Concrete bench values (hostnames, serials, IPs, outlet numbers) live in the private test repo's bench notes.
-
-Written 2026-07-20 (post history-rewrite). This is the single document a
-fresh session needs to operate the bench. Live campaign state is tracked
-in the GitHub issues; the remaining compliance work is
+Written 2026-07-20 (post history-rewrite), **refreshed 2026-08-02: the bench
+changed fundamentally — the ARTY IS RETIRED (USER 07-31 "forget the Arty");
+the ALINX AX7101 is the SOLE DUT** (8 talkers × 8 listeners × 8 channels,
+RV32 VexiiRiscv, QSPI-boot), with the PEER as the reference device. Sections
+below carry banners where the two-board era is kept as history. The
+single-DUT bench values (hosts, tap interface, outlets, serials) are now
+inline in this doc; anything not inline is in the private test repo's bench
+notes. This is the single document a fresh session needs to operate the
+bench. Live campaign state is tracked in the GitHub issues and the dated
+handovers ([HANDOVER_0802.md](../../HANDOVER_0802.md) is current); the
+remaining compliance work is
 [`docs/MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md). Naming rule: the conformance suite is
 called **the bench suite** everywhere (commits, docs, comments) — never
 any other name; its material is private (see §7).
 
 ## Contents
 
-- **[0. The map](#0-the-map)** — Answers "where do I plug the analyzer": tap1 is inline on the ALINX link, tap2 on the ARTY link. The caveat that follows the picture is the useful bit — a tap sees one *link*, so traffic the switch drops crosses neither tap.
-- **[1. Machines](#1-machines)** — Role and reach for every host, plus three facts that change what you can do: the dev box never gets an address on the AVB subnet, the switch has no IP or UI management at all, and capture records carry a 28-byte header so every `ether[]` offset shifts by +28.
-- **[2. Boards (DUTs)](#2-boards-duts)** — The two DUTs side by side — entity ids, the FTDI serial and part each flash command needs, 50 vs 100 MHz datapath, and which one is grandmaster. Ends with the audio loop diagram and why −83.9 dB is the converter floor rather than a datapath limit: exactly one hop is analog.
+- **[0. The map](#0-the-map)** — Answers "where do I plug the analyzer": tap1 is inline on the ALINX link (the only DUT link left) and the tap host is the **only** place wire truth exists — the controller host sits on a pruned switch port. The caveat that follows the picture is the useful bit — a tap sees one *link*, so traffic the switch drops crosses neither tap.
+- **[1. Machines](#1-machines)** — Role and reach for every host, now with the concrete names inline (amx-pw0 / amx-ubuntu-server / amx-pi), plus the facts that change what you can do: the dev box never gets an address on the AVB subnet, the switch has no IP or UI management at all, pw0's port is pruned, and capture records carry a 28-byte header so every `ether[]` offset shifts by +28.
+- **[2. Boards (DUTs)](#2-boards-duts)** — The sole DUT (AX7101: serial/JTAG/ssh access, RV32, 8×8×8ch) and the PEER reference wiring with the PRIMARIES-ONLY binding rule; the two-board table and the Arty analog loop are kept below it as banner-marked history.
 - **[3. Consoles from the dev box](#3-consoles-from-the-dev-box)** — The serial↔FIFO daemon you must **recreate after a context reset**, and its three traps: output racing the read window, `dmesg -n 1` to unbury the console, and a foreground pipe wedging the shell.
 - **[4. Repositories & artifacts](#4-repositories--artifacts)** — Which of the five trees holds what — gateware, bench/private, LiteX venv and build dirs, buildroot output, standards PDFs. Standing warning: both repos diverge from their GitHub origins, so any push needs `--force`.
 - **[5. Build → flash → verify pipeline](#5-build--flash--verify-pipeline)** — The commands, copy-ready: 3-seed sweep, the per-board flash invocation with its environment, and the WNS ≥ 0 gate. Also the chronic non-error to ignore (`write_cfgmem SPI_BUSWIDTH` on ARTY) and the regression set required before any commit.
@@ -26,49 +32,78 @@ any other name; its material is private (see §7).
 ## 0. The map
 
 *Where do I plug the analyzer to see traffic from a given board?* Solid lines
-are the AVB wire; dashed lines never carry stream traffic. Concrete values stay
-out of the picture by rule — this is roles and links only.
+are the AVB wire; dashed lines never carry stream traffic.
 
 ```mermaid
 flowchart TB
     subgraph LAB["the bench segment"]
         SW{{"AVB switch<br/>managed bridge, no IP or UI management<br/>MSRP domain: class A, prio 3, VID 2"}}
-        ARTY["ARTY - small end-station<br/>entity :02, datapath 50 MHz, gPTP SLAVE"]
-        AX["ALINX AX7101 - full end-station<br/>entity :01, datapath 100 MHz, gPTP GM"]
-        PEER["the peer test host<br/>controller on the AVB LAN:<br/>wire probes, raw-socket tools, captures"]
+        AX["ALINX AX7101 - THE DUT<br/>entity :01, 8x8x8ch, RV32 VexiiRiscv, gPTP GM"]
+        DS["PEER - the reference device<br/>AES3 loop on ch 1/2; bind its (p) PRIMARIES only"]
+        PEER["amx-pw0 - the peer/controller host<br/>raw-socket tools, la_avdecc, campaign runner.<br/>Its switch port is PRUNED: it never sees VID-2<br/>streams or link-local gPTP"]
         T1(["tap1 - inline on the ALINX to switch link"])
-        T2(["tap2 - inline on the ARTY to switch link"])
         AX --- T1 --- SW
-        ARTY --- T2 --- SW
+        DS --- SW
         SW --- PEER
     end
-    CAP["the capture host<br/>ProfiShark recorder. Records carry a 28-byte header,<br/>so every tcpdump ether offset shifts by +28"]
+    CAP["amx-ubuntu-server - the capture host<br/>ProfiShark recorder, tap1 = enxe8eb1b37e2c0.<br/>Records carry a 28-byte header, so every<br/>tcpdump ether offset shifts by +28"]
     T1 -.-> CAP
-    T2 -.-> CAP
-    DEV["dev box<br/>Vivado, repos, JTAG cables, serial consoles.<br/>NEVER gets an address on the bench AVB subnet"]
-    DEV -.->|"JTAG / QSPI flash + serial console"| ARTY
+    DEV["dev box<br/>Vivado, repos, JTAG cable, serial console.<br/>NEVER gets an address on the bench AVB subnet"]
     DEV -.->|"JTAG / QSPI flash + serial console"| AX
-    PWR["the power controller<br/>one outlet per switched device"]
+    PWR["amx-pi powerstrip<br/>OUT0 = AX (cold cycle), OUT4 = the switch"]
     PWR -.->|"power"| SW
     PWR -.->|"power"| AX
 ```
 
-So: **tap1 for anything the ALINX sends or receives, tap2 for the ARTY.** A tap
-sees one link, not the segment — traffic between the ARTY and the peer host
-crosses both taps, traffic the switch drops crosses neither.
+So: **tap1 for anything the ALINX sends or receives — and the tap is the ONLY
+wire truth on this bench**: amx-pw0 sits on a pruned switch port and cannot
+see registered VID-2 streams or link-local gPTP at all, so a clean capture on
+pw0 proves nothing about the stream path. A tap sees one link, not the
+segment — traffic the switch drops crosses no tap. (tap2, the former ARTY
+link tap `enxe8eb1b39111a`, is idle since the Arty's retirement.)
 
 ## 1. Machines
 
 | Name | Reach | Role |
 |---|---|---|
-| dev box (this host) | local | Vivado 2026.1 (the local Vivado install, 96 cores), repos, JTAG cables, board serial consoles. NEVER gets an address on the bench AVB subnet. |
-| the peer test host (`peer-host`) | `ssh peer-host` | Test controller on the AVB LAN: `enp6s0` = `<peer-host-mac>` = `<peer-ip>`. Bench-specific subnet, role split: .1 = AX eth0, .2 = peer, .3 = ARTY. All wire probes run here (needs sudo for raw sockets + PACKET_MR_PROMISC — raw AVDECC tools MUST join promisc or responses are NIC-dropped). |
-| the capture host (`capture-host`) | `ssh capture-host` | ProfiShark capture host. `<tap1-if>` = tap1 **inline on the ALINX↔switch link**; `<tap2-if>` = tap2 **inline on the ARTY↔switch link**. Records carry a **28-byte header**: all tcpdump `ether[]` offsets shift +28 (ethertype at `ether[40:2]`, SMAC at `ether[34:4]`); FCS included. |
-| the power controller (`power-host`) | `ssh power-host` | Power strip: `powerstrip off/on <outlet>` — outlet numbers are bench-specific (one outlet = **the AVB switch**, another = AX7101 power; see the private bench notes). |
+| dev box (this host) | local | Vivado 2026.1 (the local Vivado install, 96 cores), repos, JTAG cable, board serial console. NEVER gets an address on the bench AVB subnet. |
+| the peer test host (`amx-pw0`) | `ssh amx-pw0` | Test controller on the AVB LAN: `enp6s0`, .2 on the bench subnet (role split: .1 = AX eth0, .2 = peer, .3 = the retired ARTY). All wire probes and the campaign runner live here (needs sudo for raw sockets + PACKET_MR_PROMISC — raw AVDECC tools MUST join promisc or responses are NIC-dropped). **Its switch port is PRUNED**: it cannot see registered VID-2 streams or link-local gPTP — never conclude "no traffic" from a pw0 capture; go to the tap. Board ssh hops through here (the board key `id_rsa` lives on pw0, not the dev box). |
+| the capture host (`amx-ubuntu-server`) | `ssh amx-ubuntu-server` | ProfiShark capture host. `enxe8eb1b37e2c0` = tap1 **inline on the ALINX↔switch link**; `enxe8eb1b39111a` = tap2, the former ARTY link (idle). Records carry a **28-byte header**: all tcpdump `ether[]` offsets shift +28 (ethertype at `ether[40:2]` — e.g. `ether[40:2] == 0x88f7` selects PTP; SMAC at `ether[34:4]`); FCS included. **Record byte[8] gives the direction: 3 = board side, 2 = switch side.** |
+| the power controller (`amx-pi`) | `ssh amx-pi 'powerstrip off/on <outlet>'` | Power strip: **OUT0 = the AX7101** (cutting it = SRAM gateware loss, so a cold cycle requires the QSPI-boot image — that is also what makes it the scriptable cold-boot lever), **OUT4 = the AVB switch**. It also carries a USB-eth dongle used in earlier bench eras [session-lore, verify before relying on it]. |
 | a reserved bench host | — | **NEVER TOUCH** (standing rule). |
 | AVB switch | **no IP/UI management** (USER 2026-07-22; the old ".1 ssh open" row was stale — .1 is now the AX's eth0) | Managed AVB bridge. clockIdentity `<bridge-clockidentity>`, port MAC toward AX `<bridge-port-mac>`. Claims gPTP priority1=246/cc248/acc0x20 (tap-read) — why boards run priority1=238 (USER default; ship posture 246\|248). MSRP Domain = class A, prio 3, **VID 2**. |
 
 ## 2. Boards (DUTs)
+
+**THE CURRENT TRUTH (2026-08-02): the ALINX AX7101 is the SOLE DUT.** The
+Arty is retired (USER 07-31, after its USB power path died); do not power,
+flash or campaign it. rv64 artifacts stay on disk as the RV32 port's
+regression baseline only.
+
+| AX7101 — the sole DUT | value |
+|---|---|
+| Shape | **8 talkers × 8 listeners × 8 channels/stream** (USER-fixed, non-negotiable), RV32 VexiiRiscv (`--xlen 32`), must run the **latest** gateware |
+| Entity / MAC | entity :01 — 02:00:00:00:00:01 / 020000fffe000001 |
+| Board access | `ssh amx-pw0`, then `ssh -i ~/.ssh/id_rsa root@192.168.127.1` (dropbear, root, key on pw0; expect **long timeouts** on a loaded board; `scp -O` only — no SFTP; busybox: no `pkill`, no `modinfo`) |
+| Serial console | CP2102N @ **115200**, currently `/dev/ttyUSB1` — but **ttyUSBn flips between plugs; prefer the `/dev/serial/by-id` path**. Drain the FTDI/UART buffer before diagnosing (a stale boot log replays on open). |
+| JTAG / flash | FT232H serial **210512180081**, `openFPGALoader -c ft232 --fpga-part xc7a100tfgg484` (the Digilent FT2232 `210319AFEED0` is the retired Arty's cable — two cables on the bus, NEVER omit `--ftdi-serial`) |
+| QSPI policy | **boot**: bitstream@0 + full image set (16 MB N25Q128; the manifest-"full" map has a 4 MiB bitstream slot) |
+| Cold cycle | `ssh amx-pi 'powerstrip off 0; sleep 6; powerstrip on 0'` (OUT0; SRAM gateware is lost — QSPI boots it back) |
+| gPTP role | **GM** (priority1 238 via S50milan) |
+
+**The PEER reference wiring** (channel numbers 1-based):
+
+- **ch 1/2 = AES RX→TX loopback** — stream into ch 1/2 and it returns on
+  ch 1/2: a channel-preserving identity loop through a Milan-validated device.
+- **ch 3/4 = AES out** (no return path).
+- **PRIMARIES ONLY**: the PEER is a redundancy-capable device; its listener
+  indices **0/2/4/6/8 are the (p) primaries** — those are the ONLY ones to
+  bind. **NEVER bind an (s) secondary (odd) index**: this bench has ONE
+  physical network, a secondary has no wire of its own. The campaign's
+  listener sets encode this (`listener_indices()` names the primaries).
+
+**HISTORICAL (two-board era, pre 07-31) — kept for provenance; the ARTY
+column no longer describes live bench state:**
 
 | | ARTY (small endstation) | ALINX AX7101 (full endstation) |
 |---|---|---|
@@ -82,7 +117,15 @@ crosses both taps, traffic the switch drops crosses neither.
 | Serial console | `/dev/serial/by-id/<board-usb-serial>` (Digilent FT2232 channel B, `-if01-port0`) | `/dev/serial/by-id/<board-usb-serial>` (CP2102N, `-if00-port0`) |
 | ssh | dropbear, root, no password — `ssh root@<board-ip>` **from the peer test host** (large-file path; console base64 fails) | same (find IP first) |
 
-Audio loop: ALINX tone (S50 enables TONE_CTRL) → AAF → ARTY DAC (Pmod
+**The live audio loop is now the PEER AES3 loop** (AX talker → PEER ch 1/2
+→ PEER talker → AX listener): all-digital, so it is an *identity* test, not
+just a counter test. Under the promisc-era RX starvation it measured −68 dB
+*gating-limited* (see
+[DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md) §1); with the RX shield in
+place the gating is gone.
+
+**HISTORICAL (Arty analog loop, retired with the board):** ALINX tone (S50
+enables TONE_CTRL) → AAF → ARTY DAC (Pmod
 I2S2 HP out, through the render LPF) → analog cable → ARTY ADC (line in)
 → ARTY talker stream → wire. Loop THD+N record −83.9 dB (LPF on, MMCM-DRP servo
 coherent chain — the CS4344⊕CS5343 converter floor; the old −73.4 was NCO-era).
@@ -139,13 +182,30 @@ rewrite). Push ONLY when the user asks — needs `--force`.
 
 ## 5. Build → flash → verify pipeline
 
+**2026-08-02 notes for the single-DUT era:** builds are AX7101/RV32 only;
+`sweep.sh` exports `PYTHONHASHSEED=0` so every seed shares one CPU netlist —
+never launch a build without it (an unpinned hash seed forks the VexiiRiscv
+netlist and the A/B comparison dies). The fit recipe that currently gets
+closest is `synth_design -directive AlternateRoutability` +
+`place_design -directive ExtraNetDelay_high`; the full fit ledger lives in
+[HANDOVER_0802.md](../../HANDOVER_0802.md). Flash with the full image set
+(`KERNEL`/`DTB`/`OPENSBI`/`ROOTFS`) — **OpenSBI embeds the FDT**, so a DTB
+change means an OpenSBI rebuild, and a queue-count change shifts the DMA
+windows under an unchanged DTB (`deploy.sh` gates this via
+`check_dtb_csr.py`).
+
 ```sh
 # 3-seed Vivado sweep (3 parallel instances × 32 threads = the box rule)
-cd ~/prjs-avb-on-fpga/milan-fpga && ./sw/litex/sweep.sh <arty|ax7101> <tag>
+cd ~/prjs-avb-on-fpga/milan-fpga && ./sw/litex/sweep.sh ax7101 <tag>
 # WNS: grep -B2 -A6 "Design Timing Summary" ~/litex-milan/work/build_*_<tag>/gateware/*_timing.rpt
 # Gate: WNS >= 0. Pick best seed.
 
-# ARTY (QSPI boot: bitstream + images):
+# AX7101 (current): AX_FTDI=210512180081 ./sw/litex/build.sh flash ax7101:<builddir>
+# then cold-cycle: ssh amx-pi 'powerstrip off 0; sleep 6; powerstrip on 0'
+# verify: devmem 0x90000004 reads the expected VERSION, and
+#         cat /sys/class/net/eth0/flags == 0x1203 (RX-shield posture, §8)
+
+# HISTORICAL — ARTY (retired 07-31; QSPI boot: bitstream + images):
 PATH="$HOME/litex-milan/venv/bin:$PATH" PYTHON="$HOME/litex-milan/venv/bin/python3" \
 KERNEL=/tmp/scratch/Image.xz ROOTFS=/tmp/scratch/rootfs.cpio.xz \
 OPENSBI=~/the-private-test-repo/fpga/boot/opensbi_arty.bin \
@@ -171,6 +231,17 @@ Regression before any commit: aecp + milan_dp + pcmlpf TBs green,
 tail can eat the exit code).
 
 ## 6. Peer-host wire tooling (all `sudo`, iface `enp6s0`)
+
+**Read this first: pw0 is NOT wire truth.** Its switch port is pruned, so
+registered VID-2 streams and link-local gPTP never reach it. Anything about
+stream cadence, gPTP cadence or stream content must be measured **at the tap
+on `amx-ubuntu-server`** (`enxe8eb1b37e2c0` = the AX link). ProfiShark record
+layout there: 28-byte header (BPF offsets shift +28 — `ether[40:2] == 0x88f7`
+selects PTP), record byte[8] = 3 for the board side, 2 for the switch side.
+And when you measure a cadence, **a frame COUNT is not a CADENCE** — compute
+the inter-departure distribution (median/p95/max), not frames-per-window
+(see [DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md) §1 for the day this
+rule was earned).
 
 | Tool | Purpose |
 |---|---|
@@ -229,6 +300,20 @@ GM; pdelay 0x6E4; AS_PATH parent bridge 0x730/4 from PARENT_DATA_SET),
 `stream_phc_sync.sh` (dormant while ptp4l is SLAVE **or MASTER**; only
 steers after 5 consecutive dead polls — earlier versions caused the
 ~100 s media-unlock cycle).
+
+**RX-shield posture (2026-08-02, after
+[DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md) §1):** S50milan no longer
+sets promisc when the driver carries the shield (it reads
+`/sys/module/kl_eth/version` for a `rxsh` prefix — busybox has **no
+`modinfo`**). The shielded driver programs MC_HASH from the kernel multicast
+list and a TCAM drop of the stream DMAC range, so the kernel sees only
+control traffic while the fabric taps (pre-filter) keep every counter and the
+PCM ring working. **Check the posture after every boot:**
+`cat /sys/class/net/eth0/flags` — `0x1203` is correct, `0x1303` means promisc
+leaked and the shield is void (promisc outranks the TCAM drop by design).
+Shell/servo loops on this single-hart image are `nice`d, never `SCHED_FIFO`
+(a FIFO busy loop freezes softirq/NAPI and gaps Sync past the switch's
+receipt timeout); only ptp4l keeps RT.
 
 *What runs, in what order, between power-on and a provisioned streaming board?*
 
@@ -309,3 +394,8 @@ reads lie (shadow).
    committed text (`scripts/docs_check.py` enforces the deny-list).
 7. The 0x654 write preserves VID 2; new RW CSRs go into is_plain_rw;
    validate wire frames by LENGTH, not just header fields.
+8. PEER binds go to the **(p) primaries only** (listener indices 0/2/4/6/8);
+   an (s) secondary bind on this one-network bench is always wrong.
+9. After every boot/flash: check the RX-shield posture (`eth0` flags
+   `0x1203`, not `0x1303`) before trusting any timing or audio measurement —
+   a leaked promisc silently re-opens the RX flood (§8).
