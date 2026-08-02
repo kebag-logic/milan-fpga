@@ -13,12 +13,28 @@
 //!      widened pair_slot up to slot 31 (talker 7 pair 3).
 //! Both chmaps share the source-pair stimulus pins AND the loopback payload
 //! AXIS; each has its own map write/read port and media tick.
+//!
+//! Tone-grid lane (task #59): TWO KL_tone_gen instances side by side -
+//! the legacy free-running clk_audio/512 shape and the USE_EXT_ADV_P
+//! media-tick shape. The harness drifts clk_audio against clk and samples
+//! both outputs at the tick instants, exactly as the crossbar's TONE bucket
+//! does (a live combinational read during the tick-time walk): the legacy
+//! grid MUST slip (repeats/drops - the negative control that gives the
+//! one-grid check its teeth), the media grid must advance exactly one
+//! table step per tick.
 
 `default_nettype none
 
 module chmap_wrap (
   input  wire         clk,
   input  wire         rst_n,
+
+  //! --- tone-grid lane (task #59): its own free-running audio clock --------
+  input  wire         clk_audio,
+  input  wire         tg_en_i,            //! TONE_CTRL.en analogue (both)
+  input  wire         tg_tick_i,          //! media tick (clk domain)
+  output wire [23:0]  tone_legacy_o,      //! clk_audio/512 grid (OLD wiring)
+  output wire [23:0]  tone_media_o,       //! tg_tick_i grid (the fix)
 
   //! --- shared packetizer config (t0 CSR aliases / all-stream fields) ------
   input  wire [47:0]  dest_mac_i,
@@ -102,6 +118,19 @@ module chmap_wrap (
   output wire         b_tlast_o,
   input  wire         b_tready_i
 );
+
+  // ====================================================================== //
+  //  Tone-grid lane: legacy clk_audio/512 vs media-tick pacing              //
+  // ====================================================================== //
+  KL_tone_gen #(.MCLK_DIV_LOG2(2)) u_tone_legacy (
+    .clk_i (clk_audio), .rst_n (rst_n), .adv_i (1'b1),
+    .enable_i (tg_en_i), .att_i (3'd0), .smp_o (tone_legacy_o)
+  );
+
+  KL_tone_gen #(.MCLK_DIV_LOG2(2), .USE_EXT_ADV_P(1'b1)) u_tone_media (
+    .clk_i (clk), .rst_n (rst_n), .adv_i (tg_tick_i),
+    .enable_i (tg_en_i), .att_i (3'd0), .smp_o (tone_media_o)
+  );
 
   // ====================================================================== //
   //  Lane A: chmap -> packetizer(N=2)                                       //

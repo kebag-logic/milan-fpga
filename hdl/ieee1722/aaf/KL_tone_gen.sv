@@ -15,8 +15,17 @@
                 periodic - the only distortion is the 24-bit rounding of 48
                 constants: computed digital THD+N = -148.1 dB (28 dB margin
                 over the -120 dBFS acceptance bound; on silicon the DAC/ADC
-                dominate). The index advances on the same free-running LRCK
-                divider scheme the talker uses, one step per sample frame.
+                dominate). The index advances one step per sample frame, on
+                one of two grids - and the choice is the ONE-GRID rule (task
+                #59): the table must step on the SAME 48 kHz grid its consumer
+                drains, or two free-running grids slip 4-12 samples/s against
+                each other (repeats/drops -> THD+N -32 dB on a -147.7 dB path).
+                  USE_EXT_ADV_P = 0: the free-running LRCK divider scheme the
+                    talker uses (clk_i/512) - for a clk_audio-grid consumer
+                    (the I2S front-end pilot override).
+                  USE_EXT_ADV_P = 1: adv_i, the consumer's own sample strobe
+                    (the capture crossbar's media_tick) - producer and
+                    consumer share one grid by construction.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -25,19 +34,24 @@
 
 //! 1 kHz / 0 dBFS pilot tone: 48-sample exact-period 24-bit sine table
 //! (quantization-only distortion, THD+N = -148.1 dB digital), stepping at
-//! the 48 kHz sample cadence of the shared I2S divider scheme.
+//! the 48 kHz sample cadence of the shared I2S divider scheme - or, with
+//! USE_EXT_ADV_P, on the consumer's own sample strobe (the one-grid rule).
 
 `default_nettype none
 
 module KL_tone_gen #(
-  parameter int MCLK_DIV_LOG2 = 2   //! clk -> MCLK divide (log2), = talker
+  parameter int MCLK_DIV_LOG2 = 2,  //! clk -> MCLK divide (log2), = talker
+  parameter bit USE_EXT_ADV_P = 1'b0 //! 1 = step on adv_i (the consumer's
+                                    //! grid); 0 = internal clk_i/512
 )(
   input  wire         clk_i,        //! CLEAN audio clock (24.576 MHz MMCM;
                                     //! clean-clock rework 07-18 - the table
                                     //! steps once per /512 = 48 kHz frame)
+                                    //! or, USE_EXT_ADV_P, the consumer's clock
   input  wire         rst_n,        //! Active-low reset (async-safe: 2FF'd
                                     //! by the instantiator's domain sync)
-  input  wire         adv_i,        //! RETIRED - tie 1
+  input  wire         adv_i,        //! USE_EXT_ADV_P: 1-cyc sample-advance
+                                    //! strobe (consumer grid); else tie 1
   input  wire         enable_i,     //! CSR TONE_CTRL[0]
   input  wire [2:0]   att_i,        //! CSR TONE_CTRL[3:1]: -6dB steps
                                     //! (0=0dBFS .. 7=-42dB) - keeps an analog
@@ -60,10 +74,11 @@ module KL_tone_gen #(
     24'shC00000, 24'shCF043B, 24'shDEDF05, 24'shEF4AEB
   };
 
-  //! one step per LRCK period: clean /512 of the 24.576 MHz audio clock
+  //! one step per LRCK period: clean /512 of the 24.576 MHz audio clock -
+  //! or the consumer's own strobe (cnt_r prunes on the external shape)
   logic [8:0] cnt_r;
   logic [5:0] idx_r;
-  wire frame_tick = (cnt_r == '1);
+  wire frame_tick = USE_EXT_ADV_P ? adv_i : (cnt_r == '1);
 
   always_ff @(posedge clk_i) begin : tone_step
     if (!rst_n) begin

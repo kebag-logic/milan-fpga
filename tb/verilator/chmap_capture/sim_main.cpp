@@ -34,6 +34,14 @@
 //   Lane B: chmap(32) -> packetizer(N=8, ALL 8ch = 32 pair slots). Exercises
 //     the widened pair_slot: talker 7 owns slots 28..31, so slot 31 = t7's
 //     4th pair - its payload proves the >15 slot path end to end.
+//   [G] tone ONE-GRID contract (task #59): clk_audio drifts against clk at
+//     an incommensurate ratio; both tone shapes are sampled at the media-
+//     tick instants exactly as the crossbar's TONE bucket reads them. The
+//     legacy clk_audio/512 shape MUST slip in BOTH drift directions (drops
+//     when audio is fast, repeats when slow) - the negative control that
+//     proves the check has teeth against the pre-fix wiring - while the
+//     USE_EXT_ADV_P media-grid shape advances EXACTLY one table step per
+//     tick over every tick of both phases.
 #include "Vchmap_wrap.h"
 #include "verilated.h"
 #include <cstdio>
@@ -189,6 +197,7 @@ int main(int argc, char** argv) {
   dut = new Vchmap_wrap;
 
   dut->rst_n = 0;
+  dut->clk_audio = 0; dut->tg_en_i = 0; dut->tg_tick_i = 0;
   dut->a_tready_i = 1; dut->b_tready_i = 1;
   dut->dest_mac_i = 0x91E0F000FE01ULL; dut->station_mac_i = 0x020000000002ULL;
   dut->vlan_vid_i = 2; dut->ptp_ns_i = 0x11223344; dut->transit_ns_i = 2000000;
@@ -609,6 +618,86 @@ int main(int argc, char** argv) {
     ck("LBB: slot28 still I2S L (untouched)", be(bfr[0], 42, 3), I2S_L);
     ck("LBB: slot30 still RING0 L (untouched)", be(bfr[0], 58, 3), RNG_L(0));
   } else { for (int k = 0; k < 5; k++) ck("LBB content (skipped)", 0, 1); }
+
+  // ====================================================================== //
+  printf("\n[G] tone ONE-GRID contract: media-tick pacing vs clk_audio/512\n");
+  // The 48-entry table, verbatim from KL_tone_gen (att = 0).
+  static const uint32_t TAB[48] = {
+      0x000000,0x10B515,0x2120FB,0x30FBC5,0x3FFFFF,0x4DEBE4,
+      0x5A8279,0x658C99,0x6ED9EB,0x7641AE,0x7BA374,0x7EE7A9,
+      0x7FFFFF,0x7EE7A9,0x7BA374,0x7641AE,0x6ED9EB,0x658C99,
+      0x5A8279,0x4DEBE4,0x3FFFFF,0x30FBC5,0x2120FB,0x10B515,
+      0x000000,0xEF4AEB,0xDEDF05,0xCF043B,0xC00001,0xB2141C,
+      0xA57D87,0x9A7367,0x912615,0x89BE52,0x845C8C,0x811857,
+      0x800001,0x811857,0x845C8C,0x89BE52,0x912615,0x9A7367,
+      0xA57D87,0xB2141C,0xC00000,0xCF043B,0xDEDF05,0xEF4AEB };
+  // Fractional-accumulator clock driver: one clk cycle per call, clk_audio
+  // toggled whenever its (non-integer) half-period elapses - the two clocks
+  // are INCOMMENSURATE, the real-silicon regime the lockstep harnesses
+  // never model (and exactly why this defect escaped them).
+  static double aud_acc = 0.0;
+  auto gstep = [&](double aud_half) {
+    dut->clk = 0; dut->eval();
+    aud_acc += 0.5;
+    while (aud_acc >= aud_half) {
+      dut->clk_audio ^= 1; dut->eval(); aud_acc -= aud_half; }
+    dut->clk = 1; dut->eval();
+    aud_acc += 0.5;
+    while (aud_acc >= aud_half) {
+      dut->clk_audio ^= 1; dut->eval(); aud_acc -= aud_half; }
+  };
+  // media tick every TICKDIV clk; the legacy tone period is 512 audio
+  // cycles = 1024 * aud_half clk, so aud_half = TICKDIV*(1 -+ eps)/1024
+  // puts the legacy grid eps FASTER (phase 1: drops) then eps SLOWER
+  // (phase 2: repeats) than the tick grid - the bench's 4-12 slips/s,
+  // compressed to one slip every ~1/eps ticks.
+  const int    TICKDIV = 520;
+  const double EPS     = 0.004;
+  const int    NTICK   = 3000;                 // per phase: ~12 slips
+  dut->tg_en_i = 1;
+  long med_mism = 0, med_ticks = 0, leg_offtab = 0;
+  long leg_slip[2] = {0, 0}, leg_rep[2] = {0, 0}, leg_drop[2] = {0, 0};
+  int  leg_idx = -1;
+  for (int ph = 0; ph < 2; ph++) {
+    const double aud_half =
+        TICKDIV * (ph == 0 ? 1.0 - EPS : 1.0 + EPS) / 1024.0;
+    for (int t = 0; t < NTICK; t++) {
+      dut->tg_tick_i = 1; gstep(aud_half);
+      dut->tg_tick_i = 0;
+      for (int c = 0; c < TICKDIV - 1; c++) {
+        gstep(aud_half);
+        if (c == 3) {                          // sample well after the tick
+          // media grid: EXACTLY one step per tick, no exceptions
+          uint32_t vm = dut->tone_media_o;
+          if (vm != TAB[med_ticks % 48]) med_mism++;
+          med_ticks++;
+          // legacy grid: track the walk, count slips (the crossbar's read)
+          uint32_t vl = dut->tone_legacy_o;
+          int f = -1;
+          for (int k = 0; k < 48; k++) if (TAB[k] == vl) { f = k; break; }
+          if (f < 0) { leg_offtab++; }
+          else if (leg_idx < 0) { leg_idx = f; }
+          else if (vl == TAB[(leg_idx + 1) % 48]) { leg_idx = (leg_idx + 1) % 48; }
+          else {
+            leg_slip[ph]++;
+            if      (vl == TAB[leg_idx])            leg_rep[ph]++;
+            else if (vl == TAB[(leg_idx + 2) % 48]) { leg_drop[ph]++;
+                                                      leg_idx = (leg_idx + 2) % 48; }
+            else                                    leg_idx = f;
+          }
+        }
+      }
+    }
+  }
+  printf("  [info] legacy grid, audio fast: %ld slips (%ld drops, %ld repeats)\n",
+         leg_slip[0], leg_drop[0], leg_rep[0]);
+  printf("  [info] legacy grid, audio slow: %ld slips (%ld drops, %ld repeats)\n",
+         leg_slip[1], leg_drop[1], leg_rep[1]);
+  ck("G: media grid = N table steps over N ticks", med_mism, 0);
+  ck("G: media grid saw both drift phases", med_ticks, 2L * NTICK);
+  ck("G: legacy tone never leaves the table", leg_offtab, 0);
+  ck("G: NEG CONTROL fast audio grid slips (drops)", leg_slip[0] > 0, 1);
+  ck("G: NEG CONTROL slow audio grid slips (repeats)", leg_slip[1] > 0, 1);
 
   printf("\n======================================================================\n");
   printf("KL_chan_map_capture: %ld checks, %ld failures\nRESULT: %s\n",

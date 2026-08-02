@@ -31,6 +31,6 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
 | ✅ `KL_tdm_capture` | `KL_tdm_capture.sv` | `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | 7.3.3 |
 | ✅ `KL_tdm_capture_master` | `KL_tdm_capture_master.sv` | `hostplane` · `milan_dp` · `tdm` · 🔬`make aaf` | 7.3.3 |
 | ✅ `KL_tdm_render` | `KL_tdm_render.sv` | `hostplane` · `milan_dp` · `tdm_render` · 🔬`make aaf` | — |
-| ✅ `KL_tone_gen` | `KL_tone_gen.sv` | `hostplane` · `milan_dp` · 🔬`make aaf` | — |
+| ✅ `KL_tone_gen` | `KL_tone_gen.sv` | `chmap_capture` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
 | ✅ `aaf_talker_i2s` | `aaf_talker_i2s.sv` | `aaf` · `hostplane` · `milan_dp` · 🔬`make aaf` | 4.3.5.2, 4.4.2.3, M-DEV-13 |
 

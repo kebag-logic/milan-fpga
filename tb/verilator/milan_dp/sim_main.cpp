@@ -755,6 +755,77 @@ int main(int argc, char** argv) {
             ck("tone frame captured", checked?1:0, 1);
             axi_write(0x6DC, 0x0);          // tone off
         }
+        // ONE-GRID contract (task #59, bench 2026-08-02): the pilot routed
+        // through the CAPTURE CROSSBAR (CHMAP TONE bucket) must advance
+        // EXACTLY one table step per media tick - across frame boundaries.
+        // The old wiring stepped the tone on clk_audio/512 while the crossbar
+        // walk drains on the axis-domain media_tick (MILAN_CLK_FREQ_HZ/48k):
+        // two free-running 48 kHz grids, ~4-12 repeats/drops per second on
+        // silicon -> audio-loop THD+N capped at -32 dB. In this harness the
+        // clocks run in LOCKSTEP, so that wiring steps the tone every 512
+        // cycles against a 2083-cycle tick (~4 steps/tick) and THIS CHECK
+        // FAILS LOUDLY - which is the bite: it only passes when the tone the
+        // crossbar serves is stepped by the SAME media_tick the walk uses.
+        {
+            static const uint32_t TAB[48] = {
+                0x000000,0x10B515,0x2120FB,0x30FBC5,0x3FFFFF,0x4DEBE4,
+                0x5A8279,0x658C99,0x6ED9EB,0x7641AE,0x7BA374,0x7EE7A9,
+                0x7FFFFF,0x7EE7A9,0x7BA374,0x7641AE,0x6ED9EB,0x658C99,
+                0x5A8279,0x4DEBE4,0x3FFFFF,0x30FBC5,0x2120FB,0x10B515,
+                0x000000,0xEF4AEB,0xDEDF05,0xCF043B,0xC00001,0xB2141C,
+                0xA57D87,0x9A7367,0x912615,0x89BE52,0x845C8C,0x811857,
+                0x800001,0x811857,0x845C8C,0x89BE52,0x912615,0x9A7367,
+                0xA57D87,0xB2141C,0xC00000,0xCF043B,0xDEDF05,0xEF4AEB };
+            enum { A_CHMAP_CTRL = 0x900, A_CHMAP_SEL = 0x904,
+                   A_CHMAP_WORD = 0x908 };
+            axi_write(0x6DC, 0x1);              // TONE_CTRL.en
+            axi_write(A_CHMAP_CTRL, 0x1);       // arm the fabric + CSR port
+            axi_write(A_CHMAP_SEL, 0x100 | 0);  // side=1 capture, slot 0
+            axi_write(A_CHMAP_WORD, 0xC000);    // en | src=4 TONE
+            // capture 8 CONSECUTIVE AAF frames = 48 media ticks; skip the
+            // first two so the arming edge is out of the window
+            std::vector<uint8_t> fr; std::vector<uint32_t> ls;
+            int skip = 2; long lr_mism = 0;
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < 400000 && ls.size() < 48; c++) {
+                step();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            fr.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        bool aaf = fr.size() > 60 && fr[12]==0x81 && fr[16]==0x22
+                                   && fr[17]==0xF0 && fr[18]==0x02;
+                        if (aaf && skip > 0) skip--;
+                        else if (aaf) {
+                            auto smp = [&](int off){ return (uint32_t)
+                                ((fr[off]<<16)|(fr[off+1]<<8)|fr[off+2]); };
+                            for (int e = 0; e < 6; e++) {   // 6 events/PDU
+                                uint32_t l0 = smp(42 + 8*e);
+                                uint32_t r0 = smp(46 + 8*e);
+                                if (l0 != r0) lr_mism++;
+                                ls.push_back(l0);
+                            }
+                        }
+                        fr.clear();
+                    }
+                }
+            }
+            ck("crossbar tone: 48 ticks captured", (long)ls.size(), 48);
+            ck("crossbar tone: L == R every event", lr_mism, 0);
+            int idx = -1;
+            if (!ls.empty())
+                for (int k = 0; k < 48; k++)
+                    if (TAB[k] == ls[0]) { idx = k; break; }
+            ck("crossbar tone: first sample in table", idx >= 0, 1);
+            long slips = 0;
+            if (idx >= 0)
+                for (size_t k = 1; k < ls.size(); k++)
+                    if (ls[k] != TAB[(idx + k) % 48]) slips++;
+            ck("ONE GRID: N ticks = N table steps (no slip)", slips, 0);
+            axi_write(A_CHMAP_CTRL, 0x0);       // crossbar bypass again
+            axi_write(0x6DC, 0x0);              // tone off
+        }
 
         // ------------------------------------------------------------------
         // [CLKV] the 2026-07-27 defect, end to end: CSR -> wire byte 21.

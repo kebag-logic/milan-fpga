@@ -441,11 +441,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   localparam int MCLK_DIV_LOG2_C = $clog2(MILAN_CLK_FREQ_HZ / 12_500_000);
 
   //! chmap media grid: a ~48 kHz strobe on the datapath clock that paces the
-  //! render/capture map walks (docs/CHANNEL_MAP_64.md §3/§4). Consumed ONLY by
-  //! the map fabric; the CERT audio path never sees it.
+  //! render/capture map walks (docs/CHANNEL_MAP_64.md §3/§4) and their tone
+  //! source below. Consumed ONLY by the map fabric; the CERT audio path
+  //! never sees it.
   localparam int MEDIA_TICK_DIV_C = MILAN_CLK_FREQ_HZ / 48_000;
 
-
+  //! ONE-GRID rule (task #59, bench 2026-08-02): a tone producer must step
+  //! on the grid its consumer drains. THIS instance steps on clk_audio_i/512
+  //! and feeds ONLY the I2S front-end pilot override, which samples on its
+  //! own /512 LRCK - the same grid. Feeding the capture crossbar from here
+  //! put two FREE-RUNNING 48 kHz grids against each other (this one vs the
+  //! media_tick_p divider below): ~4-12 sample repeats/drops per second,
+  //! THD+N capped at -32 dB on a -147.7 dB-clean loop. The crossbar now has
+  //! its own media-grid instance below.
   KL_tone_gen #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) tone_gen (
     .clk_i (clk_audio_i), .rst_n (axis_resetn), .adv_i (1'b1),
     .enable_i (cfg_tone_enable), .att_i (cfg_tone_att), .smp_o (tone_smp)
@@ -465,6 +473,20 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       media_tick_p     <= 1'b0;
     end
   end : chmap_media_tick
+
+  //! media-grid pilot for the capture crossbar: the SAME table, stepped by
+  //! the SAME media_tick_p the crossbar's walk drains on - producer and
+  //! consumer share one grid by construction (the KL_pcm_tx pacing
+  //! principle: ring -> packetizer is 1:1 fixed-phase). Also an axis-domain
+  //! register, so the raw clk_audio -> axis crossing into the walk's mux is
+  //! gone. TONE_CTRL 0x6DC en/att semantics unchanged (shared with the
+  //! front-end instance above).
+  KL_tone_gen #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C), .USE_EXT_ADV_P(1'b1))
+  tone_gen_media (
+    .clk_i (axis_clk), .rst_n (axis_resetn), .adv_i (media_tick_p),
+    .enable_i (cfg_tone_enable), .att_i (cfg_tone_att),
+    .smp_o (tone_smp_media)
+  );
 
   //! NXN P4: the flat aaf_talker_i2s splits into the physical capture
   //! front-end (x1) + the shared N-context packetizer (TCTX). Talker 0
@@ -853,7 +875,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! follow-up 2: the ALSA-playback ring (KL_pcm_tx) as a selectable source
     .ring_pair_valid_i (ring_src_pv_w), .ring_pair_slot_i (ring_src_slot_w),
     .ring_l_i (ring_src_l_w), .ring_r_i (ring_src_r_w),
-    .tone_smp_i (tone_smp),
+    //! the media-grid pilot (task #59): stepped by the same media_tick_p as
+    //! the walk below, never the clk_audio-grid tone_smp
+    .tone_smp_i (tone_smp_media),
     .tick_i (media_tick_p),
     .pair_valid_o (cmap_pv_w), .pair_slot_o (cmap_slot_w),
     .pair_l_o (cmap_l_w), .pair_r_o (cmap_r_w)
@@ -1282,7 +1306,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [31:0] avtprx_tv_c, avtprx_tnv_c;   //! Milan 1.3 tv tallies (in0)
   wire        cfg_tone_enable;
   wire [2:0]  cfg_tone_att;
-  wire [23:0] tone_smp;
+  wire [23:0] tone_smp;        //! clk_audio/512 grid (I2S front-end override)
+  wire [23:0] tone_smp_media;  //! media_tick_p grid (capture crossbar)
   //! MAAP engine (KL_maap, IEEE 1722 Annex B; docs/design/MAAP_FABRIC.md)
   wire        cfg_maap_enable, cfg_maap_seed_valid;
   wire [7:0]  cfg_maap_count;

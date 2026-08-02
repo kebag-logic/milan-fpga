@@ -9,6 +9,7 @@ VERILATOR ?= verilator
 TOP = chmap_wrap
 SRCS = ../../../hdl/ieee1722/aaf/KL_chan_map_capture.sv \
        ../../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv \
+       ../../../hdl/ieee1722/aaf/KL_tone_gen.sv \
        chmap_wrap.sv
 all: run
 obj_dir/V$(TOP): $(SRCS) sim_main.cpp
