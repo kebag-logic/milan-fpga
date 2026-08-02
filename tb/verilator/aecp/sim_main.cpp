@@ -514,6 +514,88 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
+    // 10b. Foreign entity_id on a frame that ENDS ON THE HEADER BEAT.   //
+    //                                                                   //
+    //      The verdict "this frame is not for us" and the strobe "this  //
+    //      frame is complete" are produced by two different modules and //
+    //      the builder consumes them one register apart:                //
+    //                                                                   //
+    //        common_parser BEAT3_S  -> hdr_valid + mismatch_o           //
+    //            (KL_aecp_common_parser.sv:187,197 - both registered on  //
+    //             the beat-3 handshake, so they rise the cycle AFTER it) //
+    //        packet_validator PASS_S -> valid_o = frame_ok_i            //
+    //            (KL_aecp_packet_validator.sv:300 - registered on the    //
+    //             TLAST handshake, so it rises the cycle after THAT)    //
+    //                                                                   //
+    //      The builder turns mismatch into discard_q with one more       //
+    //      register (KL_aecp_response_builder.sv:2006) and CAPTURE_S     //
+    //      reads discard_q combinationally (:2198). When beat 3 IS the   //
+    //      last beat the two strobes land in the SAME cycle, CAPTURE_S   //
+    //      still sees the OLD discard_q = 0, and the entity answers a    //
+    //      command addressed to somebody else - 1722.1-2021 9.2.1.1.     //
+    //                                                                   //
+    //      Beat 3 is the last beat exactly when the replayed stream is   //
+    //      26..32 octets, i.e. a 38..44 octet frame on the wire (the     //
+    //      ingress strips the 12 MAC octets). Nothing else in this       //
+    //      suite reaches it: aecp_cmd() pads to the 60-octet Ethernet    //
+    //      minimum, which lands tlast on beat 5 and leaves three idle    //
+    //      cycles for discard_q to settle. THESE FRAMES ARE NOT PADDED.  //
+    // ---------------------------------------------------------------- //
+    printf("\n[10b] foreign entity_id, header beat IS the last beat\n");
+    {
+        //! aecp_cmd() pads to 60; cut the pad back off so the AECPDU's own
+        //! last octet ends the frame. pay=0 -> 38 B (beat 3 carries 2 of 8
+        //! lanes), pay=6 -> 44 B (beat 3 FULL). Both satisfy the validator's
+        //! declared-vs-delivered length gate exactly (cdl + 14 == delivered).
+        auto unpadded = [](uint64_t target, uint8_t msg_type, uint16_t cmd,
+                           uint16_t seq, const std::vector<uint8_t>& pay) {
+            auto f = aecp_cmd(ENT_MAC, CTL_MAC, target, CTLR_ID, msg_type,
+                              cmd, seq, pay);
+            f.resize((msg_type == 6 ? 36 : 38) + pay.size());
+            return f;
+        };
+        const uint64_t FOREIGN = 0xDEADBEEF00000000ULL;
+        std::vector<uint8_t> none;
+        std::vector<uint8_t> six(6, 0x00);
+        // an MVU command_specific that is complete without the 2 reserved
+        // octets: protocol_id(6) + command_type(2) = 44 B on the wire
+        std::vector<uint8_t> mvu;
+        for (uint8_t b : {0x00,0x1B,0xC5,0x0A,0xC1,0x00}) mvu.push_back(b);
+        put_be16(mvu, 0x0000);   // GET_MILAN_INFO
+
+        int c0 = dut->cmd_count_o;
+        feed_rx(unpadded(FOREIGN, 0, 7, 0xA100, none));      // 38 B
+        ck("38 B GET_CONFIGURATION for a FOREIGN entity -> silent",
+           collect_resp(600).size()==0, 1);
+        feed_rx(unpadded(FOREIGN, 0, 7, 0xA101, six));       // 44 B, beat 3 full
+        ck("44 B GET_CONFIGURATION for a FOREIGN entity -> silent",
+           collect_resp(600).size()==0, 1);
+        feed_rx(unpadded(FOREIGN, 6, 0, 0xA102, mvu));       // 44 B VENDOR_UNIQUE
+        ck("44 B MVU GET_MILAN_INFO for a FOREIGN entity -> silent",
+           collect_resp(600).size()==0, 1);
+        ck("no foreign command was ACCEPTED", (int)dut->cmd_count_o - c0, 0);
+
+        // and the same three shapes addressed to US must still be answered:
+        // the discard term may never cost a good command its response
+        int c1 = dut->cmd_count_o;
+        feed_rx(unpadded(ENTITY_ID, 0, 7, 0xA110, none));
+        auto a = collect_resp();
+        ck("38 B GET_CONFIGURATION for US -> answered", a.size()>0, 1);
+        ck("[10b] 38 B answer SUCCESS", r_status(a), 0);
+        ck("[10b] 38 B answer echoes the sequence_id", r_seq(a), 0xA110);
+        feed_rx(unpadded(ENTITY_ID, 0, 7, 0xA111, six));
+        auto b = collect_resp();
+        ck("44 B GET_CONFIGURATION for US -> answered", b.size()>0, 1);
+        ck("[10b] 44 B answer SUCCESS", r_status(b), 0);
+        feed_rx(unpadded(ENTITY_ID, 6, 0, 0xA112, mvu));
+        auto c = collect_resp();
+        ck("44 B MVU GET_MILAN_INFO for US -> answered", c.size()>0, 1);
+        ck("[10b] MVU answer is a VU_RESPONSE", r_msgt(c), 7);
+        ck("all three commands for us were ACCEPTED",
+           (int)dut->cmd_count_o - c1, 3);
+    }
+
+    // ---------------------------------------------------------------- //
     // 11. ADP ENTITY_DISCOVER -> discover pulse                         //
     // ---------------------------------------------------------------- //
     printf("\n[11] ADP ENTITY_DISCOVER -> discover pulse\n");
