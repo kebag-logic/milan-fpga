@@ -340,8 +340,15 @@ def step_fabric_provisions(context):
             "%s is not the captured fabric record's own port arm" % port
         assert re.search(q + r"\s*<=\s*" + rec, context.dp_src), \
             "%s does not capture the fabric record mux" % q
-        assert re.search(r"wire.*" + rec +
-                         r"\s*=\s*srp_fab_is_crf_w\s*\r?\n?\s*\?\s*" + sig,
+        # 2026-08-02 (second timing-closure round, "two-stage pick"): the record
+        # mux now selects on the REGISTERED pick (srp_fab_pcrf_r) instead of the
+        # combinational scan output, and a listener arm sits ahead of the CRF
+        # arm because the ACMP listener rows joined the same fabric.  So the CRF
+        # arm is no longer the first ternary - the property to hold is that the
+        # CRF PICK still resolves the record to the derived CRF identity, wherever
+        # in the chain that arm sits.
+        assert re.search(r"wire[^;]*?" + rec + r"\s*=[^;]*?srp_fab_pcrf_r"
+                         r"\s*\r?\n?\s*\?\s*" + sig,
                          context.dp_src), \
             "%s is not what the fabric presents for the CRF slot" % sig
 
