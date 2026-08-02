@@ -464,7 +464,7 @@ class MilanNIC(LiteXModule):
     def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
-                 audio_if_i2s_pair=False, aaf_playback=False,
+                 audio_if_i2s_pair=False, aaf_playback=False, aaf_pb_streams=1,
                  render_lpf=True, optional_blocks=None,
                  cbs_queues_mask=None, entity_gen_dir=None):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
@@ -495,7 +495,7 @@ class MilanNIC(LiteXModule):
                            talker_wire_chans=talker_wire_chans,
                            audio_if_master=audio_if_master,
                            audio_if_i2s_pair=audio_if_i2s_pair,
-                           aaf_playback=aaf_playback,
+                           aaf_playback=aaf_playback, aaf_pb_streams=aaf_pb_streams,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
                            cbs_queues_mask=cbs_queues_mask,
                            entity_gen_dir=entity_gen_dir)
