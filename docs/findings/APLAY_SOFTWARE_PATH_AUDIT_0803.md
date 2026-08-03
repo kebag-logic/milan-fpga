@@ -10,7 +10,7 @@ AX7101 — the period count, the driver's double copy, `ktimers/0` priority,
 "mmap would be zero copies" — was **inferred** from one bit (did aplay
 survive?) plus `dmesg`. This page replaces that with an instrumented,
 re-runnable measurement of the software path, and the verdict changes in
-three places.
+several places.
 
 Tooling lives in `milan-tests-avb/fpga/audio-audit/` (see its
 [README](https://github.com/kebag-logic/milan-tests-avb) for the trap log);
@@ -26,9 +26,9 @@ PREEMPT_RT, `snd-kl-milan` version `i4`, 8ch/48k S32_BE out of the
 - **[1. What this board can and cannot be measured with](#1-what-this-board-can-and-cannot-be-measured-with)** — The tooling census, done first because it bounds every claim: no ftrace at all, but `CONFIG_PERF_EVENTS` was already on, so a cross-built `perf` gave a full on-CPU timeline with **no reflash**. Software events only.
 - **[2. The instrument](#2-the-instrument)** — `pcm_probe`, an aplay-equivalent that timestamps the path, and what it deliberately does not measure.
 - **[3. Survival: what actually kills aplay](#3-survival-what-actually-kills-aplay)** — The A/B table. Two configurations die and they die of *different things*.
-- **[4. The mechanism: drain margin, not CPU](#4-the-mechanism-drain-margin-not-cpu)** — The one arithmetic identity that explains every survival result.
+- **[4. The mechanism: wake lateness vs tolerance, not CPU](#4-the-mechanism-wake-lateness-vs-tolerance-not-cpu)** — One arithmetic identity — tolerable lateness = `buffer − period` — explains every survival result, and its ceiling (the ring itself, 85.3 ms) bounds what any tuning can achieve.
 - **[5. mmap: the "zero copies" claim is wrong](#5-mmap-the-zero-copies-claim-is-wrong)** — Measured, `aplay -M` saves ~1.5 points of CPU, not 13.
-- **[6. Where the hart actually goes](#6-where-the-hart-actually-goes)** — CPU decomposition, and the thief named from the context-switch timeline.
+- **[6. Where the hart actually goes](#6-where-the-hart-actually-goes)** — Three independent instruments agree, and the largest consumer on the board turns out to be neither audio nor networking but a set of shell scripts polling hardware in a loop.
 - **[7. Verdict and shipping recommendation](#7-verdict-and-shipping-recommendation)**
 - **[8. What this did NOT cover](#8-what-this-did-not-cover)**
 
@@ -267,7 +267,7 @@ because the one thing that *would* still indicate a stalled consumer is
 `hw_ptr` flatlining while the state stays `RUNNING`. **Result pending at
 time of writing.**
 
-## 4. The mechanism: drain margin, not CPU
+## 4. The mechanism: wake lateness vs tolerance, not CPU
 
 The instrumented runs make the mechanism arithmetic rather than narrative.
 
