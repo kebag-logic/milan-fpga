@@ -79,11 +79,18 @@ static unsigned long be(const Frame& b, int o, int n) {
   unsigned long v = 0; for (int i = 0; i < n; i++) v = (v << 8) | b[o + i]; return v; }
 static int find_len(std::vector<Frame>& v, size_t len) {
   for (size_t i = 0; i < v.size(); i++) if (v[i].size() == len) return (int)i; return -1; }
-// map entry {idxh[11:8], en[7], src[6:4], idx[3:0]}: idxh is read by the
-// LOOP source only, so ent() (idxh = 0) is the pre-loopback 8-bit word
-// verbatim - every legacy check below writes exactly the byte it used to.
+// map entry {half[13:12], idxh[11:8], en[7], src[6:4], idx[3:0]}: idxh is
+// read by the LOOP source only and half defaults to BOTH, so ent() is the
+// pre-loopback 8-bit word verbatim with 0b11 above it - every legacy check
+// below still writes exactly the byte it used to, meaning exactly what it
+// used to mean.
+static const uint16_t HALF_BOTH = 0x3000, HALF_L = 0x2000, HALF_R = 0x1000;
 static uint16_t ent(int en, int src, int idx) {
-  return (uint16_t)(((en & 1) << 7) | ((src & 7) << 4) | (idx & 0xF)); }
+  return (uint16_t)(HALF_BOTH | ((en & 1) << 7) | ((src & 7) << 4)
+                    | (idx & 0xF)); }
+//! the same entry with only ONE of the slot's two stream channels armed
+static uint16_t ent_half(int half, int en, int src, int idx) {
+  return (uint16_t)((ent(en, src, idx) & 0x0FFF) | half); }
 // LOOP entry: RX stream s (idxh) + channel pair p (idx) -> wire ch {2p, 2p+1}
 static const int SRC_LOOP = 5;
 static uint16_t ent_lb(int en, int s, int p) {
@@ -102,8 +109,9 @@ static uint16_t a_map_rd(int slot) {
   dut->a_map_rd_en_i = 0; cyc();
   if (!ok) { printf("  [FAIL] a_map_rd(%d) no valid\n", slot); fails++; checks++; }
   return v; }
-// the addressed entry (readback [11:0])
-static uint16_t a_map_ent(int slot) { return a_map_rd(slot) & 0x0FFF; }
+// the addressed entry (readback [13:0] - [13:12] is the per-half enable,
+// which used to be reserved zeros; [11:0] keeps its exact legacy meaning)
+static uint16_t a_map_ent(int slot) { return a_map_rd(slot) & 0x3FFF; }
 // the LOOP capability mask (readback [15:14]): bit0 = mapped, bit1 = fed
 static uint16_t a_map_mask(int slot) { return (a_map_rd(slot) >> 14) & 3; }
 
@@ -391,6 +399,61 @@ int main(int argc, char** argv) {
     ck("A4: and every payload octet is silence", nz, 0);
     for (int s = 0; s < 32; s++) a_map_wr(s, saved[s]);
     cyc(4);
+  }
+
+  // ====================================================================== //
+  // A Stream Output mapping is per STREAM CHANNEL (1722.1-2021 7.4.45 /     //
+  // Milan v1.2 5.4.2.26 "at most one dynamic mapping per Stream Output's    //
+  // channel") while this store is per PAIR SLOT, so "channel 2p+1 mapped,   //
+  // channel 2p not" is a state a conformant controller can ask for with a   //
+  // single-mapping ADD. en alone cannot express it: it either armed the     //
+  // unmapped channel with the source's other half (audio on a channel       //
+  // GET_AUDIO_MAP does not report) or silenced the mapped one. That is why  //
+  // the entry carries half[13:12], and this is its wire-level proof.        //
+  // ====================================================================== //
+  printf("\n[A5] per-half enable: one channel of a slot mapped, one silent\n");
+  {
+    uint16_t save1 = a_map_ent(1);
+    //! t1 pair0 = wire channels 0/1, payload offsets 42 (L) and 46 (R)
+    a_map_wr(1, ent_half(HALF_L, 1, 2, 0));   // TDM idx0, L only
+    cyc(4);
+    afr.clear();
+    for (int i = 0; i < 6; i++) a_tick();
+    cyc(400);
+    int h1 = find_len(afr, 234);
+    ck("A5: t1 still frames with a half-armed slot", h1 >= 0, 1);
+    if (h1 >= 0) {
+      ck("A5: L half carries its source",   be(afr[h1], 42, 3), TDM_L(0));
+      ck("A5: R half is DIGITAL SILENCE",   be(afr[h1], 46, 3), 0);
+      ck("A5: the rest of the talker is untouched (pair1 L)",
+         be(afr[h1], 50, 3), TDM_L(1));
+    } else { for (int k = 0; k < 3; k++) ck("A5 L-only (skipped)", 0, 1); }
+    ck("A5: readback shows half = L only", a_map_ent(1) >> 12, 2);
+
+    a_map_wr(1, ent_half(HALF_R, 1, 2, 0));   // TDM idx0, R only
+    cyc(4);
+    afr.clear();
+    for (int i = 0; i < 6; i++) a_tick();
+    cyc(400);
+    h1 = find_len(afr, 234);
+    if (h1 >= 0) {
+      ck("A5: L half is DIGITAL SILENCE",  be(afr[h1], 42, 3), 0);
+      ck("A5: R half carries its source",  be(afr[h1], 46, 3), TDM_R(0));
+    } else { for (int k = 0; k < 2; k++) ck("A5 R-only (skipped)", 0, 1); }
+    ck("A5: readback shows half = R only", a_map_ent(1) >> 12, 1);
+
+    //! the legacy meaning is preserved exactly: a writer that says nothing
+    //! about halves (ent(), i.e. 0b11) still arms both
+    a_map_wr(1, save1);
+    cyc(4);
+    afr.clear();
+    for (int i = 0; i < 6; i++) a_tick();
+    cyc(400);
+    h1 = find_len(afr, 234);
+    if (h1 >= 0) {
+      ck("A5: restored entry carries BOTH halves L", be(afr[h1], 42, 3), TDM_L(0));
+      ck("A5: restored entry carries BOTH halves R", be(afr[h1], 46, 3), TDM_R(0));
+    } else { for (int k = 0; k < 2; k++) ck("A5 restore (skipped)", 0, 1); }
   }
 
   // ====================================================================== //

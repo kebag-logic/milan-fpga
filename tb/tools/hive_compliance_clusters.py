@@ -64,6 +64,21 @@ THE CHECKS, each with the clause it rests on:
      lesson) and map_index == that bound must answer BAD_ARGUMENTS.
      Read-only.  Skipped where the device serves no dynamic port.
 
+  C10 ODD number_of_mappings.  1722.1-2021 7.4.45/7.4.46 bound the field
+     only by what fits an AECPDU; Milan 5.4.2.27/28 enumerate every legal
+     BAD_ARGUMENTS condition and NONE of them is a record count; 5.4.2.26
+     fixes the granularity the other way ("at most one dynamic mapping per
+     Stream Output's channel").  A single-mapping command is therefore
+     ordinary traffic, and it is what a controller like Hive sends.
+     Our entity refused an ODD count until 2026-08-03 - a pair-slot detail
+     of OUR capture crossbar leaking into protocol acceptance - and every
+     test we owned missed it because our own tools only ever sent L/R
+     pairs.  The probe re-ADDs a mapping the DEVICE ITSELF just reported
+     through GET_AUDIO_MAP: idempotent, so it is safe on a live device, and
+     unarguable, because a mapping the entity is already serving cannot be
+     an invalid mapping.  If it is refused, the refusal is about the COUNT.
+     Needs --allow-writes (an idempotent write is still a write).
+
 Exit code 0 = clean, 1 = at least one FAIL.
 """
 import argparse
@@ -129,6 +144,7 @@ except ImportError:                                    # pragma: no cover
 CMD_READ_DESCRIPTOR = 0x0004
 CMD_GET_AUDIO_MAP = 0x002B          # 43, 1722.1 7.4.44
 CMD_ADD_AUDIO_MAPPINGS = 0x002C     # 44, 7.4.45  / Milan 5.4.2.27
+CMD_REMOVE_AUDIO_MAPPINGS = 0x002D  # 45, 7.4.46  / Milan 5.4.2.28
 DESC_STREAM_PORT_INPUT = 0x000E
 DESC_STREAM_PORT_OUTPUT = 0x000F
 DESC_AUDIO_CLUSTER = 0x0014
@@ -321,6 +337,10 @@ def main():
                 ck(ast is not None and ast != ST_NOT_SUPPORTED,
                    f"C8 {dname}.{i} has NO Audio Map -> ADD_AUDIO_MAPPINGS "
                    f"is MANDATORY (Milan 5.4.2.27)", f"status={ast}")
+                #: NOTE this probe deliberately does NOT assert SUCCESS -
+                #: record {0,0,0,0} may be genuinely invalid on some ports.
+                #: That tolerance is exactly why it could not see a device
+                #: refusing every ODD count; C10 below is the check that can.
             else:
                 skip(f"C8 {dname}.{i} dynamic-port ADD_AUDIO_MAPPINGS",
                      "number_of_maps == 0: the command MUTATES a live "
@@ -347,6 +367,50 @@ def main():
                 skip(f"C9 {dname}.{i} GET_AUDIO_MAP paging",
                      "static port (number_of_maps > 0): 5.4.2.26 paging "
                      "governs the DYNAMIC case")
+
+            # -- C10: an ODD number_of_mappings is ordinary traffic ---------
+            if port['maps'] > 0:
+                skip(f"C10 {dname}.{i} single-mapping ADD",
+                     "static port: 5.4.2.27 makes ADD NOT_SUPPORTED here")
+            elif not a.allow_writes:
+                skip(f"C10 {dname}.{i} single-mapping ADD",
+                     "idempotent, but still a write - re-run with "
+                     "--allow-writes")
+            else:
+                gst, _, gpl = pr.cmd(CMD_GET_AUDIO_MAP,
+                                     struct.pack('!HHHH', dcode, i, 0, 0))
+                live = []
+                if gst == ST_SUCCESS and gpl is not None and len(gpl) >= 12:
+                    n_rows = struct.unpack('!H', gpl[8:10])[0]
+                    for r in range(n_rows):
+                        o = 12 + 8 * r
+                        if o + 8 <= len(gpl):
+                            live.append(struct.unpack('!HHHH', gpl[o:o + 8]))
+                if not live:
+                    skip(f"C10 {dname}.{i} single-mapping ADD",
+                         "the port reports no dynamic mapping to re-ADD "
+                         "idempotently")
+                else:
+                    one = live[0]
+                    one_pl = struct.pack('!HHHH', dcode, i, 1, 0) + \
+                        struct.pack('!HHHH', *one)
+                    ost, _, _ = pr.cmd(CMD_ADD_AUDIO_MAPPINGS, one_pl)
+                    ck(ost == ST_SUCCESS,
+                       f"C10 {dname}.{i} ADD of ONE mapping the device "
+                       f"itself reports {one} is accepted "
+                       f"(7.4.45: number_of_mappings is bounded by the "
+                       f"PDU, not by parity)", f"status={ost}")
+                    #: and the same for REMOVE's count rule, put straight
+                    #: back so the device is left as it was found
+                    rst, _, _ = pr.cmd(CMD_REMOVE_AUDIO_MAPPINGS, one_pl)
+                    ck(rst == ST_SUCCESS,
+                       f"C10 {dname}.{i} REMOVE of that ONE mapping is "
+                       f"accepted (7.4.46)", f"status={rst}")
+                    if rst == ST_SUCCESS:
+                        bst2, _, _ = pr.cmd(CMD_ADD_AUDIO_MAPPINGS, one_pl)
+                        ck(bst2 == ST_SUCCESS,
+                           f"C10 {dname}.{i} single-mapping ADD restores it "
+                           f"(device left as found)", f"status={bst2}")
 
         # boundary: one past the last port that answered
         pass

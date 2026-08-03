@@ -297,13 +297,38 @@ The `C` = 8 column is the one the §12.1 walk recipe means by "slots
 the closed form and only the prefix sum holds — which is why the map is
 programmed per slot and never per stream.
 
-### 4.2 Pair granularity (phase-1 restriction, normative)
+### 4.2 Pair granularity (normative), and what it may NOT constrain
 
 The capture path is **pair-granular**: L and R of a slot come from ONE
-source pair. AEM output-side mappings must therefore arrive
-pair-consistent (§7.3); a mapping that would split a pair across
-sources or cross L/R parity is refused. Per-channel capture routing is
-phase 2.
+source pair. Two consequences, and one non-consequence that cost us a
+wire-facing conformance defect on 2026-08-03.
+
+**Consequences (per-MAPPING rules, delegated by IEEE 1722.1-2021
+7.4.45: "The determination of what constitutes a valid mapping at a
+particular point in time is governed by a set of vendor defined
+rules"):** a mapping whose cluster is the R half of a source pair
+cannot land on an even stream channel and vice versa, and the two
+channels of one slot cannot be fed by two different source pairs. Both
+are refused with `BAD_ARGUMENTS`.
+
+**NOT a consequence: the number of mappings in a command.** The engine
+used to refuse an ODD `number_of_mappings` on the grounds that records
+"arrive as L/R-adjacent pairs". No clause permits that. 7.4.45/7.4.46
+bound `number_of_mappings` only by the PDU (9.2.2.6 caps AECP
+`control_data_length` at 524, and the payload is `20 + 8n`, so
+`n <= 63`); Milan v1.2 5.4.2.27/28 enumerate every legal
+`BAD_ARGUMENTS` condition and a record count is not among them; and
+5.4.2.26 states the granularity outright - "at most one dynamic
+mapping per Stream Output's channel". A controller that maps one
+channel at a time (Hive does) had every command rejected.
+
+**Per-channel capture routing is therefore NOT phase 2 - it is
+required.** The map entry carries a per-half enable (`half[13:12]`,
+§5) so a slot can arm one stream channel and leave its sibling silent,
+and the AEM mirror commits each record as a READ-MODIFY-WRITE of its
+slot. Milan 5.3.9.1 lets a Stream Output channel be "not mapped"; an
+unmapped channel that carried the source pair's other half would be a
+route `GET_AUDIO_MAP` does not report.
 
 ### 4.3 The pair-slot widening (REQUIRED, normative)
 
@@ -345,6 +370,16 @@ and one explicit sync read port.
                                 ring, roadmap item-7); 2-7 reserved
                   capture side: 0 = ZERO, 1 = I2S_IN, 2 = TDM8_IN,
                                 3 = PCM_TX, 4 = TONE, 5-7 reserved
+[15:14] (readback only) LOOP capability mask {fed, mapped}
+[13:12] HALF    capture only: per-CHANNEL enable {L_en, R_en} inside an
+                enabled slot. EN says whether the SLOT carries its
+                bucket; HALF says which of its two stream channels
+                does - an ATDECC mapping is per stream channel
+                (7.4.45, Milan 5.4.2.26) while the slot is a pair, so
+                "channel 5 mapped, channel 4 not" is a state a
+                controller may legally ask for. Writers that predate
+                it (the CSR debug window) drive 2'b11 = both halves,
+                which is exactly what an enabled slot used to mean.
 [11:8]  rsvd    write 0, read 0
 [7:4]   IDX_HI  render : AVTP_RX: RX stream index s (0-7)
                          PCM_TX : high half of the LINEAR playback channel
@@ -552,20 +587,30 @@ RMAP[p] = {EN=1, SRC=AVTP_RX, IDX_HI=mapping_stream_index[3:0],
 **Output side** (`STREAM_PORT_OUTPUT`), per entry: target slot
 `k = pbase(mapping_stream_index) + mapping_stream_channel/2` (the G2
 prefix-sum partition; `pbase` from the same chans configuration the
-TCTX holds). **Pair-consistency rule (§4.2):** entries are accepted in
-L/R-consistent pairs — the even `mapping_stream_channel` entry and its
-`+1` partner must name the same source pair (adjacent even/odd
-clusters of one source pair per the §7.2 table). The even entry
-commits:
+TCTX holds). **One record is one CHANNEL** (Milan v1.2 5.4.2.26: "at
+most one dynamic mapping per Stream Output's channel"), so each record
+owns one half of slot `k` and commits as a READ-MODIFY-WRITE:
 
 ```
-CMAP[k] = {EN=1, SRC=table(cluster).src, IDX_HI=table(cluster).idx_hi,
+CMAP[k] = {HALF=<this channel armed | sibling as the command leaves it>,
+           EN=1, SRC=table(cluster).src, IDX_HI=table(cluster).idx_hi,
            IDX_LO=table(cluster).idx_lo}
 ```
 
-A lone half-pair mapping, mismatched parity, or a pair straddling two
-sources → the whole command is refused with `BAD_ARGUMENTS` (phase-1
-pair granularity; per-channel capture is phase 2).
+`REMOVE` of a matching record clears only its own HALF bit; the last
+record out of a slot writes the entry to 0 (`EN=0`, `HALF=0`) so an
+emptied slot is fully quiet rather than "enabled with no half".
+Several records of one command may touch the same slot, so the sibling
+term is read from the command's POST state, not from the store as it
+stands mid-walk — every record that touches a slot then writes the
+same final word, whatever order they were listed in.
+
+Refused with `BAD_ARGUMENTS` (§4.2, per-MAPPING vendor rules):
+mismatched parity — a cluster that is the R half of its source pair
+onto an even stream channel or vice versa (the mono TONE bucket is
+exempt) — and a slot whose two channels would be fed by two different
+source pairs. **NOT refused: an odd `number_of_mappings`.** See §4.2
+for why no clause permits that and what it cost.
 
 **Timing:** the projector writes map words through the §5 arbitrated
 port as a short burst (`aem_busy` in `CHMAP_STAT`); fabric effect lands

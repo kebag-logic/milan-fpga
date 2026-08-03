@@ -22,8 +22,8 @@
                 pair_slot_o is the full 5-bit (0..31) space the packetizer now
                 accepts (the pair_slot widening).
 
-                MAP ENTRY (12 bits, one per slot):
-                  {idxh[11:8], en[7], src[6:4], idx[3:0]}
+                MAP ENTRY (14 bits, one per slot):
+                  {half[13:12], idxh[11:8], en[7], src[6:4], idx[3:0]}
                   en  - 1 = this slot carries its src bucket;
                         0 = this slot carries PCM silence. EITHER WAY the
                         slot is injected every media tick: Milan v1.2
@@ -31,6 +31,18 @@
                         mapped", and 5.3.7.3 still requires the Stream
                         Output to be streaming, so an unmapped channel is
                         a SILENT channel, never a missing frame.
+                  half - {L_en[13], R_en[12]}, the per-CHANNEL enable inside
+                        an enabled slot. en says whether the SLOT carries
+                        its bucket; half says which of the slot's two stream
+                        channels does. They are different questions because
+                        an ATDECC mapping is per stream channel (1722.1-2021
+                        7.4.45, Milan 5.4.2.26 "at most one dynamic mapping
+                        per Stream Output's channel") while this store is
+                        per pair slot, so "channel 5 mapped, channel 4 not"
+                        is a state a controller can legally ask for and the
+                        entity must render as {silence, source R}. Every
+                        pre-existing writer defaults it to 2'b11, which is
+                        exactly what an enabled slot used to mean.
                   src - the source bucket:
                           0 ZERO    : digital silence (L=R=0)
                           1 I2S_IN  : the stereo I2S capture pair (idx unused)
@@ -180,7 +192,9 @@
 */
 
 //! Per-pair-slot TX source mux (NXN §2.1 capture family): a 32-slot map RAM
-//! ({idxh, en, src, idx}) routes each packetizer pair slot to a source bucket
+//! ({half, idxh, en, src, idx}) routes each packetizer pair slot to a source
+//! bucket, with a per-half enable so one stream channel of a slot can be
+//! mapped while its sibling stays silent
 //! (I2S capture / TDM / ALSA ring / tone / RX-stream loopback / silence);
 //! free-running source holds, per-tick low-to-high slot walk emitting the
 //! packetizer inject cadence (one pulse + GAP_CYC_P settle) on EVERY slot,
@@ -215,6 +229,17 @@ module KL_chan_map_capture #(
   //! port keeps its exact width and meaning; a writer that does not drive it
   //! (default 0) can only ever mean "RX stream 0", never a re-interpretation
   input  wire [3:0]   map_wr_idxh_i = 4'd0, //! LOOP: RX stream index
+  //! PER-HALF ENABLE {L, R}, same defaulted-pin discipline as map_wr_idxh_i
+  //! and for the same reason: a writer that predates it says 2'b11 = "both
+  //! halves", which is bit-for-bit the pre-existing meaning of an enabled
+  //! slot, so no map ever written changes meaning. It exists because a
+  //! STREAM_PORT_OUTPUT mapping is per STREAM CHANNEL (Milan v1.2 5.4.2.26
+  //! "at most one dynamic mapping per Stream Output's channel") while this
+  //! store is per PAIR SLOT: a controller may map channel 2p+1 and leave 2p
+  //! unmapped, and 5.3.9.1 then owes channel 2p silence, not the source
+  //! pair's other half. Without this pin an odd edit either armed audio on
+  //! an unmapped channel or disarmed a mapped one.
+  input  wire [1:0]   map_wr_half_i = 2'b11, //! {L_en, R_en}
 
   //! --- map RAM readback port (registered, 1-cycle latency) ---------------
   input  wire         map_rd_en_i,       //! one-cycle read request
@@ -309,14 +334,14 @@ module KL_chan_map_capture #(
   //   one sync write process; combinational reads for the walk; the         //
   //   readback port registers a snapshot (RAM house style read turnaround)  //
   // ---------------------------------------------------------------------- //
-  logic [11:0] map_r [N_SLOTS_P];
+  logic [13:0] map_r [N_SLOTS_P];
 
   always_ff @(posedge clk_i) begin : map_write_port
     if (!rst_n) begin
-      for (int s = 0; s < N_SLOTS_P; s++) map_r[s] <= 12'h000;
+      for (int s = 0; s < N_SLOTS_P; s++) map_r[s] <= 14'h0000;
     end
     else if (map_wr_en_i) begin
-      map_r[map_wr_addr_i] <= {map_wr_idxh_i, map_wr_data_i};
+      map_r[map_wr_addr_i] <= {map_wr_half_i, map_wr_idxh_i, map_wr_data_i};
     end
   end : map_write_port
 
@@ -347,8 +372,13 @@ module KL_chan_map_capture #(
     else begin
       map_rd_valid_o <= 1'b0;
       if (map_rd_en_i) begin
-        map_rd_data_o  <= {loop_fed_r, loop_mapped_w, 2'b00,
-                           map_r[map_rd_addr_i]};
+        //! [13:12] were the reserved pair of this word and now carry the
+        //! entry's per-half enable, so a half-armed slot is READABLE rather
+        //! than indistinguishable from a fully armed one. [11:0] keeps its
+        //! exact legacy meaning.
+        map_rd_data_o  <= {loop_fed_r, loop_mapped_w,
+                           map_r[map_rd_addr_i][13:12],
+                           map_r[map_rd_addr_i][11:0]};
         map_rd_valid_o <= 1'b1;
       end
     end
@@ -470,11 +500,12 @@ module KL_chan_map_capture #(
   // ---------------------------------------------------------------------- //
   logic [SLOTW_C-1:0] slot_r;            //! walk pointer
 
-  wire [11:0] ent_w  = map_r[slot_r];
+  wire [13:0] ent_w  = map_r[slot_r];
   wire        en_w   = ent_w[7];
   wire [2:0]  src_w  = ent_w[6:4];
   wire [3:0]  idx_w  = ent_w[3:0];
   wire [3:0]  idxh_w = ent_w[11:8];      //! LOOP only: RX stream index
+  wire [1:0]  half_w = ent_w[13:12];     //! {L_en, R_en} of this slot
 
   //! LOOP read: {stream idxh, channel pair idx} -> one hold word. An entry
   //! naming a stream or pair the build does not keep resolves to silence
@@ -486,6 +517,16 @@ module KL_chan_map_capture #(
                      : LBPW_C'(0);
   wire [47:0] lb_sel_w = lb_sel_ok_w ? lb_hold_r[lb_sel_addr_w] : 48'd0;
 
+  //! An UNMAPPED slot resolves to the ZERO bucket rather than dropping out of
+  //! the walk (Milan v1.2 5.3.9.1 "either not mapped or mapped ..." is about
+  //! ONE CHANNEL; 5.3.7.3 still owes the stream its packets). Gating the
+  //! source select rather than the emit keeps the FSM below branch-free.
+  //! Written as a MASK, not as `en_w ? src_w : SRC_ZERO_C`: the two are the
+  //! same Boolean function (SRC_ZERO_C is 3'd0) but the mask folds into the
+  //! map-RAM read mux instead of building a second one behind it - 3574 vs
+  //! 3901 LC, yosys OOC at the 8x8 shape, against 3789 LC for the pre-fix
+  //! walk that skipped the slot. Both correct; only one is cheaper than
+  //! what it replaces, on a device sitting at 61,039 of 63,400 LUTs.
   //! An UNMAPPED slot resolves to the ZERO bucket rather than dropping out of
   //! the walk (Milan v1.2 5.3.9.1 "either not mapped or mapped ..." is about
   //! ONE CHANNEL; 5.3.7.3 still owes the stream its packets). Gating the
@@ -515,6 +556,26 @@ module KL_chan_map_capture #(
       default    : {sel_l_w, sel_r_w} = 48'd0;   //! ZERO + reserved = silence
     endcase
   end : source_mux
+
+  //! PER-HALF SILENCE. srcsel_w above silences the WHOLE slot; this silences
+  //! ONE half of it, which is the granularity a Stream Output mapping
+  //! actually has (Milan v1.2 5.4.2.26 "at most one dynamic mapping per
+  //! Stream Output's channel"). A slot whose even channel is mapped and
+  //! whose odd channel is not must emit the source's L and DIGITAL SILENCE,
+  //! not the source's R: 5.3.9.1 lets a Stream Output channel be "not
+  //! mapped", and an unmapped channel carrying a neighbour cluster's audio
+  //! is a route GET_AUDIO_MAP does not report.
+  //!
+  //! MEASURED, and against expectation. Folding the half into the SELECT the
+  //! way en_w is folded above - two 24-bit selects instead of one 48-bit
+  //! select plus two AND masks, the same total mux width - looked like the
+  //! consistent choice and cost 5289 LC (yosys OOC). This AND mask behind
+  //! the mux costs 3843, against 3528 for the pre-half module. The select
+  //! fold duplicates the whole six-way mux tree; the mask does not. Same
+  //! rule as the en_w note above, opposite answer - which is why both are
+  //! numbers here and neither is an argument.
+  wire [23:0] out_l_w = sel_l_w & {24{half_w[1]}};
+  wire [23:0] out_r_w = sel_r_w & {24{half_w[0]}};
 
   // ---------------------------------------------------------------------- //
   // Emit walk FSM                                                           //
@@ -566,8 +627,8 @@ module KL_chan_map_capture #(
         CM_STEP_S : begin
           pair_valid_o <= 1'b1;
           pair_slot_o  <= 5'(slot_r);
-          pair_l_o     <= sel_l_w;
-          pair_r_o     <= sel_r_w;
+          pair_l_o     <= out_l_w;
+          pair_r_o     <= out_r_w;
           gap_r        <= ($clog2(GAP_CYC_P+1))'(GAP_CYC_P);
           st_r         <= CM_GAP_S;
         end

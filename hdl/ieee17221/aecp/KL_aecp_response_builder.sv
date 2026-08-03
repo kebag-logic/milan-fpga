@@ -136,12 +136,16 @@ module KL_aecp_response_builder (
   output logic         dmap_wr_p_o,        //! 1-cycle map-RAM write strobe
   output logic [5:0]   dmap_wr_addr_o,     //! cluster_offset = phys channel idx
   output logic [7:0]   dmap_wr_word_o,     //! render map word (see above)
-  //! talker-side mirror (USER 08-01): every ACCEPTED output-map pair commit
+  //! talker-side mirror (USER 08-01): every ACCEPTED output-map record commit
   //! is one CAPTURE-crossbar map write. Word = KL_chan_map_capture's entry
-  //! {idxh[11:8], en[7], src[6:4], idx[3:0]}; REMOVE/prune write 0 (en=0).
+  //! {half[13:12], idxh[11:8], en[7], src[6:4], idx[3:0]}. The write is a
+  //! READ-MODIFY-WRITE of the addressed PAIR SLOT: the record names ONE
+  //! stream channel, so half[] is rebuilt from the live store for BOTH of
+  //! the slot's channels and the sibling's arming survives untouched. A
+  //! REMOVE that empties the slot writes 0 (en=0, half=0).
   output logic         odmap_wr_p_o,       //! 1-cycle capture-map write strobe
   output logic [4:0]   odmap_wr_slot_o,    //! packetizer pair slot
-  output logic [11:0]  odmap_wr_word_o,    //! capture map word (see above)
+  output logic [13:0]  odmap_wr_word_o,    //! capture map word (see above)
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
 
   // ---- listener sink state (KL_acmp_listener; STREAM_INPUT[0]) --------
@@ -923,15 +927,41 @@ module KL_aecp_response_builder (
   // channel" makes the stream channel the unique key; the value is the  //
   // cluster_offset feeding it. AEM_ODMAP_CSRC_C resolves a cluster to   //
   // its capture-crossbar source pair {valid, half, src, idxh, idx}.     //
-  // VENDOR RULES (1722.1-2021 7.4.45.1 "governed by a set of vendor     //
-  // defined rules"): the mapping_stream_index must be the port's OWN    //
-  // stream (the capture fabric routes port j's clusters into stream j), //
-  // and records arrive as L/R-ADJACENT PAIRS mapping stream channels    //
-  // {2m, 2m+1} to the two halves of ONE source pair (or both to the     //
-  // mono TONE cluster) - the capture map is PAIR-slot granular, and a   //
-  // half-armed slot would make GET_AUDIO_MAP report a route carrying no //
-  // audio, the same wire-truth refusal the input side applies to keys   //
-  // past the render crossbar.                                           //
+  //                                                                     //
+  // ONE RECORD IS ONE CHANNEL. 1722.1-2021 7.4.45 bounds a command only //
+  // by "the number of mappings which are contained in the mappings      //
+  // field"; Milan 5.4.2.27/28 enumerate every BAD_ARGUMENTS condition   //
+  // and none of them is a record COUNT. This engine used to refuse an   //
+  // odd number_of_mappings ("half a pair"), which is our capture        //
+  // crossbar's pair-slot geometry leaking into protocol acceptance: a   //
+  // controller that maps one channel at a time - the normal case - had  //
+  // every command rejected. The count rule is gone; what remains are    //
+  // PER-MAPPING rules, which is the only thing 7.4.45.1 delegates       //
+  // ("what constitutes a valid mapping AT A PARTICULAR POINT IN TIME    //
+  // is governed by a set of vendor defined rules"):                     //
+  //   1. mapping_stream_index must be the port's OWN stream (the        //
+  //      capture fabric routes port j's clusters into stream j);        //
+  //   2. the cluster's source HALF must match the stream channel's      //
+  //      parity - slot p emits its source pair's L into channel 2p and  //
+  //      its R into 2p+1, so "cluster 4 onto channel 5" is a route this //
+  //      crossbar physically cannot make (the mono TONE bucket is       //
+  //      exempt: it carries the same value on both halves);             //
+  //   3. the sibling channel of the same pair slot, AS THIS COMMAND     //
+  //      WILL LEAVE IT, must be unmapped or fed by the SAME source      //
+  //      pair - one slot holds one {src, idxh, idx}. Accepting          //
+  //      otherwise would silently re-point a channel whose mapping      //
+  //      GET_AUDIO_MAP still reports.                                   //
+  // Rule 3 is why the walk validates in TWO passes before committing:   //
+  // pass A judges each record alone and records its intent, pass B      //
+  // judges each record against the command's POST state, pass C         //
+  // commits. All three run to completion, so 7.4.45.1's "none of the    //
+  // mappings are added" still holds.                                    //
+  //                                                                     //
+  // COMMIT is a READ-MODIFY-WRITE of the pair slot: the record owns ONE //
+  // half of it and the sibling's half-enable is rebuilt from the live   //
+  // store, so mapping channel 5 alone leaves channel 4 exactly as it    //
+  // was and removing channel 5 alone silences only channel 5. That is   //
+  // what KL_chan_map_capture's map_wr_half_i pin exists for.            //
   // ------------------------------------------------------------------ //
   localparam int unsigned ODMAP_KW_C =
       (AEM_ODMAP_KEYS_C <= 1) ? 1 : $clog2(AEM_ODMAP_KEYS_C);
@@ -941,7 +971,16 @@ module KL_aecp_response_builder (
   //! the declared output format (FR-STR-03 wire truth), so the Milan
   //! 5.4.2.27 current-format bound IS the elaboration constant
   //! AEM_ODMAP_SCH_C - derived once, never shadowed.
-  logic [7:0]            oclaim_r;   //! ADD same-channel guard (one command)
+  //! this command's intent, per stream channel of the addressed port:
+  //! oclaim_r = "a record of this command writes this channel" (ADD also
+  //! REJECTS a second record on a claimed channel - Milan 5.4.2.27's
+  //! same-stream-channel conflict), opend_co_r = the cluster it will leave
+  //! there. Together they are the POST-COMMAND view rule 3 must judge
+  //! against, and they are what lets the RMW compose WITHIN one command
+  //! whatever order the records arrive in.
+  logic [7:0]            oclaim_r;
+  logic [4:0]            opend_co_r [0:7];
+  logic [1:0]            od_pass_q;  //! 0 = judge alone, 1 = judge pair, 2 = commit
   logic                  dm_out_q;   //! walk direction: 1 = output port
   //! dispatch-latched addressed-port facts (the walk reads no descriptor)
   logic [3:0]            od_pidx_q;
@@ -951,10 +990,6 @@ module KL_aecp_response_builder (
   logic [3:0]            od_pstr_q;
   logic [4:0]            od_slotb_q;
   logic [9:0]            od_schx_q;
-  //! the pair's even (L) record, held for the odd (R) verdict + commit
-  logic [3:0]            odp_sc_q;
-  logic [4:0]            odp_co_q;
-  logic [12:0]           odp_t_q;
   logic [7:0]            odseed_r;   //! post-reset capture-fabric seed
 
   //! addressed-port decode (DISPATCH cone)
@@ -964,15 +999,30 @@ module KL_aecp_response_builder (
                   (w_gs_index < 16'(AEM_ODMAP_NPORTS_C));
   wire w_od_dyn = w_od_ok && AEM_ODMAP_PDYN_C[w_od_pidx];
 
-  // ---- KEY-RESOLVE terms: read in DMAP_SCAN_S phase 8, consumed ONLY -----
-  // ---- by the odk_* registers below (never by the phase-9 verdict) ------
+  // ---- KEY-RESOLVE terms: read in DMAP_SCAN_S phases 8-9, consumed ONLY -
+  // ---- by the odk_* registers below (never by the phase-10 verdict) -----
   wire w_od_co_ok = (dm_co_q < {11'd0, od_pcls_q});
-  wire [12:0] w_od_t =
-      AEM_ODMAP_CSRC_C[w_od_co_ok ? 32'(od_cb_q) + 32'(dm_co_q[6:0]) : 0];
+  //! the SIBLING channel: the other half of this record's pair slot
+  wire [2:0] w_od_sib  = dm_sc_q[2:0] ^ 3'd1;
   wire [ODMAP_KW_C-1:0] w_od_key  =
       od_kb_q | ODMAP_KW_C'(dm_sc_q[2:0]);
   wire [ODMAP_KW_C-1:0] w_od_keyp =
-      od_kb_q | ODMAP_KW_C'(odp_sc_q[2:0]);
+      od_kb_q | ODMAP_KW_C'(w_od_sib);
+  //! the sibling AS THIS COMMAND WILL LEAVE IT (rule 3, and the half-enable
+  //! the RMW writes): a channel this command touches ends up mapped exactly
+  //! when the command is an ADD, whatever order the records arrived in.
+  wire w_od_sv  = oclaim_r[w_od_sib] ? !dm_remove_q : ov_r[w_od_keyp];
+  wire [4:0] w_od_sco = oclaim_r[w_od_sib] ? opend_co_r[w_od_sib]
+                                           : oco_r[w_od_keyp];
+  //! ONE source-table mux, addressed by the phase: 8 resolves the RECORD's
+  //! own cluster, 9 the SIBLING's. Time-multiplexing the address costs a
+  //! 7-bit mux; a second AEM_ODMAP_CSRC_C read would cost a second 13-bit
+  //! one, in the module that already owns the critical path.
+  wire [4:0] w_od_ca   = (dmph_r == 4'd8) ? dm_co_q[4:0] : odk_sco_q;
+  wire       w_od_ca_ok = (dmph_r == 4'd8) ? w_od_co_ok
+                                           : (odk_sco_q < od_pcls_q);
+  wire [12:0] w_od_t =
+      AEM_ODMAP_CSRC_C[w_od_ca_ok ? 32'(od_cb_q) + 32'(w_od_ca) : 0];
 
   //! phase-8 resolution of everything the verdict reaches through a KEY:
   //! the CSRC source table (an adder off dm_co_q into a per-cluster table)
@@ -980,38 +1030,47 @@ module KL_aecp_response_builder (
   //! w_dm_* split below - same reason, same phase, so neither branch can
   //! become the other's critical path.
   logic [12:0]           odk_t_q;      //! AEM_ODMAP_CSRC_C[..] for this record
+  logic [12:0]           odk_ts_q;     //! ...and for its SIBLING channel
   logic                  odk_coq_ok_q; //! cluster_offset inside the port
   logic [ODMAP_KW_C-1:0] odk_key_q;    //! this record's store key
-  logic [ODMAP_KW_C-1:0] odk_keyp_q;   //! the held even (L) record's key
-  logic                  odk_v_q,  odk_vp_q;   //! ov_r at those keys
-  logic [4:0]            odk_co_q, odk_cop_q;  //! oco_r at those keys
+  logic                  odk_v_q;      //! ov_r at this record's key
+  logic [4:0]            odk_co_q;     //! oco_r at this record's key
+  logic                  odk_sv_q;     //! sibling mapped AFTER this command
+  logic [4:0]            odk_sco_q;    //! ...and the cluster it will carry
 
-  //! even (L) record: its own bounds + a live L-half (or mono TONE) source
-  wire w_od_even_ok =
-      (dm_si_q == {12'd0, od_pstr_q}) && !dm_sc_q[0] &&
-      (dm_sc_q < od_schx_q) && (dm_sc_q < 16'd8) &&
-      odk_coq_ok_q && (dm_cc_q == 16'd0) &&
-      odk_t_q[12] && ((odk_t_q[10:8] == 3'd4) || !odk_t_q[11]) &&
-      !oclaim_r[dm_sc_q[2:0]];
-  //! odd (R) record: the partner channel, the SAME source pair's R half
-  //! (or the SAME mono TONE cluster)
-  wire w_od_odd_ok =
+  //! the mono pilot bucket (KL_chan_map_capture SRC_TONE_C) puts the same
+  //! value on BOTH halves of a slot, so it is the one source a cluster can
+  //! feed from either channel parity
+  wire w_od_mono = (odk_t_q[10:8] == 3'd4);
+  //! PER-RECORD validity (rules 1 and 2 at the block comment above). Every
+  //! term is a property of THIS mapping - none of them counts records.
+  wire w_od_rec_ok =
       (dm_si_q == {12'd0, od_pstr_q}) &&
-      (dm_sc_q == {12'd0, odp_sc_q} + 16'd1) &&
+      (dm_sc_q < od_schx_q) && (dm_sc_q < 16'd8) &&
       odk_coq_ok_q && (dm_cc_q == 16'd0) && odk_t_q[12] &&
-      ((odp_t_q[10:8] == 3'd4)
-         ? (dm_co_q[4:0] == odp_co_q)
-         : (odk_t_q[11] && (odk_t_q[10:8] == odp_t_q[10:8]) &&
-            (odk_t_q[7:0] == odp_t_q[7:0])));
-  //! REMOVE present-check (7.4.46.1: "invalid or not present" refuses)
+      (w_od_mono || (odk_t_q[11] == dm_sc_q[0]));
+  //! rule 3: one pair slot holds ONE {src, idxh, idx}. Judged against the
+  //! sibling as the command LEAVES it, so a command that re-points both
+  //! channels of a slot together is accepted whatever order it lists them.
+  wire w_od_sib_ok =
+      !odk_sv_q || (odk_ts_q[12] &&
+                    (odk_ts_q[10:8] == odk_t_q[10:8]) &&
+                    (odk_ts_q[7:0]  == odk_t_q[7:0]));
+  //! REMOVE present-check (7.4.46.1: "invalid or not present" refuses).
+  //! Exact on all four record fields: stream_index, stream_channel,
+  //! cluster_offset (the stored value) and cluster_channel.
   wire w_od_rm_hit =
       (dm_si_q == {12'd0, od_pstr_q}) && (dm_sc_q < 16'd8) &&
       (dm_cc_q == 16'd0) && odk_v_q &&
       (odk_co_q == dm_co_q[4:0]);
-  //! did this pair change the store (nochg replay suppressor)
-  wire w_od_pair_chg =
-      !odk_vp_q || (odk_cop_q != odp_co_q) ||
-      !odk_v_q  || (odk_co_q  != dm_co_q[4:0]);
+  //! did this record change the store (nochg replay suppressor)
+  wire w_od_chg = !odk_v_q || (odk_co_q != dm_co_q[4:0]);
+  //! the RMW's half-enable {L, R}: this record's own channel armed, the
+  //! sibling's exactly as the command leaves it
+  wire [1:0] w_od_half_add = dm_sc_q[0] ? {odk_sv_q, 1'b1}
+                                        : {1'b1, odk_sv_q};
+  wire [1:0] w_od_half_rm  = dm_sc_q[0] ? {odk_sv_q, 1'b0}
+                                        : {1'b0, odk_sv_q};
 `endif
   //! live per-STREAM_INPUT channel count: resets to the ROM current_format
   //! and follows SET_STREAM_FORMAT, because 5.3.10.1 bounds a mapping by
@@ -1366,7 +1425,7 @@ module KL_aecp_response_builder (
   //! demands of every conditional engine)
   assign odmap_wr_p_o    = 1'b0;
   assign odmap_wr_slot_o = 5'd0;
-  assign odmap_wr_word_o = 12'd0;
+  assign odmap_wr_word_o = 14'd0;
 `endif
 
   //! STREAM_INPUT counter push state (Milan §5.4.5: unsolicited GET_COUNTERS
@@ -1833,22 +1892,23 @@ module KL_aecp_response_builder (
       //! port's primary cluster run, kept only where the source projects)
       odmap_wr_p_o    <= 1'b0;
       odmap_wr_slot_o <= 5'd0;
-      odmap_wr_word_o <= 12'd0;
+      odmap_wr_word_o <= 14'd0;
       for (int k = 0; k < AEM_ODMAP_KEYS_C; k++) begin
         ov_r[k]  <= AEM_ODMAP_INIT_C[k][5];
         oco_r[k] <= AEM_ODMAP_INIT_C[k][4:0];
       end
       oclaim_r  <= '0;
+      for (int c = 0; c < 8; c++) opend_co_r[c] <= 5'd0;
+      od_pass_q <= 2'd0;
       dm_out_q  <= 1'b0;
       od_pidx_q <= 4'd0;  od_kb_q <= '0;   od_cb_q <= 7'd0;
       od_pcls_q <= 5'd0;  od_pstr_q <= 4'd0;
       od_slotb_q <= 5'd0; od_schx_q <= 10'd0;
-      odp_sc_q <= 4'd0;   odp_co_q <= 5'd0; odp_t_q <= 13'd0;
       odseed_r   <= 8'd0;
-      odk_t_q <= 13'd0;  odk_coq_ok_q <= 1'b0;
-      odk_key_q <= '0;   odk_keyp_q <= '0;
-      odk_v_q <= 1'b0;   odk_vp_q <= 1'b0;
-      odk_co_q <= 5'd0;  odk_cop_q <= 5'd0;
+      odk_t_q <= 13'd0;  odk_ts_q <= 13'd0; odk_coq_ok_q <= 1'b0;
+      odk_key_q <= '0;
+      odk_v_q <= 1'b0;   odk_sv_q <= 1'b0;
+      odk_co_q <= 5'd0;  odk_sco_q <= 5'd0;
 `endif
       for (int s = 0; s < AEM_DMAP_NSTRIN_C; s++)
         dm_sch_r[s] <= AEM_DMAP_SCH_C[s];
@@ -1905,19 +1965,24 @@ module KL_aecp_response_builder (
       end
 `ifdef AEM_ODYNMAP
       odmap_wr_p_o <= 1'b0;
-      //! the capture-crossbar seed: one PAIR slot per IDLE_S cycle (the
-      //! identity image is pair-complete by construction; the template
-      //! comes from the LIVE store so a pre-seed edit is still truthful)
+      //! the capture-crossbar seed: one PAIR slot per IDLE_S cycle. The
+      //! template comes from the LIVE store so a pre-seed edit is still
+      //! truthful, and the half-enable is read off the two keys rather
+      //! than assumed - the identity image is pair-complete today, but a
+      //! seed that could only express a WHOLE pair is the same assumption
+      //! that made an odd command unrepresentable.
       if (odseed_r < 8'(AEM_ODMAP_KEYS_C) && state_r == IDLE_S) begin
-        if (ov_r[odseed_r[ODMAP_KW_C-1:0]] &&
-            ov_r[odseed_r[ODMAP_KW_C-1:0] + 1'b1]) begin
-          automatic logic [12:0] t = AEM_ODMAP_CSRC_C[
-              32'(AEM_ODMAP_PCBASE_C[32'(odseed_r) / 8])
-              + 32'(oco_r[odseed_r[ODMAP_KW_C-1:0]])];
+        automatic logic vl = ov_r[odseed_r[ODMAP_KW_C-1:0]];
+        automatic logic vr = ov_r[odseed_r[ODMAP_KW_C-1:0] + 1'b1];
+        automatic logic [12:0] t = AEM_ODMAP_CSRC_C[
+            32'(AEM_ODMAP_PCBASE_C[32'(odseed_r) / 8])
+            + 32'(vl ? oco_r[odseed_r[ODMAP_KW_C-1:0]]
+                     : oco_r[odseed_r[ODMAP_KW_C-1:0] + 1'b1])];
+        if (vl || vr) begin
           odmap_wr_p_o    <= 1'b1;
           odmap_wr_slot_o <= 5'(AEM_ODMAP_SLOTB_C[32'(odseed_r) / 8])
                              + 5'(odseed_r[2:1]);
-          odmap_wr_word_o <= {t[7:4], 1'b1, t[10:8], t[3:0]};
+          odmap_wr_word_o <= {vl, vr, t[7:4], 1'b1, t[10:8], t[3:0]};
         end
         odseed_r <= odseed_r + 8'd2;
       end
@@ -2683,8 +2748,14 @@ module KL_aecp_response_builder (
                 end else if (w_od_dyn) begin
                   //! dynamic OUTPUT port (Milan 5.4.2.27/28 SHALL when the
                   //! port has no Audio Map). Same command framing as the
-                  //! input engine, plus the pair rule: records arrive as
-                  //! L/R-adjacent pairs, so an odd count can never validate
+                  //! input engine. NOTE what is NOT here: a parity test on
+                  //! number_of_mappings. 7.4.45/7.4.46 bound this field
+                  //! only by what the PDU carries and Milan 5.4.2.27/28
+                  //! list every legal BAD_ARGUMENTS condition without ever
+                  //! mentioning a count - a controller that maps ONE
+                  //! channel (the normal case, and 5.4.2.26's own "at most
+                  //! one dynamic mapping per Stream Output's channel"
+                  //! granularity) is sending a conformant command.
                   if (w_dm_n > 16'd60) begin
                     status_q <= STATUS_BAD_ARGUMENTS;
                   end else if (16'(hdr_q.control_data_length) !=
@@ -2693,8 +2764,6 @@ module KL_aecp_response_builder (
                   end else if (w_dm_n == 16'd0) begin
                     status_q <= STATUS_SUCCESS;         //! empty edit
                     nochg_q  <= 1'b1;
-                  end else if (w_dm_n[0]) begin
-                    status_q <= STATUS_BAD_ARGUMENTS;   //! half a pair
                   end else begin
                     status_q    <= STATUS_SUCCESS;      //! walk may demote
                     dmn_q       <= 6'(w_dm_n);
@@ -2710,6 +2779,7 @@ module KL_aecp_response_builder (
                     od_schx_q   <= 10'(AEM_ODMAP_SCH_C[w_od_pidx]);
                     dm_remove_q <= (w_cmd_eff == CMD_REMOVE_AUDIO_MAPPINGS);
                     dm_commit_q <= 1'b0;
+                    od_pass_q   <= 2'd0;
                     oclaim_r    <= '0;
                     dmap_diff_q <= 1'b0;
                     state_r     <= DMAP_SCAN_S;
@@ -3729,71 +3799,99 @@ module KL_aecp_response_builder (
             dmk_si_q     <= dmap_si_r[w_dm_key];
             dmk_claim_q  <= dmap_claim_r[w_dm_key];
 `ifdef AEM_ODYNMAP
-            odk_t_q      <= w_od_t;
+            odk_t_q      <= w_od_t;      //! address = this record's cluster
             odk_coq_ok_q <= w_od_co_ok;
             odk_key_q    <= w_od_key;
-            odk_keyp_q   <= w_od_keyp;   //! odp_sc_q still holds the L record
             odk_v_q      <= ov_r [w_od_key];
             odk_co_q     <= oco_r[w_od_key];
-            odk_vp_q     <= ov_r [w_od_keyp];
-            odk_cop_q    <= oco_r[w_od_keyp];
+            //! the sibling as this command LEAVES it - the post-state rule 3
+            //! judges and the half-enable the RMW writes
+            odk_sv_q     <= w_od_sv;
+            odk_sco_q    <= w_od_sco;
 `endif
             dmph_r <= 4'd9;
+`ifdef AEM_ODYNMAP
+          end else if (dm_out_q && dmph_r == 4'd9) begin
+            //! Phase 9 - the OUTPUT walk's second resolve: the same source
+            //! table, now addressed by the sibling's post-command cluster
+            //! (registered above). Its own phase because chaining
+            //! oco_r[sibling] -> AEM_ODMAP_CSRC_C[] inside one cycle is the
+            //! exact two-deep array read phase 8 exists to have avoided.
+            odk_ts_q <= w_od_t;
+            dmph_r   <= 4'd10;
+`endif
           end else begin
             dmph_r <= 4'd0;
 `ifdef AEM_ODYNMAP
             if (dm_out_q) begin
-              //! OUTPUT-port walk: even record stashes, odd record judges
-              //! the PAIR (see the vendor rules at the odmap declarations)
-              odp_sc_q <= dm_sc_q[3:0];
-              odp_co_q <= dm_co_q[4:0];
-              odp_t_q  <= odk_t_q;   //! phase 8's resolution, same record
-              if (!dm_commit_q) begin
-                if (dm_remove_q
-                    ? !(w_od_rm_hit &&
-                        (dmi_r[0] ? (dm_sc_q == {12'd0, odp_sc_q} + 16'd1)
-                                  : !dm_sc_q[0]))
-                    : !(dmi_r[0] ? w_od_odd_ok : w_od_even_ok)) begin
+              //! OUTPUT-port walk, THREE passes over the same records (see
+              //! the vendor rules at the odmap declarations):
+              //!   0  judge each record ALONE + record what it intends
+              //!   1  judge each record against the command's POST state
+              //!   2  commit: store key + one READ-MODIFY-WRITE of its slot
+              //! Both judging passes run before anything is committed, so
+              //! 7.4.45.1/7.4.46.1's "none of the mappings are added /
+              //! removed" holds however late the offending record sits.
+              if (od_pass_q == 2'd0) begin
+                if (dm_remove_q ? !w_od_rm_hit
+                                : (!w_od_rec_ok || oclaim_r[dm_sc_q[2:0]]))
+                  begin
                   status_q <= STATUS_BAD_ARGUMENTS;
                   state_r  <= WRITE_S;
                 end else begin
-                  if (!dm_remove_q && dmi_r[0]) begin
-                    oclaim_r[odp_sc_q[2:0]] <= 1'b1;
-                    oclaim_r[dm_sc_q[2:0]]  <= 1'b1;
-                  end
+                  //! REMOVE claims too - not to reject a duplicate (Milan
+                  //! 5.4.2.28 says ignore those) but so pass 1 and the RMW
+                  //! know this channel ends up UNMAPPED
+                  oclaim_r[dm_sc_q[2:0]]   <= 1'b1;
+                  opend_co_r[dm_sc_q[2:0]] <= dm_co_q[4:0];
                   if (dmi_r == dmn_q - 6'd1) begin
-                    dmi_r       <= 6'd0;
-                    dm_commit_q <= 1'b1;
+                    dmi_r     <= 6'd0;
+                    od_pass_q <= 2'd1;
                   end else begin
                     dmi_r <= dmi_r + 6'd1;
                   end
                 end
+              end else if (od_pass_q == 2'd1) begin
+                //! REMOVE cannot break rule 3: dropping a channel only
+                //! clears a half-enable, it never re-points the slot
+                if (!dm_remove_q && !w_od_sib_ok) begin
+                  status_q <= STATUS_BAD_ARGUMENTS;
+                  state_r  <= WRITE_S;
+                end else if (dmi_r == dmn_q - 6'd1) begin
+                  dmi_r     <= 6'd0;
+                  od_pass_q <= 2'd2;
+                end else begin
+                  dmi_r <= dmi_r + 6'd1;
+                end
               end else begin
-                //! commit on the odd record: both store keys + exactly ONE
-                //! pair-slot write into the capture crossbar
-                if (dmi_r[0]) begin
-                  if (!dm_remove_q) begin
-                    ov_r [odk_keyp_q] <= 1'b1;
-                    oco_r[odk_keyp_q] <= odp_co_q;
-                    ov_r [odk_key_q]  <= 1'b1;
-                    oco_r[odk_key_q]  <= dm_co_q[4:0];
-                    if (w_od_pair_chg) dmap_diff_q <= 1'b1;
-                    odmap_wr_p_o    <= 1'b1;
-                    odmap_wr_slot_o <= od_slotb_q + 5'(odp_sc_q[3:1]);
-                    odmap_wr_word_o <= {odp_t_q[7:4], 1'b1,
-                                        odp_t_q[10:8], odp_t_q[3:0]};
-                  end else begin
-                    ov_r[odk_keyp_q] <= 1'b0;
-                    ov_r[odk_key_q]  <= 1'b0;
-                    dmap_diff_q     <= 1'b1;
-                    odmap_wr_p_o    <= 1'b1;
-                    odmap_wr_slot_o <= od_slotb_q + 5'(odp_sc_q[3:1]);
-                    odmap_wr_word_o <= 12'h000;
-                  end
+                //! COMMIT. One record = one channel = one half of one slot.
+                //! The slot word is rebuilt from this record's source and
+                //! the sibling's POST-command arming, so every record that
+                //! touches a slot writes the SAME final word - the RMW
+                //! composes within one command whatever order they arrive.
+                if (!dm_remove_q) begin
+                  ov_r [odk_key_q] <= 1'b1;
+                  oco_r[odk_key_q] <= dm_co_q[4:0];
+                  if (w_od_chg) dmap_diff_q <= 1'b1;
+                  odmap_wr_p_o    <= 1'b1;
+                  odmap_wr_slot_o <= od_slotb_q + 5'(dm_sc_q[3:1]);
+                  odmap_wr_word_o <= {w_od_half_add, odk_t_q[7:4], 1'b1,
+                                      odk_t_q[10:8], odk_t_q[3:0]};
+                end else begin
+                  ov_r[odk_key_q] <= 1'b0;
+                  dmap_diff_q     <= 1'b1;
+                  odmap_wr_p_o    <= 1'b1;
+                  odmap_wr_slot_o <= od_slotb_q + 5'(dm_sc_q[3:1]);
+                  //! the sibling keeps the slot's source; an emptied slot
+                  //! goes fully quiet (en=0), never "enabled with no half"
+                  odmap_wr_word_o <= odk_sv_q
+                      ? {w_od_half_rm, odk_t_q[7:4], 1'b1,
+                         odk_t_q[10:8], odk_t_q[3:0]}
+                      : 14'h0000;
                 end
                 if (dmi_r == dmn_q - 6'd1) begin
                   nochg_q <= !(dmap_diff_q ||
-                               (dm_remove_q ? 1'b1 : w_od_pair_chg));
+                               (dm_remove_q ? 1'b1 : w_od_chg));
                   state_r <= WRITE_S;
                 end else begin
                   dmi_r <= dmi_r + 6'd1;

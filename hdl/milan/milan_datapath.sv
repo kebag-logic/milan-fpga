@@ -878,7 +878,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! rule: a slot past N_STREAMS*4 is refused, never wrapped.
   wire        aecp_odmap_wr_p_w;
   wire [4:0]  aecp_odmap_wr_slot_w;
-  wire [11:0] aecp_odmap_wr_word_w;
+  wire [13:0] aecp_odmap_wr_word_w;
 
   //! The RX wire-channel space BOTH channel crossbars de-interleave, defined
   //! ONCE and read twice (KL_chan_map_render.N_CH_P below, and the LOOP
@@ -952,6 +952,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .map_wr_idxh_i (aecp_odmap_wr_p_w
                     ? aecp_odmap_wr_word_w[11:8]
                     : cfg_chmap_wr_data[7:4]),
+    //! per-half enable {L, R}. The AEM mirror computes it (a Stream Output
+    //! mapping is per CHANNEL, the slot is per PAIR); the CSR debug window
+    //! predates it and keeps its meaning by writing "both halves".
+    .map_wr_half_i (aecp_odmap_wr_p_w
+                    ? aecp_odmap_wr_word_w[13:12]
+                    : 2'b11),
     //! map-RAM readback -> CSR 0x910/0x914. The CSR holds map_rd_en_i with a
     //! stable address until map_rd_valid_o; this port is the ONLY way software
     //! can tell a mapped-and-never-fed slot from a mapped-and-quiet one.

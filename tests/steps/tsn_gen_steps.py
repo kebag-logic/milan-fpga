@@ -782,6 +782,126 @@ class MilanAudioMapModel:
 
 
 # ---------------------------------------------------------------------------
+# Milan v1.2 dynamic audio-map model, STREAM_PORT_OUTPUT side.
+#
+# WRITTEN FROM THE CLAUSES, NOT FROM THE RTL (methodology L3), because the
+# defect this model exists to catch was a rule the RTL had and the standard
+# does not. On 2026-08-03 our entity refused every ADD/REMOVE_AUDIO_MAPPINGS
+# whose number_of_mappings was ODD, and no test noticed, because every tool
+# we owned sent whole L/R pairs "per the vendor rule".
+#
+# What the standards actually say about the COUNT:
+#   1722.1-2021 7.4.45  "The number_of_mappings field is set to the number of
+#       mappings which are contained in the mappings field." The only stated
+#       failure is "If any mapping in the mappings field is invalid, then
+#       none of the mappings are added and the command fails with a
+#       BAD_ARGUMENTS status" - a property of A MAPPING, not of how many.
+#   1722.1-2021 7.4.45  "The determination of what constitutes a valid
+#       mapping at a particular point in time is governed by a set of vendor
+#       defined rules." Again: a valid MAPPING.
+#   Milan v1.2 5.4.2.27 enumerates every BAD_ARGUMENTS condition a PAAD-AE
+#       shall or may raise for ADD (channel absent from the current format;
+#       a currently streaming channel when TALKER_DYNAMIC_MAPPINGS_WHILE_
+#       RUNNING is clear; two mappings on the same stream channel; ...).
+#       None of them is a record count.
+#   Milan v1.2 5.4.2.26  "at most one dynamic mapping per Stream Output's
+#       channel" - the unit of a Stream Output mapping IS one channel, so a
+#       one-record command is the natural case, not an exception.
+# Therefore: a record count can never be a rejection reason. This model
+# encodes that, and encodes the read-modify-write semantics it implies -
+# mapping one channel must not disturb the other channel that shares its
+# capture pair slot, and removing one must not silence the other.
+#
+# The vendor rules it DOES keep are the ones that are per-mapping and
+# physical (7.4.45's own delegation): the port's own stream only, the
+# cluster's source half must match the stream channel's parity, and the two
+# channels of one pair slot must be fed by one source pair.
+# ---------------------------------------------------------------------------
+
+
+class MilanOutputAudioMapModel:
+    """Clause-derived responder for a dynamic STREAM_PORT_OUTPUT.
+
+    A cluster is described by its capture source `(src, idx, half)`; `half`
+    is None for a mono source (the pilot tone), which either channel of a
+    pair slot may carry. Store: stream_channel -> cluster_offset. Slot state
+    is DERIVED, never stored twice: slot p covers stream channels {2p, 2p+1}.
+    """
+
+    def __init__(self, clusters, stream_index=0, stream_channels=8):
+        #: cluster_offset -> (src, idx, half); half None = mono
+        self.clusters = list(clusters)
+        self.stream_index = stream_index
+        self.stream_channels = stream_channels
+        self.store = {}                     # stream_channel -> cluster_offset
+
+    # -- derived slot view --------------------------------------------------
+    def slot_word(self, slot):
+        """(src, idx, half_mask) of pair slot `slot`; half_mask is
+        {L:2, R:1}. An unmapped slot is (None, None, 0) = silence, and a
+        HALF-mapped slot must be silent on the unmapped channel - Milan
+        5.3.9.1 lets a Stream Output channel be "not mapped", and a channel
+        carrying its neighbour's audio would be a route GET_AUDIO_MAP does
+        not report."""
+        mask, src = 0, None
+        for half_bit, ch in ((2, 2 * slot), (1, 2 * slot + 1)):
+            if ch in self.store:
+                mask |= half_bit
+                c = self.clusters[self.store[ch]]
+                src = (c[0], c[1])
+        return (src[0] if src else None, src[1] if src else None, mask)
+
+    # -- per-mapping validity (7.4.45 vendor rules) -------------------------
+    def _record_ok(self, si, sc, co, cc, pending):
+        if si != self.stream_index or cc != 0:
+            return False
+        if not (0 <= sc < min(self.stream_channels, 8)):
+            return False
+        if not (0 <= co < len(self.clusters)):
+            return False
+        src, idx, half = self.clusters[co]
+        if half is not None and half != (sc & 1):
+            return False                    # the crossbar cannot cross halves
+        sib = sc ^ 1                        # the other channel of this slot
+        sib_co = pending.get(sib, self.store.get(sib))
+        if sib_co is None:
+            return True                     # sibling unmapped: slot is free
+        s2, i2, _ = self.clusters[sib_co]
+        return (s2, i2) == (src, idx)       # one slot, one source pair
+
+    def add(self, mappings):
+        """1722.1-2021 7.4.45: all-or-nothing, and NEVER a count check."""
+        pending, claimed = {}, set()
+        for si, sc, co, cc in mappings:     # pass A: alone + intent
+            if si != self.stream_index or sc in claimed:
+                return STATUS_BAD_ARGUMENTS
+            claimed.add(sc)
+            pending[sc] = co
+        for si, sc, co, cc in mappings:     # pass B: against the POST state
+            if not self._record_ok(si, sc, co, cc, pending):
+                return STATUS_BAD_ARGUMENTS
+        self.store.update(pending)          # commit
+        return 0
+
+    def remove(self, mappings):
+        """7.4.46: "invalid or not present" refuses; Milan 5.4.2.28 makes
+        DUPLICATES the one exception, and they survive because nothing is
+        committed until every record has been judged."""
+        for si, sc, co, cc in mappings:
+            if (si != self.stream_index or cc != 0
+                    or self.store.get(sc) != co):
+                return STATUS_BAD_ARGUMENTS
+        for si, sc, co, cc in mappings:
+            self.store.pop(sc, None)
+        return 0
+
+    def get(self):
+        """Table 7-162 rows, in stream-channel order."""
+        return [(self.stream_index, sc, self.store[sc], 0)
+                for sc in sorted(self.store)]
+
+
+# ---------------------------------------------------------------------------
 # Milan v1.2 ACMP LISTENER model — mirrors KL_acmp_listener (states, response
 # field rules; timer/ADP events surface as explicit steps).
 # ---------------------------------------------------------------------------
@@ -1171,6 +1291,93 @@ def step_amap_remove_port(context, di, si, sc, co):
     context.amap_status = context.amap.process_mappings(
         CMD_REMOVE_AUDIO_MAPPINGS, DESC_STREAM_PORT_INPUT, di,
         [(si, sc, co, 0)])
+
+
+# ---- STREAM_PORT_OUTPUT dynamic maps (7.4.45/7.4.46, Milan 5.4.2.26-28) --
+def _out_records(table):
+    """behave table -> Table 7-162 records."""
+    return [(int(r['stream_index'], 0), int(r['stream_channel'], 0),
+             int(r['cluster_offset'], 0), int(r['cluster_channel'], 0))
+            for r in table]
+
+
+@given('a dynamic STREAM_PORT_OUTPUT of {n:d} stereo cluster pairs')
+def step_out_map_port(context, n):
+    """Cluster 2k/2k+1 are the L/R halves of capture source pair k - the
+    geometry that made a pair-count rule look natural."""
+    clusters = [(3, k // 2, k & 1) for k in range(2 * n)]
+    context.omap = MilanOutputAudioMapModel(clusters, stream_index=0,
+                                            stream_channels=2 * n)
+
+
+@given('a dynamic STREAM_PORT_OUTPUT of {n:d} stereo cluster pairs plus a '
+       'mono pilot cluster')
+def step_out_map_port_tone(context, n):
+    clusters = [(3, k // 2, k & 1) for k in range(2 * n)] + [(4, 0, None)]
+    context.omap = MilanOutputAudioMapModel(clusters, stream_index=0,
+                                            stream_channels=2 * n)
+
+
+@given('stream channel {sc:d} is mapped to cluster_offset {co:d}')
+@when('stream channel {sc:d} is mapped to cluster_offset {co:d}')
+def step_out_map_seed(context, sc, co):
+    context.omap_status = context.omap.add([(0, sc, co, 0)])
+    assert context.omap_status == 0, \
+        f"seeding channel {sc} <- cluster {co} answered {context.omap_status}"
+
+
+@when('a controller ADDs these output mappings')
+def step_out_map_add(context):
+    context.omap_status = context.omap.add(_out_records(context.table))
+
+
+@when('a controller REMOVEs these output mappings')
+def step_out_map_remove(context):
+    context.omap_status = context.omap.remove(_out_records(context.table))
+
+
+@then('the output audio-map model responds status {st:d}')
+def step_out_map_status(context, st):
+    assert context.omap_status == st, \
+        f"status {context.omap_status} != {st}"
+
+
+@then('GET_AUDIO_MAP lists {n:d} output mappings')
+def step_out_map_rows(context, n):
+    rows = context.omap.get()
+    assert len(rows) == n, f"{len(rows)} rows, expected {n}: {rows}"
+
+
+@then('GET_AUDIO_MAP lists stream channel {sc:d} at cluster_offset {co:d}')
+def step_out_map_has(context, sc, co):
+    rows = context.omap.get()
+    assert (0, sc, co, 0) in rows, \
+        f"channel {sc} <- cluster {co} not in {rows}"
+
+
+@then('GET_AUDIO_MAP lists no mapping for stream channel {sc:d}')
+def step_out_map_hasnt(context, sc):
+    rows = [r for r in context.omap.get() if r[1] == sc]
+    assert not rows, f"channel {sc} still mapped: {rows}"
+
+
+@then('capture pair slot {slot:d} carries source pair {idx:d} on halves '
+      '"{halves}"')
+def step_out_slot(context, slot, idx, halves):
+    """halves: "LR" both, "L" left only, "R" right only, "-" silent."""
+    want = {"LR": 3, "L": 2, "R": 1, "-": 0}[halves]
+    _, got_idx, got_mask = context.omap.slot_word(slot)
+    assert got_mask == want, \
+        f"slot {slot} half mask {got_mask:02b}, expected {want:02b} ({halves})"
+    if want:
+        assert got_idx == idx, \
+            f"slot {slot} carries source pair {got_idx}, expected {idx}"
+
+
+@then('capture pair slot {slot:d} is silent')
+def step_out_slot_silent(context, slot):
+    _, _, mask = context.omap.slot_word(slot)
+    assert mask == 0, f"slot {slot} half mask {mask:02b}, expected silence"
 
 
 @when('the audio-map model GETs input port {di:d} page {mi:d}')

@@ -10,8 +10,20 @@
  * a config declare exactly that; 5.3.9.1 keeps the output mapping list as
  * standing state bounded by the Stream Output's current format. 1722.1-2021
  * 7.4.45.1/7.4.46.1 make record validity "governed by a set of vendor
- * defined rules" - this engine's rules (port's own stream only, L/R-
- * adjacent record pairs onto one source pair) are asserted here.
+ * defined rules" - this engine's rules (port's own stream only; the
+ * cluster's source HALF must match the stream channel's parity; one pair
+ * slot holds one source pair) are asserted here.
+ *
+ * WHAT SECTION [4] EXISTS FOR (wire-facing defect, Hive, 2026-08-03):
+ * this engine used to refuse an ODD number_of_mappings - our capture
+ * crossbar's pair-slot geometry leaking into protocol acceptance. No
+ * clause permits it: 7.4.45/7.4.46 bound number_of_mappings only by the
+ * PDU and Milan 5.4.2.27/28 enumerate every legal BAD_ARGUMENTS condition
+ * without ever naming a count, while 5.4.2.26 says there is "at most one
+ * dynamic mapping per Stream Output's channel" - i.e. the unit IS one
+ * channel. A controller that maps one channel at a time had every command
+ * rejected. [4] pins single-mapping ADD and REMOVE, and the read-modify-
+ * write of the pair slot that makes them mean what they say.
  *
  * SHAPE (gen_odmap_shape.py): two 8ch talkers; SPO0 = 8 ring clusters
  * (default policy), SPO1 = 9 clusters (4 loopback from rx stream 1 +
@@ -35,7 +47,10 @@
 static VKL_aecp_top* dut;
 static long checks = 0, fails = 0;
 
-//! capture-crossbar mirror recorder: every odmap_wr_p_o pulse (slot, word)
+//! capture-crossbar mirror recorder: every odmap_wr_p_o pulse (slot, word).
+//! The word is KL_chan_map_capture's 14-bit entry
+//! {half[13:12], idxh[11:8], en[7], src[6:4], idx[3:0]}; half = {L_en, R_en}
+//! is what lets one channel of a pair slot be mapped and the other silent.
 struct OdWr { int slot, word; };
 static std::vector<OdWr> g_od_wrs;
 static void tick() {
@@ -180,9 +195,13 @@ static std::vector<uint8_t> setofmt(uint16_t idx, uint64_t fmt) {
 
 // the shape's power-on slot words (see gen_odmap_shape.py):
 // slots 0..3 ring pairs 0..3 (SPO0), 4..5 loopback rx1 pairs 0..1,
-// 6..7 ring pairs 6..7 (SPO1)
-static const int SEED_W[8] = {0x0B0, 0x0B1, 0x0B2, 0x0B3,
-                              0x1D0, 0x1D1, 0x0B6, 0x0B7};
+// 6..7 ring pairs 6..7 (SPO1). half = 0b11 (the identity image maps both
+// channels of every slot), so each is 0x3000 | the legacy 12-bit entry.
+static const int SEED_W[8] = {0x30B0, 0x30B1, 0x30B2, 0x30B3,
+                              0x31D0, 0x31D1, 0x30B6, 0x30B7};
+//! one (slot, word) pulse as a single comparable number - the word is 14
+//! bits now, so the slot has to move above bit 13
+static long wr_key(int slot, int word) { return (long)slot * 65536 + word; }
 
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
@@ -214,7 +233,7 @@ int main(int argc, char** argv) {
         for (int s = 0; s < 8 && w.size() == 8; s++) {
             char nm[80];
             snprintf(nm, sizeof nm, "seed slot %d word 0x%03X", s, SEED_W[s]);
-            ck(nm, w[s].slot*4096 + w[s].word, s*4096 + SEED_W[s]);
+            ck(nm, wr_key(w[s].slot, w[s].word), wr_key(s, SEED_W[s]));
         }
         // GET serves the identity as ordinary dynamic mappings
         auto r = xact(CMD_GET_MAP, gm_pl(SPO, 0, 0));
@@ -250,16 +269,19 @@ int main(int argc, char** argv) {
     printf("\n[3] ADD vendor rules (7.4.45.1): all-or-nothing rejects\n");
     {
         take_wrs();
-        auto r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,0,0,0}}}));
-        ck("odd record count (half a pair) BAD_ARG", r_status(r), 7);
-        r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{0,0,0,0}}, {{0,1,1,0}}}));
+        auto r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{0,0,0,0}}, {{0,1,1,0}}}));
         ck("stream_index 0 is not SPO1's stream BAD_ARG", r_status(r), 7);
         r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,0,0,0}}, {{1,2,1,0}}}));
-        ck("non-adjacent channels {0,2} BAD_ARG", r_status(r), 7);
+        ck("cluster 1 (an R half) onto EVEN channel 2 BAD_ARG", r_status(r), 7);
         r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,0,1,0}}, {{1,1,0,0}}}));
         ck("swapped source halves BAD_ARG", r_status(r), 7);
         r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,0,0,0}}, {{1,1,3,0}}}));
         ck("R half from a DIFFERENT source pair BAD_ARG", r_status(r), 7);
+        //! the same refusal reached through the SIBLING that the command
+        //! does not touch: one slot holds one {src, idxh, idx}
+        r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,1,3,0}}}));
+        ck("lone ch1 onto loop pair 1, sibling still on pair 0 BAD_ARG",
+           r_status(r), 7);
         r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,8,0,0}}, {{1,9,1,0}}}));
         ck("stream channel 8 of an 8ch format BAD_ARG", r_status(r), 7);
         r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,0,9,0}}, {{1,1,10,0}}}));
@@ -277,13 +299,19 @@ int main(int argc, char** argv) {
     printf("\n[4] ADD round-trips: TONE pair + loopback re-route\n");
     {
         take_wrs();
-        //! the mono pilot: BOTH channels of the pair reference cluster 8
+        //! the mono pilot: BOTH channels of the pair reference cluster 8.
+        //! ONE WRITE PER RECORD now (each record owns one half of the
+        //! slot), and both writes carry the same final word - that is the
+        //! read-modify-write composing inside one command.
         auto r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,4,8,0}}, {{1,5,8,0}}}));
         ck("TONE pair {sc4,sc5}<-cl8 SUCCESS", r_status(r), 0);
         { auto w = take_wrs();
-          ck("one pair-slot write", (long)w.size(), 1);
-          if (w.size()==1) ck("slot 6 word {en,TONE} 0x0C0",
-                              w[0].slot*4096 + w[0].word, 6*4096 + 0x0C0); }
+          ck("one slot write per record", (long)w.size(), 2);
+          if (w.size()==2) {
+            ck("slot 6 word {half 11, en, TONE} 0x30C0",
+               wr_key(w[0].slot, w[0].word), wr_key(6, 0x30C0));
+            ck("...and the sibling's record writes the same word",
+               wr_key(w[1].slot, w[1].word), wr_key(6, 0x30C0)); } }
         r = xact(CMD_GET_MAP, gm_pl(SPO, 1, 0));
         ck("rows still 8 (replaced, not added)", r_be16(r, 46), 8);
         ck("row4 now {1,4,8,0}", row_is(r, 50, 4, 1,4,8,0), 1);
@@ -293,9 +321,12 @@ int main(int argc, char** argv) {
         r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,0,2,0}}, {{1,1,3,0}}}));
         ck("loop pair re-route SUCCESS", r_status(r), 0);
         { auto w = take_wrs();
-          ck("one pair-slot write", (long)w.size(), 1);
-          if (w.size()==1) ck("slot 4 word {idxh1,en,LOOP,idx1} 0x1D1",
-                              w[0].slot*4096 + w[0].word, 4*4096 + 0x1D1); }
+          ck("one slot write per record", (long)w.size(), 2);
+          if (w.size()==2) {
+            ck("slot 4 word {half 11,idxh1,en,LOOP,idx1} 0x31D1",
+               wr_key(w[0].slot, w[0].word), wr_key(4, 0x31D1));
+            ck("...second record agrees",
+               wr_key(w[1].slot, w[1].word), wr_key(4, 0x31D1)); } }
         r = xact(CMD_GET_MAP, gm_pl(SPO, 1, 0));
         ck("row0 now {1,0,2,0}", row_is(r, 50, 0, 1,0,2,0), 1);
     }
@@ -310,9 +341,14 @@ int main(int argc, char** argv) {
         r = xact(CMD_RM_MAP, am_pl(SPO, 1, {{{1,4,8,0}}, {{1,5,8,0}}}));
         ck("REMOVE the TONE pair SUCCESS", r_status(r), 0);
         { auto w = take_wrs();
-          ck("one disarm write", (long)w.size(), 1);
-          if (w.size()==1) ck("slot 6 word 0 (en=0)",
-                              w[0].slot*4096 + w[0].word, 6*4096 + 0x000); }
+          ck("one disarm write per record", (long)w.size(), 2);
+          if (w.size()==2) {
+            //! an EMPTIED slot goes fully quiet - never "enabled with no
+            //! half", which would still inject the source into both
+            ck("slot 6 word 0 (en=0, half=0)",
+               wr_key(w[0].slot, w[0].word), wr_key(6, 0x0000));
+            ck("...and so does the second record's write",
+               wr_key(w[1].slot, w[1].word), wr_key(6, 0x0000)); } }
         r = xact(CMD_GET_MAP, gm_pl(SPO, 1, 0));
         ck("rows now 6", r_be16(r, 46), 6);
         r = xact(CMD_RM_MAP, am_pl(SPO, 1, {{{1,4,8,0}}, {{1,5,8,0}}}));
@@ -321,7 +357,123 @@ int main(int argc, char** argv) {
         ck("identity ring pair restored", r_status(r), 0);
     }
 
-    printf("\n[6] u=1 replay to registered controllers (7.5.2)\n");
+    //! ===================================================================
+    //! [6] SINGLE-MAPPING COMMANDS - the wire-facing defect Hive found.
+    //!
+    //! CLAUSE: 1722.1-2021 7.4.45 "The number_of_mappings field is set to
+    //! the number of mappings which are contained in the mappings field",
+    //! and the only stated failure is "If any mapping in the mappings
+    //! field is invalid". Milan v1.2 5.4.2.27/28 enumerate every
+    //! BAD_ARGUMENTS condition a PAAD-AE shall or may raise and NONE of
+    //! them is a record count; 5.4.2.26 fixes the granularity the other
+    //! way round - "at most one dynamic mapping per Stream Output's
+    //! channel". An odd number_of_mappings is therefore ordinary traffic,
+    //! and Hive sends exactly that.
+    //!
+    //! These run on SPO0, whose identity image is untouched by [3]-[5],
+    //! and put it back before [9] reads it.
+    //! ===================================================================
+    printf("\n[6] ONE mapping per command (7.4.45 / Milan 5.4.2.26-28)\n");
+    {
+        take_wrs();
+        //! --- a lone REMOVE clears ITS channel and nothing else ---------
+        auto r = xact(CMD_RM_MAP, am_pl(SPO, 0, {{{0,5,5,0}}}));
+        ck("REMOVE of ONE mapping SUCCESS (was BAD_ARG: odd count)",
+           r_status(r), 0);
+        { auto w = take_wrs();
+          ck("one slot write", (long)w.size(), 1);
+          //! half = 0b10: the L channel (sc4) keeps its audio, the removed
+          //! R channel (sc5) goes silent. Milan 5.3.9.1 lets a Stream
+          //! Output channel be unmapped; an unmapped channel carrying its
+          //! neighbour's source would be a route GET_AUDIO_MAP never
+          //! reports, so per-half silence is the only truthful answer.
+          if (w.size()==1) ck("slot 2 keeps L, silences R: 0x20B2",
+                              wr_key(w[0].slot, w[0].word), wr_key(2, 0x20B2)); }
+        r = xact(CMD_GET_MAP, gm_pl(SPO, 0, 0));
+        ck("SPO0 now 7 rows", r_be16(r, 46), 7);
+        ck("the SIBLING mapping is untouched {0,4,4,0}",
+           row_is(r, 50, 4, 0,4,4,0), 1);
+        ck("row5 is sc6, i.e. sc5 is gone", row_is(r, 50, 5, 0,6,6,0), 1);
+
+        //! --- a lone ADD takes effect, sibling untouched ----------------
+        take_wrs();
+        r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,5,5,0}}}));
+        ck("ADD of ONE mapping SUCCESS", r_status(r), 0);
+        { auto w = take_wrs();
+          ck("one slot write", (long)w.size(), 1);
+          if (w.size()==1) ck("slot 2 re-arms BOTH halves: 0x30B2",
+                              wr_key(w[0].slot, w[0].word), wr_key(2, 0x30B2)); }
+        r = xact(CMD_GET_MAP, gm_pl(SPO, 0, 0));
+        ck("SPO0 back to 8 rows", r_be16(r, 46), 8);
+        ck("row5 = exactly the added channel {0,5,5,0}",
+           row_is(r, 50, 5, 0,5,5,0), 1);
+        ck("row4 sibling still {0,4,4,0}", row_is(r, 50, 4, 0,4,4,0), 1);
+
+        //! --- an EMPTIED slot is fully quiet, and a slot whose sibling is
+        //! unmapped is free to take a different source pair --------------
+        r = xact(CMD_RM_MAP, am_pl(SPO, 0, {{{0,4,4,0}}}));
+        ck("lone REMOVE of the L channel SUCCESS", r_status(r), 0);
+        { auto w = take_wrs();
+          if (w.size()==1) ck("slot 2 keeps R, silences L: 0x10B2",
+                              wr_key(w[0].slot, w[0].word), wr_key(2, 0x10B2)); }
+        r = xact(CMD_RM_MAP, am_pl(SPO, 0, {{{0,5,5,0}}}));
+        ck("lone REMOVE of the R channel SUCCESS", r_status(r), 0);
+        { auto w = take_wrs();
+          if (w.size()==1) ck("slot 2 now fully quiet: 0x0000",
+                              wr_key(w[0].slot, w[0].word), wr_key(2, 0x0000)); }
+        r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,5,7,0}}}));
+        ck("lone ADD onto a slot with no sibling SUCCESS", r_status(r), 0);
+        { auto w = take_wrs();
+          if (w.size()==1) ck("slot 2 armed R-ONLY from ring pair 3: 0x10B3",
+                              wr_key(w[0].slot, w[0].word), wr_key(2, 0x10B3)); }
+        //! ...but once the sibling IS mapped, the slot's one source pair
+        //! is binding again (the vendor rule that survives, 7.4.45.1)
+        r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,4,4,0}}}));
+        ck("lone ADD of an INCOMPATIBLE sibling source BAD_ARG",
+           r_status(r), 7);
+        ck("...and wrote nothing", (long)take_wrs().size(), 0);
+        r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,4,6,0}}}));
+        ck("lone ADD of the MATCHING L half SUCCESS", r_status(r), 0);
+        { auto w = take_wrs();
+          if (w.size()==1) ck("slot 2 both halves, ring pair 3: 0x30B3",
+                              wr_key(w[0].slot, w[0].word), wr_key(2, 0x30B3)); }
+
+        //! --- three mappings over TWO slots, and the two that share a
+        //! slot are NOT adjacent in the command: the RMW must compose
+        //! against the command's POST state, not the store as it stands
+        //! when each record is committed ---------------------------------
+        take_wrs();
+        r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,1,3,0}}, {{0,7,7,0}},
+                                             {{0,0,2,0}}}));
+        ck("3 mappings over 2 slots SUCCESS", r_status(r), 0);
+        { auto w = take_wrs();
+          ck("one write per record", (long)w.size(), 3);
+          if (w.size()==3) {
+            //! sc1's write lands BEFORE sc0's record has been committed
+            //! and must already say "both halves, ring pair 1"
+            ck("write0 = slot 0, ring pair 1, both halves",
+               wr_key(w[0].slot, w[0].word), wr_key(0, 0x30B1));
+            ck("write1 = slot 3, ring pair 3, both halves",
+               wr_key(w[1].slot, w[1].word), wr_key(3, 0x30B3));
+            ck("write2 = slot 0 again, IDENTICAL word",
+               wr_key(w[2].slot, w[2].word), wr_key(0, 0x30B1)); } }
+        r = xact(CMD_GET_MAP, gm_pl(SPO, 0, 0));
+        ck("SPO0 still 8 rows", r_be16(r, 46), 8);
+        ck("row0 = {0,0,2,0}", row_is(r, 50, 0, 0,0,2,0), 1);
+        ck("row1 = {0,1,3,0}", row_is(r, 50, 1, 0,1,3,0), 1);
+
+        //! restore SPO0's identity for [9]
+        r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,0,0,0}}, {{0,1,1,0}}}));
+        ck("restore slot 0 SUCCESS", r_status(r), 0);
+        r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,4,4,0}}, {{0,5,5,0}}}));
+        ck("restore slot 2 SUCCESS", r_status(r), 0);
+        r = xact(CMD_GET_MAP, gm_pl(SPO, 0, 0));
+        ck("SPO0 identity restored (8 rows)", r_be16(r, 46), 8);
+        ck("row0 {0,0,0,0}", row_is(r, 50, 0, 0,0,0,0), 1);
+        ck("row5 {0,5,5,0}", row_is(r, 50, 5, 0,5,5,0), 1);
+    }
+
+    printf("\n[7] u=1 replay to registered controllers (7.5.2)\n");
     {
         feed_rx(aem_cmd2(CTL2_MAC, CTLR2_ID, CMD_REG_UNSOL, seq++, {}));
         auto r = collect_resp();
@@ -340,7 +492,7 @@ int main(int argc, char** argv) {
         ck("ctlr2 DEREGISTER SUCCESS", r_status(r), 0);
     }
 
-    printf("\n[7] the channel bound is the DECLARED format (FR-STR-03)\n");
+    printf("\n[8] the channel bound is the DECLARED format (FR-STR-03)\n");
     {
         //! w_out_fmt_ok accepts ONLY the declared output format (the
         //! framer's channel count is an elaboration constant - wire
@@ -358,7 +510,7 @@ int main(int argc, char** argv) {
         ck("SET_STREAM_FORMAT out1 = declared 8ch SUCCESS", r_status(r), 0);
     }
 
-    printf("\n[8] reset restores the identity default\n");
+    printf("\n[9] reset restores the identity default\n");
     {
         auto r = xact(CMD_RM_MAP, am_pl(SPO, 0, {{{0,0,0,0}}, {{0,1,1,0}}}));
         ck("REMOVE an SPO0 identity pair SUCCESS", r_status(r), 0);
