@@ -31,18 +31,47 @@
 //
 //                STRUCTURE
 //                  context RAM : acmp_lstn_ctx_t ctx_ram[N] — sync-only
-//                    write, ONE explicit read port (house RAM rules; the
-//                    07-21 LUTRAM read-port-replica defect is why). Post-
-//                    reset init walk zeroes all records (all-zero = UNBOUND).
-//                  cur_r       : working copy of one record, latched from
-//                    the read port on the frame-end beat (async distributed
-//                    read, zero added response latency vs the single-sink
-//                    module) and at probe launch.
+//                    write, ONE REGISTERED read port (rd_ctx_q_r) so the
+//                    array infers BLOCK RAM. It used to be an async
+//                    distributed read with a second replica port for the
+//                    sweep: 317 b x N of RAMD32/RAMS32 (880 LUTRAM cells,
+//                    ~110 SLICEMs at N=9) whose address decode was the
+//                    fo=885 net on the device critical path, on a die whose
+//                    SLICEMs were 4,749/4,750 full. Block RAM costs 5 tiles
+//                    of the 28 that were free and cuts every read out of the
+//                    combinational cone. The replica port is GONE: the
+//                    07-21 read-port defect and the 14-level false path it
+//                    was added to hide are both answered by the output
+//                    register. Post-reset init walk zeroes all records
+//                    (all-zero = UNBOUND).
+//                  ADDRESS/DATA PHASE (the cycle contract): every reader
+//                    drives rd_idx_w in cycle k and consumes rd_ctx_q_r in
+//                    cycle k+1. The four readers map onto it WITHOUT
+//                    changing when anything is written:
+//                      frame  — the address is the tlast beat's luid (free
+//                        since beat 6), so the record lands in rd_ctx_q_r
+//                        exactly on the CLASSIFY_S cycle that used to read
+//                        it out of cur_r. Response latency is UNCHANGED;
+//                        cur_r now loads at the CLASSIFY_S exit for the
+//                        serialiser, which still sees the PRE-writeback
+//                        record.
+//                      probe  — COLLECT_S drives the address, the new
+//                        LAUNCH_S cycle takes the data and does the arm
+//                        write (+1 cycle before PROBE_S).
+//                      sweep  — pipelined: the pass fetches ctx i+1 while
+//                        committing ctx i, and the START cycle is the first
+//                        fetch, so a pass is still N+1 cycles and every
+//                        context is still visited on exactly the cycle it
+//                        was (same LFSR draw, same timer edge). Losing the
+//                        port rewinds the in-flight fetch.
+//                      rest/tbl — two-phase; both were already handshaked.
+//                  cur_r       : working copy of one record, taken from the
+//                    read register at classify and at probe launch.
 //                  sweep       : ONE timer wheel for all contexts. Causes
 //                    (1 ms tick, 1 s ADP aging, ADP available/departing,
 //                    SRP registrar edges) latch pending flags; a pass walks
-//                    ctx 0..N-1 (one RMW cycle each) applying the same
-//                    per-state transition table the single-sink SM used.
+//                    ctx 0..N-1 applying the same per-state transition
+//                    table the single-sink SM used.
 //                    The pass yields the RAM port to frame classification.
 //                  responder   : CONNECT_RX / DISCONNECT_RX / GET_RX_STATE
 //                    served for ANY context by listener_unique_id; uid >=
@@ -193,29 +222,39 @@ module KL_acmp_lstn_ctx #(
   wire [13:0] w_delay_draw = {4'd0, lfsr_r[9:0]} + 14'd1;
 
   // -----------------------------------------------------------------------
-  // Context table: sync-only write, ONE explicit read port (house RAM rule)
+  // Context table: sync-only write, ONE REGISTERED read port -> block RAM
+  //
+  // Simple-dual-port template (write and registered read in one process):
+  // Vivado maps 317 b x N to RAMB36/RAMB18 with the mandatory output
+  // register as rd_ctx_q_r, so the read costs zero LUTs and the address
+  // decode fans out to a handful of BRAM primitives instead of ~885 LUTRAM
+  // cells. Read-during-write on the SAME address never happens: the only
+  // cycles that write are cycles in which no reader owns the port with that
+  // index (see the grant terms below), so the collision semantics of the
+  // primitive are never relied upon.
   // -----------------------------------------------------------------------
-  acmp_lstn_ctx_t ctx_ram [0:N_SINKS_P-1];
+  //! FLAT bit vector, not an array of acmp_lstn_ctx_t: given the struct
+  //! Vivado infers ONE block RAM PER FIELD (ctx_ram_reg[0][state] etc.), so
+  //! a 3-bit field burns a whole RAMB18 and the record costs 9 tiles. The
+  //! same array as 317 flat bits is one 9 x 317 memory = 4 RAMB36 + 1
+  //! RAMB18. The struct type still governs every access through the two
+  //! casts below, so nothing else in the module sees bits.
+  (* ram_style = "block" *)
+  logic [ACMP_LSTN_CTX_W_C-1:0] ctx_ram [0:N_SINKS_P-1];
 
   logic                 wr_en_w;
   logic [IDX_W_C-1:0]   wr_idx_w;
   acmp_lstn_ctx_t       wr_data_w;
   logic [IDX_W_C-1:0]   rd_idx_w;
-  acmp_lstn_ctx_t       rd_ctx_w;
-  acmp_lstn_ctx_t       swp_rd_ctx_w;
+  //! the record addressed LAST cycle — every consumer's data phase
+  logic [ACMP_LSTN_CTX_W_C-1:0] rd_ctx_q_bits_r;
+  acmp_lstn_ctx_t       rd_ctx_q_r;
 
   always_ff @(posedge clk_i) begin : ctx_ram_wr    // RAM in its own process
-    if (wr_en_w) ctx_ram[wr_idx_w] <= wr_data_w;
+    if (wr_en_w) ctx_ram[wr_idx_w] <= ACMP_LSTN_CTX_W_C'(wr_data_w);
+    rd_ctx_q_bits_r <= ctx_ram[rd_idx_w];
   end
-  assign rd_ctx_w = ctx_ram[rd_idx_w];             //! frame/launch/rest/tbl read
-  //! Dedicated sweep read port (addressed by swp_idx_r ONLY). The timer-wheel
-  //! sweep reads the context via this port instead of the shared rd_ctx_w so the
-  //! frame index (cap_luid_r) — which drives rd_idx_w only in the w_frame_latch
-  //! branch — can never appear on the sweep writeback cone. That cross-coupling
-  //! is FALSE (the sweep write fires only under w_swp_run == !w_frame_latch) but
-  //! the shared read mux let STA trace it as a 14-level path. During the sweep
-  //! rd_idx_w == swp_idx_r, so swp_rd_ctx_w == rd_ctx_w — behaviour is identical.
-  assign swp_rd_ctx_w = ctx_ram[swp_idx_r];
+  assign rd_ctx_q_r = acmp_lstn_ctx_t'(rd_ctx_q_bits_r);
 
   //! post-reset init walk: all-zero records = UNBOUND everywhere
   reg                 init_done_r;
@@ -284,7 +323,13 @@ module KL_acmp_lstn_ctx #(
     end
   end
 
-  typedef enum logic [1:0] { COLLECT_S, CLASSIFY_S, RESPOND_S, PROBE_S } st_t;
+  //! LAUNCH_S is the probe launch's DATA phase: COLLECT_S drives the RAM
+  //! address for the winning context, LAUNCH_S takes rd_ctx_q_r into cur_r
+  //! and writes the NO_RESP arm back. Capture stays disarmed there, exactly
+  //! as in the PROBE_S beat it replaces, so the fword echo source is safe.
+  typedef enum logic [2:0] {
+    COLLECT_S, CLASSIFY_S, LAUNCH_S, RESPOND_S, PROBE_S
+  } st_t;
   //! walker forensics: where do ACMP frames die on silicon?
   logic [7:0] dbg_classify_r;   //! CLASSIFY entries (any frame)
   logic [7:0] dbg_fc_r;         //! CLASSIFY of subtype-0xFC frames
@@ -363,11 +408,15 @@ module KL_acmp_lstn_ctx #(
   wire w_sm_en   = PROBE_SM_EN_P[cur_idx_r];
   wire w_sid_exp = SID_EXPLICIT_P[cur_idx_r];
 
-  //! probe answer: CONNECT_TX_RESPONSE addressed to us, context probing
+  //! probe answer: CONNECT_TX_RESPONSE addressed to us, context probing.
+  //! The record comes from rd_ctx_q_r, not cur_r: the frame's read was
+  //! ADDRESSED on the tlast beat, so the data phase IS the CLASSIFY_S cycle
+  //! in which every term below is evaluated. cur_r still carries the same
+  //! record onwards to the serialiser (loaded at the CLASSIFY_S exit).
   wire w_probe_resp = w_acmp_base && (w_msg == ACMP_CONNECT_TX_RESPONSE_C) &&
                       w_lstnr_us && w_uid_valid && w_sm_en &&
-                      (cur_r.state == LSM_PRB_W_RESP_S ||
-                       cur_r.state == LSM_PRB_W_RESP2_S);
+                      (rd_ctx_q_r.state == LSM_PRB_W_RESP_S ||
+                       rd_ctx_q_r.state == LSM_PRB_W_RESP2_S);
 
   //! ADP watch: any ENTITY_AVAILABLE/DEPARTING is latched for the sweep,
   //! which applies it per context (bound-talker match happens there)
@@ -378,7 +427,8 @@ module KL_acmp_lstn_ctx #(
   //! rebind-to-same fast path (Milan 5.5.3.5.37/43 step 2): the SAME talker
   //! named again refreshes ctlr + STREAMING_WAIT in place and never tears
   //! down — a STREAMING_WAIT change alone must not interrupt the stream
-  wire w_same_talker = (w_talker == cur_r.talker) && (w_tuid == cur_r.tuid);
+  wire w_same_talker = (w_talker == rd_ctx_q_r.talker) &&
+                       (w_tuid   == rd_ctx_q_r.tuid);
 
   //! per-context sid policy (Milan 5.5.1.2): explicit fast-connect sid when
   //! configured AND nonzero, else the {talker EID, tuid} derivation
@@ -566,11 +616,25 @@ module KL_acmp_lstn_ctx #(
 
   // -----------------------------------------------------------------------
   // RAM port scheduling
-  //   read : frame-end latch  >  probe launch  >  sweep  >  table port
-  //   write: init walk  >  classify writeback  >  probe arm  >  sweep
+  //   ADDRESS phase (rd_idx_w): frame-end > probe launch > sweep fetch >
+  //                             restore > table port
+  //   DATA phase  (rd_ctx_q_r): the SAME order, one cycle later
+  //   write: init walk > classify writeback > probe arm > sweep > restore
+  //
+  // Every grant term below is exclusive against the ones above it, so the
+  // consumer that drove the address in cycle k is the ONLY one that reads
+  // rd_ctx_q_r in cycle k+1. CLASSIFY_S and LAUNCH_S are the two cycles
+  // that write the frame/probe records, and every non-frame reader is
+  // fenced out of them (w_ram_busy_w) so no reader's data phase can span a
+  // write it did not make.
   // -----------------------------------------------------------------------
-  //! frame-end cycle: cur_r latches the addressed record (async read)
+  //! frame-end cycle: the ADDRESS phase of the frame read (its data phase
+  //! is the CLASSIFY_S cycle that follows). The listener_unique_id is
+  //! captured at beat 6, so it has been stable for two beats by now.
   wire w_frame_latch = init_done_r && rxv_r && rxl_r && (st_r == COLLECT_S);
+
+  //! the two states that own the RAM for a record write of their own
+  wire w_ram_busy_w = (st_r == CLASSIFY_S) || (st_r == LAUNCH_S);
 
   //! probe launch pick (lowest pending context wins)
   logic [IDX_W_C-1:0] launch_idx_w;
@@ -580,15 +644,24 @@ module KL_acmp_lstn_ctx #(
       if (probe_pend_r[i]) launch_idx_w = IDX_W_C'(i);
   end
 
-  //! sweep sequencer state
+  //! sweep sequencer state: a FETCH pointer (next context to address) and a
+  //! COMMIT stage (the context whose record is in rd_ctx_q_r right now).
+  //! swp_ra_r needs one bit more than an index so it can hold N = "the pass
+  //! has fetched everything".
+  localparam int RA_W_C = IDX_W_C + 1;
   reg                  swp_active_r;
-  reg [IDX_W_C-1:0]    swp_idx_r;
+  reg [RA_W_C-1:0]     swp_ra_r;     //! next index to fetch
+  reg [IDX_W_C-1:0]    swp_wa_r;     //! index held in the commit stage
+  reg                  swp_wv_r;     //! commit stage holds a valid record
   reg                  c_ms_r, c_1s_r, c_adp_r;   //! causes of this pass
   reg [1:0]            ms_pend_r;
   reg                  s1_pend_r, adp_pend_r;
   reg [63:0]           adp_eid_r;
   reg                  adp_avail_r;
   reg [N_SINKS_P-1:0]  srv_reg_r, srv_fail_r;     //! last-serviced SRP levels
+  //! restore / table-port data-phase markers (the cycle after their address)
+  reg                  rest_ph_r;
+  reg                  tbl_ok_d1_r;
 
   wire w_srp_diff = (ta_registered_i != srv_reg_r) || (ta_failed_i != srv_fail_r);
   //! an ADP frame classified THIS cycle (latched + consumable immediately)
@@ -601,35 +674,53 @@ module KL_acmp_lstn_ctx #(
 
   wire w_launch_ok = init_done_r && (st_r == COLLECT_S) && !rxv_r &&
                      (probe_pend_r != '0) && !swp_active_r;
-  wire w_swp_run   = swp_active_r && !w_frame_latch && (st_r != CLASSIFY_S);
 
-  //! bind-restore injection (E1): serve the held request in any cycle
-  //! where BOTH RAM ports are free (same exclusions as the table port);
-  //! bad-index requests never touch the RAM and ack immediately below
+  //! A pass STARTS by fetching ctx 0 in the very cycle the cause is seen, so
+  //! the commit of ctx c still lands on start+1+c — the single-sink module's
+  //! event-application cadence, unchanged by the pipeline.
+  wire w_swp_start = init_done_r && !swp_active_r && w_swp_pending;
+  wire w_swp_own   = (swp_active_r || w_swp_start) &&
+                     !w_frame_latch && !w_launch_ok && !w_ram_busy_w;
+  //! fetch pointer for THIS cycle (the start cycle fetches ctx 0)
+  wire [IDX_W_C-1:0] swp_fetch_idx_w = w_swp_start ? '0 : IDX_W_C'(swp_ra_r);
+  wire               swp_fetch_ok_w  = w_swp_start ? 1'b1
+                                     : (swp_ra_r < RA_W_C'(N_SINKS_P));
+  //! the commit stage may only apply while the sweep still owns the port;
+  //! losing it mid-pass rewinds the fetch pointer and the record is re-read
+  wire w_swp_commit = w_swp_own && swp_wv_r;
+
+  //! bind-restore injection (E1): two phases, both taken in a cycle where
+  //! no higher-priority consumer owns the RAM. rest_ph_r is the DATA phase
+  //! and is a register, which is what keeps rest_req_i (the CSR's
+  //! rest_pend_r) OUT of the record-write enable cone.
+  //! Bad-index requests never touch the RAM and ack immediately below.
   wire [IDX_W_C-1:0] w_rest_idx = IDX_W_C'(rest_idx_i);
   wire w_rest_sm_ok = (32'(rest_idx_i) < N_SINKS_P) &&
                       PROBE_SM_EN_P[w_rest_idx];
   wire w_rest_pend  = rest_req_i && !rest_ack_o;
-  wire w_rest_ok    = init_done_r && w_rest_pend && w_rest_sm_ok &&
-                      !w_frame_latch && !w_launch_ok && !swp_active_r &&
-                      (st_r != CLASSIFY_S);
+  wire w_rest_free  = !w_frame_latch && !w_launch_ok && !w_swp_own &&
+                      !w_ram_busy_w;
+  wire w_rest_addr  = init_done_r && w_rest_pend && w_rest_sm_ok &&
+                      !rest_ph_r && w_rest_free;      //! address phase
+  wire w_rest_go    = rest_ph_r && w_rest_free;       //! data phase
 
   wire w_tbl_ok    = init_done_r && tbl_req_i && !w_frame_latch &&
-                     !w_launch_ok && !swp_active_r && !w_rest_ok &&
-                     (st_r != CLASSIFY_S);
+                     !w_launch_ok && !w_swp_own && !w_rest_addr &&
+                     !w_rest_go && !w_ram_busy_w;
 
   always_comb begin : rd_port_mux
     if      (w_frame_latch) rd_idx_w = w_luid_idx;
     else if (w_launch_ok)   rd_idx_w = launch_idx_w;
-    else if (w_swp_run)     rd_idx_w = swp_idx_r;
-    else if (w_rest_ok)     rd_idx_w = w_rest_idx;
+    else if (w_swp_own && swp_fetch_ok_w)
+                            rd_idx_w = swp_fetch_idx_w;
+    else if (w_rest_addr)   rd_idx_w = w_rest_idx;
     else                    rd_idx_w = tbl_idx_i;
   end
 
-  //! occupancy check on the same-cycle async read + the injected record:
+  //! occupancy check on the restore's DATA phase + the injected record:
   //! 5.5.3.5.2 entry state — SRP params (sid/dmac/vlan) stay CLEARED per
   //! 5.5.2.6 step 1 and are re-learned by the probe response
-  wire w_rest_unbound = (rd_ctx_w.state == LSM_UNBOUND_S);
+  wire w_rest_unbound = (rd_ctx_q_r.state == LSM_UNBOUND_S);
   acmp_lstn_ctx_t w_rest_rec;
   always_comb begin : restore_record
     w_rest_rec         = '0;                  // sid/dmac/vlan/status/tmr = 0
@@ -643,6 +734,11 @@ module KL_acmp_lstn_ctx #(
 
   // -----------------------------------------------------------------------
   // Frame-classify writeback (evaluated in CLASSIFY_S)
+  //
+  // The base record is rd_ctx_q_r — CLASSIFY_S is the DATA phase of the read
+  // the tlast beat addressed, so this block sees the same record the
+  // pre-block-RAM version read out of cur_r on the same cycle. cur_r itself
+  // takes that record at the END of CLASSIFY_S, for the serialiser.
   // -----------------------------------------------------------------------
   logic           wr_frame_en_w;
   acmp_lstn_ctx_t wr_frame_w;
@@ -650,7 +746,7 @@ module KL_acmp_lstn_ctx #(
   always_comb begin : classify_writeback
     wr_frame_en_w = 1'b0;
     probe_set_w   = 1'b0;
-    wr_frame_w    = cur_r;
+    wr_frame_w    = rd_ctx_q_r;
     if (w_lstn_hit && w_uid_valid) begin
       unique case (w_msg)
         // ---------------- BIND_RX ------------------------------------
@@ -667,14 +763,14 @@ module KL_acmp_lstn_ctx #(
             wr_frame_w.flags = w_flags;
             wr_frame_w.dmac  = cap_dmac_r;
             wr_frame_w.sid   = w_bind_sid;
-          end else if (cur_r.state != LSM_UNBOUND_S && w_same_talker) begin
+          end else if (rd_ctx_q_r.state != LSM_UNBOUND_S && w_same_talker) begin
             //! rebind-same fast path (Milan 5.5.3.5.37/43 step 2): update
             //! the binding parameters the clause names — controller and
             //! STREAMING_WAIT — respond, and exit. State/timers/stream
             //! untouched, no re-probe.
             wr_frame_en_w    = 1'b1;
             wr_frame_w.ctlr  = w_ctlr;
-            wr_frame_w.flags = (cur_r.flags & ~ACMP_FLAG_STREAMING_WAIT_C) |
+            wr_frame_w.flags = (rd_ctx_q_r.flags & ~ACMP_FLAG_STREAMING_WAIT_C) |
                                (w_flags & ACMP_FLAG_STREAMING_WAIT_C);
           end else begin
             //! UNBOUND full bind — or a bound sink named a DIFFERENT talker:
@@ -698,8 +794,8 @@ module KL_acmp_lstn_ctx #(
             wr_frame_w.vlan   = 12'd0;   //   describe stream Y (5.3.8.9)
             wr_frame_w.probing = 2'd2;                   // ACTIVE
             wr_frame_w.sid     = w_bind_sid;
-            if (cur_r.state == LSM_SETTLED_NO_RSV_S ||
-                cur_r.state == LSM_SETTLED_RSV_OK_S)
+            if (rd_ctx_q_r.state == LSM_SETTLED_NO_RSV_S ||
+                rd_ctx_q_r.state == LSM_SETTLED_RSV_OK_S)
               wr_frame_w.active = 1'b0;                  // deactivate
             wr_frame_w.tmr   = 14'd0;   // NO_RESP armed at probe launch
             wr_frame_w.state = LSM_PRB_W_RESP_S;
@@ -712,8 +808,8 @@ module KL_acmp_lstn_ctx #(
           wr_frame_w    = '0;           // probing DISABLED (REF-BUG 3 rule)
           if (w_sm_en) begin
             //! the ADP availability view survives an unbind (aging clears)
-            wr_frame_w.tk_avail = cur_r.tk_avail;
-            wr_frame_w.adp_age  = cur_r.adp_age;
+            wr_frame_w.tk_avail = rd_ctx_q_r.tk_avail;
+            wr_frame_w.adp_age  = rd_ctx_q_r.adp_age;
           end
         end
         // ---------------- GET_RX_STATE: no state change ---------------
@@ -748,45 +844,45 @@ module KL_acmp_lstn_ctx #(
   logic           swp_probe_set_w;
   always_comb begin : sweep_next
     logic fire, adp_disc, adp_dep, sm, reg_rise, reg_fall, fail_rise;
-    sn_w            = swp_rd_ctx_w;
+    sn_w            = rd_ctx_q_r;
     sn_wr_w         = 1'b0;
     swp_probe_set_w = 1'b0;
-    sm       = PROBE_SM_EN_P[swp_idx_r];
+    sm       = PROBE_SM_EN_P[swp_wa_r];
     fire     = 1'b0;
     adp_disc = 1'b0;
     adp_dep  = 1'b0;
     // ---- 1 s ADP availability aging --------------------------------
-    if (c_1s_r && swp_rd_ctx_w.tk_avail) begin
-      if (swp_rd_ctx_w.adp_age >= LSM_ADP_AGE_S_C) sn_w.tk_avail = 1'b0;
-      else                                         sn_w.adp_age  = swp_rd_ctx_w.adp_age + 7'd1;
+    if (c_1s_r && rd_ctx_q_r.tk_avail) begin
+      if (rd_ctx_q_r.adp_age >= LSM_ADP_AGE_S_C) sn_w.tk_avail = 1'b0;
+      else sn_w.adp_age = rd_ctx_q_r.adp_age + 7'd1;
       sn_wr_w = 1'b1;
     end
     // ---- 1 ms countdown (fire on the 1 -> 0 edge) --------------------
-    if (c_ms_r && swp_rd_ctx_w.tmr != 14'd0) begin
-      fire     = (swp_rd_ctx_w.tmr == 14'd1);
-      sn_w.tmr = swp_rd_ctx_w.tmr - 14'd1;
+    if (c_ms_r && rd_ctx_q_r.tmr != 14'd0) begin
+      fire     = (rd_ctx_q_r.tmr == 14'd1);
+      sn_w.tmr = rd_ctx_q_r.tmr - 14'd1;
       sn_wr_w  = 1'b1;
     end
     // ---- ADP available/departing for THIS context's bound talker -----
-    if (c_adp_r && sm && swp_rd_ctx_w.state != LSM_UNBOUND_S &&
-        swp_rd_ctx_w.talker == adp_eid_r) begin
+    if (c_adp_r && sm && rd_ctx_q_r.state != LSM_UNBOUND_S &&
+        rd_ctx_q_r.talker == adp_eid_r) begin
       if (adp_avail_r) begin
-        adp_disc      = !swp_rd_ctx_w.tk_avail;
+        adp_disc      = !rd_ctx_q_r.tk_avail;
         sn_w.tk_avail = 1'b1;
         sn_w.adp_age  = 7'd0;
       end else begin
-        adp_dep       = swp_rd_ctx_w.tk_avail;
+        adp_dep       = rd_ctx_q_r.tk_avail;
         sn_w.tk_avail = 1'b0;
       end
       sn_wr_w = 1'b1;
     end
     // ---- SRP registrar edges (levels vs last-serviced snapshots) -----
-    reg_rise  = sm &&  ta_registered_i[swp_idx_r] && !srv_reg_r[swp_idx_r];
-    reg_fall  = sm && !ta_registered_i[swp_idx_r] &&  srv_reg_r[swp_idx_r];
-    fail_rise = sm &&  ta_failed_i[swp_idx_r]     && !srv_fail_r[swp_idx_r];
+    reg_rise  = sm &&  ta_registered_i[swp_wa_r] && !srv_reg_r[swp_wa_r];
+    reg_fall  = sm && !ta_registered_i[swp_wa_r] &&  srv_reg_r[swp_wa_r];
+    fail_rise = sm &&  ta_failed_i[swp_wa_r]     && !srv_fail_r[swp_wa_r];
     // ---- per-state transitions (single-sink SM table, per context) ---
     if (sm) begin
-      unique case (swp_rd_ctx_w.state)
+      unique case (rd_ctx_q_r.state)
         LSM_PRB_W_DELAY_S: begin
           if (fire) begin
             swp_probe_set_w = 1'b1;
@@ -875,6 +971,10 @@ module KL_acmp_lstn_ctx #(
   end
 
   // ---- write-port arbitration (exactly one writer per cycle) ------------
+  //! Every enable term is now a REGISTERED state bit (st_r, swp_wv_r,
+  //! rest_ph_r) qualified by record bits that come out of rd_ctx_q_r, so no
+  //! RAM read and no held request input (rest_req_i) sits in the cone that
+  //! drives wr_en_w — the same cone that clocks view0_r/view1_r.
   always_comb begin : wr_port_mux
     wr_en_w   = 1'b0;
     wr_idx_w  = '0;
@@ -886,16 +986,16 @@ module KL_acmp_lstn_ctx #(
       wr_en_w   = 1'b1;
       wr_idx_w  = cur_idx_r;
       wr_data_w = wr_frame_w;
-    end else if (w_launch_ok) begin                      // probe arm
+    end else if (st_r == LAUNCH_S) begin                 // probe arm
       wr_en_w        = 1'b1;
-      wr_idx_w       = launch_idx_w;
-      wr_data_w      = rd_ctx_w;
+      wr_idx_w       = cur_idx_r;
+      wr_data_w      = rd_ctx_q_r;
       wr_data_w.tmr  = LSM_TMR_NO_RESP_MS_C;
-    end else if (w_swp_run && sn_wr_w) begin
+    end else if (w_swp_commit && sn_wr_w) begin
       wr_en_w   = 1'b1;
-      wr_idx_w  = swp_idx_r;
+      wr_idx_w  = swp_wa_r;
       wr_data_w = sn_w;
-    end else if (w_rest_ok && w_rest_unbound) begin  // bind-restore inject
+    end else if (w_rest_go && w_rest_unbound) begin  // bind-restore inject
       wr_en_w   = 1'b1;
       wr_idx_w  = w_rest_idx;
       wr_data_w = w_rest_rec;
@@ -921,15 +1021,15 @@ module KL_acmp_lstn_ctx #(
       init_done_r <= 1'b0; init_idx_r <= '0;
       view0_r <= '0; view1_r <= '0; active_vec_r <= '0;
       bound_vec_r <= '0; sid_vec_r <= '0; bind_upd_p_o <= '0;
-      swp_active_r <= 1'b0; swp_idx_r <= '0;
+      swp_active_r <= 1'b0; swp_ra_r <= '0; swp_wa_r <= '0; swp_wv_r <= 1'b0;
       c_ms_r <= 1'b0; c_1s_r <= 1'b0; c_adp_r <= 1'b0;
       ms_pend_r <= 2'd0; s1_pend_r <= 1'b0; adp_pend_r <= 1'b0;
       adp_eid_r <= '0; adp_avail_r <= 1'b0;
       srv_reg_r <= '0; srv_fail_r <= '0;
       cmd_count_o <= 16'd0; probe_count_o <= 16'd0;
       tx_wedge_cnt_o <= 8'd0; txwd_r <= '0;
-      tbl_gnt_o <= 1'b0; tbl_ctx_o <= '0;
-      rest_ack_o <= 1'b0; rest_status_o <= 2'd0;
+      tbl_gnt_o <= 1'b0; tbl_ctx_o <= '0; tbl_ok_d1_r <= 1'b0;
+      rest_ack_o <= 1'b0; rest_status_o <= 2'd0; rest_ph_r <= 1'b0;
       dbg_classify_r <= '0; dbg_fc_r <= '0; dbg_flags_r <= '0; dbg_basehit_r <= '0;
     end else begin
       // ---- post-reset context-table init walk --------------------------
@@ -950,45 +1050,78 @@ module KL_acmp_lstn_ctx #(
         if (init_done_r) bind_upd_p_o[wr_idx_w] <= 1'b1;
       end
 
-      // ---- table request/grant port ------------------------------------
-      tbl_gnt_o <= w_tbl_ok;
-      if (w_tbl_ok) tbl_ctx_o <= rd_ctx_w;
+      // ---- table request/grant port (address phase -> data phase) -------
+      tbl_ok_d1_r <= w_tbl_ok;
+      tbl_gnt_o   <= tbl_ok_d1_r;
+      if (tbl_ok_d1_r) tbl_ctx_o <= rd_ctx_q_r;
 
       // ---- bind-restore handshake (E1): 1-cycle ack + status -----------
+      //! rest_ph_r marks the DATA phase of the occupancy read. Losing the
+      //! RAM to a frame between the two phases clears it and the held
+      //! request simply re-addresses; the ack fires only on a phase that
+      //! completed, so status can never be read off another context.
+      //! The data phase deliberately does NOT re-test rest_req_i — that is
+      //! what keeps the CSR's rest_pend_r off the record-write enable cone
+      //! (the timing-analysis path csr/rest_pend_r -> view0_r/CE). The port
+      //! contract already requires req HIGH until the ack, and the CSR and
+      //! the TB both hold it, so a request cannot vanish mid-phase.
       rest_ack_o <= 1'b0;
+      if (w_rest_addr)               rest_ph_r <= 1'b1;
+      else if (rest_ph_r)            rest_ph_r <= 1'b0;
       if (w_rest_pend && !w_rest_sm_ok) begin
         rest_ack_o    <= 1'b1;              //! refused: no such probe-SM ctx
         rest_status_o <= 2'd2;
-      end else if (w_rest_ok) begin
+      end else if (w_rest_go) begin
         rest_ack_o    <= 1'b1;              //! injected / occupied-refused
         rest_status_o <= w_rest_unbound ? 2'd0 : 2'd1;
       end
 
       // ---- sweep cause accumulation + sequencer ------------------------
+      //! Pipelined pass: the cycle that fetches ctx i also commits ctx i-1,
+      //! and the START cycle is the fetch of ctx 0 — so ctx c is still
+      //! committed on start+1+c and a pass is still N+1 cycles. Note the
+      //! ORDER of the two blocks below: when a pass starts AND owns the
+      //! port in the same cycle, the fetch block's assignments to
+      //! swp_ra_r/swp_wa_r/swp_wv_r are the ones that take effect.
       begin : sweep_seq
         logic [1:0] mp;
-        logic start;
         mp = ms_pend_r;
         if (tick_1ms_r && mp != 2'd3) mp = mp + 2'd1;
-        start = init_done_r && !swp_active_r && w_swp_pending;
-        if (start) begin
+        if (w_swp_start) begin
           swp_active_r <= 1'b1;
-          swp_idx_r    <= '0;
+          swp_ra_r     <= '0;
+          swp_wv_r     <= 1'b0;
           c_ms_r       <= (mp != 2'd0);
           c_1s_r       <= s1_pend_r | tick_1s_i;
           c_adp_r      <= adp_pend_r | w_adp_now;
           if (mp != 2'd0) mp = mp - 2'd1;
-        end else if (w_swp_run) begin
-          //! service SRP snapshots at every visit (self-clears pending)
-          srv_reg_r[swp_idx_r]  <= ta_registered_i[swp_idx_r];
-          srv_fail_r[swp_idx_r] <= ta_failed_i[swp_idx_r];
-          if (swp_probe_set_w) probe_pend_r[swp_idx_r] <= 1'b1;
-          if (swp_idx_r == IDX_W_C'(N_SINKS_P-1)) swp_active_r <= 1'b0;
-          else                                    swp_idx_r    <= swp_idx_r + 1'b1;
+        end
+        if (w_swp_own) begin
+          // ---- commit stage: apply the record fetched last cycle -------
+          if (swp_wv_r) begin
+            //! service SRP snapshots at every visit (self-clears pending)
+            srv_reg_r[swp_wa_r]  <= ta_registered_i[swp_wa_r];
+            srv_fail_r[swp_wa_r] <= ta_failed_i[swp_wa_r];
+            if (swp_probe_set_w) probe_pend_r[swp_wa_r] <= 1'b1;
+            if (swp_wa_r == IDX_W_C'(N_SINKS_P-1)) swp_active_r <= 1'b0;
+          end
+          // ---- fetch stage: address the next context ------------------
+          if (swp_fetch_ok_w) begin
+            swp_wa_r <= swp_fetch_idx_w;
+            swp_wv_r <= 1'b1;
+            swp_ra_r <= RA_W_C'(swp_fetch_idx_w) + RA_W_C'(1);
+          end else begin
+            swp_wv_r <= 1'b0;
+          end
+        end else if (swp_active_r) begin
+          //! preempted: rd_ctx_q_r is about to carry someone else's record,
+          //! so drop the in-flight fetch and re-address it next time
+          if (swp_wv_r) swp_ra_r <= RA_W_C'(swp_wa_r);
+          swp_wv_r <= 1'b0;
         end
         ms_pend_r  <= mp;
-        s1_pend_r  <= (tick_1s_i | s1_pend_r) & ~start;
-        adp_pend_r <= (w_adp_now | adp_pend_r) & ~start;
+        s1_pend_r  <= (tick_1s_i | s1_pend_r) & ~w_swp_start;
+        adp_pend_r <= (w_adp_now | adp_pend_r) & ~w_swp_start;
       end
 
       // ================= frame engine ===================================
@@ -1063,11 +1196,12 @@ module KL_acmp_lstn_ctx #(
               adp_len_ok_r <= (wbeat_r >= 4'd4) ||
                               (wbeat_r == 4'd3 && rxk_r[1]);
               wbeat_r <= '0;               //! capture owns the beat counter
-              //! COLLECT -> classify + latch the addressed context; a frame
-              //! ENDING during CLASSIFY (runt) is dropped
+              //! COLLECT -> classify; this beat is the ADDRESS phase of the
+              //! record read (w_frame_latch owns the read port), so
+              //! rd_ctx_q_r carries it through the whole CLASSIFY_S cycle.
+              //! A frame ENDING during CLASSIFY (runt) is dropped.
               if (st_r == COLLECT_S) begin
                 st_r      <= CLASSIFY_S;
-                cur_r     <= rd_ctx_w;     // w_frame_latch owns the read port
                 cur_idx_r <= w_luid_idx;
               end
             end
@@ -1076,18 +1210,30 @@ module KL_acmp_lstn_ctx #(
       case (st_r)
         COLLECT_S: begin
           if (w_launch_ok) begin
-            //! probe launch: snapshot the context, arm NO_RESP (RAM write
-            //! this same cycle via the write-port mux)
+            //! probe launch ADDRESS phase: this cycle owns the read port for
+            //! the winning context; LAUNCH_S takes the record and arms
+            //! NO_RESP through the write-port mux
             probe_pend_r[launch_idx_w] <= 1'b0;
             probe_count_o <= probe_count_o + 16'd1;
-            cur_r     <= rd_ctx_w;
             cur_idx_r <= launch_idx_w;
             beat_r <= '0;
-            st_r   <= PROBE_S;
+            st_r   <= LAUNCH_S;
           end
         end
 
+        LAUNCH_S: begin
+          //! probe launch DATA phase: snapshot the record for the serialiser
+          //! (the NO_RESP arm is written this same cycle by the write mux)
+          cur_r <= rd_ctx_q_r;
+          st_r  <= PROBE_S;
+        end
+
         CLASSIFY_S: begin
+          //! DATA phase of the frame read: rd_ctx_q_r is the addressed
+          //! record, and the classify writeback above has already consumed
+          //! it. cur_r takes the PRE-writeback record for the serialiser —
+          //! the same snapshot the async-read version latched at tlast.
+          cur_r <= rd_ctx_q_r;
           dbg_classify_r <= dbg_classify_r + 8'd1;
           if (cap_subtype_r == ACMP_SUBTYPE_C) begin
             dbg_fc_r    <= dbg_fc_r + 8'd1;
