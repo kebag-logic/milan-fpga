@@ -11,10 +11,10 @@ drain it with NO bubble - and this file pins both.
 
 It also pins the reason `buffered=True` is there at all. The default fwft
 SyncFIFO reads its storage ASYNCHRONOUSLY, and an asynchronous read can only
-be distributed RAM: the 512 x 82 payload array synthesized as RAM64M x224 =
-896 LUTRAM LUTs, ~224 SLICEMs whose LUTs cannot LUT-combine, which was the
-single biggest packing consumer on the AX7101 and the reason four place
-directives all missed by 22..53 slices. `buffered=True` selects migen's
+be distributed RAM: the 512 x 82 payload array was 784 of the AX7101's 1,070
+RAMD64E - ~196 SLICEMs whose LUTs cannot LUT-combine - the single biggest
+packing consumer on the board and the reason four place directives all missed
+by 22..53 slices. `buffered=True` selects migen's
 SyncFIFOBuffered, whose read port is SYNCHRONOUS, so the array becomes block
 RAM. That is a ONE-CYCLE latency change and nothing else - which is precisely
 the kind of edit that rots silently, hence the negative control below.
@@ -89,7 +89,7 @@ def test_storage_is_block_ram_compatible():
         assert "async" not in modes, (
             f"{depth} x {width} memory still has an ASYNCHRONOUS read port "
             f"({modes}). An async read cannot be block RAM, so this array is "
-            f"back in LUTRAM and the ~224 SLICEMs are lost again.")
+            f"back in LUTRAM and the ~196 SLICEMs are lost again.")
     print(f"PASS storage block-RAM compatible  {mems}")
 
     # ---- negative control: the bite ----------------------------------------

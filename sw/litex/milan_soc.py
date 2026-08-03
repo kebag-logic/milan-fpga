@@ -1129,14 +1129,15 @@ class MilanMAC(LiteXModule):
                                     # fwft SyncFIFO reads the storage
                                     # ASYNCHRONOUSLY, and an async read can
                                     # only be distributed RAM: this one array
-                                    # (512 x 82) synthesized as RAM64M x224 =
-                                    # 896 LUTRAM LUTs, i.e. ~224 SLICEMs whose
-                                    # LUTs cannot LUT-combine - single biggest
+                                    # (512 x 82) was 784 of the board's 1,070
+                                    # RAMD64E, i.e. ~196 SLICEMs whose LUTs
+                                    # cannot LUT-combine - single biggest
                                     # packing consumer on the board, and the
                                     # reason 4 place directives all missed by
-                                    # 22..53 slices. Sync read => BRAM (~1.5
-                                    # tiles of the 29.5 free) and the SLICEMs
-                                    # come back for logic.
+                                    # 22..53 slices. Sync read => BRAM: MEASURED
+                                    # -784 LUTRAM (-1,051 slice LUTs) for +1.5
+                                    # tiles, AlternateRoutability synth. See
+                                    # docs/design/AREA_BUDGET.md 2026-08-03.
                                     # Costs ONE cycle of latency and nothing
                                     # else: SyncFIFOBuffered pre-fetches, so a
                                     # drain still runs 1 beat/cycle with no

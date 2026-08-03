@@ -396,20 +396,38 @@ use it, not a yosys estimate and not a hierarchy roll-up. Ranked (LUTRAM LUTs;
 | `mem_r` | `cdc_pair_fifo.sv:45` | 8 × 52 | RAM32M ×9 | 36 | 9 |
 | `rec_ram_r` | `KL_persist_journal.sv:179` | 48 × 32 | RAM64X1S ×32 | 32 | 8 |
 
-`storage_31` alone is **896 of the board's 1,070 `RAMD64E` (84 %)**, and it sat in
-the *"SoC glue — largest single consumer, never reviewed"* row of the table above.
-It was distributed RAM for exactly one reason: migen's fwft `SyncFIFO` reads its
-storage **asynchronously**, and an async read can only be LUTRAM. `buffered=True`
-selects `SyncFIFOBuffered`, whose read port is synchronous → **2.5 BRAM tiles**,
-one cycle of latency, and 224 SLICEMs back. Pinned by
-`sw/litex/test_tx_sf_gapless.py`, which reads the kwargs out of `milan_soc.py`
-rather than restating them.
+The table is the `AreaOptimized_medium` build (the only one that placed, so the
+only one with a full report). `storage_31` sat in the *"SoC glue — largest single
+consumer, never reviewed"* row above. It was distributed RAM for exactly one
+reason: migen's fwft `SyncFIFO` reads its storage **asynchronously**, and an async
+read can only be LUTRAM. `buffered=True` selects `SyncFIFOBuffered`, whose read
+port is synchronous. Pinned by `sw/litex/test_tx_sf_gapless.py`, which reads the
+kwargs out of `milan_soc.py` rather than restating them.
+
+**Measured, on the shipping recipe** (`AlternateRoutability` synth +
+`ExtraNetDelay_high` place — the build that had been failing), same tree, one
+keyword apart:
+
+| | before | after | delta |
+|---|---|---|---|
+| Slice LUTs | 60,255 (95.0 %) | 59,204 (93.4 %) | **−1,051** |
+| LUT as Logic | 57,274 | 57,007 | −267 |
+| LUT as Distributed RAM | 2,962 | 2,178 | **−784** |
+| LUT as Shift Register | 19 | 19 | 0 |
+| `RAMD64E` | 1,070 | 286 | **−784** |
+| `RAMD32` / `RAMS32` / `SRL16E` | 2,738 / 878 / 19 | 2,738 / 878 / 19 | 0 |
+| Block RAM Tile | 100.5 (74.4 %) | 102 (75.6 %) | **+1.5** |
+
+**784 LUTRAM LUTs = ~196 SLICEMs freed for 1.5 BRAM tiles**, plus 267 LUT-as-Logic
+(the async read's address decode) that went with it. Note the count differs from
+the 896 in the table: how many `RAMD64E` one array costs is a function of the
+**synth directive**, so quote the delta from the recipe you actually ship.
 
 **Why this outranks its LUT count.** Distributed RAM is the one primitive class
 that pins a whole SLICEM *and* cannot LUT-combine with a neighbour, so it costs
 **packing** far more than it costs the LUT total. 0x0019+ missed `Place 30-487` by
 22–53 slices on four different place directives while sitting at only 95 % LUTs —
-the shortfall was packing, and this one array was 224 slices of it.
+the shortfall was packing, and this one array was ~196 slices of it.
 
 **Rule:** census with Vivado's RAM report, never by module. The array that decides
 packing may be in generated glue that no module owner is watching.
