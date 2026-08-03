@@ -130,20 +130,26 @@ mechanism, `aplay` is the shipping question.
 run ends at EOF; **survival is decided by aplay's own exit status and
 whether it printed `write error`, never by the watchdog.**
 
-| config | period | periods in ring | ktimers/0 | player prio | PipeWire | elapsed | aplay xruns | verdict |
-|---|---|---|---|---|---|---|---|---|
-| `a1` stock | 2048 | 2 | 1 (RT default) | FIFO 60 | off | 37.9 s | 1 (1.606 ms) | **DIED — `write error: I/O error`** |
-| `a2` | 512 | 8 | 1 (RT default) | FIFO 60 | off | 124.9 s | 1 (2.101 ms) | survived to EOF |
-| `a3` | 512 | 8 | 70 | FIFO 60 | off | 122.0 s | **0** | survived to EOF |
-| `a4` | 512 | 8 | 70 | FIFO 60 | **on** | 128.1 s | **0** | survived to EOF |
-| `a5` | 512 | 8 | 70 | FIFO 60 | off, `-M` | 127.0 s | **0** | survived to EOF |
-| `a6` | 512 | 8 | 70 | **SCHED_OTHER** | off | 219.7 s | **480** | **DIED — `write error: I/O error`** |
+Every core configuration was run **twice** (pass `a`, repeated as pass `d`),
+because an earlier "zero xruns over 85 s" did not reproduce at 115 s.
+
+| period | periods | ktimers/0 | player prio | PipeWire | rep 1 | rep 2 |
+|---|---|---|---|---|---|---|
+| 2048 | 2 | 1 (RT default) | FIFO 60 | off | `a1` **DIED at 37.9 s**, 1 xrun | `d1` survived, **0 xruns** |
+| 512 | 8 | 1 (RT default) | FIFO 60 | off | `a2` survived, 1 xrun (2.1 ms) | `d2` survived, **0 xruns** |
+| 512 | 8 | 70 | FIFO 60 | off | `a3` survived, **0 xruns** | `d3` survived, **0 xruns** |
+| 512 | 8 | 70 | FIFO 60 | off, `-M` | `a5` survived, **0 xruns** | `d5` survived, **0 xruns** |
+| 512 | 8 | 70 | FIFO 60 | **on** | `a4` survived, **0 xruns** | — |
+| 512 | 8 | 70 | **SCHED_OTHER** | off | `a6` **DIED**, **480 xruns** | — |
+
+Instrumented, the same picture holds across reps: `b1`/`d6` (rw) and
+`b2`/`d7` (mmap) each ran **11 258 periods with zero xruns, twice**.
 
 ### The stock death is probabilistic, not deterministic
 
 `d1` is `a1` repeated, same session, nothing changed. **It survived the full
 120 s file with zero xruns** (rc 0, no `write error`, 292 fabric ticks ≈
-1.5 ms).
+1.5 ms) — where `a1` died at 37.9 s.
 
 | run | config | outcome |
 |---|---|---|
@@ -284,8 +290,7 @@ not assumed: `delay at wake` lands on `buffer − period` exactly.
 The `delay` maxima are `buffer − period` to the frame — 2048 and 3584 — which
 is the identity above, measured rather than argued.
 
-And the wake-interval tails are **the same size in both configurations**,
-because they come from the same system, not from the geometry:
+The wake-interval distributions, 120 s each:
 
 | config | period | ktimers | periods | xruns | wake p50 | wake p99 | wake max | late >2× |
 |---|---|---|---|---|---|---|---|---|
@@ -426,16 +431,70 @@ thread the recipe raises to FIFO 70.
 ### Naming the thief
 
 The `perf` context-switch timeline (config `c1`) reconstructs every interval
-`pcm_probe` was off the CPU and attributes it to whoever held it.
-**Analysis pending at time of writing** — the capture exists
-(`c1_probe_p512_kt70_ctxsw.perf.data`, 5.8 MB) and `analyze-offcpu.sh`
-produces the attribution table; §7's recommendation does not depend on it,
-because the drain-margin identity in §4 already fixes the shipping fix.
+`pcm_probe` was off the CPU and attributes it to whoever held it. On a
+single hart that attribution is exact — only one thing runs at a time.
 
-What is already known from the wake histograms is the *shape* of the theft:
-at `ktimers/0` FIFO 1 there are **56 wakeups later than 2× the period** in
-120 s; at FIFO 70 there is **1**. The excursions are rare and large, not a
-broad slowdown — 53% of wakes land within ±5% of nominal in `b1`.
+Clean window: 90.5 s, 87 035 switch records, 13 014 off-CPU intervals for
+the writer, **mean 6.95 ms, max 25.1 ms**. (The capture is 108 s long but
+the last ~17 s are excluded — see the caveat below.)
+
+| comm | held while writer off-CPU | slices | share |
+|---|---|---|---|
+| `ktimers/0` | 14 641 ms | 21 371 | **23.1%** |
+| `napi/eth%d-0` | 13 072 ms | 24 535 | **20.6%** |
+| `ptp4l` | 6 032 ms | 4 948 | 9.5% |
+| `stream_phc_sync` | 3 474 ms | 1 889 | 5.5% |
+| `sleep` | 3 307 ms | 1 695 | 5.2% |
+| `pmc` | 3 217 ms | 1 671 | 5.1% |
+| `awk` | 2 998 ms | 1 493 | 4.7% |
+| `dropbear` | 2 824 ms | 1 431 | 4.5% |
+| `rcu_preempt` | 2 291 ms | 5 032 | 3.6% |
+| `gptp2csr.sh` | 2 041 ms | 1 079 | 3.2% |
+| `irq/13-eth0` | 1 445 ms | 2 689 | 2.3% |
+| `devmem` | 1 133 ms | 562 | 1.8% |
+| `rcuc/0` | 970 ms | 1 910 | 1.5% |
+| `perf` | 754 ms | 346 | 1.2% |
+
+Read this correctly: **most of the writer's off-CPU time is it legitimately
+sleeping between periods**, so this table is "how the hart is shared", not
+"who stole 100% of it". Three things stand out anyway:
+
+1. **The network RX path is the biggest non-timer consumer** —
+   `napi/eth%d-0` 20.6% plus `irq/13-eth0` 2.3% = **22.9%**, on a board
+   doing nothing but gPTP and one AVB stream.
+2. **The board's own gPTP-publisher shell loop is the next biggest thing on
+   the machine.** `gptp2csr.sh` 3.2% *plus the processes it forks every
+   iteration* — `pmc` 5.1%, `awk` 4.7%, `sleep` 5.2%, `devmem` 1.8% —
+   totals **~20%** of the writer's off-CPU time. A shell script polling with
+   `pmc`/`awk`/`devmem` is costing about as much as the entire network stack
+   on a board that sits at 0% idle.
+3. **The single worst excursion is network-shaped.** The one interval over
+   20 ms in the clean window is 25.1 ms at `t=10844.30`, and its occupants
+   in order are `napi/eth%d-0 | ktimers/0 | napi/eth%d-0 | ktimers/0 |
+   napi/eth%d-0 | napi/eth%d-0` — RX threads at FIFO 50 alternating with the
+   timer thread.
+
+**Two caveats, both material.**
+
+* **The tail of the capture is excluded because it is a transfer artifact,
+  not a measurement.** The raw analysis initially reported off-CPU intervals
+  of 96–156 ms clustered in one ~1 s burst at `t≈10901`, which would have
+  been the fatal-class excursion this whole page is looking for. It is not
+  real: `t≈10901` is exactly where `pcm_probe` stops appearing in the
+  capture, the `perf.data` had been **truncated at 89% by a stalled `scp`**,
+  and the probe's own instrumentation for the same run reports a maximum
+  wake interval of **59.7 ms** — which a 104 ms off-CPU interval would
+  contradict. The instrument disagreeing with itself is the tell; the
+  truncated region is discarded and the numbers above are from the intact
+  90.5 s.
+* **`dropbear` at 4.5% is contamination I introduced.** The matrix runs
+  detached precisely so no ssh is attached, but I polled progress during
+  this run. It should read ~0 in a clean re-run.
+
+Consistent with all of this, `c1`'s worst clean off-CPU interval (25.1 ms)
+is far inside the 74.7 ms tolerance, and `c1` took **zero** xruns. **The
+fatal >100 ms class of excursion was not captured in any probe window** —
+see §4's second caveat.
 
 ## 7. Verdict and shipping recommendation
 
