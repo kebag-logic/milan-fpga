@@ -534,11 +534,29 @@ twice each) and the `-V` bit-exactness check are **queued behind campaign
 `audio` area holds the single playback substream, so any PCM open of mine
 would hand it a spurious `EBUSY` failure.
 
-This does **not** block the shipping decision: the `-M` result above is
-measured three times and already shows the copy path is worth only ~1.5
-points, while §4 shows the failure is a lateness/tolerance problem that
-costs 0 points to fix. `-Z`/`-Y` sharpen the floor; they cannot move the
-verdict, because even eliminating **all** copy cost cannot buy tolerance.
+### Can zero-copy change the `periods_min = 8` recommendation?
+
+**No — and this can be answered from the structure, before the measurement
+lands.** Copy cost is *CPU*. Tolerance is `buffer − period`, a quantity with
+no CPU term in it. Eliminating **all** copy cost — the full 21.3 points that
+`copy_duty` + `read_duty` come to — would not buy one microsecond of
+tolerance.
+
+The direct evidence that the writer is not the bottleneck is already in §4:
+`writei` p50 is **1.15 ms against a 10.67 ms period**, so the writer finishes
+its work in ~11% of the time it has, with 9× headroom. It is not late
+because it is slow; it is late because it is not *scheduled*. And the fatal
+geometry is the **cheaper** one.
+
+What `-Z`/`-Y` *can* do is second-order and worth measuring: by handing
+~20 points of hart back, they reduce contention, which should reduce the
+**frequency and size of the lateness excursions** that §4 shows are the real
+killer. That is a change to the *input* distribution, not to the tolerance
+budget. The queued pass records max lateness and `late >2×` counts for
+exactly this reason. If those tails shrink materially, zero-copy becomes a
+*reliability* argument (fewer excursions to absorb) rather than a throughput
+one — but `periods_min = 8` stays right either way, because it costs nothing
+and defends against the excursions that remain.
 
 Separately, and importantly: **an mmap run being fast is not an mmap run
 being correct.** Userspace writes through the WC mapping, and the driver's
