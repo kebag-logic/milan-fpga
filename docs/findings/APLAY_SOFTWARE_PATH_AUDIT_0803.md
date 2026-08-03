@@ -620,14 +620,24 @@ Recommendations, in the order they are worth doing:
    to the sub-ring either way, so more periods means smaller periods, never
    a larger allocation. **Driver-only, no fabric, no DT, no bitstream.**
 
-   **Choose the constant from the tolerance table (§4), not from survival
-   counts.** 4 periods already clears the largest measured excursion
-   (64.0 ms tolerance vs 56.2 ms), and 8 gives 74.7 ms for a little more
-   per-period CPU; beyond that the returns collapse (16 periods buys 5 ms,
-   32 buys 3 ms) while per-period overhead keeps rising. **`periods_min = 8`
-   is the recommended value** — it matches what already ships in
-   `play-milan`, keeps ~18 ms of headroom over the measured worst case, and
-   costs the ~10 CPU points §4 quantifies.
+   **Choose the constant from the cost/benefit curve, which was measured.**
+   Pass `e4`–`e7` walked the geometry at fixed `ktimers/0` 70, same file,
+   same session — all four survived their window with zero xruns, so the
+   discriminator is what each costs and what each buys:
+
+   | period | periods | aplay CPU | tolerance | Δ CPU | Δ tolerance |
+   |---|---|---|---|---|---|
+   | 2048 | 2 | 12.57% | 42.7 ms | — | — |
+   | 1024 | 4 | 15.56% | 64.0 ms | +3.0 pts | **+21.3 ms** |
+   | 512 | 8 | 17.68% | 74.7 ms | +2.1 pts | +10.7 ms |
+   | 256 | 16 | 26.36% | 80.0 ms | **+8.7 pts** | +5.3 ms |
+
+   **8 periods is the knee.** 4 is the floor that clears the largest
+   measured excursion (64.0 ms vs 56.2 ms); 8 adds 10.7 ms of headroom for
+   2.1 CPU points; 16 costs 8.7 points — four times as much — for 5.3 ms.
+   **`periods_min = 8` is the recommended value**: it matches what already
+   ships in `play-milan`, keeps ~18 ms of headroom over the measured worst
+   case, and sits exactly where the CPU curve turns.
 
    Note *why* this constant cannot be read off survival tests: at
    `ktimers/0` 70 **every** geometry tried survived its 120 s window,
