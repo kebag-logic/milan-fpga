@@ -343,6 +343,123 @@ def step_cc_crf_mask(context, mask):
     assert tc.MILAN_INPUT_MANDATORY_MASK == int(mask, 0)
 
 
+# ------------------------------------ advertised-is-measured (AVTP-5t) ------
+CRF_RX = os.path.join(ROOT, "hdl", "ieee1722", "crf", "KL_crf_rx.sv")
+
+#! The CRF loader's port for each Table 5.6 symbol. A bit of the advertised
+#! mask is HONEST only if its four payload octets come from one of these -
+#! anything else is the zero the loader pre-fills, i.e. a served constant.
+CRF_COUNTER_PORT = {
+    "MEDIA_LOCKED":        "crf_cnt_locked_i",
+    "MEDIA_UNLOCKED":      "crf_cnt_unlocked_i",
+    "STREAM_INTERRUPTED":  "crf_cnt_intr_i",
+    "SEQ_NUM_MISMATCH":    "crf_cnt_seqerr_i",
+    "MEDIA_RESET":         "crf_cnt_mreset_i",
+    "TIMESTAMP_UNCERTAIN": "crf_cnt_tu_i",
+    "UNSUPPORTED_FORMAT":  "crf_cnt_fmterr_i",
+    "LATE_TIMESTAMP":      "crf_cnt_late_i",
+    "EARLY_TIMESTAMP":     "crf_cnt_early_i",
+    "FRAMES_RX":           "crf_cnt_pdu_i",
+}
+
+
+def _crf_loader_body():
+    src = open(BUILDER).read()
+    key = "task automatic load_crf_input_counters_consts"
+    assert key in src, "the CRF Media Clock Input counter loader is gone"
+    body = src[src.index(key):]
+    return src, body[:body.index("endtask")]
+
+
+@then("a counter is either claimed in the mask and measured, or claimed by "
+      "neither")
+def step_cc_advertised_is_measured(context):
+    # the rule itself, stated against the contract module so a future mask
+    # edit cannot quietly re-open the defect on some other descriptor
+    assert tc.MILAN_INPUT_MANDATORY_MASK == 0xF3F
+    assert len(tc.MILAN_TABLE_56) == 10
+    # the mask and the named set must BE the same set - the rule in one line
+    assert tc.counters_valid_mask(tc.MILAN_TABLE_56,
+                                  tc.IEEE_STREAM_INPUT_BLOCK) \
+        == tc.MILAN_INPUT_MANDATORY_MASK
+    context.cc_rule = "advertised-is-measured"
+
+
+@then("the CRF Media Clock Input counters advertised as valid are all backed "
+      "by a tally")
+def step_cc_crf_no_constants(context):
+    src, body = _crf_loader_body()
+    # the mask the loader actually advertises, read from the payload octets
+    m = re.search(r"const_q\[2\]\s*<=\s*8'h([0-9A-Fa-f]{2})\s*;\s*"
+                  r"const_q\[3\]\s*<=\s*8'h([0-9A-Fa-f]{2})\s*;", body)
+    assert m, f"the CRF loader no longer emits a valid mask:\n{body[:400]}"
+    mask = int(m.group(1) + m.group(2), 16)
+    assert mask == tc.MILAN_INPUT_MANDATORY_MASK, (
+        f"the CRF input advertises {mask:#05x}, not the Milan mandatory "
+        f"{tc.MILAN_INPUT_MANDATORY_MASK:#05x}")
+
+    unbacked = []
+    for name in tc.MILAN_TABLE_56:
+        slot = tc.IEEE_STREAM_INPUT_BLOCK.index(name)
+        bit = 1 << slot
+        if not (mask & bit):
+            continue                       # not claimed: nothing owed
+        off = 4 + 4 * slot
+        # the loader writes const_q[off + k] for k in 0..3
+        assign = re.search(r"const_q\[%d\+k\]\s*<=\s*([A-Za-z0-9_\[\]]+)" % off,
+                           body)
+        port = CRF_COUNTER_PORT[name]
+        if not assign:
+            unbacked.append(f"{name}: mask bit {bit:#05x} claimed, but the "
+                            f"loader writes nothing at const_q[{off}+k] - a "
+                            f"served CONSTANT ZERO")
+            continue
+        rhs = assign.group(1)
+        # either the port itself or a zero-extending wire built from it
+        if port not in rhs:
+            widen = re.search(r"wire\s*\[31:0\]\s*%s\s*=.*?%s"
+                              % (re.escape(rhs), re.escape(port)), src, re.S)
+            if not widen:
+                unbacked.append(f"{name}: const_q[{off}+k] <= {rhs}, which is "
+                                f"not derived from {port}")
+    assert not unbacked, (
+        "the CRF Media Clock Input advertises counters it does not measure "
+        "(traceability AVTP-5t) - a claimed constant is worse than an "
+        "unclaimed bit:\n  " + "\n  ".join(unbacked))
+
+
+@then("the CRF Media Clock Input applies the {law} law to {counter}")
+def step_cc_crf_law(context, law, counter):
+    """The law is per counter, not per descriptor: KL_crf_rx must commit the
+    per-interval ones on its Table 5.6 tick and the per-event ones at the PDU.
+    """
+    src = open(CRF_RX).read()
+    sig = {
+        "MEDIA_RESET":         ("iv_mr_r", "mr_cnt_o"),
+        "TIMESTAMP_UNCERTAIN": ("iv_tu_r", "tu_cnt_o"),
+        "LATE_TIMESTAMP":      ("iv_lt_r", "late_cnt_o"),
+        "EARLY_TIMESTAMP":     ("iv_et_r", "early_cnt_o"),
+        "STREAM_INTERRUPTED":  (None,      "cnt_intr_o"),
+    }[counter]
+    flag, cnt = sig
+    assert f"{cnt}" in src, f"KL_crf_rx keeps no {counter} tally ({cnt})"
+    # the interval commit block is the one guarded by the registered tick
+    tick = src[src.index("if (iv_tick_r) begin"):]
+    tick = tick[:tick.index("end else begin")]
+    if law == "per-interval":
+        assert flag and re.search(r"if \(%s\s*\|\|" % flag, tick), (
+            f"{counter} is not committed on the observation-interval tick; "
+            f"Milan v1.2 Table 5.6 says 'at the end of every observation "
+            f"interval during which ...'")
+        assert cnt in tick
+    else:
+        assert cnt not in tick, (
+            f"{counter} is folded into the observation-interval commit; "
+            f"Table 5.6 says 'incremented each time ...', which is per event")
+        assert re.search(r"if \(w_ev_si_w\) %s\s*<=" % cnt, src), (
+            f"{counter} has no per-event increment in KL_crf_rx")
+
+
 # ------------------------------------------------------- L1 fabric bindings --
 def _get_counters_block(src: str) -> str:
     """The CMD_GET_COUNTERS arm of the response builder, and nothing else.

@@ -212,8 +212,13 @@ module KL_aecp_response_builder (
   // ---- CRF Media Clock Input counters (KL_crf_rx; Milan Table 5.16) ---
   input  wire [31:0]   crf_cnt_locked_i,    //! MEDIA_LOCKED (bit 0)
   input  wire [31:0]   crf_cnt_unlocked_i,  //! MEDIA_UNLOCKED (bit 1)
+  input  wire [31:0]   crf_cnt_intr_i,      //! STREAM_INTERRUPTED (bit 2)
   input  wire [7:0]    crf_cnt_seqerr_i,    //! SEQ_NUM_MISMATCH (bit 3)
+  input  wire [15:0]   crf_cnt_mreset_i,    //! MEDIA_RESET (bit 4)
+  input  wire [15:0]   crf_cnt_tu_i,        //! TIMESTAMP_UNCERTAIN (bit 5)
   input  wire [7:0]    crf_cnt_fmterr_i,    //! UNSUPPORTED_FORMAT (bit 8)
+  input  wire [15:0]   crf_cnt_late_i,      //! LATE_TIMESTAMP (bit 9)
+  input  wire [15:0]   crf_cnt_early_i,     //! EARLY_TIMESTAMP (bit 10)
   input  wire [15:0]   crf_cnt_pdu_i,       //! FRAMES_RX (bit 11)
 
   // ---- AEM store (read data arrives THROUGH KL_aecp_aem_dyn_mux) ------
@@ -1664,16 +1669,23 @@ module KL_aecp_response_builder (
   //! mandatory set (s_MilanMandatoryStreamInputCounters) is exactly these
   //! ten - SUCCESS + the empty mask cost the entity its Milan badge.
   //! MEDIA_LOCKED/UNLOCKED are the KL_crf_rx lock/unlock events,
-  //! SEQ_NUM_MISMATCH its sequence_num discontinuities, UNSUPPORTED_FORMAT
-  //! its 7.3.2 profile-validation rejects, FRAMES_RX its accepted-PDU
-  //! count; STREAM_INTERRUPTED, MEDIA_RESET, TIMESTAMP_UNCERTAIN and
-  //! LATE/EARLY_TIMESTAMP are advertised valid but always 0 - the engine
-  //! keeps no such tallies (the load_input0 MEDIA_RESET/LATE/EARLY
-  //! precedent). TV/TNV (bits 6/7, Milan 1.3) stay UNCLAIMED: no tv
-  //! tracking exists for the CRF stream.
+  //! STREAM_INTERRUPTED its >= 2-PDU sequence losses, SEQ_NUM_MISMATCH its
+  //! sequence_num discontinuities, MEDIA_RESET the RECEIVED mr toggle,
+  //! TIMESTAMP_UNCERTAIN the received tu bit, UNSUPPORTED_FORMAT its 7.3.2
+  //! profile-validation rejects, LATE/EARLY_TIMESTAMP the CRF reference
+  //! timestamp against gPTP now, FRAMES_RX its accepted-PDU count. Every
+  //! bit of the advertised mask is now a MEASUREMENT - the five that used
+  //! to be advertised-valid-but-constant-zero (traceability AVTP-5t) were
+  //! worse than an unserved bit: a controller cannot tell a healthy stream
+  //! from an instrument that never moves. TV/TNV (bits 6/7, Milan 1.3)
+  //! stay UNCLAIMED: no tv tracking exists for the CRF stream.
   wire [31:0] w_crf_cnt_seqmm  = {24'h0, crf_cnt_seqerr_i};
   wire [31:0] w_crf_cnt_unsupp = {24'h0, crf_cnt_fmterr_i};
   wire [31:0] w_crf_cnt_frx    = {16'h0, crf_cnt_pdu_i};
+  wire [31:0] w_crf_cnt_mreset = {16'h0, crf_cnt_mreset_i};
+  wire [31:0] w_crf_cnt_tu     = {16'h0, crf_cnt_tu_i};
+  wire [31:0] w_crf_cnt_late   = {16'h0, crf_cnt_late_i};
+  wire [31:0] w_crf_cnt_early  = {16'h0, crf_cnt_early_i};
   task automatic load_crf_input_counters_consts;
     begin
       for (int k = 0; k < 52; k++) const_q[k] <= 8'h00;
@@ -1681,8 +1693,13 @@ module KL_aecp_response_builder (
       for (int k = 0; k < 4; k++) begin
         const_q[4+k]  <= crf_cnt_locked_i  [8*(3-k) +: 8];  // bit0  ML
         const_q[8+k]  <= crf_cnt_unlocked_i[8*(3-k) +: 8];  // bit1  MU
+        const_q[12+k] <= crf_cnt_intr_i    [8*(3-k) +: 8];  // bit2  SI
         const_q[16+k] <= w_crf_cnt_seqmm   [8*(3-k) +: 8];  // bit3  SM
+        const_q[20+k] <= w_crf_cnt_mreset  [8*(3-k) +: 8];  // bit4  MR
+        const_q[24+k] <= w_crf_cnt_tu      [8*(3-k) +: 8];  // bit5  TU
         const_q[36+k] <= w_crf_cnt_unsupp  [8*(3-k) +: 8];  // bit8  UF
+        const_q[40+k] <= w_crf_cnt_late    [8*(3-k) +: 8];  // bit9  LT
+        const_q[44+k] <= w_crf_cnt_early   [8*(3-k) +: 8];  // bit10 ET
         const_q[48+k] <= w_crf_cnt_frx     [8*(3-k) +: 8];  // bit11 FRX
       end
     end

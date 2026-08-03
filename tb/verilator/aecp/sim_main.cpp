@@ -2072,14 +2072,24 @@ int main(int argc, char** argv) {
         //     mandatory-set check (s_MilanMandatoryStreamInputCounters =
         //     the v1.2 ten, mask 0xF3F) drops the Milan badge on the empty
         //     mask. It now serves the ten out of the KL_crf_rx sink
-        //     engine: LOCKED/UNLOCKED/SEQ_MM/UNSUPP/FRAMES_RX live,
-        //     STREAM_INTERRUPTED/MEDIA_RESET/TU/LATE/EARLY advertised
-        //     valid but 0 (no such tallies in the engine); TV/TNV (bits
-        //     6/7) stay UNCLAIMED - no tv tracking exists for CRF.
+        //     engine. As of the AVTP-5t round ALL TEN are live: the five
+        //     that used to be advertised-valid-but-constant-zero
+        //     (STREAM_INTERRUPTED, MEDIA_RESET, TIMESTAMP_UNCERTAIN,
+        //     LATE/EARLY_TIMESTAMP) now come from real KL_crf_rx tallies.
+        //     A claimed constant is WORSE than an unclaimed bit: it tells
+        //     a controller "measured, never happened". TV/TNV (bits 6/7)
+        //     stay UNCLAIMED - no tv tracking exists for CRF.
+        //     Every value below is DISTINCT so a wrong payload offset
+        //     cannot pass by reading its neighbour.
         dut->crf_cnt_locked_i   = 4;
         dut->crf_cnt_unlocked_i = 3;
+        dut->crf_cnt_intr_i     = 0x0777;
         dut->crf_cnt_seqerr_i   = 0x21;
+        dut->crf_cnt_mreset_i   = 0x0311;
+        dut->crf_cnt_tu_i       = 0x0422;
         dut->crf_cnt_fmterr_i   = 0x0A;
+        dut->crf_cnt_late_i     = 0x0533;
+        dut->crf_cnt_early_i    = 0x0644;
         dut->crf_cnt_pdu_i      = 0x1234;
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x220D,
                          si_pl(0x0005, 1)));
@@ -2088,14 +2098,30 @@ int main(int argc, char** argv) {
         ck("[22h] valid mask 0xF3F (Milan mandatory ten)", be32_at(r, 42), 0xF3F);
         ck("[22h] MEDIA_LOCKED = crf lock events", be32_at(r, 46), 4);
         ck("[22h] MEDIA_UNLOCKED = crf unlock events", be32_at(r, 50), 3);
-        ck("[22h] STREAM_INTERRUPTED advertised-0", be32_at(r, 54), 0);
+        ck("[22h] STREAM_INTERRUPTED = crf >=2-PDU losses",
+           be32_at(r, 54), 0x0777);
         ck("[22h] SEQ_NUM_MISMATCH = crf seq errors", be32_at(r, 58), 0x21);
-        ck("[22h] MEDIA_RESET/TU advertised-0", be32_at(r, 62) | be32_at(r, 66), 0);
+        ck("[22h] MEDIA_RESET = crf received-mr toggles",
+           be32_at(r, 62), 0x0311);
+        ck("[22h] TIMESTAMP_UNCERTAIN = crf received-tu intervals",
+           be32_at(r, 66), 0x0422);
         ck("[22h] TV/TNV unclaimed zero", be32_at(r, 70) | be32_at(r, 74), 0);
         ck("[22h] UNSUPPORTED_FORMAT = crf fmt errors", be32_at(r, 78), 0x0A);
-        ck("[22h] LATE/EARLY advertised-0", be32_at(r, 82) | be32_at(r, 86), 0);
+        ck("[22h] LATE_TIMESTAMP = crf past-reference intervals",
+           be32_at(r, 82), 0x0533);
+        ck("[22h] EARLY_TIMESTAMP = crf too-far-ahead intervals",
+           be32_at(r, 86), 0x0644);
         ck("[22h] FRAMES_RX = crf accepted PDUs", be32_at(r, 90), 0x1234);
         ck("[22h] CDL still 148 (full-size on every answer)", r_cdl(r), 148);
+        // the defect this round closed: NOTHING inside the advertised mask
+        // may read as a constant while the engine is running
+        {
+            long zeros = 0;
+            const int off[10] = {46, 50, 54, 58, 62, 66, 78, 82, 86, 90};
+            for (int k = 0; k < 10; k++) if (be32_at(r, off[k]) == 0) zeros++;
+            ck("[22h] every advertised counter carries a value, none constant-0",
+               zeros, 0);
+        }
 
         // (i) unsolicited GET_COUNTERS push (Milan §5.4.5): register A,
         //     dirty pulse -> ONE immediate push (rate window starts

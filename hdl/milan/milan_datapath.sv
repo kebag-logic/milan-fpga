@@ -1372,7 +1372,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [15:0] crf_pducnt_w;
   wire [7:0]  crf_fmterr_w, crf_seqerr_w;
   wire        crf_locked_w;
-  wire [31:0] crf_cnt_locked_w, crf_cnt_unlocked_w;
+  wire [31:0] crf_cnt_locked_w, crf_cnt_unlocked_w, crf_cnt_intr_w;
+  //! the four Table 5.6 interval tallies the CRF sink used to advertise as
+  //! valid and never move (traceability AVTP-5t)
+  wire [15:0] crf_mrcnt_w, crf_tucnt_w, crf_latecnt_w, crf_earlycnt_w;
   //! CRF talker (KL_crf_tx): CSR control + PDU stream into the control merge
   wire        cfg_crft_en;
   wire        cfg_crft_class_a;   //! CRFT_CTRL[1]: declare + tag (Milan 7.3.3)
@@ -2574,13 +2577,20 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .tkdiag_dirty_p_i (16'(tkd_dirty_p_w)),
     .n_aaf_sinks_i (16'(N_STREAMS)),
     //! CRF Media Clock Input GET_COUNTERS (Milan Table 5.16 mandatory
-    //! ten): served straight out of the KL_crf_rx sink engine - the same
-    //! counters the 0x738 CSR group reads
+    //! ten): served straight out of the KL_crf_rx sink engine. The first
+    //! five also reach the 0x738 CSR group; the last five have no CSR
+    //! window on purpose - a second copy of a live counter is a mirror
+    //! that agrees on day one and drifts in silence
     .crf_cnt_locked_i   (crf_cnt_locked_w),
     .crf_cnt_unlocked_i (crf_cnt_unlocked_w),
     .crf_cnt_seqerr_i   (crf_seqerr_w),
     .crf_cnt_fmterr_i   (crf_fmterr_w),
     .crf_cnt_pdu_i      (crf_pducnt_w),
+    .crf_cnt_intr_i     (crf_cnt_intr_w),
+    .crf_cnt_mreset_i   (crf_mrcnt_w),
+    .crf_cnt_tu_i       (crf_tucnt_w),
+    .crf_cnt_late_i     (crf_latecnt_w),
+    .crf_cnt_early_i    (crf_earlycnt_w),
     .lstn_bound_i   (acmpl_bound),
     .lstn_sid_i     (acmpl_sid),
     .lstn_dmac_i    (acmpl_dmac),
@@ -3800,6 +3810,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .fsh_i       (avtprx_fsh),
     .fsh2_i      (avtprx_fsh2),
     .type_i      (avtprx_b3),
+    .mr_i        (avtprx_mr_bit),
+    //! IEEE 1722-2016 10.4.5: the CRF ALTERNATIVE header puts tu at frame
+    //! byte o+1 bit 0 - the bit the parser publishes as tv for the common
+    //! stream header. avtprx_tu_bit (byte o+3 bit 0) is the CRF `type`
+    //! field's LSB and would read 1 on every conformant CRF_AUDIO_SAMPLE
+    .tu_i        (avtprx_tv_bit),
     .ptp_now_i   (ptp_now_w),
     //! ACMP sink-1 bind wins; the CSR pair stays the manual bench lever
     .en_i        (cfg_crf_en | acmpl1_bound),
@@ -3809,9 +3825,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pdu_count_o (crf_pducnt_w),
     .fmt_err_o   (crf_fmterr_w),
     .seq_err_o   (crf_seqerr_w),
+    .mr_cnt_o    (crf_mrcnt_w),
+    .tu_cnt_o    (crf_tucnt_w),
+    .late_cnt_o  (crf_latecnt_w),
+    .early_cnt_o (crf_earlycnt_w),
     .locked_o    (crf_locked_w),
     .cnt_locked_o   (crf_cnt_locked_w),
-    .cnt_unlocked_o (crf_cnt_unlocked_w)
+    .cnt_unlocked_o (crf_cnt_unlocked_w),
+    .cnt_intr_o     (crf_cnt_intr_w)
   );
 
   // ==========================================================================

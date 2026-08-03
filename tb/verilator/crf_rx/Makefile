@@ -19,6 +19,12 @@
 # mirror.
 IVAL_CYC ?= 200
 
+# LATE/EARLY window for the CRF reference timestamp (Table 5.6). Same
+# derive-never-mirror rule: ONE variable each feeds the RTL parameter AND
+# the C++ replica, which recomputes the limit rather than restating it.
+MAXTT_NS   ?= 2000000
+EARLY_M_NS ?= 10000000
+
 VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
 TOP        = KL_crf_rx
@@ -27,9 +33,11 @@ VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
          -GCLK_FREQ_HZ_P=200000 \
          -GIVAL_CYC_P=$(IVAL_CYC) \
+         -GMAXTT_NS_P=$(MAXTT_NS) -GEARLY_MARGIN_NS_P=$(EARLY_M_NS) \
          -Wall -Wno-fatal -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL \
          -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-EOFNEWLINE \
-         -CFLAGS "-std=c++17 -O2 -DIVAL_CYC_C=$(IVAL_CYC)u"
+         -CFLAGS "-std=c++17 -O2 -DIVAL_CYC_C=$(IVAL_CYC)u \
+                  -DMAXTT_NS_C=$(MAXTT_NS)u -DEARLY_M_NS_C=$(EARLY_M_NS)u"
 
 SRCS = $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv
 CPP  = sim_main.cpp

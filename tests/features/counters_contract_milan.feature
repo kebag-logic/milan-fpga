@@ -466,6 +466,45 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
     Then the CRF Media Clock Input index is in the plan's listener coverage
     And the mandatory mask required of it is 0xF3F
 
+  @class:law @honesty @clause:Milan-5.4.2.25 @rule:advertised-is-measured
+  Scenario: a counter advertised in the mask must be a measurement, never a constant
+    # THE DEFECT CLASS THIS RULE EXISTS FOR (traceability AVTP-5t, found by the
+    # 2026-08-03 STREAM_INPUT audit). The CRF Media Clock Input advertised the
+    # full mandatory 0xF3F while STREAM_INTERRUPTED, MEDIA_RESET,
+    # TIMESTAMP_UNCERTAIN, LATE_TIMESTAMP and EARLY_TIMESTAMP were served as
+    # constant zeros - the engine kept no such tallies. That is WORSE than
+    # leaving the bits unclaimed: an unclaimed bit tells a controller "I do not
+    # measure this", while a claimed constant tells it "I measure this and it
+    # never happened". A controller cannot distinguish the second from a
+    # healthy stream, so the fault it is supposed to surface is hidden by the
+    # very counter that was added to surface it.
+    #
+    # The rule is symmetric: the valid mask and the set of counters backed by a
+    # real tally must be THE SAME SET. Narrowing the mask is a legal fix; a
+    # served constant is not.
+    Then a counter is either claimed in the mask and measured, or claimed by neither
+    And the CRF Media Clock Input counters advertised as valid are all backed by a tally
+
+  @class:law @clause:Milan-Table-5.6 @rule:advertised-is-measured
+  Scenario Outline: the CRF Media Clock Input obeys the SAME law per counter as an AAF sink
+    # Table 5.6 is written per Stream Input, not per stream FORMAT: there is no
+    # separate CRF grammar. So the CRF sink's five newly-measured counters take
+    # the identical laws the AAF sinks take - the split is per counter, never
+    # per descriptor.
+    Then the update law of <counter> is <law> per Milan v1.2 Table 5.6
+    And the CRF Media Clock Input applies the <law> law to <counter>
+
+    Examples: the per-event one among the five that were constant
+      | counter            | law         |
+      | STREAM_INTERRUPTED | per-event   |
+
+    Examples: the four observation-interval ones
+      | counter             | law          |
+      | MEDIA_RESET         | per-interval |
+      | TIMESTAMP_UNCERTAIN | per-interval |
+      | LATE_TIMESTAMP      | per-interval |
+      | EARLY_TIMESTAMP     | per-interval |
+
   # --------------------------------------------------- L1: the fabric binding
   @level:L1 @class:binding
   Scenario: the response builder emits the masks this contract names

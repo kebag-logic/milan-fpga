@@ -101,8 +101,13 @@ module KL_aecp_top #(
   // ---- CRF Media Clock Input counters (KL_crf_rx; Milan Table 5.16) ---
   input  wire [31:0]      crf_cnt_locked_i,    //! MEDIA_LOCKED (bit 0)
   input  wire [31:0]      crf_cnt_unlocked_i,  //! MEDIA_UNLOCKED (bit 1)
+  input  wire [31:0]      crf_cnt_intr_i,      //! STREAM_INTERRUPTED (bit 2)
   input  wire [7:0]       crf_cnt_seqerr_i,    //! SEQ_NUM_MISMATCH (bit 3)
+  input  wire [15:0]      crf_cnt_mreset_i,    //! MEDIA_RESET (bit 4)
+  input  wire [15:0]      crf_cnt_tu_i,        //! TIMESTAMP_UNCERTAIN (bit 5)
   input  wire [7:0]       crf_cnt_fmterr_i,    //! UNSUPPORTED_FORMAT (bit 8)
+  input  wire [15:0]      crf_cnt_late_i,      //! LATE_TIMESTAMP (bit 9)
+  input  wire [15:0]      crf_cnt_early_i,     //! EARLY_TIMESTAMP (bit 10)
   input  wire [15:0]      crf_cnt_pdu_i,       //! FRAMES_RX (bit 11)
 
   // ---- listener sink state (KL_acmp_listener; STREAM_INPUT[0]) --------
@@ -313,8 +318,13 @@ module KL_aecp_top #(
     .n_aaf_sinks_i(n_aaf_sinks_i),
     .crf_cnt_locked_i(crf_cnt_locked_i),
     .crf_cnt_unlocked_i(crf_cnt_unlocked_i),
+    .crf_cnt_intr_i(crf_cnt_intr_i),
     .crf_cnt_seqerr_i(crf_cnt_seqerr_i),
+    .crf_cnt_mreset_i(crf_cnt_mreset_i),
+    .crf_cnt_tu_i(crf_cnt_tu_i),
     .crf_cnt_fmterr_i(crf_cnt_fmterr_i),
+    .crf_cnt_late_i(crf_cnt_late_i),
+    .crf_cnt_early_i(crf_cnt_early_i),
     .crf_cnt_pdu_i(crf_cnt_pdu_i),
     .lstn_bound_i(lstn_bound_i), .lstn_sid_i(lstn_sid_i),
     .lstn1_bound_i(lstn1_bound_i), .lstn1_sid_i(lstn1_sid_i),

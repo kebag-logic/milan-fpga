@@ -616,6 +616,15 @@ bind-restore group notes that this sink re-arms via `0x738`.
 | `0x748` | `CRF_RATE` | RO | `0` | signed ns error per 512 ms window (256-PDU ring): the talker's media clock measured against gPTP — the servo frequency input (1 ppm = 512 units) |
 | `0x74C` | `CRF_STATUS` | RO | `0` | `[31:16]` PDUs accepted, `[15:8]` format errors (7.3.2 pull/base/dlen/interval/type check), `[7:0]` sequence errors |
 
+Those three are **three of the ten** Milan Table 5.6 counters this sink keeps
+(FRAMES_RX, UNSUPPORTED_FORMAT, SEQ_NUM_MISMATCH). The other seven —
+MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED, MEDIA_RESET,
+TIMESTAMP_UNCERTAIN, LATE_TIMESTAMP, EARLY_TIMESTAMP — have **no CSR window
+and are not getting one**: they are served by AECP `GET_COUNTERS` on the CRF
+Media Clock Input descriptor, straight off the `KL_crf_rx` ports, and a CSR
+copy would be a second source for a live value that agrees on day one and
+drifts in silence. Read them with a controller, not with `devmem`.
+
 ### 0x750  -  CRF media-clock talker  `(Milan v1.2 7.3.1, KL_crf_tx)`
 
 Emits the CRF AUDIO_SAMPLE stream (subtype 4, pull 0, base_frequency 48000,

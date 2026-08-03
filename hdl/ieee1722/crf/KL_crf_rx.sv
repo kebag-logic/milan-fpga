@@ -38,14 +38,19 @@
 
                 COUNTER SEMANTICS split per Milan v1.2 Table 5.6, exactly
                 (5.3.8.10 keeps the Stream Input counters "for each Stream
-                Input" with no CRF exemption; KL_aecp_response_builder
-                serves this engine's tallies behind the 0x0F3F mask for the
-                CRF Media Clock Input, the KL_avtp_rx_monitor_ctx reading):
+                Input" with no CRF exemption, and 5.4.2.25 Table 5.16
+                makes ALL TEN mandatory "for each Stream Input" - so the
+                0x0F3F mask KL_aecp_response_builder serves for the CRF
+                Media Clock Input stays whole and every bit in it has to
+                be a MEASUREMENT, never a constant):
 
-                * cnt_locked / cnt_unlocked are EVENT counters
-                  ("incremented each time ...") - per event, as before.
-                * pdu_count (FRAMES_RX), fmt_err (UNSUPPORTED_FORMAT) and
-                  seq_err (SEQ_NUM_MISMATCH) are OBSERVATION-INTERVAL
+                * cnt_locked / cnt_unlocked / cnt_intr (STREAM_INTERRUPTED)
+                  are EVENT counters ("incremented each time ...") - per
+                  event.
+                * pdu_count (FRAMES_RX), fmt_err (UNSUPPORTED_FORMAT),
+                  seq_err (SEQ_NUM_MISMATCH), mr_cnt (MEDIA_RESET), tu_cnt
+                  (TIMESTAMP_UNCERTAIN), late_cnt (LATE_TIMESTAMP) and
+                  early_cnt (EARLY_TIMESTAMP) are OBSERVATION-INTERVAL
                   counters: "incremented at the end of every observation
                   interval during which ..." where "the duration of the
                   observation interval is implementation-specific and shall
@@ -57,12 +62,60 @@
                   1722.1-2021 Table 7-153's, not Milan's, and serving it
                   read ~500x high at the 500 PDU/s CRF cadence.
 
+                THE CRF READING of the five counters that used to be
+                advertised-but-constant (traceability AVTP-5t):
+
+                * STREAM_INTERRUPTED "each time the stream playback is
+                  interrupted for any reason other than a Controller Unbind
+                  operation ... this can include the loss of several
+                  AVTPDUs". The CRF sink's "playback" is media-clock
+                  recovery and the clause's own example is the trigger: an
+                  accepted PDU whose sequence_num shows >= 2 lost PDUs
+                  (INTR_MIN_LOST_C, the KL_avtp_rx_monitor law verbatim).
+                  A Controller Unbind drops en_i, so no PDU is accepted and
+                  the counter cannot move - the clause's exclusion holds
+                  structurally.
+                * MEDIA_RESET "the 'mr' bit was toggled in any of the
+                  received Stream Data AVTPDUs" - the RECEIVED bit of the
+                  CRF PDU (mr_i, frame byte O+1 bit 3; IEEE 1722-2016
+                  10.4.3 gives CRF the same mr as 4.4.4.3 and holds it >= 8
+                  PDUs), so only the EDGE counts. The era's first accepted
+                  PDU SEEDS the reference without counting; a bind edge or
+                  a 100 ms silence re-seeds, so a new talker's mr level is
+                  never scored as this stream's toggle (the 4d31ecfb rule).
+                * TIMESTAMP_UNCERTAIN "the 'tu' bit was set in any of the
+                  received Stream Data AVTPDUs" - tu_i. NOTE the CRF
+                  ALTERNATIVE header (1722-2016 10.4.5) carries tu at byte
+                  O+1 bit 0, where the common stream header carries tv;
+                  byte O+3 is the CRF `type` field, so the common-header tu
+                  extraction reads a CRF PDU's type LSB and would report
+                  tu=1 on every conformant CRF_AUDIO_SAMPLE PDU.
+                * LATE_TIMESTAMP / EARLY_TIMESTAMP "an AVTP timestamp field
+                  that was in the past" / "too far in the future to
+                  process", applied to the CRF reference timestamp - the
+                  only timestamp a CRF PDU carries, and the one 1722-2016
+                  10.6 says the Listener "can simply compare to the local
+                  gPTP clock". 10.7 sets T_CRF = source + Max Transit Time,
+                  so the delta is nominally POSITIVE and bounded by TTmax;
+                  10.6 says an UNRESERVED CRF stream can deliver a
+                  timestamp already in the past, and Milan 7.3.3 mandates a
+                  Class A reservation - so a past timestamp is exactly the
+                  fault LATE_TIMESTAMP names, and further ahead than
+                  MAXTT_NS_P + EARLY_MARGIN_NS_P is "too far in the future"
+                  (the KL_avtp_rx_monitor pres_ofs + margin shape,
+                  EARLY_MARGIN_NS_P).
+
+                No Table 5.16 bit is dropped: the clause exempts nothing,
+                and every one of the ten now moves off a measured event.
+
                 The stream to follow is selected by sid_i/en_i (CSR pair
                 today, the ACMP sink-1 SM once it exists - the remaining
                 CRF work is the sink-1 bind chain, see
                 docs/MILAN_COMPLIANCE_GAPS.md).
 
-  Spec refs   : Milan v1.2 7.3.2-7.3.4; IEEE 1722-2016 Clause 10
+  Spec refs   : Milan v1.2 7.3.2-7.3.4, 5.3.8.10 Table 5.6, 5.4.2.25
+                Table 5.16; IEEE 1722-2016 Clause 10 (10.4.3 mr, 10.4.5 tu,
+                10.6/10.7 CRF timestamp placement)
   Company     : Kebag Logic
   Project     : Milan AVB endstation
 ------------------------------------------------------------------------------
@@ -78,7 +131,17 @@ module KL_crf_rx #(
   //! the default DERIVES the 1 s ceiling from the clock parameter (never a
   //! mirrored cycle constant); TBs shrink it so a case sees interval
   //! boundaries
-  parameter int unsigned IVAL_CYC_P = CLK_FREQ_HZ_P
+  parameter int unsigned IVAL_CYC_P = CLK_FREQ_HZ_P,
+  //! Max Transit Time the CRF talker added to its source timestamp (IEEE
+  //! 1722-2016 10.7, Equation 14). Milan 7.3.3 mandates a Class A
+  //! reservation for the media clock stream, whose worst case is 2 ms over
+  //! 7 hops - the bound above which a CRF reference timestamp is "too far
+  //! in the future to process" (Table 5.6 EARLY_TIMESTAMP)
+  parameter int unsigned MAXTT_NS_P = 2_000_000,
+  //! slack above that Max Transit Time before a CRF reference timestamp is
+  //! called EARLY - the same margin, in the same role, that the AAF
+  //! instrument (KL_avtp_rx_monitor) allows above its presentation offset
+  parameter int unsigned EARLY_MARGIN_NS_P = 10_000_000
 )(
   input  wire         clk_i,
   input  wire         rst_n,
@@ -92,6 +155,16 @@ module KL_crf_rx #(
   input  wire [63:0]  fsh_i,          //! CRF: {dlen16, interval16, ts_hi32}
   input  wire [63:0]  fsh2_i,         //! CRF: {ts_lo32, -}
   input  wire [7:0]   type_i,         //! CRF type field (frame byte o+3)
+  //! mr (media clock restart), IEEE 1722-2016 10.4.3: a LEVEL the CRF
+  //! talker TOGGLES on a media-clock source change and holds >= 8 PDUs.
+  //! Table 5.6 MEDIA_RESET counts the TOGGLE, so this engine keeps the
+  //! previous value; this port is the raw bit (frame byte o+1 bit 3)
+  input  wire         mr_i,
+  //! tu (timing uncertain), IEEE 1722-2016 10.4.5 - the CRF ALTERNATIVE
+  //! header carries it at frame byte o+1 bit 0 (where the common stream
+  //! header carries tv); byte o+3 is `type` here, so the common-header tu
+  //! net is NOT this bit
+  input  wire         tu_i,
 
   input  wire [63:0]  ptp_now_i,      //! gPTP-synced time (ns)
 
@@ -105,9 +178,20 @@ module KL_crf_rx #(
   output logic [15:0] pdu_count_o,        //! FRAMES_RX: intervals with >= 1 accepted PDU (wraps)
   output logic [7:0]  fmt_err_o,          //! UNSUPPORTED_FORMAT: intervals with >= 1 profile reject
   output logic [7:0]  seq_err_o,          //! SEQ_NUM_MISMATCH: intervals with >= 1 discontinuity
+  //! MEDIA_RESET / TIMESTAMP_UNCERTAIN / LATE_TIMESTAMP / EARLY_TIMESTAMP:
+  //! intervals with >= 1 such PDU. WIDER than their fmt_err/seq_err
+  //! siblings on purpose - those are 8-bit because CRF_STATUS packs them,
+  //! and an 8-bit interval counter PEGS after 255 s of a persistent fault,
+  //! which reads exactly like the constant zero this engine just stopped
+  //! serving. 16 bits wrap (Milan's own rule) after 18 h at the 1 s ceiling
+  output logic [15:0] mr_cnt_o,
+  output logic [15:0] tu_cnt_o,
+  output logic [15:0] late_cnt_o,
+  output logic [15:0] early_cnt_o,
   output logic        locked_o,
   output logic [31:0] cnt_locked_o,       //! lock events (CLOCK_DOMAIN ctr)
-  output logic [31:0] cnt_unlocked_o      //! unlock events
+  output logic [31:0] cnt_unlocked_o,     //! unlock events
+  output logic [31:0] cnt_intr_o          //! STREAM_INTERRUPTED events
 );
 
   //! Milan 7.3.2 constants
@@ -125,6 +209,15 @@ module KL_crf_rx #(
   //! lock: 8 clean consecutive PDUs in, 100 ms silence out (AAF contract)
   localparam int unsigned SETTLE_C   = 8;
   localparam int unsigned TOUT_CYC_C = CLK_FREQ_HZ_P / 10;
+
+  //! Table 5.6 STREAM_INTERRUPTED "the loss of several AVTPDUs" - the same
+  //! threshold KL_avtp_rx_monitor applies to the AAF sinks
+  localparam int unsigned INTR_MIN_LOST_C = 2;
+  //! "too far in the future to process": past the transit time the talker
+  //! added (10.7) plus the instrument's slack. DERIVED from the two named
+  //! quantities - never a folded constant
+  localparam logic [31:0] EARLY_LIMIT_C = 32'(MAXTT_NS_P)
+                                        + 32'(EARLY_MARGIN_NS_P);
 
   wire w_hit = frame_p_i && en_i && (subtype_i == CRF_SUBTYPE_C)
              && (sid_frame_i == sid_i);
@@ -158,8 +251,26 @@ module KL_crf_rx #(
   logic        have_seq_r;
   logic [2:0]  settle_r;
   logic [$clog2(TOUT_CYC_C+1)-1:0] tout_r;
+  //! mr reference for the CURRENT binding era (Table 5.6 MEDIA_RESET counts
+  //! toggles): SEEDED, not counted, by the era's first accepted PDU
+  logic        prev_mr_r;
+  logic        mr_seeded_r;
+  logic        en_q;                              //! bind-edge detect
 
   wire w_acc = w_hit && w_fmt_ok;
+
+  //! the CRF phase error, computed ONCE: delta_o publishes it and the
+  //! Table 5.6 late/early verdicts read the same expression
+  wire signed [31:0] w_tsd = 32'(signed'(w_crf_ts - ptp_now_i));
+  //! LATE  = the reference instant already passed at arrival (1722-2016
+  //!         10.6: only an UNRESERVED CRF stream should ever do this, and
+  //!         Milan 7.3.3 reserves it Class A);
+  //! EARLY = further ahead than the Max Transit Time the talker added
+  //!         (10.7) plus the margin
+  wire w_late_w  = w_tsd < 0;
+  wire w_early_w = !w_late_w && (unsigned'(w_tsd) > EARLY_LIMIT_C);
+  //! PDUs lost before this one (mod-256, the KL_avtp_rx_monitor form)
+  wire [7:0] w_lost_w = seq_i - exp_seq_r;
 
   //! this cycle's Table 5.6 interval-flag events. The engine keeps settle /
   //! lock / delta / rate per-PDU (measurement is not a counter); only the
@@ -168,6 +279,19 @@ module KL_crf_rx #(
   //! accepted PDU with a non-sequential sequence_num.
   wire w_ev_uf_w = w_hit && !w_fmt_ok;
   wire w_ev_sm_w = w_acc && have_seq_r && (seq_i != exp_seq_r);
+  //! MR = the received mr bit TOGGLING vs this era's seeded reference;
+  //! TU/LT/ET = the accepted PDU's own tu bit / late / early verdict. All
+  //! four are gated by w_acc: a REJECTED PDU counts UNSUPPORTED_FORMAT and
+  //! nothing else (the reference early-returns)
+  wire w_ev_mr_w = w_acc && mr_seeded_r && (mr_i != prev_mr_r);
+  wire w_ev_tu_w = w_acc && tu_i;
+  wire w_ev_lt_w = w_acc && w_late_w;
+  wire w_ev_et_w = w_acc && w_early_w;
+  //! STREAM_INTERRUPTED is PER-EVENT (no interval flag): an accepted PDU
+  //! whose sequence_num shows >= INTR_MIN_LOST_C lost AVTPDUs
+  wire w_ev_si_w = w_ev_sm_w && (w_lost_w >= 8'(INTR_MIN_LOST_C));
+  //! not-bound -> bound: the mr level belongs to the PREVIOUS era
+  wire w_bind_rise_w = en_i && !en_q;
 
   // ==========================================================================
   //  Table 5.6 observation-interval tick (free-running; the clause fixes
@@ -177,7 +301,9 @@ module KL_crf_rx #(
                                                       : $clog2(IVAL_CYC_P);
   logic [IVALW_C-1:0] iv_div_r;
   logic               iv_tick_r;
-  logic               iv_frx_r, iv_uf_r, iv_sm_r;  //! interval seen flags
+  //! interval seen flags, one per Table 5.6 observation-interval counter
+  logic               iv_frx_r, iv_uf_r, iv_sm_r;
+  logic               iv_mr_r, iv_tu_r, iv_lt_r, iv_et_r;
 
   always_ff @(posedge clk_i or negedge rst_n) begin : iv_tick_gen
     if (!rst_n) begin
@@ -204,13 +330,18 @@ module KL_crf_rx #(
     if (!rst_n) begin
       delta_o <= '0; rate_o <= '0;
       pdu_count_o <= '0; fmt_err_o <= '0; seq_err_o <= '0;
+      mr_cnt_o <= '0; tu_cnt_o <= '0; late_cnt_o <= '0; early_cnt_o <= '0;
       locked_o <= 1'b0; cnt_locked_o <= '0; cnt_unlocked_o <= '0;
+      cnt_intr_o <= '0;
       hidx_r <= '0; hfill_r <= '0;
       exp_seq_r <= '0; have_seq_r <= 1'b0;
       settle_r <= '0; tout_r <= '0;
       ts_new_r <= '0; rate_pend_r <= 1'b0;
+      prev_mr_r <= 1'b0; mr_seeded_r <= 1'b0; en_q <= 1'b0;
       iv_frx_r <= 1'b0; iv_uf_r <= 1'b0; iv_sm_r <= 1'b0;
+      iv_mr_r <= 1'b0; iv_tu_r <= 1'b0; iv_lt_r <= 1'b0; iv_et_r <= 1'b0;
     end else begin
+      en_q <= en_i;
       //! Table 5.6 interval commit: +1 per flagged counter at the tick,
       //! then the flags restart clean. An event landing in the tick cycle
       //! itself is harvested INTO the closing interval (the
@@ -223,14 +354,32 @@ module KL_crf_rx #(
           fmt_err_o <= (&fmt_err_o) ? fmt_err_o : fmt_err_o + 8'd1;
         if (iv_sm_r || w_ev_sm_w)
           seq_err_o <= (&seq_err_o) ? seq_err_o : seq_err_o + 8'd1;
+        //! the four Table 5.16 counters this engine used to advertise and
+        //! never move; 16-bit, WRAPPING per 5.3.8.10
+        if (iv_mr_r || w_ev_mr_w) mr_cnt_o    <= mr_cnt_o    + 16'd1;
+        if (iv_tu_r || w_ev_tu_w) tu_cnt_o    <= tu_cnt_o    + 16'd1;
+        if (iv_lt_r || w_ev_lt_w) late_cnt_o  <= late_cnt_o  + 16'd1;
+        if (iv_et_r || w_ev_et_w) early_cnt_o <= early_cnt_o + 16'd1;
         iv_frx_r <= 1'b0;
         iv_uf_r  <= 1'b0;
         iv_sm_r  <= 1'b0;
+        iv_mr_r  <= 1'b0;
+        iv_tu_r  <= 1'b0;
+        iv_lt_r  <= 1'b0;
+        iv_et_r  <= 1'b0;
       end else begin
         iv_frx_r <= iv_frx_r | w_acc;
         iv_uf_r  <= iv_uf_r  | w_ev_uf_w;
         iv_sm_r  <= iv_sm_r  | w_ev_sm_w;
+        iv_mr_r  <= iv_mr_r  | w_ev_mr_w;
+        iv_tu_r  <= iv_tu_r  | w_ev_tu_w;
+        iv_lt_r  <= iv_lt_r  | w_ev_lt_w;
+        iv_et_r  <= iv_et_r  | w_ev_et_w;
       end
+
+      //! STREAM_INTERRUPTED: PER-EVENT, so it lands the cycle of the PDU
+      //! (never folded into an interval) - "incremented each time"
+      if (w_ev_si_w) cnt_intr_o <= cnt_intr_o + 32'd1;
 
       //! retimed rate math: one clk after the accepted PDU, when the BRAM
       //! read (hist_old_r) is valid. ts_new_r - hist_old_r is congruent
@@ -253,6 +402,10 @@ module KL_crf_rx #(
         settle_r <= '0;
         have_seq_r <= 1'b0;
         hfill_r  <= '0;
+        //! the mr LEVEL belongs to the stream that went silent: re-seed, so
+        //! a resuming (or brand new) talker's first PDU is never scored as
+        //! THIS stream's toggle
+        mr_seeded_r <= 1'b0;
       end else begin
         tout_r <= tout_r + 1'b1;
       end
@@ -276,8 +429,12 @@ module KL_crf_rx #(
           end
           exp_seq_r  <= seq_i + 8'd1;
           have_seq_r <= 1'b1;
+          //! Table 5.6 MEDIA_RESET: the toggle counted above (w_ev_mr_w);
+          //! here the level becomes this era's reference, seeded once
+          prev_mr_r   <= mr_i;
+          mr_seeded_r <= 1'b1;
 
-          delta_o <= 32'(signed'(w_crf_ts - ptp_now_i));
+          delta_o <= w_tsd;
 
           //! frequency error across the 256-PDU ring (512 ms): the BRAM
           //! port (ts_hist_port) reads old + writes new this cycle; the
@@ -289,6 +446,20 @@ module KL_crf_rx #(
           end
           hidx_r <= hidx_r + 1'b1;
         end
+      end
+
+      //! not-bound -> bound (Milan 5.3.8.10's era edge): nothing the
+      //! PREVIOUS binding left behind may be scored against the new one -
+      //! not its mr level (a phantom MEDIA_RESET) and not its sequence
+      //! cursor (a phantom SEQ_NUM_MISMATCH, and with it the very
+      //! STREAM_INTERRUPTED that Table 5.6 excludes for "a Controller
+      //! Unbind operation"). WINS over the accept branch above: a bind and
+      //! a PDU cannot land in the same cycle in practice, but the ordering
+      //! is stated, not left to luck
+      if (w_bind_rise_w) begin
+        mr_seeded_r <= 1'b0;
+        have_seq_r  <= 1'b0;
+        settle_r    <= '0;
       end
     end
   end : engine

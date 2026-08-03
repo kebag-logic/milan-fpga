@@ -9,15 +9,30 @@
 //
 // COUNTER SEMANTICS (Milan v1.2 Table 5.6, the 3c82068d reading applied to
 // the CRF Media Clock Input): pdu_count (FRAMES_RX), fmt_err
-// (UNSUPPORTED_FORMAT) and seq_err (SEQ_NUM_MISMATCH) are "incremented at
-// the end of every observation interval during which ..." — N events inside
-// one interval move a counter by exactly ONE, committed at the interval
-// tick. cnt_locked/cnt_unlocked stay per-event ("incremented each time").
-// The replica models the interval divider cycle-exactly (registered tick,
-// tick-cycle events harvested into the closing interval), so every per-PDU
-// compare below also pins the interval machinery. The dedicated
+// (UNSUPPORTED_FORMAT), seq_err (SEQ_NUM_MISMATCH), mr_cnt (MEDIA_RESET),
+// tu_cnt (TIMESTAMP_UNCERTAIN), late_cnt (LATE_TIMESTAMP) and early_cnt
+// (EARLY_TIMESTAMP) are "incremented at the end of every observation
+// interval during which ..." — N events inside one interval move a counter
+// by exactly ONE, committed at the interval tick. cnt_locked, cnt_unlocked
+// and cnt_intr (STREAM_INTERRUPTED) stay per-event ("incremented each
+// time"). The replica models the interval divider cycle-exactly (registered
+// tick, tick-cycle events harvested into the closing interval), so every
+// per-PDU compare below also pins the interval machinery. The dedicated
 // [Table 5.6] section is the mutation anchor: revert the RTL to per-frame
 // counting and a 10-PDU burst reads +10 where +1 is pinned.
+//
+// The [AVTP-5t] section pins the five counters that used to be advertised
+// in the 0xF3F mask and served as CONSTANT ZERO. Laws under test, mirroring
+// the AAF audit's [30a1-30g]/[IV8]/[IV9] pattern:
+//   MEDIA_RESET        the RECEIVED mr bit TOGGLING (byte O+1 bit 3); a
+//                      HELD mr counts nothing, and the era's first PDU
+//                      seeds without counting
+//   TIMESTAMP_UNCERTAIN the received tu bit (CRF alternative header: byte
+//                      O+1 bit 0, NOT the common header's byte O+3)
+//   LATE/EARLY         the CRF reference timestamp vs ptp_now: in the past
+//                      / further ahead than MAXTT_NS_P + 10 ms
+//   STREAM_INTERRUPTED per-EVENT, >= 2 lost AVTPDUs (no interval fold)
+// and in every case a REJECTED PDU counts none of them.
 //
 // Sampling contract: outputs are compared SETTLE_TICKS_C (4) cycles after
 // each frame pulse. The CSR consumers poll at ms scale (PDUs are 2 ms
@@ -36,6 +51,12 @@
 #ifndef IVAL_CYC_C
 #error "IVAL_CYC_C must come from the Makefile (the -GIVAL_CYC_P twin)"
 #endif
+#if !defined(MAXTT_NS_C) || !defined(EARLY_M_NS_C)
+#error "MAXTT_NS_C / EARLY_M_NS_C must come from the Makefile (RTL twins)"
+#endif
+// derived here exactly as the RTL derives EARLY_LIMIT_C from its two
+// parameters — the sum is never written down as a literal on either side
+static const uint32_t EARLY_LIMIT_C = MAXTT_NS_C + EARLY_M_NS_C;
 
 static VKL_crf_rx* dut;
 static long checks = 0, fails = 0;
@@ -70,9 +91,15 @@ struct Model {
     int      settle = 0;                 // 0..7
     bool     locked = false;
     uint32_t cnt_l = 0, cnt_u = 0;
+    uint32_t cnt_i = 0;                  // STREAM_INTERRUPTED (per-event)
     int32_t  delta = 0, rate = 0;
     uint16_t pdu = 0;                    // FRAMES_RX interval commits
     uint8_t  fmt_e = 0, seq_e = 0;       // UF / SM interval commits
+    uint16_t mr_c = 0, tu_c = 0;         // MR / TU interval commits
+    uint16_t lt_c = 0, et_c = 0;         // LATE / EARLY interval commits
+    // mr reference for the current binding era: seeded, not counted, by
+    // the era's first accepted PDU
+    bool     prev_mr = false, mr_seeded = false;
 
     // Table 5.6 interval machinery, cycle-exact mirror of iv_tick_gen +
     // the engine's commit/fold: iv_tick is REGISTERED (pulses the cycle
@@ -81,23 +108,33 @@ struct Model {
     uint32_t iv_div = 0;
     bool     iv_tick = false;
     bool     f_frx = false, f_uf = false, f_sm = false;
+    bool     f_mr = false, f_tu = false, f_lt = false, f_et = false;
 
-    void cycle(bool frx_ev, bool uf_ev, bool sm_ev) {
+    void cycle(bool frx_ev, bool uf_ev, bool sm_ev,
+               bool mr_ev, bool tu_ev, bool lt_ev, bool et_ev) {
         if (iv_tick) {
             if (f_frx || frx_ev) pdu++;
             if (f_uf  || uf_ev)  { if (fmt_e != 0xFF) fmt_e++; }
             if (f_sm  || sm_ev)  { if (seq_e != 0xFF) seq_e++; }
+            if (f_mr  || mr_ev)  mr_c++;   // 16-bit, wraps (Milan 5.3.8.10)
+            if (f_tu  || tu_ev)  tu_c++;
+            if (f_lt  || lt_ev)  lt_c++;
+            if (f_et  || et_ev)  et_c++;
             f_frx = f_uf = f_sm = false;
+            f_mr = f_tu = f_lt = f_et = false;
         } else {
             f_frx |= frx_ev; f_uf |= uf_ev; f_sm |= sm_ev;
+            f_mr  |= mr_ev;  f_tu |= tu_ev; f_lt |= lt_ev; f_et |= et_ev;
         }
         if (iv_div >= IVAL_CYC_C - 1) { iv_div = 0; iv_tick = true;  }
         else                          { iv_div++;   iv_tick = false; }
     }
 
-    void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp) {
+    void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp, bool mr) {
         if (have_seq && seq != exp_seq) {
             settle = 0;                  // discontinuity breaks the settle run
+            // STREAM_INTERRUPTED: "the loss of several AVTPDUs", per-event
+            if ((uint8_t)(seq - exp_seq) >= 2) cnt_i++;
         } else if (settle != 7) {
             settle++;
         } else if (!locked) {
@@ -105,6 +142,8 @@ struct Model {
         }
         exp_seq  = (uint8_t)(seq + 1);
         have_seq = true;
+        prev_mr  = mr;                   // seed/track the mr level
+        mr_seeded = true;
         delta = (int32_t)(uint32_t)(ts - ptp);
         if (hfill == DEPTH) {
             rate = (int32_t)(uint32_t)((ts - hist[hidx]) - 512000000ULL);
@@ -120,6 +159,7 @@ struct Model {
     void timeout() {                     // 100 ms without an accepted PDU
         if (locked) { locked = false; cnt_u++; }
         settle = 0; have_seq = false; hfill = 0;
+        mr_seeded = false;               // the mr level died with the stream
     }
 };
 
@@ -131,13 +171,16 @@ static const int SETTLE_TICKS_C = 4;     // sample point after each pulse
 
 // this-cycle Table 5.6 events, consumed by the next tick()
 static bool g_ev_frx = false, g_ev_uf = false, g_ev_sm = false;
+static bool g_ev_mr = false, g_ev_tu = false, g_ev_lt = false, g_ev_et = false;
 static bool g_in_reset = true;
 
 static void tick() {
     dut->clk_i = 0; dut->eval();
     dut->clk_i = 1; dut->eval();
-    if (!g_in_reset) m.cycle(g_ev_frx, g_ev_uf, g_ev_sm);
+    if (!g_in_reset) m.cycle(g_ev_frx, g_ev_uf, g_ev_sm,
+                             g_ev_mr, g_ev_tu, g_ev_lt, g_ev_et);
     g_ev_frx = g_ev_uf = g_ev_sm = false;
+    g_ev_mr = g_ev_tu = g_ev_lt = g_ev_et = false;
 }
 
 // run to the first cycle of a FRESH observation interval (model divider 1 =
@@ -147,6 +190,10 @@ static void align_interval() {
     while (m.iv_div != 1) tick();
 }
 
+// header-flag levels held across PDUs, exactly as the wire holds them:
+// mr is a LEVEL the talker toggles (1722-2016 10.4.3), tu a per-PDU flag
+static bool g_mr = false, g_tu = false;
+
 static void drive_fields(uint64_t ts, uint8_t seq) {
     dut->subtype_i   = 0x04;
     dut->type_i      = 0x01;
@@ -155,6 +202,17 @@ static void drive_fields(uint64_t ts, uint8_t seq) {
     dut->pullbase_i  = 48000;            // pull=0 | base 48000
     dut->fsh_i       = (8ULL << 48) | (96ULL << 32) | (ts >> 32);
     dut->fsh2_i      = (ts & 0xFFFFFFFFULL) << 32;
+    dut->mr_i        = g_mr;
+    dut->tu_i        = g_tu;
+}
+
+// Table 5.6 late/early verdict for a PDU, computed the way the RTL does
+static bool ts_late (uint64_t ts, uint64_t ptp) {
+    return (int32_t)(uint32_t)(ts - ptp) < 0;
+}
+static bool ts_early(uint64_t ts, uint64_t ptp) {
+    int32_t d = (int32_t)(uint32_t)(ts - ptp);
+    return d >= 0 && (uint32_t)d > EARLY_LIMIT_C;
 }
 
 static void pulse() {
@@ -169,8 +227,13 @@ static void compare(long no) {
     ckq("pdu_count_o",    no, dut->pdu_count_o,       m.pdu);
     ckq("fmt_err_o",      no, dut->fmt_err_o,         m.fmt_e);
     ckq("seq_err_o",      no, dut->seq_err_o,         m.seq_e);
+    ckq("mr_cnt_o",       no, dut->mr_cnt_o,          m.mr_c);
+    ckq("tu_cnt_o",       no, dut->tu_cnt_o,          m.tu_c);
+    ckq("late_cnt_o",     no, dut->late_cnt_o,        m.lt_c);
+    ckq("early_cnt_o",    no, dut->early_cnt_o,       m.et_c);
     ckq("cnt_locked_o",   no, dut->cnt_locked_o,      m.cnt_l);
     ckq("cnt_unlocked_o", no, dut->cnt_unlocked_o,    m.cnt_u);
+    ckq("cnt_intr_o",     no, dut->cnt_intr_o,        m.cnt_i);
 }
 
 // one accepted-good PDU: drive, pulse, settle, compare vs replica.
@@ -182,9 +245,13 @@ static void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp) {
     drive_fields(ts, seq);
     g_ev_frx = true;
     g_ev_sm  = (m.have_seq && seq != m.exp_seq);
+    g_ev_mr  = (m.mr_seeded && g_mr != m.prev_mr);
+    g_ev_tu  = g_tu;
+    g_ev_lt  = ts_late(ts, ptp);
+    g_ev_et  = ts_early(ts, ptp);
     pulse();
     for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-    m.good_pdu(ts, seq, ptp);
+    m.good_pdu(ts, seq, ptp, g_mr);
     compare(++g_pdu_no);
 }
 
@@ -205,9 +272,13 @@ int main(int argc, char** argv) {
     ck("reset: rate 0",   (int32_t)dut->rate_o, 0);
     ck("reset: unlocked", dut->locked_o, 0);
 
-    // disabled: matching PDUs must be ignored
+    // disabled: matching PDUs must be ignored.
+    // The nominal timelines put crf_ts AHEAD of ptp_now by 1 ms, which is
+    // what IEEE 1722-2016 10.7 mandates (T_CRF = source + Max Transit
+    // Time) and is inside the Table 5.6 window: a healthy CRF stream must
+    // tick NEITHER LATE_TIMESTAMP nor EARLY_TIMESTAMP.
     uint64_t ts  = 1000000000ULL;        // talker CRF timeline
-    uint64_t ptp = 1000500000ULL;        // observer gPTP timeline
+    uint64_t ptp =  999000000ULL;        // observer gPTP timeline
     drive_fields(ts, 0); dut->ptp_now_i = ptp;
     pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
     ck("disabled: pdu_count 0", dut->pdu_count_o, 0);
@@ -298,11 +369,15 @@ int main(int argc, char** argv) {
         drive_fields(ts, seq);
         int32_t old_rate = (int32_t)dut->rate_o;
         g_ev_frx = true;                 // accepted sequential PDU
+        g_ev_mr  = (m.mr_seeded && g_mr != m.prev_mr);
+        g_ev_tu  = g_tu;
+        g_ev_lt  = ts_late(ts, ptp);
+        g_ev_et  = ts_early(ts, ptp);
         pulse();
         int lat = 0;
         while ((int32_t)dut->rate_o == old_rate && lat <= 3) { tick(); lat++; }
         for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-        m.good_pdu(ts, seq, ptp); seq++;
+        m.good_pdu(ts, seq, ptp, g_mr); seq++;
         compare(++g_pdu_no);
         printf("  [info] rate_o update skew after pulse edge: %d cycle(s)\n", lat);
         ck("rate update skew <= 2 cycles", lat <= 2, 1);
@@ -411,6 +486,244 @@ int main(int argc, char** argv) {
     ck("2 rejects: UNSUPPORTED_FORMAT +1", dut->fmt_err_o, (uint8_t)(f0 + 1));
     ck("same interval's accepted PDUs: FRAMES_RX +1", dut->pdu_count_o,
        (uint16_t)(p0 + 1));
+
+    //-----------------------------------------------------------------------
+    // [AVTP-5t] The five Table 5.16 counters this engine used to advertise
+    // in the 0xF3F mask and serve as CONSTANT ZERO. Each gets its own law
+    // check, mirroring the AAF audit's [30a1-30g]/[IV8]/[IV9] pattern.
+    //-----------------------------------------------------------------------
+    printf("\n[AVTP-5t] the five formerly-constant Table 5.16 counters\n");
+
+    // -- a) baseline: a healthy stream moves NONE of them ------------------
+    {
+        align_interval();
+        uint16_t mr0 = dut->mr_cnt_o, tu0 = dut->tu_cnt_o;
+        uint16_t lt0 = dut->late_cnt_o, et0 = dut->early_cnt_o;
+        uint32_t si0 = dut->cnt_intr_o;
+        for (int n = 0; n < 6; n++) {
+            ts += 2000200; ptp += 2000000;
+            good_pdu(ts, seq++, ptp);
+        }
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-a1] clean stream: MEDIA_RESET still", dut->mr_cnt_o, mr0);
+        ck("[5t-a2] clean stream: TIMESTAMP_UNCERTAIN still",
+           dut->tu_cnt_o, tu0);
+        ck("[5t-a3] clean stream: LATE_TIMESTAMP still",
+           dut->late_cnt_o, lt0);
+        ck("[5t-a4] clean stream: EARLY_TIMESTAMP still",
+           dut->early_cnt_o, et0);
+        ck("[5t-a5] clean stream: STREAM_INTERRUPTED still",
+           dut->cnt_intr_o, si0);
+        ck("[5t-a6] and none of them is stuck at the old constant 0",
+           (long)(dut->pdu_count_o > 0), 1);
+    }
+
+    // -- b) MEDIA_RESET: the TOGGLE counts, a HELD mr counts nothing -------
+    {
+        align_interval();
+        uint16_t mr0 = dut->mr_cnt_o;
+        g_mr = true;                     // toggle 0 -> 1 on this PDU
+        ts += 2000200; ptp += 2000000;
+        good_pdu(ts, seq++, ptp);
+        ck("[5t-b1] mr toggle: uncommitted before the tick",
+           dut->mr_cnt_o, mr0);
+        for (int n = 0; n < 8; n++) {    // HELD at 1 (>= 8 PDUs, 10.4.3)
+            ts += 2000200; ptp += 2000000;
+            good_pdu(ts, seq++, ptp);
+        }
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-b2] one toggle + 8 held PDUs: MEDIA_RESET +1, not +9",
+           dut->mr_cnt_o, (uint16_t)(mr0 + 1));
+
+        align_interval();
+        for (int n = 0; n < 5; n++) {    // still held: nothing more
+            ts += 2000200; ptp += 2000000;
+            good_pdu(ts, seq++, ptp);
+        }
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-b3] a HELD mr counts nothing at all",
+           dut->mr_cnt_o, (uint16_t)(mr0 + 1));
+
+        // two toggles inside ONE interval fold to a single commit
+        align_interval();
+        g_mr = false; ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        g_mr = true;  ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-b4] two toggles in one interval: +1, not +2",
+           dut->mr_cnt_o, (uint16_t)(mr0 + 2));
+
+        // a REJECTED PDU carrying a toggle counts NOTHING (not even UF's
+        // sibling): the accept gate is upstream of every Table 5.6 verdict
+        align_interval();
+        uint16_t mrb = dut->mr_cnt_o;
+        uint8_t  ufb = dut->fmt_err_o;
+        g_mr = false;                    // would be a toggle if accepted
+        drive_fields(ts, seq);
+        dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);  // bad ival
+        g_ev_uf = true;
+        pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+        m.bad_pdu();
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-b5] rejected PDU: MEDIA_RESET untouched", dut->mr_cnt_o, mrb);
+        ck("[5t-b6] rejected PDU: UNSUPPORTED_FORMAT +1 (and only it)",
+           dut->fmt_err_o, (uint8_t)(ufb + 1));
+        g_mr = true;                     // the reject never moved the level
+    }
+
+    // -- c) TIMESTAMP_UNCERTAIN: per-interval, N tu PDUs -> +1 -------------
+    {
+        align_interval();
+        uint16_t tu0 = dut->tu_cnt_o;
+        g_tu = true;
+        for (int n = 0; n < 7; n++) {
+            ts += 2000200; ptp += 2000000;
+            good_pdu(ts, seq++, ptp);
+        }
+        ck("[5t-c1] tu burst: uncommitted before the tick",
+           dut->tu_cnt_o, tu0);
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-c2] 7 tu PDUs in one interval: +1, not +7",
+           dut->tu_cnt_o, (uint16_t)(tu0 + 1));
+        // second interval with tu set = a second commit
+        align_interval();
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-c3] a second tu interval: +1 more",
+           dut->tu_cnt_o, (uint16_t)(tu0 + 2));
+        g_tu = false;
+        align_interval();
+        for (int n = 0; n < 4; n++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-c4] tu clear: TIMESTAMP_UNCERTAIN stops",
+           dut->tu_cnt_o, (uint16_t)(tu0 + 2));
+    }
+
+    // -- d) LATE / EARLY: the CRF reference timestamp vs gPTP now ----------
+    {
+        align_interval();
+        uint16_t lt0 = dut->late_cnt_o, et0 = dut->early_cnt_o;
+        // 5 PDUs whose reference instant already passed (10.6's
+        // unreserved-stream case; Milan 7.3.3 says this must not happen).
+        // The gPTP observation instant is derived FROM the PDU's own
+        // timestamp, so the verdict does not ride the trajectory's drift.
+        for (int n = 0; n < 5; n++) {
+            ts += 2000200; ptp += 2000000;
+            good_pdu(ts, seq++, ts + 4000000);    // gPTP 4 ms past the ts
+        }
+        ck("[5t-d1] LATE uncommitted before the tick", dut->late_cnt_o, lt0);
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-d2] 5 late PDUs in one interval: LATE +1",
+           dut->late_cnt_o, (uint16_t)(lt0 + 1));
+        ck("[5t-d3] EARLY untouched by LATE PDUs", dut->early_cnt_o, et0);
+
+        // two more late intervals -> +2 (per-interval, not per-frame)
+        for (int k = 0; k < 2; k++) {
+            align_interval();
+            ts += 2000200; ptp += 2000000;
+            good_pdu(ts, seq++, ts + 4000000);
+            for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        }
+        ck("[5t-d4] LATE +2 across two more intervals",
+           dut->late_cnt_o, (uint16_t)(lt0 + 3));
+
+        // 4 PDUs further ahead than MAXTT + margin
+        align_interval();
+        for (int n = 0; n < 4; n++) {
+            ts += 2000200; ptp += 2000000;
+            good_pdu(ts, seq++, ts - (uint64_t)EARLY_LIMIT_C - 5000000ULL);
+        }
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-d5] 4 early PDUs in one interval: EARLY +1",
+           dut->early_cnt_o, (uint16_t)(et0 + 1));
+        ck("[5t-d6] LATE untouched by EARLY PDUs",
+           dut->late_cnt_o, (uint16_t)(lt0 + 3));
+
+        // exactly at the limit is still on time (strict >)
+        align_interval();
+        ts += 2000200; ptp += 2000000;
+        good_pdu(ts, seq++, ts - (uint64_t)EARLY_LIMIT_C);
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-d7] delta == the limit is NOT early",
+           dut->early_cnt_o, (uint16_t)(et0 + 1));
+
+        // the other boundary: crf_ts EXACTLY at gPTP now is not "in the
+        // past" - LATE is a strictly-negative delta
+        align_interval();
+        ts += 2000200; ptp += 2000000;
+        good_pdu(ts, seq++, ts);
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-d7b] delta == 0 is NOT late",
+           dut->late_cnt_o, (uint16_t)(lt0 + 3));
+
+        align_interval();
+        for (int n = 0; n < 4; n++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-d8] on-time PDUs move neither",
+           (long)(dut->late_cnt_o == (uint16_t)(lt0 + 3) &&
+                  dut->early_cnt_o == (uint16_t)(et0 + 1)), 1);
+    }
+
+    // -- e) STREAM_INTERRUPTED is PER-EVENT, never interval-folded ---------
+    {
+        align_interval();
+        uint32_t si0 = dut->cnt_intr_o;
+        uint8_t  s0  = dut->seq_err_o;
+        // ONE lost PDU is not "several": SEQ_NUM_MISMATCH only
+        ts += 2000200; ptp += 2000000;
+        seq += 1;                        // one gap
+        good_pdu(ts, seq++, ptp);
+        ck("[5t-e1] 1 lost AVTPDU: STREAM_INTERRUPTED unmoved",
+           dut->cnt_intr_o, si0);
+        // 3 discontinuities of >= 2 lost, all inside ONE interval: a
+        // per-event counter moves 3, an interval one would move 1
+        for (int n = 0; n < 3; n++) {
+            ts += 2000200; ptp += 2000000;
+            seq += 4;                    // 4 lost each time
+            good_pdu(ts, seq++, ptp);
+        }
+        ck("[5t-e2] 3 gaps in ONE interval: +3 immediately (per-event)",
+           dut->cnt_intr_o, si0 + 3);
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-e3] the interval tick adds nothing to it",
+           dut->cnt_intr_o, si0 + 3);
+        ck("[5t-e4] the same 4 gaps fold to ONE SEQ_NUM_MISMATCH",
+           dut->seq_err_o, (uint8_t)(s0 + 1));
+    }
+
+    // -- f) an unbind cannot be an interruption (clause exclusion) ---------
+    {
+        uint32_t si0 = dut->cnt_intr_o;
+        uint16_t mr0 = dut->mr_cnt_o;
+        dut->en_i = 0;                   // Controller Unbind
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        align_interval();
+        ts += 2000200; ptp += 2000000;   // frames keep arriving, unbound
+        seq += 9;
+        drive_fields(ts, seq);
+        pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-f1] unbound: STREAM_INTERRUPTED cannot move",
+           dut->cnt_intr_o, si0);
+        // rebind: the previous era's mr level must not score as a toggle
+        dut->en_i = 1;
+        g_mr = !g_mr;                    // new talker, opposite mr level
+        align_interval();
+        for (int n = 0; n < 3; n++) {
+            ts += 2000200; ptp += 2000000;
+            drive_fields(ts, seq);
+            pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+            seq++;
+        }
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-f2] rebind re-seeds mr: no phantom MEDIA_RESET",
+           dut->mr_cnt_o, mr0);
+        ck("[5t-f3] the unbind's own sequence jump is not an interruption",
+           dut->cnt_intr_o, si0);
+    }
 
     printf("======================================================================\n");
     printf("KL_crf_rx: %ld checks, %ld failures (%ld accepted PDUs pinned)\n",
