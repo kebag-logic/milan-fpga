@@ -327,6 +327,33 @@ applies to both. What the geometry changes is only how much of it the ring
 can swallow. That is why `a1`/`d1` is a coin flip: a 2-period ring survives
 until one of these lands.
 
+### The tolerance ceiling, and what period count can and cannot buy
+
+Because tolerance is `buffer − period`, and the buffer is pinned to the
+sub-ring at 4096 frames, the whole geometry space is this:
+
+| period | periods | tolerance | absorbs the measured 56 ms? | absorbs >100 ms? |
+|---|---|---|---|---|
+| 2048 | 2 | 42.7 ms | **no** | no |
+| 1024 | 4 | 64.0 ms | yes | no |
+| 512 | 8 | 74.7 ms | yes | no |
+| 256 | 16 | 80.0 ms | yes | no |
+| 128 | 32 | 82.7 ms | yes | no |
+
+Two consequences follow, and the second one is the important one:
+
+* **4 periods is already enough for the excursions actually measured.** The
+  jump from 2 → 4 periods is where the cliff is (42.7 → 64.0 ms, crossing
+  the 56 ms observed maximum); 8 → 16 → 32 buys 6, 5 and 3 ms respectively,
+  for steadily more per-period CPU.
+* **Tolerance can never exceed 85.3 ms — the ring itself — no matter how
+  many periods.** As period → 0, tolerance → `buffer`. So **no geometry
+  change can absorb an excursion longer than the ring.** If the fatal
+  `-EIO` events (§3) really are driven by >85 ms excursions, period count
+  cannot fix them; only removing the excursions or deepening the ring can.
+  That is a structural statement about this ring, not a tuning opinion, and
+  it is what re-opens the ring-depth question in §7.
+
 Two honest caveats on this table:
 
 * `b3` never actually spent its budget in steady state (21.4 ms of 42.7 ms).
@@ -585,14 +612,29 @@ is subtracted from it.
 Recommendations, in the order they are worth doing:
 
 1. **Make the survivable geometry the only geometry, in the driver.**
-   `periods_min` is 2 in `kl_milan_pb_hw`; the measured-safe configuration
-   is 8. A `snd_pcm_hw_constraint_minmax()` on `SNDRV_PCM_HW_PARAM_PERIODS`
-   at open (or raising `periods_min`) makes any player that does not know
-   the recipe get a survivable buffer by construction. The buffer is pinned
+   `snd-kl-milan.c:687` sets `.periods_min = 2` in `kl_milan_pb_hw`. Raise
+   it, or add a `snd_pcm_hw_constraint_minmax()` on
+   `SNDRV_PCM_HW_PARAM_PERIODS` in `kl_milan_pb_open()` next to the existing
+   buffer-bytes pin, so any player that does not know the `play-milan`
+   recipe gets a survivable geometry by construction. The buffer is pinned
    to the sub-ring either way, so more periods means smaller periods, never
-   a larger allocation. **Driver-only, no fabric, no DT.** The follow-up
-   pass `e4`–`e7` walks 2/4/8/16 periods at fixed priority to locate the
-   knee exactly, so the constant is measured rather than picked.
+   a larger allocation. **Driver-only, no fabric, no DT, no bitstream.**
+
+   **Choose the constant from the tolerance table (§4), not from survival
+   counts.** 4 periods already clears the largest measured excursion
+   (64.0 ms tolerance vs 56.2 ms), and 8 gives 74.7 ms for a little more
+   per-period CPU; beyond that the returns collapse (16 periods buys 5 ms,
+   32 buys 3 ms) while per-period overhead keeps rising. **`periods_min = 8`
+   is the recommended value** — it matches what already ships in
+   `play-milan`, keeps ~18 ms of headroom over the measured worst case, and
+   costs the ~10 CPU points §4 quantifies.
+
+   Note *why* this constant cannot be read off survival tests: at
+   `ktimers/0` 70 **every** geometry tried survived its 120 s window,
+   including 2 periods (`e4`) and 4 periods (`e5`), both with zero xruns.
+   The failures are rare tail events, so 120 s windows measure survival
+   probability far too coarsely to locate a knee. The arithmetic identity
+   does locate it; the survival runs only confirm nothing contradicts it.
 2. **Set the player's scheduling class, and say so.** `SCHED_OTHER` is the
    biggest single failure lever measured (480 xruns → death) and it is the
    default for anything that is not `play-milan`. This cannot be a driver
@@ -615,11 +657,23 @@ Recommendations, in the order they are worth doing:
 5. **Stop PipeWire for host playback** — worth 21.4% of the hart — but
    demote it from "required" to "reclaims a fifth of the CPU". `a4` proves
    playback survives with it running.
-6. **Do not deepen the ring for this.** 85.3 ms already exceeds every
-   observed stall; what fails is `buffer − period`, and that is fixed for
-   free by (1). Ring depth costs a bitstream round (fabric `PB_LEN` + DT +
-   driver must move together) and multiplies by stream count. Revisit only
-   if the `f`-pass stall hunt shows genuine multi-hundred-ms starvation.
+6. **Ring depth: not first, but no longer dismissable.** The earlier
+   position — "85.3 ms already exceeds every observed stall, so depth is
+   second-order" — is only half right. It is correct that (1) is free and
+   fixes the *measured* 50–56 ms excursions. But §4's ceiling shows
+   **tolerance can never exceed the ring**, so if the fatal `-EIO` events
+   are driven by excursions beyond ~85 ms, **no geometry change can reach
+   them** and depth becomes the only structural lever besides removing the
+   excursions themselves (4). Cost/benefit if it is taken up: the
+   `pcmring_pb` carve at `0x4fe00000` is 1 MiB, 8× the current `0x20000`
+   sub-ring, so 682.7 ms fits at `T_dt = 1` with no new memory — but fabric
+   `PB_LEN`, the reserved-memory window and `kl,playback-ring-stride` must
+   move **together** (a bitstream round), the stride must stay a power of
+   two, it multiplies by stream count (8 streams at that depth = 8 MiB), and
+   it adds latency 1:1. Fine for this host-playback path; do **not**
+   confuse it with the AVB listener path where presentation time governs.
+   **Do (1) and (4) first and re-measure the excursion tail** — if the tail
+   drops below 85 ms once the shell loops stop forking, depth is moot.
 7. **`aplay -M` is not the answer** (§5). Keep the `.copy` path.
 
 **Hedge on the open item:** recommendation (1) attacks the fatal mechanism
