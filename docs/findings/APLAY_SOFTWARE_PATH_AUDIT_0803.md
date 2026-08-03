@@ -72,9 +72,12 @@ the report is careful never to call them that:
 
 ### Observer effect, measured not assumed
 
-* An **interactive `ssh` session costs 8.6% of the hart** (`dropbear` doing
-  softcore crypto). Every measurement window below therefore runs
-  **detached** (`setsid nohup`), with no ssh attached.
+* An **interactive `ssh` session costs ~9.6% of the hart** — `dropbear`
+  burned 2.6 s of CPU over a 27.2 s window doing softcore crypto for one
+  session. (That figure is restated from the raw ticks: the run it came from
+  had the tick rate mis-derived as 112/s before the USER_HZ fix below, which
+  had under-reported it as 8.6%.) Every measurement window below therefore
+  runs **detached** (`setsid nohup`), with no ssh attached.
 * **`perf record -a -e context-switches -c 1` costs +1.7 points of CPU** and
   inflates the wake tail. Config `c1` is config `b1` with the recorder
   attached and nothing else changed:
@@ -262,18 +265,24 @@ time of writing.**
 
 The instrumented runs make the mechanism arithmetic rather than narrative.
 
-The writer is woken when `avail >= avail_min = period`, and it refills to
-full. So at steady state it holds exactly
+The writer is woken when `avail >= avail_min = period`; at that instant the
+ring holds `buffer − period` frames, and the one period it then writes tops
+the ring back up to full. So the ring runs dry exactly `buffer` frames after
+a write, and the *next* wake was due one period after that write. The
+quantity that decides survival is therefore
 
-> **drain margin = buffer − period frames**
+> **tolerable lateness = buffer − period frames**
 
-of audio ahead of the hardware pointer. That is measured, not assumed —
-`delay at wake` lands on it exactly:
+— how late a single wake may be before the ring empties. That is measured,
+not assumed: `delay at wake` lands on `buffer − period` exactly.
 
-| config | period | buffer | margin (frames) | margin (ms) | measured `delay` p50 | measured `delay` max |
+| config | period | buffer | tolerance (frames) | tolerance (ms) | measured `delay` p50 | measured `delay` max |
 |---|---|---|---|---|---|---|
-| `b3` | 2048 | 4096 | 2048 | **42.7** | 1932 | 2048 |
-| `b1` | 512 | 4096 | 3584 | **74.7** | 3518 | 3584 |
+| `b3` | 2048 | 4096 | 2048 | **42.7** | 1932 | **2048** |
+| `b1` | 512 | 4096 | 3584 | **74.7** | 3518 | **3584** |
+
+The `delay` maxima are `buffer − period` to the frame — 2048 and 3584 — which
+is the identity above, measured rather than argued.
 
 And the wake-interval tails are **the same size in both configurations**,
 because they come from the same system, not from the geometry:
@@ -288,16 +297,43 @@ because they come from the same system, not from the geometry:
 Nominal period is 10.667 ms at 512 frames and 42.667 ms at 2048; the p50s
 land on nominal to within 0.1%, so **the hrtimer cadence itself is correct**.
 
-Put the two together and the whole survival table falls out of one
-comparison:
+The wake *interval* is not directly comparable across geometries — subtract
+the nominal period to get the **lateness**, which is the thing the tolerance
+budget is spent on:
 
-> **worst observed stall ≈ 60–67 ms.**
-> At 2 periods the margin is 42.7 ms → the ring drains → xrun.
-> At 8 periods the margin is 74.7 ms → the ring survives.
+| config | period | nominal | max interval | **max lateness** | tolerance | headroom left |
+|---|---|---|---|---|---|---|
+| `b1` | 512 | 10.67 ms | 66.9 ms | **56.2 ms** | 74.7 ms | 18.4 ms |
+| `b4` | 512 | 10.67 ms | 60.1 ms | **49.4 ms** | 74.7 ms | 25.2 ms |
+| `c1` | 512 | 10.67 ms | 59.7 ms | **49.0 ms** | 74.7 ms | 25.6 ms |
+| `b2` | 512 (mmap) | 10.67 ms | 20.1 ms | **9.4 ms** | 74.7 ms | 65.2 ms |
+| `b3` | 2048 | 42.67 ms | 64.1 ms | **21.4 ms** | 42.7 ms | 21.2 ms |
 
-`b3`'s single xrun is recorded with its cause attached:
-`t=160 ms, preceding wake 64 096 µs, avail=2918` — one 64.1 ms stall against
-a 42.7 ms margin.
+Now the survival table falls out of one comparison:
+
+> **Lateness excursions of ~50–56 ms were observed repeatedly** (`b1` 56.2,
+> `b4` 49.4, `c1` 49.0). At 8 periods the tolerance is 74.7 ms and they are
+> absorbed. **At 2 periods the tolerance is 42.7 ms and any of them is
+> fatal.**
+
+The excursions are a property of the *system* — soft-hrtimer service on a
+saturated 1-hart RT kernel — not of the geometry, so the same distribution
+applies to both. What the geometry changes is only how much of it the ring
+can swallow. That is why `a1`/`d1` is a coin flip: a 2-period ring survives
+until one of these lands.
+
+Two honest caveats on this table:
+
+* `b3` never actually spent its budget in steady state (21.4 ms of 42.7 ms).
+  Its one xrun is recorded with its cause attached —
+  `t=160 ms, preceding wake 64 096 µs, avail=2918` — and `avail=2918` means
+  the ring held only 1 178 frames (24.5 ms) at the time, i.e. this xrun is a
+  **start-up transient**, before the ring first reached full. It is not
+  evidence about steady state.
+* The 120 s windows here caught max latenesses of 56 ms; the fatal `a1`/`a6`
+  events imply excursions beyond 100 ms (§3) that no probe window happened
+  to contain. The distribution's tail is therefore **bounded below, not
+  characterised** — a longer soak would be needed to state it.
 
 This is why **the binding constraint is neither CPU nor the copy path**.
 Both point the other way: the *stock, fatal* geometry is the **cheaper** one.
