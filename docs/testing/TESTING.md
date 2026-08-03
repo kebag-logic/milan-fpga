@@ -190,6 +190,7 @@ rather than trusting the row count here.
 | `tb/verilator/acmp` | PASS | — |
 | `tb/verilator/acmp_lstn` | PASS | — |
 | `tb/verilator/adp` | PASS | — |
+| `tb/verilator/aempatch` | PASS | 92 checks — the E4 AEM dynamic-state ingest port (CSR 0x7C8-0x7D4). Central leg is a **round trip**: restore a stream format over CSR with ADP down, advertise, read it back over a normal `GET_STREAM_FORMAT`. Second executable gates the store's write-port arbitration at the RAM directly, because the frame level cannot collide the two masters — a mutation campaign is what found that. 10 of 10 injected defects caught |
 | `tb/verilator/adp_parser` | PASS | 228 checks — ADP receive; the one suite with `-Wno-fatal` deliberately absent, so `%Error-ENUMVALUE` is a build failure |
 | `tb/verilator/adp_tx` | PASS | — |
 | `tb/verilator/aecp` | PASS | — |

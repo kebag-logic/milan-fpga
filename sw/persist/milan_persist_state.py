@@ -29,20 +29,30 @@ the difference is the whole point of this file:
                         restore both work TODAY on gateware >= 0x0019.
 
   ``"csr"``             a plain CSR write puts the value back.  Works today.
+                        Since gateware ``0x0022`` this includes the E4 AEM
+                        patch port (CSR ``0x7C8-0x7D4``, ``KL_aem_patch``),
+                        which is the write master ``KL_aecp_aem_store`` never
+                        had: software names a DESCRIPTOR and a FIELD, the
+                        fabric resolves the byte range from the generated
+                        ``WB_*`` tables, revalidates the payload through the
+                        same acceptance the AECP setter applies, and refuses
+                        the whole group while ``ADP_CTRL[0]`` is set.
 
   ``None``              NO INGEST PATH EXISTS.  ``gap`` names precisely what is
                         missing.  For every one of these the value CAN be saved
                         (it is readable over AECP or CSR) but CANNOT be put
-                        back, because the state lives in ``KL_aecp_aem_store``'s
-                        BRAM and that RAM's write port is driven solely by
-                        ``KL_aecp_response_builder``'s SET_* write-back
-                        (``hdl/ieee17221/aecp/KL_aecp_top.sv`` lines 261-264 and
-                        346-347).  No CSR reaches it, and a self-addressed AECP
-                        command cannot reach it either - the AECP parser taps
-                        the RX path, and a unicast frame a board sends to its
-                        own MAC is never forwarded back to the sending port.
-                        Closing these needs the E4 fabric port specified in
-                        ``docs/design/SAVED_STATE_FASTCONNECT.md``.
+                        back.  Until 2026-08-03 this was the whole AEM store,
+                        whose write port was driven solely by
+                        ``KL_aecp_response_builder``'s SET_* write-back; the E4
+                        port closed that.  What remains is narrower and lives
+                        one level further in - register FILES inside the
+                        response builder (the presentation-offset array, the
+                        live clock-source shadow, the dynamic channel maps,
+                        the descriptor-name pointer cone) that have no slave
+                        port of their own.  The E4 port answers those by NAME
+                        (verdict ``VD_FIELD``) rather than by silence, so a
+                        daemon learns the field is unserved instead of
+                        believing a no-op restored it.
 
 CLAUSES THAT REQUIRE THE OPPOSITE.  Milan 5.3.4.1 and 5.3.4.2 say the locked
 state and the registered-controller list are CLEARED by a power cycle.  They are
@@ -121,9 +131,16 @@ PERSIST_ITEMS = [
         scope="per-descriptor", descriptor="STREAM_INPUT", width_words=2,
         read="AECP GET_STREAM_FORMAT(STREAM_INPUT, idx); also the 0x800 window "
              "words 0x824/0x828 for the bound stream",
-        restore=None,
-        gap="AEM store byte range WB_STRIN_FMT_ADDR_C[idx] has no software "
-            "write path (E4 fabric port required)",
+        restore="csr",
+        restore_note="E4 AEM patch port, CSR 0x7C8-0x7D4 (KL_aem_patch, "
+                     "gateware >= 0x0022): SEL {0x0005, idx}, FIELD 0, two "
+                     "DATA words MSW-first, CTRL commit. Accepted ONLY while "
+                     "ADP_CTRL[0] is clear, and revalidated against this "
+                     "descriptor's own AEM_STRIN_FMT_C entry. Residual: the "
+                     "RX monitor's live compare shadow (fmt_in0_r, index 0 "
+                     "only) does not follow - it is an internal reference, "
+                     "not state this clause names",
+        gap=None,
     ),
     dict(
         key="strout_fmt", clause="5.3.7.1", pdf_line=1758,
@@ -132,9 +149,13 @@ PERSIST_ITEMS = [
               "restored after a power cycle.",
         scope="per-descriptor", descriptor="STREAM_OUTPUT", width_words=2,
         read="AECP GET_STREAM_FORMAT(STREAM_OUTPUT, idx)",
-        restore=None,
-        gap="AEM store byte range WB_STROUT_FMT_ADDR_C[idx] has no software "
-            "write path (E4 fabric port required)",
+        restore="csr",
+        restore_note="E4 AEM patch port, CSR 0x7C8-0x7D4 (gateware >= 0x0022): "
+                     "SEL {0x0006, idx}, FIELD 0. A Stream Output accepts ONLY "
+                     "its declared format (declared == transmitted), so the "
+                     "restore is a no-op unless the descriptor was patched "
+                     "away from it in the first place",
+        gap=None,
     ),
     dict(
         key="bound", clause="5.3.8.2", pdf_line=1942,
@@ -158,6 +179,21 @@ PERSIST_ITEMS = [
         scope="per-descriptor", descriptor="STREAM_INPUT", width_words=6,
         read="CSR 0x6A8/0x6AC talker eid; 0x800 window 0x860/0x864 controller "
              "eid, 0x868 {flags, talker_unique_id}",
+        #: 5.3.8.1-style clauses say WHAT to keep; these two say WHEN to write
+        #: it, and one of them is an ERASE.  5.5.2.4 (Controller Bind): "The
+        #: Listener stores the binding parameters contained in the
+        #: BIND_RX_COMMAND message ... in non-volatile memory in order to
+        #: enable the stream to be quickly reestablished after a power cycle
+        #: and/or network disruption."  5.5.3.5.3 and its siblings: "then save
+        #: them to non volatile memory" - note Milan spells it UNHYPHENATED
+        #: outside 5.3, which is a live trap for anyone re-deriving these
+        #: quotes with a hyphen-only grep.  And 5.3.8.3 itself closes with
+        #: "The binding parameters are cleared when the Stream Input gets
+        #: unbound", matched by "Clear the saved binding parameters." in the
+        #: same 5.5.3.5.x steps: a store that KEEPS a record after UNBIND_RX
+        #: violates this clause exactly as surely as one that never wrote it.
+        #: The journal's VALID[30]=0 hole is how that erase is represented.
+        also_clauses=["5.5.2.4", "5.5.3.5.3"],
         restore="fabric-journal",
         gap=None,
     ),
@@ -183,7 +219,8 @@ PERSIST_ITEMS = [
              "per-output file lives in KL_aecp_response_builder (pres_offset_o)",
         restore=None,
         gap="the presentation-offset file is a response-builder register array "
-            "with no CSR write port (E4 fabric port required)",
+            "with no slave port; the E4 patch port reserves FIELD 3 for it "
+            "and answers VD_FIELD until that port exists",
     ),
     dict(
         key="samp_rate", clause="5.3.5.1", pdf_line=1684,
@@ -192,9 +229,12 @@ PERSIST_ITEMS = [
               "memory and restored after a power cycle.",
         scope="per-descriptor", descriptor="AUDIO_UNIT", width_words=1,
         read="AECP GET_SAMPLING_RATE(AUDIO_UNIT, idx)",
-        restore=None,
-        gap="AEM store byte range WB_SAMPLING_RATE_C has no software write "
-            "path (E4 fabric port required)",
+        restore="csr",
+        restore_note="E4 AEM patch port, CSR 0x7C8-0x7D4 (gateware >= 0x0022): "
+                     "SEL {0x0002, 0}, FIELD 1, ONE DATA word. Revalidated "
+                     "against the generated AEM_RATES_C list, so a rate this "
+                     "entity never advertised cannot be restored into it",
+        gap=None,
     ),
     dict(
         key="clock_src", clause="5.3.11.1", pdf_line=2187,
@@ -203,10 +243,19 @@ PERSIST_ITEMS = [
               "memory and restored after a power cycle.",
         scope="per-descriptor", descriptor="CLOCK_DOMAIN", width_words=1,
         read="AECP GET_CLOCK_SOURCE(CLOCK_DOMAIN, idx)",
+        #: DELIBERATELY STILL OPEN, and the narrowest gap in this list. The E4
+        #: port restores the DESCRIPTOR (CSR 0x7C8, FIELD 2), so
+        #: GET_CLOCK_SOURCE answers with the saved index - but the live
+        #: selector clk_src_r inside KL_aecp_response_builder has no slave
+        #: port, so the FABRIC would still be clocking from the boot default.
+        #: An entity that reports a source it is not using is a worse answer
+        #: than one that admits the revert, so this stays unmet until the
+        #: shadow follows.
         restore=None,
-        gap="AEM store byte range WB_CLOCK_SRC_IDX_C has no software write "
-            "path; the live shadow clk_src_r in KL_aecp_response_builder has "
-            "no CSR write port either (E4 fabric port required)",
+        gap="descriptor bytes restorable via the E4 port (CSR 0x7C8 FIELD 2, "
+            "gateware >= 0x0022), but the LIVE selector clk_src_r in "
+            "KL_aecp_response_builder still has no write port - a restore "
+            "would report a source the fabric is not actually using",
     ),
     dict(
         key="omap", clause="5.3.9.1", pdf_line=2151,
@@ -218,8 +267,8 @@ PERSIST_ITEMS = [
         read="AECP GET_AUDIO_MAP(STREAM_PORT_OUTPUT, idx, page) walk",
         restore=None,
         gap="the output dynamic-map store is written only by "
-            "ADD/REMOVE_AUDIO_MAPPINGS inside KL_aecp_response_builder "
-            "(E4 fabric port required)",
+            "ADD/REMOVE_AUDIO_MAPPINGS inside KL_aecp_response_builder; the "
+            "E4 patch port reaches the AEM store, not that register file",
     ),
     dict(
         key="imap", clause="5.3.10.1", pdf_line=2171,
@@ -231,8 +280,8 @@ PERSIST_ITEMS = [
         read="AECP GET_AUDIO_MAP(STREAM_PORT_INPUT, idx, page) walk",
         restore=None,
         gap="the input dynamic-map store is written only by "
-            "ADD/REMOVE_AUDIO_MAPPINGS inside KL_aecp_response_builder "
-            "(E4 fabric port required)",
+            "ADD/REMOVE_AUDIO_MAPPINGS inside KL_aecp_response_builder; the "
+            "E4 patch port reaches the AEM store, not that register file",
     ),
     dict(
         key="names", clause="5.3.13", pdf_line=2255,
@@ -251,7 +300,10 @@ PERSIST_ITEMS = [
         restore_note="ENTITY name only, via CSR 0x724/0x728 (OVL_ENT_NAME8_C); "
                      "every other descriptor's name is an AEM store write-back "
                      "and needs the E4 port",
-        gap="all names except the ENTITY descriptor's (E4 fabric port required)",
+        gap="all names except the ENTITY descriptor's: SET_NAME resolves its "
+            "store address through KL_aecp_accessor's descriptor-name pointer "
+            "cone, which the E4 patch port has no requester on - FIELD 4 is "
+            "reserved for it and answers VD_FIELD until it does",
     ),
     # ---- the two clauses that require the OPPOSITE ------------------------
     dict(

@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 88 modules · 86 with a dedicated TB · 0 exercised-only · 52 field-fuzzed · 1 archived · **0 not in any TB**
+**Totals:** 89 modules · 87 with a dedicated TB · 0 exercised-only · 53 field-fuzzed · 1 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -32,8 +32,8 @@ xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["milan", "ieee1722", "ieee8021as", "common", "ieee17221", "ieee8021q"]
     y-axis "modules" 0 --> 35
-    bar [2, 34, 5, 10, 18, 19]
-    bar [1, 33, 5, 10, 18, 19]
+    bar [2, 34, 5, 10, 19, 19]
+    bar [1, 33, 5, 10, 19, 19]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
@@ -44,7 +44,7 @@ The solid bar is the modules carrying a dedicated Verilator testbench; the pale 
 | IEEE 1722 (AVTP) | 34 | 33 | 0 | 30 | 0 | 0 |
 | IEEE 802.1AS | 5 | 5 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
-| IEEE 1722.1 (ATDECC) | 18 | 18 | 0 | 18 | 0 | 0 |
+| IEEE 1722.1 (ATDECC) | 19 | 19 | 0 | 19 | 0 | 0 |
 | IEEE 802.1Q | 19 | 19 | 0 | 0 | 0 | 0 |
 
 ## 🗄️ Archived modules (no open-flow test is possible)
@@ -69,16 +69,17 @@ _ADP / ACMP / AECP-AEM-MVU_
 | ✅ `adp_advertiser` | `ieee17221/adp/adp_advertiser.sv` | `adp` · `adp_advertise` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make adp` | — |
 | 📦 `adp_pkg` | `ieee17221/adp/adp_pkg.sv` | 🔬`make adp` | — |
 | ✅ `adp_tx_arbiter` | `ieee17221/adp/adp_tx_arbiter.sv` | `adp_tx` · `hostplane` · `milan_dp` · 🔬`make adp` | — |
-| ✅ `KL_aecp_accessor` | `ieee17221/aecp/KL_aecp_accessor.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
-| ✅ `KL_aecp_aem_dyn_mux` | `ieee17221/aecp/KL_aecp_aem_dyn_mux.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
-| ✅ `KL_aecp_aem_store` | `ieee17221/aecp/KL_aecp_aem_store.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
-| ✅ `KL_aecp_common_parser` | `ieee17221/aecp/KL_aecp_common_parser.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
-| ✅ `KL_aecp_ingress` | `ieee17221/aecp/KL_aecp_ingress.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
-| ✅ `KL_aecp_l0_state` | `ieee17221/aecp/KL_aecp_l0_state.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
-| ✅ `KL_aecp_packet_validator` | `ieee17221/aecp/KL_aecp_packet_validator.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
-| ✅ `KL_aecp_response_builder` | `ieee17221/aecp/KL_aecp_response_builder.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
-| ✅ `KL_aecp_timers` | `ieee17221/aecp/KL_aecp_timers.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
-| ✅ `KL_aecp_top` | `ieee17221/aecp/KL_aecp_top.sv` | `aecp` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_aecp_accessor` | `ieee17221/aecp/KL_aecp_accessor.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_aecp_aem_dyn_mux` | `ieee17221/aecp/KL_aecp_aem_dyn_mux.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_aecp_aem_store` | `ieee17221/aecp/KL_aecp_aem_store.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_aecp_common_parser` | `ieee17221/aecp/KL_aecp_common_parser.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_aecp_ingress` | `ieee17221/aecp/KL_aecp_ingress.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_aecp_l0_state` | `ieee17221/aecp/KL_aecp_l0_state.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_aecp_packet_validator` | `ieee17221/aecp/KL_aecp_packet_validator.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_aecp_response_builder` | `ieee17221/aecp/KL_aecp_response_builder.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_aecp_timers` | `ieee17221/aecp/KL_aecp_timers.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_aecp_top` | `ieee17221/aecp/KL_aecp_top.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_aem_patch` | `ieee17221/aecp/KL_aem_patch.sv` | `aempatch` · ➰aecp,hostplane,milan_dp · 🔬`make aecp` | — |
 | ✅ `KL_persist_journal` | `ieee17221/aecp/KL_persist_journal.sv` | `persist` · ➰hostplane,milan_dp · 🔬`make aecp` | 5.5.1.4, 5.5.2.6, M-ACMP-9 |
 | 📦 `aecp_pkg` | `ieee17221/aecp/aecp_pkg.sv` | 🔬`make aecp` | — |
 

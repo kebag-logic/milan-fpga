@@ -157,6 +157,26 @@ package aecp_pkg;
   localparam [7:0] MCR_DEFAULT_PRIO_C = 8'd192;
 
   // ------------------------------------------------------------------ //
+  // Stream-format family mask (Milan v1.2 §6.4)                          //
+  //                                                                      //
+  // A SET_STREAM_FORMAT is accepted when it matches the descriptor's     //
+  // declared format in every field EXCEPT channels_per_frame (bits       //
+  // 31:22) and the ut bit (52) — the advertised 48k entry is a ut-string //
+  // covering counts 1..8, and a SET must be CONCRETE on that base.       //
+  // Masking both out is what "one of the supported formats" means here.  //
+  //                                                                      //
+  // It lives in the package because TWO engines now apply that same      //
+  // acceptance to the same generated reference tables:                   //
+  // KL_aecp_response_builder's SET_* arm and KL_aem_patch's boot-time    //
+  // restore (Milan 5.3.8.1 / 5.3.7.1). A second copy of a constant is    //
+  // the defect docs/limitations/RECURRING_DEFECT_PATTERNS.md is about —  //
+  // it agrees on day one and diverges in silence, and here the two       //
+  // readers disagreeing would mean a format the SET path rejects can be  //
+  // installed by the restore path, or the reverse.                       //
+  // ------------------------------------------------------------------ //
+  localparam [63:0] AEM_FMT_BASE_MASK_C = ~((64'h3FF << 22) | (64'h1 << 52));
+
+  // ------------------------------------------------------------------ //
   // Sizing constants                                                     //
   // ------------------------------------------------------------------ //
   //! Max bounded controllers for unsolicited table

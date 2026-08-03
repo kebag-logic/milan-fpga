@@ -14,7 +14,7 @@ durable place to keep the binding, and the boot-time sequence that replays it.
 
 - **[1. Status ledger — proven vs designed-only](#1-status-ledger--proven-vs-designed-only)** — Read first: a row per piece saying what is in gateware, what is Verilator-proven, and what is designed-only because it cannot be executed without a board. The page never claims "persistence works".
 - **[2. What is saved, and what is deliberately not](#2-what-is-saved-and-what-is-deliberately-not)** — Milan saves a *binding*, not a *connection* — so `stream_id`, dest MAC and VLAN are deliberately cleared and re-probed. Restoring a stale multicast DMAC would point the listener at a reservation that no longer exists.
-- **[2b. The clause inventory](#2b-the-clause-inventory--every-milan-persistence-shall-and-what-holds-it)** — Generated from `sw/persist/milan_persist_state.py`: all ELEVEN Milan persistence SHALLs (5.3.8.1 is one row of eleven), the two SHALL-NOTs that require the opposite, and per clause whether this build can put the value back. Seven cannot, and the reason is one sentence: the AEM store's write port has no software master.
+- **[2b. The clause inventory — every Milan persistence SHALL, and what holds it](#2b-the-clause-inventory--every-milan-persistence-shall-and-what-holds-it)** — Generated from `sw/persist/milan_persist_state.py`: all ELEVEN Milan persistence SHALLs (5.3.8.1 is one row of eleven), the two SHALL-NOTs that require the opposite, and per clause whether this build can put the value back. Seven could not until the E4 port landed at gateware `0x0022`; **four still cannot**, and they share a shape — they live in response-builder register files, not in the AEM store, so another CSR group cannot reach them. Re-verified line by line against the PDF on 2026-08-03: no misattribution, no misquote, nothing missing.
 - **[3. The as-built fabric enablers](#3-the-as-built-fabric-enablers)** — The two register groups this design builds on, recapped so the page stands alone: E1 `0x7A0-0x7B4` injects the 5.5.3.5.2 entry record (and refuses rather than merges when the context is already bound), E2 `0x860/0x864/0x868` is the read side the writer daemon learns from.
 - **[4. The journal record format — KLJ1 v1](#4-the-journal-record-format--klj1-v1)** — The whole on-flash container: 6-word header, records, CRC last. The trick worth internalising is that a record *is* the six E1 register writes in register order, so encoder, decoder and register map cannot drift. §4.4 gives a 52-byte worked image whose CRC is pinned in the testbench.
 - **[5. Where it lives in the 16 MB QSPI](#5-where-it-lives-in-the-16-mb-qspi)** — The flash map before and after the carve, and why there are two partitions: `journal` is raw so "a torn write cannot damage the other slot" is flash geometry rather than a filesystem promise, `/user` is jffs2 for things that want files. The Arty gets neither slot — it has ~15 KB of rootfs headroom — and degrades to booting unbound.
@@ -23,8 +23,8 @@ durable place to keep the binding, and the boot-time sequence that replays it.
 - **[8. CSR ingest group 0x7B8-0x7C4 — the integration contract](#8-csr-ingest-group-0x7b8-0x7c4--the-integration-contract)** — The four-register ABI and its verdict codes, still living in a testbench wrapper rather than `milan_csr`. Names the one piece of integration not built: the `rest_*` arbiter between the journal master and the manual `0x7B4` commit path.
 - **[9. The write path — when the journal is saved](#9-the-write-path--when-the-journal-is-saved)** — The daemon's read-compose-write loop through the `0x800` window, and two traps carried from the running system: a snapshot that is not fresh reads literal `0` (so `stream_id` 0 means "not fresh", not "no bind"), and whoever polls `0x800` owns it.
 - **[10. Kernel / boot-side work](#10-kernel--boot-side-work)** — Four items, one landed. The open edge is item 4: `deploy.sh` computes each slot ceiling from the next *image* offset and never reads the new `reserved` key, so an oversized rootfs would be accepted and would overwrite `journal` and `user` — a one-line fix in `do_flash_images()`. Also: reads alone unblock the restore half, so the write path is not on the critical path.
-- **[10b. Feasibility verdict — can Linux write this flash?](#10b-feasibility-verdict--can-linux-write-this-flash-answered-2026-08-03)** — Answered with kernel config, DTS, csr.csv and the shipping board tool: yes, through the LiteSPI master, and it already does. `/proc/mtd` is empty *permanently* (no `litex,spiflash` driver exists here or upstream), which is why it was the wrong store probe. Names the two defects the verdict exposed: a journal sector inside the wrong partition, and a DT bank base 0x800 off.
-- **[10c. E4 — the AEM dynamic-state ingest port](#10c-e4--the-aem-dynamic-state-ingest-port-the-actual-blocker)** — The minimal fabric change that closes the other seven clauses: a descriptor-addressed patch port at `0x7C8-0x7D4` that resolves byte ranges from the SAME generated `WB_*_ADDR_C` tables `SET_STREAM_FORMAT` uses, revalidates through the same acceptance test, and is accepted ONLY while ADP is disabled — so "replay before advertise" becomes structural. ~2-3 desk days.
+- **[10b. Feasibility verdict — can Linux write this flash? (answered 2026-08-03)](#10b-feasibility-verdict--can-linux-write-this-flash-answered-2026-08-03)** — Answered with kernel config, DTS, csr.csv and the shipping board tool: yes, through the LiteSPI master, and it already does. `/proc/mtd` is empty *permanently* (no `litex,spiflash` driver exists here or upstream), which is why it was the wrong store probe. Names the two defects the verdict exposed: a journal sector inside the wrong partition, and a DT bank base 0x800 off.
+- **[10c. E4 — the AEM dynamic-state ingest port (the actual blocker)](#10c-e4--the-aem-dynamic-state-ingest-port-the-actual-blocker)** — **LANDED at gateware `0x0022`.** The write master the AEM store never had: a descriptor-addressed patch port at `0x7C8-0x7D4` that resolves byte ranges from the SAME generated `WB_*_ADDR_C` tables `SET_STREAM_FORMAT` uses, revalidates through the same acceptance test, and is accepted ONLY while ADP is disabled — so "replay before advertise" is structural rather than procedural. Closes 5.3.8.1, 5.3.7.1 and 5.3.5.1 and narrows 5.3.11.1; the plan's claim that it would close all seven was wrong, and the section says why.
 - **[11. Bench recipe for the flash half](#11-bench-recipe-for-the-flash-half)** — Seven gates G0-G6 with the actual `devmem` sequences, each falsifiable alone so a failure localises. G2 proves replay end to end without any writable mtd; G3 budgets under ~10 s to SETTLED; G6 is the power-cut-during-write drill that earns the whole design.
 - **[12. Why KL_aecp_nv_overlay was not reused](#12-why-kl_aecp_nv_overlay-was-not-reused)** — The prior art turned out to be a stub, but its framing shaped one real decision: it aimed at descriptor-field persistence, which is how a persistence feature becomes unbounded. Scope here is bindings only, and the `FMT_VER` major is what lets the container grow later without old gateware misreading it.
 - **[13. What tb/verilator/persist proves](#13-what-tbverilatorpersist-proves)** — 96 checks against the unmodified shipping `KL_acmp_lstn_ctx`, group by group. `[J2]` is the load-bearing one — damage in the *last* record leaves the first two sinks untouched, which is exactly what a streaming applier would get wrong.
@@ -91,20 +91,35 @@ readable.
 
 Milan v1.2 puts **eleven** unconditional persistence SHALLs on a PAAD-AE, not
 one. §5.3.8.1 (the clause task #62 was opened on) is the most visible because a
-controller sets a stream format and watches it revert, but it is one row:
+controller sets a stream format and watches it revert, but it is one row.
+
+> **Re-verified against the PDF 2026-08-03.** All thirteen rows — the eleven
+> SHALLs and the two SHALL-NOTs — were checked clause number, heading and
+> sentence against
+> `Milan_Specification_Consolidated_v1.2_Final_Approved 20231130.pdf`. **No
+> misattribution, no misquote, no wrong line number**, and an exhaustive sweep
+> of clause 5.3 for `non.?volatile` / `power.?cycle` / `shall be saved` finds
+> exactly eleven and exactly two: the inventory is a bijection onto the spec.
+> Two things the pass added rather than corrected: Milan spells it **"non
+> volatile" (unhyphenated) outside 5.3**, so re-deriving these quotes with a
+> hyphen-only grep under-reports (5.5.2.4 and every 5.5.3.5.x step); and
+> §5.3.8.3 closes with *"The binding parameters are cleared when the Stream
+> Input gets unbound"*, so keeping a record after `UNBIND_RX` breaks the clause
+> as surely as never writing one — which is what the journal's `VALID[30] = 0`
+> hole represents. Both are now recorded in `PERSIST_ITEMS`.
 
 | Clause | State | Scope | Restore path | Status |
 |---|---|---|---|---|
-| 5.3.8.1 | STREAM_INPUT current format | per-descriptor | none | **OPEN** - AEM store byte range WB_STRIN_FMT_ADDR_C[idx] has no software write path (E4 fabric port required) |
-| 5.3.7.1 | STREAM_OUTPUT current format | per-descriptor | none | **OPEN** - AEM store byte range WB_STROUT_FMT_ADDR_C[idx] has no software write path (E4 fabric port required) |
+| 5.3.8.1 | STREAM_INPUT current format | per-descriptor | csr | **restorable today** |
+| 5.3.7.1 | STREAM_OUTPUT current format | per-descriptor | csr | **restorable today** |
 | 5.3.8.2 | STREAM_INPUT bound state | per-descriptor | fabric-journal | **restorable today** |
 | 5.3.8.3 | STREAM_INPUT binding parameters | per-descriptor | fabric-journal | **restorable today** |
 | 5.3.8.7 | STREAM_INPUT started/stopped state | per-descriptor | fabric-journal | **restorable today** |
-| 5.3.7.6 | STREAM_OUTPUT presentation time offset | per-descriptor | none | **OPEN** - the presentation-offset file is a response-builder register array with no CSR write port (E4 fabric port required) |
-| 5.3.5.1 | AUDIO_UNIT current sampling rate | per-descriptor | none | **OPEN** - AEM store byte range WB_SAMPLING_RATE_C has no software write path (E4 fabric port required) |
-| 5.3.11.1 | CLOCK_DOMAIN current clock source | per-descriptor | none | **OPEN** - AEM store byte range WB_CLOCK_SRC_IDX_C has no software write path; the live shadow clk_src_r in KL_aecp_response_builder has no CSR write port either (E4 fabric port required) |
-| 5.3.9.1 | STREAM_PORT_OUTPUT channel mappings | per-descriptor | none | **OPEN** - the output dynamic-map store is written only by ADD/REMOVE_AUDIO_MAPPINGS inside KL_aecp_response_builder (E4 fabric port required) |
-| 5.3.10.1 | STREAM_PORT_INPUT channel mappings | per-descriptor | none | **OPEN** - the input dynamic-map store is written only by ADD/REMOVE_AUDIO_MAPPINGS inside KL_aecp_response_builder (E4 fabric port required) |
+| 5.3.7.6 | STREAM_OUTPUT presentation time offset | per-descriptor | none | **OPEN** - the presentation-offset file is a response-builder register array with no slave port; the E4 patch port reserves FIELD 3 for it and answers VD_FIELD until that port exists |
+| 5.3.5.1 | AUDIO_UNIT current sampling rate | per-descriptor | csr | **restorable today** |
+| 5.3.11.1 | CLOCK_DOMAIN current clock source | per-descriptor | none | **OPEN** - descriptor bytes restorable via the E4 port (CSR 0x7C8 FIELD 2, gateware >= 0x0022), but the LIVE selector clk_src_r in KL_aecp_response_builder still has no write port - a restore would report a source the fabric is not actually using |
+| 5.3.9.1 | STREAM_PORT_OUTPUT channel mappings | per-descriptor | none | **OPEN** - the output dynamic-map store is written only by ADD/REMOVE_AUDIO_MAPPINGS inside KL_aecp_response_builder; the E4 patch port reaches the AEM store, not that register file |
+| 5.3.10.1 | STREAM_PORT_INPUT channel mappings | per-descriptor | none | **OPEN** - the input dynamic-map store is written only by ADD/REMOVE_AUDIO_MAPPINGS inside KL_aecp_response_builder; the E4 patch port reaches the AEM store, not that register file |
 | 5.3.13 | User names (entity, configuration, cluster, clock domain, ...) | per-descriptor | csr | **restorable today** |
 | 5.3.4.1 | Locked state - MUST NOT persist | global | n/a | **must NOT persist** (satisfied: nothing saves it) |
 | 5.3.4.2 | Registered controller list - MUST NOT persist | global | n/a | **must NOT persist** (satisfied: nothing saves it) |
@@ -116,13 +131,27 @@ purpose — a broader store must not quietly start keeping them:
 * **5.3.4.2** — *"The list of registered controllers is cleared by a power
   cycle."*
 
-**The shape of the gap is not "no flash".** It is that seven of the eleven live
-in `KL_aecp_aem_store`'s BRAM (or in a response-builder register file), whose
-write port is driven *solely* by `KL_aecp_response_builder`'s SET_* write-back
-— `hdl/ieee17221/aecp/KL_aecp_top.sv` lines 261-264 and 346-347. No CSR reaches
-it. Nor can a self-addressed AECP command: the AECP parser taps the **RX** path,
-and a unicast frame the board sends to its own MAC is never forwarded back to
-the sending port. Saving those seven works today; putting them back needs §15.
+**The shape of the gap was never "no flash".** It was that seven of the eleven
+lived in `KL_aecp_aem_store`'s BRAM (or in a response-builder register file),
+whose write port was driven *solely* by `KL_aecp_response_builder`'s SET_*
+write-back. No CSR reached it. Nor could a self-addressed AECP command: the
+AECP parser taps the **RX** path, and a unicast frame the board sends to its own
+MAC is never forwarded back to the sending port. Saving those seven always
+worked; putting them back had no path at all.
+
+**§10c closed the store half on 2026-08-03** (gateware `0x0022`). The E4 patch
+port at `0x7C8-0x7D4` is that missing write master, and it takes three clauses
+from OPEN to restorable — 5.3.8.1, 5.3.7.1, 5.3.5.1 — while narrowing 5.3.11.1
+to its live-shadow residue. **Four remain**, and they share one shape: they do
+not live in the AEM store at all, but in *register files inside the response
+builder* — the presentation-offset array (5.3.7.6), the live clock selector
+(5.3.11.1), and the two dynamic channel maps (5.3.9.1 / 5.3.10.1) — plus the
+non-ENTITY names (5.3.13), whose store address is resolved by
+`KL_aecp_accessor`'s descriptor-name pointer cone that the patch port has no
+requester on. Each needs a slave port on that module, not another CSR group.
+The patch port reserves field codes `3` and `4` for exactly those cases and
+refuses them **by name** (`VD_FIELD`), so the gap is legible from software
+instead of presenting as a silent no-op.
 
 ---
 
@@ -579,9 +608,49 @@ improvement and it is **not on the critical path for any Milan clause**.
 
 ## 10c. E4 — the AEM dynamic-state ingest port (the actual blocker)
 
-Seven of the eleven clauses in §2b cannot be restored because the AEM store's
-write port has no software master. This is the minimal fabric change that closes
-all seven at once, and it deliberately reuses everything the journal already has.
+> **LANDED 2026-08-03, gateware `0x0022`.** Engine
+> [`KL_aem_patch.sv`](../../hdl/ieee17221/aecp/KL_aem_patch.sv), instantiated
+> inside `KL_aecp_top` beside the store it writes; CSR decode in
+> [`milan_csr.sv`](../../hdl/common/csr/milan_csr.sv); executable spec and
+> gate in [`tb/verilator/aempatch`](../../tb/verilator/aempatch) — 92 checks,
+> **10 of 10 injected defects caught**. Register detail:
+> [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) §`0x7C8`.
+>
+> **Area: +523 LUT, +143 FF, +10 CARRY4, 0 BRAM, 0 DSP** on `KL_aecp_top`
+> (yosys OOC, 8x8 shape: 12 642 → 13 165). The engine alone measures 355 LUT
+> / 143 FF standalone. Three spellings were measured rather than argued, and
+> two of them mattered: selecting the format REFERENCE before comparing,
+> instead of computing an input and an output verdict side by side, saved
+> **148 LUT**; writing the store's second master as a priority `if/else-if`
+> instead of muxing the address into one write statement saved **229 LUT**,
+> because a muxed address on a 22 625-entry memory makes the tools build
+> address decode. The estimate above them: these figures reproduce exactly
+> for a given source, but removing three *dead* wires once moved the total by
+> 145 LUT, so treat ~1 % as structural jitter and distrust any claim smaller
+> than that. Also priced and declined: narrowing all three memory indices to
+> silence two pre-existing width findings costs **285 LUT**; only the new
+> port's index is narrowed (70 LUT), which is what the lint ratchet needs.
+>
+> **What it closes, and what it does not.** Three clauses moved OPEN →
+> restorable (5.3.8.1, 5.3.7.1, 5.3.5.1) and 5.3.11.1 narrowed to its live
+> shadow. It did **not** close all seven, and the reason is worth keeping: the
+> other four are not in the AEM store. They are register files *inside*
+> `KL_aecp_response_builder` — the presentation-offset array, the live clock
+> selector, the two dynamic channel maps — plus the non-ENTITY names, whose
+> address comes from `KL_aecp_accessor`'s pointer cone. A CSR group cannot
+> reach any of them; each needs a slave port on that module. The plan below
+> said "closes all seven" and that was the one thing in it that was wrong.
+>
+> Deviations from the plan as written, both deliberate: field `3`
+> (presentation offset) and field `4` (name) are **registered and refused**
+> with verdict `VD_FIELD` rather than implemented, so an unserved field is
+> legible from software instead of silent; and the 5.3.10.1 dynamic-map prune
+> is not run, because this port cannot change a Stream Input's channel count
+> without also being able to write the map file it would prune.
+
+Seven of the eleven clauses in §2b could not be restored because the AEM store's
+write port had no software master. This was the minimal fabric change to fix
+that, and it deliberately reuses everything the journal already has.
 
 **Shape.** A new CSR group `0x7C8-0x7D4` (free space: the map runs `0x7A0-0x7C4`
 then jumps to `0x7C8`… `0x800`, so no `>= 0x800` read carve-out is involved):
@@ -761,6 +830,108 @@ table — check `0x860-0x868` for every sink against the two known-good record
 sets. A verdict of `6` on the first push followed by `1` on the second is the
 expected, healthy outcome.
 
+### G7 — the E4 AEM patch port (bench, not yet run)
+
+The port is desk-green (`tb/verilator/aempatch`, 92 checks, 10/10 mutations
+caught) and has never been on silicon. Run this on the next flash. It needs no
+flash writes at all — every gate below is a `devmem` sequence plus one AECP
+read, so it is safe to run before trusting the port with a real restore.
+
+**Gate on `VERSION` first.** `devmem 0x90000004` must read `0x00010022` or
+higher. On older gateware the writes below go nowhere and `0x7D4` reads `0`,
+which is indistinguishable from "idle, nothing attempted" — the version probe
+is the only way to tell, exactly as for the `0x7B8` group.
+
+CSR base is `0x9000_0000` (the AXI-Lite window in `milan_soc.py`), so the group
+is `0x900007C8` … `0x900007D4`.
+
+```sh
+V=0x90000000
+SEL=$((V+0x7C8)); FLD=$((V+0x7CC)); DAT=$((V+0x7D0)); CTL=$((V+0x7D4))
+ADP=$((V+0x600))
+
+devmem $((V+0x004))          # MUST read 0x00010022 or higher
+devmem $ADP                  # note the current value; bit 0 is the gate
+```
+
+**G7a — the refusal, done FIRST.** With ADP still enabled (the normal running
+state, `ADP_CTRL[0] = 1`), attempt a patch and require it to be refused. Doing
+this before anything else means a port that is silently accepting writes on a
+live entity is caught before it can move a byte:
+
+```sh
+devmem $SEL w 0x00050003     # STREAM_INPUT, index 3
+devmem $FLD w 0x0           # field 0 = stream format
+devmem $DAT w 0x02050220
+devmem $DAT w 0x00806000     # the 2-channel member of the declared family
+devmem $CTL w 0x1           # commit
+devmem $CTL                  # -> verdict [7:4] MUST be 2 (ADP), [19] MUST be 1
+```
+
+**Movement that proves it:** `0x7D4[7:4] == 2` and `0x7D4[31] == 0` (never went
+busy). Then confirm nothing changed — a `GET_STREAM_FORMAT(STREAM_INPUT, 3)`
+from the controller host still returns the descriptor's declared format. If the
+verdict is `1` here, **stop**: the gate is not working and the port must not be
+used.
+
+**G7b — the round trip.** Drop the advertiser, restore, bring it back:
+
+```sh
+devmem $ADP w 0x00001F00     # ADP_CTRL enable=0, valid_time=31 (the reset value)
+devmem $SEL w 0x00050003
+devmem $FLD w 0x0
+devmem $DAT w 0x02050220
+devmem $DAT w 0x00806000
+devmem $CTL w 0x1
+devmem $CTL                  # -> [7:4] == 1 ACCEPT, [11:8] == 8 bytes, [31] == 0
+devmem $ADP w 0x00001F01     # advertise again
+```
+
+**Movement that proves it:** `0x7D4` reads verdict `1` with `[11:8] = 8`, and
+then — the actual clause — a controller `GET_STREAM_FORMAT(STREAM_INPUT, 3)`
+returns `0x0205022000806000` instead of the ROM default `0x0205022002006000`.
+Hive or `la_avdecc` both show it; so does the raw-socket tool. A byte moving in
+a register is not the test — the entity *answering* with the restored value is.
+
+**G7c — validation on real silicon.** Still with ADP down, push a format the
+entity does not declare and require a refusal:
+
+```sh
+devmem $ADP w 0x00001F00
+devmem $SEL w 0x00050003; devmem $FLD w 0x0
+devmem $DAT w 0x02050220; devmem $DAT w 0x02406000   # 9 channels
+devmem $CTL w 0x1
+devmem $CTL                  # -> [7:4] MUST be 6 (VALUE)
+```
+
+**Movement:** verdict `6`, and the GET still returns whatever G7b left. Repeat
+with `$SEL w 0x00050009` (index past the shape) and expect verdict `3` (DESC),
+and with `$FLD w 0x4` and expect verdict `4` (FIELD) — that last one is the
+honest "names are not served here" answer, not a failure.
+
+**G7d — sampling rate and clock source.** One `AEMP_DATA` word each; note the
+payload is **left-aligned**, so the 16-bit clock-source index sits in the top
+half of its word:
+
+```sh
+devmem $SEL w 0x00020000; devmem $FLD w 0x1; devmem $DAT w 0x0000BB80
+devmem $CTL w 0x1; devmem $CTL     # -> verdict 1, [11:8] == 4
+devmem $SEL w 0x00240000; devmem $FLD w 0x2; devmem $DAT w 0x00020000
+devmem $CTL w 0x1; devmem $CTL     # -> verdict 1, [11:8] == 2
+```
+
+**Movement:** `GET_SAMPLING_RATE(AUDIO_UNIT, 0)` reads 48000 and
+`GET_CLOCK_SOURCE(CLOCK_DOMAIN, 0)` reads 2. **Known limitation, expected:** the
+fabric's live clock selector does **not** follow — 5.3.11.1 is still recorded as
+open for exactly this reason, and seeing the descriptor change while the media
+clock stays put is the *correct* observation, not a defect to chase.
+
+**G7e — the whole point, end to end.** Reboot the board. Have the init script
+run G7b's sequence from the saved value before it enables ADP. A controller
+that connects afterwards must see the restored format on the first read, with
+no `SET_STREAM_FORMAT` from anyone. That is Milan 5.3.8.1 satisfied on silicon,
+and it is the first time this repo can claim it.
+
 ---
 
 ## 12. Why `KL_aecp_nv_overlay` was not reused
@@ -832,11 +1003,25 @@ generic cells with no vendor primitives (`hierarchy -check` clean).
    `0xf0005000`; every build's `csr.csv` on this host says `0xf0004800`.
    `check_dtb_csr.py` now refuses the mismatch — run it against the SHIPPING
    RV32 build's own `csr.csv`, which is the only artefact that can decide it.
-5. **E4, the AEM dynamic-state ingest port (§10c).** The one change that closes
-   the other seven clauses of §2b. ~2-3 desk days; lands with the next area
-   round because the RV32 fit is packing-bound.
-6. G1-G3 on a board — noting G1 (`cat /proc/mtd`) is now known to be
+5. ~~E4, the AEM dynamic-state ingest port (§10c)~~ — **DONE 2026-08-03**,
+   gateware `0x0022` (`KL_aem_patch.sv`, `milan_csr` `A_AEMP_SEL/FIELD/DATA/
+   CTRL`, `tb/verilator/aempatch`). It closed **three** of the seven, not
+   seven: 5.3.8.1, 5.3.7.1, 5.3.5.1, plus the descriptor half of 5.3.11.1.
+6. **A response-builder saved-state slave port** — the successor to E4 and the
+   only thing left between this build and the full eleven. The remaining four
+   clauses are not in the AEM store at all: 5.3.7.6 is the `pres_offset` array,
+   5.3.11.1's residue is the `clk_src_r` selector, 5.3.9.1 / 5.3.10.1 are the
+   dynamic-map files, and 5.3.13's non-ENTITY names need a requester on
+   `KL_aecp_accessor`'s name-pointer cone. All five live inside
+   `KL_aecp_response_builder`, so one small slave port on that module serves
+   them all, and `KL_aem_patch` already reserves field codes `3` and `4` to
+   route to it. **Coordinate before starting**: that file is the hottest in the
+   repo and has had two lanes in it this week.
+7. G7 on a board (§11) — the E4 port has never been on silicon. It needs no
+   flash writes, so it can run on the next flash regardless of what else is
+   being tested.
+8. G1-G3 on a board — noting G1 (`cat /proc/mtd`) is now known to be
    *permanently* empty and has been replaced as the store probe by
    `milan-persist probe`.
-7. G4-G6 (the write path, the reboot drill, the torn-write drill). The writer
+9. G4-G6 (the write path, the reboot drill, the torn-write drill). The writer
    itself already ships as `acmp-persist watch`.

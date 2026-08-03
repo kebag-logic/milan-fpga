@@ -19,6 +19,27 @@
                 flush of aem-and-aecp.md §NV is a follow-up; factory_reset_i
                 is accepted but only reloads on FPGA reconfiguration.
 
+                SECOND WRITE MASTER (pw_*, 2026-08-03). KL_aem_patch restores
+                saved dynamic state into this RAM at boot (Milan v1.2 §5.3.5.1
+                / 5.3.7.1 / 5.3.8.1 / 5.3.11.1 — "shall be saved in a
+                non-volatile memory and restored after a power cycle").
+                Arbitration is HERE rather than in the parent so the rule is a
+                property of the RAM and not of whoever wires it:
+
+                  * the SET_* write-back ALWAYS wins the cycle. A controller
+                    command in flight is live traffic; the restore is not.
+                  * a losing patch write is NOT DROPPED, it is NOT ACKED.
+                    pw_ack_o is the handshake, and KL_aem_patch holds its byte
+                    until it lands. Silently discarding the byte would leave a
+                    descriptor field half-restored, which is the one failure
+                    mode a persistence port must not have.
+
+                The two masters are quiescent at different times by design —
+                the patch port only accepts commands while the ADP advertiser
+                is disabled — so this arbiter should never actually fire. It
+                exists because "should never" is not "cannot": a controller
+                that already knows the MAC can still command a silent entity.
+
                 Live/runtime fields (entity_id, MAC, ...) are zero in the RAM
                 and overlaid at read time by KL_aecp_aem_dyn_mux.
 
@@ -42,6 +63,12 @@ module KL_aecp_aem_store (
   input  wire  [15:0]  wr_addr_i,
   input  wire          wr_i,
   input  wire  [7:0]   wr_data_i,
+  //! saved-state patch master (KL_aem_patch): loses every cycle wr_i wants,
+  //! and is told so by pw_ack_o rather than losing the byte
+  input  wire  [15:0]  pw_addr_i,
+  input  wire          pw_wr_i,
+  input  wire  [7:0]   pw_data_i,
+  output wire          pw_ack_o,
   input  wire          factory_reset_i,
   output logic         flush_in_progress_o
 );
@@ -51,16 +78,57 @@ module KL_aecp_aem_store (
   //! Descriptor image RAM + MVU scratch tail (BRAM-inferred, generator init)
   logic [7:0] mem_r [0:AEM_STORE_BYTES_C-1];
 
+  //! The ports carry 16-bit byte addresses because that is the AEM store's
+  //! ABI, while the array is smaller than 64 KiB in every shape — so an
+  //! unsliced index is a Verilator width finding. Slicing is NOT free here:
+  //! narrowing all three indices measured **+285 LUTs** on KL_aecp_top
+  //! (13 095 -> 13 380, yosys OOC at the 8x8 shape), which is a bad trade on
+  //! a device this build is already ~2 600 LUTs over.
+  //!
+  //! So exactly ONE index is sliced: the new patch port's, which is the one
+  //! that would otherwise push hdl/ieee17221/aecp past its lint ratchet.
+  //! That single slice costs 70 LUTs (13 095 -> 13 165) instead of 285. The
+  //! builder's read and write indices are left as they have always been —
+  //! their two findings are inside the ratchet, and buying them out would
+  //! cost silicon to satisfy a style rule. Truncation is unreachable either
+  //! way: every address reaching this module comes from a generated WB_*
+  //! table or KL_aecp_accessor's directory, all bounded by the same constant
+  //! that sizes the array.
+  localparam int unsigned AEM_AW_C = $clog2(AEM_STORE_BYTES_C);
+  wire [AEM_AW_C-1:0] w_pwaddr = pw_addr_i[AEM_AW_C-1:0];
+
   initial begin
     for (int k = 0; k < AEM_ROM_BYTES_C; k++) mem_r[k] = AEM_ROM_INIT_C[k];
     for (int k = AEM_ROM_BYTES_C; k < AEM_STORE_BYTES_C; k++) mem_r[k] = 8'h00;
   end
 
+  //! Two masters, builder priority (see the banner). pw_ack_o IS the
+  //! arbitration result, so the patch engine can hold a losing byte.
+  assign pw_ack_o = pw_wr_i && !wr_i;
+
+  //! SPELLING MATTERS HERE, AND IT WAS MEASURED. The obvious form muxes the
+  //! address and data into one write statement:
+  //!     w_waddr = wr_i ? wr_addr_i : pw_addr_i;  ... mem_r[w_waddr] <= ...
+  //! which costs **229 more LUTs** — a controlled A/B with nothing else
+  //! changed, yosys OOC on KL_aecp_top at the 8x8 shape: 13 324 muxed vs
+  //! 13 095 below. A muxed address on a 22 625-entry memory makes the tools
+  //! build address-decode logic instead of leaving the write port alone.
+  //! The priority if/else-if is behaviourally identical — the builder still
+  //! wins every contended cycle, and tb/verilator/aempatch's store leg
+  //! proves it byte by byte.
+  //!
+  //! Read that number with its noise floor. These OOC figures are exactly
+  //! reproducible for a given source (13 095 twice), but removing three
+  //! DEAD wires from this file once moved the total by 145 LUTs, so ~1 % of
+  //! structural jitter rides on any comparison at this granularity. 229 is
+  //! comfortably outside it; a 50-LUT claim would not have been.
   always_ff @(posedge clk_i) begin
     if (rd_i)
       data_o <= mem_r[addr_i];
     if (wr_i)
       mem_r[wr_addr_i] <= wr_data_i;
+    else if (pw_wr_i)
+      mem_r[w_pwaddr] <= pw_data_i;
   end
 
   //! Factory reset: volatile store — nothing to flush until the NV overlay

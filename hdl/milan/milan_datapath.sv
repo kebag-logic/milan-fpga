@@ -1749,6 +1749,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        cfg_jnl_start_w, cfg_jnl_wr_w, cfg_jnl_end_w, cfg_jnl_abort_w;
   wire [31:0] cfg_jnl_data_w;
   wire [31:0] jnl_stat_w, jnl_seq_w;
+  //! E4 AEM dynamic-state patch port (0x7C8-0x7D4). The engine lives inside
+  //! KL_aecp_top, next to the store it writes and to the enable bit that
+  //! gates it, so nothing but the CSR strobes crosses this boundary.
+  wire        cfg_aemp_sel_w, cfg_aemp_field_w, cfg_aemp_data_w;
+  wire        cfg_aemp_commit_w, cfg_aemp_abort_w;
+  wire [31:0] cfg_aemp_wdata_w, aemp_stat_w;
 
   //! item-11 AAF per-stage latency taps (LTAP CSR group, base 0x870):
   //! 16 packed RO words + status feed milan_csr; en/clr come back from it.
@@ -2069,6 +2075,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_jnl_abort        (cfg_jnl_abort_w),
     .i_jnl_stat         (jnl_stat_w),
     .i_jnl_seq          (jnl_seq_w),
+    //! AEM dynamic-state patch port 0x7C8-0x7D4 (E4)
+    .o_aemp_wdata       (cfg_aemp_wdata_w),
+    .o_aemp_sel_p       (cfg_aemp_sel_w),
+    .o_aemp_field_p     (cfg_aemp_field_w),
+    .o_aemp_data_p      (cfg_aemp_data_w),
+    .o_aemp_commit_p    (cfg_aemp_commit_w),
+    .o_aemp_abort_p     (cfg_aemp_abort_w),
+    .i_aemp_stat        (aemp_stat_w),
     .o_srp_ctx_req      (csr_srp_ctx_req),
     .o_srp_ctx_we       (csr_srp_ctx_we),
     .o_srp_ctx_idx      (csr_srp_ctx_idx),
@@ -2660,6 +2674,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .m_axis_tdata (aecp_tx_tdata), .m_axis_tkeep (aecp_tx_tkeep),
     .m_axis_tvalid(aecp_tx_tvalid), .m_axis_tlast (aecp_tx_tlast),
     .m_axis_tready(aecp_tx_tready),
+    //! E4 saved-state ingest (CSR 0x7C8-0x7D4). enable_i above IS the gate:
+    //! the same cfg_adp_enable that starts the advertiser closes this port.
+    .pat_wdata_i    (cfg_aemp_wdata_w),
+    .pat_sel_p_i    (cfg_aemp_sel_w),
+    .pat_field_p_i  (cfg_aemp_field_w),
+    .pat_data_p_i   (cfg_aemp_data_w),
+    .pat_commit_p_i (cfg_aemp_commit_w),
+    .pat_abort_p_i  (cfg_aemp_abort_w),
+    .pat_stat_o     (aemp_stat_w),
     .locked_o(aecp_locked), .current_config_o(aecp_current_config),
     .cmd_count_o(aecp_cmd_count), .resp_count_o(aecp_resp_count)
   );

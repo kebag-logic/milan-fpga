@@ -170,6 +170,20 @@ module KL_aecp_top #(
   output wire          m_axis_tlast,
   input  wire          m_axis_tready,
 
+  // ---- saved-state AEM ingest (E4, CSR 0x7C8-0x7D4) -------------------
+  //! The boot-time restore master for the AEM store's dynamic fields — the
+  //! half of Milan v1.2 §5.3 persistence the SET_* write-back could not
+  //! provide (see KL_aem_patch.sv). One-cycle strobes + the written word,
+  //! shaped exactly like the 0x7B8 journal group next door. Every one of
+  //! them is refused while enable_i (= cfg_adp_enable, 0x600[0]) is HIGH.
+  input  wire [31:0]   pat_wdata_i,
+  input  wire          pat_sel_p_i,
+  input  wire          pat_field_p_i,
+  input  wire          pat_data_p_i,
+  input  wire          pat_commit_p_i,
+  input  wire          pat_abort_p_i,
+  output wire [31:0]   pat_stat_o,
+
   // ---- status / counters ---------------------------------------------
   output wire          locked_o,
   output wire [15:0]   current_config_o,
@@ -267,11 +281,35 @@ module KL_aecp_top #(
 
   always_ff @(posedge clk_i) st_raddr_d1 <= st_raddr_w;
 
+  //! saved-state restore master (E4). It shares the store's write port with
+  //! the SET_* write-back above and always yields to it; the store hands back
+  //! pw_ack_w so a byte that loses a cycle is retried, never dropped.
+  logic [15:0] pw_addr_w;
+  logic        pw_wr_w, pw_ack_w;
+  logic [7:0]  pw_data_w;
+
   KL_aecp_aem_store u_store (
     .clk_i(clk_i), .rst_n(rst_n),
     .addr_i(st_raddr_w), .rd_i(st_rd_w), .data_o(st_rom_byte_w),
     .wr_addr_i(st_waddr_w), .wr_i(st_wr_w), .wr_data_i(st_wdata_w),
+    .pw_addr_i(pw_addr_w), .pw_wr_i(pw_wr_w), .pw_data_i(pw_data_w),
+    .pw_ack_o(pw_ack_w),
     .factory_reset_i(1'b0), .flush_in_progress_o()
+  );
+
+  //! THE ADP GATE IS enable_i. milan_datapath drives it from cfg_adp_enable
+  //! (0x600[0]) — the same bit that starts the advertiser — so "replay
+  //! before you advertise" is a wiring fact, not a runbook step.
+  KL_aem_patch u_patch (
+    .clk_i(clk_i), .rst_n(rst_n),
+    .adp_enable_i(enable_i),
+    .pat_wdata_i(pat_wdata_i),
+    .pat_sel_p_i(pat_sel_p_i), .pat_field_p_i(pat_field_p_i),
+    .pat_data_p_i(pat_data_p_i), .pat_commit_p_i(pat_commit_p_i),
+    .pat_abort_p_i(pat_abort_p_i),
+    .pw_addr_o(pw_addr_w), .pw_wr_o(pw_wr_w), .pw_data_o(pw_data_w),
+    .pw_ack_i(pw_ack_w),
+    .stat_o(pat_stat_o)
   );
 
   KL_aecp_aem_dyn_mux u_dyn (

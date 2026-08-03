@@ -532,7 +532,10 @@ module KL_aecp_response_builder (
   //! channels field (bits 31:22) and the ut bit (52) so concrete SETs
   //! compare against either list entry. 96k/192k dropped with the
   //! honesty pass (the render path is 48k-only).
-  localparam [63:0] FMT_BASE_MASK_C = ~((64'h3FF << 22) | (64'h1 << 52));
+  //! the mask itself now lives in aecp_pkg (AEM_FMT_BASE_MASK_C) because
+  //! KL_aem_patch applies the SAME acceptance on the boot-restore path; the
+  //! local name is kept so the arms below read unchanged
+  localparam [63:0] FMT_BASE_MASK_C = AEM_FMT_BASE_MASK_C;
   wire [9:0]  w_fmt_ch    = w_set_fmt[31:22];
   wire [63:0] w_fmt_chm   = w_set_fmt & FMT_BASE_MASK_C;
 `ifdef AEM_PER_STREAM_FMT
