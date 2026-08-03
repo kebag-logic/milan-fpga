@@ -678,16 +678,28 @@ module KL_acmp_lstn_ctx #(
   //! A pass STARTS by fetching ctx 0 in the very cycle the cause is seen, so
   //! the commit of ctx c still lands on start+1+c — the single-sink module's
   //! event-application cadence, unchanged by the pipeline.
-  wire w_swp_start = init_done_r && !swp_active_r && w_swp_pending;
+  //! deferred by one cycle while a restore holds its data phase, which is what
+  //! lets THAT write be built from registers alone (see w_rest_go)
+  wire w_swp_start = init_done_r && !swp_active_r && w_swp_pending && !rest_ph_r;
+  //! ADDRESS-phase grant. Drives rd_idx_w ONLY — never a write enable, which
+  //! is why it may carry w_swp_pending (a live compare of the lwSRP
+  //! ta_registered_i/ta_failed_i levels against the serviced snapshots).
   wire w_swp_own   = (swp_active_r || w_swp_start) &&
                      !w_frame_latch && !w_launch_ok && !w_ram_busy_w;
   //! fetch pointer for THIS cycle (the start cycle fetches ctx 0)
   wire [IDX_W_C-1:0] swp_fetch_idx_w = w_swp_start ? '0 : IDX_W_C'(swp_ra_r);
   wire               swp_fetch_ok_w  = w_swp_start ? 1'b1
                                      : (swp_ra_r < RA_W_C'(N_SINKS_P));
-  //! the commit stage may only apply while the sweep still owns the port;
-  //! losing it mid-pass rewinds the fetch pointer and the record is re-read
-  wire w_swp_commit = w_swp_own && swp_wv_r;
+  //! COMMIT grant — the one sweep term that reaches a record-write enable, so
+  //! it is built from REGISTERS ONLY. Substituting swp_active_r for w_swp_own
+  //! is EXACT: swp_wv_r is set only by a fetch, a fetch only happens under
+  //! w_swp_own, and w_swp_own sets swp_active_r on that same edge, so
+  //! swp_wv_r == 1 implies swp_active_r == 1. What it buys is keeping
+  //! w_swp_pending out of wr_en_w: with it in, the routed critical path ran
+  //! lwsrp/ctx/areg_r -> ta_registered_i -> w_srp_diff -> wr_en_w ->
+  //! sid_vec_r/CE, a cross-module cone that did not exist before.
+  wire w_swp_commit = swp_active_r && swp_wv_r &&
+                      !w_frame_latch && !w_launch_ok && !w_ram_busy_w;
 
   //! bind-restore injection (E1): two phases, both taken in a cycle where
   //! no higher-priority consumer owns the RAM. rest_ph_r is the DATA phase
@@ -698,11 +710,16 @@ module KL_acmp_lstn_ctx #(
   wire w_rest_sm_ok = (32'(rest_idx_i) < N_SINKS_P) &&
                       PROBE_SM_EN_P[w_rest_idx];
   wire w_rest_pend  = rest_req_i && !rest_ack_o;
-  wire w_rest_free  = !w_frame_latch && !w_launch_ok && !w_swp_own &&
-                      !w_ram_busy_w;
+  //! address phase: needs the read port, so it defers to the sweep's own
+  //! address phase. It drives rd_idx_w and rest_ph_r's D — not a write enable.
   wire w_rest_addr  = init_done_r && w_rest_pend && w_rest_sm_ok &&
-                      !rest_ph_r && w_rest_free;      //! address phase
-  wire w_rest_go    = rest_ph_r && w_rest_free;       //! data phase
+                      !rest_ph_r && !w_frame_latch && !w_launch_ok &&
+                      !w_swp_own && !w_ram_busy_w;
+  //! data phase: this one DOES write, so register-only again. w_swp_start is
+  //! blocked while rest_ph_r is set, so !swp_active_r excludes the sweep
+  //! completely and w_swp_pending stays out of wr_en_w.
+  wire w_rest_go    = rest_ph_r && !w_frame_latch && !w_launch_ok &&
+                      !swp_active_r && !w_ram_busy_w;
 
   wire w_tbl_ok    = init_done_r && tbl_req_i && !w_frame_latch &&
                      !w_launch_ok && !w_swp_own && !w_rest_addr &&
@@ -1096,15 +1113,17 @@ module KL_acmp_lstn_ctx #(
           c_adp_r      <= adp_pend_r | w_adp_now;
           if (mp != 2'd0) mp = mp - 2'd1;
         end
+        // ---- commit stage: apply the record fetched last cycle ---------
+        //! w_swp_commit implies w_swp_own, so this cannot fire on a cycle the
+        //! fetch stage below skipped
+        if (w_swp_commit) begin
+          //! service SRP snapshots at every visit (self-clears pending)
+          srv_reg_r[swp_wa_r]  <= ta_registered_i[swp_wa_r];
+          srv_fail_r[swp_wa_r] <= ta_failed_i[swp_wa_r];
+          if (swp_probe_set_w) probe_pend_r[swp_wa_r] <= 1'b1;
+          if (swp_wa_r == IDX_W_C'(N_SINKS_P-1)) swp_active_r <= 1'b0;
+        end
         if (w_swp_own) begin
-          // ---- commit stage: apply the record fetched last cycle -------
-          if (swp_wv_r) begin
-            //! service SRP snapshots at every visit (self-clears pending)
-            srv_reg_r[swp_wa_r]  <= ta_registered_i[swp_wa_r];
-            srv_fail_r[swp_wa_r] <= ta_failed_i[swp_wa_r];
-            if (swp_probe_set_w) probe_pend_r[swp_wa_r] <= 1'b1;
-            if (swp_wa_r == IDX_W_C'(N_SINKS_P-1)) swp_active_r <= 1'b0;
-          end
           // ---- fetch stage: address the next context ------------------
           if (swp_fetch_ok_w) begin
             swp_wa_r <= swp_fetch_idx_w;
