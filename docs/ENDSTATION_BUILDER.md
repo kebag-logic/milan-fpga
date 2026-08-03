@@ -583,15 +583,37 @@ D1 was chosen for, now checked over the wire.
 descriptor ROM 23 713 B.
 
 **What is still pending, and it is the half that makes sound.** The
-loopback **fabric lane** does not exist. `KL_chan_map_capture`'s map entry
-is `{en[7], src[6:4], idx[3:0]}` with buckets `0 ZERO / 1 I2S / 2 TDM /
-3 RING / 4 TONE` and `5..7` reserved; the received pair streams are **not**
-in that source set, so a loopback cluster today selects silence. The build
-plan marks it `planned (D8 subtask - new fabric lane)` rather than letting
-the model claim it. The Pilot cluster's *source* does exist (`KL_tone_gen`,
-`src = 4 TONE`); what is planned there is fanning ONE pilot cluster onto
-MANY stream channels, which the cluster-keyed dynamic-map store forbids and
-**D7** fixes.
+loopback **fabric lane** is built but not *bought*. `KL_chan_map_capture`'s
+map entry is `{en[7], src[6:4], idx[3:0]}`, and bucket `5` is `SRC_LOOP`:
+it de-interleaves the depacketizer payload clone into per-`{stream, pair}`
+holds so talker *t* carries rx stream *t*. `milan_datapath` connects it
+when `LOOPBACK_P` is set, which `milan_soc.py --loopback-lane` drives,
+which the config declares as
+`audio_interface.cluster_mapping.fabric.loopback_lane`.
+
+That declaration is **off** on the AX for one reason: measured OOC on the
+leaf at the 8×8 shape, driving the bucket costs **+2303 LUT / +1542 FF**
+(32 pair holds × 48 b that cannot become LUTRAM — the bank takes a reset
+and two writes per beat, so it is flops plus a 32:1 48-bit read mux), and
+the device is at 61 039 / 63 400 LUT and dies in *packing*.
+
+The important part is what the declaration also does: `primary_segment()`
+reads the **same fact**, so with the lane off the loopback pool is not a
+candidate for the power-on image and the talkers wake on the **host** pool
+instead. Before task #65 the preference was unconditional, and because the
+AX routes no audio pins the fall-through always reached loopback — so every
+talker woke mapped to a cluster whose fabric source did not exist. The
+entity answered `GET_AUDIO_MAP` perfectly and the wire carried digital
+silence. Milan v1.2 **5.3.9.1** is what makes the fix legal rather than a
+compromise: a Stream Output channel is "either **not mapped** or mapped to
+a channel of an Audio Cluster", and **5.4.2.26** requires `GET_AUDIO_MAP`
+to answer with zero mappings for a subset that has none. Declaring less is
+conformant; declaring a source that cannot exist is merely undetectable.
+
+The Pilot cluster's *source* does exist (`KL_tone_gen`, `src = 4 TONE`);
+what is planned there is fanning ONE pilot cluster onto MANY stream
+channels, which the cluster-keyed dynamic-map store forbids and **D7**
+fixes.
 
 **The size ceiling is real and now enforced.** The full pool D8 sketches
 (64-wide loopback + 16 physical + 8 host on every port) emits 792

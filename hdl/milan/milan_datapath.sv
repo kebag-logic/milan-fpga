@@ -120,6 +120,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! sized (ABI stable); rings past this count read zero and their
   //! stream_en bits are ignored. Only meaningful with AAF_PLAYBACK_P != 0.
   parameter int AAF_PB_STREAMS_P = 1,
+  //! task #65: wire KL_chan_map_capture's rx -> talker LOOPBACK bucket
+  //! (SRC_LOOP = 5) to the depacketizer payload clone, so a talker slot
+  //! naming a loopback AUDIO_CLUSTER really carries that received channel
+  //! pair. 0 (default) ties the feed off AND elaborates the bucket at its
+  //! minimum: functionally identical to the pre-task-#65 shape (the bucket
+  //! could never be fed there either) and measurably 36 LUT SMALLER than it,
+  //! because that shape elaborated the 8x8 bank and relied on the tie-off to
+  //! prune it. Priced at the instantiation below (+2303 LUT / +1542 FF OOC
+  //! at 8x8) - a real feature with a real bill, not a free connection.
+  parameter int LOOPBACK_P = 0,
   //! BANKED AREA LEVER (NXN_ARCHITECTURE section 6.2): 1 (default) keeps the
   //! render-tap Butterworth LPF; 0 prunes KL_pcm_lpf and ties its outputs to
   //! the exact nets the runtime bypass (LPF_CTRL[0] = 0) already produces, so
@@ -869,10 +879,59 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        aecp_odmap_wr_p_w;
   wire [4:0]  aecp_odmap_wr_slot_w;
   wire [11:0] aecp_odmap_wr_word_w;
+
+  //! The RX wire-channel space BOTH channel crossbars de-interleave, defined
+  //! ONCE and read twice (KL_chan_map_render.N_CH_P below, and the LOOP
+  //! bucket's N_LB_CH_P here). It was a bare literal 8 at the render site; a
+  //! second bare 8 here would be a constant mirrored into two places, which
+  //! agrees on day one and diverges in silence.
+  localparam int RX_WIRE_CHANS_C = 8;
+
+  //! task #65 - the rx -> talker LOOPBACK feed. KL_chan_map_capture's LOOP
+  //! bucket (SRC_LOOP = 3'd5) has existed since 2026-07-28, and the AEM
+  //! advertises 8 loopback AUDIO_CLUSTERs per talker port - but these five
+  //! inputs were never connected here, so they took their `= 0` defaults and
+  //! EVERY loopback cluster selected silence. The clusters were an
+  //! advertisement the fabric could not back.
+  //!
+  //! LOOPBACK_P is what backs it, and it is OFF by default because the lane
+  //! is NOT free. Measured OOC on the leaf at the 8x8 ship shape (yosys
+  //! synth_xilinx xc7, N_LB_STREAMS_P=8 / N_LB_CH_P=8):
+  //!
+  //!     tied off (today)   1432 LUT / 1479 FF
+  //!     driven             3735 LUT / 3021 FF     = +2303 LUT, +1542 FF
+  //!
+  //! The +1542 FF is architectural, not a synthesis artefact: the bucket
+  //! keeps N_LB_STREAMS_P x N_LB_CH_P/2 = 32 pair holds x 48 b, and that
+  //! bank CANNOT become LUTRAM (it takes a reset that clears every entry,
+  //! and two independent writes per beat), so it is flops plus a 32:1 48-bit
+  //! read mux. At 61,039/63,400 LUT and packing-bound that does not fit
+  //! today - hence the lever, and hence the power-on map pointing at the
+  //! HOST pool instead (endstation_builder PRIMARY_ROLE_ORDER). The two are
+  //! driven by ONE declared fact (cluster_mapping.fabric.loopback_lane), so
+  //! the model can never advertise a lane this parameter did not build.
+  localparam int LB_STREAMS_C = (LOOPBACK_P != 0) ? N_STREAMS : 1;
+  localparam int LB_CH_C      = (LOOPBACK_P != 0) ? RX_WIRE_CHANS_C : 2;
+
+  //! Declared at the point of USE: the depacketizer that drives them is
+  //! elaborated ~3000 lines below, so the nets are declared here and driven
+  //! by single-driver continuous assigns down there (search lb_tap_).
+  wire [TDATA_WIDTH-1:0]  lb_tap_tdata_w;
+  wire                    lb_tap_tvalid_w, lb_tap_tlast_w;
+  wire [3:0]              lb_tap_tuser_w;
+  wire [LB_STREAMS_C*4-1:0] lb_tap_chans_w;
+
   KL_chan_map_capture #(
     .N_SLOTS_P (N_STREAMS*4),
     .N_TDM_P   (8),
-    .N_RING_P  (16)
+    .N_RING_P  (16),
+    //! ON: sized to exactly what the AEM declares - talker t's loopback pool
+    //! is rx stream t's wire channels, so the bucket keeps every listener
+    //! stream at the full rx wire width. Anything smaller would re-open the
+    //! same gap for the streams it dropped. OFF: the smallest legal bucket,
+    //! with the feed tied off below, so synthesis prunes the bank entirely.
+    .N_LB_STREAMS_P (LB_STREAMS_C),
+    .N_LB_CH_P      (LB_CH_C)
   ) chan_map_capture (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .map_wr_en_i   ((aecp_odmap_wr_p_w &&
@@ -909,6 +968,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! the media-grid pilot (task #59): stepped by the same media_tick_p as
     //! the walk below, never the clk_audio-grid tone_smp
     .tone_smp_i (tone_smp_media),
+    //! task #65: the LOOP bucket's feed - the depacketizer payload clone,
+    //! same accepted-beat discipline as the render crossbar's tap
+    //! (tvalid && tready; this port never backpressures).
+    .lb_tdata_i (lb_tap_tdata_w), .lb_tvalid_i (lb_tap_tvalid_w),
+    .lb_tlast_i (lb_tap_tlast_w), .lb_tuser_i (lb_tap_tuser_w),
+    .lb_wire_chans_i (lb_tap_chans_w),
     .tick_i (media_tick_p),
     .pair_valid_o (cmap_pv_w), .pair_slot_o (cmap_slot_w),
     .pair_l_o (cmap_l_w), .pair_r_o (cmap_r_w)
@@ -3964,6 +4029,25 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire                   dpkt_pcm_tvalid_w, dpkt_pcm_tlast_w;
   wire [3:0]             dpkt_pcm_tuser_w;
   wire                   dpkt_pcm_tready_w;
+
+  //! task #65: drive the capture crossbar's LOOP bucket (declared far above,
+  //! at its point of use). A CLONE, never a consumer - the strobe is the
+  //! ACCEPTED beat (tvalid && tready) and no tready comes back, so the rx
+  //! chain's flow control is untouched and this tap cannot stall a listener.
+  //! Identical discipline to KL_chan_map_render's tap below; that module is
+  //! why the clone is safe to take twice.
+  //! LOOPBACK_P = 0 folds the strobe to a constant 0, which prunes the hold
+  //! bank and its read mux to nothing - the behaviour the shipping bitstream
+  //! already had, since the bucket was never fed there either.
+  assign lb_tap_tdata_w  = dpkt_pcm_tdata_w;
+  assign lb_tap_tvalid_w = (LOOPBACK_P != 0)
+                           && dpkt_pcm_tvalid_w && dpkt_pcm_tready_w;
+  assign lb_tap_tlast_w  = dpkt_pcm_tlast_w;
+  assign lb_tap_tuser_w  = dpkt_pcm_tuser_w;
+  //! per-stream wire channels_per_frame (1722-2016 7.3.3), the LIVE value
+  //! each RX monitor decoded - so the bucket de-interleaves a 2ch stream as
+  //! 2ch and an 8ch stream as 8ch, exactly like the render crossbar.
+  assign lb_tap_chans_w  = mon_wire_chans_all_w[LB_STREAMS_C*4-1:0];
   wire [TDATA_WIDTH-1:0] rend_pcm_tdata_w;
   //! render-tap valid is TB-observable (route-flag truth in sim_nxn)
   wire                   rend_pcm_tvalid_w /* verilator public_flat_rd */;
@@ -4094,7 +4178,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   KL_chan_map_render #(
     .N_STREAMS_P  (N_STREAMS),
-    .N_CH_P       (8),
+    //! the rx wire-channel space, defined once beside the capture crossbar
+    //! (RX_WIRE_CHANS_C) and read here - the LOOP bucket keeps the same
+    //! space, and the two must not be able to drift apart
+    .N_CH_P       (RX_WIRE_CHANS_C),
     .N_PHYS_P     (CHMAP_PHYS_C),
     //! item-7 + item-00: KL_pcm_tx is elaborated CHANS_P=TALKER_WIRE_CHANS_P,
     //! so the playback pair-slot space is streams x chans/2 (was N_STREAMS

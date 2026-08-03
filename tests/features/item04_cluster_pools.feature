@@ -75,9 +75,21 @@ Feature: Item-4 D8/D10 - the cluster model a CONTROLLER enumerates
     And no AUDIO_CLUSTER carries the "virtual" role
 
   @class:enumeration @d8
-  Scenario: the AX talkers are sourced from the loopback pool, distinctly
+  Scenario: the AX talkers wake on a pool this build can actually feed
+    # task #65. The talkers used to wake mapped to the LOOPBACK pool, which
+    # reads beautifully in a controller - "Loopback S0 ch 0" on every talker
+    # channel - and carried digital silence on the wire, because
+    # milan_datapath never connected KL_chan_map_capture's LOOP bucket to
+    # the depacketizer. The clusters are still OFFERED (a controller may map
+    # to them, and the lane is one declaration away), but the POWER-ON image
+    # may only name a source the bitstream contains: with
+    # cluster_mapping.fabric.loopback_lane false that is the host pool,
+    # behind the single elaborated KL_pcm_tx ring. Milan v1.2 5.3.9.1 makes
+    # the alternative explicit - a Stream Output channel is "either not
+    # mapped or mapped to a channel of an Audio Cluster" - so under-claiming
+    # is conformant while a source that cannot exist is merely invisible.
     Given the end-station config "ax7101_8x8" is built
-    Then every talker AUDIO_MAP row lands in the "loopback" pool
+    Then every talker AUDIO_MAP row lands in the "host" pool
     And each talker port offers a distinct "loopback" source set
     And every AUDIO_CLUSTER object_name matches its role
 

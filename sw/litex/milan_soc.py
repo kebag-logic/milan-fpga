@@ -465,6 +465,7 @@ class MilanNIC(LiteXModule):
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
                  audio_if_i2s_pair=False, aaf_playback=False, aaf_pb_streams=1,
+                 loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
                  cbs_queues_mask=None, entity_gen_dir=None):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
@@ -496,6 +497,7 @@ class MilanNIC(LiteXModule):
                            audio_if_master=audio_if_master,
                            audio_if_i2s_pair=audio_if_i2s_pair,
                            aaf_playback=aaf_playback, aaf_pb_streams=aaf_pb_streams,
+                           loopback_lane=loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
                            cbs_queues_mask=cbs_queues_mask,
                            entity_gen_dir=entity_gen_dir)
@@ -645,7 +647,8 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
                        talker_wire_chans=2, audio_if_master=False,
                        audio_if_i2s_pair=False,
-                       aaf_playback=False, aaf_pb_streams=1, render_lpf=True,
+                       aaf_playback=False, aaf_pb_streams=1, loopback_lane=False,
+                       render_lpf=True,
                        optional_blocks=None, cbs_queues_mask=None,
                        entity_gen_dir=None):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
@@ -778,6 +781,15 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         # ring shape is ~1/8th of that and the 64ch chmap already places
         # its pairs on any talker's wire slots.
         dp_params["p_AAF_PB_STREAMS_P"] = int(aaf_pb_streams)
+    if loopback_lane:
+        # task #65 rx -> talker LOOPBACK bucket. SAME DISCIPLINE as
+        # AAF_PLAYBACK_P above, and the same name trap: the SV parameter is
+        # LOOPBACK_P. Passed only when asked for, so a build that does not
+        # ask emits a byte-identical top .v. It buys the entity's declared
+        # loopback AUDIO_CLUSTERs their actual source; it costs +2303 LUT /
+        # +1542 FF OOC at the 8x8 shape, which is why the shipping config
+        # leaves it off and points its power-on map at the host pool.
+        dp_params["p_LOOPBACK_P"] = 1
     if audio_if_master and int(audio_if_slots):
         # AUDIO_IF_MASTER_P / AUDIO_IF_CLK_HZ_P (item 4): the TDM bus ROLE and
         # the clock the master divides. SAME DISCIPLINE as AAF_PLAYBACK_P -
@@ -4797,6 +4809,7 @@ class MilanSoC(SoCCore):
                  num_streams=1, audio_if_slots=0, talker_wire_chans=2,
                  audio_if_master=False,
                  pcm_ring="dram", aaf_playback=False, aaf_pb_streams=1,
+                 loopback_lane=False,
                  bus_standard="wishbone",
                  render_lpf=True, optional_blocks=None,
                  cbs_queues_mask=None, entity_gen_dir=None, **kwargs):
@@ -5191,6 +5204,7 @@ class MilanSoC(SoCCore):
                                                      and _dma_i2s is not None),
                                   aaf_playback=aaf_pb,
                                   aaf_pb_streams=int(aaf_pb_streams),
+                                  loopback_lane=bool(loopback_lane),
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks,
                                   cbs_queues_mask=cbs_queues_mask,
@@ -5422,6 +5436,18 @@ def main():
                          "full-N engine OOC'd 2216 LUT at 8x8x8. Drives BOTH "
                          "AAF_PB_STREAMS_P and the pb CSR sizing (one value, two "
                          "consumers - never restated). Only with --aaf-playback.")
+    ap.add_argument("--loopback-lane", action="store_true",
+                    help="task #65: wire KL_chan_map_capture's rx -> talker LOOPBACK "
+                         "bucket (SRC_LOOP = 5) to the depacketizer payload clone, so a "
+                         "talker slot naming a loopback AUDIO_CLUSTER really carries that "
+                         "RECEIVED channel pair. This is what makes the entity's declared "
+                         "loopback clusters true; without it they select silence. NOT free: "
+                         "+2303 LUT / +1542 FF OOC at the 8x8 shape (32 pair holds x 48 b "
+                         "that cannot be LUTRAM - the bank takes a reset and two writes per "
+                         "beat). Default off => no parameter passed, so the top .v is "
+                         "byte-identical. The endstation config "
+                         "declares it (cluster_mapping.fabric.loopback_lane) so the AEM's "
+                         "power-on map and this flag can never disagree.")
     ap.add_argument("--audio-interface", default="i2s_philips",
                     choices=("i2s_philips", "tdm8", "tdm16", "tdm32"),
                     help="item-4 audio-interface family: capture front-end generate "
@@ -5612,6 +5638,7 @@ def main():
                    pcm_ring=args.pcm_ring,
                    aaf_playback=args.aaf_playback,
                    aaf_pb_streams=args.aaf_playback_streams,
+                   loopback_lane=args.loopback_lane,
                    render_lpf=not args.no_render_lpf,
                    # tier-1 optional blocks: a key is emitted only when the
                    # flag is set, and False is the ONLY value that prunes.

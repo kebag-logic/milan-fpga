@@ -573,3 +573,71 @@ Phase 2 PTP/PHC   Phase 3 CBS cfg  Phase 4 CLS   Phase 5 MAC   Phase 6 mcDMA
       terms of spending each one). Still to be spent only after the ranked
       logic levers in [`docs/NXN_ARCHITECTURE.md`](docs/NXN_ARCHITECTURE.md)
       §6.2/§6.3, never as a first response to a placement failure.
+## Phase 11 — rx → talker LOOPBACK lane (task #65, added 2026-08-03)
+
+The AEM declares 8 `Loopback S<s> ch <c>` AUDIO_CLUSTERs on every talker
+STREAM_PORT_OUTPUT. The fabric that feeds them is **written, wired and gated
+green** — it is simply not affordable yet, so it ships behind an
+elaboration lever that is OFF. This section is the terms of turning it on.
+
+- [x] **P11.1 — the bucket** *(2026-07-28, commit 86f081d9)*.
+  `KL_chan_map_capture` bucket `src[6:4] = 5` (`SRC_LOOP_C`): de-interleaves
+  the depacketizer payload clone (1722-2016 7.3.3/7.3.5) into
+  `N_LB_STREAMS_P × N_LB_CH_P/2` per-`{stream, channel pair}` holds, with the
+  "never a lying zero" capability mask (`mapped` / `fed`) on the readback pin.
+  Gated by `tb/verilator/chmap_capture` (115 checks).
+- [x] **P11.2 — the integration** *(2026-08-03, task #65)*.
+  `milan_datapath` parameter `LOOPBACK_P` connects the bucket to the
+  depacketizer's accepted-beat clone (`dpkt_pcm_*` + `mon_wire_chans_all_w`,
+  the same tap discipline `KL_chan_map_render` already takes). Driven by
+  `milan_soc.py --loopback-lane`, declared by
+  `audio_interface.cluster_mapping.fabric.loopback_lane`. **Default 0**, which
+  folds the strobe to a constant, prunes the bank and leaves the gateware
+  byte-identical to the pre-task-#65 shape. Gated by `tb/verilator/milan_dp`
+  `obj_nxn8` (`-GLOOPBACK_P=1 -DLOOPBACK_TB`): the talker payload must be the
+  bytes the listener received, L/R must stay the wire pair they arrived as,
+  and a disabled slot must carry none of it. The other two `sim_nxn` legs run
+  with the lane OFF and pin the complement — a mapped loopback slot is silent
+  *by construction* when the parameter did not build the bucket.
+- [ ] **P11.3 — BUY IT: `loopback_lane: true` on the AX**. The only open
+  item, and it is an area decision, not an engineering one.
+
+  **Price** (measured OOC on the leaf, yosys `synth_xilinx -family xc7`, at
+  the shipping `N_LB_STREAMS_P=8 / N_LB_CH_P=8`):
+
+  | shape | LUT | FF |
+  |---|---|---|
+  | tied off (what ships today) | 1 432 | 1 479 |
+  | driven | 3 735 | 3 021 |
+  | **delta** | **+2 303** | **+1 542** |
+
+  The `+1 542 FF` is architectural, not a synthesis artefact: the bank is
+  32 pair holds × 48 b and **cannot** become LUTRAM, because it takes a reset
+  that clears every entry and can take two independent writes in one beat. So
+  it is flops plus a 32:1 48-bit read mux. Against 61 039 / 63 400 LUT and a
+  design that dies in *packing*, that does not fit — the ~196 SLICEMs the
+  BRAM-FIFO move freed (73f7cad4 / c8db2414) are roughly a third of it.
+
+  **Cheaper shapes, if the full pool is never bought.** Cost is driven by
+  `LB_PAIRS_C = N_LB_STREAMS_P × N_LB_CH_P/2`. Narrowing `N_LB_CH_P` to 2
+  (one pair per rx stream, 8 holds instead of 32) is ~¼ of the bank — but it
+  backs only 2 of the 8 declared clusters per port, so the config's
+  `pools.loopback` MUST narrow with it or the model goes back to claiming
+  what the fabric cannot do. That is the whole rule this phase exists to
+  enforce: **the pool width and the lane width are one decision.**
+
+  **What flipping it does, with nothing else touched.** `primary_segment()`
+  reads the same declaration, so the loopback pool becomes a power-on
+  candidate again and — the AX routing no audio pins — the talkers' power-on
+  image returns to `AEM_ODMAP_INIT_C` offset 9 (`6'h29`), the loopback
+  templates regain their valid bit (`13'h1500`), and `--loopback-lane`
+  appears in `sweep_opts_ax7101.sh`. `test_builder` gate 17e proves that
+  round trip in both directions today, so the flip is a one-line config
+  change plus a rebuild, not a code change. `entity_model_id` does **not**
+  move (the pool widths are unchanged; only dynamic state moves).
+
+  **Why it is worth buying.** On a board with no audio inputs it is the only
+  source that can give each talker *per-channel-distinct, externally
+  supplied* audio — the PEER channel-identity loop is exactly this path —
+  and it is what USER 2026-07-28 asked for ("For the AX Loopback, use the
+  loopback cluster created").

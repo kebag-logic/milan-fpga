@@ -732,6 +732,14 @@ def _out_cluster_sources(ovl, j, p):
     for q in ovl["stream_ports"]["output"][:j]:
         host_pfx += sum(g["width"] for g in q.get("pool", [])
                         if g["role"] == "host")
+    # task #65: what the BITSTREAM behind this model actually elaborates.
+    # A template's `valid` is what the identity image below tests before it
+    # wires a stream channel to a cluster, so this is the join between the
+    # model and the gateware - and it is exactly what was missing when every
+    # talker woke mapped to a loopback cluster no fabric could feed.
+    fab = ovl.get("cluster_fabric") or {}
+    lb_lane = bool(fab.get("loopback_lane", True))
+    pb_rings = fab.get("playback_rings")
     srcs = []
     for g in p["pool"]:
         for n in range(g["width"]):
@@ -745,9 +753,29 @@ def _out_cluster_sources(ovl, j, p):
                                      half=(a - 2) % 2,
                                      valid=(a - 2) // 2 < 4))
             elif g["role"] == "host":
-                gch = host_pfx + n
-                srcs.append(dict(src=3, idxh=0, idx=gch // 2, half=gch % 2,
-                                 valid=gch // 2 < 16))
+                if pb_rings is None:
+                    # undeclared: the fabric maximum, exactly as before -
+                    # including `half` off the GLOBAL channel index, which is
+                    # only the same parity as n when every preceding host pool
+                    # was even-width. Keep it exact.
+                    gch = host_pfx + n
+                    idx, half, ok = gch // 2, gch % 2, gch // 2 < 16
+                else:
+                    # DECLARED ring count. KL_pcm_tx serves pb_rings rings of
+                    # this port's wire width, and the chmap can place ANY ring
+                    # pair on ANY talker slot - so talker j draws on ring
+                    # (j mod pb_rings) and its host cluster n is that ring's
+                    # pair n//2. The old global stride assumed one ring PER
+                    # talker: with the shipping single ring it pointed talkers
+                    # 1..3 at ring pairs that are not elaborated and left 4..7
+                    # with no template at all, which is the same "declared but
+                    # unbuildable" defect one bucket over.
+                    pps = max(1, g["width"] // 2)
+                    idx = (j % pb_rings) * pps + n // 2
+                    half = n % 2
+                    ok = idx < pb_rings * pps and idx < 16
+                srcs.append(dict(src=3, idxh=0, idx=idx, half=half,
+                                 valid=ok))
             elif g["role"] == "pilot":
                 srcs.append(dict(src=4, idxh=0, idx=0, half=0, valid=True))
             elif g["role"] == "loopback":
@@ -758,7 +786,9 @@ def _out_cluster_sources(ovl, j, p):
                 else:
                     si, c = 0, n
                 srcs.append(dict(src=5, idxh=si, idx=c // 2, half=c % 2,
-                                 valid=si < 8 and c < 8))
+                                 # the LOOP bucket only exists when
+                                 # milan_datapath was built with LOOPBACK_P
+                                 valid=lb_lane and si < 8 and c < 8))
             else:                # virtual: nothing behind it
                 srcs.append(dict(src=0, idxh=0, idx=0, half=n % 2,
                                  valid=False))

@@ -2715,6 +2715,203 @@ int main(int argc, char** argv) {
 #endif
 
     // ==================================================================
+    //  TASK #65 - rx -> talker LOOPBACK: the AEM's DECLARED source, made
+    //  real in the fabric.
+    //
+    //  The entity advertises 8 "Loopback S<s> ch <c>" AUDIO_CLUSTERs on
+    //  every talker STREAM_PORT_OUTPUT, and the POWER-ON dynamic map wakes
+    //  pointing every talker stream channel AT them: generated
+    //  AEM_ODMAP_INIT_C = {valid, cluster offset 9..16}, whose
+    //  AEM_ODMAP_CSRC_C templates are src = 5 = SRC_LOOP, which the AECP
+    //  seeder writes into this very map RAM as {en, src=5, idx} = 0xD0|k.
+    //
+    //  KL_chan_map_capture has carried that bucket since 2026-07-28, but
+    //  its five lb_* inputs were never connected in milan_datapath, so they
+    //  took their `= 0` port defaults: the hold bank could never be written
+    //  and EVERY loopback cluster selected SILENCE. A booted, bound talker
+    //  therefore streamed conformant digital silence on every channel while
+    //  GET_AUDIO_MAP showed a fully-populated, entirely honest-looking map -
+    //  the trap that cost a USER a listening session.
+    //
+    //  BITE: drop any one of the five lb_* connections in milan_datapath
+    //  and the talker payload collapses to all-zero, which "carries the
+    //  RECEIVED audio" below refuses. The zero-payload check alone is not
+    //  enough - digital silence is a LEGAL payload (5.3.7.3 fill) - so the
+    //  emitted samples are matched against the exact bytes that were
+    //  received, and L/R against the wire pair they were de-interleaved
+    //  from. Nothing but a working loopback lane can produce those.
+    // ==================================================================
+    printf("-- task #65: rx -> talker LOOPBACK (chmap src 5) --\n");
+    {
+        enum { A_CHMAP_CTRL = 0x900, A_CHMAP_SEL = 0x904,
+               A_CHMAP_WORD = 0x908 };
+        const uint8_t LB_PAY0 = 0xA0;     // mkaaf payload seed (no 8-bit wrap)
+        const int     LB_SID  = 1;        // sidB is provisioned to stream 1
+
+        // the 12 S32BE samples mkaaf lays down, as the 24 audio bits the
+        // depacketizer forwards and the packetizer re-emits: wire byte j in
+        // lane j, lanes 3/7 the S32 pad (KL_chan_map_capture lb_tdata_i
+        // contract, and tb/verilator/chmap_capture's lb_beat()).
+        auto lb_smp = [&](int j) {
+            return ((uint32_t)(uint8_t)(LB_PAY0 + 4*j)     << 16)
+                 | ((uint32_t)(uint8_t)(LB_PAY0 + 4*j + 1) <<  8)
+                 |  (uint32_t)(uint8_t)(LB_PAY0 + 4*j + 2);
+        };
+
+        // streaming posture: VID-2 rule + the bypass licence, lwSRP off -
+        // the same arming the host-ring leg above uses
+        axi_write(A_AAF_CTRL, 0x00020003);
+        axi_write(A_LWSRP_CTRL, 0x0);
+
+        // capture map: talker 0's pair slot 0 <- LOOP {stream 1, pair 0}.
+        // CSR word = {en[15], src[14:12]=5 LOOP, idxh[7:4]=stream, idx[3:0]}
+        // - idxh is exactly the "source stream/lane" nibble the AEM seeder
+        // drives, so this is the power-on entry, written by hand.
+        // Pair slots 0 AND 1, because the pair-slot space is shape-dependent
+        // and this harness runs three shapes: at TALKER_WIRE_CHANS_P=2 each
+        // talker owns ONE pair slot (slot t = talker t, so slot 1 is talker
+        // 1 - harmless extra coverage), while the 4-wire-channel shape gives
+        // talker 0 slots {0,1} and needs BOTH strobed before the packetizer
+        // can assemble a 4-channel frame at all.
+        axi_write(A_CHMAP_CTRL, 0x1);
+        for (int slot = 0; slot < 2; slot++) {
+            axi_write(A_CHMAP_SEL, 0x100 | slot);
+            axi_write(A_CHMAP_WORD, (uint32_t)(0x8000 | (5 << 12)
+                                               | (LB_SID << 4) | 0));
+        }
+
+        // feed the listener: three AAF PDUs of stream 1, 2 wire channels.
+        // The bucket's holds free-run, so after the burst they retain the
+        // last received pair and the talker keeps re-emitting it.
+        for (uint8_t s = 0; s < 3; s++)
+            inject(mkaaf(sidB, (uint8_t)(120 + s), 2, LB_PAY0), 2000);
+
+        // collect talker 0's PDUs (uid 0), decoding the 6 events x 2 ch
+        std::vector<std::vector<uint32_t>> lbp;
+        {
+            std::vector<uint8_t> cur;
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < 200000 && (int)lbp.size() < 3; c++) {
+                lo();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l))
+                                          & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        size_t off = (cur.size() > 17 && cur[12] == 0x81
+                                      && cur[13] == 0x00) ? 4 : 0;
+                        if (cur.size() >= 86 + off && cur[12+off] == 0x22
+                            && cur[13+off] == 0xF0 && cur[14+off] == 0x02
+                            && ((cur[24+off] << 8) | cur[25+off]) == 0) {
+                            std::vector<uint32_t> smp;
+                            for (int s = 0; s < 12; s++) {
+                                size_t o = 38 + off + 4*s;
+                                smp.push_back(((uint32_t)cur[o]   << 16) |
+                                              ((uint32_t)cur[o+1] <<  8) |
+                                               (uint32_t)cur[o+2]);
+                            }
+                            lbp.push_back(smp);
+                        }
+                        cur.clear();
+                    }
+                }
+                hi();
+            }
+        }
+        ck("lb: talker 0 frames while the LOOP slot is mapped",
+           lbp.size() >= 3, 1);
+
+        // LOOPBACK_P is a paired flag: the Makefile passes -GLOOPBACK_P=1
+        // together with -DLOOPBACK_TB, so this side always knows which
+        // gateware it is talking to. BOTH states are pinned - ON must carry
+        // the received audio, OFF must be silent BY CONSTRUCTION, and that
+        // OFF row is the whole reason the builder's power-on map may not
+        // point a talker channel at a loopback cluster in a build that did
+        // not elaborate the lane.
+#ifdef LOOPBACK_TB
+        const int LB_LANE = 1;
+#else
+        const int LB_LANE = 0;
+#endif
+        bool any_audio = false, all_from_rx = true, pairs_ok = true;
+        for (auto& p : lbp) {
+            for (size_t s = 0; s + 1 < p.size(); s += 2) {
+                uint32_t L = p[s], R = p[s+1];
+                if (L || R) any_audio = true;
+                // L must be an EVEN-indexed received sample (wire ch 0) and
+                // R the one that followed it (wire ch 1): the de-interleave
+                int li = -1;
+                for (int j = 0; j < 12; j += 2) if (lb_smp(j) == L) li = j;
+                if (li < 0) all_from_rx = false;
+                else if (R != lb_smp(li + 1)) pairs_ok = false;
+            }
+        }
+        if (LB_LANE) {
+            ck("lb: talker payload is NOT digital silence", any_audio, 1);
+            ck("lb: every sample is one the LISTENER received",
+               all_from_rx, 1);
+            ck("lb: L/R stay the wire pair they arrived as", pairs_ok, 1);
+        } else {
+            // LOOPBACK_P=0: the bucket is elaborated at its minimum with the
+            // feed tied off, so a mapped loopback slot can only ever be
+            // silence. An entity that ADVERTISED this cluster here would be
+            // describing a source the gateware does not contain.
+            ck("lb (lane OFF): a loopback slot is silent by construction",
+               any_audio, 0);
+        }
+
+        // a DISABLED loop slot stops carrying the received audio - the
+        // bucket is selected BY THE MAP and never leaks into a slot that
+        // did not ask for it. The oracle is "no PDU carries rx samples",
+        // not "PDUs are silent": while CHMAP is armed it OWNS the slot
+        // coverage (the 5.3.7.3 zero-fill is muxed out at
+        // milan_datapath's pkt_* bypass), so an unmapped slot is never
+        // strobed and talker 0 simply stops framing. Both outcomes are a
+        // pass here; a payload still carrying stream 1 is not.
+        for (int slot = 0; slot < 2; slot++) {
+            axi_write(A_CHMAP_SEL, 0x100 | slot);
+            axi_write(A_CHMAP_WORD, 0x0000);     // en = 0
+        }
+        for (int c = 0; c < 20000; c++) step();
+        {
+            std::vector<uint8_t> cur; int leaked = 0; int seen = 0;
+            for (int c = 0; c < 200000 && seen < 2; c++) {
+                lo();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l))
+                                          & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        size_t off = (cur.size() > 17 && cur[12] == 0x81
+                                      && cur[13] == 0x00) ? 4 : 0;
+                        if (cur.size() >= 86 + off && cur[12+off] == 0x22
+                            && cur[13+off] == 0xF0 && cur[14+off] == 0x02
+                            && ((cur[24+off] << 8) | cur[25+off]) == 0) {
+                            seen++;
+                            for (int s = 0; s < 12; s++) {
+                                size_t o = 38 + off + 4*s;
+                                uint32_t v = ((uint32_t)cur[o]   << 16) |
+                                             ((uint32_t)cur[o+1] <<  8) |
+                                              (uint32_t)cur[o+2];
+                                for (int j = 0; j < 12; j++)
+                                    if (v && lb_smp(j) == v) leaked++;
+                            }
+                        }
+                        cur.clear();
+                    }
+                }
+                hi();
+            }
+            printf("         (disabled slot: %d talker-0 PDU(s) seen)\n", seen);
+            ck("lb: a DISABLED loop slot carries no rx audio", leaked, 0);
+        }
+
+        axi_write(A_CHMAP_CTRL, 0x0);            // restore the legacy path
+    }
+
+    // ==================================================================
     //  THE SRP FABRIC LAUNCH STAGE CYCLE CONTRACT  (2026-08-02)
     //
     //  Timing closure moved the ctx write one register behind the arbiter:

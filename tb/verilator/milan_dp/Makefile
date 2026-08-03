@@ -132,7 +132,13 @@ run: $(GEN_ALL)
 # obj_nxn8 also elaborates AAF_PLAYBACK_P=1 (the task #31 cfg_ax8x8 ship
 # flip) and runs the host-ring -> RING-bucket -> talker-wire section
 # (-DAAF_PB_TB): the ALSA playback direction proven INSIDE the datapath.
-	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -GAAF_PLAYBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAAF_PB_TB=1" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
+# obj_nxn8 is also the ONLY leg that elaborates the task #65 loopback lane
+# (-GLOOPBACK_P=1, paired with -DLOOPBACK_TB so the C++ side knows which
+# gateware it is driving). The other two sim_nxn legs run with the lane OFF
+# and pin the other half of the contract - a mapped loopback slot is silent
+# by construction when the parameter did not build the bucket, which is why
+# the builder may not point a power-on mapping at one.
+	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -GAAF_PLAYBACK_P=1 -GLOOPBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAAF_PB_TB=1 -DLOOPBACK_TB=1" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
 # THE SHIPPING ARTY SHAPE, and until 2026-07-30 nothing in the suite
 # elaborated it. obj_nxn above builds endstation_arty_4x4's ENTITY (4 streams)
 # but leaves TALKER_WIRE_CHANS_P at its default 2, so every leg ran with the

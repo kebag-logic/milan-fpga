@@ -104,6 +104,13 @@ CFG = {
         "cluster_mapping": {
             "policy": "role-pools",
             "pools": {"host": 2, "pilot": True, "loopback": 2},
+            # task #65: this harness exists to pin the POOLED ROM shape, and
+            # the shape it pins is the loopback-primary one (talker maps at
+            # offsets 3/4 below). A pool is only allowed to be the power-on
+            # source when the build elaborates its fabric lane, so the shape
+            # has to say so - which also makes this harness the end-to-end
+            # proof that the declaration reaches the ROM.
+            "fabric": {"loopback_lane": True},
         },
     },
     "streams": {

@@ -616,7 +616,9 @@ def test_port_layout_invariants():
 def test_both_policies_valid():
     #: pools are read ONLY by role-pools, so switching a config's policy has
     #: to move them with it - declaring pools under another policy is a
-    #: refused config (they would be silently ignored).
+    #: refused config (they would be silently ignored). The task #65 `fabric`
+    #: block rides the same rule: it says which POOL SOURCES the build
+    #: elaborates, so it is meaningless without pools to source.
     def set_policy(c, pol):
         cm = c["audio_interface"]["cluster_mapping"]
         cm["policy"] = pol
@@ -624,6 +626,7 @@ def test_both_policies_valid():
             cm.setdefault("pools", {"host": 4, "pilot": True, "loopback": 4})
         else:
             cm.pop("pools", None)
+            cm.pop("fabric", None)
 
     for name, (nl, nt) in (("arty_4x4", (4, 4)), ("ax7101_8x8", (8, 8))):
         for pol in eb.CLUSTER_POLICIES:
@@ -1379,13 +1382,64 @@ def test_dynamic_audio_map_overlay():
         assert "AEM_ODMAP_PSTR_C [0:7] = '{0, 1, 2, 3, 4, 5, 6, 7}" in svh
         assert "AEM_ODMAP_SLOTB_C [0:7] = '{0, 4, 8, 12, 16, 20, 24, 28}" \
             in svh
-        # the ship identity is the LOOPBACK lane (primary_role: the AX has
-        # no physical audio) - port 0's first identity template must be a
-        # LOOP source: {valid, half=0, src=5, idxh=0, idx=0} = 13'h1500
-        assert "13'h1500" in svh, "no loopback L-half template emitted"
+        # gate 17e (task #65): THE POWER-ON IMAGE MAY ONLY NAME A SOURCE THIS
+        # BUILD CAN PRODUCE. The AX routes no audio pins, so the primary-role
+        # fall-through used to land on LOOPBACK and every talker woke mapped
+        # to a cluster whose fabric bucket milan_datapath never wired: a
+        # GET_AUDIO_MAP that reads perfectly over a stream of digital
+        # silence. The ship config declares loopback_lane false, so:
+        #   - the identity must be the HOST pool, whose templates are the
+        #     elaborated KL_pcm_tx ring: {valid, half, src=3 RING} = 13'h13xx
+        #   - the loopback templates must still be EMITTED (the clusters
+        #     exist and a controller may map to them) but marked INVALID -
+        #     bit 12 clear, so 13'h05xx, never 13'h15xx
+        # INIT carries {valid[5], cluster offset[4:0]}; host is offset 0
+        # (physical is 0 wide), so every key must read 6'h20 + channel.
+        assert "13'h1300" in svh, "power-on identity is not the host ring"
+        assert "13'h15" not in svh, \
+            "a VALID loopback template survived with the lane switched off"
+        assert "13'h05" in svh, \
+            "loopback templates vanished; the clusters must still be offered"
+        assert "AEM_ODMAP_INIT_C [0:63] = '{6'h20, 6'h21, 6'h22, 6'h23, " \
+               "6'h24, 6'h25, 6'h26, 6'h27" in svh, \
+            "power-on map does not wake on the host pool"
         print("  [gate 17d] ax7101_8x8 ALL streams dynamic: 8 output ports "
-              "n_maps=0, zero AUDIO_MAPs, `AEM_ODYNMAP keys=64 slotb "
-              "0..28, loopback identity templates emitted")
+              "n_maps=0, zero AUDIO_MAPs, `AEM_ODYNMAP keys=64 slotb 0..28")
+        print("  [gate 17e] lane OFF: power-on identity = HOST/RING "
+              "(13'h1300), loopback templates emitted but INVALID (13'h05xx) "
+              "- nothing advertised that this bitstream cannot produce")
+
+        # and the OTHER direction: declaring the lane must hand the pool
+        # back. ONE fact drives the argv and the map, so they cannot drift.
+        def dyn_everything_lane(c):
+            dyn_everything(c)
+            c["audio_interface"]["cluster_mapping"]["fabric"] = {
+                "loopback_lane": True, "playback_rings": 1}
+        p2 = _variant(CONFIGS["ax7101_8x8"], dyn_everything_lane)
+        try:
+            r2 = eb.build(p2, OUT)
+            with tempfile.TemporaryDirectory() as td:
+                subprocess.run(
+                    [sys.executable,
+                     os.path.join(ROOT, "avdecc/gen_aem_store.py"),
+                     "--overlay", r2["paths"]["aem_overlay"],
+                     "--out-dir", td],
+                    check=True, capture_output=True)
+                svh2 = open(os.path.join(td, "aecp_aem_rom.svh")).read()
+            assert "13'h1500" in svh2, \
+                "lane declared but no VALID loopback template emitted"
+            assert "AEM_ODMAP_INIT_C [0:63] = '{6'h29" in svh2, \
+                "lane declared but the power-on map did not return to it"
+            assert "--loopback-lane" in eb.emit_design_opts(
+                eb.load_config(p2)), \
+                "lane declared but milan_soc was never told to build it"
+            assert all(q["primary_role"] == "loopback"
+                       for q in r2["overlay"]["stream_ports"]["output"])
+            print("  [gate 17e] lane ON: the SAME declaration hands the pool "
+                  "back - primary_role loopback, 13'h1500 valid, INIT 6'h29 "
+                  "(offset 9), and --loopback-lane in the milan_soc argv")
+        finally:
+            os.unlink(p2)
     finally:
         os.unlink(p)
 
@@ -2910,6 +2964,41 @@ def test_optional_block_names_reach_the_rtl():
           "else arm == the AREA_BUDGET tier-1 table row (the "
           "p_AAF_PLAYBACK silent-no-op class, closed)")
 
+    # gate 23e (task #65): the loopback lane rides the SAME decorative-ABI
+    # risk but the OPPOSITE polarity - it is an ADD, default OFF, so it is
+    # not in OPTIONAL_BLOCKS and gate 23d above cannot see it. Nothing in CI
+    # runs LiteX, so a rename on either side would silently no-op exactly
+    # like p_AAF_PLAYBACK did: the argv would carry --loopback-lane, the
+    # Instance would pass a parameter the RTL does not have, the bucket would
+    # stay tied off, and the AEM would go on advertising a lane that is not
+    # there. Pin all four names as TEXT.
+    assert re.search(r'ap\.add_argument\("--loopback-lane",\s*'
+                     r'action="store_true"', soc), \
+        "milan_soc.py has no --loopback-lane store_true argument"
+    assert re.search(r'dp_params\["p_LOOPBACK_P"\]\s*=\s*1', soc), \
+        "milan_soc.py never passes p_LOOPBACK_P (the SV name, exactly)"
+    assert re.search(r"^\s*parameter\s+int\s+LOOPBACK_P\s*=\s*(\d+)\s*,",
+                     rtl, re.M).group(1) == "0", (
+        "milan_datapath.sv LOOPBACK_P must exist and default to 0 - it is an "
+        "ADD that the shipping bitstream cannot afford, not a prune")
+    # and it must actually reach the leaf: the tie-off is the strobe, so a
+    # build with the lane off can never write the hold bank
+    assert re.search(r"assign lb_tap_tvalid_w\s*=\s*\(LOOPBACK_P != 0\)",
+                     rtl), \
+        "milan_datapath.sv: LOOPBACK_P does not gate the LOOP bucket's strobe"
+    assert ".lb_tvalid_i (lb_tap_tvalid_w)" in rtl, \
+        "milan_datapath.sv: the LOOP bucket's feed is not connected at all"
+    # the builder half: the flag is emitted from the SAME declaration
+    # primary_segment reads, so the two cannot disagree
+    lane_cfg = eb.load_config(CONFIGS["ax7101_8x8"])
+    assert ("--loopback-lane" in eb.emit_design_opts(lane_cfg)) == \
+        lane_cfg["interface"]["cluster_fabric"]["loopback_lane"], \
+        "the milan_soc argv and the declared fabric lane disagree"
+    print("  [gate 23e] task #65 loopback lane: --loopback-lane store_true == "
+          "p_LOOPBACK_P == `parameter int LOOPBACK_P = 0` == the strobe gate "
+          "== the connected lb_tvalid_i == the config declaration that "
+          "primary_segment reads (same silent-no-op class, opposite polarity)")
+
 
 # ======================================================== gates 24c / 24d ====
 #  PER-BOARD AUDIO FRONT-END ROUTING - the L1 binding, one board at a time.
@@ -3493,20 +3582,28 @@ def test_d8_role_pools():
     assert ovl["descriptor_counts"]["AUDIO_CLUSTER"] == 8*8 + 8*17 == 200
     assert all(g["role"] != "physical" for p in P_in + P_out for g in p["pool"]), \
         "a board with 0 routed channels must emit NO physical clusters"
-    # (b) the primary segment: listeners fall through to host, talkers to
-    #     LOOPBACK - which is the whole point (USER 2026-07-28). Since the
-    #     08-01 flip the ship talkers are map_mode dynamic (no AUDIO_MAP
-    #     descriptors), so the loopback identity now lives in the DYNAMIC
-    #     engine's power-on image (AEM_ODMAP_INIT_C) - same property, read
-    #     from where it moved to.
+    # (b) the primary segment: listeners fall through to host, and so do the
+    #     talkers - because the primary segment is now the first pool this
+    #     BUILD can actually feed (task #65). LOOPBACK is still the pool the
+    #     USER asked for (2026-07-28) and it comes back the moment
+    #     cluster_mapping.fabric.loopback_lane is declared, which gate 17e
+    #     proves in both directions; with the lane off, pointing the power-on
+    #     image at it would advertise a source milan_datapath does not carry.
+    #     Since the 08-01 flip the ship talkers are map_mode dynamic (no
+    #     AUDIO_MAP descriptors), so the identity lives in the DYNAMIC
+    #     engine's power-on image (AEM_ODMAP_INIT_C).
     assert all(p["primary_role"] == "host" for p in P_in)
-    assert all(p["primary_role"] == "loopback" for p in P_out)
+    lane = (eb.load_config(CONFIGS["ax7101_8x8"])["interface"]
+            ["cluster_fabric"]["loopback_lane"])
+    want = "loopback" if lane else "host"
+    assert all(p["primary_role"] == want for p in P_out), \
+        f"lane={lane} but talker primary_role is not {want}"
     for p in P_out:
-        lb = next(g for g in p["pool"] if g["role"] == "loopback")
+        seg = next(g for g in p["pool"] if g["role"] == want)
         if p["maps"] == 0:
             continue                    # dynamic port: image checked below
         m = next(m for m in ovl["audio_maps"] if m["index"] == p["base_map"])
-        assert all(lb["offset"] <= off < lb["offset"] + lb["width"]
+        assert all(seg["offset"] <= off < seg["offset"] + seg["width"]
                    for (_, _, off, _) in m["mappings"]), m
     if all(p["maps"] == 0 for p in P_out):
         with tempfile.TemporaryDirectory() as td:
@@ -3519,12 +3616,25 @@ def test_d8_role_pools():
         assert mi, "dynamic ship talkers but no AEM_ODMAP_INIT_C image"
         vals = [int(v.strip().split("'h")[1], 16)
                 for v in mi.group(2).split(",")]
-        lb = next(g for g in P_out[0]["pool"] if g["role"] == "loopback")
+        seg = next(g for g in P_out[0]["pool"] if g["role"] == want)
         assert len(vals) == 8 * len(P_out)
         for k, v in enumerate(vals):
             assert v >> 5 == 1, f"identity key {k} not armed"
-            assert lb["offset"] <= (v & 0x1F) < lb["offset"] + lb["width"], \
-                f"identity key {k} cluster {v & 0x1F} outside loopback pool"
+            assert seg["offset"] <= (v & 0x1F) < seg["offset"] + seg["width"], \
+                f"identity key {k} cluster {v & 0x1F} outside {want} pool"
+        # and EVERY armed key must name a template the fabric can source -
+        # the property whose absence was the whole defect. A key is armed
+        # only where gen_aem_store found srcs[co]["valid"], so an unbacked
+        # pool can never be the image; re-assert it from the ROM side.
+        cs = re.search(r"AEM_ODMAP_CSRC_C \[0:(\d+)\] = '\{([^}]*)\}", svh)
+        assert cs, "no capture-crossbar source templates emitted"
+        tmpl = [int(v.strip().split("'h")[1], 16)
+                for v in cs.group(2).split(",")]
+        pcls = P_out[0]["clusters"]
+        for k, v in enumerate(vals):
+            if v >> 5:
+                assert tmpl[(k // 8) * pcls + (v & 0x1F)] >> 12 == 1, \
+                    f"power-on key {k} names an UNBACKED source template"
     # (c) per-talker DISTINCT loopback sources: talker t defaults to rx
     #     stream t, so eight talkers see eight different sources
     byport = {}
@@ -3537,7 +3647,8 @@ def test_d8_role_pools():
         "every talker port must offer a DIFFERENT loopback source set"
     print(f"  [gate 24a] ax7101_8x8 role-pools: 200 AUDIO_CLUSTERs "
           f"(8x host8 in; 8x host8+pilot1+loopback8 out), 0 physical because "
-          f"the board routes none, talker map -> loopback, 8 distinct sources")
+          f"the board routes none, talker map -> {want} (fabric lane "
+          f"{'on' if lane else 'off'}), 8 distinct loopback sources offered")
 
     # (d) physical pool APPEARS when the platform declares routed channels
     p = _pools_variant("ax7101_8x8", {"capture": 16, "render": 16},

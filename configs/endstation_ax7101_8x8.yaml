@@ -249,11 +249,46 @@ audio_interface:
                                      # model (BRAM hot stub + DRAM bulk tree).
                                      # USER 2026-07-28: "For the AX Loopback,
                                      # use the loopback cluster created."
-                                     # THE FABRIC LANE DOES NOT EXIST YET -
-                                     # KL_chan_map_capture's src[6:4] has no
-                                     # loopback bucket (0 zero / 1 i2s / 2 tdm
-                                     # / 3 ring / 4 tone, 5..7 reserved), so
-                                     # the build plan marks this "planned".
+                                     # The clusters stay declared; whether
+                                     # this BUILD can feed them is the
+                                     # separate `fabric` fact below.
+    fabric:                          # WHICH POOL SOURCES THIS BUILD BUILDS
+                                     # (task #65). A pool is a model fact; a
+                                     # source is a build fact, and letting
+                                     # them disagree is what shipped a talker
+                                     # that answered GET_AUDIO_MAP perfectly
+                                     # and streamed digital silence.
+      loopback_lane: false           # milan_soc --loopback-lane ->
+                                     # milan_datapath LOOPBACK_P, which wires
+                                     # KL_chan_map_capture's SRC_LOOP bucket
+                                     # (src 5) to the depacketizer payload
+                                     # clone so talker t really carries rx
+                                     # stream t. The RTL and its TB are DONE
+                                     # and green (tb/verilator/milan_dp
+                                     # obj_nxn8 runs with LOOPBACK_P=1) - the
+                                     # blocker is purely area: measured OOC
+                                     # on the leaf at this 8x8 shape, driving
+                                     # the bucket costs +2303 LUT / +1542 FF
+                                     # (32 pair holds x 48 b that cannot be
+                                     # LUTRAM: the bank takes a reset and two
+                                     # writes per beat, so it is flops plus a
+                                     # 32:1 48-bit read mux). This device is
+                                     # at 61,039/63,400 LUT and dies in
+                                     # PACKING, so the lane does not fit
+                                     # today. Flip this to true when the fit
+                                     # campaign lands and the power-on map
+                                     # returns to the loopback pool by
+                                     # itself - one fact, both consumers.
+      playback_rings: 1              # milan_soc --aaf-playback-streams (the
+                                     # KL_pcm_tx rings behind the `host`
+                                     # pool). sw/litex/build.sh passes
+                                     # --aaf-playback with this default, so
+                                     # ONE 8-channel host ring exists and the
+                                     # 64ch chmap places its 4 pairs onto any
+                                     # talker's wire slots. Declaring it here
+                                     # is what stops the host templates from
+                                     # striding into rings 1..7 that are not
+                                     # elaborated.
 
 streams:
   listeners:

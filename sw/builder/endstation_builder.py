@@ -1117,7 +1117,7 @@ def _streams(lst, ctx, direction):
 
 # --------------------------------------------------- cluster/port layout ----
 def cluster_layout(listeners, talkers, policy, iface_channels,
-                   phys=None, pools=None):
+                   phys=None, pools=None, lb_backed=True):
     """USER decision: ONE STREAM_PORT per stream. Each listener stream gets a
     STREAM_PORT_INPUT, each talker stream a STREAM_PORT_OUTPUT; every port
     owns a contiguous AUDIO_CLUSTER block and exactly one AUDIO_MAP whose
@@ -1255,7 +1255,12 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
                               maps=0 if dyn else 1,
                               base_map=0 if dyn else next_map,
                               map_mode=s.get("map_mode", "static"),
-                              pool=pool))
+                              pool=pool,
+                              # task #65: does THIS BUILD elaborate the rx ->
+                              # talker LOOP bucket? Read by primary_segment,
+                              # so a loopback cluster can never become the
+                              # power-on source of a build without the lane.
+                              lb_backed=lb_backed))
         if not dyn:
             next_map += 1
         base += n
@@ -1267,7 +1272,21 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
 #: stream channels are wired to at power-on. Physical first where it exists;
 #: on a board with no audio pins a talker falls through to LOOPBACK, which is
 #: the point of D8's loopback lane (USER 2026-07-28: "For the AX Loopback,
-#: use the loopback cluster created").
+#: use the loopback cluster created"), and then to HOST.
+#:
+#: task #65: LOOPBACK is only a candidate when the build ELABORATES the lane
+#: (cluster_mapping.fabric.loopback_lane -> milan_soc --loopback-lane ->
+#: milan_datapath LOOPBACK_P). It used to be preferred unconditionally, and
+#: on the AX - which routes no audio pins, so physical is 0 wide and the
+#: fall-through always reached loopback - that put EVERY talker stream
+#: channel on a cluster whose fabric source did not exist. The map read
+#: perfectly in Hive and the wire carried digital silence. A power-on mapping
+#: may only name a source this build can actually produce; Milan v1.2 5.3.9.1
+#: makes the alternative explicit and legal ("each channel of each Stream
+#: Output ... is either NOT MAPPED or mapped to a channel of an Audio
+#: Cluster"), and 5.4.2.26 requires GET_AUDIO_MAP to answer with zero
+#: mappings for a subset that has none - so declaring less is conformant,
+#: while declaring a source that cannot exist is merely undetectable.
 PRIMARY_ROLE_ORDER = {
     "input":  ("physical", "host", "virtual"),
     "output": ("physical", "loopback", "host", "pilot", "virtual"),
@@ -1277,8 +1296,16 @@ PRIMARY_ROLE_ORDER = {
 def primary_segment(port, direction):
     """The pool segment this port's static AUDIO_MAP wires its stream
     channels to (1722.1 7.2.19 offsets are port-relative, so this is just an
-    offset inside the port's own pool)."""
+    offset inside the port's own pool).
+
+    A segment whose fabric source this build did not elaborate is not a
+    candidate: `lb_backed` False drops the loopback pool from the preference
+    walk (the clusters still EXIST and a controller may still map to them -
+    they simply are not what the entity wakes up claiming). Absent key =
+    backed, so every caller that predates task #65 is unchanged."""
     by_role = {g["role"]: g for g in port["pool"]}
+    if not port.get("lb_backed", True):
+        by_role.pop("loopback", None)
     for role in PRIMARY_ROLE_ORDER[direction]:
         if role in by_role:
             return by_role[role]
@@ -2696,10 +2723,47 @@ def load_config(path):
             f"audio_interface.cluster_mapping.pools is only read by the "
             f"role-pools policy; this config selects '{policy}', so the pools "
             "would be silently ignored (D8)")
+    # task #65: WHICH POOL SOURCES THIS BUILD ACTUALLY ELABORATES. A pool is a
+    # MODEL fact (the clusters exist and are named); whether the fabric can
+    # feed it is a BUILD fact, and the two were allowed to disagree - the AX
+    # declared 8 loopback clusters per talker port and woke with every talker
+    # channel mapped to one, while milan_datapath left KL_chan_map_capture's
+    # LOOP feed unconnected. Result: a conformant-looking GET_AUDIO_MAP over a
+    # stream of digital silence. This block is the single declaration that
+    # drives BOTH the milan_soc argv and the power-on map, so they cannot
+    # drift apart again. Omitted entirely => today's answers exactly.
+    fab = cm.get("fabric") or {}
+    if not isinstance(fab, dict) or set(fab) - {"loopback_lane",
+                                                "playback_rings"}:
+        raise ConfigError(
+            "audio_interface.cluster_mapping.fabric must be a mapping with "
+            "keys loopback_lane (bool: milan_soc --loopback-lane, the rx -> "
+            "talker LOOP bucket) and/or playback_rings (int: milan_soc "
+            "--aaf-playback-streams, the KL_pcm_tx rings behind the host "
+            "pool)")
+    if fab and policy != "role-pools":
+        raise ConfigError(
+            "audio_interface.cluster_mapping.fabric is only read by the "
+            f"role-pools policy; this config selects '{policy}'")
+    lb_lane = bool(fab.get("loopback_lane", False))
+    if lb_lane and not int(pools.get("loopback", 0)):
+        raise ConfigError(
+            "cluster_mapping.fabric.loopback_lane is set but pools.loopback "
+            "is 0: the build would carry the rx -> talker LOOP bucket "
+            "(+2303 LUT / +1542 FF at 8x8) with no cluster naming it")
+    pb_rings = fab.get("playback_rings")
+    if pb_rings is not None:
+        pb_rings = int(pb_rings)
+        if pb_rings < 1:
+            raise ConfigError(
+                f"cluster_mapping.fabric.playback_rings {pb_rings} must be "
+                ">= 1 (omit the key to leave the host pool's ring bound at "
+                "the fabric maximum)")
     interface = dict(
         kind=kind, channels=iinfo["channels"], word_length_bits=wl,
         cluster_policy=policy, rtl=iinfo["rtl"],
         physical_channels=phys, cluster_pools=pools,
+        cluster_fabric=dict(loopback_lane=lb_lane, playback_rings=pb_rings),
     )
     # AES3/S-PDIF: the serial clock is a HARD consequence of the media clock
     # (sampling_rate_hz x 128 UI/frame x OVERSAMPLE_P). A config whose audio
@@ -2766,7 +2830,8 @@ def load_config(path):
     # per-stream port layout (needed by the model-id hash and the overlay)
     out["ports_in"], out["ports_out"] = cluster_layout(
         listeners, talkers, policy, interface["channels"],
-        phys=phys, pools=pools)
+        phys=phys, pools=pools,
+        lb_backed=interface["cluster_fabric"]["loopback_lane"])
 
     # entity_model_id resolution: pin > hash-derived > literal
     shape = model_shape(out)
@@ -2884,18 +2949,38 @@ def rtl_capability_marks(cfg):
                           "cluster-keyed dynamic-map store forbids - D7 "
                           "flips the key to the target stream channel"))
         if pools.get("loopback"):
+            lane = cfg["interface"]["cluster_fabric"]["loopback_lane"]
             marks.append((f"D8 stream-loopback lane "
                           f"({pools['loopback']} clusters/talker port)",
-                          "planned (D8 subtask - new fabric lane)",
-                          "MODEL half emitted (the clusters exist, are named "
-                          "for the rx {stream, channel} they offer, and the "
-                          "talker's static AUDIO_MAP already points at them). "
-                          "MISSING = the fabric source: KL_chan_map_capture's "
-                          "map entry is {en, src[6:4], idx[3:0]} with buckets "
-                          "0 ZERO / 1 I2S / 2 TDM / 3 RING / 4 TONE and 5..7 "
-                          "reserved - the received pair streams are not in "
-                          "that set, so a loopback cluster selects silence "
-                          "until the bucket and its hold bank land"))
+                          "supported" if lane else
+                          "declared, fabric lever OFF (task #65)",
+                          ("BOTH halves land. MODEL: the clusters exist and "
+                           "are named for the rx {stream, channel} they "
+                           "offer. FABRIC: milan_soc --loopback-lane sets "
+                           "milan_datapath LOOPBACK_P, wiring "
+                           "KL_chan_map_capture's src[6:4] = 5 SRC_LOOP "
+                           "bucket to the depacketizer payload clone, so a "
+                           "talker slot naming a loopback cluster carries "
+                           "that received channel pair"
+                           if lane else
+                           "the clusters exist and are NAMED for the rx "
+                           "{stream, channel} they would offer, but this "
+                           "build does not elaborate the lane "
+                           "(cluster_mapping.fabric.loopback_lane false -> "
+                           "no --loopback-lane -> LOOPBACK_P 0), so the "
+                           "bucket is tied off and a loopback cluster reads "
+                           "as silence. The RTL and its TB are DONE; the "
+                           "blocker is area - driving the bucket measured "
+                           "+2303 LUT / +1542 FF OOC at 8x8 (32 pair holds "
+                           "x 48 b that cannot be LUTRAM). The power-on map "
+                           "therefore does NOT point here: primary_segment "
+                           "drops the pool and the talkers wake on the host "
+                           "pool instead, so nothing is advertised that this "
+                           "bitstream cannot produce") +
+                          ". A mapped-but-never-fed slot is DISTINGUISHABLE "
+                          "from a quiet one either way: CHMAP_LOOP 0x914 "
+                          "[18] LOOP_SUSPECT = mapped & ~fed, so silence "
+                          "here is never a lying zero"))
     rate = cfg["clocking"]["sampling_rate_hz"]
     if rate in RTL_TODAY["sampling_rates"]:
         marks.append((f"{rate} Hz media clock", "supported", ""))
@@ -3045,6 +3130,13 @@ def emit_design_opts(cfg):
     cbs_mask = (1 << cq)
     if cbs_mask != (1 << nq) - 1:
         argv += ["--cbs-queues-mask", f"0x{cbs_mask:x}"]
+    # task #65: the rx -> talker LOOP bucket. Emitted ONLY when declared, so
+    # every config that predates the key produces a byte-identical argv. This
+    # is the SAME declaration primary_segment reads, which is the whole point:
+    # the flag that builds the lane and the map that points at it come from
+    # one fact, so an AEM can never advertise a lane the bitstream lacks.
+    if cfg["interface"].get("cluster_fabric", {}).get("loopback_lane"):
+        argv += ["--loopback-lane"]
     return argv
 
 
@@ -3337,6 +3429,11 @@ def emit_aem_overlay(cfg):
         "cluster_format": "MBLA-mono",
         "cluster_policy": cfg["interface"]["cluster_policy"],
         "cluster_pools": cfg["interface"]["cluster_pools"],
+        # task #65: which pool sources the BITSTREAM behind this model
+        # elaborates. gen_aem_store reads it to decide whether a cluster's
+        # capture-crossbar template is a real source or an advertisement, so
+        # the power-on dynamic map cannot name a lane that was not built.
+        "cluster_fabric": cfg["interface"]["cluster_fabric"],
         "physical_binding": {
             "interface": cfg["interface"]["kind"],
             "channels_per_direction": cfg["interface"]["channels"],
