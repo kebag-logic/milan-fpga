@@ -437,9 +437,15 @@ module KL_acmp_lstn_ctx #(
     endcase
   end
 
-  //! probe flags: STREAMING_WAIT | SRP_REG_FAILED cleared from the binding
-  wire [15:0] w_probe_flags = cur_r.flags &
-      ~(ACMP_FLAG_STREAMING_WAIT_C | ACMP_FLAG_SRP_REG_FAILED_C);
+  //! probe flags — Milan v1.2 Table 5.33 ("PROBE_TX_COMMAND fields on
+  //! success") states them as LITERALS, not as copied binding parameters:
+  //! FAST_CONNECT 1, STREAMING_WAIT 0, REGISTERING_FAILED 0. The mask alone
+  //! covered the two zeroes and let FAST_CONNECT ECHO the BIND_RX_COMMAND,
+  //! so a bind that did not request fast-connect emitted a non-conformant
+  //! probe. Every other binding flag is still carried through untouched.
+  wire [15:0] w_probe_flags = (cur_r.flags &
+      ~(ACMP_FLAG_STREAMING_WAIT_C | ACMP_FLAG_SRP_REG_FAILED_C)) |
+      ACMP_FLAG_FAST_CONNECT_C;
 
   //! probe frame byte (positions per the ACMPDU layout)
   function automatic [7:0] probe_byte(input int b);

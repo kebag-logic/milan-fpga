@@ -818,7 +818,13 @@ class MilanListenerModel:
             'talker_unique_id': self.tuid, 'listener_unique_id': 0,
             'sequence_id': self.probe_seq, 'stream_id': 0,
             'stream_dest_mac': 0, 'stream_vlan_id': 0,
-            'flags': self.flags & ~(FLAG_STREAMING_WAIT | FLAG_SRP_REG_FAILED)})
+            # Milan v1.2 Table 5.33 states FAST_CONNECT / STREAMING_WAIT /
+            # REGISTERING_FAILED as LITERALS (1 / 0 / 0), not as copied binding
+            # parameters. Masking alone covered the two zeroes and let
+            # FAST_CONNECT echo the BIND_RX_COMMAND - the same defect the RTL
+            # carried until task #64, in this model's own copy of the clause.
+            'flags': (self.flags & ~(FLAG_STREAMING_WAIT | FLAG_SRP_REG_FAILED))
+                     | FLAG_FAST_CONNECT})
         self.probe_seq += 1
 
     # -- frame events ---------------------------------------------------------
@@ -1303,7 +1309,9 @@ def step_probe_emitted(context):
     assert p['talker_entity_id'] == context.listener.talker
     assert p['listener_entity_id'] == context.listener.entity_id
     assert p['stream_id'] == 0 and p['stream_dest_mac'] == 0
+    # Table 5.33: FAST_CONNECT 1, STREAMING_WAIT 0, REGISTERING_FAILED 0
     assert (p['flags'] & (FLAG_STREAMING_WAIT | FLAG_SRP_REG_FAILED)) == 0
+    assert (p['flags'] & FLAG_FAST_CONNECT) == FLAG_FAST_CONNECT, hex(p['flags'])
 
 
 @then('the probe sequence id was {n:d}')

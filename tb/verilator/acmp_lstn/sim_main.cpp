@@ -170,7 +170,8 @@ static int r_msg(const std::vector<uint8_t>& b){ return b.size()>15 ? b[15]&0xF 
 static int r_sta(const std::vector<uint8_t>& b){ return b.size()>16 ? b[16]>>3 : -1; }
 static uint64_t r_be(const std::vector<uint8_t>& b, int off, int n) {
     uint64_t v = 0;
-    for (int i = 0; i < n; i++) v = (v << 8) | b[off+i];
+    for (int i = 0; i < n; i++)
+        v = (v << 8) | ((size_t)(off+i) < b.size() ? b[off+i] : 0);
     return v;
 }
 
@@ -497,13 +498,25 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
-    printf("\n[S1] CRF sink-1 real bind record (no probe SM, no MSRP)\n");
+    printf("\n[S1] sink-1 bind: full probe ladder, response is the authority\n");
+    // TASK #64. Sink 1 used to be a RECORD-ONLY bind (no probe SM, no MSRP
+    // attach): it parked in SETTLED_NO_RSV and its lwSRP listener row was
+    // registered against a stream_id the record COPIED from the command or
+    // GUESSED from {talker EID, tuid}. Milan v1.2 5.5.3.2 defines the state
+    // table per SINK and 5.5.3.5.3 step 5 requires a PROBE_TX_COMMAND on
+    // RCV_BIND_RX_CMD for whichever sink listener_unique_id names, so every
+    // context now runs the ladder. The fast-connect stream_id (5.5.1.2) is
+    // still honoured on a non-zero sink, but only as the PROVISIONAL value:
+    // 5.5.3.5.18 step 4 makes the PROBE_TX_RESPONSE the source of the real
+    // stream_id / stream_dest_mac / stream_vlan_id and the trigger for
+    // "initiate SRP reservation", and this section pins that ordering.
     {
         // sink0 state as [Z] left it: the S1 record must not disturb it
         long st0 = dut->state_o, act0 = dut->stream_active_o;
         feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x1FF, 0, 0));
         auto r = wait_frame();
         long cnt0 = (long)r_be(r, 60, 2);
+        long pc0  = dut->probe_count_o;
 
         // fast-connect bind: command carries the stream_id + dest_mac
         const uint8_t cdm[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x08};
@@ -514,10 +527,26 @@ int main(int argc, char** argv) {
         ck("[S1] SUCCESS", r_sta(r), 0);
         ck("[S1] count 1", (long)r_be(r, 60, 2), 1);
         ck("[S1] s1_bound_o", dut->s1_bound_o, 1);
-        ckh("[S1] s1_sid = command sid", dut->s1_sid_o, 0x020000000001000BULL);
-        ckh("[S1] s1_dmac = command dmac", dut->s1_dmac_o, 0x91E0F0002A08ULL);
+        ckh("[S1] s1_sid = command sid (provisional)", dut->s1_sid_o,
+            0x020000000001000BULL);
+        // 5.5.2.6 step 1 / Table 5.33: the SRP parameters are CLEARED at bind
+        // and re-learned from the probe response. The command's dest_mac is
+        // not a source of truth for them - it never was for sink 0.
+        ckh("[S1] s1_dmac cleared at bind (5.5.2.6 s1)", dut->s1_dmac_o, 0);
         ck("[S1] sink0 SM untouched", dut->state_o, st0);
         ck("[S1] sink0 activity untouched", dut->stream_active_o, act0);
+
+        // ...and the probe follows the response (5.5.3.5.3 steps 3 then 5)
+        auto p1 = wait_frame();
+        ck("[S1] sink1 PROBE_TX emitted", p1.size(), 70);
+        ck("[S1] probe is CONNECT_TX_COMMAND", r_msg(p1), 0);
+        ck("[S1] probe listener_unique_id 1 (Table 5.33)",
+           (long)r_be(p1, 52, 2), 1);
+        ckh("[S1] probe talker = bound talker", r_be(p1, 34, 8), TK_EID);
+        ck("[S1] probe talker_unique_id = binding", (long)r_be(p1, 50, 2),
+           0x000B);
+        ck("[S1] probe_count advanced", (long)dut->probe_count_o - pc0, 1);
+        ck("[S1] sink1 state PRB_W_RESP", dut->s1_bound_o, 1);
 
         feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x201, 0, 0));
         r = wait_frame();
@@ -525,22 +554,49 @@ int main(int argc, char** argv) {
         ck("[S1] state count 1", (long)r_be(r, 60, 2), 1);
         ckh("[S1] state talker", r_be(r, 34, 8), TK_EID);
         ck("[S1] state tuid", (long)r_be(r, 50, 2), 0x000B);
-        ckh("[S1] state dmac", r_be(r, 54, 6), 0x91E0F0002A08ULL);
+        ckh("[S1] state dmac 0 while probing", r_be(r, 54, 6), 0);
+        ck("[S1] state STREAMING_WAIT while probing", (long)r_be(r, 64, 2),
+           0x0008);
 
-        // zero-sid bind falls back to {talker EID(FFFE-squeezed), tuid}
+        // THE BITE (5.5.3.5.18 step 4): the talker answers with a stream_id
+        // that is NEITHER the command's fast-connect sid NOR the {EID,tuid}
+        // derivation. What the sink keeps - and therefore what the lwSRP
+        // listener row is registered against - must be the RESPONSE's.
+        {
+            const uint8_t rdm[6] = {0x91,0xE0,0xF0,0x00,0x5B,0x77};
+            feed(acmp(1, 0, 0xAABBCCDDEEFF0077ULL, CT_EID, TK_EID, US_EID,
+                      0x000B, 1, rdm, 0x33, 0, 3));
+            ckh("[S1] sid from the RESPONSE, not the guess", dut->s1_sid_o,
+                0xAABBCCDDEEFF0077ULL);
+            ckh("[S1] dmac from the RESPONSE", dut->s1_dmac_o,
+                0x91E0F0005B77ULL);
+            feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x207, 0, 0));
+            r = wait_frame();
+            ckh("[S1] settled state dmac from the response", r_be(r, 54, 6),
+                0x91E0F0005B77ULL);
+            ck("[S1] settled: STREAMING_WAIT gone", (long)r_be(r, 64, 2), 0);
+            ck("[S1] settled state count 1", (long)r_be(r, 60, 2), 1);
+        }
+
+        // zero-sid rebind to a different tuid falls back to the {talker
+        // EID(FFFE-squeezed), tuid} derivation as the PROVISIONAL value...
         feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0x0001, 1, nullptr,
                   0x202, 0, 0));
         r = wait_frame();
         ck("[S1] zero-sid rebind SUCCESS", r_sta(r), 0);
         ckh("[S1] fallback sid {eid,tuid}", dut->s1_sid_o,
             0x0200000000010001ULL);
+        ckh("[S1] rebind clears the stale response dmac", dut->s1_dmac_o, 0);
+        p1 = wait_frame();
+        ck("[S1] rebind re-probes (5.5.3.5.43 step 8)", p1.size(), 70);
+        ck("[S1] re-probe luid still 1", (long)r_be(p1, 52, 2), 1);
 
         // sink0 GET_RX_STATE remains independent (whatever [Z] left)
         feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x203, 0, 0));
         r = wait_frame();
         ck("[S1] sink0 state count unchanged", (long)r_be(r, 60, 2), cnt0);
 
-        // unbind clears the record
+        // unbind clears the record (and stops the ladder)
         feed(acmp(8, 0, 0, CT_EID, TK_EID, US_EID, 0, 1, nullptr, 0x204, 0, 0));
         r = wait_frame();
         ck("[S1] UNBIND_RESP", r_msg(r), 9);
@@ -658,7 +714,7 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
-    printf("\n[G] KNOWN GAPS vs Milan v1.2 5.5.3 (pinned, not failures)\n");
+    printf("\n[G] Milan v1.2 5.5.3 conformance pins (task #64 closures)\n");
     // CLAUSE-FIRST NOTE, 2026-08-03. Two things reported as defects after the
     // PEER bring-up are in fact CONFORMANT for a Milan PAAD-AE and must NOT
     // be "fixed":
@@ -672,20 +728,24 @@ int main(int argc, char** argv) {
     //     1722.1-2021 8.2.2.5 flow where CONNECT_RX_RESPONSE waits for the
     //     CONNECT_TX_RESPONSE (Milan renames those messages to BIND_RX_* and
     //     PROBE_TX_* and redefines the machine around them).
-    // What IS non-conformant is pinned below.
+    // What WAS non-conformant is pinned below - both closed by task #64, so
+    // these are ck()s now. The gap() mechanism itself stays live: pin 3 is a
+    // clause this RTL still does not implement.
     {
-        // ---- GAP 1: only sink 0 owns a probe state machine -------------
-        // KL_acmp_listener.sv:138  localparam SM_EN_MAP_C = N_SINKS_P'(1);
-        // i.e. PROBE_SM_EN_P = ...0001. Every sink except 0 takes the
-        // record-only branch, parks straight in LSM_SETTLED_NO_RSV and never
-        // emits a PROBE_TX_COMMAND. Milan 5.5.3.5.3 step 5 requires EVERY
-        // sink to send one on RCV_BIND_RX_CMD, and 5.5.3.5.18 step 4 makes
-        // the PROBE_TX_RESPONSE the only source of the talker's real
-        // stream_id / stream_dest_mac / stream_vlan_id and the trigger for
-        // "initiate SRP reservation". A record-only sink instead registers
-        // the lwSRP listener row (d2739b1b) against a sid it DERIVED from
-        // {talker EID, tuid} - a guess, checked by "[S1] fallback sid" above.
-        // On the 8x8 shape that is 7 AAF sinks plus CRF with no probe leg.
+        // ---- CLOSED 1: every sink owns a probe state machine -----------
+        // Was: KL_acmp_listener.sv SM_EN_MAP_C = N_SINKS_P'(1), i.e.
+        // PROBE_SM_EN_P = ...0001, so every sink except 0 took the
+        // record-only branch, parked in LSM_SETTLED_NO_RSV and never emitted
+        // a PROBE_TX_COMMAND - seven AAF sinks plus CRF on the 8x8 shape.
+        // Milan 5.5.3.5.3 step 5 requires one on RCV_BIND_RX_CMD for the sink
+        // listener_unique_id names, and 5.5.3.5.18 step 4 makes the
+        // PROBE_TX_RESPONSE the only source of the talker's real stream_id /
+        // stream_dest_mac / stream_vlan_id and the trigger for "initiate SRP
+        // reservation". A record-only sink instead registered its lwSRP
+        // listener row (d2739b1b) against a sid DERIVED from {talker EID,
+        // tuid} - right only when the talker derives the same way.
+        // SM_EN_MAP_C is now all-ones; [S1] above pins the response-is-the-
+        // authority half, this pins the probe-per-sink half.
         long pc0 = dut->probe_count_o;
         feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0x000B, 1, nullptr,
                   0x301, 0, 0));
@@ -693,21 +753,34 @@ int main(int argc, char** argv) {
         ck("[G] sink1 BIND_RESP", r_msg(r), 7);
         ck("[G] sink1 BIND SUCCESS", r_sta(r), 0);
         ck("[G] sink1 bound", dut->s1_bound_o, 1);
-        run(400);   // << the 200 ms (2000 cycle) sink-0 NO_RESP retransmit
-        gap("[G] sink1 probes the talker", (long)dut->probe_count_o - pc0,
-            0, 1, "Milan 5.5.3.5.3 step 5");
+        auto p1 = wait_frame();
+        ck("[G] sink1 probes the talker", (long)dut->probe_count_o - pc0, 1);
+        ck("[G] sink1 probe on the wire", p1.size(), 70);
+        //! msg type FIRST: a BIND_RX_RESPONSE to sink 1 also echoes
+        //! listener_unique_id 1, so the index check alone can be satisfied by
+        //! the wrong frame entirely
+        ck("[G] sink1 probe is CONNECT_TX_COMMAND", r_msg(p1), 0);
+        ck("[G] sink1 probe carries its own sink index",
+           (long)r_be(p1, 52, 2), 1);
+        // ...and it is a LADDER, not one shot: 200 ms with no answer resends
+        // (1722.1 Table 8-1 TMR_NO_RESP as Milan 5.5.3.5.3 step 7 sets it)
+        p1 = wait_frame(260 * MS);
+        ck("[G] sink1 resends at TMR_NO_RESP", p1.size(), 70);
+        ck("[G] resend is a CONNECT_TX_COMMAND", r_msg(p1), 0);
+        ck("[G] resend is still sink 1's", (long)r_be(p1, 52, 2), 1);
+        // park it again so its ladder cannot interleave with sink 0 below
+        feed(acmp(8, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x304, 0, 0));
+        (void)wait_frame();
+        ck("[G] sink1 unbound again", dut->s1_bound_o, 0);
 
-        // ---- GAP 2: PROBE_TX_COMMAND ECHOES FAST_CONNECT ---------------
-        // KL_acmp_lstn_ctx.sv:441
+        // ---- CLOSED 2: PROBE_TX_COMMAND forces FAST_CONNECT ------------
+        // Was: KL_acmp_lstn_ctx.sv
         //   w_probe_flags = cur_r.flags & ~(STREAMING_WAIT | SRP_REG_FAILED)
-        // FAST_CONNECT is NOT in that mask, so the probe reproduces whatever
+        // FAST_CONNECT was not in that mask, so the probe reproduced whatever
         // the controller put in the BIND_RX_COMMAND. Milan Table 5.33
-        // ("PROBE_TX_COMMAND fields on success") lists FAST_CONNECT as the
-        // literal 1, not as a copied binding parameter - so a bind that did
-        // not request fast-connect emits a non-conformant probe. Every other
-        // Table 5.33 field is already right: connection_count 0,
-        // STREAMING_WAIT 0, REGISTERING_FAILED 0, stream_id/dmac/vlan zero.
-        // Rebind sink 0 (settled on Y after [R]) to X to draw a fresh probe.
+        // ("PROBE_TX_COMMAND fields on success") states FAST_CONNECT as the
+        // literal 1, not as a copied binding parameter. Rebind sink 0
+        // (settled on Y after [R]) to X to draw a fresh probe.
         feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x302,
                   0x0000 /*controller did NOT request FAST_CONNECT*/, 0));
         r = wait_frame();
@@ -717,19 +790,82 @@ int main(int argc, char** argv) {
         ck("[G] probe is CONNECT_TX_COMMAND", r_msg(p), 0);
         ck("[G] probe connection_count 0 (Table 5.33)", (long)r_be(p, 60, 2), 0);
         ckh("[G] probe stream_id 0 (Table 5.33)", r_be(p, 18, 8), 0);
-        gap("[G] probe FAST_CONNECT set", (long)r_be(p, 64, 2),
-            0x0000, 0x0002, "Milan Table 5.33");
+        ck("[G] probe FAST_CONNECT set (Table 5.33)", (long)r_be(p, 64, 2),
+           0x0002);
 
-        // ...and it really is an ECHO, not a constant 0: ask for it on a
-        // rebind to Y and the probe carries it. This is the bite that pins
-        // the mechanism, so a "fix" that hardcodes 0 cannot pass either.
+        // ...and the flags word is still DERIVED from the record, not a
+        // constant: bind asking for STREAMING_WAIT, which Table 5.33 states
+        // as the literal 0, and the probe must carry FAST_CONNECT alone. A
+        // "fix" that echoed the flags would show 0x000A here; one that
+        // hardcoded 0x0002 everywhere would still pass this, which is why
+        // [3]/[R] pin the STREAMING_WAIT the RECORD keeps.
         feed(acmp(6, 0, 0, CT_EID, TK2_EID, US_EID, 0, 0, nullptr, 0x303,
-                  0x0002 /*controller DID request FAST_CONNECT*/, 0));
+                  0x0008 /*controller DID request STREAMING_WAIT*/, 0));
         r = wait_frame();
         ck("[G] sink0 rebind to Y SUCCESS", r_sta(r), 0);
+        ck("[G] BIND_RESP echoes STREAMING_WAIT (Table 5.32)",
+           (long)r_be(r, 64, 2), 0x0008);
         p = wait_frame();
-        ck("[G] probe FAST_CONNECT echoed when asked", (long)r_be(p, 64, 2),
+        ck("[G] probe FAST_CONNECT 1, STREAMING_WAIT 0", (long)r_be(p, 64, 2),
            0x0002);
+        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x305, 0, 0));
+        r = wait_frame();
+        ck("[G] record still holds STREAMING_WAIT", (long)r_be(r, 64, 2),
+           0x0008);
+
+        // ---- OPEN 3: the probe response is not matched to the command --
+        // 5.5.3.5.18 step 1: "Check that the controller_entity_id,
+        // talker_entity_id, talker_unique_id and sequence_id fields match the
+        // fields of the PROBE_TX_COMMAND message that has been sent. If not,
+        // ignore the message and exit." KL_acmp_lstn_ctx's w_probe_resp
+        // qualifies on listener_entity_id + a valid listener_unique_id + the
+        // context being in PRB_W_RESP/PRB_W_RESP2 only, so a CONNECT_TX_
+        // RESPONSE from the WRONG talker settles the sink on that talker's
+        // stream parameters. Now that every sink probes there are up to N
+        // commands in flight, so this is worth more than it was.
+        // The pin: answer sink 0's outstanding probe as TALKER Z.
+        long st_before = dut->state_o;
+        feed(acmp(1, 0, 0x1234567890ABCDEFULL, CT_EID,
+                  0x020000FFFE0000EEULL /*never bound*/, US_EID, 0, 0,
+                  nullptr, 0x77, 0, 5));
+        gap("[G] mismatched probe response ignored", dut->state_o,
+            6 /*SETTLED_NO_RSV: consumed it*/,
+            st_before /*conformant: still probing*/,
+            "Milan 5.5.3.5.18 step 1");
+
+        // ---- OPEN 4: a settled GET_RX_STATE_RESPONSE ECHOES stream_id --
+        // Found by the [S1] response-is-the-authority bite above. Table 5.38
+        // (SETTLED_NO_RSV / RCV_GET_RX_STATE) states stream_id, stream_dest_mac
+        // and stream_vlan_id as "Value copied from the STREAM_INPUT's SRP
+        // parameters". KL_acmp_lstn_ctx's w_str_echo keeps the RECEIVED frame's
+        // bytes for stream_id (18-25) and stream_vlan_id (66-67) on a STATE
+        // response, so a controller that sends the usual zeros reads its own
+        // zeros back for a settled sink; stream_dest_mac (w_dmac_echo) is
+        // already sourced from the record, which is what makes this an
+        // oversight rather than a policy. Pinned on a sink that is SETTLED on
+        // parameters the command does not contain: bind sink 1, answer its
+        // probe with a sid/vlan of our choosing, then ask for its state.
+        feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0x000B, 1, nullptr,
+                  0x306, 0, 0));
+        (void)wait_frame();               // BIND_RESP
+        (void)wait_frame();               // PROBE_TX
+        {
+            const uint8_t gdm[6] = {0x91,0xE0,0xF0,0x00,0x5B,0x88};
+            feed(acmp(1, 0, 0xAABBCCDDEEFF0088ULL, CT_EID, TK_EID, US_EID,
+                      0x000B, 1, gdm, 0x44, 0, 4));
+            ckh("[G] sink1 settled on the response sid", dut->s1_sid_o,
+                0xAABBCCDDEEFF0088ULL);
+            //! command carries stream_id 0 / vlan 0, record carries ...0088 / 4
+            feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x307, 0, 0));
+            r = wait_frame();
+            ckh("[G] state dmac is the record's (Table 5.38)", r_be(r, 54, 6),
+                0x91E0F0005B88ULL);
+            //! low half only: the full 64-bit sid does not fit a signed long
+            gap("[G] state stream_id is the record's", (long)r_be(r, 22, 4),
+                0 /*echo of the command*/, 0xEEFF0088, "Milan Table 5.38");
+            gap("[G] state stream_vlan_id is the record's",
+                (long)r_be(r, 66, 2), 0 /*echo*/, 4, "Milan Table 5.38");
+        }
     }
 
     printf("KL_acmp_listener: %ld checks, %ld failures, %ld known gaps\n",

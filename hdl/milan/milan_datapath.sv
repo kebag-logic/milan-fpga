@@ -1310,6 +1310,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [ACMP_SINKS_C*64-1:0] acmpl_sid_v_w;
   wire [ACMP_SINKS_C-1:0]    acmpl_upd_p_w;
   wire        lwsrp_ta_registered, lwsrp_ta_failed;
+  //! per-ROW lwSRP registrar levels (KL_lwsrp_ctx): bit 0 = the legacy row-0
+  //! registrar, bits 1..15 = the extension lanes. A LISTENER row's bit is
+  //! its TalkerAdvertise / TalkerFailed registration, which is exactly the
+  //! event Milan 5.5.3.5.27 / 5.5.3.5.33 move a settled sink on.
+  wire [15:0] lwsrp_ctx_reg_w, lwsrp_ctx_failed_w;
+  //! ...projected onto the ACMP sink index. Sink k's attribute row IS k
+  //! (srp_fab_row_w's listener branch), so the projection is the identity on
+  //! 1..N_STREAMS-1. The CRF Media Clock Input sink has no listener row at
+  //! all (MILAN_COMPLIANCE_GAPS.md 3 — at 8x8+CRF the 4-bit row space is
+  //! exactly full), so its bit is honestly 0: that sink probes, settles and
+  //! re-probes every TMR_NO_TK instead of parking in SETTLED_RSV_OK.
+  wire [ACMP_SINKS_C-1:0] acmpl_ta_reg_v_w, acmpl_ta_fail_v_w;
   wire [7:0]  lwsrp_ta_fail_code;
   wire [11:0] lwsrp_ta_vlan;
   wire [31:0] lwsrp_ta_acclat;
@@ -2686,9 +2698,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  coupling through the lwSRP TalkerAdvertise registrar + the Listener
   //  attribute applicant below.
   //  N-sink round: N_STREAMS feeds the wrapper's context count; contexts
-  //  1..N-1 are record-only explicit-sid binds for the 0x800-window streams
-  //  and the LAST context is the pinned CRF sink at listener_unique_id =
-  //  N_STREAMS, mirroring the CRF source at talker_unique_id = N_STREAMS.
+  //  1..N-1 are the further AAF sinks for the 0x800-window streams and the
+  //  LAST context is the pinned CRF sink at listener_unique_id = N_STREAMS,
+  //  mirroring the CRF source at talker_unique_id = N_STREAMS. Since task
+  //  #64 EVERY one of them runs the probe ladder, so every one of them needs
+  //  its own SRP registrar levels (acmpl_ta_reg_v_w below).
   //
   //  2026-07-27: this count was max(N_STREAMS, 2) computed HERE, which
   //  reserved the CRF sink only while N <= 2 and then SILENTLY DROPPED IT -
@@ -2699,6 +2713,26 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  config, which is also what generated the AEM descriptor set, so the
   //  two cannot drift. 1x1 still elaborates 2 sinks, byte-identical.
   // ==========================================================================
+  //! ACMP sink k <-> lwSRP attribute row k (the listener branch of
+  //! srp_fab_row_w). Bit 0 stays the row-0 registrar signal the single-sink
+  //! wiring used, so sink 0's behaviour cannot move; bits 1..N_STREAMS-1 read
+  //! the per-row registrars the lsn_srp_prov provisioner declares those rows
+  //! into; anything above (the CRF sink) has no row and reads 0.
+  generate
+    for (genvar gk = 0; gk < ACMP_SINKS_C; gk++) begin : g_acmpl_ta
+      if (gk == 0) begin : g_row0
+        assign acmpl_ta_reg_v_w[gk]  = lwsrp_ta_registered;
+        assign acmpl_ta_fail_v_w[gk] = lwsrp_ta_failed;
+      end else if (gk < N_STREAMS) begin : g_rowk
+        assign acmpl_ta_reg_v_w[gk]  = lwsrp_ctx_reg_w[gk];
+        assign acmpl_ta_fail_v_w[gk] = lwsrp_ctx_failed_w[gk];
+      end else begin : g_norow
+        assign acmpl_ta_reg_v_w[gk]  = 1'b0;
+        assign acmpl_ta_fail_v_w[gk] = 1'b0;
+      end
+    end
+  endgenerate
+
   KL_acmp_listener #(
     .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
     .N_SINKS_P     (ACMP_SINKS_C)
@@ -2710,8 +2744,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
     .entity_id_i (cfg_adp_entity_id),
     .tick_1s_i (adp_tick_1s),
-    .ta_registered_i (lwsrp_ta_registered),
-    .ta_failed_i     (lwsrp_ta_failed),
+    .ta_registered_i (acmpl_ta_reg_v_w),
+    .ta_failed_i     (acmpl_ta_fail_v_w),
     .lstn_declare_o  (acmpl_lstn_declare),
     .bound_sid_o     (acmpl_sid),
     .stream_vlan_o   (acmpl_vlan),
@@ -4526,7 +4560,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .ctx_latency_i (srp_fab_qsel_w ? srp_fab_qlat_r : csr_srp_ctx_lat),
     .ctx_gnt_o (srp_ctx_gnt_w), .ctx_rd_sid_o (srp_ctx_rd_sid_w),
     .ctx_rd_stat_o (srp_ctx_rd_stat_w), .ctx_oor_o (lwsrp_ctx_oor_w),
-    .ctx_reg_o (), .ctx_ready_o (), .ctx_failed_o (), .ctx_tx_count_o (),
+    //! per-row registrar levels: the ACMP listener's per-sink SETTLED_RSV_OK
+    //! coupling reads rows 1..N_STREAMS-1 out of these (acmpl_ta_reg_v_w)
+    .ctx_reg_o (lwsrp_ctx_reg_w), .ctx_ready_o (),
+    .ctx_failed_o (lwsrp_ctx_failed_w), .ctx_tx_count_o (),
     .stream_gate_o (lwsrp_stream_gate),
     .slope_en_o (lwsrp_slope_en), .idle_slope_o (lwsrp_idle_slope),
     .res_active_o (lwsrp_res_active),

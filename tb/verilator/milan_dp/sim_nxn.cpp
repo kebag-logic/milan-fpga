@@ -900,13 +900,23 @@ int main(int argc, char** argv) {
     ck("t2/t3 armed too (shape-static, reset-armed)",
        (tap_stream_en() >> 2) & 3, 3);
     printf("-- N-sink ACMP: ctx2 window bind end-to-end (0x800 tbl master) --\n");
+    //! ONE definition of ctx2's two stream identities, referenced by the bind,
+    //! the probe answer, the 0x800 window checks and the t21 lwSRP-row section
+    //! below. They must never be restated: the whole point of task #64 is that
+    //! the SRP row ends up on the SECOND one, so two literals that happened to
+    //! agree would pin nothing.
+    const uint8_t CTX2_FC_SID[8]    = {0xAA,0xBB,0xCC,0xDD,0xEE,0xFF,0x00,0x07};
+    const uint8_t CTX2_RESP_SID[8]  = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
+    const uint8_t CTX2_RESP_DMAC[6] = {0x91,0xE0,0xF0,0x00,0x3C,0x11};
     // enable the ACMP listener (ADP enable gates it) with our entity id
     axi_write(A_ADP_EIDHI, 0x020000FF);
     axi_write(A_ADP_EIDLO, 0xFE000001);
     axi_write(A_ADP_CTRL, 0x00001F01);               // enable, valid_time 31
     {
-        // CONNECT_RX (BIND_RX) for listener_unique_id 2: the record-only
-        // explicit-sid window context (per-context policy, Lane-C/§3.1)
+        // CONNECT_RX (BIND_RX) for listener_unique_id 2: a window context
+        // that honours an explicit fast-connect stream_id (Milan 5.5.1.2) as
+        // its PROVISIONAL sid and then runs the full 5.5.3 probe ladder like
+        // every other sink (task #64).
         uint8_t f[72]; memset(f, 0, sizeof f);
         const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
         memcpy(f, mc, 6);
@@ -915,8 +925,7 @@ int main(int argc, char** argv) {
         f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x06;   // CONNECT_RX_COMMAND
         f[16]=0x00; f[17]=44;                             // cdl
         // explicit fast-connect stream_id (nonzero -> adopted by policy)
-        const uint8_t sid[8] = {0xAA,0xBB,0xCC,0xDD,0xEE,0xFF,0x00,0x07};
-        memcpy(f+18, sid, 8);
+        memcpy(f+18, CTX2_FC_SID, 8);
         for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;  // controller
         const uint8_t tk[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
         memcpy(f+34, tk, 8);                              // talker eid
@@ -927,7 +936,16 @@ int main(int argc, char** argv) {
         const uint8_t dm[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x99};
         memcpy(f+54, dm, 6);                              // stream_dest_mac
         f[62]=0x77; f[63]=0x21;                           // sequence_id
-        inject(f, 70, 400);                               // (response drains to TX)
+        //! NOT the old 400-cycle drain: a bind now puts TWO frames on the
+        //! control lane (BIND_RX_RESPONSE at 5.5.3.5.3 step 3, then
+        //! PROBE_TX_COMMAND at step 5) and both must win a grant through the
+        //! five cascaded adp_tx_arbiters. The listener's single front-end FSM
+        //! is deaf while a frame waits for its grant (the property
+        //! adp_tx_arbiter.sv:143 documents, bounded by its own 2^20-cycle
+        //! TX-grant watchdog), so a command injected 400 cycles behind a bind
+        //! lands inside that window and is dropped. Measured on this trunk:
+        //! the walker stays busy ~1400 cycles per bind.
+        inject(f, 70, 2000);
     }
     axi_write(A_STRM_SEL, 0x002);                    // dir=0 idx=2
     // the CSR polls the tbl port continuously; a couple of reads give the
@@ -935,12 +953,54 @@ int main(int argc, char** argv) {
     (void)axi_read(A_SW_SID_LO);
     ck("ctx2 SID_LO = explicit bind sid", axi_read(A_SW_SID_LO), 0xEEFF0007);
     ck("ctx2 SID_HI", axi_read(A_SW_SID_HI), 0xAABBCCDD);
-    ck("ctx2 DMAC_LO = bind cmd dest_mac", axi_read(A_SW_DMAC_LO), 0xF0002A99);
-    ck("ctx2 DMAC_HI", axi_read(A_SW_DMAC_HI), 0x000091E0);
+    //! Milan 5.5.2.6 step 1: the SRP parameters are CLEARED at bind and
+    //! re-learned from the PROBE_TX_RESPONSE (5.5.3.5.18 step 4). The
+    //! command's stream_dest_mac is not a source of truth for them - it never
+    //! was for sink 0, and since task #64 it is not for a window sink either.
+    ck("ctx2 DMAC cleared at bind (5.5.2.6 step 1)",
+       axi_read(A_SW_DMAC_LO) | axi_read(A_SW_DMAC_HI), 0);
     snap_and_wait();
     uint32_t st2 = axi_read(A_SW_STATE);
+    ck("ctx2 STATE lsm = PRB_W_RESP (3)", st2 & 0x7, 3);
+    ck("ctx2 STATE probing = ACTIVE (2)", (st2 >> 3) & 0x3, 2);
+    ck("ctx2 STATE acmp_status = 0", (st2 >> 5) & 0x1F, 0);
+    // ...and the talker's answer is what the row is finally provisioned from:
+    // a stream_id and dest_mac the BIND_RX_COMMAND never carried.
+    {
+        uint8_t f[72]; memset(f, 0, sizeof f);
+        const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+        memcpy(f, mc, 6);
+        const uint8_t tsrc[6] = {0x03,0x00,0x00,0x00,0x00,0x03};
+        memcpy(f+6, tsrc, 6);
+        f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x01;   // CONNECT_TX_RESPONSE
+        f[16]=0x00; f[17]=44;                             // SUCCESS | cdl
+        memcpy(f+18, CTX2_RESP_SID, 8);                   // the REAL stream_id
+        for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;  // controller
+        const uint8_t tk[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
+        memcpy(f+34, tk, 8);
+        const uint8_t us[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+        memcpy(f+42, us, 8);                              // listener = us
+        f[50]=0x00; f[51]=0x01;                           // talker_unique_id
+        f[52]=0x00; f[53]=0x02;                           // listener_unique_id 2
+        memcpy(f+54, CTX2_RESP_DMAC, 6);                  // the REAL dest_mac
+        f[62]=0x77; f[63]=0x22;
+        f[66]=0x00; f[67]=0x02;                           // stream_vlan_id 2
+        inject(f, 70, 2000);
+    }
+    axi_write(A_STRM_SEL, 0x002);
+    (void)axi_read(A_SW_SID_LO);
+    ck("ctx2 SID_LO now the PROBE RESPONSE's (5.5.3.5.18 s4)",
+       axi_read(A_SW_SID_LO), 0x00030001);
+    ck("ctx2 SID_HI now the PROBE RESPONSE's", axi_read(A_SW_SID_HI),
+       0x03000000);
+    ck("ctx2 DMAC_LO learned from the response", axi_read(A_SW_DMAC_LO),
+       0xF0003C11);
+    ck("ctx2 DMAC_HI learned from the response", axi_read(A_SW_DMAC_HI),
+       0x000091E0);
+    snap_and_wait();
+    st2 = axi_read(A_SW_STATE);
     ck("ctx2 STATE lsm = SETTLED_NO_RSV (6)", st2 & 0x7, 6);
-    ck("ctx2 STATE probing/status = 0 (record-only)", (st2 >> 3) & 0x7F, 0);
+    ck("ctx2 STATE probing = COMPLETED (3)", (st2 >> 3) & 0x3, 3);
     axi_write(A_STRM_SEL, 0x003);                    // unbound window ctx
     (void)axi_read(A_SW_SID_LO);
     ck("ctx3 SID reads 0 (unbound)", axi_read(A_SW_SID_LO) |
@@ -1949,7 +2009,13 @@ int main(int argc, char** argv) {
     printf("-- t21: CONNECT_RX -> lwSRP LISTENER row (fabric, no staging) --\n");
     {
         enum { A_LWSRP_STATUS = 0x694, A_SW_SRP = 0x85C };
-        const uint8_t SID2[8] = {0xAA,0xBB,0xCC,0xDD,0xEE,0xFF,0x00,0x07};
+        //! TASK #64: the lwSRP LISTENER row for sink 2 is provisioned from
+        //! the sink's SETTLED stream_id, and Milan 5.5.3.5.18 step 4 makes
+        //! that the PROBE_TX_RESPONSE's - NOT the fast-connect sid the
+        //! BIND_RX_COMMAND carried. Naming CTX2_RESP_SID here is the fabric
+        //! half of the bite: before task #64 this row went out under the
+        //! controller's guess.
+        const uint8_t* SID2 = CTX2_RESP_SID;
 
         //! scan TX frames for an MSRP Listener vector carrying `sid`;
         //! returns the three-packed event + four-packed declaration octets.
@@ -2059,6 +2125,17 @@ int main(int argc, char** argv) {
         srp = axi_read(A_SW_SRP);
         ck("t21 TA: row shows TA REGISTERED", (srp >> 12) & 1, 1);
         ck("t21 TA: row shows READY", (srp >> 11) & 1, 1);
+        //! TASK #64, the other half of the coupling: the row's registrar
+        //! level is fed BACK to ACMP sink 2 (acmpl_ta_reg_v_w[2]), so the
+        //! sink leaves SETTLED_NO_RSV for SETTLED_RSV_OK - Milan 5.5.3.5.27
+        //! (SETTLED_NO_RSV / EVT_TK_REGISTERED). Before task #64 only sink 0
+        //! had a registrar bit and every other sink would have sat in
+        //! SETTLED_NO_RSV re-probing every TMR_NO_TK forever.
+        axi_write(A_STRM_SEL, 0x002);
+        (void)axi_read(A_SW_SID_LO);
+        snap_and_wait();
+        ck("t21 TA: ACMP sink 2 -> SETTLED_RSV_OK (5.5.3.5.27)",
+           axi_read(A_SW_STATE) & 0x7, 7);
         // the reservation architecture guard: a LISTENER row must never
         // reach the bw-gate - our talker CBS stays untouched by it
         uint32_t ls = axi_read(A_LWSRP_STATUS);

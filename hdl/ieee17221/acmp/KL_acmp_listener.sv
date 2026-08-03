@@ -14,21 +14,26 @@
 //                original single-sink module (the no-regression axiom;
 //                pinned by tb/verilator/acmp_lstn):
 //
-//                  context 0 = STREAM_INPUT[0] media sink: full Milan 5.5.3
-//                    binding SM (probe ladder, ADP talker watch, lwSRP
-//                    coupling), sid ALWAYS derived from {talker EID, tuid}
-//                    (sid_from_eid — the documented sink-0 policy).
-//                  context 1 = CRF Media Clock Input sink: pure bind
-//                    record (no probe SM, no MSRP attach, no ADP watch),
-//                    explicit fast-connect stream_id honoured (nonzero
-//                    command sid wins, zero falls back to the derivation).
-//                  contexts 2..N-1 (N-sink round, N_SINKS_P from the
-//                    datapath's N_STREAMS): window-provisioned listener
-//                    binds for the extra 0x800-window streams — same
-//                    record-only + explicit-sid policy as the CRF sink
-//                    (the Lane-C/§3.1 per-context config the ctx core
-//                    already implements). They bind via CONNECT_RX with
-//                    listener_unique_id = context index.
+//                  EVERY context runs the full Milan 5.5.3 binding SM
+//                    (probe ladder, ADP talker watch, SRP coupling). Milan
+//                    v1.2 5.5.3.2 defines the state table per SINK and
+//                    5.5.3.5.3 step 5 requires a PROBE_TX_COMMAND on
+//                    RCV_BIND_RX_CMD for the sink named by
+//                    listener_unique_id, whichever sink that is.
+//                  The only per-context policy left is the PROVISIONAL
+//                    stream_id a bind records before the probe answers:
+//                    context 0 always derives it from {talker EID, tuid}
+//                    (sid_from_eid — the documented sink-0 policy);
+//                    contexts 1..N-1 honour a nonzero fast-connect
+//                    stream_id in the BIND_RX_COMMAND (Milan 5.5.1.2) and
+//                    fall back to the derivation when it is zero. Either
+//                    way it is only provisional: 5.5.3.5.18 step 4 makes
+//                    the PROBE_TX_RESPONSE the authority, and the record
+//                    is overwritten from it (sid + dmac + vlan) before any
+//                    SRP reservation is initiated.
+//                  Contexts are addressed by listener_unique_id = context
+//                    index: 0 = STREAM_INPUT[0], 1..N-2 = the further AAF
+//                    sinks, last = the CRF Media Clock Input sink.
 //
 //                P12 (NxN integration): the context-table request/grant
 //                port passes through this wrapper (tbl_*) so the 0x800
@@ -61,9 +66,16 @@ module KL_acmp_listener #(
     // ---- ADP age tick ----------------------------------------------------
     input  wire         tick_1s_i,
 
-    // ---- lwSRP listener-side hooks (sink 0) -----------------------------
-    input  wire         ta_registered_i,   //! TalkerAdvertise registered (bound sid)
-    input  wire         ta_failed_i,       //! TalkerFailed registered (bound sid)
+    // ---- lwSRP listener-side hooks (PER SINK) ---------------------------
+    //! bit c = the lwSRP registrar state of context c's OWN attribute row.
+    //! Every context runs the probe SM, so every context needs its own
+    //! TalkerAdvertise / TalkerFailed level: 5.5.3.5.27/5.5.3.5.33 turn
+    //! SETTLED_NO_RSV into SETTLED_RSV_OK on the registration and back out
+    //! on its loss. Bit 0 is the legacy row-0 registrar; a context whose
+    //! row does not exist in this shape ties its bit low and simply never
+    //! leaves SETTLED_NO_RSV (its TMR_NO_TK re-probe ladder is 5.5.3.5.29).
+    input  wire [N_SINKS_P-1:0] ta_registered_i, //! TalkerAdvertise registered
+    input  wire [N_SINKS_P-1:0] ta_failed_i,     //! TalkerFailed registered
     output wire         lstn_declare_o,    //! declare the MSRP Listener attribute
     output wire [63:0]  bound_sid_o,       //! bound stream_id (walker compare)
     output wire [11:0]  stream_vlan_o,     //! from the talker's probe response
@@ -131,12 +143,20 @@ module KL_acmp_listener #(
     output wire [1:0]   rest_status_o
 );
 
-  //! per-context policy map (the N-sink round): bit 0 = the full media
-  //! binding SM + derived sid; every other context = record-only bind with
-  //! the explicit fast-connect sid honoured (ctx1 CRF + window contexts).
-  //! N=2 reproduces the original pinned pair {2'b01, 2'b10} exactly.
-  localparam logic [N_SINKS_P-1:0] SM_EN_MAP_C  = N_SINKS_P'(1);
-  localparam logic [N_SINKS_P-1:0] SID_EX_MAP_C = ~SM_EN_MAP_C;
+  //! per-context policy map. The probe SM is ON EVERYWHERE (Milan 5.5.3.2 /
+  //! 5.5.3.5.3 step 5 — task #64): the record-only branch parked every sink
+  //! but 0 in SETTLED_NO_RSV, so seven AAF sinks plus CRF on the shipping
+  //! 8x8 shape never sent a PROBE_TX_COMMAND and their lwSRP listener rows
+  //! were registered against a stream_id DERIVED from {talker EID, tuid} —
+  //! a guess that is only right when the talker happens to derive the same
+  //! way. The two maps are now INDEPENDENT (SID_EX is no longer ~SM_EN):
+  //! the sid policy below is unchanged from the pinned N=2 pair, it just no
+  //! longer doubles as the SM switch.
+  localparam logic [N_SINKS_P-1:0] SM_EN_MAP_C  = {N_SINKS_P{1'b1}};
+  //! provisional-sid policy: ctx0 derives, every other ctx honours a
+  //! nonzero fast-connect stream_id (Milan 5.5.1.2). The probe response
+  //! overrides both (5.5.3.5.18 step 4).
+  localparam logic [N_SINKS_P-1:0] SID_EX_MAP_C = ~(N_SINKS_P'(1));
 
   wire [N_SINKS_P-1:0] w_declare, w_active;
 
@@ -152,11 +172,14 @@ module KL_acmp_listener #(
     .station_mac_i   (station_mac_i),
     .entity_id_i     (entity_id_i),
     .tick_1s_i       (tick_1s_i),
-    //! lwSRP REGISTRAR coupling stays sink-0 only (the row-0 TA registrar);
-    //! ctx rows 1..N-1 carry their own registrar inside KL_lwsrp_ctx and
-    //! are provisioned from the lstn_bound_v/lstn_sid_v bind view below
-    .ta_registered_i ({{(N_SINKS_P-1){1'b0}}, ta_registered_i}),
-    .ta_failed_i     ({{(N_SINKS_P-1){1'b0}}, ta_failed_i}),
+    //! lwSRP REGISTRAR coupling, one bit per context: bit 0 is the row-0
+    //! registrar, bits 1..N-1 are the per-row registrars inside KL_lwsrp_ctx
+    //! for the rows the lstn_bound_v/lstn_sid_v bind view provisions. Zero-
+    //! extending here (the pre-task-#64 shape) left every sink but 0 unable
+    //! to reach SETTLED_RSV_OK, so they re-ran the probe ladder every
+    //! TMR_NO_TK forever once the SM was enabled for them.
+    .ta_registered_i (ta_registered_i),
+    .ta_failed_i     (ta_failed_i),
     .lstn_declare_o  (w_declare),
     .stream_active_o (w_active),
     .lstn_bound_o    (lstn_bound_v_o),
