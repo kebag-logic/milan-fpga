@@ -625,6 +625,59 @@ Media Clock Input descriptor, straight off the `KL_crf_rx` ports, and a CSR
 copy would be a second source for a live value that agrees on day one and
 drifts in silence. Read them with a controller, not with `devmem`.
 
+#### Bench recipe - proving the Table 5.6 laws on silicon
+
+Desk-proven by `tb/verilator/crf_rx` (20 mutations bite) and the
+`@rule:advertised-is-measured` / `@rule:era-wipe` behave scenarios; this is
+what to run on the **next flash** to see the same laws on the wire. Nothing
+here needs a Vivado run - all four probes are `devmem` plus one controller
+`GET_COUNTERS`. The CRF sink must be bound to a live CRF talker first
+(`0x73C`/`0x740` = its stream_id, then `0x738` bit 0 = 1).
+
+1. **The era wipe is visible with `devmem` alone** - `CRF_STATUS[31:16]`
+   (FRAMES_RX) is one of the ten, so a bind edge must snap it to zero:
+
+   ```sh
+   devmem 0x9000074C 32        # let it run: [31:16] climbs ~1/s, not ~500/s
+   devmem 0x90000738 32 0      # unbind
+   devmem 0x9000074C 32        # MUST HOLD - 5.3.8.10 does not wipe on unbind
+   devmem 0x90000738 32 1      # bind
+   devmem 0x9000074C 32        # MUST read 0x00000000 - all three fields wiped
+   devmem 0x90000738 32        # and [31] locked must be 0, re-earned in 8 PDUs
+   ```
+
+   Two failure signatures to watch for: a value that *survives* the last bind
+   is the pre-2026-08-03 behaviour (a dead era's totals leaking into a new
+   binding), and a `[31:16]` that climbs at ~500/s instead of ~1/s is the
+   per-frame counter reading, not Milan's observation interval.
+
+2. **The interval law** - park a stopwatch on `CRF_STATUS[31:16]`. At the
+   shipping `IVAL_CYC_P` (= `MILAN_CLK_FREQ_HZ`, the clause's 1 s ceiling) it
+   must advance by **1 per second** while 500 PDU/s arrive. Same for
+   `[15:8]`/`[7:0]` under a fault.
+
+3. **The five with no CSR window** - `GET_COUNTERS` on **STREAM_INPUT index
+   8** (the CRF Media Clock Input; indices 0..7 are the AAF sinks on the 8x8
+   shape). The response must carry `counters_valid = 0x00000F3F`, and the
+   movement that proves each one:
+
+   | counter | how to provoke it on the bench | expected |
+   |---|---|---|
+   | `MEDIA_RESET` | make the CRF talker change its media-clock source (1722-2016 10.4.3 says it toggles `mr` and holds the new level ≥ 8 PDUs) | +1 per observation interval containing the toggle - **not** +1 per PDU of the hold |
+   | `TIMESTAMP_UNCERTAIN` | disturb the talker's gPTP (unplug its GM path) so it emits `tu = 1` | +1/s while `tu` is set, stops when it clears |
+   | `LATE_TIMESTAMP` | drop the CRF reservation / flood the path so PDUs arrive after their reference instant | +1/s while late |
+   | `EARLY_TIMESTAMP` | a talker whose Max Transit Time exceeds `MAXTT_NS_P + EARLY_MARGIN_NS_P` (2 ms + 10 ms) | +1/s while early |
+   | `STREAM_INTERRUPTED` | bounce the talker's link, or block ≥ 2 consecutive CRF PDUs | **per event**, so a burst of 3 gaps inside one second reads +3, while `SEQ_NUM_MISMATCH` reads +1 for the same burst |
+
+   The last row is the sharpest single check: the two counters diverging on
+   one burst is what distinguishes Table 5.6's two grammars, and it is the
+   thing a served constant could never do.
+
+4. **A Controller Unbind must not be an interruption** (Table 5.6's own
+   exclusion). `GET_COUNTERS`, then unbind via ACMP, then `GET_COUNTERS`
+   again: `STREAM_INTERRUPTED` must be unchanged. Re-bind and it - with the
+   other nine - must read 0.
+
 ### 0x750  -  CRF media-clock talker  `(Milan v1.2 7.3.1, KL_crf_tx)`
 
 Emits the CRF AUDIO_SAMPLE stream (subtype 4, pull 0, base_frequency 48000,

@@ -161,6 +161,21 @@ struct Model {
         settle = 0; have_seq = false; hfill = 0;
         mr_seeded = false;               // the mr level died with the stream
     }
+    // Milan v1.2 5.3.8.10, the sentence closing Table 5.6: "The PAAD-AE
+    // shall reset all of these counters to zero each time the Stream Input
+    // changes its state from not bound to bound" (and NOT the other way).
+    // locked falls with them and does NOT score an unlock — Table 5.6 reads
+    // MEDIA_LOCKED == MEDIA_UNLOCKED as "not synchronized", and a +1 into a
+    // zeroed MEDIA_UNLOCKED would strand the sink at UNLOCKED = LOCKED + 1.
+    void bind_zero() {
+        pdu = 0; fmt_e = 0; seq_e = 0;
+        mr_c = 0; tu_c = 0; lt_c = 0; et_c = 0;
+        cnt_l = 0; cnt_u = 0; cnt_i = 0;
+        locked = false;
+        f_frx = f_uf = f_sm = false;
+        f_mr = f_tu = f_lt = f_et = false;
+        settle = 0; have_seq = false; mr_seeded = false;
+    }
 };
 
 static Model m;
@@ -568,6 +583,44 @@ int main(int argc, char** argv) {
         ck("[5t-b6] rejected PDU: UNSUPPORTED_FORMAT +1 (and only it)",
            dut->fmt_err_o, (uint8_t)(ufb + 1));
         g_mr = true;                     // the reject never moved the level
+
+        // the same accept gate for the OTHER three PDU-derived verdicts: a
+        // matched-but-malformed PDU carrying tu = 1 AND a timestamp already
+        // in the past must move UNSUPPORTED_FORMAT and nothing else. Milan
+        // Table 5.6 scopes tu/late/early to "the received Stream Data
+        // AVTPDUs" of THIS Stream Input, and 5.4.2.25's own
+        // UNSUPPORTED_FORMAT row is what a wrong-format PDU is for — reading
+        // its header fields as measurements of the bound stream would let a
+        // foreign profile forge this sink's diagnostics.
+        align_interval();
+        uint16_t tub = dut->tu_cnt_o, ltb = dut->late_cnt_o;
+        uint16_t etb = dut->early_cnt_o;
+        uint8_t  ufc = dut->fmt_err_o;
+        g_tu = true;
+        drive_fields(ts, seq);
+        dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);  // bad ival
+        dut->ptp_now_i = ts + 4000000;   // and a LATE reference timestamp
+        g_ev_uf = true;
+        pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+        m.bad_pdu();
+        // a second reject, this one EARLY
+        drive_fields(ts, seq);
+        dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
+        dut->ptp_now_i = ts - (uint64_t)EARLY_LIMIT_C - 5000000ULL;
+        g_ev_uf = true;
+        pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+        m.bad_pdu();
+        g_tu = false;
+        dut->ptp_now_i = ptp;
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-b7] rejected PDU: TIMESTAMP_UNCERTAIN untouched",
+           dut->tu_cnt_o, tub);
+        ck("[5t-b8] rejected PDU: LATE_TIMESTAMP untouched",
+           dut->late_cnt_o, ltb);
+        ck("[5t-b9] rejected PDU: EARLY_TIMESTAMP untouched",
+           dut->early_cnt_o, etb);
+        ck("[5t-b10] the two rejects fold to ONE UNSUPPORTED_FORMAT",
+           dut->fmt_err_o, (uint8_t)(ufc + 1));
     }
 
     // -- c) TIMESTAMP_UNCERTAIN: per-interval, N tu PDUs -> +1 -------------
@@ -697,7 +750,6 @@ int main(int argc, char** argv) {
     // -- f) an unbind cannot be an interruption (clause exclusion) ---------
     {
         uint32_t si0 = dut->cnt_intr_o;
-        uint16_t mr0 = dut->mr_cnt_o;
         dut->en_i = 0;                   // Controller Unbind
         for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
         align_interval();
@@ -708,21 +760,161 @@ int main(int argc, char** argv) {
         for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
         ck("[5t-f1] unbound: STREAM_INTERRUPTED cannot move",
            dut->cnt_intr_o, si0);
-        // rebind: the previous era's mr level must not score as a toggle
+        // rebind: the previous era's mr level must not score as a toggle.
+        // The bind edge ALSO zeroes every Table 5.6 tally (5.3.8.10, pinned
+        // in full by section g), so the post-rebind expectation is 0 — and
+        // it bites both laws: a broken era wipe reads the pre-unbind total,
+        // a broken mr re-seed reads exactly 1.
         dut->en_i = 1;
         g_mr = !g_mr;                    // new talker, opposite mr level
+        m.bind_zero();
         align_interval();
         for (int n = 0; n < 3; n++) {
             ts += 2000200; ptp += 2000000;
-            drive_fields(ts, seq);
-            pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
-            seq++;
+            good_pdu(ts, seq++, ptp);
         }
         for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
         ck("[5t-f2] rebind re-seeds mr: no phantom MEDIA_RESET",
-           dut->mr_cnt_o, mr0);
+           dut->mr_cnt_o, 0);
         ck("[5t-f3] the unbind's own sequence jump is not an interruption",
-           dut->cnt_intr_o, si0);
+           dut->cnt_intr_o, 0);
+        ck("[5t-f4] and the new era IS counting (FRAMES_RX moved off 0)",
+           (long)(dut->pdu_count_o > 0), 1);
+    }
+
+    //-----------------------------------------------------------------------
+    // [5t-g] The era wipe. Milan v1.2 5.3.8.10, the sentence that closes
+    // Table 5.6: "The PAAD-AE shall reset all of these counters to zero each
+    // time the Stream Input changes its state from not bound to bound." The
+    // clause is deliberately ASYMMETRIC — "the PAAD-AE does not reset these
+    // counters when the Stream Input changes its state from bound to not
+    // bound" — so both edges are pinned here. Carrying a dead era's totals
+    // into a new binding is the same defect class as the five constant
+    // zeros: a number a Controller cannot interpret.
+    //-----------------------------------------------------------------------
+    printf("\n[5t-g] Milan 5.3.8.10 era wipe (not bound -> bound)\n");
+    {
+        // ---- build a NON-ZERO value into all ten -------------------------
+        // lock (cnt_locked), then 100 ms silence (cnt_unlocked), then re-lock
+        for (int n = 0; n < 10; n++) {   // clean run -> MEDIA_LOCKED
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        for (int i = 0; i < 20005; i++) tick();      // TOUT_CYC_C @ 200 kHz
+        m.timeout();                                 // -> MEDIA_UNLOCKED
+        ts += 100000000; ptp += 100000000;
+        for (int n = 0; n < 10; n++) {               // -> MEDIA_LOCKED again
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        align_interval();
+        // one gap of >= 2 -> SEQ_NUM_MISMATCH + STREAM_INTERRUPTED
+        ts += 2000200; ptp += 2000000; seq += 3;
+        good_pdu(ts, seq++, ptp);
+        // an mr toggle, a tu PDU, a late PDU and an early PDU
+        g_mr = !g_mr;
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        g_tu = true;
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        g_tu = false;
+        ts += 2000200; ptp += 2000000;
+        good_pdu(ts, seq++, ts + 4000000);                    // LATE
+        ts += 2000200; ptp += 2000000;
+        good_pdu(ts, seq++, ts - (uint64_t)EARLY_LIMIT_C - 5000000ULL);  // EARLY
+        // a format reject -> UNSUPPORTED_FORMAT
+        drive_fields(ts, seq);
+        dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
+        g_ev_uf = true;
+        pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+        m.bad_pdu();
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+
+        struct { const char* n; long v; } all10[] = {
+            {"MEDIA_LOCKED",        (long)dut->cnt_locked_o},
+            {"MEDIA_UNLOCKED",      (long)dut->cnt_unlocked_o},
+            {"STREAM_INTERRUPTED",  (long)dut->cnt_intr_o},
+            {"SEQ_NUM_MISMATCH",    (long)dut->seq_err_o},
+            {"MEDIA_RESET",         (long)dut->mr_cnt_o},
+            {"TIMESTAMP_UNCERTAIN", (long)dut->tu_cnt_o},
+            {"UNSUPPORTED_FORMAT",  (long)dut->fmt_err_o},
+            {"LATE_TIMESTAMP",      (long)dut->late_cnt_o},
+            {"EARLY_TIMESTAMP",     (long)dut->early_cnt_o},
+            {"FRAMES_RX",           (long)dut->pdu_count_o},
+        };
+        for (auto& c : all10) {
+            char b[96];
+            snprintf(b, sizeof b, "[5t-g1] pre-unbind %s is NON-ZERO", c.n);
+            ck(b, (long)(c.v > 0), 1);
+        }
+        // Table 5.6's own invariant on the pair, in its synchronized state
+        ck("[5t-g2] bound+locked: MEDIA_LOCKED == MEDIA_UNLOCKED + 1",
+           (long)dut->cnt_locked_o, (long)dut->cnt_unlocked_o + 1);
+
+        // ---- bound -> NOT bound: the clause says do NOT reset ------------
+        long keep[10];
+        for (int k = 0; k < 10; k++) keep[k] = all10[k].v;
+        dut->en_i = 0;
+        for (int i = 0; i < 3 * (IVAL_CYC_C + 2); i++) tick();
+        long after_unbind[10] = {
+            (long)dut->cnt_locked_o, (long)dut->cnt_unlocked_o,
+            (long)dut->cnt_intr_o,   (long)dut->seq_err_o,
+            (long)dut->mr_cnt_o,     (long)dut->tu_cnt_o,
+            (long)dut->fmt_err_o,    (long)dut->late_cnt_o,
+            (long)dut->early_cnt_o,  (long)dut->pdu_count_o };
+        for (int k = 0; k < 10; k++) {
+            char b[96];
+            snprintf(b, sizeof b, "[5t-g3] unbind must NOT reset %s",
+                     all10[k].n);
+            ck(b, after_unbind[k], keep[k]);
+        }
+
+        // ---- NOT bound -> bound: the clause says reset ALL of them -------
+        dut->en_i = 1;
+        m.bind_zero();
+        for (int i = 0; i < 4; i++) tick();
+        long after_bind[10] = {
+            (long)dut->cnt_locked_o, (long)dut->cnt_unlocked_o,
+            (long)dut->cnt_intr_o,   (long)dut->seq_err_o,
+            (long)dut->mr_cnt_o,     (long)dut->tu_cnt_o,
+            (long)dut->fmt_err_o,    (long)dut->late_cnt_o,
+            (long)dut->early_cnt_o,  (long)dut->pdu_count_o };
+        for (int k = 0; k < 10; k++) {
+            char b[96];
+            snprintf(b, sizeof b, "[5t-g4] bind edge zeroes %s", all10[k].n);
+            ck(b, after_bind[k], 0);
+        }
+        // the stranding rule: locked_o has to fall WITH the zeroed pair, and
+        // the fall must not score an unlock — MEDIA_LOCKED = 0,
+        // MEDIA_UNLOCKED = 1 would be UNLOCKED = LOCKED + 1, a state Table
+        // 5.6 does not allow
+        ck("[5t-g5] bind edge drops locked_o with the pair", dut->locked_o, 0);
+        ck("[5t-g6] the drop scores NO unlock (LOCKED == UNLOCKED == 0)",
+           (long)(dut->cnt_locked_o == 0 && dut->cnt_unlocked_o == 0), 1);
+
+        // ---- the new era counts from zero, on the same instrument --------
+        align_interval();
+        for (int n = 0; n < 10; n++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ck("[5t-g7] new era re-locks from zero: MEDIA_LOCKED 1",
+           dut->cnt_locked_o, 1);
+        ck("[5t-g8] new era counts FRAMES_RX from zero",
+           (long)(dut->pdu_count_o > 0), 1);
+
+        // ---- a seen flag raised before the bind must die with the era ----
+        // tu is set on an accepted PDU, then the bind lands BEFORE the
+        // interval tick: the flag must not commit +1 into the zeroed counter
+        align_interval();
+        g_tu = true;
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        g_tu = false;
+        ck("[5t-g9] tu flag raised, not yet committed", dut->tu_cnt_o, 0);
+        dut->en_i = 0; tick(); tick();
+        dut->en_i = 1;
+        m.bind_zero();
+        for (int i = 0; i < 2 * (IVAL_CYC_C + 2); i++) tick();
+        ck("[5t-g10] a pre-bind interval flag cannot commit after the wipe",
+           dut->tu_cnt_o, 0);
     }
 
     printf("======================================================================\n");

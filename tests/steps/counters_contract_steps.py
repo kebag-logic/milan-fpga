@@ -460,6 +460,92 @@ def step_cc_crf_law(context, law, counter):
             f"{counter} has no per-event increment in KL_crf_rx")
 
 
+#! The KL_crf_rx register that carries each Table 5.6 symbol. The era wipe is
+#! judged against THIS set, not against whatever the block happens to clear:
+#! a counter missing from the wipe is a counter that survives its own era.
+CRF_COUNTER_REG = {
+    "MEDIA_LOCKED":        "cnt_locked_o",
+    "MEDIA_UNLOCKED":      "cnt_unlocked_o",
+    "STREAM_INTERRUPTED":  "cnt_intr_o",
+    "SEQ_NUM_MISMATCH":    "seq_err_o",
+    "MEDIA_RESET":         "mr_cnt_o",
+    "TIMESTAMP_UNCERTAIN": "tu_cnt_o",
+    "UNSUPPORTED_FORMAT":  "fmt_err_o",
+    "LATE_TIMESTAMP":      "late_cnt_o",
+    "EARLY_TIMESTAMP":     "early_cnt_o",
+    "FRAMES_RX":           "pdu_count_o",
+}
+
+
+def _crf_bind_block():
+    """The body of KL_crf_rx's `if (w_bind_rise_w)` arm - the era wipe."""
+    src = open(CRF_RX).read()
+    key = "if (w_bind_rise_w) begin"
+    assert key in src, (
+        "KL_crf_rx has no bind-edge arm at all; Milan v1.2 5.3.8.10 requires "
+        "one to reset the Table 5.6 counters on not-bound -> bound")
+    body = src[src.index(key) + len(key):]
+    # no nested begin/end in this arm, so the first dedented `end` closes it
+    return src, body[:body.index("\n      end")]
+
+
+@then("the CRF Media Clock Input zeroes all ten counters on the bind edge")
+def step_cc_crf_era_wipe(context):
+    src, body = _crf_bind_block()
+    survivors = []
+    for name in tc.MILAN_TABLE_56:
+        reg = CRF_COUNTER_REG[name]
+        if not re.search(r"\b%s\s*<=\s*'0\s*;" % re.escape(reg), body):
+            survivors.append(f"{name} ({reg})")
+    assert not survivors, (
+        "these Table 5.6 counters survive a bind edge in KL_crf_rx, so a new "
+        "binding inherits a dead era's totals (Milan v1.2 5.3.8.10 'shall "
+        "reset all of these counters to zero'):\n  " + "\n  ".join(survivors))
+    # the observation-interval SEEN flags belong to the dead era too: one left
+    # standing commits +1 into a just-zeroed counter at the very next tick
+    stale = [f for f in ("iv_frx_r", "iv_uf_r", "iv_sm_r", "iv_mr_r",
+                         "iv_tu_r", "iv_lt_r", "iv_et_r")
+             if not re.search(r"\b%s\s*<=\s*1'b0\s*;" % f, body)]
+    assert not stale, (
+        "interval seen flags left standing across the era wipe, each good for "
+        "one phantom event in the new binding: " + ", ".join(stale))
+
+
+@then("the CRF Media Clock Input era wipe fires on the bind edge only")
+def step_cc_crf_era_edge(context):
+    src, _ = _crf_bind_block()
+    m = re.search(r"wire\s+w_bind_rise_w\s*=\s*([^;]+);", src)
+    assert m, "KL_crf_rx no longer derives the bind edge"
+    expr = " ".join(m.group(1).split())
+    assert expr == "en_i && !en_q", (
+        f"the era wipe triggers on `{expr}`. Milan v1.2 5.3.8.10 wipes on the "
+        f"RISING edge only - 'the PAAD-AE does not reset these counters when "
+        f"the Stream Input changes its state from bound to not bound', so an "
+        f"`!en_i` or `en_i != en_q` term destroys the evidence of whatever "
+        f"fault caused the unbind")
+
+
+@then("the CRF Media Clock Input bind edge drops media lock without scoring "
+      "an unlock")
+def step_cc_crf_era_lock(context):
+    src, body = _crf_bind_block()
+    assert re.search(r"\blocked_o\s*<=\s*1'b0\s*;", body), (
+        "the bind edge zeroes MEDIA_LOCKED/MEDIA_UNLOCKED but leaves locked_o "
+        "set: Table 5.6 reads the zeroed pair as 'not synchronized on the "
+        "media clock', which contradicts a sink that still claims lock")
+    # and the drop must not walk +1 into the zeroed MEDIA_UNLOCKED
+    assert not re.search(r"cnt_unlocked_o\s*<=\s*cnt_unlocked_o", body), (
+        "the bind edge increments MEDIA_UNLOCKED, stranding the sink at "
+        "MEDIA_UNLOCKED = MEDIA_LOCKED + 1 - neither of the two states Table "
+        "5.6 allows")
+    # the wipe must be the LAST writer of locked_o in the engine block, so a
+    # timeout unlock landing in the same cycle cannot outrank it
+    tail = src[src.index("if (w_bind_rise_w) begin"):]
+    assert "locked_o" not in tail[tail.index("\n      end"):], (
+        "something writes locked_o after the era wipe in KL_crf_rx; the wipe "
+        "has to be the last writer or a same-cycle timeout unlock outranks it")
+
+
 # ------------------------------------------------------- L1 fabric bindings --
 def _get_counters_block(src: str) -> str:
     """The CMD_GET_COUNTERS arm of the response builder, and nothing else.

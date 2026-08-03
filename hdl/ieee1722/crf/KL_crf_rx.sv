@@ -108,6 +108,20 @@
                 No Table 5.16 bit is dropped: the clause exempts nothing,
                 and every one of the ten now moves off a measured event.
 
+                THE ERA RULE (5.3.8.10, the sentence that closes Table 5.6):
+                "The PAAD-AE shall reset all of these counters to zero each
+                time the Stream Input changes its state from not bound to
+                bound", and expressly NOT the other way - "the PAAD-AE does
+                not reset these counters when the Stream Input changes its
+                state from bound to not bound". en_i IS that bound state
+                (milan_datapath: ACMP sink-1 bind | bench CSR lever), so its
+                RISING edge wipes all ten tallies, the interval seen flags
+                and locked_o. locked_o falls WITHOUT scoring an unlock:
+                MEDIA_LOCKED = MEDIA_UNLOCKED = 0 is Table 5.6's own reading
+                of "not synchronized", and a +1 into a zeroed MEDIA_UNLOCKED
+                would strand the sink at UNLOCKED = LOCKED + 1, which is
+                neither of the two states the clause allows.
+
                 The stream to follow is selected by sid_i/en_i (CSR pair
                 today, the ACMP sink-1 SM once it exists - the remaining
                 CRF work is the sink-1 bind chain, see
@@ -460,6 +474,50 @@ module KL_crf_rx #(
         mr_seeded_r <= 1'b0;
         have_seq_r  <= 1'b0;
         settle_r    <= '0;
+        //! ... and the TALLIES themselves. Milan v1.2 5.3.8.10, the sentence
+        //! that closes Table 5.6: "The PAAD-AE shall reset all of these
+        //! counters to zero each time the Stream Input changes its state
+        //! from not bound to bound." The CRF Media Clock Input is a Stream
+        //! Input (5.4.2.25 Table 5.16 claims all ten for it), and en_i IS
+        //! that bound state - milan_datapath drives it from the ACMP sink-1
+        //! bind ORed with the bench CSR lever. Carrying a previous era's
+        //! totals into a new binding is the same defect class the five
+        //! constant zeros were: a number a controller cannot interpret.
+        //! Note the clause's asymmetry - the wipe is on the RISING edge
+        //! only ("the PAAD-AE does not reset these counters when the Stream
+        //! Input changes its state from bound to not bound"), which is why
+        //! this keys on w_bind_rise_w and not on !en_i.
+        pdu_count_o    <= '0;
+        fmt_err_o      <= '0;
+        seq_err_o      <= '0;
+        mr_cnt_o       <= '0;
+        tu_cnt_o       <= '0;
+        late_cnt_o     <= '0;
+        early_cnt_o    <= '0;
+        cnt_locked_o   <= '0;
+        cnt_unlocked_o <= '0;
+        cnt_intr_o     <= '0;
+        //! the interval SEEN flags belong to the dead era too: a flag raised
+        //! before the bind would commit +1 into a just-zeroed counter at the
+        //! next tick and hand the new binding a phantom event
+        iv_frx_r <= 1'b0;
+        iv_uf_r  <= 1'b0;
+        iv_sm_r  <= 1'b0;
+        iv_mr_r  <= 1'b0;
+        iv_tu_r  <= 1'b0;
+        iv_lt_r  <= 1'b0;
+        iv_et_r  <= 1'b0;
+        //! MEDIA_LOCKED and MEDIA_UNLOCKED are zeroed above, and Table 5.6
+        //! reads that pair as state: "either MEDIA_LOCKED=MEDIA_UNLOCKED (in
+        //! this case, the input stream is not synchronized on the media
+        //! clock), or MEDIA_LOCKED=MEDIA_UNLOCKED+1". 0 == 0 says NOT
+        //! synchronized, so the lock flag has to fall with them - and fall
+        //! WITHOUT scoring the unlock, which would strand the sink at
+        //! UNLOCKED = LOCKED + 1, a state the clause does not allow. This
+        //! assignment is the last writer in the block, so it also overrides
+        //! a timeout unlock landing in the same cycle (the 4d31ecfb
+        //! sil_pend/servo_pend rule, in a flat engine's spelling)
+        locked_o <= 1'b0;
       end
     end
   end : engine

@@ -505,6 +505,29 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
       | LATE_TIMESTAMP      | per-interval |
       | EARLY_TIMESTAMP     | per-interval |
 
+  @class:law @clause:Milan-5.3.8.10 @rule:era-wipe
+  Scenario: the bind edge wipes all ten, and the unbind edge wipes none
+    # The sentence that CLOSES Table 5.6: "The PAAD-AE shall reset all of these
+    # counters to zero each time the Stream Input changes its state from not
+    # bound to bound", immediately followed by its deliberate asymmetry: "the
+    # PAAD-AE does not reset these counters when the Stream Input changes its
+    # state from bound to not bound".
+    #
+    # Both halves are law and both are load-bearing. A total carried ACROSS a
+    # bind is unreadable - a Controller that just bound a stream cannot tell
+    # this era's faults from a previous talker's - which is the same defect
+    # class the five constant zeros were. A total dropped ON an unbind would
+    # instead destroy the evidence of the fault that caused the unbind.
+    #
+    # The pair MEDIA_LOCKED / MEDIA_UNLOCKED carries a third obligation: Table
+    # 5.6 reads it as STATE ("either MEDIA_LOCKED=MEDIA_UNLOCKED ... or
+    # MEDIA_LOCKED=MEDIA_UNLOCKED+1"), so zeroing both while the sink still
+    # believes it is locked, or letting a pending unlock walk +1 over the
+    # zeroed pair, leaves it in a state the clause does not define.
+    Then the CRF Media Clock Input zeroes all ten counters on the bind edge
+    And the CRF Media Clock Input era wipe fires on the bind edge only
+    And the CRF Media Clock Input bind edge drops media lock without scoring an unlock
+
   # --------------------------------------------------- L1: the fabric binding
   @level:L1 @class:binding
   Scenario: the response builder emits the masks this contract names
