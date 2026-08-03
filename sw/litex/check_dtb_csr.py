@@ -15,6 +15,7 @@
 #   reg[2]  contains milan_dma_rx_base  and milan_dma_rx_bd_base
 #   reg[3]  contains milan_dma_ts_base
 #   kl,milan-pcm reg[0] == milan_dma_pcm_base   (when both sides have it)
+#   litex,spiflash reg[0] == the csr.csv spiflash bank base (when both have it)
 #
 # Exit 0 = every applicable check passed; exit 1 = mismatch (stale dtb); exit 2 = usage.
 import csv
@@ -73,6 +74,27 @@ def node_reg_cells(dts, compatible):
         if r:
             return [int(c, 0) for c in re.findall(r"0x[0-9a-fA-F]+|\b\d+\b", r.group(1))]
     return None
+
+
+def node_reg_after_compatible(dts, compatible):
+    """reg cells of the node that declares `compatible`, for DEEP nodes.
+
+    ``node_reg_cells`` above scans balanced bodies and tolerates ONE level of
+    children; the LiteSPI node is three deep (``spiflash`` > ``flash@0`` >
+    ``partitions`` > ``partition@N``) so that scanner never sees it and
+    silently returns None - a gate that quietly checks nothing.  This one
+    anchors on the compatible string and takes the first ``reg`` that follows
+    it BEFORE any child node opens, which is by construction the node's own.
+    """
+    m = re.search(r'compatible\s*=\s*[^;]*"%s"[^;]*;' % re.escape(compatible), dts)
+    if not m:
+        return None
+    tail = dts[m.end():]
+    stop = tail.find("{")
+    r = re.search(r"\breg\s*=\s*([^;]*);", tail if stop < 0 else tail[:stop])
+    if not r:
+        return None
+    return [int(c, 0) for c in re.findall(r"0x[0-9a-fA-F]+|\b\d+\b", r.group(1))]
 
 
 def csr_registers(path):
@@ -141,6 +163,29 @@ def main():
     if pcm and len(pcm) < 6 and "milan_dma_pb_cap" in regs:
         bad.append("gateware has the playback CSR block (milan_dma_pb_cap) "
                    "but kl,milan-pcm has no pb-dma reg window")
+
+    # litex,spiflash: the LiteSPI bank base.  Same stale-window failure class
+    # as kl,dma-ether above, and worse in one way - the LiteSPI MASTER port at
+    # bank+0x10 is a WRITE path to the boot flash.  A device tree naming the
+    # wrong bank points every future mtd/spi-nor driver at whatever CSRs
+    # actually live there (on the AX7101 map, `sdram`), and it is the same
+    # window `acmp-persist` writes saved bindings through.  This node was
+    # added by hand rather than regenerated from a build's csr.json, so it is
+    # exactly the case the gate exists for.  Checked whenever both sides carry
+    # it; absent on either side is not an error (builds without --with-spiflash
+    # have no bank, and older trees have no node).
+    spi = node_reg_after_compatible(dts, "litex,spiflash")
+    if spi and "spiflash_master_cs" in regs:
+        base = regs["spiflash_master_cs"] - 0x10   # master block is bank+0x10
+        win = (spi[0], spi[1] if len(spi) > 1 else 0)
+        if spi[0] != base:
+            bad.append("litex,spiflash reg[0] 0x%x != the csr.csv spiflash "
+                       "bank base 0x%x (spiflash_master_cs 0x%x - 0x10)"
+                       % (spi[0], base, regs["spiflash_master_cs"]))
+        elif not contains(win, regs["spiflash_master_cs"]):
+            bad.append("litex,spiflash reg[0] 0x%x/+0x%x does not cover "
+                       "spiflash_master_cs @ 0x%x"
+                       % (win[0], win[1], regs["spiflash_master_cs"]))
 
     if bad:
         print("check_dtb_csr: STALE device tree vs %s:" % sys.argv[2])

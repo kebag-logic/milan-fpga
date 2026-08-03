@@ -105,11 +105,35 @@ def test_flash_map_and_mtd_node():
     jnl = [r for r in rows if r[0] == "journal"][0]
     assert jnl[2] == 2 * erase, \
         f"journal must be exactly 2 erase blocks (A/B), got 0x{jnl[2]:X}"
-    assert user[2] == 2 * 1024 * 1024, \
-        f"user slot must be 2 MiB, got 0x{user[2]:X}"
+    # STRUCTURAL, not a magic size.  This used to assert `user[2] == 2 MiB`,
+    # a literal copy of what FLASHBOOT_RESERVED said in flash-map v4; v5 took
+    # the slot to 1 MiB on 2026-07-28 and this gate has been red ever since,
+    # asserting a number the source no longer holds.  What actually matters is
+    # that the slot is erase-block aligned and leaves jffs2 the >= 5 free
+    # blocks it wants for garbage collection.
+    assert user[2] % erase == 0, \
+        f"user slot 0x{user[2]:X} is not an erase-block multiple"
+    assert user[2] >= 5 * erase, (
+        f"user slot is {user[2] // erase} erase blocks; jffs2 wants >= 5 free "
+        "for garbage collection")
 
     rc = gmp.main(["--check"])
     assert rc == 0, "mtd-partitions.dtsi is stale vs the SoC flash map"
+
+    # The OTHER consumer of the same two dicts: the board-side persistence
+    # inventory (sw/persist/milan_persist_state.py -> milan-persist-state.sh),
+    # which carries the journal/user offsets the board tools write through.
+    # Gated here so a flash-map edit that forgets to regenerate it fails on
+    # this host rather than by silently journalling into the wrong partition.
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(HERE)),
+                                    "sw", "persist"))
+    import milan_persist_state as mps  # noqa: E402
+    reserved_sh = mps.emit_sh()
+    have = open(os.path.join(os.path.dirname(mps.__file__),
+                             "milan-persist-state.sh"), encoding="utf-8").read()
+    assert have == reserved_sh, (
+        "sw/persist/milan-persist-state.sh is stale vs the SoC flash map / "
+        "PERSIST_ITEMS - re-run milan_persist_state.py --emit-sh")
 
     errs = gmp.dtc_check(gmp.emit(rows, flash_size, erase))
     if errs == ["dtc not installed"]:
@@ -496,9 +520,17 @@ def test_log_budget_fits_user_slot():
     assert budget < user[2], \
         f"log budget {budget} B does not fit the {user[2]} B user slot"
     left = user[2] - budget
-    assert left >= 8 * erase, (
+    # DERIVED reserve: the budget is defined as "slot minus N erase blocks",
+    # so the check is that the reserve is still what trace_segment says and
+    # still enough for jffs2's GC minimum.  It used to be a flat `8 * erase`,
+    # a third copy of the assumption that /user is 2 MiB.
+    assert left == trace_segment.USER_RESERVE_BLOCKS * erase, (
+        f"{left} B left in /user but the reserve is "
+        f"{trace_segment.USER_RESERVE_BLOCKS} erase blocks - the budget and "
+        "the slot came from different maps")
+    assert left >= 5 * erase, (
         f"only {left} B left in /user for the state the partition exists for "
-        "(entity names, channel maps, mixer state)")
+        "(entity names, channel maps, mixer state) plus jffs2 GC")
     assert trace_segment.SEGMENT_BYTES % 4096 == 0
     print(f"  [gate 13] /user 0x{user[2]:X}: log budget {budget} B "
           f"({budget / user[2]:.0%}), {left} B left for /user state; "

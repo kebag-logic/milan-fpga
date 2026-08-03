@@ -253,7 +253,7 @@ keeps exactly one ordering policy in the system: the ring empties in order, and
 
 | Quantity | Value | Source |
 |---|---|---|
-| `/user` partition | 2 MiB @ `0xE0_0000` | `FLASHBOOT_RESERVED`, [`SAVED_STATE_FASTCONNECT.md`](SAVED_STATE_FASTCONNECT.md) §5 |
+| `/user` partition | 1 MiB @ `0xF0_0000` | `FLASHBOOT_RESERVED`, [`SAVED_STATE_FASTCONNECT.md`](SAVED_STATE_FASTCONNECT.md) §5 |
 | `/user/log` region | **1.5 MiB** = 24 × 64 KiB blocks | `trace_segment.DEFAULT_LOG_BUDGET`, gate 13 |
 | left for the rest of `/user` | 512 KiB | entity/group names, channel maps, mixer state |
 | erase block | 64 KiB | device sector size |

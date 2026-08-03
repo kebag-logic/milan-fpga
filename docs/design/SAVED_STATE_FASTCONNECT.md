@@ -14,6 +14,7 @@ durable place to keep the binding, and the boot-time sequence that replays it.
 
 - **[1. Status ledger — proven vs designed-only](#1-status-ledger--proven-vs-designed-only)** — Read first: a row per piece saying what is in gateware, what is Verilator-proven, and what is designed-only because it cannot be executed without a board. The page never claims "persistence works".
 - **[2. What is saved, and what is deliberately not](#2-what-is-saved-and-what-is-deliberately-not)** — Milan saves a *binding*, not a *connection* — so `stream_id`, dest MAC and VLAN are deliberately cleared and re-probed. Restoring a stale multicast DMAC would point the listener at a reservation that no longer exists.
+- **[2b. The clause inventory](#2b-the-clause-inventory--every-milan-persistence-shall-and-what-holds-it)** — Generated from `sw/persist/milan_persist_state.py`: all ELEVEN Milan persistence SHALLs (5.3.8.1 is one row of eleven), the two SHALL-NOTs that require the opposite, and per clause whether this build can put the value back. Seven cannot, and the reason is one sentence: the AEM store's write port has no software master.
 - **[3. The as-built fabric enablers](#3-the-as-built-fabric-enablers)** — The two register groups this design builds on, recapped so the page stands alone: E1 `0x7A0-0x7B4` injects the 5.5.3.5.2 entry record (and refuses rather than merges when the context is already bound), E2 `0x860/0x864/0x868` is the read side the writer daemon learns from.
 - **[4. The journal record format — KLJ1 v1](#4-the-journal-record-format--klj1-v1)** — The whole on-flash container: 6-word header, records, CRC last. The trick worth internalising is that a record *is* the six E1 register writes in register order, so encoder, decoder and register map cannot drift. §4.4 gives a 52-byte worked image whose CRC is pinned in the testbench.
 - **[5. Where it lives in the 16 MB QSPI](#5-where-it-lives-in-the-16-mb-qspi)** — The flash map before and after the carve, and why there are two partitions: `journal` is raw so "a torn write cannot damage the other slot" is flash geometry rather than a filesystem promise, `/user` is jffs2 for things that want files. The Arty gets neither slot — it has ~15 KB of rootfs headroom — and degrades to booting unbound.
@@ -22,6 +23,8 @@ durable place to keep the binding, and the boot-time sequence that replays it.
 - **[8. CSR ingest group 0x7B8-0x7C4 — the integration contract](#8-csr-ingest-group-0x7b8-0x7c4--the-integration-contract)** — The four-register ABI and its verdict codes, still living in a testbench wrapper rather than `milan_csr`. Names the one piece of integration not built: the `rest_*` arbiter between the journal master and the manual `0x7B4` commit path.
 - **[9. The write path — when the journal is saved](#9-the-write-path--when-the-journal-is-saved)** — The daemon's read-compose-write loop through the `0x800` window, and two traps carried from the running system: a snapshot that is not fresh reads literal `0` (so `stream_id` 0 means "not fresh", not "no bind"), and whoever polls `0x800` owns it.
 - **[10. Kernel / boot-side work](#10-kernel--boot-side-work)** — Four items, one landed. The open edge is item 4: `deploy.sh` computes each slot ceiling from the next *image* offset and never reads the new `reserved` key, so an oversized rootfs would be accepted and would overwrite `journal` and `user` — a one-line fix in `do_flash_images()`. Also: reads alone unblock the restore half, so the write path is not on the critical path.
+- **[10b. Feasibility verdict — can Linux write this flash?](#10b-feasibility-verdict--can-linux-write-this-flash-answered-2026-08-03)** — Answered with kernel config, DTS, csr.csv and the shipping board tool: yes, through the LiteSPI master, and it already does. `/proc/mtd` is empty *permanently* (no `litex,spiflash` driver exists here or upstream), which is why it was the wrong store probe. Names the two defects the verdict exposed: a journal sector inside the wrong partition, and a DT bank base 0x800 off.
+- **[10c. E4 — the AEM dynamic-state ingest port](#10c-e4--the-aem-dynamic-state-ingest-port-the-actual-blocker)** — The minimal fabric change that closes the other seven clauses: a descriptor-addressed patch port at `0x7C8-0x7D4` that resolves byte ranges from the SAME generated `WB_*_ADDR_C` tables `SET_STREAM_FORMAT` uses, revalidates through the same acceptance test, and is accepted ONLY while ADP is disabled — so "replay before advertise" becomes structural. ~2-3 desk days.
 - **[11. Bench recipe for the flash half](#11-bench-recipe-for-the-flash-half)** — Seven gates G0-G6 with the actual `devmem` sequences, each falsifiable alone so a failure localises. G2 proves replay end to end without any writable mtd; G3 budgets under ~10 s to SETTLED; G6 is the power-cut-during-write drill that earns the whole design.
 - **[12. Why KL_aecp_nv_overlay was not reused](#12-why-kl_aecp_nv_overlay-was-not-reused)** — The prior art turned out to be a stub, but its framing shaped one real decision: it aimed at descriptor-field persistence, which is how a persistence feature becomes unbounded. Scope here is bindings only, and the `FMT_VER` major is what lets the container grow later without old gateware misreading it.
 - **[13. What tb/verilator/persist proves](#13-what-tbverilatorpersist-proves)** — 96 checks against the unmodified shipping `KL_acmp_lstn_ctx`, group by group. `[J2]` is the load-bearing one — damage in the *last* record leaves the first two sinks untouched, which is exactly what a streaming applier would get wrong.
@@ -40,11 +43,14 @@ board**, and nothing below claims otherwise.
 | `KL_persist_journal` decode + replay | **RTL, Verilator-proven** | `tb/verilator/persist` — 96 checks, 0 failures |
 | Torn-record rejection (never half-applied) | **RTL, Verilator-proven** | `tb/verilator/persist` `[J1]`/`[J2]`/`[J7]` |
 | Restored sink reaches a bound listener | **RTL, Verilator-proven** | `tb/verilator/persist` `[J4]` |
-| CSR ingest group `0x7B8-0x7C4` | **specified, NOT in `milan_csr` yet** | executable spec in `tb/verilator/persist/persist_wrap.sv` |
+| CSR ingest group `0x7B8-0x7C4` | **in gateware** (`0x0019`) | `milan_csr.sv` `A_JNL_CTRL/DATA/STAT/SEQ`; `milan_datapath.sv` instantiates `KL_persist_journal` |
 | QSPI repartition (§5) | **in `FLASHBOOT_LAYOUT`, host-gated** | `sw/trace/test_trace_roundtrip.py` gate 1 (alignment, no overlap, fits) — still needs a build + a flash |
 | mtd partition node (§10 item 1) | **generated + `dtc`-checked** | `sw/dts/gen_mtd_partitions.py --check --dtc`, same gate 1 |
-| mtd driver actually binding, `/user` mounted (§10 items 2-3) | **designed only** | no board has been booted with an mtd node; §11 gate G1 |
-| `journald` writer daemon (§9) | **designed only** | lives in the private test repo |
+| mtd driver actually binding, `/user` mounted (§10 items 2-3) | **impossible in this kernel** | no `litex,spiflash` driver exists here or upstream; §10b |
+| Flash reachable from Linux WITHOUT mtd | **shipping, silicon-proven** | `acmp-persist` over the LiteSPI master CSRs; §10b |
+| Bindings restored BEFORE the first ADPDU | **desk-proven** | `tools/test_milan_persist.py::test_a_failed_replay_leaves_ADP_DISABLED` (milan-tests-avb) |
+| The other seven persistence clauses (§2b) | **cannot be restored** | no AEM-store ingest; §10c specifies the port |
+| Journal writer (§9) | **shipping** | `acmp-persist watch`, started by `S51acmp-persist` |
 | Reboot drill (§11) | **designed only** | needs a board |
 
 A design + a proven replay path + an executable bench recipe is the deliverable.
@@ -72,6 +78,51 @@ The VLAN *is* carried in the record (§4) but only as an operator-facing hint;
 the E1 register `0x7A8[27:16]` documents it as informational and the fabric
 ignores it on load. Keeping it costs nothing and makes a hexdump of the journal
 readable.
+
+---
+
+## 2b. The clause inventory — every Milan persistence SHALL, and what holds it
+
+> **Generated.** The table below is `python3 sw/persist/milan_persist_state.py
+> --emit-md`. `PERSIST_ITEMS` in that file is the ONE place either repo says
+> "clause X requires state Y"; the board reads the same list through the
+> generated `/etc/milan-persist-state.sh`, and `sw/trace/test_trace_roundtrip.py`
+> gate 1 fails if the two drift. Do not retype a row here.
+
+Milan v1.2 puts **eleven** unconditional persistence SHALLs on a PAAD-AE, not
+one. §5.3.8.1 (the clause task #62 was opened on) is the most visible because a
+controller sets a stream format and watches it revert, but it is one row:
+
+| Clause | State | Scope | Restore path | Status |
+|---|---|---|---|---|
+| 5.3.8.1 | STREAM_INPUT current format | per-descriptor | none | **OPEN** - AEM store byte range WB_STRIN_FMT_ADDR_C[idx] has no software write path (E4 fabric port required) |
+| 5.3.7.1 | STREAM_OUTPUT current format | per-descriptor | none | **OPEN** - AEM store byte range WB_STROUT_FMT_ADDR_C[idx] has no software write path (E4 fabric port required) |
+| 5.3.8.2 | STREAM_INPUT bound state | per-descriptor | fabric-journal | **restorable today** |
+| 5.3.8.3 | STREAM_INPUT binding parameters | per-descriptor | fabric-journal | **restorable today** |
+| 5.3.8.7 | STREAM_INPUT started/stopped state | per-descriptor | fabric-journal | **restorable today** |
+| 5.3.7.6 | STREAM_OUTPUT presentation time offset | per-descriptor | none | **OPEN** - the presentation-offset file is a response-builder register array with no CSR write port (E4 fabric port required) |
+| 5.3.5.1 | AUDIO_UNIT current sampling rate | per-descriptor | none | **OPEN** - AEM store byte range WB_SAMPLING_RATE_C has no software write path (E4 fabric port required) |
+| 5.3.11.1 | CLOCK_DOMAIN current clock source | per-descriptor | none | **OPEN** - AEM store byte range WB_CLOCK_SRC_IDX_C has no software write path; the live shadow clk_src_r in KL_aecp_response_builder has no CSR write port either (E4 fabric port required) |
+| 5.3.9.1 | STREAM_PORT_OUTPUT channel mappings | per-descriptor | none | **OPEN** - the output dynamic-map store is written only by ADD/REMOVE_AUDIO_MAPPINGS inside KL_aecp_response_builder (E4 fabric port required) |
+| 5.3.10.1 | STREAM_PORT_INPUT channel mappings | per-descriptor | none | **OPEN** - the input dynamic-map store is written only by ADD/REMOVE_AUDIO_MAPPINGS inside KL_aecp_response_builder (E4 fabric port required) |
+| 5.3.13 | User names (entity, configuration, cluster, clock domain, ...) | per-descriptor | csr | **restorable today** |
+| 5.3.4.1 | Locked state - MUST NOT persist | global | n/a | **must NOT persist** (satisfied: nothing saves it) |
+| 5.3.4.2 | Registered controller list - MUST NOT persist | global | n/a | **must NOT persist** (satisfied: nothing saves it) |
+
+Two clauses require the **opposite**, and they are in the same inventory on
+purpose — a broader store must not quietly start keeping them:
+
+* **5.3.4.1** — *"The locked state is cleared by a power cycle."*
+* **5.3.4.2** — *"The list of registered controllers is cleared by a power
+  cycle."*
+
+**The shape of the gap is not "no flash".** It is that seven of the eleven live
+in `KL_aecp_aem_store`'s BRAM (or in a response-builder register file), whose
+write port is driven *solely* by `KL_aecp_response_builder`'s SET_* write-back
+— `hdl/ieee17221/aecp/KL_aecp_top.sv` lines 261-264 and 346-347. No CSR reaches
+it. Nor can a self-addressed AECP command: the AECP parser taps the **RX** path,
+and a unicast frame the board sends to its own MAC is never forwarded back to
+the sending port. Saving those seven works today; putting them back needs §15.
 
 ---
 
@@ -189,7 +240,7 @@ fully allocated:
 | `0x40_0000` | 3 MiB | kernel `Image.xz` |
 | `0x70_0000` | 384 KiB | opensbi `fw_jump` |
 | `0x76_0000` | 128 KiB | dtb |
-| `0x78_0000` | 8.5 MiB | rootfs — **measured 5.6 MiB, ~2.9 MiB slack** |
+| `0x78_0000` | 8.5 MiB | rootfs — **measured 5.6 MiB, ~2.9 MiB slack** (pre-v4) |
 
 The persistence slots come out of that rootfs slack. **This is now what
 `FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED` in
@@ -199,8 +250,8 @@ The persistence slots come out of that rootfs slack. **This is now what
 | Offset | Size | Slot |
 |---|---|---|
 | `0x78_0000` | **6.375 MiB** | rootfs (was 8.5; ~0.775 MiB slack left) |
-| `0xDE_0000` | **128 KiB** | **`journal`** — 2 × 64 KiB erase blocks: slot A, slot B |
-| `0xE0_0000` | **2 MiB** | **`user`** — general writable state, mounted at `/user` |
+| `0xEE_0000` | **128 KiB** | **`journal`** — 2 × 64 KiB erase blocks: slot A, slot B |
+| `0xF0_0000` | **1 MiB** | **`user`** — general writable state, mounted at `/user` |
 
 Two separate partitions, deliberately:
 
@@ -355,7 +406,7 @@ Ordering constraints for whoever writes the daemon:
 
 ## 8. CSR ingest group `0x7B8-0x7C4` — the integration contract
 
-**Not in `milan_csr` yet.** The behaviour below is implemented and gated in
+**Landed in `milan_csr` (gateware `0x0019`).** The behaviour below is also gated in
 [`tb/verilator/persist/persist_wrap.sv`](../../tb/verilator/persist/persist_wrap.sv),
 which stands in for `milan_csr` exactly the way `tb/verilator/tcam_csr` does for
 the `0x700` TCAM group. Reproducing it in `milan_csr` is a wiring job:
@@ -478,6 +529,108 @@ row of [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md):
 
 ---
 
+## 10b. Feasibility verdict — can Linux write this flash? (answered 2026-08-03)
+
+**Yes, and it already does.** §10 item 2 framed this as an open choice between
+an mtd driver and a userspace writer. The userspace writer shipped: `acmp-persist`
+in the rootfs overlay drives the LiteSPI master directly and is silicon-proven.
+The mtd route is *not* what unblocks persistence, and believing it was is what
+made task #57 look like the blocker under this one.
+
+| Question | Answer | Evidence |
+|---|---|---|
+| Is MTD compiled in? | **Yes** — `CONFIG_MTD=y`, `CONFIG_MTD_BLOCK=y`, `CONFIG_MTD_SPI_NOR=y`, `CONFIG_MTD_OF_PARTS=y`, `CONFIG_SPI=y` | `br2-external/board/milan_naxriscv/linux.fragment:41-44,59` |
+| Is there a driver for `litex,spiflash`? | **No, and there is none upstream either.** Linux 7.0.11 `drivers/spi/` has no litex entry; the only LiteX drivers present are liteeth, liteuart, mmc, soc-controller. LiteSPI has never been upstreamed. | `drivers/spi/`, `grep -r 'litex,' drivers/` |
+| So why does `/proc/mtd` print a header and nothing else? | MTD **core** registers `/proc/mtd`; **zero devices** ever probe because the `jedec,spi-nor` child needs a registered SPI controller for its parent node and nothing claims `litex,spiflash`. This is the permanent state of this kernel, not a property of the DTB. | `drivers/mtd/spi-nor/core.c` binds `"jedec,spi-nor"` as a *device* driver |
+| Are the DTS partitions actually there? | **Yes** — `journal@ee0000` and `user@f00000` are in `milan_ax7101_vexii_rv32.dts` and in the built `.dtb` (2026-08-02). The RV64 `.dtb` has the `spiflash` node but no partitions. They are simply never parsed. | `dtc -I dtb` on both |
+| Is the flash reachable at runtime at all? | **Yes, two ways.** Read: the XIP window at CPU `0x0100_0000` (16 MiB, `memory_region,spiflash`). Write: the LiteSPI **master** port at bank `+0x10`..`+0x20` (`add_spi_flash(..., with_master=True)`). | `csr.csv`; `sw/litex/milan_soc.py:4989-4990` |
+| Does anything use it today? | **Yes** — `acmp-persist` implements RDID / WREN / SE-D8 / PP / RDSR over `devmem` against those CSRs, with a JEDEC guard and an address clamp. | `rootfs_overlay/usr/bin/acmp-persist` |
+
+**Two defects this verdict exposed, both now fixed:**
+
+1. `acmp-persist` journalled at the literal `0xFF0000` — *the last sector of the
+   device*, which the flash map assigns to **`user`**, not `journal`. Two tenants
+   in one erase block. The sector (and the sector-erase address bytes, which were
+   also literals) now derive from `FLASHBOOT_RESERVED` through the generated
+   `/etc/milan-persist-state.sh`.
+2. The DTS declares `spiflash@f0005000`, but every real build's `csr.csv` says
+   the bank is at **`0xf0004800`**. A device tree naming the wrong bank would
+   point any future mtd driver — and does point anything trusting the DT — at the
+   `sdram` CSRs, and it is the same window `acmp-persist` writes the flash
+   through. `sw/litex/check_dtb_csr.py` now refuses a DTB whose `litex,spiflash`
+   `reg[0]` disagrees with the build's `spiflash_master_cs - 0x10`. **This must
+   be resolved against the shipping RV32 build's own `csr.csv` before the next
+   flash** — no RV32 `csr.csv` is on this host, so which of the two is right for
+   that bitstream is not decidable at the desk.
+
+**Is an mtd driver still worth writing?** It buys `/dev/mtdN`, `flash_erase`,
+`flashcp`, jffs2 on `/user`, and it makes the already-written `S51milan-persist`
+work unchanged. It is a `spi_controller` driver over the master CSRs — the ABI is
+four registers (`cs`, `phyconfig{mask,width,len}`, `rxtx`, `status{tx_ready,
+rx_ready}`, `clk_divisor`), and `spi-mem` supplies the generic implementation
+that `spi-nor` needs, so `transfer_one` + `set_cs` is the whole driver.
+**Estimate: ~300 lines, 1-2 days including a buildroot `kernel-module` package
+(mirror `fpga/kl-eth/`), plus a DTS reshape** — the LiteX node is emitted with
+`#size-cells = <1>` and `flash@0 { reg = <0 0x1000000> }`, which is not a SPI-bus
+shape; a bus needs `#size-cells = <0>` and `reg = <0>`. It is a genuine
+improvement and it is **not on the critical path for any Milan clause**.
+
+---
+
+## 10c. E4 — the AEM dynamic-state ingest port (the actual blocker)
+
+Seven of the eleven clauses in §2b cannot be restored because the AEM store's
+write port has no software master. This is the minimal fabric change that closes
+all seven at once, and it deliberately reuses everything the journal already has.
+
+**Shape.** A new CSR group `0x7C8-0x7D4` (free space: the map runs `0x7A0-0x7C4`
+then jumps to `0x7C8`… `0x800`, so no `>= 0x800` read carve-out is involved):
+
+| Offset | Name | Acc | Description |
+|---|---|---|---|
+| `0x7C8` | `AEMP_SEL` | W | `{desc_type[31:16], index[15:0]}` — WHAT to patch |
+| `0x7CC` | `AEMP_FIELD` | W | which field of that descriptor (`0` format, `1` sampling rate, `2` clock source, `3` presentation offset, `4` name) |
+| `0x7D0` | `AEMP_DATA` | W | payload words, pushed in order |
+| `0x7D4` | `AEMP_CTRL/STAT` | W1S / RO | `[0]` commit, `[1]` abort; R: `[31]` busy, `[7:4]` verdict |
+
+**Descriptor-addressed, never byte-addressed.** Software writes
+`{desc_type, index, field}`; the *fabric* resolves the byte range from
+`WB_STRIN_FMT_ADDR_C[]` / `WB_STROUT_FMT_ADDR_C[]` / `WB_SAMPLING_RATE_C` /
+`WB_CLOCK_SRC_IDX_C` in `gen/aecp_aem_rom.svh` — **the same generated table
+`SET_STREAM_FORMAT` itself uses**. That is the whole design rule: a byte address
+in a shell script would be a second copy of a generated constant, and the AEM
+ROM is regenerated on every config change.
+
+**Validation is not optional and not new.** The port must run the payload through
+the *same* acceptance the AECP path applies (`w_fmt_ok` / `w_out_fmt_ok` — the
+5.3.8.1 "shall always be using a format that is one of the supported formats"
+test) and must run the 5.3.10.1 dynamic-map prune on a shrink. Otherwise a
+restore can install a format the entity does not declare as supported, which is a
+*worse* conformance break than the revert it fixes.
+
+**Ordering is structural, not conventional.** The port is accepted only while
+`cfg_adp_enable` (`0x600[0]`) is **clear**. Then "replay before the entity
+advertises" is enforced by the hardware rather than by an init-script convention,
+and the S50milan ordering this round added becomes a belt over a brace.
+
+**Arbitration.** `st_waddr_o/st_wr_o/st_wdata_o` in `KL_aecp_top` has exactly one
+driver today (`KL_aecp_response_builder`), so this is a 3-signal mux with the
+builder winning — trivially non-conflicting at boot, where the AECP engine is
+quiescent by the ADP gate above.
+
+**Effort.** ~200 lines of RTL (a small ingest FSM + the WB-table address mux),
+~150 lines of `milan_csr` decode, a `tb/verilator/aempatch` suite in the shape of
+`tb/verilator/persist`, and a `VERSION` bump. **2-3 days at the desk.** The build
+risk is the real cost: the AX7101 RV32 fit is packing-bound (61,039 / 63,400 LUTs,
+1,541 control sets), so this lands with the next area round, not beside it.
+
+**Until it exists**, `milan-persist` names each of the seven at boot with its
+clause and its gap, `A_STATE_RESTORED` grades the revert honestly, and the
+saved-state story is exactly four clauses wide: 5.3.8.2, 5.3.8.3, 5.3.8.7 and the
+ENTITY half of 5.3.13.
+
+---
+
 ## 11. Bench recipe for the flash half
 
 Everything here needs a board and a flash. Run it in order; each gate is
@@ -487,8 +640,8 @@ falsifiable on its own, so a failure localises.
 
 > **The layout itself is already landed** (2026-07-26, §5 and §10 item 1):
 > `FLASHBOOT_RESERVED` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)
-> carries `journal` at `0xDE_0000` (128 KiB) and `user` at `0xE0_0000` (2 MiB),
-> and `rootfs` is already `0x66_0000`. G0 is therefore a **verification** gate,
+> carries `journal` at `0xEE_0000` (128 KiB) and `user` at `0xF0_0000` (1 MiB),
+> and `rootfs` is already `0x76_0000`. G0 is therefore a **verification** gate,
 > not an editing one — step 1 is a check, and it should pass unchanged.
 
 1. Confirm the slots are present and the map is consistent —
@@ -496,16 +649,16 @@ falsifiable on its own, so a failure localises.
    `ast`, so it needs no LiteX/migen). Expect:
 
    ```
-   rootfs     0x00780000 0x00660000 0x00DE0000  image
-   journal    0x00DE0000 0x00020000 0x00E00000  reserved
-   user       0x00E00000 0x00200000 0x01000000  reserved
+   rootfs     0x00780000 0x00760000 0x00EE0000  image
+   journal    0x00EE0000 0x00020000 0x00F00000  reserved
+   user       0x00F00000 0x00100000 0x01000000  reserved
    (free)                0x00000000
    ```
 
    `check_flash_map()` refuses an unaligned or overlapping map at build time,
    so a regression here fails the build rather than the bench.
 2. Rebuild; confirm the rootfs image still fits the shrunk slot **before**
-   flashing anything (`ls -l` on the produced `rootfs.cpio.xz` vs `0x66_0000`).
+   flashing anything (`ls -l` on the produced `rootfs.cpio.xz` vs `0x76_0000`).
    This is still a **manual** check — §10 item 4 records why `deploy.sh`'s own
    printed budget is not yet trustworthy.
 3. Regenerate the DTB from the build's `csr.csv` (CSR-rot rule) with the
@@ -530,7 +683,7 @@ journal.
 This gate does **not** need the on-board write path, which is why it comes
 first. Build a slot image on the host with the §4.4 encoder, and program it into
 the `journal` partition with the same tool `build.sh flash` uses, at
-`0xDE_0000`. Then boot and replay by hand:
+`0xEE_0000`. Then boot and replay by hand:
 
 ```sh
 # CSR base 0x9000_0000; verify the gateware first
@@ -659,17 +812,31 @@ generic cells with no vendor primitives (`hierarchy -check` clean).
 
 ## 14. Remaining work, in order
 
-1. Wire `KL_persist_journal` into `milan_datapath` and add the `0x7B8-0x7C4`
-   group to `milan_csr`, including the `rest_*` arbiter of §8. Needs a `VERSION`
-   bump.
+1. ~~Wire `KL_persist_journal` into `milan_datapath` and add the `0x7B8-0x7C4`
+   group to `milan_csr`~~ — **DONE**, gateware `0x0019` (`milan_csr.sv`
+   `A_JNL_CTRL/DATA/STAT/SEQ`, `milan_datapath.sv` `persist_journal`, and the
+   owner-routed `rest_ack_i` arbiter §8 asked for).
 2. ~~Add the `journal` + `user` slots to `FLASHBOOT_LAYOUT` and the mtd node to
    the DT~~ — **DONE 2026-07-26** (§5, §10 item 1). `FLASHBOOT_RESERVED` carries
-   `journal` `0xDE_0000` + `user` `0xE0_0000`, `rootfs` is `0x66_0000`, and
+   `journal` `0xEE_0000` + `user` `0xF0_0000`, `rootfs` is `0x76_0000`, and
    `sw/dts/gen_mtd_partitions.py` generates the `fixed-partitions` node from
    that single source under `test_trace_roundtrip.py` gate 1. What is **still
    open** from this line is one thing only: `deploy.sh` computes each image's
    ceiling from the next *image* offset and ignores the `reserved` key, so an
    oversized rootfs would silently overwrite both slots (§10 item 4 — one line
    in `do_flash_images()`).
-3. G0-G3 on a board: the read path first — it needs no writable mtd.
-4. The writable mtd path and `journald` (§9, §10), then G4-G6.
+3. ~~Establish whether Linux can write this flash~~ — **ANSWERED 2026-08-03,
+   §10b.** It can, and does, through the LiteSPI master; the mtd route is
+   impossible in this kernel and is not on any clause's critical path.
+4. **Resolve the `litex,spiflash` DT base before the next flash.** The DTS says
+   `0xf0005000`; every build's `csr.csv` on this host says `0xf0004800`.
+   `check_dtb_csr.py` now refuses the mismatch — run it against the SHIPPING
+   RV32 build's own `csr.csv`, which is the only artefact that can decide it.
+5. **E4, the AEM dynamic-state ingest port (§10c).** The one change that closes
+   the other seven clauses of §2b. ~2-3 desk days; lands with the next area
+   round because the RV32 fit is packing-bound.
+6. G1-G3 on a board — noting G1 (`cat /proc/mtd`) is now known to be
+   *permanently* empty and has been replaced as the store probe by
+   `milan-persist probe`.
+7. G4-G6 (the write path, the reboot drill, the torn-write drill). The writer
+   itself already ships as `acmp-persist watch`.

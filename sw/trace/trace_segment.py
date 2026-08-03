@@ -73,9 +73,40 @@ XZ_DICT = SEGMENT_BYTES
 XZ_CHECK = lzma.CHECK_CRC32
 SEG_RE = re.compile(r"^seg-(\d{6})\.ctf(?:\.xz)?$")
 
-# /user is 2 MiB; the log tree gets 1.5 MiB of it and the rest stays for the
-# state /user exists for (entity names, channel maps, mixer settings).
-DEFAULT_LOG_BUDGET = 1536 * 1024
+# The log tree gets the /user slot MINUS a fixed reserve of erase blocks; the
+# reserve is what /user exists for (entity names, channel maps, mixer state)
+# plus the free blocks jffs2 wants for garbage collection.  Expressing it as
+# "slot minus reserve" rather than as two independent sizes makes
+# `budget + reserve == slot` true by construction instead of by assertion.
+#
+# DERIVED, NOT RESTATED.  This was `1536 * 1024` under the comment "/user is
+# 2 MiB", and that comment stopped being true on 2026-07-28 when flash-map v5
+# took `user` down to 1 MiB to grow the rootfs.  The constant did not move, so
+# the fault log's budget became LARGER than the partition holding it and the
+# gate that should have caught it (test_trace_roundtrip gate 1) was asserting
+# the old 2 MiB too - two copies of one number, both stale, agreeing with each
+# other and with nothing else.  Reading the slot means the budget cannot
+# outlive the map again.
+def _user_slot(default=(2 * 1024 * 1024, 64 * 1024)):
+    """(`user` slot size, erase-block size) from FLASHBOOT_RESERVED.
+
+    Falls back to `default` when the SoC source is not importable, so this
+    module still works in a bare checkout.
+    """
+    try:
+        sys.path.insert(0, os.path.join(os.path.dirname(HERE), "dts"))
+        import gen_mtd_partitions as _gmp
+        rows, _fs, erase = _gmp.load_map()
+        return [r for r in rows if r[0] == "user"][0][2], erase
+    except Exception:
+        return default
+
+
+#: erase blocks kept out of the log tree for /user's own state + jffs2 GC
+USER_RESERVE_BLOCKS = 5
+
+USER_SLOT_BYTES, USER_ERASE_BYTES = _user_slot()
+DEFAULT_LOG_BUDGET = USER_SLOT_BYTES - USER_RESERVE_BLOCKS * USER_ERASE_BYTES
 
 # Segment 0 is PINNED: the first fault after a boot is the one that started the
 # cascade, and a pure oldest-first ring is guaranteed to evict it first.
