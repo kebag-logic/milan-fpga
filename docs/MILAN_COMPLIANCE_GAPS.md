@@ -513,6 +513,27 @@ hold.
     on DISCONNECT_RX; software still wins a row it names a sid for).
     TB: `milan_dp` sim_nxn "t21" section (wire NEW/Ready/LV + window
     readback + CBS-guard), `acmp_lstn` sim_ctx bind-view checks.
+  - **OPEN (silicon 2026-08-03): our listener answers CONNECT_RX without
+    performing the talker half of the two-stage ACMP handshake.** Driving
+    `CONNECT_RX_COMMAND` at our STREAM_INPUT 0 (talker = the PEER) returns
+    `SUCCESS` — but with `stream_id 0000000000000000`, i.e. no talker stream
+    id was ever learned, and the PEER never begins streaming. Asked
+    directly, the talker agrees it has no such connection:
+    `START_STREAMING` on its STREAM_OUTPUT 0 answers status 11
+    `NO_SUCH_CONNECTION`. IEEE 1722.1-2021 8.2.2.6.2 makes the *listener*
+    responsible for emitting `CONNECT_TX_COMMAND` to the talker on receipt
+    of CONNECT_RX and for adopting the talker's `stream_id`/dest MAC from
+    the CONNECT_TX_RESPONSE before replying SUCCESS; we reply locally and
+    skip that leg. Consequence: a conformant controller that binds only via
+    CONNECT_RX (which is the normal path, and what Hive does) gets a
+    SUCCESS that produces no audio.
+    - Workaround proven on the bench: issue the legacy controller-to-talker
+      `CONNECT_TX_COMMAND` instead (`avdecc_l2.py connect-tx`) — that returns
+      the real `stream_id 3cc0c60102030000` and the PEER arms and streams
+      (8002 pps at the tap ~60 s later; its TA arming is lazy, poll >= 3 min).
+    - This is distinct from the lwSRP-row item above: that one is about the
+      reservation row, this one is about the ACMP exchange never reaching
+      the talker at all. Both must hold for a CONNECT_RX-only bind to work.
   - **REMAINING for the CRF reservation e2e:** the datapath/CSR
     integration lane (wire the CRF bind SM to the ctx port, VLAN-tag the
     CRF stream once Ready is registered) — the engine-side gap is gone.
