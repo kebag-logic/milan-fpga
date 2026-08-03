@@ -264,8 +264,12 @@ must be a second, independent defect — does not follow from the real
 constant. A dedicated stall hunt (`matrix-followup.txt` pass `f`) still
 samples the ALSA runtime status at 5 Hz through repeated `a1`-style deaths,
 because the one thing that *would* still indicate a stalled consumer is
-`hw_ptr` flatlining while the state stays `RUNNING`. **Result pending at
-time of writing.**
+`hw_ptr` flatlining while the state stays `RUNNING`. **Queued but not
+completed in this session** (`matrix-followup.txt` pass `f`) — the board's
+ssh became unreachable during it, starved by `aplay` at `SCHED_FIFO 60`
+outranking `dropbear`, which is itself a small confirmation of how tight
+this hart is. The question stays open; §7's recommendations are written so
+that none of them depends on the answer.
 
 ## 4. The mechanism: wake lateness vs tolerance, not CPU
 
@@ -419,12 +423,24 @@ same thing for a *file* player: the bytes have to reach the ring somehow.
 
 The genuine zero-extra-copy configuration — `snd_pcm_mmap_begin()` then
 `read()` **straight into the ring**, then `snd_pcm_mmap_commit()` — is
-implemented as `pcm_probe -Z` and run in `matrix-followup.txt` pass `e`
-against matched controls in the same session. **Result pending at time of
-writing.** Its purpose is to establish the floor: if `-Z` is not decisively
-cheaper than `b1`, then no amount of copy surgery in the driver changes
-playback survival, and lever 2 of the driver's comment should be closed as
-*not worth doing*.
+implemented as `pcm_probe -Z`. Its purpose is to establish the floor: if
+`-Z` is not decisively cheaper than the `rw` control, then no amount of copy
+surgery in the driver changes playback survival, and lever 2 of the driver's
+analysis comment should be closed as *not worth doing*.
+
+**Not completed in this session.** The first attempt (`e1`) was invalid — a
+bug in the harness, not in the idea: driving `snd_pcm_mmap_begin()`/
+`commit()` directly never starts the stream, because alsa-lib's auto-start
+on `start_threshold` lives in `snd_pcm_mmap_write_areas()` (the helper
+behind `snd_pcm_mmap_writei()`), so the run filled exactly one buffer and
+died. That is fixed in `pcm_probe.c` and re-queued as `matrix-final.txt`
+pass `z` with matched controls, but the board became unreachable before it
+ran.
+
+This does **not** block the shipping decision: the `-M` result above is
+measured three times and already shows the copy path is worth only ~1.5
+points, while §4 shows the failure is a lateness/tolerance problem that
+costs 0 points to fix. `-Z` would sharpen the floor, not move the verdict.
 
 Separately, and importantly: **an mmap run being fast is not an mmap run
 being correct.** Userspace writes through the WC mapping, and the driver's
