@@ -45,7 +45,6 @@ module avtp_rxmon_nx_wrap #(
   //! media-clock context
   input  wire [31:0] ptp_now_i,
   input  wire [31:0] pres_ofs_i,
-  input  wire        media_reset_p_i,
   input  wire [15:0] clk_src_i,
   input  wire        servo_conv_i,
 
@@ -93,7 +92,7 @@ module avtp_rxmon_nx_wrap #(
   output wire [15:0] pcm_drops_o
 );
 
-  wire        match_w, tu_w, tv_w;
+  wire        match_w, tu_w, tv_w, mr_w;
   wire [7:0]  subtype_w, seq_w;
   wire [1:0]  midx_w;
   wire [31:0] ts_w;
@@ -121,6 +120,7 @@ module avtp_rxmon_nx_wrap #(
     .match_valid_o (match_w),
     .match_index_o (midx_w), .stream_id_o (), .avtp_ts_o (ts_w),
     .subtype_o (subtype_w), .ts_valid_o (tv_w),
+    .media_restart_o (mr_w),
     .seq_num_o (seq_w), .ts_uncertain_o (tu_w), .fsh_o (fsh_w),
     .fsh2_o (), .parse_valid_o (), .b3_o (),
     .avtp_frames_o (), .matched_frames_o ()
@@ -137,11 +137,11 @@ module avtp_rxmon_nx_wrap #(
     .match_valid_i (match_w), .match_index_i ({2'b00, midx_w}),
     .subtype_i (subtype_w), .seq_num_i (seq_w),
     .ts_uncertain_i (tu_w), .ts_valid_i (tv_w),
+    .media_restart_i (mr_w),
     .avtp_ts_i (ts_w), .fsh_i (fsh_w),
     .bound_i (tbl_en_w), .bind_rise_i (bind_rise_w),
     .sid0_i (sid0_i), .fmt0_i (fmt0_i),
     .ptp_now_i (ptp_now_i), .pres_ofs_i (pres_ofs_i),
-    .media_reset_p_i (media_reset_p_i),
     .clk_src_i (clk_src_i), .servo_conv_i (servo_conv_i),
     .render_sel_i (render_sel_o),
     .depkt_pdu_p_i (depkt_pdu_p_w), .depkt_pdu_idx_i (depkt_pdu_idx_w),

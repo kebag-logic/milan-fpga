@@ -42,7 +42,38 @@ static std::vector<int>     rend_users;  // render-tap PDUs (tuser at tlast)
 static std::vector<int>     acc_idx;     // accept-pulse indices
 static bool pcm_last=false;
 
+// Milan v1.2 Table 5.6, MEDIA_UNLOCKED: "At any time, the PAAD-AE shall
+// ensure that either MEDIA_LOCKED=MEDIA_UNLOCKED (in this case, the input
+// stream is not synchronized on the media clock), or
+// MEDIA_LOCKED=MEDIA_UNLOCKED+1 (in this case, the input stream is
+// synchronized on the media clock)."
+//
+// Sampled on EVERY clock, but the verdict is on a SUSTAINED breach, not an
+// instantaneous one.  The counters live in a BRAM the engine walks serially -
+// the bind era-wipe zeroes MEDIA_LOCKED one cycle before MEDIA_UNLOCKED - so
+// an every-cycle equality check flags walk transients that no controller can
+// observe: GET_COUNTERS is answered from the CSR snapshot (milan_csr
+// snap_req), which is what makes the read atomic.  A REAL breach - an unlock
+// credited into an era whose counters were just zeroed - is PERMANENT until
+// the next bind, so any threshold well above the longest walk separates them.
+// Longest walk = bind (6 preserved-field/CFG writes + 10 counter zeroes)
+// plus a parked remainder; 128 cycles is generous margin over that.
+static const long INV_SETTLE_CYC = 128;
+static long inv_run=0, inv_worst=0, inv_bad=0;
+static void check_lock_invariant(){
+    long ml=dut->cnt_media_locked_o, mu=dut->cnt_media_unlocked_o;
+    if(ml==mu || ml==mu+1){ inv_run=0; return; }
+    inv_run++;
+    if(inv_run>inv_worst) inv_worst=inv_run;
+    if(inv_run==INV_SETTLE_CYC){
+        if(inv_bad<3) printf("  [FAIL] lock invariant SUSTAINED %ld cyc: "
+                             "ML=%ld MU=%ld\n", inv_run, ml, mu);
+        inv_bad++;
+    }
+}
+
 static void sample(){
+    check_lock_invariant();
     if(dut->pdu_accept_p_o) acc_idx.push_back(dut->pdu_accept_idx_o);
     if(dut->pcm_tvalid_o && dut->pcm_tready_i){
         for(int l=0;l<8;l++) pcm.push_back((dut->pcm_tdata_o>>(8*l))&0xFF);
@@ -77,6 +108,7 @@ struct AafCfg {
     uint8_t  seq      = 0;
     bool     tu       = false;
     bool     tv       = true;   // b1 bit 0 (timestamp valid)
+    bool     mr       = false;  // b1 bit 3 (media clock restart, 4.4.4.3)
     uint8_t  nsr      = 0x05;
     uint8_t  chans    = 8;
     uint8_t  depth    = 32;
@@ -86,7 +118,8 @@ static std::vector<uint8_t> mkaaf(const AafCfg& c, int len=120){
     std::vector<uint8_t> f(len,0x00);
     for(int i=0;i<6;i++){ f[i]=0x91; f[6+i]=0x02; }
     f[12]=0x22; f[13]=0xF0; int o=14;
-    f[o+0]=c.subtype; f[o+1]=(uint8_t)(0x80|(c.tv?0x01:0x00));
+    f[o+0]=c.subtype;
+    f[o+1]=(uint8_t)(0x80|(c.mr?0x08:0x00)|(c.tv?0x01:0x00));
     f[o+2]=c.seq; f[o+3]=c.tu?0x01:0x00;
     for(int i=0;i<8;i++) f[o+4+i]=(uint8_t)(c.sid>>(8*(7-i)));
     f[o+12]=0xA5; f[o+13]=0x5A; f[o+14]=0xC3; f[o+15]=0x3C;
@@ -97,6 +130,21 @@ static std::vector<uint8_t> mkaaf(const AafCfg& c, int len=120){
     f[o+22]=0x00;
     for(int i=0;i<64;i++) f[o+24+i]=(uint8_t)(0x30+i);
     return f;
+}
+
+// feed the beats and STOP - no drain headroom, so the caller lands its next
+// stimulus while the counter walk for this PDU is still in flight
+static void feed_nowait(const std::vector<uint8_t>& f){
+    int nbeats=(int)(f.size()+7)/8;
+    for(int b=0;b<nbeats;b++){
+        uint64_t d=0; int vb=0;
+        for(int k=0;k<8;k++){ size_t idx=(size_t)b*8+k;
+            if(idx<f.size()){ d|=(uint64_t)f[idx]<<(8*k); vb++; } }
+        dut->s_tdata_i=d; dut->s_tkeep_i=(vb==8)?0xFF:((1u<<vb)-1);
+        dut->s_tvalid_i=1; dut->s_tlast_i=(b==nbeats-1);
+        cyc();
+    }
+    dut->s_tvalid_i=0; dut->s_tlast_i=0;
 }
 
 static void feed(const std::vector<uint8_t>& f){
@@ -154,7 +202,7 @@ int main(int argc,char**argv){
     dut->tbl_wr_en_i=0; dut->lctx_wr_en_i=0; dut->lctx_rd_en_i=0;
     dut->route_wr_en_i=0; dut->pcm_tready_i=1;
     dut->ptp_now_i=0xA55AC33CUL-1000000; dut->pres_ofs_i=2000000;
-    dut->media_reset_p_i=0; dut->clk_src_i=0; dut->servo_conv_i=0;
+    dut->clk_src_i=0; dut->servo_conv_i=0;
     dut->resetn=0; dut->s_tvalid_i=0;
     cyc(6); dut->resetn=1; rst_cyc=gcyc; cyc(4);
 
@@ -253,13 +301,20 @@ int main(int argc,char**argv){
     flush_iv();
     ck("EARLY counted", dut->cnt_early_ts_o, 1);
     dut->ptp_now_i = 0xA55AC33CUL - 1000000;
-    dut->media_reset_p_i=1; cyc(); dut->media_reset_p_i=0; cyc(30);
+    //! Milan Table 5.6 MEDIA_RESET = the received mr bit TOGGLED (a wire
+    //! event), not a local playback rail
+    { AafCfg c; c.seq=3; c.mr=true; feed(mkaaf(c)); }
     flush_iv();
     ck("MEDIA_RESET counted", dut->cnt_media_reset_o, 1);
+    //! toggle back, so stream 0's mr LEVEL returns to 0 and the default-mr
+    //! frames the rest of this harness feeds are not toggles
+    { AafCfg c; c.seq=4; c.mr=false; feed(mkaaf(c)); }
+    flush_iv();
+    ck("MEDIA_RESET counts the return toggle too", dut->cnt_media_reset_o, 2);
 
     printf("\n[T1] P1: PCM payload byte-exact with tuser = 0 (stream 0)\n");
     pcm.clear(); pcm_users.clear(); pcm_last=false;
-    { AafCfg c; c.seq=3; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=5; feed(mkaaf(c)); }
     ck("PCM 64 bytes", (long)pcm.size(), 64);
     ck("PCM tlast", pcm_last?1:0, 1);
     { bool ok=pcm.size()>=64;
@@ -275,7 +330,7 @@ int main(int argc,char**argv){
     flush_iv();                                   // commit [T1]'s frame first
     long s0_frx = dut->cnt_frames_rx_o;
     align_iv();                                   // s0 noise in ONE interval
-    { AafCfg c; c.seq=4; c.tu=true; feed(mkaaf(c)); }       // s0 tu event
+    { AafCfg c; c.seq=6; c.tu=true; feed(mkaaf(c)); }       // s0 tu event
     { AafCfg c; c.seq=9; feed(mkaaf(c)); }                  // s0 seq jump
     { AafCfg c; c.seq=10; c.nsr=0x07; feed(mkaaf(c)); }     // s0 bad format
     flush_iv();
@@ -455,15 +510,125 @@ int main(int argc,char**argv){
     flush_iv();
     ck("[IV5] TU +2 across two intervals", lctx_rd(2, W_TU), iv_tu5+2);
 
-    printf("\n[IV6] MEDIA_RESET: 2 servo rails, one interval -> +1 (was +2)\n");
-    //! the rail attributes to the RENDER stream (s0, bound since [G7])
-    long iv_mr = dut->cnt_media_reset_o;
+    printf("\n[IV6] MEDIA_RESET: 2 mr toggles, one interval -> +1 (was +2)\n");
+    //! s2's mr level is 0 (every PDU fed to it so far defaulted mr=false),
+    //! so mr=1 then mr=0 is exactly two toggles inside one interval
+    long iv_mr = lctx_rd(2, W_MR);
     align_iv();
-    dut->media_reset_p_i=1; cyc(); dut->media_reset_p_i=0; cyc(100);
-    dut->media_reset_p_i=1; cyc(); dut->media_reset_p_i=0; cyc(30);
+    { AafCfg c; c.sid=SID2; c.seq=30; c.mr=true;  feed(mkaaf(c)); }
+    { AafCfg c; c.sid=SID2; c.seq=31; c.mr=false; feed(mkaaf(c)); }
+    ck("[IV6a] uncommitted before the tick", lctx_rd(2, W_MR), iv_mr);
     flush_iv();
-    ck("[IV6] MEDIA_RESET +1 for 2 rails in one interval",
-       dut->cnt_media_reset_o, iv_mr+1);
+    ck("[IV6b] MEDIA_RESET +1 for 2 toggles in one interval",
+       lctx_rd(2, W_MR), iv_mr+1);
+    //! and the BITE the other way: a HELD mr is not a toggle at all
+    align_iv();
+    for(uint8_t s=32; s<38; s++){ AafCfg c; c.sid=SID2; c.seq=s; c.mr=false;
+                                  feed(mkaaf(c)); }
+    flush_iv();
+    ck("[IV6c] 6 HELD-mr frames tick nothing", lctx_rd(2, W_MR), iv_mr+1);
+
+    printf("\n[IV8] LATE_TIMESTAMP / EARLY_TIMESTAMP: the last two Table 5.6\n"
+           "      interval counters. Both are 'incremented at the end of every\n"
+           "      observation interval during which a Stream Data AVTPDU has\n"
+           "      been received with an AVTP timestamp field that was in the\n"
+           "      past / too far in the future to process', so a BURST inside\n"
+           "      one interval is +1 - the same law as FRX/SM/TU/UF/MR.\n");
+    {
+        long lt0 = lctx_rd(2, W_LT), et0 = lctx_rd(2, W_ET);
+        uint8_t sq = 40;
+        // 5 LATE PDUs, ONE interval -> +1
+        dut->ptp_now_i = 0xA55AC33CUL + 1000;             // ts already past
+        align_iv();
+        for(int k=0;k<5;k++){ AafCfg c; c.sid=SID2; c.seq=sq++; feed(mkaaf(c)); }
+        ck("[IV8a] LATE uncommitted before the tick", lctx_rd(2, W_LT), lt0);
+        flush_iv();
+        ck("[IV8b] LATE +1 for a 5-PDU burst", lctx_rd(2, W_LT), lt0+1);
+        ck("[IV8c] EARLY untouched by LATE PDUs", lctx_rd(2, W_ET), et0);
+        // one LATE in EACH of two intervals -> +2 (still a counter)
+        { AafCfg c; c.sid=SID2; c.seq=sq++; feed(mkaaf(c)); } flush_iv();
+        { AafCfg c; c.sid=SID2; c.seq=sq++; feed(mkaaf(c)); } flush_iv();
+        ck("[IV8d] LATE +2 across two intervals", lctx_rd(2, W_LT), lt0+3);
+        // 4 EARLY PDUs, ONE interval -> +1
+        dut->ptp_now_i = 0xA55AC33CUL - 50000000;         // far ahead
+        align_iv();
+        for(int k=0;k<4;k++){ AafCfg c; c.sid=SID2; c.seq=sq++; feed(mkaaf(c)); }
+        flush_iv();
+        ck("[IV8e] EARLY +1 for a 4-PDU burst", lctx_rd(2, W_ET), et0+1);
+        ck("[IV8f] LATE untouched by EARLY PDUs", lctx_rd(2, W_LT), lt0+3);
+        dut->ptp_now_i = 0xA55AC33CUL - 1000000;          // back on time
+        align_iv();
+        for(int k=0;k<4;k++){ AafCfg c; c.sid=SID2; c.seq=sq++; feed(mkaaf(c)); }
+        flush_iv();
+        ck("[IV8g] on-time PDUs move neither",
+           lctx_rd(2, W_LT) + lctx_rd(2, W_ET), lt0+3+et0+1);
+    }
+
+    printf("\n[IV9] MEDIA_LOCKED / MEDIA_UNLOCKED are PER-EVENT ('incremented\n"
+           "      each time ...'), and Table 5.6's lock invariant holds across\n"
+           "      lock / silence-unlock / rebind churn: either ML=MU (not\n"
+           "      synchronized) or ML=MU+1 (synchronized).\n");
+    {
+        static const uint64_t SIDA = 0x020000FFFE050000ULL;
+        tblwr(1, SIDA, false); cyc(10);
+        tblwr(1, SIDA, true);  cyc(40);            // fresh era on stream 1
+        lctx_wr(1, 2, (uint32_t)(FMT & 0xFFFFFFFF));
+        lctx_wr(1, 3, (uint32_t)(FMT >> 32));
+        ck("[IV9a] bind zeroes both", lctx_rd(1, W_ML) + lctx_rd(1, W_MU), 0);
+        uint8_t sq = 0;
+        // three lock/unlock laps: each lock is +1 ML, each 100 ms silence +1 MU
+        for (int lap = 0; lap < 3; lap++) {
+            { AafCfg c; c.sid=SIDA; c.seq=sq++; feed(mkaaf(c)); }
+            ck("[IV9b] MEDIA_LOCKED is immediate (per-event)",
+               lctx_rd(1, W_ML), lap+1);
+            ck("[IV9c] synchronized => ML = MU+1",
+               lctx_rd(1, W_ML) == lctx_rd(1, W_MU)+1, 1);
+            cyc(12000);                            // > 100 ms scaled: unlock
+            ck("[IV9d] MEDIA_UNLOCKED is immediate (per-event)",
+               lctx_rd(1, W_MU), lap+1);
+            ck("[IV9e] not synchronized => ML = MU",
+               lctx_rd(1, W_ML) == lctx_rd(1, W_MU), 1);
+        }
+        tblwr(1, SIDA, false); cyc(10);
+        //! THE ERA BOUNDARY: a rebind zeroes BOTH counters, so an unlock still
+        //! owed by the PREVIOUS era must die with it - crediting it into the
+        //! fresh era leaves MU = ML+1, which is NEITHER legal state. Run on
+        //! stream 0: it is the RENDER stream, so clk_src != 0 with the servo
+        //! unconverged is a standing unlock request against it, and its
+        //! counters are the legacy outputs the continuous invariant watches.
+        //! The race is only reachable while the walker is BUSY: an idle
+        //! walker drains the servo unlock the cycle it is raised (leaving the
+        //! legal ML=MU), so the unlock and the bind must both go pending
+        //! DURING a walk. The lock PDU's own walk is that window - feed it
+        //! without drain headroom, raise clk_src inside it, and sweep the
+        //! rebind edge across the whole window.
+        uint8_t sq0 = 0;
+        long bad_ph = -1;
+        for (int ph = 0; ph < 24 && bad_ph < 0; ph++) {
+            dut->clk_src_i = 0; dut->servo_conv_i = 0;
+            dut->bound0_i = 0; cyc(8);
+            dut->bound0_i = 1; cyc(60);                 // fresh era, s0
+            { AafCfg c; c.seq=sq0++; feed_nowait(mkaaf(c)); }  // lock, busy
+            dut->clk_src_i = 1;             // servo unlock pends while locked
+            cyc(ph);                        // ... swept across the walk
+            dut->bound0_i = 0; cyc(1);      // rebind edge, mid-flight
+            dut->bound0_i = 1; cyc(160);
+            dut->clk_src_i = 0; cyc(40);
+            long ml = dut->cnt_media_locked_o, mu = dut->cnt_media_unlocked_o;
+            if (!(ml == mu || ml == mu + 1)) {
+                printf("  [FAIL] [IV9f] phase %d left ML=%ld MU=%ld\n",
+                       ph, ml, mu);
+                bad_ph = ph;
+            }
+        }
+        ck("[IV9f] rebind never strands MU above ML (24 phases)", bad_ph, -1);
+        printf("      (worst illegal-pair run seen: %ld cyc, limit %ld)\n",
+               inv_worst, INV_SETTLE_CYC);
+        ck("[IV9g] the 'at any time' invariant never breached for good",
+           inv_bad, 0);
+        dut->clk_src_i = 0; dut->servo_conv_i = 0;
+        dut->bound0_i = 0; cyc(10); dut->bound0_i = 1; cyc(40);
+    }
 
     printf("\n[IV7] back-to-back PDUs across EVERY interval-drain phase: the\n"
            "      commit verdict must beat each frame's tlast (walker yield;\n"
@@ -483,9 +648,10 @@ int main(int argc,char**argv){
         long lost = 0;
         for (int ph = 0; ph < 40; ph++) {
             dut->ptp_now_i = 0xA55AC33CUL + 1000;           // s0 late
-            dut->media_reset_p_i = 1; cyc(); dut->media_reset_p_i = 0;
-            { AafCfg c; c.seq=(uint8_t)(100+ph); c.tu=true;
-              feed(mkaaf(c)); }                             // s0 tu+late flag
+            //! alternate s0's mr every lap so MEDIA_RESET joins TU+LATE+FRX
+            //! in the drain - the tick always has a multi-counter walk to run
+            { AafCfg c; c.seq=(uint8_t)(100+ph); c.tu=true; c.mr=(ph & 1);
+              feed(mkaaf(c)); }                       // s0 tu+late+mr flags
             dut->ptp_now_i = 0xA55AC33CUL - 1000000;
             cyc((int)(IVAL - (gcyc - rst_cyc) % IVAL) - 8 + ph); // tick-8+ph
             size_t a0 = acc_idx.size();

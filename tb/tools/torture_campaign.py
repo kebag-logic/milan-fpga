@@ -400,6 +400,267 @@ def frames_rate_band(rate_per_s: float, nominal_frame_rate: float = 8000.0,
                                max_interval_s)["band"]
 
 
+# --------------------------------------------------- per-counter update law --
+#: THE UPDATE LAW OF EVERY STREAM_INPUT COUNTER, from the clause that fixes it.
+#:
+#: Three laws, and the wording each is taken from:
+#:   "per-interval"  Milan v1.2 Table 5.6 - "Incremented at the end of every
+#:                   observation interval during which <condition>.  The
+#:                   duration of the observation interval is
+#:                   implementation-specific and shall be less than or equal to
+#:                   1 second."  N qualifying frames inside one interval move
+#:                   the counter by ONE.
+#:   "per-event"     Milan v1.2 Table 5.6 - "Incremented each time <event>".
+#:                   The events are state changes, so they are rare.
+#:   "per-frame"     IEEE 1722.1-2021 Table 7-157 - "Increments on receipt of a
+#:                   Stream data AVTPDU with <field>".  EVERY qualifying frame
+#:                   moves the counter.
+#:
+#: The split is not cosmetic.  Milan Table 5.6 does not define TIMESTAMP_VALID
+#: or TIMESTAMP_NOT_VALID at all - Table 5.16's mandatory mask 0xF3F skips bits
+#: 6 and 7 - so those two are governed ONLY by 1722.1 and stay per-frame, while
+#: FRAMES_RX carries the SAME 1722.1 per-frame wording ("Increments on each
+#: Stream data AVTPDU received") that Milan OVERRIDES into an interval count.
+#: A device serving all twelve therefore publishes 0xFFF and is expected to
+#: show TIMESTAMP_VALID ~8000x FRAMES_RX at class A.  That is the mandated
+#: split, not a defect in either counter.
+STREAM_INPUT_COUNTER_LAW = {
+    "MEDIA_LOCKED": ("per-event", "Milan v1.2 Table 5.6",
+                     "the input stream gets synchronized on the media clock"),
+    "MEDIA_UNLOCKED": ("per-event", "Milan v1.2 Table 5.6",
+                       "the input stream gets unsynchronized on the media "
+                       "clock"),
+    "STREAM_INTERRUPTED": ("per-event", "Milan v1.2 Table 5.6",
+                           "the stream playback is interrupted for any reason "
+                           "other than a Controller Unbind operation"),
+    "SEQ_NUM_MISMATCH": ("per-interval", "Milan v1.2 Table 5.6",
+                         "a Stream Data AVTPDU has been received with a "
+                         "non-sequential sequence_num field"),
+    "MEDIA_RESET": ("per-interval", "Milan v1.2 Table 5.6",
+                    "the 'mr' bit was toggled in any of the received Stream "
+                    "Data AVTPDUs"),
+    "TIMESTAMP_UNCERTAIN": ("per-interval", "Milan v1.2 Table 5.6",
+                            "the 'tu' bit was set in any of the received "
+                            "Stream Data AVTPDUs"),
+    "TIMESTAMP_VALID": ("per-frame", "IEEE 1722.1-2021 Table 7-157",
+                        "receipt of a Stream data AVTPDU with the tv bit set"),
+    "TIMESTAMP_NOT_VALID": ("per-frame", "IEEE 1722.1-2021 Table 7-157",
+                            "receipt of a Stream data AVTPDU with tv bit "
+                            "cleared"),
+    "UNSUPPORTED_FORMAT": ("per-interval", "Milan v1.2 Table 5.6",
+                           "a Stream Data AVTPDU has been received with a "
+                           "format that did not match the current format of "
+                           "the Stream Input"),
+    "LATE_TIMESTAMP": ("per-interval", "Milan v1.2 Table 5.6",
+                       "a Stream Data AVTPDU has been received with an AVTP "
+                       "timestamp field that was in the past"),
+    "EARLY_TIMESTAMP": ("per-interval", "Milan v1.2 Table 5.6",
+                        "a Stream Data AVTPDU has been received with an AVTP "
+                        "timestamp field that was too far in the future to "
+                        "process"),
+    "FRAMES_RX": ("per-interval", "Milan v1.2 Table 5.6",
+                  "at least one Stream Data AVTPDU has been received on this "
+                  "Stream Input"),
+}
+
+#: The seven Table 5.6 counters that are bounded by the observation interval.
+MILAN_INTERVAL_COUNTERS = tuple(
+    n for n, (law, _, _) in STREAM_INPUT_COUNTER_LAW.items()
+    if law == "per-interval")
+
+
+def counter_law(name: str) -> Optional[tuple]:
+    """(law, clause, trigger) for a STREAM_INPUT counter, or None if unnamed."""
+    return STREAM_INPUT_COUNTER_LAW.get(name)
+
+
+def check_interval_ceiling(before: dict, after: dict, *,
+                           window_s: Optional[float] = None) -> tuple:
+    """FRAMES_RX is the observation-interval CLOCK, so no Table 5.6 interval
+    counter may out-tick it.  This is the per-counter semantics grader.
+
+    Every one of the seven per-interval conditions in Table 5.6 requires a
+    Stream Data AVTPDU to have been RECEIVED in that interval - a non-sequential
+    sequence_num, a toggled mr, a set tu, a mismatched format, a late or early
+    timestamp, all of them arrive IN a frame.  FRAMES_RX ticks in every interval
+    during which "at least one Stream Data AVTPDU has been received".  So for
+    any interval counter X and any window,
+
+        delta(X)  <=  delta(FRAMES_RX)
+
+    holds on a conformant device REGARDLESS of what the implementation-specific
+    interval is, and without the checker having to guess it.  That is what makes
+    this sound where a rate band is not: the clause bounds the interval from
+    ABOVE only, so ANY rate in (0, 1/interval] is conformant and no absolute
+    rate can be called a defect on its own.
+
+    An X that out-ticks FRAMES_RX is counting PER FRAME while FRAMES_RX counts
+    per interval - the exact half-converted state this fabric shipped before the
+    seven listener counters were moved onto the interval tick, and the exact
+    shape a partial revert would leave.  A device that counts EVERYTHING per
+    frame passes this check and is classified, not failed, because a sub-frame
+    observation interval is inside the 1 s ceiling.
+
+    TIMESTAMP_VALID and TIMESTAMP_NOT_VALID are deliberately EXEMPT: Milan
+    Table 5.6 does not define them, so 1722.1's per-frame reading is the only
+    one in force and they are SUPPOSED to out-tick an interval FRAMES_RX.
+    """
+    if before.get("FRAMES_RX") is None or after.get("FRAMES_RX") is None:
+        return ("SKIP", {"why": "the mask does not claim FRAMES_RX, so the "
+                                "observation-interval clock is unreadable"})
+    d_frx = after["FRAMES_RX"] - before["FRAMES_RX"]
+    if d_frx < 0:
+        return ("SKIP", {"why": "FRAMES_RX went backwards: the block was "
+                                "reset (Milan 5.3.8.10 not-bound -> bound) or "
+                                "wrapped inside the window"})
+    offenders, checked, deltas = [], [], {}
+    for name in MILAN_INTERVAL_COUNTERS:
+        if name == "FRAMES_RX" or before.get(name) is None \
+                or after.get(name) is None:
+            continue
+        d = after[name] - before[name]
+        if d < 0:
+            continue                      # reset or wrap: says nothing
+        checked.append(name)
+        deltas[name] = d
+        if d > d_frx:
+            offenders.append({"counter": name, "delta": d,
+                              "frames_rx_delta": d_frx,
+                              "law": STREAM_INPUT_COUNTER_LAW[name][0],
+                              "clause": STREAM_INPUT_COUNTER_LAW[name][1]})
+    if not checked:
+        return ("SKIP", {"why": "no other Table 5.6 interval counter is "
+                                "claimed by the mask"})
+    if d_frx == 0 and not any(deltas.values()):
+        return ("SKIP", {"frames_rx_delta": 0,
+                         "why": "no frame was received in the window, so the "
+                                "interval clock never ticked and the ceiling "
+                                "is vacuous"})
+    detail = {"frames_rx_delta": d_frx, "deltas": deltas,
+              "window_s": window_s, "checked": checked}
+    if offenders:
+        detail["offenders"] = offenders
+        detail["why"] = ("a Table 5.6 interval counter ticked more often than "
+                         "FRAMES_RX; every one of its trigger conditions "
+                         "arrives IN a received frame, so it cannot out-tick "
+                         "the interval that counts those frames")
+        return ("FAIL", detail)
+    return ("PASS", detail)
+
+
+def grade_counter_semantics(name: str, delta: int, window_s: float, *,
+                            nominal_frame_rate: float = 8000.0,
+                            stream_flowing: Optional[bool] = None) -> tuple:
+    """Grade ONE counter's observed movement against its clause update law.
+
+    Returns (verdict, detail) with detail["reading"] naming the law the
+    measurement is consistent with, and detail["clause"] naming the clause the
+    grade is made under - so a finding always arrives with its citation.
+
+    FAIL is reserved for what the clauses genuinely exclude:
+      * more ticks than frames could possibly have arrived;
+      * a per-interval counter whose implied interval exceeds the 1 s ceiling
+        while the stream was flowing;
+      * a per-frame counter (TIMESTAMP_VALID / TIMESTAMP_NOT_VALID, which Milan
+        Table 5.6 does NOT redefine) that moved at an interval-like rate while
+        frames were flowing - i.e. it was wrongly converted to interval
+        semantics along with the Milan seven.
+    Everything else is classified, because Table 5.6 bounds the observation
+    interval from ABOVE only and every interval in (0, 1 s] is conformant.
+    """
+    law = counter_law(name)
+    if law is None:
+        return ("SKIP", {"why": f"{name} is not a STREAM_INPUT counter"})
+    kind, clause, trigger = law
+    base = {"counter": name, "law": kind, "clause": clause, "trigger": trigger,
+            "delta": delta, "window_s": window_s}
+    if window_s is None or window_s <= 0:
+        return ("SKIP", dict(base, why="no measurement window"))
+    #! an UNREADABLE counter is not a zero one.  A delta of None means the
+    #! descriptor did not answer, or the mask never claimed the counter, and
+    #! grading that as "static" would turn an absent measurement into a clean
+    #! result - the vacuity this file's tv/tnv guard already exists to refuse.
+    if delta is None:
+        return ("SKIP", dict(base, reading=None,
+                             why="the counter was not readable over the "
+                                 "window (unclaimed by the mask, or the "
+                                 "descriptor did not answer)"))
+    if delta < 0:
+        return ("SKIP", dict(base, why="the counter went backwards: a bind "
+                                       "reset (Milan 5.3.8.10) or a 32-bit "
+                                       "wrap inside the window"))
+    rate = delta / window_s
+    base["rate_per_s"] = rate
+    if nominal_frame_rate and rate > nominal_frame_rate * 1.05:
+        return ("FAIL", dict(base, reading="impossible",
+                             why=f"{rate:.4g} ticks/s exceeds the nominal "
+                                 f"{nominal_frame_rate:g} frames/s: no reading "
+                                 f"of any clause permits more ticks than "
+                                 f"frames"))
+    if delta == 0:
+        return ("SKIP", dict(base, reading="static",
+                             why=f"the counter did not move, and its trigger "
+                                 f"({trigger}) may simply not have occurred"))
+    if kind == "per-frame":
+        if rate >= 0.5 * nominal_frame_rate:
+            return ("PASS", dict(base, reading="per-frame"))
+        if stream_flowing:
+            return ("FAIL", dict(base, reading="interval",
+                                 why=f"{clause} defines {name} per frame, but "
+                                     f"it moved at {rate:.4g}/s while the "
+                                     f"stream was flowing at about "
+                                     f"{nominal_frame_rate:g} frames/s - the "
+                                     f"shape of a per-frame counter wrongly "
+                                     f"converted to interval semantics; Milan "
+                                     f"Table 5.6 does not define this counter "
+                                     f"and so cannot license that conversion"))
+        return ("INFO", dict(base, reading="below-frame-rate",
+                             why="the frame rate in the window is unknown, so "
+                                 "a below-nominal rate cannot be graded"))
+    if kind == "per-event":
+        return ("PASS", dict(base, reading="per-event"))
+    # per-interval
+    reading = frames_rate_reading(rate, nominal_frame_rate)
+    base["implied_interval_s"] = reading["implied_interval_s"]
+    if reading["band"] == "per-frame":
+        return ("INFO", dict(base, reading="per-frame",
+                             why=f"{name} moved at {rate:.4g}/s, the 1722.1 "
+                                 f"per-frame reading; {clause} makes it an "
+                                 f"observation-interval count, and only an "
+                                 f"interval shorter than the frame period "
+                                 f"makes the two agree"))
+    #! ONLY FRAMES_RX's RATE CAN IMPLY THE OBSERVATION INTERVAL.  Table 5.6
+    #! increments each of these "at the end of every observation interval
+    #! DURING WHICH <condition>", so a counter ticks only in the intervals
+    #! where its own condition held.  FRAMES_RX's condition - "at least one
+    #! Stream Data AVTPDU has been received" - is the only one that holds in
+    #! EVERY interval of a continuously flowing stream, which is what makes
+    #! its rate the interval clock.  The other six are intermittent BY
+    #! DEFINITION: a sink that saw a late timestamp in 74 of 7545 intervals
+    #! reads 0.0098 ticks/s, and reading that as a 102 s observation interval
+    #! files a perfectly conformant error counter as a ceiling violation.
+    #! (Measured on the AX7101 sink 0, 2026-08-03: TIMESTAMP_UNCERTAIN 23 and
+    #! LATE_TIMESTAMP 74 against FRAMES_RX 7545 - this branch used to FAIL
+    #! both.)  The sound bound for those six is the interval CEILING, which is
+    #! check_interval_ceiling(), not a rate.
+    if name != "FRAMES_RX":
+        return ("PASS", dict(base, reading="interval",
+                             implied_interval_s=None,
+                             why=f"{name} ticks only in the intervals during "
+                                 f"which its condition ({trigger}) held, so "
+                                 f"its rate bounds how often that happened - "
+                                 f"NOT the observation interval; use the "
+                                 f"FRAMES_RX ceiling to grade the interval"))
+    if reading["band"] == "neither":
+        if not stream_flowing:
+            return ("INFO", dict(base, reading="neither",
+                                 why="the stream was not known to be flowing, "
+                                     "so a slow FRAMES_RX may just be a quiet "
+                                     "link rather than an over-long interval"))
+        return ("FAIL", dict(base, reading="neither", why=reading["why"]))
+    return ("PASS", dict(base, reading="interval", why=reading["why"]))
+
+
 def check_no_growth(before: dict, after: dict, keys, *,
                     window_s: Optional[float] = None) -> tuple:
     """The GROWTH verdict for the error counters, as a verdict and not as INFO.
@@ -1146,6 +1407,27 @@ A_TU_HANDLING = AssertSpec(
     "counter advances exactly when the tu bit is set on the wire; tu = 1 is "
     "CORRECT for a board whose gPTP has not leased clock validity, so this "
     "assertion compares the counter to the WIRE and never to a wish")
+A_COUNTER_LAW = AssertSpec(
+    "counters.stream_input.update-law-per-counter",
+    "Milan v1.2 Table 5.6 + IEEE 1722.1-2021 Table 7-157: EVERY Stream Input "
+    "counter is graded against the update law of the clause that defines it - "
+    "'Incremented each time ...' (MEDIA_LOCKED, MEDIA_UNLOCKED, "
+    "STREAM_INTERRUPTED), 'Incremented at the end of every observation "
+    "interval during which ...' (the Milan seven, interval <= 1 s) and "
+    "'Increments on receipt of ...' (TIMESTAMP_VALID / TIMESTAMP_NOT_VALID, "
+    "which Milan Table 5.6 does not define at all, so 1722.1's per-frame "
+    "reading is the only one in force).  The grade is a CLASSIFICATION plus "
+    "the clause it was made under: the interval is bounded from above only, "
+    "so no absolute rate is a defect on its own")
+A_INTERVAL_CEILING = AssertSpec(
+    "counters.stream_input.interval-ceiling",
+    "Milan v1.2 Table 5.6: every per-interval trigger arrives IN a received "
+    "Stream Data AVTPDU and FRAMES_RX ticks in every interval during which "
+    "any frame was received, so delta(X) <= delta(FRAMES_RX) holds for all "
+    "seven interval counters WITHOUT the checker having to guess the "
+    "implementation's interval.  A counter that out-ticks FRAMES_RX is still "
+    "counting per frame while FRAMES_RX counts per interval - the "
+    "half-converted state, and the shape a partial revert leaves behind")
 A_COUNTER_RESET_ON_BIND = AssertSpec(
     "counters.stream_input.reset-on-not-bound-to-bound",
     "Milan v1.2 5.3.8.10: 'The PAAD-AE shall reset all of these counters to "
@@ -1301,7 +1583,7 @@ A_INSTRUMENT_LOSSLESS = AssertSpec(
 #: into SHALL failures.
 BOUND_STREAMING_ASSERTS = (
     A_ACMP_STATUS, A_ADP_ALIVE, A_IFACE_MASK, A_IN_MASK, A_OUT_MASK,
-    A_LOCK_INVARIANT, A_TALKER_INVARIANT, A_TV_TNV,
+    A_LOCK_INVARIANT, A_TALKER_INVARIANT, A_TV_TNV, A_INTERVAL_CEILING,
     A_NO_LATE_EARLY, A_NO_SEQ_MISMATCH, A_NO_UNSUPPORTED, A_TU_HANDLING,
     A_XSIDE_ERRORS_STATIC, A_INSTRUMENT_LOSSLESS)
 
@@ -1310,6 +1592,7 @@ BOUND_STREAMING_ASSERTS = (
 #: including the cross-participant corroboration.
 LICENSED_STREAMING_ASSERTS = (
     A_SRP_LICENCE, A_STREAM_ON_BIND_ALONE, A_TX_TICKING, A_RX_TICKING,
+    A_COUNTER_LAW, A_INTERVAL_CEILING,
     A_XSIDE_CORROBORATED, A_XSIDE_UNLICENSED_SILENT, A_XSIDE_NOT_MORE,
     A_XSIDE_PRUNED, A_XSIDE_INTERVAL_AGREE, A_INSTRUMENT_LOSSLESS)
 
@@ -1379,6 +1662,7 @@ MULTI_BIND_ASSERTS = (A_ACMP_STATUS, A_FORMAT_READBACK, A_ADP_ALIVE)
 MULTI_VERIFY_ASSERTS = (
     A_SRP_LICENCE, A_TX_TICKING, A_RX_TICKING, A_MULTI_ALL_FLOWING,
     A_MULTI_ISOLATION, A_LOCK_INVARIANT, A_TALKER_INVARIANT,
+    A_COUNTER_LAW, A_INTERVAL_CEILING,
     A_NO_LATE_EARLY, A_NO_SEQ_MISMATCH, A_NO_UNSUPPORTED,
     A_XSIDE_INTERVAL_AGREE, A_INSTRUMENT_LOSSLESS)
 #: The stress load step: streams immune (SHALL), the listener error counters
@@ -3137,6 +3421,93 @@ def self_test() -> int:
                                            "TIMESTAMP_NOT_VALID": 0,
                                            "FRAMES_RX": 99})[0], "FAIL")
             self.assertEqual(check_tv_tnv({})[0], "SKIP")
+
+        def test_every_stream_input_counter_has_an_update_law(self):
+            # The law table is the oracle the RTL, the behave feature and the
+            # bench grader all answer to, so it must cover the whole block.
+            for n in IEEE_STREAM_INPUT_BLOCK:
+                self.assertIsNotNone(counter_law(n), n)
+            # Milan Table 5.6 defines TEN of the twelve; the two it does NOT
+            # define keep 1722.1's per-frame reading, which is exactly why a
+            # conformant device shows TIMESTAMP_VALID ~8000x FRAMES_RX.
+            self.assertEqual(
+                {n for n, (k, _, _) in STREAM_INPUT_COUNTER_LAW.items()
+                 if k == "per-frame"},
+                {"TIMESTAMP_VALID", "TIMESTAMP_NOT_VALID"})
+            self.assertEqual(set(MILAN_INTERVAL_COUNTERS),
+                             set(MILAN_TABLE_56) - {"MEDIA_LOCKED",
+                                                    "MEDIA_UNLOCKED",
+                                                    "STREAM_INTERRUPTED"})
+            for n in MILAN_INTERVAL_COUNTERS:
+                self.assertEqual(counter_law(n)[1], "Milan v1.2 Table 5.6", n)
+
+        def test_interval_ceiling_catches_a_half_converted_counter(self):
+            # FRAMES_RX is the interval clock: nothing whose trigger arrives in
+            # a frame may out-tick it.
+            b = {"FRAMES_RX": 0, "TIMESTAMP_UNCERTAIN": 0, "LATE_TIMESTAMP": 0}
+            self.assertEqual(check_interval_ceiling(
+                b, {"FRAMES_RX": 30, "TIMESTAMP_UNCERTAIN": 30,
+                    "LATE_TIMESTAMP": 2})[0], "PASS")
+            v, d = check_interval_ceiling(
+                b, {"FRAMES_RX": 30, "TIMESTAMP_UNCERTAIN": 240060,
+                    "LATE_TIMESTAMP": 2})
+            self.assertEqual(v, "FAIL")
+            self.assertEqual([o["counter"] for o in d["offenders"]],
+                             ["TIMESTAMP_UNCERTAIN"])
+            # the two tv tallies are EXEMPT - Milan never defined them, so they
+            # are supposed to out-tick an interval FRAMES_RX
+            self.assertEqual(check_interval_ceiling(
+                {"FRAMES_RX": 0, "TIMESTAMP_VALID": 0, "LATE_TIMESTAMP": 0},
+                {"FRAMES_RX": 30, "TIMESTAMP_VALID": 240060,
+                 "LATE_TIMESTAMP": 2})[0], "PASS")
+            # a window with no frames grades nothing
+            self.assertEqual(check_interval_ceiling(
+                b, {"FRAMES_RX": 0, "TIMESTAMP_UNCERTAIN": 0,
+                    "LATE_TIMESTAMP": 0})[0], "SKIP")
+            # a reset inside the window is not a backwards counter finding
+            self.assertEqual(check_interval_ceiling(
+                {"FRAMES_RX": 500}, {"FRAMES_RX": 3})[0], "SKIP")
+
+        def test_counter_semantics_grades_both_ways_round(self):
+            # the mandated split at class A: TV per frame, FRAMES_RX per
+            # interval - both PASS, which is the whole point
+            self.assertEqual(grade_counter_semantics(
+                "TIMESTAMP_VALID", 240060, 30.0, stream_flowing=True)[0], "PASS")
+            self.assertEqual(grade_counter_semantics(
+                "FRAMES_RX", 30, 30.0, stream_flowing=True)[0], "PASS")
+            # OVER-conversion: a per-frame counter dragged onto the interval
+            # tick alongside the Milan seven
+            v, d = grade_counter_semantics("TIMESTAMP_VALID", 30, 30.0,
+                                           stream_flowing=True)
+            self.assertEqual((v, d["reading"]), ("FAIL", "interval"))
+            # an interval longer than the 1 s ceiling, which only FRAMES_RX's
+            # rate can ever imply
+            self.assertEqual(grade_counter_semantics(
+                "FRAMES_RX", 15, 30.0, stream_flowing=True)[0], "FAIL")
+            # more ticks than frames: impossible under every reading
+            self.assertEqual(grade_counter_semantics(
+                "FRAMES_RX", 900000, 30.0, stream_flowing=True)[0], "FAIL")
+            # AND THE TRAP THIS GRADER ITSELF FELL INTO, caught by running it
+            # against real silicon: the AX7101's sink 0 on 2026-08-03 read
+            # TIMESTAMP_UNCERTAIN 23 and LATE_TIMESTAMP 74 over ~7531 s beside
+            # FRAMES_RX 7545 (a 0.998 s interval).  Those two tick only in the
+            # intervals during which their own condition held, so dividing them
+            # by the window implies intervals of minutes - and an earlier cut
+            # of this function failed both as ceiling violations.
+            for name, delta in (("TIMESTAMP_UNCERTAIN", 23),
+                                ("LATE_TIMESTAMP", 74),
+                                ("SEQ_NUM_MISMATCH", 1)):
+                v, d = grade_counter_semantics(name, delta, 7531.0,
+                                               stream_flowing=True)
+                self.assertEqual((v, d["reading"]), ("PASS", "interval"),
+                                 f"{name} is intermittent by definition")
+            self.assertEqual(grade_counter_semantics(
+                "FRAMES_RX", 7545, 7531.0, stream_flowing=True)[0], "PASS")
+            # nothing measured, nothing concluded
+            self.assertEqual(grade_counter_semantics(
+                "UNSUPPORTED_FORMAT", 0, 30.0)[0], "SKIP")
+            self.assertEqual(grade_counter_semantics("NOT_A_COUNTER", 1, 1.0)[0],
+                             "SKIP")
 
         def test_frames_rate_band(self):
             self.assertEqual(frames_rate_band(7995.7), "per-frame")

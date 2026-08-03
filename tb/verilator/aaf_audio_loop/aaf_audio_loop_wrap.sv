@@ -97,7 +97,7 @@ module aaf_audio_loop_wrap #(
   assign tx_tlast_o  = ax_tlast;
 
   // ---- listener media half: parser -> monitor -> depacketizer -------------
-  wire        match_w, tu_w;
+  wire        match_w, tu_w, mr_w;
   wire [7:0]  subtype_w, seq_w;
   wire [31:0] ts_w;
   wire [63:0] fsh_w;
@@ -114,6 +114,7 @@ module aaf_audio_loop_wrap #(
     .match_valid_o (match_w),
     .match_index_o (), .stream_id_o (), .avtp_ts_o (ts_w),
     .subtype_o (subtype_w), .ts_valid_o (),
+    .media_restart_o (mr_w),
     .seq_num_o (seq_w), .ts_uncertain_o (tu_w), .fsh_o (fsh_w),
     .avtp_frames_o (), .matched_frames_o ()
   );
@@ -122,9 +123,9 @@ module aaf_audio_loop_wrap #(
     .clk_i (clk), .rst_n (rst_n),
     .match_valid_i (match_w), .subtype_i (subtype_w), .seq_num_i (seq_w),
     .ts_uncertain_i (tu_w), .avtp_ts_i (ts_w), .fsh_i (fsh_w),
+    .media_restart_i (mr_w),
     .bound_i (bound_i), .fmt_i (fmt_i),
     .ptp_now_i (ptp_now_i), .pres_ofs_i (pres_ofs_i),
-    .media_reset_p_i (1'b0),
     .clk_src_i (16'd0), .servo_conv_i (servo_conv_i),
     .cnt_media_locked_o (), .cnt_media_unlocked_o (),
     .cnt_stream_interrupted_o (), .cnt_seq_mismatch_o (),

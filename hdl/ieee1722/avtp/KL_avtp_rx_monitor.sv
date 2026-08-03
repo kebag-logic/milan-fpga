@@ -55,11 +55,17 @@
                     unbind; after unbind the parser match enable drops, so a
                     locked sink unlocks via the silence timeout, like the
                     reference.
-                  - MEDIA_RESET / LATE_TIMESTAMP / EARLY_TIMESTAMP are
-                    advertised valid but never tick — exactly the reference
-                    (no media clock recovery in fabric yet; late/early need
-                    the presentation-time compare that lands with the media
-                    path).
+                  - MEDIA_RESET: the received mr bit TOGGLING (IEEE
+                    1722-2016 4.4.4.3, Milan Table 5.6 "the 'mr' bit was
+                    toggled in any of the received Stream Data AVTPDUs").
+                    mr is a LEVEL held for >= 8 AVTPDUs, so only the EDGE
+                    counts and the era's first accepted PDU seeds the
+                    reference without counting. The reference implementation
+                    never ticks this counter, and this fabric used to tick it
+                    on the LOCAL I2S playback overrun/underrun rail instead -
+                    a signal no clause names (traceability AVTP-5).
+                  - LATE_TIMESTAMP / EARLY_TIMESTAMP: the presentation-time
+                    compare against ptp_now_i + pres_ofs_i.
                 Deviation from the reference: the data_len-vs-frame-length
                 malformed check is NOT performed (the MAC only delivers
                 CRC-clean frames; a lying data_len is a payload-plane concern
@@ -99,6 +105,10 @@ module KL_avtp_rx_monitor #(
   input  wire [7:0]   subtype_i,         //! AVTP subtype of the matched PDU
   input  wire [7:0]   seq_num_i,         //! sequence_num of the matched PDU
   input  wire         ts_uncertain_i,    //! tu bit
+  //! mr bit (IEEE 1722-2016 4.4.4.3): a LEVEL the talker TOGGLES on a media
+  //! clock restart and holds for >= 8 AVTPDUs. Milan Table 5.6 MEDIA_RESET
+  //! counts the TOGGLE, so this module keeps the previous value.
+  input  wire         media_restart_i,   //! mr bit of the matched PDU
   input  wire [31:0]  avtp_ts_i,         //! presentation time of the PDU
   input  wire [63:0]  fsh_i,             //! bytes O+16..O+23 of the PDU
 
@@ -107,7 +117,6 @@ module KL_avtp_rx_monitor #(
   input  wire [63:0]  fmt_i,             //! current STREAM_INPUT[0] format u64
   input  wire [31:0]  ptp_now_i,         //! PHC nanoseconds [31:0] (gPTP)
   input  wire [31:0]  pres_ofs_i,        //! presentation offset ns (MTT/acc-lat)
-  input  wire         media_reset_p_i,   //! playback servo rail event (pulse)
   input  wire [15:0]  clk_src_i,         //! live clock_source_index (0=internal)
   input  wire         servo_conv_i,      //! playback clock converged (external
                                          //! media-lock condition - USER rule)
@@ -189,6 +198,10 @@ module KL_avtp_rx_monitor #(
   logic [7:0]  prev_seq_r;
   logic [3:0]  settle_r;
   logic [31:0] silence_r;
+  //! mr reference for the CURRENT binding era (Milan Table 5.6 MEDIA_RESET
+  //! counts toggles): seeded, not counted, by the era's first accepted PDU
+  logic        prev_mr_r;
+  logic        mr_seeded_r;
 
   wire bound_rise = bound_i && !bound_q;
   //! presentation-time check (mod-2^32 signed delta, valid PDUs only):
@@ -198,6 +211,9 @@ module KL_avtp_rx_monitor #(
   wire late_w  = ts_delta_w < 0;
   wire early_w = !late_w &&
                  (unsigned'(ts_delta_w) > (pres_ofs_i + EARLY_MARGIN_NS_C));
+  //! Milan Table 5.6 / IEEE 1722.1-2021 Table 7-157 MEDIA_RESET trigger:
+  //! "the 'mr' bit was toggled in any of the received Stream Data AVTPDUs"
+  wire       mr_toggle_w = mr_seeded_r && (media_restart_i != prev_mr_r);
   wire [7:0] expected_w = prev_seq_r + 8'd1;
   wire [7:0] lost_w     = seq_num_i - expected_w;   // mod-256, as the reference
   wire       silence_hit = media_locked_o && (silence_r >= UNLOCK_CYCLES_C);
@@ -208,6 +224,8 @@ module KL_avtp_rx_monitor #(
       prev_seq_r               <= '0;
       settle_r                 <= '0;
       silence_r                <= '0;
+      prev_mr_r                <= 1'b0;
+      mr_seeded_r              <= 1'b0;
       cnt_media_locked_o       <= '0;
       cnt_media_unlocked_o     <= '0;
       cnt_stream_interrupted_o <= '0;
@@ -252,6 +270,10 @@ module KL_avtp_rx_monitor #(
           dirty_p_o       <= 1'b1;
           pdu_accept_p_o  <= 1'b1;
           wire_chans_o    <= p_chans;
+          //! Table 5.6 MEDIA_RESET: count the TOGGLE, then track the level
+          if (mr_toggle_w) cnt_media_reset_o <= cnt_media_reset_o + 32'd1;
+          prev_mr_r       <= media_restart_i;
+          mr_seeded_r     <= 1'b1;
           last_ts_o       <= avtp_ts_i;
           last_tsd_o      <= unsigned'(ts_delta_w);
           if (late_w)  cnt_late_ts_o  <= cnt_late_ts_o  + 32'd1;
@@ -292,12 +314,6 @@ module KL_avtp_rx_monitor #(
         dirty_p_o            <= 1'b1;
       end
 
-      //! playback servo rail = a media-clock reset event
-      if (media_reset_p_i && bound_i) begin
-        cnt_media_reset_o <= cnt_media_reset_o + 32'd1;
-        dirty_p_o         <= 1'b1;
-      end
-
       //! Milan Table 5.6: reset on not-bound -> bound (wins over everything)
       if (bound_rise) begin
         cnt_media_locked_o       <= '0;
@@ -313,6 +329,10 @@ module KL_avtp_rx_monitor #(
         media_locked_o           <= 1'b0;
         settle_r                 <= '0;
         silence_r                <= '0;
+        //! the mr LEVEL belongs to the previous era - re-seed, never score
+        //! the new talker's first PDU as a toggle
+        prev_mr_r                <= 1'b0;
+        mr_seeded_r              <= 1'b0;
         dirty_p_o                <= 1'b1;
       end
     end

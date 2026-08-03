@@ -279,6 +279,173 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
     Then the implied observation interval is 2.5 seconds
     And the reading refusal cites the 1 second ceiling
 
+  # ------------------------------------------- the per-counter UPDATE LAW
+  # Trap (3) above is one counter's version of a question every counter owes an
+  # answer to: WHEN does it move? Milan Table 5.6 answers it in two different
+  # grammars, and this project has been wrong in BOTH directions - it once
+  # counted the interval seven per frame, and the opposite mistake (dragging a
+  # per-frame counter onto the interval tick) is just as available. So the law
+  # is stated here per counter, as prose, and the RTL and the bench grader are
+  # both held to this table.
+  @class:law @clause:Milan-Table-5.6 @regression
+  Scenario: every Stream Input counter has a stated update law, and there are three
+    # "Incremented each time ..." is not the same sentence as "Incremented at
+    # the end of every observation interval during which ...", and neither is
+    # 1722.1's "Increments on receipt of ...". The grammar IS the requirement.
+    Then every Stream Input counter has an update law
+    And the update laws in use are "per-event, per-frame, per-interval"
+
+  @class:law @clause:Milan-Table-5.6
+  Scenario Outline: the update law of each counter, and the clause that fixes it
+    # Milan v1.2 Table 5.6 defines ten of the twelve. It does NOT define
+    # TIMESTAMP_VALID or TIMESTAMP_NOT_VALID - Table 5.16's mandatory mask
+    # 0xF3F skips bits 6 and 7 - so those two are governed only by IEEE
+    # 1722.1-2021 Table 7-157 and keep its per-frame reading. That is why a
+    # conformant device shows TIMESTAMP_VALID about 8000x FRAMES_RX at class A:
+    # the split is mandated, not a defect in either counter.
+    Then the update law of <counter> is <law> per <clause>
+
+    Examples: the three state-change counters - "Incremented each time ..."
+      | counter            | law         | clause               |
+      | MEDIA_LOCKED       | per-event   | Milan v1.2 Table 5.6 |
+      | MEDIA_UNLOCKED     | per-event   | Milan v1.2 Table 5.6 |
+      | STREAM_INTERRUPTED | per-event   | Milan v1.2 Table 5.6 |
+
+    # the seven "at the end of every observation interval during which ..."
+    # counters, interval implementation-specific and <= 1 second
+    Examples: the seven observation-interval counters
+      | counter             | law          | clause               |
+      | SEQ_NUM_MISMATCH    | per-interval | Milan v1.2 Table 5.6 |
+      | MEDIA_RESET         | per-interval | Milan v1.2 Table 5.6 |
+      | TIMESTAMP_UNCERTAIN | per-interval | Milan v1.2 Table 5.6 |
+      | UNSUPPORTED_FORMAT  | per-interval | Milan v1.2 Table 5.6 |
+      | LATE_TIMESTAMP      | per-interval | Milan v1.2 Table 5.6 |
+      | EARLY_TIMESTAMP     | per-interval | Milan v1.2 Table 5.6 |
+      | FRAMES_RX           | per-interval | Milan v1.2 Table 5.6 |
+
+    Examples: the two Milan does not define, so 1722.1 alone governs them
+      | counter             | law       | clause                     |
+      | TIMESTAMP_VALID     | per-frame | IEEE 1722.1-2021 Table 7-157 |
+      | TIMESTAMP_NOT_VALID | per-frame | IEEE 1722.1-2021 Table 7-157 |
+
+  @class:law @clause:Milan-Table-5.6
+  Scenario Outline: the trigger condition each counter is counting
+    # A counter can have the right update law and still watch the wrong thing.
+    # MEDIA_RESET is the case in point: this fabric counted the LOCAL I2S
+    # playback buffer's overrun/underrun rail - a signal no clause mentions,
+    # and one tied to 1'b0 outright on a shape built without a DAC - so a
+    # talker-signalled media clock restart could never be counted at all.
+    Then the trigger for <counter> mentions "<phrase>"
+
+    Examples:
+      | counter             | phrase                                      |
+      | MEDIA_RESET         | 'mr' bit was toggled                        |
+      | TIMESTAMP_UNCERTAIN | 'tu' bit was set                            |
+      | SEQ_NUM_MISMATCH    | non-sequential sequence_num                 |
+      | UNSUPPORTED_FORMAT  | did not match the current format            |
+      | LATE_TIMESTAMP      | timestamp field that was in the past         |
+      | EARLY_TIMESTAMP     | too far in the future                       |
+      | FRAMES_RX           | at least one Stream Data AVTPDU              |
+      | TIMESTAMP_VALID     | tv bit set                                  |
+      | MEDIA_LOCKED        | synchronized on the media clock              |
+
+  @class:law @clause:Milan-Table-5.6 @rule:frames-rx-is-the-interval-clock
+  Scenario: FRAMES_RX is the observation-interval clock, so nothing may out-tick it
+    # THE SOUND FORM OF THE SEMANTICS CHECK. The clause bounds the observation
+    # interval from ABOVE only, so no absolute rate is a defect on its own and a
+    # rate band cannot decide the question. But every one of the seven
+    # per-interval triggers arrives IN a received frame, and FRAMES_RX ticks in
+    # every interval during which any frame was received. So for any interval
+    # counter X and any window, delta(X) <= delta(FRAMES_RX) - regardless of
+    # what the implementation's interval actually is.
+    Given a stream input window where FRAMES_RX advanced by 30
+    And TIMESTAMP_UNCERTAIN advanced by 30 in that window
+    And LATE_TIMESTAMP advanced by 2 in that window
+    Then the interval-ceiling verdict is PASS
+
+  @class:law @negative-control @rule:frames-rx-is-the-interval-clock
+  Scenario: a counter still counting per frame while FRAMES_RX counts per interval is caught
+    # The half-converted state this fabric shipped before the seven listener
+    # counters were moved onto the interval tick - and the exact shape a partial
+    # revert would leave behind.
+    Given a stream input window where FRAMES_RX advanced by 30
+    And TIMESTAMP_UNCERTAIN advanced by 240060 in that window
+    Then the interval-ceiling verdict is FAIL
+    And the interval-ceiling offender is TIMESTAMP_UNCERTAIN
+
+  @class:law @honesty
+  Scenario: the two tv tallies are exempt from the ceiling, because Milan never defined them
+    # TIMESTAMP_VALID out-ticks an interval FRAMES_RX by the frame rate BY
+    # DESIGN, so the ceiling must not look at it. LATE_TIMESTAMP is in the
+    # window too, so the check actually runs rather than skipping for want of
+    # anything to grade.
+    Given a stream input window where FRAMES_RX advanced by 30
+    And LATE_TIMESTAMP advanced by 2 in that window
+    And TIMESTAMP_VALID advanced by 240060 in that window
+    Then the interval-ceiling verdict is PASS
+
+  @class:law @honesty
+  Scenario: a window with no frames cannot grade the interval clock
+    Given a stream input window where FRAMES_RX advanced by 0
+    And TIMESTAMP_UNCERTAIN advanced by 0 in that window
+    Then the interval-ceiling verdict is SKIP
+
+  @class:law @clause:Milan-Table-5.6
+  Scenario Outline: a single counter is graded against its own law, with the clause named
+    Given <counter> advanced by <delta> over <window> seconds with the stream flowing
+    Then the semantics verdict is <verdict> and the reading is <reading>
+
+    Examples: the silicon shape - a bound sink at class A, mask 0xFFF
+      | counter         | delta  | window | verdict | reading   |
+      | FRAMES_RX       | 30     | 30     | PASS    | interval  |
+      | TIMESTAMP_VALID | 240060 | 30     | PASS    | per-frame |
+      | MEDIA_LOCKED    | 1      | 30     | PASS    | per-event |
+
+    Examples: the two directions of getting the law wrong
+      | counter         | delta  | window | verdict | reading    |
+      | TIMESTAMP_VALID | 30     | 30     | FAIL    | interval   |
+      | FRAMES_RX       | 15     | 30     | FAIL    | neither    |
+      | FRAMES_RX       | 240060 | 30     | INFO    | per-frame  |
+
+    Examples: nothing measured is nothing concluded
+      | counter            | delta | window | verdict | reading |
+      | UNSUPPORTED_FORMAT | 0     | 30     | SKIP    | static  |
+
+  @class:law @honesty @clause:Milan-Table-5.6 @rule:only-frames-rx-implies-the-interval
+  Scenario Outline: only FRAMES_RX's rate implies the observation interval
+    # THE TRAP THIS PROJECT HAS NOW HIT THREE TIMES, caught the third time by
+    # running the grader against real silicon before trusting it.
+    #
+    # Table 5.6 increments each interval counter "at the end of every
+    # observation interval DURING WHICH <condition>", so a counter ticks only
+    # in the intervals where its OWN condition held. FRAMES_RX's condition -
+    # "at least one Stream Data AVTPDU has been received" - is the only one
+    # that holds in every interval of a flowing stream, which is what makes its
+    # rate the interval clock. The other six are intermittent BY DEFINITION.
+    #
+    # The numbers below are the AX7101's sink 0 read on 2026-08-03 after
+    # 60,248,450 frames (about 7,531 s at class A): FRAMES_RX 7,545 gives a
+    # 0.998 s observation interval, inside the ceiling. Dividing the OTHER
+    # counters by the same window implies intervals of minutes, and an earlier
+    # cut of this grader duly failed both of them.
+    Given <counter> advanced by <delta> over 7531 seconds with the stream flowing
+    Then the semantics verdict is <verdict> and the reading is <reading>
+
+    Examples: the interval clock is graded against the 1 s ceiling
+      | counter   | delta | verdict | reading  |
+      | FRAMES_RX | 7545  | PASS    | interval |
+
+    Examples: an intermittent condition is not a slow clock
+      | counter             | delta | verdict | reading  |
+      | TIMESTAMP_UNCERTAIN | 23    | PASS    | interval |
+      | LATE_TIMESTAMP      | 74    | PASS    | interval |
+      | SEQ_NUM_MISMATCH    | 1     | PASS    | interval |
+
+  @class:law @negative-control
+  Scenario: more ticks than frames is impossible under every reading
+    Given FRAMES_RX advanced by 900000 over 30 seconds with the stream flowing
+    Then the semantics verdict is FAIL and the reading is impossible
+
   # --------------------------------------------------- per-index obligations
   @class:coverage @clause:Milan-5.4.2.25
   Scenario: every Stream Input and Stream Output index owes an answer, not just index 0

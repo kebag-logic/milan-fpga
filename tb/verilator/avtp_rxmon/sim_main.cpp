@@ -108,7 +108,7 @@ int main(int argc,char**argv){
     dut->pcm_tready_i=1;
     // frames carry avtp_ts 0xA55AC33C; now = 1ms before it -> on time
     dut->ptp_now_i=0xA55AC33CUL-1000000; dut->pres_ofs_i=2000000;
-    dut->media_reset_p_i=0; dut->clk_src_i=0; dut->servo_conv_i=0;
+    dut->clk_src_i=0; dut->servo_conv_i=0;
     dut->resetn=0; dut->s_tvalid_i=0;
     cyc(6);
     dut->resetn=1; cyc(2);
@@ -236,7 +236,9 @@ int main(int argc,char**argv){
     dut->ptp_now_i = 0xA55AC33CUL - 1000000;   // back to on-time
     { AafCfg c; c.seq=212; feed(mkaaf(c)); }
     ck("on-time counts neither", dut->cnt_late_ts_o + dut->cnt_early_ts_o, 2);
-    dut->media_reset_p_i = 1; cyc(); dut->media_reset_p_i = 0; cyc(2);
+    //! Milan Table 5.6 MEDIA_RESET = "the 'mr' bit was toggled in any of the
+    //! received Stream Data AVTPDUs" - a WIRE event, so it arrives in a frame
+    { AafCfg c; c.seq=213; c.mr=true; feed(mkaaf(c)); }
     ck("MEDIA_RESET counted", dut->cnt_media_reset_o, 1);
     dut->bound_i=0; cyc(3); dut->bound_i=1; cyc(3);
     ck("bind clears media counters",
@@ -363,28 +365,48 @@ int main(int argc,char**argv){
 
     printf("\n[30] mr toggle + MEDIA_RESET gating (traceability AVTP-5 /\n"
            "     M-CNT-4, IEEE 1722-2016 4.4.4.3 + Milan Table 5.16).\n");
+    //! Milan v1.2 Table 5.6 MEDIA_RESET: "Incremented at the end of every
+    //! observation interval during which the 'mr' bit was TOGGLED in any of
+    //! the received Stream Data AVTPDUs" (IEEE 1722.1-2021 Table 7-157 says
+    //! the same: "on a toggle of the mr bit"). mr is a LEVEL the talker holds
+    //! for >= 8 AVTPDUs [1722-2016 4.4.4.3], so ONLY the edge is the event.
+    //! This block used to pin the OPPOSITE as an accepted gap (AVTP-5): the
+    //! parser never extracted mr, and the counter ticked on the local I2S
+    //! playback overrun/underrun rail instead - a signal the clause never
+    //! mentions, tied to 1'b0 outright on a DAC-less shape.
     // (a) mr-toggled PDUs are format-valid and must keep flowing
     { AafCfg c; c.seq=11; c.mr=true;  feed(mkaaf(c)); }
+    ck("[30a1] mr 0->1 toggle ticks MEDIA_RESET", dut->cnt_media_reset_o, 1);
     { AafCfg c; c.seq=12; c.mr=true;  feed(mkaaf(c)); }
+    //! THE BITE THE OTHER WAY: a HELD mr is not a toggle. Counting the level
+    //! instead of the edge would read +1 per PDU, i.e. 8000/s at class A.
+    ck("[30a2] HELD mr counts nothing more", dut->cnt_media_reset_o, 1);
     { AafCfg c; c.seq=13; c.mr=false; feed(mkaaf(c)); }
+    ck("[30a3] mr 1->0 toggle ticks again", dut->cnt_media_reset_o, 2);
     ck("[30a] mr-toggled PDUs accepted", dut->cnt_frames_rx_o, 4);
     ck("[30b] mr toggle breaks no lock/seq", dut->cnt_seq_mismatch_o, 0);
-    // (b) CHARACTERIZATION — RTL GAP (matrix AVTP-5 stays open): the mr bit
-    //     is not extracted by avtp_stream_parser, so a talker-signalled
-    //     media clock restart can NEVER tick MEDIA_RESET today. Fabric's
-    //     counter ticks only on the playback-servo rail (media_reset_p_i).
-    //     If this check ever fails, the mr->MEDIA_RESET response landed —
-    //     update traceability/ieee1722-2016.md AVTP-5 in the same commit.
-    ck("[30c] GAP: mr toggle does NOT tick MEDIA_RESET", dut->cnt_media_reset_o, 0);
-    // (c) counter gating: the servo-rail pulse counts only while BOUND
-    //     (Milan Table 5.16 counters are per-binding; [23] proved the
-    //     bound tick + bind-edge clear)
+    // (b) an UNSUPPORTED_FORMAT PDU early-returns: it counts nothing else,
+    //     so its mr never moves the reference either
+    { AafCfg c; c.seq=14; c.mr=true; c.chans=9; feed(mkaaf(c)); }
+    ck("[30c1] rejected PDU's mr counts no reset", dut->cnt_media_reset_o, 2);
+    { AafCfg c; c.seq=14; c.mr=true; feed(mkaaf(c)); }
+    ck("[30c2] the same toggle counts once it is ACCEPTED",
+       dut->cnt_media_reset_o, 3);
+    // (c) counter gating: mr only counts while BOUND, and a bind starts a
+    //     fresh era - the first PDU SEEDS the reference and never scores a
+    //     toggle against the previous talker's level (Milan 5.3.8.10)
     dut->bound_i=0; cyc(3);
-    dut->media_reset_p_i=1; cyc(); dut->media_reset_p_i=0; cyc(2);
-    ck("[30d] unbound rail pulse counts nothing", dut->cnt_media_reset_o, 0);
+    { AafCfg c; c.seq=15; c.mr=false; feed(mkaaf(c)); }
+    ck("[30d] unbound mr toggle counts nothing", dut->cnt_media_reset_o, 3);
     dut->bound_i=1; cyc(3);
-    dut->media_reset_p_i=1; cyc(); dut->media_reset_p_i=0; cyc(2);
-    ck("[30e] bound rail pulse counts MEDIA_RESET", dut->cnt_media_reset_o, 1);
+    ck("[30e] bind zeroes MEDIA_RESET", dut->cnt_media_reset_o, 0);
+    //! the era's first PDU carries mr=0 while the pre-bind level was 1:
+    //! a stale reference would score this as a toggle
+    { AafCfg c; c.seq=16; c.mr=false; feed(mkaaf(c)); }
+    ck("[30f] first PDU of an era SEEDS, never counts",
+       dut->cnt_media_reset_o, 0);
+    { AafCfg c; c.seq=17; c.mr=true; feed(mkaaf(c)); }
+    ck("[30g] the next real toggle counts", dut->cnt_media_reset_o, 1);
 
     printf("\n[31] non-zero AVTP version (traceability AVTP-3, IEEE 1722-2016\n"
            "     4.4.3.4: version!=0 AVTPDUs must be ignored).\n");

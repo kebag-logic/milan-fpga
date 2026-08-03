@@ -1319,7 +1319,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [TDATA_WIDTH/8-1:0] acmpl_tx_tkeep;
   wire                     acmpl_tx_tvalid, acmpl_tx_tlast, acmpl_tx_tready;
   //! AVTP RX monitor (KL_avtp_rx_monitor, STREAM_INPUT[0] Table 7-156)
-  wire        avtprx_match, avtprx_tu_bit, avtprx_tv_bit;
+  wire        avtprx_match, avtprx_tu_bit, avtprx_tv_bit, avtprx_mr_bit;
   wire [7:0]  avtprx_subtype, avtprx_seq;
   wire        avtprx_parse_p;
   wire [7:0]  avtprx_b3;
@@ -1397,7 +1397,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        cfg_i2spb_clru, cfg_i2spb_clro;   //! I2SPB_STAT W1C strobes
   wire signed [15:0] i2spb_trim;
   wire [15:0] i2spb_fill;
-  wire        i2spb_reset_p;
   wire [31:0] avtprx_mreset_c, avtprx_late_c, avtprx_early_c;
   wire [31:0] avtprx_tv_c, avtprx_tnv_c;   //! Milan 1.3 tv tallies (in0)
   wire        cfg_tone_enable;
@@ -3717,6 +3716,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .avtp_ts_o     (avtprx_ts),
     .subtype_o     (avtprx_subtype),
     .ts_valid_o    (avtprx_tv_bit),
+    .media_restart_o(avtprx_mr_bit),
     .seq_num_o     (avtprx_seq),
     .ts_uncertain_o(avtprx_tu_bit),
     .fsh_o         (avtprx_fsh),
@@ -3933,6 +3933,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .seq_num_i      (avtprx_seq),
     .ts_uncertain_i (avtprx_tu_bit),
     .ts_valid_i     (avtprx_tv_bit),
+    .media_restart_i(avtprx_mr_bit),
     .avtp_ts_i      (avtprx_ts),
     .fsh_i          (avtprx_fsh),
     .bound_i        (strtbl_en_w),
@@ -3948,7 +3949,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! this by a talker index would conflate the two. A per-SINK window
     //! is future LCTX work, not a per-talker mux.
     .pres_ofs_i     (aecp_pres_offset[31:0]),
-    .media_reset_p_i(i2spb_reset_p),
     .clk_src_i      (aecp_clk_src),
     .servo_conv_i   (i2spb_converged),
     .render_sel_i   (route_render_sel_w),  //! route policy's RENDER stream
@@ -4119,7 +4119,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! tie-off is what a board with no DAC already shows: the four i2s_dac_*
   //! pins park low (the shipping serializer holds sclk/lrck/sdin at 0 until
   //! the first prefilled frame, which never arrives without a DAC to clock),
-  //! every I2SPB counter reads 0, media_reset_p never pulses and converged
+  //! every I2SPB counter reads 0 and converged
   //! stays 0 - the identical set of values the block presents before its
   //! first stream. It does NOT backpressure: the render tap is a clone tap,
   //! so pruning the sink cannot stall the listener path.
@@ -4143,7 +4143,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .clr_under_i (cfg_i2spb_clru), .clr_over_i (cfg_i2spb_clro),
     .underruns_o (i2spb_underruns), .overruns_o (i2spb_overruns),
     .trim_o (i2spb_trim), .fill_o (i2spb_fill),
-    .media_reset_p_o (i2spb_reset_p),
+    //! the playback buffer's overrun/underrun rail is LOCAL health, not the
+    //! Milan Table 5.6 MEDIA_RESET trigger (that is the received mr bit, see
+    //! KL_avtp_rx_monitor_ctx); it stays counted by I2SPB_STAT's own
+    //! underrun/overrun tallies, which is where a local rail belongs
+    .media_reset_p_o (),
     .converged_o     (i2spb_converged),
     .dbg_frame_o     (i2spb_dbg_frame)
   );
@@ -4156,7 +4160,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     assign i2spb_overruns  = 16'd0;
     assign i2spb_trim      = 16'sd0;
     assign i2spb_fill      = 16'd0;
-    assign i2spb_reset_p   = 1'b0;
     assign i2spb_converged = 1'b0;
     assign i2spb_dbg_frame = 32'd0;
   end endgenerate

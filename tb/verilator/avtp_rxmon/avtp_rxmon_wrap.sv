@@ -19,7 +19,6 @@ module avtp_rxmon_wrap #(
   input  wire [63:0] fmt_i,            //! current STREAM_INPUT[0] format u64
   input  wire [31:0] ptp_now_i,        //! PHC ns (LATE/EARLY compare)
   input  wire [31:0] pres_ofs_i,       //! presentation offset ns
-  input  wire        media_reset_p_i,  //! playback rail pulse
   input  wire [15:0] clk_src_i,        //! live clock_source_index
   input  wire        servo_conv_i,     //! playback clock converged
 
@@ -62,7 +61,7 @@ module avtp_rxmon_wrap #(
   output wire [15:0] pcm_drops_o
 );
 
-  wire        match_w, tu_w;
+  wire        match_w, tu_w, mr_w;
   wire [7:0]  subtype_w, seq_w;
   wire [31:0] ts_w;
   wire [63:0] fsh_w;
@@ -78,6 +77,7 @@ module avtp_rxmon_wrap #(
     .match_valid_o (match_w),
     .match_index_o (), .stream_id_o (), .avtp_ts_o (ts_w),
     .subtype_o (subtype_w), .ts_valid_o (),
+    .media_restart_o (mr_w),
     .seq_num_o (seq_w), .ts_uncertain_o (tu_w), .fsh_o (fsh_w),
     .avtp_frames_o (par_parsed_o), .matched_frames_o (par_matched_o)
   );
@@ -86,9 +86,9 @@ module avtp_rxmon_wrap #(
     .clk_i (clk), .rst_n (resetn),
     .match_valid_i (match_w), .subtype_i (subtype_w), .seq_num_i (seq_w),
     .ts_uncertain_i (tu_w), .avtp_ts_i (ts_w), .fsh_i (fsh_w),
+    .media_restart_i (mr_w),
     .bound_i (bound_i), .fmt_i (fmt_i),
     .ptp_now_i (ptp_now_i), .pres_ofs_i (pres_ofs_i),
-    .media_reset_p_i (media_reset_p_i),
     .clk_src_i       (clk_src_i),
     .servo_conv_i    (servo_conv_i),
     .cnt_media_locked_o (cnt_media_locked_o),

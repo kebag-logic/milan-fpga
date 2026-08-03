@@ -552,3 +552,95 @@ def step_cc_regmap_saturate(context):
         "means 'at least 255', which is how a frozen-looking error counter hid "
         "5.1 M LATE and 4.8 M EARLY timestamps")
     context.cc_saturate_rows = len(hits)
+
+
+# --------------------------------------------------- the per-counter law --
+# The update law is the answer to "WHEN does this counter move?", and Milan
+# Table 5.6 answers it in two grammars while IEEE 1722.1-2021 Table 7-157 uses
+# a third.  These steps hold the RTL's behaviour and the bench grader to ONE
+# table, in tb/tools/torture_campaign.py, so the feature file and the on-bench
+# runner cannot drift apart about what a counter means.
+@then("every Stream Input counter has an update law")
+def step_cc_law_total(context):
+    missing = [n for n in tc.IEEE_STREAM_INPUT_BLOCK
+               if tc.counter_law(n) is None]
+    assert not missing, f"no update law stated for {missing}"
+    assert len(tc.STREAM_INPUT_COUNTER_LAW) == len(tc.IEEE_STREAM_INPUT_BLOCK)
+
+
+@then('the update laws in use are "{laws}"')
+def step_cc_law_kinds(context, laws):
+    want = sorted(s.strip() for s in laws.split(","))
+    got = sorted({v[0] for v in tc.STREAM_INPUT_COUNTER_LAW.values()})
+    assert got == want, f"{got} != {want}"
+
+
+@then("the update law of {counter} is {law} per {clause}")
+def step_cc_law_one(context, counter, law, clause):
+    got = tc.counter_law(counter)
+    assert got is not None, f"{counter} has no stated update law"
+    assert got[0] == law, f"{counter}: law is {got[0]}, not {law}"
+    assert got[1] == clause, f"{counter}: clause is {got[1]!r}, not {clause!r}"
+
+
+@then('the trigger for {counter} mentions "{phrase}"')
+def step_cc_law_trigger(context, counter, phrase):
+    got = tc.counter_law(counter)
+    assert got is not None, f"{counter} has no stated update law"
+    assert phrase in got[2], (
+        f"{counter} trigger is {got[2]!r}, which does not mention {phrase!r} - "
+        f"a counter can have the right update law and still watch the wrong "
+        f"signal")
+
+
+# ------------------------------------------- the interval-ceiling contract --
+def _cc_window(context):
+    if not hasattr(context, "cc_before"):
+        context.cc_before, context.cc_after = {}, {}
+    return context.cc_before, context.cc_after
+
+
+@given("a stream input window where {counter} advanced by {delta:d}")
+def step_cc_window_open(context, counter, delta):
+    context.cc_before, context.cc_after = {}, {}
+    context.cc_before[counter] = 0
+    context.cc_after[counter] = delta
+    context.cc_window_s = 30.0
+
+
+@given("{counter} advanced by {delta:d} in that window")
+def step_cc_window_add(context, counter, delta):
+    before, after = _cc_window(context)
+    before[counter] = 0
+    after[counter] = delta
+
+
+@then("the interval-ceiling verdict is {verdict}")
+def step_cc_ceiling(context, verdict):
+    got, detail = tc.check_interval_ceiling(
+        context.cc_before, context.cc_after,
+        window_s=getattr(context, "cc_window_s", 30.0))
+    context.cc_ceiling_detail = detail
+    assert got == verdict, f"{got} != {verdict}: {detail}"
+
+
+@then("the interval-ceiling offender is {counter}")
+def step_cc_ceiling_offender(context, counter):
+    names = [o["counter"] for o in context.cc_ceiling_detail.get("offenders", [])]
+    assert names == [counter], f"{names} != [{counter}]"
+
+
+@given("{counter} advanced by {delta:d} over {window:d} seconds with the "
+       "stream flowing")
+def step_cc_sem_given(context, counter, delta, window):
+    context.cc_sem = tc.grade_counter_semantics(
+        counter, delta, float(window), stream_flowing=True)
+
+
+@then("the semantics verdict is {verdict} and the reading is {reading}")
+def step_cc_sem_then(context, verdict, reading):
+    got, detail = context.cc_sem
+    assert got == verdict, f"{got} != {verdict}: {detail}"
+    assert detail.get("reading") == reading, \
+        f"reading {detail.get('reading')!r} != {reading!r}: {detail}"
+    assert detail.get("clause"), "a semantics grade must name its clause"

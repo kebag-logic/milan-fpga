@@ -30,7 +30,8 @@
                   AVTP EtherType 0x22F0 at [12] (no VLAN) or [16] (VLAN)
                   AVTP common stream header at O = 14 (no VLAN) / 18 (VLAN):
                     O+0      subtype
-                    O+1      [7]sv [6:4]version [0]tv (timestamp valid)
+                    O+1      [7]sv [6:4]version [3]mr (media clock
+                             restart) [2:1]f_s_d [0]tv (timestamp valid)
                     O+2      sequence_num
                     O+3      [0]tu
                     O+4..11  stream_id (64-bit, MS byte first)
@@ -82,6 +83,11 @@ module avtp_stream_parser #(
   output logic [31:0]               avtp_ts_o,       //! presentation time
   output logic [7:0]                subtype_o,       //! AVTP subtype
   output logic                      ts_valid_o,      //! tv bit (ts is meaningful)
+//! mr (media clock restart), IEEE 1722-2016 4.4.4.3 - a LEVEL the talker
+//! TOGGLES on a media-clock restart and then holds for >= 8 AVTPDUs. The
+//! listener's Milan Table 5.6 MEDIA_RESET counts the TOGGLE, so the
+//! consumer keeps the previous value per stream; this port is the raw bit.
+output logic                      media_restart_o, //! mr bit (O+1 bit 3)
   output logic [7:0]                seq_num_o,       //! sequence_num (O+2)
   output logic                      ts_uncertain_o,  //! tu bit (O+3 bit 0)
   output logic [63:0]               fsh_o,           //! format-specific header
@@ -159,6 +165,7 @@ module avtp_stream_parser #(
   wire [7:0]  subtype  = hbyte(o);
   wire [7:0]  b1       = hbyte(o+1);
   wire        sv       = b1[7];
+  wire        mr       = b1[3];
   wire        tv       = b1[0];
   wire [63:0] sid      = {hbyte(o+4), hbyte(o+5), hbyte(o+6),  hbyte(o+7),
                           hbyte(o+8), hbyte(o+9), hbyte(o+10), hbyte(o+11)};
@@ -206,6 +213,7 @@ module avtp_stream_parser #(
       avtp_ts_o      <= '0;
       subtype_o      <= '0;
       ts_valid_o     <= 1'b0;
+      media_restart_o <= 1'b0;
       seq_num_o      <= '0;
       ts_uncertain_o <= 1'b0;
       fsh_o          <= '0;
@@ -234,6 +242,7 @@ module avtp_stream_parser #(
           avtp_ts_o        <= ats;
           subtype_o        <= subtype;
           ts_valid_o       <= tv;
+          media_restart_o  <= mr;
           seq_num_o        <= seq;
           ts_uncertain_o   <= tu;
           fsh_o            <= fsh;

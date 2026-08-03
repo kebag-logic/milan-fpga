@@ -1598,8 +1598,9 @@ module KL_aecp_response_builder (
   // const 0..3, counter for valid bit n at const 4+4n (block byte 4n).   //
   // AAF sinks = live monitor counters; the CRF sink = KL_crf_rx counters  //
   // behind the mandatory-ten mask (its own task below).                   //
-  // MEDIA_RESET / LATE / EARLY are advertised valid but always 0, exactly //
-  // the pipewire reference (no media clock recovery in fabric yet).       //
+  // Every one of the twelve is DRIVEN: MEDIA_RESET counts the received   //
+  // mr bit's toggles (Milan Table 5.6), LATE/EARLY the presentation-time  //
+  // compare. None of them is an advertised-valid constant zero.           //
   // ------------------------------------------------------------------ //
   //! Milan Table 5.16 counters for the sink named by gs_diag_idx_o -
   //! rxdiag_cnt_i is that sink's twelve-counter slice out of the monitor's

@@ -47,7 +47,8 @@
                   CFG  w0 SID_LO | w1 SID_HI | w2 FMT_LO | w3 FMT_HI
                        w4 CTRL {en[0], route[2:1]} (CSR-owned, P11)
                   DYN  w8 MON_STATE {prev_seq[7:0], settle[11:8],
-                       media_locked[12], bound_q[13], wire_chans[21:14]}
+                       media_locked[12], bound_q[13], wire_chans[21:14],
+                       prev_mr[22], mr_seeded[23]}
                        w9 LAST_TS | w10 LAST_TSD
                        w11 DEPKT_CNT {drops[31:16], pdus[15:0]}
                   CNT  w16..w25 in 1722.1-2021 Table 7-157 offset order:
@@ -122,6 +123,11 @@ module KL_avtp_rx_monitor_ctx #(
   input  wire [7:0]   seq_num_i,         //! sequence_num of the matched PDU
   input  wire         ts_uncertain_i,    //! tu bit
   input  wire         ts_valid_i,        //! tv bit (avtp_ts meaningful)
+  //! mr bit of the matched PDU. Milan Table 5.6 MEDIA_RESET counts the
+  //! intervals in which this bit was TOGGLED, so the engine keeps the
+  //! previous value per context in MON_STATE[22] (seeded, not counted, on
+  //! the era's first accepted PDU - MON_STATE[23]).
+  input  wire         media_restart_i,   //! mr bit (IEEE 1722-2016 4.4.4.3)
   input  wire [31:0]  avtp_ts_i,         //! presentation time of the PDU
   input  wire [63:0]  fsh_i,             //! bytes O+16..O+23 of the PDU
 
@@ -136,7 +142,6 @@ module KL_avtp_rx_monitor_ctx #(
   //! --- media-clock / render-path context --------------------------------
   input  wire [31:0]  ptp_now_i,         //! PHC nanoseconds [31:0]
   input  wire [31:0]  pres_ofs_i,        //! presentation offset ns
-  input  wire         media_reset_p_i,   //! playback servo rail event (pulse)
   input  wire [15:0]  clk_src_i,         //! live clock_source_index
   input  wire         servo_conv_i,      //! playback clock converged
   input  wire [3:0]   render_sel_i,      //! RENDER stream index (route policy)
@@ -242,6 +247,7 @@ module KL_avtp_rx_monitor_ctx #(
     logic [7:0]        seq;
     logic              tu;
     logic              tv;
+    logic              mr;
     logic [31:0]       ts;
     logic [63:0]       fsh;
     logic [31:0]       tsd;
@@ -382,7 +388,8 @@ module KL_avtp_rx_monitor_ctx #(
   pdu_evt_t          new_evt_w;
   always_comb begin : new_evt_pack
     new_evt_w = '{s: midx_w, subtype: subtype_i, seq: seq_num_i,
-                  tu: ts_uncertain_i, tv: ts_valid_i, ts: avtp_ts_i,
+                  tu: ts_uncertain_i, tv: ts_valid_i, mr: media_restart_i,
+                  ts: avtp_ts_i,
                   fsh: fsh_i, tsd: unsigned'(tsd_w), late: late_w,
                   early: early_w};
   end : new_evt_pack
@@ -432,6 +439,8 @@ module KL_avtp_rx_monitor_ctx #(
   function automatic [7:0]  ms_prev(input [31:0] w);   ms_prev   = w[7:0];   endfunction
   function automatic [3:0]  ms_settle(input [31:0] w); ms_settle = w[11:8];  endfunction
   function automatic        ms_locked(input [31:0] w); ms_locked = w[12];    endfunction
+  function automatic        ms_prevmr(input [31:0] w); ms_prevmr = w[22];    endfunction
+  function automatic        ms_mrsd(input [31:0] w);   ms_mrsd   = w[23];    endfunction
 
   //! expected AAF fields from the format u64 (H.1 quadlet layout)
   wire [7:0] f_subtype_w = fmt_r[63:56];
@@ -463,12 +472,20 @@ module KL_avtp_rx_monitor_ctx #(
   wire lock_now_w = !ms_locked(ram_q_r) && lock_ok_w;
   wire seq_mm_w   = ms_locked(ram_q_r) && (ms_settle(ram_q_r) == '0) &&
                     (cur_r.seq != expected_w);
+  //! Milan Table 5.6 MEDIA_RESET trigger: "the 'mr' bit was toggled in any of
+  //! the received Stream Data AVTPDUs" (IEEE 1722.1-2021 Table 7-157 agrees -
+  //! "on a toggle of the mr bit"). mr is a LEVEL held for >= 8 AVTPDUs
+  //! [1722-2016 4.4.4.3], so the EDGE is the event: the era's first accepted
+  //! PDU only SEEDS the reference (no toggle has been observed yet).
+  wire mr_toggle_w = ms_mrsd(ram_q_r) && (cur_r.mr != ms_prevmr(ram_q_r));
 
   //! new MON_STATE after an ACCEPTED PDU (mirror of the flat-monitor rules)
   logic [31:0] monst_next_w;
   always_comb begin : monst_calc
     monst_next_w        = ram_q_r;
     monst_next_w[21:14] = p_chans_w;                  // wire_chans
+    monst_next_w[22]    = cur_r.mr;                   // mr level reference
+    monst_next_w[23]    = 1'b1;                       // ... now seeded
     monst_next_w[7:0]   = cur_r.seq;                  // seed / advance
     if (!ms_locked(ram_q_r)) begin
       if (lock_ok_w) monst_next_w[12] = 1'b1;         // lock
@@ -487,10 +504,19 @@ module KL_avtp_rx_monitor_ctx #(
   end : inc_pick
 
   //! this cycle's Table 5.6 interval-flag events, per stream: the M_PDEC_S
-  //! verdict raises the PDU-derived flags (the walk itself only writes
-  //! w8/w9/w10 and the EVENT counters), and the servo rail raises MR for
-  //! the RENDER stream. Decoded once so the fold below can harvest a
-  //! tick-cycle event into the closing interval instead of losing it.
+  //! verdict raises ALL SEVEN PDU-derived flags (the walk itself only writes
+  //! w8/w9/w10 and the EVENT counters). Decoded once so the fold below can
+  //! harvest a tick-cycle event into the closing interval instead of losing
+  //! it.
+  //!
+  //! MEDIA_RESET is a RECEIVED-WIRE flag like the other six. It used to be
+  //! raised by the I2S playback buffer's overrun/underrun rail instead -
+  //! a LOCAL health signal, not the clause's trigger - which made the
+  //! counter wrong in both directions: a talker-signalled restart never
+  //! ticked it (traceability AVTP-5, pinned by avtp_rxmon [30c]), and on a
+  //! DAC-less shape (I2SPB_P=0 ties the rail to 1'b0) it could not tick at
+  //! all. The playback buffer's own health keeps its dedicated
+  //! underrun/overrun CSR tallies, which is where a local rail belongs.
   logic [11:0] iv_set_w [N_LISTENERS_P];
   always_comb begin : iv_events
     for (int s = 0; s < N_LISTENERS_P; s++) iv_set_w[s] = '0;
@@ -500,13 +526,12 @@ module KL_avtp_rx_monitor_ctx #(
       else
         iv_set_w[ev_s_r] =
             (12'b1 << C_FRX_C)
-          | (cur_r.tu    ? (12'b1 << C_TU_C) : 12'b0)
-          | (cur_r.late  ? (12'b1 << C_LT_C) : 12'b0)
-          | (cur_r.early ? (12'b1 << C_ET_C) : 12'b0)
-          | (seq_mm_w    ? (12'b1 << C_SM_C) : 12'b0);
+          | (cur_r.tu     ? (12'b1 << C_TU_C) : 12'b0)
+          | (cur_r.late   ? (12'b1 << C_LT_C) : 12'b0)
+          | (cur_r.early  ? (12'b1 << C_ET_C) : 12'b0)
+          | (seq_mm_w     ? (12'b1 << C_SM_C) : 12'b0)
+          | (mr_toggle_w  ? (12'b1 << C_MR_C) : 12'b0);
     end
-    if (media_reset_p_i && bound_i[rsel_w])
-      iv_set_w[rsel_w] |= 12'b1 << C_MR_C;
   end : iv_events
 
   // ======================================================================
@@ -576,8 +601,12 @@ module KL_avtp_rx_monitor_ctx #(
             eng_we_w    = 1'b1;
             eng_waddr_w = laddr(ev_s_r, W_MONST_C);
             //! preserve prev_seq + wire_chans; clear lock/settle (flat-
-            //! monitor bind semantics)
-            eng_wdata_w = {ram_q_r[31:14], 2'b00, 4'd0, ram_q_r[7:0]};
+            //! monitor bind semantics) AND the mr seed [23:22] - the mr
+            //! LEVEL belongs to the previous binding era, so carrying it
+            //! across a bind would score the new talker's first PDU as a
+            //! toggle that never happened
+            eng_wdata_w = {ram_q_r[31:24], 2'b00, ram_q_r[21:14],
+                           2'b00, 4'd0, ram_q_r[7:0]};
           end
           4'd1 : begin
             eng_we_w    = 1'b1;
@@ -1007,6 +1036,14 @@ module KL_avtp_rx_monitor_ctx #(
             sil_ms_r[ev_s_r]    <= '0;
             tv_cnt_r[ev_s_r]    <= '0;   //! Milan era wipe (Table 5.6 rule)
             tnv_cnt_r[ev_s_r]   <= '0;
+            //! an unlock owed by the PREVIOUS era dies with it. Milan Table
+            //! 5.6: "either MEDIA_LOCKED=MEDIA_UNLOCKED, or
+            //! MEDIA_LOCKED=MEDIA_UNLOCKED+1" - and the bind zeroes BOTH, so
+            //! a watchdog/servo unlock still pending here would walk +1 into
+            //! MEDIA_UNLOCKED over a zeroed MEDIA_LOCKED and strand the
+            //! stream at UNLOCKED=LOCKED+1, which is neither legal state
+            sil_pend_r[ev_s_r]   <= 1'b0;
+            servo_pend_r[ev_s_r] <= 1'b0;
             //! a parked walk remainder for THIS stream dies with the era
             //! too (its counters are zeroed by the bind-zero walk below)
             if (iv_res_s_r == ev_s_r) iv_res_list_r <= '0;

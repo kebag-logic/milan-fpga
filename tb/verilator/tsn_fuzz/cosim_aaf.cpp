@@ -84,7 +84,6 @@ static void reset_dut() {
     dut->fmt_i = FMT;
     dut->ptp_now_i = 0xA55AC33C;      // matches the TB's fixed avtp_timestamp
     dut->pres_ofs_i = 0;
-    dut->media_reset_p_i = 0;
     dut->clk_src_i = 0;
     dut->servo_conv_i = 1;
     for (int i = 0; i < 8; i++) tick();
@@ -114,13 +113,18 @@ int main(int argc, char** argv) {
                     for (int c = 0; c < 100; c++) tick();
                 out.push_back(state_dump());
                 return out;
-            case CTRL_EVENT:                      // cmd[3]: bind(0) / media reset(1)
+            case CTRL_EVENT:                      // cmd[3]: bind(0) / idle(1)
                 if (cmd[3] == 0) {
                     dut->bound_i = 0; for (int c = 0; c < 20; c++) tick();
                     dut->bound_i = 1; for (int c = 0; c < 20; c++) tick();
                 } else {
-                    dut->media_reset_p_i = 1; tick();
-                    dut->media_reset_p_i = 0;
+                    // MEDIA_RESET IS A WIRE EVENT, not a side-band poke.
+                    // Milan Table 5.6 counts the intervals in which "the 'mr'
+                    // bit was toggled in any of the received Stream Data
+                    // AVTPDUs", so it is driven by sending a PDU with mr
+                    // flipped - wire.py already builds that field (b15 bit 3).
+                    // This arm used to pulse the LOCAL I2S playback rail,
+                    // which no clause names (traceability AVTP-5).
                     for (int c = 0; c < 20; c++) tick();
                 }
                 out.push_back(state_dump());
