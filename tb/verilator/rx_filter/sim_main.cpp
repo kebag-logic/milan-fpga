@@ -219,6 +219,77 @@ int main(int argc, char** argv) {
        (long)send_frame(MAC_OTHER, 4).size(), 0);
     dut->default_pass_i = 1;
 
+    // ======================================================================
+    //  ARP REACHABILITY UNDER THE SHIPPING SHIELD
+    //
+    //  Provenance: a 2026-08-03 report of "after a cold boot the board is
+    //  unreachable - ping 100% loss, ARP FAILED from the peer - until the
+    //  BOARD transmits first" was RETRACTED the same day (a clean boot is
+    //  reachable immediately and ARP resolves even after a cache flush).
+    //  These checks are kept anyway, as the permanent regression guard that
+    //  the retracted report showed we did not have: they encode WHY the
+    //  filter could never have been the cause, so the next reachability
+    //  scare can be pointed at the network instead of re-audited here.
+    //
+    //  This models EXACTLY what the driver installs. kl-eth.c kl_open():
+    //      kl_wr_station_mac(kl, ndev->dev_addr);   // MAC_ADDR_LO then _HI
+    //      kl_rx_shield_arm(kl);                    // TCAM idx 15, then
+    //                                               // TCAM_CTRL[1] = 1
+    //      kl_wr(CSR_MAC_CTRL, TX_EN | RX_EN | IS_1G);
+    //  and kl_rx_shield_arm() programs ONE ternary DROP over the whole IEEE
+    //  1722 MAAP space 91:E0:F0:00:xx:xx. Note the station MAC is written
+    //  BEFORE the arm, and MAC RX is enabled only after both.
+    //
+    //  The three ARP shapes below are the desk half of that diagnosis: the
+    //  filter CANNOT be the cause, because a broadcast ARP REQUEST is
+    //  admitted on `dmac_bcast` (rx_mac_filter.sv:117) before the station
+    //  compare is even consulted - so it passes whatever the station MAC
+    //  holds. The negative control then proves the kl_open ordering is
+    //  genuinely load-bearing for the UNICAST leg, and, decisively, that even
+    //  the broken ordering still answers a broadcast ARP request.
+    // ======================================================================
+    printf("--------------------------------------------------------------\n");
+    {
+        const uint64_t MAC_PEER = 0x001BC50AC1FFULL;   // the pinging host
+        (void)MAC_PEER;
+        wr_tcam(0, 0, 0, 0, 0);                        // bare table
+        dut->promisc_i = 0; dut->allmulti_i = 0; dut->mc_hash_i = 0;
+        dut->default_pass_i = 1;                       // TCAM_CTRL reset 0x1
+        dut->station_mac_i  = MAC_STATION;
+        // kl_rx_shield_arm(): MAAP drop at index 15, then arm
+        wr_tcam(15, 1, 0x91E0F0000000ULL, 0xFFFFFFFF0000ULL, 0x01);
+        dut->addr_filter_en_i = 1;
+
+        ck("arp: broadcast REQUEST passes (shield armed)",
+           (long)send_frame(MAC_BCAST, 6).size(), 6);
+        ck("arp: unicast REPLY to station MAC passes",
+           (long)send_frame(MAC_STATION, 6).size(), 6);
+        ck("arp: gratuitous ARP (broadcast) passes",
+           (long)send_frame(MAC_BCAST, 8).size(), 8);
+        // the shield itself must not shadow ARP: MAAP is 91:E0:F0:00:xx:xx,
+        // ARP rides bcast/unicast, so the drop entry can never alias it
+        ck("arp: shield still drops a MAAP stream group",
+           (long)send_frame(MAC_MAAP, 6).size(), 0);
+
+        // ---- NEGATIVE CONTROL: filter armed BEFORE the station MAC ----
+        // If kl_open ever armed TCAM_CTRL[1] while MAC_ADDR_LO/HI still held
+        // their reset value (milan_csr.sv:1088 mac_alo/mac_ahi <= 0), every
+        // unicast to us would be blackholed. That is the failure mode this
+        // ordering exists to prevent - and it is NOT the reported symptom,
+        // because the broadcast leg below still passes.
+        dut->station_mac_i = 0;                        // "arm before write"
+        ck("arp NEG: zero station MAC blackholes our unicast",
+           (long)send_frame(MAC_STATION, 6).size(), 0);
+        ck("arp NEG: broadcast REQUEST STILL passes (shield exonerated)",
+           (long)send_frame(MAC_BCAST, 6).size(), 6);
+        dut->station_mac_i = MAC_STATION;
+        ck("arp: unicast restored once the station MAC lands",
+           (long)send_frame(MAC_STATION, 6).size(), 6);
+
+        wr_tcam(15, 0, 0, 0, 0);
+        dut->addr_filter_en_i = 0;
+    }
+
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
     dut->final(); delete dut;

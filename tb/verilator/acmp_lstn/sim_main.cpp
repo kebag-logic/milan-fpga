@@ -29,6 +29,33 @@ static void ckh(const char* what, uint64_t got, uint64_t exp) {
     else            { printf("  [ ok ] %-46s = %llx\n", what, (unsigned long long)got); }
 }
 
+// KNOWN-GAP pin (see the [G] section). Records a behaviour a clause REQUIRES
+// and this RTL does not implement yet. It counts as a check and PASSES while
+// the value is still the non-conformant one we measured, so the suite stays
+// green and honest; it FAILS THE SUITE the moment the value moves - to the
+// conformant value (the gap closed: promote the gap() to a ck()) or to
+// anything else (a regression). A gap can therefore never be forgotten and can
+// never be closed silently.
+static long gapsn = 0;
+static void gap(const char* what, long got, long cur, long req,
+                const char* clause) {
+    checks++;
+    if (got == cur) {
+        gapsn++;
+        printf("  [ GAP ] %-46s = %ld   (%s requires %ld)\n",
+               what, got, clause, req);
+    } else if (got == req) {
+        fails++;
+        printf("  [GAP CLOSED] %-39s got=%ld - now conformant with %s:\n"
+               "               promote this gap() to a ck() and drop the pin\n",
+               what, got, clause);
+    } else {
+        fails++;
+        printf("  [FAIL] %-46s got=%ld exp %ld (gap) or %ld (fixed)\n",
+               what, got, cur, req);
+    }
+}
+
 // partial response frame currently being assembled (survives across helpers)
 static std::vector<uint8_t> partial;
 
@@ -630,7 +657,83 @@ int main(int argc, char** argv) {
         dut->ta_registered_i = 0;
     }
 
-    printf("KL_acmp_listener: %ld checks, %ld failures\n", checks, fails);
+    // ---------------------------------------------------------------- //
+    printf("\n[G] KNOWN GAPS vs Milan v1.2 5.5.3 (pinned, not failures)\n");
+    // CLAUSE-FIRST NOTE, 2026-08-03. Two things reported as defects after the
+    // PEER bring-up are in fact CONFORMANT for a Milan PAAD-AE and must NOT
+    // be "fixed":
+    //   * BIND_RX_RESPONSE carrying stream_id 00:00:00:00:00:00:00:00 is
+    //     MANDATORY - Milan v1.2 Table 5.32 ("BIND_RX_RESPONSE fields on
+    //     success") pins stream_id, stream_dest_mac and stream_vlan_id to
+    //     zero. Checks [2] above already assert exactly that.
+    //   * Answering the controller BEFORE probing the talker is the specified
+    //     order - 5.5.3.5.3 sends the BIND_RX_RESPONSE at step 3 and the
+    //     PROBE_TX_COMMAND at step 5. Milan does NOT use the plain
+    //     1722.1-2021 8.2.2.5 flow where CONNECT_RX_RESPONSE waits for the
+    //     CONNECT_TX_RESPONSE (Milan renames those messages to BIND_RX_* and
+    //     PROBE_TX_* and redefines the machine around them).
+    // What IS non-conformant is pinned below.
+    {
+        // ---- GAP 1: only sink 0 owns a probe state machine -------------
+        // KL_acmp_listener.sv:138  localparam SM_EN_MAP_C = N_SINKS_P'(1);
+        // i.e. PROBE_SM_EN_P = ...0001. Every sink except 0 takes the
+        // record-only branch, parks straight in LSM_SETTLED_NO_RSV and never
+        // emits a PROBE_TX_COMMAND. Milan 5.5.3.5.3 step 5 requires EVERY
+        // sink to send one on RCV_BIND_RX_CMD, and 5.5.3.5.18 step 4 makes
+        // the PROBE_TX_RESPONSE the only source of the talker's real
+        // stream_id / stream_dest_mac / stream_vlan_id and the trigger for
+        // "initiate SRP reservation". A record-only sink instead registers
+        // the lwSRP listener row (d2739b1b) against a sid it DERIVED from
+        // {talker EID, tuid} - a guess, checked by "[S1] fallback sid" above.
+        // On the 8x8 shape that is 7 AAF sinks plus CRF with no probe leg.
+        long pc0 = dut->probe_count_o;
+        feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0x000B, 1, nullptr,
+                  0x301, 0, 0));
+        r = wait_frame();
+        ck("[G] sink1 BIND_RESP", r_msg(r), 7);
+        ck("[G] sink1 BIND SUCCESS", r_sta(r), 0);
+        ck("[G] sink1 bound", dut->s1_bound_o, 1);
+        run(400);   // << the 200 ms (2000 cycle) sink-0 NO_RESP retransmit
+        gap("[G] sink1 probes the talker", (long)dut->probe_count_o - pc0,
+            0, 1, "Milan 5.5.3.5.3 step 5");
+
+        // ---- GAP 2: PROBE_TX_COMMAND ECHOES FAST_CONNECT ---------------
+        // KL_acmp_lstn_ctx.sv:441
+        //   w_probe_flags = cur_r.flags & ~(STREAMING_WAIT | SRP_REG_FAILED)
+        // FAST_CONNECT is NOT in that mask, so the probe reproduces whatever
+        // the controller put in the BIND_RX_COMMAND. Milan Table 5.33
+        // ("PROBE_TX_COMMAND fields on success") lists FAST_CONNECT as the
+        // literal 1, not as a copied binding parameter - so a bind that did
+        // not request fast-connect emits a non-conformant probe. Every other
+        // Table 5.33 field is already right: connection_count 0,
+        // STREAMING_WAIT 0, REGISTERING_FAILED 0, stream_id/dmac/vlan zero.
+        // Rebind sink 0 (settled on Y after [R]) to X to draw a fresh probe.
+        feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x302,
+                  0x0000 /*controller did NOT request FAST_CONNECT*/, 0));
+        r = wait_frame();
+        ck("[G] sink0 rebind SUCCESS", r_sta(r), 0);
+        p = wait_frame();
+        ck("[G] fresh probe emitted", p.size(), 70);
+        ck("[G] probe is CONNECT_TX_COMMAND", r_msg(p), 0);
+        ck("[G] probe connection_count 0 (Table 5.33)", (long)r_be(p, 60, 2), 0);
+        ckh("[G] probe stream_id 0 (Table 5.33)", r_be(p, 18, 8), 0);
+        gap("[G] probe FAST_CONNECT set", (long)r_be(p, 64, 2),
+            0x0000, 0x0002, "Milan Table 5.33");
+
+        // ...and it really is an ECHO, not a constant 0: ask for it on a
+        // rebind to Y and the probe carries it. This is the bite that pins
+        // the mechanism, so a "fix" that hardcodes 0 cannot pass either.
+        feed(acmp(6, 0, 0, CT_EID, TK2_EID, US_EID, 0, 0, nullptr, 0x303,
+                  0x0002 /*controller DID request FAST_CONNECT*/, 0));
+        r = wait_frame();
+        ck("[G] sink0 rebind to Y SUCCESS", r_sta(r), 0);
+        p = wait_frame();
+        ck("[G] probe FAST_CONNECT echoed when asked", (long)r_be(p, 64, 2),
+           0x0002);
+    }
+
+    printf("KL_acmp_listener: %ld checks, %ld failures, %ld known gaps\n",
+           checks, fails, gapsn);
     delete dut;
     return fails ? 1 : 0;
 }

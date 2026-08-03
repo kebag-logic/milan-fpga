@@ -513,27 +513,64 @@ hold.
     on DISCONNECT_RX; software still wins a row it names a sid for).
     TB: `milan_dp` sim_nxn "t21" section (wire NEW/Ready/LV + window
     readback + CBS-guard), `acmp_lstn` sim_ctx bind-view checks.
-  - **OPEN (silicon 2026-08-03): our listener answers CONNECT_RX without
-    performing the talker half of the two-stage ACMP handshake.** Driving
-    `CONNECT_RX_COMMAND` at our STREAM_INPUT 0 (talker = the PEER) returns
-    `SUCCESS` — but with `stream_id 0000000000000000`, i.e. no talker stream
-    id was ever learned, and the PEER never begins streaming. Asked
-    directly, the talker agrees it has no such connection:
-    `START_STREAMING` on its STREAM_OUTPUT 0 answers status 11
-    `NO_SUCH_CONNECTION`. IEEE 1722.1-2021 8.2.2.6.2 makes the *listener*
-    responsible for emitting `CONNECT_TX_COMMAND` to the talker on receipt
-    of CONNECT_RX and for adopting the talker's `stream_id`/dest MAC from
-    the CONNECT_TX_RESPONSE before replying SUCCESS; we reply locally and
-    skip that leg. Consequence: a conformant controller that binds only via
-    CONNECT_RX (which is the normal path, and what Hive does) gets a
-    SUCCESS that produces no audio.
+  - **OPEN (silicon 2026-08-03, RE-SCOPED at the desk 2026-08-03 after
+    reading the clause): only sink 0 owns a probe state machine, so every
+    other sink binds without ever probing its talker.**
+    `KL_acmp_listener.sv:138` pins `localparam SM_EN_MAP_C = N_SINKS_P'(1)`
+    (`PROBE_SM_EN_P = ...0001`). Sink 0 therefore *does* emit the
+    `PROBE_TX_COMMAND`; sinks 1..N-1 take the record-only branch of
+    `classify_writeback`, park straight in `LSM_SETTLED_NO_RSV_S` with
+    `active = 0`, and never transmit anything to the talker. On the shipping
+    8x8 shape that is 7 AAF sinks plus CRF with no probe leg at all.
+    Milan v1.2 5.5.3.5.3 step 5 requires EVERY sink to send a
+    `PROBE_TX_COMMAND` on `RCV_BIND_RX_CMD`, and 5.5.3.5.18 step 4 makes the
+    `PROBE_TX_RESPONSE` the *only* source of the talker's real `stream_id`,
+    `stream_dest_mac` and `stream_vlan_id` and the trigger to "initiate SRP
+    reservation". A record-only sink instead registers its lwSRP listener
+    row (see the item above) against a `stream_id` **derived** from
+    `{talker EID, tuid}` by `sid_from_eid()` — a guess that is only right
+    when the talker happens to use the EUI-64 derivation.
+    TB: `acmp_lstn` sim_main `[G]` section pins this as a KNOWN-GAP
+    (`gap()` fails the suite the moment the behaviour changes either way).
+    - **Two things previously filed here as defects are CONFORMANT and must
+      not be "fixed".** The report was written against IEEE 1722.1-2021
+      8.2.2.x, but Milan renames `CONNECT_RX_*` to `BIND_RX_*` and
+      `CONNECT_TX_*` to `PROBE_TX_*` and redefines the listener machine
+      (Milan v1.2 5.5.3):
+      - `BIND_RX_RESPONSE` carrying `stream_id 0000000000000000` is
+        **MANDATORY** — Milan Table 5.32 ("BIND_RX_RESPONSE fields on
+        success") pins `stream_id`, `stream_dest_mac` and `stream_vlan_id`
+        to zero. It is not evidence that anything was skipped.
+      - Answering the controller **before** probing the talker is the
+        specified order: 5.5.3.5.3 sends the `BIND_RX_RESPONSE` at step 3
+        and the `PROBE_TX_COMMAND` at step 5. The 1722.1 flow where
+        `CONNECT_RX_RESPONSE` waits for the `CONNECT_TX_RESPONSE` does not
+        apply to a PAAD-AE.
+    - **Therefore the STREAM_INPUT 0 bench failure is NOT yet explained.**
+      Sink 0 has the probe SM and the desk suite proves it emits a
+      `CONNECT_TX_COMMAND` on bind. Next bench round must read
+      `probe_count_o` and `tx_wedge_cnt_o` (CSR `0x6A4` group) immediately
+      before and after the `CONNECT_RX`: a probe counter that increments
+      means we DID transmit and the fault is downstream (PEER ignoring our
+      probe, or the frame not reaching it); a counter that does not move
+      means the launch was gated (`w_launch_ok` needs `init_done_r`,
+      `st_r == COLLECT_S`, `!rxv_r`, `!swp_active_r`) or the TX grant was
+      lost, which `tx_wedge_cnt_o` distinguishes.
     - Workaround proven on the bench: issue the legacy controller-to-talker
       `CONNECT_TX_COMMAND` instead (`avdecc_l2.py connect-tx`) — that returns
       the real `stream_id 3cc0c60102030000` and the PEER arms and streams
       (8002 pps at the tap ~60 s later; its TA arming is lazy, poll >= 3 min).
     - This is distinct from the lwSRP-row item above: that one is about the
-      reservation row, this one is about the ACMP exchange never reaching
-      the talker at all. Both must hold for a CONNECT_RX-only bind to work.
+      reservation row, this one is about the probe never being sent for
+      sinks >= 1. Both must hold for a BIND_RX-only bind to work.
+  - **OPEN (desk 2026-08-03): `PROBE_TX_COMMAND` echoes `FAST_CONNECT`
+    instead of forcing it to 1.** `KL_acmp_lstn_ctx.sv:441` masks only
+    `STREAMING_WAIT | SRP_REG_FAILED` out of the binding flags, so a
+    `BIND_RX_COMMAND` that did not request fast-connect produces a probe
+    with `FAST_CONNECT = 0`; Milan Table 5.33 lists it as the literal 1.
+    Every other Table 5.33 field is already correct. Pinned in the same
+    `acmp_lstn` `[G]` section, with a companion check proving the field is
+    an echo so a fix that hardcodes 0 cannot pass either.
   - **REMAINING for the CRF reservation e2e:** the datapath/CSR
     integration lane (wire the CRF bind SM to the ctx port, VLAN-tag the
     CRF stream once Ready is registered) — the engine-side gap is gone.
