@@ -312,7 +312,14 @@ budget is spent on:
 | `b4` | 512 | 10.67 ms | 60.1 ms | **49.4 ms** | 74.7 ms | 25.2 ms |
 | `c1` | 512 | 10.67 ms | 59.7 ms | **49.0 ms** | 74.7 ms | 25.6 ms |
 | `b2` | 512 (mmap) | 10.67 ms | 20.1 ms | **9.4 ms** | 74.7 ms | 65.2 ms |
-| `b3` | 2048 | 42.67 ms | 64.1 ms | **21.4 ms** | 42.7 ms | 21.2 ms |
+| `b3` | 2048 (kt 1) | 42.67 ms | 64.1 ms | **21.4 ms** | 42.7 ms | 21.2 ms |
+| `e8` | 2048 (kt 70) | 42.67 ms | 75.7 ms | **33.1 ms** | 42.7 ms | **9.6 ms** |
+| `e9` | 1024 (kt 70) | 21.33 ms | 28.9 ms | **7.6 ms** | 64.0 ms | 56.4 ms |
+
+`e8` is the clearest single picture of why 2 periods is the wrong geometry:
+even at the *good* `ktimers/0` priority, and with zero xruns over 120 s, its
+worst wake came within **9.6 ms** of draining the ring. `e9`, one step up at
+4 periods, finished the same window with 56.4 ms to spare.
 
 Now the survival table falls out of one comparison:
 
