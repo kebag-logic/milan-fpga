@@ -377,6 +377,43 @@ the work:
 | `milan_csr` | 1.0 | |
 | **free** | **44** | |
 
+### 2026-08-03 — the SLICEM census: the biggest LUTRAM array was never in the datapath
+
+The audit below ("LUTRAM is 784 of 35,113 **across the whole datapath**") is true,
+and the datapath was the wrong place to look. Vivado's own **`Distributed RAM:
+Final Mapping Report`** in the synth log ranks every inferred array on the board —
+use it, not a yosys estimate and not a hierarchy roll-up. Ranked (LUTRAM LUTs;
+`RAM32M`/`RAM64M` = 4 LUTs each, `RAM64X1S` = 1, ~4 LUTs = 1 SLICEM):
+
+| array | where | size | primitives | LUTs | ~slices |
+|---|---|---|---|---|---|
+| `storage_31` = `tx_sf` payload | LiteX glue, `milan_soc.py` | 512 × 82 | **RAM64M ×224** | **896** | **224** |
+| `ctx_ram` | `KL_acmp_lstn_ctx.sv:198` | 9 × 317 | RAM32M ×112 | 448 | 112 |
+| `col_r` diag mirror (×10) | `KL_avtp_rx_monitor_ctx.sv:686` | 8 × 32 | RAM32M ×6 ea | 240 | 60 |
+| `mem` (3× `axis_fifo`) | `ptp_timestamp`, third_party | 2 × 73 | RAM32M ×13 ea | 132 | 33 |
+| `cbuf_r` | `KL_aecp_response_builder.sv:254` | 64 × 64 | RAM64M ×22 | 86 | 22 |
+| `fword_r` ×2 | `KL_acmp_{lstn,tlkr}_ctx.sv` | 9 × 64 | RAM32M ×11 ea | 88 | 22 |
+| `mem_r` | `cdc_pair_fifo.sv:45` | 8 × 52 | RAM32M ×9 | 36 | 9 |
+| `rec_ram_r` | `KL_persist_journal.sv:179` | 48 × 32 | RAM64X1S ×32 | 32 | 8 |
+
+`storage_31` alone is **896 of the board's 1,070 `RAMD64E` (84 %)**, and it sat in
+the *"SoC glue — largest single consumer, never reviewed"* row of the table above.
+It was distributed RAM for exactly one reason: migen's fwft `SyncFIFO` reads its
+storage **asynchronously**, and an async read can only be LUTRAM. `buffered=True`
+selects `SyncFIFOBuffered`, whose read port is synchronous → **2.5 BRAM tiles**,
+one cycle of latency, and 224 SLICEMs back. Pinned by
+`sw/litex/test_tx_sf_gapless.py`, which reads the kwargs out of `milan_soc.py`
+rather than restating them.
+
+**Why this outranks its LUT count.** Distributed RAM is the one primitive class
+that pins a whole SLICEM *and* cannot LUT-combine with a neighbour, so it costs
+**packing** far more than it costs the LUT total. 0x0019+ missed `Place 30-487` by
+22–53 slices on four different place directives while sitting at only 95 % LUTs —
+the shortfall was packing, and this one array was 224 slices of it.
+
+**Rule:** census with Vivado's RAM report, never by module. The array that decides
+packing may be in generated glue that no module owner is watching.
+
 ### Stage 1 — spend the free tiles first: BRAM as the register file
 
 **BRAM is not the constraint; LUTs are.** So the trade that matters is *LUTs into

@@ -1123,7 +1123,27 @@ class MilanMAC(LiteXModule):
                                     # ADDR[9] pointer cone on the AX critical
                                     # path (AX31/32: storage_32 CLKARDCLK->
                                     # ADDRARDADDR[9] -0.25 ns, 8 seeds missed)
-                                    payload_depth=512, param_depth=8))
+                                    payload_depth=512, param_depth=8,
+                                    # buffered => migen SyncFIFOBuffered, whose
+                                    # read port is SYNCHRONOUS. The default
+                                    # fwft SyncFIFO reads the storage
+                                    # ASYNCHRONOUSLY, and an async read can
+                                    # only be distributed RAM: this one array
+                                    # (512 x 82) synthesized as RAM64M x224 =
+                                    # 896 LUTRAM LUTs, i.e. ~224 SLICEMs whose
+                                    # LUTs cannot LUT-combine - single biggest
+                                    # packing consumer on the board, and the
+                                    # reason 4 place directives all missed by
+                                    # 22..53 slices. Sync read => BRAM (~1.5
+                                    # tiles of the 29.5 free) and the SLICEMs
+                                    # come back for logic.
+                                    # Costs ONE cycle of latency and nothing
+                                    # else: SyncFIFOBuffered pre-fetches, so a
+                                    # drain still runs 1 beat/cycle with no
+                                    # bubble - the gapless-drain property this
+                                    # FIFO exists to provide is preserved (and
+                                    # is pinned by test_tx_sf_gapless.py).
+                                    buffered=True))
         self.comb += self.tx_sf.source.connect(self.core.sink)
 
         nb = data_width // 8
