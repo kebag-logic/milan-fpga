@@ -362,18 +362,26 @@ The driver's own analysis comment predicts that an mmap-access player
 copies**", and proposes it as the way to remove `kl_milan_pb_copy()` — which
 copies every byte twice — from the profile. Measured, matched 120 s windows:
 
-| config | access | user ms | sys ms | process CPU | writei p50 | copy duty |
-|---|---|---|---|---|---|---|
-| `b1` | `RW_INTERLEAVED` | 2 898 | 30 810 | **28.09%** | 1152 µs | 13.85% |
-| `b2` | `MMAP_INTERLEAVED` (`aplay -M`) | 9 243 | 22 653 | **26.58%** | 995 µs | 12.15% |
+Three matched pairs, each pair run back-to-back in the same session:
 
-**`aplay -M` saves 1.5 points of CPU, not 13.** The kernel's double copy
-does disappear — `sys` drops by 8.2 s over the window — but **6.3 s of it
-reappears in user space**, because `snd_pcm_mmap_writei()` is still a
-`memcpy` from the application's buffer into the ring, and that ring is a
-**write-combining** mapping which is slow to write from userspace too. "mmap
-access" and "zero copies" are not the same thing for a *file* player: the
-bytes have to reach the ring somehow.
+| pair | access | user ms | sys ms | process CPU | writei p50 | copy duty |
+|---|---|---|---|---|---|---|
+| `b1` | `RW_INTERLEAVED` | 2 898 | 30 810 | 28.09% | 1152 µs | 13.85% |
+| `b2` | `MMAP_INTERLEAVED` | 9 243 | 22 653 | **26.58%** | 995 µs | 12.15% |
+| `d6` | `RW_INTERLEAVED` | 2 509 | 30 708 | 27.68% | 1134 µs | 13.46% |
+| `d7` | `MMAP_INTERLEAVED` | 9 071 | 22 750 | **26.52%** | 1004 µs | 11.98% |
+| `e2` | `RW_INTERLEAVED` | 2 935 | 30 929 | 28.22% | 1159 µs | 13.72% |
+| `e3` | `MMAP_INTERLEAVED` | 8 872 | 22 639 | **26.26%** | 995 µs | 11.74% |
+
+Saving: **−1.51, −1.16, −1.96 points** — call it **−1.5 points of CPU, three
+times reproduced. Not the ~13 points that "removes the double copy" implies.**
+
+The kernel's double copy really does disappear — `sys` drops by ~8.2 s over
+each window — but **~6.3 s of it reappears in user space**, because
+`snd_pcm_mmap_writei()` is still a `memcpy` from the application's buffer
+into the ring, and that ring is a **write-combining** mapping which is slow
+to write from userspace too. "mmap access" and "zero copies" are not the
+same thing for a *file* player: the bytes have to reach the ring somehow.
 
 The genuine zero-extra-copy configuration — `snd_pcm_mmap_begin()` then
 `read()` **straight into the ring**, then `snd_pcm_mmap_commit()` — is
@@ -427,6 +435,69 @@ Per-thread, from `/proc/<tid>/stat` deltas (config `a4`, the loaded case):
 `ktimers/0` at 21.6% is the largest single consumer — that is the driver's
 own period hrtimer plus every other soft timer on the box, and it is the
 thread the recipe raises to FIFO 70.
+
+### The independent profile, and the thief nobody had counted
+
+Config `c2` is the same run under `perf record -a -e cpu-clock -F 200`
+(24 K samples over 120 s). This is a *timer-sampled* profile, so it is
+independent of the `/proc` accounting above and of the context-switch
+timeline below — three instruments, one answer.
+
+| command | share of hart |
+|---|---|
+| `pcm_probe` (the player) | **23.9%** |
+| `napi/eth%d-0` | 12.9% |
+| `dropbear` | **11.5%** ← my monitoring ssh (see note) |
+| `ktimers/0` | 10.7% |
+| `stream_phc_sync` | 5.4% |
+| `sleep` | 5.3% |
+| `awk` | 5.2% |
+| `pmc` | 5.0% |
+| `ptp4l` | 4.6% |
+| `gptp2csr.sh` | 3.6% |
+| `devmem` | 2.2% |
+| `linkmon.sh` | 2.0% |
+| `rcu_preempt` | 1.6% |
+| `cat`, `date`, `sh` | 2.6% |
+| `irq/13-eth0` | 0.9% |
+| `rcuc/0`, `phc2sys` | 1.2% |
+
+Group those by *what they are* rather than by process name and the result is
+uncomfortable:
+
+| group | share of hart |
+|---|---|
+| the audio player | 23.9% |
+| **the board's own shell-loop daemons** — `gptp2csr.sh` + `stream_phc_sync` + `linkmon.sh` and the `pmc`/`awk`/`sleep`/`devmem`/`cat`/`date`/`sh` they fork every iteration | **31.2%** |
+| my monitoring `ssh` (`dropbear`) | 11.5% |
+| network stack (`napi` + `irq/13-eth0`) | 13.8% |
+| timers (`ktimers/0`) | 10.7% |
+| gPTP proper (`ptp4l` + `phc2sys`) | 5.0% |
+| RCU | 2.2% |
+
+**The largest consumer on this board is not the audio path, the network
+stack, or the timer thread — it is a set of shell scripts polling hardware
+in a loop.** `gptp2csr.sh` forks `pmc`, `awk`, `devmem`, `sleep`, `cat` and
+`date` on every iteration, and on a 100 MHz softcore each fork+exec costs
+milliseconds. That is ~31% of a hart that is at **0% idle** while trying to
+hold a 10.67 ms audio deadline.
+
+This is measured, not styled: it is why `sleep`, `awk`, `pmc` and `devmem`
+appear as *top-ten CPU consumers* in a profile of an audio workload. It also
+explains the shape seen in §4 — rare, large excursions rather than a broad
+slowdown — because a fork storm is bursty.
+
+Two notes on reading this table honestly:
+
+* **`dropbear` 11.5% is my own contamination**, not a property of the
+  system: I polled progress over ssh during this run. It independently
+  reproduces the ~9.6% ssh cost measured in §1 by a different method, which
+  is a useful confirmation, but a clean run would show ~0 there. Excluding
+  it and renormalising: player 27.0%, shell loops 35.3%, network 15.6%,
+  `ktimers/0` 12.0%.
+* `perf record -e cpu-clock -F 200` costs +2.1 points of CPU (`c2` 30.20% vs
+  `b1` 28.09% for the player) but, unlike the context-switch recorder, does
+  **not** inflate the wake tail (`c2` p99 15.14 ms vs `b1` 15.09 ms).
 
 ### Naming the thief
 
@@ -503,8 +574,9 @@ geometry: **yes.** The hrtimer cadence is correct to 0.1%, the writer keeps
 the ring at exactly `buffer − period`, and 11 258 consecutive periods ran
 with **zero xruns** at 8ch/48k on a 1-hart 100 MHz core at 0% idle.
 
-**The binding constraint is drain margin — `buffer − period` — versus a
-60–67 ms worst-case scheduling stall.** It is *not* CPU-bound (the fatal
+**The binding constraint is tolerable wake lateness — `buffer − period` —
+versus lateness excursions repeatedly measured at 50–56 ms and, in the fatal
+cases, above 100 ms.** It is *not* CPU-bound (the fatal
 geometry uses 10 points less CPU than the surviving one), *not* copy-bound
 (§5), and not ring-depth-bound in the sense usually meant: the ring is
 already 85.3 ms and the *whole* of it is never the margin — the period size
@@ -529,15 +601,26 @@ Recommendations, in the order they are worth doing:
    `S99milan-audio`). Measured value: late wakeups 56 → 1, xruns 1 → 0.
    Keep it — but its description should stop claiming it converts fatal into
    survivable, because `a2` shows it does not.
-4. **Stop PipeWire for host playback** — worth 21.4% of the hart — but
+4. **Fix the shell-loop daemons — this is the biggest single CPU win
+   available and it is not an audio change at all.** `gptp2csr.sh`,
+   `stream_phc_sync.sh` and `linkmon.sh` plus the `pmc`/`awk`/`devmem`/
+   `sleep`/`cat`/`date` they fork every iteration measure **31.2% of the
+   hart** (§6) — more than the audio player. On a 100 MHz softcore a
+   fork+exec costs milliseconds, so a polling loop written as "run four
+   external commands per tick" is structurally expensive. Cheapest fixes, in
+   order: lengthen the poll interval; replace `$(cat …)`/`$(date)` with
+   shell builtins and `devmem` with a single long-lived helper; keep `pmc`
+   alive instead of re-spawning it. None of this touches the audio path, and
+   it hands ~a quarter of the machine back to everything that does.
+5. **Stop PipeWire for host playback** — worth 21.4% of the hart — but
    demote it from "required" to "reclaims a fifth of the CPU". `a4` proves
    playback survives with it running.
-5. **Do not deepen the ring for this.** 85.3 ms already exceeds every
+6. **Do not deepen the ring for this.** 85.3 ms already exceeds every
    observed stall; what fails is `buffer − period`, and that is fixed for
    free by (1). Ring depth costs a bitstream round (fabric `PB_LEN` + DT +
    driver must move together) and multiplies by stream count. Revisit only
    if the `f`-pass stall hunt shows genuine multi-hundred-ms starvation.
-6. **`aplay -M` is not the answer** (§5). Keep the `.copy` path.
+7. **`aplay -M` is not the answer** (§5). Keep the `.copy` path.
 
 **Hedge on the open item:** recommendation (1) attacks the fatal mechanism
 from both sides at once, which is why it holds regardless of how the `f`-pass
@@ -546,8 +629,8 @@ so the 100 ms `wait_for_avail` window needs only 10.7 ms of consumption
 instead of 42.7 ms (§3). If the `f`-pass nevertheless shows `hw_ptr`
 flatlining while the state stays `RUNNING`, that would be a *second,
 independent* defect — a stalled consumer rather than a late writer — needing
-its own fabric or driver fix, and the ring-depth question in (5) would
-reopen. Nothing in (1)–(4) would become wrong; (1) would stop being
+its own fabric or driver fix, and the ring-depth question in (6) would
+reopen. Nothing in (1)–(5) would become wrong; (1) would stop being
 *sufficient*.
 
 ## 8. What this did NOT cover
