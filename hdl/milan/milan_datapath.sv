@@ -459,15 +459,31 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .enable_i (cfg_tone_enable), .att_i (cfg_tone_att), .smp_o (tone_smp)
   );
 
-  logic [$clog2(MEDIA_TICK_DIV_C)-1:0] media_tick_cnt_r;
-  logic                                media_tick_p;
+  //! ONE-GRID rule, arithmetic half: this grid and the KL_pcm_tx playback grid
+  //! are both "48 kHz on axis_clk", so they must be the SAME 48 kHz. Flooring
+  //! clk/48000 here while the playback divider carries its remainder would put
+  //! the two grids 160 ppm apart at 100 MHz - the same producer/consumer grid
+  //! mismatch documented above, just expressed in ppm instead of in wiring.
+  //! Same Bresenham remainder, same denominator, derived from the same ratio.
+  localparam int MEDIA_TICK_REM_C = MILAN_CLK_FREQ_HZ % 48_000;
+  localparam int MEDIA_TICK_ACCW_C = $clog2(2*48_000 + 1);
+  logic [$clog2(MEDIA_TICK_DIV_C + 2)-1:0] media_tick_cnt_r;
+  logic [MEDIA_TICK_ACCW_C-1:0]            media_tick_frac_r;
+  logic                                    media_tick_p;
+  wire [MEDIA_TICK_ACCW_C-1:0] mtk_sum_w = media_tick_frac_r
+                                           + MEDIA_TICK_ACCW_C'(MEDIA_TICK_REM_C);
+  wire mtk_ov_w = (MEDIA_TICK_REM_C != 0)
+                  && (mtk_sum_w >= MEDIA_TICK_ACCW_C'(48_000));
   always_ff @(posedge axis_clk) begin : chmap_media_tick
     if (!axis_resetn) begin
-      media_tick_cnt_r <= '0;
-      media_tick_p     <= 1'b0;
-    end else if (32'(media_tick_cnt_r) == MEDIA_TICK_DIV_C - 1) begin
-      media_tick_cnt_r <= '0;
-      media_tick_p     <= 1'b1;
+      media_tick_cnt_r  <= '0;
+      media_tick_frac_r <= '0;
+      media_tick_p      <= 1'b0;
+    end else if (32'(media_tick_cnt_r) == MEDIA_TICK_DIV_C - 1 + 32'(mtk_ov_w)) begin
+      media_tick_cnt_r  <= '0;
+      media_tick_frac_r <= mtk_ov_w ? (mtk_sum_w - MEDIA_TICK_ACCW_C'(48_000))
+                                    : mtk_sum_w;
+      media_tick_p      <= 1'b1;
     end else begin
       media_tick_cnt_r <= media_tick_cnt_r + 1'b1;
       media_tick_p     <= 1'b0;
@@ -747,11 +763,24 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [4:0]  cappb_slot_w;
   wire [23:0] cappb_l_w, cappb_r_w;
 
-  //! internal sample-tick divider (local media-clock MVP, like aaf_talker_i2s:
-  //! the accepted +ppm offset; a CRF-disciplined external smp_tick is the
-  //! follow-up once the servo drives the TX media clock)
-  localparam int PB_SAMPLE_DIV_C = (MILAN_CLK_FREQ_HZ / 48000 < 2)
-                                   ? 2 : MILAN_CLK_FREQ_HZ / 48000;
+  //! internal sample-tick divider. ONE ratio, stated once: the playback media
+  //! clock is MILAN_CLK_FREQ_HZ / PB_FS_HZ_C, and that ratio is carried WHOLE
+  //! (floor + exact remainder) rather than floored. Flooring it was worth
+  //! +160 ppm on the 100 MHz shipping datapath - 100e6/48000 = 2083.333... ran
+  //! as 2083, i.e. 48,007.68 Hz - which a Milan sink renders on ITS OWN clock
+  //! and therefore reports as EARLY_TIMESTAMP once the accumulated skew walks
+  //! past its playout buffer (bench 2026-08-03). KL_pcm_tx turns the pair into
+  //! a Bresenham period so the average is exact; at 100 MHz/48 kHz it is
+  //! mathematically exact (6250 clocks per 3 samples = 62.5 us).
+  //! A CRF-disciplined external smp_tick remains the follow-up for locking to
+  //! a REMOTE media clock; this fixes our own free-running one.
+  localparam int PB_FS_HZ_C      = 48000;
+  localparam int PB_SAMPLE_DIV_C = (MILAN_CLK_FREQ_HZ / PB_FS_HZ_C < 2)
+                                   ? 2 : MILAN_CLK_FREQ_HZ / PB_FS_HZ_C;
+  //! remainder only when the floor above was NOT clamped (the clamp is a
+  //! degenerate-clock guard, and a remainder against it would be meaningless)
+  localparam int PB_SAMPLE_REM_C = (MILAN_CLK_FREQ_HZ / PB_FS_HZ_C < 2)
+                                   ? 0 : MILAN_CLK_FREQ_HZ % PB_FS_HZ_C;
 
   generate if (AAF_PLAYBACK_P != 0) begin : g_aaf_playback
     //! START-SMALL ring count (see the parameter): the engine serves
@@ -772,6 +801,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       //! stereo truth was hiding)
       .CHANS_P       (TALKER_WIRE_CHANS_P),
       .SAMPLE_DIV_C  (PB_SAMPLE_DIV_C),
+      .SAMPLE_REM_P  (PB_SAMPLE_REM_C),
+      .SAMPLE_DEN_P  (PB_FS_HZ_C),
       .USE_EXT_TICK_P(1'b0)
     ) pcm_tx (
       .clk_i (axis_clk), .rst_n (axis_resetn),

@@ -100,8 +100,26 @@
 module KL_pcm_tx #(
   parameter int unsigned N_STREAMS_P   = 1,      //! talker streams (NxN)
   parameter int unsigned CHANS_P       = 2,      //! channels/stream (even 2..8)
-  parameter int unsigned SAMPLE_DIV_C  = 2048,   //! clk cycles per sample tick
-                                                 //! (clk/f_s; 100 MHz/48.8 kHz)
+  parameter int unsigned SAMPLE_DIV_C  = 2048,   //! WHOLE clk cycles per sample
+                                                 //! tick (clk_hz / f_s, floored)
+  //! Fractional part of that same ratio, as the exact rational remainder
+  //! clk_hz % f_s over f_s. clk_hz/f_s is almost never a whole number - at
+  //! the 100 MHz shipping datapath 100e6/48000 = 2083.333..., and flooring it
+  //! to 2083 makes the media clock 48,007.68 Hz, i.e. +160 ppm FAST. That is
+  //! not a rounding nicety: the sink renders on ITS clock, so a talker whose
+  //! sample rate is 160 ppm off walks the listener's playout buffer 160 us
+  //! further out every second until it overruns and the listener re-locks -
+  //! measured on the wire as EARLY_TIMESTAMP bursts and MEDIA_UNLOCKED at a
+  //! Milan-validated sink (2026-08-03: avtp_timestamp deltas were 124,980 ns
+  //! instead of 125,000, dead steady at sd = 0.1 ns over 274,535 frames).
+  //! Carrying the remainder turns the divider into a Bresenham fractional-N
+  //! one: the period alternates between SAMPLE_DIV_C and SAMPLE_DIV_C+1 so
+  //! the AVERAGE is exactly clk_hz/f_s. At 100 MHz/48 kHz the pattern is
+  //! 2083,2083,2084 - 6250 clocks per 3 samples, which is 62.5 us EXACTLY,
+  //! so the residual error is not merely small, it is ZERO. Leave at 0/1
+  //! (the default) and the divider is bit-identical to the pure-integer one.
+  parameter int unsigned SAMPLE_REM_P  = 0,      //! remainder numerator (clk_hz % f_s)
+  parameter int unsigned SAMPLE_DEN_P  = 1,      //! remainder denominator (f_s)
   parameter bit          USE_EXT_TICK_P = 1'b0   //! 1 = pace on smp_tick_i
 ) (
   input  wire        clk_i,           //! datapath clock
@@ -151,7 +169,23 @@ module KL_pcm_tx #(
   localparam int unsigned SLOTS_C = N_STREAMS_P * PAIRS_C;   //! <= 32 (pair_slot 5b)
   localparam int unsigned TW_C = (N_STREAMS_P <= 1) ? 1 : $clog2(N_STREAMS_P);
   localparam int unsigned PW_C = (PAIRS_C     <= 1) ? 1 : $clog2(PAIRS_C);
-  localparam int unsigned DIVW_C = (SAMPLE_DIV_C <= 1) ? 1 : $clog2(SAMPLE_DIV_C);
+  //! the fractional divider borrows ONE extra cycle on some periods, so the
+  //! counter must reach SAMPLE_DIV_C (not SAMPLE_DIV_C-1). Widen ONLY when a
+  //! remainder is actually carried, so the integer default keeps its width.
+  localparam int unsigned DIVW_C = (SAMPLE_DIV_C <= 1)  ? 1
+                                 : (SAMPLE_REM_P == 0)  ? $clog2(SAMPLE_DIV_C)
+                                                        : $clog2(SAMPLE_DIV_C + 2);
+  //! phase accumulator: holds 0..SAMPLE_DEN_P-1, and transiently the
+  //! pre-wrap sum (< 2*SAMPLE_DEN_P), hence the +1 headroom bit
+  localparam int unsigned ACCW_C = (SAMPLE_DEN_P <= 1) ? 1 : $clog2(2*SAMPLE_DEN_P + 1);
+
+  //! Elaboration guard: a remainder that is not a proper fraction of the
+  //! denominator would never wrap and the tick would free-run at the wrong
+  //! rate - refuse it rather than ship a silently detuned media clock.
+  generate if (SAMPLE_REM_P >= SAMPLE_DEN_P) begin : g_frac_guard
+    $error("KL_pcm_tx: SAMPLE_REM_P (%0d) must be < SAMPLE_DEN_P (%0d) - pass clk_hz %% f_s and f_s",
+           SAMPLE_REM_P, SAMPLE_DEN_P);
+  end endgenerate
 
   //! Elaboration guard: the pair-slot bus is the widened 5-bit space (0..31).
   //! A shape past it would TRUNCATE slot ids and alias streams onto each
@@ -166,19 +200,30 @@ module KL_pcm_tx #(
   // ---------------------------------------------------------------------- //
   logic [DIVW_C-1:0] pace_r;
   logic              tick_r;
+  logic [ACCW_C-1:0] frac_r;      //! Bresenham phase accumulator (0..DEN-1)
+
+  //! this period's length. The SAME predicate decides the borrowed cycle and
+  //! the accumulator wrap, so the two can never disagree.
+  wire [ACCW_C-1:0] frac_sum_w = frac_r + ACCW_C'(SAMPLE_REM_P);
+  wire              frac_ov_w  = (SAMPLE_REM_P != 0) &&
+                                 (frac_sum_w >= ACCW_C'(SAMPLE_DEN_P));
+  wire [DIVW_C-1:0] pace_end_w = DIVW_C'(SAMPLE_DIV_C - 1) + DIVW_C'(frac_ov_w);
 
   always_ff @(posedge clk_i) begin : pace_div
     if (!rst_n) begin
       pace_r <= '0;
       tick_r <= 1'b0;
+      frac_r <= '0;
     end
     else if (USE_EXT_TICK_P) begin
       pace_r <= '0;
       tick_r <= 1'b0;
+      frac_r <= '0;
     end
-    else if (pace_r == DIVW_C'(SAMPLE_DIV_C - 1)) begin
+    else if (pace_r == pace_end_w) begin
       pace_r <= '0;
       tick_r <= 1'b1;
+      frac_r <= frac_ov_w ? (frac_sum_w - ACCW_C'(SAMPLE_DEN_P)) : frac_sum_w;
     end
     else begin
       pace_r <= pace_r + 1'b1;
