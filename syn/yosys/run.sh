@@ -85,14 +85,29 @@ tops=(
   "axis_fifo|$A/axis_fifo.v"
   "axis_demux|$A/axis_demux.v"
   "axis_arb_mux|$A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v"
-  "milan_datapath|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $P/KL_ptp_clock_validity.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $AECP_SRCS $M/acmp_pkg.sv $M/KL_acmp_tlkr_ctx.sv $M/KL_acmp_responder.sv $M/KL_acmp_lstn_ctx.sv $M/KL_acmp_listener.sv $LWSRP_SRCS $D/adp_advertiser.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_pcm_tx.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/milan/milan_datapath.sv"
+  "milan_datapath|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $P/KL_ptp_clock_validity.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $AECP_SRCS $M/acmp_pkg.sv $M/KL_acmp_tlkr_ctx.sv $M/KL_acmp_responder.sv $M/KL_acmp_lstn_ctx.sv $M/KL_acmp_listener.sv $LWSRP_SRCS $D/adp_advertiser.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_pcm_tx.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/ieee17221/aecp/KL_persist_journal.sv $R/hdl/ieee1722/avtp/KL_media_clock_restart.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/milan/milan_datapath.sv"
 )
 
 echo "== Yosys open-synthesis check ($SYNTH, via sv2v) =="
 pass=0; fail=0
 for spec in "${tops[@]}"; do
   top="${spec%%|*}"; srcs="${spec#*|}"
-  if ! sv2v --top="$top" $INC $srcs > "$TMP/$top.v" 2> "$TMP/$top.sv2v.err"; then
+  # SHAPE INCLUDE (2026-08-03). milan_datapath includes gen/adp_shape_defaults.svh
+  # and $errors when ADP_TALKER_SRC_C is neither N_STREAMS nor N_STREAMS+1. The
+  # TRACKED copy under hdl/common/csr is whichever config last ran
+  # endstation_builder.py --write-rtl - today the AX7101 8x8 shape, so
+  # ADP_TALKER_SRC_C=9 - while this gate elaborates every top at its DEFAULT
+  # parameters, i.e. N_STREAMS=1. That mismatch is not a defect in either place;
+  # it is the guard doing its job, and it had this gate stuck at 48/49 for every
+  # lane, which is how a permanently-red gate stops being read at all.
+  # Prepending the N_STREAMS=1 config resolves the include to a MATCHING shape
+  # (the guard's own message prescribes exactly this), and it must come BEFORE
+  # hdl/common/csr on the path to win. Elaborating at the 8x8 shape instead
+  # would need a parameter override sv2v does not take here.
+  inc="$INC"
+  [ "$top" = "milan_datapath" ] && \
+    inc="-I $R/configs/generated/endstation_arty_current $INC"
+  if ! sv2v --top="$top" $inc $srcs > "$TMP/$top.v" 2> "$TMP/$top.sv2v.err"; then
     printf "  [FAIL] %-22s sv2v: %s\n" "$top" "$(head -1 "$TMP/$top.sv2v.err")"; fail=$((fail+1)); continue
   fi
   # stat -top + the design-hierarchy total: plain `stat` prints one block per
