@@ -151,19 +151,36 @@ Instrumented, the same picture holds across reps: `b1`/`d6` (rw) and
 120 s file with zero xruns** (rc 0, no `write error`, 292 fabric ticks ≈
 1.5 ms) — where `a1` died at 37.9 s.
 
-| run | config | outcome |
-|---|---|---|
-| `a1` | p2048, ktimers 1 | **died at 37.9 s**, 1 xrun then `-EIO` |
-| `d1` | p2048, ktimers 1 | survived 120 s, **0 xruns** |
-| `b3` | p2048, ktimers 1, instrumented | 1 xrun at t=160 ms (recovered; `pcm_probe` recovers where aplay dies) |
+Across the whole campaign the stock geometry was run five times:
 
-So "the stock geometry dies at ~20 s" is not a property of the
-configuration — it is a **coin flip per window**. The stock geometry is
-*marginal*: it survives unless a stall larger than its 42.7 ms margin
-happens to land, and such stalls occur roughly once per 120 s (§4). This is
-exactly what the repeat-every-window rule exists to catch, and it means any
-"fix" validated on a single surviving run of the stock geometry would have
-been a false positive.
+| run | config | window | outcome |
+|---|---|---|---|
+| `a1` | p2048, ktimers 1 | 120 s | **died at 37.9 s**, 1 xrun then `-EIO` |
+| `d1` | p2048, ktimers 1 | 120 s | survived to EOF, **0 xruns** |
+| `f1` | p2048, ktimers 1 | 150 s | survived to EOF, **0 xruns** |
+| `f2` | p2048, ktimers 1 | 150 s | survived to EOF, **0 xruns** |
+| `f3` | p2048, ktimers 1 | 150 s | survived to EOF, **0 xruns** |
+| `b3` | p2048, ktimers 1, instrumented | 120 s | 1 xrun at t=160 ms — recovered, because `pcm_probe` recovers where aplay dies |
+
+**One fatal event in five two-minute windows.** So "the stock geometry dies
+at ~20 s" is not a property of the configuration; it is a **~20%-per-window
+failure rate**. The geometry is *marginal*, not broken: it survives unless
+an excursion larger than its 42.7 ms tolerance happens to land.
+
+Survival tally for the whole campaign, which is what a shipping decision
+should rest on rather than any single run:
+
+| configuration | fatal / runs |
+|---|---|
+| p2048 (2 periods), ktimers 1, player FIFO 60 | **1 / 5** |
+| p2048 (2 periods), ktimers 70, player FIFO 60 | 0 / 1 |
+| p512 (8 periods), any ktimers, player FIFO 60 | **0 / 8** |
+| p512 (8 periods), player `SCHED_OTHER` | **1 / 1** |
+
+This is exactly what the repeat-every-window rule exists to catch: any "fix"
+validated on a single surviving run of the stock geometry would have been a
+false positive, and the four surviving stock runs here would each have
+"proved" the problem was gone.
 
 Three further results contradict what was previously written down:
 
