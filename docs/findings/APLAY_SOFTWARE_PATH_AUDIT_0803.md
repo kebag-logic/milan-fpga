@@ -136,7 +136,27 @@ whether it printed `write error`, never by the watchdog.**
 | `a5` | 512 | 8 | 70 | FIFO 60 | off, `-M` | 127.0 s | **0** | survived to EOF |
 | `a6` | 512 | 8 | 70 | **SCHED_OTHER** | off | 219.7 s | **480** | **DIED — `write error: I/O error`** |
 
-Three results here contradict what was previously written down:
+### The stock death is probabilistic, not deterministic
+
+`d1` is `a1` repeated, same session, nothing changed. **It survived the full
+120 s file with zero xruns** (rc 0, no `write error`, 292 fabric ticks ≈
+1.5 ms).
+
+| run | config | outcome |
+|---|---|---|
+| `a1` | p2048, ktimers 1 | **died at 37.9 s**, 1 xrun then `-EIO` |
+| `d1` | p2048, ktimers 1 | survived 120 s, **0 xruns** |
+| `b3` | p2048, ktimers 1, instrumented | 1 xrun at t=160 ms (recovered; `pcm_probe` recovers where aplay dies) |
+
+So "the stock geometry dies at ~20 s" is not a property of the
+configuration — it is a **coin flip per window**. The stock geometry is
+*marginal*: it survives unless a stall larger than its 42.7 ms margin
+happens to land, and such stalls occur roughly once per 120 s (§4). This is
+exactly what the repeat-every-window rule exists to catch, and it means any
+"fix" validated on a single surviving run of the stock geometry would have
+been a false positive.
+
+Three further results contradict what was previously written down:
 
 1. **`ktimers/0` priority is not what converts fatal into survivable.**
    `a2` runs at the stock PREEMPT_RT `ktimers/0` priority of FIFO 1 — below
@@ -189,22 +209,54 @@ sound/core/pcm_lib.c:2027, wait_for_avail()
                 err = -EIO;
 ```
 
-`wait_time` is `max(10 s, 2 periods)`, so **`-EIO` means the writer waited
-ten seconds for ring space and `hw_ptr` did not move far enough.** An xrun
-is `-EPIPE`, which `aplay` recovers from. And the accompanying message is
-`pcm_dbg` — `CONFIG_SND_DEBUG` is off, so it never reaches `dmesg`, which is
-why this failure has always looked like it had no kernel-side evidence.
+The timeout is **not** the 10 s that older kernels used, and getting this
+right matters — read from this tree, not remembered:
 
-For `a6` that is adequately explained: at `SCHED_OTHER` the writer is
-starved of CPU behind ~10 RT threads, and 480 xruns of tens of ms each is
-enough to explain a 10 s window with no progress.
+```
+sound/core/pcm_lib.c:1970, wait_for_avail()
+        wait_time = 100;                                  /* ms */
+        if (runtime->rate) {
+                long t = runtime->buffer_size * 1100 / runtime->rate;
+                wait_time = max(t, wait_time);
+        }
+```
 
-For `a1` it is **not** yet explained by the drain-margin story in §4, which
-accounts for xruns of tens of milliseconds, not a ten-second freeze. A
-dedicated stall hunt (`matrix-followup.txt` pass `f`) samples the ALSA
-runtime status at 5 Hz through repeated `a1`-style deaths to record whether
-`hw_ptr` flatlines while the state stays `RUNNING`. **Result pending at time
-of writing — see §7 for how the recommendation is hedged against it.**
+`snd-kl-milan` does not set `substream->wait_time`, so the default path
+applies: `buffer_size × 1100 / rate` = `4096 × 1100 / 48000` = **93 ms**,
+and `max(93, 100)` = **100 ms**.
+
+So **`-EIO` means: one `writei()` sat for 100 ms without `avail` ever
+reaching one period.** An xrun is `-EPIPE`, which `aplay` recovers from; and
+the accompanying message is `pcm_dbg`, so with `CONFIG_SND_DEBUG` off it
+never reaches `dmesg` — which is why this failure has always looked like it
+had no kernel-side evidence at all.
+
+That reading makes both deaths the **same** phenomenon as §4, not a separate
+one. The writer blocks only when the ring is nearly full, and it needs
+`avail_min` = one period of consumption to make progress:
+
+| period | `twake` | consumption needed within the 100 ms window |
+|---|---|---|
+| 2048 | 2048 frames | **42.7 ms** |
+| 512 | 512 frames | **10.7 ms** |
+
+For the timeout to expire, the writer must go 100 ms without a wakeup that
+leaves it enough room — i.e. `snd_pcm_period_elapsed()` (which is what wakes
+`runtime->tsleep`) must be starved for longer than 100 ms. The measured
+stall distribution has a 60–67 ms maximum per 120 s window (§4), so a >100 ms
+excursion is simply the tail of the same distribution, and the large `twake`
+at 2 periods is what turns such an excursion into a fatal one instead of a
+recoverable one.
+
+**This supersedes the "ten-second freeze ⇒ stalled consumer" reading** that
+an earlier draft of this page carried; that draft quoted a remembered
+constant instead of reading it, and the conclusion it supported — that `a1`
+must be a second, independent defect — does not follow from the real
+constant. A dedicated stall hunt (`matrix-followup.txt` pass `f`) still
+samples the ALSA runtime status at 5 Hz through repeated `a1`-style deaths,
+because the one thing that *would* still indicate a stalled consumer is
+`hw_ptr` flatlining while the state stays `RUNNING`. **Result pending at
+time of writing.**
 
 ## 4. The mechanism: drain margin, not CPU
 
@@ -392,13 +444,16 @@ Recommendations, in the order they are worth doing:
    if the `f`-pass stall hunt shows genuine multi-hundred-ms starvation.
 6. **`aplay -M` is not the answer** (§5). Keep the `.copy` path.
 
-**Hedge on the open item:** if the `f`-pass shows `hw_ptr` flatlining while
-the state stays `RUNNING`, then `a1`'s death is a *second, independent
-defect* — a stalled consumer, not a late writer — and it would need a fabric
-or driver fix of its own. Recommendation (1) would still be correct and
-would still be the cheapest mitigation, because more periods means the
-writer is never asked to deliver 42.7 ms in one swing; but it would no
-longer be *sufficient*, and the ring-depth question in (5) would reopen.
+**Hedge on the open item:** recommendation (1) attacks the fatal mechanism
+from both sides at once, which is why it holds regardless of how the `f`-pass
+comes out. More periods raises the drain margin (§4) *and* shrinks `twake`,
+so the 100 ms `wait_for_avail` window needs only 10.7 ms of consumption
+instead of 42.7 ms (§3). If the `f`-pass nevertheless shows `hw_ptr`
+flatlining while the state stays `RUNNING`, that would be a *second,
+independent* defect — a stalled consumer rather than a late writer — needing
+its own fabric or driver fix, and the ring-depth question in (5) would
+reopen. Nothing in (1)–(4) would become wrong; (1) would stop being
+*sufficient*.
 
 ## 8. What this did NOT cover
 
