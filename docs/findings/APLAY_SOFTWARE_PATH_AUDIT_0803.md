@@ -632,6 +632,16 @@ Recommendations, in the order they are worth doing:
    | 512 | 8 | 17.68% | 74.7 ms | +2.1 pts | +10.7 ms |
    | 256 | 16 | 26.36% | 80.0 ms | **+8.7 pts** | +5.3 ms |
 
+   *Provenance caveat:* this walk (`e4`–`e7`) ran while a leftover
+   board-side `perf script` analysis of the `c1` capture was still burning
+   CPU — my mistake, caught only when a config took 10 minutes instead of
+   two. It contaminated **all four configs equally** (same job, same whole
+   pass), so the deltas and the ordering — which is what the recommendation
+   rests on — hold; the absolute CPU percentages are inflated by the shared
+   background load. Passes `a`–`d` were **not** affected: the stray job was
+   launched after they finished. The walk is repeated on an idle board as
+   pass `k` in `matrix-final.txt`.
+
    **8 periods is the knee.** 4 is the floor that clears the largest
    measured excursion (64.0 ms vs 56.2 ms); 8 adds 10.7 ms of headroom for
    2.1 CPU points; 16 costs 8.7 points — four times as much — for 5.3 ms.
