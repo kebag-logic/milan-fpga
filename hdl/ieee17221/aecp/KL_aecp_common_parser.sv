@@ -33,6 +33,26 @@
                 mismatch_o is asserted when target_entity_id ≠ l0_state_i.entity_id
                 and the frame should be silently discarded.
 
+                ACQUIRE/LOCK DESCRIPTOR SCOPE (al_desc_ok_o / al_gate_p_o).
+                ACQUIRE_ENTITY and LOCK_ENTITY name their target descriptor at
+                AECPDU bytes 36-39 (1722.1-2021 Figures 7-27 / 7-28) — beats 4
+                and 5, i.e. TWO beats after hdr_valid. That is why neither the
+                entity state machine nor the response builder could see the
+                descriptor_index: it simply had not arrived yet. Rather than
+                delay hdr_valid (which every other command depends on landing
+                on beat 3), the verdict gets its own late strobe:
+                  • al_desc_ok_o — "the command names the ENTITY descriptor
+                    at index 0", the only lockable target for a PAAD-AE
+                    (1722.1-2021 Table 7-2: the ENTITY descriptor's index "is
+                    always set to zero (0) ... as there is only ever one in an
+                    ATDECC Entity"; Milan v1.2 5.4.2.2). Held for the frame.
+                  • al_gate_p_o — one pulse per frame that reached beat 3, on
+                    the beat that settles the verdict. Fires on beat 3 itself
+                    when control_data_length is too short to carry the field
+                    (the descriptor is then absent, which reads as ENTITY/0),
+                    so a consumer that defers work to the gate never stalls
+                    on a command that will never present those bytes.
+
   Target      : Artix-7 XC7A100T (125 MHz AVTP clock)
   Spec refs   : IEEE Std 1722.1-2021 §9.1, §9.2
   Company     : Kebag Logic
@@ -60,7 +80,13 @@ module KL_aecp_common_parser (
   output logic [7:0]   m_axis_tkeep,
   output logic         m_axis_tlast,
   output aecp_hdr_t    hdr_o,           //! parsed header (valid when hdr_o.hdr_valid)
-  output logic         mismatch_o       //! entity_id mismatch (dropped silently)
+  output logic         mismatch_o,      //! entity_id mismatch (dropped silently)
+  //! ACQUIRE/LOCK target descriptor is ENTITY/0 (held for the frame; see the
+  //! header block). Meaningful only for those two commands — every other
+  //! command lays its payload out differently at AECPDU 36-39.
+  output logic         al_desc_ok_o,
+  //! one pulse per frame: al_desc_ok_o has settled for this command
+  output logic         al_gate_p_o
 );
 
   // ------------------------------------------------------------------ //
@@ -97,6 +123,23 @@ module KL_aecp_common_parser (
   wire w_hs = s_axis_tvalid & s_axis_tready;
 
   // ------------------------------------------------------------------ //
+  // ACQUIRE/LOCK descriptor scope (see the header block)                 //
+  //                                                                      //
+  // The field sits at AECPDU 36-39 = payload beats 0 and 1 after BEAT3_S. //
+  // A command whose control_data_length cannot reach byte 39 does not     //
+  // carry the field at all: 1722.1-2021 gives ACQUIRE/LOCK a cdl of 28    //
+  // (Figures 7-27/7-28: 40 AECPDU octets, 12 of them ahead of the count), //
+  // so anything shorter is answered on beat 3 with the "absent = ENTITY/0"//
+  // reading the engine has always used, and never waits for bytes that    //
+  // are not coming.                                                       //
+  // ------------------------------------------------------------------ //
+  localparam logic [10:0] AL_CDL_C = 11'd28;   //! shortest ACQUIRE/LOCK
+
+  logic [1:0] pbeat_r;               //! payload beat index, saturating at 3
+  //! this frame declares enough octets to carry descriptor_type/index
+  wire w_al_has_desc = (hdr_r.control_data_length >= AL_CDL_C);
+
+  // ------------------------------------------------------------------ //
   // Sequential FSM + extraction                                          //
   // ------------------------------------------------------------------ //
   always_ff @(posedge clk_i) begin
@@ -105,9 +148,13 @@ module KL_aecp_common_parser (
       hdr_r            <= '0;
       hdr_o            <= '0;
       mismatch_o       <= 1'b0;
+      pbeat_r          <= 2'd0;
+      al_desc_ok_o     <= 1'b1;
+      al_gate_p_o      <= 1'b0;
     end else begin
       // Default: clear hdr_valid strobe each cycle
       hdr_o.hdr_valid  <= 1'b0;
+      al_gate_p_o      <= 1'b0;
 
       case (state_r)
         // ------------------------------------------------------------ //
@@ -208,6 +255,13 @@ module KL_aecp_common_parser (
             hdr_o.descriptor_type     <= s_axis_tdata[15:0];
             hdr_o.descriptor_index    <= 16'd0;
 
+            //! ACQUIRE/LOCK descriptor scope: arm the per-frame verdict.
+            //! "Absent" reads as ENTITY/0, so a frame that ends here, or one
+            //! too short to carry the field, is settled on this very beat.
+            al_desc_ok_o <= 1'b1;
+            pbeat_r      <= 2'd0;
+            if (s_axis_tlast || !w_al_has_desc) al_gate_p_o <= 1'b1;
+
             if (s_axis_tlast) begin
               state_r <= BEAT0_S;
             end else begin
@@ -223,8 +277,22 @@ module KL_aecp_common_parser (
         // Drain payload beats transparently after header extraction     //
         // ------------------------------------------------------------ //
         PAYLOAD_S: begin
-          if (w_hs && s_axis_tlast) begin
-            state_r <= BEAT0_S;
+          if (w_hs) begin
+            pbeat_r <= (pbeat_r == 2'd3) ? 2'd3 : (pbeat_r + 2'd1);
+            //! payload beat 0 = AECPDU 30-37 -> descriptor_type at [15:0]
+            //! payload beat 1 = AECPDU 38-45 -> descriptor_index at [63:48]
+            //! (1722.1-2021 Figures 7-27/7-28). Table 7-2 fixes the ENTITY
+            //! descriptor at index 0, so ENTITY/n>0 names nothing at all.
+            if (w_al_has_desc) begin
+              if (pbeat_r == 2'd0) begin
+                al_desc_ok_o <= (s_axis_tdata[15:0] == DESC_ENTITY);
+                if (s_axis_tlast) al_gate_p_o <= 1'b1;
+              end else if (pbeat_r == 2'd1) begin
+                al_desc_ok_o <= al_desc_ok_o && (s_axis_tdata[63:48] == 16'd0);
+                al_gate_p_o  <= 1'b1;
+              end
+            end
+            if (s_axis_tlast) state_r <= BEAT0_S;
           end
         end
 

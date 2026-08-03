@@ -194,6 +194,8 @@ module KL_aecp_top #(
   // ---- parser / l0 buses --------------------------------------------
   aecp_hdr_t     hdr_w;
   logic          mismatch_w;
+  //! ACQUIRE/LOCK target-descriptor verdict + the beat it settles on
+  logic          al_desc_ok_w, al_gate_p_w;
   aecp_l0_state_t l0_state_w;
   logic [4:0]    l0_status_w;
   logic          l0_reject_w;
@@ -243,7 +245,8 @@ module KL_aecp_top #(
     .l0_state_i(l0_state_w),
     .s_axis_tvalid(val_to_par_tvalid), .s_axis_tready(val_to_par_tready), .s_axis_tdata(val_to_par_tdata), .s_axis_tkeep(val_to_par_tkeep), .s_axis_tlast(val_to_par_tlast),
     .m_axis_tvalid(par_to_bld_tvalid), .m_axis_tready(par_to_bld_tready), .m_axis_tdata(par_to_bld_tdata), .m_axis_tkeep(par_to_bld_tkeep), .m_axis_tlast(par_to_bld_tlast),
-    .hdr_o(hdr_w), .mismatch_o(mismatch_w)
+    .hdr_o(hdr_w), .mismatch_o(mismatch_w),
+    .al_desc_ok_o(al_desc_ok_w), .al_gate_p_o(al_gate_p_w)
   );
 
   // ---- L0 entity state (LOCK / ACQUIRE-unsupported / config) ---------
@@ -252,6 +255,7 @@ module KL_aecp_top #(
     .entity_id_i(entity_id_i),
     .hdr_i(hdr_w), .message_type_i(val_msgtype_w),
     .tick_1khz_i(tick_1khz_w), .cmd_done_i(1'b0),
+    .al_desc_ok_i(al_desc_ok_w), .al_gate_p_i(al_gate_p_w),
     .l0_state_o(l0_state_w), .status_o(l0_status_w), .reject_o(l0_reject_w)
   );
 
@@ -297,6 +301,7 @@ module KL_aecp_top #(
     .req_src_mac_i(req_src_mac_w), .req_meta_valid_i(req_valid_w),
     .req_meta_pop_o(req_pop_w),
     .l0_state_i(l0_state_w), .l0_status_i(l0_status_w), .l0_reject_i(l0_reject_w),
+    .al_desc_ok_i(al_desc_ok_w),
     .station_mac_i(station_mac_i), .entity_id_i(entity_id_i),
     .gptp_gm_id_i(gptp_gm_id_i), .pdelay_ns_i(pdelay_ns_i), .gptp_domain_i(gptp_domain_i),
     .aaf_dmac_i(aaf_dmac_i), .aaf_vid_i(aaf_vid_i),

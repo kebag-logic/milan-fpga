@@ -521,6 +521,21 @@ class MilanAecpModel:
     # -- LOCK_ENTITY semaphore (KL_aecp_l0_state.sv) ------------------------
     def _process_lock(self, fields):
         ctrl = fields['controller_entity_id']
+        # DESCRIPTOR SCOPE (#53). Milan v1.2 5.4.2.2: "The PAAD-AE shall not
+        # allow locking another descriptor than the ENTITY descriptor
+        # (NOT_SUPPORTED shall be returned in this case)", and 1722.1-2021
+        # Table 7-2 fixes the ENTITY descriptor's descriptor_index at zero
+        # "as there is always only ever one in an ATDECC Entity" - so
+        # ENTITY/n>0 names no descriptor at all. BOTH halves matter: the
+        # status is NOT_SUPPORTED (not NO_SUCH_DESCRIPTOR), and the lock must
+        # not move, in either direction. The RTL enforces the second half in
+        # KL_aecp_l0_state by deferring the commit to the parser's
+        # al_gate_p_o, which is why this early return precedes every state
+        # transition below - including the UNLOCK path, where a bad
+        # descriptor must not release a lock the entity legitimately holds.
+        if (fields.get('descriptor_type', 0) != DESC_ENTITY
+                or fields.get('descriptor_index', 0) != 0):
+            return STATUS_NOT_SUPPORTED
         # RTL keys UNLOCK off flags bit0 (common_parser flags_lsb = tdata[16]);
         # a documented deviation from the spec's 0x80000000.
         unlock = (fields.get('lock_entity_flags', 0) & 1) != 0

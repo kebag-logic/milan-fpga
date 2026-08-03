@@ -73,3 +73,34 @@ Feature: Milan v1.2 AECP commands validated with tsn_gen frames
   Scenario: seeded fuzz — no illegal clock-source write is ever accepted
     When the model processes 25 SET_CLOCK_SOURCE frames from seeds 100 to 124
     Then every SUCCESS was a valid CLOCK_DOMAIN write and nothing else mutated state
+
+  # ---------------------------------------------------------------------
+  # ACQUIRE_ENTITY scope (#53). Milan v1.2 5.4.2.1: "The PAAD-AE shall not
+  # reply SUCCESS to an ACQUIRE_ENTITY command. It should reply with the
+  # NOT_SUPPORTED error code" — which 1722.1-2021 7.4.1.2 expressly allows:
+  # "it may always reply with the NOT_SUPPORTED error code if it does not
+  # support being acquired". So the descriptor the command names changes
+  # nothing, and neither the acquire state nor the lock may move. The
+  # LOCK_ENTITY half of the same rule lives in item10_lock_entity.feature.
+  # ---------------------------------------------------------------------
+
+  Scenario: ACQUIRE_ENTITY is NOT_SUPPORTED whatever descriptor it names
+    Given tsn_gen generated a ACQUIRE_ENTITY frame with seed 14
+    When I patch field "message_type" to 0
+    And I patch field "u" to 0
+    And I patch field "acquire_entity_flags" to 0
+    And I patch field "descriptor_type" to 0
+    And I patch field "descriptor_index" to 0
+    And the Milan AECP model processes the frame
+    Then the model responds status 11
+    And the model has not acquired the entity
+    When I patch field "descriptor_index" to 0xFFFF
+    And the Milan AECP model processes the frame
+    Then the model responds status 11
+    And the model has not acquired the entity
+    When I patch field "descriptor_type" to 0x24
+    And I patch field "descriptor_index" to 0
+    And the Milan AECP model processes the frame
+    Then the model responds status 11
+    And the model has not acquired the entity
+    And the model entity is unlocked

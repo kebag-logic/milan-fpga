@@ -13,6 +13,19 @@
   Description : AECP L0 (entity-level) state machine — Milan v1.2 profile.
 
                 LOCK_ENTITY (IEEE 1722.1-2021 §7.4.2, Milan v1.2 §5.4.2)
+                  • the command's target descriptor must be the ENTITY
+                    descriptor at index 0 — Milan v1.2 §5.4.2.2: "The PAAD-AE
+                    shall not allow locking another descriptor than the ENTITY
+                    descriptor (NOT_SUPPORTED shall be returned in this case)",
+                    and 1722.1-2021 Table 7-2 fixes that descriptor's index at
+                    zero "as there is only ever one in an ATDECC Entity". That
+                    is a rule about the STATE, not only about the status code:
+                    the commit below is therefore DEFERRED to al_gate_p_i, the
+                    beat on which the parser has actually seen AECPDU 36-39
+                    (two beats after hdr_valid), and is dropped outright when
+                    al_desc_ok_i is low. Answering NOT_SUPPORTED while quietly
+                    locking the entity for 60 s would deny every other
+                    controller on the strength of a command we refused.
                   • flags[0]=0 → set locked, reload 60 000-tick countdown;
                     re-lock from the owner reloads the timer
                   • flags[0]=1 → UNLOCK by the owner: clear locked
@@ -55,6 +68,10 @@ module KL_aecp_l0_state (
   input  wire [3:0]    message_type_i,         //! from packet_validator (AEM gate)
   input  wire          tick_1khz_i,            //! 1 kHz strobe from KL_aecp_timers
   input  wire          cmd_done_i,             //! response_builder signalled TX done
+  //! ACQUIRE/LOCK target descriptor is ENTITY/0 (KL_aecp_common_parser)
+  input  wire          al_desc_ok_i,
+  //! ...and the beat on which that verdict settled, one pulse per frame
+  input  wire          al_gate_p_i,
   output aecp_l0_state_t l0_state_o,
   output logic [4:0]   status_o,              //! for current command
   output logic         reject_o               //! this command was rejected (lock/acquire)
@@ -132,6 +149,29 @@ module KL_aecp_l0_state (
   wire w_lock_denied = (hdr_i.command_type == CMD_LOCK_ENTITY) &&
                        locked_r && !w_from_locking;
 
+  // ------------------------------------------------------------------ //
+  // DEFERRED LOCK COMMIT (Milan v1.2 §5.4.2.2)                          //
+  //                                                                     //
+  // hdr_valid lands on beat 3; the descriptor_type/descriptor_index that //
+  // scope the command land on beats 4 and 5. So the decision this state  //
+  // machine can make at hdr_valid is only "may this controller lock at   //
+  // all" — the target check has to wait. lk_pend_r carries that verdict  //
+  // the two beats to al_gate_p_i, where al_desc_ok_i either lets it      //
+  // through or drops it. Every field the commit reads (controller id,    //
+  // flags_lsb) is a HELD hdr_o field: the parser only rewrites them on   //
+  // the NEXT frame's beat 3, which is strictly after this frame's gate,  //
+  // so deferring costs no storage beyond the single pending bit.         //
+  //                                                                     //
+  // w_lk_arm is in w_lk_go as well as in the register, because a frame   //
+  // that ENDS on beat 3 (or declares a cdl too short to carry the        //
+  // descriptor) gates on the same cycle it arms.                         //
+  // ------------------------------------------------------------------ //
+  logic lk_pend_r;
+  wire w_lk_arm = hdr_i.hdr_valid && w_aem &&
+                  (hdr_i.command_type == CMD_LOCK_ENTITY) &&
+                  !w_block_locked && !w_lock_denied;
+  wire w_lk_go  = al_gate_p_i && (lk_pend_r || w_lk_arm) && al_desc_ok_i;
+
   // SET_CONFIGURATION with out-of-range config_index → NO_SUCH_DESCRIPTOR
   // (IEEE 1722.1-2021 7.4.7.1: configuration_index names a CONFIGURATION
   // descriptor; CERT es-4.3 asserts NO_SUCH_DESCRIPTOR, was BAD_ARGUMENTS)
@@ -169,6 +209,7 @@ module KL_aecp_l0_state (
       locking_controller_id_r    <= 64'd0;
       lock_timer_r               <= 17'd0;
       current_config_r           <= 16'd0;
+      lk_pend_r                  <= 1'b0;
     end else begin
 
       // ---------------------------------------------------------------- //
@@ -196,29 +237,9 @@ module KL_aecp_l0_state (
           // ------------------------------------------------------------ //
 
           // ------------------------------------------------------------ //
-          CMD_LOCK_ENTITY: begin
-            // flags_lsb = bit 0 of the LOCK flags field (UNLOCK)
-            if (hdr_i.flags_lsb) begin
-              // UNLOCK by the owner (non-owners denied by w_lock_denied)
-              if (locked_r &&
-                  hdr_i.controller_entity_id == locking_controller_id_r) begin
-                locked_r              <= 1'b0;
-                locking_controller_id_r <= 64'd0;
-                lock_timer_r          <= 17'd0;
-              end
-              // UNLOCK while not locked: no-op, SUCCESS
-            end else begin
-              if (!locked_r) begin
-                locked_r              <= 1'b1;
-                locking_controller_id_r <= hdr_i.controller_entity_id;
-                lock_timer_r          <= LOCK_TIMER_TICKS_C;
-              end
-              // re-lock from same controller reloads timer
-              else if (hdr_i.controller_entity_id == locking_controller_id_r) begin
-                lock_timer_r <= LOCK_TIMER_TICKS_C;
-              end
-            end
-          end
+          // CMD_LOCK_ENTITY: the descriptor that scopes it has not been   //
+          // received yet — the commit is deferred to al_gate_p_i below.   //
+          // ------------------------------------------------------------ //
 
           // ------------------------------------------------------------ //
           CMD_SET_CONFIGURATION: begin
@@ -237,6 +258,42 @@ module KL_aecp_l0_state (
           end
         endcase
       end // if hdr_valid
+
+      // ---------------------------------------------------------------- //
+      // Deferred LOCK_ENTITY commit (Milan v1.2 §5.4.2.2)                 //
+      //                                                                   //
+      // Placed AFTER the countdown so a re-lock still wins the timer, and //
+      // after the hdr_valid case so the two can never collide (LOCK is no //
+      // longer decoded there). A gate that arrives with al_desc_ok_i low  //
+      // retires the pending bit and changes nothing: the entity refuses    //
+      // NOT_SUPPORTED and stays exactly as it was, held or free.          //
+      // ---------------------------------------------------------------- //
+      if (al_gate_p_i)   lk_pend_r <= 1'b0;
+      else if (w_lk_arm) lk_pend_r <= 1'b1;
+
+      if (w_lk_go) begin
+        // flags_lsb = bit 0 of the LOCK flags field (UNLOCK)
+        if (hdr_i.flags_lsb) begin
+          // UNLOCK by the owner (non-owners denied by w_lock_denied)
+          if (locked_r &&
+              hdr_i.controller_entity_id == locking_controller_id_r) begin
+            locked_r                <= 1'b0;
+            locking_controller_id_r <= 64'd0;
+            lock_timer_r            <= 17'd0;
+          end
+          // UNLOCK while not locked: no-op, SUCCESS
+        end else begin
+          if (!locked_r) begin
+            locked_r                <= 1'b1;
+            locking_controller_id_r <= hdr_i.controller_entity_id;
+            lock_timer_r            <= LOCK_TIMER_TICKS_C;
+          end
+          // re-lock from same controller reloads timer
+          else if (hdr_i.controller_entity_id == locking_controller_id_r) begin
+            lock_timer_r <= LOCK_TIMER_TICKS_C;
+          end
+        end
+      end
 
     end // else rst_n
   end

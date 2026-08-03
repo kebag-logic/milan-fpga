@@ -101,6 +101,10 @@ module KL_aecp_response_builder (
   input  aecp_l0_state_t l0_state_i,
   input  wire [4:0]    l0_status_i,        //! valid during hdr_valid
   input  wire          l0_reject_i,
+  //! ACQUIRE/LOCK target descriptor is ENTITY/0 (KL_aecp_common_parser).
+  //! Settled two beats AFTER hdr_valid and then held for the frame, so it is
+  //! read live in DECIDE_S rather than latched with the rest of the header.
+  input  wire          al_desc_ok_i,
 
   // ---- live identity (CSR 0x600 group; [47:40]=first wire byte for MACs)
   input  wire [47:0]   station_mac_i,
@@ -316,8 +320,9 @@ module KL_aecp_response_builder (
   wire [7:0] w_b11  = bufb(cw1_r, 3'd3);
   wire [7:0] w_b12  = bufb(cw1_r, 3'd4);
   wire [7:0] w_b13  = bufb(cw1_r, 3'd5);
-  wire [7:0] w_b14  = bufb(cw1_r, 3'd6);
-  wire [7:0] w_b15  = bufb(cw1_r, 3'd7);
+  //! (buf bytes 14-15 were the ACQUIRE/LOCK descriptor_type decode; that
+  //! whole field now arrives on al_desc_ok_i, so cw1_r's last two bytes have
+  //! no reader and synthesis prunes them)
   wire [7:0] w_b24 = bufb(cw3_r, 3'd0);
   wire [7:0] w_b25 = bufb(cw3_r, 3'd1);
   wire [7:0] w_b26 = bufb(cw3_r, 3'd2);
@@ -409,10 +414,14 @@ module KL_aecp_response_builder (
   //! + 25-31) minus the ONE supported (MSRP_ACC_LAT_VALID, bit 29): any of
   //! these requested -> NOT_SUPPORTED for the whole command (§5.4.2.9).
   localparam [31:0] SI_UNSUPPORTED_MASK_C = 32'hDE00_03FF;
-  //! ACQUIRE/LOCK descriptor_type (payload bytes 14-15): both commands are
-  //! ENTITY-scoped, so this is the whole validity test the decode can make
-  wire [15:0] w_lock_dtype  = {w_b14, w_b15};
-  wire        w_lock_desc_ok = (w_lock_dtype == DESC_ENTITY);
+  //! ACQUIRE/LOCK target descriptor: the type is at payload bytes 14-15 but
+  //! the INDEX is at 16-17, which this module never captures (cw2_r is
+  //! deliberately not registered). KL_aecp_common_parser sees both on the
+  //! wire and publishes the whole verdict on al_desc_ok_i, held for the
+  //! frame — one decode, shared with the entity state machine, and no
+  //! second 64-bit capture register in the block that owns the critical
+  //! path.
+  wire        w_lock_desc_ok = al_desc_ok_i;
   wire [15:0] w_name_idx = {w_b6, w_b7};   //! SET/GET_NAME name_index
   wire [15:0] w_as_path_idx = {w_b2, w_b3};  //! GET_AS_PATH descriptor_index (no type field)
   //! live gPTP state (USER bugs 1-4, 07-18): GM + pdelay are daemon-written
@@ -2436,17 +2445,33 @@ module KL_aecp_response_builder (
             case (w_cmd_eff)
               // -------------------------------------------------- //
               CMD_ACQUIRE_ENTITY, CMD_LOCK_ENTITY: begin
-                //! 1722.1-2021 §7.4.1/§7.4.2 scope ACQUIRE and LOCK to the
-                //! ENTITY descriptor. The payload's descriptor_type sits at
-                //! bytes 14-15 (the same field the echo segment below
-                //! replays); anything other than ENTITY is NO_SUCH_DESCRIPTOR
-                //! rather than a silent entity-wide lock. descriptor_index
-                //! (bytes 16-17) is NOT validated: those bytes are outside
-                //! the decode capture (cw2_r is deliberately not registered),
-                //! and index != 0 with type == ENTITY is not a case any real
-                //! controller produces.
+                //! DESCRIPTOR SCOPE. Both commands name a target descriptor
+                //! at payload bytes 14-17 (AECPDU 36-39, Figures 7-27/7-28),
+                //! and for a PAAD-AE the only lockable one is the ENTITY
+                //! descriptor at index 0 - 1722.1-2021 Table 7-2: its
+                //! descriptor_index "is always set to zero (0) for the ENTITY
+                //! descriptor as there is only ever one in an ATDECC Entity",
+                //! so ENTITY/n>0 names no descriptor at all.
+                //!
+                //! The refusal is NOT_SUPPORTED, not NO_SUCH_DESCRIPTOR.
+                //! Milan v1.2 5.4.2.2 spells it out for LOCK: "The PAAD-AE
+                //! shall not allow locking another descriptor than the ENTITY
+                //! descriptor (NOT_SUPPORTED shall be returned in this
+                //! case)". For ACQUIRE, 5.4.2.1 makes NOT_SUPPORTED the
+                //! answer to EVERY acquire ("shall not reply SUCCESS ...
+                //! should reply with the NOT_SUPPORTED error code"), which
+                //! 1722.1-2021 7.4.1.2 expressly permits: "it may always
+                //! reply with the NOT_SUPPORTED error code if it does not
+                //! support being acquired". l0_status_q is already
+                //! NOT_SUPPORTED for acquire, so this arm is uniform.
+                //!
+                //! The other half of 5.4.2.2 - "shall not ALLOW locking" - is
+                //! enforced in KL_aecp_l0_state, which defers the commit to
+                //! the parser's al_gate_p_o for exactly this reason. Refusing
+                //! in the response while locking the entity anyway would deny
+                //! every other controller for 60 s on a command we rejected.
                 status_q      <= (w_lock_desc_ok) ? l0_status_q
-                                                  : STATUS_NO_SUCH_DESCRIPTOR;
+                                                  : STATUS_NOT_SUPPORTED;
                 seg_kind_q[0] <= SEG_ECHO;  seg_addr_q[0] <= 16'd2;  seg_len_q[0] <= 16'd4;
                 seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd8;
                 seg_kind_q[2] <= SEG_ECHO;  seg_addr_q[2] <= 16'd14; seg_len_q[2] <= 16'd4;

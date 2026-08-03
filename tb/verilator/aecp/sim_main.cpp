@@ -314,6 +314,113 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
+    // 5b. ACQUIRE/LOCK descriptor SCOPE.                                //
+    //                                                                   //
+    // 1722.1-2021 Table 7-2: the ENTITY descriptor's descriptor_index   //
+    // "is always set to zero (0) ... as there is only ever one in an    //
+    // ATDECC Entity", so ENTITY/5 names NO descriptor at all.           //
+    // Milan v1.2 5.4.2.2: "The PAAD-AE shall not allow locking another  //
+    // descriptor than the ENTITY descriptor (NOT_SUPPORTED shall be     //
+    // returned in this case)" - both halves are mandatory: the STATUS   //
+    // is NOT_SUPPORTED (not NO_SUCH_DESCRIPTOR), and the lock must not  //
+    // take effect. Milan 5.4.2.1 + 1722.1 7.4.1.2 ("it may always reply //
+    // with the NOT_SUPPORTED error code if it does not support being    //
+    // acquired") make every ACQUIRE_ENTITY NOT_SUPPORTED, whatever      //
+    // descriptor it names.                                              //
+    // ---------------------------------------------------------------- //
+    printf("\n[5b] ACQUIRE/LOCK descriptor scope (7.4.1/7.4.2, Milan 5.4.2.1-2)\n");
+    {
+        // flags(4) + locked_id/owner_id(8) + descriptor_type(2) + index(2)
+        auto al = [](uint32_t flags, uint16_t dtype, uint16_t didx) {
+            std::vector<uint8_t> p;
+            p.push_back((flags>>24)&0xFF); p.push_back((flags>>16)&0xFF);
+            p.push_back((flags>>8)&0xFF);  p.push_back(flags&0xFF);
+            for (int i = 0; i < 8; i++) p.push_back(0x00);
+            put_be16(p, dtype); put_be16(p, didx);
+            return p;
+        };
+        // SET_CONFIGURATION(0) from the OTHER controller: SUCCESS while the
+        // entity is free, ENTITY_LOCKED while it is held. The lock probe.
+        std::vector<uint8_t> sc; put_be16(sc,0); put_be16(sc,0);
+        auto probe = [&](uint16_t seq) {
+            feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 6, seq, sc));
+            return r_status(collect_resp());
+        };
+
+        ck("entity starts unlocked", probe(0x3100), 0);
+
+        // --- LOCK(ENTITY, 5): a descriptor_index the ENTITY descriptor
+        //     can never have.
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3101,
+                         al(0, 0x0000, 0x0005)));
+        auto rb = collect_resp();
+        ck("LOCK(ENTITY,5) = NOT_SUPPORTED", r_status(rb), 11);
+        ckbytes("LOCK(ENTITY,5) echoes the descriptor", rb, 50,
+                {0x00,0x00,0x00,0x05});
+        ck("LOCK(ENTITY,5) did NOT lock", probe(0x3102), 0);
+
+        // --- LOCK(STREAM_INPUT, 0): a descriptor that exists but is not
+        //     the ENTITY descriptor.
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3103,
+                         al(0, 0x0005, 0x0000)));
+        auto rc = collect_resp();
+        ck("LOCK(STREAM_INPUT,0) = NOT_SUPPORTED", r_status(rc), 11);
+        ck("LOCK(STREAM_INPUT,0) did NOT lock", probe(0x3104), 0);
+
+        // --- ACQUIRE is NOT_SUPPORTED whatever it names.
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0, 0x3105,
+                         al(0, 0x0000, 0x0005)));
+        ck("ACQUIRE(ENTITY,5) = NOT_SUPPORTED", r_status(collect_resp()), 11);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0, 0x3106,
+                         al(0, 0x0005, 0x0000)));
+        ck("ACQUIRE(STREAM_INPUT,0) = NOT_SUPPORTED",
+           r_status(collect_resp()), 11);
+        ck("no ACQUIRE ever locked", probe(0x3107), 0);
+
+        // --- the UNLOCK direction: a bad descriptor must not release a
+        //     lock the entity is legitimately holding.
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3108,
+                         al(0, 0x0000, 0x0000)));
+        ck("LOCK(ENTITY,0) = SUCCESS", r_status(collect_resp()), 0);
+        ck("...entity is held", probe(0x3109), 3);
+
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x310A,
+                         al(1, 0x0000, 0x0005)));
+        ck("UNLOCK(ENTITY,5) = NOT_SUPPORTED", r_status(collect_resp()), 11);
+        ck("...lock survives ENTITY/5 unlock", probe(0x310B), 3);
+
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x310C,
+                         al(1, 0x0005, 0x0000)));
+        ck("UNLOCK(STREAM_INPUT,0) = NOT_SUPPORTED",
+           r_status(collect_resp()), 11);
+        ck("...lock survives STREAM_INPUT unlock", probe(0x310D), 3);
+
+        // a rejected LOCK from the OWNER must not have reloaded the timer
+        // either, and the real UNLOCK still works.
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x310E,
+                         al(1, 0x0000, 0x0000)));
+        ck("UNLOCK(ENTITY,0) = SUCCESS", r_status(collect_resp()), 0);
+        ck("entity released", probe(0x310F), 0);
+
+        // --- a LOCK held by ctlr1 still outranks a bad-descriptor LOCK
+        //     from ctlr2: ENTITY_LOCKED is the identity answer, and the
+        //     descriptor refusal must not leak the entity to the intruder.
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3110,
+                         al(0, 0x0000, 0x0000)));
+        ck("ctlr1 holds the lock", r_status(collect_resp()), 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 1, 0x3111,
+                         al(0, 0x0000, 0x0005)));
+        auto ri = collect_resp();
+        ck("ctlr2 LOCK(ENTITY,5) refused", (r_status(ri) == 3 ||
+                                            r_status(ri) == 11), 1);
+        ck("ctlr1 still owns it", probe(0x3112), 3);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3113,
+                         al(1, 0x0000, 0x0000)));
+        ck("ctlr1 releases", r_status(collect_resp()), 0);
+        ck("entity free again", probe(0x3114), 0);
+    }
+
+    // ---------------------------------------------------------------- //
     // 6. GET/SET_CONFIGURATION                                          //
     // ---------------------------------------------------------------- //
     printf("\n[6] GET/SET_CONFIGURATION\n");

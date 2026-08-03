@@ -24,6 +24,12 @@ module tb_top();
   aecp_hdr_t      hdr;
   logic           tick_1khz;
   logic           cmd_done;
+  //! ACQUIRE/LOCK target-descriptor verdict + the beat it settles on. In the
+  //! real pipeline these come from KL_aecp_common_parser two beats after
+  //! hdr_valid; here send_cmd() replays that handshake so the deferred lock
+  //! commit (Milan v1.2 5.4.2.2) can fire.
+  logic           al_desc_ok;
+  logic           al_gate_p;
 
   //! DUT outputs
   aecp_l0_state_t l0_state;
@@ -36,8 +42,11 @@ module tb_top();
     .rst_n       (rst_n),
     .entity_id_i (entity_id),
     .hdr_i       (hdr),
+    .message_type_i (hdr.message_type),
     .tick_1khz_i (tick_1khz),
     .cmd_done_i  (cmd_done),
+    .al_desc_ok_i(al_desc_ok),
+    .al_gate_p_i (al_gate_p),
     .l0_state_o  (l0_state),
     .status_o    (status),
     .reject_o    (reject)
@@ -50,9 +59,11 @@ module tb_top();
   // ------------------------------------------------------------------
   //! Task: reset DUT and initialise all inputs to safe defaults.
   task reset_dut;
-    hdr       = '0;
-    tick_1khz = 1'b0;
-    cmd_done  = 1'b0;
+    hdr        = '0;
+    tick_1khz  = 1'b0;
+    cmd_done   = 1'b0;
+    al_desc_ok = 1'b1;   //! default target = the ENTITY descriptor, index 0
+    al_gate_p  = 1'b0;
     #100;
     $display("[INFO][TOP] : Resetting the DUT");
     rst_n = 1'b1;
@@ -79,6 +90,10 @@ module tb_top();
     hdr.u_flag               = 1'b0;
     @(posedge clk);
     hdr.hdr_valid = 1'b0;
+    // The parser settles the ACQUIRE/LOCK descriptor two beats later and
+    // pulses its gate: LOCK_ENTITY commits there, not on hdr_valid.
+    @(posedge clk); al_gate_p = 1'b1;
+    @(posedge clk); al_gate_p = 1'b0;
     // Allow pipeline to settle, then assert cmd_done for one cycle
     repeat(2) @(posedge clk);
     @(posedge clk); cmd_done = 1'b1;

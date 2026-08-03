@@ -320,6 +320,92 @@ class Campaign:
                                   % (name, r.status_name() if r else "silence"))
         self.canary_ok("setter sweep")
 
+    # ------------------------------------------- 3b ACQUIRE/LOCK scope STATE
+    #: a second controller, so the lock can be probed from outside
+    CTRLR2_ID = 0x6805CA95B2D20000
+    CTRLR2_MAC = bytes.fromhex("6805ca95b2d2")
+
+    def _held(self):
+        """True when the entity is locked against a SECOND controller.
+
+        SET_CONFIGURATION(0) is a state-changing command, so 1722.1-2021
+        7.4.2 ("When an ATDECC Entity is locked it only accepts commands
+        which alter state from the ATDECC Controller which locked the
+        ATDECC Entity") makes it ENTITY_LOCKED while held and SUCCESS while
+        free. It is the only way to SEE the lock: a refused LOCK that locks
+        anyway answers with the same status either way.
+        """
+        r, _ = self.cmd(SET_CONFIGURATION, struct.pack(">HH", 0, 0),
+                        controller=self.CTRLR2_ID, src=self.CTRLR2_MAC)
+        return bool(r) and r.status == 3      # ENTITY_LOCKED
+
+    def _al(self, code, flags, dtype, didx, **kw):
+        return self.cmd(code, struct.pack(">I", flags)
+                        + struct.pack(">Q", wire.CTRLR_ID)
+                        + gs4(dtype, didx), **kw)
+
+    def lock_scope_state(self):
+        """The refusal must be a refusal in the STATE, not only in the status.
+
+        Milan v1.2 5.4.2.2: "The PAAD-AE shall not ALLOW locking another
+        descriptor than the ENTITY descriptor (NOT_SUPPORTED shall be
+        returned in this case)". 1722.1-2021 Table 7-2 fixes the ENTITY
+        descriptor's descriptor_index at zero "as there is only ever one in
+        an ATDECC Entity", so ENTITY/n>0 names no descriptor at all and is
+        exactly as unlockable as CLOCK_DOMAIN/0.
+
+        The failure this section exists to catch is an entity that answers
+        the controller with a refusal and then locks (or unlocks) itself
+        anyway - a 60 s denial of every other controller on the strength of
+        a command it rejected. Nothing in the status field can show that,
+        which is why every probe below is followed by a second controller
+        asking whether the entity is actually held.
+        """
+        rep = self.rep
+        rep.section("ACQUIRE/LOCK descriptor scope (7.4.1/7.4.2, Milan 5.4.2.1-2)")
+        rep.ck("entity starts free", not self._held(), "probe")
+
+        # --- refusals that must leave a FREE entity free ---------------
+        for label, code, dtype, didx in (
+                ("LOCK(ENTITY,1)", LOCK_ENTITY, D_ENTITY, 1),
+                ("LOCK(ENTITY,0xFFFF)", LOCK_ENTITY, D_ENTITY, 0xFFFF),
+                ("LOCK(STREAM_OUTPUT,0)", LOCK_ENTITY, D_STREAM_OUTPUT, 0),
+                ("LOCK(0xFFFF,0)", LOCK_ENTITY, 0xFFFF, 0),
+                ("ACQUIRE(ENTITY,0)", ACQUIRE_ENTITY, D_ENTITY, 0),
+                ("ACQUIRE(ENTITY,1)", ACQUIRE_ENTITY, D_ENTITY, 1),
+                ("ACQUIRE(STREAM_OUTPUT,0)", ACQUIRE_ENTITY, D_STREAM_OUTPUT, 0)):
+            r, seq = self._al(code, 0, dtype, didx)
+            if not self.check_header(label, r, seq, code):
+                continue
+            rep.eq("%s -> NOT_SUPPORTED" % label, r.status, 11)
+            rep.ck("%s left the entity FREE" % label, not self._held(), "probe")
+
+        # --- and refusals that must leave a HELD entity held ------------
+        r, seq = self._al(LOCK_ENTITY, 0, D_ENTITY, 0)
+        self.check_header("LOCK(ENTITY,0)", r, seq, LOCK_ENTITY)
+        rep.eq("LOCK(ENTITY,0) -> SUCCESS", r.status, 0)
+        rep.ck("...entity is now held", self._held(), "probe")
+
+        for label, dtype, didx in (("UNLOCK(ENTITY,1)", D_ENTITY, 1),
+                                   ("UNLOCK(ENTITY,0xFFFF)", D_ENTITY, 0xFFFF),
+                                   ("UNLOCK(STREAM_OUTPUT,0)", D_STREAM_OUTPUT, 0)):
+            r, seq = self._al(LOCK_ENTITY, 1, dtype, didx)
+            if not self.check_header(label, r, seq, LOCK_ENTITY):
+                continue
+            rep.eq("%s -> NOT_SUPPORTED" % label, r.status, 11)
+            rep.ck("%s did NOT release the lock" % label, self._held(), "probe")
+
+        # ACQUIRE never touches the lock either way (Milan 5.4.2.1)
+        r, seq = self._al(ACQUIRE_ENTITY, 0, D_ENTITY, 0)
+        rep.eq("ACQUIRE while held -> NOT_SUPPORTED", r.status, 11)
+        rep.ck("...lock still held", self._held(), "probe")
+
+        r, seq = self._al(LOCK_ENTITY, 1, D_ENTITY, 0)
+        self.check_header("UNLOCK(ENTITY,0)", r, seq, LOCK_ENTITY)
+        rep.eq("UNLOCK(ENTITY,0) -> SUCCESS", r.status, 0)
+        rep.ck("entity released", not self._held(), "probe")
+        self.canary_ok("ACQUIRE/LOCK scope sweep")
+
     # --------------------------------------------------- 4 header-field fuzz
     def header_fuzz(self, rounds):
         self.rep.section("header-field fuzz (tsn-gen constrained-random)")
@@ -620,7 +706,13 @@ SETTERS = [
                          + gs4(D_ENTITY, 0))],
          illegal=lambda: [("acquire bad descriptor",
                            struct.pack(">I", 0) + struct.pack(">Q", wire.CTRLR_ID)
-                           + gs4(0xFFFF, 0))],
+                           + gs4(0xFFFF, 0)),
+                          ("acquire index=0x0001",
+                           struct.pack(">I", 0) + struct.pack(">Q", wire.CTRLR_ID)
+                           + gs4(D_ENTITY, 1)),
+                          ("acquire index=0xFFFF",
+                           struct.pack(">I", 0) + struct.pack(">Q", wire.CTRLR_ID)
+                           + gs4(D_ENTITY, 0xFFFF))],
          roundtrip=None, get_payload=lambda: b""),
     dict(name="LOCK_ENTITY", code=LOCK_ENTITY,
          legal=lambda: [("lock ENTITY",
@@ -629,22 +721,31 @@ SETTERS = [
                         ("unlock ENTITY",
                          struct.pack(">I", 1) + struct.pack(">Q", wire.CTRLR_ID)
                          + gs4(D_ENTITY, 0))],
-         # #47 FIXED 2026-07-25: LOCK/ACQUIRE now answer NO_SUCH_DESCRIPTOR
-         # for any descriptor_type other than ENTITY (§7.4.2). Only
-         # descriptor_index remains unvalidated - bytes 16-17 are outside the
-         # decode capture - and is kept as a narrow tracked gap below.
+         # #47 FIXED 2026-07-25: descriptor_TYPE validated.
+         # #53 FIXED 2026-08-03: descriptor_INDEX validated too, and the
+         # refusal moved to NOT_SUPPORTED - Milan v1.2 5.4.2.2 "The PAAD-AE
+         # shall not allow locking another descriptor than the ENTITY
+         # descriptor (NOT_SUPPORTED shall be returned in this case)", with
+         # 1722.1-2021 Table 7-2 fixing the ENTITY descriptor at index 0
+         # "as there is only ever one in an ATDECC Entity". No gaps remain:
+         # the lock STATE is checked by lock_scope_state() below, because a
+         # status-only assertion cannot see an entity that refuses the
+         # command and locks itself anyway.
          illegal=lambda: [("lock type=0xFFFF",
                            struct.pack(">I", 0) + struct.pack(">Q", wire.CTRLR_ID)
                            + gs4(0xFFFF, 0)),
                           ("lock type=STREAM_OUTPUT",
                            struct.pack(">I", 0) + struct.pack(">Q", wire.CTRLR_ID)
                            + gs4(D_STREAM_OUTPUT, 0)),
+                          ("lock index=0x0001",
+                           struct.pack(">I", 0) + struct.pack(">Q", wire.CTRLR_ID)
+                           + gs4(D_ENTITY, 1)),
                           ("lock index=0xFFFF",
                            struct.pack(">I", 0) + struct.pack(">Q", wire.CTRLR_ID)
+                           + gs4(D_ENTITY, 0xFFFF)),
+                          ("unlock index=0xFFFF",
+                           struct.pack(">I", 1) + struct.pack(">Q", wire.CTRLR_ID)
                            + gs4(D_ENTITY, 0xFFFF))],
-         # descriptor_type is now validated (#47). descriptor_index stays a
-         # narrow, documented gap: bytes 16-17 are outside the decode capture.
-         gaps=("lock index=0xFFFF",),
          roundtrip=None, get_payload=lambda: b""),
     dict(name="STREAMING_CMDS", code=START_STREAMING,
          legal=lambda: [],
@@ -684,6 +785,15 @@ def main():
         c.setters()
         c.header_fuzz(args.rounds)
         c.addressing()
+        # After addressing() so a newly inserted section cannot be what makes
+        # a previously TRACKED gap stop being reported. That was the suspicion
+        # when this landed and 2 known gaps became 0; measured 2026-08-03 and
+        # REFUTED - HEAD's own campaign against HEAD's own RTL already reported
+        # only ONE gap (this task's LOCK index), so the #48 undersized-frame
+        # gap had been closed by an earlier change and the committed
+        # TEST_RESULTS.md was simply stale (dated 2026-07-30). Position kept
+        # anyway: it costs nothing and the ordering question stays answered.
+        c.lock_scope_state()
         c.milan_v12()
         c.cross_decode()
         rep.section("final state check")
