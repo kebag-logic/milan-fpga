@@ -175,7 +175,7 @@ module KL_acmp_lstn_ctx #(
   reg [$clog2(MS_DIV_C)-1:0] ms_div_r;
   reg                        tick_1ms_r;
   reg [15:0]                 lfsr_r;
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       ms_div_r <= '0; tick_1ms_r <= 1'b0; lfsr_r <= 16'hACE1;
     end else begin
@@ -275,7 +275,7 @@ module KL_acmp_lstn_ctx #(
   reg        rxv_r, rxl_r;
   reg [63:0] rxd_r;
   reg [7:0]  rxk_r;
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       rxv_r <= 1'b0; rxl_r <= 1'b0; rxd_r <= '0; rxk_r <= '0;
     end else begin
@@ -905,7 +905,7 @@ module KL_acmp_lstn_ctx #(
   // -----------------------------------------------------------------------
   // Main FSM + shadows + sweep sequencer
   // -----------------------------------------------------------------------
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       st_r <= COLLECT_S; wbeat_r <= '0; ovfl_r <= 1'b0; beat_r <= '0;
       len_ok_r <= 1'b0; adp_len_ok_r <= 1'b0;

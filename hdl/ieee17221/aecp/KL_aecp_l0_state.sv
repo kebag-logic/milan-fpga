@@ -163,7 +163,7 @@ module KL_aecp_l0_state (
   // ------------------------------------------------------------------ //
   // Sequential state update                                              //
   // ------------------------------------------------------------------ //
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       locked_r                   <= 1'b0;
       locking_controller_id_r    <= 64'd0;

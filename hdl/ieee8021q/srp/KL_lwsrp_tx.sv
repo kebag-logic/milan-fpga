@@ -284,7 +284,7 @@ module KL_lwsrp_tx (
   // -----------------------------------------------------------------------
   // Trigger capture + serialiser
   // -----------------------------------------------------------------------
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       enable_q <= 1'b0; talker_q <= 1'b0; lstn_q <= 1'b0; lstn_ready_q <= 1'b0;
       msrp_pend_r <= 1'b0; mvrp_pend_r <= 1'b0; jdiv_r <= '0;

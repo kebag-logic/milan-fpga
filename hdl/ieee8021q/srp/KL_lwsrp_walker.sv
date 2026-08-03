@@ -339,7 +339,7 @@ module KL_lwsrp_walker #(
     end
   endtask
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     wst_t nxt;
     logic [2:0] evt_v;
     logic [1:0] par_v;

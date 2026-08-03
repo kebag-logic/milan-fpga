@@ -74,7 +74,7 @@ module KL_aecp_timers #(
 
   logic [TICK_CNT_W_C-1:0] ms_ctr_r;
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       ms_ctr_r    <= '0;
       tick_1khz_o <= 1'b0;
@@ -99,7 +99,7 @@ module KL_aecp_timers #(
   logic [16:0] lock_ctr_r;
   logic        lock_running_r;
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       lock_ctr_r     <= 17'd0;
       lock_running_r <= 1'b0;
@@ -131,7 +131,7 @@ module KL_aecp_timers #(
   // ------------------------------------------------------------------ //
   logic [9:0] gate_ctr_r;
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       gate_ctr_r     <= COUNTER_THROTTLE_TICKS_C;
       counter_gate_o <= 1'b0;

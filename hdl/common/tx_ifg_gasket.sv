@@ -63,7 +63,7 @@ module tx_ifg_gasket #(
 
   wire beat_acc = s_tvalid & s_tready;
 
-  always_ff @(posedge clk_i or negedge rst_n) begin : gasket
+  always_ff @(posedge clk_i) begin : gasket
     if (!rst_n) begin
       gap_r <= '0; gapping_r <= 1'b0;
     end else begin

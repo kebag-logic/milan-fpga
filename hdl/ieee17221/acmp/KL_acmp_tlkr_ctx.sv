@@ -93,7 +93,7 @@ module KL_acmp_tlkr_ctx #(
   reg        rxv_r, rxl_r;
   reg [63:0] rxd_r;
   reg [7:0]  rxk_r;
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       rxv_r <= 1'b0; rxl_r <= 1'b0; rxd_r <= '0; rxk_r <= '0;
     end else begin
@@ -293,7 +293,7 @@ module KL_acmp_tlkr_ctx #(
   // -----------------------------------------------------------------------
   // FSM
   // -----------------------------------------------------------------------
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       st_r <= COLLECT_S; wbeat_r <= '0; ovfl_r <= 1'b0; len_ok_r <= 1'b0;
       beat_r <= '0;

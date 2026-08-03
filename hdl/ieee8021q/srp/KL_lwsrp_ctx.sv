@@ -242,7 +242,7 @@ module KL_lwsrp_ctx #(
     end
   endgenerate
 
-  always_ff @(posedge clk_i or negedge rst_n) begin : ctx_registrar_S
+  always_ff @(posedge clk_i) begin : ctx_registrar_S
     if (!rst_n) begin
       areg_r <= '0; afail_r <= '0; adecl_r <= '0; acode_r <= '0;
       rleave_r <= '0; fleave_r <= '0;
@@ -374,7 +374,7 @@ module KL_lwsrp_ctx #(
                          : rb_leg_w  ? leg_sid_i
                                      : sid_r[64*rb_row_w +: 64];
 
-  always_ff @(posedge clk_i or negedge rst_n) begin : ctx_port_S
+  always_ff @(posedge clk_i) begin : ctx_port_S
     if (!rst_n) begin
       valid_r <= '0; dir_r <= '0; onwire_r <= '0; sid_r <= '0;
       row_fresh_o <= '0; row_lv_o <= '0;

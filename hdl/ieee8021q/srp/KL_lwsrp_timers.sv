@@ -44,7 +44,7 @@ module KL_lwsrp_timers #(
 
   logic [TICK_CNT_W_C-1:0] ms_ctr_r;
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       ms_ctr_r    <= '0;
       tick_1khz_o <= 1'b0;
@@ -65,7 +65,7 @@ module KL_lwsrp_timers #(
   logic [$clog2(JOIN_TIME_MS_C)-1:0]     join_ctr_r;
   logic [$clog2(LEAVEALL_TIME_MS_C)-1:0] la_ctr_r;
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       join_ctr_r      <= '0;
       la_ctr_r        <= '0;

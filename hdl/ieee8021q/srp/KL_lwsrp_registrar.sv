@@ -96,7 +96,7 @@ module KL_lwsrp_registrar #(
                             ((listener_decl_o == LSTN_DECL_READY_C) ||
                              (listener_decl_o == LSTN_DECL_READY_FAIL_C));
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       listener_reg_o  <= 1'b0;
       listener_decl_o <= LSTN_DECL_IGNORE_C;
@@ -161,7 +161,7 @@ module KL_lwsrp_registrar #(
                        (domain_prio_i == SR_CLASS_A_PRIO_C) &&
                        (domain_vid_i == {4'h0, vid_i});
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       boundary_r <= 1'b0; boundary_age_r <= '0;
     end else if (!enable_i) begin
@@ -183,7 +183,7 @@ module KL_lwsrp_registrar #(
   // -----------------------------------------------------------------------
   // TalkerFailed capture (sticky; AECP GET_STREAM_INFO exposure)
   // -----------------------------------------------------------------------
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       tfail_valid_o <= 1'b0; tfail_code_o <= 8'h00; tfail_bridge_o <= 64'h0;
     end else if (!enable_i) begin

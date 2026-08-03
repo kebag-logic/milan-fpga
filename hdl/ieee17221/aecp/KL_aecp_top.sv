@@ -363,7 +363,7 @@ module KL_aecp_top #(
 
   // ---- status counters ----------------------------------------------
   logic [15:0] cmd_cnt_r, resp_cnt_r;
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       cmd_cnt_r <= 16'd0; resp_cnt_r <= 16'd0;
     end else begin

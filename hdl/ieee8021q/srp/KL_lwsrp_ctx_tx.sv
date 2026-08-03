@@ -248,7 +248,7 @@ module KL_lwsrp_ctx_tx #(
                   : 8'h00;
   end
 
-  always_ff @(posedge clk_i or negedge rst_n) begin : ctx_tx_S
+  always_ff @(posedge clk_i) begin : ctx_tx_S
     sec_t nsec;
     logic [3:0] nrow;
     logic       need_load;

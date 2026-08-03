@@ -178,7 +178,7 @@ module KL_aecp_ingress #(
     end
   end
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       wbeat_r <= 3'd0; pushing_r <= 1'b0;
       drop_rest_r <= 1'b0; kill_pend_r <= 1'b0;
@@ -366,7 +366,7 @@ module KL_aecp_ingress #(
                     (rstate_r == R_STREAM_S && !w_tail_only &&
                      m_axis_tready);
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       rstate_r    <= R_W0_S;
       hold_r      <= '0;

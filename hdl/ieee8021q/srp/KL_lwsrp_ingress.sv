@@ -67,7 +67,7 @@ module KL_lwsrp_ingress #(
   reg        rxv_r, rxl_r;
   reg [63:0] rxd_r;
   reg [7:0]  rxk_r;
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       rxv_r <= 1'b0; rxl_r <= 1'b0; rxd_r <= '0; rxk_r <= '0;
     end else begin
@@ -129,7 +129,7 @@ module KL_lwsrp_ingress #(
     end
   end
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       hold_v_r <= 1'b0; hold_l_r <= 1'b0; hold_d_r <= '0; hold_k_r <= '0;
       beat_idx_r <= 2'd0; active_r <= 1'b0; skip_r <= 1'b0; kind_r <= 1'b0;

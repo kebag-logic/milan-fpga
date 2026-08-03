@@ -3149,7 +3149,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! KL_lwsrp_ctx is guaranteed), never anybody's grant.
   wire crf_srp_ret_w = srp_fab_launch_w & srp_fab_is_crf_w;
 
-  always_ff @(posedge axis_clk or negedge axis_resetn) begin : crf_srp_prov
+  always_ff @(posedge axis_clk) begin : crf_srp_prov
     if (!axis_resetn) begin
       crf_srp_req_r  <= 1'b0;
       crf_srp_val_r  <= 1'b0;

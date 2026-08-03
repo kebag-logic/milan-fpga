@@ -127,7 +127,7 @@ module KL_pcm_lpf (
 
   assign bpop_w = !busy_r && (bcnt_r != 4'd0);
 
-  always_ff @(posedge clk_i or negedge rst_n) begin : engine
+  always_ff @(posedge clk_i) begin : engine
     if (!rst_n) begin
       bwr_r <= '0; brd_r <= '0; bcnt_r <= '0;
       step_r <= '0; busy_r <= 1'b0;

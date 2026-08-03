@@ -269,7 +269,7 @@ module KL_lwsrp_top #(
   generate
     if (N_CTX_P > 1) begin : g_txmux
       reg sel_r, busy_r;
-      always_ff @(posedge clk_i or negedge rst_n) begin : txmux_S
+      always_ff @(posedge clk_i) begin : txmux_S
         if (!rst_n) begin
           sel_r <= 1'b0; busy_r <= 1'b0;
         end else if (busy_r) begin
@@ -367,7 +367,7 @@ module KL_lwsrp_top #(
   //! at 0, i.e. a reservation with no slope. Same beat = cannot diverge.
   wire ctx_svc_w = ctx_req_i && !ctx_gnt_o;
 
-  always_ff @(posedge clk_i or negedge rst_n) begin : gate_tspec_shadow
+  always_ff @(posedge clk_i) begin : gate_tspec_shadow
     if (!rst_n) begin
       for (int l = 0; l < int'(EXT_LANES_C); l++) begin
         gate_maxf_r[l] <= '0;

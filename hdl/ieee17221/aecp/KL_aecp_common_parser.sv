@@ -99,7 +99,7 @@ module KL_aecp_common_parser (
   // ------------------------------------------------------------------ //
   // Sequential FSM + extraction                                          //
   // ------------------------------------------------------------------ //
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       state_r          <= BEAT0_S;
       hdr_r            <= '0;

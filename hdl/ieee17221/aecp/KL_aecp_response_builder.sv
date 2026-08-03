@@ -1716,7 +1716,7 @@ module KL_aecp_response_builder (
   // ------------------------------------------------------------------ //
   // Main FSM                                                             //
   // ------------------------------------------------------------------ //
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       state_r      <= IDLE_S;
       beat_r       <= 7'd0;   //! beat_r is [6:0] - reset it at its own width

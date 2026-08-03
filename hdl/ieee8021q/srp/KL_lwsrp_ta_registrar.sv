@@ -67,7 +67,7 @@ module KL_lwsrp_ta_registrar (
                     (l_evt_i == MRP_EVT_JOINMT_C) || (l_evt_i == MRP_EVT_IN_C);
   wire w_lv_evt   = (l_evt_i == MRP_EVT_LV_C);
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       ta_registered_o <= 1'b0;
       ta_failed_o     <= 1'b0;

@@ -209,7 +209,7 @@ module KL_aecp_packet_validator (
   // ------------------------------------------------------------------ //
   // FSM — sequential                                                     //
   // ------------------------------------------------------------------ //
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       state_r        <= FIRST_BEAT_S;
       msg_type_r     <= 4'd0;

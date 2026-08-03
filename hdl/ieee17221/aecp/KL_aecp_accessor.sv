@@ -103,7 +103,7 @@ module KL_aecp_accessor (
   logic        found_q;  //! registered hit
   logic [63:0] rec_q;    //! registered directory record (BRAM data register)
 
-  always_ff @(posedge clk_i or negedge rst_n) begin : found_reg
+  always_ff @(posedge clk_i) begin : found_reg
     if (!rst_n)
       found_q <= 1'b0;
     else if (en_i)

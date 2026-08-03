@@ -305,7 +305,7 @@ module KL_crf_rx #(
   logic               iv_frx_r, iv_uf_r, iv_sm_r;
   logic               iv_mr_r, iv_tu_r, iv_lt_r, iv_et_r;
 
-  always_ff @(posedge clk_i or negedge rst_n) begin : iv_tick_gen
+  always_ff @(posedge clk_i) begin : iv_tick_gen
     if (!rst_n) begin
       iv_div_r  <= '0;
       iv_tick_r <= 1'b0;
@@ -326,7 +326,7 @@ module KL_crf_rx #(
     end
   end : ts_hist_port
 
-  always_ff @(posedge clk_i or negedge rst_n) begin : engine
+  always_ff @(posedge clk_i) begin : engine
     if (!rst_n) begin
       delta_o <= '0; rate_o <= '0;
       pdu_count_o <= '0; fmt_err_o <= '0; seq_err_o <= '0;

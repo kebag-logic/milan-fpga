@@ -138,20 +138,37 @@ EXTRA_WARNINGS = [
     # deviation from the rule, and there are only five (4 in ieee1722, 1 on
     # milan_datapath's axis_resetn).
     #
-    # INVESTIGATED 2026-07-27, all five, and NONE was fixed - the finding is
-    # true and the selection is an artifact, so a bulk fix would have been a
-    # synthesis change bought with no evidence. Kept in the ratchet (NOT
-    # waived: an async reset really is a house-rule deviation, and "we know it
-    # is fine" is what the ratchet is for, not RULE_WAIVERS). What was found:
+    # INVESTIGATED 2026-07-27, all five, and none was fixed THEN: the finding
+    # was true but the selection is an artifact, so a bulk fix looked like a
+    # synthesis change bought with no evidence. THE EVIDENCE ARRIVED 2026-08-03
+    # and the bulk fix LANDED - see the reset-partition note below. Kept in the
+    # ratchet (NOT waived: an async reset really is a house-rule deviation, and
+    # "we know it is fine" is what the ratchet is for, not RULE_WAIVERS).
+    # What was found:
     #
-    #  * `posedge clk_i or negedge rst_n` is NOT rare here - it is 43
+    #  * `posedge clk_i or negedge rst_n` was NOT rare here - it was 44
     #    always_ff blocks across srp/aecp/acmp/crf/aaf/common. SYNCASYNCNET
-    #    fires on 4 of them and not the other 39, purely because those 4 ALSO
+    #    fires on 4 of them and not the other 40, purely because those 4 ALSO
     #    carry a 2-FF reset bridge into an audio/bclk domain
     #    (`xrst_n_r <= {xrst_n_r[0], rst_n}` in aaf_talker_i2s:95,
     #    KL_aaf_capture_i2s:71, KL_tdm_capture:109/120, KL_crf_tx:102). So the
     #    rule does not select "the modules with a reset problem"; it selects
     #    "the modules that also cross a clock domain".
+    #
+    #  * THE RESET PARTITION (2026-08-03, the missing evidence). On a 7-series
+    #    SLICE the SR line is shared by all 8 FFs and its sync/async mode is a
+    #    SLICE-WIDE property, so an async-reset FF can NEVER share a slice with
+    #    a sync-reset one. Post-place on the AX7101 8x8 rv32 build that split
+    #    was 13,040 async vs 41,253 sync registers, and the design sat at
+    #    99.96 % SLICE occupancy (15,844/15,850) with LUTs at only 83.65 % -
+    #    i.e. it was slice-bound, not LUT-bound, and the async/sync partition
+    #    was buying that. 39 of the 44 blocks were converted to the house
+    #    synchronous form; the 5 left are exactly the dual-clock modules above,
+    #    where the async assert still carries the reset into a second domain
+    #    whose clock can be stopped. The conversion is safe because milan_rst
+    #    is AsyncResetSynchronizer-generated (async assert, SYNCHRONOUS
+    #    release): the release is >= 2 clocked cycles wide, and a synchronous
+    #    reset needs exactly one edge.
     #  * Both halves are individually correct for how the reset is GENERATED.
     #    axis_resetn is `~ResetSignal(cd_milan)` (sw/litex/milan_soc.py:528)
     #    and LiteX's S7PLL.create_clkout installs an AsyncResetSynchronizer:

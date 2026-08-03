@@ -119,7 +119,7 @@ module KL_lwsrp_bw_gate #(
   logic [32:0]       iv_bytes_r;
   logic [SLOPE_W_C-1:0] slope_q_r [N_STREAMS_P];
 
-  always_ff @(posedge clk_i or negedge rst_n) begin : slope_walk
+  always_ff @(posedge clk_i) begin : slope_walk
     if (!rst_n) begin
       cidx_r <= '0; cidx_q1_r <= '0; cidx_q2_r <= '0;
       frame_bytes_r <= '0; iv_bytes_r <= '0;
@@ -188,7 +188,7 @@ module KL_lwsrp_bw_gate #(
     wgrant_now_w[aidx_r] = fit_w;
   end : grant_merge
 
-  always_ff @(posedge clk_i or negedge rst_n) begin : admission_walk
+  always_ff @(posedge clk_i) begin : admission_walk
     if (!rst_n) begin
       aidx_r <= '0; acc_r <= '0; sacc_r <= '0; over_acc_r <= 1'b0;
       wgrant_r <= '0; grant_r <= '0;
@@ -223,7 +223,7 @@ module KL_lwsrp_bw_gate #(
   localparam int unsigned HOLD_W_C = $clog2(HOLD_CYCLES_C + 1);
   logic [HOLD_W_C-1:0] hold_r [N_STREAMS_P];
 
-  always_ff @(posedge clk_i or negedge rst_n) begin : gate_order
+  always_ff @(posedge clk_i) begin : gate_order
     if (!rst_n) begin
       stream_gate_o <= '0;
       slope_on_r    <= '0;
