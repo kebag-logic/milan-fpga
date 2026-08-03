@@ -24,8 +24,13 @@
 
                 MAP ENTRY (12 bits, one per slot):
                   {idxh[11:8], en[7], src[6:4], idx[3:0]}
-                  en  - 1 = this slot is live and injected every media tick;
-                        0 = the slot emits nothing (skipped in the walk).
+                  en  - 1 = this slot carries its src bucket;
+                        0 = this slot carries PCM silence. EITHER WAY the
+                        slot is injected every media tick: Milan v1.2
+                        5.3.9.1 lets a channel of a Stream Output be "not
+                        mapped", and 5.3.7.3 still requires the Stream
+                        Output to be streaming, so an unmapped channel is
+                        a SILENT channel, never a missing frame.
                   src - the source bucket:
                           0 ZERO    : digital silence (L=R=0)
                           1 I2S_IN  : the stereo I2S capture pair (idx unused)
@@ -140,15 +145,34 @@
                      and it is the first thing the silicon procedure reads.
 
                 EMIT (media sample tick): on tick_i the engine walks the slot
-                map low-to-high; each ENABLED slot injects one pair
-                (pair_valid_o one-cycle pulse + pair_slot_o + pair_l_o/
-                pair_r_o) then idles GAP_CYC_P cycles before the next slot -
-                the proven inject cadence the packetizer admits (one pair per
-                cycle with a settle gap, mirroring the golden NxN TB's
-                pair()). Disabled slots are skipped with no pulse. Six media
-                ticks (6 samples/ch) fill one AVTPDU per talker on the shared
-                6-sample cadence; a tick arriving mid-walk is queued one deep
-                (never dropped).
+                map low-to-high; EVERY slot injects one pair (pair_valid_o
+                one-cycle pulse + pair_slot_o + pair_l_o/pair_r_o) then idles
+                GAP_CYC_P cycles before the next slot - the proven inject
+                cadence the packetizer admits (one pair per cycle with a
+                settle gap, mirroring the golden NxN TB's pair()). An
+                unmapped slot injects silence rather than being skipped: it
+                is the packetizer's per-sample slot coverage that decides
+                whether a talker frames at all, and while this crossbar is
+                armed it OWNS that coverage - milan_datapath muxes the
+                KL_pair_zero_fill guard out of the path. Skipping therefore
+                cost the WHOLE talker its stream, not one channel its audio
+                (Milan v1.2 5.3.7.3). Six media ticks (6 samples/ch) fill one
+                AVTPDU per talker on the shared 6-sample cadence; a tick
+                arriving mid-walk is queued one deep (never dropped).
+
+                WALK BUDGET: a slot costs one CM_STEP_S cycle plus the
+                GAP_CYC_P+1 cycles CM_GAP_S takes to count GAP_CYC_P down to
+                zero AND advance, so the walk is
+                1 + N_SLOTS_P * (GAP_CYC_P+2) cycles including the CM_IDLE_S
+                cycle that starts it, and it must fit inside one media tick.
+                At the shipping 8x8 that is 1 + 32*26 = 833 against
+                MILAN_CLK_FREQ_HZ/48000 (2083 at 100 MHz, 1041 at 50 MHz).
+                Covering the unmapped slots does not raise that ceiling - a
+                fully mapped board already pays all 32, and the shipped 8x8
+                map is fully mapped - it only stops a sparsely mapped board
+                from finishing early. tb/verilator/chmap_capture [A4]
+                MEASURES the walk against the budget rather than restating
+                it, with an all-unmapped map, which is now the worst case.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -159,8 +183,10 @@
 //! ({idxh, en, src, idx}) routes each packetizer pair slot to a source bucket
 //! (I2S capture / TDM / ALSA ring / tone / RX-stream loopback / silence);
 //! free-running source holds, per-tick low-to-high slot walk emitting the
-//! packetizer inject cadence (one pulse + GAP_CYC_P settle), disabled slots
-//! silent. The loopback bucket de-interleaves the depacketizer payload clone
+//! packetizer inject cadence (one pulse + GAP_CYC_P settle) on EVERY slot,
+//! unmapped ones carrying PCM silence so an unmapped channel never costs its
+//! talker the stream. The loopback bucket de-interleaves the depacketizer
+//! payload clone
 //! (IEEE 1722-2016 7.3.3/7.3.5) into per-(stream, channel pair) holds, so a
 //! received stream's channels can feed a talker. Single clock, no CDC.
 
@@ -460,9 +486,21 @@ module KL_chan_map_capture #(
                      : LBPW_C'(0);
   wire [47:0] lb_sel_w = lb_sel_ok_w ? lb_hold_r[lb_sel_addr_w] : 48'd0;
 
+  //! An UNMAPPED slot resolves to the ZERO bucket rather than dropping out of
+  //! the walk (Milan v1.2 5.3.9.1 "either not mapped or mapped ..." is about
+  //! ONE CHANNEL; 5.3.7.3 still owes the stream its packets). Gating the
+  //! source select rather than the emit keeps the FSM below branch-free.
+  //! Written as a MASK, not as `en_w ? src_w : SRC_ZERO_C`: the two are the
+  //! same Boolean function (SRC_ZERO_C is 3'd0) but the mask folds into the
+  //! map-RAM read mux instead of building a second one behind it - 3574 vs
+  //! 3901 LC, yosys OOC at the 8x8 shape, against 3789 LC for the pre-fix
+  //! walk that skipped the slot. Both correct; only one is cheaper than
+  //! what it replaces, on a device sitting at 61,039 of 63,400 LUTs.
+  wire [2:0] srcsel_w = src_w & {3{en_w}};
+
   logic [23:0] sel_l_w, sel_r_w;
   always_comb begin : source_mux
-    unique case (src_w)
+    unique case (srcsel_w)
       SRC_I2S_C : {sel_l_w, sel_r_w} = i2s_hold_r;
       SRC_TDM_C : {sel_l_w, sel_r_w} =
                     (32'(idx_w) < N_TDM_PAIRS_C)
@@ -515,23 +553,23 @@ module KL_chan_map_capture #(
           end
         end
 
-        // -------- decide the current slot --------------------------------
+        // -------- inject the current slot --------------------------------
+        //! EVERY slot injects, mapped or not (srcsel_w above already turned
+        //! an unmapped one into silence). Skipping the unmapped ones is what
+        //! made a talker with one unmapped channel stop framing ALTOGETHER:
+        //! the packetizer advances nsamp_r per slot it is fed, so a slot that
+        //! never pulses stalls that talker's frame forever, and while this
+        //! crossbar is armed milan_datapath has muxed KL_pair_zero_fill - the
+        //! guard that covers exactly this for the front-end path - out of the
+        //! packetizer's input. Milan v1.2 5.3.7.3 gives a bound Stream Output
+        //! no way to be silent except by sending silence.
         CM_STEP_S : begin
-          if (en_w) begin
-            //! inject one pair for this enabled slot (1-cycle pulse next)
-            pair_valid_o <= 1'b1;
-            pair_slot_o  <= 5'(slot_r);
-            pair_l_o     <= sel_l_w;
-            pair_r_o     <= sel_r_w;
-            gap_r        <= ($clog2(GAP_CYC_P+1))'(GAP_CYC_P);
-            st_r         <= CM_GAP_S;
-          end
-          else begin
-            //! disabled slot: emit nothing, advance immediately
-            pair_valid_o <= 1'b0;
-            if (last_slot_w) st_r <= CM_IDLE_S;
-            else             slot_r <= slot_r + 1'b1;
-          end
+          pair_valid_o <= 1'b1;
+          pair_slot_o  <= 5'(slot_r);
+          pair_l_o     <= sel_l_w;
+          pair_r_o     <= sel_r_w;
+          gap_r        <= ($clog2(GAP_CYC_P+1))'(GAP_CYC_P);
+          st_r         <= CM_GAP_S;
         end
 
         // -------- settle gap between injects ------------------------------

@@ -182,8 +182,16 @@ static void drv_lb_pdu(int s, int chans, int events, int e0) {
   dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0; dut->lb_tdata_i = 0; cyc(2); }
 
 // ---- media ticks (one full slot walk per tick; drain-friendly spacing) ---
-static void a_tick() { dut->a_tick_i = 1; cyc(); dut->a_tick_i = 0; cyc(300); }
-static void b_tick() { dut->b_tick_i = 1; cyc(); dut->b_tick_i = 0; cyc(340); }
+//! Both wrappers elaborate N_SLOTS_P = 32 with GAP_CYC_P = 24, and EVERY slot
+//! now injects (an unmapped one carries silence - Milan v1.2 5.3.7.3), so a
+//! walk is 1 + 32*26 = 833 cycles whatever the map holds. The old 300/340
+//! spacing only ever fitted because the sparsely mapped phases below skipped
+//! 27 of the 32 slots in one cycle each; it was never the real grid, which is
+//! MILAN_CLK_FREQ_HZ/48000 = 2083 cycles at 100 MHz (1041 at 50 MHz). WALK_C
+//! is checked against that budget in [A4] rather than being restated there.
+static const int WALK_C = 1 + 32 * (24 + 2);
+static void a_tick() { dut->a_tick_i = 1; cyc(); dut->a_tick_i = 0; cyc(WALK_C + 60); }
+static void b_tick() { dut->b_tick_i = 1; cyc(); dut->b_tick_i = 0; cyc(WALK_C + 100); }
 
 static const uint32_t I2S_L = 0x1A1111, I2S_R = 0x1A2222;
 static const uint32_t TONE  = 0x7A7A7A;
@@ -302,17 +310,88 @@ int main(int argc, char** argv) {
   else         ck("A2: t0 frame (skipped)", 0, 1);
 
   // ====================================================================== //
-  printf("\n[A3] disabled slot = absence: disable slot0 drops t0 entirely\n");
-  a_map_wr(0, ent(0, 1, 0));   // slot0 disabled (en=0)
+  // An UNMAPPED slot is a SILENT channel, never a missing stream.            //
+  //                                                                          //
+  // Milan v1.2 5.3.9.1 says each channel of a Stream Output is "either not   //
+  // mapped or mapped to a channel of an Audio Cluster", so leaving slot0     //
+  // unmapped is a legal configuration. 5.3.7.3 says the PAAD "shall be       //
+  // streaming AVTP packets" for as long as it is declaring Talker Advertise  //
+  // and seeing a Listener Ready - with no STREAMING_WAIT to hide behind.     //
+  // Those two together mean an unmapped channel owes the wire silence, and   //
+  // owes it INSIDE a frame that still goes out.                              //
+  //                                                                          //
+  // The crossbar used to skip an unmapped slot with no pulse, and the        //
+  // packetizer advances a talker's sample count per slot it is fed - so one  //
+  // unmapped channel stalled the whole talker and t0 vanished from the wire. //
+  // KL_pair_zero_fill exists to catch exactly that, but milan_datapath muxes //
+  // it out of the packetizer's input whenever this crossbar is armed         //
+  // (the pkt_pv_w bypass), so while CHMAP owns slot coverage nothing else    //
+  // was covering it. This phase is the wire-level proof that it does now.    //
+  // ====================================================================== //
+  printf("\n[A3] unmapped slot = SILENCE, not absence: t0 keeps framing\n");
+  a_map_wr(0, ent(0, 1, 0));   // slot0 unmapped (en=0), was I2S
   cyc(4);
   afr.clear();
   for (int i = 0; i < 6; i++) a_tick();
   cyc(400);
-  ck("A3: only one frame (t0 absent)", (long)afr.size(), 1);
-  if (afr.size() == 1) {
-    ck("A3: surviving frame is 8ch (t1)", afr[0][36], 8);
-    ck("A3: t1 seq advanced to 2", afr[0][20], 2);
-  } else { ck("A3 content (skipped)", 0, 1); ck("A3 content (skipped)", 0, 1); }
+  ck("A3: BOTH talkers still frame", (long)afr.size(), 2);
+  int k0 = find_len(afr, 90), k1 = find_len(afr, 234);
+  ck("A3: t0 is still on the wire", k0 >= 0, 1);
+  if (k0 >= 0) {
+    ck("A3: t0 is still 2ch", afr[k0][36], 2);
+    ck("A3: t0 unmapped pair0 is silence L", be(afr[k0], 42, 3), 0);
+    ck("A3: t0 unmapped pair0 is silence R", be(afr[k0], 46, 3), 0);
+    ck("A3: t0 seq advanced to 2 (it never stalled)", afr[k0][20], 2);
+  } else { for (int k = 0; k < 4; k++) ck("A3 t0 content (skipped)", 0, 1); }
+  if (k1 >= 0) {
+    ck("A3: t1 is unaffected by t0's unmapped slot", afr[k1][36], 8);
+    ck("A3: t1 seq advanced to 2", afr[k1][20], 2);
+    ck("A3: t1 pair3 slot4 still RING1 L", be(afr[k1], 66, 3), RNG_L(1));
+  } else { for (int k = 0; k < 3; k++) ck("A3 t1 content (skipped)", 0, 1); }
+  //! slot0 is deliberately LEFT unmapped - [RB] below reads it back
+
+  // ====================================================================== //
+  // The walk got LONGER when unmapped slots stopped being free, so the      //
+  // budget it has to fit in is now load-bearing: one whole walk must still  //
+  // finish inside one media tick or a talker loses samples. Measured here   //
+  // against the WORST map (every slot unmapped = every slot injected), then //
+  // compared to the tightest real grid, MILAN_CLK_FREQ_HZ/48000 at 50 MHz.  //
+  // ====================================================================== //
+  printf("\n[A4] the full-coverage walk still fits one media tick\n");
+  {
+    std::vector<uint16_t> saved(32);
+    for (int s = 0; s < 32; s++) { saved[s] = a_map_ent(s);
+                                   a_map_wr(s, ent(0, 0, 0)); }
+    cyc(4);
+    afr.clear();
+    //! count the injects of ONE walk and time it, then complete the 6-sample
+    //! frame so the phases below stay on the frame boundary they expect
+    long pulses = 0, span = 0;
+    dut->a_tick_i = 1; cyc(); dut->a_tick_i = 0;
+    for (int c = 0; c < WALK_C + 60; c++) {
+      cyc();
+      if (dut->a_pv_o) { pulses++; span = c + 1; }
+    }
+    ck("A4: an all-unmapped map injects every slot", pulses, 32);
+    ck("A4: the walk finishes inside the declared WALK_C", span <= WALK_C, 1);
+    //! 50 MHz is the tighter of the two shipping media grids; 100 MHz has
+    //! twice the room. Derived from the divider, not restated: 50e6/48000.
+    ck("A4: WALK_C fits the 50 MHz media tick", WALK_C < (50000000 / 48000), 1);
+    for (int i = 0; i < 5; i++) a_tick();
+    cyc(400);
+    //! the whole point, at the wire: a board with NOTHING mapped still
+    //! streams - every channel silent, no channel missing
+    ck("A4: an all-unmapped board still frames BOTH talkers",
+       (long)afr.size(), 2);
+    int z0 = find_len(afr, 90), z1 = find_len(afr, 234);
+    ck("A4: t0 still framed", z0 >= 0, 1);
+    ck("A4: t1 still framed", z1 >= 0, 1);
+    long nz = 0;
+    for (auto& f : afr) for (size_t i = 42; i < f.size(); i++) if (f[i]) nz++;
+    ck("A4: and every payload octet is silence", nz, 0);
+    for (int s = 0; s < 32; s++) a_map_wr(s, saved[s]);
+    cyc(4);
+  }
 
   // ====================================================================== //
   printf("\n[RB] map RAM readback port\n");
@@ -446,7 +525,7 @@ int main(int argc, char** argv) {
 
   // ====================================================================== //
   printf("\n[LB3] a LOOP slot naming a stream nothing has sent = silence;\n"
-         "      a DISABLED loop slot = absence (its talker never completes)\n");
+         "      an UNMAPPED loop slot = silence too, never absence\n");
   a_map_wr(4, ent_lb(1, 7, 0));   // stream 7: in range, never fed
   cyc(4);
   afr.clear();
@@ -461,14 +540,25 @@ int main(int argc, char** argv) {
        LBV(3, 6, 6));
   } else { for (int k = 0; k < 3; k++) ck("LB3 content (skipped)", 0, 1); }
 
-  a_map_wr(4, ent_lb(0, 3, 0));   // disabled LOOP slot
+  //! The unmapped LOOP slot is the same clause as [A3], reached down the
+  //! loopback bucket instead of a physical one: 5.3.9.1 lets the channel be
+  //! unmapped, 5.3.7.3 still owes the Stream Output its packets. Both
+  //! talkers must survive, and t1's now-unmapped pair3 must read silence.
+  a_map_wr(4, ent_lb(0, 3, 0));   // unmapped LOOP slot (en=0)
   cyc(4);
   afr.clear();
   for (int i = 0; i < 6; i++) a_tick();
   cyc(400);
-  ck("LB3: disabled loop slot drops t1 (one frame left)", (long)afr.size(), 1);
-  if (afr.size() == 1) ck("LB3: survivor is t0 (2ch)", afr[0][36], 2);
-  else                 ck("LB3: survivor (skipped)", 0, 1);
+  ck("LB3: unmapping a loop slot keeps BOTH talkers", (long)afr.size(), 2);
+  int u1 = find_len(afr, 234), u0 = find_len(afr, 90);
+  ck("LB3: t0 (2ch) survived", u0 >= 0 ? afr[u0][36] : -1, 2);
+  ck("LB3: t1 (8ch) survived it too", u1 >= 0, 1);
+  if (u1 >= 0) {
+    ck("LB3: t1 unmapped pair3 is silence L", be(afr[u1], 66, 3), 0);
+    ck("LB3: t1 unmapped pair3 is silence R", be(afr[u1], 70, 3), 0);
+    ck("LB3: t1 mapped pair0 still carries loop audio",
+       be(afr[u1], 42, 3), LBV(3, 6, 6));
+  } else { for (int k = 0; k < 3; k++) ck("LB3 unmapped content (skipped)", 0, 1); }
   ck("LB3: readback carries the loop stream nibble", a_map_ent(2),
      ent_lb(1, 3, 1));
   ck("LB3: readback of the disabled loop slot", a_map_ent(4), ent_lb(0, 3, 0));

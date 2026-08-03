@@ -2861,14 +2861,25 @@ int main(int argc, char** argv) {
                any_audio, 0);
         }
 
-        // a DISABLED loop slot stops carrying the received audio - the
+        // An UNMAPPED loop slot stops carrying the received audio - the
         // bucket is selected BY THE MAP and never leaks into a slot that
-        // did not ask for it. The oracle is "no PDU carries rx samples",
-        // not "PDUs are silent": while CHMAP is armed it OWNS the slot
-        // coverage (the 5.3.7.3 zero-fill is muxed out at
-        // milan_datapath's pkt_* bypass), so an unmapped slot is never
-        // strobed and talker 0 simply stops framing. Both outcomes are a
-        // pass here; a payload still carrying stream 1 is not.
+        // did not ask for it. But it must stop carrying audio the way the
+        // clause allows: by SENDING SILENCE, not by going off the wire.
+        //
+        // Milan v1.2 5.3.9.1 makes "not mapped" a legal state for a
+        // channel of a Stream Output; 5.3.7.3 says the PAAD "shall be
+        // streaming AVTP packets" while it declares Talker Advertise and
+        // sees a Listener Ready, and forbids STREAMING_WAIT outright. So
+        // unmapping a channel owes the wire silence INSIDE a frame that
+        // still goes out.
+        //
+        // This is the integration-level half of the proof, and it needs
+        // to live HERE rather than in tb/verilator/chmap_capture: the
+        // reason the gap was reachable at all is the milan_datapath
+        // pkt_pv_w bypass, which mutes KL_pair_zero_fill - the guard that
+        // covers exactly this for the front-end path - for as long as
+        // CHMAP is armed. Only a datapath leg has both halves in it.
+        // Before the fix this loop collected ZERO talker-0 PDUs.
         for (int slot = 0; slot < 2; slot++) {
             axi_write(A_CHMAP_SEL, 0x100 | slot);
             axi_write(A_CHMAP_WORD, 0x0000);     // en = 0
@@ -2876,6 +2887,7 @@ int main(int argc, char** argv) {
         for (int c = 0; c < 20000; c++) step();
         {
             std::vector<uint8_t> cur; int leaked = 0; int seen = 0;
+            int nonzero = 0;
             for (int c = 0; c < 200000 && seen < 2; c++) {
                 lo();
                 if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
@@ -2895,6 +2907,7 @@ int main(int argc, char** argv) {
                                 uint32_t v = ((uint32_t)cur[o]   << 16) |
                                              ((uint32_t)cur[o+1] <<  8) |
                                               (uint32_t)cur[o+2];
+                                if (v) nonzero++;
                                 for (int j = 0; j < 12; j++)
                                     if (v && lb_smp(j) == v) leaked++;
                             }
@@ -2904,8 +2917,10 @@ int main(int argc, char** argv) {
                 }
                 hi();
             }
-            printf("         (disabled slot: %d talker-0 PDU(s) seen)\n", seen);
-            ck("lb: a DISABLED loop slot carries no rx audio", leaked, 0);
+            printf("         (unmapped slot: %d talker-0 PDU(s) seen)\n", seen);
+            ck("lb: an UNMAPPED loop slot carries no rx audio", leaked, 0);
+            ck("lb: unmapping a slot never stops talker 0 framing", seen, 2);
+            ck("lb: and what it frames instead is silence", nonzero, 0);
         }
 
         axi_write(A_CHMAP_CTRL, 0x0);            // restore the legacy path

@@ -214,11 +214,24 @@ flowchart LR
     BYP --> PKT
 ```
 
-Two ways to be silent, and they are not the same: `src = 0` (ZERO) and
-the reserved values 5..7 still **pulse** the slot, carrying a zero pair;
-`en = 0` makes the walk skip the slot and emit no pulse at all. The
-second is what keeps a disabled slot from skewing its stream's other
-channels (§4.1).
+Two ways to be silent, and they now mean the same thing on the wire:
+`src = 0` (ZERO) and the reserved values 6..7 pulse the slot carrying a
+zero pair, and since 2026-08-03 so does `en = 0`. They differ only in
+the readback, which still reports the entry verbatim so software can
+tell "unmapped" from "mapped to silence".
+
+`en = 0` used to make the walk **skip** the slot with no pulse at all,
+and that was a conformance defect, not a feature. The packetizer
+advances a talker's sample count per slot it is fed, so a skipped slot
+stalled the talker's frame permanently: one unmapped channel took the
+whole stream off the wire. Milan v1.2 5.3.9.1 makes "not mapped" a
+legal state for a channel of a Stream Output, and 5.3.7.3 requires the
+Stream Output to be streaming AVTP packets for as long as it declares
+Talker Advertise and sees a Listener Ready — with no STREAMING_WAIT to
+fall back on. So an unmapped channel owes the wire silence, inside a
+frame that still goes out. `KL_pair_zero_fill` guarantees exactly this
+for the front-end path, but §4 muxes it out whenever the crossbar is
+armed, so nothing else was covering it.
 
 ### 4.1 Model
 
@@ -239,15 +252,26 @@ discipline as §3, so arbitrary fan-out (many slots selecting one source
 pair) costs nothing.
 
 **Output pacing:** on each media tick the mux walks all 32 pair slots
-and emits one `{slot k, L, R}` pulse per **enabled** slot from the
-selected source's latch — exactly the pacing model `KL_pcm_tx` already
+and emits one `{slot k, L, R}` pulse per slot from the selected
+source's latch — exactly the pacing model `KL_pcm_tx` already
 implements for its slots (G4: "one media sample tick emits ONE audio
 sample for EVERY stream and EVERY channel pair"), so the packetizer's
-6-sample epoch cadence is preserved for every stream. Disabled slots
-emit nothing; the packetizer's slot-structural addressing (G2:
-"channel alignment is slot-structural") guarantees a disabled slot can
-never skew its stream's other channels — that stream's sample rows
-simply never complete, and the stream stays silent on the wire.
+6-sample epoch cadence is preserved for every stream. Unmapped slots
+pulse too, carrying zeros, so a stream's sample rows always complete;
+the packetizer's slot-structural addressing (G2: "channel alignment is
+slot-structural") then guarantees the silence lands in that channel and
+only that channel.
+
+**Walk budget.** Covering every slot makes the walk a fixed
+`1 + N_SLOTS_P × (GAP_CYC_P+2)` cycles — one to leave idle, then per
+slot one step cycle and the `GAP_CYC_P+1` the gap takes to count down
+and advance, so 833 at the 8×8 shape — and it must fit inside one media
+tick
+(`MILAN_CLK_FREQ_HZ/48000`: 2083 at 100 MHz, 1041 at 50 MHz). This is
+not a new ceiling: a fully mapped board already paid all 32 slots, and
+the shipped 8×8 map is fully mapped. `tb/verilator/chmap_capture` [A4]
+measures the walk against that budget with an all-unmapped map, which
+is now the worst case rather than the cheapest one.
 
 **Slot arithmetic — which slots belong to talker `t`.** The packetizer
 partitions the slot space by a prefix sum of `chans/2` (G2), so with a

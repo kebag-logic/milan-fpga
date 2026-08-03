@@ -75,6 +75,9 @@ module chmap_wrap (
   output wire [15:0]  a_map_rd_data_o,
   output wire         a_map_rd_valid_o,
   input  wire         a_tick_i,
+  //! the raw inject pulse, so a harness can time the slot walk itself rather
+  //! than infer its length from the frames that come out the far end
+  output wire         a_pv_o,
 
   //! --- lane A: packetizer (N=2) gate + TCTX window + AXIS -----------------
   input  wire [1:0]   a_en_i,
@@ -138,6 +141,7 @@ module chmap_wrap (
   wire        a_pv_w;
   wire [4:0]  a_slot_w;
   wire [23:0] a_l_w, a_r_w;
+  assign a_pv_o = a_pv_w;
 
   KL_chan_map_capture #(
     .N_SLOTS_P (32), .N_TDM_P (8), .N_RING_P (16), .GAP_CYC_P (24),
