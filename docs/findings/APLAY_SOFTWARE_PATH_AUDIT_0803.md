@@ -264,12 +264,33 @@ must be a second, independent defect — does not follow from the real
 constant. A dedicated stall hunt (`matrix-followup.txt` pass `f`) still
 samples the ALSA runtime status at 5 Hz through repeated `a1`-style deaths,
 because the one thing that *would* still indicate a stalled consumer is
-`hw_ptr` flatlining while the state stays `RUNNING`. **Queued but not
-completed in this session** (`matrix-followup.txt` pass `f`) — the board's
-ssh became unreachable during it, starved by `aplay` at `SCHED_FIFO 60`
-outranking `dropbear`, which is itself a small confirmation of how tight
-this hart is. The question stays open; §7's recommendations are written so
-that none of them depends on the answer.
+`hw_ptr` flatlining while the state stays `RUNNING`.
+
+**The hunt ran (`matrix-followup.txt` pass `f`) and did not catch a death** —
+`f1` survived its 150 s window to EOF with zero aplay xruns, which is the
+coin-flip result §3 predicts. So the stalled-consumer hypothesis is **still
+untested**, not refuted. What the run *does* establish is the healthy
+baseline it was meant to be compared against: across the sampled window
+`hw_ptr` advanced **strictly monotonically at 47 730 frames/s** against a
+48 000 nominal (−0.6%, consistent with the sampler's own timing error), and
+the state never left `RUNNING`. In a surviving run the consumer is not the
+problem.
+
+Two incidental findings from that same trace, both worth more than the test
+they came from:
+
+* **A `SCHED_OTHER` shell loop asking for a 0.2 s tick got 4.8–7.0 s,
+  averaging 5.85 s.** The sampler is a trivial `read`-plus-`sleep` loop; on
+  this board, at 0% idle with `aplay` at `SCHED_FIFO 60`, it was delayed by
+  a factor of ~30. Nothing unprivileged can be relied on for timing here.
+* **`ssh` became unusable for several minutes during this pass** — `dropbear`
+  is `SCHED_OTHER` and `aplay` at FIFO 60 outranks it, so the board answered
+  ICMP at 2 ms while refusing or hanging every SSH connection. That is worth
+  knowing before concluding a board has crashed: *ping fast + ssh dead* is a
+  scheduling symptom here, not a hang.
+
+§7's recommendations are written so that none of them depends on the
+unanswered question.
 
 ## 4. The mechanism: wake lateness vs tolerance, not CPU
 
