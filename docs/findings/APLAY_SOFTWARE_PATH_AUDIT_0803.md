@@ -459,26 +459,86 @@ into the ring, and that ring is a **write-combining** mapping which is slow
 to write from userspace too. "mmap access" and "zero copies" are not the
 same thing for a *file* player: the bytes have to reach the ring somehow.
 
-The genuine zero-extra-copy configuration — `snd_pcm_mmap_begin()` then
-`read()` **straight into the ring**, then `snd_pcm_mmap_commit()` — is
-implemented as `pcm_probe -Z`. Its purpose is to establish the floor: if
+### Why −1.5 points is exactly the right answer for `-M`
+
+Counting traversals of the audio data makes the measurement obvious rather
+than surprising:
+
+| path | traversals | what they are |
+|---|---|---|
+| `write()` (default) | **3** | `read()` page-cache→user buf; `copy_from_iter`→512 B stack bounce; `WRITE_ONCE` u64 loop→ring |
+| `-M` (`aplay -M`) | **2** | `read()` page-cache→user buf; alsa-lib `memcpy`→ring |
+| `-Z` | **1** | `read(fd, ring_addr, n)` — kernel lands page-cache bytes in the ring |
+| `-Y` | **1** | `memcpy` page-cache→ring, **and no syscall per period** |
+
+`aplay -M` removes the *driver's* two traversals and leaves **alsa-lib's**
+one — `snd_pcm_mmap_writei()` is internally `mmap_begin` → `memcpy` →
+`mmap_commit`. So the ~1.5-point win is not evidence that copying is cheap;
+it is evidence that only one of three traversals was removed, and that the
+remaining copy is alsa-lib's, not the driver's.
+
+### The driver already supports the direct-ring path — no change needed
+
+This was the open risk (ALSA's default mmap cannot give userspace a correct
+write-combining mapping of an ioremapped/reserved window). Checked in the
+source, and it is already handled:
+
+* **Capability flags** — `kl_milan_pb_hw.info` carries `SNDRV_PCM_INFO_MMAP |
+  MMAP_VALID | INTERLEAVED | BLOCK_TRANSFER | SYNC_APPLPTR`, so ALSA offers
+  `SND_PCM_ACCESS_MMAP_INTERLEAVED` for **playback** specifically.
+* **A custom `.mmap` op exists** — `kl_milan_pb_mmap` → `kl_milan_mmap_ring()`,
+  which does exactly the required thing:
+  ```c
+  vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
+  return remap_pfn_range(vma, vma->vm_start,
+                         ((unsigned long)dmab->addr + off) >> PAGE_SHIFT,
+                         size, vma->vm_page_prot);
+  ```
+  `dmab->addr` is the **physical** base (`pb_ring_phys + s*pb_stride`), which
+  is what `remap_pfn_range` needs; the reservation is `pcmring-pb@4fe00000`,
+  1 MiB, confirmed in the board's device tree.
+* **WC discipline holds.** The mf52 anomaly the driver documents is a WC
+  **read** artifact — its own note records *"mmap mode clean, /dev/mem dump
+  clean — the WC read path is the delta, not the ring"*. Every direct-ring
+  mode here only ever **writes** the ring (userspace `memcpy` for `-Y`, the
+  kernel's `copy_to_user` for `-Z`); there is no read-modify-write anywhere.
+  Alignment is satisfied by construction: 8ch × 4 B = 32-byte frames, offsets
+  are frame-aligned, and the driver gates `chans*4 % 8 == 0` at probe.
+
+**So no driver work was required for zero-copy** — only the harness was
+wrong. The genuine zero-extra-copy configuration —
+`snd_pcm_mmap_begin()` then `read()` **straight into the ring**, then
+`snd_pcm_mmap_commit()` — is implemented as `pcm_probe -Z`, and `-Y` adds an
+mmap'd source so there is no syscall per period either. Its purpose is to establish the floor: if
 `-Z` is not decisively cheaper than the `rw` control, then no amount of copy
 surgery in the driver changes playback survival, and lever 2 of the driver's
 analysis comment should be closed as *not worth doing*.
 
-**Not completed in this session.** The first attempt (`e1`) was invalid — a
-bug in the harness, not in the idea: driving `snd_pcm_mmap_begin()`/
-`commit()` directly never starts the stream, because alsa-lib's auto-start
-on `start_threshold` lives in `snd_pcm_mmap_write_areas()` (the helper
-behind `snd_pcm_mmap_writei()`), so the run filled exactly one buffer and
-died. That is fixed in `pcm_probe.c` and re-queued as `matrix-final.txt`
-pass `z` with matched controls, but the board became unreachable before it
-ran.
+**Implemented; measurement queued behind the bench.** The first attempt
+(`e1`) was invalid — a bug in the harness, not in the idea: driving
+`snd_pcm_mmap_begin()`/`commit()` directly never starts the stream, because
+alsa-lib's auto-start on `start_threshold` lives in
+`snd_pcm_mmap_write_areas()` (the helper behind `snd_pcm_mmap_writei()`), so
+the run filled exactly one buffer and died. Fixed: the path now calls
+`snd_pcm_avail_update()` before each `mmap_begin`, starts the stream
+explicitly once queued frames reach `start_threshold`, detects
+`XRUN`/`SUSPENDED` from `snd_pcm_state()` and recovers through the same
+`snd_pcm_recover()` the other modes use. Source wrapping is also fixed — the
+first version zero-filled the tail at EOF instead of wrapping, which injects
+silence and destroys frame alignment for any source that is not a whole
+number of periods, and would have made a bit-exactness check meaningless.
+
+The matched 8-run pass (`matrix-zerocopy.txt`: `-Z`, `-Y`, `write()`, `-M`,
+twice each) and the `-V` bit-exactness check are **queued behind campaign
+`ax-rv32-f`**, which owns the bench. No window was taken: the campaign's
+`audio` area holds the single playback substream, so any PCM open of mine
+would hand it a spurious `EBUSY` failure.
 
 This does **not** block the shipping decision: the `-M` result above is
 measured three times and already shows the copy path is worth only ~1.5
 points, while §4 shows the failure is a lateness/tolerance problem that
-costs 0 points to fix. `-Z` would sharpen the floor, not move the verdict.
+costs 0 points to fix. `-Z`/`-Y` sharpen the floor; they cannot move the
+verdict, because even eliminating **all** copy cost cannot buy tolerance.
 
 Separately, and importantly: **an mmap run being fast is not an mmap run
 being correct.** Userspace writes through the WC mapping, and the driver's
