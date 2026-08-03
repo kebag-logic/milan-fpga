@@ -2195,7 +2195,29 @@ module KL_aecp_response_builder (
 
         // ---------------------------------------------------------- //
         CAPTURE_S: begin
-          if (frame_ok_i) begin
+          //! The validator REJECTED this frame, so frame_ok_i is never
+          //! coming (KL_aecp_packet_validator.sv PASS_S raises drop_o
+          //! instead when the frame under-delivers its own declared
+          //! 6 + control_data_length). Without this arm the builder parks
+          //! here for good, which skips IDLE_S's `discard_q <= !enable_i`
+          //! re-arm below - and discard_q was already LATCHED from the
+          //! rejected frame's header a few beats earlier. The next frame
+          //! captures on top of it and SPENDS that discard at its own
+          //! frame_ok_i, so a foreign or arrive-while-disabled reject
+          //! silently eats one good command addressed to us (1722.1-2021
+          //! 9.2.1.1 owes it a response; the controller sees a timeout).
+          //! Re-arm exactly as IDLE_S would, in the same cycle it would.
+          //! pop_pend_r is deliberately NOT touched: the unconditional
+          //! frame_bad_i handler above already counted the drop and queued
+          //! the meta pop, and a second increment here would over-pop.
+          //! hdr_q needs no scrub either - the validator only ever raises
+          //! frame_ok_i for a frame that delivered >= 26 octets (cdl >= 12
+          //! plus the 14-octet origin), so beat 3 and its hdr_valid always
+          //! land first and overwrite the rejected frame's header.
+          if (frame_bad_i) begin
+            discard_q <= !enable_i;
+            state_r   <= IDLE_S;
+          end else if (frame_ok_i) begin
             if (discard_q || (hdr_i.hdr_valid && (mismatch_i || !enable_i))) begin
               evt_drop_o <= 1'b1;
               pop_pend_r <= pop_pend_r + 2'd1;

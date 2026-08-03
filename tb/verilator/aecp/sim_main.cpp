@@ -596,6 +596,115 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
+    // 10c. A frame the VALIDATOR REJECTED must not cost the NEXT        //
+    //      command its response.                                        //
+    //                                                                   //
+    //      The two verdicts are not symmetric. frame_ok_i is what        //
+    //      CAPTURE_S leaves on; frame_bad_i is raised instead when the   //
+    //      frame never delivered the 6 + control_data_length octets its  //
+    //      own header promised (KL_aecp_packet_validator.sv PASS_S), and //
+    //      it used to have NO exit at all - the builder simply PARKED in //
+    //      CAPTURE_S. That matters because IDLE_S is the only place      //
+    //      discard_q is re-armed, and discard_q is LATCHED from the      //
+    //      header of whatever frame is streaming while the builder sits  //
+    //      in IDLE_S or CAPTURE_S. So a rejected frame addressed to      //
+    //      SOMEBODY ELSE armed discard_q, skipped the re-arm, and the    //
+    //      next frame to reach frame_ok_i - a perfectly good command for //
+    //      US - was dropped with it. 1722.1-2021 9.2.1.1 says that       //
+    //      command gets a response; the controller saw a timeout and a   //
+    //      retry instead, one lost command per malformed frame.          //
+    //                                                                   //
+    //      Both halves are checked: the rejected frame stays silent AND  //
+    //      the command behind it is answered on its FIRST try. Checking  //
+    //      only the first half is what let this live - the entity does   //
+    //      self-heal on the retry, so a counter sampled later balances.  //
+    // ---------------------------------------------------------------- //
+    printf("\n[10c] a validator-rejected frame must not swallow the next command\n");
+    {
+        //! declared-vs-delivered short: aecp_cmd() sizes control_data_length
+        //! from the payload it was given, so cutting octets back off AFTER
+        //! it is built leaves the header promising more than the wire
+        //! carries. 78 B -> 70 B delivers 58 replayed octets against the 66
+        //! the header claims, and stays clear of both the 60 B pad and the
+        //! header beat that case 10b above covers.
+        auto short_cmd = [](uint64_t target, uint16_t seq) {
+            std::vector<uint8_t> pay(40, 0x5A);
+            auto f = aecp_cmd(ENT_MAC, CTL_MAC, target, CTLR_ID, 0, 7, seq, pay);
+            f.resize(70);
+            return f;
+        };
+        auto good_cmd = [](uint16_t seq) {
+            std::vector<uint8_t> none;
+            return aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 7, seq, none);
+        };
+        const uint64_t FOREIGN = 0xDEADBEEF00000000ULL;
+
+        int c0 = dut->cmd_count_o;
+        feed_rx(short_cmd(FOREIGN, 0xB100));
+        ck("[10c] rejected FOREIGN frame -> silent",
+           collect_resp(1200).size()==0, 1);
+        feed_rx(good_cmd(0xB101));
+        auto v = collect_resp();
+        ck("[10c] the command BEHIND it -> answered", v.size()>0, 1);
+        ck("[10c] and it is THAT command", r_seq(v), 0xB101);
+        ck("[10c] its answer is SUCCESS", r_status(v), 0);
+        ck("[10c] one command accepted, not two", (int)dut->cmd_count_o - c0, 1);
+
+        //! a RUN of rejects must not accumulate either: each one has to
+        //! unwind on its own, not ride out on the next frame's exit
+        int c1 = dut->cmd_count_o;
+        feed_rx(short_cmd(FOREIGN, 0xB102));
+        ck("[10c] second reject -> silent", collect_resp(1200).size()==0, 1);
+        feed_rx(short_cmd(FOREIGN, 0xB103));
+        ck("[10c] third reject -> silent", collect_resp(1200).size()==0, 1);
+        feed_rx(good_cmd(0xB104));
+        auto w = collect_resp();
+        ck("[10c] good command after a RUN of rejects", r_seq(w), 0xB104);
+        ck("[10c] one command accepted across the run",
+           (int)dut->cmd_count_o - c1, 1);
+
+        //! control: rejected but addressed to US, so there was never a
+        //! mismatch to latch. This pair passed even while the defect was
+        //! live - it is here so a regression can be told apart from a
+        //! validator change that stops rejecting the frame at all.
+        int c2 = dut->cmd_count_o;
+        feed_rx(short_cmd(ENTITY_ID, 0xB105));
+        ck("[10c] reject addressed to US -> silent",
+           collect_resp(1200).size()==0, 1);
+        feed_rx(good_cmd(0xB106));
+        auto x = collect_resp();
+        ck("[10c] good command after OUR reject", r_seq(x), 0xB106);
+        ck("[10c] one command accepted after it",
+           (int)dut->cmd_count_o - c2, 1);
+
+        //! ...and the coincident shape, which is the one the exit's re-arm
+        //! actually exists for. When a frame's LAST beat is also its header
+        //! beat, the parser's hdr_valid/mismatch and the validator's drop_o
+        //! are registered off the SAME beat-3 handshake and land in the same
+        //! cycle. The builder's header-latch block runs BEFORE the FSM case,
+        //! so the REJECTED frame's mismatch is written into discard_q first
+        //! and only the exit's `discard_q <= !enable_i` takes it back out.
+        //! [10b] is this coincidence on the frame_ok side; this is the
+        //! frame_bad side of it. 44 B on the wire = 32 delivered octets,
+        //! which fills beat 3 exactly, against the 34 the header declares.
+        auto short_hdrbeat = [](uint64_t target, uint16_t seq) {
+            std::vector<uint8_t> pay(8, 0x5A);
+            auto f = aecp_cmd(ENT_MAC, CTL_MAC, target, CTLR_ID, 0, 7, seq, pay);
+            f.resize(44);
+            return f;
+        };
+        int c3 = dut->cmd_count_o;
+        feed_rx(short_hdrbeat(FOREIGN, 0xB107));
+        ck("[10c] reject ON the header beat -> silent",
+           collect_resp(1200).size()==0, 1);
+        feed_rx(good_cmd(0xB108));
+        auto y = collect_resp();
+        ck("[10c] good command after a header-beat reject", r_seq(y), 0xB108);
+        ck("[10c] one command accepted after that too",
+           (int)dut->cmd_count_o - c3, 1);
+    }
+
+    // ---------------------------------------------------------------- //
     // 11. ADP ENTITY_DISCOVER -> discover pulse                         //
     // ---------------------------------------------------------------- //
     printf("\n[11] ADP ENTITY_DISCOVER -> discover pulse\n");
