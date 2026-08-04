@@ -75,7 +75,11 @@ module KL_aecp_aem_store (
 
   `include "gen/aecp_aem_rom.svh"
 
-  //! Descriptor image RAM + MVU scratch tail (BRAM-inferred, generator init)
+  //! Descriptor image RAM + MVU scratch tail (BRAM-inferred, generator init).
+  //! ram_style pins the intent: this array leaving block RAM is a placement
+  //! death sentence on the 8x8 shape, not a style preference (see the write
+  //! port below).
+  (* ram_style = "block" *)
   logic [7:0] mem_r [0:AEM_STORE_BYTES_C-1];
 
   //! The ports carry 16-bit byte addresses because that is the AEM store's
@@ -106,29 +110,35 @@ module KL_aecp_aem_store (
   //! arbitration result, so the patch engine can hold a losing byte.
   assign pw_ack_o = pw_wr_i && !wr_i;
 
-  //! SPELLING MATTERS HERE, AND IT WAS MEASURED. The obvious form muxes the
-  //! address and data into one write statement:
-  //!     w_waddr = wr_i ? wr_addr_i : pw_addr_i;  ... mem_r[w_waddr] <= ...
-  //! which costs **229 more LUTs** — a controlled A/B with nothing else
-  //! changed, yosys OOC on KL_aecp_top at the 8x8 shape: 13 324 muxed vs
-  //! 13 095 below. A muxed address on a 22 625-entry memory makes the tools
-  //! build address-decode logic instead of leaving the write port alone.
-  //! The priority if/else-if is behaviourally identical — the builder still
-  //! wins every contended cycle, and tb/verilator/aempatch's store leg
-  //! proves it byte by byte.
+  //! SPELLING MATTERS HERE, AND IT WAS MEASURED — TWICE, AND THE SECOND
+  //! MEASUREMENT REVERSED THE FIRST. This block previously used a priority
+  //! if/else-if with two DIFFERENT address expressions on the same array
+  //! (mem_r[wr_addr_i] / mem_r[w_pwaddr]), chosen because a yosys OOC A/B
+  //! showed the muxed form below costing +229 LUTs (13 324 vs 13 095 on
+  //! KL_aecp_top at the 8x8 shape). That A/B was real but measured the
+  //! WRONG FLOW: yosys's generic mapping had already lowered the array to
+  //! LUTs in BOTH variants, so it priced the mux while missing what the
+  //! spelling does to VIVADO's RAM inference. Two write-address expressions
+  //! on one array read as a second write port, a 22 625-entry three-port
+  //! RAM fits no RAMB primitive, and the whole store fell out of block RAM:
+  //! measured at SoC synth 2026-08-04 (x32f1 vs x32e3), KL_aecp_aem_store
+  //! 8 496 LUTs-as-memory, Block RAM 111.5 -> 103 tiles, total 63 859 LUT
+  //! (100.7%) and Place 30-487 death on all three directives — 11k LUTs to
+  //! dodge a 229-LUT mux. ONE write port, address and data muxed, is the
+  //! form Vivado infers simple-dual-port BRAM from.
   //!
-  //! Read that number with its noise floor. These OOC figures are exactly
-  //! reproducible for a given source (13 095 twice), but removing three
-  //! DEAD wires from this file once moved the total by 145 LUTs, so ~1 % of
-  //! structural jitter rides on any comparison at this granularity. 229 is
-  //! comfortably outside it; a 50-LUT claim would not have been.
+  //! Arbitration is unchanged and tb/verilator/aempatch's store leg proves
+  //! it byte by byte: the builder wins every contended cycle (the mux
+  //! selects wr_addr_i/wr_data_i), the patch engine loses and is told so by
+  //! pw_ack_o, which is still the arbitration result computed above.
+  wire                w_wr_any = wr_i || pw_wr_i;
+  wire [15:0]         w_waddr  = wr_i ? wr_addr_i : {{(16-AEM_AW_C){1'b0}}, w_pwaddr};
+  wire [7:0]          w_wdata  = wr_i ? wr_data_i : pw_data_i;
   always_ff @(posedge clk_i) begin
     if (rd_i)
       data_o <= mem_r[addr_i];
-    if (wr_i)
-      mem_r[wr_addr_i] <= wr_data_i;
-    else if (pw_wr_i)
-      mem_r[w_pwaddr] <= pw_data_i;
+    if (w_wr_any)
+      mem_r[w_waddr] <= w_wdata;
   end
 
   //! Factory reset: volatile store — nothing to flush until the NV overlay
