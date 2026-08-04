@@ -3,7 +3,8 @@
 Written 2026-07-20 (post history-rewrite), **refreshed 2026-08-02: the bench
 changed fundamentally — the ARTY IS RETIRED (USER 07-31 "forget the Arty");
 the ALINX AX7101 is the SOLE DUT** (8 talkers × 8 listeners × 8 channels,
-RV32 VexiiRiscv, QSPI-boot), with the PEER as the reference device. Sections
+RV32 VexiiRiscv, QSPI-boot), with a Milan-validated peer as the reference
+device. Sections
 below carry banners where the two-board era is kept as history. The
 single-DUT bench values (hosts, tap interface, outlets, serials) are now
 inline in this doc; anything not inline is in the private test repo's bench
@@ -19,7 +20,7 @@ any other name; its material is private (see §7).
 
 - **[0. The map](#0-the-map)** — Answers "where do I plug the analyzer": tap1 is inline on the ALINX link (the only DUT link left) and the tap host is the **only** place wire truth exists — the controller host sits on a pruned switch port. The caveat that follows the picture is the useful bit — a tap sees one *link*, so traffic the switch drops crosses neither tap.
 - **[1. Machines](#1-machines)** — Role and reach for every host, now with the concrete names inline (amx-pw0 / amx-ubuntu-server / amx-pi), plus the facts that change what you can do: the dev box never gets an address on the AVB subnet, the switch has no IP or UI management at all, pw0's port is pruned, and capture records carry a 28-byte header so every `ether[]` offset shifts by +28.
-- **[2. Boards (DUTs)](#2-boards-duts)** — The sole DUT (AX7101: serial/JTAG/ssh access, RV32, 8×8×8ch) and the PEER reference wiring with the PRIMARIES-ONLY binding rule; the two-board table and the Arty analog loop are kept below it as banner-marked history.
+- **[2. Boards (DUTs)](#2-boards-duts)** — The sole DUT (AX7101: serial/JTAG/ssh access, RV32, 8×8×8ch) and the reference-peer wiring with the PRIMARIES-ONLY binding rule; the two-board table and the Arty analog loop are kept below it as banner-marked history.
 - **[3. Consoles from the dev box](#3-consoles-from-the-dev-box)** — The serial↔FIFO daemon you must **recreate after a context reset**, and its three traps: output racing the read window, `dmesg -n 1` to unbury the console, and a foreground pipe wedging the shell.
 - **[4. Repositories & artifacts](#4-repositories--artifacts)** — Which of the five trees holds what — gateware, bench/private, LiteX venv and build dirs, buildroot output, standards PDFs. Standing warning: both repos diverge from their GitHub origins, so any push needs `--force`.
 - **[5. Build → flash → verify pipeline](#5-build--flash--verify-pipeline)** — The commands, copy-ready: 3-seed sweep, the per-board flash invocation with its environment, and the WNS ≥ 0 gate. Also the chronic non-error to ignore (`write_cfgmem SPI_BUSWIDTH` on ARTY) and the regression set required before any commit.
@@ -91,12 +92,12 @@ regression baseline only.
 | Cold cycle | `ssh amx-pi 'powerstrip off 0; sleep 6; powerstrip on 0'` (OUT0; SRAM gateware is lost — QSPI boots it back) |
 | gPTP role | **GM** (priority1 238 via S50milan) |
 
-**The PEER reference wiring** (channel numbers 1-based):
+**The reference peer's wiring** (channel numbers 1-based):
 
 - **ch 1/2 = AES RX→TX loopback** — stream into ch 1/2 and it returns on
   ch 1/2: a channel-preserving identity loop through a Milan-validated device.
 - **ch 3/4 = AES out** (no return path).
-- **PRIMARIES ONLY**: the PEER is a redundancy-capable device; its listener
+- **PRIMARIES ONLY**: the peer is a redundancy-capable device; its listener
   indices **0/2/4/6/8 are the (p) primaries** — those are the ONLY ones to
   bind. **NEVER bind an (s) secondary (odd) index**: this bench has ONE
   physical network, a secondary has no wire of its own. The campaign's
@@ -117,8 +118,8 @@ column no longer describes live bench state:**
 | Serial console | `/dev/serial/by-id/<board-usb-serial>` (Digilent FT2232 channel B, `-if01-port0`) | `/dev/serial/by-id/<board-usb-serial>` (CP2102N, `-if00-port0`) |
 | ssh | dropbear, root, no password — `ssh root@<board-ip>` **from the peer test host** (large-file path; console base64 fails) | same (find IP first) |
 
-**The live audio loop is now the PEER AES3 loop** (AX talker → PEER ch 1/2
-→ PEER talker → AX listener): all-digital, so it is an *identity* test, not
+**The live audio loop is now the peer's AES3 loop** (AX talker → peer ch 1/2
+→ peer talker → AX listener): all-digital, so it is an *identity* test, not
 just a counter test. Under the promisc-era RX starvation it measured −68 dB
 *gating-limited* (see
 [DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md) §1); with the RX shield in
@@ -394,7 +395,7 @@ reads lie (shadow).
    committed text (`scripts/docs_check.py` enforces the deny-list).
 7. The 0x654 write preserves VID 2; new RW CSRs go into is_plain_rw;
    validate wire frames by LENGTH, not just header fields.
-8. PEER binds go to the **(p) primaries only** (listener indices 0/2/4/6/8);
+8. Peer binds go to the **(p) primaries only** (listener indices 0/2/4/6/8);
    an (s) secondary bind on this one-network bench is always wrong.
 9. After every boot/flash: check the RX-shield posture (`eth0` flags
    `0x1203`, not `0x1303`) before trusting any timing or audio measurement —

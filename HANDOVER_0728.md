@@ -300,5 +300,5 @@ defect from the mis-framing item 00 closed.
 **Memory** (`~/.claude/projects/.../memory/`) carries the durable facts:
 `standards-pdfs-are-on-this-box`, `d7-gm-loss-rx-queues-rootcause`,
 `tu-bit-lease-fixed-in-software`, `framer-emits-2ch-proven-both-ways`,
-`shared-box-parallel-lane-hazards`, `peer-aes3-loopback`,
+`shared-box-parallel-lane-hazards`, the peer AES3 loopback note,
 `check-standard-for-expected-behavior`.

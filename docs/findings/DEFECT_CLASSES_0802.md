@@ -16,15 +16,15 @@ itself is [BENCH_TOPOLOGY.md](BENCH_TOPOLOGY.md).
 
 ## Contents
 
-- **[1. PROMISC voids the shield](#1-promisc-voids-the-shield)** — S50milan's own `promisc on` outranked the TCAM stream-drop the same script installs, so the RX shield never shielded anything on any build; the measured chain runs from an 8 kf/s AAF flood through single-hart starvation to the PEER gating audio at ~30% duty, and the fix is a driver-side MC_HASH+TCAM shield plus a sysfs-gated promisc.
+- **[1. PROMISC voids the shield](#1-promisc-voids-the-shield)** — S50milan's own `promisc on` outranked the TCAM stream-drop the same script installs, so the RX shield never shielded anything on any build; the measured chain runs from an 8 kf/s AAF flood through single-hart starvation to the peer gating audio at ~30% duty, and the fix is a driver-side MC_HASH+TCAM shield plus a sysfs-gated promisc.
 - **[2. control_data_length counted the id field](#2-control_data_length-counted-the-id-field)** — every raw AECP/ACMP builder over-declared `control_data_length` by the 8-octet id field for years; Ethernet's 60-byte minimum padding absorbed the lie until a declared-vs-delivered validator started silently dropping the big payloads, which looked exactly like a fabric wedge.
 - **[3. Peer counters are measured parties](#3-peer-counters-are-measured-parties)** — the reference device's FRAMES counters tick per-frame where Milan Table 5.6 mandates per-interval, and the harness used to smear such pair disagreements over both sides; verdicts now attribute the deviation to the side that earned it, and the reset-on-bind check learned which transitions owe a reset at all.
 
 ## 1. PROMISC voids the shield
 
-**Symptom.** USER reported "gPTP packets are not sent on time" during PEER
+**Symptom.** USER reported "gPTP packets are not sent on time" during peer-device
 loop testing — and was right, although every frame-*count* instrument on the
-box read clean. Downstream, the PEER rendered our stream in ~370 ms bursts at
+box read clean. Downstream, the peer rendered our stream in ~370 ms bursts at
 roughly 30% duty, its `EARLY_TIMESTAMP` counter climbing at +5,635/s, and loop
 THD+N stalled at −68 dB (gating-limited, not converter-limited). ssh to the
 board intermittently took 30–150 s to complete a key exchange.
@@ -40,9 +40,9 @@ outranks an explicit TCAM *drop* entry, which is filtering policy.
 zero PDUs) — and *the same script*, a few lines later, installed a TCAM
 stream-DMAC drop. The first line voided the second **on every build that ever
 shipped**. Nobody noticed because the failure mode is not an error; it is just
-traffic arriving. The measured chain on the 08-02 PEER loop: the ~8 kf/s
+traffic arriving. The measured chain on the 08-02 peer loop: the ~8 kf/s
 return-leg AAF flood reached the single-hart RV32 kernel → servo shells
-starved → our talker presentation timestamps ran EARLY → the PEER discarded
+starved → our talker presentation timestamps ran EARLY → the peer discarded
 ~70% of frames and gated its render.
 
 **Refuted along the way:** "the filter is not in the bitstream". It is. The
@@ -133,7 +133,7 @@ declaration, both directions — the same rule the repo already applies to AAF
 ## 3. Peer counters are measured parties
 
 **Symptom.** Campaign `ax-rv32-e` filed dozens of cross-side counter FAILs
-against the DUT that dissolve on inspection: the reference PEER's
+against the DUT that dissolve on inspection: the reference peer's
 listener/talker `FRAMES_RX`/`FRAMES_TX` counters advance **per frame**
 (~8,000/s for a class A stream) where Milan Table 5.4/5.6 defines them as
 **per observation interval** (≤ 1/s shapes). A generic pair-FAIL then smeared

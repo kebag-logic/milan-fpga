@@ -851,7 +851,7 @@ reopen. Nothing in (1)–(5) would become wrong; (1) would stop being
 Stated explicitly so the gaps are not mistaken for clean results.
 
 * **Audio correctness was never checked.** This is a timing and ring-health
-  instrument. Nothing here verifies that the samples reaching the PEER are
+  instrument. Nothing here verifies that the samples reaching the peer are
   right, and that matters most for `-M`/`-Z`, which write through the WC
   mapping from userspace (§5). No listener-side capture, no THD+N, no
   channel-identity check was run.

@@ -627,8 +627,8 @@ int main(int argc, char** argv) {
     {
         // deterministic baseline: unbind (kills every pending sink-0 timer),
         // drain any stray ladder frame from the earlier sections, fresh bind
-        // to X, settle via the probe response (the PEER-style probe flow
-        // itself is pinned by [8]/[9]/[14]/[15])
+        // to X, settle via the probe response (the reference device's probe
+        // flow itself is pinned by [8]/[9]/[14]/[15])
         feed(acmp(8, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x2FE, 0, 0));
         (void)wait_frame();                       // UNBIND_RESP
         run(12000);                               // > max 1024 ms DELAY draw
@@ -716,8 +716,8 @@ int main(int argc, char** argv) {
     // ---------------------------------------------------------------- //
     printf("\n[G] Milan v1.2 5.5.3 conformance pins (task #64 closures)\n");
     // CLAUSE-FIRST NOTE, 2026-08-03. Two things reported as defects after the
-    // PEER bring-up are in fact CONFORMANT for a Milan PAAD-AE and must NOT
-    // be "fixed":
+    // test-device bring-up are in fact CONFORMANT for a Milan PAAD-AE and must
+    // NOT be "fixed":
     //   * BIND_RX_RESPONSE carrying stream_id 00:00:00:00:00:00:00:00 is
     //     MANDATORY - Milan v1.2 Table 5.32 ("BIND_RX_RESPONSE fields on
     //     success") pins stream_id, stream_dest_mac and stream_vlan_id to

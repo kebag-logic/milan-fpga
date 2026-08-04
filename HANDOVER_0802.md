@@ -86,7 +86,7 @@ FAIL-triage results that drove those fixes (details and clause quotes in
   not-bound→bound *transition* only; 5.5.3.5.43 rebinds never transit
   UNBOUND, so they owe no reset; a small post-bind count is proof OF reset.
 - **37 pair verdicts smeared** by `xside.interval-ticks-agree` when the
-  PEER's per-frame FRAMES counters (~8,000/s vs the Table 5.6 interval
+  peer's per-frame FRAMES counters (~8,000/s vs the Table 5.6 interval
   clause) disagreed with our conformant interval ticks — now attributed to
   the deviant side as `xside.peer-counter-semantics`.
 - Still real and open: **35 ax→ax interval-tick disagreements** (both sides
@@ -191,7 +191,7 @@ ffmpeg -i track.flac -f s32be -ar 48000 -ac 8 track.raw     # or flac -d
 ssh root@192.168.127.1 "cat > /tmp/track.raw" < track.raw    # dropbear: no sftp
 # on the board: card "Milan", playback PCM = the KL_pcm_tx pb ring
 aplay -D hw:Milan,0 -f S32_BE -r 48000 -c 8 /tmp/track.raw
-# bind talker 0 -> a PEER (p) primary, then verify AT THE TAP + on the PEER
+# bind talker 0 -> a peer (p) primary, then verify AT THE TAP + on the peer
 ```
 
 **Campaign launch** (peer host, `milan-tests-avb/tools/`; full flag reference

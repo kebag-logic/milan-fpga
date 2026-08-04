@@ -11,7 +11,7 @@
 # 57/57 Verilator suites, yosys 48/48, behave 113/113, lint at ratchet - and the
 # AX7101's eight talkers advertised 0x0205022002006000 (AAF PCM32 48 kHz, EIGHT
 # channels) while the framer emitted STEREO.  Every one of those gates compares
-# a declaration against ANOTHER declaration.  A Milan-validated PEER bound to
+# a declaration against ANOTHER declaration.  A Milan-validated peer bound to
 # talker 0, PASSED the Milan 5.5.1.2 format check, returned ACMP SUCCESS with a
 # correct MAAP dmac and a 137042 ns MSRP latency - and then counted
 # UNSUPPORTED_FORMAT on 296,294 of 296,294 frames.  Into a 2-channel sink the
@@ -34,7 +34,7 @@
 #   The last scenario is LEVEL 1: it asserts the ENFORCEMENT exists in the
 #   fabric, so the constant cannot be raised past what the front-end feeds.
 #   Two NEGATIVE CONTROLS are mandatory here and both are present: a config
-#   that must come out clean (arty_current, which streams to the PEER with
+#   that must come out clean (arty_current, which streams to the peer with
 #   zero unsupported-format frames) and a fabric state that must come out
 #   dirty (the TDM bus unbacked, which is the 2026-07-27 gateware).
 
@@ -45,7 +45,7 @@ Feature: Advertised channels_per_frame is a width the fabric can emit
     Given the end-station builder is importable
 
   Scenario: the shipping stereo config is self-consistent (negative control)
-    # endstation_arty_current streams to the PEER with ZERO unsupported-format
+    # endstation_arty_current streams to the peer with ZERO unsupported-format
     # frames. A check that only ever fails proves as little as one that only
     # ever passes, so this config MUST come out clean.
     Given the end-station config "endstation_arty_current"

@@ -9,9 +9,9 @@
          --target-eid 3CC0C60102030000 --target-mac 3c:c0:c6:01:02:03
 
 RUN IT AGAINST BOTH DEVICES, EVERY ROUND. A check that only ever passes
-proves as little as one that only ever fails. The Milan-validated PEER
+proves as little as one that only ever fails. The Milan-validated test device
 (3CC0C60102030000) is the calibration oracle: if a check here fails on the
-PEER, the check is wrong until the clause proves otherwise - that is the C1
+peer, the check is wrong until the clause proves otherwise - that is the C1
 lesson, where the first rule ("a non-success response echoes the COMMAND")
 was an invention the reference device refuted.
 

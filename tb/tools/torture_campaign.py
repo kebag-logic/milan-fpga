@@ -873,7 +873,7 @@ def interval_ticks_agree(talker_delta: Optional[int],
     EVERY PARTICIPANT IS A MEASURED PARTY.  A side whose delta exceeds what any
     sub-second observation interval could tick over the window is not keeping
     the Milan interval semantics at all - it is counting per frame (the IEEE
-    1722.1-2021 Table 7-157 reading; the PEER's known deviation, settled
+    1722.1-2021 Table 7-157 reading; the peer device's known deviation, settled
     2026-07-30).  That is a finding AGAINST THAT SIDE, returned in
     d["peer_findings"] for the caller to attribute by name as
     xside.peer-counter-semantics, while the pair verdict PASSes for the
@@ -1714,13 +1714,13 @@ class Device:
     #: case for a REDUNDANT Milan device: Milan v1.2 seamless redundancy
     #: declares each stream twice, a (p) primary on the primary network and an
     #: (s) secondary on the secondary one, and a bench with only one network
-    #: can never carry the secondaries.  The PEER on this bench serves ten
+    #: can never carry the secondaries.  The peer on this bench serves ten
     #: STREAM_INPUTs that are five interleaved pairs - primaries at the EVEN
     #: indices (USER 2026-07-31).
     #:
     #: This has to be stated rather than probed.  ACMP answers SUCCESS on a
     #: secondary descriptor whether or not the secondary network exists (all
-    #: of peer 0..7 returned SUCCESS on 2026-07-31), and the device does not
+    #: of the peer's 0..7 answered SUCCESS on 2026-07-31), and it does not
     #: serve GET_NAME (status 7 NOT_SUPPORTED), so neither the bind status nor
     #: the descriptor names can separate them at runtime.  Binding a secondary
     #: therefore looks exactly like a working bind that never carries audio -
@@ -1772,14 +1772,14 @@ class Device:
         return self.crf_in is not None and i == self.crf_in
 
 
-#: The bench shape.  The Arty is the DUT; the PEER is the Milan-validated
+#: The bench shape.  The Arty is the DUT; the peer is the Milan-validated
 #: reference device, so IT is the independent oracle (methodology L4/L5) and its
 #: refusals are evidence about us, not bugs in it.
 ARTY = Device(name="arty", entity_id="020000fffe000002", mac="020000000002",
               talkers=4, listeners=4, crf_out=4, crf_in=4,
               formats=("0205022001006000", "0205022000806000"),
               role="dut")
-#: The PEER is REDUNDANT (Milan v1.2 seamless redundancy): its ten
+#: The peer device is REDUNDANT (Milan v1.2 seamless redundancy): its ten
 #: STREAM_INPUTs are five interleaved pairs, a (p) primary at each even index
 #: and its (s) secondary at the odd one.  This bench has ONE network, so the
 #: secondaries can never carry a stream - and they still answer ACMP with
@@ -1802,16 +1802,16 @@ ARTY = Device(name="arty", entity_id="020000fffe000002", mac="020000000002",
 #: answer 041060010000BB80 (AVTP subtype 0x04 = CRF, base 0xbb80 = 48 kHz).  So
 #: the four outputs are ONE AAF pair and ONE CRF pair on the same (p)/(s)
 #: interleave as the sinks: AAF primary 0, AAF secondary 1, CRF primary 2, CRF
-#: secondary 3.  USER 2026-08-02: "do not stream on the (s) of the PEER, they
+#: secondary 3.  USER 2026-08-02: "do not stream on the (s) of the [peer], they
 #: are the redundant part that is not connected" - one physical network, so only
 #: the even (p) descriptors are bindable.  Treating 2 and 3 as AAF sources is
 #: what produced ax-rv32-e's "ACMP nulls from t2 up" and the garbage the
 #: controller's format pre-flight read back: they were never AAF to begin with.
 PEER = Device(name="peer", entity_id="3cc0c60102030000", mac="3cc0c6010203",
-               talkers=4, listeners=10, formats=("0205022001006000",),
-               talker_index_set=(0,), crf_out=2,
-               listener_index_set=(0, 2, 4, 6), crf_in=8,
-               reference=True, role="reference")
+              talkers=4, listeners=10, formats=("0205022001006000",),
+              talker_index_set=(0,), crf_out=2,
+              listener_index_set=(0, 2, 4, 6), crf_in=8,
+              reference=True, role="reference")
 #: The TEST MACHINE.  It carries the controller, and on this bench it also
 #: carries the capture, so it is the third measured party in every pair: its NIC
 #: statistics say whether a listener-side verdict was taken through a lossy
@@ -2040,13 +2040,13 @@ def _multi_pairs_primaries(dut: Device, peer: Device, fmt) -> list:
 
     The listener set comes from the peer's spec exactly as the matrix's does -
     listener_indices(), which on a redundant device names the (p) primaries
-    only (the PEER's AAF sinks are 0/2/4/6 and its CRF Media Clock Input is
+    only (the peer's AAF sinks are 0/2/4/6 and its CRF Media Clock Input is
     8; the (s) secondaries can never carry a stream on a one-network bench) -
     so nothing here is hardcoded to any device.  Talkers are the DUT's AAF set, assigned cyclically so every peer
     listener is fed even when the DUT has fewer talkers than the peer has
     listeners; a talker reused that way carries two listeners on ONE stream,
     which IEEE 1722.1-2021 8.2.2.6.2.1 permits.  On the AX 8x8 against the
-    PEER this is a plain 1:1 zip: t0..t3 -> l0/2/4/6.
+    reference device this is a plain 1:1 zip: t0..t3 -> l0/2/4/6.
     """
     tks = dut.talker_indices(include_crf=False)
     lss = peer.listener_indices(include_crf=False)
@@ -2095,8 +2095,8 @@ def _multi_pairs_stress(dut: Device, peer: Device, fmt) -> list:
     (a) every DUT AAF talker outbound: the peer's reachable listeners first
         (cyclic when the DUT has fewer talkers than the peer has listeners,
         exactly as the primaries set), then SELF-LOOPS to fill the talkers
-        the peer cannot absorb - on the AX 8x8 against the PEER that is
-        t0..t4 -> the five primaries and t5..t7 looped home;
+        the peer cannot absorb - on the AX 8x8 against the reference device
+        that is t0..t4 -> the five primaries and t5..t7 looped home;
     (b) the INBOUND direction on top: peer AAF talkers into whatever DUT
         listeners are still free, so RX is loaded by real wire ingress and
         not only by the loopback path.
@@ -2258,7 +2258,7 @@ def plan_multi(dut: Device = ARTY, peer: Device = PEER) -> list:
 
     Four sets, each derived from the device SPECS and never hardcoded:
       * primaries - every reachable reference listener fed concurrently
-        (on the AX 8x8 against the PEER: t0..t3 -> l0/2/4/6);
+        (on the AX 8x8 against the peer: t0..t3 -> l0/2/4/6);
       * selfloop  - the DUT's own tN -> lN, both directions of the fabric
         loaded at once, no peer needed;
       * mixed     - outbound and loopback interleaved, when the shapes allow;
@@ -3055,7 +3055,7 @@ def plan_physical(dut: Device = ARTY, peer: Device = PEER) -> list:
              "pre-snapshot GM view, not a constant: the permanent GM owes "
              "CONTINUITY (zero delta, same id) and only a FOLLOWER owes an "
              "ADVANCE, so on this bench the DUT is graded for continuity "
-             "and the PEER - which does lose its GM - carries the advance"))
+             "and the peer - which does lose its GM - carries the advance"))
     S += _pair_steps("phys.switch-cycle.proof", "physical", dut, ti, peer, li,
                      fmt)
 
@@ -3616,7 +3616,7 @@ def self_test() -> int:
             v, d = interval_ticks_agree(9, 4, window_s=4.0)
             self.assertEqual(v, "FAIL")
             self.assertNotIn("peer_findings", d)
-            # (3) one side per-frame (the PEER deviation, ~8000/s): the pair
+            # (3) one side per-frame (the peer's deviation, ~8000/s): the pair
             #     verdict PASSes FOR THE CONFORMANT SIDE and the deviation is
             #     an attributed finding naming the deviant ROLE and its rate
             v, d = interval_ticks_agree(4, 31982, window_s=4.0)
@@ -4092,7 +4092,7 @@ def self_test() -> int:
                                       "teardown-one", "teardown-rest"])
             # the primaries set feeds EVERY reachable reference listener
             # CONCURRENTLY - the listener set comes from the peer's SPEC (the
-            # PEER's (p) primaries), never a hardcoded list
+            # peer's (p) primaries), never a hardcoded list
             bind = next(s for s in plan
                         if s.sid == "multi.primaries.bind-all")
             self.assertEqual(
@@ -4170,7 +4170,7 @@ def self_test() -> int:
             # on the AX 8x8 shape: all 8 talkers out, the overflow looped
             # home.  The self-loop count is DERIVED from how many AAF sinks
             # the peer really has - it went 3 -> 4 the moment index 8 was
-            # named as the PEER's CRF input instead of a fifth AAF sink,
+            # named as the peer's CRF input instead of a fifth AAF sink,
             # and a literal here would have hidden that
             ax = parse_device_spec("talkers=8,listeners=8,crf_out=8,"
                                    "crf_in=8", ARTY)

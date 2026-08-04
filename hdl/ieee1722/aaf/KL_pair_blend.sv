@@ -17,7 +17,7 @@
                 SLOT MAP - USER 2026-07-28: "channels 1/2 stay the I2S
                 Pmod". The I2S pair is pair slot 0, so talker 0's first two
                 channels remain the CS5343/CS4344 analog loop the bench
-                identity test runs through (PEER ch 1/2,
+                identity test runs through (test device ch 1/2,
                 docs/findings/BENCH_TOPOLOGY.md), and the TDM pairs follow:
 
                     out slot 0            <- I2S pair (implicit slot 0)

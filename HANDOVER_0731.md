@@ -47,7 +47,7 @@ the entire reason these two extra seeds are running.
 | commit | what |
 |---|---|
 | `4b41f628` | **VERSION 0x0021** — the Talker TSpec now describes the frame the build emits |
-| `65d60552` | torture campaign binds only the PEER's **(p) primaries** |
+| `65d60552` | torture campaign binds only the peer's **(p) primaries** |
 | `a1890fd4` | **class A only** — class B `credit_based_shaper` stripped |
 | `31861d7e` | `--xlen` honoured on the vexiiriscv path (it was silently ignored); `--bus-standard` added |
 
@@ -210,8 +210,8 @@ That bug ate three attempts today; the data was intact every time.
 | **51** | area — see §3/§5 |
 | **52** | option C (`u_bld` trim) — see §5 |
 | **53** | LOCK_ENTITY/ACQUIRE_ENTITY bound descriptor **type** but not **index**. Narrowed from a hermes fuzz gap (their "any descriptor" is refuted — there IS a type bound at line 386). `w_b16`/`w_b17` are **not wired**, so it is not a one-liner, and the payload offset must be read from 1722.1 7.4.2/7.4.3 — do not infer it. |
-| 37 | listener Table 5.6 per-frame vs per-interval — the validated PEER also counts per-frame (measured: 72,343 ticks in a 4 s window) |
-| 21 | PEER never sends Listener Ready — confirmed **not** a gPTP problem (licence stayed shut with a healthy clock) |
+| 37 | listener Table 5.6 per-frame vs per-interval — the validated peer also counts per-frame (measured: 72,343 ticks in a 4 s window) |
+| 21 | the peer never sends Listener Ready — confirmed **not** a gPTP problem (licence stayed shut with a healthy clock) |
 
 ### Campaign harness defect worth fixing
 `xside.unlicensed-silent-everywhere` FAILs on the **test host's own AVDECC

@@ -8,7 +8,8 @@ you notice, be creative and combine many tests in one run, AUDIO SHALL NEVER BE
 FORGOTTEN, torture the end-station in every possible condition"*, plus the
 standing amendment that **every participant in a stream is a measured party** —
 *"not only the DUT (ARTY or Alinx) are to be checked, but the counters from the
-test machine / received counters on the PEER or any test machine involved."*
+test machine / received counters on the [peer device] or any test machine
+involved."*
 
 This page is the contract, and it is meant to be enough on its own. It says what
 each script is, how to run it with every flag explained, **every assertion it
@@ -94,8 +95,8 @@ source constants.
 
 ### Topology is configuration, not a source edit
 
-The default shape is the Arty 4×4 (+ the CRF pair at index 4) against the PEER
-reference (4 talkers, 10 listeners). Change it with flags:
+The default shape is the Arty 4×4 (+ the CRF pair at index 4) against the
+reference peer (4 talkers, 10 listeners). Change it with flags:
 
 ```bash
 # the 8x8 Alinx shape, no source edit
@@ -277,7 +278,7 @@ devmem2 0x90000694 w          # or the project's CSR read helper
 | `--pcm-dump PATH` | none | a raw S32BE PCM ring dump for the THD+N gate |
 | `--tap-header N` | `28` | record header octets; `0` for an already-stripped capture |
 | `--tap-host` / `--tap-iface` | none | the tap host and interface, used in the capture hand-off commands |
-| `--dut` / `--peer` / `--test-machine` | Arty 4×4 / PEER / `--iface` | topology (§2) |
+| `--dut` / `--peer` / `--test-machine` | Arty 4×4 / reference peer / `--iface` | topology (§2) |
 | `--licence-status HEX` | none → the frames-advance verdicts SKIP | the DUT's `0x694` word |
 | `--board-addr IP` | none → the stress load steps SKIP naming it | the DUT's IP, the best-effort load's target (§4.2.1) |
 | `--board-cmd 'CMD {cmd}'` | none → iperf3 unprobeable, RX falls back to the UDP blast, TX SKIPs | a way to run one command on the DUT, e.g. `ssh root@dut {cmd}` |
@@ -379,7 +380,7 @@ hardcoded (`plan_multi()`):
 
 | set | pairs | what it loads |
 |---|---|---|
-| `primaries` | every **reachable** reference listener fed at once — the listener set is the peer spec's `listener_indices()`, which on a redundant device names the (p) primaries only (the PEER: 0/2/4/6/8). Talkers are the DUT's AAF set, assigned cyclically, so on the AX 8×8 this is the plain zip t0..t4 → l0/2/4/6/8; a DUT with fewer talkers than the peer has listeners reuses a talker with **two listeners on one stream**, which 1722.1-2021 8.2.2.6.2.1 permits | the egress path, CBS and the wire under full concurrent load |
+| `primaries` | every **reachable** reference listener fed at once — the listener set is the peer spec's `listener_indices()`, which on a redundant device names the (p) primaries only (the reference peer: 0/2/4/6/8). Talkers are the DUT's AAF set, assigned cyclically, so on the AX 8×8 this is the plain zip t0..t4 → l0/2/4/6/8; a DUT with fewer talkers than the peer has listeners reuses a talker with **two listeners on one stream**, which 1722.1-2021 8.2.2.6.2.1 permits | the egress path, CBS and the wire under full concurrent load |
 | `selfloop` | the DUT's own tN → lN | every packetizer **and** depacketizer in the same fabric at once; needs no peer |
 | `mixed` | outbound and loopback interleaved, when the shapes allow | the egress path serving the wire and the loopback simultaneously |
 | `stress` | **everything the shapes allow at once**: every DUT AAF talker outbound (reachable reference listeners first, self-loops to fill — on the AX 8×8: t0..t4 → the primaries, t5..t7 looped home), **plus the inbound direction** (peer AAF talkers into whatever DUT listeners remain free) | the maximal concurrent stream set — and then **best-effort load over the same link while it all flows** (see below) |
@@ -1206,7 +1207,7 @@ become `NEEDS-HUMAN`, by design and not as a gap.
 ### 9.3 What it costs
 
 A **full matrix run is roughly 1–1.5 hours, and it is not a smoke test.** The
-default 4×4-plus-CRF Arty against the PEER's five reachable primaries produces
+default 4×4-plus-CRF Arty against the peer's five reachable primaries produces
 70 talker×listener pairs (25 outbound, 20 return, 25 intra-DUT loopback) and
 262 matrix steps. Each pair
 spends about 50 s in deliberate measurement:

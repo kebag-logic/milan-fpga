@@ -1991,7 +1991,7 @@ int main(int argc, char** argv) {
     // ==================================================================
     //  TASK-21 FABRIC HALF: a CONNECT_RX provisions the lwSRP LISTENER row
     //
-    //  The 07-29 PEER silicon finding: binding one of our STREAM_INPUTs
+    //  The 07-29 peer-device silicon finding: binding one of our STREAM_INPUTs
     //  staged the ACMP record but NOTHING in the fabric wrote the lwSRP
     //  LISTENER attribute row - ctx_dir_i was hardwired 0 on the fabric
     //  grant path, so the only listener-direction writer was the 0x800
@@ -2625,7 +2625,7 @@ int main(int argc, char** argv) {
     //
     //  Placement decoupling is the point of the map: ring PAIR 0 (host
     //  channels 0/1) is mapped onto BOTH talker 0's and talker 1's wire
-    //  slots - the mechanism that puts host stereo on the PEER-facing
+    //  slots - the mechanism that puts host stereo on the peer-facing
     //  stream channels of the USER's choice (ch2/3 in the 8ch target).
     //
     //  Underrun continuity (Milan 5.3.7.3): starving the ring must KEEP

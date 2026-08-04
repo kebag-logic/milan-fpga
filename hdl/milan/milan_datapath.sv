@@ -3650,7 +3650,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   // ==========================================================================
   //  EVERY AAF LISTENER SINK GETS A PROVISIONER (task-21 fabric half,
-  //  2026-08-01). The 07-29 PEER silicon finding: a CONNECT_RX bind of
+  //  2026-08-01). The 07-29 peer-device silicon finding: a CONNECT_RX bind of
   //  STREAM_INPUT k>0 staged the ACMP record but NOTHING wrote the lwSRP
   //  LISTENER attribute row - the only listener-direction writer on the ctx
   //  port was the 0x800 CSR window (ctx_dir_i was literally hardwired 0 on

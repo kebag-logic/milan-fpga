@@ -30,13 +30,13 @@ Five classes account for all 157. There is no long tail.
 
 | # | class | n | side | area(s) | indices | root cause | verdict |
 |---|---|---:|---|---|---|---|---|
-| 1 | `counters.stream_input.update-law-per-counter` | 37 | PEER | matrix 33, churn 2, physical 2 | 0,2,4,6,8 | harness rate normalization | **FALSE — harness** |
-| 2 | `xside.peer-counter-semantics` | 37 | PEER | matrix 33, churn 2, physical 2 | 0,2,4,6,8 | same 37 observations as #1 | **FALSE — harness** |
+| 1 | `counters.stream_input.update-law-per-counter` | 37 | peer | matrix 33, churn 2, physical 2 | 0,2,4,6,8 | harness rate normalization | **FALSE — harness** |
+| 2 | `xside.peer-counter-semantics` | 37 | peer | matrix 33, churn 2, physical 2 | 0,2,4,6,8 | same 37 observations as #1 | **FALSE — harness** |
 | 3 | `counters.stream_input.frames-rx-advances` | 29 | **AX** | churn 14, audio 8, matrix 7 | 0-7 (all) | unexplained | **OPEN — ours** (8 contaminated) |
 | 4a | `stream.starts-on-bind-alone` | 13 | **AX** | matrix 11, churn 2 | 0 only | harness band classifier | **FALSE — harness** |
-| 4b | `stream.starts-on-bind-alone` | 14 | PEER | churn | 0, 1 | peer did not stream | **OPEN — peer/bench** |
+| 4b | `stream.starts-on-bind-alone` | 14 | peer | churn | 0, 1 | peer did not stream | **OPEN — peer/bench** |
 | 5a | `counters.stream_output.frames-tx-advances` | 13 | **AX** | matrix 11, churn 2 | 0 only | co-reported with 4a | **FALSE — harness** |
-| 5b | `counters.stream_output.frames-tx-advances` | 14 | PEER | churn | 0, 1 | co-reported with 4b | **OPEN — peer/bench** |
+| 5b | `counters.stream_output.frames-tx-advances` | 14 | peer | churn | 0, 1 | co-reported with 4b | **OPEN — peer/bench** |
 
 ### Summary by disposition
 
@@ -72,7 +72,7 @@ intervals is 8,000 packets/s, and this project has separately measured
 `TIMESTAMP_VALID` at 8,002/s on its own silicon.
 
 So the peer ticks at the AAF packet rate, exactly as it should, and one grader's
-window normalization is wrong by a constant factor. **The PEER is exonerated on
+window normalization is wrong by a constant factor. **The peer is exonerated on
 all 74 rows.**
 
 ### H1b — and the clause was misapplied anyway
@@ -138,7 +138,7 @@ the same boundary bug.
 
 ### O2 — the peer did not stream after rebind (28)
 
-PEER indices 0 and 1, concentrated in `churn.implicit-rebind.*`, reporting
+Peer indices 0 and 1, concentrated in `churn.implicit-rebind.*`, reporting
 `rate 0.0/s` and `"nothing moved: no frame was transmitted or received in the
 window under either reading"`. Zero is unambiguous — it is not a normalization
 artefact.

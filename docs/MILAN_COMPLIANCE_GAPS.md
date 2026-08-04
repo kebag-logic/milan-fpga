@@ -503,7 +503,7 @@ hold.
     covering several contexts at different +k, add/remove LV, LeaveAll
     aging.
   - **AAF LISTENER rows are FABRIC-PROVISIONED from the ACMP bind
-    (2026-08-01, the task-21 fabric half).** The 07-29 PEER finding — a
+    (2026-08-01, the task-21 fabric half).** The 07-29 peer-device finding — a
     CONNECT_RX of STREAM_INPUT k>0 staged the ACMP record but no lwSRP
     Listener attribute row (`ctx_dir_i` was hardwired 0 on the fabric
     grant path; software staging via 0x800 was the only listener-direction
@@ -551,14 +551,14 @@ hold.
       `CONNECT_TX_COMMAND` on bind. Next bench round must read
       `probe_count_o` and `tx_wedge_cnt_o` (CSR `0x6A4` group) immediately
       before and after the `CONNECT_RX`: a probe counter that increments
-      means we DID transmit and the fault is downstream (PEER ignoring our
+      means we DID transmit and the fault is downstream (the peer ignoring our
       probe, or the frame not reaching it); a counter that does not move
       means the launch was gated (`w_launch_ok` needs `init_done_r`,
       `st_r == COLLECT_S`, `!rxv_r`, `!swp_active_r`) or the TX grant was
       lost, which `tx_wedge_cnt_o` distinguishes.
     - Workaround proven on the bench: issue the legacy controller-to-talker
       `CONNECT_TX_COMMAND` instead (`avdecc_l2.py connect-tx`) — that returns
-      the real `stream_id 3cc0c60102030000` and the PEER arms and streams
+      the real `stream_id 3cc0c60102030000` and the peer arms and streams
       (8002 pps at the tap ~60 s later; its TA arming is lazy, poll >= 3 min).
     - This is distinct from the lwSRP-row item above: that one is about the
       reservation row, this one is about the probe never being sent for
@@ -1360,10 +1360,10 @@ audio-unit directive define the next fabric round:
    `sim_nxn` [8] assert the mask and the live rows. Silicon proof pends
    the next flash. SEPARATELY, commit `67d67a4e` added
    TIMESTAMP_VALID/NOT_VALID (mask `0xFFF`, per-frame tv tallies as flops,
-   TV + TNV == FRAMES_RX) — PEER-reference parity and 1722.1-2021
+   TV + TNV == FRAMES_RX) — reference-peer parity and 1722.1-2021
    alignment, valid but NOT the badge blocker. Silicon pends the next
    flash; STREAM_OUTPUT's five behind `0x1F` matches both la_avdecc's
-   mandatory talker set and the PEER.
+   mandatory talker set and the peer.
 2. **[Milan v1.2 5.3.10.1] listener-side dynamic mapping is a SHALL** ("shall
    support changing mappings from a Stream Input at any time, even when it
    is bound") — the `AEM_DYNMAP` engine is desk-proven (gaps item 8) but
@@ -1417,9 +1417,9 @@ audio-unit directive define the next fabric round:
    streaming 0x0019 Arty): STREAM_START=16/STOP=15 — the SRP-only licence
    flapped 15 times behind a wire that never visibly gapped (suspect: the
    lwSRP registrar flushing the Listener registration on MRP LeaveAll
-   instead of holding through LeaveTime; correlates with the PEER-side
+   instead of holding through LeaveTime; correlates with the peer-side
    MEDIA_LOCKED/UNLOCKED climb); FRAMES_TX ticks per-observation-interval
-   (1/s — v1.2's literal wording permits it, the PEER counts per-frame)
+   (1/s — v1.2's literal wording permits it, the peer counts per-frame)
    and appears to restart at each STREAM_START (reads 16-20 after hours;
    1722.1 defines no talker-side reset).
 6. **ACMP rebind-to-a-different-talker refused** (USER, Hive): a CONNECT

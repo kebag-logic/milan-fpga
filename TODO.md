@@ -638,6 +638,6 @@ elaboration lever that is OFF. This section is the terms of turning it on.
 
   **Why it is worth buying.** On a board with no audio inputs it is the only
   source that can give each talker *per-channel-distinct, externally
-  supplied* audio — the PEER channel-identity loop is exactly this path —
+  supplied* audio — the peer's channel-identity loop is exactly this path —
   and it is what USER 2026-07-28 asked for ("For the AX Loopback, use the
   loopback cluster created").
