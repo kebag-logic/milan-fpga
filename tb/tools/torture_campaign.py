@@ -401,11 +401,18 @@ def frames_rate_reading(rate_per_s: float, nominal_frame_rate: float = 8000.0,
                        "frame rate)"}
     if window_s and window_s > 0:
         whole = int(window_s / max_interval_s)
-        min_rate = whole / window_s
-        interval_ok = whole == 0 or rate_per_s >= min_rate - 1e-9
+        #! COMPARE IN TICKS, NOT RATES.  The rate arrives divided by the
+        #! UNROUNDED span while window_s is deltas()'s 3-decimal stamp, so a
+        #! rate-space compare at exact equality loses to ~5e-5 of rounding
+        #! skew: ax-rv32-g re-filed 9 ticks / 9.0424 s (0.99531/s) as
+        #! "neither" against a 9/9.042 = 0.99536/s bound.  The tick count is
+        #! an integer and survives the rounding on either side.
+        ticks = int(round(rate_per_s * window_s))
+        interval_ok = whole == 0 or ticks >= whole
         quant = (f"a conformant counter at the exact {max_interval_s:g} s "
                  f"ceiling shows as few as {whole} ticks over the "
-                 f"{window_s:.4g} s measured span, i.e. {min_rate:.4g}/s")
+                 f"{window_s:.4g} s measured span; this measurement is "
+                 f"{ticks} tick(s)")
     else:
         interval_ok = implied is not None and \
             implied <= max_interval_s * (1.0 + INTERVAL_CEILING_SLACK)
