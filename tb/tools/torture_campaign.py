@@ -282,6 +282,18 @@ def check_talker_invariant(decoded: dict) -> tuple:
 #: that called 200/s "neither" was failing a conformant device.
 MILAN_MAX_OBSERVATION_INTERVAL_S = 1.0
 
+#: Ceiling slack for a rate measured WITHOUT a known window.  A conformant
+#: counter at the exact 1 s ceiling, measured over a finite window, loses up to
+#: one tick to phase - floor(W) ticks over W seconds - so its measured rate
+#: sits BELOW 1/s: 0.996/s over the ~9 s spans this bench measures.  A
+#: tolerance-free `implied <= 1 s` test therefore fails the MANDATED behaviour
+#: at the boundary; ax-rv32-f filed 26 conformant rows that way (H2), the same
+#: verdict inversion this classifier already had once at the other end of the
+#: band.  When the window IS known the exact quantization bound floor(W/T)/W is
+#: used instead and this slack does not apply.  15% covers one lost tick for
+#: every span >= 8 s; callers measuring shorter windows must pass window_s.
+INTERVAL_CEILING_SLACK = 0.15
+
 
 def check_tv_tnv(decoded: dict, tolerance: int = 2) -> tuple:
     """TIMESTAMP_VALID + TIMESTAMP_NOT_VALID == FRAMES_RX - but only under one
@@ -347,7 +359,8 @@ def check_tv_tnv(decoded: dict, tolerance: int = 2) -> tuple:
 
 def frames_rate_reading(rate_per_s: float, nominal_frame_rate: float = 8000.0,
                         max_interval_s: float =
-                        MILAN_MAX_OBSERVATION_INTERVAL_S) -> dict:
+                        MILAN_MAX_OBSERVATION_INTERVAL_S,
+                        window_s: Optional[float] = None) -> dict:
     """Which reading a measured FRAMES_TX/FRAMES_RX rate is consistent with, and
     the observation interval it implies.
 
@@ -365,6 +378,14 @@ def frames_rate_reading(rate_per_s: float, nominal_frame_rate: float = 8000.0,
     to "neither" and so turned a conformant 5 ms interval - 200 ticks/s - into a
     SHALL failure.  `max_interval_s` is the Milan ceiling and IS used; it was a
     dead parameter before.
+
+    AND THE CEILING TEST MUST ABSORB TICK QUANTIZATION.  A conformant counter
+    at the exact 1 s ceiling shows floor(W) ticks over a W-second window when
+    the phase falls badly, so the measured rate lands BELOW 1/s - 0.996/s over
+    a ~9 s span - and a bare `implied <= 1 s` fails the mandated interval tick
+    at its own boundary (ax-rv32-f H2, 26 rows).  `window_s` is the MEASURED
+    span the rate was taken over: when given, the exact bound floor(W/T)/W is
+    applied; when absent, INTERVAL_CEILING_SLACK stands in for it.
     """
     implied = (1.0 / rate_per_s) if rate_per_s > 0 else None
     if rate_per_s <= 0:
@@ -378,26 +399,40 @@ def frames_rate_reading(rate_per_s: float, nominal_frame_rate: float = 8000.0,
                 "why": "IEEE 1722.1-2021 Table 7-157/7-159 per-frame reading "
                        "(the rate is within a factor of two of the nominal "
                        "frame rate)"}
-    if implied is not None and implied <= max_interval_s:
+    if window_s and window_s > 0:
+        whole = int(window_s / max_interval_s)
+        min_rate = whole / window_s
+        interval_ok = whole == 0 or rate_per_s >= min_rate - 1e-9
+        quant = (f"a conformant counter at the exact {max_interval_s:g} s "
+                 f"ceiling shows as few as {whole} ticks over the "
+                 f"{window_s:.4g} s measured span, i.e. {min_rate:.4g}/s")
+    else:
+        interval_ok = implied is not None and \
+            implied <= max_interval_s * (1.0 + INTERVAL_CEILING_SLACK)
+        quant = (f"no measured span was given, so the ceiling carries "
+                 f"{INTERVAL_CEILING_SLACK:.0%} slack for tick quantization")
+    if interval_ok:
         return {"band": "interval", "rate_per_s": rate_per_s,
                 "implied_interval_s": implied,
                 "why": f"Milan v1.2 Table 5.4/5.6 interval reading; the implied "
-                       f"observation interval is {implied:.4g} s, within the "
-                       f"{max_interval_s:g} s ceiling"}
+                       f"observation interval is {implied:.4g} s against the "
+                       f"{max_interval_s:g} s ceiling ({quant})"}
     return {"band": "neither", "rate_per_s": rate_per_s,
             "implied_interval_s": implied,
             "why": f"the implied observation interval is {implied:.4g} s, and "
                    f"Milan v1.2 Table 5.4/5.6 require it to be less than or "
-                   f"equal to {max_interval_s:g} s"}
+                   f"equal to {max_interval_s:g} s - beyond what tick "
+                   f"quantization explains ({quant})"}
 
 
 def frames_rate_band(rate_per_s: float, nominal_frame_rate: float = 8000.0,
                      max_interval_s: float =
-                     MILAN_MAX_OBSERVATION_INTERVAL_S) -> str:
+                     MILAN_MAX_OBSERVATION_INTERVAL_S,
+                     window_s: Optional[float] = None) -> str:
     """`frames_rate_reading()["band"]`, kept as the short form for callers that
     only need the label."""
     return frames_rate_reading(rate_per_s, nominal_frame_rate,
-                               max_interval_s)["band"]
+                               max_interval_s, window_s=window_s)["band"]
 
 
 # --------------------------------------------------- per-counter update law --
@@ -553,6 +588,13 @@ def grade_counter_semantics(name: str, delta: int, window_s: float, *,
                             stream_flowing: Optional[bool] = None) -> tuple:
     """Grade ONE counter's observed movement against its clause update law.
 
+    `window_s` is the MEASURED span the delta accumulated over, never the
+    requested sleep.  The two differ by the bounded subprocess polls around the
+    sleep - ~9 s real against a 4 s request on this bench - and dividing the
+    real span's delta by the request inflates every rate by that ratio:
+    ax-rv32-f's H1, which filed 74 conformant peer rows as "impossible"
+    (7,982/s of physical class A traffic recorded as 18,048/s).
+
     Returns (verdict, detail) with detail["reading"] naming the law the
     measurement is consistent with, and detail["clause"] naming the clause the
     grade is made under - so a finding always arrives with its citation.
@@ -620,7 +662,7 @@ def grade_counter_semantics(name: str, delta: int, window_s: float, *,
     if kind == "per-event":
         return ("PASS", dict(base, reading="per-event"))
     # per-interval
-    reading = frames_rate_reading(rate, nominal_frame_rate)
+    reading = frames_rate_reading(rate, nominal_frame_rate, window_s=window_s)
     base["implied_interval_s"] = reading["implied_interval_s"]
     if reading["band"] == "per-frame":
         return ("INFO", dict(base, reading="per-frame",
@@ -882,6 +924,13 @@ def interval_ticks_agree(talker_delta: Optional[int],
     moving while the other is static stays the original FAIL.  Two per-frame
     sides leave no interval-conformant baseline, so that is a SKIP plus one
     finding per side - never a silent pass for either.
+
+    `window_s` is the MEASURED span the deltas accumulated over, never the
+    requested sleep: it scales the per-frame floor and divides the deviant
+    side's ticks into the ticks_per_s it is accused with.  Dividing a real
+    ~9 s span's ticks by the 4 s request is how ax-rv32-f recorded a peer
+    moving 7,982/s as "18,048.00/s" - an accusation the run's own
+    streaming-rate PASS on the same counter refuted in the same step (H1).
     """
     tol = XSIDE_TOLERANCE["interval_ticks"] if tolerance is None else tolerance
     if talker_delta is None or listener_delta is None:

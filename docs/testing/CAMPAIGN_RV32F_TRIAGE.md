@@ -75,17 +75,32 @@ So the peer ticks at the AAF packet rate, exactly as it should, and one grader's
 window normalization is wrong by a constant factor. **The peer is exonerated on
 all 74 rows.**
 
-### H1b — and the clause was misapplied anyway
+One expectation for the re-run: the class 1 rows become PASS/INFO, but the
+class 2 (`xside.peer-counter-semantics`) rows will **re-file at the true
+~7,982/s** — the peer's per-frame `FRAMES_RX` semantics is its real, settled
+deviation (2026-07-30) from the Milan Table 5.6 interval wording. Those re-filed
+rows are correct attribution of a known deviation, not new defects and not
+harness artefacts; what was false here was the 18,048/s evidence, which no
+device on the bench ever produced.
 
-Independently of the arithmetic, class 1 cites the wrong law for
-`TIMESTAMP_VALID`. IEEE 1722.1-2021 **Table 7-159** defines it as:
+### H1b — WITHDRAWN: the grader's citation was checked against the PDF and is right
 
-> "Increments on receipt of a Stream data AVTPDU with the tv bit set."
+This triage originally claimed the grader cited the wrong table for
+`TIMESTAMP_VALID` and had to be corrected from 7-157 to 7-159. **That claim
+was wrong.** Verified against the IEEE 1722.1-2021 PDF on 2026-08-04:
 
-That is a **per-frame** counter, and Milan Table 5.6 does not redefine it. A
-device ticking it once per received AVTPDU is therefore correct. Our grader
-records the citation as Table 7-157 — **the table number in the grader is wrong
-and must be corrected to 7-159.**
+- **Table 7-157** — "Counter offsets in counters_block for the **STREAM_INPUT**
+  descriptor" — is where the listener-side `TIMESTAMP_VALID` ("Increments on
+  receipt of a Stream data AVTPDU with the tv bit set") is defined. That is
+  the table the grader cites for a STREAM_INPUT counter, and it is correct.
+- **Table 7-159** is the **STREAM_OUTPUT** offsets table (`FRAMES_TX`,
+  `STREAM_START`, ...); it defines the same tv-bit symbols for the output
+  side only.
+
+The per-frame reading itself stands, so H1's exoneration is unaffected. The
+lesson doubles back on this document: a triage that catches a wrong grader can
+itself be wrong, and this section originally asserted a table number without
+opening the PDF — the exact failure it was correcting.
 
 ### H2 — band classifier rejects the mandated interval tick (26 failures)
 
@@ -171,9 +186,17 @@ the "same port" half self-serving — is under investigation.
 1. **Fix the two harness defects first.** They are 64% of the failures and they
    actively mislead: H1 accuses a conformant peer, H2 accuses our own conformant
    fabric. Concretely: find and fix the window normalization behind the 2.261x
-   inflation; widen the interval band to accept ~1/s with tolerance; correct the
-   Table 7-157 citation to 7-159; and teach the harness that a NOT_SUPPORTED
-   answer to `START_STREAMING` is *conformance*, not a failed workaround.
+   inflation; widen the interval band to accept ~1/s with tolerance; and teach
+   the harness that a NOT_SUPPORTED answer to `START_STREAMING` is
+   *conformance* (Milan v1.2 5.4.2.19 mandates the refusal for a Stream
+   Output), not a failed workaround. (An earlier revision also ordered a
+   citation fix — withdrawn, see H1b.)
+   *Done 2026-08-04:* the runner divided raw deltas by the **requested** window
+   while they accumulated over the **measured** span (~9 s against the 4 s
+   request — exactly the 2.261 ratio); every grade now uses the measured span,
+   the band classifier absorbs tick quantization at the 1 s ceiling, and a
+   status-11 `START_STREAMING` answer is recorded as
+   `start_conformantly_refused`, never as the failure.
 2. **Re-run the audio area with no player** to clear the 8 contaminated rows.
 3. **Flash** the build carrying the 2026-08-03 fixes plus the rebuilt root
    filesystem, then cold-cycle.
