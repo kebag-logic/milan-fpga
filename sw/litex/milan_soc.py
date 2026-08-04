@@ -528,6 +528,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee17221/aecp/KL_aecp_packet_validator.sv", "hdl/ieee17221/aecp/KL_aecp_common_parser.sv",
     "hdl/ieee17221/aecp/KL_aecp_l0_state.sv", "hdl/ieee17221/aecp/KL_aecp_timers.sv",
     "hdl/ieee17221/aecp/KL_aecp_accessor.sv", "hdl/ieee17221/aecp/KL_aecp_aem_store.sv",
+    "hdl/ieee17221/aecp/KL_aem_patch.sv",
     "hdl/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv", "hdl/ieee17221/aecp/KL_aecp_response_builder.sv",
     "hdl/ieee17221/aecp/KL_aecp_ingress.sv", "hdl/ieee17221/aecp/KL_aecp_top.sv",
     # ACMP N-context engine + compatibility wrappers (Milan v1.2 §5.5)
