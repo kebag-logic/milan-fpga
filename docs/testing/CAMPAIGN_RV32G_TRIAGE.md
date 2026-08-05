@@ -9,7 +9,8 @@ ax-rv32-f H1/H2 fixes (measured-span rates, quantization-aware interval
 ceiling, Milan 5.4.2.19 refusals as conformance).
 
 This is the identical plan ax-rv32-f ran on 2026-08-04
-(`CAMPAIGN_RV32F_TRIAGE.md`), so every delta is attributable to (a) the
+([CAMPAIGN_RV32F_TRIAGE.md](CAMPAIGN_RV32F_TRIAGE.md)), so every delta is
+attributable to (a) the
 grader fixes, (b) the new gateware, or (c) bench state — and the rows say
 which.
 
