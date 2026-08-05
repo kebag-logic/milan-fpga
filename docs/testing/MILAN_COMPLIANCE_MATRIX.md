@@ -47,7 +47,7 @@ delta, desk first (Verilator) then silicon. None has one today.
 | SI SEQ_NUM_MISMATCH | +1 per OBSERVATION INTERVAL (≤1 s, impl-chosen) containing ≥1 non-sequential sequence_num — NOT per event | IMPLEMENTED, ungraded (verify interval semantics, not per-frame) |
 | SI MEDIA_RESET | +1 per observation interval in which the **mr bit TOGGLED** in any received AVTPDU | law RESOLVED, ungraded |
 | SI TIMESTAMP_UNCERTAIN | +1 per observation interval with any tu=1 AVTPDU | IMPLEMENTED, ungraded |
-| SI **RESET LAW** | ALL Table 5.6 counters reset to ZERO on the not-bound→bound EDGE; explicitly NOT reset on unbind (5.3.8.10 final para) — prime suspect for the 08-05 KNOWN-BAD stream-input reports | UNKNOWN in RTL — grade FIRST |
+| SI **RESET LAW** | ALL Table 5.6 counters reset to ZERO on the not-bound→bound EDGE; explicitly NOT reset on unbind (5.3.8.10 final para) — prime suspect for the 08-05 KNOWN-BAD stream-input reports | IMPLEMENTED (`KL_avtp_rx_monitor_ctx` header cites M-5.3.8.10, per-stream `bind_rise_i` pulses), ungraded — the grader must force bind→traffic→unbind (HOLD)→rebind (ZERO), incl the fast-connect and REBIND-while-bound paths where the pulse could be missed |
 | SI UNSUPPORTED_FORMAT | frames not matching the CURRENT format (proven live 07-27 at 8ch-vs-2ch) | VERIFIED (campaign) |
 | SI LATE/EARLY_TIMESTAMP | presentation-time window comparisons | IMPLEMENTED, ungraded at law level (0.44% stress row pending taps build) |
 | SI FRAMES_RX | interval count at class rate (~8000/s @ 48k/A) | VERIFIED (campaign, H1-fixed graders) |
