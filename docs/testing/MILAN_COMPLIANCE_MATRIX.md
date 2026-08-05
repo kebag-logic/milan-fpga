@@ -42,16 +42,19 @@ delta, desk first (Verilator) then silicon. None has one today.
 | AVB_IF LINK_UP/DOWN | +1 per real link cycle; no false counts on JTAG reload / eth_rst | IMPLEMENTED, ungraded |
 | AVB_IF GPTP_GM_CHANGED | +1 per BMCA GM change (incl our own deposition/recovery); NOT per announce | IMPLEMENTED, ungraded |
 | CLK_DOM LOCKED/UNLOCKED | +1 per media-lock edge of the domain's current source; source switch behaviour | IMPLEMENTED, ungraded |
-| SI MEDIA_LOCKED/UNLOCKED | per media-lock acquisition/loss of THAT stream | IMPLEMENTED, ungraded |
-| SI STREAM_INTERRUPTED | stream stopped arriving while bound (law: what timeout?) — read the clause before grading | UNKNOWN |
-| SI SEQ_NUM_MISMATCH | +1 per sequence discontinuity (dropped/reordered) | IMPLEMENTED, ungraded (TB has parser-level checks only) |
-| SI MEDIA_RESET | law inventory needed (tu edges? restart?) | UNKNOWN |
-| SI TIMESTAMP_UNCERTAIN | frames with tu=1 received | IMPLEMENTED, ungraded |
+| SI MEDIA_LOCKED/UNLOCKED | per lock/unlock EVENT, and the 5.3.8.10 INVARIANT: at ANY time LOCKED==UNLOCKED (unsynced) or LOCKED==UNLOCKED+1 (synced) — a grader can assert it on every read | IMPLEMENTED, ungraded |
+| SI STREAM_INTERRUPTED | +1 per playback interruption **for any reason EXCEPT a Controller Unbind** (5.3.8.10: AVTPDU loss, wrong timestamps, over/underrun all count; unbind must NOT) | law RESOLVED, ungraded |
+| SI SEQ_NUM_MISMATCH | +1 per OBSERVATION INTERVAL (≤1 s, impl-chosen) containing ≥1 non-sequential sequence_num — NOT per event | IMPLEMENTED, ungraded (verify interval semantics, not per-frame) |
+| SI MEDIA_RESET | +1 per observation interval in which the **mr bit TOGGLED** in any received AVTPDU | law RESOLVED, ungraded |
+| SI TIMESTAMP_UNCERTAIN | +1 per observation interval with any tu=1 AVTPDU | IMPLEMENTED, ungraded |
+| SI **RESET LAW** | ALL Table 5.6 counters reset to ZERO on the not-bound→bound EDGE; explicitly NOT reset on unbind (5.3.8.10 final para) — prime suspect for the 08-05 KNOWN-BAD stream-input reports | UNKNOWN in RTL — grade FIRST |
 | SI UNSUPPORTED_FORMAT | frames not matching the CURRENT format (proven live 07-27 at 8ch-vs-2ch) | VERIFIED (campaign) |
 | SI LATE/EARLY_TIMESTAMP | presentation-time window comparisons | IMPLEMENTED, ungraded at law level (0.44% stress row pending taps build) |
 | SI FRAMES_RX | interval count at class rate (~8000/s @ 48k/A) | VERIFIED (campaign, H1-fixed graders) |
 | SO STREAM_START/STOP | +1 per licence open/close (ACMP bind + SRP settle; START_STREAMING refusal is 5.4.2.19-mandated and must NOT count) | IMPLEMENTED, ungraded |
-| SO MEDIA_RESET / TS_UNCERTAIN | talker-side laws — clause read needed | UNKNOWN |
+| SO MEDIA_RESET / TS_UNCERTAIN | talker-side laws — clause read needed (5.3.9.x area) | UNKNOWN |
+| SPO mappings NV-restore | 5.3.9.1: output channel mappings SHALL persist in non-volatile memory across power cycles (input twin 5.3.10.1) — recorded deviation since 0x001C (no NV plane); journal decision (#7) is the enabler | MISSING (recorded deviation) |
+| GET_MILAN_INFO TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING | 5.3.9.1/5.4.4.1: if we accept mapping edits while streaming (we do — the walk has no streaming refusal), the bit SHALL be set | UNKNOWN — check the features word |
 | SO FRAMES_TX | interval count | VERIFIED (campaign) |
 
 ## 3. Unsolicited notifications (5.4.5.2 Table 5.22 + 1722.1 7.5.2)
