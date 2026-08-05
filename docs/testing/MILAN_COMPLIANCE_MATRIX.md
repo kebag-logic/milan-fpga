@@ -54,7 +54,7 @@ delta, desk first (Verilator) then silicon. None has one today.
 | SO STREAM_START/STOP | +1 per licence open/close (ACMP bind + SRP settle; START_STREAMING refusal is 5.4.2.19-mandated and must NOT count) | IMPLEMENTED, ungraded |
 | SO MEDIA_RESET / TS_UNCERTAIN | talker-side laws — clause read needed (5.3.9.x area) | UNKNOWN |
 | SPO mappings NV-restore | 5.3.9.1: output channel mappings SHALL persist in non-volatile memory across power cycles (input twin 5.3.10.1) — recorded deviation since 0x001C (no NV plane); journal decision (#7) is the enabler | MISSING (recorded deviation) |
-| GET_MILAN_INFO TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING | 5.3.9.1/5.4.4.1: if we accept mapping edits while streaming (we do — the walk has no streaming refusal), the bit SHALL be set | UNKNOWN — check the features word |
+| GET_MILAN_INFO TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING | 5.3.9.1 + Table 5.20 (PDF p58, read 08-05): bit 30 value 0x00000002, SHALL be set by an entity accepting mapping edits while the Stream Output streams — we DO accept them (live-proven 08-05) and our features_flags answers **0** (`response_builder` VU_GET_MILAN_INFO arm, const_q[4..7]) | **RED — fix queued for the compliance round**: features_flags = 0x00000002 (REDUNDANCY stays 0: secondary net unimplemented). Note 5.3.9.1's corollary also binds: an entity NOT setting the bit must REFUSE running edits — flags=0 + accepting is the one combination the spec forbids |
 | SO FRAMES_TX | interval count | VERIFIED (campaign) |
 
 ## 3. Unsolicited notifications (5.4.5.2 Table 5.22 + 1722.1 7.5.2)
