@@ -78,6 +78,23 @@ platform:
     dma-ts: 0xf0003100               # at flash time (8.2 checklist) - the
     pcm-dma: 0xf0003120              # 5ce9a13 CSR-rot class, gate 19c
 
+gptp:
+  # ONE source (USER 2026-08-05): these values generate BOTH the
+  # AVB_INTERFACE descriptor's clock fields and /etc/gptp.<board>.cfg.
+  # priority1 238 = the AX bench posture (beats the switch's 246 claim
+  # outright, USER default 2026-07-20; cert-run posture per Milan es-1.1
+  # is 246|248 - change HERE for a cert run, nowhere else). The rest are
+  # the software-clock truth ptp4l announces (linuxptp defaults).
+  priority1: 238
+  priority2: 248
+  clock_class: 248
+  clock_accuracy: 0xFE
+  offset_scaled_log_variance: 0xFFFF
+  domain: 0
+  log_sync_interval: -3
+  log_announce_interval: 0
+  log_pdelay_interval: 0
+
 clocking:
   sampling_rate_hz: 48000
   audio_unit_rates_hz: [48000]

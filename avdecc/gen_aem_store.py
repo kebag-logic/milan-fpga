@@ -246,17 +246,30 @@ def d_stream(dtype, index, name, flags, formats, buffer_len=0):
         b += be64(f)
     return b
 
-def d_avb_interface():
+def d_avb_interface(gp=None):
+    """gp = the config's `gptp:` section (overlay key "gptp"), the SAME
+    source that generates the board's ptp4l config - so the descriptor can
+    no longer claim one clock while the daemon runs another. Absent (legacy
+    overlays / builtin spec) keeps the historical constants BYTE-EXACTLY:
+    those shapes' entity_model_id predates the section, and controllers
+    cache descriptor content by model id, so their bytes must not move."""
+    gp = gp or {}
     b = be16(AVB_INTERFACE) + be16(0)
     b += cstr("AVB Interface 0")        # object_name (SET_NAME)
     b += be16(NO_STRING)
     b += bytes(6)                       # mac_address (overlay)
     b += be16(0x0007)                   # GPTP_GM_SUPPORTED|GPTP|SRP
     b += be64(0)                        # clock_identity (overlay: MAC->EUI64)
-    b += bytes([0xF8, 0xF8])            # priority1, clock_class
-    b += be16(0x436A)                   # offset_scaled_log_variance
-    b += bytes([0x21, 0xF8, 0x00])      # clock_accuracy, priority2, domain
-    b += bytes([0x00, 0x00, 0x00])      # log sync/announce/pdelay intervals
+    b += bytes([int(gp.get("priority1", 0xF8)),
+                int(gp.get("clock_class", 0xF8))])
+    b += be16(int(gp.get("offset_scaled_log_variance", 0x436A)))
+    b += bytes([int(gp.get("clock_accuracy", 0x21)),
+                int(gp.get("priority2", 0xF8)),
+                int(gp.get("domain", 0))])
+    # log intervals are SIGNED octets (1722.1 7.2.8: log base 2 periods)
+    b += bytes([int(gp.get("log_sync_interval", 0)) & 0xFF,
+                int(gp.get("log_announce_interval", 0)) & 0xFF,
+                int(gp.get("log_pdelay_interval", 0)) & 0xFF])
     b += be16(0)                        # port_number
     assert len(b) == 98
     return b
@@ -834,6 +847,8 @@ def spec_from_overlay(ovl):
                     group_name=ent.get("group_name", ""),
                     serial_number=ent["serial_number"],
                     vendor_name=ent.get("vendor_name", "Kebag Logic")),
+        gptp=ovl.get("gptp"),           # AVB_INTERFACE clock attributes
+                                        # (single source with gptp.cfg)
         rates=rates_hz,                 # pull-0 encoding == Hz value
         current_rate=int(ovl["current_sampling_rate_hz"]),
         rates_string="/".join(str(hz // 1000) for hz in rates_hz) + " kHz",
@@ -1046,7 +1061,7 @@ def build_model(spec):
         descs.append((STREAM_OUTPUT, k,
                       d_stream(STREAM_OUTPUT, k, s["name"], flags,
                                s["formats"])))
-    descs.append((AVB_INTERFACE, 0, d_avb_interface()))
+    descs.append((AVB_INTERFACE, 0, d_avb_interface(spec.get("gptp"))))
     for k, cs in enumerate(spec["clock_sources"]):
         descs.append((CLOCK_SOURCE, k,
                       d_clock_source(k, cs["name"], cs["cs_type"],

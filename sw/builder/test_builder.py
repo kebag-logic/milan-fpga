@@ -167,6 +167,8 @@ CONFIGS = {
     "arty_current": os.path.join(ROOT, "configs/endstation_arty_current.yaml"),
     "arty_4x4": os.path.join(ROOT, "configs/endstation_arty_4x4.yaml"),
     "ax7101_8x8": os.path.join(ROOT, "configs/endstation_ax7101_8x8.yaml"),
+    "ax7101_1x1_tdm8": os.path.join(
+        ROOT, "configs/endstation_ax7101_1x1_tdm8.yaml"),
 }
 OUT = os.path.join(HERE, "out")
 SWEEP = os.path.join(ROOT, "sw/litex/sweep.sh")
@@ -390,14 +392,13 @@ def test_current_shape_matches_sweep_flags():
     assert got == want, f"arty argv mismatch:\n got  {got}\n want {want}"
     print("  [gate 2] arty_4x4 argv == sweep.sh arty design flags "
           f"({len(got)} flags)")
-    for name in ("ax7101_8x8",):
+    # USER 2026-08-05: the shipping AX shape is the 1x1x8 TDM8 config; the
+    # sweep table now states IT, so like compares against like. The 8x8 NxN
+    # shape stays a valid config one SWEEP_CFG away.
+    for name in ("ax7101_1x1_tdm8",):
         r = eb.build(CONFIGS[name], OUT)
         got, want = _canon(r["argv"]), sweep_expected("ax7101")
-        # NXN_ARCHITECTURE P0: multi-stream shapes additionally carry
-        # --num-streams (the milan_datapath N_STREAMS parameter); sweep.sh
-        # tracks today's 1x1 build, so the flag rides on top of its OPTS.
         want = dict(want)
-        want["--num-streams"] = [8.0]
         # item-4 audio-interface family: tdm kinds ride on top of the OPTS as
         # the front-end generate select (default i2s emits nothing) - BUT ONLY
         # WHEN THE FABRIC BACKS THEM. That question is NOT hardcoded here: it
@@ -754,7 +755,8 @@ def test_sweep_opts_fragments():
         p = r["paths"]["sweep_opts"]
         assert os.path.basename(p) == f"sweep_opts_{board}.sh"
         txt = open(p).read()
-        m = re.search(r'^OPTS="([^"]*)"\nL2=(\d+)\nRXQ=(\d+)\n', txt, re.M)
+        m = re.search(r'^OPTS="([^"]*)"\n(?:NS=\d+\n)?L2=(\d+)\nRXQ=(\d+)\n',
+                      txt, re.M)
         assert m, f"{p}: fragment lacks OPTS/L2/RXQ"
         frag[board] = (m.group(1), m.group(2), m.group(3), p)
     for board, (opts, l2, rxq, p) in frag.items():
@@ -3780,13 +3782,22 @@ def test_d10_cluster_names():
             "object_name must fit the 64-byte field (7.2.16)"
         # role and name must agree - a "Pilot Tone" string on a host cluster
         # would be exactly the lie D10 exists to remove
+        cnames = r["cfg"]["interface"].get("channel_names") or []
         for c in cl:
             if c["role"] == "pilot":
                 assert c["name"] == "Pilot Tone", c
             elif c["role"] == "loopback":
                 assert c["name"].startswith("Loopback S"), c
+                # channel_names reach the loopback suffix too
+                if cnames:
+                    assert c["name"].split()[-1] in cnames, c
             elif c["role"] == "host":
-                assert c["name"].startswith("Host "), c
+                # channel_names (USER 2026-08-05) name host clusters
+                # VERBATIM; without them the Host Play/Cap template holds
+                if cnames:
+                    assert c["name"] in cnames, c
+                else:
+                    assert c["name"].startswith("Host "), c
             elif c["role"] == "virtual":
                 assert c["name"].startswith("Virtual "), c
             else:
