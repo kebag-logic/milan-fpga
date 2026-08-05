@@ -562,6 +562,50 @@ int main(int argc, char** argv) {
     ckh("[N9] dmac re-learned", c_dmac(), 0x91E0F000FE99ULL);
     ck("[N9] sink active", dut->stream_active_o & 1, 1);
 
+    // ---------------------------------------------------------------- //
+    printf("\n[N10] probe-response accept vs arrival phase (ax-rv32-g return"
+           " leg)\n");
+    // THE SILICON SHAPE, 2026-08-05: the peer answered EVERY probe within
+    // 1.4 ms with a flawless PROBE_TX_RESPONSE (sid == its entity id, a MAAP
+    // dmac, vlan 2), yet ACMPL_STATE took MINUTES of 500 ms retries to reach
+    // probing=COMPLETED - most responses were lost somewhere between capture
+    // and accept.  This sweeps the response's arrival phase against the
+    // sweep engine / classify pipeline, one bind-probe-respond cycle per
+    // phase, and demands the accept at EVERY phase.  A phase that loses the
+    // response is the race, reproduced.
+    {
+        const uint8_t dmP[6] = {0x91,0xE0,0xF0,0x00,0xBE,0xC6};
+        const uint64_t PEER = 0x3CC0C60102030000ULL;   // sid == talker EID
+        const uint64_t PW0C = 0x6805CAFFFE95B2D1ULL;   // the real controller
+        int lost = 0;
+        for (int ph = 0; ph <= 24; ph++) {
+            // clean slate for ctx2 (SM-enabled, sid-explicit)
+            feed(acmp(8, 0, 0, PW0C, PEER, US_EID, 0, 2, nullptr,
+                      0x200+ph, 0, 0));                 // DISCONNECT_RX
+            wait_frame();                               // unbind response
+            run(20);
+            feed(acmp(6, 0, 0, PW0C, PEER, US_EID, 0, 2, nullptr,
+                      0x300+ph, 2, 0));                 // BIND_RX
+            wait_frame();                               // bind response
+            auto pr = wait_frame();                     // the PROBE_TX
+            uint16_t pseq = (uint16_t)r_be(pr, 62, 2);
+            run(ph);                                    // the swept phase
+            feed(acmp(1, 0, PEER, PW0C, PEER, US_EID, 0, 2, dmP,
+                      pseq, 2, 2));                     // the real answer
+            run(6);
+            tbl_read(2);
+            bool ok = (c_state() == 6) && (c_probing() == 3) &&
+                      (c_sid() == PEER) && (c_dmac() == 0x91E0F000BEC6ULL);
+            if (!ok) {
+                lost++;
+                printf("  [phase %2d] LOST: state=%ld probing=%ld sid=%llx\n",
+                       ph, (long)c_state(), (long)c_probing(),
+                       (unsigned long long)c_sid());
+            }
+        }
+        ck("[N10] the accept survives every arrival phase", lost, 0);
+    }
+
     printf("\nKL_acmp_lstn_ctx N=4: %ld checks, %ld failures\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");
     dut->final(); delete dut;
