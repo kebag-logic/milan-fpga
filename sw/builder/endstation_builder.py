@@ -3221,6 +3221,15 @@ def emit_design_opts(cfg):
     # one fact, so an AEM can never advertise a lane the bitstream lacks.
     if cfg["interface"].get("cluster_fabric", {}).get("loopback_lane"):
         argv += ["--loopback-lane"]
+    # the KL_pcm_tx host rings behind the `host` pool. Emitted from the SAME
+    # fabric declaration the AEM host clusters come from - caught 2026-08-05
+    # by check_dtb_csr at FLASH time: the fragment carried no playback flag,
+    # three seeds built a datapath with no pb engine under a DTB (and an AEM
+    # host pool) that declared one. Only build.sh's cfg_ax7101 recipe ever
+    # passed --aaf-playback; the sweep path reads THIS argv.
+    pbr = cfg["interface"].get("cluster_fabric", {}).get("playback_rings")
+    if pbr:
+        argv += ["--aaf-playback", "--aaf-playback-streams", str(int(pbr))]
     return argv
 
 
