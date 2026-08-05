@@ -334,8 +334,10 @@ int main(int argc,char**argv){
     { AafCfg c; c.seq=9; feed(mkaaf(c)); }                  // s0 seq jump
     { AafCfg c; c.seq=10; c.nsr=0x07; feed(mkaaf(c)); }     // s0 bad format
     flush_iv();
-    ck("s0 events landed (FRX +1: one interval)",
-       dut->cnt_frames_rx_o, s0_frx+1);
+    //! coalesced law: 2 format-OK frames count; the bad-format PDU raises
+    //! UF instead of FRX (the iv_events fork), so +2 not +3
+    ck("s0 events landed (FRX +2 frames, coalesced)",
+       dut->cnt_frames_rx_o, s0_frx+2);
     ck("s1 LCTX FRX still 0", lctx_rd(1, W_FRX), 0);
     ck("s1 LCTX SEQ_MM still 0", lctx_rd(1, W_SM), 0);
     ck("s1 LCTX TU still 0", lctx_rd(1, W_TU), 0);
@@ -349,7 +351,7 @@ int main(int argc,char**argv){
     { AafCfg c; c.sid=SID1; c.seq=0; feed(mkaaf(c)); }
     { AafCfg c; c.sid=SID1; c.seq=1; c.tu=true; feed(mkaaf(c)); }
     flush_iv();
-    ck("s1 LCTX FRX = 1 (2 PDUs, one interval)", lctx_rd(1, W_FRX), 1);
+    ck("s1 LCTX FRX = 2 (2 PDUs, coalesced law)", lctx_rd(1, W_FRX), 2);
     ck("s1 LCTX MEDIA_LOCKED = 1", lctx_rd(1, W_ML), 1);
     ck("s1 LCTX TU = 1", lctx_rd(1, W_TU), 1);
     //! NULL routing discards AFTER the depacketizer - w11 still attributes,
@@ -366,7 +368,7 @@ int main(int argc,char**argv){
     { AafCfg c; c.sid=SID1; c.seq=2; feed(mkaaf(c)); }
     flush_iv();
     ck("NULL route: no ring bytes", (long)pcm.size(), 0);
-    ck("NULL route: s1 LCTX FRX advanced", lctx_rd(1, W_FRX), 2);
+    ck("NULL route: s1 LCTX FRX advanced", lctx_rd(1, W_FRX), 3);
 
     printf("\n[R2] P3: s1 -> DMA passes tagged, render tap stays s0\n");
     //! route field = FLAGS since the ALSA-design rework: bit0 DMA, bit1
@@ -433,8 +435,10 @@ int main(int argc,char**argv){
     //! calls exactly this split "milan-interval" (INFO, not a defect)
     ck("[M13e] TV+TNV = accepted frames (3)",
        lctx_rd(1, W_TV) + lctx_rd(1, W_TNV), 3);
-    ck("[M13e2] interval FRAMES_RX stays below the tallies (2)",
-       lctx_rd(1, W_FRX), 2);
+    //! coalesced law (USER 2026-08-05: ATDECC quantity, Milan cadence):
+    //! FRAMES_RX == frames, so the 1722.1 identity TV+TNV == FRX holds
+    ck("[M13e2] FRAMES_RX equals the tallies (coalesced law)",
+       lctx_rd(1, W_FRX), 3);
     { long tvs = lctx_rd(1, W_TV) + lctx_rd(1, W_TNV);
       AafCfg c; c.sid=0x1111222233334444ULL; c.seq=3; c.chans=0;
       feed(mkaaf(c));                          // UF early-return
@@ -461,15 +465,16 @@ int main(int argc,char**argv){
     for(uint8_t s=0; s<9; s++){ AafCfg c; c.sid=SID2; c.seq=s; feed(mkaaf(c)); }
     flush_iv();
     long iv_frx = lctx_rd(2, W_FRX);
-    ck("[IV0] settle-drain committed (FRX 1..2 intervals)",
-       iv_frx >= 1 && iv_frx <= 2, 1);
+    ck("[IV0] settle-drain committed (FRX = 9 frames, coalesced)",
+       iv_frx, 9);
 
     printf("\n[IV1] FRAMES_RX: 6 PDUs, one interval -> +1 (was +6)\n");
     align_iv();
     for(uint8_t s=9; s<15; s++){ AafCfg c; c.sid=SID2; c.seq=s; feed(mkaaf(c)); }
     ck("[IV1a] uncommitted before the tick", lctx_rd(2, W_FRX), iv_frx);
     flush_iv();
-    ck("[IV1b] FRAMES_RX +1 for the whole burst", lctx_rd(2, W_FRX), iv_frx+1);
+    ck("[IV1b] FRAMES_RX += the burst's 6 frames (coalesced)",
+       lctx_rd(2, W_FRX), iv_frx+6);
 
     printf("\n[IV2] SEQ_NUM_MISMATCH vs STREAM_INTERRUPTED: 3 gaps, one\n"
            "      interval -> SM +1 (was +3) while SI +3 (per-event)\n");

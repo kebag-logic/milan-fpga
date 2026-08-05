@@ -305,6 +305,14 @@ module KL_avtp_rx_monitor_ctx #(
   //! right after the PDU walk - counts stay exact, media frames never wait
   logic [11:0]       iv_res_list_r;
   logic [IDXW_C-1:0] iv_res_s_r;
+  //! USER 2026-08-05 FRAMES_RX law: count FRAMES, publish COALESCED at the
+  //! interval commit - the visible counter advances by the interval's frame
+  //! total (~8000/s at class A) instead of Table 5.6's +1-per-interval. Both
+  //! readings are Milan-legal (the interval is implementation-specific,
+  //! <= 1 s); this one matches the ecosystem/peer and restores 1722.1's
+  //! TV+TNV == FRAMES_RX identity. Saturating 16-bit/stream (8000/s legit).
+  logic [15:0] frx_acc_r [N_LISTENERS_P];
+  logic [15:0] frx_add_r;
 
   logic [N_LISTENERS_P-1:0] locked_sh_r;     //! media_locked mirror (w8[12])
   logic [7:0] chans_sh_r [N_LISTENERS_P];    //! wire_chans mirror (w8[21:14])
@@ -592,7 +600,10 @@ module KL_avtp_rx_monitor_ctx #(
         else if (inc_list_r != '0 && inc_rd_q_r) begin
           eng_we_w    = 1'b1;
           eng_waddr_w = laddr(ev_s_r, W_CNT0_C | 5'(inc_next_w));
-          eng_wdata_w = ram_q_r + 32'd1;
+          //! FRAMES_RX commits the interval's FRAME TOTAL (coalesced law,
+          //! USER 2026-08-05); every other Table 5.6 counter keeps +1
+          eng_wdata_w = ram_q_r + ((5'(inc_next_w) == 5'(C_FRX_C))
+                                   ? 32'(frx_add_r) : 32'd1);
         end
       end
       M_BDEC_S : begin
@@ -752,6 +763,8 @@ module KL_avtp_rx_monitor_ctx #(
       sil_pend_r   <= '0;
       servo_pend_r <= '0;
       iv_pend_r    <= '0;
+      frx_add_r    <= '0;
+      for (int s = 0; s < N_LISTENERS_P; s++) frx_acc_r[s] <= '0;
       iv_res_list_r <= '0;
       iv_res_s_r    <= '0;
       locked_sh_r  <= '0;
@@ -884,6 +897,7 @@ module KL_avtp_rx_monitor_ctx #(
             //! flags and the pend bit this same cycle)
             ev_s_r     <= iv_s_w;
             inc_list_r <= iv_seen_r[iv_s_w];
+            frx_add_r  <= frx_acc_r[iv_s_w];
             if (iv_s_w == '0 && iv_seen_r[iv_s_w] != '0) dirty_p_o <= 1'b1;
             mst_r      <= M_INC_S;
           end
@@ -1091,12 +1105,18 @@ module KL_avtp_rx_monitor_ctx #(
         begin
           iv_seen_r[s] <= iv_set_w[s];
           iv_pend_r[s] <= 1'b0;
+          frx_acc_r[s] <= {15'd0, iv_set_w[s][C_FRX_C]};
         end
         else begin
-          if (iv_go_w && (32'(iv_s_w) == s))
+          if (iv_go_w && (32'(iv_s_w) == s)) begin
             iv_seen_r[s] <= iv_set_w[s];
-          else
+            frx_acc_r[s] <= {15'd0, iv_set_w[s][C_FRX_C]};
+          end
+          else begin
             iv_seen_r[s] <= iv_seen_r[s] | iv_set_w[s];
+            if (iv_set_w[s][C_FRX_C] && (frx_acc_r[s] != 16'hFFFF))
+              frx_acc_r[s] <= frx_acc_r[s] + 16'd1;
+          end
           if (iv_tick_r && ((iv_seen_r[s] | iv_set_w[s]) != '0))
             iv_pend_r[s] <= 1'b1;
           else if (iv_go_w && (32'(iv_s_w) == s))

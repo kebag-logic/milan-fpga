@@ -50,12 +50,12 @@ delta, desk first (Verilator) then silicon. None has one today.
 | SI **RESET LAW** | ALL Table 5.6 counters reset to ZERO on the not-bound→bound EDGE; explicitly NOT reset on unbind (5.3.8.10 final para) — prime suspect for the 08-05 KNOWN-BAD stream-input reports | IMPLEMENTED (`KL_avtp_rx_monitor_ctx` header cites M-5.3.8.10, per-stream `bind_rise_i` pulses), ungraded — the grader must force bind→traffic→unbind (HOLD)→rebind (ZERO), incl the fast-connect and REBIND-while-bound paths where the pulse could be missed |
 | SI UNSUPPORTED_FORMAT | frames not matching the CURRENT format (proven live 07-27 at 8ch-vs-2ch) | VERIFIED (campaign) |
 | SI LATE/EARLY_TIMESTAMP | presentation-time window comparisons | IMPLEMENTED, ungraded at law level (0.44% stress row pending taps build) |
-| SI FRAMES_RX | interval count at class rate (~8000/s @ 48k/A) | VERIFIED (campaign, H1-fixed graders) |
+| SI FRAMES_RX | **STANDARD (USER-corrected 08-05)**: ATDECC defines the quantity (frames, Table 7-157), Milan bounds the update cadence (≤1 s interval; the 'not in line' note covers only the OUTPUT table) — count frames, publish COALESCED at the interval close (~8000/s visible, batched 1/s). Implemented in `KL_avtp_rx_monitor_ctx` (frx accumulator), TB-verified (rxmon 93+109, incl the restored TV+TNV==FRX identity); xside peer deviation self-heals |
 | SO STREAM_START/STOP | +1 per licence open/close (ACMP bind + SRP settle; START_STREAMING refusal is 5.4.2.19-mandated and must NOT count) | IMPLEMENTED, ungraded |
 | SO MEDIA_RESET / TS_UNCERTAIN | talker-side laws — clause read needed (5.3.9.x area) | UNKNOWN |
 | SPO mappings NV-restore | 5.3.9.1: output channel mappings SHALL persist in non-volatile memory across power cycles (input twin 5.3.10.1) — recorded deviation since 0x001C (no NV plane); journal decision (#7) is the enabler | MISSING (recorded deviation) |
 | GET_MILAN_INFO TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING | 5.3.9.1 + Table 5.20 (PDF p58, read 08-05): bit 30 value 0x00000002, SHALL be set by an entity accepting mapping edits while the Stream Output streams — we DO accept them (live-proven 08-05) and our features_flags answers **0** (`response_builder` VU_GET_MILAN_INFO arm, const_q[4..7]) | **RED — fix queued for the compliance round**: features_flags = 0x00000002 (REDUNDANCY stays 0: secondary net unimplemented). Note 5.3.9.1's corollary also binds: an entity NOT setting the bit must REFUSE running edits — flags=0 + accepting is the one combination the spec forbids |
-| SO FRAMES_TX | interval count | VERIFIED (campaign) |
+| SO FRAMES_TX | same coalesced-frames law (Table 5.4 wording + reset-on-start) — `KL_talker_diag_ctx` facc accumulator, TB-verified | IMPLEMENTED, TB-green |
 
 ## 3. Unsolicited notifications (5.4.5.2 Table 5.22 + 1722.1 7.5.2)
 
