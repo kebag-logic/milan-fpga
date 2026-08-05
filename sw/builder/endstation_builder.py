@@ -3223,6 +3223,11 @@ def emit_sweep_opts(cfg):
         "# a launch whose effective flags disagree with SWEEP_CFG. Regenerate:\n"
         "#   python3 sw/builder/endstation_builder.py <cfg.yaml>\n"
         f'OPTS="{opts}"\n'
+        # NS stated ALWAYS, even at 1: sweep.sh's inline table is the
+        # fallback when the fragment is silent, so a 1-stream config that
+        # omitted the key inherited the board default (8) and the shape
+        # gate refused the launch (2026-08-05, first 1x1 AX sweep)
+        f"NS={max(len(cfg['listeners']), len(cfg['talkers']))}\n"
         f"L2={cfg['constraints']['l2_bytes']}\n"
         f"RXQ={cfg['constraints']['rx_queues']}\n")
 
