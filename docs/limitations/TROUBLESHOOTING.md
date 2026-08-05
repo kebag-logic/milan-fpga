@@ -896,3 +896,41 @@ readback of the window can agree with you. Two rules follow:
 DMAC is **flooded** by the bridge - a stream nobody registered still reaches every port at
 full rate, while a *registered but listener-less* stream is pruned. A peer board drowning in
 frames it never asked for is a switch-forwarding behaviour, not a fabric fault.
+
+## Section 23: `ADD_AUDIO_MAPPINGS` answers `BAD_ARGUMENTS` — which of the four rules did the record break?
+
+**Symptom.** A controller (Hive / la_avdecc: *"One or more of the values in
+the fields of the frame were deemed to be bad by the AVDECC Entity"*) edits
+the channel mapping of a `STREAM_PORT_OUTPUT` (or `STREAM_PORT_INPUT`) and
+the entity refuses the whole command. Nothing changes — 7.4.45.1 is
+all-or-nothing, one bad record voids the command's every record.
+
+**This is the entity applying its vendor validity rules** (which 7.4.45.1
+delegates: "the validity of the mapping as defined by the vendor"), not a
+parser fault. All four were reproduced side by side on the flashed 8×8
+(2026-08-05, raw-socket probe, port 1): the identity mapping answered
+`SUCCESS`, each rule below answered `BAD_ARGUMENTS`.
+
+| # | rule (output ports) | the physical reason |
+|---|---|---|
+| 1 | `mapping_stream_index` must be the addressed port's OWN stream | the capture fabric routes port *j*'s clusters into stream *j* — there is no cross-stream path |
+| 2 | the cluster's L/R **half must match the stream channel's parity** (mono pilot exempt) | a pair slot emits its source pair's L into channel 2p and its R into 2p+1; the crossbar has no half-swap mux (measured at ≈ +315 LUT and declined) |
+| 3 | the cluster's source must be **fabric-backed** (`valid` in `AEM_ODMAP_CSRC_C`) | the 8×8 build's 8 loopback clusters per output port declare sources nothing drives — accepting one would have `GET_AUDIO_MAP` report a route that carries silence |
+| 4 | `mapping_cluster_channel` must be 0 | every cluster this model emits is MONO — the L and R of a pair are two adjacent clusters, not two channels of one |
+
+Input-port (`STREAM_PORT_INPUT`) commands run the render-side twin of
+rules 1/3/4 (global-key range + physically-renderable + `cc = 0`).
+
+**Practical map, 8×8 output port:** cluster offsets 0–7 = host-ring pairs
+(L at even offsets → even channels, R at odd → odd channels), 8 = the mono
+pilot (either parity), 9–16 = loopback (refused on this build). A
+parity-preserving re-route (`FL→ch4`) is accepted; an L↔R crossing
+(`FL→ch1`) is refused by rule 2.
+
+**Probe tool caveats** (both cost this diagnosis an hour): descriptor types
+are `STREAM_PORT_INPUT = 0x000E`, `STREAM_PORT_OUTPUT = 0x000F` — `0x0014` /
+`0x0015` are AUDIO_CLUSTER / VIDEO_CLUSTER, and reading "port" descriptors
+through them serves clusters (200 of them) with the echoed index rewritten,
+which looks exactly like a corrupt directory. And the entity enforces
+1722.1's `control_data_length` = octets **after** `target_entity_id`; a
+frame whose cdl includes those 8 bytes is dropped without a response.

@@ -324,7 +324,9 @@ SRP_WIRE_OVERHEAD_B = 20          #: step 3: preamble 8 + IPG 12
 #: out of the RTL: the fold silently deletes step 2's clamp, so every stream
 #: short enough to be padded on the wire reserves less than it occupies.
 SRP_FRAME_OVERHEAD_B = 42
-SRP_CTX_IDX_BITS = 4              #: KL_lwsrp_top ctx_idx_i width -> 16 rows
+SRP_CTX_IDX_BITS = 5              #: KL_lwsrp_top ctx_idx_i width -> 32 rows
+                                  #: (widened 2026-08-05 with the dedicated
+                                  #: listener-0 row, VERSION 0x0023)
 #: MSRP TSpec MaxFrameSize of the CRF Media Clock Stream = the PADDED MSDU of
 #: the tagged 60-octet frame KL_crf_tx builds (60 - 14 eth - 4 tag). It is NOT
 #: the 28-octet CRF AVTPDU: the pad is on the wire and the bridge budgets for
@@ -1319,6 +1321,9 @@ def cluster_names(cfg, port, direction):
     "the structure of the data model", so renaming clusters must NOT move
     entity_model_id - and it does not: model_shape() never sees a name."""
     label = IFACE_LABEL.get(cfg["interface"]["kind"], "AUDIO")
+    cnames = cfg["interface"].get("channel_names") or []
+    def chname(k, fallback):
+        return cnames[k] if k < len(cnames) else fallback
     # the received stream channel space, in {stream, channel} order: what a
     # loopback cluster actually offers a talker.
     rx = [(si, ch) for si, s in enumerate(cfg["listeners"])
@@ -1329,12 +1334,13 @@ def cluster_names(cfg, port, direction):
         for n in range(w):
             if role == "physical":
                 out.append(f"{label} {'Out' if direction == 'input' else 'In'}"
-                           f" {first + n}")
+                           f" {chname(first + n, str(first + n))}")
             elif role == "virtual":
                 out.append(f"Virtual {'Out' if direction == 'input' else 'In'}"
                            f" {first + n}")
             elif role == "host":
-                out.append(f"Host {'Play' if direction == 'input' else 'Cap'}"
+                out.append(chname(n, None) or
+                           f"Host {'Play' if direction == 'input' else 'Cap'}"
                            f" {n}")
             elif role == "pilot":
                 out.append("Pilot Tone")
@@ -1347,7 +1353,7 @@ def cluster_names(cfg, port, direction):
                 start = next((k for k, (si, ch) in enumerate(rx)
                               if si == first and ch == 0), 0)
                 si, ch = rx[(start + n) % len(rx)]
-                out.append(f"Loopback S{si} ch {ch}")
+                out.append(f"Loopback S{si} {chname(ch, f'ch {ch}')}")
     assert len(out) == port["clusters"]
     return out
 
@@ -1584,13 +1590,17 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo,
         # TALKER attribute row of its own at talker index max(L, T) - Milan
         # v1.2 7.3.3 carries the media clock stream under an SRP reservation
         # of class A, so it is a reservation like any other and not an
-        # un-declared side channel. An 8x8 shape WITH a CRF output therefore
-        # needs exactly 16 rows, which is the whole 4-bit ctx index: the
-        # ConfigError below is the builder-side twin of milan_datapath's
-        # srp_ctx_rows_guard, and 9x9 is the first shape it refuses.
-        ctx_rows_required=len(listeners) + len(talkers) + crf_tk_c - 1,
+        # un-declared side channel.
+        #
+        # 2026-08-05 (VERSION 0x0023): +1 for the DEDICATED listener-0 row
+        # (SRP_LSN0_ROW_C, the last row) - sink 0's Listener attribute no
+        # longer aliases the software-owned legacy row 0, so every shape
+        # needs L+T rows and the ctx index widened to 5 bits. An 8x8 shape
+        # WITH a CRF output is 17 rows; the ConfigError below is the
+        # builder-side twin of milan_datapath's srp_ctx_rows_guard.
+        ctx_rows_required=len(listeners) + len(talkers) + crf_tk_c,
         ctx_rows_available=2 * max(len(listeners), len(talkers))
-                           - 1 + crf_tk_c,
+                           + crf_tk_c,
         # the CRF stream's own class A slope, already INSIDE
         # total_idle_slope_bps above; broken out so the media clock's share
         # of the class A budget is visible and never "optimised" away by
@@ -1601,8 +1611,8 @@ def load_srp(raw, listeners, talkers, clocking, cons, binfo,
     if s["ctx_rows_required"] > (1 << SRP_CTX_IDX_BITS):
         raise ConfigError(
             f"{s['ctx_rows_required']} lwSRP attribute rows needed "
-            f"(L+T-1) but ctx_idx is {SRP_CTX_IDX_BITS} bits = "
-            f"{1 << SRP_CTX_IDX_BITS} rows max")
+            f"(L+T incl the dedicated listener-0 row) but ctx_idx is "
+            f"{SRP_CTX_IDX_BITS} bits = {1 << SRP_CTX_IDX_BITS} rows max")
     return s
 
 
@@ -1756,15 +1766,16 @@ def lwsrp_module_params(cfg):
     # own (Milan v1.2 7.3.3 - the media clock stream is carried under an SRP
     # reservation of class A). It sits at talker index N, hence ctx row
     # (N-1)+N, so a config that HAS one needs one more talker slot and one
-    # more attribute row: N_CTX_P = L + T - 1 with T = N + 1.
+    # more attribute row: N_CTX_P = L + T with T = N + 1 (the +1 over the
+    # old L+T-1 is the DEDICATED listener-0 row, 2026-08-05 VERSION 0x0023).
     crf_tk = 1 if cfg["clocking"]["crf_output"] else 0
     return {
         "KL_lwsrp_top.CLK_FREQ_HZ_P": cfg["constraints"]["milan_clk_hz"],
-        # N_CTX_P covers listener + talker attribute rows (L+T-1, and the
-        # datapath sizes it N_STREAMS + SRP_TALKERS_C - 1); the bw-gate stays
-        # TALKER-wide so aaf_stream_en_w still indexes by talker index, and
-        # the CRF slope joins the SAME class A Sigma as the audio streams.
-        "KL_lwsrp_top.N_CTX_P": N + (N + crf_tk) - 1,
+        # N_CTX_P covers listener + talker attribute rows PLUS sink 0's own
+        # row (L+T, and the datapath sizes it N_STREAMS + SRP_TALKERS_C);
+        # the bw-gate stays TALKER-wide so aaf_stream_en_w still indexes by
+        # talker index, and the CRF slope joins the SAME class A Sigma.
+        "KL_lwsrp_top.N_CTX_P": N + (N + crf_tk),
         "KL_lwsrp_top.N_LISTENERS_P": N,
         "KL_lwsrp_top.N_TALKERS_P": N + crf_tk,
         "KL_lwsrp_bw_gate.N_STREAMS_P": N + crf_tk,
@@ -2759,10 +2770,29 @@ def load_config(path):
                 f"cluster_mapping.fabric.playback_rings {pb_rings} must be "
                 ">= 1 (omit the key to leave the host pool's ring bound at "
                 "the fabric maximum)")
+    # USER 2026-08-05: the port channel space can be NAMED from the config
+    # ("prepare it to be software defined"): channel_names[k] names channel k
+    # of every stream port - host clusters verbatim, loopback/physical ones
+    # role-prefixed. 1722.1-2021 6.2.2.8 excludes object_name from the model
+    # shape, so names never move a hash-derived entity_model_id.
+    names = aif.get("channel_names")
+    if names is not None:
+        if (not isinstance(names, list) or not names
+                or not all(isinstance(n, str) and 0 < len(n) <= 48
+                           for n in names)):
+            raise ConfigError(
+                "audio_interface.channel_names must be a non-empty list of "
+                "strings (each 1..48 chars), one per port channel")
+        need = max(int(pools.get("host", 0)), phys["capture"], phys["render"])
+        if len(names) < need:
+            raise ConfigError(
+                f"audio_interface.channel_names has {len(names)} names but "
+                f"this shape's widest named pool needs {need}")
     interface = dict(
         kind=kind, channels=iinfo["channels"], word_length_bits=wl,
         cluster_policy=policy, rtl=iinfo["rtl"],
         physical_channels=phys, cluster_pools=pools,
+        channel_names=names,
         cluster_fabric=dict(loopback_lane=lb_lane, playback_rings=pb_rings),
     )
     # AES3/S-PDIF: the serial clock is a HARD consequence of the media clock

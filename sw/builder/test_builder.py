@@ -1734,8 +1734,8 @@ def test_lwsrp_tspec_and_params():
                      r"N_STREAMS \+ SRP_CRF_TK_C;", dp), \
         "milan_datapath no longer counts the CRF output as a talker row"
     assert re.search(r"localparam int SRP_CTX_ROWS_C\s*=\s*"
-                     r"N_STREAMS \+ SRP_TALKERS_C - 1;", dp), \
-        "milan_datapath ctx rows are no longer L+T-1"
+                     r"N_STREAMS \+ SRP_TALKERS_C;", dp), \
+        "milan_datapath ctx rows are no longer L+T (incl listener-0 row)"
     assert re.search(r"KL_lwsrp_bw_gate #\(\.N_STREAMS_P\(N_TALKERS_P\)\)", top), \
         "KL_lwsrp_top no longer ties the bw_gate width to N_TALKERS_P"
     nq = _sv_int(epkg, r"NUMBER_OF_QUEUES\s*=\s*(\d+);", "ethernet_packet_pkg")
@@ -1750,11 +1750,12 @@ def test_lwsrp_tspec_and_params():
         n_tk = max(L, T) + crf_tk
         assert mp["KL_lwsrp_top.N_TALKERS_P"] == n_tk, \
             "the CRF Media Clock Output must own a talker attribute row"
-        assert mp["KL_lwsrp_top.N_CTX_P"] == max(L, T) + n_tk - 1 \
-            >= L + T - 1, \
-            "ctx rows must cover every listener AND talker attribute row"
-        # ctx_idx_i is 4 bits: 16 rows is the hard ceiling, and 8x8 with a
-        # CRF output lands EXACTLY on it
+        assert mp["KL_lwsrp_top.N_CTX_P"] == max(L, T) + n_tk \
+            >= L + T, \
+            "ctx rows must cover every listener AND talker attribute row " \
+            "plus the dedicated listener-0 row"
+        # ctx_idx_i is 5 bits since the listener-0 row round: 32 rows is
+        # the ceiling (8x8 + CRF + listener-0 = 17)
         assert mp["KL_lwsrp_top.N_CTX_P"] <= 2 ** eb.SRP_CTX_IDX_BITS, \
             f"{name}: {mp['KL_lwsrp_top.N_CTX_P']} rows exceed the " \
             f"{eb.SRP_CTX_IDX_BITS}-bit ctx index"
@@ -1772,10 +1773,12 @@ def test_lwsrp_tspec_and_params():
         # the class-A queue must be a real queue
         assert 0 <= cfg["srp"]["class_queue"] < nq
         # T counts the CRF Media Clock Output's talker row too (2026-07-28)
-        assert t["ctx_rows"]["required"] == L + T + crf_tk - 1
+        # and +1 for the dedicated listener-0 row (2026-08-05)
+        assert t["ctx_rows"]["required"] == L + T + crf_tk
         # the shortfall closed 2026-07-26: the datapath sizes the table at
-        # 2*N_STREAMS-1, so every listener AND talker attribute row is backed
-        assert t["ctx_rows"]["available"] == 2 * max(L, T) - 1 + crf_tk
+        # 2*N_STREAMS (+CRF), so every listener AND talker attribute row -
+        # including sink 0's own - is backed
+        assert t["ctx_rows"]["available"] == 2 * max(L, T) + crf_tk
         assert t["ctx_rows"]["available"] >= t["ctx_rows"]["required"], \
             "lwSRP ctx table must back every row the 0x800 window can select"
         b = t["bandwidth"]

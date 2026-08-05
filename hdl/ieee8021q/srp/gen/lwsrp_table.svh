@@ -50,7 +50,7 @@
   localparam [31:0] LWSRP_LATENCY_RST_C   = 32'h0000_0000;  //! 0x6A0
 
   //! Elaboration parameters milan_datapath passes to the engine
-  localparam int unsigned LWSRP_N_CTX_C      = 1;
+  localparam int unsigned LWSRP_N_CTX_C      = 2;
   localparam int unsigned LWSRP_CLK_FREQ_C   = 50000000;
 
   //! Reservation table: one entry per stream, TALKERS FIRST then
@@ -58,8 +58,8 @@
   //! talker t -> ctx row (L-1)+t, ctx row 0 = the legacy pair, so a
   //! shape needs L+T-1 ctx rows against the N_CTX_P available.
   localparam int unsigned LWSRP_STREAMS_C    = 2;
-  localparam int unsigned LWSRP_ROWS_REQ_C   = 1;
-  localparam int unsigned LWSRP_ROWS_AVAIL_C = 1;
+  localparam int unsigned LWSRP_ROWS_REQ_C   = 2;
+  localparam int unsigned LWSRP_ROWS_AVAIL_C = 2;
   //! {dmac[119:72], prio_rank[71:64], max_frame[63:48],
   //! interval[47:32], latency[31:0]} - the KL_lwsrp_ctx record layout
   //! verbatim; listener entries carry zeros (their sid + DMAC arrive

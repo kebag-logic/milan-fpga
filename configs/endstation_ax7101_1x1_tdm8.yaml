@@ -1,0 +1,145 @@
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+#
+# Software-defined Milan End-Station config (USER 2026-08-05).
+# Shape: AX7101 1x1x8 TDM8 - ONE 8-channel AAF listener stream + ONE
+# 8-channel AAF talker stream, the 7.1 channel order [FL FR FC LFE RL RR
+# SL SR] named through `channel_names` (a PARAMETER, not a hardcode), an
+# 8-channel host (shared-memory) lane per direction, and the 8-channel
+# TDM8 loopback lane FABRIC-BACKED - at this shape the +2303-LUT bucket
+# that priced the lane out of the 8x8 shrinks to 4 pair holds and fits.
+#
+# Simplifications this shape buys (all measured pains of the 8x8):
+#   - one stream per direction => a mapping can never name a foreign
+#     stream (the cross-stream BAD_ARGUMENTS class vanishes);
+#   - loopback clusters are backed => the unbacked-source BAD_ARGUMENTS
+#     class vanishes (TROUBLESHOOTING Section 23 rules 1 and 3);
+#   - no secondary-network indices => every stream is cabled.
+
+schema: kebag-logic/milan-endstation-config
+schema_version: "1.1.0"
+
+entity:
+  name: "Milan FPGA 1x1 TDM8"
+  entity_model_id: hash-derived      # shape change -> NEW id, so a cached
+                                     # controller model (la_avdecc caches by
+                                     # entity_model_id) can never show this
+                                     # build another shape's ports
+  entity_id: mac-derived
+  vendor_name: "Kebag Logic"
+  serial_number: "AX7101-0001"
+  group_name: ""
+
+board:
+  target: ax7101
+  features:
+    i2s_playback: false   # the AX routes NO audio pads (_connectors = [])
+    latency_taps: true    # item-11 telemetry: at 1x1 the taps fit with room
+                          # to spare, and the 0.44% stress-late residue wants
+                          # a taps build on silicon
+    render_lpf: false     # dependency of i2s_playback: false
+    datapath_probes: true # APRB/PBK diagnostics back on - the 8x8 pruned
+                          # them for area; this shape has the headroom
+  constraints:
+    sys_clk_hz: 100000000
+    milan_clk_hz: 100000000
+    l2_bytes: 16384
+    phy: gmii-1g
+    gtx_tx_invert: true
+    floorplan: true
+    flashboot: full
+    uart_baudrate: 115200
+    rx_queues: 2
+    hs_page_bytes: 16384
+    strip_probes: true
+    num_queues: 5
+    eth_port: e1
+    render_lpf: false
+
+srp:
+  sr_class: A
+  vid: 2
+  stream_dmac_base: "0x91E0F000FE01"
+  class_queue: 4
+  bandwidth_limit_pct: 75
+  tspec:
+    policy: derived                  # 8ch -> 216 B AVTPDU -> 16.512 Mb/s +
+                                     # the CRF row's Table 4.4 numbers
+    interval_frames: 1
+
+platform:
+  csr_base: 0x90000000
+  mac_address: "02:00:00:00:00:01"   # board 1
+  interrupt: 3
+  pcm_ring_phys: 0x7f800000          # ONE capture stream x 1 MiB at the top
+  pcm_ring_bytes: 0x100000           # of the AX7101's 1 GiB main_ram
+  pcm_ring_stride: 0x100000
+  boot_chain_pin:                    # re-verify against the BUILD's csr.csv
+    dma-ts: 0xf0003100               # at flash time (8.2 checklist) - the
+    pcm-dma: 0xf0003120              # 5ce9a13 CSR-rot class, gate 19c
+
+clocking:
+  sampling_rate_hz: 48000
+  audio_unit_rates_hz: [48000]
+  media_clock_sources: [internal, input_stream, crf]
+  default_source: internal
+  crf_sink: true
+  crf_output:                        # one AAF media input makes the Milan
+    enabled: true                    # 7.2.3 CRF Media Clock Output optional,
+                                     # not forbidden - the bench media-clock
+                                     # chain (M-CLK-2, class-A CRF budget)
+                                     # stays as proven on the 8x8
+    format: "0x041060010000BB80"
+  audio_pll_hz: 24576000
+
+audio_interface:
+  kind: tdm8                         # 8 slots per direction = 4 pairs, the
+                                     # user's shape. MASTER role - the fabric
+                                     # generates bclk/fsync, so the front-end
+                                     # is real without a codec behind it.
+  word_length_bits: 24
+  physical_channels:                 # WHAT THE BOARD ACTUALLY ROUTES - and
+    capture: 0                       # the AX7101 routes NOTHING (platform
+    render: 0                        # ships _connectors = []); declaring 8
+                                     # here would advertise sources the
+                                     # fabric cannot back. The TDM8 channels
+                                     # this shape carries live in the host
+                                     # and loopback pools below.
+  channel_names: [FL, FR, FC, LFE, RL, RR, SL, SR]
+                                     # USER 2026-08-05: the 7.1 order, as a
+                                     # PARAMETER. Names the host clusters
+                                     # verbatim and prefixes the loopback
+                                     # ones; 1722.1-2021 6.2.2.8 excludes
+                                     # object_name from the model shape, so
+                                     # renaming never moves entity_model_id.
+  cluster_mapping:
+    policy: role-pools
+    pools:
+      host: 8                        # the ALSA/PipeWire lane: 8ch shared-
+                                     # memory ring per direction
+      pilot: true                    # one KL_tone_gen Pilot cluster on the
+                                     # talker port - the standing tone-based
+                                     # identity/THD+N test source
+      loopback: 8                    # the 8 TDM8 loopback channels: the
+                                     # received stream offered back to the
+                                     # talker, same media-clock domain
+    fabric:
+      loopback_lane: true            # BACKED on this build: 4 pair holds at
+                                     # 1x1 (the 8x8's 32-hold bucket cost
+                                     # +2303 LUT and was refused; this shape
+                                     # affords it, and the loopback clusters
+                                     # above stop being model-only)
+      playback_rings: 1              # one 8-channel host ring (KL_pcm_tx)
+
+streams:
+  listeners:
+    # map_mode dynamic (Milan v1.2 5.3.3.9 shall). One port, 8 mono
+    # clusters host + 0 physical; GET_AUDIO_MAP pages the port as one
+    # fixed partition.
+    - { name: "Stream In 0", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
+    # 0x0205022002006000 = AAF PCM32 48k 8ch; 0x0215... = ut-bit 1..8 family
+  talkers:
+    # 8-channel talker, 8-channel format, and at THIS shape the framer's
+    # 8-channel emission is the item-5 NxN talker already landed - the
+    # declaration and the wire agree.
+    - { name: "Stream Out 0", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000"] }
