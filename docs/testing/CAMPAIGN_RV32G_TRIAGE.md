@@ -65,12 +65,23 @@ which.
 
 ## Genuinely open after rv32-g
 
-- **The return leg (peer → ax): 13 rows** (8 audio + 4 one-sided pairs +
-  1 post-stop framing). History says reservation/bench state (lazy Talker
-  Advertise), not our fabric — but it has never been closed. Next: walk the
-  return direction's SRP attributes at our ingress with a tap capture while
-  driving the bind, and read our RX shield / steering counters over the same
-  window.
+- **The return leg (peer → ax) — ROOT-CAUSED LIVE the same day, and it is
+  OURS.** Two refinements first: odd stream indices are the SECONDARY
+  (redundancy) network, which the bench does not cable — the odd half of the
+  cluster (audio t1/3/5/7, `axl1`) was structurally void, leaving 8 even-index
+  rows. A live probe (bind `peert0 → axl0` with the 5.5.1.2 format
+  adaptation, ACMP capture on the wire) then showed the whole chain: our
+  listener SM sends PROBE_TX correctly; the peer answers **every** probe
+  within 1.4 ms with a flawless PROBE_TX_RESPONSE (its stream_id, a MAAP
+  dmac, SR VID 2, echoed sequence); and our ACMP RX classify **drops the
+  response** — `ACMPL_DBG` (0x6E8) reads `is_lstn_cmd=0` at the classify,
+  because the walker admits listener COMMANDS only and has no path for
+  talker RESPONSES. The SM re-probes forever, the lwSRP row keeps its stale
+  DMAC, no Listener Ready is ever declared, and the peer is correctly never
+  licensed. This is the previously-filed "probe response not matched" ACMP
+  gap, now with its RTL mechanism and a one-command repro
+  (`bash /tmp/retleg3.sh` on the runner host). The peer is exonerated for
+  the silence — though its post-stop framing row stands on its own.
 - **0.44% late frames under aggregate load** (one stream's evidence). Needs
   the latency-taps build for attribution (talker presentation offset vs
   shaper/queueing under load vs peer strictness).
