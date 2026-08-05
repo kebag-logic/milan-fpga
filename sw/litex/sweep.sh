@@ -113,13 +113,20 @@ grep -q "$(basename "$CFG")" "$CFG_GEN/gen/adp_shape_defaults.svh" || {
 # synthesis; the 07-24 note that rejected AreaOptimized was about timing at
 # the old margin (pre multicycle-reset, pre CBS-mask). The 3-seed WNS pick
 # stays the timing guard.
-BASE="python3 $R/sw/litex/milan_soc.py $OPTS --cpu vexiiriscv \
+# --xlen 32 + the RV32-tuned scala args ARE THE PROVEN CPU (launch_x32f1.sh,
+# silicon 0x0022): sweep.sh's BASE kept the RV64-era args (xlen default 64,
+# refill 8, rpt prefetch, 8/16 queues) after the rv32 campaigns moved to a
+# hand launcher - every sweep build since generated an RV64 CPU under the
+# RV32 boot chain and died SILENTLY at the BIOS->OpenSBI jump (Liftoff,
+# then nothing; memtest green). One evening of shape-bisect artifacts,
+# 2026-08-05. The CPU words belong to the BASE, not to a side script.
+BASE="python3 $R/sw/litex/milan_soc.py $OPTS --cpu vexiiriscv --xlen 32 \
  --entity-gen-dir $CFG_GEN \
  --synth-directive AreaOptimized_high --opt-directive ExploreArea \
  --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt \
- --l2-bytes ${L2} --scala-args=--lsu-l1-refill-count=8 \
- --scala-args=--lsu-hardware-prefetch=rpt --scala-args=--l2-down-pending=8 \
- --scala-args=--l2-general-slots=16 --uart-baudrate 115200 --rx-queues ${RXQ} \
+ --l2-bytes ${L2} --scala-args=--lsu-l1-refill-count=2 \
+ --scala-args=--l2-down-pending=4 \
+ --scala-args=--l2-general-slots=8 --uart-baudrate 115200 --rx-queues ${RXQ} \
  --strip-probes --hs-page-bytes 16384 --cpu-count 1 --vivado-max-threads 32 --build"
 cd "$W"
 rm -rf build_${BOARD}_{asl,eto,eppo}_${TAG}
