@@ -1,0 +1,91 @@
+# Torture campaign `ax-rv32-g` — the before/after that vindicates the graders
+
+Run concluded 2026-08-05. Device under test: ALINX AX7101, 8x8x8, single-hart
+RV32 VexiiRiscv, gateware VERSION **`0x00010022`** (x32f1_eto, WNS +0.017,
+all seven 08-03/04 trunk fixes + the AEM-store BRAM fix), booted by a **true
+cold power cycle**, no music player running, instrument clean end to end
+(**zero** INSTRUMENT-SUSPECT rows). Graded by the harness carrying the
+ax-rv32-f H1/H2 fixes (measured-span rates, quantization-aware interval
+ceiling, Milan 5.4.2.19 refusals as conformance).
+
+This is the identical plan ax-rv32-f ran on 2026-08-04
+(`CAMPAIGN_RV32F_TRIAGE.md`), so every delta is attributable to (a) the
+grader fixes, (b) the new gateware, or (c) bench state — and the rows say
+which.
+
+## Totals, against rv32-f
+
+| verdict | rv32-f | rv32-g |
+|---|---:|---:|
+| PASS | 3,267 | 3,206 |
+| SKIP | 2,575 | 2,663 |
+| INFO | 277 | 323 |
+| **FAIL** | **157** | **68** |
+| CONFORMANT-REFUSAL | 2 | 4 |
+| NEEDS-HUMAN | 4 | 4 |
+| KNOWN-PENDING | 1 | 0 |
+| total | 6,283 | 6,268 |
+
+> **HEADLINE: the 100 false failures of rv32-f did not recur.** Not one row
+> of `update-law` "impossible 18,048/s" (H1), not one 0.996/s "neither" from
+> an unfixed classifier at SHALL severity (H2), and every peer-rate
+> accusation in this run records the physically-true ~7,982–8,018/s. The
+> before/after is the proof the fix campaign was aimed at the right defects.
+
+## The 68, decomposed — every row accounted for
+
+| class | n | side | disposition |
+|---|---:|---|---|
+| `xside.peer-counter-semantics` | 38 | peer | **known settled deviation**, correctly attributed: the peer's stream FRAMES_RX keeps the IEEE 1722.1 per-frame reading (~8,000/s) against Milan Table 5.6's interval wording. Predicted by the f-triage; not a new defect, never an artifact — the recorded rates are now physical. |
+| `counters.stream_input.frames-rx-advances` | 8 | ax | **return-leg residue (real, external)**: `audio.identity.loop-ch12.t0–t7`, our listener honestly at 0.0/s on the peer's return leg. Ran with NO player this time — **rv32-f's "contamination" hypothesis for these rows is disproven**; this is the known lazy-TA / return-reservation cluster. |
+| `counters.stream_input.frames-rx-advances` | 7 | ax | **harness gap H3 (new)**: `loop.axt0-axl1..7` are single-port SELF-loops; 802.1Q-2018 8.6.1 forbids the bridge returning a frame to its ingress port, so these listeners are structurally unreachable and 0.0 is the honest topology. `interval_ticks_agree()` already SKIPs self-loops with that citation; `A_RX_TICKING` did not. Fixed same day (runner: self-loop guard); these become SKIP-with-reason on the next run. |
+| `stream.starts-on-bind-alone` + `frames-tx-advances` | 5+2 | ax | **stale-classifier artifacts**: all seven re-grade to band "interval" under the tick-space fix (`bc071253`, landed mid-run after the first artifact appeared — the running process had imported the older module). Offline re-grade: 7/7 flip, 0 survive. |
+| `xside.interval-ticks-agree` | 4 | pair | **return-leg residue**: the peer's return talker at wire rate (~72k ticks) while our listener saw zero — one-sided streaming, same cluster as the audio rows. |
+| `stream.stop-takes-effect` | 1 | peer | **real, peer**: the peer's return talker still framing at 5,323/s after UNBIND + STOP_STREAMING (`ret.peert0-axl0.disconnect`). The fixed stop-grader catching exactly what it was built for. |
+| `counters.stream_input.no-late-or-early-growth` | 1 | peer | **real, load-dependent, the run's one fabric-implicating row**: under the 110 s aggregate-load stress window, the peer's input on pair axt3→peerl6 counted LATE_TIMESTAMP +3,848 of 879,231 frames (**0.44%**) — our talker's frames arriving past their presentation time under load. The other three peer-bound stress pairs did not flow (SKIP), so this is one flowing stream's evidence. Next: reproduce on a `--latency-taps` build for the per-stage breakdown; this build ships without taps. |
+| `counters.stream_input.update-law-per-counter` | 1 | peer | **bind-edge measurement**: TIMESTAMP_VALID at 500.7/s on a `connect` step — a stream that started mid-window (~0.6 s of traffic in a 9 s window). Grader refinement candidate (per-frame law vs partial window), not a device finding. |
+| `state.restored-after-power-cycle` | 1 | ax | **expected before-picture**: the flashed rootfs predates the E4-aware persist script, so no format replay ran after the DUT power cycle. The corrected script is in the staged rootfs; re-test after its flash. |
+
+## What this run newly established
+
+1. **The gateware holds.** `0x00010022` survived the full matrix, churn,
+   multi and stress areas with zero fabric-side findings — including
+   three-hour stretches without a single new FAIL — and **real automated
+   power cycles**: the entity re-armed and re-advertised after each cycle
+   (`adp.alive` clean), retiring the boot-time arming concern as a bench
+   one-off (the switch was still converging that once).
+2. **The audio-loop zeros are not contamination.** Same 8 rows as rv32-f,
+   now with no player anywhere — the failing condition is the peer's return
+   leg, coherent with the one-sided pairs and the undead return talker.
+   Everything open on the DUT side of this campaign is that ONE cluster.
+3. **Refusals are now first-class.** 4 CONFORMANT-REFUSAL rows (set-format
+   refusals under bind states the spec licenses) instead of f's mislabels.
+4. **The instrument was clean** for the entire run — no verdict in this
+   campaign needs an instrument-health caveat.
+
+## Genuinely open after rv32-g
+
+- **The return leg (peer → ax): 13 rows** (8 audio + 4 one-sided pairs +
+  1 post-stop framing). History says reservation/bench state (lazy Talker
+  Advertise), not our fabric — but it has never been closed. Next: walk the
+  return direction's SRP attributes at our ingress with a tap capture while
+  driving the bind, and read our RX shield / steering counters over the same
+  window.
+- **0.44% late frames under aggregate load** (one stream's evidence). Needs
+  the latency-taps build for attribution (talker presentation offset vs
+  shaper/queueing under load vs peer strictness).
+- **Persistence after power cycle** — staged rootfs carries the E4 CSR
+  replay; flash, cold-cycle, re-run the physical area.
+- The **cable-pull quartet stays NEEDS-HUMAN**: the tap control API cannot
+  enumerate through the current kernel driver (probed 08-04, user and root),
+  so software link-bounce remains closed until the driver-unbind experiment.
+
+## Lesson
+
+The f-triage's discipline — record the evidence inside every row (rate AND
+measured span), cross-check graders against each other, and re-run the
+identical plan after a fix — is what made this run self-triaging: the seven
+mid-run artifacts identified themselves from their own recorded numbers and
+re-graded mechanically, and every remaining FAIL carries its attribution on
+its face. A campaign whose failures arrive pre-explained is the difference
+between a red wall and a work list.
