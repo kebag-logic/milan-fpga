@@ -84,7 +84,7 @@ module KL_lwsrp_ctx #(
     // ---- provisioning request/grant port (datapath/ACMP side) -----------
     input  wire        ctx_req_i,         //! request (hold until gnt)
     input  wire        ctx_we_i,          //! 1 = write record, 0 = read
-    input  wire [3:0]  ctx_idx_i,         //! row index (0 = legacy, RO)
+    input  wire [4:0]  ctx_idx_i,         //! row index (0 = legacy, RO)
     input  wire        ctx_valid_i,       //! record: attribute exists
     input  wire        ctx_dir_i,         //! 0 = talker, 1 = listener
     input  wire [63:0] ctx_sid_i,
@@ -135,16 +135,16 @@ module KL_lwsrp_ctx #(
     input  wire [EXT_LANES_P-1:0] tx_fresh_i,    //! masks the frame carried
     input  wire [EXT_LANES_P-1:0] tx_lv_i,
     //! record RAM read port (THE one explicit read port, serializer side)
-    input  wire [3:0]             rec_addr_i,
+    input  wire [4:0]             rec_addr_i,
     output reg  [119:0]           rec_data_o,    //! sync read, 1-cycle
 
     // ---- fast-join request to the legacy applicant -----------------------
     output reg         fastjoin_p_o,      //! new listener row: LeaveAll pair
 
     // ---- live status vectors (bit 0 = legacy row) ------------------------
-    output wire [15:0] ctx_reg_o,         //! attribute registered
-    output wire [15:0] ctx_ready_o,       //! reservation-ready per direction
-    output wire [15:0] ctx_failed_o       //! TalkerFailed seen
+    output wire [31:0] ctx_reg_o,         //! attribute registered
+    output wire [31:0] ctx_ready_o,       //! reservation-ready per direction
+    output wire [31:0] ctx_failed_o       //! TalkerFailed seen
 );
 
   localparam int unsigned LV_W_C = $clog2(LEAVE_TIME_MS_C + 1);
@@ -176,12 +176,12 @@ module KL_lwsrp_ctx #(
   reg [119:0] rec_ram_r [0:EXT_LANES_P-1];
 
   wire        svc_w     = ctx_req_i && !ctx_gnt_o;    //! service this cycle
-  wire        idx_ext_w = (ctx_idx_i != 4'd0) &&
-                          ({28'd0, ctx_idx_i} < N_CTX_P);
+  wire        idx_ext_w = (ctx_idx_i != 5'd0) &&
+                          ({27'd0, ctx_idx_i} < N_CTX_P);
   //! named a row this build has no storage for (row 0 always exists)
-  wire        idx_oor_w = (ctx_idx_i != 4'd0) &&
-                          ({28'd0, ctx_idx_i} >= N_CTX_P);
-  wire [3:0]  ext_row_w = ctx_idx_i - 4'd1;
+  wire        idx_oor_w = (ctx_idx_i != 5'd0) &&
+                          ({27'd0, ctx_idx_i} >= N_CTX_P);
+  wire [4:0]  ext_row_w = ctx_idx_i - 5'd1;
   wire        wr_en_w   = svc_w && ctx_we_i && idx_ext_w;
 
   always_ff @(posedge clk_i) begin : rec_ram_wr_S
@@ -197,7 +197,7 @@ module KL_lwsrp_ctx #(
   //! and no second implicit port — can ever exist on this RAM
   always_ff @(posedge clk_i) begin : rec_ram_rd_S
     rec_data_o <=
-        rec_ram_r[(rec_addr_i < 4'(EXT_LANES_P)) ? rec_addr_i : 4'd0];
+        rec_ram_r[(rec_addr_i < 5'(EXT_LANES_P)) ? rec_addr_i : 5'd0];
   end
 
   // -----------------------------------------------------------------------
@@ -226,9 +226,9 @@ module KL_lwsrp_ctx #(
   //! status vectors, bit 0 = legacy; rows above N pad zero (EXT <= 15).
   //! With N_CTX_P = 1 the single lane is permanently invalid -> bit 1 = 0.
   wire [EXT_LANES_P-1:0] eused_w = valid_r;
-  assign ctx_reg_o    = {15'(areg_r  & eused_w), leg_reg_i};
-  assign ctx_ready_o  = {15'(eready_w & eused_w), leg_ready_i};
-  assign ctx_failed_o = {15'(afail_r & eused_w), leg_failed_i};
+  assign ctx_reg_o    = {31'(areg_r  & eused_w), leg_reg_i};
+  assign ctx_ready_o  = {31'(eready_w & eused_w), leg_ready_i};
+  assign ctx_failed_o = {31'(afail_r & eused_w), leg_failed_i};
 
   //! registering / leave event decodes per lane
   wire [EXT_LANES_P-1:0] jn_w, in_w, lv_w;
@@ -359,7 +359,7 @@ module KL_lwsrp_ctx #(
   //! legacy pair, an in-range extra row = its own state, and a row this
   //! build does not have = CTX_NOT_BACKED_C (it used to alias row 0, which
   //! reported a LIVE reservation for a row that was never provisioned).
-  wire [3:0]  rb_row_w   = (ext_row_w < 4'(EXT_LANES_P)) ? ext_row_w : 4'd0;
+  wire [4:0]  rb_row_w   = (ext_row_w < 5'(EXT_LANES_P)) ? ext_row_w : 5'd0;
   wire        rb_leg_w   = !idx_ext_w && !idx_oor_w;
   wire [15:0] rb_stat_w  = idx_oor_w
       ? CTX_NOT_BACKED_C

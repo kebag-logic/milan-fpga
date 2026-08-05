@@ -66,7 +66,7 @@ module KL_lwsrp_ctx_tx #(
     //! record RAM read port (sync, 1-cycle):
     //! {dmac[119:72], prio_rank[71:64], max_frame[63:48],
     //!  interval[47:32], latency[31:0]}
-    output wire [3:0]                rec_addr_o,
+    output wire [4:0]                rec_addr_o,
     input  wire [119:0]              rec_data_i,
 
     // ---- AXI4-Stream master (little lane; -> the top-level frame mux) ----
@@ -92,12 +92,17 @@ module KL_lwsrp_ctx_tx #(
     for (int i = 0; i < int'(EXT_LANES_P); i++) popcnt += 5'(m[i]);
   endfunction
 
-  //! lowest set row with index >= from; 4'hF = none
-  function automatic [3:0] find_row(input [EXT_LANES_P-1:0] m,
-                                    input [3:0] from);
-    find_row = 4'hF;
+  //! lowest set row with index >= from; ROW_NONE_C = none. The sentinel
+  //! lives OUTSIDE the 5-bit lane space on purpose: 4'hF used to double as
+  //! both "none" and lane 15, so a 17-row table (8x8 + CRF + listener-0)
+  //! could never serialize its top lane - the walker read the real lane 15
+  //! as "batch over" and re-emitted the stale row_r instead
+  localparam logic [5:0] ROW_NONE_C = 6'd63;
+  function automatic [5:0] find_row(input [EXT_LANES_P-1:0] m,
+                                    input [5:0] from);
+    find_row = ROW_NONE_C;
     for (int i = int'(EXT_LANES_P) - 1; i >= 0; i--)
-      if (m[i] && (4'(i) >= from)) find_row = 4'(i);
+      if (m[i] && (6'(i) >= from)) find_row = 6'(i);
   endfunction
 
   // -----------------------------------------------------------------------
@@ -123,7 +128,7 @@ module KL_lwsrp_ctx_tx #(
   cst_t       st_r;
   sec_t       sec_r;
   reg [4:0]   off_r;          //! byte offset inside the section
-  reg [3:0]   row_r;          //! current table row
+  reg [4:0]   row_r;          //! current table row
   reg         loaded_r;       //! rec_q_r holds row_r's record
   reg [119:0] rec_q_r;
   reg [9:0]   fb_cnt_r;       //! frame byte counter
@@ -135,7 +140,7 @@ module KL_lwsrp_ctx_tx #(
   assign rec_addr_o = row_r;
 
   //! per-row three-packed event octet (single value: e0*36)
-  function automatic [7:0] row_evt(input [3:0] row);
+  function automatic [7:0] row_evt(input [4:0] row);
     if (row_lv_i[row] || tx_lv_o[row])      row_evt = 8'(MRP_EVT_LV_C) * 8'd36;
     else if (tx_fresh_o[row])               row_evt = 8'(MRP_EVT_NEW_C) * 8'd36;
     else                                    row_evt = 8'(MRP_EVT_JOININ_C) * 8'd36;
@@ -250,7 +255,7 @@ module KL_lwsrp_ctx_tx #(
 
   always_ff @(posedge clk_i) begin : ctx_tx_S
     sec_t nsec;
-    logic [3:0] nrow;
+    logic [5:0] nrow;
     logic       need_load;
     if (!rst_n) begin
       st_r <= C_IDLE_S; sec_r <= S_HDR_E; off_r <= '0; row_r <= '0;
@@ -308,7 +313,7 @@ module KL_lwsrp_ctx_tx #(
             fb_cnt_r <= fb_cnt_r + 10'd1;
 
             // ---- cursor advance ----
-            nsec = sec_r; nrow = row_r; need_load = 1'b0;
+            nsec = sec_r; nrow = 6'(row_r); need_load = 1'b0;
             if (sec_end_w) begin
               off_r <= '0;
               unique case (sec_r)
@@ -323,33 +328,33 @@ module KL_lwsrp_ctx_tx #(
                 end
                 S_TMH_E: begin
                   nsec = S_TVEC_E;
-                  nrow = find_row(t_mask_r, 4'd0);
+                  nrow = find_row(t_mask_r, 6'd0);
                   need_load = 1'b1;
                 end
                 S_TVEC_E: begin
-                  nrow = find_row(t_mask_r, row_r + 4'd1);
-                  if (nrow != 4'hF) begin
+                  nrow = find_row(t_mask_r, 6'(row_r) + 6'd1);
+                  if (nrow != ROW_NONE_C) begin
                     nsec = S_TVEC_E; need_load = 1'b1;
                   end else begin
-                    nsec = S_TEND_E; nrow = row_r;
+                    nsec = S_TEND_E; nrow = 6'(row_r);
                   end
                 end
                 S_TEND_E: nsec = (l_mask_r != '0) ? S_LMH_E : S_MLE_E;
                 S_LMH_E: begin
                   nsec = S_LVEC_E;
-                  nrow = find_row(l_mask_r, 4'd0);
+                  nrow = find_row(l_mask_r, 6'd0);
                 end
                 S_LVEC_E: begin
-                  nrow = find_row(l_mask_r, row_r + 4'd1);
-                  if (nrow != 4'hF) nsec = S_LVEC_E;
-                  else begin nsec = S_LEND_E; nrow = row_r; end
+                  nrow = find_row(l_mask_r, 6'(row_r) + 6'd1);
+                  if (nrow != ROW_NONE_C) nsec = S_LVEC_E;
+                  else begin nsec = S_LEND_E; nrow = 6'(row_r); end
                 end
                 S_LEND_E: nsec = S_MLE_E;
                 S_MLE_E:  nsec = S_PAD_E;
                 default:  nsec = S_PAD_E;
               endcase
               sec_r    <= nsec;
-              row_r    <= (nrow == 4'hF) ? row_r : nrow;
+              row_r    <= (nrow == ROW_NONE_C) ? row_r : 5'(nrow);
               loaded_r <= !need_load && loaded_r;
             end else begin
               off_r <= off_r + 5'd1;

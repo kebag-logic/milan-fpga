@@ -2205,6 +2205,138 @@ int main(int argc, char** argv) {
         }
         ck("t21 unbind: SRP row withdrawn (invalid)", (srp >> 15) & 1, 0);
 
+        // ==== t21-l0: sink 0's DEDICATED listener row =====================
+        // The ax-rv32-g return-leg fix, end to end: sink 0's Listener
+        // attribute used to ride the software-owned legacy row 0 (stale
+        // dmac, garbage sid - the talker-0 side's row), so the remote talker
+        // was never licensed and every t0/l0 loop read FRAMES_RX 0. Sink 0
+        // now provisions the DEDICATED row (SRP_LSN0_ROW_C) through the same
+        // fabric slot machinery as sinks 1..N-1, and its ACMP registrar
+        // feedback comes from THAT row - not the talker's.
+        printf("-- t21-l0: sink 0 -> DEDICATED lwSRP listener row --\n");
+        {
+            const uint8_t L0_SID[8]  = {0x3C,0xC0,0xC6,0x01,0x02,0x03,0x00,0x00};
+            const uint8_t L0_DMAC[6] = {0x91,0xE0,0xF0,0x00,0xBE,0xC6};
+            axi_write(A_LWSRP_CTRL, 0x15);           // engine ON, no talker
+            // CONNECT_RX luid 0, fast-connect sid ZERO (bind-now-probe-later,
+            // the real peer's shape: its sid equals its entity id)
+            {
+                uint8_t f[72]; memset(f, 0, sizeof f);
+                const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+                memcpy(f, mc, 6);
+                const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+                memcpy(f+6, csrc, 6);
+                f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x06;
+                f[16]=0x00; f[17]=44;
+                for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;
+                const uint8_t tk0[8] = {0x3C,0xC0,0xC6,0x01,0x02,0x03,0x00,0x00};
+                memcpy(f+34, tk0, 8);
+                const uint8_t us0[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+                memcpy(f+42, us0, 8);
+                f[52]=0x00; f[53]=0x00;               // listener_unique_id 0
+                f[62]=0x69; f[63]=0x01;
+                //! drain BARELY past delivery: the 4c shape's shorter walk
+                //! cycle launches the declaration inside a 200-cycle drain,
+                //! which scans nothing - hand the window to find_lstn
+                inject(f, 70, 24);
+            }
+            // THE BITE, half one: the BIND alone declares sink 0's Listener
+            // attribute on the DEDICATED row - previously impossible. The
+            // derived sid ({talker EID, tuid 0}) equals the peer-shaped
+            // response sid here, so this is also the only NEW declaration
+            // the whole flow emits (the probe answer re-provisions the SAME
+            // identity - a no-op for the wire).
+            int evt0 = -1, par0 = -1;
+            //! the declaration launches ~1.4k cycles post-bind on the 8x8
+            //! leg but the 4c leg's slower join timer needs far more; the
+            //! scan exits on first match, and the ladder walking into RETRY
+            //! is harmless now that the answer below re-tries per probe
+            //! (exactly the live peer's behaviour)
+            bool got0 = find_lstn(L0_SID, -1, -1, 120000, &evt0, &par0);
+            ck("t21-l0: Listener declaration for sink 0's sid on the wire",
+               got0 ? 1 : 0, 1);
+            // the probe answer: the authoritative sid + dmac (5.5.3.5.18 s4)
+            {
+                uint8_t f[72]; memset(f, 0, sizeof f);
+                const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+                memcpy(f, mc, 6);
+                const uint8_t tsrc[6] = {0x3C,0xC0,0xC6,0x01,0x02,0x03};
+                memcpy(f+6, tsrc, 6);
+                f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x01;
+                f[16]=0x00; f[17]=44;
+                memcpy(f+18, L0_SID, 8);
+                for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;
+                const uint8_t tk0[8] = {0x3C,0xC0,0xC6,0x01,0x02,0x03,0x00,0x00};
+                memcpy(f+34, tk0, 8);
+                const uint8_t us0[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+                memcpy(f+42, us0, 8);
+                f[52]=0x00; f[53]=0x00;               // luid 0
+                memcpy(f+54, L0_DMAC, 6);
+                f[62]=0x69; f[63]=0x02;
+                f[66]=0x00; f[67]=0x02;               // stream_vlan_id 2
+                // the walker is DEAF in RESPOND_S/PROBE_S and the SM is in
+                // ACTIVE re-probe - a single answer can land in a deaf beat
+                // and vanish. The live peer answers EVERY probe (1.4 ms,
+                // tap-proven), so retry until the SM leaves PRB_W_RESP.
+                for (int at = 0; at < 8; at++) {
+                    inject(f, 70, 2000);
+                    if ((axi_read(0x6A4) & 7) >= 4) break;
+                }
+            }
+            // window view via the NEW A_STRM_SEL[9] select
+            axi_write(A_STRM_SEL, 0x200);
+            (void)axi_read(A_SW_SRP);
+            uint32_t srp0 = axi_read(A_SW_SRP);
+            for (int g = 0; g < 64 && ((srp0 >> 13) & 0x7) != 0x7; g++) {
+                for (int c = 0; c < 256; c++) step();
+                srp0 = axi_read(A_SW_SRP);
+            }
+            ck("t21-l0: row VALID via the [9] select", (srp0 >> 15) & 1, 1);
+            ck("t21-l0: row direction = LISTENER", (srp0 >> 14) & 1, 1);
+            ck("t21-l0: row backed (not 0xDEAD)",
+               (srp0 & 0xFFFF) == 0xDEAD ? 1 : 0, 0);
+            // a TalkerAdvertise for the sid: READY + the sink 0 feedback
+            {
+                uint8_t ta[64]; memset(ta, 0, sizeof ta);
+                const uint8_t msrp_da[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};
+                memcpy(ta, msrp_da, 6);
+                ta[6]=0x3C; ta[7]=0xC0; ta[8]=0xC6; ta[9]=0x01; ta[10]=0x02; ta[11]=0x03;
+                ta[12]=0x22; ta[13]=0xEA;
+                ta[14]=0;
+                ta[15]=1; ta[16]=25;
+                ta[17]=0; ta[18]=30;
+                ta[19]=0; ta[20]=1;
+                memcpy(ta+21, L0_SID, 8);
+                memcpy(ta+29, L0_DMAC, 6);
+                ta[35]=0x00; ta[36]=0x02;
+                ta[37]=0x00; ta[38]=0x48;
+                ta[39]=0x00; ta[40]=0x01;
+                ta[41]=0x70;
+                ta[46]=36;
+                inject(ta, 60, 40);
+            }
+            bool gotr = find_lstn(L0_SID, -1, 0x80, 400000, &evt0, &par0);
+            ck("t21-l0: four-pack READY once the TA is registered",
+               gotr ? 1 : 0, 1);
+            // sink 0's SM promotes on the DEDICATED row's registrar - read
+            // at the very register the silicon evidence used (ACMPL_STATE)
+            {
+                enum { A_ACMPL_STATE = 0x6A4 };
+                uint32_t a0 = axi_read(A_ACMPL_STATE);
+                for (int g = 0; g < 64 && (a0 & 0x7) != 7; g++) {
+                    for (int c = 0; c < 256; c++) step();
+                    a0 = axi_read(A_ACMPL_STATE);
+                }
+                ck("t21-l0: sink 0 SETTLED_RSV_OK from ITS OWN row (5.5.3.5.27)",
+                   a0 & 0x7, 7);
+            }
+            // the legacy row-0 (talker side) must be UNTOUCHED by all of it
+            uint32_t ls0 = axi_read(A_LWSRP_STATUS);
+            ck("t21-l0: legacy row reservation-active still 0",
+               (ls0 >> 6) & 1, 0);
+            axi_write(A_STRM_SEL, 0x000);
+        }
+
         axi_write(A_STRM_SEL, 0x000);
         axi_write(A_LWSRP_CTRL, 0x0);
         for (int c = 0; c < 512; c++) step();

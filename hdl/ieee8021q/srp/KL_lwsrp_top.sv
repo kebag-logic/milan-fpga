@@ -129,7 +129,7 @@ module KL_lwsrp_top #(
     //! sid+status into ctx_rd_*. Unconnected (all-0) = inert.
     input  wire         ctx_req_i,
     input  wire         ctx_we_i,
-    input  wire [3:0]   ctx_idx_i,
+    input  wire [4:0]   ctx_idx_i,
     input  wire         ctx_valid_i,
     input  wire         ctx_dir_i,         //! 0 = talker, 1 = listener
     input  wire [63:0]  ctx_sid_i,
@@ -147,9 +147,9 @@ module KL_lwsrp_top #(
     //! reservations, which is invisible from every other counter.
     output wire         ctx_oor_o,
     //! live per-context status vectors, bit 0 = legacy row
-    output wire [15:0]  ctx_reg_o,
-    output wire [15:0]  ctx_ready_o,
-    output wire [15:0]  ctx_failed_o,
+    output wire [31:0]  ctx_reg_o,
+    output wire [31:0]  ctx_ready_o,
+    output wire [31:0]  ctx_failed_o,
     output wire [15:0]  ctx_tx_count_o     //! extra-context MRPDUs sent
 );
 
@@ -179,7 +179,7 @@ module KL_lwsrp_top #(
   wire [EXT_LANES_C-1:0]    row_valid_w, row_dir_w, row_fresh_w, row_lv_w;
   wire [EXT_LANES_C-1:0]    row_ready_w, ctxtx_fresh_w, ctxtx_lv_w;
   wire                      ctx_tx_go_w, ctx_tx_done_w, ctx_fastjoin_w;
-  wire [3:0]                rec_addr_w;
+  wire [4:0]                rec_addr_w;
   wire [119:0]              rec_data_w;
   wire [63:0]               ctxtx_tdata_w;
   wire [7:0]                ctxtx_tkeep_w;
@@ -374,7 +374,7 @@ module KL_lwsrp_top #(
         gate_intv_r[l] <= '0;
       end
     end
-    else if (ctx_svc_w && ctx_we_i && (ctx_idx_i != 4'd0) &&
+    else if (ctx_svc_w && ctx_we_i && (ctx_idx_i != 5'd0) &&
              (32'(ctx_idx_i) < N_CTX_P)) begin
       gate_maxf_r[ctx_idx_i - 4'd1] <= ctx_max_frame_i;
       gate_intv_r[ctx_idx_i - 4'd1] <= ctx_interval_i;
