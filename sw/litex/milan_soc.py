@@ -1045,10 +1045,41 @@ class MilanMAC(LiteXModule):
         # both worlds - every gray-coded crossing timed as a same-PLL path).
         # additional_xdc_commands is emitted in its own section after the
         # clock + false-path sections (vivado.py build_io_constraints).
-        for eth_clk_pad in eth_clk_groups:
+        #
+        # USER 2026-08-06 (the t522-eppo placement-lottery postmortem): a
+        # blanket `set_clock_groups -asynchronous` FALSE-PATHS every eth
+        # crossing, so the gray-pointer/synchronizer skew into sys+milan was
+        # bounded by nothing but placement luck - the eppo seed shipped a
+        # bitstream whose kernel-bound RX/ARP died as the die warmed while
+        # the fabric plane stayed healthy. GMII boards now get BOUNDED
+        # crossings instead: hold analysis is meaningless across async
+        # domains (false_path -hold), and setup becomes a real 8 ns
+        # datapath-only budget (min of the two periods) that every seed
+        # must MEET - the lottery becomes an STA failure the sweep gate can
+        # see. MII (arty, retired) keeps the legacy groups.
+        if phy_model == "mii":
+            for eth_clk_pad in eth_clk_groups:
+                platform.toolchain.additional_xdc_commands.add(
+                    "set_clock_groups -asynchronous -group "
+                    "[get_clocks -of_objects [get_ports %s]]" % eth_clk_pad)
+        else:
+            eth_ck = ("[get_clocks -of_objects [get_ports %s]]"
+                      % eth_clk_groups[0])
+            part_cks = "[get_clocks {crg_clkout0 crg_clkout1}]"
+            for a, b in ((eth_ck, part_cks), (part_cks, eth_ck)):
+                platform.toolchain.additional_xdc_commands.add(
+                    "set_false_path -hold -from %s -to %s" % (a, b))
+                platform.toolchain.additional_xdc_commands.add(
+                    "set_max_delay -datapath_only -from %s -to %s 8.000"
+                    % (a, b))
+            # the audio/idelay clocks have no real eth crossings - keep them
+            # formally asynchronous so nothing accidental gets timed as
+            # PLL-related
             platform.toolchain.additional_xdc_commands.add(
-                "set_clock_groups -asynchronous -group "
-                "[get_clocks -of_objects [get_ports %s]]" % eth_clk_pad)
+                "set_clock_groups -asynchronous -group %s -group "
+                "[get_clocks {crg_audio_ref_raw crg_audio_mclk_raw "
+                "crg_pll_audio_fb crg_clkout2 crg_clkout3 crg_clkout4}]"
+                % eth_ck)
 
         # MAC-path supervised reset (link-bounce wedge, 2026-07-19): the eth
         # clock domains reset via phy_crg_reset, but the core's SYS-side CDC
