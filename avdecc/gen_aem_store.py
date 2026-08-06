@@ -1555,6 +1555,8 @@ def emit_svh_text(M):
           "'{" + ", ".join(f"16'd{v}" for v in ps["IN_WB"]) + "};")
         a(f"localparam [15:0] WB_STROUT_FMT_ADDR_C [0:{n_out-1}] = "
           "'{" + ", ".join(f"16'd{v}" for v in ps["OUT_WB"]) + "};")
+        a(f"localparam [15:0] WB_STRIN_FMT_CRF_C = 16'd{ps['IN_WB'][-1]};"
+          "  // the CRF sink = the LAST STREAM_INPUT (Table 5.22 push arm)")
         a("")
     sm = M["SMAP"]
     a("// Static AUDIO_MAP serving tables (GET_AUDIO_MAP, 1722.1-2021 7.4.44).")
@@ -1580,7 +1582,9 @@ def emit_svh_text(M):
     a("")
     dm = M["DYNMAP"]
     if dm["EMIT"]:
-        def arr(t, name, vals, fmt=str):
+        def arr(t, name, vals, fmt=None):
+            if fmt is None:
+                fmt = (lambda v: f"32'd{v}") if t == "[31:0]" else str
             a(f"localparam {t} {name} [0:{len(vals)-1}] = "
               "'{" + ", ".join(fmt(v) for v in vals) + "};")
 
@@ -1612,9 +1616,9 @@ def emit_svh_text(M):
           "   // STREAM_PORT_INPUT descriptors")
         arr("bit", "AEM_DMAP_PDYN_C", dm["PDYN"],
             lambda v: "1'b1" if v else "1'b0")
-        arr("int unsigned", "AEM_DMAP_PBASE_C", dm["PBASE"])
-        arr("int unsigned", "AEM_DMAP_PCLS_C", dm["PCLS"])
-        arr("int unsigned", "AEM_DMAP_PNMAPS_C", dm["PNMAPS"])
+        arr("[31:0]", "AEM_DMAP_PBASE_C", dm["PBASE"])
+        arr("[31:0]", "AEM_DMAP_PCLS_C", dm["PCLS"])
+        arr("[31:0]", "AEM_DMAP_PNMAPS_C", dm["PNMAPS"])
         a("// A STATIC port (input or output) is served from the shared")
         a("// AEM_SMAP_* tables above - one generated source for \"what map")
         a("// does this port serve\", static and dynamic shapes alike.")
@@ -1640,10 +1644,10 @@ def emit_svh_text(M):
         a(f"localparam int unsigned AEM_ODMAP_NPORTS_C = {od['NPORTS']};")
         arr("bit", "AEM_ODMAP_PDYN_C", od["PDYN"],
             lambda v: "1'b1" if v else "1'b0")
-        arr("int unsigned", "AEM_ODMAP_PCLS_C", od["PCLS"])
-        arr("int unsigned", "AEM_ODMAP_PCBASE_C", od["PCBASE"])
-        arr("int unsigned", "AEM_ODMAP_PSTR_C", od["PSTR"])
-        arr("int unsigned", "AEM_ODMAP_SLOTB_C", od["SLOTB"])
+        arr("[31:0]", "AEM_ODMAP_PCLS_C", od["PCLS"])
+        arr("[31:0]", "AEM_ODMAP_PCBASE_C", od["PCBASE"])
+        arr("[31:0]", "AEM_ODMAP_PSTR_C", od["PSTR"])
+        arr("[31:0]", "AEM_ODMAP_SLOTB_C", od["SLOTB"])
         arr("[9:0]", "AEM_ODMAP_SCH_C", od["SCH"], lambda v: f"10'd{v}")
         arr("[12:0]", "AEM_ODMAP_CSRC_C", od["CSRC"],
             lambda s: "13'h{:04X}".format(

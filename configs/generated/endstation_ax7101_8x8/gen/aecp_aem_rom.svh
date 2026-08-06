@@ -304,7 +304,7 @@ localparam [7:0] AEM_ROM_INIT_C [0:22560] = '{
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
-  8'h00,8'h02,8'h00,8'h00,8'h31,8'h2E,8'h33,8'h35,8'h2E,8'h30,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
+  8'h00,8'h02,8'h00,8'h00,8'h31,8'h2E,8'h33,8'h36,8'h2E,8'h30,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
@@ -1823,6 +1823,7 @@ localparam [63:0] AEM_STRIN_FMT_C [0:8] = '{64'h0205022002006000, 64'h0205022002
 localparam [63:0] AEM_STROUT_FMT_C [0:8] = '{64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h041060010000BB80};
 localparam [15:0] WB_STRIN_FMT_ADDR_C [0:8] = '{16'd640, 16'd788, 16'd936, 16'd1084, 16'd1232, 16'd1380, 16'd1528, 16'd1676, 16'd1824};
 localparam [15:0] WB_STROUT_FMT_ADDR_C [0:8] = '{16'd1964, 16'd2104, 16'd2244, 16'd2384, 16'd2524, 16'd2664, 16'd2804, 16'd2944, 16'd3084};
+localparam [15:0] WB_STRIN_FMT_CRF_C = 16'd1824;  // the CRF sink = the LAST STREAM_INPUT (Table 5.22 push arm)
 
 // Static AUDIO_MAP serving tables (GET_AUDIO_MAP, 1722.1-2021 7.4.44).
 // Per STREAM_PORT: the ROM address of the AUDIO_MAP that port's OWN
@@ -1860,9 +1861,9 @@ if (AEM_DMAP_PAGE_C > 11) $error("AEM_DMAP_PAGE_C %0d exceeds the GET_AUDIO_MAP 
 localparam int unsigned AEM_DMAP_PHYS_C  = 10;   // render crossbar depth (CHMAP_PHYS_C)
 localparam int unsigned AEM_DMAP_NPORTS_C = 8;   // STREAM_PORT_INPUT descriptors
 localparam bit AEM_DMAP_PDYN_C [0:7] = '{1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1};
-localparam int unsigned AEM_DMAP_PBASE_C [0:7] = '{0, 8, 16, 24, 32, 40, 48, 56};
-localparam int unsigned AEM_DMAP_PCLS_C [0:7] = '{8, 8, 8, 8, 8, 8, 8, 8};
-localparam int unsigned AEM_DMAP_PNMAPS_C [0:7] = '{1, 1, 1, 1, 1, 1, 1, 1};
+localparam [31:0] AEM_DMAP_PBASE_C [0:7] = '{32'd0, 32'd8, 32'd16, 32'd24, 32'd32, 32'd40, 32'd48, 32'd56};
+localparam [31:0] AEM_DMAP_PCLS_C [0:7] = '{32'd8, 32'd8, 32'd8, 32'd8, 32'd8, 32'd8, 32'd8, 32'd8};
+localparam [31:0] AEM_DMAP_PNMAPS_C [0:7] = '{32'd1, 32'd1, 32'd1, 32'd1, 32'd1, 32'd1, 32'd1, 32'd1};
 // A STATIC port (input or output) is served from the shared
 // AEM_SMAP_* tables above - one generated source for "what map
 // does this port serve", static and dynamic shapes alike.
@@ -1884,10 +1885,10 @@ localparam [9:0] AEM_DMAP_SCH_C [0:8] = '{10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'
 localparam int unsigned AEM_ODMAP_KEYS_C   = 64;
 localparam int unsigned AEM_ODMAP_NPORTS_C = 8;
 localparam bit AEM_ODMAP_PDYN_C [0:7] = '{1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1, 1'b1};
-localparam int unsigned AEM_ODMAP_PCLS_C [0:7] = '{17, 17, 17, 17, 17, 17, 17, 17};
-localparam int unsigned AEM_ODMAP_PCBASE_C [0:7] = '{0, 17, 34, 51, 68, 85, 102, 119};
-localparam int unsigned AEM_ODMAP_PSTR_C [0:7] = '{0, 1, 2, 3, 4, 5, 6, 7};
-localparam int unsigned AEM_ODMAP_SLOTB_C [0:7] = '{0, 4, 8, 12, 16, 20, 24, 28};
+localparam [31:0] AEM_ODMAP_PCLS_C [0:7] = '{32'd17, 32'd17, 32'd17, 32'd17, 32'd17, 32'd17, 32'd17, 32'd17};
+localparam [31:0] AEM_ODMAP_PCBASE_C [0:7] = '{32'd0, 32'd17, 32'd34, 32'd51, 32'd68, 32'd85, 32'd102, 32'd119};
+localparam [31:0] AEM_ODMAP_PSTR_C [0:7] = '{32'd0, 32'd1, 32'd2, 32'd3, 32'd4, 32'd5, 32'd6, 32'd7};
+localparam [31:0] AEM_ODMAP_SLOTB_C [0:7] = '{32'd0, 32'd4, 32'd8, 32'd12, 32'd16, 32'd20, 32'd24, 32'd28};
 localparam [9:0] AEM_ODMAP_SCH_C [0:7] = '{10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8, 10'd8};
 localparam [12:0] AEM_ODMAP_CSRC_C [0:135] = '{13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0500, 13'h0D00, 13'h0501, 13'h0D01, 13'h0502, 13'h0D02, 13'h0503, 13'h0D03, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0510, 13'h0D10, 13'h0511, 13'h0D11, 13'h0512, 13'h0D12, 13'h0513, 13'h0D13, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0520, 13'h0D20, 13'h0521, 13'h0D21, 13'h0522, 13'h0D22, 13'h0523, 13'h0D23, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0530, 13'h0D30, 13'h0531, 13'h0D31, 13'h0532, 13'h0D32, 13'h0533, 13'h0D33, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0540, 13'h0D40, 13'h0541, 13'h0D41, 13'h0542, 13'h0D42, 13'h0543, 13'h0D43, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0550, 13'h0D50, 13'h0551, 13'h0D51, 13'h0552, 13'h0D52, 13'h0553, 13'h0D53, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0560, 13'h0D60, 13'h0561, 13'h0D61, 13'h0562, 13'h0D62, 13'h0563, 13'h0D63, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h0570, 13'h0D70, 13'h0571, 13'h0D71, 13'h0572, 13'h0D72, 13'h0573, 13'h0D73};
 localparam [5:0] AEM_ODMAP_INIT_C [0:63] = '{6'h20, 6'h21, 6'h22, 6'h23, 6'h24, 6'h25, 6'h26, 6'h27, 6'h20, 6'h21, 6'h22, 6'h23, 6'h24, 6'h25, 6'h26, 6'h27, 6'h20, 6'h21, 6'h22, 6'h23, 6'h24, 6'h25, 6'h26, 6'h27, 6'h20, 6'h21, 6'h22, 6'h23, 6'h24, 6'h25, 6'h26, 6'h27, 6'h20, 6'h21, 6'h22, 6'h23, 6'h24, 6'h25, 6'h26, 6'h27, 6'h20, 6'h21, 6'h22, 6'h23, 6'h24, 6'h25, 6'h26, 6'h27, 6'h20, 6'h21, 6'h22, 6'h23, 6'h24, 6'h25, 6'h26, 6'h27, 6'h20, 6'h21, 6'h22, 6'h23, 6'h24, 6'h25, 6'h26, 6'h27};

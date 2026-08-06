@@ -111,6 +111,12 @@ run: $(GEN)
 	python3 gen_odmap_shape.py odmap_inc
 	$(VERILATOR) -Iodmap_inc $(VFLAGS) --Mdir obj_odmap \
 	  $(SRCS) sim_odmap.cpp -o Vaecp_odmap     # dynamic STREAM_PORT_OUTPUTs
+	$(VERILATOR) -GCLK_FREQ_HZ_P=100000 -I../../../hdl/ieee17221/aecp $(VFLAGS) \
+	  --Mdir obj_unsol \
+	  $(SRCS) sim_unsol.cpp -o Vaecp_unsol     # Table 5.22 pushes (1 ms = 100 cyc);
+	                                           # hdl -I FIRST: the MODERN gen/ svh
+	                                           # (per-stream fmt array) must win over
+	                                           # arty_current's legacy copy
 	@echo "======================================================================"
 	./obj_dir/Vaecp_sim
 	./obj_fmt2/Vaecp_fmt2
@@ -121,6 +127,7 @@ run: $(GEN)
 	./obj_pools/Vaecp_pools
 	./obj_dynmap2/Vaecp_dynmap2
 	./obj_odmap/Vaecp_odmap
+	./obj_unsol/Vaecp_unsol
 
 $(GEN):
 	cd ../../.. && python3 avdecc/gen_aem_store.py

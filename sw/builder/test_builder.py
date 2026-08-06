@@ -1217,8 +1217,8 @@ def test_dynamic_audio_map_overlay():
         assert "localparam int unsigned AEM_DMAP_KEYS_C  = 8;" in svh
         assert "localparam int unsigned AEM_DMAP_PAGE_C  = 4;" in svh
         assert "localparam int unsigned AEM_DMAP_NPORTS_C = 1;" in svh
-        assert "AEM_DMAP_PNMAPS_C [0:0] = '{2}" in svh
-        assert "AEM_DMAP_PBASE_C [0:0] = '{0}" in svh
+        assert "AEM_DMAP_PNMAPS_C [0:0] = '{32'd2}" in svh
+        assert "AEM_DMAP_PBASE_C [0:0] = '{32'd0}" in svh
         # ... and the TRACKED pair carries the engine IFF ITS OWNER asks for
         # it.  The owner is read from the tree, never assumed (see
         # _check_tracked_dynmap).  Today's owner declares no dynamic port, so
@@ -1317,12 +1317,12 @@ def test_dynamic_audio_map_overlay():
         assert "localparam int unsigned AEM_DMAP_NPORTS_C = 4;" in svh
         # keys span every dynamic port's clusters: 4 ports x 4 = 16
         assert "localparam int unsigned AEM_DMAP_KEYS_C  = 16;" in svh
-        assert "AEM_DMAP_PBASE_C [0:3] = '{0, 4, 8, 12}" in svh
-        assert "AEM_DMAP_PCLS_C [0:3] = '{4, 4, 4, 4}" in svh
+        assert "AEM_DMAP_PBASE_C [0:3] = '{32'd0, 32'd4, 32'd8, 32'd12}" in svh
+        assert "AEM_DMAP_PCLS_C [0:3] = '{32'd4, 32'd4, 32'd4, 32'd4}" in svh
         assert "AEM_DMAP_PDYN_C [0:3] = '{1'b1, 1'b1, 1'b1, 1'b1}" in svh
         # 4 clusters / default page min(4,8)=4 -> ONE partition per port
         assert "localparam int unsigned AEM_DMAP_PAGE_C  = 4;" in svh
-        assert "AEM_DMAP_PNMAPS_C [0:3] = '{1, 1, 1, 1}" in svh
+        assert "AEM_DMAP_PNMAPS_C [0:3] = '{32'd1, 32'd1, 32'd1, 32'd1}" in svh
         # 4 AAF sinks + the CRF sink: only the AAF ones are mappable
         assert "AEM_DMAP_SAAF_C [0:4] = '{1'b1, 1'b1, 1'b1, 1'b1, 1'b0}" in svh
         assert "AEM_DMAP_SCH_C [0:4] = '{10'd4, 10'd4, 10'd4, 10'd4, 10'd0}" in svh
@@ -1385,9 +1385,10 @@ def test_dynamic_audio_map_overlay():
         assert "`define AEM_ODYNMAP" in svh
         assert "localparam int unsigned AEM_ODMAP_NPORTS_C = 8;" in svh
         assert "localparam int unsigned AEM_ODMAP_KEYS_C   = 64;" in svh
-        assert "AEM_ODMAP_PSTR_C [0:7] = '{0, 1, 2, 3, 4, 5, 6, 7}" in svh
-        assert "AEM_ODMAP_SLOTB_C [0:7] = '{0, 4, 8, 12, 16, 20, 24, 28}" \
-            in svh
+        assert ("AEM_ODMAP_PSTR_C [0:7] = '{32'd0, 32'd1, 32'd2, 32'd3, "
+                "32'd4, 32'd5, 32'd6, 32'd7}") in svh
+        assert ("AEM_ODMAP_SLOTB_C [0:7] = '{32'd0, 32'd4, 32'd8, 32'd12, "
+                "32'd16, 32'd20, 32'd24, 32'd28}") in svh
         # gate 17e (task #65): THE POWER-ON IMAGE MAY ONLY NAME A SOURCE THIS
         # BUILD CAN PRODUCE. The AX routes no audio pins, so the primary-role
         # fall-through used to land on LOOPBACK and every talker woke mapped
