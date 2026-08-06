@@ -233,7 +233,7 @@ sudo -E python3 tools/milan_torture.py --areas matrix \
 # THE PHYSICAL FAMILY (the powerstrip-driven switch cycle + DUT power cycle):
 # an explicit opt-in, runs LAST, full recipe and safety contract in §7.1
 sudo -E python3 tools/milan_torture.py --areas physical \
-     --powerstrip-cmd "ssh amx-pi 'powerstrip {action} {outlet}'" \
+     --powerstrip-cmd "ssh <power-controller> 'powerstrip {action} {outlet}'" \
      --switch-outlet 4 --dut-outlet 0
 
 # feed the payload / audio areas their captures
@@ -372,7 +372,7 @@ at once, the multi-slot rings actually multiplexing, per-index counter
 **isolation** (an unbound index ticking while a neighbour streams — the
 alias/bleed class that shipped four real defects under index-0-only testing),
 and **cross-stream independence at teardown**. Real deployments run many streams
-simultaneously; a campaign that only ever binds one at a time certifies a shape
+simultaneously; a campaign that only ever binds one at a time qualifies a shape
 no deployment uses.
 
 Three concurrency sets, each derived from the device **specs** and never
@@ -879,7 +879,7 @@ power-cycle entries run automated and only the cable pull stays on the list.
 
 ### 7.1 The physical family: powerstrip-driven power cycles
 
-**Authorization.** USER authorization 2026-08-02: the `amx-pi` powerstrip may
+**Authorization.** USER authorization 2026-08-02: the `<power-controller>` powerstrip may
 be driven by the campaign — **OUT4 = the AVB switch ("DN-1")**, **OUT0 = the
 DUT** (the established AX cold-cycle lever: cutting OUT0 loses the SRAM
 gateware and QSPI boots it back, which is exactly what makes it a *true* cold
@@ -894,7 +894,7 @@ flag:
 
 ```bash
 sudo ./milan_torture.py --areas physical \
-     --powerstrip-cmd "ssh amx-pi 'powerstrip {action} {outlet}'" \
+     --powerstrip-cmd "ssh <power-controller> 'powerstrip {action} {outlet}'" \
      --switch-outlet 4 --dut-outlet 0 \
      --board-cmd 'ssh root@<dut> {cmd}' \
      --csr-cmd 'ssh root@<dut> devmem2 0x90000{addr#0x} w'   # illustrative

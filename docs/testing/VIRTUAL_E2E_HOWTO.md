@@ -1,10 +1,10 @@
 # VIRTUAL E2E HOWTO — simulate the Milan SoC end-to-end, no board required
 
 Status: **2026-08-01.** The copy-paste-runnable operator guide for the boardless
-validation tier. Companion docs: `VIRTUAL_E2E_QEMU.md` (roadmap T0–T6),
-`TRUE_E2E_REQUIREMENTS.md` (stable requirement IDs),
-`../tooling/virtual-e2e-env.md` (verified environment inventory),
-`VIRTUAL_E2E_PLAN.md` (original scope + honest boundaries).
+validation tier. Companion docs: [`VIRTUAL_E2E_QEMU.md`](VIRTUAL_E2E_QEMU.md) (roadmap T0–T6),
+[`TRUE_E2E_REQUIREMENTS.md`](TRUE_E2E_REQUIREMENTS.md) (stable requirement IDs),
+[`../tooling/virtual-e2e-env.md`](../tooling/virtual-e2e-env.md) (verified environment inventory),
+[`VIRTUAL_E2E_PLAN.md`](VIRTUAL_E2E_PLAN.md) (original scope + honest boundaries).
 
 Read this once before running anything: **a green run here is a simulation
 result, never a hardware claim.** Hardware-only properties (PHY timing, analog
@@ -22,7 +22,7 @@ sudo pacman -S --needed verilator qemu-system-riscv jdk17-openjdk
 # ~/br-milan-output (RV64, kept behind a flag).
 
 # Sanity: the whole environment gate in one command.
-cd /home/alex/milan-fpga-hermes
+cd <worktree>
 ./scripts/virtual-e2e.sh env-check
 ```
 
@@ -36,16 +36,16 @@ This is the proven, repeatable M-A2 check: the real softcore boots the real
 BIOS against the real `milan_datapath` RTL and reads `ID='MILN'`.
 
 ```sh
-cd /home/alex/milan-fpga-hermes
+cd <worktree>
 ./scripts/virtual-e2e.sh t1
 ```
 
 Or the underlying command directly (the runner wraps exactly this):
 
 ```sh
-source /home/alex/litex-milan/venv/bin/activate        # REQUIRED — see gotcha below
+source <litex-work>/litex-milan/venv/bin/activate        # REQUIRED — see gotcha below
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
-python scripts/ma2_sim_driver.py --repo /home/alex/milan-fpga-hermes \
+python scripts/ma2_sim_driver.py --repo <worktree> \
   --log /tmp/ma2_run.log
 echo "exit=$?"                                          # 0 = PASS
 ```
@@ -89,7 +89,7 @@ Prerequisites (present on this box; `env-check` hashes them):
 
 | artifact | path |
 |---|---|
-| RV32 OpenSBI firmware | `/home/alex/milan-tests-avb/fpga/boot/opensbi_ax_vexii_rv32.bin` (verified DTB strings: `audio@f0003120`, `kl,milan-pcm`) |
+| RV32 OpenSBI firmware | `$HOME/milan-tests-avb/fpga/boot/opensbi_ax_vexii_rv32.bin` (verified DTB strings: `audio@f0003120`, `kl,milan-pcm`) |
 | RV32 kernel | `~/br-milan-rv32/images/Image` (or `Image.xz`) |
 | RV32 rootfs | `~/br-milan-rv32/images/rootfs.cpio*` |
 
@@ -185,7 +185,7 @@ have run.
 ## 8. Quick reference card
 
 ```sh
-cd /home/alex/milan-fpga-hermes
+cd <worktree>
 ./scripts/virtual-e2e.sh env-check   # environment gate (T0)
 ./scripts/virtual-e2e.sh t1          # boot proof, RV32 (PROVEN)
 ./scripts/virtual-e2e.sh t2-prep     # RV32 image-boot prerequisites

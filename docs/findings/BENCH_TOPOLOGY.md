@@ -19,7 +19,7 @@ any other name; its material is private (see §7).
 ## Contents
 
 - **[0. The map](#0-the-map)** — Answers "where do I plug the analyzer": tap1 is inline on the ALINX link (the only DUT link left) and the tap host is the **only** place wire truth exists — the controller host sits on a pruned switch port. The caveat that follows the picture is the useful bit — a tap sees one *link*, so traffic the switch drops crosses neither tap.
-- **[1. Machines](#1-machines)** — Role and reach for every host, now with the concrete names inline (amx-pw0 / amx-ubuntu-server / amx-pi), plus the facts that change what you can do: the dev box never gets an address on the AVB subnet, the switch has no IP or UI management at all, pw0's port is pruned, and capture records carry a 28-byte header so every `ether[]` offset shifts by +28.
+- **[1. Machines](#1-machines)** — Role and reach for every host, now with the concrete names inline (<peer-host> / <capture-host> / <power-controller>), plus the facts that change what you can do: the dev box never gets an address on the AVB subnet, the switch has no IP or UI management at all, pw0's port is pruned, and capture records carry a 28-byte header so every `ether[]` offset shifts by +28.
 - **[2. Boards (DUTs)](#2-boards-duts)** — The sole DUT (AX7101: serial/JTAG/ssh access, RV32, 8×8×8ch) and the reference-peer wiring with the PRIMARIES-ONLY binding rule; the two-board table and the Arty analog loop are kept below it as banner-marked history.
 - **[3. Consoles from the dev box](#3-consoles-from-the-dev-box)** — The serial↔FIFO daemon you must **recreate after a context reset**, and its three traps: output racing the read window, `dmesg -n 1` to unbury the console, and a foreground pipe wedging the shell.
 - **[4. Repositories & artifacts](#4-repositories--artifacts)** — Which of the five trees holds what — gateware, bench/private, LiteX venv and build dirs, buildroot output, standards PDFs. Standing warning: both repos diverge from their GitHub origins, so any push needs `--force`.
@@ -41,36 +41,36 @@ flowchart TB
         SW{{"AVB switch<br/>managed bridge, no IP or UI management<br/>MSRP domain: class A, prio 3, VID 2"}}
         AX["ALINX AX7101 - THE DUT<br/>entity :01, 8x8x8ch, RV32 VexiiRiscv, gPTP GM"]
         DS["PEER - the reference device<br/>AES3 loop on ch 1/2; bind its (p) PRIMARIES only"]
-        PEER["amx-pw0 - the peer/controller host<br/>raw-socket tools, la_avdecc, campaign runner.<br/>Its switch port is PRUNED: it never sees VID-2<br/>streams or link-local gPTP"]
+        PEER["<peer-host> - the peer/controller host<br/>raw-socket tools, la_avdecc, campaign runner.<br/>Its switch port is PRUNED: it never sees VID-2<br/>streams or link-local gPTP"]
         T1(["tap1 - inline on the ALINX to switch link"])
         AX --- T1 --- SW
         DS --- SW
         SW --- PEER
     end
-    CAP["amx-ubuntu-server - the capture host<br/>ProfiShark recorder, tap1 = enxe8eb1b37e2c0.<br/>Records carry a 28-byte header, so every<br/>tcpdump ether offset shifts by +28"]
+    CAP["<capture-host> - the capture host<br/>ProfiShark recorder, tap1 = <tap1-iface>.<br/>Records carry a 28-byte header, so every<br/>tcpdump ether offset shifts by +28"]
     T1 -.-> CAP
     DEV["dev box<br/>Vivado, repos, JTAG cable, serial console.<br/>NEVER gets an address on the bench AVB subnet"]
     DEV -.->|"JTAG / QSPI flash + serial console"| AX
-    PWR["amx-pi powerstrip<br/>OUT0 = AX (cold cycle), OUT4 = the switch"]
+    PWR["<power-controller> powerstrip<br/>OUT0 = AX (cold cycle), OUT4 = the switch"]
     PWR -.->|"power"| SW
     PWR -.->|"power"| AX
 ```
 
 So: **tap1 for anything the ALINX sends or receives — and the tap is the ONLY
-wire truth on this bench**: amx-pw0 sits on a pruned switch port and cannot
+wire truth on this bench**: <peer-host> sits on a pruned switch port and cannot
 see registered VID-2 streams or link-local gPTP at all, so a clean capture on
 pw0 proves nothing about the stream path. A tap sees one link, not the
 segment — traffic the switch drops crosses no tap. (tap2, the former ARTY
-link tap `enxe8eb1b39111a`, is idle since the Arty's retirement.)
+link tap `<tap2-iface>`, is idle since the Arty's retirement.)
 
 ## 1. Machines
 
 | Name | Reach | Role |
 |---|---|---|
 | dev box (this host) | local | Vivado 2026.1 (the local Vivado install, 96 cores), repos, JTAG cable, board serial console. NEVER gets an address on the bench AVB subnet. |
-| the peer test host (`amx-pw0`) | `ssh amx-pw0` | Test controller on the AVB LAN: `enp6s0`, .2 on the bench subnet (role split: .1 = AX eth0, .2 = peer, .3 = the retired ARTY). All wire probes and the campaign runner live here (needs sudo for raw sockets + PACKET_MR_PROMISC — raw AVDECC tools MUST join promisc or responses are NIC-dropped). **Its switch port is PRUNED**: it cannot see registered VID-2 streams or link-local gPTP — never conclude "no traffic" from a pw0 capture; go to the tap. Board ssh hops through here (the board key `id_rsa` lives on pw0, not the dev box). |
-| the capture host (`amx-ubuntu-server`) | `ssh amx-ubuntu-server` | ProfiShark capture host. `enxe8eb1b37e2c0` = tap1 **inline on the ALINX↔switch link**; `enxe8eb1b39111a` = tap2, the former ARTY link (idle). Records carry a **28-byte header**: all tcpdump `ether[]` offsets shift +28 (ethertype at `ether[40:2]` — e.g. `ether[40:2] == 0x88f7` selects PTP; SMAC at `ether[34:4]`); FCS included. **Record byte[8] gives the direction: 3 = board side, 2 = switch side.** |
-| the power controller (`amx-pi`) | `ssh amx-pi 'powerstrip off/on <outlet>'` | Power strip: **OUT0 = the AX7101** (cutting it = SRAM gateware loss, so a cold cycle requires the QSPI-boot image — that is also what makes it the scriptable cold-boot lever), **OUT4 = the AVB switch**. It also carries a USB-eth dongle used in earlier bench eras [session-lore, verify before relying on it]. |
+| the peer test host (`<peer-host>`) | `ssh <peer-host>` | Test controller on the AVB LAN: `enp6s0`, .2 on the bench subnet (role split: .1 = AX eth0, .2 = peer, .3 = the retired ARTY). All wire probes and the campaign runner live here (needs sudo for raw sockets + PACKET_MR_PROMISC — raw AVDECC tools MUST join promisc or responses are NIC-dropped). **Its switch port is PRUNED**: it cannot see registered VID-2 streams or link-local gPTP — never conclude "no traffic" from a pw0 capture; go to the tap. Board ssh hops through here (the board key `id_rsa` lives on pw0, not the dev box). |
+| the capture host (`<capture-host>`) | `ssh <capture-host>` | ProfiShark capture host. `<tap1-iface>` = tap1 **inline on the ALINX↔switch link**; `<tap2-iface>` = tap2, the former ARTY link (idle). Records carry a **28-byte header**: all tcpdump `ether[]` offsets shift +28 (ethertype at `ether[40:2]` — e.g. `ether[40:2] == 0x88f7` selects PTP; SMAC at `ether[34:4]`); FCS included. **Record byte[8] gives the direction: 3 = board side, 2 = switch side.** |
+| the power controller (`<power-controller>`) | `ssh <power-controller> 'powerstrip off/on <outlet>'` | Power strip: **OUT0 = the AX7101** (cutting it = SRAM gateware loss, so a cold cycle requires the QSPI-boot image — that is also what makes it the scriptable cold-boot lever), **OUT4 = the AVB switch**. It also carries a USB-eth dongle used in earlier bench eras [session-lore, verify before relying on it]. |
 | a reserved bench host | — | **NEVER TOUCH** (standing rule). |
 | AVB switch | **no IP/UI management** (USER 2026-07-22; the old ".1 ssh open" row was stale — .1 is now the AX's eth0) | Managed AVB bridge. clockIdentity `<bridge-clockidentity>`, port MAC toward AX `<bridge-port-mac>`. Claims gPTP priority1=246/cc248/acc0x20 (tap-read) — why boards run priority1=238 (USER default; ship posture 246\|248). MSRP Domain = class A, prio 3, **VID 2**. |
 
@@ -85,11 +85,11 @@ regression baseline only.
 |---|---|
 | Shape | **8 talkers × 8 listeners × 8 channels/stream** (USER-fixed, non-negotiable), RV32 VexiiRiscv (`--xlen 32`), must run the **latest** gateware |
 | Entity / MAC | entity :01 — 02:00:00:00:00:01 / 020000fffe000001 |
-| Board access | `ssh amx-pw0`, then `ssh -i ~/.ssh/id_rsa root@192.168.127.1` (dropbear, root, key on pw0; expect **long timeouts** on a loaded board; `scp -O` only — no SFTP; busybox: no `pkill`, no `modinfo`) |
+| Board access | `ssh <peer-host>`, then `ssh -i ~/.ssh/id_rsa root@<bench-net>.1` (dropbear, root, key on pw0; expect **long timeouts** on a loaded board; `scp -O` only — no SFTP; busybox: no `pkill`, no `modinfo`) |
 | Serial console | CP2102N @ **115200**, currently `/dev/ttyUSB1` — but **ttyUSBn flips between plugs; prefer the `/dev/serial/by-id` path**. Drain the FTDI/UART buffer before diagnosing (a stale boot log replays on open). |
 | JTAG / flash | FT232H serial **210512180081**, `openFPGALoader -c ft232 --fpga-part xc7a100tfgg484` (the Digilent FT2232 `210319AFEED0` is the retired Arty's cable — two cables on the bus, NEVER omit `--ftdi-serial`) |
 | QSPI policy | **boot**: bitstream@0 + full image set (16 MB N25Q128; the manifest-"full" map has a 4 MiB bitstream slot) |
-| Cold cycle | `ssh amx-pi 'powerstrip off 0; sleep 6; powerstrip on 0'` (OUT0; SRAM gateware is lost — QSPI boots it back) |
+| Cold cycle | `ssh <power-controller> 'powerstrip off 0; sleep 6; powerstrip on 0'` (OUT0; SRAM gateware is lost — QSPI boots it back) |
 | gPTP role | **GM** (priority1 238 via S50milan) |
 
 **The reference peer's wiring** (channel numbers 1-based):
@@ -202,7 +202,7 @@ cd ~/prjs-avb-on-fpga/milan-fpga && ./sw/litex/sweep.sh ax7101 <tag>
 # Gate: WNS >= 0. Pick best seed.
 
 # AX7101 (current): AX_FTDI=210512180081 ./sw/litex/build.sh flash ax7101:<builddir>
-# then cold-cycle: ssh amx-pi 'powerstrip off 0; sleep 6; powerstrip on 0'
+# then cold-cycle: ssh <power-controller> 'powerstrip off 0; sleep 6; powerstrip on 0'
 # verify: devmem 0x90000004 reads the expected VERSION, and
 #         cat /sys/class/net/eth0/flags == 0x1203 (RX-shield posture, §8)
 
@@ -236,7 +236,7 @@ tail can eat the exit code).
 **Read this first: pw0 is NOT wire truth.** Its switch port is pruned, so
 registered VID-2 streams and link-local gPTP never reach it. Anything about
 stream cadence, gPTP cadence or stream content must be measured **at the tap
-on `amx-ubuntu-server`** (`enxe8eb1b37e2c0` = the AX link). ProfiShark record
+on `<capture-host>`** (`<tap1-iface>` = the AX link). ProfiShark record
 layout there: 28-byte header (BPF offsets shift +28 — `ether[40:2] == 0x88f7`
 selects PTP), record byte[8] = 3 for the board side, 2 for the switch side.
 And when you measure a cadence, **a frame COUNT is not a CADENCE** — compute

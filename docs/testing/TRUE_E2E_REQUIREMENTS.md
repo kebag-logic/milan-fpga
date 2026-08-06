@@ -4,8 +4,8 @@ Status: **2026-08-01.** Normative requirement set for the Milan v1.2 AVB/TSN
 virtual end-to-end tier. Every requirement has: ID, statement, rationale,
 implementation component, observable evidence, positive acceptance, negative
 control, and a status of **PROVEN / PLANNED / BLOCKED**. Companion docs:
-`VIRTUAL_E2E_QEMU.md` (roadmap T0–T6), `VIRTUAL_E2E_HOWTO.md` (operator guide),
-`../tooling/virtual-e2e-env.md` (verified inventory).
+[`VIRTUAL_E2E_QEMU.md`](VIRTUAL_E2E_QEMU.md) (roadmap T0–T6), [`VIRTUAL_E2E_HOWTO.md`](VIRTUAL_E2E_HOWTO.md) (operator guide),
+[`../tooling/virtual-e2e-env.md`](../tooling/virtual-e2e-env.md) (verified inventory).
 
 Definitions: **DUT** = the verilated real `milan_datapath` RTL + its guest.
 **Oracle** = an implementation independent of the DUT (foreign AVDECC stack,
@@ -18,13 +18,13 @@ collect evidence; it may **never** generate the behavior being declared valid.
 |---|---|---|---|
 | E2E-ART-1 | Every run records hashes of firmware, kernel, DTB, rootfs, RTL source list, guest config, and tool versions in `manifest.json` | manifest complete → PASS; any missing hash → FAIL | PLANNED |
 | E2E-ART-2 | RV32 is the default tuple (`~/br-milan-rv32/` kernel/rootfs + RV32 OpenSBI + RV32 DTB); RV64 only via explicit flag | no-flag run boots RV32; missing RV32 artifact → `BLOCKED`, never silent RV64 fallback | PLANNED |
-| E2E-ART-3 | RV32 OpenSBI firmware: `/home/alex/milan-tests-avb/fpga/boot/opensbi_ax_vexii_rv32.bin` (265,004 B), rebuilt by `build_opensbi.sh` (OpenSBI 1.7 `litex_nax`, XLEN/DTB-agreement gate) | sha256 recorded in `env-check`; XLEN/DTB mismatch → gate refuses | **PROVEN to exist + verified DTB strings (`audio@f0003120`)**; not yet consumed by a boot |
+| E2E-ART-3 | RV32 OpenSBI firmware: `$HOME/milan-tests-avb/fpga/boot/opensbi_ax_vexii_rv32.bin` (265,004 B), rebuilt by `build_opensbi.sh` (OpenSBI 1.7 `litex_nax`, XLEN/DTB-agreement gate) | sha256 recorded in `env-check`; XLEN/DTB mismatch → gate refuses | **PROVEN to exist + verified DTB strings (`audio@f0003120`)**; not yet consumed by a boot |
 
 ## E2E-BOOT — firmware/Linux boot
 
 | ID | requirement | acceptance / negative control | status |
 |---|---|---|---|
-| E2E-BOOT-1 | RV32 softcore boots the real LiteX BIOS and reads `ID='MILN'` at `0x9000_0000` | exit 0 from `scripts/ma2_sim_driver.py`; corrupt expected ID → FAIL | **PROVEN** (`evidence/M-A2-2026-08-01.md`) |
+| E2E-BOOT-1 | RV32 softcore boots the real LiteX BIOS and reads `ID='MILN'` at `0x9000_0000` | exit 0 from `scripts/ma2_sim_driver.py`; corrupt expected ID → FAIL | **PROVEN** ([`evidence/M-A2-2026-08-01.md`](evidence/M-A2-2026-08-01.md)) |
 | E2E-BOOT-2 | The exact RV32 buildroot image boots unmodified (firmware→kernel→DTB→rootfs) | guest reports rv32; wrong-DTB/XLEN tuple → BLOCKED, not a boot | PLANNED |
 | E2E-BOOT-3 | Production init (`S50milan`) runs in the virtual guest | provisioning writes visible in RTL CSRs; skipping init → no such writes → FAIL | PLANNED |
 

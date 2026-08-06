@@ -2,8 +2,8 @@
 
 Status: **2026-08-01.** What tests exist for the boardless validation tier, the
 exact commands to run them, what PASS/FAIL/BLOCKED mean, and the recorded
-result against the current commit. Read with `VIRTUAL_E2E_HOWTO.md` (operator
-guide), `VIRTUAL_E2E_QEMU.md` (roadmap), `TRUE_E2E_REQUIREMENTS.md` (requirement
+result against the current commit. Read with [`VIRTUAL_E2E_HOWTO.md`](VIRTUAL_E2E_HOWTO.md) (operator
+guide), [`VIRTUAL_E2E_QEMU.md`](VIRTUAL_E2E_QEMU.md) (roadmap), [`TRUE_E2E_REQUIREMENTS.md`](TRUE_E2E_REQUIREMENTS.md) (requirement
 IDs). **A green run here is a simulation result, never a hardware claim.**
 
 ## 1. The test set (what runs, and what each gate proves)
@@ -18,7 +18,7 @@ IDs). **A green run here is a simulation result, never a hardware claim.**
 
 ## 2. Exact commands (post-rebase verification run)
 
-Run from the repo root `/home/alex/milan-fpga-hermes`:
+Run from the repo root `<worktree>`:
 
 ```sh
 # 0. Capture the baseline (what commit is under test?)
@@ -35,10 +35,10 @@ bash -n scripts/virtual-e2e.sh
 python3 -m py_compile sw/litex/milan_sim.py scripts/ma2_sim_driver.py
 
 # 3. Clean rebuild + boot proof, with the new threading hook exercised.
-source /home/alex/litex-milan/venv/bin/activate     # REQUIRED (BIOS build shells out to python3 -m litex)
+source <litex-work>/litex-milan/venv/bin/activate     # REQUIRED (BIOS build shells out to python3 -m litex)
 export JAVA_HOME=/usr/lib/jvm/java-17-openjdk
 VERILATOR_THREADS=auto python scripts/ma2_sim_driver.py \
-  --repo /home/alex/milan-fpga-hermes --log /tmp/ma2_post_rebase.log
+  --repo <worktree> --log /tmp/ma2_post_rebase.log
 
 # 4. The tier gates.
 ./scripts/virtual-e2e.sh env-check
@@ -54,9 +54,9 @@ VERILATOR_THREADS=auto python scripts/ma2_sim_driver.py \
 | stale-cache invalidation | pre-rebase `build_milan_sim/` archived to `/tmp/build_milan_sim.pre-rebase` | mv |
 | syntax | `bash -n` OK; `py_compile` OK | stdout |
 | clean rebuild + boot (threading opt-in) | **PASS** — `M-A2: PASS prompt_reached=True dump_seen=True`, driver exit 0 | `/tmp/ma2_post_rebase.log` |
-| T0 env-check | **PASS** — 19 PASS / 0 FAIL / 0 SKIP / 0 BLOCKED | `evidence/virtual-e2e-env-check-2026-08-01.md` |
-| T1 M-A2 | **PASS** — 22 PASS / 0 FAIL / 0 SKIP / 0 BLOCKED; `t1.ma2.boot` + `t1.ma2.id-magic` both PASS | `evidence/virtual-e2e-t1-2026-08-01.md` |
-| all (full graph) | **BLOCKED (exit 2)** — 35 PASS / 0 FAIL / 1 SKIP / 4 BLOCKED | `evidence/virtual-e2e-all-2026-08-01.md` |
+| T0 env-check | **PASS** — 19 PASS / 0 FAIL / 0 SKIP / 0 BLOCKED | [`evidence/virtual-e2e-env-check-2026-08-01.md`](evidence/virtual-e2e-env-check-2026-08-01.md) |
+| T1 M-A2 | **PASS** — 22 PASS / 0 FAIL / 0 SKIP / 0 BLOCKED; `t1.ma2.boot` + `t1.ma2.id-magic` both PASS | [`evidence/virtual-e2e-t1-2026-08-01.md`](evidence/virtual-e2e-t1-2026-08-01.md) |
+| all (full graph) | **BLOCKED (exit 2)** — 35 PASS / 0 FAIL / 1 SKIP / 4 BLOCKED | [`evidence/virtual-e2e-all-2026-08-01.md`](evidence/virtual-e2e-all-2026-08-01.md) |
 
 The decisive ID dump (CPU reached the real RTL CSRs):
 
@@ -121,7 +121,7 @@ cd tests && behave -f plain
 
 **Result: all PASS** — lwsrp_ctx 43 / lwsrp_rx 143 / lwsrp_tx 445 / lwsrp_switchpdu 7
 checks with 0 failures; behave **520 scenarios passed, 0 failed**. Recorded in
-`evidence/REBASE-REGRESSION-2026-08-01-55a68a45.md`. This is a *targeted* rebase
+[`evidence/REBASE-REGRESSION-2026-08-01-55a68a45.md`](evidence/REBASE-REGRESSION-2026-08-01-55a68a45.md). This is a *targeted* rebase
 regression, not the full 55-suite sweep (`scripts/run_all_suites.sh` for that).
 
 ## 8. The virtual switch decision (B)

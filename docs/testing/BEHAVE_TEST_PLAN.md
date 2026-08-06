@@ -38,8 +38,8 @@ together, and the two conformance-suite copies are drifting.
 > **gate** in the `bdd-conformance` job of
 > [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml), per the USER
 > standing order that it runs on every verification round. It has also roughly
-> doubled: **22 features / 116 scenarios / 1182 steps** (measured 2026-07-28),
-> doubled: **22 features / 122 scenarios / 1215 steps** (measured 2026-07-26),
+> doubled: **45 features / 594 scenarios / 3548 steps** (measured 2026-08-06;
+> the run's own tally is authoritative — prose counts go stale),
 > the growth being the `item10_*` command coverage. The `behave.ini` / shared
 > tag-taxonomy work below is still open, and suites A/B/C are still un-gated.
 
@@ -289,8 +289,7 @@ changed. [`SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) now reads **163✅ / 
 - **CI**: `Containerfile.bdd-runner` + `Containerfile.dut-sim` already exist for Suite D.
   **The in-repo suite is already gated** — [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml)
   carries a `bdd-conformance` job that runs `behave -f plain` on every push and
-  pull request (22 features / 116 scenarios / 1182 steps), alongside
-  pull request (22 features / 122 scenarios / 1215 steps), alongside
+  pull request (45 features / 594 scenarios / 3548 steps, measured 2026-08-06), alongside
   [`docs.yml`](../../.github/workflows/docs.yml) (docs, cited paths, archive,
   contents, traceability, builder, DT, trace). What is still unwired is the
   **Suite D container** path — the DUT-sim gate, not the suite itself.
