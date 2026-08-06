@@ -310,13 +310,14 @@ int main(int argc, char** argv) {
             ck(nm, r_be16(m3, o3), 1);
             snprintf(nm, sizeof nm, "[3] map2 row%d stream_channel", row);
             ck(nm, r_be16(m2, o2+2), row);
-            // THE POINT: offset 3 = the loopback segment start (host x2 +
-            // pilot x1 precede it), identical on BOTH ports because 7.2.19
-            // offsets are relative to the port's own base_cluster.
-            snprintf(nm, sizeof nm, "[3] map2 row%d cluster_offset (loopback)", row);
-            ck(nm, r_be16(m2, o2+4), 3 + row);
+            // THE POINT (USER 08-06: host outranks loopback): offset 0 =
+            // the HOST segment start - the entity wakes wired to shared
+            // memory; identical on BOTH ports because 7.2.19 offsets are
+            // relative to the port's own base_cluster.
+            snprintf(nm, sizeof nm, "[3] map2 row%d cluster_offset (host)", row);
+            ck(nm, r_be16(m2, o2+4), 0 + row);
             snprintf(nm, sizeof nm, "[3] map3 row%d cluster_offset (SAME, port-relative)", row);
-            ck(nm, r_be16(m3, o3+4), 3 + row);
+            ck(nm, r_be16(m3, o3+4), 0 + row);
             snprintf(nm, sizeof nm, "[3] map2 row%d cluster_channel=0 (mono)", row);
             ck(nm, r_be16(m2, o2+6), 0);
         }

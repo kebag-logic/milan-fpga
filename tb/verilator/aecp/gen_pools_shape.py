@@ -147,7 +147,7 @@ assert [p["base_cluster"] for p in P_in] == [0, 2], P_in
 assert [p["base_cluster"] for p in P_out] == [4, 9], P_out
 assert ovl["descriptor_counts"]["AUDIO_CLUSTER"] == 14
 assert [g_["role"] for g_ in P_out[0]["pool"]] == ["host", "pilot", "loopback"]
-assert all(p["primary_role"] == "loopback" for p in P_out), P_out
+assert all(p["primary_role"] == "host" for p in P_out), P_out  # USER 08-06: host outranks loopback
 assert all(p["primary_role"] == "host" for p in P_in), P_in
 names = [c["name"] for c in sorted(ovl["audio_clusters"],
                                    key=lambda c: c["index"])]
@@ -159,8 +159,9 @@ assert names == ["Host Play 0", "Host Play 1",
                  "Loopback S1 ch 0", "Loopback S1 ch 1"], names
 # 7.2.19: port-RELATIVE offsets - both talker maps carry the SAME offsets
 maps = {m["index"]: m for m in ovl["audio_maps"]}
-assert maps[2]["mappings"] == [[0, 0, 3, 0], [0, 1, 4, 0]], maps[2]
-assert maps[3]["mappings"] == [[1, 0, 3, 0], [1, 1, 4, 0]], maps[3]
+# USER 08-06: host outranks loopback - the static map wires the HOST run
+assert maps[2]["mappings"] == [[0, 0, 0, 0], [0, 1, 1, 0]], maps[2]
+assert maps[3]["mappings"] == [[1, 0, 0, 0], [1, 1, 1, 0]], maps[3]
 
 g.emit_svh(M, os.path.join(out, "gen", "aecp_aem_rom.svh"))
 with open(os.path.join(out, "pools_overlay.json"), "w") as f:

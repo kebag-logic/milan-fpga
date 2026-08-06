@@ -259,11 +259,14 @@ SOC_DEFAULTS = dict(
     all_blocks=True,
     coherent_dma=True,
     timing_opt=True,
+    # the PROVEN rv32 CPU words (launch_x32f1 -> sweep.sh BASE, 08-05/06):
+    # the rv64-era set (refill 8, rpt prefetch, 8/16 queues) lived on here
+    # as a THIRD drifted copy after the sweep fix - one source now, and it
+    # is the silicon-proven one
     scala_args=[
-        "--lsu-l1-refill-count=8",
-        "--lsu-hardware-prefetch=rpt",
-        "--l2-down-pending=8",
-        "--l2-general-slots=16",
+        "--lsu-l1-refill-count=2",
+        "--l2-down-pending=4",
+        "--l2-general-slots=8",
     ],
 )
 
@@ -1291,7 +1294,14 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
 #: while declaring a source that cannot exist is merely undetectable.
 PRIMARY_ROLE_ORDER = {
     "input":  ("physical", "host", "virtual"),
-    "output": ("physical", "loopback", "host", "pilot", "virtual"),
+    #! USER 2026-08-06: the talker's power-on identity is the SHARED-MEMORY
+    #! (host) lane, NOT the loopback - "the ATDECC mapping must correspond
+    #! to the physical mux, and the stream_output was set to the Loopback".
+    #! host now outranks loopback; a backed loopback stays fully mappable
+    #! by a controller, it just is not what the entity wakes up claiming.
+    #! (The 8x8 never saw this order matter: its lane was unbacked, so the
+    #! preference walk skipped loopback and host won by default.)
+    "output": ("physical", "host", "loopback", "pilot", "virtual"),
 }
 
 

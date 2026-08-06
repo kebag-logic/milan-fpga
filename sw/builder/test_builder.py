@@ -188,7 +188,11 @@ FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
               # where the build READS its generated entity from is sweep
               # mechanics (the 2026-07-28 concurrent-sweep change), not a
               # property of the end-station definition
-              "--entity-gen-dir": 1}
+              "--entity-gen-dir": 1,
+              # CPU words are the sweep BASE's (the 08-05 rv64-drift fix put
+              # --xlen 32 there; configs describe the END-STATION, not the
+              # core) - flow, not design
+              "--xlen": 1}
 
 DEPLOYED_MODEL_ID = "0x001BC50AC1000001"     # flashed silicon identity
 
@@ -1430,16 +1434,22 @@ def test_dynamic_audio_map_overlay():
                 svh2 = open(os.path.join(td, "aecp_aem_rom.svh")).read()
             assert "13'h1500" in svh2, \
                 "lane declared but no VALID loopback template emitted"
-            assert "AEM_ODMAP_INIT_C [0:63] = '{6'h29" in svh2, \
-                "lane declared but the power-on map did not return to it"
+            #! USER 2026-08-06: host outranks loopback - a BACKED lane is
+            #! fully mappable but the entity WAKES claiming the SHARED
+            #! MEMORY (INIT 6'h20 = host co=0), never the loop. The 08-05
+            #! silicon caught the old order: the talker woke transmitting
+            #! its own received stream and every host ADD hit the
+            #! pair-slot-unity refusal.
+            assert "AEM_ODMAP_INIT_C [0:63] = '{6'h20" in svh2, \
+                "the power-on map must claim the HOST pool"
             assert "--loopback-lane" in eb.emit_design_opts(
                 eb.load_config(p2)), \
                 "lane declared but milan_soc was never told to build it"
-            assert all(q["primary_role"] == "loopback"
+            assert all(q["primary_role"] == "host"
                        for q in r2["overlay"]["stream_ports"]["output"])
-            print("  [gate 17e] lane ON: the SAME declaration hands the pool "
-                  "back - primary_role loopback, 13'h1500 valid, INIT 6'h29 "
-                  "(offset 9), and --loopback-lane in the milan_soc argv")
+            print("  [gate 17e] lane ON: loopback valid (13'h1500) and "
+                  "mappable, but primary_role/INIT stay HOST (6'h20) - "
+                  "the entity wakes on shared memory")
         finally:
             os.unlink(p2)
     finally:
