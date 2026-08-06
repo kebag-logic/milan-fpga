@@ -43,7 +43,7 @@ board:
   constraints:
     sys_clk_hz: 100000000
     milan_clk_hz: 100000000
-    l2_bytes: 16384
+    l2_bytes: 32768  # USER 2026-08-06: 32K L2 (boot decompress + service headroom)
     phy: gmii-1g
     gtx_tx_invert: true
     floorplan: true

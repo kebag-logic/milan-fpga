@@ -13,5 +13,5 @@
 #   python3 sw/builder/endstation_builder.py <cfg.yaml>
 OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --aaf-playback --aaf-playback-streams 1"
 NS=1
-L2=16384
+L2=32768
 RXQ=2
