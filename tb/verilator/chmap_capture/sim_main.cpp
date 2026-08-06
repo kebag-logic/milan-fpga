@@ -98,23 +98,56 @@ static uint16_t ent_lb(int en, int s, int p) {
   return (uint16_t)((((s) & 0xF) << 8) | ent(en, SRC_LOOP, p)); }
 
 // ---- map RAM write / read ------------------------------------------------
-static void a_map_wr(int slot, uint16_t d) {
-  dut->a_map_wr_en_i = 1; dut->a_map_wr_addr_i = slot; dut->a_map_wr_data_i = d;
+// PER-CHANNEL SHIM (0x0027, "one cluster == one audio channel"): the store
+// is now one 13-bit entry per stream channel. The legacy slot-word helpers
+// decode {swap, halves, idxh, en, src, idx} and issue the TWO channel
+// writes that mean exactly what the old word meant - every legacy case
+// keeps its semantics; per-channel cases write channels directly.
+static uint16_t ch_word(int en, int half, int src, int idxh, int idx) {
+  return (uint16_t)(((en & 1) << 12) | ((half & 1) << 11) | ((src & 7) << 8)
+                    | ((idxh & 0xF) << 4) | (idx & 0xF)); }
+static void a_map_wr_ch(int key, uint16_t w) {
+  dut->a_map_wr_en_i = 1; dut->a_map_wr_addr_i = key; dut->a_map_wr_data_i = w;
   cyc(); dut->a_map_wr_en_i = 0; cyc(); }
-static void b_map_wr(int slot, uint16_t d) {
-  dut->b_map_wr_en_i = 1; dut->b_map_wr_addr_i = slot; dut->b_map_wr_data_i = d;
+static void b_map_wr_ch(int key, uint16_t w) {
+  dut->b_map_wr_en_i = 1; dut->b_map_wr_addr_i = key; dut->b_map_wr_data_i = w;
   cyc(); dut->b_map_wr_en_i = 0; cyc(); }
-static uint16_t a_map_rd(int slot) {
-  dut->a_map_rd_en_i = 1; dut->a_map_rd_addr_i = slot; cyc();
+static void a_map_wr(int slot, uint16_t d) {
+  int en = (d >> 7) & 1, src = (d >> 4) & 7, idx = d & 0xF, idxh = (d >> 8) & 0xF;
+  int len = (d >> 13) & 1, ren = (d >> 12) & 1;         // legacy half-enables
+  int lsw = (d >> 15) & 1, rsw = (d >> 14) & 1;         // legacy swap bits
+  a_map_wr_ch(2 * slot,     ch_word(en && len, lsw ? 1 : 0, src, idxh, idx));
+  a_map_wr_ch(2 * slot + 1, ch_word(en && ren, rsw ? 0 : 1, src, idxh, idx)); }
+static void b_map_wr(int slot, uint16_t d) {
+  int en = (d >> 7) & 1, src = (d >> 4) & 7, idx = d & 0xF, idxh = (d >> 8) & 0xF;
+  int len = (d >> 13) & 1, ren = (d >> 12) & 1;
+  int lsw = (d >> 15) & 1, rsw = (d >> 14) & 1;
+  b_map_wr_ch(2 * slot,     ch_word(en && len, lsw ? 1 : 0, src, idxh, idx));
+  b_map_wr_ch(2 * slot + 1, ch_word(en && ren, rsw ? 0 : 1, src, idxh, idx)); }
+//! raw per-CHANNEL readback: {fed[14], mapped[13], entry[12:0]}
+static uint16_t a_map_rd_ch(int key) {
+  dut->a_map_rd_en_i = 1; dut->a_map_rd_addr_i = key; cyc();
   uint16_t v = dut->a_map_rd_data_o; bool ok = dut->a_map_rd_valid_o;
   dut->a_map_rd_en_i = 0; cyc();
-  if (!ok) { printf("  [FAIL] a_map_rd(%d) no valid\n", slot); fails++; checks++; }
+  if (!ok) { printf("  [FAIL] a_map_rd_ch(%d) no valid\n", key); fails++; checks++; }
   return v; }
-// the addressed entry (readback [13:0] - [13:12] is the per-half enable,
-// which used to be reserved zeros; [11:0] keeps its exact legacy meaning)
-static uint16_t a_map_ent(int slot) { return a_map_rd(slot) & 0x3FFF; }
-// the LOOP capability mask (readback [15:14]): bit0 = mapped, bit1 = fed
-static uint16_t a_map_mask(int slot) { return (a_map_rd(slot) >> 14) & 3; }
+//! LEGACY slot view recomposed from the two channel entries: {half_ens[13:12],
+//! idxh[11:8], en[7], src[6:4], idx[3:0]} - src/idxh/idx from whichever
+//! channel is enabled (they are equal for every legacy write)
+static uint16_t a_map_ent(int slot) {
+  uint16_t l = a_map_rd_ch(2 * slot) & 0x1FFF, r = a_map_rd_ch(2 * slot + 1) & 0x1FFF;
+  int len = (l >> 12) & 1, ren = (r >> 12) & 1;
+  uint16_t f = len ? l : r;                   // field donor
+  int src = (f >> 8) & 7, idxh = (f >> 4) & 0xF, idx = f & 0xF;
+  int en = len || ren;
+  if (!en) {                                  // legacy writers always stored
+    len = ren = 1;                            // halves=11 with en=0; fields
+    src = (l >> 8) & 7; idxh = (l >> 4) & 0xF; idx = l & 0xF;   // from even
+  }
+  return (uint16_t)((len << 13) | (ren << 12) | (idxh << 8) | (en << 7)
+                    | (src << 4) | idx); }
+// the LOOP capability mask (readback [14:13]): bit0 = mapped, bit1 = fed
+static uint16_t a_map_mask(int slot) { return (a_map_rd_ch(2 * slot) >> 13) & 3; }
 
 // ---- TCTX window writes (poll wr_rdy, like the NxN harness) ---------------
 static void a_tctx_wr(int t, int w, uint32_t v) {
@@ -498,6 +531,32 @@ int main(int argc, char** argv) {
       ck("A7: restored natural L", be(afr[h1], 42, 3), TDM_L(0));
       ck("A7: restored natural R", be(afr[h1], 46, 3), TDM_R(0));
     } else { for (int k = 0; k < 2; k++) ck("A7 restore (skipped)", 0, 1); }
+  }
+
+  // ====================================================================== //
+  printf("\n[A8] one cluster == one audio channel (USER 08-06): two\n");
+  printf("     DIFFERENT sources in ONE pair slot, each channel its own\n");
+  {
+    uint16_t sl = a_map_ent(1);
+    //! ch2 (slot1 even) <- TDM pair0's R half; ch3 (slot1 odd) <- RING
+    //! pair1's L half - impossible on the pair-granular store, the whole
+    //! point of the per-channel rework
+    a_map_wr_ch(2, ch_word(1, 1, 2, 0, 0));   // en, half=R, TDM, idx0
+    a_map_wr_ch(3, ch_word(1, 0, 3, 0, 1));   // en, half=L, RING, idx1
+    cyc(4);
+    afr.clear();
+    for (int i = 0; i < 6; i++) a_tick();
+    cyc(400);
+    int h1 = find_len(afr, 234);
+    ck("A8: frames with a split slot", h1 >= 0, 1);
+    if (h1 >= 0) {
+      ck("A8: ch2 carries TDM pair0 R", be(afr[h1], 42, 3), TDM_R(0));
+      ck("A8: ch3 carries RING pair1 L", be(afr[h1], 46, 3), RNG_L(1));
+    } else { for (int k = 0; k < 2; k++) ck("A8 split (skipped)", 0, 1); }
+    //! per-channel readback shows each channel its own truth
+    ck("A8: ch2 entry {en,R,TDM,0}",  a_map_rd_ch(2) & 0x1FFF, 0x1A00);
+    ck("A8: ch3 entry {en,L,RING,1}", a_map_rd_ch(3) & 0x1FFF, 0x1301);
+    a_map_wr(1, sl);   // restore the legacy slot state
   }
 
   // ====================================================================== //

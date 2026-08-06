@@ -22,27 +22,19 @@
                 pair_slot_o is the full 5-bit (0..31) space the packetizer now
                 accepts (the pair_slot widening).
 
-                MAP ENTRY (14 bits, one per slot):
-                  {half[13:12], idxh[11:8], en[7], src[6:4], idx[3:0]}
-                  en  - 1 = this slot carries its src bucket;
-                        0 = this slot carries PCM silence. EITHER WAY the
-                        slot is injected every media tick: Milan v1.2
-                        5.3.9.1 lets a channel of a Stream Output be "not
-                        mapped", and 5.3.7.3 still requires the Stream
-                        Output to be streaming, so an unmapped channel is
-                        a SILENT channel, never a missing frame.
-                  half - {L_en[13], R_en[12]}, the per-CHANNEL enable inside
-                        an enabled slot. en says whether the SLOT carries
-                        its bucket; half says which of the slot's two stream
-                        channels does. They are different questions because
-                        an ATDECC mapping is per stream channel (1722.1-2021
-                        7.4.45, Milan 5.4.2.26 "at most one dynamic mapping
-                        per Stream Output's channel") while this store is
-                        per pair slot, so "channel 5 mapped, channel 4 not"
-                        is a state a controller can legally ask for and the
-                        entity must render as {silence, source R}. Every
-                        pre-existing writer defaults it to 2'b11, which is
-                        exactly what an enabled slot used to mean.
+                MAP ENTRY (13 bits, ONE PER STREAM CHANNEL - 0x0027,
+                USER 2026-08-06 "one cluster == one audio channel"):
+                  {en[12], half[11], src[10:8], idxh[7:4], idx[3:0]}
+                  en   - 1 = this channel carries its mono cluster;
+                         0 = DIGITAL SILENCE. Either way the channel is
+                         injected every media tick: Milan v1.2 5.3.9.1
+                         lets a channel be "not mapped", 5.3.7.3 still
+                         requires the Stream Output to be streaming.
+                  half - WHICH half of the source pair is this channel's
+                         mono cluster (0 = L/even, 1 = R/odd). With it,
+                         ANY cluster lands on ANY channel: the old parity
+                         and pair-slot vendor rules (2 and 3) do not exist
+                         in this store - each channel is independent.
                   src - the source bucket:
                           0 ZERO    : digital silence (L=R=0)
                           1 I2S_IN  : the stereo I2S capture pair (idx unused)
@@ -58,20 +50,6 @@
                   idxh - the within-source STREAM index. ONLY the LOOP bucket
                          reads it; every other bucket ignores it, which is why
                          it can sit above the legacy byte (see next para).
-
-                WHY idxh SITS ABOVE THE LEGACY BYTE (deliberate, not tidy):
-                bits [7:0] of the entry are bit-for-bit the pre-loopback 8-bit
-                entry and arrive on the SAME 8-bit map_wr_data_i pin, so every
-                map word ever written - and the CSR slice in milan_datapath
-                that produces it (docs/CHANNEL_MAP_64.md §5, capture column) -
-                keeps its EXACT meaning and its exact width. idxh arrives on
-                its own defaulted pin (map_wr_idxh_i, default 0), so a writer
-                that predates the loopback can only ever say "RX stream 0" -
-                never a re-interpretation of a live map. §5's capture word
-                already reserves CHMAP_WORD[7:4] for exactly this field
-                ("source stream/lane"); the datapath dropped it only because
-                no source needed it before the loopback, and wiring it in is
-                the one-line change that arms this bucket from the CSR.
 
                 SOURCE BUCKETS (wire-truth, free-running): the latest pair per
                 source is latched into a hold register the instant its
@@ -220,53 +198,33 @@ module KL_chan_map_capture #(
   input  wire         clk_i,             //! datapath clock
   input  wire         rst_n,             //! active-low synchronous reset
 
-  //! --- map RAM write port (CSR window / TB) ------------------------------
+  //! --- map RAM write port (the AEM mirror / CSR debug window / TB) -------
+  //! PER-CHANNEL since 0x0027 (USER 2026-08-06: "one cluster == one audio
+  //! channel"): the store holds one entry PER STREAM CHANNEL, each
+  //! independently selecting one MONO cluster = {source bucket, stream
+  //! (idxh), pair idx, half}. No pair coupling exists anywhere in the map:
+  //! the old slot-granular store forced ATDECC edits into remove-both/
+  //! add-both pair dances (vendor rules 2 and 3), which is exactly what
+  //! this rework retires.
   input  wire         map_wr_en_i,       //! one-cycle write strobe
-  input  wire [$clog2(N_SLOTS_P)-1:0] map_wr_addr_i, //! slot index
-  input  wire [7:0]   map_wr_data_i,     //! {en[7], src[6:4], idx[3:0]} -
-                                         //!  the legacy byte, UNCHANGED
-  //! the entry's high nibble, carried on its own pin so the legacy write
-  //! port keeps its exact width and meaning; a writer that does not drive it
-  //! (default 0) can only ever mean "RX stream 0", never a re-interpretation
-  input  wire [3:0]   map_wr_idxh_i = 4'd0, //! LOOP: RX stream index
-  //! PER-HALF ENABLE {L, R}, same defaulted-pin discipline as map_wr_idxh_i
-  //! and for the same reason: a writer that predates it says 2'b11 = "both
-  //! halves", which is bit-for-bit the pre-existing meaning of an enabled
-  //! slot, so no map ever written changes meaning. It exists because a
-  //! STREAM_PORT_OUTPUT mapping is per STREAM CHANNEL (Milan v1.2 5.4.2.26
-  //! "at most one dynamic mapping per Stream Output's channel") while this
-  //! store is per PAIR SLOT: a controller may map channel 2p+1 and leave 2p
-  //! unmapped, and 5.3.9.1 then owes channel 2p silence, not the source
-  //! pair's other half. Without this pin an odd edit either armed audio on
-  //! an unmapped channel or disarmed a mapped one.
-  input  wire [1:0]   map_wr_half_i = 2'b11, //! {L_en, R_en}
-  //! PER-CHANNEL HALF-SWAP {L_sel, R_sel} (USER 2026-08-06: "add the
-  //! half-swap mux"): 0 = the channel carries its NATURAL source half
-  //! (even<-L, odd<-R - the only route the crossbar could make before),
-  //! 1 = the OTHER half. Same defaulted-pin discipline again: a writer
-  //! that does not drive it says 2'b00 = natural, bit-for-bit the old
-  //! behavior. This is what lets an R-half cluster (e.g. loopback offset
-  //! 16) land on an EVEN stream channel - the ATDECC validator's parity
-  //! rule (old vendor rule 2) retires with it.
-  input  wire [1:0]   map_wr_swap_i = 2'b00, //! {L_sel, R_sel}
-
+  input  wire [$clog2(2*N_SLOTS_P)-1:0] map_wr_addr_i, //! CHANNEL key
+  input  wire [12:0]  map_wr_data_i,     //! {en[12], half[11], src[10:8],
+                                         //!  idxh[7:4], idx[3:0]}
   //! --- map RAM readback port (registered, 1-cycle latency) ---------------
   input  wire         map_rd_en_i,       //! one-cycle read request
-  input  wire [$clog2(N_SLOTS_P)-1:0] map_rd_addr_i,
-  //! {loop_fed[15], loop_mapped[14], 2'b0, entry[11:0]}.
-  //! [11:0] is the addressed entry {idxh, en, src, idx}. [15:14] is the LOOP
-  //! bucket's CAPABILITY MASK, and it rides this existing pin on purpose: a
-  //! loopback slot that is mapped but has never been FED emits 24'd0, which
-  //! is bit-for-bit what a working-but-quiet slot emits. Without the mask a
-  //! board whose listener side is not wired at all - or is wired and simply
-  //! receiving nothing - reports a LYING ZERO that no counter contradicts.
-  //! That risk is not hypothetical: the AX7101 routes no audio pins in
-  //! either direction, so its talkers depend ENTIRELY on this bucket.
+  input  wire [$clog2(2*N_SLOTS_P)-1:0] map_rd_addr_i, //! CHANNEL key
+  //! {loop_fed[14], loop_mapped[13], entry[12:0]}. entry = the addressed
+  //! CHANNEL's word {en, half, src, idxh, idx}. [14:13] is the LOOP bucket's
+  //! CAPABILITY MASK: a loopback channel that is mapped but has never been
+  //! FED emits 24'd0, bit-for-bit what a working-but-quiet one emits -
+  //! without the mask an unwired listener side reports a LYING ZERO no
+  //! counter contradicts (the AX7101 routes no audio pins, so its talkers
+  //! depend ENTIRELY on the loop bucket).
   //!   mapped=0            : the bucket is not in use
   //!   mapped=1, fed=0     : mapped and NEVER FED - a silent talker here is
   //!                         a BINDING or stream fault, not quiet audio
   //!   mapped=1, fed=1     : live; zeros in the payload are real silence
-  output logic [17:0] map_rd_data_o,     //! (valid with rd_valid)
+  output logic [14:0] map_rd_data_o,     //! (valid with rd_valid)
   output logic        map_rd_valid_o,    //! read data valid this cycle
 
   //! --- I2S capture pair source (single stereo pair) ----------------------
@@ -343,15 +301,15 @@ module KL_chan_map_capture #(
   //   one sync write process; combinational reads for the walk; the         //
   //   readback port registers a snapshot (RAM house style read turnaround)  //
   // ---------------------------------------------------------------------- //
-  logic [15:0] map_r [N_SLOTS_P];
+  //! one 13-bit entry PER STREAM CHANNEL (2 per pair slot)
+  logic [12:0] map_r [2*N_SLOTS_P];
 
   always_ff @(posedge clk_i) begin : map_write_port
     if (!rst_n) begin
-      for (int s = 0; s < N_SLOTS_P; s++) map_r[s] <= 16'h0000;
+      for (int s = 0; s < 2*N_SLOTS_P; s++) map_r[s] <= 13'h0000;
     end
     else if (map_wr_en_i) begin
-      map_r[map_wr_addr_i] <= {map_wr_swap_i, map_wr_half_i, map_wr_idxh_i,
-                               map_wr_data_i};
+      map_r[map_wr_addr_i] <= map_wr_data_i;
     end
   end : map_write_port
 
@@ -362,8 +320,8 @@ module KL_chan_map_capture #(
   logic loop_mapped_w;
   always_comb begin : loop_mapped_scan
     loop_mapped_w = 1'b0;
-    for (int s = 0; s < N_SLOTS_P; s++) begin
-      if (map_r[s][7] && (map_r[s][6:4] == SRC_LOOP_C)) loop_mapped_w = 1'b1;
+    for (int s = 0; s < 2*N_SLOTS_P; s++) begin
+      if (map_r[s][12] && (map_r[s][10:8] == SRC_LOOP_C)) loop_mapped_w = 1'b1;
     end
   end : loop_mapped_scan
 
@@ -376,19 +334,14 @@ module KL_chan_map_capture #(
 
   always_ff @(posedge clk_i) begin : map_read_port
     if (!rst_n) begin
-      map_rd_data_o  <= 18'h00000;
+      map_rd_data_o  <= 15'h0000;
       map_rd_valid_o <= 1'b0;
     end
     else begin
       map_rd_valid_o <= 1'b0;
       if (map_rd_en_i) begin
-        //! [13:12] carry the per-half enable; [17:16] the per-channel
-        //! half-swap (USER 08-06) so a swapped route is READABLE. [11:0]
-        //! keeps its exact legacy meaning, [15:14] the capability mask.
-        map_rd_data_o  <= {map_r[map_rd_addr_i][15:14],
-                           loop_fed_r, loop_mapped_w,
-                           map_r[map_rd_addr_i][13:12],
-                           map_r[map_rd_addr_i][11:0]};
+        map_rd_data_o  <= {loop_fed_r, loop_mapped_w,
+                           map_r[map_rd_addr_i]};
         map_rd_valid_o <= 1'b1;
       end
     end
@@ -510,92 +463,50 @@ module KL_chan_map_capture #(
   // ---------------------------------------------------------------------- //
   logic [SLOTW_C-1:0] slot_r;            //! walk pointer
 
-  wire [15:0] ent_w  = map_r[slot_r];
-  wire        en_w   = ent_w[7];
-  wire [2:0]  src_w  = ent_w[6:4];
-  wire [3:0]  idx_w  = ent_w[3:0];
-  wire [3:0]  idxh_w = ent_w[11:8];      //! LOOP only: RX stream index
-  wire [1:0]  half_w = ent_w[13:12];     //! {L_en, R_en} of this slot
-  wire [1:0]  swap_w = ent_w[15:14];     //! {L_sel, R_sel}: 1 = other half
+  //! the pair step reads BOTH channel entries of the slot and resolves
+  //! each independently - "one cluster == one audio channel" (USER 08-06)
+  wire [12:0] ent_l_w = map_r[{slot_r, 1'b0}];   //! even channel 2p
+  wire [12:0] ent_r_w = map_r[{slot_r, 1'b1}];   //! odd channel 2p+1
 
-  //! LOOP read: {stream idxh, channel pair idx} -> one hold word. An entry
-  //! naming a stream or pair the build does not keep resolves to silence
-  //! (the §5 "illegal encoding behaves as disabled" rule) and its address is
-  //! forced to 0 so the bank is never indexed out of range.
-  wire lb_sel_ok_w = (32'(idxh_w) < N_LB_STREAMS_P) && (32'(idx_w) < LB_PPS_C);
-  wire [LBPW_C-1:0] lb_sel_addr_w =
-         lb_sel_ok_w ? LBPW_C'(32'(idxh_w) * LB_PPS_C + 32'(idx_w))
-                     : LBPW_C'(0);
-  wire [47:0] lb_sel_w = lb_sel_ok_w ? lb_hold_r[lb_sel_addr_w] : 48'd0;
+  //! per-channel resolver: entry {en, half, src, idxh, idx} -> the 24-bit
+  //! sample of ITS mono cluster (the selected half of the source pair).
+  //! An entry naming a stream/pair the build does not keep resolves to
+  //! silence (the §5 "illegal encoding behaves as disabled" rule); the
+  //! TONE bucket carries the same value on both halves by construction.
+  function automatic logic [23:0] resolve_ch(input logic [12:0] e);
+    logic        en_f;
+    logic        half_f;
+    logic [2:0]  src_f;
+    logic [3:0]  idxh_f, idx_f;
+    logic [47:0] pair_f;
+    logic        lbok_f;
+    begin
+      en_f = e[12]; half_f = e[11]; src_f = e[10:8];
+      idxh_f = e[7:4]; idx_f = e[3:0];
+      lbok_f = (32'(idxh_f) < N_LB_STREAMS_P) && (32'(idx_f) < LB_PPS_C);
+      unique case (en_f ? src_f : 3'd0)
+        SRC_I2S_C : pair_f = i2s_hold_r;
+        SRC_TDM_C : pair_f = (32'(idx_f) < N_TDM_PAIRS_C)
+                               ? tdm_hold_r[idx_f[TDMPW_C-1:0]] : 48'd0;
+        SRC_RING_C: pair_f = (32'(idx_f) < N_RING_P)
+                               ? ring_hold_r[idx_f[RINGPW_C-1:0]] : 48'd0;
+        SRC_TONE_C: pair_f = {tone_smp_i, tone_smp_i};
+        SRC_LOOP_C: pair_f = lbok_f
+                               ? lb_hold_r[LBPW_C'(32'(idxh_f) * LB_PPS_C
+                                                   + 32'(idx_f))]
+                               : 48'd0;
+        default   : pair_f = 48'd0;
+      endcase
+      resolve_ch = half_f ? pair_f[23:0] : pair_f[47:24];
+    end
+  endfunction
 
-  //! An UNMAPPED slot resolves to the ZERO bucket rather than dropping out of
-  //! the walk (Milan v1.2 5.3.9.1 "either not mapped or mapped ..." is about
-  //! ONE CHANNEL; 5.3.7.3 still owes the stream its packets). Gating the
-  //! source select rather than the emit keeps the FSM below branch-free.
-  //! Written as a MASK, not as `en_w ? src_w : SRC_ZERO_C`: the two are the
-  //! same Boolean function (SRC_ZERO_C is 3'd0) but the mask folds into the
-  //! map-RAM read mux instead of building a second one behind it - 3574 vs
-  //! 3901 LC, yosys OOC at the 8x8 shape, against 3789 LC for the pre-fix
-  //! walk that skipped the slot. Both correct; only one is cheaper than
-  //! what it replaces, on a device sitting at 61,039 of 63,400 LUTs.
-  //! An UNMAPPED slot resolves to the ZERO bucket rather than dropping out of
-  //! the walk (Milan v1.2 5.3.9.1 "either not mapped or mapped ..." is about
-  //! ONE CHANNEL; 5.3.7.3 still owes the stream its packets). Gating the
-  //! source select rather than the emit keeps the FSM below branch-free.
-  //! Written as a MASK, not as `en_w ? src_w : SRC_ZERO_C`: the two are the
-  //! same Boolean function (SRC_ZERO_C is 3'd0) but the mask folds into the
-  //! map-RAM read mux instead of building a second one behind it - 3574 vs
-  //! 3901 LC, yosys OOC at the 8x8 shape, against 3789 LC for the pre-fix
-  //! walk that skipped the slot. Both correct; only one is cheaper than
-  //! what it replaces, on a device sitting at 61,039 of 63,400 LUTs.
-  wire [2:0] srcsel_w = src_w & {3{en_w}};
-
-  logic [23:0] sel_l_w, sel_r_w;
-  always_comb begin : source_mux
-    unique case (srcsel_w)
-      SRC_I2S_C : {sel_l_w, sel_r_w} = i2s_hold_r;
-      SRC_TDM_C : {sel_l_w, sel_r_w} =
-                    (32'(idx_w) < N_TDM_PAIRS_C)
-                      ? tdm_hold_r[idx_w[TDMPW_C-1:0]] : 48'd0;
-      SRC_RING_C : {sel_l_w, sel_r_w} =
-                    (32'(idx_w) < N_RING_P)
-                      ? ring_hold_r[idx_w[RINGPW_C-1:0]] : 48'd0;
-      SRC_TONE_C : {sel_l_w, sel_r_w} = {tone_smp_i, tone_smp_i};
-      //! rx -> talker loopback: L = wire channel 2*idx, R = 2*idx+1 of RX
-      //! stream idxh (7.3.5 channel order), latest sample of each
-      SRC_LOOP_C : {sel_l_w, sel_r_w} = lb_sel_w;
-      default    : {sel_l_w, sel_r_w} = 48'd0;   //! ZERO + reserved = silence
-    endcase
-  end : source_mux
-
-  //! PER-HALF SILENCE. srcsel_w above silences the WHOLE slot; this silences
-  //! ONE half of it, which is the granularity a Stream Output mapping
-  //! actually has (Milan v1.2 5.4.2.26 "at most one dynamic mapping per
-  //! Stream Output's channel"). A slot whose even channel is mapped and
-  //! whose odd channel is not must emit the source's L and DIGITAL SILENCE,
-  //! not the source's R: 5.3.9.1 lets a Stream Output channel be "not
-  //! mapped", and an unmapped channel carrying a neighbour cluster's audio
-  //! is a route GET_AUDIO_MAP does not report.
-  //!
-  //! MEASURED, and against expectation. Folding the half into the SELECT the
-  //! way en_w is folded above - two 24-bit selects instead of one 48-bit
-  //! select plus two AND masks, the same total mux width - looked like the
-  //! consistent choice and cost 5289 LC (yosys OOC). This AND mask behind
-  //! the mux costs 3843, against 3528 for the pre-half module. The select
-  //! fold duplicates the whole six-way mux tree; the mask does not. Same
-  //! rule as the en_w note above, opposite answer - which is why both are
-  //! numbers here and neither is an argument.
-  //! HALF-SWAP MUX (USER 2026-08-06). Each channel picks WHICH half of the
-  //! selected source pair feeds it: sel 0 = the natural half (the old fixed
-  //! route), sel 1 = the other one. The ATDECC parity rule existed only
-  //! because this mux did not; with it, "cluster 16 onto channel 6" is a
-  //! route the crossbar makes, and the slot still holds exactly ONE
-  //! {src, idxh, idx} (rule 3 unchanged). The mono TONE bucket is already
-  //! identical on both halves, so its swap is a no-op by construction.
-  wire [23:0] pick_l_w = swap_w[1] ? sel_r_w : sel_l_w;
-  wire [23:0] pick_r_w = swap_w[0] ? sel_l_w : sel_r_w;
-  wire [23:0] out_l_w = pick_l_w & {24{half_w[1]}};
-  wire [23:0] out_r_w = pick_r_w & {24{half_w[0]}};
+  //! An UNMAPPED channel resolves to DIGITAL SILENCE rather than dropping
+  //! out of the walk (Milan v1.2 5.3.9.1 lets a channel be "not mapped";
+  //! 5.3.7.3 still owes the stream its packets). The resolver gates on the
+  //! entry's own enable, so the FSM below stays branch-free.
+  wire [23:0] out_l_w = resolve_ch(ent_l_w);
+  wire [23:0] out_r_w = resolve_ch(ent_r_w);
 
   // ---------------------------------------------------------------------- //
   // Emit walk FSM                                                           //
@@ -635,8 +546,8 @@ module KL_chan_map_capture #(
         end
 
         // -------- inject the current slot --------------------------------
-        //! EVERY slot injects, mapped or not (srcsel_w above already turned
-        //! an unmapped one into silence). Skipping the unmapped ones is what
+        //! EVERY slot injects, mapped or not (the resolver already turned
+        //! unmapped channels into silence). Skipping the unmapped ones is what
         //! made a talker with one unmapped channel stop framing ALTOGETHER:
         //! the packetizer advances nsamp_r per slot it is fed, so a slot that
         //! never pulses stalls that talker's frame forever, and while this

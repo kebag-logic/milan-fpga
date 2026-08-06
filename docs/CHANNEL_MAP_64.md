@@ -297,38 +297,39 @@ The `C` = 8 column is the one the §12.1 walk recipe means by "slots
 the closed form and only the prefix sum holds — which is why the map is
 programmed per slot and never per stream.
 
-### 4.2 Pair granularity (normative), and what it may NOT constrain
+### 4.2 Channel granularity (normative since 0x0027), and history
 
-The capture path is **pair-granular**: L and R of a slot come from ONE
-source pair. Two consequences, and one non-consequence that cost us a
-wire-facing conformance defect on 2026-08-03.
+**ONE CLUSTER == ONE AUDIO CHANNEL (USER 2026-08-06).** The capture
+store holds one entry per **stream channel** (`2*N_SLOTS_P` entries);
+every Stream Output channel independently selects any source pair and
+either half of it. The walk still drains pair slots (the packetizer
+contract is pair-granular, §4.3) but resolves L and R through two
+independent entries.
 
-**Consequences (per-MAPPING rules, delegated by IEEE 1722.1-2021
-7.4.45: "The determination of what constitutes a valid mapping at a
-particular point in time is governed by a set of vendor defined
-rules"):** a mapping whose cluster is the R half of a source pair
-cannot land on an even stream channel and vice versa, and the two
-channels of one slot cannot be fed by two different source pairs. Both
-are refused with `BAD_ARGUMENTS`.
+The pair-granular store this section used to specify forced two vendor
+rules - "a cluster that is the R half of a source pair cannot land on
+an even stream channel" (half parity) and "the two channels of one
+slot cannot be fed by two different source pairs" (one pair per slot).
+**Both are retired.** A one-record `ADD_AUDIO_MAPPINGS` re-pointing
+any single channel at any cluster - the one-click Hive edit - now
+commits. What survives of the 7.4.45.1 vendor-rule delegation:
+the port's OWN stream only; `stream_channel` < the declared format's
+count; the cluster inside the port's pool, mono (`cluster_channel`
+= 0) and resolvable to a capture source; and no two records of one
+command claiming the same channel (Milan 5.4.2.27). A REMOVE writes a
+ZERO entry - silencing one channel touches only it (Milan 5.3.9.1
+makes "not mapped" a legal per-channel state).
 
-**NOT a consequence: the number of mappings in a command.** The engine
-used to refuse an ODD `number_of_mappings` on the grounds that records
-"arrive as L/R-adjacent pairs". No clause permits that. 7.4.45/7.4.46
-bound `number_of_mappings` only by the PDU (9.2.2.6 caps AECP
-`control_data_length` at 524, and the payload is `20 + 8n`, so
-`n <= 63`); Milan v1.2 5.4.2.27/28 enumerate every legal
-`BAD_ARGUMENTS` condition and a record count is not among them; and
-5.4.2.26 states the granularity outright - "at most one dynamic
-mapping per Stream Output's channel". A controller that maps one
-channel at a time (Hive does) had every command rejected.
-
-**Per-channel capture routing is therefore NOT phase 2 - it is
-required.** The map entry carries a per-half enable (`half[13:12]`,
-§5) so a slot can arm one stream channel and leave its sibling silent,
-and the AEM mirror commits each record as a READ-MODIFY-WRITE of its
-slot. Milan 5.3.9.1 lets a Stream Output channel be "not mapped"; an
-unmapped channel that carried the source pair's other half would be a
-route `GET_AUDIO_MAP` does not report.
+**Still NOT a rule: the number of mappings in a command.** The engine
+once refused an ODD `number_of_mappings` on the grounds that records
+"arrive as L/R-adjacent pairs" (wire-facing defect, 2026-08-03). No
+clause permits that. 7.4.45/7.4.46 bound `number_of_mappings` only by
+the PDU (9.2.2.6 caps AECP `control_data_length` at 524, and the
+payload is `20 + 8n`, so `n <= 63`); Milan v1.2 5.4.2.27/28 enumerate
+every legal `BAD_ARGUMENTS` condition and a record count is not among
+them; and 5.4.2.26 states the granularity outright - "at most one
+dynamic mapping per Stream Output's channel". That granularity is now
+also the store's.
 
 ### 4.3 The pair-slot widening (REQUIRED, normative)
 
@@ -350,78 +351,75 @@ The packetizer's *internal* ownership decode needs no logic change —
 The N=1 golden byte-compare gates stay green by construction (slot 0
 encodings are identical in 4 and 5 bits).
 
-## 5. MAP RAM — one shared word format
+## 5. MAP RAM — the two word formats
 
-Two map RAMs, ONE word format (16 bits stored; CSR view zero-extends
-to 32). Per the defect-4 house rule each RAM has one sync write process
-and one explicit sync read port.
+Two map RAMs. Per the defect-4 house rule each RAM has one sync write
+process and one explicit sync read port. Since 0x0027 the two sides
+store DIFFERENT words: the render side keeps the legacy 16-bit
+transport slice; the capture side stores one 13-bit entry per STREAM
+CHANNEL.
 
 | RAM | Entries | Entry index |
 |-----|---------|-------------|
 | `RMAP` (render) | 16 × 16 b | physical output channel `p` (0..15; 10 used, §3) |
-| `CMAP` (capture) | 32 × 16 b | packetizer pair-slot `k` (0..31 — the §4.3 widened space) |
+| `CMAP` (capture) | `2*N_SLOTS_P` × 13 b | **stream channel key** `port*8 + sc` (pair slot `k` walks entries `2k`/`2k+1`) |
 
-**MAP word format (both sides, normative):**
+**RENDER word format (unchanged, normative):**
 
 ```
-[15]    EN      entry enabled. 0 = render: silence / capture: slot not emitted
-[14:12] SRC     source class
-                  render side : 0 = AVTP_RX, 1 = PCM_TX (host playback
-                                ring, roadmap item-7); 2-7 reserved
-                  capture side: 0 = ZERO, 1 = I2S_IN, 2 = TDM8_IN,
-                                3 = PCM_TX, 4 = TONE, 5-7 reserved
-[15:14] (readback only) LOOP capability mask {fed, mapped}
-[13:12] HALF    capture only: per-CHANNEL enable {L_en, R_en} inside an
-                enabled slot. EN says whether the SLOT carries its
-                bucket; HALF says which of its two stream channels
-                does - an ATDECC mapping is per stream channel
-                (7.4.45, Milan 5.4.2.26) while the slot is a pair, so
-                "channel 5 mapped, channel 4 not" is a state a
-                controller may legally ask for. Writers that predate
-                it (the CSR debug window) drive 2'b11 = both halves,
-                which is exactly what an enabled slot used to mean.
+[15]    EN      entry enabled; 0 = silence
+[14:12] SRC     0 = AVTP_RX, 1 = PCM_TX (host playback ring); 2-7 rsvd
 [11:8]  rsvd    write 0, read 0
-[7:4]   IDX_HI  render : AVTP_RX: RX stream index s (0-7)
-                         PCM_TX : high half of the LINEAR playback channel
-                capture: source stream/lane — PCM_TX: talker stream t (0-7);
-                         TDM8_IN: lane (0 in phase 1); I2S_IN/TONE/ZERO: 0
-[3:0]   IDX_LO  render : AVTP_RX: wire channel c (0-7)
-                         PCM_TX : low half of the LINEAR playback channel
-                capture: source pair index — TDM8_IN: 0-3; PCM_TX:
-                         pair-within-stream 0-3; I2S_IN/TONE/ZERO: 0
+[7:4]   IDX_HI  AVTP_RX: RX stream index s (0-7); PCM_TX: high half of
+                the LINEAR playback channel
+[3:0]   IDX_LO  AVTP_RX: wire channel c (0-7); PCM_TX: low half of the
+                LINEAR playback channel
 ```
 
-Nibble-aligned on purpose (hex-readable on the bench: `0x8021` =
-EN | AVTP_RX | stream 2 | channel 1). The 4-bit index fields match the
-fabric-wide "spec-fixed 4-bit stream index" convention (G1's `tuser`).
-Illegal encodings (reserved SRC, out-of-range index for the elaborated
-shape) behave as `EN = 0` — never a lockup, RTL-enforced.
+**CAPTURE entry format (per channel, normative, 0x0027):**
 
-**As wired today (`milan_datapath.sv`, the two `map_wr_data_i` slices).**
-The 16-bit CSR word is the *transport*; each RAM is **8 bits wide** —
-`RMAP` is `N_PHYS_P` = 10 entries deep, `CMAP` is `N_SLOTS_P` = 32 — and
-the two sides take **different slices** of the same word, which is why
-the same hex constant does not mean the same thing on both sides. This
-table is the answer to "I wrote `0x8021`, what did the RAM actually
-receive?":
+```
+[12]    EN      channel mapped; 0 = this stream channel emits silence
+[11]    HALF    which half of the source pair feeds this channel:
+                0 = L (first/even), 1 = R (second/odd). Any channel may
+                take either half of any pair - the §4.2 freedom.
+[10:8]  SRC     0 = ZERO, 1 = I2S_IN, 2 = TDM8_IN, 3 = PCM_TX (host
+                ring), 4 = TONE (mono - both halves carry the pilot),
+                5 = LOOP (rx->talker, task #65); 6-7 reserved
+[7:4]   IDX_HI  source stream/lane — PCM_TX: talker stream t (0-7);
+                LOOP: RX stream; TDM8_IN: lane (0 in phase 1);
+                I2S_IN/TONE/ZERO: 0
+[3:0]   IDX_LO  source pair index — TDM8_IN: 0-3; PCM_TX:
+                pair-within-stream 0-3; LOOP: pair; I2S_IN/TONE/ZERO: 0
+```
+
+The capture entry IS the AEM cluster template (`AEM_ODMAP_CSRC_C`,
+gen_aem_store): the `ADD_AUDIO_MAPPINGS` commit writes the addressed
+channel's template verbatim, `REMOVE` writes 13'h0000. Readback adds
+`{loop_fed, loop_mapped}` above the entry (15 bits, §6). Hex stays
+bench-readable: `0x1B01` = EN | R half | PCM_TX | pair 1. Illegal
+encodings (reserved SRC, out-of-range index for the elaborated shape)
+behave as `EN = 0` — never a lockup, RTL-enforced.
+
+**As wired today (`milan_datapath.sv`, the two `map_wr_data_i` paths).**
+The 16-bit CSR word is the *transport*. The render side keeps its
+8-bit RAM slice; the capture side (0x0027) composes the full 13-bit
+per-channel entry, with `CHMAP_SEL[5:0]` naming a **channel key**, not
+a pair slot:
 
 | `CHMAP_WORD` bit | Render side (`CHMAP_SEL[8] = 0` → RMAP) | Capture side (`CHMAP_SEL[8] = 1` → CMAP) |
 |---|---|---|
-| `[15]` | `en` (RAM bit 7) | `en` (RAM bit 7) |
-| `[14:13]` | *dropped* | `src` high 2 bits (RAM bits 6:5) |
-| `[12]` | `src` — the whole 1-bit source bank (RAM bit 6): 0 = AVB listener, 1 = host playback ring | `src` low bit (RAM bit 4) |
-| `[11:7]` | *dropped* | *dropped* |
-| `[6:4]` | `idx[5:3]` — AVB stream `s`, or `pbch[5:3]` | *dropped* |
-| `[3]` | *dropped* | `idx[3]` |
-| `[2:0]` | `idx[2:0]` — AVB wire channel `c`, or `pbch[2:0]` | `idx[2:0]` |
+| `[15]` | `en` (RAM bit 7) | `EN` (entry bit 12) |
+| `[14:12]` | `[12]` = `src` (RAM bit 6): 0 = AVB listener, 1 = host playback ring; `[14:13]` dropped | `SRC` (entry bits 10:8) |
+| `[11:9]` | *dropped* | *dropped* |
+| `[8]` | *dropped* | `HALF` (entry bit 11) — was reserved, so every pre-0x0027 word means "L half" |
+| `[7:4]` | `[6:4]` = `idx[5:3]` — AVB stream `s`, or `pbch[5:3]`; `[7]` dropped | `IDX_HI` (entry bits 7:4) |
+| `[3:0]` | `[2:0]` = `idx[2:0]` — AVB wire channel `c`, or `pbch[2:0]`; `[3]` dropped | `IDX_LO` (entry bits 3:0) |
 
-So the render RAM entry is `{en, src, idx[5:0]}` and the capture RAM
-entry is `{en, src[2:0], idx[3:0]}`. Bit `[7]` and bits `[11:8]` reach
-neither RAM; the render side additionally drops `[3]`, so **both of its
-index nibbles are carried 3 bits wide** — streams 0..7 and channels
-0..7, exactly the 8×8 shape, and nothing wider is expressible without a
-wider entry. Out-of-range indexes are guarded at the RAM *read*, not at
-the write port, and render as 0 / silence.
+The render RAM entry stays `{en, src, idx[5:0]}` — both of its index
+nibbles carried 3 bits wide (streams 0..7, channels 0..7). Out-of-range
+indexes are guarded at the RAM *read*, not at the write port, and
+render as 0 / silence.
 
 Worked examples, hex as typed at the bench:
 
@@ -429,9 +427,11 @@ Worked examples, hex as typed at the bench:
 |---|---|---|---|
 | `0x8021` | render | `0x91` | EN, AVB, stream 2, channel 1 |
 | `0x9002` | render | `0xC2` | EN, playback ring, linear `pbch` 2 = pair slot 1 LEFT |
-| `0x9000` | capture | `0x90` | EN, `I2S_IN`, pair 0 — the legacy talker-0 wiring |
-| `0xC000` | capture | `0xC0` | EN, `TONE` — the §12 all-slots pilot probe |
-| `0x8000` | capture | `0x80` | EN, `ZERO` — a slot that pulses digital silence |
+| `0x9000` | capture | `0x1100` | EN, `I2S_IN` L, pair 0 onto THIS channel — the legacy wiring, one channel at a time |
+| `0x9100` | capture | `0x1900` | EN, `I2S_IN` R, pair 0 — the same source's other half |
+| `0xC000` | capture | `0x1400` | EN, `TONE` — the §12 pilot, mono so `HALF` is moot |
+| `0xB000` | capture | `0x1300` | EN, host ring pair 0, L half |
+| `0x8000` | capture | `0x1000` | EN, `ZERO` — a channel that pulses digital silence |
 
 **Render `SRC = 1` (PCM_TX), normative.** On the render side the two
 index nibbles are NOT a `{stream, channel}` split: they concatenate into
@@ -443,11 +443,14 @@ NxN shape (`CHANS_P = 2`) pair slot == talker stream index, so talker
 verbatim, and the AEM projector only ever emits `SRC = 0`, so every map
 word written before item-7 means exactly what it did.
 
-**Reset state (N=1 bit-compat axiom):** `RMAP[0] = 0x8000` (EN,
-AVTP_RX, s=0, c=0), `RMAP[1] = 0x8001`, all other RMAP = 0 — today's
-"stream 0 renders ch0/ch1 on I2S" behavior. `CMAP[0] = 0x9000` (EN,
-I2S_IN, pair 0) — today's I2S-capture-feeds-talker-0 wiring. All other
-CMAP = 0.
+**Reset state:** `RMAP[0] = 0x8000` (EN, AVTP_RX, s=0, c=0),
+`RMAP[1] = 0x8001`, all other RMAP = 0 — today's "stream 0 renders
+ch0/ch1 on I2S" behavior (the N=1 bit-compat axiom). `CMAP` resets
+ALL-ZERO: the hardware holds no floor mapping, and the AEM builder
+re-seeds every mapped channel with its cluster template a few cycles
+after reset (one key per idle cycle, §7), so the observable power-on
+map is the entity's identity image — and an all-unmapped map still
+pulses every slot (silence, never absence).
 
 **Capture `SRC = 5` (LOOP — the rx → talker loopback), normative.** The
 capture side's `IDX_HI` nibble is no longer dropped: `SRC = 5` reads it as
@@ -464,13 +467,14 @@ same rule `KL_chan_map_render` and `KL_i2s_playback` apply.
 
 | CSR word | Side | RAM entry | Meaning |
 |---|---|---|---|
-| `0xD000` | capture | `0x0D0` | EN, `LOOP`, RX stream 0, pair 0 = its wire channels 0/1 |
-| `0xD031` | capture | `0x3D1` | EN, `LOOP`, RX stream 3, pair 1 = its wire channels 2/3 |
-| `0xD073` | capture | `0x7D3` | EN, `LOOP`, RX stream 7, pair 3 = its wire channels 6/7 |
+| `0xD000` | capture | `0x1500` | EN, `LOOP`, RX stream 0, pair 0, L = its wire channel 0 |
+| `0xD131` | capture | `0x1D31` | EN, `LOOP`, RX stream 3, pair 1, R = its wire channel 3 |
+| `0xD073` | capture | `0x1573` | EN, `LOOP`, RX stream 7, pair 3, L = its wire channel 6 |
 
-so the word is `0xD000 | (s << 4) | p`. An entry naming a stream or a pair
-this build does not keep renders **silence** and still pulses its slot
-(the §4 "two ways to be silent" rule); `EN = 0` remains absence.
+so the word is `0xD000 | (half << 8) | (s << 4) | p`. An entry naming a
+stream or a pair this build does not keep renders **silence** and still
+pulses its slot (the §4 "two ways to be silent" rule); `EN = 0` remains
+absence.
 
 **Why this source exists.** It is the only per-channel-**distinct**,
 multi-channel audio source the AX7101 has. That board's `_connectors` list
@@ -480,13 +484,11 @@ the TDM slave pins are tied to 0 on every SoC; and `TONE` is by
 construction the *same* sample on L and R (`{tone_smp_i, tone_smp_i}`), so
 it cannot expose a channel swap. A received stream can.
 
-**Entry width (implementation note).** `CMAP` entries are 12 bits:
-`{idxh[11:8], en[7], src[6:4], idx[3:0]}`. Bits `[7:0]` are bit-for-bit the
-pre-loopback byte and still arrive on the module's 8-bit `map_wr_data_i`;
-`idxh` arrives on its own **defaulted** pin (`map_wr_idxh_i`, default 0),
-as do the loopback payload-AXIS pins — so an integration that has not
-wired the listener side yet gets a permanently silent bucket and every map
-word ever written keeps its exact meaning.
+**Entry width (implementation note).** `CMAP` entries are 13 bits,
+`{en[12], half[11], src[10:8], idxh[7:4], idx[3:0]}`, delivered whole
+on `map_wr_data_i[12:0]` with the channel key on `map_wr_addr_i[5:0]`.
+The loopback payload-AXIS pins stay defaulted, so an integration that
+has not wired the listener side yet gets a permanently silent bucket.
 
 **Write-port arbitration (one port, normative):** AEM-projector commit
 wins the port; the CSR debug write takes idle cycles and is *refused*

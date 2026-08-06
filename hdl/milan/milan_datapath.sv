@@ -878,8 +878,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! is the debug port and yields on collision. Same drop-not-truncate
   //! rule: a slot past N_STREAMS*4 is refused, never wrapped.
   wire        aecp_odmap_wr_p_w;
-  wire [4:0]  aecp_odmap_wr_slot_w;
-  wire [15:0] aecp_odmap_wr_word_w;
+  wire [5:0]  aecp_odmap_wr_slot_w;
+  wire [12:0] aecp_odmap_wr_word_w;
 
   //! The RX wire-channel space BOTH channel crossbars de-interleave, defined
   //! ONCE and read twice (KL_chan_map_render.N_CH_P below, and the LOOP
@@ -935,41 +935,29 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .N_LB_CH_P      (LB_CH_C)
   ) chan_map_capture (
     .clk_i (axis_clk), .rst_n (axis_resetn),
+    //! PER-CHANNEL store (0x0027, USER "one cluster == one audio channel"):
+    //! the key space is N_STREAMS*8 channels; the AEM mirror's 13-bit word
+    //! passes straight through. The DEBUG window (bring-up only, ATDECC is
+    //! the authority) composes {en=WORD[15], half=WORD[8], src=WORD[14:12],
+    //! idxh=WORD[7:4], idx=WORD[3:0]} - WORD[8] was reserved.
     .map_wr_en_i   ((aecp_odmap_wr_p_w &&
-                     32'(aecp_odmap_wr_slot_w) < N_STREAMS*4) ||
+                     32'(aecp_odmap_wr_slot_w) < N_STREAMS*8) ||
                     (!aecp_odmap_wr_p_w && cfg_chmap_wr_en &&
                      cfg_chmap_wr_side &&
-                     32'(cfg_chmap_wr_addr) < N_STREAMS*4)),
+                     32'(cfg_chmap_wr_addr) < N_STREAMS*8)),
     .map_wr_addr_i (aecp_odmap_wr_p_w
-                    ? aecp_odmap_wr_slot_w[$clog2(N_STREAMS*4)-1:0]
-                    : cfg_chmap_wr_addr[$clog2(N_STREAMS*4)-1:0]),
-    //! §5 16-bit word -> capture 8-bit {en[7], src[6:4], idx[3:0]}
+                    ? aecp_odmap_wr_slot_w[$clog2(N_STREAMS*8)-1:0]
+                    : cfg_chmap_wr_addr[$clog2(N_STREAMS*8)-1:0]),
     .map_wr_data_i (aecp_odmap_wr_p_w
-                    ? aecp_odmap_wr_word_w[7:0]
-                    : {cfg_chmap_wr_data[15], cfg_chmap_wr_data[14:12],
+                    ? aecp_odmap_wr_word_w
+                    : {cfg_chmap_wr_data[15], cfg_chmap_wr_data[8],
+                       cfg_chmap_wr_data[14:12], cfg_chmap_wr_data[7:4],
                        cfg_chmap_wr_data[3:0]}),
-    //! §5 CHMAP_WORD[7:4] "source stream/lane" -> the LOOP bucket's stream
-    //! select (the documented one-line arming of that bucket from the CSR)
-    .map_wr_idxh_i (aecp_odmap_wr_p_w
-                    ? aecp_odmap_wr_word_w[11:8]
-                    : cfg_chmap_wr_data[7:4]),
-    //! per-half enable {L, R}. The AEM mirror computes it (a Stream Output
-    //! mapping is per CHANNEL, the slot is per PAIR); the CSR debug window
-    //! predates it and keeps its meaning by writing "both halves".
-    .map_wr_half_i (aecp_odmap_wr_p_w
-                    ? aecp_odmap_wr_word_w[13:12]
-                    : 2'b11),
-    //! per-channel half-swap {L_sel, R_sel} (USER 08-06): the AEM mirror
-    //! derives it from cluster-half vs channel parity; the CSR debug window
-    //! predates it and keeps its meaning by writing "natural halves".
-    .map_wr_swap_i (aecp_odmap_wr_p_w
-                    ? aecp_odmap_wr_word_w[15:14]
-                    : 2'b00),
     //! map-RAM readback -> CSR 0x910/0x914. The CSR holds map_rd_en_i with a
     //! stable address until map_rd_valid_o; this port is the ONLY way software
-    //! can tell a mapped-and-never-fed slot from a mapped-and-quiet one.
+    //! can tell a mapped-and-never-fed channel from a mapped-and-quiet one.
     .map_rd_en_i   (cfg_chmap_rd_en && cfg_chmap_rd_side),
-    .map_rd_addr_i (cfg_chmap_rd_addr[$clog2(N_STREAMS*4)-1:0]),
+    .map_rd_addr_i (cfg_chmap_rd_addr[$clog2(N_STREAMS*8)-1:0]),
     .map_rd_data_o (cmap_rd_data_w), .map_rd_valid_o (cmap_rd_valid_w),
     .i2s_pair_valid_i (cappb_pv_w),
     .i2s_l_i (cappb_l_w), .i2s_r_i (cappb_r_w),
@@ -1384,10 +1372,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        cfg_chmap_rd_en;
   wire        cfg_chmap_rd_side;
   wire [5:0]  cfg_chmap_rd_addr;
-  //! {swap[17:16], loop_fed, loop_mapped, half[13:12], entry[11:0]}; the CSR
-  //! debug window keeps its 16-bit ABI below - the swap bits are ATDECC-
-  //! visible through GET_AUDIO_MAP (the store), which is the authority
-  wire [17:0] cmap_rd_data_w;
+  //! {loop_fed[14], loop_mapped[13], entry[12:0]} (0x0027 per-channel)
+  wire [14:0] cmap_rd_data_w;
   wire        cmap_rd_valid_w;
   wire [7:0]  rmap_rd_data_w;     //! render entry only - that RAM has no mask
   logic       rmap_rd_valid_r;
@@ -1400,7 +1386,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     if (!axis_resetn) rmap_rd_valid_r <= 1'b0;
     else              rmap_rd_valid_r <= cfg_chmap_rd_en && !cfg_chmap_rd_side;
   end : rmap_rd_valid_S
-  wire [15:0] cfg_chmap_rd_data  = cfg_chmap_rd_side ? cmap_rd_data_w[15:0]
+  wire [15:0] cfg_chmap_rd_data  = cfg_chmap_rd_side ? {1'b0, cmap_rd_data_w}
                                                      : {8'd0, rmap_rd_data_w};
   wire        cfg_chmap_rd_valid = cfg_chmap_rd_side ? cmap_rd_valid_w
                                                      : rmap_rd_valid_r;

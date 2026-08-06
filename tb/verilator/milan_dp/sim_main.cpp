@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x00010026);
+    ck("VERSION",       axi_read(A_VERSION), 0x00010027);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
@@ -803,8 +803,12 @@ int main(int argc, char** argv) {
                    A_CHMAP_WORD = 0x908 };
             axi_write(0x6DC, 0x1);              // TONE_CTRL.en
             axi_write(A_CHMAP_CTRL, 0x1);       // arm the fabric + CSR port
-            axi_write(A_CHMAP_SEL, 0x100 | 0);  // side=1 capture, slot 0
-            axi_write(A_CHMAP_WORD, 0xC000);    // en | src=4 TONE
+            // per-channel store (0x0027): the window keys CHANNELS, so the
+            // stereo tone takes one write per channel {en|src=4 TONE}
+            axi_write(A_CHMAP_SEL, 0x100 | 0);  // side=1 capture, channel 0
+            axi_write(A_CHMAP_WORD, 0xC000);
+            axi_write(A_CHMAP_SEL, 0x100 | 1);  // ...and channel 1
+            axi_write(A_CHMAP_WORD, 0xC000);
             // capture 8 CONSECUTIVE AAF frames = 48 media ticks; skip the
             // first two so the arming edge is out of the window
             std::vector<uint8_t> fr; std::vector<uint32_t> ls;

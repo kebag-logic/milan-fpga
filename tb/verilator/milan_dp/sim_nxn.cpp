@@ -226,7 +226,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x00010026);
+       axi_read(A_VERSION), 0x00010027);
 
     printf("-- 5.5.2.7 SRP-only licence at t>0 STRAIGHT FROM RESET "
            "(2026-07-30 bite) --\n");
@@ -2777,13 +2777,17 @@ int main(int argc, char** argv) {
         axi_write(A_AAF_CTRL, 0x00020003);
         axi_write(A_LWSRP_CTRL, 0x0);
 
-        // capture map: talker slot 0 AND talker slot 1 <- RING pair 0
-        // (capture word {en[15], src[14:12]=3 RING, idxh[7:4]=0, idx[3:0]})
+        // capture map, PER-CHANNEL (0x0027): channels 0..3 <- RING pair 0,
+        // halves L,R,L,R. Window word {en[15], src[14:12]=3 RING,
+        // half[8], idxh[7:4]=0, idx[3:0]=0}. At 2 wire channels keys 2/3
+        // are talker 1's pair (the same harmless extra coverage the old
+        // slot-1 strobe gave); the 4-wire-channel shape NEEDS all four or
+        // its talker-0 frame carries silence on ch2/ch3.
         axi_write(A_CHMAP_CTRL, 0x1);        // arm the fabric + the CSR port
-        axi_write(A_CHMAP_SEL, 0x100 | 0);   // side=1 capture, slot 0
-        axi_write(A_CHMAP_WORD, 0xB000);     // en | RING | idx 0
-        axi_write(A_CHMAP_SEL, 0x100 | 1);   // slot 1
-        axi_write(A_CHMAP_WORD, 0xB000);     // en | RING | idx 0
+        for (int k = 0; k < 4; k++) {
+            axi_write(A_CHMAP_SEL, 0x100 | k);
+            axi_write(A_CHMAP_WORD, 0xB000 | ((k & 1) << 8));
+        }
 
         // playback engine: ring stream 0 only, silence-on-underrun
         dut->pb_ring_base_i   = 0;
@@ -2972,20 +2976,18 @@ int main(int argc, char** argv) {
         axi_write(A_AAF_CTRL, 0x00020003);
         axi_write(A_LWSRP_CTRL, 0x0);
 
-        // capture map: talker 0's pair slot 0 <- LOOP {stream 1, pair 0}.
-        // CSR word = {en[15], src[14:12]=5 LOOP, idxh[7:4]=stream, idx[3:0]}
-        // - idxh is exactly the "source stream/lane" nibble the AEM seeder
-        // drives, so this is the power-on entry, written by hand.
-        // Pair slots 0 AND 1, because the pair-slot space is shape-dependent
-        // and this harness runs three shapes: at TALKER_WIRE_CHANS_P=2 each
-        // talker owns ONE pair slot (slot t = talker t, so slot 1 is talker
-        // 1 - harmless extra coverage), while the 4-wire-channel shape gives
-        // talker 0 slots {0,1} and needs BOTH strobed before the packetizer
+        // capture map, PER-CHANNEL (0x0027): channels <- LOOP {stream 1,
+        // pair 0}, halves L,R,L,R. CSR word = {en[15], src[14:12]=5 LOOP,
+        // half[8], idxh[7:4]=stream, idx[3:0]=pair}. Four keys because the
+        // harness runs three shapes: at TALKER_WIRE_CHANS_P=2 keys 2/3 are
+        // talker 1 (harmless extra coverage), while the 4-wire-channel
+        // shape needs talker 0's four channels armed before the packetizer
         // can assemble a 4-channel frame at all.
         axi_write(A_CHMAP_CTRL, 0x1);
-        for (int slot = 0; slot < 2; slot++) {
-            axi_write(A_CHMAP_SEL, 0x100 | slot);
+        for (int k = 0; k < 4; k++) {
+            axi_write(A_CHMAP_SEL, 0x100 | k);
             axi_write(A_CHMAP_WORD, (uint32_t)(0x8000 | (5 << 12)
+                                               | ((k & 1) << 8)
                                                | (LB_SID << 4) | 0));
         }
 
@@ -3089,8 +3091,8 @@ int main(int argc, char** argv) {
         // covers exactly this for the front-end path - for as long as
         // CHMAP is armed. Only a datapath leg has both halves in it.
         // Before the fix this loop collected ZERO talker-0 PDUs.
-        for (int slot = 0; slot < 2; slot++) {
-            axi_write(A_CHMAP_SEL, 0x100 | slot);
+        for (int k = 0; k < 4; k++) {
+            axi_write(A_CHMAP_SEL, 0x100 | k);
             axi_write(A_CHMAP_WORD, 0x0000);     // en = 0
         }
         for (int c = 0; c < 20000; c++) step();

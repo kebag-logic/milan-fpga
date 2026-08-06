@@ -132,17 +132,20 @@ static void model_pre_edge() {
 //  wired", which is what the milan_datapath patch does.
 //
 //  Shapes are the REAL ones, not convenient ones:
-//    - the CSR's 16-bit §5 word is SLICED on the way into each RAM exactly
-//      as milan_datapath slices it (CHANNEL_MAP_64.md §5 "as wired today"),
-//      so a round-trip test proves the transport, not a tautology;
+//    - the CSR's 16-bit §5 word is COMPOSED/SLICED on the way into each RAM
+//      exactly as milan_datapath wires it (CHANNEL_MAP_64.md §5 "as wired
+//      today"): render keeps its 8-bit slice, capture composes the 13-bit
+//      PER-CHANNEL entry {en, half, src, idxh, idx} (0x0027), so a
+//      round-trip test proves the transport, not a tautology;
 //    - the capture RAM answers one clock after a held map_rd_en_i, the
 //      registered read port KL_chan_map_capture actually has;
-//    - the capture readback word is Lane 5's widening,
-//      {loop_fed[15], loop_mapped[14], 2'b0, entry[11:0]}. loop_fed is a
+//    - the capture readback word is the per-channel view
+//      {1'b0, loop_fed[14], loop_mapped[13], entry[12:0]}. loop_fed is a
 //      property only the FABRIC can know (has any audio ever reached this
-//      slot?) - here it is a TB-owned flag, which is the point: the CSR
+//      channel?) - here it is a TB-owned flag, which is the point: the CSR
 //      must transport it, never synthesise it.
-static uint8_t  cmap_ram[64], rmap_ram[64];   // 8-bit RAM entries
+static uint16_t cmap_ram[64];                 // 13-bit per-CHANNEL entries
+static uint8_t  rmap_ram[64];                 // 8-bit render entries
 static bool     cmap_fed[64];                 // fabric's "ever fed" observation
 static bool     chmap_answer = true;          // false = declared but silent
 static int      chmap_v_q;                    // registered read-port pipeline
@@ -156,9 +159,9 @@ static void chmap_model_pre_edge() {
     int a = dut->o_chmap_rd_addr & 63;
     chmap_v_q = 1;
     if (dut->o_chmap_rd_side)                       // CMAP (capture)
-      chmap_d_q = ((uint32_t)(cmap_fed[a] ? 1 : 0) << 15) |
-                  ((uint32_t)((cmap_ram[a] >> 7) & 1) << 14) |
-                  (uint32_t)cmap_ram[a];
+      chmap_d_q = ((uint32_t)(cmap_fed[a] ? 1 : 0) << 14) |
+                  ((uint32_t)((cmap_ram[a] >> 12) & 1) << 13) |
+                  (uint32_t)(cmap_ram[a] & 0x1FFF);
     else                                            // RMAP (render): no mask
       chmap_d_q = (uint32_t)rmap_ram[a];
   } else {
@@ -178,9 +181,11 @@ static void posedge() {
   if (dut->o_chmap_wr_en) {
     int a = dut->o_chmap_wr_addr & 63;
     uint32_t d = dut->o_chmap_wr_data;
-    if (dut->o_chmap_wr_side)   // capture: {en[15], src[14:12], idx[3:0]}
-      cmap_ram[a] = (uint8_t)((((d >> 15) & 1) << 7) |
-                              (((d >> 12) & 7) << 4) | (d & 0xF));
+    if (dut->o_chmap_wr_side)   // capture (0x0027): compose the 13-bit
+                                // entry {en, half=WORD[8], src, idxh, idx}
+      cmap_ram[a] = (uint16_t)((((d >> 15) & 1) << 12) |
+                               (((d >>  8) & 1) << 11) |
+                               (((d >> 12) & 7) <<  8) | (d & 0xFF));
     else                        // render:  {en[15], src[12], idx[6:4], idx[2:0]}
       rmap_ram[a] = (uint8_t)((((d >> 15) & 1) << 7) |
                               (((d >> 12) & 1) << 6) |
@@ -489,37 +494,37 @@ int main(int argc, char** argv) {
       return axi_read(A_CH_LOOP);
     };
 
-    // program capture slot 5 through the debug write port. 0x9000 = EN |
-    // I2S_IN | pair 0 (CHANNEL_MAP_64.md §5 worked example), which the
-    // datapath slices to RAM entry 0x90.
+    // program capture CHANNEL 5 through the debug write port. 0x9000 =
+    // EN | I2S_IN | pair 0, L half (CHANNEL_MAP_64.md §5 worked example),
+    // which the datapath composes into the 13-bit entry 0x1100 (0x0027).
     axi_write(A_CH_CTRL, 1);                    // arm the override
     axi_write(A_CH_SEL, 0x105);                 // side = capture, index = 5
     axi_write(A_CH_WORD, 0x9000);
     for (int i = 0; i < 4; ++i) posedge();
-    ck("fabric RAM took the sliced entry", cmap_ram[5], 0x90);
+    ck("fabric RAM took the composed entry", cmap_ram[5], 0x1100);
 
     // ---- state 1: mapped AND fed -------------------------------------
     cmap_fed[5] = true;
     uint32_t v = snap(0x105);
-    ck("S1 read-back-what-was-written", v & 0xFFF, 0x090);
+    ck("S1 read-back-what-was-written", v & 0x1FFF, 0x1100);
     ck("S1 valid",       (v >> 26) & 1, 1);
     ck("S1 mask_valid",  (v >> 27) & 1, 1);
     ck("S1 mapped",      (v >> 16) & 1, 1);
     ck("S1 fed",         (v >> 17) & 1, 1);
     ck("S1 LOOP_SUSPECT",(v >> 18) & 1, 0);
     ck("S1 {side,index} echo", (v >> 19) & 0x7F, (5u << 1) | 1u);
-    ck("S1 whole word", v, 0x0C5BC090u);
+    ck("S1 whole word", v, 0x0C5B7100u);
 
     // ---- state 2: MAPPED BUT NEVER FED (the defect signature) ---------
     //  same map entry, same CSR shadow, same 0x908 readback - the ONLY
     //  thing that changed is a fabric observation, and it is now visible.
     cmap_fed[5] = false;
     uint32_t v2 = snap(0x105);
-    ck("S2 same entry as S1",   v2 & 0xFFF, 0x090);
+    ck("S2 same entry as S1",   v2 & 0x1FFF, 0x1100);
     ck("S2 mapped",            (v2 >> 16) & 1, 1);
     ck("S2 fed",               (v2 >> 17) & 1, 0);
     ck("S2 LOOP_SUSPECT",      (v2 >> 18) & 1, 1);
-    ck("S2 whole word", v2, 0x0C5D4090u);
+    ck("S2 whole word", v2, 0x0C5D3100u);
     ck("S2 differs from S1", v2 != v, 1);
     ck("0x908 shadow CANNOT see it", axi_read(A_CH_WORD), 0x9000);
 
@@ -568,7 +573,7 @@ int main(int argc, char** argv) {
     // recovery: the next snapshot measures again
     cmap_fed[5] = true;
     uint32_t v4 = snap(0x105);
-    ck("recovered after timeout", v4, 0x0C5BC090u);
+    ck("recovered after timeout", v4, 0x0C5B7100u);
     ck("timeout flag cleared by the new arm", (axi_read(A_CH_SNAP) >> 2) & 1, 0);
     axi_write(A_CH_CTRL, 0);
     printf("  [%s] chmap readback: mapped/fed/unmapped are distinguishable,"
