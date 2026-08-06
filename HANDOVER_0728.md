@@ -28,7 +28,7 @@ One defect class, found five times:
 | 5 | `cfg_aaf_bypass` overrode ACMP+lwSRP | fabric already knew the answer |
 
 **A declaration nobody checked against the thing it describes.** That is roadmap
-item 00, and it is why `docs/testing/methodology.md` names **L1 (binding)** as
+item 00, and it is why [`docs/testing/methodology.md`](docs/testing/methodology.md) names **L1 (binding)** as
 the missing test tier — six of its nine documented escapes live there.
 
 The sharpest instance is self-referential: `cfg_aaf_bypass` existed because this
@@ -54,16 +54,16 @@ re-deployed. No ACMP binds are up. The bench is clean.
 
 **Access** (unchanged from the 07-27 handover):
 ```bash
-ssh amx-pw0                                  # peer, has the AVB iface enp6s0
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@192.168.127.1
-ssh amx-ubuntu-server                        # ProfiShark capture host  <-- NEW
-ssh amx-pi 'powerstrip status|on N|off N'    # OUT5 = "DN-1", unidentified
+ssh <peer-host>                                  # peer, has the AVB iface enp6s0
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@<bench-net>.1
+ssh <capture-host>                        # ProfiShark capture host  <-- NEW
+ssh <power-controller> 'powerstrip status|on N|off N'    # OUT5 = "DN-1", unidentified
 ```
 
-**The inline taps are on `amx-ubuntu-server`, and they are the best instrument
+**The inline taps are on `<capture-host>`, and they are the best instrument
 on this bench.** Identified empirically, not assumed:
-- `enxe8eb1b37e2c0` → **ALINX ↔ switch**
-- `enxe8eb1b39111a` → **Arty ↔ switch**
+- `<tap1-iface>` → **ALINX ↔ switch**
+- `<tap2-iface>` → **Arty ↔ switch**
 
 Tools deployed there: `/tmp/tapclass.py <if> <secs>` (tagged/VID/PCP/subtype/src)
 and `/tmp/msrp.py` (MSRP declaration decoder). **Both handle the 28-byte
@@ -132,7 +132,7 @@ as a regression.
    arithmetic still misses some Listener attributes — **cross-check at byte
    level**: scan for a byte in {1,2,3,4} followed by its mandated
    AttributeLength {25,34,8,4}.
-3. **The standards ARE on this box**: `/home/alex/standards/` (1722.1-2021,
+3. **The standards ARE on this box**: `$STANDARDS_DIR/` (1722.1-2021,
    1722-2016, Milan v1.2 Final, the media-clocking spec, the end-station
    validation test plan). `$STANDARDS_DIR` is merely **unset**, which made
    several lanes conclude they were paywalled and fall back to the repo's
@@ -286,16 +286,16 @@ defect from the mis-framing item 00 closed.
 
 ## 9. Documentation written this session
 
-- **`docs/testing/methodology.md`** — NORMATIVE. Six levels, seven rules
+- **[`docs/testing/methodology.md`](docs/testing/methodology.md)** — NORMATIVE. Six levels, seven rules
   (R1–R7), what a lane owes, and the "a bug found outside your subject gets a
   new lane with fresh context" rule. Read this first.
-- `docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD.md` — D7, reproduced 2/2.
-- `docs/MILAN_COMPLIANCE_GAPS.md` — item 00 updated with what landed.
-- `docs/findings/BENCH_TOPOLOGY.md` — the boot provisioning value corrected.
-- `docs/reference/REGISTER_MAP.md` — `AAF_CTRL` reset, `CHMAP_SNAP/LOOP`,
+- [`docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD.md`](docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD.md) — D7, reproduced 2/2.
+- [`docs/MILAN_COMPLIANCE_GAPS.md`](docs/MILAN_COMPLIANCE_GAPS.md) — item 00 updated with what landed.
+- [`docs/findings/BENCH_TOPOLOGY.md`](docs/findings/BENCH_TOPOLOGY.md) — the boot provisioning value corrected.
+- [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md) — `AAF_CTRL` reset, `CHMAP_SNAP/LOOP`,
   VERSION-as-ATDECC-version.
-- Traceability rows across `ieee1722-2016.md`, `ieee1722_1-2021.md`,
-  `milan-v12.md`, `ieee8021as.md`, `ieee8021q.md`.
+- Traceability rows across [`ieee1722-2016.md`](docs/traceability/ieee1722-2016.md), [`ieee1722_1-2021.md`](docs/traceability/ieee1722_1-2021.md),
+  [`milan-v12.md`](docs/traceability/milan-v12.md), [`ieee8021as.md`](docs/traceability/ieee8021as.md), [`ieee8021q.md`](docs/traceability/ieee8021q.md).
 
 **Memory** (`~/.claude/projects/.../memory/`) carries the durable facts:
 `standards-pdfs-are-on-this-box`, `d7-gm-loss-rx-queues-rootcause`,

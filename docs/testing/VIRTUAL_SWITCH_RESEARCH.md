@@ -5,7 +5,7 @@ implementation. This selects the switch architecture for the T2/T3 virtual wire.
 A primary-source citation pass (Opus research task) is deferred; the claims here
 are derived from the referenced kernel/P4 docs and the project's own constraints
 and are marked where they must still be independently sourced. Companion docs:
-`VIRTUAL_E2E_QEMU.md`, `TRUE_E2E_REQUIREMENTS.md`, `VIRTUAL_E2E_HOWTO.md`.
+[`VIRTUAL_E2E_QEMU.md`](VIRTUAL_E2E_QEMU.md), [`TRUE_E2E_REQUIREMENTS.md`](TRUE_E2E_REQUIREMENTS.md), [`VIRTUAL_E2E_HOWTO.md`](VIRTUAL_E2E_HOWTO.md).
 
 **User directive:** the Ethernet wire attaches directly to a RAW socket; find a
 good real-time virtual switch (P4, kernel, or pure userspace) that could satisfy

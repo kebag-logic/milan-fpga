@@ -480,10 +480,9 @@ host-only.
 ## 7. Known gaps (kept honest)
 
 * **The BDD conformance suite runs on every verification round** (USER standing
-  order, 2026-07-26). `cd tests && behave` — 22 features / 116 scenarios /
-  1182 steps, offline by default (the Python models in `tests/steps` mirror the
-  order, 2026-07-26). `cd tests && behave` — 22 features / 122 scenarios /
-  1215 steps, offline by default (the Python models in `tests/steps` mirror the
+  order, 2026-07-26). `cd tests && behave` — 45 features / 594 scenarios /
+  3548 steps (measured 2026-08-06; the run's own tally is authoritative,
+  prose counts go stale), offline by default (the Python models in `tests/steps` mirror the
   RTL, so it needs no DUT binary and no simulator, and finishes in ~3 s). It is
   the spec-facing counterpart to the Verilator suites: those prove the RTL does
   what it does, this proves it does what the standard says. Wired in as the

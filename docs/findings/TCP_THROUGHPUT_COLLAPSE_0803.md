@@ -143,13 +143,13 @@ The chain, each step sourced:
 
 | Configuration | RX Mbit/s | Source |
 |---|---|---|
-| dual-hart RV64 + RSC + 2-queue fan-out | **223** | `PERFORMANCE_GOAL.md:131` (TX 238-247) |
-| dual-hart RV64 + RSC, single flow | **209** | `PERFORMANCE_GOAL.md:681` |
+| dual-hart RV64 + RSC + 2-queue fan-out | **223** | `[PERFORMANCE_GOAL.md](PERFORMANCE_GOAL.md):131` (TX 238-247) |
+| dual-hart RV64 + RSC, single flow | **209** | `[PERFORMANCE_GOAL.md](PERFORMANCE_GOAL.md):681` |
 | dual-hart RV64, **no RSC** | **~43** | `kl-eth.c:221` *"measured TCP RX 43 -> 209 Mbit/s on silicon"*; `milan_soc.py --no-rx-rsc` help: *"expect the pre-RSC ~43 Mbit/s TCP RX regime"* |
 | **single-hart RV32, no RSC (this build)** | **~15-20 (estimate)** | Derated, reasoning below - NOT measured, no dual-hart RV32 reference exists |
 | **this build, as found on a contended bench** | **~2-10 (measured)** | This document |
 
-The single-hart derate is the step the brief did not account for. `PERFORMANCE_GOAL.md:112`
+The single-hart derate is the step the brief did not account for. `[PERFORMANCE_GOAL.md](PERFORMANCE_GOAL.md):112`
 records how the historical regime actually ran:
 
 > "Both harts are 100 % (cpu0 all-softirq, cpu1 all-sys/copy)"

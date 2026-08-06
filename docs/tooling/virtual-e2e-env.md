@@ -141,11 +141,11 @@ cross-run object cache to invalidate.
 
 - **RV32 OpenSBI firmware: PRESENT (found 2026-08-01).** It is not in either
   repo tree, but it exists in the `milan-tests-avb` tree:
-  `/home/alex/milan-tests-avb/fpga/boot/opensbi_ax_vexii_rv32.bin`
+  `$HOME/milan-tests-avb/fpga/boot/opensbi_ax_vexii_rv32.bin`
   (265,004 B, 2026-07-31 20:24). Embedded-DTB strings verified present:
   `litex,alinx_ax7101`, `audio@f0003120`, `kl,milan-pcm` — the correct RV32 tree
   with the PCM node, so the stale-DTB foot-gun does not apply. Rebuilt
-  deterministically by `/home/alex/milan-tests-avb/fpga/boot/build_opensbi.sh`
+  deterministically by `$HOME/milan-tests-avb/fpga/boot/build_opensbi.sh`
   (OpenSBI 1.7 `litex_nax` platform; XLEN derived from `$CROSS`; an explicit
   XLEN/DTB-agreement gate refuses an sv39 tree under an RV32 build).
 - **Caveat (do not overclaim):** that firmware is a *custom LiteX* OpenSBI with

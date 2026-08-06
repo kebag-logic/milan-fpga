@@ -4,8 +4,8 @@ Status: **REFINED 2026-08-01 (v2).** Supersedes v1 of this page. It scopes what
 "true end-to-end" means for this tree, the refined requirements R1–R8, and the
 T0–T6 task list updated for: **RV32 as the default** (RV64 behind a flag),
 **T3 = machine-to-machine verification**, and a **Verilator multithreading
-policy**. It assumes `VIRTUAL_E2E_PLAN.md` is read; it complements the operator
-guide `VIRTUAL_E2E_HOWTO.md` and the env inventory `../tooling/virtual-e2e-env.md`.
+policy**. It assumes [`VIRTUAL_E2E_PLAN.md`](VIRTUAL_E2E_PLAN.md) is read; it complements the operator
+guide [`VIRTUAL_E2E_HOWTO.md`](VIRTUAL_E2E_HOWTO.md) and the env inventory [`../tooling/virtual-e2e-env.md`](../tooling/virtual-e2e-env.md).
 
 ## 1. What "true E2E" means (the bar, stated explicitly)
 
@@ -26,11 +26,11 @@ This is the single most important sentence on this page.
 
 | # | gap | evidence | consequence |
 |---|---|---|---|
-| G1 | Linux image never booted in sim | only BIOS→`MILN` proven (`evidence/M-A2-2026-08-01.md`) | no software-plane provisioning coverage |
+| G1 | Linux image never booted in sim | only BIOS→`MILN` proven ([`evidence/M-A2-2026-08-01.md`](evidence/M-A2-2026-08-01.md)) | no software-plane provisioning coverage |
 | ~~G2~~ | ~~no RV32 OpenSBI firmware~~ | **RESOLVED 2026-08-01** — see R2 below | QEMU RV32 boot is now unblocked |
 | G3 | no packet I/O in `milan_sim.py` | SimConfig has only `serial2console`; no ethernet module / TAP | protocol plane untestable in the SoC sim today |
 | G4 | no independent oracle attached | `tsn_fuzz` bridges are per-module fuzzers, not an E2E enumerator | oracle plane missing |
-| G5 | docs lacked the three directives | now addressed by this v2 + `VIRTUAL_E2E_HOWTO.md` | closed |
+| G5 | docs lacked the three directives | now addressed by this v2 + [`VIRTUAL_E2E_HOWTO.md`](VIRTUAL_E2E_HOWTO.md) | closed |
 | G6 | HOWTO missing | now written | closed |
 
 ## 3. Refined requirements (numbered, testable)
@@ -45,11 +45,11 @@ fallback. The RV64 lane must be exercised at least once after the default
 lands — an untested flag is a broken flag.
 
 **R2 — RV32 OpenSBI firmware (G2, RESOLVED).** The firmware **exists** at
-`/home/alex/milan-tests-avb/fpga/boot/opensbi_ax_vexii_rv32.bin` (265,004 B,
+`$HOME/milan-tests-avb/fpga/boot/opensbi_ax_vexii_rv32.bin` (265,004 B,
 2026-07-31 20:24). Verified embedded DTB strings: `litex,alinx_ax7101`,
 `audio@f0003120`, `kl,milan-pcm` — the correct RV32 tree with the PCM node, so
 the stale-DTB foot-gun does not apply. It is rebuilt deterministically by
-`/home/alex/milan-tests-avb/fpga/boot/build_opensbi.sh` (OpenSBI 1.7
+`$HOME/milan-tests-avb/fpga/boot/build_opensbi.sh` (OpenSBI 1.7
 `litex_nax` platform; XLEN derived from `$CROSS`, with an explicit
 XLEN/DTB-agreement gate that refuses an sv39 tree under an RV32 build). For a
 QEMU RV32 boot the tuple is: `-bios opensbi_ax_vexii_rv32.bin`, kernel
@@ -117,7 +117,7 @@ are reproducible commit-over-commit.
 | # | task | engine | acceptance (must be able to FAIL) | status |
 |---|---|---|---|---|
 | **T0** | env inventory + artifact provenance (hashes) | host | `env-check` records hashes; RV32 tuple complete | **mostly DONE** (env doc + runner); add firmware hash |
-| **T1** | reproduce M-A2 (RV32 default) | LiteX Verilator SoC | `ID='MILN'` at `0x90000000`; exit 0 | **DONE** (`M-A2-2026-08-01.md`) |
+| **T1** | reproduce M-A2 (RV32 default) | LiteX Verilator SoC | `ID='MILN'` at `0x90000000`; exit 0 | **DONE** ([`M-A2-2026-08-01.md`](evidence/M-A2-2026-08-01.md)) |
 | **T2** | boot real RV32 image, run `S50milan`, assert CSR end-state + first ADPDU | LiteX sim (or QEMU+verilated) | R4 (a)+(b)+(c) | OPEN — needs R2 firmware + R3 wire |
 | **T3** | **machine-to-machine** virtual verification | two nodes, virtual L2 | R5 enumerate + stale-AEM negative control | OPEN — needs R3 + independent controller |
 | **T4** | harness virtual-bench transport | `harness/transport_virtual.py` | 8-phase campaign board-less; FAILED/BLOCKED intact | OPEN |

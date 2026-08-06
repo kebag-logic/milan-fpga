@@ -186,9 +186,9 @@ the next flash buys) **[session-lore, verify the exact device numbers on the
 new image]**:
 
 ```sh
-# on amx-pw0 (the board has no decoder): decode + push
+# on <peer-host> (the board has no decoder): decode + push
 ffmpeg -i track.flac -f s32be -ar 48000 -ac 8 track.raw     # or flac -d
-ssh root@192.168.127.1 "cat > /tmp/track.raw" < track.raw    # dropbear: no sftp
+ssh root@<bench-net>.1 "cat > /tmp/track.raw" < track.raw    # dropbear: no sftp
 # on the board: card "Milan", playback PCM = the KL_pcm_tx pb ring
 aplay -D hw:Milan,0 -f S32_BE -r 48000 -c 8 /tmp/track.raw
 # bind talker 0 -> a peer (p) primary, then verify AT THE TAP + on the peer
@@ -218,7 +218,7 @@ AX_FTDI=210512180081 KERNEL=... DTB=... OPENSBI=... ROOTFS=... \
 # SHARED-OVERLAY TRAP: the rv32 ring blobs replaced the rv64 ones in the
 #   buildroot overlay (rv64 originals in board/milan_naxriscv/rv64-archive/);
 #   restore them before any rv64 rebuild.
-ssh amx-pi 'powerstrip off 0; sleep 6; powerstrip on 0'      # OUT0 = the AX
+ssh <power-controller> 'powerstrip off 0; sleep 6; powerstrip on 0'      # OUT0 = the AX
 # then: devmem 0x90000004 == 0x00010021 (until VERSION is bumped),
 #       cat /sys/class/net/eth0/flags == 0x1203 (shield posture),
 #       console CP2102N @115200 (currently /dev/ttyUSB1 - DRAIN it first,

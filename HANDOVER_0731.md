@@ -1,6 +1,6 @@
 # HANDOVER — 2026-07-31
 
-Repo: `/home/alex/prjs-avb-on-fpga/milan-fpga`, branch **`main-push`**, head `31861d7e`
+Repo: `~/prjs/milan-fpga`, branch **`main-push`**, head `31861d7e`
 (everything below is pushed).
 
 ---
@@ -19,7 +19,7 @@ Then read the verdict — a waiter is already writing it, or reproduce it:
 
 ```sh
 for d in x32 x32alt x32ext; do
-  L=/home/alex/litex-milan/work/build_ax7101_$d/gateware/vivado.log
+  L=<litex-work>/litex-milan/work/build_ax7101_$d/gateware/vivado.log
   printf "%-8s " "$d"
   if grep -q "write_bitstream completed" $L 2>/dev/null; then echo "CLOSED - FITS"
   else grep -oE "require [0-9]+ slices|of which [0-9]+ slices are available" $L | tail -2 | tr '\n' ' '; echo; fi
@@ -71,13 +71,13 @@ exactly one check (`got=0x49 exp=0x79`).
 | | Arty | ALINX (AX7101) |
 |---|---|---|
 | gateware | **0x0021 — verified on silicon** | 0x0016 (nothing newer fits yet) |
-| reach | `ssh amx-pw0` then `ssh -i ~/.ssh/id_rsa root@192.168.127.3` | same, `…@192.168.127.1` |
+| reach | `ssh <peer-host>` then `ssh -i ~/.ssh/id_rsa root@<bench-net>.3` | same, `…@<bench-net>.1` |
 | console | `/dev/ttyUSB4` @115200 | `/dev/ttyUSB0` (CP2102) |
-| power | **USB — restarts under load** | strip **OUT0** (`ssh amx-pi 'powerstrip toggle 0'`) |
+| power | **USB — restarts under load** | strip **OUT0** (`ssh <power-controller> 'powerstrip toggle 0'`) |
 | software | current | **updated today** — `gptp2csr.sh` 3,589 → 16,054 B |
 
 **SSH traps.** `id_ed25519` is rejected — the board takes **`id_rsa`**, which
-lives on `amx-pw0`, not the dev box. `scp` needs **`-O`** (dropbear has no
+lives on `<peer-host>`, not the dev box. `scp` needs **`-O`** (dropbear has no
 SFTP). `pkill` does not exist on the busybox rootfs — kill by PID.
 
 **Console trap.** The FTDI buffer holds stale bytes: opening the port replays
@@ -148,13 +148,13 @@ opensbi is the only tree the kernel sees") — so a DTB change means OpenSBI
 must be **rebuilt**, not just re-flashed.
 
 **ROOTFS:** a buildroot incremental rebuild was running against
-`/home/alex/prjs-avb-on-fpga/srcs/buildroot` (tag 2026.05) →
-`/home/alex/br-milan-output` (13 GB, toolchain prebuilt). **Check it finished
+`<buildroot-src>` (tag 2026.05) →
+`<buildroot-output>` (13 GB, toolchain prebuilt). **Check it finished
 and that the new `rootfs.cpio.gz` actually contains `gptp2csr.sh`** before
 flashing — the old image is dated 2026-07-05 and flashing it reverts a month
 of board software including the `tu=1` fix.
 
-Then **cold-cycle via the strip** (`ssh amx-pi 'powerstrip off 0; sleep 6; powerstrip on 0'`)
+Then **cold-cycle via the strip** (`ssh <power-controller> 'powerstrip off 0; sleep 6; powerstrip on 0'`)
 and verify `devmem 0x90000004` reads `0x00010021`.
 
 ---
@@ -243,6 +243,6 @@ are features that postdate its 0x0016 image.
   not match Vivado (the output dir is not in its argv — kill by
   `/proc/<pid>/cwd` instead).
 
-Corrections to `/home/alex/milan-fpga-hermes/RESOURCE_PLAN.md` are in its §7
+Corrections to `<worktree>/RESOURCE_PLAN.md` are in its §7
 (shortfall 734 not 805, CPU row reopened at RV32, tier-1 already spent,
 tier-2 a no-op at 8×8, yosys calibration is block-dependent).

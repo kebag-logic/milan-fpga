@@ -1,7 +1,7 @@
 # BDD Conformance Testing — How It Runs
 
 **Branch:** `test-bdd-conformance`  
-**Workspace:** `/home/alex/milan-fpga-hermes`  
+**Workspace:** `<worktree>`  
 **Commit:** `382fe49` — `extend BDD conformance with ADP/SRP/entity-model/AECP/notification coverage`  
 **Author:** hackerman-kl  
 
@@ -39,20 +39,20 @@ No simulator, no FPGA, no external tools needed.
 
 ### For the `@tsn_gen` features (pre-existing)
 
-The tsn-gen packet generator at `/home/alex/tsn-gen`:
+The tsn-gen packet generator at `$HOME/tsn-gen`:
 
 ```bash
 # The environment.py defaults to ~/tsn-gen (note: hyphen, not underscore)
 # If it's elsewhere, export TSAGEN_DIR:
-export TSAGEN_DIR=/home/alex/tsn-gen
+export TSAGEN_DIR=$HOME/tsn-gen
 
 # The packet_gen binary must be built:
-# /home/alex/tsn-gen/build/traffic-gen/packet_gen --version  →  packet_gen 0.1.0
+# $HOME/tsn-gen/build/traffic-gen/packet_gen --version  →  packet_gen 0.1.0
 ```
 
 ### For the bench-level features (in milan-tests-avb)
 
-The sibling repo `/home/alex/milan-tests-avb/` contains on-board test tools and
+The sibling repo `$HOME/milan-tests-avb/` contains on-board test tools and
 bench-level behave features that require real hardware:
 
 ```
@@ -91,11 +91,11 @@ These are NOT part of the offline CI gate — they run on the bench.
 ### Run the full BDD suite (all 41 features, including tsn_gen)
 
 ```bash
-cd /home/alex/milan-fpga-hermes/tests
+cd <worktree>/tests
 
-# tsn-gen is at /home/alex/tsn-gen (environment.py defaults to ~/tsn-gen)
+# tsn-gen is at $HOME/tsn-gen (environment.py defaults to ~/tsn-gen)
 # If your checkout is elsewhere:
-export TSAGEN_DIR=/home/alex/tsn-gen
+export TSAGEN_DIR=$HOME/tsn-gen
 
 behave -f plain --no-capture
 ```
@@ -219,7 +219,7 @@ The test checks the **actual generated JSON**, not a hand-maintained copy.
 The `@tsn_gen` features (e.g. `aecp_milan_v12_tsn_gen.feature`, `acmp_listener_tsn_gen.feature`)
 use the tsn-gen `packet_gen` binary to:
 
-1. Generate wire-accurate frames from YAML protocol models (`/home/alex/tsn-gen/protocols/`)
+1. Generate wire-accurate frames from YAML protocol models (`$HOME/tsn-gen/protocols/`)
 2. Patch specific fields bit-exactly
 3. Decode every patched field back through `packet_gen --decode` (bidirectional oracle)
 4. Drive the Milan semantic models that mirror `KL_aecp_response_builder` / `KL_acmp_listener`
@@ -327,10 +327,10 @@ with a built `packet_gen`). They skip cleanly when absent.
 
 | Repo | Path | Purpose |
 |------|------|---------|
-| milan-fpga | `/home/alex/prjs-avb-on-fpga/milan-fpga` | The source RTL repo (main worktree) |
-| milan-fpga-hermes | `/home/alex/milan-fpga-hermes` | Clean clone for validation (this branch) |
-| tsn-gen | `/home/alex/tsn-gen` | Packet generator for wire-accurate frame building |
-| milan-tests-avb | `/home/alex/milan-tests-avb` | Bench-level tests, torture campaign, on-board tools |
+| milan-fpga | `~/prjs/milan-fpga` | The source RTL repo (main worktree) |
+| milan-fpga-hermes | `<worktree>` | Clean clone for validation (this branch) |
+| tsn-gen | `$HOME/tsn-gen` | Packet generator for wire-accurate frame building |
+| milan-tests-avb | `$HOME/milan-tests-avb` | Bench-level tests, torture campaign, on-board tools |
 
 ---
 
