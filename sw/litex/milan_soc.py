@@ -1065,7 +1065,9 @@ class MilanMAC(LiteXModule):
         else:
             eth_ck = ("[get_clocks -of_objects [get_ports %s]]"
                       % eth_clk_groups[0])
-            part_cks = "[get_clocks {crg_clkout0 crg_clkout1}]"
+            # LiteX templates additional_xdc_commands through str.format -
+            # literal TCL braces must be doubled or they parse as format keys
+            part_cks = "[get_clocks {{crg_clkout0 crg_clkout1}}]"
             for a, b in ((eth_ck, part_cks), (part_cks, eth_ck)):
                 platform.toolchain.additional_xdc_commands.add(
                     "set_false_path -hold -from %s -to %s" % (a, b))
@@ -1077,8 +1079,8 @@ class MilanMAC(LiteXModule):
             # PLL-related
             platform.toolchain.additional_xdc_commands.add(
                 "set_clock_groups -asynchronous -group %s -group "
-                "[get_clocks {crg_audio_ref_raw crg_audio_mclk_raw "
-                "crg_pll_audio_fb crg_clkout2 crg_clkout3 crg_clkout4}]"
+                "[get_clocks {{crg_audio_ref_raw crg_audio_mclk_raw "
+                "crg_pll_audio_fb crg_clkout2 crg_clkout3 crg_clkout4}}]"
                 % eth_ck)
 
         # MAC-path supervised reset (link-bounce wedge, 2026-07-19): the eth
