@@ -164,6 +164,12 @@ run: $(GEN_ALL)
 # than not-armed-yet zeros. The two legs answer different questions and both
 # stay.
 	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) --Mdir obj_prune $(PRUNE_G) $(SRCS) sim_prune.cpp -o Vmilan_dp_prune
+# task #19 (silicon 2026-08-06): the CPU DMA-TX lane vs the Table 5.22 push
+# machinery. NOTHING else in the suite ever REGISTERs a controller, so the
+# 0x0024 push arms had zero desk coverage - this leg keeps them exercised
+# against the TX trunk (registered controller + GM-flip pushes + bind churn
+# + continuous best-effort CPU frames under a paced-MAC model).
+	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) --Mdir obj_txg $(SRCS) sim_txgrant.cpp -o Vmilan_dp_txg
 	@echo "======================================================================"
 	./obj_dir/Vmilan_dp_sim
 	./obj_nxn/Vmilan_dp_nxn
@@ -174,6 +180,8 @@ run: $(GEN_ALL)
 	./obj_nolpf/Vmilan_dp_nolpf
 	@echo "---- all six tier-1 blocks pruned ----"
 	./obj_prune/Vmilan_dp_prune
+	@echo "---- task #19: TX grants under registered-controller pushes ----"
+	./obj_txg/Vmilan_dp_txg
 
 clean:
-	rm -rf obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune
+	rm -rf obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_txg
