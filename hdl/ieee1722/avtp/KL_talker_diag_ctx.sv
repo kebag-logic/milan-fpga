@@ -167,7 +167,6 @@ module KL_talker_diag_ctx #(
   //! USER 2026-08-05 FRAMES_TX law (ATDECC quantity, Milan cadence): count
   //! FRAMES, publish coalesced at the interval close - the counter advances
   //! by the interval's frame total, not +1. Saturating 16-bit per context.
-  logic [15:0]        facc_r [N_CTX_P];
   logic [N_CTX_P-1:0] seen_tu_r;   //! ... with tu set
   logic [N_CTX_P-1:0] seen_mr_r;   //! ... with mr toggled
   logic [N_CTX_P-1:0] strm_q_r;    //! streaming level, for the edge
@@ -202,7 +201,6 @@ module KL_talker_diag_ctx #(
         mreset_r[c] <= '0;
         tuiv_r[c]   <= '0;
         ftx_r[c]    <= '0;
-        facc_r[c]   <= '0;
       end
       seen_f_r  <= '0;
       seen_tu_r <= '0;
@@ -215,8 +213,6 @@ module KL_talker_diag_ctx #(
       //! PDU events fold into the current interval's flags
       seen_f_r  <= seen_f_r  | ev_f_w;
       for (int c = 0; c < N_CTX_P; c++)
-        if (ev_f_w[c] && (facc_r[c] != 16'hFFFF))
-          facc_r[c] <= facc_r[c] + 16'd1;
       seen_tu_r <= seen_tu_r | ev_tu_w;
       seen_mr_r <= seen_mr_r | ev_mr_w;
       //! remember the mr this context just put on the wire
@@ -230,16 +226,22 @@ module KL_talker_diag_ctx #(
       if (tick_p_r) begin
         for (int c = 0; c < N_CTX_P; c++) begin
           if (seen_f_r[c]  | ev_f_w[c]) begin
-            //! coalesced commit: the interval's FRAME TOTAL, the tick-cycle
-            //! frame harvested into the closing interval like the flags
-            ftx_r[c]  <= ftx_r[c] + 32'(facc_r[c]) + 32'(ev_f_w[c]);
-            facc_r[c] <= '0;
+            //! Table 5.4 interval semantics: +1 PER OBSERVATION INTERVAL
+            //! with frames, never the frame total - the header's "8000x
+            //! off" note was live on silicon 2026-08-06 (the pushed
+            //! counter read 11M raw frames; tkdiag T3 pinned it at desk,
+            //! task #21 round)
+            ftx_r[c]  <= ftx_r[c] + 32'd1;
           end
           if (seen_tu_r[c] | ev_tu_w[c]) tuiv_r[c]   <= tuiv_r[c] + 32'd1;
           if (seen_mr_r[c] | ev_mr_w[c]) mreset_r[c] <= mreset_r[c] + 32'd1;
-          //! an interval-close increment IS a counter update (Table 5.22)
-          if ((seen_f_r[c]  | ev_f_w[c]) | (seen_tu_r[c] | ev_tu_w[c]) |
-              (seen_mr_r[c] | ev_mr_w[c]))
+          //! Table 5.22 pushes are for EVENTS. FRAMES_TX closing another
+          //! interval is the passage of time, not a state change - arming
+          //! dirty on it made every streaming talker push GET_COUNTERS at
+          //! exactly 1/s to every registered controller forever (decoded
+          //! on silicon 2026-08-06, task #21). TU/MEDIA_RESET intervals
+          //! still arm: an ACTIVE anomaly is a changing state.
+          if ((seen_tu_r[c] | ev_tu_w[c]) | (seen_mr_r[c] | ev_mr_w[c]))
             dirty_p_o[c] <= 1'b1;
         end
         seen_f_r  <= '0;
@@ -262,7 +264,6 @@ module KL_talker_diag_ctx #(
           //! THIS cycle's event belongs to the stream that just started, so
           //! it survives the wipe instead of being erased with the history
           seen_f_r[c]  <= ev_f_w[c];
-          facc_r[c]    <= {15'd0, ev_f_w[c]};
           seen_tu_r[c] <= ev_tu_w[c];
           seen_mr_r[c] <= ev_mr_w[c];
           dirty_p_o[c] <= 1'b1;

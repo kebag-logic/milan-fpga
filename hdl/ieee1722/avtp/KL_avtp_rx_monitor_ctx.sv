@@ -898,7 +898,12 @@ module KL_avtp_rx_monitor_ctx #(
             ev_s_r     <= iv_s_w;
             inc_list_r <= iv_seen_r[iv_s_w];
             frx_add_r  <= frx_acc_r[iv_s_w];
-            if (iv_s_w == '0 && iv_seen_r[iv_s_w] != '0) dirty_p_o <= 1'b1;
+            //! FRAMES_RX alone must NOT arm the Table 5.22 push: a
+            //! healthy stream closes an interval every second forever
+            //! (task #21). The anomaly bits (TU/LT/ET/SM/MR/UF) still arm.
+            if (iv_s_w == '0 &&
+                (iv_seen_r[iv_s_w] & ~(12'b1 << C_FRX_C)) != '0)
+              dirty_p_o <= 1'b1;
             mst_r      <= M_INC_S;
           end
           else if (ext_rd_go_w) begin

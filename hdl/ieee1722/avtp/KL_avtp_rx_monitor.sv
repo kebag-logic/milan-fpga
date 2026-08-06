@@ -71,8 +71,12 @@
                 CRC-clean frames; a lying data_len is a payload-plane concern
                 deferred to the AAF RX sink).
 
-                dirty_p_o pulses on EVERY counter change (including the
-                bind reset) — the AECP builder rate-limits pushes to 1/s per
+                dirty_p_o pulses on EVENT-counter changes (lock/unlock,
+                seq/interrupt, late/early/tu, media reset, format reject,
+                the bind reset) — NEVER on the FRAMES_RX tally alone, which
+                grows on every accepted frame of a healthy stream and would
+                turn the Table 5.22 change-push into a permanent 1/s wave
+                (task #21). The AECP builder rate-limits pushes to 1/s per
                 Milan §5.4.5, so this module does no throttling.
 
   Company     : Kebag Logic
@@ -267,7 +271,10 @@ module KL_avtp_rx_monitor #(
         else begin
           cnt_frames_rx_o <= cnt_frames_rx_o + 32'd1;
           silence_r       <= '0;
-          dirty_p_o       <= 1'b1;
+          //! FRAMES_RX is routine traffic, not an event (task #21): dirty
+          //! rides the EVENT counters, never the frame tally itself
+          if (mr_toggle_w | late_w | early_w | ts_uncertain_i)
+            dirty_p_o <= 1'b1;
           pdu_accept_p_o  <= 1'b1;
           wire_chans_o    <= p_chans;
           //! Table 5.6 MEDIA_RESET: count the TOGGLE, then track the level
@@ -288,6 +295,7 @@ module KL_avtp_rx_monitor #(
             if (clk_src_i == 16'd0 || servo_conv_i) begin
               cnt_media_locked_o <= cnt_media_locked_o + 32'd1;
               media_locked_o     <= 1'b1;
+              dirty_p_o          <= 1'b1;
             end
             prev_seq_r         <= seq_num_i;     // (re)lock: seed, no gap
             settle_r           <= 4'(SETTLE_C);  // grace the bind/path-open step
@@ -301,6 +309,7 @@ module KL_avtp_rx_monitor #(
               cnt_seq_mismatch_o <= cnt_seq_mismatch_o + 32'd1;
               if (lost_w >= 8'(INTERRUPT_MIN_LOST_C))
                 cnt_stream_interrupted_o <= cnt_stream_interrupted_o + 32'd1;
+              dirty_p_o <= 1'b1;
             end
             prev_seq_r <= seq_num_i;
           end
