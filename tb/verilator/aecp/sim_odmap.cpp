@@ -271,10 +271,28 @@ int main(int argc, char** argv) {
         take_wrs();
         auto r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{0,0,0,0}}, {{0,1,1,0}}}));
         ck("stream_index 0 is not SPO1's stream BAD_ARG", r_status(r), 7);
+        //! since the half-swap mux (USER 08-06) this refusal is RULE 3:
+        //! ch2's slot sibling (ch3) still carries pair 1 while co1 is pair 0
         r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,0,0,0}}, {{1,2,1,0}}}));
-        ck("cluster 1 (an R half) onto EVEN channel 2 BAD_ARG", r_status(r), 7);
+        ck("R half onto even ch2, sibling on OTHER pair BAD_ARG (rule 3)",
+           r_status(r), 7);
+        //! the half-swap mux case: both channels of slot 0 take the OTHER
+        //! half of the SAME pair - rule 3 coherent, rule 2 retired -> the
+        //! route the crossbar can now make. Word carries swap=11 on top of
+        //! the legacy encoding.
+        take_wrs();
         r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,0,1,0}}, {{1,1,0,0}}}));
-        ck("swapped source halves BAD_ARG", r_status(r), 7);
+        ck("swapped source halves SUCCESS (half-swap mux)", r_status(r), 0);
+        {
+            auto w = take_wrs();
+            ck("swap commit reached the fabric (2 RMWs)", (long)w.size(), 2);
+            if (w.size() == 2)
+                ck("slot word carries swap bits [15:14]=11",
+                   (long)((w[1].word >> 14) & 3), 3);
+        }
+        r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,0,0,0}}, {{1,1,1,0}}}));
+        ck("restore natural halves SUCCESS", r_status(r), 0);
+        take_wrs();
         r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,0,0,0}}, {{1,1,3,0}}}));
         ck("R half from a DIFFERENT source pair BAD_ARG", r_status(r), 7);
         //! the same refusal reached through the SIBLING that the command

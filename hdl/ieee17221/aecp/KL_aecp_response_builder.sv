@@ -149,7 +149,8 @@ module KL_aecp_response_builder (
   //! REMOVE that empties the slot writes 0 (en=0, half=0).
   output logic         odmap_wr_p_o,       //! 1-cycle capture-map write strobe
   output logic [4:0]   odmap_wr_slot_o,    //! packetizer pair slot
-  output logic [13:0]  odmap_wr_word_o,    //! capture map word (see above)
+  output logic [15:0]  odmap_wr_word_o,    //! capture map word ({swap, half,
+                                            //! idxh, en, src, idx})
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
 
   // ---- listener sink state (KL_acmp_listener; STREAM_INPUT[0]) --------
@@ -1074,11 +1075,15 @@ module KL_aecp_response_builder (
   wire w_od_mono = (odk_t_q[10:8] == 3'd4);
   //! PER-RECORD validity (rules 1 and 2 at the block comment above). Every
   //! term is a property of THIS mapping - none of them counts records.
+  //! rule 2 (source-half parity) RETIRED 2026-08-06 (USER: "add the
+  //! half-swap mux"): KL_chan_map_capture now carries a per-channel
+  //! half-select, so ANY cluster half routes onto ANY channel parity and
+  //! the commit below derives the swap bit instead of refusing the route.
+  //! w_od_mono keeps documenting that the TONE bucket never needed one.
   wire w_od_rec_ok =
       (dm_si_q == {12'd0, od_pstr_q}) &&
       (dm_sc_q < od_schx_q) && (dm_sc_q < 16'd8) &&
-      odk_coq_ok_q && (dm_cc_q == 16'd0) && odk_t_q[12] &&
-      (w_od_mono || (odk_t_q[11] == dm_sc_q[0]));
+      odk_coq_ok_q && (dm_cc_q == 16'd0) && odk_t_q[12];
   //! rule 3: one pair slot holds ONE {src, idxh, idx}. Judged against the
   //! sibling as the command LEAVES it, so a command that re-points both
   //! channels of a slot together is accepted whatever order it lists them.
@@ -4243,8 +4248,24 @@ module KL_aecp_response_builder (
                   if (w_od_chg) dmap_diff_q <= 1'b1;
                   odmap_wr_p_o    <= 1'b1;
                   odmap_wr_slot_o <= od_slotb_q + 5'(dm_sc_q[3:1]);
-                  odmap_wr_word_o <= {w_od_half_add, odk_t_q[7:4], 1'b1,
-                                      odk_t_q[10:8], odk_t_q[3:0]};
+                  //! swap[1]=even-lane sel, swap[0]=odd-lane sel: a lane
+                  //! swaps when its feeding cluster's half differs from the
+                  //! lane's parity (half ^ parity). The lane THIS record
+                  //! lands on takes its cluster's half; the sibling lane
+                  //! keeps ITS cluster's (odk_ts_q). MONO sources (TONE)
+                  //! never swap - both halves are the same value and the
+                  //! canonical word keeps the legacy encoding bit-for-bit.
+                  odmap_wr_word_o <= {
+                      dm_sc_q[0]
+                        ? ((odk_sv_q && odk_ts_q[10:8] != 3'd4)
+                           ? odk_ts_q[11] : 1'b0)
+                        : ((odk_t_q[10:8] != 3'd4) ? odk_t_q[11] : 1'b0),
+                      dm_sc_q[0]
+                        ? ((odk_t_q[10:8] != 3'd4) ? ~odk_t_q[11] : 1'b0)
+                        : ((odk_sv_q && odk_ts_q[10:8] != 3'd4)
+                           ? ~odk_ts_q[11] : 1'b0),
+                      w_od_half_add, odk_t_q[7:4], 1'b1,
+                      odk_t_q[10:8], odk_t_q[3:0]};
                 end else begin
                   ov_r[odk_key_q] <= 1'b0;
                   dmap_diff_q     <= 1'b1;
@@ -4253,9 +4274,13 @@ module KL_aecp_response_builder (
                   //! the sibling keeps the slot's source; an emptied slot
                   //! goes fully quiet (en=0), never "enabled with no half"
                   odmap_wr_word_o <= odk_sv_q
-                      ? {w_od_half_rm, odk_t_q[7:4], 1'b1,
-                         odk_t_q[10:8], odk_t_q[3:0]}
-                      : 14'h0000;
+                      ? {(dm_sc_q[0] && odk_ts_q[10:8] != 3'd4)
+                           ? odk_ts_q[11] : 1'b0,
+                         (!dm_sc_q[0] && odk_ts_q[10:8] != 3'd4)
+                           ? ~odk_ts_q[11] : 1'b0,
+                         w_od_half_rm, odk_ts_q[7:4], 1'b1,
+                         odk_ts_q[10:8], odk_ts_q[3:0]}
+                      : 16'h0000;
                 end
                 if (dmi_r == dmn_q - 6'd1) begin
                   nochg_q <= !(dmap_diff_q ||

@@ -878,7 +878,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! rule: a slot past N_STREAMS*4 is refused, never wrapped.
   wire        aecp_odmap_wr_p_w;
   wire [4:0]  aecp_odmap_wr_slot_w;
-  wire [13:0] aecp_odmap_wr_word_w;
+  wire [15:0] aecp_odmap_wr_word_w;
 
   //! The RX wire-channel space BOTH channel crossbars de-interleave, defined
   //! ONCE and read twice (KL_chan_map_render.N_CH_P below, and the LOOP
@@ -958,6 +958,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .map_wr_half_i (aecp_odmap_wr_p_w
                     ? aecp_odmap_wr_word_w[13:12]
                     : 2'b11),
+    //! per-channel half-swap {L_sel, R_sel} (USER 08-06): the AEM mirror
+    //! derives it from cluster-half vs channel parity; the CSR debug window
+    //! predates it and keeps its meaning by writing "natural halves".
+    .map_wr_swap_i (aecp_odmap_wr_p_w
+                    ? aecp_odmap_wr_word_w[15:14]
+                    : 2'b00),
     //! map-RAM readback -> CSR 0x910/0x914. The CSR holds map_rd_en_i with a
     //! stable address until map_rd_valid_o; this port is the ONLY way software
     //! can tell a mapped-and-never-fed slot from a mapped-and-quiet one.
@@ -1377,7 +1383,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        cfg_chmap_rd_en;
   wire        cfg_chmap_rd_side;
   wire [5:0]  cfg_chmap_rd_addr;
-  wire [15:0] cmap_rd_data_w;     //! {loop_fed, loop_mapped, 2'b0, entry[11:0]}
+  //! {swap[17:16], loop_fed, loop_mapped, half[13:12], entry[11:0]}; the CSR
+  //! debug window keeps its 16-bit ABI below - the swap bits are ATDECC-
+  //! visible through GET_AUDIO_MAP (the store), which is the authority
+  wire [17:0] cmap_rd_data_w;
   wire        cmap_rd_valid_w;
   wire [7:0]  rmap_rd_data_w;     //! render entry only - that RAM has no mask
   logic       rmap_rd_valid_r;
@@ -1390,7 +1399,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     if (!axis_resetn) rmap_rd_valid_r <= 1'b0;
     else              rmap_rd_valid_r <= cfg_chmap_rd_en && !cfg_chmap_rd_side;
   end : rmap_rd_valid_S
-  wire [15:0] cfg_chmap_rd_data  = cfg_chmap_rd_side ? cmap_rd_data_w
+  wire [15:0] cfg_chmap_rd_data  = cfg_chmap_rd_side ? cmap_rd_data_w[15:0]
                                                      : {8'd0, rmap_rd_data_w};
   wire        cfg_chmap_rd_valid = cfg_chmap_rd_side ? cmap_rd_valid_w
                                                      : rmap_rd_valid_r;

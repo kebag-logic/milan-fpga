@@ -914,7 +914,7 @@ parser fault. All four were reproduced side by side on the flashed 8×8
 | # | rule (output ports) | the physical reason |
 |---|---|---|
 | 1 | `mapping_stream_index` must be the addressed port's OWN stream | the capture fabric routes port *j*'s clusters into stream *j* — there is no cross-stream path |
-| 2 | the cluster's L/R **half must match the stream channel's parity** (mono pilot exempt) | a pair slot emits its source pair's L into channel 2p and its R into 2p+1; the crossbar has no half-swap mux (measured at ≈ +315 LUT and declined) |
+| 2 | ~~half/parity match~~ **RETIRED 2026-08-06** (USER: half-swap mux ordered and landed) | the capture slot word grew per-channel half-select bits; any cluster half now routes onto any channel parity, the commit derives the swap, and only builds BEFORE the 0x0025-era RTL still refuse a crossed route |
 | 3 | the cluster's source must be **fabric-backed** (`valid` in `AEM_ODMAP_CSRC_C`) | the 8×8 build's 8 loopback clusters per output port declare sources nothing drives — accepting one would have `GET_AUDIO_MAP` report a route that carries silence |
 | 4 | `mapping_cluster_channel` must be 0 | every cluster this model emits is MONO — the L and R of a pair are two adjacent clusters, not two channels of one |
 
@@ -924,8 +924,10 @@ rules 1/3/4 (global-key range + physically-renderable + `cc = 0`).
 **Practical map, 8×8 output port:** cluster offsets 0–7 = host-ring pairs
 (L at even offsets → even channels, R at odd → odd channels), 8 = the mono
 pilot (either parity), 9–16 = loopback (refused on this build). A
-parity-preserving re-route (`FL→ch4`) is accepted; an L↔R crossing
-(`FL→ch1`) is refused by rule 2.
+parity-preserving re-route (`FL→ch4`) is accepted; since the half-swap
+mux an L↔R crossing (`FL→ch1`) is accepted too — the only remaining
+refusals are rules 1/3/4 (own stream, one source pair per slot, mono
+clusters).
 
 **Probe tool caveats** (both cost this diagnosis an hour): descriptor types
 are `STREAM_PORT_INPUT = 0x000E`, `STREAM_PORT_OUTPUT = 0x000F` — `0x0014` /

@@ -85,6 +85,7 @@ static int find_len(std::vector<Frame>& v, size_t len) {
 // below still writes exactly the byte it used to, meaning exactly what it
 // used to mean.
 static const uint16_t HALF_BOTH = 0x3000, HALF_L = 0x2000, HALF_R = 0x1000;
+static const uint16_t SWAP_BOTH = 0xC000, SWAP_L = 0x8000, SWAP_R = 0x4000;
 static uint16_t ent(int en, int src, int idx) {
   return (uint16_t)(HALF_BOTH | ((en & 1) << 7) | ((src & 7) << 4)
                     | (idx & 0xF)); }
@@ -454,6 +455,49 @@ int main(int argc, char** argv) {
       ck("A5: restored entry carries BOTH halves L", be(afr[h1], 42, 3), TDM_L(0));
       ck("A5: restored entry carries BOTH halves R", be(afr[h1], 46, 3), TDM_R(0));
     } else { for (int k = 0; k < 2; k++) ck("A5 restore (skipped)", 0, 1); }
+  }
+
+  // ====================================================================== //
+  printf("\n[A7] half-swap mux (USER 08-06): any half onto any parity\n");
+  {
+    uint16_t save1 = a_map_ent(1);
+    //! full crisscross: both channels take the OTHER half of TDM pair 0
+    a_map_wr(1, (uint16_t)(ent_half(HALF_BOTH, 1, 2, 0) | SWAP_BOTH));
+    cyc(4);
+    afr.clear();
+    for (int i = 0; i < 6; i++) a_tick();
+    cyc(400);
+    int h1 = find_len(afr, 234);
+    ck("A7: frames with a swapped slot", h1 >= 0, 1);
+    if (h1 >= 0) {
+      ck("A7: L position carries the R source", be(afr[h1], 42, 3), TDM_R(0));
+      ck("A7: R position carries the L source", be(afr[h1], 46, 3), TDM_L(0));
+    } else { for (int k = 0; k < 2; k++) ck("A7 crisscross (skipped)", 0, 1); }
+
+    //! single-lane swap: L takes the R half, R stays natural = the
+    //! "R-half cluster onto an even channel" ATDECC route
+    a_map_wr(1, (uint16_t)(ent_half(HALF_BOTH, 1, 2, 0) | SWAP_L));
+    cyc(4);
+    afr.clear();
+    for (int i = 0; i < 6; i++) a_tick();
+    cyc(400);
+    h1 = find_len(afr, 234);
+    if (h1 >= 0) {
+      ck("A7: swapped L lane = R source",  be(afr[h1], 42, 3), TDM_R(0));
+      ck("A7: natural R lane = R source",  be(afr[h1], 46, 3), TDM_R(0));
+    } else { for (int k = 0; k < 2; k++) ck("A7 single-swap (skipped)", 0, 1); }
+
+    //! legacy writers (swap bits absent) keep the natural route bit-for-bit
+    a_map_wr(1, save1);
+    cyc(4);
+    afr.clear();
+    for (int i = 0; i < 6; i++) a_tick();
+    cyc(400);
+    h1 = find_len(afr, 234);
+    if (h1 >= 0) {
+      ck("A7: restored natural L", be(afr[h1], 42, 3), TDM_L(0));
+      ck("A7: restored natural R", be(afr[h1], 46, 3), TDM_R(0));
+    } else { for (int k = 0; k < 2; k++) ck("A7 restore (skipped)", 0, 1); }
   }
 
   // ====================================================================== //

@@ -69,7 +69,7 @@ module chmap_wrap (
   input  wire [4:0]   a_map_wr_addr_i,
   //! 14-bit TB view of the entry; split onto the module's legacy 8-bit word
   //! pin + its idxh and per-half pins below, exactly as the datapath must
-  input  wire [13:0]  a_map_wr_data_i,
+  input  wire [15:0]  a_map_wr_data_i,
   input  wire         a_map_rd_en_i,
   input  wire [4:0]   a_map_rd_addr_i,
   output wire [15:0]  a_map_rd_data_o,
@@ -98,7 +98,7 @@ module chmap_wrap (
   //! --- lane B: chmap map ports + tick -------------------------------------
   input  wire         b_map_wr_en_i,
   input  wire [4:0]   b_map_wr_addr_i,
-  input  wire [13:0]  b_map_wr_data_i,
+  input  wire [15:0]  b_map_wr_data_i,
   input  wire         b_map_rd_en_i,
   input  wire [4:0]   b_map_rd_addr_i,
   output wire [15:0]  b_map_rd_data_o,
@@ -152,6 +152,7 @@ module chmap_wrap (
     .map_wr_data_i (a_map_wr_data_i[7:0]),
     .map_wr_idxh_i (a_map_wr_data_i[11:8]),
     .map_wr_half_i (a_map_wr_data_i[13:12]),
+    .map_wr_swap_i (a_map_wr_data_i[15:14]),
     .map_rd_en_i (a_map_rd_en_i), .map_rd_addr_i (a_map_rd_addr_i),
     .map_rd_data_o (a_map_rd_data_o), .map_rd_valid_o (a_map_rd_valid_o),
     .i2s_pair_valid_i (i2s_pair_valid_i), .i2s_l_i (i2s_l_i), .i2s_r_i (i2s_r_i),
@@ -208,6 +209,7 @@ module chmap_wrap (
     .map_wr_data_i (b_map_wr_data_i[7:0]),
     .map_wr_idxh_i (b_map_wr_data_i[11:8]),
     .map_wr_half_i (b_map_wr_data_i[13:12]),
+    .map_wr_swap_i (b_map_wr_data_i[15:14]),
     .map_rd_en_i (b_map_rd_en_i), .map_rd_addr_i (b_map_rd_addr_i),
     .map_rd_data_o (b_map_rd_data_o), .map_rd_valid_o (b_map_rd_valid_o),
     .i2s_pair_valid_i (i2s_pair_valid_i), .i2s_l_i (i2s_l_i), .i2s_r_i (i2s_r_i),

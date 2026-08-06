@@ -240,6 +240,15 @@ module KL_chan_map_capture #(
   //! pair's other half. Without this pin an odd edit either armed audio on
   //! an unmapped channel or disarmed a mapped one.
   input  wire [1:0]   map_wr_half_i = 2'b11, //! {L_en, R_en}
+  //! PER-CHANNEL HALF-SWAP {L_sel, R_sel} (USER 2026-08-06: "add the
+  //! half-swap mux"): 0 = the channel carries its NATURAL source half
+  //! (even<-L, odd<-R - the only route the crossbar could make before),
+  //! 1 = the OTHER half. Same defaulted-pin discipline again: a writer
+  //! that does not drive it says 2'b00 = natural, bit-for-bit the old
+  //! behavior. This is what lets an R-half cluster (e.g. loopback offset
+  //! 16) land on an EVEN stream channel - the ATDECC validator's parity
+  //! rule (old vendor rule 2) retires with it.
+  input  wire [1:0]   map_wr_swap_i = 2'b00, //! {L_sel, R_sel}
 
   //! --- map RAM readback port (registered, 1-cycle latency) ---------------
   input  wire         map_rd_en_i,       //! one-cycle read request
@@ -257,7 +266,7 @@ module KL_chan_map_capture #(
   //!   mapped=1, fed=0     : mapped and NEVER FED - a silent talker here is
   //!                         a BINDING or stream fault, not quiet audio
   //!   mapped=1, fed=1     : live; zeros in the payload are real silence
-  output logic [15:0] map_rd_data_o,     //! (valid with rd_valid)
+  output logic [17:0] map_rd_data_o,     //! (valid with rd_valid)
   output logic        map_rd_valid_o,    //! read data valid this cycle
 
   //! --- I2S capture pair source (single stereo pair) ----------------------
@@ -334,14 +343,15 @@ module KL_chan_map_capture #(
   //   one sync write process; combinational reads for the walk; the         //
   //   readback port registers a snapshot (RAM house style read turnaround)  //
   // ---------------------------------------------------------------------- //
-  logic [13:0] map_r [N_SLOTS_P];
+  logic [15:0] map_r [N_SLOTS_P];
 
   always_ff @(posedge clk_i) begin : map_write_port
     if (!rst_n) begin
-      for (int s = 0; s < N_SLOTS_P; s++) map_r[s] <= 14'h0000;
+      for (int s = 0; s < N_SLOTS_P; s++) map_r[s] <= 16'h0000;
     end
     else if (map_wr_en_i) begin
-      map_r[map_wr_addr_i] <= {map_wr_half_i, map_wr_idxh_i, map_wr_data_i};
+      map_r[map_wr_addr_i] <= {map_wr_swap_i, map_wr_half_i, map_wr_idxh_i,
+                               map_wr_data_i};
     end
   end : map_write_port
 
@@ -366,17 +376,17 @@ module KL_chan_map_capture #(
 
   always_ff @(posedge clk_i) begin : map_read_port
     if (!rst_n) begin
-      map_rd_data_o  <= 16'h0000;
+      map_rd_data_o  <= 18'h00000;
       map_rd_valid_o <= 1'b0;
     end
     else begin
       map_rd_valid_o <= 1'b0;
       if (map_rd_en_i) begin
-        //! [13:12] were the reserved pair of this word and now carry the
-        //! entry's per-half enable, so a half-armed slot is READABLE rather
-        //! than indistinguishable from a fully armed one. [11:0] keeps its
-        //! exact legacy meaning.
-        map_rd_data_o  <= {loop_fed_r, loop_mapped_w,
+        //! [13:12] carry the per-half enable; [17:16] the per-channel
+        //! half-swap (USER 08-06) so a swapped route is READABLE. [11:0]
+        //! keeps its exact legacy meaning, [15:14] the capability mask.
+        map_rd_data_o  <= {map_r[map_rd_addr_i][15:14],
+                           loop_fed_r, loop_mapped_w,
                            map_r[map_rd_addr_i][13:12],
                            map_r[map_rd_addr_i][11:0]};
         map_rd_valid_o <= 1'b1;
@@ -500,12 +510,13 @@ module KL_chan_map_capture #(
   // ---------------------------------------------------------------------- //
   logic [SLOTW_C-1:0] slot_r;            //! walk pointer
 
-  wire [13:0] ent_w  = map_r[slot_r];
+  wire [15:0] ent_w  = map_r[slot_r];
   wire        en_w   = ent_w[7];
   wire [2:0]  src_w  = ent_w[6:4];
   wire [3:0]  idx_w  = ent_w[3:0];
   wire [3:0]  idxh_w = ent_w[11:8];      //! LOOP only: RX stream index
   wire [1:0]  half_w = ent_w[13:12];     //! {L_en, R_en} of this slot
+  wire [1:0]  swap_w = ent_w[15:14];     //! {L_sel, R_sel}: 1 = other half
 
   //! LOOP read: {stream idxh, channel pair idx} -> one hold word. An entry
   //! naming a stream or pair the build does not keep resolves to silence
@@ -574,8 +585,17 @@ module KL_chan_map_capture #(
   //! fold duplicates the whole six-way mux tree; the mask does not. Same
   //! rule as the en_w note above, opposite answer - which is why both are
   //! numbers here and neither is an argument.
-  wire [23:0] out_l_w = sel_l_w & {24{half_w[1]}};
-  wire [23:0] out_r_w = sel_r_w & {24{half_w[0]}};
+  //! HALF-SWAP MUX (USER 2026-08-06). Each channel picks WHICH half of the
+  //! selected source pair feeds it: sel 0 = the natural half (the old fixed
+  //! route), sel 1 = the other one. The ATDECC parity rule existed only
+  //! because this mux did not; with it, "cluster 16 onto channel 6" is a
+  //! route the crossbar makes, and the slot still holds exactly ONE
+  //! {src, idxh, idx} (rule 3 unchanged). The mono TONE bucket is already
+  //! identical on both halves, so its swap is a no-op by construction.
+  wire [23:0] pick_l_w = swap_w[1] ? sel_r_w : sel_l_w;
+  wire [23:0] pick_r_w = swap_w[0] ? sel_l_w : sel_r_w;
+  wire [23:0] out_l_w = pick_l_w & {24{half_w[1]}};
+  wire [23:0] out_r_w = pick_r_w & {24{half_w[0]}};
 
   // ---------------------------------------------------------------------- //
   // Emit walk FSM                                                           //

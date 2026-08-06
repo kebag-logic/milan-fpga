@@ -89,7 +89,7 @@ module KL_aecp_top #(
   //! talker-side mirror (USER 08-01): capture-crossbar map writes
   output wire          odmap_wr_p_o,       //! capture map write strobe
   output wire [4:0]    odmap_wr_slot_o,    //! packetizer pair slot
-  output wire [13:0]   odmap_wr_word_o,    //! {half, idxh, en, src, idx}
+  output wire [15:0]   odmap_wr_word_o,    //! {swap, half, idxh, en, src, idx}
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
   // ---- Milan 5.4.2.25 per-index counters (Tables 5.16/5.17) -----------
   output logic [3:0]      gs_diag_idx_o,   //! GET_COUNTERS descriptor index
