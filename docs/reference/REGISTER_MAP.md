@@ -1,5 +1,8 @@
 # Milan TSN CSR  -  register map (ABI)
 
+> Production classification (needed / optional / debug, with rationale):
+> [REGISTER_MAP_CLASSES.md](REGISTER_MAP_CLASSES.md).
+
 Memory-mapped control/status registers for the Milan TSN NIC. This is the
 **stable ABI** shared by the HDL (`hdl/common/csr/milan_csr.sv`), the Linux driver
 (`../kl-linux-drivers`), and the device tree (`reg` of the `kl,dma-ether` node).
