@@ -187,10 +187,33 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x00010025);
+    ck("VERSION",       axi_read(A_VERSION), 0x00010026);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
+
+    // ---- ETH GUARD (USER 08-06, CSR 0x7D8): guarded from power-on ----
+    printf("[CSR] eth guard: refused levers, magic unguard, junk re-arm\n");
+    ck("GUARD armed at reset", axi_read(0x7D8), 1);
+    axi_write(0x11C, 0x0);                     // PHY_RST drop attempt
+    ck("PHY_RST write REFUSED while guarded", axi_read(0x11C), 0x1);
+    axi_write(0x71C, 0x3);                     // LINK_CTRL mac_reinit attempt
+    ck("LINK_CTRL[1] masked while guarded", axi_read(0x71C), 0x1);
+    axi_write(0x7D8, 0x554E4C4B);              // "UNLK"
+    ck("magic unguards", axi_read(0x7D8), 0);
+    axi_write(0x11C, 0x0);
+    ck("PHY_RST write accepted unguarded", axi_read(0x11C), 0x0);
+    axi_write(0x11C, 0x1);                     // restore PHY out of reset
+    //! LINK_CTRL[1] unguarded acceptance is NOT drilled here: an accepted
+    //! mac_reinit pulse starts the REAL reinit sequencer (hold + settle),
+    //! which would still be mid-hold when the [LINKG] drill below reads
+    //! its state - the masking above is this feature's contract
+    axi_write(0x7D8, 0xDEAD);                  // any non-magic word
+    ck("junk write re-arms the guard", axi_read(0x7D8), 1);
+    axi_write(0x7D8, 0x554E4C4B);              // leave UNGUARDED for the
+                                               // rest of the suite (the TB
+                                               // predates the guard)
+    ck("unguarded for the suite", axi_read(0x7D8), 0);
     uint32_t cap = axi_read(A_CAP);
     ck("CAP.ADP bit12",  (cap >> 12) & 1, 1);
     ck("CAP.TCAM bit13", (cap >> 13) & 1, 1);

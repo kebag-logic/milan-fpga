@@ -953,6 +953,7 @@ class MilanMAC(LiteXModule):
         # The guard drops it mid-settle, strictly BEFORE reinit, so release order stays
         # eth-first-then-sys (AX42: 2026-07-23).
         self.eth_rst = Signal()  # driven from the datapath's link guard (o_eth_rst)
+        self.eth_guard = Signal()  # ETH GUARD state (CSR 0x7D8, USER 08-06)
         # phy_model="mii": Arty A7 DP83848 (10/100, MII 4-bit). The MAC core
         # handles the PHY-width conversion, so everything downstream of
         # self.phy (store-and-forward FIFO, last_be conversion, CDC, loopback)
@@ -1412,6 +1413,10 @@ class MilanMAC(LiteXModule):
         self.dp_ports = dict(
             o_o_mac_reinit      = self.reinit,
             o_o_eth_rst         = self.eth_rst,
+            # ETH GUARD (USER 08-06): exported for future SoC-side gating of
+            # the LiteEth phy_crg_reset chain (v2); v1 guards the milan-csr
+            # levers inside the datapath and statd respects the CSR
+            o_o_eth_guard       = self.eth_guard,
             o_m_axis_mac_tx_tdata  = tx_dp.dp.data,  o_m_axis_mac_tx_tkeep = tx_dp.dp.keep,
             o_m_axis_mac_tx_tvalid = tx_dp.dp.valid, o_m_axis_mac_tx_tlast = tx_dp.dp.last,
             i_m_axis_mac_tx_tready = tx_dp.dp.ready,

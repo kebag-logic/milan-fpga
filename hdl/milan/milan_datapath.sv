@@ -344,6 +344,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   input  wire        i_link_up,
   output wire        o_mac_reinit,     //! link guard | LINK_CTRL[1] -> SoC MAC sys-side reset
   output wire        o_eth_rst,        //! link guard sequenced eth-side CDC reset request
+  output wire        o_eth_guard,      //! ETH GUARD (CSR 0x7D8): 1 = CPU eth-disruption levers refused
                                        //! (SoC syncs it into eth_tx/eth_rx as the MAC's
                                        //! eth-domain reset; released BEFORE o_mac_reinit)
   input  wire        i_full_duplex,
@@ -2140,6 +2141,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_evt_tx_ts_ready  (evt_tx_ts_ready),
     .i_evt_link_change  (evt_link_change),
     .i_evt_rmon_rollover(stats_rollover),
+    .o_eth_guard        (o_eth_guard),
     .o_irq              (csr_irq)
   );
 
