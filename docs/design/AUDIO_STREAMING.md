@@ -152,12 +152,19 @@ media tick the engine walks the enabled slots low-to-high and injects
 one pair per slot with a settle gap — six ticks fill one PDU per talker
 (module header).
 
-The map is programmed through the CSR `0x900` channel-map window
-([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) "0x900 — channel-map fabric"); with
-`CHMAP_CTRL[0] = 0` (reset) the frontend pair stream drives the
-packetizer **bit-identically** to the pre-chmap wiring — the bypass mux
-in `milan_datapath.sv` zero-extends today's 4-bit slot into the widened
-5-bit space.
+The map is programmed by the AEM (ADD/REMOVE mappings), with the CSR
+`0x900` window as the bring-up debug port
+([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) "0x900 — channel-map fabric"). Since
+VERSION `0x002C` the lane selection follows the SHAPE: a build that
+compiles the dynamic-map machinery (writers + boot identity seeder)
+routes the crossbar into the packetizer **by construction** — power-on
+reproduces the declared front-end THROUGH the seeded map, no software
+arm involved. On a static shape (no writer, no seeder) the front-end
+pair stream drives the packetizer bit-identically as before, and
+`CHMAP_CTRL[0]` keeps its bring-up meaning there: arm the debug-written
+crossbar. The host-playback wholesale override (`pb_enable`) outranks
+the lane mux either way — an active ALSA session claims the pair source
+exactly as the driver contract documents.
 
 ### 2.3 The shared packetizer and the channel math
 
@@ -348,9 +355,11 @@ output - the only route from an ALSA playback ring to the line-out that
 does not go out on the wire and back.
 
 Which of the two sources reaches the DAC, and at what rate, is
-`KL_i2s_feed_mux` (`CHMAP_CTRL[0]`): 0 = the listener render tap
-passed through bit- and cycle-identically (LPF override included), 1 =
-the crossbar's phys{0,1} pair on the **48 kHz media tick**, with the
+`KL_i2s_feed_mux`: on a dynamic-map shape the render crossbar owns the
+feed by construction (0x002C); on a static shape `CHMAP_CTRL[0]`
+selects it (0 = the listener render tap passed through bit- and
+cycle-identically, LPF override included). Crossbar mode delivers
+the phys{0,1} pair on the **48 kHz media tick**, with the
 LPF masked because it belongs to the listener tap it filters. The pace
 has to move with the source: the listener feed's strobe is an inbound
 depacketizer beat and its stride is the listener's channel count, so a

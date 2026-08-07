@@ -1355,7 +1355,7 @@ fabric counts fine — the `0x8F8` dead-read trap).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x8C8` | `PBK_STAT` | RO | `0` | `[15:0]` disarmed-render frames: media frames delivered to the DAC while the crossbar was selected and **no** map entry backed phys{0,1} (saturates at `0xFFFF`) — nonzero means the audio is silent because the map is empty, not because the source is; `[16]` feed source (1 = render crossbar, 0 = legacy listener tap) = `CHMAP_CTRL[0]`; `[17]` `KL_pcm_tx` is walking a sample tick; `[18]` playback master enable; `[19]` phys{0,1} armed in the render map; `[21:20]` reserved 0; `[31:22]` per-phys playback-source mask (map entry `EN` **and** `SRC` = playback), phys 0..9 |
+| `0x8C8` | `PBK_STAT` | RO | `0` | `[15:0]` disarmed-render frames: media frames delivered to the DAC while the crossbar was selected and **no** map entry backed phys{0,1} (saturates at `0xFFFF`) — nonzero means the audio is silent because the map is empty, not because the source is; `[16]` feed source (1 = render crossbar, 0 = legacy listener tap; = `CHMAP_CTRL[0]` on static shapes, constant 1 on dynamic-map shapes since `0x002C`); `[17]` `KL_pcm_tx` is walking a sample tick; `[18]` playback master enable; `[19]` phys{0,1} armed in the render map; `[21:20]` reserved 0; `[31:22]` per-phys playback-source mask (map entry `EN` **and** `SRC` = playback), phys 0..9 |
 | `0x8CC` | `PBK_FEEDS` | RO | `0` | media frames handed to the `KL_i2s_playback` producer on the **live** source (32-bit, wraps). Render mode counts 48 kHz media ticks; legacy mode counts accepted listener-tap beats. A **static** count with the chain armed is the "nothing is being delivered" verdict |
 | `0x8D0` | `PBK_RAILS` | RO | `0` | `KL_pcm_tx` host-ring rails, summed across streams and saturating at `0xFFFF` per half: `[31:16]` underruns (ring empty at a media tick — the host is not refilling; the pair is still emitted so the cadence never skews), `[15:0]` overruns (host lapped the reader by more than one sub-ring; `rd_ptr` fast-forwards one lap) |
 | `0x8D4` | - | - | `0` | unmapped (reads 0, never shadow-aliased) |
@@ -1364,7 +1364,7 @@ fabric counts fine — the `0x8F8` dead-read trap).
 
 | `PBK_FEEDS` | `PBK_STAT[15:0]` | `PBK_RAILS[31:16]` | verdict |
 |---|---|---|---|
-| static | - | - | nothing is reaching the DAC feed. If `PBK_STAT[16]` = 0 the crossbar is not even selected (`CHMAP_CTRL[0]`); if it is 1 the media grid is dead |
+| static | - | - | nothing is reaching the DAC feed. If `PBK_STAT[16]` = 0 the crossbar is not selected (static shape with `CHMAP_CTRL[0]` = 0); if it is 1 the media grid is dead |
 | climbing | climbing | - | the crossbar is running but the render map is empty — program phys 0/1 (`CHMAP_SEL`/`CHMAP_WORD` with `SRC` = playback) and re-check `PBK_STAT[31:22]` |
 | climbing | static 0 | climbing | the map is armed and the DAC is being fed, but the **host** is starving the ring — the samples are repeat-last (or silence) substitutes, not audio. Look at the ALSA writer, not the fabric |
 | climbing | static 0 | static | the chain is delivering real ring words; a silent output is downstream (DAC mute/level, `I2SPB_STAT` rails at `0x6D8`) |
@@ -1389,7 +1389,7 @@ dedicated-arm carve-out as MCSRV (NOT in `is_plain_rw` - a 0x900 shadow write
 would alias word 0x100 - plus its own `rd_in_window` 0x900-0x93F term, or every
 read here would be the 0x8F8 dead-read trap).
 
-`CHMAP_CTRL[0]` = 0 (reset) leaves the deployed audio path bit-identical: the
+`CHMAP_CTRL[0]` = 0 (reset) leaves a STATIC shape's audio path bit-identical (dynamic-map shapes route the crossbars by construction since `0x002C`): the
 render/capture crossbars are muxed OUT of both the packetizer feed and the
 i2s_playback feed. Setting it to 1 also moves the DAC's **pace** onto the
 48 kHz media grid and masks the render LPF (`KL_i2s_feed_mux`; see the
@@ -1400,7 +1400,7 @@ follow-up wires the projector to the same port).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x900` | `CHMAP_CTRL` | RW | `0` | `[0]` csr_write_en - fabric bypass arm. While 0, the default capture/render paths drive bit-identically and `CHMAP_WORD` writes are refused (counted in `CHMAP_STAT[23:16]`). Set 1 after programming the map to select the crossbar outputs |
+| `0x900` | `CHMAP_CTRL` | RW | `0` | `[0]` debug arm. Since `0x002C` a dynamic-map shape routes both crossbars **by construction** (boot-seeded identity map; this bit has no routing effect there). On a static shape it keeps the bring-up meaning: while 0 the default capture/render paths drive bit-identically, set 1 to select the debug-written crossbar. On every shape it still gates the `CHMAP_WORD` debug write window (refusals counted in `CHMAP_STAT[23:16]`) |
 | `0x904` | `CHMAP_SEL` | RW | `0` | `[5:0]` map entry index, `[8]` side (0 = RMAP/render phys channel 0..9, 1 = CMAP/capture **stream-channel key** `port*8 + sc`, 0..`2*N_SLOTS_P-1` — per-channel since 0x0027). Selects the target of the next `CHMAP_WORD` write |
 | `0x908` | `CHMAP_WORD` | RW | - | `[15:0]` the §5 map word `{EN[15], SRC[14:12], rsvd[11:9], HALF[8], IDX_HI[7:4], IDX_LO[3:0]}`. Write commits through the shared map write port when `CHMAP_CTRL[0]` = 1; readback = last committed word. **Render side (RMAP)**: `SRC[12]` selects the source bank — 0 = AVB listener, `IDX` = `{stream[6:4], ch[2:0]}` (the pre-item-7 meaning, and what the AEM projector always writes); 1 = **host playback ring**, `IDX` = `{[6:4],[2:0]}` read as one linear playback channel `2*pair_slot + (0 L / 1 R)` from `KL_pcm_tx`; `[8]` unused. This is the only route from an ALSA playback ring to the line-out. **Capture side (CMAP, per-channel since 0x0027)**: composes the addressed channel's 13-bit entry `{EN, HALF, SRC[2:0], IDX_HI, IDX_LO}` — `HALF` picks the source pair's L (0) or R (1) half; `[8]` was reserved, so every pre-0x0027 word means "L half" |
 | `0x90C` | `CHMAP_STAT` | RO | `0` | `[15:0]` aem/csr commits (wraps), `[23:16]` csr_refused (override disarmed; saturates) |

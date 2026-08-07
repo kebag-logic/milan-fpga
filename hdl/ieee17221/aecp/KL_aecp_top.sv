@@ -90,6 +90,11 @@ module KL_aecp_top #(
   output wire          odmap_wr_p_o,       //! capture map write strobe
   output wire [5:0]    odmap_wr_slot_o,    //! capture CHANNEL key (0x0027)
   output wire [12:0]   odmap_wr_word_o,    //! {en, half, src, idxh, idx}
+  //! task #26 shape truth (constants from the builder's ROM include): the
+  //! datapath's crossbar-in-circuit law derives from these, never from
+  //! testing the ROM's `define in another compilation-unit position
+  output wire          dmap_dyn_o,         //! render-map machinery compiled
+  output wire          odmap_dyn_o,        //! capture-map machinery compiled
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
   // ---- Milan 5.4.2.25 per-index counters (Tables 5.16/5.17) -----------
   output logic [3:0]      gs_diag_idx_o,   //! GET_COUNTERS descriptor index
@@ -355,6 +360,7 @@ module KL_aecp_top #(
     .dmap_wr_word_o(dmap_wr_word_o),
     .odmap_wr_p_o(odmap_wr_p_o), .odmap_wr_slot_o(odmap_wr_slot_o),
     .odmap_wr_word_o(odmap_wr_word_o),
+    .dmap_dyn_o(dmap_dyn_o), .odmap_dyn_o(odmap_dyn_o),
     .link_up_i(link_up_i),
     .gs_diag_idx_o(gs_diag_idx_o), .rxdiag_cnt_i(rxdiag_cnt_i),
     .tkdiag_cnt_i(tkdiag_cnt_i), .tkdiag_dirty_p_i(tkdiag_dirty_p_i),

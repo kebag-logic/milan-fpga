@@ -226,7 +226,33 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x0001002B);
+       axi_read(A_VERSION), 0x0001002C);
+
+#ifdef AAF_PB_TB
+    // ---- task #26 (0x002C): the BOOT SEED is CSR-visible before any ----
+    //      software touch. This leg's shape compiles AEM_ODYNMAP, so the
+    //      AECP builder must have walked the declared identity image into
+    //      the capture map RAM within its post-reset IDLE cycles - key 0's
+    //      declared template is RING ch0 ({en,src=3} = raw 0x1300), and
+    //      0x900[0] has never been written (the crossbar is in-circuit by
+    //      construction, there is no arm to poke). A zero or poison read
+    //      here means the seeder never ran and every talker would wake
+    //      streaming an EMPTY map's silence.
+    {
+        axi_write(0x904, 0x100);             // capture side, key 0
+        axi_write(0x910, 1);
+        uint32_t sv = 0;
+        for (int g = 0; g < 64; g++) {
+            sv = axi_read(0x910);
+            if ((sv & 1) == 0) break;
+        }
+        uint32_t seed0 = axi_read(0x914);
+        ck("0x002C seed: capture key 0 readback VALID (bit 26)",
+           (seed0 >> 26) & 1, 1);
+        ck("0x002C seed: key 0 carries the declared RING template 0x1300",
+           seed0 & 0x1FFF, 0x1300);
+    }
+#endif
 
     printf("-- 5.5.2.7 SRP-only licence at t>0 STRAIGHT FROM RESET "
            "(2026-07-30 bite) --\n");
@@ -858,6 +884,12 @@ int main(int argc, char** argv) {
         }
         ck("SRP-only: licence HELD (no STREAMING_WAIT, 5.3.7.3)",
            held ? 1 : 0, 1);
+        //! 0x002C: the crossbar lane paces pairs on the 48 kHz media tick
+        //! (~2083 cycles/pair, 6-pair PDUs -> ~12.5k cycles between t0
+        //! PDUs, and t0 is the ONLY licensed talker here). The old
+        //! 5120-cycle window fit the faster bring-up zf grid only; give
+        //! the licensed stream two full PDU intervals to show itself.
+        for (int c = 0; c < 30000; c++) step();
         ck("SRP-only: frames flowed under it", axi_read(A_AAF_FRAMES) > f0, 1);
         // restore the flow's posture: engine back to the no-talker 0x15,
         // bypass back on (no row was ever touched - pure SRP case)
@@ -2869,18 +2901,29 @@ int main(int argc, char** argv) {
         for (int c = 0; c < 4096; c++) { lo(); pb_service(); hi(); }
         auto pdus = collect(3, 3, 200000);
         int t0n = 0, t1n = 0; bool tags_ok = true, ramp_ok = true, lr_ok = true;
+        int started = 0;                     // per-uid bit: ring seen yet
         for (auto& p : pdus) {
             (p.uid ? t1n : t0n)++;
+            int prev = -1;
             for (int s = 0; s < 12; s += 2) {
                 uint32_t L = p.smp[s], R = p.smp[s+1];
+                //! 0x002C: the crossbar frames from BOOT, so the first
+                //! captured PDU may straddle the silence->ring start -
+                //! leading digital-silence events are the stream's legal
+                //! pre-start tail, never a tag or ramp defect. A zero
+                //! event AFTER the ring started still fails both checks.
+                if (!((started >> p.uid) & 1)) {
+                    if (L == 0 && R == 0) continue;
+                    started |= 1 << p.uid;
+                }
                 if ((L >> 16) != 0x7A || (R >> 16) != 0x7B) tags_ok = false;
                 if ((L & 0xFFFF) != (R & 0xFFFF)) lr_ok = false;
-                if (s >= 2) {
-                    // consecutive sample events step the ramp by exactly 1
-                    // (same clk, same divisor: no repeats, no drops)
-                    if ((uint16_t)(p.smp[s] & 0xFFFF) !=
-                        (uint16_t)((p.smp[s-2] & 0xFFFF) + 1)) ramp_ok = false;
-                }
+                // consecutive sample events step the ramp by exactly 1
+                // (same clk, same divisor: no repeats, no drops)
+                if (prev >= 0 &&
+                    (uint16_t)(p.smp[s] & 0xFFFF) !=
+                    (uint16_t)((p.smp[prev] & 0xFFFF) + 1)) ramp_ok = false;
+                prev = s;
             }
         }
         ck("pb: t0 frames the host ring (>= 3 PDUs)", t0n >= 3, 1);

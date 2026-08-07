@@ -152,7 +152,7 @@ localparam [7:0] AEM_ROM_INIT_C [0:9352] = '{
   8'h63,8'h68,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
-  8'h00,8'h02,8'h00,8'h00,8'h31,8'h2E,8'h33,8'h34,8'h2E,8'h30,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
+  8'h00,8'h02,8'h00,8'h00,8'h31,8'h2E,8'h34,8'h34,8'h2E,8'h30,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
@@ -845,6 +845,7 @@ localparam [63:0] AEM_STRIN_FMT_C [0:4] = '{64'h0205022002006000, 64'h0205022002
 localparam [63:0] AEM_STROUT_FMT_C [0:4] = '{64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h0205022002006000, 64'h041060010000BB80};
 localparam [15:0] WB_STRIN_FMT_ADDR_C [0:4] = '{16'd640, 16'd788, 16'd936, 16'd1084, 16'd1232};
 localparam [15:0] WB_STROUT_FMT_ADDR_C [0:4] = '{16'd1372, 16'd1512, 16'd1652, 16'd1792, 16'd1932};
+localparam [15:0] WB_STRIN_FMT_CRF_C = 16'd1232;  // the CRF sink = the LAST STREAM_INPUT (Table 5.22 push arm)
 
 // Static AUDIO_MAP serving tables (GET_AUDIO_MAP, 1722.1-2021 7.4.44).
 // Per STREAM_PORT: the ROM address of the AUDIO_MAP that port's OWN
@@ -882,9 +883,9 @@ if (AEM_DMAP_PAGE_C > 11) $error("AEM_DMAP_PAGE_C %0d exceeds the GET_AUDIO_MAP 
 localparam int unsigned AEM_DMAP_PHYS_C  = 10;   // render crossbar depth (CHMAP_PHYS_C)
 localparam int unsigned AEM_DMAP_NPORTS_C = 4;   // STREAM_PORT_INPUT descriptors
 localparam bit AEM_DMAP_PDYN_C [0:3] = '{1'b1, 1'b1, 1'b1, 1'b1};
-localparam int unsigned AEM_DMAP_PBASE_C [0:3] = '{0, 8, 16, 24};
-localparam int unsigned AEM_DMAP_PCLS_C [0:3] = '{8, 8, 8, 8};
-localparam int unsigned AEM_DMAP_PNMAPS_C [0:3] = '{1, 1, 1, 1};
+localparam [31:0] AEM_DMAP_PBASE_C [0:3] = '{32'd0, 32'd8, 32'd16, 32'd24};
+localparam [31:0] AEM_DMAP_PCLS_C [0:3] = '{32'd8, 32'd8, 32'd8, 32'd8};
+localparam [31:0] AEM_DMAP_PNMAPS_C [0:3] = '{32'd1, 32'd1, 32'd1, 32'd1};
 // A STATIC port (input or output) is served from the shared
 // AEM_SMAP_* tables above - one generated source for "what map
 // does this port serve", static and dynamic shapes alike.

@@ -880,6 +880,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        aecp_odmap_wr_p_w;
   wire [5:0]  aecp_odmap_wr_slot_w;
   wire [12:0] aecp_odmap_wr_word_w;
+  //! task #26 shape truth from the AECP builder (the one module that
+  //! compiles the generated ROM): 1 = this build carries the dynamic-map
+  //! writers + boot seeder for that side. Elaboration constants.
+  wire        aecp_dmap_dyn_w;
+  wire        aecp_odmap_dyn_w;
 
   //! The RX wire-channel space BOTH channel crossbars de-interleave, defined
   //! ONCE and read twice (KL_chan_map_render.N_CH_P below, and the LOOP
@@ -1031,14 +1036,23 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .fill_cnt_o ()
   );
 
-  //! bypass mux: enable=0 -> the front-end pair stream, silence-filled,
-  //! drives the packetizer. For every slot a front-end actually feeds this
-  //! is today's stream exactly (a fill never lands on a live slot); the
-  //! CHMAP path is software-programmed and owns its own slot coverage.
-  wire        pkt_pv_w   = cfg_chmap_enable ? cmap_pv_w   : zf_pv_w;
-  wire [4:0]  pkt_slot_w = cfg_chmap_enable ? cmap_slot_w : zf_slot_w;
-  wire [23:0] pkt_l_w    = cfg_chmap_enable ? cmap_l_w    : zf_l_w;
-  wire [23:0] pkt_r_w    = cfg_chmap_enable ? cmap_r_w    : zf_r_w;
+  //! task #26 (USER: the ATDECC map IS the model): on a shape that
+  //! compiled the capture-map machinery the crossbar is IN-CIRCUIT BY
+  //! CONSTRUCTION - the map RAM resets to silence, the AEM seeder writes
+  //! the identity image a few cycles after reset, and the power-on path
+  //! reproduces the legacy front-end THROUGH the map with no software arm
+  //! to forget. (Silicon 08-07: the tone sat mapped-and-committed in the
+  //! RAM while CHMAP_CTRL[0]=0 kept the wire on silence-fill for hours;
+  //! the ATDECC-authoritative cleanup had removed the bench poke that
+  //! used to hide this.) On a STATIC shape there is no AECP writer and no
+  //! seeder - the RAM would stay empty forever - so the declared
+  //! front-end routing stays wired and CHMAP_CTRL[0] keeps its bring-up
+  //! meaning: arm the debug-written crossbar in place of the front-end.
+  wire        cap_xbar_live_w = aecp_odmap_dyn_w | cfg_chmap_enable;
+  wire        pkt_pv_w   = cap_xbar_live_w ? cmap_pv_w   : zf_pv_w;
+  wire [4:0]  pkt_slot_w = cap_xbar_live_w ? cmap_slot_w : zf_slot_w;
+  wire [23:0] pkt_l_w    = cap_xbar_live_w ? cmap_l_w    : zf_l_w;
+  wire [23:0] pkt_r_w    = cap_xbar_live_w ? cmap_r_w    : zf_r_w;
 
   KL_aaf_packetizer #(.N_TALKERS_P(N_STREAMS),
                       .WIRE_CHANS_P(TALKER_WIRE_CHANS_P)) aaf_packetizer (
@@ -2607,6 +2621,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .odmap_wr_p_o   (aecp_odmap_wr_p_w),
     .odmap_wr_slot_o(aecp_odmap_wr_slot_w),
     .odmap_wr_word_o(aecp_odmap_wr_word_w),
+    .dmap_dyn_o     (aecp_dmap_dyn_w),
+    .odmap_dyn_o    (aecp_odmap_dyn_w),
     .link_up_i     (cnt_link_w),
     .gs_diag_idx_o (aecp_diag_idx_w),
     .rxdiag_cnt_i  (mon_diag_cnt_w),
@@ -4397,7 +4413,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //      which a host-ring playback can reach the line-out at all). ------
   KL_i2s_feed_mux i2s_feed_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .sel_render_i (cfg_chmap_enable),
+    //! task #26: on a dynamic-map shape the render crossbar owns the DAC
+    //! feed by construction (identity-seeded at boot, media-tick pace =
+    //! the ONE grid, task #59); a static shape keeps the bring-up tap
+    //! passthrough unless CHMAP_CTRL[0] arms the debug crossbar
+    .sel_render_i (aecp_dmap_dyn_w | cfg_chmap_enable),
     .tap_tdata_i  (rend_pcm_tdata_w),
     .tap_tvalid_i (rend_pcm_tvalid_w),
     .tap_tready_i (m_axis_pcm_tready),

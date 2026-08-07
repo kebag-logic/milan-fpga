@@ -151,6 +151,14 @@ module KL_aecp_response_builder (
   output logic [5:0]   odmap_wr_slot_o,    //! capture CHANNEL key (0x0027)
   output logic [15:0]  odmap_wr_word_o,    //! capture map word ({swap, half,
                                             //! idxh, en, src, idx})
+  //! task #26 shape truth, exported where the ROM is COMPILED: 1 when this
+  //! build carries the dynamic-map machinery (writers + boot seeder). The
+  //! datapath derives its crossbar-in-circuit law from these constants -
+  //! the `define lives in the generated ROM include and testing it in any
+  //! OTHER file would depend on compilation-unit file order (the class of
+  //! silent divergence the derive-never-mirror rule exists for).
+  output wire          dmap_dyn_o,         //! render-map machinery compiled
+  output wire          odmap_dyn_o,        //! capture-map machinery compiled
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
 
   // ---- listener sink state (KL_acmp_listener; STREAM_INPUT[0]) --------
@@ -252,6 +260,20 @@ module KL_aecp_response_builder (
 );
 
   `include "gen/aecp_aem_rom.svh"
+
+  //! task #26: the shape-truth constants, assigned at the ONE site that
+  //! compiles the generated ROM (so they can never disagree with the
+  //! machinery they describe). Constant-fold to wires in synthesis.
+`ifdef AEM_DYNMAP
+  assign dmap_dyn_o = 1'b1;
+`else
+  assign dmap_dyn_o = 1'b0;
+`endif
+`ifdef AEM_ODYNMAP
+  assign odmap_dyn_o = 1'b1;
+`else
+  assign odmap_dyn_o = 1'b0;
+`endif
 
   //! store address of the CRF Media Clock Input's current stream_format:
   //! the CRF sink is always the LAST STREAM_INPUT descriptor, so the last
