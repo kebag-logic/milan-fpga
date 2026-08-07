@@ -122,11 +122,24 @@ cfg_ax7101() {   # bench/cert shape (USER 2026-07-21: 1 hart + L2 32K - the
                  # every 100 MHz seed; one VexiiRiscv hart back = ~8k LUTs =
                  # the AX21-era placement freedom. The 2-hart/L2-64K perf
                  # variant is the previous revision of this function.)
-    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --all-blocks --coherent-dma \
-          --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
-          --timing-opt --floorplan --l2-bytes 16384 \
-          --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
-          --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16 \
+    # BODY = the tdm8 CERT/ship set (byte-matched to the t529 sweep Command;
+    # the nic-perf RV64 revision below had leaked back in as the bare body,
+    # so an extras-less `--sweep ax7101` built prefetch-rpt/l2-16K/no-tdm8 -
+    # the whole t530 sweep was that wrong SoC, +11.5k LUTs, unplaceable).
+    # nic-perf revision (dormant, launch WITH extras if ever needed):
+    #   --l2-bytes 16384 --scala-args=--lsu-l1-refill-count=8
+    #   --scala-args=--lsu-hardware-prefetch=rpt
+    #   --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16
+    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --all-blocks \
+          --coherent-dma --milan-clk-freq 100e6 --with-spiflash --flashboot full \
+          --gtx-tx-invert --timing-opt --floorplan --eth-port e1 \
+          --no-i2s-playback --no-render-lpf --audio-interface tdm8 \
+          --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 \
+          --loopback-lane --aaf-playback --aaf-playback-streams 1 \
+          --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_1x1_tdm8 \
+          --synth-directive AreaOptimized_high --opt-directive ExploreArea \
+          --l2-bytes 32768 --scala-args=--lsu-l1-refill-count=2 \
+          --scala-args=--l2-down-pending=4 --scala-args=--l2-general-slots=8 \
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --place-directive ExtraPostPlacementOpt"
 }
