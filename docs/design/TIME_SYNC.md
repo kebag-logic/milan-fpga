@@ -487,21 +487,23 @@ section 8 remains the bench-side reading of the daemon-written ones.
 | `0x8FC` | `MCSRV_CTRL` | `[0]` ps_invert (bench sign knob); `[1]` auto_repair — 1 allows the DRP divider repair path, **reset 0** = verify-only. Both bits are in the map row |
 | LiteX `dma-ts` | `base/length/enable/loop/offset` | the timestamp record ring engine (address from `build/csr.csv`) |
 
-## 4a. Buffer-residency goal (USER 2026-08-07): +/- 125 us
+## 4a. Centered-FIFO regulation goal (USER 2026-08-07): +/- 125 us
 
-The standing latency target for the listener path: **buffer residency
-within one class-A frame period (125 us)** - both halves of it. The
-presentation wait (PTO minus actual transit) tunes to ~125 us by
-setting MAX_TRANSIT to transit + 125 us (the latency=pto 500 us
-profile's territory; today's default is 2 ms), and the DAC elasticity
-FIFO's operating point moves from its centered 256 pairs (5.3 ms) to a
-low-fill setpoint (~6 pairs = 125 us) with the 0x002A recenter target
-and the convergence band re-scaled around it. A FIFO that shallow has
-no depth to hide clock error behind - the margin comes from clock
-QUALITY instead: media-clock unification (the CRF followership chain
-or the peer following our clock) is the prerequisite, and the
-per-stage latency taps are the instrument that verifies the number
-rather than budgeting it. Tracked as task #28.
+The standing regulation target for the DAC elasticity FIFO: **the fill
+stays CENTERED, and its excursion around MID stays within one class-A
+frame period - +/- 125 us = +/- 6 sample pairs at 48 kHz.** This is a
+clock-regulation-quality goal, not a latency collapse: the FIFO keeps
+its centered operating point (MID = 256 pairs), the 0x002A recenter
+keeps snapping to MID, and the goal tightens the steady-state wander
+band roughly tenfold versus today's convergence windows (enter
+MID+/-64, exit +/-128 - i.e. +/-1.3 / 2.7 ms). Holding +/-6 pairs is
+earned by clock QUALITY, not buffer depth: the media clocks on both
+ends must be unified (the CRF followership chain, or the peer
+following our clock), and once the wander genuinely sits inside the
+band, the convergence observer's thresholds can be retightened to
+match. The per-stage latency taps are the instrument that verifies the
+excursion rather than assuming it. Tracked as task #28. (The PTO /
+presentation-wait budget is a separate knob - see Section 3.6.)
 
 ## 4b. Grandmaster loss and recovery
 
