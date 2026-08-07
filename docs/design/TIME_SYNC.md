@@ -487,6 +487,16 @@ section 8 remains the bench-side reading of the daemon-written ones.
 | `0x8FC` | `MCSRV_CTRL` | `[0]` ps_invert (bench sign knob); `[1]` auto_repair — 1 allows the DRP divider repair path, **reset 0** = verify-only. Both bits are in the map row |
 | LiteX `dma-ts` | `base/length/enable/loop/offset` | the timestamp record ring engine (address from `build/csr.csv`) |
 
+## 4b. Grandmaster loss and recovery
+
+The transient story - what happens when the GM disappears, changes or
+returns, layer by layer with the 08-06/08-07 bench measurements - lives
+in its own document: [`GM_LOSS_RECOVERY.md`](GM_LOSS_RECOVERY.md).
+Headline: as of 0x002A/0x002B a GM handover costs one MEDIA_RESET click
+and ~100 ms with the lock HELD; the remaining minutes-scale trap is
+ptp4l's slew-after-first-step, cured operationally by one restart and
+structurally by the task-#22 DLL.
+
 ## 5. Status (2026-07-25)
 
 Proven, with the evidence next to each claim:
