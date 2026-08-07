@@ -226,7 +226,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x0001002C);
+       axi_read(A_VERSION), 0x0001002D);
 
 #ifdef AAF_PB_TB
     // ---- task #26 (0x002C): the BOOT SEED is CSR-visible before any ----
@@ -2369,6 +2369,89 @@ int main(int argc, char** argv) {
             axi_write(A_STRM_SEL, 0x000);
         }
 
+        // ==== t27: the CRF Media Clock Input sink's OWN listener row =====
+        // MILAN_COMPLIANCE_GAPS.md 3, closed: the pinned-LAST sink
+        // (listener_unique_id = N_STREAMS) provisions the appended
+        // SRP_CRFSNK row from its ACMP bind exactly like every AAF sink,
+        // so the walker declares its Listener attribute and a Milan CRF
+        // talker gets the Ready it licences on. Silicon 08-07: DS20 CRF
+        // bound + connect-tx OK, ONE PDU arrived, then silence - our
+        // Ready structurally could not go out (no row existed).
+        printf("-- t27: CRF sink -> appended lwSRP listener row --\n");
+        {
+            // derived provisional sid = {talker EID, tuid 2} (the peer's
+            // CRF output is its SO[2], per the bench topology)
+            const uint8_t CS_SID[8]  = {0x3C,0xC0,0xC6,0x01,0x02,0x03,0x00,0x02};
+            const uint8_t CS_DMAC[6] = {0x91,0xE0,0xF0,0x00,0xBE,0xC7};
+            axi_write(A_LWSRP_CTRL, 0x15);           // engine ON, no talker
+            // CONNECT_RX luid N (the pinned CRF sink), fast-connect sid 0
+            // (bind-now-probe-later, the real peer's shape)
+            {
+                uint8_t f[72]; memset(f, 0, sizeof f);
+                const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+                memcpy(f, mc, 6);
+                const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+                memcpy(f+6, csrc, 6);
+                f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x06;
+                f[16]=0x00; f[17]=44;
+                for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;
+                const uint8_t tkc[8] = {0x3C,0xC0,0xC6,0x01,0x02,0x03,0x00,0x00};
+                memcpy(f+34, tkc, 8);
+                const uint8_t usc[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+                memcpy(f+42, usc, 8);
+                f[50]=0x00; f[51]=0x02;               // talker_unique_id 2
+                f[52]=0x00; f[53]=(uint8_t)NSTREAMS_TB; // luid N = CRF sink
+                f[62]=0x27; f[63]=0x01;
+                inject(f, 70, 24);
+            }
+            // the bind level reaches the pinned-LAST compatibility view -
+            // ACMPL_STATE[31] is acmpl1_bound, which task #27 re-aims from
+            // the literal ctx 1 to the LAST ctx (identical on 2-sink
+            // shapes, the WRONG AAF sink before on this very leg)
+            {
+                uint32_t a1 = axi_read(0x6A4);
+                for (int g = 0; g < 64 && !((a1 >> 31) & 1); g++) {
+                    for (int c = 0; c < 256; c++) step();
+                    a1 = axi_read(0x6A4);
+                }
+                ck("t27: CRF-sink bind level on ACMPL_STATE[31] (pinned-LAST view)",
+                   (a1 >> 31) & 1, 1);
+            }
+            // THE BITE: the fabric declares the CRF sink's Listener
+            // attribute on the appended row - previously structurally
+            // impossible. The derived {talker EID, tuid 2} sid equals the
+            // authoritative one here, so this is the flow's one NEW.
+            int evtc = -1, parc = -1;
+            bool gotc = find_lstn(CS_SID, -1, -1, 400000, &evtc, &parc);
+            ck("t27: Listener declaration for the CRF sid on the wire",
+               gotc ? 1 : 0, 1);
+            ck("t27: four-pack ASKING-FAILED before any TA", parc, 0x40);
+            // a TalkerAdvertise for the CRF sid: READY must follow - this
+            // is the exact frame the DS20 stood down waiting for
+            {
+                uint8_t ta[64]; memset(ta, 0, sizeof ta);
+                const uint8_t msrp_da[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};
+                memcpy(ta, msrp_da, 6);
+                ta[6]=0x3C; ta[7]=0xC0; ta[8]=0xC6; ta[9]=0x01; ta[10]=0x02; ta[11]=0x03;
+                ta[12]=0x22; ta[13]=0xEA;
+                ta[14]=0;
+                ta[15]=1; ta[16]=25;
+                ta[17]=0; ta[18]=30;
+                ta[19]=0; ta[20]=1;
+                memcpy(ta+21, CS_SID, 8);
+                memcpy(ta+29, CS_DMAC, 6);
+                ta[35]=0x00; ta[36]=0x02;
+                ta[37]=0x00; ta[38]=0x48;
+                ta[39]=0x00; ta[40]=0x01;
+                ta[41]=0x70;
+                ta[46]=36;
+                inject(ta, 60, 40);
+            }
+            bool gotcr = find_lstn(CS_SID, -1, 0x80, 400000, &evtc, &parc);
+            ck("t27: four-pack READY once the CRF TA is registered",
+               gotcr ? 1 : 0, 1);
+        }
+
         axi_write(A_STRM_SEL, 0x000);
         axi_write(A_LWSRP_CTRL, 0x0);
         for (int c = 0; c < 512; c++) step();
@@ -3274,6 +3357,12 @@ int main(int argc, char** argv) {
             own_prev = own;
             for (int b = 0; b < NSTREAMS_TB; b++) {
                 if ((prev_aaf >> b) & 1 && !((aaf >> b) & 1)) total_retires++;
+            }
+            //! the listener requester carries one lane per ACMP sink INCL
+            //! the appended CRF sink (task #27) - its earlier bind is still
+            //! standing, so the engine re-arm rewrites its row too and the
+            //! grant/retire ledger must count that lane or 5 != 4
+            for (int b = 0; b < NSTREAMS_TB + 1; b++) {
                 if ((prev_lsn >> b) & 1 && !((lsn >> b) & 1)) total_retires++;
             }
             if ((prev_crf & 1) && !(crf & 1)) total_retires++;

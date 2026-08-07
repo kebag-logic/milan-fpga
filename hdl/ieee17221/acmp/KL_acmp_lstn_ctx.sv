@@ -1059,7 +1059,13 @@ module KL_acmp_lstn_ctx #(
       bind_upd_p_o <= '0;
       if (wr_en_w) begin
         if (wr_idx_w == IDX_W_C'(0)) view0_r <= wr_data_w;
-        if (N_SINKS_P > 1 && wr_idx_w == IDX_W_C'(1)) view1_r <= wr_data_w;
+        //! view1 is the CRF Media Clock Input sink's record - the PINNED
+        //! LAST context (task #27). The literal ctx 1 it used to follow is
+        //! that sink only on 2-sink shapes; on wider shapes it tracked AAF
+        //! sink 1 and the CRF servo's DMAC filter read the wrong binding.
+        //! N_SINKS_P-1 == 1 on 2-sink shapes, so those stay byte-identical.
+        if (N_SINKS_P > 1 &&
+            wr_idx_w == IDX_W_C'(N_SINKS_P - 1)) view1_r <= wr_data_w;
         active_vec_r[wr_idx_w] <= wr_data_w.active;
         bound_vec_r[wr_idx_w]  <= (wr_data_w.state != LSM_UNBOUND_S);
         sid_vec_r[64*wr_idx_w +: 64] <= wr_data_w.sid;

@@ -1746,9 +1746,12 @@ def test_lwsrp_tspec_and_params():
     assert re.search(r"localparam int SRP_TALKERS_C\s*=\s*"
                      r"N_STREAMS \+ SRP_CRF_TK_C;", dp), \
         "milan_datapath no longer counts the CRF output as a talker row"
+    # ...plus the appended CRF-sink listener row when the shape declares
+    # the pinned-LAST CRF Media Clock Input sink (task #27, 0x002D)
     assert re.search(r"localparam int SRP_CTX_ROWS_C\s*=\s*"
-                     r"N_STREAMS \+ SRP_TALKERS_C;", dp), \
-        "milan_datapath ctx rows are no longer L+T (incl listener-0 row)"
+                     r"N_STREAMS \+ SRP_TALKERS_C \+ SRP_CRFSNK_C;", dp), \
+        "milan_datapath ctx rows are no longer L+T+CRFSNK (incl the " \
+        "listener-0 and CRF-sink rows)"
     assert re.search(r"KL_lwsrp_bw_gate #\(\.N_STREAMS_P\(N_TALKERS_P\)\)", top), \
         "KL_lwsrp_top no longer ties the bw_gate width to N_TALKERS_P"
     nq = _sv_int(epkg, r"NUMBER_OF_QUEUES\s*=\s*(\d+);", "ethernet_packet_pkg")

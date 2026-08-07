@@ -1288,6 +1288,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! talker, fabric-provisioned like every other sink's.
   localparam int SRP_LSN0_ROW_C   = N_STREAMS + (N_STREAMS + ((ACMP_SRC_C > N_STREAMS) ? 1 : 0)) - 1;
   localparam int SRP_LSN0_SLOT_C  = (N_STREAMS + ((ACMP_SRC_C > N_STREAMS) ? 1 : 0)) + N_STREAMS - 1;
+  //! task #27: the CRF Media Clock Input sink's OWN listener row + fabric
+  //! slot, appended past the sink-0 pair exactly the way that pair was
+  //! appended (rows never renumber). Present only when the shape declares
+  //! the pinned-LAST CRF sink (ACMP_SINKS_C > N_STREAMS); a shape without
+  //! one elaborates zero of this. Closes MILAN_COMPLIANCE_GAPS.md 3: a
+  //! CONNECT_RX on the CRF sink now provisions a row the walker declares
+  //! Listener Ready into, so a Milan talker will actually start CRF at us
+  //! (silicon 08-07: DS20 CRF bound + one PDU, then silence - our Ready
+  //! was never declared and the talker rightly stood down).
+  localparam int SRP_CRFSNK_C      = (ADP_LISTENER_SINK_C > N_STREAMS) ? 1 : 0;
+  localparam int SRP_CRFSNK_ROW_C  = SRP_LSN0_ROW_C + 1;
+  localparam int SRP_CRFSNK_SLOT_C = SRP_LSN0_SLOT_C + 1;
   //! per-stream admission gates from the bw-gate ([0] = legacy CSR row,
   //! [t] = ctx-table talker rows - the P5 vector, plumbed in the P12
   //! follow-up); the flat CSR status keeps bit 0 only. The top slot is the
@@ -2768,8 +2780,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! (SRP_LSN0_ROW_C) - the legacy row-0 signal is the talker-0 side's and
   //! promoted a probing sink on the talker's reservation edge (ax-rv32-g);
   //! sinks 1..N_STREAMS-1 read the per-row registrars the lsn_srp_prov
-  //! provisioner declares those rows into; anything above (the CRF sink)
-  //! has no row and reads 0.
+  //! provisioner declares those rows into; the CRF sink (ctx N_STREAMS)
+  //! reads its own appended row since task #27, so it can park in
+  //! SETTLED_RSV_OK instead of re-probing forever.
   generate
     for (genvar gk = 0; gk < ACMP_SINKS_C; gk++) begin : g_acmpl_ta
       if (gk == 0) begin : g_row0
@@ -2783,6 +2796,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       end else if (gk < N_STREAMS) begin : g_rowk
         assign acmpl_ta_reg_v_w[gk]  = lwsrp_ctx_reg_w[gk];
         assign acmpl_ta_fail_v_w[gk] = lwsrp_ctx_failed_w[gk];
+      end else if ((gk == N_STREAMS) && (SRP_CRFSNK_C != 0)) begin : g_crfsnk
+        //! task #27: the pinned-LAST CRF sink reads its appended row
+        assign acmpl_ta_reg_v_w[gk]  = lwsrp_ctx_reg_w[SRP_CRFSNK_ROW_C];
+        assign acmpl_ta_fail_v_w[gk] = lwsrp_ctx_failed_w[SRP_CRFSNK_ROW_C];
       end else begin : g_norow
         assign acmpl_ta_reg_v_w[gk]  = 1'b0;
         assign acmpl_ta_fail_v_w[gk] = 1'b0;
@@ -3339,7 +3356,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! This is the ax-rv32-g return-leg fix: sink 0's Listener Ready used to
   //! ride the software-owned legacy row (stale dmac, garbage sid), so the
   //! remote talker was never licensed and t0/l0 loops could not flow.
-  localparam int SRP_LSTN_SLOTS_C = N_STREAMS;
+  //! + the appended CRF-sink slot (task #27) when the shape declares it
+  localparam int SRP_LSTN_SLOTS_C = N_STREAMS + SRP_CRFSNK_C;
   localparam int SRP_FAB_SLOTS_C  = SRP_TALKERS_C + SRP_LSTN_SLOTS_C;
   localparam int SRP_SEL_W_C = (SRP_FAB_SLOTS_C > 1) ? $clog2(SRP_FAB_SLOTS_C)
                                                      : 1;
@@ -3457,7 +3475,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [3:0] srp_fab_lsk_w     = !srp_fab_is_lstn_w        ? 4'd1
                                  : (32'(srp_fab_sel_c) == SRP_LSN0_SLOT_C)
                                    ? 4'd0
-                                   : 4'(32'(srp_fab_sel_c) - SRP_TALKERS_C + 1);
+                                   //! task #27: the appended CRF-sink slot
+                                   //! carries ACMP ctx N_STREAMS (the
+                                   //! pinned-LAST sink)
+                                   : ((SRP_CRFSNK_C != 0) &&
+                                      (32'(srp_fab_sel_c) == SRP_CRFSNK_SLOT_C))
+                                     ? 4'(N_STREAMS)
+                                     : 4'(32'(srp_fab_sel_c) - SRP_TALKERS_C + 1);
   //! one-hot LAUNCH pulse: ONLY the slot the pick stage took retires. The
   //! pipeline latches one whole record from one source per beat, so a
   //! half-CSR/half-fabric row cannot be composed even for one cycle.
@@ -3537,9 +3561,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! LISTENER-slot requester state (declared before the want generate that
   //! reads it; the provisioner process itself lives below, after
   //! srp_fab_ret_v_w exists)
-  logic [N_STREAMS-1:0] lsnsrp_req_r;    //! a write is owed for ctx row k
-  logic [N_STREAMS-1:0] lsnsrp_last_r;   //! last committed want (edge detect)
-  logic [N_STREAMS-1:0] lsnsrp_sw_own_r; //! software claimed the row (sid)
+  //! one lane per ACMP sink incl. the appended CRF sink (task #27): lane
+  //! k < N_STREAMS = AAF sink k, lane N_STREAMS = the CRF sink
+  logic [N_STREAMS+SRP_CRFSNK_C-1:0] lsnsrp_req_r;    //! a write is owed for ctx row k
+  logic [N_STREAMS+SRP_CRFSNK_C-1:0] lsnsrp_last_r;   //! last committed want (edge detect)
+  logic [N_STREAMS+SRP_CRFSNK_C-1:0] lsnsrp_sw_own_r; //! software claimed the row (sid)
 
   generate
     for (genvar gw = 0; gw < SRP_FAB_SLOTS_C; gw++) begin : g_srp_fab_want
@@ -3554,6 +3580,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                       cfg_lwsrp_enable &
                                       acmpl_bound_v_w[0];
         assign srp_fab_req_v_w[gw]  = lsnsrp_req_r[0];
+      end else if ((SRP_CRFSNK_C != 0) &&
+                   (gw == SRP_CRFSNK_SLOT_C)) begin : g_slot_crfsnk
+        //! task #27: the CRF Media Clock Input sink (ACMP ctx N_STREAMS,
+        //! the pinned LAST) -> the appended SRP_CRFSNK_ROW_C. Same law as
+        //! every AAF sink: want = the ACMP BIND level, upstream terms
+        //! only. Closes MILAN_COMPLIANCE_GAPS.md 3 - with a row to
+        //! declare Listener Ready into, a Milan talker's CRF stream
+        //! actually starts (5.3.7.3 licences on the registration).
+        assign srp_fab_want_v_w[gw] = ~lsnsrp_sw_own_r[N_STREAMS] &
+                                      cfg_lwsrp_enable &
+                                      acmpl_bound_v_w[N_STREAMS];
+        assign srp_fab_req_v_w[gw]  = lsnsrp_req_r[N_STREAMS];
       end else if (gw >= SRP_TALKERS_C) begin : g_slot_lstn
         //! AAF LISTENER sink k -> ctx row k, direction LISTENER. The want
         //! is the ACMP BIND level (Milan v1.2 5.5: a bound listener
@@ -3608,7 +3646,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [4:0]  srp_fab_row_w  = srp_fab_is_lstn_w
                                ? ((32'(srp_fab_sel_c) == SRP_LSN0_SLOT_C)
                                   ? 5'(SRP_LSN0_ROW_C)
-                                  : {1'b0, srp_fab_lsk_w})
+                                  : ((SRP_CRFSNK_C != 0) &&
+                                     (32'(srp_fab_sel_c) == SRP_CRFSNK_SLOT_C))
+                                    ? 5'(SRP_CRFSNK_ROW_C)
+                                    : {1'b0, srp_fab_lsk_w})
                                : 5'((N_STREAMS - 1) + 32'(srp_fab_sel_c));
   wire [63:0] srp_fab_sid_w  = srp_fab_plstn_r
                                ? acmpl_sid_v_w[64*srp_fab_plsk_r +: 64]
@@ -3728,9 +3769,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //      precedent); a commit naming no sid hands the row back.
   //  Listener rows never reach KL_lwsrp_bw_gate (it is T slots wide by
   //  construction), so these declarations cannot gate our own talker CBS.
-  //  The CRF Media Clock Input sink stays a documented gap: at 8x8+CRF the
-  //  4-bit ctx row space is exactly full (rows 0..15) and the row map has
-  //  no CRF-listener row to write (MILAN_COMPLIANCE_GAPS.md 3).
+  //  Since task #27 the CRF Media Clock Input sink is lane N_STREAMS of
+  //  this same provisioner (the 0x0023 5-bit widening made the room; the
+  //  old "row space exactly full" note predated it) - closing
+  //  MILAN_COMPLIANCE_GAPS.md 3.
   // ==========================================================================
   always_ff @(posedge axis_clk) begin : lsn_srp_prov
     if (!axis_resetn) begin
@@ -3739,12 +3781,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       lsnsrp_sw_own_r <= '0;
     end
     else begin
-      for (int k = 0; k < N_STREAMS; k++) begin
+      for (int k = 0; k < N_STREAMS + SRP_CRFSNK_C; k++) begin
         //! sink k's slot and its ctx row (sink 0 = the appended top slot
-        //! and the dedicated row; see the SRP_LSN0_* banner)
-        automatic int kslot = (k == 0) ? SRP_LSN0_SLOT_C
-                                       : SRP_TALKERS_C + k - 1;
-        automatic int krow  = (k == 0) ? SRP_LSN0_ROW_C : k;
+        //! and the dedicated row; the CRF sink k = N_STREAMS = the pair
+        //! appended one past those; see the SRP_LSN0_*/SRP_CRFSNK_* banner)
+        automatic int kslot = (k == 0)         ? SRP_LSN0_SLOT_C
+                            : (k == N_STREAMS) ? SRP_CRFSNK_SLOT_C
+                                               : SRP_TALKERS_C + k - 1;
+        automatic int krow  = (k == 0)         ? SRP_LSN0_ROW_C
+                            : (k == N_STREAMS) ? SRP_CRFSNK_ROW_C : k;
         //! (re)provision on a want edge, or on any bind-record rewrite
         //! while wanted (rebind = same row, new identity)
         if ((srp_fab_want_v_w[kslot] != lsnsrp_last_r[k]) ||
@@ -4586,7 +4631,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! ...and +1 more row when this shape carries a CRF Media Clock Output:
   //! it is talker t = N_STREAMS, hence row (L-1)+t = 2*N_STREAMS-1, so the
   //! table needs L+T-1 = 2*N_STREAMS rows (see the SRP_CRF_TK_C banner).
-  localparam int SRP_CTX_ROWS_C = N_STREAMS + SRP_TALKERS_C;  //! +1: listener-0 row
+  //! rows: [0] legacy pair, [1..N-1] AAF sinks, [N..] talkers (+CRF out),
+  //! [SRP_LSN0_ROW_C] sink 0, [SRP_CRFSNK_ROW_C] the CRF sink (task #27)
+  localparam int SRP_CTX_ROWS_C = N_STREAMS + SRP_TALKERS_C + SRP_CRFSNK_C;
   //! ctx_idx_i is 5 bits since the listener-0 row round: row 31 is the last
   //! addressable attribute row (8x8+CRF+listener-0 uses 17). One more row
   //! than the space would silently lose its reservation (KL_lwsrp_ctx's
