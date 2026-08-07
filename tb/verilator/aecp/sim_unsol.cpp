@@ -185,7 +185,7 @@ int main(int argc, char** argv) {
         dut->lstn_dmac_i    = 0x91E0F000FE07ULL;
         dut->lstn_vlan_i    = 0x002;
         dut->lstn_acmpsta_i = 0;
-        dut->lstn_pbsta_i   = 2;      // PASSIVE/settled per our encoding
+        dut->lstn_pbsta_i   = 3;      // PASSIVE/settled per our encoding
         dut->lstn_ta_reg_i  = 1;
         dut->lstn_ta_acclat_i = 500000;
         dut->lstn_ta_vlan_i = 0x002;
@@ -200,14 +200,14 @@ int main(int argc, char** argv) {
         ck("[1] push desc STREAM_INPUT idx 0", be_at(r, 38, 4), 0x00050000);
         // no STREAMING_WAIT: power-on state is STARTED (started_in_r
         // resets 0xFFFF; Milan STOP_STREAMING is what clears it)
-        ck("[1] flags CONNECTED, no STREAMING_WAIT", be_at(r, 42, 4), 0xF6000000);
+        ck("[1] flags CONNECTED, no STREAMING_WAIT", be_at(r, 42, 4), 0xF6000006);
         ck("[1] format = sink0 store word", be_at(r, 46, 8) == AAF_DEF, 1);
         ck("[1] stream_id = bound sid", be_at(r, 54, 8) == dut->lstn_sid_i, 1);
         ck("[1] acc latency = TA attribute", be_at(r, 62, 4), 500000);
         ck("[1] dest MAC = bound dmac", be_at(r, 66, 6) == dut->lstn_dmac_i, 1);
         ck("[1] vlan = TA vlan", be_at(r, 82, 2), 0x002);
         ck("[1] flags_ex REGISTERING", be_at(r, 89, 1), 1);
-        ck("[1] {pbsta, acmpsta} byte", be_at(r, 90, 1), (2 << 5) | 0);
+        ck("[1] {pbsta, acmpsta} byte", be_at(r, 90, 1), (3 << 5) | 0);
         ck("[1] push seq 0", r_seq(r), 0);
         r = collect_resp(700);
         ck("[1] exactly one push", r.size(), 0);

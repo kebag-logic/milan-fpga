@@ -344,8 +344,8 @@ int main(int argc, char** argv) {
         ck(nm, (long)be_at(r, O_VLAN, 2), 2);
         snprintf(nm, sizeof nm, "out%d msrp_acc_lat default 2 ms", i);
         ck(nm, (long)be_at(r, O_LAT, 4), 2000000);
-        snprintf(nm, sizeof nm, "out%d flags 0xF6000000", i);
-        ckh(nm, be_at(r, O_FLAGS, 4), 0xF6000000ULL);
+        snprintf(nm, sizeof nm, "out%d flags 0xA0000000", i);
+        ckh(nm, be_at(r, O_FLAGS, 4), 0xA0000000ULL);
     }
 
     // boundary: a MAAP base whose low byte carries on +1 (the derivation is a
@@ -372,8 +372,8 @@ int main(int argc, char** argv) {
         for (int i = 0; i < N_STR; i++) {
             auto r = xact(CMD_GET_SI, ti_pl(IN, i));
             char nm[96];
-            snprintf(nm, sizeof nm, "in%d unbound flags 0xF2000000", i);
-            ckh(nm, be_at(r, O_FLAGS, 4), 0xF2000000ULL);
+            snprintf(nm, sizeof nm, "in%d unbound flags 0x80000000", i);
+            ckh(nm, be_at(r, O_FLAGS, 4), 0x80000000ULL);
             snprintf(nm, sizeof nm, "in%d unbound stream_id 0", i);
             ckh(nm, be_at(r, O_SID, 8), 0);
             snprintf(nm, sizeof nm, "in%d unbound dest_mac 0", i);
@@ -391,13 +391,15 @@ int main(int argc, char** argv) {
         dut->lstn1_dmac_i  = 0x91E0F0001234ULL;
         for (int i = 0; i < 4; i++) tick();
 
-        // 0xF2000000 identity | CONNECTED(0x04000000). STREAMING_WAIT
+        // 0x80000000 identity | CONNECTED(0x04000000). STREAMING_WAIT
         // (0x00000008) stays clear because started_in_r powers on STARTED -
         // the documented START/STOP_STREAMING simplification in the RTL, not
         // something this round changes.
         auto r = xact(CMD_GET_SI, ti_pl(IN, 0));
+        //! settled (pbsta 3) + bound, NO TA registered: identity valids +
+        //! BOUND + FAST_CONNECT/SAVED_STATE, no ACC_LAT (Table 5.9)
         ckh("in0 bound flags CONNECTED (no STREAMING_WAIT)",
-            be_at(r, O_FLAGS, 4), 0xF6000000ULL);
+            be_at(r, O_FLAGS, 4), 0xD6000006ULL);
         ckh("in0 bound stream_id", be_at(r, O_SID, 8), 0x0200000000010000ULL);
         ckh("in0 bound dest_mac", be_at(r, O_DMAC, 6), 0x91E0F000FE01ULL);
 
@@ -417,7 +419,7 @@ int main(int argc, char** argv) {
             snprintf(nm, sizeof nm, "in%d does NOT inherit a dest_mac", i);
             ckh(nm, be_at(q, O_DMAC, 6), 0);
             snprintf(nm, sizeof nm, "in%d reports NOT connected", i);
-            ckh(nm, be_at(q, O_FLAGS, 4), 0xF2000000ULL);
+            ckh(nm, be_at(q, O_FLAGS, 4), 0x80000000ULL);
         }
         dut->lstn_bound_i = 0; dut->lstn1_bound_i = 0;
         for (int i = 0; i < 4; i++) tick();

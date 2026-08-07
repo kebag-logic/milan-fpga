@@ -977,7 +977,7 @@ int main(int argc, char** argv) {
         auto r = collect_resp();
         ck("[12a] GET_STREAM_INFO SUCCESS", r_status(r), 0);
         ck_cdl("[12a] CDL correct (len-26)", r);
-        ck("[12a] flags 0xF6000000", be_at(r, 42, 4), 0xF6000000ULL);
+        ck("[12a] idle output: FORMAT+ACC_LAT only (Table 5.11)", be_at(r, 42, 4), 0xA0000000ULL);
         ck("[12a] stream_id {mac,0}", be_at(r, 54, 8), 0x020000FFFE010000ULL);
         ck("[12a] msrp_lat default 2ms", be_at(r, 62, 4), 2000000);
         ck("[12a] dest_mac live", be_at(r, 66, 6), 0x91E0F000FE01ULL);
@@ -1936,7 +1936,7 @@ int main(int argc, char** argv) {
         auto r = collect_resp();
         ck("[22a] GET_STREAM_INFO(in0) SUCCESS", r_status(r), 0);
         ck("[22a] CDL 68", r_cdl(r), 68);
-        ck("[22a] flags 0xF2000000", be32_at(r, 42), 0xF2000000);
+        ck("[22a] unbound sink: FORMAT alone (Table 5.9)", be32_at(r, 42), 0x80000000);
         ck("[22a] stream_id 0", (long)(r[54]|r[55]|r[56]|r[57]), 0);
 
         // (b) bound + registered sink: CONNECTED flags + live fields + trailer
@@ -1955,7 +1955,7 @@ int main(int argc, char** argv) {
         r = collect_resp();
         // F2000000 | CONNECTED(0x04000000) | FAST_CONNECT|SAVED_STATE(0x6)
         ck("[22b] flags connected (Milan: no FastConnect/SavedState)",
-           be32_at(r, 42), 0xF6000000);
+           be32_at(r, 42), 0xF6000006);
         ckbytes("[22b] acc_lat from registered attr", r, 62, {0x00,0x02,0x17,0x52});
         ckbytes("[22b] stream_id live", r, 54,
                 {0x02,0x00,0x00,0x00,0x00,0x01,0x00,0x00});
@@ -1973,7 +1973,7 @@ int main(int argc, char** argv) {
                          si_pl(0x0005, 0)));
         r = collect_resp();
         ck("[22c] +MSRP_FAILURE_VALID (bit6 removed: get-state-only)",
-           be32_at(r, 42), 0xFE000000);
+           be32_at(r, 42), 0xFE000046);
         ckbytes("[22c] msrp_failure_code 8", r, 72, {0x08});
         ckbytes("[22c] failing bridge_id", r, 74,
                 {0x80,0x00,0x3C,0xC0,0xC6,0xFE,0x02,0x10});
@@ -1984,7 +1984,7 @@ int main(int argc, char** argv) {
                          si_pl(0x0005, 1)));
         r = collect_resp();
         ck("[22d] GET_STREAM_INFO(in1) SUCCESS", r_status(r), 0);
-        ck("[22d] flags identity-only", be32_at(r, 42), 0xF2000000);
+        ck("[22d] CRF sink unbound: FORMAT alone", be32_at(r, 42), 0x80000000);
         ckbytes("[22d] CRF format", r, 46,
                 {0x04,0x10,0x60,0x01,0x00,0x00,0xBB,0x80});
 
@@ -2019,7 +2019,7 @@ int main(int argc, char** argv) {
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2209,
                          si_pl(0x0005, 0)));
         r = collect_resp();
-        ck("[22f] STREAMING_WAIT set", be32_at(r, 42), 0xF6000008);
+        ck("[22f] STREAMING_WAIT set", be32_at(r, 42), 0xF600000E);
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34, 0x220A,
                          si_pl(0x0005, 0)));
         r = collect_resp();

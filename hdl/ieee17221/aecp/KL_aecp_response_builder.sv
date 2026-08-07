@@ -1585,10 +1585,19 @@ module KL_aecp_response_builder (
                                          input logic [47:0] dmac,
                                          input logic [31:0] acc_lat);
     begin
-      //! flags: FORMAT|STREAM_ID|ACC_LAT|DEST_MAC|VLAN|CONNECTED
-      //! + MSRP_FAILURE_VALID when the bridge re-declared OUR stream as
-      //! TalkerFailed (Milan: the talker reports the FailureInformation)
-      const_q[0] <= tk_fail_valid_i ? 8'hFE : 8'hF6;
+      //! STREAM_OUTPUT flags per Milan v1.2 Table 5.11 (task #31 - the
+      //! silicon 08-07 Hive finding): FORMAT and ACC_LAT are ALWAYS valid
+      //! (an idle talker answers 0xA0...), the identity valids (STREAM_ID,
+      //! DEST_MAC, VLAN) only while the output is DECLARING a Talker
+      //! Advertise or Talker Failed attribute, MSRP_FAILURE only on TF,
+      //! and BOUND "shall be always set to 0" on an output - the old
+      //! unconditional 0xF6 claimed identity+BOUND on every idle stream.
+      //! Declare level = talker_active_i | tk_fail_valid_i (the module's
+      //! best per-shape proxy; exact on the 1-talker ship shape - the
+      //! per-index declare vector is the documented follow-on gap).
+      const_q[0] <= (talker_active_i | tk_fail_valid_i)
+                    ? (tk_fail_valid_i ? 8'hFA : 8'hF2)
+                    : 8'hA0;
       const_q[1] <= 8'h00;
       const_q[2] <= 8'h00; const_q[3] <= 8'h00;
       // stream_id = {station_mac, unique_id} — the stream.c formula,
@@ -1647,29 +1656,44 @@ module KL_aecp_response_builder (
   task automatic load_input_stream_info_consts(input logic sink0,
                                                input logic sink1,
                                                input logic [3:0] sidx);
-    logic        bnd, ta_r, ta_f;
+    logic        bnd, stl, ta_r, ta_f;
     logic [31:0] fl;
     begin
       //! sink 1 = the CRF input's bind record (no MSRP attach: ta flags 0)
       bnd  = sink0 ? lstn_bound_i : (sink1 & lstn1_bound_i);
+      //! SETTLED per Milan Table 5.5: probing status PROBING_COMPLETED(3).
+      //! The CRF sink has no probing view here - its bound-with-record
+      //! level stands in (the bind record IS the settled identity there).
+      stl  = sink0 ? (lstn_pbsta_i == 2'd3) : (sink1 & lstn1_bound_i);
       ta_r = sink0 & lstn_ta_reg_i;
       ta_f = sink0 & lstn_ta_fail_i;
-      // FORMAT|STREAM_ID|ACC_LAT|DEST_MAC|VLAN always valid. Milan v1.2:
-      // NO FastConnect (forbidden) and NO SavedState - CONNECTED (+
-      // STREAMING_WAIT while stopped) are the only connection flags.
-      fl = 32'hF200_0000;
+      //! STREAM_INPUT flags per Milan v1.2 Table 5.9 (task #31, the
+      //! silicon 08-07 Hive finding): a DISCONNECTED input answers
+      //! STREAM_FORMAT_VALID alone (0x80000000) - the old unconditional
+      //! 0xF2 claimed identity valids on every unbound sink. Identity
+      //! valids (STREAM_ID|DEST_MAC|VLAN) iff SETTLED ("if, and only
+      //! if"; 5.3.8.9 zeroes the fields too), ACC_LAT iff registering a
+      //! matching TA or TF, BOUND = the bind level, FAST_CONNECT SHALL
+      //! be 1 when bound and SAVED_STATE recommended 1 when bound (the
+      //! old comment here claimed both forbidden - Table 5.9 says the
+      //! opposite), STREAMING_WAIT only defined while bound.
+      fl = 32'h8000_0000;                    // STREAM_FORMAT_VALID always
+      if (stl) fl = fl | 32'h5200_0000;      // STREAM_ID|DEST_MAC|VLAN
       if (bnd) begin
-        fl = fl | 32'h0400_0000;             // CONNECTED
+        fl = fl | 32'h0400_0000;             // BOUND
+        fl = fl | 32'h0000_0002;             // FAST_CONNECT (shall, bound)
+        fl = fl | 32'h0000_0004;             // SAVED_STATE (recommended)
         //! per-input started level, keyed by the caller-supplied index
         if (!started_in_r[sidx])
           fl = fl | 32'h0000_0008;           // STREAMING_WAIT
       end
+      if (ta_r | ta_f) fl = fl | 32'h2000_0000;  // MSRP_ACC_LAT_VALID
       //! MSRP_FAILURE_VALID **with the real FailureInformation** (the
       //! Hive-visible "MSRP Failure" line: code + bridge_id from the
       //! registered TalkerFailed - zeroed fields with the flag set were
-      //! the 2026-07-19 Hive complaint). Flag bit 6 (SrpRegistrationFailed)
-      //! is an ACMP get-state flag, NOT a stream_info flag - removed.
-      if (ta_f) fl = fl | 32'h0800_0000;     // MSRP_FAILURE_VALID
+      //! the 2026-07-19 Hive complaint) + REGISTERING_FAILED (bit 25),
+      //! which Table 5.9 notes carries the same value.
+      if (ta_f) fl = fl | 32'h0800_0040;     // MSRP_FAILURE + REG_FAILED
       const_q[0] <= fl[31:24]; const_q[1] <= fl[23:16];
       const_q[2] <= fl[15:8];  const_q[3] <= fl[7:0];
       for (int k = 0; k < 8; k++)
