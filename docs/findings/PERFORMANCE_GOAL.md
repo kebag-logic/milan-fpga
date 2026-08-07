@@ -652,7 +652,7 @@ landed instead was the **aligned-copy** win predicted in the app profile below.)
 - **cpu1 (app hart): 83.2 % of cycles in ONE kernel loop**  - 
   `fallback_scalar_usercopy_sum_enabled+0xa8..0xcc`. Disassembly: the **misaligned
   shift-and-merge path** (`ld; srl; ld; sll; or; sd` = 5 ops per 8 B), NOT the fast
-  64-B-unrolled aligned path 0x6c bytes earlier (≈1.06 ld+sd per 8 B).
+  64-B-unrolled aligned path 108 bytes earlier (≈1.06 ld+sd per 8 B).
 - **cpu0 (softirq hart)**: ~19 % is the same usercopy (second app's share), 4.6 %
   `_raw_spin_unlock_irqrestore`, 1.4 % softirq dispatch, rest fragmented GRO/TCP/driver.
 - **Root cause of the misalignment**: the 54/66-B frame header inside the copybreak
