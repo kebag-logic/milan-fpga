@@ -157,3 +157,38 @@ Details: [docs/integration/BUILDING.md](docs/integration/BUILDING.md) ·
 
 Licence: CERN-OHL-W-2.0 ([LICENSE](LICENSE)) · vendored third-party code and pins:
 [THIRD_PARTY.md](THIRD_PARTY.md).
+
+## Product roadmap
+
+From tonight's bench (protocol engine test-plan-graded, crossbars and
+clocking live) to a shippable Milan end-station. Each phase's deliverables
+ride the big arrow; dates assume the current cadence.
+
+```text
+ 2026-08            2026-09            2026-10            2026-11..12         2027-Q1
+    |                  |                  |                  |                  |
+====\==================\==================\==================\==================\=========>
+ P1 CLOSE THE       P2 STATE          P3 ROBUSTNESS      P4 CERT +          P5 PRODUCT      v1.0
+    FABRIC             SURVIVAL          AS A GATE          PCB SPIN           HARDWARE     SHIP
+    ROADMAP                                                                                  |
+    - deterministic - AEM persistence - redundancy net  - CERT test-house  - PCB bring-up ==>
+      listener        journal (mtd)     cabled +          run (Milan v1.2)   (TCXO, audio
+      latency       - rootfs: boot-     failover proof  - 802.1AS            I/O, power)
+      (setpoint law,  resilient statd/ - temp-range       conformance      - EMC / safety
+      0x002E)         ptp4l, prio 248    timing signoff - PCB layout +     - factory
+    - software DLL  - dual-slot QSPI  - week-long soak    fab               provisioning
+      (GM step        + golden image    + power-cycle                       (MAC/EUI-64,
+      re-base)      - field update      torture as                          serials, test
+    - CRF sink        path              release gates                       fixture)
+      followership                    - service-budget                    - ALSA/PipeWire
+      on silicon                        decision                            as supported
+    - stream-clock                      (2nd hart?)                         feature
+      honesty                                                             - config surface
+    - ring one-grid                                                         + hardening
+      (retire pb                                                          - user manual +
+      override)                                                             support policy
+```
+
+Standing invariants across every phase: the ATDECC model stays authoritative
+(no side-channel state), every closed bitstream is flashed and soaked, and
+the desk suites + CERT behave gates stay green at 100 % coverage.
