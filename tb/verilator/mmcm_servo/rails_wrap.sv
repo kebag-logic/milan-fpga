@@ -85,6 +85,7 @@ module rails_wrap (
     .PREFILL_C (0)
   ) i2spb (
     .clk_i        (clk_i),
+    .recenter_p_i (1'b0),
     .rst_n        (rst_n),
     .clk_audio_i  (clk_audio_i),
     .servo_en_i   (1'b0),

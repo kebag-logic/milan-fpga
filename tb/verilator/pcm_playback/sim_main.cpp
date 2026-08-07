@@ -463,6 +463,36 @@ int main(int argc, char **argv) {
   ck_true("G CERT path still serializes the tap BIT-EXACTLY",
           frG.size() >= 6 && gok >= (int)frG.size() - 2);
 
+  // -----------------------------------------------------------------------
+  //  H: GM/PHC-step recenter (task #22). A grandmaster change may step the
+  //  presentation timebase by SECONDS; without this pin the playback FIFO
+  //  walked back into its convergence band at the residual ppm - measured
+  //  ~2 minutes on silicon (08-06). One pulse must snap fill to MID and
+  //  raise the honest media_reset event.
+  // -----------------------------------------------------------------------
+  printf("\n[H] GM-step recenter snaps the FIFO to MID\n");
+  {
+    const long MID = 1L << (9 - 1);            // FIFO_LOG2 default 9
+    long f0 = (long)dut->i2s_fill_o;
+    ck_true("H precondition: fill is OFF mid", f0 != MID);
+    bool mr_seen = false;
+    dut->recenter_p_i = 1;
+    for (int e = 0; e < 8; e++) {              // >= 3 full clk_i periods
+      run_ps(10000);
+      if (dut->media_reset_p_o) mr_seen = true;
+    }
+    dut->recenter_p_i = 0;
+    for (int e = 0; e < 16; e++) {
+      run_ps(10000);
+      if (dut->media_reset_p_o) mr_seen = true;
+    }
+    long f1 = (long)dut->i2s_fill_o;
+    printf("  H: fill %ld -> %ld (MID %ld)\n", f0, f1, MID);
+    ck_true("H fill snapped to MID (+/- the in-flight beat)",
+            f1 >= MID - 2 && f1 <= MID + 2);
+    ck_true("H media_reset pulsed (the honest discontinuity)", mr_seen);
+  }
+
   printf("--------------------------------------------------------------\n");
   printf("pcm_playback: %ld checks: %ld PASS, %ld FAIL\n",
          pass_n + fail_n, pass_n, fail_n);

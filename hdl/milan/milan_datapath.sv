@@ -4245,12 +4245,32 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! first stream. It does NOT backpressure: the render tap is a clone tap,
   //! so pruning the sink cannot stall the listener path.
   generate if (I2SPB_P != 0) begin : g_i2s_player
+  //! task #22 (USER 08-06, measured 2 min): a grandmaster change means
+  //! the PHC - the presentation timebase - may just have STEPPED by
+  //! seconds. Nothing in the media path reacted, so the playback FIFO
+  //! walked back into its convergence band at the residual rate error.
+  //! One pulse per GM-identity change re-centers it instead; the first
+  //! lease out of reset (0 -> id) is exempt (prefill owns boot).
+  logic [63:0] gm_recentre_q_r;
+  logic        gm_recentre_p_r;
+  always_ff @(posedge axis_clk) begin : g_gm_recentre
+    if (!axis_resetn) begin
+      gm_recentre_q_r <= '0;
+      gm_recentre_p_r <= 1'b0;
+    end else begin
+      gm_recentre_q_r <= cfg_adp_gptp_gm;
+      gm_recentre_p_r <= (cfg_adp_gptp_gm != gm_recentre_q_r) &&
+                         (gm_recentre_q_r != 64'd0);
+    end
+  end : g_gm_recentre
+
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
                     .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ),
                     .PREFILL_C(PB_PREFILL_C)) i2s_player (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i  (clk_audio_i),
     .servo_en_i   (aecp_clk_src != 16'd0),
+    .recenter_p_i (gm_recentre_p_r),
     .pcm_tdata_i  (i2s_feed_tdata_w),
     .lpf_tdata_i  (pcm_lpf_tdata),
     .lpf_tvalid_i (pcm_lpf_tvalid),

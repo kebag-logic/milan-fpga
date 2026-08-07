@@ -89,6 +89,9 @@ module pcm_playback_wrap #(
   output wire        phys_valid_o,
   output wire [15:0] i2s_underruns_o,
   output wire [15:0] i2s_overruns_o,
+  input  wire        recenter_p_i,      //! task #22 drill: GM-step snap
+  output wire        converged_o,
+  output wire        media_reset_p_o,
   output wire [15:0] i2s_fill_o
 );
 
@@ -195,6 +198,7 @@ module pcm_playback_wrap #(
     .PREFILL_C     (PREFILL_P)
   ) u_dac (
     .clk_i (clk), .rst_n (rst_n),
+    .recenter_p_i (recenter_p_i),
     .clk_audio_i (clk_audio),
     .servo_en_i (1'b0),
     .pcm_tdata_i (feed_tdata_w),
@@ -213,7 +217,8 @@ module pcm_playback_wrap #(
     .clr_under_i (1'b0), .clr_over_i (1'b0),
     .underruns_o (i2s_underruns_o), .overruns_o (i2s_overruns_o),
     .trim_o (), .fill_o (i2s_fill_o),
-    .media_reset_p_o (), .converged_o (), .dbg_frame_o ()
+    .media_reset_p_o (media_reset_p_o), .converged_o (converged_o),
+    .dbg_frame_o ()
   );
 
 endmodule

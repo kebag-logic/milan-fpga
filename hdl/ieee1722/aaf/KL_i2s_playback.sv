@@ -97,6 +97,13 @@ module KL_i2s_playback #(
   output logic [15:0] underruns_o,       //! audio frames padded (CDC empty)
   output logic [15:0] overruns_o,        //! sample pairs dropped (FIFO full)
   output logic signed [15:0] trim_o,     //! retired NCO trim - always 0
+  input  wire         recenter_p_i,      //! one-cycle: snap the FIFO fill to
+                                         //! MID (a GM/PHC step made the walk
+                                         //! back into the band a minutes-
+                                         //! scale grind - task #22; the snap
+                                         //! costs one audible discontinuity
+                                         //! and pulses media_reset_p_o
+                                         //! honestly)
   output logic [15:0] fill_o,            //! producer FIFO fill (sample pairs)
   output logic        media_reset_p_o,   //! rail event = media-clock reset
   output logic        converged_o,       //! fill in MID±64 sustained 100 ms
@@ -281,6 +288,20 @@ module KL_i2s_playback #(
           conv_ms_r   <= '0;
           converged_o <= 1'b0;
         end
+      end
+
+      // ---- GM/PHC-step recenter (task #22): the observer would walk
+      //      back into MID±64 at the residual ppm - 133 s at 10 ppm -
+      //      while every frame in between misses presentation. Snapping
+      //      the read pointer puts fill at MID THIS cycle; convergence
+      //      then re-confirms in its normal 100 ms. Skipped during
+      //      prefill (nothing meaningful to recenter yet). LAST in the
+      //      block ON PURPOSE: this rptr_r assignment must win over the
+      //      feeder's same-cycle increment.
+      if (recenter_p_i && !prefill_r && was_filled_r) begin
+        rptr_r          <= wptr_r - MID_C;
+        media_reset_p_o <= 1'b1;
+        conv_ms_r       <= '0;
       end
     end
   end : producer_side
