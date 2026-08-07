@@ -12,6 +12,14 @@ Measured, not assumed: a busy shell loop froze softirq for ~570 ms; a 1 Hz
 fork-loop watcher stole ~80 ms of every second from audio. The fabric,
 meanwhile, holds every deadline with the CPU fully loaded — or idle.
 
+## Contents
+
+- **[The two machines](#the-two-machines)** — the inventory of each side: the VexiiRiscv SoC and the Linux processes it runs, versus everything `milan_datapath` holds in fabric.
+- **[The three contracts between them](#the-three-contracts-between-them)** — the only crossings: the CSR window, the shared DRAM rings (the CPU feeds memory, never frames), and the shared MAC.
+- **[Responsibility table](#responsibility-table)** — domain by domain (discovery through persistence), which half owns the per-frame work and which the per-boot policy.
+- **[Lessons that prove the split (all measured on this bench)](#lessons-that-prove-the-split-all-measured-on-this-bench)** — streams hold with the CPU at load 4, every per-second CPU loop degraded audio, and every recent defect lived at a boundary, not in a lane.
+- **[Diagram](#diagram)** — the one-die picture: SoC, fabric, DRAM and MAC, with the CSR window and rings as the only paths between them.
+
 ## The two machines
 
 **The SoC (the "CPU side")** — VexiiRiscv RV32 (single hart, 100 MHz,

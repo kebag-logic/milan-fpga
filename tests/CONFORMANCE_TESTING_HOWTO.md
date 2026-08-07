@@ -7,6 +7,22 @@
 
 ---
 
+## Contents
+
+- **[1. What the tests are](#1-what-the-tests-are)** — offline Python-model behave tests (sub-second, no simulator) plus the tsn-gen wire features, and the list of RTL files each model mirrors.
+- **[2. Prerequisites](#2-prerequisites)** — behave is the only dependency for the offline features; `TSAGEN_DIR` and a built `packet_gen` for `@tsn_gen`; the bench-level features live in the sibling repo and are not part of this gate.
+- **[3. Files added on this branch](#3-files-added-on-this-branch)** — the six new feature files and two step files: 98 new scenarios, 710 new steps, with the scenario count per file.
+- **[4. How to run](#4-how-to-run)** — the full-suite, tag-filtered, and single-scenario invocations with their expected pass-count outputs.
+- **[5. How the offline models work](#5-how-the-offline-models-work)** — model classes mirroring the RTL state machines, constants sourced line-by-line from `acmp_pkg.sv`, and entity validation reading the actual generated overlay JSON.
+- **[6. How tsn_gen integration works (pre-existing)](#6-how-tsn_gen-integration-works-pre-existing)** — the generate/patch/decode bidirectional oracle around `packet_gen`, and the clean-skip behavior when the tool is absent.
+- **[7. Step naming — the shadowing bug and its fix](#7-step-naming--the-shadowing-bug-and-its-fix)** — behave treats `{code:d}` and `{s:d}` as the same parse pattern, so a same-worded new step silently shadowed 74 pre-existing scenarios; the rename that fixed it.
+- **[8. Mutation testing — proving assertions bite](#8-mutation-testing--proving-assertions-bite)** — the ten deliberate model breaks, each confirmed to turn a test red and green again on restore; zero stub steps by AST scan.
+- **[9. Adversarial verification](#9-adversarial-verification)** — what an audit for false positives found: four stub steps and two status-bypass tautologies fixed, one false alarm, and the ADP-interval limitation recorded honestly.
+- **[10. What is NOT tested by these features](#10-what-is-not-tested-by-these-features)** — the boundaries: no Verilator DUT, no wire byte-layout, no jitter, no silicon, not the full v1.9 validation plan.
+- **[11. CI integration](#11-ci-integration)** — the existing `bdd-conformance` job picks the new features up automatically; only `@tsn_gen` has an environment requirement, and it skips cleanly.
+- **[12. Related repositories](#12-related-repositories)** — where the source RTL, the validation clone, tsn-gen, and the bench-test repo each live.
+- **[13. Directory structure](#13-directory-structure)** — the tests/ tree with the new files flagged against the pre-existing features and steps.
+
 ## 1. What the tests are
 
 The BDD conformance suite is a set of **offline Python-model behave tests** that verify

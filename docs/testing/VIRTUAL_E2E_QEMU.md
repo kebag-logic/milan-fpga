@@ -7,6 +7,15 @@ T0–T6 task list updated for: **RV32 as the default** (RV64 behind a flag),
 policy**. It assumes [`VIRTUAL_E2E_PLAN.md`](VIRTUAL_E2E_PLAN.md) is read; it complements the operator
 guide [`VIRTUAL_E2E_HOWTO.md`](VIRTUAL_E2E_HOWTO.md) and the env inventory [`../tooling/virtual-e2e-env.md`](../tooling/virtual-e2e-env.md).
 
+## Contents
+
+- **[1. What "true E2E" means (the bar, stated explicitly)](#1-what-true-e2e-means-the-bar-stated-explicitly)** — the four planes (silicon, software, protocol, oracle) with the falsifier that disqualifies each; T1/M-A2 covers only two, so true E2E begins at T2.
+- **[2. Gap analysis (verified this session, not assumed)](#2-gap-analysis-verified-this-session-not-assumed)** — gaps G1–G6 with evidence: Linux never booted in sim, no packet I/O, no oracle; the RV32-firmware gap RESOLVED, both doc gaps closed.
+- **[3. Refined requirements (numbered, testable)](#3-refined-requirements-numbered-testable)** — R1–R8 in full, each with an acceptance that must be able to fail: RV32-default, the resolved OpenSBI tuple, wire attachment, T2/T3 negative controls, threading, oracle honesty, evidence.
+- **[4. Updated task list T0–T6](#4-updated-task-list-t0t6)** — the status table (T1 DONE, T2–T6 OPEN with what gates each) and the ordering rationale: threading first, wire attachment gates everything after.
+- **[5. Refinement for "easily changeable / runnable / provable"](#5-refinement-for-easily-changeable--runnable--provable)** — the five practices: one runner command, versioned contract files as single truth, seeded replay, ratcheted CI, honesty rails.
+- **[6. Decisions needed (the remaining forks)](#6-decisions-needed-the-remaining-forks)** — the three open choices: which foreign controller oracle, how to label the three-way CPU-fidelity split, and the virtual wire model.
+
 ## 1. What "true E2E" means (the bar, stated explicitly)
 
 A run is **true E2E** iff all four planes are simultaneously real. Anything less

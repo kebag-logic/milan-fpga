@@ -7,6 +7,17 @@ session**, not estimated. Companion to
 this document covers the *transient*: what happens, layer by layer, when
 the grandmaster disappears, changes, or comes back.
 
+## Contents
+
+- **[1. What "GM lost" actually is on the wire](#1-what-gm-lost-actually-is-on-the-wire)** — Loss is inferred from announce silence; a deferring device still self-claims when alone, and the real GM's return is a measured 18-60 s phase cliff, not a smooth re-slave
+- **[2. The ptp4l layer — step vs slew, and the one-step budget](#2-the-ptp4l-layer--step-vs-slew-and-the-one-step-budget)** — A fresh instance steps the cliff in seconds; a running one slews at ~26k ppm (40 min for 60 s) — the restart-once operational rule and the DLL that retires it
+- **[3. The publication layer — how the fabric learns about it](#3-the-publication-layer--how-the-fabric-learns-about-it)** — The ptp4l -> statd -> CSR lease chain with its atomic GM-pair commit, and the measured fail-stale mode when ptp4l is restarted by hand
+- **[4. The honesty layer — tu, the timestamp-uncertain bit](#4-the-honesty-layer--tu-the-timestamp-uncertain-bit)** — Fabric holdover plus the software lease: tu=1 marks the labels untrustworthy through the transient, and peers refusing them is both ends conforming
+- **[5. The announcement layer — ADP, counters, pushes](#5-the-announcement-layer--adp-counters-pushes)** — The out-of-cycle ADPDU, GPTP_GM_CHANGED, and the single event-law push burst a GM change produces
+- **[6. The media layer — where the minutes used to go](#6-the-media-layer--where-the-minutes-used-to-go)** — The root-caused 2-minute walk, and the as-built cure: the 0x002A recenter snap plus the 0x002B free-wheeling lock, with SRP untouched by design
+- **[7. The recovery timeline, end to end (as built)](#7-the-recovery-timeline-end-to-end-as-built)** — The full T+0 to T+50s sequence; everything after the GM returns is seconds
+- **[8. Traps on record (all hit live, all in memory)](#8-traps-on-record-all-hit-live-all-in-memory)** — The five ways this mechanism burned us on the bench and the cure for each
+
 ## 1. What "GM lost" actually is on the wire
 
 gPTP has no "GM lost" message. Loss is inferred: the elected master's

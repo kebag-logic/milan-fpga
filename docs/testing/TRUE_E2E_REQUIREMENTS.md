@@ -12,6 +12,20 @@ Definitions: **DUT** = the verilated real `milan_datapath` RTL + its guest.
 independent decoder, or cross-side corroboration). A mock may control faults or
 collect evidence; it may **never** generate the behavior being declared valid.
 
+## Contents
+
+- **[E2E-ART — artifact provenance](#e2e-art--artifact-provenance)** — manifest hashes for every run, RV32 as the no-fallback default tuple, and the already-verified OpenSBI binary.
+- **[E2E-BOOT — firmware/Linux boot](#e2e-boot--firmwarelinux-boot)** — the boot ladder: the 'MILN' ID read is PROVEN (M-A2 evidence); unmodified-buildroot boot and `S50milan` in-guest are still PLANNED.
+- **[E2E-MMIO — CSR bridge](#e2e-mmio--csr-bridge)** — guest accesses must hit real RTL at the real base/width, with a versioned `csr-contract.yaml` as single truth and bounded (never hung) timeouts.
+- **[E2E-NET — virtual wire](#e2e-net--virtual-wire)** — a PCAP-captured shared L2 with drop/duplicate/reorder/corrupt injection, plus the cycle-time honesty rule for the 1 MHz sim clock.
+- **[E2E-DMA / E2E-IRQ — data + interrupt planes](#e2e-dma--e2e-irq--data--interrupt-planes)** — rings allocated by the production driver and at least one RTL-asserted interrupt actually delivered and acknowledged.
+- **[E2E-M2M — machine-to-machine (T3 core)](#e2e-m2m--machine-to-machine-t3-core)** — two fully independent virtual nodes on one L2, a foreign AVDECC controller on Node B, and the reboot departure/re-advertisement sequence.
+- **[E2E-ORACLE — independent verdicts](#e2e-oracle--independent-verdicts)** — no PASS without an independent observation, and no scenario admitted until its negative control has been demonstrated to fail.
+- **[E2E-RESET — persistence/restart](#e2e-reset--persistencerestart)** — journal restore across a full VM stop/start with zero controller traffic; a corrupted slot must restore exactly zero binds.
+- **[E2E-PERF — Verilator threading](#e2e-perf--verilator-threading)** — threading defaults, per-node thread caps for multi-node runs, and the determinism gate a threaded build must pass before it counts as evidence.
+- **[E2E-EVID — evidence & replay](#e2e-evid--evidence--replay)** — the artifact set every run emits (manifest, logs, JSONL, PCAP, verdicts) and the seed-replay reproducibility bar.
+- **[E2E-HONEST — hardware-only boundaries (BLOCKED, never passed)](#e2e-honest--hardware-only-boundaries-blocked-never-passed)** — what the virtual tier can never prove: P&R timing, PHY/analog, real gPTP quality; a green virtual run is never a hardware claim.
+
 ## E2E-ART — artifact provenance
 
 | ID | requirement | acceptance / negative control | status |

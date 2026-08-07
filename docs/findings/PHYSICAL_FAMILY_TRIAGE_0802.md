@@ -19,11 +19,9 @@ column).
 
 ## Contents
 
-- **[1. FAIL 1 — GPTP_GM_CHANGED: the assertion was wrong](#1-fail-1--gptp_gm_changed-the-assertion-was-wrong)**
-- **[2. FAIL 2 — the format did not persist: the clause is real, the verdict was not](#2-fail-2--the-format-did-not-persist-the-clause-is-real-the-verdict-was-not)**
-- **[3. What the run could not see, and why](#3-what-the-run-could-not-see-and-why)**
-
----
+- **[1. FAIL 1 — GPTP_GM_CHANGED: the assertion was wrong](#1-fail-1--gptp_gm_changed-the-assertion-was-wrong)** — the assertion encoded a follower bench but the AX is the domain GM (priority1 238, verified), so the conformant delta is exactly zero; four replacement assertions, with LINK_UP demoted to INFO because the inline tap masks link events.
+- **[2. FAIL 2 — the format did not persist: the clause is real, the verdict was not](#2-fail-2--the-format-did-not-persist-the-clause-is-real-the-verdict-was-not)** — Milan 5.3.8.1's unconditional shall is a real open gap: `/proc/mtd` is empty so nothing on this build can persist; the probe-decided KNOWN-PENDING verdict scheme and two companion records replace the bare FAIL.
+- **[3. What the run could not see, and why](#3-what-the-run-could-not-see-and-why)** — the 45 SKIPs decomposed: the listener-index-8 bind failure and its licence cascade (32+12 records), plus the 25 s-vs-60 s ssh timeout constant that silently nulled every board reading.
 
 ## 1. FAIL 1 — `GPTP_GM_CHANGED`: the assertion was wrong
 

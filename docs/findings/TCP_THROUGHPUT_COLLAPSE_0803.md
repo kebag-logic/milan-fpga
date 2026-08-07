@@ -11,6 +11,19 @@ Platform history for the numbers this is measured against:
 [PERFORMANCE_GOAL.md](PERFORMANCE_GOAL.md); knob map:
 [RX_PERF_TUNING_MAP.md](RX_PERF_TUNING_MAP.md).*
 
+## Contents
+
+- **[Verdict in one line](#verdict-in-one-line)** — CPU saturation on the single RV32 hart, both directions; the historical 209/223 Mbit/s baseline was a dual-hart RV64 SoC this build no longer has.
+- **[The four candidate causes, and how each died](#the-four-candidate-causes-and-how-each-died)** — sender and RX shield ruled out by measurement, `--no-rx-rsc` real but only ~a quarter of the shortfall, the ktimers priority inversion second-order.
+- **[The premise that has to be corrected first](#the-premise-that-has-to-be-corrected-first)** — the brief's "85% idle" was `wget`'s own process accounting; `/proc/uptime` shows zero idle seconds across every transfer — 100% compute-bound.
+- **[What actually consumes the hart](#what-actually-consumes-the-hart)** — the per-consumer breakdown: dropbear 24.6%, daemon fork/exec churn ~46%, ktimers 13–15%, napi under-prioritized at ~10%.
+- **[Bench contamination - THE BENCH WAS NEVER QUIESCENT](#bench-contamination---the-bench-was-never-quiescent)** — a concurrent ALSA audit lane ran through both A/B arms (the A/B had no B), and every polling daemon was duplicated — all absolute numbers are contended-box lower bounds.
+- **[The A/B table](#the-ab-table)** — nine lever configurations measured both directions; read the idle% column first (0 everywhere), treat the throughput columns as ordering evidence only.
+- **[What this build should deliver, and what it does](#what-this-build-should-deliver-and-what-it-does)** — the sourced derate chain 223 → 209 → ~43 → ~15–20 estimated: the collapse is ~4x contention on top of a ~15x architectural regression that was chosen to make the design fit.
+- **[Cost/benefit of the levers](#costbenefit-of-the-levers)** — RSC, the second hart (the largest lever), `rx-usecs`, and the hsplit trap: flipping it without `hs_pgsz=16384` would panic the board.
+- **[Recommended fixes, cheapest first](#recommended-fixes-cheapest-first)** — the ordered list from "get a quiet bench" through reaping duplicate daemons, quiet console, the napi priority fix, and killing the fork churn.
+- **[Method](#method)** — iperf3 is already on the board (no reflash needed), both directions always measured, and the A/B script's restore-on-exit discipline.
+
 ## Verdict in one line
 
 The board is **CPU-saturated on a single RV32 hart**, in both directions. It is

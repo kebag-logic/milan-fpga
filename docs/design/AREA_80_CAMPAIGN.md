@@ -16,6 +16,12 @@ inert in our operating mode — becomes an elaboration-time constant from
 behaviour; it removes the machinery for changing behaviour nobody — not
 software, not a controller, not a clause — is entitled to use.
 
+## Contents
+
+- **[Verdict table](#verdict-table)** — every runtime-configurable surface ruled MAY-STATIC or MUST-DYNAMIC with the governing clause quoted on the row; honest static total ≈0.9–1.9k LUTs, so the block-diet ledger follows.
+- **[AMENDED 2026-07-28 evening (USER): AECP STAYS IN FABRIC](#amended-2026-07-28-evening-user-aecp-stays-in-fabric)** — the software-AECP lane started and stopped the same evening on USER instruction: the 6.2k lever is off the table, its desk-proven responder skeleton parked unused.
+- **[The latency axis (USER 2026-07-28, tightened same day): 100 ms is the line](#the-latency-axis-user-2026-07-28-tightened-same-day-100-ms-is-the-line)** — the second razor: planes with protocol deadlines ≤100 ms stay fabric, slower ones (AECP, ACMP, MAAP, ADP) run as software over CSRs; the arithmetic lands at ≈48.6k / 76.6%.
+
 ## Verdict table
 
 | surface (CSR / fabric) | governing clause, verbatim where it decides | verdict | est. LUTs |

@@ -4,6 +4,12 @@ The classification overlay for [REGISTER_MAP.md](REGISTER_MAP.md): every
 CSR group judged for a PRODUCTION image, with the rationale on the row.
 Written 2026-08-06 against VERSION `0x0023` on the 1×1×8 TDM8 shape.
 
+## Contents
+
+- **[The three classes](#the-three-classes)** — needed/optional/debug defined by who reads the register standing where: a driver, a support engineer over ssh, or an engineer with a ProfiShark beside the board.
+- **[Classification](#classification)** — the row-by-row verdict for every CSR group from `0x000` to the latency taps, each with the rationale that assigned its class.
+- **[The rules behind the table](#the-rules-behind-the-table)** — why ssh-reachable observability is optional not debug, why the mapping law kills the raw write window but keeps the auditor, and why the prune must be one frozen build (~700–900 LUTs back).
+
 ## The three classes
 
 | class | meaning | production image |

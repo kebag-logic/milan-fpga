@@ -6,6 +6,17 @@ result against the current commit. Read with [`VIRTUAL_E2E_HOWTO.md`](VIRTUAL_E2
 guide), [`VIRTUAL_E2E_QEMU.md`](VIRTUAL_E2E_QEMU.md) (roadmap), [`TRUE_E2E_REQUIREMENTS.md`](TRUE_E2E_REQUIREMENTS.md) (requirement
 IDs). **A green run here is a simulation result, never a hardware claim.**
 
+## Contents
+
+- **[1. The test set (what runs, and what each gate proves)](#1-the-test-set-what-runs-and-what-each-gate-proves)** — the five gates (T0 env-check through `all`) with their commands, what each one proves, and typical runtimes.
+- **[2. Exact commands (post-rebase verification run)](#2-exact-commands-post-rebase-verification-run)** — the verbatim sequence including the stale-cache invalidation, syntax gates, and the venv/JAVA_HOME requirements a clean rebuild needs.
+- **[3. Recorded result against commit 55a68a45](#3-recorded-result-against-commit-55a68a45)** — T0/T1 PASS, `all` honestly BLOCKED at exit 2, and the decisive 'MILN' ID dump proving the CPU reached real RTL CSRs.
+- **[4. What the rebase changed (and why re-verification was required)](#4-what-the-rebase-changed-and-why-re-verification-was-required)** — the two sim-build files the rebase touched (audio clock-domain wiring + threading hook; an abspath fix), which made the cached `Vsim` inadmissible.
+- **[5. Verdict semantics (how to read any run)](#5-verdict-semantics-how-to-read-any-run)** — PASS/FAIL/SKIP/BLOCKED defined, and why `t2-prep`/`t3-prep` are prerequisite gates, never tier passes.
+- **[6. Honest boundaries (unchanged by the rebase)](#6-honest-boundaries-unchanged-by-the-rebase)** — the custom LiteX-map OpenSBI caveat, the hardware-only properties that stay BLOCKED, and the rule that nothing here retires the bench.
+- **[7. Regression suites affected by the rebase base (RUN — recorded)](#7-regression-suites-affected-by-the-rebase-base-run--recorded)** — the five lwSRP suites plus behave run against the new RTL base: all PASS, 520 BDD scenarios, evidence linked.
+- **[8. The virtual switch decision (B)](#8-the-virtual-switch-decision-b)** — the T2/T3 switch choice in one paragraph: `virtwire` primary, bridge+`tc` secondary, P4 deferred; details in VIRTUAL_SWITCH_RESEARCH.
+
 ## 1. The test set (what runs, and what each gate proves)
 
 | gate | command | proves | typical time |

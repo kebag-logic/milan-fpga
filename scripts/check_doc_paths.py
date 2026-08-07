@@ -67,6 +67,25 @@ ALLOW = {
         "tb/verilator/cbs supersedes it",
     "third_party/verilog-axi":
         "planned vendoring (THIRD_PARTY.md 'Planned'), not present yet",
+    # The virtual-E2E environment cites artifacts a reader GENERATES by
+    # following the very docs that cite them - a fresh checkout does not
+    # carry them and must not (build outputs; the harness scripts land
+    # with the QEMU-lane work when it resumes).
+    "harness/transport.py":
+        "virtual-E2E harness lane, generated/landed when the QEMU work "
+        "resumes (VIRTUAL_E2E_QEMU.md is its design doc)",
+    "harness/transport_virtual.py":
+        "virtual-E2E harness lane, generated/landed when the QEMU work "
+        "resumes",
+    "sw/litex/build_milan_sim/":
+        "sim BUILD OUTPUT directory - created by the build the doc "
+        "teaches, never tracked",
+    "sw/litex/build_milan_sim/gateware/build_sim.sh":
+        "sim build output, created by the documented build",
+    "sw/litex/build_milan_sim/gateware/sim.v":
+        "sim build output, created by the documented build",
+    "sw/litex/build_milan_sim/software/bios/bios.bin":
+        "sim build output, created by the documented build",
 }
 
 

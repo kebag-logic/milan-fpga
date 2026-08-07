@@ -35,8 +35,6 @@ cover.
 - **[8. The traps](#8-the-traps)** — The semantic and measurement traps a future maintainer *will* hit, each with its evidence.
 - **[9. Limits, cost and non-coverage](#9-limits-cost-and-non-coverage)** — Exhaustive and honest, including runtime.
 
----
-
 ## 1. The five pieces and why they are separate
 
 | piece | where | level / oracle | what it is | what it needs |

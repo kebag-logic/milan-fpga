@@ -3,6 +3,153 @@
 Full messages of origin/main..main-push before the <=10-word history
 rewrite (USER directive 2026-07-31). Recovery base: 105a97e7db4e57ff4e8aaf56f4cdeb8852dd83c9
 
+## Contents
+
+- **[8e25c9e4](#8e25c9e4)** — build: make the tracked-ROM gate CONFIG-AWARE
+- **[c1ce0e52](#c1ce0e52)** — rtl+tb: the tracked entity definition is GLOBAL
+- **[1069accc](#1069accc)** — tb/tools: silicon_battery.sh - the post-flash live battery
+- **[6b51cdb1](#6b51cdb1)** — rtl: SET_SAMPLING_RATE accepted against the rates actually advertised
+- **[1d38a0ab](#1d38a0ab)** — tb/tools: check_tu_on_wire.sh - read the AVTP tu bit
+- **[dade5368](#dade5368)** — config: the ax7101 8x8 talkers DECLARED an 8-channel AAF format
+- **[de7a4c52](#de7a4c52)** — tb/tools: hive_compliance.py - re-implement the checks a REAL controller stack
+- **[e103d8e6](#e103d8e6)** — config: REVERT the 8ch->2ch talker down-declaration (dade536)
+- **[55ce205a](#55ce205a)** — docs: roadmap item 00 (USER 2026-07-27, ahead of everything)
+- **[4aaaf3da](#4aaaf3da)** — roadmap item 00: THE ENTITY MODEL IS NOW ACCOUNTABLE
+- **[04f7b75a](#04f7b75a)** — item-00 follow-through + the framer's master front-end
+- **[3cea0e48](#3cea0e48)** — aecp: the entity CONTRADICTED ITSELF between two commands
+- **[6cd08e45](#6cd08e45)** — docs: refresh the generated per-module TEST_RESULTS pages
+- **[f723358d](#f723358d)** — rtl: rx->talker LOOPBACK source for the capture channel map
+- **[b9a8e966](#b9a8e966)** — build: test_builder gate 10 is CONFIG-AWARE
+- **[2120f09a](#2120f09a)** — model: role-named AUDIO_CLUSTERs (D10) + the D8 role-pool port model
+- **[e076647f](#e076647f)** — rtl: TDM32 MASTER capture front-end, integrated end to end
+- **[fe98131c](#fe98131c)** — build: test_builder gate 17 derives its expectation from the owner
+- **[d738f9bc](#d738f9bc)** — docs: testing methodology
+- **[7efa72f8](#7efa72f8)** — crf: make the CRF Media Clock Output a real SR
+- **[7c8d77b2](#7c8d77b2)** — findings: D7 REPRODUCED 2/2 AND ROOT-CAUSED
+- **[204ab1cc](#204ab1cc)** — docs: correct the check total everywhere it was quoted
+- **[5f818895](#5f818895)** — tooling: the suite check total was WRONG; sweeps manufactured failures
+- **[62dc85d3](#62dc85d3)** — lane 10: the ARTY CANNOT BACK A TDM FRONT-END
+- **[2b75cf11](#2b75cf11)** — tests/traceability: the AVTP tu bit was stuck at 1
+- **[169c536c](#169c536c)** — aecp: GET_AUDIO_MAP served ANOTHER PORT'S MAP and read 48 octets
+- **[c0d436a8](#c0d436a8)** — docs: the 0x778 software contract
+- **[31d3c7f0](#31d3c7f0)** — traceability: our tu=1 is a QUALIFICATION HAZARD FOR THE PEER
+- **[aca7527c](#aca7527c)** — tests: README counts 22/135/1273 after clkv_tu_lease.feature
+- **[2f4d2b3e](#2f4d2b3e)** — srp: the reservation was never the bug
+- **[2d8d8e5b](#2d8d8e5b)** — aecp: GET_AUDIO_MAP answered a port Milan says it must REFUSE
+- **[9ab8d1d8](#9ab8d1d8)** — avdecc/builder: ENTITY descriptor claimed firmware 0.1.0 while fabric 0x0001_0016
+- **[9a7a673e](#9a7a673e)** — docs: documented boot provisioning re-enables the constant streaming
+- **[edaee7f1](#edaee7f1)** — csr: CHMAP_SNAP 0x910 / CHMAP_LOOP 0x914
+- **[0a4d605b](#0a4d605b)** — merge lane a7d960199f1fd77bd
+- **[f9d6da4c](#f9d6da4c)** — merge lane a09279f38f04c8d89
+- **[81d75665](#81d75665)** — merge lane aeef7206d037ac9b2
+- **[2413d6a4](#2413d6a4)** — merge lane a94f58dc5738ede39
+- **[5df6106b](#5df6106b)** — merge lane a9ecbd8d786960b77
+- **[3718d7ae](#3718d7ae)** — merge lane a2178c64fc6a90936
+- **[d7180e58](#d7180e58)** — merge lane a5965169e4fc65985
+- **[db1ed93c](#db1ed93c)** — merge lane afc5ccf8f5c1098a8
+- **[5a4c60f2](#5a4c60f2)** — merge lane a2751df4488cd84ea
+- **[2d3605d0](#2d3605d0)** — merge lane ad55eada13ab895b7
+- **[f7af30cc](#f7af30cc)** — merge lane ac63c2e6985739156
+- **[af03ff0c](#af03ff0c)** — merge follow-up: apply lane 9's milan_datapath wiring, clear both gates
+- **[a9d38cc6](#a9d38cc6)** — merge lane 11
+- **[035f80a6](#035f80a6)** — merge lane 15
+- **[23b14a3e](#23b14a3e)** — merge lane 2
+- **[ec0ea37c](#ec0ea37c)** — rtl: AAF_CTRL reset 0x0002_0002 -> 0x0002_0000
+- **[4f368d25](#4f368d25)** — tb: carry the 0x0018 ABI bump into the expected constants
+- **[237f3fbf](#237f3fbf)** — rtl+soc+builder: HANDOVER 8.3b Arty TDM8 master + silence fill
+- **[65c6cd94](#65c6cd94)** — cfg+sweep+gates: AX rx_queues 1 -> 2 with the boot chain
+- **[0e9b63b0](#0e9b63b0)** — builder+cfg: the MSRP TSpec now derives from the WIRE
+- **[cbcaeb0b](#cbcaeb0b)** — rtl+aecp: Milan 5.4.2.25 GET_COUNTERS is now PER-INDEX in both directions
+- **[aebca808](#aebca808)** — gitignore: untrack tb/verilator/hostplane/obj_tdm32m
+- **[7807a110](#7807a110)** — tb milan_dp: the SRP-ONLY streaming licence
+- **[40296177](#40296177)** — csr+rtl: the persistence-journal ingest 0x7B8-0x7C4 is WIRED (saved-state fast-connect E3)
+- **[e75f343b](#e75f343b)** — tb/tools: re-add the merge-lost wire-oracle checks as C12/C13
+- **[11416ac9](#11416ac9)** — behave 249/249: the four handover 8.5 scenarios resolved
+- **[50b6d3f1](#50b6d3f1)** — docs+traceability: the 0x0019 round recorded where the next reader looks
+- **[08ec2944](#08ec2944)** — docs: PROTOCOL_SWEEP_PLAN - the USER-requested full-coverage campaign
+- **[a9243f9c](#a9243f9c)** — tb: the 0x0019 full re-sweep
+- **[ef53d0d6](#ef53d0d6)** — rtl: two measured area levers for the DRC UTLZ-1 round
+- **[bfe09a58](#bfe09a58)** — soc: the tdm32-master-on-a-padless-board path elaborates at last
+- **[4b21392c](#4b21392c)** — builder: ONE emission for every bitstream-shaping flag (emit_design_opts)
+- **[cc7ee62a](#cc7ee62a)** — cfg/docs: the AX spends latency_taps + i2s_playback
+- **[4e66c2e6](#4e66c2e6)** — cfg/flow: L2 32K on BOTH boards
+- **[0be28557](#0be28557)** — docs: the 80% campaign charter (USER 2026-07-28)
+- **[0301b110](#0301b110)** — docs: the 80% campaign razor tightens to 100 ms (USER)
+- **[f666b0fd](#f666b0fd)** — docs: 80% charter
+- **[cb271684](#cb271684)** — avdecc: pack_aem_bin.py - aem_rom.json -> KLAEM1 binary image
+- **[5141fde5](#5141fde5)** — docs: 80% charter AMENDED
+- **[1ad401a2](#1ad401a2)** — flow: both boards' 3-seed sweeps run CONCURRENTLY (USER 2026-07-28)
+- **[86f6d775](#86f6d775)** — soc: the arty .bin flash image is generated spix1
+- **[40a33969](#40a33969)** — soc: arty write_cfgmem overridden to spix1
+- **[615462e9](#615462e9)** — soc: stage-0 registers on the TSO checksum keep-decode
+- **[2215cd4a](#2215cd4a)** — soc: one stream.Buffer re-times the NxN PCM ring writer's address
+- **[f1cf061f](#f1cf061f)** — soc: bd_mode registered
+- **[2c653c01](#2c653c01)** — area: DPROBES_P prunes the APRB+PBK probe groups
+- **[6ad59063](#6ad59063)** — cfg: the AX returns to its measured-close L2 16K
+- **[67d67a4e](#67d67a4e)** — avtp+aecp: Milan 5.3.8.10 TIMESTAMP_VALID/NOT_VALID on every STREAM_INPUT
+- **[a52c8671](#a52c8671)** — docs: the 5.3.8.10 badge truth from la_avdecc source
+- **[9e95fe73](#9e95fe73)** — docs: audio-unit roadmap refined per USER
+- **[7f1b2499](#7f1b2499)** — docs: audio-unit typed ports gain the VIRTUAL shared-memory type
+- **[bb4b2a40](#bb4b2a40)** — pcm ring: geometry capability CSR at +0x1c (0x4D|stride0|T0|L=N_STREAMS) in NxN
+- **[be6a06ea](#be6a06ea)** — merge lane C: pcm geometry capability CSR at +0x1c (bb4b2a40)
+- **[0b460016](#0b460016)** — docs: TIME_SYNC 3.1.1 master-role media-clock error budget
+- **[46f6cc39](#46f6cc39)** — aecp: the CRF Media Clock Input answers GET_COUNTERS
+- **[ee6704b9](#ee6704b9)** — merge lane A: CRF Media Clock Input serves
+- **[17fb4c9e](#17fb4c9e)** — docs: gaps TOC entry for the Milan 1.3 + audio-unit
+- **[62bf1f4e](#62bf1f4e)** — lwsrp: LeaveAll scope is per MRP application
+- **[9f130122](#9f130122)** — acmp: Milan 5.5.3.5.43 rebind exactness
+- **[9cab4934](#9cab4934)** — merge lane D: MVRP LeaveAll no longer ages MSRP registrations
+- **[dbecc7fe](#dbecc7fe)** — aecp: SET/GET_MAX_TRANSIT_TIME becomes PER-STREAM_OUTPUT
+- **[e9761fea](#e9761fea)** — lwsrp tb: drop the stray merge divider lane-D left behind
+- **[db579d87](#db579d87)** — merge lane E: Milan 5.5.3.5.43 implicit-rebind exactness
+- **[89696167](#89696167)** — merge lane B: per-stream MAX_TRANSIT_TIME
+- **[601c4ce6](#601c4ce6)** — csr: VERSION 0x001A
+- **[2fdcbd0c](#2fdcbd0c)** — soc: pad-lock the PHY launch/capture FFs on EVERY phy_model
+- **[16830fd5](#16830fd5)** — soc: MII keeps the TX pad-lock (the wedge fix)
+- **[17c4fa17](#17c4fa17)** — avtp+adp+tb: Opus-review fixes
+- **[f302b414](#f302b414)** — tx-trunk supervision (0x001B): every adp_tx_arbiter lock is watchdogged
+- **[b12ba4c0](#b12ba4c0)** — gen: the sweep fragment is 4x4-owned
+- **[af5098b9](#af5098b9)** — arbiter: lock-at-presentation WITHDRAWN on a desk bisect
+- **[6ad7c41e](#6ad7c41e)** — dma: loop-invariant hoists off the m001d critical cones
+- **[7839b4f5](#7839b4f5)** — aecp: ADD/REMOVE/GET_AUDIO_MAP serve EVERY dynamic STREAM_PORT_INPUT
+- **[7c6a5596](#7c6a5596)** — config+rtl: both NxN shapes go map_mode DYNAMIC
+- **[0feab156](#0feab156)** — docs: CHMAP64_AEM_BINDING validity/getter sections follow the N-port engine
+- **[dc1d6140](#dc1d6140)** — build: check_entity_shape --self-test mutation literal follows the 8x8 config
+- **[52362e5f](#52362e5f)** — gen: regenerate all three per-config entity ROMs
+- **[bd9d6a19](#bd9d6a19)** — aecp: the pre-merge gate on dynamic audio maps
+- **[0dfd33cd](#0dfd33cd)** — aecp: the frame-length check counts from the RIGHT octet
+- **[f8674429](#f8674429)** — talker Table 5.4: the two briefed defects are REFUTED
+- **[2e14be12](#2e14be12)** — adp: the advertiser was never dormant
+- **[43cfe375](#43cfe375)** — adp: a send ABSORBS a scheduled TMR_DELAY window
+- **[e76f7ea6](#e76f7ea6)** — adp: ADP liveness becomes ONE register read (A_ADP_DIAG2 0x674)
+- **[c9aa2596](#c9aa2596)** — docs: the traceability row that recorded this round's own headline
+- **[710d6a0c](#710d6a0c)** — docs: 0x001D says its WIRE-FACING half out loud
+- **[077112e1](#077112e1)** — adp: the VERSION 0x001D bump pays its debts
+- **[bfa0d125](#bfa0d125)** — build: carry the 0x001D firmware_version byte into the OTHER two
+- **[203c1016](#203c1016)** — merge the ADP round (VERSION 0x001D) beside the talker-counter round
+- **[baba7a3b](#baba7a3b)** — srp: EVERY AAF talker row gets a provisioner
+- **[8cd0ea59](#8cd0ea59)** — srp: prove EVERY talker row declares; second defect fixed too
+- **[29fccfa5](#29fccfa5)** — docs+cert: record the talker-row provisioning fix where readers look
+- **[740380b0](#740380b0)** — csr: VERSION 0x001D -> 0x001E
+- **[33c45d5a](#33c45d5a)** — lwsrp: the AAF talker declaration is SHAPE-DERIVED
+- **[3b8ab7de](#3b8ab7de)** — tests: the streaming-licence provisioner scenario follows the shape-derived want
+- **[6652932a](#6652932a)** — torture/compliance test layer: land the verified NO-GO fix round
+- **[8cc19a0c](#8cc19a0c)** — aecp tb: sim_fmt4 round-trips SET/GET_STREAM_FORMAT on MIDDLE stream inputs
+- **[1d819aac](#1d819aac)** — docs: trace SET/GET_STREAM_FORMAT (CMD-6) as per-descriptor across every declared stream
+- **[1bd43080](#1bd43080)** — mr: the media-clock SOURCE-CHANGE trigger (IEEE 1722-2016 4.4.4.3)
+- **[ab712098](#ab712098)** — docs: mark the 4.4.4.3 media-clock source-change trigger DONE
+- **[d9778ec5](#d9778ec5)** — 0x001F: every AAF talker EGRESSES, with its OWN identity
+- **[6692ffce](#6692ffce)** — tsn_fuzz adp: campaign told DUT link UP, demanded silence
+- **[296815d3](#296815d3)** — docs: regenerate the per-module README-tests / TEST_RESULTS rows
+- **[58fed9a5](#58fed9a5)** — 0x0020: the Talker TSpec is Milan's Table 4.4
+- **[6a08e2f4](#6a08e2f4)** — lwsrp: the TA registrar was the third one
+- **[aa58140e](#aa58140e)** — aecp: behave coverage for unsolicited notifications
+- **[4b41f628](#4b41f628)** — 0x0021: the Talker TSpec now describes the frame actually emitted
+- **[65d60552](#65d60552)** — torture campaign: bind only the peer's (p) PRIMARY stream inputs
+- **[a1890fd4](#a1890fd4)** — cbs: shape CLASS A ONLY
+- **[31861d7e](#31861d7e)** — soc: --xlen is now honoured on the vexiiriscv path
+- **[105a97e7](#105a97e7)** — handover 07-31: WAIT FOR THE THREE RV32 SEEDS
+
 ## 8e25c9e4
 
 build: make the tracked-ROM gate CONFIG-AWARE and regenerate the entity for the 8x8 ship shape - test_builder gate 10 hardcoded CONFIGS[arty_current] against the tracked ROM while check_entity_shape --built-config demands the tracked pair BE the config being built, so from the moment the tree was regenerated for ax7101_8x8 the two gates were MUTUALLY UNSATISFIABLE and the only way to get green was to carry a 1x1 descriptor set into an 8x8 build - which is the 2026-07-27 silicon defect itself (8 streams advertised as 1), so a gate was actively enforcing the bug; gate 10 now reads the same `Source :` marker check_entity_shape reads and holds whichever config owns the tracked pair to account, and the builtin-path refactor guard is pinned to arty_current's OVERLAY rather than to the tracked ROM (the builtin descriptor set is the 1x1 one; tying it to whatever shape is tracked breaks it on every board regeneration, which is a property of the TREE and not a gen_aem_store regression); tracked entity is now endstation_ax7101_8x8 (ADP_TALKER_SRC_C=9, ADP_LISTENER_SINK_C=9 = 8 AAF + the CRF media clock at uid 8); also preserves lane ABs raw-socket ATDECC controller into tb/tools/ (avdecc_ctl.py + crf_vs_phc.py) - it existed ONLY in a session scratchpad and is the only working AECP controller on this bench, la_avdecc being unusable here for its ABI/SIGSEGV trap; test_builder ALL GATES PASS, check_entity_shape 70 checks 7 mutations 0 failures, --built-config ax7101_8x8 PASS

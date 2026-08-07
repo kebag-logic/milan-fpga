@@ -6,6 +6,18 @@ markdown. Scrub before committing any of it.
 
 ---
 
+## Contents
+
+- **[1. One-line state](#1-one-line-state)** — 15 lanes merged, 52 commits unpushed, nothing built or flashed; silicon still runs `0x0001_0016`.
+- **[2. What this session was actually about](#2-what-this-session-was-actually-about)** — one defect class found five times: declarations nobody checked against the thing they describe — including the self-referential 5.3.7.3 mis-restatement that justified `cfg_aaf_bypass`.
+- **[3. Bench state — LEAVE IT ALONE UNLESS YOU READ §7](#3-bench-state--leave-it-alone-unless-you-read-7)** — both boards' live-but-volatile CSR fixes (revert on reboot), the access commands, and the inline taps identified as the best instrument on the bench.
+- **[4. Gate status, exact](#4-gate-status-exact)** — the full gate readout, why the 2.1M check total is finally trustworthy (the aggregator used to drop 28 of 57 logs), and the warning that no full re-sweep has run on the final tree.
+- **[5. The four behave failures, with verdicts](#5-the-four-behave-failures-with-verdicts)** — one stale scenario, one legitimate count change, and two TRUE findings that belong under `@rtl-defect` — not to be "fixed" by down-declaring the shape.
+- **[6. check_wire_accountability is SUPPOSED to be red](#6-check_wire_accountability-is-supposed-to-be-red)** — it reports W3 (16 pair slots back four of eight talkers), a different defect from item 00, owned by item 5 — not a regression.
+- **[7. Traps burned today — read before touching the bench](#7-traps-burned-today--read-before-touching-the-bench)** — eight burned traps, from the subtype-masking flood tool and the MRPDU decoder that stopped at the first Message, to the unset `$STANDARDS_DIR` that caused the 5.3.7.3 paraphrase error.
+- **[8. Roadmap — do these in order](#8-roadmap--do-these-in-order)** — pre-flash blockers, build/flash discipline (board telling-apart included), the nine-step silicon validation, the Arty ONE-I2S-plus-TDM8-master decision (§8.3b), and the owned open items.
+- **[9. Documentation written this session](#9-documentation-written-this-session)** — what landed where: `methodology.md` as the normative read-first, the findings and traceability updates, and the memory keys carrying the durable facts.
+
 ## 1. One-line state
 
 **All 15 parallel lanes merged. 52 commits on `main-push`, nothing pushed.**

@@ -11,6 +11,16 @@ only the measured state of the flashed silicon.
 > either device.** Two grader bugs account for them, both proven from the run's
 > own data. Read section "Harness defects" before acting on any row.
 
+## Contents
+
+- **[Totals](#totals)** — the verdict counts: 157 FAIL out of 6,283 records (2.5%).
+- **[The failure classes](#the-failure-classes)** — all 157 in five classes with no long tail, and the disposition summary: 64% are false failures from our own harness.
+- **[Harness defects](#harness-defects)** — H1, the 2.261x rate normalization that accused a conformant peer on 74 rows (self-refuted inside a single step); H1b, this triage's own withdrawn citation claim; H2, the band classifier failing the mandated ~1/s interval tick and misreading a required refusal.
+- **[Genuinely open](#genuinely-open)** — O1: our listener FRAMES_RX flat across all eight indices (8 rows contaminated by a music player); O2: the peer not streaming after rebind, with bench state the suspect history earns first.
+- **[Items requiring a human](#items-requiring-a-human)** — the four checks that need a physical cable pull into the same and then a different switch port.
+- **[Recommended order](#recommended-order)** — harness fixes first (landed same day — the measured-span root cause is recorded here), then a player-free re-run, flash, identical re-run, then the residue.
+- **[Lesson](#lesson)** — newly added graders are as fallible as what they check; a grader disagreeing with another on the same observation is self-refuting evidence already in the output.
+
 ## Totals
 
 | verdict | count | share |

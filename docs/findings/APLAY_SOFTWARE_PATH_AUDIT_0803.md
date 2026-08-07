@@ -29,8 +29,8 @@ PREEMPT_RT, `snd-kl-milan` version `i4`, 8ch/48k S32_BE out of the
 - **[4. The mechanism: wake lateness vs tolerance, not CPU](#4-the-mechanism-wake-lateness-vs-tolerance-not-cpu)** — One arithmetic identity — tolerable lateness = `buffer − period` — explains every survival result, and its ceiling (the ring itself, 85.3 ms) bounds what any tuning can achieve.
 - **[5. mmap: the "zero copies" claim is wrong](#5-mmap-the-zero-copies-claim-is-wrong)** — Measured, `aplay -M` saves ~1.5 points of CPU, not 13.
 - **[6. Where the hart actually goes](#6-where-the-hart-actually-goes)** — Three independent instruments agree, and the largest consumer on the board turns out to be neither audio nor networking but a set of shell scripts polling hardware in a loop.
-- **[7. Verdict and shipping recommendation](#7-verdict-and-shipping-recommendation)**
-- **[8. What this did NOT cover](#8-what-this-did-not-cover)**
+- **[7. Verdict and shipping recommendation](#7-verdict-and-shipping-recommendation)** — The path behaves as designed at the shipped geometry (11,258 periods, zero xruns); seven ordered recommendations follow, led by `periods_min = 8` — the knee of the measured cost/benefit walk — and the shell-loop daemons worth 31.2% of the hart.
+- **[8. What this did NOT cover](#8-what-this-did-not-cover)** — The honest gap list: no audio-correctness check, no true scheduling latency on this kernel, no hardware PMU, one format, one stream, one board, one session.
 
 ## 1. What this board can and cannot be measured with
 

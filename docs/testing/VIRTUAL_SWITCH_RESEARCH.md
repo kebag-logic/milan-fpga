@@ -11,6 +11,19 @@ and are marked where they must still be independently sourced. Companion docs:
 good real-time virtual switch (P4, kernel, or pure userspace) that could satisfy
 AVB compliance, to refine for testing later.
 
+## Contents
+
+- **[1. The decision (up front)](#1-the-decision-up-front)** — build deterministic userspace `virtwire` as the primary CI backend, Linux bridge + `tc` as the secondary wall-clock lane, P4 deferred; virtwire stays a behavioral model until independently tested.
+- **[2. Why the user's "real-time virtual switch" needs two modes](#2-why-the-users-real-time-virtual-switch-needs-two-modes)** — the 1 MHz sim clock (~1000× under line rate) forces a split: virtual-time mode for CI verdicts, wall-clock mode for realism only.
+- **[3. Decision matrix](#3-decision-matrix)** — six candidates (virtwire, bridge+tc, P4/BMv2, OVS, DPDK, ns-3/OMNeT++) scored on AVB semantics, determinism, real-time honesty, integration, and maturity.
+- **[4. Raw-socket (AF_PACKET) fidelity boundary — state this always](#4-raw-socket-af_packet-fidelity-boundary--state-this-always)** — what an L2 frame without preamble or trustworthy FCS can and cannot validate, plus the adapter requirements (offloads off, netns, bounded queues).
+- **[5. Why not P4 first (and when it earns a place)](#5-why-not-p4-first-and-when-it-earns-a-place)** — BMv2 cannot express CBS credit state or residence time and is not a real-time target; P4 stays an optional later backend.
+- **[6. virtwire required behavior (the AVB feature list)](#6-virtwire-required-behavior-the-avb-feature-list)** — the ten-point spec: byte-exact forwarding, explicit reserved-group policy, deterministic events, fault injection, a reference-checked CBS model, counters and evidence output.
+- **[7. VirtualWirePort contract (implementation interface)](#7-virtualwireport-contract-implementation-interface)** — the six-call port API and the `SOCK_SEQPACKET` one-atomic-message-per-frame envelope.
+- **[8. Phased plan (maps to T2/T3)](#8-phased-plan-maps-to-t2t3)** — T2.0 frame contract/loopback through T2.3 single-node E2E, then the T3 two-node plan with its negative controls.
+- **[9. What we must NOT claim](#9-what-we-must-not-claim)** — the honesty rails: no line-rate compliance at sim speed, no transparent-clock claim for `tc`, bridge reserved-group defaults untested, green virtual is never a hardware claim.
+- **[10. Primary sources to cite (deferred Opus pass)](#10-primary-sources-to-cite-deferred-opus-pass)** — the citation backlog: no kernel/P4/DPDK claim in §3–§5 is final until its primary doc is linked here.
+
 ## 1. The decision (up front)
 
 **Build a deterministic userspace L2 switch ("`virtwire`") as the primary CI

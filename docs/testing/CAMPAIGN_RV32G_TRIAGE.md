@@ -14,6 +14,14 @@ attributable to (a) the
 grader fixes, (b) the new gateware, or (c) bench state — and the rows say
 which.
 
+## Contents
+
+- **[Totals, against rv32-f](#totals-against-rv32-f)** — the side-by-side verdict counts, FAIL 157 → 68, and the headline: rv32-f's 100 false failures did not recur.
+- **[The 68, decomposed — every row accounted for](#the-68-decomposed--every-row-accounted-for)** — each FAIL class attributed: 38 known peer counter-semantics rows, the return-leg cluster, a new self-loop harness gap (H3), seven mid-run stale-classifier artifacts, and the single 0.44% late-frame row.
+- **[What this run newly established](#what-this-run-newly-established)** — `0x00010022` holds through the full matrix and real power cycles; the audio-loop zeros are proven not contamination; refusals graded first-class; instrument clean throughout.
+- **[Genuinely open after rv32-g](#genuinely-open-after-rv32-g)** — the return leg root-caused the same day to OUR ACMP classify dropping talker PROBE_TX_RESPONSEs (`is_lstn_cmd=0`), plus the 0.44% late row, the persistence re-flash, and the NEEDS-HUMAN cable-pull quartet.
+- **[Lesson](#lesson)** — why evidence recorded inside every row made the run self-triaging: artifacts identified themselves and re-graded mechanically.
+
 ## Totals, against rv32-f
 
 | verdict | rv32-f | rv32-g |

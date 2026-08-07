@@ -22,6 +22,15 @@ frame, counter value). A row's status only moves to VERIFIED through a
 grader, never through reading code — that discipline is what made rv32-g
 self-triaging. Verdicts you contribute here become Phase-B grader specs.
 
+## Contents
+
+- **[1. GET_COUNTERS sets (5.4.2.25, Tables 5.13–5.17)](#1-get_counters-sets-54225-tables-513517)** — which counter sets each descriptor serves today: mostly IMPLEMENTED, with T5.14 the one deliberate (allowed) omission.
+- **[2. Counter UPDATE LAWS (the "when does it move" half — the named pain)](#2-counter-update-laws-the-when-does-it-move-half--the-named-pain)** — per-counter movement laws awaiting Phase-B graders: the reset-on-bind edge, observation-interval coalescing, and the round's one RED row (features_flags must advertise dynamic mappings).
+- **[3. Unsolicited notifications (5.4.5.2 Table 5.22 + 1722.1 7.5.2)](#3-unsolicited-notifications-5452-table-522--17221-752)** — Table 5.22 push triggers against the `0x0024` pend-register implementation, with the multi-sink residues and two suspected-missing rows spelled out.
+- **[4. Controller liveness (5.4.5.3)](#4-controller-liveness-5453)** — the 30–60 s per-controller monitor timer, probe/retry, and auto-deregister family: all three laws MISSING (suspected).
+- **[5. Not yet inventoried (the "etc" — the round grows this section)](#5-not-yet-inventoried-the-etc--the-round-grows-this-section)** — the open backlog: identification notification, REGISTER_UNSOLICITED slot exhaustion, ACMP timers, redundancy n/a, SET_* acceptance laws.
+- **[Round protocol](#round-protocol)** — the four phases in order: clause reading, grader-before-fix, fabric fixes, then an identical-plan rv32-h re-run with every delta attributable.
+
 ## 1. GET_COUNTERS sets (5.4.2.25, Tables 5.13–5.17)
 
 | clause | law | status | evidence / gap |

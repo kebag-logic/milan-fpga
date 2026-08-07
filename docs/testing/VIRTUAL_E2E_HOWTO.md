@@ -10,6 +10,18 @@ Read this once before running anything: **a green run here is a simulation
 result, never a hardware claim.** Hardware-only properties (PHY timing, analog
 audio, Vivado-vs-Verilator differences) report `BLOCKED`, never `PASS`.
 
+## Contents
+
+- **[0. One-time setup](#0-one-time-setup)** — the package install line, where the LiteX venv and both buildroot trees already live, and `env-check` as the one-command environment gate.
+- **[1. T1 — the boot proof you can run today (RV32, ~2 min)](#1-t1--the-boot-proof-you-can-run-today-rv32-2-min)** — the runner call and the underlying driver command, the expected PASS output, cache behavior, and the venv-activation gotcha that costs an hour.
+- **[2. What T1 does and does not prove](#2-what-t1-does-and-does-not-prove)** — the plane-by-plane honesty table: silicon proven, software BIOS-only, protocol and oracle not yet.
+- **[3. T2 — boot the real RV32 Linux image (next tier)](#3-t2--boot-the-real-rv32-linux-image-next-tier)** — the artifact tuple and the two lanes that must not be conflated: exact VexiiRiscv/Verilator (authoritative) vs QEMU orchestration (different CPU fidelity, likely needs a custom machine model).
+- **[4. T3 — machine-to-machine verification](#4-t3--machine-to-machine-verification)** — two fully distinct virtual nodes over a deterministic bridge, a foreign AVDECC controller, and the acceptance list including the stale-AEM negative control.
+- **[5. Verilator multithreading](#5-verilator-multithreading)** — the three separate knobs (build jobs, sim threads, node count), the per-node cap formula, and the determinism bar threaded runs must clear.
+- **[6. Interpreting results](#6-interpreting-results)** — what PASS/FAIL/SKIP/BLOCKED each mean here, and why `t2-prep`/`t3-prep` are never tier passes.
+- **[7. Troubleshooting](#7-troubleshooting)** — the symptom→cause→fix table, headed by the migen/venv trap and the stale-build-dir hang.
+- **[8. Quick reference card](#8-quick-reference-card)** — every runner command on one screen, including the RV64 lane behind its flag.
+
 ## 0. One-time setup
 
 ```sh

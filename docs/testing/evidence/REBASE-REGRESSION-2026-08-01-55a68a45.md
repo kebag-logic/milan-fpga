@@ -6,6 +6,13 @@ counters / lwSRP walker) plus the BDD conformance layer. **This is NOT the full
 55-suite Verilator sweep** and does not prove Linux boot, virtual-wire behavior,
 or hardware timing.
 
+## Contents
+
+- **[Baseline](#baseline)** — the exact commits: HEAD `55a68a45` over base `3c82068d` (the listener-counter/walker RTL delta under test), 128-core host, Verilator 5.050.
+- **[Commands and results](#commands-and-results)** — the five lwSRP Verilator suites plus behave, verbatim, with the per-gate table: 638 RTL checks and 520 BDD scenarios, every gate PASS exit 0.
+- **[Verdict](#verdict)** — the rebase delta passes its targeted family; virtual-E2E gates were re-verified separately against the same commit.
+- **[What this does not cover](#what-this-does-not-cover)** — the full 55-suite sweep, hardware timing/PHY, and the still-blocked T2/T3 virtual-wire gates.
+
 ## Baseline
 
 - HEAD: `55a68a45` ("virtual e2e: runner, sim driver, docs, evidence")
