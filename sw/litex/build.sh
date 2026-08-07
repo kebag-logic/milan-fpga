@@ -117,12 +117,12 @@ if [ "${1:-}" = "flash" ]; then
 fi
 
 # ---- named configurations -----------------------------------------------------
-cfg_ax7101() {   # bench/cert shape (USER 2026-07-21: 1 hart + L2 32K - the
+cfg_ax7101() {   # bench/compliance shape (USER 2026-07-21: 1 hart + L2 32K - the
                  # 83% utilization from the CRF/sink-1/forensics growth broke
                  # every 100 MHz seed; one VexiiRiscv hart back = ~8k LUTs =
                  # the AX21-era placement freedom. The 2-hart/L2-64K perf
                  # variant is the previous revision of this function.)
-    # BODY = the tdm8 CERT/ship set (byte-matched to the t529 sweep Command;
+    # BODY = the tdm8 internal-COMPLIANCE/ship set (byte-matched to the t529 sweep Command;
     # the nic-perf RV64 revision below had leaked back in as the bare body,
     # so an extras-less `--sweep ax7101` built prefetch-rpt/l2-16K/no-tdm8 -
     # the whole t530 sweep was that wrong SoC, +11.5k LUTs, unplaceable).

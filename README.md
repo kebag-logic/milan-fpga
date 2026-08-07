@@ -168,10 +168,10 @@ ride the big arrow; dates assume the current cadence.
  2026-08            2026-09            2026-10            2026-11..12         2027-Q1
     |                  |                  |                  |                  |
 ====\==================\==================\==================\==================\=========>
- P1 CLOSE THE       P2 STATE          P3 ROBUSTNESS      P4 CERT +          P5 PRODUCT      v1.0
+ P1 CLOSE THE       P2 STATE          P3 ROBUSTNESS      P4 COMPLIANCE          P5 PRODUCT      v1.0
     FABRIC             SURVIVAL          AS A GATE          PCB SPIN           HARDWARE     SHIP
     ROADMAP                                                                                  |
-    - deterministic - AEM persistence - redundancy net  - CERT test-house  - PCB bring-up ==>
+    - deterministic - AEM persistence - redundancy net  - compliance test-house  - PCB bring-up ==>
       listener        journal (mtd)     cabled +          run (Milan v1.2)   (TCXO, audio
       latency       - rootfs: boot-     failover proof  - 802.1AS            I/O, power)
       (setpoint law,  resilient statd/ - temp-range       conformance      - EMC / safety
@@ -191,4 +191,4 @@ ride the big arrow; dates assume the current cadence.
 
 Standing invariants across every phase: the ATDECC model stays authoritative
 (no side-channel state), every closed bitstream is flashed and soaked, and
-the desk suites + CERT behave gates stay green at 100 % coverage.
+the desk suites + internal COMPLIANCE behave gates stay green at 100 % coverage.
