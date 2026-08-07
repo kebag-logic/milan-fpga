@@ -283,28 +283,30 @@ int main(int argc,char**argv){
     ck("exact-fit PCM 64 bytes", (long)pcm.size(), 64);
     ck("exact-fit tlast", pcm_last?1:0, 1);
 
-    printf("\n[26] external media clock: lock gated on servo convergence\n");
-    // USER rule: internal locks on buffer position (first valid PDU);
-    // external only once the recovered clock is near nominal
+    printf("\n[26] MEDIA_LOCKED is source-agnostic and FREE-WHEELS (task #25,\n"
+           "     Milan 5.3.8.10 + 4.4.2.3 + 1722-2016 E.2.1)\n");
+    // lock = the stream-vs-timebase capability predicate: an accepted
+    // in-format PDU locks, for EVERY clock source; convergence loss (a
+    // gPTP change, a FIFO excursion) NEVER unlocks a flowing stream
     dut->bound_i=0; cyc(3);
-    dut->clk_src_i=1; dut->servo_conv_i=0;   // external (input stream)
+    dut->clk_src_i=1; dut->servo_conv_i=0;   // external, UNCONVERGED
     dut->bound_i=1; cyc(3);
     { AafCfg c; c.seq=0; feed(mkaaf(c)); }
-    { AafCfg c; c.seq=1; feed(mkaaf(c)); }
-    ck("[26a] external+unconverged: not locked", dut->media_locked_o, 0);
-    ck("[26b] lock counter idle", dut->cnt_media_locked_o, 0);
-    dut->servo_conv_i=1; cyc(2);
-    { AafCfg c; c.seq=2; feed(mkaaf(c)); }
-    ck("[26c] converged: MEDIA_LOCKED asserts", dut->media_locked_o, 1);
-    ck("[26d] lock counted once", dut->cnt_media_locked_o, 1);
+    ck("[26a] external+unconverged: LOCKS on the PDU", dut->media_locked_o, 1);
+    ck("[26b] lock counted once", dut->cnt_media_locked_o, 1);
     { long ul=dut->cnt_media_unlocked_o;
-      dut->servo_conv_i=0; cyc(2);
-      ck("[26e] convergence lost: unlocks", dut->media_locked_o, 0);
-      ck("[26e2] MEDIA_UNLOCKED counted", dut->cnt_media_unlocked_o, ul+1); }
-    dut->servo_conv_i=1; cyc(2);
-    { AafCfg c; c.seq=3; feed(mkaaf(c)); }
-    ck("[26f] re-converge + PDU: relocks", dut->media_locked_o, 1);
-    // internal source ignores the servo entirely
+      dut->servo_conv_i=1; cyc(2);
+      dut->servo_conv_i=0; cyc(2);           // the gPTP-change shape
+      ck("[26c] convergence lost: STAYS locked (free-wheel)",
+         dut->media_locked_o, 1);
+      ck("[26d] no MEDIA_UNLOCKED for it", dut->cnt_media_unlocked_o, ul);
+      dut->clk_src_i=2; cyc(2);              // clock-source change mid-stream
+      dut->clk_src_i=1; cyc(2);
+      ck("[26e] clock-source churn: STAYS locked", dut->media_locked_o, 1);
+      ck("[26e2] ...and counts nothing", dut->cnt_media_unlocked_o, ul); }
+    { AafCfg c; c.seq=1; feed(mkaaf(c)); }
+    ck("[26f] stream keeps flowing locked", dut->media_locked_o, 1);
+    // internal source: identical law
     dut->bound_i=0; cyc(3);
     dut->clk_src_i=0; dut->servo_conv_i=0;
     dut->bound_i=1; cyc(3);

@@ -226,7 +226,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x0001002A);
+       axi_read(A_VERSION), 0x0001002B);
 
     printf("-- 5.5.2.7 SRP-only licence at t>0 STRAIGHT FROM RESET "
            "(2026-07-30 bite) --\n");

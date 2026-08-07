@@ -597,18 +597,11 @@ int main(int argc,char**argv){
                lctx_rd(1, W_ML) == lctx_rd(1, W_MU), 1);
         }
         tblwr(1, SIDA, false); cyc(10);
-        //! THE ERA BOUNDARY: a rebind zeroes BOTH counters, so an unlock still
-        //! owed by the PREVIOUS era must die with it - crediting it into the
-        //! fresh era leaves MU = ML+1, which is NEITHER legal state. Run on
-        //! stream 0: it is the RENDER stream, so clk_src != 0 with the servo
-        //! unconverged is a standing unlock request against it, and its
-        //! counters are the legacy outputs the continuous invariant watches.
-        //! The race is only reachable while the walker is BUSY: an idle
-        //! walker drains the servo unlock the cycle it is raised (leaving the
-        //! legal ML=MU), so the unlock and the bind must both go pending
-        //! DURING a walk. The lock PDU's own walk is that window - feed it
-        //! without drain headroom, raise clk_src inside it, and sweep the
-        //! rebind edge across the whole window.
+        //! THE ERA BOUNDARY under the task-#25 free-wheel law: clock-source
+        //! churn (the gPTP-change shape) must never generate an unlock, so
+        //! sweeping clk_src flips and rebind edges across the lock walk's
+        //! whole window has to leave the pair invariant legal AND the
+        //! stream locked in every phase - the churn is pure noise now.
         uint8_t sq0 = 0;
         long bad_ph = -1;
         for (int ph = 0; ph < 24 && bad_ph < 0; ph++) {
@@ -616,7 +609,7 @@ int main(int argc,char**argv){
             dut->bound0_i = 0; cyc(8);
             dut->bound0_i = 1; cyc(60);                 // fresh era, s0
             { AafCfg c; c.seq=sq0++; feed_nowait(mkaaf(c)); }  // lock, busy
-            dut->clk_src_i = 1;             // servo unlock pends while locked
+            dut->clk_src_i = 1;             // churn mid-walk: NOT an unlock
             cyc(ph);                        // ... swept across the walk
             dut->bound0_i = 0; cyc(1);      // rebind edge, mid-flight
             dut->bound0_i = 1; cyc(160);

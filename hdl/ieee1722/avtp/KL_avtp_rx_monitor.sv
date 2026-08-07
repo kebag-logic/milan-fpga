@@ -287,14 +287,14 @@ module KL_avtp_rx_monitor #(
             cnt_ts_uncertain_o <= cnt_ts_uncertain_o + 32'd1;
 
           if (!media_locked_o) begin
-            //! USER rule: internal clock source locks on buffer position
-            //! (first valid PDU); an EXTERNAL source locks only once the
-            //! recovered clock has converged near nominal
-            if (clk_src_i == 16'd0 || servo_conv_i) begin
-              cnt_media_locked_o <= cnt_media_locked_o + 32'd1;
-              media_locked_o     <= 1'b1;
-              dirty_p_o          <= 1'b1;
-            end
+            //! task #25 (Milan 5.3.8.10 + 1722-2016 E.2.1): lock is the
+            //! stream-vs-timebase CAPABILITY predicate - an accepted
+            //! in-format PDU with a placeable timestamp locks, for EVERY
+            //! clock source. The servo/playback state lives on other
+            //! descriptors (CLOCK_DOMAIN.LOCKED, the FIFO counters).
+            cnt_media_locked_o <= cnt_media_locked_o + 32'd1;
+            media_locked_o     <= 1'b1;
+            dirty_p_o          <= 1'b1;
             prev_seq_r         <= seq_num_i;     // (re)lock: seed, no gap
             settle_r           <= 4'(SETTLE_C);  // grace the bind/path-open step
           end
@@ -314,12 +314,9 @@ module KL_avtp_rx_monitor #(
         end
       end
 
-      //! external source: convergence lost while locked = unlock event
-      if (media_locked_o && clk_src_i != 16'd0 && !servo_conv_i) begin
-        cnt_media_unlocked_o <= cnt_media_unlocked_o + 32'd1;
-        media_locked_o       <= 1'b0;
-        dirty_p_o            <= 1'b1;
-      end
+      //! task #25: convergence loss is NOT an unlock - the lock
+      //! FREE-WHEELS through timebase disturbances (Milan 4.4.2.3);
+      //! MEDIA_UNLOCKED remains for genuine stream loss (silence, bind).
 
       //! Milan Table 5.6: reset on not-bound -> bound (wins over everything)
       if (bound_rise) begin

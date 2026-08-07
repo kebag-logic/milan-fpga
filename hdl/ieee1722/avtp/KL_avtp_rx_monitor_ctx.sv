@@ -290,7 +290,6 @@ module KL_avtp_rx_monitor_ctx #(
 
   logic [N_LISTENERS_P-1:0] bind_pend_r;
   logic [N_LISTENERS_P-1:0] sil_pend_r;
-  logic [N_LISTENERS_P-1:0] servo_pend_r;
   logic [2:0] dpdu_pend_r   [N_LISTENERS_P];
   logic [2:0] ddrop_pend_r  [N_LISTENERS_P];
 
@@ -403,9 +402,10 @@ module KL_avtp_rx_monitor_ctx #(
   end : new_evt_pack
 
   wire [IDXW_C-1:0] rsel_w = render_sel_i[IDXW_C-1:0];
-  //! external-clock unlock condition - RENDER stream only (USER rule)
-  wire servo_unlock_w = locked_sh_r[rsel_w] && (clk_src_i != 16'd0) &&
-                        !servo_conv_i;
+  //! task #25: convergence loss is NOT an unlock (free-wheel, Milan
+  //! 4.4.2.3). The playback FIFO's excursions keep their own I2SPB
+  //! counters and the 0x002A recenter's MEDIA_RESET; MEDIA_UNLOCKED
+  //! remains for genuine stream loss only (100 ms silence, bind wipe).
 
   logic depkt_any_w;
   always_comb begin : pend_scans
@@ -424,7 +424,7 @@ module KL_avtp_rx_monitor_ctx #(
   //! and the flag-fold block can never disagree about the drain cycle
   wire iv_go_w = (mst_r == M_IDLE_S) && !pdisp_w && !pdisp_new_w &&
                  (bind_pend_r == '0) && (sil_pend_r == '0) &&
-                 (servo_pend_r == '0) && !depkt_any_w &&
+                 !depkt_any_w &&
                  (iv_res_list_r == '0) && (iv_pend_r != '0);
   logic [IDXW_C-1:0] iv_s_w;
   always_comb begin : iv_pick
@@ -435,7 +435,7 @@ module KL_avtp_rx_monitor_ctx #(
   //! the window read gets the port only when the engine is fully idle
   wire ext_rd_go_w = lctx_rd_en_i && (mst_r == M_IDLE_S) && !penq_w &&
                      (pq_cnt_r == '0) && (bind_pend_r == '0) &&
-                     (sil_pend_r == '0) && (servo_pend_r == '0) &&
+                     (sil_pend_r == '0) &&
                      (iv_pend_r == '0) && (iv_res_list_r == '0) &&
                      !depkt_any_w;
   //! stream index being dispatched this idle cycle (drives the prefetch)
@@ -481,8 +481,15 @@ module KL_avtp_rx_monitor_ctx #(
 
   wire [7:0] expected_w = ms_prev(ram_q_r) + 8'd1;
   wire [7:0] lost_w     = cur_r.seq - expected_w;
-  //! lock gate: internal for non-render streams; render follows clk_src/servo
-  wire lock_ok_w  = (ev_s_r != rsel_w) || (clk_src_i == 16'd0) || servo_conv_i;
+  //! lock gate (task #25, Milan 5.3.8.10 + 1722-2016 E.2.1): MEDIA_LOCKED
+  //! is a stream-vs-timebase CAPABILITY predicate - in-format PDUs with
+  //! placeable timestamps ARE the lock condition, identical for every
+  //! clock source ("whatever where the media clock comes from"). The old
+  //! render-stream servo gate measured the PLAYBACK pipeline on the wrong
+  //! descriptor: fill excursions are the FIFO's own counters, servo state
+  //! is CLOCK_DOMAIN.LOCKED, and a gPTP change must FREE-WHEEL (Milan
+  //! 4.4.2.3), never unlock a healthy stream.
+  wire lock_ok_w  = 1'b1;
   wire lock_now_w = !ms_locked(ram_q_r) && lock_ok_w;
   wire seq_mm_w   = ms_locked(ram_q_r) && (ms_settle(ram_q_r) == '0) &&
                     (cur_r.seq != expected_w);
@@ -767,7 +774,6 @@ module KL_avtp_rx_monitor_ctx #(
       ddrop_add_r <= '0;
       bind_pend_r  <= '0;
       sil_pend_r   <= '0;
-      servo_pend_r <= '0;
       iv_pend_r    <= '0;
       frx_add_r    <= '0;
       for (int s = 0; s < N_LISTENERS_P; s++) frx_acc_r[s] <= '0;
@@ -845,7 +851,6 @@ module KL_avtp_rx_monitor_ctx #(
           else sil_ms_r[s] <= sil_ms_r[s] + 7'd1;
         end
       end
-      if (servo_unlock_w) servo_pend_r[rsel_w] <= 1'b1;
 
       // ---- walker FSM ----------------------------------------------------
       unique case (mst_r)
@@ -873,9 +878,9 @@ module KL_avtp_rx_monitor_ctx #(
               if (bind_pend_r[s]) ev_s_r <= IDXW_C'(s);
             mst_r <= M_BRD_S;
           end
-          else if (sil_pend_r != '0 || servo_pend_r != '0) begin
+          else if (sil_pend_r != '0) begin
             for (int s = N_LISTENERS_P-1; s >= 0; s--)
-              if (sil_pend_r[s] || servo_pend_r[s]) ev_s_r <= IDXW_C'(s);
+              if (sil_pend_r[s]) ev_s_r <= IDXW_C'(s);
             sil_mode_r <= 1'b1;
             mst_r      <= M_INC_S;
           end
@@ -1000,7 +1005,6 @@ module KL_avtp_rx_monitor_ctx #(
                 locked_sh_r[ev_s_r]  <= 1'b0;
                 sil_ms_r[ev_s_r]     <= '0;
                 sil_pend_r[ev_s_r]   <= 1'b0;
-                servo_pend_r[ev_s_r] <= 1'b0;
                 sil_mode_r <= 1'b0;
                 wrph_r     <= '0;
                 mst_r      <= M_IDLE_S;
@@ -1068,7 +1072,6 @@ module KL_avtp_rx_monitor_ctx #(
             //! MEDIA_UNLOCKED over a zeroed MEDIA_LOCKED and strand the
             //! stream at UNLOCKED=LOCKED+1, which is neither legal state
             sil_pend_r[ev_s_r]   <= 1'b0;
-            servo_pend_r[ev_s_r] <= 1'b0;
             //! a parked walk remainder for THIS stream dies with the era
             //! too (its counters are zeroed by the bind-zero walk below)
             if (iv_res_s_r == ev_s_r) iv_res_list_r <= '0;
