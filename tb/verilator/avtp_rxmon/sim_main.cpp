@@ -161,14 +161,15 @@ int main(int argc,char**argv){
     { AafCfg c; c.seq=62; c.tu=true; feed(mkaaf(c)); }
     ck("TIMESTAMP_UNCERTAIN 1", dut->cnt_ts_uncertain_o, 1);
 
-    printf("\n[10] format mismatch counts UNSUPPORTED_FORMAT and nothing else\n");
+    printf("\n[10] FAMILY mismatch counts UNSUPPORTED_FORMAT and nothing else\n");
+    //! channel count is NOT a family term (Milan BAF Section 4, task #24):
+    //! only subtype/encoding/rate/depth/sparse reject
     long frx = dut->cnt_frames_rx_o;
     { AafCfg c; c.seq=63; c.nsr=0x07; feed(mkaaf(c)); }       // 96 kHz PDU
     { AafCfg c; c.seq=63; c.depth=24; feed(mkaaf(c)); }       // wrong depth
-    { AafCfg c; c.seq=63; c.chans=9;  feed(mkaaf(c)); }       // chans > fmt cap
     { AafCfg c; c.seq=63; c.sp=1;     feed(mkaaf(c)); }       // sparse
     { AafCfg c; c.seq=63; c.subtype=0x04; feed(mkaaf(c)); }   // CRF on our sid
-    ck("UNSUPPORTED_FORMAT 5", dut->cnt_unsupported_fmt_o, 5);
+    ck("UNSUPPORTED_FORMAT 4", dut->cnt_unsupported_fmt_o, 4);
     ck("FRAMES_RX unchanged", dut->cnt_frames_rx_o, frx);
     { AafCfg c; c.seq=63; feed(mkaaf(c)); }   // good frame, seq continues
     ck("no mismatch across bad-format PDUs", dut->cnt_seq_mismatch_o, 3);
@@ -311,16 +312,18 @@ int main(int argc,char**argv){
     ck("[26g] internal: locks on first PDU w/o servo", dut->media_locked_o, 1);
 
 
-    printf("\n[27] format change while locked: unsupported counts, relock on match\n");
-    // USER bug 6 repro: bound+locked stream, STREAM_INPUT fmt changes to a
-    // NON-matching variant (sound gone), then back to matching -> must relock
+    printf("\n[27] FAMILY change while locked: unsupported counts, relock on match\n");
+    // USER bug 6 repro, re-aimed at a FAMILY term (task #24: a channels-only
+    // change no longer mismatches - that is the BAF law, not a regression):
+    // the listener reconfigures to a 96 kHz format while the wire stays
+    // 48 kHz -> rate mismatch counts UNSUPPORTED; back to 48 kHz -> relock.
     dut->bound_i=0; cyc(3);
     dut->clk_src_i=0; dut->servo_conv_i=0;
     dut->bound_i=1; cyc(3);
     { AafCfg c; c.seq=0; feed(mkaaf(c)); }
     ck("[27a] locked on 8ch stream", dut->media_locked_o, 1);
-    dut->fmt_i = 0x0205022000806000ULL;      // listener reconfigured to 2ch
-    { AafCfg c; c.seq=1; feed(mkaaf(c)); }   // wire still 8ch -> mismatch
+    dut->fmt_i = 0x0207022002006000ULL;      // listener reconfigured to 96 kHz
+    { AafCfg c; c.seq=1; feed(mkaaf(c)); }   // wire still 48 kHz -> mismatch
     { AafCfg c; c.seq=2; feed(mkaaf(c)); }
     ck("[27b] mismatch counts UNSUPPORTED", dut->cnt_unsupported_fmt_o >= 2, 1);
     long frx27 = dut->cnt_frames_rx_o;
@@ -328,12 +331,14 @@ int main(int argc,char**argv){
     ck("[27c] mismatched frames not counted as RX", dut->cnt_frames_rx_o, frx27);
     cyc(11000);                              // silence window expires -> unlock
     ck("[27d] silence unlocks", dut->media_locked_o, 0);
-    { AafCfg c; c.seq=4; c.chans=2; feed(mkaaf(c)); }  // talker now matches
+    dut->fmt_i = FMT;                        // listener back to 48 kHz
+    { AafCfg c; c.seq=4; c.chans=2; feed(mkaaf(c)); }  // any count matches now
     ck("[27e] matching PDU relocks", dut->media_locked_o, 1);
     ck("[27f] RX counts again", dut->cnt_frames_rx_o, frx27+1);
     dut->fmt_i = FMT;                        // restore for any later scenario
 
-    printf("\n[28] channel ADAPTATION (bench rule: listener accepts 1..fmt chans)\n");
+    printf("\n[28] channel FREEDOM (Milan BAF Section 4 + USER 08-07: accept\n"
+           "     EVERY channel count, route only the mapped subset)\n");
     dut->bound_i=0; cyc(3); dut->bound_i=1; cyc(3);   // fresh era (counters reset)
     { AafCfg c; c.seq=0; c.chans=2; feed(mkaaf(c)); } // 2ch wire vs 8ch fmt
     ck("[28a] 2ch-wire ACCEPTED under 8ch fmt", dut->cnt_frames_rx_o, 1);
@@ -342,9 +347,13 @@ int main(int argc,char**argv){
     ck("[28c] 8ch-wire accepted", dut->cnt_frames_rx_o, 2);
     { AafCfg c; c.seq=2; c.chans=0; feed(mkaaf(c)); } // zero channels = junk
     ck("[28d] 0ch rejected", dut->cnt_unsupported_fmt_o, 1);
-    { AafCfg c; c.seq=2; c.chans=9; feed(mkaaf(c)); } // above the declared cap
-    ck("[28e] 9ch rejected vs 8ch fmt", dut->cnt_unsupported_fmt_o, 2);
-    ck("[28f] frames_rx unchanged by rejects", dut->cnt_frames_rx_o, 2);
+    //! the 08-07 live case: the wire carries MORE channels than the SET
+    //! format (DS20 declared 4ch, sink set 4ch, wire 8ch-era) - accepts,
+    //! the maps route what they map
+    { AafCfg c; c.seq=2; c.chans=9; feed(mkaaf(c)); } // above the SET format
+    ck("[28e] 9ch-wire ACCEPTED over 8ch fmt (BAF family)",
+       dut->cnt_frames_rx_o, 3);
+    ck("[28f] ...and no UNSUPPORTED for it", dut->cnt_unsupported_fmt_o, 1);
 
     printf("\n[29] SPARSE stream (traceability AAF-2, IEEE 1722-2016 7.2.4 +\n"
            "     Milan 6.3: base formats are non-sparse). A sustained sp=1\n"
@@ -387,7 +396,7 @@ int main(int argc,char**argv){
     ck("[30b] mr toggle breaks no lock/seq", dut->cnt_seq_mismatch_o, 0);
     // (b) an UNSUPPORTED_FORMAT PDU early-returns: it counts nothing else,
     //     so its mr never moves the reference either
-    { AafCfg c; c.seq=14; c.mr=true; c.chans=9; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=14; c.mr=true; c.depth=24; feed(mkaaf(c)); }
     ck("[30c1] rejected PDU's mr counts no reset", dut->cnt_media_reset_o, 2);
     { AafCfg c; c.seq=14; c.mr=true; feed(mkaaf(c)); }
     ck("[30c2] the same toggle counts once it is ACCEPTED",

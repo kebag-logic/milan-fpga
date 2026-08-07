@@ -256,7 +256,9 @@ int main(int argc,char**argv){
     long frx=dut->cnt_frames_rx_o;
     align_iv();                 // both rejects inside ONE interval
     { AafCfg c; c.seq=64; c.nsr=0x07; feed(mkaaf(c)); }
-    { AafCfg c; c.seq=64; c.chans=9; feed(mkaaf(c)); }
+    //! depth, not channels: channel count left the family compare with
+    //! the Milan BAF Section 4 law (task #24)
+    { AafCfg c; c.seq=64; c.depth=24; feed(mkaaf(c)); }
     flush_iv();
     //! two bad-format PDUs in one interval = ONE tick (Milan Table 5.6);
     //! the old per-frame reading counted 2 here

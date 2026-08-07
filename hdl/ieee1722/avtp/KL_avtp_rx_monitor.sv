@@ -172,7 +172,6 @@ module KL_avtp_rx_monitor #(
   wire [3:0] f_nsr     = fmt_i[51:48];
   wire [7:0] f_format  = fmt_i[47:40];
   wire [7:0] f_depth   = fmt_i[39:32];
-  wire [9:0] f_chans   = fmt_i[31:22];
 
   // ---- received AAF fields from the format-specific header (wire layout;
   //      pipewire struct avb_packet_aaf) --------------------------------------
@@ -183,18 +182,17 @@ module KL_avtp_rx_monitor #(
   wire       p_sp      = fsh_i[12];      // O+22 [4]
 
   //! reference aaf_pdu_format_matches: subtype, format, nsr and bit_depth
-  //! strict; CHANNELS ADAPTIVE (bench rule 2026-07-20, CERT es-4.4): the
-  //! listener accepts any wire channel count 1..fmt_channels - the AEM
-  //! default can stay the full 8ch format while a 2ch talker connects
-  //! pure-ACMP (no SET_STREAM_FORMAT needed; the depacketizer extracts by
-  //! the PDU's own data_len so the media path is wire-driven anyway).
+  //! strict; CHANNELS UNBOUNDED (Milan BAF v1.1 Section 4 + USER 08-07:
+  //! "accept every format, but does not need to route all channels") - a
+  //! Base Listener supports ALL channel counts of its rate family, so the
+  //! configured format never bounds acceptance: the depacketizer extracts
+  //! by the PDU's own data_len and the input maps route the subset.
   //! sparse always NORMAL=0.
   wire fmt_ok = (subtype_i == f_subtype) &&
                 (p_format  == f_format)  &&
                 (p_nsr     == f_nsr)     &&
                 (p_depth   == f_depth)   &&
                 (p_chans   != 8'd0)      &&
-                ({2'b00, p_chans} <= f_chans) &&
                 (p_sp      == 1'b0);
 
   // ---- state ---------------------------------------------------------------

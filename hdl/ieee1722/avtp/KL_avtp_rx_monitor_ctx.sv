@@ -455,7 +455,6 @@ module KL_avtp_rx_monitor_ctx #(
   wire [3:0] f_nsr_w     = fmt_r[51:48];
   wire [7:0] f_format_w  = fmt_r[47:40];
   wire [7:0] f_depth_w   = fmt_r[39:32];
-  wire [9:0] f_chans_w   = fmt_r[31:22];
 
   //! received AAF fields from the format-specific header (wire layout)
   wire [7:0] p_format_w = cur_r.fsh[63:56];
@@ -464,13 +463,20 @@ module KL_avtp_rx_monitor_ctx #(
   wire [7:0] p_depth_w  = cur_r.fsh[39:32];
   wire       p_sp_w     = cur_r.fsh[12];
 
-  //! reference aaf_pdu_format_matches + CHANNELS-ADAPTIVE bench rule
+  //! reference aaf_pdu_format_matches, FAMILY compare (Milan BAF v1.1
+  //! Section 4 + USER 08-07: "the stream input format must accept every
+  //! format, but does not need to route all channels"). A Base Listener's
+  //! STREAM_INPUT supports ALL channel counts of its rate family - the
+  //! configured format is the NOMINAL selection, never an acceptance
+  //! bound, so the wire's channels_per_frame does not appear here at all:
+  //! the depacketizer de-interleaves by the PDU's own count and the input
+  //! maps route the subset. UNSUPPORTED_FORMAT remains for genuine family
+  //! mismatches only (subtype, encoding, rate, depth, sparse).
   wire fmt_ok_w = (cur_r.subtype == f_subtype_w) &&
                   (p_format_w  == f_format_w)  &&
                   (p_nsr_w     == f_nsr_w)     &&
                   (p_depth_w   == f_depth_w)   &&
                   (p_chans_w   != 8'd0)        &&
-                  ({2'b00, p_chans_w} <= f_chans_w) &&
                   (p_sp_w      == 1'b0);
 
   wire [7:0] expected_w = ms_prev(ram_q_r) + 8'd1;
