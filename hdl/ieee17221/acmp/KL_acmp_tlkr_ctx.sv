@@ -23,12 +23,22 @@
 //                    free; dest_mac/vlan from the per-source config
 //                    vectors), count = 0, FAST_CONNECT/STREAMING_WAIT
 //                    echoed + REGISTERING_FAILED forced 0 (Table 5.43);
-//                    arms context c + 15 s window re-arm.
+//                    arms context c + 15 s window re-arm. Step 3: no valid
+//                    DMAC for source c (src_dmac_valid_i[c] = 0, i.e. the
+//                    MAAP claim is down) -> TALKER_DEST_MAC_FAILED with the
+//                    FULL command echo (Table 5.42) — and the window STILL
+//                    arms: 4.3.3.1 condition 2 counts probe RECEPTION, not
+//                    the answer.
 //                  DISCONNECT_TX (§5.5.4.2) -> SUCCESS, zeroed stream
 //                    fields, all three named flags 0 (Table 5.45), NO
 //                    state change. GET_TX_STATE (§5.5.4.3) -> LIVE params,
 //                    three flags cleared + listener_entity_id/
-//                    listener_unique_id ZEROED (Table 5.47). uid >= N ->
+//                    listener_unique_id ZEROED (Table 5.47), except
+//                    REGISTERING_FAILED reads back LIVE: 1 iff the lwSRP
+//                    registrar holds a Listener Asking Failed for source c
+//                    (lstn_ask_fail_i[c]) — GET_TX_STATE ONLY, the PROBE
+//                    table keeps RF forced 0 even while failing (the
+//                    tables differ on purpose). uid >= N ->
 //                    TALKER_UNKNOWN_ID (full echo, Tables 5.41/5.44/5.46).
 //                    GET_TX_CONNECTION -> NOT_SUPPORTED (§5.5.4.4).
 //
@@ -64,10 +74,16 @@ module KL_acmp_tlkr_ctx #(
     // ---- per-source live stream parameters (context c = slice c) -------
     input  wire [N_SRC_P*48-1:0] src_dmac_i, //! stream dest MAC per source
     input  wire [N_SRC_P*12-1:0] src_vid_i,  //! stream VLAN id per source
+    //! per-source "a valid Destination MAC Address is available" (Milan
+    //! 4.3.3.1 condition 1); 0 = PROBE_TX answers TALKER_DEST_MAC_FAILED
+    input  wire [N_SRC_P-1:0]    src_dmac_valid_i,
 
     // ---- activation contexts -------------------------------------------
     input  wire                  tick_1s_i,  //! 1 s strobe (shared adp tick)
     input  wire [N_SRC_P-1:0]    listener_observed_i, //! lwSRP hook per src
+    //! lwSRP registrar: a Listener Asking Failed attribute is registered
+    //! for source c -> GET_TX_STATE REGISTERING_FAILED = 1 (Table 5.47)
+    input  wire [N_SRC_P-1:0]    lstn_ask_fail_i,
     output wire [N_SRC_P-1:0]    talker_active_o,     //! armed|observed
     output reg  [N_SRC_P-1:0]    probe_armed_o,       //! probe window open
 
@@ -163,6 +179,8 @@ module KL_acmp_tlkr_ctx #(
   reg [4:0]    resp_status_r;
   resp_mode_t  resp_mode_r;    //! stream-field source: echo / zeros / live params
   reg [15:0]   flag_clr_r;     //! flag bits cleared in the response (be16 mask)
+  reg [15:0]   flag_set_r;     //! flag bits FORCED in the response (be16 mask;
+                               //! only ever the T5.47 REGISTERING_FAILED bit)
   reg          lstn_zero_r;    //! GET_TX_STATE success: listener ids ZEROED (T5.47)
   reg [47:0]   live_dmac_r;    //! per-source params latched at CLASSIFY
   reg [11:0]   live_vid_r;
@@ -302,9 +320,12 @@ module KL_acmp_tlkr_ctx #(
         // bytes 62-63 sequence_id: echo
       end
       4'd8: begin                                       // bytes 64-69
-        // flags: echo with the per-message clear mask applied
-        w_beat[8*0 +: 8] = rword_w[8*0 +: 8] & ~flag_clr_r[15:8];
-        w_beat[8*1 +: 8] = rword_w[8*1 +: 8] & ~flag_clr_r[7:0];
+        // flags: echo with the per-message clear mask applied, then the
+        // set mask ORed in (T5.47 live REGISTERING_FAILED, GTS only)
+        w_beat[8*0 +: 8] = (rword_w[8*0 +: 8] & ~flag_clr_r[15:8])
+                           | flag_set_r[15:8];
+        w_beat[8*1 +: 8] = (rword_w[8*1 +: 8] & ~flag_clr_r[7:0])
+                           | flag_set_r[7:0];
         w_beat[8*2 +: 8] = sf({4'h0, live_vid_r[11:8]}, rword_w[8*2 +: 8]);
         w_beat[8*3 +: 8] = sf(live_vid_r[7:0],          rword_w[8*3 +: 8]);
         // bytes 68-69 reserved: echo
@@ -329,7 +350,8 @@ module KL_acmp_tlkr_ctx #(
       dst_ok_r <= 1'b0; hdr_ok_r <= 1'b0; msg_r <= '0;
       tk_hi_ok_r <= 1'b0; tk_lo_ok_r <= 1'b0; tuid_r <= '0;
       resp_msg_r <= 4'd0; resp_status_r <= 5'd0;
-      resp_mode_r <= RESP_ECHO_E; flag_clr_r <= 16'h0; lstn_zero_r <= 1'b0;
+      resp_mode_r <= RESP_ECHO_E; flag_clr_r <= 16'h0; flag_set_r <= 16'h0;
+      lstn_zero_r <= 1'b0;
       live_dmac_r <= '0; live_vid_r <= '0;
       probe_armed_o <= '0;
       swp_active_r <= 1'b0; swp_idx_r <= '0; s1_pend_r <= 1'b0;
@@ -414,6 +436,7 @@ module KL_acmp_tlkr_ctx #(
             resp_msg_r    <= {msg_r[3:1], 1'b1};          // command+1
             resp_mode_r   <= RESP_ECHO_E;
             flag_clr_r    <= 16'h0;      //! error rows: full flag echo
+            flag_set_r    <= 16'h0;      //! forced ONLY in the GTS success arm
             lstn_zero_r   <= 1'b0;       //! set ONLY in the GTS success arm
             //! per-source live params (uid-indexed config slices)
             live_dmac_r   <= src_dmac_i[48*32'(w_uid_idx) +: 48];
@@ -423,11 +446,21 @@ module KL_acmp_tlkr_ctx #(
               // Table 5.43 flags: FC/SW echoed, REGISTERING_FAILED forced 0
               ACMP_CONNECT_TX_COMMAND_C: begin
                 if (w_uid_valid) begin
-                  resp_status_r <= ACMP_STATUS_SUCCESS_C;
-                  resp_mode_r   <= RESP_LIVE_E;
-                  flag_clr_r    <= ACMP_FLAG_CLR_PROBE_C;
+                  //! the window arms on RECEPTION either way (4.3.3.1
+                  //! condition 2 counts the probe, not our answer), so a
+                  //! MAAP re-acquire mid-window streams the moment the
+                  //! address returns; timer zeroed through the table port
                   probe_armed_o[w_uid_idx] <= 1'b1;
-                  // context timer zeroed through the table write port
+                  if (src_dmac_valid_i[w_uid_idx]) begin
+                    resp_status_r <= ACMP_STATUS_SUCCESS_C;
+                    resp_mode_r   <= RESP_LIVE_E;
+                    flag_clr_r    <= ACMP_FLAG_CLR_PROBE_C;
+                  end else begin
+                    //! step 3: no valid DMAC -> Table 5.42, FULL echo
+                    //! (status is the only override; mode/masks stay at
+                    //! the error-row defaults above)
+                    resp_status_r <= ACMP_STATUS_TALKER_DEST_MAC_FAILED_C;
+                  end
                 end else begin
                   resp_status_r <= ACMP_STATUS_TALKER_UNKNOWN_ID_C;
                 end
@@ -444,14 +477,18 @@ module KL_acmp_tlkr_ctx #(
                 end
               end
               // §5.5.4.3: live params, count=0, three flags cleared,
-              // listener ids ZEROED (Table 5.47). A2 MARKER (gh #56):
-              // REGISTERING_FAILED goes live here — flag_set_r sourced
-              // from lstn_ask_fail_i — when the lwSRP chain lands.
+              // listener ids ZEROED (Table 5.47) — and REGISTERING_FAILED
+              // is LIVE here (gh #56 A2): the flag_set lane ORs it back in
+              // iff the lwSRP registrar holds a Listener Asking Failed for
+              // this source. GET_TX_STATE ONLY: the PROBE arm above keeps
+              // RF forced 0 even while failing (T5.43 vs T5.47).
               ACMP_GET_TX_STATE_COMMAND_C: begin
                 if (w_uid_valid) begin
                   resp_status_r <= ACMP_STATUS_SUCCESS_C;
                   resp_mode_r   <= RESP_LIVE_E;
                   flag_clr_r    <= ACMP_FLAG_CLR_GTS_C;
+                  flag_set_r    <= lstn_ask_fail_i[w_uid_idx]
+                                   ? ACMP_FLAG_SRP_REG_FAILED_C : 16'h0;
                   lstn_zero_r   <= 1'b1;
                 end else begin
                   resp_status_r <= ACMP_STATUS_TALKER_UNKNOWN_ID_C;

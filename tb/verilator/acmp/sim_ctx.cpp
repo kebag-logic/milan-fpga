@@ -18,6 +18,12 @@
  *                      (Table 5.45); GET_TX_STATE live params, flags
  *                      cleared + listener ids ZEROED (Table 5.47)
  *   M-ACMP-8 5.5.4.4   GET_TX_CONNECTION -> NOT_SUPPORTED
+ *   [T8]     T5.47     REGISTERING_FAILED is LIVE per source on GET_TX_STATE
+ *                      (lstn_ask_fail_i[uid] -> flags 0x0040) and STAYS
+ *                      forced 0 on PROBE — per-source isolation both ways
+ *   [T9]     5.5.4.1   step 3 per-source dmac-valid vector: the invalid
+ *                      source alone answers TALKER_DEST_MAC_FAILED (full
+ *                      echo, window still arms); its neighbors keep T5.43
  */
 
 #include "VKL_acmp_tlkr_ctx.h"
@@ -144,7 +150,9 @@ int main(int argc, char** argv) {
     { uint64_t v = 0;
       for (int k = 0; k < 4; k++) v |= (uint64_t)(VID_BASE + k) << (12 * k);
       dut->src_vid_i = v; }
+    dut->src_dmac_valid_i = 0xF;             // all sources: DMAC valid
     dut->tick_1s_i = 0; dut->listener_observed_i = 0;
+    dut->lstn_ask_fail_i = 0x0;              // no Listener AskingFailed
     dut->rx_tvalid_i = 0; dut->rx_tdata_i = 0; dut->rx_tkeep_i = 0; dut->rx_tlast_i = 0;
     for (int i = 0; i < 4; i++) step();
     dut->rst_n = 1; dut->enable_i = 1;
@@ -231,6 +239,82 @@ int main(int argc, char** argv) {
     feed(acmp_cmd(12, ENTITY_ID, 0, 0x0700));
     r = collect();
     ck("[T7] gtc NOT_SUPPORTED", r[16] >> 3, 31);
+
+    // 8) [T8] per-source REGISTERING_FAILED isolation (Table 5.47, gh #56
+    //    A2). THE index-mapping trap zone: only the FAILING source's
+    //    GET_TX_STATE may read 0x0040, its neighbors stay 0x0000, and the
+    //    PROBE table forces RF 0 even on the failing source.
+    dut->lstn_ask_fail_i = (1 << 2);         // source 2 alone is failing
+    feed(acmp_cmd(4, ENTITY_ID, 2, 0x0800, 0x004A));
+    r = collect();
+    ck("[T8] uid2 GTS: SUCCESS", r.size() == 70 ? (r[16] >> 3) : 31, 0);
+    ck("[T8] uid2 GTS: flags 0x0040 (laf live)",
+       r.size() == 70 ? be(r, 64, 2) : 0, 0x0040);
+    feed(acmp_cmd(4, ENTITY_ID, 2, 0x0801, 0x0000));
+    r = collect();
+    ck("[T8] uid2 GTS cmd-flags 0: still 0x0040",
+       r.size() == 70 ? be(r, 64, 2) : 0, 0x0040);
+    feed(acmp_cmd(4, ENTITY_ID, 1, 0x0802, 0x004A));
+    r = collect();
+    ck("[T8] uid1 GTS: flags 0x0000 (isolated)",
+       r.size() == 70 ? be(r, 64, 2) : 0xFFFF, 0x0000);
+    feed(acmp_cmd(4, ENTITY_ID, 3, 0x0803, 0x004A));
+    r = collect();
+    ck("[T8] uid3 GTS: flags 0x0000 (isolated)",
+       r.size() == 70 ? be(r, 64, 2) : 0xFFFF, 0x0000);
+    feed(acmp_cmd(0, ENTITY_ID, 2, 0x0804, 0x004A));
+    r = collect();
+    ck("[T8] uid2 PROBE: RF stays forced 0 (T5.43)",
+       r.size() == 70 ? be(r, 64, 2) : 0xFFFF, 0x000A);
+    dut->lstn_ask_fail_i = 0;
+    feed(acmp_cmd(4, ENTITY_ID, 2, 0x0805, 0x004A));
+    r = collect();
+    ck("[T8] uid2 GTS after drop: 0x0000",
+       r.size() == 70 ? be(r, 64, 2) : 0xFFFF, 0x0000);
+
+    // 9) [T9] per-source dmac-valid vector (5.5.4.1 step 3 / Table 5.42):
+    //    invalidate source 1 alone — its probe answers status 3 with the
+    //    full echo AND arms its window; source 0 keeps SUCCESS; its
+    //    GET_TX_STATE is unaffected; restoring restores SUCCESS.
+    {
+        // fresh window state so the arm checks are the probes' own doing
+        dut->listener_observed_i = 0;
+        for (int t = 0; t < 16; t++) tick();
+        ck("[T9] pre: all disarmed", dut->probe_armed_o, 0x0);
+        dut->src_dmac_valid_i = 0xF & ~(1 << 1);
+        feed(acmp_cmd(0, ENTITY_ID, 1, 0x0900, 0x004A));
+        r = collect();
+        ck("[T9] uid1 probe frame length", r.size(), 70);
+        if (r.size() == 70) {
+            ck("[T9] uid1 status TALKER_DEST_MAC_FAILED(3)", r[16] >> 3, 3);
+            ck("[T9] uid1 stream_id echoed (T5.42)",
+               be(r, 18, 8), 0x1122334455667788ULL);
+            ck("[T9] uid1 dest_mac echoed", be(r, 54, 6), 0x0EDC10000001ULL);
+            ck("[T9] uid1 flags echoed", be(r, 64, 2), 0x004A);
+            ck("[T9] uid1 count echoed", be(r, 60, 2), 3);
+        }
+        ck("[T9] uid1 window ARMS on reception", dut->probe_armed_o, 0x2);
+        feed(acmp_cmd(0, ENTITY_ID, 0, 0x0901, 0x004A));
+        r = collect();
+        ck("[T9] uid0 probe SUCCESS (isolated)",
+           r.size() == 70 ? (r[16] >> 3) : 31, 0);
+        ck("[T9] uid0 dest_mac LIVE", r.size() == 70 ? be(r, 54, 6) : 0,
+           src_dmac(0));
+        ck("[T9] both windows armed", dut->probe_armed_o, 0x3);
+        feed(acmp_cmd(4, ENTITY_ID, 1, 0x0902, 0x004A));
+        r = collect();
+        ck("[T9] uid1 GTS unaffected: SUCCESS",
+           r.size() == 70 ? (r[16] >> 3) : 31, 0);
+        ck("[T9] uid1 GTS dest_mac LIVE", r.size() == 70 ? be(r, 54, 6) : 0,
+           src_dmac(1));
+        dut->src_dmac_valid_i = 0xF;
+        feed(acmp_cmd(0, ENTITY_ID, 1, 0x0903, 0x004A));
+        r = collect();
+        ck("[T9] uid1 restored: probe SUCCESS",
+           r.size() == 70 ? (r[16] >> 3) : 31, 0);
+        ck("[T9] uid1 restored: dest_mac LIVE",
+           r.size() == 70 ? be(r, 54, 6) : 0, src_dmac(1));
+    }
 
     printf("\nKL_acmp_tlkr_ctx N=4: %ld checks, %ld failures\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");

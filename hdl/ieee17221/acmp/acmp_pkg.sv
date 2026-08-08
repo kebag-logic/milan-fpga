@@ -47,6 +47,9 @@ package acmp_pkg;
   localparam [4:0] ACMP_STATUS_SUCCESS_C            = 5'd0;
   localparam [4:0] ACMP_STATUS_LISTENER_UNKNOWN_ID_C= 5'd1;
   localparam [4:0] ACMP_STATUS_TALKER_UNKNOWN_ID_C  = 5'd2;
+  //! Milan 5.5.4.1 step 3 / Table 5.42: PROBE_TX while no valid stream
+  //! DMAC is available (4.3.3.1 condition 1: MAAP claim live + unconflicted)
+  localparam [4:0] ACMP_STATUS_TALKER_DEST_MAC_FAILED_C = 5'd3;
   localparam [4:0] ACMP_STATUS_LSTN_TALKER_TIMEOUT_C= 5'd7;
   localparam [4:0] ACMP_STATUS_CTLR_NOT_AUTHORIZED_C= 5'd16;
   localparam [4:0] ACMP_STATUS_NOT_SUPPORTED_C      = 5'd31;
@@ -68,9 +71,9 @@ package acmp_pkg;
   localparam [15:0] ACMP_FLAG_CLR_DISC_C  = ACMP_FLAG_FAST_CONNECT_C |
                                             ACMP_FLAG_STREAMING_WAIT_C |
                                             ACMP_FLAG_SRP_REG_FAILED_C;
-  //! GET_TX_STATE Table 5.47: all three 0 today; REGISTERING_FAILED goes
-  //! live (1 iff registering Listener Asking Failed) with the A2 flag_set
-  //! chain (gh #56).
+  //! GET_TX_STATE Table 5.47: clear all three, then the flag_set lane ORs
+  //! REGISTERING_FAILED back in (1 iff registering a Listener Asking
+  //! Failed attribute — KL_acmp_tlkr_ctx lstn_ask_fail_i, gh #56 A2).
   localparam [15:0] ACMP_FLAG_CLR_GTS_C   = ACMP_FLAG_CLR_DISC_C;
 
   // ------------------------------------------------------------------ //

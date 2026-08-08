@@ -139,6 +139,10 @@ module KL_lwsrp_ctx #(
     output reg  [EXT_LANES_P-1:0] row_fresh_o,   //! NEW on next TX
     output reg  [EXT_LANES_P-1:0] row_lv_o,      //! withdraw on next TX
     output wire [EXT_LANES_P-1:0] row_ready_o,   //! listener 4-pack select
+    //! talker-dir rows whose REGISTERED bridge Listener four-pack is
+    //! AskingFailed — the ACMP GET_TX_STATE REGISTERING_FAILED source
+    //! (Milan v1.2 Table 5.47, gh #56 A2)
+    output wire [EXT_LANES_P-1:0] row_ask_fail_o,
     output wire [EXT_LANES_P*64-1:0] row_sid_o,
     output wire                   tx_go_o,       //! a declare batch pends
     input  wire                   tx_done_i,     //! frame out: clear latches
@@ -232,6 +236,20 @@ module KL_lwsrp_ctx #(
     end
   endgenerate
   assign row_ready_o = eready_w;
+
+  //! sibling view for the ACMP chain (gh #56 A2): a USED talker-dir row
+  //! whose registered Listener four-pack sits at AskingFailed. Listener-dir
+  //! rows never assert — adecl_r is the four-pack the BRIDGE declares for
+  //! our talker, which only talker-dir lanes track (ReadyFailed lands in
+  //! eready_w above; the two views partition the registered four-packs).
+  wire [EXT_LANES_P-1:0] easkf_w;
+  generate
+    for (genvar ga = 0; ga < int'(EXT_LANES_P); ga++) begin : g_askf
+      assign easkf_w[ga] = !dir_r[ga] && valid_r[ga] && areg_r[ga] &&
+                           (adecl_r[2*ga +: 2] == LSTN_DECL_ASKING_FAIL_C);
+    end
+  endgenerate
+  assign row_ask_fail_o = easkf_w;
 
   //! status vectors, bit 0 = legacy; rows above N pad zero (EXT <= 15).
   //! With N_CTX_P = 1 the single lane is permanently invalid -> bit 1 = 0.

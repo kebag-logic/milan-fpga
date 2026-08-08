@@ -486,6 +486,39 @@ int main(int argc, char** argv) {
     }
     drain_tx();
 
+    // 7b) REGISTERING_FAILED source (Milan Table 5.47, gh #56 A2):
+    //    lstn_ask_fail_o rides the stream_gate index law (L=1 here, so
+    //    talker t = ctx row t). ReadyFailed from 7) is NOT AskingFailed;
+    //    an AskingFailed four-pack raises the bit — on the ctx row AND on
+    //    the legacy row 0 — and Ready drops both. The listener-dir rows
+    //    (1 and 3) can never assert: their lanes track the TA, not a
+    //    four-pack the bridge declares back at us.
+    {
+        ck("laf: ReadyFailed is NOT asking-failed", dut->lstn_ask_fail_o, 0);
+        Vec v; v.fv = fv_listener(T2_SID);
+        v.evts = {EV_JOININ}; v.pars = {D_ASKFAIL};
+        feed(bframe({msg_listener(v)}));
+        run(200);
+        ck("laf: row-2 AskingFailed -> talker-2 bit", dut->lstn_ask_fail_o, 0x4);
+        ck("laf: ...and drops out of the ready view",
+           (dut->ctx_ready_o >> 2) & 1, 0);
+        Vec l0; l0.fv = fv_listener(OUR_SID);
+        l0.evts = {EV_JOININ}; l0.pars = {D_ASKFAIL};
+        feed(bframe({msg_listener(l0)}));
+        run(200);
+        ck("laf: legacy row joins at bit 0", dut->lstn_ask_fail_o, 0x5);
+        Vec r2; r2.fv = fv_listener(T2_SID);
+        r2.evts = {EV_JOININ}; r2.pars = {D_READY};
+        feed(bframe({msg_listener(r2)}));
+        Vec r0; r0.fv = fv_listener(OUR_SID);
+        r0.evts = {EV_JOININ}; r0.pars = {D_READY};
+        feed(bframe({msg_listener(r0)}));
+        run(200);
+        ck("laf: Ready drops both bits", dut->lstn_ask_fail_o, 0);
+        ck("laf: row 2 back in the ready view", (dut->ctx_ready_o >> 2) & 1, 1);
+    }
+    drain_tx();
+
     // 8) ONE bridge TalkerAdvertise vector covering BOTH listener rows
     //    (CRF at k=0, row 3 at k=2; k=1 is nobody). The k=0 value carries
     //    In — NOT a registering event (802.1Q Table 10-4 has no rIn! row) —

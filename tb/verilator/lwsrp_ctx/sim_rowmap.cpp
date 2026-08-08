@@ -359,6 +359,30 @@ int main(int argc, char** argv) {
         ck("[OOR] row 4 sid intact", s, T1_SID);
     }
 
+    // ---------------------------------------------------------------- [LAF]
+    // REGISTERING_FAILED source (Milan Table 5.47, gh #56 A2) on the REAL
+    // row map: lstn_ask_fail_o[t] must read ctx row (L-1)+t — the SAME
+    // index law as stream_gate_o, and the same trap the [MAP] gate fix
+    // closed. Talker 3 = ctx row 6, the one row with no Ready yet.
+    printf("-- [LAF] asking-failed rides the (L-1)+t lane pick --\n");
+    feed(bridge_listener(T3_SID, EV_JOININ, D_ASKFAIL));
+    run(400);
+    ck("[LAF] talker 3 asking-failed (ctx row 6)", dut->lstn_ask_fail_o, 0x8);
+    ck("[LAF] AskingFailed opens NO gate", (dut->stream_gate_o >> 3) & 1, 0);
+    // negative leg: a Listener four-pack at a LISTENER row's sid moves
+    // nothing — those lanes track the TA, not the bridge's four-pack
+    feed(bridge_listener(L1_SID, EV_JOININ, D_ASKFAIL));
+    run(400);
+    ck("[LAF-] listener rows can never assert", dut->lstn_ask_fail_o, 0x8);
+    ck("[LAF-] talkers 1/2 (Ready rows) stay clear",
+       dut->lstn_ask_fail_o & 0x6, 0);
+    // Ready drops it — and only then does the licence follow
+    feed(bridge_listener(T3_SID, EV_JOININ, D_READY));
+    run(600);
+    ck("[LAF] Ready drops it", dut->lstn_ask_fail_o, 0);
+    ck("[LAF] ...and the gate opens (ctx row 6)",
+       (dut->stream_gate_o >> 3) & 1, 1);
+
     ck("final: no RX drops", dut->rx_drops_o, 0);
     ck("final: ctx MRPDUs were sent", dut->ctx_tx_count_o > 0, 1);
 

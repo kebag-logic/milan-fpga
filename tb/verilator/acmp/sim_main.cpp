@@ -20,10 +20,17 @@
  *  - DISCONNECT_TX: always SUCCESS, ZEROED stream fields, all three named
  *    flags 0 (Table 5.45), NO state change (stays armed).
  *  - GET_TX_STATE: SUCCESS + LIVE params, count=0, all three flags cleared,
- *    listener_entity_id/listener_unique_id ZEROED (Table 5.47).
+ *    listener_entity_id/listener_unique_id ZEROED (Table 5.47) — except
+ *    REGISTERING_FAILED, which reads back LIVE: 1 iff lstn_ask_fail_i
+ *    (registering a Listener Asking Failed attribute). GET_TX_STATE ONLY:
+ *    the PROBE table still forces RF 0 while failing (T5.43 vs T5.47).
  *  - unique_id != 0 -> TALKER_UNKNOWN_ID with full echo (incl. flags and
  *    listener ids, Tables 5.41/5.44/5.46).
  *  - GET_TX_CONNECTION -> NOT_SUPPORTED (Milan §5.5.4.4).
+ *  - src_dmac_valid_i = 0 (MAAP claim down, 4.3.3.1 cond 1): PROBE_TX ->
+ *    TALKER_DEST_MAC_FAILED with the FULL command echo (5.5.4.1 step 3,
+ *    Table 5.42) — and the 15 s window STILL arms (4.3.3.1 cond 2 counts
+ *    probe RECEPTION). GET_TX_STATE is unaffected by DMAC validity.
  *  - 15-tick expiry drops the arm unless listener_observed_i holds it.
  *  - foreign talker / response-typed messages ignored; back-pressure exact.
  */
@@ -145,7 +152,9 @@ int main(int argc, char** argv) {
     dut->rst_n = 0; dut->enable_i = 0; dut->m_axis_tready = 1;
     dut->station_mac_i = STATION; dut->entity_id_i = ENTITY_ID;
     dut->aaf_dmac_i = AAF_DMAC; dut->aaf_vid_i = AAF_VID;
+    dut->src_dmac_valid_i = 1;               // static provisioning: valid
     dut->tick_1s_i = 0; dut->listener_observed_i = 0;
+    dut->lstn_ask_fail_i = 0;                // no Listener AskingFailed
     dut->rx_tvalid_i = 0; dut->rx_tdata_i = 0; dut->rx_tkeep_i = 0; dut->rx_tlast_i = 0;
     for (int i = 0; i < 4; i++) step();
     dut->rst_n = 1; dut->enable_i = 1;
@@ -352,6 +361,96 @@ int main(int argc, char** argv) {
         dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0;
         for (int c = 0; c < 40; c++) step();
         ck("[Z] zero-gap command accepted", dut->cmd_count_o, (long)(cc0 + 1));
+    }
+
+    // [A3] dmac-valid law (Milan 5.5.4.1 step 3 / Table 5.42, gh #56): with
+    //   src_dmac_valid_i = 0 a PROBE_TX answers TALKER_DEST_MAC_FAILED(3)
+    //   with the FULL command echo — and the window STILL arms (4.3.3.1
+    //   condition 2 counts probe RECEPTION, not our answer). GET_TX_STATE
+    //   is not gated by DMAC validity; restoring validity restores SUCCESS.
+    {
+        // drain any residual arm from the cases above so the arm check below
+        // is the probe's own doing
+        for (int t = 0; t < 16; t++) tick();
+        ck("[A3] pre: disarmed", dut->probe_armed_o, 0);
+        dut->src_dmac_valid_i = 0;
+        feed(acmp_cmd(0, ENTITY_ID, 0, 0x0C0C, /*flags*/0x004A));
+        r = collect();
+        ck("[A3] frame length 70", r.size(), 70);
+        if (r.size() == 70) {
+            ck("[A3] msg = CONNECT_TX_RESPONSE(1)", r[15] & 0x0F, 1);
+            ck("[A3] status TALKER_DEST_MAC_FAILED(3)", r[16] >> 3, 3);
+            ck("[A3] stream_id echoed (T5.42 full echo)",
+               be(r, 18, 8), 0x1122334455667788ULL);
+            ck("[A3] listener_eid echoed", be(r, 42, 8), 0xAABBCCDDEEFF0011ULL);
+            ck("[A3] listener_uid echoed", be(r, 52, 2), 7);
+            ck("[A3] dest_mac echoed", be(r, 54, 6), 0x0EDC10000001ULL);
+            ck("[A3] count echoed", be(r, 60, 2), 3);
+            ck("[A3] flags echoed untouched", be(r, 64, 2), 0x004A);
+            ck("[A3] vlan echoed", be(r, 66, 2), 42);
+            ck("[A3] sequence echoed", be(r, 62, 2), 0x0C0C);
+        }
+        ck("[A3] window ARMS on reception anyway", dut->probe_armed_o, 1);
+        ck("[A3] talker_active with it", dut->talker_active_o, 1);
+        // GET_TX_STATE unaffected: SUCCESS + LIVE params while invalid
+        feed(acmp_cmd(4, ENTITY_ID, 0, 0x0C0D, /*flags*/0x004A));
+        r = collect();
+        ck("[A3] GTS-unaffected frame length", r.size(), 70);
+        if (r.size() == 70) {
+            ck("[A3] GTS unaffected: SUCCESS", r[16] >> 3, 0);
+            ck("[A3] GTS stream_id LIVE", be(r, 18, 8), LIVE_SID);
+            ck("[A3] GTS flags all-three cleared", be(r, 64, 2), 0x0000);
+        }
+        // restore: the very next probe is a full Table 5.43 SUCCESS
+        dut->src_dmac_valid_i = 1;
+        feed(acmp_cmd(0, ENTITY_ID, 0, 0x0C0E, /*flags*/0x004A));
+        r = collect();
+        ck("[A3] restored frame length", r.size(), 70);
+        if (r.size() == 70) {
+            ck("[A3] restored: probe SUCCESS", r[16] >> 3, 0);
+            ck("[A3] restored: dest_mac LIVE", be(r, 54, 6), AAF_DMAC);
+            ck("[A3] restored: flags FC+SW echo, RF 0", be(r, 64, 2), 0x000A);
+        }
+        ck("[A3] restored: still armed", dut->probe_armed_o, 1);
+    }
+
+    // [A2] live REGISTERING_FAILED (Milan Table 5.47, gh #56): with
+    //   lstn_ask_fail_i = 1 a GET_TX_STATE answers flags = 0x0040 no matter
+    //   what the command carried (both command-flag inputs); the PROBE and
+    //   DISCONNECT tables keep their own flag laws even while failing.
+    {
+        dut->lstn_ask_fail_i = 1;
+        feed(acmp_cmd(4, ENTITY_ID, 0, 0x0D0D, /*flags*/0x004A));
+        r = collect();
+        ck("[A2] GTS laf=1 frame length", r.size(), 70);
+        if (r.size() == 70) {
+            ck("[A2] GTS laf=1: SUCCESS", r[16] >> 3, 0);
+            ck("[A2] GTS laf=1, cmd 0x004A -> flags 0x0040", be(r, 64, 2), 0x0040);
+            ck("[A2] listener ids still ZEROED", be(r, 42, 8) | be(r, 52, 2), 0);
+        }
+        feed(acmp_cmd(4, ENTITY_ID, 0, 0x0D0E, /*flags*/0x0000));
+        r = collect();
+        ck("[A2] GTS laf=1, cmd 0x0000 -> flags 0x0040",
+           r.size() == 70 ? be(r, 64, 2) : 0, 0x0040);
+        // PROBE while failing: Table 5.43 still forces RF 0 (echo FC/SW)
+        feed(acmp_cmd(0, ENTITY_ID, 0, 0x0D0F, /*flags*/0x004A));
+        r = collect();
+        ck("[A2] probe laf=1 frame length", r.size(), 70);
+        if (r.size() == 70) {
+            ck("[A2] probe laf=1: SUCCESS", r[16] >> 3, 0);
+            ck("[A2] probe laf=1: flags STILL 0x000A", be(r, 64, 2), 0x000A);
+        }
+        // DISCONNECT while failing: Table 5.45 keeps all three 0
+        feed(acmp_cmd(2, ENTITY_ID, 0, 0x0D10, /*flags*/0x004A));
+        r = collect();
+        ck("[A2] disc laf=1: flags STILL 0x0000",
+           r.size() == 70 ? be(r, 64, 2) : 0xFFFF, 0x0000);
+        // drop the failure: RF reads 0 again
+        dut->lstn_ask_fail_i = 0;
+        feed(acmp_cmd(4, ENTITY_ID, 0, 0x0D11, /*flags*/0x004A));
+        r = collect();
+        ck("[A2] laf=0: GTS flags back to 0x0000",
+           r.size() == 70 ? be(r, 64, 2) : 0xFFFF, 0x0000);
     }
 
     printf("ACMP Milan talker SM: %ld checks, %ld failures\n", checks, fails);

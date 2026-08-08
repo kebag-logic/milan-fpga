@@ -40,10 +40,16 @@ module KL_acmp_responder (
     // ---- live stream parameters (CSR AAF group — the framer's source) --
     input  wire [47:0]  aaf_dmac_i,        //! stream dest MAC ([47:40] first)
     input  wire [11:0]  aaf_vid_i,         //! stream VLAN id
+    //! stream DMAC usable (Milan 4.3.3.1 cond 1); 0 = probes answer
+    //! TALKER_DEST_MAC_FAILED (Table 5.42). Static provisioning ties it 1.
+    input  wire         src_dmac_valid_i,
 
     // ---- activation state machine --------------------------------------
     input  wire         tick_1s_i,         //! 1 s strobe (shared adp tick)
     input  wire         listener_observed_i, //! lwSRP Listener registrar hook
+    //! lwSRP registrar holds a Listener Asking Failed attribute -> the
+    //! GET_TX_STATE REGISTERING_FAILED flag reads 1 (Milan Table 5.47)
+    input  wire         lstn_ask_fail_i,
     output wire         talker_active_o,   //! armed | listener_observed (AAF gate)
     output wire         probe_armed_o,     //! probe seen within the 15 s window
 
@@ -77,8 +83,10 @@ module KL_acmp_responder (
     .entity_id_i         (entity_id_i),
     .src_dmac_i          (aaf_dmac_i),
     .src_vid_i           (aaf_vid_i),
+    .src_dmac_valid_i    (src_dmac_valid_i),
     .tick_1s_i           (tick_1s_i),
     .listener_observed_i (listener_observed_i),
+    .lstn_ask_fail_i     (lstn_ask_fail_i),
     .talker_active_o     (w_active),
     .probe_armed_o       (w_armed),
     .rx_tvalid_i         (rx_tvalid_i),

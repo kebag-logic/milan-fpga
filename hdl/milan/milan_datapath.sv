@@ -1326,6 +1326,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! follow-up); the flat CSR status keeps bit 0 only. The top slot is the
   //! CRF Media Clock Output when this shape has one.
   wire [SRP_TALKERS_C-1:0] lwsrp_stream_gate;
+  //! per-TALKER "registering a Listener Asking Failed attribute", SAME
+  //! index law as lwsrp_stream_gate (gh #56 A2: -> ACMP REGISTERING_FAILED)
+  wire [SRP_TALKERS_C-1:0] lwsrp_lstn_ask_fail;
   wire        lwsrp_slope_en, lwsrp_res_active;
   //! sticky ctx-table shortfall -> LWSRP_STATUS[11]
   wire        lwsrp_ctx_oor_w;
@@ -1490,6 +1493,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! (en=0 keeps the static-provisioning behavior bit-exact)
   wire [47:0] eff_aaf_dmac = (cfg_maap_enable && maap_addr_valid)
                              ? maap_addr : cfg_aaf_dmac;
+  //! "a valid Destination MAC Address is available" per source (Milan
+  //! 5.5.4.1 step 3 via the 4.3.3.1 condition-1 definition): ONE MAAP
+  //! engine claims ONE block for all sources, so validity is engine-wide —
+  //! MAAP disabled = static CSR provisioning (always valid); enabled = the
+  //! claim must be live and unconflicted, else every PROBE_TX answers
+  //! TALKER_DEST_MAC_FAILED (Table 5.42) until MAAP re-acquires.
+  wire [ACMP_SRC_C-1:0] acmp_dmac_valid_w =
+      {ACMP_SRC_C{~cfg_maap_enable | maap_addr_valid}};
   //! listener_observed: the lwSRP Listener registrar is the real source once
   //! the engine is enabled; A_ACMP_LOBS stays as the manual override socket.
   wire listener_observed_w = cfg_acmp_lobs |
@@ -1521,10 +1532,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [ACMP_SRC_C*48-1:0] acmp_src_dmac_w;
   wire [ACMP_SRC_C*12-1:0] acmp_src_vid_w;
   wire [ACMP_SRC_C-1:0]    acmp_lobs_v_w;
+  //! per-source "registering a Listener Asking Failed attribute" -> the
+  //! GET_TX_STATE REGISTERING_FAILED flag (gh #56 A2). Source j reads the
+  //! SAME lwSRP talker lane its observation/gate terms read — the index law
+  //! lives in this ONE generate so the three vectors cannot drift.
+  wire [ACMP_SRC_C-1:0]    acmp_laf_v_w;
   generate
     for (genvar gj = 0; gj < N_STREAMS; gj++) begin : g_acmp_src
       assign acmp_src_dmac_w[gj*48 +: 48] = eff_aaf_dmac + 48'(gj);
       assign acmp_src_vid_w [gj*12 +: 12] = cfg_aaf_vid;
+      assign acmp_laf_v_w[gj] = cfg_lwsrp_enable &
+                                lwsrp_lstn_ask_fail[gj];
       if (gj == 0) begin : g_lobs0
         assign acmp_lobs_v_w[gj] = listener_observed_w;
       end else begin : g_lobsn
@@ -1544,6 +1562,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       //! stream, which is what "observed" means.
       assign acmp_lobs_v_w[CRF_TUID_C] = cfg_acmp_lobs |
                  (cfg_lwsrp_enable & lwsrp_stream_gate[SRP_TALKERS_C-1]);
+      //! ...and its asking-failed term reads the same top talker lane
+      assign acmp_laf_v_w[CRF_TUID_C] = cfg_lwsrp_enable &
+                 lwsrp_lstn_ask_fail[SRP_TALKERS_C-1];
     end
   endgenerate
 
@@ -2783,8 +2804,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_adp_enable),
     .src_dmac_i (acmp_src_dmac_w), .src_vid_i (acmp_src_vid_w),
+    .src_dmac_valid_i (acmp_dmac_valid_w),
     .tick_1s_i (adp_tick_1s),
     .listener_observed_i (acmp_lobs_v_w),
+    .lstn_ask_fail_i (acmp_laf_v_w),
     .talker_active_o (acmp_talker_active_v),
     .probe_armed_o (acmp_probe_armed_v),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
@@ -4788,6 +4811,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .ctx_reg_o (lwsrp_ctx_reg_w), .ctx_ready_o (),
     .ctx_failed_o (lwsrp_ctx_failed_w), .ctx_tx_count_o (),
     .stream_gate_o (lwsrp_stream_gate),
+    .lstn_ask_fail_o (lwsrp_lstn_ask_fail),
     .slope_en_o (lwsrp_slope_en), .idle_slope_o (lwsrp_idle_slope),
     .res_active_o (lwsrp_res_active),
     .listener_ready_o (lwsrp_listener_ready),

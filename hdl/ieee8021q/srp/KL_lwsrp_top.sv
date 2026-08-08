@@ -104,6 +104,11 @@ module KL_lwsrp_top #(
     //! per-TALKER AAF admission, indexed by talker stream index (NOT by ctx
     //! row): [0] = legacy CSR talker row 0, [t] = ctx row (L-1)+t
     output wire [N_TALKERS_P-1:0] stream_gate_o,
+    //! per-TALKER "registering a Listener Asking Failed attribute" — the
+    //! ACMP GET_TX_STATE REGISTERING_FAILED source (Milan Table 5.47, gh
+    //! #56 A2). SAME index law as stream_gate_o: [0] = the legacy CSR
+    //! talker row's registrar, [t] = ctx row (L-1)+t.
+    output wire [N_TALKERS_P-1:0] lstn_ask_fail_o,
     output wire         slope_en_o,        //! CBS slope MUX select
     output wire [31:0]  idle_slope_o,      //! Σ granted idleSlope, bps
     output wire         res_active_o,      //! legacy-row reservation ACTIVE
@@ -177,7 +182,7 @@ module KL_lwsrp_top #(
   wire [EXT_LANES_C*2-1:0]  e_par_w;
   wire [7:0]                e_tfail_code_w;
   wire [EXT_LANES_C-1:0]    row_valid_w, row_dir_w, row_fresh_w, row_lv_w;
-  wire [EXT_LANES_C-1:0]    row_ready_w, ctxtx_fresh_w, ctxtx_lv_w;
+  wire [EXT_LANES_C-1:0]    row_ready_w, row_askf_w, ctxtx_fresh_w, ctxtx_lv_w;
   wire                      ctx_tx_go_w, ctx_tx_done_w, ctx_fastjoin_w;
   wire [4:0]                rec_addr_w;
   wire [119:0]              rec_data_w;
@@ -218,7 +223,8 @@ module KL_lwsrp_top #(
     .lane_tfail_code_i (e_tfail_code_w),
     .row_valid_o (row_valid_w), .row_dir_o (row_dir_w),
     .row_fresh_o (row_fresh_w), .row_lv_o (row_lv_w),
-    .row_ready_o (row_ready_w), .row_sid_o (row_sid_w),
+    .row_ready_o (row_ready_w), .row_ask_fail_o (row_askf_w),
+    .row_sid_o (row_sid_w),
     .tx_go_o (ctx_tx_go_w), .tx_done_i (ctx_tx_done_w),
     .tx_fresh_i (ctxtx_fresh_w), .tx_lv_i (ctxtx_lv_w),
     .rec_addr_i (rec_addr_w), .rec_data_o (rec_data_w),
@@ -385,6 +391,11 @@ module KL_lwsrp_top #(
   assign gate_lrdy_w[0]     = listener_ready_o;
   assign gate_maxf_w[15:0]  = max_frame_i;
   assign gate_intv_w[15:0]  = interval_frames_i;
+  //! legacy talker row 0: same law as the ctx rows' row_ask_fail view —
+  //! Listener attribute registered AND its four-pack is AskingFailed (the
+  //! row-0 registrar's decl mirror of KL_lwsrp_registrar listener_ready_o)
+  assign lstn_ask_fail_o[0] = listener_reg_o &&
+      (listener_decl_o == lwsrp_pkg::LSTN_DECL_ASKING_FAIL_C);
   generate
     for (genvar gt = 1; gt < int'(N_TALKERS_P); gt++) begin : g_gate_feed
       //! declared = valid talker row (the ctx TX refreshes it while the
@@ -393,6 +404,9 @@ module KL_lwsrp_top #(
       localparam int unsigned LN = TK_ROW_BASE_C + gt - 1;   //! extra lane
       assign gate_tdecl_w[gt] = row_valid_w[LN] & ~row_dir_w[LN];
       assign gate_lrdy_w[gt]  = row_ready_w[LN] & ~row_dir_w[LN];
+      //! asking-failed rides the SAME (L-1)+t lane pick as the gate feeds
+      //! (row_ask_fail is already valid- and talker-dir-qualified inside)
+      assign lstn_ask_fail_o[gt] = row_askf_w[LN];
       assign gate_maxf_w[16*gt +: 16] = gate_maxf_r[LN];
       assign gate_intv_w[16*gt +: 16] = gate_intv_r[LN];
     end

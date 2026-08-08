@@ -418,6 +418,10 @@ int main(int argc, char** argv) {
         ck("5.3.7.3(b): gate stays SHUT on AskingFailed",
            dut->stream_gate_o, 0);
         ck("5.3.7.3(b): no slope claimed either", dut->slope_en_o, 0);
+        //! ...and it IS the ACMP REGISTERING_FAILED source (Milan Table
+        //! 5.47, gh #56 A2): the four-pack raises lstn_ask_fail_o[0]
+        ck("T5.47(b): AskingFailed raises lstn_ask_fail_o",
+           dut->lstn_ask_fail_o, 1);
 
         // (c) Listener READY FAILED: the clause names it beside Ready, so
         //     it MUST open the gate. This is the leg a "reservation
@@ -427,6 +431,8 @@ int main(int argc, char** argv) {
         ck("5.3.7.3(c): ReadyFailed is listener_ready",
            dut->listener_ready_o, 1);
         ck("5.3.7.3(c): gate OPEN on ReadyFailed", dut->stream_gate_o, 1);
+        ck("T5.47(c): ReadyFailed is NOT asking-failed",
+           dut->lstn_ask_fail_o, 0);
 
         // (d) back to plain Ready, then withdraw: the licence follows the
         //     registration in both directions (R2 - the check can fail)
@@ -437,6 +443,8 @@ int main(int argc, char** argv) {
         run(400);
         ck("5.3.7.3(d): Ready -> AskingFailed SHUTS the gate",
            dut->stream_gate_o, 0);
+        ck("T5.47(d): ...and raises lstn_ask_fail_o again",
+           dut->lstn_ask_fail_o, 1);
         ck("5.3.7.2(d): Talker attribute STILL declared",
            dut->talker_declared_o, 1);
     }
@@ -452,6 +460,7 @@ int main(int argc, char** argv) {
     ck("la-hold: licence never dropped", gate_dropped() ? 1 : 0, 0);
     ck("la-hold: still registered", dut->listener_reg_o, 1);
     ck("la-hold: reservation active", dut->res_active_o, 1);
+    ck("la-hold: Ready dropped lstn_ask_fail_o", dut->lstn_ask_fail_o, 0);
 
     // 11) LeaveAll scope is PER MRP APPLICATION (802.1Q 10.7.1/10.7.9: one
     //     Participant per application; a LeaveAll ages that Participant's

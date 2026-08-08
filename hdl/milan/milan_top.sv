@@ -840,8 +840,12 @@ module milan_top import ethernet_packet_pkg::*; #(
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_adp_enable),
     .aaf_dmac_i (cfg_aaf_dmac), .aaf_vid_i (cfg_aaf_vid),
+    //! Zynq top has no MAAP engine and no lwSRP: the CSR DMAC is static
+    //! provisioning (always valid) and REGISTERING_FAILED can never be live
+    .src_dmac_valid_i (1'b1),
     .tick_1s_i (adp_tick_1s),
     .listener_observed_i (cfg_acmp_lobs),
+    .lstn_ask_fail_i (1'b0),
     .talker_active_o (acmp_talker_active),
     .probe_armed_o (acmp_probe_armed),
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
