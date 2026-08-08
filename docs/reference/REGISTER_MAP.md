@@ -724,7 +724,7 @@ timing and `available_index`. `station MAC` (source MAC / entity_id seed) comes 
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x600` | `ADP_CTRL` | RW | `0x0000_1F00` | `[0]` advertise-enable, `[12:8]` valid_time (units of 2 s; reset 31 ⇒ 62 s validity) |
+| `0x600` | `ADP_CTRL` | RW | `0x0000_0A00` | `[0]` advertise-enable, `[12:8]` valid_time (units of 2 s; reset 10 per Milan 5.6.2 ⇒ 20 s validity) |
 | `0x604` | `ADP_ENTITY_ID_LO` | RW | `0` | entity_id `[31:0]` (EUI-64) |
 | `0x608` | `ADP_ENTITY_ID_HI` | RW | `0` | entity_id `[63:32]` |
 | `0x60C` | `ADP_MODEL_ID_LO` | RW | `0` | entity_model_id `[31:0]` |

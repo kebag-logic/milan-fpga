@@ -877,14 +877,14 @@ used.
 **G7b — the round trip.** Drop the advertiser, restore, bring it back:
 
 ```sh
-devmem $ADP w 0x00001F00     # ADP_CTRL enable=0, valid_time=31 (the reset value)
+devmem $ADP w 0x00000A00     # ADP_CTRL enable=0, valid_time=10 (the reset value)
 devmem $SEL w 0x00050003
 devmem $FLD w 0x0
 devmem $DAT w 0x02050220
 devmem $DAT w 0x00806000
 devmem $CTL w 0x1
 devmem $CTL                  # -> [7:4] == 1 ACCEPT, [11:8] == 8 bytes, [31] == 0
-devmem $ADP w 0x00001F01     # advertise again
+devmem $ADP w 0x00000A01     # advertise again
 ```
 
 **Movement that proves it:** `0x7D4` reads verdict `1` with `[11:8] = 8`, and
@@ -897,7 +897,7 @@ a register is not the test — the entity *answering* with the restored value is
 entity does not declare and require a refusal:
 
 ```sh
-devmem $ADP w 0x00001F00
+devmem $ADP w 0x00000A00
 devmem $SEL w 0x00050003; devmem $FLD w 0x0
 devmem $DAT w 0x02050220; devmem $DAT w 0x02406000   # 9 channels
 devmem $CTL w 0x1

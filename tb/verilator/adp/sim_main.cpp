@@ -13,7 +13,9 @@
  *   - message_type per scenario: AVAILABLE(0) / DEPARTING(1)
  *   - available_index: +1 on EVERY transmitted ADPDU: link-up, periodic
  *     re-advertise, discover response and depart (every ADPDU send bumps)
- *   - the periodic advertise timer fires after valid_time ticks
+ *   - the periodic advertise timer fires at the clause period
+ *     MIN(5, MAX(1, valid_time/2)) ticks and restarts on EVERY
+ *     ENTITY_AVAILABLE send (Milan 5.6.3.5.9 step 2; case 19)
  *   - byte-for-byte integrity of the frame under AXIS back-pressure
  *
  * Exit 0 = pass, non-zero = fail.  (Verifies FR-DISC-01..04.)
@@ -454,9 +456,10 @@ int main(int argc, char** argv) {
     //     unbroken) at the CLAUSE period this engine now keeps.           //
     //                                                                     //
     //     CYCLE ARITHMETIC against the real widths and reloads:           //
-    //       valid_time_i = 31 = the ADP_CTRL reset value. The period is    //
-    //         MIN(5, MAX(1, valid_time/2)) = 5 ticks (Milan Table 5.50's   //
-    //         fixed 5 s; 1722.1 Figure 6-2 would allow 15 s here).        //
+    //       valid_time_i = 10 = the ADP_CTRL reset value (Milan 5.6.2:    //
+    //         "The valid_time field shall be set to 10") and the bench    //
+    //         value. The period is MIN(5, MAX(1, valid_time/2)) = 5       //
+    //         ticks - at 10 both governing clauses agree on 5 s.          //
     //       5400 cycles = 27,000 ticks. tick_i is 1 s in the integration   //
     //         (ADP_TICK_DIV = MILAN_CLK_FREQ_HZ), so this is 7.5 HOURS of  //
     //         silicon wall time - the span the bench capture covered.      //
@@ -467,26 +470,26 @@ int main(int argc, char** argv) {
     //       available_index_o is 32 bits and must simply keep going: no    //
     //         reset, no repeat, +1 per ADPDU (6.2.2.15).                   //
     // ================================================================== //
-    printf("\n-- [18] long run: 5400 advertise cycles at valid_time 31 (= 7.5 h)\n");
+    printf("\n-- [18] long run: 5400 advertise cycles at valid_time 10 (= 7.5 h)\n");
     {
         const int CYCLES = 5400;
-        dut->valid_time_i = 31;                  // the ADP_CTRL reset value
+        dut->valid_time_i = 10;                  // the ADP_CTRL reset value (Milan 5.6.2)
         for (int i = 0; i < 2; i++) step();
         uint32_t expect = dut->available_index_o;
         uint32_t frames = 0, gaps = 0, bad = 0;
         for (int cyc = 0; cyc < CYCLES; cyc++) {
-            for (int t = 0; t < 5; t++) pulse(dut->tick_i);   // MIN(5, 31/2) = 5
+            for (int t = 0; t < 5; t++) pulse(dut->tick_i);   // MIN(5, 10/2) = 5
             auto f = capture_frame();
             if (f.size() != 82) { bad++; break; }
             expect++;
             if (be(f, 50, 4) != expect) gaps++;
-            if ((f[15] & 0x0F) != 0 || (f[16] >> 3) != 31) bad++;
+            if ((f[15] & 0x0F) != 0 || (f[16] >> 3) != 10) bad++;
             frames++;
         }
         printf("   long run: %u frames, last index %u, gaps %u, malformed %u\n",
                frames, expect, gaps, bad);
         ck("long run: 5400 ADPDUs kept coming", frames, CYCLES);
-        ck("long run: every frame 82 B AVAILABLE with valid_time 31", bad, 0);
+        ck("long run: every frame 82 B AVAILABLE with valid_time 10", bad, 0);
         ck("long run: available_index +1 every frame, never reset", gaps, 0);
         ck("long run: sent_cnt wrapped 21x and still tracks",
            dut->sent_cnt_o, (uint32_t)((1 + CYCLES) & 0xFF));  // +1 = case 17's boot frame
@@ -498,6 +501,104 @@ int main(int argc, char** argv) {
         ck("discover still answered after 7.5 h", f18.size(), 82);
         ck("...and it bumped the index",
            f18.size() >= 54 ? be(f18, 50, 4) : 0, expect + 1);
+        expect++;
+
+        // 18b) MAX CSR VALUE PINS THE MIN CLAMP: valid_time is a 5-bit CSR
+        //      field, so 31 is the largest value software can ever write.
+        //      1722.1 Figure 6-2 alone would allow vt/2 = 15 s there; Milan
+        //      Table 5.50's fixed 5 s must win - the period STAYS 5 ticks
+        //      and the wire byte 16 carries the written 31.
+        printf("-- [18b] max CSR value (valid_time 31) pins the MIN clamp\n");
+        dut->valid_time_i = 31;                  // CSR maximum, NOT the reset
+        for (int i = 0; i < 2; i++) step();
+        bool spin_early = false, spin_ok = true;
+        for (int spin = 0; spin < 3; spin++) {
+            for (int t = 0; t < 4; t++) {        // ticks 1..4: silent
+                pulse(dut->tick_i);
+                for (int c = 0; c < 4; c++) { lo(); if (dut->m_axis_tvalid) spin_early = true; hi(); }
+            }
+            pulse(dut->tick_i);                  // the 5th tick fires
+            auto f = capture_frame();
+            expect++;
+            if (f.size() != 82 || (f[15] & 0x0F) != 0 || (f[16] >> 3) != 31 ||
+                be(f, 50, 4) != expect) spin_ok = false;
+        }
+        ck("18b: no frame before the 5th tick at valid_time 31", spin_early ? 1 : 0, 0);
+        ck("18b: 3 periods of exactly 5 ticks, wire valid_time 31", spin_ok ? 1 : 0, 1);
+    }
+
+    // ================================================================== //
+    // 19) TMR_ADVERTISE RESTART LAW - Milan 5.6.3.5.9 step 2 ("Start the  //
+    //     TMR_ADVERTISE timer (5 seconds)") is a step of EVERY            //
+    //     ENTITY_AVAILABLE send, and 5.6.3.5.4 step 1 stops the timer     //
+    //     when a discover opens the TMR_DELAY window. So: run the counter //
+    //     to period-1 (one tick from firing), answer a discover, and the  //
+    //     next periodic must land a FULL period after the response - not  //
+    //     on the pre-discover schedule. BITES the pre-fix RTL: with no    //
+    //     restart the counter stayed ripe through the response and the    //
+    //     very NEXT tick fired the periodic, 1 tick after the answer.     //
+    //     Leg 2 drives the same law through the GM path - a LEVEL rewrite //
+    //     of gptp_grandmaster_id_i (the gptp2csr publication pattern), no //
+    //     gm_change_i pulse anywhere.                                     //
+    //     TICK QUANTIZATION, the documented caveat: on the TB's discrete  //
+    //     ticks the gap is exactly PERIOD ticks; in the integration the   //
+    //     restart lands mid-tick-interval, so the wire-time gap is 4..5 s //
+    //     (early-biased) - legal under Table 5.50's 5 s upper bound.      //
+    // ================================================================== //
+    printf("\n-- [19] every ENTITY_AVAILABLE send restarts TMR_ADVERTISE (5.6.3.5.9)\n");
+    {
+        const int PERIOD = 5;                    // MIN(5, MAX(1, 10/2))
+        dut->valid_time_i = 10;                  // back to the reset value
+        for (int i = 0; i < 2; i++) step();
+
+        // ---- leg 1: the discover path ----
+        uint32_t i0 = dut->available_index_o;
+        bool pre_early = false;
+        for (int t = 0; t < PERIOD - 1; t++) {   // counter to period-1: RIPE
+            pulse(dut->tick_i);
+            for (int c = 0; c < 4; c++) { lo(); if (dut->m_axis_tvalid) pre_early = true; hi(); }
+        }
+        ck("19: wind-up to period-1 ticks stays silent", pre_early ? 1 : 0, 0);
+        pulse(dut->rcv_discover_i);
+        auto fd = capture_frame();
+        ck("19: delayed discover response emerged", fd.size(), 82);
+        ck("19: response is ENTITY_AVAILABLE", fd.size() >= 16 ? (fd[15] & 0x0F) : 0xFF, 0);
+        ck("19: response bumped the index", fd.size() >= 54 ? be(fd, 50, 4) : 0, i0 + 1);
+        bool early = false;
+        for (int t = 0; t < PERIOD - 1; t++) {   // the RESTARTED period runs
+            pulse(dut->tick_i);
+            for (int c = 0; c < 6; c++) { lo(); if (dut->m_axis_tvalid) early = true; hi(); }
+        }
+        ck("19: NO periodic for period-1 ticks after the response", early ? 1 : 0, 0);
+        pulse(dut->tick_i);                      // the period-th tick fires
+        auto fp = capture_frame();
+        ck("19: periodic lands on the period-th tick after the response", fp.size(), 82);
+        ck("19: ...with the +1 index", fp.size() >= 54 ? be(fp, 50, 4) : 0, i0 + 2);
+
+        // ---- leg 2: the GM path ----
+        uint32_t i1 = dut->available_index_o;
+        bool pre2 = false;
+        for (int t = 0; t < PERIOD - 1; t++) {
+            pulse(dut->tick_i);
+            for (int c = 0; c < 4; c++) { lo(); if (dut->m_axis_tvalid) pre2 = true; hi(); }
+        }
+        ck("19b: second wind-up stays silent", pre2 ? 1 : 0, 0);
+        GPTP_GM = 0x1122334455667788ULL;         // the GM moves again
+        dut->gptp_grandmaster_id_i = GPTP_GM;
+        auto fg = capture_frame();
+        ck("19b: GM-change advertise emerged (via TMR_DELAY)", fg.size(), 82);
+        ck("19b: it carries the NEW grandmaster", fg.size() >= 62 ? be(fg, 54, 8) : 0, GPTP_GM);
+        ck("19b: it bumped the index", fg.size() >= 54 ? be(fg, 50, 4) : 0, i1 + 1);
+        bool early2 = false;
+        for (int t = 0; t < PERIOD - 1; t++) {
+            pulse(dut->tick_i);
+            for (int c = 0; c < 6; c++) { lo(); if (dut->m_axis_tvalid) early2 = true; hi(); }
+        }
+        ck("19b: the GM-path send also restarted the timer", early2 ? 1 : 0, 0);
+        pulse(dut->tick_i);
+        auto fq = capture_frame();
+        ck("19b: periodic a full period after the GM advertise", fq.size(), 82);
+        ck("19b: index continuity end-to-end", fq.size() >= 54 ? be(fq, 50, 4) : 0, i1 + 2);
     }
 
     printf("--------------------------------------------------------------\n");

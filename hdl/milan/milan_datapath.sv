@@ -2372,7 +2372,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! 1-second tick for the ADP re-advertise timer. MUST track the actual
   //! datapath clock: the old hardcoded 100_000_000 made a 50 MHz datapath
   //! (Arty) tick every 2 s, stretching the re-advertise period to 62 s =
-  //! exactly the ADP validity horizon (2*valid_time at valid_time 31) with
+  //! exactly the ADP validity horizon (2*valid_time at the THEN-reset
+  //! valid_time 31; the ADP_CTRL reset is 10 per Milan 5.6.2 today) with
   //! zero margin, instead of the intended half-validity cadence.
   localparam int ADP_TICK_DIV = MILAN_CLK_FREQ_HZ;
   reg [26:0] adp_tick_cnt;

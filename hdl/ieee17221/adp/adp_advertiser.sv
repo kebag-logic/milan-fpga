@@ -28,8 +28,12 @@
 //                 Milan v1.2 Table 5.50 (TMR_ADVERTISE "a timer with a fixed
 //                 value of 5 seconds") and IEEE 1722.1-2021 Figure 6-2
 //                 (MAX(1, valid_time/2) s), so both clauses hold for every
-//                 valid_time. See the tmr_advertise_w block for the arithmetic
-//                 and for what the old valid_time-second period cost on silicon.
+//                 valid_time. The period RESTARTS at every ENTITY_AVAILABLE
+//                 frame start (5.6.3.5.9 step 2, adv_restart_w) and the timer
+//                 cannot fire while a TMR_DELAY window is open (Table 5.51
+//                 marks TMR_ADVERTISE "x" in DELAY). See the tmr_advertise_w
+//                 block for the arithmetic and for what the old
+//                 valid_time-second period cost on silicon.
 //                 available_index increments on EVERY transmitted ADPDU
 //                 (IEEE 1722.1 §6.2.1.16 as enforced by la_avdecc/Hive and done
 //                 by the pipewire module-avb reference) — periodic re-advertise,
@@ -51,40 +55,38 @@
 //     the valid time of the ATDECC Entity in milliseconds". valid_time is in
 //     units of 2 s (6.2.2.5), so the bound is 0.4 * valid_time_i SECONDS and
 //     it SCALES WITH valid_time - see the envelope note at disc_dly_next_w.
-//   * DEVIATION 1 (deliberate, la_avdecc/Hive): 6.2.2.15 says available_index
-//     "is incremented after transmitting an ENTITY_AVAILABLE message and is
-//     reset to zero (0) when transmitting an ENTITY_DEPARTING or after a power
-//     cycle". This engine keeps incrementing across a DEPARTING instead of
-//     resetting: a controller that sees the index go BACKWARDS treats the
-//     entity as having power-cycled, monotonic-forever is accepted by
-//     la_avdecc/Hive across a depart/return, and it was the 2026-07-12 silicon
-//     fix. Same reason the first ADPDU carries index 1 where Figure 6-2's
+//   * DEVIATION 1 (deliberate, KEPT on review 2026-08-08): 6.2.2.15 says
+//     available_index "is incremented after transmitting an ENTITY_AVAILABLE
+//     message and is reset to zero (0) when transmitting an ENTITY_DEPARTING
+//     or after a power cycle". This engine keeps incrementing across a
+//     DEPARTING instead of resetting. KEEP rationale, sharpened: Milan (the
+//     governing text) enumerates the departing steps EXHAUSTIVELY in
+//     5.6.3.5.8 / 5.6.3.5.11 ("Stop the timer. Send an ADP ENTITY_DEPARTING
+//     message") and NEITHER lists an index reset; and the only consumer law,
+//     5.6.4.5.2 step 2, reacts to an index "less than or equal to" the last
+//     one - it needs never-repeat-or-regress, which monotonic-forever
+//     satisfies UNCONDITIONALLY, while reset-to-zero is exactly what can
+//     regress. A controller that sees the index go BACKWARDS treats the
+//     entity as having power-cycled; monotonic-forever is accepted by
+//     la_avdecc/Hive across a depart/return (the 2026-07-12 silicon fix).
+//     The power-cycle reset IS honored: rst_n zeroes the counter. Same
+//     reason the first ADPDU carries index 1 where Figure 6-2's
 //     INITIALIZE/ADVERTISE order would send 0.
-//   * DEVIATION 2 (deliberate): Figure 6-2 routes EVERY advertise through the
-//     DELAY state, so a conformant entity jitters its periodic re-announce
-//     too. Here only the discover response is delayed; the periodic tick
-//     fires on the tick (measured on silicon 2026-07-30 as exactly 10.000 s
-//     spacing). Deviating toward LESS jitter costs discoverability nothing.
-//   * DEVIATION 3 (FLAGGED, deliberately NOT changed in this lane): Figure 6-2
-//     sets "reannounceTimerTimeout = currentTime + MAX(1,
-//     entityInfo.valid_time / 2)" with the NOTE "The valid_time field is in
-//     units of 2 s. The MAX calculation within the calculation of
-//     reannounceTimerTimeout returns the number of seconds that is added to
-//     the current time", i.e. the standard re-announces every valid_time/2
-//     SECONDS = four advertisements per validity window. This engine
-//     re-announces every valid_time seconds (two per window, tmr_advertise_w
-//     below), so at the bench's valid_time = 10 it advertises at 10 s where
-//     6.2.4 asks for 5 s. It is a MARGIN deviation, not a wire defect - the
-//     entry never expires (validity 20 s) - but it is why a controller taking
-//     a PASSIVE 5 s discovery pass sees this entity on a coin flip (measured
-//     1/0/1 hits over three consecutive windows on 2026-07-30), which is what
-//     the "the ADP advertiser goes dormant" hunt was actually chasing. The
-//     advertise path is otherwise PROVEN HEALTHY on silicon (ADPDUs at 10.000
-//     s spacing with available_index 2681 -> 2682 -> 2683, ~7.4 h unbroken),
-//     so changing its period is a silicon-behaviour change and is recorded
-//     here for the USER to rule on rather than merged inside a diagnostics
-//     round. tb/verilator/adp case 18 PINS today's period so it cannot move
-//     by accident.
+//   * DEVIATION 2 (deliberate; partial conform RECOMMENDED as a follow-up):
+//     Figure 6-2 and Milan 5.6.3.5.2/.3/.5 route EVERY advertise through the
+//     DELAY state, so a conformant entity jitters startup, link-up and its
+//     periodic re-announce too. Here only the discover response and the GM
+//     change take the TMR_DELAY window; startup/link-up/periodic fire
+//     undelayed. RECOMMENDATION on record: conform startup + link-up only
+//     (the simultaneous-power-up storm cases - one-shot events, the existing
+//     disc window is reusable) in its own follow-up so the wire diff stays
+//     auditable; KEEP the un-jittered periodic DELIBERATELY - the fixed
+//     5.000 s cadence is the bench liveness oracle (read sent_cnt twice a
+//     period apart), and the discover path already randomizes + coalesces
+//     (es-2.1 passed). Risk kept: low operational, medium on paper.
+//   (DEVIATION 3 - the valid_time-second re-announce period - was retired by
+//   the MIN(5, MAX(1, valid_time/2)) clamp below; see the TMR_ADVERTISE
+//   block for the arithmetic and the history.)
 //---------------------------------------------------------------------------//
 
 `default_nettype none
@@ -205,11 +207,12 @@ module adp_advertiser #(
   //!                     the controller's whole 2 s validity horizon - so the
   //!                     envelope shrinks by 8 and the floor by 2:
   //!                     0.1 + 0.168 = 0.268 s <= 0.4 s               -> OK
-  //! Every shipped config and the ADP_CTRL reset (valid_time 31; the bench
-  //! runs 10) take the >= 4 arm, where this is BIT-IDENTICAL to the old fixed
-  //! envelope by construction. Only the previously out-of-bound 0..3 range
-  //! moves. Pinned by tb/verilator/adp's sim_dly harness, which BITES the old
-  //! code at valid_time 1 and 2.
+  //! Every shipped config and the ADP_CTRL reset (valid_time 10 per Milan
+  //! 5.6.2 - also the bench value; the CSR maximum 31 too) take the >= 4 arm,
+  //! where this is BIT-IDENTICAL to the old fixed envelope by construction.
+  //! Only the previously out-of-bound 0..3 range moves. Pinned by
+  //! tb/verilator/adp's sim_dly harness, which BITES the old code at
+  //! valid_time 1 and 2.
   wire        vt_small_w = (valid_time_i < 5'd4);
   wire [27:0] disc_dly_flr_w = vt_small_w ? (28'(DISC_DLY_BASE) >> 1)
                                           :  28'(DISC_DLY_BASE);
@@ -235,10 +238,10 @@ module adp_advertiser #(
   // The two clauses disagree for every valid_time except 10, so this engine
   // takes the FASTER of them and therefore satisfies both for every value:
   //   period = MIN(5, MAX(1, valid_time / 2)) seconds
-  //   valid_time 10 (the bench) -> 5 s  (both clauses agree)
-  //   valid_time 31 (CSR reset) -> 5 s  (Milan; 1722.1 would allow 15 s)
-  //   valid_time  5             -> 2 s  (1722.1 is the stricter one here)
-  //   valid_time  0 or 1        -> 1 s  (the MAX(1, ..) floor)
+  //   valid_time 10 (CSR reset per Milan 5.6.2; the bench) -> 5 s (both agree)
+  //   valid_time 31 (CSR maximum)  -> 5 s  (Milan; 1722.1 would allow 15 s)
+  //   valid_time  5                -> 2 s  (1722.1 is the stricter one here)
+  //   valid_time  0 or 1           -> 1 s  (the MAX(1, ..) floor)
   // The advertised valid_time FIELD is deliberately left alone: a controller
   // told "valid 62 s" and refreshed every 5 s is safe, while shrinking the
   // field to match the period would needlessly cut the validity horizon.
@@ -253,15 +256,26 @@ module adp_advertiser #(
   // At the clause period every window a Milan controller may legitimately use
   // catches us, and a lost ADPDU costs a quarter of the validity horizon
   // instead of half.
-  // The clamp also retires the 5-bit adv_tick_cnt_r wrap question for good:
-  // the count now never exceeds ADV_MAX_SEC_C - 1 = 4.
+  // The clamp also retires the 5-bit adv_tick_cnt_r wrap question: the count
+  // reloads at ADV_MAX_SEC_C - 1 = 4 on the firing tick, and the one way past
+  // that - a ripe tick landing INSIDE an open TMR_DELAY window, where the
+  // timer is held (Table 5.51) - can push it exactly one further, because the
+  // 6.2.4.2.2 envelope keeps every window under one tick (< 1 s at both
+  // shipped clock rates) and the delayed send then restarts the count at 0.
   // -----------------------------------------------------------------------
   localparam [4:0] ADV_MAX_SEC_C = 5'd5;   //! Milan Table 5.50 TMR_ADVERTISE
   wire [4:0] vt_half_w    = {1'b0, valid_time_i[4:1]};          //! valid_time / 2
   wire [4:0] adv_period_w = (vt_half_w == 5'd0)         ? 5'd1
                           : (vt_half_w > ADV_MAX_SEC_C) ? ADV_MAX_SEC_C
                           :                               vt_half_w;
-  wire       tmr_advertise_w = tick_i && available_r &&
+  //! Table 5.51 marks TMR_ADVERTISE "x = this event cannot happen" in the
+  //! DELAY state - 5.6.3.5.4 step 1 STOPS the advertise timer on the way in -
+  //! so a ripe count must NOT fire while a TMR_DELAY window is open
+  //! (disc_pend_r): the delayed ENTITY_AVAILABLE that closes the window both
+  //! answers the request and restarts the period (adv_restart_w below).
+  //! BEFORE THIS FIX a periodic that ripened mid-window fired immediately,
+  //! absorbing the window but breaking the 5.6.3.5.9 restart sequencing.
+  wire       tmr_advertise_w = tick_i && available_r && !disc_pend_r &&
                                (adv_tick_cnt_r + 5'd1 >= adv_period_w);
 
   // -----------------------------------------------------------------------
@@ -276,6 +290,16 @@ module adp_advertiser #(
   assign busy_o = (state_r == S_SEND);
   //! DIAG state nibble (A_ADP_DIAG2[31:28]) - a view of existing flops, no new state
   assign state_o = {send_pending_r, busy_o, disc_pend_r, available_r};
+
+  //! 5.6.3.5.9 step 2 makes "Start the TMR_ADVERTISE timer (5 seconds)" a step
+  //! of EVERY ENTITY_AVAILABLE send - startup, link-up, info/GM change,
+  //! discover response and the periodic itself alike - so the period re-bases
+  //! at frame START (the same handshake that consumes the pending request).
+  //! ENTITY_DEPARTING is excluded twice over: by the message-type qualifier
+  //! here and because a depart clears available_r, which already parks
+  //! adv_tick_cnt_r at 0.
+  wire adv_restart_w = (state_r == S_IDLE) && send_pending_r &&
+                       (pend_msg_r == ENTITY_AVAILABLE);
 
   // -----------------------------------------------------------------------
   // Frame byte assembly (combinational) — fb[0] is the first byte on the wire.
@@ -465,8 +489,16 @@ module adp_advertiser #(
       //! ENTITY_AVAILABLE after the ENTITY_DEPARTING.
       if (depart_evt_w) disc_pend_r <= 1'b0;
 
-      // advertise timer
-      if (!available_r) begin
+      // advertise timer. adv_restart_w outranks the tick: 5.6.3.5.9 step 2
+      // restarts the period at EVERY ENTITY_AVAILABLE frame start, so a
+      // delayed send (discover response, GM change) re-bases the cadence
+      // instead of leaving the old schedule running underneath it.
+      // TICK QUANTIZATION, stated honestly: the restart is not tick-aligned -
+      // the counter re-bases mid-tick-interval, so the periodic after a
+      // delayed send lands 4..5 s later (early-biased), not exactly 5.000 s.
+      // Legal: 5 s is Table 5.50's upper bound and this engine already runs
+      // the FASTER of the two governing clauses.
+      if (!available_r || adv_restart_w) begin
         adv_tick_cnt_r <= 5'd0;
       end else if (tick_i) begin
         adv_tick_cnt_r <= tmr_advertise_w ? 5'd0 : (adv_tick_cnt_r + 5'd1);

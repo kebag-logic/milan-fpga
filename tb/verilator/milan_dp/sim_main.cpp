@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x00010033);
+    ck("VERSION",       axi_read(A_VERSION), 0x00010030);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
@@ -601,8 +601,8 @@ int main(int argc, char** argv) {
         ck("dormant after depart (MAC silent)", stray ? 1 : 0, 0);
         // recovery = the bench poke: enable 0 -> 1 (wrapper synthesizes the
         // link-up event on the rising edge; same path as enable-after-boot)
-        axi_write(A_ADP_CTRL, 0x00001F00);
-        axi_write(A_ADP_CTRL, 0x00001F01);
+        axi_write(A_ADP_CTRL, 0x00000A00);
+        axi_write(A_ADP_CTRL, 0x00000A01);
         Res rec;
         for (int c = 0; c < 600; c++) {
             step();

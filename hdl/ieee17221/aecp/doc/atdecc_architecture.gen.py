@@ -531,7 +531,7 @@ table("t8v", 640, 92, 560, [
 
 grp("g8b", 40, 290, 1180, 440, "CSR map — ADP/identity 0x600 + AECP status 0x648 (AXI-Lite, 32-bit)")
 table("t8c", 60, 322, 1140, [
- "0x600 ADP_CTRL   [12:8] valid_time (2 s units)  [0] enable      reset 0x00001F00 (enable=0, vt=31)",
+ "0x600 ADP_CTRL   [12:8] valid_time (2 s units)  [0] enable      reset 0x00000A00 (enable=0, vt=10)",
  "0x604 ADP_EIDLO  entity_id[31:0]                0x608 ADP_EIDHI  entity_id[63:32]",
  "0x60C ADP_MIDLO  entity_model_id[31:0]          0x610 ADP_MIDHI  entity_model_id[63:32]",
  "0x614 ADP_ECAPS  entity_capabilities — 0x8588; IDENTIFY_INDEX_VALID stays 0 (no CONTROL descriptor;",

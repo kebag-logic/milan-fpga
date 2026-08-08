@@ -91,6 +91,20 @@ Feature: Milan ADP advertisement format, timing, and grandmaster reaction
     Then the advertiser transmits an ADPDU within 2 seconds
     And the ADPDU message_type is 0 (ENTITY_AVAILABLE)
 
+  # --- TMR_ADVERTISE restarts on EVERY send (Milan v1.2 §5.6.3.5.9 step 2,
+  #     §5.6.3.5.4 step 1: the discover response is itself an ENTITY_AVAILABLE
+  #     send, so the periodic cadence re-bases from the response, not from the
+  #     pre-discover schedule) ---
+
+  Scenario: a discover response restarts the advertise timer
+    Given the valid_time field is 10
+    And the advertise timer has 1 second left to run
+    When an ENTITY_DISCOVER message is received
+    Then the ADPDU message_type is 0 (ENTITY_AVAILABLE)
+    And the next periodic ADPDU arrives a full advertise interval later
+    And the interval between consecutive ADPDUs is at most 9.5 seconds
+    And the interval between consecutive ADPDUs is at least 4.5 seconds
+
   # --- Milan v1.2 §5.6.3.5.2 arming is level-triggered, not edge ---
 
   Scenario: an enabled entity advertises without requiring a pulse

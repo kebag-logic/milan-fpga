@@ -100,10 +100,16 @@ class AdpModel:
         self.gm_domain = 0
         self.adpdus = []
         self.departed = False
+        # seconds the advertise timer has already run since its last
+        # (re)start; mirrors adv_tick_cnt_r in adp_advertiser.sv
+        self.timer_elapsed = 0
 
     def transmit(self):
         idx = self.available_index
         self.available_index = (self.available_index + 1) & 0xFF
+        # Milan v1.2 5.6.3.5.9 step 2: EVERY ENTITY_AVAILABLE send restarts
+        # the TMR_ADVERTISE timer (mirrors adv_restart_w in the RTL)
+        self.timer_elapsed = 0
         adpdu = {
             'dmac': 0x91E0F0010000,
             'ethertype': 0x22F0,
@@ -156,6 +162,14 @@ def step_adp_enabled(context):
 @given('the valid_time field is {n:d}')
 def step_valid_time(context, n):
     context.adp.valid_time = n
+
+@given('the advertise timer has {n:d} second left to run')
+@given('the advertise timer has {n:d} seconds left to run')
+def step_adp_timer_ripe(context, n):
+    # wind the periodic timer to n seconds from expiry (interval math shared
+    # with the observation-window step: interval = MAX(1, valid_time/2))
+    interval = max(1, context.adp.valid_time // 2)
+    context.adp.timer_elapsed = interval - n
 
 @given('the advertiser has transmitted an ADPDU with available_index {n:d}')
 def step_adp_sent_idx(context, n):
@@ -276,6 +290,18 @@ def step_adpdu_gm(context):
 def step_adpdu_domain(context):
     last = context.adp.adpdus[-1]
     assert last['gm_domain'] == 1
+
+@then('the next periodic ADPDU arrives a full advertise interval later')
+def step_adpdu_restarted(context):
+    # Milan v1.2 5.6.3.5.9 step 2: the send (here: the discover response)
+    # restarted TMR_ADVERTISE, so the next periodic is a FULL interval away -
+    # NOT the residue the pre-discover schedule had left (the model winds the
+    # timer to 1 s from expiry before the discover arrives).
+    interval = max(1, context.adp.valid_time // 2)
+    remaining = interval - context.adp.timer_elapsed
+    assert remaining == interval, (
+        f"timer not restarted by the send: next periodic in {remaining}s "
+        f"of a {interval}s interval")
 
 @then('the interval between consecutive ADPDUs is at most {sec:f} seconds')
 def step_adpdu_interval_max(context, sec):

@@ -153,6 +153,65 @@ int main(int argc, char** argv) {
         }
     }
 
+    // ================================================================== //
+    // Table 5.51: TMR_ADVERTISE cannot fire in the DELAY state.           //
+    // Milan 5.6.3.5.4 step 1 STOPS the advertise timer when a discover    //
+    // opens the TMR_DELAY window, so a periodic that ripens MID-WINDOW    //
+    // must stay silent until the draw expires, and exactly ONE            //
+    // ENTITY_AVAILABLE (the delayed response, which restarts the period   //
+    // per 5.6.3.5.9 step 2) may emerge. This harness owns the leg         //
+    // because only its BASE:MASK ratio leaves room to land a tick INSIDE  //
+    // the window: the draw floor is BASE = 1000 cycles here, while the    //
+    // behaviour harness's whole window is 4..7 cycles wide.               //
+    // BITES the pre-fix RTL: the ripe tick fired the periodic at once -   //
+    // the frame-start absorb rule ate the window, but the ADPDU landed    //
+    // ~950 cycles before the earliest legal draw expiry.                  //
+    // ================================================================== //
+    printf("== Table 5.51: TMR_ADVERTISE is dead while TMR_DELAY is open ==\n");
+    {
+        dut->valid_time_i = 10;              // period = MIN(5, MAX(1, 10/2)) = 5 ticks
+        for (int i = 0; i < 4; i++) step();
+        for (int c = 0; c < 32; c++) step(); // quiesce after the last draw
+        // wind the periodic counter to RIPE: period-1 ticks, all silent
+        bool early = false;
+        for (int t = 0; t < 4; t++) {
+            dut->tick_i = 1; step(); dut->tick_i = 0;
+            for (int c = 0; c < 6; c++) { lo(); if (dut->m_axis_tvalid) early = true; hi(); }
+        }
+        ck("5.51: wind-up to period-1 ticks stays silent", early ? 1 : 0, 0);
+        // open the delay window (the draw is >= BASE = 1000 cycles by
+        // construction), step 50 cycles in, then land the RIPE tick INSIDE it
+        dut->rcv_discover_i = 1; step(); dut->rcv_discover_i = 0;
+        bool fired_early = false;
+        for (int c = 0; c < 50; c++) { lo(); if (dut->m_axis_tvalid) fired_early = true; hi(); }
+        dut->tick_i = 1; step(); dut->tick_i = 0;
+        // the timer is stopped in DELAY: tvalid must stay low until at least
+        // the draw floor (we watch to ~100 cycles short of it, launch incl.)
+        for (int c = 0; c < (int)BASE - 151; c++) {
+            lo(); if (dut->m_axis_tvalid) fired_early = true; hi();
+        }
+        ck("5.51: ripe tick mid-window does NOT fire (tvalid low till the draw)",
+           fired_early ? 1 : 0, 0);
+        // the draw expires somewhere <= BASE+MASK from the open: exactly one
+        // frame emerges (tready is held 1, so tlast counts frames)
+        uint32_t frames = 0;
+        for (uint32_t c = 0; c < BASE + MASK; c++) {
+            lo();
+            bool fl = dut->m_axis_tvalid && dut->m_axis_tlast;
+            hi();
+            if (fl) frames++;
+        }
+        ck("5.51: exactly one ENTITY_AVAILABLE emerges from the window", frames, 1);
+        // and that send RESTARTED the period (5.6.3.5.9 step 2): with no
+        // further tick, nothing else may emerge no matter how long we wait
+        bool stray = false;
+        for (uint32_t c = 0; c < BASE + MASK + 200; c++) {
+            lo(); if (dut->m_axis_tvalid) stray = true; hi();
+        }
+        ck("5.51: nothing else follows without a tick (period re-based)",
+           stray ? 1 : 0, 0);
+    }
+
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");

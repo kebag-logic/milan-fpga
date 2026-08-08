@@ -169,7 +169,7 @@ rows("r_ac", 15, 280, 610, [
 
 cont("c_adp", 740, 480, 640, 420, "adp_advertiser — ADP (§6.2)", stroke=ETH[1], fill="#fdf6ec", parent="c_atdecc")
 box("adppipe", 15, 35, 610, 230,
-    "82 B ADPDU (CDL 0x38) · periodic every valid_time s\n(vt=31 -> validity 62 s) · AVAILABLE / DEPARTING /\ndiscover response · available_index +1 on EVERY ADPDU\n(la_avdecc strict rule) · priority: depart > link_up >\ninfo/gm change > discover > timer · enable-edge with\nlink already up == link_up (boot-order fix)",
+    "82 B ADPDU (CDL 0x38) · periodic MIN(5, MAX(1, vt/2)) s\n(reset vt=10, Milan 5.6.2 -> 5 s, validity 20 s) ·\nAVAILABLE / DEPARTING / discover response ·\navailable_index +1 on EVERY ADPDU (la_avdecc strict rule)\n· priority: depart > link_up > info/gm change >\ndiscover > timer · enable-edge with link up == link_up",
     fill=ETH[0], stroke=ETH[1], align="left", parent="c_adp")
 rows("r_adp", 15, 280, 610, [
  "0x644  available_index 32b (RO, live)",

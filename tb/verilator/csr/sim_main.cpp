@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x00010033);
+  ck("VERSION",       axi_read(A_VERSION), 0x00010030);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -376,7 +376,7 @@ int main(int argc, char** argv) {
   ck("SCRATCH unaffected by reinit", axi_read(A_SCRATCH), 0xDEADBEEF);
 
   printf("-- ADP advertiser identity/control (FR-DISC-*) --\n");
-  ck("ADP_CTRL(reset valid_time=31)", axi_read(A_ADP_CTRL), 0x00001F00);
+  ck("ADP_CTRL(reset valid_time=10, Milan 5.6.2)", axi_read(A_ADP_CTRL), 0x00000A00);
   axi_write(A_ADP_EIDLO, 0xEF00FEED);
   axi_write(A_ADP_EIDHI, 0xDEAD00BE);
   dut->eval();
