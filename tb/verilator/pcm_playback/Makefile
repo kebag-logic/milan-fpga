@@ -42,6 +42,12 @@ all: run
 run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) $(CPP) -o Vpcm_playback_sim
 	./obj_dir/Vpcm_playback_sim
+# task #28 leg: the deterministic-latency SETPOINT law - fill target 16
+# samples (the ship floor), prefill releases there, the recenter snaps
+# there, convergence band +/-12. Same cases, setpoint-keyed expectations.
+	$(VERILATOR) $(VFLAGS) --Mdir obj_sp -GSETPOINT_P=16 \
+	  -CFLAGS "-DSETPOINT_TB=16" $(SRCS) $(CPP) -o Vpcm_playback_sp
+	./obj_sp/Vpcm_playback_sp
 
 clean:
 	rm -rf obj_dir

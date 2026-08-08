@@ -33,7 +33,9 @@ module pcm_playback_wrap #(
                                                     //! media frame (sim-fast)
   parameter int unsigned N_PHYS_P     = 10,         //! physical render outs
   parameter int          CLK_FREQ_HZ_P = 49_152_000,//! clk_i frequency
-  parameter int          PREFILL_P    = 4           //! DAC prefill release
+  parameter int          PREFILL_P    = 4,          //! DAC prefill release
+  parameter int          SETPOINT_P   = 0           //! task #28 fill target
+                                                    //! (0 = legacy midpoint)
 )(
   input  wire        clk,               //! datapath clock
   input  wire        clk_audio,         //! clean audio clock (MMCM)
@@ -195,7 +197,8 @@ module pcm_playback_wrap #(
   KL_i2s_playback #(
     .MCLK_DIV_LOG2 (2),
     .CLK_FREQ_HZ   (CLK_FREQ_HZ_P),
-    .PREFILL_C     (PREFILL_P)
+    .PREFILL_C     (PREFILL_P),
+    .SETPOINT_P    (SETPOINT_P)
   ) u_dac (
     .clk_i (clk), .rst_n (rst_n),
     .recenter_p_i (recenter_p_i),

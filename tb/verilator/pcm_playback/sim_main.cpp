@@ -472,7 +472,12 @@ int main(int argc, char **argv) {
   // -----------------------------------------------------------------------
   printf("\n[H] GM-step recenter snaps the FIFO to MID\n");
   {
+#ifdef SETPOINT_TB
+    //! task #28 leg: the fill target IS the setpoint, not the midpoint
+    const long MID = SETPOINT_TB;
+#else
     const long MID = 1L << (9 - 1);            // FIFO_LOG2 default 9
+#endif
     long f0 = (long)dut->i2s_fill_o;
     ck_true("H precondition: fill is OFF mid", f0 != MID);
     bool mr_seen = false;

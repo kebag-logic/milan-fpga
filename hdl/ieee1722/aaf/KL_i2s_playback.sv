@@ -50,7 +50,10 @@ module KL_i2s_playback #(
   parameter int CLK_FREQ_HZ   = 50_000_000, //! clk_i frequency (kept: the
                                         //! per-ms servo tick derives from it)
   parameter int FIFO_LOG2     = 9,      //! sample-pair FIFO depth (2^N)
-  parameter int PREFILL_C     = 0       //! underrun-recenter release level
+  parameter int PREFILL_C     = 0,      //! underrun-recenter release level
+  parameter int SETPOINT_P    = 0       //! steady-state fill = the constant
+                                        //! input->cluster latency (task #28);
+                                        //! 0 = legacy RAM midpoint
                                         //! in pairs (0 = FIFO midpoint)
 )(
   input  wire         clk_i,            //! datapath clock (PCM tap domain)
@@ -167,8 +170,35 @@ module KL_i2s_playback #(
   wire                full_w  = fill_w[FIFO_LOG2];
   wire                empty_w = (fill_w == '0);
   localparam logic [FIFO_LOG2:0] MID_C = 1 << (FIFO_LOG2 - 1);
+  //! task #28 (USER: once locked, the input->cluster latency is a CONSTANT,
+  //! identical for every clock-domain source, and the system picks each
+  //! sample AS SOON AS POSSIBLE): the steady-state FILL of this FIFO IS
+  //! that latency, so it runs at a SETPOINT - the packetization floor the
+  //! integration passes in - instead of the RAM midpoint. The 2^FIFO_LOG2
+  //! RAM keeps its full depth as TRANSIENT margin above the setpoint;
+  //! nothing in this path varies with the clock source (source selection
+  //! changes who disciplines the media clock, never the delay).
+  //! SETPOINT_P = 0 keeps the legacy midpoint (bring-up shapes).
+  localparam logic [FIFO_LOG2:0] SETPOINT_C =
+      (SETPOINT_P == 0) ? MID_C : (FIFO_LOG2+1)'(SETPOINT_P);
+  //! convergence/reset bands scale with the setpoint (a +/-64-of-512 band
+  //! is meaningless around a 16-sample floor): +/-6 pairs = 12 samples is
+  //! the USER wander budget, and the reset rail sits at twice that -
+  //! unless the legacy midpoint runs, which keeps its proven 64/128.
+  localparam logic [FIFO_LOG2:0] CONV_BAND_C =
+      (SETPOINT_P == 0) ? (FIFO_LOG2+1)'(64)  : (FIFO_LOG2+1)'(12);
+  localparam logic [FIFO_LOG2:0] RESET_BAND_C =
+      (SETPOINT_P == 0) ? (FIFO_LOG2+1)'(128) : (FIFO_LOG2+1)'(24);
+  //! lower rails clamp at zero rather than wrapping the unsigned math (a
+  //! 16-sample setpoint minus a 24-sample reset band is not a level, it is
+  //! "the underrun rail owns everything below") - the guard is structural,
+  //! any integration value is safe
+  localparam logic [FIFO_LOG2:0] CONV_LO_C =
+      (SETPOINT_C > CONV_BAND_C)  ? (SETPOINT_C - CONV_BAND_C)  : '0;
+  localparam logic [FIFO_LOG2:0] RESET_LO_C =
+      (SETPOINT_C > RESET_BAND_C) ? (SETPOINT_C - RESET_BAND_C) : '0;
   localparam logic [FIFO_LOG2:0] PREFILL_LVL_C =
-      (PREFILL_C == 0) ? MID_C : (FIFO_LOG2+1)'(PREFILL_C);
+      (PREFILL_C == 0) ? SETPOINT_C : (FIFO_LOG2+1)'(PREFILL_C);
   assign fill_o = 16'(fill_w);
 
   //! feeder: keep the small CDC FIFO topped up from the main FIFO
@@ -280,11 +310,13 @@ module KL_i2s_playback #(
       // ---- convergence observer (per ms) ------------------------------
       ms_div_r <= (ms_div_r == MS_DIV_C - 1) ? '0 : ms_div_r + 1'b1;
       if (ms_div_r == MS_DIV_C - 1) begin
-        if (fill_w > MID_C - 64 && fill_w < MID_C + 64) begin
+        if (fill_w > CONV_LO_C &&
+            fill_w < SETPOINT_C + CONV_BAND_C) begin
           if (conv_ms_r != 7'd100) conv_ms_r <= conv_ms_r + 7'd1;
           else                     converged_o <= 1'b1;
         end
-        else if (fill_w < MID_C - 128 || fill_w > MID_C + 128) begin
+        else if ((RESET_LO_C != 0 && fill_w < RESET_LO_C) ||
+                 fill_w > SETPOINT_C + RESET_BAND_C) begin
           conv_ms_r   <= '0;
           converged_o <= 1'b0;
         end
@@ -299,7 +331,7 @@ module KL_i2s_playback #(
       //      block ON PURPOSE: this rptr_r assignment must win over the
       //      feeder's same-cycle increment.
       if (recenter_p_i && !prefill_r && was_filled_r) begin
-        rptr_r          <= wptr_r - MID_C;
+        rptr_r          <= wptr_r - SETPOINT_C;
         media_reset_p_o <= 1'b1;
         conv_ms_r       <= '0;
       end
