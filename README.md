@@ -192,3 +192,27 @@ ride the big arrow; dates assume the current cadence.
 Standing invariants across every phase: the ATDECC model stays authoritative
 (no side-channel state), every closed bitstream is flashed and soaked, and
 the desk suites + internal COMPLIANCE behave gates stay green at 100 % coverage.
+
+### P1.5 — Conformance hardening (2026-08, rides P1)
+
+The clause-by-clause traceability review
+([`docs/reference/PROTOCOL_TRACEABILITY.md`](docs/reference/PROTOCOL_TRACEABILITY.md))
+mapped 153 protocol-facing RTL elements and adversarially verified the
+divergences. The resulting fix campaign is tracked as twelve work packages,
+landing in this order (each with desk-suite proof and a live compliance
+observable before it closes):
+
+| Order | Package | Issue |
+|---|---|---|
+| 1 | ACMP listener settled-state law (SRP coupling) | [#54](https://github.com/kebag-logic/milan-fpga/issues/54) |
+| 1 | ACMP listener response/field laws | [#55](https://github.com/kebag-logic/milan-fpga/issues/55) |
+| 2 | AECP stream-command law (STREAM_IS_RUNNING gates and siblings) | [#58](https://github.com/kebag-logic/milan-fpga/issues/58) |
+| 3 | ACMP talker success-response field laws | [#56](https://github.com/kebag-logic/milan-fpga/issues/56) |
+| 4 | ADP valid_time reset + advertise-timer restart | [#57](https://github.com/kebag-logic/milan-fpga/issues/57) |
+| 5 | Unsolicited GET_COUNTERS coverage + rate law | [#60](https://github.com/kebag-logic/milan-fpga/issues/60) |
+| 6 | Handshake-blind monitor taps + SRP rIn law | [#65](https://github.com/kebag-logic/milan-fpga/issues/65), [#63](https://github.com/kebag-logic/milan-fpga/issues/63) |
+| 7 | AVTP version gate, media-clock-restart plumbing, CRF rounding | [#62](https://github.com/kebag-logic/milan-fpga/issues/62) |
+| 8 | CRF counter widths | [#61](https://github.com/kebag-logic/milan-fpga/issues/61) |
+| 9 | Departing-controller detection (Milan 5.4.5.3) | [#59](https://github.com/kebag-logic/milan-fpga/issues/59) |
+| 10 | gPTP plane (increment reset, asCapable, latency split, AS_PATH) | [#64](https://github.com/kebag-logic/milan-fpga/issues/64) |
+| 11 | SRP deep items (declaration gating, Domain adopt, CBS wire time) | [#63](https://github.com/kebag-logic/milan-fpga/issues/63) |
