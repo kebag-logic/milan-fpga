@@ -2933,6 +2933,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [64*N_STREAMS-1:0] strtbl_sid_w;
   wire [N_STREAMS-1:0]    strtbl_en_w;
   wire [N_STREAMS-1:0]    strtbl_bind_rise_w;
+  wire [N_STREAMS-1:0]    strtbl_bind_fall_w;  //! task #32: the wipe pulse
   wire [NSIDX_W_C-1:0]    avtprx_idx;
 
   //! P12 window commit glue (NXN §1.1/§1.3): the CSR window's listener
@@ -3859,10 +3860,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   KL_stream_table #(.N_LISTENERS_P(N_STREAMS)) stream_table (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .bound0_i (acmpl_bound), .sid0_i (acmpl_sid),
+    //! task #32: every entry rides its own sink's bind level, so an
+    //! UNBIND evicts the classification entry and the departed stream's
+    //! frames become foreign at the parser (the AAF slice of the ACMP
+    //! view - the CRF sink classifies in its own path)
+    .bound_v_i (acmpl_bound_v_w[N_STREAMS-1:0]),
+    .sid_v_i   (acmpl_sid_v_w[64*N_STREAMS-1:0]),
     .wr_en_i (wing_tbl_we_r), .wr_idx_i (wing_idx_r),
     .wr_sid_i (wing_sid_r), .wr_valid_i (wing_en_r),
     .tbl_sid_o (strtbl_sid_w), .tbl_en_o (strtbl_en_w),
-    .bind_rise_o (strtbl_bind_rise_w)
+    .bind_rise_o (strtbl_bind_rise_w),
+    .bind_fall_o (strtbl_bind_fall_w)
   );
 
   avtp_stream_parser #(
@@ -4120,6 +4128,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .fsh_i          (avtprx_fsh),
     .bound_i        (strtbl_en_w),
     .bind_rise_i    (strtbl_bind_rise_w),
+    .bind_fall_i    (strtbl_bind_fall_w),
     .sid0_i         (acmpl_sid),
     .fmt0_i         (aecp_in0_fmt),
     .ptp_now_i      (ptp_now_w[31:0]),
@@ -4327,7 +4336,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   KL_i2s_playback #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C),
                     .CLK_FREQ_HZ(MILAN_CLK_FREQ_HZ),
-                    .PREFILL_C(PB_PREFILL_C)) i2s_player (
+                    .PREFILL_C(PB_PREFILL_C),
+                    //! task #28 (USER: constant source-invariant latency,
+                    //! samples picked as soon as possible): the setpoint =
+                    //! the packetization floor - one class-A frame of this
+                    //! stereo lane (6 events x 2 samples = 12) plus a
+                    //! 4-sample CDC/jitter allowance = 16 samples (8 pairs,
+                    //! ~167 us at 48 kHz), inside the USER 125-200 us band.
+                    //! DERIVED from the frame shape, not a mirrored literal.
+                    .SETPOINT_P((6 * 2) + 4)) i2s_player (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i  (clk_audio_i),
     .servo_en_i   (aecp_clk_src != 16'd0),

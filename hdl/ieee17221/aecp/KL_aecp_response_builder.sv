@@ -1051,6 +1051,32 @@ module KL_aecp_response_builder (
   wire [12:0] w_od_t =
       AEM_ODMAP_CSRC_C[w_od_co_ok ? 32'(od_cb_q) + 32'(dm_co_q[4:0]) : 0];
 
+  //! ---- boot-seed KEY RESOLVE as PLAIN COMB WIRES (task #32 item 3) ----
+  //! Wire truth (ax7101_1x1_tdm8, VERSION 0x002D silicon): the capture-map
+  //! RAM woke with the identity image at keys 1..8 and key 0 EMPTY
+  //! (0x0000), and the live ADDs {0,0,8,0}/{0,1,8,0} were then snapped at
+  //! keys 1/2 - a uniform +1 on the WRITE side of the fabric port - while
+  //! GET_AUDIO_MAP echoed both records at their true channels and the AEM
+  //! store blob was byte-exact. GET is served from ov_r/oco_r, which the
+  //! commit writes from the SAME odk_key_q register, in the SAME cycle,
+  //! that drives odmap_wr_slot_o, so builder-side key state was provably
+  //! straight; sim_odmap_tdm8.cpp replays the exact silicon sequence (and
+  //! the replay/retry/interleave priors) on the exact tdm8 tables and
+  //! pins the port at 0-based keys. The one construct left on the shifted
+  //! path was HERE: the seed's key resolve ran through block-local
+  //! `automatic` temporaries inside the clocked process - the synthesis
+  //! hazard class this file has already purged twice after silicon-vs-sim
+  //! divergence (the cbuf single-port rework and the w_dm_*/odk_* phase-8
+  //! splits) - and the seed burst is the ONLY back-to-back traffic this
+  //! port ever carries. The render-side twin (dmseed) never used the
+  //! construct and never shifted. Hoisted to module scope: semantics
+  //! identical in simulation, and nothing is left for synthesis to
+  //! re-time against the odseed_r increment.
+  wire        w_odsd_v = ov_r[odseed_r[ODMAP_KW_C-1:0]];
+  wire [12:0] w_odsd_t = AEM_ODMAP_CSRC_C[
+      32'(AEM_ODMAP_PCBASE_C[32'(odseed_r) / 8])
+      + 32'(oco_r[odseed_r[ODMAP_KW_C-1:0]])];
+
   //! phase-8 resolution of everything the verdict reaches through a KEY:
   //! the CSRC source table (an adder off dm_co_q into a per-cluster table)
   //! and the two pair-key reads of the output store. The odmap twin of the
@@ -2131,14 +2157,14 @@ module KL_aecp_response_builder (
       //! store so a pre-seed edit is still truthful; an unmapped key
       //! writes nothing (the crossbar reset already holds silence).
       if (odseed_r < 8'(AEM_ODMAP_KEYS_C) && state_r == IDLE_S) begin
-        automatic logic v = ov_r[odseed_r[ODMAP_KW_C-1:0]];
-        automatic logic [12:0] t = AEM_ODMAP_CSRC_C[
-            32'(AEM_ODMAP_PCBASE_C[32'(odseed_r) / 8])
-            + 32'(oco_r[odseed_r[ODMAP_KW_C-1:0]])];
-        if (v) begin
+        //! key resolve via the module-scope w_odsd_* wires (task #32
+        //! item 3): the former block-local `automatic` temporaries were
+        //! the last of their hazard class on the capture-map write path
+        if (w_odsd_v) begin
           odmap_wr_p_o    <= 1'b1;
           odmap_wr_slot_o <= 6'(odseed_r);
-          odmap_wr_word_o <= {1'b1, t[11], t[10:8], t[7:4], t[3:0]};
+          odmap_wr_word_o <= {1'b1, w_odsd_t[11], w_odsd_t[10:8],
+                              w_odsd_t[7:4], w_odsd_t[3:0]};
         end
         odseed_r <= odseed_r + 8'd1;
       end

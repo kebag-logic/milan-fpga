@@ -134,6 +134,11 @@ module KL_avtp_rx_monitor_ctx #(
   //! --- per-stream binding (KL_stream_table) -----------------------------
   input  wire [N_LISTENERS_P-1:0] bound_i,      //! per-stream bound level
   input  wire [N_LISTENERS_P-1:0] bind_rise_i,  //! not-bound->bound pulses
+  input  wire [N_LISTENERS_P-1:0] bind_fall_i,  //! bound->not-bound pulses
+                                                //! (task #32: a bind WIPE is
+                                                //! the 0x002B law's second
+                                                //! unlock cause - it rides
+                                                //! the silence-unlock walk)
 
   //! --- stream-0 legacy config (no-regression aliases) -------------------
   input  wire [63:0]  sid0_i,            //! sink-0 bound sid (LCTX w0/w1)
@@ -836,6 +841,14 @@ module KL_avtp_rx_monitor_ctx #(
       // ---- pending event capture ----------------------------------------
       for (int s = 0; s < N_LISTENERS_P; s++) begin
         if (bind_rise_i[s]) bind_pend_r[s] <= 1'b1;
+        //! task #32: an UNBIND while locked unlocks ONCE, through the same
+        //! walk the 100 ms silence rail uses - one event class, one path
+        //! (silicon 08-07: the wipe never unlocked and Table 5.6's
+        //! LOCKED = UNLOCKED+1 invariant parked at +1 forever). The
+        //! counter zeroing stays with the NEXT bind's M_BDEC walk, so the
+        //! unlock increment always lands before any wipe (the ordering the
+        //! walker comment below already mandates).
+        if (bind_fall_i[s] && locked_sh_r[s]) sil_pend_r[s] <= 1'b1;
         if (depkt_pdu_p_i && (32'(depkt_pdu_idx_i) == s) &&
             !(&dpdu_pend_r[s]))
           dpdu_pend_r[s] <= dpdu_pend_r[s] + 3'd1;

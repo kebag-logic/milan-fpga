@@ -57,6 +57,11 @@ SHAPE_1x1  = -I$(CFG_DIR)/endstation_arty_current
 # descriptor set the AX7101 gateware carries. sim_nxn.cpp needs it because
 # the 1x1 and 1x3 harnesses structurally cannot see an index-coverage defect.
 SHAPE_8x8  = -I$(CFG_DIR)/endstation_ax7101_8x8
+# The SHIPPING 1x1x8 TDM8 shape (USER 08-05 pivot), tracked: ONE dynamic
+# STREAM_PORT_OUTPUT with 17 clusters (TONE at cluster_offset 8), KEYS=8.
+# Task #32 item 3: the VERSION 0x002D silicon +1-key capture-map defect was
+# invisible to every other leg because none elaborated THESE tables.
+SHAPE_TDM8 = -I$(CFG_DIR)/endstation_ax7101_1x1_tdm8
 
 VBASE  = --cc --exe --build -j 0 \
          --top-module $(TOP) \
@@ -111,6 +116,8 @@ run: $(GEN)
 	python3 gen_odmap_shape.py odmap_inc
 	$(VERILATOR) -Iodmap_inc $(VFLAGS) --Mdir obj_odmap \
 	  $(SRCS) sim_odmap.cpp -o Vaecp_odmap     # dynamic STREAM_PORT_OUTPUTs
+	$(VERILATOR) $(SHAPE_TDM8) $(VBASE) --Mdir obj_tdm8 \
+	  $(SRCS) sim_odmap_tdm8.cpp -o Vaecp_tdm8 # SHIPPING tdm8 (task #32.3)
 	$(VERILATOR) -GCLK_FREQ_HZ_P=100000 -I../../../hdl/ieee17221/aecp $(VFLAGS) \
 	  --Mdir obj_unsol \
 	  $(SRCS) sim_unsol.cpp -o Vaecp_unsol     # Table 5.22 pushes (1 ms = 100 cyc);
@@ -127,6 +134,7 @@ run: $(GEN)
 	./obj_pools/Vaecp_pools
 	./obj_dynmap2/Vaecp_dynmap2
 	./obj_odmap/Vaecp_odmap
+	./obj_tdm8/Vaecp_tdm8
 	./obj_unsol/Vaecp_unsol
 
 $(GEN):
@@ -145,3 +153,4 @@ clean:
 	rm -rf obj_dir obj_fmt2 fmt2_inc obj_fmt4 fmt4_inc obj_dynmap dynmap_inc
 	rm -rf obj_nxn obj_amap smap8_inc
 	rm -rf obj_pools pools_inc obj_dynmap2 dynmap2_inc obj_odmap odmap_inc
+	rm -rf obj_tdm8

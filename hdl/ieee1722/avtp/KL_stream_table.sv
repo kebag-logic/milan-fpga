@@ -64,6 +64,16 @@ module KL_stream_table #(
   input  wire         bound0_i,        //! listener sink 0 bound (level)
   input  wire [63:0]  sid0_i,          //! sink 0 bound stream_id
 
+  //! --- per-sink ACMP bind view (task #32: the UNBIND must reach the
+  //! parser). Sinks 1..N-1 previously had NO alias - only the CSR window
+  //! wrote them - so a DISCONNECT_RX left tbl_en high with the stale sid
+  //! and the parser delivered the departed stream forever (silicon
+  //! 08-07: LATE events armed 1/s pushes = the Hive flapping). Now every
+  //! entry defaults to ITS sink's bind level exactly like entry 0 always
+  //! did; the window override still WINS while armed (software-owns law).
+  input  wire [N_LISTENERS_P-1:0]      bound_v_i,   //! per-sink bind level
+  input  wire [64*N_LISTENERS_P-1:0]   sid_v_i,     //! per-sink bound sid
+
   //! --- CSR-window override/write port (P11 hook; TB-driven meanwhile) ----
   input  wire         wr_en_i,         //! one-cycle write strobe
   input  wire [3:0]   wr_idx_i,        //! entry index s
@@ -73,11 +83,16 @@ module KL_stream_table #(
   //! --- classification table out (avtp_stream_parser cfg pins) ------------
   output logic [64*N_LISTENERS_P-1:0] tbl_sid_o,   //! per-entry stream_id
   output logic [N_LISTENERS_P-1:0]    tbl_en_o,    //! per-entry enable
-  output logic [N_LISTENERS_P-1:0]    bind_rise_o  //! not-bound->bound pulse
+  output logic [N_LISTENERS_P-1:0]    bind_rise_o, //! not-bound->bound pulse
+  output logic [N_LISTENERS_P-1:0]    bind_fall_o  //! bound->not-bound pulse
+                                                   //! (task #32: the wipe
+                                                   //! event the monitor's
+                                                   //! unlock law rides)
 );
 
-  //! override storage: entry 0 only takes effect once explicitly written
-  //! (ovr_armed) so the reset default stays the pure ACMP alias
+  //! override storage: an entry only takes effect once explicitly written
+  //! (ovr_armed) so the reset default stays the pure ACMP alias - since
+  //! task #32 that law holds for EVERY entry, not just 0
   logic [63:0] ovr_sid_r   [N_LISTENERS_P];
   logic        ovr_en_r    [N_LISTENERS_P];
   logic        ovr_armed_r [N_LISTENERS_P];
@@ -105,12 +120,16 @@ module KL_stream_table #(
     end
   end : tbl_write
 
-  //! effective table: entry 0 = ACMP alias unless a bench override armed it
+  //! effective table: every entry = its sink's ACMP alias unless a window
+  //! override armed it (entry 0's original law, generalized by task #32 -
+  //! the release-to-alias eviction above applies per entry the same way).
+  //! Entry 0 keeps the dedicated bound0/sid0 pair (the legacy authority);
+  //! entries 1..N-1 read the per-sink bind view.
   always_comb begin : tbl_mux
     for (int s = 0; s < N_LISTENERS_P; s++) begin
-      if (s == 0 && !ovr_armed_r[0]) begin
-        tbl_sid_o[64*s +: 64] = sid0_i;
-        tbl_en_o[s]           = bound0_i;
+      if (!ovr_armed_r[s]) begin
+        tbl_sid_o[64*s +: 64] = (s == 0) ? sid0_i : sid_v_i[64*s +: 64];
+        tbl_en_o[s]           = (s == 0) ? bound0_i : bound_v_i[s];
       end
       else begin
         tbl_sid_o[64*s +: 64] = ovr_sid_r[s];
@@ -125,10 +144,12 @@ module KL_stream_table #(
     if (!rst_n) begin
       en_q_r      <= '0;
       bind_rise_o <= '0;
+      bind_fall_o <= '0;
     end
     else begin
       en_q_r      <= tbl_en_o;
       bind_rise_o <= tbl_en_o & ~en_q_r;
+      bind_fall_o <= ~tbl_en_o & en_q_r;
     end
   end : bind_edge
 
