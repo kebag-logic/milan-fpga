@@ -225,13 +225,15 @@ static void drv_lb_pdu(int s, int chans, int events, int e0) {
 
 // ---- media ticks (one full slot walk per tick; drain-friendly spacing) ---
 //! Both wrappers elaborate N_SLOTS_P = 32 with GAP_CYC_P = 24, and EVERY slot
-//! now injects (an unmapped one carries silence - Milan v1.2 5.3.7.3), so a
-//! walk is 1 + 32*26 = 833 cycles whatever the map holds. The old 300/340
-//! spacing only ever fitted because the sparsely mapped phases below skipped
-//! 27 of the 32 slots in one cycle each; it was never the real grid, which is
-//! MILAN_CLK_FREQ_HZ/48000 = 2083 cycles at 100 MHz (1041 at 50 MHz). WALK_C
-//! is checked against that budget in [A4] rather than being restated there.
-static const int WALK_C = 1 + 32 * (24 + 2);
+//! now injects (an unmapped one carries silence - Milan v1.2 5.3.7.3), plus
+//! the 0x0036 LOOP pre-walk of LB_PAIRS_C+1 = 33 pop cycles before the slot
+//! walk, so a walk is 1 + 33 + 32*26 = 866 cycles whatever the map holds.
+//! The old 300/340 spacing only ever fitted because the sparsely mapped
+//! phases below skipped 27 of the 32 slots in one cycle each; it was never
+//! the real grid, which is MILAN_CLK_FREQ_HZ/48000 = 2083 cycles at 100 MHz
+//! (1041 at 50 MHz). WALK_C is checked against that budget in [A4] rather
+//! than being restated there.
+static const int WALK_C = 1 + (32 + 1) + 32 * (24 + 2);
 static void a_tick() { dut->a_tick_i = 1; cyc(); dut->a_tick_i = 0; cyc(WALK_C + 60); }
 static void b_tick() { dut->b_tick_i = 1; cyc(); dut->b_tick_i = 0; cyc(WALK_C + 100); }
 
@@ -255,6 +257,7 @@ int main(int argc, char** argv) {
   dut->tone_smp_i = 0;
   dut->lb_tdata_i = 0; dut->lb_tvalid_i = 0; dut->lb_tlast_i = 0;
   dut->lb_tuser_i = 0; dut->lb_wire_chans_i = 0;
+  dut->a_lb_flush_i = 0; dut->b_lb_flush_i = 0;
   dut->a_map_wr_en_i = 0; dut->a_map_rd_en_i = 0; dut->a_tick_i = 0; dut->a_en_i = 0;
   dut->a_tctx_wr_en_i = 0; dut->a_tctx_rd_en_i = 0;
   dut->b_map_wr_en_i = 0; dut->b_map_rd_en_i = 0; dut->b_tick_i = 0; dut->b_en_i = 0;
@@ -635,13 +638,18 @@ int main(int argc, char** argv) {
   int l0 = find_len(afr, 90), l1 = find_len(afr, 234);
   if (l1 >= 0) {
     // pair p of the entry = wire channels {2p, 2p+1} = {L, R}, and the
-    // packetizer emits pair p into the same two channels - identity round trip
-    ck("LB: t1 ch0 = s3 ch0 (pair0 L)", be(afr[l1], 42, 3), LBV(3, 0, 2));
-    ck("LB: t1 ch1 = s3 ch1 (pair0 R)", be(afr[l1], 46, 3), LBV(3, 1, 2));
-    ck("LB: t1 ch2 = s3 ch2 (pair1 L)", be(afr[l1], 50, 3), LBV(3, 2, 2));
-    ck("LB: t1 ch3 = s3 ch3 (pair1 R)", be(afr[l1], 54, 3), LBV(3, 3, 2));
-    ck("LB: t1 ch4 = s5 ch6 (pair3 L)", be(afr[l1], 58, 3), LBV(5, 6, 4));
-    ck("LB: t1 ch5 = s5 ch7 (pair3 R)", be(afr[l1], 62, 3), LBV(5, 7, 4));
+    // packetizer emits pair p into the same two channels - identity round
+    // trip. QUEUE LAW (0x0036 paced replay): the frame's FIRST sample event
+    // is each pair's OLDEST queued event, not the burst's last - the
+    // latest-sample expectations this leg used to encode were the defect
+    // [T68] measured on the wire (dup+skip stair).
+    ck("LB: t1 ch0 = s3 ch0 e1 (pair0 L, oldest first)",
+       be(afr[l1], 42, 3), LBV(3, 0, 1));
+    ck("LB: t1 ch1 = s3 ch1 e1 (pair0 R)", be(afr[l1], 46, 3), LBV(3, 1, 1));
+    ck("LB: t1 ch2 = s3 ch2 e1 (pair1 L)", be(afr[l1], 50, 3), LBV(3, 2, 1));
+    ck("LB: t1 ch3 = s3 ch3 e1 (pair1 R)", be(afr[l1], 54, 3), LBV(3, 3, 1));
+    ck("LB: t1 ch4 = s5 ch6 e3 (pair3 L)", be(afr[l1], 58, 3), LBV(5, 6, 3));
+    ck("LB: t1 ch5 = s5 ch7 e3 (pair3 R)", be(afr[l1], 62, 3), LBV(5, 7, 3));
     ck("LB: out-of-range stream = silence L", be(afr[l1], 66, 3), 0);
     ck("LB: out-of-range stream = silence R", be(afr[l1], 70, 3), 0);
     // the crossing/duplication oracle: four values from one PDU, all live,
@@ -656,12 +664,21 @@ int main(int argc, char** argv) {
        be(afr[l1], 46, 3) != be(afr[l1], 54, 3), 1);
     ck("LB: s5 pair L != R (not duplicated)",
        be(afr[l1], 58, 3) != be(afr[l1], 62, 3), 1);
-  } else { for (int k = 0; k < 13; k++) ck("LB content (skipped)", 0, 1); }
+    // the second event of the same frame advances the queue IN ORDER
+    ck("LB: t1 event 2 ch0 = s3 e2 (paced replay)",
+       be(afr[l1], 42 + 32, 3), LBV(3, 0, 2));
+  } else { for (int k = 0; k < 14; k++) ck("LB content (skipped)", 0, 1); }
   if (l0 >= 0) {
-    ck("LB: t0 ch0 = s0 ch0 (chans field 0 -> 2)", be(afr[l0], 42, 3),
-       LBV(0, 0, 10));
-    ck("LB: t0 ch1 = s0 ch1 (chans field 0 -> 2)", be(afr[l0], 46, 3),
-       LBV(0, 1, 10));
+    // t0's six frame events replay s0's six-event PDU EXACTLY, in order -
+    // the queue law visible inside ONE frame (2ch stride = 8 bytes/event)
+    long ramp_ok = 1;
+    for (int e = 0; e < 6; e++) {
+      if (be(afr[l0], 42 + 8 * e, 3) != LBV(0, 0, 5 + e)) ramp_ok = 0;
+      if (be(afr[l0], 46 + 8 * e, 3) != LBV(0, 1, 5 + e)) ramp_ok = 0;
+    }
+    ck("LB: t0 ch0 e5 first (chans field 0 -> 2)", be(afr[l0], 42, 3),
+       LBV(0, 0, 5));
+    ck("LB: t0 frame = the whole 6-event PDU in order", ramp_ok, 1);
     ck("LB: t0 L != R", be(afr[l0], 42, 3) != be(afr[l0], 46, 3), 1);
   } else { for (int k = 0; k < 3; k++) ck("LB t0 (skipped)", 0, 1); }
 
@@ -676,12 +693,19 @@ int main(int argc, char** argv) {
   cyc(400);
   int m1 = find_len(afr, 234);
   if (m1 >= 0) {
-    ck("LB2: remapped pair0 L = s3 ch6", be(afr[m1], 42, 3), LBV(3, 6, 6));
-    ck("LB2: remapped pair0 R = s3 ch7", be(afr[m1], 46, 3), LBV(3, 7, 6));
-    ck("LB2: pair1 follows the NEWER PDU L", be(afr[m1], 50, 3), LBV(3, 2, 6));
-    ck("LB2: pair1 follows the NEWER PDU R", be(afr[m1], 54, 3), LBV(3, 3, 6));
-    ck("LB2: untouched stream 5 holds L", be(afr[m1], 58, 3), LBV(5, 6, 4));
-    ck("LB2: untouched stream 5 holds R", be(afr[m1], 62, 3), LBV(5, 7, 4));
+    // queue law: [LB]'s six ticks drained s3's first PDU, so the new PDU's
+    // OLDEST event (e5) leads this frame; the drained streams 5 and 2 sit
+    // on their last popped event - the honest starved-repeat
+    ck("LB2: remapped pair0 L = s3 ch6 e5", be(afr[m1], 42, 3), LBV(3, 6, 5));
+    ck("LB2: remapped pair0 R = s3 ch7 e5", be(afr[m1], 46, 3), LBV(3, 7, 5));
+    ck("LB2: pair1 = the new PDU, oldest first L", be(afr[m1], 50, 3),
+       LBV(3, 2, 5));
+    ck("LB2: pair1 = the new PDU, oldest first R", be(afr[m1], 54, 3),
+       LBV(3, 3, 5));
+    ck("LB2: starved stream 5 repeats its last L", be(afr[m1], 58, 3),
+       LBV(5, 6, 4));
+    ck("LB2: starved stream 5 repeats its last R", be(afr[m1], 62, 3),
+       LBV(5, 7, 4));
     ck("LB2: 3-ch stream ch0 (beats straddle events)", be(afr[m1], 66, 3),
        LBV(2, 0, 4));
     ck("LB2: 3-ch stream ch1 (beats straddle events)", be(afr[m1], 70, 3),
@@ -747,14 +771,15 @@ int main(int argc, char** argv) {
   cyc(400);
   int q1 = find_len(afr, 234);
   if (q1 >= 0) {
-    ck("LB4: 10ch wire, ch0 kept", be(afr[q1], 42, 3), LBV(6, 0, 2));
-    ck("LB4: 10ch wire, ch1 kept", be(afr[q1], 46, 3), LBV(6, 1, 2));
+    // queue law: fresh 2-event PDUs lead with e1 (oldest first)
+    ck("LB4: 10ch wire, ch0 kept", be(afr[q1], 42, 3), LBV(6, 0, 1));
+    ck("LB4: 10ch wire, ch1 kept", be(afr[q1], 46, 3), LBV(6, 1, 1));
     ck("LB4: 10ch wire, ch6 (alignment survived ch8/ch9)",
-       be(afr[q1], 50, 3), LBV(6, 6, 2));
+       be(afr[q1], 50, 3), LBV(6, 6, 1));
     ck("LB4: 10ch wire, ch7 (alignment survived ch8/ch9)",
-       be(afr[q1], 54, 3), LBV(6, 7, 2));
-    ck("LB4: last bank entry s7 p3 L", be(afr[q1], 58, 3), LBV(7, 6, 2));
-    ck("LB4: last bank entry s7 p3 R", be(afr[q1], 62, 3), LBV(7, 7, 2));
+       be(afr[q1], 54, 3), LBV(6, 7, 1));
+    ck("LB4: last bank entry s7 p3 L", be(afr[q1], 58, 3), LBV(7, 6, 1));
+    ck("LB4: last bank entry s7 p3 R", be(afr[q1], 62, 3), LBV(7, 7, 1));
     ck("LB4: s3 pair0 L", be(afr[q1], 66, 3), LBV(3, 0, 6));
     ck("LB4: s3 pair0 R", be(afr[q1], 70, 3), LBV(3, 1, 6));
     // NO-DUPLICATION SCAN: eight live channels from four different (stream,
@@ -802,12 +827,13 @@ int main(int argc, char** argv) {
   int w1 = find_len(afr, 234);
   if (w1 >= 0) {
     // with 2 wire channels the 16 samples land ch0,ch1,ch0,ch1... so the
-    // LAST pair of samples in the PDU (values built for "channel 6/7") is
-    // what pair 0 holds - position, not label, decides the channel
-    ck("LB6: 2ch wire, pair0 L = last even sample", be(afr[w1], 42, 3),
-       LBV(1, 6, 4));
-    ck("LB6: 2ch wire, pair0 R = last odd sample", be(afr[w1], 46, 3),
-       LBV(1, 7, 4));
+    // FIRST pair of samples in the PDU (values built for "channel 0/1") is
+    // what the queue pops first - position, not label, decides the channel,
+    // and the paced replay starts at the OLDEST event
+    ck("LB6: 2ch wire, pair0 L = first even sample", be(afr[w1], 42, 3),
+       LBV(1, 0, 3));
+    ck("LB6: 2ch wire, pair0 R = the odd sample that followed it",
+       be(afr[w1], 46, 3), LBV(1, 1, 3));
     ck("LB6: pair0 L != R", be(afr[w1], 42, 3) != be(afr[w1], 46, 3), 1);
     ck("LB6: pair1 beyond the wire's channels = silence L",
        be(afr[w1], 50, 3), 0);
@@ -868,12 +894,197 @@ int main(int argc, char** argv) {
   cyc(600);
   ck("LBB: one frame emitted (t7)", (long)bfr.size(), 1);
   if (bfr.size() == 1) {
-    ck("LBB: slot31 loop L = s3 ch4", be(bfr[0], 66, 3), LBV(3, 4, 12));
-    ck("LBB: slot31 loop R = s3 ch5", be(bfr[0], 70, 3), LBV(3, 5, 12));
+    // lane B took every push since [LB] but never ticked, so its s3 p2
+    // queue holds {e1, e2, e5, e6, e11, e12} - six of the eight it can -
+    // and the first pop is the OLDEST (e1): elastic across lanes too
+    ck("LBB: slot31 loop L = s3 ch4 e1 (oldest queued)",
+       be(bfr[0], 66, 3), LBV(3, 4, 1));
+    ck("LBB: slot31 loop R = s3 ch5 e1", be(bfr[0], 70, 3), LBV(3, 5, 1));
     ck("LBB: slot31 loop L != R", be(bfr[0], 66, 3) != be(bfr[0], 70, 3), 1);
     ck("LBB: slot28 still I2S L (untouched)", be(bfr[0], 42, 3), I2S_L);
     ck("LBB: slot30 still RING0 L (untouched)", be(bfr[0], 58, 3), RNG_L(0));
   } else { for (int k = 0; k < 5; k++) ck("LBB content (skipped)", 0, 1); }
+
+  // ====================================================================== //
+  // [LQ*] THE 0x0036 QUEUE LAW ITSELF (silicon + user-audio 2026-08-09:
+  // the latest-sample hold turned every PDU into a dup+skip stair at 8 kHz,
+  // ~10000 glitches/s - tb/verilator/milan_dp [T68] is the datapath-level
+  // pin, these are the module-level legs). Slip is HONEST and BOUNDED:
+  // empty tick = repeat last, +1 dup; full push = drop OLDEST, +1 skip;
+  // both counters saturating and graded by DELTA here.
+  // ====================================================================== //
+  printf("\n[LQ1] empty tick REPEATS the last event - one dup, counted\n");
+  {
+    // clean slate: wipe every lane-A stream (also proves flush breadth)
+    dut->a_lb_flush_i = 0xFF; cyc(); dut->a_lb_flush_i = 0; cyc(2);
+    lb_set_chans(4, 2);
+    drv_lb_pdu(4, 2, 2, 1);          // s4 p0 <- events e1, e2
+    a_map_wr(1, ent_lb(1, 4, 0));    // t1 pair0 <- s4 p0
+    cyc(4);
+    long d0 = dut->a_dup_cnt_o, k0 = dut->a_skip_cnt_o;
+    afr.clear();
+    for (int i = 0; i < 6; i++) a_tick();
+    cyc(400);
+    int f1 = find_len(afr, 234);
+    ck("LQ1: t1 frame emitted", f1 >= 0, 1);
+    if (f1 >= 0) {
+      ck("LQ1: e1 leads (oldest first)", be(afr[f1], 42, 3), LBV(4, 0, 1));
+      ck("LQ1: e2 follows in order", be(afr[f1], 42 + 32, 3), LBV(4, 0, 2));
+      long rep = 1;
+      for (int e = 2; e < 6; e++)
+        if (be(afr[f1], 42 + 32 * e, 3) != LBV(4, 0, 2)) rep = 0;
+      ck("LQ1: 4 starved events repeat the LAST (never jump)", rep, 1);
+    } else { for (int k = 0; k < 3; k++) ck("LQ1 (skipped)", 0, 1); }
+    ck("LQ1: dup counter counted EXACTLY the 4 starved ticks",
+       (long)dut->a_dup_cnt_o - d0, 4);
+    ck("LQ1: skip counter untouched", (long)dut->a_skip_cnt_o - k0, 0);
+  }
+
+  // ====================================================================== //
+  printf("\n[LQ2] overflow drops the OLDEST - counted, order preserved\n");
+  {
+    long d0 = dut->a_dup_cnt_o, k0 = dut->a_skip_cnt_o;
+    drv_lb_pdu(4, 2, 10, 1);         // ONE 10-event PDU vs the 8-deep queue
+    cyc(8);                          // let the skid drain
+    ck("LQ2: two oldest events dropped AT PUSH (skip = +2)",
+       (long)dut->a_skip_cnt_o - k0, 2);
+    afr.clear();
+    for (int i = 0; i < 6; i++) a_tick();
+    cyc(400);
+    int f1 = find_len(afr, 234);
+    ck("LQ2: t1 frame emitted", f1 >= 0, 1);
+    if (f1 >= 0) {
+      ck("LQ2: e3 leads = the oldest SURVIVOR", be(afr[f1], 42, 3),
+         LBV(4, 0, 3));
+      long ord = 1;
+      for (int e = 0; e < 6; e++)
+        if (be(afr[f1], 42 + 32 * e, 3) != LBV(4, 0, 3 + e)) ord = 0;
+      ck("LQ2: survivors replay in order (e3..e8)", ord, 1);
+    } else { for (int k = 0; k < 2; k++) ck("LQ2 (skipped)", 0, 1); }
+    // the remaining two drain into the next frame; its tail is the honest
+    // starved-repeat of e10
+    afr.clear();
+    for (int i = 0; i < 6; i++) a_tick();
+    cyc(400);
+    int f2 = find_len(afr, 234);
+    if (f2 >= 0) {
+      ck("LQ2: next frame leads e9, e10", (be(afr[f2], 42, 3) == LBV(4, 0, 9))
+         && (be(afr[f2], 42 + 32, 3) == LBV(4, 0, 10)), 1);
+      long rep = 1;
+      for (int e = 2; e < 6; e++)
+        if (be(afr[f2], 42 + 32 * e, 3) != LBV(4, 0, 10)) rep = 0;
+      ck("LQ2: then repeats e10 (bounded slip, no jump)", rep, 1);
+    } else { for (int k = 0; k < 2; k++) ck("LQ2 tail (skipped)", 0, 1); }
+    ck("LQ2: the 4 tail repeats are the ONLY dups",
+       (long)dut->a_dup_cnt_o - d0, 4);
+  }
+
+  // ====================================================================== //
+  printf("\n[LQ3] bind wipe: queue emptied, hold silenced, NO stale replay\n");
+  {
+    drv_lb_pdu(4, 2, 2, 11);         // e11, e12 queued...
+    dut->a_lb_flush_i = 1u << 4;     // ...then the sink unbinds
+    cyc(); dut->a_lb_flush_i = 0; cyc(2);
+    long d0 = dut->a_dup_cnt_o, k0 = dut->a_skip_cnt_o;
+    afr.clear();
+    for (int i = 0; i < 6; i++) a_tick();
+    cyc(400);
+    int f1 = find_len(afr, 234);
+    ck("LQ3: t1 still frames (5.3.7.3)", f1 >= 0, 1);
+    if (f1 >= 0) {
+      long quiet = 1;
+      for (int e = 0; e < 6; e++) {
+        if (be(afr[f1], 42 + 32 * e, 3) != 0) quiet = 0;
+        if (be(afr[f1], 46 + 32 * e, 3) != 0) quiet = 0;
+      }
+      ck("LQ3: wiped pair emits digital silence, not e11/e12", quiet, 1);
+    } else ck("LQ3 (skipped)", 0, 1);
+    ck("LQ3: a wiped pair is NOT a starved pair (dup delta 0)",
+       (long)dut->a_dup_cnt_o - d0, 0);
+    ck("LQ3: and nothing was dropped (skip delta 0)",
+       (long)dut->a_skip_cnt_o - k0, 0);
+    // REBIND: fresh feed leads with ITS oldest - the pre-wipe e11/e12 are
+    // gone, which is the whole point of the flush
+    drv_lb_pdu(4, 2, 2, 13);
+    cyc(4);
+    afr.clear();
+    for (int i = 0; i < 6; i++) a_tick();
+    cyc(400);
+    int f2 = find_len(afr, 234);
+    if (f2 >= 0) {
+      ck("LQ3: rebind leads with e13", be(afr[f2], 42, 3), LBV(4, 0, 13));
+      long stale = 0;
+      for (int e = 0; e < 6; e++) {
+        unsigned long v = be(afr[f2], 42 + 32 * e, 3);
+        if (v == LBV(4, 0, 11) || v == LBV(4, 0, 12)) stale++;
+      }
+      ck("LQ3: no pre-wipe sample replays after rebind", stale, 0);
+    } else { for (int k = 0; k < 2; k++) ck("LQ3 rebind (skipped)", 0, 1); }
+  }
+
+  // ====================================================================== //
+  printf("\n[LQ4] mono wire (1 channel): two commits per beat ride the skid\n");
+  {
+    dut->a_lb_flush_i = 1u << 4; cyc(); dut->a_lb_flush_i = 0; cyc(2);
+    lb_set_chans(4, 1);
+    drv_lb_pdu(4, 1, 6, 1);          // 6 events = 3 beats, both samples ch0
+    cyc(8);
+    long d0 = dut->a_dup_cnt_o, k0 = dut->a_skip_cnt_o;
+    afr.clear();
+    for (int i = 0; i < 6; i++) a_tick();
+    cyc(400);
+    int f1 = find_len(afr, 234);
+    ck("LQ4: t1 frame emitted", f1 >= 0, 1);
+    if (f1 >= 0) {
+      long ord = 1, rz = 1;
+      for (int e = 0; e < 6; e++) {
+        if (be(afr[f1], 42 + 32 * e, 3) != LBV(4, 0, 1 + e)) ord = 0;
+        if (be(afr[f1], 46 + 32 * e, 3) != 0) rz = 0;
+      }
+      ck("LQ4: ch0 = the mono ramp e1..e6 in order", ord, 1);
+      ck("LQ4: the pair's R half = silence (no R on a mono wire)", rz, 1);
+    } else { for (int k = 0; k < 2; k++) ck("LQ4 (skipped)", 0, 1); }
+    ck("LQ4: zero dups (rate-matched)", (long)dut->a_dup_cnt_o - d0, 0);
+    ck("LQ4: zero skips (the skid absorbed the double commits)",
+       (long)dut->a_skip_cnt_o - k0, 0);
+    lb_set_chans(4, 2);              // parting state
+  }
+
+  // ====================================================================== //
+  printf("\n[LQ5] all 32 pairs concurrent: one PDU each, ZERO slip anywhere\n");
+  {
+    dut->b_lb_flush_i = 0xFF; cyc(); dut->b_lb_flush_i = 0; cyc(2);
+    // arm every lane-B talker (mirrors [B]'s t7 provisioning)
+    for (int t = 0; t < 8; t++) {
+      b_tctx_wr(t, 1, 0xF000FE01u + (uint32_t)t);
+      b_tctx_wr(t, 2, ((uint32_t)t << 16) | 0x91E0u);
+      b_tctx_wr(t, 0, (2u << 5) | (8u << 1) | 1u);
+    }
+    dut->b_en_i = 0xFF;
+    for (int s = 0; s < 8; s++) { lb_set_chans(s, 8); drv_lb_pdu(s, 8, 6, 1); }
+    for (int p = 0; p < 32; p++) b_map_wr(p, ent_lb(1, p / 4, p % 4));
+    cyc(8);
+    long d0 = dut->b_dup_cnt_o, k0 = dut->b_skip_cnt_o;
+    bfr.clear();
+    for (int i = 0; i < 6; i++) b_tick();
+    cyc(600);
+    ck("LQ5: all 8 talkers framed", (long)bfr.size(), 8);
+    long miss = 0, seen = 0;
+    for (auto& f : bfr) {
+      if (f.size() != 234) continue;
+      long t = (long)(be(f, 22, 8) & 0xFFFF);
+      if (t < 0 || t > 7) continue;
+      seen++;
+      for (int e = 0; e < 6; e++)
+        for (int c = 0; c < 8; c++)
+          if (be(f, 42 + 32 * e + 4 * c, 3) != LBV((int)t, c, 1 + e)) miss++;
+    }
+    ck("LQ5: every frame identified by uid", seen, 8);
+    ck("LQ5: 384 samples, every (stream, channel, event) EXACT", miss, 0);
+    ck("LQ5: zero dups at full shape (the acceptance state)",
+       (long)dut->b_dup_cnt_o - d0, 0);
+    ck("LQ5: zero skips at full shape", (long)dut->b_skip_cnt_o - k0, 0);
+  }
 
   // ====================================================================== //
   printf("\n[G] tone ONE-GRID contract: media-tick pacing vs clk_audio/512\n");

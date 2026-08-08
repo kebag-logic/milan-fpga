@@ -52,11 +52,13 @@
                          it can sit above the legacy byte (see next para).
 
                 SOURCE BUCKETS (wire-truth, free-running): the latest pair per
-                source is latched into a hold register the instant its
-                pair_valid pulse arrives, so the tick-time walk always injects
-                the freshest sample. The tone bucket is the live tone_smp_i
-                (both L/R). No CDC lives here - every source has already
-                crossed into clk_i.
+                FRONT-END source is latched into a hold register the instant
+                its pair_valid pulse arrives, so the tick-time walk always
+                injects the freshest sample. The tone bucket is the live
+                tone_smp_i (both L/R). No CDC lives here - every source has
+                already crossed into clk_i. The LOOP bucket is the one
+                exception: it is a BURSTY source (a whole PDU of samples at
+                wire speed), so it is QUEUED, not held - see LOOP QUEUE.
 
                 LOOP BUCKET (rx -> talker loopback). The board's physical
                 capture front-ends are the only other multi-channel sources
@@ -84,23 +86,75 @@
                 advances by wrap-compare (no modulo hardware) and restarts at
                 every tlast, so back-to-back PDUs of different streams /
                 channel counts stay aligned. Channels beyond N_LB_CH_P are
-                virtual: counted for the interleave, never latched.
+                virtual: counted for the interleave, never queued.
 
                 PAIRING, and why L/R cannot cross: a pair p of the entry is
                 wire channels {2p, 2p+1} = {L, R} - the same pairing the
                 packetizer applies on the way out (pair slot p of a talker
                 emits its L into channel 2p and its R into 2p+1), so a pair
-                that goes round the loop keeps its channel identity. L and R
-                are latched into the two HALVES of one hold word by the
-                sample's own channel parity, never by arrival order, so an
+                that goes round the loop keeps its channel identity. The
+                de-interleave assembles each sample EVENT's {L, R} by the
+                samples' own channel parity, never by arrival order, so an
                 odd-length beat boundary or a mid-frame stall cannot swap
-                them.
+                them. An event whose R channel does not exist on the wire
+                (odd channels_per_frame: the dangling last channel, or the
+                1-channel mono wire) commits {L, 24'd0}.
 
-                SLIP: latest-sample, free-running, no queueing - the RX
-                stream and the local media tick are different clocks in
-                general (docs/CHANNEL_MAP_64.md §9): a starved loopback pair
-                repeats its last value, a fast one drops. Same slip policy as
-                every other bucket here.
+                LOOP QUEUE (paced sequence replay - the 0x0036 rework). The
+                pre-queue bucket was a latest-sample hold, the same slip
+                policy as the front-end buckets - CORRECT for once-per-sample
+                sources, WRONG for a source that bursts a 6-sample PDU at
+                wire speed: the walk read the block's last sample ~5 times
+                and skipped the rest, a dup+skip stair on the 8 kHz PDU
+                lattice (user audio capture 2026-08-09: 9895 glitches/s with
+                8000 +/- 1000 Hz sidebands; tb/verilator/milan_dp [T68]
+                measured 76 dup / 56 skip per 60 sent at the desk). That slip
+                law is SUPERSEDED for this bucket by a per-pair elastic
+                queue:
+
+                  * STORAGE: LB_PAIRS_C x LB_QDEPTH_C x 48 b, one flat
+                    single-write single-read array (256 x 48 at the 8x8 ship
+                    shape = one RAMB36 or ~200 LUT of LUTRAM; the array takes
+                    no reset - the per-pair pointers make unwritten words
+                    unreachable). LB_QDEPTH_C = 8 = one class-A PDU (6 sample
+                    events, Milan 6.3.5) + 2 events of arrival-jitter margin.
+                  * PUSH: the de-interleave commits one complete {L, R}
+                    sample event per pair as its samples arrive. A beat can
+                    carry TWO commits (the 1-channel mono wire puts both of
+                    its samples on pair 0; an odd-channel wire can close one
+                    event and end another in the same beat), so commits pass
+                    through a 4-deep skid that drains one push per cycle into
+                    the array. Wire beats are >= 8 clk_i apart (64-bit beats
+                    from the byte-serial MAC), so the skid cannot
+                    sustainably overflow; if a harness drives faster anyway
+                    the NEWEST commit is refused and counted on
+                    lb_skip_cnt_o.
+                  * POP: each media tick runs a PRE-WALK of LB_PAIRS_C + 1
+                    cycles before the slot walk, popping exactly one event
+                    per non-empty pair into the lb_hold_r bank; the slot walk
+                    then reads the holds exactly as before. EVERY fed pair is
+                    popped, mapped or not, so a remap never replays samples
+                    that queued up while the pair was unmapped.
+                  * PRIME: a pair starts popping only after its stream's
+                    first complete PDU (the accepted tlast beat) - popping
+                    mid-first-burst would re-open the premature-read the
+                    queue exists to close. Priming is per stream, cleared
+                    only by reset/flush.
+                  * SLIP, HONEST AND BOUNDED: queue empty at a tick
+                    (upstream slower) = the hold repeats the last event, ONE
+                    dup, counted on lb_dup_cnt_o (primed AND fed pairs only,
+                    so an idle pair counts nothing). Queue full at a push
+                    (upstream faster) = the OLDEST event is dropped, ONE
+                    skip, counted on lb_skip_cnt_o. Both counters saturate
+                    at 16'hFFFF. With locked clocks both stay at ZERO - the
+                    acceptance state ([T68] LB_SEQ_FIXED).
+                  * FLUSH: lb_flush_i[s] (bind wipe / stream-table eviction)
+                    empties stream s's pair queues, un-primes and un-feeds
+                    them, kills its in-flight skid entries and assembly
+                    stash, and zeroes its holds - no stale samples replay on
+                    a rebind. loop_fed_r (the R5 capability rail) stays
+                    sticky since reset: it answers "does the tap reach this
+                    module at all", which a bind cycle does not change.
 
                 MAPPED-BUT-UNFED (docs/testing/methodology.md R5): a loopback
                 slot with no payload behind it emits 24'd0 - the same bytes a
@@ -117,7 +171,11 @@
                      clause-derived expectation, per-channel DISTINCT values
                      throughout (R4), with TWO negative controls: a
                      single-parity inversion (11 failures) and a full L/R
-                     swap (17 failures, values perfectly transposed).
+                     swap (17 failures, values perfectly transposed). The
+                     queue law's own legs: paced in-order replay (oldest
+                     first), empty-tick repeat counted, overflow drop-oldest
+                     counted, flush-on-rebind, the mono degenerate wire, and
+                     the all-32-pairs concurrent ramp.
                   L2 the same harness runs the pairs through the REAL
                      KL_aaf_packetizer and reads the emitted AVTPDU payload
                      bytes - the oracle is the frame on the AXIS port, not
@@ -133,36 +191,44 @@
                      is exactly what the capability mask exists to catch -
                      loop_mapped=1 with loop_fed=0 IS the unwired binding,
                      and it is the first thing the silicon procedure reads.
+                     The paced-replay law at the datapath level is
+                     tb/verilator/milan_dp [T68]: zero dup / zero skip /
+                     zero alien against a paced ramp through the whole RX ->
+                     loop -> TX path.
 
-                EMIT (media sample tick): on tick_i the engine walks the slot
-                map low-to-high; EVERY slot injects one pair (pair_valid_o
-                one-cycle pulse + pair_slot_o + pair_l_o/pair_r_o) then idles
-                GAP_CYC_P cycles before the next slot - the proven inject
-                cadence the packetizer admits (one pair per cycle with a
-                settle gap, mirroring the golden NxN TB's pair()). An
-                unmapped slot injects silence rather than being skipped: it
-                is the packetizer's per-sample slot coverage that decides
-                whether a talker frames at all, and while this crossbar is
-                armed it OWNS that coverage - milan_datapath muxes the
-                KL_pair_zero_fill guard out of the path. Skipping therefore
-                cost the WHOLE talker its stream, not one channel its audio
-                (Milan v1.2 5.3.7.3). Six media ticks (6 samples/ch) fill one
-                AVTPDU per talker on the shared 6-sample cadence; a tick
-                arriving mid-walk is queued one deep (never dropped).
+                EMIT (media sample tick): on tick_i the engine first runs the
+                LOOP pre-walk (pop one queued event per fed pair into
+                lb_hold_r), then walks the slot map low-to-high; EVERY slot
+                injects one pair (pair_valid_o one-cycle pulse + pair_slot_o
+                + pair_l_o/pair_r_o) then idles GAP_CYC_P cycles before the
+                next slot - the proven inject cadence the packetizer admits
+                (one pair per cycle with a settle gap, mirroring the golden
+                NxN TB's pair()). An unmapped slot injects silence rather
+                than being skipped: it is the packetizer's per-sample slot
+                coverage that decides whether a talker frames at all, and
+                while this crossbar is armed it OWNS that coverage -
+                milan_datapath muxes the KL_pair_zero_fill guard out of the
+                path. Skipping therefore cost the WHOLE talker its stream,
+                not one channel its audio (Milan v1.2 5.3.7.3). Six media
+                ticks (6 samples/ch) fill one AVTPDU per talker on the shared
+                6-sample cadence; a tick arriving mid-walk is queued one deep
+                (never dropped).
 
-                WALK BUDGET: a slot costs one CM_STEP_S cycle plus the
-                GAP_CYC_P+1 cycles CM_GAP_S takes to count GAP_CYC_P down to
-                zero AND advance, so the walk is
-                1 + N_SLOTS_P * (GAP_CYC_P+2) cycles including the CM_IDLE_S
-                cycle that starts it, and it must fit inside one media tick.
-                At the shipping 8x8 that is 1 + 32*26 = 833 against
-                MILAN_CLK_FREQ_HZ/48000 (2083 at 100 MHz, 1041 at 50 MHz).
-                Covering the unmapped slots does not raise that ceiling - a
-                fully mapped board already pays all 32, and the shipped 8x8
-                map is fully mapped - it only stops a sparsely mapped board
-                from finishing early. tb/verilator/chmap_capture [A4]
-                MEASURES the walk against the budget rather than restating
-                it, with an all-unmapped map, which is now the worst case.
+                WALK BUDGET: the pre-walk costs LB_PAIRS_C + 1 cycles (one
+                pop issue per pair, one data-return drain), then a slot costs
+                one CM_STEP_S cycle plus the GAP_CYC_P+1 cycles CM_GAP_S
+                takes to count GAP_CYC_P down to zero AND advance, so the
+                walk is 1 + (LB_PAIRS_C + 1) + N_SLOTS_P * (GAP_CYC_P + 2)
+                cycles including the CM_IDLE_S cycle that starts it, and it
+                must fit inside one media tick. At the shipping 8x8 that is
+                1 + 33 + 32*26 = 866 against MILAN_CLK_FREQ_HZ/48000 (2083
+                at 100 MHz, 1041 at 50 MHz - the worst-case budget). Covering
+                the unmapped slots does not raise that ceiling - a fully
+                mapped board already pays all 32, and the shipped 8x8 map is
+                fully mapped - it only stops a sparsely mapped board from
+                finishing early. tb/verilator/chmap_capture [A4] MEASURES
+                the walk against the budget rather than restating it, with
+                an all-unmapped map, which is now the worst case.
 
   Company     : Kebag Logic
   Project     : Milan AVTP
@@ -179,8 +245,10 @@
 //! unmapped ones carrying PCM silence so an unmapped channel never costs its
 //! talker the stream. The loopback bucket de-interleaves the depacketizer
 //! payload clone
-//! (IEEE 1722-2016 7.3.3/7.3.5) into per-(stream, channel pair) holds, so a
-//! received stream's channels can feed a talker. Single clock, no CDC.
+//! (IEEE 1722-2016 7.3.3/7.3.5) into per-(stream, channel pair) elastic
+//! queues (depth 8 = one PDU + margin) popped one event per media tick -
+//! paced in-order replay of a bursty source, dup-on-empty / drop-oldest-on-
+//! full counted honestly, flushed on bind wipe. Single clock, no CDC.
 
 `default_nettype none
 
@@ -189,9 +257,10 @@ module KL_chan_map_capture #(
   parameter int unsigned N_TDM_P   = 8,    //! TDM slots (pairs = N_TDM_P/2)
   parameter int unsigned N_RING_P  = 16,   //! ALSA ring pair sources (idx 0..15)
   parameter int unsigned GAP_CYC_P = 24,   //! settle cycles between slot injects
-  //! LOOP bucket sizing: the RX stream-channel space kept as pair holds
-  //! (N_LB_STREAMS_P * N_LB_CH_P/2 x 48 b). Elaborate it down (1 / 2) on a
-  //! build that has no listener to loop back from.
+  //! LOOP bucket sizing: the RX stream-channel space kept as pair queues
+  //! (N_LB_STREAMS_P * N_LB_CH_P/2 pair queues x LB_QDEPTH_C x 48 b).
+  //! Elaborate it down (1 / 2) on a build that has no listener to loop back
+  //! from.
   parameter int unsigned N_LB_STREAMS_P = 8, //! RX streams kept (idxh < this)
   parameter int unsigned N_LB_CH_P      = 8  //! wire channels kept per stream
 )(
@@ -265,6 +334,11 @@ module KL_chan_map_capture #(
   input  wire [3:0]   lb_tuser_i  = 4'd0, //! RX stream index s of this PDU
   //! per-stream wire channels_per_frame (7.3.3) - RX monitors' wire_chans_o
   input  wire [N_LB_STREAMS_P*4-1:0] lb_wire_chans_i = '0, //! fields; 0 -> 2
+  //! bind wipe / stream-table eviction pulse per RX stream: empties the
+  //! stream's pair queues, un-primes them and zeroes its holds, so no stale
+  //! samples replay on a rebind. Defaulted off: an integration without a
+  //! bind plane keeps the free-running behaviour.
+  input  wire [N_LB_STREAMS_P-1:0] lb_flush_i = '0,
 
   //! --- media sample tick (one walk of the enabled slots per pulse) -------
   input  wire         tick_i,
@@ -273,7 +347,11 @@ module KL_chan_map_capture #(
   output logic        pair_valid_o,      //! one-cycle pulse per L/R pair
   output logic [4:0]  pair_slot_o,       //! pair slot 0..31 (widened space)
   output logic [23:0] pair_l_o,
-  output logic [23:0] pair_r_o
+  output logic [23:0] pair_r_o,
+
+  //! --- LOOP queue slip evidence (saturating; ZERO with locked clocks) ----
+  output logic [15:0] lb_dup_cnt_o,      //! empty-at-tick repeats (fed pairs)
+  output logic [15:0] lb_skip_cnt_o      //! dropped events (full / skid ovf)
 );
 
   // ---------------------------------------------------------------------- //
@@ -285,11 +363,19 @@ module KL_chan_map_capture #(
                                                       : $clog2(N_TDM_PAIRS_C);
   localparam int unsigned RINGPW_C     = (N_RING_P <= 1) ? 1
                                                       : $clog2(N_RING_P);
-  //! LOOP bucket: pair holds per stream, then the flat bank and its address
+  //! LOOP bucket: pair queues per stream, then the flat bank and its address
   localparam int unsigned LB_PPS_C     = (N_LB_CH_P < 2) ? 1 : N_LB_CH_P / 2;
   localparam int unsigned LB_PAIRS_C   = N_LB_STREAMS_P * LB_PPS_C;
   localparam int unsigned LBPW_C       = (LB_PAIRS_C <= 1) ? 1
                                                       : $clog2(LB_PAIRS_C);
+  //! LOOP queue: 8 events deep = one class-A PDU (6 sample events) + 2 of
+  //! arrival-jitter margin; skid depth 4 absorbs the 2-commits-per-beat
+  //! degenerate beats (mono wire) at the >= 8-cycle wire beat spacing
+  localparam int unsigned LB_QDEPTH_C  = 8;
+  localparam int unsigned LB_QPTRW_C   = $clog2(LB_QDEPTH_C);
+  localparam int unsigned LB_SKID_C    = 4;
+  //! pre-walk pop index space (0..LB_PAIRS_C, the +1 is the drain cycle)
+  localparam int unsigned LB_POPW_C    = $clog2(LB_PAIRS_C + 1);
 
   //! map entry field encoding (src[6:4])
   localparam logic [2:0] SRC_ZERO_C = 3'd0, SRC_I2S_C = 3'd1, SRC_TDM_C = 3'd2,
@@ -326,10 +412,11 @@ module KL_chan_map_capture #(
   end : loop_mapped_scan
 
   //! fed: STICKY since reset - at least one loopback payload beat has been
-  //! ACCEPTED. Deliberately not "recently": this bit separates "the listener
-  //! side is not connected to me at all" (the binding fault) from "it is
-  //! connected and the stream is silent or stopped", which the RX monitors'
-  //! own live counters already answer.
+  //! ACCEPTED. Deliberately not "recently" and deliberately NOT cleared by
+  //! lb_flush_i: this bit separates "the listener side is not connected to
+  //! me at all" (the binding fault) from "it is connected and the stream is
+  //! silent or stopped", which the RX monitors' own live counters already
+  //! answer - a bind cycle does not change the wiring.
   logic loop_fed_r;
 
   always_ff @(posedge clk_i) begin : map_read_port
@@ -370,20 +457,18 @@ module KL_chan_map_capture #(
   end : source_latch
 
   // ---------------------------------------------------------------------- //
-  // LOOP bucket: de-interleave the depacketizer payload clone into one       //
-  // latest-sample hold per (RX stream, channel pair).                        //
-  //                                                                          //
-  // This mirrors KL_chan_map_render's sample_latch deliberately - same beat  //
-  // format, same wrap-compare position counter, same tlast restart, same     //
-  // "virtual channels are walked but never latched" rule - because that is   //
-  // the de-interleave that has been proven on the wire. The one difference   //
-  // is the store shape: the capture side is PAIR-granular (§4.2), so the     //
-  // bank holds 48-bit {L, R} words and a sample lands in the half its own    //
-  // channel PARITY picks (even = L = [47:24], odd = R = [23:0], per          //
-  // 7.3.5 channel order). Arrival order therefore cannot swap L and R, and   //
-  // ONE 48-bit read port serves the walk.                                    //
+  // LOOP bucket stage 1: de-interleave the depacketizer payload clone into  //
+  // complete {L, R} sample-event COMMITS, one per pair per event.           //
+  //                                                                         //
+  // This mirrors KL_chan_map_render's sample_latch deliberately - same beat //
+  // format, same wrap-compare position counter, same tlast restart, same    //
+  // "virtual channels are walked but never kept" rule - because that is     //
+  // the de-interleave that has been proven on the wire. The store shape is  //
+  // PAIR-granular (§4.2): an event's L (even channel) and R (odd channel)   //
+  // are joined into one 48-bit commit by the samples' own channel PARITY,   //
+  // so arrival order cannot swap them; an event whose R channel does not    //
+  // exist on the wire (odd channels_per_frame / mono) commits {L, 24'd0}.   //
   // ---------------------------------------------------------------------- //
-  logic [47:0] lb_hold_r [LB_PAIRS_C];
   logic [3:0]  lb_chpos_r;               //! wire channel of the beat's smp0
 
   //! channels_per_frame of the in-flight stream (constant-base mux, guarded
@@ -425,38 +510,330 @@ module KL_chan_map_capture #(
   wire lb_w0_w = lb_ok_w && (32'(lb_ch0_w) < N_LB_CH_P);
   wire lb_w1_w = lb_ok_w && (32'(lb_ch1_w) < N_LB_CH_P);
 
-  always_ff @(posedge clk_i) begin : loopback_latch
+  //! ---- loopback indexing as PLAIN COMB WIRES (hazard-class hoist) --------
+  //! Hazard class: an `automatic` function temporary computed and consumed
+  //! INSIDE a clocked process, feeding a RAM write address / lane select /
+  //! source index. Vivado has bound such temporaries against a re-timed copy
+  //! of an advancing register while Verilator matched the RTL intent - the
+  //! VERSION 0x0030 seeder hoist in KL_aecp_response_builder (w_odsd_v /
+  //! w_odsd_t, the 0x002D silicon +1-key shift) is the precedent, and the
+  //! t532 capture-side find (silicon 2026-08-09: fabric-side map writes and
+  //! LOOP taps landing off-by-one against a byte-exact AECP store) is the
+  //! same signature on THIS path. lb_addr()/lb_chwrap() are evaluated here
+  //! at module scope; every clocked process below indexes ONLY through
+  //! these wires, so nothing is left for synthesis to re-time against the
+  //! position walk.
+  wire [LBPW_C-1:0] lb_a0_w  = lb_addr(lb_tuser_i, lb_ch0_w);
+  wire [LBPW_C-1:0] lb_a1_w  = lb_addr(lb_tuser_i, lb_ch1_w);
+  wire [3:0]        lb_nxt_w = lb_tlast_i ? 4'd0
+                                          : lb_chwrap(lb_ch1_w, lb_chans_w);
+
+  //! ---- event assembly: the one dangling L an in-flight frame can carry ---
+  //! Frames never interleave beats (one AXIS frame per PDU), so a single
+  //! stash suffices: an even non-final channel opens it, the odd channel
+  //! that follows closes it into a commit. It cannot survive a frame end -
+  //! tlast either force-commits it ({L, 0}, the truncated-frame rule) or
+  //! finds it already consumed.
+  logic        stash_vld_r;
+  logic [23:0] stash_val_r;
+  logic [3:0]  stash_strm_r;
+
+  //! smp0/smp1 event roles (chronological order per 7.3.5). ch1 odd implies
+  //! ch1 = ch0+1 with ch0 even non-final (the wrap lands on 0 = even), so
+  //! the "aligned full pair in one beat" case below is exhaustive for it.
+  wire lb_last0_w = (32'(lb_ch0_w) == 32'(lb_chans_w) - 1);
+  wire lb_last1_w = (32'(lb_ch1_w) == 32'(lb_chans_w) - 1);
+  //! smp0: odd channel closes the stash; even final channel is an {L, 0}
+  //! event of its own (mono / odd channel count)
+  wire cm0_v_w    = lb_w0_w && (lb_ch0_w[0] || lb_last0_w);
+  wire [23:0] cm0_l_w = stash_vld_r ? stash_val_r : 24'd0;
+  wire [47:0] cm0_data_w = lb_ch0_w[0] ? {cm0_l_w, lb_smp0_w}
+                                       : {lb_smp0_w, 24'd0};
+  wire [LBPW_C-1:0] cm0_addr_w = lb_a0_w;
+  //! smp1: consumed by smp0 into one aligned {smp0, smp1} commit, or an
+  //! {L, 0} event of its own, or it opens the stash (force-committed {L, 0}
+  //! when the frame ends on this very beat)
+  wire lb_pair01_w = lb_w0_w && lb_w1_w && !lb_ch0_w[0] && !lb_last0_w;
+  wire cm1_solo_v_w = !lb_pair01_w && lb_w1_w && !lb_ch1_w[0]
+                      && (lb_last1_w || lb_tlast_i);
+  wire cm1_v_w    = lb_pair01_w || cm1_solo_v_w;
+  wire [47:0] cm1_data_w = lb_pair01_w ? {lb_smp0_w, lb_smp1_w}
+                                       : {lb_smp1_w, 24'd0};
+  wire [LBPW_C-1:0] cm1_addr_w = lb_pair01_w ? lb_a0_w : lb_a1_w;
+  wire stash_open_w = !lb_pair01_w && lb_w1_w && !lb_ch1_w[0]
+                      && !lb_last1_w && !lb_tlast_i;
+
+  //! flush aimed at the stash's own stream (scan style as lb_chans_lookup)
+  logic stash_flush_w;
+  always_comb begin : stash_flush_scan
+    stash_flush_w = 1'b0;
+    for (int s = 0; s < N_LB_STREAMS_P; s++) begin
+      if (lb_flush_i[s] && (32'(stash_strm_r) == s)) stash_flush_w = 1'b1;
+    end
+  end : stash_flush_scan
+
+  //! flush aimed at the IN-FLIGHT beat's stream: its commits must not slip
+  //! into the queue on the very cycle the bind wipe empties it
+  logic beat_flush_w;
+  always_comb begin : beat_flush_scan
+    beat_flush_w = 1'b0;
+    for (int s = 0; s < N_LB_STREAMS_P; s++) begin
+      if (lb_flush_i[s] && (32'(lb_tuser_i) == s)) beat_flush_w = 1'b1;
+    end
+  end : beat_flush_scan
+
+  always_ff @(posedge clk_i) begin : loopback_deinterleave
     if (!rst_n) begin
-      lb_chpos_r <= 4'd0;
-      loop_fed_r <= 1'b0;
-      for (int p = 0; p < int'(LB_PAIRS_C); p++) lb_hold_r[p] <= 48'd0;
+      lb_chpos_r   <= 4'd0;
+      loop_fed_r   <= 1'b0;
+      stash_vld_r  <= 1'b0;
+      stash_val_r  <= 24'd0;
+      stash_strm_r <= 4'd0;
     end
     else begin
       //! the capability rail: ANY accepted beat, even one whose stream index
       //! this build does not keep - the question it answers is whether the
       //! payload clone reaches this module at all
       if (lb_tvalid_i) loop_fed_r <= 1'b1;
-      //! smp0 then smp1 = chronological order (7.3.5): on a degenerate
-      //! 1-channel stream both land on the same half and the NEWER sample
-      //! must win, exactly like the render bank's last-write-wins order.
-      if (lb_w0_w) begin
-        if (lb_ch0_w[0])
-          lb_hold_r[lb_addr(lb_tuser_i, lb_ch0_w)][23:0]  <= lb_smp0_w;
-        else
-          lb_hold_r[lb_addr(lb_tuser_i, lb_ch0_w)][47:24] <= lb_smp0_w;
-      end
-      if (lb_w1_w) begin
-        if (lb_ch1_w[0])
-          lb_hold_r[lb_addr(lb_tuser_i, lb_ch1_w)][23:0]  <= lb_smp1_w;
-        else
-          lb_hold_r[lb_addr(lb_tuser_i, lb_ch1_w)][47:24] <= lb_smp1_w;
-      end
       //! the walk advances on EVERY accepted beat (a beat of an unkept
-      //! stream still consumes two payload samples) and restarts at tlast
-      if (lb_tvalid_i)
-        lb_chpos_r <= lb_tlast_i ? 4'd0 : lb_chwrap(lb_ch1_w, lb_chans_w);
+      //! stream still consumes two payload samples) and restarts at tlast;
+      //! position/next come ONLY from the module-scope hoists above (the
+      //! 0x0030 hazard-class rule)
+      if (lb_tvalid_i) begin
+        lb_chpos_r  <= lb_nxt_w;
+        stash_vld_r <= stash_open_w;
+        if (stash_open_w) begin
+          stash_val_r  <= lb_smp1_w;
+          stash_strm_r <= lb_tuser_i;
+        end
+      end
+      //! a bind wipe kills the wiped stream's half-assembled event
+      if (stash_flush_w) stash_vld_r <= 1'b0;
     end
-  end : loopback_latch
+  end : loopback_deinterleave
+
+  // ---------------------------------------------------------------------- //
+  // LOOP bucket stage 2: the per-pair elastic queues (paced replay).        //
+  //   skid (4 deep, up to 2 commits in / 1 push out per cycle)              //
+  //   -> flat queue array LB_PAIRS_C x LB_QDEPTH_C x 48 b (1W/1R, no reset) //
+  //   -> pre-walk pop, one event per fed pair per media tick, into          //
+  //      lb_hold_r, which the slot walk reads exactly as before.            //
+  // ---------------------------------------------------------------------- //
+  logic [47:0] lb_q_r [LB_PAIRS_C * LB_QDEPTH_C]; //! pointer-guarded, no rst
+  logic [LB_QPTRW_C-1:0] q_wr_r  [LB_PAIRS_C];
+  logic [LB_QPTRW_C-1:0] q_rd_r  [LB_PAIRS_C];
+  logic [LB_QPTRW_C:0]   q_cnt_r [LB_PAIRS_C];   //! 0..LB_QDEPTH_C
+  logic [LB_PAIRS_C-1:0] q_fed_r;                //! pushed since reset/flush
+  logic [LB_PAIRS_C-1:0] q_primed_r;             //! first whole PDU seen
+  logic [47:0] lb_hold_r [LB_PAIRS_C];           //! the walk's read bank
+
+  //! ---- skid (flop FIFO; entries also carry the stream for flush kills) --
+  logic [47:0]       skid_data_r [LB_SKID_C];
+  logic [LBPW_C-1:0] skid_addr_r [LB_SKID_C];
+  logic [3:0]        skid_strm_r [LB_SKID_C];
+  logic [LB_SKID_C-1:0] skid_v_r;
+  logic [1:0]        skid_wp_r, skid_rp_r;
+  logic [2:0]        skid_cnt_r;
+
+  //! drain one entry per cycle whenever the skid holds any; a head entry
+  //! killed by a flush is skipped (advances, writes nothing)
+  wire skid_drain_w = (skid_cnt_r != 3'd0);
+  wire push_ram_w   = skid_drain_w && skid_v_r[skid_rp_r];
+  wire [LBPW_C-1:0] push_pair_w = skid_addr_r[skid_rp_r];
+  wire [47:0]       push_data_w = skid_data_r[skid_rp_r];
+
+  //! enqueue admission: up to 2 commits per beat, drop the NEWEST (counted)
+  //! if a harness outruns the >= 8-cycle wire beat spacing; a same-cycle
+  //! flush of the beat's own stream refuses its commits outright (uncounted:
+  //! the wipe, not congestion, discarded them)
+  wire [2:0] skid_free_w = 3'(LB_SKID_C) - skid_cnt_r
+                           + (skid_drain_w ? 3'd1 : 3'd0);
+  wire skid_acc0_w = cm0_v_w && !beat_flush_w && (skid_free_w >= 3'd1);
+  wire skid_acc1_w = cm1_v_w && !beat_flush_w
+                     && (skid_free_w >= (cm0_v_w ? 3'd2 : 3'd1));
+  wire skid_ovf0_w = cm0_v_w && !beat_flush_w && !skid_acc0_w;
+  wire skid_ovf1_w = cm1_v_w && !beat_flush_w && !skid_acc1_w;
+  //! slot 0 of the enqueue carries cm0 when present, else cm1
+  wire enq0_v_w = cm0_v_w ? skid_acc0_w : skid_acc1_w;
+  wire [47:0]       enq0_data_w = cm0_v_w ? cm0_data_w : cm1_data_w;
+  wire [LBPW_C-1:0] enq0_addr_w = cm0_v_w ? cm0_addr_w : cm1_addr_w;
+  wire enq1_v_w = cm0_v_w && skid_acc1_w;
+  wire [1:0] skid_wp0_w = skid_wp_r;
+  wire [1:0] skid_wp1_w = skid_wp_r + 2'd1;
+  wire [1:0] skid_enq_n_w = 2'(enq0_v_w) + 2'(enq1_v_w);
+
+  //! flush kill mask over the live skid entries (comb scan, constant unroll)
+  logic [LB_SKID_C-1:0] skid_kill_w;
+  always_comb begin : skid_kill_scan
+    skid_kill_w = '0;
+    for (int k = 0; k < int'(LB_SKID_C); k++) begin
+      for (int s = 0; s < N_LB_STREAMS_P; s++) begin
+        if (skid_v_r[k] && lb_flush_i[s] && (32'(skid_strm_r[k]) == s))
+          skid_kill_w[k] = 1'b1;
+      end
+    end
+  end : skid_kill_scan
+
+  // ---- pre-walk pop control (sequenced by the emit FSM below) ----------- //
+  typedef enum logic [1:0] {
+    CM_IDLE_S,     //! wait for a media tick
+    CM_POP_S,      //! LOOP pre-walk: pop one queued event per fed pair
+    CM_STEP_S,     //! decide the current slot: emit
+    CM_GAP_S       //! settle gap after a pair pulse
+  } cstate_t;
+
+  cstate_t                st_r;
+  logic [LB_POPW_C-1:0]   pop_idx_r;     //! pre-walk pair cursor
+  wire  [LBPW_C-1:0]      pop_pair_w = pop_idx_r[LBPW_C-1:0];
+  wire pop_visit_w = (st_r == CM_POP_S) && (32'(pop_idx_r) < LB_PAIRS_C);
+  //! pop only primed pairs: popping mid-first-PDU would re-open the
+  //! premature read; dup only fed pairs: an idle pair repeating silence is
+  //! not a slip
+  wire [LB_QPTRW_C:0] pop_cnt_w = q_cnt_r[pop_pair_w];
+  wire pop_act_w = pop_visit_w && q_primed_r[pop_pair_w]
+                   && (pop_cnt_w != '0);
+  wire pop_dup_w = pop_visit_w && q_primed_r[pop_pair_w]
+                   && q_fed_r[pop_pair_w] && (pop_cnt_w == '0);
+  wire [LB_QPTRW_C-1:0] pop_rd_w = q_rd_r[pop_pair_w];
+  //! queue array addresses (read the pre-advance rd pointer)
+  wire [LBPW_C+LB_QPTRW_C-1:0] pop_raddr_w  = {pop_pair_w, pop_rd_w};
+  wire [LBPW_C+LB_QPTRW_C-1:0] push_waddr_w = {push_pair_w,
+                                               q_wr_r[push_pair_w]};
+
+  //! push-side pointer maths, POST-pop when both touch the same pair the
+  //! same cycle (the pop freed a slot, so the push is not full)
+  wire push_same_w = push_ram_w && pop_act_w && (push_pair_w == pop_pair_w);
+  wire [LB_QPTRW_C:0] push_cnt1_w = q_cnt_r[push_pair_w]
+                                    - (push_same_w ? 1'b1 : 1'b0);
+  wire push_drop_w = push_ram_w && (32'(push_cnt1_w) == LB_QDEPTH_C);
+  wire [LB_QPTRW_C-1:0] push_rd1_w = q_rd_r[push_pair_w]
+                                     + (push_same_w ? 1'b1 : 1'b0);
+
+  //! prime the whole stream at its accepted tlast beat (constant unroll;
+  //! the final commits may still be in the skid, but a tick landing inside
+  //! that <= 2-beat window pops what has landed - order is unaffected)
+  logic [LB_PAIRS_C-1:0] prime_set_w;
+  always_comb begin : prime_set_scan
+    prime_set_w = '0;
+    for (int pp = 0; pp < int'(LB_PAIRS_C); pp++) begin
+      if (lb_ok_w && lb_tlast_i && (32'(lb_tuser_i) == pp / int'(LB_PPS_C)))
+        prime_set_w[pp] = 1'b1;
+    end
+  end : prime_set_scan
+
+  //! flush clear mask, pair-granular from the per-stream pulse
+  logic [LB_PAIRS_C-1:0] flush_clr_w;
+  always_comb begin : flush_clr_scan
+    flush_clr_w = '0;
+    for (int pp = 0; pp < int'(LB_PAIRS_C); pp++) begin
+      for (int s = 0; s < N_LB_STREAMS_P; s++) begin
+        if (lb_flush_i[s] && (s == pp / int'(LB_PPS_C)))
+          flush_clr_w[pp] = 1'b1;
+      end
+    end
+  end : flush_clr_scan
+
+  //! saturating slip evidence: dups are one per starved fed pair per tick,
+  //! skips are drop-oldest (queue full) plus refused commits (skid overflow,
+  //! not reachable at wire beat spacing) - up to 3 events in one cycle
+  wire [1:0] skip_inc_w = 2'(push_drop_w) + 2'(skid_ovf0_w)
+                          + 2'(skid_ovf1_w);
+  wire [16:0] skip_sum_w = 17'(lb_skip_cnt_o) + 17'(skip_inc_w);
+  wire [16:0] dup_sum_w  = 17'(lb_dup_cnt_o) + 17'(pop_dup_w);
+
+  //! pop data-return pipeline (registered array read = BRAM-shaped)
+  logic [47:0]       q_rdata_r;
+  logic              pop_ret_v_r;
+  logic [LBPW_C-1:0] pop_ret_pair_r;
+
+  always_ff @(posedge clk_i) begin : loop_queue_engine
+    if (!rst_n) begin
+      for (int pp = 0; pp < int'(LB_PAIRS_C); pp++) begin
+        q_wr_r[pp]     <= '0;
+        q_rd_r[pp]     <= '0;
+        q_cnt_r[pp]    <= '0;
+        lb_hold_r[pp]  <= 48'd0;
+      end
+      q_fed_r        <= '0;
+      q_primed_r     <= '0;
+      skid_v_r       <= '0;
+      skid_wp_r      <= 2'd0;
+      skid_rp_r      <= 2'd0;
+      skid_cnt_r     <= 3'd0;
+      q_rdata_r      <= 48'd0;
+      pop_ret_v_r    <= 1'b0;
+      pop_ret_pair_r <= '0;
+      lb_dup_cnt_o   <= 16'd0;
+      lb_skip_cnt_o  <= 16'd0;
+    end
+    else begin
+      //! ---- skid enqueue (up to 2) / drain (1) --------------------------
+      if (enq0_v_w) begin
+        skid_data_r[skid_wp0_w] <= enq0_data_w;
+        skid_addr_r[skid_wp0_w] <= enq0_addr_w;
+        skid_strm_r[skid_wp0_w] <= lb_tuser_i;
+      end
+      if (enq1_v_w) begin
+        skid_data_r[skid_wp1_w] <= cm1_data_w;
+        skid_addr_r[skid_wp1_w] <= cm1_addr_w;
+        skid_strm_r[skid_wp1_w] <= lb_tuser_i;
+      end
+      skid_wp_r  <= skid_wp_r + 2'(skid_enq_n_w);
+      skid_rp_r  <= skid_rp_r + (skid_drain_w ? 2'd1 : 2'd0);
+      skid_cnt_r <= skid_cnt_r + 3'(skid_enq_n_w)
+                    - (skid_drain_w ? 3'd1 : 3'd0);
+      //! validity as ONE vector update: drain clears the OLD head, flush
+      //! kills matching survivors, the enqueues set their (possibly just
+      //! drained) slots - in that order, so a same-slot re-enqueue lives
+      skid_v_r <= ((skid_v_r
+                    & ~(skid_drain_w ? (LB_SKID_C)'(1) << skid_rp_r : '0)
+                    & ~skid_kill_w)
+                   | (enq0_v_w ? (LB_SKID_C)'(1) << skid_wp0_w : '0)
+                   | (enq1_v_w ? (LB_SKID_C)'(1) << skid_wp1_w : '0));
+
+      //! ---- queue array ports (one write, one registered read) ----------
+      //! the return is refused at ISSUE time for a just-flushed pair; a
+      //! flush landing on the RETURN cycle wins by the flush loop below
+      //! being the last writer of lb_hold_r
+      if (push_ram_w) lb_q_r[push_waddr_w] <= push_data_w;
+      q_rdata_r      <= lb_q_r[pop_raddr_w];
+      pop_ret_v_r    <= pop_act_w && !flush_clr_w[pop_pair_w];
+      pop_ret_pair_r <= pop_pair_w;
+
+      //! ---- per-pair pointers: pop first, then push (composed wires) ----
+      if (pop_act_w) begin
+        q_rd_r[pop_pair_w]  <= pop_rd_w + 1'b1;
+        q_cnt_r[pop_pair_w] <= pop_cnt_w - 1'b1;
+      end
+      if (push_ram_w) begin
+        q_wr_r[push_pair_w] <= q_wr_r[push_pair_w] + 1'b1;
+        if (push_drop_w) q_rd_r[push_pair_w] <= push_rd1_w + 1'b1;
+        q_cnt_r[push_pair_w] <= push_drop_w ? push_cnt1_w
+                                            : push_cnt1_w + 1'b1;
+        q_fed_r[push_pair_w] <= 1'b1;
+      end
+      q_primed_r <= (q_primed_r | prime_set_w) & ~flush_clr_w;
+
+      //! ---- pop data return into the walk's hold bank -------------------
+      if (pop_ret_v_r) lb_hold_r[pop_ret_pair_r] <= q_rdata_r;
+
+      //! ---- slip evidence (saturating) ----------------------------------
+      lb_dup_cnt_o  <= dup_sum_w[16]  ? 16'hFFFF : dup_sum_w[15:0];
+      lb_skip_cnt_o <= skip_sum_w[16] ? 16'hFFFF : skip_sum_w[15:0];
+
+      //! ---- bind wipe: empty, un-prime, un-feed, silence (LAST = wins,   --
+      //! ---- including over a same-cycle pop data return) -----------------
+      for (int pp = 0; pp < int'(LB_PAIRS_C); pp++) begin
+        if (flush_clr_w[pp]) begin
+          q_wr_r[pp]    <= '0;
+          q_rd_r[pp]    <= '0;
+          q_cnt_r[pp]   <= '0;
+          q_fed_r[pp]   <= 1'b0;
+          lb_hold_r[pp] <= 48'd0;
+        end
+      end
+    end
+  end : loop_queue_engine
 
   // ---------------------------------------------------------------------- //
   // Source select for the current walk slot (combinational)                 //
@@ -509,15 +886,8 @@ module KL_chan_map_capture #(
   wire [23:0] out_r_w = resolve_ch(ent_r_w);
 
   // ---------------------------------------------------------------------- //
-  // Emit walk FSM                                                           //
+  // Emit walk FSM (pre-walk pop, then the slot walk)                        //
   // ---------------------------------------------------------------------- //
-  typedef enum logic [1:0] {
-    CM_IDLE_S,     //! wait for a media tick
-    CM_STEP_S,     //! decide the current slot: skip / emit
-    CM_GAP_S       //! settle gap after a pair pulse
-  } cstate_t;
-
-  cstate_t                    st_r;
   logic                       tick_pend_r;   //! one-deep tick queue
   logic [$clog2(GAP_CYC_P+1)-1:0] gap_r;
   wire  last_slot_w = (32'(slot_r) == N_SLOTS_P - 1);
@@ -527,6 +897,7 @@ module KL_chan_map_capture #(
       st_r         <= CM_IDLE_S;
       tick_pend_r  <= 1'b0;
       slot_r       <= '0;
+      pop_idx_r    <= '0;
       gap_r        <= '0;
       pair_valid_o <= 1'b0;
       pair_slot_o  <= '0;
@@ -541,8 +912,19 @@ module KL_chan_map_capture #(
           if (tick_pend_r) begin
             tick_pend_r <= 1'b0;           //! a coincident tick re-arms below
             slot_r      <= '0;
-            st_r        <= CM_STEP_S;
+            pop_idx_r   <= '0;
+            st_r        <= CM_POP_S;
           end
+        end
+
+        // -------- LOOP pre-walk: pop one event per fed pair --------------
+        //! LB_PAIRS_C + 1 cycles: one pop issue per pair, one final cycle
+        //! for the last data return to land in lb_hold_r before the slot
+        //! walk reads it. The pop/dup work itself lives in
+        //! loop_queue_engine, keyed off pop_visit_w/pop_act_w.
+        CM_POP_S : begin
+          if (32'(pop_idx_r) == LB_PAIRS_C) st_r <= CM_STEP_S;
+          else                              pop_idx_r <= pop_idx_r + 1'b1;
         end
 
         // -------- inject the current slot --------------------------------

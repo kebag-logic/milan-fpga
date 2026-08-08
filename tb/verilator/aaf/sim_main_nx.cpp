@@ -42,10 +42,15 @@ static void sample(){
         if(dut->p2_tlast_o){ p2fr.push_back(p2cur); p2cur.clear(); }
     }
 }
+// [TSL] live-PHC mode: when nonzero, ptp_ns_i advances by this many ns per
+// clk cycle - a free-running PHC ramp instead of the static per-epoch pokes
+// the earlier sections use. 0 keeps their byte-exact behaviour untouched.
+static uint64_t g_ptp_rate = 0;
 static void step(){
     dut->clk=0; dut->clk_audio=0; dut->eval();
     dut->clk=1; dut->clk_audio=1; dut->eval();
     sample();
+    if (g_ptp_rate) dut->ptp_ns_i += g_ptp_rate;
 }
 static void cyc(int n=1){ for(int i=0;i<n;i++) step(); }
 
@@ -217,6 +222,74 @@ int main(int argc,char**argv){
     if(p2fr.size()==1)
         ck("the emitted frame is t0's", (long)(be(p2fr[0],22,8)&0xFFFF), 0);
     else ck("t0 frame check (skipped)",0,1);
+
+    // ================================================================== //
+    // [TSL] avtp_timestamp LAW: per-epoch PHC LATCH, never an adder.      //
+    //                                                                     //
+    // Wire find (t532 silicon, 2026-08-09): the talker's avtp_timestamp   //
+    // advanced EXACTLY 123750 ns per 6-sample PDU, min == max over 40000  //
+    // PDUs, where Milan's 48 kHz owes 125000 ns - the 99-for-100 grid     //
+    // (123750 = 6 x 2062.5 x 10 ns, and 2062.5 = 99 MHz/48000: a divider  //
+    // fed 99e6 while the fabric clocks 100 MHz). The RTL law that makes   //
+    // such a wrong grid IMPOSSIBLE to hide is: the timestamp is LATCHED   //
+    // from the live PHC at each epoch's first pair (tsw_val_r <=          //
+    // ptp_ns_i + transit), so consecutive-PDU deltas equal the REAL PHC   //
+    // elapsed between epochs - 125000 ns at a true 48 kHz pacing - and    //
+    // they TRACK the PHC rate. A synthesized ts += CONST cannot pass      //
+    // both phases below; no suite asserted the absolute delta before      //
+    // this leg (that is the desk gap that let t532 ship).                 //
+    // ================================================================== //
+    printf("\n[TSL] avtp_timestamp = per-epoch PHC latch (125000 ns law)\n");
+    {
+        // t0 only, clean slate; live PHC ramp at 10 ns per cycle = the
+        // 100 MHz shipping grid
+        dut->p2_en_i = 1; cyc(4);
+        dut->ptp_ns_i = 0x01000000; g_ptp_rate = 10;
+        p2fr.clear();
+        // pace one pair per media tick, Bresenham 2083/2083/2084 = EXACTLY
+        // 100e6/48000 average - 6 pairs per epoch, 12500 cycles per epoch
+        long acc = 0;
+        auto paced_pair = [&](int i, uint32_t l, uint32_t r) {
+            dut->p2_pair_slot_i=0; dut->p2_pair_l_i=l&0xFFFFFF; dut->p2_pair_r_i=r&0xFFFFFF;
+            dut->p2_pair_valid_i=1; cyc(); dut->p2_pair_valid_i=0;
+            int period = ((i % 3) == 2) ? 2084 : 2083;
+            cyc(period - 1);
+            acc += period;
+        };
+        for (int s = 0; s < 6*6; s++)        // 6 epochs x 6 samples
+            paced_pair(s, 0x600000 + s, 0x700000 + s);
+        cyc(600);                            // drain the last emission
+        ck("TSL: 6 paced epochs emitted 6 PDUs", (long)p2fr.size(), 6);
+        long d_ok = 1, d_not_t532 = 1;
+        for (size_t f = 1; f < p2fr.size(); f++) {
+            long d = (long)((uint32_t)(be(p2fr[f],30,4) - be(p2fr[f-1],30,4)));
+            if (d != 125000) d_ok = 0;
+            if (d == 123750) d_not_t532 = 0;
+            if (d != 125000)
+                printf("         delta %zu = %ld ns (owed 125000)\n", f, d);
+        }
+        ck("TSL: EVERY consecutive-PDU delta = 125000 ns", d_ok, 1);
+        ck("TSL: and never the t532 99-for-100 constant 123750", d_not_t532, 1);
+
+        // ---- phase 2: warp the PHC rate x2 - the deltas MUST follow ------
+        // (a latch tracks the clock it samples; a ts += CONST adder keeps
+        // its constant and reddens exactly this check)
+        g_ptp_rate = 20;
+        p2fr.clear();
+        for (int s = 0; s < 4*6; s++)
+            paced_pair(s, 0x610000 + s, 0x710000 + s);
+        cyc(600);
+        ck("TSL warp: 4 epochs emitted 4 PDUs", (long)p2fr.size(), 4);
+        long w_ok = 1;
+        for (size_t f = 1; f < p2fr.size(); f++) {
+            long d = (long)((uint32_t)(be(p2fr[f],30,4) - be(p2fr[f-1],30,4)));
+            if (d != 250000) w_ok = 0;
+            if (d != 250000)
+                printf("         warp delta %zu = %ld ns (owed 250000)\n", f, d);
+        }
+        ck("TSL warp: deltas doubled with the PHC (latch, not adder)", w_ok, 1);
+        g_ptp_rate = 0;                      // restore the static-poke mode
+    }
 
     printf("\n======================================================================\n");
     printf("NxN talker lane: %ld checks, %ld failures\nRESULT: %s\n",

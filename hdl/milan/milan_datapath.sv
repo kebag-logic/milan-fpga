@@ -904,18 +904,21 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! is NOT free. Measured OOC on the leaf at the 8x8 ship shape (yosys
   //! synth_xilinx xc7, N_LB_STREAMS_P=8 / N_LB_CH_P=8):
   //!
-  //!     tied off (today)   1432 LUT / 1479 FF
-  //!     driven             3735 LUT / 3021 FF     = +2303 LUT, +1542 FF
+  //!     pre-queue driven (0x0030 era)  3735 LUT / 3021 FF
+  //!     0x0036 paced-replay driven     5874 LUT / 4172 FF / 1 RAMB36
   //!
-  //! The +1542 FF is architectural, not a synthesis artefact: the bucket
-  //! keeps N_LB_STREAMS_P x N_LB_CH_P/2 = 32 pair holds x 48 b, and that
-  //! bank CANNOT become LUTRAM (it takes a reset that clears every entry,
-  //! and two independent writes per beat), so it is flops plus a 32:1 48-bit
-  //! read mux. At 61,039/63,400 LUT and packing-bound that does not fit
-  //! today - hence the lever, and hence the power-on map pointing at the
-  //! HOST pool instead (endstation_builder PRIMARY_ROLE_ORDER). The two are
-  //! driven by ONE declared fact (cluster_mapping.fabric.loopback_lane), so
-  //! the model can never advertise a lane this parameter did not build.
+  //! The 0x0036 delta is the audible-defect-C fix: the per-pair elastic
+  //! queues (256 x 48 b array = the RAMB36) plus their per-pair pointer
+  //! sets, the commit skid and the pre-walk pop engine (see the module's
+  //! LOOP QUEUE banner). The 32 x 48 b hold bank itself stays flops (it
+  //! takes a full-clear reset and the bind-wipe flush). At 61,039/63,400
+  //! LUT and packing-bound the ON lane does not fit today - hence the
+  //! lever, and hence the power-on map pointing at the HOST pool instead
+  //! (endstation_builder PRIMARY_ROLE_ORDER). OFF still prunes: the feed
+  //! strobe folds to constant 0, so queues, skid and holds never toggle
+  //! and synthesis sweeps the bucket. The two are driven by ONE declared
+  //! fact (cluster_mapping.fabric.loopback_lane), so the model can never
+  //! advertise a lane this parameter did not build.
   localparam int LB_STREAMS_C = (LOOPBACK_P != 0) ? N_STREAMS : 1;
   localparam int LB_CH_C      = (LOOPBACK_P != 0) ? RX_WIRE_CHANS_C : 2;
 
@@ -923,9 +926,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! elaborated ~3000 lines below, so the nets are declared here and driven
   //! by single-driver continuous assigns down there (search lb_tap_).
   wire [TDATA_WIDTH-1:0]  lb_tap_tdata_w;
-  wire                    lb_tap_tvalid_w, lb_tap_tlast_w;
-  wire [3:0]              lb_tap_tuser_w;
+  //! tap strobes TB-observable (the rend_pcm_tvalid_w discipline): the tap
+  //! is a clone with no counter of its own, so desk legs need the nets
+  wire                    lb_tap_tvalid_w /* verilator public_flat_rd */;
+  wire                    lb_tap_tlast_w  /* verilator public_flat_rd */;
+  wire [3:0]              lb_tap_tuser_w  /* verilator public_flat_rd */;
   wire [LB_STREAMS_C*4-1:0] lb_tap_chans_w;
+  //! 0x0036 queue slip evidence, TB-observable (same discipline as
+  //! rend_pcm_tvalid_w below): not CSR-mapped yet - the debug-window word
+  //! is the documented follow-up
+  wire [15:0] lb_dup_cnt_w  /* verilator public_flat_rd */;
+  wire [15:0] lb_skip_cnt_w /* verilator public_flat_rd */;
 
   KL_chan_map_capture #(
     .N_SLOTS_P (N_STREAMS*4),
@@ -980,9 +991,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .lb_tdata_i (lb_tap_tdata_w), .lb_tvalid_i (lb_tap_tvalid_w),
     .lb_tlast_i (lb_tap_tlast_w), .lb_tuser_i (lb_tap_tuser_w),
     .lb_wire_chans_i (lb_tap_chans_w),
+    //! 0x0036 paced-replay rework: a sink's bind wipe (task #32 eviction
+    //! pulse, declared at the stream table below) flushes that stream's
+    //! LOOP pair queues, so no stale samples replay on a rebind
+    .lb_flush_i (strtbl_bind_fall_w[LB_STREAMS_C-1:0]),
     .tick_i (media_tick_p),
     .pair_valid_o (cmap_pv_w), .pair_slot_o (cmap_slot_w),
-    .pair_l_o (cmap_l_w), .pair_r_o (cmap_r_w)
+    .pair_l_o (cmap_l_w), .pair_r_o (cmap_r_w),
+    //! honest-slip evidence (dup-on-empty / drop-oldest, ZERO at lock)
+    .lb_dup_cnt_o (lb_dup_cnt_w), .lb_skip_cnt_o (lb_skip_cnt_w)
   );
 
   // ==========================================================================
@@ -1839,6 +1856,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .N_LISTENERS_P(N_STREAMS),
     .N_TALKERS_P(N_STREAMS),
     .SRP_LSN0_ROW_P(SRP_LSN0_ROW_C),
+    //! PHC scale truth (t532 wire-scale audit): the PTP_INCR reset value is
+    //! derived from THIS clock declaration, so a free-run PHC ticks true ns
+    //! on every shape without waiting for software
+    .MILAN_CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ),
     //! both chmap map-RAM read ports are wired below, and the CAPTURE side
     //! carries the {loop_fed, loop_mapped} mask. Published at CHMAP_SNAP[9:8]
     //! so software reads UNSUPPORTED rather than a structural zero on a build

@@ -422,7 +422,7 @@ together  -  e.g. `tc mqprio` + `tc cbs offload`.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x500` | `PTP_CTRL` | RW | `0x1` | `[0]` counter enable |
-| `0x504` | `PTP_INCR` | RW | `0x0800_0000` | nominal increment per tick, **Q8.24** ns: `[31:24]` integer ns, `[23:0]` fractional ns. `0x08000000` = 8.0 ns/tick @125 MHz |
+| `0x504` | `PTP_INCR` | RW | derived | nominal increment per tick, **Q8.24** ns: `[31:24]` integer ns, `[23:0]` fractional ns. Reset value = the true PHC clock period, derived from `MILAN_CLK_FREQ_HZ_P` (0x0A000000 = 10.0 ns at the shipping 100 MHz milan domain; the standalone-default 125 MHz gives the historic 0x08000000) |
 | `0x508` | `PTP_ADJ` | RW | `0` | signed Q8.24-ns adjfine addend added to `PTP_INCR` each tick (rate discipline) |
 | `0x510` | `PTP_TOD_WR_LO` | RW | `0` | settime target `[31:0]` (ns) |
 | `0x514` | `PTP_TOD_WR_HI` | RW | `0` | settime target `[63:32]` |

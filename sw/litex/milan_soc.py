@@ -246,12 +246,23 @@ class _CRG(LiteXModule):
         rst_n = platform.request("cpu_reset_n")
         self.comb += pll.reset.eq(~rst_n)
         pll.register_clkin(clkin, clkin_freq)
-        pll.create_clkout(self.cd_sys, sys_clk_freq)
+        # margin=0 on every create_clkout below. LiteX defaults margin=1e-2:
+        # each clkout is a REQUEST with a +-10000 ppm acceptance window (the
+        # "(+-10000.00ppm)" S7PLL log line) and the solver takes the FIRST
+        # in-window integer divider, not the closest. t532 forensics (08-08):
+        # the window never actually bit on these requests - VCO 1600 divides
+        # 100/400/200 exactly - but a request the VCO could not divide exactly
+        # would be accepted up to 1 % off while every cycle-counted constant
+        # elaborated from the REQUESTED Hz (the PHC's 10.0 ns nominal
+        # PTP_INCR, the /48000 media-tick Bresenhams, CBS slopes, QTICK)
+        # kept assuming the request: a silent 1 %-class detune of timestamps
+        # and pacing. margin=0 = exact division or a loud elaboration error.
+        pll.create_clkout(self.cd_sys, sys_clk_freq, margin=0)
         platform.add_false_path_constraints(self.cd_sys.clk, pll.clkin)
 
         if board == "arty" and with_eth:
             self.cd_eth_ref = ClockDomain(reset_less=True)
-            pll.create_clkout(self.cd_eth_ref, 25e6)
+            pll.create_clkout(self.cd_eth_ref, 25e6, margin=0)
             self.comb += platform.request("eth_ref_clk").eq(ClockSignal("eth_ref"))
 
         if milan_clk_freq:
@@ -262,7 +273,12 @@ class _CRG(LiteXModule):
             # lifting its logic off the 100 MHz timing budget entirely. The CPU + DDR3
             # stay at sys; the CSR (AXI-Lite) crosses via AXILiteClockDomainCrossing.
             self.cd_milan = ClockDomain()
-            pll.create_clkout(self.cd_milan, milan_clk_freq)
+            # margin=0 (see CRG note above): the Milan datapath's entire time
+            # base is CYCLE arithmetic on MILAN_CLK_FREQ_HZ - the PHC advances
+            # a nominal 10.0 ns per edge and the AAF/media grids are /48000
+            # Bresenhams of the same constant - so the synthesized frequency
+            # must BE the requested one, never merely "within 1 %".
+            pll.create_clkout(self.cd_milan, milan_clk_freq, margin=0)
             platform.add_false_path_constraints(self.cd_sys.clk, self.cd_milan.clk)
 
             # CLEAN audio clock (07-18): the CS4344 needs a ~ps-jitter MCLK -
@@ -333,6 +349,16 @@ class _CRG(LiteXModule):
             self.cd_audio = ClockDomain()
             audio_in = clkin if board == "arty" else ClockSignal("sys")
             audio_src_hz = clkin_freq if board == "arty" else sys_clk_freq
+            # The audio clocks are deliberately NOT create_clkout products, so
+            # the margin=0 rule above does not apply here: 24.576 MHz has NO
+            # exact integer solution from a 100 MHz reference. The explicit
+            # two-stage chain below lands at a KNOWN, by-construction error -
+            # PLAN A 24,575,738.53 Hz = -10.64 ppm, PLAN B 24,575,983.70 Hz =
+            # -0.66 ppm - both inside Milan 7.4's +-50 ppm media-clock budget
+            # even before the KL_mmcm_drp_servo fine-PS trim (~260 ppm
+            # authority) pulls them onto the recovered media clock. Do not
+            # "fix" these toward exactness: the values below ARE the
+            # achievable optima and they are silicon-proven.
             if audio_tdm_hz is None:
                 pre_div, mmcm_mult, audio_div = 37, 34.0, 43.0   # PLAN A
             else:
@@ -430,14 +456,14 @@ class _CRG(LiteXModule):
             # A7DDRPHY needs 4x (and 4x @90° for DQS) system clocks.
             self.cd_sys4x     = ClockDomain()
             self.cd_sys4x_dqs = ClockDomain()
-            pll.create_clkout(self.cd_sys4x,     4 * sys_clk_freq)
-            pll.create_clkout(self.cd_sys4x_dqs, 4 * sys_clk_freq, phase=90)
+            pll.create_clkout(self.cd_sys4x,     4 * sys_clk_freq, margin=0)
+            pll.create_clkout(self.cd_sys4x_dqs, 4 * sys_clk_freq, phase=90, margin=0)
 
         if with_dram or with_eth:
             # 200 MHz IDELAY reference + controller (DDR3 PHY + RGMII PHY IODELAYs).
             from litex.soc.cores.clock import S7IDELAYCTRL
             self.cd_idelay = ClockDomain()
-            pll.create_clkout(self.cd_idelay, 200e6)
+            pll.create_clkout(self.cd_idelay, 200e6, margin=0)
             self.idelayctrl = S7IDELAYCTRL(self.cd_idelay)
 
 

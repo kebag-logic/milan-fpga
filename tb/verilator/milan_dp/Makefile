@@ -138,7 +138,10 @@ run: $(GEN_ALL)
 # and pin the other half of the contract - a mapped loopback slot is silent
 # by construction when the parameter did not build the bucket, which is why
 # the builder may not point a power-on mapping at one.
-	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -GAAF_PLAYBACK_P=1 -GLOOPBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAAF_PB_TB=1 -DLOOPBACK_TB=1" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
+# -DLB_SEQ_FIXED: the 0x0036 loop-source paced-replay law is IN - [T68]
+# asserts zero dup / zero skip / whole-ramp / clean tail instead of the
+# pre-fix stair signature.
+	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) --Mdir obj_nxn8 -GN_STREAMS=8 -GAAF_PLAYBACK_P=1 -GLOOPBACK_P=1 -CFLAGS "-DNSTREAMS_TB=8 -DAAF_PB_TB=1 -DLOOPBACK_TB=1 -DLB_SEQ_FIXED=1" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn8
 # THE SHIPPING ARTY SHAPE, and until 2026-07-30 nothing in the suite
 # elaborated it. obj_nxn above builds endstation_arty_4x4's ENTITY (4 streams)
 # but leaves TALKER_WIRE_CHANS_P at its default 2, so every leg ran with the

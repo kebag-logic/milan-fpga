@@ -22,7 +22,7 @@ the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` (driver side).
 - **[6. CSR window — 0x900–0x97F (debug override + shadow readback)](#6-csr-window--0x9000x97f-debug-override--shadow-readback)** — Five registers `CHMAP_CTRL/SEL/WORD/STAT`, and the integration trap in bold: without a `rd_in_window` term for `0x900`, every chmap read silently returns 0 — the same defect that hid the servo until 2026-07-23.
 - **[7. AEM binding — IEEE 1722.1 dynamic audio maps (Milan es-4.16)](#7-aem-binding--ieee-17221-dynamic-audio-maps-milan-es-416)** — GET_AUDIO_MAP is answered from the AEM store, never from the map RAMs, so a bench CSR poke stays invisible to a controller. Includes the cluster-to-physical table and the pair-consistency rule that refuses a lone half-pair with `BAD_ARGUMENTS`.
 - **[8. TDM8 render front-end (summary; module = parallel lane)](#8-tdm8-render-front-end-summary-module--parallel-lane)** — The planned contract, then the correction: the module that actually landed is the bus *slave* (`tdm_bclk_i`/`tdm_fsync_i` are inputs) and `tdm_dout_o` is parked with no board pin. Also pins where the one-bclk Philips delay is produced — once, in the serializer.
-- **[9. Clocking and slip policy (phase 1, normative)](#9-clocking-and-slip-policy-phase-1-normative)** — One gPTP-disciplined media clock for everything and no per-stream rate conversion; a stalled source holds its last value, which is the I2S path's existing repeat-last behaviour, so the mapping layer adds no new drift rails.
+- **[9. Clocking and slip policy (phase 1, normative)](#9-clocking-and-slip-policy-phase-1-normative)** — One gPTP-disciplined media clock for everything and no per-stream rate conversion; a stalled source holds its last value, which is the I2S path's existing repeat-last behaviour, so the mapping layer adds no new drift rails. Exception since 0x0036: the capture LOOP bucket paces its bursty PDU source through a per-pair elastic queue (repeat-last only on true underrun, counted).
 - **[10. Phase-2 appendix — fabric 64-ch composed device](#10-phase-2-appendix--fabric-64-ch-composed-device)** — Out of scope now, but stated so phase 1 does not paint it out: the word format already carries what composition needs, phase 2 only widens the entry spaces and drops pair granularity.
 - **[11. Integration checklist (order matters)](#11-integration-checklist-order-matters)** — Eight steps in dependency order, widening first and the AEM projector last, each with the testbench rows it owes.
 - **[12. Silicon validation — the first crossbar walk (2026-07-25)](#12-silicon-validation--the-first-crossbar-walk-2026-07-25)** — All 32 slots on TONE came back sample-exact against the 48-sample period, and the one-slot identity walk gave true digital silence (`nz=0`) at deltas 1, 4 and 8. Scope stated honestly: 1 slot of 32 directly lit. §12.1 gives the per-stream recipe for the full walk and the listener blocker still in the way.
@@ -682,6 +682,20 @@ MMCM" bullet above is the phase-1 *plan*, not what the RTL does.
   the existing per-stream monitor rails counting the underlying
   events. No new drift rails are introduced by the mapping layer
   itself.
+- **Exception (VERSION 0x0036, normative): the capture LOOP bucket is
+  QUEUED, not latched.** Latest-sample is correct for once-per-sample
+  front-end sources and was audibly WRONG for the bursty PDU source: a
+  received PDU delivers 6 samples per channel at wire speed, so a
+  latest-sample hold emits ~6 copies of the block's last sample and
+  skips the rest — a dup+skip stair on the 8 kHz PDU lattice (silicon
+  + user audio 2026-08-09, ~10000 glitches/s). The LOOP bucket now
+  runs a per-pair elastic queue (depth 8 = one PDU + margin) popped
+  once per media tick: paced in-order replay, slip honest and bounded
+  (queue empty at a tick = repeat last, counted; full at a push = drop
+  the OLDEST, counted; both ZERO with locked clocks), flushed on bind
+  wipe so no stale samples replay on a rebind. See the
+  `KL_chan_map_capture` LOOP QUEUE banner and `tb/verilator/milan_dp`
+  [T68].
 - Remap effect point = media tick (§3/§4): switching sources produces
   at worst one sample-step discontinuity; no ramping in phase 1.
 

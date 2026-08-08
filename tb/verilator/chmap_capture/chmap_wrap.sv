@@ -63,6 +63,14 @@ module chmap_wrap (
   input  wire         lb_tlast_i,
   input  wire [3:0]   lb_tuser_i,
   input  wire [31:0]  lb_wire_chans_i,
+  //! per-lane bind-wipe pulse (0x0036 queue law: flush stream's pair queues)
+  input  wire [7:0]   a_lb_flush_i,
+  input  wire [7:0]   b_lb_flush_i,
+  //! per-lane slip evidence (saturating; ZERO with locked pacing)
+  output wire [15:0]  a_dup_cnt_o,
+  output wire [15:0]  a_skip_cnt_o,
+  output wire [15:0]  b_dup_cnt_o,
+  output wire [15:0]  b_skip_cnt_o,
 
   //! --- lane A: chmap map ports + tick -------------------------------------
   input  wire         a_map_wr_en_i,
@@ -160,9 +168,11 @@ module chmap_wrap (
     .lb_tdata_i (lb_tdata_i), .lb_tvalid_i (lb_tvalid_i),
     .lb_tlast_i (lb_tlast_i), .lb_tuser_i (lb_tuser_i),
     .lb_wire_chans_i (lb_wire_chans_i),
+    .lb_flush_i (a_lb_flush_i),
     .tick_i (a_tick_i),
     .pair_valid_o (a_pv_w), .pair_slot_o (a_slot_w),
-    .pair_l_o (a_l_w), .pair_r_o (a_r_w)
+    .pair_l_o (a_l_w), .pair_r_o (a_r_w),
+    .lb_dup_cnt_o (a_dup_cnt_o), .lb_skip_cnt_o (a_skip_cnt_o)
   );
 
   KL_aaf_packetizer #(.N_TALKERS_P(2)) u_pkt_a (
@@ -214,9 +224,11 @@ module chmap_wrap (
     .lb_tdata_i (lb_tdata_i), .lb_tvalid_i (lb_tvalid_i),
     .lb_tlast_i (lb_tlast_i), .lb_tuser_i (lb_tuser_i),
     .lb_wire_chans_i (lb_wire_chans_i),
+    .lb_flush_i (b_lb_flush_i),
     .tick_i (b_tick_i),
     .pair_valid_o (b_pv_w), .pair_slot_o (b_slot_w),
-    .pair_l_o (b_l_w), .pair_r_o (b_r_w)
+    .pair_l_o (b_l_w), .pair_r_o (b_r_w),
+    .lb_dup_cnt_o (b_dup_cnt_o), .lb_skip_cnt_o (b_skip_cnt_o)
   );
 
   KL_aaf_packetizer #(.N_TALKERS_P(8)) u_pkt_b (

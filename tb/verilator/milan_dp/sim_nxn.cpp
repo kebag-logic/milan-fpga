@@ -300,7 +300,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x00010036);
+       axi_read(A_VERSION), 0x00010037);
 
 #ifdef AAF_PB_TB
     // ---- task #26 (0x002C): the BOOT SEED is CSR-visible before any ----
@@ -3401,6 +3401,530 @@ int main(int argc, char** argv) {
 
         axi_write(A_CHMAP_CTRL, 0x0);            // restore the legacy path
     }
+
+#ifdef AAF_PB_TB
+    // ==================================================================
+    //  [T66] RUNTIME dynamic-output-map writes REACH THE CROSSBAR RAM
+    //  (t532 silicon 2026-08-09). On the wire the capture crossbar kept
+    //  framing its BOOT image byte-identically across three different
+    //  store states: runtime ADD/REMOVE_AUDIO_MAPPINGS commits reached
+    //  the AECP store (GET_AUDIO_MAP tracked every edit) but landed in
+    //  the fabric RAM erratically or not at all. No desk leg ever read
+    //  the RAM SIDE back after a runtime AECP edit - the seeder had
+    //  coverage (the 0x002C boot check above), the command path had
+    //  none. This leg is that pin, end to end and RAM-side:
+    //    * N spaced ADD_AUDIO_MAPPINGS through the REAL RX path,
+    //    * after EACH, the crossbar RAM word read back via the CSR
+    //      0x910/0x914 window (the RAM's own read port - not the store),
+    //    * the store agreeing via GET_AUDIO_MAP,
+    //    * a REMOVE clearing exactly its key,
+    //    * and a live-audio proof: remapping talker 0's two wire
+    //      channels to the TONE cluster changes the emitted payload.
+    //  DELIBERATELY run with CHMAP_CTRL[0] = 0: since 0x002C the AECP
+    //  mirror is the canonical programmer and its write arm must not
+    //  depend on the bring-up debug bit (the write-gate half of the
+    //  always-live law; the READ-mux half is the boot check above).
+    // ==================================================================
+    printf("-- [T66] runtime ADD/REMOVE_AUDIO_MAPPINGS -> crossbar RAM --\n");
+    {
+        enum { CMD_GET_AUDIO_MAP = 43, CMD_ADD_AUDIO_MAPPINGS = 44,
+               CMD_REMOVE_AUDIO_MAPPINGS = 45 };
+        const uint16_t DT_SPO = 0x000F;      // STREAM_PORT_OUTPUT
+        static uint16_t sq = 0x4100;
+
+        // capture-side crossbar RAM readback (CSR 0x904/0x910/0x914 window,
+        // the 0x002C boot-seed recipe): returns the 13-bit map entry
+        auto cap_ram = [&](int key) -> uint32_t {
+            axi_write(0x904, 0x100 | key);
+            axi_write(0x910, 1);
+            uint32_t sv = 0;
+            for (int g = 0; g < 64; g++) {
+                sv = axi_read(0x910);
+                if ((sv & 1) == 0) break;
+            }
+            uint32_t v = axi_read(0x914);
+            if (((v >> 26) & 1) == 0) return 0xFFFFFFFFu;   // readback dead
+            return v & 0x1FFF;
+        };
+        // one ADD/REMOVE of n {si, sc, co} rows on output port 0
+        auto dmap_cmd = [&](int cmd, int n, const int* sc, const int* co)
+            -> long {
+            std::vector<uint8_t> pl = {
+                (uint8_t)(DT_SPO >> 8), (uint8_t)DT_SPO, 0x00, 0x00,
+                0x00, (uint8_t)n, 0x00, 0x00 };
+            for (int i = 0; i < n; i++) {
+                uint8_t row[8] = {0,0, 0,(uint8_t)sc[i], 0,(uint8_t)co[i], 0,0};
+                pl.insert(pl.end(), row, row + 8);
+            }
+            auto r = aecp_xact((uint16_t)cmd, sq++, pl);
+            return aecp_status(r);
+        };
+        // the generated CSRC template the fabric word must equal after an
+        // ADD of cluster co (ring pool co 0..7 on this shape): src=3 RING,
+        // half = co&1, idx = co/2, en forced by the commit
+        auto ring_tpl = [&](int co) -> uint32_t {
+            return 0x1300u | ((co & 1) << 11) | (co >> 1);
+        };
+
+        // ---- N spaced runtime ADDs, RAM-side readback after each -------
+        const int scs[4] = {4, 5, 6, 7};
+        const int cos[4] = {6, 7, 4, 5};     // cross-swap: != the boot image
+        long all_success = 1, all_landed = 1;
+        for (int i = 0; i < 4; i++) {
+            if (dmap_cmd(CMD_ADD_AUDIO_MAPPINGS, 1, &scs[i], &cos[i]) != 0)
+                all_success = 0;
+            for (int c = 0; c < 3000; c++) step();   // SPACED, not a burst
+            if (cap_ram(scs[i]) != ring_tpl(cos[i])) all_landed = 0;
+        }
+        ck("T66: 4 spaced runtime ADDs answered SUCCESS", all_success, 1);
+        ck("T66: ALL 4 landed in the crossbar RAM (RAM-side read)",
+           all_landed, 1);
+
+        // ---- the store agrees (GET_AUDIO_MAP serves the SAME edits) ----
+        {
+            std::vector<uint8_t> pl = {
+                (uint8_t)(DT_SPO >> 8), (uint8_t)DT_SPO, 0x00, 0x00,
+                0x00, 0x00, 0x00, 0x00 };            // map_index 0
+            auto r = aecp_xact(CMD_GET_AUDIO_MAP, sq++, pl);
+            ck("T66: GET_AUDIO_MAP SUCCESS", aecp_status(r), 0);
+            // rows at 50+8i: {si, sc, co, cc}; find sc 4..7, check co
+            long rows_ok = (r.size() >= 50) ? 1 : 0;
+            int found = 0;
+            if (rows_ok) {
+                int n = (r.size() > 47) ? r[47] : 0;
+                for (int i = 0; i < n && 50 + 8*i + 7 < (int)r.size(); i++) {
+                    int rsc = (r[50+8*i+2] << 8) | r[50+8*i+3];
+                    int rco = (r[50+8*i+4] << 8) | r[50+8*i+5];
+                    for (int k = 0; k < 4; k++)
+                        if (rsc == scs[k]) { found++;
+                            if (rco != cos[k]) rows_ok = 0; }
+                }
+            }
+            ck("T66: the store carries all 4 edited rows", found, 4);
+            ck("T66: store rows match the RAM-side clusters", rows_ok, 1);
+        }
+
+        // ---- REMOVE clears exactly its key, RAM-side ------------------
+        {
+            const int rsc = 4, rco = 6;
+            ck("T66: REMOVE answered SUCCESS",
+               dmap_cmd(CMD_REMOVE_AUDIO_MAPPINGS, 1, &rsc, &rco), 0);
+            for (int c = 0; c < 3000; c++) step();
+            ck("T66: removed key 4 cleared in the RAM", cap_ram(4), 0);
+            ck("T66: neighbour key 5 untouched by the REMOVE",
+               cap_ram(5), ring_tpl(7));
+        }
+
+        // ---- live-audio proof: tone onto talker 0's wire pair ----------
+        // (keys 0/1 are talker 0's two wire channels at WIRE_CHANS=2; the
+        // TONE cluster is co 8, template 0x1400, same value on both halves)
+        {
+            const int tsc[2] = {0, 1}, tco[2] = {8, 8};
+            ck("T66: ADD tone onto ch0+ch1 SUCCESS",
+               dmap_cmd(CMD_ADD_AUDIO_MAPPINGS, 2, tsc, tco), 0);
+            for (int c = 0; c < 3000; c++) step();
+            ck("T66: tone landed at key 0 (RAM-side)", cap_ram(0), 0x1400);
+            ck("T66: tone landed at key 1 (RAM-side)", cap_ram(1), 0x1400);
+            axi_write(0x6DC, 0x1);           // TONE_CTRL[0] = pilot on
+            for (int c = 0; c < 30000; c++) step();   // let the walk emit it
+            // capture one talker-0 PDU: payload nonzero, L==R per event
+            std::vector<uint8_t> cur; std::vector<uint32_t> smp;
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < 200000 && smp.empty(); c++) {
+                lo();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l))
+                                          & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        size_t off = (cur.size() > 17 && cur[12] == 0x81
+                                      && cur[13] == 0x00) ? 4 : 0;
+                        if (cur.size() >= 86 + off && cur[12+off] == 0x22
+                            && cur[13+off] == 0xF0 && cur[14+off] == 0x02
+                            && ((cur[24+off] << 8) | cur[25+off]) == 0)
+                            for (int s = 0; s < 12; s++) {
+                                size_t o = 38 + off + 4*s;
+                                smp.push_back(((uint32_t)cur[o]   << 16) |
+                                              ((uint32_t)cur[o+1] <<  8) |
+                                               (uint32_t)cur[o+2]);
+                            }
+                        cur.clear();
+                    }
+                }
+                hi();
+            }
+            int nz = 0; long lr_eq = 1;
+            for (size_t s = 0; s + 1 < smp.size(); s += 2) {
+                if (smp[s]) nz++;
+                if (smp[s] != smp[s+1]) lr_eq = 0;
+            }
+            // 6 sample events; the 48-entry 1 kHz table crosses zero at
+            // most once in any 6-consecutive-sample window
+            ck("T66: runtime-mapped tone REACHES the wire (payload live)",
+               (long)(smp.size() == 12 && nz >= 4), 1);
+            ck("T66: tone pair carries L == R (the TONE contract)", lr_eq, 1);
+        }
+    }
+
+    // ==================================================================
+    //  [T67] MEDIA-GRID CADENCE + TIMESTAMP TRACKING at the datapath
+    //  level (t532 silicon 2026-08-09). The wire showed 123750 ns between
+    //  6-sample PDUs - 48000 x 100/99 - where Milan 7.4 owes 125000 ns
+    //  within +-50 ppm; 123750 = 6 x 2062.5 cycles x 10 ns and 2062.5 =
+    //  99e6/48000, a media divider parameterized 99 MHz on a 100 MHz
+    //  fabric. NOTHING at desk asserted the absolute rate (that is how it
+    //  shipped), so this leg measures the SHIPPING grid end to end:
+    //    * PDU-to-PDU spacing in fabric cycles over 8 epochs must equal
+    //      8 x MILAN_CLK_FREQ_HZ x 6/48000 within the 50 ppm class bound
+    //      (this build: 8 x 12500 exactly);
+    //    * avtp_timestamp deltas must TRACK the PHC: equal to the PHC ns
+    //      elapsed over those cycles at the LIVE PTP_INCR rate (read from
+    //      0x504, Q8.24 - an earlier leg set 20 ns/tick), and after
+    //      PTP_INCR is CSR-rewritten the deltas move with it - the
+    //      integration half of the aaf [TSL] latch-not-adder pin.
+    //  Runs on the [T66] tone stream: talker 0 framing continuously.
+    // ==================================================================
+    printf("-- [T67] media-grid cadence + avtp_timestamp PHC tracking --\n");
+    {
+        // collect K consecutive talker-0 PDUs: end-cycle stamps + ts
+        auto collect_t0 = [&](int want) {
+            std::vector<std::pair<long, uint32_t>> got;   // {cycle, ts}
+            std::vector<uint8_t> cur;
+            long c = 0;
+            dut->m_axis_mac_tx_tready = 1;
+            for (c = 0; c < 400000 && (int)got.size() < want; c++) {
+                lo();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l))
+                                          & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        size_t off = (cur.size() > 17 && cur[12] == 0x81
+                                      && cur[13] == 0x00) ? 4 : 0;
+                        if (cur.size() >= 86 + off && cur[12+off] == 0x22
+                            && cur[13+off] == 0xF0 && cur[14+off] == 0x02
+                            && ((cur[24+off] << 8) | cur[25+off]) == 0) {
+                            // avtp_timestamp = AVTP hdr +12: frame 26+off
+                            uint32_t ts =
+                                ((uint32_t)cur[26+off] << 24) |
+                                ((uint32_t)cur[27+off] << 16) |
+                                ((uint32_t)cur[28+off] <<  8) |
+                                 (uint32_t)cur[29+off];
+                            got.push_back({c, ts});
+                        }
+                        cur.clear();
+                    }
+                }
+                hi();
+            }
+            return got;
+        };
+
+        const long EPOCH_CYC = 12500;        // MILAN_CLK 100e6 x 6/48000
+        // the LIVE PHC rate (Q8.24 integer-ns; the ptp leg set 20 ns/tick)
+        uint32_t incr0 = axi_read(0x504);
+        long ns_cyc0 = (long)(incr0 >> 24);
+        ck("T67: PTP_INCR is a whole-ns rate (Q8.24 frac 0)",
+           incr0 & 0xFFFFFF, 0);
+        auto p = collect_t0(9);
+        ck("T67: talker 0 delivered 9 consecutive PDUs", (long)p.size(), 9);
+        if (p.size() == 9) {
+            long span = p[8].first - p[0].first;
+            long lim  = (8 * EPOCH_CYC) / 20000 + 1;     // the 50 ppm class
+            long err  = span - 8 * EPOCH_CYC;
+            if (err < 0) err = -err;
+            printf("         span 8 epochs = %ld cycles (nominal %ld, err %ld)\n",
+                   span, 8 * EPOCH_CYC, err);
+            ck("T67: PDU cadence = 48 kHz on MILAN_CLK within 50 ppm",
+               err <= lim, 1);
+            long d_ok = 1;
+            for (int i = 1; i < 9; i++) {
+                long d = (long)(uint32_t)(p[i].second - p[i-1].second);
+                if (d != EPOCH_CYC * ns_cyc0) d_ok = 0;
+                if (d != EPOCH_CYC * ns_cyc0)
+                    printf("         ts delta %d = %ld ns (owed %ld)\n",
+                           i, d, EPOCH_CYC * ns_cyc0);
+            }
+            ck("T67: ts deltas = PHC elapsed per epoch (12500 x INCR ns)",
+               d_ok, 1);
+            ck("T67: and NOT the t532 wire constant 123750",
+               (long)(uint32_t)(p[1].second - p[0].second) == 123750, 0);
+        } else { for (int k = 0; k < 3; k++) ck("T67 (skipped)", 0, 1); }
+
+        // PHC warp via the ARCHITECTED CSR: PTP_INCR 0x504 moved ->
+        // the deltas move with it (latched from the live PHC, never
+        // synthesized; a ts += CONST adder reddens exactly this check)
+        axi_write(0x504, 0x10000000);        // 16.0 ns per PHC tick
+        collect_t0(3);                       // flush epochs straddling it
+        auto w = collect_t0(5);
+        long w_ok = (w.size() == 5) ? 1 : 0;
+        for (size_t i = 1; i < w.size(); i++) {
+            long d = (long)(uint32_t)(w[i].second - w[i-1].second);
+            if (d != EPOCH_CYC * 16) w_ok = 0;
+            if (d != EPOCH_CYC * 16)
+                printf("         warp ts delta %zu = %ld ns (owed %ld)\n",
+                       i, d, EPOCH_CYC * 16);
+        }
+        ck("T67: PTP_INCR rewrite moves the ts deltas (latch tracks PHC)",
+           w_ok, 1);
+        axi_write(0x504, incr0);             // restore the leg-entry PHC rate
+
+        // [T66]/[T67] cleanup: tone off, tone mappings REMOVEd (store AND
+        // RAM back to the loop-leg parting state: keys 0/1 dark)
+        axi_write(0x6DC, 0x0);
+        {
+            enum { CMD_REMOVE_AUDIO_MAPPINGS = 45 };
+            const uint16_t DT_SPO = 0x000F;
+            std::vector<uint8_t> pl = {
+                (uint8_t)(DT_SPO >> 8), (uint8_t)DT_SPO, 0x00, 0x00,
+                0x00, 0x02, 0x00, 0x00,
+                0,0, 0,0, 0,8, 0,0,          // {si 0, sc 0, co 8, cc 0}
+                0,0, 0,1, 0,8, 0,0 };        // {si 0, sc 1, co 8, cc 0}
+            auto r = aecp_xact(45, 0x4180, pl);
+            ck("T67: cleanup REMOVE of the tone rows SUCCESS",
+               aecp_status(r), 0);
+        }
+    }
+#endif
+
+#ifdef LOOPBACK_TB
+    // ==================================================================
+    //  [T68] LOOP SOURCE SEQUENCE FIDELITY - the stair-step measurement
+    //  (user audio capture 2026-08-09: direct reception clean at ppm-
+    //  class, loop reception 9895 glitches/s on the 6-sample PDU lattice
+    //  with 8000 +/- 1000 Hz sidebands). Mechanism, in this RTL: the LOOP
+    //  bucket is a LATEST-SAMPLE hold (lb_hold_r) - each received PDU
+    //  bursts 6 samples per channel into it at wire speed, the media-tick
+    //  walk then reads it 6 times before the next PDU, so the wire gets
+    //  ~6 copies of each block's LAST sample and skips the other 5: a
+    //  duplicate+skip stair on exactly the measured lattice. That WAS the
+    //  documented slip policy doing what it says - correct for the
+    //  once-per-sample front-end sources, WRONG for the bursty PDU
+    //  source. VERSION 0x0036 landed the fix: a per-pair elastic queue
+    //  (depth 8 = one PDU + margin) popped once per media tick - paced,
+    //  in-order sequence replay with honest bounded slip (empty tick =
+    //  repeat last + dup counted, full push = drop OLDEST + skip
+    //  counted; both ZERO at lock). LB_SEQ_FIXED (the Makefile defines
+    //  it for this leg) asserts that law; the pre-fix stair measured
+    //  76 dup / 56 skip on this ramp.
+    // ==================================================================
+    printf("-- [T68] loop sequence fidelity vs a paced RAMP --\n");
+    {
+        enum { A_CHMAP_CTRL = 0x900, A_CHMAP_SEL = 0x904,
+               A_CHMAP_WORD = 0x908 };
+        const int LB_SID = 1;                // sidB is stream 1
+        const int M = 10;                    // paced PDUs (60 ch0 samples)
+
+        // talker 0's pair <- LOOP {stream 1, pair 0} via the debug window
+        // (the AECP path is [T66]'s; this shape's generated LOOP templates
+        // are en=0 = not-fabric-backed, so the canonical programmer rightly
+        // refuses them and the bring-up window is the honest way in)
+        axi_write(A_CHMAP_CTRL, 0x1);
+        for (int k = 0; k < 2; k++) {
+            axi_write(A_CHMAP_SEL, 0x100 | k);
+            axi_write(A_CHMAP_WORD, (uint32_t)(0x8000 | (5 << 12)
+                                               | ((k & 1) << 8)
+                                               | (LB_SID << 4) | 0));
+        }
+
+        // paced RX: one 6-sample 2ch PDU per 12500 cycles (the media rate),
+        // ch0 samples globally DISTINCT: PDU k sample s = tuple(48k + 4s)
+        auto rx_pdu_beats = [&](uint8_t seq, uint8_t seed) {
+            static std::vector<uint64_t> beats;
+            const uint8_t* f = mkaaf(sidB, seq, 2, seed);
+            beats.clear();
+            for (size_t bt = 0; bt < (86 + 7) / 8; bt++) {
+                uint64_t v = 0;
+                for (int j = 0; j < 8; j++)
+                    if (bt*8 + j < 86) v |= (uint64_t)f[bt*8+j] << (8*j);
+                beats.push_back(v);
+            }
+            return beats;
+        };
+
+        // ACCEPTANCE WARM-UP, not graded: stream 1 has been dark since
+        // task #65 (T66/T67 ran the tone), so the RX monitor's re-lock /
+        // re-accept eats the first PDUs UPSTREAM of the crossbar - the
+        // depacketizer forwards nothing and the queue honestly starves.
+        // That behaviour belongs to the monitor's own legs and counters;
+        // THIS leg grades the LOOP SOURCE's pacing, so it measures on a
+        // stream the depacketizer is already forwarding. The warm-up
+        // payload family is seed 0xE2 + 4j: every sample's top byte is
+        // 2 mod 4, while every graded ramp value's is 0 mod 4 - residue
+        // and ramp are distinguishable BY CONSTRUCTION for the stripper.
+        {
+            std::vector<uint64_t> beats; size_t bi = 0; int fed = 0;
+            for (long c = 0; c < 6 * 12500L; c++) {
+                if (c % 12500 == 0 && fed < 6) {
+                    beats = rx_pdu_beats((uint8_t)(140 + fed),
+                                         (uint8_t)(0xE2 + 4 * fed));
+                    bi = 0; fed++;
+                }
+                //! WIRE-PACED beats (one 8-byte beat per 8 cycles, the GbE
+                //! byte rate): the accept verdict is a multi-cycle serial
+                //! walk and the depacketizer drops a frame whose verdict
+                //! misses its tlast - real frames last >= 88 byte-times, a
+                //! 1-beat-per-cycle firehose is 8x faster than any wire
+                //! and starves the verdict window instead of the DUT
+                if (bi < beats.size() && (c & 7) == 0) {
+                    dut->s_axis_mac_rx_tdata  = beats[bi];
+                    dut->s_axis_mac_rx_tkeep  = 0xFF;
+                    dut->s_axis_mac_rx_tvalid = 1;
+                    dut->s_axis_mac_rx_tlast  = (bi == beats.size()-1);
+                } else {
+                    dut->s_axis_mac_rx_tvalid = 0;
+                    dut->s_axis_mac_rx_tlast  = 0;
+                }
+                lo();
+                bool wacc = dut->s_axis_mac_rx_tvalid
+                            && dut->s_axis_mac_rx_tready;
+                hi();
+                if (wacc) bi++;
+            }
+            dut->s_axis_mac_rx_tvalid = 0;
+        }
+        // the queue's own drop-oldest evidence, graded by DELTA over the
+        // paced window below (dup stays un-graded here: OTHER fed pairs
+        // starve legitimately while only stream 1 is fed)
+        long lbq_skip0 =
+            (long)dut->rootp->milan_datapath__DOT__lb_skip_cnt_w;
+        auto tuple24 = [&](int b0) -> uint32_t {
+            return ((uint32_t)(uint8_t)(b0)     << 16)
+                 | ((uint32_t)(uint8_t)(b0 + 1) <<  8)
+                 |  (uint32_t)(uint8_t)(b0 + 2);
+        };
+        // expected ch0 sequence: 6 per PDU (payload samples 0,2,..,10)
+        std::vector<uint32_t> expect;
+        for (int k = 0; k < M; k++)
+            for (int s = 0; s < 12; s += 2)
+                expect.push_back(tuple24(48*k + 4*s));
+
+        // drive M paced PDUs while capturing talker-0 ch0 output
+        std::vector<uint32_t> emitted;
+        {
+            std::vector<uint8_t> cur;
+            std::vector<uint64_t> beats; size_t bi = 0; int fed = 0;
+            dut->m_axis_mac_tx_tready = 1;
+            for (long c = 0; c < (long)M * 12500 + 40000; c++) {
+                if (c % 12500 == 0 && fed < M) {
+                    // seq continues the warm-up run (146 onward): the graded
+                    // window must not open on a seq-mismatch of its own
+                    beats = rx_pdu_beats((uint8_t)(146 + fed),
+                                         (uint8_t)(48 * fed));
+                    fed++; bi = 0;
+                }
+                //! wire-paced beats - same rule as the warm-up loop above
+                if (bi < beats.size() && (c & 7) == 0) {
+                    dut->s_axis_mac_rx_tdata  = beats[bi];
+                    dut->s_axis_mac_rx_tkeep  = 0xFF;
+                    dut->s_axis_mac_rx_tvalid = 1;
+                    dut->s_axis_mac_rx_tlast  = (bi == beats.size()-1);
+                } else {
+                    dut->s_axis_mac_rx_tvalid = 0;
+                    dut->s_axis_mac_rx_tlast  = 0;
+                }
+                lo();
+                bool in_acc = dut->s_axis_mac_rx_tvalid
+                              && dut->s_axis_mac_rx_tready;
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l))
+                                          & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        size_t off = (cur.size() > 17 && cur[12] == 0x81
+                                      && cur[13] == 0x00) ? 4 : 0;
+                        if (cur.size() >= 86 + off && cur[12+off] == 0x22
+                            && cur[13+off] == 0xF0 && cur[14+off] == 0x02
+                            && ((cur[24+off] << 8) | cur[25+off]) == 0)
+                            for (int s = 0; s < 12; s += 2) {
+                                size_t o = 38 + off + 4*s;
+                                emitted.push_back(
+                                    ((uint32_t)cur[o]   << 16) |
+                                    ((uint32_t)cur[o+1] <<  8) |
+                                     (uint32_t)cur[o+2]);
+                            }
+                        cur.clear();
+                    }
+                }
+                hi();
+                if (in_acc) bi++;
+            }
+            dut->s_axis_mac_rx_tvalid = 0;
+        }
+
+        // strip the pre-ramp residue: silence fill (legal 5.3.7.3) and the
+        // warm-up family (top byte 2 mod 4, disjoint from the ramp's
+        // 0 mod 4). FIFO order guarantees no warm-up sample can appear
+        // after the first ramp sample, so a leading strip is exact.
+        while (!emitted.empty() && (emitted.front() == 0
+                || ((emitted.front() >> 16) & 3) == 2))
+            emitted.erase(emitted.begin());
+        ck("T68: loop output collected against the paced ramp",
+           emitted.size() >= 24, 1);
+
+        // walk the expected sequence: membership, order, dups, skips. The
+        // graded window ends the moment the whole ramp has been matched:
+        // the feed stopped there, so everything after it is the queue law's
+        // honest starved tail - it must be a pure repeat of the LAST sample
+        // (the bounded-slip rule), graded separately below.
+        long dups = 0, skips = 0, alien = 0, order_ok = 1;
+        long tail_bad = 0; size_t matched = 0;
+        {
+            size_t p = 0; long last = -1;
+            for (uint32_t v : emitted) {
+                if (p == expect.size()) {
+                    if (v != expect.back()) tail_bad++;
+                    continue;
+                }
+                size_t q = p;
+                while (q < expect.size() && expect[q] != v) q++;
+                if (q == expect.size()) {
+                    if (last >= 0 && v == expect[last]) { dups++; continue; }
+                    // not ahead of the cursor: behind it = reordering
+                    bool behind = false; size_t b = 0;
+                    for (; b < p; b++) if (expect[b] == v) { behind = true; break; }
+                    if (behind) order_ok = 0; else alien++;
+                    continue;
+                }
+                skips += (long)(q - p);
+                last = (long)q; p = q + 1;
+            }
+            matched = p;
+        }
+        printf("         emitted %zu ch0 samples vs %zu sent: "
+               "%ld dup, %ld skipped, %ld alien, %ld bad tail\n",
+               emitted.size(), expect.size(), dups, skips, alien, tail_bad);
+        ck("T68: every loop sample is one the listener received", alien, 0);
+        ck("T68: received order is preserved (no reordering)", order_ok, 1);
+#ifdef LB_SEQ_FIXED
+        // the paced-replay law (0x0036 queue rework): every received sample
+        // exactly once, in order, and the post-feed tail repeats the final
+        // sample only. The pre-rework latest-sample hold measured 76 dup /
+        // 56 skip on this very ramp (the audible defect C stair).
+        ck("T68: ZERO duplicated samples through the loop", dups, 0);
+        ck("T68: ZERO skipped samples through the loop", skips, 0);
+        ck("T68: the WHOLE ramp came through", (long)matched,
+           (long)expect.size());
+        ck("T68: post-feed tail = the final sample repeated (bounded slip)",
+           tail_bad, 0);
+        //! the module's own drop evidence agrees: rate-matched pacing never
+        //! filled a queue, so drop-oldest never fired anywhere
+        ck("T68: queue skip counter delta 0 over the paced window",
+           (long)dut->rootp->milan_datapath__DOT__lb_skip_cnt_w - lbq_skip0,
+           0);
+#endif
+
+        // parting state = the loop leg's: keys dark, window disarmed
+        for (int k = 0; k < 2; k++) {
+            axi_write(A_CHMAP_SEL, 0x100 | k);
+            axi_write(A_CHMAP_WORD, 0x0000);
+        }
+        axi_write(A_CHMAP_CTRL, 0x0);
+    }
+#endif
 
     // ==================================================================
     //  THE SRP FABRIC LAUNCH STAGE CYCLE CONTRACT  (2026-08-02)
