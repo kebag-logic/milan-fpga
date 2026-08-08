@@ -300,7 +300,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x00010039);
+       axi_read(A_VERSION), 0x0001003A);
 
 #ifdef AAF_PB_TB
     // ---- task #26 (0x002C): the BOOT SEED is CSR-visible before any ----
@@ -2248,7 +2248,12 @@ int main(int argc, char** argv) {
            (srp & 0xFFFF) == 0xDEAD ? 1 : 0, 0);
 
         // a TalkerAdvertise for the bound sid: Ready must follow it
-        // (KL_lwsrp_ctx registrar; re-declared promptly on the edge)
+        // (KL_lwsrp_ctx registrar; re-declared promptly on the edge).
+        // B1d: the row's EXPECTED pair is the SETTLED record's — the
+        // probe response's {..:3C:11, vlan 2} — so the TA must carry
+        // exactly that (Table 5.29 three-parameter match). The old
+        // stimulus carried dmac ..:2A:99, which the walker now lawfully
+        // ignores; the mismatch leg below pins that verdict first.
         {
             uint8_t ta[64]; memset(ta, 0, sizeof ta);
             const uint8_t msrp_da[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};
@@ -2261,13 +2266,26 @@ int main(int argc, char** argv) {
             ta[19]=0; ta[20]=1;          // VectorHeader: LeaveAll 0, NOV 1
             memcpy(ta+21, SID2, 8);      // StreamID
             ta[29]=0x91; ta[30]=0xE0; ta[31]=0xF0; ta[32]=0x00;  // DFP DMAC
-            ta[33]=0x2A; ta[34]=0x99;
-            ta[35]=0x00; ta[36]=0x02;    // vlan 2
+            ta[33]=0x3C; ta[34]=0x11;    // = CTX2_RESP_DMAC (the probed pair)
+            ta[35]=0x00; ta[36]=0x05;    // vlan 5: WRONG on purpose first
             ta[37]=0x00; ta[38]=0x48;    // TSpec MaxFrameSize 72
             ta[39]=0x00; ta[40]=0x01;    // MaxIntervalFrames 1
             ta[41]=0x70;                 // PriorityAndRank
             // AccumulatedLatency 42..45 = 0
             ta[46]=36;                   // ThreePacked JoinIn
+            // --- mismatch leg: sid matches, vlan differs -> IGNORED
+            // (5.3.8.9), no registration, sink 2 must NOT settle RSV_OK
+            inject(ta, 60, 4000);
+            srp = axi_read(A_SW_SRP);
+            ck("t21 B1d: wrong-vlan TA never registers (Tab 5.29)",
+               (srp >> 12) & 1, 0);
+            axi_write(A_STRM_SEL, 0x002);
+            (void)axi_read(A_SW_SID_LO);
+            snap_and_wait();
+            ck("t21 B1d: sink 2 stays SETTLED_NO_RSV on the mismatch",
+               axi_read(A_SW_STATE) & 0x7, 6);
+            // --- the real TA: all three parameters match
+            ta[35]=0x00; ta[36]=0x02;    // vlan 2 = the probed value
             inject(ta, 60, 40);
         }
         got = find_lstn(SID2, -1, 0x80, 400000, &evt, &par);
@@ -2313,6 +2331,114 @@ int main(int argc, char** argv) {
         got = find_lstn(SID2, -1, -1, 400000, &evt, &par);
         ck("t21 release: the fabric retakes the row with the bind sid",
            got ? 1 : 0, 1);
+
+        // THE NEW LAW, end to end (B1a sid-zeroing + the |sid want guard):
+        // the release handoff blips the row invalid for the fabric retake,
+        // which drops the registrar level; the RSV_OK sink sees the
+        // combined-attribute fall (EVT_TK_UNREGISTERED — the registration
+        // really did fall) and exits settled with the FULL 5.3.8.9
+        // parameter clear, sid included. The zero sid drops the fabric
+        // want, so the freshly retaken row is withdrawn again until a new
+        // probe response re-keys the record — exactly the clause's "return
+        // to the probing state to get up-to-date information".
+        axi_write(A_STRM_SEL, 0x002);
+        (void)axi_read(A_SW_SID_LO);
+        {
+            uint32_t slz = axi_read(A_SW_SID_LO) | axi_read(A_SW_SID_HI);
+            for (int g = 0; g < 64 && slz != 0; g++) {
+                for (int c = 0; c < 256; c++) step();
+                slz = axi_read(A_SW_SID_LO) | axi_read(A_SW_SID_HI);
+            }
+            ck("t21 release: registrar blip de-settles, sid zeroed (5.3.8.9)",
+               slz, 0);
+        }
+        srp = axi_read(A_SW_SRP);
+        for (int g = 0; g < 64 && ((srp >> 15) & 1); g++) {
+            for (int c = 0; c < 256; c++) step();
+            srp = axi_read(A_SW_SRP);
+        }
+        ck("t21 release: ...and the |sid guard withdraws the row",
+           (srp >> 15) & 1, 0);
+
+        // re-settle for the steady-state unbind proof below: a fresh
+        // UNBIND + BIND draws an immediate probe (no discovery wait) and
+        // the talker's answer re-keys the record on the same sid/dmac
+        {
+            uint8_t f[72]; memset(f, 0, sizeof f);
+            const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            memcpy(f, mc, 6);
+            const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+            memcpy(f+6, csrc, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x08;  // UNBIND
+            f[16]=0x00; f[17]=44;
+            const uint8_t usx[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+            memcpy(f+42, usx, 8);
+            f[52]=0x00; f[53]=0x02;                          // luid 2
+            f[62]=0x72; f[63]=0x01;
+            //! the capture is BLIND while a previous answer/probe holds
+            //! RESPOND_S/PROBE_S, and the de-settle's row withdraw is
+            //! still contending for the control TX trunk — inject with a
+            //! generous drain and VERIFY the state took, retrying the
+            //! (idempotent) frame if it was swallowed
+            for (int at = 0; at < 4; at++) {
+                inject(f, 70, 4000);
+                axi_write(A_STRM_SEL, 0x002);
+                (void)axi_read(A_SW_SID_LO);
+                snap_and_wait();
+                if ((axi_read(A_SW_STATE) & 7) == 0) break;
+            }
+            ck("t21 release: teardown for the re-probe took",
+               axi_read(A_SW_STATE) & 7, 0);
+            f[15]=0x06;                                      // CONNECT_RX
+            for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;
+            const uint8_t tkr[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
+            memcpy(f+34, tkr, 8);
+            f[50]=0x00; f[51]=0x01;                          // tuid 1
+            f[62]=0x72; f[63]=0x02;
+            for (int at = 0; at < 4; at++) {
+                inject(f, 70, 4000);
+                axi_write(A_STRM_SEL, 0x002);
+                (void)axi_read(A_SW_SID_LO);
+                snap_and_wait();
+                if ((axi_read(A_SW_STATE) & 7) == 3) break;
+            }
+            ck("t21 release: rebind probing (PRB_W_RESP)",
+               axi_read(A_SW_STATE) & 7, 3);
+        }
+        got = find_lstn(SID2, -1, -1, 400000, &evt, &par);
+        ck("t21 release: the rebind re-declares the row", got ? 1 : 0, 1);
+        {
+            // the talker answers (retry per probe, echoing the sniffed
+            // sequence_id — the t21-l0 recipe)
+            uint8_t f[72]; memset(f, 0, sizeof f);
+            const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            memcpy(f, mc, 6);
+            const uint8_t tsrc[6] = {0x03,0x00,0x00,0x00,0x00,0x03};
+            memcpy(f+6, tsrc, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x01;
+            f[16]=0x00; f[17]=44;
+            memcpy(f+18, CTX2_RESP_SID, 8);
+            for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;
+            const uint8_t tkr[8] = {0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x01};
+            memcpy(f+34, tkr, 8);
+            const uint8_t usx[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+            memcpy(f+42, usx, 8);
+            f[50]=0x00; f[51]=0x01;
+            f[52]=0x00; f[53]=0x02;
+            memcpy(f+54, CTX2_RESP_DMAC, 6);
+            f[66]=0x00; f[67]=0x02;
+            for (int at = 0; at < 8; at++) {
+                f[62]=(uint8_t)(probe_seq_by_luid[2] >> 8);
+                f[63]=(uint8_t)(probe_seq_by_luid[2] & 0xFF);
+                inject(f, 70, 2000);
+                axi_write(A_STRM_SEL, 0x002);
+                (void)axi_read(A_SW_SID_LO);
+                snap_and_wait();
+                if ((axi_read(A_SW_STATE) & 7) == 6) break;
+            }
+            ck("t21 release: re-probed and re-settled (5.5.3.5.18 s4)",
+               axi_read(A_SW_STATE) & 7, 6);
+        }
 
         // quiesce to the declared steady state before the unbind: the
         // retake's own NEW frame can still be in flight behind the control
@@ -2594,6 +2720,141 @@ int main(int argc, char** argv) {
         axi_write(A_STRM_SEL, 0x000);
         axi_write(A_LWSRP_CTRL, 0x0);
         for (int c = 0; c < 512; c++) step();
+    }
+
+    // ==================================================================
+    //  B1a/B1d companion — THE |sid WANT GUARD, end to end. A bound sink
+    //  whose record sid is ZERO must never provision an lwSRP listener
+    //  row: a Listener declaration for stream 0 is a reservation for a
+    //  stream that cannot exist, and the settled exits now ZERO the sid
+    //  per Milan 5.3.8.9 (a not-settled Stream Input records all-zero
+    //  SRP parameters). The E1 bind-restore is the lawful way to hold
+    //  bound + sid-0 at full clock rate (5.5.2.6 step 1 clears the
+    //  parameters until the probe response re-learns them), so it drives
+    //  the guard here; the sid-zeroing exits themselves are pinned at the
+    //  scaled clock in tb/verilator/acmp_lstn ([7]/[14]/[B1]/[B1a]).
+    // ==================================================================
+    printf("-- b1d-guard: bound-with-sid-0 sink provisions NO row --\n");
+    {
+        enum { A_REST_TKLO = 0x7A0, A_REST_TKHI = 0x7A4,
+               A_REST_META = 0x7A8, A_REST_CTLO = 0x7AC,
+               A_REST_CTHI = 0x7B0, A_REST_CMD  = 0x7B4,
+               A_SW_SRP = 0x85C };
+        axi_write(A_LWSRP_CTRL, 0x15);        // engine ON, no talker declare
+        // sink 0 carries the leg: its row is the DEDICATED listener-0 row,
+        // reachable only through the A_STRM_SEL[9] select this flow never
+        // COMMITS through — so its want term can never be masked by a
+        // software claim (the N-wide routing case upstream owns every
+        // window stream 1..N-1), and probing it disturbs no stream-table
+        // entry a later section (the 8x8 loopback lane) still feeds.
+        // unbind it first (t21-l0 left it settled RSV_OK; the restore
+        // refuses an OCCUPIED context)
+        {
+            uint8_t f[72]; memset(f, 0, sizeof f);
+            const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            memcpy(f, mc, 6);
+            const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+            memcpy(f+6, csrc, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x08;  // DISCONNECT_RX
+            f[16]=0x00; f[17]=44;
+            const uint8_t us1[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+            memcpy(f+42, us1, 8);
+            f[52]=0x00; f[53]=0x00;                          // luid 0
+            f[62]=0x71; f[63]=0x77;
+            inject(f, 70, 4000);
+        }
+        // E1 restore into sink 0: talker {3C:C0:C6:01:02:03, uid CAFE},
+        // tuid 0, controller pw0 — the 5.5.3.5.2 entry record parks
+        // PRB_W_AVAIL with sid/dmac/vlan CLEARED
+        axi_write(A_REST_TKLO, 0x0203CAFEu);
+        axi_write(A_REST_TKHI, 0x3CC0C601u);
+        axi_write(A_REST_META, 0x00000000u);                 // tuid 0
+        axi_write(A_REST_CTLO, 0x95B2D1AAu);
+        axi_write(A_REST_CTHI, 0x6805CAFFu);
+        axi_write(A_REST_CMD,  0x80000000u);                 // commit, idx 0
+        uint32_t rc = axi_read(A_REST_CMD);
+        for (int g = 0; g < 64 && (rc >> 31); g++) {
+            for (int c = 0; c < 64; c++) step();
+            rc = axi_read(A_REST_CMD);
+        }
+        ck("b1d-guard: restore DONE", (rc >> 30) & 1, 1);
+        ck("b1d-guard: restore status = injected", (rc >> 8) & 3, 0);
+        // the ACMP view: bound with the 5.5.2.6 step 1 all-zero sid
+        // (SEL[9] = the sink-0 / LSN0-row select, the t21-l0 surface)
+        axi_write(A_STRM_SEL, 0x200);
+        (void)axi_read(A_SW_SID_LO);
+        ck("b1d-guard: restored record sid reads 0 (5.5.2.6 s1)",
+           axi_read(A_SW_SID_LO) | axi_read(A_SW_SID_HI), 0);
+        // the guard: bound level HIGH + sid ZERO -> the provisioner must
+        // sit on its hands. Give it a generous window, then look.
+        for (int c = 0; c < 8192; c++) step();
+        uint32_t srp1 = axi_read(A_SW_SRP);
+        srp1 = axi_read(A_SW_SRP);
+        ck("b1d-guard: NO lwSRP row for a sid-0 binding (want &= |sid)",
+           (srp1 >> 15) & 1, 0);
+        // control: a real BIND on the same sink derives a NONZERO sid at
+        // the record write itself -> the want rises -> the row appears
+        {
+            uint8_t f[72]; memset(f, 0, sizeof f);
+            const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            memcpy(f, mc, 6);
+            const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+            memcpy(f+6, csrc, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x06;  // CONNECT_RX
+            f[16]=0x00; f[17]=44;
+            for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;
+            const uint8_t tk1[8] = {0x3C,0xC0,0xC6,0x01,0x02,0x03,0x00,0x01};
+            memcpy(f+34, tk1, 8);
+            const uint8_t us1[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+            memcpy(f+42, us1, 8);
+            f[50]=0x00; f[51]=0x01;                          // tuid 1
+            f[52]=0x00; f[53]=0x00;                          // luid 0
+            f[62]=0x71; f[63]=0x78;
+            inject(f, 70, 4000);
+        }
+        axi_write(A_STRM_SEL, 0x200);
+        (void)axi_read(A_SW_SID_LO);
+        uint32_t sl1 = axi_read(A_SW_SID_LO);
+        for (int g = 0; g < 64 && sl1 != 0x02030001u; g++) {
+            for (int c = 0; c < 256; c++) step();
+            sl1 = axi_read(A_SW_SID_LO);
+        }
+        ck("b1d-guard: bind derives a nonzero sid", sl1, 0x02030001u);
+        srp1 = axi_read(A_SW_SRP);
+        for (int g = 0; g < 64 && !((srp1 >> 15) & 1); g++) {
+            for (int c = 0; c < 256; c++) step();
+            srp1 = axi_read(A_SW_SRP);
+        }
+        ck("b1d-guard: the nonzero-sid bind DOES provision the row",
+           (srp1 >> 15) & 1, 1);
+        ck("b1d-guard: ...as a LISTENER row", (srp1 >> 14) & 1, 1);
+        // tidy: unbind sink 0 (VERIFIED — a swallowed unbind would leave
+        // its probe ladder resending into the next section's sniffers),
+        // engine off — the flow's steady posture
+        {
+            uint8_t f[72]; memset(f, 0, sizeof f);
+            const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            memcpy(f, mc, 6);
+            const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+            memcpy(f+6, csrc, 6);
+            f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x08;
+            f[16]=0x00; f[17]=44;
+            const uint8_t us1[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+            memcpy(f+42, us1, 8);
+            f[52]=0x00; f[53]=0x00;
+            f[62]=0x71; f[63]=0x79;
+            uint32_t slu = 1;
+            for (int at = 0; at < 4 && slu != 0; at++) {
+                inject(f, 70, 4000);
+                axi_write(A_STRM_SEL, 0x200);
+                (void)axi_read(A_SW_SID_LO);
+                slu = axi_read(A_SW_SID_LO) | axi_read(A_SW_SID_HI);
+            }
+            ck("b1d-guard: tidy unbind landed (record cleared)", slu, 0);
+        }
+        axi_write(A_STRM_SEL, 0x000);
+        axi_write(A_LWSRP_CTRL, 0x0);
+        for (int c = 0; c < 8192; c++) step();
     }
 
     // ==================================================================

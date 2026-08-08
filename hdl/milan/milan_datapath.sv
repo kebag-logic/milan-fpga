@@ -1365,6 +1365,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! bound stream_id, and a 1-cycle pulse per bind-record write
   wire [ACMP_SINKS_C-1:0]    acmpl_bound_v_w;
   wire [ACMP_SINKS_C*64-1:0] acmpl_sid_v_w;
+  //! per-sink probed SRP {dmac, vlan} (record shadows, same write edge as
+  //! the sid lane) — the lwSRP listener rows' EXPECTED pair for the
+  //! walker's Table 5.29 three-parameter registrar match
+  wire [ACMP_SINKS_C*48-1:0] acmpl_dmac_v_w;
+  wire [ACMP_SINKS_C*12-1:0] acmpl_vlan_v_w;
   wire [ACMP_SINKS_C-1:0]    acmpl_upd_p_w;
   wire        lwsrp_ta_registered, lwsrp_ta_failed;
   //! per-ROW lwSRP registrar levels (KL_lwsrp_ctx): bit 0 = the legacy row-0
@@ -2899,6 +2904,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .locked_i    (aecp_locked),
     .lock_ctlr_i (aecp_locking_ctlr),
     .tick_1s_i (adp_tick_1s),
+    //! Milan 5.6.4.5.1 step 1: the committed grandmaster pair + domain
+    //! (CSR 0x624/8 + 0x62C, aclk = axis_clk — no CDC) gate the talker
+    //! ENTITY_AVAILABLE watch; all-zero pair = no commitment yet, gate off
+    .gm_id_i     (cfg_adp_gptp_gm),
+    .gm_domain_i (cfg_adp_gptp_domain),
     .ta_registered_i (acmpl_ta_reg_v_w),
     .ta_failed_i     (acmpl_ta_fail_v_w),
     .lstn_declare_o  (acmpl_lstn_declare),
@@ -2908,6 +2918,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .stream_active_o (acmpl_active),
     .lstn_bound_v_o  (acmpl_bound_v_w),
     .lstn_sid_v_o    (acmpl_sid_v_w),
+    .lstn_dmac_v_o   (acmpl_dmac_v_w),
+    .lstn_vlan_v_o   (acmpl_vlan_v_w),
     .bind_upd_p_o    (acmpl_upd_p_w),
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
@@ -3525,6 +3537,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic        srp_fab_qvalid_r, srp_fab_qdir_r;
   logic [63:0] srp_fab_qsid_r;
   logic [47:0] srp_fab_qdmac_r;
+  logic [11:0] srp_fab_qvlan_r;
   logic [15:0] srp_fab_qmaxf_r, srp_fab_qintv_r;
   logic [31:0] srp_fab_qlat_r;
   //! the window/fabric priority rule, in ONE place (see the arbitration
@@ -3594,6 +3607,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       srp_fab_qdir_r   <= 1'b0;
       srp_fab_qsid_r   <= '0;
       srp_fab_qdmac_r  <= '0;
+      srp_fab_qvlan_r  <= '0;
       srp_fab_qmaxf_r  <= '0;
       srp_fab_qintv_r  <= '0;
       srp_fab_qlat_r   <= '0;
@@ -3620,6 +3634,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         srp_fab_qdir_r   <= srp_fab_dir_w;
         srp_fab_qsid_r   <= srp_fab_sid_w;
         srp_fab_qdmac_r  <= srp_fab_dmac_w;
+        srp_fab_qvlan_r  <= srp_fab_vlan_w;
         srp_fab_qmaxf_r  <= srp_fab_maxf_c;
         srp_fab_qintv_r  <= srp_fab_intv_c;
         srp_fab_qlat_r   <= cfg_lwsrp_latency;
@@ -3658,9 +3673,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         //! sink 0's own fabric slot -> the DEDICATED listener-0 ctx row.
         //! Same want as every other sink: the ACMP BIND level, software
         //! override via the 0x800 window (listener dir, idx 0).
+        //! |sid GUARD (every listener slot): a bound sink whose record sid
+        //! is ZERO — a settled exit's 5.3.8.9 parameter clear, or an E1
+        //! restore awaiting its probe response — must WITHDRAW its row,
+        //! never declare a Listener attribute for stream 0. The next
+        //! probe response re-keys the record and the want rises again.
         assign srp_fab_want_v_w[gw] = ~lsnsrp_sw_own_r[0] &
                                       cfg_lwsrp_enable &
-                                      acmpl_bound_v_w[0];
+                                      acmpl_bound_v_w[0] &
+                                      (|acmpl_sid_v_w[63:0]);
         assign srp_fab_req_v_w[gw]  = lsnsrp_req_r[0];
       end else if ((SRP_CRFSNK_C != 0) &&
                    (gw == SRP_CRFSNK_SLOT_C)) begin : g_slot_crfsnk
@@ -3672,7 +3693,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         //! actually starts (5.3.7.3 licences on the registration).
         assign srp_fab_want_v_w[gw] = ~lsnsrp_sw_own_r[N_STREAMS] &
                                       cfg_lwsrp_enable &
-                                      acmpl_bound_v_w[N_STREAMS];
+                                      acmpl_bound_v_w[N_STREAMS] &
+                                      (|acmpl_sid_v_w[64*N_STREAMS +: 64]);
         assign srp_fab_req_v_w[gw]  = lsnsrp_req_r[N_STREAMS];
       end else if (gw >= SRP_TALKERS_C) begin : g_slot_lstn
         //! AAF LISTENER sink k -> ctx row k, direction LISTENER. The want
@@ -3686,7 +3708,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         localparam int unsigned SK = gw - SRP_TALKERS_C + 1;  //! sink index
         assign srp_fab_want_v_w[gw] = ~lsnsrp_sw_own_r[SK] &
                                       cfg_lwsrp_enable &
-                                      acmpl_bound_v_w[SK];
+                                      acmpl_bound_v_w[SK] &
+                                      (|acmpl_sid_v_w[64*SK +: 64]);
         assign srp_fab_req_v_w[gw]  = lsnsrp_req_r[SK];
       end else if (gw < N_STREAMS) begin : g_slot_aaf
         //! SHAPE-DERIVED (USER "shape is STATIC, not a runtime poke"): every
@@ -3738,13 +3761,21 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                : srp_fab_pcrf_r
                                  ? eff_crft_sid_w
                                  : {srp_station_mac_w, 16'(srp_fab_psel_r)};
-  //! listener rows carry no DataFrameParameters (the Listener attribute is
-  //! sid + four-pack only), so their record dmac is the harmless zero
+  //! the Listener declaration itself carries no DataFrameParameters, but a
+  //! listener row's dmac/vlan are the EXPECTED pair for the walker's Table
+  //! 5.29 three-parameter Talker match: the sink's probed SRP parameters,
+  //! read off the same write-edge shadows as the sid (zero until the probe
+  //! response learns them — the walker then matches sid-only)
   wire [47:0] srp_fab_dmac_w = srp_fab_plstn_r
-                               ? 48'd0
+                               ? acmpl_dmac_v_w[48*srp_fab_plsk_r +: 48]
                                : srp_fab_pcrf_r
                                  ? eff_crft_dmac_w
                                  : (eff_aaf_dmac + 48'(srp_fab_psel_r));
+  //! talker/CRF rows: KL_lwsrp_ctx pins the pair at zero for dir=0 rows,
+  //! so the vlan lane only matters on listener beats
+  wire [11:0] srp_fab_vlan_w = srp_fab_plstn_r
+                               ? acmpl_vlan_v_w[12*srp_fab_plsk_r +: 12]
+                               : 12'd0;
   wire        srp_fab_dir_w  = srp_fab_plstn_r;     //! ctx: 0 talker, 1 lstn
   logic       srp_fab_valid_c;
   logic [15:0] srp_fab_maxf_c, srp_fab_intv_c;
@@ -4764,6 +4795,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .lstn_bound_i   (acmpl_bound),
     .lstn_declare_i (acmpl_lstn_declare),
     .lstn_sid_i     (acmpl_sid),
+    //! sink 0's probed pair (view0 record shadows) — the legacy lsid
+    //! walker context gets the same Table 5.29 three-parameter match as
+    //! the ctx-table rows (its registrar feeds the AECP status surfaces)
+    .lstn_dmac_i    (acmpl_dmac),
+    .lstn_vlan_i    (acmpl_vlan),
     .ta_registered_o (lwsrp_ta_registered),
     .ta_failed_o     (lwsrp_ta_failed),
     .ta_fail_code_o  (lwsrp_ta_fail_code),
@@ -4805,6 +4841,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .ctx_dir_i (srp_fab_qsel_w ? srp_fab_qdir_r    : csr_srp_ctx_dir),
     .ctx_sid_i (srp_fab_qsel_w ? srp_fab_qsid_r    : csr_srp_ctx_sid),
     .ctx_dmac_i (srp_fab_qsel_w ? srp_fab_qdmac_r  : csr_srp_ctx_dmac),
+    //! the 0x800 window stages no VLAN word: a window-claimed listener row
+    //! compares only if a dmac was staged (expected vlan then pins at 0);
+    //! rows with nothing staged keep the zero pair = sid-only, exactly the
+    //! pre-0x0037 behaviour for every software flow that exists
+    .ctx_vlan_i (srp_fab_qsel_w ? srp_fab_qvlan_r  : 12'd0),
     .ctx_prio_rank_i (srp_fab_qsel_w ? lwsrp_pkg::SR_PRIO_RANK_C
                                      : csr_srp_ctx_prio),
     //! per-row MaxFrameSize (see the tctx_chans_shadow block); the CSR's

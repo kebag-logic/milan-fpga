@@ -139,13 +139,27 @@ static std::vector<uint8_t> acmp(uint8_t msg, uint8_t status,
 // is valid_time in 2 s units (1722.1 6.2.2.5) — the RTL ages the talker
 // out after vt x 2 seconds, so the tests pass an explicit vt (default 3
 // = the historical 0x1F byte's field value = a 6 s horizon).
-static std::vector<uint8_t> adp(uint8_t msg, uint64_t eid, uint8_t vt = 3) {
+// available_index (ADPDU bytes 36-39 = wire 50-53) defaults to a MONOTONIC
+// per-process counter: Milan 5.6.4.5.2 step 2 treats a non-increasing index
+// as a talker restart (EVT_TK_DEPARTED), so a repeated constant would wipe
+// the availability the caller just established. gm/dom fill the
+// gptp_grandmaster_id (wire 54-61) / gptp_domain_number (wire 62) the
+// 5.6.4.5.1 step 1 gate checks (all-zero gm_id_i input = gate off).
+static uint32_t g_avidx = 0;
+static std::vector<uint8_t> adp(uint8_t msg, uint64_t eid, uint8_t vt = 3,
+                                uint64_t gm = 0, uint8_t dom = 0,
+                                uint32_t aidx = 0xFFFFFFFF) {
+    if (aidx == 0xFFFFFFFF) aidx = ++g_avidx;
     std::vector<uint8_t> f = {0x91,0xE0,0xF0,0x01,0x00,0x00,
                               0x02,0x00,0x00,0x00,0x00,0x01,
                               0x22,0xF0, 0xFA};
     f.push_back(msg & 0xF);
     f.push_back((uint8_t)(vt << 3)); f.push_back(56);   // valid_time | cdl
     put_be(f, eid, 8);                         // entity_id at wire byte 18
+    while (f.size() < 50) f.push_back(0);
+    put_be(f, aidx, 4);                        // available_index, wire 50-53
+    put_be(f, gm, 8);                          // gptp_grandmaster_id, 54-61
+    f.push_back(dom);                          // gptp_domain_number, 62
     while (f.size() < 82) f.push_back(0);
     return f;
 }
@@ -355,11 +369,13 @@ int main(int argc, char** argv) {
     ck("[7] deactivated", dut->stream_active_o, 0);
     ck("[7] declare withdrawn", dut->lstn_declare_o, 0);
     ck("[7] probing PASSIVE", dut->probing_o, 1);
-    //! 5.5.3.5.48 step 1 "Clear the SRP parameters": dmac/vlan zeroed; the
-    //! record sid deliberately survives (lwSRP row key — see the RTL note)
+    //! 5.5.3.5.48 step 1 "Clear the SRP parameters" + 5.3.8.9: a sink that
+    //! is no longer settled records ALL-ZERO SRP parameters — sid included
+    //! (the datapath's |sid want guard withdraws the lwSRP row instead of
+    //! declaring a row for stream 0)
     ckh("[7] stale dmac cleared (5.5.3.5.48 s1)", dut->stream_dmac_o, 0);
     ck("[7] stale vlan cleared", dut->stream_vlan_o, 0);
-    ckh("[7] sid preserved (row key)", dut->bound_sid_o, TK_SID);
+    ckh("[7] sid zeroed too (5.3.8.9)", dut->bound_sid_o, 0);
 
     // ---------------------------------------------------------------- //
     printf("\n[8] ADP AVAILABLE -> DELAY -> probe ladder to RETRY\n");
@@ -517,13 +533,14 @@ int main(int argc, char** argv) {
     ck("[14] declare withdrawn on lapse", dut->lstn_declare_o, 0);
     ckh("[14] dmac zeroed on lapse", dut->stream_dmac_o, 0);
     ck("[14] vlan zeroed on lapse", dut->stream_vlan_o, 0);
-    ckh("[14] sid preserved (row key)", dut->bound_sid_o, TK_SID);
+    ckh("[14] sid zeroed on lapse (5.3.8.9)", dut->bound_sid_o, 0);
     feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x142, 0, 0));
     r = wait_frame();
     ck("[14] GET count still 1 (bound)", (long)r_be(r, 60, 2), 1);
     ckh("[14] GET talker still bound", r_be(r, 34, 8), TK_EID);
     ckh("[14] GET bytes 54-59 zero after lapse", r_be(r, 54, 6), 0);
     ck("[14] GET vlan zero after lapse", (long)r_be(r, 66, 2), 0);
+    ckh("[14] GET stream_id zero after lapse (5.3.8.9)", r_be(r, 18, 8), 0);
 
     // ---------------------------------------------------------------- //
     printf("\n[15] ADP availability age-out follows valid_time x 2 s\n");
@@ -1009,6 +1026,51 @@ int main(int argc, char** argv) {
             ck("[G] state stream_vlan_id is the record's (Table 5.38)",
                (long)r_be(r, 66, 2), 4);
         }
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[16] ADP watch law: gm/domain gate + available_index (B2h)\n");
+    // Milan 5.6.4.5.1 step 1: an ENTITY_AVAILABLE whose gptp_grandmaster_id
+    // or gptp_domain_number disagree with the PAAD's committed view is
+    // ignored for the availability latch. 5.6.4.5.2 step 2: a non-increasing
+    // available_index while discovered = the talker restarted =
+    // EVT_TK_DEPARTED. 5.6.4.5.3 has no gm step, so DEPARTING always lands.
+    // This leg pins the WRAPPER pass-through (gm_id_i/gm_domain_i) the
+    // datapath instance rides; the full matrix is in sim_ctx [B2h].
+    {
+        const uint64_t GM = 0x001B21FFFE0A0B0CULL;
+        // sink 0 is settled on TK2 (CLOSED 3 above), availability idle
+        ck("[16] precondition: settled", dut->state_o, 6);
+        ck("[16] precondition: tk_avail 0", dut->tk_avail_o, 0);
+        dut->gm_id_i = GM; dut->gm_domain_i = 3;
+        feed(adp(0, TK2_EID, 3, 0x0102030405060708ULL, 3, 20));
+        run(8);
+        ck("[16] wrong-gm AVAILABLE ignored (5.6.4.5.1 s1)",
+           dut->tk_avail_o, 0);
+        feed(adp(0, TK2_EID, 3, GM, 7, 21));
+        run(8);
+        ck("[16] wrong-domain AVAILABLE ignored", dut->tk_avail_o, 0);
+        feed(adp(0, TK2_EID, 3, GM, 3, 22));
+        run(8);
+        ck("[16] matching AVAILABLE discovers", dut->tk_avail_o, 1);
+        // non-increasing available_index: restart => availability wiped
+        feed(adp(0, TK2_EID, 3, GM, 3, 22));
+        run(8);
+        ck("[16] repeated available_index wipes (5.6.4.5.2 s2)",
+           dut->tk_avail_o, 0);
+        feed(adp(0, TK2_EID, 3, GM, 3, 23));
+        run(8);
+        ck("[16] increasing index re-discovers", dut->tk_avail_o, 1);
+        // DEPARTING is never gm-gated (5.6.4.5.3 names no gm step)
+        feed(adp(1, TK2_EID, 3, 0xDEADDEADDEADDEADULL, 9, 24));
+        run(8);
+        ck("[16] wrong-gm DEPARTING still departs", dut->tk_avail_o, 0);
+        // all-zero committed pair = no gPTP commitment yet: gate stands down
+        dut->gm_id_i = 0; dut->gm_domain_i = 0;
+        feed(adp(0, TK2_EID, 3, 0x5555666677778888ULL, 5, 25));
+        run(8);
+        ck("[16] zero committed pair: gate off (bring-up)",
+           dut->tk_avail_o, 1);
     }
 
     printf("KL_acmp_listener: %ld checks, %ld failures, %ld known gaps\n",

@@ -128,14 +128,26 @@ static std::vector<uint8_t> acmp(uint8_t msg, uint8_t status,
     return f;
 }
 
-// byte 16 [7:3] = valid_time (2 s units); vt 3 = the historical 0x1F field
-static std::vector<uint8_t> adp(uint8_t msg, uint64_t eid, uint8_t vt = 3) {
+// byte 16 [7:3] = valid_time (2 s units); vt 3 = the historical 0x1F field.
+// available_index (wire 50-53) defaults to a MONOTONIC counter — Milan
+// 5.6.4.5.2 step 2 wipes availability on a non-increasing index, so a
+// repeated constant would undo the discovery the caller just set up.
+// gm (wire 54-61) / dom (wire 62) feed the 5.6.4.5.1 step 1 gate.
+static uint32_t g_avidx = 0;
+static std::vector<uint8_t> adp(uint8_t msg, uint64_t eid, uint8_t vt = 3,
+                                uint64_t gm = 0, uint8_t dom = 0,
+                                uint32_t aidx = 0xFFFFFFFF) {
+    if (aidx == 0xFFFFFFFF) aidx = ++g_avidx;
     std::vector<uint8_t> f = {0x91,0xE0,0xF0,0x01,0x00,0x00,
                               0x02,0x00,0x00,0x00,0x00,0x01,
                               0x22,0xF0, 0xFA};
     f.push_back(msg & 0xF);
     f.push_back((uint8_t)(vt << 3)); f.push_back(56);
     put_be(f, eid, 8);
+    while (f.size() < 50) f.push_back(0);
+    put_be(f, aidx, 4);
+    put_be(f, gm, 8);
+    f.push_back(dom);
     while (f.size() < 82) f.push_back(0);
     return f;
 }
@@ -170,9 +182,11 @@ static uint64_t r_be(const std::vector<uint8_t>& b, int off, int n) {
 // sid[191:128] dmac[239:192] vlan[251:240] flags[267:252] tuid[283:268]
 // tmr[297:284] adp_age[304:298] status[309:305] probing[311:310]
 // tk_avail[312] active[313] state[316:314] adp_vt[321:317] seq[337:322]
-// (seq + adp_vt joined at the struct MSBs, 317 -> 338 bits, so every
-// pre-existing offset above is unchanged)
-static uint32_t ctxw[11];
+// last_avail[369:338]
+// (adp_vt + seq + last_avail joined at the struct MSBs across the 0x0035/
+// B2h rounds, 317 -> 338 -> 370 bits, so every pre-existing offset above
+// is unchanged — the [N10]/[B2c]/[B2h] pins below hold the map)
+static uint32_t ctxw[12];
 
 static uint64_t cbits(int lo, int width) {
     uint64_t v = 0;
@@ -194,6 +208,7 @@ static uint64_t c_probing(){ return cbits(310, 2); }
 static uint64_t c_state()  { return cbits(314, 3); }
 static uint64_t c_advt()   { return cbits(317, 5); }
 static uint64_t c_seq()    { return cbits(322, 16); }
+static uint64_t c_lastav() { return cbits(338, 32); }
 
 // request/grant read of one context record
 static bool tbl_read(int idx) {
@@ -203,7 +218,7 @@ static bool tbl_read(int idx) {
         tick();
         dut->eval();
         if (dut->tbl_gnt_o) {
-            for (int w = 0; w < 11; w++) ctxw[w] = dut->tbl_ctx_o[w];
+            for (int w = 0; w < 12; w++) ctxw[w] = dut->tbl_ctx_o[w];
             dut->tbl_req_i = 0;
             tick();
             return true;
@@ -683,10 +698,13 @@ int main(int argc, char** argv) {
         ck("[B1] combined fall exits settled (no wedge)", (long)c_state(), 2);
         ck("[B1] deactivated", dut->stream_active_o & 1, 0);
         ck("[B1] declare withdrawn", dut->lstn_declare_o & 1, 0);
-        //! 5.5.3.5.48 step 1: SRP params cleared on the way out (B1a)
+        //! 5.5.3.5.48 step 1 + 5.3.8.9: the FULL SRP-parameter clear on
+        //! the way out — sid included, and the bind-view sid lane (the
+        //! datapath provisioner's |sid want-guard input) follows it
         ckh("[B1] dmac cleared on exit", c_dmac(), 0);
         ck("[B1] vlan cleared on exit", (long)c_vlan(), 0);
-        ckh("[B1] sid preserved (row key)", c_sid(), 0x1234432112344321ULL);
+        ckh("[B1] sid zeroed on exit (5.3.8.9)", c_sid(), 0);
+        ckh("[B1] bind-view sid lane zeroed with it", sidv(0), 0);
         long pcw = dut->probe_count_o;
         auto pw = wait_frame(1100 * MS);        // the ladder ADVANCES
         ck("[B1] re-probe emitted (ladder alive)", pw.size(), 70);
@@ -890,7 +908,8 @@ int main(int argc, char** argv) {
         ck("[B1a] ctx0 lapsed to PRB_W_AVAIL", (long)c_state(), 1);
         ckh("[B1a] ctx0 dmac zeroed (5.5.3.5.36 s1)", c_dmac(), 0);
         ck("[B1a] ctx0 vlan zeroed", (long)c_vlan(), 0);
-        ckh("[B1a] ctx0 sid preserved (row key)", c_sid(), T1_SID);
+        ckh("[B1a] ctx0 sid zeroed (5.3.8.9)", c_sid(), 0);
+        ckh("[B1a] ctx0 bind-view sid lane zeroed (want guard)", sidv(0), 0);
         ck("[B1a] ctx0 deactivated", dut->stream_active_o & 1, 0);
         ck("[B1a] ctx0 declare withdrawn", dut->lstn_declare_o & 1, 0);
         feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x811, 0, 0));
@@ -898,12 +917,95 @@ int main(int argc, char** argv) {
         ck("[B1a] GET count still 1 (bound)", (long)r_be(rg, 60, 2), 1);
         ckh("[B1a] GET bytes 54-59 zero after lapse", r_be(rg, 54, 6), 0);
         ck("[B1a] GET vlan zero after lapse", (long)r_be(rg, 66, 2), 0);
+        ckh("[B1a] GET stream_id zero after lapse (5.3.8.9)",
+            r_be(rg, 18, 8), 0);
         // isolation: ctx2 rode the 10 s out untouched
         tbl_read(2);
         ck("[B1a] ctx2 still RSV_OK", (long)c_state(), 7);
         ckh("[B1a] ctx2 dmac intact", c_dmac(), 0x91E0F0006622ULL);
         ck("[B1a] ctx2 still active", (dut->stream_active_o >> 2) & 1, 1);
         ck("[B1a] ctx2 still declares", (dut->lstn_declare_o >> 2) & 1, 1);
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[B2h] ADP watch law: gm/domain gate + available_index\n");
+    // Milan 5.6.4.5.1 step 1 (gm/domain must match the committed view or
+    // the ENTITY_AVAILABLE is ignored), 5.6.4.5.2 step 2 (non-increasing
+    // available_index = talker restart = EVT_TK_DEPARTED, index noted so
+    // the next increasing ADPDU re-discovers), 5.6.4.5.3 (DEPARTING has no
+    // gm step). interface_index is deliberately unchecked in RTL: single-
+    // AVB-interface platform. ctx0 sits in PRB_W_AVAIL bound to T1 after
+    // [B1a] — exactly the discovery-wait state the gate protects.
+    {
+        const uint64_t GM = 0x001B21FFFE0A0B0CULL;
+        tbl_read(0);
+        ck("[B2h] precondition: ctx0 PRB_W_AVAIL", (long)c_state(), 1);
+        ck("[B2h] precondition: tk_avail 0", (long)cbits(312, 1), 0);
+        dut->gm_id_i = GM; dut->gm_domain_i = 5;
+        // wrong grandmaster: ignored entirely (no discovery, no note)
+        feed(adp(0, T1_EID, 3, 0x0102030405060708ULL, 5, 30));
+        run(8);
+        tbl_read(0);
+        ck("[B2h] wrong-gm AVAILABLE ignored (5.6.4.5.1 s1)",
+           (long)cbits(312, 1), 0);
+        ck("[B2h] ...state unmoved", (long)c_state(), 1);
+        ck("[B2h] ...index not noted", (long)c_lastav(), 0);
+        // right gm, wrong domain: same verdict
+        feed(adp(0, T1_EID, 3, GM, 6, 31));
+        run(8);
+        tbl_read(0);
+        ck("[B2h] wrong-domain AVAILABLE ignored", (long)cbits(312, 1), 0);
+        // matching pair: discovered, index noted at its struct offset
+        feed(adp(0, T1_EID, 3, GM, 5, 32));
+        run(8);
+        tbl_read(0);
+        ck("[B2h] matching AVAILABLE discovers", (long)cbits(312, 1), 1);
+        ck("[B2h] EVT_TK_DISCOVERED -> PRB_W_DELAY", (long)c_state(), 2);
+        ck("[B2h] available_index noted (last_avail at 369:338)",
+           (long)c_lastav(), 32);
+        ck("[B2h] adp_age reset with it", (long)cbits(298, 7), 0);
+        // non-increasing index while discovered: EVT_TK_DEPARTED — the
+        // DELAY arc consumes adp_dep back to PRB_W_AVAIL
+        feed(adp(0, T1_EID, 3, GM, 5, 32));
+        run(8);
+        tbl_read(0);
+        ck("[B2h] repeated index wipes availability (5.6.4.5.2 s2)",
+           (long)cbits(312, 1), 0);
+        ck("[B2h] EVT_TK_DEPARTED -> PRB_W_AVAIL", (long)c_state(), 1);
+        ck("[B2h] index still noted (step 3)", (long)c_lastav(), 32);
+        // the restarted talker's next ADPDU increases again: re-discovered
+        feed(adp(0, T1_EID, 3, GM, 5, 33));
+        run(8);
+        tbl_read(0);
+        ck("[B2h] increasing index re-discovers", (long)cbits(312, 1), 1);
+        ck("[B2h] ...and re-enters the ladder", (long)c_state(), 2);
+        ck("[B2h] note advances", (long)c_lastav(), 33);
+        // strictly-lower index (deeper regression) wipes as well
+        feed(adp(0, T1_EID, 3, GM, 5, 31));
+        run(8);
+        tbl_read(0);
+        ck("[B2h] lower index wipes too", (long)cbits(312, 1), 0);
+        ck("[B2h] lower index noted", (long)c_lastav(), 31);
+        // DEPARTING is never gm-gated (5.6.4.5.3 names no gm step)
+        feed(adp(0, T1_EID, 3, GM, 5, 40));
+        run(8);
+        tbl_read(0);
+        ck("[B2h] re-discovered for the departing leg",
+           (long)cbits(312, 1), 1);
+        feed(adp(1, T1_EID, 3, 0xDEADDEADDEADDEADULL, 9, 41));
+        run(8);
+        tbl_read(0);
+        ck("[B2h] wrong-gm DEPARTING still departs (5.6.4.5.3)",
+           (long)cbits(312, 1), 0);
+        // all-zero committed pair = no gPTP commitment yet: gate stands
+        // down (bring-up / saved-state fast-connect must not deadlock)
+        dut->gm_id_i = 0; dut->gm_domain_i = 0;
+        feed(adp(0, T1_EID, 3, 0x5555666677778888ULL, 7, 42));
+        run(8);
+        tbl_read(0);
+        ck("[B2h] zero committed pair: gate off (bring-up escape)",
+           (long)cbits(312, 1), 1);
+        ck("[B2h] escape notes the index too", (long)c_lastav(), 42);
     }
 
     printf("\nKL_acmp_lstn_ctx N=4: %ld checks, %ld failures\n", checks, fails);

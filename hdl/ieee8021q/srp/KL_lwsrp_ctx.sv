@@ -98,7 +98,12 @@ module KL_lwsrp_ctx #(
     input  wire        ctx_valid_i,       //! record: attribute exists
     input  wire        ctx_dir_i,         //! 0 = talker, 1 = listener
     input  wire [63:0] ctx_sid_i,
-    input  wire [47:0] ctx_dmac_i,        //! talker rows only
+    input  wire [47:0] ctx_dmac_i,        //! talker rows: declared DFP dmac;
+                                          //! listener rows: EXPECTED dmac
+                                          //! (Table 5.29 registrar match)
+    input  wire [11:0] ctx_vlan_i,        //! listener rows: EXPECTED vlan
+                                          //! (pair all-zero = not learned
+                                          //! yet, walker matches sid-only)
     input  wire [7:0]  ctx_prio_rank_i,   //! PriorityAndRank byte
     input  wire [15:0] ctx_max_frame_i,
     input  wire [15:0] ctx_interval_i,
@@ -126,6 +131,10 @@ module KL_lwsrp_ctx #(
     // ---- walker extra-lane hookup ----------------------------------------
     output wire [EXT_LANES_P*64-1:0] lane_sid_o,
     output wire [EXT_LANES_P-1:0]    lane_en_o,
+    //! expected {dmac, vlan} per lane (listener rows; talker rows read 0 =
+    //! compare off — their TA/TF pulses are our OWN declaration echoed)
+    output wire [EXT_LANES_P*48-1:0] lane_dmac_o,
+    output wire [EXT_LANES_P*12-1:0] lane_vlan_o,
     input  wire [EXT_LANES_P-1:0]    lane_lstn_p_i,
     input  wire [EXT_LANES_P-1:0]    lane_tadv_p_i,
     input  wire [EXT_LANES_P-1:0]    lane_tfail_p_i,
@@ -174,10 +183,17 @@ module KL_lwsrp_ctx #(
   // -----------------------------------------------------------------------
   reg [EXT_LANES_P-1:0]    valid_r, dir_r, onwire_r;
   reg [EXT_LANES_P*64-1:0] sid_r;
+  //! expected DataFrameParameters per LISTENER row (~60 flops/row) — the
+  //! walker needs them in parallel, so they live beside sid_r rather than
+  //! in the record RAM (single explicit read port, house rule)
+  reg [EXT_LANES_P*48-1:0] edmac_r;
+  reg [EXT_LANES_P*12-1:0] evlan_r;
 
   assign lane_sid_o  = sid_r;
   //! keep matching while a withdraw is pending so late events settle sanely
   assign lane_en_o   = valid_r;
+  assign lane_dmac_o = edmac_r;
+  assign lane_vlan_o = evlan_r;
   assign row_valid_o = valid_r;
   assign row_dir_o   = dir_r;
   assign row_sid_o   = sid_r;
@@ -404,6 +420,7 @@ module KL_lwsrp_ctx #(
   always_ff @(posedge clk_i) begin : ctx_port_S
     if (!rst_n) begin
       valid_r <= '0; dir_r <= '0; onwire_r <= '0; sid_r <= '0;
+      edmac_r <= '0; evlan_r <= '0;
       row_fresh_o <= '0; row_lv_o <= '0;
       ctx_gnt_o <= 1'b0; ctx_rd_sid_o <= '0; ctx_rd_stat_o <= '0;
       jdiv_r <= '0; refresh_pend_r <= 1'b0; fastjoin_p_o <= 1'b0;
@@ -450,6 +467,12 @@ module KL_lwsrp_ctx #(
             valid_r[ext_row_w] <= 1'b1;
             dir_r[ext_row_w]   <= ctx_dir_i;
             sid_r[64*ext_row_w +: 64] <= ctx_sid_i;
+            //! listener rows stage the EXPECTED {dmac, vlan} for the
+            //! walker's Table 5.29 three-parameter match; talker rows pin
+            //! the pair at zero — their TA/TF lane pulses are our own
+            //! declaration reflected and must keep the sid-only rule
+            edmac_r[48*ext_row_w +: 48] <= ctx_dir_i ? ctx_dmac_i : 48'd0;
+            evlan_r[12*ext_row_w +: 12] <= ctx_dir_i ? ctx_vlan_i : 12'd0;
             row_fresh_o[ext_row_w] <=
                 row_fresh_o[ext_row_w] | ~valid_r[ext_row_w];
             row_lv_o[ext_row_w] <= 1'b0;   // re-add cancels a withdraw
@@ -459,6 +482,8 @@ module KL_lwsrp_ctx #(
             refresh_pend_r <= 1'b1;             // update -> prompt re-declare
           end else begin
             valid_r[ext_row_w] <= 1'b0;
+            edmac_r[48*ext_row_w +: 48] <= 48'd0;   //! stale pair hygiene
+            evlan_r[12*ext_row_w +: 12] <= 12'd0;
             //! withdraw needs one LV TX only if the attribute is on wire
             if (onwire_r[ext_row_w]) row_lv_o[ext_row_w] <= 1'b1;
             row_fresh_o[ext_row_w] <= 1'b0;

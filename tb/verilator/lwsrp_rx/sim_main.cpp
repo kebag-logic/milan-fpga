@@ -859,6 +859,62 @@ int main(int argc, char** argv) {
         dut->enable_i = 1; step(); step();
     }
 
+    // ============================================================
+    // 18) THREE-PARAMETER lsid MATCH (Milan v1.2 Table 5.29 / 5.3.8.9).
+    //   EVT_TK_REGISTERED requires the TA/TF to match {Stream ID, Stream
+    //   Destination MAC Address, Stream VLAN ID}; a mismatch is ignored.
+    //   fv_talker's fixed filler carries dmac A0:A1:A2:A3:A4:A5 and vlan
+    //   0x6A7, so the expected pair below is exact wire truth. A zero
+    //   expected pair = parameters not learned yet (5.3.8.9) = sid-only,
+    //   which is why every earlier TA case in this file stays untouched.
+    // ============================================================
+    {
+        const uint64_t BOUND = 0x0200000000010000ULL;
+        const uint64_t EXPD  = 0xA0A1A2A3A4A5ULL;
+        dut->lsid_i = BOUND; dut->lsid_en_i = 1;
+        dut->lsid_dmac_i = EXPD; dut->lsid_vlan_i = 0x6A7;
+        step(); step();
+        Vec v; v.fv = fv_talker(BOUND); v.evts = {EV_JOININ};
+        feed_parse(frame(true, {msg_tadv(v)}), "3par: matching parse");
+        ck("3par: matching TA registers", dut->ta_registered_o, 1);
+        // deregister (the matching Lv is seen — it IS our attribute)
+        Vec l; l.fv = fv_talker(BOUND); l.evts = {EV_LV};
+        feed_parse(frame(true, {msg_tadv(l)}), "3par: lv parse");
+        ck("3par: deregistered for the negative legs",
+           dut->ta_registered_o, 0);
+        // sid matches, expected vlan differs: never registers (the B1d
+        // bite — this registered when the lane hit was sid-range-only)
+        dut->lsid_vlan_i = 0x123;
+        step();
+        feed_parse(frame(true, {msg_tadv(v)}), "3par: wrong-vlan parse");
+        ck("3par: sid-match wrong-vlan TA never registers (Tab 5.29)",
+           dut->ta_registered_o, 0);
+        // sid matches, expected dmac differs: same verdict
+        dut->lsid_vlan_i = 0x6A7; dut->lsid_dmac_i = EXPD ^ 0x10000;
+        step();
+        feed_parse(frame(true, {msg_tadv(v)}), "3par: wrong-dmac parse");
+        ck("3par: wrong-dmac TA never registers", dut->ta_registered_o, 0);
+        // zero pair = the learn window: sid-only again
+        dut->lsid_dmac_i = 0; dut->lsid_vlan_i = 0;
+        step();
+        feed_parse(frame(true, {msg_tadv(v)}), "3par: zero-pair parse");
+        ck("3par: zero pair matches sid-only (learn window)",
+           dut->ta_registered_o, 1);
+        // TalkerFailed obeys the same law (Table 5.29: EITHER attribute)
+        dut->lsid_dmac_i = EXPD; dut->lsid_vlan_i = 0x123;
+        step();
+        Vec tf; tf.fv = fv_tfail(BOUND, 0x22); tf.evts = {EV_JOININ};
+        feed_parse(frame(true, {msg_tfail(tf)}), "3par: wrong-vlan TF parse");
+        ck("3par: wrong-vlan TF fabricates no failure", dut->ta_failed_o, 0);
+        dut->lsid_vlan_i = 0x6A7;
+        step();
+        feed_parse(frame(true, {msg_tfail(tf)}), "3par: matching TF parse");
+        ck("3par: matching TF registers the failure", dut->ta_failed_o, 1);
+        ck("3par: failure code captured", dut->ta_fail_code_o, 0x22);
+        dut->lsid_en_i = 0; dut->lsid_dmac_i = 0; dut->lsid_vlan_i = 0;
+        step(); step();
+    }
+
     printf("== %ld checks, %ld failures ==\n", checks, fails);
     delete dut;
     return fails ? 1 : 0;

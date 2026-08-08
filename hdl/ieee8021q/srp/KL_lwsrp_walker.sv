@@ -50,6 +50,17 @@
 //                4-per-byte windows — no dividers. Domain vectors are taken
 //                at value 0 (bridges declare one Domain per SR class).
 //
+//                Listener-side Talker hits (the lsid context + the ext
+//                lanes) are THREE-PARAMETER matches (Milan v1.2 Table 5.29):
+//                the TA/TF FirstValue's DataFrameParameters must equal the
+//                context's expected {dmac, vlan} pair (the values probed
+//                from the talker's PROBE_TX_RESPONSE) — a mismatching
+//                attribute is ignored (5.3.8.9) so a sid collision can no
+//                longer register a foreign talker's declaration. The dmac
+//                term follows the +k rule (802.1Q 35.2.2.8.1 increments
+//                StreamID and destination_address together); an all-zero
+//                expected pair (parameters not learned yet) matches sid-only.
+//
 //                Malformed input (bad version, zero attribute length,
 //                truncated PDU) aborts the frame silently; MRP re-declares
 //                every JoinTime so nothing needs recovering.
@@ -86,6 +97,16 @@ module KL_lwsrp_walker #(
     // ---- listener-side bound stream (second match context) --------------
     input  wire [63:0]  lsid_i,           //! bound stream_id (ACMP listener)
     input  wire         lsid_en_i,        //! binding valid
+    //! expected DataFrameParameters for the lsid context — Milan v1.2 Table
+    //! 5.29 EVT_TK_REGISTERED: a Talker attribute registers only when ALL
+    //! THREE probed SRP parameters match {Stream ID, Stream Destination MAC
+    //! Address, Stream VLAN ID}; a mismatching TA/TF is ignored (5.3.8.9 —
+    //! the sink re-probes for up-to-date parameters instead). An ALL-ZERO
+    //! pair means the parameters are not learned yet (5.3.8.9: a not-settled
+    //! Stream Input records all-zero SRP parameters), so only the sid is
+    //! matched — the pre-0x0037 behaviour, byte-exact.
+    input  wire [47:0]  lsid_dmac_i,      //! expected stream_dest_mac
+    input  wire [11:0]  lsid_vlan_i,      //! expected stream_vlan_id
 
     // ---- event pulses (data valid with the pulse) -----------------------
     output reg          leaveall_p_o,      //! MSRP-application LeaveAll
@@ -116,6 +137,13 @@ module KL_lwsrp_walker #(
     // ---- extra match lanes (context table; en=0 lanes are inert) ---------
     input  wire [EXT_LANES_P*64-1:0] ext_sid_i,
     input  wire [EXT_LANES_P-1:0]    ext_en_i,
+    //! per-lane expected {dmac, vlan} pair — the Table 5.29 three-parameter
+    //! registrar match for Talker attributes, same rules as lsid_dmac_i/
+    //! lsid_vlan_i above (all-zero pair = not learned yet = sid-only).
+    //! Listener-attribute hits are never gated (a Listener FirstValue
+    //! carries no DataFrameParameters); talker-direction rows feed zeros.
+    input  wire [EXT_LANES_P*48-1:0] ext_dmac_i,
+    input  wire [EXT_LANES_P*12-1:0] ext_vlan_i,
     output reg  [EXT_LANES_P-1:0]    ext_lstn_p_o,   //! Listener attr hit
     output reg  [EXT_LANES_P-1:0]    ext_tadv_p_o,   //! TalkerAdvertise hit
     output reg  [EXT_LANES_P-1:0]    ext_tfail_p_o,  //! TalkerFailed hit
@@ -165,7 +193,8 @@ module KL_lwsrp_walker #(
   reg [7:0]  fv_idx_r;        //! FirstValue byte index
   reg [63:0] fv_r;            //! first 8 FirstValue bytes (shift-in)
   reg [7:0]  tfail_code_r;    //! TalkerFailed byte 33
-  reg [11:0] tk_vlan_r;       //! Talker FV bytes 19-20: vlan_identifier
+  reg [47:0] tk_dmac_r;       //! Talker FV bytes 8-13: destination_address
+  reg [11:0] tk_vlan_r;       //! Talker FV bytes 14-15: vlan_identifier
   reg [31:0] tk_acclat_r;     //! Talker FV bytes 21-24: AccumulatedLatency
   reg [63:0] tk_bridge_r;     //! TalkerFailed FV bytes 25-32: bridge_id
   reg [7:0]  d_class_r, d_prio_r;
@@ -244,10 +273,33 @@ module KL_lwsrp_walker #(
   wire        lsid_hit_w = lsid_en_i && (lsid_sub_w[64:13] == '0) &&
                            (lsid_sub_w[12:0] < nv_r);
 
+  //! Three-parameter Talker match (Milan v1.2 Table 5.29 / 5.3.8.9): on a
+  //! TA/TF FirstValue the captured DataFrameParameters are compared against
+  //! the context's expected pair. The dmac compare is +k-CONSISTENT: 802.1Q
+  //! 35.2.2.8.1(b) increments StreamID AND destination_address together
+  //! through a vector, so the expected dmac of the value matched at index k
+  //! is FirstValue.dmac + k — checked as "dmac offset equals sid offset"
+  //! with one 49-bit borrow-out subtract (the sid-compare recipe, narrower).
+  //! vlan does NOT increment: plain equality. An all-zero expected pair
+  //! DISABLES the compare (5.3.8.9: a not-settled sink records all-zero
+  //! parameters — there is nothing to match against yet, and the CRF/fast-
+  //! connect flows lawfully see the talker's TA before the probe answers).
+  //! tk_dmac_r/tk_vlan_r complete at FV bytes 13/15, >= 9 bytes before the
+  //! shortest resolving Talker FirstValue ends (TA byte 24) — registers,
+  //! never in-flight bytes. A truncated Talker attribute (attr_len < 16)
+  //! leaves them stale, which reads as a mismatch: a malformed TA is
+  //! lawfully ignored.
+  wire [48:0] lsid_dsub_w  = {1'b0, lsid_dmac_i} - {1'b0, tk_dmac_r};
+  wire        lsid_dv_ok_w = ((lsid_dmac_i == '0) && (lsid_vlan_i == '0)) ||
+                             ((lsid_dsub_w[48:13] == '0) &&
+                              (lsid_dsub_w[12:0] == lsid_sub_w[12:0]) &&
+                              (lsid_vlan_i == tk_vlan_r));
+
   //! extra context lanes: same range rule, one 65-bit subtract per lane
   //! (the marginal cost per attribute the context-table design pays)
   wire [EXT_LANES_P-1:0]    ext_hit_w;
   wire [EXT_LANES_P*13-1:0] ext_kd_w;
+  wire [EXT_LANES_P-1:0]    ext_dv_ok_w;
   generate
     for (genvar gl = 0; gl < int'(EXT_LANES_P); gl++) begin : g_extmatch
       wire [64:0] esub_w = {1'b0, ext_sid_i[64*gl +: 64]} - {1'b0, fv_eff_w};
@@ -255,6 +307,14 @@ module KL_lwsrp_walker #(
                              (esub_w[64:13] == '0) &&
                              (esub_w[12:0] < nv_r);
       assign ext_kd_w[13*gl +: 13] = esub_w[12:0];
+      //! per-lane {dmac, vlan} verdict (see the lsid context banner above)
+      wire [48:0] edsub_w = {1'b0, ext_dmac_i[48*gl +: 48]} - {1'b0, tk_dmac_r};
+      assign ext_dv_ok_w[gl] =
+          ((ext_dmac_i[48*gl +: 48] == '0) &&
+           (ext_vlan_i[12*gl +: 12] == '0)) ||
+          ((edsub_w[48:13] == '0) &&
+           (edsub_w[12:0] == esub_w[12:0]) &&
+           (ext_vlan_i[12*gl +: 12] == tk_vlan_r));
     end
   endgenerate
 
@@ -354,7 +414,7 @@ module KL_lwsrp_walker #(
       attr_type_r <= '0; attr_len_r <= '0; vech_hi_r <= '0; nv_r <= '0;
       fv_idx_r <= '0; fv_r <= '0; tfail_code_r <= '0;
       d_class_r <= '0; d_prio_r <= '0; d_vid_r <= '0; dom_a_evt_r <= '0;
-      tk_vlan_r <= '0; tk_acclat_r <= '0; tk_bridge_r <= '0;
+      tk_dmac_r <= '0; tk_vlan_r <= '0; tk_acclat_r <= '0; tk_bridge_r <= '0;
       val_match_r <= 1'b0; k_r <= '0; vbase_r <= '0;
       lval_match_r <= 1'b0; lk_r <= '0; lcap_evt_r <= '0;
       ematch_r <= '0; ek_r <= '0; ecap_evt_r <= '0; ecap_par_r <= '0;
@@ -489,6 +549,10 @@ module KL_lwsrp_walker #(
                 8'd24: tk_acclat_r[7:0]    <= byte_w;
                 default: ;
               endcase
+              //! DataFrameParameters.destination_address (FV bytes 8-13,
+              //! shift-in like tk_bridge_r) — the Table 5.29 dmac term
+              if (fv_idx_r >= 8'd8 && fv_idx_r <= 8'd13)
+                tk_dmac_r <= {tk_dmac_r[39:0], byte_w};
             end
             if (is_tfail_w && fv_idx_r >= 8'd25 && fv_idx_r <= 8'd32)
               tk_bridge_r <= {tk_bridge_r[55:0], byte_w};
@@ -501,13 +565,18 @@ module KL_lwsrp_walker #(
                 val_match_r <= 1'b1;
                 k_r         <= sid_sub_w[12:0];
               end
-              if ((is_tadv_w || is_tfail_w) && attr_len_r >= 8'd8 && lsid_hit_w) begin
+              //! Talker hits carry the Table 5.29 three-parameter verdict:
+              //! a sid-range hit whose {dmac, vlan} disagree with the
+              //! context's expected pair NEVER matches — the attribute is
+              //! ignored (5.3.8.9) and the sink's NO_TK lawfully re-probes.
+              if ((is_tadv_w || is_tfail_w) && attr_len_r >= 8'd8 &&
+                  lsid_hit_w && lsid_dv_ok_w) begin
                 lval_match_r <= 1'b1;
                 lk_r         <= lsid_sub_w[12:0];
               end
               if (is_stream_w && attr_len_r >= 8'd8) begin
                 for (int l = 0; l < int'(EXT_LANES_P); l++) begin
-                  if (ext_hit_w[l]) begin
+                  if (ext_hit_w[l] && (is_listener_w || ext_dv_ok_w[l])) begin
                     ematch_r[l]      <= 1'b1;
                     ek_r[13*l +: 13] <= ext_kd_w[13*l +: 13];
                   end

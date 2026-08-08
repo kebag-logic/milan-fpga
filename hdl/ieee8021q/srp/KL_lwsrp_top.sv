@@ -70,6 +70,11 @@ module KL_lwsrp_top #(
     input  wire         lstn_bound_i,      //! binding valid (track the TA)
     input  wire         lstn_declare_i,    //! declare the Listener attribute
     input  wire [63:0]  lstn_sid_i,        //! bound stream_id
+    //! expected {dmac, vlan} of the bound stream (the ACMP record's probed
+    //! SRP parameters) — the walker's Table 5.29 three-parameter registrar
+    //! match for the lsid context; an all-zero pair matches sid-only
+    input  wire [47:0]  lstn_dmac_i,
+    input  wire [11:0]  lstn_vlan_i,
     output wire         ta_registered_o,   //! TalkerAdvertise registered (lsid)
     output wire         ta_failed_o,       //! TalkerFailed registered (lsid)
     output wire [7:0]   ta_fail_code_o,
@@ -139,6 +144,7 @@ module KL_lwsrp_top #(
     input  wire         ctx_dir_i,         //! 0 = talker, 1 = listener
     input  wire [63:0]  ctx_sid_i,
     input  wire [47:0]  ctx_dmac_i,
+    input  wire [11:0]  ctx_vlan_i,        //! listener rows: EXPECTED vlan
     input  wire [7:0]   ctx_prio_rank_i,
     input  wire [15:0]  ctx_max_frame_i,
     input  wire [15:0]  ctx_interval_i,
@@ -177,6 +183,8 @@ module KL_lwsrp_top #(
   // ---- context table + shared registrar + shared serializer --------------
   wire [EXT_LANES_C*64-1:0] lane_sid_w, row_sid_w;
   wire [EXT_LANES_C-1:0]    lane_en_w;
+  wire [EXT_LANES_C*48-1:0] lane_dmac_w;
+  wire [EXT_LANES_C*12-1:0] lane_vlan_w;
   wire [EXT_LANES_C-1:0]    e_lstn_p_w, e_tadv_p_w, e_tfail_p_w;
   wire [EXT_LANES_C*3-1:0]  e_evt_w;
   wire [EXT_LANES_C*2-1:0]  e_par_w;
@@ -204,6 +212,7 @@ module KL_lwsrp_top #(
     .ctx_req_i (ctx_req_i), .ctx_we_i (ctx_we_i), .ctx_idx_i (ctx_idx_i),
     .ctx_valid_i (ctx_valid_i), .ctx_dir_i (ctx_dir_i),
     .ctx_sid_i (ctx_sid_i), .ctx_dmac_i (ctx_dmac_i),
+    .ctx_vlan_i (ctx_vlan_i),
     .ctx_prio_rank_i (ctx_prio_rank_i),
     .ctx_max_frame_i (ctx_max_frame_i), .ctx_interval_i (ctx_interval_i),
     .ctx_latency_i (ctx_latency_i),
@@ -217,6 +226,7 @@ module KL_lwsrp_top #(
     .leg_code_i (tfail_code_o),
     .leg_sid_i ({station_mac_i, unique_id_i}),
     .lane_sid_o (lane_sid_w), .lane_en_o (lane_en_w),
+    .lane_dmac_o (lane_dmac_w), .lane_vlan_o (lane_vlan_w),
     .lane_lstn_p_i (e_lstn_p_w), .lane_tadv_p_i (e_tadv_p_w),
     .lane_tfail_p_i (e_tfail_p_w),
     .lane_evt_i (e_evt_w), .lane_par_i (e_par_w),
@@ -318,6 +328,7 @@ module KL_lwsrp_top #(
     .station_mac_i (station_mac_i), .unique_id_i (unique_id_i),
     .vid_i (vid_i),
     .lsid_i (lstn_sid_i), .lsid_en_i (lstn_bound_i),
+    .lsid_dmac_i (lstn_dmac_i), .lsid_vlan_i (lstn_vlan_i),
     .ta_registered_o (ta_registered_o),
     .ta_failed_o (ta_failed_o), .ta_fail_code_o (ta_fail_code_o),
     .ta_vlan_o (ta_vlan_o), .ta_acclat_o (ta_acclat_o),
@@ -330,6 +341,7 @@ module KL_lwsrp_top #(
     .rx_leaveall_p_o (rx_leaveall_w),
     .rx_msrp_leaveall_p_o (rx_msrp_leaveall_w),
     .ext_sid_i (lane_sid_w), .ext_en_i (lane_en_w),
+    .ext_dmac_i (lane_dmac_w), .ext_vlan_i (lane_vlan_w),
     .ext_lstn_p_o (e_lstn_p_w), .ext_tadv_p_o (e_tadv_p_w),
     .ext_tfail_p_o (e_tfail_p_w),
     .ext_evt_o (e_evt_w), .ext_par_o (e_par_w),

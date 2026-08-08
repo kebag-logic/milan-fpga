@@ -135,6 +135,21 @@ module KL_acmp_lstn_ctx #(
     // ---- ADP age tick ----------------------------------------------------
     input  wire         tick_1s_i,
 
+    // ---- gPTP view (Milan 5.6.4.5.1 step 1) ------------------------------
+    //! The PAAD's COMMITTED grandmaster pair + domain number (CSR 0x624/8 +
+    //! 0x62C, same clock domain as the datapath — no CDC). An ENTITY_
+    //! AVAILABLE whose gptp_grandmaster_id / gptp_domain_number disagree
+    //! with them is IGNORED for the availability latch: a talker on another
+    //! gPTP domain is not a usable talker. An ALL-ZERO committed pair means
+    //! no grandmaster has been committed yet (the CSR reset state, before
+    //! the gptp lease lands) — the check stands down so bring-up and
+    //! saved-state fast-connect never deadlock on a lease that has not
+    //! happened (domain 0 is a VALID gPTP domain, so the escape keys on the
+    //! grandmaster pair alone). ENTITY_DEPARTING carries no gm step
+    //! (5.6.4.5.3) and is never gated.
+    input  wire [63:0]  gm_id_i,
+    input  wire [7:0]   gm_domain_i,
+
     // ---- lwSRP listener-side hooks (per context) ------------------------
     input  wire [N_SINKS_P-1:0] ta_registered_i, //! TalkerAdvertise registered
     input  wire [N_SINKS_P-1:0] ta_failed_i,     //! TalkerFailed registered
@@ -147,6 +162,13 @@ module KL_acmp_lstn_ctx #(
     //! to a new sid) without shadowing the sid a second time
     output wire [N_SINKS_P-1:0]    lstn_bound_o,
     output wire [N_SINKS_P*64-1:0] lstn_sid_o,
+    //! per-sink probed SRP parameters (record dmac/vlan, same write-edge
+    //! shadow rule as sid_vec_r): the lwSRP row's EXPECTED pair for the
+    //! walker's Table 5.29 three-parameter registrar match. Zero until the
+    //! probe response learns them (5.3.8.9: a not-settled Stream Input
+    //! records all-zero SRP parameters) — the walker then matches sid-only.
+    output wire [N_SINKS_P*48-1:0] lstn_dmac_o,
+    output wire [N_SINKS_P*12-1:0] lstn_vlan_o,
     output reg  [N_SINKS_P-1:0]    bind_upd_p_o,
 
     // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) -------
@@ -242,7 +264,7 @@ module KL_acmp_lstn_ctx #(
   // Context table: sync-only write, ONE REGISTERED read port -> block RAM
   //
   // Simple-dual-port template (write and registered read in one process):
-  // Vivado maps 338 b x N to RAMB36/RAMB18 with the mandatory output
+  // Vivado maps 370 b x N to RAMB36/RAMB18 with the mandatory output
   // register as rd_ctx_q_r, so the read costs zero LUTs and the address
   // decode fans out to a handful of BRAM primitives instead of ~885 LUTRAM
   // cells. Read-during-write on the SAME address never happens: the only
@@ -253,7 +275,7 @@ module KL_acmp_lstn_ctx #(
   //! FLAT bit vector, not an array of acmp_lstn_ctx_t: given the struct
   //! Vivado infers ONE block RAM PER FIELD (ctx_ram_reg[0][state] etc.), so
   //! a 3-bit field burns a whole RAMB18 and the record costs 9 tiles. The
-  //! same array as 338 flat bits is one 9 x 338 memory (a handful of BRAM
+  //! same array as 370 flat bits is one 9 x 370 memory (a handful of BRAM
   //! tiles). The struct type still governs every access through the two
   //! casts below, so nothing else in the module sees bits.
   (* ram_style = "block" *)
@@ -287,6 +309,8 @@ module KL_acmp_lstn_ctx #(
   //! lwSRP Listener attribute for its sid hangs off exactly this level.
   reg [N_SINKS_P-1:0]      bound_vec_r;
   reg [N_SINKS_P*64-1:0]   sid_vec_r;
+  reg [N_SINKS_P*48-1:0]   dmac_vec_r;   //! probed pair shadows (~60
+  reg [N_SINKS_P*12-1:0]   vlan_vec_r;   //! flops/sink, sid_vec_r rule)
 
   assign view0_state_o    = view0_r.state;
   assign view0_talker_o   = view0_r.talker;
@@ -306,6 +330,8 @@ module KL_acmp_lstn_ctx #(
   assign stream_active_o  = active_vec_r;
   assign lstn_bound_o     = bound_vec_r;
   assign lstn_sid_o       = sid_vec_r;
+  assign lstn_dmac_o      = dmac_vec_r;
+  assign lstn_vlan_o      = vlan_vec_r;
 
   // -----------------------------------------------------------------------
   // Working context + probe bookkeeping
@@ -397,6 +423,9 @@ module KL_acmp_lstn_ctx #(
   reg [15:0] cap_seq_r;      //! sequence_id, bytes 62-63 (probe-resp match)
   reg [47:0] cap_dmac_r;
   reg [11:0] cap_vlan_r;
+  reg [15:0] cap_gmtail_r;   //! wire bytes 60-61 — ADPDU overlay only: the
+                             //! gptp_grandmaster_id tail ({cap_dmac_r,
+                             //! cap_gmtail_r} = ADPDU bytes 40-47)
 
   wire [3:0]  w_msg    = cap_msg_r;
   wire [4:0]  w_status = cap_status_r;
@@ -457,6 +486,21 @@ module KL_acmp_lstn_ctx #(
   wire w_adp_seen  = enable_i && cap_etype_ok_r && (cap_subtype_r == 8'hFA) &&
                      adp_len_ok_r &&
                      (cap_msg_r == 4'd0 || cap_msg_r == 4'd1);
+  //! Milan 5.6.4.5.1 step 1: the ENTITY_AVAILABLE's gptp_grandmaster_id
+  //! (ADPDU bytes 40-47 = the frame-capture overlay {cap_dmac_r,
+  //! cap_gmtail_r}) and gptp_domain_number (byte 48 = cap_seq_r[15:8]) must
+  //! match our committed gPTP view or the message is ignored — see the
+  //! gm_id_i port banner for the all-zero-pair bring-up escape. A truncated
+  //! ADPDU (>= 26 B classifies but < the full 82 B) compares stale capture
+  //! bytes and reads as a mismatch — a malformed ADPDU is lawfully ignored.
+  //! interface_index (ADPDU bytes 54-55) is deliberately NOT checked: this
+  //! is a single-AVB-interface platform, the field can only ever match.
+  wire w_adp_gm_ok = (gm_id_i == 64'd0) ||
+                     (({cap_dmac_r, cap_gmtail_r} == gm_id_i) &&
+                      (cap_seq_r[15:8] == gm_domain_i));
+  //! the availability latch takes DEPARTING always (5.6.4.5.3 has no gm
+  //! step) and AVAILABLE only through the gm/domain gate
+  wire w_adp_take  = w_adp_seen && ((cap_msg_r == 4'd1) || w_adp_gm_ok);
 
   //! rebind-to-same fast path (Milan 5.5.3.5.37/43 step 2): the SAME talker
   //! named again refreshes ctlr + STREAMING_WAIT in place and never tears
@@ -739,14 +783,17 @@ module KL_acmp_lstn_ctx #(
   reg [63:0]           adp_eid_r;
   reg                  adp_avail_r;
   reg [4:0]            adp_vt_r;     //! valid_time of the latched ADPDU
+  reg [31:0]           adp_avidx_r;  //! available_index (ADPDU bytes 36-39)
   reg [N_SINKS_P-1:0]  srv_reg_r, srv_fail_r;     //! last-serviced SRP levels
   //! restore / table-port data-phase markers (the cycle after their address)
   reg                  rest_ph_r;
   reg                  tbl_ok_d1_r;
 
   wire w_srp_diff = (ta_registered_i != srv_reg_r) || (ta_failed_i != srv_fail_r);
-  //! an ADP frame classified THIS cycle (latched + consumable immediately)
-  wire w_adp_now  = (st_r == CLASSIFY_S) && w_adp_seen;
+  //! an ADP frame ACCEPTED this cycle (latched + consumable immediately) —
+  //! w_adp_take, not w_adp_seen: a gm-mismatching AVAILABLE must neither
+  //! start a pass nor be applied off the STALE adp_* latch
+  wire w_adp_now  = (st_r == CLASSIFY_S) && w_adp_take;
   //! live causes so a pass starts ON the strobe cycle (first RMW the next
   //! cycle — the single-sink module's event-application cadence)
   wire w_swp_pending = (ms_pend_r != 2'd0) || tick_1ms_r ||
@@ -973,10 +1020,26 @@ module KL_acmp_lstn_ctx #(
     if (c_adp_r && sm && rd_ctx_q_r.state != LSM_UNBOUND_S &&
         rd_ctx_q_r.talker == adp_eid_r) begin
       if (adp_avail_r) begin
-        adp_disc      = !rd_ctx_q_r.tk_avail;
-        sn_w.tk_avail = 1'b1;
-        sn_w.adp_age  = 7'd0;
-        sn_w.adp_vt   = adp_vt_r;    // the ADPDU's own valid_time
+        if (rd_ctx_q_r.tk_avail &&
+            (adp_avidx_r <= rd_ctx_q_r.last_avail)) begin
+          //! 5.6.4.5.2 step 2: a NON-INCREASING available_index while
+          //! discovered means the talker restarted behind our back —
+          //! EVT_TK_DEPARTED (availability wiped; the probing arcs below
+          //! consume adp_dep as usual). Step 3's "note the value" still
+          //! runs, so the talker's next ADPDU (its restarted counter + 1)
+          //! is increasing again and re-discovers through 5.6.4.5.1 —
+          //! the spec's DEPARTED-then-DISCOVERED bounce, one advertise
+          //! period late instead of same-event (single-latch sweep).
+          adp_dep         = 1'b1;
+          sn_w.tk_avail   = 1'b0;
+          sn_w.last_avail = adp_avidx_r;
+        end else begin
+          adp_disc        = !rd_ctx_q_r.tk_avail;
+          sn_w.tk_avail   = 1'b1;
+          sn_w.adp_age    = 7'd0;
+          sn_w.adp_vt     = adp_vt_r;    // the ADPDU's own valid_time
+          sn_w.last_avail = adp_avidx_r; // 5.6.4.5.1 step 2 / .2 step 3
+        end
       end else begin
         adp_dep       = rd_ctx_q_r.tk_avail;
         sn_w.tk_avail = 1'b0;
@@ -1058,12 +1121,16 @@ module KL_acmp_lstn_ctx #(
             sn_w.active = 1'b1;
             sn_w.state  = LSM_SETTLED_RSV_OK_S; sn_wr_w = 1'b1;
           end else if (fire) begin                       // NO_TK lapsed
-            //! 5.5.3.5.36 step 1 "Clear the SRP parameters and stop SRP":
-            //! dmac/vlan cleared + sink closed, so no stale declare and no
-            //! stale params outlive the 10 s silence. sid deliberately
-            //! STAYS: the record sid keys the lwSRP row / stream-table
-            //! alias / lstn_sid lane, and re-keying a bound sink mid-flight
-            //! is #32's still-open proof (full sid-zeroing lands with it).
+            //! 5.5.3.5.36 step 1 "Clear the SRP parameters and stop SRP" +
+            //! 5.3.8.9: a Stream Input that is no longer settled records
+            //! ALL-ZERO SRP parameters — sid INCLUDED (the 0x0035 deferral
+            //! is closed: E1 restore proved sid-0-while-bound safe). The
+            //! record sid still keys the lwSRP row / stream-table alias /
+            //! lstn_sid lane, so every fabric want term guards with |sid
+            //! (milan_datapath g_srp_fab_want): a de-settled sink WITHDRAWS
+            //! its row instead of declaring a row for stream 0, and the
+            //! next probe response re-keys everything on its own write.
+            sn_w.sid    = 64'd0;
             sn_w.dmac   = 48'd0;
             sn_w.vlan   = 12'd0;
             sn_w.active = 1'b0;
@@ -1079,9 +1146,11 @@ module KL_acmp_lstn_ctx #(
         end
         LSM_SETTLED_RSV_OK_S: begin
           //! the ONLY event that leaves RSV_OK is the combined-attribute
-          //! fall (5.5.3.5.48); step 1's SRP-parameter clear as above
+          //! fall (5.5.3.5.48); step 1's FULL SRP-parameter clear as above
+          //! (sid included — 5.3.8.9, the |sid want guard withdraws the row)
           if (attr_fall) begin
             sn_w.active = 1'b0;                          // deactivate
+            sn_w.sid    = 64'd0;
             sn_w.dmac   = 48'd0;
             sn_w.vlan   = 12'd0;
             if (sn_w.tk_avail) begin
@@ -1145,16 +1214,19 @@ module KL_acmp_lstn_ctx #(
       cap_lstnr_hi_ok_r <= 1'b0; cap_lstnr_lo_ok_r <= 1'b0;
       cap_tuid_r <= '0; cap_luid_r <= '0; cap_flags_r <= '0;
       cap_seq_r <= '0; cap_dmac_r <= '0; cap_vlan_r <= '0;
+      cap_gmtail_r <= '0;
       resp_msg_r <= 4'd0; resp_status_r <= 5'd0; resp_kind_r <= L_RESP_STATE_E;
       cur_r <= '0; cur_idx_r <= '0;
       probe_pend_r <= '0; probe_seq_r <= 16'd0;
       init_done_r <= 1'b0; init_idx_r <= '0;
       view0_r <= '0; view1_r <= '0; active_vec_r <= '0;
       bound_vec_r <= '0; sid_vec_r <= '0; bind_upd_p_o <= '0;
+      dmac_vec_r <= '0; vlan_vec_r <= '0;
       swp_active_r <= 1'b0; swp_ra_r <= '0; swp_wa_r <= '0; swp_wv_r <= 1'b0;
       c_ms_r <= 1'b0; c_1s_r <= 1'b0; c_adp_r <= 1'b0;
       ms_pend_r <= 2'd0; s1_pend_r <= 1'b0; adp_pend_r <= 1'b0;
       adp_eid_r <= '0; adp_avail_r <= 1'b0; adp_vt_r <= '0;
+      adp_avidx_r <= '0;
       srv_reg_r <= '0; srv_fail_r <= '0;
       cmd_count_o <= 16'd0; probe_count_o <= 16'd0;
       tx_wedge_cnt_o <= 8'd0; txwd_r <= '0;
@@ -1181,7 +1253,9 @@ module KL_acmp_lstn_ctx #(
             wr_idx_w == IDX_W_C'(N_SINKS_P - 1)) view1_r <= wr_data_w;
         active_vec_r[wr_idx_w] <= wr_data_w.active;
         bound_vec_r[wr_idx_w]  <= (wr_data_w.state != LSM_UNBOUND_S);
-        sid_vec_r[64*wr_idx_w +: 64] <= wr_data_w.sid;
+        sid_vec_r[64*wr_idx_w +: 64]  <= wr_data_w.sid;
+        dmac_vec_r[48*wr_idx_w +: 48] <= wr_data_w.dmac;
+        vlan_vec_r[12*wr_idx_w +: 12] <= wr_data_w.vlan;
         //! the init walk is not a bind event
         if (init_done_r) bind_upd_p_o[wr_idx_w] <= 1'b1;
       end
@@ -1315,6 +1389,9 @@ module KL_acmp_lstn_ctx #(
               4'd7: begin   // bytes 56-63: dmac tail + sequence_id
                 cap_dmac_r[31:0] <= {rxd_r[7:0], rxd_r[15:8],
                                      rxd_r[23:16], rxd_r[31:24]};
+                //! bytes 60-61: the ADPDU gptp_grandmaster_id tail (dead
+                //! lanes on an ACMP frame; see w_adp_gm_ok)
+                cap_gmtail_r <= {rxd_r[39:32], rxd_r[47:40]};
                 cap_seq_r <= {rxd_r[55:48], rxd_r[63:56]};
               end
               4'd8: begin   // bytes 64-69: flags + vlan
@@ -1389,10 +1466,17 @@ module KL_acmp_lstn_ctx #(
           end
 
           // ---- ADP watch: latch the event for the sweep ---------------
-          if (w_adp_seen) begin
+          //! w_adp_take, not w_adp_seen — a gm/domain-mismatching
+          //! ENTITY_AVAILABLE is ignored for the availability latch
+          //! (Milan 5.6.4.5.1 step 1)
+          if (w_adp_take) begin
             adp_eid_r   <= cap_sid_r;    // entity_id at wire byte 18
             adp_avail_r <= (cap_msg_r == 4'd0);
             adp_vt_r    <= cap_status_r; // byte 16 [7:3] = valid_time
+            //! available_index, ADPDU bytes 36-39 = wire bytes 50-53 (the
+            //! frame-capture overlay {cap_tuid_r, cap_luid_r}) — the
+            //! 5.6.4.5.2 step 2 regression term
+            adp_avidx_r <= {cap_tuid_r, cap_luid_r};
           end
 
           if (w_lstn_hit) begin

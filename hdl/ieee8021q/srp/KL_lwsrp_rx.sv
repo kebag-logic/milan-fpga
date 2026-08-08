@@ -49,6 +49,10 @@ module KL_lwsrp_rx #(
     // ---- listener-side bound stream (ACMP listener SM) --------------------
     input  wire [63:0]  lsid_i,
     input  wire         lsid_en_i,
+    //! expected {dmac, vlan} pair for the lsid context (Milan Table 5.29
+    //! three-parameter registrar match; all-zero pair = sid-only)
+    input  wire [47:0]  lsid_dmac_i,
+    input  wire [11:0]  lsid_vlan_i,
     output wire         ta_registered_o,   //! TalkerAdvertise registered
     output wire         ta_failed_o,       //! TalkerFailed registered
     output wire [7:0]   ta_fail_code_o,
@@ -72,6 +76,9 @@ module KL_lwsrp_rx #(
     // ---- extra context lanes (context table; en=0 lanes inert) -----------
     input  wire [EXT_LANES_P*64-1:0] ext_sid_i,
     input  wire [EXT_LANES_P-1:0]    ext_en_i,
+    //! per-lane expected {dmac, vlan} (Table 5.29; zero pair = sid-only)
+    input  wire [EXT_LANES_P*48-1:0] ext_dmac_i,
+    input  wire [EXT_LANES_P*12-1:0] ext_vlan_i,
     output wire [EXT_LANES_P-1:0]    ext_lstn_p_o,
     output wire [EXT_LANES_P-1:0]    ext_tadv_p_o,
     output wire [EXT_LANES_P-1:0]    ext_tfail_p_o,
@@ -125,7 +132,9 @@ module KL_lwsrp_rx #(
     .s_tlast (f_tlast), .s_tuser (f_tuser), .s_tready (f_tready),
     .station_mac_i (station_mac_i), .unique_id_i (unique_id_i),
     .lsid_i (lsid_i), .lsid_en_i (lsid_en_i),
+    .lsid_dmac_i (lsid_dmac_i), .lsid_vlan_i (lsid_vlan_i),
     .ext_sid_i (ext_sid_i), .ext_en_i (ext_en_i),
+    .ext_dmac_i (ext_dmac_i), .ext_vlan_i (ext_vlan_i),
     .ext_lstn_p_o (ext_lstn_p_o), .ext_tadv_p_o (ext_tadv_p_o),
     .ext_tfail_p_o (ext_tfail_p_o),
     .ext_evt_o (ext_evt_o), .ext_par_o (ext_par_o),

@@ -109,11 +109,18 @@ package acmp_pkg;
   // state of a sink lives here so N sinks share one machine + one RAM.   //
   // An all-zero record is a valid UNBOUND context (post-reset init).     //
   // ------------------------------------------------------------------ //
-  //! NOTE the two newest fields sit ABOVE state (the packed MSBs): every
+  //! NOTE the newest fields sit ABOVE state (the packed MSBs): every
   //! pre-existing field keeps its historical LSB offset, which is what the
   //! package-free consumers of the flattened record (milan_csr's literal
   //! ACMP_CTX_*_LO_C map, the persist/csr harness cbits() maps) key on.
   typedef struct packed {
+    logic [31:0] last_avail;//! available_index of the last ACCEPTED
+                            //! ENTITY_AVAILABLE from the bound talker. Milan
+                            //! 5.6.4.5.2 step 2: a non-increasing index means
+                            //! the talker restarted behind our back —
+                            //! EVT_TK_DEPARTED (tk_avail wiped); step 3 notes
+                            //! the value either way so the next increasing
+                            //! ADPDU re-discovers through 5.6.4.5.1
     logic [15:0] seq;       //! sequence_id of the OUTSTANDING probe: latched
                             //! at launch, REUSED by the RESP2 resend
                             //! (5.5.3.5.16 "duplicate"), matched against the
@@ -136,7 +143,7 @@ package acmp_pkg;
     logic [63:0] ctlr;      //! binding controller_entity_id
   } acmp_lstn_ctx_t;
 
-  localparam int ACMP_LSTN_CTX_W_C = $bits(acmp_lstn_ctx_t);   //! 338
+  localparam int ACMP_LSTN_CTX_W_C = $bits(acmp_lstn_ctx_t);   //! 370
 
 endpackage
 

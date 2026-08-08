@@ -135,13 +135,20 @@ static std::vector<uint8_t> acmp(uint8_t msg, uint8_t status,
     return f;
 }
 
-static std::vector<uint8_t> adp(uint8_t msg, uint64_t eid) {
+//! aidx = available_index (wire bytes 50-53): Milan 5.6.4.5.2 step 2 wipes
+//! availability on a non-increasing value, so refreshes must increase it.
+//! gm/domain bytes stay zero — the harness leaves gm_id_i unconnected (0),
+//! which stands the 5.6.4.5.1 step 1 gate down (the bring-up escape).
+static std::vector<uint8_t> adp(uint8_t msg, uint64_t eid,
+                                uint32_t aidx = 1) {
     std::vector<uint8_t> f = {0x91,0xE0,0xF0,0x01,0x00,0x00,
                               0x02,0x00,0x00,0x00,0x00,0x01,
                               0x22,0xF0, 0xFA};
     f.push_back(msg & 0xF);
     f.push_back(0x1F); f.push_back(56);
     put_be(f, eid, 8);
+    while (f.size() < 50) f.push_back(0);
+    put_be(f, aidx, 4);
     while (f.size() < 82) f.push_back(0);
     return f;
 }
@@ -175,8 +182,9 @@ static uint64_t r_be(const std::vector<uint8_t>& b, int off, int n) {
 // acmp_lstn_ctx_t packed offsets (LSB first): ctlr[63:0] talker[127:64]
 // sid[191:128] dmac[239:192] vlan[251:240] flags[267:252] tuid[283:268]
 // tmr[297:284] adp_age[304:298] status[309:305] probing[311:310]
-// tk_avail[312] active[313] state[316:314]
-static uint32_t ctxw[10];
+// tk_avail[312] active[313] state[316:314] adp_vt[321:317] seq[337:322]
+// last_avail[369:338] — MSB growth only; every pre-existing offset holds
+static uint32_t ctxw[12];
 
 static uint64_t cbits(int lo, int width) {
     uint64_t v = 0;
@@ -204,7 +212,7 @@ static bool tbl_read(int idx) {
         tick();
         dut->eval();
         if (dut->tbl_gnt_o) {
-            for (int w = 0; w < 10; w++) ctxw[w] = dut->tbl_ctx_o[w];
+            for (int w = 0; w < 12; w++) ctxw[w] = dut->tbl_ctx_o[w];
             dut->tbl_req_i = 0;
             tick();
             return true;
@@ -454,6 +462,8 @@ int main(int argc, char** argv) {
     ck("[J3] probing PASSIVE (step 2)",        (long)c_probing(), 1);
     ck("[J3] ACMP status 0 (step 2)",          (long)c_status(), 0);
     ckh("[J3] talker_entity_id from flash",    c_talker(), T1_EID);
+    ck("[J3] last_avail cleared (369:338 struct pin)",
+       (long)cbits(338, 32), 0);
     ck("[J3] talker_unique_id from flash",     (long)c_tuid(), 3);
     ckh("[J3] controller_entity_id (5.5.3.5.3)", c_ctlr(), CT_EID);
     ck("[J3] STREAMING_WAIT flag preserved",   (long)c_flags(), 0x0008);
@@ -466,10 +476,12 @@ int main(int argc, char** argv) {
 
     // ---------------------------------------------------------------- //
     printf("\n[J4] the restored sink fast-connects with NO controller\n");
-    feed(adp(0, T1_EID));                       // talker becomes ADP-visible
+    feed(adp(0, T1_EID, 77));                   // talker becomes ADP-visible
     run(8);
     tbl_read(0);
     ck("[J4] ENTITY_AVAILABLE -> PRB_W_DELAY (5.5.1.4)", (long)c_state(), 2);
+    ck("[J4] available_index noted (last_avail struct pin)",
+       (long)cbits(338, 32), 77);
     uint16_t j4_seq = 0;
     {
         auto p = wait_frame(1100 * MS);

@@ -73,6 +73,13 @@ module KL_acmp_listener #(
     // ---- ADP age tick ----------------------------------------------------
     input  wire         tick_1s_i,
 
+    // ---- gPTP view (Milan 5.6.4.5.1 step 1) ------------------------------
+    //! pass-through to KL_acmp_lstn_ctx: committed grandmaster pair +
+    //! domain number gate the ENTITY_AVAILABLE availability latch; an
+    //! all-zero pair stands the check down (see the core's port banner)
+    input  wire [63:0]  gm_id_i,
+    input  wire [7:0]   gm_domain_i,
+
     // ---- lwSRP listener-side hooks (PER SINK) ---------------------------
     //! bit c = the lwSRP registrar state of context c's OWN attribute row.
     //! Every context runs the probe SM, so every context needs its own
@@ -95,6 +102,10 @@ module KL_acmp_listener #(
     //! ctx rows 1..N-1 from these (sink 0 keeps the legacy row-0 path)
     output wire [N_SINKS_P-1:0]    lstn_bound_v_o,
     output wire [N_SINKS_P*64-1:0] lstn_sid_v_o,
+    //! per-sink probed SRP {dmac, vlan} (Table 5.29 expected pair for the
+    //! lwSRP walker; zero until the probe response learns them)
+    output wire [N_SINKS_P*48-1:0] lstn_dmac_v_o,
+    output wire [N_SINKS_P*12-1:0] lstn_vlan_v_o,
     output wire [N_SINKS_P-1:0]    bind_upd_p_o,
 
     // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) -------
@@ -129,7 +140,7 @@ module KL_acmp_listener #(
 
     // ---- context-table access (P12: the 0x800 CSR window's ACMP master) --
     //! pass-through of KL_acmp_lstn_ctx's tbl_* port: req held until the
-    //! 1-cycle gnt; ctx (acmp_lstn_ctx_t, 338 b) valid WITH gnt. Index is
+    //! 1-cycle gnt; ctx (acmp_lstn_ctx_t, 370 b) valid WITH gnt. Index is
     //! the wrapper's context index (0 = STREAM_INPUT[0], 1 = CRF sink,
     //! 2..N-1 = window streams).
     input  wire         tbl_req_i,
@@ -181,6 +192,8 @@ module KL_acmp_listener #(
     .locked_i        (locked_i),     //! AECP entity lock -> ACMP step 1
     .lock_ctlr_i     (lock_ctlr_i),
     .tick_1s_i       (tick_1s_i),
+    .gm_id_i         (gm_id_i),     //! 5.6.4.5.1 step 1 gm/domain gate
+    .gm_domain_i     (gm_domain_i),
     //! lwSRP REGISTRAR coupling, one bit per context: bit 0 is the row-0
     //! registrar, bits 1..N-1 are the per-row registrars inside KL_lwsrp_ctx
     //! for the rows the lstn_bound_v/lstn_sid_v bind view provisions. Zero-
@@ -193,6 +206,8 @@ module KL_acmp_listener #(
     .stream_active_o (w_active),
     .lstn_bound_o    (lstn_bound_v_o),
     .lstn_sid_o      (lstn_sid_v_o),
+    .lstn_dmac_o     (lstn_dmac_v_o),
+    .lstn_vlan_o     (lstn_vlan_v_o),
     .bind_upd_p_o    (bind_upd_p_o),
     .rx_tvalid_i     (rx_tvalid_i),
     .rx_tdata_i      (rx_tdata_i),

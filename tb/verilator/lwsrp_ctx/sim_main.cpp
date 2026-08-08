@@ -294,6 +294,23 @@ static std::vector<uint8_t> fv_talker(uint64_t sid) {
     for (int i = 0; i < 17; i++) v.push_back(0xA0 + i);
     return v;
 }
+//! explicit DataFrameParameters (the Table 5.29 three-parameter legs)
+static std::vector<uint8_t> fv_talker_dv(uint64_t sid, uint64_t dmac,
+                                         uint16_t vlan) {
+    std::vector<uint8_t> v; put_be(v, sid, 8);
+    put_be(v, dmac, 6); put_be(v, vlan, 2);          // DFP
+    put_be(v, 100, 2);  put_be(v, 1, 2);             // TSpec
+    v.push_back(0x70);                               // PriorityAndRank
+    put_be(v, 1000, 4);                              // AccumulatedLatency
+    return v;                                        // 25 B
+}
+static std::vector<uint8_t> fv_tfail_dv(uint64_t sid, uint64_t dmac,
+                                        uint16_t vlan, uint8_t code) {
+    auto v = fv_talker_dv(sid, dmac, vlan);
+    put_be(v, BRIDGE << 16, 8);
+    v.push_back(code);
+    return v;                                        // 34 B
+}
 static std::vector<uint8_t> fv_tfail(uint64_t sid, uint8_t code) {
     auto v = fv_talker(sid);
     put_be(v, BRIDGE << 16, 8);
@@ -323,10 +340,11 @@ static void feed(const std::vector<uint8_t>& f) {
 // ---- context provisioning port -------------------------------------------
 static void ctx_write(int idx, int valid, int dir, uint64_t sid,
                       uint64_t dmac = 0, uint8_t pr = 0x70,
-                      uint16_t maxf = 0, uint16_t ivf = 0, uint32_t lat = 0) {
+                      uint16_t maxf = 0, uint16_t ivf = 0, uint32_t lat = 0,
+                      uint16_t vlan = 0) {
     dut->ctx_req_i = 1; dut->ctx_we_i = 1; dut->ctx_idx_i = idx;
     dut->ctx_valid_i = valid; dut->ctx_dir_i = dir; dut->ctx_sid_i = sid;
-    dut->ctx_dmac_i = dmac; dut->ctx_prio_rank_i = pr;
+    dut->ctx_dmac_i = dmac; dut->ctx_vlan_i = vlan; dut->ctx_prio_rank_i = pr;
     dut->ctx_max_frame_i = maxf; dut->ctx_interval_i = ivf;
     dut->ctx_latency_i = lat;
     int guard = 20;
@@ -739,6 +757,108 @@ int main(int argc, char** argv) {
         dut->ctx_req_i = 0; dut->ctx_we_i = 0;
         step(); step();
         ck("port: gnt idle after release", dut->ctx_gnt_o, 0);
+        // withdraw + settle so the finals below see the steady shape
+        ctx_write(3, 0, 0, 0);
+        run(400);
+        drain_tx();
+    }
+
+    // ================================================================
+    // [B1d] Table 5.29 three-parameter registrar match (listener rows)
+    //   EVT_TK_REGISTERED requires the Talker attribute to match ALL of
+    //   {Stream ID, Stream Destination MAC Address, Stream VLAN ID}; a
+    //   mismatch is ignored (5.3.8.9 — the sink re-probes instead).
+    //   Before this round the lane hit was sid-range-only: the wrong-vlan
+    //   leg below REGISTERED.
+    // ================================================================
+    {
+        const uint64_t M_SID = 0x0200000000010009ULL;
+        const uint64_t EXPD  = 0x91E0F000BE55ULL;
+        // fresh listener row carrying the EXPECTED pair {EXPD, vlan 2}
+        ctx_write(3, 1, 1, M_SID, EXPD, 0x70, 0, 0, 0, 2);
+        run(400); drain_tx();
+        ck("b1d: row starts unregistered", (dut->ctx_reg_o >> 3) & 1, 0);
+
+        // sid matches, vlan WRONG: never registers (the B1d bite)
+        Vec w; w.fv = fv_talker_dv(M_SID, EXPD, 5); w.evts = {EV_JOININ};
+        feed(bframe({msg_tadv(w)}));
+        run(200);
+        ck("b1d: sid-match wrong-vlan TA never registers (Tab 5.29)",
+           (dut->ctx_reg_o >> 3) & 1, 0);
+
+        // sid matches, dmac WRONG: same verdict
+        Vec d; d.fv = fv_talker_dv(M_SID, EXPD + 1, 2); d.evts = {EV_JOININ};
+        feed(bframe({msg_tadv(d)}));
+        run(200);
+        ck("b1d: wrong-dmac TA never registers",
+           (dut->ctx_reg_o >> 3) & 1, 0);
+
+        // all three match: registers (the negative legs are the law, not
+        // a parse failure)
+        Vec g; g.fv = fv_talker_dv(M_SID, EXPD, 2); g.evts = {EV_JOININ};
+        feed(bframe({msg_tadv(g)}));
+        run(200);
+        ck("b1d: three-parameter match registers",
+           (dut->ctx_reg_o >> 3) & 1, 1);
+        drain_tx();
+
+        // +k law: 802.1Q 35.2.2.8.1 increments StreamID AND destination_
+        // address together through a vector, so a base 2 BELOW with the
+        // base dmac 2 below covers our row at k=2 with dmac EXPD exactly
+        ctx_write(3, 0, 0, 0); run(100);
+        ctx_write(3, 1, 1, M_SID, EXPD, 0x70, 0, 0, 0, 2);
+        run(400); drain_tx();
+        Vec k; k.nv = 3; k.fv = fv_talker_dv(M_SID - 2, EXPD - 2, 2);
+        k.evts = {EV_MT, EV_MT, EV_JOININ};
+        feed(bframe({msg_tadv(k)}));
+        run(200);
+        ck("b1d: +k hit with dmac shifted together registers",
+           (dut->ctx_reg_o >> 3) & 1, 1);
+        drain_tx();
+
+        // +k negative: the same vector with the base dmac UNshifted is a
+        // different stream's DFP at our k (offset 0 != 2) — ignored
+        ctx_write(3, 0, 0, 0); run(100);
+        ctx_write(3, 1, 1, M_SID, EXPD, 0x70, 0, 0, 0, 2);
+        run(400); drain_tx();
+        Vec kn; kn.nv = 3; kn.fv = fv_talker_dv(M_SID - 2, EXPD, 2);
+        kn.evts = {EV_MT, EV_MT, EV_JOININ};
+        feed(bframe({msg_tadv(kn)}));
+        run(200);
+        ck("b1d: +k hit with unshifted dmac never registers",
+           (dut->ctx_reg_o >> 3) & 1, 0);
+
+        // TalkerFailed obeys the same law (Table 5.29: EITHER attribute)
+        Vec fw; fw.fv = fv_tfail_dv(M_SID, EXPD, 5, 0x08);
+        fw.evts = {EV_JOININ};
+        feed(bframe({msg_tfail(fw)}));
+        run(200);
+        ck("b1d: wrong-vlan TF never registers a failure",
+           (dut->ctx_failed_o >> 3) & 1, 0);
+        Vec fg; fg.fv = fv_tfail_dv(M_SID, EXPD, 2, 0x08);
+        fg.evts = {EV_JOININ};
+        feed(bframe({msg_tfail(fg)}));
+        run(200);
+        ck("b1d: matching TF registers the failure",
+           (dut->ctx_failed_o >> 3) & 1, 1);
+        {
+            uint16_t st = ctx_read(3);
+            ck("b1d: failure code via readback", st & 0xFF, 0x08);
+        }
+        drain_tx();
+
+        // zero expected pair = parameters not learned yet (5.3.8.9): the
+        // walker matches sid-only — the lawful window where a talker's TA
+        // precedes our probe response (CRF fast-connect, t27 shape)
+        ctx_write(3, 0, 0, 0); run(100);
+        ctx_write(3, 1, 1, M_SID);                    // pair {0, 0}
+        run(400); drain_tx();
+        Vec z; z.fv = fv_talker_dv(M_SID, 0x112233445566ULL, 7);
+        z.evts = {EV_JOININ};
+        feed(bframe({msg_tadv(z)}));
+        run(200);
+        ck("b1d: zero pair = sid-only match (learn window)",
+           (dut->ctx_reg_o >> 3) & 1, 1);
         // withdraw + settle so the finals below see the steady shape
         ctx_write(3, 0, 0, 0);
         run(400);
