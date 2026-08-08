@@ -12,8 +12,11 @@
  *   ACMP-3   8.2.1.5   TALKER_UNKNOWN_ID for uid >= N
  *   ACMP-5   8.2.1.7   stream_id = {station MAC, uid} per source; dest_mac
  *                      per-source config slice
- *   M-ACMP-6 5.5.4.1   PROBE_TX per uid: SUCCESS + LIVE params + 15 s arm
- *   M-ACMP-7 5.5.4.2/3 DISCONNECT_TX no-state-change; GET_TX_STATE live
+ *   M-ACMP-6 5.5.4.1   PROBE_TX per uid: SUCCESS + LIVE params + 15 s arm;
+ *                      Table 5.43 flags = FC/SW echoed, REG_FAILED forced 0
+ *   M-ACMP-7 5.5.4.2/3 DISCONNECT_TX no-state-change, all three flags 0
+ *                      (Table 5.45); GET_TX_STATE live params, flags
+ *                      cleared + listener ids ZEROED (Table 5.47)
  *   M-ACMP-8 5.5.4.4   GET_TX_CONNECTION -> NOT_SUPPORTED
  */
 
@@ -149,7 +152,8 @@ int main(int argc, char** argv) {
 
     printf("== KL_acmp_tlkr_ctx N=4 (per-uid probe windows, one wheel) ==\n");
 
-    // 1) GET_TX_STATE per uid: LIVE per-source stream params
+    // 1) GET_TX_STATE per uid: LIVE per-source stream params; Table 5.47
+    //    zeroes the listener ids on success (talker_unique_id still echoes)
     for (int uid = 0; uid < 4; uid++) {
         feed(acmp_cmd(4, ENTITY_ID, uid, 0x0100 + uid, 0x004A));
         auto r = collect();
@@ -161,6 +165,8 @@ int main(int argc, char** argv) {
             ck("[T1] vlan per source", be(r, 66, 2), VID_BASE + uid);
             ck("[T1] count 0", be(r, 60, 2), 0);
             ck("[T1] flags cleared", be(r, 64, 2), 0);
+            ck("[T1] listener_eid ZEROED (T5.47)", be(r, 42, 8), 0);
+            ck("[T1] listener_uid ZEROED (T5.47)", be(r, 52, 2), 0);
         }
     }
     ck("[T1] GET_TX_STATE arms nothing", dut->probe_armed_o, 0);
@@ -171,11 +177,15 @@ int main(int argc, char** argv) {
     ck("[T2] uid4 TALKER_UNKNOWN_ID", r.size() == 70 ? (r[16] >> 3) : 0, 2);
     ck("[T2] uid4 stream_id echoed", be(r, 18, 8), 0x1122334455667788ULL);
 
-    // 3) PROBE uid1 arms ONLY context 1
-    feed(acmp_cmd(0, ENTITY_ID, 1, 0x0300));
+    // 3) PROBE uid1 arms ONLY context 1; Table 5.43 flags = FC/SW echoed,
+    //    REG_FAILED forced 0; listener ids ECHO on probe success
+    feed(acmp_cmd(0, ENTITY_ID, 1, 0x0300, 0x004A));
     r = collect();
     ck("[T3] probe resp SUCCESS", r[16] >> 3, 0);
     ck("[T3] probe stream_id {mac,1}", be(r, 18, 8), (STATION << 16) | 1);
+    ck("[T3] probe flags echo FC+SW, RF 0", be(r, 64, 2), 0x000A);
+    ck("[T3] probe listener_eid echoed", be(r, 42, 8), 0xAABBCCDDEEFF0011ULL);
+    ck("[T3] probe listener_uid echoed", be(r, 52, 2), 7);
     ck("[T3] armed == bit1", dut->probe_armed_o, 0x2);
     ck("[T3] active == bit1", dut->talker_active_o, 0x2);
 
@@ -204,13 +214,17 @@ int main(int argc, char** argv) {
     tick();
     ck("[T5] released after the listener leaves", dut->probe_armed_o, 0x0);
 
-    // 6) DISCONNECT_TX: SUCCESS, zeroed fields, NO state change (5.5.4.2)
+    // 6) DISCONNECT_TX: SUCCESS, zeroed fields, all three flags 0
+    //    (Table 5.45), listener ids ECHO, NO state change (5.5.4.2)
     feed(acmp_cmd(0, ENTITY_ID, 3, 0x0600));
     (void)collect();
     feed(acmp_cmd(2, ENTITY_ID, 3, 0x0601, 0x004A));
     r = collect();
     ck("[T6] disc SUCCESS", r[16] >> 3, 0);
     ck("[T6] disc stream_id zeroed", be(r, 18, 8), 0);
+    ck("[T6] disc flags all-three 0 (T5.45)", be(r, 64, 2), 0);
+    ck("[T6] disc listener_eid echoed", be(r, 42, 8), 0xAABBCCDDEEFF0011ULL);
+    ck("[T6] disc listener_uid echoed", be(r, 52, 2), 7);
     ck("[T6] disc does NOT disarm ctx3", dut->probe_armed_o, 0x8);
 
     // 7) GET_TX_CONNECTION -> NOT_SUPPORTED (5.5.4.4)

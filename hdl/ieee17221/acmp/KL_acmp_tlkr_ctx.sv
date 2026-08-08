@@ -13,18 +13,24 @@
 //                near-stateless: per context only the probe-freshness
 //                window exists (armed + 15 s timer).
 //
-//                Behaviour per context c (talker_unique_id == c):
+//                Behaviour per context c (talker_unique_id == c), success
+//                flags per the Milan §5.5.4 response tables (the pipewire
+//                reference INVERTED the probe flag law and echoed the
+//                DISCONNECT flags; the spec tables win):
 //                  CONNECT_TX_COMMAND (PROBE_TX, §5.5.4.1) -> SUCCESS, LIVE
 //                    stream params (stream_id = {station MAC, c} — the
 //                    tuid tail is echoed, so the LIVE id generalizes for
 //                    free; dest_mac/vlan from the per-source config
-//                    vectors), count = 0, FAST_CONNECT|STREAMING_WAIT
-//                    cleared; arms context c + 15 s window re-arm.
+//                    vectors), count = 0, FAST_CONNECT/STREAMING_WAIT
+//                    echoed + REGISTERING_FAILED forced 0 (Table 5.43);
+//                    arms context c + 15 s window re-arm.
 //                  DISCONNECT_TX (§5.5.4.2) -> SUCCESS, zeroed stream
-//                    fields, NO state change. GET_TX_STATE (§5.5.4.3) ->
-//                    LIVE params, three flags cleared. uid >= N ->
-//                    TALKER_UNKNOWN_ID. GET_TX_CONNECTION -> NOT_SUPPORTED
-//                    (§5.5.4.4).
+//                    fields, all three named flags 0 (Table 5.45), NO
+//                    state change. GET_TX_STATE (§5.5.4.3) -> LIVE params,
+//                    three flags cleared + listener_entity_id/
+//                    listener_unique_id ZEROED (Table 5.47). uid >= N ->
+//                    TALKER_UNKNOWN_ID (full echo, Tables 5.41/5.44/5.46).
+//                    GET_TX_CONNECTION -> NOT_SUPPORTED (§5.5.4.4).
 //
 //                TIMER WHEEL: ONE shared 1 s sweep walks the contexts
 //                (1 RMW cycle each) instead of N parallel window counters;
@@ -157,6 +163,7 @@ module KL_acmp_tlkr_ctx #(
   reg [4:0]    resp_status_r;
   resp_mode_t  resp_mode_r;    //! stream-field source: echo / zeros / live params
   reg [15:0]   flag_clr_r;     //! flag bits cleared in the response (be16 mask)
+  reg          lstn_zero_r;    //! GET_TX_STATE success: listener ids ZEROED (T5.47)
   reg [47:0]   live_dmac_r;    //! per-source params latched at CLASSIFY
   reg [11:0]   live_vid_r;
 
@@ -255,7 +262,29 @@ module KL_acmp_tlkr_ctx #(
         w_beat[8*0 +: 8] = sf(tuid_r[15:8], rword_w[8*0 +: 8]);
         w_beat[8*1 +: 8] = sf(tuid_r[7:0],  rword_w[8*1 +: 8]);
       end
+      4'd5: begin                                       // bytes 40-47
+        // listener_entity_id head (bytes 42-47): ZEROED on GET_TX_STATE
+        // success (Table 5.47); every other row echoes. Bytes 40-41 are
+        // the talker EID tail — always echo (it matched us to get here).
+        if (lstn_zero_r) begin
+          w_beat[8*2 +: 8] = 8'h00;
+          w_beat[8*3 +: 8] = 8'h00;
+          w_beat[8*4 +: 8] = 8'h00;
+          w_beat[8*5 +: 8] = 8'h00;
+          w_beat[8*6 +: 8] = 8'h00;
+          w_beat[8*7 +: 8] = 8'h00;
+        end
+      end
       4'd6: begin                                       // bytes 48-55
+        // listener_entity_id tail (48-49) + listener_unique_id (52-53):
+        // ZEROED with the head above; talker_unique_id (50-51) echoes
+        // (Table 5.47 keeps it "same value as in the command")
+        if (lstn_zero_r) begin
+          w_beat[8*0 +: 8] = 8'h00;
+          w_beat[8*1 +: 8] = 8'h00;
+          w_beat[8*4 +: 8] = 8'h00;
+          w_beat[8*5 +: 8] = 8'h00;
+        end
         w_beat[8*6 +: 8] = sf(live_dmac_r[47:40], rword_w[8*6 +: 8]);
         w_beat[8*7 +: 8] = sf(live_dmac_r[39:32], rword_w[8*7 +: 8]);
       end
@@ -280,7 +309,7 @@ module KL_acmp_tlkr_ctx #(
         w_beat[8*3 +: 8] = sf(live_vid_r[7:0],          rword_w[8*3 +: 8]);
         // bytes 68-69 reserved: echo
       end
-      default: ;                                        // beats 4-5: pure echo
+      default: ;                                        // beat 4: pure echo
     endcase
   end
 
@@ -300,7 +329,7 @@ module KL_acmp_tlkr_ctx #(
       dst_ok_r <= 1'b0; hdr_ok_r <= 1'b0; msg_r <= '0;
       tk_hi_ok_r <= 1'b0; tk_lo_ok_r <= 1'b0; tuid_r <= '0;
       resp_msg_r <= 4'd0; resp_status_r <= 5'd0;
-      resp_mode_r <= RESP_ECHO_E; flag_clr_r <= 16'h0;
+      resp_mode_r <= RESP_ECHO_E; flag_clr_r <= 16'h0; lstn_zero_r <= 1'b0;
       live_dmac_r <= '0; live_vid_r <= '0;
       probe_armed_o <= '0;
       swp_active_r <= 1'b0; swp_idx_r <= '0; s1_pend_r <= 1'b0;
@@ -384,41 +413,46 @@ module KL_acmp_tlkr_ctx #(
             cmd_count_o   <= cmd_count_o + 16'd1;
             resp_msg_r    <= {msg_r[3:1], 1'b1};          // command+1
             resp_mode_r   <= RESP_ECHO_E;
-            flag_clr_r    <= 16'h0;
+            flag_clr_r    <= 16'h0;      //! error rows: full flag echo
+            lstn_zero_r   <= 1'b0;       //! set ONLY in the GTS success arm
             //! per-source live params (uid-indexed config slices)
             live_dmac_r   <= src_dmac_i[48*32'(w_uid_idx) +: 48];
             live_vid_r    <= src_vid_i[12*32'(w_uid_idx) +: 12];
             unique case (msg_r)
-              // Milan PROBE_TX (§4.3.3.1/§5.5.4.1): live params + activate
+              // Milan PROBE_TX (§4.3.3.1/§5.5.4.1): live params + activate;
+              // Table 5.43 flags: FC/SW echoed, REGISTERING_FAILED forced 0
               ACMP_CONNECT_TX_COMMAND_C: begin
                 if (w_uid_valid) begin
                   resp_status_r <= ACMP_STATUS_SUCCESS_C;
                   resp_mode_r   <= RESP_LIVE_E;
-                  flag_clr_r    <= ACMP_FLAG_FAST_CONNECT_C |
-                                   ACMP_FLAG_STREAMING_WAIT_C;
+                  flag_clr_r    <= ACMP_FLAG_CLR_PROBE_C;
                   probe_armed_o[w_uid_idx] <= 1'b1;
                   // context timer zeroed through the table write port
                 end else begin
                   resp_status_r <= ACMP_STATUS_TALKER_UNKNOWN_ID_C;
                 end
               end
-              // §5.5.4.2: always SUCCESS, zeroed fields, NO state change
+              // §5.5.4.2: always SUCCESS, zeroed fields, NO state change;
+              // Table 5.45 flags: all three named bits 0
               ACMP_DISCONNECT_TX_COMMAND_C: begin
                 if (w_uid_valid) begin
                   resp_status_r <= ACMP_STATUS_SUCCESS_C;
                   resp_mode_r   <= RESP_ZERO_E;
+                  flag_clr_r    <= ACMP_FLAG_CLR_DISC_C;
                 end else begin
                   resp_status_r <= ACMP_STATUS_TALKER_UNKNOWN_ID_C;
                 end
               end
-              // §5.5.4.3: live params, count=0, three flags cleared
+              // §5.5.4.3: live params, count=0, three flags cleared,
+              // listener ids ZEROED (Table 5.47). A2 MARKER (gh #56):
+              // REGISTERING_FAILED goes live here — flag_set_r sourced
+              // from lstn_ask_fail_i — when the lwSRP chain lands.
               ACMP_GET_TX_STATE_COMMAND_C: begin
                 if (w_uid_valid) begin
                   resp_status_r <= ACMP_STATUS_SUCCESS_C;
                   resp_mode_r   <= RESP_LIVE_E;
-                  flag_clr_r    <= ACMP_FLAG_FAST_CONNECT_C |
-                                   ACMP_FLAG_STREAMING_WAIT_C |
-                                   ACMP_FLAG_SRP_REG_FAILED_C;
+                  flag_clr_r    <= ACMP_FLAG_CLR_GTS_C;
+                  lstn_zero_r   <= 1'b1;
                 end else begin
                   resp_status_r <= ACMP_STATUS_TALKER_UNKNOWN_ID_C;
                 end

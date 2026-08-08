@@ -10,15 +10,19 @@
  * the pipewire struct avb_packet_acmp) and fed through the little-lane RX
  * tap; responses are decoded from the little-lane TX AXIS.
  *
- * Contract under test:
+ * Contract under test (Milan v1.2 §5.5.4 SUCCESS-response tables; the
+ * pipewire reference INVERTED the probe flag law and echoed the DISCONNECT
+ * flags — the spec tables win):
  *  - CONNECT_TX_COMMAND == Milan PROBE_TX: SUCCESS + LIVE stream params
  *    (stream_id = {station_mac, uid} — must match the AVTP header), count=0,
- *    FAST_CONNECT|STREAMING_WAIT cleared (SRP_REG_FAILED preserved), arms
- *    the 15 s window (talker_active_o).
- *  - DISCONNECT_TX: always SUCCESS, ZEROED stream fields, flags ECHOED,
- *    NO state change (stays armed).
- *  - GET_TX_STATE: SUCCESS + LIVE params, count=0, all three flags cleared.
- *  - unique_id != 0 -> TALKER_UNKNOWN_ID with full echo.
+ *    FAST_CONNECT/STREAMING_WAIT ECHOED + REGISTERING_FAILED forced 0
+ *    (Table 5.43), arms the 15 s window (talker_active_o).
+ *  - DISCONNECT_TX: always SUCCESS, ZEROED stream fields, all three named
+ *    flags 0 (Table 5.45), NO state change (stays armed).
+ *  - GET_TX_STATE: SUCCESS + LIVE params, count=0, all three flags cleared,
+ *    listener_entity_id/listener_unique_id ZEROED (Table 5.47).
+ *  - unique_id != 0 -> TALKER_UNKNOWN_ID with full echo (incl. flags and
+ *    listener ids, Tables 5.41/5.44/5.46).
  *  - GET_TX_CONNECTION -> NOT_SUPPORTED (Milan §5.5.4.4).
  *  - 15-tick expiry drops the arm unless listener_observed_i holds it.
  *  - foreign talker / response-typed messages ignored; back-pressure exact.
@@ -153,7 +157,8 @@ int main(int argc, char** argv) {
     ck("idle: not active", dut->talker_active_o, 0);
 
     // 1) GET_TX_STATE, uid 0 -> SUCCESS, count 0, LIVE stream fields,
-    //    FAST_CONNECT|STREAMING_WAIT|SRP_REG_FAILED (0x004A) all cleared
+    //    FAST_CONNECT|STREAMING_WAIT|SRP_REG_FAILED (0x004A) all cleared,
+    //    listener_entity_id + listener_unique_id ZEROED (Table 5.47)
     feed(acmp_cmd(4, ENTITY_ID, 0, 0x0101, /*flags*/0x004A));
     auto r = collect();
     ck("frame length 70", r.size(), 70);
@@ -168,9 +173,9 @@ int main(int argc, char** argv) {
         ck("stream_id LIVE {mac,uid}", be(r, 18, 8), LIVE_SID);
         ck("controller echoed", be(r, 26, 8), CTRL_ID);
         ck("talker echoed", be(r, 34, 8), ENTITY_ID);
-        ck("listener echoed", be(r, 42, 8), 0xAABBCCDDEEFF0011ULL);
+        ck("listener_eid ZEROED (T5.47)", be(r, 42, 8), 0);
         ck("talker_uid echoed", be(r, 50, 2), 0);
-        ck("listener_uid echoed", be(r, 52, 2), 7);
+        ck("listener_uid ZEROED (T5.47)", be(r, 52, 2), 0);
         ck("stream_dest_mac LIVE", be(r, 54, 6), AAF_DMAC);
         ck("connection_count 0", be(r, 60, 2), 0);
         ck("sequence echoed", be(r, 62, 2), 0x0101);
@@ -180,8 +185,9 @@ int main(int argc, char** argv) {
     }
     ck("GET_TX_STATE does not arm", dut->probe_armed_o, 0);
 
-    // 2) GET_TX_STATE, uid 5 -> TALKER_UNKNOWN_ID, body echoed
-    feed(acmp_cmd(4, ENTITY_ID, 5, 0x0202));
+    // 2) GET_TX_STATE, uid 5 -> TALKER_UNKNOWN_ID, body echoed (Table 5.46
+    //    keeps the listener ids — the T5.47 zeroing is success-only)
+    feed(acmp_cmd(4, ENTITY_ID, 5, 0x0202, /*flags*/0x004A));
     r = collect();
     ck("bad-uid frame length", r.size(), 70);
     if (r.size() == 70) {
@@ -189,6 +195,9 @@ int main(int argc, char** argv) {
         ck("bad-uid stream_id echoed", be(r, 18, 8), 0x1122334455667788ULL);
         ck("bad-uid count echoed", be(r, 60, 2), 3);
         ck("bad-uid uid echoed", be(r, 50, 2), 5);
+        ck("bad-uid listener_eid echoed", be(r, 42, 8), 0xAABBCCDDEEFF0011ULL);
+        ck("bad-uid listener_uid echoed", be(r, 52, 2), 7);
+        ck("bad-uid flags echoed", be(r, 64, 2), 0x004A);
     }
 
     // 3) GET_TX_CONNECTION -> NOT_SUPPORTED (Milan 5.5.4.4)
@@ -202,8 +211,10 @@ int main(int argc, char** argv) {
     }
 
     // 4) PROBE_TX (wire CONNECT_TX, uid 0): SUCCESS + LIVE params + ARMS.
-    //    flags 0x004A -> FAST_CONNECT(0x0002)|STREAMING_WAIT(0x0008) cleared,
-    //    SRP_REG_FAILED(0x0040) PRESERVED (probe clears only two — reference)
+    //    Table 5.43: flags 0x004A -> FAST_CONNECT(0x0002)|STREAMING_WAIT
+    //    (0x0008) ECHOED, SRP_REG_FAILED(0x0040) forced 0 (the pipewire
+    //    reference inverted this law; the spec table wins). Listener ids
+    //    ECHO on probe success (zeroing is GET_TX_STATE-only).
     feed(acmp_cmd(0, ENTITY_ID, 0, 0x0404, /*flags*/0x004A));
     r = collect();
     ck("probe frame length", r.size(), 70);
@@ -214,14 +225,28 @@ int main(int argc, char** argv) {
         ck("probe dest_mac LIVE", be(r, 54, 6), AAF_DMAC);
         ck("probe vlan LIVE", be(r, 66, 2), AAF_VID);
         ck("probe count 0", be(r, 60, 2), 0);
-        ck("probe flags keep SRP_REG_FAILED", be(r, 64, 2), 0x0040);
+        ck("probe flags echo FC+SW, REG_FAILED forced 0", be(r, 64, 2), 0x000A);
+        ck("probe listener_eid echoed", be(r, 42, 8), 0xAABBCCDDEEFF0011ULL);
+        ck("probe listener_uid echoed", be(r, 52, 2), 7);
         ck("probe sequence echoed", be(r, 62, 2), 0x0404);
     }
     ck("probe ARMS", dut->probe_armed_o, 1);
     ck("talker_active after probe", dut->talker_active_o, 1);
 
-    // 5) DISCONNECT_TX uid 0: SUCCESS, ZEROED stream fields, flags ECHOED,
-    //    NO state change (Milan 5.5.4.2 — not even deactivation)
+    // 4b) PROBE_TX with flags 0x0000: the echo law must not invent bits —
+    //     response flags stay 0x0000 (Table 5.43 all-zero-input leg)
+    feed(acmp_cmd(0, ENTITY_ID, 0, 0x0414, /*flags*/0x0000));
+    r = collect();
+    ck("probe0 frame length", r.size(), 70);
+    if (r.size() == 70) {
+        ck("probe0 status SUCCESS", r[16] >> 3, 0);
+        ck("probe0 flags 0 -> 0", be(r, 64, 2), 0x0000);
+        ck("probe0 sequence echoed", be(r, 62, 2), 0x0414);
+    }
+
+    // 5) DISCONNECT_TX uid 0: SUCCESS, ZEROED stream fields, all three
+    //    named flags 0 (Table 5.45), listener ids still ECHO, NO state
+    //    change (Milan 5.5.4.2 — not even deactivation)
     feed(acmp_cmd(2, ENTITY_ID, 0, 0x0505, /*flags*/0x004A));
     r = collect();
     ck("disc frame length", r.size(), 70);
@@ -232,7 +257,9 @@ int main(int argc, char** argv) {
         ck("disc dest_mac zeroed", be(r, 54, 6), 0);
         ck("disc vlan zeroed", be(r, 66, 2), 0);
         ck("disc count 0", be(r, 60, 2), 0);
-        ck("disc flags ECHOED", be(r, 64, 2), 0x004A);
+        ck("disc flags all-three 0 (T5.45)", be(r, 64, 2), 0x0000);
+        ck("disc listener_eid echoed", be(r, 42, 8), 0xAABBCCDDEEFF0011ULL);
+        ck("disc listener_uid echoed", be(r, 52, 2), 7);
     }
     ck("disconnect does NOT disarm", dut->probe_armed_o, 1);
 
@@ -293,10 +320,11 @@ int main(int argc, char** argv) {
         ck("bp count 0", be(r, 60, 2), 0);
     }
 
-    // 14) counters: 9 accepted commands (cases 1-6, the two re-arm probes,
-    //     the bp query; the two ignored frames don't count)
-    ck("cmd_count", dut->cmd_count_o, 9);
-    ck("resp_count", dut->resp_count_o, 9);
+    // 14) counters: 10 accepted commands (cases 1-6 incl the 4b zero-flags
+    //     probe, the two re-arm probes, the bp query; the two ignored
+    //     frames don't count)
+    ck("cmd_count", dut->cmd_count_o, 10);
+    ck("resp_count", dut->resp_count_o, 10);
 
     printf("--------------------------------------------------------------\n");
 
