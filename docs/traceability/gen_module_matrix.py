@@ -101,8 +101,13 @@ def rtl_modules():
             leaf = parts[1] if len(parts) > 2 else parts[0]
             txt = open(path, errors="ignore").read()
             arch = archive_reason(txt)
-            m = re.search(r"^\s*module\s+(\w+)", txt, re.M)
-            p = re.search(r"^\s*package\s+(\w+)", txt, re.M)
+            # strip comments before the name search: a /* */ banner line that
+            # happens to start with the word "module" must never win over the
+            # real declaration (bit KL_chan_map_capture.sv's 0x0037 banner)
+            scan = re.sub(r"/\*.*?\*/", "", txt, flags=re.S)
+            scan = re.sub(r"//.*", "", scan)
+            m = re.search(r"^\s*module\s+(\w+)", scan, re.M)
+            p = re.search(r"^\s*package\s+(\w+)", scan, re.M)
             if m:
                 out.append((family, leaf, rel, m.group(1), False, arch))
             elif p:
@@ -142,8 +147,9 @@ def instantiation_edges(mods):
     inst_re = {m: re.compile(r"\b%s\s*(?:#\s*\(|\w+\s*\()" % re.escape(m)) for m in known}
     for name, rel in file_of.items():
         txt = open(os.path.join(ROOT, rel), errors="ignore").read()
-        # strip line comments so a mention in a banner is not counted
-        body = re.sub(r"//.*", "", txt)
+        # strip block then line comments so a mention in a banner is not counted
+        body = re.sub(r"/\*.*?\*/", "", txt, flags=re.S)
+        body = re.sub(r"//.*", "", body)
         hit = set()
         for m in known:
             if m == name:

@@ -17,7 +17,7 @@ hand-edit. Part of the IEEE 1722 (AVTP) family; rolled up in
 | ✅ `KL_aes3_rx` | `KL_aes3_rx.sv` | `aes3` · 🔬`make aaf` | — |
 | ✅ `KL_aes3_tx` | `KL_aes3_tx.sv` | `aes3` · 🔬`make aaf` | — |
 | ✅ `KL_chan_map_capture` | `KL_chan_map_capture.sv` | `chmap_capture` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
-| ✅ `KL_chan_map_render` | `KL_chan_map_render.sv` | `chmap_render` · `hostplane` · `milan_dp` · `pcm_playback` · ➰chmap_capture · 🔬`make aaf` | — |
+| ✅ `KL_chan_map_render` | `KL_chan_map_render.sv` | `chmap_render` · `hostplane` · `milan_dp` · `pcm_playback` · 🔬`make aaf` | — |
 | ✅ `KL_i2s_feed_mux` | `KL_i2s_feed_mux.sv` | `hostplane` · `milan_dp` · `pcm_playback` · 🔬`make aaf` | — |
 | ✅ `KL_i2s_playback` | `KL_i2s_playback.sv` | `hostplane` · `i2spb` · `milan_dp` · `mmcm_servo` · `pcm_playback` · 🔬`make aaf` | — |
 | ✅ `KL_lat_history_ring` | `KL_lat_history_ring.sv` | `lat_history_ring` · 🔬`make aaf` | — |
