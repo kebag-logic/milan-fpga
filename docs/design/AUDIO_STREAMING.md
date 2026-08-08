@@ -27,7 +27,7 @@ deep-dive for the media plane; the scaling model behind it is
 - **[3. Listener path — wire to render](#3-listener-path--wire-to-render)** — The receive half, with the counter contract spelled out: what UNSUPPORTED_FORMAT suppresses, the 8-PDU settle window, the 100 ms unlock, and that counters reset on not-bound → bound *only*. Also the DRAM-vs-BRAM PCM ring choice and the wire-truth rule that de-interleaves by `channels_per_frame` from the wire, never the AEM store.
 - **[4. Latency: presentation offset vs pipeline](#4-latency-presentation-offset-vs-pipeline)** — Two numbers usually conflated, then the measurement: end-to-end equals the presentation offset *exactly* (pto 500 µs, `ts_delta` +384 µs, 0 LATE) while the pipeline is ≈ 116 µs. The per-stage talker breakdown shows why neither dominant term shrinks with a faster clock — they are the 6-sample window and the class-A interval.
 - **[5. Channel mapping — 64 in / 64 out](#5-channel-mapping--64-in--64-out)** — One paragraph of orientation: the fabric selects and never composes, the canonical programmer is `ADD/REMOVE/GET_AUDIO_MAP` (43/44/45) with CSR `0x900` as the bench override, and pointers to the two deep docs.
-- **[6. Status (2026-07-26)](#6-status-2026-07-26)** — What is actually proven, per path. Record path: silicon, with the tone table matched 900/900 and a −72.7 dB loop. Playback path: the fabric chain went continuous on 2026-07-26 and is TB-proven 40/40 through a decoded DAC pin, **never flashed**. Plus the open DRAM-ring read artifact I6, why `--pcm-ring bram` kills it at the root, and the one pinned RTL gap (AVTP-3, version-field).
+- **[6. Status (2026-07-26)](#6-status-2026-07-26)** — What is actually proven, per path. Record path: silicon, with the tone table matched 900/900 and a −72.7 dB loop. Playback path: the fabric chain went continuous on 2026-07-26 and is TB-proven 40/40 through a decoded DAC pin, **never flashed**. Plus the open DRAM-ring read artifact I6, why `--pcm-ring bram` kills it at the root, and the AVTP-3 version-field gate (closed 2026-08-08).
 
 ## 1. A stream's life
 
@@ -497,8 +497,9 @@ Honest state of this subsystem, with evidence:
   The AAF clause-7 rows [AAF-1 … AAF-10](../traceability/ieee1722-2016.md)
   are verified (format, sp, nsr, channels_per_frame, bit_depth,
   packing, channel order, presentation time, cadence, TSpec
-  derivation); AAF-11 (AES3) is out of declared scope. Known open item
-  in the family's neighborhood:
-  [AVTP-3](../traceability/ieee1722-2016.md) (version-field gate) is a
-  pinned RTL gap — a version-1 PDU with valid AAF fields is still
-  parsed as v0 media.
+  derivation); AAF-11 (AES3) is out of declared scope. The last open
+  item in the family's neighborhood,
+  [AVTP-3](../traceability/ieee1722-2016.md) (version-field gate), was
+  CLOSED on 2026-08-08 — the stream parser now discards a
+  non-zero-version PDU whole (1722-2016 4.4.3.4), so a version-1 PDU
+  can no longer be parsed as v0 media.

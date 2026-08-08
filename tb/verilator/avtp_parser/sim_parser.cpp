@@ -104,6 +104,7 @@ struct Fspec {
   uint16_t ethertype = 0x22F0;
   uint8_t  subtype = 0x02;    // AAF
   bool     sv = true, tv = true, tu = false;
+  uint8_t  version = 0;       // AVTP version (4.4.3.4: only 0 parses)
   uint8_t  seq = 0;
   uint64_t sid = 0;
   uint32_t ts  = 0;
@@ -125,7 +126,8 @@ static std::vector<uint8_t> mkframe(const Fspec& s) {
   }
   if (o + 32 > (int)f.size()) return f;               // caller wanted a runt
   f[o + 0] = s.subtype;
-  f[o + 1] = (uint8_t)((s.sv ? 0x80 : 0x00) | 0x10 | (s.tv ? 0x01 : 0x00));
+  f[o + 1] = (uint8_t)((s.sv ? 0x80 : 0x00) | ((s.version & 0x07) << 4) |
+                       (s.tv ? 0x01 : 0x00));
   f[o + 2] = s.seq;
   f[o + 3] = s.tu ? 0x01 : 0x00;
   for (int i = 0; i < 8; i++) f[o + 4 + i]  = (uint8_t)(s.sid >> (8 * (7 - i)));
@@ -156,8 +158,9 @@ static Ref model(const std::vector<uint8_t>& f) {
   if (!(f[eo] == 0x22 && f[eo + 1] == 0xF0)) return r;
   int o = eo + 2;
   uint8_t sub = f[o], b1 = f[o + 1];
-  bool sv = (b1 & 0x80) != 0;
-  if (sub > 0x07 || !sv) return r;
+  bool sv  = (b1 & 0x80) != 0;
+  int  ver = (b1 >> 4) & 0x07;
+  if (sub > 0x07 || !sv || ver != 0) return r;   // 4.4.3.4: v!=0 discarded
   r.parse = true;
   r.sub = sub;
   r.tv  = (b1 & 0x01) != 0;
@@ -433,6 +436,49 @@ int main(int argc, char** argv) {
       snprintf(tag, sizeof tag, "C4 ethertype 0x%04X: no parse", et[i]);
       ck(tag, o.parses, 0);
     }
+  }
+
+  // =========================================================================
+  sect("V. version gate - IEEE 1722-2016 4.4.3.4: non-zero version DISCARDED");
+  // =========================================================================
+  {
+    // Sweep the version nibble 0..7 on AAF and CRF, tagged and untagged.
+    // Only version 0 may parse; 1..7 are discarded STRUCTURALLY - no
+    // parse_valid, no match_valid, and the free-running PARSED counter
+    // freezes, so the 0x8B4 APRB group shows a discarded PDU as nothing at
+    // all. That is the clause's "it shall discard the AVTPDU" (stronger
+    // than ignore): a v1 PDU with valid AAF fields must never be half-
+    // parsed as v0 media, however healthy every other field looks.
+    tbl_clear(); tbl_arm(0, SID_A);
+    static const uint8_t subs[2] = {0x02 /*AAF*/, 0x04 /*CRF*/};
+    for (int tagged = 0; tagged <= 1; tagged++) {
+      for (int si = 0; si < 2; si++) {
+        for (int ver = 0; ver <= 7; ver++) {
+          Fspec s;
+          s.tagged  = tagged != 0;
+          s.subtype = subs[si];
+          s.version = (uint8_t)ver;
+          s.sid     = SID_A;
+          s.seq     = (uint8_t)ver;
+          s.len     = 128;
+          char tag[64];
+          snprintf(tag, sizeof tag, "V1 %s %s ver %d",
+                   tagged ? "tagged" : "untagged",
+                   subs[si] == 0x02 ? "AAF" : "CRF", ver);
+          uint32_t p0 = dut->avtp_frames_o;
+          feed_ref(mkframe(s), tag);          // parse/match pulses vs model
+          char t2[96];
+          snprintf(t2, sizeof t2, "%s: PARSED counter %s", tag,
+                   ver == 0 ? "ticks" : "frozen");
+          ck(t2, (long)(dut->avtp_frames_o - p0), ver == 0 ? 1 : 0);
+        }
+      }
+    }
+    // the recovery control: after the whole non-zero sweep, a version-0 PDU
+    // on the same stream parses and matches first-shot (no wedge, no state)
+    { Fspec s; s.sid = SID_A; s.len = 128;
+      Obs o = feed_ref(mkframe(s), "V2 version-0 recovery");
+      ck("V2 recovery PDU matched", o.matches, 1); }
   }
 
   // =========================================================================

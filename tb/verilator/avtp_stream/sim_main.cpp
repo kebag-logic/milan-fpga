@@ -23,9 +23,11 @@ static void lo(){ dut->clk=0; dut->eval(); }
 static void hi(){ dut->clk=1; dut->eval(); }
 
 // build an Ethernet+AVTP frame. tagged adds a C-VLAN. subtype/sv/tv/sid/ts set
-// the AVTP header. len pads to `len` bytes.
+// the AVTP header. len pads to `len` bytes. version defaults to 0, the only
+// value the parser accepts (IEEE 1722-2016 4.4.3.4: unsupported = discard).
 static std::vector<uint8_t> mkavtp(bool tagged,uint8_t subtype,bool sv,bool tv,
-                                   uint64_t sid,uint32_t ts,int len){
+                                   uint64_t sid,uint32_t ts,int len,
+                                   uint8_t version=0){
     std::vector<uint8_t> f(len,0x00);
     for(int i=0;i<6;i++){ f[i]=0x91; f[6+i]=0x02; }        // dst/src MAC
     int o;
@@ -33,7 +35,7 @@ static std::vector<uint8_t> mkavtp(bool tagged,uint8_t subtype,bool sv,bool tv,
                 f[16]=0x22; f[17]=0xF0; o=18; }
     else      { f[12]=0x22; f[13]=0xF0; o=14; }
     f[o+0]=subtype;
-    f[o+1]=(sv?0x80:0x00)|0x10|(tv?0x01:0x00);             // sv,version=1,tv
+    f[o+1]=(sv?0x80:0x00)|((version&0x07)<<4)|(tv?0x01:0x00); // sv,version,tv
     f[o+2]=0x00; f[o+3]=0x00;
     for(int i=0;i<8;i++) f[o+4+i]=(uint8_t)(sid>>(8*(7-i)));// stream_id MS first
     for(int i=0;i<4;i++) f[o+12+i]=(uint8_t)(ts>>(8*(3-i)));// avtp_timestamp

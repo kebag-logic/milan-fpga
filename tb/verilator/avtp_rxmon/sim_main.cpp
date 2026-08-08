@@ -420,17 +420,44 @@ int main(int argc,char**argv){
     ck("[30g] the next real toggle counts", dut->cnt_media_reset_o, 1);
 
     printf("\n[31] non-zero AVTP version (traceability AVTP-3, IEEE 1722-2016\n"
-           "     4.4.3.4: version!=0 AVTPDUs must be ignored).\n");
-    // CHARACTERIZATION — RTL GAP (matrix AVTP-3 stays open):
-    // avtp_stream_parser never reads b1[6:4]; a version-1 PDU with valid AAF
-    // fields is parsed AS v0 media on the real RX path (half-parse of a
-    // future AVTP version). Pin the current behavior so the eventual
-    // version gate flips this check and forces the matrix row + this case
-    // to be updated in the same commit.
+           "     4.4.3.4: unsupported version -> \"shall discard the AVTPDU\").\n");
+    // CONFORMANT since the parser version gate: avtp_stream_parser reads
+    // b1[6:4] and fires only on version 0, so a version!=0 PDU is discarded
+    // STRUCTURALLY - no parse/match pulse, nothing reaches this monitor or
+    // the depacketizer. Counter law (Milan Table 5.6): a discarded PDU moves
+    // NOTHING on the Stream Input - FRAMES_RX counts AVTPDUs "received on
+    // this Stream Input" and a discarded PDU never was, UNSUPPORTED_FORMAT
+    // is a FORMAT verdict and version is not format. Only the MAC's RMON
+    // interface counter ticks, and that lives outside this stack.
     { long frx31 = dut->cnt_frames_rx_o;
       AafCfg c; c.seq=11; c.version=1; feed(mkaaf(c));
-      ck("[31a] GAP: version=1 PDU currently ACCEPTED as v0 media",
-         dut->cnt_frames_rx_o, frx31 + 1); }
+      ck("[31a] version!=0 NOT counted (discarded whole)",
+         dut->cnt_frames_rx_o, frx31); }
+
+    printf("\n[31b] lock + live seq tracking hold across interleaved\n"
+           "      version!=0 PDUs carrying wild sequence numbers\n");
+    // Drain the settle window first (8 post-lock PDUs; [30g]'s seq=17 was
+    // the 1st) so sequence tracking is LIVE: if a gate regression let the
+    // wild PDUs below through, SEQ_NUM_MISMATCH and STREAM_INTERRUPTED
+    // would tick immediately - inside the settle window they would only
+    // re-seed, and this case would have no teeth.
+    for(uint8_t s=18; s<=24; s++){ AafCfg c; c.seq=s; feed(mkaaf(c)); }
+    { long sm31  = dut->cnt_seq_mismatch_o;
+      long si31  = dut->cnt_stream_interrupted_o;
+      long frx31 = dut->cnt_frames_rx_o;
+      static const uint8_t wild[4] = {0xDE, 0x03, 0x99, 0x41};
+      uint8_t good = 25;
+      for(int i=0; i<4; i++){
+        { AafCfg c; c.version=(uint8_t)(i+1); c.seq=wild[i];  // v1..v4 wild:
+          feed(mkaaf(c)); }                                   // discarded
+        { AafCfg c; c.seq=good++; feed(mkaaf(c)); }           // v0 flows on
+      }
+      ck("[31b] lock holds across version!=0 PDUs", dut->media_locked_o, 1);
+      ck("[31b] SEQ_NUM_MISMATCH stays frozen", dut->cnt_seq_mismatch_o, sm31);
+      ck("[31b] STREAM_INTERRUPTED stays frozen",
+         dut->cnt_stream_interrupted_o, si31);
+      ck("[31b] only the version-0 PDUs counted",
+         dut->cnt_frames_rx_o, frx31 + 4); }
 
     printf("\n======================================================================\n");
     printf("KL_avtp_rx_monitor: %ld checks, %ld failures\n", checks, fails);

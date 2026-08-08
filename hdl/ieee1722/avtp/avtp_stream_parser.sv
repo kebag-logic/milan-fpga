@@ -38,7 +38,10 @@
                     O+12..15 avtp_timestamp (32-bit presentation time)
 
                 Only STREAM subtypes (AAF/CVF/CRF/IIDC/MMA/TSCF/SVF/RVF) with
-                sv=1 are considered; control subtypes (ADP/AECP/ACMP/MAAP) and
+                sv=1 AND version=0 are considered; an unsupported (non-zero)
+                version is DISCARDED whole per IEEE 1722-2016 4.4.3.4 - no
+                parse_valid, no match_valid, no counter tick, so downstream
+                never sees the PDU. Control subtypes (ADP/AECP/ACMP/MAAP) and
                 non-AVTP frames produce no match. The parse reads a registered
                 header buffer, so `match_valid` pulses one cycle, at the beat on
                 which the last needed header byte (O+15) has been captured.
@@ -165,6 +168,7 @@ output logic                      media_restart_o, //! mr bit (O+1 bit 3)
   wire [7:0]  subtype  = hbyte(o);
   wire [7:0]  b1       = hbyte(o+1);
   wire        sv       = b1[7];
+  wire [2:0]  avtp_ver = b1[6:4];                // version: only 0 is legal
   wire        mr       = b1[3];
   wire        tv       = b1[0];
   wire [63:0] sid      = {hbyte(o+4), hbyte(o+5), hbyte(o+6),  hbyte(o+7),
@@ -198,9 +202,13 @@ output logic                      media_restart_o, //! mr bit (O+1 bit 3)
   end
 
   //! the parse fires on the beat that completes the AVTP header (byte o+15),
-  //! exactly once per frame, and only for AVTP stream packets with sv=1.
+  //! exactly once per frame, and only for AVTP stream packets with sv=1 and
+  //! version=0. A non-zero version never fires: that IS the IEEE 1722-2016
+  //! 4.4.3.4 discard ("it shall discard the AVTPDU") - no parse/match pulse,
+  //! no avtp_frames tick, nothing downstream ever sees the PDU.
   wire hdr_ready = (bytes_in >= HDR_BYTES);
-  wire fire      = in_acc && hdr_ready && !parsed && is_avtp && is_stream_subtype && sv;
+  wire fire      = in_acc && hdr_ready && !parsed && is_avtp &&
+                   is_stream_subtype && sv && (avtp_ver == 3'd0);
 
   always_ff @(posedge clk) begin : parse
     if (!resetn) begin

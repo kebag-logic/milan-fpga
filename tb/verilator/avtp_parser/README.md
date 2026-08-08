@@ -21,7 +21,7 @@ N=8 compare that issues that verdict.
 ## Contents
 
 - **[Shapes](#shapes)** — The five binaries `make` builds and why each exists (N=1/4/8, the big-endian knob, and the table+parser wrap). The load-bearing sentence: the index port width is a function of `N_STREAMS`, so table entries 4..7 are only *expressible* at N=8 — the width is the coverage.
-- **[What each source covers](#what-each-source-covers)** — Groups A..H of `sim_parser.cpp` (~2 600 checks/shape) and T1..T6 of `sim_tbl.cpp`. Go here for the reject leg — every way software and the wire can disagree while both believe they agree, each asserted as *PARSED climbs, MATCHED does not*. T6 characterises TRAP-1: any override write to entry 0, evict included, permanently detaches the ACMP alias until a reset.
+- **[What each source covers](#what-each-source-covers)** — Groups A..H plus the version-gate group V of `sim_parser.cpp` (~2 800 checks/shape) and T1..T6 of `sim_tbl.cpp`. Go here for the reject leg — every way software and the wire can disagree while both believe they agree, each asserted as *PARSED climbs, MATCHED does not*. T6 characterises TRAP-1: any override write to entry 0, evict included, permanently detaches the ACMP alias until a reset.
 - **[Notes](#notes)** — Two things left deliberately visible: the `ASCRANGE` warning from a `[-1:0]` port width at N=1 (harmless, still a wart), and why the harness models the probe words in C++ rather than mirroring the datapath latch in RTL — a mirror of a defect cannot catch it.
 
 ## Shapes
@@ -42,7 +42,7 @@ shipping table are only expressible at N=8 — the width *is* the coverage.
 
 ## What each source covers
 
-`sim_parser.cpp` (≈2 600 checks per shape):
+`sim_parser.cpp` (≈2 800 checks per shape):
 
 * **A** — `stream_id` byte order as lifted off the wire: `SID_HI` is the *first*
   four wire bytes and `SID_LO` the last four (the exact claim `0x8BC`/`0x8C0`
@@ -54,6 +54,11 @@ shipping table are only expressible at N=8 — the width *is* the coverage.
 * **C** — the subtype gate swept `0x00`..`0x08`, the control subtypes that share
   the wire (ADP/AECP/ACMP/MAAP — none may parse, so none can overwrite the APRB
   media evidence), `sv=0`, and four non-AVTP EtherTypes.
+* **V** — the IEEE 1722-2016 4.4.3.4 version gate: the nibble swept 0..7 on AAF
+  and CRF, tagged and untagged. Version 0 parses; 1..7 are DISCARDED
+  structurally — no parse/match pulse and `avtp_frames_o` frozen, so the APRB
+  group shows a discarded PDU as nothing at all — with a version-0 recovery
+  control after the sweep.
 * **D** — every table entry reachable at this N, index correct, top entry alone,
   and a sid armed nowhere.
 * **E** — the **reject leg**, one case per way software and the wire can

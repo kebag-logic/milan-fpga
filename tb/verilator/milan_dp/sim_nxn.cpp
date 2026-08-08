@@ -226,7 +226,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x00010032);
+       axi_read(A_VERSION), 0x00010033);
 
 #ifdef AAF_PB_TB
     // ---- task #26 (0x002C): the BOOT SEED is CSR-visible before any ----
