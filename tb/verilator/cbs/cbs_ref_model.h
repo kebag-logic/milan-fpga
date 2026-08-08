@@ -38,6 +38,16 @@
  *                        and send_delta/credit_add_idle, but clamps to the
  *                        *current* cycle's hiCredit/loCredit (the RTL clamp
  *                        terms are combinational from the config ports).
+ *   debt_stage1 /       REQ-CBS-07 wire-time debt, state-for-state: the
+ *   debt_update        : per-frame byte counter and the registered Q16 debt
+ *                        increment (bytes per accepted beat + 24-octet
+ *                        overhead + min-frame pad at tlast) in stage 1, the
+ *                        accumulator (drain at the port byte rate, clamp at
+ *                        0) in stage 2. wire_transmit = (debt != 0), read
+ *                        PRE-step by the credit arms exactly like the RTL's
+ *                        combinational wire_transmit_w: it suppresses both
+ *                        the idleSlope accrual and the queue-empty decay
+ *                        (802.1Q-2018 8.6.8.2 (d)/(e)/(f)).
  *   allow_transmit     : COMBINATIONAL (credit >= 0) off the credit register
  *                        (REQ-CBS-05 removed the extra decision flop); output
  *                        is forced high when the (registered) shaped bit is 0.
@@ -62,12 +72,25 @@ struct CbsInputs {
     bool     is_1g;
     bool     is_granted;
     uint16_t bytes_sent;
+    bool     tlast      = false;           // bytes_sent carries the frame's last beat
     // runtime configuration ports
     bool     shaped     = true;
     int32_t  idle_slope = 500000000;       // bits/s for current link rate
     int32_t  hi_credit  = 761;             // signed bytes
     int32_t  lo_credit  = -761;            // signed bytes
 };
+
+// ---------------------------------------------------------------------------
+// REQ-CBS-07 wire-time debt constants, mirroring the RTL elaboration math:
+//   WIRE_DRAIN_*_Q16_C = round((link_bytes_per_s << 16) / clk_freq_hz)
+// via the same ((n << 17) / d + 1) >> 1 rounding expression.
+// ---------------------------------------------------------------------------
+static inline int64_t cbs_drain_q16(bool is_1g, int64_t clk_freq_hz) {
+    int64_t n = is_1g ? 125000000LL : 12500000LL;
+    return (((n << 17) / clk_freq_hz) + 1) >> 1;
+}
+static const int CBS_WIRE_OVERHEAD_BYTES = 24;   // preamble+SFD+FCS+IFG
+static const int CBS_MIN_FRAME_BYTES     = 60;   // 64 wire octets less FCS
 
 // ---------------------------------------------------------------------------
 // State-for-state mirror of the RTL sequential slope engine (slope_engine in
@@ -145,6 +168,7 @@ public:
         send_delta = 0; credit_add_idle = 0;
         eng.reset();
         istx = false; qhd = false; isg = false; shaped = false;
+        wire_debt = 0; debt_add = 0; frame_cnt = 0; is1g_r = false;
     }
 
     // PURE steady-state slope values (the SystemVerilog '/' results). The
@@ -192,6 +216,35 @@ public:
         bool    n_isg  = in.is_granted;
         bool    n_shaped = in.shaped;
 
+        // debt_stage1 (REQ-CBS-07): the per-frame byte counter walks the
+        // accepted beats; the Q16 debt increment carries the beat's bytes
+        // plus, on tlast, the fixed overhead and the MAC min-frame pad.
+        int      frame_len   = (int)frame_cnt + (int)in.bytes_sent;
+        int      frame_pad   = (frame_len < CBS_MIN_FRAME_BYTES)
+                               ? (CBS_MIN_FRAME_BYTES - frame_len) : 0;
+        int      add_bytes   = (int)in.bytes_sent +
+                               (in.tlast ? (CBS_WIRE_OVERHEAD_BYTES + frame_pad) : 0);
+        uint16_t n_frame_cnt = in.is_transmitting
+                               ? (in.tlast ? 0 : (uint16_t)frame_len) : frame_cnt;
+        int64_t  n_debt_add  = in.is_transmitting
+                               ? ((int64_t)(add_bytes & 0xFF) << 16) : 0;
+        bool     n_is1g      = in.is_1g;
+
+        // debt_update (stage 2): += this beat's registered increment, -= the
+        // port byte rate, clamp at 0, saturate at 48 bits; parked while
+        // unshaped (the registered `shaped`, like the credit).
+        int64_t n_wire_debt;
+        if (!shaped) {
+            n_wire_debt = 0;
+        } else {
+            int64_t t = wire_debt + debt_add - cbs_drain_q16(is1g_r, cfg.clk_freq_hz);
+            const int64_t M48 = (((int64_t)1) << 48) - 1;
+            n_wire_debt = (t < 0) ? 0 : (t > M48 ? M48 : t);
+        }
+        // 8.6.8.2 (e) transmit, from the PRE-step debt register (the RTL's
+        // wire_transmit_w reads wire_debt_r combinationally this cycle)
+        bool wire_tx = (wire_debt != 0);
+
         // credit_update_logic (uses CURRENT registered pipeline signals;
         // clamps use the CURRENT-cycle hi/lo config ports)
         int64_t n_credit;
@@ -200,6 +253,8 @@ public:
         } else if (istx) {
             int64_t t = credit + send_delta;
             n_credit = (t < LOc) ? LOc : t;
+        } else if (wire_tx) {
+            n_credit = credit;              // wire busy: no accrual, no decay
         } else if (!qhd && credit >= 0) {
             n_credit = 0;
         } else if (!qhd) {
@@ -218,16 +273,20 @@ public:
             credit = 0; send_delta = 0; credit_add_idle = 0;
             eng.reset();
             istx = false; qhd = false; isg = false; shaped = false;
+            wire_debt = 0; debt_add = 0; frame_cnt = 0; is1g_r = false;
         } else {
             credit = n_credit;
             eng.step(in.idle_slope, in.is_1g, cfg.clk_freq_hz);
             send_delta = n_send_delta; credit_add_idle = n_credit_add_idle;
             istx = n_istx; qhd = n_qhd; isg = n_isg; shaped = n_shaped;
+            wire_debt = n_wire_debt; debt_add = n_debt_add;
+            frame_cnt = n_frame_cnt; is1g_r = n_is1g;
         }
     }
 
     int64_t credit_q16() const { return credit; }
     double  credit_bytes() const { return (double)credit / (double)(1 << CbsConfig::FP); }
+    int64_t wire_debt_q16() const { return wire_debt; }
     // Output allow_transmit: combinational off the CURRENT credit register
     // (REQ-CBS-05); forced high when unshaped (uses registered shaped).
     bool    allow_transmit() const { return shaped ? (credit >= 0) : true; }
@@ -237,6 +296,11 @@ public:
     int64_t send_delta, credit_add_idle;
     SlopeEngineRef eng;     // mirrors the RTL slope_engine state-for-state
     bool istx, qhd, isg, shaped;
+    // REQ-CBS-07 wire-time debt state (mirrors debt_stage1/debt_update)
+    int64_t  wire_debt;     // Q16 bytes still owed to the wire
+    int64_t  debt_add;      // stage-1 registered increment (Q16)
+    uint16_t frame_cnt;     // stage-1 per-frame byte counter
+    bool     is1g_r;        // stage-1 registered link select
 };
 
 // ---------------------------------------------------------------------------
@@ -251,6 +315,7 @@ public:
         isc_r = 0.0; ssb_r = 0.0;
         cnt = 0; pend_isc = 0.0; pend_ssb = 0.0;
         istx = false; qhd = false; isg = false; shaped = false;
+        wire_debt = 0.0; debt_add = 0.0; frame_cnt = 0; is1g_r = false;
     }
 
     double idle_rate_per_cycle(bool is_1g, int32_t idle_slope) const {
@@ -283,12 +348,35 @@ public:
         bool   n_istx = in.is_transmitting, n_qhd = in.queue_has_data, n_isg = in.is_granted;
         bool   n_shaped = in.shaped;
 
+        // REQ-CBS-07 wire-time debt, same register cadence as the RTL but
+        // with the EXACT drain rate (link bytes per second / clk).
+        int    frame_len   = (int)frame_cnt + (int)in.bytes_sent;
+        int    frame_pad   = (frame_len < CBS_MIN_FRAME_BYTES)
+                             ? (CBS_MIN_FRAME_BYTES - frame_len) : 0;
+        int    add_bytes   = (int)in.bytes_sent +
+                             (in.tlast ? (CBS_WIRE_OVERHEAD_BYTES + frame_pad) : 0);
+        uint16_t n_frame_cnt = in.is_transmitting
+                               ? (in.tlast ? 0 : (uint16_t)frame_len) : frame_cnt;
+        double n_debt_add  = in.is_transmitting ? (double)add_bytes : 0.0;
+        bool   n_is1g      = in.is_1g;
+        double drain       = (is1g_r ? 125000000.0 : 12500000.0)
+                             / (double)cfg.clk_freq_hz;
+        double n_wire_debt;
+        if (!shaped) n_wire_debt = 0.0;
+        else {
+            double t = wire_debt + debt_add - drain;
+            n_wire_debt = (t < 0.0) ? 0.0 : t;
+        }
+        bool wire_tx = (wire_debt > 0.0);
+
         double n_credit;
         if (!shaped) {
             n_credit = 0.0;
         } else if (istx) {
             double t = credit + send_delta;
             n_credit = (t < LOc) ? LOc : t;
+        } else if (wire_tx) {
+            n_credit = credit;              // wire busy: no accrual, no decay
         } else if (!qhd && credit >= 0.0) {
             n_credit = 0.0;
         } else if (!qhd) {
@@ -304,11 +392,14 @@ public:
             isc_r = 0.0; ssb_r = 0.0;
             cnt = 0; pend_isc = 0.0; pend_ssb = 0.0;
             istx = qhd = isg = shaped = false;
+            wire_debt = 0.0; debt_add = 0.0; frame_cnt = 0; is1g_r = false;
         } else {
             credit = n_credit; send_delta = n_send_delta; credit_add_idle = n_credit_add_idle;
             isc_r = n_isc_r; ssb_r = n_ssb_r;
             cnt = n_cnt; pend_isc = n_pend_isc; pend_ssb = n_pend_ssb;
             istx = n_istx; qhd = n_qhd; isg = n_isg; shaped = n_shaped;
+            wire_debt = n_wire_debt; debt_add = n_debt_add;
+            frame_cnt = n_frame_cnt; is1g_r = n_is1g;
         }
     }
 
@@ -322,6 +413,10 @@ public:
     int    cnt;            // slope-engine cadence mirror
     double pend_isc, pend_ssb;
     bool istx, qhd, isg, shaped;
+    // REQ-CBS-07 wire-time debt state (exact-rate mirror of the RTL's)
+    double   wire_debt, debt_add;
+    uint16_t frame_cnt;
+    bool     is1g_r;
 };
 
 #endif // CBS_REF_MODEL_H

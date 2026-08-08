@@ -182,7 +182,7 @@ module tdm_wrap (
     .pair_l_i (m_l_o), .pair_r_i (m_r_o),
     .stream_en_i (mp_en_i),
     .dest_mac_i (mp_dest_mac_i), .station_mac_i (station_mac_i),
-    .vlan_vid_i (vlan_vid_i), .transit_ns_i (transit_ns_i),
+    .vlan_vid_i (vlan_vid_i), .vlan_pcp_i (3'd3), .dom_ovr_i (1'b0), .transit_ns_i (transit_ns_i),
     .ptp_ns_i (ptp_ns_i), .ts_uncertain_i (1'b0),
     //! mr held 0: the wire stays byte-identical to the pre-4.4.4.3 shape
     .mr_i ('0),
@@ -203,7 +203,7 @@ module tdm_wrap (
     .stream_en_i (en_i),
     .dest_mac_i (dest_mac_i), .station_mac_i (station_mac_i),
     //! per-talker transit entries: both talkers ride the one TB offset
-    .vlan_vid_i (vlan_vid_i), .transit_ns_i ({2{transit_ns_i}}),
+    .vlan_vid_i (vlan_vid_i), .vlan_pcp_i (3'd3), .dom_ovr_i (1'b0), .transit_ns_i ({2{transit_ns_i}}),
     .ptp_ns_i (ptp_ns_i),
     //! tu: this harness is not about clock validity - the honest
     //! synchronised case, and the pre-2026-07-27 wire bytes

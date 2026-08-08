@@ -29,13 +29,32 @@
 //                  ignores the declaration — Milan-correct per the doc:
 //                  AskingFailed means no listener can receive us.)
 //
-//                DOMAIN sanity -> srp domain boundary flag:
-//                  a bridge Domain declaration for OUR SR class (class id 6)
-//                  with a different priority or VID marks the port a domain
-//                  boundary (domain_ok_o = 0) until a matching declaration
-//                  arrives or the boundary ages out (no re-declare within
-//                  DOMAIN_AGE_MS_C). Class-B domains are ignored. No Domain
-//                  ever seen = Milan defaults assumed = ok.
+//                DOMAIN adopt + srp domain boundary flag (Milan 4.2.7.2.1):
+//                  "After startup or a Link Up event, a PAAD shall use SR
+//                  Class Priority 3 and Default VLAN ID 2 for Class A ...
+//                  If the PAAD receives an MSRP Domain attribute declaration
+//                  for Class A specifying different parameters, it shall
+//                  update its parameters using the received FirstValue and
+//                  start declaring a matching MSRP Domain attribute."
+//                  A class-A declaration whose {priority, VID} differs from
+//                  the OPERATIONAL pair is ADOPTED: adopted_{prio,vid}_r
+//                  latch the received FirstValue and op_{prio,vid}_o switch
+//                  from the defaults {3, vid_i} to it. Every consumer of the
+//                  pair - our Domain FirstValue, the MVRP VID, the Talker
+//                  Advertise DataFrameParameters VID and the AAF/CRF C-TAG -
+//                  follows op_*, so the reservation and the frames can never
+//                  diverge. The adoption REVERTS on enable-fall and on
+//                  link-down ONLY (the clause's own reset list - startup and
+//                  Link Up); it never ages out.
+//                  The boundary flag keeps its law, compared against the
+//                  OPERATIONAL pair (else the adopted network's own
+//                  re-declarations would re-latch the boundary forever): a
+//                  mismatching declaration marks the port a boundary
+//                  (domain_ok_o = 0) - and adopts - until a declaration
+//                  matching the now-operational pair arrives or the boundary
+//                  ages out (no re-declare within DOMAIN_AGE_MS_C). Class-B
+//                  domains are ignored. No Domain ever seen = Milan defaults
+//                  assumed = ok.
 //
 //                TALKER FAILED (bridge declares our stream failed):
 //                  failure code captured sticky for AECP GET_STREAM_INFO;
@@ -54,10 +73,11 @@ module KL_lwsrp_registrar #(
     input  wire        clk_i,
     input  wire        rst_n,
     input  wire        enable_i,          //! lwSRP engine enable (CSR)
+    input  wire        link_up_i,         //! effective PHY link (adopt revert)
     input  wire        tick_1khz_i,       //! 1 ms strobe (KL_lwsrp_timers)
 
     // ---- our domain expectation ----------------------------------------
-    input  wire [11:0] vid_i,             //! the SR VID we declare
+    input  wire [11:0] vid_i,             //! the DEFAULT SR VID (Milan 4.2.7.2.1)
 
     // ---- walker event pulses --------------------------------------------
     input  wire        leaveall_p_i,
@@ -79,6 +99,9 @@ module KL_lwsrp_registrar #(
     output reg         listener_reg_o,       //! listener registered (any decl)
     output reg  [1:0]  listener_decl_o,      //! last four-packed declaration
     output wire        domain_ok_o,          //! !srp domain boundary
+    output reg         adopt_valid_o,        //! operational pair is ADOPTED
+    output wire [7:0]  op_prio_o,            //! operational class-A priority
+    output wire [11:0] op_vid_o,             //! operational class-A VID
     output reg         tfail_valid_o,        //! sticky failure seen
     output reg  [7:0]  tfail_code_o,         //! last MSRP failure code
     output reg  [63:0] tfail_bridge_o        //! failing bridge_id (Milan
@@ -151,21 +174,33 @@ module KL_lwsrp_registrar #(
   end
 
   // -----------------------------------------------------------------------
-  // Domain boundary flag
+  // Domain adopt (Milan 4.2.7.2.1) + boundary flag
   // -----------------------------------------------------------------------
   localparam int unsigned DOM_W_C = $clog2(DOMAIN_AGE_MS_P + 1);
 
   reg                boundary_r;
   reg [DOM_W_C-1:0]  boundary_age_r;
+  reg [7:0]          adopted_prio_r;   //! received FirstValue SRclassPriority
+  reg [11:0]         adopted_vid_r;    //! received FirstValue SRclassVID
 
   assign domain_ok_o = !boundary_r;
+
+  //! the OPERATIONAL pair every serializer and the C-TAG mux consume:
+  //! the adopted FirstValue once one is latched, the 4.2.7.2.1 defaults
+  //! {priority 3, vid_i} otherwise
+  assign op_prio_o = adopt_valid_o ? adopted_prio_r : SR_CLASS_A_PRIO_C;
+  assign op_vid_o  = adopt_valid_o ? adopted_vid_r  : vid_i;
 
   wire dom_class_a_w = domain_p_i && (domain_class_i == SR_CLASS_A_ID_C) &&
                        (domain_evt_i != MRP_EVT_LV_C) &&
                        (domain_evt_i != MRP_EVT_MT_C);
+  //! matched against the OPERATIONAL pair: once a pair is adopted, the
+  //! adopted network's own re-declarations are matches (comparing against
+  //! the defaults here would re-latch the boundary against the very network
+  //! 4.2.7.2.1 told us to join)
   wire dom_match_w   = dom_class_a_w &&
-                       (domain_prio_i == SR_CLASS_A_PRIO_C) &&
-                       (domain_vid_i == {4'h0, vid_i});
+                       (domain_prio_i == op_prio_o) &&
+                       (domain_vid_i == {4'h0, op_vid_o});
 
   always_ff @(posedge clk_i) begin
     if (!rst_n) begin
@@ -183,6 +218,28 @@ module KL_lwsrp_registrar #(
         boundary_age_r <= boundary_age_r - 1'b1;
         if (boundary_age_r <= DOM_W_C'(1)) boundary_r <= 1'b0;
       end
+    end
+  end
+
+  //! Adoption: every class-A declaration that mismatches the CURRENT
+  //! operational pair updates it ("it shall update its parameters using the
+  //! received FirstValue" - repeated updates track the latest declaration).
+  //! Reverts on enable-fall and on link-down ONLY: 4.2.7.2.1 names startup
+  //! and Link Up as the moments the defaults return. No age-out - an
+  //! adopted domain stays adopted through bridge silence.
+  always_ff @(posedge clk_i) begin
+    if (!rst_n) begin
+      adopt_valid_o  <= 1'b0;
+      adopted_prio_r <= SR_CLASS_A_PRIO_C;
+      adopted_vid_r  <= '0;
+    end else if (!enable_i || !link_up_i) begin
+      adopt_valid_o  <= 1'b0;
+      adopted_prio_r <= SR_CLASS_A_PRIO_C;
+      adopted_vid_r  <= '0;
+    end else if (dom_class_a_w && !dom_match_w) begin
+      adopt_valid_o  <= 1'b1;
+      adopted_prio_r <= domain_prio_i;
+      adopted_vid_r  <= domain_vid_i[11:0];
     end
   end
 

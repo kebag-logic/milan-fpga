@@ -33,6 +33,7 @@ module cbs_ver_wrap #(
   input  wire        is_1g_i,           //! Link rate select: 1 = 1 Gb/s, 0 = 100 Mb/s
   input  wire        is_granted_i,      //! This queue currently holds the grant
   input  wire [15:0] bytes_sent_i,      //! Bytes transmitted this cycle (tkeep ones)
+  input  wire        tlast_i,           //! bytes_sent_i carries the frame's last beat
 
   output wire        allow_transmit_o,  //! Credit >= 0 (or unshaped): transmission eligible
 
@@ -41,7 +42,8 @@ module cbs_ver_wrap #(
   output wire signed [47:0] dbg_idle_slope_per_cycle, //! DUT idle_slope_per_cycle term
   output wire signed [47:0] dbg_send_slope_per_byte,  //! DUT send_slope_per_byte term
   output wire signed [47:0] dbg_send_delta,           //! DUT registered send delta
-  output wire signed [47:0] dbg_credit_add_idle       //! DUT registered idle increment
+  output wire signed [47:0] dbg_credit_add_idle,      //! DUT registered idle increment
+  output wire        [47:0] dbg_wire_debt             //! DUT REQ-CBS-07 wire-time debt (Q16 bytes)
 );
 
   credit_based_shaper #(
@@ -58,6 +60,7 @@ module cbs_ver_wrap #(
     .is_1g_i           (is_1g_i),
     .is_granted_i      (is_granted_i),
     .bytes_sent_i      (bytes_sent_i),
+    .tlast_i           (tlast_i),
     .allow_transmit_o  (allow_transmit_o)
   );
 
@@ -70,6 +73,7 @@ module cbs_ver_wrap #(
   assign dbg_send_slope_per_byte  = u_cbs.send_slope_per_byte_r;
   assign dbg_send_delta           = u_cbs.send_delta;
   assign dbg_credit_add_idle      = u_cbs.credit_add_idle;
+  assign dbg_wire_debt            = u_cbs.wire_debt_r;
 
 endmodule
 

@@ -16,6 +16,15 @@
 //                plus TalkerAdvertise while the talker is enabled) followed by
 //                one MVRP MRPDU (the SR VID). Single-value vectors only
 //                (NumberOfValues = 1), like the pipewire reference.
+//                talker_en_i arrives PRE-GATED by the datapath's Milan
+//                4.3.3.1 declaration gate (probe window | registered
+//                Listener attribute | LWSRP_CTRL[5] bypass, AND the MAAP
+//                term), so at this level "enabled" already means "has a
+//                customer in evidence"; the talker_fall -> LV pend below is
+//                what turns a lapsed gate into the wire's withdrawal.
+//                dom_prio_i / vid_i carry the OPERATIONAL Domain pair
+//                (Milan 4.2.7.2.1 adoption) and a change of either
+//                re-declares the pair promptly with NEW events.
 //
 //                Event selection per attribute (reference lifecycle,
 //                mrp.c applicant FSM):
@@ -69,6 +78,11 @@ module KL_lwsrp_tx (
     input  wire [47:0]  station_mac_i,     //! [47:40] = first wire byte
     input  wire [15:0]  unique_id_i,       //! stream_id = {station_mac, uid}
     input  wire [47:0]  dest_mac_i,        //! stream DMAC (CSR until MAAP)
+    //! OPERATIONAL SR class-A pair (KL_lwsrp_registrar op_{prio,vid}_o,
+    //! Milan 4.2.7.2.1): the Domain FirstValue {prio, vid}, the MVRP VID
+    //! and the TalkerAdvertise DataFrameParameters VID all serialize these,
+    //! so an adopted domain moves every declaration together
+    input  wire [7:0]   dom_prio_i,        //! SR class-A priority (Domain)
     input  wire [11:0]  vid_i,             //! SR VID (Domain + DataFrameParams + MVRP)
     input  wire [15:0]  max_frame_i,       //! TSpec MaxFrameSize
     input  wire [15:0]  interval_frames_i, //! TSpec MaxIntervalFrames
@@ -116,6 +130,8 @@ module KL_lwsrp_tx (
   wire talker_fall_w = enable_i & ~talker_en_i & talker_q;
 
   reg msrp_pend_r, mvrp_pend_r;      //! normal declare pair queued
+  reg [7:0]  dprio_q;                //! last serialized Domain priority
+  reg [11:0] vid_q;                  //! last serialized VID
   reg [2:0] jdiv_r;                  //! join-tick /5 divider (1 s refresh)
   reg talker_lv_pend_r;              //! withdraw TalkerAdvertise only
   reg lstn_lv_pend_r;                //! withdraw the Listener attribute only
@@ -204,7 +220,7 @@ module KL_lwsrp_tx (
       fb[17]=MSRP_ALL_DOMAIN_C[15:8];  fb[18]=MSRP_ALL_DOMAIN_C[7:0];
       fb[19]=vh[15:8]; fb[20]=vh[7:0];
       fb[21]=SR_CLASS_A_ID_C;
-      fb[22]=SR_CLASS_A_PRIO_C;
+      fb[22]=dom_prio_i;
       fb[23]={4'h0, vid_i[11:8]}; fb[24]=vid_i[7:0];
       fb[25]=pack3(domain_evt_r);
       // fb[26..27] vector EndMark = 0
@@ -288,6 +304,7 @@ module KL_lwsrp_tx (
     if (!rst_n) begin
       enable_q <= 1'b0; talker_q <= 1'b0; lstn_q <= 1'b0; lstn_ready_q <= 1'b0;
       msrp_pend_r <= 1'b0; mvrp_pend_r <= 1'b0; jdiv_r <= '0;
+      dprio_q <= '0; vid_q <= '0;
       talker_lv_pend_r <= 1'b0; lstn_lv_pend_r <= 1'b0;
       engine_lv_pend_r <= 1'b0; lva_pend_r <= 1'b0;
       fresh_domain_r <= 1'b0; fresh_vid_r <= 1'b0; fresh_talker_r <= 1'b0;
@@ -303,6 +320,21 @@ module KL_lwsrp_tx (
       talker_q <= enable_i & talker_en_i;
       lstn_q   <= enable_i & lstn_declare_i;
       lstn_ready_q <= lstn_ready_i;
+      dprio_q  <= dom_prio_i;
+      vid_q    <= vid_i;
+
+      //! the OPERATIONAL pair moved (Milan 4.2.7.2.1 adoption, or a CSR VID
+      //! rewrite): "start declaring a matching MSRP Domain attribute" -
+      //! re-declare the pair promptly, the new values as NEW, instead of
+      //! waiting out the 1 s refresh
+      if (enable_i && ((dom_prio_i != dprio_q) || (vid_i != vid_q))) begin
+        fresh_domain_r <= 1'b1;
+        msrp_pend_r    <= 1'b1;
+      end
+      if (enable_i && (vid_i != vid_q)) begin
+        fresh_vid_r <= 1'b1;
+        mvrp_pend_r <= 1'b1;
+      end
 
       // ---- triggers -> pending flags ----
       //! MRP quiescence: a healthy applicant re-declares on LeaveAll turns

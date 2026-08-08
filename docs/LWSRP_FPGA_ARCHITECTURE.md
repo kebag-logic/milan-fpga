@@ -30,9 +30,21 @@ Milan v1.2 §5.6 pins SRP usage down enough that a small engine is conformant:
 
 DOES (talker endpoint):
 - **Declare** as MRP applicant, always-declare subset:
-  - MSRP **Domain** (SR class A: classID 6, priority 3, VID from CSR, default 2)
-  - MSRP **Talker Advertise** per enabled stream (N_STREAMS param; 1 today)
-  - MVRP **VLAN** membership for the SR VID
+  - MSRP **Domain** (SR class A: classID 6, priority 3, VID from CSR, default 2
+    — or the **adopted operational pair** after a mismatching class-A Domain
+    declaration, Milan 4.2.7.2.1: the registrar latches the received
+    FirstValue, every serializer and the AAF/CRF C-TAG follow it as one pair,
+    and it reverts on enable-fall/link-down only; surfaced at `LWSRP_DOM`
+    0x788)
+  - MSRP **Talker Advertise** per enabled stream (N_STREAMS param) — GATED
+    per Milan 4.3.3.1 since gh #63 I2: the declaration opens on a
+    PROBE_TX/CONNECT_TX within the 15 s window OR a registered Listener
+    attribute for the stream (AND the MAAP validity term), withdraws with an
+    LV when the last term lapses; `LWSRP_CTRL[5]` (reset 0) restores the
+    declared-from-boot bring-up posture. "Always-declare" therefore now
+    describes the applicant MACHINERY (no 12-state MRP), not an
+    unconditional Talker attribute.
+  - MVRP **VLAN** membership for the SR VID (the operational pair's)
 - **Register** as MRP registrar, only what gates us:
   - **Listener** attribute for OUR StreamID(s): Ready / AskingFailed /
     ReadyFailed (four-packed declaration types)
@@ -50,8 +62,10 @@ DOES NOT (lw choices, all safe against bridges):
   periodic JoinIn on the Join timer, re-declare on LeaveAll, explicit Lv on
   disable. Bridges only need our attribute refreshed inside LeaveAll period.
 - No MMRP. No SR class B (constants parameterized, class A only enabled).
-- No domain negotiation — we assert Milan defaults and FLAG mismatch
-  (AECP AVB_INFO already carries the flags field; readable at 0x66C too).
+- Domain handling is ADOPT-then-flag (Milan 4.2.7.2.1, gh #63 I4): a
+  mismatching class-A declaration updates the operational pair (declared,
+  serialized and tagged as one), and the boundary flag latches against the
+  OPERATIONAL pair until the adopted network re-declares or it ages out.
 - No PDU generation with multi-value vectors (we declare exactly 1 value
   per attribute type; RX side handles arbitrary bridge vectors).
 

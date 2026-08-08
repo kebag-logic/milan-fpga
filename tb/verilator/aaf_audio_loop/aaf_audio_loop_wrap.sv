@@ -74,7 +74,7 @@ module aaf_audio_loop_wrap #(
     .pair_l_i (pair_l_i), .pair_r_i (pair_r_i),
     .stream_en_i (stream_en_i),
     .dest_mac_i (dest_mac_i), .station_mac_i (station_mac_i),
-    .vlan_vid_i (vlan_vid_i), .transit_ns_i (transit_ns_i),
+    .vlan_vid_i (vlan_vid_i), .vlan_pcp_i (3'd3), .dom_ovr_i (1'b0), .transit_ns_i (transit_ns_i),
     .ptp_ns_i (ptp_ns_i),
     //! tu: this harness is not about clock validity - the honest
     //! synchronised case, and the pre-2026-07-27 wire bytes

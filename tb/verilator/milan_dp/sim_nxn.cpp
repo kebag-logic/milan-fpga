@@ -300,7 +300,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x0001003A);
+       axi_read(A_VERSION), 0x0001003B);
 
 #ifdef AAF_PB_TB
     // ---- task #26 (0x002C): the BOOT SEED is CSR-visible before any ----
@@ -343,7 +343,14 @@ int main(int argc, char** argv) {
     // term) reddens exactly the two opened/flowed checks below.
     {
         axi_write(A_AAF_CTRL, 0x00020001);   // AAF en + VID 2, bypass CLEAR
-        axi_write(A_LWSRP_CTRL, 0x17);       // engine + TALKER-DECLARE
+        // engine + TALKER-DECLARE + the LWSRP_CTRL[5] DECLARE bypass: this
+        // case proves the fabric PROVISIONER (every row declares with no
+        // window op), which since the 4.3.3.1 declaration gate needs a
+        // probe/listener per row OR the bypass - the declared-at-boot
+        // posture under test here is exactly what the bypass restores. The
+        // gate itself (cold boot = NO TalkerAdvertise) is proven in its own
+        // case below.
+        axi_write(A_LWSRP_CTRL, 0x37);
         for (int c = 0; c < 512; c++) step();
         ck("t>0 reset licence: gate3 CLOSED with no listener",
            (tap_stream_en() >> 3) & 1, 0);
@@ -510,6 +517,138 @@ int main(int argc, char** argv) {
         // the VID-0 clobber the rest of the flow assumes away.
         axi_write(A_LWSRP_CTRL, 0x10);
         axi_write(A_AAF_CTRL, 0x00020000);
+        for (int c = 0; c < 256; c++) step();
+    }
+
+    // ==================================================================
+    //  THE 4.3.3.1 TALKER-ADVERTISE DECLARATION GATE (gh #63 I2).
+    //  Milan 5.3.7.2 obliges the TalkerAdvertise "as soon as it has VALID
+    //  SRP parameters" and 4.3.3.1 defines valid: MAAP-allocated DMAC AND
+    //  (a PROBE_TX within 15 s OR a registered Listener attribute). The
+    //  clause's own Note kills always-declare. So on a COLD BOOT with the
+    //  engine + talker knob on and NO bypass, the wire must carry the
+    //  Domain+MVRP pair but NO TalkerAdvertise and no fabric row; a
+    //  CONNECT_TX (the Milan probe - the fast-connect path arms the same
+    //  window) opens the declaration promptly; and losing the last
+    //  interest withdraws it with a talker LV.
+    // ==================================================================
+    printf("-- 4.3.3.1 declaration gate: cold boot silent, probe opens, "
+           "lapse withdraws --\n");
+    {
+        enum { A_ADP_CTRL_L = 0x600, A_ACMP_LOBS_L = 0x670,
+               A_LWSRP_STATUS_L = 0x694, A_SW_SRP_L = 0x85C };
+        const uint32_t adp_was = axi_read(A_ADP_CTRL_L);
+        const uint32_t eidlo_was = axi_read(0x604);
+        const uint32_t eidhi_was = axi_read(0x608);
+        axi_write(A_ADP_CTRL_L, 0x1);        // the ACMP responder's gate
+        //! the responder matches the probe's talker_entity_id against the
+        //! ADP_EID registers - name the entity the probe below carries
+        axi_write(0x608, 0x020000FF);
+        axi_write(0x604, 0xFE000001);
+        //! hold the MAC port CLOSED across the enabling writes so the
+        //! one-shot prompt declare pair parks against tready and the
+        //! sniffer below captures it whole (MRP re-declares only per
+        //! JoinTime = 20M cycles here - a missed first pair never repeats
+        //! inside this case's budget)
+        dut->m_axis_mac_tx_tready = 0;
+        axi_write(A_AAF_CTRL, 0x00020001);   // AAF en, bypass CLEAR
+        axi_write(A_LWSRP_CTRL, 0x17);       // engine + talker, NO [5] bypass
+        // ---- (a) cold boot: Domain+MVRP declare, NO TalkerAdvertise ----
+        int n_dom = 0, n_ta = 0, n_lv = 0;
+        std::vector<uint8_t> sn;
+        auto sniff = [&](int cycles) {
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < cycles; c++) {
+                lo();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            sn.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        if (sn.size() >= 30 && sn[12] == 0x22 && sn[13] == 0xEA) {
+                            if (sn[15] == 4) n_dom++;
+                            //! a TalkerAdvertise anywhere: row 0 carries it
+                            //! as message 2 (byte 28), ctx rows as message 1
+                            if (sn[15] == 1) n_ta++;
+                            if (sn[28] == 1) {
+                                n_ta++;
+                                if (sn.size() >= 60 && sn[59] == 5*36) n_lv++;
+                            }
+                        }
+                        sn.clear();
+                    }
+                }
+                hi();
+            }
+        };
+        sniff(40000);
+        ck("4.3.3.1: cold boot declares the Domain", n_dom >= 1, 1);
+        ck("4.3.3.1: cold boot carries NO TalkerAdvertise", n_ta, 0);
+        ck("4.3.3.1: talker_declared (0x694[4]) clear",
+           (axi_read(A_LWSRP_STATUS_L) >> 4) & 1, 0);
+        axi_write(A_STRM_SEL, 0x101);
+        ck("4.3.3.1: fabric row idx1 NOT provisioned",
+           (axi_read(A_SW_SRP_L) >> 15) & 1, 0);
+        // ---- (b) CONNECT_TX (Milan PROBE_TX) for uid 1 opens row 1 -----
+        {
+            uint8_t f[70]; memset(f, 0, sizeof f);
+            const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+            memcpy(f, mc, 6);
+            f[6]=0x68; f[7]=0x05; f[8]=0xCA; f[9]=0x95; f[10]=0xB2; f[11]=0xD1;
+            f[12]=0x22; f[13]=0xF0;
+            f[14]=0xFC; f[15]=0x00;              // CONNECT_TX_COMMAND
+            f[16]=0x00; f[17]=44;
+            f[34]=0x02; f[35]=0x00; f[36]=0x00; f[37]=0xFF;  // our entity_id
+            f[38]=0xFE; f[39]=0x00; f[40]=0x00; f[41]=0x01;
+            f[50]=0x00; f[51]=0x01;              // talker_unique_id 1
+            //! SHORT drain: inject() forces tready=1, and the row's one
+            //! immediate TalkerAdvertise must land inside the SNIFFER
+            //! below, not inject()'s own drain (the ingest takes ~10
+            //! cycles; classification + provisioning + the declare all
+            //! happen after)
+            inject(f, 70, 80);
+        }
+        n_dom = n_ta = n_lv = 0;
+        //! park the MAC port for the whole poll phase: the row's ONE
+        //! immediate TalkerAdvertise stalls against tready and the sniffer
+        //! afterwards captures it whole (a CSR poll's own cycles would
+        //! otherwise drain it unseen - the one-shot never repeats inside
+        //! this budget)
+        dut->m_axis_mac_tx_tready = 0;
+        uint32_t srp1 = 0;
+        for (int g = 0; g < 400 && !((srp1 >> 15) & 1); g++) {
+            for (int c = 0; c < 64; c++) step();
+            srp1 = axi_read(A_SW_SRP_L);         // A_STRM_SEL still 0x101
+        }
+        ck("4.3.3.1: PROBE_TX(uid 1) provisions row 1", (srp1 >> 15) & 1, 1);
+        sniff(20000);
+        ck("4.3.3.1: ...and its TalkerAdvertise reaches the wire",
+           n_ta >= 1, 1);
+        ck("4.3.3.1: row 0 still undeclared (uid 0 never probed)",
+           (axi_read(A_LWSRP_STATUS_L) >> 4) & 1, 0);
+        // ---- (c) a registered listener view via the LOBS socket opens
+        //      row 0; dropping the last interest WITHDRAWS with an LV ----
+        axi_write(A_ACMP_LOBS_L, 0x1);
+        for (int g = 0; g < 200; g++) {
+            if ((axi_read(A_LWSRP_STATUS_L) >> 4) & 1) break;
+            for (int c = 0; c < 64; c++) step();
+        }
+        ck("4.3.3.1: listener interest opens row 0 (0x694[4])",
+           (axi_read(A_LWSRP_STATUS_L) >> 4) & 1, 1);
+        n_dom = n_ta = n_lv = 0;
+        dut->m_axis_mac_tx_tready = 0;           // park the LV for the sniffer
+        axi_write(A_ACMP_LOBS_L, 0x0);           // the last interest lapses
+        sniff(40000);
+        ck("4.3.3.1: lapse withdraws - row-0 TalkerAdvertise LV on the wire",
+           n_lv >= 1, 1);
+        ck("4.3.3.1: talker_declared falls on the lapse",
+           (axi_read(A_LWSRP_STATUS_L) >> 4) & 1, 0);
+        // restore the flow posture exactly as the block above left it
+        axi_write(A_LWSRP_CTRL, 0x10);
+        axi_write(A_AAF_CTRL, 0x00020000);
+        axi_write(A_ADP_CTRL_L, adp_was);
+        axi_write(0x604, eidlo_was);
+        axi_write(0x608, eidhi_was);
         for (int c = 0; c < 256; c++) step();
     }
 
@@ -881,6 +1020,12 @@ int main(int argc, char** argv) {
         uint8_t sid[8] = {0,0,0,0,0,0,0,0};
         ck("SRP-only: still CLOSED after declaring (no listener yet)",
            tap_stream_en() & 1, 0);
+        //! 4.3.3.1 (gh #63 I2): with no probe, no bypass and no listener,
+        //! the talker knob alone declares NOTHING - the TalkerAdvertise
+        //! waits for the Listener registration this case injects, which is
+        //! exactly clause condition 2's second arm
+        ck("SRP-only: TalkerAdvertise NOT declared yet (0x694[4], 4.3.3.1)",
+           (axi_read(0x694) >> 4) & 1, 0);
         // Listener Ready MRPDU for that StreamID: type 4, attrlen 8,
         // listlen 14 (VectorHeader 2 + StreamID 8 + 3-packed 1 + 4-packed 1
         // + EndMark 2), JoinIn(1)*36, FourPacked Ready(2)*64
@@ -938,10 +1083,6 @@ int main(int argc, char** argv) {
             dut->s_axis_mac_rx_tvalid = 0;
         }
         inject(lr, 60, 2000);
-        // the bench-predicted bound status (8.3.6): 0x37E once the
-        // registration lands, vs 0x30 declaring-unbound
-        ck("SRP-only: LWSRP_STATUS reads the BOUND value 0x37E",
-           axi_read(0x694), 0x37E);
         int opened = 0;
         for (int g = 0; g < 400 && !opened; g++) {
             for (int c = 0; c < 64; c++) step();
@@ -949,6 +1090,15 @@ int main(int argc, char** argv) {
         }
         ck("SRP-only: Listener Ready ALONE opens the licence (no ACMP ever "
            "sent for t0)", opened, 1);
+        // the bench-predicted bound status (8.3.6): 0x37E once the
+        // registration lands, vs 0x30 declaring-unbound. Since the 4.3.3.1
+        // round the registration ALSO opens the TalkerAdvertise ([4] - the
+        // listener-registration arm of the declaration gate), so the whole
+        // word settles only after the declare + gate walk; read it settled.
+        ck("SRP-only: LWSRP_STATUS reads the BOUND value 0x37E",
+           axi_read(0x694), 0x37E);
+        ck("SRP-only: the registration OPENED the TalkerAdvertise (0x694[4])",
+           (axi_read(0x694) >> 4) & 1, 1);
         // continuity: the gate holds while the registration stands
         uint32_t f0 = axi_read(A_AAF_FRAMES);
         bool held = true;
@@ -969,6 +1119,108 @@ int main(int argc, char** argv) {
         // bypass back on (no row was ever touched - pure SRP case)
         axi_write(A_LWSRP_CTRL, 0x15);
         axi_write(A_AAF_CTRL, 0x00020003);
+        for (int c = 0; c < 64; c++) step();
+    }
+
+    // ==================================================================
+    //  MILAN 4.2.7.2.1 DOMAIN ADOPT AT THE DATAPATH (gh #63 I4): a class-A
+    //  Domain declaration with a different VID moves LWSRP_DOM (0x788),
+    //  the AAF C-TAG on the wire and the CRF talker's 0x750 tag word all
+    //  at once - the reservation and the frames are one pair - and the
+    //  adoption REVERTS on the engine-enable fall.
+    // ==================================================================
+    printf("-- 4.2.7.2.1 Domain adopt: 0x788 + the AAF/CRF tag words --\n");
+    {
+        enum { A_LWSRP_DOM_L = 0x788, A_CRFT_CTRL_L = 0x750,
+               A_LINK_CTRL_L = 0x71C };
+        // entry state: LWSRP_CTRL 0x15 (engine on), AAF_CTRL 0x00020003
+        // (en + bypass) - t0 is emitting tagged AAF zero-fill PDUs.
+        // Adoption reverts on link-down, and eff_link rides the LINK GUARD's
+        // establishment window - park the guard disabled (LINK_CTRL[2]) so
+        // eff_link = i_link_up = 1 deterministically for this case.
+        const uint32_t link_was = axi_read(A_LINK_CTRL_L);
+        axi_write(A_LINK_CTRL_L, link_was | 0x4);
+        for (int c = 0; c < 64; c++) step();
+        ck("adopt-dp: defaults in force (0x788 = {prio 3, vid 2})",
+           axi_read(A_LWSRP_DOM_L), 0x00030002);
+        // ---- inject the bridge Domain {class A, prio 3, VID 5} ---------
+        uint8_t dm[60]; memset(dm, 0, sizeof dm);
+        const uint8_t msrp_da2[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};
+        memcpy(dm, msrp_da2, 6);
+        dm[6]=0x02; dm[7]=0xAA; dm[8]=0xBB; dm[9]=0xCC; dm[10]=0xDD;
+        dm[11]=0x02;
+        dm[12]=0x22; dm[13]=0xEA;
+        dm[14]=0;                       // ProtocolVersion
+        dm[15]=4; dm[16]=4;             // Domain (type 4), AttributeLength 4
+        dm[17]=0; dm[18]=9;             // AttributeListLength
+        dm[19]=0; dm[20]=1;             // VectorHeader: NOV 1
+        dm[21]=6;                       // SRclassID = A
+        dm[22]=3;                       // SRclassPriority = 3
+        dm[23]=0; dm[24]=5;             // SRclassVID = 5
+        dm[25]=36;                      // ThreePacked JoinIn
+        inject(dm, 60, 2000);
+        uint32_t domw = 0;
+        for (int g = 0; g < 64 && domw != 0x01030005u; g++) {
+            for (int c = 0; c < 64; c++) step();
+            domw = axi_read(A_LWSRP_DOM_L);
+        }
+        ck("adopt-dp: 0x788 reads {adopted, prio 3, VID 5}",
+           domw, 0x01030005u);
+        // the adopt event latches the boundary until the (now-operational)
+        // pair is re-declared - the same PDU again heals it
+        inject(dm, 60, 2000);
+        ck("adopt-dp: re-declaration of the adopted pair heals domain_ok",
+           (axi_read(0x694) >> 5) & 1, 1);
+        // ---- the AAF C-TAG follows: TCI = {PCP 3, DEI 0, VID 5} --------
+        auto tag_of_next_aaf = [&]() -> int {
+            std::vector<uint8_t> fr;
+            dut->m_axis_mac_tx_tready = 1;
+            for (int c = 0; c < 60000; c++) {
+                lo();
+                if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                    for (int l = 0; l < 8; l++)
+                        if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                            fr.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                    if (dut->m_axis_mac_tx_tlast) {
+                        if (fr.size() >= 20 && fr[12] == 0x81 && fr[13] == 0x00
+                            && fr[16] == 0x22 && fr[17] == 0xF0
+                            && fr[18] == 0x02) {
+                            int tci = (fr[14] << 8) | fr[15];
+                            hi();
+                            return tci;
+                        }
+                        fr.clear();
+                    }
+                }
+                hi();
+            }
+            return -1;
+        };
+        ck("adopt-dp: AAF C-TAG TCI = {PCP 3, VID 5} (0x6005)",
+           (uint32_t)tag_of_next_aaf(), 0x6005);
+        // ---- the CRF talker's tag word follows (0x750[22:8]) -----------
+        axi_write(A_LWSRP_CTRL, 0x37);       // talker + declare bypass
+        axi_write(A_CRFT_CTRL_L, 0x3);       // CRF en + class A
+        uint32_t crfw = 0;
+        for (int g = 0; g < 200 && (((crfw >> 8) & 0xFFF) != 5); g++) {
+            for (int c = 0; c < 256; c++) step();
+            crfw = axi_read(A_CRFT_CTRL_L);
+        }
+        ck("adopt-dp: CRF tag word VID (0x750[19:8]) = the ADOPTED 5",
+           (crfw >> 8) & 0xFFF, 5);
+        ck("adopt-dp: CRF tag word PCP (0x750[22:20]) = 3",
+           (crfw >> 20) & 0x7, 3);
+        // ---- REVERT on enable-fall (the 4.2.7.2.1 reset list) ----------
+        axi_write(A_CRFT_CTRL_L, 0x0);
+        axi_write(A_LWSRP_CTRL, 0x14);       // enable OFF
+        for (int c = 0; c < 2048; c++) step();
+        axi_write(A_LWSRP_CTRL, 0x15);       // back to the flow posture
+        for (int c = 0; c < 256; c++) step();
+        ck("adopt-dp: enable-fall REVERTS to the defaults",
+           axi_read(A_LWSRP_DOM_L), 0x00030002);
+        ck("adopt-dp: AAF C-TAG back to {PCP 3, VID 2} (0x6002)",
+           (uint32_t)tag_of_next_aaf(), 0x6002);
+        axi_write(A_LINK_CTRL_L, link_was);  // the guard's posture restored
         for (int c = 0; c < 64; c++) step();
     }
 
@@ -1859,7 +2111,10 @@ int main(int argc, char** argv) {
         auto chans_of = [](int t) { return 2u * (1u + (unsigned)(t % 4)); };
         auto sid_lo_of = [&](int t) { return (uint32_t)(0x00020000u + t); };
 
-        axi_write(A_LWSRP_CTRL, 0x17);   // enable + talker declare, queue 5
+        // enable + talker declare + the [5] DECLARE bypass (this case is
+        // the declared-at-boot provisioner proof; the 4.3.3.1 gate has its
+        // own case), queue 5
+        axi_write(A_LWSRP_CTRL, 0x37);
         // the CRF slot wants its row at the same time as every AAF slot, so
         // the rotating arbiter is exercised with SRP_TALKERS_C-1 requesters
         axi_write(A_CRFT_CTRL, 0x3);     // CRF talker en + class A asked
@@ -2029,7 +2284,7 @@ int main(int argc, char** argv) {
         // every AAF talker AND the CRF at once - the N-way simultaneous
         // withdrawal - and a LISTENER CSR WRITE committed in the same breath
         // must not be dropped under that burst.
-        axi_write(A_LWSRP_CTRL, 0x15);         // enable + queue 5, talker declare OFF
+        axi_write(A_LWSRP_CTRL, 0x35);         // talker declare OFF (bypass kept)
         axi_write(A_STRM_SEL, 0x002);          // listener idx 2 -> ctx row 2
         axi_write(A_SW_SID_LO, 0x00C0FFEE);
         axi_write(A_SW_SID_HI, 0x0000C0DE);
@@ -2058,7 +2313,7 @@ int main(int argc, char** argv) {
             ck(nm, (srp >> 15) & 1, 0);
         }
         // ---- and it re-arms (a withdrawal is not a one-way latch) -----
-        axi_write(A_LWSRP_CTRL, 0x17);         // talker declare back ON
+        axi_write(A_LWSRP_CTRL, 0x37);         // talker declare back ON (bypass kept)
         for (int c = 0; c < 8192; c++) step();
         for (int t = 1; t < NSTREAMS_TB; t++) {
             char nm[96];
@@ -3079,7 +3334,7 @@ int main(int argc, char** argv) {
         // ---- LEG 1 (the DEFAULT BUILD): class A bit clear -------------
         // lwSRP fully running, CRF talker running, CRFT_CTRL[1] = 0.
         // This is what every existing bitstream does and it must not move.
-        axi_write(A_LWSRP_CTRL, 0x17);          // enable + talker declare
+        axi_write(A_LWSRP_CTRL, 0x37);          // enable + talker + declare bypass
         for (int c = 0; c < 256; c++) step();
         axi_write(A_CRFT_CTRL, 0x1);            // en=1, class_a=0
         std::vector<uint8_t> f1;
@@ -3127,7 +3382,9 @@ int main(int argc, char** argv) {
         std::vector<uint8_t> f3;
         {
             std::vector<uint8_t> cur4;
-            axi_write(A_LWSRP_CTRL, 0x17);      // provisions the CRF row NOW
+            axi_write(A_LWSRP_CTRL, 0x37);      // provisions the CRF row NOW
+                                                // (declare bypass: no probe
+                                                // or listener in this leg)
             dut->m_axis_mac_tx_tready = 1;
             for (int c = 0; c < 500000 && (!ta_hit || f3.empty()); c++) {
                 lo();
@@ -4236,8 +4493,11 @@ int main(int argc, char** argv) {
         // trigger: ONE commit arms every talker requester at once. The
         // commit lands DURING the write's own AXI cycles, so the handshake
         // is stepped RAW and the per-cycle probe runs across it.
+        // [5] = the declare bypass: this white-box case is about the LAUNCH
+        // PIPELINE arming every requester on one commit, so it runs the
+        // declared-at-boot posture the 4.3.3.1 gate otherwise forbids.
         dut->s_axi_awaddr = A_LWSRP_CTRL; dut->s_axi_awvalid = 1;
-        dut->s_axi_wdata = 0x17; dut->s_axi_wvalid = 1;
+        dut->s_axi_wdata = 0x37; dut->s_axi_wvalid = 1;
         dut->s_axi_wstrb = 0xF; dut->s_axi_bready = 1;
 
         const int W = 1500;

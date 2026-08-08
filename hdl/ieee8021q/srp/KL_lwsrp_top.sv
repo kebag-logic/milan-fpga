@@ -65,6 +65,9 @@ module KL_lwsrp_top #(
     input  wire         enable_i,          //! LWSRP_CTRL[0]
     input  wire         talker_en_i,       //! LWSRP_CTRL[1]
     input  wire         is_1g_i,           //! port rate (MAC_CTRL is_1g)
+    input  wire         link_up_i,         //! effective PHY link: the Domain
+                                           //! adoption (Milan 4.2.7.2.1)
+                                           //! reverts to defaults on its fall
 
     // ---- ACMP listener SM hooks (listener endpoint role) ------------------
     input  wire         lstn_bound_i,      //! binding valid (track the TA)
@@ -124,6 +127,13 @@ module KL_lwsrp_top #(
     output wire         listener_reg_o,
     output wire [1:0]   listener_decl_o,
     output wire         domain_ok_o,
+    //! Milan 4.2.7.2.1 Domain adoption surface: adopt_valid_o = the
+    //! operational pair below is a RECEIVED FirstValue rather than the
+    //! {3, vid_i} defaults. The datapath's AAF/CRF C-TAG mux takes the op
+    //! pair whenever adopt_valid_o is set, so tag and declaration are one.
+    output wire         adopt_valid_o,
+    output wire [7:0]   op_prio_o,
+    output wire [11:0]  op_vid_o,
     output wire         over_limit_o,
     output wire         tfail_valid_o,
     output wire [7:0]   tfail_code_o,
@@ -246,7 +256,9 @@ module KL_lwsrp_top #(
   KL_lwsrp_ctx_tx #(.EXT_LANES_P(EXT_LANES_C)) ctx_tx (
     .clk_i (clk_i), .rst_n (rst_n),
     .enable_i (enable_i),
-    .station_mac_i (station_mac_i), .vid_i (vid_i),
+    //! the ctx rows' DataFrameParameters VID follows the OPERATIONAL pair
+    //! (Milan 4.2.7.2.1 adoption) exactly like the row-0 serializer's
+    .station_mac_i (station_mac_i), .vid_i (op_vid_o),
     .row_valid_i (row_valid_w), .row_dir_i (row_dir_w),
     .row_fresh_i (row_fresh_w), .row_lv_i (row_lv_w),
     .row_ready_i (row_ready_w), .row_sid_i (row_sid_w),
@@ -269,7 +281,10 @@ module KL_lwsrp_top #(
     .lstn_ready_i (ta_registered_o),   // Ready while the TA is registered
     .lstn_sid_i (lstn_sid_i),
     .station_mac_i (station_mac_i), .unique_id_i (unique_id_i),
-    .dest_mac_i (dest_mac_i), .vid_i (vid_i),
+    //! Domain FirstValue + MVRP VID + TalkerAdvertise DataFrameParameters
+    //! all serialize the OPERATIONAL pair (Milan 4.2.7.2.1 adoption)
+    .dest_mac_i (dest_mac_i),
+    .dom_prio_i (op_prio_o), .vid_i (op_vid_o),
     .max_frame_i (max_frame_i), .interval_frames_i (interval_frames_i),
     .latency_i (latency_i),
     .m_axis_tdata (tx0_tdata_w), .m_axis_tkeep (tx0_tkeep_w),
@@ -322,7 +337,8 @@ module KL_lwsrp_top #(
     .EXT_LANES_P        (EXT_LANES_C)
   ) rx (
     .clk_i (clk_i), .rst_n (rst_n),
-    .enable_i (enable_i), .tick_1khz_i (tick_1khz_w),
+    .enable_i (enable_i), .link_up_i (link_up_i),
+    .tick_1khz_i (tick_1khz_w),
     .rx_tvalid_i (rx_tvalid_i), .rx_tdata_i (rx_tdata_i),
     .rx_tkeep_i (rx_tkeep_i),   .rx_tlast_i (rx_tlast_i),
     .station_mac_i (station_mac_i), .unique_id_i (unique_id_i),
@@ -336,6 +352,8 @@ module KL_lwsrp_top #(
     .listener_ready_o (listener_ready_o),
     .listener_reg_o (listener_reg_o), .listener_decl_o (listener_decl_o),
     .domain_ok_o (domain_ok_o),
+    .adopt_valid_o (adopt_valid_o),
+    .op_prio_o (op_prio_o), .op_vid_o (op_vid_o),
     .tfail_valid_o (tfail_valid_o), .tfail_code_o (tfail_code_o),
     .tfail_bridge_o (tfail_bridge_o),
     .rx_leaveall_p_o (rx_leaveall_w),

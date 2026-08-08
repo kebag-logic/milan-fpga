@@ -33,6 +33,8 @@ module KL_lwsrp_rx #(
     input  wire         clk_i,
     input  wire         rst_n,
     input  wire         enable_i,          //! lwSRP engine enable (CSR)
+    input  wire         link_up_i,         //! effective PHY link (Domain adopt
+                                           //! reverts on link-down, 4.2.7.2.1)
     input  wire         tick_1khz_i,       //! 1 ms strobe (KL_lwsrp_timers)
 
     // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) --------
@@ -65,6 +67,9 @@ module KL_lwsrp_rx #(
     output wire         listener_reg_o,
     output wire [1:0]   listener_decl_o,
     output wire         domain_ok_o,
+    output wire         adopt_valid_o,     //! Domain pair ADOPTED (4.2.7.2.1)
+    output wire [7:0]   op_prio_o,         //! operational class-A priority
+    output wire [11:0]  op_vid_o,          //! operational class-A VID
     output wire         tfail_valid_o,
     output wire [7:0]   tfail_code_o,
     output wire [63:0]  tfail_bridge_o,    //! our-talker TF bridge_id
@@ -169,7 +174,8 @@ module KL_lwsrp_rx #(
 
   KL_lwsrp_registrar registrar (
     .clk_i (clk_i), .rst_n (rst_n),
-    .enable_i (enable_i), .tick_1khz_i (tick_1khz_i),
+    .enable_i (enable_i), .link_up_i (link_up_i),
+    .tick_1khz_i (tick_1khz_i),
     .vid_i (vid_i),
     .leaveall_p_i (w_leaveall_p),
     .domain_p_i (w_domain_p),
@@ -183,6 +189,8 @@ module KL_lwsrp_rx #(
     .listener_ready_o (listener_ready_o),
     .listener_reg_o (listener_reg_o), .listener_decl_o (listener_decl_o),
     .domain_ok_o (domain_ok_o),
+    .adopt_valid_o (adopt_valid_o),
+    .op_prio_o (op_prio_o), .op_vid_o (op_vid_o),
     .tfail_valid_o (tfail_valid_o), .tfail_code_o (tfail_code_o),
     .tfail_bridge_o (tfail_bridge_o)
   );

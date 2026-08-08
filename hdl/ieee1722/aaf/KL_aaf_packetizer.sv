@@ -124,6 +124,16 @@ module KL_aaf_packetizer #(
   input  wire [47:0]  dest_mac_i,        //! t0 stream DMAC
   input  wire [47:0]  station_mac_i,     //! src MAC (all streams)
   input  wire [11:0]  vlan_vid_i,        //! t0 SR class VID
+  //! C-TAG PCP for every talker (SR class A default 3; the datapath muxes
+  //! the OPERATIONAL Domain priority here when Milan 4.2.7.2.1 adoption is
+  //! in force, so tag and reservation agree)
+  input  wire [2:0]   vlan_pcp_i,
+  //! Domain-adopt override (Milan 4.2.7.2.1): while set, EVERY talker tags
+  //! with vlan_vid_i - the per-talker TCTX vid override is bypassed, because
+  //! the lwSRP rows all declare the adopted VID and a frame tagged anything
+  //! else would ride a VLAN its reservation does not cover. Tie 0 for the
+  //! historical per-talker law.
+  input  wire         dom_ovr_i,
   //! per-talker presentation offsets: entry t = the max transit time talker
   //! t adds to ptp_ns at first-sample capture (AECP's per-STREAM_OUTPUT
   //! file, SET/GET_MAX_TRANSIT_TIME / SET_STREAM_INFO ACC_LAT). Replicate
@@ -408,7 +418,11 @@ module KL_aaf_packetizer #(
   //! value this engine must never emit on (VID lives in AAF_CTRL[27:16]).
   wire [47:0] eff_dmac_w = (et_r == '0) ? dest_mac_i
                          : (|edmac_r ? edmac_r : dest_mac_i + 48'(et_r));
-  wire [11:0] eff_vid_w  = (et_r == '0) ? vlan_vid_i
+  //! dom_ovr_i (Milan 4.2.7.2.1 adoption) outranks the per-talker TCTX vid:
+  //! the adopted network has ONE SR VID and every row's reservation
+  //! declares it, so every frame must carry it too
+  wire [11:0] eff_vid_w  = dom_ovr_i     ? vlan_vid_i
+                         : (et_r == '0)  ? vlan_vid_i
                          : (|evid_r  ? evid_r  : vlan_vid_i);
   wire [15:0] eff_uid_w  = (et_r == '0) ? 16'd0
                          : (|euid_r  ? euid_r  : 16'(et_r));
@@ -417,11 +431,11 @@ module KL_aaf_packetizer #(
   logic [7:0] fb [0:NUM_BEATS_C*8-1];
   always_comb begin : frame_bytes
     for (int k = 0; k < NUM_BEATS_C*8; k++) fb[k] = 8'h00;
-    // Ethernet + 802.1Q (PCP 3, DEI 0, VID)
+    // Ethernet + 802.1Q (PCP from vlan_pcp_i - SR class A default 3 - DEI 0)
     {fb[0],fb[1],fb[2],fb[3],fb[4],fb[5]} = eff_dmac_w;
     {fb[6],fb[7],fb[8],fb[9],fb[10],fb[11]} = station_mac_i;
     fb[12]=8'h81; fb[13]=8'h00;
-    fb[14]={3'd3, 1'b0, eff_vid_w[11:8]}; fb[15]=eff_vid_w[7:0];
+    fb[14]={vlan_pcp_i, 1'b0, eff_vid_w[11:8]}; fb[15]=eff_vid_w[7:0];
     fb[16]=8'h22; fb[17]=8'hF0;
     // AAF-PCM AVTPDU (IEEE 1722-2016 clause 7)
     fb[18]=8'h02;                       // subtype AAF

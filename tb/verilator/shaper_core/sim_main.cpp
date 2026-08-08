@@ -341,28 +341,36 @@ int main(int argc, char** argv) {
                (h.fails == f0) ? "PASS" : "FAIL");
     }
 
-    // ---- REQ-CBS-07: egress pacing / real occupancy, MEASURED ----
-    // 802.1Qav assumes a transmitting queue occupies the port for the frame's
-    // real wire time. Ours does not: the shaper hands 8 B per cycle to a MAC
-    // FIFO, so at 100 MHz a beat leaves in 10 ns while 8 B on a 1 Gb/s wire take
-    // 64 ns. `is_transmitting` is asserted only on ACCEPTED beats (real
-    // occupancy of the AXIS port - confirmed below, both drain regimes agree),
-    // so the debit is exact per byte; but the queue then ACCRUES idleSlope
-    // during the 5.4 cycles per beat that the wire would still be busy.
+    // ---- REQ-CBS-07: egress pacing under the WIRE-TIME DEBT law --------
+    // 802.1Q-2018 8.6.8.2 (d)/(e): idleSlope accrues only while `transmit`
+    // is FALSE, and transmit covers the frame's real wire occupation. The
+    // shaper hands 8 B per cycle to a MAC FIFO (10 ns/beat at 100 MHz vs
+    // 64 ns of 1 Gb/s wire), and the OLD law accrued on every
+    // non-transmitting cycle - measured 9.6 / 20.5 percent over-delivery at
+    // idleSlope 100 / 200 Mb/s. credit_based_shaper now carries a per-queue
+    // Q16 wire-time debt (bytes per accepted beat + the 24-octet per-frame
+    // overhead + min-frame pad at tlast, drained at the port byte rate) and
+    // accrues only at debt == 0.
     //
-    // Steady state with accrual on every non-transmitting cycle and an exact
-    // per-byte debit:
-    //     (CLK - r/8)*S/(8*CLK) + r*(S - link)/link = 0
-    //  => r = (S/8) / [ S/(64*CLK) + (link - S)/link ]     bytes/s
-    // versus the 802.1Qav ideal r_ideal = S/8. The test asserts the ACCOUNTING
-    // model (so any change to the credit arithmetic fails here) and REPORTS the
-    // over-delivery against the standard, which is the REQ-CBS-07 finding.
+    // Steady state of the debt law (frame of L client bytes, per-frame
+    // overhead V = 24 + max(0, 60 - L)):
+    //     accrual time * S/8 = debit  with the wire busy L+V octets/frame
+    //  => r = (S/8) * L*link / (L*link + V*S)          client bytes/s
+    // i.e. the reservation's own per-frame overhead now comes out of the
+    // shaped rate. NOTE the deliberate deviation from a bare "r = S/8":
+    // with V charged to the debt but the per-byte debit unchanged, exact
+    // S/8 is unreachable - the law under-delivers by the V*S/(L*link) term
+    // (3.6 percent at 100 Mb/s / 64 B frames) instead of OVER-delivering
+    // 9.6/20.5 percent. Both the law's own fixed point AND the
+    // over-delivery-is-dead bound are asserted.
     {
         long f0 = h.fails;
         const int    CYCLES = 200000;
         const int    FBEATS = 8;                 // 64-byte frames
         const double CLK    = 100000000.0;       // wrapper CLK_FREQ_HZ
         const double LINK   = 1000000000.0;      // is_1g_i = 1 in the wrapper
+        const double LBYTES = 8.0 * FBEATS;      // client bytes per frame
+        const double OVH    = 24.0;              // >= 60 B frames: no pad
 
         struct { uint32_t slope; int period; const char* name; } runs[] = {
             { 100000000, 1, "fast drain  (8 B/cycle sink)" },
@@ -374,26 +382,41 @@ int main(int argc, char** argv) {
             long   bytes = run_rate(h, runs[r].slope, runs[r].period, CYCLES, FBEATS, "cbs07");
             double S     = (double)runs[r].slope;
             bpc[r]       = (double)bytes / (double)CYCLES;
-            double model = (S / 8.0) / (S / (64.0 * CLK) + (LINK - S) / LINK) / CLK;
+            double model = (S / 8.0) * (LBYTES * LINK)
+                           / (LBYTES * LINK + OVH * S) / CLK;
             double ideal = S / 8.0 / CLK;
             double merr  = std::fabs(bpc[r] - model) / model * 100.0;
-            printf("  [INFO] REQ-CBS-07 %s  %.6f B/cyc | accounting model %.6f (%.2f%%) "
-                   "| 802.1Qav ideal %.6f -> OVER-DELIVERS %.1f%%\n",
+            printf("  [INFO] REQ-CBS-07 %s  %.6f B/cyc | debt-law model %.6f (%.2f%%) "
+                   "| 802.1Qav S/8 %.6f -> delivers %.1f%%\n",
                    runs[r].name, bpc[r], model, merr, ideal,
                    (bpc[r] / ideal - 1.0) * 100.0);
-            // pin the accounting: the startup hiCredit burst and frame
-            // quantisation account for well under 1.5% over 200k cycles
-            if (merr > 1.5) {
-                printf("  [FAIL] cbs07: %s is %.2f%% off the accounting model\n",
+            // (a) the LAW: measured egress = the debt-law fixed point. The
+            // closed form assumes wire-continuous frames; a sink SLOWER than
+            // the wire (RDYP=8 = 0.8 Gb/s here) opens mid-frame debt gaps
+            // that shave up to ~1.5% more (measured 0.1/0.7/1.5% across the
+            // three regimes), so the bound is 2% - the OLD law read 13/28%
+            // off this model, so the check keeps its teeth.
+            if (merr > 2.0) {
+                printf("  [FAIL] cbs07: %s is %.2f%% off the debt-law model\n",
                        runs[r].name, merr);
                 h.fails++;
             }
+            // (b) OVER-DELIVERY IS DEAD: the old law delivered ideal*1.096 /
+            // *1.205 here; the debt law may never exceed the reservation
+            if (bpc[r] > ideal * 1.005) {
+                printf("  [FAIL] cbs07: %s delivers %.2f%% ABOVE S/8 - the "
+                       "8.6.8.2 accrual gap is back\n",
+                       runs[r].name, (bpc[r] / ideal - 1.0) * 100.0);
+                h.fails++;
+            }
         }
-        // Both drain regimes must give the SAME rate. This is the real-occupancy
-        // check: if bytes_sent/is_transmitting counted anything but accepted
-        // beats, throttling the sink 8x would move the answer.
+        // The two drain regimes must agree closely. Under the debt law they
+        // are no longer IDENTICAL - a sink slower than the wire (paced leg)
+        // opens mid-frame debt gaps the fast leg does not have, worth ~0.8%
+        // here - but a bytes_sent/is_transmitting miscount moves this by
+        // the full 8x pacing ratio, so 2% still catches that whole class.
         double disagree = std::fabs(bpc[0] - bpc[1]) / bpc[1] * 100.0;
-        if (disagree > 0.5) {
+        if (disagree > 2.0) {
             printf("  [FAIL] cbs07: fast vs paced drain disagree by %.2f%% - "
                    "bytes_sent/is_transmitting are not counting accepted beats\n", disagree);
             h.fails++;
@@ -404,8 +427,8 @@ int main(int argc, char** argv) {
             printf("  [FAIL] cbs07: 2x idleSlope gave %.3fx the rate (measurement is pinned)\n", ratio);
             h.fails++;
         }
-        printf("  [%s] REQ-CBS-07 bytes_sent/is_transmitting track accepted beats "
-               "(regimes differ %.2f%%); over-delivery vs 802.1Qav is the UNPACED-EGRESS gap\n",
+        printf("  [%s] REQ-CBS-07 debt law: egress = (S/8)*L*link/(L*link+24*S) "
+               "at 100 AND 200 Mb/s, never above S/8; regimes differ %.2f%%\n",
                (h.fails == f0) ? "PASS" : "FAIL", disagree);
     }
 
@@ -474,13 +497,14 @@ int main(int argc, char** argv) {
     // station has to send. Symmetrically q0 must never squeeze q4 out, since q4
     // wins outright whenever its credit is non-negative.
     //
-    // Measured against the accounting model of REQ-CBS-07 (the egress here is
-    // unpaced, so a reserved S delivers more than S/link - the gap is REPORTED,
-    // as it is above, not asserted away).
+    // Measured against the REQ-CBS-07 debt-law model (the shaped class now
+    // delivers its wire-honest rate - slightly UNDER S/link by the per-frame
+    // overhead term - and best effort takes the rest).
     {
         long f0 = h.fails;
         const int    CYCLES = 200000, FBEATS = 8, RDYP = 8;
         const double CLK = 100000000.0, LINK = 1000000000.0;
+        const double LBYTES = 8.0 * FBEATS, OVH = 24.0;
         // RDYP = 8 -> the sink takes 8 B every 8 cycles = 100 MB/s of port
         const double PORT_BPC = 8.0 / (double)RDYP;
 
@@ -502,7 +526,8 @@ int main(int argc, char** argv) {
             double sh0 = total ? (double)bq[0] / (double)total : 0.0;
 
             double S     = (double)runs[r].slope;
-            double model = (S / 8.0) / (S / (64.0 * CLK) + (LINK - S) / LINK) / CLK / PORT_BPC;
+            double model = (S / 8.0) * (LBYTES * LINK)
+                           / (LBYTES * LINK + OVH * S) / CLK / PORT_BPC;
             double ideal = S / LINK;
 
             // (a) NEITHER queue is starved - the FQTSS guarantee, both ways
@@ -524,9 +549,12 @@ int main(int argc, char** argv) {
                 printf("  [FAIL] FQTSS: %ld beats granted to a queue with no data\n", stray);
                 h.fails++;
             }
-            // (c) the split is the credit accounting's, not the harness's
+            // (c) the split is the credit accounting's, not the harness's.
+            // Frame-grain arbitration against the contending queue costs up
+            // to ~2.3% relative at the 450 Mb/s point (measured 0.7/1.5/2.3
+            // across the sweep); 3.5% keeps the old law's 9-20% miss red.
             double merr = std::fabs(share5[r] - model) / model * 100.0;
-            if (merr > 2.0) {
+            if (merr > 3.5) {
                 printf("  [FAIL] FQTSS: %s took %.2f%% of the port, accounting model says "
                        "%.2f%% (%.2f%% off)\n", runs[r].name, share5[r]*100.0, model*100.0, merr);
                 h.fails++;

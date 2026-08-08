@@ -92,6 +92,9 @@ module csr_win_live #(
   wire [2:0]  stream_gate_w;          //! per-stream (P12 follow-up); the
                                       //! flat status word packs bit 0
   wire        domain_ok_w, talker_declared_w, listener_ready_w, listener_reg_w;
+  wire        lwsrp_adoptv_w;
+  wire [7:0]  lwsrp_opprio_w;
+  wire [11:0] lwsrp_opvid_w;
   wire        tfail_valid_w;
   wire [1:0]  listener_decl_w;
   wire [7:0]  tfail_code_w, rx_drops_w;
@@ -121,6 +124,9 @@ module csr_win_live #(
     .o_lwsrp_vid (lwsrp_vid_w), .o_lwsrp_dest_mac (lwsrp_dmac_w),
     .o_lwsrp_max_frame (lwsrp_maxf_w), .o_lwsrp_interval (lwsrp_intv_w),
     .o_lwsrp_latency (lwsrp_lat_w),
+    //! LWSRP_DOM 0x788 live from the engine's adopt surface
+    .i_lwsrp_dom ({7'd0, lwsrp_adoptv_w, lwsrp_opprio_w,
+                   4'd0, lwsrp_opvid_w}),
     .i_lwsrp_status ({rx_drops_w, tfail_code_w, 5'd0, tfail_valid_w,
                       slope_en_w, stream_gate_w[0], over_limit_w, res_active_w,
                       domain_ok_w, talker_declared_w, listener_ready_w,
@@ -158,6 +164,7 @@ module csr_win_live #(
     .enable_i (lwsrp_en_w),
     .talker_en_i (lwsrp_talker_en_w),
     .is_1g_i (1'b1),
+    .link_up_i (1'b1),
     .lstn_bound_i (1'b0), .lstn_declare_i (1'b0), .lstn_sid_i (64'h0),
     .ta_registered_o (), .ta_failed_o (), .ta_fail_code_o (),
     .ta_vlan_o (), .ta_acclat_o (), .ta_fail_bridge_o (),
@@ -179,7 +186,10 @@ module csr_win_live #(
     .listener_ready_o (listener_ready_w),
     .talker_declared_o (talker_declared_w),
     .listener_reg_o (listener_reg_w), .listener_decl_o (listener_decl_w),
-    .domain_ok_o (domain_ok_w), .over_limit_o (over_limit_w),
+    .domain_ok_o (domain_ok_w),
+    .adopt_valid_o (lwsrp_adoptv_w),
+    .op_prio_o (lwsrp_opprio_w), .op_vid_o (lwsrp_opvid_w),
+    .over_limit_o (over_limit_w),
     .tfail_valid_o (tfail_valid_w), .tfail_code_o (tfail_code_w),
     .tx_count_o (), .rx_pdus_o (), .rx_drops_o (rx_drops_w),
     .ctx_req_i (srp_req_w), .ctx_we_i (srp_we_w),

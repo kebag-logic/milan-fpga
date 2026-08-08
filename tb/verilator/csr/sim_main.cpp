@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x0001003A);
+  ck("VERSION",       axi_read(A_VERSION), 0x0001003B);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -504,6 +504,29 @@ int main(int argc, char** argv) {
   dut->eval();
   ck("o_lwsrp_latency", dut->o_lwsrp_latency, 500000);
   ck("CAP.LWSRP bit", (axi_read(0x008) >> 14) & 1, 1);
+  // LWSRP_CTRL[5]: the 4.3.3.1 declare-always bypass. Reset MUST be 0 (a
+  // set-at-reset bypass would re-create the declared-from-boot violation -
+  // the 0x0018 lesson) and the bit must reach its output.
+  ck("LWSRP_CTRL[5] bypass resets 0 (0x680 reset 0x10)",
+     (0x10 >> 5) & 1, 0);
+  ck("o_lwsrp_decl_bypass follows CTRL[5]=0", dut->o_lwsrp_decl_bypass, 0);
+  axi_write(0x680, 0x27);                // enable + talker + bypass, q1
+  dut->eval();
+  ck("o_lwsrp_decl_bypass follows CTRL[5]=1", dut->o_lwsrp_decl_bypass, 1);
+  ck("LWSRP_CTRL[5] reads back", (axi_read(0x680) >> 5) & 1, 1);
+  axi_write(0x680, 0x7);
+  dut->eval();
+  ck("o_lwsrp_decl_bypass clears", dut->o_lwsrp_decl_bypass, 0);
+  // LWSRP_DOM 0x788 (RO live): {7'0, adopt_valid, op_prio[7:0], 4'0,
+  // op_vid[11:0]} straight off the input - the Milan 4.2.7.2.1 surface
+  dut->i_lwsrp_dom = 0x01030005u;        // adopted, prio 3, vid 5
+  dut->eval();
+  ck("LWSRP_DOM RO live", axi_read(0x788), 0x01030005u);
+  dut->i_lwsrp_dom = 0x00030002u;        // defaults in force
+  dut->eval();
+  ck("LWSRP_DOM tracks the input", axi_read(0x788), 0x00030002u);
+  axi_write(0x788, 0xFFFFFFFFu);         // RO: the write must not stick
+  ck("LWSRP_DOM write ignored", axi_read(0x788), 0x00030002u);
 
   printf("-- ACMP listener SM RO group (0x6A4) --\n");
   dut->i_acmpl_state = 0x002F0177; dut->i_acmpl_talker_lo = 0xFE000001;

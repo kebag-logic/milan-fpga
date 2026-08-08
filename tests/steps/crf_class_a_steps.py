@@ -201,18 +201,29 @@ def step_prio_rank(context, v):
 def step_pcp_is_declared_prio(context):
     # If the tag's PCP and the TalkerAdvertise's priority were two literals
     # they could drift; the bridge would then police the stream against a
-    # class it was never declared in.
+    # class it was never declared in. Since the Milan 4.2.7.2.1 Domain-adopt
+    # round the default arm is still the lwsrp_pkg constant and the adopted
+    # arm is the registrar's operational priority - the same value the
+    # applicant's Domain FirstValue serializes.
     expr = _expr(context.dp_src, "crft_pcp_w")
     assert "SR_CLASS_A_PRIO_C" in expr, \
         "the CRF tag PCP is not the lwsrp_pkg SR class A priority"
+    assert "lwsrp_op_prio" in expr, \
+        "the CRF tag PCP does not follow the adopted operational priority"
 
 
 @then('the frame VID and the declared VID are one wire')
 def step_vid_is_declared_vid(context):
-    # DataFrameParameters carries the VID (802.1Q 35.2.2.4); the applicant
-    # takes it from LWSRP_VID, so the frames must take it from there too.
-    assert "cfg_lwsrp_vid" in _port(context.dp_src, "KL_crf_tx", "vlan_vid_i"), \
-        "the CRF tag VID is not LWSRP_VID (the declaration's VID)"
+    # DataFrameParameters carries the VID (802.1Q 35.2.2.4). Since the Milan
+    # 4.2.7.2.1 Domain-adopt round the ONE wire is crft_vid_w: the ADOPTED
+    # operational VID whenever a received Domain FirstValue is in force,
+    # LWSRP_VID otherwise - the same pair the applicant serializes, so the
+    # frames and the declaration still cannot drift.
+    assert "crft_vid_w" in _port(context.dp_src, "KL_crf_tx", "vlan_vid_i"), \
+        "the CRF tag VID is not crft_vid_w (the declaration's pair)"
+    expr = _expr(context.dp_src, "crft_vid_w")
+    assert "lwsrp_op_vid" in expr and "cfg_lwsrp_vid" in expr, \
+        "crft_vid_w is not the adopted-else-LWSRP_VID operational mux"
 
 
 

@@ -212,10 +212,12 @@ Stated plainly, because the numbers above are easy to over-read:
 * **Nothing was run on hardware.** No board, no bench, no bitstream. Timing
   (WNS) is likewise unknown; removing logic usually helps, but "usually" is not
   a measurement.
-* **`REQ-CBS-07` over-delivery is unchanged and still open.** The reservation is
-  honoured but over-delivered because the egress is unpaced; the renumbering
-  does not touch that, and `tb/verilator/shaper_core` reports the same
-  90.82 % delivered share at the 450 Mb/s class-A slope as it did at 6 queues.
+* **`REQ-CBS-07` over-delivery is CLOSED** (the wire-time debt law, gh #63 I5;
+  it was open at the time of the renumbering): each CBS carries a per-queue
+  Q16 wire-time debt and accrues idleSlope only while it is zero, so the
+  shaped share tracks the reservation instead of over-delivering.
+  `tb/verilator/shaper_core` now measures 47.04 % delivered share at the
+  450 Mb/s class-A slope (was 90.82 % under the old accrual).
 
 ## PCP → traffic class → queue (tagged traffic)
 
@@ -427,21 +429,27 @@ it is the property this whole ordering argument rests on. It is gated in
 | Check | Clause | Result |
 |-------|--------|--------|
 | **Bandwidth availability.** Σ idleSlope over the SR classes, and over every queue, at both link rates | §34.3.1 / `REQ-CBS-03` | SR A+B = **600 Mb/s = 60 %** of 1 Gb/s; all five = **725 Mb/s = 72.5 %** at 1 G and 72.5 % at 100 M. Class A's slope must also exceed class B's. Read out of `ethernet_packet_pkg` **and** out of the `0x400` CSR window, so the package and the registers cannot drift apart. |
-| **The shaped class and best effort share the port.** q4 shaped and permanently backlogged, q0 unshaped and permanently backlogged | §8.6.8.2 | q4 outranks q0 absolutely, so only the credit gate can stop it — and it does: **13.70 / 30.11 / 90.82 %** of the port at idleSlope 100 / 200 / 450 Mb/s, q0 taking the rest. Neither queue is ever starved, and the split is monotone in idleSlope. |
+| **The shaped class and best effort share the port.** q4 shaped and permanently backlogged, q0 unshaped and permanently backlogged | §8.6.8.2 | q4 outranks q0 absolutely, so only the credit gate can stop it — and it does: **11.97 / 22.91 / 47.04 %** of the port at idleSlope 100 / 200 / 450 Mb/s, q0 taking the rest. Neither queue is ever starved, and the split is monotone in idleSlope. (Pre-debt-law these read 13.70 / 30.11 / 90.82 % — the `REQ-CBS-07` over-delivery.) |
 | **Non-vacuity.** Same stimulus with CBS switched off | — | q4 takes **100.00 %**. So the split above *is* the shaper, not the arbiter and not the harness. |
-| **gPTP is not starved by a saturating class A** | §8.6.8.2 | 9.18 % of the port, worst gap 23.55 µs — see above. |
+| **gPTP is not starved by a saturating class A** | §8.6.8.2 | 52.96 % of the port under the debt law (the shaped class no longer over-consumes), worst gap 3.07 µs — see above. |
 | **Admission.** A reservation whose slope would break the ceiling is refused | §34.3.1 | `KL_lwsrp_bw_gate` carries the 750e6 / 75e6 limits in RTL and tears down an over-budget TSpec on a live reservation (`tb/verilator/lwsrp`); the config side is builder gate 18d, which rejects an over-subscribed class-A request before a bitstream exists. |
 
-**The reservation is honoured but over-delivered**, and that is `REQ-CBS-07`, not
-a queue-map defect: at the 450 Mb/s class-A reset slope the shaped queue takes
-90.8 % of the port where 802.1Qav would give it 45 %. The egress here is not
-paced to line rate — the shaper hands 8 B per cycle into a MAC FIFO, so a beat
-leaves in 10 ns while 8 B on a 1 Gb/s wire take 64 ns, and the queue accrues
-idleSlope during the ~5.4 cycles the wire would still be busy. The debit per
-byte is exact; the accrual is not. The suite asserts the accounting model and
-**reports** the delta against the standard rather than hiding it. Anyone sizing
-a reservation against this gateware must read the delivered share, not the
-configured slope.
+**The reservation is honoured and wire-time paced** (`REQ-CBS-07` closed, the
+gh #63 I5 debt law): each CBS carries a per-queue Q16 wire-time debt — bytes
+per accepted beat, plus the 24-octet per-frame overhead and the MAC min-frame
+pad at tlast, drained at the port byte rate — and idleSlope accrues only while
+the debt is zero, which is exactly the 802.1Q-2018 8.6.8.2 (d)/(e) `transmit`
+variable made honest against an unpaced MAC FIFO. At the 450 Mb/s class-A
+reset slope the shaped queue now takes 47.0 % of the port where the old
+accrual gave it 90.8 % against a 45 % reservation. The per-byte debit is
+unchanged and exact. Steady-state egress is
+`(S/8) x L*link / (L*link + 24*S)` client bytes/s for L-byte frames — the
+per-frame overhead comes out of the shaped rate (3.6 % under `S/8` at
+100 Mb/s / 64 B frames), a deliberate conservative stance: the SRP idleSlope
+math (`MaxFrameSize + 42`) reserves that overhead, and the old law handed it
+out twice. `tb/verilator/shaper_core` asserts the law's own fixed point and
+that delivery never exceeds `S/8`; `tb/verilator/cbs` pins the debt
+arithmetic state-for-state against a reference model.
 
 ## Ingress (RX to the CPU): two queues
 

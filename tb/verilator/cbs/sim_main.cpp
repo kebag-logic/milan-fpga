@@ -38,11 +38,12 @@ static const double PRECISION_TOL_BYTES = 1.0; // fixed-point error budget vs id
 // Convenience: build a CbsInputs with status + config in one call.
 static CbsInputs mk(bool resetn, bool qhd, bool istx, bool is1g, bool isg,
                     uint16_t bytes, bool shaped = true, int32_t idle = 500000000,
-                    int32_t hi = 761, int32_t lo = -761) {
+                    int32_t hi = 761, int32_t lo = -761, bool tlast = false) {
     CbsInputs in;
     in.resetn = resetn; in.queue_has_data = qhd; in.is_transmitting = istx;
     in.is_1g = is1g; in.is_granted = isg; in.bytes_sent = bytes;
     in.shaped = shaped; in.idle_slope = idle; in.hi_credit = hi; in.lo_credit = lo;
+    in.tlast = tlast;
     return in;
 }
 
@@ -71,6 +72,7 @@ struct Harness {
         dut->is_1g_i           = in.is_1g;
         dut->is_granted_i      = in.is_granted;
         dut->bytes_sent_i      = in.bytes_sent;
+        dut->tlast_i           = in.tlast;
         dut->shaped_i          = in.shaped;
         dut->idle_slope_i      = (uint32_t)in.idle_slope;
         dut->hi_credit_i       = (uint32_t)in.hi_credit;
@@ -94,6 +96,10 @@ struct Harness {
         }
         // (A) credit bit-exact
         expect_eq(dut_credit, fref.credit_q16(), tag, "credit");
+        // (A') REQ-CBS-07 wire-time debt bit-exact, every cycle
+        if (in.resetn)
+            expect_eq((int64_t)dut->dbg_wire_debt, fref.wire_debt_q16(),
+                      tag, "wire_debt");
         // (B) allow_transmit
         expect_eq((int64_t)(dut->allow_transmit_o & 1), (int64_t)fref.allow_transmit(), tag, "allow");
         // (D) precision vs ideal
@@ -185,19 +191,26 @@ int main(int argc, char** argv) {
     }
 
     // ---- Scenario 5: randomized stress (DUT must track FixedPointRef exactly) ----
+    // Beats now carry random tlast marks too, so the REQ-CBS-07 frame byte
+    // counter, the per-frame overhead charge and the min-frame pad all churn
+    // against the model under the same randomness as the credit arms.
     {
         std::mt19937 rng(0xC0FFEE);
         std::uniform_int_distribution<int> bit(0, 1);
         std::uniform_int_distribution<int> bytes(0, 8);
+        std::uniform_int_distribution<int> oct(0, 7);
         long start_fails = h.fails;
         for (int i = 0; i < 50000; i++) {
             bool qhd  = bit(rng);
             bool istx = bit(rng) && qhd;
             bool isg  = istx || bit(rng);
             uint16_t b = istx ? (uint16_t)bytes(rng) : 0;
-            h.cycle(mk(true, qhd, istx, true, isg, b), "random");
+            bool tl   = istx && (oct(rng) == 0);   // ~1 in 8 beats ends a frame
+            h.cycle(mk(true, qhd, istx, true, isg, b, true, 500000000,
+                       761, -761, tl), "random");
         }
-        printf("  [%s] randomized 50000 cycles: DUT tracks fixed-point ref exactly\n",
+        printf("  [%s] randomized 50000 cycles (frames + tlast): DUT tracks "
+               "fixed-point ref exactly\n",
                (h.fails == start_fails) ? "PASS" : "FAIL");
     }
 
@@ -401,6 +414,73 @@ int main(int argc, char** argv) {
         printf("  [%s] REQ-CBS-06 residual measured and inside the half-LSB/cycle bound\n",
                (h.fails == f0) ? "PASS" : "FAIL");
         (void)err0;
+    }
+
+    // ---- REQ-CBS-07: the wire-time debt IS 8.6.8.2 (e) transmit ----------
+    // Send ONE frame of L client bytes at full beat rate, then wait with
+    // data queued. Three properties, each against an INDEPENDENT integer
+    // oracle (not the reference model, so a model+RTL change made together
+    // cannot hide a regression):
+    //   (a) the debt window's LENGTH is the frame's real wire time: from the
+    //       first nonzero-debt cycle to its return to zero takes
+    //       ceil((L + V) * 65536 / 81920) cycles at 1G/100 MHz, where
+    //       V = 24 + max(0, 60 - L) - the overhead + min-frame pad law;
+    //   (b) while the debt is nonzero the credit HOLDS (no idleSlope
+    //       accrual - the old law's 9.6/20.5 percent over-delivery was
+    //       exactly this accrual running during wire time);
+    //   (c) once the debt returns to zero the accrual resumes.
+    for (int fi = 0; fi < 2; fi++) {
+        long f0 = h.fails;
+        const int L = fi ? 46 : 64;             // full frame / CRF-size runt
+        const int V = 24 + (L < 60 ? 60 - L : 0);
+        const int64_t DRAIN = 81920;            // 1.25 B/cyc in Q16 (1G/100MHz)
+        const int64_t WQ16  = (int64_t)(L + V) << 16;
+        const long exp_busy = (long)((WQ16 + DRAIN - 1) / DRAIN);  // ceil
+        h.do_reset(4);
+        for (int i = 0; i < 300; i++)           // engine commit + some credit
+            h.cycle(mk(true, true, false, true, true, 0), "cbs07 warm");
+        // the frame: full 8-byte beats, a short last beat for the runt
+        long busy = 0; bool seen = false;
+        int64_t hold_credit = 0; long hold_viol = 0;
+        int rem = L;
+        while (rem > 0) {
+            int b = rem > 8 ? 8 : rem;
+            rem -= b;
+            h.cycle(mk(true, true, true, true, true, (uint16_t)b, true,
+                       500000000, 761, -761, rem == 0), "cbs07 beat");
+            if (dut->dbg_wire_debt != 0) { busy++; seen = true; }
+        }
+        // drain out: count the remaining busy cycles; credit must HOLD
+        // (the last debit lands 1 cycle after the last beat - let it land,
+        // then freeze-check until the debt clears)
+        h.cycle(mk(true, true, false, true, true, 0), "cbs07 debit-lands");
+        if (dut->dbg_wire_debt != 0) busy++;
+        hold_credit = sx48(dut->dbg_credit);
+        for (long g = 0; g < 4 * exp_busy && dut->dbg_wire_debt != 0; g++) {
+            h.cycle(mk(true, true, false, true, true, 0), "cbs07 drain");
+            if (dut->dbg_wire_debt != 0) {
+                busy++;
+                if (sx48(dut->dbg_credit) != hold_credit) hold_viol++;
+            }
+        }
+        // (a) window length: +-1 cycle for the add/drain phase alignment
+        bool len_ok = seen && (busy >= exp_busy - 1) && (busy <= exp_busy + 1);
+        if (!len_ok) {
+            printf("  [FAIL] cbs07 L=%d: debt busy %ld cycles, oracle %ld "
+                   "(V=%d)\n", L, busy, exp_busy, V);
+            h.fails++;
+        }
+        // (b) credit held through the post-frame wire time
+        h.expect_eq(hold_viol, 0, "cbs07", "credit frozen while debt > 0");
+        // (c) accrual resumes once the wire is ours again
+        int64_t c0 = sx48(dut->dbg_credit);
+        for (int i = 0; i < 50; i++)
+            h.cycle(mk(true, true, false, true, true, 0), "cbs07 resume");
+        h.expect_eq((int64_t)(sx48(dut->dbg_credit) > c0 ? 1 : 0), 1,
+                    "cbs07", "accrual resumes at debt == 0");
+        printf("  [%s] REQ-CBS-07 L=%d+V=%d: wire window %ld cyc (oracle %ld), "
+               "credit frozen inside it, accrual resumes after\n",
+               (h.fails == f0) ? "PASS" : "FAIL", L, V, busy, exp_busy);
     }
 
     printf("--------------------------------------------------------------\n");

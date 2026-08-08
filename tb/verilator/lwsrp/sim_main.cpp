@@ -239,6 +239,7 @@ int main(int argc, char** argv) {
 #endif
 
     dut->rst_n = 0; dut->enable_i = 0; dut->talker_en_i = 0; dut->is_1g_i = 0;
+    dut->link_up_i = 1;   // live link: the 4.2.7.2.1 adoption is armed
     dut->station_mac_i = STATION; dut->unique_id_i = UID;
     dut->dest_mac_i = 0x91E0F000FE02ULL; dut->vid_i = VID;
     dut->max_frame_i = MAXFRM; dut->interval_frames_i = 1;
@@ -340,18 +341,116 @@ int main(int argc, char** argv) {
     ck("rx-leaveall: aged out", dut->listener_reg_o, 0);
     ck("rx-leaveall: reservation gone", dut->res_active_o, 0);
 
-    // 6) domain mismatch kills the reservation; heal restores it
+    // 6) Milan 4.2.7.2.1 Domain ADOPT: a class-A declaration with different
+    //    parameters is ADOPTED (the operational pair follows the received
+    //    FirstValue) and the boundary flag compares against the OPERATIONAL
+    //    pair from then on - the adopted network's own re-declarations heal
+    //    it, where the old default-pair compare re-latched forever.
     feed(bridge_listener(EV_JOININ, D_READY));
     run(400);
     ck("domain-setup: active", dut->res_active_o, 1);
-    feed(bridge_domain(6, 2, VID));
+    ck("adopt: defaults in force", dut->adopt_valid_o, 0);
+    ck("adopt: op_prio default 3", dut->op_prio_o, 3);
+    ck("adopt: op_vid default", dut->op_vid_o, VID);
+    drain_tx();                                // catch the adopt re-declare
+    feed(bridge_domain(6, 2, VID));            // class A, prio 2: mismatch
     run(100);
     ck("domain-mismatch: boundary", dut->domain_ok_o, 0);
     ck("domain-mismatch: reservation dropped", dut->res_active_o, 0);
+    ck("adopt: latched on the mismatch", dut->adopt_valid_o, 1);
+    ck("adopt: op_prio = received 2", dut->op_prio_o, 2);
+    ck("adopt: op_vid = received", dut->op_vid_o, VID);
+    feed(bridge_domain(6, 2, VID));            // the adopted net re-declares
+    run(100);
+    ck("adopt-heal: match vs the ADOPTED pair clears the boundary",
+       dut->domain_ok_o, 1);
+    ck("adopt-heal: reservation back", dut->res_active_o, 1);
+    // the pair moved -> the applicant re-declared PROMPTLY (no 1 s wait);
+    // the Domain FirstValue priority octet (byte 22) carries the ADOPTED 2
+    {
+        run(3000);
+        int dprio = -1;
+        while (!tx_frames.empty()) {
+            auto f = tx_frames.front(); tx_frames.pop_front();
+            if (is_msrp(f) && f.size() >= 26 && f[15] == 4) dprio = f[22];
+        }
+        ck("adopt: Domain FirstValue priority serializes the ADOPTED 2",
+           (uint64_t)dprio, 2);
+    }
+    feed(bridge_domain(6, 3, VID));            // mismatch vs op {2,VID}
+    run(100);
+    ck("re-adopt: boundary latches vs the ADOPTED pair (not the default)",
+       dut->domain_ok_o, 0);
+    ck("re-adopt: op follows the latest declaration", dut->op_prio_o, 3);
     feed(bridge_domain(6, 3, VID));
     run(100);
-    ck("domain-heal: ok", dut->domain_ok_o, 1);
-    ck("domain-heal: reservation back", dut->res_active_o, 1);
+    ck("re-adopt heal: ok", dut->domain_ok_o, 1);
+    ck("re-adopt heal: reservation back", dut->res_active_o, 1);
+    // adopt_valid stays set even though the adopted values equal the
+    // defaults again - the pair is still a RECEIVED one
+    ck("re-adopt: still adopted", dut->adopt_valid_o, 1);
+
+    // 6b) the whole serializer set follows an adopted VID (the gh #63 I4
+    //     vector {class A, prio 3, VID 5}): Domain FirstValue, MVRP VID and
+    //     the TalkerAdvertise DataFrameParameters VID all move to 5, and
+    //     the adoption REVERTS on enable-fall + link-down ONLY.
+    {
+        drain_tx();                            // catch the adopt re-declare
+        feed(bridge_domain(6, 3, 5));          // adopt {3, VID 5}
+        run(100);
+        ck("adopt-vid: latched", dut->adopt_valid_o, 1);
+        ck("adopt-vid: op_vid 5", dut->op_vid_o, 5);
+        ck("adopt-vid: op_prio stays 3", dut->op_prio_o, 3);
+        run(3000);                             // the prompt re-declare pair
+        int d_vid = -1, m_vid = -1, ta_vid = -1, d_prio = -1;
+        while (!tx_frames.empty()) {
+            auto f = tx_frames.front(); tx_frames.pop_front();
+            if (is_msrp(f) && f.size() >= 26 && f[15] == 4) {
+                d_prio = f[22];
+                d_vid  = ((f[23] & 0x0F) << 8) | f[24];
+                if (msrp_has_talker(f) && f.size() >= 50)
+                    ta_vid = ((f[48] & 0x0F) << 8) | f[49];
+            }
+            if (!is_msrp(f) && f.size() >= 21 && f[12] == 0x88 && f[13] == 0xF5)
+                m_vid = ((f[19] & 0x0F) << 8) | f[20];
+        }
+        ck("adopt-vid: Domain FirstValue VID = 5", (uint64_t)d_vid, 5);
+        ck("adopt-vid: Domain FirstValue priority = 3", (uint64_t)d_prio, 3);
+        ck("adopt-vid: MVRP VID = 5", (uint64_t)m_vid, 5);
+        ck("adopt-vid: TalkerAdvertise DataFrameParameters VID = 5",
+           (uint64_t)ta_vid, 5);
+        // the adopted net re-declares -> boundary stays clear, licence back
+        feed(bridge_domain(6, 3, 5));
+        feed(bridge_listener(EV_JOININ, D_READY));
+        run(400);
+        ck("adopt-vid: reservation active on the adopted domain",
+           dut->res_active_o, 1);
+
+        // ---- revert on LINK-DOWN (4.2.7.2.1 "startup or a Link Up event")
+        dut->link_up_i = 0;
+        run(50);
+        ck("revert: link-down clears the adoption", dut->adopt_valid_o, 0);
+        ck("revert: op_vid back to the default", dut->op_vid_o, VID);
+        dut->link_up_i = 1;
+        run(50);
+        ck("revert: link-up alone does NOT re-adopt", dut->adopt_valid_o, 0);
+        // re-adopt for the enable-toggle leg
+        feed(bridge_domain(6, 3, 5));
+        run(100);
+        ck("revert-setup: adopted again", dut->adopt_valid_o, 1);
+        // ---- revert on ENABLE-FALL
+        dut->enable_i = 0;
+        run(3000);                              // engine LV pair drains out
+        ck("revert: enable-fall clears the adoption", dut->adopt_valid_o, 0);
+        dut->enable_i = 1;
+        run(3000);
+        ck("revert: re-enable declares the DEFAULT pair", dut->op_vid_o, VID);
+        // restore the flow's steady state for the tests below
+        feed(bridge_listener(EV_JOININ, D_READY));
+        run(400);
+        ck("revert: reservation restored on defaults", dut->res_active_o, 1);
+        drain_tx();
+    }
 
     // 7) our own LeaveAll turn: within LeaveAllTime the TX pair carries the
     //    LeaveAllEvent in the vector headers (byte 19 of the MSRP PDU)

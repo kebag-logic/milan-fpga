@@ -1084,7 +1084,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
-    .vlan_vid_i (cfg_aaf_vid),
+    //! the AAF C-TAG {PCP, VID}: the Milan 4.2.7.2.1 OPERATIONAL pair while
+    //! a Domain is adopted (dom_ovr_i also bypasses the per-talker TCTX vid
+    //! - the reservation declares the adopted VID, so the frames must carry
+    //! it), the software defaults otherwise. AAF_CTRL[27:16] stays the
+    //! software-owned default VID.
+    .vlan_vid_i (lwsrp_adopt_valid ? lwsrp_op_vid : cfg_aaf_vid),
+    .vlan_pcp_i (lwsrp_adopt_valid ? lwsrp_op_prio[2:0]
+                                   : lwsrp_pkg::SR_CLASS_A_PRIO_C[2:0]),
+    .dom_ovr_i  (lwsrp_adopt_valid),
     //! per-talker slice of the AECP per-STREAM_OUTPUT offset file: talker
     //! t stamps its avtp_timestamp with ITS OWN entry t
     .transit_ns_i (aecp_pres_offset[N_STREAMS*32-1:0]),
@@ -1267,6 +1275,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [16*32-1:0]         aecp_pres_offset;
   //! lwSRP engine (KL_lwsrp_top, docs/LWSRP_FPGA_ARCHITECTURE.md)
   wire        cfg_lwsrp_enable, cfg_lwsrp_talker_en;
+  //! LWSRP_CTRL[5], reset 0: declare-always bypass of the 4.3.3.1
+  //! TalkerAdvertise gate (the pre-gate posture, bring-up escape only)
+  wire        cfg_lwsrp_decl_bypass;
   wire [2:0]  cfg_lwsrp_qidx;
   wire [11:0] cfg_lwsrp_vid;
   wire [47:0] cfg_lwsrp_dmac;
@@ -1336,6 +1347,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        lwsrp_listener_ready, lwsrp_listener_reg;
   wire [1:0]  lwsrp_listener_decl;
   wire        lwsrp_domain_ok, lwsrp_over_limit, lwsrp_talker_declared;
+  //! Milan 4.2.7.2.1 Domain adoption surface (KL_lwsrp_registrar): the
+  //! OPERATIONAL {priority, VID} every declaration serializes; when
+  //! adopt_valid the AAF/CRF C-TAG muxes below take the same pair, so the
+  //! reservation and the frames can never diverge. LWSRP_DOM 0x788.
+  wire        lwsrp_adopt_valid;
+  wire [7:0]  lwsrp_op_prio;
+  wire [11:0] lwsrp_op_vid;
   wire        lwsrp_tfail_valid;
   wire [7:0]  lwsrp_tfail_code, lwsrp_rx_drops;
   wire [15:0] lwsrp_tx_count, lwsrp_rx_pdus;
@@ -2024,6 +2042,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     // lwSRP engine (0x680 group)
     .o_lwsrp_enable       (cfg_lwsrp_enable),
     .o_lwsrp_talker_en    (cfg_lwsrp_talker_en),
+    .o_lwsrp_decl_bypass  (cfg_lwsrp_decl_bypass),
     .o_lwsrp_qidx         (cfg_lwsrp_qidx),
     .o_lwsrp_vid          (cfg_lwsrp_vid),
     .o_lwsrp_dest_mac     (cfg_lwsrp_dmac),
@@ -2043,6 +2062,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                             lwsrp_listener_reg, lwsrp_listener_decl}),
     .i_lwsrp_slope        (lwsrp_idle_slope),
     .i_lwsrp_cnt          ({lwsrp_rx_pdus, lwsrp_tx_count}),
+    //! LWSRP_DOM 0x788: the Milan 4.2.7.2.1 operational Domain pair -
+    //! software FOLLOWS this (never mirrors it into its own config)
+    .i_lwsrp_dom          ({7'd0, lwsrp_adopt_valid, lwsrp_op_prio,
+                            4'd0, lwsrp_op_vid}),
     // ACMP listener SM (0x6A4 group, RO); bit 31 = CRF sink-1 bound
     .i_acmpl_state        ({acmpl1_bound, 3'd0, acmpl_vlan, acmpl_tk_avail,
                             acmpl_probing, acmpl_status,
@@ -3273,11 +3296,68 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   localparam [15:0] CRF_SRP_MAXF_C = 16'(CRF_PDU_OCTETS_C + 1);
   localparam [15:0] CRF_SRP_INTV_C = 16'd1;
 
+  // ==========================================================================
+  //  THE TALKER-ADVERTISE DECLARATION GATE (Milan 4.3.3.1 / 5.3.7.2 /
+  //  5.3.7.4). 5.3.7.2 obliges the TalkerAdvertise "as soon as it has VALID
+  //  SRP parameters", and 4.3.3.1 defines valid for the Stream DMAC: (1)
+  //  MAAP-allocated with no conflict, AND (2) a PROBE_TX received within the
+  //  last 15 seconds OR a Listener attribute registered for this stream.
+  //  Declaring from boot violated the clause's own Note ("avoid declaring
+  //  talker attributes for Streams that are not requested by any Listener").
+  //
+  //  One gate per talker, indexed like stream_gate (top = the CRF Media
+  //  Clock Output when the shape has one):
+  //    * ACMP term      : acmp_talker_active_v[t] = the PROBE_TX 15 s window
+  //                       (KL_acmp_tlkr_ctx, armed by CONNECT_TX too - the
+  //                       fast-connect path) | listener_observed. A lapsed
+  //                       window withdraws the TA (talker_fall -> LV pend in
+  //                       KL_lwsrp_tx; want-fall -> row LV for t>0).
+  //    * listener term  : ANY registered Listener ATTRIBUTE for the stream -
+  //                       lwsrp_listener_reg for row 0 (its registrar matches
+  //                       the derived sid whether or not we declare), the ctx
+  //                       row's registration for t>0. DELIBERATELY the
+  //                       registration and NOT listener_ready: an
+  //                       AskingFailed listener must still see our TA or it
+  //                       can never become Ready (the deadlock the naive
+  //                       ready-term reuse builds).
+  //    * bypass         : LWSRP_CTRL[5], reset 0 (a conformant reset - the
+  //                       0x0018 lesson) - the declare-always escape.
+  //    * MAAP term      : condition (1), the same (~en | valid) expression
+  //                       the streaming gate uses.
+  //  Composed from UPSTREAM terms plus the engine's REGISTRAR levels only -
+  //  never the stream gate (want <-> streaming deadlock) - and the listener
+  //  term can only HOLD an open t>0 declaration (an unprovisioned ctx row's
+  //  match lane is off), which is exactly the SRP-licence continuity 5.5.2.7
+  //  needs; OPENING one takes the probe/bind window or the bypass.
+  // ==========================================================================
+  wire lwsrp_decl_maap_w = ~cfg_maap_enable | maap_addr_valid;
+  wire [SRP_TALKERS_C-1:0] lwsrp_decl_gate_w;
+  generate
+    for (genvar gd = 0; gd < SRP_TALKERS_C; gd++) begin : g_lwsrp_decl_gate
+      //! this talker's Listener-attribute registration level: the legacy
+      //! registrar for row 0, the talker's own ctx row ((L-1)+t - the same
+      //! formula for the CRF output at t = N_STREAMS) for every other
+      if (gd == 0) begin : g_row0
+        assign lwsrp_decl_gate_w[gd] =
+            (acmp_talker_active_v[gd] | lwsrp_listener_reg |
+             cfg_lwsrp_decl_bypass) & lwsrp_decl_maap_w;
+      end else begin : g_rowt
+        assign lwsrp_decl_gate_w[gd] =
+            (acmp_talker_active_v[gd] |
+             lwsrp_ctx_reg_w[(N_STREAMS - 1) + gd] |
+             cfg_lwsrp_decl_bypass) & lwsrp_decl_maap_w;
+      end
+    end
+  endgenerate
+
   //! request/grant state for the fabric-owned CRF row. The provisioning port
   //! is SHARED with the 0x800 CSR window, so the CRF requester only asserts
   //! in a cycle the window is idle and re-arms until it is granted.
+  //! The top declaration gate IS the CRF output's whenever the shape has
+  //! one (SRP_CRF_TK_C != 0 leads the term, so the bit is inert otherwise).
   wire crf_srp_want_w = (SRP_CRF_TK_C != 0) & cfg_crft_class_a & cfg_crft_en &
-                        cfg_lwsrp_enable & cfg_lwsrp_talker_en;
+                        cfg_lwsrp_enable & cfg_lwsrp_talker_en &
+                        lwsrp_decl_gate_w[SRP_TALKERS_C-1];
   logic crf_srp_req_r;      //! a provisioning write is owed to the engine
   logic crf_srp_val_r;      //! the row is provisioned VALID right now
   logic crf_srp_last_r;     //! last committed "want" (edge detect)
@@ -3380,17 +3460,24 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  want is composed from UPSTREAM terms only - the same discipline
   //  crf_srp_want_w uses (cfg_crft_en, not "CRF frames are leaving").
   //
-  //  ...and it deliberately does NOT include acmp_talker_active_aaf_w[t]:
-  //    (a) row 0 and the CRF row both declare on their enable alone;
+  //  ...and since the 4.3.3.1 round (gh #63 I2) the want DOES carry
+  //  acmp_talker_active_v[t] - as ONE OR-ARM of the per-talker DECLARATION
+  //  GATE (lwsrp_decl_gate_w banner above), beside the registered-Listener
+  //  arm and the LWSRP_CTRL[5] bypass, never as a bare AND. What the 07-30
+  //  rationale protected still holds under it:
+  //    (a) row 0 and the CRF row ride the SAME gate (their enables alone no
+  //        longer declare - 4.3.3.1's Note forbids advertising streams no
+  //        Listener asked for);
   //    (b) Milan v1.2 5.5.2.7 - a Talker relies only on SRP, not ACMP, to
-  //        decide when to stream, so a registered Listener Ready starts the
-  //        stream with no ACMP involvement at all. The advertisement must
-  //        therefore EXIST BEFORE a controller binds, or fast-connect
-  //        (5.5.3.5.3) cannot work: the listener would find no reservation
-  //        to register against;
-  //    (c) the bandwidth is already budgeted - configs/endstation_arty_4x4
-  //        .yaml states 4 streams = 41.5 Mb/s = 55 % of the port, inside the
-  //        75 % class-A ceiling, so declaring all of them cannot over-commit.
+  //        decide when to STREAM. The licence stays pure SRP (the bw-gate's
+  //        terms are untouched); the DECLARATION's fast-connect path is
+  //        covered because 5.5.3.5.3's CONNECT_TX itself arms the probe
+  //        window (KL_acmp_tlkr_ctx) -> TA within one JoinTime, before the
+  //        listener SM times out - and a pure-SRP listener HOLDS an open
+  //        declaration through the registered-Listener arm;
+  //    (c) the bandwidth budget note is unchanged - a gate that only ever
+  //        NARROWS the want cannot over-commit what declaring all rows
+  //        could not.
   //
   //  IDENTITY is DERIVED, exactly as the CRF row's is: stream_id
   //  {station MAC, uid = t} and DMAC = the MAAP block slot base+t - literally
@@ -3729,8 +3816,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         //! non-zero sid (`~srp_sw_own_r`); the derived {MAC,uid=gw} identity
         //! is what advertises otherwise. Upstream terms only - never the
         //! stream gate, which would be a provisioning<->streaming deadlock.
+        //! ...and since the 4.3.3.1 round the want carries this talker's
+        //! DECLARATION GATE (lwsrp_decl_gate_w banner above): shape-on no
+        //! longer means declared-from-boot - a probe/bind window, a
+        //! registered Listener attribute or the LWSRP_CTRL[5] bypass opens
+        //! the declaration, and its lapse withdraws the row (valid=0 -> the
+        //! ctx engine's one LV).
         assign srp_fab_want_v_w[gw] = ~srp_sw_own_r[gw] &
-                                      cfg_lwsrp_enable & cfg_lwsrp_talker_en;
+                                      cfg_lwsrp_enable & cfg_lwsrp_talker_en &
+                                      lwsrp_decl_gate_w[gw];
         assign srp_fab_req_v_w[gw]  = aafsrp_req_r[gw];
       end else begin : g_slot_crf
         assign srp_fab_want_v_w[gw] = crf_srp_want_w;
@@ -3936,11 +4030,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! the CRF talker's own bw-gate slot (top of the vector when it exists)
   wire crft_res_active_w = (SRP_CRF_TK_C != 0) &
                            lwsrp_stream_gate[SRP_TALKERS_C-1];
-  //! the C-TAG's PCP: SR class A = 3 (802.1Q 34.5 / Table 34-1 default;
-  //! Milan v1.2 4.2.7.2.1 pins the Domain triple to {class A, priority 3,
-  //! VID 2}). The SAME constant the lwSRP applicant puts in the Talker
-  //! Advertise PriorityAndRank octet, so the frame and the declaration agree.
-  wire [2:0] crft_pcp_w = lwsrp_pkg::SR_CLASS_A_PRIO_C[2:0];
+  //! the C-TAG's {PCP, VID}: SR class A defaults {3, LWSRP_VID} (802.1Q
+  //! 34.5 / Table 34-1; Milan v1.2 4.2.7.2.1 starts the Domain triple at
+  //! {class A, priority 3, VID 2}) - and the OPERATIONAL pair once a
+  //! received Domain FirstValue is ADOPTED (4.2.7.2.1's update clause):
+  //! the lwSRP applicant serializes op_{prio,vid} into the Domain, the
+  //! MVRP VID and the TalkerAdvertise DataFrameParameters, so muxing the
+  //! SAME pair here keeps the frame and the declaration one wire.
+  wire [2:0]  crft_pcp_w = lwsrp_adopt_valid
+                           ? lwsrp_op_prio[2:0]
+                           : lwsrp_pkg::SR_CLASS_A_PRIO_C[2:0];
+  wire [11:0] crft_vid_w = lwsrp_adopt_valid ? lwsrp_op_vid : cfg_lwsrp_vid;
   //! THE LICENCE (Milan v1.2 5.3.7.3): a talker streams while it declares a
   //! Talker Advertise AND receives a Listener Ready - the CRF output is a
   //! Stream Output like any other, so its emission rides the same bw-gate
@@ -3964,8 +4064,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     crft_stat_c[5]     = crft_class_a_w;        //! frames leaving tagged
     crft_stat_c[6]     = crft_res_active_w;     //! reservation ACTIVE
     crft_stat_c[7]     = crft_emit_en_w;        //! emission licensed NOW
-    crft_stat_c[19:8]  = crft_class_a_w ? cfg_lwsrp_vid : 12'd0;
-    crft_stat_c[22:20] = crft_class_a_w ? crft_pcp_w    : 3'd0;
+    crft_stat_c[19:8]  = crft_class_a_w ? crft_vid_w : 12'd0;
+    crft_stat_c[22:20] = crft_class_a_w ? crft_pcp_w : 3'd0;
   end : crft_stat_pack
   assign crft_stat_w = crft_stat_c;
 
@@ -4198,13 +4298,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .ptp_ns_i      (ptp_now_w),
     .ts_uncertain_i (clkv_tu_w),
     //! SR class A C-TAG. vlan_en is the RESERVATION's shadow, never a bare
-    //! CSR bit: see crf_srp_prov / crft_class_a_w. VID comes from LWSRP_VID -
-    //! literally the same wire KL_lwsrp_ctx_tx puts in this stream's Talker
-    //! Advertise DataFrameParameters (802.1Q 35.2.2.4), so the frame and the
+    //! CSR bit: see crf_srp_prov / crft_class_a_w. {PCP, VID} come from
+    //! crft_{pcp,vid}_w - the OPERATIONAL Domain pair while adopted (Milan
+    //! 4.2.7.2.1), LWSRP_VID/priority-3 defaults otherwise - literally the
+    //! same pair KL_lwsrp_ctx_tx puts in this stream's Talker Advertise
+    //! DataFrameParameters (802.1Q 35.2.2.4), so the frame and the
     //! declaration name one VLAN by construction.
     .vlan_en_i  (crft_class_a_w),
     .vlan_pcp_i (crft_pcp_w),
-    .vlan_vid_i (cfg_lwsrp_vid),
+    .vlan_vid_i (crft_vid_w),
     .m_axis_tdata (crft_tx_tdata), .m_axis_tkeep (crft_tx_tkeep),
     .m_axis_tvalid(crft_tx_tvalid), .m_axis_tlast (crft_tx_tlast),
     .m_axis_tready(crft_tx_tready),
@@ -4790,8 +4892,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                  .N_TALKERS_P(SRP_TALKERS_C)) lwsrp (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_lwsrp_enable),
-    .talker_en_i (cfg_lwsrp_talker_en),
+    //! row 0's TalkerAdvertise rides the 4.3.3.1 declaration gate
+    //! (lwsrp_decl_gate_w banner): the CSR talker knob arms it, a
+    //! probe/bind window or a registered Listener attribute (or the
+    //! LWSRP_CTRL[5] bypass) opens it, and KL_lwsrp_tx's talker_fall ->
+    //! LV pend withdraws it on lapse
+    .talker_en_i (cfg_lwsrp_talker_en & lwsrp_decl_gate_w[0]),
     .is_1g_i (cfg_mac_is_1g),
+    //! Domain adoption reverts on link-down (Milan 4.2.7.2.1 reset list)
+    .link_up_i (eff_link_w),
     .lstn_bound_i   (acmpl_bound),
     .lstn_declare_i (acmpl_lstn_declare),
     .lstn_sid_i     (acmpl_sid),
@@ -4866,7 +4975,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .listener_ready_o (lwsrp_listener_ready),
     .talker_declared_o (lwsrp_talker_declared),
     .listener_reg_o (lwsrp_listener_reg), .listener_decl_o (lwsrp_listener_decl),
-    .domain_ok_o (lwsrp_domain_ok), .over_limit_o (lwsrp_over_limit),
+    .domain_ok_o (lwsrp_domain_ok),
+    .adopt_valid_o (lwsrp_adopt_valid),
+    .op_prio_o (lwsrp_op_prio), .op_vid_o (lwsrp_op_vid),
+    .over_limit_o (lwsrp_over_limit),
     .tfail_valid_o (lwsrp_tfail_valid), .tfail_code_o (lwsrp_tfail_code),
     .tx_count_o (lwsrp_tx_count),
     .rx_pdus_o (lwsrp_rx_pdus), .rx_drops_o (lwsrp_rx_drops)

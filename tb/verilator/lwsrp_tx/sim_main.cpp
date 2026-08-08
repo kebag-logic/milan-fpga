@@ -233,6 +233,10 @@ int main(int argc, char** argv) {
     dut->m_axis_tready = 1;
     dut->station_mac_i = STATION; dut->unique_id_i = UID;
     dut->dest_mac_i = DMAC; dut->vid_i = VID;
+    // the Domain FirstValue priority octet is an input since the Milan
+    // 4.2.7.2.1 adoption round (KL_lwsrp_top feeds the registrar's
+    // OPERATIONAL pair); the module-level default posture is priority 3
+    dut->dom_prio_i = 3;
     dut->max_frame_i = MAXFRM; dut->interval_frames_i = IVFRM;
     dut->latency_i = LATENCY;
     for (int i = 0; i < 4; i++) step();

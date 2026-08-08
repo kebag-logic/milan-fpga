@@ -47,7 +47,27 @@
                 grant but the downstream is not ready (is_granted & !transmit),
                 credit keeps accruing at idleSlope (bounded by hiCredit) instead
                 of being frozen, matching 802.1Qav "queue has a frame ready and
-                is waiting" semantics.
+                is waiting" semantics - qualified since REQ-CBS-07 by the
+                wire-time debt below (no accrual while our own bytes are still
+                serializing on the wire).
+
+                Wire-time debt (REQ-CBS-07): 802.1Q-2018 8.6.8.2 (d)/(e) accrue
+                idleSlope only while `transmit` is FALSE, and `transmit` covers
+                the frame's real occupation of the wire - not the single clock
+                in which this shaper hands 8 bytes to the MAC FIFO (at 100 MHz
+                a beat leaves in 10 ns while 8 bytes occupy 64 ns of 1 Gb/s
+                wire, so accruing on every non-transmitting cycle over-delivered
+                9.6 / 20.5 percent at idleSlope 100 / 200 Mb/s, measured).
+                `wire_debt_r` is a per-queue Q16 BYTE-denominated model of that
+                occupation: it grows by the accepted bytes each beat, grows by
+                the per-frame overhead (24 = preamble 7 + SFD 1 + FCS 4 +
+                IFG 12, plus the MAC min-frame pad max(0, 60 - frame_bytes) -
+                the pad matters for CRF-size frames) at tlast, and drains at
+                the port byte rate every cycle. wire_transmit = (debt > 0) is
+                the 8.6.8.2 (e) `transmit` variable: while it is TRUE the
+                credit neither accrues (d) nor takes the queue-empty decay (f).
+                The per-byte sendSlope debit (g) is unchanged - it already
+                lands exactly once per accepted byte.
 
   Company     : Kebag Logic
   Project     : 802.1Q Traffic Shaper
@@ -77,6 +97,7 @@ module credit_based_shaper #(
   input  wire        is_1g_i,               //! Link rate: 1 = 1 Gb/s, 0 = 100 Mb/s
   input  wire        is_granted_i,          //! Queue currently holds the transmit grant
   input  wire [15:0] bytes_sent_i,          //! Bytes transmitted this cycle (tkeep ones)
+  input  wire        tlast_i,               //! bytes_sent_i carries the frame's last beat
 
   output wire        allow_transmit_o       //! High when credit allows transmission (or unshaped)
 );
@@ -147,6 +168,24 @@ module credit_based_shaper #(
   logic signed [47:0] eng_q1;     //! stashed signed quotient of divide 1
   logic [30:0]        eng_den;    //! active divisor
 
+  // --------------------------------------------------------------------------
+  //  Wire-time debt constants (REQ-CBS-07). Port byte rate per shaper clock in
+  //  Q16, DERIVED from CLK_FREQ_HZ at elaboration (derive-never-mirror), one
+  //  constant per link rate, selected at runtime by the registered is_1g:
+  //    1 Gb/s   = 125,000,000 B/s -> 1.25  B/cycle at 100 MHz (Q16 81920)
+  //    100 Mb/s =  12,500,000 B/s -> 0.125 B/cycle at 100 MHz (Q16  8192)
+  //  Rounded to nearest (exact for the shipping 100 MHz / 50 MHz clocks).
+  // --------------------------------------------------------------------------
+  localparam logic [31:0] WIRE_DRAIN_1G_Q16_C =
+      32'(((64'd125_000_000 << 17) / CLK_FREQ_HZ + 64'd1) >> 1);
+  localparam logic [31:0] WIRE_DRAIN_100M_Q16_C =
+      32'(((64'd12_500_000 << 17) / CLK_FREQ_HZ + 64'd1) >> 1);
+  //! per-frame wire overhead: preamble 7 + SFD 1 + FCS 4 + IFG 12 octets
+  localparam logic [15:0] WIRE_OVERHEAD_BYTES_C = 16'd24;
+  //! minimum MAC-client frame (64 wire octets less the 4-octet FCS): a
+  //! shorter frame is padded to this by the MAC, and the pad is wire time
+  localparam logic [15:0] MIN_FRAME_BYTES_C = 16'd60;
+
   //! stage-1 pipeline registers (registered for timing; see stage1_pipe)
   logic signed [47:0] send_delta;
   logic signed [47:0] credit_add_idle;
@@ -154,6 +193,27 @@ module credit_based_shaper #(
   logic queue_has_data;
   logic is_granted;
   logic shaped;
+  //! wire-debt stage-1 state: per-frame byte counter over the ACCEPTED beats
+  //! and the registered Q16 debt increment this beat contributes
+  logic [15:0] frame_cnt_r;
+  logic [23:0] debt_add_r;
+  logic        is_1g_r;
+  //! the debt accumulator itself (stage 2): Q16 bytes still owed to the wire.
+  //! 48 bits unsigned = the same numeric span as the credit register; the
+  //! update clamps at 0 (drain never borrows) and saturates at all-ones.
+  logic [47:0] wire_debt_r;
+
+  //! 8.6.8.2 (e) `transmit`, wire-honest: our bytes are still serializing
+  wire wire_transmit_w = (wire_debt_r != 48'd0);
+
+  //! stage-1 combinational helpers for the debt increment. frame_len_w is
+  //! the frame's total accepted bytes INCLUDING this beat; on the tlast beat
+  //! the increment carries the fixed overhead plus the MAC min-frame pad.
+  wire [15:0] frame_len_w = frame_cnt_r + bytes_sent_i;
+  wire [15:0] frame_pad_w = (frame_len_w < MIN_FRAME_BYTES_C)
+                            ? (MIN_FRAME_BYTES_C - frame_len_w) : 16'd0;
+  wire [15:0] debt_add_bytes_w =
+      bytes_sent_i + (tlast_i ? (WIRE_OVERHEAD_BYTES_C + frame_pad_w) : 16'd0);
 
   //! Clamp scaling (pure shifts, combinational from the config ports; the
   //! hi/lo clamps deliberately do NOT go through the slope engine so a
@@ -279,6 +339,51 @@ module credit_based_shaper #(
     end
   end
 
+  //! Wire-debt stage 1: the per-frame byte counter walks the ACCEPTED beats
+  //! (the same beats the sendSlope debit counts) and the Q16 debt increment
+  //! is registered so stage 2 only pays an add. Kept out of stage1_pipe so
+  //! its reset list stays the REQ-CBS-07 state alone.
+  always_ff @(posedge clk) begin : debt_stage1
+    if (!resetn) begin
+      frame_cnt_r <= '0;
+      debt_add_r  <= '0;
+      is_1g_r     <= 1'b0;
+    end
+    else begin
+      if (is_transmitting_i)
+        frame_cnt_r <= tlast_i ? 16'd0 : frame_len_w;
+      debt_add_r <= is_transmitting_i ? {debt_add_bytes_w[7:0], 16'b0}
+                                      : 24'd0;
+      is_1g_r    <= is_1g_i;
+    end
+  end : debt_stage1
+
+  //! Wire-debt stage 2: debt += this beat's increment, -= the port byte
+  //! rate, clamped at 0 (the wire cannot owe us time) and saturating at
+  //! all-ones (unreachable with a sane config; insurance against wrap).
+  //! Parked at 0 while unshaped, exactly like the credit (REQ-CBS-02).
+  wire [31:0] wire_drain_q16_w = is_1g_r ? WIRE_DRAIN_1G_Q16_C
+                                         : WIRE_DRAIN_100M_Q16_C;
+  logic signed [49:0] debt_nx_c;
+  always_comb begin : debt_next
+    debt_nx_c = $signed({2'b00, wire_debt_r})
+              + $signed({26'd0, debt_add_r})
+              - $signed({18'd0, wire_drain_q16_w});
+  end : debt_next
+
+  always_ff @(posedge clk) begin : debt_update
+    if (!resetn)
+      wire_debt_r <= '0;
+    else if (!shaped)
+      wire_debt_r <= '0;
+    else if (debt_nx_c < 0)
+      wire_debt_r <= '0;
+    else if (debt_nx_c > $signed({2'b00, {48{1'b1}}}))
+      wire_debt_r <= '1;
+    else
+      wire_debt_r <= debt_nx_c[47:0];
+  end : debt_update
+
   //! Credit update logic (stage 2). Uses the registered stage-1 signals.
   always_ff @(posedge clk) begin : credit_update_logic
     if(!resetn)begin
@@ -295,6 +400,13 @@ module credit_based_shaper #(
           credit <= lo_credit_q16;
         else
           credit <= credit + send_delta;
+      end
+      //! REQ-CBS-07: the wire is still serializing bytes this queue already
+      //! handed over - 8.6.8.2 (e) transmit is TRUE, so neither the (d)
+      //! idleSlope accrual nor the (f) queue-empty decay may run. The
+      //! credit HOLDS until the debt drains to zero.
+      else if (wire_transmit_w) begin
+        credit <= credit;
       end
       //! If queue is empty and not transmitting, decay credit toward zero
       else if (!queue_has_data && credit >= 0) begin
