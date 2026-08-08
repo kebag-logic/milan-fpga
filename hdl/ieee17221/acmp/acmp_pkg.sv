@@ -56,6 +56,23 @@ package acmp_pkg;
   localparam [15:0] ACMP_FLAG_STREAMING_WAIT_C      = 16'h0008;
   localparam [15:0] ACMP_FLAG_SRP_REG_FAILED_C      = 16'h0040;
 
+  //! Talker SUCCESS-response flag-clear masks, one per Milan v1.2 5.5.4
+  //! response table (response flags = echo AND-NOT mask). The pipewire
+  //! module-avb reference INVERTED the probe law (cleared FAST_CONNECT/
+  //! STREAMING_WAIT, kept REGISTERING_FAILED) and echoed the DISCONNECT
+  //! flags - the spec tables win. Error rows keep the full echo (mask 0).
+  //! PROBE_TX Table 5.43: FAST_CONNECT/STREAMING_WAIT echoed,
+  //! REGISTERING_FAILED forced 0 (16'h0040).
+  localparam [15:0] ACMP_FLAG_CLR_PROBE_C = ACMP_FLAG_SRP_REG_FAILED_C;
+  //! DISCONNECT_TX Table 5.45: all three named flags 0 (16'h004A).
+  localparam [15:0] ACMP_FLAG_CLR_DISC_C  = ACMP_FLAG_FAST_CONNECT_C |
+                                            ACMP_FLAG_STREAMING_WAIT_C |
+                                            ACMP_FLAG_SRP_REG_FAILED_C;
+  //! GET_TX_STATE Table 5.47: all three 0 today; REGISTERING_FAILED goes
+  //! live (1 iff registering Listener Asking Failed) with the A2 flag_set
+  //! chain (gh #56).
+  localparam [15:0] ACMP_FLAG_CLR_GTS_C   = ACMP_FLAG_CLR_DISC_C;
+
   // ------------------------------------------------------------------ //
   // Milan v1.2 listener SM (pipewire acmp-milan-v12.h/.c contract)       //
   // ------------------------------------------------------------------ //
