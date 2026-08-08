@@ -16,9 +16,13 @@
  *    vectors spanning our StreamID at an offset must match at exactly k,
  *    picking the right three-packed AND four-packed positions.
  *  - Vectors not covering our StreamID are ignored.
- *  - Lv / LeaveAll arm the 600 ms leave timer; un-refreshed registration
- *    ages out; a JoinIn before expiry cancels it. LeaveAll storms don't
- *    wedge the parser and pulse rx_leaveall_p_o once per PDU.
+ *  - Registering events are New/JoinIn/JoinMt ONLY (802.1Q-2018 Table 10-4
+ *    has no rIn! registrar row): a bare In neither registers from MT nor
+ *    refreshes the declaration nor cancels the leave timer a LeaveAll
+ *    armed. Lv deregisters at once (Milan 4.2.7.2.2); a LeaveAll arms the
+ *    leave timer; un-refreshed registration ages out at LeaveTime; a JoinIn
+ *    before expiry cancels it. LeaveAll storms don't wedge the parser and
+ *    pulse rx_leaveall_p_o once per PDU.
  *  - Domain: {class 6, prio 3, our VID} keeps domain_ok; a class-6 mismatch
  *    clears it (boundary); a match or age-out restores it; class-B ignored.
  *  - TalkerFailed covering our StreamID captures the failure code sticky;
@@ -38,6 +42,7 @@
  */
 
 #include "VKL_lwsrp_rx.h"
+#include "VKL_lwsrp_rx___024root.h"
 #include "verilated.h"
 #include <cstdio>
 #include <cstdint>
@@ -53,6 +58,8 @@ static const int LEAVE_MS = 5000;
 static VKL_lwsrp_rx* dut;
 static long checks = 0, fails = 0;
 static long la_pulses = 0;
+static long lstn_pulses = 0;   //! walker Listener-event deliveries (rIn! law:
+                               //! the event must ARRIVE yet not register)
 
 static void ck(const char* what, uint64_t got, uint64_t exp) {
     checks++;
@@ -73,6 +80,7 @@ static void lo() { dut->clk_i = 0; dut->eval(); }
 static void hi() {
     dut->clk_i = 1; dut->eval();
     if (dut->rx_leaveall_p_o) la_pulses++;
+    if (dut->rootp->KL_lwsrp_rx__DOT__w_listener_p) lstn_pulses++;
 }
 static void step() { lo(); hi(); }
 static void tick() { dut->tick_1khz_i = 1; step(); dut->tick_1khz_i = 0; step(); }
@@ -257,13 +265,17 @@ int main(int argc, char** argv) {
     }
 
     // 3) larger offset crossing packed-byte boundaries: k = 11 of 13
-    //    (event byte 3 position 2; param byte 2 position 3)
+    //    (event byte 3 position 2; param byte 2 position 3). The +k value
+    //    carries JoinMt — the third Table 10-4 registering event. Until
+    //    2026-08-08 this pin rode an In "refresh"; there is no rIn!
+    //    registrar row, so In could no longer carry a state-change pin
+    //    (the In law itself is pinned in 6b below).
     {
         Vec v; v.nv = 13; v.fv = fv_listener(OUR_SID - 11);
-        v.evts.assign(13, EV_MT); v.evts[11] = EV_IN;
+        v.evts.assign(13, EV_MT); v.evts[11] = EV_JOINMT;
         v.pars.assign(13, D_IGN); v.pars[11] = D_ASKFAIL;
         feed_parse(frame(true, {msg_listener(v)}), "k11: clean parse");
-        ck("k11: registered (In refresh)", dut->listener_reg_o, 1);
+        ck("k11: registered (JoinMt registers)", dut->listener_reg_o, 1);
         ck("k11: declaration askfail", dut->listener_decl_o, D_ASKFAIL);
         ck("k11: NOT ready (askfail)", dut->listener_ready_o, 0);
     }
@@ -321,6 +333,60 @@ int main(int argc, char** argv) {
         feed_parse(frame(true, {msg_listener(r)}), "la2-refresh: clean parse");
         ticks(400);
         ck("la2: refresh survived", dut->listener_reg_o, 1);
+    }
+
+    // 6b) THE rIn! FIX (802.1Q-2018 Table 10-4): the registrar rows are
+    //     Begin!/rNew!/rJoinIn!||rJoinMt!/rLv!.../leavetimer! — there is NO
+    //     rIn! row. In means "the sender holds it registered but is NOT
+    //     declaring it", so registering or refreshing on In fabricates a
+    //     declaration nobody made. Until 2026-08-08 the In arm refreshed
+    //     the four-pack AND cancelled the leave timer, so after a LeaveAll
+    //     a drained listener echoing bare Ins held our licence open
+    //     forever (~1 LeaveTime per hop instead of closing at 5 s).
+    {
+        // (a) In never cancels the leave timer: registered from 6), send a
+        //     LeaveAll, then In-only "refreshes" — the registration MUST
+        //     expire at LeaveTime (Milan Table 4.3, 5000 ms) despite them.
+        ck("in-law: precondition registered", dut->listener_reg_o, 1);
+        ck("in-law: precondition decl Ready", dut->listener_decl_o, D_READY);
+        Vec la; la.lva = 1; la.fv = fv_listener(OUR_SID);
+        la.evts = {EV_MT}; la.pars = {D_IGN};
+        feed_parse(frame(true, {msg_listener(la)}), "in-law: leaveall parse");
+        Vec in; in.fv = fv_listener(OUR_SID); in.evts = {EV_IN};
+        in.pars = {D_ASKFAIL};           // an old-law refresh would flip it
+        ticks(2000);
+        feed_parse(frame(true, {msg_listener(in)}), "in-law: In @2000ms");
+        ck("in-law: In is not a leave", dut->listener_reg_o, 1);
+        ck("in-law: In does not refresh the declaration",
+           dut->listener_decl_o, D_READY);
+        ticks(2000);
+        feed_parse(frame(true, {msg_listener(in)}), "in-law: In @4000ms");
+        ck("in-law: still registered inside LeaveTime",
+           dut->listener_reg_o, 1);
+        ticks(1001);                     // 5001 ms after the LeaveAll
+        ck("in-law: In never cancels the leave timer -> aged out at "
+           "LeaveTime", dut->listener_reg_o, 0);
+        ck("in-law: licence closed", dut->listener_ready_o, 0);
+
+        // (b) In-from-empty: the walker still delivers the event (clean
+        //     parse + listener pulse), and the registrar must leave the
+        //     state at MT — no registration, no declaration.
+        long lp0 = lstn_pulses;
+        Vec e; e.fv = fv_listener(OUR_SID); e.evts = {EV_IN};
+        e.pars = {D_READY};              // the most tempting four-pack
+        feed_parse(frame(true, {msg_listener(e)}), "in-law: In-from-MT parse");
+        ck("in-law: walker delivered the Listener event",
+           lstn_pulses - lp0, 1);
+        ck("in-law: In from MT does not register", dut->listener_reg_o, 0);
+        ck("in-law: not ready", dut->listener_ready_o, 0);
+        ck("in-law: declaration stays Ignore", dut->listener_decl_o, D_IGN);
+        // control: the same PDU with JoinIn registers — the negative above
+        // is the event law, not a parse or match failure
+        Vec c; c.fv = fv_listener(OUR_SID); c.evts = {EV_JOININ};
+        c.pars = {D_READY};
+        feed_parse(frame(true, {msg_listener(c)}), "in-law: JoinIn control");
+        ck("in-law: control registers", dut->listener_reg_o, 1);
+        ck("in-law: control ready", dut->listener_ready_o, 1);
     }
 
     // 7) LeaveAll storm: parser never wedges, one pulse per PDU
@@ -562,14 +628,34 @@ int main(int argc, char** argv) {
         ck("ta: deregistered immediately on Lv (4.2.7.2.2)",
            dut->ta_registered_o, 0);
 
-        // re-register, then LeaveAll ages it out the same way
+        // re-register, then LeaveAll ages it out the same way — and a bare
+        // In inside the leave window must NOT reload it (802.1Q Table 10-4
+        // has no rIn! registrar row; until 2026-08-08 w_join_evt included
+        // IN, so each In disarmed the window and a drained talker stayed
+        // registered forever)
         Vec r2; r2.fv = fv_talker(BOUND); r2.evts = {EV_JOININ};
         feed_parse(frame(true, {msg_tadv(r2)}), "ta: re-adv parse");
         ck("ta: re-registered", dut->ta_registered_o, 1);
         Vec la; la.lva = 1; la.fv = fv_talker(BOUND); la.evts = {EV_MT};
         feed_parse(frame(true, {msg_tadv(la)}), "ta: leaveall parse");
-        ticks(LEAVE_MS + 1);            // Milan Table 4.3 LeaveTime
-        ck("ta: aged out after LeaveAll", dut->ta_registered_o, 0);
+        ticks(2000);
+        Vec inw; inw.fv = fv_talker(BOUND); inw.evts = {EV_IN};
+        feed_parse(frame(true, {msg_tadv(inw)}), "ta: In mid-window parse");
+        ck("ta: In inside the window is no reload", dut->ta_registered_o, 1);
+        ticks(LEAVE_MS - 2000 + 1);     // 5001 ms total: Milan Table 4.3
+        ck("ta: aged out after LeaveAll despite the In",
+           dut->ta_registered_o, 0);
+
+        // In-from-MT: a bare In is the echo of a registration (ours, on a
+        // loop bench), NOT a declaration — it must not fabricate "remote
+        // talker present" from empty...
+        Vec inmt; inmt.fv = fv_talker(BOUND); inmt.evts = {EV_IN};
+        feed_parse(frame(true, {msg_tadv(inmt)}), "ta: In-from-MT parse");
+        ck("ta: In from MT does not register", dut->ta_registered_o, 0);
+        // ...and an In TalkerFailed from empty fabricates no failure either
+        Vec intf; intf.fv = fv_tfail(BOUND, 0x22); intf.evts = {EV_IN};
+        feed_parse(frame(true, {msg_tfail(intf)}), "ta: In TF parse");
+        ck("ta: In from MT fabricates no failure", dut->ta_failed_o, 0);
 
         // TalkerFailed registers the failure with its code
         Vec tf; tf.fv = fv_tfail(BOUND, 0x08); tf.evts = {EV_JOININ};

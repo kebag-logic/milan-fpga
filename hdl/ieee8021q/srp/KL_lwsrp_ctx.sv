@@ -30,6 +30,16 @@
 //                    the TA is registered, AskingFailed otherwise (the
 //                    pipewire acmp_periodic rule, as row 0 does).
 //
+//                Registrar events follow 802.1Q-2018 Table 10-4 in BOTH
+//                directions: {New, JoinIn, JoinMt} register — and they are
+//                the ONLY events that do. There is no rIn! registrar row:
+//                In means "the sender holds it registered but is NOT
+//                declaring it", so a bare In must never conjure a Talker
+//                registration from MT, never refresh a stored four-pack
+//                and never cancel a running leave counter. Milan v1.2
+//                4.2.7.2.2 modifies only the IN / rLv! cell (an explicit
+//                Lv deregisters at once).
+//
 //                Storage rules (the 0x4B LUTRAM-replica lesson,
 //                MILAN_COMPLIANCE_GAPS.md §1): the record RAM has a
 //                sync-only write process and ONE explicit read port (the
@@ -230,14 +240,16 @@ module KL_lwsrp_ctx #(
   assign ctx_ready_o  = {31'(eready_w & eused_w), leg_ready_i};
   assign ctx_failed_o = {31'(afail_r & eused_w), leg_failed_i};
 
-  //! registering / leave event decodes per lane
-  wire [EXT_LANES_P-1:0] jn_w, in_w, lv_w;
+  //! registering / leave event decodes per lane. jn_w is the COMPLETE
+  //! Table 10-4 registering set {New, JoinIn, JoinMt}: there is no rIn!
+  //! registrar row, and until 2026-08-08 an in_w decode here registered a
+  //! Talker attribute from MT off a bare In — a declaration nobody made.
+  wire [EXT_LANES_P-1:0] jn_w, lv_w;
   generate
     for (genvar ge = 0; ge < int'(EXT_LANES_P); ge++) begin : g_evt
       wire [2:0] e = lane_evt_i[3*ge +: 3];
       assign jn_w[ge] = (e == MRP_EVT_NEW_C) || (e == MRP_EVT_JOININ_C) ||
                         (e == MRP_EVT_JOINMT_C);
-      assign in_w[ge] = (e == MRP_EVT_IN_C);
       assign lv_w[ge] = (e == MRP_EVT_LV_C);
     end
   endgenerate
@@ -286,9 +298,6 @@ module KL_lwsrp_ctx #(
                 areg_r[l]          <= 1'b1;
                 adecl_r[2*l +: 2]  <= lane_par_i[2*l +: 2];
                 rleave_r[LV_W_C*l +: LV_W_C] <= '0;
-              end else if (in_w[l] && areg_r[l]) begin
-                adecl_r[2*l +: 2]  <= lane_par_i[2*l +: 2];
-                rleave_r[LV_W_C*l +: LV_W_C] <= '0;
               end else if (lv_w[l] && areg_r[l]) begin
                 //! MILAN 4.2.7.2.2: an EXPLICIT rLv goes IN -> MT at once
                 //! (the 802.1Q "start leavetimer -> LV" transition is
@@ -311,7 +320,7 @@ module KL_lwsrp_ctx #(
           end else begin
             // ---- listener direction: TA/TF registrar (row-0 TA rules) ----
             if (lane_tadv_p_i[l]) begin
-              if (jn_w[l] || in_w[l]) begin
+              if (jn_w[l]) begin
                 areg_r[l] <= 1'b1;
                 rleave_r[LV_W_C*l +: LV_W_C] <= '0;
               end else if (lv_w[l] && areg_r[l]) begin
@@ -324,7 +333,7 @@ module KL_lwsrp_ctx #(
               end
             end
             if (lane_tfail_p_i[l]) begin
-              if (jn_w[l] || in_w[l]) begin
+              if (jn_w[l]) begin
                 afail_r[l]        <= 1'b1;
                 acode_r[8*l +: 8] <= lane_tfail_code_i;
                 fleave_r[LV_W_C*l +: LV_W_C] <= '0;

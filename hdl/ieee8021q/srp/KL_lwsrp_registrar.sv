@@ -10,12 +10,18 @@
 //                (docs/LWSRP_FPGA_ARCHITECTURE.md §1):
 //
 //                LISTENER attribute for our StreamID:
-//                  registering events {New, JoinIn, JoinMt} set the
-//                  registration and reload the hold; {In} refreshes it while
-//                  registered; {Lv} and a received LeaveAll arm the leave
-//                  timer (LEAVE_TIME_MS_C) — the registration survives until
-//                  the timer expires un-refreshed (MRP registrar semantics,
-//                  mirrors mrp.c IN->LV->MT with NOTIFY_LEAVE on expiry).
+//                  registering events are {New, JoinIn, JoinMt} ONLY —
+//                  802.1Q-2018 Table 10-4 has no rIn! (nor rMt!) registrar
+//                  row. In means "the sender holds it registered but is NOT
+//                  declaring it", so an In never registers, never refreshes
+//                  the stored declaration and never cancels a running leave
+//                  timer: after a LeaveAll a drained listener ages out at
+//                  LeaveTime no matter how many bare Ins arrive. {Lv}
+//                  deregisters at once (Milan v1.2 4.2.7.2.2, which
+//                  modifies ONLY the IN / rLv! cell of Table 10-4); a
+//                  received LeaveAll arms the leave timer (LEAVE_TIME_MS_C)
+//                  — the registration survives until the timer expires
+//                  un-refreshed.
 //                  The four-packed declaration is stored alongside;
 //                  listener_ready_o = registered AND declaration is Ready or
 //                  ReadyFailed. (DEVIATION from the pipewire reference,
@@ -86,10 +92,13 @@ module KL_lwsrp_registrar #(
 
   reg [LV_W_C-1:0] lstn_leave_r;    //! leave downcounter (0 = not running)
 
+  //! 802.1Q-2018 Table 10-4: New/JoinIn/JoinMt are the ONLY registering
+  //! events. There is no rIn! row — until 2026-08-08 an In arm refreshed
+  //! the declaration AND cancelled the leave timer, so after a LeaveAll a
+  //! drained listener sending bare Ins held our licence open forever.
   wire lstn_reg_evt_w  = listener_p_i && ((listener_evt_i == MRP_EVT_NEW_C)   ||
                                           (listener_evt_i == MRP_EVT_JOININ_C)||
                                           (listener_evt_i == MRP_EVT_JOINMT_C));
-  wire lstn_in_evt_w   = listener_p_i && (listener_evt_i == MRP_EVT_IN_C);
   wire lstn_lv_evt_w   = listener_p_i && (listener_evt_i == MRP_EVT_LV_C);
 
   assign listener_ready_o = listener_reg_o &&
@@ -110,9 +119,6 @@ module KL_lwsrp_registrar #(
         listener_reg_o  <= 1'b1;
         listener_decl_o <= listener_decl_i;
         lstn_leave_r    <= '0;                     // cancel any pending leave
-      end else if (lstn_in_evt_w && listener_reg_o) begin
-        listener_decl_o <= listener_decl_i;        // refresh declaration
-        lstn_leave_r    <= '0;
       end else if (lstn_lv_evt_w && listener_reg_o) begin
         //! MILAN 4.2.7.2.2 "Instantaneous transition from IN to MT": for the
         //! MSRP application the 802.1Q Table 10-4 transition

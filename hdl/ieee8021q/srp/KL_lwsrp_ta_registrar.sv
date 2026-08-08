@@ -11,11 +11,17 @@
 //                stream_id (the walker's second match context).
 //
 //                Same registrar dynamics as the talker-side Listener
-//                registrar: {NEW, JOININ, JOINMT, IN} register and reload
-//                the 600 ms leave timer; {LV, LeaveAll} arm it; expiry
-//                deregisters. The registered level INCLUDES the LV/leave
-//                window (the pipewire reference treats IN and LV alike —
-//                the transient recovers on the next JoinIn).
+//                registrar, i.e. 802.1Q-2018 Table 10-4: {NEW, JOININ,
+//                JOINMT} register and disarm the leave window — and they
+//                are the ONLY events that do. There is no rIn! registrar
+//                row: In means "the sender holds it registered but is NOT
+//                declaring it", so a bare In (on a loop bench, the echo of
+//                our own declaration) must never fabricate "remote talker
+//                present" nor reload a leave window. {LV} deregisters at
+//                once (Milan v1.2 4.2.7.2.2 modifies only the IN / rLv!
+//                cell); a LeaveAll arms the LEAVE_TIME_MS_C window; expiry
+//                deregisters. The registered level INCLUDES the leave
+//                window (the transient recovers on the next JoinIn).
 //
 //                ta_registered_o drives the ACMP listener's TK_REGISTERED/
 //                TK_UNREGISTERED events and selects Listener Ready (vs
@@ -63,8 +69,12 @@ module KL_lwsrp_ta_registrar (
   localparam int unsigned LV_W_C = $clog2(LEAVE_TIME_MS_C + 1);
   reg [LV_W_C-1:0] ta_leave_r, tf_leave_r;
 
+  //! 802.1Q-2018 Table 10-4 registering events ONLY — no rIn! row. Until
+  //! 2026-08-08 this decode included MRP_EVT_IN_C, so a bare In registered
+  //! a Talker attribute from MT (a declaration nobody made) and reloaded
+  //! the leave window mid-LeaveAll aging.
   wire w_join_evt = (l_evt_i == MRP_EVT_NEW_C)    || (l_evt_i == MRP_EVT_JOININ_C) ||
-                    (l_evt_i == MRP_EVT_JOINMT_C) || (l_evt_i == MRP_EVT_IN_C);
+                    (l_evt_i == MRP_EVT_JOINMT_C);
   wire w_lv_evt   = (l_evt_i == MRP_EVT_LV_C);
 
   always_ff @(posedge clk_i) begin

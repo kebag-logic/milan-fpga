@@ -487,7 +487,10 @@ int main(int argc, char** argv) {
     drain_tx();
 
     // 8) ONE bridge TalkerAdvertise vector covering BOTH listener rows
-    //    (CRF at k=0, row 3 at k=2; k=1 is nobody)
+    //    (CRF at k=0, row 3 at k=2; k=1 is nobody). The k=0 value carries
+    //    In — NOT a registering event (802.1Q Table 10-4 has no rIn! row) —
+    //    so the pin is per-k decode: the In leaves CRF's EXISTING
+    //    registration alone while the k=2 JoinIn registers row 3.
     {
         Vec v; v.nv = 3; v.fv = fv_talker(CRF_SID);
         v.evts = {EV_IN, EV_MT, EV_JOININ};
@@ -544,6 +547,76 @@ int main(int argc, char** argv) {
         feed(bframe({msg_tadv(v)}));
         run(200);
         ck("recover: CRF registered again", (dut->ctx_reg_o >> 1) & 1, 1);
+    }
+
+    // 11b) THE rIn! FIX ON THE CONTEXT ROWS (802.1Q-2018 Table 10-4: the
+    //   registering events are rNew!/rJoinIn!/rJoinMt! ONLY — there is no
+    //   rIn! registrar row; In means "the sender holds it registered but
+    //   is NOT declaring it"). Both directions had In arms until
+    //   2026-08-08; both are pinned here.
+    {
+        // (a) LISTENER direction, In-from-empty — the WORST site: the
+        //     registering condition was (jn_w || in_w), so a bare In on
+        //     the Talker attribute conjured a Talker registration from MT,
+        //     a declaration nobody made. Row 3 aged out in 10) and was
+        //     never re-registered.
+        ck("in-ctx: row3 starts MT", (dut->ctx_reg_o >> 3) & 1, 0);
+        Vec v; v.fv = fv_talker(L3_SID); v.evts = {EV_IN};
+        feed(bframe({msg_tadv(v)}));
+        run(400);
+        ck("in-ctx: In from MT does not register",
+           (dut->ctx_reg_o >> 3) & 1, 0);
+        ck("in-ctx: not ready either", (dut->ctx_ready_o >> 3) & 1, 0);
+        Vec tf; tf.fv = fv_tfail(L3_SID, 0x22); tf.evts = {EV_IN};
+        feed(bframe({msg_tfail(tf)}));
+        run(400);
+        ck("in-ctx: In TF fabricates no failure",
+           (dut->ctx_failed_o >> 3) & 1, 0);
+        // control: JoinMt on the same lane registers — the negatives above
+        // are the event law, not a dead lane
+        Vec c; c.fv = fv_talker(L3_SID); c.evts = {EV_JOINMT};
+        feed(bframe({msg_tadv(c)}));
+        run(400);
+        ck("in-ctx: JoinMt control registers", (dut->ctx_reg_o >> 3) & 1, 1);
+    }
+    run(3000); drain_tx();     // row3 Ready toggle re-declare drains here
+    {
+        // (b) TALKER direction: In neither refreshes the four-pack nor
+        //     cancels the leave counter. Re-provision the talker row,
+        //     register the bridge's Listener Ready, LeaveAll, then In-only
+        //     "refreshes" carrying a contradicting four-pack — the
+        //     registration MUST age out at LeaveTime with the stored
+        //     declaration untouched (the old In arm cancelled rleave and
+        //     adopted the four-pack, holding the row alive forever).
+        ctx_write(2, 1, 0, T2_SID, DMAC2, 0x70, 100, 1, 1000);
+        run(400);
+        Vec l; l.fv = fv_listener(T2_SID); l.evts = {EV_JOININ};
+        l.pars = {D_READY};
+        feed(bframe({msg_listener(l)}));
+        run(200);
+        ck("in-tdir: registered Ready", (dut->ctx_reg_o >> 2) & 1, 1);
+        ck("in-tdir: ready", (dut->ctx_ready_o >> 2) & 1, 1);
+        Vec la; la.lva = 1; la.fv = fv_listener(T2_SID);
+        la.evts = {EV_MT}; la.pars = {D_IGN};
+        feed(bframe({msg_listener(la)}));
+        run_ms(2000);
+        Vec in; in.fv = fv_listener(T2_SID); in.evts = {EV_IN};
+        in.pars = {D_ASKFAIL};        // a refresh would flip Ready->AskFail
+        feed(bframe({msg_listener(in)}));
+        run_ms(2000);
+        feed(bframe({msg_listener(in)}));
+        run(200);
+        ck("in-tdir: still registered inside LeaveTime",
+           (dut->ctx_reg_o >> 2) & 1, 1);
+        uint16_t st = ctx_read(2);
+        ck("in-tdir: In did not refresh the four-pack (decl stays Ready)",
+           (st >> 8) & 3, D_READY);
+        run_ms(1200);                 // 5200 ms past the LeaveAll
+        ck("in-tdir: In never cancels the leave counter -> aged out at "
+           "LeaveTime", (dut->ctx_reg_o >> 2) & 1, 0);
+        ctx_write(2, 0, 0, 0);
+        run(400);
+        drain_tx();
     }
 
     // 12) THE BORROW TERM ON THE CONTEXT LANES. The walker carries three

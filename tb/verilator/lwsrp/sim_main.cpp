@@ -473,6 +473,25 @@ int main(int argc, char** argv) {
     ck("la-neg: aged out at LeaveTime", dut->listener_reg_o, 0);
     ck("la-neg: licence dropped", dut->stream_gate_o, 0);
 
+    // 12b) the rIn! fix at the LICENCE level (802.1Q-2018 Table 10-4 has
+    //      no rIn! registrar row — In is "sender holds it registered but
+    //      is NOT declaring"): after a LeaveAll, bare In "refreshes" must
+    //      not keep the reservation alive — the licence MUST close at
+    //      LeaveTime. Until 2026-08-08 each In cancelled the leave timer,
+    //      so a drained listener echoing Ins held the licence open one
+    //      LeaveTime per hop, forever.
+    feed(bridge_listener(EV_JOININ, D_READY));
+    run(400);
+    ck("in-licence: active again", dut->res_active_o, 1);
+    feed(bridge_listener(EV_MT, D_IGN, /*lva=*/1));
+    run(LV_TICKS / 2);
+    feed(bridge_listener(EV_IN, D_READY));         // bare In mid-window
+    run(LV_TICKS / 2 + 2000);                      // 5200 ms past LeaveAll
+    ck("in-licence: In never cancels the leave timer",
+       dut->listener_reg_o, 0);
+    ck("in-licence: licence closed at LeaveTime", dut->stream_gate_o, 0);
+    ck("in-licence: reservation gone", dut->res_active_o, 0);
+
     printf("\n-- [13] TX-wedge soak: hostile tready + LeaveAll turns + rx\n"
            "   LeaveAlls of BOTH applications at random offsets (m001a wedge\n"
            "   hunt: a frame-abort under stall holds the MAC arb grant) --\n");
