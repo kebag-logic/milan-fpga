@@ -1174,6 +1174,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire                     aecp_tx_tvalid, aecp_tx_tlast, aecp_tx_tready;
   wire                     aecp_discover_p;
   wire                     aecp_locked;
+  //! the locking controller's Entity ID (valid while aecp_locked): feeds
+  //! the ACMP listener's BIND/UNBIND step-1 authorization check — same
+  //! axis_clk domain as the listener, no CDC
+  wire [63:0]              aecp_locking_ctlr;
   wire [15:0]              aecp_current_config, aecp_cmd_count, aecp_resp_count;
   //! ACMP stateless responder (KL_acmp_responder) — response AXIS + counters.
   wire [TDATA_WIDTH-1:0]   acmp_tx_tdata;
@@ -1346,7 +1350,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! per-ROW lwSRP registrar levels (KL_lwsrp_ctx): bit 0 = the legacy row-0
   //! registrar, bits 1..15 = the extension lanes. A LISTENER row's bit is
   //! its TalkerAdvertise / TalkerFailed registration, which is exactly the
-  //! event Milan 5.5.3.5.27 / 5.5.3.5.33 move a settled sink on.
+  //! event Milan 5.5.3.5.42 / 5.5.3.5.48 move a settled sink on.
   wire [31:0] lwsrp_ctx_reg_w, lwsrp_ctx_failed_w;
   //! ...projected onto the ACMP sink index. Sink k's attribute row IS k for
   //! 1..N_STREAMS-1 (srp_fab_row_w's listener branch); sink 0's is the
@@ -1759,7 +1763,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        csr_acmp_tbl_req_w;
   wire [3:0]  csr_acmp_tbl_idx_w;
   wire        acmp_tbl_gnt_w;
-  wire [316:0] acmp_tbl_ctx_w;
+  //! full record (338 b since seq/adp_vt joined the struct MSBs); the CSR
+  //! window consumes the pre-existing [316:0] fields only, so its
+  //! package-free literal-offset map keeps working on the slice
+  wire [acmp_pkg::ACMP_LSTN_CTX_W_C-1:0] acmp_tbl_ctx_w;
   //! E1 bind-restore master (0x7A0 group) -> ACMP listener ctx injection
   wire        csr_acmp_rest_req_w;
   wire [3:0]  csr_acmp_rest_idx_w;
@@ -2086,7 +2093,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_acmp_tbl_req     (csr_acmp_tbl_req_w),
     .o_acmp_tbl_idx     (csr_acmp_tbl_idx_w),
     .i_acmp_tbl_gnt     (acmp_tbl_gnt_w),
-    .i_acmp_tbl_ctx     (acmp_tbl_ctx_w),
+    .i_acmp_tbl_ctx     (acmp_tbl_ctx_w[316:0]),
     .o_acmp_rest_req    (csr_acmp_rest_req_w),
     .o_acmp_rest_idx    (csr_acmp_rest_idx_w),
     .o_acmp_rest_talker (csr_acmp_rest_talker_w),
@@ -2372,8 +2379,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! 1-second tick for the ADP re-advertise timer. MUST track the actual
   //! datapath clock: the old hardcoded 100_000_000 made a 50 MHz datapath
   //! (Arty) tick every 2 s, stretching the re-advertise period to 62 s =
-  //! exactly the ADP validity horizon (2*valid_time at the THEN-reset
-  //! valid_time 31; the ADP_CTRL reset is 10 per Milan 5.6.2 today) with
+  //! exactly the ADP validity horizon (2*valid_time at valid_time 31) with
   //! zero margin, instead of the intended half-validity cadence.
   localparam int ADP_TICK_DIV = MILAN_CLK_FREQ_HZ;
   reg [26:0] adp_tick_cnt;
@@ -2717,7 +2723,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pat_commit_p_i (cfg_aemp_commit_w),
     .pat_abort_p_i  (cfg_aemp_abort_w),
     .pat_stat_o     (aemp_stat_w),
-    .locked_o(aecp_locked), .current_config_o(aecp_current_config),
+    .locked_o(aecp_locked), .locking_ctlr_o(aecp_locking_ctlr),
+    .current_config_o(aecp_current_config),
     .cmd_count_o(aecp_cmd_count), .resp_count_o(aecp_resp_count)
   );
 
@@ -2818,6 +2825,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
     .entity_id_i (cfg_adp_entity_id),
+    //! AECP entity lock -> Milan 5.5.3.5 step 1: a locked entity refuses
+    //! BIND/UNBIND from any controller but the locking one (reads exempt)
+    .locked_i    (aecp_locked),
+    .lock_ctlr_i (aecp_locking_ctlr),
     .tick_1s_i (adp_tick_1s),
     .ta_registered_i (acmpl_ta_reg_v_w),
     .ta_failed_i     (acmpl_ta_fail_v_w),

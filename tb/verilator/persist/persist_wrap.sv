@@ -163,6 +163,8 @@ module persist_wrap #(
       .enable_i        (1'b1),
       .station_mac_i   (station_mac_i),
       .entity_id_i     (entity_id_i),
+      .locked_i        (1'b0),          //! no AECP lock in this harness
+      .lock_ctlr_i     (64'd0),
       .tick_1s_i       (tick_1s_i),
       .ta_registered_i (ta_registered_i),
       .ta_failed_i     (ta_failed_i),

@@ -135,13 +135,16 @@ static std::vector<uint8_t> acmp(uint8_t msg, uint8_t status,
     return f;
 }
 
-// minimal ADP frame (>= 26 bytes classified; padded to 82)
-static std::vector<uint8_t> adp(uint8_t msg, uint64_t eid) {
+// minimal ADP frame (>= 26 bytes classified; padded to 82). Byte 16 [7:3]
+// is valid_time in 2 s units (1722.1 6.2.2.5) — the RTL ages the talker
+// out after vt x 2 seconds, so the tests pass an explicit vt (default 3
+// = the historical 0x1F byte's field value = a 6 s horizon).
+static std::vector<uint8_t> adp(uint8_t msg, uint64_t eid, uint8_t vt = 3) {
     std::vector<uint8_t> f = {0x91,0xE0,0xF0,0x01,0x00,0x00,
                               0x02,0x00,0x00,0x00,0x00,0x01,
                               0x22,0xF0, 0xFA};
     f.push_back(msg & 0xF);
-    f.push_back(0x1F); f.push_back(56);       // valid_time/cdl-ish
+    f.push_back((uint8_t)(vt << 3)); f.push_back(56);   // valid_time | cdl
     put_be(f, eid, 8);                         // entity_id at wire byte 18
     while (f.size() < 82) f.push_back(0);
     return f;
@@ -188,6 +191,7 @@ int main(int argc, char** argv) {
     { uint64_t m=0; for(int i=0;i<6;i++) m=(m<<8)|US_MAC[i]; dut->station_mac_i = m; }
     dut->tick_1s_i = 0;
     dut->ta_registered_i = 0; dut->ta_failed_i = 0;
+    dut->locked_i = 0; dut->lock_ctlr_i = 0;
     dut->rx_tvalid_i = 0; dut->m_axis_tready = 1;
     for (int i = 0; i < 8; i++) tick();
     dut->rst_n = 1;
@@ -264,12 +268,14 @@ int main(int argc, char** argv) {
     ckh("[2b] sink1 talker 0 (sink0 state masked)", r_be(r, 34, 8), 0);
     ck("[2b] sink1 flags 0", (long)r_be(r, 64, 2), 0);
 
-    printf("\n[3] GET_RX_STATE while probing: STREAMING_WAIT\n");
+    printf("\n[3] GET_RX_STATE while probing: Table 5.37 flags\n");
     feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x102, 0, 0));
     r = wait_frame();
     ck("[3] count 1", (long)r_be(r, 60, 2), 1);
     ckh("[3] talker bound", r_be(r, 34, 8), TK_EID);
-    ck("[3] STREAMING_WAIT", (long)r_be(r, 64, 2), 0x0008);
+    //! Table 5.37: FAST_CONNECT = 1 in every bound state, STREAMING_WAIT =
+    //! the SAVED binding flag ([2] bound with SW 0), REGISTERING_FAILED = 0
+    ck("[3] flags FC|saved-SW (Table 5.37)", (long)r_be(r, 64, 2), 0x0002);
     ckh("[3] dest_mac zeroed", r_be(r, 54, 6), 0);
     ck("[3] state unchanged", dut->state_o, 3);
     //! a DIFFERENT sequence_id than [1], so the echo cannot be a constant
@@ -288,6 +294,17 @@ int main(int argc, char** argv) {
     ck("[4] vlan 2", dut->stream_vlan_o, 2);
     ckh("[4] dmac captured", dut->stream_dmac_o, 0x91E0F000FE01ULL);
     ck("[4] probing COMPLETED", dut->probing_o, 3);
+    //! a DUPLICATE of the accepted response is a no-op: 5.5.3.5.18 fires
+    //! only in PRB_W_RESP/RESP2, and the sink has left them
+    {
+        const uint8_t dm2[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x77};
+        feed(acmp(1, 0, 0xDEAD00000000BEEFULL, CT_EID, TK_EID, US_EID,
+                  0, 0, dm2, 0, 0, 7));
+        ck("[4] duplicate response: state held", dut->state_o, 6);
+        ckh("[4] duplicate response: sid held", dut->bound_sid_o, TK_SID);
+        ckh("[4] duplicate response: dmac held", dut->stream_dmac_o,
+            0x91E0F000FE01ULL);
+    }
 
     // ---------------------------------------------------------------- //
     printf("\n[5] TalkerAdvertise registered -> SETTLED_RSV_OK\n");
@@ -296,32 +313,53 @@ int main(int argc, char** argv) {
     ck("[5] state SETTLED_RSV_OK", dut->state_o, 7);
     feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x103, 0, 0));
     r = wait_frame();
-    ck("[5] settled flags = stored SW (0)", (long)r_be(r, 64, 2), 0);
+    //! Table 5.39: FC 1, saved SW 0, RF 0 (Talker ADVERTISE registered)
+    ck("[5] settled flags FC only (Table 5.39)", (long)r_be(r, 64, 2),
+       0x0002);
     ck("[5] count 1", (long)r_be(r, 60, 2), 1);
     ckh("[5] dest_mac echoes the learned MAAP addr", r_be(r, 54, 6),
         0x91E0F000FE01ull);
 
     // ---------------------------------------------------------------- //
-    printf("\n[6] TalkerFailed while settled -> SETTLED_NO_RSV and back\n");
-    dut->ta_failed_i = 1;
+    printf("\n[6] Advertise<->Failed flips while settled: STAYS RSV_OK\n");
+    // Table 5.29: EVT_TK_REGISTERED/_UNREGISTERED are edges of the COMBINED
+    // Talker attribute ("either Talker Advertise or Talker Failed"); Table
+    // 5.30 marks every other SRP row in SETTLED_RSV_OK "x". A TalkerFailed
+    // RISE while the Advertise is registered is therefore NO event — the
+    // old RTL invented an RSV_OK -> NO_RSV arc here (pipewire REF-BUG),
+    // whose tmr=0 landing disarmed the wheel = the ordering-race wedge.
+    dut->ta_failed_i = 1;              // TF rise, TA still registered
     run(4);
-    ck("[6] back to SETTLED_NO_RSV", dut->state_o, 6);
-    dut->ta_failed_i = 0;
-    dut->ta_registered_i = 0;
+    ck("[6] TF-rise while settled STAYS RSV_OK", dut->state_o, 7);
+    dut->ta_registered_i = 0;          // TA falls, TF still holds
     run(4);
-    ck("[6] no change on ta_reg fall here", dut->state_o, 6);
-    dut->ta_registered_i = 1;
+    ck("[6] TA-fall with TF held: still RSV_OK", dut->state_o, 7);
+    ck("[6] still active", dut->stream_active_o, 1);
+    feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x10A, 0, 0));
+    r = wait_frame();
+    //! Table 5.39 REGISTERING_FAILED: 1 while the registered attribute is
+    //! a Talker FAILED (FC 1, saved SW 0)
+    ck("[6] flags FC|RF while TalkerFailed registered",
+       (long)r_be(r, 64, 2), 0x0042);
+    dut->ta_registered_i = 1;          // back to Advertise...
     run(4);
-    ck("[6] re-registered -> RSV_OK", dut->state_o, 7);
+    dut->ta_failed_i = 0;              // ...Failed withdrawn: never a fall
+    run(4);
+    ck("[6] attribute never unregistered: RSV_OK held", dut->state_o, 7);
 
     // ---------------------------------------------------------------- //
-    printf("\n[7] reservation lost (ta fall), talker not visible -> PRB_W_AVAIL\n");
+    printf("\n[7] reservation lost (combined fall) -> PRB_W_AVAIL + SRP clear\n");
     dut->ta_registered_i = 0;
     run(4);
     ck("[7] state PRB_W_AVAIL", dut->state_o, 1);
     ck("[7] deactivated", dut->stream_active_o, 0);
     ck("[7] declare withdrawn", dut->lstn_declare_o, 0);
     ck("[7] probing PASSIVE", dut->probing_o, 1);
+    //! 5.5.3.5.48 step 1 "Clear the SRP parameters": dmac/vlan zeroed; the
+    //! record sid deliberately survives (lwSRP row key — see the RTL note)
+    ckh("[7] stale dmac cleared (5.5.3.5.48 s1)", dut->stream_dmac_o, 0);
+    ck("[7] stale vlan cleared", dut->stream_vlan_o, 0);
+    ckh("[7] sid preserved (row key)", dut->bound_sid_o, TK_SID);
 
     // ---------------------------------------------------------------- //
     printf("\n[8] ADP AVAILABLE -> DELAY -> probe ladder to RETRY\n");
@@ -333,12 +371,18 @@ int main(int argc, char** argv) {
     p = wait_frame(1100 * MS);
     ck("[8] probe sent after delay", p.size(), 70);
     ck("[8] state PRB_W_RESP", dut->state_o, 3);
-    // no answer: 200 ms -> resend (RESP2)
-    p = wait_frame(250 * MS);
-    ck("[8] probe resent", p.size(), 70);
-    ck("[8] state PRB_W_RESP2", dut->state_o, 4);
-    long seq2 = (long)r_be(p, 62, 2);
-    ck("[8] fresh sequence id", seq2 >= 2, 1);
+    // no answer: 200 ms -> resend (RESP2). 5.5.3.5.16 step 1: the resend
+    // is a DUPLICATE of the first probe — same sequence_id, same bytes —
+    // never a fresh draw.
+    {
+        auto p1st = p;
+        p = wait_frame(250 * MS);
+        ck("[8] probe resent", p.size(), 70);
+        ck("[8] state PRB_W_RESP2", dut->state_o, 4);
+        ck("[8] resend reuses the sequence_id (5.5.3.5.16)",
+           (long)r_be(p, 62, 2), (long)r_be(p1st, 62, 2));
+        ck("[8] resend is a byte-exact duplicate", p == p1st ? 1 : 0, 1);
+    }
     // no answer again: 200 ms -> RETRY with LISTENER_TALKER_TIMEOUT
     run(250 * MS);
     ck("[8] state PRB_W_RETRY", dut->state_o, 5);
@@ -349,8 +393,10 @@ int main(int argc, char** argv) {
     p = wait_frame(4200 * MS + 1100 * MS);   // 4 s retry + <=1.024 s delay
     ck("[9] re-probe emitted", p.size(), 70);
     ck("[9] state PRB_W_RESP", dut->state_o, 3);
-    // talker answers with TALKER_NO_BANDWIDTH (5)
-    feed(acmp(1, 5, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 1, 0, 0));
+    // talker answers with TALKER_NO_BANDWIDTH (5) — the response must echo
+    // the probe's sequence_id to be accepted (5.5.3.5.18 step 1)
+    feed(acmp(1, 5, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr,
+              (uint16_t)r_be(p, 62, 2), 0, 0));
     ck("[9] state PRB_W_RETRY", dut->state_o, 5);
     ck("[9] status stored (5)", dut->acmp_status_o, 5);
 
@@ -387,7 +433,7 @@ int main(int argc, char** argv) {
     {
         const uint8_t dm[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x02};
         feed(acmp(1, 0, 0x0200000000020000ULL, CT_EID, TK2_EID, US_EID, 0, 0,
-                  dm, 2, 0, 2));
+                  dm, (uint16_t)r_be(p, 62, 2), 0, 2));
     }
     ck("[12] settled", dut->state_o, 6);
     feed(acmp(8, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x106, 0x0008, 0));
@@ -414,23 +460,109 @@ int main(int argc, char** argv) {
     ck("[13] foreign listener ignored", r.size(), 0);
 
     // ---------------------------------------------------------------- //
-    printf("\n[14] NO_TK lapse in SETTLED_NO_RSV (talker invisible) -> PRB_W_AVAIL\n");
+    printf("\n[L] AECP lock gates BIND/UNBIND through the wrapper (B2a)\n");
+    // Milan 5.5.3.5 step 1 of every BIND/UNBIND clause: while locked, a
+    // foreign controller's state-changing command answers CONTROLLER_NOT_
+    // AUTHORIZED (Table 5.31 = full command echo) and changes NOTHING.
+    // The full echo/exemption matrix is pinned in sim_ctx [L]; this leg
+    // pins the wrapper pass-through the datapath instance rides.
+    {
+        long pcl = dut->probe_count_o;
+        dut->locked_i = 1; dut->lock_ctlr_i = CT_EID;
+        feed(acmp(6, 0, 0, CT2_EID, TK_EID, US_EID, 0, 0, nullptr,
+                  0x140, 0, 0));
+        r = wait_frame();
+        ck("[L] foreign BIND refused (16)", r_sta(r), 16);
+        ck("[L] refusal is a BIND_RESP", r_msg(r), 7);
+        ckh("[L] refusal echoes the command talker", r_be(r, 34, 8), TK_EID);
+        ck("[L] record untouched (UNBOUND)", dut->state_o, 0);
+        ck("[L] no probe launched", dut->probe_count_o, pcl);
+        dut->locked_i = 0; dut->lock_ctlr_i = 0;
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[14] NO_TK lapse in SETTLED_NO_RSV: 5.5.3.5.36 SRP clear\n");
     feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x109, 0, 0));
-    (void)wait_frame(); (void)wait_frame();          // response + probe
-    feed(acmp(1, 0, TK_SID, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 3, 0, 2));
+    (void)wait_frame();                              // BIND_RESP
+    p = wait_frame();                                // the PROBE_TX
+    {   //! settle with NONZERO SRP params so the lapse-zeroing is visible
+        const uint8_t dm[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x01};
+        feed(acmp(1, 0, TK_SID, CT_EID, TK_EID, US_EID, 0, 0, dm,
+                  (uint16_t)r_be(p, 62, 2), 0, 2));
+    }
     ck("[14] settled", dut->state_o, 6);
+    ckh("[14] dmac learned", dut->stream_dmac_o, 0x91E0F000FE01ULL);
+    //! invalid-uid refusal must not leak this BOUND record (Table 5.27 =
+    //! command echo for every named field; the old path read ctx-0)
+    {
+        feed(acmp(10, 0, 0x1122334455667788ULL, CT_EID,
+                  0x5544332211009988ULL, US_EID, 0x7777, 5, nullptr,
+                  0x141, 0x1234, 0x333));
+        r = wait_frame();
+        ck("[14] uid5 GET refused UNKNOWN_ID", r_sta(r), 1);
+        ckh("[14] refusal talker = command echo (no ctx-0 leak)",
+            r_be(r, 34, 8), 0x5544332211009988ULL);
+        ck("[14] refusal tuid = command echo", (long)r_be(r, 50, 2), 0x7777);
+        ckh("[14] refusal stream_id = command echo", r_be(r, 18, 8),
+            0x1122334455667788ULL);
+        ck("[14] refusal count = command echo", (long)r_be(r, 60, 2), 0);
+        ck("[14] refusal flags = command echo", (long)r_be(r, 64, 2), 0x1234);
+        ck("[14] refusal vlan = command echo", (long)r_be(r, 66, 2), 0x333);
+    }
     run(10100 * MS);                                  // 10 s NO_TK
     ck("[14] state PRB_W_AVAIL", dut->state_o, 1);
     ck("[14] probing PASSIVE", dut->probing_o, 1);
+    //! 5.5.3.5.36 step 1: SRP params cleared + sink closed on the lapse
+    ck("[14] deactivated on lapse", dut->stream_active_o, 0);
+    ck("[14] declare withdrawn on lapse", dut->lstn_declare_o, 0);
+    ckh("[14] dmac zeroed on lapse", dut->stream_dmac_o, 0);
+    ck("[14] vlan zeroed on lapse", dut->stream_vlan_o, 0);
+    ckh("[14] sid preserved (row key)", dut->bound_sid_o, TK_SID);
+    feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x142, 0, 0));
+    r = wait_frame();
+    ck("[14] GET count still 1 (bound)", (long)r_be(r, 60, 2), 1);
+    ckh("[14] GET talker still bound", r_be(r, 34, 8), TK_EID);
+    ckh("[14] GET bytes 54-59 zero after lapse", r_be(r, 54, 6), 0);
+    ck("[14] GET vlan zero after lapse", (long)r_be(r, 66, 2), 0);
 
     // ---------------------------------------------------------------- //
-    printf("\n[15] ADP availability age-out (63 s)\n");
-    feed(adp(0, TK_EID));
-    run(4);
-    ck("[15] visible again", dut->tk_avail_o, 1);
-    for (int s = 0; s < 64; s++) { dut->tick_1s_i = 1; tick_collect(nullptr);
-                                   dut->tick_1s_i = 0; run(3); }
-    ck("[15] aged out", dut->tk_avail_o, 0);
+    printf("\n[15] ADP availability age-out follows valid_time x 2 s\n");
+    // 1722.1 6.2.2.5: the availability horizon is the ADPDU's OWN
+    // valid_time (2 s units) — not a fixed constant. The talker stays
+    // visible through vt x 2 seconds and drops on the tick after.
+    {
+        auto sec = [&](int n) {
+            for (int s = 0; s < n; s++) {
+                dut->tick_1s_i = 1; tick_collect(nullptr);
+                dut->tick_1s_i = 0; run(3);
+            }
+        };
+        feed(adp(0, TK_EID, 3));                    // vt 3 => 6 s
+        run(4);
+        ck("[15] visible again (vt=3)", dut->tk_avail_o, 1);
+        sec(6);
+        ck("[15] still visible through 6 s", dut->tk_avail_o, 1);
+        sec(1);
+        ck("[15] aged out after vt=3 horizon", dut->tk_avail_o, 0);
+
+        feed(adp(0, TK_EID, 15));                   // vt 15 => 30 s
+        run(4);
+        ck("[15] refreshed (vt=15)", dut->tk_avail_o, 1);
+        sec(30);
+        ck("[15] still visible through 30 s", dut->tk_avail_o, 1);
+        sec(1);
+        ck("[15] aged out after vt=15 horizon", dut->tk_avail_o, 0);
+
+        //! vt = 0 clamps to 4 s (LSM_ADP_AGE_MIN_S_C): neither immortal
+        //! nor dead-on-arrival
+        feed(adp(0, TK_EID, 0));
+        run(4);
+        ck("[15] refreshed (vt=0)", dut->tk_avail_o, 1);
+        sec(4);
+        ck("[15] vt=0 clamp holds 4 s", dut->tk_avail_o, 1);
+        sec(1);
+        ck("[15] vt=0 aged out at the clamp", dut->tk_avail_o, 0);
+    }
 
     printf("\n======================================================================\n");
 
@@ -526,6 +658,9 @@ int main(int argc, char** argv) {
         ck("[S1] BIND_RESP", r_msg(r), 7);
         ck("[S1] SUCCESS", r_sta(r), 0);
         ck("[S1] count 1", (long)r_be(r, 60, 2), 1);
+        //! Table 5.32 pins stream_dest_mac 0 on a BIND success — the
+        //! fast-connect command's NONZERO dest_mac must NOT echo back
+        ckh("[S1] BIND_RESP dmac pinned 0 (Table 5.32)", r_be(r, 54, 6), 0);
         ck("[S1] s1_bound_o", dut->s1_bound_o, 1);
         ckh("[S1] s1_sid = command sid (provisional)", dut->s1_sid_o,
             0x020000000001000BULL);
@@ -555,8 +690,8 @@ int main(int argc, char** argv) {
         ckh("[S1] state talker", r_be(r, 34, 8), TK_EID);
         ck("[S1] state tuid", (long)r_be(r, 50, 2), 0x000B);
         ckh("[S1] state dmac 0 while probing", r_be(r, 54, 6), 0);
-        ck("[S1] state STREAMING_WAIT while probing", (long)r_be(r, 64, 2),
-           0x0008);
+        ck("[S1] state flags FC|saved-SW while probing (Tab 5.37)",
+           (long)r_be(r, 64, 2), 0x0002);
 
         // THE BITE (5.5.3.5.18 step 4): the talker answers with a stream_id
         // that is NEITHER the command's fast-connect sid NOR the {EID,tuid}
@@ -565,7 +700,7 @@ int main(int argc, char** argv) {
         {
             const uint8_t rdm[6] = {0x91,0xE0,0xF0,0x00,0x5B,0x77};
             feed(acmp(1, 0, 0xAABBCCDDEEFF0077ULL, CT_EID, TK_EID, US_EID,
-                      0x000B, 1, rdm, 0x33, 0, 3));
+                      0x000B, 1, rdm, (uint16_t)r_be(p1, 62, 2), 0, 3));
             ckh("[S1] sid from the RESPONSE, not the guess", dut->s1_sid_o,
                 0xAABBCCDDEEFF0077ULL);
             ckh("[S1] dmac from the RESPONSE", dut->s1_dmac_o,
@@ -574,7 +709,8 @@ int main(int argc, char** argv) {
             r = wait_frame();
             ckh("[S1] settled state dmac from the response", r_be(r, 54, 6),
                 0x91E0F0005B77ULL);
-            ck("[S1] settled: STREAMING_WAIT gone", (long)r_be(r, 64, 2), 0);
+            ck("[S1] settled flags FC|saved-SW (Table 5.38)",
+               (long)r_be(r, 64, 2), 0x0002);
             ck("[S1] settled state count 1", (long)r_be(r, 60, 2), 1);
         }
 
@@ -601,6 +737,11 @@ int main(int argc, char** argv) {
         r = wait_frame();
         ck("[S1] UNBIND_RESP", r_msg(r), 9);
         ck("[S1] UNBIND SUCCESS", r_sta(r), 0);
+        //! Table 5.36 pins talker_unique_id 0 on success — the OLD tuid
+        //! (0x0001 here, the record is pre-unbind at response time) must
+        //! not be emitted
+        ck("[S1] unbind tuid pinned 0 (Table 5.36)", (long)r_be(r, 50, 2), 0);
+        ckh("[S1] unbind talker pinned 0", r_be(r, 34, 8), 0);
         ck("[S1] s1 cleared", dut->s1_bound_o, 0);
         feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x205, 0, 0));
         r = wait_frame();
@@ -639,7 +780,8 @@ int main(int argc, char** argv) {
         p = wait_frame();
         ck("[R] bind probe emitted", p.size(), 70);
         const uint8_t dmx[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x01};
-        feed(acmp(1, 0, TK_SID, CT_EID, TK_EID, US_EID, 0, 0, dmx, 9, 0, 2));
+        feed(acmp(1, 0, TK_SID, CT_EID, TK_EID, US_EID, 0, 0, dmx,
+                  (uint16_t)r_be(p, 62, 2), 0, 2));
         ck("[R] settled on X", dut->state_o, 6);
         dut->ta_registered_i = 1;
         run(4);
@@ -658,7 +800,9 @@ int main(int argc, char** argv) {
         ck("[R] no re-probe (step 2 'exit')", dut->probe_count_o, pcr);
         feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x301, 0, 0));
         r = wait_frame();
-        ck("[R] stored STREAMING_WAIT refreshed", (long)r_be(r, 64, 2), 0x0008);
+        //! RSV_OK flags: FC 1 + the REFRESHED saved SW (Table 5.39)
+        ck("[R] stored STREAMING_WAIT refreshed", (long)r_be(r, 64, 2),
+           0x000A);
 
         // (b) THE FINDING: different talker while streaming -> implicit
         // rebind, never LISTENER_EXCLUSIVE, never an UNBOUND excursion
@@ -703,7 +847,7 @@ int main(int argc, char** argv) {
         // (c) Y answers -> the sink settles and streams on Y
         const uint8_t dmy[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x02};
         feed(acmp(1, 0, 0x0200000000020000ULL, CT2_EID, TK2_EID, US_EID,
-                  0, 0, dmy, 10, 0, 2));
+                  0, 0, dmy, (uint16_t)r_be(p, 62, 2), 0, 2));
         ck("[R] settled on Y", dut->state_o, 6);
         dut->ta_registered_i = 1;
         run(4);
@@ -728,9 +872,9 @@ int main(int argc, char** argv) {
     //     1722.1-2021 8.2.2.5 flow where CONNECT_RX_RESPONSE waits for the
     //     CONNECT_TX_RESPONSE (Milan renames those messages to BIND_RX_* and
     //     PROBE_TX_* and redefines the machine around them).
-    // What WAS non-conformant is pinned below - both closed by task #64, so
-    // these are ck()s now. The gap() mechanism itself stays live: pin 3 is a
-    // clause this RTL still does not implement.
+    // What WAS non-conformant is pinned below - closed by task #64 and the
+    // #54/#55 response-law round (the former OPEN 3/OPEN 4 gap() pins are
+    // hard ck()s now). The gap() mechanism itself stays available.
     {
         // ---- CLOSED 1: every sink owns a probe state machine -----------
         // Was: KL_acmp_listener.sv SM_EN_MAP_C = N_SINKS_P'(1), i.e.
@@ -810,49 +954,49 @@ int main(int argc, char** argv) {
            0x0002);
         feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x305, 0, 0));
         r = wait_frame();
+        //! probing-state GET: FC 1 + the record's STREAMING_WAIT (Tab 5.37)
         ck("[G] record still holds STREAMING_WAIT", (long)r_be(r, 64, 2),
-           0x0008);
+           0x000A);
 
-        // ---- OPEN 3: the probe response is not matched to the command --
+        // ---- CLOSED 3 (was OPEN): probe-response matching --------------
         // 5.5.3.5.18 step 1: "Check that the controller_entity_id,
-        // talker_entity_id, talker_unique_id and sequence_id fields match the
-        // fields of the PROBE_TX_COMMAND message that has been sent. If not,
-        // ignore the message and exit." KL_acmp_lstn_ctx's w_probe_resp
-        // qualifies on listener_entity_id + a valid listener_unique_id + the
-        // context being in PRB_W_RESP/PRB_W_RESP2 only, so a CONNECT_TX_
-        // RESPONSE from the WRONG talker settles the sink on that talker's
-        // stream parameters. Now that every sink probes there are up to N
-        // commands in flight, so this is worth more than it was.
-        // The pin: answer sink 0's outstanding probe as TALKER Z.
+        // talker_entity_id, talker_unique_id and sequence_id fields match
+        // the fields of the PROBE_TX_COMMAND message that has been sent.
+        // If not, ignore the message and exit." A CONNECT_TX_RESPONSE from
+        // the WRONG talker used to settle the sink on that talker's stream
+        // parameters. Pin: answer sink 0's outstanding probe as TALKER Z —
+        // ignored — then as the REAL talker with the probe's own
+        // sequence_id — accepted (the positive control also quiets sink
+        // 0's ladder for the section below).
         long st_before = dut->state_o;
         feed(acmp(1, 0, 0x1234567890ABCDEFULL, CT_EID,
                   0x020000FFFE0000EEULL /*never bound*/, US_EID, 0, 0,
                   nullptr, 0x77, 0, 5));
-        gap("[G] mismatched probe response ignored", dut->state_o,
-            6 /*SETTLED_NO_RSV: consumed it*/,
-            st_before /*conformant: still probing*/,
-            "Milan 5.5.3.5.18 step 1");
+        ck("[G] mismatched probe response ignored (5.5.3.5.18 s1)",
+           dut->state_o, st_before);
+        {
+            const uint8_t gdx[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x02};
+            feed(acmp(1, 0, 0x0200000000020000ULL, CT_EID, TK2_EID, US_EID,
+                      0, 0, gdx, (uint16_t)r_be(p, 62, 2), 0, 2));
+            ck("[G] matching response accepted (positive control)",
+               dut->state_o, 6);
+        }
 
-        // ---- OPEN 4: a settled GET_RX_STATE_RESPONSE ECHOES stream_id --
-        // Found by the [S1] response-is-the-authority bite above. Table 5.38
-        // (SETTLED_NO_RSV / RCV_GET_RX_STATE) states stream_id, stream_dest_mac
-        // and stream_vlan_id as "Value copied from the STREAM_INPUT's SRP
-        // parameters". KL_acmp_lstn_ctx's w_str_echo keeps the RECEIVED frame's
-        // bytes for stream_id (18-25) and stream_vlan_id (66-67) on a STATE
-        // response, so a controller that sends the usual zeros reads its own
-        // zeros back for a settled sink; stream_dest_mac (w_dmac_echo) is
-        // already sourced from the record, which is what makes this an
-        // oversight rather than a policy. Pinned on a sink that is SETTLED on
-        // parameters the command does not contain: bind sink 1, answer its
-        // probe with a sid/vlan of our choosing, then ask for its state.
+        // ---- CLOSED 4 (was OPEN): settled GET serves the SRP params ----
+        // Table 5.38: stream_id / stream_dest_mac / stream_vlan_id are
+        // "copied from the STREAM_INPUT's SRP parameters". The old
+        // w_str_echo kept the RECEIVED frame's bytes for stream_id (18-25)
+        // and stream_vlan_id (66-67), so a controller sending the usual
+        // zeros read its own zeros back for a settled sink. Pinned on a
+        // sink SETTLED on parameters the command does not contain.
         feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0x000B, 1, nullptr,
                   0x306, 0, 0));
         (void)wait_frame();               // BIND_RESP
-        (void)wait_frame();               // PROBE_TX
+        p1 = wait_frame();                // PROBE_TX (its seq keys the match)
         {
             const uint8_t gdm[6] = {0x91,0xE0,0xF0,0x00,0x5B,0x88};
             feed(acmp(1, 0, 0xAABBCCDDEEFF0088ULL, CT_EID, TK_EID, US_EID,
-                      0x000B, 1, gdm, 0x44, 0, 4));
+                      0x000B, 1, gdm, (uint16_t)r_be(p1, 62, 2), 0, 4));
             ckh("[G] sink1 settled on the response sid", dut->s1_sid_o,
                 0xAABBCCDDEEFF0088ULL);
             //! command carries stream_id 0 / vlan 0, record carries ...0088 / 4
@@ -860,11 +1004,10 @@ int main(int argc, char** argv) {
             r = wait_frame();
             ckh("[G] state dmac is the record's (Table 5.38)", r_be(r, 54, 6),
                 0x91E0F0005B88ULL);
-            //! low half only: the full 64-bit sid does not fit a signed long
-            gap("[G] state stream_id is the record's", (long)r_be(r, 22, 4),
-                0 /*echo of the command*/, 0xEEFF0088, "Milan Table 5.38");
-            gap("[G] state stream_vlan_id is the record's",
-                (long)r_be(r, 66, 2), 0 /*echo*/, 4, "Milan Table 5.38");
+            ckh("[G] state stream_id is the record's (Table 5.38)",
+                r_be(r, 18, 8), 0xAABBCCDDEEFF0088ULL);
+            ck("[G] state stream_vlan_id is the record's (Table 5.38)",
+               (long)r_be(r, 66, 2), 4);
         }
     }
 

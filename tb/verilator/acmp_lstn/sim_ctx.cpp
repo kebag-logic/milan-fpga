@@ -92,6 +92,7 @@ static std::vector<uint8_t> wait_frame(int budget = 4000) {
 static const uint64_t US_EID = 0x020000FFFE000003ULL;
 static const uint8_t  US_MAC[6] = {0x02,0x00,0x00,0x00,0x00,0x03};
 static const uint64_t CT_EID = 0x680500FFFE0000AAULL;
+static const uint64_t CT2_EID= 0x680500FFFE0000BBULL;   // foreign controller
 static const uint64_t T1_EID = 0x020000FFFE000001ULL;   // ctx0's talker
 static const uint64_t T2_EID = 0x020000FFFE000002ULL;   // ctx2's talker
 static const uint64_t T3_EID = 0x020000FFFE000004ULL;   // ctx3 / rebind
@@ -127,12 +128,13 @@ static std::vector<uint8_t> acmp(uint8_t msg, uint8_t status,
     return f;
 }
 
-static std::vector<uint8_t> adp(uint8_t msg, uint64_t eid) {
+// byte 16 [7:3] = valid_time (2 s units); vt 3 = the historical 0x1F field
+static std::vector<uint8_t> adp(uint8_t msg, uint64_t eid, uint8_t vt = 3) {
     std::vector<uint8_t> f = {0x91,0xE0,0xF0,0x01,0x00,0x00,
                               0x02,0x00,0x00,0x00,0x00,0x01,
                               0x22,0xF0, 0xFA};
     f.push_back(msg & 0xF);
-    f.push_back(0x1F); f.push_back(56);
+    f.push_back((uint8_t)(vt << 3)); f.push_back(56);
     put_be(f, eid, 8);
     while (f.size() < 82) f.push_back(0);
     return f;
@@ -167,8 +169,10 @@ static uint64_t r_be(const std::vector<uint8_t>& b, int off, int n) {
 // acmp_lstn_ctx_t packed offsets (LSB first): ctlr[63:0] talker[127:64]
 // sid[191:128] dmac[239:192] vlan[251:240] flags[267:252] tuid[283:268]
 // tmr[297:284] adp_age[304:298] status[309:305] probing[311:310]
-// tk_avail[312] active[313] state[316:314]
-static uint32_t ctxw[10];
+// tk_avail[312] active[313] state[316:314] adp_vt[321:317] seq[337:322]
+// (seq + adp_vt joined at the struct MSBs, 317 -> 338 bits, so every
+// pre-existing offset above is unchanged)
+static uint32_t ctxw[11];
 
 static uint64_t cbits(int lo, int width) {
     uint64_t v = 0;
@@ -188,6 +192,8 @@ static uint64_t c_tuid()   { return cbits(268, 16); }
 static uint64_t c_status() { return cbits(305, 5); }
 static uint64_t c_probing(){ return cbits(310, 2); }
 static uint64_t c_state()  { return cbits(314, 3); }
+static uint64_t c_advt()   { return cbits(317, 5); }
+static uint64_t c_seq()    { return cbits(322, 16); }
 
 // request/grant read of one context record
 static bool tbl_read(int idx) {
@@ -197,7 +203,7 @@ static bool tbl_read(int idx) {
         tick();
         dut->eval();
         if (dut->tbl_gnt_o) {
-            for (int w = 0; w < 10; w++) ctxw[w] = dut->tbl_ctx_o[w];
+            for (int w = 0; w < 11; w++) ctxw[w] = dut->tbl_ctx_o[w];
             dut->tbl_req_i = 0;
             tick();
             return true;
@@ -240,6 +246,7 @@ int main(int argc, char** argv) {
     { uint64_t m=0; for(int i=0;i<6;i++) m=(m<<8)|US_MAC[i]; dut->station_mac_i = m; }
     dut->tick_1s_i = 0;
     dut->ta_registered_i = 0; dut->ta_failed_i = 0;
+    dut->locked_i = 0; dut->lock_ctlr_i = 0;
     dut->tbl_req_i = 0; dut->tbl_idx_i = 0;
     dut->rest_req_i = 0; dut->rest_idx_i = 0;
     dut->rest_talker_i = 0; dut->rest_tuid_i = 0;
@@ -274,6 +281,68 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
+    printf("\n[L] locked-entity law (Milan 5.5.3.5 step 1; Tables 5.31/35)\n");
+    // While the AECP entity lock is held, BIND_RX/UNBIND_RX from any other
+    // controller answers CONTROLLER_NOT_AUTHORIZED with a FULL command
+    // echo and changes nothing; GET_RX_STATE clauses have no lock step, so
+    // reads pass; the locking controller itself is never refused.
+    {
+        const uint8_t dmL[6] = {0x91,0xE0,0xF0,0x00,0xAB,0xCD};
+        const uint64_t SJL   = 0x1357246813572468ULL;
+        long pcL = dut->probe_count_o;
+        dut->locked_i = 1; dut->lock_ctlr_i = CT_EID;
+        // foreign BIND: refused 16, every named field = command echo
+        feed(acmp(6, 0, SJL, CT2_EID, T1_EID, US_EID, 0x0001, 0, dmL,
+                  0x150, 0x000A, 0xABC));
+        auto r = wait_frame();
+        ck("[L] foreign BIND refused CONTROLLER_NOT_AUTHORIZED",
+           r_sta(r), 16);
+        ck("[L] refusal msg BIND_RESP", r_msg(r), 7);
+        ckh("[L] refusal ctlr echo", r_be(r, 26, 8), CT2_EID);
+        ckh("[L] refusal talker echo", r_be(r, 34, 8), T1_EID);
+        ck("[L] refusal tuid echo", (long)r_be(r, 50, 2), 1);
+        ckh("[L] refusal stream_id echo", r_be(r, 18, 8), SJL);
+        ckh("[L] refusal dmac echo", r_be(r, 54, 6), 0x91E0F000ABCDULL);
+        ck("[L] refusal flags echo", (long)r_be(r, 64, 2), 0x000A);
+        ck("[L] refusal vlan echo", (long)r_be(r, 66, 2), 0xABC);
+        ck("[L] refusal count echo", (long)r_be(r, 60, 2), 0);
+        ck("[L] refusal seq echo", (long)r_be(r, 62, 2), 0x150);
+        tbl_read(0);
+        ck("[L] record untouched", (long)c_state(), 0);
+        ck("[L] no probe launched", dut->probe_count_o, pcL);
+        // foreign UNBIND: refused 16
+        feed(acmp(8, 0, 0, CT2_EID, 0, US_EID, 0, 0, nullptr, 0x151, 0, 0));
+        r = wait_frame();
+        ck("[L] foreign UNBIND refused 16", r_sta(r), 16);
+        ck("[L] refusal msg UNBIND_RESP", r_msg(r), 9);
+        // foreign GET: exempt (no lock step in any RCV_GET_RX_STATE clause)
+        feed(acmp(10, 0, 0, CT2_EID, 0, US_EID, 0, 0, nullptr, 0x152, 0, 0));
+        r = wait_frame();
+        ck("[L] foreign GET_RX_STATE exempt (SUCCESS)", r_sta(r), 0);
+        // the LOCKING controller binds through the lock
+        feed(acmp(6, 0, 0, CT_EID, T1_EID, US_EID, 0, 0, nullptr,
+                  0x153, 0, 0));
+        r = wait_frame();
+        ck("[L] locking controller BIND SUCCESS", r_sta(r), 0);
+        (void)wait_frame();                        // its PROBE_TX
+        tbl_read(0);
+        ck("[L] locking controller's bind took", (long)c_state(), 3);
+        // foreign GET on the bound sink still exempt
+        feed(acmp(10, 0, 0, CT2_EID, 0, US_EID, 0, 0, nullptr, 0x154, 0, 0));
+        r = wait_frame();
+        ck("[L] foreign GET on bound sink exempt", r_sta(r), 0);
+        ck("[L] ...and served (count 1)", (long)r_be(r, 60, 2), 1);
+        // unlock releases: the foreign UNBIND now succeeds
+        dut->locked_i = 0; dut->lock_ctlr_i = 0;
+        feed(acmp(8, 0, 0, CT2_EID, T1_EID, US_EID, 0, 0, nullptr,
+                  0x155, 0, 0));
+        r = wait_frame();
+        ck("[L] unlock releases: foreign UNBIND SUCCESS", r_sta(r), 0);
+        tbl_read(0);
+        ck("[L] unbound again", (long)c_state(), 0);
+    }
+
+    // ---------------------------------------------------------------- //
     printf("\n[N2] mixed-policy binds (M-ACMP-10 per-context sid policy)\n");
     const uint8_t dm1[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x01};
     const uint8_t dm2[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x02};
@@ -292,6 +361,7 @@ int main(int argc, char** argv) {
     ck("[N2] ctx0 probe luid 0", (long)r_be(p0, 52, 2), 0);
     ckh("[N2] ctx0 probe talker T1", r_be(p0, 34, 8), T1_EID);
     long seq_p0 = (long)r_be(p0, 62, 2);
+    long pc_n2  = dut->probe_count_o;
     tbl_read(0);
     ck("[N2] ctx0 state PRB_W_RESP", (long)c_state(), 3);
     ckh("[N2] ctx0 sid DERIVED (junk sid ignored)", c_sid(), T1_SID);
@@ -310,7 +380,7 @@ int main(int argc, char** argv) {
     ckh("[N2] ctx1 bind view: the bound sid", sidv(1), S1E);
     ck("[N2] ctx0 bind view: bound too (probing is bound)",
        dut->lstn_bound_o & 1, 1);
-    ck("[N2] ctx1 no probe SM: no new probe", dut->probe_count_o, 1);
+    ck("[N2] ctx1 no probe SM: no new probe", dut->probe_count_o, pc_n2);
     ck("[N2] ctx1 never activates (no MSRP)",
        (dut->stream_active_o >> 1) & 1, 0);
 
@@ -340,10 +410,12 @@ int main(int argc, char** argv) {
 
     // ---------------------------------------------------------------- //
     printf("\n[N3] one timer wheel, two live ladders (M-ACMP-2 Tab 5.26)\n");
-    // answer ctx2's probe -> settles; ctx0's NO_RESP keeps running
+    // answer ctx2's probe -> settles; ctx0's NO_RESP keeps running. The
+    // response must echo ctx2's probe fields incl. sequence_id (5.5.3.5.18)
     {
         const uint8_t dmS[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x22};
-        feed(acmp(1, 0, S2E, CT_EID, T2_EID, US_EID, 0, 2, dmS, 0, 0, 2));
+        feed(acmp(1, 0, S2E, CT_EID, T2_EID, US_EID, 0, 2, dmS,
+                  (uint16_t)seq_p2, 0, 2));
     }
     tbl_read(2);
     ck("[N3] ctx2 SETTLED_NO_RSV", (long)c_state(), 6);
@@ -354,6 +426,9 @@ int main(int argc, char** argv) {
     ck("[N3] exactly ctx0 resends", pr.size(), 70);
     ck("[N3] resend luid 0", (long)r_be(pr, 52, 2), 0);
     ckh("[N3] resend talker T1", r_be(pr, 34, 8), T1_EID);
+    //! the resend is a DUPLICATE of probe #1 (5.5.3.5.16): same seq
+    ck("[N3] resend reuses ctx0's sequence_id", (long)r_be(pr, 62, 2),
+       seq_p0);
     pr = wait_frame(250 * MS);
     ck("[N3] no further frame (ctx2 quiet)", pr.size(), 0);
     tbl_read(0);
@@ -401,19 +476,22 @@ int main(int argc, char** argv) {
     ckh("[N4] stale T2 dmac cleared (5.5.2.6 step 1)", c_dmac(), 0);
     ck("[N4] stale T2 vlan cleared", (long)c_vlan(), 0);
     ck("[N4] fresh-bind flags (SW back to cmd's 0)", (long)c_flags(), 0);
-    // per-context SRP_REG_FAILED sourcing while probing (ACMP-8)
+    // Table 5.37: a PROBING state's GET reports FC 1, the saved SW and
+    // REGISTERING_FAILED 0 — even with the TalkerFailed registrar HIGH
+    // (RF is a Table 5.39 / SETTLED_RSV_OK field only)
     dut->ta_failed_i = (1 << 2);
     feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 2, nullptr, 0x302, 0, 0));
     r = wait_frame();
-    ck("[N4] GET flags SW|SRP_REG_FAILED (ctx2 srf)", (long)r_be(r, 64, 2), 0x0048);
+    ck("[N4] probing GET flags FC only, RF=0 (Tab 5.37)",
+       (long)r_be(r, 64, 2), 0x0002);
     dut->ta_failed_i = 0;
     feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x303, 0, 0));
     r = wait_frame();
-    ck("[N4] ctx0 GET flags SW only (srf is per-ctx)", (long)r_be(r, 64, 2), 0x0008);
+    ck("[N4] ctx0 (RETRY) GET flags FC only", (long)r_be(r, 64, 2), 0x0002);
 
-    // settle ctx2 on T3 for the following sections
+    // settle ctx2 on T3 for the following sections (probe-seq echoed)
     feed(acmp(1, 0, 0x0200000000040000ULL, CT_EID, T3_EID, US_EID, 0, 2,
-              nullptr, 1, 0, 2));
+              nullptr, (uint16_t)r_be(p3, 62, 2), 0, 2));
     tbl_read(2);
     ck("[N4] ctx2 re-settled on T3", (long)c_state(), 6);
 
@@ -428,6 +506,9 @@ int main(int argc, char** argv) {
     ckh("[N5] uid1 talker T1", r_be(r, 34, 8), T1_EID);
     ck("[N5] uid1 tuid 0xB", (long)r_be(r, 50, 2), 0x000B);
     ckh("[N5] uid1 dmac (record)", r_be(r, 54, 6), 0x91E0F0002A01ULL);
+    //! Table 5.38: the settled stream_id is the RECORD's, not the echo of
+    //! the command's zeros
+    ckh("[N5] uid1 stream_id (record, Table 5.38)", r_be(r, 18, 8), S1E);
     feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 2, nullptr, 0x402, 0, 0));
     r = wait_frame();
     ckh("[N5] uid2 talker T3", r_be(r, 34, 8), T3_EID);
@@ -444,6 +525,10 @@ int main(int argc, char** argv) {
     tbl_read(1);
     ck("[N6] ctx1 unbound", (long)c_state(), 0);
     ckh("[N6] ctx1 record cleared", c_talker(), 0);
+    //! 5.5.3.5.39/.45 "Stop the ADP Discovery SM": the availability view
+    //! clears with the record — nothing for a future bind to inherit
+    ck("[N6] ctx1 tk_avail cleared", (long)cbits(312, 1), 0);
+    ck("[N6] ctx1 adp_age cleared", (long)cbits(298, 7), 0);
     // t21 bind view: the unbind drops bound and zeroes the sid lane, so
     // the downstream lwSRP listener-row provisioner withdraws its row
     ck("[N6] ctx1 bind view: bound CLEARED", (dut->lstn_bound_o >> 1) & 1, 0);
@@ -460,7 +545,12 @@ int main(int argc, char** argv) {
        (dut->stream_active_o >> 2) & 1, 1);
 
     // ---------------------------------------------------------------- //
-    printf("\n[N7] per-context SRP edges (M-ACMP-3 registered/failed)\n");
+    printf("\n[N7] per-context SRP edges: the COMBINED attribute law\n");
+    // Table 5.29: EVT_TK_REGISTERED/_UNREGISTERED are single edges of the
+    // combined (Advertise | Failed) registration. Advertise <-> Failed
+    // flips while registered are NO event (Table 5.30 marks them "x"), so
+    // a settled sink RIDES them out in RSV_OK — the old per-attribute
+    // edges invented an RSV_OK -> NO_RSV arc here.
     dut->ta_registered_i = (1 << 2);
     run(8);
     tbl_read(2);
@@ -468,21 +558,22 @@ int main(int argc, char** argv) {
     ck("[N7] ctx2 declares (bit 2)", (dut->lstn_declare_o >> 2) & 1, 1);
     tbl_read(0);
     ck("[N7] ctx0 unaffected by ctx2's registrar", (long)c_state(), 5);
-    dut->ta_failed_i = (1 << 2);
+    dut->ta_failed_i = (1 << 2);        // TF rise, TA held: no event
     run(8);
     tbl_read(2);
-    ck("[N7] ctx2 degraded to SETTLED_NO_RSV", (long)c_state(), 6);
-    dut->ta_failed_i = 0;
+    ck("[N7] TF-rise while settled STAYS RSV_OK", (long)c_state(), 7);
+    dut->ta_registered_i = 0;           // TA fall, TF holds: no event
     run(8);
     tbl_read(2);
-    ck("[N7] level alone does not re-establish", (long)c_state(), 6);
-    // re-registration EDGE re-establishes (single-sink [6] semantics)
-    dut->ta_registered_i = 0;
+    ck("[N7] TA-fall with TF held: still RSV_OK", (long)c_state(), 7);
+    dut->ta_registered_i = (1 << 2);    // TA back: still registered
     run(8);
-    dut->ta_registered_i = (1 << 2);
+    dut->ta_failed_i = 0;               // TF away: still registered
     run(8);
     tbl_read(2);
-    ck("[N7] ctx2 back to RSV_OK (fresh edge via wheel)", (long)c_state(), 7);
+    ck("[N7] never unregistered: RSV_OK held", (long)c_state(), 7);
+    ck("[N7] ctx2 still active through the flips",
+       (dut->stream_active_o >> 2) & 1, 1);
 
     // ---------------------------------------------------------------- //
     printf("\n[N8] per-context ADP watch (M-ACMP-3 talker discovery)\n");
@@ -526,6 +617,8 @@ int main(int argc, char** argv) {
     ckh("[N9] sid CLEARED (5.5.2.6 step 1)", c_sid(), 0);
     ckh("[N9] dmac CLEARED", c_dmac(), 0);
     ck("[N9] vlan CLEARED", (long)c_vlan(), 0);
+    ck("[N9] probe seq CLEARED", (long)c_seq(), 0);
+    ck("[N9] adp valid_time CLEARED", (long)c_advt(), 0);
     ck("[N9] sink not active", dut->stream_active_o & 1, 0);
     // refusals: occupied context / record-only context / index >= N
     ck("[N9] restore to OCCUPIED refused (1)",
@@ -554,13 +647,84 @@ int main(int argc, char** argv) {
     {
         const uint8_t dmR[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x99};
         feed(acmp(1, 0, 0x1234432112344321ULL, CT_EID, T2_EID, US_EID, 5, 0,
-                  dmR, 2, 0, 2));
+                  dmR, (uint16_t)r_be(p9, 62, 2), 0, 2));
     }
     tbl_read(0);
     ck("[N9] settled after the probe response", (long)c_state(), 6);
     ckh("[N9] sid re-learned from the probe", c_sid(), 0x1234432112344321ULL);
     ckh("[N9] dmac re-learned", c_dmac(), 0x91E0F000FE99ULL);
     ck("[N9] sink active", dut->stream_active_o & 1, 1);
+
+    // ---------------------------------------------------------------- //
+    printf("\n[B1] MSRPDU-ordering race: attribute flips must never wedge\n");
+    // THE WEDGE (gh #54 B1b): switch relays the TalkerFailed JoinIn in an
+    // EARLIER sweep pass than the TalkerAdvertise leave. The old RTL's
+    // invented fail_rise arc landed RSV_OK -> NO_RSV with tmr=0; NO_RSV's
+    // only exits are a fresh TA rise or an ARMED timer, so the sink sat
+    // disarmed forever (recovery only by UNBIND / full TA cycle). Combined-
+    // attribute edges (Table 5.29/5.30) ride the flips out in RSV_OK and
+    // leave on the true unregistration, with the ladder ADVANCING.
+    {
+        dut->ta_registered_i |= 1;              // TA rise: NO_RSV -> RSV_OK
+        run(8);
+        tbl_read(0);
+        ck("[B1] TA rise: RSV_OK", (long)c_state(), 7);
+        dut->ta_failed_i |= 1;                  // TF JoinIn first...
+        run(8);
+        tbl_read(0);
+        ck("[B1] TF-rise while settled: STAYS RSV_OK", (long)c_state(), 7);
+        dut->ta_registered_i &= ~1u;            // ...then the TA leave
+        run(8);
+        tbl_read(0);
+        ck("[B1] TA leave with TF held: STAYS RSV_OK", (long)c_state(), 7);
+        dut->ta_failed_i &= ~1u;                // TF leave: NOW unregistered
+        run(8);
+        tbl_read(0);
+        ck("[B1] combined fall exits settled (no wedge)", (long)c_state(), 2);
+        ck("[B1] deactivated", dut->stream_active_o & 1, 0);
+        ck("[B1] declare withdrawn", dut->lstn_declare_o & 1, 0);
+        //! 5.5.3.5.48 step 1: SRP params cleared on the way out (B1a)
+        ckh("[B1] dmac cleared on exit", c_dmac(), 0);
+        ck("[B1] vlan cleared on exit", (long)c_vlan(), 0);
+        ckh("[B1] sid preserved (row key)", c_sid(), 0x1234432112344321ULL);
+        long pcw = dut->probe_count_o;
+        auto pw = wait_frame(1100 * MS);        // the ladder ADVANCES
+        ck("[B1] re-probe emitted (ladder alive)", pw.size(), 70);
+        ck("[B1] re-probe is ctx0's", (long)r_be(pw, 52, 2), 0);
+        ck("[B1] probe_count advanced", (long)dut->probe_count_o - pcw, 1);
+
+        // ---- TF-ALONE promotion (Table 5.29 "either ... or") ----------
+        // settle again, then a TalkerFailed registration ALONE promotes to
+        // RSV_OK (flags report FC | saved SW | REGISTERING_FAILED) and no
+        // probe churn follows for 12 s (the NO_TK timer was cleared).
+        {
+            const uint8_t dmW[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x9A};
+            feed(acmp(1, 0, 0x1234432112344321ULL, CT_EID, T2_EID, US_EID,
+                      5, 0, dmW, (uint16_t)r_be(pw, 62, 2), 0, 2));
+        }
+        tbl_read(0);
+        ck("[B1] re-settled NO_RSV", (long)c_state(), 6);
+        dut->ta_failed_i |= 1;                  // TF-alone rise
+        run(8);
+        tbl_read(0);
+        ck("[B1] TF-alone PROMOTES to RSV_OK (Tab 5.29)", (long)c_state(), 7);
+        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x700, 0, 0));
+        r = wait_frame();
+        ck("[B1] flags FC|SW|REGISTERING_FAILED (Tab 5.39)",
+           (long)r_be(r, 64, 2), 0x004A);
+        auto quiet = wait_frame(12000 * MS);
+        ck("[B1] no probe churn for 12 s", quiet.size(), 0);
+        tbl_read(0);
+        ck("[B1] still RSV_OK after 12 s", (long)c_state(), 7);
+        dut->ta_failed_i &= ~1u;                // true unregistration
+        run(8);
+        auto pz = wait_frame(1100 * MS);        // DELAY -> probe (drain)
+        ck("[B1] exit re-probes", pz.size(), 70);
+        feed(acmp(8, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x701, 0, 0));
+        (void)wait_frame();                     // UNBIND_RESP
+        tbl_read(0);
+        ck("[B1] ctx0 parked UNBOUND", (long)c_state(), 0);
+    }
 
     // ---------------------------------------------------------------- //
     printf("\n[N10] probe-response accept vs arrival phase (ax-rv32-g return"
@@ -604,6 +768,142 @@ int main(int argc, char** argv) {
             }
         }
         ck("[N10] the accept survives every arrival phase", lost, 0);
+
+        // ---- 5.5.3.5.18 step 1 mismatch leg: wrong sequence_id ---------
+        // (wrong-talker is pinned in sim_main [G]; this is the seq term)
+        feed(acmp(8, 0, 0, PW0C, PEER, US_EID, 0, 2, nullptr, 0x3F0, 0, 0));
+        wait_frame();
+        run(20);
+        feed(acmp(6, 0, 0, PW0C, PEER, US_EID, 0, 2, nullptr, 0x3F1, 2, 0));
+        wait_frame();                               // bind response
+        auto pm = wait_frame();                     // the PROBE_TX
+        uint16_t mseq = (uint16_t)r_be(pm, 62, 2);
+        tbl_read(2);
+        //! the record carries the OUTSTANDING probe's id (offset-map proof
+        //! for the grown struct: seq sits at bits 337:322)
+        ck("[N10] record seq = the emitted probe's", (long)c_seq(),
+           (long)mseq);
+        feed(acmp(1, 0, PEER, PW0C, PEER, US_EID, 0, 2, dmP,
+                  (uint16_t)(mseq ^ 0x5A5A), 2, 2));
+        run(6);
+        tbl_read(2);
+        ck("[N10] wrong-seq response IGNORED (5.5.3.5.18 s1)",
+           (long)c_state(), 3);
+        feed(acmp(1, 0, PEER, PW0C, PEER, US_EID, 0, 2, dmP, mseq, 2, 2));
+        run(6);
+        tbl_read(2);
+        ck("[N10] right-seq response accepted", (long)c_state(), 6);
+        ck("[N10] probing COMPLETED", (long)c_probing(), 3);
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[B2c] unbind clears the availability view (no stale ladder)\n");
+    // gh #55 B2c: the unbind arm PRESERVED tk_avail/adp_age, so an unbound
+    // record kept aging and the NEXT bind (possibly a different talker)
+    // inherited a stale "discovered" view — its RETRY expiry then re-drew
+    // the fast DELAY ladder against a talker nobody has seen (phantom
+    // re-probes). Both unbind branches now clear the whole record.
+    {
+        const uint64_t PEER = 0x3CC0C60102030000ULL;
+        const uint64_t PW0C = 0x6805CAFFFE95B2D1ULL;
+        // X (= PEER, ctx2's bound talker after [N10]) becomes ADP-visible
+        feed(adp(0, PEER));
+        run(8);
+        tbl_read(2);
+        ck("[B2c] X visible on the bound record", (long)cbits(312, 1), 1);
+        //! the ADPDU's valid_time landed in the record (adp_vt at 321:317)
+        ck("[B2c] valid_time latched (vt=3)", (long)c_advt(), 3);
+        // unbind: the availability view goes with the record
+        feed(acmp(8, 0, 0, PW0C, PEER, US_EID, 0, 2, nullptr, 0x800, 0, 0));
+        auto r8 = wait_frame();
+        ck("[B2c] UNBIND SUCCESS", r_sta(r8), 0);
+        tbl_read(2);
+        ck("[B2c] record UNBOUND", (long)c_state(), 0);
+        ck("[B2c] tk_avail cleared with it", (long)cbits(312, 1), 0);
+        ck("[B2c] adp_age cleared with it", (long)cbits(298, 7), 0);
+        ck("[B2c] valid_time cleared with it", (long)c_advt(), 0);
+        // rebind to Y (T3, NEVER ADP-visible): the fresh bind must start
+        // at "talker has not been discovered" (5.5.3.5.6 step 6)
+        feed(acmp(6, 0, 0, CT_EID, T3_EID, US_EID, 0, 2, nullptr,
+                  0x801, 0, 0));
+        (void)wait_frame();                       // BIND_RESP
+        (void)wait_frame();                       // probe #1
+        tbl_read(2);
+        ck("[B2c] rebind-Y inherits NO availability", (long)cbits(312, 1), 0);
+        (void)wait_frame(250 * MS);               // probe #2 (dup resend)
+        run(250 * MS);                            // -> PRB_W_RETRY
+        tbl_read(2);
+        ck("[B2c] ladder timed out to RETRY", (long)c_state(), 5);
+        run(4100 * MS);                           // RETRY expiry
+        tbl_read(2);
+        ck("[B2c] RETRY expiry parks PASSIVE (Y undiscovered)",
+           (long)c_state(), 1);
+        auto rq = wait_frame(1200 * MS);
+        ck("[B2c] ...and stays SILENT (no phantom re-probe)", rq.size(), 0);
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[B1a] NO_TK lapse zeroes the SRP params; contexts isolated\n");
+    // gh #54 B1a: 5.5.3.5.36 step 1 "Clear the SRP parameters and stop
+    // SRP" — after 10 s of talker silence the sink must not keep declaring
+    // with stale dmac/vlan. A neighbouring settled context keeps ITS
+    // parameters untouched (the isolation half).
+    {
+        // ctx2 (in PRB_W_AVAIL on T3 after [B2c]): make T3 visible, settle
+        // it with real params, promote to RSV_OK (immune to NO_TK)
+        dut->ta_registered_i &= ~(1u << 2);       // arm a FRESH edge later
+        run(8);
+        feed(adp(0, T3_EID));
+        run(8);
+        auto p2b = wait_frame(1100 * MS);         // DELAY -> probe
+        ck("[B1a] ctx2 re-probes T3", p2b.size(), 70);
+        {
+            const uint8_t dmI2[6] = {0x91,0xE0,0xF0,0x00,0x66,0x22};
+            feed(acmp(1, 0, 0x5151515151515151ULL, CT_EID, T3_EID, US_EID,
+                      0, 2, dmI2, (uint16_t)r_be(p2b, 62, 2), 0, 6));
+        }
+        tbl_read(2);
+        ck("[B1a] ctx2 settled", (long)c_state(), 6);
+        dut->ta_registered_i |= (1u << 2);
+        run(8);
+        tbl_read(2);
+        ck("[B1a] ctx2 RSV_OK (no NO_TK)", (long)c_state(), 7);
+
+        // ctx0: bind to T1 (not ADP-visible, no registrar) and settle with
+        // NONZERO params -> its NO_TK runs the full 10 s
+        feed(acmp(6, 0, 0, CT_EID, T1_EID, US_EID, 0, 0, nullptr,
+                  0x810, 0, 0));
+        (void)wait_frame();                       // BIND_RESP
+        auto p0b = wait_frame();                  // probe
+        {
+            const uint8_t dmI0[6] = {0x91,0xE0,0xF0,0x00,0x66,0x00};
+            feed(acmp(1, 0, T1_SID, CT_EID, T1_EID, US_EID, 0, 0, dmI0,
+                      (uint16_t)r_be(p0b, 62, 2), 0, 5));
+        }
+        tbl_read(0);
+        ck("[B1a] ctx0 settled with params", (long)c_state(), 6);
+        ckh("[B1a] ctx0 dmac learned", c_dmac(), 0x91E0F0006600ULL);
+        ck("[B1a] ctx0 active", dut->stream_active_o & 1, 1);
+
+        run(10100 * MS);                          // the NO_TK lapse
+        tbl_read(0);
+        ck("[B1a] ctx0 lapsed to PRB_W_AVAIL", (long)c_state(), 1);
+        ckh("[B1a] ctx0 dmac zeroed (5.5.3.5.36 s1)", c_dmac(), 0);
+        ck("[B1a] ctx0 vlan zeroed", (long)c_vlan(), 0);
+        ckh("[B1a] ctx0 sid preserved (row key)", c_sid(), T1_SID);
+        ck("[B1a] ctx0 deactivated", dut->stream_active_o & 1, 0);
+        ck("[B1a] ctx0 declare withdrawn", dut->lstn_declare_o & 1, 0);
+        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x811, 0, 0));
+        auto rg = wait_frame();
+        ck("[B1a] GET count still 1 (bound)", (long)r_be(rg, 60, 2), 1);
+        ckh("[B1a] GET bytes 54-59 zero after lapse", r_be(rg, 54, 6), 0);
+        ck("[B1a] GET vlan zero after lapse", (long)r_be(rg, 66, 2), 0);
+        // isolation: ctx2 rode the 10 s out untouched
+        tbl_read(2);
+        ck("[B1a] ctx2 still RSV_OK", (long)c_state(), 7);
+        ckh("[B1a] ctx2 dmac intact", c_dmac(), 0x91E0F0006622ULL);
+        ck("[B1a] ctx2 still active", (dut->stream_active_o >> 2) & 1, 1);
+        ck("[B1a] ctx2 still declares", (dut->lstn_declare_o >> 2) & 1, 1);
     }
 
     printf("\nKL_acmp_lstn_ctx N=4: %ld checks, %ld failures\n", checks, fails);

@@ -71,7 +71,9 @@ module csr_win_live #(
   wire        tbl_req_w, tbl_gnt_w;
   wire [3:0]  tbl_idx_w;
   acmp_pkg::acmp_lstn_ctx_t tbl_ctx_w;
-  wire [316:0] tbl_ctx_flat_w = tbl_ctx_w;
+  //! the CSR window consumes the pre-existing [316:0] fields only (its
+  //! offset map is literal); seq/adp_vt ride the struct MSBs above
+  wire [316:0] tbl_ctx_flat_w = tbl_ctx_w[316:0];
 
   // ---- csr <-> ACMP bind-restore port (E1) ----
   wire        rest_req_w, rest_ack_w;
@@ -200,6 +202,7 @@ module csr_win_live #(
     .enable_i (1'b1),
     .station_mac_i (48'h02_00_00_00_00_03),
     .entity_id_i (64'h020000FFFE000003),
+    .locked_i (1'b0), .lock_ctlr_i (64'd0),   //! no AECP lock here
     .tick_1s_i (1'b0),
     .ta_registered_i (2'b00), .ta_failed_i (2'b00),
     .lstn_declare_o (), .stream_active_o (),

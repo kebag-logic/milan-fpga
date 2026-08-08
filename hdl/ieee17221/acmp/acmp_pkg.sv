@@ -51,27 +51,10 @@ package acmp_pkg;
   localparam [4:0] ACMP_STATUS_CTLR_NOT_AUTHORIZED_C= 5'd16;
   localparam [4:0] ACMP_STATUS_NOT_SUPPORTED_C      = 5'd31;
 
-  // ACMP flag bits (IEEE 1722.1-2021 Table 8-3 subset named by Milan)
+  // flags cleared in a talker state response (pipewire reference behaviour)
   localparam [15:0] ACMP_FLAG_FAST_CONNECT_C        = 16'h0002;
   localparam [15:0] ACMP_FLAG_STREAMING_WAIT_C      = 16'h0008;
-  localparam [15:0] ACMP_FLAG_SRP_REG_FAILED_C      = 16'h0040;   //! Milan REGISTERING_FAILED
-
-  //! Talker SUCCESS-response flag-clear masks, one per Milan v1.2 §5.5.4
-  //! response table (response flags = echo AND-NOT mask). The pipewire
-  //! module-avb reference INVERTED the probe law (cleared FAST_CONNECT/
-  //! STREAMING_WAIT, kept REGISTERING_FAILED) and echoed the DISCONNECT
-  //! flags — the spec tables win. Error rows keep the full echo (mask 0).
-  //! PROBE_TX Table 5.43: FAST_CONNECT/STREAMING_WAIT echoed,
-  //! REGISTERING_FAILED forced 0 (16'h0040).
-  localparam [15:0] ACMP_FLAG_CLR_PROBE_C = ACMP_FLAG_SRP_REG_FAILED_C;
-  //! DISCONNECT_TX Table 5.45: all three named flags 0 (16'h004A).
-  localparam [15:0] ACMP_FLAG_CLR_DISC_C  = ACMP_FLAG_FAST_CONNECT_C |
-                                            ACMP_FLAG_STREAMING_WAIT_C |
-                                            ACMP_FLAG_SRP_REG_FAILED_C;
-  //! GET_TX_STATE Table 5.47: all three 0 today; REGISTERING_FAILED goes
-  //! live (1 iff registering Listener Asking Failed) with the A2 flag_set
-  //! chain (gh #56).
-  localparam [15:0] ACMP_FLAG_CLR_GTS_C   = ACMP_FLAG_CLR_DISC_C;
+  localparam [15:0] ACMP_FLAG_SRP_REG_FAILED_C      = 16'h0040;
 
   // ------------------------------------------------------------------ //
   // Milan v1.2 listener SM (pipewire acmp-milan-v12.h/.c contract)       //
@@ -93,8 +76,12 @@ package acmp_pkg;
   localparam [13:0] LSM_TMR_NO_RESP_MS_C = 14'd200;
   localparam [13:0] LSM_TMR_RETRY_MS_C   = 14'd4000;
   localparam [13:0] LSM_TMR_NO_TK_MS_C   = 14'd10000;
-  //! ADP availability aging: valid_time horizon (Milan valid_time 62 s)
-  localparam [6:0]  LSM_ADP_AGE_S_C      = 7'd63;
+  //! ADP availability aging FLOOR for a zero-valid_time ADPDU (1722.1
+  //! 6.2.2.5 makes the horizon per-talker: valid_time x 2 s, latched into
+  //! the record as adp_vt — see the aging law in KL_acmp_lstn_ctx). A
+  //! vt = 0 ADPDU must make the talker neither immortal nor instantly
+  //! dead: the clamp grants two 2 s advertise periods to refresh.
+  localparam [6:0]  LSM_ADP_AGE_MIN_S_C  = 7'd4;
 
   // ------------------------------------------------------------------ //
   // Listener BIND CONTEXT record (KL_acmp_lstn_ctx table entry).         //
@@ -102,7 +89,17 @@ package acmp_pkg;
   // state of a sink lives here so N sinks share one machine + one RAM.   //
   // An all-zero record is a valid UNBOUND context (post-reset init).     //
   // ------------------------------------------------------------------ //
+  //! NOTE the two newest fields sit ABOVE state (the packed MSBs): every
+  //! pre-existing field keeps its historical LSB offset, which is what the
+  //! package-free consumers of the flattened record (milan_csr's literal
+  //! ACMP_CTX_*_LO_C map, the persist/csr harness cbits() maps) key on.
   typedef struct packed {
+    logic [15:0] seq;       //! sequence_id of the OUTSTANDING probe: latched
+                            //! at launch, REUSED by the RESP2 resend
+                            //! (5.5.3.5.16 "duplicate"), matched against the
+                            //! PROBE_TX_RESPONSE (5.5.3.5.18 step 1)
+    logic [4:0]  adp_vt;    //! bound talker's ADPDU valid_time (2 s units);
+                            //! aging horizon = adp_vt x 2 s (1722.1 6.2.2.5)
     acmp_lsm_t   state;     //! Milan 5.5.3 binding-SM state
     logic        active;    //! sink open (drives lstn_declare/stream_active)
     logic        tk_avail;  //! bound talker ADP-visible
@@ -119,7 +116,7 @@ package acmp_pkg;
     logic [63:0] ctlr;      //! binding controller_entity_id
   } acmp_lstn_ctx_t;
 
-  localparam int ACMP_LSTN_CTX_W_C = $bits(acmp_lstn_ctx_t);   //! 317
+  localparam int ACMP_LSTN_CTX_W_C = $bits(acmp_lstn_ctx_t);   //! 338
 
 endpackage
 

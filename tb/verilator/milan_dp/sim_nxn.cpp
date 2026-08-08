@@ -153,6 +153,33 @@ static void pcm_sample() {
     if (dut->rootp->milan_datapath__DOT__rend_pcm_tvalid_w) render_beats++;
 }
 
+// ---- ACMP PROBE_TX sniffer: the listener matches a PROBE_TX_RESPONSE on
+// controller+talker+tuid+sequence_id (Milan 5.5.3.5.18 step 1), so answers
+// must echo the probe's OWN sequence_id — harvest it off the egress while
+// inject() drains. A probe launches within the bind's drain window, and the
+// 100 MHz TMR_NO_RESP (20M cycles) means no second draw can occur inside a
+// leg, so the per-luid latch stays valid across the follow-up CSR reads.
+static std::vector<uint8_t> acmp_sniff_fr;
+static uint16_t probe_seq_by_luid[16];
+static void acmp_sniff() {
+    if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+        for (int l = 0; l < 8; l++)
+            if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                acmp_sniff_fr.push_back(
+                    (dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+        if (dut->m_axis_mac_tx_tlast) {
+            if (acmp_sniff_fr.size() >= 70 && acmp_sniff_fr[12] == 0x22 &&
+                acmp_sniff_fr[13] == 0xF0 && acmp_sniff_fr[14] == 0xFC &&
+                (acmp_sniff_fr[15] & 0xF) == 0x0) {   // CONNECT_TX_COMMAND
+                int luid = ((acmp_sniff_fr[52] << 8) | acmp_sniff_fr[53]) & 0xF;
+                probe_seq_by_luid[luid] =
+                    (uint16_t)((acmp_sniff_fr[62] << 8) | acmp_sniff_fr[63]);
+            }
+            acmp_sniff_fr.clear();
+        }
+    }
+}
+
 // ---- inject one little-lane frame on the MAC RX port ----
 static void inject(const uint8_t* f, size_t len, int drain = 1200) {
     std::vector<uint64_t> beats;
@@ -165,6 +192,7 @@ static void inject(const uint8_t* f, size_t len, int drain = 1200) {
     size_t idx = 0;
     dut->m_axis_mac_tx_tready = 1;
     dut->m_axis_pcm_tready = 1;
+    acmp_sniff_fr.clear();   // a fragment drained elsewhere is not a frame
     for (int c = 0; c < drain; c++) {
         if (idx < beats.size()) {
             dut->s_axis_mac_rx_tdata  = beats[idx];
@@ -177,6 +205,7 @@ static void inject(const uint8_t* f, size_t len, int drain = 1200) {
         lo();
         bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
         pcm_sample();
+        acmp_sniff();
         hi();
         if (in_acc) idx++;
     }
@@ -226,7 +255,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x00010034);
+       axi_read(A_VERSION), 0x00010035);
 
 #ifdef AAF_PB_TB
     // ---- task #26 (0x002C): the BOOT SEED is CSR-visible before any ----
@@ -1015,7 +1044,8 @@ int main(int argc, char** argv) {
         f[50]=0x00; f[51]=0x01;                           // talker_unique_id
         f[52]=0x00; f[53]=0x02;                           // listener_unique_id 2
         memcpy(f+54, CTX2_RESP_DMAC, 6);                  // the REAL dest_mac
-        f[62]=0x77; f[63]=0x22;
+        f[62]=(uint8_t)(probe_seq_by_luid[2] >> 8);       // echo the probe's
+        f[63]=(uint8_t)(probe_seq_by_luid[2] & 0xFF);     //   sequence_id
         f[66]=0x00; f[67]=0x02;                           // stream_vlan_id 2
         inject(f, 70, 2000);
     }
@@ -2067,6 +2097,17 @@ int main(int argc, char** argv) {
                         if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
                             cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
                     if (dut->m_axis_mac_tx_tlast) {
+                        //! keep the probe-seq latch fresh: the l0 bind's
+                        //! PROBE_TX launches DURING this scan (its inject
+                        //! drain is deliberately short), and the answer
+                        //! must echo its sequence_id (5.5.3.5.18 step 1)
+                        if (cur.size() >= 70 && cur[12] == 0x22 &&
+                            cur[13] == 0xF0 && cur[14] == 0xFC &&
+                            (cur[15] & 0xF) == 0x0) {
+                            int pl = ((cur[52] << 8) | cur[53]) & 0xF;
+                            probe_seq_by_luid[pl] =
+                                (uint16_t)((cur[62] << 8) | cur[63]);
+                        }
                         if (cur.size() >= 21 && cur[12] == 0x22 && cur[13] == 0xEA) {
                             size_t p = 15;               // after ProtocolVersion
                             while (p + 4 <= cur.size() && cur[p] != 0) {
@@ -2159,14 +2200,14 @@ int main(int argc, char** argv) {
         ck("t21 TA: row shows READY", (srp >> 11) & 1, 1);
         //! TASK #64, the other half of the coupling: the row's registrar
         //! level is fed BACK to ACMP sink 2 (acmpl_ta_reg_v_w[2]), so the
-        //! sink leaves SETTLED_NO_RSV for SETTLED_RSV_OK - Milan 5.5.3.5.27
+        //! sink leaves SETTLED_NO_RSV for SETTLED_RSV_OK - Milan 5.5.3.5.42
         //! (SETTLED_NO_RSV / EVT_TK_REGISTERED). Before task #64 only sink 0
         //! had a registrar bit and every other sink would have sat in
         //! SETTLED_NO_RSV re-probing every TMR_NO_TK forever.
         axi_write(A_STRM_SEL, 0x002);
         (void)axi_read(A_SW_SID_LO);
         snap_and_wait();
-        ck("t21 TA: ACMP sink 2 -> SETTLED_RSV_OK (5.5.3.5.27)",
+        ck("t21 TA: ACMP sink 2 -> SETTLED_RSV_OK (5.5.3.5.42)",
            axi_read(A_SW_STATE) & 0x7, 7);
         // the reservation architecture guard: a LISTENER row must never
         // reach the bw-gate - our talker CBS stays untouched by it
@@ -2304,13 +2345,16 @@ int main(int argc, char** argv) {
                 memcpy(f+42, us0, 8);
                 f[52]=0x00; f[53]=0x00;               // luid 0
                 memcpy(f+54, L0_DMAC, 6);
-                f[62]=0x69; f[63]=0x02;
                 f[66]=0x00; f[67]=0x02;               // stream_vlan_id 2
                 // the walker is DEAF in RESPOND_S/PROBE_S and the SM is in
                 // ACTIVE re-probe - a single answer can land in a deaf beat
                 // and vanish. The live peer answers EVERY probe (1.4 ms,
-                // tap-proven), so retry until the SM leaves PRB_W_RESP.
+                // tap-proven), so retry until the SM leaves PRB_W_RESP —
+                // each attempt echoing the LATEST sniffed probe seq
+                // (5.5.3.5.18 step 1).
                 for (int at = 0; at < 8; at++) {
+                    f[62]=(uint8_t)(probe_seq_by_luid[0] >> 8);
+                    f[63]=(uint8_t)(probe_seq_by_luid[0] & 0xFF);
                     inject(f, 70, 2000);
                     if ((axi_read(0x6A4) & 7) >= 4) break;
                 }
@@ -2359,7 +2403,7 @@ int main(int argc, char** argv) {
                     for (int c = 0; c < 256; c++) step();
                     a0 = axi_read(A_ACMPL_STATE);
                 }
-                ck("t21-l0: sink 0 SETTLED_RSV_OK from ITS OWN row (5.5.3.5.27)",
+                ck("t21-l0: sink 0 SETTLED_RSV_OK from ITS OWN row (5.5.3.5.42)",
                    a0 & 0x7, 7);
             }
             // the legacy row-0 (talker side) must be UNTOUCHED by all of it

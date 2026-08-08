@@ -470,6 +470,7 @@ int main(int argc, char** argv) {
     run(8);
     tbl_read(0);
     ck("[J4] ENTITY_AVAILABLE -> PRB_W_DELAY (5.5.1.4)", (long)c_state(), 2);
+    uint16_t j4_seq = 0;
     {
         auto p = wait_frame(1100 * MS);
         ck("[J4] PROBE_TX emitted after the delay", p.size(), 70);
@@ -478,11 +479,12 @@ int main(int argc, char** argv) {
         ck("[J4] probe tuid = the saved tuid", (long)r_be(p, 50, 2), 3);
         ckh("[J4] probe ctlr = the saved controller", r_be(p, 26, 8), CT_EID);
         ck("[J4] probe luid = the saved sink index", (long)r_be(p, 52, 2), 0);
+        j4_seq = (uint16_t)r_be(p, 62, 2);   // 5.5.3.5.18 s1: echo it back
     }
     {
         const uint8_t dmR[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x99};
         feed(acmp(1, 0, 0x1234432112344321ULL, CT_EID, T1_EID, US_EID, 3, 0,
-                  dmR, 2, 0, 2));
+                  dmR, j4_seq, 0, 2));
     }
     tbl_read(0);
     ck("[J4] SETTLED after the probe response", (long)c_state(), 6);

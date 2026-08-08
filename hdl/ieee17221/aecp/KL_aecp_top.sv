@@ -191,6 +191,10 @@ module KL_aecp_top #(
 
   // ---- status / counters ---------------------------------------------
   output wire          locked_o,
+  //! the locking controller's Entity ID, valid while locked_o (zero
+  //! otherwise — KL_aecp_l0_state clears it on unlock/expiry). Consumed by
+  //! the ACMP listener's bound-state step-1 check (Milan 5.5.3.5).
+  output wire [63:0]   locking_ctlr_o,
   output wire [15:0]   current_config_o,
   output wire [15:0]   cmd_count_o,       //! commands accepted
   output wire [15:0]   resp_count_o       //! responses sent
@@ -422,6 +426,7 @@ module KL_aecp_top #(
   end
 
   assign locked_o         = l0_state_w.locked;
+  assign locking_ctlr_o   = l0_state_w.locking_controller_id;
   assign current_config_o = l0_state_w.current_configuration_index;
   assign cmd_count_o      = cmd_cnt_r;
   assign resp_count_o     = resp_cnt_r;

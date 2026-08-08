@@ -13,6 +13,15 @@
 //                the byte-exact contract: pipewire acmp-milan-v12.c incl. the
 //                REF-BUG fixes documented there) to N sinks.
 //
+//                DELIBERATE DIVERGENCE from the pipewire reference (REF-BUG
+//                pattern — reference wrong vs the spec tables): the SRP
+//                events are edges of the COMBINED Talker attribute (Table
+//                5.29 "either Talker Advertise or Talker Failed"); the
+//                reference's per-attribute edges invented an RSV_OK ->
+//                NO_RSV arc on a TalkerFailed rise, which Table 5.30 marks
+//                "x" — that arc landed with tmr = 0 and disarmed the sink
+//                forever when the MSRPDU ordering raced (see sweep_next).
+//
 //                Per-context CONFIG (elaboration parameters, one bit each):
 //                  PROBE_SM_EN_P[c]  1 = full Milan 5.5.3 binding SM (probe
 //                                        ladder, ADP talker watch, SRP
@@ -114,6 +123,14 @@ module KL_acmp_lstn_ctx #(
     // ---- identity ------------------------------------------------------
     input  wire [47:0]  station_mac_i,     //! [47:40] = first wire byte
     input  wire [63:0]  entity_id_i,
+
+    // ---- AECP lock view (Milan 5.5.3.5 bound-state step 1) --------------
+    //! While locked_i is high, BIND_RX/UNBIND_RX from any controller other
+    //! than lock_ctlr_i is refused CONTROLLER_NOT_AUTHORIZED with a full
+    //! command echo (Tables 5.31/5.35); GET_RX_STATE carries no lock check.
+    //! Same clock domain as the AECP entity-level lock (no CDC).
+    input  wire         locked_i,
+    input  wire [63:0]  lock_ctlr_i,       //! locking controller's Entity ID
 
     // ---- ADP age tick ----------------------------------------------------
     input  wire         tick_1s_i,
@@ -225,7 +242,7 @@ module KL_acmp_lstn_ctx #(
   // Context table: sync-only write, ONE REGISTERED read port -> block RAM
   //
   // Simple-dual-port template (write and registered read in one process):
-  // Vivado maps 317 b x N to RAMB36/RAMB18 with the mandatory output
+  // Vivado maps 338 b x N to RAMB36/RAMB18 with the mandatory output
   // register as rd_ctx_q_r, so the read costs zero LUTs and the address
   // decode fans out to a handful of BRAM primitives instead of ~885 LUTRAM
   // cells. Read-during-write on the SAME address never happens: the only
@@ -236,8 +253,8 @@ module KL_acmp_lstn_ctx #(
   //! FLAT bit vector, not an array of acmp_lstn_ctx_t: given the struct
   //! Vivado infers ONE block RAM PER FIELD (ctx_ram_reg[0][state] etc.), so
   //! a 3-bit field burns a whole RAMB18 and the record costs 9 tiles. The
-  //! same array as 317 flat bits is one 9 x 317 memory = 4 RAMB36 + 1
-  //! RAMB18. The struct type still governs every access through the two
+  //! same array as 338 flat bits is one 9 x 338 memory (a handful of BRAM
+  //! tiles). The struct type still governs every access through the two
   //! casts below, so nothing else in the module sees bits.
   (* ram_style = "block" *)
   logic [ACMP_LSTN_CTX_W_C-1:0] ctx_ram [0:N_SINKS_P-1];
@@ -377,6 +394,7 @@ module KL_acmp_lstn_ctx #(
   reg [63:0] cap_sid_r, cap_ctlr_r, cap_talker_r;
   reg        cap_lstnr_hi_ok_r, cap_lstnr_lo_ok_r;
   reg [15:0] cap_tuid_r, cap_luid_r, cap_flags_r;
+  reg [15:0] cap_seq_r;      //! sequence_id, bytes 62-63 (probe-resp match)
   reg [47:0] cap_dmac_r;
   reg [11:0] cap_vlan_r;
 
@@ -408,7 +426,19 @@ module KL_acmp_lstn_ctx #(
   wire w_sm_en   = PROBE_SM_EN_P[cur_idx_r];
   wire w_sid_exp = SID_EXPLICIT_P[cur_idx_r];
 
-  //! probe answer: CONNECT_TX_RESPONSE addressed to us, context probing.
+  //! locked-entity check (Milan 5.5.3.5 step 1 of EVERY BIND/UNBIND
+  //! clause): a foreign controller's state-CHANGING command is refused
+  //! CONTROLLER_NOT_AUTHORIZED. GET_RX_STATE clauses carry no such step,
+  //! so reads stay exempt.
+  wire w_lock_deny = locked_i && (w_ctlr != lock_ctlr_i) &&
+                     ((w_msg == ACMP_CONNECT_RX_COMMAND_C) ||
+                      (w_msg == ACMP_DISCONNECT_RX_COMMAND_C));
+
+  //! probe answer: CONNECT_TX_RESPONSE addressed to us, context probing,
+  //! AND matching the outstanding PROBE_TX_COMMAND on controller, talker,
+  //! talker_unique_id and sequence_id (5.5.3.5.18 step 1 — anything else
+  //! is ignored, so a foreign talker's response can no longer settle the
+  //! sink on its stream parameters).
   //! The record comes from rd_ctx_q_r, not cur_r: the frame's read was
   //! ADDRESSED on the tlast beat, so the data phase IS the CLASSIFY_S cycle
   //! in which every term below is evaluated. cur_r still carries the same
@@ -416,7 +446,11 @@ module KL_acmp_lstn_ctx #(
   wire w_probe_resp = w_acmp_base && (w_msg == ACMP_CONNECT_TX_RESPONSE_C) &&
                       w_lstnr_us && w_uid_valid && w_sm_en &&
                       (rd_ctx_q_r.state == LSM_PRB_W_RESP_S ||
-                       rd_ctx_q_r.state == LSM_PRB_W_RESP2_S);
+                       rd_ctx_q_r.state == LSM_PRB_W_RESP2_S) &&
+                      (w_ctlr     == rd_ctx_q_r.ctlr)   &&
+                      (w_talker   == rd_ctx_q_r.talker) &&
+                      (w_tuid     == rd_ctx_q_r.tuid)   &&
+                      (cap_seq_r  == rd_ctx_q_r.seq);
 
   //! ADP watch: any ENTITY_AVAILABLE/DEPARTING is latched for the sweep,
   //! which applies it per context (bound-talker match happens there)
@@ -448,41 +482,67 @@ module KL_acmp_lstn_ctx #(
   wire [63:0] rword_w = fword_r[beat_r];   //! async distributed-RAM read
 
   wire        w_bound   = (cur_r.state != LSM_UNBOUND_S);
-  //! dest-MAC echoed in responses: the fresh capture on BIND (the record
-  //! loads the same edge the response fires), the stored binding on STATE
-  wire [47:0] w_dmac_echo = (resp_kind_r == L_RESP_BIND_E)  ? cap_dmac_r
-                          : (resp_kind_r == L_RESP_STATE_E && w_bound)
-                            ? cur_r.dmac
-                          : 48'd0;
-  wire        w_str_echo = (resp_kind_r == L_RESP_STATE_E);   // stream_id/vlan
-  //! talker bytes 34-41: BIND echo / UNBIND zero / STATE bound?record:0
-  function automatic [7:0] tkb(input int idx, input [7:0] echo);
+  //! a non-SUCCESS listener response (LISTENER_UNKNOWN_ID / CONTROLLER_
+  //! NOT_AUTHORIZED): Tables 5.27/5.31/5.35 pin every named field to the
+  //! COMMAND echo, so the serialiser must apply NO field override at all —
+  //! the frame-word buffer already IS the echo. Sourcing any of them from
+  //! cur_r here was the ctx-0 leak (cur_idx forced 0 on an invalid uid).
+  wire        w_refusal = (resp_status_r != ACMP_STATUS_SUCCESS_C);
+
+  // ---- THE response-field law (one authoritative view) -----------------
+  //! Every named ACMPDU field a SUCCESS response overrides, keyed on
+  //! {resp_kind_r, cur_r.state}:
+  //!   BIND   (Table 5.32): talker/tuid echo, count 1, flags = the
+  //!     command's STREAMING_WAIT only (FAST_CONNECT/REGISTERING_FAILED
+  //!     pinned 0), stream_id/stream_dest_mac/stream_vlan_id pinned 0 —
+  //!     a fast-connect BIND's dest_mac is NOT echoed back.
+  //!   UNBIND (Table 5.36): every named field pinned 0.
+  //!   STATE  (Tables 5.34/5.37/5.38/5.39): all fields from the RECORD;
+  //!     sid/dmac/vlan are the stored SRP parameters (never the command
+  //!     echo — a controller sends zeros and must not read them back);
+  //!     flags matrix: FAST_CONNECT = 1 in every bound state,
+  //!     STREAMING_WAIT = the saved binding flag, REGISTERING_FAILED = the
+  //!     live TalkerFailed registrar level in SETTLED_RSV_OK only.
+  logic [63:0] rf_talker_w;
+  logic [15:0] rf_tuid_w, rf_count_w, rf_flags_w;
+  logic [63:0] rf_sid_w;
+  logic [47:0] rf_dmac_w;
+  logic [11:0] rf_vlan_w;
+  always_comb begin : resp_field_law
     unique case (resp_kind_r)
-      L_RESP_BIND_E:   tkb = echo;
-      L_RESP_UNBIND_E: tkb = 8'h00;
-      default:         tkb = !w_bound ? 8'h00 : cur_r.talker[8*(7-idx) +: 8];
-    endcase
-  endfunction
-  //! response flags bytes 64-65
-  logic [15:0] w_resp_flags;
-  always_comb begin
-    unique case (resp_kind_r)
-      L_RESP_BIND_E:   w_resp_flags = w_flags &
-          ~(ACMP_FLAG_FAST_CONNECT_C | ACMP_FLAG_SRP_REG_FAILED_C);
-      L_RESP_UNBIND_E: w_resp_flags = w_flags &
-          ~(ACMP_FLAG_STREAMING_WAIT_C | ACMP_FLAG_FAST_CONNECT_C |
-            ACMP_FLAG_SRP_REG_FAILED_C);
-      default: begin
+      L_RESP_BIND_E: begin
+        rf_talker_w = w_talker;                          // echo (cap_*)
+        rf_tuid_w   = w_tuid;                            // echo
+        rf_count_w  = 16'd1;
+        rf_flags_w  = w_flags & ACMP_FLAG_STREAMING_WAIT_C;
+        rf_sid_w    = 64'd0;
+        rf_dmac_w   = 48'd0;
+        rf_vlan_w   = 12'd0;
+      end
+      L_RESP_UNBIND_E: begin
+        rf_talker_w = 64'd0;
+        rf_tuid_w   = 16'd0;
+        rf_count_w  = 16'd0;
+        rf_flags_w  = 16'd0;
+        rf_sid_w    = 64'd0;
+        rf_dmac_w   = 48'd0;
+        rf_vlan_w   = 12'd0;
+      end
+      default: begin                                     // GET_RX_STATE
+        rf_talker_w = w_bound ? cur_r.talker : 64'd0;
+        rf_tuid_w   = w_bound ? cur_r.tuid   : 16'd0;
+        rf_count_w  = w_bound ? 16'd1        : 16'd0;
+        rf_sid_w    = w_bound ? cur_r.sid    : 64'd0;
+        rf_dmac_w   = w_bound ? cur_r.dmac   : 48'd0;
+        rf_vlan_w   = w_bound ? cur_r.vlan   : 12'd0;
         if (!w_bound)
-          w_resp_flags = 16'h0000;
-        else if (cur_r.state == LSM_SETTLED_NO_RSV_S ||
-                 cur_r.state == LSM_SETTLED_RSV_OK_S)
-          //! settled (and record-only contexts, parked settled): stored SW
-          w_resp_flags = cur_r.flags & ACMP_FLAG_STREAMING_WAIT_C;
+          rf_flags_w = 16'h0000;
         else
-          w_resp_flags = ACMP_FLAG_STREAMING_WAIT_C |
-                         (ta_failed_i[cur_idx_r] ? ACMP_FLAG_SRP_REG_FAILED_C
-                                                 : 16'h0);
+          rf_flags_w = ACMP_FLAG_FAST_CONNECT_C |
+                       (cur_r.flags & ACMP_FLAG_STREAMING_WAIT_C) |
+                       ((cur_r.state == LSM_SETTLED_RSV_OK_S &&
+                         ta_failed_i[cur_idx_r]) ? ACMP_FLAG_SRP_REG_FAILED_C
+                                                 : 16'h0000);
       end
     endcase
   end
@@ -524,15 +584,20 @@ module KL_acmp_lstn_ctx #(
       //! single-sink module's constant zero)
       52: probe_byte = 8'(16'(cur_idx_r) >> 8);
       53: probe_byte = 8'(16'(cur_idx_r));
-      62: probe_byte = probe_seq_r[15:8];
-      63: probe_byte = probe_seq_r[7:0];
+      //! the RECORD's sequence_id (loaded at LAUNCH_S): a RESP2 resend is
+      //! a byte-exact DUPLICATE of probe #1 (5.5.3.5.16 step 1), so it
+      //! carries the SAME id, never a fresh draw
+      62: probe_byte = cur_r.seq[15:8];
+      63: probe_byte = cur_r.seq[7:0];
       64: probe_byte = w_probe_flags[15:8];
       65: probe_byte = w_probe_flags[7:0];
       default: probe_byte = 8'h00;
     endcase
   endfunction
 
-  //! response beat: RAM word + fixed per-beat lane overrides
+  //! response beat: RAM word + fixed per-beat lane overrides. Every named
+  //! field override is fenced by !w_refusal — a refusal is the command
+  //! echo with only src-MAC / message_type / status rewritten.
   logic [63:0] w_resp;
   always_comb begin
     w_resp = rword_w;                                    // default: echo
@@ -551,46 +616,53 @@ module KL_acmp_lstn_ctx #(
       4'd2: begin                                        // bytes 16-23
         w_resp[8*0 +: 8] = {resp_status_r, ACMP_CDL_C[10:8]};
         w_resp[8*1 +: 8] = ACMP_CDL_C[7:0];
-        if (!w_str_echo)                                 // stream_id 18-23
-          w_resp[63:16] = 48'd0;
+        if (!w_refusal)                                  // stream_id 18-23
+          for (int k = 0; k < 6; k++)
+            w_resp[8*(2+k) +: 8] = rf_sid_w[8*(7-k) +: 8];
       end
       4'd3: begin                                        // bytes 24-31
-        if (!w_str_echo) w_resp[15:0] = 16'd0;           // stream_id tail
+        if (!w_refusal) begin                            // stream_id 24-25
+          w_resp[8*0 +: 8] = rf_sid_w[15:8];
+          w_resp[8*1 +: 8] = rf_sid_w[7:0];
+        end
       end
       4'd4: begin                                        // bytes 32-39
-        for (int k = 0; k < 6; k++)                      // talker 34-39
-          w_resp[8*(2+k) +: 8] = tkb(k, rword_w[8*(2+k) +: 8]);
+        if (!w_refusal)                                  // talker 34-39
+          for (int k = 0; k < 6; k++)
+            w_resp[8*(2+k) +: 8] = rf_talker_w[8*(7-k) +: 8];
       end
       4'd5: begin                                        // bytes 40-47
-        w_resp[8*0 +: 8] = tkb(6, rword_w[8*0 +: 8]);    // talker 40-41
-        w_resp[8*1 +: 8] = tkb(7, rword_w[8*1 +: 8]);
+        if (!w_refusal) begin                            // talker 40-41
+          w_resp[8*0 +: 8] = rf_talker_w[15:8];
+          w_resp[8*1 +: 8] = rf_talker_w[7:0];
+        end
       end
       4'd6: begin                                        // bytes 48-55
-        if (resp_kind_r != L_RESP_BIND_E) begin          // tuid 50-51
-          w_resp[8*2 +: 8] = !w_bound ? 8'h00 : cur_r.tuid[15:8];
-          w_resp[8*3 +: 8] = !w_bound ? 8'h00 : cur_r.tuid[7:0];
+        if (!w_refusal) begin
+          w_resp[8*2 +: 8] = rf_tuid_w[15:8];            // tuid 50-51
+          w_resp[8*3 +: 8] = rf_tuid_w[7:0];
+          //! stream_dest_mac 54-59: the record's MAAP address on a bound
+          //! STATE response (Hive/la_avdecc display it), 0 on BIND/UNBIND
+          w_resp[8*6 +: 8] = rf_dmac_w[47:40];           // dest_mac 54-55
+          w_resp[8*7 +: 8] = rf_dmac_w[39:32];
         end
-        //! stream_dest_mac 54-59: echo the bound MAAP address (spec Table
-        //! 8.2; Hive/la_avdecc display it)
-        w_resp[8*6 +: 8] = w_dmac_echo[47:40];           // dest_mac 54-55
-        w_resp[8*7 +: 8] = w_dmac_echo[39:32];
       end
       4'd7: begin                                        // bytes 56-63
-        w_resp[8*0 +: 8] = w_dmac_echo[31:24];           // dest_mac 56-59
-        w_resp[8*1 +: 8] = w_dmac_echo[23:16];
-        w_resp[8*2 +: 8] = w_dmac_echo[15:8];
-        w_resp[8*3 +: 8] = w_dmac_echo[7:0];
-        w_resp[8*4 +: 8] = 8'h00;                        // count 60-61
-        w_resp[8*5 +: 8] = (resp_kind_r == L_RESP_BIND_E) ? 8'h01
-                          : (resp_kind_r == L_RESP_STATE_E && w_bound) ? 8'h01
-                          : 8'h00;
+        if (!w_refusal) begin
+          w_resp[8*0 +: 8] = rf_dmac_w[31:24];           // dest_mac 56-59
+          w_resp[8*1 +: 8] = rf_dmac_w[23:16];
+          w_resp[8*2 +: 8] = rf_dmac_w[15:8];
+          w_resp[8*3 +: 8] = rf_dmac_w[7:0];
+          w_resp[8*4 +: 8] = rf_count_w[15:8];           // count 60-61
+          w_resp[8*5 +: 8] = rf_count_w[7:0];
+        end
       end
       4'd8: begin                                        // bytes 64-69
-        w_resp[8*0 +: 8] = w_resp_flags[15:8];
-        w_resp[8*1 +: 8] = w_resp_flags[7:0];
-        if (!w_str_echo) begin                           // vlan 66-67
-          w_resp[8*2 +: 8] = 8'h00;
-          w_resp[8*3 +: 8] = 8'h00;
+        if (!w_refusal) begin
+          w_resp[8*0 +: 8] = rf_flags_w[15:8];
+          w_resp[8*1 +: 8] = rf_flags_w[7:0];
+          w_resp[8*2 +: 8] = {4'h0, rf_vlan_w[11:8]};    // vlan 66-67
+          w_resp[8*3 +: 8] = rf_vlan_w[7:0];
         end
       end
       default: ;
@@ -644,6 +716,14 @@ module KL_acmp_lstn_ctx #(
       if (probe_pend_r[i]) launch_idx_w = IDX_W_C'(i);
   end
 
+  //! probe sequence_id law, decided at the launch DATA phase: a launch out
+  //! of PRB_W_RESP2_S is the TMR_NO_RESP resend and REUSES the record's id
+  //! (5.5.3.5.16 "duplicate"); every other launch draws the shared counter.
+  //! The drawn id is committed to the record so the response matcher and
+  //! the resend both key on it.
+  wire        w_probe_fresh = (rd_ctx_q_r.state != LSM_PRB_W_RESP2_S);
+  wire [15:0] w_launch_seq  = w_probe_fresh ? probe_seq_r : rd_ctx_q_r.seq;
+
   //! sweep sequencer state: a FETCH pointer (next context to address) and a
   //! COMMIT stage (the context whose record is in rd_ctx_q_r right now).
   //! swp_ra_r needs one bit more than an index so it can hold N = "the pass
@@ -658,6 +738,7 @@ module KL_acmp_lstn_ctx #(
   reg                  s1_pend_r, adp_pend_r;
   reg [63:0]           adp_eid_r;
   reg                  adp_avail_r;
+  reg [4:0]            adp_vt_r;     //! valid_time of the latched ADPDU
   reg [N_SINKS_P-1:0]  srv_reg_r, srv_fail_r;     //! last-serviced SRP levels
   //! restore / table-port data-phase markers (the cycle after their address)
   reg                  rest_ph_r;
@@ -764,7 +845,9 @@ module KL_acmp_lstn_ctx #(
     wr_frame_en_w = 1'b0;
     probe_set_w   = 1'b0;
     wr_frame_w    = rd_ctx_q_r;
-    if (w_lstn_hit && w_uid_valid) begin
+    //! a lock refusal suppresses the record write AND the probe arm — the
+    //! foreign controller's command must leave no trace beyond its echo
+    if (w_lstn_hit && w_uid_valid && !w_lock_deny) begin
       unique case (w_msg)
         // ---------------- BIND_RX ------------------------------------
         ACMP_CONNECT_RX_COMMAND_C: begin
@@ -821,13 +904,13 @@ module KL_acmp_lstn_ctx #(
         end
         // ---------------- UNBIND_RX ----------------------------------
         ACMP_DISCONNECT_RX_COMMAND_C: begin
+          //! the WHOLE record clears — probing DISABLED (REF-BUG 3 rule)
+          //! and "Stop the ADP Discovery state machine" (5.5.3.5.39/.45):
+          //! tk_avail/adp_age go too, so the NEXT bind cannot inherit a
+          //! stale availability view from a possibly different talker
+          //! (the fresh bind restarts discovery at "not discovered").
           wr_frame_en_w = 1'b1;
-          wr_frame_w    = '0;           // probing DISABLED (REF-BUG 3 rule)
-          if (w_sm_en) begin
-            //! the ADP availability view survives an unbind (aging clears)
-            wr_frame_w.tk_avail = rd_ctx_q_r.tk_avail;
-            wr_frame_w.adp_age  = rd_ctx_q_r.adp_age;
-          end
+          wr_frame_w    = '0;
         end
         // ---------------- GET_RX_STATE: no state change ---------------
         default: ;
@@ -859,8 +942,14 @@ module KL_acmp_lstn_ctx #(
   acmp_lstn_ctx_t sn_w;
   logic           sn_wr_w;
   logic           swp_probe_set_w;
+  //! per-record ADP aging horizon: valid_time x 2 s (1722.1 6.2.2.5). A
+  //! zero-vt ADPDU clamps to LSM_ADP_AGE_MIN_S_C (4 s = two advertise
+  //! periods): the talker must be neither immortal nor instantly dead.
+  wire [6:0] w_age_lim = (rd_ctx_q_r.adp_vt == 5'd0)
+                       ? LSM_ADP_AGE_MIN_S_C
+                       : {1'b0, rd_ctx_q_r.adp_vt, 1'b0};
   always_comb begin : sweep_next
-    logic fire, adp_disc, adp_dep, sm, reg_rise, reg_fall, fail_rise;
+    logic fire, adp_disc, adp_dep, sm, attr_rise, attr_fall;
     sn_w            = rd_ctx_q_r;
     sn_wr_w         = 1'b0;
     swp_probe_set_w = 1'b0;
@@ -868,9 +957,9 @@ module KL_acmp_lstn_ctx #(
     fire     = 1'b0;
     adp_disc = 1'b0;
     adp_dep  = 1'b0;
-    // ---- 1 s ADP availability aging --------------------------------
+    // ---- 1 s ADP availability aging (per-record valid_time) ----------
     if (c_1s_r && rd_ctx_q_r.tk_avail) begin
-      if (rd_ctx_q_r.adp_age >= LSM_ADP_AGE_S_C) sn_w.tk_avail = 1'b0;
+      if (rd_ctx_q_r.adp_age >= w_age_lim) sn_w.tk_avail = 1'b0;
       else sn_w.adp_age = rd_ctx_q_r.adp_age + 7'd1;
       sn_wr_w = 1'b1;
     end
@@ -887,6 +976,7 @@ module KL_acmp_lstn_ctx #(
         adp_disc      = !rd_ctx_q_r.tk_avail;
         sn_w.tk_avail = 1'b1;
         sn_w.adp_age  = 7'd0;
+        sn_w.adp_vt   = adp_vt_r;    // the ADPDU's own valid_time
       end else begin
         adp_dep       = rd_ctx_q_r.tk_avail;
         sn_w.tk_avail = 1'b0;
@@ -894,9 +984,20 @@ module KL_acmp_lstn_ctx #(
       sn_wr_w = 1'b1;
     end
     // ---- SRP registrar edges (levels vs last-serviced snapshots) -----
-    reg_rise  = sm &&  ta_registered_i[swp_wa_r] && !srv_reg_r[swp_wa_r];
-    reg_fall  = sm && !ta_registered_i[swp_wa_r] &&  srv_reg_r[swp_wa_r];
-    fail_rise = sm &&  ta_failed_i[swp_wa_r]     && !srv_fail_r[swp_wa_r];
+    //! EVT_TK_REGISTERED / _UNREGISTERED are edges of the COMBINED Talker
+    //! attribute (Table 5.29: "either Talker Advertise or Talker Failed",
+    //! once on Not-registered -> Registered and back) — an Advertise <->
+    //! Failed flip while registered is NO event. Deliberate divergence
+    //! from the pipewire reference, which also invented an RSV_OK -> NO_RSV
+    //! arc on a Failed rise; Table 5.30 marks every RSV_OK row except
+    //! EVT_TK_UNREGISTERED "x" (REF-BUG pattern — reference wrong vs the
+    //! table, like REF-BUG 1/2 below).
+    attr_rise = sm &&
+                ( ta_registered_i[swp_wa_r] |  ta_failed_i[swp_wa_r]) &&
+                !(srv_reg_r[swp_wa_r]       |  srv_fail_r[swp_wa_r]);
+    attr_fall = sm &&
+                !(ta_registered_i[swp_wa_r] |  ta_failed_i[swp_wa_r]) &&
+                ( srv_reg_r[swp_wa_r]       |  srv_fail_r[swp_wa_r]);
     // ---- per-state transitions (single-sink SM table, per context) ---
     if (sm) begin
       unique case (rd_ctx_q_r.state)
@@ -952,11 +1053,20 @@ module KL_acmp_lstn_ctx #(
           end
         end
         LSM_SETTLED_NO_RSV_S: begin
-          if (reg_rise) begin
+          if (attr_rise) begin                           // 5.5.3.5.42
             sn_w.tmr    = 14'd0;                         // remove NO_TK
             sn_w.active = 1'b1;
             sn_w.state  = LSM_SETTLED_RSV_OK_S; sn_wr_w = 1'b1;
           end else if (fire) begin                       // NO_TK lapsed
+            //! 5.5.3.5.36 step 1 "Clear the SRP parameters and stop SRP":
+            //! dmac/vlan cleared + sink closed, so no stale declare and no
+            //! stale params outlive the 10 s silence. sid deliberately
+            //! STAYS: the record sid keys the lwSRP row / stream-table
+            //! alias / lstn_sid lane, and re-keying a bound sink mid-flight
+            //! is #32's still-open proof (full sid-zeroing lands with it).
+            sn_w.dmac   = 48'd0;
+            sn_w.vlan   = 12'd0;
+            sn_w.active = 1'b0;
             if (sn_w.tk_avail) begin
               sn_w.tmr = w_delay_draw; sn_w.probing = 2'd2;
               sn_w.state = LSM_PRB_W_DELAY_S;
@@ -968,8 +1078,12 @@ module KL_acmp_lstn_ctx #(
           end
         end
         LSM_SETTLED_RSV_OK_S: begin
-          if (reg_fall) begin
+          //! the ONLY event that leaves RSV_OK is the combined-attribute
+          //! fall (5.5.3.5.48); step 1's SRP-parameter clear as above
+          if (attr_fall) begin
             sn_w.active = 1'b0;                          // deactivate
+            sn_w.dmac   = 48'd0;
+            sn_w.vlan   = 12'd0;
             if (sn_w.tk_avail) begin
               sn_w.tmr = w_delay_draw; sn_w.probing = 2'd2;
               sn_w.state = LSM_PRB_W_DELAY_S;
@@ -978,8 +1092,6 @@ module KL_acmp_lstn_ctx #(
               sn_w.state   = LSM_PRB_W_AVAIL_S;
             end
             sn_wr_w = 1'b1;
-          end else if (fail_rise) begin
-            sn_w.state = LSM_SETTLED_NO_RSV_S; sn_wr_w = 1'b1;
           end
         end
         default: ;   // UNBOUND: nothing time-driven
@@ -1008,6 +1120,7 @@ module KL_acmp_lstn_ctx #(
       wr_idx_w       = cur_idx_r;
       wr_data_w      = rd_ctx_q_r;
       wr_data_w.tmr  = LSM_TMR_NO_RESP_MS_C;
+      wr_data_w.seq  = w_launch_seq;    // the id THIS probe carries
     end else if (w_swp_commit && sn_wr_w) begin
       wr_en_w   = 1'b1;
       wr_idx_w  = swp_wa_r;
@@ -1031,7 +1144,7 @@ module KL_acmp_lstn_ctx #(
       cap_sid_r <= '0; cap_ctlr_r <= '0; cap_talker_r <= '0;
       cap_lstnr_hi_ok_r <= 1'b0; cap_lstnr_lo_ok_r <= 1'b0;
       cap_tuid_r <= '0; cap_luid_r <= '0; cap_flags_r <= '0;
-      cap_dmac_r <= '0; cap_vlan_r <= '0;
+      cap_seq_r <= '0; cap_dmac_r <= '0; cap_vlan_r <= '0;
       resp_msg_r <= 4'd0; resp_status_r <= 5'd0; resp_kind_r <= L_RESP_STATE_E;
       cur_r <= '0; cur_idx_r <= '0;
       probe_pend_r <= '0; probe_seq_r <= 16'd0;
@@ -1041,7 +1154,7 @@ module KL_acmp_lstn_ctx #(
       swp_active_r <= 1'b0; swp_ra_r <= '0; swp_wa_r <= '0; swp_wv_r <= 1'b0;
       c_ms_r <= 1'b0; c_1s_r <= 1'b0; c_adp_r <= 1'b0;
       ms_pend_r <= 2'd0; s1_pend_r <= 1'b0; adp_pend_r <= 1'b0;
-      adp_eid_r <= '0; adp_avail_r <= 1'b0;
+      adp_eid_r <= '0; adp_avail_r <= 1'b0; adp_vt_r <= '0;
       srv_reg_r <= '0; srv_fail_r <= '0;
       cmd_count_o <= 16'd0; probe_count_o <= 16'd0;
       tx_wedge_cnt_o <= 8'd0; txwd_r <= '0;
@@ -1199,9 +1312,10 @@ module KL_acmp_lstn_ctx #(
                 cap_luid_r <= {rxd_r[39:32], rxd_r[47:40]};
                 cap_dmac_r[47:32] <= {rxd_r[55:48], rxd_r[63:56]};
               end
-              4'd7: begin   // bytes 56-63: dmac tail
+              4'd7: begin   // bytes 56-63: dmac tail + sequence_id
                 cap_dmac_r[31:0] <= {rxd_r[7:0], rxd_r[15:8],
                                      rxd_r[23:16], rxd_r[31:24]};
+                cap_seq_r <= {rxd_r[55:48], rxd_r[63:56]};
               end
               4'd8: begin   // bytes 64-69: flags + vlan
                 cap_flags_r <= {rxd_r[7:0], rxd_r[15:8]};
@@ -1248,9 +1362,14 @@ module KL_acmp_lstn_ctx #(
 
         LAUNCH_S: begin
           //! probe launch DATA phase: snapshot the record for the serialiser
-          //! (the NO_RESP arm is written this same cycle by the write mux)
-          cur_r <= rd_ctx_q_r;
-          st_r  <= PROBE_S;
+          //! (the NO_RESP arm is written this same cycle by the write mux).
+          //! cur_r.seq takes the LAUNCH id (fresh draw or the RESP2 reuse) —
+          //! the same value the write mux commits — and the shared counter
+          //! advances only on a fresh draw, so the resend never burns an id.
+          cur_r     <= rd_ctx_q_r;
+          cur_r.seq <= w_launch_seq;
+          if (w_probe_fresh) probe_seq_r <= probe_seq_r + 16'd1;
+          st_r      <= PROBE_S;
         end
 
         CLASSIFY_S: begin
@@ -1273,13 +1392,18 @@ module KL_acmp_lstn_ctx #(
           if (w_adp_seen) begin
             adp_eid_r   <= cap_sid_r;    // entity_id at wire byte 18
             adp_avail_r <= (cap_msg_r == 4'd0);
+            adp_vt_r    <= cap_status_r; // byte 16 [7:3] = valid_time
           end
 
           if (w_lstn_hit) begin
             cmd_count_o   <= cmd_count_o + 16'd1;
             resp_msg_r    <= {w_msg[3:1], 1'b1};
-            resp_status_r <= w_uid_valid ? ACMP_STATUS_SUCCESS_C
-                                         : ACMP_STATUS_LISTENER_UNKNOWN_ID_C;
+            //! refusal precedence: an invalid uid outranks the lock check
+            //! (there is no bound-state clause to run step 1 in); either
+            //! way the response is the Table 5.27/5.31/5.35 command echo
+            resp_status_r <= !w_uid_valid ? ACMP_STATUS_LISTENER_UNKNOWN_ID_C
+                           : w_lock_deny  ? ACMP_STATUS_CTLR_NOT_AUTHORIZED_C
+                                          : ACMP_STATUS_SUCCESS_C;
             unique case (w_msg)
               ACMP_CONNECT_RX_COMMAND_C:    resp_kind_r <= L_RESP_BIND_E;
               ACMP_DISCONNECT_RX_COMMAND_C: resp_kind_r <= L_RESP_UNBIND_E;
@@ -1300,8 +1424,6 @@ module KL_acmp_lstn_ctx #(
           if (m_axis_tready) begin
             txwd_r <= '0;
             if (beat_r == NUM_BEATS_C-1) begin
-              // post-increment the probe sequence per emission
-              if (st_r == PROBE_S) probe_seq_r <= probe_seq_r + 16'd1;
               wbeat_r <= '0; ovfl_r <= 1'b0;
               beat_r <= '0;
               st_r <= COLLECT_S;

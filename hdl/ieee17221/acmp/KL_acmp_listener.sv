@@ -63,17 +63,24 @@ module KL_acmp_listener #(
     input  wire [47:0]  station_mac_i,     //! [47:40] = first wire byte
     input  wire [63:0]  entity_id_i,
 
+    // ---- AECP lock view (Milan 5.5.3.5 bound-state step 1) --------------
+    //! pass-through to KL_acmp_lstn_ctx: while locked_i, BIND_RX/UNBIND_RX
+    //! from any controller but lock_ctlr_i answers CONTROLLER_NOT_
+    //! AUTHORIZED with a full command echo; GET_RX_STATE is exempt.
+    input  wire         locked_i,
+    input  wire [63:0]  lock_ctlr_i,
+
     // ---- ADP age tick ----------------------------------------------------
     input  wire         tick_1s_i,
 
     // ---- lwSRP listener-side hooks (PER SINK) ---------------------------
     //! bit c = the lwSRP registrar state of context c's OWN attribute row.
     //! Every context runs the probe SM, so every context needs its own
-    //! TalkerAdvertise / TalkerFailed level: 5.5.3.5.27/5.5.3.5.33 turn
+    //! TalkerAdvertise / TalkerFailed level: 5.5.3.5.42/5.5.3.5.48 turn
     //! SETTLED_NO_RSV into SETTLED_RSV_OK on the registration and back out
     //! on its loss. Bit 0 is the legacy row-0 registrar; a context whose
     //! row does not exist in this shape ties its bit low and simply never
-    //! leaves SETTLED_NO_RSV (its TMR_NO_TK re-probe ladder is 5.5.3.5.29).
+    //! leaves SETTLED_NO_RSV (its TMR_NO_TK re-probe ladder is 5.5.3.5.36).
     input  wire [N_SINKS_P-1:0] ta_registered_i, //! TalkerAdvertise registered
     input  wire [N_SINKS_P-1:0] ta_failed_i,     //! TalkerFailed registered
     output wire         lstn_declare_o,    //! declare the MSRP Listener attribute
@@ -122,7 +129,7 @@ module KL_acmp_listener #(
 
     // ---- context-table access (P12: the 0x800 CSR window's ACMP master) --
     //! pass-through of KL_acmp_lstn_ctx's tbl_* port: req held until the
-    //! 1-cycle gnt; ctx (acmp_lstn_ctx_t, 317 b) valid WITH gnt. Index is
+    //! 1-cycle gnt; ctx (acmp_lstn_ctx_t, 338 b) valid WITH gnt. Index is
     //! the wrapper's context index (0 = STREAM_INPUT[0], 1 = CRF sink,
     //! 2..N-1 = window streams).
     input  wire         tbl_req_i,
@@ -171,6 +178,8 @@ module KL_acmp_listener #(
     .enable_i        (enable_i),
     .station_mac_i   (station_mac_i),
     .entity_id_i     (entity_id_i),
+    .locked_i        (locked_i),     //! AECP entity lock -> ACMP step 1
+    .lock_ctlr_i     (lock_ctlr_i),
     .tick_1s_i       (tick_1s_i),
     //! lwSRP REGISTRAR coupling, one bit per context: bit 0 is the row-0
     //! registrar, bits 1..N-1 are the per-row registrars inside KL_lwsrp_ctx
