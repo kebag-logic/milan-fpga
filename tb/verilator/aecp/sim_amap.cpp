@@ -272,6 +272,8 @@ int main(int argc, char** argv) {
     for (int w = 0; w < 10; w++) dut->rxdiag_cnt_i[w] = 0;
     for (int w = 0; w < 5; w++)  dut->tkdiag_cnt_i[w] = 0;
     dut->n_aaf_sinks_i = N_AAF_SINKS_TB;
+    // gh #58 stream-command law truth vectors: wake unbound / not streaming
+    dut->lstn_bound_v_i = 0; dut->out_streaming_v_i = 0;
     dut->station_mac_i = STA_MAC;
     dut->aaf_dmac_i = DMAC_BASE;
     dut->aaf_vid_i  = 2;

@@ -195,6 +195,8 @@ int main(int argc, char** argv) {
     dut->available_index_i = 7; dut->association_id_i = 0;
     dut->gptp_gm_id_i = 0; dut->gptp_domain_i = 0; dut->pdelay_ns_i = 0;
     dut->link_up_i = 1;
+    // gh #58 stream-command law truth vectors: wake unbound / not streaming
+    dut->lstn_bound_v_i = 0; dut->out_streaming_v_i = 0;
     { uint64_t m=0; for(int i=0;i<6;i++) m=(m<<8)|ENT_MAC[i]; dut->station_mac_i = m; }
     for (int i = 0; i < 8; i++) tick();
     dut->rst_n = 1;
@@ -364,33 +366,46 @@ int main(int argc, char** argv) {
         r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,5,4,0}}}));
         ck("st0 ch5 now SUCCESS too", r_status(r), 0);
 
-        //! A-F7 / Milan 5.3.10.1: the invariant is STANDING, so shrinking
-        //! stream 0 back to 2 channels must not leave a live mapping on its
-        //! channel 5. We PRUNE (see the dmp_* block in the RTL): the row is
-        //! withdrawn from the store AND from the render crossbar.
+        //! A-F7 / Milan 5.3.10.1 + 5.4.2.7 (gh #58 D2): the invariant is
+        //! STANDING, and 5.4.2.7's own sentence names the enforcement - a
+        //! format change that would orphan a live dynamic mapping is
+        //! REFUSED with BAD_ARGUMENTS and the map is kept intact (the
+        //! earlier prune reading cited 7.4.9/5.4.2.6, the wrong clauses).
+        //! The controller REMOVEs the ch5 mapping first, then reformats.
         take_wrs();
         r = setfmt(0, AAF2);
-        ck("SET_STREAM_FORMAT STREAM_INPUT[0] back to 2ch", r_status(r), 0);
+        ck("shrink with a live ch5 map REFUSED (5.4.2.7)", r_status(r), 7);
+        ck("... refusal keeps the 12-byte SET echo (cdl 24)", b_cdl(r), 24);
         { auto w = take_wrs();
-          ck("shrink WITHDREW the orphaned map word", (long)w.size(), 1);
-          if (w.size()==1) {
-            ck("... addr 4 (the ch5 row), word 0", w[0].addr*256 + w[0].word,
-               4*256); } }
+          ck("... and NOTHING was withdrawn from the fabric",
+             (long)w.size(), 0); }
         r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 1));
-        ck("... and GET no longer reports it", r_be16(r, 46), 0);
-        //! the SAME command must not touch a mapping that is still in range
+        ck("... the ch5 mapping SURVIVES on page1", r_be16(r, 46), 1);
+        ck("... {0,5,4,0} intact", row_is(r, 50, 0, 0,5,4,0), 1);
         r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));
-        ck("... while page0's in-range rows SURVIVE", r_be16(r, 46), 3);
-        //! offset 0 = {st1,ch0} from [5] (a DIFFERENT stream: untouched),
-        //! offset 1 = identity {st0,ch1} (same stream, channel in range),
-        //! offset 2 = {st0,ch1} (same stream, channel still in range)
+        ck("... page0's rows untouched too", r_be16(r, 46), 3);
+        //! offset 0 = {st1,ch0} from [5], offsets 1/2 = st0 in-range rows
         ck("... {1,0,0,0} untouched (other stream)", row_is(r, 50, 0, 1,0,0,0), 1);
-        ck("... identity {0,1,1,0} untouched (channel in range)",
-           row_is(r, 50, 1, 0,1,1,0), 1);
-        ck("... {0,1,2,0} untouched (channel still in range)",
-           row_is(r, 50, 2, 0,1,2,0), 1);
+        ck("... identity {0,1,1,0} untouched", row_is(r, 50, 1, 0,1,1,0), 1);
+        ck("... {0,1,2,0} untouched", row_is(r, 50, 2, 0,1,2,0), 1);
+        //! the format never moved: the ch5 bound still stands, so the SAME
+        //! ADD that needed 8ch still lands (replace of the extant record)
         r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,5,4,0}}}));
-        ck("st0 ch5 BAD_ARG again (bound followed back down)", r_status(r), 7);
+        ck("st0 ch5 ADD still SUCCEEDS (format never shrank)", r_status(r), 0);
+        //! the mandated order: REMOVE the blocker, THEN reshrink - the
+        //! pre-commit sweep runs clean and the deferred commit lands, so
+        //! the later sections keep their 2-channel-stream-0 premise
+        r = xact(CMD_RM_MAP, am_pl(SPI, 0, {{{0,5,4,0}}}));
+        ck("REMOVE the ch5 blocker SUCCESS", r_status(r), 0);
+        take_wrs();
+        r = setfmt(0, AAF2);
+        ck("re-shrink after the REMOVE now SUCCEEDS", r_status(r), 0);
+        ck("... and prunes NOTHING (nothing was orphaned)",
+           (long)take_wrs().size(), 0);
+        r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 1));
+        ck("... page1 empty after the REMOVE", r_be16(r, 46), 0);
+        r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,5,4,0}}}));
+        ck("st0 ch5 BAD_ARG again (bound followed the commit)", r_status(r), 7);
         r = xact(CMD_ADD_MAP, am_pl(SPI, 1, {{{1,7,0,0}}}));
         ck("st1 ch7 STILL SUCCESS (stream 1 kept 8ch)", r_status(r), 0);
     }

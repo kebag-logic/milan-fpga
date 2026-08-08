@@ -122,6 +122,12 @@ module KL_aecp_top #(
   input  wire          lstn1_bound_i,     //! CRF sink (listener uid 1) record
   input  wire [63:0]   lstn1_sid_i,
   input  wire [47:0]   lstn1_dmac_i,
+  //! gh #58 stream-command law truth vectors (KL_aecp_response_builder has
+  //! the full index law): per-sink ACMP bind level (bit k = STREAM_INPUT k,
+  //! CRF input at n_aaf_sinks_i) and per-source 5.3.7.3 streaming level
+  //! (bit k = STREAM_OUTPUT k, CRF output above the AAF talkers)
+  input  wire [15:0]   lstn_bound_v_i,
+  input  wire [15:0]   out_streaming_v_i,
   output wire [31:0]   bdbg0_o,           //! 0x4B BSCAN forensics (CSR RO)
   output wire [31:0]   bdbg1_o,
   output wire [31:0]   bdbg2_o,
@@ -382,6 +388,8 @@ module KL_aecp_top #(
     .lstn_bound_i(lstn_bound_i), .lstn_sid_i(lstn_sid_i),
     .lstn1_bound_i(lstn1_bound_i), .lstn1_sid_i(lstn1_sid_i),
     .lstn1_dmac_i(lstn1_dmac_i),
+    .lstn_bound_v_i(lstn_bound_v_i),
+    .out_streaming_v_i(out_streaming_v_i),
     .bdbg0_o(bdbg0_o), .bdbg1_o(bdbg1_o), .bdbg2_o(bdbg2_o),
     .as_parent_ckid_i(as_parent_ckid_i),
     .lstn_fail_code_i(lstn_fail_code_i), .lstn_fail_bridge_i(lstn_fail_bridge_i),

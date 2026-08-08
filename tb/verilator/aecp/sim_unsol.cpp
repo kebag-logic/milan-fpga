@@ -48,11 +48,12 @@ static void put_be16(std::vector<uint8_t>& v, uint16_t x) {
     v.push_back(x >> 8); v.push_back(x & 0xFF);
 }
 
-static std::vector<uint8_t> aem_cmd(uint16_t cmd, uint16_t seq,
-                                    const std::vector<uint8_t>& payload) {
+static std::vector<uint8_t> aem_cmd2(const uint8_t* smac, uint64_t cid,
+                                     uint16_t cmd, uint16_t seq,
+                                     const std::vector<uint8_t>& payload) {
     std::vector<uint8_t> f;
     for (int i=0;i<6;i++) f.push_back(ENT_MAC[i]);
-    for (int i=0;i<6;i++) f.push_back(CTL_MAC[i]);
+    for (int i=0;i<6;i++) f.push_back(smac[i]);
     put_be16(f, 0x22F0);
     f.push_back(0xFB);
     f.push_back(0x00);                          // AEM_COMMAND
@@ -60,13 +61,17 @@ static std::vector<uint8_t> aem_cmd(uint16_t cmd, uint16_t seq,
     f.push_back((cdl >> 8) & 0x7);
     f.push_back(cdl & 0xFF);
     put_be64(f, ENTITY_ID);
-    put_be64(f, CTLR_ID);
+    put_be64(f, cid);
     put_be16(f, seq);
     f.push_back((cmd >> 8) & 0x7F);
     f.push_back(cmd & 0xFF);
     for (auto b : payload) f.push_back(b);
     while (f.size() < 60) f.push_back(0x00);
     return f;
+}
+static std::vector<uint8_t> aem_cmd(uint16_t cmd, uint16_t seq,
+                                    const std::vector<uint8_t>& payload) {
+    return aem_cmd2(CTL_MAC, CTLR_ID, cmd, seq, payload);
 }
 
 static void feed_rx(const std::vector<uint8_t>& f) {
@@ -164,6 +169,8 @@ int main(int argc, char** argv) {
     for (int w = 0; w < 12; w++) dut->rxdiag_cnt_i[w] = 0;
     for (int w = 0; w < 5; w++)  dut->tkdiag_cnt_i[w] = 0;
     dut->n_aaf_sinks_i = N_AAF_SINKS_TB;
+    // gh #58 stream-command law truth vectors: wake unbound / not streaming
+    dut->lstn_bound_v_i = 0; dut->out_streaming_v_i = 0;
     { uint64_t m=0; for(int i=0;i<6;i++) m=(m<<8)|ENT_MAC[i]; dut->station_mac_i = m; }
     for (int i = 0; i < 8; i++) tick();
     dut->rst_n = 1;
@@ -339,6 +346,80 @@ int main(int argc, char** argv) {
         dut->in0_cnt_locked_i = 2;
         auto r = wait_push(105000);   // past every dwell and window
         ck("[7] silence after deregistration", r.size(), 0);
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[8] gh #58 D1: a REFUSED SET replays NOTHING; the accepted "
+           "twin replays u=1\n");
+    {
+        const uint8_t MAC_B[6] = {0x68,0x05,0xCA,0x00,0x00,0xB0};
+        const uint64_t CID_B = 0x680500FFFE0000B0ULL;
+        const uint64_t AAF2  = 0x0205022000806000ULL;   // differing family value
+        feed_rx(aem_cmd(36, 0x5801, {}));
+        ck("[8] re-REGISTER A", r_status(collect_resp()), 0);
+        // sink 0 binds (the level the datapath drives from acmpl_bound_v_w)
+        dut->lstn_bound_v_i = 0x0001;
+        std::vector<uint8_t> p2; put_be16(p2, 0x0005); put_be16(p2, 0);
+        put_be64(p2, AAF2);
+        feed_rx(aem_cmd2(MAC_B, CID_B, 8, 0x5802, p2));
+        auto r = collect_resp();
+        ck("[8] bound SET refused STREAM_IS_RUNNING", r_status(r), 12);
+        r = collect_resp(700);
+        ck("[8] refusal -> NO u=1 replay to A", (long)r.size(), 0);
+        {
+            std::vector<uint8_t> g; put_be16(g, 0x0005); put_be16(g, 0);
+            auto rf = xact(9, g);
+            ck("[8] format untouched by the refusal",
+               be_at(rf, 42, 8) == AAF_DEF, 1);
+        }
+        // this shape wakes with the identity map on stream 0 ch0..7, and
+        // Milan 5.4.2.7 (gh #58 D2) refuses a shrink that would orphan
+        // them: REMOVE ch2..7 first (the mandated controller order). The
+        // REMOVE itself replays u=1 to A - drain it.
+        {
+            std::vector<uint8_t> rm; put_be16(rm, 0x000E); put_be16(rm, 0);
+            put_be16(rm, 6); put_be16(rm, 0);
+            for (uint16_t c = 2; c < 8; c++) {
+                put_be16(rm, 0); put_be16(rm, c);       // stream 0, channel c
+                put_be16(rm, c); put_be16(rm, 0);       // cluster c, cc 0
+            }
+            feed_rx(aem_cmd2(MAC_B, CID_B, 45, 0x5806, rm));
+            ck("[8] REMOVE the ch2..7 identity rows (5.4.2.7 blockers)",
+               r_status(collect_resp()), 0);
+            (void)collect_resp();                 // its u=1 replay to A
+        }
+        // unbind: the SAME differing SET is accepted and replayed to A
+        dut->lstn_bound_v_i = 0;
+        feed_rx(aem_cmd2(MAC_B, CID_B, 8, 0x5803, p2));
+        r = collect_resp();
+        ck("[8] unbound SET SUCCESS", r_status(r), 0);
+        r = collect_resp();
+        ck("[8] replay (u=1) to A arrived", u_bit(r), 1);
+        ck("[8] replay dst = A's MAC",
+           r.size() >= 6 && memcmp(r.data(), CTL_MAC, 6) == 0, 1);
+        ck("[8] replay is the SET_STREAM_FORMAT response", r_cmd(r), 8);
+        ck("[8] replay status SUCCESS", r_status(r), 0);
+        // restore: format back to the default (a GROW, never checked),
+        // then the identity rows - each drains one more replay to A
+        std::vector<uint8_t> p8; put_be16(p8, 0x0005); put_be16(p8, 0);
+        put_be64(p8, AAF_DEF);
+        feed_rx(aem_cmd2(MAC_B, CID_B, 8, 0x5804, p8));
+        ck("[8] restore default fmt", r_status(collect_resp()), 0);
+        (void)collect_resp();                     // its replay to A
+        {
+            std::vector<uint8_t> ad; put_be16(ad, 0x000E); put_be16(ad, 0);
+            put_be16(ad, 6); put_be16(ad, 0);
+            for (uint16_t c = 2; c < 8; c++) {
+                put_be16(ad, 0); put_be16(ad, c);
+                put_be16(ad, c); put_be16(ad, 0);
+            }
+            feed_rx(aem_cmd2(MAC_B, CID_B, 44, 0x5807, ad));
+            ck("[8] re-ADD the identity rows (hygiene)",
+               r_status(collect_resp()), 0);
+            (void)collect_resp();                 // its u=1 replay to A
+        }
+        feed_rx(aem_cmd(37, 0x5805, {}));
+        ck("[8] DEREGISTER A", r_status(collect_resp()), 0);
     }
 
     printf("\n----------------------------------------------------------\n");

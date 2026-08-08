@@ -183,6 +183,8 @@ int main(int argc, char** argv) {
     for (int w = 0; w < 10; w++) dut->rxdiag_cnt_i[w] = 0;
     for (int w = 0; w < 5; w++)  dut->tkdiag_cnt_i[w] = 0;
     dut->n_aaf_sinks_i = N_AAF_SINKS_TB;
+    // gh #58 stream-command law truth vectors: wake unbound / not streaming
+    dut->lstn_bound_v_i = 0; dut->out_streaming_v_i = 0;
     // station MAC [47:40]=first wire byte
     { uint64_t m=0; for(int i=0;i<6;i++) m=(m<<8)|ENT_MAC[i]; dut->station_mac_i = m; }
     for (int i = 0; i < 8; i++) tick();
@@ -1015,9 +1017,12 @@ int main(int argc, char** argv) {
         r = collect_resp();
         ck("[12e] SET(none) SUCCESS", r_status(r), 0);
 
-        // (f) STREAM_IS_RUNNING while a listener is registered; REGISTERING
-        //     flags_ex when also declaring
+        // (f) STREAM_IS_RUNNING while output 0 is STREAMING (gh #58 D3: the
+        //     gate is the addressed output's OWN 5.3.7.3 level, not the
+        //     scalar registrar hook); REGISTERING flags_ex when declaring
+        //     (the scalar keeps its display role)
         dut->listener_observed_i = 1;
+        dut->out_streaming_v_i   = 0x0001;
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1208,
                          ssi_pl(0x20000000u, 777)));
         r = collect_resp();
@@ -1028,6 +1033,7 @@ int main(int argc, char** argv) {
         ck("[12f] flags_ex REGISTERING", be_at(r, 86, 4), 1);
         dut->talker_active_i = 0;
         dut->listener_observed_i = 0;
+        dut->out_streaming_v_i   = 0;
 
         // (g) SET on a STREAM_INPUT -> NOT_SUPPORTED; on a non-stream
         //     descriptor -> BAD_ARGUMENTS
@@ -1941,6 +1947,7 @@ int main(int argc, char** argv) {
 
         // (b) bound + registered sink: CONNECTED flags + live fields + trailer
         dut->lstn_bound_i = 1;
+        dut->lstn_bound_v_i |= 0x0001;   // the bind LEVEL the datapath exports
         dut->lstn_sid_i   = 0x0200000000010000ULL;
         dut->lstn_dmac_i  = 0x91E0F000FE01ULL;
         dut->lstn_vlan_i  = 2;
@@ -2007,8 +2014,17 @@ int main(int argc, char** argv) {
         for (int i = 7; i >= 0; i--) f3.push_back((0x020702200200C000ULL >> (8*i)) & 0xFF);
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x2207, f3));
         r = collect_resp();
-        // 96k AAF dropped with the family/honesty pass -> refused
-        ck("[22e] SET_FMT(in0, AAF96k) refused", r_status(r), 7);
+        // gh #58 D1: sink 0 is BOUND here (the [22b] bind level) and the
+        // running rung outranks the format check, so the 96k refusal is
+        // STREAM_IS_RUNNING now, not BAD_ARGUMENTS
+        ck("[22e] SET_FMT(in0, AAF96k) bound -> 12", r_status(r), 12);
+        // ...the unbound copy keeps the old law pinned: the format itself
+        // is still invalid (96k dropped with the family/honesty pass)
+        dut->lstn_bound_v_i &= ~0x0001u;
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x220C, f3));
+        r = collect_resp();
+        ck("[22e] SET_FMT(in0, AAF96k) unbound -> BAD_ARGS", r_status(r), 7);
+        dut->lstn_bound_v_i |= 0x0001;   // back to the [22b] posture
 
         // (f) STOP/START_STREAMING on sink0 drives STREAMING_WAIT; outputs
         //     stay NOT_SUPPORTED
@@ -2037,6 +2053,7 @@ int main(int argc, char** argv) {
         //      shape (n_aaf_sinks=1 + CRF at 1) -> NOT_SUPPORTED.
         {
             dut->lstn1_bound_i = 1;
+            dut->lstn_bound_v_i |= 0x0002;   // CRF sink = index 1 on this shape
             feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35,
                              0x2230, si_pl(0x0005, 1)));
             r = collect_resp();
@@ -2064,14 +2081,23 @@ int main(int argc, char** argv) {
             r = collect_resp();
             ck("[22f3] STOP(in2, off-shape) NOT_SUPPORTED", r_status(r), 11);
             dut->lstn1_bound_i = 0;
+            dut->lstn_bound_v_i &= ~0x0002u;
         }
 
         // (f2) adaptive listener: a 2-ch 48k variant is ACCEPTED (USER:
-        //      the listener adapts to the talker); 9 ch is rejected
+        //      the listener adapts to the talker) - but ONLY once the sink
+        //      is UNBOUND (gh #58 D1: value-independent refusal while
+        //      bound), which is the cert-recreate adaptation order too:
+        //      DISCONNECT -> SET -> CONNECT. 9 ch is rejected.
         {
             std::vector<uint8_t> pl; put_be16(pl, 0x0005); put_be16(pl, 0);
             uint64_t f2 = 0x0205022000806000ULL;   // 48k INT32, channels=2
             for (int i = 7; i >= 0; i--) pl.push_back((f2 >> (8*i)) & 0xFF);
+            // the bound twin first: same frame, sink still bound -> 12
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22EF, pl));
+            r = collect_resp();
+            ck("[22f2] SET 2ch while BOUND -> 12", r_status(r), 12);
+            dut->lstn_bound_v_i &= ~0x0001u;   // DISCONNECT first (adaptation)
             feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F0, pl));
             r = collect_resp();
             ck("[22f2] SET 2ch format SUCCESS", r_status(r), 0);
@@ -2081,7 +2107,7 @@ int main(int argc, char** argv) {
             uint64_t f9 = (0x0205022000006000ULL) | (9ULL << 22);
             for (int i = 7; i >= 0; i--) p9.push_back((f9 >> (8*i)) & 0xFF);
             feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F1, p9));
-            ck("[22f2] 9ch rejected", r_status(collect_resp()) != 0, 1);
+            ck("[22f2] 9ch rejected BAD_ARGS (unbound)", r_status(collect_resp()), 7);
             // (f3) talker truth: STREAM_OUTPUT accepts ONLY the wire format
             {
                 std::vector<uint8_t> po; put_be16(po, 0x0006); put_be16(po, 0);
@@ -2095,12 +2121,121 @@ int main(int argc, char** argv) {
                 feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F3, p2));
                 ck("[22f3] out0 wire-true 2ch accepted", r_status(collect_resp()), 0);
             }
-            // restore the 8ch default
+            // restore the 8ch default, then re-bind (the [22b] posture)
             std::vector<uint8_t> p8; put_be16(p8, 0x0005); put_be16(p8, 0);
             uint64_t f8 = 0x0205022002006000ULL;
             for (int i = 7; i >= 0; i--) p8.push_back((f8 >> (8*i)) & 0xFF);
             feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F2, p8));
             (void)collect_resp();
+            dut->lstn_bound_v_i |= 0x0001;
+        }
+
+        // (f4) gh #58 D1 bound-gate ladder: the SET_STREAM_FORMAT running
+        //      rung walked case by case (Milan 5.4.2.6 / 5.3.8.2 / 5.3.7.3).
+        //      Entry state: sink 0 bound, in0 = 8ch default, out0 = 2ch.
+        {
+            auto set_fmt = [&](uint16_t t, uint16_t i, uint64_t f, uint16_t sq) {
+                std::vector<uint8_t> p; put_be16(p, t); put_be16(p, i);
+                for (int k = 7; k >= 0; k--) p.push_back((f >> (8*k)) & 0xFF);
+                feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, sq, p));
+                return collect_resp();
+            };
+            auto get_fmt = [&](uint16_t t, uint16_t i, uint16_t sq) {
+                feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 9, sq,
+                                 si_pl(t, i)));
+                return collect_resp();
+            };
+            const uint64_t F8    = 0x0205022002006000ULL;  // in0's store word
+            const uint64_t F2    = 0x0205022000806000ULL;  // valid family variant
+            const uint64_t CRF48 = 0x041060010000BB80ULL;  // out-of-family for in0
+            // 1. bound + a valid family variant -> 12
+            r = set_fmt(0x0005, 0, F2, 0x22A0);
+            ck("[22g] bound + family variant -> 12", r_status(r), 12);
+            ck("[22g] refusal keeps the 12-byte echo (cdl 24)", r_cdl(r), 24);
+            // 2. bound + the CURRENT format -> 12 (value-independent: no
+            //    no-change carve-out exists in 5.4.2.6)
+            r = set_fmt(0x0005, 0, F8, 0x22A1);
+            ck("[22g] bound + same format -> 12", r_status(r), 12);
+            // 3. bound + out-of-family -> 12 NOT 7 (SIR outranks BAD_ARGS:
+            //    the format check is part of the accept path)
+            r = set_fmt(0x0005, 0, CRF48, 0x22A2);
+            ck("[22g] bound + out-of-family -> 12 not 7", r_status(r), 12);
+            // 4. STOP_STREAMING'd but still bound -> STILL 12 (5.3.8.2:
+            //    bound is the predicate, not started/streaming)
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35,
+                             0x22A3, si_pl(0x0005, 0)));
+            ck("[22g] STOP(in0) SUCCESS", r_status(collect_resp()), 0);
+            r = set_fmt(0x0005, 0, F2, 0x22A4);
+            ck("[22g] STOP'd-but-bound -> STILL 12", r_status(r), 12);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34,
+                             0x22A5, si_pl(0x0005, 0)));
+            ck("[22g] START(in0) restore", r_status(collect_resp()), 0);
+            // 5. unbind -> the SAME SET succeeds and the write-back LANDS
+            dut->lstn_bound_v_i &= ~0x0001u;
+            r = set_fmt(0x0005, 0, F2, 0x22A6);
+            ck("[22g] unbound -> SET SUCCESS", r_status(r), 0);
+            r = get_fmt(0x0005, 0, 0x22A7);
+            ck("[22g] ...write-back landed (GET = 2ch)",
+               be32_at(r, 42) == 0x02050220 && be32_at(r, 46) == 0x00806000, 1);
+            r = set_fmt(0x0005, 0, F8, 0x22A8);
+            ck("[22g] restore 8ch", r_status(r), 0);
+            dut->lstn_bound_v_i |= 0x0001;
+            // 6. the CRF sink leg: index 1's OWN bit gates it
+            dut->lstn_bound_v_i |= 0x0002;
+            r = set_fmt(0x0005, 1, CRF48, 0x22A9);
+            ck("[22g] CRF sink bound -> 12 (its own bit)", r_status(r), 12);
+            dut->lstn_bound_v_i &= ~0x0002u;
+            r = set_fmt(0x0005, 1, CRF48, 0x22AA);
+            ck("[22g] CRF sink unbound -> exact SET SUCCESS", r_status(r), 0);
+            // 7. GET while bound stays SUCCESS (read-only, never gated)
+            r = get_fmt(0x0005, 0, 0x22AB);
+            ck("[22g] GET_FMT while bound -> SUCCESS", r_status(r), 0);
+            // 8. the output leg: out_streaming_v_i[0] gates SET(out0) even
+            //    for the wire-true value (5.3.7.3 streaming level)
+            dut->out_streaming_v_i = 0x0001;
+            r = set_fmt(0x0006, 0, F2, 0x22AC);
+            ck("[22g] output STREAMING -> 12", r_status(r), 12);
+            dut->out_streaming_v_i = 0;
+            r = set_fmt(0x0006, 0, F2, 0x22AD);
+            ck("[22g] output idle -> wire-true SET SUCCESS", r_status(r), 0);
+        }
+
+        // (f5) gh #58 D5: SET_CONFIGURATION vs the running entity (Milan
+        //      5.4.2.5) + the l0 precedence. GET stays exempt (read-only).
+        {
+            std::vector<uint8_t> sc; put_be16(sc, 0); put_be16(sc, 0);
+            // a bound sink refuses the (single-config, same-index) SET
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 6, 0x22B0, sc));
+            ck("[22g] SET_CONFIG while a sink is bound -> 12",
+               r_status(collect_resp()), 12);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 7, 0x22B1, {}));
+            ck("[22g] GET_CONFIG exempt while streaming",
+               r_status(collect_resp()), 0);
+            // the output flavour wedges it just the same
+            dut->lstn_bound_v_i &= ~0x0001u;
+            dut->out_streaming_v_i = 0x0001;
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 6, 0x22B2, sc));
+            ck("[22g] SET_CONFIG while an output streams -> 12",
+               r_status(collect_resp()), 12);
+            dut->out_streaming_v_i = 0;
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 6, 0x22B3, sc));
+            ck("[22g] SET_CONFIG quiescent -> SUCCESS",
+               r_status(collect_resp()), 0);
+            // lock outranks the running rung: ctlr2's SET while streaming
+            // answers ENTITY_LOCKED (l0 first), never 12
+            std::vector<uint8_t> lk(12, 0);
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x22B4, lk));
+            ck("[22g] ctlr1 LOCK", r_status(collect_resp()), 0);
+            dut->lstn_bound_v_i |= 0x0001;
+            feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 6, 0x22B5, sc));
+            ck("[22g] lock outranks: ctlr2 SET_CONFIG -> 3",
+               r_status(collect_resp()), 3);
+            std::vector<uint8_t> ul(12, 0); ul[3] = 0x01;
+            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x22B6, ul));
+            ck("[22g] ctlr1 UNLOCK", r_status(collect_resp()), 0);
+            feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 6, 0x22B7, sc));
+            ck("[22g] unlocked + streaming -> 12 again",
+               r_status(collect_resp()), 12);
         }
 
         // (g) GET_COUNTERS on sink 0: the SOLICITED path reads the
@@ -2258,6 +2393,7 @@ int main(int argc, char** argv) {
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x220F, {}));
         ck("[22i] DEREGISTER A", r_status(collect_resp()), 0);
         dut->lstn_bound_i = 0; dut->lstn_ta_reg_i = 0;
+        dut->lstn_bound_v_i = 0;   // the level falls with the unbind
     dut->srp_domain_vid_i = 0x002;
     }
 

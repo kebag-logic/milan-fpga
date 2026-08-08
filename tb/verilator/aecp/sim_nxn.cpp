@@ -236,6 +236,8 @@ int main(int argc, char** argv) {
     for (int w = 0; w < 10; w++) dut->rxdiag_cnt_i[w] = 0;
     for (int w = 0; w < 5; w++)  dut->tkdiag_cnt_i[w] = 0;
     dut->n_aaf_sinks_i = N_AAF_SINKS_TB;
+    // gh #58 stream-command law truth vectors: wake unbound / not streaming
+    dut->lstn_bound_v_i = 0; dut->out_streaming_v_i = 0;
     // CRF Media Clock Input counters (KL_crf_rx in the fabric): live
     // values so [8] can prove the CRF row serves THIS engine's counters
     dut->crf_cnt_locked_i   = 6;
@@ -637,6 +639,51 @@ int main(int argc, char** argv) {
         ck("GSI(OUT,8) acc_lat = 700000", (long)be_at(r, O_LAT, 4), 700000);
         r = xact(CMD_GET_SI, ti_pl(OUT, 0));
         ck("GSI(OUT,0) acc_lat = 2000000", (long)be_at(r, O_LAT, 4), 2000000);
+    }
+
+    // ------------------------------------------------------------------ //
+    printf("\n[10b] gh #58 D3: SET_STREAM_INFO(MSRP_ACC_LAT) per index - the "
+           "directory serves every output, the gate is ITS OWN stream\n");
+    {
+        // Milan 5.4.2.9 through the D1 lens: the old arm hard-rejected
+        // every index != 0 (NSD) and gated ALL of them on stream 0's
+        // listener. Payload: type+index, flags @4-7, acc_lat @24-27.
+        const uint16_t SET_SI = 0x000E;
+        auto ssi_pl = [](uint16_t idx, uint32_t flags, uint32_t lat) {
+            std::vector<uint8_t> p; put_be16(p, OUT); put_be16(p, idx);
+            for (int i = 3; i >= 0; i--) p.push_back((flags >> (8*i)) & 0xFF);
+            for (int i = 0; i < 16; i++) p.push_back(0);
+            for (int i = 3; i >= 0; i--) p.push_back((lat >> (8*i)) & 0xFF);
+            while (p.size() < 56) p.push_back(0);
+            return p;
+        };
+        // (a) SET(out5) 3 ms lands on entry 5 ONLY (was NO_SUCH_DESCRIPTOR)
+        auto r = xact(SET_SI, ssi_pl(5, 0x20000000u, 3000000));
+        ck("SET_SI(OUT,5, 3 ms) SUCCESS (was NSD)", r_status(r), 0);
+        r = xact(CMD_GET_SI, ti_pl(OUT, 5));
+        ck("GSI(OUT,5) reflects 3000000", (long)be_at(r, O_LAT, 4), 3000000);
+        r = xact(CMD_GET_SI, ti_pl(OUT, 0));
+        ck("GSI(OUT,0) isolated (still 2000000)", (long)be_at(r, O_LAT, 4),
+           2000000);
+        r = xact(0x004D, ti_pl(OUT, 5));   // GET_MAX_TRANSIT_TIME
+        ck("GET_MTT(OUT,5) = the SAME entry (3000000)",
+           (long)be_at(r, 46, 4), 3000000);
+        // (b) the directory still bounds it: out9 does not exist
+        r = xact(SET_SI, ssi_pl(9, 0x20000000u, 1000000));
+        ck("SET_SI(OUT,9) NO_SUCH_DESCRIPTOR", r_status(r), 2);
+        // (c) the running gate is PER INDEX (5.3.7.3): output 5 streaming
+        //     refuses out5 and leaves out4 writable
+        dut->out_streaming_v_i = (1u << 5);
+        r = xact(SET_SI, ssi_pl(5, 0x20000000u, 2500000));
+        ck("SET_SI(OUT,5) while 5 streams -> 12", r_status(r), 12);
+        r = xact(CMD_GET_SI, ti_pl(OUT, 5));
+        ck("GSI(OUT,5) untouched by the refusal", (long)be_at(r, O_LAT, 4),
+           3000000);
+        r = xact(SET_SI, ssi_pl(4, 0x20000000u, 1250000));
+        ck("SET_SI(OUT,4) SUCCEEDS while 5 streams", r_status(r), 0);
+        r = xact(CMD_GET_SI, ti_pl(OUT, 4));
+        ck("GSI(OUT,4) = 1250000", (long)be_at(r, O_LAT, 4), 1250000);
+        dut->out_streaming_v_i = 0;
     }
 
     // ------------------------------------------------------------------ //

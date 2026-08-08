@@ -155,6 +155,8 @@ int main(int argc, char** argv) {
     for (int w = 0; w < 10; w++) dut->rxdiag_cnt_i[w] = 0;
     for (int w = 0; w < 5; w++)  dut->tkdiag_cnt_i[w] = 0;
     dut->n_aaf_sinks_i = N_AAF_SINKS_TB;
+    // gh #58 stream-command law truth vectors: wake unbound / not streaming
+    dut->lstn_bound_v_i = 0; dut->out_streaming_v_i = 0;
     { uint64_t m=0; for(int i=0;i<6;i++) m=(m<<8)|ENT_MAC[i]; dut->station_mac_i = m; }
     for (int i = 0; i < 8; i++) tick();
     dut->rst_n = 1;
@@ -214,6 +216,27 @@ int main(int argc, char** argv) {
     ck("in1 SET back to 2ch SUCCESS", r_status(r), 0);
     r = xact(CMD_GET_FMT, sf_pl(IN, 1));
     ck("in1 GET = 2ch again", r_fmt(r) == AAF2, 1);
+
+    printf("\n[6] gh #58 D1: the ACMP bind LEVEL gates SET per index\n");
+    dut->lstn_bound_v_i = 0x0002;            // sink 1 bound, ITS bit alone
+    r = xact(CMD_SET_FMT, sf_pl(IN, 1, AAF8));
+    ck("in1 SET while BOUND -> STREAM_IS_RUNNING", r_status(r), 12);
+    r = xact(CMD_SET_FMT, sf_pl(IN, 1, AAF2));
+    ck("in1 same-value SET while BOUND -> 12 too", r_status(r), 12);
+    r = xact(CMD_GET_FMT, sf_pl(IN, 1));
+    ck("in1 GET while bound: SUCCESS, fmt untouched",
+       r_status(r) == 0 && r_fmt(r) == AAF2, 1);
+    r = xact(CMD_SET_FMT, sf_pl(IN, 0, AAF8));
+    ck("in0 SET unaffected by in1's bind (isolation)", r_status(r), 0);
+    r = xact(CMD_SET_FMT, sf_pl(IN, 0, AAF2));
+    ck("in0 restore 2ch", r_status(r), 0);
+    r = xact(CMD_SET_FMT, sf_pl(IN, 2, CRF48));
+    ck("in2 (CRF) SET unaffected by in1's bind", r_status(r), 0);
+    dut->lstn_bound_v_i = 0;
+    r = xact(CMD_SET_FMT, sf_pl(IN, 1, AAF8));
+    ck("in1 unbound -> the SAME SET SUCCEEDS", r_status(r), 0);
+    r = xact(CMD_SET_FMT, sf_pl(IN, 1, AAF2));
+    ck("in1 restore 2ch (store hygiene)", r_status(r), 0);
 
     printf("\n----------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);

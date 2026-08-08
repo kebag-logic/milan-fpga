@@ -2605,6 +2605,21 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .rd_ftx_o    (tkdiag_cnt_w[4*32 +: 32])
   );
 
+  //! gh #58 stream-command law truth vectors — the LIVE gates, never
+  //! mirrors. Outputs: aaf_stream_en_w IS the composed 5.3.7.3 wire gate
+  //! (talker_active & lwsrp_stream_gate, bypass/MAAP escapes included -
+  //! a cfg_aaf_bypass build truthfully counts its outputs as streaming,
+  //! so SET_CONFIG / SET_FMT(out) refuse there); the CRF Media Clock
+  //! Output (when this shape has one) contributes crft_emit_en_w, the
+  //! LICENCE-gated emission enable, not the bare CSR bit. A generate,
+  //! not a width-bending ternary (the tkd_streaming_w precedent).
+  wire [15:0] aecp_out_strm_v_w;
+  generate if (ACMP_SRC_C > N_STREAMS) begin : g_aecp_ostrm_crf
+    assign aecp_out_strm_v_w = 16'({crft_emit_en_w, aaf_stream_en_w});
+  end else begin : g_aecp_ostrm
+    assign aecp_out_strm_v_w = 16'(aaf_stream_en_w);
+  end endgenerate
+
   KL_aecp_top #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) aecp_listener (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_adp_enable),
@@ -2669,6 +2684,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .lstn1_bound_i  (acmpl1_bound),
     .lstn1_sid_i    (acmpl1_sid),
     .lstn1_dmac_i   (acmpl1_dmac),
+    //! gh #58: per-sink bind level straight from the listener SM (the
+    //! same vector the lwSRP provisioner derives its rows from) + the
+    //! per-source streaming truth composed above
+    .lstn_bound_v_i    (16'(acmpl_bound_v_w)),
+    .out_streaming_v_i (aecp_out_strm_v_w),
     .bdbg0_o        (aecp_bdbg0_w),
     .bdbg1_o        (aecp_bdbg1_w),
     .bdbg2_o        (aecp_bdbg2_w),

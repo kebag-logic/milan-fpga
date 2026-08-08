@@ -256,6 +256,8 @@ def pg_decode(context, key, hexstr):
 # ---------------------------------------------------------------------------
 
 STATUS_SUCCESS, STATUS_NO_SUCH_DESCRIPTOR, STATUS_BAD_ARGUMENTS = 0, 2, 7
+#! gh #58 D1/D5 (aecp_pkg.sv:100): the running/bound stream-command refusal
+STATUS_STREAM_IS_RUNNING = 12
 STATUS_NOT_SUPPORTED = 11
 DESC_CLOCK_DOMAIN, DESC_CONTROL = 0x24, 0x1A
 DESC_STREAM_INPUT, DESC_STREAM_OUTPUT = 0x05, 0x06
@@ -392,6 +394,14 @@ class MilanAecpModel:
         self.stream_format = STREAM_FMT_AAF_48K_2CH
         self.sampling_rate = 48000
         self.configuration_index = 0
+        # gh #58 stream-command law (KL_aecp_response_builder truth
+        # vectors, modelled per direction on this 1x1 shape):
+        #   listener_bound   = the STREAM_INPUT's ACMP bind LEVEL (Milan
+        #     5.3.8.2 - "bound does not necessarily mean data is flowing"),
+        #     the SET_STREAM_FORMAT / SET_CONFIGURATION refusal predicate;
+        #   talker_streaming = the STREAM_OUTPUT's 5.3.7.3 streaming level.
+        self.listener_bound = False
+        self.talker_streaming = False
 
     def process(self, fields):
         # Vendor-Unique / MVU frames carry a protocol_id (not an AEM
@@ -417,6 +427,11 @@ class MilanAecpModel:
         if cmd == CMD_SET_CONFIGURATION:
             if fields['configuration_index'] >= NUM_CONFIGS:
                 return STATUS_BAD_ARGUMENTS
+            # gh #58 D5 (Milan 5.4.2.5): a SET_CONFIGURATION while any
+            # stream runs refuses - value-independent (same-index SET
+            # refuses too). GET_CONFIGURATION below stays exempt.
+            if self.listener_bound or self.talker_streaming:
+                return STATUS_STREAM_IS_RUNNING
             self.configuration_index = fields['configuration_index']
             return STATUS_SUCCESS
         if cmd == CMD_GET_CONFIGURATION:
@@ -450,6 +465,10 @@ class MilanAecpModel:
             flags = fields['msrp_flags']
             if flags & SI_UNSUPPORTED_MASK:
                 return STATUS_NOT_SUPPORTED       # any other defined sub-command
+            # gh #58 D3: the running gate is the ADDRESSED output's own
+            # 5.3.7.3 streaming level (out_streaming_v_i in the RTL)
+            if self.talker_streaming:
+                return STATUS_STREAM_IS_RUNNING
             if not (flags & SI_FLAG_MSRP_ACC_LAT):
                 return STATUS_SUCCESS             # nothing requested: no-op (w_si_flags[29]==0)
             if fields['msrp_accumulated_latency'] & (1 << 31):
@@ -474,6 +493,15 @@ class MilanAecpModel:
         if cmd == CMD_SET_STREAM_FORMAT:
             if dt not in (DESC_STREAM_INPUT, DESC_STREAM_OUTPUT) or di != 0:
                 return STATUS_NO_SUCH_DESCRIPTOR
+            # gh #58 D1 (Milan 5.4.2.6): a SET on a BOUND input (5.3.8.2
+            # bind level) or a STREAMING output (5.3.7.3) refuses
+            # STREAM_IS_RUNNING - VALUE-INDEPENDENT (a same-format SET
+            # refuses too), and it OUTRANKS the format check ("before
+            # accepting" makes that check part of the accept path).
+            # Precedence: l0 > NSD > SIR > BAD_ARGUMENTS.
+            if (self.listener_bound if dt == DESC_STREAM_INPUT
+                    else self.talker_streaming):
+                return STATUS_STREAM_IS_RUNNING
             if fields['stream_format'] not in VALID_STREAM_FORMATS:
                 return STATUS_BAD_ARGUMENTS
             self.stream_format = fields['stream_format']
@@ -1125,6 +1153,27 @@ def step_cdl_deviation(context, milan):
 @given('a fresh Milan AECP model')
 def step_fresh_model(context):
     context.aecp_model = MilanAecpModel()
+
+
+@given('the listener sink is bound over ACMP')
+def step_model_bound(context):
+    # gh #58 D1: the Milan 5.3.8.2 bind LEVEL - "bound does not necessarily
+    # mean data is flowing or even that bandwidth is reserved" - i.e. what
+    # acmpl_bound_v_w feeds lstn_bound_v_i in the fabric. Not reservation,
+    # not streaming: a STOP_STREAMING'd-but-bound sink still refuses.
+    context.aecp_model.listener_bound = True
+
+
+@given('the listener sink is unbound')
+def step_model_unbound(context):
+    context.aecp_model.listener_bound = False
+
+
+@given('the talker output is streaming')
+def step_model_streaming(context):
+    # gh #58: the Milan 5.3.7.3 level - declaring a TalkerAdvertise AND a
+    # Listener Ready/ReadyFailed registered (out_streaming_v_i in the RTL)
+    context.aecp_model.talker_streaming = True
 
 
 @when('the Milan AECP model processes the frame')

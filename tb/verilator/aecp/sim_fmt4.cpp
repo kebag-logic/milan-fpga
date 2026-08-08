@@ -163,6 +163,8 @@ int main(int argc, char** argv) {
     for (int w = 0; w < 10; w++) dut->rxdiag_cnt_i[w] = 0;
     for (int w = 0; w < 5; w++)  dut->tkdiag_cnt_i[w] = 0;
     dut->n_aaf_sinks_i = N_AAF_SINKS_TB;
+    // gh #58 stream-command law truth vectors: wake unbound / not streaming
+    dut->lstn_bound_v_i = 0; dut->out_streaming_v_i = 0;
     { uint64_t m=0; for(int i=0;i<6;i++) m=(m<<8)|ENT_MAC[i]; dut->station_mac_i = m; }
     for (int i = 0; i < 8; i++) tick();
     dut->rst_n = 1;
@@ -238,6 +240,40 @@ int main(int argc, char** argv) {
     ck("out0 SET 8ch BAD_ARGUMENTS (wire is 2ch)", r_status(r), 7);
     r = xact(CMD_GET_FMT, sf_pl(OUT, 1));
     ck("out1 GET NO_SUCH_DESCRIPTOR", r_status(r), 2);
+
+    printf("\n[6] gh #58 D1: MIDDLE sink + CRF + output legs of the bound gate\n");
+    dut->lstn_bound_v_i = 0x0004;             // ONLY sink 2 bound
+    r = xact(CMD_SET_FMT, sf_pl(IN, 2, AAF8));
+    ck("in2 (middle) bound -> 12", r_status(r), 12);
+    r = xact(CMD_SET_FMT, sf_pl(IN, 2, AAF2));
+    ck("in2 bound + same value -> 12 (value-independent)", r_status(r), 12);
+    r = xact(CMD_SET_FMT, sf_pl(IN, 1, AAF8));
+    ck("in1 SET unaffected (index below)", r_status(r), 0);
+    r = xact(CMD_SET_FMT, sf_pl(IN, 3, AAF8));
+    ck("in3 SET unaffected (index above)", r_status(r), 0);
+    r = xact(CMD_SET_FMT, sf_pl(IN, 1, AAF2));
+    ck("in1 restore 2ch", r_status(r), 0);
+    r = xact(CMD_SET_FMT, sf_pl(IN, 3, AAF2));
+    ck("in3 restore 2ch", r_status(r), 0);
+    // CRF leg: sink 4's OWN bit; the exact-match SET refuses while bound
+    dut->lstn_bound_v_i = 0x0010;
+    r = xact(CMD_SET_FMT, sf_pl(IN, 4, CRF48));
+    ck("in4 (CRF) bound -> 12 even for the exact format", r_status(r), 12);
+    dut->lstn_bound_v_i = 0;
+    r = xact(CMD_SET_FMT, sf_pl(IN, 4, CRF48));
+    ck("in4 unbound -> exact-match SET SUCCESS", r_status(r), 0);
+    // output leg: 5.3.7.3 streaming gates SET(out0), SIR outranks BAD_ARGS
+    dut->out_streaming_v_i = 0x0001;
+    r = xact(CMD_SET_FMT, sf_pl(OUT, 0, AAF2));
+    ck("out0 STREAMING + wire-true value -> 12", r_status(r), 12);
+    r = xact(CMD_SET_FMT, sf_pl(OUT, 0, AAF8));
+    ck("out0 STREAMING + bad value -> STILL 12 (SIR > BAD_ARGS)",
+       r_status(r), 12);
+    dut->out_streaming_v_i = 0;
+    r = xact(CMD_SET_FMT, sf_pl(OUT, 0, AAF2));
+    ck("out0 idle -> wire-true SET SUCCESS", r_status(r), 0);
+    r = xact(CMD_SET_FMT, sf_pl(IN, 2, AAF2));
+    ck("in2 unbound restore -> SUCCESS", r_status(r), 0);
 
     printf("\n----------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);

@@ -122,6 +122,8 @@ int main(int argc, char** argv) {
     dut->listener_sinks_i = 8; dut->listener_caps_i = 0x4801; dut->controller_caps_i = 0;
     dut->available_index_i = 0; dut->association_id_i = 0;
     dut->gptp_gm_id_i = 0x0011223344556677ULL; dut->gptp_domain_i = 0;
+    // gh #58 stream-command law truth vectors: wake unbound / not streaming
+    dut->lstn_bound_v_i = 0; dut->out_streaming_v_i = 0;
     { uint64_t m = 0; for (int i = 0; i < 6; i++) m = (m << 8) | ENT_MAC[i]; dut->station_mac_i = m; }
     for (int i = 0; i < 8; i++) tick();
     dut->rst_n = 1;

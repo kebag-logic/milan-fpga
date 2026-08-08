@@ -68,3 +68,35 @@ Feature: Item-10 GET/SET_STREAM_FORMAT - getter/setter round-trip (paired)
     And I patch field "descriptor_index" to 0
     When the Milan AECP model processes the frame
     Then the model responds status 2
+
+  @class:setter @negative @gh58
+  Scenario: SET_STREAM_FORMAT on a BOUND input refuses STREAM_IS_RUNNING, format unchanged
+    # gh #58 D1 (Milan 5.4.2.6 / 5.3.8.2): the ACMP bind LEVEL alone refuses
+    # the SET - value-independent (this is a VALID format), and the refusal
+    # outranks the format check. Status 12 = STREAM_IS_RUNNING (wire bytes
+    # 16-17 carry the 0x60 class).
+    Given tsn_gen generated a SET_STREAM_FORMAT frame with seed 85
+    And the listener sink is bound over ACMP
+    When I patch field "message_type" to 0
+    And I patch field "command_type" to 8
+    And I patch field "descriptor_type" to 0x05
+    And I patch field "descriptor_index" to 0
+    And I patch field "stream_format" to 0x0215022002006000
+    When the Milan AECP model processes the frame
+    Then the model responds status 12
+    And the model stream_format is 145524899430031360
+
+  @class:setter @gh58
+  Scenario: the unbound twin of the same SET is accepted (adaptation order survives)
+    # The Milan adaptive-listener flow (DISCONNECT -> SET -> CONNECT): the
+    # identical frame lands once the bind level fell.
+    Given tsn_gen generated a SET_STREAM_FORMAT frame with seed 86
+    And the listener sink is unbound
+    When I patch field "message_type" to 0
+    And I patch field "command_type" to 8
+    And I patch field "descriptor_type" to 0x05
+    And I patch field "descriptor_index" to 0
+    And I patch field "stream_format" to 0x0215022002006000
+    When the Milan AECP model processes the frame
+    Then the model responds status 0
+    And the model stream_format is 150028499082567680

@@ -169,6 +169,24 @@ module KL_aecp_response_builder (
   input  wire          lstn1_bound_i,
   input  wire [63:0]   lstn1_sid_i,
   input  wire [47:0]   lstn1_dmac_i,
+  //! gh #58 stream-command law: the two LIVE per-index truth vectors.
+  //! lstn_bound_v_i = per-sink ACMP bind LEVEL (state != UNBOUND), bit k =
+  //! STREAM_INPUT k, the CRF Media Clock Input at bit n_aaf_sinks_i (AEM
+  //! order pins the CRF sink last). Milan 5.3.8.2's note - "bound does not
+  //! necessarily mean data is flowing or even that bandwidth is reserved" -
+  //! is the licence for this EXACT predicate: the SET_STREAM_FORMAT /
+  //! SET_CONFIGURATION refusals key on the bind level, NOT on reservation
+  //! or lwSRP state, or the Milan adaptive-listener flow (DISCONNECT ->
+  //! SET -> CONNECT) would break. Datapath source: acmpl_bound_v_w,
+  //! zero-extended - the same vector that feeds the lwSRP provisioner.
+  input  wire [15:0]   lstn_bound_v_i,
+  //! out_streaming_v_i = per-source STREAMING level per Milan 5.3.7.3
+  //! (declaring TalkerAdvertise AND a Listener Ready/ReadyFailed
+  //! registered - the wire gate itself, bypass escapes included). Bit k =
+  //! STREAM_OUTPUT k, the CRF Media Clock Output above the AAF talkers.
+  //! Datapath source: {crft_emit_en_w, aaf_stream_en_w} zero-extended -
+  //! derive-never-mirror, these ARE the emission gates.
+  input  wire [15:0]   out_streaming_v_i,
   output wire [31:0]   bdbg0_o,            //! BSCAN forensics (CSR RO)
   output wire [31:0]   bdbg1_o,
   output wire [31:0]   bdbg2_o,
@@ -384,7 +402,9 @@ module KL_aecp_response_builder (
     RECHDR_EMIT_S,  //! 0x4B pass 2: pack the 8-byte record header
     DMAP_SCAN_S,    //! `AEM_DYNMAP: ADD/REMOVE mapping walk (validate/commit)
     DMAP_GET_S,     //! `AEM_DYNMAP: GET_AUDIO_MAP page scan -> const scratch
-    DMAP_PRUNE_S    //! `AEM_DYNMAP: withdraw mappings a format shrink orphaned
+    DMAP_FCHK_S     //! `AEM_DYNMAP: pre-commit format-shrink check (gh #58
+                    //! D2): a live mapping the new format would orphan
+                    //! refuses the SET, a clean sweep commits the deferrals
   } state_t;
   state_t state_r;
 
@@ -695,6 +715,19 @@ module KL_aecp_response_builder (
       end
     end
   endgenerate
+
+  // ------------------------------------------------------------------ //
+  // gh #58 D5: "is the entity streaming" for SET_CONFIGURATION (Milan   //
+  // 5.4.2.5). The truth vectors are masked down to the lanes this SHAPE //
+  // actually serves - inputs from n_aaf_sinks_i (AAF sinks 0..n-1 plus  //
+  // the CRF Media Clock Input AT index n), outputs from PRES_N_C (the   //
+  // directory's STREAM_OUTPUT count, CRF output included) - so a stray  //
+  // bit on an unbacked lane can never wedge the command.                //
+  // ------------------------------------------------------------------ //
+  wire [15:0] w_in_served_m  = 16'((17'd1 << (n_aaf_sinks_i + 16'd1)) - 17'd1);
+  wire [15:0] w_out_served_m = 16'((17'd1 << PRES_N_C) - 17'd1);
+  wire w_entity_streaming = (|(lstn_bound_v_i   & w_in_served_m)) |
+                            (|(out_streaming_v_i & w_out_served_m));
 
   // ------------------------------------------------------------------ //
   // GET_AUDIO_MAP addressing (defect A, silicon 2026-07-28)              //
@@ -1125,27 +1158,30 @@ module KL_aecp_response_builder (
   //! addressed port, latched at dispatch: the walk reads no descriptor
   logic [6:0]  dm_pbase_q;     //! base_cluster of the addressed port
   logic [6:0]  dm_pcls_q;      //! clusters of the addressed port
-  //! Format-shrink prune (Milan 5.3.10.1). The clause is a STANDING
-  //! invariant on device state, not just an ADD-time test: "At a given
-  //! time, each channel of each Audio Cluster of each Stream Port Input is
-  //! either not mapped, or mapped to a channel of a Stream Input (in this
-  //! case, the index of the mapped Stream Input's channel shall be lower
-  //! than the number of channels in the current format of the Stream
-  //! Input)." A SET_STREAM_FORMAT that SHRINKS a stream (8ch -> 2ch) would
-  //! otherwise leave a live mapping on channel 5 of a 2-channel stream,
-  //! violating it for as long as the format holds - and in the fabric the
-  //! render word carries ch[2:0], so the crossbar would keep de-interleaving
-  //! a channel the wire no longer has.
+  //! Format-shrink pre-commit check (Milan 5.3.10.1 + 5.4.2.7; gh #58 D2).
+  //! 5.3.10.1 is a STANDING invariant on device state, not just an
+  //! ADD-time test: "At a given time, each channel of each Audio Cluster
+  //! of each Stream Port Input is either not mapped, or mapped to a
+  //! channel of a Stream Input (in this case, the index of the mapped
+  //! Stream Input's channel shall be lower than the number of channels in
+  //! the current format of the Stream Input)." A SET_STREAM_FORMAT that
+  //! SHRINKS a stream (8ch -> 2ch) would leave a live mapping on channel 5
+  //! of a 2-channel stream - and in the fabric the render word carries
+  //! ch[2:0], so the crossbar would keep de-interleaving a channel the
+  //! wire no longer has.
   //!
-  //! JUDGMENT CALL, conservative reading: PRUNE rather than REFUSE. Nothing
-  //! in 1722.1-2021 7.4.9 or Milan 5.4.2.6 lets an entity fail an otherwise
-  //! valid SET_STREAM_FORMAT because of mapping state, and the ATDECC order
-  //! of operations is set-format-then-map, so refusing would break a legal
-  //! sequence for a reason the standard never lists. The withdrawal is
-  //! observable: GET_AUDIO_MAP stops reporting the pruned rows. No
-  //! REMOVE_AUDIO_MAPPING unsolicited notification is fabricated - 5.4.2.27
-  //! offers that only for the ADD accept-and-replace case.
-  logic [6:0]  dmp_key_r;      //! prune sweep cursor (GLOBAL key)
+  //! The earlier judgment call PRUNED the orphans instead; Milan 5.4.2.7's
+  //! own sentence overturns it (the prune reading had cited 7.4.9 /
+  //! 5.4.2.6, the wrong clauses): a format change that would orphan a
+  //! live dynamic mapping is REFUSED with BAD_ARGUMENTS and the map is
+  //! kept intact - the controller REMOVEs the mapping first, then
+  //! reformats. So DMAP_FCHK_S sweeps the store BEFORE anything commits:
+  //! a hit cancels the write-back (the deferred dm_sch_r / fmt_in0_r
+  //! never land); a clean sweep commits them and proceeds to WRITE_S.
+  //! The prune write path is DEAD by construction - an ACCEPTED shrink
+  //! orphans nothing, outputs are identity-only (w_out_fmt_ok), the shape
+  //! is single-config, and reset re-seeds the identity image.
+  logic [6:0]  dmp_key_r;      //! check sweep cursor (GLOBAL key)
   logic [DMAP_SW_C-1:0] dmp_sidx_q;  //! the reformatted Stream Input
   logic [9:0]  dmp_ch_q;       //! its NEW channel count (the new bound)
   logic [6:0]  dmg_key_r;      //! GET page-scan key (GLOBAL)
@@ -2138,8 +2174,8 @@ module KL_aecp_response_builder (
       //      the render crossbar, one key per IDLE_S cycle. The store is
       //      the truth (it woke as DMAP_INIT_C); the crossbar wakes empty
       //      on its own reset, and the wire-truth rule forbids the two
-      //      disagreeing. Commits own dmap_wr_* only in DMAP_SCAN_S /
-      //      DMAP_PRUNE_S, never in IDLE_S, so the walker cannot collide;
+      //      disagreeing. Commits own dmap_wr_* only in DMAP_SCAN_S,
+      //      never in IDLE_S, so the walker cannot collide;
       //      a command edit that lands mid-walk is still served truthfully
       //      because the walker reads the LIVE store, not the constant.
       if (dmseed_r < 7'(AEM_DMAP_KEYS_C) && state_r == IDLE_S) begin
@@ -2886,8 +2922,20 @@ module KL_aecp_response_builder (
 
               // -------------------------------------------------- //
               CMD_GET_CONFIGURATION, CMD_SET_CONFIGURATION: begin
-                status_q <= (hdr_q.command_type == CMD_SET_CONFIGURATION &&
-                             l0_reject_q) ? l0_status_q : STATUS_SUCCESS;
+                //! gh #58 D5 (Milan 5.4.2.5): a SET_CONFIGURATION while ANY
+                //! served stream is running refuses STREAM_IS_RUNNING -
+                //! VALUE-INDEPENDENT, so the single-config same-index SET
+                //! (the CERT poke) refuses too. l0 outranks; GET is
+                //! read-only and stays exempt (the D5 review's REFUTED
+                //! half). MULTI-CONFIG NOTE: if configurations_count ever
+                //! grows past 1, KL_aecp_l0_state's current_config commit
+                //! must gate on this same predicate, or the refusal here
+                //! would split from a config change L0 already latched.
+                status_q <= (hdr_q.command_type == CMD_SET_CONFIGURATION)
+                            ? (l0_reject_q        ? l0_status_q
+                             : w_entity_streaming ? STATUS_STREAM_IS_RUNNING
+                                                  : STATUS_SUCCESS)
+                            : STATUS_SUCCESS;
                 //! single-config entity: an accepted SET_CONFIGURATION is
                 //! always to the current index = never a state change
                 nochg_q  <= (hdr_q.command_type == CMD_SET_CONFIGURATION);
@@ -3301,6 +3349,23 @@ module KL_aecp_response_builder (
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd12;
                 end else if (hdr_q.command_type == CMD_SET_STREAM_FORMAT &&
+                             ((w_gs_type == DESC_STREAM_INPUT)
+                              ? lstn_bound_v_i[w_gs_index[3:0]]
+                              : out_streaming_v_i[w_gs_index[3:0]])) begin
+                  //! gh #58 D1 (Milan 5.4.2.6): a SET on a BOUND input
+                  //! (5.3.8.2 bind level - STOP_STREAMING'd-but-bound still
+                  //! refuses) or a STREAMING output (5.3.7.3) refuses
+                  //! STREAM_IS_RUNNING. VALUE-INDEPENDENT: a same-format
+                  //! SET while bound refuses too ("in all other cases
+                  //! SUCCESS" excludes bound by construction). Precedence
+                  //! l0 > NSD > SIR > BAD_ARGS - "before accepting" makes
+                  //! the format check part of the accept path, so this
+                  //! rung outranks it. The refusal produces no write-back,
+                  //! no fmt_in0_r retarget, no prune and no u=1 replay
+                  //! (all keyed on SUCCESS / wb_len).
+                  status_q     <= STATUS_STREAM_IS_RUNNING;
+                  seg_len_q[0] <= 16'd12;
+                end else if (hdr_q.command_type == CMD_SET_STREAM_FORMAT &&
                              !((w_gs_type == DESC_STREAM_OUTPUT)
                                ? w_out_fmt_ok : w_fmt_ok)) begin
                   status_q     <= STATUS_BAD_ARGUMENTS;
@@ -3319,32 +3384,43 @@ module KL_aecp_response_builder (
                                  : WB_STRIN_FMT_ADDR_C[w_in_fidx];
                     wb_len_q  <= 7'd8;
                     wb_src_q  <= 7'd6;
-                    // live copy for the RX monitor's format compare
-                    if (w_gs_type == DESC_STREAM_INPUT && w_gs_index == 16'd0)
-                      fmt_in0_r <= {w_b6, w_b7, w_b8, w_b9,
-                                    w_b10, w_b11, w_b12, w_b13};
 `ifdef AEM_DYNMAP
                     //! the dynamic-map channel bound follows the CURRENT
                     //! format of THIS Stream Input (Milan 5.3.10.1); the
-                    //! AAF channels_per_frame field is format[31:22]
+                    //! AAF channels_per_frame field is format[31:22].
+                    //! gh #58 D2: a SHRINK no longer prunes - Milan 5.4.2.7
+                    //! REFUSES a format change that would orphan a live
+                    //! mapping, so every commit (channel bound, fmt_in0_r,
+                    //! store write-back) is DEFERRED behind the
+                    //! DMAP_FCHK_S pre-commit sweep and dies there on a
+                    //! hit. Non-shrink SETs commit here as before.
                     if (w_gs_type == DESC_STREAM_INPUT &&
-                        w_gs_index < 16'(AEM_DMAP_NSTRIN_C)) begin
-                      dm_sch_r[w_dm_fidx] <= {w_b10, w_b11[7:6]};
-                      //! a SHRINK orphans every mapping at or above the new
-                      //! count: sweep them out so 5.3.10.1 holds for the new
-                      //! format too (see the dmp_* declarations)
-                      if ({w_b10, w_b11[7:6]} < dm_sch_r[w_dm_fidx]) begin
-                        dmp_sidx_q <= w_dm_fidx;
-                        dmp_ch_q   <= {w_b10, w_b11[7:6]};
-                        dmp_key_r  <= 7'd0;
-                        state_r    <= DMAP_PRUNE_S;
-                      end
+                        w_gs_index < 16'(AEM_DMAP_NSTRIN_C) &&
+                        {w_b10, w_b11[7:6]} < dm_sch_r[w_dm_fidx]) begin
+                      dmp_sidx_q <= w_dm_fidx;
+                      dmp_ch_q   <= {w_b10, w_b11[7:6]};
+                      dmp_key_r  <= 7'd0;
+                      state_r    <= DMAP_FCHK_S;
+                    end else begin
+                      if (w_gs_type == DESC_STREAM_INPUT &&
+                          w_gs_index < 16'(AEM_DMAP_NSTRIN_C))
+                        dm_sch_r[w_dm_fidx] <= {w_b10, w_b11[7:6]};
+                      // live copy for the RX monitor's format compare
+                      if (w_gs_type == DESC_STREAM_INPUT &&
+                          w_gs_index == 16'd0)
+                        fmt_in0_r <= {w_b6, w_b7, w_b8, w_b9,
+                                      w_b10, w_b11, w_b12, w_b13};
                     end
-                    //! NO talker-side follower/prune: w_out_fmt_ok accepts
+                    //! NO talker-side follower/checker: w_out_fmt_ok accepts
                     //! ONLY the declared format (FR-STR-03 wire truth - the
                     //! framer's channel count is an elaboration constant),
                     //! so a Stream Output's format can never shrink and the
                     //! output maps' channel bound stays AEM_ODMAP_SCH_C
+`else
+                    // live copy for the RX monitor's format compare
+                    if (w_gs_type == DESC_STREAM_INPUT && w_gs_index == 16'd0)
+                      fmt_in0_r <= {w_b6, w_b7, w_b8, w_b9,
+                                    w_b10, w_b11, w_b12, w_b13};
 `endif
                   end
                 end
@@ -3352,6 +3428,15 @@ module KL_aecp_response_builder (
                 end else if (!((w_gs_type == DESC_STREAM_OUTPUT && w_gs_index == 16'd0) ||
                                (w_gs_type == DESC_STREAM_INPUT  && w_gs_index < 16'd2))) begin
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
+                  seg_len_q[0] <= 16'd12;
+                end else if (hdr_q.command_type == CMD_SET_STREAM_FORMAT &&
+                             ((w_gs_type == DESC_STREAM_INPUT)
+                              ? lstn_bound_v_i[w_gs_index[3:0]]
+                              : out_streaming_v_i[w_gs_index[3:0]])) begin
+                  //! gh #58 D1, legacy-svh twin of the rung above: bound
+                  //! input / streaming output -> STREAM_IS_RUNNING, value-
+                  //! independent, l0 > NSD > SIR > BAD_ARGS.
+                  status_q     <= STATUS_STREAM_IS_RUNNING;
                   seg_len_q[0] <= 16'd12;
                 end else if (hdr_q.command_type == CMD_SET_STREAM_FORMAT &&
                              !((w_gs_type == DESC_STREAM_OUTPUT)
@@ -3374,23 +3459,31 @@ module KL_aecp_response_builder (
                                                          : WB_STREAM_IN1_FMT_C;
                     wb_len_q  <= 7'd8;
                     wb_src_q  <= 7'd6;
+`ifdef AEM_DYNMAP
+                    //! see above: 5.3.10.1 channel bound per Stream Input,
+                    //! and the same gh #58 D2 deferred-commit shrink check
+                    if (w_gs_type == DESC_STREAM_INPUT &&
+                        w_gs_index < 16'(AEM_DMAP_NSTRIN_C) &&
+                        {w_b10, w_b11[7:6]} < dm_sch_r[w_dm_fidx]) begin
+                      dmp_sidx_q <= w_dm_fidx;
+                      dmp_ch_q   <= {w_b10, w_b11[7:6]};
+                      dmp_key_r  <= 7'd0;
+                      state_r    <= DMAP_FCHK_S;
+                    end else begin
+                      if (w_gs_type == DESC_STREAM_INPUT &&
+                          w_gs_index < 16'(AEM_DMAP_NSTRIN_C))
+                        dm_sch_r[w_dm_fidx] <= {w_b10, w_b11[7:6]};
+                      // live copy for the RX monitor's format compare
+                      if (w_gs_type == DESC_STREAM_INPUT &&
+                          w_gs_index == 16'd0)
+                        fmt_in0_r <= {w_b6, w_b7, w_b8, w_b9,
+                                      w_b10, w_b11, w_b12, w_b13};
+                    end
+`else
                     // live copy for the RX monitor's format compare
                     if (w_gs_type == DESC_STREAM_INPUT && w_gs_index == 16'd0)
                       fmt_in0_r <= {w_b6, w_b7, w_b8, w_b9,
                                     w_b10, w_b11, w_b12, w_b13};
-`ifdef AEM_DYNMAP
-                    //! see above: 5.3.10.1 channel bound per Stream Input,
-                    //! and the same shrink prune
-                    if (w_gs_type == DESC_STREAM_INPUT &&
-                        w_gs_index < 16'(AEM_DMAP_NSTRIN_C)) begin
-                      dm_sch_r[w_dm_fidx] <= {w_b10, w_b11[7:6]};
-                      if ({w_b10, w_b11[7:6]} < dm_sch_r[w_dm_fidx]) begin
-                        dmp_sidx_q <= w_dm_fidx;
-                        dmp_ch_q   <= {w_b10, w_b11[7:6]};
-                        dmp_key_r  <= 7'd0;
-                        state_r    <= DMAP_PRUNE_S;
-                      end
-                    end
 `endif
                   end
                 end
@@ -3501,11 +3594,19 @@ module KL_aecp_response_builder (
                   status_q <= STATUS_NOT_SUPPORTED;   // not implemented for inputs
                 end else if (w_gs_type != DESC_STREAM_OUTPUT) begin
                   status_q <= STATUS_BAD_ARGUMENTS;
-                end else if (w_gs_index != 16'd0) begin
+                end else if (w_gs_index >= 16'(PRES_N_C)) begin
+                  //! gh #58 D3: EVERY directory-served STREAM_OUTPUT owns
+                  //! its pres_file_r entry (PRES_N_C, the CRF output
+                  //! included) - the old `!= 0` literal was the D1 defect
+                  //! class again. Legacy svh: PRES_N_C = 1, identical gate.
                   status_q <= STATUS_NO_SUCH_DESCRIPTOR;
                 end else if ((w_si_flags & SI_UNSUPPORTED_MASK_C) != 32'd0) begin
                   status_q <= STATUS_NOT_SUPPORTED;
-                end else if (listener_observed_i) begin
+                end else if (out_streaming_v_i[w_gs_index[3:0]]) begin
+                  //! gh #58 D3: the running gate is THE ADDRESSED OUTPUT's
+                  //! own 5.3.7.3 streaming level - stream 0's listener
+                  //! must not block an edit of output 3 (the scalar
+                  //! listener_observed_i keeps its display/push-edge roles)
                   status_q <= STATUS_STREAM_IS_RUNNING;
                 end else if (!w_si_flags[29]) begin
                   status_q <= STATUS_SUCCESS;         // nothing requested: no-op
@@ -3515,8 +3616,7 @@ module KL_aecp_response_builder (
                   //! writes THE ADDRESSED INDEX's pres_file_r entry — the
                   //! same entry SET/GET_MAX_TRANSIT_TIME and
                   //! GET_STREAM_INFO serve for that index (one source of
-                  //! truth; this arm still accepts index 0 only, see the
-                  //! index gate above)
+                  //! truth across the three commands)
                   status_q      <= STATUS_SUCCESS;
                   nochg_q       <= (w_si_lat == w_gs_pres);
                   for (int k = 0; k < int'(PRES_N_C); k++)
@@ -4213,8 +4313,17 @@ module KL_aecp_response_builder (
               //! 7.4.45.1/7.4.46.1's "none of the mappings are added /
               //! removed" holds however late the offending record sits.
               if (od_pass_q == 2'd0) begin
-                if (dm_remove_q ? !w_od_rm_hit
-                                : (!w_od_rec_ok || oclaim_r[dm_sc_q[2:0]]))
+                //! gh #58 D6 (#34): a u=1 REPLAY re-runs this walk against
+                //! a store its OWN first pass already edited, so a replayed
+                //! REMOVE finds nothing and would demote the SUCCESS it is
+                //! rebroadcasting to BAD_ARGUMENTS - a failure that never
+                //! happened. The demote is for COMMANDS only; the replay
+                //! keeps walking (commit is idempotent) so the response is
+                //! rebuilt, not re-judged. A genuine second REMOVE arrives
+                //! with unsol_frame_r low and still refuses per 7.4.46.1.
+                if (!unsol_frame_r &&
+                    (dm_remove_q ? !w_od_rm_hit
+                                 : (!w_od_rec_ok || oclaim_r[dm_sc_q[2:0]])))
                   begin
                   status_q <= STATUS_BAD_ARGUMENTS;
                   state_r  <= WRITE_S;
@@ -4273,7 +4382,14 @@ module KL_aecp_response_builder (
               //! REMOVE deliberately does NOT claim: Milan 5.4.2.28 says
               //! duplicates there "shall be ignored", and since nothing has
               //! been committed yet every copy still sees its entry.
-              if (dm_remove_q ? w_dm_rm_bad : w_dm_add_bad) begin
+              //! gh #58 D6 (#34): the demote is gated off for a u=1 REPLAY
+              //! - the original REMOVE already cleared the store, so its
+              //! replay's validate pass MISSES and would announce a
+              //! BAD_ARGUMENTS that never happened. The walk itself still
+              //! runs (the ADD re-commit idempotence pin depends on it);
+              //! a genuine second REMOVE (unsol_frame_r low) still refuses.
+              if (!unsol_frame_r &&
+                  (dm_remove_q ? w_dm_rm_bad : w_dm_add_bad)) begin
                 status_q <= STATUS_BAD_ARGUMENTS;
                 state_r  <= WRITE_S;
               end else begin
@@ -4387,28 +4503,40 @@ module KL_aecp_response_builder (
         end
 
         // ---------------------------------------------------------- //
-        DMAP_PRUNE_S: begin  //! Milan 5.3.10.1 after a SET_STREAM_FORMAT
-                             //! SHRINK: one key per cycle, withdrawing every
-                             //! mapping of the reformatted Stream Input whose
-                             //! stream_channel no longer exists. One key per
-                             //! cycle because the fabric mirror is a
-                             //! one-write-per-cycle port; the response plan
-                             //! was already latched at dispatch, so WRITE_S
-                             //! still emits the SET_STREAM_FORMAT response.
+        DMAP_FCHK_S: begin   //! gh #58 D2 - Milan 5.4.2.7 pre-commit check
+                             //! after a SET_STREAM_FORMAT SHRINK: one key
+                             //! per cycle over the live store. A mapping of
+                             //! the reformatted Stream Input sitting on a
+                             //! channel the new format lacks REFUSES the
+                             //! whole SET (BAD_ARGUMENTS, write-back
+                             //! cancelled, store/crossbar NEVER written);
+                             //! a clean sweep commits the deferred channel
+                             //! bound + fmt_in0_r and WRITE_S lands the
+                             //! store write-back as usual.
           if (dmp_key_r >= 7'(AEM_DMAP_KEYS_C)) begin
+            //! clean sweep: nothing orphaned - commit the deferrals
+            dm_sch_r[dmp_sidx_q] <= dmp_ch_q;
+            // live copy for the RX monitor's format compare (deferred from
+            // dispatch alongside the bound; cw*_r still hold the command)
+            if (w_gs_index == 16'd0)
+              fmt_in0_r <= {w_b6, w_b7, w_b8, w_b9,
+                            w_b10, w_b11, w_b12, w_b13};
             state_r <= WRITE_S;
+          end else if (dmap_v_r[dmp_key_r[DMAP_KW_C-1:0]] &&
+                       (dmap_si_r[dmp_key_r[DMAP_KW_C-1:0]] ==
+                        3'(dmp_sidx_q)) &&
+                       ({6'd0, dmap_ch_r[dmp_key_r[DMAP_KW_C-1:0]]}
+                        >= dmp_ch_q)) begin
+            //! hit: the refusal response is the 12-byte SET echo (cdl
+            //! stays 24); the armed store segment + write-back die here
+            status_q      <= STATUS_BAD_ARGUMENTS;
+            seg_len_q[0]  <= 16'd12;
+            seg_kind_q[1] <= SEG_NONE;
+            seg_addr_q[1] <= 16'd0;
+            seg_len_q[1]  <= 16'd0;
+            wb_len_q      <= 7'd0;
+            state_r       <= WRITE_S;
           end else begin
-            if (dmap_v_r[dmp_key_r[DMAP_KW_C-1:0]] &&
-                (dmap_si_r[dmp_key_r[DMAP_KW_C-1:0]] ==
-                 3'(dmp_sidx_q)) &&
-                ({6'd0, dmap_ch_r[dmp_key_r[DMAP_KW_C-1:0]]} >= dmp_ch_q)) begin
-              dmap_v_r[dmp_key_r[DMAP_KW_C-1:0]] <= 1'b0;
-              //! withdraw it from the render crossbar too, or the map word
-              //! keeps de-interleaving a wire channel that no longer exists
-              dmap_wr_p_o    <= 1'b1;
-              dmap_wr_addr_o <= 6'(dmp_key_r);
-              dmap_wr_word_o <= 8'h00;
-            end
             dmp_key_r <= dmp_key_r + 7'd1;
           end
         end

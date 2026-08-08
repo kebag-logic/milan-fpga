@@ -218,6 +218,8 @@ int main(int argc, char** argv) {
     dut->available_index_i = 7; dut->association_id_i = 0;
     dut->gptp_gm_id_i = 0; dut->gptp_domain_i = 0; dut->pdelay_ns_i = 0;
     dut->link_up_i = 1;
+    // gh #58 stream-command law truth vectors: wake unbound / not streaming
+    dut->lstn_bound_v_i = 0; dut->out_streaming_v_i = 0;
     { uint64_t m=0; for(int i=0;i<6;i++) m=(m<<8)|ENT_MAC[i]; dut->station_mac_i = m; }
     for (int i = 0; i < 8; i++) tick();
     dut->rst_n = 1;
@@ -518,6 +520,21 @@ int main(int argc, char** argv) {
         ck("same ADD again SUCCESS", r_status(r), 0);
         u = collect_resp();
         ck("no-change ADD -> NO replay (nochg)", (long)u.size(), 0);
+        //! gh #58 D6 (#34), OUTPUT direction: a REMOVE's u=1 replay
+        //! re-walks a store the command itself already emptied - the
+        //! judge pass missed and demoted the rebroadcast to
+        //! BAD_ARGUMENTS, a failure that never happened on the wire.
+        r = xact(CMD_RM_MAP, am_pl(SPO, 1, {{{1,0,0,0}}}));
+        ck("output REMOVE SUCCESS", r_status(r), 0);
+        u = collect_resp();
+        ck("REMOVE replay (u=1) arrived", r_u(u), 1);
+        ck("REMOVE replay status SUCCESS (was demoted)", r_status(u), 0);
+        ck("REMOVE replay is the REMOVE response",
+           r_be16(u, 36) & 0x7FFF, CMD_RM_MAP);
+        r = xact(CMD_ADD_MAP, am_pl(SPO, 1, {{{1,0,0,0}}}));
+        ck("restore ch0 (state hygiene)", r_status(r), 0);
+        u = collect_resp();
+        ck("...its replay drains (u=1)", r_u(u), 1);
         feed_rx(aem_cmd2(CTL2_MAC, CTLR2_ID, CMD_DEREG_UNSOL, seq++, {}));
         r = collect_resp();
         ck("ctlr2 DEREGISTER SUCCESS", r_status(r), 0);

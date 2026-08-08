@@ -212,6 +212,51 @@ static void inject(const uint8_t* f, size_t len, int drain = 1200) {
     dut->s_axis_mac_rx_tvalid = 0;
 }
 
+// ---- gh #58 D1 end-to-end: one AECP AEM transaction through the REAL RX
+// path, the response fished off the MAC TX trunk (subtype 0xFB; the only
+// 0xFB frames in this sim are our responses - nothing ever REGISTERs).
+// dst MAC = the station MAC, which this harness leaves at its reset 0.
+static std::vector<uint8_t> aecp_xact(uint16_t cmd, uint16_t sq,
+                                      const std::vector<uint8_t>& pl,
+                                      int cyc = 200000) {
+    uint8_t f[80]; memset(f, 0, sizeof f);
+    const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+    memcpy(f+6, csrc, 6);
+    f[12]=0x22; f[13]=0xF0; f[14]=0xFB; f[15]=0x00;      // AECP AEM_COMMAND
+    uint16_t cdl = (uint16_t)(12 + pl.size());
+    f[16]=(uint8_t)((cdl >> 8) & 0x7); f[17]=(uint8_t)cdl;
+    const uint8_t teid[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+    memcpy(f+18, teid, 8);                                // = A_ADP_EID
+    const uint8_t ceid[8] = {0x68,0x05,0xCA,0xFF,0xFE,0x95,0xB2,0xD1};
+    memcpy(f+26, ceid, 8);
+    f[34]=(uint8_t)(sq >> 8); f[35]=(uint8_t)sq;
+    f[36]=(uint8_t)((cmd >> 8) & 0x7F); f[37]=(uint8_t)cmd;
+    for (size_t i = 0; i < pl.size() && 38 + i < sizeof f; i++) f[38+i] = pl[i];
+    size_t flen = 38 + pl.size(); if (flen < 60) flen = 60;
+    inject(f, flen, 40);
+    std::vector<uint8_t> cur, resp;
+    dut->m_axis_mac_tx_tready = 1;
+    for (int c = 0; c < cyc && resp.empty(); c++) {
+        lo();
+        if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+            for (int l = 0; l < 8; l++)
+                if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                    cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+            if (dut->m_axis_mac_tx_tlast) {
+                if (cur.size() > 17 && cur[12] == 0x22 && cur[13] == 0xF0 &&
+                    cur[14] == 0xFB)
+                    resp = cur;
+                cur.clear();
+            }
+        }
+        hi();
+    }
+    return resp;
+}
+static long aecp_status(const std::vector<uint8_t>& b) {
+    return b.size() > 16 ? (b[16] >> 3) & 0x1F : -1;
+}
+
 // AAF PDU: sid = 8 wire bytes, chans = wire channels_per_frame
 static const uint8_t* mkaaf(const uint8_t sid[8], uint8_t seq, uint8_t chans,
                             uint8_t pay0) {
@@ -255,7 +300,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x00010035);
+       axi_read(A_VERSION), 0x00010036);
 
 #ifdef AAF_PB_TB
     // ---- task #26 (0x002C): the BOOT SEED is CSR-visible before any ----
@@ -1071,6 +1116,39 @@ int main(int argc, char** argv) {
     (void)axi_read(A_SW_SID_LO);
     ck("ctx0 SID reads 0 (bind left ctx0 alone)", axi_read(A_SW_SID_LO) |
                                                   axi_read(A_SW_SID_HI), 0);
+
+    // ================================================================== //
+    //  gh #58 D1 END-TO-END: the CONNECT_RX above left sink 2 BOUND       //
+    //  (SETTLED_NO_RSV), and that LEVEL - acmpl_bound_v_w through          //
+    //  KL_aecp_top's lstn_bound_v_i - must refuse SET_STREAM_FORMAT on    //
+    //  EXACTLY that index with STREAM_IS_RUNNING, value-independent        //
+    //  (Milan 5.4.2.6 / 5.3.8.2). This is the plumbing proof the aecp     //
+    //  harness pins cannot give: the vector here comes from the REAL      //
+    //  listener SM, not a TB port poke. The unbind half lives in the t21  //
+    //  section below, right after ctx2's DISCONNECT_RX.                   //
+    // ================================================================== //
+    printf("-- gh #58 D1 e2e: BOUND sink 2 refuses SET_STREAM_FORMAT --\n");
+    {
+        std::vector<uint8_t> q2 = {0x00,0x05,0x00,0x02};      // STREAM_INPUT 2
+        auto g2 = aecp_xact(9, 0x5810, q2);                   // GET_STREAM_FORMAT
+        ck("D1-e2e: GET_FMT(in2) SUCCESS", aecp_status(g2), 0);
+        ck("D1-e2e: response long enough", g2.size() >= 50 ? 1 : 0, 1);
+        // SET the very same value: the refusal keys on the BIND alone
+        std::vector<uint8_t> s2(q2);
+        for (int i = 0; i < 8 && g2.size() >= 50; i++) s2.push_back(g2[42+i]);
+        auto r2 = aecp_xact(8, 0x5811, s2);                   // SET_STREAM_FORMAT
+        ck("D1-e2e: SET(in2) while ctx2 BOUND -> STREAM_IS_RUNNING",
+           aecp_status(r2), 12);
+        // the NEIGHBOUR sink was never ACMP-bound: the same-value SET
+        // lands there - the gate is PER INDEX through the live vector
+        std::vector<uint8_t> q1 = {0x00,0x05,0x00,0x01};
+        auto g1 = aecp_xact(9, 0x5812, q1);
+        ck("D1-e2e: GET_FMT(in1) SUCCESS", aecp_status(g1), 0);
+        std::vector<uint8_t> s1(q1);
+        for (int i = 0; i < 8 && g1.size() >= 50; i++) s1.push_back(g1[42+i]);
+        auto r1 = aecp_xact(8, 0x5813, s1);
+        ck("D1-e2e: SET(in1) unbound neighbour SUCCEEDS", aecp_status(r1), 0);
+    }
 
     printf("-- E3 journal ingest end-to-end: a saved bind survives 'reboot' "
            "--\n");
@@ -2277,6 +2355,23 @@ int main(int argc, char** argv) {
             srp = axi_read(A_SW_SRP);
         }
         ck("t21 unbind: SRP row withdrawn (invalid)", (srp >> 15) & 1, 0);
+
+        // gh #58 D1 e2e, the unbind half: ctx2's bind level just FELL, so
+        // the same-value SET the bound section saw refused with 12 now
+        // lands - acmpl_bound_v_w -> lstn_bound_v_i proven in BOTH
+        // directions through the real ACMP frames
+        {
+            std::vector<uint8_t> q2 = {0x00,0x05,0x00,0x02};
+            auto g2 = aecp_xact(9, 0x5820, q2);
+            ck("t21/gh58: GET_FMT(in2) SUCCESS after unbind",
+               aecp_status(g2), 0);
+            std::vector<uint8_t> s2(q2);
+            for (int i = 0; i < 8 && g2.size() >= 50; i++)
+                s2.push_back(g2[42+i]);
+            auto r2 = aecp_xact(8, 0x5821, s2);
+            ck("t21/gh58: SET(in2) after UNBIND -> SUCCESS (level fell)",
+               aecp_status(r2), 0);
+        }
 
         // ==== t21-l0: sink 0's DEDICATED listener row =====================
         // The ax-rv32-g return-leg fix, end to end: sink 0's Listener

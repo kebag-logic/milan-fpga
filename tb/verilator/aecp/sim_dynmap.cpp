@@ -196,6 +196,8 @@ int main(int argc, char** argv) {
     for (int w = 0; w < 10; w++) dut->rxdiag_cnt_i[w] = 0;
     for (int w = 0; w < 5; w++)  dut->tkdiag_cnt_i[w] = 0;
     dut->n_aaf_sinks_i = N_AAF_SINKS_TB;
+    // gh #58 stream-command law truth vectors: wake unbound / not streaming
+    dut->lstn_bound_v_i = 0; dut->out_streaming_v_i = 0;
     { uint64_t m=0; for(int i=0;i<6;i++) m=(m<<8)|ENT_MAC[i]; dut->station_mac_i = m; }
     for (int i = 0; i < 8; i++) tick();
     dut->rst_n = 1;
@@ -381,6 +383,17 @@ int main(int argc, char** argv) {
           if (w.size()==1) { ck("... addr 2, word 0 (en=0)", w[0].addr*256+w[0].word, 2*256+0); } }
         u = collect_resp();
         ck("REMOVE change -> replay (u=1)", r_u(u), 1);
+        //! gh #58 D6 (#34): the replay re-runs the walk against a store the
+        //! ORIGINAL REMOVE already emptied - the validate pass misses, and
+        //! the demote (now command-only) used to turn this u=1 frame into
+        //! BAD_ARGUMENTS: a failure announced that never happened. The
+        //! status byte was UNCHECKED here; the quartet pins the whole law.
+        ck("replay status SUCCESS (7.4.46 rebroadcast)", r_status(u), 0);
+        ck("replay is the REMOVE response", r_be16(u, 36) & 0x7FFF, CMD_RM_MAP);
+        ck("replay echoes the removed record", row_is(u, 46, 0, 0,0,2,0), 1);
+        { auto w = take_wrs();
+          ck("replay walked but wrote NOTHING to the fabric",
+             (long)w.size(), 0); }
 
         feed_rx(aem_cmd2(CTL_MAC, CTLR_ID, CMD_RM_MAP, seq++,
                          am_pl(SPI, 0, {{{0,0,2,0}}})));
