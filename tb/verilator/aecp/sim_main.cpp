@@ -1635,21 +1635,33 @@ int main(int argc, char** argv) {
         ck("[21b] GM_CHANGED +1", be32_at(r, 66), gmc0 + 1);
 
         // (b2) link edge -> unsolicited AVB_INTERFACE GET_COUNTERS push to a
-        //      registered controller (Milan 5.4.5; CERT link-flap)
+        //      registered controller (Milan 5.4.5; CERT link-flap). gh #60
+        //      F1 FLIP: the row carries the per-descriptor 1 s window now,
+        //      so a bounce (two edges back to back) yields ONE frame - the
+        //      first edge pushes at once (window resets saturated) and the
+        //      frame carries the ACCUMULATED raw totals (both edges already
+        //      counted); the second edge's dirty waits out the window
+        //      (un-simulable at the real-time clock here - the flap-clamp
+        //      cadence is pinned at scale in sim_unsol). The old law pinned
+        //      here was one frame PER edge - the 5 Hz flap violation.
         {
             std::vector<uint8_t> rp(8, 0);
             feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x21B0, rp));
             ck("[21b2] REGISTER ok", r_status(collect_resp()), 0);
             dut->link_up_i = 0; for (int i = 0; i < 4; i++) tick();
             dut->link_up_i = 1; for (int i = 0; i < 4; i++) tick();
-            auto p1 = collect_resp();   // push for the DOWN edge
-            ck("[21b2] link-down push arrives", p1.empty() ? 0 : 1, 1);
+            auto p1 = collect_resp();   // push for the bounce
+            ck("[21b2] link-bounce push arrives", p1.empty() ? 0 : 1, 1);
             ck("[21b2] push is GET_COUNTERS", (long)((p1.size()>37)?((p1[36]&0x7F)<<8|p1[37]):0) & 0x7FFF, 41);
             ckbytes("[21b2] push desc AVB_INTERFACE", p1, 38, {0x00,0x09,0x00,0x00});
-            ck("[21b2] push LINK_DOWN 2", be32_at(p1, 50), 2);
-            auto p2 = collect_resp();   // push for the UP edge
-            ck("[21b2] link-up push arrives", p2.empty() ? 0 : 1, 1);
-            ck("[21b2] push LINK_UP 3", be32_at(p2, 46), 3);
+            ck("[21b2] push LINK_DOWN 2 (raw total unthrottled)", be32_at(p1, 50), 2);
+            // the frame snapshots the counters at ITS emit cycle - the up
+            // edge lands after it and keeps counting into the raw total
+            // (the accumulated-totals window frame is pinned at scale in
+            // sim_unsol, where a 1 s window fits the sim horizon)
+            ck("[21b2] push LINK_UP 2 (up edge after the snapshot)", be32_at(p1, 46), 2);
+            auto p2 = collect_resp(800);   // second edge: clamped by the window
+            ck("[21b2] no second frame inside the 1 s window", (long)p2.size(), 0);
             feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x21B1, rp));
             ck("[21b2] DEREGISTER ok", r_status(collect_resp()), 0);
         }
@@ -2259,16 +2271,11 @@ int main(int argc, char** argv) {
         dut->rxdiag_cnt_i[9] = 0x00ABCDEF; // FRAMES_RX
         dut->rxdiag_cnt_i[10] = 0x00AB0000; // TIMESTAMP_VALID   (appended)
         dut->rxdiag_cnt_i[11] = 0x0000CDEF; // TIMESTAMP_NOT_VALID
-        // the unsol-push flavour still reads these:
+        // the CLOCK_DOMAIN follower still reads these two (gh #60 F3: the
+        // one lawful reader of the active-source mux; the other ten
+        // legacy in0_* ports died with the pend2 push class):
         dut->in0_cnt_locked_i      = 3;
         dut->in0_cnt_unlocked_i    = 2;
-        dut->in0_cnt_interrupted_i = 1;
-        dut->in0_cnt_seqmm_i       = 0x0102;
-        dut->in0_cnt_tu_i          = 5;
-        dut->in0_cnt_unsupp_i      = 7;
-        dut->in0_cnt_frx_i         = 0x00ABCDEF;
-        dut->in0_cnt_tv_i          = 0x00AB0000;
-        dut->in0_cnt_tnv_i         = 0x0000CDEF;
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x220C,
                          si_pl(0x0005, 0)));
         r = collect_resp();
@@ -2373,7 +2380,10 @@ int main(int argc, char** argv) {
         };
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x220E, {}));
         ck("[22i] REGISTER A", r_status(collect_resp()), 0);
-        dut->in0_cnt_dirty_p_i = 1; tick(); dut->in0_cnt_dirty_p_i = 0;
+        // gh #60 F2/F3: the push arms off the monitor's per-sink dirty
+        // vector (bit 0 = sink 0) and serves the SAME rxdiag mirror the
+        // solicited path reads - the in0_* payload flavour is retired
+        dut->rxdiag_dirty_p_i = 0x0001; tick(); dut->rxdiag_dirty_p_i = 0;
         r = collect_resp();
         ck("[22i] counters push arrived", r.size() > 0, 1);
         ck("[22i] push u-bit set", u_bit(r), 1);
@@ -2387,7 +2397,7 @@ int main(int argc, char** argv) {
         // only A is registered ([13] cleans its table): no extra fan-out
         r = collect_resp(800);
         ck("[22i] no extra fan-out push", r.size(), 0);
-        dut->in0_cnt_dirty_p_i = 1; tick(); dut->in0_cnt_dirty_p_i = 0;
+        dut->rxdiag_dirty_p_i = 0x0001; tick(); dut->rxdiag_dirty_p_i = 0;
         r = collect_resp(800);
         ck("[22i] second dirty rate-limited (no push)", r.size(), 0);
         feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x220F, {}));

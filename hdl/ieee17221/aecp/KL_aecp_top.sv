@@ -102,18 +102,23 @@ module KL_aecp_top #(
   input  wire [5*32-1:0]  tkdiag_cnt_i,    //! that source's Table 5.4 set
   input  wire [15:0]      tkdiag_dirty_p_i,//! per-source counter-update pulses
                                            //! (Milan 5.4.5 unsolicited push)
+  //! per-sink counter-update pulses (gh #60 F2: the listener-side twin -
+  //! KL_avtp_rx_monitor_ctx dirty vector, zero-extended)
+  input  wire [15:0]      rxdiag_dirty_p_i,
+  input  wire             crf_cnt_dirty_p_i, //! CRF sink counter-update pulse
   input  wire [15:0]      n_aaf_sinks_i,   //! AAF sink count (CRF sink at it)
   // ---- CRF Media Clock Input counters (KL_crf_rx; Milan Table 5.16) ---
+  //! full-width (gh #61 G1): the engine's backing is 32-bit wrapping now
   input  wire [31:0]      crf_cnt_locked_i,    //! MEDIA_LOCKED (bit 0)
   input  wire [31:0]      crf_cnt_unlocked_i,  //! MEDIA_UNLOCKED (bit 1)
   input  wire [31:0]      crf_cnt_intr_i,      //! STREAM_INTERRUPTED (bit 2)
-  input  wire [7:0]       crf_cnt_seqerr_i,    //! SEQ_NUM_MISMATCH (bit 3)
-  input  wire [15:0]      crf_cnt_mreset_i,    //! MEDIA_RESET (bit 4)
-  input  wire [15:0]      crf_cnt_tu_i,        //! TIMESTAMP_UNCERTAIN (bit 5)
-  input  wire [7:0]       crf_cnt_fmterr_i,    //! UNSUPPORTED_FORMAT (bit 8)
-  input  wire [15:0]      crf_cnt_late_i,      //! LATE_TIMESTAMP (bit 9)
-  input  wire [15:0]      crf_cnt_early_i,     //! EARLY_TIMESTAMP (bit 10)
-  input  wire [15:0]      crf_cnt_pdu_i,       //! FRAMES_RX (bit 11)
+  input  wire [31:0]      crf_cnt_seqerr_i,    //! SEQ_NUM_MISMATCH (bit 3)
+  input  wire [31:0]      crf_cnt_mreset_i,    //! MEDIA_RESET (bit 4)
+  input  wire [31:0]      crf_cnt_tu_i,        //! TIMESTAMP_UNCERTAIN (bit 5)
+  input  wire [31:0]      crf_cnt_fmterr_i,    //! UNSUPPORTED_FORMAT (bit 8)
+  input  wire [31:0]      crf_cnt_late_i,      //! LATE_TIMESTAMP (bit 9)
+  input  wire [31:0]      crf_cnt_early_i,     //! EARLY_TIMESTAMP (bit 10)
+  input  wire [31:0]      crf_cnt_pdu_i,       //! FRAMES_RX (bit 11)
 
   // ---- listener sink state (KL_acmp_listener; STREAM_INPUT[0]) --------
   input  wire          lstn_bound_i,
@@ -146,20 +151,11 @@ module KL_aecp_top #(
   input  wire [63:0]   tk_fail_bridge_i,   //! ...bridge_id
   input  wire [11:0]   srp_domain_vid_i,   //! SRP domain VID (AVB_INFO map)
 
-  // ---- STREAM_INPUT[0] diagnostics (KL_avtp_rx_monitor) --------------
+  // ---- CLOCK_DOMAIN lock tallies (gh #60 F3: the ONE lawful reader of
+  //      the datapath's active-clock-source mux; every STREAM_INPUT
+  //      counter serves its own rxdiag_cnt_i mirror slice) --------------
   input  wire [31:0]   in0_cnt_locked_i,
   input  wire [31:0]   in0_cnt_unlocked_i,
-  input  wire [31:0]   in0_cnt_interrupted_i,
-  input  wire [31:0]   in0_cnt_seqmm_i,
-  input  wire [31:0]   in0_cnt_tu_i,
-  input  wire [31:0]   in0_cnt_unsupp_i,
-  input  wire [31:0]   in0_cnt_frx_i,
-  input  wire [31:0]   in0_cnt_mreset_i,
-  input  wire [31:0]   in0_cnt_late_i,
-  input  wire [31:0]   in0_cnt_early_i,
-  input  wire [31:0]   in0_cnt_tv_i,       //! TIMESTAMP_VALID (Milan 1.3)
-  input  wire [31:0]   in0_cnt_tnv_i,      //! TIMESTAMP_NOT_VALID
-  input  wire          in0_cnt_dirty_p_i,
   output wire [63:0]   in0_fmt_o,          //! live STREAM_INPUT[0] format
   output wire [15:0]   clk_src_o,          //! live clock_source_index
 
@@ -279,13 +275,18 @@ module KL_aecp_top #(
   );
 
   // ---- L0 entity state (LOCK / ACQUIRE-unsupported / config) ---------
+  //! lock auto-expiry pulse -> the response builder's Table 5.22 push
+  //! class (gh #58 D4; Milan v1.2 5.4.2.2 note). L0's countdown is the
+  //! LIVE lock timer; KL_aecp_timers' lock_expired_o stays tied off.
+  logic lock_expired_p_w;
   KL_aecp_l0_state u_l0 (
     .clk_i(clk_i), .rst_n(rst_n),
     .entity_id_i(entity_id_i),
     .hdr_i(hdr_w), .message_type_i(val_msgtype_w),
     .tick_1khz_i(tick_1khz_w), .cmd_done_i(1'b0),
     .al_desc_ok_i(al_desc_ok_w), .al_gate_p_i(al_gate_p_w),
-    .l0_state_o(l0_state_w), .status_o(l0_status_w), .reject_o(l0_reject_w)
+    .l0_state_o(l0_state_w), .status_o(l0_status_w), .reject_o(l0_reject_w),
+    .lock_expired_p_o(lock_expired_p_w)
   );
 
   // ---- AEM store <-> dynamic overlay mux -----------------------------
@@ -374,6 +375,9 @@ module KL_aecp_top #(
     .link_up_i(link_up_i),
     .gs_diag_idx_o(gs_diag_idx_o), .rxdiag_cnt_i(rxdiag_cnt_i),
     .tkdiag_cnt_i(tkdiag_cnt_i), .tkdiag_dirty_p_i(tkdiag_dirty_p_i),
+    .rxdiag_dirty_p_i(rxdiag_dirty_p_i),
+    .crf_cnt_dirty_p_i(crf_cnt_dirty_p_i),
+    .lock_expired_p_i(lock_expired_p_w),
     .n_aaf_sinks_i(n_aaf_sinks_i),
     .crf_cnt_locked_i(crf_cnt_locked_i),
     .crf_cnt_unlocked_i(crf_cnt_unlocked_i),
@@ -402,17 +406,6 @@ module KL_aecp_top #(
     .tick_1khz_i(tick_1khz_w),
     .in0_cnt_locked_i(in0_cnt_locked_i),
     .in0_cnt_unlocked_i(in0_cnt_unlocked_i),
-    .in0_cnt_interrupted_i(in0_cnt_interrupted_i),
-    .in0_cnt_seqmm_i(in0_cnt_seqmm_i),
-    .in0_cnt_tu_i(in0_cnt_tu_i),
-    .in0_cnt_unsupp_i(in0_cnt_unsupp_i),
-    .in0_cnt_frx_i(in0_cnt_frx_i),
-    .in0_cnt_mreset_i(in0_cnt_mreset_i),
-    .in0_cnt_late_i(in0_cnt_late_i),
-    .in0_cnt_early_i(in0_cnt_early_i),
-    .in0_cnt_tv_i(in0_cnt_tv_i),
-    .in0_cnt_tnv_i(in0_cnt_tnv_i),
-    .in0_cnt_dirty_p_i(in0_cnt_dirty_p_i),
     .in0_fmt_o(in0_fmt_o), .clk_src_o(clk_src_o),
     .st_addr_o(st_raddr_w), .st_rd_o(st_rd_w), .st_byte_i(st_ovl_byte_w),
     .st_waddr_o(st_waddr_w), .st_wr_o(st_wr_w), .st_wdata_o(st_wdata_w),

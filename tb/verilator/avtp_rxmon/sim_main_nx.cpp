@@ -72,8 +72,13 @@ static void check_lock_invariant(){
     }
 }
 
+// gh #60 F2: per-context Table 5.22 dirty pulses observed (1-cycle strobes)
+static long g_dirty[4];
+static void zero_dirty(){ for(int s=0;s<4;s++) g_dirty[s]=0; }
+
 static void sample(){
     check_lock_invariant();
+    for(int s=0;s<4;s++) if((dut->dirty_p_o>>s)&1) g_dirty[s]++;
     if(dut->pdu_accept_p_o) acc_idx.push_back(dut->pdu_accept_idx_o);
     if(dut->pcm_tvalid_o && dut->pcm_tready_i){
         for(int l=0;l<8;l++) pcm.push_back((dut->pcm_tdata_o>>(8*l))&0xFF);
@@ -676,6 +681,69 @@ int main(int argc,char**argv){
             if (acc_idx.size() - a0 != 2) lost++;
         }
         ck("[IV7] no accept verdict missed across 40 drain phases", lost, 0);
+    }
+
+    printf("\n[DV] gh #60 F2+F4: per-context dirty vector; TV silent, TNV\n"
+           "     armed. The old port was a stream-0 SCALAR that pulsed on\n"
+           "     EVERY accepted PDU - a healthy stream pushed GET_COUNTERS\n"
+           "     1/s forever off its own TV tally. Option (c): TV joins the\n"
+           "     FRAMES_RX exclusion (task-21 narrowing), TNV stays an\n"
+           "     anomaly, and every context owns its own bit.\n");
+    {
+        static const uint64_t SD1 = 0x020000FFFE070000ULL;
+        static const uint64_t SD2 = 0x020000FFFE080000ULL;
+        tblwr(1, SD1, false); cyc(10); tblwr(1, SD1, true); cyc(60);
+        tblwr(2, SD2, false); cyc(10); tblwr(2, SD2, true); cyc(60);
+        lctx_wr(1, 2, (uint32_t)(FMT & 0xFFFFFFFF));
+        lctx_wr(1, 3, (uint32_t)(FMT >> 32));
+        lctx_wr(2, 2, (uint32_t)(FMT & 0xFFFFFFFF));
+        lctx_wr(2, 3, (uint32_t)(FMT >> 32));
+        align_iv();
+        uint8_t q1 = 0, q2 = 0;
+        // the lock EVENT pulses, on the context's own bit
+        zero_dirty();
+        { AafCfg c; c.sid=SD1; c.seq=q1++; feed(mkaaf(c)); }
+        ck("[DV1] s1's lock pulses bit 1 exactly once", g_dirty[1], 1);
+        ck("[DV1] and no other bit", g_dirty[0]+g_dirty[2]+g_dirty[3], 0);
+        zero_dirty();
+        { AafCfg c; c.sid=SD2; c.seq=q2++; feed(mkaaf(c)); }
+        ck("[DV1b] s2's lock pulses bit 2 exactly once", g_dirty[2], 1);
+        ck("[DV1b] and no other bit", g_dirty[0]+g_dirty[1]+g_dirty[3], 0);
+        // F4 (c): healthy tv=1 streaming is SILENT - at the accept site
+        // (TV excluded) AND at its FRAMES_RX-only interval commits
+        zero_dirty();
+        for (int k = 0; k < 5; k++){ AafCfg c; c.sid=SD1; c.seq=q1++;
+                                     feed(mkaaf(c)); }
+        for (int k = 0; k < 5; k++){ AafCfg c; c.sid=SD2; c.seq=q2++;
+                                     feed(mkaaf(c)); }
+        flush_iv();
+        ck("[DV2] healthy tv=1 streaming is SILENT on every bit",
+           g_dirty[0]+g_dirty[1]+g_dirty[2]+g_dirty[3], 0);
+        // TNV stays armed: an accepted PDU WITHOUT a valid timestamp is an
+        // anomaly and pulses at the accept
+        zero_dirty();
+        { AafCfg c; c.sid=SD2; c.seq=q2++; c.tv=false; feed(mkaaf(c)); }
+        ck("[DV3] a tv=0 PDU pulses s2's bit at the accept", g_dirty[2], 1);
+        ck("[DV3] no cross-context leak", g_dirty[0]+g_dirty[1]+g_dirty[3], 0);
+        // an anomaly INTERVAL commit pulses the right bit, at the commit
+        zero_dirty();
+        { AafCfg c; c.sid=SD1; c.seq=q1++; c.tu=true; feed(mkaaf(c)); }
+        ck("[DV4] no pulse before the interval commit", g_dirty[1], 0);
+        flush_iv();
+        ck("[DV4b] the TU interval commit pulses s1's bit", g_dirty[1], 1);
+        ck("[DV4c] s2's healthy interval stays silent", g_dirty[2], 0);
+        // stream 0 - the context the old scalar law served per-accept:
+        // rebind fresh, lock (one event pulse), then healthy silence
+        dut->bound0_i = 0; cyc(20); dut->bound0_i = 1; cyc(80);
+        uint8_t q0 = 0;
+        zero_dirty();
+        { AafCfg c; c.seq=q0++; feed(mkaaf(c)); }
+        ck("[DV5] s0's lock event pulses bit 0", g_dirty[0], 1);
+        zero_dirty();
+        for (int k = 0; k < 5; k++){ AafCfg c; c.seq=q0++; feed(mkaaf(c)); }
+        flush_iv();
+        ck("[DV5b] healthy s0 tv=1 traffic is SILENT (the flipped law)",
+           g_dirty[0], 0);
     }
 
     printf("\n======================================================================\n");

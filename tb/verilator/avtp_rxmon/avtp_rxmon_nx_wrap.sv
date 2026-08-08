@@ -73,6 +73,8 @@ module avtp_rxmon_nx_wrap #(
   output wire [31:0] cnt_ts_valid_o,
   output wire [31:0] cnt_ts_not_valid_o,
   output wire        media_locked_o,
+  //! per-context Table 5.22 counter-change pulses (gh #60 F2/F4)
+  output wire [N_STREAMS_P-1:0] dirty_p_o,
   output wire        pdu_accept_p_o,
   output wire [3:0]  pdu_accept_idx_o,
   output wire [7:0]  wire_chans_o,
@@ -163,7 +165,7 @@ module avtp_rxmon_nx_wrap #(
     .cnt_ts_valid_o (cnt_ts_valid_o),
     .cnt_ts_not_valid_o (cnt_ts_not_valid_o),
     .media_locked_o (media_locked_o),
-    .dirty_p_o (),
+    .dirty_p_o (dirty_p_o),
     .pdu_accept_p_o (pdu_accept_p_o),
     .pdu_accept_idx_o (pdu_accept_idx_o),
     .wire_chans_o (wire_chans_o),

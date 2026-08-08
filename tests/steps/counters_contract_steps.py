@@ -456,7 +456,11 @@ def step_cc_crf_law(context, law, counter):
         assert cnt not in tick, (
             f"{counter} is folded into the observation-interval commit; "
             f"Table 5.6 says 'incremented each time ...', which is per event")
-        assert re.search(r"if \(w_ev_si_w\) %s\s*<=" % cnt, src), (
+        # the per-event increment may share its guard with the Table 5.22
+        # dirty pulse (gh #60 F2), so a begin block is as lawful as the
+        # bare statement - the LAW is the guard, not the block style
+        assert re.search(r"if \(w_ev_si_w\)(?:\s*begin)?\s*%s\s*<=" % cnt,
+                         src), (
             f"{counter} has no per-event increment in KL_crf_rx")
 
 

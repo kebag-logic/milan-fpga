@@ -29,8 +29,12 @@ VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
 TOP        = KL_crf_rx
 
+# --public-flat-rw: the [G1] wrap cases preload the counter flops at their
+# old wrap/peg points (65534, 254) instead of simulating 18 h of soak; the
+# flag keeps every signal writable (and un-localized) from the harness.
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
+         --public-flat-rw \
          -GCLK_FREQ_HZ_P=200000 \
          -GIVAL_CYC_P=$(IVAL_CYC) \
          -GMAXTT_NS_P=$(MAXTT_NS) -GEARLY_MARGIN_NS_P=$(EARLY_M_NS) \

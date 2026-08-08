@@ -3,14 +3,24 @@
  * SPDX-License-Identifier: CERN-OHL-W-2.0
  *
  * Milan v1.2 Table 5.22 asynchronous push classes (VERSION 0x0024): the
- * four notifications the entity volunteers WITHOUT a causing command -
+ * notifications the entity volunteers WITHOUT a causing command -
  * GET_STREAM_INFO(STREAM_INPUT) for sink 0 and the CRF sink off the
  * change-signature dwell, GET_AVB_INFO off the gPTP identity signature
  * (1 Hz-bounded), GET_AS_PATH off {GM, parent}, GET_COUNTERS(CLOCK_DOMAIN)
  * off the media-lock tallies (Table 5.22's own 1/s-per-descriptor bound).
+ * gh #60 adds: [9] the AVB_INTERFACE row's own 1 s window (a 5 Hz link
+ * flap collapses to 1 immediate + 1 accumulated-totals window frame),
+ * [10] per-sink STREAM_INPUT GET_COUNTERS pushes off the monitor's dirty
+ * vector (per-descriptor windows), [11] the CRF sink's own GET_COUNTERS
+ * push at index n_aaf_sinks with mask 0x0F3F, [12] the sink-0 push serving
+ * the SAME mirror slice the solicited path serves even at clk_src=2 (the
+ * retired in0_* payload took the datapath's active-source mux splice).
+ * gh #58 D4 adds: [13] the 60 s lock auto-expiry u=1 LOCK_ENTITY push to
+ * every registered controller (Milan 5.4.2.2 note) - and to nobody else.
  * Compiled against the deployed shape (gen/: inputs = [AAF, CRF]) with
  * CLK_FREQ_HZ_P=100000, so one KL_aecp_timers millisecond = 100 cycles and
- * the 16 ms dwell / 1000 ms windows run in-sim for real. Exit 0 = pass.
+ * the 16 ms dwell / 1000 ms windows / 60 s lock timer run in-sim for real.
+ * Exit 0 = pass.
  */
 
 #include "VKL_aecp_top.h"
@@ -165,7 +175,8 @@ int main(int argc, char** argv) {
     dut->lstn_ta_vlan_i = 0; dut->lstn_ta_acclat_i = 0;
     dut->lstn1_bound_i = 0; dut->lstn1_sid_i = 0; dut->lstn1_dmac_i = 0;
     dut->in0_cnt_locked_i = 0; dut->in0_cnt_unlocked_i = 0;
-    dut->in0_cnt_dirty_p_i = 0; dut->tkdiag_dirty_p_i = 0;
+    dut->rxdiag_dirty_p_i = 0; dut->crf_cnt_dirty_p_i = 0;
+    dut->tkdiag_dirty_p_i = 0;
     for (int w = 0; w < 12; w++) dut->rxdiag_cnt_i[w] = 0;
     for (int w = 0; w < 5; w++)  dut->tkdiag_cnt_i[w] = 0;
     dut->n_aaf_sinks_i = N_AAF_SINKS_TB;
@@ -271,27 +282,31 @@ int main(int argc, char** argv) {
     printf("\n[4] GM change: counters + GET_AVB_INFO + GET_AS_PATH triple\n");
     {
         dut->gptp_gm_id_i = 0x001B21FFFE55AA00ULL;
-        // chain order: AVB_IF GET_COUNTERS (pend3), then AVB_INFO (pend7),
-        // then AS_PATH (pend8)
+        // arrival order: AS_PATH (pend8, armed straight off the signature)
+        // first, then AVB_IF GET_COUNTERS (pend3) and AVB_INFO (pend7) in
+        // chain order - gh #60 F1 put a dirty stage in front of pend3, so
+        // its arm lands one cycle behind pend8's and the arbiter has
+        // already taken AS_PATH. The spec orders nothing between classes;
+        // the content and the exactly-three law are what matter.
         auto r1 = collect_resp();
         auto r2 = collect_resp();
         auto r3 = collect_resp();
         ck("[4] three pushes", (r1.size()>0) + (r2.size()>0) + (r3.size()>0), 3);
-        ck("[4] 1st = GET_COUNTERS", r_cmd(r1), 0x29);
-        ck("[4] 1st desc AVB_INTERFACE", be_at(r1, 38, 4), 0x00090000);
-        ck("[4] 1st GPTP_GM_CHANGED = 1", be_at(r1, 66, 4), 1);
-        ck("[4] 2nd = GET_AVB_INFO", r_cmd(r2), 0x27);
-        ck("[4] 2nd u-bit", u_bit(r2), 1);
-        ck("[4] 2nd CDL 36 (one msrp mapping)", r_cdl(r2), 36);
+        ck("[4] 1st = GET_AS_PATH", r_cmd(r1), 0x28);
+        ck("[4] 1st index 0", be_at(r1, 38, 2), 0);
+        ck("[4] 1st count 1 (foreign GM, no parent)", be_at(r1, 41, 1), 1);
+        ck("[4] 1st path[0] = the GM", be_at(r1, 42, 8) == dut->gptp_gm_id_i, 1);
+        ck("[4] 2nd = GET_COUNTERS", r_cmd(r2), 0x29);
         ck("[4] 2nd desc AVB_INTERFACE", be_at(r2, 38, 4), 0x00090000);
-        ck("[4] 2nd gm id live", be_at(r2, 42, 8) == dut->gptp_gm_id_i, 1);
-        ck("[4] 2nd pdelay live", be_at(r2, 50, 4), 0x300);
-        ck("[4] 2nd flags AS_CAP|GPTP|SRP", be_at(r2, 55, 1), 0x07);
-        ck("[4] 2nd mapping {A,3,vid 2}", be_at(r2, 58, 4), 0x06030002);
-        ck("[4] 3rd = GET_AS_PATH", r_cmd(r3), 0x28);
-        ck("[4] 3rd index 0", be_at(r3, 38, 2), 0);
-        ck("[4] 3rd count 1 (foreign GM, no parent)", be_at(r3, 41, 1), 1);
-        ck("[4] 3rd path[0] = the GM", be_at(r3, 42, 8) == dut->gptp_gm_id_i, 1);
+        ck("[4] 2nd GPTP_GM_CHANGED = 1", be_at(r2, 66, 4), 1);
+        ck("[4] 3rd = GET_AVB_INFO", r_cmd(r3), 0x27);
+        ck("[4] 3rd u-bit", u_bit(r3), 1);
+        ck("[4] 3rd CDL 36 (one msrp mapping)", r_cdl(r3), 36);
+        ck("[4] 3rd desc AVB_INTERFACE", be_at(r3, 38, 4), 0x00090000);
+        ck("[4] 3rd gm id live", be_at(r3, 42, 8) == dut->gptp_gm_id_i, 1);
+        ck("[4] 3rd pdelay live", be_at(r3, 50, 4), 0x300);
+        ck("[4] 3rd flags AS_CAP|GPTP|SRP", be_at(r3, 55, 1), 0x07);
+        ck("[4] 3rd mapping {A,3,vid 2}", be_at(r3, 58, 4), 0x06030002);
         ck("[4] seqs 3,4,5", (r_seq(r1)==3) && (r_seq(r2)==4) && (r_seq(r3)==5), 1);
         auto r = collect_resp(700);
         ck("[4] no fourth frame", r.size(), 0);
@@ -420,6 +435,203 @@ int main(int argc, char** argv) {
         }
         feed_rx(aem_cmd(37, 0x5805, {}));
         ck("[8] DEREGISTER A", r_status(collect_resp()), 0);
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[9] gh #60 F1: AVB_INTERFACE push clamped to 1/s under a "
+           "5 Hz link flap\n");
+    {
+        feed_rx(aem_cmd(36, 0x5901, {}));
+        ck("[9] REGISTER A", r_status(collect_resp()), 0);
+        // baseline raw totals through the solicited arm
+        std::vector<uint8_t> pl; put_be16(pl, 0x0009); put_be16(pl, 0);
+        auto rb = xact(41, pl);
+        ck("[9] solicited GET_COUNTERS(AVB_IF) SUCCESS", r_status(rb), 0);
+        long up0 = (long)be_at(rb, 46, 4), dn0 = (long)be_at(rb, 50, 4);
+        // first edge of the flap: the window rides out saturated, so it
+        // pushes at once - the immediate frame
+        dut->link_up_i = 0;
+        auto p1 = collect_resp();
+        ck("[9] first edge pushes at once", p1.size() > 0, 1);
+        ck("[9] push desc AVB_INTERFACE", be_at(p1, 38, 4), 0x00090000);
+        ck("[9] immediate frame LINK_DOWN +1", (long)be_at(p1, 50, 4), dn0 + 1);
+        // 9 more edges at 5 Hz (one every 100 ms): all inside the window
+        for (int e = 1; e < 10; e++) {
+            run_cycles(10000);
+            dut->link_up_i = e & 1;
+        }
+        // the window expires ~1 s after the immediate frame: ONE deferred
+        // frame carrying the ACCUMULATED raw totals (5 downs + 5 ups all
+        // counted - the totals never throttle, only the notifications)
+        auto p2 = wait_push(15000);
+        ck("[9] ONE window frame after the flap", p2.size() > 0, 1);
+        ck("[9] accumulated LINK_DOWN total", (long)be_at(p2, 50, 4), dn0 + 5);
+        ck("[9] accumulated LINK_UP total", (long)be_at(p2, 46, 4), up0 + 5);
+        // flap over, dirty consumed: a further full window stays silent
+        auto p3 = wait_push(101000);
+        ck("[9] no third frame (flap ended)", (long)p3.size(), 0);
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[10] gh #60 F2: per-sink counter push - sink 1 arms its OWN "
+           "descriptor\n");
+    {
+        // distinct mirror words: the pre-mux serves the PUSH's index while
+        // it waits in IDLE, so this bus is "the pending sink's slice"
+        for (int w = 0; w < 12; w++) dut->rxdiag_cnt_i[w] = 0x100 + w;
+        dut->rxdiag_dirty_p_i = 0x0002; tick(); dut->rxdiag_dirty_p_i = 0;
+        auto r = collect_resp();
+        ck("[10] sink-1 push arrived", r.size() > 0, 1);
+        ck("[10] u=1 GET_COUNTERS", (u_bit(r) == 1) && (r_cmd(r) == 0x29), 1);
+        ck("[10] desc bytes 00 05 00 01", be_at(r, 38, 4), 0x00050001);
+        ck("[10] valid mask 0xFFF", be_at(r, 42, 4), 0xFFF);
+        ck("[10] CDL 148", r_cdl(r), 148);
+        ck("[10] ML = mirror slice 0", be_at(r, 46, 4), 0x100);
+        ck("[10] TV = mirror slice 10", be_at(r, 70, 4), 0x10A);
+        ck("[10] TNV = mirror slice 11", be_at(r, 74, 4), 0x10B);
+        ck("[10] UF = mirror slice 6", be_at(r, 78, 4), 0x106);
+        ck("[10] FRX = mirror slice 9", be_at(r, 90, 4), 0x109);
+        ck("[10] sink 0 quiet (exactly one frame)",
+           (long)collect_resp(700).size(), 0);
+        // per-descriptor windows: sink 1 is clamped now, sink 2's first
+        // dirty still pushes at once
+        dut->rxdiag_dirty_p_i = 0x0002; tick(); dut->rxdiag_dirty_p_i = 0;
+        ck("[10] sink-1 second dirty clamped",
+           (long)collect_resp(700).size(), 0);
+        dut->rxdiag_dirty_p_i = 0x0004; tick(); dut->rxdiag_dirty_p_i = 0;
+        r = collect_resp();
+        ck("[10] sink-2 pushes immediately (own window)", r.size() > 0, 1);
+        ck("[10] its desc bytes 00 05 00 02", be_at(r, 38, 4), 0x00050002);
+        // sink 1's clamped dirty is OWED, not lost: it fires at window
+        // expiry with the values current THEN
+        r = wait_push(101000);
+        ck("[10] sink-1 deferred frame at window expiry", r.size() > 0, 1);
+        ck("[10] deferred frame desc 00 05 00 01", be_at(r, 38, 4), 0x00050001);
+        ck("[10] then silence", (long)collect_resp(700).size(), 0);
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[11] gh #60 F2: CRF sink push at index n_aaf_sinks, mask "
+           "0x0F3F\n");
+    {
+        dut->crf_cnt_locked_i   = 21;
+        dut->crf_cnt_unlocked_i = 22;
+        dut->crf_cnt_intr_i     = 23;
+        dut->crf_cnt_seqerr_i   = 24;
+        dut->crf_cnt_mreset_i   = 25;
+        dut->crf_cnt_tu_i       = 26;
+        dut->crf_cnt_fmterr_i   = 27;
+        dut->crf_cnt_late_i     = 28;
+        dut->crf_cnt_early_i    = 0x00010000;   // gh #61 G1: full 32 bits ride
+        dut->crf_cnt_pdu_i      = 30;
+        dut->crf_cnt_dirty_p_i = 1; tick(); dut->crf_cnt_dirty_p_i = 0;
+        auto r = collect_resp();
+        ck("[11] CRF push arrived", r.size() > 0, 1);
+        ck("[11] u=1 GET_COUNTERS", (u_bit(r) == 1) && (r_cmd(r) == 0x29), 1);
+        ck("[11] desc = STREAM_INPUT[n_aaf_sinks]", be_at(r, 38, 4),
+           0x00050000 + N_AAF_SINKS_TB);
+        ck("[11] valid mask 0x0F3F", be_at(r, 42, 4), 0xF3F);
+        ck("[11] CDL 148", r_cdl(r), 148);
+        ck("[11] ML", be_at(r, 46, 4), 21);
+        ck("[11] MU", be_at(r, 50, 4), 22);
+        ck("[11] SI", be_at(r, 54, 4), 23);
+        ck("[11] SM", be_at(r, 58, 4), 24);
+        ck("[11] MR", be_at(r, 62, 4), 25);
+        ck("[11] TU", be_at(r, 66, 4), 26);
+        ck("[11] TV/TNV unclaimed zero", be_at(r, 70, 4) | be_at(r, 74, 4), 0);
+        ck("[11] UF", be_at(r, 78, 4), 27);
+        ck("[11] LT", be_at(r, 82, 4), 28);
+        ck("[11] ET rides the FULL width (65536, not a 16-bit slice)",
+           be_at(r, 86, 4), 0x00010000);
+        ck("[11] FRX", be_at(r, 90, 4), 30);
+        ck("[11] exactly one frame", (long)collect_resp(700).size(), 0);
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[12] gh #60 F3: at clk_src=2 the sink-0 PUSH byte-equals the "
+           "solicited answer\n");
+    {
+        std::vector<uint8_t> sc; put_be16(sc, 0x0024); put_be16(sc, 0);
+        put_be16(sc, 2); put_be16(sc, 0);
+        auto rs = xact(22, sc);
+        ck("[12] SET_CLOCK_SOURCE(2) SUCCESS", r_status(rs), 0);
+        // the active-source mux (a datapath fact, TB-driven here) now
+        // carries CRF lock tallies - values deliberately DIFFERENT from
+        // the sink-0 mirror slice, so any payload still reading the mux
+        // is caught byte-red-handed
+        dut->in0_cnt_locked_i = 77; dut->in0_cnt_unlocked_i = 66;
+        auto rc = collect_resp();
+        ck("[12] CLOCK_DOMAIN push still carries the mux", rc.size() > 0, 1);
+        ck("[12] its desc CLOCK_DOMAIN/0", be_at(rc, 38, 4), 0x00240000);
+        ck("[12] its LOCKED = mux value", be_at(rc, 46, 4), 77);
+        ck("[12] its UNLOCKED = mux value", be_at(rc, 50, 4), 66);
+        // sink 0's own mirror slice + dirty
+        for (int w = 0; w < 12; w++) dut->rxdiag_cnt_i[w] = 0x300 + w;
+        dut->rxdiag_dirty_p_i = 0x0001; tick(); dut->rxdiag_dirty_p_i = 0;
+        auto rp = collect_resp();
+        ck("[12] sink-0 push arrived", rp.size() > 0, 1);
+        ck("[12] its desc 00 05 00 00", be_at(rp, 38, 4), 0x00050000);
+        std::vector<uint8_t> gp; put_be16(gp, 0x0005); put_be16(gp, 0);
+        auto rq = xact(41, gp);
+        ck("[12] solicited GET_COUNTERS(IN,0) SUCCESS", r_status(rq), 0);
+        long neq = 0;
+        for (int w = 0; w < 12; w++)
+            if (be_at(rp, 46 + 4 * w, 4) != be_at(rq, 46 + 4 * w, 4)) neq++;
+        ck("[12] push == solicited on all 12 words (ML/MU included)", neq, 0);
+        ck("[12] ML is the MIRROR value, never the mux splice",
+           be_at(rp, 46, 4), 0x300);
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[13] gh #58 D4: 60 s lock auto-expiry pushes u=1 LOCK_ENTITY "
+           "to the registered controllers\n");
+    {
+        // A registered since [9]; add B; C locks WITHOUT registering
+        const uint8_t MAC_B[6] = {0x68,0x05,0xCA,0x00,0x00,0xB0};
+        const uint64_t CID_B = 0x680500FFFE0000B0ULL;
+        const uint8_t MAC_C[6] = {0x68,0x05,0xCA,0x00,0x00,0xC0};
+        const uint64_t CID_C = 0x680500FFFE0000C0ULL;
+        feed_rx(aem_cmd2(MAC_B, CID_B, 36, 0x5D01, {}));
+        ck("[13] REGISTER B", r_status(collect_resp()), 0);
+        std::vector<uint8_t> lk(16, 0);   // flags 0, locked_id 0, ENTITY/0
+        feed_rx(aem_cmd2(MAC_C, CID_C, 1, 0x5D02, lk));
+        ck("[13] C LOCK SUCCESS", r_status(collect_resp()), 0);
+        ck("[13] no push while the lock lives", (long)wait_push(2000).size(), 0);
+        // 60 000 ticks x 100 cycles/ms; margin for the expiry pulse itself
+        auto p1 = wait_push(6020000);
+        ck("[13] expiry push 1 arrived", p1.size() > 0, 1);
+        ck("[13] u=1", u_bit(p1), 1);
+        ck("[13] cmd LOCK_ENTITY (0x0001)", r_cmd(p1), 1);
+        ck("[13] status SUCCESS", r_status(p1), 0);
+        ck("[13] CDL 28", r_cdl(p1), 28);
+        ck("[13] flags bytes 38-41 = 00 00 00 01 (UNLOCK)", be_at(p1, 38, 4), 1);
+        ck("[13] locked_id 0", be_at(p1, 42, 8) == 0, 1);
+        ck("[13] desc ENTITY/0", be_at(p1, 50, 4), 0);
+        ck("[13] first frame to A",
+           p1.size() >= 6 && memcmp(p1.data(), CTL_MAC, 6) == 0, 1);
+        auto p2 = collect_resp();
+        ck("[13] expiry push 2 arrived", p2.size() > 0, 1);
+        ck("[13] second frame to B",
+           p2.size() >= 6 && memcmp(p2.data(), MAC_B, 6) == 0, 1);
+        ck("[13] same UNLOCK shape to B",
+           (r_cmd(p2) == 1) && (u_bit(p2) == 1) && (be_at(p2, 38, 4) == 1), 1);
+        ck("[13] exactly 2 pushes - C never registered",
+           (long)collect_resp(700).size(), 0);
+        // the state really cleared: B locks IMMEDIATELY (a live lock would
+        // answer ENTITY_LOCKED) and that lock pushes NOTHING
+        feed_rx(aem_cmd2(MAC_B, CID_B, 1, 0x5D03, lk));
+        ck("[13] B locks immediately after expiry", r_status(collect_resp()), 0);
+        ck("[13] a fresh LOCK pushes nothing", (long)collect_resp(700).size(), 0);
+        // explicit UNLOCK: state clears with NO notification (the Milan
+        // 5.4.2.2 note names only the AUTOMATIC unlock)
+        std::vector<uint8_t> ul(16, 0); ul[3] = 0x01;
+        feed_rx(aem_cmd2(MAC_B, CID_B, 1, 0x5D04, ul));
+        ck("[13] B explicit UNLOCK SUCCESS", r_status(collect_resp()), 0);
+        ck("[13] explicit UNLOCK -> NO push", (long)wait_push(2000).size(), 0);
+        feed_rx(aem_cmd(37, 0x5D05, {}));
+        ck("[13] DEREGISTER A", r_status(collect_resp()), 0);
+        feed_rx(aem_cmd2(MAC_B, CID_B, 37, 0x5D06, {}));
+        ck("[13] DEREGISTER B", r_status(collect_resp()), 0);
     }
 
     printf("\n----------------------------------------------------------\n");

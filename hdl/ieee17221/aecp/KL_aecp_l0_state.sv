@@ -74,7 +74,14 @@ module KL_aecp_l0_state (
   input  wire          al_gate_p_i,
   output aecp_l0_state_t l0_state_o,
   output logic [4:0]   status_o,              //! for current command
-  output logic         reject_o               //! this command was rejected (lock/acquire)
+  output logic         reject_o,              //! this command was rejected (lock/acquire)
+  //! one-cycle pulse when the 60 s lock countdown expires (Milan v1.2
+  //! §5.4.2.2 note: the automatic unlock owes every REGISTERED controller
+  //! an unsolicited LOCK_ENTITY response). Fires ONLY from the countdown -
+  //! an explicit UNLOCK by the owner never pulses, so the response builder
+  //! keys its push on exactly the event the note names. This is the LIVE
+  //! counter's edge; the dead KL_aecp_timers lock_expired_o stays tied off.
+  output logic         lock_expired_p_o
 );
 
   // ------------------------------------------------------------------ //
@@ -210,16 +217,21 @@ module KL_aecp_l0_state (
       lock_timer_r               <= 17'd0;
       current_config_r           <= 16'd0;
       lk_pend_r                  <= 1'b0;
+      lock_expired_p_o           <= 1'b0;
     end else begin
+      lock_expired_p_o <= 1'b0;
 
       // ---------------------------------------------------------------- //
       // Lock timer countdown                                              //
       // ---------------------------------------------------------------- //
       if (locked_r && tick_1khz_i) begin
         if (lock_timer_r == 17'd0) begin
-          // Timer expired — auto-unlock
+          // Timer expired — auto-unlock. The pulse rides ONLY this branch:
+          // the explicit-UNLOCK commit below clears the same state without
+          // it (Milan v1.2 §5.4.2.2 notifies the automatic unlock alone).
           locked_r              <= 1'b0;
           locking_controller_id_r <= 64'd0;
+          lock_expired_p_o      <= 1'b1;
         end else begin
           lock_timer_r <= lock_timer_r - 17'd1;
         end

@@ -189,23 +189,37 @@ module KL_crf_rx #(
   //! measurement outputs (CSR)
   output logic signed [31:0] delta_o,     //! crf_ts - ptp_now @ last PDU
   output logic signed [31:0] rate_o,      //! ns error per 256-PDU window
-  output logic [15:0] pdu_count_o,        //! FRAMES_RX: intervals with >= 1 accepted PDU (wraps)
-  output logic [7:0]  fmt_err_o,          //! UNSUPPORTED_FORMAT: intervals with >= 1 profile reject
-  output logic [7:0]  seq_err_o,          //! SEQ_NUM_MISMATCH: intervals with >= 1 discontinuity
+  //! the seven Table 5.6 tallies below are 32-bit WRAPPING counters
+  //! (gh #61 G1). The old backing had TWO deviations from Milan 5.3.8.10's
+  //! "wraps back to zero": fmt_err/seq_err SATURATED at 255 (a saturating
+  //! counter is a frozen instrument after ~4 min 15 s of persistent fault -
+  //! the same defect class as the advertised-valid-never-moves purge) and
+  //! the 16-bit five wrapped at the 65536 s = 18 h 12 min soak mark. The
+  //! CSR ABI is untouched: CRF_STATUS 0x74C serves documented TRUNCATED
+  //! slices ({pdu[15:0], fmt[7:0], seq[7:0]}), the AECP wire serves the
+  //! full width.
+  output logic [31:0] pdu_count_o,        //! FRAMES_RX: intervals with >= 1 accepted PDU
+  output logic [31:0] fmt_err_o,          //! UNSUPPORTED_FORMAT: intervals with >= 1 profile reject
+  output logic [31:0] seq_err_o,          //! SEQ_NUM_MISMATCH: intervals with >= 1 discontinuity
   //! MEDIA_RESET / TIMESTAMP_UNCERTAIN / LATE_TIMESTAMP / EARLY_TIMESTAMP:
-  //! intervals with >= 1 such PDU. WIDER than their fmt_err/seq_err
-  //! siblings on purpose - those are 8-bit because CRF_STATUS packs them,
-  //! and an 8-bit interval counter PEGS after 255 s of a persistent fault,
-  //! which reads exactly like the constant zero this engine just stopped
-  //! serving. 16 bits wrap (Milan's own rule) after 18 h at the 1 s ceiling
-  output logic [15:0] mr_cnt_o,
-  output logic [15:0] tu_cnt_o,
-  output logic [15:0] late_cnt_o,
-  output logic [15:0] early_cnt_o,
+  //! intervals with >= 1 such PDU
+  output logic [31:0] mr_cnt_o,
+  output logic [31:0] tu_cnt_o,
+  output logic [31:0] late_cnt_o,
+  output logic [31:0] early_cnt_o,
   output logic        locked_o,
   output logic [31:0] cnt_locked_o,       //! lock events (CLOCK_DOMAIN ctr)
   output logic [31:0] cnt_unlocked_o,     //! unlock events
-  output logic [31:0] cnt_intr_o          //! STREAM_INTERRUPTED events
+  output logic [31:0] cnt_intr_o,         //! STREAM_INTERRUPTED events
+  //! one-cycle "a counter a controller should hear about moved" pulse -
+  //! the Table 5.22 push source for the CRF Media Clock Input's
+  //! GET_COUNTERS row (gh #60 F2). Fires on: a lock/unlock event, a
+  //! STREAM_INTERRUPTED event, any of the SIX anomaly interval commits
+  //! (UF/SM/MR/TU/LT/ET), and the bind-rise wipe (the zeroed tallies are
+  //! themselves a wire-visible change). NEVER on a healthy FRAMES_RX
+  //! interval - the task-21 exclusion, verbatim: a healthy stream closes
+  //! an interval every second forever and must not push forever.
+  output logic        dirty_p_o
 );
 
   //! Milan 7.3.2 constants
@@ -347,6 +361,7 @@ module KL_crf_rx #(
       mr_cnt_o <= '0; tu_cnt_o <= '0; late_cnt_o <= '0; early_cnt_o <= '0;
       locked_o <= 1'b0; cnt_locked_o <= '0; cnt_unlocked_o <= '0;
       cnt_intr_o <= '0;
+      dirty_p_o <= 1'b0;
       hidx_r <= '0; hfill_r <= '0;
       exp_seq_r <= '0; have_seq_r <= 1'b0;
       settle_r <= '0; tout_r <= '0;
@@ -356,24 +371,32 @@ module KL_crf_rx #(
       iv_mr_r <= 1'b0; iv_tu_r <= 1'b0; iv_lt_r <= 1'b0; iv_et_r <= 1'b0;
     end else begin
       en_q <= en_i;
+      dirty_p_o <= 1'b0;
       //! Table 5.6 interval commit: +1 per flagged counter at the tick,
       //! then the flags restart clean. An event landing in the tick cycle
       //! itself is harvested INTO the closing interval (the
       //! KL_avtp_rx_monitor_ctx boundary rule) - counted once, never lost,
-      //! never doubled.
+      //! never doubled. All seven wrap at 32 bits (gh #61 G1: saturation
+      //! itself violates 5.3.8.10's "wraps back to zero" - the old
+      //! fmt_err/seq_err peg at 255 froze the instrument after 4 min 15 s
+      //! of persistent fault).
       if (iv_tick_r) begin
         if (iv_frx_r || w_acc)
-          pdu_count_o <= pdu_count_o + 16'd1;
+          pdu_count_o <= pdu_count_o + 32'd1;
         if (iv_uf_r || w_ev_uf_w)
-          fmt_err_o <= (&fmt_err_o) ? fmt_err_o : fmt_err_o + 8'd1;
+          fmt_err_o <= fmt_err_o + 32'd1;
         if (iv_sm_r || w_ev_sm_w)
-          seq_err_o <= (&seq_err_o) ? seq_err_o : seq_err_o + 8'd1;
-        //! the four Table 5.16 counters this engine used to advertise and
-        //! never move; 16-bit, WRAPPING per 5.3.8.10
-        if (iv_mr_r || w_ev_mr_w) mr_cnt_o    <= mr_cnt_o    + 16'd1;
-        if (iv_tu_r || w_ev_tu_w) tu_cnt_o    <= tu_cnt_o    + 16'd1;
-        if (iv_lt_r || w_ev_lt_w) late_cnt_o  <= late_cnt_o  + 16'd1;
-        if (iv_et_r || w_ev_et_w) early_cnt_o <= early_cnt_o + 16'd1;
+          seq_err_o <= seq_err_o + 32'd1;
+        if (iv_mr_r || w_ev_mr_w) mr_cnt_o    <= mr_cnt_o    + 32'd1;
+        if (iv_tu_r || w_ev_tu_w) tu_cnt_o    <= tu_cnt_o    + 32'd1;
+        if (iv_lt_r || w_ev_lt_w) late_cnt_o  <= late_cnt_o  + 32'd1;
+        if (iv_et_r || w_ev_et_w) early_cnt_o <= early_cnt_o + 32'd1;
+        //! the SIX anomaly commits arm the Table 5.22 push; a healthy
+        //! FRAMES_RX interval (iv_frx alone) never does (task-21 rule)
+        if ((iv_uf_r || w_ev_uf_w) || (iv_sm_r || w_ev_sm_w) ||
+            (iv_mr_r || w_ev_mr_w) || (iv_tu_r || w_ev_tu_w) ||
+            (iv_lt_r || w_ev_lt_w) || (iv_et_r || w_ev_et_w))
+          dirty_p_o <= 1'b1;
         iv_frx_r <= 1'b0;
         iv_uf_r  <= 1'b0;
         iv_sm_r  <= 1'b0;
@@ -393,7 +416,10 @@ module KL_crf_rx #(
 
       //! STREAM_INTERRUPTED: PER-EVENT, so it lands the cycle of the PDU
       //! (never folded into an interval) - "incremented each time"
-      if (w_ev_si_w) cnt_intr_o <= cnt_intr_o + 32'd1;
+      if (w_ev_si_w) begin
+        cnt_intr_o <= cnt_intr_o + 32'd1;
+        dirty_p_o  <= 1'b1;
+      end
 
       //! retimed rate math: one clk after the accepted PDU, when the BRAM
       //! read (hist_old_r) is valid. ts_new_r - hist_old_r is congruent
@@ -412,6 +438,7 @@ module KL_crf_rx #(
         if (locked_o) begin
           locked_o       <= 1'b0;
           cnt_unlocked_o <= cnt_unlocked_o + 32'd1;
+          dirty_p_o      <= 1'b1;
         end
         settle_r <= '0;
         have_seq_r <= 1'b0;
@@ -440,6 +467,7 @@ module KL_crf_rx #(
           end else if (!locked_o) begin
             locked_o     <= 1'b1;
             cnt_locked_o <= cnt_locked_o + 32'd1;
+            dirty_p_o    <= 1'b1;
           end
           exp_seq_r  <= seq_i + 8'd1;
           have_seq_r <= 1'b1;
@@ -518,6 +546,9 @@ module KL_crf_rx #(
         //! a timeout unlock landing in the same cycle (the 4d31ecfb
         //! sil_pend/servo_pend rule, in a flat engine's spelling)
         locked_o <= 1'b0;
+        //! the wipe is itself a wire-visible counter change (ten tallies
+        //! fell to zero): the era's first push carries the fresh slate
+        dirty_p_o <= 1'b1;
       end
     end
   end : engine

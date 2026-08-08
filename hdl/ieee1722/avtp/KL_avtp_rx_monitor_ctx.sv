@@ -188,7 +188,13 @@ module KL_avtp_rx_monitor_ctx #(
   output wire [31:0] cnt_ts_valid_o,
   output wire [31:0] cnt_ts_not_valid_o,
   output logic        media_locked_o,    //! stream-0 lock state (level)
-  output logic        dirty_p_o,         //! stream-0 counter-change pulse
+  //! per-context counter-change pulses (Milan 5.4.5 Table 5.22): bit s =
+  //! context s committed an EVENT its GET_COUNTERS push law cares about.
+  //! FRAMES_RX alone stays excluded (task #21: a healthy stream closes an
+  //! interval every second forever), and so does a healthy TV tally (gh
+  //! #60 F4 option (c) - see the M_PDEC_S site). Was the stream-0 scalar;
+  //! sinks 1..N-1 could never arm their own Table 5.22 push (gh #60 F2).
+  output logic [N_LISTENERS_P-1:0] dirty_p_o,
   output logic        pdu_accept_p_o,    //! per-PDU commit verdict pulse
   output logic [3:0]  pdu_accept_idx_o,  //! its stream index
   output logic [7:0]  wire_chans_o,      //! RENDER stream's wire channels
@@ -803,7 +809,7 @@ module KL_avtp_rx_monitor_ctx #(
       cnt_late_ts_o            <= '0;
       cnt_early_ts_o           <= '0;
       media_locked_o   <= 1'b0;
-      dirty_p_o        <= 1'b0;
+      dirty_p_o        <= '0;
       pdu_accept_p_o   <= 1'b0;
       pdu_accept_idx_o <= '0;
       wire_chans_o     <= '0;
@@ -813,7 +819,7 @@ module KL_avtp_rx_monitor_ctx #(
       lctx_rd_valid_o  <= 1'b0;
     end
     else begin
-      dirty_p_o       <= 1'b0;
+      dirty_p_o       <= '0;
       pdu_accept_p_o  <= 1'b0;
       lctx_rd_valid_o <= 1'b0;
 
@@ -924,10 +930,10 @@ module KL_avtp_rx_monitor_ctx #(
             frx_add_r  <= frx_acc_r[iv_s_w];
             //! FRAMES_RX alone must NOT arm the Table 5.22 push: a
             //! healthy stream closes an interval every second forever
-            //! (task #21). The anomaly bits (TU/LT/ET/SM/MR/UF) still arm.
-            if (iv_s_w == '0 &&
-                (iv_seen_r[iv_s_w] & ~(12'b1 << C_FRX_C)) != '0)
-              dirty_p_o <= 1'b1;
+            //! (task #21). The anomaly bits (TU/LT/ET/SM/MR/UF) still arm,
+            //! for EVERY context (gh #60 F2 - the index is in hand).
+            if ((iv_seen_r[iv_s_w] & ~(12'b1 << C_FRX_C)) != '0)
+              dirty_p_o[iv_s_w] <= 1'b1;
             mst_r      <= M_INC_S;
           end
           else if (ext_rd_go_w) begin
@@ -957,7 +963,19 @@ module KL_avtp_rx_monitor_ctx #(
             chans_sh_r[ev_s_r] <= p_chans_w;
             sil_ms_r[ev_s_r]   <= '0;
             if (lock_now_w) locked_sh_r[ev_s_r] <= 1'b1;
-            if (ev_s_r == '0) dirty_p_o <= 1'b1;
+            //! gh #60 F4 option (c): TV joins the FRAMES_RX dirty
+            //! exclusion. This site used to arm on EVERY accepted PDU, so
+            //! a healthy stream pushed GET_COUNTERS 1/s forever off its
+            //! own TV tally - the exact healthy-path cadence the task-21
+            //! narrowing removed for FRAMES_RX (TV is its per-frame
+            //! sibling: both tick on routine traffic, and the value still
+            //! rides every payload the anomalies send). TNV stays armed:
+            //! an accepted PDU WITHOUT a valid timestamp is an anomaly.
+            //! The per-event walk arms (ML via lock_now_w, SI via the
+            //! lost-PDU rule) keep their pulses.
+            if (!cur_r.tv || lock_now_w ||
+                (seq_mm_w && lost_w >= 8'(INTERRUPT_MIN_LOST_C)))
+              dirty_p_o[ev_s_r] <= 1'b1;
             monst_r <= monst_next_w;
             //! TV/TNV live in flops (below), NOT in this serial walk: a
             //! 12th RMW step per accepted PDU delayed the next verdict
@@ -1010,7 +1028,7 @@ module KL_avtp_rx_monitor_ctx #(
             unique case (wrph_r)
               4'd0 : wrph_r <= 4'd1;              // MU read in flight
               4'd1 : begin                         // MU written this cycle
-                if (ev_s_r == '0) dirty_p_o <= 1'b1;
+                dirty_p_o[ev_s_r] <= 1'b1;
                 wrph_r <= 4'd2;
               end
               4'd2 : wrph_r <= 4'd3;              // w8 read in flight
@@ -1028,7 +1046,7 @@ module KL_avtp_rx_monitor_ctx #(
             if (zero_idx_r == 4'd9) begin
               bind_zero_r <= 1'b0;
               zero_idx_r  <= '0;
-              if (ev_s_r == '0) dirty_p_o <= 1'b1;
+              dirty_p_o[ev_s_r] <= 1'b1;
               mst_r <= M_IDLE_S;
             end
             else zero_idx_r <= zero_idx_r + 4'd1;

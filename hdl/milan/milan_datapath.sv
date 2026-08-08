@@ -1440,13 +1440,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                                      : {8'd0, rmap_rd_data_w};
   wire        cfg_chmap_rd_valid = cfg_chmap_rd_side ? cmap_rd_valid_w
                                                      : rmap_rd_valid_r;
-  wire [15:0] crf_pducnt_w;
-  wire [7:0]  crf_fmterr_w, crf_seqerr_w;
+  //! all ten CRF sink tallies full-width (gh #61 G1: 32-bit wrapping
+  //! backing; CRF_STATUS 0x74C serves documented truncated slices below)
+  wire [31:0] crf_pducnt_w;
+  wire [31:0] crf_fmterr_w, crf_seqerr_w;
   wire        crf_locked_w;
+  wire        crf_cnt_dirty_p_w;   //! Table 5.22 push source (gh #60 F2)
   wire [31:0] crf_cnt_locked_w, crf_cnt_unlocked_w, crf_cnt_intr_w;
   //! the four Table 5.6 interval tallies the CRF sink used to advertise as
   //! valid and never move (traceability AVTP-5t)
-  wire [15:0] crf_mrcnt_w, crf_tucnt_w, crf_latecnt_w, crf_earlycnt_w;
+  wire [31:0] crf_mrcnt_w, crf_tucnt_w, crf_latecnt_w, crf_earlycnt_w;
   //! CRF talker (KL_crf_tx): CSR control + PDU stream into the control merge
   wire        cfg_crft_en;
   wire        cfg_crft_class_a;   //! CRFT_CTRL[1]: declare + tag (Milan 7.3.3)
@@ -1463,7 +1466,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [31:0] i2spb_dbg_frame;
   wire [31:0] avtprx_locked_c, avtprx_unlocked_c, avtprx_intr_c;
   wire [31:0] avtprx_seqmm_c, avtprx_tu_c, avtprx_unsupp_c, avtprx_frx_c;
-  wire        avtprx_locked, avtprx_dirty_p;
+  wire        avtprx_locked;
+  //! per-context Table 5.22 counter-change pulses (gh #60 F2)
+  wire [N_STREAMS-1:0] avtprx_dirty_p_w;
   wire        avtprx_accept_p;
   wire [31:0] avtprx_ts, avtprx_last_ts, avtprx_last_tsd;
   wire [15:0] pcmrx_pdus, pcmrx_drops;
@@ -2080,7 +2085,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_crf_sid          (cfg_crf_sid),
     .i_crf_delta        (crf_delta_w),
     .i_crf_rate         (crf_rate_w),
-    .i_crf_status       ({crf_pducnt_w, crf_fmterr_w, crf_seqerr_w}),
+    //! documented TRUNCATED slices of the 32-bit backing (gh #61 G1):
+    //! the packed {pdu16, fmt8, seq8} ABI is byte-identical to the old
+    //! narrow counters; the AECP wire serves the full width
+    .i_crf_status       ({crf_pducnt_w[15:0], crf_fmterr_w[7:0],
+                          crf_seqerr_w[7:0]}),
     .i_crf_locked       (crf_locked_w),
     .i_mcsrv_stat       (mcsrv_stat_w),
     .o_mcsrv_ps_invert  (mcsrv_ps_invert_w),
@@ -2704,6 +2713,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .rxdiag_cnt_i  (mon_diag_cnt_w),
     .tkdiag_cnt_i  (tkdiag_cnt_w),
     .tkdiag_dirty_p_i (16'(tkd_dirty_p_w)),
+    //! per-sink Table 5.22 counter-change pulses (gh #60 F2): the monitor
+    //! ctx dirty vector, zero-extended like its tkdiag twin above
+    .rxdiag_dirty_p_i (16'(avtprx_dirty_p_w)),
+    .crf_cnt_dirty_p_i (crf_cnt_dirty_p_w),
     .n_aaf_sinks_i (16'(N_STREAMS)),
     //! CRF Media Clock Input GET_COUNTERS (Milan Table 5.16 mandatory
     //! ten): served straight out of the KL_crf_rx sink engine. The first
@@ -2749,22 +2762,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .tk_fail_bridge_i   (lwsrp_tfail_bridge),
     .srp_domain_vid_i   (cfg_lwsrp_vid),
     //! CLOCK_DOMAIN lock events follow the ACTIVE clock source: index 2 =
-    //! the CRF input engine, else the AAF media-lock monitor (Milan 5.4.4)
+    //! the CRF input engine, else the AAF media-lock monitor (Milan 5.4.4).
+    //! This pair is the mux's ONE lawful reader (gh #60 F3): every
+    //! STREAM_INPUT counter - solicited and pushed - serves its own
+    //! descriptor's mon_diag_cnt_w mirror slice above.
     .in0_cnt_locked_i      ((aecp_clk_src == 16'd2) ? crf_cnt_locked_w
                                                     : avtprx_locked_c),
     .in0_cnt_unlocked_i    ((aecp_clk_src == 16'd2) ? crf_cnt_unlocked_w
                                                     : avtprx_unlocked_c),
-    .in0_cnt_interrupted_i (avtprx_intr_c),
-    .in0_cnt_seqmm_i       (avtprx_seqmm_c),
-    .in0_cnt_tu_i          (avtprx_tu_c),
-    .in0_cnt_unsupp_i      (avtprx_unsupp_c),
-    .in0_cnt_frx_i         (avtprx_frx_c),
-    .in0_cnt_mreset_i      (avtprx_mreset_c),
-    .in0_cnt_late_i        (avtprx_late_c),
-    .in0_cnt_early_i       (avtprx_early_c),
-    .in0_cnt_tv_i          (avtprx_tv_c),
-    .in0_cnt_tnv_i         (avtprx_tnv_c),
-    .in0_cnt_dirty_p_i     (avtprx_dirty_p),
     .in0_fmt_o             (aecp_in0_fmt),
     .clk_src_o             (aecp_clk_src),
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
@@ -4077,7 +4082,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .locked_o    (crf_locked_w),
     .cnt_locked_o   (crf_cnt_locked_w),
     .cnt_unlocked_o (crf_cnt_unlocked_w),
-    .cnt_intr_o     (crf_cnt_intr_w)
+    .cnt_intr_o     (crf_cnt_intr_w),
+    //! Table 5.22 push source for the CRF sink's GET_COUNTERS row (gh #60
+    //! F2): anomaly/lock events only, never a healthy FRAMES_RX interval
+    .dirty_p_o      (crf_cnt_dirty_p_w)
   );
 
   // ==========================================================================
@@ -4247,7 +4255,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .cnt_ts_valid_o     (avtprx_tv_c),
     .cnt_ts_not_valid_o (avtprx_tnv_c),
     .media_locked_o (avtprx_locked),
-    .dirty_p_o      (avtprx_dirty_p),
+    .dirty_p_o      (avtprx_dirty_p_w),
     .pdu_accept_p_o   (avtprx_accept_p_w),
     .pdu_accept_idx_o (avtprx_accept_idx_w),
     .last_ts_o      (avtprx_last_ts),
