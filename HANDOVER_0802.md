@@ -1,6 +1,6 @@
 # Handover — 2026-08-02
 
-Continues [HANDOVER_0731.md](HANDOVER_0731.md) (the `HANDOVER_0801.md` in the
+Continues [HANDOVER_0731.md](HANDOVER_0731.md) (the [`HANDOVER_0801.md`](HANDOVER_0801.md) in the
 working tree is untracked and stale — this file supersedes it). Repo:
 `milan-fpga`, branch **`main-push`**; written at head `cc1057ec`, and while it
 was being written **the SRP-arbiter re-time landed as `200bb618`** (see §4).

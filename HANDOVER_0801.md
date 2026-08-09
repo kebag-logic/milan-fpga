@@ -1,6 +1,6 @@
 # HANDOVER 08-01 — the fit endgame + flash-ready software + harness truth fixes
 
-Continues HANDOVER_0731.md. DUT = ALINX AX7101 ONLY (Arty retired by USER).
+Continues [HANDOVER_0731.md](HANDOVER_0731.md). DUT = ALINX AX7101 ONLY (Arty retired by USER).
 Shape fixed by USER: 8 talkers + 8 listeners, 8ch/stream, RV32 VexiiRiscv.
 
 ## 1. The fit (task #51) — where it stands
@@ -48,7 +48,7 @@ test (a genuine pre-existing coverage hole; passes on original RTL).
   NOT apply to the rv32 path.
 - Sequence on a fitting bitstream: full image set (1→2 RXQ window shift),
   `AX_FTDI=210512180081 ./sw/litex/build.sh flash ax7101:<dir>`, cold cycle
-  via `ssh amx-pi 'powerstrip off 0; sleep 6; powerstrip on 0'`, verify
+  via `ssh the bench host 'powerstrip off 0; sleep 6; powerstrip on 0'`, verify
   `devmem 0x90000004` == 0x00010021 and a 32-bit boot, then the campaign.
 
 ## 4. Harness truth fixes (both committed, pushed where remotes exist, DEPLOYED to pw0)

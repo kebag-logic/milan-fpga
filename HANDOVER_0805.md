@@ -147,7 +147,7 @@ slices vs 11,139 — bisB placement death).
 - **bench_restage.sh (pw0)**: one shot after any cycle — entity wait
   (grep counters_valid, NOT rc: the tool polls forever, rc always 124),
   format-adapted binds both legs, max_transit 500000 (resets to 2 ms every
-  boot while persistence is OFF — the EARLY_TIMESTAMP cause at the DS20D),
+  boot while persistence is OFF — the EARLY_TIMESTAMP cause at the the peer device),
   watcher stop, music pull + loopD + soak report.
 - **fmt_guard.sh (pw0)**: Hive's connect does NOT do the 5.5.1.2
   adaptation (user had to force formats by hand) — the guard audits all 8
