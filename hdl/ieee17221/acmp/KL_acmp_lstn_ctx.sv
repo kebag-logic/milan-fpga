@@ -57,13 +57,17 @@
 //                    drives rd_idx_w in cycle k and consumes rd_ctx_q_r in
 //                    cycle k+1. The four readers map onto it WITHOUT
 //                    changing when anything is written:
-//                      frame  — the address is the tlast beat's luid (free
-//                        since beat 6), so the record lands in rd_ctx_q_r
-//                        exactly on the CLASSIFY_S cycle that used to read
-//                        it out of cur_r. Response latency is UNCHANGED;
-//                        cur_r now loads at the CLASSIFY_S exit for the
-//                        serialiser, which still sees the PRE-writeback
-//                        record.
+//                      frame  — the address is the luid (free since beat
+//                        6), driven from the frame TAIL WINDOW (wbeat_r 7/8)
+//                        and HELD through the tlast beat, so the data phase
+//                        spans two cycles: the w_frame_latch cycle AND the
+//                        CLASSIFY_S cycle that used to read the record out
+//                        of cur_r. Response latency is UNCHANGED and so is
+//                        the cycle the record is written; cur_r still loads
+//                        at the CLASSIFY_S exit for the serialiser, which
+//                        still sees the PRE-writeback record. The first of
+//                        the two cycles is what the COMPARE PRE-STAGE
+//                        spends (see below).
 //                      probe  — COLLECT_S drives the address, the new
 //                        LAUNCH_S cycle takes the data and does the arm
 //                        write (+1 cycle before PROBE_S).
@@ -135,6 +139,30 @@
 //                       LFSR DELAY draw is sampled one cycle earlier (at
 //                       CAPTURE), which changes only which random value a
 //                       0..1023 ms backoff draws.
+//                COMPARE PRE-STAGE (the last 35 ps, 2026-08-09)
+//                  WHY: the sweep's arithmetic was staged off the RAM by the
+//                  pipeline above, but the FRAME classify arm still ran
+//                  RAM-out -> comparator -> transition table -> write mux ->
+//                  RAM-in in the ONE CLASSIFY_S cycle, and its comparators
+//                  are the widest in the module: {talker,tuid} 80 b for the
+//                  Milan 5.5.3.5.37/43 step 2 rebind-same test, plus ctlr
+//                  64 b and seq 16 b for the 5.5.3.5.18 step 1 probe-answer
+//                  match. An 80-bit equality is a LUT6 layer over a
+//                  seven-deep CARRY4 AND-chain, and it hangs off a block
+//                  RAM's 2.125 ns clock-to-out. Post-route THAT was the
+//                  device's worst path (t537/eto: 9.736 ns of a 10 ns
+//                  budget, 14 levels, RAM DOADO rd_ctx_q_r.talker -> 6
+//                  CARRY4 -> RAM DIPBDIP, i.e. wr_data_w.sid) and it owned
+//                  the top FIVE endpoints; the next module was 92 ps back.
+//                  WHAT: the frame read is addressed a beat earlier and
+//                  held, so those three equalities are taken in the
+//                  w_frame_latch cycle (cmp_same_tk_r / cmp_pr_ctlr_r /
+//                  cmp_pr_seq_r) and CLASSIFY_S selects over flops. Nothing
+//                  moves: same write cycle, same response cycle, same
+//                  pulses. Only the NARROW state decode stays live off the
+//                  RAM, because the sweep may rewrite state under us.
+//                  COST: three flops, and the sweep yields the read port for
+//                  the frame tail instead of just the tlast beat.
 //                  cur_r       : working copy of one record, taken from the
 //                    read register at classify and at probe launch.
 //                  sweep       : ONE timer wheel for all contexts. Causes
@@ -492,6 +520,21 @@ module KL_acmp_lstn_ctx #(
                              //! gptp_grandmaster_id tail ({cap_dmac_r,
                              //! cap_gmtail_r} = ADPDU bytes 40-47)
 
+  //! CLASSIFY COMPARE PRE-STAGE (see the PRE-READ WINDOW block below).
+  //! The three WIDE record-vs-command equalities the classify writeback
+  //! needs — {talker,tuid} 80 b for the rebind-same test, ctlr 64 b and seq
+  //! 16 b for the probe-response match — are evaluated ONE CYCLE EARLY, in
+  //! the w_frame_latch cycle, so CLASSIFY_S selects over FLOPS. They used to
+  //! run RAM-out -> comparator -> transition table -> write mux -> RAM-in
+  //! inside the one CLASSIFY_S cycle, and an 80-bit equality is a LUT6 layer
+  //! over a SEVEN-deep CARRY4 AND-chain hanging off the block RAM's 2.125 ns
+  //! clock-to-out. Post-route that was the DEVICE's worst path (t537/eto:
+  //! 9.736 ns of 10, 14 levels with 6 CARRY4 traversed, RAM DOADO
+  //! rd_ctx_q_r.talker -> ... -> RAM DIPBDIP = wr_data_w.sid).
+  reg cmp_same_tk_r;   //! {talker,tuid} == the command's {talker,tuid}
+  reg cmp_pr_ctlr_r;   //! ctlr == the command's controller_entity_id
+  reg cmp_pr_seq_r;    //! seq  == the command's sequence_id
+
   wire [3:0]  w_msg    = cap_msg_r;
   wire [4:0]  w_status = cap_status_r;
   wire [63:0] w_sid    = cap_sid_r;
@@ -533,18 +576,18 @@ module KL_acmp_lstn_ctx #(
   //! talker_unique_id and sequence_id (5.5.3.5.18 step 1 — anything else
   //! is ignored, so a foreign talker's response can no longer settle the
   //! sink on its stream parameters).
-  //! The record comes from rd_ctx_q_r, not cur_r: the frame's read was
-  //! ADDRESSED on the tlast beat, so the data phase IS the CLASSIFY_S cycle
-  //! in which every term below is evaluated. cur_r still carries the same
-  //! record onwards to the serialiser (loaded at the CLASSIFY_S exit).
+  //! The record comes from rd_ctx_q_r, not cur_r: the frame's read is held
+  //! across the frame tail, so its data phase spans BOTH the w_frame_latch
+  //! cycle and the CLASSIFY_S cycle. The three WIDE equalities were taken in
+  //! the FIRST of those (cmp_*_r, the compare pre-stage); the narrow state
+  //! decode stays LIVE here because the sweep may rewrite state under us and
+  //! a 3-bit decode off the RAM is one LUT level. cur_r still carries the
+  //! same record onwards to the serialiser (loaded at the CLASSIFY_S exit).
   wire w_probe_resp = w_acmp_base && (w_msg == ACMP_CONNECT_TX_RESPONSE_C) &&
                       w_lstnr_us && w_uid_valid && w_sm_en &&
                       (rd_ctx_q_r.state == LSM_PRB_W_RESP_S ||
                        rd_ctx_q_r.state == LSM_PRB_W_RESP2_S) &&
-                      (w_ctlr     == rd_ctx_q_r.ctlr)   &&
-                      (w_talker   == rd_ctx_q_r.talker) &&
-                      (w_tuid     == rd_ctx_q_r.tuid)   &&
-                      (cap_seq_r  == rd_ctx_q_r.seq);
+                      cmp_pr_ctlr_r && cmp_same_tk_r && cmp_pr_seq_r;
 
   //! ADP watch: any ENTITY_AVAILABLE/DEPARTING is latched for the sweep,
   //! which applies it per context (bound-talker match happens there)
@@ -569,9 +612,10 @@ module KL_acmp_lstn_ctx #(
 
   //! rebind-to-same fast path (Milan 5.5.3.5.37/43 step 2): the SAME talker
   //! named again refreshes ctlr + STREAMING_WAIT in place and never tears
-  //! down — a STREAMING_WAIT change alone must not interrupt the stream
-  wire w_same_talker = (w_talker == rd_ctx_q_r.talker) &&
-                       (w_tuid   == rd_ctx_q_r.tuid);
+  //! down — a STREAMING_WAIT change alone must not interrupt the stream.
+  //! Taken from the compare pre-stage, not recomputed: this 80-bit equality
+  //! off the block RAM's clock-to-out WAS the device's worst path.
+  wire w_same_talker = cmp_same_tk_r;
 
   //! per-context sid policy (Milan 5.5.1.2): explicit fast-connect sid when
   //! configured AND nonzero, else the {talker EID, tuid} derivation
@@ -814,6 +858,41 @@ module KL_acmp_lstn_ctx #(
   //! captured at beat 6, so it has been stable for two beats by now.
   wire w_frame_latch = init_done_r && rxv_r && rxl_r && (st_r == COLLECT_S);
 
+  //! PRE-READ WINDOW (2026-08-09): the frame read is ADDRESSED one beat
+  //! earlier and HELD, so its data phase spans the w_frame_latch cycle as
+  //! well as CLASSIFY_S. That is what lets the compare pre-stage above run a
+  //! cycle ahead of the transition table instead of in series with it.
+  //! WHY wbeat_r and not the wire beat: every term that gates a RAM WRITE
+  //! must be a register (see wr_port_mux), and rx_tvalid_i/rx_tready_i are
+  //! another module's combinational outputs. wbeat_r == 8 is the gapped case
+  //! (beat 7 captured, beat 8 still in flight — the MAC paces a 64-bit lane
+  //! at ~6 idle cycles per beat at 1 Gb/s) and wbeat_r == 7 is the
+  //! back-to-back case, so the pair covers BOTH without a wire term.
+  //! listener_unique_id was captured at beat 6, so w_luid_idx is stable for
+  //! the whole window; a short frame never reaches wbeat_r 7/8 with a tlast,
+  //! and len_ok_r fences every consumer of cmp_*_r, so a missed window can
+  //! never be consumed. The window closes at the tlast capture (wbeat_r <=
+  //! 0) and at RESPOND_S/PROBE_S completion, so it cannot latch up.
+  //! WHY THE ANSWER CANNOT GO STALE between the two data-phase cycles: the
+  //! only fields cmp_*_r reads are talker/tuid/ctlr/seq, and
+  //!   - the sweep NEVER writes any of them (sweep_next touches tk_avail,
+  //!     adp_age, tmr, probing, state, sid, dmac, vlan, active, last_avail,
+  //!     adp_vt, status — never the binding identity), and it is fenced here
+  //!     anyway so the pipeline stays all-or-nothing;
+  //!   - LAUNCH_S writes seq, but a launch cannot start inside the window
+  //!     (w_launch_ok below) and cannot start as the window opens either:
+  //!     w_launch_ok needs !rxv_r and wbeat_r only advances under rxv_r;
+  //!   - a CLASSIFY_S write that is FOLLOWED by another w_frame_latch is
+  //!     necessarily the probe-response arm (a BIND/UNBIND goes to
+  //!     RESPOND_S, which zeroes wbeat_r on the way out), and that arm
+  //!     writes stream parameters only — never talker/tuid/ctlr/seq;
+  //!   - the restore inject DOES write all four, and is fenced below;
+  //!   - the init walk is excluded by init_done_r, and a record it is still
+  //!     zeroing is UNBOUND, which short-circuits both consumers on their
+  //!     LIVE state term regardless of what cmp_*_r holds.
+  wire w_frame_pre = init_done_r && !w_frame_latch &&
+                     ((wbeat_r == 4'd7) || (wbeat_r == 4'd8));
+
   //! the two states that own the RAM for a record write of their own
   wire w_ram_busy_w = (st_r == CLASSIFY_S) || (st_r == LAUNCH_S);
 
@@ -886,8 +965,11 @@ module KL_acmp_lstn_ctx #(
                        s1_pend_r || tick_1s_i ||
                        adp_pend_r || w_adp_now || w_srp_diff;
 
+  //! a launch inside the pre-read window would both steal the address and
+  //! rewrite seq under the compare pre-stage; deferring it by the window is
+  //! invisible (probe cadence is milliseconds)
   wire w_launch_ok = init_done_r && (st_r == COLLECT_S) && !rxv_r &&
-                     (probe_pend_r != '0) && !swp_active_r;
+                     (probe_pend_r != '0) && !swp_active_r && !w_frame_pre;
 
   //! A pass STARTS by fetching ctx 0 in the very cycle the cause is seen, so
   //! the commit of ctx c still lands on start+1+c — the single-sink module's
@@ -899,7 +981,11 @@ module KL_acmp_lstn_ctx #(
   //! (fetch, capture, apply) are gated by exactly this term, which is what
   //! makes the pipeline ALL-OR-NOTHING — a bubble discards every in-flight
   //! visit instead of stretching one across a foreign write (hazard (a)).
-  wire w_swp_gnt   = !w_frame_latch && !w_launch_ok && !w_ram_busy_w;
+  //! w_frame_pre joins the fence as ONE term across all three stages: fencing
+  //! only the fetch would let an APPLY commit a visit the rewind then
+  //! re-fetches, i.e. a double apply. Every term here is still a register.
+  wire w_swp_gnt   = !w_frame_pre && !w_frame_latch && !w_launch_ok &&
+                     !w_ram_busy_w;
   //! ADDRESS-phase grant. Drives rd_idx_w ONLY — never a write enable, which
   //! is why it may carry w_swp_pending (a live compare of the lwSRP
   //! ta_registered_i/ta_failed_i levels against the serviced snapshots).
@@ -934,20 +1020,27 @@ module KL_acmp_lstn_ctx #(
   //! address phase: needs the read port, so it defers to the sweep's own
   //! address phase. It drives rd_idx_w and rest_ph_r's D — not a write enable.
   wire w_rest_addr  = init_done_r && w_rest_pend && w_rest_sm_ok &&
-                      !rest_ph_r && !w_frame_latch && !w_launch_ok &&
-                      !w_swp_own && !w_ram_busy_w;
+                      !rest_ph_r && !w_frame_pre && !w_frame_latch &&
+                      !w_launch_ok && !w_swp_own && !w_ram_busy_w;
   //! data phase: this one DOES write, so register-only again. w_swp_start is
   //! blocked while rest_ph_r is set, so !swp_active_r excludes the sweep
   //! completely and w_swp_pending stays out of wr_en_w.
-  wire w_rest_go    = rest_ph_r && !w_frame_latch && !w_launch_ok &&
-                      !swp_active_r && !w_ram_busy_w;
+  //! !w_frame_pre is what keeps the ONE writer that can move a record's
+  //! talker/tuid/ctlr/seq out of the compare pre-stage's two-cycle data
+  //! phase. It is a registered term, so it does not put a held request or a
+  //! foreign module's output into wr_en_w.
+  wire w_rest_go    = rest_ph_r && !w_frame_pre && !w_frame_latch &&
+                      !w_launch_ok && !swp_active_r && !w_ram_busy_w;
 
-  wire w_tbl_ok    = init_done_r && tbl_req_i && !w_frame_latch &&
-                     !w_launch_ok && !w_swp_own && !w_rest_addr &&
-                     !w_rest_go && !w_ram_busy_w;
+  wire w_tbl_ok    = init_done_r && tbl_req_i && !w_frame_pre &&
+                     !w_frame_latch && !w_launch_ok && !w_swp_own &&
+                     !w_rest_addr && !w_rest_go && !w_ram_busy_w;
 
   always_comb begin : rd_port_mux
-    if      (w_frame_latch) rd_idx_w = w_luid_idx;
+    //! the frame's address is driven for the whole tail window, not just the
+    //! tlast cycle, so rd_ctx_q_r already carries the record at w_frame_latch
+    if      (w_frame_latch ||
+             w_frame_pre)   rd_idx_w = w_luid_idx;
     else if (w_launch_ok)   rd_idx_w = launch_idx_w;
     else if (w_swp_own && swp_fetch_ok_w)
                             rd_idx_w = swp_fetch_idx_w;
@@ -1332,6 +1425,7 @@ module KL_acmp_lstn_ctx #(
       cap_tuid_r <= '0; cap_luid_r <= '0; cap_flags_r <= '0;
       cap_seq_r <= '0; cap_dmac_r <= '0; cap_vlan_r <= '0;
       cap_gmtail_r <= '0;
+      cmp_same_tk_r <= 1'b0; cmp_pr_ctlr_r <= 1'b0; cmp_pr_seq_r <= 1'b0;
       resp_msg_r <= 4'd0; resp_status_r <= 5'd0; resp_kind_r <= L_RESP_STATE_E;
       cur_r <= '0; cur_idx_r <= '0;
       probe_pend_r <= '0; probe_seq_r <= 16'd0;
@@ -1495,6 +1589,22 @@ module KL_acmp_lstn_ctx #(
       end
 
       // ================= frame engine ===================================
+
+      //! COMPARE PRE-STAGE. The pre-read window held the frame's address
+      //! through this cycle, so rd_ctx_q_r is ALREADY the addressed record
+      //! here — one cycle before CLASSIFY_S consumes it. Every capture these
+      //! read is complete by now (ctlr at beat 4, talker at 5, tuid/luid at
+      //! 6, seq at 7), and no writer can move the four fields before
+      //! CLASSIFY_S (see the PRE-READ WINDOW banner), so taking the three
+      //! wide equalities here is EXACT, not an approximation: the classify
+      //! writeback selects over flops instead of over a CARRY4 chain hanging
+      //! off the block RAM's clock-to-out.
+      if (w_frame_latch) begin
+        cmp_same_tk_r <= (cap_talker_r == rd_ctx_q_r.talker) &&
+                         (cap_tuid_r   == rd_ctx_q_r.tuid);
+        cmp_pr_ctlr_r <= (cap_ctlr_r   == rd_ctx_q_r.ctlr);
+        cmp_pr_seq_r  <= (cap_seq_r    == rd_ctx_q_r.seq);
+      end
 
       //! ALWAYS-ARMED capture (07-18 silicon deafness) - see w_cap_hs, which
       //! this branch shares with the reset-free fword_r RAM port so the two
