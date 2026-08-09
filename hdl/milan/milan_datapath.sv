@@ -5019,7 +5019,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .unique_id_i (16'd0),          // stream_id = {station_mac, 0} everywhere
     .dest_mac_i (cfg_lwsrp_dmac),
     .vid_i (cfg_lwsrp_vid),
-    .max_frame_i (cfg_lwsrp_max_frame),
+    //! DERIVED, like every other talker row. Frame size is a FUNCTION of
+    //! the channel count (Milan 4.3.3.2 Table 4.4: 24*C + 24 + 1), so it
+    //! cannot be an independent constant without the two disagreeing.
+    //! Row 0 used to take the CSR word, whose reset was pinned to 224 - a
+    //! value 24*C + 25 yields for NO integer C (224 - 25 = 199, and 199/24
+    //! is 8.29), so it was never right for any shape. The derived mux at
+    //! srp_ctx_maxf_w only covers talker rows 1..N-1, so on the shipping
+    //! 1-stream shape it never activates and row 0, our ONLY AAF talker,
+    //! declared 224 where the clause mandates 217. tctx_maxf_w[0] already
+    //! existed and already computed the right answer; it simply was not
+    //! wired here. The override survives where it belongs: write the TCTX
+    //! w0 chans field and the reservation follows the width.
+    .max_frame_i (tctx_maxf_w[0]),
     .interval_frames_i (cfg_lwsrp_interval),
     .latency_i (cfg_lwsrp_latency),
     //! HANDSHAKE HAZARD (gh #65): the tap MUST see tready - a stalled DMA

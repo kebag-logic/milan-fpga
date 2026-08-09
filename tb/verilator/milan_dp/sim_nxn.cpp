@@ -2046,6 +2046,7 @@ int main(int argc, char** argv) {
         // Re-declare both talker rows and read the MaxFrameSize each one
         // puts in its own TalkerAdvertise vector. 8ch -> 216, 2ch -> 72.
         int mf1 = -1, mf2 = -1;
+        std::set<int> all_mf;
         std::vector<uint8_t> cur;
         dut->m_axis_mac_tx_tready = 1;
         for (int c = 0; c < 240000 && (mf1 < 0 || mf2 < 0); c++) {
@@ -2070,6 +2071,15 @@ int main(int argc, char** argv) {
                             int mf = (v[18] << 8) | v[19];
                             if (slo == T1_LO) mf1 = mf;
                             if (slo == T2_LO) mf2 = mf;
+                            //! EVERY talker vector, row 0 included. The
+                            //! per-row checks below name rows 1 and 2 by
+                            //! stream id; row 0's id derives from the
+                            //! station MAC, so it was never named and its
+                            //! TSpec went unchecked. That is exactly how it
+                            //! came to declare the pinned 224 while the
+                            //! derived mux (which only covers rows 1..N-1)
+                            //! never selected it.
+                            all_mf.insert(mf);
                         }
                     }
                     cur.clear();
@@ -2081,6 +2091,26 @@ int main(int argc, char** argv) {
            (unsigned)mf1, 24*8 + 24 + 1);
         ck("talker idx2 TalkerAdvertise MaxFrameSize = 24*2 + 24 + 1 (Table 4.4)",
            (unsigned)mf2, 24*2 + 24 + 1);
+        // EVERY row obeys Table 4.4, not just the two named above. The AAF
+        // TSpec is 24*C + 24 + 1 and aaf_chn_clamp admits only C in
+        // {2,4,6,8}, so the whole reachable set is these four values. 224
+        // is in the set for NO integer C (224 - 25 = 199, 199/24 = 8.29),
+        // which is why a pinned 224 is wrong for every shape rather than
+        // right for some other one.
+        {
+            const std::set<int> legal = {24*2+25, 24*4+25, 24*6+25, 24*8+25};
+            int illegal = 0, pinned224 = 0;
+            for (int v : all_mf) {
+                if (!legal.count(v)) illegal++;
+                if (v == 224)        pinned224++;
+            }
+            ck("Table 4.4: EVERY talker row declares 24*C + 24 + 1",
+               illegal, 0);
+            ck("no talker row falls back to the pinned LWSRP_TSPEC 224",
+               pinned224, 0);
+            ck("the sweep actually observed talker advertisements",
+               all_mf.empty() ? 0 : 1, 1);
+        }
         // NEGATIVE LEG: the two rows do NOT share one value, and neither
         // fell back to the shared LWSRP_TSPEC reset (0x00E0 = 224)
         ck("per-row TSpec: the two rows differ", mf1 == mf2 ? 1 : 0, 0);

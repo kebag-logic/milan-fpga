@@ -92,6 +92,20 @@ all: run
 obj_dir/Vcsr_sim: $(SRCS) $(GEN_CSR) $(SHAPE_DEF) sim_main.cpp
 	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) --top-module $(TOP) $(SRCS) sim_main.cpp -o Vcsr_sim
 
+# The SAME sim_main at the milan clock the AX7101 actually ships (100 MHz)
+# rather than the RTL's 125 MHz default. Every frequency-derived reset is
+# invisible at the default, because that is the frequency the constants were
+# written for: PTP_INCR carried a hardcoded 0x08000000 readback against a
+# derived flop and reported 8 ns on a 10 ns domain, and no check could see
+# it. This leg is the general guard for that whole class, not just for
+# PTP_INCR. The expectation is computed from CSR_MILAN_CLK_HZ, so the two
+# legs share one derivation instead of two literals.
+obj_100m/Vcsr_sim100: $(SRCS) $(GEN_CSR) $(SHAPE_DEF) sim_main.cpp
+	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) --Mdir obj_100m --top-module $(TOP) \
+	  -GMILAN_CLK_FREQ_HZ_P=100000000 \
+	  -CFLAGS -DCSR_MILAN_CLK_HZ=100000000ULL \
+	  $(SRCS) sim_main.cpp -o Vcsr_sim100
+
 obj_win/Vcsr_win: $(SRCS) $(GEN_CSR) $(SHAPE_4x4_F) sim_win.cpp
 	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS) --Mdir obj_win --top-module $(TOP) \
 	  -GN_LISTENERS_P=4 -GN_TALKERS_P=4 -GCHMAP_RDBK_P=3 \
@@ -102,9 +116,10 @@ obj_live/V$(TOPL): $(LIVE_SRCS) $(GEN_CSR) $(SHAPE_8x8_F) sim_live.cpp
 	  -GCLK_FREQ_HZ_P=10000 \
 	  $(LIVE_SRCS) sim_live.cpp -o V$(TOPL)
 
-run: obj_dir/Vcsr_sim obj_win/Vcsr_win obj_live/V$(TOPL)
+run: obj_dir/Vcsr_sim obj_100m/Vcsr_sim100 obj_win/Vcsr_win obj_live/V$(TOPL)
 	@echo "======================================================================"
 	./obj_dir/Vcsr_sim
+	./obj_100m/Vcsr_sim100
 	./obj_win/Vcsr_win
 	./obj_live/V$(TOPL)
 

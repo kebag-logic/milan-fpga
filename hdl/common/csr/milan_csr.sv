@@ -1725,7 +1725,15 @@ module milan_csr #(
       A_CLS_REGEN[10:0]:  csr_default = 32'h00FAC688;
       A_CLS_TCQ[10:0]:    csr_default = 32'h004898C0;
       A_PTP_CTRL[10:0]:   csr_default = 32'h1;
-      A_PTP_INCR[10:0]:   csr_default = 32'h0800_0000;
+      //! DERIVED, never mirrored: the write-reset at PTP_INCR uses
+      //! PTP_INCR_RST_C, so this readback image must use the SAME
+      //! localparam. It carried a hardcoded 0x0800_0000 (the 125 MHz
+      //! period) while the flop already derived from the parameter, so on
+      //! the shipping 100 MHz milan domain the PHC incremented correctly
+      //! and the register REPORTED 8 ns instead of 10. The csr suite never
+      //! passed MILAN_CLK_FREQ_HZ_P, so it elaborated at the 125 MHz
+      //! default where the two agreed and nothing caught it.
+      A_PTP_INCR[10:0]:   csr_default = PTP_INCR_RST_C;
       A_ADP_CTRL[10:0]:   csr_default = 32'h0000_0A00;
       //! RO shape words: the reset value IS the answer, forever (0x0015)
       A_ADP_TALK[10:0]:   csr_default = ADP_TALK_C;

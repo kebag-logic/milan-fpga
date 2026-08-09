@@ -34,6 +34,22 @@ enum {
   A_TCAM_MHI=0x710, A_TCAM_ACT=0x714, A_TCAM_CMD=0x718,
 };
 
+//! The milan clock this leg elaborates the DUT at. The Makefile builds the
+//! suite twice: once at the RTL's 125 MHz default and once at the 100 MHz
+//! the AX7101 actually ships, because a frequency-derived reset that is
+//! mirrored instead of derived only diverges at a frequency nobody
+//! simulates. Keep this in step with -GMILAN_CLK_FREQ_HZ_P.
+#ifndef CSR_MILAN_CLK_HZ
+#define CSR_MILAN_CLK_HZ 125000000ULL
+#endif
+
+//! PTP_INCR reset = the nominal per-tick increment in 24.8 fixed point,
+//! computed here the same way milan_csr.sv's PTP_INCR_RST_C computes it.
+//! Deriving rather than hardcoding is the point: a literal here would
+//! mirror the very constant the RTL fix removed.
+static const uint32_t PTP_INCR_EXPECT =
+    (uint32_t)((1000000000ULL << 24) / (uint64_t)CSR_MILAN_CLK_HZ);
+
 static Vmilan_csr* dut;
 static long fails = 0, checks = 0;
 
@@ -186,7 +202,15 @@ int main(int argc, char** argv) {
   // TC3 -> q4 (SR-A), TC4/5 -> q1 (control), TC6/7 -> q2 (gPTP). No spare.
   ck("CLS_TCQ(reset)",   axi_read(A_CLS_TCQ),  0x004898C0);
   ck("PTP_CTRL(reset)",  axi_read(A_PTP_CTRL), 0x1);
-  ck("PTP_INCR(reset)",  axi_read(A_PTP_INCR), 0x08000000);
+  // DERIVED, not mirrored. The readback image once carried a hardcoded
+  // 0x08000000 (the 125 MHz period) while the flop already derived from
+  // MILAN_CLK_FREQ_HZ_P, so on the shipping 100 MHz milan domain the PHC
+  // ticked correctly and the register reported 8 ns instead of 10. This
+  // suite never overrode the parameter, so it elaborated at the 125 MHz
+  // default where the two agreed and could not see it. Compute the
+  // expectation the way the RTL does, and run the whole leg a second time
+  // at 100 MHz (see the Makefile) so the shipping frequency is covered.
+  ck("PTP_INCR(reset)",  axi_read(A_PTP_INCR), PTP_INCR_EXPECT);
   // CBS reset slopes are INDEXED BY QUEUE (q0 = best effort ... q4 = SR-A)
   // and sum to 725 Mb/s, under the 75% REQ-CBS-03 ceiling.
   ck("CBS0_IDLE(reset q0 BE)",  axi_read(A_CBS0_IDLE),  25000000u);
