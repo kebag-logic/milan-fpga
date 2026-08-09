@@ -177,6 +177,133 @@ static std::vector<uint8_t> xact(uint16_t cmd, const std::vector<uint8_t>& pl) {
 static const uint64_t AAF_DEF = 0x0205022002006000ULL;
 static const uint64_t CRF48   = 0x041060010000BB80ULL;
 
+// ------------------------------------------------------------------ //
+// [16]'s four controllers, plus the unregistered outsider that provokes//
+// the SET replay and the lock. Every id and every MAC is distinct, so  //
+// a push that resolves its slot ONE way and reads the registered-      //
+// controller table ANOTHER way is wrong on the wire in three           //
+// independent fields at once: destination MAC, controller_entity_id,   //
+// and the slot's own sequence counter.                                 //
+// ------------------------------------------------------------------ //
+static const uint8_t  MAC_P[6] = {0x68,0x05,0xCA,0x00,0x01,0x10};
+static const uint8_t  MAC_Q[6] = {0x68,0x05,0xCA,0x00,0x01,0x20};
+static const uint8_t  MAC_R[6] = {0x68,0x05,0xCA,0x00,0x01,0x30};
+static const uint8_t  MAC_S[6] = {0x68,0x05,0xCA,0x00,0x01,0x40};
+static const uint8_t  MAC_E[6] = {0x68,0x05,0xCA,0x00,0x01,0xE0};
+static const uint64_t CID_P = 0x680500FFFE000110ULL;
+static const uint64_t CID_Q = 0x680500FFFE000120ULL;
+static const uint64_t CID_R = 0x680500FFFE000130ULL;
+static const uint64_t CID_S = 0x680500FFFE000140ULL;
+static const uint64_t CID_E = 0x680500FFFE0001E0ULL;
+
+//! one registered controller as [16] tracks it: the identity the entity
+//! stored in that slot, and the slot's OWN next sequence_id
+struct UnsolSlot { const uint8_t* mac; uint64_t eid; uint16_t seq; };
+static UnsolSlot uslot[4];
+static int       uslot_n = 0;
+
+//! Collect one push class in full - the class arms EVERY registered slot,
+//! and the arbiter drains them lowest slot first - and hold each frame
+//! against the slot it must have come from. `first_wait` backpressures for
+//! that many cycles ahead of the first frame, for the classes that sit
+//! behind a settle dwell or a rate window.
+//!
+//! This is the check that a shared push arbiter has to survive: the class
+//! and the slot are one decision, and MAC, entity id and sequence_id must
+//! all come from THAT slot. Reading any one of them through another
+//! class's index lands the wrong controller's identity on the wire.
+//!
+//! `sole` = this class is the only one armed, so nothing may follow it.
+static void check_class_pushes(const char* tag, int cmd, long desc,
+                               int first_wait, bool sole = true) {
+    char lb[128];
+    for (int s = 0; s < uslot_n; s++) {
+        std::vector<uint8_t> r = (s == 0 && first_wait > 0)
+                               ? wait_push(first_wait) : collect_resp();
+        snprintf(lb, sizeof lb, "%s slot %d frame present", tag, s);
+        ck(lb, r.size() > 0, 1);
+        if (r.empty()) return;          // nothing left to hold it against
+        snprintf(lb, sizeof lb, "%s slot %d u=1", tag, s);
+        ck(lb, u_bit(r), 1);
+        snprintf(lb, sizeof lb, "%s slot %d command", tag, s);
+        ck(lb, r_cmd(r), cmd);
+        if (desc >= 0) {
+            snprintf(lb, sizeof lb, "%s slot %d descriptor", tag, s);
+            ck(lb, (long)be_at(r, 38, 4), desc);
+        }
+        snprintf(lb, sizeof lb, "%s slot %d dest MAC", tag, s);
+        ck(lb, r.size() >= 6 && memcmp(r.data(), uslot[s].mac, 6) == 0, 1);
+        snprintf(lb, sizeof lb, "%s slot %d controller_entity_id", tag, s);
+        ck(lb, be_at(r, 26, 8) == uslot[s].eid, 1);
+        snprintf(lb, sizeof lb, "%s slot %d sequence_id", tag, s);
+        ck(lb, r_seq(r), uslot[s].seq);
+        uslot[s].seq++;
+    }
+    if (sole) {
+        snprintf(lb, sizeof lb, "%s exactly %d frames", tag, uslot_n);
+        ck(lb, (long)collect_resp(700).size(), 0);
+    }
+}
+
+//! A burst with SEVERAL classes armed at once. How the chain interleaves
+//! them is its own business - a class whose trigger lands a cycle later can
+//! outrank one already draining, which is exactly what a grandmaster change
+//! does - so this holds the invariant that does NOT depend on the order:
+//! every frame names ONE slot, and its MAC, its controller_entity_id and
+//! its sequence_id must all be that slot's. Each class must still reach
+//! every registered controller exactly once.
+static void check_mixed_burst(const char* tag, int expect_frames,
+                              int first_wait, const int* cmds, int ncmds) {
+    char lb[128];
+    int tally[8] = {0};
+    int seen = 0;
+    for (int i = 0; i < expect_frames; i++) {
+        std::vector<uint8_t> r = (i == 0 && first_wait > 0)
+                               ? wait_push(first_wait) : collect_resp();
+        if (r.empty()) break;
+        seen++;
+        int slot = -1;
+        for (int s = 0; s < uslot_n; s++)
+            if (r.size() >= 6 && memcmp(r.data(), uslot[s].mac, 6) == 0)
+                slot = s;
+        snprintf(lb, sizeof lb, "%s frame %d names a registered slot", tag, i);
+        ck(lb, slot >= 0, 1);
+        if (slot < 0) continue;
+        snprintf(lb, sizeof lb, "%s frame %d u=1", tag, i);
+        ck(lb, u_bit(r), 1);
+        snprintf(lb, sizeof lb, "%s frame %d entity id agrees with its MAC",
+                 tag, i);
+        ck(lb, be_at(r, 26, 8) == uslot[slot].eid, 1);
+        snprintf(lb, sizeof lb, "%s frame %d carries THAT slot's sequence",
+                 tag, i);
+        ck(lb, r_seq(r), uslot[slot].seq);
+        uslot[slot].seq++;
+        for (int c = 0; c < ncmds; c++) if (r_cmd(r) == cmds[c]) tally[c]++;
+    }
+    snprintf(lb, sizeof lb, "%s frame count", tag);
+    ck(lb, seen, expect_frames);
+    for (int c = 0; c < ncmds; c++) {
+        snprintf(lb, sizeof lb, "%s command %d reached every slot",
+                 tag, cmds[c]);
+        ck(lb, tally[c], uslot_n);
+    }
+    snprintf(lb, sizeof lb, "%s nothing beyond the burst", tag);
+    ck(lb, (long)collect_resp(700).size(), 0);
+}
+
+//! REGISTER one more controller and record the slot it must have taken
+//! (lowest free wins, so registration order IS slot order). A freshly
+//! filled slot starts its sequence space at 0.
+static void register_slot(const uint8_t* mac, uint64_t cid, uint16_t s16,
+                          const char* tag) {
+    feed_rx(build_aem_cmd2(stim, mac, cid, 36, s16, {}));
+    ck(tag, r_status(collect_resp()), 0);
+    uslot[uslot_n].mac = mac;
+    uslot[uslot_n].eid = cid;
+    uslot[uslot_n].seq = 0;
+    uslot_n++;
+}
+
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     setvbuf(stdout, NULL, _IONBF, 0);
@@ -767,6 +894,149 @@ int main(int argc, char** argv) {
         ck("[15] CDL back to 24", r_cdl(p3), 24);
         feed_rx(build_aem_cmd(stim, 37, 0x5E02, {}));
         ck("[15] DEREGISTER A", r_status(collect_resp()), 0);
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[16] FOUR registered controllers x every push class: each "
+           "frame carries ITS OWN slot's MAC, entity id and sequence\n");
+    {
+        // Every class in this engine arbitrates twice - which class wins,
+        // and which slot that class serves - and then reads a 4-entry
+        // {entity_id, MAC, sequence} table. A shared arbiter is only
+        // correct if BOTH answers come from the same decision. With one
+        // controller registered every wrong answer is also the right one,
+        // which is why nothing before this case could see the difference.
+        //
+        // The four sequence counters are deliberately STAGGERED (3, 2, 1,
+        // 0 going in), so a frame that takes its MAC from one slot and its
+        // sequence from another is caught even when both slots are real.
+        uslot_n = 0;
+        // let every 1 s rate window run out with nobody registered: a
+        // window is consumed by SENDING, so an empty table opens them all
+        ck("[16] silence with no controller registered",
+           (long)wait_push(110000).size(), 0);
+
+        register_slot(MAC_P, CID_P, 0x6001, "[16] REGISTER P -> slot 0");
+        dut->asp_gen_i = 3;             // bare generation bump: an AS_PATH
+        check_class_pushes("[16] stagger P", 0x28, -1, 0);
+        register_slot(MAC_Q, CID_Q, 0x6002, "[16] REGISTER Q -> slot 1");
+        dut->asp_gen_i = 4;
+        check_class_pushes("[16] stagger PQ", 0x28, -1, 0);
+        register_slot(MAC_R, CID_R, 0x6003, "[16] REGISTER R -> slot 2");
+        dut->asp_gen_i = 5;
+        check_class_pushes("[16] stagger PQR", 0x28, -1, 0);
+        register_slot(MAC_S, CID_S, 0x6004, "[16] REGISTER S -> slot 3");
+        ck("[16] four slots filled", uslot_n, 4);
+        ck("[16] sequence counters staggered 3/2/1/0",
+           (uslot[0].seq == 3) && (uslot[1].seq == 2) &&
+           (uslot[2].seq == 1) && (uslot[3].seq == 0), 1);
+
+        // ---- the eleven push classes, one provocation each ----------- //
+        // [8] GET_AS_PATH: a bare generation bump is a Table 5.22 edge
+        dut->asp_gen_i = 6;
+        check_class_pushes("[16] AS_PATH", 0x28, -1, 0);
+
+        // [1] GET_STREAM_INFO(STREAM_OUTPUT): the talker state edge
+        dut->talker_active_i = 1;
+        check_class_pushes("[16] GSI(OUT)", 15, 0x00060000, 0);
+
+        // [3] GET_COUNTERS(AVB_INTERFACE): a link edge
+        dut->link_up_i = 0;
+        check_class_pushes("[16] CNT(AVB_IF)", 0x29, 0x00090000, 0);
+
+        // [5] GET_COUNTERS(STREAM_OUTPUT): source 0's dirty pulse
+        dut->tkdiag_dirty_p_i = 0x0001; tick(); dut->tkdiag_dirty_p_i = 0;
+        check_class_pushes("[16] CNT(OUT 0)", 0x29, 0x00060000, 0);
+
+        // [10] GET_COUNTERS(STREAM_INPUT): sink 0's dirty pulse
+        dut->rxdiag_dirty_p_i = 0x0001; tick(); dut->rxdiag_dirty_p_i = 0;
+        check_class_pushes("[16] CNT(IN 0)", 0x29, 0x00050000, 0);
+
+        // [11] GET_COUNTERS on the CRF Media Clock Input
+        dut->crf_cnt_dirty_p_i = 1; tick(); dut->crf_cnt_dirty_p_i = 0;
+        check_class_pushes("[16] CNT(CRF)", 0x29, 0x00050001, 0);
+
+        // [6] GET_STREAM_INFO(STREAM_INPUT), k=0: a listener row settles
+        dut->lstn_ta_acclat_i = 800000;
+        check_class_pushes("[16] GSI(IN 0)", 15, 0x00050000, 2000);
+
+        // [6] GET_STREAM_INFO(STREAM_INPUT), k=1: the CRF sink's own row
+        dut->lstn1_sid_i = 0xBBBB00FFFE0000C6ULL;
+        check_class_pushes("[16] GSI(IN CRF)", 15, 0x00050001, 2000);
+
+        // [7] GET_AVB_INFO: the gPTP domain is a signature term
+        dut->gptp_domain_i = 1;
+        check_class_pushes("[16] AVB_INFO", 0x27, 0x00090000, 0);
+
+        // [9] GET_COUNTERS(CLOCK_DOMAIN): the media-lock tallies move
+        dut->in0_cnt_locked_i = 78;
+        check_class_pushes("[16] CNT(CLK_DOM)", 0x29, 0x00240000, 0);
+
+        // [4] the SET replay. E is NOT registered, so its accepted SET
+        // replays u=1 to all four slots (the rule excludes the ORIGINATOR,
+        // and E owns none of them).
+        {
+            std::vector<uint8_t> sc; put_be16(sc, 0x0024); put_be16(sc, 0);
+            put_be16(sc, 0); put_be16(sc, 0);      // clock_source 2 -> 0
+            feed_rx(build_aem_cmd2(stim, MAC_E, CID_E, 22, 0x6005, sc));
+            auto re = collect_resp();
+            ck("[16] E's SET_CLOCK_SOURCE SUCCESS", r_status(re), 0);
+            ck("[16] its direct response goes to E",
+               re.size() >= 6 && memcmp(re.data(), MAC_E, 6) == 0, 1);
+            ck("[16] the direct response is u=0", u_bit(re), 0);
+        }
+        check_class_pushes("[16] SET replay", 22, 0x00240000, 0);
+
+        // [12] the 60 s lock auto-expiry. E locks; the expiry notifies the
+        // REGISTERED controllers, which E is not one of.
+        {
+            std::vector<uint8_t> lk(16, 0);
+            feed_rx(build_aem_cmd2(stim, MAC_E, CID_E, 1, 0x6006, lk));
+            ck("[16] E LOCK SUCCESS", r_status(collect_resp()), 0);
+        }
+        // 60 000 ms x 100 cycles/ms, plus margin for the expiry pulse
+        check_class_pushes("[16] LOCK expiry", 1, -1, 6020000);
+
+        // ---- THREE classes armed at once, four slots each ------------ //
+        // A grandmaster change arms GET_AS_PATH off the path signature,
+        // the AVB_INTERFACE counters off the GM-changed edge and
+        // GET_AVB_INFO off the gPTP signature - and the last two arm a
+        // cycle later, so they preempt AS_PATH mid-drain (case [4] sees
+        // the one-controller version of the same skew). Twelve frames
+        // from three classes, INTERLEAVED across four slots: every one of
+        // them still has to carry the identity of the slot it names. This
+        // is the case eleven private slot picks and one shared pick can
+        // disagree on, and no earlier case could reach it.
+        ck("[16] the rate windows reopen quietly",
+           (long)wait_push(110000).size(), 0);
+        dut->gptp_gm_id_i = 0x001B21FFFE55AC00ULL;
+        {
+            const int cmds[3] = {0x28, 0x29, 0x27};   // AS_PATH, CNT, AVB_INFO
+            check_mixed_burst("[16] GM triple", 12, 0, cmds, 3);
+        }
+
+        // the table really is four independent rows: drain them one at a
+        // time and watch the survivors keep their OWN sequence spaces
+        feed_rx(build_aem_cmd2(stim, MAC_Q, CID_Q, 37, 0x6007, {}));
+        ck("[16] DEREGISTER Q", r_status(collect_resp()), 0);
+        uslot[1] = uslot[2]; uslot[2] = uslot[3]; uslot_n = 3;
+        dut->asp_gen_i = 7;
+        check_class_pushes("[16] after Q left", 0x28, -1, 0);
+
+        feed_rx(build_aem_cmd2(stim, MAC_P, CID_P, 37, 0x6008, {}));
+        ck("[16] DEREGISTER P", r_status(collect_resp()), 0);
+        uslot[0] = uslot[1]; uslot[1] = uslot[2]; uslot_n = 2;
+        dut->asp_gen_i = 8;
+        check_class_pushes("[16] after P left", 0x28, -1, 0);
+
+        feed_rx(build_aem_cmd2(stim, MAC_R, CID_R, 37, 0x6009, {}));
+        ck("[16] DEREGISTER R", r_status(collect_resp()), 0);
+        feed_rx(build_aem_cmd2(stim, MAC_S, CID_S, 37, 0x600A, {}));
+        ck("[16] DEREGISTER S", r_status(collect_resp()), 0);
+        uslot_n = 0;
+        dut->asp_gen_i = 9;
+        ck("[16] silence once the table is empty",
+           (long)wait_push(2000).size(), 0);
     }
 
     printf("\n----------------------------------------------------------\n");

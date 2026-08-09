@@ -1870,6 +1870,49 @@ module KL_aecp_response_builder (
   end
 
   // ------------------------------------------------------------------ //
+  // ONE arbiter, ONE read of the registered-controller table.           //
+  //                                                                     //
+  // The eleven push classes in IDLE_S below all address the same 4-entry //
+  // table - {entity_id 64, MAC 48, sequence 16} = 128 bits per slot -    //
+  // and each used to read it through its own index. That is eleven       //
+  // 128-bit 4-to-1 muxes for a chain that serves exactly ONE class per   //
+  // cycle by construction: the arms are an else-if chain, so when class  //
+  // N fires every class ahead of it has an empty pend vector and only    //
+  // N's own slot pick can be the one the frame is built from.            //
+  //                                                                     //
+  // So resolve the class and the slot as one decision, in the chain's    //
+  // own priority order, and read the table once. w_uwin_idx is exactly   //
+  // the w_unsol_pushN_idx of whichever N the chain will take.            //
+  //                                                                     //
+  // The per-class encoders stay: they are 2 bits each, and classes 5, 6  //
+  // and 10 pick their slot from the winning DESCRIPTOR rather than from  //
+  // a flat pend vector, so the pick is not reproducible from a merged    //
+  // vector. Only the 128-bit read is shared, which is where the cost is. //
+  //                                                                     //
+  // w_cap_hs is deliberately NOT a term. It sits between the replay arm  //
+  // and the rest of the chain but takes no push, so on a capture cycle   //
+  // this value is simply not consumed - never mis-consumed.              //
+  // ------------------------------------------------------------------ //
+  logic [1:0] w_uwin_idx;    //! the slot the winning push class serves
+  always_comb begin
+    if      (unsol_pend4_r  != '0) w_uwin_idx = w_unsol_push4_idx;
+    else if (unsol_pend_r   != '0) w_uwin_idx = w_unsol_push_idx;
+    else if (unsol_pend3_r  != '0) w_uwin_idx = w_unsol_push3_idx;
+    else if (w_pend5_any)          w_uwin_idx = w_unsol_push5_idx;
+    else if (w_pend10_any)         w_uwin_idx = w_unsol_push10_idx;
+    else if (unsol_pend11_r != '0) w_uwin_idx = w_unsol_push11_idx;
+    else if (w_pend6_any)          w_uwin_idx = w_unsol_push6_idx;
+    else if (unsol_pend7_r  != '0) w_uwin_idx = w_unsol_push7_idx;
+    else if (unsol_pend8_r  != '0) w_uwin_idx = w_unsol_push8_idx;
+    else if (unsol_pend9_r  != '0) w_uwin_idx = w_unsol_push9_idx;
+    else                           w_uwin_idx = w_unsol_push12_idx;
+  end
+  //! the winning slot's stored identity and its own sequence space
+  wire [47:0] w_uwin_mac = unsol_mac_r[w_uwin_idx];
+  wire [63:0] w_uwin_eid = unsol_eid_r[w_uwin_idx];
+  wire [15:0] w_uwin_seq = unsol_seq_r[w_uwin_idx];
+
+  // ------------------------------------------------------------------ //
   // Stream-info payload constants (shared by the GET_STREAM_INFO command
   // path and the unsolicited push): flags + the live 40-byte tail. The
   // caller still owns segments/cdl/status.                               //
@@ -2853,12 +2896,12 @@ module KL_aecp_response_builder (
             // command (tready is gated while pend4 != 0); re-run DECIDE with
             // the registered controller's identity and u=1. Store/level
             // side effects re-run idempotently (same written values).
-            unsol_pend4_r[w_unsol_push4_idx] <= 1'b0;
-            unsol_seq_r[w_unsol_push4_idx]   <= unsol_seq_r[w_unsol_push4_idx] + 16'd1;
+            unsol_pend4_r[w_uwin_idx] <= 1'b0;
+            unsol_seq_r[w_uwin_idx]   <= w_uwin_seq + 16'd1;
             unsol_frame_r <= 1'b1;
-            dst_mac_q     <= unsol_mac_r[w_unsol_push4_idx];
-            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push4_idx];
-            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push4_idx];
+            dst_mac_q     <= w_uwin_mac;
+            hdr_q.controller_entity_id <= w_uwin_eid;
+            hdr_q.sequence_id          <= w_uwin_seq;
             cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
             fi_r       <= 16'd0;
             state_r    <= DECIDE_S;
@@ -2869,12 +2912,12 @@ module KL_aecp_response_builder (
             // the lowest pending slot, through the NORMAL segment engine:
             // send with the slot's current sequence, then bump (reference
             // sends next_seq_id and post-increments).
-            unsol_pend_r[w_unsol_push_idx] <= 1'b0;
-            unsol_seq_r[w_unsol_push_idx]  <= unsol_seq_r[w_unsol_push_idx] + 16'd1;
+            unsol_pend_r[w_uwin_idx] <= 1'b0;
+            unsol_seq_r[w_uwin_idx]  <= w_uwin_seq + 16'd1;
             unsol_frame_r <= 1'b1;
-            dst_mac_q     <= unsol_mac_r[w_unsol_push_idx];
-            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push_idx];
-            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push_idx];
+            dst_mac_q     <= w_uwin_mac;
+            hdr_q.controller_entity_id <= w_uwin_eid;
+            hdr_q.sequence_id          <= w_uwin_seq;
             hdr_q.command_type         <= CMD_GET_STREAM_INFO;
             vu_q       <= 1'b0;
             msg_resp_q <= MSG_AEM_RESPONSE;
@@ -2901,12 +2944,12 @@ module KL_aecp_response_builder (
             //! Unsolicited GET_COUNTERS for AVB_INTERFACE[0] (u=1) on a
             //! link/GM edge - Milan 5.4.5 / internal COMPLIANCE link-flap. Same full-136B
             //! shape as the solicited path.
-            unsol_pend3_r[w_unsol_push3_idx] <= 1'b0;
-            unsol_seq_r[w_unsol_push3_idx]   <= unsol_seq_r[w_unsol_push3_idx] + 16'd1;
+            unsol_pend3_r[w_uwin_idx] <= 1'b0;
+            unsol_seq_r[w_uwin_idx]   <= w_uwin_seq + 16'd1;
             unsol_frame_r <= 1'b1;
-            dst_mac_q     <= unsol_mac_r[w_unsol_push3_idx];
-            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push3_idx];
-            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push3_idx];
+            dst_mac_q     <= w_uwin_mac;
+            hdr_q.controller_entity_id <= w_uwin_eid;
+            hdr_q.sequence_id          <= w_uwin_seq;
             hdr_q.command_type         <= CMD_GET_COUNTERS;
             vu_q       <= 1'b0;
             msg_resp_q <= MSG_AEM_RESPONSE;
@@ -2940,12 +2983,12 @@ module KL_aecp_response_builder (
             //! KL_talker_diag_ctx counters, which tkdiag_cnt_i carries for
             //! THIS k because gs_diag_idx_o is pre-muxed to the pending
             //! index for as long as the push waits in IDLE_S.
-            unsol_pend5_r[w_unsol_push5_idx][w_unsol_push5_oidx] <= 1'b0;
-            unsol_seq_r[w_unsol_push5_idx] <= unsol_seq_r[w_unsol_push5_idx] + 16'd1;
+            unsol_pend5_r[w_uwin_idx][w_unsol_push5_oidx] <= 1'b0;
+            unsol_seq_r[w_uwin_idx] <= w_uwin_seq + 16'd1;
             unsol_frame_r <= 1'b1;
-            dst_mac_q     <= unsol_mac_r[w_unsol_push5_idx];
-            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push5_idx];
-            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push5_idx];
+            dst_mac_q     <= w_uwin_mac;
+            hdr_q.controller_entity_id <= w_uwin_eid;
+            hdr_q.sequence_id          <= w_uwin_seq;
             hdr_q.command_type         <= CMD_GET_COUNTERS;
             vu_q       <= 1'b0;
             msg_resp_q <= MSG_AEM_RESPONSE;
@@ -2986,12 +3029,12 @@ module KL_aecp_response_builder (
             //! served it from the in0_* legacy ports, which the datapath
             //! muxes by clock source, so its push could disagree with the
             //! solicited answer for the same descriptor (gh #60 F3).
-            unsol_pend10_r[w_unsol_push10_idx][w_unsol_push10_oidx] <= 1'b0;
-            unsol_seq_r[w_unsol_push10_idx] <= unsol_seq_r[w_unsol_push10_idx] + 16'd1;
+            unsol_pend10_r[w_uwin_idx][w_unsol_push10_oidx] <= 1'b0;
+            unsol_seq_r[w_uwin_idx] <= w_uwin_seq + 16'd1;
             unsol_frame_r <= 1'b1;
-            dst_mac_q     <= unsol_mac_r[w_unsol_push10_idx];
-            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push10_idx];
-            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push10_idx];
+            dst_mac_q     <= w_uwin_mac;
+            hdr_q.controller_entity_id <= w_uwin_eid;
+            hdr_q.sequence_id          <= w_uwin_seq;
             hdr_q.command_type         <= CMD_GET_COUNTERS;
             vu_q       <= 1'b0;
             msg_resp_q <= MSG_AEM_RESPONSE;
@@ -3021,12 +3064,12 @@ module KL_aecp_response_builder (
             //! read straight off the crf_cnt_* ports (no muxing needed);
             //! descriptor index = n_aaf_sinks_i, the CRF sink's pinned
             //! last position in AEM order.
-            unsol_pend11_r[w_unsol_push11_idx] <= 1'b0;
-            unsol_seq_r[w_unsol_push11_idx]    <= unsol_seq_r[w_unsol_push11_idx] + 16'd1;
+            unsol_pend11_r[w_uwin_idx] <= 1'b0;
+            unsol_seq_r[w_uwin_idx]    <= w_uwin_seq + 16'd1;
             unsol_frame_r <= 1'b1;
-            dst_mac_q     <= unsol_mac_r[w_unsol_push11_idx];
-            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push11_idx];
-            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push11_idx];
+            dst_mac_q     <= w_uwin_mac;
+            hdr_q.controller_entity_id <= w_uwin_eid;
+            hdr_q.sequence_id          <= w_uwin_seq;
             hdr_q.command_type         <= CMD_GET_COUNTERS;
             vu_q       <= 1'b0;
             msg_resp_q <= MSG_AEM_RESPONSE;
@@ -3057,12 +3100,12 @@ module KL_aecp_response_builder (
             //! the consts loader reads the LIVE listener state, so the
             //! frame carries whatever the state is NOW - a change landing
             //! this same cycle is already inside it.
-            unsol_pend6_r[w_unsol_push6_idx][w_unsol_push6_k] <= 1'b0;
-            unsol_seq_r[w_unsol_push6_idx] <= unsol_seq_r[w_unsol_push6_idx] + 16'd1;
+            unsol_pend6_r[w_uwin_idx][w_unsol_push6_k] <= 1'b0;
+            unsol_seq_r[w_uwin_idx] <= w_uwin_seq + 16'd1;
             unsol_frame_r <= 1'b1;
-            dst_mac_q     <= unsol_mac_r[w_unsol_push6_idx];
-            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push6_idx];
-            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push6_idx];
+            dst_mac_q     <= w_uwin_mac;
+            hdr_q.controller_entity_id <= w_uwin_eid;
+            hdr_q.sequence_id          <= w_uwin_seq;
             hdr_q.command_type         <= CMD_GET_STREAM_INFO;
             vu_q       <= 1'b0;
             msg_resp_q <= MSG_AEM_RESPONSE;
@@ -3094,12 +3137,12 @@ module KL_aecp_response_builder (
             //! asCapable, SR-class VID). Payload = the solicited SUCCESS
             //! arm byte-for-byte; descriptor words ride const bytes 56..59
             //! (the 20-byte payload + 1 msrp mapping owns 0..19).
-            unsol_pend7_r[w_unsol_push7_idx] <= 1'b0;
-            unsol_seq_r[w_unsol_push7_idx]   <= unsol_seq_r[w_unsol_push7_idx] + 16'd1;
+            unsol_pend7_r[w_uwin_idx] <= 1'b0;
+            unsol_seq_r[w_uwin_idx]   <= w_uwin_seq + 16'd1;
             unsol_frame_r <= 1'b1;
-            dst_mac_q     <= unsol_mac_r[w_unsol_push7_idx];
-            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push7_idx];
-            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push7_idx];
+            dst_mac_q     <= w_uwin_mac;
+            hdr_q.controller_entity_id <= w_uwin_eid;
+            hdr_q.sequence_id          <= w_uwin_seq;
             hdr_q.command_type         <= CMD_GET_AVB_INFO;
             vu_q       <= 1'b0;
             msg_resp_q <= MSG_AEM_RESPONSE;
@@ -3139,12 +3182,12 @@ module KL_aecp_response_builder (
             //! bytes just ABOVE the path payload (ASP_CONST_END_C), which
             //! the depth-8 store now owns up to - the old fixed 40..41 sat
             //! INSIDE a 5-entry path.
-            unsol_pend8_r[w_unsol_push8_idx] <= 1'b0;
-            unsol_seq_r[w_unsol_push8_idx]   <= unsol_seq_r[w_unsol_push8_idx] + 16'd1;
+            unsol_pend8_r[w_uwin_idx] <= 1'b0;
+            unsol_seq_r[w_uwin_idx]   <= w_uwin_seq + 16'd1;
             unsol_frame_r <= 1'b1;
-            dst_mac_q     <= unsol_mac_r[w_unsol_push8_idx];
-            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push8_idx];
-            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push8_idx];
+            dst_mac_q     <= w_uwin_mac;
+            hdr_q.controller_entity_id <= w_uwin_eid;
+            hdr_q.sequence_id          <= w_uwin_seq;
             hdr_q.command_type         <= CMD_GET_AS_PATH;
             vu_q       <= 1'b0;
             msg_resp_q <= MSG_AEM_RESPONSE;
@@ -3169,12 +3212,12 @@ module KL_aecp_response_builder (
             //! or UNLOCKED advanced (Table 5.22, one per descriptor per
             //! second). Same full-136B shape and the same counter source
             //! as the solicited clock-domain arm.
-            unsol_pend9_r[w_unsol_push9_idx] <= 1'b0;
-            unsol_seq_r[w_unsol_push9_idx]   <= unsol_seq_r[w_unsol_push9_idx] + 16'd1;
+            unsol_pend9_r[w_uwin_idx] <= 1'b0;
+            unsol_seq_r[w_uwin_idx]   <= w_uwin_seq + 16'd1;
             unsol_frame_r <= 1'b1;
-            dst_mac_q     <= unsol_mac_r[w_unsol_push9_idx];
-            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push9_idx];
-            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push9_idx];
+            dst_mac_q     <= w_uwin_mac;
+            hdr_q.controller_entity_id <= w_uwin_eid;
+            hdr_q.sequence_id          <= w_uwin_seq;
             hdr_q.command_type         <= CMD_GET_COUNTERS;
             vu_q       <= 1'b0;
             msg_resp_q <= MSG_AEM_RESPONSE;
@@ -3210,12 +3253,12 @@ module KL_aecp_response_builder (
             //! to echo. Lowest arbitration priority: this frame announces
             //! a 60-second-old state machine's timeout, everything else
             //! in this chain announces fresher facts.
-            unsol_pend12_r[w_unsol_push12_idx] <= 1'b0;
-            unsol_seq_r[w_unsol_push12_idx]    <= unsol_seq_r[w_unsol_push12_idx] + 16'd1;
+            unsol_pend12_r[w_uwin_idx] <= 1'b0;
+            unsol_seq_r[w_uwin_idx]    <= w_uwin_seq + 16'd1;
             unsol_frame_r <= 1'b1;
-            dst_mac_q     <= unsol_mac_r[w_unsol_push12_idx];
-            hdr_q.controller_entity_id <= unsol_eid_r[w_unsol_push12_idx];
-            hdr_q.sequence_id          <= unsol_seq_r[w_unsol_push12_idx];
+            dst_mac_q     <= w_uwin_mac;
+            hdr_q.controller_entity_id <= w_uwin_eid;
+            hdr_q.sequence_id          <= w_uwin_seq;
             hdr_q.command_type         <= CMD_LOCK_ENTITY;
             vu_q       <= 1'b0;
             msg_resp_q <= MSG_AEM_RESPONSE;
