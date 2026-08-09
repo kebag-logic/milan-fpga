@@ -74,11 +74,26 @@ jobs:
       # shifted the map-write indexing. Without yosys on PATH that leg dies
       # with exit 127 AFTER its own 184 checks have already passed, so the
       # sweep reports a failing suite whose log says zero failures.
+      #
+      # sv2v comes too, and is not optional: the leg lowers the module to
+      # Verilog-2005 first, because the yosys Ubuntu ships (0.33) cannot
+      # parse the SystemVerilog size casts this file uses. Same pin as the
+      # yosys-portability job below, which already lowers this exact module.
       - name: Install yosys for the netlist-level suite legs
         run: |
           sudo apt-get update -qq
           sudo apt-get install -y --no-install-recommends yosys
           yosys -V
+
+      - name: Install sv2v from the upstream release
+        run: |
+          set -eu
+          ver=v0.0.12
+          url="https://github.com/zachjs/sv2v/releases/download/${ver}/sv2v-Linux.zip"
+          curl -fsSL "$url" -o /tmp/sv2v.zip
+          unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
+          sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v
+          sv2v --version
 
       - name: Run every suite
         run: scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs"
