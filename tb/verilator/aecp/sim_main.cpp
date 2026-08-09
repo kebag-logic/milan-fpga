@@ -1830,7 +1830,7 @@ int main(int argc, char** argv) {
         ck("[21b] GM_CHANGED +1", be32_at(r, 66), gmc0 + 1);
 
         // (b2) link edge -> unsolicited AVB_INTERFACE GET_COUNTERS push to a
-        //      registered controller (Milan 5.4.5; CERT link-flap). gh #60
+        //      registered controller (Milan 5.4.5; internal COMPLIANCE link-flap). gh #60
         //      F1 FLIP: the row carries the per-descriptor 1 s window now,
         //      so a bounce (two edges back to back) yields ONE frame - the
         //      first edge pushes at once (window resets saturated) and the

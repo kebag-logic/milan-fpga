@@ -48,10 +48,10 @@ PERSONAS = [
  ]),
  ("Tester / Validator", "you run the suites + validate",
   "prove it works, per spec", PURPLE, [
-   ("testing/TESTING.md", "the test taxonomy: TB · behave · CERT/bench"),
+   ("testing/TESTING.md", "the test taxonomy: TB · behave · compliance/bench"),
    ("tb/verilator/README.md", "run every Verilator TB (ls tb/verilator/ = the list)"),
    ("tests/README.md", "run the behave/tsn_gen fixtures (venv + TSAGEN_DIR)"),
-   ("testing/BEHAVE_TEST_PLAN.md", "the tag taxonomy, tiers, @bench / CERT"),
+   ("testing/BEHAVE_TEST_PLAN.md", "the tag taxonomy, tiers, @bench / compliance"),
    ("SPEC_TRACEABILITY.md", "read the pass / partial / fail matrix (204 rows)"),
    ("MILAN_COMPLIANCE_GAPS.md", "what is validated vs pending"),
  ]),

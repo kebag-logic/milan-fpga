@@ -17,7 +17,7 @@
 
                 LEGACY TAP (sel_render_i = 0, reset default): the listener
                 render tap (KL_pcm_route render_tdata + the ring handshake)
-                exactly as the deployed CERT path wires it - tdata / tvalid /
+                exactly as the deployed compliance path wires it - tdata / tvalid /
                 tready / tlast / wire_chans pass through COMBINATIONALLY and
                 bit-identically, and the KL_pcm_lpf override is forwarded
                 untouched. Zero added latency, zero behavioural delta.
@@ -51,7 +51,7 @@
                      discarded and the raw RX tap played instead. The LPF
                      belongs to the LISTENER tap it filters, so it is masked
                      off in render mode here rather than at its own enable
-                     (LPF_CTRL keeps its meaning for the CERT path).
+                     (LPF_CTRL keeps its meaning for the compliance path).
 
                 HONEST REPORTING: feeds_o counts every frame handed to the
                 producer on the LIVE source (legacy: accepted tap beats;

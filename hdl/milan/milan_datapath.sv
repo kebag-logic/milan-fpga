@@ -453,7 +453,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   //! chmap media grid: a ~48 kHz strobe on the datapath clock that paces the
   //! render/capture map walks (docs/CHANNEL_MAP_64.md §3/§4) and their tone
-  //! source below. Consumed ONLY by the map fabric; the CERT audio path
+  //! source below. Consumed ONLY by the map fabric; the compliance audio path
   //! never sees it.
   localparam int MEDIA_TICK_DIV_C = MILAN_CLK_FREQ_HZ / 48_000;
 
@@ -862,7 +862,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  Channel-map CAPTURE mux (docs/CHANNEL_MAP_64.md §4) — ADD-ALONGSIDE.
   //  Sits between the physical capture front-end and the shared packetizer.
   //  cfg_chmap_enable = 0 (reset default) selects the front-end pair stream
-  //  BIT-IDENTICALLY (today's CERT wiring); = 1 selects the CMAP-routed source
+  //  BIT-IDENTICALLY (today's compliance wiring); = 1 selects the CMAP-routed source
   //  per media tick. The map RAM resets all-zero, so the enable bit is the
   //  single bypass truth (program CMAP through the 0x900 port, then arm).
   //  Phase-1 sources: physical capture (I2S/TDM front-end pair) + tone; the
@@ -1427,7 +1427,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        mcsrv_ps_invert_w;  //! MCSRV_CTRL 0x8FC[0] bench sign knob
   wire        mcsrv_auto_repair_w;//! MCSRV_CTRL 0x8FC[1] bench-gated DRP repair enable (default 0)
   //! chmap 0x900 fabric (docs/CHANNEL_MAP_64.md §6): CSR map-RAM write port +
-  //! bypass arm. Default (cfg_chmap_enable=0) leaves the CERT audio path
+  //! bypass arm. Default (cfg_chmap_enable=0) leaves the compliance audio path
   //! bit-identical (render/capture crossbars are muxed OUT of both the
   //! packetizer feed and the i2s_playback feed).
   wire        cfg_chmap_enable;
@@ -2523,7 +2523,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   //! discover-DELAY range scaled by the datapath clock (the params are in
   //! clk cycles; unscaled, the 100 MHz AX halved the wall-time range and
-  //! failed the CERT es-2.1 randomness spread). BASE = 200 ms; the mask
+  //! failed the internal COMPLIANCE es-2.1 randomness spread). BASE = 200 ms; the mask
   //! passes the full 26-bit LFSR = up to ~0.67 s @100 MHz / ~1.34 s @50 MHz
   //! (both << the 4.5 s TMR_DELAY bound).
   adp_advertiser #(
@@ -4611,7 +4611,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   //! item-7 DAC feed selector (KL_i2s_feed_mux, instanced with the render
   //! fabric below - nets resolve module-wide): CHMAP_CTRL[0]=0 passes the
-  //! CERT render tap through BIT- and CYCLE-identically; =1 selects the
+  //! compliance render tap through BIT- and CYCLE-identically; =1 selects the
   //! render crossbar's phys{0,1} pair paced by the 48 kHz media tick (and
   //! masks the LPF, which belongs to the listener tap it filters).
   wire [TDATA_WIDTH-1:0] i2s_feed_tdata_w;
@@ -4703,7 +4703,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  renders CHMAP_PHYS_C physical channels through RMAP. phys{0,1} feed the
   //  optional mapped-I2S path above; phys{2..9} feed the parked TDM8 render
   //  lane. cfg_chmap_enable = 0 leaves rend_pcm_tdata_w -> i2s_playback
-  //  untouched (the assign below resolves to the exact CERT net).
+  //  untouched (the assign below resolves to the exact compliance net).
   // ==========================================================================
   localparam int CHMAP_PHYS_C = 10;
   wire [CHMAP_PHYS_C*24-1:0] chmap_phys_w;
@@ -4783,7 +4783,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   // ---- DAC feed selector (item-7): the one place the DAC's source AND its
   //      pace are decided, and the one place the render chain is counted.
-  //      enable=0 -> the CERT tap passes through bit-/cycle-identically;
+  //      enable=0 -> the compliance tap passes through bit-/cycle-identically;
   //      enable=1 -> phys{0,1} on the 48 kHz media tick (the ONLY pace at
   //      which a host-ring playback can reach the line-out at all). ------
   KL_i2s_feed_mux i2s_feed_mux (

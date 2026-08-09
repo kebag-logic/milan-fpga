@@ -181,7 +181,7 @@ module KL_aecp_l0_state (
 
   // SET_CONFIGURATION with out-of-range config_index → NO_SUCH_DESCRIPTOR
   // (IEEE 1722.1-2021 7.4.7.1: configuration_index names a CONFIGURATION
-  // descriptor; CERT es-4.3 asserts NO_SUCH_DESCRIPTOR, was BAD_ARGUMENTS)
+  // descriptor; internal COMPLIANCE es-4.3 asserts NO_SUCH_DESCRIPTOR, was BAD_ARGUMENTS)
   wire w_bad_config = (hdr_i.command_type == CMD_SET_CONFIGURATION) &&
                       (hdr_i.configuration_index >= 16'(NUM_CONFIGURATIONS_C));
 

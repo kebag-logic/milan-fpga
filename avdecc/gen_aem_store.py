@@ -133,7 +133,7 @@ NO_STRING = 0xFFFF
 # encoded 32-bit value IS the base frequency in Hz)
 RATES = [0x0000BB80, 0x00017700, 0x0002EE00]          # 48 k / 96 k / 192 k
 # AAF PCM 32-bit 8ch stream formats (from milan-v12-entity.json, byte-exact)
-#! 8ch default restored (2026-07-20, CERT es-4.4 expects the classic
+#! 8ch default restored (2026-07-20, internal COMPLIANCE es-4.4 expects the classic
 #! 0205022002006000 default): the monitor now ADAPTS to any wire channel
 #! count 1..8 under the declared format, so a pure-ACMP 2ch connect works
 #! against the 8ch default. 2ch stays in the supported list.

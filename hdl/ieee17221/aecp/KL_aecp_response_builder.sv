@@ -394,14 +394,14 @@ module KL_aecp_response_builder (
                     (c == CMD_SET_SAMPLING_RATE) || (c == CMD_SET_CLOCK_SOURCE) ||
                     (c == CMD_SET_CONTROL) || (c == CMD_START_STREAMING) ||
                     (c == CMD_STOP_STREAMING) || (c == CMD_SET_MAX_TRANSIT_TIME) ||
-                    (c == CMD_SET_CONFIGURATION) ||  // CERT es-4.3
+                    (c == CMD_SET_CONFIGURATION) ||  // internal COMPLIANCE es-4.3
                     // dynamic audio maps (7.4.45/46 "On success this command
                     // also sends an unsolicited notification"). SUCCESS-gated
                     // in CONCLUDE_S, so static shapes (NOT_SUPPORTED) never
                     // replay - behavior-identical for the deployed build.
                     (c == CMD_ADD_AUDIO_MAPPINGS) ||
                     (c == CMD_REMOVE_AUDIO_MAPPINGS) ||
-                    (c == CMD_SET_STREAM_INFO);      // CERT es-4.5: replay the
+                    (c == CMD_SET_STREAM_INFO);      // internal COMPLIANCE es-4.5: replay the
                                                      // SET response u=1 (the
                                                      // echo-based rebuild
                                                      // handles its payload
@@ -409,7 +409,7 @@ module KL_aecp_response_builder (
   endfunction
 
   //! no-change SET: SUCCESS but nothing changed -> suppress the u=1 replay
-  //! (1722.1 unsolicited rule notifies STATE CHANGES; CERT es-4.5 asserts a
+  //! (1722.1 unsolicited rule notifies STATE CHANGES; internal COMPLIANCE es-4.5 asserts a
   //! same-value SET_STREAM_INFO does NOT notify)
   logic nochg_q;
 
@@ -2559,7 +2559,7 @@ module KL_aecp_response_builder (
       gm_prev_r <= gptp_gm_id_i;
       if (gptp_gm_id_i != gm_prev_r) cnt_gmchg_r <= cnt_gmchg_r + 32'd1;
       //! AVB_INTERFACE counter change -> unsolicited GET_COUNTERS push to
-      //! the registered controllers (Milan 5.4.5; CERT link-flap test),
+      //! the registered controllers (Milan 5.4.5; internal COMPLIANCE link-flap test),
       //! through the per-descriptor dirty + 1 s window (gh #60 F1: armed
       //! straight off the edge, a 5 Hz link flap pushed 5/s). Reset
       //! SATURATED, so the first edge still pushes at once; the window is
@@ -2577,7 +2577,7 @@ module KL_aecp_response_builder (
       end
       //! (SET_STREAM_INFO notification: handled by the is_replay_cmd path -
       //! the SET response replays u=1 to the other controllers, which is the
-      //! CERT-es-4.5-required shape. The old GET-shaped push on the offset write
+      //! internal COMPLIANCE es-4.5-required shape. The old GET-shaped push on the offset write
       //! double-notified and was removed 2026-07-20.)
 
       // ---- STREAM_INPUT stream-info push (Milan Table 5.22 listener
@@ -2855,7 +2855,7 @@ module KL_aecp_response_builder (
             state_r    <= WRITE_S;
           end else if (enable_i && unsol_pend3_r != '0) begin
             //! Unsolicited GET_COUNTERS for AVB_INTERFACE[0] (u=1) on a
-            //! link/GM edge - Milan 5.4.5 / CERT link-flap. Same full-136B
+            //! link/GM edge - Milan 5.4.5 / internal COMPLIANCE link-flap. Same full-136B
             //! shape as the solicited path.
             unsol_pend3_r[w_unsol_push3_idx] <= 1'b0;
             unsol_seq_r[w_unsol_push3_idx]   <= unsol_seq_r[w_unsol_push3_idx] + 16'd1;
@@ -3490,7 +3490,7 @@ module KL_aecp_response_builder (
                 //! gh #58 D5 (Milan 5.4.2.5): a SET_CONFIGURATION while ANY
                 //! served stream is running refuses STREAM_IS_RUNNING -
                 //! VALUE-INDEPENDENT, so the single-config same-index SET
-                //! (the CERT poke) refuses too. l0 outranks; GET is
+                //! (the compliance poke) refuses too. l0 outranks; GET is
                 //! read-only and stays exempt (the D5 review's REFUTED
                 //! half). MULTI-CONFIG NOTE: if configurations_count ever
                 //! grows past 1, KL_aecp_l0_state's current_config commit
@@ -4217,7 +4217,7 @@ module KL_aecp_response_builder (
 
               // -------------------------------------------------- //
               CMD_GET_AVB_INFO: begin
-                //! CERT es-4.13: GET_AVB_INFO applies ONLY to AVB_INTERFACE.
+                //! internal COMPLIANCE es-4.13: GET_AVB_INFO applies ONLY to AVB_INTERFACE.
                 //! A wrong descriptor TYPE (e.g. CLOCK_DOMAIN, which exists)
                 //! is NOT_IMPLEMENTED (the command is not implemented for
                 //! that type); only a bad AVB_INTERFACE INDEX is

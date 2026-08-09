@@ -421,7 +421,7 @@ int main(int argc, char **argv) {
           (long)dut->i2s_underruns_o > du0);
 
   // ==================================================================
-  // G. The CERT path is UNCHANGED: with the crossbar deselected the
+  // G. The compliance path is UNCHANGED: with the crossbar deselected the
   //    listener tap passes through the feed mux bit-identically and the
   //    LPF override is forwarded (not masked).
   // ==================================================================
@@ -460,7 +460,7 @@ int main(int argc, char **argv) {
     for (int k = 0; k < 6; k++)
       if (f.l == GL[k] && f.r == GR[k]) { gok++; break; }
   printf("  G: %d of %zu frames are exact legacy-tap pairs\n", gok, frG.size());
-  ck_true("G CERT path still serializes the tap BIT-EXACTLY",
+  ck_true("G compliance path still serializes the tap BIT-EXACTLY",
           frG.size() >= 6 && gok >= (int)frG.size() - 2);
 
   // -----------------------------------------------------------------------

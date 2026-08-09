@@ -178,7 +178,7 @@ module adp_advertiser #(
   // 1-second advertise timer
   reg [4:0]  adv_tick_cnt_r;   //! counts ticks up to valid_time
 
-  // ADP discover-response DELAY state (IEEE 1722.1 clause 6.2.6; CERT es-2.1):
+  // ADP discover-response DELAY state (IEEE 1722.1 clause 6.2.6; internal COMPLIANCE es-2.1):
   // a received ENTITY_DISCOVER must NOT be answered instantly - the entity
   // waits a bounded RANDOM delay before advertising, and coalesces further
   // discovers arriving during that window into the one pending response (so a
@@ -191,7 +191,7 @@ module adp_advertiser #(
   wire       disc_fire_w = disc_pend_r && (disc_dly_r == 28'd0);
   //! delay range ~[200 ms, 870 ms] @ 50 MHz: wide enough that a 1 s discover
   //! burst coalesces to 1..4 responses AND the spread across trials > 0.3 s
-  //! (CERT es-2.1 randomness check). Milan v1.2 5.6.3.5.4 TMR_DELAY 0..4 s.
+  //! (internal COMPLIANCE es-2.1 randomness check). Milan v1.2 5.6.3.5.4 TMR_DELAY 0..4 s.
   //!
   //! THE ENVELOPE SCALES WITH valid_time (6.2.4.2.2, added 2026-07-30): the
   //! bound is "zero (0) to 1/5 of the valid time ... in milliseconds" and the

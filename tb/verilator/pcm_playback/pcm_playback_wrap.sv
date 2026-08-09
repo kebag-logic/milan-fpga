@@ -61,7 +61,7 @@ module pcm_playback_wrap #(
   input  wire [3:0]  map_wr_addr_i,
   input  wire [7:0]  map_wr_data_i,     //! {en[7], src[6], idx[5:0]}
 
-  //! --- legacy listener render tap (the CERT path, for the bypass leg) ----
+  //! --- legacy listener render tap (the compliance path, for the bypass leg) ----
   input  wire [63:0] tap_tdata_i,
   input  wire        tap_tvalid_i,
   input  wire        tap_tready_i,
