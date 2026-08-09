@@ -178,6 +178,33 @@ module KL_lwsrp_ctx #(
   //! reads INSTEAD of row 0's status.
   localparam logic [15:0] CTX_NOT_BACKED_C = 16'hDEAD;
 
+  //! AN INDEX BUS COSTS WHAT IT CAN ADDRESS, NOT WHAT IT DOES ADDRESS.
+  //! ctx_idx_i is 5 bits because the 0x800 row map is numbered 0..31, but the
+  //! extra-row storage below is EXT_LANES_P deep, and every `[K*row +: K]`
+  //! part-select is built as a mux with one position per value the index bus
+  //! can take. Carrying the 5-bit row number into those selects therefore
+  //! asks for a 32-position decode to choose among EXT_LANES_P (three on the
+  //! shipping shape): the positions that cannot exist are paid for anyway. So
+  //! convert once, here, to the width the storage can use, and let the RANGE
+  //! GUARD (idx_ext_w) keep deciding which requests are legal; the bus width
+  //! must never be the thing that bounds an index, because a bus that is
+  //! narrower than the guard silently aliases and a bus that is wider than
+  //! the array silently costs. The conversion is lossless where it matters:
+  //! idx_ext_w already admits only ctx_idx_i in 1..N_CTX_P-1, so ext_row_w is
+  //! 0..EXT_LANES_P-1 on every path that reads it. Rows outside that range
+  //! are answered by idx_oor_w and by rb_row_w's own bound, neither of which
+  //! looks at the converted value. Floor at 1 bit: $clog2(1) is 0, and a
+  //! zero-width bus is not a bus. Same idiom and same reason as the ACMP
+  //! context tables' IDX_W_C (KL_acmp_lstn_ctx, KL_acmp_tlkr_ctx), which
+  //! have carried their row index at storage width since they were written.
+  localparam int unsigned EXT_IDX_W_C =
+      (EXT_LANES_P > 1) ? $clog2(EXT_LANES_P) : 1;
+  //! one bit more, so the "is this row backed?" compare is done at a width
+  //! that can still hold EXT_LANES_P itself (at a power-of-two lane count
+  //! EXT_LANES_P wraps to 0 in EXT_IDX_W_C bits and the compare would be
+  //! false for every row)
+  localparam int unsigned EXT_CMP_W_C = EXT_IDX_W_C + 1;
+
   // -----------------------------------------------------------------------
   // Context identity flops (walker lanes read them in parallel)
   // -----------------------------------------------------------------------
@@ -211,7 +238,9 @@ module KL_lwsrp_ctx #(
   //! named a row this build has no storage for (row 0 always exists)
   wire        idx_oor_w = (ctx_idx_i != 5'd0) &&
                           ({27'd0, ctx_idx_i} >= N_CTX_P);
-  wire [4:0]  ext_row_w = ctx_idx_i - 5'd1;
+  //! row number at STORAGE width (see the EXT_IDX_W_C banner), not at row-map
+  //! width: legal rows convert exactly, illegal ones never reach a select
+  wire [EXT_IDX_W_C-1:0] ext_row_w = EXT_IDX_W_C'(ctx_idx_i - 5'd1);
   wire        wr_en_w   = svc_w && ctx_we_i && idx_ext_w;
 
   always_ff @(posedge clk_i) begin : rec_ram_wr_S
@@ -402,7 +431,9 @@ module KL_lwsrp_ctx #(
   //! legacy pair, an in-range extra row = its own state, and a row this
   //! build does not have = CTX_NOT_BACKED_C (it used to alias row 0, which
   //! reported a LIVE reservation for a row that was never provisioned).
-  wire [4:0]  rb_row_w   = (ext_row_w < 5'(EXT_LANES_P)) ? ext_row_w : 5'd0;
+  wire [EXT_IDX_W_C-1:0] rb_row_w =
+      ({1'b0, ext_row_w} < EXT_CMP_W_C'(EXT_LANES_P)) ? ext_row_w
+                                                      : {EXT_IDX_W_C{1'b0}};
   wire        rb_leg_w   = !idx_ext_w && !idx_oor_w;
   wire [15:0] rb_stat_w  = idx_oor_w
       ? CTX_NOT_BACKED_C
