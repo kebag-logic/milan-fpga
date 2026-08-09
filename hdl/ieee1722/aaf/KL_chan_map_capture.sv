@@ -373,6 +373,10 @@ module KL_chan_map_capture #(
   //! degenerate beats (mono wire) at the >= 8-cycle wire beat spacing
   localparam int unsigned LB_QDEPTH_C  = 8;
   localparam int unsigned LB_QPTRW_C   = $clog2(LB_QDEPTH_C);
+  //! the flat queue RAM's own index width - {pair,ptr} can be one bit
+  //! wider than the array needs when LB_PAIRS_C is not a power of two,
+  //! and the surplus high bit is always zero (pair < LB_PAIRS_C).
+  localparam int unsigned LB_QAW_C     = $clog2(LB_PAIRS_C * LB_QDEPTH_C);
   localparam int unsigned LB_SKID_C    = 4;
   //! pre-walk pop index space (0..LB_PAIRS_C, the +1 is the drain cycle)
   localparam int unsigned LB_POPW_C    = $clog2(LB_PAIRS_C + 1);
@@ -704,10 +708,10 @@ module KL_chan_map_capture #(
   //! same cycle (the pop freed a slot, so the push is not full)
   wire push_same_w = push_ram_w && pop_act_w && (push_pair_w == pop_pair_w);
   wire [LB_QPTRW_C:0] push_cnt1_w = q_cnt_r[push_pair_w]
-                                    - (push_same_w ? 1'b1 : 1'b0);
+                                    - (LB_QPTRW_C+1)'(push_same_w);
   wire push_drop_w = push_ram_w && (32'(push_cnt1_w) == LB_QDEPTH_C);
   wire [LB_QPTRW_C-1:0] push_rd1_w = q_rd_r[push_pair_w]
-                                     + (push_same_w ? 1'b1 : 1'b0);
+                                     + LB_QPTRW_C'(push_same_w);
 
   //! prime the whole stream at its accepted tlast beat (constant unroll;
   //! the final commits may still be in the skid, but a tick landing inside
@@ -795,8 +799,8 @@ module KL_chan_map_capture #(
       //! the return is refused at ISSUE time for a just-flushed pair; a
       //! flush landing on the RETURN cycle wins by the flush loop below
       //! being the last writer of lb_hold_r
-      if (push_ram_w) lb_q_r[push_waddr_w] <= push_data_w;
-      q_rdata_r      <= lb_q_r[pop_raddr_w];
+      if (push_ram_w) lb_q_r[LB_QAW_C'(push_waddr_w)] <= push_data_w;
+      q_rdata_r      <= lb_q_r[LB_QAW_C'(pop_raddr_w)];
       pop_ret_v_r    <= pop_act_w && !flush_clr_w[pop_pair_w];
       pop_ret_pair_r <= pop_pair_w;
 

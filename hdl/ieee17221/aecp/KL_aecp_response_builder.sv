@@ -1577,7 +1577,7 @@ module KL_aecp_response_builder (
   //! demands of every conditional engine)
   assign odmap_wr_p_o    = 1'b0;
   assign odmap_wr_slot_o = 6'd0;
-  assign odmap_wr_word_o = 14'd0;
+  assign odmap_wr_word_o = 16'd0;
 `endif
 
   //! STREAM_OUTPUT counter push state: dirty + 1 s window, PER
@@ -2360,7 +2360,7 @@ module KL_aecp_response_builder (
       //! port's primary cluster run, kept only where the source projects)
       odmap_wr_p_o    <= 1'b0;
       odmap_wr_slot_o <= 6'd0;
-      odmap_wr_word_o <= 14'd0;
+      odmap_wr_word_o <= 16'd0;
       for (int k = 0; k < AEM_ODMAP_KEYS_C; k++) begin
         ov_r[k]  <= AEM_ODMAP_INIT_C[k][5];
         oco_r[k] <= AEM_ODMAP_INIT_C[k][4:0];
@@ -4954,7 +4954,7 @@ module KL_aecp_response_builder (
                   dmap_diff_q     <= 1'b1;
                   odmap_wr_p_o    <= 1'b1;
                   odmap_wr_slot_o <= 6'(odk_key_q);
-                  odmap_wr_word_o <= 13'h0000;
+                  odmap_wr_word_o <= 16'h0000;
                 end
                 if (dmi_r == dmn_q - 6'd1) begin
                   nochg_q <= !(dmap_diff_q ||

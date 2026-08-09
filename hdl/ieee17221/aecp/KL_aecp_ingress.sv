@@ -232,7 +232,7 @@ module KL_aecp_ingress #(
           3'd1: begin
             is_avtp_r <= w_b1_avtp;
             subtype_r <= rxd_r[55:48];
-            msgtype_r <= rxd_r[63:56] & 8'h0F;
+            msgtype_r <= rxd_r[59:56];
             //! DIAG witness: subtype + message_type are complete at beat 1, so
             //! an ENTITY_DISCOVER is recognisable HERE, before the target id
             //! exists. Deliberately NOT gated by enable_i or by dst_ok_r: it
@@ -241,7 +241,7 @@ module KL_aecp_ingress #(
             //! valid 82-byte ADPDU) is not counted - the tlast arm below
             //! clears the flag in the same cycle and reads its old value.
             adp_seen_r <= w_b1_avtp && (rxd_r[55:48] == 8'hFA) &&
-                          ((rxd_r[63:56] & 8'h0F) == 4'd2);
+                          (rxd_r[59:56] == 4'd2);
             //! gh #59: an AECP AEM_RESPONSE addressed to our station MAC.
             //! w_b1_aecp tests subtype + dst only (never message_type), so
             //! this frame is NOT killed here: it streams whole into the FIFO

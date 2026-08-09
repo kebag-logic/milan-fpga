@@ -434,7 +434,15 @@ def declarations():
         if rel in LINT_EXCLUDE:
             continue
         text = open(os.path.join(ROOT, rel)).read()
-        out[rel] = DECL_RE.findall(text)
+        # Strip comments before the declaration search.  A banner line that
+        # happens to begin with the word "module" is prose, not a design unit,
+        # and handing its next word to --top-module fails elaboration outright
+        # ("module at all" in KL_chan_map_capture's queue banner did exactly
+        # that).  docs/traceability/gen_module_matrix.py carries the same guard
+        # for the same reason.
+        scan = re.sub(r"/\*.*?\*/", "", text, flags=re.S)
+        scan = re.sub(r"//.*", "", scan)
+        out[rel] = DECL_RE.findall(scan)
     return out
 
 

@@ -357,8 +357,13 @@ def check_rtl_consumption(dp_text=None):
             "pacing fills from the milan-clk divider (48.03 kHz at 50 MHz) "
             "makes a silence stream drift +640 ppm against its declared "
             "rate and collect LATE_TIMESTAMP at the listener")
-    if re.search(r"pkt_pv_w\s*=\s*cfg_chmap_enable\s*\?\s*cmap_pv_w\s*:"
-                 r"\s*zf_pv_w", dp):
+    # The selector was a bare cfg_chmap_enable until the crossbar became
+    # in-circuit BY SHAPE (VERSION 0x002C): it is now cap_xbar_live_w =
+    # odmap_dyn | cfg_chmap_enable, so a dynamic-map shape feeds the
+    # packetizer from the crossbar without anyone arming a debug bit.  Match
+    # the mux by its ARMS (the fill is the non-crossbar leg, which is what
+    # this check is about) and prove the selector separately below.
+    if re.search(r"pkt_pv_w\s*=\s*\w+\s*\?\s*cmap_pv_w\s*:\s*zf_pv_w", dp):
         ok("W5: the packetizer bypass leg consumes the FILLED stream")
     else:
         bad("W5: the packetizer does not consume the filled stream",

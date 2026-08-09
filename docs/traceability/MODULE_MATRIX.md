@@ -73,11 +73,11 @@ _ADP / ACMP / AECP-AEM-MVU_
 | ✅ `KL_aecp_aem_dyn_mux` | `ieee17221/aecp/KL_aecp_aem_dyn_mux.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
 | ✅ `KL_aecp_aem_store` | `ieee17221/aecp/KL_aecp_aem_store.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
 | ✅ `KL_aecp_common_parser` | `ieee17221/aecp/KL_aecp_common_parser.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
-| ✅ `KL_aecp_ingress` | `ieee17221/aecp/KL_aecp_ingress.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_aecp_ingress` | `ieee17221/aecp/KL_aecp_ingress.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | 5.4.5.3, M-AECP-11 |
 | ✅ `KL_aecp_l0_state` | `ieee17221/aecp/KL_aecp_l0_state.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
 | ✅ `KL_aecp_packet_validator` | `ieee17221/aecp/KL_aecp_packet_validator.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
 | ✅ `KL_aecp_response_builder` | `ieee17221/aecp/KL_aecp_response_builder.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
-| ✅ `KL_aecp_timers` | `ieee17221/aecp/KL_aecp_timers.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
+| ✅ `KL_aecp_timers` | `ieee17221/aecp/KL_aecp_timers.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | 5.4.5.3, M-AECP-11 |
 | ✅ `KL_aecp_top` | `ieee17221/aecp/KL_aecp_top.sv` | `aecp` · `aempatch` · `hostplane` · `milan_dp` · 🔬`make aecp` | — |
 | ✅ `KL_aem_patch` | `ieee17221/aecp/KL_aem_patch.sv` | `aempatch` · ➰aecp,hostplane,milan_dp · 🔬`make aecp` | — |
 | ✅ `KL_persist_journal` | `ieee17221/aecp/KL_persist_journal.sv` | `persist` · ➰hostplane,milan_dp · 🔬`make aecp` | 5.5.1.4, 5.5.2.6, M-ACMP-9 |
@@ -115,13 +115,13 @@ _AAF / CRF / MAAP / AVTP common_
 | 🔬 `KL_avtp_common_parser` | `ieee1722/avtp/KL_avtp_common_parser.sv` | 🔬`make aaf` | — |
 | ✅ `KL_avtp_rx_monitor` | `ieee1722/avtp/KL_avtp_rx_monitor.sv` | `aaf_audio_loop` · `avtp_rxmon` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | 4.3.5.2, 4.4.2.1, M-DEV-13 |
 | ✅ `KL_avtp_rx_monitor_ctx` | `ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv` | `avtp_rxmon` · `hostplane` · `milan_dp` · 🔬`make aaf` | 4.3.5.2, 4.4.2.3, 4.4.4.7, 5.17 |
-| ✅ `KL_media_clock_restart` | `ieee1722/avtp/KL_media_clock_restart.sv` | `hostplane` · `milan_dp` · `tkdiag` · 🔬`make aaf` | 4.4.4.3, 5.17, 5.4 |
+| ✅ `KL_media_clock_restart` | `ieee1722/avtp/KL_media_clock_restart.sv` | `hostplane` · `milan_dp` · `tkdiag` · 🔬`make aaf` | 4.4.4.3, 5.4 |
 | ✅ `KL_stream_table` | `ieee1722/avtp/KL_stream_table.sv` | `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `hostplane` · `milan_dp` · 🔬`make aaf` | — |
-| ✅ `KL_talker_diag_ctx` | `ieee1722/avtp/KL_talker_diag_ctx.sv` | `hostplane` · `milan_dp` · `tkdiag` · 🔬`make aaf` | 4.25, 5.17, 5.4, M-CNT-2 |
+| ✅ `KL_talker_diag_ctx` | `ieee1722/avtp/KL_talker_diag_ctx.sv` | `hostplane` · `milan_dp` · `tkdiag` · 🔬`make aaf` | 4.25, 4.4.4.3, 5.17, 5.4 |
 | ✅ `avtp_stream_parser` | `ieee1722/avtp/avtp_stream_parser.sv` | `aaf_audio_loop` · `avtp_parser` · `avtp_rxmon` · `avtp_stream` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make aaf` | 4.4.3.4, 4.4.4.3, 5.6 |
 | 📦 `avtp_subtype_pkg` | `ieee1722/avtp/avtp_subtype_pkg.sv` | 🔬`make aaf` | — |
-| ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `crf_rx` · `hostplane` · `milan_dp` | 1.2, 4.4.4.3, 5.17, 5.3.8.10 |
-| ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `hostplane` · `milan_dp` | 1.2, 34.5, 4.3.5.2, 4.4.2.3 |
+| ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `crf_rx` · `hostplane` · `milan_dp` | 1.2, 4.4.4.3, 5.3.8.10, 5.4 |
+| ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `hostplane` · `milan_dp` | 1.2, 10.4.2, 10.4.3, 10.4.6 |
 | ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `hostplane` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` | — |
 | ✅ `KL_maap` | `ieee1722/maap/KL_maap.sv` | `hostplane` · `maap` · `milan_dp` | — |
 
@@ -188,6 +188,6 @@ _datapath + top wrappers_
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `milan_datapath` | `milan/milan_datapath.sv` | `hostplane` · `milan_dp` | 35.2.2, 35.2.4.3, 35.2.7, 5.17 |
+| ✅ `milan_datapath` | `milan/milan_datapath.sv` | `hostplane` · `milan_dp` | 35.2.2, 35.2.4.3, 35.2.7, 4.4.4.3 |
 | 🗄️ `milan_top` | `milan/milan_top.sv` | 🗄️ archived | — |
 

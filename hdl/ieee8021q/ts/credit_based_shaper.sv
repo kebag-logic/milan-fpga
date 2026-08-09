@@ -177,9 +177,9 @@ module credit_based_shaper #(
   //  Rounded to nearest (exact for the shipping 100 MHz / 50 MHz clocks).
   // --------------------------------------------------------------------------
   localparam logic [31:0] WIRE_DRAIN_1G_Q16_C =
-      32'(((64'd125_000_000 << 17) / CLK_FREQ_HZ + 64'd1) >> 1);
+      32'(((64'd125_000_000 << 17) / 64'(CLK_FREQ_HZ) + 64'd1) >> 1);
   localparam logic [31:0] WIRE_DRAIN_100M_Q16_C =
-      32'(((64'd12_500_000 << 17) / CLK_FREQ_HZ + 64'd1) >> 1);
+      32'(((64'd12_500_000 << 17) / 64'(CLK_FREQ_HZ) + 64'd1) >> 1);
   //! per-frame wire overhead: preamble 7 + SFD 1 + FCS 4 + IFG 12 octets
   localparam logic [15:0] WIRE_OVERHEAD_BYTES_C = 16'd24;
   //! minimum MAC-client frame (64 wire octets less the 4-octet FCS): a
