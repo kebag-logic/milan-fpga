@@ -99,7 +99,9 @@ legacy: ../aecp/obj_dir/Vaecp_cosim
 	@sock=/tmp/tsnfuzz_legacy_$$$$.sock; \
 	 root=$${TSN_GEN_ROOT:-$$HOME/tsn-gen}; \
 	 pg=$${PACKET_GEN:-$$root/build/traffic-gen/packet_gen}; \
-	 if [ ! -x "$$pg" ]; then echo "  SKIP legacy driver: no tsn-gen at $$pg"; exit 0; fi; \
+	 if [ ! -x "$$pg" ]; then echo "  SKIP legacy driver: no tsn-gen at $$pg"; \
+	   echo "== co-sim: 0 pass, 0 fail (campaigns skipped, tsn-gen absent) =="; \
+	   exit 0; fi; \
 	 ../aecp/obj_dir/Vaecp_cosim $$sock >/dev/null 2>&1 & dutpid=$$!; \
 	 sleep 3; \
 	 $(PY) ../aecp/cosim_driver.py $$sock $$pg $$root; rc=$$?; \
