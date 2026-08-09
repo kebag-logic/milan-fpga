@@ -142,9 +142,35 @@ def ignored(toks):
     return {l.strip() for l in r.stdout.split("\n") if l.strip()}
 
 
+#: A `#L123` line anchor that points past the end of its file is a SILENTER
+#: rot than a dangling path: the link still resolves, the forge just clamps
+#: to the last line, and the reader lands somewhere plausible and wrong. The
+#: citation gate above cannot see it, because the PATH is fine - only the
+#: line moved. Ranges are judged on their HIGH end, which is the one a
+#: shrinking file invalidates first.
+ANCHOR_RE = re.compile(r"\[([^\]]+)\]\(([^)#\s]+)#L(\d+)(?:-L(\d+))?\)")
+
+
+def stale_anchors(md):
+    """(link target, cited last line, real line count) for anchors that
+    overshoot. Missing targets are NOT reported here - the citation gate
+    owns those, and reporting both would print one move as two findings."""
+    out = []
+    for _label, rel, lo, hi in ANCHOR_RE.findall(md.read_text()):
+        target = (md.parent / rel).resolve()
+        if not target.is_file():
+            continue
+        n = sum(1 for _ in target.open(errors="replace"))
+        last = int(hi or lo)
+        if last > n:
+            out.append((rel, last, n))
+    return out
+
+
 def main():
     listing = "--list" in sys.argv[1:]
     dangling, checked, allowed, ledgers = [], 0, 0, 0
+    anchors_checked, overshoot = 0, []
 
     for md in scanned_files():
         rel = md.relative_to(REPO)
@@ -154,6 +180,12 @@ def main():
             if listing:
                 print(f"  ledger {rel} (opted out: {LEDGER_MARKER})")
             continue
+        anchors_checked += len(ANCHOR_RE.findall(text))
+        for rel_t, last, n in stale_anchors(md):
+            overshoot.append((rel, rel_t, last, n))
+            if listing:
+                print(f"  ANCHOR {rel_t}#L{last} > {n} lines  <- {rel}")
+
         for tok in citations(text):
             checked += 1
             if resolves(tok, md):
@@ -199,9 +231,21 @@ def main():
             print(f"note: ALLOW entry '{tok}' is stale - the path exists now "
                   f"({why}). Drop it from ALLOW in {Path(__file__).name}.")
 
+    if overshoot:
+        print(f"doc path gate: {len(overshoot)} line anchor(s) point past the "
+              f"end of the file they cite\n")
+        for src, tgt, last, n in sorted(overshoot):
+            print(f"  ANCHOR   {tgt}#L{last}  but that file has {n} line(s)")
+            print(f"           cited by {src}")
+        print("\nThe path still resolves, so the reader is sent to the wrong "
+              "place rather than\nnowhere. Repoint the anchor at the lines it "
+              "meant.")
+        return 1
+
     print(f"doc path gate: OK ({checked} cited paths all resolve"
           f"{f', {allowed} allowlisted' if allowed else ''}"
-          f"{f', {ledgers} ledger page(s) skipped' if ledgers else ''})")
+          f"{f', {ledgers} ledger page(s) skipped' if ledgers else ''}"
+          f"; {anchors_checked} line anchor(s) within their file)")
     return 0
 
 
