@@ -68,6 +68,18 @@ jobs:
       - name: RTL lint (whole hdl/, ratcheted)
         run: python3 scripts/lint_rtl.py --check --self-test
 
+      # The chmap_capture lane's netcheck leg synthesizes KL_chan_map_capture
+      # with yosys and re-simulates the netlist, which is how the VERSION
+      # 0x0030 class of hazard is pinned: RTL green while synthesized silicon
+      # shifted the map-write indexing. Without yosys on PATH that leg dies
+      # with exit 127 AFTER its own 184 checks have already passed, so the
+      # sweep reports a failing suite whose log says zero failures.
+      - name: Install yosys for the netlist-level suite legs
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends yosys
+          yosys -V
+
       - name: Run every suite
         run: scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs"
 
