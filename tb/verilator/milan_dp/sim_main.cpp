@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x0001003B);
+    ck("VERSION",       axi_read(A_VERSION), 0x0001003C);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
@@ -964,7 +964,64 @@ int main(int argc, char** argv) {
             ck("CLKV: TUCNT moved (not a decorative counter)",
                axi_read(A_CLKV_TUCNT) > 0, 1);
 
-            axi_write(A_CLKV_CTRL, 0x00000FF1);      // leave it synchronised
+            // ---- gh #64 J3: asCapable rides the SAME lease, end to end.
+            // The path proved here is CSR write -> o_clkv_as_cap ->
+            // KL_ptp_clock_validity's leased register -> CLKV_STAT[16], the
+            // same bit the AECP builder serves as GET_AVB_INFO's AS_CAPABLE
+            // flag. The old consumer read "a nonzero propagation delay was
+            // once written" (0x6E4), which no lease can ever retire.
+            ck("CLKV: asCapable is 0 while nobody claims it",
+               (axi_read(A_CLKV_STAT) >> 16) & 1, 0);
+            axi_write(A_CLKV_CTRL, 0x00000FF5);      // SYNC_OK|AS_CAP, lease
+            ck("CLKV: CLKV_CTRL[2] readable", (axi_read(A_CLKV_CTRL) >> 2) & 1, 1);
+            ck("CLKV: asCapable claimed -> STAT[16]",
+               (axi_read(A_CLKV_STAT) >> 16) & 1, 1);
+            ck("CLKV: the claim did not disturb tu", axi_read(A_CLKV_STAT) & 1, 0);
+            // the deadman: a lease nobody renews takes asCapable with it
+            axi_write(A_CLKV_CTRL, 0x00000015);      // SYNC_OK|AS_CAP, lease 1
+            for (int c = 0; c < 12000 && ((axi_read(A_CLKV_STAT) >> 16) & 1); c++)
+                step();
+            ck("CLKV: lease lapses -> asCapable falls",
+               (axi_read(A_CLKV_STAT) >> 16) & 1, 0);
+            ck("CLKV: ...in the SAME branch as sync_ok",
+               (axi_read(A_CLKV_STAT) >> 1) & 1, 0);
+
+            axi_write(A_CLKV_CTRL, 0x00000FF5);      // synchronised + capable
+        }
+
+        // ------------------------------------------------------------------
+        // [ASPATH] gh #64 J4: the published PathTrace store, integrated.
+        // The staging group is what lets GET_AS_PATH serve the real
+        // 1722.1-2021 7.4.41.2 path_sequence instead of the two-entry
+        // derivation. Here the datapath proves the ABI end to end - the
+        // response bytes themselves are the aecp suite's job.
+        // ------------------------------------------------------------------
+        {
+            printf("[ASPATH] published 802.1AS PathTrace store (0x7DC)\n");
+            enum { A_ASP_LO = 0x7DC, A_ASP_HI = 0x7E0, A_ASP_CMD = 0x7E4 };
+            ck("ASP: reset {gen,count} = 0 (the LEGACY arm)",
+               axi_read(A_ASP_CMD), 0);
+            axi_write(A_ASP_LO, 0xFFFE0210);
+            axi_write(A_ASP_HI, 0x3CC0C6FF);
+            ck("ASP: LO stages and reads back", axi_read(A_ASP_LO), 0xFFFE0210);
+            ck("ASP: HI stages and reads back", axi_read(A_ASP_HI), 0x3CC0C6FF);
+            axi_write(A_ASP_CMD, 0x80000100);        // commit -> slot 1
+            ck("ASP: a commit alone publishes nothing", axi_read(A_ASP_CMD), 0);
+            axi_write(A_ASP_LO, 0xFE001122);
+            axi_write(A_ASP_HI, 0xAABBCCFF);
+            axi_write(A_ASP_CMD, 0x80000200);        // commit -> slot 2
+            axi_write(A_ASP_CMD, 0x40000003);        // publish GM + 2 bridges
+            ck("ASP: publish latches {gen 1, count 3}",
+               axi_read(A_ASP_CMD), 0x00000013);
+            axi_write(A_ASP_CMD, 0x40000003);        // bare re-publish
+            ck("ASP: a re-publish still bumps the generation",
+               axi_read(A_ASP_CMD), 0x00000023);
+            axi_write(A_ASP_CMD, 0x4000000F);        // ask for 15 entries
+            ck("ASP: length saturates at the store's eight",
+               axi_read(A_ASP_CMD) & 0xF, 8);
+            axi_write(A_ASP_CMD, 0x40000000);        // withdraw
+            ck("ASP: count 0 returns to the legacy derivation",
+               axi_read(A_ASP_CMD) & 0xF, 0);
         }
 
         // restore the reset default (bypass=1) so later sections see legacy

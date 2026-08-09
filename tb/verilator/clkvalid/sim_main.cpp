@@ -54,15 +54,24 @@ static void tick(long n = 1) {
 
 //! one CSR write to CLKV_CTRL. The stored fields persist afterwards, exactly
 //! as milan_csr's clkv_ctrl register does; only sw_wr_p_i is a pulse.
-static void clkv_write(bool sync_ok, unsigned wdog_q, bool disc = false) {
+static void clkv_write(bool sync_ok, unsigned wdog_q, bool disc = false,
+                       bool as_cap = false) {
     dut->sw_sync_ok_i = sync_ok;
     dut->sw_wdog_q_i  = wdog_q;
     dut->sw_disc_p_i  = disc;
+    dut->sw_as_cap_i  = as_cap;
     dut->sw_wr_p_i    = 1;
     tick();
     dut->sw_wr_p_i   = 0;
     dut->sw_disc_p_i = 0;
     tick();
+}
+
+//! run until as_capable_o reaches want, or give up. Returns cycles waited.
+static long wait_ascap(int want, long limit) {
+    long n = 0;
+    while (dut->as_capable_o != want && n < limit) { tick(); n++; }
+    return n;
 }
 
 //! run until tu clears, or give up. Returns cycles waited.
@@ -80,6 +89,7 @@ int main(int argc, char** argv) {
     dut = new VKL_ptp_clock_validity;
     dut->rst_n = 0;
     dut->sw_wr_p_i = 0; dut->sw_sync_ok_i = 0; dut->sw_disc_p_i = 0;
+    dut->sw_as_cap_i = 0;
     dut->sw_wdog_q_i = 0;
     dut->phc_load_p_i = 0; dut->phc_adj_p_i = 0;
     dut->gm_id_i = 0;
@@ -101,6 +111,12 @@ int main(int argc, char** argv) {
     ck("reset: STAT[2] no lease", (dut->stat_o >> 2) & 1, 1);
     ck("reset: STAT[3] holdover", (dut->stat_o >> 3) & 1, 0);
     ck("reset: TUCNT = 0",         dut->tu_ivals_o, 0);
+    //! gh #64 J3: same fail-safe for asCapable. IEEE 802.1AS-2020 10.2.5.1
+    //! is a per-port determination that the neighbour can interoperate via
+    //! the protocol - unknown must read FALSE, never "probably".
+    ck("reset: asCapable = 0 (unknown neighbour is NOT capable)",
+       dut->as_capable_o, 0);
+    ck("reset: STAT[16] asCapable", (dut->stat_o >> 16) & 1, 0);
     tick(qtick * 3);
     ck("no software at all: still tu = 1 after 3 ticks", dut->ts_uncertain_o, 1);
 
@@ -140,6 +156,62 @@ int main(int argc, char** argv) {
     clkv_write(true, 2);
     for (int r = 0; r < 6; r++) { tick(qtick); clkv_write(true, 2); }
     ck("refreshed lease: tu stays clear across 6 renewals", dut->ts_uncertain_o, 0);
+
+    // -----------------------------------------------------------------
+    // 3b. asCapable RIDES THE SAME LEASE (gh #64 J3). IEEE 802.1AS-2020
+    //     10.2.5.1: asCapable is the per-port determination that this
+    //     time-aware system and its neighbour can interoperate via the
+    //     802.1AS protocol - a pdelay-exchange verdict only the daemon
+    //     computes. The old consumer proxied it as "some propagation
+    //     delay was once written", which stays TRUE forever after the
+    //     daemon dies. Here the claim is a LEASED level: latched only
+    //     with a live lease, and cleared by the SAME branch that clears
+    //     the synchronised flag, so a dead daemon answers asCapable = 0
+    //     by construction. Milan v1.2 Table 5.22 makes it a GET_AVB_INFO
+    //     push trigger, so this edge is the one the wire will carry.
+    // -----------------------------------------------------------------
+    printf("-- asCapable rides the lease (gh #64 J3) --\n");
+    {
+        //! a claim with NO lease is not a claim - same law as sync_ok
+        clkv_write(/*sync_ok=*/true, /*wdog=*/0, /*disc=*/false, /*as_cap=*/true);
+        ck("asCapable + lease 0: not latched", dut->as_capable_o, 0);
+        ck("asCapable + lease 0: STAT[16] clear", (dut->stat_o >> 16) & 1, 0);
+
+        //! the daemon publishes asCapable TRUE on a renewing write
+        clkv_write(true, 2, false, true);
+        ck("asCapable claimed with a live lease", dut->as_capable_o, 1);
+        ck("STAT[16] asCapable set", (dut->stat_o >> 16) & 1, 1);
+        ck("...and the sync claim stands with it", (dut->stat_o >> 1) & 1, 1);
+
+        //! THE DEADMAN. Stop writing and run past expiry: the claim must
+        //! fall, and fall WITH the synchronised flag - one lease, one
+        //! lapse, no way for a stale asCapable to outlive the daemon.
+        long lapsed = wait_ascap(0, qtick * 6);
+        ck_range("asCapable falls on lease expiry (cycles)", lapsed, qtick, qtick * 3);
+        ck("expired: asCapable = 0", dut->as_capable_o, 0);
+        ck("expired: STAT[16] cleared", (dut->stat_o >> 16) & 1, 0);
+        ck("expired: sync claim fell in the SAME branch", (dut->stat_o >> 1) & 1, 0);
+        ck("expired: no live lease", (dut->stat_o >> 2) & 1, 1);
+        ck("expired: tu asserted", dut->ts_uncertain_o, 1);
+
+        //! a renewal that CLEARS bit 2 is a report of asCapable false, not
+        //! silence: the level follows every write, it is not sticky
+        clkv_write(true, 4000, false, true);
+        ck("re-armed: asCapable back", dut->as_capable_o, 1);
+        clkv_write(true, 4000, false, false);
+        ck("renewed with the claim dropped: asCapable = 0", dut->as_capable_o, 0);
+        ck("...while the sync claim is untouched", (dut->stat_o >> 1) & 1, 1);
+        ck("...and tu stays clear (the two are independent)",
+           dut->ts_uncertain_o, 0);
+
+        //! asCapable is orthogonal to the discontinuity holdover: a PHC
+        //! step raises tu but says nothing about the neighbour
+        clkv_write(true, 4000, false, true);
+        dut->phc_load_p_i = 1; tick(); dut->phc_load_p_i = 0; tick();
+        ck("PHC step raises tu", dut->ts_uncertain_o, 1);
+        ck("...and leaves asCapable alone", dut->as_capable_o, 1);
+        wait_tu(0, qtick * 8);
+    }
 
     // -----------------------------------------------------------------
     // 4. Fabric-observed discontinuities: a PHC step is a gPTP time

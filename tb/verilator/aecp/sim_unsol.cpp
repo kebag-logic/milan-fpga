@@ -164,9 +164,16 @@ int main(int argc, char** argv) {
     dut->listener_caps_i = 0x4801; dut->controller_caps_i = 0;
     dut->available_index_i = 7; dut->association_id_i = 0;
     dut->gptp_gm_id_i = 0; dut->gptp_domain_i = 0;
-    dut->pdelay_ns_i = 0x300;      // 768 ns: nonzero so [5]'s jitter case
-                                   // cannot flip asCapable
+    dut->pdelay_ns_i = 0x300;      // 768 ns: a measured value; since gh #64
+                                   // J3 it no longer decides asCapable
+    // gh #64 J3: asCapable is its own leased IEEE 802.1AS-2020 10.2.5.1
+    // input. TRUE here = the healthy link every earlier case assumes.
+    dut->as_capable_i = 1;
     dut->as_parent_ckid_i = 0;
+    // gh #64 J4: nothing published -> the legacy [GM, parent] derivation,
+    // which is what cases [4] and below expect on the wire
+    for (int w = 0; w < 14; w++) dut->asp_path_i[w] = 0;
+    dut->asp_count_i = 0; dut->asp_gen_i = 0;
     dut->link_up_i = 1;
     dut->lstn_bound_i = 0; dut->lstn_sid_i = 0; dut->lstn_dmac_i = 0;
     dut->lstn_vlan_i = 0; dut->lstn_pbsta_i = 0; dut->lstn_acmpsta_i = 0;
@@ -632,6 +639,98 @@ int main(int argc, char** argv) {
         ck("[13] DEREGISTER A", r_status(collect_resp()), 0);
         feed_rx(aem_cmd2(MAC_B, CID_B, 37, 0x5D06, {}));
         ck("[13] DEREGISTER B", r_status(collect_resp()), 0);
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[14] gh #64 J3: asCapable is a Table 5.22 push trigger, and "
+           "the FALLING edge is the one that matters\n");
+    {
+        // Milan v1.2 Table 5.22 names asCapable a GET_AVB_INFO push trigger.
+        // With the retired |pdelay| proxy the trigger could never fire on a
+        // daemon death (pdelay is a stored CSR - it just sits there), so the
+        // controller kept an AS_CAPABLE=true entity on screen forever. The
+        // leased input falls when the lease lapses, and THAT is this edge.
+        feed_rx(aem_cmd(36, 0x5E01, {}));
+        ck("[14] REGISTER A", r_status(collect_resp()), 0);
+        ck("[14] registration alone pushes nothing",
+           (long)wait_push(2000).size(), 0);
+
+        dut->as_capable_i = 0;
+        auto r = wait_push(2000);
+        ck("[14] asCapable fell -> a push arrived", r.size() > 0, 1);
+        ck("[14] u-bit set", u_bit(r), 1);
+        ck("[14] cmd GET_AVB_INFO", r_cmd(r), 0x27);
+        ck("[14] desc AVB_INTERFACE", be_at(r, 38, 4), 0x00090000);
+        // THE MUTATION CHECK: pdelay is unchanged and nonzero across this
+        // whole case, so the proxy would have kept bit 0 set here.
+        ck("[14] flags GPTP|SRP, AS_CAPABLE CLEAR", be_at(r, 55, 1), 0x06);
+        ck("[14] pdelay unchanged on the wire", be_at(r, 50, 4), 0x900);
+        ck("[14] exactly one frame for the edge",
+           (long)collect_resp(700).size(), 0);
+
+        // ...and the rising edge comes back, behind the 1 s window the
+        // GET_AVB_INFO row shares with the pdelay term
+        dut->as_capable_i = 1;
+        ck("[14] rise held by the 1 s window", (long)collect_resp(700).size(), 0);
+        r = wait_push(101000);
+        ck("[14] asCapable rose -> a push arrived", r.size() > 0, 1);
+        ck("[14] cmd GET_AVB_INFO", r_cmd(r), 0x27);
+        ck("[14] flags GPTP|SRP|AS_CAPABLE", be_at(r, 55, 1), 0x07);
+    }
+
+    // ---------------------------------------------------------------- //
+    printf("\n[15] gh #64 J4: a PUBLISH arms the GET_AS_PATH push, and the "
+           "generation makes a re-publish an edge\n");
+    {
+        // publish [GM, bridge A, bridge B] - a depth the old two-entry
+        // derivation could not express at all
+        dut->asp_path_i[0] = 0xFEFE0210u; dut->asp_path_i[1] = 0x3CC0C6FFu;
+        dut->asp_path_i[2] = 0xFE001122u; dut->asp_path_i[3] = 0xAABBCCFFu;
+        dut->asp_count_i = 3; dut->asp_gen_i = 1;
+        auto p1 = wait_push(2000);
+        ck("[15] publish pushed", p1.size() > 0, 1);
+        ck("[15] u-bit set", u_bit(p1), 1);
+        ck("[15] cmd GET_AS_PATH", r_cmd(p1), 0x28);
+        ck("[15] descriptor_index 0", be_at(p1, 38, 2), 0);
+        ck("[15] CDL 40 (16 + 8*3)", r_cdl(p1), 40);
+        ck("[15] count 3", be_at(p1, 40, 2), 3);
+        // entry 0 comes from the LIVE grandmaster register, never from a
+        // slot - so it tracks whatever ADP_GM holds at this point in the run
+        ck("[15] path[0] = the live grandmaster",
+           be_at(p1, 42, 8) == dut->gptp_gm_id_i, 1);
+        ck("[15] path[1] = slot 1", be_at(p1, 50, 8), 0x3CC0C6FFFEFE0210ULL);
+        ck("[15] path[2] = slot 2", be_at(p1, 58, 8), 0xAABBCCFFFE001122ULL);
+        ck("[15] exactly one frame", (long)collect_resp(700).size(), 0);
+
+        // A BARE GENERATION BUMP. Nothing about the identities changed; the
+        // daemon simply re-published. Table 5.22 owes the controller that
+        // event, and the payload must be byte-identical.
+        dut->asp_gen_i = 2;
+        auto p2 = wait_push(2000);
+        ck("[15] generation bump pushed", p2.size() > 0, 1);
+        ck("[15] cmd GET_AS_PATH", r_cmd(p2), 0x28);
+        {
+            bool same = (p1.size() == p2.size());
+            // compare the whole payload from descriptor_index on; the
+            // sequence_id legitimately advances, the bytes must not
+            for (size_t i = 38; same && i < p1.size(); i++)
+                same = (p1[i] == p2[i]);
+            ck("[15] identical payload on the re-publish", same, 1);
+        }
+        ck("[15] sequence advanced", r_seq(p2) == r_seq(p1) + 1, 1);
+        ck("[15] exactly one frame", (long)collect_resp(700).size(), 0);
+
+        // withdrawing the publish is itself an edge, and lands the entity
+        // back on the legacy derivation
+        dut->asp_count_i = 0;
+        auto p3 = wait_push(2000);
+        ck("[15] withdraw pushed", p3.size() > 0, 1);
+        ck("[15] cmd GET_AS_PATH", r_cmd(p3), 0x28);
+        ck("[15] back to the legacy count 1 (foreign GM, no parent)",
+           be_at(p3, 41, 1), 1);
+        ck("[15] CDL back to 24", r_cdl(p3), 24);
+        feed_rx(aem_cmd(37, 0x5E02, {}));
+        ck("[15] DEREGISTER A", r_status(collect_resp()), 0);
     }
 
     printf("\n----------------------------------------------------------\n");

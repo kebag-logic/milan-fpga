@@ -729,6 +729,12 @@ def step_adp_listener_count(context):
 
 class AecpExtendedModel:
     """Offline model for the extended AECP command set."""
+    #: gh #64 J4: entries the AS_PATH store can serve = the grandmaster plus
+    #: one per staging slot. Derived here exactly as the RTL derives it from
+    #: the width of the slot vector.
+    ASP_SLOTS = 7
+    ASP_ENTRY_MAX = ASP_SLOTS + 1
+
     def __init__(self, entity_id=0x001BC5FFFE112233):
         self.entity_id = entity_id
         self.stream_inputs = {}  # idx -> {bound_talker, started, counters}
@@ -736,6 +742,62 @@ class AecpExtendedModel:
         for i in range(8):
             self.stream_inputs[i] = {'bound_talker': None, 'started': False}
             self.stream_outputs[i] = {'started': False, 'counters': {}}
+        # ---- gh #64 J3: the leased IEEE 802.1AS-2020 10.2.5.1 asCapable
+        # variable. It is NOT derived from the propagation delay: pdelay is a
+        # stored measurement that survives the daemon, asCapable is a live
+        # per-port determination that must not.
+        self.clkv_lease = 0        # quarter-seconds remaining
+        self.clkv_sync_ok = False
+        self.as_capable = False
+        self.pdelay_ns = 0
+        # ---- gh #64 J4: the published 802.1AS PathTrace. Slot 0 is the
+        # grandmaster and is NEVER stored here - it is gm_id.
+        self.gm_id = 0x001B21FFFE55AA00
+        self.parent_ckid = 0
+        self.asp_slots = [0] * self.ASP_SLOTS
+        self.asp_count = 0         # 0 = nothing published = the legacy arm
+        self.asp_gen = 0
+
+    # ---- CLKV_CTRL 0x778 write: every write renews the lease, and both the
+    # sync claim and the asCapable claim are latched only behind a live one
+    def clkv_write(self, sync_ok, lease, as_capable=False):
+        self.clkv_lease = lease
+        self.clkv_sync_ok = bool(sync_ok) and lease != 0
+        self.as_capable = bool(as_capable) and lease != 0
+
+    # ---- the deadman: run the lease down. When it lapses BOTH claims fall,
+    # in the same branch, so a dead daemon can never leave asCapable asserted
+    def clkv_tick(self, quarters=1):
+        for _ in range(quarters):
+            if self.clkv_lease:
+                self.clkv_lease -= 1
+                if self.clkv_lease == 0:
+                    self.clkv_sync_ok = False
+                    self.as_capable = False
+
+    # ---- ASP_CMD 0x7E4: commit one staged identity into slot 1..7. Slot 0
+    # is refused; it is the grandmaster and already lives in ADP_GM.
+    def asp_commit(self, slot, ckid):
+        if slot == 0 or slot > self.ASP_SLOTS:
+            return False
+        self.asp_slots[slot - 1] = ckid
+        return True
+
+    # ---- ASP_CMD publish: the atomic cutover. Latches the served length
+    # (saturated at what the store holds) and bumps the generation, so a
+    # re-publish of an identical path is still a Table 5.22 edge.
+    def asp_publish(self, count):
+        self.asp_count = min(count, self.ASP_ENTRY_MAX)
+        self.asp_gen = (self.asp_gen + 1) & 0xF
+        return self.asp_count
+
+    def as_path_sequence(self):
+        """The served 1722.1-2021 7.4.41.2 path_sequence, or None when
+        nothing is published (which keeps the legacy derivation)."""
+        if self.asp_count == 0:
+            return None
+        n = min(self.asp_count, self.ASP_ENTRY_MAX)
+        return [self.gm_id] + self.asp_slots[:n - 1]
 
     def process(self, command, desc_type=0, desc_index=0, payload=None):
         if command == 'GET_COUNTERS':
@@ -745,10 +807,23 @@ class AecpExtendedModel:
                 return 0, self._output_counters(desc_index)
             return 2, None
         elif command == 'GET_AVB_INFO':
-            return 0, {'mac': b'\x02\x00\x00\x00\x00\x01', 'interface_index': 0}
+            # 1722.1-2021 7.4.40.2 flags: AS_CAPABLE 0x01 | GPTP_ENABLED 0x02
+            # | SRP_ENABLED 0x04. Bit 0 is the 802.1AS variable ITSELF, never
+            # "some propagation delay was once written".
+            flags = 0x06 | (0x01 if self.as_capable else 0x00)
+            return 0, {'mac': b'\x02\x00\x00\x00\x00\x01', 'interface_index': 0,
+                       'flags': flags, 'as_capable': self.as_capable,
+                       'propagation_delay': self.pdelay_ns}
         elif command == 'GET_MILAN_INFO':
             return 0, {'milan_version': '1.2'}
         elif command == 'GET_AS_PATH':
+            path = self.as_path_sequence()
+            if path is not None:
+                # descriptor_index(2) + count(2) + count x EUI64, behind the
+                # 12-byte AEM header
+                return 0, {'hops': len(path), 'path': path,
+                           'control_data_length': 16 + 8 * len(path),
+                           'generation': self.asp_gen}
             si = self.stream_inputs.get(desc_index, {})
             if si.get('bound_talker'):
                 return 0, {'hops': 1}
@@ -902,6 +977,98 @@ def step_ext_hops_min(context, n):
 @then('the AS path has {n:d} hops')
 def step_ext_hops(context, n):
     assert context.ext_resp and context.ext_resp.get('hops', 0) == n
+
+# ---------------------------------------------------------------------------
+# gh #64 J3 - asCapable is the IEEE 802.1AS-2020 10.2.5.1 variable, leased
+# ---------------------------------------------------------------------------
+
+def _avb_info(context):
+    status, resp = context.aecp_ext.process('GET_AVB_INFO')
+    context.ext_status, context.ext_resp = status, resp
+    return resp
+
+@given('the gPTP daemon leases asCapable true for {q:d} quarter-seconds')
+def step_lease_ascapable(context, q):
+    context.aecp_ext.clkv_write(sync_ok=True, lease=q, as_capable=True)
+
+@given('a measured propagation delay of {ns:d} ns')
+def step_pdelay(context, ns):
+    context.aecp_ext.pdelay_ns = ns
+
+@when('the lease runs out')
+def step_lease_runs_out(context):
+    context.aecp_ext.clkv_tick(context.aecp_ext.clkv_lease or 1)
+
+@then('the AVB info AS_CAPABLE flag is set')
+def step_ascap_set(context):
+    r = _avb_info(context)
+    assert r['as_capable'] is True, r
+    assert r['flags'] & 0x01, hex(r['flags'])
+
+@then('the AVB info AS_CAPABLE flag is clear')
+def step_ascap_clear(context):
+    r = _avb_info(context)
+    assert r['as_capable'] is False, r
+    assert not (r['flags'] & 0x01), hex(r['flags'])
+
+@then('the AVB info flags are 0x{val}')
+def step_avbi_flags(context, val):
+    r = _avb_info(context)
+    assert r['flags'] == int(val, 16), (hex(r['flags']), val)
+
+@then('the AVB info propagation delay is still {ns:d} ns')
+def step_avbi_pdelay(context, ns):
+    r = _avb_info(context)
+    assert r['propagation_delay'] == ns, r
+
+# ---------------------------------------------------------------------------
+# gh #64 J4 - the published 802.1AS PathTrace
+# ---------------------------------------------------------------------------
+
+@given('the grandmaster clock identity is 0x{gm}')
+def step_asp_gm(context, gm):
+    context.aecp_ext.gm_id = int(gm, 16)
+
+@given('AS path slot {slot:d} is 0x{ckid}')
+def step_asp_slot(context, slot, ckid):
+    assert context.aecp_ext.asp_commit(slot, int(ckid, 16))
+
+@given('AS path slots 1 through 7 are filled')
+def step_asp_fill(context):
+    for k in range(1, 8):
+        context.aecp_ext.asp_commit(k, 0x1000000000000000 * k + 0x0A0B0C0D0E0F)
+
+@when('the daemon publishes an AS path of {n:d} entries')
+def step_asp_publish(context, n):
+    context.aecp_ext.asp_publish(n)
+
+@when('the daemon tries to commit AS path slot 0')
+def step_asp_commit_slot0(context):
+    context.asp_commit_ok = context.aecp_ext.asp_commit(0, 0xDEADDEADDEADDEAD)
+
+@then('the commit is refused')
+def step_asp_refused(context):
+    assert context.asp_commit_ok is False
+
+@then('AS path slot {slot:d} still holds 0x{ckid}')
+def step_asp_slot_intact(context, slot, ckid):
+    assert context.aecp_ext.asp_slots[slot - 1] == int(ckid, 16)
+
+@then('AS path entry 0 is the grandmaster')
+def step_asp_entry0(context):
+    assert context.ext_resp['path'][0] == context.aecp_ext.gm_id
+
+@then('AS path entry {idx:d} is 0x{ckid}')
+def step_asp_entry(context, idx, ckid):
+    assert context.ext_resp['path'][idx] == int(ckid, 16)
+
+@then('the AS path control_data_length is {n:d}')
+def step_asp_cdl(context, n):
+    assert context.ext_resp['control_data_length'] == n, context.ext_resp
+
+@then('the AS path generation is {n:d}')
+def step_asp_gen(context, n):
+    assert context.aecp_ext.asp_gen == n, context.aecp_ext.asp_gen
 
 @then('the response contains a Milan version field')
 def step_ext_milan_ver(context):

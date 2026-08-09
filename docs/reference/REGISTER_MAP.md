@@ -53,6 +53,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x7A0  -  ACMP bind-restore  (saved-state fast-connect E1, Milan 5.5.3.5.2)](#0x7a0-----acmp-bind-restore--saved-state-fast-connect-e1-milan-55352) — Boot-time re-injection of a saved listener bind, with no new connection logic — the existing probe ladder takes over exactly as at power-on. A commit into an occupied context is **refused, not merged**, and the feature must be gated on `VERSION` plus a write/readback probe.
   - [0x7B8  -  Persistence-journal ingest  (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) — **WIRED since `VERSION 0x0019`** (gate on it: on older gateware writes go nowhere and reads return an ambiguous 0). Milan v1.2 5.3.8.2 makes the saved bound state a *shall*; software lifts one flash slot image verbatim through `DATA` between `CTRL` start/end, and the design point stands: the CRC trailer is the last word, so a torn, foreign or stale image yields zero restores — a half-applied context table is not representable. Shares the E1 restore port with journal-wins arbitration and owner-routed acks.
   - [0x7C8  -  AEM dynamic-state patch port  (saved-state fast-connect E4)](#0x7c8-----aem-dynamic-state-patch-port--saved-state-fast-connect-e4) — **WIRED at `VERSION 0x0022`** (gate on it). The write master the AEM store never had, and therefore the half of Milan persistence that was missing: saving the §5.3 dynamic state always worked, putting it back had no path at all. Software names a **descriptor and a field**, never a byte address, and the fabric resolves the range from the same generated tables `SET_STREAM_FORMAT` uses and revalidates through the same acceptance. Refused — never queued — while `ADP_CTRL[0]` is set, so "replay before you advertise" is structural.
+  - [0x7DC  -  AS_PATH staging: the published PathTrace  (gh #64 J4)](#0x7dc-----as_path-staging-the-published-pathtrace--gh-64-j4) — The daemon publishes the clock identities it parsed out of the latest Announce's PathTrace TLV, so `GET_AS_PATH` serves the real IEEE 1722.1-2021 7.4.41.2 `path_sequence` instead of a two-entry derivation that was wrong in both count and membership past one bridge. Depth eight; slot 0 is the grandmaster and is **never stored here** (`ADP_GM` is it). The publish is the atomic cutover and bumps a generation, so a re-publish is a Milan Table 5.22 push event; a published length of 0 keeps the legacy derivation, so an old daemon regresses nothing.
   - [0x800  -  Indexed per-stream window  (NxN streams, NXN_ARCHITECTURE.md §1.5)](#0x800-----indexed-per-stream-window--nxn-streams-nxn_architecturemd-15) — SELECT-then-read over N listener and N talker contexts, so decode area stays O(1) in N. The dense part of the whole map: index 0 is a hard *alias* of the flat registers rather than a copy, `0xDEADDEAD` marks a word not backed here (distinct from a true zero), route flags are independent bits not an enum, and the staging rule — a commit only overrides the stream table when a stream_id was staged **for that index** — is the fabric-listener blocker fix. Read the bench warning before arming extra talkers with the SRP engine off.
   - [0x870  -  AAF per-stage latency taps  (roadmap item-11, KL_aaf_latency_taps)](#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps) — Six inter-stage deltas as `{max,last}` plus a separate min word, in `axis_clk` cycles. They characterise an envelope, not one threaded frame — the token is followed by order, so a shared MAC boundary can catch a nearer non-AAF edge. Like every group at `>= 0x800` it needs the read carve-out or the whole block reads 0.
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) — The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable — every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
@@ -87,6 +88,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x7A0` | ACMP bind-restore (saved-state fast-connect, Milan 5.5.3.5.2) |
 | `0x7B8` | Persistence-journal ingest (saved-state fast-connect E3, **wired at `0x0019`**) |
 | `0x7C8` | AEM dynamic-state patch port (saved-state fast-connect E4, **wired at `0x0022`**) |
+| `0x7DC` | AS_PATH staging — the published 802.1AS PathTrace (gh #64 J4) |
 | `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868) |
 | `0x870` | AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`) |
 | `0x8B4` | RX stream-parser probe (the pre-match listener view) |
@@ -514,8 +516,8 @@ immediately" and is a legal way for software to say *never trust me*.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x778` | `CLKV_CTRL` | RW | `0x0000_0080` | `[0]` SYNC_OK — software asserts the PHC is disciplined to the gPTP domain. `[1]` **W1S** report a gPTP discontinuity software saw (servo reset, GM timing-source change); self-clearing, always reads 0. `[15:4]` validity lease in **quarter-seconds**; **any** write to this register reloads it, and `0` = expire immediately. Reset = lease 8 (2 s) with **SYNC_OK clear** |
-| `0x77C` | `CLKV_STAT` | RO live | — | `[0]` `tu` as currently stamped on every outgoing stream frame, `[1]` sync_ok (the lease-backed claim), `[2]` no live lease (reset state, or the lease ran out), `[3]` inside a discontinuity holdover, `[15:4]` lease remaining in quarter-seconds |
+| `0x778` | `CLKV_CTRL` | RW | `0x0000_0080` | `[0]` SYNC_OK — software asserts the PHC is disciplined to the gPTP domain. `[1]` **W1S** report a gPTP discontinuity software saw (servo reset, GM timing-source change); self-clearing, always reads 0. `[2]` **AS_CAPABLE** (gh #64 J3; lands with the next `VERSION` minor — probe `CLKV_STAT[16]` after writing it rather than gating on a number this build does not yet carry) — the daemon's IEEE 802.1AS-2020 10.2.5.1 `asCapable` verdict for this port, i.e. whether the two ends can interoperate via the 802.1AS protocol (`pmc GET PORT_DATA_SET_NP` prints it). It rides the **same lease** as `[0]`: latched only while `[15:4]` is non-zero, and cleared when the lease lapses, so a dead daemon answers `asCapable = false` by construction. It is a **level**, not a W1S — a renewal that leaves it clear is a report of *false*. Older gateware masked this bit to 0, so writing it is backward compatible. `[3]` and `[31:16]` are still masked to 0. `[15:4]` validity lease in **quarter-seconds**; **any** write to this register reloads it, and `0` = expire immediately. Reset = lease 8 (2 s) with **SYNC_OK clear** |
+| `0x77C` | `CLKV_STAT` | RO live | — | `[0]` `tu` as currently stamped on every outgoing stream frame, `[1]` sync_ok (the lease-backed claim), `[2]` no live lease (reset state, or the lease ran out), `[3]` inside a discontinuity holdover, `[15:4]` lease remaining in quarter-seconds, `[16]` **asCapable** (gh #64 J3; lands with the next `VERSION` minor) — the lease-backed `CLKV_CTRL[2]` claim as the fabric currently holds it. This is the exact bit `GET_AVB_INFO` serves as `AS_CAPABLE` (IEEE 1722.1-2021 7.4.40.2 flags bit 0) and the exact bit whose change arms the Milan v1.2 Table 5.22 push, so a controller's view and this register can never disagree |
 | `0x780` | `CLKV_TUCNT` | RO live | `0` | Milan v1.2 Table 5.4 / Table 5.6 `TIMESTAMP_UNCERTAIN` for the talker side: one increment per **1 s observation interval** in which `tu` was set at least once — **not** one per frame and **not** one per `tu` edge (that is the IEEE 1722.1-2021 Table 7-159 reading, which Milan overrides for a PAAD). Engine-wide: one PHC, so the value serves every STREAM_OUTPUT |
 | `0x784` | `TXARB_DIAG` | RO live | `0xA7000000` | (minor ≥ `0x001B`) TX-trunk arbiter lock supervision. `[7:0]` locked-now, `[15:8]` abort-sticky (a granted source abandoned its frame mid-packet; the arbiter closed the frame with one injected `tlast` beat and released the lock), `[23:16]` stall-sticky (a presented beat was refused downstream for a whole 2^17-cycle window — the block is **below** that mux, nothing was released), `[31:24]` constant tag `0xA7` (a zero read means the gateware predates the register). Lane order LSB-first: 0 `aecp_acmp`, 1 `ctl_tx`, 2 `srp_ctl`, 3 `lstn_ctl`, 4 `maap_ctl`, 5 `aaf_final`, 6 `crf_dp`, 7 `adp_tx` (the MAC boundary mux). Stickies clear only on reset — this register is forensics for the 07-29 wedge class (all TX dead, RX perfect), which by definition outlives every soft recovery path. Lane 7 abort names an upstream trunk abort; lane 7 **stall** names the `mac_tx_cdc`/MAC side (H1), which `LINK_CTRL[1]`'s widened reinit scope (same minor) now resets |
 | `0x788` | `LWSRP_DOM` | RO live | `0x00030002` | the **operational SRP Domain pair** (Milan v1.2 4.2.7.2.1): `[11:0]` operational class-A VID, `[23:16]` operational class-A priority, `[24]` **adopt_valid** — the pair is a *received* Domain FirstValue the fabric ADOPTED after a class-A declaration that mismatched the pair then in force; 0 = the `{priority 3, LWSRP_VID}` defaults. Every consumer moves together on adoption: the applicant's Domain FirstValue, the MVRP VID, every TalkerAdvertise DataFrameParameters VID (row 0 and the ctx serializer) and the AAF/CRF C-TAG `{PCP, VID}` mux — the reservation and the frames are one pair by construction, and the domain boundary flag (`LWSRP_STATUS[5]`) compares received declarations against **this** pair, so the adopted network's own re-declarations heal it instead of re-latching it. Reverts to the defaults on lwSRP enable-fall and on link-down ONLY (the clause's own reset list: startup / Link Up). Software **follows** this register (e.g. to steer `AAF_CTRL[27:16]`-adjacent tooling); it never mirrors it into config — `LWSRP_VID` 0x684 and `AAF_CTRL[27:16]` stay the software-owned *defaults* |
@@ -1005,6 +1007,68 @@ of a mechanism.
 shadow all live in `KL_aecp_response_builder` register files that have no slave
 port yet. Field codes `3` and `4` exist so those cases answer **by name**
 rather than by silence.
+
+### 0x7DC  -  AS_PATH staging: the published PathTrace  `(gh #64 J4)`
+
+`GET_AS_PATH` (IEEE 1722.1-2021 7.4.41.2) must return the `path_sequence` of
+the **latest Announce's PathTrace TLV** — the clock identities that Announce
+traversed: the grandmaster, then each bridge. Until this group existed the
+fabric *derived* that list from two registers (`ADP_GM` and `AS2_LO/HI`), which
+caps it at two entries: with two or more bridges between us and the
+grandmaster both the **count** and the **membership** were wrong, and a
+controller drawing a topology from it drew the wrong one.
+
+The daemon parses the TLV (`linuxptp`'s `pmc` has no PathTrace support, so this
+is an `AF_PACKET` tap on `0x88F7` Announce, `messageType` 11, TLV type
+`0x0008`) and publishes it here. Depth is **eight entries**: the grandmaster
+plus seven bridges.
+
+**Slot 0 is the grandmaster and is never stored here.** It already lives in
+`ADP_GM_LO/HI` (`0x624`/`0x628`) and the response builder takes entry 0 from
+there. A second copy is exactly the *derive, never mirror* defect — two
+registers that can disagree, with nothing to say which one is right.
+
+**A publish is the atomic cutover.** Slots are staged and committed one at a
+time, so the store is inconsistent *while software fills it*; nothing serves
+that state, because the served length only moves on the publish. The publish
+also bumps a **generation** nibble, which is what makes a re-publish of an
+identical path a Milan v1.2 Table 5.22 **push** event: the daemon saying "this
+is current" is itself the notification, even when no identity changed.
+
+**A published length of `0` is the legacy arm**, not a path of length zero.
+Reset is `0`, so a gateware whose software never publishes keeps serving the
+old `[GM, parent]` derivation and an old daemon that only writes `AS2_LO/HI`
+regresses nothing.
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `0x7DC` | `ASP_LO` | RW | `0` | Staged `clockIdentity[31:0]`. Plain-RW: reads back what was written, like the `0x7A0` restore staging |
+| `0x7E0` | `ASP_HI` | RW | `0` | Staged `clockIdentity[63:32]` |
+| `0x7E4` | `ASP_CMD` | W / RO live | `0` | Write `[31]` **commit** the staged `{HI, LO}` pair into the slot named by `[10:8]`, which must be **1..7** — slot 0 is refused, it is the grandmaster. Write `[30]` **publish**: latch the served path length from `[3:0]` (entries **including** the grandmaster, clamped to 8) and bump the generation. The two bits are independent; a write may do both. Read (live): `{24'd0, generation[7:4], count[3:0]}` — the length that will actually be served, not the command word software wrote, so a read of `0` means "no path published" |
+
+**Serving arithmetic.** With a published count of *N*: the response carries
+`descriptor_index(2) + count(2) + N x EUI64`, so `control_data_length` =
+`16 + 8N`, topping out at **80** at the depth-8 ceiling. Entry 0 is
+`ADP_GM_LO/HI`; entries 1..*N*-1 are slots 1..*N*-1 in order. A count larger
+than the store holds is **saturated**, both at the publish (so the readback
+tells the truth) and in the response builder (so the wire can never advertise
+identities that are not in the frame).
+
+**Software recipe.**
+
+```
+# one bridge per slot, in Announce PathTrace order after the grandmaster
+devmem 0x9000_07DC 32 0xFFFE0210 ; devmem 0x9000_07E0 32 0x3CC0C6FF
+devmem 0x9000_07E4 32 0x80000100          # commit -> slot 1
+devmem 0x9000_07DC 32 0xFE001122 ; devmem 0x9000_07E0 32 0xAABBCCFF
+devmem 0x9000_07E4 32 0x80000200          # commit -> slot 2
+devmem 0x9000_07E4 32 0x40000003          # publish: GM + 2 bridges = 3
+devmem 0x9000_07E4                        # reads {gen, 3}
+```
+
+> **Note on the address.** The handover named `0x7B8`-`0x7C0` for this group;
+> those words were already the persistence-journal ingest (`JNL_CTRL`/`DATA`/
+> `STAT`), so the group took the next free words after `ETH_GUARD` instead.
 
 ### 0x800  -  Indexed per-stream window  `(NxN streams, [NXN_ARCHITECTURE.md](../NXN_ARCHITECTURE.md) §1.5)`
 

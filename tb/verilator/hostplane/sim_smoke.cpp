@@ -146,6 +146,11 @@ enum {
     A_STRM_SEL = 0x800, A_SW_CTRL = 0x810,
     A_SW_SID_LO = 0x814, A_SW_SID_HI = 0x818,
     A_SW_FMT_LO = 0x824, A_SW_FMT_HI = 0x828,
+    // gh #64: the gPTP control-plane words. Both groups are SHAPE-FREE -
+    // they describe the port's time-aware neighbour, not the stream shape -
+    // so every shape this file elaborates must answer them identically.
+    A_CLKV_CTRL = 0x778, A_CLKV_STAT = 0x77C,
+    A_ASP_LO = 0x7DC, A_ASP_HI = 0x7E0, A_ASP_CMD = 0x7E4,
 };
 
 static const uint8_t STATION[6] = {0x02, 0x00, 0x00, 0x00, 0x00, 0x01};
@@ -212,6 +217,17 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) tick();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
+    // gh #64 J3/J4: the gPTP plane is the SAME at every shape. A stream
+    // count cannot change what the neighbour port is capable of, nor how
+    // many bridges an Announce traversed - so if either group ever became
+    // shape-dependent, these two lines are where it would show.
+    axi_write(A_CLKV_CTRL, 0x00000FF5);        // SYNC_OK | AS_CAPABLE | lease
+    ck("J3 asCapable leased at this shape", (axi_read(A_CLKV_STAT) >> 16) & 1, 1);
+    axi_write(A_ASP_LO, 0xFFFE0210); axi_write(A_ASP_HI, 0x3CC0C6FF);
+    axi_write(A_ASP_CMD, 0x80000100);          // commit -> slot 1
+    axi_write(A_ASP_CMD, 0x40000002);          // publish GM + 1 bridge
+    ck("J4 AS_PATH publish at this shape", axi_read(A_ASP_CMD), 0x00000012);
+    axi_write(A_ASP_CMD, 0x40000000);          // back to the legacy arm
     axi_write(A_MAC_ALO, 0x00000002);
     axi_write(A_MAC_AHI, 0x00000100);
     axi_write(A_PTP_INCR, 8u << 24);

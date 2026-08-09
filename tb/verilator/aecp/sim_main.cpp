@@ -177,6 +177,14 @@ int main(int argc, char** argv) {
     dut->available_index_i = 7; dut->association_id_i = 0;
     dut->gptp_gm_id_i = 0x0011223344556677ULL; dut->gptp_domain_i = 0;
     dut->pdelay_ns_i  = 0x00021F6A;   // 139,114 ns - a >125us measured pdelay (user bug 3)
+    // gh #64 J3: asCapable is now its own IEEE 802.1AS-2020 10.2.5.1 input,
+    // leased from the daemon - NOT "a nonzero pdelay was once written". The
+    // harness starts it TRUE, the state a healthy link is in.
+    dut->as_capable_i = 1;
+    // gh #64 J4: nothing published -> the legacy [GM, parent] derivation.
+    // Every pre-existing AS_PATH check below runs in exactly this state.
+    for (int w = 0; w < 14; w++) dut->asp_path_i[w] = 0;
+    dut->asp_count_i = 0; dut->asp_gen_i = 0;
     dut->link_up_i = 1;
     // Milan 5.4.2.25 per-index counter buses: zero until a case models
     // them (the fabric muxes by gs_diag_idx_o; here the harness owns them)
@@ -583,6 +591,102 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
+    // 9c2. GET_AS_PATH at DEPTH (gh #64 J4). The derivation above tops   //
+    // out at two entries, so with two or more bridges between us and the //
+    // grandmaster both the COUNT and the MEMBERSHIP were wrong. Once the //
+    // daemon publishes the Announce PathTrace TLV it parsed (CSR 0x7DC   //
+    // group), that sequence is served verbatim: entry 0 = the            //
+    // grandmaster (from ADP_GM, never stored twice), entries 1..N-1 =    //
+    // the traversed bridges.                                             //
+    // ---------------------------------------------------------------- //
+    printf("\n[9c2] GET_AS_PATH published path (depth 8)\n");
+    {
+        auto asp_set = [&](int k, uint64_t v) {           // slot k = 1..7
+            dut->asp_path_i[2*(k-1)]     = (uint32_t)(v & 0xFFFFFFFFull);
+            dut->asp_path_i[2*(k-1) + 1] = (uint32_t)(v >> 32);
+        };
+        std::vector<uint8_t> ap; put_be16(ap, 0); put_be16(ap, 0);
+
+        // THREE HOPS: grandmaster -> bridge A -> bridge B -> us.
+        // as_parent_ckid_i is left at 0 deliberately: a published path must
+        // NOT need the legacy parent register to be right.
+        dut->as_parent_ckid_i = 0;
+        asp_set(1, 0x3CC0C6FFFEFE0210ull);
+        asp_set(2, 0xAABBCCFFFE001122ull);
+        dut->asp_count_i = 3; dut->asp_gen_i = 1;
+        for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9210, ap));
+        auto r = collect_resp();
+        ck("3-hop SUCCESS", r_status(r), 0);
+        ck("3-hop CDL == 40 (16 + 8*3)", r_cdl(r), 40);
+        ck_cdl("3-hop CDL (len-26)", r);
+        ckbytes("3-hop count == 3", r, 40, {0x00,0x03});
+        ckbytes("3-hop path[0] == grandmaster (ADP_GM, not a slot)", r, 42,
+                {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77});
+        ckbytes("3-hop path[1] == slot 1", r, 50,
+                {0x3C,0xC0,0xC6,0xFF,0xFE,0xFE,0x02,0x10});
+        ckbytes("3-hop path[2] == slot 2", r, 58,
+                {0xAA,0xBB,0xCC,0xFF,0xFE,0x00,0x11,0x22});
+
+        // SATURATION at eight entries. The count field is a nibble, so a
+        // daemon can name 15; the wire must carry only what the store holds
+        // and the control_data_length must agree with it, or the response
+        // advertises identities that are not in the frame.
+        for (int k = 1; k <= 7; k++)
+            asp_set(k, 0x1000000000000000ull * (uint64_t)k + 0x0A0B0C0D0E0Full);
+        dut->asp_count_i = 15; for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9211, ap));
+        auto r8 = collect_resp();
+        ck("saturated SUCCESS", r_status(r8), 0);
+        ck("saturated count == 8 (not 15)", r8.size() > 41 ? (long)r8[41] : -1, 8);
+        ck("saturated CDL == 80 (16 + 8*8)", r_cdl(r8), 80);
+        ck_cdl("saturated CDL (len-26)", r8);
+        ckbytes("saturated path[0] == grandmaster", r8, 42,
+                {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77});
+        ckbytes("saturated path[1] == slot 1", r8, 50,
+                {0x10,0x00,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F});
+        // the LAST entry is slot 7 at payload offset 42 + 7*8 - the byte a
+        // length that lied would leave out of the frame entirely
+        ckbytes("saturated path[7] == slot 7 (the last byte served)", r8, 98,
+                {0x70,0x00,0x0A,0x0B,0x0C,0x0D,0x0E,0x0F});
+
+        // a count of ONE serves the grandmaster alone - no slot leaks in
+        dut->asp_count_i = 1; for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9212, ap));
+        auto r1 = collect_resp();
+        ck("count 1 CDL == 24", r_cdl(r1), 24);
+        ckbytes("count 1 == the grandmaster alone", r1, 40,
+                {0x00,0x01,0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77});
+
+        // ---- ZERO COUNT REPRODUCES EVERY LEGACY CHECK, unchanged. An old
+        // daemon that only ever wrote AS2_LO/HI 0x730/4 must regress nothing.
+        dut->asp_count_i = 0;
+        dut->as_parent_ckid_i = 0x3CC0C6FFFEFE0210ULL;
+        for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9213, ap));
+        auto rl = collect_resp();
+        ck("legacy arm SUCCESS", r_status(rl), 0);
+        ck("legacy arm CDL == 32 (2 hops)", r_cdl(rl), 32);
+        ck_cdl("legacy arm CDL (len-26)", rl);
+        ckbytes("legacy arm count == 2", rl, 40, {0x00,0x02});
+        ckbytes("legacy arm path[0] == grandmaster", rl, 42,
+                {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77});
+        ckbytes("legacy arm path[1] == PARENT BRIDGE", rl, 50,
+                {0x3C,0xC0,0xC6,0xFF,0xFE,0xFE,0x02,0x10});
+        // ...and the slots STILL HOLD their identities: it is the count, not
+        // a wipe, that selects the arm
+        dut->as_parent_ckid_i = 0; for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9214, ap));
+        auto rl2 = collect_resp();
+        ck("legacy direct-GM count == 1", rl2.size() > 41 ? (long)rl2[41] : -1, 1);
+        ck("legacy direct-GM CDL == 24", r_cdl(rl2), 24);
+        ckbytes("legacy direct-GM path[0] == GM (no slot bytes leak)", rl2, 42,
+                {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77});
+        for (int w = 0; w < 14; w++) dut->asp_path_i[w] = 0;
+        dut->asp_gen_i = 0; for (int i = 0; i < 4; i++) tick();
+    }
+
+    // ---------------------------------------------------------------- //
     // 9d. GET_AVB_INFO — live GM + measured pdelay + GM-present flag   //
     // (user bugs 1-3: all fields daemon-written CSRs, no constants)    //
     // ---------------------------------------------------------------- //
@@ -598,8 +702,9 @@ int main(int argc, char** argv) {
                 {0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77});
         ckbytes("AVB_INFO propagation_delay == CSR (139114 ns)", r, 50,
                 {0x00,0x02,0x1F,0x6A});
-        // flags = GPTP_ENABLED|SRP_ENABLED (+AS_CAPABLE when pdelay!=0);
-        // then the msrp_mappings: count 1, {SRclassID 6, prio 3, VID}
+        // flags = GPTP_ENABLED|SRP_ENABLED|AS_CAPABLE (the leased 802.1AS
+        // variable, gh #64 J3); then the msrp_mappings: count 1,
+        // {SRclassID 6, prio 3, VID}
         ckbytes("AVB_INFO flags GPTP|SRP|AS_CAP", r, 55, {0x07});
         ckbytes("AVB_INFO msrp mapping {A,3,vid}", r, 56, {0x00,0x01,0x06,0x03,0x00,0x02});
 
@@ -608,6 +713,31 @@ int main(int argc, char** argv) {
         auto r2 = collect_resp();
         ckbytes("AVB_INFO no-GM flags GPTP|SRP|AS_CAP", r2, 55, {0x07});
         dut->gptp_gm_id_i = 0x0011223344556677ULL; for (int i = 0; i < 4; i++) tick();
+
+        // ---- gh #64 J3: AS_CAPABLE is the IEEE 802.1AS-2020 10.2.5.1
+        // per-port variable, not a propagation-delay proxy. THE MUTATION
+        // CHECK: pdelay keeps its big nonzero measured value here, so the
+        // retired "|propagation_delay|" proxy would answer 1 on this line.
+        dut->as_capable_i = 0; for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9304, av));
+        auto r5 = collect_resp();
+        ckbytes("AVB_INFO asCapable FALSE -> flags 0x06", r5, 55, {0x06});
+        ckbytes("...with the SAME nonzero pdelay on the wire", r5, 50,
+                {0x00,0x02,0x1F,0x6A});
+        dut->as_capable_i = 1; for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9305, av));
+        auto r6 = collect_resp();
+        ckbytes("AVB_INFO asCapable TRUE again -> flags 0x07", r6, 55, {0x07});
+        // ...and the reverse mutation: a ZERO pdelay with asCapable TRUE
+        // must still report AS_CAPABLE. The proxy answered 0 here, which is
+        // the starved-pmc-read flap this input replaced.
+        dut->pdelay_ns_i = 0; for (int i = 0; i < 4; i++) tick();
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9306, av));
+        auto r7 = collect_resp();
+        ckbytes("pdelay 0 + asCapable TRUE -> flags still 0x07", r7, 55, {0x07});
+        ckbytes("...and propagation_delay reports the honest 0", r7, 50,
+                {0x00,0x00,0x00,0x00});
+        dut->pdelay_ns_i = 0x00021F6A; for (int i = 0; i < 4; i++) tick();
     }
 
     // ---------------------------------------------------------------- //

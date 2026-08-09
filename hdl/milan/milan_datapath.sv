@@ -1165,6 +1165,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [63:0] cfg_ptp_tod_wr, cfg_ptp_offset;
   wire        cfg_ptp_cmd_load, cfg_ptp_cmd_adjust, cfg_ptp_cmd_snapshot;
   wire        cfg_clkv_wr_p, cfg_clkv_sync_ok, cfg_clkv_disc_p;
+  wire        cfg_clkv_as_cap;   //! CLKV_CTRL[2] as written (gh #64 J3)
   wire [11:0] cfg_clkv_wdog_q;
   wire [31:0] cfg_ptp_ingress_lat, cfg_ptp_egress_lat;
   wire [63:0] ptp_tod_rd;
@@ -1628,6 +1629,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  docs/findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md
   // ==========================================================================
   wire        clkv_tu_w;
+  //! the leased IEEE 802.1AS-2020 10.2.5.1 asCapable claim (gh #64 J3),
+  //! sourced beside the tu verdict because it obeys the SAME lease: when the
+  //! daemon stops renewing, both fall together and the entity answers
+  //! GET_AVB_INFO honestly instead of repeating a dead claim.
+  wire        clkv_as_cap_w;
   wire [31:0] clkv_stat_w, clkv_tucnt_w;
   KL_ptp_clock_validity #(
     .QTICK_CYC_P (CLKV_QTICK_CYC_P)
@@ -1636,6 +1642,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .sw_wr_p_i    (cfg_clkv_wr_p),
     .sw_sync_ok_i (cfg_clkv_sync_ok),
     .sw_disc_p_i  (cfg_clkv_disc_p),
+    .sw_as_cap_i  (cfg_clkv_as_cap),
     .sw_wdog_q_i  (cfg_clkv_wdog_q),
     //! a settime / adjtime IS a gPTP time discontinuity (4.4.4.7), and it is
     //! the ONE piece of clock truth this fabric can see without being told
@@ -1645,6 +1652,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! a change in it is a change of grandmaster (Milan Annex B.1.1)
     .gm_id_i      (cfg_adp_gptp_gm),
     .ts_uncertain_o (clkv_tu_w),
+    .as_capable_o   (clkv_as_cap_w),
     .stat_o         (clkv_stat_w),
     .tu_ivals_o     (clkv_tucnt_w)
   );
@@ -1734,6 +1742,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        cfg_crf_en;
   wire [63:0] cfg_crf_sid;
   wire [63:0] cfg_as_parent_ckid;
+  //! gh #64 J4 published PathTrace tail (CSR 0x7DC group)
+  wire [7*64-1:0] cfg_asp_path;
+  wire [3:0]  cfg_asp_count, cfg_asp_gen;
   wire [63:0] pcm_lpf_tdata;
   wire        pcm_lpf_tvalid;
   wire        pcm_lpf_active;
@@ -1977,6 +1988,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_clkv_wr_p       (cfg_clkv_wr_p),
     .o_clkv_sync_ok    (cfg_clkv_sync_ok),
     .o_clkv_disc_p     (cfg_clkv_disc_p),
+    .o_clkv_as_cap     (cfg_clkv_as_cap),
     .o_clkv_wdog_q     (cfg_clkv_wdog_q),
     .i_clkv_stat       (clkv_stat_w),
     .i_clkv_tucnt      (clkv_tucnt_w),
@@ -2227,6 +2239,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_linkg_dis        (cfg_linkg_dis),
     .o_linkg_freeze     (cfg_linkg_freeze),
     .o_as_parent_ckid   (cfg_as_parent_ckid),
+    .o_asp_path         (cfg_asp_path),
+    .o_asp_count        (cfg_asp_count),
+    .o_asp_gen          (cfg_asp_gen),
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_addr_filt_en(cfg_tcam_addr_filt_en),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -2718,6 +2733,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .association_id_i  (cfg_adp_association_id),
     .gptp_gm_id_i      (cfg_adp_gptp_gm),
     .pdelay_ns_i       (cfg_gptp_pdelay_ns),
+    //! J3: the leased asCapable claim, NOT "some pdelay was once written"
+    .as_capable_i      (clkv_as_cap_w),
     .gptp_domain_i     (cfg_adp_gptp_domain),
     .aaf_dmac_i (eff_aaf_dmac), .aaf_vid_i (cfg_aaf_vid),
     .talker_active_i (acmp_talker_active),
@@ -2781,6 +2798,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .lstn_ta_reg_i  (lwsrp_ta_registered),
     .lstn_ta_fail_i (lwsrp_ta_failed),
     .as_parent_ckid_i   (cfg_as_parent_ckid),
+    .asp_path_i         (cfg_asp_path),
+    .asp_count_i        (cfg_asp_count),
+    .asp_gen_i          (cfg_asp_gen),
     .lstn_fail_code_i   (lwsrp_ta_fail_code),
     .lstn_fail_bridge_i (lwsrp_ta_fail_bridge),
     .lstn_ta_vlan_i     (lwsrp_ta_vlan),

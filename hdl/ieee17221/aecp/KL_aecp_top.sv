@@ -63,6 +63,8 @@ module KL_aecp_top #(
   input  wire [63:0]   association_id_i,
   input  wire [63:0]   gptp_gm_id_i,
   input  wire [31:0]   pdelay_ns_i,        //! measured gPTP neighbor propagation delay (ns)
+  input  wire          as_capable_i,       //! IEEE 802.1AS-2020 10.2.5.1 asCapable,
+                                           //! lease-backed (KL_ptp_clock_validity)
   input  wire [7:0]    gptp_domain_i,
 
   // ---- live talker stream state (docs/design/MILAN_TALKER_SM.md) ------
@@ -142,6 +144,11 @@ module KL_aecp_top #(
   input  wire          lstn_ta_reg_i,
   input  wire          lstn_ta_fail_i,
   input  wire [63:0]   as_parent_ckid_i,   //! 802.1AS parent bridge ckid (CSR)
+  //! published 802.1AS PathTrace tail (CSR 0x7DC group, gh #64 J4): slot k
+  //! at bit [64*(k-1) +: 64]; entry 0 is the grandmaster and is not here
+  input  wire [7*64-1:0] asp_path_i,
+  input  wire [3:0]    asp_count_i,        //! published entries incl the GM (0 = legacy)
+  input  wire [3:0]    asp_gen_i,          //! publish generation (push edge)
   input  wire [7:0]    lstn_fail_code_i,   //! listener-side MSRP failure code
   input  wire [63:0]   lstn_fail_bridge_i, //! ...and failing bridge_id
   input  wire [11:0]   lstn_ta_vlan_i,     //! registered Talker-attr vlan
@@ -357,7 +364,8 @@ module KL_aecp_top #(
     .l0_state_i(l0_state_w), .l0_status_i(l0_status_w), .l0_reject_i(l0_reject_w),
     .al_desc_ok_i(al_desc_ok_w),
     .station_mac_i(station_mac_i), .entity_id_i(entity_id_i),
-    .gptp_gm_id_i(gptp_gm_id_i), .pdelay_ns_i(pdelay_ns_i), .gptp_domain_i(gptp_domain_i),
+    .gptp_gm_id_i(gptp_gm_id_i), .pdelay_ns_i(pdelay_ns_i),
+    .as_capable_i(as_capable_i), .gptp_domain_i(gptp_domain_i),
     .aaf_dmac_i(aaf_dmac_i), .aaf_vid_i(aaf_vid_i),
     .talker_active_i(talker_active_i),
     .listener_observed_i(listener_observed_i),
@@ -396,6 +404,7 @@ module KL_aecp_top #(
     .out_streaming_v_i(out_streaming_v_i),
     .bdbg0_o(bdbg0_o), .bdbg1_o(bdbg1_o), .bdbg2_o(bdbg2_o),
     .as_parent_ckid_i(as_parent_ckid_i),
+    .asp_path_i(asp_path_i), .asp_count_i(asp_count_i), .asp_gen_i(asp_gen_i),
     .lstn_fail_code_i(lstn_fail_code_i), .lstn_fail_bridge_i(lstn_fail_bridge_i),
     .lstn_ta_vlan_i(lstn_ta_vlan_i), .lstn_ta_acclat_i(lstn_ta_acclat_i),
     .tk_fail_valid_i(tk_fail_valid_i), .tk_fail_code_i(tk_fail_code_i),

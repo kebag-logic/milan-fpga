@@ -95,11 +95,32 @@
                 the second half of the decorative-ABI fix
                 (docs/limitations/RECURRING_DEFECT_PATTERNS.md 1).
 
+                asCAPABLE RIDES THE SAME LEASE (gh #64 J3). 802.1AS-2020
+                10.2.5.1: "A Boolean that is TRUE if and only if it is
+                determined that this PTP Instance and the PTP Instance at
+                the other end of the link attached to this PTP Port can
+                interoperate with each other via the IEEE 802.1AS
+                protocol" - and the clause adds that the determination is
+                MEDIUM-DEPENDENT, i.e. it is the pdelay-exchange verdict
+                ptp4l computes and NOTHING in fabric can observe
+                (the same information boundary as the sync claim above).
+                The old consumer proxied it as |pdelay CSR|, which is
+                stale-true forever once the daemon dies and flag-flaps
+                when a starved pmc read maps "no answer" to pdelay 0.
+                So the daemon publishes its asCapable verdict as
+                CLKV_CTRL[2] on the SAME write that renews the lease, and
+                as_cap_r obeys the lease law sync_ok_r obeys: latched
+                only with a live lease, CLEARED when the lease lapses -
+                daemon death answers asCapable=0 by construction, and
+                Milan v1.2 Table 5.22 (asCapable is a GET_AVB_INFO push
+                trigger) fires exactly one honest edge for it.
+
   Spec refs   : Milan v1.2 4.3.5.2 (talker shall set tu), 5.3.7.3
                 (streaming shall not stop), Annex B.1.1 (0.25 s on GM
                 change), Table 5.4 / Table 5.6 (TIMESTAMP_UNCERTAIN =
-                observation intervals); IEEE 1722-2016 4.4.4.5 (tv),
-                4.4.4.7 (tu), 7.5 (AAF tv=1 mandatory at sp=0);
+                observation intervals), Table 5.22 (asCapable push);
+                IEEE 802.1AS-2020 10.2.5.1 (asCapable); IEEE 1722-2016
+                4.4.4.5 (tv), 4.4.4.7 (tu), 7.5 (AAF tv=1 at sp=0);
                 docs/findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md
   Company     : Kebag Logic
   Project     : Milan AVB endstation
@@ -125,6 +146,8 @@ module KL_ptp_clock_validity #(
   input  wire        sw_wr_p_i,       //! 1-cycle pulse: CLKV_CTRL was written
   input  wire        sw_sync_ok_i,    //! CLKV_CTRL[0] as written
   input  wire        sw_disc_p_i,     //! CLKV_CTRL[1] W1S: software saw a discontinuity
+  input  wire        sw_as_cap_i,     //! CLKV_CTRL[2] as written: daemon's 802.1AS-2020
+                                      //! 10.2.5.1 asCapable verdict (leased, like [0])
   input  wire [11:0] sw_wdog_q_i,     //! CLKV_CTRL[15:4] lease, quarter-ticks (0 = never trust)
 
   //! --- discontinuities this fabric can see for itself -------------------
@@ -134,6 +157,7 @@ module KL_ptp_clock_validity #(
 
   //! --- verdict -----------------------------------------------------------
   output wire        ts_uncertain_o,  //! AVTP tu bit for EVERY talker (1 = uncertain)
+  output wire        as_capable_o,    //! lease-backed asCapable (GET_AVB_INFO flags[0])
   output wire [31:0] stat_o,          //! CLKV_STAT 0x77C
   output wire [31:0] tu_ivals_o       //! CLKV_TUCNT 0x780 (Milan Table 5.4 counter)
 );
@@ -161,22 +185,30 @@ module KL_ptp_clock_validity #(
   //  arms an already-expired lease instead of an infinite one.
   // --------------------------------------------------------------------
   logic        sync_ok_r;
+  logic        as_cap_r;
   logic [11:0] lease_r;
   logic        no_lease_r;
 
   always_ff @(posedge clk_i) begin : p_lease
     if (!rst_n) begin
       sync_ok_r  <= 1'b0;
+      as_cap_r   <= 1'b0;
       lease_r    <= 12'd0;
       no_lease_r <= 1'b1;
     end else if (sw_wr_p_i) begin
       sync_ok_r  <= sw_sync_ok_i & (|sw_wdog_q_i);
+      //! asCapable is a claim exactly like sync_ok: only a live lease can
+      //! carry it, and every write re-states it (a daemon that renews the
+      //! lease with [2] clear is REPORTING asCapable false, not silent)
+      as_cap_r   <= sw_as_cap_i & (|sw_wdog_q_i);
       lease_r    <= sw_wdog_q_i;
       no_lease_r <= ~(|sw_wdog_q_i);
     end else if (qtick_w && (lease_r != 12'd0)) begin
       lease_r <= lease_r - 12'd1;
       if (lease_r == 12'd1) begin
         sync_ok_r  <= 1'b0;   //! the claim lapsed - stop asserting health
+        as_cap_r   <= 1'b0;   //! ...and asCapable lapses WITH it (J3: a dead
+                              //! daemon's last claim must not outlive it)
         no_lease_r <= 1'b1;
       end
     end
@@ -245,10 +277,16 @@ module KL_ptp_clock_validity #(
 
   assign tu_ivals_o = tu_ivals_r;
 
+  //! the lease-backed asCapable verdict, for the GET_AVB_INFO flags byte
+  //! (1722.1-2021 7.4.40.2 flags[0]) and its Table 5.22 push signature
+  assign as_capable_o = as_cap_r;
+
   //! CLKV_STAT: [0] tu now, [1] lease-backed sync claim, [2] no live lease,
   //! [3] inside a discontinuity holdover, [15:4] lease remaining (quarter-
-  //! seconds). Read this before believing a TUCNT of 0.
-  assign stat_o = {16'd0, lease_r, hold_w, no_lease_r, sync_ok_r, ts_uncertain_o};
+  //! seconds), [16] lease-backed asCapable claim (J3). Read this before
+  //! believing a TUCNT of 0.
+  assign stat_o = {15'd0, as_cap_r, lease_r, hold_w, no_lease_r, sync_ok_r,
+                   ts_uncertain_o};
 
 endmodule
 

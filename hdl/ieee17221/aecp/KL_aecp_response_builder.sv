@@ -111,6 +111,17 @@ module KL_aecp_response_builder (
   input  wire [63:0]   entity_id_i,
   input  wire [63:0]   gptp_gm_id_i,
   input  wire [31:0]   pdelay_ns_i,        //! measured neighbor propagation delay ns (CSR 0x6E4, gptp daemon)
+  //! IEEE 802.1AS-2020 10.2.5.1 asCapable for this port: TRUE iff "this PTP
+  //! Instance and the PTP Instance at the other end of the link attached to
+  //! this PTP Port can interoperate with each other via the IEEE 802.1AS
+  //! protocol". A pdelay-exchange verdict only the daemon can compute, so
+  //! it arrives as the LEASE-BACKED claim from KL_ptp_clock_validity
+  //! (CLKV_CTRL[2] renewed on the same write as the sync claim, cleared
+  //! when the lease lapses). It replaced the |pdelay_ns_i| proxy, which
+  //! read TRUE forever after the daemon died and flapped whenever a
+  //! starved pmc read published a 0 pdelay. Serves 1722.1-2021 7.4.40.2
+  //! flags AS_CAPABLE and its Milan v1.2 Table 5.22 push trigger.
+  input  wire          as_capable_i,
   input  wire [7:0]    gptp_domain_i,
 
   // ---- live talker stream state (docs/design/MILAN_TALKER_SM.md) ------
@@ -194,6 +205,18 @@ module KL_aecp_response_builder (
   input  wire [1:0]    lstn_pbsta_i,       //! probing status
   input  wire [4:0]    lstn_acmpsta_i,     //! last ACMP status
   input  wire [63:0]   as_parent_ckid_i,   //! 802.1AS parent bridge ckid (0=none)
+  //! gh #64 J4 published PathTrace (CSR 0x7DC group). asp_path_i carries
+  //! entry k of the 1722.1-2021 7.4.41.2 path_sequence at bit
+  //! [64*(k-1) +: 64] for k = 1..N: entry 0 is ALWAYS the grandmaster and
+  //! comes from gptp_gm_id_i, never from this vector (it is not stored
+  //! twice). asp_count_i = the published number of entries INCLUDING the
+  //! grandmaster; 0 = nothing published, which keeps the legacy
+  //! [GM, parent] derivation so an old daemon regresses nothing.
+  //! asp_gen_i bumps on every publish, so a re-publish of an identical
+  //! path still moves the Table 5.22 signature and still arms the push.
+  input  wire [7*64-1:0] asp_path_i,
+  input  wire [3:0]    asp_count_i,
+  input  wire [3:0]    asp_gen_i,
   input  wire [7:0]    lstn_fail_code_i,
   input  wire [63:0]   lstn_fail_bridge_i,
   input  wire [11:0]   lstn_ta_vlan_i,
@@ -507,6 +530,19 @@ module KL_aecp_response_builder (
   wire        w_gm_present = (gptp_gm_id_i != 64'd0);
   wire [63:0] w_self_ckid  = {station_mac_i[47:24], 16'hFFFE, station_mac_i[23:0]};
   wire        w_gm_foreign = w_gm_present && (gptp_gm_id_i != w_self_ckid);
+  //! gh #64 J4 path-depth shape, DERIVED from the port that carries the
+  //! slots: entries = the grandmaster + one per slot, and the const-buffer
+  //! span the payload owns follows from that (2 count bytes + 8 per entry).
+  //! Nothing here is a second literal of "eight".
+  localparam int unsigned ASP_SLOTS_C     = $bits(asp_path_i) / 64;
+  localparam int unsigned ASP_ENTRY_MAX_C = ASP_SLOTS_C + 1;
+  localparam int unsigned ASP_CONST_END_C = 2 + 8*ASP_ENTRY_MAX_C;
+  //! a published length ARMS the stored path; 0 keeps the legacy derivation
+  wire        w_asp_pub = (asp_count_i != 4'd0);
+  //! saturated served length: the wire never claims more entries than the
+  //! store holds, so cdl tops out at 16 + 8*ASP_ENTRY_MAX_C
+  wire [3:0]  w_asp_n   = (32'(asp_count_i) > ASP_ENTRY_MAX_C)
+                        ? 4'(ASP_ENTRY_MAX_C) : asp_count_i;
   wire [15:0] w_name_cfg = {w_b8, w_b9};
   wire [31:0] w_set_rate = {w_b6, w_b7, w_b8, w_b9};
   wire [63:0] w_set_fmt  = {w_b6, w_b7, w_b8,  w_b9,
@@ -1858,16 +1894,43 @@ module KL_aecp_response_builder (
   // GET_AS_PATH SUCCESS payload (shared by the command path and the      //
   // Table 5.22 push): path_sequence per 1722.1-2021 7.4.41.2 - the       //
   // clock identities the latest Announce TRAVERSED (see the command arm  //
-  // for the full derivation). Sets const_q[0..17] + seg_len_q[1] + cdl_q //
-  // (both callers put a 2-byte descriptor_index in segment 0).           //
+  // for the full derivation). Sets const_q[0..ASP_CONST_END_C-1] +       //
+  // seg_len_q[1] + cdl_q (both callers put a 2-byte descriptor_index in  //
+  // segment 0).                                                          //
+  //                                                                      //
+  // TWO ARMS (gh #64 J4). With a PUBLISHED path (asp_count_i != 0) the   //
+  // daemon's parsed PathTrace TLV is served verbatim, up to eight        //
+  // entries; with none, the historic two-entry derivation stands, so a   //
+  // daemon that only ever wrote AS2_LO/HI keeps its exact old bytes.     //
+  // Lengths: segment = 2 + 8*entries, control_data_length = 16 + 8*      //
+  // entries (12 AEM header + 2 descriptor_index + 2 count + the          //
+  // identities) = 80 at the depth-8 ceiling. const_q is 96 bytes, so the //
+  // 66-byte payload and the 2 index bytes above it both fit.             //
   // ------------------------------------------------------------------ //
   task automatic load_as_path_consts;
     begin
       const_q[0] <= 8'h00;
-      for (int k = 2; k < 18; k++) const_q[k] <= 8'h00;
+      for (int k = 2; k < ASP_CONST_END_C; k++) const_q[k] <= 8'h00;
       seg_len_q[1] <= 16'd10;
       cdl_q        <= 11'd24;   // 12 + 2 + 10
-      if (w_gm_foreign) begin
+      if (w_asp_pub) begin
+        //! ---- PUBLISHED path (gh #64 J4) --------------------------------
+        //! The daemon parsed the latest Announce's PathTrace TLV and
+        //! published its clock identities; serve exactly those, in order.
+        //! Entry 0 is the grandmaster (ADP_GM, never duplicated into the
+        //! slot store); entries 1..N-1 are the traversed bridges. Length
+        //! saturates at ASP_ENTRY_MAX_C so a count larger than the store
+        //! can never advertise identities that are not there.
+        seg_len_q[1] <= 16'(2 + 8*32'(w_asp_n));
+        cdl_q        <= 11'(16 + 8*32'(w_asp_n));   // 12 + 2 idx + 2 count + 8N
+        const_q[1]   <= {4'h0, w_asp_n};
+        for (int k = 0; k < 8; k++)
+          const_q[2+k] <= gptp_gm_id_i[8*(7-k) +: 8];
+        for (int e = 1; e < ASP_ENTRY_MAX_C; e++)
+          if (32'(w_asp_n) > e)
+            for (int k = 0; k < 8; k++)
+              const_q[2 + 8*e + k] <= asp_path_i[64*(e-1) + 8*(7-k) +: 8];
+      end else if (w_gm_foreign) begin
         if (as_parent_ckid_i != 64'd0 &&
             as_parent_ckid_i != gptp_gm_id_i) begin
           seg_len_q[1] <= 16'd18;
@@ -1999,13 +2062,22 @@ module KL_aecp_response_builder (
                             lstn_fail_bridge_i};
   wire [113:0] w_crf_sig = {lstn1_bound_i, started_in_r[n_aaf_sinks_i[3:0]],
                             lstn1_sid_i, lstn1_dmac_i};
+  //! GET_AVB_INFO signature: the asCapable TERM is now the leased 802.1AS
+  //! variable (gh #64 J3), not |pdelay|. The pdelay[31:8] term STAYS, so a
+  //! real change of the measured propagation delay still pushes - only the
+  //! lie about what asCapable means is gone.
   wire [108:0] w_avbi_sig = {gptp_gm_id_i, gptp_domain_i, srp_domain_vid_i,
-                             (|pdelay_ns_i), pdelay_ns_i[31:8]};
-  wire [127:0] w_aspath_sig = {gptp_gm_id_i, as_parent_ckid_i};
+                             as_capable_i, pdelay_ns_i[31:8]};
+  //! GET_AS_PATH signature: the legacy [GM, parent] terms PLUS the
+  //! published {count, generation} (gh #64 J4). The generation is what
+  //! makes a publish an EDGE even when the identities are unchanged - a
+  //! re-publish is a Table 5.22 event by the daemon's own declaration.
+  wire [135:0] w_aspath_sig = {gptp_gm_id_i, as_parent_ckid_i,
+                               asp_count_i, asp_gen_i};
   logic [250:0] in0_sig_prev_r;
   logic [113:0] crf_sig_prev_r;
   logic [108:0] avbi_sig_prev_r;
-  logic [127:0] aspath_sig_prev_r;
+  logic [135:0] aspath_sig_prev_r;
   logic [1:0]   in_info_dirty_r;           //! {CRF, sink0} change latched
   logic [4:0]   in_info_ms_r [2];          //! per-sink settle dwell (ms)
   logic         avbi_dirty_r;
@@ -2414,8 +2486,10 @@ module KL_aecp_response_builder (
         if (w_unsol_anyvalid) avbi_rl_ms_r <= 10'd0;
       end
 
-      // ---- GET_AS_PATH push (Table 5.22): the path sequence is
-      //      [GM, parent bridge] so a change of either IS a path change --
+      // ---- GET_AS_PATH push (Table 5.22): the path sequence is the
+      //      published PathTrace (or, unpublished, [GM, parent bridge]) so
+      //      a change of any term - including a bare re-publish, via the
+      //      generation - IS a path change --------------------------------
       aspath_sig_prev_r <= w_aspath_sig;
       if (w_aspath_sig != aspath_sig_prev_r) begin
         for (int s = 0; s < UNSOL_SLOTS_C; s++)
@@ -2759,7 +2833,9 @@ module KL_aecp_response_builder (
             const_q[8]  <= pdelay_ns_i[31:24]; const_q[9]  <= pdelay_ns_i[23:16];
             const_q[10] <= pdelay_ns_i[15:8];  const_q[11] <= pdelay_ns_i[7:0];
             const_q[12] <= gptp_domain_i;
-            const_q[13] <= {5'b0, 1'b1, 1'b1, |pdelay_ns_i};
+            //! flags AS_CAPABLE = the LEASE-BACKED 802.1AS variable, the
+            //! same input the solicited arm serves (gh #64 J3)
+            const_q[13] <= {5'b0, 1'b1, 1'b1, as_capable_i};
             const_q[14] <= 8'h00; const_q[15] <= 8'h01;
             const_q[16] <= 8'h06;                // traffic_class = A
             const_q[17] <= 8'h03;                // priority
@@ -2773,8 +2849,10 @@ module KL_aecp_response_builder (
           end else if (enable_i && unsol_pend8_r != '0) begin
             //! Unsolicited GET_AS_PATH (u=1): the path sequence changed
             //! (Table 5.22). Payload = load_as_path_consts, the command
-            //! arm's exact builder; descriptor_index 0 rides const bytes
-            //! 40..41 (the path consts own 0..17).
+            //! arm's exact builder; descriptor_index 0 rides the two const
+            //! bytes just ABOVE the path payload (ASP_CONST_END_C), which
+            //! the depth-8 store now owns up to - the old fixed 40..41 sat
+            //! INSIDE a 5-entry path.
             unsol_pend8_r[w_unsol_push8_idx] <= 1'b0;
             unsol_seq_r[w_unsol_push8_idx]   <= unsol_seq_r[w_unsol_push8_idx] + 16'd1;
             unsol_frame_r <= 1'b1;
@@ -2788,12 +2866,14 @@ module KL_aecp_response_builder (
             for (int s = 4; s < SEGN_C; s++) begin
               seg_kind_q[s] <= SEG_NONE; seg_len_q[s] <= 16'd0;
             end
-            seg_kind_q[0] <= SEG_CONST; seg_addr_q[0] <= 16'd40; seg_len_q[0] <= 16'd2;
+            seg_kind_q[0] <= SEG_CONST; seg_addr_q[0] <= 16'(ASP_CONST_END_C);
+            seg_len_q[0]  <= 16'd2;
             seg_kind_q[1] <= SEG_CONST; seg_addr_q[1] <= 16'd0;  seg_len_q[1] <= 16'd10;
             seg_kind_q[2] <= SEG_NONE;  seg_addr_q[2] <= 16'd0;  seg_len_q[2] <= 16'd0;
             seg_kind_q[3] <= SEG_NONE;  seg_addr_q[3] <= 16'd0;  seg_len_q[3] <= 16'd0;
-            const_q[40] <= 8'h00; const_q[41] <= 8'h00;   // descriptor_index 0
-            load_as_path_consts;   // const_q[0..17] + seg_len_q[1] + cdl_q
+            const_q[ASP_CONST_END_C]   <= 8'h00;          // descriptor_index 0
+            const_q[ASP_CONST_END_C+1] <= 8'h00;
+            load_as_path_consts;   // const_q[0..ASP_CONST_END_C-1] + seg_len + cdl
             wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
             cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
             fi_r       <= 16'd0;
@@ -3868,10 +3948,16 @@ module KL_aecp_response_builder (
                   const_q[8]  <= pdelay_ns_i[31:24]; const_q[9]  <= pdelay_ns_i[23:16];
                   const_q[10] <= pdelay_ns_i[15:8];  const_q[11] <= pdelay_ns_i[7:0];
                   const_q[12] <= gptp_domain_i;
-                  //! flags (1722.1-2021 7.4.40.2): AS_CAPABLE (0x01, proxied
-                  //! by a nonzero measured pdelay = the exchange works) |
-                  //! GPTP_ENABLED (0x02) | SRP_ENABLED (0x04)
-                  const_q[13] <= {5'b0, 1'b1, 1'b1, |pdelay_ns_i};
+                  //! flags (1722.1-2021 7.4.40.2): AS_CAPABLE (0x01) |
+                  //! GPTP_ENABLED (0x02) | SRP_ENABLED (0x04). AS_CAPABLE
+                  //! is the IEEE 802.1AS-2020 10.2.5.1 per-port variable
+                  //! itself, leased from the daemon (gh #64 J3). It used to
+                  //! be proxied by "a nonzero propagation delay was once
+                  //! written", which stayed TRUE after the daemon died and
+                  //! FLAPPED when a starved pmc read published pdelay 0 -
+                  //! and since Milan v1.2 Table 5.22 makes asCapable a push
+                  //! trigger, the proxy corrupted the push law too.
+                  const_q[13] <= {5'b0, 1'b1, 1'b1, as_capable_i};
                   //! msrp_mappings: ONE entry mirroring our MSRP Domain
                   //! declaration {SRclassID 6 = class A, priority 3, VID}
                   //! (Hive's SRP domain panel; count 0 was the gap)
@@ -4085,8 +4171,15 @@ module KL_aecp_response_builder (
                   //! foreign GM direct-wired (parent == GM or unknown):
                   //! [GM]; we are the GM: [self]. The payload builder is
                   //! shared with the Table 5.22 push arm.
+                  //! gh #64 J4: once the daemon PUBLISHES a parsed
+                  //! PathTrace TLV (CSR 0x7DC group, count != 0) that
+                  //! sequence is served instead - the derivation above was
+                  //! capped at two entries, so with two or more bridges
+                  //! between us and the grandmaster both the count AND the
+                  //! membership were wrong.
                   status_q <= STATUS_SUCCESS;
-                  load_as_path_consts;   // const_q[0..17] + seg_len_q[1] + cdl_q
+                  load_as_path_consts;   // const_q[0..ASP_CONST_END_C-1] +
+                                         // seg_len_q[1] + cdl_q
                 end else begin
                   status_q   <= STATUS_NO_SUCH_DESCRIPTOR;
                   const_q[1] <= 8'h00;                        // count = 0

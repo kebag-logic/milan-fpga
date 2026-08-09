@@ -114,6 +114,13 @@ static uint32_t axi_read(uint32_t a) {
   return v;
 }
 
+//! J4: slot k (1..7) out of the flattened o_asp_path vector. Slot k lives at
+//! bit [64*(k-1) +: 64], i.e. two 32-bit Verilator words starting at 2*(k-1).
+static uint64_t asp_slot(int k) {
+  const int w = 2 * (k - 1);
+  return ((uint64_t)dut->o_asp_path[w + 1] << 32) | (uint32_t)dut->o_asp_path[w];
+}
+
 static void ck(const char* what, uint64_t got, uint64_t exp) {
   checks++;
   if (got != exp) {
@@ -153,7 +160,7 @@ int main(int argc, char** argv) {
 
   printf("-- identification / capabilities --\n");
   ck("ID",            axi_read(A_ID),      0x4D494C4E);
-  ck("VERSION",       axi_read(A_VERSION), 0x0001003B);
+  ck("VERSION",       axi_read(A_VERSION), 0x0001003C);
   uint32_t cap = axi_read(A_CAP);
   ck("CAP.num_queues", cap & 0xF, 5);
   ck("CAP.CBS",        (cap >> 8) & 1, 1);
@@ -608,7 +615,30 @@ int main(int argc, char** argv) {
   ck("CLKV_STAT stays RO",  axi_read(0x77C), 0x0000004D);
   axi_write(0x780, 0xFFFFFFFF);
   ck("CLKV_TUCNT stays RO", axi_read(0x780), 0x0000002A);
+  // ---- CLKV_CTRL[2]: the daemon's asCapable claim (gh #64 J3) ----------
+  // IEEE 802.1AS-2020 10.2.5.1 is a per-port variable only the daemon can
+  // compute, so it arrives here and rides the CLKV lease. Bit 2 used to be
+  // MASKED TO 0 on write, which is exactly what makes storing it backward
+  // compatible: an old gateware ignored it, a new daemon writing it into
+  // an old build changed nothing. Its NEIGHBOURS must stay masked - [1] is
+  // the W1S discontinuity report and [3] is still reserved - or a daemon
+  // composing (lease<<4)|(as_cap<<2)|sync would smear fields into state.
+  axi_write(0x778, 0x00000045);          // SYNC_OK | AS_CAPABLE | lease 4
+  ck("CLKV_CTRL[2] asCapable stored", (axi_read(0x778) >> 2) & 1, 1);
+  ck("o_clkv_as_cap follows [2]", dut->o_clkv_as_cap, 1);
+  ck("CLKV_CTRL readback with [2]", axi_read(0x778), 0x00000045);
+  ck("[2] did not disturb SYNC_OK", dut->o_clkv_sync_ok, 1);
+  ck("[2] did not disturb the lease", dut->o_clkv_wdog_q, 4);
+  axi_write(0x778, 0x0000004F);          // + [1] W1S + [3] reserved set
+  ck("CLKV_CTRL[1] still W1S-only (reads 0)", (axi_read(0x778) >> 1) & 1, 0);
+  ck("CLKV_CTRL[3] still masked to 0", (axi_read(0x778) >> 3) & 1, 0);
+  ck("...while [2] survives its neighbours", dut->o_clkv_as_cap, 1);
+  ck("[31:16] still masked", axi_read(0x778) >> 16, 0);
+  axi_write(0x778, 0x00000041);          // claim withdrawn, lease renewed
+  ck("asCapable clearable (a LEVEL, not W1S)", dut->o_clkv_as_cap, 0);
+  ck("...and the sync claim is untouched", dut->o_clkv_sync_ok, 1);
   axi_write(0x778, 0x00000080);          // restore the reset shape
+  ck("reset shape leaves asCapable 0", dut->o_clkv_as_cap, 0);
 
   // ---- ADP diagnostics: 0x668 forensics + 0x674 liveness (VERSION 0x001D) --
   // 0x674 exists because 0x668 cannot answer "is it still advertising?": a
@@ -1026,6 +1056,94 @@ int main(int argc, char** argv) {
        axi_read(A_CHMAP_LOOP), POISON);
     axi_write(A_CHMAP_CTRL, 0);
     printf("  [%s] R5: an unwired map-RAM readback reads UNSUPPORTED, not 0\n",
+           (fails == f0) ? "PASS" : "FAIL");
+  }
+
+  // ---- 0x7DC AS_PATH staging ABI (gh #64 J4) ---------------------------
+  // The daemon parses the latest Announce's PathTrace TLV (IEEE 802.1AS-2020
+  // 10.3.9.23) and publishes it here so GET_AS_PATH can serve the real
+  // 1722.1-2021 7.4.41.2 path_sequence instead of a two-entry guess. Slot 0
+  // is the grandmaster and is NEVER stored here - it already lives at
+  // ADP_GM 0x624/8, and a second copy is the derive-never-mirror defect.
+  // A publish is the ATOMIC cutover: it latches the length and bumps the
+  // generation, which is what arms the Milan Table 5.22 push.
+  {
+    long f0 = fails;
+    printf("-- 0x7DC AS_PATH staging (gh #64 J4) --\n");
+    const uint32_t A_ASP_LO = 0x7DC, A_ASP_HI = 0x7E0, A_ASP_CMD = 0x7E4;
+
+    // reset: nothing published. count 0 is the LEGACY arm, not "a path of
+    // length zero" - the builder keeps its old [GM, parent] derivation.
+    ck("ASP_CMD reset {gen,count} = 0", axi_read(A_ASP_CMD), 0);
+    ck("o_asp_count resets 0", dut->o_asp_count, 0);
+    ck("o_asp_gen resets 0",   dut->o_asp_gen, 0);
+    for (int k = 1; k <= 7; ++k) ck("slot resets 0", asp_slot(k), 0);
+
+    // the staging pair reads back (plain-RW, like the E1 restore staging)
+    axi_write(A_ASP_LO, 0xFFFE0210u);
+    axi_write(A_ASP_HI, 0x3CC0C6FFu);
+    ck("ASP_LO readback", axi_read(A_ASP_LO), 0xFFFE0210u);
+    ck("ASP_HI readback", axi_read(A_ASP_HI), 0x3CC0C6FFu);
+    ck("staging alone commits nothing", asp_slot(1), 0);
+
+    // commit slot 1 = the first bridge
+    axi_write(A_ASP_CMD, 0x80000100u);          // [31] commit, slot 1
+    ck("slot 1 committed", asp_slot(1), 0x3CC0C6FFFFFE0210ull);
+    ck("commit does not publish a count", dut->o_asp_count, 0);
+    ck("commit does not bump the generation", dut->o_asp_gen, 0);
+
+    // commit slots 2 and 7 - the far end of the store must be reachable
+    axi_write(A_ASP_LO, 0x11111111u); axi_write(A_ASP_HI, 0xAABBCCDDu);
+    axi_write(A_ASP_CMD, 0x80000200u);          // slot 2
+    axi_write(A_ASP_LO, 0x77777777u); axi_write(A_ASP_HI, 0xDEADBEEFu);
+    axi_write(A_ASP_CMD, 0x80000700u);          // slot 7
+    ck("slot 2 committed", asp_slot(2), 0xAABBCCDD11111111ull);
+    ck("slot 7 committed", asp_slot(7), 0xDEADBEEF77777777ull);
+    ck("slot 1 untouched by later commits", asp_slot(1), 0x3CC0C6FFFFFE0210ull);
+
+    // SLOT 0 IS REFUSED. It is the grandmaster; the builder takes entry 0
+    // from ADP_GM. Accepting it here would create a second, divergable copy.
+    axi_write(A_ASP_LO, 0xDEADDEADu); axi_write(A_ASP_HI, 0xDEADDEADu);
+    axi_write(A_ASP_CMD, 0x80000000u);          // commit "slot 0"
+    ck("slot 0 commit refused: slot 1 intact", asp_slot(1), 0x3CC0C6FFFFFE0210ull);
+    ck("slot 0 commit refused: slot 7 intact", asp_slot(7), 0xDEADBEEF77777777ull);
+
+    // publish: count 3 (GM + 2 bridges) and the generation bumps
+    axi_write(A_ASP_CMD, 0x40000003u);          // [30] publish, count 3
+    ck("published count 3", dut->o_asp_count, 3);
+    ck("generation bumped to 1", dut->o_asp_gen, 1);
+    ck("ASP_CMD reads {gen 1, count 3}", axi_read(A_ASP_CMD), 0x00000013u);
+
+    // a re-publish of the SAME length still bumps the generation: that is
+    // the whole point - the daemon says "this is current", and the push
+    // signature must move even when no identity changed.
+    axi_write(A_ASP_CMD, 0x40000003u);
+    ck("re-publish same count still bumps gen", dut->o_asp_gen, 2);
+    ck("ASP_CMD reads {gen 2, count 3}", axi_read(A_ASP_CMD), 0x00000023u);
+
+    // the generation is a NIBBLE and wraps rather than saturating (a stuck
+    // generation would silently stop arming pushes)
+    for (int k = 0; k < 14; ++k) axi_write(A_ASP_CMD, 0x40000003u);
+    ck("generation wraps at 16", dut->o_asp_gen, 0);
+
+    // SATURATION: the store holds 7 bridges + the grandmaster, so a longer
+    // publish is CLAMPED. The readback then tells the truth about what the
+    // wire will carry instead of advertising entries that are not there.
+    axi_write(A_ASP_CMD, 0x4000000Fu);          // publish count 15
+    ck("published count clamps to 8", dut->o_asp_count, 8);
+    ck("ASP_CMD count readback clamped", axi_read(A_ASP_CMD) & 0xF, 8);
+
+    // back to zero = back to the legacy arm, which is how a daemon that
+    // loses its Announce tap stops asserting a path it can no longer see
+    axi_write(A_ASP_CMD, 0x40000000u);
+    ck("publish count 0 restores the legacy arm", dut->o_asp_count, 0);
+    ck("slots survive a zero publish", asp_slot(2), 0xAABBCCDD11111111ull);
+
+    // a bare read of CMD must not move anything (it is a status word)
+    uint32_t before_gen = dut->o_asp_gen;
+    (void)axi_read(A_ASP_CMD);
+    ck("reading CMD does not bump the generation", dut->o_asp_gen, before_gen);
+    printf("  [%s] J4: staging commits, publish is the atomic cutover\n",
            (fails == f0) ? "PASS" : "FAIL");
   }
 
