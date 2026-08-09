@@ -30,14 +30,75 @@
 #include <vector>
 #include <array>
 #include <cstdint>
+#include <functional>
+
+// ---------------------------------------------------------------------------
+// THE ELABORATED SHAPE, stated ONCE per leg by the Makefile.
+//
+// This file is the harness for EVERY milan_datapath integration leg that runs
+// the legacy section list, and since 2026-08-09 that is no longer one entity:
+// obj_dir/obj_nolpf elaborate the Arty definition (1 talker source, 2 wire
+// channels) and obj_ax1x1 elaborates the shape the AX7101 actually flashes
+// (2 talker sources - AAF plus the CRF Media Clock Output - over 8 wire
+// channels off a TDM8 master). Every expectation that used to be a literal
+// from the Arty side is now DERIVED from these, or read off the DUT.
+//
+// The defaults below are milan_datapath.sv's OWN parameter defaults, so a leg
+// that does not name a value gets the same answer the RTL does. A leg that
+// DOES name one states it once in the Makefile and both the -G and the -D come
+// out of that single variable: a copied number is a number that drifts.
+#ifndef WIRE_CHANS_TB
+#define WIRE_CHANS_TB 2         // milan_datapath TALKER_WIRE_CHANS_P default
+#endif
+#ifndef NSTREAMS_TB
+#define NSTREAMS_TB 1           // milan_datapath N_STREAMS default
+#endif
+#ifndef I2SPB_TB
+#define I2SPB_TB 1              // milan_datapath I2SPB_P default (present)
+#endif
+#ifndef AIF_SLOTS_TB
+#define AIF_SLOTS_TB 0          // milan_datapath AUDIO_IF_SLOTS_P default
+#endif
+#ifndef AIF_I2S_PAIR_TB
+#define AIF_I2S_PAIR_TB 0       // milan_datapath AUDIO_IF_I2S_PAIR_P default
+#endif
+
+//! Is the TONE_CTRL pilot override wired into the CAPTURE FRONT END on this
+//! build? It is an I2S-bench feature and lives in KL_aaf_capture_i2s alone:
+//! the two TDM front-ends (KL_tdm_capture, KL_tdm_capture_master) have no
+//! tone port at all, so a TDM-only build has no front-end pilot to decode -
+//! see the milan_datapath front-end select, "the TONE_CTRL pilot override is
+//! an I2S-bench feature and does not reach this front-end". The BLEND shape
+//! keeps the I2S capture on pair slot 0, so it does have one.
+#define TONE_FRONTEND_TB ((AIF_SLOTS_TB) == 0 || (AIF_I2S_PAIR_TB) != 0)
+
+//! channels_per_frame the framer emits (IEEE 1722-2016 7.3.3)
+static const size_t WCH = WIRE_CHANS_TB;
+//! first payload octet: 14 Ethernet + 4 C-TAG (the AAF_CTRL VID-2 shim) + 24
+//! AVTP/AAF header
+static const size_t PAY_O = 14 + 4 + 24;
+//! one AAF event = one sample per wire channel, 32 bits each
+static const size_t EVT_B = 4 * WCH;
+//! 6 events per PDU (48 kHz over the 8 kHz class-A interval), so the whole
+//! frame is 42 + 24*C octets: 90 at C=2, 234 at C=8
+static const size_t EVENTS_PER_PDU = 6;
+static const size_t AAF_BYTES = PAY_O + EVENTS_PER_PDU * EVT_B;
 
 static Vmilan_datapath* dut;
-static long checks = 0, fails = 0;
+static long checks = 0, fails = 0, skipped = 0;
 
 static void ck(const char* what, unsigned long got, unsigned long exp) {
     bool ok = (got == exp);
     checks++; if (!ok) fails++;
     printf("  [%s] %-34s got=0x%08lx exp=0x%08lx\n", ok ? "PASS" : "FAIL", what, got, exp);
+}
+
+//! An expectation this ELABORATION cannot answer, because the block under it
+//! was not built. It is NOT a pass: it is counted apart and named in the log,
+//! so a shape that quietly stopped testing something says so out loud.
+static void ck_skip(const char* what, const char* why) {
+    skipped++;
+    printf("  [SKIP] %-34s %s\n", what, why);
 }
 
 // ---- clocking: axis_clk and gtx_clk driven together (single domain) ----
@@ -354,32 +415,75 @@ int main(int argc, char** argv) {
     // CRF Media Clock Output at talker_unique_id = N_STREAMS was outside the
     // advertised range, so no controller could see or bind it even though
     // its PDUs were on the wire every 2 ms.
-    // NOTHING has been written to 0x618/0x61C here. At this build's shape
-    // (N_STREAMS = 1: ACMP_SRC_C = 1, ACMP_SINKS_C = 2) the ADPDU must carry
-    // 1 source / 2 sinks straight out of reset, and talker_capabilities must
-    // NOT claim MEDIA_CLOCK_SOURCE because there is no CRF source context.
+    // NOTHING has been written to 0x618/0x61C here: the ADPDU must carry this
+    // build's shape straight out of reset.
+    //
+    // THE EXPECTATIONS ARE DERIVED, NOT TYPED (2026-08-09). They used to be
+    // the Arty literals 0x40010001 / 0x48010002, and that is why nothing in
+    // this suite could run the shape the AX7101 flashes: that entity has TWO
+    // talker sources (the AAF talker plus the CRF Media Clock Output at
+    // talker_unique_id = N_STREAMS) and DOES claim MEDIA_CLOCK_SOURCE, so four
+    // checks called the shipping gateware broken. Two laws replace the
+    // literals, and between them they leave exactly one config-dependent bit
+    // free:
+    //   1. the WIRE and the CSR must agree. adp_advertiser assembles the ADPDU
+    //      fields and milan_csr serves the same numbers at 0x618/0x61C over a
+    //      different path; a shape that reaches one and not the other is the
+    //      2026-07-27 silicon defect (a boot script froze at 1x1 and the 8x8
+    //      board advertised the wrong count while the CSR was right).
+    //   2. the COUNT and the CAPABILITY must agree, which is milan_datapath's
+    //      own elaboration law ("ADP_TALKER_SRC_C is neither N_STREAMS nor
+    //      N_STREAMS+1" is an $error) read back at runtime: an entity claims
+    //      MEDIA_CLOCK_SOURCE/SINK if and only if it carries the extra CRF
+    //      context to back it. That is precisely the defect shape where the
+    //      CRF source sits OUTSIDE the advertised range - advertised as absent
+    //      while its PDUs are on the wire every 2 ms, so no controller can
+    //      ever be told to ask for it.
+    // Everything else - the mandatory IMPLEMENTED|AUDIO_SOURCE / AUDIO_SINK
+    // bits, the absence of any other capability bit, the 32-bit packing of the
+    // register - stays pinned by construction.
     {
+        enum { A_ADP_TALK = 0x618, A_ADP_LIST = 0x61C };
+        //! 1722.1-2021 Table 6.4 / 6.5: IMPLEMENTED | AUDIO_SOURCE (Table 6.4)
+        //! and IMPLEMENTED | AUDIO_SINK (Table 6.5) are the two this entity
+        //! always claims; MEDIA_CLOCK_SOURCE / MEDIA_CLOCK_SINK is the one bit
+        //! the end-station config decides.
+        const unsigned CAPS_BASE = 0x4001u, CAP_MEDIA_CLOCK = 0x0800u;
+        const uint32_t talk_w = axi_read(A_ADP_TALK);
+        const uint32_t list_w = axi_read(A_ADP_LIST);
+        const unsigned t_mcs = (talk_w >> 16) & CAP_MEDIA_CLOCK ? 1u : 0u;
+        const unsigned l_mcs = (list_w >> 16) & CAP_MEDIA_CLOCK ? 1u : 0u;
+        printf("[ADP] shape 0x618=0x%08x 0x61C=0x%08x (N_STREAMS=%d, CRF "
+               "source %s, CRF sink %s)\n", talk_w, list_w, NSTREAMS_TB,
+               t_mcs ? "yes" : "no", l_mcs ? "yes" : "no");
+
         auto ab = [&](size_t i) -> unsigned {
             return (i / 8 < adp.data.size())
                        ? (unsigned)((adp.data[i / 8] >> ((i % 8) * 8)) & 0xFF)
                        : 0x100u;   // out of frame -> never matches
         };
-        // ADPDU big-endian fields (adp_advertiser.sv fb[38..45])
-        ck("ADPDU talker_stream_sources == ACMP_SRC_C (1)",
-           (ab(38) << 8) | ab(39), 1u);
-        ck("ADPDU talker_capabilities (no MEDIA_CLOCK_SOURCE at N=1)",
-           (ab(40) << 8) | ab(41), 0x4001u);
-        ck("ADPDU listener_stream_sinks == ACMP_SINKS_C (2: AAF + CRF)",
-           (ab(42) << 8) | ab(43), 2u);
-        ck("ADPDU listener_capabilities", (ab(44) << 8) | ab(45), 0x4801u);
-        // and the CSR view agrees, read-only, without any provisioning
-        enum { A_ADP_TALK = 0x618, A_ADP_LIST = 0x61C };
-        ck("0x618 RO shape word", axi_read(A_ADP_TALK), 0x40010001u);
-        ck("0x61C RO shape word", axi_read(A_ADP_LIST), 0x48010002u);
+        // ADPDU big-endian fields (adp_advertiser.sv fb[38..45]) vs the CSR
+        ck("ADPDU talker_stream_sources == 0x618",
+           (ab(38) << 8) | ab(39), talk_w & 0xFFFFu);
+        ck("ADPDU talker_capabilities == 0x618",
+           (ab(40) << 8) | ab(41), talk_w >> 16);
+        ck("ADPDU listener_stream_sinks == 0x61C",
+           (ab(42) << 8) | ab(43), list_w & 0xFFFFu);
+        ck("ADPDU listener_capabilities == 0x61C",
+           (ab(44) << 8) | ab(45), list_w >> 16);
+        // ...and the word itself is the shape this build elaborated: the AAF
+        // contexts, plus one CRF context exactly when the matching capability
+        // bit is claimed. No provisioning, no boot script.
+        ck("0x618 RO shape word derives from the config", talk_w,
+           ((CAPS_BASE | (t_mcs ? CAP_MEDIA_CLOCK : 0u)) << 16)
+               | (unsigned)(NSTREAMS_TB + t_mcs));
+        ck("0x61C RO shape word derives from the config", list_w,
+           ((CAPS_BASE | (l_mcs ? CAP_MEDIA_CLOCK : 0u)) << 16)
+               | (unsigned)(NSTREAMS_TB + l_mcs));
         axi_write(A_ADP_TALK, 0x48010008);   // the retired S50milan poke
         axi_write(A_ADP_LIST, 0x48010008);
-        ck("0x618 refuses the poke", axi_read(A_ADP_TALK), 0x40010001u);
-        ck("0x61C refuses the poke", axi_read(A_ADP_LIST), 0x48010002u);
+        ck("0x618 refuses the poke", axi_read(A_ADP_TALK), talk_w);
+        ck("0x61C refuses the poke", axi_read(A_ADP_LIST), list_w);
     }
 
     // --- 6b. ACMP GET_TX_STATE through the full datapath ---
@@ -732,8 +836,20 @@ int main(int argc, char** argv) {
             ck("AAF stream_id == probed id", in_aaf ? (unsigned long long)aaf_sid : 0,
                0x0200000000010000ULL);
         }
-        // pilot tone (CSR 0x6DC): AAF payload switches to the exact-period
-        // 1 kHz 0 dBFS table - both channels equal, samples advancing
+        // pilot tone (CSR 0x6DC) through the CAPTURE FRONT END, crossbar in
+        // bypass: AAF payload switches to the exact-period 1 kHz 0 dBFS
+        // table - both channels equal, samples advancing.
+        //
+        // FRONT-END FEATURE, NOT A DATAPATH ONE (2026-08-09). The override
+        // lives inside KL_aaf_capture_i2s; neither TDM front-end has a tone
+        // port, so on a TDM-master build like the AX7101's there is no
+        // front-end pilot to decode and the wire carries the (silent) TDM
+        // bus instead. That silence is 0x000000, which is table entries 0 and
+        // 24 - so "L0 in table" and "L0 == R0" would have reported GREEN on
+        // a shape that has no pilot at all, and only "advances" would have
+        // failed. Guarded, named, and not counted. The pilot on that shape is
+        // proven by the ONE-GRID section below instead, through the capture
+        // crossbar - which is the path the board actually routes it through.
         {
             static const uint32_t TAB[48] = {
                 0x000000,0x10B515,0x2120FB,0x30FBC5,0x3FFFFF,0x4DEBE4,
@@ -746,6 +862,14 @@ int main(int argc, char** argv) {
                 0xA57D87,0xB2141C,0xC00000,0xCF043B,0xDEDF05,0xEF4AEB };
             axi_write(0x6DC, 0x1);          // TONE_CTRL.en
             ck("TONE_CTRL readback", axi_read(0x6DC), 1);
+#if !TONE_FRONTEND_TB
+            const char* nofe = "AUDIO_IF_SLOTS_P!=0 without the I2S pair: the "
+                               "TDM front-end has no pilot override";
+            ck_skip("tone L0 in table", nofe);
+            ck_skip("tone L0 == R0 (both channels)", nofe);
+            ck_skip("tone advances (L1 = next entry)", nofe);
+            ck_skip("tone frame captured", nofe);
+#else
             // skip a few frames so tone samples propagate, then capture one
             std::vector<uint8_t> fr; int skip = 3; bool checked = false;
             dut->m_axis_mac_tx_tready = 1;
@@ -760,9 +884,13 @@ int main(int argc, char** argv) {
                                    && fr[17]==0xF0 && fr[18]==0x02;
                         if (aaf && skip > 0) skip--;
                         else if (aaf) {
-                            auto smp = [&](int off){ return (uint32_t)
+                            auto smp = [&](size_t off){ return (uint32_t)
                                 ((fr[off]<<16)|(fr[off+1]<<8)|fr[off+2]); };
-                            uint32_t l0=smp(42), r0=smp(46), l1=smp(50);
+                            // event stride is 4 octets PER WIRE CHANNEL, so
+                            // "the next event's channel 0" is +EVT_B, not a
+                            // hardcoded +8 (which is the stereo answer)
+                            uint32_t l0=smp(PAY_O), r0=smp(PAY_O+4),
+                                     l1=smp(PAY_O+EVT_B);
                             bool in_tab=false; int idx=-1;
                             for (int k=0;k<48;k++) if (TAB[k]==l0){in_tab=true;idx=k;}
                             ck("tone L0 in table", in_tab?1:0, 1);
@@ -776,6 +904,7 @@ int main(int argc, char** argv) {
                 }
             }
             ck("tone frame captured", checked?1:0, 1);
+#endif
             axi_write(0x6DC, 0x0);          // tone off
         }
         // ONE-GRID contract (task #59, bench 2026-08-02): the pilot routed
@@ -804,11 +933,14 @@ int main(int argc, char** argv) {
             axi_write(0x6DC, 0x1);              // TONE_CTRL.en
             axi_write(A_CHMAP_CTRL, 0x1);       // arm the fabric + CSR port
             // per-channel store (0x0027): the window keys CHANNELS, so the
-            // stereo tone takes one write per channel {en|src=4 TONE}
-            axi_write(A_CHMAP_SEL, 0x100 | 0);  // side=1 capture, channel 0
-            axi_write(A_CHMAP_WORD, 0xC000);
-            axi_write(A_CHMAP_SEL, 0x100 | 1);  // ...and channel 1
-            axi_write(A_CHMAP_WORD, 0xC000);
+            // tone takes one write per WIRE CHANNEL {en|src=4 TONE} - two on
+            // the Arty shape, eight on the AX7101 one. Mapping only the first
+            // pair would leave 2..C-1 on their power-on source and the slip
+            // count below would be measuring the wrong lane.
+            for (size_t ch = 0; ch < WCH; ch++) {
+                axi_write(A_CHMAP_SEL, 0x100 | (unsigned)ch);  // side=1 capture
+                axi_write(A_CHMAP_WORD, 0xC000);
+            }
             // capture 8 CONSECUTIVE AAF frames = 48 media ticks; skip the
             // first two so the arming edge is out of the window
             std::vector<uint8_t> fr; std::vector<uint32_t> ls;
@@ -825,13 +957,16 @@ int main(int argc, char** argv) {
                                    && fr[17]==0xF0 && fr[18]==0x02;
                         if (aaf && skip > 0) skip--;
                         else if (aaf) {
-                            auto smp = [&](int off){ return (uint32_t)
+                            auto smp = [&](size_t off){ return (uint32_t)
                                 ((fr[off]<<16)|(fr[off+1]<<8)|fr[off+2]); };
-                            for (int e = 0; e < 6; e++) {   // 6 events/PDU
-                                uint32_t l0 = smp(42 + 8*e);
-                                uint32_t r0 = smp(46 + 8*e);
-                                if (l0 != r0) lr_mism++;
-                                ls.push_back(l0);
+                            for (size_t e = 0; e < EVENTS_PER_PDU; e++) {
+                                size_t ev = PAY_O + EVT_B*e;
+                                uint32_t s0 = smp(ev);
+                                // one pilot, every wire channel: at C=2 this
+                                // is the original L-vs-R comparison
+                                for (size_t ch = 1; ch < WCH; ch++)
+                                    if (smp(ev + 4*ch) != s0) lr_mism++;
+                                ls.push_back(s0);
                             }
                         }
                         fr.clear();
@@ -839,7 +974,7 @@ int main(int argc, char** argv) {
                 }
             }
             ck("crossbar tone: 48 ticks captured", (long)ls.size(), 48);
-            ck("crossbar tone: L == R every event", lr_mism, 0);
+            ck("crossbar tone: all wire channels equal", lr_mism, 0);
             int idx = -1;
             if (!ls.empty())
                 for (int k = 0; k < 48; k++)
@@ -898,6 +1033,56 @@ int main(int argc, char** argv) {
                 return false;
             };
 
+            // Grab the next AAF frame with a DISCONTINUITY HELD UP over the
+            // packetizer's epoch grant.
+            //
+            // KL_aaf_packetizer latches tu ONCE, at the grant, and says why:
+            // "the holdover (0.25 s) dwarfs the 125 us frame period, so no
+            // arming edge can slip between the two points". That is true on
+            // silicon and it is NOT true here, because this harness builds
+            // with -GCLKV_QTICK_CYC_P=4096 so that a lease can expire inside
+            // a simulation at all. Two quarter-ticks of holdover is then
+            // 8192 cycles, and the AAF frame period is 3069 cycles on the
+            // Arty shape (the I2S front end paces the talker) but 12497 on
+            // the AX7101 one (the media tick does). So the stereo shape
+            // catches the next grant inside the holdover with room to spare
+            // and the eight-channel shape misses it by 4000 cycles - a
+            // property of the compressed time base, not of the tu path,
+            // which still asserts in CLKV_STAT either way. Holding the
+            // discontinuity across the wait restores the silicon relation:
+            // the frame is provably composed while the clock IS uncertain.
+            // Mutation anchor unchanged - tie fb[21] to 0 in the RTL and this
+            // runs its full budget and fails.
+            auto next_aaf_held = [&](std::vector<uint8_t>& out,
+                                     const std::function<void()>& rearm) -> bool {
+                std::vector<uint8_t> fr;
+                long armed_at = g_step;
+                dut->m_axis_mac_tx_tready = 1;
+                for (int c = 0; c < 400000; c++) {
+                    // re-arm BETWEEN frames only, with the TX port held off,
+                    // so the AXI transaction's own clocking cannot eat beats
+                    // out of the middle of the frame being collected
+                    if (fr.empty() && (g_step - armed_at) > 2048) {
+                        dut->m_axis_mac_tx_tready = 0;
+                        rearm();
+                        dut->m_axis_mac_tx_tready = 1;
+                        armed_at = g_step;
+                    }
+                    step();
+                    if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+                        for (int l = 0; l < 8; l++)
+                            if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
+                                fr.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
+                        if (dut->m_axis_mac_tx_tlast) {
+                            if (fr.size() >= 42 && fr[12] == 0x81 && fr[16] == 0x22 &&
+                                fr[17] == 0xF0 && fr[18] == 0x02) { out = fr; return true; }
+                            fr.clear();
+                        }
+                    }
+                }
+                return false;
+            };
+
             std::vector<uint8_t> f;
             ck("CLKV: reset CLKV_CTRL = lease 8, SYNC_OK 0",
                axi_read(A_CLKV_CTRL), 0x00000080);
@@ -910,8 +1095,12 @@ int main(int argc, char** argv) {
             ck("CLKV: unsynchronised -> byte 21 bit 0 = 1", f.size() ? f[21] : 0xEE, 0x01);
             ck("CLKV: unsynchronised -> tv still 1 (1722-2016 7.5)",
                f.size() ? f[19] : 0, 0x81);
-            ck("CLKV: unsynchronised -> frame still 90 bytes",
-               (long)f.size(), 90);
+            // 14 Ethernet + 4 C-TAG + 24 AVTP + 24 octets per wire channel:
+            // 90 on the Arty stereo shape, 234 on the AX7101 eight-channel
+            // one. The literal 90 was the whole reason the shipping shape
+            // could not run here.
+            ck("CLKV: unsynchronised -> frame still the full AAF PDU",
+               (long)f.size(), (long)AAF_BYTES);
 
             // software leases the sync claim -> tu clears
             axi_write(A_CLKV_CTRL, 0x00000FF1);      // SYNC_OK, long lease
@@ -925,7 +1114,10 @@ int main(int argc, char** argv) {
             axi_write(A_PTP_CMD, 0x1);
             ck("CLKV: settime -> STAT[3] holdover", (axi_read(A_CLKV_STAT) >> 3) & 1, 1);
             f.clear();
-            ck("CLKV: settime -> frame emitted", next_aaf(f), 1);
+            // ...and every frame composed while the PHC is being stepped
+            // carries tu on the wire
+            ck("CLKV: settime -> frame emitted",
+               next_aaf_held(f, [&]{ axi_write(A_PTP_CMD, 0x1); }), 1);
             ck("CLKV: settime -> byte 21 bit 0 = 1", f.size() ? f[21] : 0xEE, 0x01);
 
             // ... and it lapses on its own (Milan Annex B.1.1 holdover)
@@ -945,8 +1137,19 @@ int main(int argc, char** argv) {
             axi_write(A_ADP_GMHI, 0x00000000);       // commit the pair
             ck("CLKV: GM change -> tu asserts", axi_read(A_CLKV_STAT) & 1, 1);
             f.clear();
-            ck("CLKV: GM change -> byte 21 bit 0 = 1 on the wire",
-               next_aaf(f) ? f[21] : 0xEE, 0x01);
+            {
+                // ...and a grandmaster that KEEPS changing keeps tu on the
+                // wire. Each re-arm publishes a genuinely different identity
+                // in the daemon's LO-then-HI order - re-writing the same one
+                // is not a change and would not re-arm anything.
+                uint32_t gm_lo = 0xDEADBEEF;
+                ck("CLKV: GM change -> byte 21 bit 0 = 1 on the wire",
+                   next_aaf_held(f, [&]{
+                       gm_lo ^= 1u;
+                       axi_write(A_ADP_GMLO, gm_lo);
+                       axi_write(A_ADP_GMHI, 0x00000000);
+                   }) ? f[21] : 0xEE, 0x01);
+            }
             for (int c = 0; c < 12000 && (axi_read(A_CLKV_STAT) & 1); c++) step();
             axi_write(A_ADP_GMLO, 0x00000000);       // restore (paired)
             axi_write(A_ADP_GMHI, 0x00000000);
@@ -1317,6 +1520,14 @@ int main(int argc, char** argv) {
             // (they sit ~1 audio frame in the CDC); inject a fresh PDU so
             // the decode window provably contains samples
             inject(mkaaf(6, 0x05), 120);
+#if !I2SPB_TB
+            // The AX7101 ships --no-i2s-playback: there is no DAC serializer
+            // in this gateware, so there are no pins to decode. Not deleted,
+            // not silently green - NAMED. The contrast (all four DAC pins
+            // structurally inert under live traffic) is sim_prune.cpp's job.
+            ck_skip("I2S left sample from payload",
+                    "I2SPB_P=0: no DAC serializer in this elaboration");
+#else
             // scan for the injected values (the CDC may hold a few stale
             // pairs from earlier sections now that the walker runs at the
             // full wire rate - stop-at-first-nonzero would grab those)
@@ -1350,6 +1561,7 @@ int main(int argc, char** argv) {
             // 0x505152) - both prove byte-exact serialization
             ck("I2S left sample from payload",
                sample == 0x303132 || sample == 0x505152, 1);
+#endif
             axi_write(0x72C, 0x1);
         }
 
@@ -2220,6 +2432,12 @@ int main(int argc, char** argv) {
 
     printf("======================================================================\n");
     printf("milan_datapath: %ld checks, %ld failures\n", checks, fails);
+    // Kept on its OWN line, and deliberately without the word the sweep's
+    // tally regexes key on (scripts/suite_tally.py): a guarded expectation is
+    // not a check that passed, and it must never be added into the headline.
+    if (skipped)
+        printf("milan_datapath: guarded and NOT run in this shape: %ld\n",
+               skipped);
     delete dut;
     return fails ? 1 : 0;
 }

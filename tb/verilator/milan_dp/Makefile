@@ -32,6 +32,13 @@ CFG_DIR    = ../../../configs/generated
 SHAPE_1x1  = +incdir+$(CFG_DIR)/endstation_arty_current
 SHAPE_4x4  = +incdir+$(CFG_DIR)/endstation_arty_4x4
 SHAPE_8x8  = +incdir+$(CFG_DIR)/endstation_ax7101_8x8
+# THE SHAPE THE AX7101 ACTUALLY FLASHES (sw/litex/build.sh cfg_ax7101):
+# one AAF talker + one AAF sink over a TDM8 master at 8 wire channels, plus
+# the CRF media clock output/input pair, so ADP_TALKER_SRC_C = 2. Nothing in
+# this suite elaborated it until now - SHAPE_1x1 is the ARTY entity and the
+# NxN legs are 4x4/8x8 - and every defect that needs "1 stream AND 8 wire
+# channels AND the CRF source" at the same time lived in that hole.
+SHAPE_AX1x1 = +incdir+$(CFG_DIR)/endstation_ax7101_1x1_tdm8
 # ...and as PREREQUISITES: make cannot see through a `include, so a
 # regenerated shape must still force a rebuild or the harness keeps testing
 # the previous entity definition out of a stale objdir.
@@ -39,7 +46,8 @@ GEN_CSR     = $(RTL_DIR)/common/csr/gen/lwsrp_csr_defaults.svh
 SHAPE_DEF   = $(RTL_DIR)/common/csr/gen/adp_shape_defaults.svh
 SHAPE_4x4_F = $(CFG_DIR)/endstation_arty_4x4/gen/adp_shape_defaults.svh
 SHAPE_8x8_F = $(CFG_DIR)/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
-GEN_ALL     = $(GEN_CSR) $(SHAPE_DEF) $(SHAPE_4x4_F) $(SHAPE_8x8_F)
+SHAPE_AX1_F = $(CFG_DIR)/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
+GEN_ALL     = $(GEN_CSR) $(SHAPE_DEF) $(SHAPE_4x4_F) $(SHAPE_8x8_F) $(SHAPE_AX1_F)
 
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
@@ -126,6 +134,17 @@ all: run
 # that was never elaborated is not a prune.
 PRUNE_G = -GMCSERVO_P=0 -GLTAP_P=0 -GMAAP_P=0 -GI2SPB_P=0 -GRXFILT_P=0 -GLPF_P=0
 
+# THE SHIPPING ALINX SHAPE, stated ONCE. sim_main.cpp runs three different
+# elaborations now, so the geometry it asserts against can no longer be a
+# literal in the C++ - and it must not be a SECOND literal in the recipe
+# either. Each value below feeds BOTH the -G that builds the gateware and the
+# -D that tells the harness what it is driving, so the two cannot drift: a
+# copied number is a number that diverges in silence. Anything not named here
+# keeps milan_datapath's own default, which is also what the harness assumes.
+AX_CHANS = 8
+AX_I2SPB = 0
+AX_SLOTS = 8
+
 run: $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
@@ -173,6 +192,18 @@ run: $(GEN_ALL)
 # against the TX trunk (registered controller + GM-flip pushes + bind churn
 # + continuous best-effort CPU frames under a paced-MAC model).
 	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) --Mdir obj_txg $(SRCS) sim_txgrant.cpp -o Vmilan_dp_txg
+# THE SHIPPING ALINX SHAPE, byte for byte the cfg_ax7101 argv in
+# sw/litex/build.sh: 1 stream, 8 wire channels off a TDM8 MASTER front end,
+# the loopback lane and the AAF playback ring both BACKED, I2S playback and
+# the render LPF both PRUNED. Every one of those had desk coverage on its
+# own; the combination - which is the only combination that ever reaches a
+# board - had none, and three defects were living in it.
+	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_ax1x1 \
+	  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
+	  -GAUDIO_IF_MASTER_P=1 \
+	  -GLOOPBACK_P=1 -GAAF_PLAYBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+	  -CFLAGS "-DWIRE_CHANS_TB=$(AX_CHANS) -DI2SPB_TB=$(AX_I2SPB) -DAIF_SLOTS_TB=$(AX_SLOTS)" \
+	  $(SRCS) $(CPP) -o Vmilan_dp_ax1x1
 	@echo "======================================================================"
 	./obj_dir/Vmilan_dp_sim
 	./obj_nxn/Vmilan_dp_nxn
@@ -185,6 +216,8 @@ run: $(GEN_ALL)
 	./obj_prune/Vmilan_dp_prune
 	@echo "---- task #19: TX grants under registered-controller pushes ----"
 	./obj_txg/Vmilan_dp_txg
+	@echo "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----"
+	./obj_ax1x1/Vmilan_dp_ax1x1
 
 clean:
-	rm -rf obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_txg
+	rm -rf obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_txg obj_ax1x1
