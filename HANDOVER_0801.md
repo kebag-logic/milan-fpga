@@ -3,6 +3,15 @@
 Continues [HANDOVER_0731.md](HANDOVER_0731.md). DUT = ALINX AX7101 ONLY (Arty retired by USER).
 Shape fixed by USER: 8 talkers + 8 listeners, 8ch/stream, RV32 VexiiRiscv.
 
+## Contents
+
+- **[1. The fit (task #51) — where it stands](#1-the-fit-task-51--where-it-stands)** — how much of the device the design occupies and what the remaining pressure is
+- **[2. csr round CLOSED-REFUTED (the fifth same-class refutation)](#2-csr-round-closed-refuted-the-fifth-same-class-refutation)** — a suspected register defect investigated and cleared, for the fifth time in its class
+- **[3. Flash inputs — ALL READY except the bitstream (verified)](#3-flash-inputs--all-ready-except-the-bitstream-verified)** — everything a flash needs, and the one input that was still missing
+- **[4. Harness truth fixes (both committed, pushed where remotes exist, DEPLOYED to pw0)](#4-harness-truth-fixes-both-committed-pushed-where-remotes-exist-deployed-to-pw0)** — corrections to the test harness itself, where it had been reporting something other than what happened
+- **[5. Campaign triage (torture-ax-postoutage.jsonl on pw0, STILL RUNNING vs 0x0016)](#5-campaign-triage-torture-ax-postoutagejsonl-on-pw0-still-running-vs-0x0016)** — the running soak campaign and what its failures were traced to
+- **[6. Open (unchanged priorities)](#6-open-unchanged-priorities)** — what was still unfinished when this session ended
+
 ## 1. The fit (task #51) — where it stands
 
 All numbers are `Place 30-487` "require/available slices" unless noted.

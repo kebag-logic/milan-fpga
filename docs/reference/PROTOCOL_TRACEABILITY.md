@@ -39,6 +39,16 @@ hundred lines as doc-rot rather than as a claim about the code. Test ids like
 `tests/features/*` live in this repo. Standards citations (Milan 5.4.2.7,
 IEEE 1722-2016 4.4.4.3, table numbers) name no repo object and stay plain text.
 
+## Contents
+
+- **[1. Milan / ATDECC — ACMP + ADP](#1-milan--atdecc--acmp--adp)** — connection management and discovery: the listener and talker state machines, their response-field laws, and the advertiser
+- **[2. Milan / ATDECC — AECP + AEM](#2-milan--atdecc--aecp--aem)** — the entity model and its command surface: descriptor serving, the stream commands, notifications and the audio-map engine
+- **[3. AVTP streaming (IEEE 1722)](#3-avtp-streaming-ieee-1722)** — the wire itself: header validation, the packetizer and depacketizer, the stream monitors and the media-clock reference format
+- **[4. SRP / IEEE 802.1Q](#4-srp--ieee-8021q)** — reservation and shaping: the MRP applicant and registrar, the bandwidth admission gate, and the credit-based shaper
+- **[5. gPTP / IEEE 802.1AS](#5-gptp--ieee-8021as)** — the time plane the fabric transports and publishes: the hardware clock, its timestamp taps, and the fields a controller reads
+- **[6. Counters & diagnostics](#6-counters--diagnostics)** — what the entity reports about itself: the per-descriptor counter sets, their observation-interval laws, and the notification cadence
+- **[Confirmed findings from the adversarial review](#confirmed-findings-from-the-adversarial-review)** — divergences that survived a dedicated attempt to refute them, each with the clause it fails and where it now stands
+
 ## 1. Milan / ATDECC — ACMP + ADP
 
 | Element | RTL | Clause(s) | Testbench | Status |

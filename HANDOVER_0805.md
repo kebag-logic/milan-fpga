@@ -4,6 +4,20 @@ State when written: the 3-seed Vivado sweep `tdm8b` for the NEW shipping
 shape is running (`~/litex-milan/work/build_ax7101_{asl,eto,eppo}_tdm8b/`),
 rootfs rebuilt and staged, everything else committed.
 
+## Contents
+
+- **[1. The return-leg fix is DESK-COMPLETE (VERSION 0x0023, commit e3fd67dd)](#1-the-return-leg-fix-is-desk-complete-version-0x0023-commit-e3fd67dd)** — the return path defect closed at the desk, with the version that carries it
+- **[2. USER pivot: the shipping AX shape is 1×1×8 TDM8 (509297af)](#2-user-pivot-the-shipping-ax-shape-is-118-tdm8-509297af)** — the shape decision that made the eight-channel time-division front end the shipping configuration
+- **[3. gptp: yaml section = ONE source (milan-fpga + private repo commits)](#3-gptp-yaml-section--one-source-milan-fpga--private-repo-commits)** — making one configuration section the single source for both the advertised model and the daemon profile
+- **[4. The user's mapping BAD_ARGUMENTS — root-caused live, docs written](#4-the-users-mapping-bad_arguments--root-caused-live-docs-written)** — a mapping command refused on the bench, traced live to its cause
+- **[5. PB_SILENCE truth (re-scoped #11)](#5-pb_silence-truth-re-scoped-11)** — what the playback silence path actually does, against what was assumed
+- **[6. Rootfs staged (br-milan-output/images/rootfs.cpio.xz, 16:05)](#6-rootfs-staged-br-milan-outputimagesrootfscpioxz-1605)** — the root filesystem image prepared for the next flash
+- **[7. Flash sequence when tdm8b closes (pick best WNS of asl/eto/eppo)](#7-flash-sequence-when-tdm8b-closes-pick-best-wns-of-asletoeppo)** — the order of operations for flashing once a build closes timing
+- **[8. Open](#8-open)** — what was still unfinished when this session ended
+- **[The tdm8c boot hang: bisected to the N=1 core](#the-tdm8c-boot-hang-bisected-to-the-n1-core)** — a boot failure narrowed to the single-stream core configuration
+- **[Bench operational truths learned tonight](#bench-operational-truths-learned-tonight)** — things the bench taught that no simulation would have
+- **[Counters: the coalesced law (USER-corrected, COMMITTED)](#counters-the-coalesced-law-user-corrected-committed)** — the frames-received counting rule as the owner corrected it
+
 ## 1. The return-leg fix is DESK-COMPLETE (VERSION 0x0023, commit e3fd67dd)
 
 Two layers, both verified by 8 Verilator suites + yosys 49/49 + tap-purity:
