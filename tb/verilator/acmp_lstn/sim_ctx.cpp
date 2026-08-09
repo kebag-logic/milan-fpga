@@ -203,6 +203,7 @@ static uint64_t c_dmac()   { return cbits(192, 48); }
 static uint64_t c_vlan()   { return cbits(240, 12); }
 static uint64_t c_flags()  { return cbits(252, 16); }
 static uint64_t c_tuid()   { return cbits(268, 16); }
+static uint64_t c_tmr()    { return cbits(284, 14); }
 static uint64_t c_status() { return cbits(305, 5); }
 static uint64_t c_probing(){ return cbits(310, 2); }
 static uint64_t c_state()  { return cbits(314, 3); }
@@ -1006,6 +1007,54 @@ int main(int argc, char** argv) {
         ck("[B2h] zero committed pair: gate off (bring-up escape)",
            (long)cbits(312, 1), 1);
         ck("[B2h] escape notes the index too", (long)c_lastav(), 42);
+    }
+
+    // ------------------------------------------------------------------ //
+    printf("\n[P] sweep pipeline: a command write is never clobbered by an\n"
+           "    in-flight timer-wheel visit (hazard (a), swept over phase)\n");
+    // The wheel reads a record in one cycle and writes it back in the NEXT
+    // (KL_acmp_lstn_ctx "SWEEP PIPELINE"). The grant algebra says a CAPTURE
+    // cycle can never be followed by a CLASSIFY_S / LAUNCH_S record write,
+    // and an APPLY that loses the grant DISCARDS its visit instead of
+    // delaying it — so an UNBIND landing at ANY phase of the wheel must
+    // leave an all-zero record, never the pre-unbind one a stale write
+    // would restore. ctx0 carries a RUNNING NO_RESP timer through the whole
+    // sweep, so every visit really does want to write it.
+    {
+        while (!wait_frame(60).empty()) { }          // drain earlier probes
+        int bad_state = 0, bad_talker = 0, bad_sid = 0, bad_tmr = 0;
+        int no_resp = 0, armed = 0;
+        const int PHASES = 16;                        // > one wheel pass AND
+        for (int d = 0; d < PHASES; d++) {            // > one 1 ms tick (10)
+            // normalise to UNBOUND so the next bind is a FULL bind (a
+            // rebind-same would never re-probe and never arm the timer)
+            feed(acmp(8, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr,
+                      (uint16_t)(0x900+d), 0, 0));
+            if (wait_frame(300).empty()) { no_resp++; continue; }
+            run(8);
+            feed(acmp(6, 0, 0, CT_EID, T1_EID, US_EID, 0, 0, nullptr,
+                      (uint16_t)(0x910+d), 0, 0));
+            if (wait_frame(300).empty()) { no_resp++; continue; }   // BIND resp
+            if (wait_frame(300).empty()) { no_resp++; continue; }   // PROBE_TX
+            tbl_read(0);
+            if (c_tmr() == 0) armed++;                // NO_RESP must be running
+            run(d);                                   // slide the wheel phase
+            feed(acmp(8, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr,
+                      (uint16_t)(0x920+d), 0, 0));
+            if (wait_frame(300).empty()) { no_resp++; continue; }
+            run(8);
+            tbl_read(0);
+            if (c_state()  != 0) bad_state++;
+            if (c_talker() != 0) bad_talker++;
+            if (c_sid()    != 0) bad_sid++;
+            if (c_tmr()    != 0) bad_tmr++;
+        }
+        ck("[P] every phase answered its command", no_resp, 0);
+        ck("[P] every phase really had the wheel writing ctx0", armed, 0);
+        ck("[P] state cleared at every wheel phase", bad_state, 0);
+        ck("[P] talker cleared at every wheel phase", bad_talker, 0);
+        ck("[P] stream_id cleared at every wheel phase", bad_sid, 0);
+        ck("[P] timer disarmed at every wheel phase", bad_tmr, 0);
     }
 
     printf("\nKL_acmp_lstn_ctx N=4: %ld checks, %ld failures\n", checks, fails);

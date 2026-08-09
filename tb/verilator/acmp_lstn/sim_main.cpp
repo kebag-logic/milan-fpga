@@ -87,6 +87,16 @@ static void run(int n) {
     for (int i = 0; i < n; i++) tick_collect(nullptr);
 }
 
+// Settle window for an observation that a TIMER-WHEEL pass has to produce
+// (ADP availability, SRP registrar edges, timer expiry). The wheel visits one
+// context per cycle through a three-stage pipeline (fetch -> capture ->
+// apply; see "SWEEP PIPELINE" in KL_acmp_lstn_ctx.sv), so a pass is N+2
+// cycles and a cause raised while a pass is already in flight waits for that
+// one to drain first. Eight cycles covers both at N <= 2 with margin. The
+// sites below used to spend 4, which was exactly the pre-pipeline pass and
+// therefore phase-luck even then; [16] already spends 8.
+static void settle() { run(8); }
+
 // wait for the next complete output frame (empty = none within budget)
 static std::vector<uint8_t> wait_frame(int budget = 4000) {
     std::vector<uint8_t> f;
@@ -323,7 +333,7 @@ int main(int argc, char** argv) {
     // ---------------------------------------------------------------- //
     printf("\n[5] TalkerAdvertise registered -> SETTLED_RSV_OK\n");
     dut->ta_registered_i = 1;
-    run(4);
+    settle();
     ck("[5] state SETTLED_RSV_OK", dut->state_o, 7);
     feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x103, 0, 0));
     r = wait_frame();
@@ -343,10 +353,10 @@ int main(int argc, char** argv) {
     // old RTL invented an RSV_OK -> NO_RSV arc here (pipewire REF-BUG),
     // whose tmr=0 landing disarmed the wheel = the ordering-race wedge.
     dut->ta_failed_i = 1;              // TF rise, TA still registered
-    run(4);
+    settle();
     ck("[6] TF-rise while settled STAYS RSV_OK", dut->state_o, 7);
     dut->ta_registered_i = 0;          // TA falls, TF still holds
-    run(4);
+    settle();
     ck("[6] TA-fall with TF held: still RSV_OK", dut->state_o, 7);
     ck("[6] still active", dut->stream_active_o, 1);
     feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x10A, 0, 0));
@@ -356,15 +366,15 @@ int main(int argc, char** argv) {
     ck("[6] flags FC|RF while TalkerFailed registered",
        (long)r_be(r, 64, 2), 0x0042);
     dut->ta_registered_i = 1;          // back to Advertise...
-    run(4);
+    settle();
     dut->ta_failed_i = 0;              // ...Failed withdrawn: never a fall
-    run(4);
+    settle();
     ck("[6] attribute never unregistered: RSV_OK held", dut->state_o, 7);
 
     // ---------------------------------------------------------------- //
     printf("\n[7] reservation lost (combined fall) -> PRB_W_AVAIL + SRP clear\n");
     dut->ta_registered_i = 0;
-    run(4);
+    settle();
     ck("[7] state PRB_W_AVAIL", dut->state_o, 1);
     ck("[7] deactivated", dut->stream_active_o, 0);
     ck("[7] declare withdrawn", dut->lstn_declare_o, 0);
@@ -380,7 +390,7 @@ int main(int argc, char** argv) {
     // ---------------------------------------------------------------- //
     printf("\n[8] ADP AVAILABLE -> DELAY -> probe ladder to RETRY\n");
     feed(adp(0, TK_EID));
-    run(4);
+    settle();
     ck("[8] tk_avail", dut->tk_avail_o, 1);
     ck("[8] state PRB_W_DELAY", dut->state_o, 2);
     // random delay <= 1024 ms; wait up to 1100 ms for the probe
@@ -419,7 +429,7 @@ int main(int argc, char** argv) {
     // ---------------------------------------------------------------- //
     printf("\n[10] ADP DEPARTING in RETRY -> PRB_W_AVAIL\n");
     feed(adp(1, TK_EID));
-    run(4);
+    settle();
     ck("[10] tk_avail dropped", dut->tk_avail_o, 0);
     ck("[10] state PRB_W_AVAIL", dut->state_o, 1);
 
@@ -551,11 +561,11 @@ int main(int argc, char** argv) {
         auto sec = [&](int n) {
             for (int s = 0; s < n; s++) {
                 dut->tick_1s_i = 1; tick_collect(nullptr);
-                dut->tick_1s_i = 0; run(3);
+                dut->tick_1s_i = 0; run(7);
             }
         };
         feed(adp(0, TK_EID, 3));                    // vt 3 => 6 s
-        run(4);
+        settle();
         ck("[15] visible again (vt=3)", dut->tk_avail_o, 1);
         sec(6);
         ck("[15] still visible through 6 s", dut->tk_avail_o, 1);
@@ -563,7 +573,7 @@ int main(int argc, char** argv) {
         ck("[15] aged out after vt=3 horizon", dut->tk_avail_o, 0);
 
         feed(adp(0, TK_EID, 15));                   // vt 15 => 30 s
-        run(4);
+        settle();
         ck("[15] refreshed (vt=15)", dut->tk_avail_o, 1);
         sec(30);
         ck("[15] still visible through 30 s", dut->tk_avail_o, 1);
@@ -573,7 +583,7 @@ int main(int argc, char** argv) {
         //! vt = 0 clamps to 4 s (LSM_ADP_AGE_MIN_S_C): neither immortal
         //! nor dead-on-arrival
         feed(adp(0, TK_EID, 0));
-        run(4);
+        settle();
         ck("[15] refreshed (vt=0)", dut->tk_avail_o, 1);
         sec(4);
         ck("[15] vt=0 clamp holds 4 s", dut->tk_avail_o, 1);
@@ -801,7 +811,7 @@ int main(int argc, char** argv) {
                   (uint16_t)r_be(p, 62, 2), 0, 2));
         ck("[R] settled on X", dut->state_o, 6);
         dut->ta_registered_i = 1;
-        run(4);
+        settle();
         ck("[R] STREAMING on X (SETTLED_RSV_OK)", dut->state_o, 7);
         ck("[R] active", dut->stream_active_o, 1);
 
@@ -867,7 +877,7 @@ int main(int argc, char** argv) {
                   0, 0, dmy, (uint16_t)r_be(p, 62, 2), 0, 2));
         ck("[R] settled on Y", dut->state_o, 6);
         dut->ta_registered_i = 1;
-        run(4);
+        settle();
         ck("[R] STREAMING on Y (RSV_OK)", dut->state_o, 7);
         ck("[R] active on Y", dut->stream_active_o, 1);
         ckh("[R] Y dmac learned", dut->stream_dmac_o, 0x91E0F000FE02ULL);

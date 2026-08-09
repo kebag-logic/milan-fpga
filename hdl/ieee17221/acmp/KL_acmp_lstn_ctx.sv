@@ -67,13 +67,74 @@
 //                      probe  — COLLECT_S drives the address, the new
 //                        LAUNCH_S cycle takes the data and does the arm
 //                        write (+1 cycle before PROBE_S).
-//                      sweep  — pipelined: the pass fetches ctx i+1 while
-//                        committing ctx i, and the START cycle is the first
-//                        fetch, so a pass is still N+1 cycles and every
-//                        context is still visited on exactly the cycle it
-//                        was (same LFSR draw, same timer edge). Losing the
-//                        port rewinds the in-flight fetch.
+//                      sweep  — pipelined over THREE stages (FETCH ->
+//                        CAPTURE -> APPLY, one context per cycle, a pass =
+//                        N+2 cycles); see the SWEEP PIPELINE section below.
+//                        Losing the port rewinds every in-flight visit.
 //                      rest/tbl — two-phase; both were already handshaked.
+//
+//                SWEEP PIPELINE (the timing split, 2026-08-09)
+//                  WHY: the record was read, the WHOLE next state (timer
+//                  decrement, 1 s age increment + valid_time x 2 limit
+//                  compare, 64-bit bound-talker compare, 32-bit
+//                  available_index regression compare, per-state transition
+//                  table, write-port priority mux) computed COMBINATIONALLY
+//                  and written back into the same block RAM in ONE cycle.
+//                  Post-route that RAM-out -> RAM-in cone was the device's
+//                  worst path: 14 logic levels (5 CARRY4), 9.724 ns of a
+//                  10 ns budget, WNS -0.001..-0.167 across place directives.
+//                  The sweep visits one context per cycle out of a 1 ms
+//                  wheel period, so the slack is in the WALK, not the cycle
+//                  — that is the resource this spends.
+//                  STAGES (all three advance together, one context/cycle):
+//                    FETCH   drives rd_idx_w with ctx i.
+//                    CAPTURE rd_ctx_q_r holds ctx i: the record goes to
+//                            swp_rec_r VERBATIM and every comparison and
+//                            adder the transition table needs is evaluated
+//                            HERE and latched (swp_tmr_dec/run/fire,
+//                            swp_age_inc/hit, swp_tk_match, swp_avidx_le,
+//                            swp_draw, the sampled SRP levels/snapshots).
+//                            So the arithmetic runs RAM-out -> flop.
+//                    APPLY   sweep_next is pure SELECTION over registers and
+//                            drives the write port: flop -> mux -> RAM-in.
+//                  WALK BUDGET: a pass is N+2 cycles (was N+1) — ctx c is
+//                  written on start+2+c. The wheel period is 1 ms = 100,000
+//                  cycles at 100 MHz (N = 9 ship shape -> 11 cycles/pass),
+//                  and the tb/verilator/acmp_lstn harnesses run a 10 kHz
+//                  scaled clock = 10 cycles/ms at N <= 4 -> 6 cycles/pass.
+//                  One 1 ms tick is consumed per pass, so the pass rate must
+//                  beat the tick rate: 6 < 10 holds with margin, and
+//                  ms_pend_r still absorbs 3 ticks of preemption backlog.
+//                  HAZARDS (all three are closed by the grant algebra):
+//                   (a) a command write landing BETWEEN the sweep's read and
+//                       its write. IMPOSSIBLE: st_r reaches CLASSIFY_S in
+//                       cycle k+1 only if w_frame_latch held in cycle k, and
+//                       LAUNCH_S only if w_launch_ok did — both are terms of
+//                       w_swp_gnt, so a cycle that CAPTURES cannot be
+//                       followed by a foreign record write. Should the APPLY
+//                       cycle lose the grant anyway, the visit is DISCARDED
+//                       (never delayed) and re-fetched, so the re-read sees
+//                       the post-command record. A stale write cannot exist.
+//                   (b) the next visit's read colliding with the delayed
+//                       write. IMPOSSIBLE: APPLY runs two stages behind
+//                       FETCH, so the write index is i while the read
+//                       address is i+2, and a pass never wraps (swp_active_r
+//                       now holds until the LAST apply, so the next pass
+//                       cannot re-address ctx 0 under a pending write).
+//                       Every apply cycle is a cycle in which w_swp_own is
+//                       true, so no OTHER consumer holds a read grant then —
+//                       the "no data phase spans a write it did not make"
+//                       invariant is untouched.
+//                   (c) output pulses. bind_upd_p_o, the view/active/bound/
+//                       sid/dmac/vlan shadows and probe_pend_r are all still
+//                       driven from the SAME edge as the record write they
+//                       belong to — no pulse moved relative to its cause.
+//                       What moved is the write itself: a sweep-driven
+//                       record write (and therefore its pulse) now lands one
+//                       cycle later than the tick/edge that caused it. The
+//                       LFSR DELAY draw is sampled one cycle earlier (at
+//                       CAPTURE), which changes only which random value a
+//                       0..1023 ms backoff draws.
 //                  cur_r       : working copy of one record, taken from the
 //                    read register at classify and at probe launch.
 //                  sweep       : ONE timer wheel for all contexts. Causes
@@ -768,15 +829,36 @@ module KL_acmp_lstn_ctx #(
   wire        w_probe_fresh = (rd_ctx_q_r.state != LSM_PRB_W_RESP2_S);
   wire [15:0] w_launch_seq  = w_probe_fresh ? probe_seq_r : rd_ctx_q_r.seq;
 
-  //! sweep sequencer state: a FETCH pointer (next context to address) and a
-  //! COMMIT stage (the context whose record is in rd_ctx_q_r right now).
-  //! swp_ra_r needs one bit more than an index so it can hold N = "the pass
-  //! has fetched everything".
+  //! sweep sequencer state: a FETCH pointer (next context to address), a
+  //! CAPTURE stage (the context whose record is in rd_ctx_q_r right now) and
+  //! an APPLY stage (that record + its precomputed arithmetic, one cycle
+  //! later, driving the write port). swp_ra_r needs one bit more than an
+  //! index so it can hold N = "the pass has fetched everything".
   localparam int RA_W_C = IDX_W_C + 1;
   reg                  swp_active_r;
   reg [RA_W_C-1:0]     swp_ra_r;     //! next index to fetch
-  reg [IDX_W_C-1:0]    swp_wa_r;     //! index held in the commit stage
-  reg                  swp_wv_r;     //! commit stage holds a valid record
+  reg [IDX_W_C-1:0]    swp_wa_r;     //! index held in the capture stage
+  reg                  swp_wv_r;     //! capture stage holds a valid record
+  reg [IDX_W_C-1:0]    swp_aa_r;     //! index held in the apply stage
+  reg                  swp_av_r;     //! apply stage holds a captured record
+  //! APPLY-stage payload. The record verbatim plus EVERY comparison and
+  //! adder the transition table needs, all evaluated in the CAPTURE cycle so
+  //! the write cone is pure selection over flops (SWEEP PIPELINE banner).
+  acmp_lstn_ctx_t      swp_rec_r;       //! the captured record
+  reg                  swp_sm_r;        //! PROBE_SM_EN_P of that context
+  reg [13:0]           swp_tmr_dec_r;   //! tmr - 1
+  reg                  swp_tmr_run_r;   //! tmr != 0  (countdown armed)
+  reg                  swp_tmr_fire_r;  //! tmr == 1  (the 1 -> 0 edge)
+  reg [6:0]            swp_age_inc_r;   //! adp_age + 1
+  reg                  swp_age_hit_r;   //! adp_age >= valid_time x 2 horizon
+  reg                  swp_tk_match_r;  //! talker == adp_eid_r (64-bit)
+  reg                  swp_avidx_le_r;  //! available_index NON-INCREASING
+                                        //! (adp_avidx_r <= last_avail, 32-bit)
+  reg [13:0]           swp_draw_r;      //! this visit's random DELAY draw
+  reg                  swp_ta_reg_r;    //! sampled ta_registered_i[ctx]
+  reg                  swp_ta_fail_r;   //! sampled ta_failed_i[ctx]
+  reg                  swp_srv_reg_r;   //! sampled srv_reg_r[ctx]
+  reg                  swp_srv_fail_r;  //! sampled srv_fail_r[ctx]
   reg                  c_ms_r, c_1s_r, c_adp_r;   //! causes of this pass
   reg [1:0]            ms_pend_r;
   reg                  s1_pend_r, adp_pend_r;
@@ -809,25 +891,32 @@ module KL_acmp_lstn_ctx #(
   //! deferred by one cycle while a restore holds its data phase, which is what
   //! lets THAT write be built from registers alone (see w_rest_go)
   wire w_swp_start = init_done_r && !swp_active_r && w_swp_pending && !rest_ph_r;
+  //! THE sweep grant: the three cycles that own the RAM for a sweep visit
+  //! (fetch, capture, apply) are gated by exactly this term, which is what
+  //! makes the pipeline ALL-OR-NOTHING — a bubble discards every in-flight
+  //! visit instead of stretching one across a foreign write (hazard (a)).
+  wire w_swp_gnt   = !w_frame_latch && !w_launch_ok && !w_ram_busy_w;
   //! ADDRESS-phase grant. Drives rd_idx_w ONLY — never a write enable, which
   //! is why it may carry w_swp_pending (a live compare of the lwSRP
   //! ta_registered_i/ta_failed_i levels against the serviced snapshots).
-  wire w_swp_own   = (swp_active_r || w_swp_start) &&
-                     !w_frame_latch && !w_launch_ok && !w_ram_busy_w;
+  wire w_swp_own   = (swp_active_r || w_swp_start) && w_swp_gnt;
   //! fetch pointer for THIS cycle (the start cycle fetches ctx 0)
   wire [IDX_W_C-1:0] swp_fetch_idx_w = w_swp_start ? '0 : IDX_W_C'(swp_ra_r);
   wire               swp_fetch_ok_w  = w_swp_start ? 1'b1
                                      : (swp_ra_r < RA_W_C'(N_SINKS_P));
-  //! COMMIT grant — the one sweep term that reaches a record-write enable, so
-  //! it is built from REGISTERS ONLY. Substituting swp_active_r for w_swp_own
-  //! is EXACT: swp_wv_r is set only by a fetch, a fetch only happens under
-  //! w_swp_own, and w_swp_own sets swp_active_r on that same edge, so
-  //! swp_wv_r == 1 implies swp_active_r == 1. What it buys is keeping
-  //! w_swp_pending out of wr_en_w: with it in, the routed critical path ran
+  //! CAPTURE grant: rd_ctx_q_r carries ctx swp_wa_r this cycle. Substituting
+  //! swp_active_r for w_swp_own is EXACT: swp_wv_r is set only by a fetch, a
+  //! fetch only happens under w_swp_own, and w_swp_own sets swp_active_r on
+  //! that same edge, so swp_wv_r == 1 implies swp_active_r == 1.
+  wire w_swp_cap   = swp_active_r && swp_wv_r && w_swp_gnt;
+  //! APPLY grant — the one sweep term that reaches a record-write enable, so
+  //! it is built from REGISTERS ONLY. What that buys is keeping w_swp_pending
+  //! out of wr_en_w: with it in, the routed critical path ran
   //! lwsrp/ctx/areg_r -> ta_registered_i -> w_srp_diff -> wr_en_w ->
-  //! sid_vec_r/CE, a cross-module cone that did not exist before.
-  wire w_swp_commit = swp_active_r && swp_wv_r &&
-                      !w_frame_latch && !w_launch_ok && !w_ram_busy_w;
+  //! sid_vec_r/CE, a cross-module cone that did not exist before. swp_av_r
+  //! likewise implies swp_active_r (it is set only under w_swp_cap, and
+  //! swp_active_r now holds until the last apply clears it).
+  wire w_swp_apply = swp_active_r && swp_av_r && w_swp_gnt;
 
   //! bind-restore injection (E1): two phases, both taken in a cycle where
   //! no higher-priority consumer owns the RAM. rest_ph_r is the DATA phase
@@ -992,36 +1081,43 @@ module KL_acmp_lstn_ctx #(
   //! per-record ADP aging horizon: valid_time x 2 s (1722.1 6.2.2.5). A
   //! zero-vt ADPDU clamps to LSM_ADP_AGE_MIN_S_C (4 s = two advertise
   //! periods): the talker must be neither immortal nor instantly dead.
+  //! Evaluated in the CAPTURE cycle (on rd_ctx_q_r) and latched into
+  //! swp_age_hit_r, so the compare never reaches the RAM write port.
   wire [6:0] w_age_lim = (rd_ctx_q_r.adp_vt == 5'd0)
                        ? LSM_ADP_AGE_MIN_S_C
                        : {1'b0, rd_ctx_q_r.adp_vt, 1'b0};
+  //! APPLY stage. Every operand below is a FLOP (swp_*_r, c_*_r, adp_*_r) —
+  //! not one bit comes out of the context RAM — so this cone is selection
+  //! only: the arithmetic that used to sit here ran in the CAPTURE cycle.
+  //! adp_avail_r / adp_vt_r / adp_avidx_r are safe to read live: they change
+  //! only in CLASSIFY_S, and a CAPTURE cycle can never be followed by one
+  //! (hazard (a)), so they are the same values swp_tk_match_r /
+  //! swp_avidx_le_r were computed against.
   always_comb begin : sweep_next
-    logic fire, adp_disc, adp_dep, sm, attr_rise, attr_fall;
-    sn_w            = rd_ctx_q_r;
+    logic fire, adp_disc, adp_dep, attr_rise, attr_fall;
+    sn_w            = swp_rec_r;
     sn_wr_w         = 1'b0;
     swp_probe_set_w = 1'b0;
-    sm       = PROBE_SM_EN_P[swp_wa_r];
     fire     = 1'b0;
     adp_disc = 1'b0;
     adp_dep  = 1'b0;
     // ---- 1 s ADP availability aging (per-record valid_time) ----------
-    if (c_1s_r && rd_ctx_q_r.tk_avail) begin
-      if (rd_ctx_q_r.adp_age >= w_age_lim) sn_w.tk_avail = 1'b0;
-      else sn_w.adp_age = rd_ctx_q_r.adp_age + 7'd1;
+    if (c_1s_r && swp_rec_r.tk_avail) begin
+      if (swp_age_hit_r) sn_w.tk_avail = 1'b0;
+      else               sn_w.adp_age  = swp_age_inc_r;
       sn_wr_w = 1'b1;
     end
     // ---- 1 ms countdown (fire on the 1 -> 0 edge) --------------------
-    if (c_ms_r && rd_ctx_q_r.tmr != 14'd0) begin
-      fire     = (rd_ctx_q_r.tmr == 14'd1);
-      sn_w.tmr = rd_ctx_q_r.tmr - 14'd1;
+    if (c_ms_r && swp_tmr_run_r) begin
+      fire     = swp_tmr_fire_r;
+      sn_w.tmr = swp_tmr_dec_r;
       sn_wr_w  = 1'b1;
     end
     // ---- ADP available/departing for THIS context's bound talker -----
-    if (c_adp_r && sm && rd_ctx_q_r.state != LSM_UNBOUND_S &&
-        rd_ctx_q_r.talker == adp_eid_r) begin
+    if (c_adp_r && swp_sm_r && swp_rec_r.state != LSM_UNBOUND_S &&
+        swp_tk_match_r) begin
       if (adp_avail_r) begin
-        if (rd_ctx_q_r.tk_avail &&
-            (adp_avidx_r <= rd_ctx_q_r.last_avail)) begin
+        if (swp_rec_r.tk_avail && swp_avidx_le_r) begin
           //! 5.6.4.5.2 step 2: a NON-INCREASING available_index while
           //! discovered means the talker restarted behind our back —
           //! EVT_TK_DEPARTED (availability wiped; the probing arcs below
@@ -1034,14 +1130,14 @@ module KL_acmp_lstn_ctx #(
           sn_w.tk_avail   = 1'b0;
           sn_w.last_avail = adp_avidx_r;
         end else begin
-          adp_disc        = !rd_ctx_q_r.tk_avail;
+          adp_disc        = !swp_rec_r.tk_avail;
           sn_w.tk_avail   = 1'b1;
           sn_w.adp_age    = 7'd0;
           sn_w.adp_vt     = adp_vt_r;    // the ADPDU's own valid_time
           sn_w.last_avail = adp_avidx_r; // 5.6.4.5.1 step 2 / .2 step 3
         end
       end else begin
-        adp_dep       = rd_ctx_q_r.tk_avail;
+        adp_dep       = swp_rec_r.tk_avail;
         sn_w.tk_avail = 1'b0;
       end
       sn_wr_w = 1'b1;
@@ -1055,15 +1151,18 @@ module KL_acmp_lstn_ctx #(
     //! arc on a Failed rise; Table 5.30 marks every RSV_OK row except
     //! EVT_TK_UNREGISTERED "x" (REF-BUG pattern — reference wrong vs the
     //! table, like REF-BUG 1/2 below).
-    attr_rise = sm &&
-                ( ta_registered_i[swp_wa_r] |  ta_failed_i[swp_wa_r]) &&
-                !(srv_reg_r[swp_wa_r]       |  srv_fail_r[swp_wa_r]);
-    attr_fall = sm &&
-                !(ta_registered_i[swp_wa_r] |  ta_failed_i[swp_wa_r]) &&
-                ( srv_reg_r[swp_wa_r]       |  srv_fail_r[swp_wa_r]);
+    //! the levels AND the snapshots are the CAPTURE-cycle samples, so the
+    //! edge and the srv_* update that consumes it can never disagree — and
+    //! the lwSRP registrar outputs stay out of the write cone entirely.
+    attr_rise = swp_sm_r &&
+                ( swp_ta_reg_r  |  swp_ta_fail_r) &&
+                !(swp_srv_reg_r |  swp_srv_fail_r);
+    attr_fall = swp_sm_r &&
+                !(swp_ta_reg_r  |  swp_ta_fail_r) &&
+                ( swp_srv_reg_r |  swp_srv_fail_r);
     // ---- per-state transitions (single-sink SM table, per context) ---
-    if (sm) begin
-      unique case (rd_ctx_q_r.state)
+    if (swp_sm_r) begin
+      unique case (swp_rec_r.state)
         LSM_PRB_W_DELAY_S: begin
           if (fire) begin
             swp_probe_set_w = 1'b1;
@@ -1077,7 +1176,7 @@ module KL_acmp_lstn_ctx #(
         end
         LSM_PRB_W_AVAIL_S: begin
           if (adp_disc) begin                            // REF-BUG 1 fixed
-            sn_w.tmr = w_delay_draw; sn_w.probing = 2'd2;
+            sn_w.tmr = swp_draw_r; sn_w.probing = 2'd2;
             sn_w.state = LSM_PRB_W_DELAY_S; sn_wr_w = 1'b1;
           end
         end
@@ -1103,7 +1202,7 @@ module KL_acmp_lstn_ctx #(
         LSM_PRB_W_RETRY_S: begin
           if (fire) begin                                // REF-BUG 2 fixed
             if (sn_w.tk_avail) begin
-              sn_w.tmr = w_delay_draw; sn_w.probing = 2'd2;
+              sn_w.tmr = swp_draw_r; sn_w.probing = 2'd2;
               sn_w.state = LSM_PRB_W_DELAY_S;
             end else begin
               sn_w.probing = 2'd1;
@@ -1135,7 +1234,7 @@ module KL_acmp_lstn_ctx #(
             sn_w.vlan   = 12'd0;
             sn_w.active = 1'b0;
             if (sn_w.tk_avail) begin
-              sn_w.tmr = w_delay_draw; sn_w.probing = 2'd2;
+              sn_w.tmr = swp_draw_r; sn_w.probing = 2'd2;
               sn_w.state = LSM_PRB_W_DELAY_S;
             end else begin
               sn_w.probing = 2'd1;
@@ -1154,7 +1253,7 @@ module KL_acmp_lstn_ctx #(
             sn_w.dmac   = 48'd0;
             sn_w.vlan   = 12'd0;
             if (sn_w.tk_avail) begin
-              sn_w.tmr = w_delay_draw; sn_w.probing = 2'd2;
+              sn_w.tmr = swp_draw_r; sn_w.probing = 2'd2;
               sn_w.state = LSM_PRB_W_DELAY_S;
             end else begin
               sn_w.probing = 2'd1;
@@ -1168,11 +1267,30 @@ module KL_acmp_lstn_ctx #(
     end
   end
 
+  //! frame-side write data. CLASSIFY_S (record writeback) and LAUNCH_S
+  //! (probe arm) are MUTUALLY EXCLUSIVE states writing the same index, so
+  //! they share ONE 370-bit source and the record-write mux carries one
+  //! input fewer. That matters now that the sweep's data is a genuinely
+  //! distinct base (swp_rec_r, not rd_ctx_q_r): the merge buys back more
+  //! than the pipeline costs — yosys xc7 OOC at the 9-sink ship shape,
+  //! LUT 7596 (pre-pipeline) -> 9815 (pipeline, 5-source mux) -> 7413 with
+  //! the merge, MUXF7 1331 -> 2481 -> 1333.
+  acmp_lstn_ctx_t w_fp_data_w;
+  always_comb begin : frame_wdata
+    w_fp_data_w = wr_frame_w;                            // CLASSIFY writeback
+    if (st_r == LAUNCH_S) begin                          // probe arm
+      w_fp_data_w     = rd_ctx_q_r;
+      w_fp_data_w.tmr = LSM_TMR_NO_RESP_MS_C;
+      w_fp_data_w.seq = w_launch_seq;   // the id THIS probe carries
+    end
+  end
+
   // ---- write-port arbitration (exactly one writer per cycle) ------------
-  //! Every enable term is now a REGISTERED state bit (st_r, swp_wv_r,
-  //! rest_ph_r) qualified by record bits that come out of rd_ctx_q_r, so no
-  //! RAM read and no held request input (rest_req_i) sits in the cone that
-  //! drives wr_en_w — the same cone that clocks view0_r/view1_r.
+  //! Every enable term is a REGISTERED state bit (st_r, swp_av_r, rest_ph_r)
+  //! qualified by record bits, so no held request input (rest_req_i) sits in
+  //! the cone that drives wr_en_w — the same cone that clocks view0_r/
+  //! view1_r. The SWEEP branch no longer reads the RAM at all: sn_w/sn_wr_w
+  //! are built from the APPLY-stage flops (SWEEP PIPELINE banner).
   always_comb begin : wr_port_mux
     wr_en_w   = 1'b0;
     wr_idx_w  = '0;
@@ -1180,19 +1298,14 @@ module KL_acmp_lstn_ctx #(
     if (!init_done_r) begin
       wr_en_w  = 1'b1;
       wr_idx_w = init_idx_r;
-    end else if (st_r == CLASSIFY_S && wr_frame_en_w) begin
+    end else if ((st_r == CLASSIFY_S && wr_frame_en_w) ||
+                 (st_r == LAUNCH_S)) begin  // classify writeback / probe arm
       wr_en_w   = 1'b1;
       wr_idx_w  = cur_idx_r;
-      wr_data_w = wr_frame_w;
-    end else if (st_r == LAUNCH_S) begin                 // probe arm
-      wr_en_w        = 1'b1;
-      wr_idx_w       = cur_idx_r;
-      wr_data_w      = rd_ctx_q_r;
-      wr_data_w.tmr  = LSM_TMR_NO_RESP_MS_C;
-      wr_data_w.seq  = w_launch_seq;    // the id THIS probe carries
-    end else if (w_swp_commit && sn_wr_w) begin
+      wr_data_w = w_fp_data_w;
+    end else if (w_swp_apply && sn_wr_w) begin
       wr_en_w   = 1'b1;
-      wr_idx_w  = swp_wa_r;
+      wr_idx_w  = swp_aa_r;
       wr_data_w = sn_w;
     end else if (w_rest_go && w_rest_unbound) begin  // bind-restore inject
       wr_en_w   = 1'b1;
@@ -1223,6 +1336,12 @@ module KL_acmp_lstn_ctx #(
       bound_vec_r <= '0; sid_vec_r <= '0; bind_upd_p_o <= '0;
       dmac_vec_r <= '0; vlan_vec_r <= '0;
       swp_active_r <= 1'b0; swp_ra_r <= '0; swp_wa_r <= '0; swp_wv_r <= 1'b0;
+      swp_aa_r <= '0; swp_av_r <= 1'b0; swp_rec_r <= '0; swp_sm_r <= 1'b0;
+      swp_tmr_dec_r <= '0; swp_tmr_run_r <= 1'b0; swp_tmr_fire_r <= 1'b0;
+      swp_age_inc_r <= '0; swp_age_hit_r <= 1'b0; swp_tk_match_r <= 1'b0;
+      swp_avidx_le_r <= 1'b0; swp_draw_r <= '0;
+      swp_ta_reg_r <= 1'b0; swp_ta_fail_r <= 1'b0;
+      swp_srv_reg_r <= 1'b0; swp_srv_fail_r <= 1'b0;
       c_ms_r <= 1'b0; c_1s_r <= 1'b0; c_adp_r <= 1'b0;
       ms_pend_r <= 2'd0; s1_pend_r <= 1'b0; adp_pend_r <= 1'b0;
       adp_eid_r <= '0; adp_avail_r <= 1'b0; adp_vt_r <= '0;
@@ -1287,12 +1406,13 @@ module KL_acmp_lstn_ctx #(
       end
 
       // ---- sweep cause accumulation + sequencer ------------------------
-      //! Pipelined pass: the cycle that fetches ctx i also commits ctx i-1,
-      //! and the START cycle is the fetch of ctx 0 — so ctx c is still
-      //! committed on start+1+c and a pass is still N+1 cycles. Note the
-      //! ORDER of the two blocks below: when a pass starts AND owns the
-      //! port in the same cycle, the fetch block's assignments to
-      //! swp_ra_r/swp_wa_r/swp_wv_r are the ones that take effect.
+      //! Pipelined pass, THREE stages deep: the cycle that fetches ctx i also
+      //! captures ctx i-1 and writes ctx i-2, and the START cycle is the
+      //! fetch of ctx 0 — so ctx c is written on start+2+c and a pass is
+      //! N+2 cycles. Note the ORDER of the blocks below: when a pass starts
+      //! AND owns the port in the same cycle, the fetch block's assignments
+      //! to swp_ra_r/swp_wa_r/swp_wv_r are the ones that take effect, and
+      //! CAPTURE follows APPLY so a refill outranks the drain of swp_av_r.
       begin : sweep_seq
         logic [1:0] mp;
         mp = ms_pend_r;
@@ -1301,20 +1421,48 @@ module KL_acmp_lstn_ctx #(
           swp_active_r <= 1'b1;
           swp_ra_r     <= '0;
           swp_wv_r     <= 1'b0;
+          swp_av_r     <= 1'b0;
           c_ms_r       <= (mp != 2'd0);
           c_1s_r       <= s1_pend_r | tick_1s_i;
           c_adp_r      <= adp_pend_r | w_adp_now;
           if (mp != 2'd0) mp = mp - 2'd1;
         end
-        // ---- commit stage: apply the record fetched last cycle ---------
-        //! w_swp_commit implies w_swp_own, so this cannot fire on a cycle the
-        //! fetch stage below skipped
-        if (w_swp_commit) begin
-          //! service SRP snapshots at every visit (self-clears pending)
-          srv_reg_r[swp_wa_r]  <= ta_registered_i[swp_wa_r];
-          srv_fail_r[swp_wa_r] <= ta_failed_i[swp_wa_r];
-          if (swp_probe_set_w) probe_pend_r[swp_wa_r] <= 1'b1;
-          if (swp_wa_r == IDX_W_C'(N_SINKS_P-1)) swp_active_r <= 1'b0;
+        // ---- apply stage: write back the record captured last cycle ----
+        //! the record write itself is issued by wr_port_mux on this same
+        //! grant; here go the side effects that belong to the visit.
+        //! swp_active_r drops on the LAST APPLY, not the last capture, so no
+        //! next pass can address ctx 0 while this write is still pending.
+        if (w_swp_apply) begin
+          //! service SRP snapshots at every visit (self-clears pending) —
+          //! from the CAPTURE samples, the same ones attr_rise/fall used
+          srv_reg_r[swp_aa_r]  <= swp_ta_reg_r;
+          srv_fail_r[swp_aa_r] <= swp_ta_fail_r;
+          if (swp_probe_set_w) probe_pend_r[swp_aa_r] <= 1'b1;
+          swp_av_r <= 1'b0;
+          if (swp_aa_r == IDX_W_C'(N_SINKS_P-1)) swp_active_r <= 1'b0;
+        end
+        // ---- capture stage: take the record fetched last cycle ---------
+        //! w_swp_cap implies w_swp_own, so this cannot fire on a cycle the
+        //! fetch stage below skipped. EVERY comparison and adder the APPLY
+        //! stage needs is evaluated HERE, on the RAM output, and latched —
+        //! that is the whole point of the split.
+        if (w_swp_cap) begin
+          swp_av_r       <= 1'b1;
+          swp_aa_r       <= swp_wa_r;
+          swp_rec_r      <= rd_ctx_q_r;
+          swp_sm_r       <= PROBE_SM_EN_P[swp_wa_r];
+          swp_tmr_dec_r  <= rd_ctx_q_r.tmr - 14'd1;
+          swp_tmr_run_r  <= (rd_ctx_q_r.tmr != 14'd0);
+          swp_tmr_fire_r <= (rd_ctx_q_r.tmr == 14'd1);
+          swp_age_inc_r  <= rd_ctx_q_r.adp_age + 7'd1;
+          swp_age_hit_r  <= (rd_ctx_q_r.adp_age >= w_age_lim);
+          swp_tk_match_r <= (rd_ctx_q_r.talker == adp_eid_r);
+          swp_avidx_le_r <= (adp_avidx_r <= rd_ctx_q_r.last_avail);
+          swp_draw_r     <= w_delay_draw;
+          swp_ta_reg_r   <= ta_registered_i[swp_wa_r];
+          swp_ta_fail_r  <= ta_failed_i[swp_wa_r];
+          swp_srv_reg_r  <= srv_reg_r[swp_wa_r];
+          swp_srv_fail_r <= srv_fail_r[swp_wa_r];
         end
         if (w_swp_own) begin
           // ---- fetch stage: address the next context ------------------
@@ -1326,10 +1474,16 @@ module KL_acmp_lstn_ctx #(
             swp_wv_r <= 1'b0;
           end
         end else if (swp_active_r) begin
-          //! preempted: rd_ctx_q_r is about to carry someone else's record,
-          //! so drop the in-flight fetch and re-address it next time
-          if (swp_wv_r) swp_ra_r <= RA_W_C'(swp_wa_r);
+          //! preempted: rd_ctx_q_r is about to carry someone else's record
+          //! AND the write port belongs to that consumer, so DISCARD both
+          //! in-flight visits (never delay one across a foreign write —
+          //! hazard (a)) and rewind to the OLDEST of them. The discarded
+          //! visits wrote nothing, so the re-read applies this pass's causes
+          //! exactly once, to the post-command record.
+          if      (swp_av_r) swp_ra_r <= RA_W_C'(swp_aa_r);
+          else if (swp_wv_r) swp_ra_r <= RA_W_C'(swp_wa_r);
           swp_wv_r <= 1'b0;
+          swp_av_r <= 1'b0;
         end
         ms_pend_r  <= mp;
         s1_pend_r  <= (tick_1s_i | s1_pend_r) & ~w_swp_start;
