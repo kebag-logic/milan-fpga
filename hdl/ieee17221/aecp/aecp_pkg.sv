@@ -181,6 +181,13 @@ package aecp_pkg;
   // ------------------------------------------------------------------ //
   //! Max bounded controllers for unsolicited table
   localparam int unsigned MAX_UNSOLICITED_CTLR_C = 16;
+  //! Registration slots the fabric actually implements. It lives here, not
+  //! in KL_aecp_response_builder, because gh #59 gave the table a SECOND
+  //! reader: KL_aecp_timers carries one monitor timer per slot and both
+  //! modules' port widths have to be the same number, forever. A copied 4
+  //! is exactly the defect docs/limitations/RECURRING_DEFECT_PATTERNS.md is
+  //! about — it agrees on day one and diverges in silence.
+  localparam int unsigned AECP_UNSOL_SLOTS_C = 4;
   //! Single configuration (48/96/192 kHz handled via SET_SAMPLING_RATE
   //! within it — matches milan-v12-entity.json configurations_count=1)
   localparam int unsigned NUM_CONFIGURATIONS_C   = 1;

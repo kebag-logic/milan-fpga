@@ -859,6 +859,18 @@ MAAP/tone/pdelay knobs.
 | `0x6E8` | `ACMPL_DBG` | RO | listener walker forensics: `[31:24]` CLASSIFY entries (any frame), `[23:16]` ACMP-subtype (0xFC) classifies, `[15:8]` flags at the last ACMP classify `{dst_ok, etype_ok, sv0, len_ok, ovfl, lstnr_hi_ok, lstnr_lo_ok, is_lstn_cmd}`, `[7:0]` ACMP-base + listener-command hits |
 | `0x6EC` | `AVTPRX_TSD` | RO | signed ts_delta = `avtp_timestamp - ptp_now` (ns) at the last accepted STREAM_INPUT[0] PDU — the stream-sync error signal (LATE counts when delta < 0, EARLY beyond offset + margin; [`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) §3.6) |
 | `0x6F0` | `I2SPB_DBG` | RO | DAC-serial forensics: the exact 32 serial bits of the last LEFT half-frame as sent at the DAC pin (CDC-latched) |
+| `0x6F4` | `CTLR_DIAG` | RO | departing-controller detection (Milan v1.2 §5.4.5.3): `[31:24]` controllers deregistered because they went silent, `[23:12]` CONTROLLER_AVAILABLE replies seen, `[11:0]` CONTROLLER_AVAILABLE probes sent (retries included). All three wrap; the 8-bit eviction field wraps at 256, the two 12-bit fields at 4096 |
+| `0x6F8` | — | — | **reserved**, free. Claim it here before wiring it |
+| `0x6FC` | — | — | **reserved**, free — the last word of this group. The next group starts at `0x700` (`TCAM_CTRL`) |
+
+`CTLR_DIAG` (0x6F4) is the standing sweep's window onto the one place the
+entity speaks first. On a healthy bench every probe is answered, so probes
+and replies climb together (about one probe per registered controller per
+45 seconds) and evictions stay flat. Probes climbing *ahead* of replies by
+exactly two per eviction is the signature the clause is about: a controller
+that vanished without deregistering was asked twice, 250 ms apart, and shed.
+Replies climbing with no probes cannot happen — the reply tally counts only
+answers matched to a registered controller.
 
 Timers per the reference: probe response 200 ms ×2, retry 4 s, no-talker
 10 s, random pre-probe delay 0..1023 ms (LFSR).

@@ -111,7 +111,19 @@ module KL_aecp_ingress #(
 
   // ---- ADP discover-response trigger ---------------------------------
   output logic         adp_discover_o,   //! 1-cycle: an ENTITY_DISCOVER FOR US (6.2.7 target test passed)
-  output logic         adp_disc_seen_o   //! 1-cycle DIAG: any ENTITY_DISCOVER on the wire, target/enable ignored
+  output logic         adp_disc_seen_o,  //! 1-cycle DIAG: any ENTITY_DISCOVER on the wire, target/enable ignored
+
+  // ---- gh #59 CONTROLLER_AVAILABLE reply witness (Milan §5.4.5.3) -----
+  //! A controller answering OUR probe replies with an AEM_RESPONSE, and the
+  //! packet validator drops every response-typed AECP frame — so nothing
+  //! downstream can ever see it. This witness is the adp_pend_r pattern
+  //! applied one beat later: classify at aligned lanes on the way IN, pulse
+  //! at frame end, and let the frame drain to the validator's drop path
+  //! exactly as before. 1722.1-2021 9.3.6 matches a response on
+  //! controller_entity_id == myEntityID; the ANSWERING controller is then
+  //! the frame's target_entity_id (our probe named it there).
+  output logic         ca_reply_p_o,     //! 1-cycle: a CONTROLLER_AVAILABLE response for us
+  output logic [63:0]  ca_reply_eid_o    //! ...the answering controller's Entity ID
 );
 
   // ------------------------------------------------------------------ //
@@ -141,6 +153,15 @@ module KL_aecp_ingress #(
   logic [47:0] tgt_hi_r;      //! target_entity_id bytes 18..23
   logic       adp_pend_r;     //! ADP DISCOVER for us: pulse at frame end
   logic       adp_seen_r;     //! ADP DISCOVER seen (any target): pulse at frame end
+  //! gh #59 witness state. beat 4 carries controller_entity_id bytes 32-33
+  //! and command_type bytes 36-37, so the verdict settles one beat later
+  //! than the ADP one; ca_b4_r is the single-shot enable that keeps the
+  //! saturated wbeat_r == 4 from re-classifying beats 5, 6, ...
+  logic        ca_rsp_r;      //! beat 1: AEM_RESPONSE, AECP subtype, for our MAC
+  logic [63:0] ca_tgt_r;      //! ...the frame's target_entity_id (who answered)
+  logic [47:0] ca_ctl_hi_r;   //! controller_entity_id bytes 26..31
+  logic        ca_b4_r;       //! beat 4 is the NEXT beat (one-shot)
+  logic        ca_pend_r;     //! verdict latched: pulse at frame end
 
   //! beat-1 verdict, computed on the registered beat as it is pushed
   wire w_b1_full   = rxv_r && (wbeat_r == 3'd1) && (rxk_r == 8'hFF);
@@ -186,9 +207,13 @@ module KL_aecp_ingress #(
       subtype_r <= '0; msgtype_r <= '0; is_avtp_r <= 1'b0;
       tgt_hi_r <= '0; adp_pend_r <= 1'b0; adp_seen_r <= 1'b0;
       adp_discover_o <= 1'b0; adp_disc_seen_o <= 1'b0;
+      ca_rsp_r <= 1'b0; ca_tgt_r <= '0; ca_ctl_hi_r <= '0;
+      ca_b4_r <= 1'b0; ca_pend_r <= 1'b0;
+      ca_reply_p_o <= 1'b0; ca_reply_eid_o <= '0;
     end else begin
       adp_discover_o  <= 1'b0;
       adp_disc_seen_o <= 1'b0;
+      ca_reply_p_o    <= 1'b0;
       if (kill_pend_r) kill_pend_r <= 1'b0;
 
       if (rxv_r) begin
@@ -200,6 +225,9 @@ module KL_aecp_ingress #(
                          == station_mac_i);
             adp_pend_r <= 1'b0;
             adp_seen_r <= 1'b0;
+            ca_rsp_r   <= 1'b0;
+            ca_pend_r  <= 1'b0;
+            ca_b4_r    <= 1'b0;
           end
           3'd1: begin
             is_avtp_r <= w_b1_avtp;
@@ -214,6 +242,11 @@ module KL_aecp_ingress #(
             //! clears the flag in the same cycle and reads its old value.
             adp_seen_r <= w_b1_avtp && (rxd_r[55:48] == 8'hFA) &&
                           ((rxd_r[63:56] & 8'h0F) == 4'd2);
+            //! gh #59: an AECP AEM_RESPONSE addressed to our station MAC.
+            //! w_b1_aecp tests subtype + dst only (never message_type), so
+            //! this frame is NOT killed here: it streams whole into the FIFO
+            //! and the validator drops it downstream, unchanged.
+            ca_rsp_r   <= w_b1_aecp && (rxd_r[59:56] == MSG_AEM_RESPONSE);
             // not an AECP command for us: terminate it into the FIFO now
             // (ADP frames included — they never replay)
             if (!rxl_r && pushing_r && !w_b1_aecp) begin
@@ -235,19 +268,50 @@ module KL_aecp_ingress #(
               adp_pend_r <=
                 ({tgt_hi_r, rxd_r[7:0], rxd_r[15:8]} == 64'd0) ||
                 ({tgt_hi_r, rxd_r[7:0], rxd_r[15:8]} == entity_id_i);
+            //! gh #59: lanes 0..1 also complete the AECP target_entity_id
+            //! (the answering controller); lanes 2..7 are controller_entity_id
+            //! bytes 26..31, whose last two bytes arrive on beat 4.
+            ca_tgt_r    <= {tgt_hi_r, rxd_r[7:0], rxd_r[15:8]};
+            ca_ctl_hi_r <= {rxd_r[23:16], rxd_r[31:24], rxd_r[39:32],
+                            rxd_r[47:40], rxd_r[55:48], rxd_r[63:56]};
+            ca_b4_r     <= 1'b1;
           end
-          default: ;   // 4+: nothing left to classify
+          default: begin
+            //! beat 4 (wbeat_r saturates here, so ca_b4_r makes it one-shot):
+            //! controller_entity_id completes at lanes 0..1 and command_type
+            //! sits at lanes 4..5. A CONTROLLER_AVAILABLE response carries
+            //! command_type 0x0003 with the u bit clear (byte 36 bit 7).
+            //! Same standing assumption as the ADP witness above: a 38-octet
+            //! AECPDU is padded to the 60-octet Ethernet minimum, so tlast
+            //! lands on beat 7 and this verdict is always registered before
+            //! the frame-end arm reads it. A sub-46-byte frame could not
+            //! reach a MAC in the first place.
+            if (ca_b4_r) begin
+              ca_b4_r <= 1'b0;
+              if (ca_rsp_r && rxk_r[5] &&
+                  ({ca_ctl_hi_r, rxd_r[7:0], rxd_r[15:8]} == entity_id_i) &&
+                  ({rxd_r[38:32], rxd_r[47:40]} == CMD_CONTROLLER_AVAILABLE))
+                ca_pend_r <= 1'b1;
+            end
+          end
         endcase
         wbeat_r <= (wbeat_r == 3'd4) ? 3'd4 : wbeat_r + 3'd1;
 
         if (rxl_r) begin
           if (enable_i && adp_pend_r) adp_discover_o  <= 1'b1;
           if (adp_seen_r)             adp_disc_seen_o <= 1'b1;
+          if (enable_i && ca_pend_r) begin
+            ca_reply_p_o   <= 1'b1;
+            ca_reply_eid_o <= ca_tgt_r;
+          end
           wbeat_r     <= 3'd0;
           pushing_r   <= 1'b0;
           drop_rest_r <= 1'b0;
           adp_pend_r  <= 1'b0;
           adp_seen_r  <= 1'b0;
+          ca_pend_r   <= 1'b0;
+          ca_rsp_r    <= 1'b0;
+          ca_b4_r     <= 1'b0;
         end
       end
     end

@@ -1205,6 +1205,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! axis_clk domain as the listener, no CDC
   wire [63:0]              aecp_locking_ctlr;
   wire [15:0]              aecp_current_config, aecp_cmd_count, aecp_resp_count;
+  //! gh #59 departing-controller detection (Milan v1.2 §5.4.5.3), CSR 0x6F4
+  //! A_CTLR_DIAG: {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12],
+  //! CONTROLLER_AVAILABLE probes sent[11:0]}
+  wire [31:0]              aecp_ctlr_diag;
   //! ACMP stateless responder (KL_acmp_responder) — response AXIS + counters.
   wire [TDATA_WIDTH-1:0]   acmp_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] acmp_tx_tkeep;
@@ -2097,6 +2101,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_acmpl_dbg          (acmpl_dbg),
     .i_avtprx_tsd         (avtprx_last_tsd),
     .i_i2spb_dbg          (i2spb_dbg_frame),
+    .i_ctlr_diag          (aecp_ctlr_diag),
     .i_avtprx_stat        ({sat8_f(avtprx_intr_c), sat8_f(avtprx_unlocked_c),
                             sat8_f(avtprx_locked_c), 7'd0, avtprx_locked}),
     .i_avtprx_frx         (avtprx_frx_c),
@@ -2892,7 +2897,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pat_stat_o     (aemp_stat_w),
     .locked_o(aecp_locked), .locking_ctlr_o(aecp_locking_ctlr),
     .current_config_o(aecp_current_config),
-    .cmd_count_o(aecp_cmd_count), .resp_count_o(aecp_resp_count)
+    .cmd_count_o(aecp_cmd_count), .resp_count_o(aecp_resp_count),
+    .ca_diag_o(aecp_ctlr_diag)
   );
 
   // ==========================================================================

@@ -175,7 +175,10 @@ module aempatch_wrap (
     .pat_data_p_i(pat_data_p_r), .pat_commit_p_i(pat_commit_p_r),
     .pat_abort_p_i(pat_abort_p_r),
     .pat_stat_o(pat_stat_w),
-    .locked_o(), .current_config_o(), .cmd_count_o(), .resp_count_o()
+    .locked_o(), .current_config_o(), .cmd_count_o(), .resp_count_o(),
+    //! gh #59 departing-controller tallies: this suite registers no
+    //! controllers, so the word stays 0 and nothing here reads it
+    .ca_diag_o()
   );
 
 endmodule

@@ -305,6 +305,26 @@ module KL_aecp_response_builder (
   output logic         m_axis_tlast,
   input  wire          m_axis_tready,
 
+  // ---- gh #59 departing-controller detection (Milan v1.2 §5.4.5.3) -----
+  //! The entity's FIRST initiator role: it sends CONTROLLER_AVAILABLE
+  //! commands of its own accord and judges the silence that follows.
+  //! Timers live in KL_aecp_timers; the table, the arbitration and the
+  //! eviction law live here, beside the registration slots they act on.
+  input  wire          ca_reply_p_i,       //! ingress witness: a probe was answered
+  input  wire [63:0]   ca_reply_eid_i,     //! ...by this controller
+  input  wire [AECP_UNSOL_SLOTS_C-1:0] mon_exp_p_i,    //! slot monitor expired
+  output logic [AECP_UNSOL_SLOTS_C-1:0] mon_arm_p_o,   //! slot born: start monitoring
+  output logic [AECP_UNSOL_SLOTS_C-1:0] mon_heard_p_o, //! liveness: reload
+  output logic [AECP_UNSOL_SLOTS_C-1:0] mon_clear_p_o, //! slot died: stop
+  output logic         mon_force_exp_p_o,  //! 5.4.2.21 NO_RESOURCES sweep
+  input  wire          ca_ack_exp_p_i,     //! the 250 ms probe timeout fired
+  output logic         ca_ack_start_p_o,   //! start it (at the probe's CONCLUDE)
+  output logic         ca_ack_clear_p_o,   //! ...and stop it on the answer
+  //! diagnostics word (CSR 0x6F4 A_CTLR_DIAG): {evictions[31:24],
+  //! CONTROLLER_AVAILABLE replies seen[23:12], probes sent[11:0]}, all
+  //! free-running wrapping tallies
+  output logic [31:0]  ca_diag_o,
+
   // ---- events ----------------------------------------------------------
   output logic         evt_cmd_o,          //! good command frame received
   output logic         evt_resp_o,         //! response frame sent
@@ -1365,7 +1385,15 @@ module KL_aecp_response_builder (
     else if (fi == 15) b = {4'b0000, msg_resp_q};
     else if (fi == 16) b = {status_q, batch_q ? bcdl_q[10:8] : cdl_q[10:8]};
     else if (fi == 17) b = batch_q ? bcdl_q[7:0] : cdl_q[7:0];
-    else if (fi < 26) b = entity_id_i[8*(25-(32)'(fi)) +: 8];
+    //! target_entity_id. Every RESPONSE this module emits targets us, which
+    //! is why this was a hardwired entity_id_i for three years; the gh #59
+    //! CONTROLLER_AVAILABLE probe is the first frame that targets somebody
+    //! ELSE (1722.1-2021 7.4.4 - the command asks a CONTROLLER whether it
+    //! is alive, so the controller is the target and we are the controller
+    //! field). ca_frame_r is the select. It lands in hdrbyte_r during
+    //! EMIT_ADDR phase 0, so the mux stays OFF the pack_r critical path.
+    else if (fi < 26) b = ca_frame_r ? ca_probe_eid_r[8*(25-(32)'(fi)) +: 8]
+                                     : entity_id_i[8*(25-(32)'(fi)) +: 8];
     else if (fi < 34) b = hdr_q.controller_entity_id[8*(33-(32)'(fi)) +: 8];
     else if (fi == 34) b = hdr_q.sequence_id[15:8];
     else if (fi == 35) b = hdr_q.sequence_id[7:0];
@@ -1605,7 +1633,7 @@ module KL_aecp_response_builder (
   // per registered controller, UNICAST to its stored MAC, with its own
   // per-controller sequence counter (reference reply-unsol-helpers.c).
   // ------------------------------------------------------------------ //
-  localparam int unsigned UNSOL_SLOTS_C = 4;
+  localparam int unsigned UNSOL_SLOTS_C = AECP_UNSOL_SLOTS_C;
   logic                  unsol_valid_r [0:UNSOL_SLOTS_C-1];
   logic [63:0]           unsol_eid_r   [0:UNSOL_SLOTS_C-1];
   logic [47:0]           unsol_mac_r   [0:UNSOL_SLOTS_C-1];
@@ -1639,6 +1667,71 @@ module KL_aecp_response_builder (
                                             //! auto-expiry push (gh #58 D4)
   logic                  unsol_frame_r;     //! current emit is a push (u=1, no meta pop)
   logic                  ta_prev_r, lo_prev_r;  //! edge detectors
+
+  // ------------------------------------------------------------------ //
+  // gh #59 — departing-controller detection (Milan v1.2 §5.4.5.3)        //
+  //                                                                      //
+  // The only place in this engine where the entity SPEAKS FIRST. Two new //
+  // IDLE arms, zero new FSM states:                                      //
+  //   * the CONTROLLER_AVAILABLE probe (AEM_COMMAND, cdl 12, zero-length //
+  //     command_specific_data per 1722.1-2021 7.4.4), addressed TO the   //
+  //     controller: target_entity_id = the CONTROLLER's id, and          //
+  //     controller_entity_id = OURS. That inversion is why hdr_byte      //
+  //     needs an 8-byte mux — every other frame this module emits is a   //
+  //     RESPONSE, whose target is always us.                             //
+  //   * the eviction's u=1 DEREGISTER_UNSOLICITED_NOTIFICATION, pushed   //
+  //     from staging to the DEPARTED controller only (the clause is      //
+  //     explicit: "to this controller only" — the survivors learn        //
+  //     nothing, by design).                                             //
+  //                                                                      //
+  // ca_frame_r must NOT set unsol_frame_r: they share header byte 36,    //
+  // where unsol_frame_r is the u bit, and a COMMAND with u=1 is a        //
+  // malformed unsolicited notification. w_self_frame below is the term   //
+  // that carries the OTHER half of unsol_frame_r's job — "this frame was //
+  // generated here, so there is no ingress metadata to pop".             //
+  //                                                                      //
+  // One probe outstanding at a time (a shared 250 ms counter and one     //
+  // retried bit is the whole of 9.3.6's InflightCommand for this use):   //
+  // two silent controllers serialise, which also bounds the burst a      //
+  // NO_RESOURCES sweep can put on the wire.                              //
+  // ------------------------------------------------------------------ //
+  logic [UNSOL_SLOTS_C-1:0] ca_owed_r;    //! monitor expired, probe owed
+  logic        ca_send_r;                 //! a probe FRAME is owed to the wire
+  logic        ca_inflight_r;             //! ...and one is outstanding
+  logic        ca_retried_r;              //! 9.3.6 InflightCommand.retried
+  logic        ca_frame_r;                //! current emit is the probe COMMAND
+  logic [1:0]  ca_probe_idx_r;            //! slot the outstanding probe names
+  logic [63:0] ca_probe_eid_r;            //! ...its identity, staged
+  logic [47:0] ca_probe_mac_r;
+  logic [15:0] ca_probe_seq_r;            //! the retry re-sends THIS value
+  logic [15:0] ca_seq_r;                  //! initiator sequence space (disjoint
+                                          //! from the per-slot unsol_seq_r)
+  //! eviction staging: the slot is cleared the same cycle it is judged, so
+  //! the departing controller's identity has to survive somewhere else for
+  //! the deregistration push that follows
+  logic        ca_dereg_pend_r;
+  logic [63:0] ca_dead_eid_r;
+  logic [47:0] ca_dead_mac_r;
+  logic [15:0] ca_dead_seq_r;
+  //! diagnostics tallies (CSR 0x6F4 A_CTLR_DIAG)
+  logic [11:0] ca_probes_r, ca_replies_r;
+  logic [7:0]  ca_evict_r;
+  assign ca_diag_o = {ca_evict_r, ca_replies_r, ca_probes_r};
+
+  //! "this frame was generated here": no ingress metadata to pop, and no
+  //! SET-replay to arm off it. The push classes (u=1) and the probe
+  //! (u=0, a command) are both self-frames; only the u bit differs.
+  wire w_self_frame = unsol_frame_r || ca_frame_r;
+
+  //! lowest slot owed a probe, and the reply/heard match vectors
+  logic [1:0]               w_ca_owed_idx;
+  logic [UNSOL_SLOTS_C-1:0] w_ca_reply_match;
+  //! the slot under probe still holds the identity the probe was aimed at.
+  //! It goes false when the controller deregisters itself mid-flight (or
+  //! the slot is refilled), and every verdict is gated on it: only a slot
+  //! that is STILL the one we asked can be judged by that question.
+  wire w_ca_probe_live = unsol_valid_r[ca_probe_idx_r] &&
+                         (unsol_eid_r[ca_probe_idx_r] == ca_probe_eid_r);
 
   //! REGISTER helper wires: dedup match + lowest free slot + lowest pend
   logic [UNSOL_SLOTS_C-1:0] w_unsol_match;
@@ -1729,6 +1822,16 @@ module KL_aecp_response_builder (
           w_unsol_push10_oidx = 4'(k);
           w_unsol_push10_idx  = 2'(s);
         end
+    //! gh #59: lowest slot owed a CONTROLLER_AVAILABLE probe (same
+    //! descending last-wins idiom), and the slots a reply names. The reply
+    //! match is by ENTITY ID, which is the registration key - a controller
+    //! that moved MAC still proves itself alive.
+    w_ca_owed_idx = 2'd0;
+    for (int s = UNSOL_SLOTS_C-1; s >= 0; s--)
+      if (ca_owed_r[s]) w_ca_owed_idx = 2'(s);
+    for (int s = 0; s < UNSOL_SLOTS_C; s++)
+      w_ca_reply_match[s] = unsol_valid_r[s] &&
+                            (unsol_eid_r[s] == ca_reply_eid_i);
   end
 
   // ------------------------------------------------------------------ //
@@ -2192,6 +2295,30 @@ module KL_aecp_response_builder (
       unsol_pend9_r     <= '0;
       unsol_pend11_r    <= '0;
       unsol_pend12_r    <= '0;
+      //! gh #59 monitor / probe state
+      ca_owed_r         <= '0;
+      ca_send_r         <= 1'b0;
+      ca_inflight_r     <= 1'b0;
+      ca_retried_r      <= 1'b0;
+      ca_frame_r        <= 1'b0;
+      ca_probe_idx_r    <= 2'd0;
+      ca_probe_eid_r    <= 64'd0;
+      ca_probe_mac_r    <= 48'd0;
+      ca_probe_seq_r    <= 16'd0;
+      ca_seq_r          <= 16'd0;
+      ca_dereg_pend_r   <= 1'b0;
+      ca_dead_eid_r     <= 64'd0;
+      ca_dead_mac_r     <= 48'd0;
+      ca_dead_seq_r     <= 16'd0;
+      ca_probes_r       <= 12'd0;
+      ca_replies_r      <= 12'd0;
+      ca_evict_r        <= 8'd0;
+      mon_arm_p_o       <= '0;
+      mon_heard_p_o     <= '0;
+      mon_clear_p_o     <= '0;
+      mon_force_exp_p_o <= 1'b0;
+      ca_ack_start_p_o  <= 1'b0;
+      ca_ack_clear_p_o  <= 1'b0;
       in0_sig_prev_r    <= '0;
       crf_sig_prev_r    <= '0;
       avbi_sig_prev_r   <= '0;
@@ -2285,6 +2412,12 @@ module KL_aecp_response_builder (
       evt_resp_o <= 1'b0;
       evt_drop_o <= 1'b0;
       st_wr_o    <= 1'b0;
+      mon_arm_p_o       <= '0;
+      mon_heard_p_o     <= '0;
+      mon_clear_p_o     <= '0;
+      mon_force_exp_p_o <= 1'b0;
+      ca_ack_start_p_o  <= 1'b0;
+      ca_ack_clear_p_o  <= 1'b0;
 `ifdef AEM_DYNMAP
       dmap_wr_p_o <= 1'b0;
 
@@ -2557,11 +2690,120 @@ module KL_aecp_response_builder (
         end
       end
 
+      //! Placed LAST among the per-cycle arms and just ahead of the FSM:
+      //! the eviction below clears unsol_valid_r AND every pending class
+      //! bit, and a push trigger firing in the same cycle reads the slot
+      //! as still valid. Last assignment wins in an always_ff, so the
+      //! clears have to come after every arm that could re-raise them -
+      //! otherwise a departed controller keeps a pend bit and the IDLE
+      //! chain unicasts a notification at a stale MAC, which is the exact
+      //! zombie this clause exists to prevent.
+      // ================================================================ //
+      // gh #59 — departing-controller monitor bookkeeping                 //
+      // (Milan v1.2 §5.4.5.3; IEEE 1722.1-2021 §7.4.4 / §9.3.6)           //
+      // Everything here is off the FSM: the monitors run on wall time,    //
+      // the answer arrives on wire time, and only the two FRAME arms      //
+      // (probe, deregistration push) need the engine.                     //
+      // ================================================================ //
+
+      //! 1. a monitor ran out -> that slot is owed a probe. The timer has
+      //!    already stopped itself; nothing re-arms it until the outcome
+      //!    is known, so a slow arbiter can never double-probe.
+      for (int s = 0; s < UNSOL_SLOTS_C; s++)
+        if (mon_exp_p_i[s] && unsol_valid_r[s]) ca_owed_r[s] <= 1'b1;
+
+      //! 2. a controller ANSWERED. "If the controller replies (no matter
+      //!    the value of the status code)" - the witness in KL_aecp_ingress
+      //!    never looks at the status, so an error-status reply proves
+      //!    liveness exactly like a SUCCESS one. Reload its monitor, and if
+      //!    it is the outstanding probe's controller, close the transaction
+      //!    (9.3.6 processResponse: remove the inflight entry, cancel the
+      //!    timeout).
+      if (ca_reply_p_i && w_ca_reply_match != '0) begin
+        mon_heard_p_o <= w_ca_reply_match;
+        ca_replies_r  <= ca_replies_r + 12'd1;
+        if (ca_inflight_r && ca_reply_eid_i == ca_probe_eid_r) begin
+          ca_inflight_r    <= 1'b0;
+          ca_retried_r     <= 1'b0;
+          ca_send_r        <= 1'b0;
+          ca_ack_clear_p_o <= 1'b1;
+        end
+      end
+
+      //! 3. the 250 ms acknowledgement window closed. First close = the ONE
+      //!    retry, re-sending ca_probe_seq_r verbatim (9.3.6 txCommand's
+      //!    retry branch keeps the InflightCommand's sequence_id). Second
+      //!    close = departure: stage the identity, clear the slot and every
+      //!    pending class bit in the SAME cycle - a zombie slot could
+      //!    otherwise win arbitration or a dedup match - and owe the
+      //!    departing controller its deregistration.
+      if (ca_ack_exp_p_i && ca_inflight_r && w_ca_probe_live) begin
+        if (!ca_retried_r) begin
+          ca_retried_r <= 1'b1;
+          ca_send_r    <= 1'b1;
+        end else begin
+          ca_dead_eid_r   <= ca_probe_eid_r;
+          ca_dead_mac_r   <= ca_probe_mac_r;
+          ca_dead_seq_r   <= unsol_seq_r[ca_probe_idx_r];
+          ca_dereg_pend_r <= 1'b1;
+          unsol_valid_r[ca_probe_idx_r] <= 1'b0;
+          unsol_pend_r[ca_probe_idx_r]   <= 1'b0;
+          unsol_pend3_r[ca_probe_idx_r]  <= 1'b0;
+          unsol_pend4_r[ca_probe_idx_r]  <= 1'b0;
+          unsol_pend5_r[ca_probe_idx_r]  <= '0;
+          unsol_pend6_r[ca_probe_idx_r]  <= '0;
+          unsol_pend7_r[ca_probe_idx_r]  <= 1'b0;
+          unsol_pend8_r[ca_probe_idx_r]  <= 1'b0;
+          unsol_pend9_r[ca_probe_idx_r]  <= 1'b0;
+          unsol_pend10_r[ca_probe_idx_r] <= '0;
+          unsol_pend11_r[ca_probe_idx_r] <= 1'b0;
+          unsol_pend12_r[ca_probe_idx_r] <= 1'b0;
+          ca_owed_r[ca_probe_idx_r]      <= 1'b0;
+          mon_clear_p_o[ca_probe_idx_r]  <= 1'b1;
+          ca_inflight_r <= 1'b0;
+          ca_retried_r  <= 1'b0;
+          ca_evict_r    <= ca_evict_r + 8'd1;
+        end
+      end
+
+      //! 3b. the slot under probe left by OTHER means (an explicit
+      //!     DEREGISTER answered while the probe was in flight). Abandon
+      //!     the transaction: a controller that resigned must not be
+      //!     "evicted" a second time, and a second DEREGISTER push to it
+      //!     would be a notification for a registration that no longer
+      //!     exists. Placed after the timeout arm and mutually exclusive
+      //!     with it (that arm requires w_ca_probe_live).
+      if (ca_inflight_r && !w_ca_probe_live) begin
+        ca_inflight_r    <= 1'b0;
+        ca_retried_r     <= 1'b0;
+        ca_send_r        <= 1'b0;
+        ca_ack_clear_p_o <= 1'b1;
+      end
+
+      //! 4. pick the next probe. ONE outstanding at a time: two silent
+      //!    controllers serialise (~500 ms apart), which is also what keeps
+      //!    a NO_RESOURCES sweep from putting four probes on the wire at
+      //!    once. The identity is staged HERE, not at emission, so an
+      //!    eviction that lands while the frame is still in the segment
+      //!    engine cannot rewrite the frame under it.
+      if (enable_i && !ca_inflight_r && !ca_send_r && ca_owed_r != '0) begin
+        ca_probe_idx_r <= w_ca_owed_idx;
+        ca_probe_eid_r <= unsol_eid_r[w_ca_owed_idx];
+        ca_probe_mac_r <= unsol_mac_r[w_ca_owed_idx];
+        ca_probe_seq_r <= ca_seq_r;
+        ca_seq_r       <= ca_seq_r + 16'd1;
+        ca_owed_r[w_ca_owed_idx] <= 1'b0;
+        ca_send_r      <= 1'b1;
+        ca_inflight_r  <= 1'b1;
+        ca_retried_r   <= 1'b0;
+      end
+
       case (state_r)
         // ---------------------------------------------------------- //
         IDLE_S: begin
           discard_q <= !enable_i;
           unsol_frame_r <= 1'b0;
+          ca_frame_r    <= 1'b0;
           if (enable_i && unsol_pend4_r != '0) begin
             // SET-response replay: hdr_q/capture RAM still hold the causing
             // command (tready is gated while pend4 != 0); re-run DECIDE with
@@ -2952,6 +3194,62 @@ module KL_aecp_response_builder (
             cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
             fi_r       <= 16'd0;
             state_r    <= WRITE_S;
+          end else if (enable_i && ca_dereg_pend_r) begin
+            //! gh #59 eviction notice: an unsolicited (u=1) SUCCESS
+            //! DEREGISTER_UNSOLICITED_NOTIFICATION response, unicast to the
+            //! DEPARTED controller and to nobody else (Milan 5.4.5.3 /
+            //! 5.4.2.21 are both explicit about the "only"). Every field
+            //! comes from the staging registers - the slot it describes was
+            //! erased the moment the retry timed out. Payload is empty
+            //! (7.4.38: the response carries no command_specific_data), so
+            //! cdl is the bare 12. Ahead of the probe arm: a departure that
+            //! has already been decided outranks a question not yet asked.
+            ca_dereg_pend_r <= 1'b0;
+            unsol_frame_r <= 1'b1;
+            dst_mac_q     <= ca_dead_mac_r;
+            hdr_q.controller_entity_id <= ca_dead_eid_r;
+            hdr_q.sequence_id          <= ca_dead_seq_r;
+            hdr_q.command_type         <= CMD_DEREGISTER_UNSOLICITED_NOTIFICATION;
+            vu_q       <= 1'b0;
+            msg_resp_q <= MSG_AEM_RESPONSE;
+            status_q   <= STATUS_SUCCESS;
+            for (int s = 0; s < SEGN_C; s++) begin
+              seg_kind_q[s] <= SEG_NONE; seg_addr_q[s] <= 16'd0; seg_len_q[s] <= 16'd0;
+            end
+            cdl_q      <= 11'd12;
+            wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
+            cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
+            fi_r       <= 16'd0;
+            state_r    <= WRITE_S;
+          end else if (enable_i && ca_send_r) begin
+            //! gh #59 THE PROBE (IEEE 1722.1-2021 7.4.4): an AEM_COMMAND,
+            //! command_type CONTROLLER_AVAILABLE, zero-length
+            //! command_specific_data -> cdl 12, a 38-byte AECPDU. The
+            //! header inverts: target_entity_id = the CONTROLLER's id (via
+            //! ca_frame_r's hdr_byte mux), controller_entity_id = OURS.
+            //! Sequence comes from ca_seq_r's own initiator space and the
+            //! RETRY re-sends the same ca_probe_seq_r - both were latched
+            //! when the probe was picked, so this arm is identical for the
+            //! first send and the retry. LAST in the IDLE chain: every
+            //! other arm announces a fact, this one asks a question.
+            ca_send_r  <= 1'b0;
+            ca_frame_r <= 1'b1;
+            ca_probes_r <= ca_probes_r + 12'd1;
+            dst_mac_q  <= ca_probe_mac_r;
+            hdr_q.controller_entity_id <= entity_id_i;
+            hdr_q.sequence_id          <= ca_probe_seq_r;
+            hdr_q.command_type         <= CMD_CONTROLLER_AVAILABLE;
+            vu_q       <= 1'b0;
+            msg_resp_q <= MSG_AEM_COMMAND;
+            status_q   <= STATUS_SUCCESS;   // "status" field of a command = 0
+            for (int s = 0; s < SEGN_C; s++) begin
+              seg_kind_q[s] <= SEG_NONE; seg_addr_q[s] <= 16'd0; seg_len_q[s] <= 16'd0;
+            end
+            cdl_q      <= 11'd12;
+            wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
+            cum_done_q <= 1'b0; cum_ph_r <= 2'd0; cum_acc_r <= 16'd0;
+            fi_r       <= 16'd0;
+            state_r    <= WRITE_S;
           end
         end
 
@@ -2988,6 +3286,18 @@ module KL_aecp_response_builder (
             end else begin
               evt_cmd_o <= 1'b1;
               dst_mac_q <= req_src_mac_i;
+              //! gh #59 "heard" (Milan 5.4.5.3): "after each VALID AECP
+              //! command received from a registered controller ... (re)set
+              //! the monitor timer". THIS is that instant - the frame
+              //! passed the validator, the parser and the entity-id match,
+              //! and the status it will be answered with has not been
+              //! decided yet, which is exactly right: a READ_DESCRIPTOR, a
+              //! command answered NOT_IMPLEMENTED and a vendor-unique MVU
+              //! all prove the controller is alive. Self-generated frames
+              //! never pass through here (the pend4 replay re-enters
+              //! DECIDE_S directly from IDLE_S), so the entity can never
+              //! hear itself.
+              mon_heard_p_o <= w_unsol_match;
               state_r   <= DECIDE_S;
             end
           end
@@ -4202,8 +4512,24 @@ module KL_aecp_response_builder (
                   unsol_eid_r[w_unsol_fill_idx]   <= hdr_q.controller_entity_id;
                   unsol_mac_r[w_unsol_fill_idx]   <= req_src_mac_i;
                   unsol_seq_r[w_unsol_fill_idx]   <= 16'd0;
+                  //! gh #59: the slot is born monitored (5.4.5.3 monitors
+                  //! "each of its registered controllers"; the clause also
+                  //! names REGISTER itself as a (re)setting command, which
+                  //! the birth reload subsumes)
+                  mon_arm_p_o[w_unsol_fill_idx]   <= 1'b1;
                 end else begin
                   status_q <= STATUS_NO_RESOURCES;
+                  //! gh #59 / Milan 5.4.2.21's "may" arm: a refused
+                  //! registration force-expires EVERY monitor, so the
+                  //! probes go out at once and any slot whose owner is gone
+                  //! frees within about a second (two serialised
+                  //! probe+retry rounds). A controller that answers is
+                  //! re-armed by its own reply and is never deregistered -
+                  //! "the entity shall not automatically deregister another
+                  //! controller that is responding" holds by construction,
+                  //! not by a special case. The controller retries its
+                  //! REGISTER and wins.
+                  mon_force_exp_p_o <= 1'b1;
                 end
               end
 
@@ -4224,6 +4550,10 @@ module KL_aecp_response_builder (
                     unsol_pend10_r[s] <= '0;
                     unsol_pend11_r[s] <= 1'b0;
                     unsol_pend12_r[s] <= 1'b0;
+                    //! gh #59: a slot that leaves on its own has nothing
+                    //! left to monitor and owes no probe
+                    mon_clear_p_o[s]  <= 1'b1;
+                    ca_owed_r[s]      <= 1'b0;
                   end
                 end
               end
@@ -4818,15 +5148,23 @@ module KL_aecp_response_builder (
             evt_resp_o  <= 1'b1;
             // a SUCCESS state-changing SET: replay its response (u=1) to
             // every registered controller except the originator
-            if (!unsol_frame_r && !vu_q && status_q == STATUS_SUCCESS &&
+            if (!w_self_frame && !vu_q && status_q == STATUS_SUCCESS &&
                 is_replay_cmd(hdr_q.command_type) && !nochg_q &&
                 !(wb_used_q && !wb_diff_q))
               for (int sl = 0; sl < UNSOL_SLOTS_C; sl++)
                 if (unsol_valid_r[sl] &&
                     unsol_eid_r[sl] != hdr_q.controller_entity_id)
                   unsol_pend4_r[sl] <= 1'b1;
-            // pushes are self-generated: there is no ingress meta to pop
-            if (!unsol_frame_r) pop_pend_r <= pop_pend_r + 2'd1;
+            // pushes AND the gh #59 probe are self-generated: there is no
+            // ingress meta to pop for either
+            if (!w_self_frame) pop_pend_r <= pop_pend_r + 2'd1;
+            //! gh #59: the 250 ms acknowledgement window opens HERE, when
+            //! the probe's last beat has actually drained - not when the
+            //! probe was decided. Arbitration behind a long response (a
+            //! 494-byte READ_DESCRIPTOR, a batch) would otherwise eat the
+            //! window and time out a controller that was never asked.
+            if (ca_frame_r) ca_ack_start_p_o <= 1'b1;
+            ca_frame_r    <= 1'b0;
             unsol_frame_r <= 1'b0;
             batch_q     <= 1'b0;
             bsub_q      <= 1'b0;

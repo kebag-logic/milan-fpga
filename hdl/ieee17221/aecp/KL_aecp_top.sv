@@ -42,7 +42,15 @@
 import aecp_pkg::*;
 
 module KL_aecp_top #(
-  parameter int unsigned CLK_FREQ_HZ_P = 100_000_000
+  parameter int unsigned CLK_FREQ_HZ_P = 100_000_000,
+  //! gh #59 departing-controller monitors (Milan v1.2 §5.4.5.3). Defaults
+  //! are the clause: a random 30..60 s monitor and the 1722.1-2021 9.3.2.6
+  //! 250 ms acknowledgement. tb/verilator/aecp/sim_ctrlavail.cpp shrinks
+  //! all three so a full silent-eviction walk simulates in milliseconds -
+  //! the LAW is in the RTL, the DURATIONS are parameters.
+  parameter int unsigned MONITOR_MIN_MS_P = 30_000,
+  parameter int unsigned MONITOR_RND_MS_P = 30_000,
+  parameter int unsigned CA_ACK_MS_P      = 250
 ) (
   input  wire          clk_i,
   input  wire          rst_n,
@@ -206,7 +214,11 @@ module KL_aecp_top #(
   output wire [63:0]   locking_ctlr_o,
   output wire [15:0]   current_config_o,
   output wire [15:0]   cmd_count_o,       //! commands accepted
-  output wire [15:0]   resp_count_o       //! responses sent
+  output wire [15:0]   resp_count_o,      //! responses sent
+  //! gh #59 departing-controller diagnostics (CSR 0x6F4 A_CTLR_DIAG):
+  //! {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12], probes
+  //! sent[11:0]} - the standing all-counters sweep's window onto 5.4.5.3
+  output wire [31:0]   ca_diag_o
 );
 
   // ---- internal AXIS links (flat: sv2v v0.0.13 renders interface
@@ -238,17 +250,36 @@ module KL_aecp_top #(
   logic [3:0]    val_msgtype_w;
 
   // ---- timers --------------------------------------------------------
+  //! gh #59 monitor plane: one millisecond downcounter per registration
+  //! slot plus the shared 250 ms acknowledgement counter. The builder owns
+  //! the table and the verdicts; the timers own wall time.
   logic tick_1khz_w;
-  KL_aecp_timers #(.CLK_FREQ_HZ_P(CLK_FREQ_HZ_P)) u_timers (
+  logic [AECP_UNSOL_SLOTS_C-1:0] mon_arm_w, mon_heard_w, mon_clear_w, mon_exp_w;
+  logic mon_force_exp_w, ca_ack_start_w, ca_ack_clear_w, ca_ack_exp_w;
+  KL_aecp_timers #(
+    .CLK_FREQ_HZ_P(CLK_FREQ_HZ_P),
+    .MON_SLOTS_P(AECP_UNSOL_SLOTS_C),
+    .MONITOR_MIN_MS_P(MONITOR_MIN_MS_P),
+    .MONITOR_RND_MS_P(MONITOR_RND_MS_P),
+    .ACK_MS_P(CA_ACK_MS_P)
+  ) u_timers (
     .clk_i(clk_i), .rst_n(rst_n), .ptp_ts_i(64'd0),
     .tick_1khz_o(tick_1khz_w),
     .lock_start_i(1'b0), .lock_clear_i(1'b0), .lock_expired_o(),
-    .counter_gate_o(), .stale_tick_o()
+    .counter_gate_o(),
+    .entity_id_i(entity_id_i),
+    .mon_arm_i(mon_arm_w), .mon_heard_i(mon_heard_w),
+    .mon_clear_i(mon_clear_w), .mon_force_exp_i(mon_force_exp_w),
+    .mon_expired_o(mon_exp_w),
+    .ack_start_i(ca_ack_start_w), .ack_clear_i(ca_ack_clear_w),
+    .ack_expired_o(ca_ack_exp_w)
   );
 
   // ---- ingress: RX monitor -> big-lane replay -----------------------
   logic [47:0] req_src_mac_w;
   logic        req_valid_w, req_pop_w;
+  logic        ca_reply_p_w;
+  logic [63:0] ca_reply_eid_w;
   //! 1024 B: a full-size 7.4.76 batch AECPDU (up to ~520 B on the wire)
   //! must fit even while the builder drains a previous response
   KL_aecp_ingress #(.FIFO_DEPTH_BYTES(1024)) u_ingress (
@@ -259,7 +290,8 @@ module KL_aecp_top #(
     .m_axis_tvalid(ig_to_val_tvalid), .m_axis_tready(ig_to_val_tready), .m_axis_tdata(ig_to_val_tdata), .m_axis_tkeep(ig_to_val_tkeep), .m_axis_tlast(ig_to_val_tlast),
     .req_src_mac_o(req_src_mac_w), .req_valid_o(req_valid_w), .req_pop_i(req_pop_w),
     .adp_discover_o(adp_discover_o),
-    .adp_disc_seen_o(adp_disc_seen_o)
+    .adp_disc_seen_o(adp_disc_seen_o),
+    .ca_reply_p_o(ca_reply_p_w), .ca_reply_eid_o(ca_reply_eid_w)
   );
 
   // ---- validator -----------------------------------------------------
@@ -421,6 +453,13 @@ module KL_aecp_top #(
     .m_axis_tdata(m_axis_tdata), .m_axis_tkeep(m_axis_tkeep),
     .m_axis_tvalid(m_axis_tvalid), .m_axis_tlast(m_axis_tlast),
     .m_axis_tready(m_axis_tready),
+    .ca_reply_p_i(ca_reply_p_w), .ca_reply_eid_i(ca_reply_eid_w),
+    .mon_exp_p_i(mon_exp_w),
+    .mon_arm_p_o(mon_arm_w), .mon_heard_p_o(mon_heard_w),
+    .mon_clear_p_o(mon_clear_w), .mon_force_exp_p_o(mon_force_exp_w),
+    .ca_ack_exp_p_i(ca_ack_exp_w),
+    .ca_ack_start_p_o(ca_ack_start_w), .ca_ack_clear_p_o(ca_ack_clear_w),
+    .ca_diag_o(ca_diag_o),
     .evt_cmd_o(evt_cmd_w), .evt_resp_o(evt_resp_w), .evt_drop_o(evt_drop_w)
   );
 

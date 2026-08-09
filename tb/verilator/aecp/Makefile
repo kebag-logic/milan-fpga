@@ -118,12 +118,29 @@ run: $(GEN)
 	  $(SRCS) sim_odmap.cpp -o Vaecp_odmap     # dynamic STREAM_PORT_OUTPUTs
 	$(VERILATOR) $(SHAPE_TDM8) $(VBASE) --Mdir obj_tdm8 \
 	  $(SRCS) sim_odmap_tdm8.cpp -o Vaecp_tdm8 # SHIPPING tdm8 (task #32.3)
-	$(VERILATOR) -GCLK_FREQ_HZ_P=100000 -I../../../hdl/ieee17221/aecp $(VFLAGS) \
+	# Table 5.22 pushes (1 ms = 100 cyc); hdl -I FIRST: the MODERN gen/ svh
+	# (per-stream fmt array) must win over arty_current's legacy copy.
+	# MONITOR_MIN_MS_P is stretched past this suite's whole timeline (its
+	# lock-expiry case time-warps 60 SECONDS of controller silence to watch a
+	# 60 s lock run out). At the shipping 30..60 s that silence now earns a
+	# gh #59 CONTROLLER_AVAILABLE probe - correctly: a controller that says
+	# nothing for a minute IS what Milan 5.4.5.3 asks about. Stretching the
+	# monitor removes that orthogonal variable so this suite keeps testing
+	# exactly what it always tested, byte for byte and check for check; the
+	# departing-controller law has its own harness in sim_ctrlavail.cpp.
+	$(VERILATOR) -GCLK_FREQ_HZ_P=100000 -GMONITOR_MIN_MS_P=4000000 \
+	  -GMONITOR_RND_MS_P=2 -I../../../hdl/ieee17221/aecp $(VFLAGS) \
 	  --Mdir obj_unsol \
-	  $(SRCS) sim_unsol.cpp -o Vaecp_unsol     # Table 5.22 pushes (1 ms = 100 cyc);
-	                                           # hdl -I FIRST: the MODERN gen/ svh
-	                                           # (per-stream fmt array) must win over
-	                                           # arty_current's legacy copy
+	  $(SRCS) sim_unsol.cpp -o Vaecp_unsol
+	# gh #59 Milan 5.4.5.3: departing-controller detection. Same 1 ms = 100
+	# cycle scaling, plus a monitor shrunk from 30..60 s to 101..150 ms and a
+	# 21 ms acknowledgement window, so a full silent-eviction walk (probe ->
+	# retry -> deregistration, four controllers) simulates in a few hundred
+	# thousand cycles. The LAW is in the RTL; only the DURATIONS move here.
+	$(VERILATOR) -GCLK_FREQ_HZ_P=100000 -GMONITOR_MIN_MS_P=100 \
+	  -GMONITOR_RND_MS_P=50 -GCA_ACK_MS_P=20 \
+	  -I../../../hdl/ieee17221/aecp $(VFLAGS) --Mdir obj_ctrlavail \
+	  $(SRCS) sim_ctrlavail.cpp -o Vaecp_ctrlavail
 	@echo "======================================================================"
 	./obj_dir/Vaecp_sim
 	./obj_fmt2/Vaecp_fmt2
@@ -136,6 +153,7 @@ run: $(GEN)
 	./obj_odmap/Vaecp_odmap
 	./obj_tdm8/Vaecp_tdm8
 	./obj_unsol/Vaecp_unsol
+	./obj_ctrlavail/Vaecp_ctrlavail
 
 $(GEN):
 	cd ../../.. && python3 avdecc/gen_aem_store.py
@@ -153,4 +171,4 @@ clean:
 	rm -rf obj_dir obj_fmt2 fmt2_inc obj_fmt4 fmt4_inc obj_dynmap dynmap_inc
 	rm -rf obj_nxn obj_amap smap8_inc
 	rm -rf obj_pools pools_inc obj_dynmap2 dynmap2_inc obj_odmap odmap_inc
-	rm -rf obj_tdm8
+	rm -rf obj_tdm8 obj_unsol obj_ctrlavail
