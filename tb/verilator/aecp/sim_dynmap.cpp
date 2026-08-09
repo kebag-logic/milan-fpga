@@ -66,10 +66,34 @@ static void put_be16(std::vector<uint8_t>& v, uint16_t x) {
     v.push_back(x >> 8); v.push_back(x & 0xFF);
 }
 
-static std::vector<uint8_t> aem_cmd2(const uint8_t* src_mac, uint64_t ctlr,
+//! AEM command frame layout: 14 B Ethernet + 4 B AVTP common header + 8 B
+//! target_entity_id + 8 B controller_entity_id + 2 B sequence_id + 2 B
+//! u/command_type = 38 B ahead of the command_specific payload, and the whole
+//! frame is padded up to the 60 B Ethernet minimum.
+static const size_t AEM_HDR_BYTES = 38;
+static const size_t ETH_MIN_BYTES = 60;
+
+//! Widest AEM response this suite collects (a READ_DESCRIPTOR reply), used to
+//! size the collector once instead of growing it a beat at a time.
+static const size_t AEM_RESP_BYTES = 600;
+
+//! One reusable stimulus buffer for the whole run. The builder below fills it
+//! through a reference and clear() keeps its capacity, so the command bytes
+//! cost ONE allocation for the entire simulation instead of a malloc plus
+//! three or four reallocs on every transaction.
+static std::vector<uint8_t> stim;
+
+//! Fill `out` with an AEM command frame from an arbitrary controller and
+//! hand back a reference to it, so a call site reads
+//! `feed_rx(build_aem_cmd2(stim, ...))` and reuses one buffer.
+static const std::vector<uint8_t>& build_aem_cmd2(std::vector<uint8_t>& out,
+                                     const uint8_t* src_mac, uint64_t ctlr,
                                      uint16_t cmd, uint16_t seq,
                                      const std::vector<uint8_t>& payload) {
-    std::vector<uint8_t> f;
+    size_t want = AEM_HDR_BYTES + payload.size();
+    out.clear();                                // clear KEEPS the capacity
+    out.reserve(want < ETH_MIN_BYTES ? ETH_MIN_BYTES : want);
+    std::vector<uint8_t>& f = out;
     for (int i=0;i<6;i++) f.push_back(ENT_MAC[i]);
     for (int i=0;i<6;i++) f.push_back(src_mac[i]);
     put_be16(f, 0x22F0);
@@ -84,8 +108,8 @@ static std::vector<uint8_t> aem_cmd2(const uint8_t* src_mac, uint64_t ctlr,
     f.push_back((cmd >> 8) & 0x7F);
     f.push_back(cmd & 0xFF);
     for (auto b : payload) f.push_back(b);
-    while (f.size() < 60) f.push_back(0x00);
-    return f;
+    while (f.size() < ETH_MIN_BYTES) f.push_back(0x00);
+    return out;
 }
 
 static void feed_rx(const std::vector<uint8_t>& f) {
@@ -105,6 +129,7 @@ static void feed_rx(const std::vector<uint8_t>& f) {
 
 static std::vector<uint8_t> collect_resp(int budget = 8000) {
     std::vector<uint8_t> b;
+    b.reserve(AEM_RESP_BYTES);          // one allocation, not one per beat run
     int idle = 0;
     dut->m_axis_tready = 1;
     for (int c = 0; c < budget; c++) {
@@ -139,7 +164,7 @@ static int r_cdl(const std::vector<uint8_t>& b) {
 
 static uint16_t seq = 0x5000;
 static std::vector<uint8_t> xact(uint16_t cmd, const std::vector<uint8_t>& pl) {
-    feed_rx(aem_cmd2(CTL_MAC, CTLR_ID, cmd, seq++, pl));
+    feed_rx(build_aem_cmd2(stim, CTL_MAC, CTLR_ID, cmd, seq++, pl));
     return collect_resp();
 }
 
@@ -153,6 +178,7 @@ static const uint64_t AAF8 = 0x0205022002006000ULL;  // 48k 8ch concrete
 // GET_AUDIO_MAP payload: type(2) idx(2) map_index(2) reserved(2)
 static std::vector<uint8_t> gm_pl(uint16_t t, uint16_t i, uint16_t page) {
     std::vector<uint8_t> pl;
+    pl.reserve(8);                              // four u16 fields, exactly
     put_be16(pl, t); put_be16(pl, i); put_be16(pl, page); put_be16(pl, 0);
     return pl;
 }
@@ -162,6 +188,7 @@ static std::vector<uint8_t> am_pl(uint16_t t, uint16_t i,
                                   const std::vector<std::array<uint16_t,4>>& m,
                                   int n_override = -1) {
     std::vector<uint8_t> pl;
+    pl.reserve(8 + 8 * m.size());               // 8 B header + 8 B per record
     put_be16(pl, t); put_be16(pl, i);
     put_be16(pl, n_override >= 0 ? (uint16_t)n_override : (uint16_t)m.size());
     put_be16(pl, 0);
@@ -343,13 +370,13 @@ int main(int argc, char** argv) {
 
     printf("\n[6] u=1 replay to registered controllers (7.4.45/46)\n");
     {
-        feed_rx(aem_cmd2(CTL2_MAC, CTLR2_ID, CMD_REG_UNSOL, seq++, {}));
+        feed_rx(build_aem_cmd2(stim, CTL2_MAC, CTLR2_ID, CMD_REG_UNSOL, seq++, {}));
         auto r = collect_resp();
         ck("ctlr2 REGISTER_UNSOLICITED SUCCESS", r_status(r), 0);
 
         // SET_STREAM_FORMAT above already replayed once; drain nothing more.
         take_wrs();   //! drain earlier sections' fabric-mirror strobes
-        feed_rx(aem_cmd2(CTL_MAC, CTLR_ID, CMD_ADD_MAP, seq++,
+        feed_rx(build_aem_cmd2(stim, CTL_MAC, CTLR_ID, CMD_ADD_MAP, seq++,
                          am_pl(SPI, 0, {{{0,0,2,0}}})));
         r = collect_resp();
         ck("ADD cl2 SUCCESS (u=0 response)", r_status(r), 0);
@@ -367,7 +394,7 @@ int main(int argc, char** argv) {
           ck("fabric mirror: u=1 replay re-commits idempotently", (long)w.size(), 1);
           if (w.size()==1) ck("... replay word identical 0x80", w[0].word, 0x80); }
 
-        feed_rx(aem_cmd2(CTL_MAC, CTLR_ID, CMD_ADD_MAP, seq++,
+        feed_rx(build_aem_cmd2(stim, CTL_MAC, CTLR_ID, CMD_ADD_MAP, seq++,
                          am_pl(SPI, 0, {{{0,0,2,0}}})));
         r = collect_resp();
         ck("same ADD again SUCCESS", r_status(r), 0);
@@ -376,7 +403,7 @@ int main(int argc, char** argv) {
         u = collect_resp();
         ck("no-change ADD -> NO replay (nochg rule)", (long)u.size(), 0);
 
-        feed_rx(aem_cmd2(CTL_MAC, CTLR_ID, CMD_RM_MAP, seq++,
+        feed_rx(build_aem_cmd2(stim, CTL_MAC, CTLR_ID, CMD_RM_MAP, seq++,
                          am_pl(SPI, 0, {{{0,0,2,0}}})));
         r = collect_resp();
         ck("REMOVE cl2 SUCCESS", r_status(r), 0);
@@ -397,7 +424,7 @@ int main(int argc, char** argv) {
           ck("replay walked but wrote NOTHING to the fabric",
              (long)w.size(), 0); }
 
-        feed_rx(aem_cmd2(CTL_MAC, CTLR_ID, CMD_RM_MAP, seq++,
+        feed_rx(build_aem_cmd2(stim, CTL_MAC, CTLR_ID, CMD_RM_MAP, seq++,
                          am_pl(SPI, 0, {{{0,0,2,0}}})));
         r = collect_resp();
         //! 7.4.46.1, verbatim: "If any of the mappings in the command are
@@ -414,7 +441,7 @@ int main(int argc, char** argv) {
         ck("... and NO replay (nothing changed)", (long)u.size(), 0);
 
         // deregister ctlr2: the later cases parse one frame per command
-        feed_rx(aem_cmd2(CTL2_MAC, CTLR2_ID, CMD_DEREG_UNSOL, seq++, {}));
+        feed_rx(build_aem_cmd2(stim, CTL2_MAC, CTLR2_ID, CMD_DEREG_UNSOL, seq++, {}));
         r = collect_resp();
         ck("ctlr2 DEREGISTER SUCCESS", r_status(r), 0);
     }
@@ -447,15 +474,15 @@ int main(int argc, char** argv) {
         ck("REMOVE on static output NOT_SUPPORTED", r_status(r), 11);
 
         std::vector<uint8_t> lk(12, 0);   // flags(4)+locked_id(8)
-        feed_rx(aem_cmd2(CTL2_MAC, CTLR2_ID, CMD_LOCK, seq++, lk));
+        feed_rx(build_aem_cmd2(stim, CTL2_MAC, CTLR2_ID, CMD_LOCK, seq++, lk));
         r = collect_resp();
         ck("ctlr2 LOCK SUCCESS", r_status(r), 0);
-        feed_rx(aem_cmd2(CTL_MAC, CTLR_ID, CMD_ADD_MAP, seq++,
+        feed_rx(build_aem_cmd2(stim, CTL_MAC, CTLR_ID, CMD_ADD_MAP, seq++,
                          am_pl(SPI, 0, {{{0,0,2,0}}})));
         r = collect_resp();
         ck("ADD from other controller ENTITY_LOCKED", r_status(r), 3);
         lk[3] = 1;                        // UNLOCK flag
-        feed_rx(aem_cmd2(CTL2_MAC, CTLR2_ID, CMD_LOCK, seq++, lk));
+        feed_rx(build_aem_cmd2(stim, CTL2_MAC, CTLR2_ID, CMD_LOCK, seq++, lk));
         r = collect_resp();
         ck("ctlr2 UNLOCK SUCCESS", r_status(r), 0);
         r = xact(CMD_GET_MAP, gm_pl(SPI, 0, 0));

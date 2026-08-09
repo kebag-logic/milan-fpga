@@ -57,6 +57,21 @@ static void gap(const char* what, long got, long cur, long req,
 }
 
 // partial response frame currently being assembled (survives across helpers)
+// ------------------------------------------------------------------ buffers
+// Wire lengths of the two frame shapes this harness builds and receives, named
+// so the reserve() calls below carry the frame's layout arithmetic instead of
+// a magic number:
+//   ACMP  70 B = 14 Ethernet + 4 AVTP common header + 52 ACMPDU (1722.1 8.2.1)
+//   ADP   82 B = 14 Ethernet + 4 AVTP common header + 64 ADPDU (1722.1 6.2.1)
+static const size_t ACMP_FRAME_BYTES = 70;
+static const size_t ADP_FRAME_BYTES  = 82;
+
+//! One reusable stimulus buffer for the whole run. The builders below fill it
+//! through a reference and clear() keeps its capacity, so the frame bytes cost
+//! ONE allocation for the entire simulation instead of a malloc plus three or
+//! four reallocs on every call.
+static std::vector<uint8_t> stim;
+
 static std::vector<uint8_t> partial;
 
 static void tick() {
@@ -100,6 +115,7 @@ static void settle() { run(8); }
 // wait for the next complete output frame (empty = none within budget)
 static std::vector<uint8_t> wait_frame(int budget = 4000) {
     std::vector<uint8_t> f;
+    f.reserve(ACMP_FRAME_BYTES);        // every frame this DUT emits is an ACMPDU
     for (int c = 0; c < budget; c++)
         if (tick_collect(&f)) return f;
     return {};
@@ -118,15 +134,21 @@ static void put_be(std::vector<uint8_t>& v, uint64_t x, int n) {
     for (int i = n-1; i >= 0; i--) v.push_back((x >> (8*i)) & 0xFF);
 }
 
-// 70-byte ACMP frame
-static std::vector<uint8_t> acmp(uint8_t msg, uint8_t status,
+//! Fill `out` with the 70-byte ACMP frame and hand back a reference to it, so
+//! the call sites read `feed(build_acmp(stim, ...))` and reuse one buffer.
+static const std::vector<uint8_t>& build_acmp(std::vector<uint8_t>& out,
+                                 uint8_t msg, uint8_t status,
                                  uint64_t sid, uint64_t ctlr, uint64_t talker,
                                  uint64_t lstnr, uint16_t tuid, uint16_t luid,
                                  const uint8_t* dmac, uint16_t seq,
                                  uint16_t flags, uint16_t vlan) {
-    std::vector<uint8_t> f = {0x91,0xE0,0xF0,0x01,0x00,0x00,
-                              0xAA,0xBB,0xCC,0x00,0x00,0x01,
-                              0x22,0xF0, 0xFC};
+    static const uint8_t HDR[15] = {0x91,0xE0,0xF0,0x01,0x00,0x00,
+                                    0xAA,0xBB,0xCC,0x00,0x00,0x01,
+                                    0x22,0xF0, 0xFC};
+    out.clear();                            // clear KEEPS the capacity
+    out.reserve(ACMP_FRAME_BYTES);
+    std::vector<uint8_t>& f = out;
+    f.insert(f.end(), HDR, HDR + sizeof HDR);
     f.push_back(msg & 0xF);
     f.push_back((status << 3) | 0);          // status | cdl_hi (cdl=44)
     f.push_back(44);
@@ -142,6 +164,19 @@ static std::vector<uint8_t> acmp(uint8_t msg, uint8_t status,
     put_be(f, flags, 2);
     put_be(f, vlan, 2);
     put_be(f, 0, 2);                          // reserved
+    return out;
+}
+
+//! Thin by-value wrapper, kept for the three raw-drive sites that hold their
+//! frame across arbitrary later code and so genuinely want their own copy.
+static std::vector<uint8_t> acmp(uint8_t msg, uint8_t status,
+                                 uint64_t sid, uint64_t ctlr, uint64_t talker,
+                                 uint64_t lstnr, uint16_t tuid, uint16_t luid,
+                                 const uint8_t* dmac, uint16_t seq,
+                                 uint16_t flags, uint16_t vlan) {
+    std::vector<uint8_t> f;
+    build_acmp(f, msg, status, sid, ctlr, talker, lstnr, tuid, luid, dmac,
+               seq, flags, vlan);
     return f;
 }
 
@@ -156,13 +191,20 @@ static std::vector<uint8_t> acmp(uint8_t msg, uint8_t status,
 // gptp_grandmaster_id (wire 54-61) / gptp_domain_number (wire 62) the
 // 5.6.4.5.1 step 1 gate checks (all-zero gm_id_i input = gate off).
 static uint32_t g_avidx = 0;
-static std::vector<uint8_t> adp(uint8_t msg, uint64_t eid, uint8_t vt = 3,
+//! Fill `out` with the 82-byte ADP frame; same reference-filling contract as
+//! build_acmp() above.
+static const std::vector<uint8_t>& build_adp(std::vector<uint8_t>& out,
+                                uint8_t msg, uint64_t eid, uint8_t vt = 3,
                                 uint64_t gm = 0, uint8_t dom = 0,
                                 uint32_t aidx = 0xFFFFFFFF) {
+    static const uint8_t HDR[15] = {0x91,0xE0,0xF0,0x01,0x00,0x00,
+                                    0x02,0x00,0x00,0x00,0x00,0x01,
+                                    0x22,0xF0, 0xFA};
     if (aidx == 0xFFFFFFFF) aidx = ++g_avidx;
-    std::vector<uint8_t> f = {0x91,0xE0,0xF0,0x01,0x00,0x00,
-                              0x02,0x00,0x00,0x00,0x00,0x01,
-                              0x22,0xF0, 0xFA};
+    out.clear();
+    out.reserve(ADP_FRAME_BYTES);
+    std::vector<uint8_t>& f = out;
+    f.insert(f.end(), HDR, HDR + sizeof HDR);
     f.push_back(msg & 0xF);
     f.push_back((uint8_t)(vt << 3)); f.push_back(56);   // valid_time | cdl
     put_be(f, eid, 8);                         // entity_id at wire byte 18
@@ -170,8 +212,8 @@ static std::vector<uint8_t> adp(uint8_t msg, uint64_t eid, uint8_t vt = 3,
     put_be(f, aidx, 4);                        // available_index, wire 50-53
     put_be(f, gm, 8);                          // gptp_grandmaster_id, 54-61
     f.push_back(dom);                          // gptp_domain_number, 62
-    while (f.size() < 82) f.push_back(0);
-    return f;
+    while (f.size() < ADP_FRAME_BYTES) f.push_back(0);
+    return out;
 }
 
 static void feed(const std::vector<uint8_t>& f) {
@@ -257,7 +299,7 @@ int main(int argc, char** argv) {
     printf("\n[1] reset + GET_RX_STATE unbound\n");
     ck("[1] state UNBOUND", dut->state_o, 0);
     ck("[1] inactive", dut->stream_active_o, 0);
-    feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x100, 0, 0));
+    feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x100, 0, 0));
     auto r = wait_frame();
     ck("[1] GET_RX_STATE answered", r.size(), 70);
     ck("[1] msg GET_RX_STATE_RESPONSE", r_msg(r), 11);
@@ -279,18 +321,18 @@ int main(int argc, char** argv) {
 
     // sink 1 (CRF): valid but ALWAYS unbound (la_avdecc fatal-enumeration
     // field report: UNKNOWN_ID for an advertised sink is inconsistent)
-    feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x100, 0, 0));
+    feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x100, 0, 0));
     r = wait_frame();
     ck("[1b] sink1 GET_RX_STATE SUCCESS", r_sta(r), 0);
     ck("[1b] sink1 count 0", (long)r_be(r, 60, 2), 0);
     ckh("[1b] sink1 talker 0", r_be(r, 34, 8), 0);
-    feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 2, nullptr, 0x100, 0, 0));
+    feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 2, nullptr, 0x100, 0, 0));
     r = wait_frame();
     ck("[1b] sink2 UNKNOWN_ID", r_sta(r), 1);
 
     // ---------------------------------------------------------------- //
     printf("\n[2] BIND_RX -> response + probe, PRB_W_RESP\n");
-    feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x101,
+    feed(build_acmp(stim, 6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x101,
               0x0002 /*FAST_CONNECT requested*/, 0));
     r = wait_frame();
     ck("[2] BIND_RESP", r_msg(r), 7);
@@ -315,7 +357,7 @@ int main(int argc, char** argv) {
 
     // ---------------------------------------------------------------- //
     printf("\n[2b] sink1 stays unbound-shaped while sink0 is mid-ladder\n");
-    feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x100, 0, 0));
+    feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x100, 0, 0));
     r = wait_frame();
     ck("[2b] sink1 SUCCESS", r_sta(r), 0);
     ck("[2b] sink1 count 0", (long)r_be(r, 60, 2), 0);
@@ -323,7 +365,7 @@ int main(int argc, char** argv) {
     ck("[2b] sink1 flags 0", (long)r_be(r, 64, 2), 0);
 
     printf("\n[3] GET_RX_STATE while probing: Table 5.37 flags\n");
-    feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x102, 0, 0));
+    feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x102, 0, 0));
     r = wait_frame();
     ck("[3] count 1", (long)r_be(r, 60, 2), 1);
     ckh("[3] talker bound", r_be(r, 34, 8), TK_EID);
@@ -339,7 +381,7 @@ int main(int argc, char** argv) {
     printf("\n[4] probe response SUCCESS -> SETTLED_NO_RSV\n");
     {
         const uint8_t dm[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x01};
-        feed(acmp(1, 0, TK_SID, CT_EID, TK_EID, US_EID, 0, 0, dm, 0, 0, 2));
+        feed(build_acmp(stim, 1, 0, TK_SID, CT_EID, TK_EID, US_EID, 0, 0, dm, 0, 0, 2));
     }
     ck("[4] state SETTLED_NO_RSV", dut->state_o, 6);
     ck("[4] active", dut->stream_active_o, 1);
@@ -352,7 +394,7 @@ int main(int argc, char** argv) {
     //! only in PRB_W_RESP/RESP2, and the sink has left them
     {
         const uint8_t dm2[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x77};
-        feed(acmp(1, 0, 0xDEAD00000000BEEFULL, CT_EID, TK_EID, US_EID,
+        feed(build_acmp(stim, 1, 0, 0xDEAD00000000BEEFULL, CT_EID, TK_EID, US_EID,
                   0, 0, dm2, 0, 0, 7));
         ck("[4] duplicate response: state held", dut->state_o, 6);
         ckh("[4] duplicate response: sid held", dut->bound_sid_o, TK_SID);
@@ -365,7 +407,7 @@ int main(int argc, char** argv) {
     dut->ta_registered_i = 1;
     settle();
     ck("[5] state SETTLED_RSV_OK", dut->state_o, 7);
-    feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x103, 0, 0));
+    feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x103, 0, 0));
     r = wait_frame();
     //! Table 5.39: FC 1, saved SW 0, RF 0 (Talker ADVERTISE registered)
     ck("[5] settled flags FC only (Table 5.39)", (long)r_be(r, 64, 2),
@@ -389,7 +431,7 @@ int main(int argc, char** argv) {
     settle();
     ck("[6] TA-fall with TF held: still RSV_OK", dut->state_o, 7);
     ck("[6] still active", dut->stream_active_o, 1);
-    feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x10A, 0, 0));
+    feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x10A, 0, 0));
     r = wait_frame();
     //! Table 5.39 REGISTERING_FAILED: 1 while the registered attribute is
     //! a Talker FAILED (FC 1, saved SW 0)
@@ -419,7 +461,7 @@ int main(int argc, char** argv) {
 
     // ---------------------------------------------------------------- //
     printf("\n[8] ADP AVAILABLE -> DELAY -> probe ladder to RETRY\n");
-    feed(adp(0, TK_EID));
+    feed(build_adp(stim, 0, TK_EID));
     settle();
     ck("[8] tk_avail", dut->tk_avail_o, 1);
     ck("[8] state PRB_W_DELAY", dut->state_o, 2);
@@ -451,14 +493,14 @@ int main(int argc, char** argv) {
     ck("[9] state PRB_W_RESP", dut->state_o, 3);
     // talker answers with TALKER_NO_BANDWIDTH (5) — the response must echo
     // the probe's sequence_id to be accepted (5.5.3.5.18 step 1)
-    feed(acmp(1, 5, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr,
+    feed(build_acmp(stim, 1, 5, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr,
               (uint16_t)r_be(p, 62, 2), 0, 0));
     ck("[9] state PRB_W_RETRY", dut->state_o, 5);
     ck("[9] status stored (5)", dut->acmp_status_o, 5);
 
     // ---------------------------------------------------------------- //
     printf("\n[10] ADP DEPARTING in RETRY -> PRB_W_AVAIL\n");
-    feed(adp(1, TK_EID));
+    feed(build_adp(stim, 1, TK_EID));
     settle();
     ck("[10] tk_avail dropped", dut->tk_avail_o, 0);
     ck("[10] state PRB_W_AVAIL", dut->state_o, 1);
@@ -466,7 +508,7 @@ int main(int argc, char** argv) {
     // ---------------------------------------------------------------- //
     printf("\n[11] rebind-same = response only; rebind-different = re-probe\n");
     long pc = dut->probe_count_o;
-    feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x104, 0, 0));
+    feed(build_acmp(stim, 6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x104, 0, 0));
     r = wait_frame();
     ck("[11] rebind-same BIND_RESP", r_msg(r), 7);
     ck("[11] state stays PRB_W_AVAIL", dut->state_o, 1);
@@ -474,7 +516,7 @@ int main(int argc, char** argv) {
     // stale ACMP status from [9] (TALKER_NO_BANDWIDTH) still shows here:
     // the rebind-same fast path must not touch it (5.5.3.5.43 step 2)
     ck("[11] stale status survives rebind-same", dut->acmp_status_o, 5);
-    feed(acmp(6, 0, 0, CT_EID, TK2_EID, US_EID, 0, 0, nullptr, 0x105, 0, 0));
+    feed(build_acmp(stim, 6, 0, 0, CT_EID, TK2_EID, US_EID, 0, 0, nullptr, 0x105, 0, 0));
     r = wait_frame();
     ck("[11] rebind-diff BIND_RESP", r_msg(r), 7);
     p = wait_frame();
@@ -488,11 +530,11 @@ int main(int argc, char** argv) {
     printf("\n[12] settle on T2 then UNBIND_RX -> UNBOUND\n");
     {
         const uint8_t dm[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x02};
-        feed(acmp(1, 0, 0x0200000000020000ULL, CT_EID, TK2_EID, US_EID, 0, 0,
+        feed(build_acmp(stim, 1, 0, 0x0200000000020000ULL, CT_EID, TK2_EID, US_EID, 0, 0,
                   dm, (uint16_t)r_be(p, 62, 2), 0, 2));
     }
     ck("[12] settled", dut->state_o, 6);
-    feed(acmp(8, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x106, 0x0008, 0));
+    feed(build_acmp(stim, 8, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x106, 0x0008, 0));
     r = wait_frame();
     ck("[12] UNBIND_RESP", r_msg(r), 9);
     ck("[12] SUCCESS", r_sta(r), 0);
@@ -506,11 +548,11 @@ int main(int argc, char** argv) {
 
     // ---------------------------------------------------------------- //
     printf("\n[13] bad listener_unique_id + foreign frames\n");
-    feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0, 5, nullptr, 0x107, 0, 0));
+    feed(build_acmp(stim, 6, 0, 0, CT_EID, TK_EID, US_EID, 0, 5, nullptr, 0x107, 0, 0));
     r = wait_frame();
     ck("[13] BIND luid=5 LISTENER_UNKNOWN_ID", r_sta(r), 1);
     ck("[13] state UNBOUND still", dut->state_o, 0);
-    feed(acmp(6, 0, 0, CT_EID, TK_EID, 0x1111222233334444ULL, 0, 0,
+    feed(build_acmp(stim, 6, 0, 0, CT_EID, TK_EID, 0x1111222233334444ULL, 0, 0,
               nullptr, 0x108, 0, 0));
     r = wait_frame(600);
     ck("[13] foreign listener ignored", r.size(), 0);
@@ -525,7 +567,7 @@ int main(int argc, char** argv) {
     {
         long pcl = dut->probe_count_o;
         dut->locked_i = 1; dut->lock_ctlr_i = CT_EID;
-        feed(acmp(6, 0, 0, CT2_EID, TK_EID, US_EID, 0, 0, nullptr,
+        feed(build_acmp(stim, 6, 0, 0, CT2_EID, TK_EID, US_EID, 0, 0, nullptr,
                   0x140, 0, 0));
         r = wait_frame();
         ck("[L] foreign BIND refused (16)", r_sta(r), 16);
@@ -538,12 +580,12 @@ int main(int argc, char** argv) {
 
     // ---------------------------------------------------------------- //
     printf("\n[14] NO_TK lapse in SETTLED_NO_RSV: 5.5.3.5.36 SRP clear\n");
-    feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x109, 0, 0));
+    feed(build_acmp(stim, 6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x109, 0, 0));
     (void)wait_frame();                              // BIND_RESP
     p = wait_frame();                                // the PROBE_TX
     {   //! settle with NONZERO SRP params so the lapse-zeroing is visible
         const uint8_t dm[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x01};
-        feed(acmp(1, 0, TK_SID, CT_EID, TK_EID, US_EID, 0, 0, dm,
+        feed(build_acmp(stim, 1, 0, TK_SID, CT_EID, TK_EID, US_EID, 0, 0, dm,
                   (uint16_t)r_be(p, 62, 2), 0, 2));
     }
     ck("[14] settled", dut->state_o, 6);
@@ -551,7 +593,7 @@ int main(int argc, char** argv) {
     //! invalid-uid refusal must not leak this BOUND record (Table 5.27 =
     //! command echo for every named field; the old path read ctx-0)
     {
-        feed(acmp(10, 0, 0x1122334455667788ULL, CT_EID,
+        feed(build_acmp(stim, 10, 0, 0x1122334455667788ULL, CT_EID,
                   0x5544332211009988ULL, US_EID, 0x7777, 5, nullptr,
                   0x141, 0x1234, 0x333));
         r = wait_frame();
@@ -574,7 +616,7 @@ int main(int argc, char** argv) {
     ckh("[14] dmac zeroed on lapse", dut->stream_dmac_o, 0);
     ck("[14] vlan zeroed on lapse", dut->stream_vlan_o, 0);
     ckh("[14] sid zeroed on lapse (5.3.8.9)", dut->bound_sid_o, 0);
-    feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x142, 0, 0));
+    feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x142, 0, 0));
     r = wait_frame();
     ck("[14] GET count still 1 (bound)", (long)r_be(r, 60, 2), 1);
     ckh("[14] GET talker still bound", r_be(r, 34, 8), TK_EID);
@@ -594,7 +636,7 @@ int main(int argc, char** argv) {
                 dut->tick_1s_i = 0; run(7);
             }
         };
-        feed(adp(0, TK_EID, 3));                    // vt 3 => 6 s
+        feed(build_adp(stim, 0, TK_EID, 3));                    // vt 3 => 6 s
         settle();
         ck("[15] visible again (vt=3)", dut->tk_avail_o, 1);
         sec(6);
@@ -602,7 +644,7 @@ int main(int argc, char** argv) {
         sec(1);
         ck("[15] aged out after vt=3 horizon", dut->tk_avail_o, 0);
 
-        feed(adp(0, TK_EID, 15));                   // vt 15 => 30 s
+        feed(build_adp(stim, 0, TK_EID, 15));                   // vt 15 => 30 s
         settle();
         ck("[15] refreshed (vt=15)", dut->tk_avail_o, 1);
         sec(30);
@@ -612,7 +654,7 @@ int main(int argc, char** argv) {
 
         //! vt = 0 clamps to 4 s (LSM_ADP_AGE_MIN_S_C): neither immortal
         //! nor dead-on-arrival
-        feed(adp(0, TK_EID, 0));
+        feed(build_adp(stim, 0, TK_EID, 0));
         settle();
         ck("[15] refreshed (vt=0)", dut->tk_avail_o, 1);
         sec(4);
@@ -647,7 +689,7 @@ int main(int argc, char** argv) {
         dut->m_axis_tready = 1;
         for (int i = 0; i < 10; i++) tick();
         // the listener must be alive again: next command accepted + answered
-        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x901, 0, 0));
+        feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x901, 0, 0));
         auto rw = wait_frame();
         ck("[W] next GET_RX_STATE answered", rw.size(), 70);
         ck("[W] cmd_count advanced", dut->cmd_count_o, (long)(cc0 + 2));
@@ -702,14 +744,14 @@ int main(int argc, char** argv) {
     {
         // sink0 state as [Z] left it: the S1 record must not disturb it
         long st0 = dut->state_o, act0 = dut->stream_active_o;
-        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x1FF, 0, 0));
+        feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x1FF, 0, 0));
         auto r = wait_frame();
         long cnt0 = (long)r_be(r, 60, 2);
         long pc0  = dut->probe_count_o;
 
         // fast-connect bind: command carries the stream_id + dest_mac
         const uint8_t cdm[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x08};
-        feed(acmp(6, 0, 0x020000000001000BULL, CT_EID, TK_EID, US_EID,
+        feed(build_acmp(stim, 6, 0, 0x020000000001000BULL, CT_EID, TK_EID, US_EID,
                   0x000B, 1, cdm, 0x200, 0, 0));
         r = wait_frame();
         ck("[S1] BIND_RESP", r_msg(r), 7);
@@ -740,7 +782,7 @@ int main(int argc, char** argv) {
         ck("[S1] probe_count advanced", (long)dut->probe_count_o - pc0, 1);
         ck("[S1] sink1 state PRB_W_RESP", dut->s1_bound_o, 1);
 
-        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x201, 0, 0));
+        feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x201, 0, 0));
         r = wait_frame();
         ck("[S1] state SUCCESS", r_sta(r), 0);
         ck("[S1] state count 1", (long)r_be(r, 60, 2), 1);
@@ -756,13 +798,13 @@ int main(int argc, char** argv) {
         // listener row is registered against - must be the RESPONSE's.
         {
             const uint8_t rdm[6] = {0x91,0xE0,0xF0,0x00,0x5B,0x77};
-            feed(acmp(1, 0, 0xAABBCCDDEEFF0077ULL, CT_EID, TK_EID, US_EID,
+            feed(build_acmp(stim, 1, 0, 0xAABBCCDDEEFF0077ULL, CT_EID, TK_EID, US_EID,
                       0x000B, 1, rdm, (uint16_t)r_be(p1, 62, 2), 0, 3));
             ckh("[S1] sid from the RESPONSE, not the guess", dut->s1_sid_o,
                 0xAABBCCDDEEFF0077ULL);
             ckh("[S1] dmac from the RESPONSE", dut->s1_dmac_o,
                 0x91E0F0005B77ULL);
-            feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x207, 0, 0));
+            feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x207, 0, 0));
             r = wait_frame();
             ckh("[S1] settled state dmac from the response", r_be(r, 54, 6),
                 0x91E0F0005B77ULL);
@@ -773,7 +815,7 @@ int main(int argc, char** argv) {
 
         // zero-sid rebind to a different tuid falls back to the {talker
         // EID(FFFE-squeezed), tuid} derivation as the PROVISIONAL value...
-        feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0x0001, 1, nullptr,
+        feed(build_acmp(stim, 6, 0, 0, CT_EID, TK_EID, US_EID, 0x0001, 1, nullptr,
                   0x202, 0, 0));
         r = wait_frame();
         ck("[S1] zero-sid rebind SUCCESS", r_sta(r), 0);
@@ -785,12 +827,12 @@ int main(int argc, char** argv) {
         ck("[S1] re-probe luid still 1", (long)r_be(p1, 52, 2), 1);
 
         // sink0 GET_RX_STATE remains independent (whatever [Z] left)
-        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x203, 0, 0));
+        feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x203, 0, 0));
         r = wait_frame();
         ck("[S1] sink0 state count unchanged", (long)r_be(r, 60, 2), cnt0);
 
         // unbind clears the record (and stops the ladder)
-        feed(acmp(8, 0, 0, CT_EID, TK_EID, US_EID, 0, 1, nullptr, 0x204, 0, 0));
+        feed(build_acmp(stim, 8, 0, 0, CT_EID, TK_EID, US_EID, 0, 1, nullptr, 0x204, 0, 0));
         r = wait_frame();
         ck("[S1] UNBIND_RESP", r_msg(r), 9);
         ck("[S1] UNBIND SUCCESS", r_sta(r), 0);
@@ -800,13 +842,13 @@ int main(int argc, char** argv) {
         ck("[S1] unbind tuid pinned 0 (Table 5.36)", (long)r_be(r, 50, 2), 0);
         ckh("[S1] unbind talker pinned 0", r_be(r, 34, 8), 0);
         ck("[S1] s1 cleared", dut->s1_bound_o, 0);
-        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x205, 0, 0));
+        feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x205, 0, 0));
         r = wait_frame();
         ck("[S1] post-unbind count 0", (long)r_be(r, 60, 2), 0);
         ckh("[S1] post-unbind talker 0", r_be(r, 34, 8), 0);
 
         // uid >= 2 still LISTENER_UNKNOWN_ID
-        feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0, 2, nullptr, 0x206, 0, 0));
+        feed(build_acmp(stim, 6, 0, 0, CT_EID, TK_EID, US_EID, 0, 2, nullptr, 0x206, 0, 0));
         r = wait_frame();
         ck("[S1] uid2 bind UNKNOWN_ID", r_sta(r), 1);
         ck("[S1] uid2 left s1 alone", dut->s1_bound_o, 0);
@@ -827,17 +869,17 @@ int main(int argc, char** argv) {
         // drain any stray ladder frame from the earlier sections, fresh bind
         // to X, settle via the probe response (the reference device's probe
         // flow itself is pinned by [8]/[9]/[14]/[15])
-        feed(acmp(8, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x2FE, 0, 0));
+        feed(build_acmp(stim, 8, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x2FE, 0, 0));
         (void)wait_frame();                       // UNBIND_RESP
         run(12000);                               // > max 1024 ms DELAY draw
         ck("[R] baseline UNBOUND", dut->state_o, 0);
-        feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x2FF, 0, 0));
+        feed(build_acmp(stim, 6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x2FF, 0, 0));
         r = wait_frame();
         ck("[R] bind BIND_RESP", r_msg(r), 7);
         p = wait_frame();
         ck("[R] bind probe emitted", p.size(), 70);
         const uint8_t dmx[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x01};
-        feed(acmp(1, 0, TK_SID, CT_EID, TK_EID, US_EID, 0, 0, dmx,
+        feed(build_acmp(stim, 1, 0, TK_SID, CT_EID, TK_EID, US_EID, 0, 0, dmx,
                   (uint16_t)r_be(p, 62, 2), 0, 2));
         ck("[R] settled on X", dut->state_o, 6);
         dut->ta_registered_i = 1;
@@ -848,14 +890,14 @@ int main(int argc, char** argv) {
         // (a) same talker, STREAMING_WAIT toggled, new controller: step 2 =
         // parameter refresh ONLY - the stream must NOT be interrupted
         long pcr = dut->probe_count_o;
-        feed(acmp(6, 0, 0, CT2_EID, TK_EID, US_EID, 0, 0, nullptr, 0x300,
+        feed(build_acmp(stim, 6, 0, 0, CT2_EID, TK_EID, US_EID, 0, 0, nullptr, 0x300,
                   0x0008, 0));
         r = wait_frame();
         ck("[R] rebind-same(SW=1) SUCCESS", r_sta(r), 0);
         ck("[R] stream not interrupted (RSV_OK)", dut->state_o, 7);
         ck("[R] still active", dut->stream_active_o, 1);
         ck("[R] no re-probe (step 2 'exit')", dut->probe_count_o, pcr);
-        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x301, 0, 0));
+        feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x301, 0, 0));
         r = wait_frame();
         //! RSV_OK flags: FC 1 + the REFRESHED saved SW (Table 5.39)
         ck("[R] stored STREAMING_WAIT refreshed", (long)r_be(r, 64, 2),
@@ -903,7 +945,7 @@ int main(int argc, char** argv) {
 
         // (c) Y answers -> the sink settles and streams on Y
         const uint8_t dmy[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x02};
-        feed(acmp(1, 0, 0x0200000000020000ULL, CT2_EID, TK2_EID, US_EID,
+        feed(build_acmp(stim, 1, 0, 0x0200000000020000ULL, CT2_EID, TK2_EID, US_EID,
                   0, 0, dmy, (uint16_t)r_be(p, 62, 2), 0, 2));
         ck("[R] settled on Y", dut->state_o, 6);
         dut->ta_registered_i = 1;
@@ -948,7 +990,7 @@ int main(int argc, char** argv) {
         // SM_EN_MAP_C is now all-ones; [S1] above pins the response-is-the-
         // authority half, this pins the probe-per-sink half.
         long pc0 = dut->probe_count_o;
-        feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0x000B, 1, nullptr,
+        feed(build_acmp(stim, 6, 0, 0, CT_EID, TK_EID, US_EID, 0x000B, 1, nullptr,
                   0x301, 0, 0));
         r = wait_frame();
         ck("[G] sink1 BIND_RESP", r_msg(r), 7);
@@ -970,7 +1012,7 @@ int main(int argc, char** argv) {
         ck("[G] resend is a CONNECT_TX_COMMAND", r_msg(p1), 0);
         ck("[G] resend is still sink 1's", (long)r_be(p1, 52, 2), 1);
         // park it again so its ladder cannot interleave with sink 0 below
-        feed(acmp(8, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x304, 0, 0));
+        feed(build_acmp(stim, 8, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x304, 0, 0));
         (void)wait_frame();
         ck("[G] sink1 unbound again", dut->s1_bound_o, 0);
 
@@ -982,7 +1024,7 @@ int main(int argc, char** argv) {
         // ("PROBE_TX_COMMAND fields on success") states FAST_CONNECT as the
         // literal 1, not as a copied binding parameter. Rebind sink 0
         // (settled on Y after [R]) to X to draw a fresh probe.
-        feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x302,
+        feed(build_acmp(stim, 6, 0, 0, CT_EID, TK_EID, US_EID, 0, 0, nullptr, 0x302,
                   0x0000 /*controller did NOT request FAST_CONNECT*/, 0));
         r = wait_frame();
         ck("[G] sink0 rebind SUCCESS", r_sta(r), 0);
@@ -1000,7 +1042,7 @@ int main(int argc, char** argv) {
         // "fix" that echoed the flags would show 0x000A here; one that
         // hardcoded 0x0002 everywhere would still pass this, which is why
         // [3]/[R] pin the STREAMING_WAIT the RECORD keeps.
-        feed(acmp(6, 0, 0, CT_EID, TK2_EID, US_EID, 0, 0, nullptr, 0x303,
+        feed(build_acmp(stim, 6, 0, 0, CT_EID, TK2_EID, US_EID, 0, 0, nullptr, 0x303,
                   0x0008 /*controller DID request STREAMING_WAIT*/, 0));
         r = wait_frame();
         ck("[G] sink0 rebind to Y SUCCESS", r_sta(r), 0);
@@ -1009,7 +1051,7 @@ int main(int argc, char** argv) {
         p = wait_frame();
         ck("[G] probe FAST_CONNECT 1, STREAMING_WAIT 0", (long)r_be(p, 64, 2),
            0x0002);
-        feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x305, 0, 0));
+        feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x305, 0, 0));
         r = wait_frame();
         //! probing-state GET: FC 1 + the record's STREAMING_WAIT (Tab 5.37)
         ck("[G] record still holds STREAMING_WAIT", (long)r_be(r, 64, 2),
@@ -1026,14 +1068,14 @@ int main(int argc, char** argv) {
         // sequence_id — accepted (the positive control also quiets sink
         // 0's ladder for the section below).
         long st_before = dut->state_o;
-        feed(acmp(1, 0, 0x1234567890ABCDEFULL, CT_EID,
+        feed(build_acmp(stim, 1, 0, 0x1234567890ABCDEFULL, CT_EID,
                   0x020000FFFE0000EEULL /*never bound*/, US_EID, 0, 0,
                   nullptr, 0x77, 0, 5));
         ck("[G] mismatched probe response ignored (5.5.3.5.18 s1)",
            dut->state_o, st_before);
         {
             const uint8_t gdx[6] = {0x91,0xE0,0xF0,0x00,0xFE,0x02};
-            feed(acmp(1, 0, 0x0200000000020000ULL, CT_EID, TK2_EID, US_EID,
+            feed(build_acmp(stim, 1, 0, 0x0200000000020000ULL, CT_EID, TK2_EID, US_EID,
                       0, 0, gdx, (uint16_t)r_be(p, 62, 2), 0, 2));
             ck("[G] matching response accepted (positive control)",
                dut->state_o, 6);
@@ -1046,18 +1088,18 @@ int main(int argc, char** argv) {
         // and stream_vlan_id (66-67), so a controller sending the usual
         // zeros read its own zeros back for a settled sink. Pinned on a
         // sink SETTLED on parameters the command does not contain.
-        feed(acmp(6, 0, 0, CT_EID, TK_EID, US_EID, 0x000B, 1, nullptr,
+        feed(build_acmp(stim, 6, 0, 0, CT_EID, TK_EID, US_EID, 0x000B, 1, nullptr,
                   0x306, 0, 0));
         (void)wait_frame();               // BIND_RESP
         p1 = wait_frame();                // PROBE_TX (its seq keys the match)
         {
             const uint8_t gdm[6] = {0x91,0xE0,0xF0,0x00,0x5B,0x88};
-            feed(acmp(1, 0, 0xAABBCCDDEEFF0088ULL, CT_EID, TK_EID, US_EID,
+            feed(build_acmp(stim, 1, 0, 0xAABBCCDDEEFF0088ULL, CT_EID, TK_EID, US_EID,
                       0x000B, 1, gdm, (uint16_t)r_be(p1, 62, 2), 0, 4));
             ckh("[G] sink1 settled on the response sid", dut->s1_sid_o,
                 0xAABBCCDDEEFF0088ULL);
             //! command carries stream_id 0 / vlan 0, record carries ...0088 / 4
-            feed(acmp(10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x307, 0, 0));
+            feed(build_acmp(stim, 10, 0, 0, CT_EID, 0, US_EID, 0, 1, nullptr, 0x307, 0, 0));
             r = wait_frame();
             ckh("[G] state dmac is the record's (Table 5.38)", r_be(r, 54, 6),
                 0x91E0F0005B88ULL);
@@ -1083,31 +1125,31 @@ int main(int argc, char** argv) {
         ck("[16] precondition: settled", dut->state_o, 6);
         ck("[16] precondition: tk_avail 0", dut->tk_avail_o, 0);
         dut->gm_id_i = GM; dut->gm_domain_i = 3;
-        feed(adp(0, TK2_EID, 3, 0x0102030405060708ULL, 3, 20));
+        feed(build_adp(stim, 0, TK2_EID, 3, 0x0102030405060708ULL, 3, 20));
         run(8);
         ck("[16] wrong-gm AVAILABLE ignored (5.6.4.5.1 s1)",
            dut->tk_avail_o, 0);
-        feed(adp(0, TK2_EID, 3, GM, 7, 21));
+        feed(build_adp(stim, 0, TK2_EID, 3, GM, 7, 21));
         run(8);
         ck("[16] wrong-domain AVAILABLE ignored", dut->tk_avail_o, 0);
-        feed(adp(0, TK2_EID, 3, GM, 3, 22));
+        feed(build_adp(stim, 0, TK2_EID, 3, GM, 3, 22));
         run(8);
         ck("[16] matching AVAILABLE discovers", dut->tk_avail_o, 1);
         // non-increasing available_index: restart => availability wiped
-        feed(adp(0, TK2_EID, 3, GM, 3, 22));
+        feed(build_adp(stim, 0, TK2_EID, 3, GM, 3, 22));
         run(8);
         ck("[16] repeated available_index wipes (5.6.4.5.2 s2)",
            dut->tk_avail_o, 0);
-        feed(adp(0, TK2_EID, 3, GM, 3, 23));
+        feed(build_adp(stim, 0, TK2_EID, 3, GM, 3, 23));
         run(8);
         ck("[16] increasing index re-discovers", dut->tk_avail_o, 1);
         // DEPARTING is never gm-gated (5.6.4.5.3 names no gm step)
-        feed(adp(1, TK2_EID, 3, 0xDEADDEADDEADDEADULL, 9, 24));
+        feed(build_adp(stim, 1, TK2_EID, 3, 0xDEADDEADDEADDEADULL, 9, 24));
         run(8);
         ck("[16] wrong-gm DEPARTING still departs", dut->tk_avail_o, 0);
         // all-zero committed pair = no gPTP commitment yet: gate stands down
         dut->gm_id_i = 0; dut->gm_domain_i = 0;
-        feed(adp(0, TK2_EID, 3, 0x5555666677778888ULL, 5, 25));
+        feed(build_adp(stim, 0, TK2_EID, 3, 0x5555666677778888ULL, 5, 25));
         run(8);
         ck("[16] zero committed pair: gate off (bring-up)",
            dut->tk_avail_o, 1);

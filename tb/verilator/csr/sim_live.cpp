@@ -81,12 +81,18 @@ static void put_be(std::vector<uint8_t>& v, uint64_t x, int n) {
 }
 
 // CONNECT_RX_COMMAND (msg 6) — explicit fast-connect sid + dmac for ctx1
+//! 70 B = 14 Ethernet + 4 AVTP common header + 52 ACMPDU (1722.1 8.2.1)
+static const size_t ACMP_FRAME_BYTES = 70;
+
 static std::vector<uint8_t> acmp_connect(uint64_t sid, uint64_t talker,
                                          uint16_t luid, const uint8_t* dmac,
                                          uint16_t seq) {
-  std::vector<uint8_t> f = {0x91,0xE0,0xF0,0x01,0x00,0x00,
-                            0xAA,0xBB,0xCC,0x00,0x00,0x01,
-                            0x22,0xF0, 0xFC};
+  static const uint8_t HDR[15] = {0x91,0xE0,0xF0,0x01,0x00,0x00,
+                                  0xAA,0xBB,0xCC,0x00,0x00,0x01,
+                                  0x22,0xF0, 0xFC};
+  std::vector<uint8_t> f;
+  f.reserve(ACMP_FRAME_BYTES);              // the whole frame, one allocation
+  f.insert(f.end(), HDR, HDR + sizeof HDR);
   f.push_back(6);                 // CONNECT_RX_COMMAND
   f.push_back(0);                 // status/cdl
   f.push_back(44);

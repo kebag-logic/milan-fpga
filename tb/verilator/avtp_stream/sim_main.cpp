@@ -25,10 +25,17 @@ static void hi(){ dut->clk=1; dut->eval(); }
 // build an Ethernet+AVTP frame. tagged adds a C-VLAN. subtype/sv/tv/sid/ts set
 // the AVTP header. len pads to `len` bytes. version defaults to 0, the only
 // value the parser accepts (IEEE 1722-2016 4.4.3.4: unsupported = discard).
-static std::vector<uint8_t> mkavtp(bool tagged,uint8_t subtype,bool sv,bool tv,
+//! One reusable frame buffer for the whole run: build_avtp() fills it through
+//! a reference and assign() keeps the capacity, so the stimulus frames cost
+//! ONE allocation between them instead of one each.
+static std::vector<uint8_t> stim;
+
+static const std::vector<uint8_t>& build_avtp(std::vector<uint8_t>& out,
+                                   bool tagged,uint8_t subtype,bool sv,bool tv,
                                    uint64_t sid,uint32_t ts,int len,
                                    uint8_t version=0){
-    std::vector<uint8_t> f(len,0x00);
+    out.assign(len,0x00);           // assign KEEPS the capacity
+    std::vector<uint8_t>& f = out;
     for(int i=0;i<6;i++){ f[i]=0x91; f[6+i]=0x02; }        // dst/src MAC
     int o;
     if(tagged){ f[12]=0x81; f[13]=0x00; f[14]=0x20; f[15]=0x02;   // C-VLAN
@@ -40,7 +47,7 @@ static std::vector<uint8_t> mkavtp(bool tagged,uint8_t subtype,bool sv,bool tv,
     for(int i=0;i<8;i++) f[o+4+i]=(uint8_t)(sid>>(8*(7-i)));// stream_id MS first
     for(int i=0;i<4;i++) f[o+12+i]=(uint8_t)(ts>>(8*(3-i)));// avtp_timestamp
     // payload bytes are arbitrary (already 0)
-    return f;
+    return out;
 }
 
 struct Res { bool matched; int idx; uint64_t sid; uint32_t ts; int sub; bool tv; };
@@ -88,7 +95,7 @@ int main(int argc,char**argv){
     printf("== avtp_stream_parser harness ==\n");
 
     // 1. untagged AAF (subtype 0x02), matches entry 3
-    { auto r=feed(mkavtp(false,0x02,true,true,SID_A,0x12345678,200));
+    { auto r=feed(build_avtp(stim, false,0x02,true,true,SID_A,0x12345678,200));
       ckx("untagged AAF stream_id",r.sid,SID_A);
       ck ("untagged AAF ts",r.ts,0x12345678);
       ck ("untagged AAF subtype",r.sub,0x02);
@@ -97,7 +104,7 @@ int main(int argc,char**argv){
       ck ("untagged AAF match idx",r.idx,3); }
 
     // 2. VLAN-tagged CVF (0x03), matches entry 5
-    { auto r=feed(mkavtp(true,0x03,true,false,SID_B,0xCAFEBABE,300));
+    { auto r=feed(build_avtp(stim, true,0x03,true,false,SID_B,0xCAFEBABE,300));
       ckx("vlan CVF stream_id",r.sid,SID_B);
       ck ("vlan CVF ts",r.ts,0xCAFEBABE);
       ck ("vlan CVF subtype",r.sub,0x03);
@@ -106,17 +113,17 @@ int main(int argc,char**argv){
       ck ("vlan CVF match idx",r.idx,5); }
 
     // 3. AAF with an UNKNOWN stream_id -> parsed but not matched
-    { auto r=feed(mkavtp(false,0x02,true,true,0xDEADBEEF0BADF00DULL,0x1,200));
+    { auto r=feed(build_avtp(stim, false,0x02,true,true,0xDEADBEEF0BADF00DULL,0x1,200));
       ck ("unknown sid parsed",r.sub,0x02);
       ck ("unknown sid NOT matched",r.matched,0); }
 
     // 4. control subtype (AECP 0xFB) -> not a stream, no parse/match
-    { auto r=feed(mkavtp(false,0xFB,true,true,SID_A,0x1,200));
+    { auto r=feed(build_avtp(stim, false,0xFB,true,true,SID_A,0x1,200));
       ck ("control subtype no match",r.matched,0);
       ck ("control subtype not parsed",r.sub,-1); }
 
     // 5. sv=0 stream frame -> ignored
-    { auto r=feed(mkavtp(false,0x02,false,true,SID_A,0x1,200));
+    { auto r=feed(build_avtp(stim, false,0x02,false,true,SID_A,0x1,200));
       ck ("sv=0 not matched",r.matched,0); }
 
     // 6. non-AVTP (EtherType 0x0800 IPv4) -> nothing

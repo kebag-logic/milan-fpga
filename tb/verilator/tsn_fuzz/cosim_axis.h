@@ -70,8 +70,15 @@ inline bool tsn_write_all(int fd, const void* p, size_t n) {
     return true;
 }
 
+//! Largest frame this protocol carries in either direction (one Ethernet
+//! frame), used to size a receive buffer once instead of growing it a beat at
+//! a time. The caller's buffer is reused across frames, so this is one
+//! allocation for a whole fuzzing session.
+static const size_t TSN_FRAME_MAX = 1514;
+
 inline bool tsn_recv_frame(int fd, std::vector<uint8_t>& out) {
-    out.clear();
+    out.clear();                        // clear KEEPS the capacity
+    out.reserve(TSN_FRAME_MAX);
     for (;;) {
         AxiStreamBeat beat;
         if (!tsn_read_all(fd, &beat, sizeof(beat))) return false;
@@ -106,8 +113,10 @@ inline bool tsn_is_ctrl(const std::vector<uint8_t>& f) {
 
 //! pack a state dump as a frame: 4-byte magic header then big-endian u32s
 inline std::vector<uint8_t> tsn_state_frame(const std::vector<uint32_t>& words) {
-    std::vector<uint8_t> f{CTRL_MAGIC0, CTRL_MAGIC1, CTRL_STATE,
-                           static_cast<uint8_t>(words.size())};
+    std::vector<uint8_t> f;
+    f.reserve(4 + 4 * words.size());    // 4 B magic header + one u32 per word
+    f.insert(f.end(), {CTRL_MAGIC0, CTRL_MAGIC1, CTRL_STATE,
+                       static_cast<uint8_t>(words.size())});
     for (uint32_t w : words)
         for (int i = 3; i >= 0; i--) f.push_back(static_cast<uint8_t>(w >> (8 * i)));
     return f;

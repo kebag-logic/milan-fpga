@@ -105,8 +105,21 @@ static void put_be(std::vector<uint8_t>& b, uint64_t v, int n) {
 }
 
 // ---- bridge PDU builders --------------------------------------------------
-static std::vector<uint8_t> bridge_domain(int cls, int prio, int vid) {
-    std::vector<uint8_t> f;
+//! Every bridge-side MRPDU this harness builds is padded to the 60 B Ethernet
+//! minimum, so that is the whole frame's reserve.
+static const size_t MRPDU_MIN_BYTES = 60;
+
+//! One reusable stimulus buffer for the whole run: the builders below fill it
+//! through a reference and clear() keeps its capacity, so the frame bytes cost
+//! ONE allocation for the entire simulation instead of a malloc plus three or
+//! four reallocs on every frame.
+static std::vector<uint8_t> stim;
+
+static const std::vector<uint8_t>& build_bridge_domain(
+        std::vector<uint8_t>& out, int cls, int prio, int vid) {
+    out.clear();                         // clear KEEPS the capacity
+    out.reserve(MRPDU_MIN_BYTES);
+    std::vector<uint8_t>& f = out;
     put_be(f, 0x0180C200000EULL, 6); put_be(f, BRIDGE, 6); put_be(f, 0x22EA, 2);
     f.push_back(0);
     f.push_back(4); f.push_back(4); put_be(f, 9, 2);
@@ -114,13 +127,16 @@ static std::vector<uint8_t> bridge_domain(int cls, int prio, int vid) {
     f.push_back((uint8_t)cls); f.push_back((uint8_t)prio); put_be(f, vid, 2);
     f.push_back(EV_JOININ * 36);
     put_be(f, 0, 2); put_be(f, 0, 2);
-    while (f.size() < 60) f.push_back(0);
-    return f;
+    while (f.size() < MRPDU_MIN_BYTES) f.push_back(0);
+    return out;
 }
 
 //! one single-value Listener attribute for `sid` (the bridge's Ready)
-static std::vector<uint8_t> bridge_listener(uint64_t sid, int evt, int decl) {
-    std::vector<uint8_t> f;
+static const std::vector<uint8_t>& build_bridge_listener(
+        std::vector<uint8_t>& out, uint64_t sid, int evt, int decl) {
+    out.clear();                         // clear KEEPS the capacity
+    out.reserve(MRPDU_MIN_BYTES);
+    std::vector<uint8_t>& f = out;
     put_be(f, 0x0180C200000EULL, 6); put_be(f, BRIDGE, 6); put_be(f, 0x22EA, 2);
     f.push_back(0);
     f.push_back(3); f.push_back(8); put_be(f, 14, 2);
@@ -129,13 +145,16 @@ static std::vector<uint8_t> bridge_listener(uint64_t sid, int evt, int decl) {
     f.push_back((uint8_t)(evt * 36));
     f.push_back((uint8_t)(decl * 64));
     put_be(f, 0, 2); put_be(f, 0, 2);
-    while (f.size() < 60) f.push_back(0);
-    return f;
+    while (f.size() < MRPDU_MIN_BYTES) f.push_back(0);
+    return out;
 }
 
 //! one single-value TalkerAdvertise for `sid` (what a LISTENER row tracks)
-static std::vector<uint8_t> bridge_tadv(uint64_t sid, int evt) {
-    std::vector<uint8_t> f;
+static const std::vector<uint8_t>& build_bridge_tadv(
+        std::vector<uint8_t>& out, uint64_t sid, int evt) {
+    out.clear();                         // clear KEEPS the capacity
+    out.reserve(MRPDU_MIN_BYTES);
+    std::vector<uint8_t>& f = out;
     put_be(f, 0x0180C200000EULL, 6); put_be(f, BRIDGE, 6); put_be(f, 0x22EA, 2);
     f.push_back(0);
     f.push_back(1); f.push_back(25); put_be(f, 28, 2);
@@ -144,8 +163,8 @@ static std::vector<uint8_t> bridge_tadv(uint64_t sid, int evt) {
     for (int i = 0; i < 17; i++) f.push_back(0xA0 + i);
     f.push_back((uint8_t)(evt * 36));
     put_be(f, 0, 2); put_be(f, 0, 2);
-    while (f.size() < 60) f.push_back(0);
-    return f;
+    while (f.size() < MRPDU_MIN_BYTES) f.push_back(0);
+    return out;
 }
 
 static void feed(const std::vector<uint8_t>& f) {
@@ -232,7 +251,7 @@ int main(int argc, char** argv) {
     // the Sigma carry only the ctx rows under test
     dut->enable_i = 1;
     run(400);
-    feed(bridge_domain(6, 3, VID));
+    feed(build_bridge_domain(stim, 6, 3, VID));
     run(200);
     ck("setup: domain ok", dut->domain_ok_o, 1);
     ck("setup: no OOR yet", dut->ctx_oor_o, 0);
@@ -247,9 +266,9 @@ int main(int argc, char** argv) {
     ctx_write(1, 1, 1, L1_SID, 0, 0, 0);
     ctx_write(2, 1, 1, L2_SID, 0, 0, 0);
     ctx_write(3, 1, 1, L3_SID, 0, 0, 0);
-    feed(bridge_tadv(L1_SID, EV_JOININ));
-    feed(bridge_tadv(L2_SID, EV_JOININ));
-    feed(bridge_tadv(L3_SID, EV_JOININ));
+    feed(build_bridge_tadv(stim, L1_SID, EV_JOININ));
+    feed(build_bridge_tadv(stim, L2_SID, EV_JOININ));
+    feed(build_bridge_tadv(stim, L3_SID, EV_JOININ));
     run(600);
     ck("[MAP-] listener rows registered", (dut->ctx_reg_o >> 1) & 7, 7);
     ck("[MAP-] listener rows ready", (dut->ctx_ready_o >> 1) & 7, 7);
@@ -266,7 +285,7 @@ int main(int argc, char** argv) {
     ck("[MAP] rows 4/5/6 declared, gates still shut (no Ready yet)",
        dut->stream_gate_o, 0);
     // the bridge declares Listener Ready for row 4's sid ONLY
-    feed(bridge_listener(T1_SID, EV_JOININ, D_READY));
+    feed(build_bridge_listener(stim, T1_SID, EV_JOININ, D_READY));
     run(600);
     ck("[MAP] talker 1 gate open (ctx row 4)",
        (dut->stream_gate_o >> 1) & 1, 1);
@@ -277,7 +296,7 @@ int main(int argc, char** argv) {
        (uint32_t)((T1_MF + 42) * 64000));
 
     // row 5 next: a DIFFERENT gate bit, and the Sigma grows by ITS slope
-    feed(bridge_listener(T2_SID, EV_JOININ, D_READY));
+    feed(build_bridge_listener(stim, T2_SID, EV_JOININ, D_READY));
     run(600);
     ck("[MAP] talker 2 gate open (ctx row 5)",
        (dut->stream_gate_o >> 2) & 1, 1);
@@ -366,19 +385,19 @@ int main(int argc, char** argv) {
     // index law as stream_gate_o, and the same trap the [MAP] gate fix
     // closed. Talker 3 = ctx row 6, the one row with no Ready yet.
     printf("-- [LAF] asking-failed rides the (L-1)+t lane pick --\n");
-    feed(bridge_listener(T3_SID, EV_JOININ, D_ASKFAIL));
+    feed(build_bridge_listener(stim, T3_SID, EV_JOININ, D_ASKFAIL));
     run(400);
     ck("[LAF] talker 3 asking-failed (ctx row 6)", dut->lstn_ask_fail_o, 0x8);
     ck("[LAF] AskingFailed opens NO gate", (dut->stream_gate_o >> 3) & 1, 0);
     // negative leg: a Listener four-pack at a LISTENER row's sid moves
     // nothing — those lanes track the TA, not the bridge's four-pack
-    feed(bridge_listener(L1_SID, EV_JOININ, D_ASKFAIL));
+    feed(build_bridge_listener(stim, L1_SID, EV_JOININ, D_ASKFAIL));
     run(400);
     ck("[LAF-] listener rows can never assert", dut->lstn_ask_fail_o, 0x8);
     ck("[LAF-] talkers 1/2 (Ready rows) stay clear",
        dut->lstn_ask_fail_o & 0x6, 0);
     // Ready drops it — and only then does the licence follow
-    feed(bridge_listener(T3_SID, EV_JOININ, D_READY));
+    feed(build_bridge_listener(stim, T3_SID, EV_JOININ, D_READY));
     run(600);
     ck("[LAF] Ready drops it", dut->lstn_ask_fail_o, 0);
     ck("[LAF] ...and the gate opens (ctx row 6)",

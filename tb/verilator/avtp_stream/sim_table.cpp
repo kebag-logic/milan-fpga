@@ -21,13 +21,20 @@ static void lo(){ dut->clk=0; dut->eval(); }
 static void hi(){ dut->clk=1; dut->eval(); }
 static void cyc(int n=1){ for(int i=0;i<n;i++){ lo(); hi(); } }
 
-static std::vector<uint8_t> mkaaf(uint64_t sid, int len=120){
-    std::vector<uint8_t> f(len,0x00);
+//! One reusable frame buffer for the whole run: build_aaf() fills it through a
+//! reference and assign() keeps the capacity, so the stimulus frames cost ONE
+//! allocation between them instead of one each.
+static std::vector<uint8_t> stim;
+
+static const std::vector<uint8_t>& build_aaf(std::vector<uint8_t>& out,
+                                             uint64_t sid, int len=120){
+    out.assign(len,0x00);           // assign KEEPS the capacity
+    std::vector<uint8_t>& f = out;
     for(int i=0;i<6;i++){ f[i]=0x91; f[6+i]=0x02; }
     f[12]=0x22; f[13]=0xF0;                              // AVTP untagged
     f[14]=0x02; f[15]=0x80;                              // AAF, sv=1
     for(int i=0;i<8;i++) f[14+4+i]=(uint8_t)(sid>>(8*(7-i)));
-    return f;
+    return out;
 }
 
 struct Res { bool matched; int idx; };
@@ -70,11 +77,11 @@ int main(int argc,char**argv){
     printf("== KL_stream_table + parser harness (NXN §1.1 / P1) ==\n");
 
     printf("\n[T1] entry-0 ACMP alias: unbound = miss, bound = match idx 0\n");
-    { auto r=feed(mkaaf(SID0));
+    { auto r=feed(build_aaf(stim, SID0));
       ck("unbound: no match", r.matched?1:0, 0); }
     dut->bound0_i=1; cyc(2);
     ck("bind-rise pulse fired for s0", 1, 1);   // observed via bind_rise_o below
-    { auto r=feed(mkaaf(SID0));
+    { auto r=feed(build_aaf(stim, SID0));
       ck("bound: matched", r.matched?1:0, 1);
       ck("bound: index 0", r.idx, 0); }
 
@@ -89,35 +96,35 @@ int main(int argc,char**argv){
     tblwr(2, SID2, true);
     { long saw=0; for(int i=0;i<6;i++){ cyc(); if(dut->bind_rise_o & 4) saw++; }
       ck("entry-2 write already pulsed bind_rise", saw, 0); } // pulse was at write
-    { auto r=feed(mkaaf(SID2));
+    { auto r=feed(build_aaf(stim, SID2));
       ck("entry-2 sid matched", r.matched?1:0, 1);
       ck("entry-2 index 2", r.idx, 2); }
-    { auto r=feed(mkaaf(SID1));
+    { auto r=feed(build_aaf(stim, SID1));
       ck("unwritten sid still miss", r.matched?1:0, 0); }
 
     printf("\n[T4] eviction: rewrite entry 2 -> old sid misses, new matches\n");
     tblwr(2, SID1, true);
-    { auto r=feed(mkaaf(SID2));
+    { auto r=feed(build_aaf(stim, SID2));
       ck("evicted sid no longer matches", r.matched?1:0, 0); }
-    { auto r=feed(mkaaf(SID1));
+    { auto r=feed(build_aaf(stim, SID1));
       ck("replacement sid matches idx 2", r.matched && r.idx==2, 1); }
 
     printf("\n[T5] disable-evict: wr_valid=0 clears the entry\n");
     tblwr(2, SID1, false);
-    { auto r=feed(mkaaf(SID1));
+    { auto r=feed(build_aaf(stim, SID1));
       ck("disabled entry: miss", r.matched?1:0, 0); }
     ck("tbl_en entry 2 clear", (dut->tbl_en_o>>2)&1, 0);
 
     printf("\n[T6] entry-0 bench override wins over the ACMP alias\n");
     tblwr(0, SID1, true);
-    { auto r=feed(mkaaf(SID0));
+    { auto r=feed(build_aaf(stim, SID0));
       ck("aliased ACMP sid no longer matches", r.matched?1:0, 0); }
-    { auto r=feed(mkaaf(SID1));
+    { auto r=feed(build_aaf(stim, SID1));
       ck("override sid matches idx 0", r.matched && r.idx==0, 1); }
 
     printf("\n[T7] two entries live: index rides the match (tuser source)\n");
     tblwr(1, SID2, true);
-    { auto ra=feed(mkaaf(SID1)); auto rb=feed(mkaaf(SID2));
+    { auto ra=feed(build_aaf(stim, SID1)); auto rb=feed(build_aaf(stim, SID2));
       ck("s0 frame -> idx 0", ra.matched && ra.idx==0, 1);
       ck("s1 frame -> idx 1", rb.matched && rb.idx==1, 1); }
 

@@ -56,6 +56,12 @@ static void ckh(const char* what, uint64_t got, uint64_t exp) {
     else            { printf("  [ ok ] %-54s = %llx\n", what, (unsigned long long)got); }
 }
 
+//! Wire lengths of the two frame shapes this harness builds and receives:
+//!   ACMP  70 B = 14 Ethernet + 4 AVTP common header + 52 ACMPDU (1722.1 8.2.1)
+//!   ADP   82 B = 14 Ethernet + 4 AVTP common header + 64 ADPDU (1722.1 6.2.1)
+static const size_t ACMP_FRAME_BYTES = 70;
+static const size_t ADP_FRAME_BYTES  = 82;
+
 // ------------------------------------------------------------------ clocking
 static std::vector<uint8_t> partial;
 static long rest_edges = 0;         // rising edges of rest_req_o (transactions)
@@ -90,6 +96,7 @@ static void run(int n) { for (int i = 0; i < n; i++) tick_collect(nullptr); }
 
 static std::vector<uint8_t> wait_frame(int budget = 4000) {
     std::vector<uint8_t> f;
+    f.reserve(ACMP_FRAME_BYTES);        // every frame this DUT emits is an ACMPDU
     for (int c = 0; c < budget; c++)
         if (tick_collect(&f)) return f;
     return {};
@@ -114,9 +121,12 @@ static std::vector<uint8_t> acmp(uint8_t msg, uint8_t status,
                                  uint64_t lstnr, uint16_t tuid, uint16_t luid,
                                  const uint8_t* dmac, uint16_t seq,
                                  uint16_t flags, uint16_t vlan) {
-    std::vector<uint8_t> f = {0x91,0xE0,0xF0,0x01,0x00,0x00,
-                              0xAA,0xBB,0xCC,0x00,0x00,0x01,
-                              0x22,0xF0, 0xFC};
+    static const uint8_t HDR[15] = {0x91,0xE0,0xF0,0x01,0x00,0x00,
+                                    0xAA,0xBB,0xCC,0x00,0x00,0x01,
+                                    0x22,0xF0, 0xFC};
+    std::vector<uint8_t> f;
+    f.reserve(ACMP_FRAME_BYTES);            // the whole frame, one allocation
+    f.insert(f.end(), HDR, HDR + sizeof HDR);
     f.push_back(msg & 0xF);
     f.push_back((status << 3) | 0);
     f.push_back(44);
@@ -141,15 +151,18 @@ static std::vector<uint8_t> acmp(uint8_t msg, uint8_t status,
 //! which stands the 5.6.4.5.1 step 1 gate down (the bring-up escape).
 static std::vector<uint8_t> adp(uint8_t msg, uint64_t eid,
                                 uint32_t aidx = 1) {
-    std::vector<uint8_t> f = {0x91,0xE0,0xF0,0x01,0x00,0x00,
-                              0x02,0x00,0x00,0x00,0x00,0x01,
-                              0x22,0xF0, 0xFA};
+    static const uint8_t HDR[15] = {0x91,0xE0,0xF0,0x01,0x00,0x00,
+                                    0x02,0x00,0x00,0x00,0x00,0x01,
+                                    0x22,0xF0, 0xFA};
+    std::vector<uint8_t> f;
+    f.reserve(ADP_FRAME_BYTES);             // the whole frame, one allocation
+    f.insert(f.end(), HDR, HDR + sizeof HDR);
     f.push_back(msg & 0xF);
     f.push_back(0x1F); f.push_back(56);
     put_be(f, eid, 8);
     while (f.size() < 50) f.push_back(0);
     put_be(f, aidx, 4);
-    while (f.size() < 82) f.push_back(0);
+    while (f.size() < ADP_FRAME_BYTES) f.push_back(0);
     return f;
 }
 

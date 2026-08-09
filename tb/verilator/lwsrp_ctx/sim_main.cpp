@@ -149,9 +149,14 @@ static void put_be(std::vector<uint8_t>& b, uint64_t v, int n) {
     for (int i = n - 1; i >= 0; i--) b.push_back((v >> (8 * i)) & 0xFF);
 }
 
+//! Every golden MRPDU below is padded to at least the 60 B Ethernet minimum,
+//! so that is the reserve; the talker shape reaches 64 B and says so.
+static const size_t MRPDU_MIN_BYTES = 60;
+
 static std::vector<uint8_t> golden_legacy_msrp(bool talker, int dom_ev,
                                                int tk_ev, int lva) {
     std::vector<uint8_t> f;
+    f.reserve(talker ? 64 : MRPDU_MIN_BYTES);
     put_be(f, 0x0180C200000EULL, 6); put_be(f, STATION, 6);
     put_be(f, 0x22EA, 2); f.push_back(0);
     uint16_t vech = (lva ? 0x2000 : 0x0000) | 1;
@@ -178,6 +183,7 @@ static std::vector<uint8_t> golden_legacy_msrp(bool talker, int dom_ev,
 
 static std::vector<uint8_t> golden_mvrp(int vid_ev, int lva) {
     std::vector<uint8_t> f;
+    f.reserve(MRPDU_MIN_BYTES);
     put_be(f, 0x0180C2000021ULL, 6); put_be(f, STATION, 6);
     put_be(f, 0x88F5, 2); f.push_back(0);
     uint16_t vech = (lva ? 0x2000 : 0x0000) | 1;
@@ -196,7 +202,12 @@ struct ExtT { uint64_t sid; uint64_t dmac; uint16_t maxf, ivf;
 struct ExtL { uint64_t sid; int ev; int par; };
 static std::vector<uint8_t> golden_ext(const std::vector<ExtT>& ts,
                                        const std::vector<ExtL>& ls) {
+    // 15 B header, then 4 B + 28 B per talker record and 4 B + 12 B per
+    // listener record, then the 2 B message-list EndMark
+    size_t want = 15 + 2 + (ts.empty() ? 0 : 6 + 28 * ts.size())
+                         + (ls.empty() ? 0 : 6 + 12 * ls.size());
     std::vector<uint8_t> f;
+    f.reserve(want < MRPDU_MIN_BYTES ? MRPDU_MIN_BYTES : want);
     put_be(f, 0x0180C200000EULL, 6); put_be(f, STATION, 6);
     put_be(f, 0x22EA, 2); f.push_back(0);
     if (!ts.empty()) {
@@ -240,7 +251,14 @@ struct Vec {
 struct Msg { int type; int len; bool msrp; std::vector<Vec> vecs; };
 
 static std::vector<uint8_t> encode_msg(const Msg& m) {
+    // AttributeList: per vector a 2 B VectorHeader, the FirstValue, ceil(nv/3)
+    // three-packed event octets and (listener) ceil(nv/4) four-packed
+    // declarations; plus the 2 B vector-list EndMark.
+    size_t want = 2;
+    for (const auto& v : m.vecs)
+        want += 2 + v.fv.size() + (v.nv + 2) / 3 + (v.nv + 3) / 4;
     std::vector<uint8_t> body;
+    body.reserve(want);
     for (const auto& v : m.vecs) {
         put_be(body, (uint64_t)((v.lva << 13) | v.nv), 2);
         body.insert(body.end(), v.fv.begin(), v.fv.end());
@@ -264,6 +282,7 @@ static std::vector<uint8_t> encode_msg(const Msg& m) {
     }
     put_be(body, 0, 2);
     std::vector<uint8_t> out;
+    out.reserve(4 + body.size());       // type + len + AttributeListLength
     out.push_back((uint8_t)m.type);
     out.push_back((uint8_t)m.len);
     if (m.msrp) put_be(out, body.size(), 2);
@@ -273,6 +292,7 @@ static std::vector<uint8_t> encode_msg(const Msg& m) {
 
 static std::vector<uint8_t> bframe(const std::vector<Msg>& msgs) {
     std::vector<uint8_t> f;
+    f.reserve(MRPDU_MIN_BYTES);         // 14 B header + messages, padded here
     put_be(f, 0x0180C200000EULL, 6);
     put_be(f, BRIDGE, 6);
     put_be(f, 0x22EA, 2);
@@ -287,17 +307,20 @@ static std::vector<uint8_t> bframe(const std::vector<Msg>& msgs) {
 }
 
 static std::vector<uint8_t> fv_listener(uint64_t sid) {
-    std::vector<uint8_t> v; put_be(v, sid, 8); return v;
+    std::vector<uint8_t> v; v.reserve(8);      // the StreamID, exactly
+    put_be(v, sid, 8); return v;
 }
 static std::vector<uint8_t> fv_talker(uint64_t sid) {
-    std::vector<uint8_t> v; put_be(v, sid, 8);
+    std::vector<uint8_t> v; v.reserve(25);
+    put_be(v, sid, 8);
     for (int i = 0; i < 17; i++) v.push_back(0xA0 + i);
     return v;
 }
 //! explicit DataFrameParameters (the Table 5.29 three-parameter legs)
 static std::vector<uint8_t> fv_talker_dv(uint64_t sid, uint64_t dmac,
                                          uint16_t vlan) {
-    std::vector<uint8_t> v; put_be(v, sid, 8);
+    std::vector<uint8_t> v; v.reserve(25);
+    put_be(v, sid, 8);
     put_be(v, dmac, 6); put_be(v, vlan, 2);          // DFP
     put_be(v, 100, 2);  put_be(v, 1, 2);             // TSpec
     v.push_back(0x70);                               // PriorityAndRank
@@ -307,12 +330,14 @@ static std::vector<uint8_t> fv_talker_dv(uint64_t sid, uint64_t dmac,
 static std::vector<uint8_t> fv_tfail_dv(uint64_t sid, uint64_t dmac,
                                         uint16_t vlan, uint8_t code) {
     auto v = fv_talker_dv(sid, dmac, vlan);
+    v.reserve(34);                      // + 8 B BridgeID + 1 B failure code
     put_be(v, BRIDGE << 16, 8);
     v.push_back(code);
     return v;                                        // 34 B
 }
 static std::vector<uint8_t> fv_tfail(uint64_t sid, uint8_t code) {
     auto v = fv_talker(sid);
+    v.reserve(34);                      // + 8 B BridgeID + 1 B failure code
     put_be(v, BRIDGE << 16, 8);
     v.push_back(code);
     return v;

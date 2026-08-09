@@ -153,8 +153,21 @@ static void put_be(std::vector<uint8_t>& b, uint64_t v, int n) {
 }
 
 // single-value listener / domain MSRP PDU
-static std::vector<uint8_t> bridge_listener(int evt, int decl, int lva = 0) {
-    std::vector<uint8_t> f;
+//! Every bridge-side MRPDU this harness builds is padded to the 60 B Ethernet
+//! minimum, so that is the whole frame's reserve.
+static const size_t MRPDU_MIN_BYTES = 60;
+
+//! One reusable stimulus buffer for the whole run: the builders below fill it
+//! through a reference and clear() keeps its capacity, so the frame bytes cost
+//! ONE allocation for the entire simulation instead of a malloc plus three or
+//! four reallocs on every frame.
+static std::vector<uint8_t> stim;
+
+static const std::vector<uint8_t>& build_bridge_listener(
+        std::vector<uint8_t>& out, int evt, int decl, int lva = 0) {
+    out.clear();                         // clear KEEPS the capacity
+    out.reserve(MRPDU_MIN_BYTES);
+    std::vector<uint8_t>& f = out;
     put_be(f, 0x0180C200000EULL, 6); put_be(f, BRIDGE, 6); put_be(f, 0x22EA, 2);
     f.push_back(0);
     f.push_back(3); f.push_back(8); put_be(f, 14, 2);        // type/len/listlen
@@ -163,12 +176,15 @@ static std::vector<uint8_t> bridge_listener(int evt, int decl, int lva = 0) {
     f.push_back((uint8_t)(evt * 36));
     f.push_back((uint8_t)(decl * 64));
     put_be(f, 0, 2); put_be(f, 0, 2);
-    while (f.size() < 60) f.push_back(0);
-    return f;
+    while (f.size() < MRPDU_MIN_BYTES) f.push_back(0);
+    return out;
 }
 
-static std::vector<uint8_t> bridge_domain(int cls, int prio, int vid) {
-    std::vector<uint8_t> f;
+static const std::vector<uint8_t>& build_bridge_domain(
+        std::vector<uint8_t>& out, int cls, int prio, int vid) {
+    out.clear();                         // clear KEEPS the capacity
+    out.reserve(MRPDU_MIN_BYTES);
+    std::vector<uint8_t>& f = out;
     put_be(f, 0x0180C200000EULL, 6); put_be(f, BRIDGE, 6); put_be(f, 0x22EA, 2);
     f.push_back(0);
     f.push_back(4); f.push_back(4); put_be(f, 9, 2);
@@ -176,13 +192,16 @@ static std::vector<uint8_t> bridge_domain(int cls, int prio, int vid) {
     f.push_back(cls); f.push_back(prio); put_be(f, vid, 2);
     f.push_back(EV_JOININ * 36);
     put_be(f, 0, 2); put_be(f, 0, 2);
-    while (f.size() < 60) f.push_back(0);
-    return f;
+    while (f.size() < MRPDU_MIN_BYTES) f.push_back(0);
+    return out;
 }
 
 // single-value MVRP VID PDU (no AttributeListLength field in MVRP)
-static std::vector<uint8_t> bridge_mvrp_vid(int evt, int lva = 0) {
-    std::vector<uint8_t> f;
+static const std::vector<uint8_t>& build_bridge_mvrp_vid(
+        std::vector<uint8_t>& out, int evt, int lva = 0) {
+    out.clear();                         // clear KEEPS the capacity
+    out.reserve(MRPDU_MIN_BYTES);
+    std::vector<uint8_t>& f = out;
     put_be(f, 0x0180C2000021ULL, 6); put_be(f, BRIDGE, 6); put_be(f, 0x88F5, 2);
     f.push_back(0);
     f.push_back(1); f.push_back(2);                          // type/len
@@ -190,8 +209,8 @@ static std::vector<uint8_t> bridge_mvrp_vid(int evt, int lva = 0) {
     put_be(f, VID, 2);
     f.push_back((uint8_t)(evt * 36));
     put_be(f, 0, 2); put_be(f, 0, 2);
-    while (f.size() < 60) f.push_back(0);
-    return f;
+    while (f.size() < MRPDU_MIN_BYTES) f.push_back(0);
+    return out;
 }
 
 // scan the transition recorder for a licence (gate) drop
@@ -309,7 +328,7 @@ int main(int argc, char** argv) {
 
     // 2) Listener Ready -> reservation ACTIVE, slope-then-gate ordering
     trans.clear();
-    feed(bridge_listener(EV_JOININ, D_READY));
+    feed(build_bridge_listener(stim, EV_JOININ, D_READY));
     run(400);
     ck("active: listener_ready", dut->listener_ready_o, 1);
     ck("active: reservation", dut->res_active_o, 1);
@@ -330,7 +349,7 @@ int main(int argc, char** argv) {
 
     // 3) teardown by leave-timer expiry: gate-first ordering
     trans.clear();
-    feed(bridge_listener(EV_LV, D_IGN));
+    feed(build_bridge_listener(stim, EV_LV, D_IGN));
     run(6000 + 600);       // LeaveTime + margin
     ck("teardown: deregistered", dut->listener_reg_o, 0);
     ck("teardown: reservation gone", dut->res_active_o, 0);
@@ -346,7 +365,7 @@ int main(int argc, char** argv) {
     }
 
     // 4) 75 % refusal on a live reservation (100 Mb/s port): interval x100
-    feed(bridge_listener(EV_JOININ, D_READY));
+    feed(build_bridge_listener(stim, EV_JOININ, D_READY));
     run(400);
     ck("refusal-setup: active again", dut->res_active_o, 1);
     trans.clear();
@@ -362,7 +381,7 @@ int main(int argc, char** argv) {
     // 5) received LeaveAll: prompt re-declare; registration must be
     //    refreshed by the listener or it ages out
     drain_tx();
-    feed(bridge_listener(EV_MT, D_IGN, /*lva=*/1));
+    feed(build_bridge_listener(stim, EV_MT, D_IGN, /*lva=*/1));
     run(3000);
     ck("rx-leaveall: prompt re-declare pair", tx_frames.size() >= 2 ? 1 : 0, 1);
     run(LV_TICKS + 2000);  // no listener refresh -> ages out
@@ -374,21 +393,21 @@ int main(int argc, char** argv) {
     //    FirstValue) and the boundary flag compares against the OPERATIONAL
     //    pair from then on - the adopted network's own re-declarations heal
     //    it, where the old default-pair compare re-latched forever.
-    feed(bridge_listener(EV_JOININ, D_READY));
+    feed(build_bridge_listener(stim, EV_JOININ, D_READY));
     run(400);
     ck("domain-setup: active", dut->res_active_o, 1);
     ck("adopt: defaults in force", dut->adopt_valid_o, 0);
     ck("adopt: op_prio default 3", dut->op_prio_o, 3);
     ck("adopt: op_vid default", dut->op_vid_o, VID);
     drain_tx();                                // catch the adopt re-declare
-    feed(bridge_domain(6, 2, VID));            // class A, prio 2: mismatch
+    feed(build_bridge_domain(stim, 6, 2, VID));            // class A, prio 2: mismatch
     run(100);
     ck("domain-mismatch: boundary", dut->domain_ok_o, 0);
     ck("domain-mismatch: reservation dropped", dut->res_active_o, 0);
     ck("adopt: latched on the mismatch", dut->adopt_valid_o, 1);
     ck("adopt: op_prio = received 2", dut->op_prio_o, 2);
     ck("adopt: op_vid = received", dut->op_vid_o, VID);
-    feed(bridge_domain(6, 2, VID));            // the adopted net re-declares
+    feed(build_bridge_domain(stim, 6, 2, VID));            // the adopted net re-declares
     run(100);
     ck("adopt-heal: match vs the ADOPTED pair clears the boundary",
        dut->domain_ok_o, 1);
@@ -405,12 +424,12 @@ int main(int argc, char** argv) {
         ck("adopt: Domain FirstValue priority serializes the ADOPTED 2",
            (uint64_t)dprio, 2);
     }
-    feed(bridge_domain(6, 3, VID));            // mismatch vs op {2,VID}
+    feed(build_bridge_domain(stim, 6, 3, VID));            // mismatch vs op {2,VID}
     run(100);
     ck("re-adopt: boundary latches vs the ADOPTED pair (not the default)",
        dut->domain_ok_o, 0);
     ck("re-adopt: op follows the latest declaration", dut->op_prio_o, 3);
-    feed(bridge_domain(6, 3, VID));
+    feed(build_bridge_domain(stim, 6, 3, VID));
     run(100);
     ck("re-adopt heal: ok", dut->domain_ok_o, 1);
     ck("re-adopt heal: reservation back", dut->res_active_o, 1);
@@ -424,7 +443,7 @@ int main(int argc, char** argv) {
     //     the adoption REVERTS on enable-fall + link-down ONLY.
     {
         drain_tx();                            // catch the adopt re-declare
-        feed(bridge_domain(6, 3, 5));          // adopt {3, VID 5}
+        feed(build_bridge_domain(stim, 6, 3, 5));          // adopt {3, VID 5}
         run(100);
         ck("adopt-vid: latched", dut->adopt_valid_o, 1);
         ck("adopt-vid: op_vid 5", dut->op_vid_o, 5);
@@ -448,8 +467,8 @@ int main(int argc, char** argv) {
         ck("adopt-vid: TalkerAdvertise DataFrameParameters VID = 5",
            (uint64_t)ta_vid, 5);
         // the adopted net re-declares -> boundary stays clear, licence back
-        feed(bridge_domain(6, 3, 5));
-        feed(bridge_listener(EV_JOININ, D_READY));
+        feed(build_bridge_domain(stim, 6, 3, 5));
+        feed(build_bridge_listener(stim, EV_JOININ, D_READY));
         run(400);
         ck("adopt-vid: reservation active on the adopted domain",
            dut->res_active_o, 1);
@@ -463,7 +482,7 @@ int main(int argc, char** argv) {
         run(50);
         ck("revert: link-up alone does NOT re-adopt", dut->adopt_valid_o, 0);
         // re-adopt for the enable-toggle leg
-        feed(bridge_domain(6, 3, 5));
+        feed(build_bridge_domain(stim, 6, 3, 5));
         run(100);
         ck("revert-setup: adopted again", dut->adopt_valid_o, 1);
         // ---- revert on ENABLE-FALL
@@ -474,7 +493,7 @@ int main(int argc, char** argv) {
         run(3000);
         ck("revert: re-enable declares the DEFAULT pair", dut->op_vid_o, VID);
         // restore the flow's steady state for the tests below
-        feed(bridge_listener(EV_JOININ, D_READY));
+        feed(build_bridge_listener(stim, EV_JOININ, D_READY));
         run(400);
         ck("revert: reservation restored on defaults", dut->res_active_o, 1);
         drain_tx();
@@ -496,7 +515,7 @@ int main(int argc, char** argv) {
     ck("leaveall-turn: fired within LeaveAllTime", lva_seen ? 1 : 0, 1);
 
     // 8) refresh keeps everything alive across the LeaveAll turn
-    feed(bridge_listener(EV_JOININ, D_READY));
+    feed(build_bridge_listener(stim, EV_JOININ, D_READY));
     run(400);
     ck("final: reservation active", dut->res_active_o, 1);
     ck("final: no drops", dut->rx_drops_o, 0);
@@ -528,7 +547,7 @@ int main(int argc, char** argv) {
     printf("-- Milan 5.3.7.3 licence to stream --\n");
     {
         // (a) no Listener attribute at all -> no licence
-        feed(bridge_listener(EV_LV, D_IGN));
+        feed(build_bridge_listener(stim, EV_LV, D_IGN));
         run(6000 + 600);
         ck("5.3.7.3(a): no Listener attribute -> gate SHUT",
            dut->stream_gate_o, 0);
@@ -537,7 +556,7 @@ int main(int argc, char** argv) {
            dut->talker_declared_o, 1);
 
         // (b) Listener ASKING FAILED: registered, but NOT a licence
-        feed(bridge_listener(EV_JOININ, D_ASKFAIL));
+        feed(build_bridge_listener(stim, EV_JOININ, D_ASKFAIL));
         run(400);
         ck("5.3.7.3(b): AskingFailed registers", dut->listener_reg_o, 1);
         ck("5.3.7.3(b): AskingFailed is NOT listener_ready",
@@ -553,7 +572,7 @@ int main(int argc, char** argv) {
         // (c) Listener READY FAILED: the clause names it beside Ready, so
         //     it MUST open the gate. This is the leg a "reservation
         //     succeeded" reading of the fabric would get wrong.
-        feed(bridge_listener(EV_JOININ, D_READYFAIL));
+        feed(build_bridge_listener(stim, EV_JOININ, D_READYFAIL));
         run(400);
         ck("5.3.7.3(c): ReadyFailed is listener_ready",
            dut->listener_ready_o, 1);
@@ -563,10 +582,10 @@ int main(int argc, char** argv) {
 
         // (d) back to plain Ready, then withdraw: the licence follows the
         //     registration in both directions (R2 - the check can fail)
-        feed(bridge_listener(EV_JOININ, D_READY));
+        feed(build_bridge_listener(stim, EV_JOININ, D_READY));
         run(400);
         ck("5.3.7.3(d): gate OPEN on Ready", dut->stream_gate_o, 1);
-        feed(bridge_listener(EV_JOININ, D_ASKFAIL));
+        feed(build_bridge_listener(stim, EV_JOININ, D_ASKFAIL));
         run(400);
         ck("5.3.7.3(d): Ready -> AskingFailed SHUTS the gate",
            dut->stream_gate_o, 0);
@@ -580,9 +599,9 @@ int main(int argc, char** argv) {
     //    flush it - re-declared within LeaveTime, the licence NEVER blinks
     //    (the silicon STREAM_START/STOP flap forensics, 2026-07-29).
     trans.clear();
-    feed(bridge_listener(EV_MT, D_IGN, /*lva=*/1));   // pure LeaveAll
+    feed(build_bridge_listener(stim, EV_MT, D_IGN, /*lva=*/1));   // pure LeaveAll
     run(3000);                                        // 300 ms into LV
-    feed(bridge_listener(EV_JOININ, D_READY));        // bridge re-declares
+    feed(build_bridge_listener(stim, EV_JOININ, D_READY));        // bridge re-declares
     run(4000);                                        // well inside LeaveTime
     ck("la-hold: licence never dropped", gate_dropped() ? 1 : 0, 0);
     ck("la-hold: still registered", dut->listener_reg_o, 1);
@@ -595,7 +614,7 @@ int main(int argc, char** argv) {
     //     re-declare, so it must never age the MSRP registration - this is
     //     the licence-flap defect pin (STREAM_START=16/STOP=15 on silicon).
     trans.clear();
-    feed(bridge_mvrp_vid(EV_JOININ, /*lva=*/1));
+    feed(build_bridge_mvrp_vid(stim, EV_JOININ, /*lva=*/1));
     run(LV_TICKS + 2000);                             // LeaveTime + margin
     ck("mvrp-la: licence never dropped", gate_dropped() ? 1 : 0, 0);
     ck("mvrp-la: still registered", dut->listener_reg_o, 1);
@@ -604,7 +623,7 @@ int main(int argc, char** argv) {
     // 12) negative: an MSRP LeaveAll with NO re-declare within LeaveTime
     //     still deregisters (the Table 10-4 leavetimer! row survived the
     //     application-scope fix)
-    feed(bridge_listener(EV_MT, D_IGN, /*lva=*/1));
+    feed(build_bridge_listener(stim, EV_MT, D_IGN, /*lva=*/1));
     run(LV_TICKS + 6000);
     ck("la-neg: aged out at LeaveTime", dut->listener_reg_o, 0);
     ck("la-neg: licence dropped", dut->stream_gate_o, 0);
@@ -616,12 +635,12 @@ int main(int argc, char** argv) {
     //      LeaveTime. Until 2026-08-08 each In cancelled the leave timer,
     //      so a drained listener echoing Ins held the licence open one
     //      LeaveTime per hop, forever.
-    feed(bridge_listener(EV_JOININ, D_READY));
+    feed(build_bridge_listener(stim, EV_JOININ, D_READY));
     run(400);
     ck("in-licence: active again", dut->res_active_o, 1);
-    feed(bridge_listener(EV_MT, D_IGN, /*lva=*/1));
+    feed(build_bridge_listener(stim, EV_MT, D_IGN, /*lva=*/1));
     run(LV_TICKS / 2);
-    feed(bridge_listener(EV_IN, D_READY));         // bare In mid-window
+    feed(build_bridge_listener(stim, EV_IN, D_READY));         // bare In mid-window
     run(LV_TICKS / 2 + 2000);                      // 5200 ms past LeaveAll
     ck("in-licence: In never cancels the leave timer",
        dut->listener_reg_o, 0);
@@ -640,9 +659,9 @@ int main(int argc, char** argv) {
     // with bridge LeaveAlls of both applications sprinkled mid-turn
     for (int turn = 0; turn < 12; turn++) {
         run(30000);
-        if (turn % 3 == 0) feed(bridge_mvrp_vid(EV_JOININ, /*lva=*/1));
+        if (turn % 3 == 0) feed(build_bridge_mvrp_vid(stim, EV_JOININ, /*lva=*/1));
         run(30000);
-        if (turn % 4 == 1) feed(bridge_listener(EV_JOININ, D_READY, /*lva=*/1));
+        if (turn % 4 == 1) feed(build_bridge_listener(stim, EV_JOININ, D_READY, /*lva=*/1));
         run(40000);
         long now_frames = (long)tx_frames.size();
         if (now_frames == last_frames) {   // liveness: JoinTime beats emit
@@ -669,7 +688,7 @@ int main(int argc, char** argv) {
         ck("[14a] pre: licence closed", dut->stream_gate_o, 0);
 
         // ONE Listener Ready, delivered across a mid-frame 600-cycle stall
-        feed_parked(bridge_listener(EV_JOININ, D_READY), 3, 600);
+        feed_parked(build_bridge_listener(stim, EV_JOININ, D_READY), 3, 600);
         run(400);
         ck("[14b] first-shot registration", dut->listener_reg_o, 1);
         ck("[14b] first-shot listener_ready", dut->listener_ready_o, 1);

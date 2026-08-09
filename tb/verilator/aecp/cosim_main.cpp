@@ -50,8 +50,14 @@ static bool write_all(int fd, const void* p, size_t n) {
 }
 
 // read one framed packet (beats until tlast) -> wire bytes (little-lane)
+//! Largest frame this session carries in either direction (one Ethernet
+//! frame). The caller's buffers are reused across commands, so reserving here
+//! is one allocation for the whole session rather than one per doubling.
+static const size_t AECP_FRAME_MAX = 1514;
+
 static bool recv_frame(int fd, std::vector<uint8_t>& out) {
-    out.clear();
+    out.clear();                        // clear KEEPS the capacity
+    out.reserve(AECP_FRAME_MAX);
     for (;;) {
         AxiStreamBeat beat;
         if (!read_all(fd, &beat, sizeof(beat))) return false;
@@ -95,7 +101,8 @@ static void run_command(const std::vector<uint8_t>& cmd, std::vector<uint8_t>& r
 // additional frames, and leaving one queued would make it surface as the
 // NEXT command's response - a silent one-off desync of the whole session.
 static bool collect_frame(std::vector<uint8_t>& resp) {
-    resp.clear();
+    resp.clear();                       // clear KEEPS the capacity
+    resp.reserve(AECP_FRAME_MAX);
     dut->m_axis_tready = 1;
     int idle = 0;
     for (int c = 0; c < 8000; c++) {

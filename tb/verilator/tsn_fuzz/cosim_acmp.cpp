@@ -28,7 +28,8 @@ static const uint64_t ENTITY_ID = 0x020000fffe000001ULL;
 
 //! harvest one TX frame; false = the listener stayed silent
 static bool collect_frame(std::vector<uint8_t>& resp) {
-    resp.clear();
+    resp.clear();                       // clear KEEPS the capacity
+    resp.reserve(TSN_FRAME_MAX);
     dut->m_axis_tready = 1;
     int idle = 0;
     for (int c = 0; c < 20000; c++) {

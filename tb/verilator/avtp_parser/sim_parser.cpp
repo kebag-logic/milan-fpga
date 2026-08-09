@@ -111,8 +111,18 @@ struct Fspec {
   int      len = 128;
 };
 
-static std::vector<uint8_t> mkframe(const Fspec& s) {
-  std::vector<uint8_t> f(s.len, 0x00);
+//! One reusable frame buffer for the whole run. build_frame() fills it through
+//! a reference and assign() keeps the capacity, so section G's 600 randomised
+//! frames cost ONE allocation between them instead of one per frame — and the
+//! widest frame (1518 B) sizes the buffer for every narrower one after it.
+static std::vector<uint8_t> stim;
+
+//! Fill `out` with the frame `s` describes and hand back a reference to it, so
+//! a call site reads `feed(build_frame(stim, s))` and reuses one buffer.
+static const std::vector<uint8_t>& build_frame(std::vector<uint8_t>& out,
+                                               const Fspec& s) {
+  out.assign(s.len, 0x00);          // assign KEEPS the capacity
+  std::vector<uint8_t>& f = out;
   for (int i = 0; i < 6; i++) { f[i] = 0x91; f[6 + i] = 0x02; }
   int o;
   if (s.tagged) {
@@ -124,7 +134,7 @@ static std::vector<uint8_t> mkframe(const Fspec& s) {
     f[12] = (uint8_t)(s.ethertype >> 8); f[13] = (uint8_t)s.ethertype;
     o = 14;
   }
-  if (o + 32 > (int)f.size()) return f;               // caller wanted a runt
+  if (o + 32 > (int)f.size()) return out;             // caller wanted a runt
   f[o + 0] = s.subtype;
   f[o + 1] = (uint8_t)((s.sv ? 0x80 : 0x00) | ((s.version & 0x07) << 4) |
                        (s.tv ? 0x01 : 0x00));
@@ -133,6 +143,14 @@ static std::vector<uint8_t> mkframe(const Fspec& s) {
   for (int i = 0; i < 8; i++) f[o + 4 + i]  = (uint8_t)(s.sid >> (8 * (7 - i)));
   for (int i = 0; i < 4; i++) f[o + 12 + i] = (uint8_t)(s.ts  >> (8 * (3 - i)));
   for (int i = o + 16; i < (int)f.size(); i++) f[i] = (uint8_t)(0x40 + (i & 0x3F));
+  return out;
+}
+
+//! Thin by-value wrapper, kept for the three sites that keep two frames alive
+//! at once (B3/C2) and so genuinely want their own copy.
+static std::vector<uint8_t> mkframe(const Fspec& s) {
+  std::vector<uint8_t> f;
+  build_frame(f, s);
   return f;
 }
 
@@ -310,7 +328,7 @@ int main(int argc, char** argv) {
   {
     tbl_clear(); tbl_arm(0, SID_A);
     Fspec s; s.sid = SID_A; s.ts = 0x12345678; s.seq = 0x5A; s.len = 128;
-    Obs o = feed_ref(mkframe(s), "A1 untagged AAF");
+    Obs o = feed_ref(build_frame(stim, s), "A1 untagged AAF");
     ck("A1 matched entry 0", o.matches, 1);
     // the wire bytes o+4..o+11 are MS-first: SID_HI is the FIRST four wire
     // bytes, SID_LO the last four - the exact claim 0x8BC/0x8C0 makes
@@ -329,11 +347,11 @@ int main(int argc, char** argv) {
     // an all-ones sid and a sid of 1: no field is masked or sign-extended
     tbl_clear(); tbl_arm(0, 0xFFFFFFFFFFFFFFFFULL);
     Fspec s; s.sid = 0xFFFFFFFFFFFFFFFFULL; s.ts = 0xFFFFFFFFu; s.len = 128;
-    Obs o = feed_ref(mkframe(s), "A2 all-ones sid");
+    Obs o = feed_ref(build_frame(stim, s), "A2 all-ones sid");
     ck("A2 all-ones matched", o.matches, 1);
     tbl_clear(); tbl_arm(0, 0x0000000000000001ULL);
     s.sid = 0x0000000000000001ULL; s.ts = 0;
-    o = feed_ref(mkframe(s), "A3 sid=1");
+    o = feed_ref(build_frame(stim, s), "A3 sid=1");
     ck("A3 sid=1 matched", o.matches, 1);
   }
   {
@@ -341,10 +359,10 @@ int main(int argc, char** argv) {
     // the table's reset state is zero-sid/disabled - the enable is the gate)
     tbl_clear(); tbl_arm(0, 0);
     Fspec s; s.sid = 0; s.len = 128;
-    Obs o = feed_ref(mkframe(s), "A4 sid=0 armed");
+    Obs o = feed_ref(build_frame(stim, s), "A4 sid=0 armed");
     ck("A4 zero sid matches when armed", o.matches, 1);
     tbl_enable(0, false);
-    o = feed_ref(mkframe(s), "A5 sid=0 disarmed");
+    o = feed_ref(build_frame(stim, s), "A5 sid=0 disarmed");
     ck("A5 zero sid misses when disarmed", o.matches, 0);
     ck("A5 parse still fired", o.parses, 1);
   }
@@ -356,8 +374,8 @@ int main(int argc, char** argv) {
     tbl_clear(); tbl_arm(0, SID_A);
     Fspec u; u.sid = SID_A; u.ts = 0xCAFEBABE; u.seq = 0x11; u.len = 128;
     Fspec t = u; t.tagged = true; t.seq = 0x12;
-    Obs ou = feed_ref(mkframe(u), "B1 untagged");
-    Obs ot = feed_ref(mkframe(t), "B2 tagged");
+    Obs ou = feed_ref(build_frame(stim, u), "B1 untagged");
+    Obs ot = feed_ref(build_frame(stim, t), "B2 tagged");
     ckx("B: tagged lifts the SAME sid as untagged", ot.sid, ou.sid);
     ck("B: tagged lifts the same avtp_ts", ot.ts, (long)ou.ts);
     ck("B: both matched", ou.matches + ot.matches, 2);
@@ -383,7 +401,7 @@ int main(int argc, char** argv) {
     tbl_clear(); tbl_arm(0, SID_A);
     uint32_t p0 = dut->avtp_frames_o;
     Fspec s; s.tagged = true; s.tpid = 0x88A8; s.sid = SID_A; s.len = 128;
-    Obs o = feed(mkframe(s));
+    Obs o = feed(build_frame(stim, s));
     ck("B3 S-tag (0x88A8) frame: no parse", o.parses, 0);
     ck("B3 S-tag frame: no match", o.matches, 0);
     ck("B3 S-tag frame: PARSED did not move", dut->avtp_frames_o - p0, 0);
@@ -405,7 +423,7 @@ int main(int argc, char** argv) {
     for (int sub = 0; sub <= 8; sub++) {
       Fspec s; s.subtype = (uint8_t)sub; s.sid = SID_A; s.len = 128;
       char tag[64]; snprintf(tag, sizeof tag, "C1 subtype 0x%02X", sub);
-      Obs o = feed_ref(mkframe(s), tag);
+      Obs o = feed_ref(build_frame(stim, s), tag);
       ck(tag, o.parses, sub <= 7 ? 1 : 0);
     }
     // the control subtypes that share the wire with the media: none may parse,
@@ -414,7 +432,7 @@ int main(int argc, char** argv) {
                             0xFE /*MAAP*/, 0x7F};
     for (int i = 0; i < 5; i++) {
       Fspec s; s.subtype = ctl[i]; s.sid = SID_A; s.len = 128;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       char tag[64];
       snprintf(tag, sizeof tag, "C2 control 0x%02X: no parse", ctl[i]);
       ck(tag, o.parses, 0);
@@ -423,7 +441,7 @@ int main(int argc, char** argv) {
     }
     // sv=0 on a stream subtype: stream_id is not valid, must not be trusted
     { Fspec s; s.sv = false; s.sid = SID_A; s.len = 128;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       ck("C3 sv=0: no parse", o.parses, 0);
       ck("C3 sv=0: no match", o.matches, 0); }
     // non-AVTP EtherTypes seen on a real bench port
@@ -431,7 +449,7 @@ int main(int argc, char** argv) {
                             0x88F7 /*gPTP*/, 0x22EA /*SRP*/};
     for (int i = 0; i < 4; i++) {
       Fspec s; s.ethertype = et[i]; s.sid = SID_A; s.len = 128;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       char tag[64];
       snprintf(tag, sizeof tag, "C4 ethertype 0x%04X: no parse", et[i]);
       ck(tag, o.parses, 0);
@@ -466,7 +484,7 @@ int main(int argc, char** argv) {
                    tagged ? "tagged" : "untagged",
                    subs[si] == 0x02 ? "AAF" : "CRF", ver);
           uint32_t p0 = dut->avtp_frames_o;
-          feed_ref(mkframe(s), tag);          // parse/match pulses vs model
+          feed_ref(build_frame(stim, s), tag);          // parse/match pulses vs model
           char t2[96];
           snprintf(t2, sizeof t2, "%s: PARSED counter %s", tag,
                    ver == 0 ? "ticks" : "frozen");
@@ -477,7 +495,7 @@ int main(int argc, char** argv) {
     // the recovery control: after the whole non-zero sweep, a version-0 PDU
     // on the same stream parses and matches first-shot (no wedge, no state)
     { Fspec s; s.sid = SID_A; s.len = 128;
-      Obs o = feed_ref(mkframe(s), "V2 version-0 recovery");
+      Obs o = feed_ref(build_frame(stim, s), "V2 version-0 recovery");
       ck("V2 recovery PDU matched", o.matches, 1); }
   }
 
@@ -490,7 +508,7 @@ int main(int argc, char** argv) {
     for (int e = 0; e < NSTREAMS_TB; e++) {
       Fspec s; s.sid = SIDS[e]; s.seq = (uint8_t)e; s.len = 128;
       char tag[64]; snprintf(tag, sizeof tag, "D1 entry %d", e);
-      Obs o = feed_ref(mkframe(s), tag);
+      Obs o = feed_ref(build_frame(stim, s), tag);
       snprintf(tag, sizeof tag, "D1 entry %d matched", e);
       ck(tag, o.matches, 1);
       snprintf(tag, sizeof tag, "D1 entry %d index", e);
@@ -500,12 +518,12 @@ int main(int argc, char** argv) {
     // shapes cannot even express - the width IS the coverage
     tbl_clear(); tbl_arm(NSTREAMS_TB - 1, SID_B);
     { Fspec s; s.sid = SID_B; s.len = 128;
-      Obs o = feed_ref(mkframe(s), "D2 top entry only");
+      Obs o = feed_ref(build_frame(stim, s), "D2 top entry only");
       ck("D2 top entry matched", o.matches, 1);
       ck("D2 top entry index", o.idx, NSTREAMS_TB - 1); }
     // a sid that would live in an entry BEYOND this N must simply miss
     { Fspec s; s.sid = SIDS[0]; s.len = 128;
-      Obs o = feed_ref(mkframe(s), "D3 sid armed nowhere");
+      Obs o = feed_ref(build_frame(stim, s), "D3 sid armed nowhere");
       ck("D3 out-of-table sid misses", o.matches, 0);
       ck("D3 out-of-table sid still parsed", o.parses, 1); }
   }
@@ -526,7 +544,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) rev |= ((SID_A >> (8 * i)) & 0xFFULL) << (8 * (7 - i));
     tbl_arm(0, rev);
     { Fspec s; s.sid = SID_A; s.len = 128;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       ck("E1 byte-reversed arm: parse fired", o.parses, 1);
       ck("E1 byte-reversed arm: NO match", o.matches, 0);
       ckx("E1 latch shows the WIRE sid", o.sid, SID_A);
@@ -537,7 +555,7 @@ int main(int argc, char** argv) {
     p0 = dut->avtp_frames_o; m0 = dut->matched_frames_o;
     tbl_clear(); tbl_arm(0, (SID_A >> 32) | (SID_A << 32));
     { Fspec s; s.sid = SID_A; s.len = 128;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       ck("E2 half-transposed arm: parse fired", o.parses, 1);
       ck("E2 half-transposed arm: NO match", o.matches, 0);
       ckx("E2 latch shows the WIRE sid", o.sid, SID_A);
@@ -548,14 +566,14 @@ int main(int argc, char** argv) {
     p0 = dut->avtp_frames_o; m0 = dut->matched_frames_o;
     tbl_clear(); tbl_arm(0, SID_A ^ 1ULL);
     { Fspec s; s.sid = SID_A; s.len = 128;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       ck("E3 one-bit-off arm: NO match", o.matches, 0);
       ck("E3 PARSED climbed", dut->avtp_frames_o - p0, 1);
       ck("E3 MATCHED static", dut->matched_frames_o - m0, 0); }
     // and the top bit, so the compare is proved across the full 64
     tbl_clear(); tbl_arm(0, SID_A ^ (1ULL << 63));
     { Fspec s; s.sid = SID_A; s.len = 128;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       ck("E3b bit-63-off arm: NO match", o.matches, 0); }
 
     // E4 - the right sid is in the table but the entry is NOT ARMED: the
@@ -563,7 +581,7 @@ int main(int argc, char** argv) {
     p0 = dut->avtp_frames_o; m0 = dut->matched_frames_o;
     tbl_clear(); tbl_arm(0, SID_A, /*en=*/false);
     { Fspec s; s.sid = SID_A; s.len = 128;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       ck("E4 correct sid, entry disarmed: NO match", o.matches, 0);
       ck("E4 PARSED climbed", dut->avtp_frames_o - p0, 1);
       ck("E4 MATCHED static", dut->matched_frames_o - m0, 0);
@@ -574,7 +592,7 @@ int main(int argc, char** argv) {
     // the parser was wedged.
     tbl_enable(0, true);
     { Fspec s; s.sid = SID_A; s.len = 128;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       ck("E5 same frame, entry armed: MATCH", o.matches, 1);
       ck("E5 match index 0", o.idx, 0);
       ck("E5 MATCHED climbed", dut->matched_frames_o - m0, 1); }
@@ -582,7 +600,7 @@ int main(int argc, char** argv) {
     // E6 - disarm live, mid-stream: the verdict flips back with no reset
     tbl_enable(0, false);
     { Fspec s; s.sid = SID_A; s.len = 128;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       ck("E6 live disarm: back to NO match", o.matches, 0);
       ck("E6 live disarm: parse still fires", o.parses, 1); }
 
@@ -595,7 +613,7 @@ int main(int argc, char** argv) {
     tbl_enable(NSTREAMS_TB / 2, false);
     for (int e = 0; e < NSTREAMS_TB; e++) {
       Fspec s; s.sid = SIDS[e]; s.len = 128;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       char tag[72];
       snprintf(tag, sizeof tag, "E7 entry %d verdict (hole at %d)", e,
                NSTREAMS_TB / 2);
@@ -612,7 +630,7 @@ int main(int argc, char** argv) {
     // F1 - exactly one verdict per frame, however long the frame is
     for (int len : {64, 128, 512, 1024, 1518}) {
       Fspec s; s.sid = SID_A; s.len = len;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       char tag[64];
       snprintf(tag, sizeof tag, "F1 len %4d: one parse pulse", len);
       ck(tag, o.parses, 1);
@@ -623,13 +641,13 @@ int main(int argc, char** argv) {
     // and the 8th accepted beat fires, so <= 56 bytes never parses. Asserted
     // so the floor is a documented property and not a surprise.
     { Fspec s; s.sid = SID_A; s.len = 56;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       ck("F2 56-byte frame: no parse (below the floor)", o.parses, 0); }
     { Fspec s; s.sid = SID_A; s.len = 57;
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       ck("F2 57-byte frame: parses", o.parses, 1); }
     { Fspec s; s.sid = SID_A; s.len = 60;   // Ethernet minimum payload frame
-      Obs o = feed(mkframe(s));
+      Obs o = feed(build_frame(stim, s));
       ck("F2 60-byte frame: parses and matches", o.matches, 1); }
 
     // F3 - back-to-back frames with NO idle gap (line-rate AAF shape): the
@@ -639,7 +657,7 @@ int main(int argc, char** argv) {
       Fspec a; a.sid = SID_A; a.seq = 1; a.len = 128;
       Fspec b; b.sid = SID_A; b.seq = 2; b.len = 128;
       Fspec c; c.sid = SID_B; c.seq = 3; c.len = 128;   // unknown sid between
-      drive(mkframe(a)); drive(mkframe(b)); drive(mkframe(c));
+      drive(build_frame(stim, a)); drive(build_frame(stim, b)); drive(build_frame(stim, c));
       idle(4);
       ck("F3 back-to-back: 3 parses", obs_acc.parses, 3);
       ck("F3 back-to-back: 2 matches", obs_acc.matches, 2);
@@ -650,7 +668,7 @@ int main(int argc, char** argv) {
     // F4 - mid-frame backpressure: not-ready beats are not data
     for (int gap : {2, 3, 7}) {
       Fspec s; s.sid = SID_A; s.ts = 0xDEADBEEF; s.len = 200;
-      Obs o = feed(mkframe(s), gap);
+      Obs o = feed(build_frame(stim, s), gap);
       char tag[64];
       snprintf(tag, sizeof tag, "F4 gap %d: one parse", gap);
       ck(tag, o.parses, 1);
@@ -670,7 +688,7 @@ int main(int argc, char** argv) {
       std::vector<uint8_t> runt(60, 0xEE);
       runt[12] = 0x08; runt[13] = 0x06;                     // ARP
       Fspec s; s.sid = SID_A; s.ts = 0x01020304; s.len = 128;
-      drive(runt); drive(mkframe(s)); idle(4);
+      drive(runt); drive(build_frame(stim, s)); idle(4);
       ck("F5 runt-then-AVTP: one parse", obs_acc.parses, 1);
       ckx("F5 runt-then-AVTP: sid intact", obs_acc.sid, SID_A);
       ck("F5 runt-then-AVTP: matched", obs_acc.matches, 1);
@@ -716,8 +734,12 @@ int main(int argc, char** argv) {
       s.ts  = rnd();
       s.len = 60 + (int)(rnd() % 700);
 
-      Ref ref = model(mkframe(s));
-      Obs o = feed(mkframe(s), (int)(rnd() % 5));       // random backpressure
+      // one build, two readers: the reference model and the DUT must see the
+      // SAME bytes, and the builder is a pure function of `s`, so building the
+      // frame twice was pure waste
+      const std::vector<uint8_t>& fr = build_frame(stim, s);
+      Ref ref = model(fr);
+      Obs o = feed(fr, (int)(rnd() % 5));               // random backpressure
       if (o.parses != (ref.parse ? 1 : 0) ||
           o.matches != ((ref.parse && ref.hit) ? 1 : 0)) {
         checks += 2; fails += 2;
@@ -760,7 +782,7 @@ int main(int argc, char** argv) {
     ck("H MATCHED cleared by reset", dut->matched_frames_o, 0);
     tbl_clear(); tbl_arm(0, SID_A);
     Fspec s; s.sid = SID_A; s.len = 128;
-    Obs o = feed(mkframe(s));
+    Obs o = feed(build_frame(stim, s));
     ck("H parses again after reset", o.parses, 1);
     ck("H PARSED = 1 after reset",   dut->avtp_frames_o, 1);
     ck("H MATCHED = 1 after reset",  dut->matched_frames_o, 1);

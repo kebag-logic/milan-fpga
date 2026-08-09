@@ -93,8 +93,12 @@ static void step() { lo(); hi(); }
 
 // Capture one frame, optionally applying a back-pressure pattern on tready.
 // bp==0 -> tready always 1; bp==1 -> tready toggles (stress the handshake).
+//! 82 B = 14 Ethernet + 4 AVTP common header + 64 ADPDU (1722.1 6.2.1)
+static const size_t ADP_FRAME_BYTES = 82;
+
 static std::vector<uint8_t> capture_frame(int bp = 0, int maxc = 400) {
     std::vector<uint8_t> b;
+    b.reserve(ADP_FRAME_BYTES);         // every frame this DUT emits is an ADPDU
     bool started = false;
     int  phase = 0;
     for (int c = 0; c < maxc; c++) {

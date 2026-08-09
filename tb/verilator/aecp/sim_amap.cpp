@@ -140,9 +140,32 @@ static void put_be16(std::vector<uint8_t>& v, uint16_t x) {
     v.push_back(x >> 8); v.push_back(x & 0xFF);
 }
 
-static std::vector<uint8_t> aem_cmd(uint16_t cmd, uint16_t seq,
+//! AEM command frame layout: 14 B Ethernet + 4 B AVTP common header + 8 B
+//! target_entity_id + 8 B controller_entity_id + 2 B sequence_id + 2 B
+//! u/command_type = 38 B ahead of the command_specific payload, and the whole
+//! frame is padded up to the 60 B Ethernet minimum.
+static const size_t AEM_HDR_BYTES = 38;
+static const size_t ETH_MIN_BYTES = 60;
+
+//! Widest AEM response this suite collects (a READ_DESCRIPTOR reply), used to
+//! size the collector once instead of growing it a beat at a time.
+static const size_t AEM_RESP_BYTES = 600;
+
+//! One reusable stimulus buffer for the whole run. The builder below fills it
+//! through a reference and clear() keeps its capacity, so the command bytes
+//! cost ONE allocation for the entire simulation instead of a malloc plus
+//! three or four reallocs on every transaction.
+static std::vector<uint8_t> stim;
+
+//! Fill `out` with an AEM command frame and hand back a reference to it, so a
+//! call site reads `feed_rx(build_aem_cmd(stim, ...))` and reuses one buffer.
+static const std::vector<uint8_t>& build_aem_cmd(std::vector<uint8_t>& out,
+                                    uint16_t cmd, uint16_t seq,
                                     const std::vector<uint8_t>& payload) {
-    std::vector<uint8_t> f;
+    size_t want = AEM_HDR_BYTES + payload.size();
+    out.clear();                                // clear KEEPS the capacity
+    out.reserve(want < ETH_MIN_BYTES ? ETH_MIN_BYTES : want);
+    std::vector<uint8_t>& f = out;
     for (int i=0;i<6;i++) f.push_back(ENT_MAC[i]);
     for (int i=0;i<6;i++) f.push_back(CTL_MAC[i]);
     put_be16(f, 0x22F0);
@@ -157,8 +180,8 @@ static std::vector<uint8_t> aem_cmd(uint16_t cmd, uint16_t seq,
     f.push_back((cmd >> 8) & 0x7F);
     f.push_back(cmd & 0xFF);
     for (auto b : payload) f.push_back(b);
-    while (f.size() < 60) f.push_back(0x00);
-    return f;
+    while (f.size() < ETH_MIN_BYTES) f.push_back(0x00);
+    return out;
 }
 
 static void feed_rx(const std::vector<uint8_t>& f) {
@@ -178,6 +201,7 @@ static void feed_rx(const std::vector<uint8_t>& f) {
 
 static std::vector<uint8_t> collect_resp(int budget = 20000) {
     std::vector<uint8_t> b;
+    b.reserve(AEM_RESP_BYTES);          // one allocation, not one per beat run
     int idle = 0;
     dut->m_axis_tready = 1;
     for (int c = 0; c < budget; c++) {
@@ -211,15 +235,17 @@ static long be_at(const std::vector<uint8_t>& b, size_t off, int n) {
 
 static uint16_t seq = 0x7000;
 static std::vector<uint8_t> xact(uint16_t cmd, const std::vector<uint8_t>& pl) {
-    feed_rx(aem_cmd(cmd, seq++, pl));
+    feed_rx(build_aem_cmd(stim, cmd, seq++, pl));
     return collect_resp();
 }
 static std::vector<uint8_t> rd_pl(uint16_t type, uint16_t idx) {
-    std::vector<uint8_t> p; put_be16(p, 0); put_be16(p, 0);
+    std::vector<uint8_t> p; p.reserve(8);       // four u16 fields, exactly
+    put_be16(p, 0); put_be16(p, 0);
     put_be16(p, type); put_be16(p, idx); return p;
 }
 static std::vector<uint8_t> am_pl(uint16_t type, uint16_t idx, uint16_t map) {
-    std::vector<uint8_t> p; put_be16(p, type); put_be16(p, idx);
+    std::vector<uint8_t> p; p.reserve(8);       // four u16 fields, exactly
+    put_be16(p, type); put_be16(p, idx);
     put_be16(p, map); put_be16(p, 0); return p;
 }
 

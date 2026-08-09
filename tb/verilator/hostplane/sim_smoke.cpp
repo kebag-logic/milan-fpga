@@ -56,7 +56,8 @@ struct Pre { bool aw_acc, b_v, ar_acc, r_v; uint32_t r_d; };
 static Pre g_pre;
 
 static void tick() {
-    if (rx_cur.empty() && !rxq.empty()) { rx_cur = rxq.front(); rxq.pop_front(); rx_beat = 0; }
+    // move, not copy: the queue entry is popped on the next statement anyway
+    if (rx_cur.empty() && !rxq.empty()) { rx_cur = std::move(rxq.front()); rxq.pop_front(); rx_beat = 0; }
     if (!rx_cur.empty()) {
         size_t nbeats = (rx_cur.size() + 7) / 8;
         uint64_t d = 0; uint8_t k = 0;

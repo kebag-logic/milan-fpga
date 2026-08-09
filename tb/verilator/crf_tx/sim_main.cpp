@@ -49,27 +49,35 @@ static void step() {
 // mid-stream case uses to land a register write a known distance before the
 // NEXT launch.
 // ---------------------------------------------------------------------------
+//! A CRF PDU off this engine is 8 lane beats: 14 B Ethernet (+4 when tagged)
+//! + the CRF AVTPDU and its timestamp block = 64 lane bytes.
+static const size_t CRF_FRAME_BYTES = 64;
+
 static long g_frame_start = -1;
 static bool next_frame(std::vector<uint8_t>& out, long max_steps = 300000) {
-    out.clear();
-    std::vector<uint8_t> cur;
+    // filled in place: the beats used to land in a local that was then COPIED
+    // into `out` on every captured frame
+    out.clear();                        // clear KEEPS the capacity
+    out.reserve(CRF_FRAME_BYTES);
     for (long i = 0; i < max_steps; i++) {
         bool last = false;
         if (dut->m_axis_tvalid && dut->m_axis_tready) {
-            if (cur.empty()) g_frame_start = g_step;
+            if (out.empty()) g_frame_start = g_step;
             uint64_t d = dut->m_axis_tdata;
-            for (int j = 0; j < 8; j++) cur.push_back((uint8_t)(d >> (8*j)));
+            for (int j = 0; j < 8; j++) out.push_back((uint8_t)(d >> (8*j)));
             last = dut->m_axis_tlast;
         }
         step();
-        if (last) { out = cur; return true; }
+        if (last) return true;
     }
+    out.clear();        // timed out: hand back nothing, as this always has
     return false;
 }
 // ... and the same collection started from wherever the harness already is,
 // so a case can change an input MID-FRAME and read back what the frame kept
 static bool collect_from_here(std::vector<uint8_t>& out, long max_steps = 300000) {
-    out.clear();
+    out.clear();                        // clear KEEPS the capacity
+    out.reserve(CRF_FRAME_BYTES);
     for (long i = 0; i < max_steps; i++) {
         bool last = false;
         if (dut->m_axis_tvalid && dut->m_axis_tready) {

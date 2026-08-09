@@ -92,8 +92,12 @@ static void pulse(CData& s) { s = 1; step(); s = 0; }
 static void tick() { pulse(dut->tick_i); }
 
 //! Capture one whole frame if it STARTS within `maxc` cycles; else return {}.
+//! 82 B = 14 Ethernet + 4 AVTP common header + 64 ADPDU (1722.1 6.2.1)
+static const size_t ADP_FRAME_BYTES = 82;
+
 static std::vector<uint8_t> capture(int maxc = 64) {
     std::vector<uint8_t> b;
+    b.reserve(ADP_FRAME_BYTES);         // every frame this DUT emits is an ADPDU
     bool started = false;
     for (int c = 0; c < maxc || started; c++) {
         dut->m_axis_tready = 1;

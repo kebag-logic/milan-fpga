@@ -82,8 +82,9 @@ struct Pre { bool aw_acc, b_v, ar_acc, r_v; uint32_t r_d; };
 static Pre g_pre;
 
 static void drive_streams() {
-    if (rx_cur.empty() && !rxq.empty()) { rx_cur = rxq.front(); rxq.pop_front(); rx_beat = 0; }
-    if (tx_cur.empty() && !txq.empty()) { tx_cur = txq.front(); txq.pop_front(); tx_beat = 0; }
+    // move, not copy: the queue entry is popped on the next statement anyway
+    if (rx_cur.empty() && !rxq.empty()) { rx_cur = std::move(rxq.front()); rxq.pop_front(); rx_beat = 0; }
+    if (tx_cur.empty() && !txq.empty()) { tx_cur = std::move(txq.front()); txq.pop_front(); tx_beat = 0; }
 
     if (!rx_cur.empty()) {
         size_t nbeats = (rx_cur.size() + 7) / 8;

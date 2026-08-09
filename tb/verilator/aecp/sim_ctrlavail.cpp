@@ -126,10 +126,30 @@ static void put_be16(std::vector<uint8_t>& v, uint16_t x) {
 }
 
 /* an AEM command from a controller to us */
-static std::vector<uint8_t> aem_cmd(const uint8_t* smac, uint64_t cid,
+//! AEM command frame layout: 14 B Ethernet + 4 B AVTP common header + 8 B
+//! target_entity_id + 8 B controller_entity_id + 2 B sequence_id + 2 B
+//! u/command_type = 38 B ahead of the command_specific payload, and the whole
+//! frame is padded up to the 60 B Ethernet minimum.
+static const size_t AEM_HDR_BYTES = 38;
+static const size_t ETH_MIN_BYTES = 60;
+
+//! One reusable stimulus buffer for the whole run. The builder below fills it
+//! through a reference and clear() keeps its capacity, so the command bytes
+//! cost ONE allocation for the entire simulation instead of a malloc plus
+//! three or four reallocs on every transaction.
+static std::vector<uint8_t> stim;
+
+//! Fill `out` with an AEM command frame from an arbitrary controller and hand
+//! back a reference to it, so a call site reads
+//! `feed_rx(build_aem_cmd(stim, ...))` and reuses one buffer.
+static const std::vector<uint8_t>& build_aem_cmd(std::vector<uint8_t>& out,
+                                    const uint8_t* smac, uint64_t cid,
                                     uint16_t cmd, uint16_t seq,
                                     const std::vector<uint8_t>& payload) {
-    std::vector<uint8_t> f;
+    size_t want = AEM_HDR_BYTES + payload.size();
+    out.clear();                                // clear KEEPS the capacity
+    out.reserve(want < ETH_MIN_BYTES ? ETH_MIN_BYTES : want);
+    std::vector<uint8_t>& f = out;
     for (int i=0;i<6;i++) f.push_back(ENT_MAC[i]);
     for (int i=0;i<6;i++) f.push_back(smac[i]);
     put_be16(f, 0x22F0);
@@ -144,16 +164,20 @@ static std::vector<uint8_t> aem_cmd(const uint8_t* smac, uint64_t cid,
     f.push_back((cmd >> 8) & 0x7F);
     f.push_back(cmd & 0xFF);
     for (auto b : payload) f.push_back(b);
-    while (f.size() < 60) f.push_back(0x00);
-    return f;
+    while (f.size() < ETH_MIN_BYTES) f.push_back(0x00);
+    return out;
 }
 
 /* the controller's answer to OUR probe: an AEM_RESPONSE whose
  * controller_entity_id is OURS (1722.1-2021 9.3.6's match rule) and whose
  * target_entity_id names the answering controller */
-static std::vector<uint8_t> ca_response(const uint8_t* smac, uint64_t cid,
+//! Fill `out` with the controller's CONTROLLER_AVAILABLE response frame.
+static const std::vector<uint8_t>& build_ca_response(std::vector<uint8_t>& out,
+                                        const uint8_t* smac, uint64_t cid,
                                         uint16_t seq, int status) {
-    std::vector<uint8_t> f;
+    out.clear();                                // clear KEEPS the capacity
+    out.reserve(ETH_MIN_BYTES);
+    std::vector<uint8_t>& f = out;
     for (int i=0;i<6;i++) f.push_back(ENT_MAC[i]);
     for (int i=0;i<6;i++) f.push_back(smac[i]);
     put_be16(f, 0x22F0);
@@ -166,8 +190,8 @@ static std::vector<uint8_t> ca_response(const uint8_t* smac, uint64_t cid,
     put_be16(f, seq);
     f.push_back(0x00);                          // u=0, command_type[14:8]
     f.push_back(0x03);                          // CONTROLLER_AVAILABLE
-    while (f.size() < 60) f.push_back(0x00);
-    return f;
+    while (f.size() < ETH_MIN_BYTES) f.push_back(0x00);
+    return out;
 }
 
 static void feed_rx(const std::vector<uint8_t>& f) {
@@ -213,7 +237,7 @@ static bool is_dereg(const Frame& f) {
 static bool auto_answer_b = true;
 static void service(const Frame& f) {
     if (auto_answer_b && is_probe(f) && to_mac(f, MAC_B))
-        feed_rx(ca_response(MAC_B, CID_B, (uint16_t)r_seq(f.b), 0));
+        feed_rx(build_ca_response(stim, MAC_B, CID_B, (uint16_t)r_seq(f.b), 0));
 }
 /* wait for the next SOLICITED response (want=0) or the next u=1 PUSH
  * (want=1), servicing anything else that lands meanwhile. A probe can
@@ -249,7 +273,7 @@ static long run_count_to(const uint8_t* mac, long n) {
 /* drive one command and return its solicited response */
 static Frame xact(const uint8_t* smac, uint64_t cid, uint16_t cmd,
                   uint16_t seq, const std::vector<uint8_t>& pl) {
-    feed_rx(aem_cmd(smac, cid, cmd, seq, pl));
+    feed_rx(build_aem_cmd(stim, smac, cid, cmd, seq, pl));
     return await(0, 8000);
 }
 static int reg_ctl(const uint8_t* smac, uint64_t cid, uint16_t seq) {
@@ -259,10 +283,15 @@ static int dereg_ctl(const uint8_t* smac, uint64_t cid, uint16_t seq) {
     return r_status(xact(smac, cid, 37, seq, {}).b);
 }
 /* a READ_DESCRIPTOR (ENTITY/0) - the "controller that only ever reads" */
-static std::vector<uint8_t> read_cmd(const uint8_t* smac, uint64_t cid, uint16_t seq) {
-    std::vector<uint8_t> pl; put_be16(pl, 0); put_be16(pl, 0);
+//! READ_DESCRIPTOR command; the 8-byte payload is built into its own buffer
+//! because build_aem_cmd() reads it while filling `out`.
+static const std::vector<uint8_t>& build_read_cmd(std::vector<uint8_t>& out,
+                                    const uint8_t* smac, uint64_t cid,
+                                    uint16_t seq) {
+    std::vector<uint8_t> pl; pl.reserve(8);
     put_be16(pl, 0); put_be16(pl, 0);
-    return aem_cmd(smac, cid, 4, seq, pl);
+    put_be16(pl, 0); put_be16(pl, 0);
+    return build_aem_cmd(out, smac, cid, 4, seq, pl);
 }
 
 int main(int argc, char** argv) {
@@ -355,7 +384,7 @@ int main(int argc, char** argv) {
     printf("\n[2] an answered probe keeps the slot - the status is IRRELEVANT\n");
     printf("[7] ...and consecutive reloads differ and stay in range\n");
     {
-        feed_rx(ca_response(MAC_A, CID_A, (uint16_t)probe1_seq, 0));
+        feed_rx(build_ca_response(stim, MAC_A, CID_A, (uint16_t)probe1_seq, 0));
         long t_ans = cyc;
         ck("[2] no retry follows an answered probe",
            quiet((long)(ACK_MS + 6) * MS_CYC), 0);
@@ -370,7 +399,7 @@ int main(int argc, char** argv) {
             ck("[2] it is a CONTROLLER_AVAILABLE command", is_probe(p) ? 1 : 0, 1);
             ck("[2] addressed to controller A", to_mac(p, MAC_A) ? 1 : 0, 1);
             iv[k] = p.t - t_ans;
-            feed_rx(ca_response(MAC_A, CID_A, (uint16_t)r_seq(p.b), st[k]));
+            feed_rx(build_ca_response(stim, MAC_A, CID_A, (uint16_t)r_seq(p.b), st[k]));
             t_ans = cyc;
         }
         pump(200);   /* let the last witness pulse reach the tallies */
@@ -402,7 +431,7 @@ int main(int argc, char** argv) {
         long guard = 0;
         while ((long)a_frames.size() < 3 && guard < 12L * DEADLINE_HI) {
             for (long i = 0; i < 60L * MS_CYC; i++) { step(); guard++; }
-            feed_rx(read_cmd(MAC_B, CID_B, (uint16_t)(0x2100 + reads)));
+            feed_rx(build_read_cmd(stim, MAC_B, CID_B, (uint16_t)(0x2100 + reads)));
             reads++;
             while (have()) {
                 Frame f = take();
@@ -507,7 +536,7 @@ int main(int argc, char** argv) {
                 if (is_probe(f)) {
                     if (to_mac(f, MAC_B)) {
                         b_probe++;
-                        feed_rx(ca_response(MAC_B, CID_B, (uint16_t)r_seq(f.b), 0));
+                        feed_rx(build_ca_response(stim, MAC_B, CID_B, (uint16_t)r_seq(f.b), 0));
                     }
                 } else if (is_dereg(f)) {
                     deregs++;

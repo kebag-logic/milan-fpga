@@ -58,10 +58,34 @@ static void put_be16(std::vector<uint8_t>& v, uint16_t x) {
     v.push_back(x >> 8); v.push_back(x & 0xFF);
 }
 
-static std::vector<uint8_t> aem_cmd2(const uint8_t* smac, uint64_t cid,
+//! AEM command frame layout: 14 B Ethernet + 4 B AVTP common header + 8 B
+//! target_entity_id + 8 B controller_entity_id + 2 B sequence_id + 2 B
+//! u/command_type = 38 B ahead of the command_specific payload, and the whole
+//! frame is padded up to the 60 B Ethernet minimum.
+static const size_t AEM_HDR_BYTES = 38;
+static const size_t ETH_MIN_BYTES = 60;
+
+//! Widest AEM response this suite collects (a READ_DESCRIPTOR reply), used to
+//! size the collector once instead of growing it a beat at a time.
+static const size_t AEM_RESP_BYTES = 600;
+
+//! One reusable stimulus buffer for the whole run. The builder below fills it
+//! through a reference and clear() keeps its capacity, so the command bytes
+//! cost ONE allocation for the entire simulation instead of a malloc plus
+//! three or four reallocs on every transaction.
+static std::vector<uint8_t> stim;
+
+//! Fill `out` with an AEM command frame from an arbitrary controller and
+//! hand back a reference to it, so a call site reads
+//! `feed_rx(build_aem_cmd2(stim, ...))` and reuses one buffer.
+static const std::vector<uint8_t>& build_aem_cmd2(std::vector<uint8_t>& out,
+                                     const uint8_t* smac, uint64_t cid,
                                      uint16_t cmd, uint16_t seq,
                                      const std::vector<uint8_t>& payload) {
-    std::vector<uint8_t> f;
+    size_t want = AEM_HDR_BYTES + payload.size();
+    out.clear();                                // clear KEEPS the capacity
+    out.reserve(want < ETH_MIN_BYTES ? ETH_MIN_BYTES : want);
+    std::vector<uint8_t>& f = out;
     for (int i=0;i<6;i++) f.push_back(ENT_MAC[i]);
     for (int i=0;i<6;i++) f.push_back(smac[i]);
     put_be16(f, 0x22F0);
@@ -76,12 +100,14 @@ static std::vector<uint8_t> aem_cmd2(const uint8_t* smac, uint64_t cid,
     f.push_back((cmd >> 8) & 0x7F);
     f.push_back(cmd & 0xFF);
     for (auto b : payload) f.push_back(b);
-    while (f.size() < 60) f.push_back(0x00);
-    return f;
+    while (f.size() < ETH_MIN_BYTES) f.push_back(0x00);
+    return out;
 }
-static std::vector<uint8_t> aem_cmd(uint16_t cmd, uint16_t seq,
+//! Same, addressed from this suite's default controller.
+static const std::vector<uint8_t>& build_aem_cmd(std::vector<uint8_t>& out,
+                                    uint16_t cmd, uint16_t seq,
                                     const std::vector<uint8_t>& payload) {
-    return aem_cmd2(CTL_MAC, CTLR_ID, cmd, seq, payload);
+    return build_aem_cmd2(out, CTL_MAC, CTLR_ID, cmd, seq, payload);
 }
 
 static void feed_rx(const std::vector<uint8_t>& f) {
@@ -101,6 +127,7 @@ static void feed_rx(const std::vector<uint8_t>& f) {
 
 static std::vector<uint8_t> collect_resp(int budget = 6000) {
     std::vector<uint8_t> b;
+    b.reserve(AEM_RESP_BYTES);          // one allocation, not one per beat run
     int idle = 0;
     dut->m_axis_tready = 1;
     for (int c = 0; c < budget; c++) {
@@ -142,7 +169,7 @@ static std::vector<uint8_t> wait_push(int cycles) {
 
 static uint16_t seq = 0x5000;
 static std::vector<uint8_t> xact(uint16_t cmd, const std::vector<uint8_t>& pl) {
-    feed_rx(aem_cmd(cmd, seq++, pl));
+    feed_rx(build_aem_cmd(stim, cmd, seq++, pl));
     return collect_resp();
 }
 
@@ -203,7 +230,7 @@ int main(int argc, char** argv) {
     // ---------------------------------------------------------------- //
     printf("\n[1] STREAM_INPUT[0] stream-info push: dwell gate + content\n");
     {
-        feed_rx(aem_cmd(36, 0x5101, {}));
+        feed_rx(build_aem_cmd(stim, 36, 0x5101, {}));
         ck("[1] REGISTER A", r_status(collect_resp()), 0);
         // a bind lands: bound + sid + dmac + vlan + ACMP status + the
         // registered Talker attribute, all within the dwell
@@ -363,7 +390,7 @@ int main(int argc, char** argv) {
     // ---------------------------------------------------------------- //
     printf("\n[7] deregistration drains every class\n");
     {
-        feed_rx(aem_cmd(37, 0x5701, {}));
+        feed_rx(build_aem_cmd(stim, 37, 0x5701, {}));
         ck("[7] DEREGISTER A", r_status(collect_resp()), 0);
         dut->lstn_sid_i       = 0xAAAA00FFFE000009ULL;
         dut->gptp_gm_id_i     = 0x001B21FFFE55AB00ULL;
@@ -379,13 +406,13 @@ int main(int argc, char** argv) {
         const uint8_t MAC_B[6] = {0x68,0x05,0xCA,0x00,0x00,0xB0};
         const uint64_t CID_B = 0x680500FFFE0000B0ULL;
         const uint64_t AAF2  = 0x0205022000806000ULL;   // differing family value
-        feed_rx(aem_cmd(36, 0x5801, {}));
+        feed_rx(build_aem_cmd(stim, 36, 0x5801, {}));
         ck("[8] re-REGISTER A", r_status(collect_resp()), 0);
         // sink 0 binds (the level the datapath drives from acmpl_bound_v_w)
         dut->lstn_bound_v_i = 0x0001;
         std::vector<uint8_t> p2; put_be16(p2, 0x0005); put_be16(p2, 0);
         put_be64(p2, AAF2);
-        feed_rx(aem_cmd2(MAC_B, CID_B, 8, 0x5802, p2));
+        feed_rx(build_aem_cmd2(stim, MAC_B, CID_B, 8, 0x5802, p2));
         auto r = collect_resp();
         ck("[8] bound SET refused STREAM_IS_RUNNING", r_status(r), 12);
         r = collect_resp(700);
@@ -407,14 +434,14 @@ int main(int argc, char** argv) {
                 put_be16(rm, 0); put_be16(rm, c);       // stream 0, channel c
                 put_be16(rm, c); put_be16(rm, 0);       // cluster c, cc 0
             }
-            feed_rx(aem_cmd2(MAC_B, CID_B, 45, 0x5806, rm));
+            feed_rx(build_aem_cmd2(stim, MAC_B, CID_B, 45, 0x5806, rm));
             ck("[8] REMOVE the ch2..7 identity rows (5.4.2.7 blockers)",
                r_status(collect_resp()), 0);
             (void)collect_resp();                 // its u=1 replay to A
         }
         // unbind: the SAME differing SET is accepted and replayed to A
         dut->lstn_bound_v_i = 0;
-        feed_rx(aem_cmd2(MAC_B, CID_B, 8, 0x5803, p2));
+        feed_rx(build_aem_cmd2(stim, MAC_B, CID_B, 8, 0x5803, p2));
         r = collect_resp();
         ck("[8] unbound SET SUCCESS", r_status(r), 0);
         r = collect_resp();
@@ -427,7 +454,7 @@ int main(int argc, char** argv) {
         // then the identity rows - each drains one more replay to A
         std::vector<uint8_t> p8; put_be16(p8, 0x0005); put_be16(p8, 0);
         put_be64(p8, AAF_DEF);
-        feed_rx(aem_cmd2(MAC_B, CID_B, 8, 0x5804, p8));
+        feed_rx(build_aem_cmd2(stim, MAC_B, CID_B, 8, 0x5804, p8));
         ck("[8] restore default fmt", r_status(collect_resp()), 0);
         (void)collect_resp();                     // its replay to A
         {
@@ -437,12 +464,12 @@ int main(int argc, char** argv) {
                 put_be16(ad, 0); put_be16(ad, c);
                 put_be16(ad, c); put_be16(ad, 0);
             }
-            feed_rx(aem_cmd2(MAC_B, CID_B, 44, 0x5807, ad));
+            feed_rx(build_aem_cmd2(stim, MAC_B, CID_B, 44, 0x5807, ad));
             ck("[8] re-ADD the identity rows (hygiene)",
                r_status(collect_resp()), 0);
             (void)collect_resp();                 // its u=1 replay to A
         }
-        feed_rx(aem_cmd(37, 0x5805, {}));
+        feed_rx(build_aem_cmd(stim, 37, 0x5805, {}));
         ck("[8] DEREGISTER A", r_status(collect_resp()), 0);
     }
 
@@ -450,7 +477,7 @@ int main(int argc, char** argv) {
     printf("\n[9] gh #60 F1: AVB_INTERFACE push clamped to 1/s under a "
            "5 Hz link flap\n");
     {
-        feed_rx(aem_cmd(36, 0x5901, {}));
+        feed_rx(build_aem_cmd(stim, 36, 0x5901, {}));
         ck("[9] REGISTER A", r_status(collect_resp()), 0);
         // baseline raw totals through the solicited arm
         std::vector<uint8_t> pl; put_be16(pl, 0x0009); put_be16(pl, 0);
@@ -600,10 +627,10 @@ int main(int argc, char** argv) {
         const uint64_t CID_B = 0x680500FFFE0000B0ULL;
         const uint8_t MAC_C[6] = {0x68,0x05,0xCA,0x00,0x00,0xC0};
         const uint64_t CID_C = 0x680500FFFE0000C0ULL;
-        feed_rx(aem_cmd2(MAC_B, CID_B, 36, 0x5D01, {}));
+        feed_rx(build_aem_cmd2(stim, MAC_B, CID_B, 36, 0x5D01, {}));
         ck("[13] REGISTER B", r_status(collect_resp()), 0);
         std::vector<uint8_t> lk(16, 0);   // flags 0, locked_id 0, ENTITY/0
-        feed_rx(aem_cmd2(MAC_C, CID_C, 1, 0x5D02, lk));
+        feed_rx(build_aem_cmd2(stim, MAC_C, CID_C, 1, 0x5D02, lk));
         ck("[13] C LOCK SUCCESS", r_status(collect_resp()), 0);
         ck("[13] no push while the lock lives", (long)wait_push(2000).size(), 0);
         // 60 000 ticks x 100 cycles/ms; margin for the expiry pulse itself
@@ -628,18 +655,18 @@ int main(int argc, char** argv) {
            (long)collect_resp(700).size(), 0);
         // the state really cleared: B locks IMMEDIATELY (a live lock would
         // answer ENTITY_LOCKED) and that lock pushes NOTHING
-        feed_rx(aem_cmd2(MAC_B, CID_B, 1, 0x5D03, lk));
+        feed_rx(build_aem_cmd2(stim, MAC_B, CID_B, 1, 0x5D03, lk));
         ck("[13] B locks immediately after expiry", r_status(collect_resp()), 0);
         ck("[13] a fresh LOCK pushes nothing", (long)collect_resp(700).size(), 0);
         // explicit UNLOCK: state clears with NO notification (the Milan
         // 5.4.2.2 note names only the AUTOMATIC unlock)
         std::vector<uint8_t> ul(16, 0); ul[3] = 0x01;
-        feed_rx(aem_cmd2(MAC_B, CID_B, 1, 0x5D04, ul));
+        feed_rx(build_aem_cmd2(stim, MAC_B, CID_B, 1, 0x5D04, ul));
         ck("[13] B explicit UNLOCK SUCCESS", r_status(collect_resp()), 0);
         ck("[13] explicit UNLOCK -> NO push", (long)wait_push(2000).size(), 0);
-        feed_rx(aem_cmd(37, 0x5D05, {}));
+        feed_rx(build_aem_cmd(stim, 37, 0x5D05, {}));
         ck("[13] DEREGISTER A", r_status(collect_resp()), 0);
-        feed_rx(aem_cmd2(MAC_B, CID_B, 37, 0x5D06, {}));
+        feed_rx(build_aem_cmd2(stim, MAC_B, CID_B, 37, 0x5D06, {}));
         ck("[13] DEREGISTER B", r_status(collect_resp()), 0);
     }
 
@@ -652,7 +679,7 @@ int main(int argc, char** argv) {
         // daemon death (pdelay is a stored CSR - it just sits there), so the
         // controller kept an AS_CAPABLE=true entity on screen forever. The
         // leased input falls when the lease lapses, and THAT is this edge.
-        feed_rx(aem_cmd(36, 0x5E01, {}));
+        feed_rx(build_aem_cmd(stim, 36, 0x5E01, {}));
         ck("[14] REGISTER A", r_status(collect_resp()), 0);
         ck("[14] registration alone pushes nothing",
            (long)wait_push(2000).size(), 0);
@@ -731,7 +758,7 @@ int main(int argc, char** argv) {
         ck("[15] back to the legacy count 1 (foreign GM, no parent)",
            be_at(p3, 41, 1), 1);
         ck("[15] CDL back to 24", r_cdl(p3), 24);
-        feed_rx(aem_cmd(37, 0x5E02, {}));
+        feed_rx(build_aem_cmd(stim, 37, 0x5E02, {}));
         ck("[15] DEREGISTER A", r_status(collect_resp()), 0);
     }
 

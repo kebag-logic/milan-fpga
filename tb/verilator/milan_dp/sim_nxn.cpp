@@ -275,6 +275,7 @@ static std::vector<uint8_t> aecp_xact(uint16_t cmd, uint16_t sq,
     size_t flen = 38 + pl.size(); if (flen < 60) flen = 60;
     inject(f, flen, 40);
     std::vector<uint8_t> cur, resp;
+    cur.reserve(1514);                  // one Ethernet frame off the TX trunk
     dut->m_axis_mac_tx_tready = 1;
     for (int c = 0; c < cyc && resp.empty(); c++) {
         lo();
@@ -285,7 +286,7 @@ static std::vector<uint8_t> aecp_xact(uint16_t cmd, uint16_t sq,
             if (dut->m_axis_mac_tx_tlast) {
                 if (cur.size() > 17 && cur[12] == 0x22 && cur[13] == 0xF0 &&
                     cur[14] == 0xFB)
-                    resp = cur;
+                    resp = std::move(cur);      // hand over, do not copy
                 cur.clear();
             }
         }

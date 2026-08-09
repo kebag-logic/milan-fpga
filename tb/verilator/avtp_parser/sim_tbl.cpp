@@ -57,9 +57,18 @@ static void cyc(int n = 1) {
 
 static int popcnt8(uint32_t v) { int n = 0; for (int i = 0; i < 8; i++) n += (v >> i) & 1; return n; }
 
-//! untagged AAF frame carrying `sid` MS-byte-first, the wire truth
-static std::vector<uint8_t> mkaaf(uint64_t sid, uint8_t seq = 0, int len = 128) {
-  std::vector<uint8_t> f(len, 0x00);
+//! One reusable frame buffer for the whole run: build_aaf() fills it through a
+//! reference and assign() keeps the capacity, so the frame bytes cost ONE
+//! allocation for the entire simulation instead of one per frame.
+static std::vector<uint8_t> stim;
+
+//! untagged AAF frame carrying `sid` MS-byte-first, the wire truth. Fills
+//! `out` and hands back a reference to it.
+static const std::vector<uint8_t>& build_aaf(std::vector<uint8_t>& out,
+                                             uint64_t sid, uint8_t seq = 0,
+                                             int len = 128) {
+  out.assign(len, 0x00);          // assign KEEPS the capacity
+  std::vector<uint8_t>& f = out;
   const uint8_t dmac[6] = {0x91, 0xE0, 0xF0, 0x00, 0x2A, 0x02};
   memcpy(f.data(), dmac, 6);
   for (int i = 0; i < 6; i++) f[6 + i] = 0x02;
@@ -69,7 +78,7 @@ static std::vector<uint8_t> mkaaf(uint64_t sid, uint8_t seq = 0, int len = 128) 
   f[16] = seq;
   for (int i = 0; i < 8; i++) f[18 + i] = (uint8_t)(sid >> (8 * (7 - i)));
   for (int i = 30; i < len; i++) f[i] = (uint8_t)(0x50 + (i & 0x3F));
-  return f;
+  return out;
 }
 
 static Obs feed(const std::vector<uint8_t>& f) {
@@ -126,13 +135,13 @@ int main(int argc, char** argv) {
   dut->sid0_i = SID_ACMP;
   cyc(2);
   ck("armed entries with listener unbound", popcnt8(dut->tbl_en_o), 0);
-  { Obs o = feed(mkaaf(SID_ACMP));
+  { Obs o = feed(build_aaf(stim, SID_ACMP));
     ck("unbound: parse fired (frame reached the parser)", o.parses, 1);
     ck("unbound: NO match", o.matches, 0);
     ckx("unbound: wire sid still reported", o.sid, SID_ACMP); }
   dut->bound0_i = 1; cyc(2);
   ck("armed entries once bound", popcnt8(dut->tbl_en_o), 1);
-  { Obs o = feed(mkaaf(SID_ACMP));
+  { Obs o = feed(build_aaf(stim, SID_ACMP));
     ck("bound: MATCH", o.matches, 1);
     ck("bound: index 0", o.idx, 0);
     ck("bound: subtype AAF", o.sub, 0x02); }
@@ -151,19 +160,19 @@ int main(int argc, char** argv) {
     uint64_t rev = 0;
     for (int i = 0; i < 8; i++) rev |= ((SID_ACMP >> (8 * i)) & 0xFFULL) << (8 * (7 - i));
     dut->sid0_i = rev; cyc(2);
-    { Obs o = feed(mkaaf(SID_ACMP));
+    { Obs o = feed(build_aaf(stim, SID_ACMP));
       ck("T2a byte-reversed bind: parse fired", o.parses, 1);
       ck("T2a byte-reversed bind: NO match", o.matches, 0);
       ckx("T2a latch = the WIRE sid, not the bound one", o.sid, SID_ACMP);
       ck("T2a armed entries still 1", popcnt8(dut->tbl_en_o), 1); }
 
     dut->sid0_i = (SID_ACMP >> 32) | (SID_ACMP << 32); cyc(2);
-    { Obs o = feed(mkaaf(SID_ACMP));
+    { Obs o = feed(build_aaf(stim, SID_ACMP));
       ck("T2b half-transposed bind: NO match", o.matches, 0);
       ckx("T2b latch = the WIRE sid", o.sid, SID_ACMP); }
 
     dut->sid0_i = SID_ACMP ^ 1ULL; cyc(2);
-    { Obs o = feed(mkaaf(SID_ACMP));
+    { Obs o = feed(build_aaf(stim, SID_ACMP));
       ck("T2c uid-off-by-one bind: NO match", o.matches, 0); }
 
     ck("T2 PARSED climbed by 3", (long)(dut->avtp_frames_o - p0), 3);
@@ -171,7 +180,7 @@ int main(int argc, char** argv) {
 
     // the positive control: bind the wire truth and the same frame accepts
     dut->sid0_i = SID_ACMP; cyc(2);
-    { Obs o = feed(mkaaf(SID_ACMP));
+    { Obs o = feed(build_aaf(stim, SID_ACMP));
       ck("T2 positive control: MATCH on the wire-truth bind", o.matches, 1);
       ck("T2 MATCHED climbed by 1", (long)(dut->matched_frames_o - m0), 1); }
   }
@@ -182,7 +191,7 @@ int main(int argc, char** argv) {
   for (int e = 1; e < 8; e++) tblwr(e, SIDS[e], true);
   ck("armed entries = 8 (alias + 7 overrides)", popcnt8(dut->tbl_en_o), 8);
   for (int e = 0; e < 8; e++) {
-    Obs o = feed(mkaaf(SIDS[e], (uint8_t)e));
+    Obs o = feed(build_aaf(stim, SIDS[e], (uint8_t)e));
     char t[72];
     snprintf(t, sizeof t, "T3 entry %d matched", e);
     ck(t, o.matches, 1);
@@ -191,7 +200,7 @@ int main(int argc, char** argv) {
     snprintf(t, sizeof t, "T3 entry %d wire sid", e);
     ckx(t, o.sid, SIDS[e]);
   }
-  { Obs o = feed(mkaaf(0xDEADBEEF0BADF00DULL));
+  { Obs o = feed(build_aaf(stim, 0xDEADBEEF0BADF00DULL));
     ck("T3 unknown sid against a FULL table: no match", o.matches, 0);
     ck("T3 unknown sid: parse still fired", o.parses, 1); }
 
@@ -200,19 +209,19 @@ int main(int argc, char** argv) {
   // =========================================================================
   tblwr(5, SIDS[5], false);                        // evict entry 5
   ck("T4 armed entries after evict", popcnt8(dut->tbl_en_o), 7);
-  { Obs o = feed(mkaaf(SIDS[5]));
+  { Obs o = feed(build_aaf(stim, SIDS[5]));
     ck("T4 evicted sid: no match", o.matches, 0);
     ck("T4 evicted sid: parse fired", o.parses, 1); }
-  { Obs o = feed(mkaaf(SIDS[4]));
+  { Obs o = feed(build_aaf(stim, SIDS[4]));
     ck("T4 neighbour entry 4 untouched", o.matches, 1);
     ck("T4 neighbour index still 4", o.idx, 4); }
   tblwr(5, SIDS[5], true);                         // re-arm
   ck("T4 armed entries after re-arm", popcnt8(dut->tbl_en_o), 8);
-  { Obs o = feed(mkaaf(SIDS[5]));
+  { Obs o = feed(build_aaf(stim, SIDS[5]));
     ck("T4 re-armed sid matches again", o.matches, 1);
     ck("T4 re-armed index 5", o.idx, 5); }
   tblwr(7, SIDS[6], true);                         // duplicate sid in 6 and 7
-  { Obs o = feed(mkaaf(SIDS[6]));
+  { Obs o = feed(build_aaf(stim, SIDS[6]));
     ck("T4 duplicate sid matches", o.matches, 1);
     ck("T4 duplicate sid resolves to the HIGHEST entry", o.idx, 7); }
   tblwr(7, SIDS[7], true);
@@ -220,7 +229,7 @@ int main(int argc, char** argv) {
   tblwr(9, 0xFFFFFFFFFFFFFFFFULL, true);
   ck("T4 out-of-range write ignored (armed count unchanged)",
      popcnt8(dut->tbl_en_o), 8);
-  { Obs o = feed(mkaaf(0xFFFFFFFFFFFFFFFFULL));
+  { Obs o = feed(build_aaf(stim, 0xFFFFFFFFFFFFFFFFULL));
     ck("T4 out-of-range write did not arm anything", o.matches, 0); }
 
   // =========================================================================
@@ -266,33 +275,33 @@ int main(int argc, char** argv) {
     // the negative leg below pins.
     dut->resetn = 0; cyc(8); dut->resetn = 1;
     dut->bound0_i = 1; dut->sid0_i = SID_ACMP; cyc(2);
-    { Obs o = feed(mkaaf(SID_ACMP));
+    { Obs o = feed(build_aaf(stim, SID_ACMP));
       ck("T6 pre-write: ACMP alias matches", o.matches, 1); }
     tblwr(0, 0, /*valid=*/false);         // "clear sink 0" - no sid staged
     ck("T6 evict released entry 0: alias still enabled",
        popcnt8(dut->tbl_en_o), 1);
-    { Obs o = feed(mkaaf(SID_ACMP));
+    { Obs o = feed(build_aaf(stim, SID_ACMP));
       ck("T6 post-evict: parse still fires", o.parses, 1);
       ck("T6 post-evict: ACMP alias SURVIVES the evict", o.matches, 1); }
     // re-binding the listener lands on a live alias
     dut->bound0_i = 0; cyc(2); dut->bound0_i = 1; cyc(2);
-    { Obs o = feed(mkaaf(SID_ACMP));
+    { Obs o = feed(build_aaf(stim, SID_ACMP));
       ck("T6 re-bind keeps the alias alive", o.matches, 1); }
     // NEGATIVE leg: an evict carrying a REAL sid is a deliberate disable and
     // must still arm the override - release-to-alias is the zero-sid code
     // only, not "any evict"
     tblwr(0, SIDS[5], /*valid=*/false);
-    { Obs o = feed(mkaaf(SID_ACMP));
+    { Obs o = feed(build_aaf(stim, SID_ACMP));
       ck("T6 evict WITH a sid still detaches (deliberate disable)",
          o.matches, 0); }
     // an explicit override write, or a reset, recovers it
     tblwr(0, SID_ACMP, true);
-    { Obs o = feed(mkaaf(SID_ACMP));
+    { Obs o = feed(build_aaf(stim, SID_ACMP));
       ck("T6 explicit override recovers the match", o.matches, 1);
       ck("T6 override index 0", o.idx, 0); }
     dut->resetn = 0; cyc(8); dut->resetn = 1; cyc(2);
     ck("T6 reset cleared PARSED", dut->avtp_frames_o, 0);
-    { Obs o = feed(mkaaf(SID_ACMP));
+    { Obs o = feed(build_aaf(stim, SID_ACMP));
       ck("T6 reset revives the ACMP alias", o.matches, 1); }
   }
 

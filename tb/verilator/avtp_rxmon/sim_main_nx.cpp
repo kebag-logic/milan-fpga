@@ -119,8 +119,17 @@ struct AafCfg {
     uint8_t  depth    = 32;
 };
 
-static std::vector<uint8_t> mkaaf(const AafCfg& c, int len=120){
-    std::vector<uint8_t> f(len,0x00);
+//! One reusable frame buffer for the whole run: build_aaf() fills it through a
+//! reference and assign() keeps the capacity, so the ~60 stimulus frames cost
+//! ONE allocation between them instead of one each.
+static std::vector<uint8_t> stim;
+
+// build an Ethernet + AVTP AAF PDU with explicit format-specific fields into
+// `out`, handing back a reference to it
+static const std::vector<uint8_t>& build_aaf(std::vector<uint8_t>& out,
+                                             const AafCfg& c, int len=120){
+    out.assign(len,0x00);           // assign KEEPS the capacity
+    std::vector<uint8_t>& f = out;
     for(int i=0;i<6;i++){ f[i]=0x91; f[6+i]=0x02; }
     f[12]=0x22; f[13]=0xF0; int o=14;
     f[o+0]=c.subtype;
@@ -134,6 +143,14 @@ static std::vector<uint8_t> mkaaf(const AafCfg& c, int len=120){
     f[o+20]=0x00; f[o+21]=0x40;         // data_len = 64
     f[o+22]=0x00;
     for(int i=0;i<64;i++) f[o+24+i]=(uint8_t)(0x30+i);
+    return out;
+}
+
+//! Thin by-value wrapper, kept for the sites that resize() the frame or keep
+//! two of them alive at once and so genuinely want their own copy.
+static std::vector<uint8_t> mkaaf(const AafCfg& c, int len=120){
+    std::vector<uint8_t> f;
+    build_aaf(f, c, len);
     return f;
 }
 
@@ -214,7 +231,7 @@ int main(int argc,char**argv){
     printf("== NxN RX stack harness (N=4, NXN P1/P2/P3 + Table 5.6 IV) ==\n");
 
     printf("\n[G1] P2 golden: unbound frame counts nothing\n");
-    feed(mkaaf({}));
+    feed(build_aaf(stim, {}));
     flush_iv();                 // even across an interval close
     ck("frames_rx 0", dut->cnt_frames_rx_o, 0);
     ck("not locked", dut->media_locked_o, 0);
@@ -225,7 +242,7 @@ int main(int argc,char**argv){
 
     printf("\n[G3] P2 golden: first valid PDU locks, seq seeded\n");
     align_iv();
-    { AafCfg c; c.seq=10; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=10; feed(build_aaf(stim, c)); }
     ck("MEDIA_LOCKED 1 (event counter: immediate)",
        dut->cnt_media_locked_o, 1);
     ck("locked level", dut->media_locked_o, 1);
@@ -238,16 +255,16 @@ int main(int argc,char**argv){
     ck("wire_chans follows the wire", dut->wire_chans_o, 8);
 
     printf("\n[G4] P2 golden: settle absorbs a step, then mismatch counts\n");
-    { AafCfg c; c.seq=11; feed(mkaaf(c)); }
-    { AafCfg c; c.seq=50; feed(mkaaf(c)); }
-    for(uint8_t s=51; s<=57; s++){ AafCfg c; c.seq=s; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=11; feed(build_aaf(stim, c)); }
+    { AafCfg c; c.seq=50; feed(build_aaf(stim, c)); }
+    for(uint8_t s=51; s<=57; s++){ AafCfg c; c.seq=s; feed(build_aaf(stim, c)); }
     flush_iv();                 // a wrongly-raised flag would commit here
     ck("no mismatch through settle", dut->cnt_seq_mismatch_o, 0);
-    { AafCfg c; c.seq=59; feed(mkaaf(c)); }       // expected 58 -> lost 1
+    { AafCfg c; c.seq=59; feed(build_aaf(stim, c)); }       // expected 58 -> lost 1
     ck("STREAM_INTERRUPTED 0 (lost=1)", dut->cnt_stream_interrupted_o, 0);
     flush_iv();
     ck("SEQ_NUM_MISMATCH 1 (interval commit)", dut->cnt_seq_mismatch_o, 1);
-    { AafCfg c; c.seq=62; feed(mkaaf(c)); }       // expected 60 -> lost 2
+    { AafCfg c; c.seq=62; feed(build_aaf(stim, c)); }       // expected 60 -> lost 2
     //! STREAM_INTERRUPTED is "incremented each time" - no tick needed
     ck("STREAM_INTERRUPTED 1 (event, pre-tick)",
        dut->cnt_stream_interrupted_o, 1);
@@ -255,22 +272,22 @@ int main(int argc,char**argv){
     ck("SEQ_NUM_MISMATCH 2 (second interval)", dut->cnt_seq_mismatch_o, 2);
 
     printf("\n[G5] P2 golden: tu + format compare (counts nothing else)\n");
-    { AafCfg c; c.seq=63; c.tu=true; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=63; c.tu=true; feed(build_aaf(stim, c)); }
     flush_iv();
     ck("TIMESTAMP_UNCERTAIN 1", dut->cnt_ts_uncertain_o, 1);
     long frx=dut->cnt_frames_rx_o;
     align_iv();                 // both rejects inside ONE interval
-    { AafCfg c; c.seq=64; c.nsr=0x07; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=64; c.nsr=0x07; feed(build_aaf(stim, c)); }
     //! depth, not channels: channel count left the family compare with
     //! the Milan BAF Section 4 law (task #24)
-    { AafCfg c; c.seq=64; c.depth=24; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=64; c.depth=24; feed(build_aaf(stim, c)); }
     flush_iv();
     //! two bad-format PDUs in one interval = ONE tick (Milan Table 5.6);
     //! the old per-frame reading counted 2 here
     ck("UNSUPPORTED_FORMAT 1 for a 2-reject interval",
        dut->cnt_unsupported_fmt_o, 1);
     ck("FRAMES_RX unchanged by rejects", dut->cnt_frames_rx_o, frx);
-    { AafCfg c; c.seq=64; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=64; feed(build_aaf(stim, c)); }
     flush_iv();
     ck("no mismatch across bad-format PDUs", dut->cnt_seq_mismatch_o, 2);
 
@@ -278,7 +295,7 @@ int main(int argc,char**argv){
     cyc(12000);
     ck("MEDIA_UNLOCKED 1", dut->cnt_media_unlocked_o, 1);
     ck("unlocked level", dut->media_locked_o, 0);
-    { AafCfg c; c.seq=200; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=200; feed(build_aaf(stim, c)); }
     ck("relock: MEDIA_LOCKED 2", dut->cnt_media_locked_o, 2);
 
     printf("\n[G7] P2 golden: unbind keeps, rebind resets\n");
@@ -291,37 +308,37 @@ int main(int argc,char**argv){
     //! era wipe covers PENDING interval flags too: an uncommitted flag from
     //! before the bind edge must not tick a fresh counter after it
     align_iv();
-    { AafCfg c; c.seq=210; feed(mkaaf(c)); }      // flag raised, no tick yet
+    { AafCfg c; c.seq=210; feed(build_aaf(stim, c)); }      // flag raised, no tick yet
     dut->bound0_i=0; cyc(10); dut->bound0_i=1; cyc(40);
     flush_iv();
     ck("pre-bind pending flag wiped, not committed",
        dut->cnt_frames_rx_o, 0);
 
     printf("\n[G8] P2 golden: LATE/EARLY/MEDIA_RESET at stream 0\n");
-    { AafCfg c; c.seq=0; feed(mkaaf(c)); }        // relock on-time
+    { AafCfg c; c.seq=0; feed(build_aaf(stim, c)); }        // relock on-time
     dut->ptp_now_i = 0xA55AC33CUL + 1000;
-    { AafCfg c; c.seq=1; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=1; feed(build_aaf(stim, c)); }
     flush_iv();
     ck("LATE counted", dut->cnt_late_ts_o, 1);
     dut->ptp_now_i = 0xA55AC33CUL - 50000000;
-    { AafCfg c; c.seq=2; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=2; feed(build_aaf(stim, c)); }
     flush_iv();
     ck("EARLY counted", dut->cnt_early_ts_o, 1);
     dut->ptp_now_i = 0xA55AC33CUL - 1000000;
     //! Milan Table 5.6 MEDIA_RESET = the received mr bit TOGGLED (a wire
     //! event), not a local playback rail
-    { AafCfg c; c.seq=3; c.mr=true; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=3; c.mr=true; feed(build_aaf(stim, c)); }
     flush_iv();
     ck("MEDIA_RESET counted", dut->cnt_media_reset_o, 1);
     //! toggle back, so stream 0's mr LEVEL returns to 0 and the default-mr
     //! frames the rest of this harness feeds are not toggles
-    { AafCfg c; c.seq=4; c.mr=false; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=4; c.mr=false; feed(build_aaf(stim, c)); }
     flush_iv();
     ck("MEDIA_RESET counts the return toggle too", dut->cnt_media_reset_o, 2);
 
     printf("\n[T1] P1: PCM payload byte-exact with tuser = 0 (stream 0)\n");
     pcm.clear(); pcm_users.clear(); pcm_last=false;
-    { AafCfg c; c.seq=5; feed(mkaaf(c)); }
+    { AafCfg c; c.seq=5; feed(build_aaf(stim, c)); }
     ck("PCM 64 bytes", (long)pcm.size(), 64);
     ck("PCM tlast", pcm_last?1:0, 1);
     { bool ok=pcm.size()>=64;
@@ -337,9 +354,9 @@ int main(int argc,char**argv){
     flush_iv();                                   // commit [T1]'s frame first
     long s0_frx = dut->cnt_frames_rx_o;
     align_iv();                                   // s0 noise in ONE interval
-    { AafCfg c; c.seq=6; c.tu=true; feed(mkaaf(c)); }       // s0 tu event
-    { AafCfg c; c.seq=9; feed(mkaaf(c)); }                  // s0 seq jump
-    { AafCfg c; c.seq=10; c.nsr=0x07; feed(mkaaf(c)); }     // s0 bad format
+    { AafCfg c; c.seq=6; c.tu=true; feed(build_aaf(stim, c)); }       // s0 tu event
+    { AafCfg c; c.seq=9; feed(build_aaf(stim, c)); }                  // s0 seq jump
+    { AafCfg c; c.seq=10; c.nsr=0x07; feed(build_aaf(stim, c)); }     // s0 bad format
     flush_iv();
     //! coalesced law: 2 format-OK frames count; the bad-format PDU raises
     //! UF instead of FRX (the iv_events fork), so +2 not +3
@@ -355,8 +372,8 @@ int main(int argc,char**argv){
     long s0_ml = dut->cnt_media_locked_o;
     long s0_frx2 = dut->cnt_frames_rx_o;
     align_iv();
-    { AafCfg c; c.sid=SID1; c.seq=0; feed(mkaaf(c)); }
-    { AafCfg c; c.sid=SID1; c.seq=1; c.tu=true; feed(mkaaf(c)); }
+    { AafCfg c; c.sid=SID1; c.seq=0; feed(build_aaf(stim, c)); }
+    { AafCfg c; c.sid=SID1; c.seq=1; c.tu=true; feed(build_aaf(stim, c)); }
     flush_iv();
     ck("s1 LCTX FRX = 2 (2 PDUs, coalesced law)", lctx_rd(1, W_FRX), 2);
     ck("s1 LCTX MEDIA_LOCKED = 1", lctx_rd(1, W_ML), 1);
@@ -372,7 +389,7 @@ int main(int argc,char**argv){
     printf("\n[R1] P3: s1 NULL by default - monitor counts, no PCM copy\n");
     pcm.clear(); pcm_users.clear();
     align_iv();
-    { AafCfg c; c.sid=SID1; c.seq=2; feed(mkaaf(c)); }
+    { AafCfg c; c.sid=SID1; c.seq=2; feed(build_aaf(stim, c)); }
     flush_iv();
     ck("NULL route: no ring bytes", (long)pcm.size(), 0);
     ck("NULL route: s1 LCTX FRX advanced", lctx_rd(1, W_FRX), 3);
@@ -382,8 +399,8 @@ int main(int argc,char**argv){
     //! RENDER (s0 reset = 0b11 RENDER|DMA = the P3 RENDER behavior)
     routewr(1, 1 /*DMA flag*/);
     pcm.clear(); pcm_users.clear(); rend_users.clear();
-    { AafCfg c; c.sid=SID1; c.seq=3; feed(mkaaf(c)); }
-    { AafCfg c; c.seq=5; feed(mkaaf(c)); }        // s0 (RENDER default)
+    { AafCfg c; c.sid=SID1; c.seq=3; feed(build_aaf(stim, c)); }
+    { AafCfg c; c.seq=5; feed(build_aaf(stim, c)); }        // s0 (RENDER default)
     ck("two ring PDUs", (long)pcm_users.size(), 2);
     ck("first ring PDU tuser = 1", pcm_users.size()>0 ? pcm_users[0] : -1, 1);
     ck("second ring PDU tuser = 0", pcm_users.size()>1 ? pcm_users[1] : -1, 0);
@@ -398,8 +415,8 @@ int main(int argc,char**argv){
     routewr(0, 1 /*DMA only*/);                   // s0 leaves RENDER
     ck("render_sel moves to 1", dut->render_sel_o, 1);
     rend_users.clear();
-    { AafCfg c; c.sid=SID1; c.seq=4; c.chans=2; feed(mkaaf(c)); }
-    { AafCfg c; c.seq=6; feed(mkaaf(c)); }        // s0 now DMA-only
+    { AafCfg c; c.sid=SID1; c.seq=4; c.chans=2; feed(build_aaf(stim, c)); }
+    { AafCfg c; c.seq=6; feed(build_aaf(stim, c)); }        // s0 now DMA-only
     ck("render tap follows s1", rend_users.size()==1 && rend_users[0]==1, 1);
     ck("wire_chans follows the RENDER stream", dut->wire_chans_o, 2);
     routewr(0, 3); routewr(1, 0);                 // restore defaults
@@ -413,11 +430,11 @@ int main(int argc,char**argv){
     lctx_wr(1, 3, (uint32_t)(FMT >> 32));
     ck("s1 CNT reset on rebind", lctx_rd(1, W_FRX), 0);
     align_iv();
-    { AafCfg c; c.sid=SID1; c.seq=5; feed(mkaaf(c)); }    // old sid: miss
+    { AafCfg c; c.sid=SID1; c.seq=5; feed(build_aaf(stim, c)); }    // old sid: miss
     flush_iv();
     ck("evicted sid does not count", lctx_rd(1, W_FRX), 0);
     align_iv();
-    { AafCfg c; c.sid=0x1111222233334444ULL; c.seq=0; feed(mkaaf(c)); }
+    { AafCfg c; c.sid=0x1111222233334444ULL; c.seq=0; feed(build_aaf(stim, c)); }
     flush_iv();
     ck("new sid counts", lctx_rd(1, W_FRX), 1);
 
@@ -431,11 +448,11 @@ int main(int argc,char**argv){
     ck("[M13b] TNV still 0", lctx_rd(1, W_TNV), 0);
     align_iv();
     { AafCfg c; c.sid=0x1111222233334444ULL; c.seq=1; c.tv=false;
-      feed(mkaaf(c)); }
+      feed(build_aaf(stim, c)); }
     ck("[M13c] tv=0 PDU -> TNV=1 (per-frame: immediate)",
        lctx_rd(1, W_TNV), 1);
     ck("[M13d] TV holds", lctx_rd(1, W_TV), 1);
-    { AafCfg c; c.sid=0x1111222233334444ULL; c.seq=2; feed(mkaaf(c)); }
+    { AafCfg c; c.sid=0x1111222233334444ULL; c.seq=2; feed(build_aaf(stim, c)); }
     flush_iv();
     //! 3 accepted frames, 2 observation intervals: the tallies say 3, the
     //! Milan FRAMES_RX says 2 - torture_campaign.tv_plus_tnv_identity()
@@ -448,7 +465,7 @@ int main(int argc,char**argv){
        lctx_rd(1, W_FRX), 3);
     { long tvs = lctx_rd(1, W_TV) + lctx_rd(1, W_TNV);
       AafCfg c; c.sid=0x1111222233334444ULL; c.seq=3; c.chans=0;
-      feed(mkaaf(c));                          // UF early-return
+      feed(build_aaf(stim, c));                          // UF early-return
       ck("[M13f] unsupported-format PDU counts neither tally",
          lctx_rd(1, W_TV) + lctx_rd(1, W_TNV), tvs); }
     tblwr(1, 0x1111222233334444ULL, false); cyc(10);
@@ -469,7 +486,7 @@ int main(int argc,char**argv){
     lctx_wr(2, 2, (uint32_t)(FMT & 0xFFFFFFFF));      // s2 FMT_LO
     lctx_wr(2, 3, (uint32_t)(FMT >> 32));             // s2 FMT_HI
     //! lock + drain the 8-PDU settle window so mismatches count
-    for(uint8_t s=0; s<9; s++){ AafCfg c; c.sid=SID2; c.seq=s; feed(mkaaf(c)); }
+    for(uint8_t s=0; s<9; s++){ AafCfg c; c.sid=SID2; c.seq=s; feed(build_aaf(stim, c)); }
     flush_iv();
     long iv_frx = lctx_rd(2, W_FRX);
     ck("[IV0] settle-drain committed (FRX = 9 frames, coalesced)",
@@ -477,7 +494,7 @@ int main(int argc,char**argv){
 
     printf("\n[IV1] FRAMES_RX: 6 PDUs, one interval -> +1 (was +6)\n");
     align_iv();
-    for(uint8_t s=9; s<15; s++){ AafCfg c; c.sid=SID2; c.seq=s; feed(mkaaf(c)); }
+    for(uint8_t s=9; s<15; s++){ AafCfg c; c.sid=SID2; c.seq=s; feed(build_aaf(stim, c)); }
     ck("[IV1a] uncommitted before the tick", lctx_rd(2, W_FRX), iv_frx);
     flush_iv();
     ck("[IV1b] FRAMES_RX += the burst's 6 frames (coalesced)",
@@ -487,9 +504,9 @@ int main(int argc,char**argv){
            "      interval -> SM +1 (was +3) while SI +3 (per-event)\n");
     align_iv();
     // expected 15 -> send 17 / 20 / 23: three lost=2 discontinuities
-    { AafCfg c; c.sid=SID2; c.seq=17; feed(mkaaf(c)); }
-    { AafCfg c; c.sid=SID2; c.seq=20; feed(mkaaf(c)); }
-    { AafCfg c; c.sid=SID2; c.seq=23; feed(mkaaf(c)); }
+    { AafCfg c; c.sid=SID2; c.seq=17; feed(build_aaf(stim, c)); }
+    { AafCfg c; c.sid=SID2; c.seq=20; feed(build_aaf(stim, c)); }
+    { AafCfg c; c.sid=SID2; c.seq=23; feed(build_aaf(stim, c)); }
     ck("[IV2a] SI = 3 immediately (Table 5.6: 'each time')",
        lctx_rd(2, W_SI), 3);
     ck("[IV2b] SM uncommitted before the tick", lctx_rd(2, W_SM), 0);
@@ -500,7 +517,7 @@ int main(int argc,char**argv){
     printf("\n[IV3] TIMESTAMP_UNCERTAIN: 4 tu PDUs, one interval -> +1\n");
     align_iv();
     for(uint8_t s=24; s<28; s++){ AafCfg c; c.sid=SID2; c.seq=s; c.tu=true;
-                                  feed(mkaaf(c)); }
+                                  feed(build_aaf(stim, c)); }
     flush_iv();
     ck("[IV3] TU +1 for 4 tu frames", lctx_rd(2, W_TU), 1);
 
@@ -508,7 +525,7 @@ int main(int argc,char**argv){
     long iv_frx4 = lctx_rd(2, W_FRX);
     align_iv();
     for(int k=0;k<5;k++){ AafCfg c; c.sid=SID2; c.seq=28; c.nsr=0x07;
-                          feed(mkaaf(c)); }
+                          feed(build_aaf(stim, c)); }
     flush_iv();
     ck("[IV4a] UF +1 for 5 rejects", lctx_rd(2, W_UF), 1);
     ck("[IV4b] rejects never advance FRAMES_RX", lctx_rd(2, W_FRX), iv_frx4);
@@ -516,9 +533,9 @@ int main(int argc,char**argv){
     printf("\n[IV5] one event per interval, two intervals -> +2 (still a\n"
            "      counter, not a one-shot)\n");
     long iv_tu5 = lctx_rd(2, W_TU);
-    { AafCfg c; c.sid=SID2; c.seq=28; c.tu=true; feed(mkaaf(c)); }
+    { AafCfg c; c.sid=SID2; c.seq=28; c.tu=true; feed(build_aaf(stim, c)); }
     flush_iv();
-    { AafCfg c; c.sid=SID2; c.seq=29; c.tu=true; feed(mkaaf(c)); }
+    { AafCfg c; c.sid=SID2; c.seq=29; c.tu=true; feed(build_aaf(stim, c)); }
     flush_iv();
     ck("[IV5] TU +2 across two intervals", lctx_rd(2, W_TU), iv_tu5+2);
 
@@ -527,8 +544,8 @@ int main(int argc,char**argv){
     //! so mr=1 then mr=0 is exactly two toggles inside one interval
     long iv_mr = lctx_rd(2, W_MR);
     align_iv();
-    { AafCfg c; c.sid=SID2; c.seq=30; c.mr=true;  feed(mkaaf(c)); }
-    { AafCfg c; c.sid=SID2; c.seq=31; c.mr=false; feed(mkaaf(c)); }
+    { AafCfg c; c.sid=SID2; c.seq=30; c.mr=true;  feed(build_aaf(stim, c)); }
+    { AafCfg c; c.sid=SID2; c.seq=31; c.mr=false; feed(build_aaf(stim, c)); }
     ck("[IV6a] uncommitted before the tick", lctx_rd(2, W_MR), iv_mr);
     flush_iv();
     ck("[IV6b] MEDIA_RESET +1 for 2 toggles in one interval",
@@ -536,7 +553,7 @@ int main(int argc,char**argv){
     //! and the BITE the other way: a HELD mr is not a toggle at all
     align_iv();
     for(uint8_t s=32; s<38; s++){ AafCfg c; c.sid=SID2; c.seq=s; c.mr=false;
-                                  feed(mkaaf(c)); }
+                                  feed(build_aaf(stim, c)); }
     flush_iv();
     ck("[IV6c] 6 HELD-mr frames tick nothing", lctx_rd(2, W_MR), iv_mr+1);
 
@@ -552,25 +569,25 @@ int main(int argc,char**argv){
         // 5 LATE PDUs, ONE interval -> +1
         dut->ptp_now_i = 0xA55AC33CUL + 1000;             // ts already past
         align_iv();
-        for(int k=0;k<5;k++){ AafCfg c; c.sid=SID2; c.seq=sq++; feed(mkaaf(c)); }
+        for(int k=0;k<5;k++){ AafCfg c; c.sid=SID2; c.seq=sq++; feed(build_aaf(stim, c)); }
         ck("[IV8a] LATE uncommitted before the tick", lctx_rd(2, W_LT), lt0);
         flush_iv();
         ck("[IV8b] LATE +1 for a 5-PDU burst", lctx_rd(2, W_LT), lt0+1);
         ck("[IV8c] EARLY untouched by LATE PDUs", lctx_rd(2, W_ET), et0);
         // one LATE in EACH of two intervals -> +2 (still a counter)
-        { AafCfg c; c.sid=SID2; c.seq=sq++; feed(mkaaf(c)); } flush_iv();
-        { AafCfg c; c.sid=SID2; c.seq=sq++; feed(mkaaf(c)); } flush_iv();
+        { AafCfg c; c.sid=SID2; c.seq=sq++; feed(build_aaf(stim, c)); } flush_iv();
+        { AafCfg c; c.sid=SID2; c.seq=sq++; feed(build_aaf(stim, c)); } flush_iv();
         ck("[IV8d] LATE +2 across two intervals", lctx_rd(2, W_LT), lt0+3);
         // 4 EARLY PDUs, ONE interval -> +1
         dut->ptp_now_i = 0xA55AC33CUL - 50000000;         // far ahead
         align_iv();
-        for(int k=0;k<4;k++){ AafCfg c; c.sid=SID2; c.seq=sq++; feed(mkaaf(c)); }
+        for(int k=0;k<4;k++){ AafCfg c; c.sid=SID2; c.seq=sq++; feed(build_aaf(stim, c)); }
         flush_iv();
         ck("[IV8e] EARLY +1 for a 4-PDU burst", lctx_rd(2, W_ET), et0+1);
         ck("[IV8f] LATE untouched by EARLY PDUs", lctx_rd(2, W_LT), lt0+3);
         dut->ptp_now_i = 0xA55AC33CUL - 1000000;          // back on time
         align_iv();
-        for(int k=0;k<4;k++){ AafCfg c; c.sid=SID2; c.seq=sq++; feed(mkaaf(c)); }
+        for(int k=0;k<4;k++){ AafCfg c; c.sid=SID2; c.seq=sq++; feed(build_aaf(stim, c)); }
         flush_iv();
         ck("[IV8g] on-time PDUs move neither",
            lctx_rd(2, W_LT) + lctx_rd(2, W_ET), lt0+3+et0+1);
@@ -590,7 +607,7 @@ int main(int argc,char**argv){
         uint8_t sq = 0;
         // three lock/unlock laps: each lock is +1 ML, each 100 ms silence +1 MU
         for (int lap = 0; lap < 3; lap++) {
-            { AafCfg c; c.sid=SIDA; c.seq=sq++; feed(mkaaf(c)); }
+            { AafCfg c; c.sid=SIDA; c.seq=sq++; feed(build_aaf(stim, c)); }
             ck("[IV9b] MEDIA_LOCKED is immediate (per-event)",
                lctx_rd(1, W_ML), lap+1);
             ck("[IV9c] synchronized => ML = MU+1",
@@ -613,7 +630,7 @@ int main(int argc,char**argv){
             dut->clk_src_i = 0; dut->servo_conv_i = 0;
             dut->bound0_i = 0; cyc(8);
             dut->bound0_i = 1; cyc(60);                 // fresh era, s0
-            { AafCfg c; c.seq=sq0++; feed_nowait(mkaaf(c)); }  // lock, busy
+            { AafCfg c; c.seq=sq0++; feed_nowait(build_aaf(stim, c)); }  // lock, busy
             dut->clk_src_i = 1;             // churn mid-walk: NOT an unlock
             cyc(ph);                        // ... swept across the walk
             dut->bound0_i = 0; cyc(1);      // rebind edge, mid-flight
@@ -646,7 +663,7 @@ int main(int argc,char**argv){
         lctx_wr(3, 3, (uint32_t)(FMT >> 32));
         uint8_t sq = 0;
         for (int k = 0; k < 9; k++){ AafCfg c; c.sid=SID3; c.seq=sq++;
-                                     feed(mkaaf(c)); }
+                                     feed(build_aaf(stim, c)); }
         // sweep the b2b pair's start across a whole interval of drain
         // phases; s0 (RENDER, bound) gets fresh MR+TU+LT flags each lap so
         // the tick always has a multi-counter drain to run
@@ -656,7 +673,7 @@ int main(int argc,char**argv){
             //! alternate s0's mr every lap so MEDIA_RESET joins TU+LATE+FRX
             //! in the drain - the tick always has a multi-counter walk to run
             { AafCfg c; c.seq=(uint8_t)(100+ph); c.tu=true; c.mr=(ph & 1);
-              feed(mkaaf(c)); }                       // s0 tu+late+mr flags
+              feed(build_aaf(stim, c)); }                       // s0 tu+late+mr flags
             dut->ptp_now_i = 0xA55AC33CUL - 1000000;
             cyc((int)(IVAL - (gcyc - rst_cyc) % IVAL) - 8 + ph); // tick-8+ph
             size_t a0 = acc_idx.size();
@@ -702,32 +719,32 @@ int main(int argc,char**argv){
         uint8_t q1 = 0, q2 = 0;
         // the lock EVENT pulses, on the context's own bit
         zero_dirty();
-        { AafCfg c; c.sid=SD1; c.seq=q1++; feed(mkaaf(c)); }
+        { AafCfg c; c.sid=SD1; c.seq=q1++; feed(build_aaf(stim, c)); }
         ck("[DV1] s1's lock pulses bit 1 exactly once", g_dirty[1], 1);
         ck("[DV1] and no other bit", g_dirty[0]+g_dirty[2]+g_dirty[3], 0);
         zero_dirty();
-        { AafCfg c; c.sid=SD2; c.seq=q2++; feed(mkaaf(c)); }
+        { AafCfg c; c.sid=SD2; c.seq=q2++; feed(build_aaf(stim, c)); }
         ck("[DV1b] s2's lock pulses bit 2 exactly once", g_dirty[2], 1);
         ck("[DV1b] and no other bit", g_dirty[0]+g_dirty[1]+g_dirty[3], 0);
         // F4 (c): healthy tv=1 streaming is SILENT - at the accept site
         // (TV excluded) AND at its FRAMES_RX-only interval commits
         zero_dirty();
         for (int k = 0; k < 5; k++){ AafCfg c; c.sid=SD1; c.seq=q1++;
-                                     feed(mkaaf(c)); }
+                                     feed(build_aaf(stim, c)); }
         for (int k = 0; k < 5; k++){ AafCfg c; c.sid=SD2; c.seq=q2++;
-                                     feed(mkaaf(c)); }
+                                     feed(build_aaf(stim, c)); }
         flush_iv();
         ck("[DV2] healthy tv=1 streaming is SILENT on every bit",
            g_dirty[0]+g_dirty[1]+g_dirty[2]+g_dirty[3], 0);
         // TNV stays armed: an accepted PDU WITHOUT a valid timestamp is an
         // anomaly and pulses at the accept
         zero_dirty();
-        { AafCfg c; c.sid=SD2; c.seq=q2++; c.tv=false; feed(mkaaf(c)); }
+        { AafCfg c; c.sid=SD2; c.seq=q2++; c.tv=false; feed(build_aaf(stim, c)); }
         ck("[DV3] a tv=0 PDU pulses s2's bit at the accept", g_dirty[2], 1);
         ck("[DV3] no cross-context leak", g_dirty[0]+g_dirty[1]+g_dirty[3], 0);
         // an anomaly INTERVAL commit pulses the right bit, at the commit
         zero_dirty();
-        { AafCfg c; c.sid=SD1; c.seq=q1++; c.tu=true; feed(mkaaf(c)); }
+        { AafCfg c; c.sid=SD1; c.seq=q1++; c.tu=true; feed(build_aaf(stim, c)); }
         ck("[DV4] no pulse before the interval commit", g_dirty[1], 0);
         flush_iv();
         ck("[DV4b] the TU interval commit pulses s1's bit", g_dirty[1], 1);
@@ -737,10 +754,10 @@ int main(int argc,char**argv){
         dut->bound0_i = 0; cyc(20); dut->bound0_i = 1; cyc(80);
         uint8_t q0 = 0;
         zero_dirty();
-        { AafCfg c; c.seq=q0++; feed(mkaaf(c)); }
+        { AafCfg c; c.seq=q0++; feed(build_aaf(stim, c)); }
         ck("[DV5] s0's lock event pulses bit 0", g_dirty[0], 1);
         zero_dirty();
-        for (int k = 0; k < 5; k++){ AafCfg c; c.seq=q0++; feed(mkaaf(c)); }
+        for (int k = 0; k < 5; k++){ AafCfg c; c.seq=q0++; feed(build_aaf(stim, c)); }
         flush_iv();
         ck("[DV5b] healthy s0 tv=1 traffic is SILENT (the flipped law)",
            g_dirty[0], 0);

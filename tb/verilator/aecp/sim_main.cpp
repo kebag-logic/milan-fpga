@@ -67,15 +67,38 @@ static void put_be16(std::vector<uint8_t>& v, uint16_t x) {
     v.push_back(x >> 8); v.push_back(x & 0xFF);
 }
 
+//! AECP command frame layout: 14 B Ethernet + 4 B AVTP common header + 8 B
+//! target_entity_id + 8 B controller_entity_id + 2 B sequence_id + 2 B
+//! u/command_type (AEM only) = 38 B ahead of the command_specific payload, and
+//! the whole frame is padded up to the 60 B Ethernet minimum.
+static const size_t AEM_HDR_BYTES = 38;
+static const size_t ETH_MIN_BYTES = 60;
+
+//! Widest AECP response this suite collects (a READ_DESCRIPTOR reply), used to
+//! size the collector once instead of growing it a beat at a time.
+static const size_t AEM_RESP_BYTES = 600;
+
+//! One reusable stimulus buffer for the whole run. build_aecp_cmd() fills it
+//! through a reference and clear() keeps its capacity, so the command bytes
+//! cost ONE allocation for the entire simulation instead of a malloc plus
+//! three or four reallocs on every one of this suite's ~230 transactions.
+static std::vector<uint8_t> stim;
+
 // Build an AECP AEM/VU command frame (wire order), pad to 60 bytes.
 //   msg_type: 0=AEM_COMMAND, 6=VU_COMMAND
 //   cmd:      command_type (AEM) — ignored for VU (payload carries it)
-static std::vector<uint8_t> aecp_cmd(const uint8_t* dst, const uint8_t* src,
+//! Fills `out` and hands back a reference to it, so a call site reads
+//! `feed_rx(build_aecp_cmd(stim, ...))` and reuses one buffer.
+static const std::vector<uint8_t>& build_aecp_cmd(std::vector<uint8_t>& out,
+                                     const uint8_t* dst, const uint8_t* src,
                                      uint64_t target, uint64_t ctlr,
                                      uint8_t msg_type, uint16_t cmd,
                                      uint16_t seq, const std::vector<uint8_t>& payload,
                                      bool unsol=false) {
-    std::vector<uint8_t> f;
+    size_t want = AEM_HDR_BYTES + payload.size();
+    out.clear();                                // clear KEEPS the capacity
+    out.reserve(want < ETH_MIN_BYTES ? ETH_MIN_BYTES : want);
+    std::vector<uint8_t>& f = out;
     for (int i=0;i<6;i++) f.push_back(dst[i]);
     for (int i=0;i<6;i++) f.push_back(src[i]);
     put_be16(f, 0x22F0);                       // ethertype
@@ -96,7 +119,19 @@ static std::vector<uint8_t> aecp_cmd(const uint8_t* dst, const uint8_t* src,
         f.push_back(cmd & 0xFF);                          // cmd_lo
     }
     for (auto b : payload) f.push_back(b);
-    while (f.size() < 60) f.push_back(0x00);    // pad to min Ethernet
+    while (f.size() < ETH_MIN_BYTES) f.push_back(0x00);  // pad to min Ethernet
+    return out;
+}
+
+//! Thin by-value wrapper, kept for the truncation probes ([10b]/[10c]) that
+//! resize() the frame after it is built and so genuinely want their own copy.
+static std::vector<uint8_t> aecp_cmd(const uint8_t* dst, const uint8_t* src,
+                                     uint64_t target, uint64_t ctlr,
+                                     uint8_t msg_type, uint16_t cmd,
+                                     uint16_t seq, const std::vector<uint8_t>& payload,
+                                     bool unsol=false) {
+    std::vector<uint8_t> f;
+    build_aecp_cmd(f, dst, src, target, ctlr, msg_type, cmd, seq, payload, unsol);
     return f;
 }
 
@@ -148,6 +183,7 @@ static void feed_rx_parked(const std::vector<uint8_t>& f, int park_beat,
 // Returns empty if none within `budget` cycles.
 static std::vector<uint8_t> collect_resp(int budget = 6000) {
     std::vector<uint8_t> b;
+    b.reserve(AEM_RESP_BYTES);          // one allocation, not one per beat run
     int idle = 0;
     dut->m_axis_tready = 1;
     for (int c = 0; c < budget; c++) {
@@ -237,7 +273,7 @@ int main(int argc, char** argv) {
     {
         std::vector<uint8_t> pl; put_be16(pl,0); put_be16(pl,0);         // cfg, reserved
         put_be16(pl, 0x0000); put_be16(pl, 0x0000);                      // type ENTITY, index 0
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1001, pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1001, pl));
         auto r = collect_resp();
         fprintf(stderr,"RESP1 %zu bytes:", r.size());
         for(size_t i=0;i<r.size()&&i<80;i++) fprintf(stderr," %02x", r[i]);
@@ -267,7 +303,7 @@ int main(int argc, char** argv) {
     {
         std::vector<uint8_t> pl; put_be16(pl,0); put_be16(pl,0);
         put_be16(pl, 0x0009); put_be16(pl, 0x0000);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1002, pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1002, pl));
         auto r = collect_resp();
         ck("status=SUCCESS", r_status(r), 0);
         ck_cdl("[2] READ_DESC(AVB_IF) CDL correct (len-26)", r);
@@ -292,7 +328,7 @@ int main(int argc, char** argv) {
     {
         std::vector<uint8_t> pl; put_be16(pl,0); put_be16(pl,0);
         put_be16(pl, 0x0006); put_be16(pl, 0x0000);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1003, pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1003, pl));
         auto r = collect_resp();
         ck("status=SUCCESS", r_status(r), 0);
         ck_cdl("[3] READ_DESC(STREAM_OUT) CDL correct (len-26)", r);
@@ -303,7 +339,7 @@ int main(int argc, char** argv) {
 
         std::vector<uint8_t> pl2; put_be16(pl2,0); put_be16(pl2,0);
         put_be16(pl2, 0x0006); put_be16(pl2, 0x0005);   // index 5 doesn't exist
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1004, pl2));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1004, pl2));
         auto r2 = collect_resp();
         ck("status=NO_SUCH_DESCRIPTOR", r_status(r2), 2);
     }
@@ -314,7 +350,7 @@ int main(int argc, char** argv) {
     printf("\n[4] ACQUIRE_ENTITY -> NOT_SUPPORTED\n");
     {
         std::vector<uint8_t> pl(16, 0);   // flags(4)+owner(8)+desc(4)
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0, 0x2000, pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0, 0x2000, pl));
         auto r = collect_resp();
         ck("command=ACQUIRE_ENTITY", r_cmd(r), 0);
         ck("status=NOT_SUPPORTED", r_status(r), 11);
@@ -326,13 +362,13 @@ int main(int argc, char** argv) {
     printf("\n[5] LOCK_ENTITY (owner grant / other denied)\n");
     {
         std::vector<uint8_t> pl(12, 0);   // flags(4)+locked_id(8)
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3000, pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3000, pl));
         auto r = collect_resp();
         ck("LOCK status=SUCCESS", r_status(r), 0);
         ck_cdl("[5] LOCK CDL correct (len-26)", r);
         ck("command=LOCK_ENTITY", r_cmd(r), 1);
 
-        feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 1, 0x3001, pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 1, 0x3001, pl));
         auto r2 = collect_resp();
         ck("2nd controller LOCK=ENTITY_LOCKED", r_status(r2), 3);
         // response carries the current owner's id (bytes 38..45)
@@ -341,13 +377,13 @@ int main(int argc, char** argv) {
 
         // a mutating command from ctlr2 is also blocked
         std::vector<uint8_t> sc; put_be16(sc,0); put_be16(sc,0);  // reserved, config
-        feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 6, 0x3002, sc));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 6, 0x3002, sc));
         auto r3 = collect_resp();
         ck("SET_CONFIG by non-owner=ENTITY_LOCKED", r_status(r3), 3);
 
         // owner unlocks (flags bit0 = UNLOCK)
         std::vector<uint8_t> pu(12, 0); pu[3] = 0x01;
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3003, pu));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3003, pu));
         auto r4 = collect_resp();
         ck("UNLOCK status=SUCCESS", r_status(r4), 0);
     }
@@ -382,7 +418,7 @@ int main(int argc, char** argv) {
         // entity is free, ENTITY_LOCKED while it is held. The lock probe.
         std::vector<uint8_t> sc; put_be16(sc,0); put_be16(sc,0);
         auto probe = [&](uint16_t seq) {
-            feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 6, seq, sc));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 6, seq, sc));
             return r_status(collect_resp());
         };
 
@@ -390,7 +426,7 @@ int main(int argc, char** argv) {
 
         // --- LOCK(ENTITY, 5): a descriptor_index the ENTITY descriptor
         //     can never have.
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3101,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3101,
                          al(0, 0x0000, 0x0005)));
         auto rb = collect_resp();
         ck("LOCK(ENTITY,5) = NOT_SUPPORTED", r_status(rb), 11);
@@ -400,17 +436,17 @@ int main(int argc, char** argv) {
 
         // --- LOCK(STREAM_INPUT, 0): a descriptor that exists but is not
         //     the ENTITY descriptor.
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3103,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3103,
                          al(0, 0x0005, 0x0000)));
         auto rc = collect_resp();
         ck("LOCK(STREAM_INPUT,0) = NOT_SUPPORTED", r_status(rc), 11);
         ck("LOCK(STREAM_INPUT,0) did NOT lock", probe(0x3104), 0);
 
         // --- ACQUIRE is NOT_SUPPORTED whatever it names.
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0, 0x3105,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0, 0x3105,
                          al(0, 0x0000, 0x0005)));
         ck("ACQUIRE(ENTITY,5) = NOT_SUPPORTED", r_status(collect_resp()), 11);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0, 0x3106,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0, 0x3106,
                          al(0, 0x0005, 0x0000)));
         ck("ACQUIRE(STREAM_INPUT,0) = NOT_SUPPORTED",
            r_status(collect_resp()), 11);
@@ -418,17 +454,17 @@ int main(int argc, char** argv) {
 
         // --- the UNLOCK direction: a bad descriptor must not release a
         //     lock the entity is legitimately holding.
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3108,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3108,
                          al(0, 0x0000, 0x0000)));
         ck("LOCK(ENTITY,0) = SUCCESS", r_status(collect_resp()), 0);
         ck("...entity is held", probe(0x3109), 3);
 
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x310A,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x310A,
                          al(1, 0x0000, 0x0005)));
         ck("UNLOCK(ENTITY,5) = NOT_SUPPORTED", r_status(collect_resp()), 11);
         ck("...lock survives ENTITY/5 unlock", probe(0x310B), 3);
 
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x310C,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x310C,
                          al(1, 0x0005, 0x0000)));
         ck("UNLOCK(STREAM_INPUT,0) = NOT_SUPPORTED",
            r_status(collect_resp()), 11);
@@ -436,7 +472,7 @@ int main(int argc, char** argv) {
 
         // a rejected LOCK from the OWNER must not have reloaded the timer
         // either, and the real UNLOCK still works.
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x310E,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x310E,
                          al(1, 0x0000, 0x0000)));
         ck("UNLOCK(ENTITY,0) = SUCCESS", r_status(collect_resp()), 0);
         ck("entity released", probe(0x310F), 0);
@@ -444,16 +480,16 @@ int main(int argc, char** argv) {
         // --- a LOCK held by ctlr1 still outranks a bad-descriptor LOCK
         //     from ctlr2: ENTITY_LOCKED is the identity answer, and the
         //     descriptor refusal must not leak the entity to the intruder.
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3110,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3110,
                          al(0, 0x0000, 0x0000)));
         ck("ctlr1 holds the lock", r_status(collect_resp()), 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 1, 0x3111,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 1, 0x3111,
                          al(0, 0x0000, 0x0005)));
         auto ri = collect_resp();
         ck("ctlr2 LOCK(ENTITY,5) refused", (r_status(ri) == 3 ||
                                             r_status(ri) == 11), 1);
         ck("ctlr1 still owns it", probe(0x3112), 3);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3113,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x3113,
                          al(1, 0x0000, 0x0000)));
         ck("ctlr1 releases", r_status(collect_resp()), 0);
         ck("entity free again", probe(0x3114), 0);
@@ -464,14 +500,14 @@ int main(int argc, char** argv) {
     // ---------------------------------------------------------------- //
     printf("\n[6] GET/SET_CONFIGURATION\n");
     {
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 7, 0x4000, {}));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 7, 0x4000, {}));
         auto r = collect_resp();
         ck("GET_CONFIG status=SUCCESS", r_status(r), 0);
         ck_cdl("[6] GET_CONFIG CDL correct (len-26)", r);
         ckbytes("current_configuration=0", r, 40, {0x00,0x00});
 
         std::vector<uint8_t> bad; put_be16(bad,0); put_be16(bad,5);  // config 5 invalid
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 6, 0x4001, bad));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 6, 0x4001, bad));
         auto r2 = collect_resp();
         ck("SET_CONFIG(5)=NO_SUCH_DESCRIPTOR (7.4.7.1)", r_status(r2), 2);
     }
@@ -485,14 +521,14 @@ int main(int argc, char** argv) {
         put_be16(pl,0x0000); put_be16(pl,0x0000);                          // name_idx, cfg
         const char* nm = "Studio Talker";
         for (int i = 0; i < 64; i++) pl.push_back(i < (int)strlen(nm) ? nm[i] : 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 16, 0x5000, pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 16, 0x5000, pl));
         auto r = collect_resp();
         ck("SET_NAME status=SUCCESS", r_status(r), 0);
         ck_cdl("[7] SET_NAME CDL correct (len-26)", r);
 
         std::vector<uint8_t> rd; put_be16(rd,0); put_be16(rd,0);
         put_be16(rd,0x0000); put_be16(rd,0x0000);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x5001, rd));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x5001, rd));
         auto r2 = collect_resp();
         ck("read-back status=SUCCESS", r_status(r2), 0);
         ckbytes("entity_name updated", r2, 90, {'S','t','u','d','i','o',' ','T'});
@@ -505,14 +541,14 @@ int main(int argc, char** argv) {
     {
         std::vector<uint8_t> ok; put_be16(ok,0x0002); put_be16(ok,0x0000); // AUDIO_UNIT,0
         for (uint8_t b : {0x00,0x01,0x77,0x00}) ok.push_back(b);           // 96000
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 20, 0x6000, ok));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 20, 0x6000, ok));
         auto r = collect_resp();
         ck("SET_SAMPLING_RATE(96k)=SUCCESS", r_status(r), 0);
         ckbytes("sampling_rate echoes 96k", r, 42, {0x00,0x01,0x77,0x00});
 
         std::vector<uint8_t> bad; put_be16(bad,0x0002); put_be16(bad,0x0000);
         for (uint8_t b : {0x00,0x00,0xac,0x44}) bad.push_back(b);          // 44100
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 20, 0x6001, bad));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 20, 0x6001, bad));
         auto r2 = collect_resp();
         ck("SET_SAMPLING_RATE(44.1k)=BAD_ARGUMENTS", r_status(r2), 7);
     }
@@ -526,7 +562,7 @@ int main(int argc, char** argv) {
         for (uint8_t b : {0x00,0x1B,0xC5,0x0A,0xC1,0x00}) pl.push_back(b); // protocol_id
         put_be16(pl, 0x0000);   // command_type GET_MILAN_INFO
         put_be16(pl, 0x0000);   // reserved
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x7000, pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x7000, pl));
         auto r = collect_resp();
         ck("got MVU response", r.size() > 0, 1);
         ck_cdl("[9] MVU CDL correct (len-26)", r);
@@ -544,7 +580,7 @@ int main(int argc, char** argv) {
     printf("\n[9b] GET_COUNTERS (full-size responses, all statuses)\n");
     {
         std::vector<uint8_t> so; put_be16(so, 0x0006); put_be16(so, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9100, so));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9100, so));
         auto r = collect_resp();
         ck("STREAM_OUTPUT counters SUCCESS", r_status(r), 0);
         ck_cdl("STREAM_OUTPUT counters CDL (len-26)", r);
@@ -552,19 +588,19 @@ int main(int argc, char** argv) {
         ckbytes("counters_valid 0x1F", r, 42, {0x00,0x00,0x00,0x1F});
 
         std::vector<uint8_t> av; put_be16(av, 0x0009); put_be16(av, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9101, av));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9101, av));
         auto r2 = collect_resp();
         ck("AVB_INTERFACE counters SUCCESS", r_status(r2), 0);
         ckbytes("counters_valid 0x23", r2, 42, {0x00,0x00,0x00,0x23});
 
         std::vector<uint8_t> en; put_be16(en, 0x0000); put_be16(en, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9102, en));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9102, en));
         auto r3 = collect_resp();
         ck("ENTITY counters SUCCESS empty-mask (1722.1-2021)", r_status(r3), 0);
         ck("error response STILL full-size (CDL 148)", r_cdl(r3), 148);   // the Hive field-report class
 
         std::vector<uint8_t> nx; put_be16(nx, 0x0005); put_be16(nx, 9);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9103, nx));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x9103, nx));
         auto r4 = collect_resp();
         ck("unknown desc NO_SUCH_DESCRIPTOR", r_status(r4), 2);
         ck("error response full-size (CDL 148)", r_cdl(r4), 148);
@@ -582,7 +618,7 @@ int main(int argc, char** argv) {
         dut->as_parent_ckid_i = 0x3CC0C6FFFEFE0210ULL;   // the switch
         for (int i = 0; i < 2; i++) tick();
         std::vector<uint8_t> ap; put_be16(ap, 0); put_be16(ap, 0);   // desc_index, reserved
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9200, ap));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9200, ap));
         auto r = collect_resp();
         ck("AS_PATH SUCCESS", r_status(r), 0);
         ck("AS_PATH CDL == 32 (2 hops)", r_cdl(r), 32);
@@ -595,7 +631,7 @@ int main(int argc, char** argv) {
 
         // foreign GM DIRECT-wired (no bridge known) -> count=1 [GM]
         dut->as_parent_ckid_i = 0; for (int i = 0; i < 2; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9203, ap));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9203, ap));
         auto r4 = collect_resp();
         ck("AS_PATH direct-GM count == 1", r4.size() > 41 ? (long)r4[41] : -1, 1);
         ckbytes("AS_PATH direct-GM path[0] == GM", r4, 42,
@@ -603,7 +639,7 @@ int main(int argc, char** argv) {
 
         // no GM published -> self-only path (we are our own clock)
         dut->gptp_gm_id_i = 0; for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9202, ap));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9202, ap));
         auto r3 = collect_resp();
         ck("AS_PATH no-GM SUCCESS", r_status(r3), 0);
         ck("AS_PATH no-GM CDL == 24", r_cdl(r3), 24);
@@ -613,7 +649,7 @@ int main(int argc, char** argv) {
         dut->gptp_gm_id_i = 0x0011223344556677ULL; for (int i = 0; i < 4; i++) tick();
 
         std::vector<uint8_t> bad; put_be16(bad, 3); put_be16(bad, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9201, bad));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9201, bad));
         auto r2 = collect_resp();
         ck("AS_PATH bad index NO_SUCH_DESCRIPTOR", r_status(r2), 2);
         ck("AS_PATH error keeps legacy payload (CDL 24)", r_cdl(r2), 24);
@@ -644,7 +680,7 @@ int main(int argc, char** argv) {
         asp_set(2, 0xAABBCCFFFE001122ull);
         dut->asp_count_i = 3; dut->asp_gen_i = 1;
         for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9210, ap));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9210, ap));
         auto r = collect_resp();
         ck("3-hop SUCCESS", r_status(r), 0);
         ck("3-hop CDL == 40 (16 + 8*3)", r_cdl(r), 40);
@@ -664,7 +700,7 @@ int main(int argc, char** argv) {
         for (int k = 1; k <= 7; k++)
             asp_set(k, 0x1000000000000000ull * (uint64_t)k + 0x0A0B0C0D0E0Full);
         dut->asp_count_i = 15; for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9211, ap));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9211, ap));
         auto r8 = collect_resp();
         ck("saturated SUCCESS", r_status(r8), 0);
         ck("saturated count == 8 (not 15)", r8.size() > 41 ? (long)r8[41] : -1, 8);
@@ -681,7 +717,7 @@ int main(int argc, char** argv) {
 
         // a count of ONE serves the grandmaster alone - no slot leaks in
         dut->asp_count_i = 1; for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9212, ap));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9212, ap));
         auto r1 = collect_resp();
         ck("count 1 CDL == 24", r_cdl(r1), 24);
         ckbytes("count 1 == the grandmaster alone", r1, 40,
@@ -692,7 +728,7 @@ int main(int argc, char** argv) {
         dut->asp_count_i = 0;
         dut->as_parent_ckid_i = 0x3CC0C6FFFEFE0210ULL;
         for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9213, ap));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9213, ap));
         auto rl = collect_resp();
         ck("legacy arm SUCCESS", r_status(rl), 0);
         ck("legacy arm CDL == 32 (2 hops)", r_cdl(rl), 32);
@@ -705,7 +741,7 @@ int main(int argc, char** argv) {
         // ...and the slots STILL HOLD their identities: it is the count, not
         // a wipe, that selects the arm
         dut->as_parent_ckid_i = 0; for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9214, ap));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 40, 0x9214, ap));
         auto rl2 = collect_resp();
         ck("legacy direct-GM count == 1", rl2.size() > 41 ? (long)rl2[41] : -1, 1);
         ck("legacy direct-GM CDL == 24", r_cdl(rl2), 24);
@@ -722,7 +758,7 @@ int main(int argc, char** argv) {
     printf("\n[9d] GET_AVB_INFO\n");
     {
         std::vector<uint8_t> av; put_be16(av, 0x0009); put_be16(av, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9300, av));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9300, av));
         auto r = collect_resp();
         ck("AVB_INFO SUCCESS", r_status(r), 0);
         ck("AVB_INFO CDL == 36 (one msrp mapping)", r_cdl(r), 36);
@@ -738,7 +774,7 @@ int main(int argc, char** argv) {
         ckbytes("AVB_INFO msrp mapping {A,3,vid}", r, 56, {0x00,0x01,0x06,0x03,0x00,0x02});
 
         dut->gptp_gm_id_i = 0; for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9301, av));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9301, av));
         auto r2 = collect_resp();
         ckbytes("AVB_INFO no-GM flags GPTP|SRP|AS_CAP", r2, 55, {0x07});
         dut->gptp_gm_id_i = 0x0011223344556677ULL; for (int i = 0; i < 4; i++) tick();
@@ -748,20 +784,20 @@ int main(int argc, char** argv) {
         // CHECK: pdelay keeps its big nonzero measured value here, so the
         // retired "|propagation_delay|" proxy would answer 1 on this line.
         dut->as_capable_i = 0; for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9304, av));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9304, av));
         auto r5 = collect_resp();
         ckbytes("AVB_INFO asCapable FALSE -> flags 0x06", r5, 55, {0x06});
         ckbytes("...with the SAME nonzero pdelay on the wire", r5, 50,
                 {0x00,0x02,0x1F,0x6A});
         dut->as_capable_i = 1; for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9305, av));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9305, av));
         auto r6 = collect_resp();
         ckbytes("AVB_INFO asCapable TRUE again -> flags 0x07", r6, 55, {0x07});
         // ...and the reverse mutation: a ZERO pdelay with asCapable TRUE
         // must still report AS_CAPABLE. The proxy answered 0 here, which is
         // the starved-pmc-read flap this input replaced.
         dut->pdelay_ns_i = 0; for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9306, av));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x9306, av));
         auto r7 = collect_resp();
         ckbytes("pdelay 0 + asCapable TRUE -> flags still 0x07", r7, 55, {0x07});
         ckbytes("...and propagation_delay reports the honest 0", r7, 50,
@@ -776,7 +812,7 @@ int main(int argc, char** argv) {
     {
         std::vector<uint8_t> pl; put_be16(pl,0); put_be16(pl,0);
         put_be16(pl,0x0000); put_be16(pl,0x0000);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, 0xDEADBEEF00000000ULL, CTLR_ID, 0, 4, 0x8000, pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, 0xDEADBEEF00000000ULL, CTLR_ID, 0, 4, 0x8000, pl));
         auto r = collect_resp(600);
         ck("no response to foreign entity_id", r.size()==0, 1);
     }
@@ -1095,7 +1131,7 @@ int main(int argc, char** argv) {
         // shares wbeat_r/drop_rest_r with the discover decode)
         std::vector<uint8_t> pl; put_be16(pl,0); put_be16(pl,0);
         put_be16(pl,0x0000); put_be16(pl,0x0000);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x8010, pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x8010, pl));
         auto r = collect_resp();
         ck("AECP still answered after a discover storm", r.size() > 0, 1);
     }
@@ -1134,7 +1170,7 @@ int main(int argc, char** argv) {
 
         // (a) GET: live values — stream_id MUST be {station_mac, 0} (the
         //     AVTP/ACMP formula; the old entity_id here was the bug)
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x1201, gsi_pl()));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x1201, gsi_pl()));
         auto r = collect_resp();
         ck("[12a] GET_STREAM_INFO SUCCESS", r_status(r), 0);
         ck_cdl("[12a] CDL correct (len-26)", r);
@@ -1146,32 +1182,32 @@ int main(int argc, char** argv) {
         ck("[12a] flags_ex 0 (no listener)", be_at(r, 86, 4), 0);
 
         // (b) SET msrp_acc_lat -> SUCCESS; GET reflects the new value
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1202,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1202,
                          ssi_pl(0x20000000u, 1000000)));
         r = collect_resp();
         ck("[12b] SET(ACC_LAT) SUCCESS", r_status(r), 0);
         ck("[12b] SET echoes flags", be_at(r, 42, 4), 0x20000000ULL);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x1203, gsi_pl()));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x1203, gsi_pl()));
         r = collect_resp();
         ck("[12b] GET reflects 1ms", be_at(r, 62, 4), 1000000);
 
         // (c) any other spec sub-command -> NOT_SUPPORTED, value untouched
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1204,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1204,
                          ssi_pl(0x60000000u, 555)));   // STREAM_ID_VALID too
         r = collect_resp();
         ck("[12c] SET(unsupported) NOT_SUPPORTED", r_status(r), 11);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x1205, gsi_pl()));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x1205, gsi_pl()));
         r = collect_resp();
         ck("[12c] value untouched", be_at(r, 62, 4), 1000000);
 
         // (d) out-of-range latency -> BAD_ARGUMENTS
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1206,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1206,
                          ssi_pl(0x20000000u, 0x80000000u)));
         r = collect_resp();
         ck("[12d] SET(>0x7FFFFFFF) BAD_ARGUMENTS", r_status(r), 7);
 
         // (e) no sub-command requested -> SUCCESS no-op
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1207,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1207,
                          ssi_pl(0, 42)));
         r = collect_resp();
         ck("[12e] SET(none) SUCCESS", r_status(r), 0);
@@ -1182,12 +1218,12 @@ int main(int argc, char** argv) {
         //     (the scalar keeps its display role)
         dut->listener_observed_i = 1;
         dut->out_streaming_v_i   = 0x0001;
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1208,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1208,
                          ssi_pl(0x20000000u, 777)));
         r = collect_resp();
         ck("[12f] SET while running -> STREAM_IS_RUNNING", r_status(r), 12);
         dut->talker_active_i = 1;
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x1209, gsi_pl()));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x1209, gsi_pl()));
         r = collect_resp();
         ck("[12f] flags_ex REGISTERING", be_at(r, 86, 4), 1);
         dut->talker_active_i = 0;
@@ -1196,11 +1232,11 @@ int main(int argc, char** argv) {
 
         // (g) SET on a STREAM_INPUT -> NOT_SUPPORTED; on a non-stream
         //     descriptor -> BAD_ARGUMENTS
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x120A,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x120A,
                          ssi_pl(0x20000000u, 1, /*dtype*/0x0005)));
         r = collect_resp();
         ck("[12g] SET(STREAM_INPUT) NOT_SUPPORTED", r_status(r), 11);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x120B,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x120B,
                          ssi_pl(0x20000000u, 1, /*dtype*/0x0000)));
         r = collect_resp();
         ck("[12g] SET(ENTITY) BAD_ARGUMENTS", r_status(r), 7);
@@ -1208,11 +1244,11 @@ int main(int argc, char** argv) {
         // (h) START/STOP_STREAMING: Stream-INPUT-only commands ->
         //     NOT_SUPPORTED on this talker (was NOT_IMPLEMENTED default)
         std::vector<uint8_t> ss_pl; put_be16(ss_pl, 0x0006); put_be16(ss_pl, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34, 0x120C, ss_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34, 0x120C, ss_pl));
         r = collect_resp();
         ck("[12h] START_STREAMING NOT_SUPPORTED", r_status(r), 11);
         ck("[12h] START echoes cmd", r_cmd(r), 34);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35, 0x120D, ss_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35, 0x120D, ss_pl));
         r = collect_resp();
         ck("[12h] STOP_STREAMING NOT_SUPPORTED", r_status(r), 11);
     }
@@ -1240,10 +1276,10 @@ int main(int argc, char** argv) {
         const uint64_t CID_D = 0x680500FFFE0000D0ULL, CID_E = 0x680500FFFE0000E0ULL;
 
         // (a) register A; dedup register -> SUCCESS both times
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x1301, reg_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x1301, reg_pl));
         auto r = collect_resp();
         ck("[13a] REGISTER SUCCESS", r_status(r), 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x1302, reg_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x1302, reg_pl));
         r = collect_resp();
         ck("[13a] re-REGISTER dedup SUCCESS", r_status(r), 0);
 
@@ -1274,7 +1310,7 @@ int main(int argc, char** argv) {
             for (int i = 0; i < 16; i++) pl.push_back(0);
             for (int i = 3; i >= 0; i--) pl.push_back((lat >> (8*i)) & 0xFF);
             while (pl.size() < 56) pl.push_back(0);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1303, pl));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1303, pl));
         }
         r = collect_resp();
         ck("[13d] SET SUCCESS", r_status(r), 0);
@@ -1282,13 +1318,13 @@ int main(int argc, char** argv) {
         ck("[13d] no self-push after own SET", r.size(), 0);
 
         // (e) fill the table: B, C, D register; E -> NO_RESOURCES
-        feed_rx(aecp_cmd(ENT_MAC, MAC_B, ENTITY_ID, CID_B, 0, 36, 0x1304, reg_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, MAC_B, ENTITY_ID, CID_B, 0, 36, 0x1304, reg_pl));
         ck("[13e] REGISTER B", r_status(collect_resp()), 0);
-        feed_rx(aecp_cmd(ENT_MAC, MAC_C, ENTITY_ID, CID_C, 0, 36, 0x1305, reg_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, MAC_C, ENTITY_ID, CID_C, 0, 36, 0x1305, reg_pl));
         ck("[13e] REGISTER C", r_status(collect_resp()), 0);
-        feed_rx(aecp_cmd(ENT_MAC, MAC_D, ENTITY_ID, CID_D, 0, 36, 0x1306, reg_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, MAC_D, ENTITY_ID, CID_D, 0, 36, 0x1306, reg_pl));
         ck("[13e] REGISTER D", r_status(collect_resp()), 0);
-        feed_rx(aecp_cmd(ENT_MAC, MAC_E, ENTITY_ID, CID_E, 0, 36, 0x1307, reg_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, MAC_E, ENTITY_ID, CID_E, 0, 36, 0x1307, reg_pl));
         ck("[13e] REGISTER E -> NO_RESOURCES", r_status(collect_resp()), 8);
 
         // (f) edge -> four pushes (A..D), each unicast to its own MAC with
@@ -1319,7 +1355,7 @@ int main(int argc, char** argv) {
             dut->listener_observed_i = 0;   // allow the SET
             (void)collect_resp();           // drain the edge pushes (4)
             (void)collect_resp(); (void)collect_resp(); (void)collect_resp();
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1308, pl));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 14, 0x1308, pl));
         }
         r = collect_resp();
         ck("[13g] SET SUCCESS", r_status(r), 0);
@@ -1336,9 +1372,9 @@ int main(int argc, char** argv) {
         ck("[13g] no extra push", r.size(), 0);
 
         // (h) deregister A: idempotent SUCCESS; A gets no further pushes
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x1309, reg_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x1309, reg_pl));
         ck("[13h] DEREGISTER SUCCESS", r_status(collect_resp()), 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x130A, reg_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x130A, reg_pl));
         ck("[13h] re-DEREGISTER idempotent", r_status(collect_resp()), 0);
         dut->listener_observed_i = 1;
         got = 0; got_a = false;
@@ -1355,11 +1391,11 @@ int main(int argc, char** argv) {
 
         // (i) clean the table: B, C, D deregister so later tests run with
         // no registered controllers (SET replays are tested in [23])
-        feed_rx(aecp_cmd(ENT_MAC, MAC_B, ENTITY_ID, CID_B, 0, 37, 0x130B, reg_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, MAC_B, ENTITY_ID, CID_B, 0, 37, 0x130B, reg_pl));
         ck("[13i] DEREGISTER B", r_status(collect_resp()), 0);
-        feed_rx(aecp_cmd(ENT_MAC, MAC_C, ENTITY_ID, CID_C, 0, 37, 0x130C, reg_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, MAC_C, ENTITY_ID, CID_C, 0, 37, 0x130C, reg_pl));
         ck("[13i] DEREGISTER C", r_status(collect_resp()), 0);
-        feed_rx(aecp_cmd(ENT_MAC, MAC_D, ENTITY_ID, CID_D, 0, 37, 0x130D, reg_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, MAC_D, ENTITY_ID, CID_D, 0, 37, 0x130D, reg_pl));
         ck("[13i] DEREGISTER D", r_status(collect_resp()), 0);
     }
 
@@ -1376,14 +1412,14 @@ int main(int argc, char** argv) {
         // the golden compare sees the power-on image
         std::vector<uint8_t> rs; put_be16(rs, 0x0002); put_be16(rs, 0);
         rs.insert(rs.end(), {0x00,0x00,0xBB,0x80});    // 48 kHz
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 20, 0x13FF, rs));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 20, 0x13FF, rs));
         (void)collect_resp();
 
         uint16_t seq = 0x1400;
         for (const auto& e : AEM_DIR) {
             std::vector<uint8_t> pl; put_be16(pl,0); put_be16(pl,0);
             put_be16(pl, e.type); put_be16(pl, e.index);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, seq++, pl));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, seq++, pl));
             auto r = collect_resp();
             char nm[64];
             snprintf(nm, sizeof nm, "[14] desc 0x%04X[%u] SUCCESS", e.type, e.index);
@@ -1407,7 +1443,7 @@ int main(int argc, char** argv) {
         // (a) GET_NAME on STREAM_INPUT[1] reads "CRF"
         std::vector<uint8_t> pl; put_be16(pl, 0x0005); put_be16(pl, 1);
         put_be16(pl, 0); put_be16(pl, 0);              // name_index, cfg
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 17, 0x1501, pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 17, 0x1501, pl));
         auto r = collect_resp();
         ck("[15a] GET_NAME(STREAM_INPUT,1) SUCCESS", r_status(r), 0);
         ckbytes("[15a] name = 'CRF'", r, 46, {'C','R','F',0});
@@ -1417,26 +1453,26 @@ int main(int argc, char** argv) {
         put_be16(sn, 0); put_be16(sn, 0);
         const char* nn = "Renamed In0";
         for (int i = 0; i < 64; i++) sn.push_back(i < (int)strlen(nn) ? nn[i] : 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 16, 0x1502, sn));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 16, 0x1502, sn));
         r = collect_resp();
         ck("[15b] SET_NAME(STREAM_INPUT,0) SUCCESS", r_status(r), 0);
         std::vector<uint8_t> rd; put_be16(rd,0); put_be16(rd,0);
         put_be16(rd, 0x0005); put_be16(rd, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1503, rd));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1503, rd));
         r = collect_resp();
         ckbytes("[15b] readback name", r, 46, {'R','e','n','a','m','e','d',' ','I','n','0'});
 
         // (c) GET_NAME bad name_index -> BAD_ARGUMENTS (descriptor exists)
         std::vector<uint8_t> bn; put_be16(bn, 0x0005); put_be16(bn, 1);
         put_be16(bn, 1); put_be16(bn, 0);              // name_index 1 invalid
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 17, 0x1504, bn));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 17, 0x1504, bn));
         r = collect_resp();
         ck("[15c] bad name_index BAD_ARGUMENTS", r_status(r), 7);
 
         // (d) CLOCK_DOMAIN[0] static fields: clock_source_index=0, 3 sources
         std::vector<uint8_t> cd; put_be16(cd,0); put_be16(cd,0);
         put_be16(cd, 0x0024); put_be16(cd, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1505, cd));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1505, cd));
         r = collect_resp();
         // descriptor offset 70 = clock_source_index -> wire 42+70
         ckbytes("[15d] clock_source_index=0", r, 112, {0x00,0x00});
@@ -1446,7 +1482,7 @@ int main(int argc, char** argv) {
         // (e) CONTROL[0] IDENTIFY: type EUI-64 + LINEAR_UINT8 + value format
         std::vector<uint8_t> ct; put_be16(ct,0); put_be16(ct,0);
         put_be16(ct, 0x001A); put_be16(ct, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1506, ct));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1506, ct));
         r = collect_resp();
         // control_value_type at desc offset 80, control_type at 82
         ckbytes("[15e] LINEAR_UINT8 + IDENTIFY type", r, 122,
@@ -1465,7 +1501,7 @@ int main(int argc, char** argv) {
             std::vector<uint8_t> p; put_be16(p, t); put_be16(p, i); return p;
         };
         // (a) GET on CLOCK_DOMAIN[0]: power-on source 0
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1601,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1601,
                          cs_pl(0x0024, 0)));
         auto r = collect_resp();
         ck("[16a] GET SUCCESS", r_status(r), 0);
@@ -1475,37 +1511,37 @@ int main(int argc, char** argv) {
 
         // (b) SET to source 1 (AAF stream clock) + GET readback + descriptor
         auto set_pl = cs_pl(0x0024, 0); put_be16(set_pl, 1); put_be16(set_pl, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1602, set_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1602, set_pl));
         r = collect_resp();
         ck("[16b] SET SUCCESS", r_status(r), 0);
         ckbytes("[16b] response reads back 1", r, 42, {0x00,0x01});
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1603,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1603,
                          cs_pl(0x0024, 0)));
         r = collect_resp();
         ckbytes("[16b] GET readback 1", r, 42, {0x00,0x01});
         std::vector<uint8_t> rd; put_be16(rd,0); put_be16(rd,0);
         put_be16(rd, 0x0024); put_be16(rd, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1604, rd));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x1604, rd));
         r = collect_resp();
         ckbytes("[16b] descriptor clock_source_index 1", r, 112, {0x00,0x01});
 
         // (c) SET out of range -> BAD_ARGUMENTS (value stays 1)
         auto bad_pl = cs_pl(0x0024, 0); put_be16(bad_pl, 3); put_be16(bad_pl, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1605, bad_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1605, bad_pl));
         r = collect_resp();
         ck("[16c] SET(3) BAD_ARGUMENTS", r_status(r), 7);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1606,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1606,
                          cs_pl(0x0024, 0)));
         r = collect_resp();
         ckbytes("[16c] value unchanged", r, 42, {0x00,0x01});
 
         // (d) wrong descriptor -> NO_SUCH_DESCRIPTOR; restore source 0
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1607,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1607,
                          cs_pl(0x0002, 0)));
         r = collect_resp();
         ck("[16d] GET(AUDIO_UNIT) NO_SUCH_DESCRIPTOR", r_status(r), 2);
         auto rs_pl = cs_pl(0x0024, 0); put_be16(rs_pl, 0); put_be16(rs_pl, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1608, rs_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1608, rs_pl));
         (void)collect_resp();
     }
 
@@ -1518,7 +1554,7 @@ int main(int argc, char** argv) {
             std::vector<uint8_t> p; put_be16(p, t); put_be16(p, i); return p;
         };
         // (a) GET: power-on value 0, identify_o low
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 25, 0x1701,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 25, 0x1701,
                          ctl_pl(0x001A, 0)));
         auto r = collect_resp();
         ck("[17a] GET SUCCESS", r_status(r), 0);
@@ -1528,30 +1564,30 @@ int main(int argc, char** argv) {
 
         // (b) SET 255 -> identify on; readback via GET
         auto on_pl = ctl_pl(0x001A, 0); on_pl.push_back(0xFF);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 24, 0x1702, on_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 24, 0x1702, on_pl));
         r = collect_resp();
         ck("[17b] SET(255) SUCCESS", r_status(r), 0);
         ckbytes("[17b] response value 255", r, 42, {0xFF});
         ck("[17b] identify_o high", dut->identify_o, 1);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 25, 0x1703,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 25, 0x1703,
                          ctl_pl(0x001A, 0)));
         r = collect_resp();
         ckbytes("[17b] GET readback 255", r, 42, {0xFF});
 
         // (c) SET 7 violates step 255 -> BAD_ARGUMENTS, state unchanged
         auto odd_pl = ctl_pl(0x001A, 0); odd_pl.push_back(0x07);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 24, 0x1704, odd_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 24, 0x1704, odd_pl));
         r = collect_resp();
         ck("[17c] SET(7) BAD_ARGUMENTS", r_status(r), 7);
         ck("[17c] identify_o still high", dut->identify_o, 1);
 
         // (d) SET 0 -> identify off; bad index -> NO_SUCH_DESCRIPTOR
         auto off_pl = ctl_pl(0x001A, 0); off_pl.push_back(0x00);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 24, 0x1705, off_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 24, 0x1705, off_pl));
         r = collect_resp();
         ck("[17d] SET(0) SUCCESS", r_status(r), 0);
         ck("[17d] identify_o low", dut->identify_o, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 25, 0x1706,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 25, 0x1706,
                          ctl_pl(0x001A, 1)));
         r = collect_resp();
         ck("[17d] GET(idx 1) NO_SUCH_DESCRIPTOR", r_status(r), 2);
@@ -1567,7 +1603,7 @@ int main(int argc, char** argv) {
             put_be16(p, m); put_be16(p, 0); return p;
         };
         // (a) STREAM_PORT_INPUT[0] map 0: 8 identity mappings
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1801,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1801,
                          map_pl(0x000E, 0, 0)));
         auto r = collect_resp();
         ck("[18a] GET SUCCESS", r_status(r), 0);
@@ -1584,7 +1620,7 @@ int main(int argc, char** argv) {
         //     NOT_SUPPORTED error code." This used to assert SUCCESS and a
         //     served mapping[7] - the behaviour that, at the 8x8 shape,
         //     over-read a 24-octet descriptor by 48 octets.
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1802,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1802,
                          map_pl(0x000F, 0, 0)));
         r = collect_resp();
         ck("[18b] output port with a map NOT_SUPPORTED (Milan 5.4.2.26)",
@@ -1596,21 +1632,21 @@ int main(int argc, char** argv) {
         //     returns a BAD_ARGUMENT status in the response." (7 = the AEM
         //     BAD_ARGUMENTS code; this used to answer NO_SUCH_DESCRIPTOR.)
         //     ...and the wrong descriptor type stays NO_SUCH_DESCRIPTOR.
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1803,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1803,
                          map_pl(0x000E, 0, 1)));
         r = collect_resp();
         ck("[18c] map_index 1 BAD_ARGUMENTS (7.4.44.1)", r_status(r), 7);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1804,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 43, 0x1804,
                          map_pl(0x0006, 0, 0)));
         r = collect_resp();
         ck("[18c] STREAM_OUTPUT NO_SUCH_DESCRIPTOR", r_status(r), 2);
 
         // (d) ADD/REMOVE_AUDIO_MAPPINGS -> NOT_SUPPORTED (static maps)
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 44, 0x1805,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 44, 0x1805,
                          map_pl(0x000E, 0, 0)));
         r = collect_resp();
         ck("[18d] ADD NOT_SUPPORTED", r_status(r), 11);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 45, 0x1806,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 45, 0x1806,
                          map_pl(0x000E, 0, 0)));
         r = collect_resp();
         ck("[18d] REMOVE NOT_SUPPORTED", r_status(r), 11);
@@ -1623,23 +1659,23 @@ int main(int argc, char** argv) {
     {
         std::vector<uint8_t> lk = {0,0,0,0};   // flags=0 -> LOCK
         put_be64(lk, 0);                        // locked_id field
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x1901, lk));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x1901, lk));
         ck("[19] LOCK by ctlr1", r_status(collect_resp()), 0);
 
         std::vector<uint8_t> sp; put_be16(sp, 0x0024); put_be16(sp, 0);
         put_be16(sp, 2); put_be16(sp, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 22, 0x1902, sp));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 22, 0x1902, sp));
         ck("[19] SET_CLOCK_SOURCE by ctlr2 ENTITY_LOCKED",
            r_status(collect_resp()), 3);
         std::vector<uint8_t> cp; put_be16(cp, 0x001A); put_be16(cp, 0);
         cp.push_back(0xFF);
-        feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 24, 0x1903, cp));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 24, 0x1903, cp));
         ck("[19] SET_CONTROL by ctlr2 ENTITY_LOCKED", r_status(collect_resp()), 3);
         ck("[19] identify_o unaffected", dut->identify_o, 0);
 
         std::vector<uint8_t> ul = {0,0,0,1};   // flags UNLOCK
         put_be64(ul, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x1904, ul));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x1904, ul));
         ck("[19] UNLOCK", r_status(collect_resp()), 0);
 
         // -- [19b] the FABRIC view: clk_src_o must follow an accepted
@@ -1648,11 +1684,11 @@ int main(int argc, char** argv) {
         //    this pins the live output, not just the response bytes)
         std::vector<uint8_t> cs; put_be16(cs, 0x0024); put_be16(cs, 0);
         put_be16(cs, 2); put_be16(cs, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1905, cs));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1905, cs));
         ck("[19b] SET_CLOCK_SOURCE(2) SUCCESS", r_status(collect_resp()), 0);
         ck("[19b] clk_src_o follows = 2", dut->clk_src_o, 2);
         std::vector<uint8_t> gc; put_be16(gc, 0x0024); put_be16(gc, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1906, gc));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x1906, gc));
         {
             auto r = collect_resp();
             ck("[19b] GET_CLOCK_SOURCE SUCCESS", r_status(r), 0);
@@ -1660,7 +1696,7 @@ int main(int argc, char** argv) {
         }
         std::vector<uint8_t> c0; put_be16(c0, 0x0024); put_be16(c0, 0);
         put_be16(c0, 0); put_be16(c0, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1907, c0));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x1907, c0));
         ck("[19b] SET back to 0", r_status(collect_resp()), 0);
         ck("[19b] clk_src_o back = 0", dut->clk_src_o, 0);
     }
@@ -1679,7 +1715,7 @@ int main(int argc, char** argv) {
             return p;
         };
         // (a) GET_SYSTEM_UNIQUE_ID: power-on 0
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2001,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2001,
                          vu(0x0002, {0,0})));
         auto r = collect_resp();
         ck("[20a] GET_SYS_UID SUCCESS", r_status(r), 0);
@@ -1690,19 +1726,19 @@ int main(int argc, char** argv) {
         ckbytes("[20a] uid 0", r, 46, {0x00,0x00,0x00,0x00});
 
         // (b) SET_SYSTEM_UNIQUE_ID 0xCAFE0042 + readback
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2002,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2002,
                          vu(0x0001, {0,0, 0xCA,0xFE,0x00,0x42})));
         r = collect_resp();
         ck("[20b] SET_SYS_UID SUCCESS", r_status(r), 0);
         ck("[20b] CDL 24", r_cdl(r), 24);
         ckbytes("[20b] response mirrors id", r, 46, {0xCA,0xFE,0x00,0x42});
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2003,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2003,
                          vu(0x0002, {0,0})));
         r = collect_resp();
         ckbytes("[20b] GET readback", r, 46, {0xCA,0xFE,0x00,0x42});
 
         // (c) GET_MEDIA_CLOCK_REFERENCE_INFO: defaults (prio 192, empty name)
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2004,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2004,
                          vu(0x0004, {0,0})));
         r = collect_resp();
         ck("[20c] GET_MCR SUCCESS", r_status(r), 0);
@@ -1715,13 +1751,13 @@ int main(int argc, char** argv) {
         // (d) SET user prio only (flags bit0), name untouched
         std::vector<uint8_t> mcr = {0,0, 0x01, 0, 0, 100, 0,0,0,0};
         for (int i = 0; i < 64; i++) mcr.push_back('X');   // ignored (bit1 clear)
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2005,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2005,
                          vu(0x0003, mcr)));
         r = collect_resp();
         ck("[20d] SET_MCR(prio) SUCCESS", r_status(r), 0);
         ckbytes("[20d] flags echoed", r, 46, {0x01});
         ckbytes("[20d] user prio 100", r, 49, {100});
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2006,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2006,
                          vu(0x0004, {0,0})));
         r = collect_resp();
         ckbytes("[20d] GET user prio 100, name still empty", r, 49, {100});
@@ -1731,12 +1767,12 @@ int main(int argc, char** argv) {
         std::vector<uint8_t> mcr2 = {0,0, 0x02, 0, 0, 7, 0,0,0,0};
         const char* dn = "Studio A";
         for (int i = 0; i < 64; i++) mcr2.push_back(i < (int)strlen(dn) ? dn[i] : 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2007,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2007,
                          vu(0x0003, mcr2)));
         r = collect_resp();
         ck("[20e] SET_MCR(name) SUCCESS", r_status(r), 0);
         ckbytes("[20e] name in response", r, 54, {'S','t','u','d','i','o',' ','A',0});
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2008,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2008,
                          vu(0x0004, {0,0})));
         r = collect_resp();
         ckbytes("[20e] GET name persisted", r, 54, {'S','t','u','d','i','o',' ','A',0});
@@ -1744,11 +1780,11 @@ int main(int argc, char** argv) {
 
         // (f) bad clock_domain_index -> BAD_ARGUMENTS; unknown MVU cmd ->
         //     NOT_IMPLEMENTED echo (1.3 BIND_STREAM code)
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2009,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x2009,
                          vu(0x0004, {0,1})));
         r = collect_resp();
         ck("[20f] MCR cdi=1 BAD_ARGUMENTS", r_status(r), 7);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x200A,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 6, 0, 0x200A,
                          vu(0x0005, {0,0})));
         r = collect_resp();
         ck("[20f] unknown MVU NOT_IMPLEMENTED", r_status(r), 1);
@@ -1770,7 +1806,7 @@ int main(int argc, char** argv) {
         };
         // (a) AVB_INTERFACE: link came up once at reset; GM id provisioning
         //     counted one change
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2101,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2101,
                          gc_pl(0x0009, 0)));
         auto r = collect_resp();
         ck("[21a] GET_COUNTERS(AVB_IF) SUCCESS", r_status(r), 0);
@@ -1786,7 +1822,7 @@ int main(int argc, char** argv) {
         dut->link_up_i = 0; for (int i = 0; i < 4; i++) tick();
         dut->link_up_i = 1; for (int i = 0; i < 4; i++) tick();
         dut->gptp_gm_id_i = 0x3CC0C6FFFE0002CBULL; for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2102,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2102,
                          gc_pl(0x0009, 0)));
         r = collect_resp();
         ck("[21b] LINK_UP 2", be32_at(r, 46), 2);
@@ -1805,7 +1841,7 @@ int main(int argc, char** argv) {
         //      here was one frame PER edge - the 5 Hz flap violation.
         {
             std::vector<uint8_t> rp(8, 0);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x21B0, rp));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x21B0, rp));
             ck("[21b2] REGISTER ok", r_status(collect_resp()), 0);
             dut->link_up_i = 0; for (int i = 0; i < 4; i++) tick();
             dut->link_up_i = 1; for (int i = 0; i < 4; i++) tick();
@@ -1821,7 +1857,7 @@ int main(int argc, char** argv) {
             ck("[21b2] push LINK_UP 2 (up edge after the snapshot)", be32_at(p1, 46), 2);
             auto p2 = collect_resp(800);   // second edge: clamped by the window
             ck("[21b2] no second frame inside the 1 s window", (long)p2.size(), 0);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x21B1, rp));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x21B1, rp));
             ck("[21b2] DEREGISTER ok", r_status(collect_resp()), 0);
         }
 
@@ -1841,7 +1877,7 @@ int main(int argc, char** argv) {
         dut->tkdiag_cnt_i[2] = 3;          // MEDIA_RESET intervals
         dut->tkdiag_cnt_i[3] = 7;          // TIMESTAMP_UNCERTAIN intervals
         dut->tkdiag_cnt_i[4] = 0x00012345; // FRAMES_TX intervals
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2103,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2103,
                          gc_pl(0x0006, 0)));
         r = collect_resp();
         ck("[21c] GET_COUNTERS(STREAM_OUT) SUCCESS", r_status(r), 0);
@@ -1868,7 +1904,7 @@ int main(int argc, char** argv) {
                                             0x33333333u, 0x44444444u,
                                             0x55555555u };
         for (int w = 0; w < 5; w++) dut->tkdiag_cnt_i[w] = BACKED[w];
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2113,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x2113,
                          gc_pl(0x0006, 0)));
         r = collect_resp();
         ck("[21c2] mask still the Table 5.17 mandatory 0x1F",
@@ -1887,7 +1923,7 @@ int main(int argc, char** argv) {
 
         // (d) GET_MAX_TRANSIT_TIME reflects the SET_STREAM_INFO latency
         //     (test 13g left pres_offset at 1600000 ns)
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x2104,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x2104,
                          gc_pl(0x0006, 0)));
         r = collect_resp();
         ck("[21d] GET_MTT SUCCESS", r_status(r), 0);
@@ -1898,12 +1934,12 @@ int main(int argc, char** argv) {
         // (e) SET_MAX_TRANSIT_TIME 2 ms -> pres offset updated (+3 pushes)
         auto mtt_pl = gc_pl(0x0006, 0);
         for (int i = 7; i >= 0; i--) mtt_pl.push_back((2000000ULL >> (8*i)) & 0xFF);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4C, 0x2105, mtt_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4C, 0x2105, mtt_pl));
         r = collect_resp();
         ck("[21e] SET_MTT SUCCESS", r_status(r), 0);
         ck("[21e] response mirrors 2000000", be32_at(r, 46), 2000000);
         (void)collect_resp(); (void)collect_resp(); (void)collect_resp();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x2106,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x2106,
                          gc_pl(0x0006, 0)));
         r = collect_resp();
         ck("[21e] GET readback 2000000", be32_at(r, 46), 2000000);
@@ -1912,10 +1948,10 @@ int main(int argc, char** argv) {
         //     stays NOT_IMPLEMENTED (deferred SHOULD)
         auto big_pl = gc_pl(0x0006, 0);
         for (int i = 7; i >= 0; i--) big_pl.push_back((0x0000000100000000ULL >> (8*i)) & 0xFF);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4C, 0x2107, big_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4C, 0x2107, big_pl));
         r = collect_resp();
         ck("[21f] SET_MTT(2^32) BAD_ARGUMENTS", r_status(r), 7);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x2108,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x2108,
                          gc_pl(0x0005, 0)));
         r = collect_resp();
         ck("[21f] GET_MTT(STREAM_INPUT) NO_SUCH_DESCRIPTOR", r_status(r), 2);
@@ -1928,14 +1964,14 @@ int main(int argc, char** argv) {
         //      is sim_nxn.cpp [10], where the shape HAS those indices.)
         auto oor_pl = gc_pl(0x0006, 1);
         for (int i = 7; i >= 0; i--) oor_pl.push_back((1000000ULL >> (8*i)) & 0xFF);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4C, 0x2109, oor_pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4C, 0x2109, oor_pl));
         r = collect_resp();
         ck("[21f2] SET_MTT(OUT,1) NO_SUCH_DESCRIPTOR", r_status(r), 2);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x210A,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x210A,
                          gc_pl(0x0006, 1)));
         r = collect_resp();
         ck("[21f2] GET_MTT(OUT,1) NO_SUCH_DESCRIPTOR", r_status(r), 2);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x210B,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4D, 0x210B,
                          gc_pl(0x0006, 0)));
         r = collect_resp();
         ck("[21f2] GET_MTT(OUT,0) still 2000000", be32_at(r, 46), 2000000);
@@ -1945,8 +1981,8 @@ int main(int argc, char** argv) {
         // payload is cross-checked BYTE-EXACT against the classic response.
         {
             // classic references first
-            auto classic = [&](uint16_t cmd, std::vector<uint8_t> pl) {
-                feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0,
+            auto classic = [&](uint16_t cmd, const std::vector<uint8_t>& pl) {
+                feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0,
                                  cmd, 0x2180 + cmd, pl));
                 auto rr = collect_resp();
                 return std::vector<uint8_t>(rr.begin() + 38, rr.begin() + 38 + (r_cdl(rr) - 12));
@@ -1975,7 +2011,7 @@ int main(int argc, char** argv) {
             rec(23, gs4(0x0024, 0));
             rec(41, gs4(0x0009, 0));
             rec(19, gs4(0x0000, 0));   // GET_ASSOCIATION_ID: legal, unimplemented
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x2109, bp));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x2109, bp));
             r = collect_resp();
             ck("[21g] batch SUCCESS", r_status(r), 0);
             size_t exp_pay = 8+ref_cfg.size() + 8+ref_sfmt.size() + 8+ref_name.size()
@@ -2009,7 +2045,7 @@ int main(int argc, char** argv) {
             std::vector<uint8_t> bad;
             { std::vector<uint8_t> t; put_be16(bad, 0); put_be16(bad, 0);
               bad.push_back(0); bad.push_back(0); put_be16(bad, 16); }
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x210A, bad));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x210A, bad));
             r = collect_resp();
             ck("[21g] non-fixed-size type -> BAD_ARGUMENTS", r_status(r), 7);
             ck("[21g] BAD_ARGUMENTS echoes the request", 
@@ -2059,13 +2095,13 @@ int main(int argc, char** argv) {
                 put_be16(lie, 0); put_be16(lie, 0);
                 lie.push_back(0); lie.push_back(0); put_be16(lie, 9);
                 put_be16(lie, 0x0006); put_be16(lie, 0);
-                feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x2112, lie));
+                feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x2112, lie));
                 r = collect_resp();
                 ck("[21g] lying len field -> BAD_ARGUMENTS", r_status(r), 7);
             }
 
             // empty batch -> SUCCESS, empty record array
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x210B, {}));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x210B, {}));
             r = collect_resp();
             ck("[21g] empty batch SUCCESS", r_status(r), 0);
             ck("[21g] empty batch CDL 12", r_cdl(r), 12);
@@ -2081,7 +2117,7 @@ int main(int argc, char** argv) {
                 bp2.push_back(0); bp2.push_back(0); put_be16(bp2, 21);
                 put_be16(bp2, 0x0002); put_be16(bp2, 0);
               } }
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x210C, big));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, 0x210C, big));
             r = collect_resp(20000);
             ck("[21g] 24-record batch SUCCESS", r_status(r), 0);
             ck("[21g] 24-record batch CDL", r_cdl(r), 12 + 24*(8+8));
@@ -2108,7 +2144,7 @@ int main(int argc, char** argv) {
             return (long)v;
         };
         // (a) unbound sink 0: identity flags only, zero fields
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2201,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2201,
                          si_pl(0x0005, 0)));
         auto r = collect_resp();
         ck("[22a] GET_STREAM_INFO(in0) SUCCESS", r_status(r), 0);
@@ -2128,7 +2164,7 @@ int main(int argc, char** argv) {
         dut->lstn_ta_vlan_i = 0x002;          // registered Talker-attr fields
         dut->lstn_ta_acclat_i = 137042;       // the real switch TF value
         for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2202,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2202,
                          si_pl(0x0005, 0)));
         r = collect_resp();
         // F2000000 | CONNECTED(0x04000000) | FAST_CONNECT|SAVED_STATE(0x6)
@@ -2147,7 +2183,7 @@ int main(int argc, char** argv) {
         dut->lstn_fail_code_i = 8;            // egress not AVB capable
         dut->lstn_fail_bridge_i = 0x80003CC0C6FE0210ull;
         for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2203,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2203,
                          si_pl(0x0005, 0)));
         r = collect_resp();
         ck("[22c] +MSRP_FAILURE_VALID (bit6 removed: get-state-only)",
@@ -2158,7 +2194,7 @@ int main(int argc, char** argv) {
         dut->lstn_ta_fail_i = 0;
 
         // (d) sink 1 (CRF): unbound shape; CRF format from store
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2204,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2204,
                          si_pl(0x0005, 1)));
         r = collect_resp();
         ck("[22d] GET_STREAM_INFO(in1) SUCCESS", r_status(r), 0);
@@ -2170,7 +2206,7 @@ int main(int argc, char** argv) {
         //     accepts AAF 96k
         std::vector<uint8_t> f1 = si_pl(0x0005, 1);
         for (int i = 7; i >= 0; i--) f1.push_back((0x0410600100017700ULL >> (8*i)) & 0xFF);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x2205, f1));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x2205, f1));
         r = collect_resp();
         // Milan 6.4 honesty pass 2026-07-21: 96k CRF no longer
         // advertised (engine locks 48k only) -> SET refused
@@ -2178,12 +2214,12 @@ int main(int argc, char** argv) {
         ckbytes("[22e] readback", r, 42, {0x04,0x10,0x60,0x01,0x00,0x01,0x77,0x00});
         std::vector<uint8_t> f2 = si_pl(0x0005, 1);
         for (int i = 7; i >= 0; i--) f2.push_back((0x0205022002006000ULL >> (8*i)) & 0xFF);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x2206, f2));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x2206, f2));
         r = collect_resp();
         ck("[22e] SET_FMT(in1, AAF) BAD_ARGUMENTS", r_status(r), 7);
         std::vector<uint8_t> f3 = si_pl(0x0005, 0);
         for (int i = 7; i >= 0; i--) f3.push_back((0x020702200200C000ULL >> (8*i)) & 0xFF);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x2207, f3));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x2207, f3));
         r = collect_resp();
         // gh #58 D1: sink 0 is BOUND here (the [22b] bind level) and the
         // running rung outranks the format check, so the 96k refusal is
@@ -2192,26 +2228,26 @@ int main(int argc, char** argv) {
         // ...the unbound copy keeps the old law pinned: the format itself
         // is still invalid (96k dropped with the family/honesty pass)
         dut->lstn_bound_v_i &= ~0x0001u;
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x220C, f3));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x220C, f3));
         r = collect_resp();
         ck("[22e] SET_FMT(in0, AAF96k) unbound -> BAD_ARGS", r_status(r), 7);
         dut->lstn_bound_v_i |= 0x0001;   // back to the [22b] posture
 
         // (f) STOP/START_STREAMING on sink0 drives STREAMING_WAIT; outputs
         //     stay NOT_SUPPORTED
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35, 0x2208,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35, 0x2208,
                          si_pl(0x0005, 0)));
         r = collect_resp();
         ck("[22f] STOP(in0) SUCCESS", r_status(r), 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2209,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2209,
                          si_pl(0x0005, 0)));
         r = collect_resp();
         ck("[22f] STREAMING_WAIT set", be32_at(r, 42), 0xF600000E);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34, 0x220A,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34, 0x220A,
                          si_pl(0x0005, 0)));
         r = collect_resp();
         ck("[22f] START(in0) SUCCESS", r_status(r), 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34, 0x220B,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34, 0x220B,
                          si_pl(0x0006, 0)));
         r = collect_resp();
         ck("[22f] START(output) NOT_SUPPORTED", r_status(r), 11);
@@ -2225,29 +2261,29 @@ int main(int argc, char** argv) {
         {
             dut->lstn1_bound_i = 1;
             dut->lstn_bound_v_i |= 0x0002;   // CRF sink = index 1 on this shape
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35,
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35,
                              0x2230, si_pl(0x0005, 1)));
             r = collect_resp();
             ck("[22f3] STOP(in1) SUCCESS", r_status(r), 0);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15,
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15,
                              0x2231, si_pl(0x0005, 1)));
             r = collect_resp();
             ck("[22f3] in1 STREAMING_WAIT set", (be32_at(r, 42) >> 3) & 1, 1);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15,
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15,
                              0x2232, si_pl(0x0005, 0)));
             r = collect_resp();
             ck("[22f3] in0 untouched by in1's stop",
                (be32_at(r, 42) >> 3) & 1, 0);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34,
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34,
                              0x2233, si_pl(0x0005, 1)));
             r = collect_resp();
             ck("[22f3] START(in1) SUCCESS", r_status(r), 0);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15,
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15,
                              0x2234, si_pl(0x0005, 1)));
             r = collect_resp();
             ck("[22f3] in1 STREAMING_WAIT cleared",
                (be32_at(r, 42) >> 3) & 1, 0);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35,
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35,
                              0x2235, si_pl(0x0005, 2)));
             r = collect_resp();
             ck("[22f3] STOP(in2, off-shape) NOT_SUPPORTED", r_status(r), 11);
@@ -2265,11 +2301,11 @@ int main(int argc, char** argv) {
             uint64_t f2 = 0x0205022000806000ULL;   // 48k INT32, channels=2
             for (int i = 7; i >= 0; i--) pl.push_back((f2 >> (8*i)) & 0xFF);
             // the bound twin first: same frame, sink still bound -> 12
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22EF, pl));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22EF, pl));
             r = collect_resp();
             ck("[22f2] SET 2ch while BOUND -> 12", r_status(r), 12);
             dut->lstn_bound_v_i &= ~0x0001u;   // DISCONNECT first (adaptation)
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F0, pl));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F0, pl));
             r = collect_resp();
             ck("[22f2] SET 2ch format SUCCESS", r_status(r), 0);
             ck("[22f2] echo carries 2ch fmt", be32_at(r, 42) == 0x02050220 &&
@@ -2277,26 +2313,26 @@ int main(int argc, char** argv) {
             std::vector<uint8_t> p9; put_be16(p9, 0x0005); put_be16(p9, 0);
             uint64_t f9 = (0x0205022000006000ULL) | (9ULL << 22);
             for (int i = 7; i >= 0; i--) p9.push_back((f9 >> (8*i)) & 0xFF);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F1, p9));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F1, p9));
             ck("[22f2] 9ch rejected BAD_ARGS (unbound)", r_status(collect_resp()), 7);
             // (f3) talker truth: STREAM_OUTPUT accepts ONLY the wire format
             {
                 std::vector<uint8_t> po; put_be16(po, 0x0006); put_be16(po, 0);
                 uint64_t f8o = 0x0205022002006000ULL;   // 8ch = NOT the wire
                 for (int i = 7; i >= 0; i--) po.push_back((f8o >> (8*i)) & 0xFF);
-                feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F2, po));
+                feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F2, po));
                 ck("[22f3] out0 8ch rejected (wire is 2ch)", r_status(collect_resp()), 7);
                 std::vector<uint8_t> p2; put_be16(p2, 0x0006); put_be16(p2, 0);
                 uint64_t f2o = 0x0205022000806000ULL;   // the wire format
                 for (int i = 7; i >= 0; i--) p2.push_back((f2o >> (8*i)) & 0xFF);
-                feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F3, p2));
+                feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F3, p2));
                 ck("[22f3] out0 wire-true 2ch accepted", r_status(collect_resp()), 0);
             }
             // restore the 8ch default, then re-bind (the [22b] posture)
             std::vector<uint8_t> p8; put_be16(p8, 0x0005); put_be16(p8, 0);
             uint64_t f8 = 0x0205022002006000ULL;
             for (int i = 7; i >= 0; i--) p8.push_back((f8 >> (8*i)) & 0xFF);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F2, p8));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, 0x22F2, p8));
             (void)collect_resp();
             dut->lstn_bound_v_i |= 0x0001;
         }
@@ -2308,11 +2344,11 @@ int main(int argc, char** argv) {
             auto set_fmt = [&](uint16_t t, uint16_t i, uint64_t f, uint16_t sq) {
                 std::vector<uint8_t> p; put_be16(p, t); put_be16(p, i);
                 for (int k = 7; k >= 0; k--) p.push_back((f >> (8*k)) & 0xFF);
-                feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, sq, p));
+                feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 8, sq, p));
                 return collect_resp();
             };
             auto get_fmt = [&](uint16_t t, uint16_t i, uint16_t sq) {
-                feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 9, sq,
+                feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 9, sq,
                                  si_pl(t, i)));
                 return collect_resp();
             };
@@ -2333,12 +2369,12 @@ int main(int argc, char** argv) {
             ck("[22g] bound + out-of-family -> 12 not 7", r_status(r), 12);
             // 4. STOP_STREAMING'd but still bound -> STILL 12 (5.3.8.2:
             //    bound is the predicate, not started/streaming)
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35,
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 35,
                              0x22A3, si_pl(0x0005, 0)));
             ck("[22g] STOP(in0) SUCCESS", r_status(collect_resp()), 0);
             r = set_fmt(0x0005, 0, F2, 0x22A4);
             ck("[22g] STOP'd-but-bound -> STILL 12", r_status(r), 12);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34,
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 34,
                              0x22A5, si_pl(0x0005, 0)));
             ck("[22g] START(in0) restore", r_status(collect_resp()), 0);
             // 5. unbind -> the SAME SET succeeds and the write-back LANDS
@@ -2376,35 +2412,35 @@ int main(int argc, char** argv) {
         {
             std::vector<uint8_t> sc; put_be16(sc, 0); put_be16(sc, 0);
             // a bound sink refuses the (single-config, same-index) SET
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 6, 0x22B0, sc));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 6, 0x22B0, sc));
             ck("[22g] SET_CONFIG while a sink is bound -> 12",
                r_status(collect_resp()), 12);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 7, 0x22B1, {}));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 7, 0x22B1, {}));
             ck("[22g] GET_CONFIG exempt while streaming",
                r_status(collect_resp()), 0);
             // the output flavour wedges it just the same
             dut->lstn_bound_v_i &= ~0x0001u;
             dut->out_streaming_v_i = 0x0001;
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 6, 0x22B2, sc));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 6, 0x22B2, sc));
             ck("[22g] SET_CONFIG while an output streams -> 12",
                r_status(collect_resp()), 12);
             dut->out_streaming_v_i = 0;
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 6, 0x22B3, sc));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 6, 0x22B3, sc));
             ck("[22g] SET_CONFIG quiescent -> SUCCESS",
                r_status(collect_resp()), 0);
             // lock outranks the running rung: ctlr2's SET while streaming
             // answers ENTITY_LOCKED (l0 first), never 12
             std::vector<uint8_t> lk(12, 0);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x22B4, lk));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x22B4, lk));
             ck("[22g] ctlr1 LOCK", r_status(collect_resp()), 0);
             dut->lstn_bound_v_i |= 0x0001;
-            feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 6, 0x22B5, sc));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 6, 0x22B5, sc));
             ck("[22g] lock outranks: ctlr2 SET_CONFIG -> 3",
                r_status(collect_resp()), 3);
             std::vector<uint8_t> ul(12, 0); ul[3] = 0x01;
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x22B6, ul));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 1, 0x22B6, ul));
             ck("[22g] ctlr1 UNLOCK", r_status(collect_resp()), 0);
-            feed_rx(aecp_cmd(ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 6, 0x22B7, sc));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL2_MAC, ENTITY_ID, CTLR2_ID, 0, 6, 0x22B7, sc));
             ck("[22g] unlocked + streaming -> 12 again",
                r_status(collect_resp()), 12);
         }
@@ -2435,7 +2471,7 @@ int main(int argc, char** argv) {
         // legacy in0_* ports died with the pend2 push class):
         dut->in0_cnt_locked_i      = 3;
         dut->in0_cnt_unlocked_i    = 2;
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x220C,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x220C,
                          si_pl(0x0005, 0)));
         r = collect_resp();
         ck("[22g] GET_COUNTERS(in0) SUCCESS", r_status(r), 0);
@@ -2456,7 +2492,7 @@ int main(int argc, char** argv) {
 
         // (g1b) ENTITY counters: SUCCESS with an empty mask (Hive queries
         //       it; BAD_ARGUMENTS surfaced as a bad-values field report)
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x22CF,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x22CF,
                          si_pl(0x0000, 0)));
         r = collect_resp();
         ck("[22g1b] GET_COUNTERS(ENTITY) SUCCESS", r_status(r), 0);
@@ -2465,7 +2501,7 @@ int main(int argc, char** argv) {
 
         // (g2) CLOCK_DOMAIN counters (Milan 5.4.4, la_avdecc field report):
         //      LOCKED/UNLOCKED mirror the input media-lock events
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x22D0,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x22D0,
                          si_pl(0x0024, 0)));
         r = collect_resp();
         ck("[22g2] GET_COUNTERS(CLOCK_DOMAIN) SUCCESS", r_status(r), 0);
@@ -2499,7 +2535,7 @@ int main(int argc, char** argv) {
         dut->crf_cnt_late_i     = 0x0533;
         dut->crf_cnt_early_i    = 0x0644;
         dut->crf_cnt_pdu_i      = 0x1234;
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x220D,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 41, 0x220D,
                          si_pl(0x0005, 1)));
         r = collect_resp();
         ck("[22h] GET_COUNTERS(in1=CRF) SUCCESS", r_status(r), 0);
@@ -2537,7 +2573,7 @@ int main(int argc, char** argv) {
         auto u_bit = [](const std::vector<uint8_t>& b) {
             return b.size() > 36 ? (b[36] >> 7) & 1 : -1;
         };
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x220E, {}));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x220E, {}));
         ck("[22i] REGISTER A", r_status(collect_resp()), 0);
         // gh #60 F2/F3: the push arms off the monitor's per-sink dirty
         // vector (bit 0 = sink 0) and serves the SAME rxdiag mirror the
@@ -2559,7 +2595,7 @@ int main(int argc, char** argv) {
         dut->rxdiag_dirty_p_i = 0x0001; tick(); dut->rxdiag_dirty_p_i = 0;
         r = collect_resp(800);
         ck("[22i] second dirty rate-limited (no push)", r.size(), 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x220F, {}));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x220F, {}));
         ck("[22i] DEREGISTER A", r_status(collect_resp()), 0);
         dut->lstn_bound_i = 0; dut->lstn_ta_reg_i = 0;
         dut->lstn_bound_v_i = 0;   // the level falls with the unbind
@@ -2578,15 +2614,15 @@ int main(int argc, char** argv) {
         };
         const uint8_t MAC_B[6] = {0x68,0x05,0xCA,0x00,0x00,0xB0};
         const uint64_t CID_B = 0x680500FFFE0000B0ULL;
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x2301, {}));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x2301, {}));
         ck("[23] REGISTER A", r_status(collect_resp()), 0);
-        feed_rx(aecp_cmd(ENT_MAC, MAC_B, ENTITY_ID, CID_B, 0, 36, 0x2302, {}));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, MAC_B, ENTITY_ID, CID_B, 0, 36, 0x2302, {}));
         ck("[23] REGISTER B", r_status(collect_resp()), 0);
 
         // (a) SET_CLOCK_SOURCE by A -> solicited to A, replay (u=1) to B only
         std::vector<uint8_t> pl; put_be16(pl, 0x0024); put_be16(pl, 0);  // CLOCK_DOMAIN 0
         put_be16(pl, 0x0001); put_be16(pl, 0);                            // source 1
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x2303, pl));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x2303, pl));
         auto r = collect_resp();
         ck("[23a] solicited SUCCESS to A", r_status(r), 0);
         ck("[23a] solicited u=0", u_bit(r), 0);
@@ -2602,14 +2638,14 @@ int main(int argc, char** argv) {
         // (b) failed SET replays nothing (bad clock source index)
         std::vector<uint8_t> bad; put_be16(bad, 0x0024); put_be16(bad, 0);
         put_be16(bad, 0x0009); put_be16(bad, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x2304, bad));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x2304, bad));
         ck("[23b] SET rejected", r_status(collect_resp()) != 0, 1);
         r = collect_resp(800);
         ck("[23b] no replay on failure", r.size(), 0);
 
         // (c) GET commands replay nothing
         std::vector<uint8_t> g; put_be16(g, 0x0024); put_be16(g, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x2305, g));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 23, 0x2305, g));
         ck("[23c] GET SUCCESS", r_status(collect_resp()), 0);
         r = collect_resp(800);
         ck("[23c] no replay for GET", r.size(), 0);
@@ -2619,7 +2655,7 @@ int main(int argc, char** argv) {
         //     (generic writeback old-vs-new compare, generalizing es-4.5)
         std::vector<uint8_t> sv; put_be16(sv, 0x0024); put_be16(sv, 0);
         put_be16(sv, 0x0001); put_be16(sv, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x2309, sv));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x2309, sv));
         ck("[23d] same-value SET SUCCESS", r_status(collect_resp()), 0);
         r = collect_resp(800);
         ck("[23d] same-value SET replays NOTHING", r.size(), 0);
@@ -2628,11 +2664,11 @@ int main(int argc, char** argv) {
         std::vector<uint8_t> nm; put_be16(nm, 0x0024); put_be16(nm, 0);  // CLOCK_DOMAIN 0
         put_be16(nm, 0); put_be16(nm, 0);                                 // name_index, cfg
         for (int i = 0; i < 64; i++) nm.push_back(i < 5 ? "Klang"[i] : 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 16, 0x230A, nm));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 16, 0x230A, nm));
         ck("[23e] SET_NAME(new) SUCCESS", r_status(collect_resp()), 0);
         r = collect_resp();
         ck("[23e] changed name replays u=1 to B", u_bit(r), 1);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 16, 0x230B, nm));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 16, 0x230B, nm));
         ck("[23e] SET_NAME(same) SUCCESS", r_status(collect_resp()), 0);
         r = collect_resp(800);
         ck("[23e] identical name replays NOTHING", r.size(), 0);
@@ -2640,11 +2676,11 @@ int main(int argc, char** argv) {
         // restore: clock source back to 0 (drains B's replay), deregister
         std::vector<uint8_t> rs; put_be16(rs, 0x0024); put_be16(rs, 0);
         put_be16(rs, 0x0000); put_be16(rs, 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x2306, rs));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 22, 0x2306, rs));
         (void)collect_resp(); (void)collect_resp();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x2307, {}));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x2307, {}));
         (void)collect_resp();
-        feed_rx(aecp_cmd(ENT_MAC, MAC_B, ENTITY_ID, CID_B, 0, 37, 0x2308, {}));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, MAC_B, ENTITY_ID, CID_B, 0, 37, 0x2308, {}));
         (void)collect_resp();
     }
 
@@ -2661,7 +2697,7 @@ int main(int argc, char** argv) {
     printf("\n[24] ADDRESS_ACCESS commands dropped whole (9.4)\n");
     {
         // baseline: remember a store byte via READ_DESCRIPTOR(ENTITY)
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x2400,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x2400,
                          {0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00}));
         auto base = collect_resp();
         ck("[24a] baseline READ_DESCRIPTOR ok", r_status(base), 0);
@@ -2670,7 +2706,7 @@ int main(int argc, char** argv) {
         std::vector<uint8_t> aa; put_be16(aa, 0x0001);       // tlv_count 1
         aa.push_back(0x00); aa.push_back(0x04);              // mode|len
         for (int i = 0; i < 8; i++) aa.push_back(0);         // address 0
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 2, 0, 0x2401, aa));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 2, 0, 0x2401, aa));
         auto r = collect_resp(800);
         ck("[24b] AA READ command: no response", r.size(), 0);
         // (c) AA WRITE with a hostile TLV (mode 1, oversize len, address
@@ -2679,11 +2715,11 @@ int main(int argc, char** argv) {
         wr.push_back(0x10); wr.push_back(0xFF);              // mode 1|len 0xFF
         for (int i = 0; i < 8; i++) wr.push_back(0);
         for (int i = 0; i < 16; i++) wr.push_back(0xDE);     // payload garbage
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 2, 0, 0x2402, wr));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 2, 0, 0x2402, wr));
         r = collect_resp(800);
         ck("[24c] AA WRITE command: no response", r.size(), 0);
         // (d) engine live + store byte-identical after both
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x2403,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, 0x2403,
                          {0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00}));
         auto after = collect_resp();
         ck("[24d] engine live after AA frames", r_status(after), 0);
@@ -2713,14 +2749,14 @@ int main(int argc, char** argv) {
         dut->lstn_bound_i = 1; dut->lstn_ta_reg_i = 1;
         dut->lstn_ta_acclat_i = 137042;                     // 0x00021752
         for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2500,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2500,
                          si_pl(0x0005, 0)));
         auto r = collect_resp();
         ck("[25a] GET_STREAM_INFO SUCCESS", r_status(r), 0);
         ckbytes("[25a] acc_lat initial", r, 62, {0x00,0x02,0x17,0x52});
         dut->lstn_ta_acclat_i = 250000;                     // 0x0003D090 re-declare
         for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2501,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2501,
                          si_pl(0x0005, 0)));
         r = collect_resp();
         ck("[25b] GET_STREAM_INFO SUCCESS", r_status(r), 0);
@@ -2729,7 +2765,7 @@ int main(int argc, char** argv) {
         // registration dropped: the stale latency must not linger
         dut->lstn_ta_reg_i = 0;
         for (int i = 0; i < 4; i++) tick();
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2502,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15, 0x2502,
                          si_pl(0x0005, 0)));
         r = collect_resp();
         ckbytes("[25c] unregistered -> acc_lat zero", r, 62, {0,0,0,0});
@@ -2768,7 +2804,7 @@ int main(int argc, char** argv) {
             {0x0002, 0,      "AUDIO_UNIT.0 (exists, not a stream)", 2},
         };
         for (auto& p : probes) {
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15,
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 15,
                              0x2600 + p.i, si_pl(p.t, p.i)));
             auto r = collect_resp();
             char nm[128];
@@ -2781,12 +2817,12 @@ int main(int argc, char** argv) {
         }
         // GET_AVB_INFO: wrong INDEX is an error and still owes >= 20 B;
         // wrong TYPE is NOT_IMPLEMENTED and REFLECTS THE COMMAND (4 B).
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x2610,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x2610,
                          si_pl(0x0009, 1)));
         auto r = collect_resp();
         ck("[26] GET_AVB_INFO(idx 1) NO_SUCH_DESCRIPTOR", r_status(r), 2);
         ck("[26] GET_AVB_INFO(idx 1) cdl 32 (>= 20 B payload)", r_cdl(r), 32);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x2611,
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 39, 0x2611,
                          si_pl(0x0002, 0)));
         r = collect_resp();
         ck("[26] GET_AVB_INFO(wrong type) NOT_IMPLEMENTED", r_status(r), 1);
@@ -2797,7 +2833,7 @@ int main(int argc, char** argv) {
             std::vector<uint8_t> gb;
             put_be16(gb, 0x0006); put_be16(gb, 9);      // absent STREAM_OUTPUT
             put_be16(gb, 0); put_be16(gb, 0);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 17,
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 17,
                              0x2620, gb));
             r = collect_resp();
             ck("[26] GET_NAME(absent) NO_SUCH_DESCRIPTOR", r_status(r), 2);
@@ -2829,7 +2865,7 @@ int main(int argc, char** argv) {
         auto r = collect_resp(800);
         ck("[27] no registered controller -> no push", r.size(), 0);
 
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x2701, {}));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 36, 0x2701, {}));
         ck("[27] REGISTER A", r_status(collect_resp()), 0);
         dut->tkdiag_cnt_i[0] = 5;          // STREAM_START
         dut->tkdiag_cnt_i[1] = 4;          // STREAM_STOP
@@ -2858,7 +2894,7 @@ int main(int argc, char** argv) {
         dut->tkdiag_dirty_p_i = 0x0001; tick(); dut->tkdiag_dirty_p_i = 0;
         r = collect_resp(800);
         ck("[27] second update rate-limited (no push)", r.size(), 0);
-        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x2702, {}));
+        feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 37, 0x2702, {}));
         ck("[27] DEREGISTER A", r_status(collect_resp()), 0);
         // deregistration drops the queued pend too: nothing may arrive later
         r = collect_resp(800);
@@ -2889,18 +2925,18 @@ int main(int argc, char** argv) {
         auto rd = [&](uint16_t t, uint16_t i) {
             std::vector<uint8_t> pl; put_be16(pl, 0); put_be16(pl, 0);
             put_be16(pl, t); put_be16(pl, i);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, sq++, pl));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4, sq++, pl));
             return collect_resp();
         };
         auto gname = [&](uint16_t t, uint16_t i) {
             std::vector<uint8_t> pl; put_be16(pl, t); put_be16(pl, i);
             put_be16(pl, 0); put_be16(pl, 0);
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 17, sq++, pl));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 17, sq++, pl));
             return collect_resp();
         };
         // neutral predecessor: ENTITY_AVAILABLE consults no directory
         auto avail = [&]() {
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0, sq++, {}));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0, sq++, {}));
             (void)collect_resp();
         };
         const uint16_t D_ENTITY = 0x0000, D_AUDIO_UNIT = 0x0002;
@@ -2970,7 +3006,7 @@ int main(int argc, char** argv) {
             rec(7,  {});            // GET_CONFIGURATION   (implemented)
             rec(19, d0);            // GET_ASSOCIATION_ID  (fixed-size, unimpl)
             rec(29, d1);            // GET_SIGNAL_SELECTOR (fixed-size, unimpl)
-            feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, sq++, bp));
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 0x4B, sq++, bp));
             auto b = collect_resp();
             ck("[28e] echo batch SUCCESS", r_status(b), 0);
             // walk the record headers rather than restating their offsets

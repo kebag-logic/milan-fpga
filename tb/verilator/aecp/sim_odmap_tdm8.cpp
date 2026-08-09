@@ -79,10 +79,34 @@ static void put_be16(std::vector<uint8_t>& v, uint16_t x) {
     v.push_back(x >> 8); v.push_back(x & 0xFF);
 }
 
-static std::vector<uint8_t> aem_cmd2(const uint8_t* mac, uint64_t cid,
+//! AEM command frame layout: 14 B Ethernet + 4 B AVTP common header + 8 B
+//! target_entity_id + 8 B controller_entity_id + 2 B sequence_id + 2 B
+//! u/command_type = 38 B ahead of the command_specific payload, and the whole
+//! frame is padded up to the 60 B Ethernet minimum.
+static const size_t AEM_HDR_BYTES = 38;
+static const size_t ETH_MIN_BYTES = 60;
+
+//! Widest AEM response this suite collects (a READ_DESCRIPTOR reply), used to
+//! size the collector once instead of growing it a beat at a time.
+static const size_t AEM_RESP_BYTES = 600;
+
+//! One reusable stimulus buffer for the whole run. The builder below fills it
+//! through a reference and clear() keeps its capacity, so the command bytes
+//! cost ONE allocation for the entire simulation instead of a malloc plus
+//! three or four reallocs on every transaction.
+static std::vector<uint8_t> stim;
+
+//! Fill `out` with an AEM command frame from an arbitrary controller and
+//! hand back a reference to it, so a call site reads
+//! `feed_rx(build_aem_cmd2(stim, ...))` and reuses one buffer.
+static const std::vector<uint8_t>& build_aem_cmd2(std::vector<uint8_t>& out,
+                                     const uint8_t* mac, uint64_t cid,
                                      uint16_t cmd, uint16_t seq,
                                      const std::vector<uint8_t>& payload) {
-    std::vector<uint8_t> f;
+    size_t want = AEM_HDR_BYTES + payload.size();
+    out.clear();                                // clear KEEPS the capacity
+    out.reserve(want < ETH_MIN_BYTES ? ETH_MIN_BYTES : want);
+    std::vector<uint8_t>& f = out;
     for (int i=0;i<6;i++) f.push_back(ENT_MAC[i]);
     for (int i=0;i<6;i++) f.push_back(mac[i]);
     put_be16(f, 0x22F0);
@@ -97,12 +121,14 @@ static std::vector<uint8_t> aem_cmd2(const uint8_t* mac, uint64_t cid,
     f.push_back((cmd >> 8) & 0x7F);
     f.push_back(cmd & 0xFF);
     for (auto b : payload) f.push_back(b);
-    while (f.size() < 60) f.push_back(0x00);
-    return f;
+    while (f.size() < ETH_MIN_BYTES) f.push_back(0x00);
+    return out;
 }
-static std::vector<uint8_t> aem_cmd(uint16_t cmd, uint16_t seq,
+//! Same, addressed from this suite's default controller.
+static const std::vector<uint8_t>& build_aem_cmd(std::vector<uint8_t>& out,
+                                    uint16_t cmd, uint16_t seq,
                                     const std::vector<uint8_t>& payload) {
-    return aem_cmd2(CTL_MAC, CTLR_ID, cmd, seq, payload);
+    return build_aem_cmd2(out, CTL_MAC, CTLR_ID, cmd, seq, payload);
 }
 
 static void feed_rx(const std::vector<uint8_t>& f) {
@@ -122,6 +148,7 @@ static void feed_rx(const std::vector<uint8_t>& f) {
 
 static std::vector<uint8_t> collect_resp(int budget = 8000) {
     std::vector<uint8_t> b;
+    b.reserve(AEM_RESP_BYTES);          // one allocation, not one per beat run
     int idle = 0;
     dut->m_axis_tready = 1;
     for (int c = 0; c < budget; c++) {
@@ -149,7 +176,7 @@ static int r_be16(const std::vector<uint8_t>& b, size_t off){
 
 static uint16_t seq = 0x7100;
 static std::vector<uint8_t> xact(uint16_t cmd, const std::vector<uint8_t>& pl) {
-    feed_rx(aem_cmd(cmd, seq++, pl));
+    feed_rx(build_aem_cmd(stim, cmd, seq++, pl));
     return collect_resp();
 }
 
@@ -162,6 +189,7 @@ static int r_u(const std::vector<uint8_t>& b){
 
 static std::vector<uint8_t> gm_pl(uint16_t t, uint16_t i, uint16_t page) {
     std::vector<uint8_t> pl;
+    pl.reserve(8);                              // four u16 fields, exactly
     put_be16(pl, t); put_be16(pl, i); put_be16(pl, page); put_be16(pl, 0);
     return pl;
 }
@@ -170,6 +198,7 @@ static std::vector<uint8_t> gm_pl(uint16_t t, uint16_t i, uint16_t page) {
 static std::vector<uint8_t> am_pl(uint16_t t, uint16_t i,
                                   const std::vector<std::array<uint16_t,4>>& m) {
     std::vector<uint8_t> pl;
+    pl.reserve(8 + 8 * m.size());               // 8 B header + 8 B per record
     put_be16(pl, t); put_be16(pl, i);
     put_be16(pl, (uint16_t)m.size()); put_be16(pl, 0);
     for (auto& r : m) { for (int k = 0; k < 4; k++) put_be16(pl, r[k]); }
@@ -276,7 +305,7 @@ int main(int argc, char** argv) {
     //! ================================================================
     printf("\n[5] u=1 replay re-runs the commit: same key, same word\n");
     {
-        feed_rx(aem_cmd2(CTL2_MAC, CTLR2_ID, CMD_REG_UNSOL, seq++, {}));
+        feed_rx(build_aem_cmd2(stim, CTL2_MAC, CTLR2_ID, CMD_REG_UNSOL, seq++, {}));
         auto r = collect_resp();
         ck("ctlr2 REGISTER SUCCESS", r_status(r), 0);
         take_wrs();
@@ -307,7 +336,7 @@ int main(int argc, char** argv) {
         ck("identity ch2 restored SUCCESS", r_status(r), 0);
         collect_resp();
         take_wrs();
-        feed_rx(aem_cmd2(CTL2_MAC, CTLR2_ID, CMD_DEREG_UNSOL, seq++, {}));
+        feed_rx(build_aem_cmd2(stim, CTL2_MAC, CTLR2_ID, CMD_DEREG_UNSOL, seq++, {}));
         r = collect_resp();
         ck("ctlr2 DEREGISTER SUCCESS", r_status(r), 0);
     }
@@ -341,10 +370,10 @@ int main(int argc, char** argv) {
     printf("\n[8] controller retry (same sequence_id) stays on key\n");
     {
         take_wrs();
-        feed_rx(aem_cmd(CMD_ADD_MAP, 0x7F00, am_pl(SPO, 0, {{{0,4,8,0}}})));
+        feed_rx(build_aem_cmd(stim, CMD_ADD_MAP, 0x7F00, am_pl(SPO, 0, {{{0,4,8,0}}})));
         auto r = collect_resp();
         ck("ADD {0,4,8,0} SUCCESS", r_status(r), 0);
-        feed_rx(aem_cmd(CMD_ADD_MAP, 0x7F00, am_pl(SPO, 0, {{{0,4,8,0}}})));
+        feed_rx(build_aem_cmd(stim, CMD_ADD_MAP, 0x7F00, am_pl(SPO, 0, {{{0,4,8,0}}})));
         r = collect_resp();
         ck("retry answered SUCCESS", r_status(r), 0);
         auto w = take_wrs();

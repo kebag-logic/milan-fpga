@@ -67,9 +67,22 @@ static void put_be(std::vector<uint8_t>& b, uint64_t v, int n) {
     for (int i = n - 1; i >= 0; i--) b.push_back((v >> (8 * i)) & 0xFF);
 }
 
-static std::vector<uint8_t> acmp_cmd(int msg, uint64_t talker, uint16_t tuid,
+//! 70 B = 14 Ethernet + 4 AVTP common header + 52 ACMPDU (1722.1 8.2.1)
+static const size_t ACMP_FRAME_BYTES = 70;
+
+//! One reusable stimulus buffer for the whole run: the builder fills it through
+//! a reference and clear() keeps its capacity, so the command bytes cost ONE
+//! allocation for the entire simulation rather than a malloc plus three or four
+//! reallocs per frame.
+static std::vector<uint8_t> stim;
+
+//! Fill `out` with an ACMP command frame and hand back a reference to it.
+static const std::vector<uint8_t>& build_acmp_cmd(std::vector<uint8_t>& out,
+                                     int msg, uint64_t talker, uint16_t tuid,
                                      uint16_t seq, uint16_t flags = 0) {
-    std::vector<uint8_t> b;
+    out.clear();                              // clear KEEPS the capacity
+    out.reserve(ACMP_FRAME_BYTES);
+    std::vector<uint8_t>& b = out;
     put_be(b, 0x91E0F0010000ULL, 6);
     put_be(b, CTRL_ID >> 16, 6);
     put_be(b, 0x22F0, 2);
@@ -88,7 +101,7 @@ static std::vector<uint8_t> acmp_cmd(int msg, uint64_t talker, uint16_t tuid,
     put_be(b, flags, 2);
     put_be(b, 42, 2);                         // stream_vlan_id (junk)
     put_be(b, 0xBEEF, 2);
-    return b;
+    return out;
 }
 
 static void feed(const std::vector<uint8_t>& f) {
@@ -136,6 +149,7 @@ static void feed_parked(const std::vector<uint8_t>& f, int park_beat,
 
 static std::vector<uint8_t> collect(int maxc = 300) {
     std::vector<uint8_t> b;
+    b.reserve(ACMP_FRAME_BYTES);        // every frame this DUT emits is an ACMPDU
     for (int c = 0; c < maxc; c++) {
         dut->m_axis_tready = 1;
         lo();
@@ -192,7 +206,7 @@ int main(int argc, char** argv) {
     // 1) GET_TX_STATE per uid: LIVE per-source stream params; Table 5.47
     //    zeroes the listener ids on success (talker_unique_id still echoes)
     for (int uid = 0; uid < 4; uid++) {
-        feed(acmp_cmd(4, ENTITY_ID, uid, 0x0100 + uid, 0x004A));
+        feed(build_acmp_cmd(stim, 4, ENTITY_ID, uid, 0x0100 + uid, 0x004A));
         auto r = collect();
         ck("[T1] frame length 70", r.size(), 70);
         if (r.size() == 70) {
@@ -209,14 +223,14 @@ int main(int argc, char** argv) {
     ck("[T1] GET_TX_STATE arms nothing", dut->probe_armed_o, 0);
 
     // 2) uid 4 -> TALKER_UNKNOWN_ID, echo
-    feed(acmp_cmd(4, ENTITY_ID, 4, 0x0200));
+    feed(build_acmp_cmd(stim, 4, ENTITY_ID, 4, 0x0200));
     auto r = collect();
     ck("[T2] uid4 TALKER_UNKNOWN_ID", r.size() == 70 ? (r[16] >> 3) : 0, 2);
     ck("[T2] uid4 stream_id echoed", be(r, 18, 8), 0x1122334455667788ULL);
 
     // 3) PROBE uid1 arms ONLY context 1; Table 5.43 flags = FC/SW echoed,
     //    REG_FAILED forced 0; listener ids ECHO on probe success
-    feed(acmp_cmd(0, ENTITY_ID, 1, 0x0300, 0x004A));
+    feed(build_acmp_cmd(stim, 0, ENTITY_ID, 1, 0x0300, 0x004A));
     r = collect();
     ck("[T3] probe resp SUCCESS", r[16] >> 3, 0);
     ck("[T3] probe stream_id {mac,1}", be(r, 18, 8), (STATION << 16) | 1);
@@ -227,11 +241,11 @@ int main(int argc, char** argv) {
     ck("[T3] active == bit1", dut->talker_active_o, 0x2);
 
     // 4) staggered windows on ONE sweep: uid0 now, uid2 five ticks later
-    feed(acmp_cmd(0, ENTITY_ID, 0, 0x0400));
+    feed(build_acmp_cmd(stim, 0, ENTITY_ID, 0, 0x0400));
     (void)collect();
     ck("[T4] armed bits {1,0}", dut->probe_armed_o, 0x3);
     for (int t = 0; t < 5; t++) tick();
-    feed(acmp_cmd(0, ENTITY_ID, 2, 0x0401));
+    feed(build_acmp_cmd(stim, 0, ENTITY_ID, 2, 0x0401));
     (void)collect();
     ck("[T4] armed bits {2,1,0}", dut->probe_armed_o, 0x7);
     for (int t = 0; t < 10; t++) tick();       // uid0/1 at 15 ticks -> drop
@@ -241,7 +255,7 @@ int main(int argc, char** argv) {
     ck("[T4] inactive", dut->talker_active_o, 0x0);
 
     // 5) listener_observed pins ONE context past expiry
-    feed(acmp_cmd(0, ENTITY_ID, 2, 0x0500));
+    feed(build_acmp_cmd(stim, 0, ENTITY_ID, 2, 0x0500));
     (void)collect();
     dut->listener_observed_i = (1 << 2);
     for (int t = 0; t < 20; t++) tick();
@@ -253,9 +267,9 @@ int main(int argc, char** argv) {
 
     // 6) DISCONNECT_TX: SUCCESS, zeroed fields, all three flags 0
     //    (Table 5.45), listener ids ECHO, NO state change (5.5.4.2)
-    feed(acmp_cmd(0, ENTITY_ID, 3, 0x0600));
+    feed(build_acmp_cmd(stim, 0, ENTITY_ID, 3, 0x0600));
     (void)collect();
-    feed(acmp_cmd(2, ENTITY_ID, 3, 0x0601, 0x004A));
+    feed(build_acmp_cmd(stim, 2, ENTITY_ID, 3, 0x0601, 0x004A));
     r = collect();
     ck("[T6] disc SUCCESS", r[16] >> 3, 0);
     ck("[T6] disc stream_id zeroed", be(r, 18, 8), 0);
@@ -265,7 +279,7 @@ int main(int argc, char** argv) {
     ck("[T6] disc does NOT disarm ctx3", dut->probe_armed_o, 0x8);
 
     // 7) GET_TX_CONNECTION -> NOT_SUPPORTED (5.5.4.4)
-    feed(acmp_cmd(12, ENTITY_ID, 0, 0x0700));
+    feed(build_acmp_cmd(stim, 12, ENTITY_ID, 0, 0x0700));
     r = collect();
     ck("[T7] gtc NOT_SUPPORTED", r[16] >> 3, 31);
 
@@ -274,29 +288,29 @@ int main(int argc, char** argv) {
     //    GET_TX_STATE may read 0x0040, its neighbors stay 0x0000, and the
     //    PROBE table forces RF 0 even on the failing source.
     dut->lstn_ask_fail_i = (1 << 2);         // source 2 alone is failing
-    feed(acmp_cmd(4, ENTITY_ID, 2, 0x0800, 0x004A));
+    feed(build_acmp_cmd(stim, 4, ENTITY_ID, 2, 0x0800, 0x004A));
     r = collect();
     ck("[T8] uid2 GTS: SUCCESS", r.size() == 70 ? (r[16] >> 3) : 31, 0);
     ck("[T8] uid2 GTS: flags 0x0040 (laf live)",
        r.size() == 70 ? be(r, 64, 2) : 0, 0x0040);
-    feed(acmp_cmd(4, ENTITY_ID, 2, 0x0801, 0x0000));
+    feed(build_acmp_cmd(stim, 4, ENTITY_ID, 2, 0x0801, 0x0000));
     r = collect();
     ck("[T8] uid2 GTS cmd-flags 0: still 0x0040",
        r.size() == 70 ? be(r, 64, 2) : 0, 0x0040);
-    feed(acmp_cmd(4, ENTITY_ID, 1, 0x0802, 0x004A));
+    feed(build_acmp_cmd(stim, 4, ENTITY_ID, 1, 0x0802, 0x004A));
     r = collect();
     ck("[T8] uid1 GTS: flags 0x0000 (isolated)",
        r.size() == 70 ? be(r, 64, 2) : 0xFFFF, 0x0000);
-    feed(acmp_cmd(4, ENTITY_ID, 3, 0x0803, 0x004A));
+    feed(build_acmp_cmd(stim, 4, ENTITY_ID, 3, 0x0803, 0x004A));
     r = collect();
     ck("[T8] uid3 GTS: flags 0x0000 (isolated)",
        r.size() == 70 ? be(r, 64, 2) : 0xFFFF, 0x0000);
-    feed(acmp_cmd(0, ENTITY_ID, 2, 0x0804, 0x004A));
+    feed(build_acmp_cmd(stim, 0, ENTITY_ID, 2, 0x0804, 0x004A));
     r = collect();
     ck("[T8] uid2 PROBE: RF stays forced 0 (T5.43)",
        r.size() == 70 ? be(r, 64, 2) : 0xFFFF, 0x000A);
     dut->lstn_ask_fail_i = 0;
-    feed(acmp_cmd(4, ENTITY_ID, 2, 0x0805, 0x004A));
+    feed(build_acmp_cmd(stim, 4, ENTITY_ID, 2, 0x0805, 0x004A));
     r = collect();
     ck("[T8] uid2 GTS after drop: 0x0000",
        r.size() == 70 ? be(r, 64, 2) : 0xFFFF, 0x0000);
@@ -311,7 +325,7 @@ int main(int argc, char** argv) {
         for (int t = 0; t < 16; t++) tick();
         ck("[T9] pre: all disarmed", dut->probe_armed_o, 0x0);
         dut->src_dmac_valid_i = 0xF & ~(1 << 1);
-        feed(acmp_cmd(0, ENTITY_ID, 1, 0x0900, 0x004A));
+        feed(build_acmp_cmd(stim, 0, ENTITY_ID, 1, 0x0900, 0x004A));
         r = collect();
         ck("[T9] uid1 probe frame length", r.size(), 70);
         if (r.size() == 70) {
@@ -323,21 +337,21 @@ int main(int argc, char** argv) {
             ck("[T9] uid1 count echoed", be(r, 60, 2), 3);
         }
         ck("[T9] uid1 window ARMS on reception", dut->probe_armed_o, 0x2);
-        feed(acmp_cmd(0, ENTITY_ID, 0, 0x0901, 0x004A));
+        feed(build_acmp_cmd(stim, 0, ENTITY_ID, 0, 0x0901, 0x004A));
         r = collect();
         ck("[T9] uid0 probe SUCCESS (isolated)",
            r.size() == 70 ? (r[16] >> 3) : 31, 0);
         ck("[T9] uid0 dest_mac LIVE", r.size() == 70 ? be(r, 54, 6) : 0,
            src_dmac(0));
         ck("[T9] both windows armed", dut->probe_armed_o, 0x3);
-        feed(acmp_cmd(4, ENTITY_ID, 1, 0x0902, 0x004A));
+        feed(build_acmp_cmd(stim, 4, ENTITY_ID, 1, 0x0902, 0x004A));
         r = collect();
         ck("[T9] uid1 GTS unaffected: SUCCESS",
            r.size() == 70 ? (r[16] >> 3) : 31, 0);
         ck("[T9] uid1 GTS dest_mac LIVE", r.size() == 70 ? be(r, 54, 6) : 0,
            src_dmac(1));
         dut->src_dmac_valid_i = 0xF;
-        feed(acmp_cmd(0, ENTITY_ID, 1, 0x0903, 0x004A));
+        feed(build_acmp_cmd(stim, 0, ENTITY_ID, 1, 0x0903, 0x004A));
         r = collect();
         ck("[T9] uid1 restored: probe SUCCESS",
            r.size() == 70 ? (r[16] >> 3) : 31, 0);
@@ -352,7 +366,8 @@ int main(int argc, char** argv) {
         printf("\n[PARK] parked-lane torture (gh #65)\n");
         uint16_t cc0 = dut->cmd_count_o, rc0 = dut->resp_count_o;
         uint8_t  armed0 = dut->probe_armed_o;
-        feed_parked(acmp_cmd(0, ENTITY_ID, 2, 0x0A01, 0x0000), 3, 600);
+        feed_parked(build_acmp_cmd(stim, 0, ENTITY_ID, 2, 0x0A01, 0x0000),
+                    3, 600);
         auto r = collect();
         ck("[PARK] answered first-shot, frame length 70", r.size(), 70);
         if (r.size() == 70) {

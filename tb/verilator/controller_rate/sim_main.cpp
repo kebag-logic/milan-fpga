@@ -50,6 +50,7 @@ int main(int argc, char** argv) {
     long last_prog = 0;
     uint64_t egress_frames=0, cur=0, integrity_fails=0, total_out_bytes=0;
     std::vector<uint8_t> obuf;
+    obuf.reserve(1514);     // one MTU frame; clear() below keeps the capacity
     int beat=0; size_t mi=0;
     std::vector<uint8_t>* fp=&mix[0].first;
     int flen = (int)mix[0].second;

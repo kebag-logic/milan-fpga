@@ -112,7 +112,14 @@ struct Msg {
 };
 
 static std::vector<uint8_t> encode_msg(const Msg& m) {
+    // AttributeList: per vector a 2 B VectorHeader, the FirstValue, ceil(nv/3)
+    // three-packed event octets and (listener) ceil(nv/4) four-packed
+    // declarations; plus the 2 B vector-list EndMark.
+    size_t want = 2;
+    for (const auto& v : m.vecs)
+        want += 2 + v.fv.size() + (v.nv + 2) / 3 + (v.nv + 3) / 4;
     std::vector<uint8_t> body;
+    body.reserve(want);
     for (const auto& v : m.vecs) {
         put_be(body, (uint64_t)((v.lva << 13) | v.nv), 2);
         body.insert(body.end(), v.fv.begin(), v.fv.end());
@@ -136,6 +143,7 @@ static std::vector<uint8_t> encode_msg(const Msg& m) {
     }
     put_be(body, 0, 2);                  // vector-list EndMark
     std::vector<uint8_t> out;
+    out.reserve(4 + body.size());       // type + len + AttributeListLength
     out.push_back((uint8_t)m.type);
     out.push_back((uint8_t)m.len);
     if (m.msrp) put_be(out, body.size(), 2);   // AttributeListLength
@@ -146,6 +154,7 @@ static std::vector<uint8_t> encode_msg(const Msg& m) {
 static std::vector<uint8_t> frame(bool msrp, const std::vector<Msg>& msgs,
                                   int pad_to = 60) {
     std::vector<uint8_t> f;
+    f.reserve(pad_to);                  // 14 B header + messages, padded here
     put_be(f, msrp ? 0x0180C200000EULL : 0x0180C2000021ULL, 6);
     put_be(f, BRIDGE, 6);
     put_be(f, msrp ? 0x22EA : 0x88F5, 2);
@@ -161,20 +170,24 @@ static std::vector<uint8_t> frame(bool msrp, const std::vector<Msg>& msgs,
 
 // FirstValue helpers
 static std::vector<uint8_t> fv_listener(uint64_t base_sid) {
-    std::vector<uint8_t> v; put_be(v, base_sid, 8); return v;
+    std::vector<uint8_t> v; v.reserve(8);      // the StreamID, exactly
+    put_be(v, base_sid, 8); return v;
 }
 static std::vector<uint8_t> fv_domain(int cls, int prio, int vid) {
     std::vector<uint8_t> v;
+    v.reserve(4);                       // class + prio + 2 B vid
     v.push_back(cls); v.push_back(prio); put_be(v, vid, 2);
     return v;
 }
 static std::vector<uint8_t> fv_talker(uint64_t sid) {          // 25 B
-    std::vector<uint8_t> v; put_be(v, sid, 8);
+    std::vector<uint8_t> v; v.reserve(25);
+    put_be(v, sid, 8);
     for (int i = 0; i < 17; i++) v.push_back(0xA0 + i);
     return v;
 }
 static std::vector<uint8_t> fv_tfail(uint64_t sid, uint8_t code) { // 34 B
     auto v = fv_talker(sid);
+    v.reserve(34);                      // + 8 B BridgeID + 1 B failure code
     put_be(v, BRIDGE << 16, 8);          // BridgeID
     v.push_back(code);
     return v;

@@ -69,10 +69,22 @@ static void put_be(std::vector<uint8_t>& b, uint64_t v, int n) {
     for (int i = n - 1; i >= 0; i--) b.push_back((v >> (8 * i)) & 0xFF);
 }
 
-// 70-byte ACMP command frame
-static std::vector<uint8_t> acmp_cmd(int msg, uint64_t talker, uint16_t tuid,
+//! 70 B = 14 Ethernet + 4 AVTP common header + 52 ACMPDU (1722.1 8.2.1)
+static const size_t ACMP_FRAME_BYTES = 70;
+
+//! One reusable stimulus buffer for the whole run: the builder fills it through
+//! a reference and clear() keeps its capacity, so the command bytes cost ONE
+//! allocation for the entire simulation rather than a malloc plus three or four
+//! reallocs per frame.
+static std::vector<uint8_t> stim;
+
+//! Fill `out` with the 70-byte ACMP command frame, hand back a reference to it.
+static const std::vector<uint8_t>& build_acmp_cmd(std::vector<uint8_t>& out,
+                                     int msg, uint64_t talker, uint16_t tuid,
                                      uint16_t seq, uint16_t flags = 0) {
-    std::vector<uint8_t> b;
+    out.clear();                              // clear KEEPS the capacity
+    out.reserve(ACMP_FRAME_BYTES);
+    std::vector<uint8_t>& b = out;
     put_be(b, 0x91E0F0010000ULL, 6);          // dst = ACMP multicast
     put_be(b, CTRL_ID >> 16, 6);              // src (any controller MAC)
     put_be(b, 0x22F0, 2);
@@ -91,6 +103,15 @@ static std::vector<uint8_t> acmp_cmd(int msg, uint64_t talker, uint16_t tuid,
     put_be(b, flags, 2);
     put_be(b, 42, 2);                         // stream_vlan_id (junk)
     put_be(b, 0xBEEF, 2);                     // reserved (echo test)
+    return out;
+}
+
+//! Thin by-value wrapper, kept for the zero-gap [Z] case that holds its frame
+//! across a hand-rolled drive loop and so genuinely wants its own copy.
+static std::vector<uint8_t> acmp_cmd(int msg, uint64_t talker, uint16_t tuid,
+                                     uint16_t seq, uint16_t flags = 0) {
+    std::vector<uint8_t> b;
+    build_acmp_cmd(b, msg, talker, tuid, seq, flags);
     return b;
 }
 
@@ -141,6 +162,7 @@ static void feed_parked(const std::vector<uint8_t>& f, int park_beat,
 // capture one TX frame (little lane), optional toggling back-pressure
 static std::vector<uint8_t> collect(int bp = 0, int maxc = 300) {
     std::vector<uint8_t> b;
+    b.reserve(ACMP_FRAME_BYTES);        // every frame this DUT emits is an ACMPDU
     int phase = 0;
     for (int c = 0; c < maxc; c++) {
         int rdy = bp ? (phase++ & 1) : 1;
@@ -197,7 +219,7 @@ int main(int argc, char** argv) {
     // 1) GET_TX_STATE, uid 0 -> SUCCESS, count 0, LIVE stream fields,
     //    FAST_CONNECT|STREAMING_WAIT|SRP_REG_FAILED (0x004A) all cleared,
     //    listener_entity_id + listener_unique_id ZEROED (Table 5.47)
-    feed(acmp_cmd(4, ENTITY_ID, 0, 0x0101, /*flags*/0x004A));
+    feed(build_acmp_cmd(stim, 4, ENTITY_ID, 0, 0x0101, /*flags*/0x004A));
     auto r = collect();
     ck("frame length 70", r.size(), 70);
     if (r.size() == 70) {
@@ -225,7 +247,7 @@ int main(int argc, char** argv) {
 
     // 2) GET_TX_STATE, uid 5 -> TALKER_UNKNOWN_ID, body echoed (Table 5.46
     //    keeps the listener ids — the T5.47 zeroing is success-only)
-    feed(acmp_cmd(4, ENTITY_ID, 5, 0x0202, /*flags*/0x004A));
+    feed(build_acmp_cmd(stim, 4, ENTITY_ID, 5, 0x0202, /*flags*/0x004A));
     r = collect();
     ck("bad-uid frame length", r.size(), 70);
     if (r.size() == 70) {
@@ -239,7 +261,7 @@ int main(int argc, char** argv) {
     }
 
     // 3) GET_TX_CONNECTION -> NOT_SUPPORTED (Milan 5.5.4.4)
-    feed(acmp_cmd(12, ENTITY_ID, 0, 0x0303));
+    feed(build_acmp_cmd(stim, 12, ENTITY_ID, 0, 0x0303));
     r = collect();
     ck("gtc frame length", r.size(), 70);
     if (r.size() == 70) {
@@ -253,7 +275,7 @@ int main(int argc, char** argv) {
     //    (0x0008) ECHOED, SRP_REG_FAILED(0x0040) forced 0 (the pipewire
     //    reference inverted this law; the spec table wins). Listener ids
     //    ECHO on probe success (zeroing is GET_TX_STATE-only).
-    feed(acmp_cmd(0, ENTITY_ID, 0, 0x0404, /*flags*/0x004A));
+    feed(build_acmp_cmd(stim, 0, ENTITY_ID, 0, 0x0404, /*flags*/0x004A));
     r = collect();
     ck("probe frame length", r.size(), 70);
     if (r.size() == 70) {
@@ -273,7 +295,7 @@ int main(int argc, char** argv) {
 
     // 4b) PROBE_TX with flags 0x0000: the echo law must not invent bits —
     //     response flags stay 0x0000 (Table 5.43 all-zero-input leg)
-    feed(acmp_cmd(0, ENTITY_ID, 0, 0x0414, /*flags*/0x0000));
+    feed(build_acmp_cmd(stim, 0, ENTITY_ID, 0, 0x0414, /*flags*/0x0000));
     r = collect();
     ck("probe0 frame length", r.size(), 70);
     if (r.size() == 70) {
@@ -285,7 +307,7 @@ int main(int argc, char** argv) {
     // 5) DISCONNECT_TX uid 0: SUCCESS, ZEROED stream fields, all three
     //    named flags 0 (Table 5.45), listener ids still ECHO, NO state
     //    change (Milan 5.5.4.2 — not even deactivation)
-    feed(acmp_cmd(2, ENTITY_ID, 0, 0x0505, /*flags*/0x004A));
+    feed(build_acmp_cmd(stim, 2, ENTITY_ID, 0, 0x0505, /*flags*/0x004A));
     r = collect();
     ck("disc frame length", r.size(), 70);
     if (r.size() == 70) {
@@ -302,7 +324,7 @@ int main(int argc, char** argv) {
     ck("disconnect does NOT disarm", dut->probe_armed_o, 1);
 
     // 6) PROBE_TX uid 5 -> TALKER_UNKNOWN_ID
-    feed(acmp_cmd(0, ENTITY_ID, 5, 0x0606));
+    feed(build_acmp_cmd(stim, 0, ENTITY_ID, 5, 0x0606));
     r = collect();
     ck("probe bad-uid status", r.size() == 70 ? (r[16] >> 3) : 0, 2);
 
@@ -314,11 +336,11 @@ int main(int argc, char** argv) {
     ck("talker_active drops", dut->talker_active_o, 0);
 
     // 8) a fresh probe re-arms and resets the window
-    feed(acmp_cmd(0, ENTITY_ID, 0, 0x0707));
+    feed(build_acmp_cmd(stim, 0, ENTITY_ID, 0, 0x0707));
     (void)collect();
     ck("re-armed", dut->probe_armed_o, 1);
     for (int t = 0; t < 14; t++) tick();
-    feed(acmp_cmd(0, ENTITY_ID, 0, 0x0808));   // re-arm inside the window
+    feed(build_acmp_cmd(stim, 0, ENTITY_ID, 0, 0x0808));   // re-arm inside the window
     (void)collect();
     for (int t = 0; t < 14; t++) tick();
     ck("window restarted by mid-window probe", dut->probe_armed_o, 1);
@@ -340,15 +362,15 @@ int main(int argc, char** argv) {
     dut->eval();
 
     // 11) other talker's command -> silence
-    feed(acmp_cmd(4, 0xDEADBEEF00000001ULL, 0, 0x0909));
+    feed(build_acmp_cmd(stim, 4, 0xDEADBEEF00000001ULL, 0, 0x0909));
     expect_silence("other-talker command ignored");
 
     // 12) response-typed message (odd) -> silence
-    feed(acmp_cmd(5, ENTITY_ID, 0, 0x0A0A));
+    feed(build_acmp_cmd(stim, 5, ENTITY_ID, 0, 0x0A0A));
     expect_silence("response message ignored");
 
     // 13) back-pressure: byte-exact under toggling tready
-    feed(acmp_cmd(4, ENTITY_ID, 0, 0x0B0B));
+    feed(build_acmp_cmd(stim, 4, ENTITY_ID, 0, 0x0B0B));
     r = collect(/*bp=*/1);
     ck("bp frame length", r.size(), 70);
     if (r.size() == 70) {
@@ -403,7 +425,7 @@ int main(int argc, char** argv) {
         for (int t = 0; t < 16; t++) tick();
         ck("[A3] pre: disarmed", dut->probe_armed_o, 0);
         dut->src_dmac_valid_i = 0;
-        feed(acmp_cmd(0, ENTITY_ID, 0, 0x0C0C, /*flags*/0x004A));
+        feed(build_acmp_cmd(stim, 0, ENTITY_ID, 0, 0x0C0C, /*flags*/0x004A));
         r = collect();
         ck("[A3] frame length 70", r.size(), 70);
         if (r.size() == 70) {
@@ -422,7 +444,7 @@ int main(int argc, char** argv) {
         ck("[A3] window ARMS on reception anyway", dut->probe_armed_o, 1);
         ck("[A3] talker_active with it", dut->talker_active_o, 1);
         // GET_TX_STATE unaffected: SUCCESS + LIVE params while invalid
-        feed(acmp_cmd(4, ENTITY_ID, 0, 0x0C0D, /*flags*/0x004A));
+        feed(build_acmp_cmd(stim, 4, ENTITY_ID, 0, 0x0C0D, /*flags*/0x004A));
         r = collect();
         ck("[A3] GTS-unaffected frame length", r.size(), 70);
         if (r.size() == 70) {
@@ -432,7 +454,7 @@ int main(int argc, char** argv) {
         }
         // restore: the very next probe is a full Table 5.43 SUCCESS
         dut->src_dmac_valid_i = 1;
-        feed(acmp_cmd(0, ENTITY_ID, 0, 0x0C0E, /*flags*/0x004A));
+        feed(build_acmp_cmd(stim, 0, ENTITY_ID, 0, 0x0C0E, /*flags*/0x004A));
         r = collect();
         ck("[A3] restored frame length", r.size(), 70);
         if (r.size() == 70) {
@@ -449,7 +471,7 @@ int main(int argc, char** argv) {
     //   DISCONNECT tables keep their own flag laws even while failing.
     {
         dut->lstn_ask_fail_i = 1;
-        feed(acmp_cmd(4, ENTITY_ID, 0, 0x0D0D, /*flags*/0x004A));
+        feed(build_acmp_cmd(stim, 4, ENTITY_ID, 0, 0x0D0D, /*flags*/0x004A));
         r = collect();
         ck("[A2] GTS laf=1 frame length", r.size(), 70);
         if (r.size() == 70) {
@@ -457,12 +479,12 @@ int main(int argc, char** argv) {
             ck("[A2] GTS laf=1, cmd 0x004A -> flags 0x0040", be(r, 64, 2), 0x0040);
             ck("[A2] listener ids still ZEROED", be(r, 42, 8) | be(r, 52, 2), 0);
         }
-        feed(acmp_cmd(4, ENTITY_ID, 0, 0x0D0E, /*flags*/0x0000));
+        feed(build_acmp_cmd(stim, 4, ENTITY_ID, 0, 0x0D0E, /*flags*/0x0000));
         r = collect();
         ck("[A2] GTS laf=1, cmd 0x0000 -> flags 0x0040",
            r.size() == 70 ? be(r, 64, 2) : 0, 0x0040);
         // PROBE while failing: Table 5.43 still forces RF 0 (echo FC/SW)
-        feed(acmp_cmd(0, ENTITY_ID, 0, 0x0D0F, /*flags*/0x004A));
+        feed(build_acmp_cmd(stim, 0, ENTITY_ID, 0, 0x0D0F, /*flags*/0x004A));
         r = collect();
         ck("[A2] probe laf=1 frame length", r.size(), 70);
         if (r.size() == 70) {
@@ -470,13 +492,13 @@ int main(int argc, char** argv) {
             ck("[A2] probe laf=1: flags STILL 0x000A", be(r, 64, 2), 0x000A);
         }
         // DISCONNECT while failing: Table 5.45 keeps all three 0
-        feed(acmp_cmd(2, ENTITY_ID, 0, 0x0D10, /*flags*/0x004A));
+        feed(build_acmp_cmd(stim, 2, ENTITY_ID, 0, 0x0D10, /*flags*/0x004A));
         r = collect();
         ck("[A2] disc laf=1: flags STILL 0x0000",
            r.size() == 70 ? be(r, 64, 2) : 0xFFFF, 0x0000);
         // drop the failure: RF reads 0 again
         dut->lstn_ask_fail_i = 0;
-        feed(acmp_cmd(4, ENTITY_ID, 0, 0x0D11, /*flags*/0x004A));
+        feed(build_acmp_cmd(stim, 4, ENTITY_ID, 0, 0x0D11, /*flags*/0x004A));
         r = collect();
         ck("[A2] laf=0: GTS flags back to 0x0000",
            r.size() == 70 ? be(r, 64, 2) : 0xFFFF, 0x0000);
