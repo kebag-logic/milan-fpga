@@ -523,9 +523,9 @@ module KL_aecp_response_builder (
   //! branch fires, w_pend5_any is 0 by construction, so the index the
   //! emitting branch latches is always the index this mux was serving.
   assign gs_diag_idx_o = (state_r == IDLE_S && w_pend5_any)
-                       ? w_unsol_push5_oidx
+                       ? 4'(w_unsol_push5_oidx)
                        : (state_r == IDLE_S && w_pend10_any)
-                       ? w_unsol_push10_oidx
+                       ? 4'(w_unsol_push10_oidx)
                        : w_gs_index[3:0];
   //! SET_STREAM_INFO (Milan §5.4.2.9): payload byte n = buf_r[n+2] — flags at
   //! payload 4-7, msrp_accumulated_latency at payload 24-27.
@@ -917,11 +917,22 @@ module KL_aecp_response_builder (
   // ------------------------------------------------------------------ //
   typedef enum logic [1:0] { SEG_NONE, SEG_ECHO, SEG_STORE, SEG_CONST } seg_kind_t;
 
-  localparam int unsigned SEGN_C = 16;   //! response segments (0x4B needs 15)
+  //! Response segments. FOUR is the whole plan: every arm that fills the
+  //! file writes seg 0..3 by literal index and clears the rest, so segments
+  //! 4..15 were never anything but zero-length holes the walk skipped. The
+  //! cum pipeline below still runs its FOUR phases (the beat cadence is
+  //! observable), it just accumulates on phase 0, where the whole file is.
+  localparam int unsigned SEGN_C = 4;
+  localparam int unsigned SEGW_C = (SEGN_C <= 1) ? 1 : $clog2(SEGN_C);
   seg_kind_t   seg_kind_q [0:SEGN_C-1];
   logic [15:0] seg_addr_q [0:SEGN_C-1]; //! ECHO: buf offset · STORE: store addr · CONST: const offset
   logic [15:0] seg_len_q  [0:SEGN_C-1];
-  logic [7:0]  const_q [0:95];   //! scratch for CONST segments (0x4B uses 78)
+  //! scratch for CONST segments. The high-water mark is the GET_AUDIO_MAP
+  //! page walk: 6 + 8*(AEM_DMAP_PAGE_C-1) + 7, i.e. index 69 at the PAGE 8
+  //! every shipping shape carries, and gen_aem_store refuses a PAGE that
+  //! would reach past this array. 0x4B's own worst case is 78 bytes.
+  localparam int unsigned CONSTN_C = 80;
+  logic [7:0]  const_q [0:CONSTN_C-1];
   logic [10:0] cdl_q;
   logic [4:0]  status_q;
   logic [3:0]  msg_resp_q;
@@ -1123,16 +1134,18 @@ module KL_aecp_response_builder (
   //! this command's intent, per stream channel of the addressed port:
   //! oclaim_r = "a record of this command writes this channel" (ADD also
   //! REJECTS a second record on a claimed channel - Milan 5.4.2.27's
-  //! same-stream-channel conflict), opend_co_r = the cluster it will leave
-  //! there. Together they are the POST-COMMAND view rule 3 must judge
-  //! against, and they are what lets the RMW compose WITHIN one command
-  //! whatever order the records arrive in.
+  //! same-stream-channel conflict), which is what lets the RMW compose
+  //! WITHIN one command whatever order the records arrive in. Its former
+  //! companion (the cluster each claim would leave behind) went with rules
+  //! 2 and 3 when 0x0027 retired the pair law: nothing reads a pending
+  //! cluster any more, so nothing stores one.
   logic [7:0]            oclaim_r;
-  logic [4:0]            opend_co_r [0:7];
   logic [1:0]            od_pass_q;  //! 0 = judge, 2 = commit (1 retired with the pair law)
   logic                  dm_out_q;   //! walk direction: 1 = output port
-  //! dispatch-latched addressed-port facts (the walk reads no descriptor)
-  logic [3:0]            od_pidx_q;
+  //! dispatch-latched addressed-port facts (the walk reads no descriptor).
+  //! The port index itself is NOT among them: every consumer wants one of
+  //! the facts derived from it, and od_kb_q already carries the only form
+  //! the walk asks for.
   logic [ODMAP_KW_C-1:0] od_kb_q;    //! key base = pidx * 8
   logic [6:0]            od_cb_q;    //! CSRC base (AEM_ODMAP_PCBASE_C)
   logic [4:0]            od_pcls_q;
@@ -1326,14 +1339,14 @@ module KL_aecp_response_builder (
   //! payload byte index -> (segment, offset within segment); in batch
   //! mode the walk is relative to the current record's data region
   wire [15:0] w_pi = fi_r - w_hdr_len - (batch_q ? brec_base_q : 16'd0);
-  logic [3:0]  w_seg;
+  logic [SEGW_C-1:0] w_seg;
   logic [15:0] w_soff;
   always_comb begin
-    w_seg  = 4'd0;
+    w_seg  = '0;
     w_soff = w_pi;
     for (int k = 1; k < SEGN_C; k++)
       if (w_pi >= cum_q[k] && seg_len_q[k] != 16'd0) begin
-        w_seg  = 4'(k);
+        w_seg  = SEGW_C'(k);
         w_soff = w_pi - cum_q[k];
       end
   end
@@ -1583,12 +1596,24 @@ module KL_aecp_response_builder (
   //! STREAM_OUTPUT counter push state: dirty + 1 s window, PER
   //! DESCRIPTOR - Table 5.22's restriction is "per descriptor per second"
   //! and the talker has one Table 5.4 context per Stream Output (every
-  //! AAF source + the CRF Media Clock Output). Sized to the full 4-bit
-  //! index space; indexes the datapath never wires are tied 0 at the
-  //! instance and their limiters constant-propagate away. Every limiter
-  //! resets SATURATED so the first change pushes immediately (reference:
-  //! last_emit == 0 -> elapsed).
-  localparam int unsigned TKD_MAX_C = 16;
+  //! AAF source + the CRF Media Clock Output). Sized to THIS entity's own
+  //! Stream Output count, because a push names a descriptor and a
+  //! descriptor this AEM does not declare can never be pushed: the
+  //! dirty-pulse port is zero-extended at the datapath instance
+  //! (milan_datapath tkdiag_dirty_p_i), so every lane at or above
+  //! AEM_N_STROUT_C is a hard zero and its limiter carried no state. Every
+  //! limiter resets SATURATED so the first change pushes immediately
+  //! (reference: last_emit == 0 -> elapsed).
+`ifdef AEM_PER_STREAM_FMT
+  localparam int unsigned TKD_MAX_C = AEM_N_STROUT_C;
+`else
+  //! legacy svh layout = the deployed 1-STREAM_OUTPUT shape, the same arm
+  //! PRES_N_C takes above (that svh publishes no descriptor counts)
+  localparam int unsigned TKD_MAX_C = 1;
+`endif
+  //! index width for the bitmaps below; the descriptor_index the payload
+  //! carries is still a full 4-bit field, zero-extended at each consumer
+  localparam int unsigned TKDW_C = (TKD_MAX_C <= 1) ? 1 : $clog2(TKD_MAX_C);
   logic [TKD_MAX_C-1:0] out_dirty_r;
   logic [9:0]           out_rl_ms_r [TKD_MAX_C];
   logic [TKD_MAX_C-1:0] w_out_rl_ok;
@@ -1600,8 +1625,18 @@ module KL_aecp_response_builder (
   //! STREAM_INPUT counter push state (gh #60 F2): the SO shape mirrored
   //! onto the sink side - one dirty + 1 s window PER descriptor, bit k =
   //! sink k's monitor context (sink 0 included: gh #60 F3 retired the
-  //! legacy stream-0-only class and its in0_* payload ports).
-  localparam int unsigned RXD_MAX_C = 16;
+  //! legacy stream-0-only class and its in0_* payload ports). Sized to
+  //! THIS entity's Stream Input count, by the TKD_MAX_C argument above -
+  //! rxdiag_dirty_p_i is zero-extended from an N_STREAMS-wide vector at the
+  //! datapath instance and AEM_N_STRIN_C is N_STREAMS + the CRF Media Clock
+  //! Input, so no live pulse is dropped.
+`ifdef AEM_PER_STREAM_FMT
+  localparam int unsigned RXD_MAX_C = AEM_N_STRIN_C;
+`else
+  //! legacy svh layout: the deployed sink pair, one AAF + one CRF
+  localparam int unsigned RXD_MAX_C = 2;
+`endif
+  localparam int unsigned RXDW_C = (RXD_MAX_C <= 1) ? 1 : $clog2(RXD_MAX_C);
   logic [RXD_MAX_C-1:0] in_dirty_r;
   logic [9:0]           in_rl_ms_r [RXD_MAX_C];
   logic [RXD_MAX_C-1:0] w_in_rl_ok;
@@ -1742,7 +1777,7 @@ module KL_aecp_response_builder (
   logic [1:0]               w_unsol_push4_idx;  //! lowest replay-pending slot
   logic                     w_unsol_anyvalid;   //! any registered controller
   logic                     w_pend5_any;        //! any talker-counters push owed
-  logic [3:0]               w_unsol_push5_oidx; //! its lowest descriptor index
+  logic [TKDW_C-1:0]        w_unsol_push5_oidx; //! its lowest descriptor index
   logic [1:0]               w_unsol_push5_idx;  //! lowest slot owing THAT index
   logic                     w_pend6_any;        //! any input stream-info push owed
   logic                     w_unsol_push6_k;    //! which sink (0=sink0, 1=CRF)
@@ -1751,7 +1786,7 @@ module KL_aecp_response_builder (
   logic [1:0]               w_unsol_push8_idx;  //! lowest AS_PATH-pending slot
   logic [1:0]               w_unsol_push9_idx;  //! lowest CLOCK_DOMAIN-pending slot
   logic                     w_pend10_any;       //! any input-counters push owed
-  logic [3:0]               w_unsol_push10_oidx;//! its lowest descriptor index
+  logic [RXDW_C-1:0]        w_unsol_push10_oidx;//! its lowest descriptor index
   logic [1:0]               w_unsol_push10_idx; //! lowest slot owing THAT index
   logic [1:0]               w_unsol_push11_idx; //! lowest CRF-counters-pending slot
   logic [1:0]               w_unsol_push12_idx; //! lowest lock-expiry-pending slot
@@ -1777,13 +1812,13 @@ module KL_aecp_response_builder (
     //! talker-counters push pick: lowest pending descriptor index, then
     //! the lowest slot owing it (descending loops - last assignment wins)
     w_pend5_any        = 1'b0;
-    w_unsol_push5_oidx = 4'd0;
+    w_unsol_push5_oidx = '0;
     w_unsol_push5_idx  = 2'd0;
     for (int k = TKD_MAX_C-1; k >= 0; k--)
       for (int s = UNSOL_SLOTS_C-1; s >= 0; s--)
         if (unsol_pend5_r[s][k]) begin
           w_pend5_any        = 1'b1;
-          w_unsol_push5_oidx = 4'(k);
+          w_unsol_push5_oidx = TKDW_C'(k);
           w_unsol_push5_idx  = 2'(s);
         end
     //! input stream-info push pick: sink 0 before the CRF sink, then the
@@ -1813,13 +1848,13 @@ module KL_aecp_response_builder (
     //! input-counters push pick: the pend5 idiom on the sink side (gh #60
     //! F2) - lowest pending descriptor index, then the lowest slot owing it
     w_pend10_any        = 1'b0;
-    w_unsol_push10_oidx = 4'd0;
+    w_unsol_push10_oidx = '0;
     w_unsol_push10_idx  = 2'd0;
     for (int k = RXD_MAX_C-1; k >= 0; k--)
       for (int s = UNSOL_SLOTS_C-1; s >= 0; s--)
         if (unsol_pend10_r[s][k]) begin
           w_pend10_any        = 1'b1;
-          w_unsol_push10_oidx = 4'(k);
+          w_unsol_push10_oidx = RXDW_C'(k);
           w_unsol_push10_idx  = 2'(s);
         end
     //! gh #59: lowest slot owed a CONTROLLER_AVAILABLE probe (same
@@ -2366,10 +2401,9 @@ module KL_aecp_response_builder (
         oco_r[k] <= AEM_ODMAP_INIT_C[k][4:0];
       end
       oclaim_r  <= '0;
-      for (int c = 0; c < 8; c++) opend_co_r[c] <= 5'd0;
       od_pass_q <= 2'd0;
       dm_out_q  <= 1'b0;
-      od_pidx_q <= 4'd0;  od_kb_q <= '0;   od_cb_q <= 7'd0;
+      od_kb_q   <= '0;    od_cb_q <= 7'd0;
       od_pcls_q <= 5'd0;  od_pstr_q <= 4'd0;
       od_schx_q <= 10'd0;
       odseed_r   <= 8'd0;
@@ -2399,7 +2433,7 @@ module KL_aecp_response_builder (
       cum_ph_r     <= 2'd0;
       cum_acc_r    <= 16'd0;
       cw0_r <= 64'd0; cw1_r <= 64'd0; cw3_r <= 64'd0;
-      for (int k = 0; k < 96; k++) const_q[k] <= 8'h00;
+      for (int k = 0; k < CONSTN_C; k++) const_q[k] <= 8'h00;
       for (int s = 0; s < SEGN_C; s++) begin
         seg_kind_q[s] <= SEG_NONE;
         seg_addr_q[s] <= 16'd0;
@@ -2674,14 +2708,24 @@ module KL_aecp_response_builder (
         //! 4 segments per cycle over 4 cycles: a single-cycle 15-term chain
         //! was the AX 100 MHz WNS -5.6 violator (milanfinal sweep); payload
         //! emission first consults cum_q >= 10 cycles after WRITE_S entry,
-        //! so the pipelined compute is always done in time
+        //! so the pipelined compute is always done in time.
+        //!
+        //! SEGN_C is 4, so the ENTIRE segment file is phase 0 and phases
+        //! 1..3 have nothing to add - they used to accumulate segments
+        //! 4..15, which are cleared to zero-length by every plan arm. The
+        //! phase counter still runs all four: pay_len_q lands at phase 3 and
+        //! WRITE_S leaves on cum_done_q, so collapsing it would move the
+        //! first beat of every response 30 ns earlier - a change to what the
+        //! wire does, not to what it says.
         begin
           automatic logic [15:0] a = cum_acc_r;
-          for (int k = 0; k < 4; k++) begin
-            cum_q[{cum_ph_r, 2'(k)}] <= a;
-            a = a + seg_len_q[{cum_ph_r, 2'(k)}];
+          if (cum_ph_r == 2'd0) begin
+            for (int k = 0; k < SEGN_C; k++) begin
+              cum_q[k] <= a;
+              a = a + seg_len_q[k];
+            end
+            cum_acc_r <= a;
           end
-          cum_acc_r <= a;
           cum_ph_r  <= cum_ph_r + 2'd1;
           if (cum_ph_r == 2'd3) begin
             if (!batch_q) pay_len_q <= a;   // batch: sized in BSCAN_S
@@ -2915,7 +2959,7 @@ module KL_aecp_response_builder (
             seg_kind_q[3] <= SEG_NONE;  seg_addr_q[3] <= 16'd0;  seg_len_q[3] <= 16'd0;
             const_q[56] <= 8'h00; const_q[57] <= 8'h06;   // STREAM_OUTPUT
             const_q[58] <= 8'h00;
-            const_q[59] <= {4'd0, w_unsol_push5_oidx};    // its index
+            const_q[59] <= 8'(w_unsol_push5_oidx);        // its index
             for (int k = 0; k < 28; k++) const_q[k] <= 8'h00;
             const_q[3] <= 8'h1F;   // START|STOP|MEDIA_RESET|TS_UNC|FRAMES_TX
             for (int k = 0; k < 4; k++) begin
@@ -2962,7 +3006,7 @@ module KL_aecp_response_builder (
             const_q[56] <= DESC_STREAM_INPUT[15:8];
             const_q[57] <= DESC_STREAM_INPUT[7:0];
             const_q[58] <= 8'h00;
-            const_q[59] <= {4'd0, w_unsol_push10_oidx};   // its index
+            const_q[59] <= 8'(w_unsol_push10_oidx);       // its index
             load_input_counters_consts;
             cdl_q      <= 11'd148;   // 12 + 136
             wb_len_q   <= 7'd0; wb_cnt_r <= 7'd0;
@@ -3788,7 +3832,6 @@ module KL_aecp_response_builder (
                     dmi_r       <= 6'd0;
                     dmph_r      <= 4'd0;
                     dm_out_q    <= 1'b1;
-                    od_pidx_q   <= w_od_pidx;
                     od_kb_q     <= ODMAP_KW_C'(32'(w_od_pidx) * 8);
                     od_cb_q     <= 7'(AEM_ODMAP_PCBASE_C[w_od_pidx]);
                     od_pcls_q   <= 5'(AEM_ODMAP_PCLS_C[w_od_pidx]);
@@ -4928,8 +4971,7 @@ module KL_aecp_response_builder (
                   status_q <= STATUS_BAD_ARGUMENTS;
                   state_r  <= WRITE_S;
                 end else begin
-                  oclaim_r[dm_sc_q[2:0]]   <= 1'b1;
-                  opend_co_r[dm_sc_q[2:0]] <= dm_co_q[4:0];
+                  oclaim_r[dm_sc_q[2:0]] <= 1'b1;
                   if (dmi_r == dmn_q - 6'd1) begin
                     dmi_r     <= 6'd0;
                     od_pass_q <= 2'd2;

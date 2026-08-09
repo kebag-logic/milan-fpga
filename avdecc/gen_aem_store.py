@@ -1225,9 +1225,11 @@ def build_model(spec):
     # (mono clusters, d_audio_cluster channel_count=1 => keys == clusters)
     # are split into fixed subsets of PAGE keys; number_of_maps =
     # ceil(clusters/PAGE) is returned per port no matter the live mapping
-    # count. PAGE is capped at 11 by the RTL const-scratch (6 + 8*PAGE <= 96
-    # bytes) and is SHARED by every dynamic port (the RTL page origin is a
-    # constant multiply); per-port cluster counts may still differ.
+    # count. PAGE is capped at 9 by the RTL const-scratch: the page walk's
+    # last row starts at 6 + 8*(PAGE-1) and is 8 bytes long, so 8*PAGE + 5
+    # must stay inside const_q's 80 bytes. It is SHARED by every dynamic
+    # port (the RTL page origin is a constant multiply); per-port cluster
+    # counts may still differ.
     #
     # The store key is the GLOBAL cluster index (base_cluster + offset),
     # which is exactly the render crossbar's map-RAM address - one key space
@@ -1243,8 +1245,8 @@ def build_model(spec):
                              f"{sorted(explicit)}")
         page = explicit.pop() if explicit \
             else min(max(p["clusters"] for p in dyn_in), 8)
-        if not 1 <= page <= 11:
-            raise ValueError(f"map_page {page} outside 1..11 (the RTL "
+        if not 1 <= page <= 9:
+            raise ValueError(f"map_page {page} outside 1..9 (the RTL "
                              "GET_AUDIO_MAP const-scratch bound)")
         keys = max(p["base_cluster"] + p["clusters"] for p in dyn_in)
         if keys > 64:
@@ -1600,15 +1602,15 @@ def emit_svh_text(M):
           "   // global dynamic cluster keys (mono clusters)")
         a(f"localparam int unsigned AEM_DMAP_PAGE_C  = {dm['PAGE']};"
           "   // GET_AUDIO_MAP fixed partition size (shared)")
-        #: A-F13: the GET page scan writes 6 + 8*PAGE bytes into a 96-byte
-        #: const scratch, so PAGE > 11 would run off the end of const_q at
+        #: A-F13: the GET page scan writes 6 + 8*PAGE bytes into an 80-byte
+        #: const scratch, so PAGE > 9 would run off the end of const_q at
         #: RUNTIME. Codegen already refuses it; this makes a hand-edited svh
         #: die at ELABORATION instead, which is the only place left to catch
         #: it once the file is on disk.
         #: ONE string literal: SystemVerilog has no C-style adjacent
         #: string-literal concatenation, so a split message is a syntax error.
-        a("if (AEM_DMAP_PAGE_C > 11) $error(\"AEM_DMAP_PAGE_C %0d exceeds "
-          "the GET_AUDIO_MAP const-scratch bound of 11 (6 + 8*PAGE <= 96)\","
+        a("if (AEM_DMAP_PAGE_C > 9) $error(\"AEM_DMAP_PAGE_C %0d exceeds "
+          "the GET_AUDIO_MAP const-scratch bound of 9 (8*PAGE + 5 <= 79)\","
           " AEM_DMAP_PAGE_C);")
         a(f"localparam int unsigned AEM_DMAP_PHYS_C  = {dm['PHYS']};"
           "   // render crossbar depth (CHMAP_PHYS_C)")

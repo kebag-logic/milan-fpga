@@ -529,15 +529,22 @@ int main(int argc, char** argv) {
         ck("[10] FRX = mirror slice 9", be_at(r, 90, 4), 0x109);
         ck("[10] sink 0 quiet (exactly one frame)",
            (long)collect_resp(700).size(), 0);
-        // per-descriptor windows: sink 1 is clamped now, sink 2's first
-        // dirty still pushes at once
+        // per-descriptor windows: sink 1 is clamped now, sink 0's first
+        // dirty still pushes at once.
+        //
+        // Sink 0, not sink 2. This shape declares TWO STREAM_INPUTs (the
+        // AAF sink and the CRF Media Clock Input), so index 2 names a
+        // descriptor this entity does not have, and a push for it would be
+        // a notification about nothing. Sink 0 proves the same law - the
+        // 1 s window belongs to a descriptor, not to the class - inside the
+        // range the AEM declares.
         dut->rxdiag_dirty_p_i = 0x0002; tick(); dut->rxdiag_dirty_p_i = 0;
         ck("[10] sink-1 second dirty clamped",
            (long)collect_resp(700).size(), 0);
-        dut->rxdiag_dirty_p_i = 0x0004; tick(); dut->rxdiag_dirty_p_i = 0;
+        dut->rxdiag_dirty_p_i = 0x0001; tick(); dut->rxdiag_dirty_p_i = 0;
         r = collect_resp();
-        ck("[10] sink-2 pushes immediately (own window)", r.size() > 0, 1);
-        ck("[10] its desc bytes 00 05 00 02", be_at(r, 38, 4), 0x00050002);
+        ck("[10] sink-0 pushes immediately (own window)", r.size() > 0, 1);
+        ck("[10] its desc bytes 00 05 00 00", be_at(r, 38, 4), 0x00050000);
         // sink 1's clamped dirty is OWED, not lost: it fires at window
         // expiry with the values current THEN
         r = wait_push(101000);
