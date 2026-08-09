@@ -117,6 +117,33 @@ static void feed_rx(const std::vector<uint8_t>& f) {
     dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tkeep_i = 0;
 }
 
+// PARKED-LANE TORTURE (gh #65): a stalled DMA holds tready low mid-frame
+// while the producer keeps tvalid on the SAME beat. A tap that samples
+// tvalid alone eats every parked cycle as a NEW beat: the command tears
+// (missed) or lands twice — and a duplicated SET is a replay-class hazard.
+static void feed_rx_parked(const std::vector<uint8_t>& f, int park_beat,
+                           int park_cycles) {
+    int n = f.size();
+    int beat = 0;
+    for (int off = 0; off < n; off += 8, beat++) {
+        uint64_t d = 0; uint8_t keep = 0;
+        for (int l = 0; l < 8; l++) {
+            if (off + l < n) { d |= (uint64_t)f[off+l] << (8*l); keep |= (1<<l); }
+        }
+        dut->rx_tvalid_i = 1;
+        dut->rx_tdata_i  = d;
+        dut->rx_tkeep_i  = keep;
+        dut->rx_tlast_i  = (off + 8 >= n);
+        if (beat == park_beat) {
+            dut->rx_tready_i = 0;
+            for (int i = 0; i < park_cycles; i++) tick();
+            dut->rx_tready_i = 1;
+        }
+        tick();
+    }
+    dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tkeep_i = 0;
+}
+
 // Collect one response frame from the TX AXIS master (little lane -> wire bytes).
 // Returns empty if none within `budget` cycles.
 static std::vector<uint8_t> collect_resp(int budget = 6000) {
@@ -170,6 +197,8 @@ int main(int argc, char** argv) {
     dut->rst_n = 0; dut->enable_i = 1;
     dut->srp_domain_vid_i = 0x002;
     dut->rx_tvalid_i = 0; dut->m_axis_tready = 1;
+    // the tapped lane's consumer is idle-ready; the gh #65 leg parks it
+    dut->rx_tready_i = 1;
     dut->station_mac_i = 0; dut->entity_id_i = ENTITY_ID;
     dut->entity_model_id_i = 0;
     dut->entity_caps_i = 0x00008588; dut->talker_sources_i = 8; dut->talker_caps_i = 0x4801;
@@ -2954,6 +2983,47 @@ int main(int argc, char** argv) {
             ck("[28e] record 2 is the echo record", (long)b[off+7], 29);
             ckbytes("[28e] record 2 echoes its own data", b, off + 8, d1);
         }
+    }
+
+    // ---------------------------------------------------------------- //
+    // [PARK] PARKED-LANE TORTURE (gh #65): the DMA stalls mid-command and
+    //   the producer parks a beat with tvalid held. A handshake-blind tap
+    //   consumes every parked cycle as a new beat, so the command is torn
+    //   (missed) or lands twice — and a duplicated SET is a replay-class
+    //   hazard. ONE honest SET_NAME across a 600-cycle stall must be
+    //   answered EXACTLY once, with the SET landing EXACTLY once.
+    // ---------------------------------------------------------------- //
+    printf("\n[PARK] parked-lane torture (gh #65)\n");
+    {
+        uint16_t cc0 = dut->cmd_count_o, rc0 = dut->resp_count_o;
+        std::vector<uint8_t> nm; put_be16(nm, 0x0000); put_be16(nm, 0); // ENTITY, 0
+        put_be16(nm, 0); put_be16(nm, 0);                                // name_index, cfg
+        const char* pn = "ParkedLane";
+        for (int i = 0; i < 64; i++)
+            nm.push_back(i < (int)strlen(pn) ? pn[i] : 0);
+        feed_rx_parked(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 16,
+                                0x7F00, nm), 3, 600);
+        auto r = collect_resp();
+        ck("[PARK] answered first-shot", r.size() > 0, 1);
+        ck("[PARK] status SUCCESS", r_status(r), 0);
+        ck("[PARK] AEM_RESPONSE", r_msgt(r), 1);
+        ck("[PARK] sequence_id echoed", r_seq(r), 0x7F00);
+        ck("[PARK] exactly ONE command accepted",
+           dut->cmd_count_o, (long)(cc0 + 1));
+        ck("[PARK] exactly ONE response sent",
+           dut->resp_count_o, (long)(rc0 + 1));
+        auto dup = collect_resp(800);
+        ck("[PARK] no duplicate response behind it",
+           (dup.size() && r_seq(dup) == 0x7F00) ? 1 : 0, 0);
+        // ...and the SET itself landed, exactly once
+        std::vector<uint8_t> rd; put_be16(rd, 0); put_be16(rd, 0);
+        put_be16(rd, 0); put_be16(rd, 0);
+        feed_rx(aecp_cmd(ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID, 0, 4,
+                         0x7F01, rd));
+        auto r2 = collect_resp();
+        ck("[PARK] read-back SUCCESS", r_status(r2), 0);
+        ckbytes("[PARK] the stalled SET's name is in the store", r2, 90,
+                {'P','a','r','k','e','d','L','a'});
     }
 
     // counters

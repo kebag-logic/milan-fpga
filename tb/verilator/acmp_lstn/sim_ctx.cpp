@@ -169,6 +169,34 @@ static void feed(const std::vector<uint8_t>& f) {
     tick_collect(nullptr);
 }
 
+// PARKED-LANE TORTURE (gh #65): a stalled DMA holds tready low mid-frame
+// while the producer keeps tvalid on the SAME beat. A tap that samples
+// tvalid alone eats every parked cycle as a NEW beat and the command is
+// missed or duplicated (a duplicated BIND is a REBIND).
+static void feed_parked(const std::vector<uint8_t>& f, int park_beat,
+                        int park_cycles) {
+    int n = f.size();
+    int beat = 0;
+    for (int off = 0; off < n; off += 8, beat++) {
+        uint64_t d = 0; uint8_t keep = 0;
+        for (int l = 0; l < 8; l++)
+            if (off + l < n) { d |= (uint64_t)f[off+l] << (8*l); keep |= (1<<l); }
+        dut->rx_tvalid_i = 1;
+        dut->rx_tdata_i  = d;
+        dut->rx_tkeep_i  = keep;
+        dut->rx_tlast_i  = (off + 8 >= n);
+        if (beat == park_beat) {
+            dut->rx_tready_i = 0;
+            for (int i = 0; i < park_cycles; i++) tick_collect(nullptr);
+            dut->rx_tready_i = 1;
+        }
+        tick_collect(nullptr);
+    }
+    dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tkeep_i = 0;
+    tick_collect(nullptr);
+    tick_collect(nullptr);
+}
+
 static int r_msg(const std::vector<uint8_t>& b){ return b.size()>15 ? b[15]&0xF : -1; }
 static int r_sta(const std::vector<uint8_t>& b){ return b.size()>16 ? b[16]>>3 : -1; }
 static uint64_t r_be(const std::vector<uint8_t>& b, int off, int n) {
@@ -268,6 +296,8 @@ int main(int argc, char** argv) {
     dut->rest_talker_i = 0; dut->rest_tuid_i = 0;
     dut->rest_ctlr_i = 0; dut->rest_flags_i = 0;
     dut->rx_tvalid_i = 0; dut->m_axis_tready = 1;
+    // the tapped lane's consumer is idle-ready; the gh #65 leg parks it
+    dut->rx_tready_i = 1;
     for (int i = 0; i < 8; i++) tick();
     dut->rst_n = 1;
     for (int i = 0; i < 8; i++) tick();   // covers the ctx-RAM init walk
@@ -1055,6 +1085,36 @@ int main(int argc, char** argv) {
         ck("[P] talker cleared at every wheel phase", bad_talker, 0);
         ck("[P] stream_id cleared at every wheel phase", bad_sid, 0);
         ck("[P] timer disarmed at every wheel phase", bad_tmr, 0);
+    }
+
+    // ---------------------------------------------------------------- //
+    // [PARK] PARKED-LANE TORTURE (gh #65): a stalled DMA parks a beat with
+    //   tvalid held. A handshake-blind tap eats every parked cycle as a NEW
+    //   beat, so the BIND is missed or lands twice — and a duplicated BIND
+    //   is a REBIND. ONE honest BIND_RX across a 600-cycle stall must be
+    //   answered EXACTLY once and write the context EXACTLY once.
+    printf("\n[PARK] parked-lane torture (gh #65)\n");
+    {
+        feed(acmp(8, 0, 0, CT_EID, 0, US_EID, 0, 0, nullptr, 0x930, 0, 0));
+        wait_frame(300); run(8);
+        tbl_read(0);
+        ck("[PARK] pre: ctx0 UNBOUND", (long)c_state(), 0);
+
+        feed_parked(acmp(6, 0, 0, CT_EID, T1_EID, US_EID, 0, 0, nullptr,
+                         0x940, 0, 0), 3, 600);
+        auto r = wait_frame(300);
+        ck("[PARK] BIND answered first-shot", r.size(), 70);
+        ck("[PARK] BIND_RESPONSE", r_msg(r), 7);
+        ck("[PARK] SUCCESS", r_sta(r), 0);
+        ck("[PARK] sequence_id echoed", (long)r_be(r, 62, 2), 0x940);
+        auto p = wait_frame(300);
+        ck("[PARK] one PROBE_TX follows", r_msg(p), 0);
+        run(8);
+        tbl_read(0);
+        ckh("[PARK] ctx0 records the talker", c_talker(), T1_EID);
+        auto q = wait_frame(200);
+        ck("[PARK] no duplicate response behind it",
+           (q.size() && r_msg(q) == 7) ? 1 : 0, 0);
     }
 
     printf("\nKL_acmp_lstn_ctx N=4: %ld checks, %ld failures\n", checks, fails);

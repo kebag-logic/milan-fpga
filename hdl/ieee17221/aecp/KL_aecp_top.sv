@@ -176,6 +176,7 @@ module KL_aecp_top #(
 
   // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) --------
   input  wire          rx_tvalid_i,
+  input  wire          rx_tready_i,       //! tapped lane's ready (read, never driven)
   input  wire [63:0]   rx_tdata_i,
   input  wire [7:0]    rx_tkeep_i,
   input  wire          rx_tlast_i,
@@ -285,7 +286,7 @@ module KL_aecp_top #(
   KL_aecp_ingress #(.FIFO_DEPTH_BYTES(1024)) u_ingress (
     .clk_i(clk_i), .rst_n(rst_n), .enable_i(enable_i),
     .station_mac_i(station_mac_i), .entity_id_i(entity_id_i),
-    .rx_tvalid_i(rx_tvalid_i), .rx_tdata_i(rx_tdata_i),
+    .rx_tvalid_i(rx_tvalid_i), .rx_tready_i(rx_tready_i), .rx_tdata_i(rx_tdata_i),
     .rx_tkeep_i(rx_tkeep_i), .rx_tlast_i(rx_tlast_i),
     .m_axis_tvalid(ig_to_val_tvalid), .m_axis_tready(ig_to_val_tready), .m_axis_tdata(ig_to_val_tdata), .m_axis_tkeep(ig_to_val_tkeep), .m_axis_tlast(ig_to_val_tlast),
     .req_src_mac_o(req_src_mac_w), .req_valid_o(req_valid_w), .req_pop_i(req_pop_w),

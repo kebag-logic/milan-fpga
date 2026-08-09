@@ -85,6 +85,7 @@ static void reset_dut() {
     dut->enable_i = 1;
     dut->tick_1s_i = 0;
     dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tkeep_i = 0;
+    dut->rx_tready_i = 1;   //! tapped lane idle-ready (gh #65 handshake)
     dut->m_axis_tready = 1;
     dut->ta_registered_i = 0; dut->ta_failed_i = 0;
     dut->tbl_req_i = 0; dut->tbl_idx_i = 0;

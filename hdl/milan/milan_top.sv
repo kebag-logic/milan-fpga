@@ -822,8 +822,10 @@ module milan_top import ethernet_packet_pkg::*; #(
     .in0_cnt_mreset_i (32'h0), .in0_cnt_late_i (32'h0),
     .in0_cnt_early_i (32'h0),
     .in0_fmt_o (), .clk_src_o (),
-    // RX monitor tap (inputs only)
+    //! HANDSHAKE HAZARD (gh #65): the tap MUST see tready - a stalled DMA
+    //! parks a beat with tvalid held and a tvalid-only tap re-eats it
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
+    .rx_tready_i (rx_axis_to_dma.tready),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
     .rx_tkeep_i  (rx_axis_to_dma.tkeep),
     .rx_tlast_i  (rx_axis_to_dma.tlast),
@@ -852,7 +854,10 @@ module milan_top import ethernet_packet_pkg::*; #(
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
     .entity_id_i (cfg_adp_entity_id),
+    //! HANDSHAKE HAZARD (gh #65): the tap MUST see tready - a stalled DMA
+    //! parks a beat with tvalid held and a tvalid-only tap re-eats it
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
+    .rx_tready_i (rx_axis_to_dma.tready),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
     .rx_tkeep_i  (rx_axis_to_dma.tkeep),
     .rx_tlast_i  (rx_axis_to_dma.tlast),

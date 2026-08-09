@@ -203,6 +203,34 @@ static void feed(const std::vector<uint8_t>& f) {
     step();
 }
 
+// PARKED-LANE TORTURE (gh #65): the DMA stalls mid-frame, so the producer
+// holds tvalid on the SAME beat while tready is low for hundreds of cycles.
+// A handshake-blind tap eats every parked cycle as a NEW beat (the frame
+// tears and is dropped oversize); a tap qualified on tvalid && tready sees
+// exactly one beat and the PDU arrives whole.
+static void feed_parked(const std::vector<uint8_t>& f, int park_beat,
+                        int park_cycles) {
+    size_t n = f.size();
+    int beat = 0;
+    for (size_t off = 0; off < n; off += 8, beat++) {
+        uint64_t d = 0; uint8_t k = 0;
+        for (int l = 0; l < 8 && off + l < n; l++) {
+            d |= (uint64_t)f[off + l] << (8 * l);
+            k |= 1 << l;
+        }
+        dut->rx_tvalid_i = 1; dut->rx_tdata_i = d; dut->rx_tkeep_i = k;
+        dut->rx_tlast_i = (off + 8 >= n);
+        if (beat == park_beat) {
+            dut->rx_tready_i = 0;             // the DMA stalls right here
+            for (int i = 0; i < park_cycles; i++) step();
+            dut->rx_tready_i = 1;             // ...and drains
+        }
+        step();                               // the ONE accepted cycle
+    }
+    dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0;
+    step();
+}
+
 // feed + wait until the walker has cleanly parsed it
 static void feed_parse(const std::vector<uint8_t>& f, const char* what) {
     uint16_t before = dut->pdu_cnt_o;
@@ -227,6 +255,9 @@ int main(int argc, char** argv) {
     dut->rst_n = 0; dut->enable_i = 0; dut->tick_1khz_i = 0;
     dut->rx_tvalid_i = 0; dut->rx_tdata_i = 0; dut->rx_tkeep_i = 0;
     dut->rx_tlast_i = 0;
+    // the tapped lane's consumer is idle-ready by default; the parked-lane
+    // torture leg below drops it to model a stalled DMA
+    dut->rx_tready_i = 1;
     dut->station_mac_i = STATION; dut->unique_id_i = UID; dut->vid_i = VID;
     for (int i = 0; i < 4; i++) step();
     dut->rst_n = 1; dut->enable_i = 1;
@@ -913,6 +944,48 @@ int main(int argc, char** argv) {
         ck("3par: failure code captured", dut->ta_fail_code_o, 0x22);
         dut->lsid_en_i = 0; dut->lsid_dmac_i = 0; dut->lsid_vlan_i = 0;
         step(); step();
+    }
+
+    // ============================================================
+    // 19) PARKED-LANE TORTURE (gh #65). The DMA stalls mid-frame and the
+    //   producer parks a beat with tvalid held. A tap that samples tvalid
+    //   alone consumes every parked cycle as a new beat: the declaration
+    //   tears, the frame is dropped oversize, and only the SECOND copy of
+    //   the Listener declaration registers (the recorded silicon symptom).
+    //   ONE honest PDU, delivered across a 600-cycle park, must register
+    //   first-shot.
+    // ============================================================
+    printf("-- [PARK] parked-lane torture (gh #65) --\n");
+    {
+        // start from a clean registrar (leg 13's recipe)
+        dut->lsid_en_i = 0;
+        dut->enable_i = 0; step(); step();
+        dut->enable_i = 1; step(); step();
+        ck("[PARK] pre: deregistered", dut->listener_reg_o, 0);
+
+        // preamble: a foreign frame parked mid-flight for 600 cycles
+        auto foreign = frame(true, {msg_domain(
+                                 (Vec{0, 1, fv_domain(6, 3, VID), {EV_JOININ}, {}}))});
+        foreign[0] = 0x01; foreign[5] = 0x99;      // not the MSRP group MAC
+        feed_parked(foreign, 2, 600);
+        for (int i = 0; i < 200; i++) step();
+
+        // ...then ONE honest Listener Ready, itself parked mid-frame
+        uint16_t pdus_before  = dut->rx_pdus_o;
+        uint8_t  drops_before = dut->rx_drops_o;
+        Vec v; v.fv = fv_listener(OUR_SID); v.evts = {EV_JOININ};
+        v.pars = {D_READY};
+        feed_parked(frame(true, {msg_listener(v)}), 3, 600);
+        int guard = 8000;
+        while (dut->listener_reg_o == 0 && guard--) step();
+
+        ck("[PARK] first-shot registration", dut->listener_reg_o, 1);
+        ck("[PARK] first-shot listener_ready", dut->listener_ready_o, 1);
+        ck("[PARK] first-shot declaration", dut->listener_decl_o, D_READY);
+        ck("[PARK] exactly ONE PDU accepted (no duplicates)",
+           dut->rx_pdus_o, (uint16_t)(pdus_before + 1));
+        ck("[PARK] nothing torn into the drop counter",
+           dut->rx_drops_o, drops_before);
     }
 
     printf("== %ld checks, %ld failures ==\n", checks, fails);

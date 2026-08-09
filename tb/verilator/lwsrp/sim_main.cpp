@@ -217,6 +217,32 @@ static void feed(const std::vector<uint8_t>& f) {
     step();
 }
 
+// PARKED-LANE TORTURE (gh #65): a stalled DMA holds tready low mid-frame
+// while the producer keeps tvalid on the SAME beat. A tap that samples
+// tvalid alone eats every parked cycle as a NEW beat and tears the PDU.
+static void feed_parked(const std::vector<uint8_t>& f, int park_beat,
+                        int park_cycles) {
+    size_t n = f.size();
+    int beat = 0;
+    for (size_t off = 0; off < n; off += 8, beat++) {
+        uint64_t d = 0; uint8_t k = 0;
+        for (int l = 0; l < 8 && off + l < n; l++) {
+            d |= (uint64_t)f[off + l] << (8 * l);
+            k |= 1 << l;
+        }
+        dut->rx_tvalid_i = 1; dut->rx_tdata_i = d; dut->rx_tkeep_i = k;
+        dut->rx_tlast_i = (off + 8 >= n);
+        if (beat == park_beat) {
+            dut->rx_tready_i = 0;
+            for (int i = 0; i < park_cycles; i++) step();
+            dut->rx_tready_i = 1;
+        }
+        step();
+    }
+    dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0;
+    step();
+}
+
 // ---- TX frame classification ---------------------------------------------
 static bool is_msrp(const std::vector<uint8_t>& f) {
     return f.size() >= 14 && f[12] == 0x22 && f[13] == 0xEA;
@@ -246,6 +272,8 @@ int main(int argc, char** argv) {
     dut->latency_i = LATENCY;
     dut->rx_tvalid_i = 0; dut->rx_tdata_i = 0; dut->rx_tkeep_i = 0;
     dut->rx_tlast_i = 0;
+    // the tapped lane's consumer is idle-ready; the gh #65 leg parks it
+    dut->rx_tready_i = 1;
     dut->m_axis_tready = 1;
     for (int i = 0; i < 8; i++) step();
     dut->rst_n = 1;
@@ -629,6 +657,28 @@ int main(int argc, char** argv) {
        axis_viol - viol0, 0);
     ck("[13d] no partial frame left hanging", partial.empty() ? 1 : 0, 1);
     hostile_tready = 0; dut->m_axis_tready = 1;
+
+    printf("\n-- [14] PARKED-LANE TORTURE (gh #65): the RX tap under a\n"
+           "   stalled DMA. tready low mid-frame for 600 cycles with tvalid\n"
+           "   held; a handshake-blind tap eats every parked cycle as a new\n"
+           "   beat and the declaration only lands on its SECOND copy --\n");
+    {
+        // clean slate: age the current registration out
+        dut->enable_i = 0; run(400); dut->enable_i = 1; run(400);
+        ck("[14a] pre: deregistered", dut->listener_reg_o, 0);
+        ck("[14a] pre: licence closed", dut->stream_gate_o, 0);
+
+        // ONE Listener Ready, delivered across a mid-frame 600-cycle stall
+        feed_parked(bridge_listener(EV_JOININ, D_READY), 3, 600);
+        run(400);
+        ck("[14b] first-shot registration", dut->listener_reg_o, 1);
+        ck("[14b] first-shot listener_ready", dut->listener_ready_o, 1);
+        ck("[14b] first-shot declaration = Ready", dut->listener_decl_o,
+           D_READY);
+        ck("[14b] licence granted first-shot", dut->stream_gate_o, 1);
+        ck("[14b] reservation ACTIVE first-shot", dut->res_active_o, 1);
+        drain_tx();
+    }
 
     printf("== %ld checks, %ld failures ==\n", checks, fails);
     delete dut;

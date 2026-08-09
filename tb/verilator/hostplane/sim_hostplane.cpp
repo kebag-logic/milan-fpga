@@ -207,6 +207,7 @@ enum {
     A_STRM_SEL = 0x800, A_STRM_SNAP = 0x804, A_SW_CTRL = 0x810,
     A_SW_SID_LO = 0x814, A_SW_SID_HI = 0x818,
     A_SW_FMT_LO = 0x824, A_SW_FMT_HI = 0x828, A_SW_CNT0 = 0x830, A_SW_PDUS = 0x858,
+    A_ACMPL_DBG = 0x6E8,   //! {classify_cnt, fc_cnt, fc_flags, base_hits}
     A_LTAP_CTRL = 0x870, A_LTAP_RX_EPOCH = 0x894, A_LTAP_RX_INFO = 0x898,
 };
 
@@ -560,6 +561,51 @@ int main(int argc, char** argv) {
        (d4_info1 >> 16) - (d4_info0 >> 16), 0);
     printf("  info: LTAP_CTRL status after single frame = 0x%08x "
            "(bit12 rx_active, [15:13] awaited stage)\n", axi_read(A_LTAP_CTRL));
+
+    // D5 (gh #65): PARKED-LANE PURITY. rx_axis_to_dma.tready IS the host
+    // lane's ready, and the SRP/ACMP/AECP monitor taps all ride that lane.
+    // With the host stalled the producer parks a beat with tvalid held: a
+    // tap that samples tvalid alone consumes every parked cycle as a NEW
+    // beat, so one wedged frame is seen many times. The ACMP listener's
+    // classify counter is the witness - it must advance by EXACTLY one per
+    // frame no matter how long the frame sat parked.
+    printf("[D5] parked-lane purity: one wedged frame = one tap consumption\n");
+    {
+        // The tlast beat is the one that matters: KL_acmp_lstn_ctx enters
+        // CLASSIFY_S on rxl_r (hdl 1566-1580) and bumps dbg_classify_r there
+        // (hdl 1616), then falls straight back to COLLECT_S for a non-ACMP
+        // frame. A tvalid-only tap therefore re-latches the SAME parked
+        // tlast every other cycle and the counter runs away; a tap qualified
+        // on tvalid && tready sees exactly one frame end. Parking beat 0
+        // would prove nothing - tlast never parks there.
+        g_host_tready = 1;
+        uint32_t cls0 = (axi_read(A_ACMPL_DBG) >> 24) & 0xFF;
+        size_t hd5 = host_frames.size();
+        rxq.push_back(uni);
+        // let every beat BUT the last through, then stall the host lane
+        int guard = 4000;
+        while (guard-- > 0) {
+            tick();
+            if (host_open && host_frames.back().bytes.size() >= uni.size() - 8)
+                break;
+        }
+        g_host_tready = 0;
+        ck("[D5] the frame is parked ON its tlast beat",
+           (host_open && host_frames.back().bytes.size() == uni.size() - 8)
+               ? 1 : 0, 1);
+        run(4000);                               // ...parked for 4000 cycles
+        ck("[D5] the tlast beat never escaped while parked",
+           host_frames.back().bytes.size(), uni.size() - 8);
+        g_host_tready = 1;
+        drain();
+        uint32_t cls1 = (axi_read(A_ACMPL_DBG) >> 24) & 0xFF;
+        ck("[D5] the parked frame was consumed EXACTLY once by the tap",
+           (uint8_t)(cls1 - cls0), 1);
+        ck("[D5] and delivered to the host exactly once",
+           host_frames.size() - hd5, 1);
+        ck("[D5] delivered byte-exact",
+           bytes_equal(host_frames[hd5].bytes, uni), 1);
+    }
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);

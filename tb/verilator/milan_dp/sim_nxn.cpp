@@ -212,6 +212,46 @@ static void inject(const uint8_t* f, size_t len, int drain = 1200) {
     dut->s_axis_mac_rx_tvalid = 0;
 }
 
+// PARKED-LANE TORTURE (gh #65). rx_axis_to_dma.tready IS m_axis_rx_tready,
+// so dropping the host DMA's ready parks a beat on the tapped lane with
+// tvalid held — the documented starvation/flood regime. A monitor tap that
+// samples tvalid alone eats every parked cycle as a NEW beat, tears the
+// frame, and spends the next real PDU realigning.
+static void inject_parked(const uint8_t* f, size_t len, int park_beat,
+                          int park_cycles, int drain = 6000) {
+    std::vector<uint64_t> beats;
+    for (size_t bt = 0; bt < (len + 7) / 8; bt++) {
+        uint64_t v = 0;
+        for (int j = 0; j < 8; j++)
+            if (bt*8 + j < len) v |= (uint64_t)f[bt*8+j] << (8*j);
+        beats.push_back(v);
+    }
+    size_t idx = 0;
+    int parked = 0;
+    dut->m_axis_mac_tx_tready = 1;
+    dut->m_axis_pcm_tready = 1;
+    for (int c = 0; c < drain; c++) {
+        if (idx < beats.size()) {
+            dut->s_axis_mac_rx_tdata  = beats[idx];
+            dut->s_axis_mac_rx_tkeep  = 0xFF;
+            dut->s_axis_mac_rx_tvalid = 1;
+            dut->s_axis_mac_rx_tlast  = (idx == beats.size()-1);
+        } else {
+            dut->s_axis_mac_rx_tvalid = 0; dut->s_axis_mac_rx_tlast = 0;
+        }
+        bool want_park = ((int)idx == park_beat) && (parked < park_cycles);
+        dut->m_axis_rx_tready = want_park ? 0 : 1;
+        if (want_park) parked++;
+        lo();
+        bool in_acc = dut->s_axis_mac_rx_tvalid && dut->s_axis_mac_rx_tready;
+        pcm_sample();
+        hi();
+        if (in_acc) idx++;
+    }
+    dut->s_axis_mac_rx_tvalid = 0;
+    dut->m_axis_rx_tready = 1;
+}
+
 // ---- gh #58 D1 end-to-end: one AECP AEM transaction through the REAL RX
 // path, the response fished off the MAC TX trunk (subtype 0xFB; the only
 // 0xFB frames in this sim are our responses - nothing ever REGISTERs).
@@ -300,7 +340,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x0001003F);
+       axi_read(A_VERSION), 0x00010040);
 
 #ifdef AAF_PB_TB
     // ---- task #26 (0x002C): the BOOT SEED is CSR-visible before any ----
@@ -438,13 +478,17 @@ int main(int argc, char** argv) {
         };
         dut->m_axis_mac_tx_tready = 1;
         for (int c = 0; c < 1000; c++) pump();
+        // ONE feed each (gh #65): these were fed TWICE on the same
+        // "bridges re-declare every JoinTime" rationalisation as the block
+        // at the SRP-only case. With the tap qualified on tvalid && tready
+        // a single honest declaration registers, and a second copy would
+        // only mask a regression - the check below says ALONE, so it must
+        // mean it.
         inject(lr, 60, 2000);
-        inject(lr, 60, 2000);          // bridges re-declare every JoinTime
         // ...and the same for uid 1, so the talker whose TalkerAdvertise this
         // block can actually catch also puts frames on the wire. Same MRPDU,
         // one byte different.
         lr[28] = 0x01;                 // FirstValue = {0..0, uid 0x0001}
-        inject(lr, 60, 2000);
         inject(lr, 60, 2000);
         lr[28] = 0x03;
         int opened3 = 0;
@@ -1046,42 +1090,12 @@ int main(int argc, char** argv) {
         // tap sees accepted beats
         dut->m_axis_rx_tready = 1;
         for (int c = 0; c < 4000; c++) step();
-        // FEED, twice - a real bridge re-declares every JoinTime, so the
-        // repeat is protocol-shaped. Both copies matter here empirically:
-        // the first (true final keep 0x0F) resyncs the tap when the drain
-        // left it mid-frame on a torn parked frame, and the REGISTERING
-        // copy is inject()'s full-keep one (tkeep 0xFF = a 64 B min-size
-        // frame). A keep-0x0F copy alone does not register - the rx
-        // path's min-size/keep handling deserves a look in the lwsrp_rx
-        // suite some round.
-        {
-            size_t idx = 0;
-            std::vector<uint64_t> beats;
-            for (size_t off = 0; off < 60; off += 8) {
-                uint64_t d = 0;
-                for (int j = 0; j < 8 && off + j < 60; j++)
-                    d |= (uint64_t)lr[off + j] << (8*j);
-                beats.push_back(d);
-            }
-            for (int c = 0; c < 3000; c++) {
-                if (idx < beats.size()) {
-                    dut->s_axis_mac_rx_tdata  = beats[idx];
-                    dut->s_axis_mac_rx_tkeep  = (idx == beats.size()-1) ? 0x0F
-                                                                        : 0xFF;
-                    dut->s_axis_mac_rx_tvalid = 1;
-                    dut->s_axis_mac_rx_tlast  = (idx == beats.size()-1);
-                } else {
-                    dut->s_axis_mac_rx_tvalid = 0;
-                    dut->s_axis_mac_rx_tlast  = 0;
-                }
-                lo();
-                bool acc = dut->s_axis_mac_rx_tvalid &&
-                           dut->s_axis_mac_rx_tready;
-                hi();
-                if (acc) idx++;
-            }
-            dut->s_axis_mac_rx_tvalid = 0;
-        }
+        // ONE FEED (gh #65). This used to be fed TWICE: the tap sampled
+        // tvalid alone, so the drain's parked beats were consumed over and
+        // over and left it mid-frame on a torn frame - the first copy was
+        // spent resyncing and only the second registered. The tap now
+        // qualifies on tvalid && tready, so a single honest declaration
+        // registers, and that is the end-to-end proof of the fix.
         inject(lr, 60, 2000);
         int opened = 0;
         for (int g = 0; g < 400 && !opened; g++) {
@@ -1115,6 +1129,30 @@ int main(int argc, char** argv) {
         //! the licensed stream two full PDU intervals to show itself.
         for (int c = 0; c < 30000; c++) step();
         ck("SRP-only: frames flowed under it", axi_read(A_AAF_FRAMES) > f0, 1);
+
+        // ---- gh #65 PARKED-LANE TORTURE at the integration -------------
+        // Bounce the engine to clear the registration, then re-declare with
+        // ONE PDU while the host DMA lane is parked mid-frame for 600
+        // cycles. A tap qualified on tvalid && tready sees exactly the
+        // frame; a tvalid-only tap eats every parked cycle and needs a
+        // second copy.
+        axi_write(A_LWSRP_CTRL, 0x00);
+        for (int c = 0; c < 1024; c++) step();
+        axi_write(A_LWSRP_CTRL, 0x17);
+        for (int c = 0; c < 1024; c++) step();
+        ck("[PARK] licence closed by the engine bounce",
+           tap_stream_en() & 1, 0);
+        inject_parked(lr, 60, /*park_beat*/3, /*park_cycles*/600, 8000);
+        int opened_p = 0;
+        for (int g = 0; g < 400 && !opened_p; g++) {
+            for (int c = 0; c < 64; c++) step();
+            opened_p = tap_stream_en() & 1;
+        }
+        ck("[PARK] ONE Listener Ready across a stalled DMA opens the licence",
+           opened_p, 1);
+        ck("[PARK] LWSRP_STATUS full on the FIRST declaration (0x37E)",
+           axi_read(0x694), 0x37E);
+
         // restore the flow's posture: engine back to the no-talker 0x15,
         // bypass back on (no row was ever touched - pure SRP case)
         axi_write(A_LWSRP_CTRL, 0x15);

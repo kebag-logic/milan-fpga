@@ -107,6 +107,33 @@ static void feed(const std::vector<uint8_t>& f) {
     step();
 }
 
+// PARKED-LANE TORTURE (gh #65): a stalled DMA holds tready low mid-frame
+// while the producer keeps tvalid on the SAME beat. A tap that samples
+// tvalid alone eats every parked cycle as a NEW beat and the command is
+// missed or duplicated (a duplicated CONNECT_TX is a REBIND).
+static void feed_parked(const std::vector<uint8_t>& f, int park_beat,
+                        int park_cycles) {
+    size_t n = f.size();
+    int beat = 0;
+    for (size_t off = 0; off < n; off += 8, beat++) {
+        uint64_t d = 0; uint8_t k = 0;
+        for (int l = 0; l < 8 && off + l < n; l++) {
+            d |= (uint64_t)f[off + l] << (8 * l);
+            k |= 1 << l;
+        }
+        dut->rx_tvalid_i = 1; dut->rx_tdata_i = d; dut->rx_tkeep_i = k;
+        dut->rx_tlast_i = (off + 8 >= n);
+        if (beat == park_beat) {
+            dut->rx_tready_i = 0;
+            for (int i = 0; i < park_cycles; i++) step();
+            dut->rx_tready_i = 1;
+        }
+        step();
+    }
+    dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0;
+    step();
+}
+
 static std::vector<uint8_t> collect(int maxc = 300) {
     std::vector<uint8_t> b;
     for (int c = 0; c < maxc; c++) {
@@ -154,6 +181,8 @@ int main(int argc, char** argv) {
     dut->tick_1s_i = 0; dut->listener_observed_i = 0;
     dut->lstn_ask_fail_i = 0x0;              // no Listener AskingFailed
     dut->rx_tvalid_i = 0; dut->rx_tdata_i = 0; dut->rx_tkeep_i = 0; dut->rx_tlast_i = 0;
+    // the tapped lane's consumer is idle-ready; the gh #65 leg parks it
+    dut->rx_tready_i = 1;
     for (int i = 0; i < 4; i++) step();
     dut->rst_n = 1; dut->enable_i = 1;
     for (int i = 0; i < 2; i++) step();
@@ -314,6 +343,32 @@ int main(int argc, char** argv) {
            r.size() == 70 ? (r[16] >> 3) : 31, 0);
         ck("[T9] uid1 restored: dest_mac LIVE",
            r.size() == 70 ? be(r, 54, 6) : 0, src_dmac(1));
+    }
+
+    // [PARK] PARKED-LANE TORTURE (gh #65): ONE probe for uid 2, delivered
+    //   across a 600-cycle DMA stall, must be answered EXACTLY once and arm
+    //   EXACTLY its own context window.
+    {
+        printf("\n[PARK] parked-lane torture (gh #65)\n");
+        uint16_t cc0 = dut->cmd_count_o, rc0 = dut->resp_count_o;
+        uint8_t  armed0 = dut->probe_armed_o;
+        feed_parked(acmp_cmd(0, ENTITY_ID, 2, 0x0A01, 0x0000), 3, 600);
+        auto r = collect();
+        ck("[PARK] answered first-shot, frame length 70", r.size(), 70);
+        if (r.size() == 70) {
+            ck("[PARK] status SUCCESS", r[16] >> 3, 0);
+            ck("[PARK] uid 2 stream_id", be(r, 18, 8), (STATION << 16) | 2);
+            ck("[PARK] sequence echoed", be(r, 62, 2), 0x0A01);
+        }
+        ck("[PARK] exactly ONE command accepted",
+           dut->cmd_count_o, (long)(cc0 + 1));
+        ck("[PARK] exactly ONE response sent",
+           dut->resp_count_o, (long)(rc0 + 1));
+        ck("[PARK] only uid 2's window newly armed",
+           dut->probe_armed_o, (long)(armed0 | 0x4));
+        for (int c = 0; c < 80; c++) step();
+        ck("[PARK] no duplicate command behind it",
+           dut->cmd_count_o, (long)(cc0 + 1));
     }
 
     printf("\nKL_acmp_tlkr_ctx N=4: %ld checks, %ld failures\n", checks, fails);

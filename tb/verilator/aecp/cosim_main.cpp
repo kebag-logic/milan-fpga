@@ -117,6 +117,7 @@ int main(int argc, char** argv) {
 
     dut = new VKL_aecp_top;
     dut->rst_n = 0; dut->enable_i = 1; dut->rx_tvalid_i = 0; dut->m_axis_tready = 1;
+    dut->rx_tready_i = 1;   // tapped lane idle-ready (gh #65)
     dut->entity_id_i = ENTITY_ID; dut->entity_model_id_i = 0;
     dut->entity_caps_i = 0x00008588; dut->talker_sources_i = 8; dut->talker_caps_i = 0x4801;
     dut->listener_sinks_i = 8; dut->listener_caps_i = 0x4801; dut->controller_caps_i = 0;

@@ -216,6 +216,7 @@ int main(int argc, char** argv) {
     dut->latency_i = LATENCY;
     dut->rx_tvalid_i = 0; dut->rx_tdata_i = 0; dut->rx_tkeep_i = 0;
     dut->rx_tlast_i = 0; dut->m_axis_tready = 1;
+    dut->rx_tready_i = 1;   //! tapped lane idle-ready (gh #65 handshake)
     dut->ctx_req_i = 0; dut->ctx_we_i = 0; dut->ctx_idx_i = 0;
     dut->ctx_valid_i = 0; dut->ctx_dir_i = 0; dut->ctx_sid_i = 0;
     dut->ctx_dmac_i = 0; dut->ctx_prio_rank_i = 0;

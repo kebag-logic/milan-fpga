@@ -121,6 +121,33 @@ static void feed(const std::vector<uint8_t>& f) {
   run(2);
 }
 
+// PARKED-LANE TORTURE (gh #65): a stalled DMA holds tready low mid-frame
+// while the producer keeps tvalid on the SAME beat. A tap that samples
+// tvalid alone eats every parked cycle as a NEW beat and the command is
+// missed or duplicated (a duplicated BIND is a REBIND).
+static void feed_parked(const std::vector<uint8_t>& f, int park_beat,
+                        int park_cycles) {
+  int n = (int)f.size();
+  int beat = 0;
+  for (int off = 0; off < n; off += 8, beat++) {
+    uint64_t d = 0; uint8_t keep = 0;
+    for (int l = 0; l < 8; l++)
+      if (off + l < n) { d |= (uint64_t)f[off+l] << (8*l); keep |= (1u << l); }
+    dut->rx_tvalid_i = 1;
+    dut->rx_tdata_i  = d;
+    dut->rx_tkeep_i  = keep;
+    dut->rx_tlast_i  = (off + 8 >= n);
+    if (beat == park_beat) {
+      dut->rx_tready_i = 0;
+      for (int i = 0; i < park_cycles; i++) posedge();
+      dut->rx_tready_i = 1;
+    }
+    posedge();
+  }
+  dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tkeep_i = 0;
+  run(2);
+}
+
 enum {
   A_STRM_SEL=0x800, A_STRM_SNAP=0x804, A_SW_CTRL=0x810,
   A_SW_SID_LO=0x814, A_SW_SID_HI=0x818, A_SW_DMAC_LO=0x81C,
@@ -136,6 +163,8 @@ int main(int argc, char** argv) {
   dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_bready = 0;
   dut->s_axi_arvalid = dut->s_axi_rready = 0;
   dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0; dut->rx_tkeep_i = 0;
+  // the tapped lane's consumer is idle-ready; the gh #65 leg parks it
+  dut->rx_tready_i = 1;
   run(8);
   dut->rst_n = 1;
   run(8);
@@ -243,6 +272,35 @@ int main(int argc, char** argv) {
   printf("-- index 0 SRP word = live 0x694 alias --\n");
   axi_write(A_STRM_SEL, 0x000);
   ck("win SRP idx0 == flat 0x694", axi_read(A_SW_SRP), axi_read(0x694));
+
+  // PARKED-LANE TORTURE (gh #65): the DMA stalls mid-command and the
+  // producer parks a beat with tvalid held. A handshake-blind tap eats
+  // every parked cycle as a NEW beat, so the bind is missed or lands
+  // twice. ONE CONNECT_RX across a 600-cycle stall must rebind ctx1
+  // first-shot, and the window must read the NEW parameters.
+  printf("-- [PARK] parked-lane torture (gh #65) --\n");
+  {
+    static const uint8_t DM2[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x55};
+    const uint64_t SID2 = 0x0123456789ABCDEFULL;
+    // ctx1 is ALREADY bound here, so acmp1_bound_o proves nothing on its own
+    // and DMAC_HI is 0x91E0 for both dmacs - the rebind is only visible in
+    // SID_LO/SID_HI/DMAC_LO. Pin the BEFORE value so the AFTER values below
+    // cannot be satisfied by the first bind's data.
+    axi_write(A_STRM_SEL, 0x001);
+    run(20);
+    ck("[PARK] pre: window still holds the FIRST bind's sid",
+       axi_read(A_SW_SID_LO), (uint32_t)SID1);
+    feed_parked(acmp_connect(SID2, T1_EID, /*luid*/1, DM2, 0x1F0), 3, 600);
+    run(60);
+    axi_write(A_STRM_SEL, 0x001);
+    run(20);
+    ck("[PARK] window SID_LO = the stalled command's sid",
+       axi_read(A_SW_SID_LO), (uint32_t)SID2);
+    ck("[PARK] window SID_HI = the stalled command's sid",
+       axi_read(A_SW_SID_HI), (uint32_t)(SID2 >> 32));
+    ck("[PARK] window DMAC_LO = the stalled command's dmac",
+       axi_read(A_SW_DMAC_LO), 0xF0002A55);
+  }
 
   printf("--------------------------------------------------------------\n");
   printf("checks: %ld   failures: %ld\n", checks, fails);

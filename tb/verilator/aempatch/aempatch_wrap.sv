@@ -164,7 +164,9 @@ module aempatch_wrap (
     .srp_domain_vid_i(12'd2),
     .in0_cnt_locked_i(32'd0), .in0_cnt_unlocked_i(32'd0),
     .in0_fmt_o(), .clk_src_o(clk_src_o),
-    .rx_tvalid_i(rx_tvalid_i), .rx_tdata_i(rx_tdata_i),
+    //! TB fixture: no DMA model here, so the tapped lane is always ready
+    //! (gh #65 - the tap qualifies its sample on tvalid && tready)
+    .rx_tvalid_i(rx_tvalid_i), .rx_tready_i(1'b1), .rx_tdata_i(rx_tdata_i),
     .rx_tkeep_i(rx_tkeep_i), .rx_tlast_i(rx_tlast_i),
     .adp_discover_o(), .adp_disc_seen_o(),
     .m_axis_tdata(m_axis_tdata), .m_axis_tkeep(m_axis_tkeep),

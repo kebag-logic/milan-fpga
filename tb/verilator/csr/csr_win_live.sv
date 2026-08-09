@@ -50,6 +50,7 @@ module csr_win_live #(
 
   // ---- RX AXIS into both engines (ACMPDUs / MRPDUs) ----
   input  wire        rx_tvalid_i,
+  input  wire        rx_tready_i,    //! tapped lane's ready (gh #65 handshake)
   input  wire [63:0] rx_tdata_i,
   input  wire [7:0]  rx_tkeep_i,
   input  wire        rx_tlast_i,
@@ -176,7 +177,8 @@ module csr_win_live #(
     .max_frame_i (lwsrp_maxf_w),
     .interval_frames_i (lwsrp_intv_w),
     .latency_i (lwsrp_lat_w),
-    .rx_tvalid_i (rx_tvalid_i), .rx_tdata_i (rx_tdata_i),
+    .rx_tvalid_i (rx_tvalid_i), .rx_tready_i (rx_tready_i),
+    .rx_tdata_i (rx_tdata_i),
     .rx_tkeep_i (rx_tkeep_i), .rx_tlast_i (rx_tlast_i),
     .m_axis_tdata (), .m_axis_tkeep (), .m_axis_tvalid (),
     .m_axis_tlast (), .m_axis_tready (1'b1),
@@ -216,7 +218,8 @@ module csr_win_live #(
     .tick_1s_i (1'b0),
     .ta_registered_i (2'b00), .ta_failed_i (2'b00),
     .lstn_declare_o (), .stream_active_o (),
-    .rx_tvalid_i (rx_tvalid_i), .rx_tdata_i (rx_tdata_i),
+    .rx_tvalid_i (rx_tvalid_i), .rx_tready_i (rx_tready_i),
+    .rx_tdata_i (rx_tdata_i),
     .rx_tkeep_i (rx_tkeep_i), .rx_tlast_i (rx_tlast_i),
     .m_axis_tdata (), .m_axis_tkeep (), .m_axis_tvalid (),
     .m_axis_tlast (), .m_axis_tready (1'b1),

@@ -224,6 +224,8 @@ int main(int argc, char** argv) {
     dut->rst_n = 0; dut->enable_i = 1;
     dut->srp_domain_vid_i = 0x002;
     dut->rx_tvalid_i = 0; dut->m_axis_tready = 1;
+    // the tapped lane's consumer is idle-ready; the gh #65 leg parks it
+    dut->rx_tready_i = 1;
     dut->entity_id_i = ENTITY_ID; dut->entity_model_id_i = 0;
     dut->entity_caps_i = 0x00008588; dut->talker_sources_i = N_STR;
     dut->talker_caps_i = 0x4801; dut->listener_sinks_i = N_STR;

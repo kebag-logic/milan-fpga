@@ -337,6 +337,32 @@ static void feed(const std::vector<uint8_t>& f) {
     step();
 }
 
+// PARKED-LANE TORTURE (gh #65): a stalled DMA holds tready low mid-frame
+// while the producer keeps tvalid on the SAME beat. A tap that samples
+// tvalid alone eats every parked cycle as a NEW beat and tears the PDU.
+static void feed_parked(const std::vector<uint8_t>& f, int park_beat,
+                        int park_cycles) {
+    size_t n = f.size();
+    int beat = 0;
+    for (size_t off = 0; off < n; off += 8, beat++) {
+        uint64_t d = 0; uint8_t k = 0;
+        for (int l = 0; l < 8 && off + l < n; l++) {
+            d |= (uint64_t)f[off + l] << (8 * l);
+            k |= 1 << l;
+        }
+        dut->rx_tvalid_i = 1; dut->rx_tdata_i = d; dut->rx_tkeep_i = k;
+        dut->rx_tlast_i = (off + 8 >= n);
+        if (beat == park_beat) {
+            dut->rx_tready_i = 0;
+            for (int i = 0; i < park_cycles; i++) step();
+            dut->rx_tready_i = 1;
+        }
+        step();
+    }
+    dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0;
+    step();
+}
+
 // ---- context provisioning port -------------------------------------------
 static void ctx_write(int idx, int valid, int dir, uint64_t sid,
                       uint64_t dmac = 0, uint8_t pr = 0x70,
@@ -377,6 +403,8 @@ int main(int argc, char** argv) {
     dut->latency_i = LATENCY;
     dut->rx_tvalid_i = 0; dut->rx_tdata_i = 0; dut->rx_tkeep_i = 0;
     dut->rx_tlast_i = 0;
+    // the tapped lane's consumer is idle-ready; the gh #65 leg parks it
+    dut->rx_tready_i = 1;
     dut->m_axis_tready = 1;
     dut->ctx_req_i = 0; dut->ctx_we_i = 0; dut->ctx_idx_i = 0;
     dut->ctx_valid_i = 0; dut->ctx_dir_i = 0; dut->ctx_sid_i = 0;
@@ -863,6 +891,39 @@ int main(int argc, char** argv) {
         ctx_write(3, 0, 0, 0);
         run(400);
         drain_tx();
+    }
+
+    // ============================================================
+    // PARKED-LANE TORTURE (gh #65): a stalled DMA parks a beat with tvalid
+    // held. A tap that samples tvalid alone eats every parked cycle as a
+    // new beat, tears the PDU, and the context row only registers on the
+    // SECOND copy. ONE TalkerAdvertise across a 600-cycle stall must fill
+    // the row's status word first-shot.
+    // ============================================================
+    printf("-- [PARK] parked-lane torture (gh #65) --\n");
+    {
+        const uint64_t P_SID = 0x0200000000AA0000ULL;
+        ctx_write(3, 1, 1, P_SID);            // listener row, fresh sid
+        run(400); drain_tx();
+        ck("[PARK] pre: row 3 unregistered", (dut->ctx_reg_o >> 3) & 1, 0);
+
+        uint8_t drops_before = dut->rx_drops_o;
+        Vec v; v.fv = fv_talker(P_SID); v.evts = {EV_JOININ};
+        feed_parked(bframe({msg_tadv(v)}), 3, 600);
+        run(400);
+        ck("[PARK] row 3 registers first-shot", (dut->ctx_reg_o >> 3) & 1, 1);
+        ck("[PARK] row 3 ready first-shot", (dut->ctx_ready_o >> 3) & 1, 1);
+        {
+            uint64_t sid = 0;
+            uint16_t st = ctx_read(3, &sid);
+            ck("[PARK] status word: valid", (st >> 15) & 1, 1);
+            ck("[PARK] status word: registered", (st >> 12) & 1, 1);
+            ck("[PARK] status word: ready", (st >> 11) & 1, 1);
+            ck("[PARK] status word: sid intact", sid, P_SID);
+        }
+        ck("[PARK] the PDU was not torn (no drop)",
+           dut->rx_drops_o, drops_before);
+        ctx_write(3, 0, 0, 0); run(400); drain_tx();
     }
 
     ck("final: no RX drops", dut->rx_drops_o, 0);

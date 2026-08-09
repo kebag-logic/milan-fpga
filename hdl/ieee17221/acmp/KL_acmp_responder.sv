@@ -55,6 +55,7 @@ module KL_acmp_responder (
 
     // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) -------
     input  wire         rx_tvalid_i,
+    input  wire         rx_tready_i,    //! tapped lane's ready (read, never driven)
     input  wire [63:0]  rx_tdata_i,
     input  wire [7:0]   rx_tkeep_i,
     input  wire         rx_tlast_i,
@@ -90,6 +91,7 @@ module KL_acmp_responder (
     .talker_active_o     (w_active),
     .probe_armed_o       (w_armed),
     .rx_tvalid_i         (rx_tvalid_i),
+    .rx_tready_i         (rx_tready_i),
     .rx_tdata_i          (rx_tdata_i),
     .rx_tkeep_i          (rx_tkeep_i),
     .rx_tlast_i          (rx_tlast_i),

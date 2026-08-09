@@ -105,6 +105,7 @@ int main(int argc, char** argv) {
 
     dut->rst_n = 0; dut->enable_i = 0; dut->m_axis_tready = 1;
     dut->rx_tvalid_i = 0; dut->talker_en_i = 0; dut->lstn_declare_i = 0;
+    dut->rx_tready_i = 1;   //! tapped lane idle-ready (gh #65 handshake)
     dut->lstn_bound_i = 0; dut->is_1g_i = 0;
     dut->station_mac_i = 0x020000000002ULL; dut->unique_id_i = 0;
     dut->vid_i = 2; dut->dest_mac_i = 0x91E0F000FE01ULL;

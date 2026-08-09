@@ -39,6 +39,7 @@ module KL_lwsrp_rx #(
 
     // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) --------
     input  wire         rx_tvalid_i,
+    input  wire         rx_tready_i,       //! tapped lane's ready (read, never driven)
     input  wire [63:0]  rx_tdata_i,
     input  wire [7:0]   rx_tkeep_i,
     input  wire         rx_tlast_i,
@@ -104,7 +105,8 @@ module KL_lwsrp_rx #(
   KL_lwsrp_ingress #(.FIFO_DEPTH_BYTES_P(FIFO_DEPTH_BYTES_P)) ingress (
     .clk_i (clk_i), .rst_n (rst_n),
     .enable_i (enable_i),
-    .rx_tvalid_i (rx_tvalid_i), .rx_tdata_i (rx_tdata_i),
+    .rx_tvalid_i (rx_tvalid_i), .rx_tready_i (rx_tready_i),
+    .rx_tdata_i (rx_tdata_i),
     .rx_tkeep_i (rx_tkeep_i),   .rx_tlast_i (rx_tlast_i),
     .m_tdata (f_tdata), .m_tkeep (f_tkeep), .m_tvalid (f_tvalid),
     .m_tlast (f_tlast), .m_tuser (f_tuser), .m_tready (f_tready),

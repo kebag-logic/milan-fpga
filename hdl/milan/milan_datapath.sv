@@ -2877,7 +2877,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                                     : avtprx_unlocked_c),
     .in0_fmt_o             (aecp_in0_fmt),
     .clk_src_o             (aecp_clk_src),
+    //! HANDSHAKE HAZARD (gh #65): the tap MUST see tready - a stalled DMA
+    //! parks a beat with tvalid held and a tvalid-only tap re-eats it
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
+    .rx_tready_i (rx_axis_to_dma.tready),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
     .rx_tkeep_i  (rx_axis_to_dma.tkeep),
     .rx_tlast_i  (rx_axis_to_dma.tlast),
@@ -2925,7 +2928,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                      cfg_mac_addr[23:16], cfg_mac_addr[31:24],
                      cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
     .entity_id_i (cfg_adp_entity_id),
+    //! HANDSHAKE HAZARD (gh #65): the tap MUST see tready - a stalled DMA
+    //! parks a beat with tvalid held and a tvalid-only tap re-eats it
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
+    .rx_tready_i (rx_axis_to_dma.tready),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
     .rx_tkeep_i  (rx_axis_to_dma.tkeep),
     .rx_tlast_i  (rx_axis_to_dma.tlast),
@@ -3022,7 +3028,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .lstn_dmac_v_o   (acmpl_dmac_v_w),
     .lstn_vlan_v_o   (acmpl_vlan_v_w),
     .bind_upd_p_o    (acmpl_upd_p_w),
+    //! HANDSHAKE HAZARD (gh #65): the tap MUST see tready - a stalled DMA
+    //! parks a beat with tvalid held and a tvalid-only tap re-eats it
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
+    .rx_tready_i (rx_axis_to_dma.tready),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
     .rx_tkeep_i  (rx_axis_to_dma.tkeep),
     .rx_tlast_i  (rx_axis_to_dma.tlast),
@@ -5013,7 +5022,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .max_frame_i (cfg_lwsrp_max_frame),
     .interval_frames_i (cfg_lwsrp_interval),
     .latency_i (cfg_lwsrp_latency),
+    //! HANDSHAKE HAZARD (gh #65): the tap MUST see tready - a stalled DMA
+    //! parks a beat with tvalid held and a tvalid-only tap re-eats it
     .rx_tvalid_i (rx_axis_to_dma.tvalid),
+    .rx_tready_i (rx_axis_to_dma.tready),
     .rx_tdata_i  (rx_axis_to_dma.tdata),
     .rx_tkeep_i  (rx_axis_to_dma.tkeep),
     .rx_tlast_i  (rx_axis_to_dma.tlast),

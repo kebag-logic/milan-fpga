@@ -111,6 +111,33 @@ static void feed(const std::vector<uint8_t>& f) {
     step();   // registered tap: flush the last beat
 }
 
+// PARKED-LANE TORTURE (gh #65): a stalled DMA holds tready low mid-frame
+// while the producer keeps tvalid on the SAME beat. A tap that samples
+// tvalid alone eats every parked cycle as a NEW beat: the command tears
+// (missed) or the beat lands twice (a duplicated bind is a rebind).
+static void feed_parked(const std::vector<uint8_t>& f, int park_beat,
+                        int park_cycles) {
+    size_t n = f.size();
+    int beat = 0;
+    for (size_t off = 0; off < n; off += 8, beat++) {
+        uint64_t d = 0; uint8_t k = 0;
+        for (int l = 0; l < 8 && off + l < n; l++) {
+            d |= (uint64_t)f[off + l] << (8 * l);
+            k |= 1 << l;
+        }
+        dut->rx_tvalid_i = 1; dut->rx_tdata_i = d; dut->rx_tkeep_i = k;
+        dut->rx_tlast_i = (off + 8 >= n);
+        if (beat == park_beat) {
+            dut->rx_tready_i = 0;
+            for (int i = 0; i < park_cycles; i++) step();
+            dut->rx_tready_i = 1;
+        }
+        step();
+    }
+    dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0;
+    step();
+}
+
 // capture one TX frame (little lane), optional toggling back-pressure
 static std::vector<uint8_t> collect(int bp = 0, int maxc = 300) {
     std::vector<uint8_t> b;
@@ -156,6 +183,8 @@ int main(int argc, char** argv) {
     dut->tick_1s_i = 0; dut->listener_observed_i = 0;
     dut->lstn_ask_fail_i = 0;                // no Listener AskingFailed
     dut->rx_tvalid_i = 0; dut->rx_tdata_i = 0; dut->rx_tkeep_i = 0; dut->rx_tlast_i = 0;
+    // the tapped lane's consumer is idle-ready; the gh #65 leg parks it
+    dut->rx_tready_i = 1;
     for (int i = 0; i < 4; i++) step();
     dut->rst_n = 1; dut->enable_i = 1;
     for (int i = 0; i < 2; i++) step();
@@ -451,6 +480,32 @@ int main(int argc, char** argv) {
         r = collect();
         ck("[A2] laf=0: GTS flags back to 0x0000",
            r.size() == 70 ? be(r, 64, 2) : 0xFFFF, 0x0000);
+    }
+
+    // [PARK] PARKED-LANE TORTURE (gh #65): the DMA stalls mid-command and
+    //   the producer parks a beat with tvalid held. A handshake-blind tap
+    //   consumes every parked cycle as a new beat — the command is missed
+    //   or duplicated (a duplicated CONNECT_TX is a REBIND). ONE honest
+    //   probe across a 600-cycle stall must be answered EXACTLY once.
+    {
+        printf("--------------------------------------------------------------\n");
+        for (int t = 0; t < 16; t++) tick();     // let the window lapse
+        uint16_t cc0 = dut->cmd_count_o, rc0 = dut->resp_count_o;
+        feed_parked(acmp_cmd(0, ENTITY_ID, 0, 0x0E01, /*flags*/0x0000), 3, 600);
+        r = collect();
+        ck("[PARK] answered first-shot, frame length 70", r.size(), 70);
+        if (r.size() == 70) {
+            ck("[PARK] msg = CONNECT_TX_RESPONSE(1)", r[15] & 0x0F, 1);
+            ck("[PARK] status SUCCESS", r[16] >> 3, 0);
+            ck("[PARK] sequence echoed", be(r, 62, 2), 0x0E01);
+        }
+        ck("[PARK] exactly ONE command accepted",
+           dut->cmd_count_o, (long)(cc0 + 1));
+        ck("[PARK] exactly ONE response sent",
+           dut->resp_count_o, (long)(rc0 + 1));
+        expect_silence("[PARK] no duplicate response behind it");
+        ck("[PARK] still exactly ONE command after the settle",
+           dut->cmd_count_o, (long)(cc0 + 1));
     }
 
     printf("ACMP Milan talker SM: %ld checks, %ld failures\n", checks, fails);

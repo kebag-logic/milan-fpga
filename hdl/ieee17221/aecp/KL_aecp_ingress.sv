@@ -93,6 +93,7 @@ module KL_aecp_ingress #(
 
   // ---- RX monitor tap (little lane order; inputs only) ---------------
   input  wire          rx_tvalid_i,
+  input  wire          rx_tready_i,     //! tapped lane's ready (read, never driven)
   input  wire [63:0]   rx_tdata_i,
   input  wire [7:0]    rx_tkeep_i,
   input  wire          rx_tlast_i,
@@ -133,7 +134,10 @@ module KL_aecp_ingress #(
   logic [63:0] rxd_r;
   logic [7:0]  rxk_r;
   always_ff @(posedge clk_i) begin
-    rxv_r <= rx_tvalid_i;
+    //! HANDSHAKE HAZARD: a stalled DMA parks a beat with tvalid held, so a
+    //! tvalid-only tap eats the same beat every cycle (a duplicated SET is a
+    //! replay-class hazard) - qualify on tvalid && tready
+    rxv_r <= rx_tvalid_i && rx_tready_i;
     rxd_r <= rx_tdata_i;
     rxk_r <= rx_tkeep_i;
     rxl_r <= rx_tlast_i;

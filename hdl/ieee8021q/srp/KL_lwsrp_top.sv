@@ -97,6 +97,7 @@ module KL_lwsrp_top #(
 
     // ---- RX monitor tap (little lane, inputs only) ------------------------
     input  wire         rx_tvalid_i,
+    input  wire         rx_tready_i,    //! tapped lane's ready (read, never driven)
     input  wire [63:0]  rx_tdata_i,
     input  wire [7:0]   rx_tkeep_i,
     input  wire         rx_tlast_i,
@@ -339,7 +340,8 @@ module KL_lwsrp_top #(
     .clk_i (clk_i), .rst_n (rst_n),
     .enable_i (enable_i), .link_up_i (link_up_i),
     .tick_1khz_i (tick_1khz_w),
-    .rx_tvalid_i (rx_tvalid_i), .rx_tdata_i (rx_tdata_i),
+    .rx_tvalid_i (rx_tvalid_i), .rx_tready_i (rx_tready_i),
+    .rx_tdata_i (rx_tdata_i),
     .rx_tkeep_i (rx_tkeep_i),   .rx_tlast_i (rx_tlast_i),
     .station_mac_i (station_mac_i), .unique_id_i (unique_id_i),
     .vid_i (vid_i),

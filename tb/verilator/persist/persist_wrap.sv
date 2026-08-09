@@ -170,7 +170,10 @@ module persist_wrap #(
       .ta_failed_i     (ta_failed_i),
       .lstn_declare_o  (),
       .stream_active_o (stream_active_o),
+      //! TB fixture: no DMA model here, so the tapped lane is always ready
+      //! (gh #65 - the tap qualifies its sample on tvalid && tready)
       .rx_tvalid_i     (rx_tvalid_i),
+      .rx_tready_i     (1'b1),
       .rx_tdata_i      (rx_tdata_i),
       .rx_tkeep_i      (rx_tkeep_i),
       .rx_tlast_i      (rx_tlast_i),

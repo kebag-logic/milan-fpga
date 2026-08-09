@@ -110,6 +110,7 @@ module KL_acmp_listener #(
 
     // ---- RX monitor tap (MAC RX AXIS, little lane, inputs only) -------
     input  wire         rx_tvalid_i,
+    input  wire         rx_tready_i,    //! tapped lane's ready (read, never driven)
     input  wire [63:0]  rx_tdata_i,
     input  wire [7:0]   rx_tkeep_i,
     input  wire         rx_tlast_i,
@@ -210,6 +211,7 @@ module KL_acmp_listener #(
     .lstn_vlan_o     (lstn_vlan_v_o),
     .bind_upd_p_o    (bind_upd_p_o),
     .rx_tvalid_i     (rx_tvalid_i),
+    .rx_tready_i     (rx_tready_i),
     .rx_tdata_i      (rx_tdata_i),
     .rx_tkeep_i      (rx_tkeep_i),
     .rx_tlast_i      (rx_tlast_i),

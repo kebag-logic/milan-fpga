@@ -11,6 +11,27 @@
 static VKL_lwsrp_rx* dut;
 static void step(int n=1){ for(int i=0;i<n;i++){ dut->clk_i=0; dut->eval(); dut->clk_i=1; dut->eval(); } }
 
+// PARKED-LANE TORTURE (gh #65): a stalled DMA holds tready low mid-frame
+// while the producer keeps tvalid on the SAME beat. A tap that samples
+// tvalid alone eats every parked cycle as a NEW beat and tears the PDU.
+static void feed_parked(const uint8_t* f, size_t n, int park_beat,
+                        int park_cycles) {
+    int beat = 0;
+    for (size_t off = 0; off < n; off += 8, beat++) {
+        uint64_t d = 0; uint8_t k = 0;
+        for (int b = 0; b < 8 && off+b < n; b++) {
+            d |= (uint64_t)f[off+b] << (8*b); k |= 1 << b;
+        }
+        dut->rx_tdata_i = d; dut->rx_tkeep_i = k;
+        dut->rx_tvalid_i = 1; dut->rx_tlast_i = (off + 8 >= n);
+        if (beat == park_beat) {
+            dut->rx_tready_i = 0; step(park_cycles); dut->rx_tready_i = 1;
+        }
+        step();
+    }
+    dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0;
+}
+
 static const uint8_t FRAME[] = {
 0x01,0x80,0xc2,0x00,0x00,0x0e,0x3c,0xc0,0xc6,0xfe,0x02,0x11,0x22,0xea,0x00,0x02,
 0x22,0x00,0x4c,0x20,0x01,0x02,0x00,0x00,0x00,0x00,0x01,0x00,0x00,0x91,0xe0,0xf0,
@@ -29,6 +50,8 @@ int main(int argc, char** argv){
     dut = new VKL_lwsrp_rx;
     dut->rst_n=0; dut->clk_i=0; dut->enable_i=0; dut->tick_1khz_i=0;
     dut->rx_tvalid_i=0; dut->rx_tlast_i=0;
+    // the tapped lane's consumer is idle-ready; the gh #65 leg parks it
+    dut->rx_tready_i=1;
     step(4); dut->rst_n=1; dut->enable_i=1;
     dut->station_mac_i = 0x020000000002ull;      // the arty
     dut->unique_id_i = 0; dut->vid_i = 0x27E;
@@ -97,6 +120,32 @@ int main(int argc, char** argv){
     dut->rx_tvalid_i = 0; dut->rx_tlast_i = 0;
     step(4000);
     ck("domain_ok=1 vs vid 2 (class-A +k value matches)", dut->domain_ok_o, 1);
+
+    // gh #65 PARKED LANE: the same REAL switch PDU, delivered ONCE across a
+    // 600-cycle DMA stall. A handshake-blind tap tears it and nothing
+    // registers until the switch's next refresh; the qualified tap registers
+    // first-shot.
+    // FULL RESET, not an enable bounce: KL_lwsrp_ta_registrar's !enable_i
+    // branch clears ta_registered_o/ta_failed_o ONLY (hdl 90-96) - the
+    // captured bridge_id/acc_latency/vlan survive it. Checking those after a
+    // bounce would pass on the FIRST, unparked feed's stale data; only the
+    // reset branch zeroes them, so the post-checks below really are the
+    // parked PDU's own bytes.
+    dut->rst_n = 0; step(8); dut->rst_n = 1; step(8);
+    ck("[PARK] pre: TF cleared", dut->ta_failed_o, 0);
+    ck("[PARK] pre: bridge_id zeroed by the reset",
+       (long long)dut->ta_fail_bridge_o, 0);
+    ck("[PARK] pre: acc_latency zeroed by the reset", dut->ta_acclat_o, 0);
+    uint8_t drops_before = dut->rx_drops_o;
+    feed_parked(FRAME, sizeof(FRAME), 3, 600);
+    step(4000);
+    ck("[PARK] TF registers first-shot across a 600-cycle stall",
+       dut->ta_failed_o, 1);
+    ck("[PARK] bridge_id captured FROM THE PARKED PDU",
+       (long long)dut->ta_fail_bridge_o == 0x80003CC0C6FE0210ll, 1);
+    ck("[PARK] acc_latency captured FROM THE PARKED PDU",
+       dut->ta_acclat_o, 0x00021752);
+    ck("[PARK] the PDU was not torn (no drop)", dut->rx_drops_o, drops_before);
     // The sweep totals checks from a summary line (scripts/suite_tally.py); a
     // bare PASS/FAIL verdict left this suite contributing a structural ZERO.
     printf("lwsrp_switchpdu: %d checks, %d failures\n", checks, fails);
