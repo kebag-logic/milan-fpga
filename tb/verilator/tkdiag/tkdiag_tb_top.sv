@@ -12,9 +12,15 @@
 //                interval from above, at 1 s).
 //
 //                Also instantiates KL_media_clock_restart on the SAME frame
-//                feed, so the mr bit the counter observes is the bit the
-//                4.4.4.3 generator produced - the two are verified as one
-//                chain rather than against each other's assumptions.
+//                feed, and over the SAME three contexts, so the mr bit the
+//                counter observes is the bit the 4.4.4.3 generator produced
+//                - the two are verified as one chain rather than against
+//                each other's assumptions. Context 2 is the CRF Media Clock
+//                Output in both: 10.4.3 gives a CRF Talker the same mr duty
+//                4.4.4.3 gives a media-stream Talker, and PICS Table F.16
+//                CRF-3/CRF-5 make the bit and the >= 8 AVTPDU hold
+//                mandatory for it, so it is a hold-bearing context of the
+//                engine and not a bystander (gh #62 H2b).
 //---------------------------------------------------------------------------//
 
 `default_nettype none
@@ -33,8 +39,9 @@ module tkdiag_tb_top (
   input  wire        mcr_restart_p_i,
   //! the live media clock source: a CHANGE here is 4.4.4.3's primary trigger
   input  wire [15:0] mcr_clk_src_i,
-  input  wire [1:0]  mcr_streaming_i,
-  output wire [1:0]  mcr_mr_o,
+  //! three contexts: two AAF talkers + the CRF Media Clock Output at 2
+  input  wire [2:0]  mcr_streaming_i,
+  output wire [2:0]  mcr_mr_o,
   input  wire [3:0]  rd_idx_i,
   output wire [31:0] rd_start_o,
   output wire [31:0] rd_stop_o,
@@ -57,9 +64,12 @@ module tkdiag_tb_top (
     .dirty_p_o (dirty_p_o)
   );
 
-  //! the 4.4.4.3 level generator on the same PDU feed. HOLD_PDU_P stays at
-  //! the clause floor of 8 so the hold cases below test the shipped number.
-  KL_media_clock_restart #(.N_TALKERS_P (2), .HOLD_PDU_P (8)) u_mcr (
+  //! the 4.4.4.3 level generator on the same PDU feed, over the same three
+  //! Stream Outputs the counter block serves (the integration widens it the
+  //! same way: one engine per media clock, one hold per stream). HOLD_PDU_P
+  //! stays at the clause floor of 8 so the hold cases below test the
+  //! shipped number.
+  KL_media_clock_restart #(.N_TALKERS_P (3), .HOLD_PDU_P (8)) u_mcr (
     .clk_i (clk_i), .rst_n (rst_n),
     .restart_p_i (mcr_restart_p_i),
     .clk_src_i (mcr_clk_src_i),

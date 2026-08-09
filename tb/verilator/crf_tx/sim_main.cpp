@@ -2,9 +2,10 @@
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
 // KL_crf_tx module harness: event grid cadence, frame bytes, skip-on-busy,
-// enable gating, and the SR class A 802.1Q C-TAG shape. clk_audio == clk
-// here (the dp TB does the same); the CDC structure is the library
-// cdc_pulse.
+// enable gating, the SR class A 802.1Q C-TAG shape, the IEEE 1722-2016
+// 10.4.3 mr bit, and the 10.7 Equation 14 Max Transit Time rounding.
+// clk_audio == clk here (the dp TB does the same); the CDC structure is the
+// library cdc_pulse.
 
 #include "VKL_crf_tx.h"
 #include "verilated.h"
@@ -21,14 +22,98 @@ static void ck(const char* what, long got, long exp) {
     if (!ok) fails++;
     printf("  [%s] %-40s got=0x%08lx exp=0x%08lx\n", ok ? "PASS" : "FAIL", what, got, exp);
 }
+// decimal form, for the Equation 14 nanosecond quantities (hex would make a
+// rounding-by-one defect unreadable)
+static void ckd(const char* what, long long got, long long exp) {
+    checks++;
+    bool ok = (got == exp);
+    if (!ok) fails++;
+    printf("  [%s] %-40s got=%lld exp=%lld\n", ok ? "PASS" : "FAIL", what, got, exp);
+}
 
 static uint64_t ptp_ns = 1000000000ULL;
+static long g_step = 0;                 // free-running harness cycle count
 static void step() {
     dut->clk_i = 0; dut->clk_audio_i = 0; dut->eval();
     dut->clk_i = 1; dut->clk_audio_i = 1;
     ptp_ns += 10;                       // 10 ns/cycle "PHC"
     dut->ptp_ns_i = ptp_ns;
     dut->eval();
+    g_step++;
+}
+
+// ---------------------------------------------------------------------------
+// Frame capture, pre-edge sampled (the beat visible NOW is the one the coming
+// posedge consumes - the documented post-edge capture trap). g_frame_start is
+// the harness cycle the frame's first beat was taken on, which the Equation 14
+// mid-stream case uses to land a register write a known distance before the
+// NEXT launch.
+// ---------------------------------------------------------------------------
+static long g_frame_start = -1;
+static bool next_frame(std::vector<uint8_t>& out, long max_steps = 300000) {
+    out.clear();
+    std::vector<uint8_t> cur;
+    for (long i = 0; i < max_steps; i++) {
+        bool last = false;
+        if (dut->m_axis_tvalid && dut->m_axis_tready) {
+            if (cur.empty()) g_frame_start = g_step;
+            uint64_t d = dut->m_axis_tdata;
+            for (int j = 0; j < 8; j++) cur.push_back((uint8_t)(d >> (8*j)));
+            last = dut->m_axis_tlast;
+        }
+        step();
+        if (last) { out = cur; return true; }
+    }
+    return false;
+}
+// ... and the same collection started from wherever the harness already is,
+// so a case can change an input MID-FRAME and read back what the frame kept
+static bool collect_from_here(std::vector<uint8_t>& out, long max_steps = 300000) {
+    out.clear();
+    for (long i = 0; i < max_steps; i++) {
+        bool last = false;
+        if (dut->m_axis_tvalid && dut->m_axis_tready) {
+            uint64_t d = dut->m_axis_tdata;
+            for (int j = 0; j < 8; j++) out.push_back((uint8_t)(d >> (8*j)));
+            last = dut->m_axis_tlast;
+        }
+        step();
+        if (last) return true;
+    }
+    out.clear();
+    return false;
+}
+static void wait_tvalid(long max_steps = 300000) {
+    for (long i = 0; i < max_steps && !dut->m_axis_tvalid; i++) step();
+}
+
+// the CRF reference timestamp of an UNTAGGED frame: AVTPDU at offset 14,
+// crf_data at pdu[20..27]
+static uint64_t ts_of(const std::vector<uint8_t>& f) {
+    uint64_t t = 0;
+    for (int j = 0; j < 8; j++) t = (t << 8) | f[34+j];
+    return t;
+}
+
+// event grid: 96 sample events x /512 = 49152 harness cycles, 10 ns each
+static const long     GRID_STEPS_C = 49152;
+static const int64_t  GRID_NS_C    = 49152LL * 10;
+
+// ---------------------------------------------------------------------------
+// The Equation 14 ORACLE, derived independently of the RTL. 10.7:
+//     T_CRF = T_S + ceil(TTmax / P) * P + T_C,   T_C = 0 here
+// with P = the nominal media clock period = 1e9/48000 ns. This computes it
+// from the UNREDUCED rational; the RTL reduces the same rational to 62500/3
+// and runs a sequential divider over it, so agreement is agreement between
+// two derivations rather than a restatement of one.
+// ---------------------------------------------------------------------------
+static uint64_t eq14_periods(uint64_t mtt_ns) {
+    const uint64_t NS = 1000000000ULL, BASE = 48000ULL;
+    return (mtt_ns * BASE + NS - 1) / NS;            // ceil(TTmax / P)
+}
+static uint64_t eq14_offset(uint64_t mtt_ns) {
+    const uint64_t NS = 1000000000ULL, BASE = 48000ULL;
+    return (eq14_periods(mtt_ns) * NS + BASE - 1) / BASE;   // ceil(periods * P)
 }
 
 int main(int argc, char** argv) {
@@ -41,6 +126,7 @@ int main(int argc, char** argv) {
     dut->station_mac_i = 0x020000000001ULL;
     dut->transit_ns_i = 2000000;        // Milan PTO on CRF ts (like any stream)
     dut->ts_uncertain_i = 0;            // synchronised clock (1722-2016 10.4.5)
+    dut->mr_i = 0;                      // 10.4.3 level, reset state (no restart)
     // untagged is the RESET shape (see the module header's prune trap):
     // the tag only turns on when the integration has a declared lwSRP row
     dut->vlan_en_i = 0; dut->vlan_pcp_i = 3; dut->vlan_vid_i = 2;
@@ -256,6 +342,186 @@ int main(int argc, char** argv) {
         }
         ck("untagged again: ethertype back at 12", et, 0x22F0);
         ck("untagged again: frame size unchanged", sz, 64);
+    }
+
+    // ======================================================================
+    // [H2b] IEEE 1722-2016 10.4.3 - the mr (media clock restart) bit.
+    //
+    // mr is a LEVEL a CRF Talker toggles when the source of the media clock
+    // providing the samples changes; PICS Table F.16 makes CRF-3 (the bit
+    // set as described in 10.4.3) and CRF-5 (">= 8 CRF AVTPDUs") both
+    // mandatory. The toggle policy and the hold belong to
+    // KL_media_clock_restart (proved in tb/verilator/tkdiag). What THIS
+    // module owes is two wire facts, and they are the two this section
+    // pins:
+    //   * the granted level reaches the alternative header byte 1, which it
+    //     SHARES with tu ({sv, ver[2:0], mr, fs, res, tu}) - so both are
+    //     checked together at every combination: a shift-by-one defect in
+    //     either shows up as the other, and 0x88 vs 0x81 is the whole
+    //     difference between "the media clock restarted" and "the clock is
+    //     uncertain"
+    //   * mr_last_o is the level the last COMPLETED PDU carried - not the
+    //     level currently granted. The hold counts PDUs that WENT OUT, so a
+    //     frame already launched when the level flips must still report the
+    //     old bit, or the new state reaches the wire for seven PDUs where
+    //     the clause says eight.
+    // ======================================================================
+    printf("[crf_tx] [H2b] 10.4.3 mr: byte 1 beside tu, mr_last_o at tlast\n");
+    {
+        std::vector<uint8_t> f;
+        struct { int mr, tu; long b1; const char* name; } leg[] = {
+            {0, 0, 0x80, "[H2b-a] mr=0 tu=0 -> byte 15 = 0x80"},
+            {1, 0, 0x88, "[H2b-b] mr=1 tu=0 -> byte 15 = 0x88"},
+            {1, 1, 0x89, "[H2b-c] mr=1 tu=1 -> byte 15 = 0x89"},
+            {0, 1, 0x81, "[H2b-d] mr=0 tu=1 -> byte 15 = 0x81"},
+        };
+        for (auto& L : leg) {
+            dut->mr_i = L.mr; dut->ts_uncertain_i = L.tu;
+            next_frame(f);                       // may be the in-flight one
+            next_frame(f);                       // ... this one carries it
+            ck(L.name, f[15], L.b1);
+            ck("[H2b] ... mr_last_o mirrors the wire", dut->mr_last_o,
+               (f[15] >> 3) & 1);
+            ck("[H2b] ... frame still 64 lane bytes", (long)f.size(), 64);
+        }
+        dut->mr_i = 0; dut->ts_uncertain_i = 0;
+        next_frame(f); next_frame(f);
+        ck("[H2b-e] back to mr=0 tu=0", f[15], 0x80);
+        ck("[H2b-e] ... and mr_last_o with it", dut->mr_last_o, 0);
+
+        // the LATCH: flip the level with a frame already on the wire. That
+        // frame keeps the old bit, and so does mr_last_o until the NEXT PDU
+        // completes - the eight-PDU hold may only count what went out.
+        wait_tvalid();
+        dut->mr_i = 1; dut->eval();              // mid-frame flip
+        collect_from_here(f);
+        ck("[H2b-f] mid-frame flip: the launched PDU keeps mr=0", f[15], 0x80);
+        ck("[H2b-f] ... mr_last_o still reports 0", dut->mr_last_o, 0);
+        next_frame(f);
+        ck("[H2b-g] the NEXT PDU carries the new level", f[15], 0x88);
+        ck("[H2b-g] ... and mr_last_o follows it", dut->mr_last_o, 1);
+
+        // the tagged shape moves the AVTPDU +4: byte 1 lands at 19
+        dut->vlan_en_i = 1;
+        next_frame(f); next_frame(f);
+        ck("[H2b-h] tagged: mr=1 at byte 19", f[19], 0x88);
+        ck("[H2b-h] ... mr_last_o unchanged by the tag", dut->mr_last_o, 1);
+        dut->vlan_en_i = 0;
+        dut->mr_i = 0;
+        next_frame(f); next_frame(f);
+        ck("[H2b-i] untagged again, mr back to 0", f[15], 0x80);
+        ck("[H2b-i] ... mr_last_o back to 0", dut->mr_last_o, 0);
+    }
+
+    // ======================================================================
+    // [H3] IEEE 1722-2016 10.7 Equation (14) - the Max Transit Time offset,
+    // rounded UP to a whole number of MEDIA CLOCK periods.
+    //
+    //     T_CRF = T_S + ceil(TTmax / P) * P + T_C
+    //
+    // P = 1e9/48000 = 20833.333... ns, so the offset a conformant talker
+    // stamps is almost never the raw TTmax. PICS Table F.16 CRF-19 asks the
+    // question directly.
+    //
+    // MEASURING IT WITHOUT AN INTERNAL PROBE. The timestamps are latched on
+    // the event grid, which is exactly GRID_NS_C apart, so between two
+    // consecutive PDUs
+    //     ts[k+1] - ts[k] = GRID_NS_C + (offset[k+1] - offset[k])
+    // and the chain is anchored at TTmax = 2 ms, where Equation 14 is a
+    // no-op (96 periods = exactly 2000000 ns) and the offset is therefore
+    // known outright. Each new value is written straight after a PDU
+    // completes, which leaves the whole 2 ms grid interval for the
+    // sequential conversion, so the next frame carries the new answer.
+    // ======================================================================
+    printf("[crf_tx] [H3] 10.7 Equation 14 Max Transit Time rounding\n");
+    {
+        std::vector<uint8_t> f;
+        dut->transit_ns_i = 2000000;
+        next_frame(f); next_frame(f); next_frame(f);
+        uint64_t prev_ts  = ts_of(f);
+        int64_t  prev_ofs = 2000000;
+        ck("[H3-anchor] 2 ms is 96 whole periods: Eq 14 is a no-op",
+           (long)eq14_offset(2000000), 2000000);
+        ck("[H3-anchor] ... 96 of them",  (long)eq14_periods(2000000), 96);
+
+        // the named cases from the clause work-through, then the boundaries
+        // either side of one media clock period, then the extremes
+        const uint32_t sweep[] = {
+            2000000,        // the shipping default: byte-identical
+            1000001,        // 48.000048 periods -> 49 -> 1020834
+            20833,          // just under ONE period -> 1 -> 20834
+            0,              // no transit at all -> 0 periods -> 0
+            1,              // a single nanosecond still buys a whole period
+            20834,          // just over one period -> 2 periods
+            41666, 41667,   // either side of two periods (41666.67)
+            62500,          // three periods exactly (62500 = 3 * 20833.33)
+            125000,         // six periods exactly
+            1999999,        // one ns under the default -> still 96 periods
+            2000001,        // one ns over -> 97 periods
+            4000000,        // class B territory: 192 periods exactly
+            2000000,        // ... and back to the shipping default
+        };
+        for (uint32_t mtt : sweep) {
+            dut->transit_ns_i = mtt;
+            if (!next_frame(f)) { ck("[H3] frame timeout", 0, 1); break; }
+            uint64_t ts   = ts_of(f);
+            int64_t applied = prev_ofs
+                            + ((int64_t)ts - (int64_t)prev_ts - GRID_NS_C);
+            char nm[96];
+            snprintf(nm, sizeof nm, "[H3] MTT %u -> Eq 14 offset", mtt);
+            ckd(nm, (long long)applied, (long long)eq14_offset(mtt));
+            // the two clause invariants, independent of the oracle's value:
+            // never BELOW the Max Transit Time (10.7's own reason for
+            // rounding up), and never more than one media clock period above
+            snprintf(nm, sizeof nm, "[H3] MTT %u -> offset >= TTmax", mtt);
+            ck(nm, (long)(applied >= (int64_t)mtt), 1);
+            snprintf(nm, sizeof nm, "[H3] MTT %u -> excess < one period", mtt);
+            ck(nm, (long)((applied - (int64_t)mtt) < 20834), 1);
+            prev_ts = ts; prev_ofs = applied;
+        }
+
+        // ---- the rewrite lands BETWEEN frames, never inside one ----------
+        // (a) mid-frame: the timestamp was latched at launch, so a write
+        //     while the serialiser is running cannot reach the PDU on the
+        //     wire - it stays exactly one grid step past its predecessor.
+        dut->transit_ns_i = 2000000;
+        next_frame(f); next_frame(f);
+        prev_ts = ts_of(f);
+        wait_tvalid();
+        dut->transit_ns_i = 1000001; dut->eval();
+        collect_from_here(f);
+        ckd("[H3-mid-a] mid-frame write: this PDU keeps the old offset",
+            (long long)((int64_t)ts_of(f) - (int64_t)prev_ts), (long long)GRID_NS_C);
+        prev_ts = ts_of(f); prev_ofs = 2000000;
+        if (next_frame(f)) {
+            int64_t applied = prev_ofs
+                            + ((int64_t)ts_of(f) - (int64_t)prev_ts - GRID_NS_C);
+            ckd("[H3-mid-a] ... the NEXT PDU has the converted one",
+                (long long)applied, (long long)eq14_offset(1000001));
+            prev_ts = ts_of(f); prev_ofs = applied;
+        }
+
+        // (b) a write that lands INSIDE the conversion window, ~20 cycles
+        //     before the next launch. The divider needs ~70 cycles, so that
+        //     launch MUST still stamp the previous rounded value - a
+        //     half-converted quotient is not a transit time - and the frame
+        //     after it gets the new one.
+        long target = g_frame_start + GRID_STEPS_C - 20;
+        while (g_step < target) step();
+        dut->transit_ns_i = 20833; dut->eval();
+        if (next_frame(f)) {
+            ckd("[H3-mid-b] write during the conversion: PREVIOUS value used",
+                (long long)((int64_t)ts_of(f) - (int64_t)prev_ts), (long long)GRID_NS_C);
+            prev_ts = ts_of(f);
+        }
+        if (next_frame(f)) {
+            int64_t applied = prev_ofs
+                            + ((int64_t)ts_of(f) - (int64_t)prev_ts - GRID_NS_C);
+            ckd("[H3-mid-b] ... adopted whole on the following PDU",
+                (long long)applied, (long long)eq14_offset(20833));
+        }
+        dut->transit_ns_i = 2000000;
+        next_frame(f); next_frame(f);
     }
 
     // disable: silent within one event period

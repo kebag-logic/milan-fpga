@@ -83,6 +83,13 @@
                   PDU SEEDS the reference without counting; a bind edge or
                   a 100 ms silence re-seeds, so a new talker's mr level is
                   never scored as this stream's toggle (the 4d31ecfb rule).
+                  THE SAME EDGE LEAVES THIS MODULE as mr_toggle_p_o: 10.4.3
+                  gives the received bit a SECOND duty beyond the counter -
+                  "toggle the mr bit in any outgoing media streams that are
+                  deriving timestamps from the CRF stream" - and a counter
+                  cannot serve it (the interval fold collapses N toggles to
+                  one increment and delays it up to a second). See that
+                  port's own note (gh #62 H2a).
                 * TIMESTAMP_UNCERTAIN "the 'tu' bit was set in any of the
                   received Stream Data AVTPDUs" - tu_i. NOTE the CRF
                   ALTERNATIVE header (1722-2016 10.4.5) carries tu at byte
@@ -219,7 +226,22 @@ module KL_crf_rx #(
   //! themselves a wire-visible change). NEVER on a healthy FRAMES_RX
   //! interval - the task-21 exclusion, verbatim: a healthy stream closes
   //! an interval every second forever and must not push forever.
-  output logic        dirty_p_o
+  output logic        dirty_p_o,
+  //! one-cycle pulse: the RECEIVED mr level TOGGLED on an accepted PDU of
+  //! the followed stream (the same w_ev_mr_w event MEDIA_RESET counts,
+  //! registered). This is the 4.4.4.3 trigger the counter alone cannot
+  //! serve - "any streams deriving timestamps from the CRF stream shall
+  //! toggle the mr bit ... if the mr bit in the CRF stream has been
+  //! toggled" - exported for KL_media_clock_restart's restart_p_i.
+  //! milan_datapath gates it with clock_source == CRF, which is 10.4.3's
+  //! own scoping: "only the mr bit from the stream being used by the
+  //! Listener for recovering the media clock is valid". The seeding rules
+  //! keep it honest structurally: the era's first accepted PDU SEEDS the
+  //! reference silently (bind rise and the 100 ms silence re-seed), and a
+  //! REJECTED PDU is never accepted - so a new talker's level, a resuming
+  //! stream, or a malformed flip can never fire a phantom restart (gh #62
+  //! H2a)
+  output logic        mr_toggle_p_o
 );
 
   //! Milan 7.3.2 constants
@@ -362,6 +384,7 @@ module KL_crf_rx #(
       locked_o <= 1'b0; cnt_locked_o <= '0; cnt_unlocked_o <= '0;
       cnt_intr_o <= '0;
       dirty_p_o <= 1'b0;
+      mr_toggle_p_o <= 1'b0;
       hidx_r <= '0; hfill_r <= '0;
       exp_seq_r <= '0; have_seq_r <= 1'b0;
       settle_r <= '0; tout_r <= '0;
@@ -372,6 +395,13 @@ module KL_crf_rx #(
     end else begin
       en_q <= en_i;
       dirty_p_o <= 1'b0;
+      //! the 10.4.3 restart EDGE, registered, one cycle wide. Exactly the
+      //! event MEDIA_RESET folds into its interval - same term, no second
+      //! detector to drift from the first. The bind rise is excluded for the
+      //! reason the wipe below states: the previous era's mr level may not be
+      //! scored against the new binding, and that includes not restarting an
+      //! outgoing stream over it.
+      mr_toggle_p_o <= w_ev_mr_w & ~w_bind_rise_w;
       //! Table 5.6 interval commit: +1 per flagged counter at the tick,
       //! then the flags restart clean. An event landing in the tick cycle
       //! itself is harvested INTO the closing interval (the

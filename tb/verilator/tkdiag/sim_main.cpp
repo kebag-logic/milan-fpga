@@ -364,6 +364,76 @@ int main(int argc, char** argv) {
     ck("T13 source change CRF->internal toggles mr back to 0",
        dut->mcr_mr_o & 1, 0);
 
+    // ---------------------------------------------------------------------
+    //  T15: the CRF Media Clock Output is a HOLD-BEARING context of the same
+    //  engine (gh #62 H2b). IEEE 1722-2016 10.4.3 gives a CRF Talker the mr
+    //  duty 4.4.4.3 gives a media-stream Talker, and PICS Table F.16 makes
+    //  CRF-3 (the bit set as described in 10.4.3) and CRF-5 ("a minimum of
+    //  eight (8) CRF AVTPDUs") BOTH mandatory - so the CRF output cannot be
+    //  a bystander that merely reads the engine's target.
+    //
+    //  Its hold has to be ITS OWN, and the rates are why: a CRF stream runs
+    //  at 500 PDU/s against an AAF talker's 8000, so a shared hold would let
+    //  the audio talkers satisfy the CRF stream's clause on its behalf and
+    //  put the new state on the CRF wire for a sixteenth of eight PDUs. The
+    //  TARGET stays shared - one media clock, one restart history - which is
+    //  the other half of the same clause.
+    //
+    //  BITES the pre-round engine, which was N_TALKERS_P = N_STREAMS: with
+    //  no context 2 there is no level for the CRF talker to stamp and no
+    //  hold for it to satisfy.
+    // ---------------------------------------------------------------------
+    printf("[T15] the CRF context (2) carries its OWN 4.4.4.3 hold\n");
+    dut->rst_n = 0; dut->mcr_clk_src_i = 0; cyc(4); dut->rst_n = 1;
+    dut->streaming_i = 0b111; dut->mcr_streaming_i = 0b111;
+    dut->frame_mr_i = 0; cyc(4);
+    ck("T15 reset: all three contexts at level 0", dut->mcr_mr_o, 0);
+    // SET_CLOCK_SOURCE internal(0) -> CRF(2). Nothing has streamed yet, so
+    // every hold starts satisfied and all three adopt at once - a fresh
+    // stream must carry the current truth, not a stale bit.
+    dut->mcr_clk_src_i = 2; step(); cyc(2);
+    ck("T15 a source change toggles the CRF context with the rest",
+       dut->mcr_mr_o, 0b111);
+    // put the new level on the wire ASYMMETRICALLY: talker 0 completes its
+    // eight PDUs, the CRF output manages only three
+    dut->frame_mr_i = 1;
+    for (int k = 0; k < 8; k++) frame_mr(0, 0, 1);
+    for (int k = 0; k < 3; k++) frame_mr(2, 0, 1);
+    cyc(2);
+    // a second source change: talker 0 may move, the CRF output may not
+    dut->mcr_clk_src_i = 0; step(); cyc(2);
+    ck("T15 talker 0 satisfied its own hold -> adopts 0",
+       dut->mcr_mr_o & 1, 0);
+    ck("T15 the CRF context has 3 CRF AVTPDUs -> HELD at 1",
+       (dut->mcr_mr_o >> 2) & 1, 1);
+    ck("T15 talker 1 transmitted nothing -> held too (per-stream hold)",
+       (dut->mcr_mr_o >> 1) & 1, 1);
+    for (int k = 0; k < 4; k++) frame_mr(2, 0, 1);   // 7 of the 8
+    cyc(2);
+    ck("T15 seven CRF AVTPDUs is not eight -> still held",
+       (dut->mcr_mr_o >> 2) & 1, 1);
+    ck("T15 ... and talker 0 did not un-adopt while waiting",
+       dut->mcr_mr_o & 1, 0);
+    frame_mr(2, 0, 1); cyc(2);                       // the eighth
+    ck("T15 the EIGHTH CRF AVTPDU releases the hold -> adopts 0",
+       (dut->mcr_mr_o >> 2) & 1, 0);
+    // ... and the Table 5.4 counter for that Stream Output scores the bit
+    // the CRF PDUs really carried. This is the milan_datapath mux this round
+    // fixed: the CRF context used to be fed a CONSTANT 0 (defensible only
+    // while KL_crf_tx really did stamp a constant), so its MEDIA_RESET could
+    // never move whatever the wire did.
+    dut->frame_mr_i = 0;
+    interval(); interval();                          // drain open flags
+    {
+        Ctrs c2b = snap(2), c0b = snap(0);
+        frame_mr(2, 0, 0);                           // the CRF PDU at level 0
+        interval(); interval();
+        ck("T15 the CRF context's MEDIA_RESET scored its own wire",
+           snap(2).mreset, c2b.mreset + 1);
+        ck("T15 ... and talker 0's counter did not move for it",
+           snap(0).mreset, c0b.mreset);
+    }
+
     printf("--------------------------------------------------------------\n");
     // ---------------------------------------------------------------------
     //  T14: dirty_p_o, the Milan 5.4.5 Table 5.22 push source. Pushes are

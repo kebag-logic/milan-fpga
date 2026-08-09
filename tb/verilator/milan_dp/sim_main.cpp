@@ -187,7 +187,7 @@ int main(int argc, char** argv) {
     // --- 1. CSR identity over AXI4-Lite (M-A2) ---
     printf("[CSR] identity + reset values\n");
     ck("ID == 'MILN'",  axi_read(A_ID),      0x4D494C4E);
-    ck("VERSION",       axi_read(A_VERSION), 0x0001003C);
+    ck("VERSION",       axi_read(A_VERSION), 0x0001003D);
     // link guard: TB leaves the eth toggles static -> unarmed = inert
     // (alive/alive, RUN, no reinit) exactly like a no-PHY top
     ck("LINKG unarmed", axi_read(0x774), 0x00000003);
@@ -1791,6 +1791,157 @@ int main(int argc, char** argv) {
         int32_t dlt = (int32_t)axi_read(A_CRF_DELTA);
         ck("CRFRX delta ~= +PTO (Milan future-dating)",
            (dlt > 1500000) && (dlt <= 2000000), 1);
+        // ... and that value IS the 10.7 Equation 14 answer at the shipping
+        // default: 2 ms is exactly 96 media clock periods, so rounding up to
+        // a whole number of them changes nothing. The rounding law itself is
+        // swept against an independent oracle in the KL_crf_tx harness; what
+        // this pins is that the datapath's default MTT entry stays
+        // byte-identical through it (gh #62 H3).
+
+        // ================================================================ //
+        // [H2] IEEE 1722-2016 10.4.3 mr, END TO END through the datapath.  //
+        //                                                                  //
+        // Three wirings meet here and no unit harness can see any of them:  //
+        //   (1) the mr level KL_media_clock_restart grants the CRF Media    //
+        //       Clock Output actually reaches the wire byte                 //
+        //   (2) a media clock SOURCE change drives it (4.4.4.3's primary    //
+        //       trigger, PICS Table F.16 CRF-3)                             //
+        //   (3) a RECEIVED mr toggle on the CRF stream this device is       //
+        //       slaved to drives it too (CRF-4) - and does NOT when the     //
+        //       device is on an internal clock, which is 10.4.3's own       //
+        //       scoping: "only the mr bit from the stream being used by the //
+        //       Listener for recovering the media clock is valid"           //
+        // ================================================================ //
+        printf("  -- [H2] 10.4.3 mr end to end (source change + echo) --\n");
+        {
+            // capture n CRF PDUs off the MAC TX lane
+            auto cap_crf = [&](int n, std::vector<std::array<uint8_t,64>>& out,
+                               long budget) {
+                out.clear();
+                std::vector<uint8_t> c2;
+                for (long c = 0; c < budget && (int)out.size() < n; c++) {
+                    step();
+                    if (!dut->m_axis_mac_tx_tvalid) continue;
+                    uint64_t d = dut->m_axis_mac_tx_tdata;
+                    for (int j = 0; j < 8; j++) c2.push_back((uint8_t)(d >> (8*j)));
+                    if (dut->m_axis_mac_tx_tlast) {
+                        if (c2.size() >= 42 && c2[12]==0x22 && c2[13]==0xF0
+                            && c2[14]==0x04) {
+                            std::array<uint8_t,64> f{};
+                            for (size_t k = 0; k < c2.size() && k < 64; k++)
+                                f[k] = c2[k];
+                            out.push_back(f);
+                        }
+                        c2.clear();
+                    }
+                }
+            };
+            // a CRF PDU INTO the sink, on the stream it is bound to, with a
+            // chosen mr level. Built from a captured frame so the profile is
+            // the one the sink already accepts.
+            uint64_t inj_ts = 0;
+            for (int j = 0; j < 8; j++) inj_ts = (inj_ts << 8) | crf.back()[34+j];
+            uint8_t inj_seq = crf.back()[16] + 1;
+            auto send_sink = [&](int mr) {
+                std::array<uint8_t,64> f = crf.back();
+                f[15] = (uint8_t)(0x80 | (mr ? 0x08 : 0x00));
+                f[16] = inj_seq++;
+                inj_ts += 2000000ULL;
+                for (int j = 0; j < 8; j++) f[34+j] = (uint8_t)(inj_ts >> (8*(7-j)));
+                inject(f.data(), 64);
+            };
+
+            // AECP SET_CLOCK_SOURCE(CLOCK_DOMAIN[0], index) on the wire -
+            // the same path [SERVO] uses, which is the point: the trigger has
+            // to survive the REAL controller route, not a CSR poke.
+            uint8_t aseq = 0x10;
+            auto set_clk_src = [&](int idx) {
+                uint8_t a[64]; memset(a, 0, sizeof a);
+                const uint8_t emac[6] = {0x02,0x00,0x00,0x00,0x00,0x01};
+                const uint8_t cmac[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+                memcpy(a, emac, 6); memcpy(a+6, cmac, 6);
+                a[12]=0x22; a[13]=0xF0; a[14]=0xFB; a[15]=0x00;
+                a[16]=0x00; a[17]=20;
+                const uint8_t teid[8]={0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+                memcpy(a+18, teid, 8);
+                const uint8_t ceid[8]={0x68,0x05,0xCA,0xFF,0xFE,0x95,0xB2,0xD1};
+                memcpy(a+26, ceid, 8);
+                a[34]=0x30; a[35]=aseq++;
+                a[36]=0x00; a[37]=22;                          // SET_CLOCK_SOURCE
+                a[38]=0x00; a[39]=0x24; a[40]=0; a[41]=0;      // CLOCK_DOMAIN[0]
+                a[42]=0x00; a[43]=(uint8_t)idx; a[44]=0; a[45]=0;
+                inject(a, 64);
+                for (int c = 0; c < 40; c++) step();
+            };
+
+            std::vector<std::array<uint8_t,64>> cap;
+            auto lvl_of = [&](const std::array<uint8_t,64>& f) {
+                return (long)((f[15] >> 3) & 1);
+            };
+
+            // CALIBRATE, do not assume. mr is a LEVEL and no clause resets
+            // it, so the value the wire is carrying when this case starts is
+            // whatever the earlier sections' source changes left behind. Pin
+            // the media clock to INTERNAL, let the level settle, and read it.
+            set_clk_src(0);
+            cap_crf(3, cap, 600000);
+            ck("H2 baseline: the CRF output is emitting", (long)cap.size(), 3);
+            long lvl0 = cap.size() == 3 ? lvl_of(cap[2]) : -1;
+            ck("H2 baseline: byte 1 is a clean sv|mr|tu byte",
+               cap.size() == 3 ? (cap[2][15] & ~0x08) : -1, 0x80);
+
+            // (3-negative) on an INTERNAL media clock, a received mr toggle
+            // on the CRF sink must move nothing on our outgoing stream: we
+            // are not recovering our media clock from it, and 10.4.3 says
+            // "only the mr bit from the stream being used by the Listener for
+            // recovering the media clock is valid". Echoing here would
+            // restart every listener over a stream this device does not
+            // follow.
+            send_sink(1);                          // the received toggle
+            cap_crf(2, cap, 400000);
+            long gated_ok = (cap.size() == 2);
+            for (auto& f : cap) if (lvl_of(f) != lvl0) gated_ok = 0;
+            ck("H2 internal clock: a received mr toggle is NOT echoed",
+               gated_ok, 1);
+
+            // (2) the media clock SOURCE change - 4.4.4.3's primary trigger,
+            // PICS Table F.16 CRF-3. The CRF output has been carrying lvl0
+            // for well over eight PDUs, so its hold is satisfied and it
+            // adopts at once.
+            set_clk_src(2);
+            cap_crf(2, cap, 400000);
+            long srcchg_ok = (cap.size() == 2);
+            for (auto& f : cap) if (lvl_of(f) != !lvl0) srcchg_ok = 0;
+            ck("H2 source change -> the CRF wire byte carries the new level",
+               srcchg_ok, 1);
+
+            // (3) the echo, with the gate OPEN: a received toggle on the
+            // stream we ARE recovering from. The outgoing level must flip -
+            // but not before the CRF output has held the current one for the
+            // eight AVTPDUs 10.4.3 demands (PICS CRF-5), which the two PDUs
+            // above have only started counting.
+            send_sink(0);                          // the received toggle back
+            cap_crf(14, cap, 1600000);
+            long held = 0, flipped_at = -1, after_ok = 1;
+            for (int k = 0; k < (int)cap.size(); k++) {
+                if (flipped_at < 0) {
+                    if (lvl_of(cap[k]) != lvl0) held++;
+                    else flipped_at = k;
+                } else if (lvl_of(cap[k]) != lvl0) after_ok = 0;
+            }
+            ck("H2 echo: the outgoing CRF stream DOES toggle back",
+               flipped_at >= 0, 1);
+            // two PDUs already carried the new level before the echo arrived,
+            // so the clause's eight are those two plus the ones counted here
+            ck("H2 echo: it held the level for >= 8 CRF AVTPDUs first",
+               (held + 2) >= 8, 1);
+            ck("H2 echo: and stays at the new level afterwards", after_ok, 1);
+            ck("H2 echo: the sink was still locked throughout",
+               axi_read(A_CRF_CTRL) >> 31, 1);
+
+            // restore the internal media clock for the sections that follow
+            set_clk_src(0);
+        }
 
         // disable -> the event grid keeps running, the wire goes silent
         axi_write(A_CRFT_CTRL, 0x0);

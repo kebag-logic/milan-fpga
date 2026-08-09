@@ -1470,6 +1470,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [31:0] crf_fmterr_w, crf_seqerr_w;
   wire        crf_locked_w;
   wire        crf_cnt_dirty_p_w;   //! Table 5.22 push source (gh #60 F2)
+  //! IEEE 1722-2016 10.4.3 restart echo: the received mr bit TOGGLED on an
+  //! accepted PDU of the followed CRF stream (gh #62 H2a)
+  wire        crf_mr_toggle_p_w;
   wire [31:0] crf_cnt_locked_w, crf_cnt_unlocked_w, crf_cnt_intr_w;
   //! the four Table 5.6 interval tallies the CRF sink used to advertise as
   //! valid and never move (traceability AVTP-5t)
@@ -1480,6 +1483,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [63:0] cfg_crft_sid;
   wire [47:0] cfg_crft_dmac;
   wire [31:0] crft_count_w, crft_stat_w;
+  //! the 10.4.3 mr level the CRF Media Clock Output stamps, and the level its
+  //! last COMPLETED PDU carried (gh #62 H2b)
+  wire        crft_mr_w, crft_mr_last_w;
   wire [TDATA_WIDTH-1:0]   crft_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] crft_tx_tkeep;
   wire                     crft_tx_tvalid, crft_tx_tlast, crft_tx_tready;
@@ -2658,19 +2664,61 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     if (!axis_resetn) tkd_crflk_q_r <= 1'b0;
     else              tkd_crflk_q_r <= crf_locked_w;
   end : mcr_trigger
+  //! ... and the THIRD trigger, the one 4.4.4.3 names beside the disruption:
+  //! "or if the mr bit in the CRF stream has been toggled". crf_mr_toggle_p_w
+  //! is that echo, straight off the accepted PDU (gh #62 H2a). It joins the
+  //! disruption pulse INSIDE the same clock-source gate, which is 10.4.3's
+  //! own scoping and not a convenience: "If a Listener is receiving both a
+  //! media stream and a CRF stream, only the mr bit from the stream being
+  //! used by the Listener for recovering the media clock is valid" - on an
+  //! internal media clock the received CRF bit governs nothing here, and
+  //! echoing it would restart every listener's clock over a stream this
+  //! device is not slaved to.
   wire mcr_restart_p_w = (aecp_clk_src == 16'd2)
-                       & tkd_crflk_q_r & ~crf_locked_w;
+                       & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
 
-  KL_media_clock_restart #(.N_TALKERS_P(N_STREAMS)) media_clock_restart (
+  //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
+  //! the AAF talkers AND the CRF Media Clock Output, which is a Talker in
+  //! its own right (PICS Table F.16 CRF-3/CRF-5) and whose stream is exactly
+  //! the one 10.4.3 writes the clause for. One engine, because the TARGET is
+  //! a property of the media clock and not of a stream: two outputs on one
+  //! clock must never end up on opposite levels. The per-stream half - the
+  //! ">= 8 AVTPDUs for a given continuous stream" hold - stays per context,
+  //! so the CRF output's 500 PDU/s hold and an AAF talker's 8 kPDU/s hold
+  //! run independently and neither can rush the other.
+  //!
+  //! THE WIDTH IS N_STREAMS + 1, NOT ACMP_SRC_C, and the difference is a
+  //! real one on a shape whose entity declares no CRF Stream Output
+  //! (ACMP_SRC_C == N_STREAMS - the tracked 1x1 config is one). KL_crf_tx is
+  //! instantiated UNCONDITIONALLY and still emits there under the bring-up
+  //! free-run escape (CRFT_CTRL 0x750 with lwSRP off), so it is a CRF Talker
+  //! on the wire whatever the AEM says. Sizing this by the descriptor count
+  //! would hand that talker a tied-off mr = 0 - a stream telling every
+  //! listener "the media clock never restarted" straight through a source
+  //! change, which is the exact defect this round closes. What the
+  //! descriptor count governs is the COUNTER block below (a Stream Output
+  //! that does not exist has no GET_COUNTERS row to serve), not the wire.
+  localparam int MCR_CTX_C = N_STREAMS + 1;
+  wire [MCR_CTX_C-1:0] mcr_streaming_w = {cfg_crft_en, aaf_stream_en_w};
+  wire [MCR_CTX_C-1:0] mcr_mr_v_w;
+  KL_media_clock_restart #(.N_TALKERS_P(MCR_CTX_C)) media_clock_restart (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .restart_p_i (mcr_restart_p_w),
     .clk_src_i   (aecp_clk_src),
-    .streaming_i (aaf_stream_en_w),
-    .frame_p_i   (aaf_frame_p_w),
-    .frame_idx_i (aaf_frame_idx_w),
-    .frame_mr_i  (aaf_frame_mr_w),
-    .mr_o        (aaf_mr_w)
+    .streaming_i (mcr_streaming_w),
+    //! the SAME muxed PDU feed KL_talker_diag_ctx takes below (AAF strobe or
+    //! the deferred CRF strobe, never both in a cycle) ...
+    .frame_p_i   (aaf_frame_p_w | tkd_crf_p_w),
+    .frame_idx_i (aaf_frame_p_w ? aaf_frame_idx_w : 4'(N_STREAMS)),
+    //! ... and the mr bit the announced PDU really carried, per side: the
+    //! packetizer's stamped bit for an AAF frame, KL_crf_tx's mr_last_o for
+    //! the CRF PDU. Feeding the wire's own bit (not the granted level) is
+    //! what makes the hold count eight TRANSMITTED PDUs at the new value.
+    .frame_mr_i  (aaf_frame_p_w ? aaf_frame_mr_w : crft_mr_last_w),
+    .mr_o        (mcr_mr_v_w)
   );
+  assign aaf_mr_w  = mcr_mr_v_w[N_STREAMS-1:0];
+  assign crft_mr_w = mcr_mr_v_w[N_STREAMS];
 
   //! per-source Table 5.4 counter-update pulses -> the AECP unsolicited
   //! GET_COUNTERS(STREAM_OUTPUT, idx) push source (Milan 5.4.5 Table 5.22);
@@ -2686,11 +2734,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .frame_idx_i (aaf_frame_p_w ? aaf_frame_idx_w : 4'(N_STREAMS)),
     .tu_i        (clkv_tu_w),
     .dirty_p_o   (tkd_dirty_p_w),
-    //! the mr bit the announced PDU carried. The CRF talker stamps a
-    //! constant mr = 0 (KL_crf_tx pdu[1], 10.4.3 not yet implemented on the
-    //! CRF TX side), so the CRF context's wire truth IS 0 - and MEDIA_RESET
-    //! reading 0 there is a counted fact about the wire, not a tie-off.
-    .frame_mr_i  (aaf_frame_p_w & aaf_frame_mr_w),
+    //! the mr bit the announced PDU carried, per side. This used to be
+    //! `aaf_frame_p_w & aaf_frame_mr_w`, which fed the CRF context a
+    //! CONSTANT 0 - defensible only while KL_crf_tx really did stamp a
+    //! constant mr, and a tie-off the moment it stopped (gh #62 H2b). The
+    //! CRF Media Clock Output now carries a real 10.4.3 level, so its
+    //! MEDIA_RESET has to score the real wire: crft_mr_last_w is the bit its
+    //! last completed PDU put on it, which is the same bit tkd_crf_p_w
+    //! announces.
+    .frame_mr_i  (aaf_frame_p_w ? aaf_frame_mr_w : crft_mr_last_w),
     .rd_idx_i    (aecp_diag_idx_w),
     .rd_start_o  (tkdiag_cnt_w[0*32 +: 32]),
     .rd_stop_o   (tkdiag_cnt_w[1*32 +: 32]),
@@ -4212,6 +4264,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .fsh2_i      (avtprx_fsh2),
     .type_i      (avtprx_b3),
     .mr_i        (avtprx_mr_bit),
+    //! IEEE 1722-2016 10.4.3's second duty for that bit: the restart the
+    //! outgoing streams have to echo. Consumed by mcr_restart_p_w above,
+    //! under the clock-source gate the clause itself scopes it with.
+    .mr_toggle_p_o (crf_mr_toggle_p_w),
     //! IEEE 1722-2016 10.4.5: the CRF ALTERNATIVE header puts tu at frame
     //! byte o+1 bit 0 - the bit the parser publishes as tv for the common
     //! stream header. avtprx_tu_bit (byte o+3 bit 0) is the CRF `type`
@@ -4317,6 +4373,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .transit_ns_i  (aecp_pres_offset[32*CRF_TUID_C +: 32]),
     .ptp_ns_i      (ptp_now_w),
     .ts_uncertain_i (clkv_tu_w),
+    //! IEEE 1722-2016 10.4.3 mr: the level KL_media_clock_restart grants this
+    //! Stream Output, and the level the last completed PDU carried going back
+    //! to it (the eight-PDU hold counts transmitted PDUs, not grants)
+    .mr_i          (crft_mr_w),
+    .mr_last_o     (crft_mr_last_w),
     //! SR class A C-TAG. vlan_en is the RESERVATION's shadow, never a bare
     //! CSR bit: see crf_srp_prov / crft_class_a_w. {PCP, VID} come from
     //! crft_{pcp,vid}_w - the OPERATIONAL Domain pair while adopted (Milan

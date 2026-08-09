@@ -195,11 +195,21 @@ static bool g_ev_mr = false, g_ev_tu = false, g_ev_lt = false, g_ev_et = false;
 static bool g_in_reset = true;
 // gh #60 F2 push-source pulses observed (dirty_p_o is a 1-cycle strobe)
 static long g_dirty_cnt = 0;
+// gh #62 H2a: 10.4.3 restart echoes observed (mr_toggle_p_o, 1-cycle strobe).
+// g_mrtog_wide counts consecutive-high cycles so a level masquerading as a
+// pulse cannot pass the count checks below.
+static long g_mrtog_cnt = 0, g_mrtog_wide = 0, g_mrtog_run = 0;
 
 static void tick() {
     dut->clk_i = 0; dut->eval();
     dut->clk_i = 1; dut->eval();
     if (dut->dirty_p_o) g_dirty_cnt++;
+    if (dut->mr_toggle_p_o) {
+        g_mrtog_cnt++;
+        if (++g_mrtog_run > 1) g_mrtog_wide++;
+    } else {
+        g_mrtog_run = 0;
+    }
     if (!g_in_reset) m.cycle(g_ev_frx, g_ev_uf, g_ev_sm,
                              g_ev_mr, g_ev_tu, g_ev_lt, g_ev_et);
     g_ev_frx = g_ev_uf = g_ev_sm = false;
@@ -984,6 +994,146 @@ int main(int argc, char** argv) {
         dut->en_i = 1; m.bind_zero();
         for (int i = 0; i < 4; i++) tick();
         ck("[dirty-e1] the bind-rise wipe pulses dirty", g_dirty_cnt, 1);
+    }
+
+    //-----------------------------------------------------------------------
+    // [H2a] gh #62: mr_toggle_p_o, the IEEE 1722-2016 10.4.3 restart ECHO.
+    //
+    // 10.4.3 gives the received mr bit TWO duties. One is Milan Table 5.6
+    // MEDIA_RESET, pinned in [5t-b] above. The other is a shall on the
+    // Listener: "Toggle the mr bit in any outgoing media streams that are
+    // deriving timestamps from the CRF stream" - PICS Table F.16 CRF-4, and
+    // a counter cannot serve it (the observation-interval fold collapses N
+    // toggles into one increment and delays it by up to a second, and a
+    // counter value is a total, not an edge). This port is that edge.
+    //
+    // What must NOT produce one is the whole point. The seeding rules that
+    // keep MEDIA_RESET honest are the same rules that keep this pulse
+    // honest, and each is checked here as an independent law:
+    //   * the era's FIRST accepted PDU seeds the reference silently - a new
+    //     talker's arbitrary starting level is not this stream's restart
+    //   * a REJECTED PDU is never accepted, so a malformed frame carrying a
+    //     flipped bit cannot restart anybody's media clock
+    //   * a 100 ms silence re-seeds, so a resuming stream's first PDU is
+    //     silent too
+    // A phantom here is not a cosmetic defect: it restarts the media clock
+    // of every listener bound to this device's outgoing streams.
+    //-----------------------------------------------------------------------
+    printf("\n[H2a] mr_toggle_p_o: the 10.4.3 restart echo (gh #62)\n");
+    {
+        // clean slate: rebind, then settle the era with a few accepted PDUs
+        dut->en_i = 0; for (int i = 0; i < 4; i++) tick();
+        dut->en_i = 1; m.bind_zero();
+        for (int i = 0; i < 4; i++) tick();
+
+        // (a) the era's FIRST accepted PDU seeds - and it deliberately
+        // carries the OPPOSITE level to the one the previous era ended on,
+        // which is exactly the shape a phantom would take
+        g_mrtog_cnt = 0; g_mrtog_wide = 0;
+        g_mr = !g_mr;
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        ck("[H2a-a1] era-first PDU SEEDS, never pulses", g_mrtog_cnt, 0);
+        for (int n = 0; n < 4; n++) {          // held level: still nothing
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        ck("[H2a-a2] a HELD mr level never pulses", g_mrtog_cnt, 0);
+
+        // (b) an accepted TOGGLE pulses exactly once, one cycle wide, and
+        // the >= 8 PDUs 10.4.3 makes the talker hold it for add nothing
+        g_mrtog_cnt = 0; g_mrtog_wide = 0;
+        g_mr = !g_mr;
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        ck("[H2a-b1] an accepted toggle pulses ONCE", g_mrtog_cnt, 1);
+        ck("[H2a-b2] ... and the pulse is one cycle wide", g_mrtog_wide, 0);
+        for (int n = 0; n < 8; n++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        ck("[H2a-b3] the 8-PDU hold that follows adds nothing",
+           g_mrtog_cnt, 1);
+        // ... and back again: the OTHER direction is equally a toggle
+        g_mrtog_cnt = 0;
+        g_mr = !g_mr;
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        ck("[H2a-b4] the return toggle pulses once too", g_mrtog_cnt, 1);
+
+        // (c) a REJECTED PDU carrying a flipped bit never pulses. Same
+        // profile violation [5t-b5] uses (timestamp_interval 160): the
+        // accept gate is upstream of every verdict this engine forms.
+        g_mrtog_cnt = 0;
+        {
+            bool flipped = !g_mr;
+            drive_fields(ts, seq);
+            dut->mr_i = flipped;                    // would be a toggle
+            dut->fsh_i = (8ULL << 48) | (160ULL << 32) | (ts >> 32);
+            g_ev_uf = true;
+            pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+            m.bad_pdu();
+            ck("[H2a-c1] a format-rejected flip NEVER pulses", g_mrtog_cnt, 0);
+            // and the level it carried left no trace: the next ACCEPTED PDU
+            // at the era's real level is still a no-op
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+            ck("[H2a-c2] ... and did not move the reference either",
+               g_mrtog_cnt, 0);
+        }
+
+        // (d) the 100 ms silence re-seed. The level that goes silent belongs
+        // to the stream that died; a resuming (or brand new) talker's first
+        // PDU must seed, not restart. Resume on the OPPOSITE level so a
+        // missing re-seed shows up as a pulse.
+        g_mrtog_cnt = 0;
+        for (int i = 0; i < 20005; i++) tick();      // TOUT_CYC_C @ 200 kHz
+        m.timeout();
+        ck("[H2a-d1] the silence itself pulses nothing", g_mrtog_cnt, 0);
+        g_mr = !g_mr;
+        ts += 100000000; ptp += 100000000;
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        ck("[H2a-d2] the resuming PDU re-seeds, it does not restart",
+           g_mrtog_cnt, 0);
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        ck("[H2a-d3] ... and the one after it is quiet as well",
+           g_mrtog_cnt, 0);
+        // the re-seeded era still DETECTS a real toggle
+        g_mr = !g_mr;
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        ck("[H2a-d4] the re-seeded era still reports a real toggle",
+           g_mrtog_cnt, 1);
+
+        // (e) the BIND edge re-seeds the same way, and its wipe is not a
+        // restart: a Controller rebinding this sink to a different talker
+        // must not restart the media clock of every stream we emit
+        g_mrtog_cnt = 0;
+        dut->en_i = 0; for (int i = 0; i < 4; i++) tick();
+        dut->en_i = 1; m.bind_zero();
+        for (int i = 0; i < 4; i++) tick();
+        ck("[H2a-e1] the bind edge itself pulses nothing", g_mrtog_cnt, 0);
+        g_mr = !g_mr;                                // new talker, new level
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        ck("[H2a-e2] the new era's first PDU seeds silently", g_mrtog_cnt, 0);
+
+        // (f) a foreign frame (wrong stream_id) carrying the opposite level
+        // is not this sink's stream at all - 10.4.3 scopes the bit to "the
+        // stream being used by the Listener for recovering the media clock"
+        g_mrtog_cnt = 0;
+        {
+            bool save_sid_flip = true;
+            (void)save_sid_flip;
+            drive_fields(ts, seq);
+            dut->sid_frame_i = SID_C ^ 1;
+            dut->mr_i = !g_mr;
+            pulse(); for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
+            dut->sid_frame_i = SID_C;
+            ck("[H2a-f1] a FOREIGN stream's mr flip never pulses",
+               g_mrtog_cnt, 0);
+        }
+
+        // hand the next section a CLEAN slate: this one closes on accepted
+        // PDUs, so an observation interval is still open with its FRAMES_RX
+        // flag raised, and [G1] below preloads counter flops and counts the
+        // commits that follow exactly. The bind-rise wipe clears the flags
+        // on both sides (the same edge [dirty-e1] used to leave behind).
+        dut->en_i = 0; for (int i = 0; i < 4; i++) tick();
+        dut->en_i = 1; m.bind_zero();
+        for (int i = 0; i < 4; i++) tick();
     }
 
     //-----------------------------------------------------------------------

@@ -60,15 +60,32 @@
                 switching internal<->CRF or between two external sources
                 restarts the media clock on the wire (2026-07-30).
 
-                WHAT IS NOT IMPLEMENTED. The remaining 4.4.4.3 trigger - "or
-                if the mr bit in the CRF stream has been toggled" - needs the
-                received CRF PDU's own mr bit, and KL_crf_rx does not parse it
-                (it decodes pull/base/interval/dlen/type and the timestamps).
-                The DISRUPTION and SOURCE-CHANGE triggers are wired; the
-                CRF-mr-echo one is not. Recorded, not hidden: see
-                docs/traceability/milan-v12.md.
+                THE CRF-mr-ECHO TRIGGER. 4.4.4.3's third case - "or if the mr
+                bit in the CRF stream has been toggled" - arrives on
+                restart_p_i beside the disruption pulse. This banner used to
+                say the trigger was unimplemented "because KL_crf_rx does not
+                parse it"; that stopped being true when the CRF sink started
+                serving Milan Table 5.6 MEDIA_RESET off the received bit
+                (AVTP-5t), and the sink now exports the same edge as a pulse
+                (mr_toggle_p_o, gh #62 H2a). All three 4.4.4.3 triggers are
+                wired. The integration gates the echo with clock_source ==
+                CRF, which is 10.4.3's own scoping ("only the mr bit from the
+                stream being used by the Listener for recovering the media
+                clock is valid"), not a convenience.
 
-  Spec refs   : IEEE 1722-2016 4.4.4.3 (+ 10.4.3 for the CRF talker side),
+                WHICH CONTEXTS. Every Stream Output the device has, and that
+                includes a CRF Media Clock OUTPUT: 10.4.3 gives a CRF Talker
+                the same mr duty as 4.4.4.3 gives a media-stream Talker, and
+                PICS Table F.16 makes both CRF-3 (the bit) and CRF-5 (the
+                >= 8 AVTPDU hold) mandatory for it. Its context index is the
+                one the integration already uses for the CRF output
+                everywhere else; its PDU strobe is the CRF PDU strobe and its
+                frame_mr_i the bit that PDU stamped, so the hold below counts
+                CRF AVTPDUs at 500/s while an AAF talker's counts its own at
+                8000/s - independently, from one shared target.
+
+  Spec refs   : IEEE 1722-2016 4.4.4.3 (+ 10.4.3 for the CRF talker side,
+                PICS Table F.16 CRF-3/CRF-4/CRF-5),
                 Milan v1.2 5.3.7.7 Table 5.4 MEDIA_RESET
   Company     : Kebag Logic
 ------------------------------------------------------------------------------
