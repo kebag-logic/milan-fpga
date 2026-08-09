@@ -90,8 +90,8 @@ listener went deaf, and re-staging recovered it
 ([`../findings/STRESS_0726.md`](../findings/STRESS_0726.md) §D). That board was
 still carrying the pre-fix `0x000B`, so what silicon proves is the *bug*, not
 the *fix*. The fix is proven by two Verilator regressions with negative legs:
-`tb/verilator/milan_dp` `sim_nxn.cpp` TRAP-1 (N=4 and N=8, through the real CSR
-window) and `tb/verilator/avtp_parser` `sim_tbl.cpp` T6 (table level, from
+[`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) `sim_nxn.cpp` TRAP-1 (N=4 and N=8, through the real CSR
+window) and [`tb/verilator/avtp_parser`](../../tb/verilator/avtp_parser) `sim_tbl.cpp` T6 (table level, from
 reset).
 
 **What you must do.**
@@ -287,28 +287,28 @@ Stated plainly so nobody goes looking for a register that is not there:
 
 * **The persistence journal.** The `KLJ1` record format, `KL_persist_journal`
   and the replay path are **in the tree and Verilator-proven**
-  (`tb/verilator/persist`). The CSR ingest group `0x7B8`–`0x7C4` is **specified
+  ([`tb/verilator/persist`](../../tb/verilator/persist)). The CSR ingest group `0x7B8`–`0x7C4` is **specified
   but not wired into `milan_csr`**. Its executable spec is
-  `tb/verilator/persist/persist_wrap.sv`. The flash half cannot be executed
+  [`tb/verilator/persist/persist_wrap.sv`](../../tb/verilator/persist/persist_wrap.sv). The flash half cannot be executed
   without a board, and
   [`../design/SAVED_STATE_FASTCONNECT.md`](../design/SAVED_STATE_FASTCONNECT.md)
   §1 keeps a per-piece proven/designed ledger — read it before claiming
   "persistence works".
-* **The CTF fault trace.** Design + host tooling are in `sw/trace/`
+* **The CTF fault trace.** Design + host tooling are in [`sw/trace/`](../../sw/trace)
   (`test_trace_roundtrip.py` is a gate). The write target is a `/user` jffs2
   partition that **no board has yet been booted with**. The flash-wear budget is
   computed, not measured. See
   [`../design/TRACE_LOGGING.md`](../design/TRACE_LOGGING.md) and the generated
   [`../reference/TRACE_EVENTS.md`](../reference/TRACE_EVENTS.md).
 * **AES3 / S-PDIF.** `KL_aes3_rx` and `KL_aes3_tx` exist, have a Verilator suite
-  (`tb/verilator/aes3`) and are yosys tops. They are not yet a selectable front
+  ([`tb/verilator/aes3`](../../tb/verilator/aes3)) and are yosys tops. They are not yet a selectable front
   end in a shipping board config — the builder validates AES3 shapes and marks
   unclockable ones as `ConfigError` (gate 21b).
 
 ## 9. Build, CI and the builder
 
 * **CI now runs the RTL gates.** [`rtl.yml`](../../.github/workflows/rtl.yml)
-  runs the full Verilator sweep (`scripts/run_all_suites.sh`), the Yosys
+  runs the full Verilator sweep ([`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh)), the Yosys
   portability sweep, **and the BDD conformance suite** as a gate.
   [`docs.yml`](../../.github/workflows/docs.yml) keeps the paper gates. Nothing
   on hardware runs automatically.
@@ -324,10 +324,10 @@ Stated plainly so nobody goes looking for a register that is not there:
   (`lwsrp_table.json` / `.svh`) and the DT/driver-shape emitter
   (`platform_shape.json` / `milan-nic.dtsi`). Critically, the CSR-facing subset
   — the `0x680` reset words and the PriorityAndRank byte — is written to
-  `hdl/common/csr/gen/lwsrp_csr_defaults.svh` and **`` `include ``-d by
+  [`hdl/common/csr/gen/lwsrp_csr_defaults.svh`](../../hdl/common/csr/gen/lwsrp_csr_defaults.svh) and **`` `include ``-d by
   `milan_csr.sv`**, so the config and the register resets cannot drift apart.
   [`../ENDSTATION_BUILDER.md`](../ENDSTATION_BUILDER.md).
-* **The tie-off allowlist is a gate.** `scripts/check_tied_inputs.sh` used to be
+* **The tie-off allowlist is a gate.** [`scripts/check_tied_inputs.sh`](../../scripts/check_tied_inputs.sh) used to be
   informational; since 2026-07-26 it **fails** the yosys run on a
   never-overridden tie with no justified-tie entry. That is the RMON class of
   defect (§5) turned into a check — it was informational precisely because three
@@ -351,7 +351,7 @@ Status is tracked in [`../../TODO.md`](../../TODO.md); the normative text is
 1. **Rebuild and reflash.** Everything in §§1–7 is gateware. A gateware-only
    load will not boot — flash a matched image set
    ([`../integration/QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md)).
-2. **Run `scripts/hostplane_smoke.sh` on the board shell first**, before any
+2. **Run [`scripts/hostplane_smoke.sh`](../../scripts/hostplane_smoke.sh) on the board shell first**, before any
    other procedure. A build whose fabric paths are perfect can still ship with a
    dead host plane.
 3. **Read back `VERSION` (`0x004`), `CAP` (`0x008`), `CLS_CTRL` (`0x300`) and

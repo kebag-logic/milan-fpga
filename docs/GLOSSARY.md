@@ -23,10 +23,10 @@ each; deeper treatment is linked where a dedicated doc exists.
 | **Milan** | The pro-audio interoperability profile of AVB/AVDECC (this project targets **Milan v1.2**). See [`MILAN_V12_DEPENDENCY_MATRIX.md`](reference/MILAN_V12_DEPENDENCY_MATRIX.md). |
 | **AVTP** | Audio Video Transport Protocol (IEEE 1722)  -  the L2 media transport; carries streams with presentation timestamps. |
 | **AVDECC** | Device discovery/enumeration/control (IEEE 1722.1) on top of AVTP; comprises ADP, AECP, ACMP. |
-| **ADP** | AVDECC Discovery Protocol  -  entity advertise/depart (implemented in RTL: `hdl/ieee17221/adp/adp_advertiser.sv`). |
+| **ADP** | AVDECC Discovery Protocol  -  entity advertise/depart (implemented in RTL: [`hdl/ieee17221/adp/adp_advertiser.sv`](../hdl/ieee17221/adp/adp_advertiser.sv)). |
 | **AECP** | AVDECC Enumeration & Control Protocol  -  AEM command/response. |
 | **ACMP** | AVDECC Connection Management Protocol  -  stream connect/disconnect handshakes. |
-| **AEM** | AVDECC Entity Model  -  the descriptor tree describing an entity (`avdecc/milan-v12-entity.json` mirrors ours). |
+| **AEM** | AVDECC Entity Model  -  the descriptor tree describing an entity ([`avdecc/milan-v12-entity.json`](../avdecc/milan-v12-entity.json) mirrors ours). |
 | **gPTP** | Generalized PTP (IEEE 802.1AS)  -  network time sync; the basis for presentation time and CBS coordination. |
 | **PTP / PHC** | Precision Time Protocol / PTP Hardware Clock  -  the adjustable in-fabric clock (`ptp_timestamp/`). |
 | **Grandmaster (GM)** | The gPTP time source the domain syncs to. |
@@ -71,8 +71,8 @@ each; deeper treatment is linked where a dedicated doc exists.
 | **DCP** | Design checkpoint  -  a snapshot Vivado can reopen to inspect placement/routing post-hoc. |
 | **CDC** | Clock-domain crossing (async FIFOs, synchronizers); sys 100 MHz ⇄ milan 50 MHz ⇄ eth 125 MHz here. |
 | **PLL / MMCM** | On-chip clock synthesis (S7PLL in LiteX). |
-| **Verilator** | Open-source SV simulator  -  every RTL block has a self-checking harness under `tb/verilator/`. |
-| **Yosys / sv2v / ECP5** | Open synthesis flow used as a device-portability check (`syn/yosys`). |
+| **Verilator** | Open-source SV simulator  -  every RTL block has a self-checking harness under [`tb/verilator/`](../tb/verilator). |
+| **Yosys / sv2v / ECP5** | Open synthesis flow used as a device-portability check ([`syn/yosys`](../syn/yosys)). |
 | **XPM** | Xilinx Parameterized Macros  -  removed from `hdl/` (Track 1 de-Xilinx) in favor of open equivalents. |
 | **TerosHDL** | The documenter generating per-module docs from `//!` comments (`hdl/**/doc/`). |
 
@@ -80,7 +80,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 
 | Term | Meaning |
 |------|---------|
-| **LiteX / Migen** | The Python SoC builder and its HDL eDSL  -  `sw/litex/milan_soc.py` is the SoC. |
+| **LiteX / Migen** | The Python SoC builder and its HDL eDSL  -  [`sw/litex/milan_soc.py`](../sw/litex/milan_soc.py) is the SoC. |
 | **LiteEth / LiteDRAM / LiteSPI** | LiteX ecosystem cores: Ethernet MAC+PHY glue, DDR3 controller, (Q)SPI flash. |
 | **VexiiRiscv** | The **current** AVB-switch soft CPU: in-order RISC-V (RV64IMA, sv39 MMU, Linux-capable) from the same SpinalHDL author/flow  -  smaller and higher-fmax than NaxRiscv, so it leaves fabric for the 4-port switch; exposes the same coherent `dma_bus` + mem-map (drop-in). See [`AVB_SWITCH_DIRECTION.md`](overview/AVB_SWITCH_DIRECTION.md). |
 | **NaxRiscv** | The out-of-order RISC-V soft CPU (RV64GC, MMU, Linux-capable) generated from SpinalHDL/Scala; the **historical** core, now retained only as a pure-NIC/FPU bitstream (`~/litex-milan/work/fpu32.bit`)  -  superseded by VexiiRiscv for the switch. Netlists regenerate via sbt (`--scala-args`, `--l2-bytes`). |
@@ -98,7 +98,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 | **serialboot / flashboot** | Boot-image delivery over UART (litex_term `--images`) vs from QSPI flash ([`QSPI_FLASHBOOT.md`](integration/QSPI_FLASHBOOT.md)). |
 | **FBI / crcfbigen** | The LiteX flash-boot image format `[length][crc32][data]` and the tool that wraps images in it. |
 | **QSPI / N25Q128** | Quad-SPI flash interface / the board's 16 MB Micron flash chip (needs the `A13` LiteSPI module name for quad mode). |
-| **Device tree (DTS/DTB)** | Hardware description passed to Linux; our node is `kl,dma-ether`; per-platform generation via `sw/dts/milan_dt.py`. |
+| **Device tree (DTS/DTB)** | Hardware description passed to Linux; our node is `kl,dma-ether`; per-platform generation via [`sw/dts/milan_dt.py`](../sw/dts/milan_dt.py). |
 | **Buildroot** | The embedded-Linux build system producing kernel + rootfs (`the-private-test-repo/fpga/buildroot`); NB `linux-reconfigure` does **not** rebuild out-of-tree modules. |
 | **litex_term** | The UART console + serialboot uploader (needs a real pty  -  run in tmux; open the CP2102N via `/dev/serial/by-id`, ttyUSBn shuffles). |
 
@@ -106,7 +106,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 
 | Term | Meaning |
 |------|---------|
-| **milan_datapath** | The §A.9 SystemVerilog wrapper: classifier → CBS queues → PTP timestamping → arbiter, both directions (`hdl/milan/milan_datapath.sv`). |
+| **milan_datapath** | The §A.9 SystemVerilog wrapper: classifier → CBS queues → PTP timestamping → arbiter, both directions ([`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv)). |
 | **MilanMAC / MilanDMA** | The LiteX glue wrapping LiteEth (+ PacketFIFO, IOB constraints) / the three DMA engines (`milan_soc.py`). |
 | **MILN** | The CSR ID magic (`0x4D494C4E`) proving the CPU⇄NIC path. |
 | **Ring DMA** | The circular coherent-DRAM frame rings (`RingDMAWriter` RX / `RingDMAReader` TX) walked by AXI-burst engines  -  see [`RX_RING_DMA.md` (archived)](../historical_now_obsolete/findings/RX_RING_DMA.md) + `RX_RING_OPERATION.svg`. |
@@ -118,7 +118,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 | **Burst geometry / PREP state** | The per-burst address/length computation (capped by 16 beats, ring wrap, 4 KB AXI rule), registered in a dedicated FSM state for timing. |
 | **Whole-frame drop** | The overload contract: a frame is delivered intact or dropped entirely and counted (`dropped` CSR == `rx_missed_errors`); mid-frame corruption is impossible by construction. |
 | **Simple-mode DMA** | The old LiteX single-buffer `base/length/enable/done` engines (still used by `dma-ts`). |
-| **TCAM** | Ternary CAM (`hdl/ieee8021q/filtering/tcam.sv`)  -  masked MAC-address matching for steering/switching. |
+| **TCAM** | Ternary CAM ([`hdl/ieee8021q/filtering/tcam.sv`](../hdl/ieee8021q/filtering/tcam.sv))  -  masked MAC-address matching for steering/switching. |
 | **Telemetry (milan_tlm)** | In-fabric frame/beat/stall counters at every pipeline stage + coherent snapshot ([`pipeline-telemetry.md`](fpga/pipeline-telemetry.md); sysfs `telemetry/snapshot`). |
 | **Stall (telemetry)** | A cycle where a stage held valid data the next stage didn't accept  -  the bottleneck localizer (the RX ring's headline metric is *0 stalls*). |
 | **kl-eth** | The Linux platform driver for the NIC (in `the-private-test-repo/fpga/kl-eth/`). |

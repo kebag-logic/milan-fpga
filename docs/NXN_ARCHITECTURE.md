@@ -2,12 +2,12 @@
 
 Normative architecture for roadmap item 5 ([`docs/MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md),
 "Suggested order of attack" item 5). Test shapes: **AX7101 = 8x8**,
-**Arty = 4x4** (`configs/endstation_ax7101_8x8.yaml`,
-`configs/endstation_arty_4x4.yaml`). Status: IMPLEMENTED — shared-engine RTL
+**Arty = 4x4** ([`configs/endstation_ax7101_8x8.yaml`](../configs/endstation_ax7101_8x8.yaml),
+[`configs/endstation_arty_4x4.yaml`](../configs/endstation_arty_4x4.yaml)). Status: IMPLEMENTED — shared-engine RTL
 is live; the 8x8 shape elaborates and sim-scales green (§6 item-5 note).
 
 **The replication verdict (why this doc exists).** The calibrated resource
-estimator (`sw/builder/endstation_builder.py`, per-module costs measured from
+estimator ([`sw/builder/endstation_builder.py`](../sw/builder/endstation_builder.py), per-module costs measured from
 the real mf48/mf38 hierarchical place reports) prices full per-stream
 replication at **142.0% LUT for 8x8 and 107.5% LUT for 4x4** on the xc7a100t
 (see `sw/builder/out/endstation_*/build_plan.md`, rows marked UPPER BOUND).
@@ -459,7 +459,7 @@ An lwSRP attribute row is **not** a stream. The CSR `0x800` window
 **Generated, not drawn.** [`nxn_window_map.gen.py`](diagrams/nxn_window_map.gen.py)
 takes `L` and `T` from each `configs/endstation_*.yaml`, confirms
 `SRP_CTX_ROWS_C = 2*N_STREAMS - 1` is still what `milan_datapath.sv`
-elaborates and `ctx_rows_required = L+T-1` is still what `sw/builder` demands,
+elaborates and `ctx_rows_required = L+T-1` is still what [`sw/builder`](../sw/builder) demands,
 and refuses to emit anything if either formula has moved. The dashed red line
 on each shape is where the old `max(L,T)` table stopped — the rows that were
 refused *silently* while their readback aliased row 0. Regenerate with:
@@ -503,7 +503,7 @@ must never hang) but `ctx_rd_stat` returns `0xDEAD` — the window's
 the shape needs more attribute rows than `N_CTX_P` provides, which is
 otherwise invisible from every counter in the design.
 
-`sw/builder` already computes `ctx_rows_required = L+T-1` and refuses a
+[`sw/builder`](../sw/builder) already computes `ctx_rows_required = L+T-1` and refuses a
 shape needing more than `1 << SRP_CTX_IDX_BITS = 16` rows, so `ctx_idx_i`
 staying 4 bits caps the fabric at `L+T-1 <= 16`, i.e. **N_STREAMS ≤ 8**.
 
@@ -525,7 +525,7 @@ MaxFrameSize  = 24 + 24*C            (the MSDU / AVTPDU — what MSRP wants)
 L2 frame      = 42 + 24*C            = MaxFrameSize + the 802.1Q overhead
 ```
 
-which is `sw/builder`'s `srp_frame_geometry` verbatim, so the emitter's
+which is [`sw/builder`](../sw/builder)'s `srp_frame_geometry` verbatim, so the emitter's
 per-talker `max_frame_bytes` in `lwsrp_table.json` is now what the fabric
 actually declares. Row 0 keeps `LWSRP_TSPEC` untouched (the silicon-proven
 legacy path), and `MaxIntervalFrames` stays shared on purpose — it is an
@@ -591,7 +591,7 @@ individually and the rest of this section is their detail:
 
 | Step | What it is | Status |
 |---|---|---|
-| (a) | AEM overlay emits the CRF `STREAM_OUTPUT`; `ADP_TALKER_SOURCES` and the AEM output count include it | **SHIPPED 2026-07-27** — the builder already emitted the CRF `STREAM_OUTPUT` and `entity_counts.talker_stream_sources = len(T) + 1`; what was missing was that nothing carried it to the `0x600` group or into the compiled descriptor ROM. The builder now emits `gen/adp_shape_defaults.svh` (the **read-only** `0x618`/`0x61C` words, which also size `ACMP_SRC_C`/`ACMP_SINKS_C`) and this shape's `aecp_aem_rom.svh`, from one config in one pass. Gated by `scripts/check_entity_shape.py`, including a pre-build refusal in `build.sh`/`sweep.sh` |
+| (a) | AEM overlay emits the CRF `STREAM_OUTPUT`; `ADP_TALKER_SOURCES` and the AEM output count include it | **SHIPPED 2026-07-27** — the builder already emitted the CRF `STREAM_OUTPUT` and `entity_counts.talker_stream_sources = len(T) + 1`; what was missing was that nothing carried it to the `0x600` group or into the compiled descriptor ROM. The builder now emits `gen/adp_shape_defaults.svh` (the **read-only** `0x618`/`0x61C` words, which also size `ACMP_SRC_C`/`ACMP_SINKS_C`) and this shape's `aecp_aem_rom.svh`, from one config in one pass. Gated by [`scripts/check_entity_shape.py`](../scripts/check_entity_shape.py), including a pre-build refusal in `build.sh`/`sweep.sh` |
 | (b) | MAAP DMAC slot `base + T` (§3.3) | **SHIPPED 2026-07-26** — the responder answers `stream_dest_mac` = block base + `N_STREAMS`; `MAAP_CTRL`'s claimed count must therefore be `N_STREAMS+1` |
 | (c) | lwSRP talker attribute context `T` — the Class A reservation ([M-7.3.3]) | **OPEN** — the `0x800` window addresses talker idx `< T` only, so no selection reaches the row; needs `N_CTX_P = L+T` plus a way to name it |
 | (d) | provisioning daemon arms `A_CRFT_*` from the claimed DMAC and identity | **COLLAPSED TO NOTHING** — `KL_crf_tx` takes the responder's own pair whenever `CRFT_SIDLO/HI` + `CRFT_DMLO/HI` are left at 0 |
@@ -660,7 +660,7 @@ multi-stream shapes behind `` `AEM_PER_STREAM_FMT`` (the deployed
 1-AAF-in shape keeps the legacy layout byte-identical).
 
 SET/GET_STREAM_FORMAT and the RX monitor's format-compare reference key
-the addressed descriptor's own entry (tb/verilator/aecp `sim_fmt2`, and
+the addressed descriptor's own entry ([tb/verilator/aecp](../tb/verilator/aecp) `sim_fmt2`, and
 `sim_fmt4` on the shipped 4-AAF arty_4x4 input count, which round-trips
 SET→GET on the MIDDLE sinks idx 2 & 3 — the band index-0/1-only coverage
 hid; its `--else-arm` shape reproduces the pre-fix bite, idx≥2 →
@@ -889,7 +889,7 @@ The 8x8 shape is no longer design-only — it elaborates and sim-scales:
   (43 359 lines; `.N_STREAMS(4'd8)` on the `milan_datapath` instance). No N=8
   elaboration errors. The `--num-streams 4` netlist is identical except the
   deltas below.
-- **Sim-scales green.** `tb/verilator/milan_dp` builds an N=8 config
+- **Sim-scales green.** [`tb/verilator/milan_dp`](../tb/verilator/milan_dp) builds an N=8 config
   (`obj_nxn8`, `-GN_STREAMS=8 -DNSTREAMS_TB=8`) of the same self-checking
   `sim_nxn` harness: **82 checks / 0 fail**, adding a full-index routing sweep
   that provisions streams 3..7 *simultaneously* and proves each lands on the
@@ -966,9 +966,9 @@ change.
 
 **It has now been pulled, on `ax7101` only**, because that is the board
 whose 6-queue map missed placement. It is declared once, in
-`board.constraints.render_lpf` of `configs/endstation_ax7101_8x8.yaml`, and
-flows from there into `configs/generated/sweep_opts_ax7101.sh`, `sweep.sh`
-and `build.sh cfg_ax8x8`; `scripts/check_sweep_shape.py` refuses a build
+`board.constraints.render_lpf` of [`configs/endstation_ax7101_8x8.yaml`](../configs/endstation_ax7101_8x8.yaml), and
+flows from there into [`configs/generated/sweep_opts_ax7101.sh`](../configs/generated/sweep_opts_ax7101.sh), `sweep.sh`
+and `build.sh cfg_ax8x8`; [`scripts/check_sweep_shape.py`](../scripts/check_sweep_shape.py) refuses a build
 whose flag and config disagree (mutation-checked: flipping `build.sh` alone
 fails the gate). `arty` keeps the filter. Setting the key back to `true`
 restores it and nothing else has to change.
@@ -1045,7 +1045,7 @@ reference the last bitstream that *did* place sat at 99.93 %.
 independent open-synthesis instruments were used, and where they disagree
 the disagreement is reported rather than averaged away:
 
-* **Flattened OOC** — `syn/yosys/ooc.sh`: `sv2v` → `synth_xilinx -family
+* **Flattened OOC** — [`syn/yosys/ooc.sh`](../syn/yosys/ooc.sh): `sv2v` → `synth_xilinx -family
   xc7 -flatten` → `stat`, counting `LUT1..6` / `FD[CPRS]E?` / `RAM32M` /
   `RAM64M` / `RAMB*` / `DSP48E1` / `CARRY4`. Closest in spirit to what
   Vivado does (it optimises across module boundaries), but `abc` renames
@@ -1057,7 +1057,7 @@ the disagreement is reported rather than averaged away:
   [lane Q](reference/EGRESS_QUEUE_MAP.md) used, so its numbers are
   comparable with theirs.
 
-`syn/yosys/run.sh` cannot answer this question at all: it runs a
+[`syn/yosys/run.sh`](../syn/yosys/run.sh) cannot answer this question at all: it runs a
 hierarchical synth and then `stat`s **top-level cells only**, so a lever
 inside a submodule reads as exactly **zero** — a clean "no regression" that
 is nothing of the kind. That trap is why `ooc.sh` exists.
@@ -1213,10 +1213,10 @@ factor of five, and the only one whose two instruments agree to within
 
 **S5 — see §6.2.** Spent on `ax7101`, declared once in the end-station
 config (`board.constraints.render_lpf`), gated by
-`scripts/check_sweep_shape.py` — which now compares the flag against the
+[`scripts/check_sweep_shape.py`](../scripts/check_sweep_shape.py) — which now compares the flag against the
 config for *both* `sweep.sh` and `build.sh`, and was mutation-checked by
 removing the flag from `build.sh` alone (gate fails). The pruned shape is a
-**shipping** shape, so `tb/verilator/milan_dp` builds a fourth leg at
+**shipping** shape, so [`tb/verilator/milan_dp`](../tb/verilator/milan_dp) builds a fourth leg at
 `LPF_P = 0` and re-runs the **entire unchanged** self-checking harness:
 196 checks, identical answers. That is the proof of "no digital acceptance
 surface moves", and it has teeth — tying `pcm_lpf_active` to 1 instead of 0
@@ -1268,8 +1268,8 @@ in the pruned branch fails the byte-exact I2S sample check.
   357 … 851 slices there is no reason to take the risk.
 - **`aem_name_lookup` → ROM** (29 arms of 48-bit compare plus a 29-deep
   priority mux inside the AECP builder, order 400–500 LUT). Real, but it
-  lives in `hdl/ieee17221/aecp/gen/aecp_aem_rom.svh`, a **generated** file —
-  the lever is a change to `avdecc/gen_aem_store.py`, not to RTL.
+  lives in [`hdl/ieee17221/aecp/gen/aecp_aem_rom.svh`](../hdl/ieee17221/aecp/gen/aecp_aem_rom.svh), a **generated** file —
+  the lever is a change to [`avdecc/gen_aem_store.py`](../avdecc/gen_aem_store.py), not to RTL.
 - **`probe_byte()` replicated ×8** in `KL_acmp_lstn_ctx` (a ~66-arm byte
   selector instantiated once per lane; order 700 LUT by the same reasoning
   that priced the other cones). The fix shape is the per-beat 64-bit case

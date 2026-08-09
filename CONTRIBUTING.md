@@ -41,7 +41,7 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 - PRs use the template: Status / Description / how-to-reproduce / how-to-
   validate / DoD. **Self-test results go in a PR comment** — a comment is
   evidence, not approval. Maintainer merges by default.
-- `tests/steps/tsn_gen_steps.py` `LAYOUTS` merges are **semantic, never
+- [`tests/steps/tsn_gen_steps.py`](tests/steps/tsn_gen_steps.py) `LAYOUTS` merges are **semantic, never
   marker-union**: rebuild each command's block from its owning commit
   verbatim (naive unions broke main twice; a third time gets you named in
   this file).
@@ -64,16 +64,16 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 - **A `// verilator lint_off X` needs a justification**, exactly like a
   tied-off input does — an unexplained suppression is the same defect class
   as an unexplained tie. Put the reason next to the code AND a
-  `PRAGMA_WAIVERS` entry in `scripts/lint_rtl.py`; the gate fails without
+  `PRAGMA_WAIVERS` entry in [`scripts/lint_rtl.py`](scripts/lint_rtl.py); the gate fails without
   one. The waiver code must be the **last token on the line**: a trailing
   `// prose` comment builds under Verilator 5.050 and does not build under
   5.020, which is how four suites became unbuildable once.
-- Coverage-matrix rows (`docs/testing/`) only move ✅ with a runnable test.
+- Coverage-matrix rows ([`docs/testing/`](docs/testing)) only move ✅ with a runnable test.
   Prefer real-wiring-path tests over unit mocks.
 - **Measure, don't assume**: no number from a comment or model drives a
   decision. HW counter first; measure before AND after; a TB-green
   integration change still owes a datapath-regression run
-  (`tb/verilator/milan_dp`).
+  ([`tb/verilator/milan_dp`](tb/verilator/milan_dp)).
 - Timing claims need the full cell recipe (config + directive + seed); a
   bare WNS number is not reproducible. 3×32-thread Vivado discipline:
   single configs become 3-directive sweeps, keep best WNS.

@@ -37,8 +37,8 @@ credit-shaped* — one picture, and **it is generated, not drawn**:
 [`egress_queue_map.gen.py`](../diagrams/egress_queue_map.gen.py) parses the queue
 count, the enum, the reset idleSlopes, the reset hi/loCredit, the reset shaping
 mask, the reset TC→queue map and the reserved control addresses straight out of
-`hdl/common/ethernet_packet_pkg.sv`, `hdl/common/csr/milan_csr.sv` and
-`hdl/ieee8021q/ts/traffic_class_map.sv`. Change the queue count in the package
+[`hdl/common/ethernet_packet_pkg.sv`](../../hdl/common/ethernet_packet_pkg.sv), [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) and
+[`hdl/ieee8021q/ts/traffic_class_map.sv`](../../hdl/ieee8021q/ts/traffic_class_map.sv). Change the queue count in the package
 and the drawing reflows — ranks renumber, the CBS bracket follows the SR
 classes, and a TC map entry that no longer names a real queue is drawn as the
 `q0` clamp it becomes. Regenerate with:
@@ -216,7 +216,7 @@ Stated plainly, because the numbers above are easy to over-read:
   it was open at the time of the renumbering): each CBS carries a per-queue
   Q16 wire-time debt and accrues idleSlope only while it is zero, so the
   shaped share tracks the reservation instead of over-delivering.
-  `tb/verilator/shaper_core` now measures 47.04 % delivered share at the
+  [`tb/verilator/shaper_core`](../../tb/verilator/shaper_core) now measures 47.04 % delivered share at the
   450 Mb/s class-A slope (was 90.82 % under the old accrual).
 
 ## PCP → traffic class → queue (tagged traffic)
@@ -285,7 +285,7 @@ Three things the table alone does not settle, handled explicitly:
   address says "reserved control"; the EtherType then splits that **one**
   address — `0x88F7` leaves for q2, everything else at that address (MSRP
   included) stays on q1. In the RTL the split is simply that the gPTP arm is
-  tested first. `tb/verilator/cls` and `tb/verilator/classifier` both drive the
+  tested first. [`tb/verilator/cls`](../../tb/verilator/cls) and [`tb/verilator/classifier`](../../tb/verilator/classifier) both drive the
   two protocols at that single address and assert they land on different queues.
 * **AECP has no group address.** An AECP command or response is addressed to the
   *peer* entity's individual MAC; on egress that is the controller we are
@@ -402,7 +402,7 @@ it is a correctness requirement:
   unaffected by queue order.
 * **The load argument is not close, and it is measured, not asserted.** A Milan
   class-A domain at 48 kHz runs 8000 frames/s per stream; gPTP runs 8–16
-  frames/s. `tb/verilator/shaper_core` (FQTSS-4) drives q4 shaped at its 450 Mb/s
+  frames/s. [`tb/verilator/shaper_core`](../../tb/verilator/shaper_core) (FQTSS-4) drives q4 shaped at its 450 Mb/s
   class-A reset slope and permanently backlogged, offers q2 continuously, and
   measures what q2 gets: **9.18 % of the port, worst service gap 368 slots =
   23.55 µs** of 1 Gb/s wire time — unchanged by the renumbering, as it must be.
@@ -423,8 +423,8 @@ ring/doorbell, not a queue promotion.
 802.1Q-2018 clause 34 ("Forwarding and Queuing Enhancements for Time-Sensitive
 Streams") is the layer *above* both the credit arithmetic and the arbiter, and
 it is the property this whole ordering argument rests on. It is gated in
-`tb/verilator/shaper_core` (and, for the register view software sees, in
-`tb/verilator/csr`):
+[`tb/verilator/shaper_core`](../../tb/verilator/shaper_core) (and, for the register view software sees, in
+[`tb/verilator/csr`](../../tb/verilator/csr)):
 
 | Check | Clause | Result |
 |-------|--------|--------|
@@ -432,7 +432,7 @@ it is the property this whole ordering argument rests on. It is gated in
 | **The shaped class and best effort share the port.** q4 shaped and permanently backlogged, q0 unshaped and permanently backlogged | §8.6.8.2 | q4 outranks q0 absolutely, so only the credit gate can stop it — and it does: **11.97 / 22.91 / 47.04 %** of the port at idleSlope 100 / 200 / 450 Mb/s, q0 taking the rest. Neither queue is ever starved, and the split is monotone in idleSlope. (Pre-debt-law these read 13.70 / 30.11 / 90.82 % — the `REQ-CBS-07` over-delivery.) |
 | **Non-vacuity.** Same stimulus with CBS switched off | — | q4 takes **100.00 %**. So the split above *is* the shaper, not the arbiter and not the harness. |
 | **gPTP is not starved by a saturating class A** | §8.6.8.2 | 52.96 % of the port under the debt law (the shaped class no longer over-consumes), worst gap 3.07 µs — see above. |
-| **Admission.** A reservation whose slope would break the ceiling is refused | §34.3.1 | `KL_lwsrp_bw_gate` carries the 750e6 / 75e6 limits in RTL and tears down an over-budget TSpec on a live reservation (`tb/verilator/lwsrp`); the config side is builder gate 18d, which rejects an over-subscribed class-A request before a bitstream exists. |
+| **Admission.** A reservation whose slope would break the ceiling is refused | §34.3.1 | `KL_lwsrp_bw_gate` carries the 750e6 / 75e6 limits in RTL and tears down an over-budget TSpec on a live reservation ([`tb/verilator/lwsrp`](../../tb/verilator/lwsrp)); the config side is builder gate 18d, which rejects an over-subscribed class-A request before a bitstream exists. |
 
 **The reservation is honoured and wire-time paced** (`REQ-CBS-07` closed, the
 gh #63 I5 debt law): each CBS carries a per-queue Q16 wire-time debt — bytes
@@ -447,14 +447,14 @@ unchanged and exact. Steady-state egress is
 per-frame overhead comes out of the shaped rate (3.6 % under `S/8` at
 100 Mb/s / 64 B frames), a deliberate conservative stance: the SRP idleSlope
 math (`MaxFrameSize + 42`) reserves that overhead, and the old law handed it
-out twice. `tb/verilator/shaper_core` asserts the law's own fixed point and
-that delivery never exceeds `S/8`; `tb/verilator/cbs` pins the debt
+out twice. [`tb/verilator/shaper_core`](../../tb/verilator/shaper_core) asserts the law's own fixed point and
+that delivery never exceeds `S/8`; [`tb/verilator/cbs`](../../tb/verilator/cbs) pins the debt
 arithmetic state-for-state against a reference model.
 
 ## Ingress (RX to the CPU): two queues
 
 The RX side splits into **two** queues, and the split is gPTP vs everything
-else (`RxSteer` in `sw/litex/milan_soc.py`, present when
+else (`RxSteer` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), present when
 `board.constraints.rx_queues >= 2`):
 
 | RX queue | Contents |

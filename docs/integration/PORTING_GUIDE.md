@@ -34,8 +34,8 @@ and the **MAC** (attached outside the datapath on purpose).
 | Layer | What is in it | Vendor-specific? | Port effort |
 |---|---|---|---|
 | **Datapath RTL** (`hdl/`, minus `milan_top.sv`/`milan_dma_wrapper.v`) | classify + 802.1Qav CBS, PTP PHC + timestamping, TCAM RX filter, ADP advertiser, RMON counters, CSR block, CDC primitives | **No** - proven by Yosys generic synth + ECP5 map (§5) | None (recompile as-is) |
-| **Host SoC** | Zynq PS7 flow (`bd/*.tcl`, `milan_top.sv`, `milan_dma_wrapper.v`) *or* LiteX RISC-V flow (`sw/litex/milan_soc.py`) | Yes (PS7 is Zynq-only; the LiteX target instantiates Series-7 PLL/DDR/IO cores) | Replace host: LiteX re-target (recommended, §6.1) or your own SoC ([INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)) |
-| **Board I/O** | clock gen, reset, DDR PHY, Ethernet PHY I/O cells, pin/timing constraints (`constraints/*.xdc`, `sw/litex/platforms/alinx_ax7101.py`) | Yes, always | Redo per board (§4) - this is normal board bring-up, not a redesign |
+| **Host SoC** | Zynq PS7 flow (`bd/*.tcl`, `milan_top.sv`, `milan_dma_wrapper.v`) *or* LiteX RISC-V flow ([`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)) | Yes (PS7 is Zynq-only; the LiteX target instantiates Series-7 PLL/DDR/IO cores) | Replace host: LiteX re-target (recommended, §6.1) or your own SoC ([INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)) |
+| **Board I/O** | clock gen, reset, DDR PHY, Ethernet PHY I/O cells, pin/timing constraints (`constraints/*.xdc`, [`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex/platforms/alinx_ax7101.py)) | Yes, always | Redo per board (§4) - this is normal board bring-up, not a redesign |
 
 The MAC itself is **outside** the datapath boundary: `milan_datapath` exposes a
 MAC-facing 64-bit AXI-Stream pair plus config/status ports, so you attach
@@ -51,20 +51,20 @@ The datapath RTL contains **no instantiated vendor primitives**. The
 portability were removed (history: [OPEN_SOURCE_MIGRATION.md (archived)](../../historical_now_obsolete/integration/OPEN_SOURCE_MIGRATION.md));
 FIFOs/demux now come from the MIT-licensed
 [`third_party/verilog-axis`](../../THIRD_PARTY.md) submodule and the CDC from
-in-repo plain-FF primitives (`hdl/common/cdc_pulse.sv`,
-`hdl/common/cdc_handshake.sv`, `hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv`).
+in-repo plain-FF primitives ([`hdl/common/cdc_pulse.sv`](../../hdl/common/cdc_pulse.sv),
+[`hdl/common/cdc_handshake.sv`](../../hdl/common/cdc_handshake.sv), [`hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv`](../../hdl/ieee8021as/ptp_timestamp/ptp_csr_sync.sv)).
 
 What remains vendor-*touching* is only attributes and parameters - all of them
 harmless or overridable off-Xilinx:
 
 | Where | What | Effect on Xilinx | Effect elsewhere | Action when porting |
 |---|---|---|---|---|
-| `hdl/ieee8021q/ts/credit_based_shaper.sv:80` | `(* use_dsp = "yes" *)` on the 48-bit credit accumulator | infers DSP48 | ignored; infers LUT/carry logic (works, uses more fabric) | optional: replace with your vendor's DSP-inference attribute (Intel `multstyle`, Gowin `syn_dspstyle`) |
-| `credit_based_shaper.sv:111-112` | `(* dont_touch = "true" *)` on the slope registers | keeps regs named for the multicycle constraint (§4.5) | generic attribute, widely honored (Synplify/Quartus accept it) | keep; re-express the paired multicycle constraint in your SDC |
-| `hdl/common/eth_event_counter/ethernet_events.sv:60-68` | `(* mark_debug = "true" *)` on RMON counters | Vivado ILA probe hint | ignored | keep or delete |
-| `hdl/milan/milan_datapath.sv:229`, `milan_top.sv:187`, `cdc_pulse.sv`, `cdc_handshake.sv`, `ptp_csr_sync.sv` | `(* ASYNC_REG = "TRUE" *)` on CDC synchronizer FFs | placement + no-SRL-inference for metastability hardening | Xilinx/Intel-recognized; others ignore it | add the equivalent vendor constraint on the same registers (§4.5) - functionally safe either way |
-| `hdl/milan/milan_top.sv:51-53` (Zynq top only) | MAC params `MAC_TARGET="XILINX"`, `MAC_IODDR_STYLE="IODDR"`, `MAC_CLK_STYLE="BUFR"` | selects Series-7 DDR I/O cells inside the verilog-ethernet MAC | set `TARGET="GENERIC"` (sim) or your vendor's value | only relevant if you use `milan_top` + verilog-ethernet; `milan_datapath` has no MAC at all |
-| `hdl/milan/milan_dma_wrapper.v:200-201` (Zynq wrapper only) | MDIO tristate is *inferred* (`t ? 1'bz : o`) - no `IOBUF` primitive | Vivado infers IOBUF | every toolchain infers its pad tristate | nothing |
+| [`hdl/ieee8021q/ts/credit_based_shaper.sv:106`](../../hdl/ieee8021q/ts/credit_based_shaper.sv#L106) | `(* use_dsp = "yes" *)` on the 48-bit credit accumulator | infers DSP48 | ignored; infers LUT/carry logic (works, uses more fabric) | optional: replace with your vendor's DSP-inference attribute (Intel `multstyle`, Gowin `syn_dspstyle`) |
+| [`credit_based_shaper.sv:115-116`](../../hdl/ieee8021q/ts/credit_based_shaper.sv#L115-L116) | `(* dont_touch = "true" *)` on the slope registers | keeps regs named for the multicycle constraint (§4.5) | generic attribute, widely honored (Synplify/Quartus accept it) | keep; re-express the paired multicycle constraint in your SDC |
+| [`hdl/common/eth_event_counter/ethernet_events.sv:60-68`](../../hdl/common/eth_event_counter/ethernet_events.sv#L60-L68) | `(* mark_debug = "true" *)` on RMON counters | Vivado ILA probe hint | ignored | keep or delete |
+| [`hdl/milan/milan_datapath.sv:1781`](../../hdl/milan/milan_datapath.sv#L1781), [`milan_top.sv:303`](../../hdl/milan/milan_top.sv#L303), `cdc_pulse.sv`, `cdc_handshake.sv`, `ptp_csr_sync.sv` | `(* ASYNC_REG = "TRUE" *)` on CDC synchronizer FFs | placement + no-SRL-inference for metastability hardening | Xilinx/Intel-recognized; others ignore it | add the equivalent vendor constraint on the same registers (§4.5) - functionally safe either way |
+| [`hdl/milan/milan_top.sv:132-134`](../../hdl/milan/milan_top.sv#L132-L134) (Zynq top only) | MAC params `MAC_TARGET="XILINX"`, `MAC_IODDR_STYLE="IODDR"`, `MAC_CLK_STYLE="BUFR"` | selects Series-7 DDR I/O cells inside the verilog-ethernet MAC | set `TARGET="GENERIC"` (sim) or your vendor's value | only relevant if you use `milan_top` + verilog-ethernet; `milan_datapath` has no MAC at all |
+| [`hdl/milan/milan_dma_wrapper.v:200-201`](../../hdl/milan/milan_dma_wrapper.v#L200-L201) (Zynq wrapper only) | MDIO tristate is *inferred* (`t ? 1'bz : o`) - no `IOBUF` primitive | Vivado infers IOBUF | every toolchain infers its pad tristate | nothing |
 
 Everything else in `hdl/` is plain synthesizable SystemVerilog
 (`default_nettype none`, 64-bit AXIS, AXI4-Lite CSR).
@@ -73,7 +73,7 @@ Everything else in `hdl/` is plain synthesizable SystemVerilog
 
 Two code sources are not in the tree after a plain `git clone`:
 
-1. **`third_party/verilog-axis` is a git submodule** (public, HTTPS). Without it
+1. **[`third_party/verilog-axis`](../../third_party/verilog-axis) is a git submodule** (public, HTTPS). Without it
    nothing elaborates - `axis_fifo`/`axis_demux` are instantiated by the
    classifier, queues and PTP buffers. Run:
    ```sh
@@ -114,7 +114,7 @@ constraints in §4.5.
 ### 4.1 Pins & I/O standards
 Redo from your schematic. The Xilinx references to translate from:
 `constraints/rgmii.xdc` (Zynq board: RGMII + MDIO pins, LVCMOS18) and the
-`_io` table in `sw/litex/platforms/alinx_ax7101.py` (AX7101: clk200, UART,
+`_io` table in [`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex/platforms/alinx_ax7101.py) (AX7101: clk200, UART,
 DDR3, GMII+RGMII PHYs, QSPI, LEDs - each pin annotated with its provenance).
 
 ### 4.2 Clock generation
@@ -123,7 +123,7 @@ Replace the Series-7 pieces with your vendor's:
 | Function | Xilinx implementation here | Intel/Altera | Lattice ECP5 | Gowin | Microchip PolarFire |
 |---|---|---|---|---|---|
 | System PLL | `S7PLL` (`milan_soc.py`) / `clk_wiz` MMCM (`bd/milan-dma.tcl`) | IOPLL/ALTPLL | `EHXPLLL` | `rPLL` | `PF_CCC` |
-| RGMII/GMII DDR I/O | `IDDR`/`ODDR` + `BUFG` (`sw/litex/milan_rgmii.py` - legacy) or the MAC's `IODDR_STYLE` | `ALTDDIO_IN/OUT` (GPIO IP) | `IDDRX1F`/`ODDRX1F` | `IDDR`/`ODDR` | `PF_IOD` |
+| RGMII/GMII DDR I/O | `IDDR`/`ODDR` + `BUFG` ([`sw/litex/milan_rgmii.py`](../../sw/litex/milan_rgmii.py) - legacy) or the MAC's `IODDR_STYLE` | `ALTDDIO_IN/OUT` (GPIO IP) | `IDDRX1F`/`ODDRX1F` | `IDDR`/`ODDR` | `PF_IOD` |
 | RX-clock centering | AX7101 avoids IDELAY entirely by capturing on the **inverted** RX clock (`BUFG(~rgmii_rxc)`); Zynq board uses PHY delay mode | delay chains or PHY-side delay (`rgmii-id`) | `DELAYF`/DQS logic or PHY-side | IODELAY or PHY-side | PHY-side recommended |
 | DDR memory PHY | `A7DDRPHY` (LiteDRAM) | LiteDRAM supports Intel targets; or vendor EMIF | LiteDRAM ECP5 DDR3 PHY (well proven) | vendor DDR IP | vendor DDR IP |
 
@@ -145,7 +145,7 @@ Options, in order of least work:
 ### 4.4 The host CPU/DMA
 - **LiteX** (recommended): the whole Zynq-PS role - RISC-V CPU, DDR
   controller, interconnect, the ring-DMA engines, IRQs - is already
-  implemented board-agnostically in `sw/litex/milan_soc.py`. See §6.1.
+  implemented board-agnostically in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py). See §6.1.
 - **Your own SoC**: drive the AXI4-Lite CSR window + three 64-bit AXIS DMA
   streams yourself - contract in [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md).
 
@@ -165,7 +165,7 @@ The XDC content to re-express in your SDC/LPF/CST:
    constant divides of quasi-static config (reprogrammed only by `tc cbs`,
    then held for millions of cycles). At 100 MHz this is the design's true
    critical path, and the build declares it multicycle (see
-   `add_milan_datapath()` in `sw/litex/milan_soc.py`, which emits
+   `add_milan_datapath()` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), which emits
    `set_multicycle_path 4 -setup / 3 -hold` onto
    `*idle_slope_per_cycle_r_reg*` / `*send_slope_per_byte_r_reg*`).
    Re-express this in your flow, or run `axis_clk` at ≤ ~66 MHz where it
@@ -177,7 +177,7 @@ The XDC content to re-express in your SDC/LPF/CST:
 
 ## 5. Proving it: the open-toolchain portability check
 
-`syn/yosys/` machine-checks vendor-neutrality on every push-worthy change:
+[`syn/yosys/`](../../syn/yosys) machine-checks vendor-neutrality on every push-worthy change:
 
 ```sh
 git submodule update --init third_party/verilog-axis   # required first
@@ -191,7 +191,7 @@ make ecp5     # map every top to a real non-Xilinx device (Lattice ECP5)
 "fully mapped to generic cells". The `ecp5` target then proves a concrete
 non-Xilinx mapping (e.g. `tcam` → ~1.7k `TRELLIS_FF`).
 
-Covered (the `syn/yosys/run.sh` `tops` array is authoritative): every datapath leaf + `milan_csr` + the flat wrappers +
+Covered (the [`syn/yosys/run.sh`](../../syn/yosys/run.sh) `tops` array is authoritative): every datapath leaf + `milan_csr` + the flat wrappers +
 the vendored Forencich cores + **`milan_datapath` itself** (which pulls in
 `ptp_ts_top`/`ptp_ts_core` hierarchically).
 **Not covered:** `milan_top` (needs the RGMII SelectIO MAC + PS).
@@ -217,7 +217,7 @@ by-design, unproven-in-practice.
 
 ### 6.1 Route A - stay on LiteX, swap the board (least work)
 1. Write a LiteX platform file for your board (copy
-   `sw/litex/platforms/alinx_ax7101.py`, replace the `_io` table, part and
+   [`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex/platforms/alinx_ax7101.py), replace the `_io` table, part and
    toolchain - e.g. `toolchain="trellis"` for ECP5, `"oxide"` for Nexus,
    Intel/Gowin equivalents).
 2. Adapt `_CRG` in `milan_soc.py`: your PLL class instead of `S7PLL`, drop

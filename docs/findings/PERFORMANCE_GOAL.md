@@ -166,7 +166,7 @@ says BE stays unshaped per REQ-CBS-02).
 Verified live on silicon (q0 read back idle=0x11E1A300,
 en=1), then clearing en via `devmem 0x9000_040C` dropped `tx_dma` stalls **418‰ → 4‰** on the spot.
 Permanent fix: **`CBS_EN_RST = 4'b0000`** (all queues strict-priority at reset; SRP/AVDECC opts SR
-classes into shaping)  -  `tb/verilator/csr` updated (76 checks green), built as `build_dp100_cbs0`
+classes into shaping)  -  [`tb/verilator/csr`](../../tb/verilator/csr) updated (76 checks green), built as `build_dp100_cbs0`
 (WNS **+0.031**), **verified at reset on silicon** (q0–q3 en=0).
 
 > **Superseded values, 2026-07-27 — the fix itself is intact.** Every literal in

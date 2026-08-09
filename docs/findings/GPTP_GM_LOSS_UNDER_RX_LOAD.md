@@ -46,7 +46,7 @@ from the network's point of view the grandmaster simply vanished.
 
 ## 2. Root cause
 
-`configs/endstation_ax7101_8x8.yaml` ships **`rx_queues: 1`**, and its own
+[`configs/endstation_ax7101_8x8.yaml`](../../configs/endstation_ax7101_8x8.yaml) ships **`rx_queues: 1`**, and its own
 comment already says what that means:
 
 > *"with 1 there is no steer block at all, so gPTP shares the bulk ring and the
@@ -191,13 +191,13 @@ acceptance procedure after the reflash rather than assuming.
 
 ## 6. Tests added
 
-* `tests/features/gptp_announce_receipt_timeout.feature` (10 scenarios) —
+* [`tests/features/gptp_announce_receipt_timeout.feature`](../../tests/features/gptp_announce_receipt_timeout.feature) (10 scenarios) —
   the BMCA receipt-timeout boundary from **both** sides (a 2 s gap must NOT
   move the master; a 3 s gap must), the measured D7 flap including its
   automatic recovery, and a cadence budget fed the real `PORT_STATS_NP`
   deltas above: one window that holds (E1) and one that breaks (E2), so the
   check has a negative control.
-* `tests/steps/gptp_bmca_steps.py` — the model and the budget rule.
+* [`tests/steps/gptp_bmca_steps.py`](../../tests/steps/gptp_bmca_steps.py) — the model and the budget rule.
 * [`docs/traceability/ieee8021as.md`](../traceability/ieee8021as.md) row **AS-12**.
 
 ## 7. Defects found outside this lane's scope — NOT fixed here

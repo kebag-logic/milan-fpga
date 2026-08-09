@@ -231,7 +231,7 @@ is §4's per-frame cost). **Live mitigation applied:** `rx-usecs-low=2000` on th
 
 | Lever | Attacks | Effort | Status |
 |-------|---------|--------|--------|
-| **Hardware L2 forwarding (ALE/TCAM)** | keeps CPU out of the switched path entirely | large (RTL) | `hdl/ieee8021q/filtering/tcam.sv` exists; the switch answer |
+| **Hardware L2 forwarding (ALE/TCAM)** | keeps CPU out of the switched path entirely | large (RTL) | [`hdl/ieee8021q/filtering/tcam.sv`](../../hdl/ieee8021q/filtering/tcam.sv) exists; the switch answer |
 | **RX completion interrupt + pacing** | RX delivery latency (unlocks 3k→14k headroom) | medium | IRQ 13 wired, unused  -  proposed |
 | **Hugepage the ring/buffers** | TLB half (713 ns → ~0) | low (SW/DT) | proven 2× in `membench`; proposed |
 | **Pointer-writeback** | per-poll MMIO CSR stall | done (RTL+sim) | §7 |
@@ -338,9 +338,9 @@ latency above by design:
 
 | File | Change |
 |------|--------|
-| `sw/litex/milan_soc.py` | `RingDMAWriter` pointer-writeback (`status` CSR + WB_AW/W/B states); `--floorplan` (reset-fanout replication) |
-| `sw/litex/test_ring_writeback.py` | NEW  -  writeback correctness + engine bandwidth sim |
-| `sw/litex/poll_cost_model.py` | NEW  -  CSR-poll cost model fit to the silicon sweep |
+| [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) | `RingDMAWriter` pointer-writeback (`status` CSR + WB_AW/W/B states); `--floorplan` (reset-fanout replication) |
+| [`sw/litex/test_ring_writeback.py`](../../sw/litex/test_ring_writeback.py) | NEW  -  writeback correctness + engine bandwidth sim |
+| [`sw/litex/poll_cost_model.py`](../../sw/litex/poll_cost_model.py) | NEW  -  CSR-poll cost model fit to the silicon sweep |
 | `fpga/kl-eth/kl-eth.c` (the-private-test-repo) | `ethtool -C` `rx-usecs` (active) + `rx-usecs-low` (idle) NAPI-poll-period knobs |
 | board (live) | `rx-usecs-low=2000` (+32 % RX); new `.ko` hot-loaded (not yet in initrd) |
 | build | `build_vexii_fp{,2,3}`  -  `--floorplan` + `--sys-clk-freq 112.5e6`: all 3 closed +0.043 ns, DDR3-900 on silicon, then **reverted to 100 MHz** (§8.1) |

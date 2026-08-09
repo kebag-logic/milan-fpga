@@ -17,6 +17,14 @@ Companion documents: [`testing/PROTOCOL_VALIDATION_MATRIX.md`](testing/PROTOCOL_
 descriptor mapping, same PDF-verification rule as this matrix). This matrix
 is the clause-anchored join between them.
 
+**Reference conventions (this matrix and every family file).** RTL, testbench and
+document references are clickable relative links, and a reference that names a
+line or a span carries the matching line anchor, so following one lands on the
+code rather than at the top of the file. **Line anchors are accurate as of each
+page's stated snapshot date and drift as the RTL moves** — the file half of a
+reference is durable, the line half is perishable. Standards citations (clause
+and table numbers) name no repo object and stay plain text.
+
 ## Contents
 
 - **[The chain, and which file holds each link](#the-chain-and-which-file-holds-each-link)** — A flowchart from a standard clause to the status a row carries, and the point it exists to make: no single file holds the whole chain, which is why a row can read closed in one place and be unbacked in another.
@@ -166,7 +174,7 @@ category:
 | `avtp/` (aaf talker, depacketizer, playback, lpf, tone, media_adv) | 1722-2016 §2; Milan §6 |
 | `maap/KL_maap` | 1722-2016 §4 (MAAP-1..6) |
 | `802_1q_traffic_shaper/` (classifier, class_map, queues, shaping core, CBS, controller) | 802.1Q §1 (Q-1..14) |
-| `hdl/ieee8021q/srp/` (11 modules + `lwsrp_pkg.sv`) | 802.1Q §2–3 (MRP/SRP rows), Milan §1 (M-DEV-5..10) |
+| [`hdl/ieee8021q/srp/`](../hdl/ieee8021q/srp) (11 modules + `lwsrp_pkg.sv`) | 802.1Q §2–3 (MRP/SRP rows), Milan §1 (M-DEV-5..10) |
 | `ptp_timestamp/` (counter, ts core/top, csr_sync) | 802.1AS (AS-1..5) |
 | `common/` (tcam, rx_mac_filter, link_guard, ifg gasket, cdc, datapath, csr) | supporting rows inside each family (filtering, link qualification, integration) |
 
@@ -213,7 +221,7 @@ YAML protocol models (`protocols/`); packet_gen is the engine the matrix's
    same as being a reserved, shaped class A stream**, and three things are
    missing:
 
-   1. **No VLAN tag.** `hdl/ieee1722/crf/KL_crf_tx.sv` contains no `0x8100`, no
+   1. **No VLAN tag.** [`hdl/ieee1722/crf/KL_crf_tx.sv`](../hdl/ieee1722/crf/KL_crf_tx.sv) contains no `0x8100`, no
       PCP and no TCI field — it emits a bare 60-byte L2 frame. Without PCP 3 on
       the SR VID a bridge cannot classify it as class A, and untagged / VID-0 SR
       traffic floods **unshaped**.
@@ -268,12 +276,12 @@ YAML protocol models (`protocols/`); packet_gen is the engine the matrix's
    bits/s = W x MaxIntervalFrames x 8000 x 8`, so 29 clamps up to the 68-octet
    minimum tagged frame and reserves an **88**-octet wire slot, which covers
    the real 84 that (b) was worried about. Both the RTL gate (`0x0020`) and
-   `sw/builder` (`0x0021`) now run the four steps rather than a folded `+42`,
+   [`sw/builder`](../sw/builder) (`0x0021`) now run the four steps rather than a folded `+42`,
    which had silently dropped the clamp. The CRF reservation is therefore
    **5.632 Mb/s**, not 5.376 — the mandated figure, 4.8 % higher than what we
    had been declaring. Measured class-A utilisation on the current shapes:
    **arty_4x4 47.36 %**, **ax7101_8x8 13.82 %**, and the new 8-channel Arty
-   shape (`configs/endstation_arty_8ch.yaml`) **71.94 %** against the 75 %
+   shape ([`configs/endstation_arty_8ch.yaml`](../configs/endstation_arty_8ch.yaml)) **71.94 %** against the 75 %
    ceiling. Every number below that predates this correction is stale by the
    same 4.8 % on the CRF row and by Table 4.4's `+1` on each AAF row.
 

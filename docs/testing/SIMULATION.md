@@ -6,10 +6,10 @@ explains each layer: what it is, how it is wired, how to run it, and what it pro
 
 | Layer | Tool | Top | Proves | Where |
 |-------|------|-----|--------|-------|
-| **1. RTL unit/integration** | Verilator + C++ | one RTL module (flat-port) | the block behaves per spec, cycle-accurate | `tb/verilator/` (one dir per harness; `ls tb/verilator/` is authoritative) |
-| **2. Softcore boot** | Verilator (via LiteX) | the whole SoC | the NaxRiscv core boots the LiteX BIOS | `litex_sim` / `sw/litex/evidence/naxriscv_sim_boot.log` |
-| **3. Softcore + NIC (M-A2)** | Verilator (via LiteX) | SoC + `milan_datapath` | the **CPU reads the NIC over the real bus** | `sw/litex/milan_sim.py` / `…/naxriscv_reads_MILN.log` |
-| (aux) Device portability | Yosys + sv2v | each module | synthesizes on non-Xilinx devices | `syn/yosys/` (the `run.sh` `tops` array is authoritative)  -  not simulation, see its README |
+| **1. RTL unit/integration** | Verilator + C++ | one RTL module (flat-port) | the block behaves per spec, cycle-accurate | [`tb/verilator/`](../../tb/verilator) (one dir per harness; `ls tb/verilator/` is authoritative) |
+| **2. Softcore boot** | Verilator (via LiteX) | the whole SoC | the NaxRiscv core boots the LiteX BIOS | `litex_sim` / [`sw/litex/evidence/naxriscv_sim_boot.log`](../../sw/litex/evidence/naxriscv_sim_boot.log) |
+| **3. Softcore + NIC (M-A2)** | Verilator (via LiteX) | SoC + `milan_datapath` | the **CPU reads the NIC over the real bus** | [`sw/litex/milan_sim.py`](../../sw/litex/milan_sim.py) / `…/naxriscv_reads_MILN.log` |
+| (aux) Device portability | Yosys + sv2v | each module | synthesizes on non-Xilinx devices | [`syn/yosys/`](../../syn/yosys) (the `run.sh` `tops` array is authoritative)  -  not simulation, see its README |
 
 These three layers map to the sections below:
 [Section 1](#section-1-verilator-rtl-harnesses),
@@ -282,10 +282,10 @@ the prompt in seconds instead of grinding the memtest/memspeed at the simulated
 
 | Result | File |
 |--------|------|
-| Every RTL harness passes (`ls tb/verilator/` is authoritative) | run `tb/verilator/` (self-checking; no stored log) |
-| Bare softcore boots to `litex>` | `sw/litex/evidence/naxriscv_sim_boot.log` |
-| CPU reads NIC ID = MILN (M-A2) | `sw/litex/evidence/naxriscv_reads_MILN.log` |
-| Every top synthesizes (device-portable; the `run.sh` `tops` array is authoritative) | run `syn/yosys/run.sh` |
+| Every RTL harness passes (`ls tb/verilator/` is authoritative) | run [`tb/verilator/`](../../tb/verilator) (self-checking; no stored log) |
+| Bare softcore boots to `litex>` | [`sw/litex/evidence/naxriscv_sim_boot.log`](../../sw/litex/evidence/naxriscv_sim_boot.log) |
+| CPU reads NIC ID = MILN (M-A2) | [`sw/litex/evidence/naxriscv_reads_MILN.log`](../../sw/litex/evidence/naxriscv_reads_MILN.log) |
+| Every top synthesizes (device-portable; the `run.sh` `tops` array is authoritative) | run [`syn/yosys/run.sh`](../../syn/yosys/run.sh) |
 
 ## Section 5: Speed notes
 

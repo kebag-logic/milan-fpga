@@ -1,6 +1,6 @@
 # Integration guide - wiring `milan_datapath` into your SoC
 
-`hdl/milan/milan_datapath.sv` is the single clean integration boundary of
+[`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) is the single clean integration boundary of
 this project: the whole Milan TSN datapath (classify + 802.1Qav CBS, PTP
 clock + timestamping, TCAM RX filter, ADP advertiser, RMON, CSR) behind flat,
 host-agnostic ports. It is `milan_top.sv` **minus the Zynq PS and minus the
@@ -11,8 +11,8 @@ This guide is the contract you integrate against. The two in-repo reference
 integrations of exactly this boundary:
 
 * **LiteX RISC-V SoC** - `MilanNIC`/`add_milan_datapath()` in
-  `sw/litex/milan_soc.py` (and the same function reused by the Verilator SoC
-  sim `sw/litex/milan_sim.py`). Documented in [../litex/LITEX_SOC.md](../litex/LITEX_SOC.md).
+  [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) (and the same function reused by the Verilator SoC
+  sim [`sw/litex/milan_sim.py`](../../sw/litex/milan_sim.py)). Documented in [../litex/LITEX_SOC.md](../litex/LITEX_SOC.md).
 * **Zynq-7000 PS** - `milan_top.sv` + `milan_dma_wrapper.v` + `bd/*.tcl`
   (the pre-migration variant, MAC and PS in place).
 
@@ -45,7 +45,7 @@ Parameters: `TDATA_WIDTH = 64` (all AXIS ports; `tkeep` is
 `ethernet_packet_pkg::NUMBER_OF_QUEUES`; **higher index = higher priority**,
 see [../reference/EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md)).
 Byte order on AXIS is big-endian (wire order = memory order; see
-`hdl/common/parameters.svh`).
+[`hdl/common/parameters.svh`](../../hdl/common/parameters.svh)).
 
 ### 1.1 Clocks / reset
 
@@ -76,7 +76,7 @@ hard-coding into your bring-up:
 
 * Offset `0x0` reads the ID `"MILN"` (`0x4d494c4e`) - the canonical
   first-silicon smoke test (milestone M-A2).
-* The map is decoded in `hdl/common/csr/milan_csr.sv` in 0x100-sized groups
+* The map is decoded in [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) in 0x100-sized groups
   (0x000 ID/IRQ, 0x100 MAC, 0x200 RMON stats, 0x300 classifier,
   0x400 CBS per-queue (`0x400`-`0x49F`, stride `0x20` × 5 queues), 0x500 PTP,
   0x600 ADP, 0x700 RX filter/TCAM).
@@ -93,7 +93,7 @@ Full Ethernet frames, one frame per `tlast` packet, no `tuser` sideband. The
 datapath asserts backpressure-correct AXIS handshakes on all three; your
 engine must too (the RX path ultimately needs an always-ready sink at line
 rate or frames drop at the MAC FIFO, which is what the ring-DMA engines in
-`sw/litex/milan_soc.py` - `RingDMAReader`/`RingDMAWriter` - implement; their
+[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) - `RingDMAReader`/`RingDMAWriter` - implement; their
 design history is in [../findings/RX_RING_DMA.md (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md)).
 
 ### 1.4 MAC-facing streams + sideband (to/from your MAC)
@@ -108,7 +108,7 @@ design history is in [../findings/RX_RING_DMA.md (archived)](../../historical_no
 | `o_phy_reset_n` | out | PHY reset, CSR-controlled |
 | `i_mac_speed[1:0]` | in | 00=10M, 01=100M, 10=1G convention; synchronized internally, feeds CSR readback + link-change IRQ |
 | `i_link_up`, `i_full_duplex` | in | PHY/MAC status readback |
-| `i_mac_events[N-1:0]` | in | one-cycle RMON event pulses; lane index = `ethernet_events_t` enum (`hdl/common/eth_event_counter/ethernet_events.svh`), counted by the 9 RMON counters in CSR group 0x200 |
+| `i_mac_events[N-1:0]` | in | one-cycle RMON event pulses; lane index = `ethernet_events_t` enum ([`hdl/common/eth_event_counter/ethernet_events.svh`](../../hdl/common/eth_event_counter/ethernet_events.svh)), counted by the 9 RMON counters in CSR group 0x200 |
 | `o_irq_csr` | out | level interrupt: `tx_ts_ready \| link_change \| rmon_rollover` (see 1.5) |
 
 Any MAC works if you can adapt it to 64-bit AXIS with `tkeep`/`tlast` and
@@ -123,7 +123,7 @@ interrupts are **your DMA engine's** to generate. The Linux driver expects
 four lines named `tx-dma`, `rx-dma`, `ts-dma`, `csr`
 ([`sw/driver/README.md`](../../sw/driver/README.md)); on the LiteX host they are EventManager sources
 folded into one PLIC line, on Zynq four separate GIC lines - the device
-tree, not the RTL, encodes that difference (`sw/dts/`).
+tree, not the RTL, encodes that difference ([`sw/dts/`](../../sw/dts)).
 
 ---
 
@@ -144,20 +144,20 @@ separately testable.
 ## 3. Source files and includes
 
 The canonical file list is `_MILAN_DATAPATH_SOURCES` in
-`sw/litex/milan_soc.py` - packages first, then the verilog-axis cores
+[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) - packages first, then the verilog-axis cores
 (`axis_fifo`, `axis_demux`, `axis_arb_mux`, `arbiter`, `priority_encoder`),
-then the datapath RTL, ending in `hdl/milan/milan_datapath.sv`.
+then the datapath RTL, ending in [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
 
-The same set is used by the `tb/verilator/milan_dp` harness and the
-`syn/yosys` flow, so it cannot silently drift.
+The same set is used by the [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) harness and the
+[`syn/yosys`](../../syn/yosys) flow, so it cannot silently drift.
 
 Add these include directories for the `` `include `` files (`*.svh`):
-`hdl/common`, `hdl/ieee8021q/ts`, `hdl/ieee8021as/ptp_timestamp`,
-`hdl/ieee17221/adp`, `hdl/common/csr`, `hdl/common/eth_event_counter`.
+[`hdl/common`](../../hdl/common), [`hdl/ieee8021q/ts`](../../hdl/ieee8021q/ts), [`hdl/ieee8021as/ptp_timestamp`](../../hdl/ieee8021as/ptp_timestamp),
+[`hdl/ieee17221/adp`](../../hdl/ieee17221/adp), [`hdl/common/csr`](../../hdl/common/csr), [`hdl/common/eth_event_counter`](../../hdl/common/eth_event_counter).
 
 Prerequisite: `git submodule update --init third_party/verilog-axis`.
 
-Do **not** add `hdl/milan/milan_top.sv` or `hdl/milan/milan_dma_wrapper.v`
+Do **not** add [`hdl/milan/milan_top.sv`](../../hdl/milan/milan_top.sv) or [`hdl/milan/milan_dma_wrapper.v`](../../hdl/milan/milan_dma_wrapper.v)
 to a non-Zynq build - they are the Zynq variant and drag in the
 verilog-ethernet MAC and PS7.
 
@@ -174,19 +174,19 @@ cross at the boundary - the LiteX build implements this as `--milan-clk-freq`:
 A 64-bit datapath at ≥50 MHz still exceeds 1 GbE line rate, so this costs
 no throughput.
 
-See `add_milan_datapath()` and `_axis_dp_cdc()` in `sw/litex/milan_soc.py`
+See `add_milan_datapath()` and `_axis_dp_cdc()` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)
 for the working pattern, plus the CBS multicycle constraint described in
 [PORTING_GUIDE.md](PORTING_GUIDE.md) §4.5.
 
 ## 5. Software contract
 
 * **Register ABI:** [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md)
-  (offsets defined once in `milan_csr.sv`; the `tb/verilator/csr` harness
+  (offsets defined once in `milan_csr.sv`; the [`tb/verilator/csr`](../../tb/verilator/csr) harness
   asserts RTL and doc agree).
 * **Linux driver:** `kl-eth` (sibling repo `kl-linux-drivers`), DT binding
   `compatible = "kl,dma-ether-0.9"` - resource layout and caveats in
   [`sw/driver/README.md`](../../sw/driver/README.md).
-* **Device tree:** generated, per-host, by `sw/dts/milan_dt.py` from the
+* **Device tree:** generated, per-host, by [`sw/dts/milan_dt.py`](../../sw/dts/milan_dt.py) from the
   build's `csr.json` - see [`sw/dts/README.md`](../../sw/dts/README.md). If
   you integrate on a new host, add an IR JSON there rather than hand-writing
   a dtsi.
@@ -195,7 +195,7 @@ for the working pattern, plus the CBS multicycle constraint described in
 
 | Step | Check | Where |
 |---|---|---|
-| RTL boundary sanity | `tb/verilator/milan_dp` drives this exact module: CSR ID read, classifier program, TX/RX byte-exact | [../testing/TESTING.md](../testing/TESTING.md) |
+| RTL boundary sanity | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) drives this exact module: CSR ID read, classifier program, TX/RX byte-exact | [../testing/TESTING.md](../testing/TESTING.md) |
 | Your SoC in sim | LiteX users: `milan_sim.py` boots the BIOS and reads `"MILN"` over the real CPU bus | [../testing/SIMULATION.md](../testing/SIMULATION.md) |
 | First silicon | CSR ID read at your base address (M-A2), then MAC loopback, then DMA rings | [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md) shows the worked sequence |
 

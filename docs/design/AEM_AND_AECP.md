@@ -41,7 +41,7 @@
 
 **As-built and silicon-proven.** The AECP subsystem answers the full Milan v1.2
 mandatory AEM + MVU command set on-wire with no CPU involvement
-(`hdl/ieee17221/aecp/KL_aecp_top.sv` and children; traceability rows
+([`hdl/ieee17221/aecp/KL_aecp_top.sv`](../../hdl/ieee17221/aecp/KL_aecp_top.sv) and children; traceability rows
 [`ieee1722_1-2021.md`](../traceability/ieee1722_1-2021.md) AEM-*/CMD-* and
 [`milan-v12.md`](../traceability/milan-v12.md) M-AECP-1..10). Highlights, with
 the row IDs that carry the evidence:
@@ -67,8 +67,8 @@ the row IDs that carry the evidence:
 
 | Design sketch (below) | As-built | Evidence |
 |---|---|---|
-| 3 stored configurations ("Raki" 48/96/192 kHz) | **One configuration** (`NUM_CONFIGURATIONS_C = 1`, `aecp_pkg.sv`); the three rates live inside it via AUDIO_UNIT `sampling_rates` + SET_SAMPLING_RATE | M-AECP-1; `avdecc/gen_aem_store.py` |
-| One illustrative descriptor set | **Small ↔ full entity split**: `avdecc/milan-v12-entity-small-48k.json` (stereo 48 k baseline — the Arty 100 M MII endstation) and `avdecc/milan-v12-entity.json` (full/scaled 8-ch 48/96/192 k — the AX7101 GbE shape); NxN shapes come from the endstation builder overlay | [§4](#4-entity-model--as-built); `sw/builder/endstation_builder.py` |
+| 3 stored configurations ("Raki" 48/96/192 kHz) | **One configuration** (`NUM_CONFIGURATIONS_C = 1`, `aecp_pkg.sv`); the three rates live inside it via AUDIO_UNIT `sampling_rates` + SET_SAMPLING_RATE | M-AECP-1; [`avdecc/gen_aem_store.py`](../../avdecc/gen_aem_store.py) |
+| One illustrative descriptor set | **Small ↔ full entity split**: [`avdecc/milan-v12-entity-small-48k.json`](../../avdecc/milan-v12-entity-small-48k.json) (stereo 48 k baseline — the Arty 100 M MII endstation) and [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json) (full/scaled 8-ch 48/96/192 k — the AX7101 GbE shape); NxN shapes come from the endstation builder overlay | [§4](#4-entity-model--as-built); [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py) |
 | AUDIO_MAP "none, everything can be dynamic" | **Static maps are the default** (AUDIO_MAP×2 in ROM; ADD/REMOVE → NOT_SUPPORTED there — the Milan-5.4.2.27/28-specified answer); dynamic is a per-port opt-in on STREAM_PORT_INPUT[0] only | CMD-19/20, M-AECP-4 |
 | Table of **16** controllers for unsolicited | **4-slot** push engine (`UNSOL_SLOTS_C = 4` in `KL_aecp_response_builder.sv`; the pkg constant `MAX_UNSOLICITED_CTLR_C = 16` is the unused design remnant) | CMD-13 |
 | Validation failure → BAD_ARGUMENTS response | Malformed frames (bad `message_type`, `control_data_length` < 12) are **dropped without a response**; error statuses answer well-formed commands only | `KL_aecp_packet_validator.sv` |
@@ -117,7 +117,7 @@ State machines implemented (IEEE 1722.1-2021 clause 9.2.2):
   - GET/SET_MEDIA_CLOCK_REFERENCE_INFO.
 
 All five MVU commands are implemented and answered from fabric (command codes
-`VU_*` in `hdl/ieee17221/aecp/aecp_pkg.sv`; rows M-AECP-6..9 — the old
+`VU_*` in [`hdl/ieee17221/aecp/aecp_pkg.sv`](../../hdl/ieee17221/aecp/aecp_pkg.sv); rows M-AECP-6..9 — the old
 "MEDIA_CLOCK_REFERENCE_INFO missing" note was stale and was corrected by the
 2026-07-25 fuzz census).
 
@@ -233,8 +233,8 @@ Addresses are 16-bit; anything larger works modulo a 16-bit-aligned offset.
 ### 5.2 As-built: the flat directory
 
 With a single configuration the L1/L2 walk carries no information, so it
-collapses. The generated image (`hdl/ieee17221/aecp/gen/aecp_aem_rom.svh`,
-emitted by `avdecc/gen_aem_store.py` — never hand-edit) is:
+collapses. The generated image ([`hdl/ieee17221/aecp/gen/aecp_aem_rom.svh`](../../hdl/ieee17221/aecp/gen/aecp_aem_rom.svh),
+emitted by [`avdecc/gen_aem_store.py`](../../avdecc/gen_aem_store.py) — never hand-edit) is:
 
 - **ROM** (`AEM_ROM_BYTES_C` bytes): every descriptor payload back to back,
   plus a 64-byte scratch tail for the MVU media-clock domain name.
@@ -405,7 +405,7 @@ data — is resolved by three mechanisms instead of one module:
   ([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)): ADP identity `0x600`
   (incl. gPTP GM `0x624/0x628` fed by the gptp daemon), AECP status
   `0x648/0x64C` (locked, command/response counts, current configuration —
-  `A_AECP_STAT0/1` in `hdl/common/csr/milan_csr.sv`), MAAP `0x6CC–0x6D4`,
+  `A_AECP_STAT0/1` in [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv)), MAAP `0x6CC–0x6D4`,
   ACMP listener state `0x6A4` + forensics `0x6E8`, ACMP bind-restore `0x7A0`
   group, lwSRP `0x680`.
 

@@ -210,10 +210,10 @@ exists and passes; the behave scenarios above are the *wire* half:
 
 | Gate feature | RTL module | Verilator TB (self-checking) | Status |
 |--------------|-----------|------------------------------|--------|
-| `link_guard` (AX42) | `gmii.py`+`milan_soc.py` `ext_reset` (applied) | `tb/verilator/eth_tx_reset/` 40/40 | **applied + elaboration-clean** (SoC emits netlist w/ `eth_rst`); Vivado build + AX bench remain |
-| `pcm_ring` (BRAM) | `hdl/ieee1722/aaf/KL_pcm_ring_bram.sv` (wired `--pcm-ring bram`) | `tb/verilator/pcm_ring_bram/` 17/17 + 9/9 | **applied + elaboration-clean** (ring instantiated, read slave @0x9010_0000, double-drive fixed, default path unchanged); Vivado build confirms ~8 RAMB36 |
-| `media_clock_servo` (auto_repair) | `KL_mmcm_drp_servo.sv` (repair FSM) | `tb/verilator/mmcm_servo_autorepair/` 47/47 | TB solid; tie NOT flipped (bench readback of 0x8FC gates enablement) |
-| `alsa_playback` (KL_pcm_tx) | `hdl/ieee1722/aaf/KL_pcm_tx.sv` | `tb/verilator/pcm_tx/` 27/27 | scaffold solid; SoC integration design-only (documented caveats) |
+| `link_guard` (AX42) | `gmii.py`+`milan_soc.py` `ext_reset` (applied) | [`tb/verilator/eth_tx_reset/`](../../tb/verilator/eth_tx_reset) 40/40 | **applied + elaboration-clean** (SoC emits netlist w/ `eth_rst`); Vivado build + AX bench remain |
+| `pcm_ring` (BRAM) | [`hdl/ieee1722/aaf/KL_pcm_ring_bram.sv`](../../hdl/ieee1722/aaf/KL_pcm_ring_bram.sv) (wired `--pcm-ring bram`) | [`tb/verilator/pcm_ring_bram/`](../../tb/verilator/pcm_ring_bram) 17/17 + 9/9 | **applied + elaboration-clean** (ring instantiated, read slave @0x9010_0000, double-drive fixed, default path unchanged); Vivado build confirms ~8 RAMB36 |
+| `media_clock_servo` (auto_repair) | `KL_mmcm_drp_servo.sv` (repair FSM) | [`tb/verilator/mmcm_servo_autorepair/`](../../tb/verilator/mmcm_servo_autorepair) 47/47 | TB solid; tie NOT flipped (bench readback of 0x8FC gates enablement) |
+| `alsa_playback` (KL_pcm_tx) | [`hdl/ieee1722/aaf/KL_pcm_tx.sv`](../../hdl/ieee1722/aaf/KL_pcm_tx.sv) | [`tb/verilator/pcm_tx/`](../../tb/verilator/pcm_tx) 27/27 | scaffold solid; SoC integration design-only (documented caveats) |
 
 ### 5.3 "Drive the impl" (`@wip` until the RTL lands)
 

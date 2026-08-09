@@ -69,7 +69,7 @@ Same frame, two views of its length:
 | what a parser sees past byte 67 | end of frame | 4 zero bytes |
 | verdict | valid PTPv2 | `EBADMSG` — the zeros parse as a bogus TLV |
 
-- `RingDMAWriter` (sw/litex/milan_soc.py) delivers each RX frame padded to an
+- `RingDMAWriter` ([sw/litex/milan_soc.py](../../sw/litex/milan_soc.py)) delivers each RX frame padded to an
   8-byte boundary and reports the **padded** length. Docstring line ~545:
   "length = padded payload bytes". Length = `frame_beats << 3` (line ~1251;
   `ack_beats` comment line ~1005 "len_bytes = beats*8").
@@ -166,7 +166,7 @@ to the board ports (isolated/limited-port config; board<->board and board Announ
 relay both absent). To get a SLAVE/offset-converged validation:
 - **direct board<->board cable** — now unblocked (the RX-pad fix applies there
   too): the two boards peer directly, BMCA elects one GM, the other slaves, no
-  switch relay needed. `sw/litex/gptp_direct_cable.sh` (both boards need the
+  switch relay needed. [`sw/litex/gptp_direct_cable.sh`](../../sw/litex/gptp_direct_cable.sh) (both boards need the
   fixed .ko + /etc/gptp.cfg, now baked into the rootfs).
 - OR switch management: enable 802.1AS GM relay on the board-facing ports.
 

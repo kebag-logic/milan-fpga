@@ -51,7 +51,7 @@ re-verified against the same commit — see [`VIRTUAL_E2E_TEST_PROCEDURE.md`](..
 
 ## What this does not cover
 
-- Full 55-suite Verilator sweep (run `scripts/run_all_suites.sh` for that).
+- Full 55-suite Verilator sweep (run [`scripts/run_all_suites.sh`](../../../scripts/run_all_suites.sh) for that).
 - Vivado/P&R timing, PHY, analog — hardware-only.
 - T2/T3 virtual-wire behavior — blocked on engineering tasks (RAM model,
   wire attachment, two-node bridge).

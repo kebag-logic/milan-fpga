@@ -41,7 +41,7 @@ without activation is the **system** python — same version (3.14.6), no
 - `ModuleNotFoundError: No module named 'migen'`
 - a BIOS build `subprocess.CalledProcessError` at the `crcfbigen` step
 
-Both are the same root cause and neither says so. `scripts/virtual-e2e.sh`
+Both are the same root cause and neither says so. [`scripts/virtual-e2e.sh`](../../scripts/virtual-e2e.sh)
 activates the venv for you; the manual path must do it by hand.
 
 ## 2. Host and simulation toolchain
@@ -57,7 +57,7 @@ activates the venv for you; the manual path must do it by hand.
 | JDK | OpenJDK **17.0.20** (2026-07-21) at `/usr/lib/jvm/java-17-openjdk` | `$JAVA_HOME/bin/java -version` |
 | sbt | `/usr/bin/sbt` | `command -v sbt` |
 | softcore netlist cache | `~/litex-milan/pythondata-cpu-naxriscv/pythondata_cpu_naxriscv/verilog/NaxRiscvLitex_<config-hash>.v` — populated; the sim build consumes `NaxRiscvLitex_1b9c524d4409d43204e25d4404d6c364.v` (4.6 MB) | file exists |
-| tsn-gen (field generator) | `~/tsn-gen` — present; the `tb/verilator/tsn_fuzz` campaigns SKIP cleanly without it | dir exists |
+| tsn-gen (field generator) | `~/tsn-gen` — present; the [`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) campaigns SKIP cleanly without it | dir exists |
 
 Verilator 5.050 supports `--threads N` and `--threads-dpi <mode>`; the
 multithreading policy that uses them is
@@ -107,7 +107,7 @@ an escape class.
 Note the naming trap: the RV64 tree's prefix is `riscv64-…` **and so is the
 tree's own name**, while the RV32 tree carries a `riscv32-…` prefix. The
 xlen of a *simulation* is not set by either — it is set by `--xlen` on the sim
-CPU (`sw/litex/milan_sim.py`, default 32) and, for T2, by which of the two
+CPU ([`sw/litex/milan_sim.py`](../../sw/litex/milan_sim.py), default 32) and, for T2, by which of the two
 image sets is booted.
 
 ## 4. QEMU
@@ -161,7 +161,7 @@ cross-run object cache to invalidate.
   independent AVDECC oracle wired in. These are engineering tasks R3/R5, not
   artifacts that already exist.
 - **No `import "DPI-C"` exists anywhere in `hdl/` or `tb/`.** The co-simulation
-  bridges (`tb/verilator/tsn_fuzz/cosim_axis.h`, `scripts/run-dut-sim.sh`) are
+  bridges ([`tb/verilator/tsn_fuzz/cosim_axis.h`](../../tb/verilator/tsn_fuzz/cosim_axis.h), [`scripts/run-dut-sim.sh`](../../scripts/run-dut-sim.sh)) are
   Verilator `--exe` C++ harnesses over UNIX sockets, not DPI. `--threads-dpi`
   therefore has nothing to act on today; it becomes relevant only if T3's bridge
   introduces DPI imports. See the policy in
@@ -175,6 +175,6 @@ cd <repo>
 ```
 
 It re-reads every row above and writes a dated report under
-`docs/testing/evidence/`. It exits non-zero only on a **required** item
+[`docs/testing/evidence/`](../testing/evidence). It exits non-zero only on a **required** item
 (Verilator, the venv, the RV32 image set); optional items report `SKIP` with the
 reason, never a silent pass.

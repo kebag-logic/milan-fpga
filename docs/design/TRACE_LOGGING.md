@@ -42,7 +42,7 @@ Read this first.
 
 | Piece | State | Evidence |
 |---|---|---|
-| Trace ABI (`milan_trace.yaml` → CTF `metadata`) | **generated + pinned** | `sw/trace/test_trace_roundtrip.py` gates 2, 3 |
+| Trace ABI (`milan_trace.yaml` → CTF `metadata`) | **generated + pinned** | [`sw/trace/test_trace_roundtrip.py`](../../sw/trace/test_trace_roundtrip.py) gates 2, 3 |
 | Producer C (barectf output + the DRAM ring) | **compiles and runs on a host** | gate 4 (`-Wall -Wextra -Werror`) |
 | 23 event types, all exercised | **measured** | gate 5 — 87 805 records over 1607 s of simulated board time |
 | Compression chain + ratio | **measured on real produced traces** | gate 6 — 1 839 104 → 387 028 B, **0.2104** |
@@ -68,7 +68,7 @@ do.
 
 > **The enumerated catalogue — every event type, every field, every enum —
 > is [`../reference/TRACE_EVENTS.md`](../reference/TRACE_EVENTS.md)**, generated
-> from `milan_trace.yaml` by `sw/trace/gen_trace_events.py` and gated against
+> from `milan_trace.yaml` by [`sw/trace/gen_trace_events.py`](../../sw/trace/gen_trace_events.py) and gated against
 > staleness (round-trip gate 15). This section is the *reasoning*; that page is
 > the reference.
 
@@ -531,15 +531,15 @@ without a board, without a controller, and without three days of narrowing.
 
 | Path | What |
 |---|---|
-| `sw/trace/milan_trace.yaml` | the ABI source (barectf config) |
-| `sw/trace/generated/` | vendored `metadata` + `barectf.[ch]` + `barectf-bitfield.h` |
+| [`sw/trace/milan_trace.yaml`](../../sw/trace/milan_trace.yaml) | the ABI source (barectf config) |
+| [`sw/trace/generated/`](../../sw/trace/generated) | vendored `metadata` + `barectf.[ch]` + `barectf-bitfield.h` |
 | `sw/trace/milan_trace.[ch]` | the DRAM ring, flush arming, rate limiter, flash-wear bucket, segment API |
-| `sw/trace/trace_selftest.c` | the scripted fault run, linking the *shipping* producer |
-| `sw/trace/trace_segment.py` | segment container: pack / unpack / verify / rotate / ratio |
-| `sw/trace/ctf_read.py` | stdlib CTF reader |
-| `sw/trace/test_trace_roundtrip.py` | the 15-gate round trip (gate 1 flash map/mtd → gate 15 event-catalogue freshness; gates 2 and 14 SKIP without `barectf` / `babeltrace2`) |
-| `sw/dts/gen_mtd_partitions.py`, `sw/dts/mtd-partitions.dtsi` | the `fixed-partitions` node, generated from the SoC flash map |
-| `sw/litex/milan_soc.py` | `FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED` + `check_flash_map()` |
+| [`sw/trace/trace_selftest.c`](../../sw/trace/trace_selftest.c) | the scripted fault run, linking the *shipping* producer |
+| [`sw/trace/trace_segment.py`](../../sw/trace/trace_segment.py) | segment container: pack / unpack / verify / rotate / ratio |
+| [`sw/trace/ctf_read.py`](../../sw/trace/ctf_read.py) | stdlib CTF reader |
+| [`sw/trace/test_trace_roundtrip.py`](../../sw/trace/test_trace_roundtrip.py) | the 15-gate round trip (gate 1 flash map/mtd → gate 15 event-catalogue freshness; gates 2 and 14 SKIP without `barectf` / `babeltrace2`) |
+| [`sw/dts/gen_mtd_partitions.py`](../../sw/dts/gen_mtd_partitions.py), [`sw/dts/mtd-partitions.dtsi`](../../sw/dts/mtd-partitions.dtsi) | the `fixed-partitions` node, generated from the SoC flash map |
+| [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) | `FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED` + `check_flash_map()` |
 
 **In the private test repo (`fpga/`)** — everything that needs a filesystem, an
 init system or a board:

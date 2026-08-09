@@ -23,7 +23,7 @@ in-fabric observability block).
   = **3**-bit `tdest` where routed (`traffic_controller_802_1q`, since the queue
   count went to 6); big-endian byte order (wire order == memory order, so the CPU
   never swaps). The `` `AXIS_TDEST_WIDTH 2 `` define in
-  `hdl/common/parameters.svh` is a relic referenced only by the legacy xsim TBs
+  [`hdl/common/parameters.svh`](../../hdl/common/parameters.svh) is a relic referenced only by the legacy xsim TBs
   — the live path derives the width from the queue count.
 * **CSR:** AXI4-Lite, 16-bit offset (64 KB window), 32-bit data, decoded in
   `milan_csr` in 0x100 groups.
@@ -37,8 +37,8 @@ in-fabric observability block).
 
 | Wrapper | File | Host | Contains |
 |---|---|---|---|
-| `milan_datapath` | `hdl/milan/milan_datapath.sv` | LiteX RISC-V SoC (and the Verilator/Yosys flows) | everything below, MAC-less and PS-less - **the integration boundary** |
-| `milan_top` | `hdl/milan/milan_top.sv` | Zynq-7020 PS (`bd/milan-dma.tcl`, `milan_dma_wrapper.v`) | same datapath + the verilog-ethernet `eth_mac_1g_rgmii_fifo` MAC (external source) + PS wiring |
+| `milan_datapath` | [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) | LiteX RISC-V SoC (and the Verilator/Yosys flows) | everything below, MAC-less and PS-less - **the integration boundary** |
+| `milan_top` | [`hdl/milan/milan_top.sv`](../../hdl/milan/milan_top.sv) | Zynq-7020 PS (`bd/milan-dma.tcl`, `milan_dma_wrapper.v`) | same datapath + the verilog-ethernet `eth_mac_1g_rgmii_fifo` MAC (external source) + PS wiring |
 
 Pipeline (identical in both wrappers):
 
@@ -243,7 +243,7 @@ this table whenever `hdl/` changes shape.
 
 | module | description |
 |---|---|
-| `milan_datapath` | This is the single clean HW/gateware boundary the LiteX SoC (sw/litex/milan_soc.py) |
+| `milan_datapath` | This is the single clean HW/gateware boundary the LiteX SoC ([sw/litex/milan_soc.py](../../sw/litex/milan_soc.py)) |
 | `milan_top` |  |
 
 <!-- Count deliberately not stated here: docs/traceability/MODULE_MATRIX.md is
@@ -273,7 +273,7 @@ toolchain: [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §
 ## 4. What is *not* in `hdl/` (and where it lives instead)
 
 * **The ring-DMA engines** (`RingDMAReader`/`RingDMAWriter`, BD formats,
-  header-split, RSC/GRO) are **Migen**, inside `sw/litex/milan_soc.py` -
+  header-split, RSC/GRO) are **Migen**, inside [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) -
   design docs: [CPPI_DMA_REDESIGN.md (archived)](../../historical_now_obsolete/fpga/CPPI_DMA_REDESIGN.md),
   [HW_GRO_RSC.md (archived)](../../historical_now_obsolete/fpga/HW_GRO_RSC.md),
   [HEADER_SPLIT_DESIGN.md](HEADER_SPLIT_DESIGN.md) (includes the hsq12 cut-through chapter); running system view:

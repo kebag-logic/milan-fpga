@@ -742,7 +742,7 @@ gate; the findings stay visible and cannot be forgotten.
 **(1) `GET_COUNTERS` answers only Stream Inputs 0 and 1.** Milan v1.2 5.3.8.10:
 *"For each Stream Input of the currently set Configuration, the PAAD-AE shall
 keep track of the counters in Table 5.6"*, and 5.4.2.25 makes `GET_COUNTERS`
-mandatory per descriptor. In `hdl/ieee17221/aecp/KL_aecp_response_builder.sv`:
+mandatory per descriptor. In [`hdl/ieee17221/aecp/KL_aecp_response_builder.sv`](../../hdl/ieee17221/aecp/KL_aecp_response_builder.sv):
 
 * the `CMD_GET_COUNTERS` case spans lines 1944–2012;
 * that block contains **no** `w_in_fidx` and **no** `AEM_N_STRIN_C`;
@@ -803,7 +803,7 @@ def check_my_thing(self) -> list[Verdict]:
 ```
 
 Then add `out += self.check_my_thing()` to `checks()`, and add the family name to
-`WT_FAMILIES` in `tests/steps/wire_truth_steps.py` so the empty-capture scenario
+`WT_FAMILIES` in [`tests/steps/wire_truth_steps.py`](../../tests/steps/wire_truth_steps.py) so the empty-capture scenario
 notices if it ever stops emitting. **Never return an empty list**: a check whose
 loop body never ran must SKIP, not vanish and not pass.
 

@@ -27,7 +27,7 @@ authority); status claims carry their in-repo evidence. Written 2026-07-25.
 - **[3. The media clock](#3-the-media-clock)** — How a shared nanosecond timeline becomes a 48 kHz sample edge: an integer-only MMCM chain (fractional-N jitter measurably collapsed converter THD+N to -4.5 dB), the CRF talker and the measuring receiver, and a PI servo whose real actuator is a 16.9 ps fine phase step — with `CRF_DELTA` deliberately excluded from the loop because it carries an arbitrary phase constant. Closes on the media-lock rule: an internal source locks on the first PDU, an external one has to earn it. New in §3.1.1: the master-role error budget — why "exactly 24.576 MHz" only binds the slave role, and the real numbers (synthesis -0.66 ppm on the TDM-master plan under a +-50 ppm oscillator, all absorbed by listeners tracking our honest timestamps).
 - **[4. Time-related CSRs — quick table](#4-time-related-csrs--quick-table)** — Every time-related offset in one place, `CAP[9]` through `MCSRV_CTRL` and the `dma-ts` ring. Every row is now ABI-blessed in the register map, so the `(*)` "live in RTL, undocumented" marker this table used to carry is retired.
 - **[4a. Centered-FIFO regulation goal (USER 2026-08-07): +/- 125 us](#4a-centered-fifo-regulation-goal-user-2026-08-07---125-us)** — The standing regulation target: the DAC elasticity FIFO stays centered and its wander holds within one class-A frame period (+/-6 pairs), earned by clock quality rather than buffer depth
-- **[4b. Grandmaster loss and recovery](#4b-grandmaster-loss-and-recovery)** — Pointer to GM_LOSS_RECOVERY.md, the transient story: what a GM handover costs at each layer and why it is now one MEDIA_RESET click + ~100 ms with the lock held
+- **[4b. Grandmaster loss and recovery](#4b-grandmaster-loss-and-recovery)** — Pointer to [GM_LOSS_RECOVERY.md](GM_LOSS_RECOVERY.md), the transient story: what a GM handover costs at each layer and why it is now one MEDIA_RESET click + ~100 ms with the lock held
 - **[5. Status (2026-07-25)](#5-status-2026-07-25)** — Claim-by-claim, each with its evidence: peer delay 600 µs on software stamps → 1.3 µs on hardware, CRF board-to-board locked at +6.7 ppm, -83.9 dB loop THD+N at the converter floor. Then the honest half by row id — no per-unit latency calibration exists, the BMCA recreation is blocked by a switch that outranks every Milan-legal value, and `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` are mapped but their fabric wires unconsumed. The doc-drift bullet this section used to carry is closed.
 
 ## 1. Concept — the three clocks
@@ -43,7 +43,7 @@ Three clocks exist on each board, chained in one direction:
 
 1. **The network clock — the PHC** (PTP Hardware Clock). A 64-bit
    nanosecond counter in the fabric
-   (`hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv`). This is the clock
+   ([`hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv`](../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv)). This is the clock
    gPTP disciplines and the clock every hardware timestamp is drawn from.
    When the board is GM, the PHC free-runs and everyone else follows it.
 2. **The system clock** — Linux `CLOCK_REALTIME` on the softcore. `phc2sys`
@@ -84,7 +84,7 @@ The CSR plane and the PHC live in different clock domains;
 across (REQ-CSR-03).
 
 On the fully-FPGA LiteX SoCs the PHC clock (`gtx_clk`) is tied to the
-datapath clock (`sw/litex/milan_soc.py`, the
+datapath clock ([`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), the
 `i_gtx_clk = ClockSignal(milan_cd)` instantiation) — 50 MHz Arty, 100 MHz
 AX7101 — and `PTP_INCR` carries the matching ns-per-tick. Since the t532
 wire-scale audit its RESET value is DERIVED from the instantiator's
@@ -238,9 +238,9 @@ pairing by construction.
 Sample clocks are made from a dedicated MMCM, not from logic dividers of the
 datapath clock: fractional-N edge jitter on MCLK measurably wrecked the
 converters (analog THD+N collapsed to -4.5 dB; history in
-`hdl/ieee1722/aaf/KL_i2s_playback.sv`'s header).
+[`hdl/ieee1722/aaf/KL_i2s_playback.sv`](../../hdl/ieee1722/aaf/KL_i2s_playback.sv)'s header).
 
-The chain is two-stage and **integer-only** (`sw/litex/milan_soc.py`,
+The chain is two-stage and **integer-only** ([`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py),
 `_CRG`). Two plans exist, selected by `audio_tdm_hz`:
 
 * **Plan A (default, I2S shapes):** 100 MHz -> PLL /2 x23 /37 ->
@@ -303,7 +303,7 @@ wrong-divider inexactness is a defect in any role.
 
 ### 3.2 CRF out — `KL_crf_tx`, the media-clock talker
 
-`hdl/ieee1722/crf/KL_crf_tx.sv` emits the Milan CRF Media Clock Stream
+[`hdl/ieee1722/crf/KL_crf_tx.sv`](../../hdl/ieee1722/crf/KL_crf_tx.sv) emits the Milan CRF Media Clock Stream
 (Milan v1.2 7.3.1 / IEEE 1722-2016 Clause 10): subtype 4, type
 CRF_AUDIO_SAMPLE, pull 0, base_frequency 48000, one 64-bit timestamp per
 PDU, timestamp_interval 96 — one PDU per 96 sample events = 500 PDU/s.
@@ -318,7 +318,7 @@ Milan applies the stream **presentation time offset to CRF exactly as to
 media streams**: every emitted timestamp is `event gPTP time + transit_ns`,
 from the same offset source as the AAF framer (SET_STREAM_INFO
 accumulated-latency field; reset 2 ms) — see the `transit_ns_i` wiring in
-`hdl/milan/milan_datapath.sv`.
+[`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
 
 A PDU that would collide with a busy serializer is skipped whole, so emitted
 timestamps stay truthful and only the cadence stretches. The stream leaves
@@ -327,7 +327,7 @@ declaration exists (section 5).
 
 ### 3.3 CRF in — `KL_crf_rx`, the measurement half
 
-`hdl/ieee1722/crf/KL_crf_rx.sv` validates every CRF PDU of the selected
+[`hdl/ieee1722/crf/KL_crf_rx.sv`](../../hdl/ieee1722/crf/KL_crf_rx.sv) validates every CRF PDU of the selected
 stream against the Milan 7.3.2 profile constants (wrong pull/base/dlen/
 interval/type increments `fmt_err`) and produces the two servo inputs:
 
@@ -341,7 +341,7 @@ interval/type increments `fmt_err`) and produces the two servo inputs:
   subtraction is congruent mod 2^32, and one same-port access reads the
   oldest entry and overwrites it in place. `rate` updates one clock after
   the accepted PDU (invisible at any CSR poll rate; pinned by the
-  `tb/verilator/crf_rx` regression). The previous 256×64 flop file was
+  [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) regression). The previous 256×64 flop file was
   the exact placer-overflow victim of the first 8×8+chmap build;
 * **lock**: 8 clean consecutive PDUs to lock, 100 ms of silence (or a
   validation error) to unlock — mirroring the AAF media-lock contract —
@@ -354,7 +354,7 @@ lever (`milan_datapath.sv`, `crf_rx` instance).
 
 ### 3.4 The MMCM-DRP servo — `KL_mmcm_drp_servo` (MCSRV 0x8F8/0x8FC)
 
-`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv` closes the loop when
+[`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv`](../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv) closes the loop when
 `clock_source == 2` (the CRF CLOCK_SOURCE descriptor); in every other mode
 it is IDLE with zero DRP/PS activity.
 
@@ -411,7 +411,7 @@ CS4344+CS5343 converter datasheet floor**
 ([`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) roadmap item 6;
 [`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 2).
 
-The **media-lock rule** (`hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv`, the
+The **media-lock rule** ([`hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv`](../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv), the
 MEDIA_LOCKED engine): with an **internal** clock source
 (`clock_source_index == 0`) the stream locks on the first valid PDU — lock
 means "buffer position established", and slips are accepted as
@@ -428,7 +428,7 @@ earn it.
 
 The same PHC dates the audio itself: the AAF packetizer latches
 `avtp_timestamp = ptp_now + transit_ns` at each PDU's first sample pair
-(`hdl/ieee1722/aaf/KL_aaf_packetizer.sv`, `tsw_val_r` assignment), and the
+([`hdl/ieee1722/aaf/KL_aaf_packetizer.sv`](../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv), `tsw_val_r` assignment), and the
 listener-side monitor computes `ts_delta = avtp_timestamp - ptp_now` on
 every accepted PDU (CSR 0x6EC), counting LATE (delta < 0) and EARLY (delta
 beyond offset + margin) per Milan Table 5.6.
@@ -528,7 +528,7 @@ Proven, with the evidence next to each claim:
   (201 k checks) — [`../traceability/ieee8021as.md`](../traceability/ieee8021as.md)
   rows AS-1/AS-2.
 * **Per-frame HW timestamps under interference**: RTL interference suite
-  green (`tb/verilator/ptp_ts`, event frames inside line-rate floods) and
+  green ([`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts), event frames inside line-rate floods) and
   silicon green 2026-07-13 (hwts5): 0 tx-timestamp timeouts steady-state,
   offset rms 2-5 ns *through* RX/TX/bidirectional floods, **peer delay
   600 us (SW stamps) -> 1.3 us (HW)** —

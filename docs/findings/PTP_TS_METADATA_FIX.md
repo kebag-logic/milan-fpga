@@ -48,7 +48,7 @@
 - **[Root cause (found in sim, not on the bench)](#root-cause-found-in-sim-not-on-the-bench)** — A race between `dest_req` (fixed ~6–10 clks after SOP) and `is_ptp` (not true until frame beat 1). On slow MII beats the compare uses the *previous* frame's ethertype; on back-to-back frames the request lands after TLAST. Found because `ptp_ts_top`'s metadata path had **no testbench at all** — the new harness reproduced the silence immediately, and surfaced two latent bugs next door, including an AXI-Stream `tvalid`-depends-on-`tready` violation.
 - **[Fix (hdl/ieee8021as/ptp_timestamp/ptp_ts_core.sv, commit 32e5c41)](#fix-hdlieee8021asptp_timestampptp_ts_coresv-commit-32e5c41)** — Capture, qualify and emit decoupled: `dest_req` only fills a holding register, the frame **qualifies at TLAST** when the ethertype and sequence id are definitively known, and either arrival order now works. A non-PTP TLAST consumes its own capture so it cannot poison the next frame.
 - **[Record contract (from the TB — the kl-eth driver matches this)](#record-contract-from-the-tb--the-kl-eth-driver-matches-this)** — The 16-byte, two-beat record layout as the driver parses it: word0 = ns of the disciplined PHC, word1 = sequence id + direction. Note the deliberate non-obvious bit — `seq_id` is stored as the frame's big-endian value verbatim, so there is **no byte swap in the driver**. The banner at the top of the page carries the later v2.1 revision that adds msgType and the always-1 slot sentinel.
-- **[Gates](#gates)** — The seven cases the new `tb/verilator/ptp_ts` harness covers, plus the datapath and yosys re-runs. Includes a TB bug found while blaming the DUT: a post-edge monitor misses the beat consumed at a backpressure-release edge.
+- **[Gates](#gates)** — The seven cases the new [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts) harness covers, plus the datapath and yosys re-runs. Includes a TB bug found while blaming the DUT: a post-edge monitor misses the beat consumed at a backpressure-release edge.
 - **[Driver / DT side (the-private-test-repo 5b942c3, kl-eth hwts1)](#driver--dt-side-the-private-test-repo-5b942c3-kl-eth-hwts1)** — The software half: empty-slot sentinel instead of MMIO polling, RX matched by FIFO *order* rather than sequence id (pdelay_resp and its follow-up share a seq). Two traps recorded here — the device tree carried a rotted `dma-ts` address across three generations and nothing crashed because sub-page ioremap is page-granular, and `kl_ptp_adjfine` was over-correcting ~59× via a `div_s64` truncation that only a GM role hid.
 - **[Validation status — SILICON GREEN (hwts5, asl WNS +0.201, 2026-07-13)](#validation-status--silicon-green-hwts5-asl-wns-0201-2026-07-13)** — The acceptance run: peerMeanPathDelay 600 us → **1.3 us**, and rms 2–5 ns held through 45 s RX flood, TX flood + AAF streaming, and bidirectional flood. Read the corrected attribution of the three TX-ts timeouts — the queue-starvation theory died on inspection; the delay is the driver's single 256-slot TX ring, ~30 ms of in-DRAM backlog no fabric classifier can reorder.
 
@@ -61,8 +61,8 @@ stayed **0 forever** — zero records — while ptp4l demonstrably pushed ~19 TX
 with "timed out while polling for tx timestamp".
 
 ## Root cause (found in sim, not on the bench)
-`ptp_ts_top`'s metadata path had **no testbench anywhere** (tb/verilator/
-ptp_sync only covers the CSR CDC). A new harness — `tb/verilator/ptp_ts`,
+`ptp_ts_top`'s metadata path had **no testbench anywhere** ([tb/verilator/](../../tb/verilator)
+ptp_sync only covers the CSR CDC). A new harness — [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts),
 frames at both real ingress profiles — reproduced the silence immediately:
 
 The original core decided a record at *timestamp-handshake return* time:
@@ -105,7 +105,7 @@ equal to the frame's big-endian sequenceId — **no byte swap in the driver**.
 Records arrive in wire order per direction (RR mux across directions).
 
 ## Gates
-- NEW `tb/verilator/ptp_ts`: 7 cases ALL PASS (slow-first-frame, slow-second,
+- NEW [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts): 7 cases ALL PASS (slow-first-frame, slow-second,
   fast RX, fast TX + o_tx_ts_ready pulse, non-PTP no-poison, ts_m_axis
   backpressure, TX+RX interleave). TB monitor samples pre-edge (a post-edge
   monitor misses the beat consumed at a backpressure-release edge — TB bug
@@ -143,7 +143,7 @@ Records arrive in wire order per direction (RR mux across directions).
   the wire (8 Hz sync + follow_up each carrying a HW t1).
 - **peerMeanPathDelay: 600 us (SW stamps) -> 1.3 us (460x)** against the
   switch; the residue is the switch's own turnaround stamps + MII PHY.
-- INTERFERENCE BATTERY (the silicon mirror of tb/verilator/ptp_ts): the peer host held
+- INTERFERENCE BATTERY (the silicon mirror of [tb/verilator/ptp_ts](../../tb/verilator/ptp_ts)): the peer host held
   **rms 2-5 ns THROUGH a 45 s RX flood (TCP 93.0 Mbit, baseline 93.9), a TX
   flood + AAF talker streaming (85.7 Mbit, baseline 83.3, 0 retr), and a
   simultaneous bidirectional flood (rms 2 ns — best of the session)**.

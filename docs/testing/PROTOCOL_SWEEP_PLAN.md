@@ -37,10 +37,10 @@ A lane that re-tests these is spending its context on the covered 60-70 %:
 | Surface | Where it is already held |
 |---|---|
 | AECP command behaviours (item-10 set) | `tests/features/item10_*.feature` (acquire, lock, name, sampling_rate, clock_source, stream_format, stream_info, configuration, control, max_transit_time, read_descriptor, get_milan_info, audio_maps) |
-| Response frame contract (size/status/per-index) | `tb/verilator/aecp` (byte-exact goldens, per-index sweeps), `tests/features/aecp_response_contract.feature` |
-| Per-index GET_COUNTERS, Tables 5.16/5.17 | `KL_talker_diag_ctx` + monitor mirror, `tb/verilator/tkdiag`, aecp suite (this round) |
-| Independent-controller view | `tb/tools/hive_compliance.py` C1-C13 (C9-C13 still owe the §8.3.2 reference-device calibration) |
-| ACMP behaviours (not the full SM walk) | `tb/verilator/acmp`, `acmp_lstn`, the milan_dp bind/E3 cases |
+| Response frame contract (size/status/per-index) | [`tb/verilator/aecp`](../../tb/verilator/aecp) (byte-exact goldens, per-index sweeps), [`tests/features/aecp_response_contract.feature`](../../tests/features/aecp_response_contract.feature) |
+| Per-index GET_COUNTERS, Tables 5.16/5.17 | `KL_talker_diag_ctx` + monitor mirror, [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag), aecp suite (this round) |
+| Independent-controller view | [`tb/tools/hive_compliance.py`](../../tb/tools/hive_compliance.py) C1-C13 (C9-C13 still owe the §8.3.2 reference-device calibration) |
+| ACMP behaviours (not the full SM walk) | [`tb/verilator/acmp`](../../tb/verilator/acmp), `acmp_lstn`, the milan_dp bind/E3 cases |
 | ADP behaviours (cadence, depart, dormancy) | `tb/verilator/adp*`, `A_ADP_DIAG` silicon work |
 | SRP licence + reservation semantics | six `lwsrp*` suites incl. the term-by-term 5.3.7.3 licence; the L2 SRP-only case (Listener Ready alone → `LWSRP_STATUS 0x37E` → frames) |
 | Stream-on-the-wire oracle | hive C13 (bind the reference sink, read ITS counters), the §8.3 tap ladder |

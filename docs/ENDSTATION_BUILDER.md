@@ -15,7 +15,7 @@ Every clause reference below was verified against the local standards PDFs
 1722.1-2021 ("1722.1"), IEEE 1722-2016 ("1722"), Milan Specification v1.2
 Consolidated ("Milan"), IEEE 802.1Q-2022 ("Q").
 
-The implementation lane (`sw/builder/endstation_builder.py`, the three
+The implementation lane ([`sw/builder/endstation_builder.py`](../sw/builder/endstation_builder.py), the three
 emitters, the `test_builder.py` identity gate against today's ROM) runs in
 parallel; this document is the contract it converges on, and its rows are
 meant to be promoted into the traceability matrix / bench features per the
@@ -141,19 +141,19 @@ that can go stale inside a commit, and each has a byte-identity gate below.
 Everything else is regenerated into `sw/builder/out/<config-stem>/` and is not
 tracked at all.
 
-| Artefact | What it carries | Read by | Gate in `sw/builder/test_builder.py` |
+| Artefact | What it carries | Read by | Gate in [`sw/builder/test_builder.py`](../sw/builder/test_builder.py) |
 |---|---|---|---|
-| `soc_params.json` | the `milan_soc.py` **design** argv this config implies (no flow flags) | `sw/litex/milan_soc.py` | 2 — argv equals `sweep.sh`'s design flags for arty *and* ax7101 |
+| `soc_params.json` | the `milan_soc.py` **design** argv this config implies (no flow flags) | [`sw/litex/milan_soc.py`](../sw/litex/milan_soc.py) | 2 — argv equals `sweep.sh`'s design flags for arty *and* ax7101 |
 | `aem_overlay.json` | descriptor counts, stream formats, per-stream STREAM_PORT / cluster / map layout, entity identity | `avdecc/gen_aem_store.py --overlay` | 3 (counts equal the hardcoded model), 6 (port-layout invariants), 10 (**the** gate: the ROM generated from the **owning** config's overlay is byte-identical to the tracked `aecp_aem_rom.svh`), 15–17 (CRF output, dynamic maps) |
 | `lwsrp_table.json` + `lwsrp_table.svh` | SR class, MRP timers, class-A bandwidth math, TSpec, one record per stream, the engine's elaboration parameters | the lwSRP RTL tree; the `rtl_table` config also writes the tracked copy | 18a–18d — emitted word ⇄ RTL symbol ⇄ reset block ⇄ readback table ⇄ register-map Reset column; the tracked `.svh` regenerates byte-identically |
-| `lwsrp_csr_defaults.svh` | the CSR-facing **subset**: the `0x680` reset words + the PriorityAndRank byte | `` `include ``-d by `hdl/common/csr/milan_csr.sv` | 20a — the loop is closed: no `0x680` literal survives in the RTL, and every flow compiling `milan_csr.sv` carries the include dir |
-| `adp_shape_defaults.svh` | the **advertised shape**: `talker_stream_sources` / `listener_stream_sinks` (1722.1-2021 6.2.1.9/6.2.1.11), both capability words, and `TALKER_WIRE_CHANS_C` — the **emitted** channel width (roadmap item 00) | `` `include ``-d by **both** `hdl/common/csr/milan_csr.sv` (the RO `0x618`/`0x61C` words) and `hdl/milan/milan_datapath.sv` (the ACMP source/sink context array sizing) | `scripts/check_entity_shape.py` — config → svh → AEM descriptor counts, for every config, plus 7 mutation cases and a pre-build `--built-config` mode wired into `build.sh`/`sweep.sh`; `scripts/check_wire_accountability.py` — the advertised width against the **fabric that has to produce it** (expected red until roadmap item 5) |
-| `adp_shape_defaults.svh` | the **advertised shape**: `talker_stream_sources` / `listener_stream_sinks` (1722.1-2021 6.2.1.9/6.2.1.11) and both capability words | `` `include ``-d by **both** `hdl/common/csr/milan_csr.sv` (the RO `0x618`/`0x61C` words) and `hdl/milan/milan_datapath.sv` (the ACMP source/sink context array sizing) | `scripts/check_entity_shape.py` — config → svh → AEM descriptor counts, for every config, plus 10 mutation cases and a pre-build `--built-config` mode wired into `build.sh`/`sweep.sh` |
-| `aecp_aem_rom.svh` | the AEM **descriptor set** a controller enumerates, generated from this config's `aem_overlay.json` | `` `include ``-d by `hdl/ieee17221/aecp/KL_aecp_aem_store.sv` | 10 (byte-identical for the deployed shape) + `check_entity_shape.py` (the tracked ROM and the tracked shape name the **same** source config) |
-| `tb/verilator/aecp/aem_golden.h` | the same ROM image as C, the oracle the `aecp` suite's full-directory sweep compares every READ_DESCRIPTOR response against | `tb/verilator/aecp/sim_main.cpp` | 24d — **its ONLY writer is `python3 avdecc/gen_aem_store.py`.** `--write-rtl` does *not* write it, so a model edit that regenerates the svh alone leaves this stale and the suite goes red on exactly the descriptors that changed |
+| `lwsrp_csr_defaults.svh` | the CSR-facing **subset**: the `0x680` reset words + the PriorityAndRank byte | `` `include ``-d by [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) | 20a — the loop is closed: no `0x680` literal survives in the RTL, and every flow compiling `milan_csr.sv` carries the include dir |
+| `adp_shape_defaults.svh` | the **advertised shape**: `talker_stream_sources` / `listener_stream_sinks` (1722.1-2021 6.2.1.9/6.2.1.11), both capability words, and `TALKER_WIRE_CHANS_C` — the **emitted** channel width (roadmap item 00) | `` `include ``-d by **both** [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) (the RO `0x618`/`0x61C` words) and [`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv) (the ACMP source/sink context array sizing) | [`scripts/check_entity_shape.py`](../scripts/check_entity_shape.py) — config → svh → AEM descriptor counts, for every config, plus 7 mutation cases and a pre-build `--built-config` mode wired into `build.sh`/`sweep.sh`; [`scripts/check_wire_accountability.py`](../scripts/check_wire_accountability.py) — the advertised width against the **fabric that has to produce it** (expected red until roadmap item 5) |
+| `adp_shape_defaults.svh` | the **advertised shape**: `talker_stream_sources` / `listener_stream_sinks` (1722.1-2021 6.2.1.9/6.2.1.11) and both capability words | `` `include ``-d by **both** [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) (the RO `0x618`/`0x61C` words) and [`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv) (the ACMP source/sink context array sizing) | [`scripts/check_entity_shape.py`](../scripts/check_entity_shape.py) — config → svh → AEM descriptor counts, for every config, plus 10 mutation cases and a pre-build `--built-config` mode wired into `build.sh`/`sweep.sh` |
+| `aecp_aem_rom.svh` | the AEM **descriptor set** a controller enumerates, generated from this config's `aem_overlay.json` | `` `include ``-d by [`hdl/ieee17221/aecp/KL_aecp_aem_store.sv`](../hdl/ieee17221/aecp/KL_aecp_aem_store.sv) | 10 (byte-identical for the deployed shape) + `check_entity_shape.py` (the tracked ROM and the tracked shape name the **same** source config) |
+| [`tb/verilator/aecp/aem_golden.h`](../tb/verilator/aecp/aem_golden.h) | the same ROM image as C, the oracle the `aecp` suite's full-directory sweep compares every READ_DESCRIPTOR response against | [`tb/verilator/aecp/sim_main.cpp`](../tb/verilator/aecp/sim_main.cpp) | 24d — **its ONLY writer is `python3 avdecc/gen_aem_store.py`.** `--write-rtl` does *not* write it, so a model edit that regenerates the svh alone leaves this stale and the suite goes red on exactly the descriptors that changed |
 | `platform_shape.json` + `milan-nic.dtsi` | Milan CSR base, the DMA window map **derived from** `board.constraints.rx_queues`, the addresses `kl-eth` hardcodes, the `kl,dma-ether` / `kl,milan-pcm` nodes | device tree / driver | 19a (queue count is one number across config, argv, sweep fragment and DT), 19b (window bases byte-match the generated CSR listing and the deployed tree), 19c (flipping `rx_queues` under a pinned boot chain is refused) |
 | `build_plan.md` | human review, capability marks, the LUT/FF/BRAM36/DSP estimate and its OK / TIGHT / OVER verdict | a human | 4 (planned marks), 11 (estimate within ±15 % of the real place report), 12 (deterministic), 13 (verdict thresholds and UPPER BOUND labelling) |
-| `configs/generated/sweep_opts_<board>.sh` | `OPTS` / `L2` / `RXQ` for the board | sourced by `sw/litex/sweep.sh`, whose inline tables are the loud fallback | 9 — byte-for-byte against `sweep.sh`, per board, and `sh -n` on all three files |
+| `configs/generated/sweep_opts_<board>.sh` | `OPTS` / `L2` / `RXQ` for the board | sourced by [`sw/litex/sweep.sh`](../sw/litex/sweep.sh), whose inline tables are the loud fallback | 9 — byte-for-byte against `sweep.sh`, per board, and `sh -n` on all three files |
 
 Three example shapes exist: `endstation_arty_current.yaml` (today's real
 Arty build — the identity gate), `endstation_arty_4x4.yaml` and
@@ -219,7 +219,7 @@ STREAM_PORT_INPUT (listeners) / STREAM_PORT_OUTPUT (talkers), each owning a
 contiguous group of clusters and exactly one AUDIO_MAP. The CRF
 STREAM_INPUT carries no audio channels and gets no port. Today's
 1(+CRF)x1 shape degenerates to one port per direction — numerically
-identical to the shipped ROM (`avdecc/gen_aem_store.py`), which is what the
+identical to the shipped ROM ([`avdecc/gen_aem_store.py`](../avdecc/gen_aem_store.py)), which is what the
 v1.0 overlay gate asserts.
 
 **Clause basis.**
@@ -387,7 +387,7 @@ model rather than to invent a new id.
 `milan_soc.py` design argv (`soc_params.json`), the AEM overlay, and the
 DT/driver shape are all emitted from it. Flow flags (`--build`,
 `--vivado-max-threads`, `--place-directive`, output dirs) are explicitly
-*not* end-station definition and stay in `sw/litex/sweep.sh`.
+*not* end-station definition and stay in [`sw/litex/sweep.sh`](../sw/litex/sweep.sh).
 
 **Why (engineering, no clause needed).** Today the same fact lives in up to
 four places — `sweep.sh` OPTS, `gen_aem_store.py` constants,
@@ -419,7 +419,7 @@ stream, partitioning the pair-slot space).
 `aes3`/`spdif` are the biphase-mark family. Since 2026-07-26 the ser/des
 RTL exists — `KL_aes3_rx` (recovered symbol clock, X/Y/Z subframe and
 192-frame block framing, P-parity, channel status, honest lock/error
-census) and `KL_aes3_tx` (the encoder), proven by `tb/verilator/aes3` — so
+census) and `KL_aes3_tx` (the encoder), proven by [`tb/verilator/aes3`](../tb/verilator/aes3) — so
 the config now SELECTS a real family member: one core serves both
 transports and `audio_interface.kind` picks `CONSUMER_P` (AES3-2009
 professional vs IEC 60958-3 consumer channel status) while
@@ -552,7 +552,7 @@ every pool width is read out of the platform declaration:
 
 `physical_channels` is the load-bearing new field, and **zero is the
 important value**. The AX7101 platform ships `_connectors = []`
-(`sw/litex/platforms/alinx_ax7101.py`), so `sw/litex/milan_soc.py` leaves
+([`sw/litex/platforms/alinx_ax7101.py`](../sw/litex/platforms/alinx_ax7101.py)), so [`sw/litex/milan_soc.py`](../sw/litex/milan_soc.py) leaves
 `self.i2s_pads = None` and drives `i_i2s_sdout_i = 0` — the capture
 front-end clocks in a constant zero — and the TDM pins are tied off in the
 same wrapper ("neither board has a TDM header today":
@@ -656,13 +656,13 @@ offset or directory entry moves either — only the name bytes. And because
 cluster still works and is gated.
 
 **The DEPLOYED shape's ROM did change**, deliberately: the tracked
-`hdl/ieee17221/aecp/gen/aecp_aem_rom.svh`,
-`tb/verilator/aecp/aem_golden.h` and `avdecc/aem_rom.json` were all
+[`hdl/ieee17221/aecp/gen/aecp_aem_rom.svh`](../hdl/ieee17221/aecp/gen/aecp_aem_rom.svh),
+[`tb/verilator/aecp/aem_golden.h`](../tb/verilator/aecp/aem_golden.h) and [`avdecc/aem_rom.json`](../avdecc/aem_rom.json) were all
 regenerated together. Which is the trap:
 
-> **`tb/verilator/aecp/aem_golden.h` is written ONLY by
+> **[`tb/verilator/aecp/aem_golden.h`](../tb/verilator/aecp/aem_golden.h) is written ONLY by
 > `python3 avdecc/gen_aem_store.py`.** The builder's `--write-rtl` writes
-> `hdl/.../aecp_aem_rom.svh` and `hdl/common/csr/gen/adp_shape_defaults.svh`
+> `hdl/.../aecp_aem_rom.svh` and [`hdl/common/csr/gen/adp_shape_defaults.svh`](../hdl/common/csr/gen/adp_shape_defaults.svh)
 > and **not** the golden. Regenerating one and not the other is what turned
 > the first D10 attempt red: measured 2026-07-28, the `aecp` suite reported
 > exactly **16 failures — `desc 0x0014[0..15] byte-exact off=42`**, one per
@@ -675,8 +675,8 @@ Status: **implemented** — gates 24c/24d plus `sim_pools` section [2]/[6].
 
 ## 3. Config schema → AEM descriptor mapping
 
-Consumers: **AEM** = `avdecc/gen_aem_store.py` (via `aem_overlay.json` —
-the migration contract), **SoC** = `sw/litex/milan_soc.py` (via
+Consumers: **AEM** = [`avdecc/gen_aem_store.py`](../avdecc/gen_aem_store.py) (via `aem_overlay.json` —
+the migration contract), **SoC** = [`sw/litex/milan_soc.py`](../sw/litex/milan_soc.py) (via
 `soc_params.json` argv), **DT** = device tree / `kl-eth` driver shape,
 **prov** = boot-time provisioning (CSR writes: ADP identity/counts block).
 "—" in the clause column = engineering fact, no normative clause governs
@@ -688,7 +688,7 @@ the field itself.
 | 2 | `entity.entity_model_id` (pin or hash, D4) | ENTITY + ADPDU `entity_model_id` | 1722.1 6.2.2.8 | AEM, prov |
 | 3 | `entity.entity_id: mac-derived` | ENTITY/ADPDU `entity_id` EUI-64 from port MAC | 1722.1 6.2.2.7 | prov |
 | 4 | `entity.vendor_name` / `serial_number` / `group_name` | ENTITY strings + LOCALE/STRINGS refs (all 6.2.2.8-excluded) | 1722.1 7.2.1, 7.2.11–12 | AEM |
-| 4b | `entity.firmware_rev` (optional, default 0) — **there is no `entity.firmware_version` key and declaring one is refused** | ENTITY `firmware_version` = `VERSION[31:16]`.`VERSION[15:0]`.`firmware_rev`, DERIVED from `hdl/common/csr/milan_csr.sv` (6.2.2.8-excluded, so it moves no model id) | 1722.1 7.2.1 Table 7-2 (offset 116, 64 octets), 7.2 (zero padding), 6.2.2.8 | AEM |
+| 4b | `entity.firmware_rev` (optional, default 0) — **there is no `entity.firmware_version` key and declaring one is refused** | ENTITY `firmware_version` = `VERSION[31:16]`.`VERSION[15:0]`.`firmware_rev`, DERIVED from [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) (6.2.2.8-excluded, so it moves no model id) | 1722.1 7.2.1 Table 7-2 (offset 116, 64 octets), 7.2 (zero padding), 6.2.2.8 | AEM |
 | 5 | `board.target` + `board.constraints.*` (clk, l2, phy, flashboot, uart, probes, GMII knobs) | `milan_soc.py` design argv | — | SoC |
 | 6 | `board.constraints.rx_queues` / `hs_page_bytes` | DT/driver shape (STRICT `hsplit` pairing) | — | DT |
 | 7 | `clocking.sampling_rate_hz` | AUDIO_UNIT `current_sampling_rate` (6.2.2.8-excluded) | 1722.1 7.2.3 | AEM |

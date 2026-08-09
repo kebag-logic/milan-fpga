@@ -240,7 +240,7 @@ and no reflash is needed to measure this. Peer runs `iperf3 -s -p 5201`.
 Both directions are always measured: an RX-only defect (shield, RSC) separates
 from a symmetric one (CPU, stack) on the first pair of numbers.
 
-`scripts/net_throughput_ab.sh` drives the A/B matrix. Every knob it touches is
+[`scripts/net_throughput_ab.sh`](../../scripts/net_throughput_ab.sh) drives the A/B matrix. Every knob it touches is
 runtime and reversible, a single EXIT trap restores the as-found posture on any
 exit path, and `ptp4l`/`phc2sys` are never touched. **Its absolute numbers on a
 contended bench are noise-dominated** (the run recorded here degraded

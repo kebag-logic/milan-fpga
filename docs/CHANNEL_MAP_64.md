@@ -31,16 +31,16 @@ the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` (driver side).
 
 | # | Fact | Where verified |
 |---|------|----------------|
-| G1 | Depacketizer PCM output is a 64-bit AXIS master, one frame per AAF PDU, payload in **wire byte order = S32BE interleaved PCM**, always full 8-byte beats, with `m_axis_tuser[3:0]` = stream index `s` riding each buffered frame | `hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv` (header + ports 89–99; "wire byte order = S32BE interleaved PCM", "NXN §1.2: {tuser=s} rides each buffered frame") |
-| G2 | Packetizer input is the pair stream `{pair_valid_i, pair_slot_i[3:0], pair_l_i[23:0], pair_r_i[23:0]}`; the pair-slot space is partitioned by a **prefix sum of chans/2** (`pbase_w[t+1] = pbase_w[t] + chans_r[t][3:1]`, `logic [5:0] pbase_w`) — talker `t` owns pair slots `[pbase(t), pbase(t)+chans/2)` | `hdl/ieee1722/aaf/KL_aaf_packetizer.sv` ports 94–98, `pair_base` block |
+| G1 | Depacketizer PCM output is a 64-bit AXIS master, one frame per AAF PDU, payload in **wire byte order = S32BE interleaved PCM**, always full 8-byte beats, with `m_axis_tuser[3:0]` = stream index `s` riding each buffered frame | [`hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv`](../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv) (header + ports 89–99; "wire byte order = S32BE interleaved PCM", "NXN §1.2: {tuser=s} rides each buffered frame") |
+| G2 | Packetizer input is the pair stream `{pair_valid_i, pair_slot_i[3:0], pair_l_i[23:0], pair_r_i[23:0]}`; the pair-slot space is partitioned by a **prefix sum of chans/2** (`pbase_w[t+1] = pbase_w[t] + chans_r[t][3:1]`, `logic [5:0] pbase_w`) — talker `t` owns pair slots `[pbase(t), pbase(t)+chans/2)` | [`hdl/ieee1722/aaf/KL_aaf_packetizer.sv`](../hdl/ieee1722/aaf/KL_aaf_packetizer.sv) ports 94–98, `pair_base` block |
 | G3 | **`pair_slot_i` is 4 bits — 16 slots. 8 streams × 8 ch = 32 pairs. The 8×8 shape structurally exceeds the 4-bit slot space**; the internal ownership compare already zero-extends (`6'(pair_slot_i)` vs `pbase_w[5:0]`), so the widening is interface-level (§4.3) | `KL_aaf_packetizer.sv` line 95 (`input wire [3:0] pair_slot_i`) vs the `[5:0]` prefix sum |
 | G4 | The whole capture family shares the pair-stream contract: `KL_tdm_capture` ("emits the same {slot, L, R} pair stream toward KL_aaf_packetizer that KL_aaf_capture_i2s emits"), pairs cross into `clk_i` via a 52-bit gray-pointer `cdc_pair_fifo` (`{cap_slot_r[3:0], cap_l_r[23:0], cap_r_r[23:0]}`); `KL_pcm_tx` is "a drop-in replacement for the physical capture front-end … emits the SAME {pair_valid, pair_slot, pair_l, pair_r} contract", tick-paced ("one media sample tick emits ONE audio sample for EVERY stream and EVERY channel pair") | `KL_tdm_capture.sv`, `KL_pcm_tx.sv` headers |
-| G5 | The I2S render path already keeps a latest-sample discipline: `KL_i2s_playback` re-strides the AXIS tap by the **wire-truth** channel count (`wire_chans_i`, "0 until first accept -> 2"), repeats the last pair on underrun, and its physical render is 2-channel (stream ch0/ch1, extras virtual) | `hdl/ieee1722/aaf/KL_i2s_playback.sv` header + walker |
-| G6 | `milan_csr` plain-RW readback is a **512-word shadow BRAM covering 0x000–0x7FF only**: `shadow_ram[0:511]`, write gate `wr_fire && !(|wr_addr[ADDR_WIDTH-1:11])`, word address `wr_addr[10:2]` / `rd_addr[10:2]` (milan_csr.sv ~1173–1201). A 0x900 address has bit 11 set → it can never be shadow-served (it would alias word 0x100) | `hdl/common/csr/milan_csr.sv` `shadow_mem` block |
+| G5 | The I2S render path already keeps a latest-sample discipline: `KL_i2s_playback` re-strides the AXIS tap by the **wire-truth** channel count (`wire_chans_i`, "0 until first accept -> 2"), repeats the last pair on underrun, and its physical render is 2-channel (stream ch0/ch1, extras virtual) | [`hdl/ieee1722/aaf/KL_i2s_playback.sv`](../hdl/ieee1722/aaf/KL_i2s_playback.sv) header + walker |
+| G6 | `milan_csr` plain-RW readback is a **512-word shadow BRAM covering 0x000–0x7FF only**: `shadow_ram[0:511]`, write gate `wr_fire && !(|wr_addr[ADDR_WIDTH-1:11])`, word address `wr_addr[10:2]` / `rd_addr[10:2]` (milan_csr.sv ~1173–1201). A 0x900 address has bit 11 set → it can never be shadow-served (it would alias word 0x100) | [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) `shadow_mem` block |
 | G7 | Reads **at/above 0x800 return 0 unless explicitly claimed**: `rd_in_window = ~|rd_addr_q[ADDR_WIDTH-1:11] || (rd_addr_q == A_MCSRV_STAT) || (rd_addr_q == A_MCSRV_CTRL)` (milan_csr.sv ~1363). The comment records that 0x8F8 read 0 on every build until 2026-07-23 because this term was missing | `milan_csr.sv` `rd_in_window` + [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) 0x8F8 note |
 | G8 | Writes to 0x900+ ARE reachable: the AXI window is 64 KB (`ADDR_WIDTH = 16`) and the write decode is a full-address exact-match `case (wr_addr)` (e.g. `A_MCSRV_CTRL: mcsrv_ctrl <= s_axi_wdata;` at 0x8FC) — new registers above 0x800 follow the MCSRV pattern: dedicated storage + explicit live-read arm + `rd_in_window` term | `milan_csr.sv` write decode ~860–915 |
-| G9 | AECP already decodes the audio-map verbs: `CMD_GET_AUDIO_MAP = 15'd43`, `CMD_ADD_AUDIO_MAPPINGS = 15'd44`, `CMD_REMOVE_AUDIO_MAPPINGS = 15'd45`, `DESC_AUDIO_MAP = 16'h0017` | `hdl/ieee17221/aecp/aecp_pkg.sv` 76–78, 128; `KL_aecp_l0_state.sv` 113 |
-| G10 | The entity model's mapping entry is `(mapping_stream_index, mapping_stream_channel, mapping_cluster_offset, mapping_cluster_channel)`; every AUDIO_CLUSTER in the model is **1-channel MBLA** (`"channel_count": 1, "format": "MBLA"`), STREAM_PORT_INPUT[0] owns clusters 0–7 (`base_cluster 0`), STREAM_PORT_OUTPUT[0] owns clusters 8–15 (`base_cluster 8`), each port has exactly one AUDIO_MAP (1722.1 7.2.13/7.2.19, builder D1) | `avdecc/milan-v12-entity.json` |
+| G9 | AECP already decodes the audio-map verbs: `CMD_GET_AUDIO_MAP = 15'd43`, `CMD_ADD_AUDIO_MAPPINGS = 15'd44`, `CMD_REMOVE_AUDIO_MAPPINGS = 15'd45`, `DESC_AUDIO_MAP = 16'h0017` | [`hdl/ieee17221/aecp/aecp_pkg.sv`](../hdl/ieee17221/aecp/aecp_pkg.sv) 76–78, 128; `KL_aecp_l0_state.sv` 113 |
+| G10 | The entity model's mapping entry is `(mapping_stream_index, mapping_stream_channel, mapping_cluster_offset, mapping_cluster_channel)`; every AUDIO_CLUSTER in the model is **1-channel MBLA** (`"channel_count": 1, "format": "MBLA"`), STREAM_PORT_INPUT[0] owns clusters 0–7 (`base_cluster 0`), STREAM_PORT_OUTPUT[0] owns clusters 8–15 (`base_cluster 8`), each port has exactly one AUDIO_MAP (1722.1 7.2.13/7.2.19, builder D1) | [`avdecc/milan-v12-entity.json`](../avdecc/milan-v12-entity.json) |
 | G11 | Per-stream DRAM PCM rings exist from the NxN work: route flag `DMA` = "payload lands in the stream's DRAM ring at `pcm base + s*stride`"; ring words are "full 64-bit words in wire byte order = S32BE interleaved PCM" | [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) 0x800 route-flags paragraph + PCM-ring section |
 
 ## 1. The 64×64 model
@@ -269,7 +269,7 @@ and advance, so 833 at the 8×8 shape — and it must fit inside one media
 tick
 (`MILAN_CLK_FREQ_HZ/48000`: 2083 at 100 MHz, 1041 at 50 MHz). This is
 not a new ceiling: a fully mapped board already paid all 32 slots, and
-the shipped 8×8 map is fully mapped. `tb/verilator/chmap_capture` [A4]
+the shipped 8×8 map is fully mapped. [`tb/verilator/chmap_capture`](../tb/verilator/chmap_capture) [A4]
 measures the walk against that budget with an all-unmapped map, which
 is now the worst case rather than the cheapest one.
 
@@ -640,7 +640,7 @@ pins its contract as the mirror of `KL_tdm_capture` (G4 conventions):
 - Status: `frames_out` liveness counter, CSR-exposed later (not in the
   0x900 window; it is a front-end, not the map).
 
-That lane has since landed as `hdl/ieee1722/aaf/KL_tdm_render.sv`. The
+That lane has since landed as [`hdl/ieee1722/aaf/KL_tdm_render.sv`](../hdl/ieee1722/aaf/KL_tdm_render.sv). The
 chain below is the answer to **how a rendered channel becomes a TDM bit,
 and where the one-bclk Philips delay is produced** — the hop the prose
 above cannot hold, because it crosses a clock domain twice:
@@ -694,7 +694,7 @@ MMCM" bullet above is the phase-1 *plan*, not what the RTL does.
   (queue empty at a tick = repeat last, counted; full at a push = drop
   the OLDEST, counted; both ZERO with locked clocks), flushed on bind
   wipe so no stale samples replay on a rebind. See the
-  `KL_chan_map_capture` LOOP QUEUE banner and `tb/verilator/milan_dp`
+  `KL_chan_map_capture` LOOP QUEUE banner and [`tb/verilator/milan_dp`](../tb/verilator/milan_dp)
   [T68].
 - Remap effect point = media tick (§3/§4): switching sources produces
   at worst one sample-step discontinuity; no ramping in phase 1.

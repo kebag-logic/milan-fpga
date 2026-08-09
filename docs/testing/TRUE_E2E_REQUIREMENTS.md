@@ -38,7 +38,7 @@ collect evidence; it may **never** generate the behavior being declared valid.
 
 | ID | requirement | acceptance / negative control | status |
 |---|---|---|---|
-| E2E-BOOT-1 | RV32 softcore boots the real LiteX BIOS and reads `ID='MILN'` at `0x9000_0000` | exit 0 from `scripts/ma2_sim_driver.py`; corrupt expected ID → FAIL | **PROVEN** ([`evidence/M-A2-2026-08-01.md`](evidence/M-A2-2026-08-01.md)) |
+| E2E-BOOT-1 | RV32 softcore boots the real LiteX BIOS and reads `ID='MILN'` at `0x9000_0000` | exit 0 from [`scripts/ma2_sim_driver.py`](../../scripts/ma2_sim_driver.py); corrupt expected ID → FAIL | **PROVEN** ([`evidence/M-A2-2026-08-01.md`](evidence/M-A2-2026-08-01.md)) |
 | E2E-BOOT-2 | The exact RV32 buildroot image boots unmodified (firmware→kernel→DTB→rootfs) | guest reports rv32; wrong-DTB/XLEN tuple → BLOCKED, not a boot | PLANNED |
 | E2E-BOOT-3 | Production init (`S50milan`) runs in the virtual guest | provisioning writes visible in RTL CSRs; skipping init → no such writes → FAIL | PLANNED |
 

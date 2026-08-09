@@ -53,7 +53,7 @@ flowchart TB
 
 | # | Pattern | The tell | The check that confirms it | Where it bit us |
 |---|---|---|---|---|
-| [1](#1-decorative-abi--a-register-the-hardware-does-not-consume) | Decorative ABI | the register holds what you wrote; the behaviour it names never happens | `scripts/check_tied_inputs.sh` (a gate since 2026-07-26), then `grep -rn "o_<field>" hdl/` for a consumer | `MAC_ADDR` / `MC_HASH` / promisc / allmulti, `PTP_INGRESS_LAT`, `CLS_CTRL[1]`, `is_granted_i`, RMON with `i_mac_events` tied to `0` |
+| [1](#1-decorative-abi--a-register-the-hardware-does-not-consume) | Decorative ABI | the register holds what you wrote; the behaviour it names never happens | [`scripts/check_tied_inputs.sh`](../../scripts/check_tied_inputs.sh) (a gate since 2026-07-26), then `grep -rn "o_<field>" hdl/` for a consumer | `MAC_ADDR` / `MC_HASH` / promisc / allmulti, `PTP_INGRESS_LAT`, `CLS_CTRL[1]`, `is_granted_i`, RMON with `i_mac_events` tied to `0` |
 | [2](#2-shared-state-where-the-protocol-is-per-index) | Shared state, per-index protocol | one index works; two indices interleaved do not | stage index *A*, commit index *B*, assert *B* is untouched | the `0x800` window's stream-id staging in `win_commit_glue` — the fabric-listener blocker |
 | [3](#3-a-latch-that-sets-on-any-write-and-clears-only-on-reset) | Set-on-write, clear-on-reset latch | a mode can be entered and never left; only a reset restores the old behaviour | for every `_r <= 1'b1` in a write path, name what clears it; test set → observe → clear → observe | `KL_stream_table.sv` `ovr_armed_r` — one stray write detached entry 0's ACMP alias permanently |
 | [4](#4-the-build-recipe-drifts-from-the-declarative-config) | Recipe drifts from the declarative config | the build succeeds, the board boots, and the shape is wrong | read the parameter out of the **artifact**: `grep -o '\.N_STREAMS *([0-9]*.d[0-9]*)' <build>/gateware/*.v` | `rx-queues` set globally in `sweep.sh`; `--num-streams` never passed at all, so sweep-and-flash rebuilds 8×8 as 1×1 |
@@ -167,9 +167,9 @@ documented inverse and test the round trip: set → observe → clear → observ
 
 **Seen as.** Twice. `rx-queues` was set globally in `sweep.sh` while the boards
 need different values, so the built gateware's DMA window map disagreed with the
-shipping `csr.csv`. Then, worse: `sw/litex/sweep.sh` contains **no occurrence of
+shipping `csr.csv`. Then, worse: [`sw/litex/sweep.sh`](../../sw/litex/sweep.sh) contains **no occurrence of
 the string "stream"** — it never passes `--num-streams`, which
-`sw/litex/milan_soc.py` defaults to `1`. The shipping 8×8 bitstream was built by
+[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) defaults to `1`. The shipping 8×8 bitstream was built by
 a **hand-edited invocation**; sweep-and-flash would silently rebuild the board as
 1×1 and destroy the NxN dataplane.
 
@@ -189,7 +189,7 @@ grep -m1 -oE 'milan_soc\.py.*' <build>/litex.log     # the real invocation
 
 Structurally: every shape-defining parameter must ride the generated per-board
 fragment alongside `OPTS`/`L2`/`RXQ`, and a gate must fail on
-config-vs-gateware mismatch — the pattern `sw/builder/test_builder.py` gates
+config-vs-gateware mismatch — the pattern [`sw/builder/test_builder.py`](../../sw/builder/test_builder.py) gates
 9/19a already use for the window map.
 
 ---
@@ -258,7 +258,7 @@ wrong* behaviour is valuable, but it is a landmine if it is not labelled: the
 person who fixes the RTL sees a passing suite go red and may "fix" the test. Say
 in the test body that it characterises a defect, and flip it to assert the fix in
 the same commit that fixes it (see the `TRAP-1` section in
-`tb/verilator/milan_dp`).
+[`tb/verilator/milan_dp`](../../tb/verilator/milan_dp)).
 
 ---
 

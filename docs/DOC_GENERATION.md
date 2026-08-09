@@ -16,7 +16,7 @@ hand-edits there are lost on the next run and fail review.
 
 ## Contents
 
-- **[1. Module ↔ spec ↔ test matrix](#1-module--spec--test-matrix)** — The generator behind `MODULE_MATRIX.md` and the `README-tests.md` in every `hdl/` leaf. Run it after *any* RTL or TB tree change; the `--check` form is what fails CI when the committed output has gone stale.
+- **[1. Module ↔ spec ↔ test matrix](#1-module--spec--test-matrix)** — The generator behind [`MODULE_MATRIX.md`](traceability/MODULE_MATRIX.md) and the `README-tests.md` in every `hdl/` leaf. Run it after *any* RTL or TB tree change; the `--check` form is what fails CI when the committed output has gone stale.
 - **[2. Per-module HDL pages (hdl/**/doc/*.md)](#2-per-module-hdl-pages-hdldocmd)** — Driven from the editor via TerosHDL, because there is no headless path on this box. The honest coverage number is here: ~22 of 84 modules have pages while 82 of 84 already carry the `//!` comments, so the backlog is an editor session, not a writing task.
 - **[3. Block diagrams (.gen.py → .drawio + .svg → .png)](#3-block-diagrams-genpy--drawio--svg--png)** — The render chain, the four artifacts that must be committed together, and the catalog entry that goes with them. Two headless caveats: the drawio CLI hangs, and the repo's fallback renderer mangles HTML-formatted labels.
 - **[4. Waveform chronograms (WaveDrom)](#4-waveform-chronograms-wavedrom)** — `gen_wavedrom.py` over a `wd_*.json`, with the `wavedrom` package living in the LiteX venv. Includes the style rules learned the hard way: cap at ~10 lanes, write explicit `010` pulses instead of `H`, and look at the rendered `.png` before embedding it.
@@ -26,7 +26,7 @@ hand-edits there are lost on the next run and fail review.
 ## 1. Module ↔ spec ↔ test matrix
 
 **Tool:** [`traceability/gen_module_matrix.py`](traceability/gen_module_matrix.py)
-**Masters:** the RTL tree (`hdl/`), the TB tree (`tb/verilator/`), the
+**Masters:** the RTL tree (`hdl/`), the TB tree ([`tb/verilator/`](../tb/verilator)), the
 per-standard clause tables in [`traceability/`](traceability/MODULE_MATRIX.md).
 **Outputs:** [`traceability/MODULE_MATRIX.md`](traceability/MODULE_MATRIX.md)
 (the generator prints the live total — 82 modules on 2026-07-26) plus a generated `README-tests.md` in every `hdl/` leaf.
@@ -82,7 +82,7 @@ register the diagram in the catalog,
 [`diagrams/README.md`](diagrams/README.md) (what it shows, editable source,
 renders, embed sites). Caveat: the drawio desktop CLI hangs headless on this
 box; the repo's minimal renderer
-(`hdl/ieee17221/aecp/doc/atdecc_architecture.render.py`) works for
+([`hdl/ieee17221/aecp/doc/atdecc_architecture.render.py`](../hdl/ieee17221/aecp/doc/atdecc_architecture.render.py)) works for
 plain-label files but mangles HTML-formatted labels — verify its output.
 
 ## 4. Waveform chronograms (WaveDrom)
@@ -148,7 +148,7 @@ honest — run them locally first, exit-checked, never piped through `tail`.
 | RTL module / TB dir / clause table | `gen_module_matrix.py` (then `--check`) |
 | A module's `//!` comments | TerosHDL "Save documentation" on that `.sv` |
 | A `.gen.py` or `.drawio` diagram master | the `.gen.py` (or draw.io export) + `rsvg-convert`; update the catalog |
-| A `wd_*.json` chronogram | `scripts/gen_wavedrom.py` on it; inspect the png |
-| Deleted or archived a doc | add its basename to `RETIRED` in `scripts/docs_check.py`, then run the gate — it lists every reference now pointing at nothing |
-| A config schema / builder emission | `sw/builder/test_builder.py` |
-| Any `*.md` at all | `scripts/docs_check.py` before pushing |
+| A `wd_*.json` chronogram | [`scripts/gen_wavedrom.py`](../scripts/gen_wavedrom.py) on it; inspect the png |
+| Deleted or archived a doc | add its basename to `RETIRED` in [`scripts/docs_check.py`](../scripts/docs_check.py), then run the gate — it lists every reference now pointing at nothing |
+| A config schema / builder emission | [`sw/builder/test_builder.py`](../sw/builder/test_builder.py) |
+| Any `*.md` at all | [`scripts/docs_check.py`](../scripts/docs_check.py) before pushing |

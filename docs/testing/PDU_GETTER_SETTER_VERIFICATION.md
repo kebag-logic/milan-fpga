@@ -3,8 +3,8 @@
 Roadmap item 10 (spec-matrix peer-validation) decomposed into **one verification per
 command**, grouped by PDU family (ADP · ACMP · AECP/AEM+MVU · AAF) and by **fixture class**.
 Each command lands as its own branch `item-10-<cmd>` → PR against `main`, reviewed one-by-one.
-Builds on the existing host-sim + tsn_gen infra (`tests/steps/aecp_common_steps.py`,
-`tests/steps/tsn_gen_steps.py`) and the real-wire bench `es-4.x` suite.
+Builds on the existing host-sim + tsn_gen infra ([`tests/steps/aecp_common_steps.py`](../../tests/steps/aecp_common_steps.py),
+[`tests/steps/tsn_gen_steps.py`](../../tests/steps/tsn_gen_steps.py)) and the real-wire bench `es-4.x` suite.
 
 ## Contents
 
@@ -16,7 +16,7 @@ Builds on the existing host-sim + tsn_gen infra (`tests/steps/aecp_common_steps.
 ## Prerequisites & running (common to every item-10 PR)
 
 Every item-10 fixture is **offline host-sim** — the tsn_gen `packet_gen` generates the PDUs
-and the Milan AECP/ACMP model (mirrors the RTL, itself verified by `tb/verilator/aecp`) checks
+and the Milan AECP/ACMP model (mirrors the RTL, itself verified by [`tb/verilator/aecp`](../../tb/verilator/aecp)) checks
 them. No board, no bench. One-time setup (paths are the bench convention):
 
 ```bash
@@ -131,7 +131,7 @@ Scenario: every AAF-PCM PDU carries the Milan class-A field set
 
 ## Command decomposition → fixture → PR (the backlog)
 
-**AECP/AEM + MVU** (`hdl/ieee17221/aecp/`)
+**AECP/AEM + MVU** ([`hdl/ieee17221/aecp/`](../../hdl/ieee17221/aecp))
 
 | Command | Class | Existing coverage | PR branch |
 |---|---|---|---|
@@ -160,7 +160,7 @@ Scenario: every AAF-PCM PDU carries the Milan class-A field set
 | GET/SET_SYSTEM_UNIQUE_ID (MVU) | paired | — | `item-10-system-unique-id` |
 | GET/SET_MEDIA_CLOCK_REFERENCE_INFO (MVU) | paired **@wip** (M-AECP-9 unimpl.) | matrix ❌ | `item-10-media-clock-ref` |
 
-**ACMP** (`hdl/ieee17221/acmp/`)
+**ACMP** ([`hdl/ieee17221/acmp/`](../../hdl/ieee17221/acmp))
 
 | Command | Class | PR branch |
 |---|---|---|
@@ -170,7 +170,7 @@ Scenario: every AAF-PCM PDU carries the Milan class-A field set
 | GET_TX_STATE | getter | `item-10-acmp-get-tx-state` |
 | GET_TX_CONNECTION | getter (→ NOT_SUPPORTED per Milan) | `item-10-acmp-get-tx-connection` |
 
-**ADP** (`hdl/ieee17221/adp/`)
+**ADP** ([`hdl/ieee17221/adp/`](../../hdl/ieee17221/adp))
 
 | Command | Class | PR branch |
 |---|---|---|
@@ -178,7 +178,7 @@ Scenario: every AAF-PCM PDU carries the Milan class-A field set
 | ENTITY_DEPARTING | pdu-format | `item-10-adp-departing` |
 | ENTITY_DISCOVER (response) | action | `item-10-adp-discover` |
 
-**AAF** (`hdl/ieee1722/aaf/`)
+**AAF** ([`hdl/ieee1722/aaf/`](../../hdl/ieee1722/aaf))
 
 | Command | Class | PR branch |
 |---|---|---|

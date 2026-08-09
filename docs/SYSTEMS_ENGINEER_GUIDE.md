@@ -227,7 +227,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 - **[`docs/MVP_TALKER.md`](MVP_TALKER.md)** — the AAF-PCM talker: the 90-byte frame format, the CSR 0x654 group,
   silicon bring-up. *(Its headline "media clock not locked" caveat is superseded by the servo;
   the frame/CSR content is still live.)*
-- **Media-clock servo** — silicon-proven MMCM-DRP servo (`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv`,
+- **Media-clock servo** — silicon-proven MMCM-DRP servo ([`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv`](../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv),
   MCSRV_STAT/CTRL at 0x8F8/0x8FC), coherent chain, -83.9 dB. Documented in
   [`MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md) item 6 and the register map; the traceability rows are being updated.
 - **[`docs/CHANNEL_MAP_64.md`](CHANNEL_MAP_64.md)** — the 64-in/64-out channel-map architecture: render crossbar + capture
@@ -263,7 +263,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   0x000-0x8FC + the LiteX DMA/PCM-ring CSR space. Actively maintained (link-guard, servo, VERSION
   0x000A). Any driver/gateware/DT author joins on this doc.
 - **[`docs/integration/INTEGRATION_GUIDE.md`](integration/INTEGRATION_GUIDE.md)** — the port-by-port contract for wiring
-  `hdl/milan/milan_datapath.sv` (AXI-Lite CSR, 3 DMA AXIS, MAC-facing AXIS, sideband, one IRQ)
+  [`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv) (AXI-Lite CSR, 3 DMA AXIS, MAC-facing AXIS, sideband, one IRQ)
   into any SoC. The single clean boundary of the whole project. Read to attach the datapath.
 - **[`docs/reference/FR_NFR.md`](reference/FR_NFR.md)** — the functional/non-functional requirements bible (FR/NFR +
   RFC-2119 priorities + verification-method letters + the 12-step Milan procedure). The
@@ -274,10 +274,10 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   Read before building or redistributing.
 
 ### Stage 5 — Build & deploy
-- → **[`docs/integration/BUILDING.md`](integration/BUILDING.md)** — the canonical two-board build flow via `sw/litex/build.sh`
+- → **[`docs/integration/BUILDING.md`](integration/BUILDING.md)** — the canonical two-board build flow via [`sw/litex/build.sh`](../sw/litex/build.sh)
   (named `cfg_ax7101`/`cfg_arty`, the 32-thread/3-build parallel discipline, how to add a config).
   *(Refresh cfg paragraphs to 1-hart+L2-32K / flashboot-full / strip-probes.)*
-- **[`docs/litex/LITEX_SOC.md`](litex/LITEX_SOC.md)** — the in-depth `sw/litex/` + `milan_soc.py` anatomy (CRG,
+- **[`docs/litex/LITEX_SOC.md`](litex/LITEX_SOC.md)** — the in-depth [`sw/litex/`](../sw/litex) + `milan_soc.py` anatomy (CRG,
   VexiiRiscv/NaxRiscv, DDR3, ring-DMA, LiteEth GMII MAC, QSPI flashboot, the mandatory flags).
   Read for the LiteX host internals. *(Refresh CPU/clock to 1-hart+L2-32K@100e6.)*
 - **[`docs/integration/QSPI_FLASHBOOT.md`](integration/QSPI_FLASHBOOT.md)** — how QSPI flash-boot works (bitstream@0 +
@@ -292,7 +292,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 ### Stage 6 — Test & verify
 - → **[`docs/testing/TESTING.md`](testing/TESTING.md)** — the top-level verification map/index: every layer, what it
   proves, the exact command. *(Trust `ls tb/verilator/` for the harness list and
-  `syn/yosys/run.sh` for the tops — counts in prose rot; the listing is authoritative.)*
+  [`syn/yosys/run.sh`](../syn/yosys/run.sh) for the tops — counts in prose rot; the listing is authoritative.)*
 - **[`docs/testing/RUNNING_TESTS.md`](testing/RUNNING_TESTS.md)** — the layered how-to-run runbook (cheapest-first: smoke →
   migen sims → verilator → yosys → P&R → silicon) with time budgets and the traps that bit.
 - **[`docs/testing/SIMULATION.md`](testing/SIMULATION.md)** — the conceptual explainer of the three sim layers + the M-A2
@@ -317,7 +317,7 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
 - → **[`docs/SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md)** — the traceability hub: the reconciled coverage table
   (204 rows = **163✅/17🟡/7❌/17➖**, reconciled today), the N/A taxonomy, the module→family map,
   the top-MISSING attack order. Start here to find which clause is verified where.
-- **Per-standard family files** (under `docs/traceability/`):
+- **Per-standard family files** (under [`docs/traceability/`](traceability)):
   [`ieee1722_1-2021.md`](traceability/ieee1722_1-2021.md) (ATDECC), [`ieee1722-2016.md`](traceability/ieee1722-2016.md) (AVTP/AAF/CRF/MAAP),
   [`ieee8021as.md`](traceability/ieee8021as.md) (gPTP), [`ieee8021q.md`](traceability/ieee8021q.md) (802.1Q QoS+SRP), [`milan-v12.md`](traceability/milan-v12.md) (Milan overlay).
   Read the one for the protocol you're auditing.
@@ -384,7 +384,7 @@ Several docs predate recent changes. When you hit these phrasings, substitute th
 - "-73.4 dB" as the analog loop record → **-83.9 dB** (servo silicon-proven).
 - "162 verified / 18 partial" → **163 / 17** (204-row matrix, reconciled today).
 - "17 Verilator harnesses" / "18 Yosys tops" or any other hardcoded count → **the directory
-  listing is authoritative** (`ls tb/verilator/`; the `syn/yosys/run.sh` tops array).
+  listing is authoritative** (`ls tb/verilator/`; the [`syn/yosys/run.sh`](../syn/yosys/run.sh) tops array).
 - "RGMII" for the board MAC → **GMII** (the AX7101 strap correction).
 - CSR base "0x43C0_0000" (Zynq PS) → **0x9000_0000** (softcore IO region).
 - "only Spartan-7 installed / `--build` blocked" → **Vivado 2026.1 has Artix-7 + Zynq**; both

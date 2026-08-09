@@ -171,7 +171,7 @@ history at the class-A frame rate).
 
 ## Verification
 
-`tb/verilator/lat_history_ring/` — the TB plays the DRAM writer, snoops every
+[`tb/verilator/lat_history_ring/`](../tb/verilator/lat_history_ring) — the TB plays the DRAM writer, snoops every
 write beat, reconstructs each record and checks: field byte-exactness, LE record
 layout, beat addressing, record base = write pointer, rolling `seq`, `wptr`
 advance (+16/record), loop wrap to base, stop-mode full, drop-on-full (stalled

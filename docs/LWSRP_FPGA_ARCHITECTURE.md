@@ -1,11 +1,11 @@
 # lwSRP-fpga — lightweight SRP engine in fabric
 
-Status: **IMPLEMENTED 2026-07-14** (talker endpoint; RTL in `hdl/ieee8021q/srp/`,
+Status: **IMPLEMENTED 2026-07-14** (talker endpoint; RTL in [`hdl/ieee8021q/srp/`](../hdl/ieee8021q/srp),
 integrated into `milan_datapath`; CSR group re-homed to **0x680-0x6A0** —
 [REGISTER_MAP.md](reference/REGISTER_MAP.md) is normative for the map, §4 below matches it). Verified:
 Verilator `lwsrp_tx` 363 / `lwsrp_rx` 75 / `lwsrp` 36 checks + `milan_dp`
 53 + `csr` 76 regressions green; Yosys portability green (counts as of
-2026-07-14 — the `tops=()` array in `syn/yosys/run.sh` and `ls tb/verilator/`
+2026-07-14 — the `tops=()` array in [`syn/yosys/run.sh`](../syn/yosys/run.sh) and `ls tb/verilator/`
 are the authoritative counts). Wire contract extracted from
 pipewire module-avb mrp.c/msrp.c/mvrp.c (byte-exact; one deliberate
 deviation: we gate the talker on the four-packed Ready/ReadyFailed
@@ -201,7 +201,7 @@ shares; it is a package, not a module.
 > "AAF talker-row provisioning is FABRIC-OWNED".
 
 > **Counted against the source, 2026-07-26 — reported, not resolved.**
-> `hdl/ieee8021q/srp/` contains **11** `KL_lwsrp_*` modules plus `lwsrp_pkg.sv`,
+> [`hdl/ieee8021q/srp/`](../hdl/ieee8021q/srp) contains **11** `KL_lwsrp_*` modules plus `lwsrp_pkg.sv`,
 > not the nine this page and the module-to-family map in
 > [`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md) still quote. The 2026-07-14
 > sketch in §3.2 also names `KL_lwsrp_applicant`, which was never built: the
@@ -318,12 +318,12 @@ next to the AVDECC multicast (default-pass covers it today; make explicit).
 
 ## 6. Verification plan (the campaign recipe)
 
-1. **Verilator TB (tb/verilator/lwsrp)** — hand-built bridge-side MRPDUs:
+1. **Verilator TB ([tb/verilator/lwsrp](../tb/verilator/lwsrp))** — hand-built bridge-side MRPDUs:
    Listener Ready/AskingFailed/ReadyFailed (single + multi-value vectors
    spanning our StreamID at an offset — the +k trap), Domain match/mismatch,
    LeaveAll storm, leave-timer expiry, TalkerFailed code capture, gate/slope
    ordering on teardown, byte-exact TX templates (MSRP + MVRP), 75 % refusal.
-2. **Yosys/lint gates** — every module carries a top in the `syn/yosys/run.sh`
+2. **Yosys/lint gates** — every module carries a top in the [`syn/yosys/run.sh`](../syn/yosys/run.sh)
    `tops=()` array, same discipline as the rest (streaming walker is plain
    FSM logic; no memories beyond the stream table FFs).
 3. **Silicon** — the AVB switch is a real SRP bridge: talker attribute must

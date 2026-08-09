@@ -2,7 +2,7 @@
 
 A memory-mapped block of free-running counters at every stage of the packet pipeline  - 
 the numbers a HW developer wants to answer "where did the frame go?" and "where does it
-queue up?". Implemented in `sw/litex/milan_soc.py` as `MilanDebug` (the LiteX binding) and
+queue up?". Implemented in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) as `MilanDebug` (the LiteX binding) and
 read from Linux via the `kl-eth` driver's `telemetry` sysfs group.
 
 ## Contents

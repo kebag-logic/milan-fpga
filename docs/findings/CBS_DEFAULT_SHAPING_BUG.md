@@ -6,7 +6,7 @@
 probe's 39–42 % `stall` to its source instead of assuming it; verified live on silicon
 with two devmem writes; **fixed** the same night (`CBS_EN_RST = 4'b0000`, commit
 `34cc2bc`, gateware `build_dp100_cbs0`, WNS +0.031). Regression:
-`tb/verilator/csr` (76 checks, reset-default assertions updated).*
+[`tb/verilator/csr`](../../tb/verilator/csr) (76 checks, reset-default assertions updated).*
 
 Sibling doc: [`CBS_DATAPATH_BUG.md`](CBS_DATAPATH_BUG.md)  -  an unrelated 2026-07-05
 classifier-timing bug in the same subsystem. This one is **pure configuration**: the
@@ -40,7 +40,7 @@ while data is queued**  -  the CBS credit gate.
 
 ## Root cause  -  two defaults contradicting each other
 
-`hdl/common/csr/milan_csr.sv` reset values:
+[`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) reset values:
 
 ```systemverilog
 localparam int CBS_IDLE_RST [0:3] = '{300_000_000, 200_000_000, 150_000_000, 100_000_000};
@@ -83,7 +83,7 @@ localparam bit [3:0] CBS_EN_RST = 4'b0000;  // ALL unshaped at reset
 CBS shapes **reserved SR classes only, never best-effort**: software (SRP/AVDECC stream
 reservation, or `tc … cbs`) opts a queue in by setting `CBS_CTRL[0]` at reservation
 time. The slope/credit reset values stay (they are sensible SR-class presets); only the
-enable default changes. `tb/verilator/csr` reset-default checks updated
+enable default changes. [`tb/verilator/csr`](../../tb/verilator/csr) reset-default checks updated
 (`CBS0_EN(reset) == 0`); 76 checks green. Built as `build_dp100_cbs0` (WNS +0.031) and
 **verified at reset on silicon** (q0–q3 `en=0`).
 
@@ -98,7 +98,7 @@ number quoted above: `CBS_IDLE_RST` is now indexed **by queue** (q0 =
 is unchanged and was re-asserted in both commits:
 
 * `CBS_EN_RST = 5'b00000` — **no queue is shaped at reset**, checked in
-  `tb/verilator/csr` for all five (`CBS0_EN`…`CBS4_EN`);
+  [`tb/verilator/csr`](../../tb/verilator/csr) for all five (`CBS0_EN`…`CBS4_EN`);
 * best-effort still lands on **q0**, which is still the *lowest*-priority
   queue and still unshaped at power-on. The only thing that changed is that q0
   is no longer *also* the arbitration winner.

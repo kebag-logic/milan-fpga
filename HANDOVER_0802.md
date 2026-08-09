@@ -51,7 +51,7 @@ AECP/ACMP round:
 | Talker TSpec describes the emitted frame (the 0x0021 line) | `c88c07b7` |
 
 `devmem 0x90000004` reads **`0x0001_0021`** — the VERSION constant has not
-been bumped since (`milan_csr.sv:70`), so 0x0021 now names more than the
+been bumped since ([`milan_csr.sv:80`](hdl/common/csr/milan_csr.sv#L80)), so 0x0021 now names more than the
 TSpec fix. **This build's AECP declared-vs-delivered length validator is what
 exposed the years-old cdl defect** — see
 [docs/findings/DEFECT_CLASSES_0802.md](docs/findings/DEFECT_CLASSES_0802.md) §2.

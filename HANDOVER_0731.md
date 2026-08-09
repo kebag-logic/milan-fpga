@@ -205,7 +205,7 @@ That bug ate three attempts today; the data was intact every time.
 
 | # | item |
 |---|---|
-| **49** | **GM clockIdentity latched 32 bits at a time** (USER root-cause) — `milan_csr.sv:2088` is a bare `{hi,lo}` concat, no commit strobe. TWO consumers act on the torn value: `adp_advertiser.sv:420` (spurious ADP GM_CHANGE **on the wire**) and `KL_aecp_response_builder.sv:1582` (spurious AVB_INTERFACE counter push). **12** such concatenations exist; `o_ptp_tod_wr`/`o_ptp_offset` are the next most worrying. USER: after the audio checks. |
+| **49** | **GM clockIdentity latched 32 bits at a time** (USER root-cause) — [`milan_csr.sv:2326`](hdl/common/csr/milan_csr.sv#L2326) is a bare `{hi,lo}` concat, no commit strobe. TWO consumers act on the torn value: [`adp_advertiser.sv:420`](hdl/ieee17221/adp/adp_advertiser.sv#L420) (spurious ADP GM_CHANGE **on the wire**) and [`KL_aecp_response_builder.sv:2426-2441`](hdl/ieee17221/aecp/KL_aecp_response_builder.sv#L2426-L2441) (spurious AVB_INTERFACE counter push). **12** such concatenations exist; `o_ptp_tod_wr`/`o_ptp_offset` are the next most worrying. USER: after the audio checks. |
 | **50** | **STREAM_OUTPUT unsolicited GET_COUNTERS never fire** (USER-reported) — `unsol_pend2_r` has exactly one trigger, `in0_cnt_dirty_p_i`, the STREAM_INPUT **index-0** pulse. No talker-side dirty source exists at all; listeners 1..N-1 are also dark. Needs a per-descriptor dirty vector + per-descriptor rate limiter. |
 | **51** | area — see §3/§5 |
 | **52** | option C (`u_bld` trim) — see §5 |

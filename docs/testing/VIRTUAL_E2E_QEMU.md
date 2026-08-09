@@ -116,7 +116,7 @@ RGMII timing, analog audio, DDR electricals, real gPTP timestamp quality) are
 `BLOCKED` in the virtual tier, never silently skipped or passed.
 
 **R8 — Reproducible evidence.** Every tier emits a dated file under
-`docs/testing/evidence/` with: exact command, tool versions, artifact hashes
+[`docs/testing/evidence/`](evidence) with: exact command, tool versions, artifact hashes
 (RV32/RV64 selection, firmware/kernel/dtb/rootfs, RTL source list), thread
 settings, the assertion outputs, and a replayable JSON event log so failures
 are reproducible commit-over-commit.
@@ -143,7 +143,7 @@ their predecessor's negative control has been shown to bite.
    (exists, `bash -n` clean). Extend, don't rewrite; reuse `ma2_sim_driver.py`.
 2. **Single source of truth for the CSR/packet/event contract** — a versioned
    `csr-contract.yaml` / `packet-contract.yaml` / `event-contract.yaml` that the
-   QEMU device, the Verilator bridge, and `harness/milanharness/csr.py` all
+   QEMU device, the Verilator bridge, and [`harness/milanharness/csr.py`](../../harness/milanharness/csr.py) all
    consume, so a CSR change touches one file.
 3. **Deterministic seeds + replay log** — JSONL event stream; compare event
    sequences, not just final state.

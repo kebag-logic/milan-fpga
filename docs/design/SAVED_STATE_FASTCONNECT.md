@@ -14,7 +14,7 @@ durable place to keep the binding, and the boot-time sequence that replays it.
 
 - **[1. Status ledger — proven vs designed-only](#1-status-ledger--proven-vs-designed-only)** — Read first: a row per piece saying what is in gateware, what is Verilator-proven, and what is designed-only because it cannot be executed without a board. The page never claims "persistence works".
 - **[2. What is saved, and what is deliberately not](#2-what-is-saved-and-what-is-deliberately-not)** — Milan saves a *binding*, not a *connection* — so `stream_id`, dest MAC and VLAN are deliberately cleared and re-probed. Restoring a stale multicast DMAC would point the listener at a reservation that no longer exists.
-- **[2b. The clause inventory — every Milan persistence SHALL, and what holds it](#2b-the-clause-inventory--every-milan-persistence-shall-and-what-holds-it)** — Generated from `sw/persist/milan_persist_state.py`: all ELEVEN Milan persistence SHALLs (5.3.8.1 is one row of eleven), the two SHALL-NOTs that require the opposite, and per clause whether this build can put the value back. Seven could not until the E4 port landed at gateware `0x0022`; **four still cannot**, and they share a shape — they live in response-builder register files, not in the AEM store, so another CSR group cannot reach them. Re-verified line by line against the PDF on 2026-08-03: no misattribution, no misquote, nothing missing.
+- **[2b. The clause inventory — every Milan persistence SHALL, and what holds it](#2b-the-clause-inventory--every-milan-persistence-shall-and-what-holds-it)** — Generated from [`sw/persist/milan_persist_state.py`](../../sw/persist/milan_persist_state.py): all ELEVEN Milan persistence SHALLs (5.3.8.1 is one row of eleven), the two SHALL-NOTs that require the opposite, and per clause whether this build can put the value back. Seven could not until the E4 port landed at gateware `0x0022`; **four still cannot**, and they share a shape — they live in response-builder register files, not in the AEM store, so another CSR group cannot reach them. Re-verified line by line against the PDF on 2026-08-03: no misattribution, no misquote, nothing missing.
 - **[3. The as-built fabric enablers](#3-the-as-built-fabric-enablers)** — The two register groups this design builds on, recapped so the page stands alone: E1 `0x7A0-0x7B4` injects the 5.5.3.5.2 entry record (and refuses rather than merges when the context is already bound), E2 `0x860/0x864/0x868` is the read side the writer daemon learns from.
 - **[4. The journal record format — KLJ1 v1](#4-the-journal-record-format--klj1-v1)** — The whole on-flash container: 6-word header, records, CRC last. The trick worth internalising is that a record *is* the six E1 register writes in register order, so encoder, decoder and register map cannot drift. §4.4 gives a 52-byte worked image whose CRC is pinned in the testbench.
 - **[5. Where it lives in the 16 MB QSPI](#5-where-it-lives-in-the-16-mb-qspi)** — The flash map before and after the carve, and why there are two partitions: `journal` is raw so "a torn write cannot damage the other slot" is flash geometry rather than a filesystem promise, `/user` is jffs2 for things that want files. The Arty gets neither slot — it has ~15 KB of rootfs headroom — and degrades to booting unbound.
@@ -37,14 +37,14 @@ board**, and nothing below claims otherwise.
 
 | Piece | State | Evidence |
 |---|---|---|
-| E1 bind-restore group `0x7A0-0x7B4` | **in gateware** (`0x000A`) | `tb/verilator/acmp_lstn` `[N9]` |
-| E2 window words `0x860/0x864/0x868` | **in gateware** (`0x000A`) | `tb/verilator/csr` |
-| Journal record format (§4) | **specified + encoded + decoded** | golden CRC pinned in `tb/verilator/persist` `[J0]` |
-| `KL_persist_journal` decode + replay | **RTL, Verilator-proven** | `tb/verilator/persist` — 96 checks, 0 failures |
-| Torn-record rejection (never half-applied) | **RTL, Verilator-proven** | `tb/verilator/persist` `[J1]`/`[J2]`/`[J7]` |
-| Restored sink reaches a bound listener | **RTL, Verilator-proven** | `tb/verilator/persist` `[J4]` |
+| E1 bind-restore group `0x7A0-0x7B4` | **in gateware** (`0x000A`) | [`tb/verilator/acmp_lstn`](../../tb/verilator/acmp_lstn) `[N9]` |
+| E2 window words `0x860/0x864/0x868` | **in gateware** (`0x000A`) | [`tb/verilator/csr`](../../tb/verilator/csr) |
+| Journal record format (§4) | **specified + encoded + decoded** | golden CRC pinned in [`tb/verilator/persist`](../../tb/verilator/persist) `[J0]` |
+| `KL_persist_journal` decode + replay | **RTL, Verilator-proven** | [`tb/verilator/persist`](../../tb/verilator/persist) — 96 checks, 0 failures |
+| Torn-record rejection (never half-applied) | **RTL, Verilator-proven** | [`tb/verilator/persist`](../../tb/verilator/persist) `[J1]`/`[J2]`/`[J7]` |
+| Restored sink reaches a bound listener | **RTL, Verilator-proven** | [`tb/verilator/persist`](../../tb/verilator/persist) `[J4]` |
 | CSR ingest group `0x7B8-0x7C4` | **in gateware** (`0x0019`) | `milan_csr.sv` `A_JNL_CTRL/DATA/STAT/SEQ`; `milan_datapath.sv` instantiates `KL_persist_journal` |
-| QSPI repartition (§5) | **in `FLASHBOOT_LAYOUT`, host-gated** | `sw/trace/test_trace_roundtrip.py` gate 1 (alignment, no overlap, fits) — still needs a build + a flash |
+| QSPI repartition (§5) | **in `FLASHBOOT_LAYOUT`, host-gated** | [`sw/trace/test_trace_roundtrip.py`](../../sw/trace/test_trace_roundtrip.py) gate 1 (alignment, no overlap, fits) — still needs a build + a flash |
 | mtd partition node (§10 item 1) | **generated + `dtc`-checked** | `sw/dts/gen_mtd_partitions.py --check --dtc`, same gate 1 |
 | mtd driver actually binding, `/user` mounted (§10 items 2-3) | **impossible in this kernel** | no `litex,spiflash` driver exists here or upstream; §10b |
 | Flash reachable from Linux WITHOUT mtd | **shipping, silicon-proven** | `acmp-persist` over the LiteSPI master CSRs; §10b |
@@ -86,7 +86,7 @@ readable.
 > **Generated.** The table below is `python3 sw/persist/milan_persist_state.py
 > --emit-md`. `PERSIST_ITEMS` in that file is the ONE place either repo says
 > "clause X requires state Y"; the board reads the same list through the
-> generated `/etc/milan-persist-state.sh`, and `sw/trace/test_trace_roundtrip.py`
+> generated `/etc/milan-persist-state.sh`, and [`sw/trace/test_trace_roundtrip.py`](../../sw/trace/test_trace_roundtrip.py)
 > gate 1 fails if the two drift. Do not retype a row here.
 
 Milan v1.2 puts **eleven** unconditional persistence SHALLs on a PAAD-AE, not
@@ -352,7 +352,7 @@ fabric keeps the fabric's job to the one thing that must not be delegated —
 transactions issued into the ACMP context table is **zero**. There is no
 half-applied state. The engine buffers the whole image and the CRC word is the
 last thing it reads, so a partial apply is not merely avoided, it is not
-representable. `tb/verilator/persist` `[J1]`/`[J2]` assert exactly this — a
+representable. [`tb/verilator/persist`](../../tb/verilator/persist) `[J1]`/`[J2]` assert exactly this — a
 three-record image with the damage in the *last* record leaves the first two
 target sinks untouched, which is precisely what a streaming applier would get
 wrong.
@@ -437,7 +437,7 @@ Ordering constraints for whoever writes the daemon:
 
 **Landed in `milan_csr` (gateware `0x0019`).** The behaviour below is also gated in
 [`tb/verilator/persist/persist_wrap.sv`](../../tb/verilator/persist/persist_wrap.sv),
-which stands in for `milan_csr` exactly the way `tb/verilator/tcam_csr` does for
+which stands in for `milan_csr` exactly the way [`tb/verilator/tcam_csr`](../../tb/verilator/tcam_csr) does for
 the `0x700` TCAM group. Reproducing it in `milan_csr` is a wiring job:
 
 | Offset | Name | Acc | Description |
@@ -512,10 +512,10 @@ row of [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md):
    declared in `FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED` in
    [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) (with
    `check_flash_map()` refusing an unaligned or overlapping map at build time),
-   and `sw/dts/gen_mtd_partitions.py` emits `sw/dts/mtd-partitions.dtsi` from
+   and [`sw/dts/gen_mtd_partitions.py`](../../sw/dts/gen_mtd_partitions.py) emits [`sw/dts/mtd-partitions.dtsi`](../../sw/dts/mtd-partitions.dtsi) from
    that single source. `--check` byte-compares the checked-in fragment against a
    regeneration and `--dtc` runs `dtc` over it, both wired into
-   `sw/trace/test_trace_roundtrip.py` gate 1 — so the partition table can never
+   [`sw/trace/test_trace_roundtrip.py`](../../sw/trace/test_trace_roundtrip.py) gate 1 — so the partition table can never
    drift from the flash map the BIOS was built with. The fragment attaches to
    the `&flash` label LiteX's `json2dts` already emits for LiteSPI
    (`compatible = "jedec,spi-nor"`), which was read out of the LiteX source
@@ -572,7 +572,7 @@ made task #57 look like the blocker under this one.
 | Is there a driver for `litex,spiflash`? | **No, and there is none upstream either.** Linux 7.0.11 `drivers/spi/` has no litex entry; the only LiteX drivers present are liteeth, liteuart, mmc, soc-controller. LiteSPI has never been upstreamed. | `drivers/spi/`, `grep -r 'litex,' drivers/` |
 | So why does `/proc/mtd` print a header and nothing else? | MTD **core** registers `/proc/mtd`; **zero devices** ever probe because the `jedec,spi-nor` child needs a registered SPI controller for its parent node and nothing claims `litex,spiflash`. This is the permanent state of this kernel, not a property of the DTB. | `drivers/mtd/spi-nor/core.c` binds `"jedec,spi-nor"` as a *device* driver |
 | Are the DTS partitions actually there? | **Yes** — `journal@ee0000` and `user@f00000` are in `milan_ax7101_vexii_rv32.dts` and in the built `.dtb` (2026-08-02). The RV64 `.dtb` has the `spiflash` node but no partitions. They are simply never parsed. | `dtc -I dtb` on both |
-| Is the flash reachable at runtime at all? | **Yes, two ways.** Read: the XIP window at CPU `0x0100_0000` (16 MiB, `memory_region,spiflash`). Write: the LiteSPI **master** port at bank `+0x10`..`+0x20` (`add_spi_flash(..., with_master=True)`). | `csr.csv`; `sw/litex/milan_soc.py:4989-4990` |
+| Is the flash reachable at runtime at all? | **Yes, two ways.** Read: the XIP window at CPU `0x0100_0000` (16 MiB, `memory_region,spiflash`). Write: the LiteSPI **master** port at bank `+0x10`..`+0x20` (`add_spi_flash(..., with_master=True)`). | `csr.csv`; [`sw/litex/milan_soc.py:5067-5068`](../../sw/litex/milan_soc.py#L5067-L5068) |
 | Does anything use it today? | **Yes** — `acmp-persist` implements RDID / WREN / SE-D8 / PP / RDSR over `devmem` against those CSRs, with a JEDEC guard and an address clamp. | `rootfs_overlay/usr/bin/acmp-persist` |
 
 **Two defects this verdict exposed, both now fixed:**
@@ -586,7 +586,7 @@ made task #57 look like the blocker under this one.
    the bank is at **`0xf0004800`**. A device tree naming the wrong bank would
    point any future mtd driver — and does point anything trusting the DT — at the
    `sdram` CSRs, and it is the same window `acmp-persist` writes the flash
-   through. `sw/litex/check_dtb_csr.py` now refuses a DTB whose `litex,spiflash`
+   through. [`sw/litex/check_dtb_csr.py`](../../sw/litex/check_dtb_csr.py) now refuses a DTB whose `litex,spiflash`
    `reg[0]` disagrees with the build's `spiflash_master_cs - 0x10`. **This must
    be resolved against the shipping RV32 build's own `csr.csv` before the next
    flash** — no RV32 `csr.csv` is on this host, so which of the two is right for
@@ -688,8 +688,8 @@ builder winning — trivially non-conflicting at boot, where the AECP engine is
 quiescent by the ADP gate above.
 
 **Effort.** ~200 lines of RTL (a small ingest FSM + the WB-table address mux),
-~150 lines of `milan_csr` decode, a `tb/verilator/aempatch` suite in the shape of
-`tb/verilator/persist`, and a `VERSION` bump. **2-3 days at the desk.** The build
+~150 lines of `milan_csr` decode, a [`tb/verilator/aempatch`](../../tb/verilator/aempatch) suite in the shape of
+[`tb/verilator/persist`](../../tb/verilator/persist), and a `VERSION` bump. **2-3 days at the desk.** The build
 risk is the real cost: the AX7101 RV32 fit is packing-bound (61,039 / 63,400 LUTs,
 1,541 control sets), so this lands with the next area round, not beside it.
 
@@ -733,7 +733,7 @@ falsifiable on its own, so a failure localises.
 3. Regenerate the DTB from the build's `csr.csv` (CSR-rot rule) with the
    `fixed-partitions` node from §10. `sw/dts/gen_mtd_partitions.py --check`
    byte-compares the checked-in fragment, and
-   `sw/trace/test_trace_roundtrip.py` gate 1 runs it in CI.
+   [`sw/trace/test_trace_roundtrip.py`](../../sw/trace/test_trace_roundtrip.py) gate 1 runs it in CI.
 
 ### G1 — the partition appears
 
@@ -832,7 +832,7 @@ expected, healthy outcome.
 
 ### G7 — the E4 AEM patch port (bench, not yet run)
 
-The port is desk-green (`tb/verilator/aempatch`, 92 checks, 10/10 mutations
+The port is desk-green ([`tb/verilator/aempatch`](../../tb/verilator/aempatch), 92 checks, 10/10 mutations
 caught) and has never been on silicon. Run this on the next flash. It needs no
 flash writes at all — every gate below is a `devmem` sequence plus one AECP
 read, so it is safe to run before trusting the port with a real restore.
@@ -947,7 +947,7 @@ device and was to restore **descriptor fields** on power-up. That is a
 different, larger problem than this item — and attempting it first is how a
 persistence feature becomes unbounded. The scope here is deliberately narrower:
 **bindings only**, replayed through an existing, already-proven register group.
-The file's home (`hdl/ieee17221/aecp/`) and its Milan §5.4 "persistent settings"
+The file's home ([`hdl/ieee17221/aecp/`](../../hdl/ieee17221/aecp)) and its Milan §5.4 "persistent settings"
 citation are inherited; nothing else is.
 
 If AEM dynamic-descriptor persistence is wanted later, the same `KLJ1` container
@@ -976,7 +976,7 @@ what the version field is for.
 | `[J7]` | **A/B fall-back**: a rejected image never advances the accepted-`SEQ` watermark, so the older intact slot is still admissible and restores |
 | `[J8]` | `abort` recovers a load left half-pushed, and the watermark survives it |
 
-Open-toolchain synthesis: `syn/yosys/run.sh` maps `KL_persist_journal` to
+Open-toolchain synthesis: [`syn/yosys/run.sh`](../../syn/yosys/run.sh) maps `KL_persist_journal` to
 generic cells with no vendor primitives (`hierarchy -check` clean).
 
 ---
@@ -990,7 +990,7 @@ generic cells with no vendor primitives (`hierarchy -check` clean).
 2. ~~Add the `journal` + `user` slots to `FLASHBOOT_LAYOUT` and the mtd node to
    the DT~~ — **DONE 2026-07-26** (§5, §10 item 1). `FLASHBOOT_RESERVED` carries
    `journal` `0xEE_0000` + `user` `0xF0_0000`, `rootfs` is `0x76_0000`, and
-   `sw/dts/gen_mtd_partitions.py` generates the `fixed-partitions` node from
+   [`sw/dts/gen_mtd_partitions.py`](../../sw/dts/gen_mtd_partitions.py) generates the `fixed-partitions` node from
    that single source under `test_trace_roundtrip.py` gate 1. What is **still
    open** from this line is one thing only: `deploy.sh` computes each image's
    ceiling from the next *image* offset and ignores the `reserved` key, so an
@@ -1005,7 +1005,7 @@ generic cells with no vendor primitives (`hierarchy -check` clean).
    RV32 build's own `csr.csv`, which is the only artefact that can decide it.
 5. ~~E4, the AEM dynamic-state ingest port (§10c)~~ — **DONE 2026-08-03**,
    gateware `0x0022` (`KL_aem_patch.sv`, `milan_csr` `A_AEMP_SEL/FIELD/DATA/
-   CTRL`, `tb/verilator/aempatch`). It closed **three** of the seven, not
+   CTRL`, [`tb/verilator/aempatch`](../../tb/verilator/aempatch)). It closed **three** of the seven, not
    seven: 5.3.8.1, 5.3.7.1, 5.3.5.1, plus the descriptor half of 5.3.11.1.
 6. **A response-builder saved-state slave port** — the successor to E4 and the
    only thing left between this build and the full eleven. The remaining four

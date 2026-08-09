@@ -22,7 +22,7 @@
 *What is at which offset, how much of the device each slot actually costs, and
 which slots a reflash must never erase* — drawn **to scale**, and **generated**
 by [`flash_layout.gen.py`](../diagrams/flash_layout.gen.py) from the one source
-of truth (`FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED` in `sw/litex/milan_soc.py`),
+of truth (`FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)),
 read through the very same `load_map()` that emits the kernel's
 `fixed-partitions` node. The map, the device tree and this picture move
 together or not at all. Regenerate with:
@@ -54,7 +54,7 @@ build's own copy; offsets below are the current AX/Arty builds'):
 > map (2026-07-26) shrank `rootfs` from 8.5 MiB to `0x66_0000` = 6.375 MiB to
 > make room for the `journal` and `user` slots, and the measured image in the
 > "measured" column predates that change — an 8.49 MiB rootfs would no longer
-> fit. `sw/litex/milan_soc.py` records 5.6 MiB for the current image, leaving
+> fit. [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) records 5.6 MiB for the current image, leaving
 > ~0.775 MiB of slack. Read the live budget off the generated map above (or off
 > the build's own `flashboot_layout.json`), and read the pre-flash size line
 > `deploy.sh flash-images` prints before it writes anything.
@@ -123,8 +123,8 @@ It has three cooperating pieces plus a host boot-list, all opt-in behind
 
 | piece | where | what |
 |-------|-------|------|
-| **flash core** | `sw/litex/milan_soc.py`, `sw/litex/platforms/alinx_ax7101.py` | memory-maps the on-board flash; emits the `MILAN_FLASHBOOT_*` layout constants |
-| **BIOS method** | `sw/litex/patches/0001-milan-linux-flashboot.patch` | `linux_flashboot` copies images flash→DRAM, boots (or pre-loads then defers to serialboot) |
+| **flash core** | [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), [`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex/platforms/alinx_ax7101.py) | memory-maps the on-board flash; emits the `MILAN_FLASHBOOT_*` layout constants |
+| **BIOS method** | [`sw/litex/patches/0001-milan-linux-flashboot.patch`](../../sw/litex/patches/0001-milan-linux-flashboot.patch) | `linux_flashboot` copies images flash→DRAM, boots (or pre-loads then defers to serialboot) |
 | **flashing** | `sw/litex/deploy.sh flash-images` | wraps each image as a LiteX FBI and writes it at the compiled-in offset; refuses a `$DTB` whose `kl,dma-ether` windows mismatch the build’s `csr.csv` ([check_dtb_csr.py](../../sw/litex/check_dtb_csr.py), [TROUBLESHOOTING §20](../limitations/TROUBLESHOOTING.md)) |
 | **host boot-list** | `the-private-test-repo/fpga/boot/boot_flashkernel.json` | serial upload of only the *non*-flashed images (partial mode) |
 
@@ -140,7 +140,7 @@ It has three cooperating pieces plus a host boot-list, all opt-in behind
 > What ships puts the **bitstream at `0x00_0000` with a 4 MiB budget and the
 > kernel at `0x40_0000`**; that is what
 > [Layout "full"](#layout-full--the-deployed-truth-2026-07-24-silicon-verified-end-to-end)
-> above describes, what `FLASHBOOT_LAYOUT` in `sw/litex/milan_soc.py` contains,
+> above describes, what `FLASHBOOT_LAYOUT` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) contains,
 > and what a build's own `flashboot_layout.json` exports (re-verified against a
 > build dir while flashing, 2026-07-27). Two things below are stale rather than
 > merely dated — the *sizes* in the image table (the kernel is flashed as a
@@ -186,7 +186,7 @@ So **not everything fits at once**. Two manifests (`--flashboot`):
 ### Flash layout (`FLASHBOOT_LAYOUT` in `milan_soc.py`)
 
 The map below is read straight out of `FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED`
-in `sw/litex/milan_soc.py`. It is the same map the
+in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py). It is the same map the
 [deployed-truth table](#layout-full--the-deployed-truth-2026-07-24-silicon-verified-end-to-end)
 above renders slot by slot, and the same one the SVG at the top of this page is
 generated from:

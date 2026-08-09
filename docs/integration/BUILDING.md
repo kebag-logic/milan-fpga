@@ -1,6 +1,6 @@
 # Building bitstreams  -  the two-board build flow
 
-*2026-07-25. Canonical entry point: **`sw/litex/build.sh`**. This page is the
+*2026-07-25. Canonical entry point: **[`sw/litex/build.sh`](../../sw/litex/build.sh)**. This page is the
 maintainer reference for it: what the named configurations are, the parallel
 launch discipline the script encodes (and why each rule exists), how to add a
 configuration, and the per-board load/console facts you need after a build
@@ -49,7 +49,7 @@ flowchart LR
 
 | step | what it checks | automatic? |
 |---|---|---|
-| **shape gate** (`scripts/check_sweep_shape.py`) | the composed command line equals `configs/endstation_<shape>.yaml` — `--num-streams`, `--rx-queues`, `--l2-bytes`, and `build.sh`'s `cfg_*` recipes | **yes** — refuses *before* anything launches |
+| **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | the composed command line equals `configs/endstation_<shape>.yaml` — `--num-streams`, `--rx-queues`, `--l2-bytes`, and `build.sh`'s `cfg_*` recipes | **yes** — refuses *before* anything launches |
 | **WNS ≥ 0** | Design Timing Summary row of `<outdir>/gateware/*_timing.rpt`. On the AX7101 keep margin: QSPI flashboot corrupted below +0.03 at 112.5 MHz | no — read it |
 | **utilization** | `*_utilization_place.rpt` Slice LUTs / Slice / Block RAM Tile vs the area scoreboard. OOC-synth a module before believing its hierarchical line | no — read it |
 | **silicon checklist** | boot, `ID=MILN`, driver pairing probe, ghost-peer ARP, TX gate, RX cells | no — run it on the board |
@@ -192,7 +192,7 @@ exists so they cannot be forgotten:
 
 ### 3.1 The shape gate (`scripts/check_sweep_shape.py`)
 
-`sw/litex/sweep.sh` refuses to launch unless the command line it composed
+[`sw/litex/sweep.sh`](../../sw/litex/sweep.sh) refuses to launch unless the command line it composed
 equals the end-station config it claims to build. It checks `--num-streams`,
 `--rx-queues` and `--l2-bytes` against `configs/endstation_<shape>.yaml`, and
 `build.sh`'s `cfg_*` recipes against the same configs. Exit non-zero = no
@@ -243,7 +243,7 @@ manifest-full port. JTAG load (table above) still runs a build from SRAM
 without touching flash; after a JTAG load you can also boot over serial
 (`litex_term --kernel ...`) or use the BIOS interactively.
 After every flash, the mandatory first validation step is
-`scripts/hostplane_smoke.sh` on the board shell (host-plane liveness in
+[`scripts/hostplane_smoke.sh`](../../scripts/hostplane_smoke.sh) on the board shell (host-plane liveness in
 ~60 s  -  see [../testing/TESTING.md](../testing/TESTING.md) section 6).
 
 ## 5. Gates before a build is "good"

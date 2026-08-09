@@ -1,6 +1,6 @@
 # The LiteX SoC - `sw/litex/` in depth
 
-`sw/litex/milan_soc.py` (~3600 lines) is "the LiteX line of code": the fully-
+[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) (~3600 lines) is "the LiteX line of code": the fully-
 FPGA host that replaced the Zynq PS. It builds a RISC-V Linux SoC on the
 Alinx AX7101 (Artix-7 `xc7a100t`) with the Milan TSN datapath attached as a
 real RTL instance, the ring-DMA engines, the LiteEth GMII MAC, DDR3, QSPI
@@ -115,8 +115,8 @@ The crossings:
 ### 2.2 The datapath attach (`MilanNIC` / `add_milan_datapath()`)
 
 Instantiates `milan_datapath` as **real RTL** (no black box) from the curated
-`_MILAN_DATAPATH_SOURCES` list (the same file set the `tb/verilator/milan_dp`
-harness and `syn/yosys` use, so the build can't drift from what is verified).
+`_MILAN_DATAPATH_SOURCES` list (the same file set the [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp)
+harness and [`syn/yosys`](../../syn/yosys) use, so the build can't drift from what is verified).
 
 The CSR window is an AXI4-Lite slave at `MILAN_CSR_BASE = 0x9000_0000`
 (64 KB, uncached-IO region on these CPUs; the Zynq build used
@@ -207,7 +207,7 @@ stale copy of them:
 ![QSPI flash map](../diagrams/flash_layout.svg)
 
 Master: [`flash_layout.gen.py`](../diagrams/flash_layout.gen.py) — it reads the
-dicts through `sw/dts/gen_mtd_partitions.py`'s `load_map()`, the same reader
+dicts through [`sw/dts/gen_mtd_partitions.py`](../../sw/dts/gen_mtd_partitions.py)'s `load_map()`, the same reader
 the kernel's `fixed-partitions` node comes from, and prints
 `check_flash_map()`'s verdict on the drawing.
 

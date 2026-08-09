@@ -30,7 +30,7 @@ THD+N stalled at −68 dB (gating-limited, not converter-limited). ssh to the
 board intermittently took 30–150 s to complete a key exchange.
 
 **Root cause, RTL half (by design, not a bug).**
-`hdl/ieee8021q/filtering/rx_mac_filter.sv` decides SOF pass/drop in strict
+[`hdl/ieee8021q/filtering/rx_mac_filter.sv`](../../hdl/ieee8021q/filtering/rx_mac_filter.sv) decides SOF pass/drop in strict
 precedence **runt → PROMISC → TCAM hit → address filter**, and its own comment
 says the ordering is deliberate: promiscuous means "hand me the wire", so it
 outranks an explicit TCAM *drop* entry, which is filtering policy.

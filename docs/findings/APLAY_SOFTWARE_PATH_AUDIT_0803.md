@@ -204,7 +204,7 @@ Three further results contradict what was previously written down:
 
 `snd-kl-milan` reads the `KL_pcm_tx` `PB_UNDER` counter at `TRIGGER_STOP`.
 The RTL increments it **once per channel-pair slot per media tick** while the
-ring is empty (`hdl/ieee1722/aaf/KL_pcm_tx.sv`, `PT_STEP_S`; the read
+ring is empty ([`hdl/ieee1722/aaf/KL_pcm_tx.sv`](../../hdl/ieee1722/aaf/KL_pcm_tx.sv), `PT_STEP_S`; the read
 pointer is deliberately *not* advanced). At 8 channels that is 4 ticks per
 starved 48 kHz frame, so `ms = ticks / 4 / 48000 × 1000` — **derived from
 the RTL, not calibrated against a known-length starvation.**

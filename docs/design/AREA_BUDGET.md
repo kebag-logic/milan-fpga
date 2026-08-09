@@ -137,7 +137,7 @@ enforces that on all three shipped configs.
 
 #### What each one is worth — MEASURED, and every figure a yosys ESTIMATE
 
-Measured 2026-07-27 with `syn/yosys/ooc.sh`'s toolchain (`sv2v` →
+Measured 2026-07-27 with [`syn/yosys/ooc.sh`](../../syn/yosys/ooc.sh)'s toolchain (`sv2v` →
 `yosys synth_xilinx -family xc7`) on `milan_datapath` at the **ship shape**
 (`N_STREAMS = 8`, `AUDIO_IF_SLOTS_P = 16`), hierarchy preserved, per-module
 `stat`. **These are synthesis estimates, not placement results**, and yosys
@@ -165,7 +165,7 @@ ability to say "this build does not include that".
 
 #### What that is worth to the 8×8 shape, in the builder's own estimator
 
-`sw/builder`'s resource model, run over `endstation_ax7101_8x8.yaml` with the
+[`sw/builder`](../../sw/builder)'s resource model, run over `endstation_ax7101_8x8.yaml` with the
 levers pulled (still an **estimate**, and a *different* model again — Vivado
 place figures for the blocks it knows, yosys for the three it did not):
 
@@ -232,7 +232,7 @@ lever in a flattened netlist.
    exactly the runtime-disabled state term by term (`LPF_CTRL 0x72C[0] = 0`,
    `MAAP_CTRL.en = 0`, `LTAP_CTRL` cleared, `promisc = 1`).
 3. **Inert ties** — every pruned block's outputs are tied to that state, so the
-   interface is defined, never floating. `scripts/check_tied_inputs.sh` is
+   interface is defined, never floating. [`scripts/check_tied_inputs.sh`](../../scripts/check_tied_inputs.sh) is
    unaffected: it inventories `milan_datapath` **input** ports tied by the SoC,
    and none of these prunes ties an input — the SoC still wires the real MMCM,
    the real MAC and the real pins. The gate runs green with the same three
@@ -240,7 +240,7 @@ lever in a flattened netlist.
 4. **Stated re-measurement** — recorded per block below, and printed into every
    pruned config's `build_plan.md` by the builder, so the obligation travels
    with the artefact instead of with a reviewer's memory.
-5. **Gated** — `sw/builder/endstation_builder.py` `validate_features()` raises
+5. **Gated** — [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py) `validate_features()` raises
    `ConfigError` for a config that asks for a feature the prune removed.
    Mutation-proven: neuter the function and gate 23b fails on its first case.
 
@@ -259,7 +259,7 @@ phase-shift ports never move, and the MMCM is never reset by the datapath.
 *Forces re-measurement of* every CRF / input-stream lock result — servo
 convergence, `MCSRV_STAT` state transitions, any recovered-clock jitter figure.
 *Note* the servo already idles at `clock_source == 0`, so on an internal-clock
-build this prune is **area-only**: `tb/verilator/milan_dp`'s pruned shape and
+build this prune is **area-only**: [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp)'s pruned shape and
 its PRESENT shape both read `0x8F8` as 0 and both leave the MMCM pins still.
 That is the honest statement — the contrast is invisible from software at
 internal clock, which is exactly why the config, not a CSR bit, is what
@@ -388,20 +388,20 @@ use it, not a yosys estimate and not a hierarchy roll-up. Ranked (LUTRAM LUTs;
 | array | where | size | primitives | LUTs | ~slices |
 |---|---|---|---|---|---|
 | `storage_31` = `tx_sf` payload | LiteX glue, `milan_soc.py` | 512 × 82 | **RAM64M ×224** | **896** | **224** |
-| `ctx_ram` | `KL_acmp_lstn_ctx.sv:198` | 9 × 317 | RAM32M ×112 | 448 | 112 |
-| `col_r` diag mirror (×10) | `KL_avtp_rx_monitor_ctx.sv:686` | 8 × 32 | RAM32M ×6 ea | 240 | 60 |
+| `ctx_ram` | [`KL_acmp_lstn_ctx.sv:282`](../../hdl/ieee17221/acmp/KL_acmp_lstn_ctx.sv#L282) | 9 × 317 | RAM32M ×112 | 448 | 112 |
+| `col_r` diag mirror (×10) | [`KL_avtp_rx_monitor_ctx.sv:750`](../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv#L750) | 8 × 32 | RAM32M ×6 ea | 240 | 60 |
 | `mem` (3× `axis_fifo`) | `ptp_timestamp`, third_party | 2 × 73 | RAM32M ×13 ea | 132 | 33 |
-| `cbuf_r` | `KL_aecp_response_builder.sv:254` | 64 × 64 | RAM64M ×22 | 86 | 22 |
+| `cbuf_r` | [`KL_aecp_response_builder.sv:360`](../../hdl/ieee17221/aecp/KL_aecp_response_builder.sv#L360) | 64 × 64 | RAM64M ×22 | 86 | 22 |
 | `fword_r` ×2 | `KL_acmp_{lstn,tlkr}_ctx.sv` | 9 × 64 | RAM32M ×11 ea | 88 | 22 |
-| `mem_r` | `cdc_pair_fifo.sv:45` | 8 × 52 | RAM32M ×9 | 36 | 9 |
-| `rec_ram_r` | `KL_persist_journal.sv:179` | 48 × 32 | RAM64X1S ×32 | 32 | 8 |
+| `mem_r` | [`cdc_pair_fifo.sv:45`](../../hdl/common/cdc_pair_fifo.sv#L45) | 8 × 52 | RAM32M ×9 | 36 | 9 |
+| `rec_ram_r` | [`KL_persist_journal.sv:179`](../../hdl/ieee17221/aecp/KL_persist_journal.sv#L179) | 48 × 32 | RAM64X1S ×32 | 32 | 8 |
 
 The table is the `AreaOptimized_medium` build (the only one that placed, so the
 only one with a full report). `storage_31` sat in the *"SoC glue — largest single
 consumer, never reviewed"* row above. It was distributed RAM for exactly one
 reason: migen's fwft `SyncFIFO` reads its storage **asynchronously**, and an async
 read can only be LUTRAM. `buffered=True` selects `SyncFIFOBuffered`, whose read
-port is synchronous. Pinned by `sw/litex/test_tx_sf_gapless.py`, which reads the
+port is synchronous. Pinned by [`sw/litex/test_tx_sf_gapless.py`](../../sw/litex/test_tx_sf_gapless.py), which reads the
 kwargs out of `milan_soc.py` rather than restating them.
 
 **Measured, on the shipping recipe** (`AlternateRoutability` synth +
@@ -502,7 +502,7 @@ is what belongs in DRAM.
   are gone, including an unchanged flip-flop total after deleting 1,691 flops.
   It is retained for the other four, where it agrees with the hierarchical
   figure to within the expected cross-boundary slack.
-* **`chparam` to set the shape.** `syn/yosys/ooc.sh` sets the ship shape with
+* **`chparam` to set the shape.** [`syn/yosys/ooc.sh`](../../syn/yosys/ooc.sh) sets the ship shape with
   `chparam -set`, but on `milan_datapath` that re-runs the AST frontend over
   sv2v's flattened interface names and dies (`Failed to detect width for
   identifier \traffic_controller.buffer_queues…`). The measurements here patch
@@ -517,7 +517,7 @@ is what belongs in DRAM.
   the build config and in `build_plan.md` instead. It is the obvious follow-up.
 * **Dropping pruned modules from the SoC source list.** An unused module in
   `_MILAN_DATAPATH_SOURCES` costs nothing (nothing instantiates it) and
-  `scripts/check_soc_sources.py` gates the list's shape. Making the list
+  [`scripts/check_soc_sources.py`](../../scripts/check_soc_sources.py) gates the list's shape. Making the list
   conditional would make that gate configuration-dependent for no gain.
 * **Adding positive `mmcm_servo` / `latency_taps` rows to the resource
   estimator.** Both are genuinely missing from `RESOURCE_COSTS` today, and
@@ -547,7 +547,7 @@ read-only — and to `0x0001_0016` for another, the AVTP `tu` bit becoming drive
 neither affects the reasoning below.) At the
 **default** settings — every
 parameter 1 — this change is a pure no-op parametrisation: the same instances,
-the same wiring, the same CSR values, and `tb/verilator/milan_dp`'s legacy and
+the same wiring, the same CSR values, and [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp)'s legacy and
 NxN shapes pass unchanged at 196 / 135 / 147 checks. A `VERSION` bump announces
 *CSR-observable behaviour changed at the settings a board actually runs*, and
 nothing here does. A build that pulls a lever changes plenty — `0x8F8` reads 0,
@@ -574,7 +574,7 @@ byte-identical refactor.)
   yosys says 864. Assume the same ~2× on the other five until someone places a
   pruned build.
 * The prunes are proven in **elaboration and simulation**, not on silicon:
-  `tb/verilator/milan_dp`'s `obj_prune` shape builds with all six pruned and
+  [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp)'s `obj_prune` shape builds with all six pruned and
   passes 31 checks, and the same binary against the PRESENT shape fails 12 of
   them (the mutation proof that the checks measure the prune). No pruned
   bitstream has been built or flashed.

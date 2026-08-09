@@ -31,7 +31,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `(REQ-xxx)` requirement
 - **[Phase 5 — 802.3 MAC configuration & management (REQ-MAC-\*)](#phase-5--8023-mac-configuration--management-req-mac-)** — Two rows worth reading before touching the MAC: the RX address filter whose CSR fields were exported but consumed by nothing, and `is_1g`, which told a 100 Mb/s Arty port it was gigabit and so mis-sized the lwSRP admission gate 10×. Link-up and speed are *still* tied constant in SoC glue, not negotiated.
 - **[Phase 6 — Multi-channel DMA (enables N queues)](#phase-6--multi-channel-dma-enables-n-queues)** — One superseded row, kept so the requirement is not silently dropped: multi-queue RX is `RxSteer` + a second `RingDMAWriter` in the LiteX SoC, not `axi_mcdma`.
 - **[Phase 7 — Linux driver (REQ-DRV-\*) (../kl-linux-drivers)](#phase-7--linux-driver-req-drv--kl-linux-drivers)** — Bookkeeping banner first: every box here is unticked only because the shipped `kl-eth` driver lives in the private test repo, not because the work is open. The one genuinely unwired item is CBS offload via `ndo_setup_tc`.
-- **[Phase 8 — Device tree & generator (REQ-DT-\*) (../fpga-ps-tools)](#phase-8--device-tree--generator-req-dt--fpga-ps-tools)** — Partly delivered, partly superseded: the builder's DT emitter byte-matches both deployed `.dts` files, `sw/dts/milan_dt.py`'s `extract`/`gen` are retired (they emitted a `dma-rx` span of `0x68` against an ABI of `0x40`), and the Xilinx dtg row is dead with the PS.
+- **[Phase 8 — Device tree & generator (REQ-DT-\*) (../fpga-ps-tools)](#phase-8--device-tree--generator-req-dt--fpga-ps-tools)** — Partly delivered, partly superseded: the builder's DT emitter byte-matches both deployed `.dts` files, [`sw/dts/milan_dt.py`](sw/dts/milan_dt.py)'s `extract`/`gen` are retired (they emitted a `dma-rx` span of `0x68` against an ABI of `0x40`), and the Xilinx dtg row is dead with the PS.
 - **[Phase 9 — End-to-end bring-up (REQ-VER-05)](#phase-9--end-to-end-bring-up-req-ver-05)** — A single unticked line holding the five end-to-end acceptance checks from [`REQUIREMENTS.md`](REQUIREMENTS.md) §8.
 - **[Phase 10 — Persistent user storage (added 2026-07-25)](#phase-10--persistent-user-storage-added-2026-07-25)** — The newest and largest phase: the `KLJ1` journal that verifies a whole image before a single bind-restore, the QSPI carve that shrank `rootfs` to 6.375 MiB to free `journal` and `user`, and the CTF fault log with its numbers — 0.2104 compression at LZMA2 preset 0, and a 512 KiB/h token bucket that turns 59 days of flash life into 11.4 years. Kernel-side mtd is still nothing.
 - **[Phase 11 — rx → talker LOOPBACK lane (task #65, added 2026-08-03)](#phase-11--rx--talker-loopback-lane-task-65-added-2026-08-03)** — The loopback fabric is written, wired and gated green behind an OFF elaboration lever; what remains is the purchase decision — measured at +2,303 LUT / +1,542 FF for the full 8×8 pool on a board already dying in packing — and the rule that the pool width and lane width are one decision.
@@ -41,7 +41,7 @@ Legend: `[ ]` todo · `[~]` in progress · `[x]` done · `(REQ-xxx)` requirement
 Implemented and unit-tested this session (all harnesses green in
 [`tb/verilator/`](tb/verilator)):
 
-* **CSR plane** (`hdl/common/csr/milan_csr.sv`) — AXI4-Lite control plane, 44 checks.
+* **CSR plane** ([`hdl/common/csr/milan_csr.sv`](hdl/common/csr/milan_csr.sv)) — AXI4-Lite control plane, 44 checks.
 * **CBS runtime config** (`credit_based_shaper` + `traffic_shaping_core`) —
   per-queue idleSlope/hi/lo/enable from CSR, strict-priority bypass, back-pressure
   accrual, hiCredit down-clamp on reconfig. CBS math (87 k) + arbiter (61 k).
@@ -67,14 +67,14 @@ full-FPGA solution is **assembled and elaborating** end-to-end. See
 
 * **De-Xilinx complete** — all XPM/vendor IP replaced by Forencich `verilog-axis`
   + open CDC/TCAM; the full Verilator harness suite + every Yosys top (incl. Lattice
-  ECP5; `ls tb/verilator/` / the `syn/yosys/run.sh` `tops` array authoritative).
-* **`milan_datapath.sv`** — PS-less §A.9 wrapper; verified `tb/verilator/milan_dp`.
+  ECP5; `ls tb/verilator/` / the [`syn/yosys/run.sh`](syn/yosys/run.sh) `tops` array authoritative).
+* **`milan_datapath.sv`** — PS-less §A.9 wrapper; verified [`tb/verilator/milan_dp`](tb/verilator/milan_dp).
 * **Softcore** — NaxRiscv boots the LiteX BIOS in sim; the CPU reads the NIC
-  `ID="MILN"` over the bus (**M-A2**) — `sw/litex/milan_sim.py`, evidence saved.
+  `ID="MILN"` over the bus (**M-A2**) — [`sw/litex/milan_sim.py`](sw/litex/milan_sim.py), evidence saved.
 * **`milan_soc.py --full`** — the whole FPGA SoC (NIC + §A.6 DMA + §A.7 MAC/RGMII
   PHY) elaborates and exports gateware; only the Artix-7 Vivado bitstream is blocked
   (device-support install).
-* Device tree (`sw/dts/`), driver ABI (`sw/driver/`), and the DMA CSR ABI documented.
+* Device tree ([`sw/dts/`](sw/dts)), driver ABI ([`sw/driver/`](sw/driver)), and the DMA CSR ABI documented.
 
 Remaining for on-hardware bring-up (roadmap in [FULL_FPGA_SOLUTION.md](docs/overview/FULL_FPGA_SOLUTION.md) §9): Artix-7
 Vivado device install → LiteDRAM → board M-A2/M-A3 → Linux (M-A4) → driver (M-A5) →
@@ -85,7 +85,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 ## Phase 0 — Verification & docs (start here; partly done)
 
 - [x] **B — Runnable CBS verification harness** `(REQ-VER-01)`
-  `tb/verilator/cbs/` — three-way check (RTL DUT vs cycle-accurate fixed-point
+  [`tb/verilator/cbs/`](tb/verilator/cbs) — three-way check (RTL DUT vs cycle-accurate fixed-point
   replica vs ideal 802.1Qav model), directed scenarios + 50 k randomized cycles,
   `make` → PASS with CI exit code. Supersedes the stale
   `tb/utests/802_1q_traffic_shaper/tb_credit_based_shaper.sv`.
@@ -102,26 +102,26 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 
 ## Phase 1 — Memory-mapped CSR plane (critical path) `(REQ-CSR-*)`
 
-- [x] **B — AXI4-Lite CSR RTL** `hdl/common/csr/milan_csr.sv` `(REQ-CSR-01)` — 32-bit,
+- [x] **B — AXI4-Lite CSR RTL** [`hdl/common/csr/milan_csr.sv`](hdl/common/csr/milan_csr.sv) `(REQ-CSR-01)` — 32-bit,
   64 KB window, combinational-ready single-outstanding AXI4-Lite slave; register
   groups for PTP / CBS / classifier / MAC / stats / IRQ per the ABI; lint-clean.
 - [x] **B — ID / VERSION / CAPABILITIES regs** `(REQ-CSR-02)` — CAPABILITIES
   encodes `NUMBER_OF_QUEUES` + feature bits (done, verified).
 - [x] **H — IRQ_STATUS (W1C) / IRQ_MASK + PS IRQ line** `(REQ-CSR-04)` — aggregate
   TX-ts-ready, link-change, RMON-rollover; command strobes + stats/TOD snapshot.
-- [x] **H — CSR/register-map TB** `(REQ-VER-04)` — `tb/verilator/csr` (44 checks
+- [x] **H — CSR/register-map TB** `(REQ-VER-04)` — [`tb/verilator/csr`](tb/verilator/csr) (44 checks
   PASS): reset values, RO/RW/W1C, output wiring, strobes, snapshot.
 - [x] **B — CDC for gtx_clk/axis_clk fields** `(REQ-CSR-03)` — the CSR emits
   value + apply-strobe already; add the 2-FF/handshake synchronizers at the
   `gtx_clk` consumers (PTP counter, TX side) when wiring Phase 2.
 - [~] **B — Block-design integration** `bd/milan-dma.tcl` — add a 3rd `axi_smc`
   master, connect `milan_csr` S_AXI_LITE, `assign_bd_address 0x43C0_0000/64K`,
-  widen `IRQ_F2P`/`ilconcat`; wire `milan_csr` into `hdl/milan/milan_top.sv`
+  widen `IRQ_F2P`/`ilconcat`; wire `milan_csr` into [`hdl/milan/milan_top.sv`](hdl/milan/milan_top.sv)
   (needs Vivado; RTL + ABI are ready).
 
 ## Phase 2 — PTP hardware clock (PHC) `(REQ-PTP-*)`
 
-- [x] **B — Register-controlled accumulator** `hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv`
+- [x] **B — Register-controlled accumulator** [`hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv`](hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv)
   `(REQ-PTP-01)` — replace fixed `+STEP_SIZE` with `+ (nominal_incr + adj)` using a
   fractional-ns phase accumulator; SW-writable addend (adjfine).
 - [x] **B — adjtime / settime** `(REQ-PTP-02)` — `load_value`+`load_valid` and
@@ -129,7 +129,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 - [x] **B — gettime snapshot** `(REQ-PTP-03)` — read-strobe latches 64-bit TOD
   (pair with ARM global timer for `gettimex64`).
 - [~] **B — TX-timestamp IRQ + unambiguous key** `(REQ-PTP-04)` — add
-  messageType (+ HW cookie) to `ts_metadata` (`hdl/common/ethernet_packet_pkg.sv`);
+  messageType (+ HW cookie) to `ts_metadata` ([`hdl/common/ethernet_packet_pkg.sv`](hdl/common/ethernet_packet_pkg.sv));
   raise IRQ on TX ts available.
 - [x] **M — Event-only timestamping** `(REQ-PTP-05)` — `ptp_ts_core.sv` parses
   `messageType[3:0]` at the PTP header offset and now qualifies on
@@ -179,7 +179,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 - [x] **H — deltaBandwidth ≤ 75 % default** `(REQ-CBS-03)` — fix
   `ethernet_packet_pkg.sv` idleSlope defaults; driver rejects over-subscription.
 - [x] **M — Accrue credit during grant-with-backpressure** `(REQ-CBS-04)` — replace
-  the "hold" branch (`credit_based_shaper.sv:133-135`) with idle accrual.
+  the "hold" branch ([`credit_based_shaper.sv:424-432`](hdl/ieee8021q/ts/credit_based_shaper.sv#L424-L432)) with idle accrual.
 - [~] **M — Remove credit/transmit pipeline skew** `(REQ-CBS-05)` — **non-stale
   `allow_transmit` DONE**, double registration deliberately kept (reason below).
   `allow_transmit_o` was a registered copy of `(credit >= 0)`, so the arbiter's
@@ -220,7 +220,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   blows the half-LSB/cycle bound at both points; rounding stays inside it.
 - [~] **M — Pace egress to line rate** `(REQ-CBS-07)` — **measured, documented,
   not yet fixed.** `bytes_sent`/`is_transmitting` DO reflect real occupancy:
-  they come from accepted beats only, and `tb/verilator/shaper_core` proves it
+  they come from accepted beats only, and [`tb/verilator/shaper_core`](tb/verilator/shaper_core) proves it
   by throttling the sink 8× and getting the same egress rate to **0.00 %**. The
   per-byte sendSlope debit is therefore exact. The **accrual** is not: the
   shaper hands 8 B/cycle to a MAC FIFO, so at 100 MHz a beat leaves in 10 ns
@@ -247,7 +247,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 
 - [x] **B — PCP-driven classification** `(REQ-CLS-01)` — slice `PCP=vlan_tci[15:13]`,
   `DEI=vlan_tci[12]`; index a programmable priority-regeneration + PCP→TC table
-  instead of the EtherType `case` in `traffic_classifier.sv:124-141`.
+  instead of the EtherType `case` in [`traffic_classifier.sv:220-240`](hdl/ieee8021q/ts/traffic_classifier.sv#L220-L240).
 - [x] **B — Programmable PCP→TC / TC→queue tables via CSR** `(REQ-CLS-02, CLS-04)`.
 - [x] **H — Configurable default port priority for untagged** `(REQ-CLS-03)`.
 - [x] **M — DEI sideband** `(REQ-CLS-05)` — `traffic_classifier` emits
@@ -279,7 +279,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 
 - [x] **B — Drive MAC cfg from CSR** `(REQ-MAC-01)` — `cfg_ifg/tx_en/rx_en/is_1g/
   stats_reset` from registers (default to current constants at reset);
-  `hdl/milan/milan_top.sv:151,206,256-258`.
+  [`hdl/milan/milan_top.sv:210-218,206,256-258`](hdl/milan/milan_top.sv#L210-L218).
 - [x] **H — RX address filter** `(REQ-MAC-02)` — exact-match unicast + multicast
   hash/CAM + promisc/allmulti on the RX AXIS path. The ternary CAM half shipped
   2026-07-01; the `MAC_CTRL` promisc/allmulti bits, `MAC_ADDR_HI/LO` and
@@ -305,7 +305,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   pin it by hand. TB: `csr` (auto at 1000/100/10, MAC_STATUS agreement, both
   manual-override directions, and a negative proving `MAC_CTRL[4]` is inert
   while auto  -  the old expression fails 4 of them).
-  - **STILL OPEN, and not fixable in `hdl/`:** `sw/litex/milan_soc.py` ties
+  - **STILL OPEN, and not fixable in `hdl/`:** [`sw/litex/milan_soc.py`](sw/litex/milan_soc.py) ties
     `i_i_link_up = 1` and `i_i_full_duplex = 1` at **both** datapath
     instantiations, and `i_i_mac_speed` to a per-board constant
     (`0b01` MII / `0b10` GMII) rather than the autoneg result. So
@@ -325,7 +325,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 - [ ] **SUPERSEDED — Replace single `axi_dma` with `axi_mcdma`** `bd/milan-dma.tcl`
   — this is Zynq block-design work for a PS that no longer exists in this
   design. The shipping SoC is fully-FPGA (VexiiRiscv + LiteX) and its multi-queue
-  RX is `RxSteer` + a second `RingDMAWriter` in `sw/litex/milan_soc.py`, gated
+  RX is `RxSteer` + a second `RingDMAWriter` in [`sw/litex/milan_soc.py`](sw/litex/milan_soc.py), gated
   per board by `test_builder.py` gate 9 / 19a. **Not open backlog** — kept only
   so the requirement row is not silently dropped.
 
@@ -339,7 +339,7 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 > that the work is outstanding. Verified from artifacts on this side: the DMA
 > ring, NAPI, multi-queue RX (flow steering + 2 queues), PHC, HW timestamping
 > and ethtool coalescing are all exercised on silicon and referenced by
-> `docs/findings/`. **Do not treat this phase as open backlog** — re-audit it
+> [`docs/findings/`](docs/findings). **Do not treat this phase as open backlog** — re-audit it
 > against the private repo before reopening any row. The one item known to be
 > genuinely unwired is CBS offload (`ndo_setup_tc`): per-queue CBS is disabled
 > in the shipping config because AAF rides the lwSRP reservation bandwidth gate
@@ -360,11 +360,11 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 
 > **BOOKKEEPING BANNER (2026-07-26, updated same day).** Partly **delivered**,
 > partly **SUPERSEDED**. The device tree is generated by LiteX and both deployed
-> `.dts` files are live on the boards; `sw/builder`'s new DT/driver-shape
+> `.dts` files are live on the boards; [`sw/builder`](sw/builder)'s new DT/driver-shape
 > emitter (2026-07-26) emits the same node from the declarative config and
 > **byte-matches both deployed `.dts` files** in `test_builder.py` gate 19b, so
 > `REQ-DT-01`/`REQ-DT-03` are effectively met. The stale-generator half is now
-> **CLOSED**: `sw/dts/milan_dt.py`'s `extract`/`gen` are **retired** (they exit 2
+> **CLOSED**: [`sw/dts/milan_dt.py`](sw/dts/milan_dt.py)'s `extract`/`gen` are **retired** (they exit 2
 > with a pointer — fed the current `csr.json` they still emitted 4 reg windows
 > and a `dma-rx` span of `0x68` where the driver ABI is `0x40`, which no
 > `csr.json`-derived rule can produce), and
@@ -403,16 +403,16 @@ ingest ABI §8, bench recipe §11).
   (`0x7A0-0x7B4`) + a `zlib.crc32` trailer. New
   [`hdl/ieee17221/aecp/KL_persist_journal.sv`](hdl/ieee17221/aecp/KL_persist_journal.sv)
   verifies the WHOLE image before issuing a single bind-restore, so a torn slot
-  is rejected rather than half-applied. Gated by `tb/verilator/persist`
+  is rejected rather than half-applied. Gated by [`tb/verilator/persist`](tb/verilator/persist)
   (96 checks: golden format, every rejection class with **zero** restores, the
   5.5.3.5.2 entry record, a restored sink driven to SETTLED with no controller,
-  A/B fall-back, `SEQ` monotonicity); yosys portability sweep green (the `tops=()` array in `syn/yosys/run.sh` is the authoritative count).
+  A/B fall-back, `SEQ` monotonicity); yosys portability sweep green (the `tops=()` array in [`syn/yosys/run.sh`](syn/yosys/run.sh) is the authoritative count).
 - [ ] **H2 — wire the ingest group into the CSR plane**. Add `0x7B8-0x7C4`
-  (`JNL_CTRL`/`JNL_DATA`/`JNL_STAT`/`JNL_SEQ`) to `hdl/common/csr/milan_csr.sv`
+  (`JNL_CTRL`/`JNL_DATA`/`JNL_STAT`/`JNL_SEQ`) to [`hdl/common/csr/milan_csr.sv`](hdl/common/csr/milan_csr.sv)
   and instance `KL_persist_journal` in `milan_datapath`, including the `rest_*`
   arbiter between the journal master and the manual `0x7B4` commit path. The
   decode is already written and gated as an executable spec in
-  `tb/verilator/persist/persist_wrap.sv`. Needs a `VERSION` bump.
+  [`tb/verilator/persist/persist_wrap.sv`](tb/verilator/persist/persist_wrap.sv). Needs a `VERSION` bump.
 - [ ] **H3 — 2 MiB `/user` overlay + 128 KiB raw journal slot** *(new REQ candidate)*.
   Carve the QSPI slots as mtd partitions and mount `/user` writable over the
   initramfs (wear-aware NOR filesystem, jffs2 first), so runtime state survives
@@ -422,18 +422,18 @@ ingest ABI §8, bench recipe §11).
   the other slot" is flash geometry rather than a filesystem promise, and so it
   is readable before any mount.
   - **Layout — DONE 2026-07-26.** `FLASHBOOT_LAYOUT` + the new
-    `FLASHBOOT_RESERVED` in `sw/litex/milan_soc.py` are the single source of
+    `FLASHBOOT_RESERVED` in [`sw/litex/milan_soc.py`](sw/litex/milan_soc.py) are the single source of
     truth. `rootfs` shrank 8.5 → **6.375 MiB** (measured 5.6 MiB used, ~0.775
     MiB slack left), freeing `journal` @ `0xDE_0000` (128 KiB) and `user` @
     `0xE0_0000` (2 MiB). `check_flash_map()` refuses an unaligned, overlapping
     or oversized map **at build time**. The ARTY rootfs slot still has **~15 KB
     headroom** — ARTY gets neither slot until its rootfs is slimmed, and
     degrades gracefully (no partition → no replay → boots unbound).
-  - **DT node — DONE 2026-07-26.** `sw/dts/gen_mtd_partitions.py` emits
-    `sw/dts/mtd-partitions.dtsi` from that map (`&flash` = the label LiteX's
+  - **DT node — DONE 2026-07-26.** [`sw/dts/gen_mtd_partitions.py`](sw/dts/gen_mtd_partitions.py) emits
+    [`sw/dts/mtd-partitions.dtsi`](sw/dts/mtd-partitions.dtsi) from that map (`&flash` = the label LiteX's
     `json2dts` already gives the LiteSPI `jedec,spi-nor` node, read out of the
     LiteX source rather than assumed); `--check` byte-compares and `--dtc` runs
-    `dtc`, both wired into `sw/trace/test_trace_roundtrip.py` gate 1.
+    `dtc`, both wired into [`sw/trace/test_trace_roundtrip.py`](sw/trace/test_trace_roundtrip.py) gate 1.
   - **Kernel side — STILL NOTHING.** No mtd driver is known to bind to the
     LiteSPI controller in this kernel config, and no board has been booted with
     an mtd node. Reads alone unblock the restore half (the flash is
@@ -459,13 +459,13 @@ ingest ABI §8, bench recipe §11).
   not text — so the log is a binary CTF trace produced by **barectf**
   (dependency-free generated C, no LTTng runtime), buffered in DRAM, and written
   to flash only on a fault.
-  - **DONE, host-gated** (`sw/trace/test_trace_roundtrip.py`, 14 gates,
-    `ALL GATES PASS`): the trace ABI (`sw/trace/milan_trace.yaml` → vendored
+  - **DONE, host-gated** ([`sw/trace/test_trace_roundtrip.py`](sw/trace/test_trace_roundtrip.py), 14 gates,
+    `ALL GATES PASS`): the trace ABI ([`sw/trace/milan_trace.yaml`](sw/trace/milan_trace.yaml) → vendored
     `metadata` + `barectf.[ch]`, id map pinned); the DRAM ring + severity flush
     arming + rate limiter + flash-wear token bucket (`sw/trace/milan_trace.[ch]`);
-    the segment container and its pinned xz chain (`sw/trace/trace_segment.py`);
-    a stdlib CTF reader (`sw/trace/ctf_read.py`); and a scripted fault run
-    through the **shipping** producer (`sw/trace/trace_selftest.c`).
+    the segment container and its pinned xz chain ([`sw/trace/trace_segment.py`](sw/trace/trace_segment.py));
+    a stdlib CTF reader ([`sw/trace/ctf_read.py`](sw/trace/ctf_read.py)); and a scripted fault run
+    through the **shipping** producer ([`sw/trace/trace_selftest.c`](sw/trace/trace_selftest.c)).
   - **23 event types**, chosen from the shapes in
     [`RECURRING_DEFECT_PATTERNS.md`](docs/limitations/RECURRING_DEFECT_PATTERNS.md)
     and [`TROUBLESHOOTING.md`](docs/limitations/TROUBLESHOOTING.md) §21 — link
@@ -538,8 +538,8 @@ Phase 2 PTP/PHC   Phase 3 CBS cfg  Phase 4 CLS   Phase 5 MAC   Phase 6 mcDMA
       `ovr_armed_r[0]` until reset, so the ACMP alias was detached for good and
       every later `CONNECT_RX` bound cleanly and changed nothing. Fix: staging
       is tagged with its index, and `{en=0, sid=0}` is RELEASE-TO-ALIAS.
-      Regression guards: `tb/verilator/milan_dp` TRAP-1 (N=4/N=8, through the
-      real CSR window) and `tb/verilator/avtp_parser` T6 (table level, from
+      Regression guards: [`tb/verilator/milan_dp`](tb/verilator/milan_dp) TRAP-1 (N=4/N=8, through the
+      real CSR window) and [`tb/verilator/avtp_parser`](tb/verilator/avtp_parser) T6 (table level, from
       reset), both with negative legs. Full write-up in
       [`docs/limitations/TROUBLESHOOTING.md`](docs/limitations/TROUBLESHOOTING.md)
       §21. The RX half of the item-11 latency measurement is **no longer
@@ -556,7 +556,7 @@ Phase 2 PTP/PHC   Phase 3 CBS cfg  Phase 4 CLS   Phase 5 MAC   Phase 6 mcDMA
       2026-07-27 (`milan_datapath LPF_P`, default 1 = filter PRESENT;
       `milan_soc.py --no-render-lpf`) and **spent on `ax7101`**, declared once
       in `board.constraints.render_lpf` and gated by
-      `scripts/check_sweep_shape.py`. 428 LUT / 756 FF from the shipping place
+      [`scripts/check_sweep_shape.py`](scripts/check_sweep_shape.py). 428 LUT / 756 FF from the shipping place
       report ≈ 109 slices — the only Vivado-proven figure of the area round.
       `arty` keeps the filter. The analog loop THD+N record was measured
       THROUGH the filter and must be re-measured before it is quoted against
@@ -586,7 +586,7 @@ elaboration lever that is OFF. This section is the terms of turning it on.
   the depacketizer payload clone (1722-2016 7.3.3/7.3.5) into
   `N_LB_STREAMS_P × N_LB_CH_P/2` per-`{stream, channel pair}` holds, with the
   "never a lying zero" capability mask (`mapped` / `fed`) on the readback pin.
-  Gated by `tb/verilator/chmap_capture` (115 checks).
+  Gated by [`tb/verilator/chmap_capture`](tb/verilator/chmap_capture) (115 checks).
 - [x] **P11.2 — the integration** *(2026-08-03, task #65)*.
   `milan_datapath` parameter `LOOPBACK_P` connects the bucket to the
   depacketizer's accepted-beat clone (`dpkt_pcm_*` + `mon_wire_chans_all_w`,
@@ -594,7 +594,7 @@ elaboration lever that is OFF. This section is the terms of turning it on.
   `milan_soc.py --loopback-lane`, declared by
   `audio_interface.cluster_mapping.fabric.loopback_lane`. **Default 0**, which
   folds the strobe to a constant, prunes the bank and leaves the gateware
-  byte-identical to the pre-task-#65 shape. Gated by `tb/verilator/milan_dp`
+  byte-identical to the pre-task-#65 shape. Gated by [`tb/verilator/milan_dp`](tb/verilator/milan_dp)
   `obj_nxn8` (`-GLOOPBACK_P=1 -DLOOPBACK_TB`): the talker payload must be the
   bytes the listener received, L/R must stay the wire pair they arrived as,
   and a disabled slot must carry none of it. The other two `sim_nxn` legs run

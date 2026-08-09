@@ -45,7 +45,7 @@ Tally: 35 PASS / 0 FAIL / 1 SKIP / 4 BLOCKED.
 | `t2.rv32.rootfs` | **PASS** | 7715920 B |
 | `t2.sim.entry` | **PASS** | 6342 B |
 | `t2.xlen.default` | **PASS** | milan_sim.py --xlen default 32 (RV32 primary); --xlen=64 supported |
-| `t2.oracle.source` | **PASS** | scripts/check_entity_shape.py (same constants source as the CSR oracle) |
+| `t2.oracle.source` | **PASS** | [scripts/check_entity_shape.py](../../../scripts/check_entity_shape.py) (same constants source as the CSR oracle) |
 | `t2.rv32.opensbi` | **PASS** | 265004 B |
 | `t2.boot-the-image` | **BLOCKED** | not implemented yet - this target only proves prerequisites |
 

@@ -107,7 +107,7 @@ SMP shape is the superseded performance-campaign peak (kept for the perf
 lineage), not the deployed config.
 
 The same `milan_datapath` is what the Zynq variant, the Verilator harnesses
-(`tb/verilator/milan_dp`), the SoC sim (`milan_sim.py`) and the Yosys
+([`tb/verilator/milan_dp`](../../tb/verilator/milan_dp)), the SoC sim (`milan_sim.py`) and the Yosys
 portability check all build - one boundary, five consumers. Its port-level
 contract is [../integration/INTEGRATION_GUIDE.md](../integration/INTEGRATION_GUIDE.md).
 
@@ -184,7 +184,7 @@ parses every `cdc_pulse` / `cdc_handshake` / `cdc_pair_fifo` / `ptp_csr_sync`
 instantiation out of `hdl/**/*.sv` — taking each crossing's two clocks from the
 port map the RTL itself writes — and every `_axis_dp_cdc` /
 `AXILiteClockDomainCrossing` / `MultiReg` call site out of
-`sw/litex/milan_soc.py`. It **refuses to emit** if a primitive's clock ports
+[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py). It **refuses to emit** if a primitive's clock ports
 have moved, rather than drawing a `?`. The editable master is
 [`cdc_census.drawio`](../diagrams/cdc_census.drawio); regenerate with:
 
@@ -225,7 +225,7 @@ porting: [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §4.
 | ADP | ADP regs (0x600) | entity model programming | - |
 | RX filter | TCAM regs (0x700) | dest-MAC filtering | - |
 
-The device tree is **generated** per host by `sw/dts/milan_dt.py` from the
+The device tree is **generated** per host by [`sw/dts/milan_dt.py`](../../sw/dts/milan_dt.py) from the
 build's `csr.json` (LiteX) or the IR JSON (Zynq) - see
 [`sw/dts/README.md`](../../sw/dts/README.md). Driver-side contract and
 caveats: [`sw/driver/README.md`](../../sw/driver/README.md).
@@ -239,14 +239,14 @@ cover every RTL block through the whole `milan_datapath` wrapper; the **BDD
 conformance suite** (`cd tests && behave`) is the spec-facing counterpart —
 the Verilator suites prove the RTL does what it does, that proves it does what
 the standard says; Migen sims cover the DMA engines; `milan_sim.py` boots the
-SoC in Verilator; `syn/yosys` proves device portability (the `tops` list in
+SoC in Verilator; [`syn/yosys`](../../syn/yosys) proves device portability (the `tops` list in
 `run.sh` is authoritative; generic + ECP5); the legacy xsim TBs remain for
 waveform work; silicon procedures close the loop.
 
 Since 2026-07-26 **CI runs the RTL gates too** — the full Verilator sweep, the
 Yosys sweep and the conformance suite, with Verilator built from source at a
 pinned tag ([`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml)).
-`syn/yosys/run.sh` additionally fails on a **tied-off `milan_datapath` input**
+[`syn/yosys/run.sh`](../../syn/yosys/run.sh) additionally fails on a **tied-off `milan_datapath` input**
 with no justified-tie entry: that is the defect class where a green port-level
 testbench vouched for a cone silicon never drove (it is how RMON read zero for
 months).
@@ -255,15 +255,15 @@ months).
 
 | To change… | Edit… | Then… |
 |------------|-------|-------|
-| A register offset / new field | [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) offset block + decode | update [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) + add a check in `tb/verilator/csr/sim_main.cpp` (same commit) |
+| A register offset / new field | [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) offset block + decode | update [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) + add a check in [`tb/verilator/csr/sim_main.cpp`](../../tb/verilator/csr/sim_main.cpp) (same commit) |
 | Number of HW queues | `NUM_QUEUES` (milan_csr) + `NUMBER_OF_QUEUES` (`ethernet_packet_pkg.sv`) | re-run `csr`, `queues`, `shaper_core`, `cls`, `classifier`, `datapath` harnesses; ring/DMA queue count in `milan_soc.py`; the map itself is [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md) |
-| CBS default slopes | `CBS_*_RST` in `milan_csr.sv` **and** `IDLE_SLOPE_*`/`calc_*_credit` in `ethernet_packet_pkg.sv` | keep Σ idleSlope ≤ 75 % (`REQ-CBS-03`); re-run `tb/verilator/cbs`; remember the [reset-defaults shaping bug](../findings/CBS_DEFAULT_SHAPING_BUG.md) |
-| PCP→TC classification (**tagged** traffic only) | `traffic_class_map.sv` decode | re-run `tb/verilator/cls` |
-| Which queue a **control** protocol lands on | `CTRL_DMAC_TBL` in `traffic_class_map.sv` — one row per reserved destination MAC, **no EtherType precondition** (a BPDU has none) | re-run `tb/verilator/cls`, `tb/verilator/classifier`; the map itself is [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md) |
+| CBS default slopes | `CBS_*_RST` in `milan_csr.sv` **and** `IDLE_SLOPE_*`/`calc_*_credit` in `ethernet_packet_pkg.sv` | keep Σ idleSlope ≤ 75 % (`REQ-CBS-03`); re-run [`tb/verilator/cbs`](../../tb/verilator/cbs); remember the [reset-defaults shaping bug](../findings/CBS_DEFAULT_SHAPING_BUG.md) |
+| PCP→TC classification (**tagged** traffic only) | `traffic_class_map.sv` decode | re-run [`tb/verilator/cls`](../../tb/verilator/cls) |
+| Which queue a **control** protocol lands on | `CTRL_DMAC_TBL` in `traffic_class_map.sv` — one row per reserved destination MAC, **no EtherType precondition** (a BPDU has none) | re-run [`tb/verilator/cls`](../../tb/verilator/cls), [`tb/verilator/classifier`](../../tb/verilator/classifier); the map itself is [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md) |
 | PTP rate/offset | `timestamp_counter.sv` + `ptp_csr_sync.sv` | re-run `ptp`, `ptp_sync`; driver `ptp_clock_info` |
 | DMA/BD format | `milan_soc.py` engines | `sw/litex/test_*.py` sims + the driver in lockstep (see the [pairing hazards](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)) |
 | Add an IRQ source | `milan_csr` IRQ_STATUS/MASK (+ EventManager wiring in `milan_soc.py`, or `bd/milan-dma.tcl` `IRQ_F2P` on Zynq) | DT regeneration |
-| Board pins / new board | `sw/litex/platforms/` | [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) |
+| Board pins / new board | [`sw/litex/platforms/`](../../sw/litex/platforms) | [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) |
 
 **Conventions:** SystemVerilog with `` `default_nettype none ``,
 TerosHDL/Doxygen `//!` comments on every generic/port/signal, named

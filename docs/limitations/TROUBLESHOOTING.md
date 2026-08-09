@@ -286,13 +286,13 @@ pkill -x Vsim           # exact binary name  -  cannot match the shell
 `ERROR: Module '\axis_mux_rr_2in_1out' referenced in module '\ptp_ts_top' … is not
 part of the design`. The Verilator build of the same module had *not* complained.
 
-**Cause.** `ptp_ts_top` instantiates `axis_mux_rr_2in_1out` (in `hdl/common/`), which
+**Cause.** `ptp_ts_top` instantiates `axis_mux_rr_2in_1out` (in [`hdl/common/`](../../hdl/common)), which
 was missing from the explicit source list. **Verilator auto-resolves undefined modules
 from the directories of the input files** (so it silently found it), but **sv2v/Yosys
 only compile the files you list**  -  so the module was undefined there.
 
-**Fix.** Add the file explicitly to both flows (`syn/yosys/run.sh` top entry and the
-`tb/verilator/milan_dp` Makefile source list):
+**Fix.** Add the file explicitly to both flows ([`syn/yosys/run.sh`](../../syn/yosys/run.sh) top entry and the
+[`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) Makefile source list):
 ```
 hdl/common/axis_mux_rr_2in_1out.sv
 ```
@@ -363,7 +363,7 @@ still is not an identity — the harness fix below is unchanged in kind.)
 **Fix.** Program an **identity** classifier config in the harness so PCP `p` → prio
 `p` → TC `p` → queue `p` (`cls_prio_regen=0x00FAC688`, `cls_pcp_tc_map=0x00FAC688`,
 `cls_tc_queue_map=0x00004688` — 3 bits per entry at `NUMBER_OF_QUEUES = 5`, which is
-what `tb/verilator/datapath/sim_main.cpp` computes), then assert `tdest == pcp`. The
+what [`tb/verilator/datapath/sim_main.cpp`](../../tb/verilator/datapath/sim_main.cpp) computes), then assert `tdest == pcp`. The
 identity only holds for `p < 5`: TC5…TC7 name queues ≥ N and `traffic_class_map` clamps
 them to q0. This is also why the `milan_dp` harness programs the identity map over the
 CSR before the TX test.
@@ -531,7 +531,7 @@ as `ff:00:00:00:00:00` (only byte 0 survived, rest zero), and a full 64-byte fra
 
 **Not the cause (each eliminated).** DMA read (proven via `done`/`offset` on ROM+DRAM and an
 isolated Migen sim of the 64→32 converter); the datapath TX (byte-exact in
-`tb/verilator/datapath`, tkeep-preserving `traffic_queues.sv`); CBS (`CBS_CTRL[0]=0` is
+[`tb/verilator/datapath`](../../tb/verilator/datapath), tkeep-preserving `traffic_queues.sv`); CBS (`CBS_CTRL[0]=0` is
 *unshaped*, not starved); DMA `length` units (a separate bug  -  it's **bytes**, see
 [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md), so `length=8` sent one word).
 
@@ -671,13 +671,13 @@ out of any binary, so the image that actually boots is the image that gets check
 > The verdict does not die in the *parse*; it dies in the
 > stream **table** that tells the parser what to match. Two RTL layers combined:
 >
-> 1. `hdl/milan/milan_datapath.sv` `win_commit_glue` staged the window's
+> 1. [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) `win_commit_glue` staged the window's
 >    `SID_LO`/`SID_HI` in **one global register pair shared by every index**. Its
 >    commit guard asked *"is some sid staged?"*, never *"was a sid staged for THIS
 >    index?"* — so a route-flags-only `CTRL` write at idx 0 armed entry 0 with
 >    **whatever other listener staged a sid earlier**. A second term
 >    (`| ~csr_lctx_wr_data_w[0]`) let an `en=0` write through unconditionally.
-> 2. `hdl/ieee1722/avtp/KL_stream_table.sv` set `ovr_armed_r[idx]` on **any** write
+> 2. [`hdl/ieee1722/avtp/KL_stream_table.sv`](../../hdl/ieee1722/avtp/KL_stream_table.sv) set `ovr_armed_r[idx]` on **any** write
 >    and cleared it **only on reset**. Once idx 0 was armed, entry 0 permanently
 >    stopped aliasing the ACMP bound record — **there was no runtime path back**.
 >
@@ -690,8 +690,8 @@ out of any binary, so the image that actually boots is the image that gets check
 > **Fix (`VERSION 0x0001_000F`):** staging is tagged with the index it was staged
 > for, and `{en=0, sid=0}` became **RELEASE-TO-ALIAS**, disarming the override so
 > entry 0 returns to the ACMP record at runtime. Regression guards:
-> `tb/verilator/milan_dp/sim_nxn.cpp` TRAP-1 (N=4 and N=8, through the real CSR
-> window) and `tb/verilator/avtp_parser/sim_tbl.cpp` T6 (table level, from reset),
+> [`tb/verilator/milan_dp/sim_nxn.cpp`](../../tb/verilator/milan_dp/sim_nxn.cpp) TRAP-1 (N=4 and N=8, through the real CSR
+> window) and [`tb/verilator/avtp_parser/sim_tbl.cpp`](../../tb/verilator/avtp_parser/sim_tbl.cpp) T6 (table level, from reset),
 > both including negative legs.
 >
 > **CONFIRMED ON SILICON 2026-07-26**, on the AX 8x8 board still running the
@@ -776,7 +776,7 @@ not in ACMP.
 
 **What is ruled out.**
 
-- *The RTL accept path.* `tb/verilator/milan_dp` builds the N=8 shape and proves streams 3..7
+- *The RTL accept path.* [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) builds the N=8 shape and proves streams 3..7
   provisioned simultaneously, each landing on the PCM ring with byte-exact payload and
   isolated counters. Sim accepts; silicon does not.
 - *A source regression.* No RX-path source change separates the built commit from the current

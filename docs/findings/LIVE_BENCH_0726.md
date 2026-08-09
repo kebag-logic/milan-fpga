@@ -211,7 +211,7 @@ localise any real inflation to the wire rather than the counter.
   else below.
 * **The Arty's netdev reports `speed = -1`** while its own `MAC_STATUS` reads
   100 Mb/s correctly (`[2:1] = 01`). That is exactly the `REQ-MAC-03` gap: the
-  CSR now derives `is_1g` from the real speed, but `sw/litex` still ties the
+  CSR now derives `is_1g` from the real speed, but [`sw/litex`](../../sw/litex) still ties the
   link/speed inputs to constants and nothing populates the driver's view. The
   fix for the CSR half landed this round; the SoC-glue half did not.
 

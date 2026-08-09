@@ -3,7 +3,7 @@
 Status: 2026-07-12 (rev 2 — USER DIRECTIVE: **everything goes FPGA; use
 lwSRP**. The media plane, SRP and ACMP connections move to fabric; PipeWire
 is out of the plan of record. The softcore keeps provisioning, gPTP protocol
-(linuxptp), the PCM producer and ops.) Diagram: `hdl/ieee17221/aecp/doc/atdecc_architecture.drawio` page
+(linuxptp), the PCM producer and ops.) Diagram: [`hdl/ieee17221/aecp/doc/atdecc_architecture.drawio`](../hdl/ieee17221/aecp/doc/atdecc_architecture.drawio) page
 `9-hw-sw-split` (rendered PNG alongside). This document is the normative
 delimitation; the diagram mirrors it.
 
@@ -60,11 +60,11 @@ the framer, the reservation gate and connection liveness are fabric work.
 | kl-eth PHC (`/dev/ptpN`) + SO_TIMESTAMPING | softcore | silicon | exposes the fabric counter/timestamps to linuxptp; HW-ts green zero-overrides |
 | gPTP protocol (BMCA, servo, pdelay) | softcore | present, silicon-validated | linuxptp ptp4l + phc2sys in the rootfs; the PHC is real; media-clock MMCM-DRP servo silicon-proven (−83.9 dB) |
 | gPTP → entity bridge (GM id/domain into CSR 0x624/0x628 on change) | softcore | present | `gptp2csr.sh` daemon publishes GM id/domain (0x624/0x628) on change; fabric already has gm_change → re-advertise + index bump + AS_PATH/AVB_INFO truth |
-| **lwSRP** — lightweight SRP in fabric (MSRP Talker Advertise TX, Listener Ready RX, MVRP VLAN reg, ≤75 % SR-class bandwidth gate) | **fabric** | silicon | RTL (`hdl/ieee8021q/srp/`, 11 modules, CSR 0x680) + harness, silicon-validated; the grant drives the CBS idleSlope and GATES tx (FR-SRP-03) |
+| **lwSRP** — lightweight SRP in fabric (MSRP Talker Advertise TX, Listener Ready RX, MVRP VLAN reg, ≤75 % SR-class bandwidth gate) | **fabric** | silicon | RTL ([`hdl/ieee8021q/srp/`](../hdl/ieee8021q/srp), 11 modules, CSR 0x680) + harness, silicon-validated; the grant drives the CBS idleSlope and GATES tx (FR-SRP-03) |
 | MAAP (multicast MAC allocation) | **fabric** | silicon | `KL_maap` probe/defend/announce, silicon-proven (CSR 0x6CC-0x6D4) |
 | **AAF framer** (AVTP talker payloads) | **fabric** | silicon | PCM via a DMA audio ring -> fabric packetizer stamps presentation time from the PTP counter -> class-A CBS queue; zero per-frame CPU; RTL + harness, silicon-validated |
 | PCM producer (fills the audio ring, ms-cadence) | softcore | present (ALSA record) | any Linux source (ALSA app, test tone); ALSA record byte-exact on silicon (playback scaffold pending); PipeWire optional as a source, NOT in the datapath |
-| Identity provisioning (0x600 group, caps 0x8588) | softcore | silicon | once per boot (avdecc/aecp_csr_setup.sh); after that the fabric is autonomous |
+| Identity provisioning (0x600 group, caps 0x8588) | softcore | silicon | once per boot ([avdecc/aecp_csr_setup.sh](../avdecc/aecp_csr_setup.sh)); after that the fabric is autonomous |
 
 ## Boundary contracts (the only crossings)
 

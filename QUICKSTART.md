@@ -9,7 +9,7 @@ git clone https://github.com/kebag-logic/milan-fpga && cd milan-fpga
 git submodule update --init third_party/verilog-axis     # NOT optional — see §0
 ```
 
-> **§0 — the one thing people get wrong.** `third_party/verilog-axis` is a git
+> **§0 — the one thing people get wrong.** [`third_party/verilog-axis`](third_party/verilog-axis) is a git
 > submodule (anonymous HTTPS, no account needed). Several testbenches and most of
 > the datapath will **not build without it**, and a GitHub *"Download ZIP"* does
 > not contain it.
@@ -24,7 +24,7 @@ git submodule update --init third_party/verilog-axis     # NOT optional — see 
 >
 > The exact revision this repo pins is recorded in its git tree
 > (`git ls-tree HEAD third_party/verilog-axis`); `git checkout <that sha>` inside
-> `third_party/verilog-axis` if you want to match it exactly.
+> [`third_party/verilog-axis`](third_party/verilog-axis) if you want to match it exactly.
 >
 > The repo's *other* submodule, `external`, is **SSH-only and not needed** for
 > anything on this page — leave it uninitialised.
@@ -35,7 +35,7 @@ git submodule update --init third_party/verilog-axis     # NOT optional — see 
 
 - **[1. Pick a track](#1-pick-a-track)** — Four rows: what each track gets you, what it costs to install, and which ones need something proprietary. Tracks 1 and 2 are the verified content on this page; 3 and 4 are maps, not recipes.
 - **[2. Track 1 — simulate (no FPGA, no vendor tools)](#2-track-1--simulate-no-fpga-no-vendor-tools)** — The whole no-hardware path: seven packages measured against a bare container, the three pure-Python gates, and a cold-build table from `tcam` (~5 s) to `milan_dp` (~85 s). Read the Verilator floor first — 5.020 cannot build the datapath harnesses at all and 5.032 fails six `aecp` checks.
-- **[3. Track 2 — device portability, still no vendor tools](#3-track-2--device-portability-still-no-vendor-tools)** — Two `make` targets in `syn/yosys` that end in `tops: 47 pass: 47 fail: 0` — the machine proof that no Xilinx primitive survives, plus a real ECP5 mapping. Includes the `sv2v` install, which is the step people get stuck on.
+- **[3. Track 2 — device portability, still no vendor tools](#3-track-2--device-portability-still-no-vendor-tools)** — Two `make` targets in [`syn/yosys`](syn/yosys) that end in `tops: 47 pass: 47 fail: 0` — the machine proof that no Xilinx primitive survives, plus a real ECP5 mapping. Includes the `sv2v` install, which is the step people get stuck on.
 - **[4. What works with no board at all](#4-what-works-with-no-board-at-all)** — A capability table for readers who will never buy an FPGA. Everything upstream of place & route is open; place & route on Artix-7 is the one genuinely closed step.
 - **[5. One command: the container](#5-one-command-the-container)** — `Containerfile.dev` pinned to the measured package set. The repo is bind-mounted rather than copied, so your edits are what the four gates actually test.
 - **[6. Track 3 — build a bitstream (Vivado)](#6-track-3--build-a-bitstream-vivado)** — Not re-verified while writing the page. The four extra prerequisites and why each is there — the RISC-V core is *generated* from Scala at build time — and the `import litex` namespace-package trap that catches everybody once.
@@ -122,7 +122,7 @@ Details and the Verible comparison: [`docs/testing/TESTING.md`](docs/testing/TES
 
 ### 2.3 The Verilator testbenches
 
-One directory per suite under `tb/verilator/`; each is self-checking and exits
+One directory per suite under [`tb/verilator/`](tb/verilator); each is self-checking and exits
 non-zero on failure. **`ls tb/verilator/` is the authoritative suite list** — any
 count written in prose goes stale.
 
@@ -159,7 +159,7 @@ The test taxonomy across all layers: [`docs/testing/TESTING.md`](docs/testing/TE
 ### 2.4 If a testbench cannot find a module
 
 This exact shape means §0 — the submodule is not checked out (verified by
-deleting it and re-running `tb/verilator/milan_dp`):
+deleting it and re-running [`tb/verilator/milan_dp`](tb/verilator/milan_dp)):
 
 ```
 %Error: Cannot find file containing module: '../../../third_party/verilog-axis/rtl/axis_fifo.v'
@@ -229,7 +229,7 @@ needs a vendor licence:
 | Generate a whole end-station (AEM descriptors, SV headers, build plan) from a YAML declaration | `python3 sw/builder/endstation_builder.py configs/endstation_arty_4x4.yaml` · [`docs/ENDSTATION_BUILDER.md`](docs/ENDSTATION_BUILDER.md) | python, pyyaml |
 | Read the register ABI and write driver code against it | [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md), asserted by the `csr` suite | nothing |
 | Check the spec↔module↔test coverage of every clause | [`docs/SPEC_TRACEABILITY.md`](docs/SPEC_TRACEABILITY.md), [`docs/traceability/MODULE_MATRIX.md`](docs/traceability/MODULE_MATRIX.md) | nothing |
-| Simulate the softcore booting with the NIC attached (sim DUT) | `sw/litex/milan_sim.py` — **needs the LiteX stack + a JVM**, see [§6](#6-track-3--build-a-bitstream-vivado) | migen/litex, JDK |
+| Simulate the softcore booting with the NIC attached (sim DUT) | [`sw/litex/milan_sim.py`](sw/litex/milan_sim.py) — **needs the LiteX stack + a JVM**, see [§6](#6-track-3--build-a-bitstream-vivado) | migen/litex, JDK |
 
 What you **cannot** do without proprietary tools: place & route (`.bit`
 generation) is Vivado-only. There is no open bitstream flow for Artix-7 in this

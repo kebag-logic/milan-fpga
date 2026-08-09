@@ -87,15 +87,15 @@ left a witness — which is exactly what the fix changes.
    >= 2 periods.
 
 ## Gates
-- `tb/verilator/adp`: 246 checks PASS — new cases: cmd-depart, dormancy
+- [`tb/verilator/adp`](../../tb/verilator/adp): 246 checks PASS — new cases: cmd-depart, dormancy
   self-re-arm (2 ticks -> AVAILABLE + rearm_cnt), periodic resumes after heal,
   re-arm gated by link level (departed-link-down stays silent) and by enable
   (disabled stays silent, re-enable self-heals), DIAG counts/src.
-- `tb/verilator/milan_dp`: 43 checks PASS — CSR-level depart witness
+- [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp): 43 checks PASS — CSR-level depart witness
   (DEPARTING frame on the MAC + DIAG 0x00020001), dormant-silent, and the
   exact bench recovery (enable toggle) re-advertising without a new depart
   count.
-- `tb/verilator/cls`: the randomized classifier reference model was missing
+- [`tb/verilator/cls`](../../tb/verilator/cls): the randomized classifier reference model was missing
   the 2026-07-13 gPTP fast-path (0x88F7 -> GPTP_CLASS in PCP mode too) — 7.5 %
   of 200 k random frames mismatched; taught + 200024 checks PASS. (Latent gap
   from the fast-path commit, caught by this regression sweep.)

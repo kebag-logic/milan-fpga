@@ -150,7 +150,7 @@ across BUILDING / LITEX_SOC / QSPI_FLASHBOOT / BENCH_TOPOLOGY). Editable
 
 | Document | Purpose |
 |----------|---------|
-| [LITEX_SOC.md](litex/LITEX_SOC.md) | **`sw/litex/` in depth**: `milan_soc.py` anatomy (CRG, datapath attach, ring-DMA, MAC, flash-boot), the VexiiRiscv/NaxRiscv choice, the mandatory flags, patches, version pins, sims and tools. |
+| [LITEX_SOC.md](litex/LITEX_SOC.md) | **[`sw/litex/`](../sw/litex) in depth**: `milan_soc.py` anatomy (CRG, datapath attach, ring-DMA, MAC, flash-boot), the VexiiRiscv/NaxRiscv choice, the mandatory flags, patches, version pins, sims and tools. |
 
 Plus the in-tree quickrefs: [`../sw/README.md`](../sw/README.md) (build/boot
 walkthrough), [`../sw/litex/patches/README.md`](../sw/litex/patches/README.md),
@@ -178,12 +178,12 @@ walkthrough), [`../sw/litex/patches/README.md`](../sw/litex/patches/README.md),
 | [RUNNING_TESTS.md](testing/RUNNING_TESTS.md) | The all-layers walkthrough (elaboration smoke test → Migen sims → harnesses → board). |
 | [SIMULATION.md](testing/SIMULATION.md) | The three simulation layers in detail (RTL harnesses, softcore boot, softcore+NIC M-A2). |
 | [PROTOCOL_VALIDATION_MATRIX.md](testing/PROTOCOL_VALIDATION_MATRIX.md) | Every protocol × where implemented × the test that validates it. |
-| [TORTURE_CAMPAIGN.md](testing/TORTURE_CAMPAIGN.md) | **The standing torture / compliance campaign**: one entry point (`tb/tools/torture_campaign.py`), every stream combination, payload/counter/licence graders. Triage records: [CAMPAIGN_RV32F_TRIAGE.md](testing/CAMPAIGN_RV32F_TRIAGE.md) · [CAMPAIGN_RV32G_TRIAGE.md](testing/CAMPAIGN_RV32G_TRIAGE.md). |
+| [TORTURE_CAMPAIGN.md](testing/TORTURE_CAMPAIGN.md) | **The standing torture / compliance campaign**: one entry point ([`tb/tools/torture_campaign.py`](../tb/tools/torture_campaign.py)), every stream combination, payload/counter/licence graders. Triage records: [CAMPAIGN_RV32F_TRIAGE.md](testing/CAMPAIGN_RV32F_TRIAGE.md) · [CAMPAIGN_RV32G_TRIAGE.md](testing/CAMPAIGN_RV32G_TRIAGE.md). |
 | [MILAN_COMPLIANCE_MATRIX.md](testing/MILAN_COMPLIANCE_MATRIX.md) | The clause-by-clause work list of the compliance-extension round (counters + notifications first); pairs with [MILAN_COMPLIANCE_GAPS.md](MILAN_COMPLIANCE_GAPS.md). |
 | **Virtual E2E (boardless) tier** | [VIRTUAL_E2E_HOWTO.md](testing/VIRTUAL_E2E_HOWTO.md) (the copy-paste operator guide) → [VIRTUAL_E2E_QEMU.md](testing/VIRTUAL_E2E_QEMU.md) (the executable roadmap T0–T6) → [VIRTUAL_E2E_TEST_PROCEDURE.md](testing/VIRTUAL_E2E_TEST_PROCEDURE.md) (what PASS/FAIL/BLOCKED mean + the recorded runs) → [TRUE_E2E_REQUIREMENTS.md](testing/TRUE_E2E_REQUIREMENTS.md) (stable requirement IDs) → [VIRTUAL_SWITCH_RESEARCH.md](testing/VIRTUAL_SWITCH_RESEARCH.md) (the AVB-aware virtual wire decision) → [VIRTUAL_E2E_PLAN.md](testing/VIRTUAL_E2E_PLAN.md) (the original proposal) · env inventory: [../tooling/virtual-e2e-env.md](tooling/virtual-e2e-env.md) · evidence: `testing/evidence/` |
 | [PDU_GETTER_SETTER_VERIFICATION.md](testing/PDU_GETTER_SETTER_VERIFICATION.md) | Roadmap item 10 decomposed: one verification per AVDECC command, by PDU family and fixture class. |
 | [PROTOCOL_SWEEP_PLAN.md](testing/PROTOCOL_SWEEP_PLAN.md) | Full protocol sweep plan: every mandatory command and state machine, verified per clause. |
-| [`../harness/README.md`](../harness/README.md) | The **unattended campaign harness** (`harness/run.sh`): eight phases, days-long runs, JSONL + `STATUS` + heartbeat + resume, safety rails, the 3am operator page, and an explicit proven-vs-inferred split. |
+| [`../harness/README.md`](../harness/README.md) | The **unattended campaign harness** ([`harness/run.sh`](../harness/run.sh)): eight phases, days-long runs, JSONL + `STATUS` + heartbeat + resume, safety rails, the 3am operator page, and an explicit proven-vs-inferred split. |
 | [`../tb/verilator/README.md`](../tb/verilator/README.md) | The self-checking harnesses (one dir per suite; `ls tb/verilator/` is authoritative), suite by suite. |
 | [`../syn/yosys/README.md`](../syn/yosys/README.md) | The device-portability check (the `run.sh` `tops` array is authoritative; generic + ECP5). |
 

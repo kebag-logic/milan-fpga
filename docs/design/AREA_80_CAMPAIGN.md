@@ -48,7 +48,7 @@ order, from the measured hierarchy): `KL_aecp_response_builder` 5.7k (the
 whale; already RAM-dieted once — the remaining mass is emit-engine source
 selection and the batch rlen tables), `lwsrp` walker 2.6k, `milan_csr`
 write-decode ~1–1.5k of its 4.5k (readback is ALREADY BRAM — `shadow_ram
-[0:511]`, `milan_csr.sv:1546` — so the naive "move CSR to BRAM" is done;
+[0:511]`, [`milan_csr.sv:1546`](../../hdl/common/csr/milan_csr.sv#L1546) — so the naive "move CSR to BRAM" is done;
 what remains is decode sharing), depacketizer `frame_fifo` 1.2k (un-folded
 by the rxq2 dynamic keep path — worth one focused look), and the
 rxq2-sans-RSC SoC split (+4.3k went in with rx_queues 2; the D7 fix needs
@@ -61,7 +61,7 @@ The AECP-to-software lane was started on the USER's instruction and STOPPED
 the same evening on the USER's instruction, before any fabric change landed.
 The 6.2k-LUT lever is OFF the table; the latency table below remains as the
 *analysis* record, not a plan. What the lane produced stays PARKED and
-harmless: `avdecc/pack_aem_bin.py` and `milan-tests-avb/fpga/aecpd/` (a
+harmless: [`avdecc/pack_aem_bin.py`](../../avdecc/pack_aem_bin.py) and `milan-tests-avb/fpga/aecpd/` (a
 byte-exact, 283-check desk-proven software responder skeleton - never
 packaged, never deployed, no fabric hook). The fit path is therefore the
 m0019f reference flow (L2-32K + `AreaOptimized_high` + `ExploreArea`) plus

@@ -6,7 +6,7 @@ running entirely from QSPI flash on power-up.
 
 > **STATUS SUPERSEDED (media clock):** the free-running media-clock caveats
 > below are a MILESTONE RECORD. The media clock is now recovered in silicon by
-> the MMCM-DRP servo (`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv`, MCSRV CSR
+> the MMCM-DRP servo ([`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv`](../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv), MCSRV CSR
 > `0x8F8`/`0x8FC`): coherent CS4344+CS5343 chain, analog loop measured
 > **-83.9 dB** (the converter floor). Read this doc as the flash-standalone MVP
 > talker milestone; the AAF frame/CSR content below is unchanged and accurate.
@@ -78,7 +78,7 @@ enable, AAF_CTRL enable. Fully autonomous after boot.
 
 ## Verification
 
-- tb/verilator/aaf: 19/19 byte-exact frame (header, payload, seq, timestamp).
+- [tb/verilator/aaf](../tb/verilator/aaf): 19/19 byte-exact frame (header, payload, seq, timestamp).
 - milan_dp: 26/26 (talker integrated, no datapath regression).
 - **Silicon (arty_v10/eppo, WNS +0.258, flashed 2026-07-12): ALL GATES PASS.**
   Counters: 8.1k frames/s + 48.9k pairs/s (exact design cadence). At the peer:

@@ -12,7 +12,11 @@ so an extracted tarball or a downloaded zip can run the same gate CI runs.
 Checks, over every ``*.md`` file in the tree:
 
 1. **Link integrity** — every relative markdown link/image target resolves to
-   a file or directory in the tree (http/mailto/anchor-only links skipped).
+   a file or directory in the tree (http/mailto/anchor-only links skipped), and
+   a ``#L123`` / ``#L123-L456`` line anchor names a line the target file still
+   has. Documentation cites RTL by line, RTL files grow by hundreds of lines
+   between rounds, and an anchor past EOF drops the reader at the bottom of a
+   file with no hint that the citation is stale.
 2. **Wording deny-list** — terms that must not appear in committed docs.
    Legitimate identifiers containing a denied stem are masked (``ALLOW``).
 3. **Bare doc references** — a mention of an existing ``.md`` file that is not
@@ -247,6 +251,30 @@ def dead_inside_repo(ref, filedir, tracked_set):
     return None
 
 
+LINE_ANCHOR_RE = re.compile(r"^L(\d+)(?:-L(\d+))?$")
+
+
+def anchor_overruns(resolved, frag):
+    """Why a ``#L123`` anchor cannot land, or None when it can.
+
+    A citation like ``KL_acmp_lstn_ctx.sv:463`` is only useful as a link if the
+    file still HAS a line 463 - and RTL files in this tree grow by hundreds of
+    lines between documentation rounds. This catches the mechanical half of
+    that rot; the half where the line exists but no longer holds what the row
+    claims is not machine-checkable, which is why the traceability pages carry
+    a snapshot date and say the anchors drift.
+    """
+    m = LINE_ANCHOR_RE.match(frag)
+    if not m or not resolved.is_file():
+        return None
+    try:
+        n = len(resolved.read_bytes().split(b"\n"))
+    except OSError:
+        return None
+    top = int(m.group(2) or m.group(1))
+    return f"file has {n} lines" if top > n else None
+
+
 def check_md(path, relpath, resolve, tracked_set):
     findings = []
     try:
@@ -285,17 +313,22 @@ def check_md(path, relpath, resolve, tracked_set):
                 in_comment = False
             continue
 
-        # --- link integrity ---
+        # --- link integrity (target, then line anchor) ---
         for lk in LINK_RE.finditer(line):
             target = lk.group(1)
             if target.startswith(("http://", "https://", "mailto:", "#")):
                 continue
-            target = target.split("#", 1)[0]
+            target, _, frag = target.partition("#")
             if not target:
                 continue
             resolved = (path.parent / target).resolve()
             if not resolved.exists():
                 findings.append(f"{relpath}:{lineno}: broken link -> {target}")
+                continue
+            over = anchor_overruns(resolved, frag)
+            if over:
+                findings.append(f"{relpath}:{lineno}: line anchor past end of "
+                                f"file -> {target}#{frag} ({over})")
 
         # --- bare + dead doc references (living, non-generated files only) ---
         if generated or historical:

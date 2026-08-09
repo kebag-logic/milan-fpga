@@ -90,7 +90,7 @@ Companion documents:
 
 | Plane | Protocols | Where |
 |-------|-----------|-------|
-| **Media transport** | AVTP (IEEE 1722) AAF / CRF, 48/96/192 kHz | **in fabric** (AAF packetizer/depacketizer + CRF + media-clock servo, `hdl/ieee1722/`, silicon-validated) |
+| **Media transport** | AVTP (IEEE 1722) AAF / CRF, 48/96/192 kHz | **in fabric** (AAF packetizer/depacketizer + CRF + media-clock servo, [`hdl/ieee1722/`](../../hdl/ieee1722), silicon-validated) |
 | **Control / AVDECC** | ADP, AECP/AEM, ACMP, MVU (Milan)  -  IEEE 1722.1-2021 + Milan v1.2 | **in fabric** (ADP/AECP/ACMP/MAAP, silicon-validated; per ARCHITECTURE_HW_SW_SPLIT rev 2) |
 | **Reservation** | SRP / MSRP / MVRP (802.1Q) | **lwSRP in fabric** (silicon-validated) + HW TCAM filter |
 | **Timing** | gPTP / 802.1AS, PTP hardware clock | HW PHC + timestamping, SW `ptp4l` |
@@ -107,19 +107,19 @@ the entity model under `avdecc/`.
 
 | Layer | State | Evidence |
 |-------|-------|----------|
-| TSN datapath RTL (classify/CBS/PTP/filter/ADP) | ✅ complete + verified | all Verilator harnesses green + the Yosys tops (`ls tb/verilator/` and the `tops` list in `syn/yosys/run.sh` are the authoritative counts) |
-| `milan_datapath` §A.9 PS-less wrapper | ✅ complete + verified | `tb/verilator/milan_dp` (11 checks); Yosys |
-| VexiiRiscv SoC (CPU + CSR + IRQ) | ✅ boots Linux **on silicon** (RV64IMA/sv39; NaxRiscv also boots in sim) | `deploy.sh`; `sw/litex/evidence/naxriscv_sim_boot.log` |
+| TSN datapath RTL (classify/CBS/PTP/filter/ADP) | ✅ complete + verified | all Verilator harnesses green + the Yosys tops (`ls tb/verilator/` and the `tops` list in [`syn/yosys/run.sh`](../../syn/yosys/run.sh) are the authoritative counts) |
+| `milan_datapath` §A.9 PS-less wrapper | ✅ complete + verified | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) (11 checks); Yosys |
+| VexiiRiscv SoC (CPU + CSR + IRQ) | ✅ boots Linux **on silicon** (RV64IMA/sv39; NaxRiscv also boots in sim) | `deploy.sh`; [`sw/litex/evidence/naxriscv_sim_boot.log`](../../sw/litex/evidence/naxriscv_sim_boot.log) |
 | **CPU reads NIC ID="MILN" (M-A2)** | ✅ **on silicon** (25 MHz + 100 MHz) | `sw/litex/evidence/hw_*_MILN*.log` |
 | **DDR3-800 memtest (M-A1)** | ✅ **on silicon** (100 MHz via datapath CDC) | `evidence/hw_ddr3_800_cdc_100mhz.log` |
 | §A.6 DMA (AXIS↔memory, simple-mode CSRs) | ✅ DMA-TX + AXIS-CDC verified on silicon (M-A3 half) | `evidence/hw_ma3_dma_datapath_100mhz.md` |
 | §A.7 MAC + PHY (LiteEth **GMII**  -  AX7101 is GMII, not RGMII) | ✅ **on silicon**  -  correct frames both directions (M-A3) | `milan_soc.py --all-blocks`; TROUBLESHOOTING §17; [`kl-eth-tx-debug.md`](../findings/kl-eth-tx-debug.md) |
 | **Full SoC (`--all-blocks`: NIC+DMA+MAC+DDR3 @100 MHz)** | ✅ boots Linux on silicon | `deploy.sh` |
-| HW ADP advertiser | ✅ complete + verified | `tb/verilator/adp` (121 checks) |
-| AVDECC in fabric (ADP/AECP/ACMP/MAAP + MVU) | ✅ **in fabric, silicon-validated** | RTL in `hdl/ieee17221/` + `hdl/ieee1722/maap/` (per [`ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2); entity model in `avdecc/`, design record [`docs/design/AEM_AND_AECP.md`](../design/AEM_AND_AECP.md); per-command glyphs live in the validation matrix |
+| HW ADP advertiser | ✅ complete + verified | [`tb/verilator/adp`](../../tb/verilator/adp) (121 checks) |
+| AVDECC in fabric (ADP/AECP/ACMP/MAAP + MVU) | ✅ **in fabric, silicon-validated** | RTL in [`hdl/ieee17221/`](../../hdl/ieee17221) + [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap) (per [`ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2); entity model in `avdecc/`, design record [`docs/design/AEM_AND_AECP.md`](../design/AEM_AND_AECP.md); per-command glyphs live in the validation matrix |
 | Linux driver (kl-eth) | ✅ **on silicon**  -  ping/iperf/CBS + ring DMA (M-A5) | [`RX_RING_DMA.md` (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md), [`AVB_SWITCH_DIRECTION.md`](AVB_SWITCH_DIRECTION.md) |
 | Artix-7 bitstream + board bring-up | ✅ built + running on the AX7101 | `deploy.sh`, [`QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md) |
-| lwSRP (MSRP/MVRP) + AAF/CRF media datapath | ✅ **in fabric, silicon-validated** | `hdl/ieee8021q/srp/`, `hdl/ieee1722/aaf/`+`crf/` (per rev 2); per-clause glyphs live in the validation matrix |
+| lwSRP (MSRP/MVRP) + AAF/CRF media datapath | ✅ **in fabric, silicon-validated** | [`hdl/ieee8021q/srp/`](../../hdl/ieee8021q/srp), [`hdl/ieee1722/aaf/`](../../hdl/ieee1722/aaf)+`crf/` (per rev 2); per-clause glyphs live in the validation matrix |
 
 ---
 
@@ -243,13 +243,13 @@ sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-eth
 
 | To add… | Do this |
 |---------|---------|
-| a new CSR register | add it in `hdl/common/csr/milan_csr.sv` (write-case + read-mux + reset), extend `tb/verilator/csr`, document in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) (the harness asserts they agree) |
-| a new datapath stage | insert into `milan_datapath.sv` between the existing AXIS hops; add a `tb/verilator/*` harness; add it to `syn/yosys/run.sh` |
+| a new CSR register | add it in [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) (write-case + read-mux + reset), extend [`tb/verilator/csr`](../../tb/verilator/csr), document in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) (the harness asserts they agree) |
+| a new datapath stage | insert into `milan_datapath.sv` between the existing AXIS hops; add a `tb/verilator/*` harness; add it to [`syn/yosys/run.sh`](../../syn/yosys/run.sh) |
 | a new AXIS core on the CPU | follow the 3-plane pattern in [`AXIS_CORES_ON_NAXRISCV.md`](../integration/AXIS_CORES_ON_NAXRISCV.md) |
 | the LiteDRAM controller | add a `ddram` pad group to `platforms/alinx_ax7101.py` (needs the AX7101 DDR3 pinout) + `A7DDRPHY`/`MT41J256M16` in `_CRG`/`MilanSoC` (migration §A.3) |
 | link/speed status (MDIO) | drive `i_i_mac_speed`/`i_i_link_up` from the LiteEth PHY status / a fabric MDIO master (§A.7 refine) |
 | scatter-gather DMA | replace `MilanDMA`'s simple-mode engines with a descriptor-ring DMA (Option 6b) + rework the driver rings |
-| an AVDECC protocol behavior (AECP/ACMP/MAAP) | extend the fabric engines (`hdl/ieee17221/`, `hdl/ieee1722/maap/`) + their harnesses; the entity model (`avdecc/milan-v12-entity.json`) and [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) stay the contract |
+| an AVDECC protocol behavior (AECP/ACMP/MAAP) | extend the fabric engines ([`hdl/ieee17221/`](../../hdl/ieee17221), [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap)) + their harnesses; the entity model ([`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json)) and [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) stay the contract |
 
 ## 8. The CSR / DMA / IRQ ABI (medium level)
 
@@ -298,7 +298,7 @@ Kept here as the historical order, each item marked with its result.
    ([`RX_RING_DMA.md` (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md), [`AVB_SWITCH_DIRECTION.md`](AVB_SWITCH_DIRECTION.md)). **M-A5 = "Milan on FPGA" closed.**
 7. **AVDECC protocols**  -  ✅ **DONE, in fabric.** AECP/AEM enumeration, ACMP, MAAP,
    MVU, lwSRP (MSRP/MVRP) and the AAF/CRF media datapath are all silicon-validated RTL
-   (`hdl/ieee17221/`, `hdl/ieee1722/`, `hdl/ieee8021q/srp/`). Each row in the
+   ([`hdl/ieee17221/`](../../hdl/ieee17221), [`hdl/ieee1722/`](../../hdl/ieee1722), [`hdl/ieee8021q/srp/`](../../hdl/ieee8021q/srp)). Each row in the
    [`PROTOCOL_VALIDATION_MATRIX.md`](../testing/PROTOCOL_VALIDATION_MATRIX.md) names its test.
 
 The full SoC builds, boots Linux, passes traffic, and runs the Milan control + media

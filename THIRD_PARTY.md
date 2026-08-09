@@ -7,15 +7,15 @@ AVB/Ethernet submodule at the repo root). See the de-Xilinx plan in
 | Submodule | Upstream | License | Pinned commit | Used by |
 |-----------|----------|---------|---------------|---------|
 | `external` | [github.com/kebag-logic/fpga-avb-ethernet](https://github.com/kebag-logic/fpga-avb-ethernet) | see submodule | `efeb541` | AVB/Ethernet MAC + PHY RTL for the datapath (`eth_mac_1g` family); vendored, no longer "assumed present at synth time". |
-| `third_party/verilog-axis` | [github.com/alexforencich/verilog-axis](https://github.com/alexforencich/verilog-axis) | MIT | `48ff7a7` | `axis_fifo` → `traffic_classifier`, `ptp_ts_top` (replacing `xpm_fifo_axis`, T1.2). `axis_demux`/`axis_arb_mux` planned for T1.3. |
+| [`third_party/verilog-axis`](third_party/verilog-axis) | [github.com/alexforencich/verilog-axis](https://github.com/alexforencich/verilog-axis) | MIT | `48ff7a7` | `axis_fifo` → `traffic_classifier`, `ptp_ts_top` (replacing `xpm_fifo_axis`, T1.2). `axis_demux`/`axis_arb_mux` planned for T1.3. |
 
 ## Generated third-party C (not a submodule)
 
 | Path | Upstream | License | How it got there |
 |------|----------|---------|------------------|
-| `sw/trace/generated/barectf.[ch]`, `barectf-bitfield.h` | [barectf](https://barectf.org/) 3.1.2 | MIT (header in each file) | **Generated**, not copied: `barectf generate` over [`sw/trace/milan_trace.yaml`](sw/trace/milan_trace.yaml). Checked in so the repo gate runs without barectf installed; `sw/trace/test_trace_roundtrip.py` gate 2 re-generates and byte-diffs when barectf *is* importable. Regeneration recipe: [`sw/trace/README.md`](sw/trace/README.md). |
+| `sw/trace/generated/barectf.[ch]`, `barectf-bitfield.h` | [barectf](https://barectf.org/) 3.1.2 | MIT (header in each file) | **Generated**, not copied: `barectf generate` over [`sw/trace/milan_trace.yaml`](sw/trace/milan_trace.yaml). Checked in so the repo gate runs without barectf installed; [`sw/trace/test_trace_roundtrip.py`](sw/trace/test_trace_roundtrip.py) gate 2 re-generates and byte-diffs when barectf *is* importable. Regeneration recipe: [`sw/trace/README.md`](sw/trace/README.md). |
 
-`sw/trace/generated/metadata` is the CTF 1.8 trace description barectf emits from
+[`sw/trace/generated/metadata`](sw/trace/generated/metadata) is the CTF 1.8 trace description barectf emits from
 the same input; it carries the same MIT header and is the decode ABI shipped with
 every trace.
 

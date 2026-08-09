@@ -3,8 +3,8 @@
 *Found 2026-07-05 during the hardware CBS interference bring-up (the long-deferred
 "prove 802.1Qav protects a reserved class" test); root-caused in sim and **fixed the
 same day** (classifier redesign, see "The fix" below). Regression:
-`tb/verilator/controller_rate` (gating) + tdest-correctness checks in
-`tb/verilator/classifier`.*
+[`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) (gating) + tdest-correctness checks in
+[`tb/verilator/classifier`](../../tb/verilator/classifier).*
 
 ## Contents
 
@@ -42,7 +42,7 @@ Two independent defects compound; the first is the wedger:
    the per-queue FIFOs *accept* more bytes than the shaper mux *egresses*  -  the orphan
    beats are stranded in the wrong queue, every tight frame comes out ~8 B short, and
    the stranded/merged beats eventually deadlock the downstream PacketFIFO (the TX
-   wedge). The block harness `tb/verilator/classifier` misses this because it only
+   wedge). The block harness [`tb/verilator/classifier`](../../tb/verilator/classifier) misses this because it only
    checks `tdest` **stability within a frame**, never **correctness of the value**, and
    never feeds two different-queue frames back-to-back.
 
@@ -57,8 +57,8 @@ A third, unrelated issue found in the same pass and **fixed** here: `CLS_PRIO_RE
 reset was `0x688FAC`, a half-swap of priorities (0–3 ↔ 4–7) instead of the 802.1Q
 identity `0xFAC688`, so every tagged SR frame was priority-regenerated into the wrong
 class before it even reached the (buggy) queue routing. Fixed to identity in
-`hdl/common/csr/milan_csr.sv` + [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) (verified: `tb/verilator/cls`,
-`tb/verilator/classifier` green with the identity constant).
+[`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) + [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) (verified: [`tb/verilator/cls`](../../tb/verilator/cls),
+[`tb/verilator/classifier`](../../tb/verilator/classifier) green with the identity constant).
 
 ## The fix (shipped)
 
@@ -78,7 +78,7 @@ class before it even reached the (buggy) queue routing. Fixed to identity in
 
 With the classifier `tdest` fixed, single-flow shaping worked on silicon (see
 Verification)  -  but a **two-flow interference** run still wedged TX. Root cause,
-localized in `tb/verilator/controller_rate` (mixed ACK-sized + MTU frames, alternating
+localized in [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) (mixed ACK-sized + MTU frames, alternating
 queues) via a full grant-state dump:
 
 `traffic_queues` drained the per-queue FIFOs through an `axis_arb_mux`  -  its **own**
@@ -108,11 +108,11 @@ verifies the fix byte-exact.
 
 ## Verification
 
-* `tb/verilator/classifier`: new **real-header back-to-back alternating-queue**
+* [`tb/verilator/classifier`](../../tb/verilator/classifier): new **real-header back-to-back alternating-queue**
   scenarios with per-frame `tdest`-**correctness** assertions (and byte-exactness under
   backpressure). The OLD classifier fails these 4 checks (proving both the bug and the
   test); v2 passes 14/14. Wrapper now instantiates `BIG_ENDIAN=0` to match production.
-* `tb/verilator/controller_rate`: the end-to-end repro is now a **gating** test  - 
+* [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate): the end-to-end repro is now a **gating** test  -
   a **mixed ACK-sized + MTU, alternating-queue** stream at ~25 % duty egress pacing
   (the interference profile), content-checked byte-exact with a deadlock detector.
   Reproduces both the classifier `tdest` bug and the arbiter cross-lock on the OLD

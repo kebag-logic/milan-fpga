@@ -2,7 +2,7 @@
 
 How the Milan fully-FPGA SoC was ported to the real **Alinx AX7101** board: where the
 pin data came from, how it was extracted, what changed, and what is verified vs.
-board-gated. The result is `sw/litex/platforms/alinx_ax7101.py` +
+board-gated. The result is [`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex/platforms/alinx_ax7101.py) +
 `sw/litex/milan_soc.py --full` (now with DDR3).
 
 ## Contents
@@ -66,7 +66,7 @@ this board).
 
 ## 3. What changed
 
-- **`sw/litex/platforms/alinx_ax7101.py`**  -  replaced the placeholder pins (borrowed
+- **[`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex/platforms/alinx_ax7101.py)**  -  replaced the placeholder pins (borrowed
   from the AX7203) with the real AX7101 pinout: exact part `xc7a100t-fgg484-2`, clock
   R4/T4, reset T6, UART AB15/AA15, LEDs, `eth`/`eth_clocks` 0+1 (e1/e2 — **GMII**,
   8-bit SDR per the §2 correction; the platform file's own comments say so at each
@@ -74,7 +74,7 @@ this board).
   from the Alinx XDC. Both ports also carry `mdc`/`mdio` (e1 = J17/L16,
   e2 = AB21/AB22), added 2026-07-22 once the pins were read out of the schematic —
   see §5.
-- **`sw/litex/milan_soc.py`**  -  added **512 MB DDR3 (LiteDRAM)**: `_CRG` now generates
+- **[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)**  -  added **512 MB DDR3 (LiteDRAM)**: `_CRG` now generates
   the DDR3 PHY clocks (`sys4x`, `sys4x_dqs`, `idelay` + IDELAYCTRL); `MilanSoC` adds
   `s7ddrphy.A7DDRPHY` + `add_sdram(module=MT41J256M16, l2_cache_size=8192)` behind a new
   `--with-dram` flag (included in `--full`). With DRAM, main RAM is the DDR3 at
@@ -89,7 +89,7 @@ gateware** (exit 0):
   the LiteDRAM software (`sdram.c`, DDR3 training) compiled into the BIOS.
 - **284 `ddram` constraint lines** in the generated `.xdc` (the real DDR3 pinout).
 - `milan_datapath` (the NIC) + the LiteEth MAC/PHY present (e1 is **GMII** — `LiteEthPHYGMII`, per the §3 correction).
-- The device tree regenerates from this build's `csr.json` (see `sw/dts`,
+- The device tree regenerates from this build's `csr.json` (see [`sw/dts`](../../sw/dts),
   `fpga-ps-tools`).
 
 ## 5. Board-gated (needs the schematic / Vivado / the board)
@@ -108,11 +108,11 @@ gateware** (exit 0):
 - **Artix-7 bitstream**  -  `--full --build` needs Vivado with Artix-7 device
   support (the original dev host had only Spartan-7 installed). This gate has since
   been cleared: bitstreams were built and run on the board — see the `hw_*` logs in
-  `sw/litex/evidence/`.
+  [`sw/litex/evidence/`](../../sw/litex/evidence).
 - **On-board bring-up**  -  the board is attached and **verified reachable**:
   **JTAG** = Digilent FT232H (`0403:6014`), `openFPGALoader -c ft232` reads IDCODE
   `0x3631093` = xc7a100t ✅; **console** = CP2102N (`10c4:ea60`), currently showing the
   Alinx factory demo (`Hello ALINX AX7101` @ 9600). Identify by `/dev/serial/by-id/`
-  (the `ttyUSBn` numbers flip on re-plug). Program with `sw/litex/deploy.sh`, then
+  (the `ttyUSBn` numbers flip on re-plug). Program with [`sw/litex/deploy.sh`](../../sw/litex/deploy.sh), then
   M-A1…M-A5 (see [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) §9). Since completed on silicon — the boot
-  banners and memtest logs are in `sw/litex/evidence/`.
+  banners and memtest logs are in [`sw/litex/evidence/`](../../sw/litex/evidence).

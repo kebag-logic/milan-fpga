@@ -8,7 +8,7 @@ what was measured, what breaks if you get it wrong). The visual twin is
 *Silicon history lives in [`HEADER_SPLIT_DESIGN.md`](HEADER_SPLIT_DESIGN.md),
 the live state in [`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) and
 [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md). Referenced from the source headers of
-`sw/litex/milan_soc.py` (gateware) and `the-private-test-repo fpga/kl-eth/kl-eth.c`
+[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) (gateware) and `the-private-test-repo fpga/kl-eth/kl-eth.c`
 (driver).*
 
 Editable diagram: [`milan_tx_rx_datapath.drawio`](../milan_tx_rx_datapath.drawio)
@@ -46,7 +46,7 @@ Conventions used below.
 
 ### Stage R1: wire, RGMII PHY, MAC
 
-Purpose: bits to AXIS beats. Code: `MilanMAC` in `sw/litex/milan_soc.py`, the
+Purpose: bits to AXIS beats. Code: `MilanMAC` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), the
 RGMII PHY wrappers, LiteEth core underneath. The datapath runs at 100 MHz
 (`--milan-clk-freq 100e6`) and exceeds 1 GbE line rate; this stage has never
 been a bottleneck. Trap fixed long ago: LiteEth `last_be` is one-hot, AXIS
@@ -168,7 +168,7 @@ in BD mode `wr_ptr` is the BD write offset and the same commit rule holds):
 > [wd_ring_pointers.json](../diagrams/wd_ring_pointers.json); regenerate with
 > `~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py
 > docs/diagrams/wd_ring_pointers.json`). The contract, per the
-> `RingDMAWriter` docstring in `sw/litex/milan_soc.py` and the
+> `RingDMAWriter` docstring in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) and the
 > Commit-after-B / Whole-frame drop entries in
 > [`../GLOSSARY.md`](../GLOSSARY.md): the ingress FIFO is always ready
 > (`sink.ready` constant 1) with the drop decision taken at a frame's first

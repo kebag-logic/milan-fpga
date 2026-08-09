@@ -1,10 +1,10 @@
 # MAAP in fabric — design + reference contract (task #18)
 
 Goal: Milan-mandatory dynamic multicast-DMAC allocation for the talker
-(today `cfg_aaf_dmac` is statically provisioned). New `hdl/ieee1722/maap/KL_maap.sv`
+(today `cfg_aaf_dmac` is statically provisioned). New [`hdl/ieee1722/maap/KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv)
 on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 
-> **AS-BUILT:** `KL_maap` (`hdl/ieee1722/maap/KL_maap.sv`) is implemented in
+> **AS-BUILT:** `KL_maap` ([`hdl/ieee1722/maap/KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv)) is implemented in
 > fabric and silicon-proven (per [`docs/ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2) — no
 > longer a plan/future item. The design + reference contract below is the
 > as-built spec; the CSR block has been reconciled to REGISTER_MAP.
@@ -108,5 +108,5 @@ touches the emit core; do it as an isolated commit with the full aecp TB
 before adding the 0x4B branch.
 
 Status: IMPLEMENTED since - the GET_DYNAMIC_INFO (0x4B) batch engine lives in
-`hdl/ieee17221/aecp/KL_aecp_response_builder.sv` (record validate/classify
+[`hdl/ieee17221/aecp/KL_aecp_response_builder.sv`](../../hdl/ieee17221/aecp/KL_aecp_response_builder.sv) (record validate/classify
 passes + the 7.4.76 dispatch branch).

@@ -82,12 +82,12 @@ The rebase committed the virtual-E2E tier as `55a68a45` on top of a new RTL
 base (`3c82068d`). Two changes touch the sim build, so the pre-rebase cached
 `Vsim` could not be trusted:
 
-1. **`sw/litex/milan_sim.py`** — added the `cd_audio` clock-domain wiring (the
+1. **[`sw/litex/milan_sim.py`](../../sw/litex/milan_sim.py)** — added the `cd_audio` clock-domain wiring (the
    datapath's audio clock driven from `sys`) and the `VERILATOR_THREADS` /
    `VERILATOR_JOBS` hook (the LiteX sim toolchain's own `threads=`/`jobs=`,
    single-threaded default preserved). RV32 made the explicit default;
    `--xlen=64` kept supported.
-2. **`sw/litex/milan_soc.py`** — `abspath` normalization of the RTL source base
+2. **[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)** — `abspath` normalization of the RTL source base
    (a literal `./` in `__file__` used to eat one `dirname` level).
 
 Re-verification therefore used a **clean rebuild**, not the cached model.
@@ -133,7 +133,7 @@ cd tests && behave -f plain
 **Result: all PASS** — lwsrp_ctx 43 / lwsrp_rx 143 / lwsrp_tx 445 / lwsrp_switchpdu 7
 checks with 0 failures; behave **520 scenarios passed, 0 failed**. Recorded in
 [`evidence/REBASE-REGRESSION-2026-08-01-55a68a45.md`](evidence/REBASE-REGRESSION-2026-08-01-55a68a45.md). This is a *targeted* rebase
-regression, not the full 55-suite sweep (`scripts/run_all_suites.sh` for that).
+regression, not the full 55-suite sweep ([`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh) for that).
 
 ## 8. The virtual switch decision (B)
 

@@ -166,7 +166,7 @@ cd tb/verilator/adp && make        # builds + runs; self-checking, prints PASS/c
 ```
 
 No Xilinx dependencies (the RTL is XPM-free). Run the affected module's harness after
-touching its SV; run the full tb/verilator/ sweep before a release-ish commit (`for d in tb/verilator/*/;
+touching its SV; run the full [tb/verilator/](../../tb/verilator) sweep before a release-ish commit (`for d in tb/verilator/*/;
 do make -C "$d" || break; done`).
 
 ## 4. Yosys device-portability check (syn/yosys)
@@ -176,7 +176,7 @@ cd syn/yosys && ./run.sh           # sv2v + yosys generic-cell mapping, per-modu
 ```
 
 Proves the RTL maps to a generic cell library (no silent Xilinx-primitive
-dependences); historically green across every top in the `syn/yosys/run.sh` `tops`
+dependences); historically green across every top in the [`syn/yosys/run.sh`](../../syn/yosys/run.sh) `tops`
 array (the authoritative list; ECP5 target as the neutral device).
 
 ## 5. P&R (Vivado)  -  see the build scripts

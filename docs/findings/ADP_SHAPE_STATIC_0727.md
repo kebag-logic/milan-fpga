@@ -19,7 +19,7 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 
 ## The symptom
 
-Our AX7101 is built `N_STREAMS = 8` (`configs/endstation_ax7101_8x8.yaml`).
+Our AX7101 is built `N_STREAMS = 8` ([`configs/endstation_ax7101_8x8.yaml`](../../configs/endstation_ax7101_8x8.yaml)).
 Decoded from its own ADPDU on the wire, next to its neighbours on the same
 segment:
 
@@ -87,7 +87,7 @@ exactly like `CAP` and `VERSION`.
 be the same mistake one layer down — RTL deciding what the entity is. The
 standing rule is that `configs/endstation_*.yaml` is the single declarative
 definition and it drives the gateware, the AEM model and lwSRP alike, so
-`sw/builder/endstation_builder.py` emits the counts as a generated include:
+[`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py) emits the counts as a generated include:
 
 ```systemverilog
 // hdl/common/csr/gen/adp_shape_defaults.svh - GENERATED, Source: configs/endstation_arty_current.yaml
@@ -135,17 +135,17 @@ the same number its AEM overlay used. 1×1 still elaborates 2 sinks.
 
 ## What is gated now
 
-`scripts/check_entity_shape.py` walks every end-station config and asserts the
+[`scripts/check_entity_shape.py`](../../scripts/check_entity_shape.py) walks every end-station config and asserts the
 same number appears everywhere it has to: what `adp_shape()` computes from the
 config, what the generated shape include carries, what the AEM overlay's
 `entity_counts` and `descriptor_counts` say, and how many `STREAM_OUTPUT` /
 `STREAM_INPUT` descriptors the ROM generated **from that same config** actually
-contains. It also checks the tracked pair — `hdl/common/csr/gen/adp_shape_defaults.svh`
-and `hdl/ieee17221/aecp/gen/aecp_aem_rom.svh` — name the *same* source config
+contains. It also checks the tracked pair — [`hdl/common/csr/gen/adp_shape_defaults.svh`](../../hdl/common/csr/gen/adp_shape_defaults.svh)
+and [`hdl/ieee17221/aecp/gen/aecp_aem_rom.svh`](../../hdl/ieee17221/aecp/gen/aecp_aem_rom.svh) — name the *same* source config
 and match what it generates, and that the RTL consumes the include rather than
 recomputing anything.
 
-**And it runs before a build.** `sw/litex/build.sh` and `sw/litex/sweep.sh`
+**And it runs before a build.** [`sw/litex/build.sh`](../../sw/litex/build.sh) and [`sw/litex/sweep.sh`](../../sw/litex/sweep.sh)
 call `check_entity_shape.py --built-config <cfg>` and refuse to launch if the
 tree carries another shape's definition, printing the one command that fixes
 it. That is the arm that makes the 2026-07-27 defect unreproducible: a
@@ -171,15 +171,15 @@ Seven mutations must fail the gate, and each is proved to:
 7. a config edited without regenerating its shape include.
 
 On the RTL side the harnesses elaborate **three different configs in one
-suite** and read the shape back: `tb/verilator/csr` `sim_main` on the tracked
+suite** and read the shape back: [`tb/verilator/csr`](../../tb/verilator/csr) `sim_main` on the tracked
 1×1 (1/2, caps `0x4001`), `sim_win` on `endstation_arty_4x4` (5/5), `sim_live`
 on `endstation_ax7101_8x8` (9/9) — the last two with 0x800 windows of 4×4 and
 2×2 respectively, so a value tracking the window instead of the config would
-show. `tb/verilator/milan_dp` decodes **ADPDU bytes 38–45 off the MAC TX port**
+show. [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) decodes **ADPDU bytes 38–45 off the MAC TX port**
 at N = 1 and reads `0x618`/`0x61C` at N = 4 and N = 8, including "the CRF uid is
 inside the advertised range" and a write that must change nothing. Reverting
-`milan_csr` to the pre-fix RW behaviour fails 11 checks in `tb/verilator/csr`
-and 8 in `tb/verilator/milan_dp`, with the ADPDU fields reading `0x0000` — what
+`milan_csr` to the pre-fix RW behaviour fails 11 checks in [`tb/verilator/csr`](../../tb/verilator/csr)
+and 8 in [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp), with the ADPDU fields reading `0x0000` — what
 the flashed board would advertise with no boot script at all.
 
 ## What this does NOT fix

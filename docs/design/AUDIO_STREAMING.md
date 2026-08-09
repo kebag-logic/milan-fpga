@@ -33,7 +33,7 @@ deep-dive for the media plane; the scaling model behind it is
 
 A Milan audio stream on this hardware is a class-A AAF-PCM stream: the
 talker groups **6 samples per channel into one PDU**, 8000 PDUs/s at
-48 kHz (`hdl/ieee1722/aaf/KL_aaf_packetizer.sv` header; traceability row
+48 kHz ([`hdl/ieee1722/aaf/KL_aaf_packetizer.sv`](../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv) header; traceability row
 [AAF-9](../traceability/ieee1722-2016.md)).
 
 Each PDU's `avtp_timestamp` is the **presentation time**: the gPTP
@@ -45,11 +45,11 @@ presentation time (ptp_ns + transit at first-sample capture)"; row
 The listener does the inverse: for every accepted PDU it computes
 `ts_delta = avtp_timestamp − ptp_now` (signed; negative = LATE, i.e. the
 presentation instant already passed; larger than the presentation offset
-plus margin = EARLY — `hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv`,
+plus margin = EARLY — [`hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv`](../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv),
 `tsd_w`/`late_w`/`early_w`).
 
 The last value is readable at CSR `0x6EC` (`A_AVTPRX_TSD`,
-`hdl/common/csr/milan_csr.sv`). The presentation offset is therefore the
+[`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv)). The presentation offset is therefore the
 *rendering budget* the talker grants the network plus the listener
 pipeline.
 
@@ -62,7 +62,7 @@ pipeline.
 
 **NxN** means the whole media plane is one shared engine per function
 plus N per-stream BRAM contexts, selected at build time with
-`--num-streams` (`sw/litex/milan_soc.py` argparse: "AAF stream contexts
+`--num-streams` ([`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) argparse: "AAF stream contexts
 per shared engine").
 
 The deployed shapes are the AX7101 at 8×8 streams and the Arty A7 at 4×4
@@ -80,11 +80,11 @@ stereo pair of 24-bit left-justified samples, in the datapath clock.
 
 Serial capture runs in the interface's own bit-clock domain and crosses
 through a gray-pointer `cdc_pair_fifo`
-(`hdl/ieee1722/aaf/KL_tdm_capture.sv` "INTERFACE CONTRACT (the whole
+([`hdl/ieee1722/aaf/KL_tdm_capture.sv`](../../hdl/ieee1722/aaf/KL_tdm_capture.sv) "INTERFACE CONTRACT (the whole
 capture family)"; grounding rows G2/G4 in
 [`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) §0). The sources:
 
-| Source | Module (`hdl/ieee1722/aaf/`) | What it is |
+| Source | Module ([`hdl/ieee1722/aaf/`](../../hdl/ieee1722/aaf)) | What it is |
 |---|---|---|
 | I2S in | `KL_aaf_capture_i2s.sv` | I2S master for the Pmod I2S2 ADC (CS5343): clean registered dividers off the 24.576 MHz audio MMCM (MCLK /2, SCLK /8 = 64 fs, LRCK /512 = 48.000 kHz), 24-bit Philips capture, emits pair slot 0 |
 | TDM in | `KL_tdm_capture.sv` | TDM bus slave, 8/16/32 slots × 16/24/32 bit clocks, MSB first; pair k carries TDM slots {2k, 2k+1}; accepts both pulse and 50 %-duty frame syncs, data delay 0/1 |
@@ -134,15 +134,15 @@ All of the following is from the same header:
   ring → packet → wire → depacketizer → ring is byte-exact.
 
 In the SoC it is compiled in with `--aaf-playback`
-(`sw/litex/milan_soc.py`, `AAF_PLAYBACK_P` generate) and wired two ways
-in `hdl/milan/milan_datapath.sv` (`g_aaf_playback` block): `pb_enable`
+([`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), `AAF_PLAYBACK_P` generate) and wired two ways
+in [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) (`g_aaf_playback` block): `pb_enable`
 swaps it wholesale for the ADC frontend at the packetizer's pair port,
 and its raw pair bus is also exposed as the capture mux's RING source
 bucket.
 
 ### 2.2 The capture mux (channel map, TX side)
 
-`hdl/ieee1722/aaf/KL_chan_map_capture.sv` sits between the sources and
+[`hdl/ieee1722/aaf/KL_chan_map_capture.sv`](../../hdl/ieee1722/aaf/KL_chan_map_capture.sv) sits between the sources and
 the packetizer: a 32-entry map RAM (one 8-bit entry
 `{en[7], src[6:4], idx[3:0]}` per TX pair slot) selects, per slot, one
 of the buckets ZERO / I2S_IN / TDM_IN / RING / TONE.
@@ -168,7 +168,7 @@ exactly as the driver contract documents.
 
 ### 2.3 The shared packetizer and the channel math
 
-`hdl/ieee1722/aaf/KL_aaf_packetizer.sv` is one framer/serializer with N
+[`hdl/ieee1722/aaf/KL_aaf_packetizer.sv`](../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv) is one framer/serializer with N
 talker contexts in a BRAM context RAM (TCTX: enable, channels, VLAN,
 DMAC, stream UID, sequence number, latched presentation time, frame
 counter) plus a double-banked sample staging RAM; the bank swap is the
@@ -242,11 +242,11 @@ non-intrusively and matches the **wire-truth stream_id** against
 `KL_stream_table` — never the DMAC. Table entry 0 aliases the ACMP
 listener SM's bound record combinationally (the N = 1 no-regression
 shape); entries 1..N−1 are written through the CSR 0x800 window
-(`hdl/ieee1722/avtp/KL_stream_table.sv` header).
+([`hdl/ieee1722/avtp/KL_stream_table.sv`](../../hdl/ieee1722/avtp/KL_stream_table.sv) header).
 
 ### 3.2 The RX monitor: lock and counter contract
 
-`hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv` (flat, single-stream) and
+[`hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv`](../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv) (flat, single-stream) and
 `KL_avtp_rx_monitor_ctx.sv` (the shared NxN engine the datapath
 instantiates) implement the Milan STREAM_INPUT diagnostic counters
 (IEEE 1722.1-2021 Table 7-156 / Milan §5.4.5.3), with the contract
@@ -279,7 +279,7 @@ media-locked level), `0x6BC AVTPRX_FRX`, `0x6C0 AVTPRX_ERR`
 
 ### 3.3 The depacketizer
 
-`hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv` taps the RX AXI-Stream
+[`hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv`](../../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv) taps the RX AXI-Stream
 (never backpressuring the datapath), buffers each frame through a
 drop-capable FIFO, and emits **only the AAF sample payload** — wire byte
 order = S32BE interleaved PCM, one AXIS frame per PDU, always full
@@ -296,7 +296,7 @@ the last accepted PDU's `avtp_timestamp` in `PCMRX_TS 0x6C8`
 
 ### 3.4 Routing and the PCM DMA ring
 
-`hdl/ieee1722/aaf/KL_pcm_route.sv` gives every stream two independent
+[`hdl/ieee1722/aaf/KL_pcm_route.sv`](../../hdl/ieee1722/aaf/KL_pcm_route.sv) gives every stream two independent
 flags — `{RENDER, DMA}` — so a stream can render, land in its DMA ring,
 both, or neither; exactly one stream renders (lowest index wins); reset
 default is stream 0 = RENDER|DMA, bit-identical to the pre-NxN shape
@@ -304,14 +304,14 @@ default is stream 0 = RENDER|DMA, bit-identical to the pre-NxN shape
 
 The DMA ring is where ALSA capture reads from:
 
-- **DRAM (default)**: `_PCMRingNxN` in `sw/litex/milan_soc.py` — a
+- **DRAM (default)**: `_PCMRingNxN` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) — a
   `WishboneDMAWriter` loop ring; per-stream sub-rings at
   `base + s·stride`; the LiteX CSR bank at `0xf0003120`
   (`base/length/enable/loop`, `offset` = the write pointer the consumer
   chases); payload stays full 64-bit words in wire byte order
   ([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) "PCM ring" section).
 - **BRAM (option)**: `--pcm-ring bram` swaps in
-  `hdl/ieee1722/aaf/KL_pcm_ring_bram.sv`, a dual-port on-chip ring at
+  [`hdl/ieee1722/aaf/KL_pcm_ring_bram.sv`](../../hdl/ieee1722/aaf/KL_pcm_ring_bram.sv), a dual-port on-chip ring at
   the MMIO window `0x9010_0000` (32 KB) with the **same** CSR ABI, so
   the driver is unchanged. Because a BRAM write completes in one cycle,
   `sink.ready` is constant 1 — no beat can ever be shed and the DRAM
@@ -465,7 +465,7 @@ Honest state of this subsystem, with evidence:
   measured 2026-07-24/25).
 - **Playback path (`KL_pcm_tx`): the fabric chain is now continuous and
   TB-proven end to end; SILICON proof still pending.** The engine has
-  its own harness (27/27, `tb/verilator/pcm_tx`, per
+  its own harness (27/27, [`tb/verilator/pcm_tx`](../../tb/verilator/pcm_tx), per
   [`testing/BEHAVE_TEST_PLAN.md`](../testing/BEHAVE_TEST_PLAN.md)) and
   the SoC integration is in-tree behind `--aaf-playback`
   (`milan_datapath.sv` `g_aaf_playback` + the `pb_*` CSR block and
@@ -473,7 +473,7 @@ Honest state of this subsystem, with evidence:
   reached only the **talker** (packetizer pair port); it had no path to
   the local DAC at all, because the render crossbar had no playback
   source and the DAC feed was strobed by inbound listener traffic.
-  `tb/verilator/pcm_playback` now drives host-ring words in and decodes
+  [`tb/verilator/pcm_playback`](../../tb/verilator/pcm_playback) now drives host-ring words in and decodes
   the serialized DAC output back with a spec-derived I2S receiver: 40/40
   checks, 41 consecutive ring words replayed bit-exactly on the pin with
   the listener side completely silent, plus the ring under-run /

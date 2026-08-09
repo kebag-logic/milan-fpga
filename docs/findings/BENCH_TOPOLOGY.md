@@ -170,7 +170,7 @@ foreground pipe wedges the shell (write ctrl-C to the FIFO).
 
 | Path | What |
 |---|---|
-| `~/prjs-avb-on-fpga/milan-fpga` | THE gateware repo. `hdl/` RTL in standards-clause layout (ieee17221/{adp,acmp,aecp}, ieee1722/{avtp,aaf,crf,maap}, ieee8021q/{ts,srp,filtering}, ieee8021as/ptp_timestamp, milan/ tops, common/{csr,eth_event_counter,cdc}), `tb/verilator/*` (aecp 474, milan_dp 105, pcmlpf 7, + suites), `syn/yosys/run.sh` (device-portability gate), `sw/litex/` (milan_soc.py, **sweep.sh**, **build.sh** incl. the `flash` verb, deploy.sh), `avdecc/` (AEM JSON models + `gen_aem_store.py` → `hdl/ieee17221/aecp/gen/aecp_aem_rom.svh` + `milan_controller.py`), `docs/`. Author `hackerman-kl`, ONE-LINE commits, no trailers. |
+| `~/prjs-avb-on-fpga/milan-fpga` | THE gateware repo. `hdl/` RTL in standards-clause layout (ieee17221/{adp,acmp,aecp}, ieee1722/{avtp,aaf,crf,maap}, ieee8021q/{ts,srp,filtering}, ieee8021as/ptp_timestamp, milan/ tops, common/{csr,eth_event_counter,cdc}), `tb/verilator/*` (aecp 474, milan_dp 105, pcmlpf 7, + suites), [`syn/yosys/run.sh`](../../syn/yosys/run.sh) (device-portability gate), [`sw/litex/`](../../sw/litex) (milan_soc.py, **sweep.sh**, **build.sh** incl. the `flash` verb, deploy.sh), `avdecc/` (AEM JSON models + `gen_aem_store.py` → [`hdl/ieee17221/aecp/gen/aecp_aem_rom.svh`](../../hdl/ieee17221/aecp/gen/aecp_aem_rom.svh) + `milan_controller.py`), `docs/`. Author `hackerman-kl`, ONE-LINE commits, no trailers. |
 | `~/the-private-test-repo` | Bench/test repo. `fpga/` (kl-eth driver, buildroot br2-external incl. the **rootfs overlay** = S50milan, linkmon.sh, gptp2csr.sh, stream_phc_sync.sh, gptp.cfg, S65/S66), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `fpga/dts+boot/` (dtb + opensbi per board), `private/` (**untracked, git-ignored**: the bench conformance suite + its reference run — see §7). Commits: author `hackerman-kl` (USER 2026-07-22, both repos), one line, no trailers. |
 | `~/litex-milan` | LiteX + venv (`~/litex-milan/venv` — PATH needed for build/flash python). **`work/`** = all Vivado build dirs (`build_<board>_<seed>_<tag>/`). |
 | `~/br-milan-output` | Buildroot out-tree. Rebuild rootfs: `cd ~/br-milan-output && make O=$PWD && xz -9 --check=crc32 -c images/rootfs.cpio > /tmp/scratch/rootfs.cpio.xz`. Kernel `images/Image` (xz it for flashing). |
@@ -392,7 +392,7 @@ reads lie (shadow).
    removed; measure-don't-assume (HW counter before any conclusion).
 6. Bench-suite naming + `/private/` rules of §7. Neither the suite's
    former external name nor any conformance-program name appears in
-   committed text (`scripts/docs_check.py` enforces the deny-list).
+   committed text ([`scripts/docs_check.py`](../../scripts/docs_check.py) enforces the deny-list).
 7. The 0x654 write preserves VID 2; new RW CSRs go into is_plain_rw;
    validate wire frames by LENGTH, not just header fields.
 8. Peer binds go to the **(p) primaries only** (listener indices 0/2/4/6/8);
