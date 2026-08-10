@@ -151,6 +151,14 @@ module KL_media_nco #(
   //! (U_MAX_P), which lands at +-200*PPM_LSB_P LSB - 20000 at 100 MHz, inside
   //! the derived TRIM_MAX_P of 32000, so the two authorities agree by
   //! construction rather than by a comment.
+  //! use_dsp="no": PPM_LSB_P is a COMPILE-TIME CONSTANT (100 at 100 MHz), so
+  //! this is a constant multiply - two shift-adds in fabric, about a
+  //! nanosecond. Vivado inferred a DSP48E1 for it anyway, and a combinational
+  //! DSP costs ~5 ns of a 10 ns period on a path that then still has to reach
+  //! the accumulator. The repo already uses the opposite hint where a DSP IS
+  //! wanted (credit_based_shaper.sv:106), so the attribute is house-idiom
+  //! rather than a new dependency.
+  (* use_dsp = "no" *)
   wire signed [31:0] servo_lsb_w =
       -(($signed(32'(servo_trim_i)) * $signed(32'(PPM_LSB_P))) >>> 4);
 
@@ -167,11 +175,31 @@ module KL_media_nco #(
     : (trim_sel_w < -$signed(32'(TRIM_MAX_P)))  ? -SUMW_C'(signed'(TRIM_MAX_P))
                                                 :  SUMW_C'(trim_sel_w);
 
+  //! REGISTERED, and this is a timing fix, not a style choice. Left
+  //! combinational, the conversion above joined the Bresenham arithmetic
+  //! below into ONE path: DSP multiply -> select -> 32-bit clamp -> the
+  //! accumulator adder -> the overflow/underflow compares -> the terminal
+  //! compare -> cnt_r. Vivado measured it at 12.336 ns of a 10 ns period,
+  //! 17 logic levels with 10 CARRY4, and it broke timing on all three place
+  //! seeds at once (WNS -2.9 to -4.0 ns) - a structural failure, not a
+  //! placement lottery.
+  //!
+  //! Costs nothing to break: servo_trim_i moves at most once per servo tick
+  //! (KL_mmcm_drp_servo TICK_CYC_P = 24576 audio cycles, about 1 ms), and the
+  //! grid needs a new rate no faster than the loop produces one. One cycle of
+  //! latency on a value that updates every ~100,000 cycles is invisible to
+  //! the rate, to the phase, and to every check in tb/verilator/media_nco.
+  logic signed [SUMW_C-1:0] trim_r;
+  always_ff @(posedge clk_i) begin : trim_pipe
+    if (!rst_n) trim_r <= '0;
+    else        trim_r <= trim_cl_w;
+  end : trim_pipe
+
   //! ONE predicate set decides the borrowed/lent cycle AND the accumulator
   //! wrap, so the two can never disagree (the KL_pcm_tx pace_div discipline)
   wire signed [SUMW_C-1:0] sum_w = SUMW_C'(signed'({1'b0, frac_r}))
                                  + SUMW_C'(signed'(REM_C))
-                                 + trim_cl_w;
+                                 + trim_r;
   wire ov_w = (sum_w >= SUMW_C'(signed'(DEN_C)));   //! grid runs slow: lend a cycle
   wire un_w = (sum_w <  SUMW_C'(signed'(0)));       //! grid runs fast: borrow one
 
