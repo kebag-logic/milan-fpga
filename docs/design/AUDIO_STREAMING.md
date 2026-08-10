@@ -89,7 +89,7 @@ capture family)"; grounding rows G2/G4 in
 | I2S in | `KL_aaf_capture_i2s.sv` | I2S master for the Pmod I2S2 ADC (CS5343): clean registered dividers off the 24.576 MHz audio MMCM (MCLK /2, SCLK /8 = 64 fs, LRCK /512 = 48.000 kHz), 24-bit Philips capture, emits pair slot 0 |
 | TDM in | `KL_tdm_capture.sv` | TDM bus slave, 8/16/32 slots × 16/24/32 bit clocks, MSB first; pair k carries TDM slots {2k, 2k+1}; accepts both pulse and 50 %-duty frame syncs, data delay 0/1 |
 | ALSA playback | `KL_pcm_tx.sv` | Reads a host-written PCM ring (per-stream sub-rings, S32BE wire byte order) and emits the same pair stream — the playback counterpart of the RX ring, see §2.2 |
-| Pilot tone | `KL_tone_gen.sv` | 1 kHz 0 dBFS exact-period 48-entry 24-bit sine (digital THD+N −148.1 dB per the module header); enabled by `TONE_CTRL 0x6DC`, it replaces the ADC samples on both channels |
+| Pilot tone | `KL_tone_gen.sv` | 1 kHz exact-period 48-entry 24-bit sine, table at FULL SCALE (digital THD+N −148.1 dB per the module header); enabled by `TONE_CTRL 0x6DC[0]`, it replaces the ADC samples on both channels. `TONE_CTRL[3:1]` attenuates in −6 dB steps (reset 0 = 0 dBFS), so a capture at amplitude 0.25 means `att = 2` and not a quarter-scale generator. Raising it to 0 dBFS is safe only when the whole path is 48 kHz; through a rate conversion a full-scale sampled sine overshoots between samples (measured +0.91 dB) and clips. See [`../findings/MEDIA_CLOCK_LOCK_0810.md`](../findings/MEDIA_CLOCK_LOCK_0810.md) |
 
 The two serial-bus frontends have exact frame timing worth a picture.
 First the I2S frame (capture and render share the same Philips shape —

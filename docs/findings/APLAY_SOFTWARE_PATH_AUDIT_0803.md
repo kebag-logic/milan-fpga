@@ -867,6 +867,12 @@ Stated explicitly so the gaps are not mistaken for clean results.
 * **The `+160 ppm media-clock defect` was deliberately not touched.** It is
   fixed in RTL and awaiting a bitstream, and it is a separate phenomenon
   from ALSA xruns; no attempt was made to attribute anything here to it.
+  **Update 2026-08-10:** that fix has shipped and is confirmed on silicon.
+  `media_tick_p` is now a Bresenham fractional-N divider with zero
+  residual error. A separate and much smaller media-clock effect remains,
+  10.65 ppm between two free-running crystals, which is a lock gap rather
+  than an arithmetic one. See
+  [`MEDIA_CLOCK_LOCK_0810.md`](MEDIA_CLOCK_LOCK_0810.md).
 * **Only 8ch/48k/S32_BE** was exercised, only stream 0, only the playback
   direction, only `hw:` (never `plughw:`), and only with `/tmp/music.raw` as
   the source. Capture, multi-stream playback, and format variation are

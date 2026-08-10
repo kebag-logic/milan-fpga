@@ -187,6 +187,9 @@ ride the big arrow; dates assume the current cadence.
     - ring one-grid                                                         + hardening
       (retire pb                                                          - user manual +
       override)                                                             support policy
+    - stream restart
+      latency (open,
+      12 to 90 s)
 ```
 
 Standing invariants across every phase: the ATDECC model stays authoritative
@@ -216,3 +219,69 @@ observable before it closes):
 | 9 | Departing-controller detection (Milan 5.4.5.3) | [#59](https://github.com/kebag-logic/milan-fpga/issues/59) |
 | 10 | gPTP plane (increment reset, asCapable, latency split, AS_PATH) | [#64](https://github.com/kebag-logic/milan-fpga/issues/64) |
 | 11 | SRP deep items (declaration gating, Domain adopt, CBS wire time) | [#63](https://github.com/kebag-logic/milan-fpga/issues/63) |
+
+### P1.6 — Stream restart latency after an ACMP rebind (2026-08, OPEN)
+
+Measured on silicon at VERSION 0x0040. A DISCONNECT_RX followed by a
+CONNECT_RX on a listener sink returns SUCCESS immediately, but the talker
+does not resume streaming for 12 to 90 seconds, and the delay **grows with
+repeated reconnects** (three back-to-back cycles measured 12 to 21 s, then
+over 16 s, then 57 to 97 s). A rebind should restart the stream in well
+under a second.
+
+Bounded by measurement, so the remaining search space is small:
+
+- **Not the media clock lock.** MEDIA_LOCKED goes 0 to 1 in the same sample
+  window the first PDU arrives, which is the Milan 5.3.8.10 first-valid-PDU
+  law working correctly.
+- **Not the stream table, format gate or RX filter.** The pre-match parser
+  probe (`A_APRB_BASE` 0x8B4, the only view upstream of the stream-table
+  match) freezes at the disconnect and does not advance until the stream
+  resumes. No AVTP frame reaches the end station during the gap, so no
+  matching decision is being made at all.
+- **Not a late declaration from the fabric.** `A_LWSRP_CNT` 0x69C carries
+  `{rx_pdus, tx_pdus}`, and our MSRP transmit rate more than triples within
+  about 2 seconds of the CONNECT_RX, with receive rising in step.
+- **Not the index-bus narrowing** in `KL_lwsrp_ctx.sv`: the row write is
+  gated by `idx_ext_w`, which admits only `ctx_idx_i` in 1 to N_CTX_P-1, so
+  the narrowed index cannot wrap.
+
+The open lead is that MSRP settles at roughly 11 PDUs per second in both
+directions during the gap, against a 2 to 3 per second baseline, for over a
+minute without the stream starting. The engine's own refresh cadence is one
+declaration per second (`JOIN_TIME_MS_C` 200 ms, every fifth JoinTime), so
+that rate is not a converged MRP. `KL_lwsrp_ctx.sv` re-declares on every
+received LeaveAll, which admits a re-declaration echo between the end
+station and the bridge, but that is a hypothesis and not yet a finding.
+
+**Blocked on instrumentation.** Separating our declaration contents from the
+bridge and talker reaction needs MSRP attribute bytes off the wire. MSRP is
+link local, so a host hanging off another bridge port cannot see the
+exchange and only the in-line tap can. The bench tap currently enumerates
+with `bInterfaceClass = ff` (vendor specific) and no driver bound, so it
+presents no capture interface; restoring its vendor driver is the
+prerequisite for closing this item.
+
+### P1.7 — Media clock lock (2026-08, OPEN, measured)
+
+A listener receiving our stream slips **exactly one 48 kHz sample every
+1.96 seconds**, forever, because nothing locks the two media clocks. That
+is 10.65 ppm, an ordinary difference between two free-running crystals.
+Audibly the tone is essentially perfect (residual −133.85 dB) for two
+seconds, then one 50 ms window degrades by about 110 dB, on repeat.
+
+Our arithmetic is not the problem: `media_tick_p` is a Bresenham
+fractional-N divider whose residual error is zero, gPTP and the media
+tick share one oscillator, and the wire alignment is byte-exact. The gap
+is **steerability**. `media_tick_p` is a compile-time constant with no
+adjust port, and the MMCM-DRP servo steers only the I2S front-end clock,
+so today we cannot act as a media clock sink for the packet grid at all.
+
+A better oscillator does not fix this; it only lengthens the interval
+between clicks, because two independent clocks always drift. The fix is a
+shared media clock (listener recovers from the stream, or CRF, or both
+ends derive from gPTP) plus making the Bresenham remainder a register the
+servo drives, which gives 0.01 ppm per LSB for a register and an adder.
+
+Full evidence, the ruled-out list and the oscillator table:
+[`docs/findings/MEDIA_CLOCK_LOCK_0810.md`](docs/findings/MEDIA_CLOCK_LOCK_0810.md).

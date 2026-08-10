@@ -917,7 +917,10 @@ module milan_csr #(
   logic [31:0] crf_ctrl, crf_sidlo, crf_sidhi;   //! CRF sink CSRs
   logic [31:0] crft_ctrl, crft_sidlo, crft_sidhi, crft_dmlo, crft_dmhi;  //! CRF talker CSRs
   logic [31:0] as2_lo, as2_hi;           //! parent bridge clockIdentity                //! MAAP_CTRL: [0]=en, [1]=seed_valid, [15:8]=count, [31:16]=seed_offset
-  logic [31:0] tone_ctrl;                //! TONE_CTRL: [0]=en (pilot tone)
+  //! TONE_CTRL: [0]=en (pilot tone), [3:1]=att in -6 dB steps (0 = 0 dBFS
+  //! full scale, 7 = -42 dB). The table is FULL SCALE; a capture at
+  //! amplitude 0.25 means att=2, not a quarter-scale generator.
+  logic [31:0] tone_ctrl;
   logic [31:0] mcsrv_ctrl;               //! MCSRV_CTRL 0x8FC: [0]=ps_invert, [1]=auto_repair enable
   logic        ltap_en_r;                //! LTAP_CTRL[1]: latency-tap measurement enable (reset 1)
   logic        ltap_clr_p;               //! LTAP_CTRL[0] W1S: 1-cycle stats-clear strobe

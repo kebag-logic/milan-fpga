@@ -393,6 +393,41 @@ CHANNEL.
                 pair-within-stream 0-3; LOOP: pair; I2S_IN/TONE/ZERO: 0
 ```
 
+**Cluster pool layout, and the off-by-one that looks like a fabric bug.**
+`cluster_offset` indexes the port's cluster pool in the order the YAML
+declares the sources. For the shipping 1x1x8 TDM8 shape (`host: 8`, then
+`pilot: true`, then `loopback: 8`) that is 17 clusters:
+
+| offset | source | template |
+|---|---|---|
+| 0 to 7 | host PCM ring, pairs 0 to 3 x L/R | `0x1300`, `0x1B00`, `0x1301`, ... |
+| **8** | **Pilot tone** | `0x1400` |
+| 9 to 16 | loopback, pairs 0 to 3 x L/R | `0x1500`, `0x1D00`, ... |
+
+Offset 7 sits immediately below the Pilot and is `0x1B03`, the host ring
+pair 3 R half, which is **silent unless something is playing**. Selecting
+7 when you meant 8 therefore presents as "the tone does not forward on
+this channel" and looks exactly like a mapping defect. Silicon
+2026-08-10 hit this on channels 0 and 1.
+
+Two diagnostic rules that follow:
+
+- **The boot seed is the identity map.** `AEM_ODMAP_INIT_C` is
+  `6'h20 .. 6'h27`, and `oco_r[k]` loads `AEM_ODMAP_INIT_C[k][4:0]`, so a
+  freshly booted port reads cluster `k` on channel `k`. Any channel whose
+  cluster is not its own index **was written by a controller since boot**.
+  That separates a commanded map from a fabric fault with no wire capture.
+- **`GET_AUDIO_MAP` agreeing with the capture-map RAM proves nothing about
+  the key.** The commit writes `oco_r[odk_key_q]` and `odmap_wr_slot_o`
+  from the SAME register, so a key shift moves both together and they stay
+  consistent while both are wrong. Agreement only rules out a data skew
+  between the shadow and the RAM. To test the key, issue an
+  `ADD_AUDIO_MAPPINGS` with KNOWN contents on a channel you are not using
+  and read it back; do it once with a single record and once with several
+  records carrying distinct clusters, because the earlier shifts on this
+  port were tied to back-to-back record bursts. Verified clean on
+  2026-08-10 at VERSION 0x0040.
+
 The capture entry IS the AEM cluster template (`AEM_ODMAP_CSRC_C`,
 gen_aem_store): the `ADD_AUDIO_MAPPINGS` commit writes the addressed
 channel's template verbatim, `REMOVE` writes 13'h0000. Readback adds
