@@ -341,7 +341,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x00010041);
+       axi_read(A_VERSION), 0x00010042);
 
 #ifdef AAF_PB_TB
     // ---- task #26 (0x002C): the BOOT SEED is CSR-visible before any ----
@@ -4796,10 +4796,20 @@ int main(int argc, char** argv) {
             return (raw & 0x8000ul) ? (long)raw - 0x10000L : (long)raw;
         };
 
+        //  0x0042: the slot-indexed physical bucket must actually be fed.
+        //  Until this round milan_datapath tied .tdm_pair_valid_i to 1'b0, so
+        //  every capture pair landed in the SINGLE-pair I2S hold and a
+        //  physical cluster past channel 1 could never be backed on any shape.
+        //  "tdm_hold_r changed from its reset value" is the sharpest available
+        //  proof that the feed exists: restore the tie-off and it stays 0.
+        long tdm_written = 0;
+
         long ticks = 0, pcm_local = 0, mismatch = 0;
         long gate_bad = 0, cmd_bad = 0;
         for (long c = 0; c < GRID_CLK; c++) {
             step();
+            if (rp->milan_datapath__DOT__chan_map_capture__DOT__tdm_pair_valid_i)
+                tdm_written++;
             const bool mt = rp->milan_datapath__DOT__media_tick_p != 0;
             if (mt) ticks++;
 
@@ -4820,6 +4830,25 @@ int main(int argc, char** argv) {
         printf("  [i]    media grid: %ld ticks in %ld clocks (want %ld +/-1), "
                "pcm local-divider pulses %ld, tick mismatches %ld\n",
                ticks, GRID_CLK, GRID_WANT, pcm_local, mismatch);
+
+        //  WHAT THIS HARNESS STRUCTURALLY CANNOT CHECK: alignment between the
+        //  media grid and the TDM/I2S word clock. lo()/hi() above toggle
+        //  clk_audio_i 1:1 with axis_clk, so in simulation the audio domain
+        //  runs at the datapath rate and tdm_fsync_o comes out at clk/512 -
+        //  about 195 kHz, not 48. The 24.576 MHz : 100 MHz ratio that puts
+        //  the two grids -10.64 ppm apart BY CONSTRUCTION does not exist here,
+        //  so no amount of checking in this suite can see them drift apart.
+        //
+        //  That is why the media grid is brought out on AX7101 J11.9
+        //  (media_lrclk_o, a 50% square at fs/2) next to tdm_fsync_o on
+        //  J11.8: the requirement is that they stay ALIGNED, and a two-channel
+        //  probe on those two pins is currently the only instrument that can
+        //  say whether they do. Expect the phase to walk one sample every
+        //  ~1.96 s until the audio clock is locked to this grid.
+        printf("  [GAP]  0x0041 grid: fsync-vs-grid ALIGNMENT is unobservable in "
+               "simulation (this harness clocks clk_audio_i at the axis rate, "
+               "so the 24.576/100 MHz ratio is absent) - measure J11.8 against "
+               "J11.9 on silicon\n");
 
         //  vacuity guard first: a grid stuck low would make every "== 0"
         //  check below pass for the wrong reason
@@ -4844,6 +4873,11 @@ int main(int argc, char** argv) {
         //  rather than its arithmetic consequence removes that blind spot -
         //  and the sign/rescale it used to stand in for is now swept directly
         //  by tb/verilator/media_nco (13 servo commands x 2 clock shapes).
+        printf("  [i]    physical bucket: the slot-indexed feed pulsed %ld times "
+               "in %ld cycles\n", tdm_written, GRID_CLK);
+        ck("0x0042 phys: the slot-indexed capture bucket IS fed (was tied off)",
+           tdm_written > 0, 1);
+
         ck("0x0041 grid: the NCO's servo gate IS the clock-source selection",
            gate_bad, 0);
         ck("0x0041 grid: INTERNAL leaves the grid free-running",

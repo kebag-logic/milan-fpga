@@ -181,6 +181,22 @@ _io = [
         Subsignal("bclk",  Pins("B20")),   # J11.6
         Subsignal("din",   Pins("F20")),   # J11.7  codec -> fabric (capture)
         Subsignal("fsync", Pins("F19")),   # J11.8
+        #! MEDIA-GRID TEST POINT (J11.9, ball J16 - free, and the next pin
+        #! along from fsync so a two-channel probe reaches both on one clip).
+        #!
+        #! WHY IT EXISTS. On the TDM8-master shape fsync above is derived from
+        #! clk_audio (24,575,738.53 Hz / 512 = 47,999.4893 Hz, i.e. -10.64 ppm
+        #! by construction), while the AAF packet grid is media_tick_p off the
+        #! 100 MHz milan clock. Those are DIFFERENT CLOCKS about 10.6 ppm
+        #! apart, and until now nothing on the board could observe the second
+        #! one - no CSR carries it and no capture shows it. Bringing it out
+        #! beside fsync makes the difference a scope or frequency counter can
+        #! read directly, with no peer device in the loop.
+        #!
+        #! SEMANTICS: it TOGGLES on every media sample tick, so it is a clean
+        #! 50%-duty square at fs/2 = 24 kHz, not a 48 kHz pulse train. Multiply
+        #! by two, or just compare its edges against fsync.
+        Subsignal("lrclk", Pins("J16")),   # J11.9
         IOStandard("LVCMOS33"),
     ),
 

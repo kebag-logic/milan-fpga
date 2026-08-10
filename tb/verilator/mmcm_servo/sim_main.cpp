@@ -111,6 +111,9 @@ int main(int argc, char** argv) {
     mm.regs[0x09] = 0x0080;
 
     dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
+    //! this suite's shape declares CRF at CLOCK_SOURCE index 2 (internal,
+    //! one AAF listener, CRF). The DUT no longer assumes it.
+    dut->crf_src_idx_i = 2;
     dut->crf_rate_i = 0; dut->auto_repair_i = 0; dut->ps_invert_i = 0;
     dut->mmcm_locked_i = 1;
     run_ms(0.01);

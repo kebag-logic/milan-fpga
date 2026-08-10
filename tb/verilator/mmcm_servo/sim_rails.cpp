@@ -105,6 +105,9 @@ int main(int argc, char** argv) {
 
     auto reset_dut = [&](int clk_src) {
         dut->rst_n = 0; dut->clk_src_i = 0; dut->crf_locked_i = 0;
+    //! this suite's shape declares CRF at CLOCK_SOURCE index 2 (internal,
+    //! one AAF listener, CRF). The DUT no longer assumes it.
+    dut->crf_src_idx_i = 2;
         dut->pcm_tvalid_i = 0; dut->pcm_tlast_i = 0;
         dut->wire_chans_i = 2; dut->crf_rate_i = rate;
         dut->mmcm_locked_i = 1;

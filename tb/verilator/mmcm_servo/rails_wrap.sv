@@ -43,6 +43,7 @@ module rails_wrap (
 
   input  wire [63:0]  ptp_now_i,
   input  wire [15:0]  clk_src_i,
+  input  wire [15:0]  crf_src_idx_i,
   input  wire         crf_locked_i,
   input  wire signed [31:0] crf_rate_i,
 
@@ -131,6 +132,7 @@ module rails_wrap (
     .ps_clk_i      (ps_clk_i),
     .ptp_now_i     (ptp_now_i),
     .clk_src_i     (clk_src_i),
+    .crf_src_idx_i (crf_src_idx_i),
     .crf_locked_i  (crf_locked_i),
     .crf_rate_i    (crf_rate_i),
     .auto_repair_i (1'b0),

@@ -104,6 +104,9 @@ module KL_aecp_top #(
   //! datapath's crossbar-in-circuit law derives from these, never from
   //! testing the ROM's `define in another compilation-unit position
   output wire          dmap_dyn_o,         //! render-map machinery compiled
+  //! which CLOCK_SOURCE index is the CRF one, straight from the generated
+  //! AEM inside the response builder (16'hFFFF = no CRF source on this shape)
+  output wire [15:0]   crf_clksrc_o,
   output wire          odmap_dyn_o,        //! capture-map machinery compiled
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
   // ---- Milan 5.4.2.25 per-index counters (Tables 5.16/5.17) -----------
@@ -413,6 +416,7 @@ module KL_aecp_top #(
     .odmap_wr_p_o(odmap_wr_p_o), .odmap_wr_slot_o(odmap_wr_slot_o),
     .odmap_wr_word_o(odmap_wr_word_o),
     .dmap_dyn_o(dmap_dyn_o), .odmap_dyn_o(odmap_dyn_o),
+    .crf_clksrc_o(crf_clksrc_o),
     .link_up_i(link_up_i),
     .gs_diag_idx_o(gs_diag_idx_o), .rxdiag_cnt_i(rxdiag_cnt_i),
     .tkdiag_cnt_i(tkdiag_cnt_i), .tkdiag_dirty_p_i(tkdiag_dirty_p_i),

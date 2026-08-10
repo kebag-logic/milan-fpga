@@ -687,11 +687,11 @@ def builtin_spec():
                  buffer=2126000)],
         stream_outputs=[dict(name="Stream Output 0", formats=list(OUT_FORMATS))],
         clock_sources=[
-            dict(name="Internal", cs_type=0x0000,
+            dict(name="Internal", cs_type=0x0000, raw_type="internal",
                  loc_type=CLOCK_SOURCE, loc_index=0),
-            dict(name="Stream Clock", cs_type=0x0002,
+            dict(name="Stream Clock", cs_type=0x0002, raw_type="input_stream",
                  loc_type=STREAM_INPUT, loc_index=0),
-            dict(name="CRF Clock", cs_type=0x0002,
+            dict(name="CRF Clock", cs_type=0x0002, raw_type="crf",
                  loc_type=STREAM_INPUT, loc_index=1)],
         ports_in=[dict(clusters=8, base_cluster=0, maps=1, base_map=0)],
         ports_out=[dict(clusters=8, base_cluster=8, maps=1, base_map=1)],
@@ -757,14 +757,23 @@ def _out_cluster_sources(ovl, j, p):
     for g in p["pool"]:
         for n in range(g["width"]):
             if g["role"] == "physical":
-                a = n            # capture phys channel (role_pool first=0)
-                if a < 2:
-                    srcs.append(dict(src=1, idxh=0, idx=0, half=a % 2,
-                                     valid=True))
-                else:
-                    srcs.append(dict(src=2, idxh=0, idx=(a - 2) // 2,
-                                     half=(a - 2) % 2,
-                                     valid=(a - 2) // 2 < 4))
+                # capture phys channel (role_pool first=0). UNIFORM across
+                # every front-end shape, because milan_datapath feeds the
+                # slot-indexed bucket from aafcap_* whatever the front end is,
+                # and an I2S-only capture parks at slot 0.
+                #
+                # This used to special-case channels 0..1 onto src=1 (the
+                # single-pair I2S hold) and the rest onto src=2 offset by two,
+                # which described the Arty BLEND topology and nothing else. It
+                # was wrong two ways on a solo TDM master: the first two
+                # channels aliased one hold that ignores idx, and the rest were
+                # offset past their real slots. Nothing caught it because no
+                # shipping config reaches this branch - the role-pool shapes
+                # declare 0 physical channels and the shapes that declare
+                # physical channels use the default (non-pool) policy.
+                a = n
+                srcs.append(dict(src=2, idxh=0, idx=a // 2, half=a % 2,
+                                 valid=a // 2 < 4))   # 4 pair holds in fabric
             elif g["role"] == "host":
                 if pb_rings is None:
                     # undeclared: the fabric maximum, exactly as before -
@@ -863,6 +872,7 @@ def spec_from_overlay(ovl):
             for s in ovl["stream_outputs"]],
         clock_sources=[
             dict(name=c["name"], cs_type=cs_type[c["type"]],
+                 raw_type=c["type"],
                  loc_type=loc_type[c["location_type"]],
                  loc_index=int(c["location_index"]))
             for c in ovl["clock_sources"]],
@@ -1365,8 +1375,15 @@ def build_model(spec):
     check_two_level(l1, directory)
     name_mask, name_exc = named_structure(l1, directory, named)
 
+    #  the CLOCK_SOURCE shape travels with the model, because the RTL needs
+    #  two facts about it that no other field carries: how many sources the
+    #  configuration declares, and which one is the CRF
+    _cs_list = spec["clock_sources"]
     return dict(rom=rom, directory=directory, ROM_SIZE=len(rom),
                 OVERLAYS=overlays, WB=wb, NAMED=named,
+                N_CLKSRC=len(_cs_list),
+                CRF_CLKSRC=next((i for i, c in enumerate(_cs_list)
+                                 if c.get("raw_type") == "crf"), None),
                 L1=l1, NAME_MASK=name_mask, NAME_EXC=name_exc,
                 RATES=spec["rates"], FORMATS=fmts, CRF_FMTS=crf_fmts,
                 PER_STREAM=per_stream, DYNMAP=dynmap, ODMAP=odmap, SMAP=smap)
@@ -1529,6 +1546,22 @@ def emit_svh_text(M):
     # in synthesis an out-of-range read is simply zero, so the check "passed"
     # by accident rather than by construction. Emit the bound and let the RTL
     # loop over it.
+    # CLOCK_SOURCE shape. Emitted UNCONDITIONALLY (not inside the per-stream
+    # block below): every shape has a CLOCK_DOMAIN, and the two facts the RTL
+    # needs about it - how many sources exist, and which one is the CRF - were
+    # hardcoded as "3" and "2" until 0x0042. Those literals are only right for
+    # a 1-listener shape: the CLOCK_SOURCE set is internal, then ONE PER AAF
+    # LISTENER, then CRF, so an 8-listener shape has 10 sources with CRF at 9.
+    # A controller could not select the CRF clock there, and the servo would
+    # have engaged on "Stream Clock 1" instead. Derive, never mirror.
+    _n_cs, _crf_ix = M["N_CLKSRC"], M["CRF_CLKSRC"]
+    a("// CLOCK_SOURCE set: count, and the index of the CRF source")
+    a("// (AEM_CRF_CLKSRC_C = 16'hFFFF when this shape declares no CRF source)")
+    a(f"localparam int unsigned AEM_N_CLKSRC_C = {_n_cs};")
+    a(f"localparam [15:0] AEM_CRF_CLKSRC_C = 16'd{_crf_ix};"
+      if _crf_ix is not None else
+      "localparam [15:0] AEM_CRF_CLKSRC_C = 16'hFFFF;")
+    a("")
     a(f"localparam int AEM_RATES_N_C = {len(M['RATES'])};")
     a(f"localparam [31:0] AEM_RATES_C [0:{len(M['RATES'])-1}] = "
       "'{" + ", ".join(f"32'h{r:08X}" for r in M["RATES"]) + "};")

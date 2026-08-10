@@ -86,7 +86,7 @@ localparam [7:0] AEM_ROM_INIT_C [0:3652] = '{
   8'h72,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
-  8'h00,8'h02,8'h00,8'h00,8'h31,8'h2E,8'h36,8'h35,8'h2E,8'h30,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
+  8'h00,8'h02,8'h00,8'h00,8'h31,8'h2E,8'h36,8'h36,8'h2E,8'h30,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
   8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,8'h00,
@@ -402,6 +402,11 @@ function automatic [16:0] aem_name_qual(input [15:0] t,
 endfunction
 
 // Value validation tables
+// CLOCK_SOURCE set: count, and the index of the CRF source
+// (AEM_CRF_CLKSRC_C = 16'hFFFF when this shape declares no CRF source)
+localparam int unsigned AEM_N_CLKSRC_C = 3;
+localparam [15:0] AEM_CRF_CLKSRC_C = 16'd2;
+
 localparam int AEM_RATES_N_C = 3;
 localparam [31:0] AEM_RATES_C [0:2] = '{32'h0000BB80, 32'h00017700, 32'h0002EE00};
 localparam [63:0] AEM_FMTS_C  [0:1] = '{64'h0205022000806000, 64'h0215022002006000};

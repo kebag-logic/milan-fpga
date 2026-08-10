@@ -302,7 +302,14 @@ module KL_chan_map_capture #(
   input  wire [23:0]  i2s_r_i,
 
   //! --- TDM capture pair sources (indexed by pair slot) -------------------
-  input  wire         tdm_pair_valid_i,  //! latch pulse
+  //! public_flat_rd: milan_datapath tied this to 1'b0 until 0x0042, which
+  //! collapsed every capture pair into the SINGLE-pair I2S hold and made a
+  //! physical cluster past channel 1 unbackable on every shape. "Does this
+  //! port ever pulse" is the tie-off detector - and it must be the PORT, not
+  //! the hold register behind it: a harness that leaves the codec data pins
+  //! at zero writes the hold with zeros forever, so watching the hold for a
+  //! CHANGE reports a dead feed as healthy (it did, first try).
+  input  wire         tdm_pair_valid_i /* verilator public_flat_rd */,  //! latch pulse
   input  wire [3:0]   tdm_pair_slot_i,   //! TDM pair index (0..N_TDM_P/2-1)
   input  wire [23:0]  tdm_l_i,
   input  wire [23:0]  tdm_r_i,
@@ -442,7 +449,11 @@ module KL_chan_map_capture #(
   // Source hold buckets (latch the latest pair per source; wire-truth)      //
   // ---------------------------------------------------------------------- //
   logic [47:0] i2s_hold_r;               //! the single stereo I2S pair
-  logic [47:0] tdm_hold_r  [N_TDM_PAIRS_C];
+  //! public_flat_rd: the slot-indexed physical bucket. It was tied off in
+  //! milan_datapath until 0x0042, so "was it ever written" is the check that
+  //! a physical cluster beyond channels 0..1 can be backed at all - and it is
+  //! the one a tie-off regression would trip.
+  logic [47:0] tdm_hold_r  [N_TDM_PAIRS_C] /* verilator public_flat_rd */;
   logic [47:0] ring_hold_r [N_RING_P];
 
   always_ff @(posedge clk_i) begin : source_latch

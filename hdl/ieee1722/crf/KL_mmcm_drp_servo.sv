@@ -211,7 +211,13 @@ module KL_mmcm_drp_servo #(
   input  wire         ps_clk_i,       //! MMCM PSCLK domain (SoC: 200 MHz idelay)
 
   input  wire [63:0]  ptp_now_i,      //! gPTP-synced time (ns, clk_i)
-  input  wire [15:0]  clk_src_i,      //! live clock_source_index (2 = CRF)
+  input  wire [15:0]  clk_src_i,      //! live CLOCK_DOMAIN clock_source_index
+  //! which CLOCK_SOURCE index means "the CRF stream". NOT a literal 2: the
+  //! set is internal, one per AAF listener, then CRF, so it is 2 on a
+  //! 1-listener shape and 9 on an 8-listener one. The datapath feeds this
+  //! from the generated AEM (KL_aecp_response_builder.crf_clksrc_o); a wrong
+  //! value here engages the servo on the wrong source, silently.
+  input  wire [15:0]  crf_src_idx_i,
   input  wire         crf_locked_i,   //! KL_crf_rx locked_o
   input  wire signed [31:0] crf_rate_i, //! KL_crf_rx rate_o (ns / 512 ms)
 
@@ -342,7 +348,7 @@ module KL_mmcm_drp_servo #(
   servo_state_t state_r;
   drp_state_t   dstate_r;
 
-  wire servo_sel_w = (clk_src_i == 16'd2);
+  wire servo_sel_w = (clk_src_i == crf_src_idx_i);
 
   //! local window measurement
   logic [WIN_LOG2_P:0]      tick_cnt_r;

@@ -274,6 +274,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   input  wire                     tdm_fsync_i,    //! SLAVE role: frame sync in
   output wire                     tdm_bclk_o,     //! MASTER role: generated bit clock
   output wire                     tdm_fsync_o,    //! MASTER role: generated frame sync (1-bclk pulse)
+  //! MEDIA-GRID TEST POINT (AX7101 J11.9). Toggles on every media sample
+  //! tick, so it is a 50%-duty square at fs/2 = 24 kHz. This is the ONLY
+  //! external view of media_tick_p: no CSR carries the grid's rate, and on a
+  //! TDM8-master shape tdm_fsync_o above rides clk_audio instead - a
+  //! different clock, -10.64 ppm by construction. Probing the two together
+  //! measures that difference with no peer device involved.
+  output wire                     media_lrclk_o,
   output wire                     tdm_mclk_o,     //! MASTER role: codec master clock (clk_tdm_i/2). On a blend build (AUDIO_IF_I2S_PAIR_P) the TDM header gets its OWN mclk pad so i2s_mclk_o can stay on the Pmod I2S2 (Arty D13, the CS5343 - HANDOVER 8.3b work item 1); solo-master builds keep mclk on i2s_mclk_o exactly as before and may leave this open.
   output wire                     tdm_dout_o,     //! chmap follow-up 4: KL_tdm_render serial out (TDM8, ext-clocked by tdm_bclk/fsync)
   input  wire                     tdm_data_i,
@@ -508,6 +515,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! harness is the only place the steering can be observed at all.
   wire signed [15:0] mnco_servo_trim_w /* verilator public_flat_rd */;
   wire               mnco_servo_en_w   /* verilator public_flat_rd */;
+
+  //! the J11.9 test point: a 50%-duty square at fs/2, so a counter or a scope
+  //! reads the grid directly. Deliberately a toggle rather than the raw
+  //! one-clock strobe - a 10 ns spike at 48 kHz is hard to trigger on and
+  //! easy to mis-count, and the ppm resolution is identical either way.
+  logic media_lrclk_r;
+  always_ff @(posedge axis_clk) begin : media_lrclk_tp
+    if (!axis_resetn)        media_lrclk_r <= 1'b0;
+    else if (media_tick_p)   media_lrclk_r <= ~media_lrclk_r;
+  end : media_lrclk_tp
+  assign media_lrclk_o = media_lrclk_r;
 
   KL_media_nco #(
     .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
@@ -1006,8 +1024,23 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .map_rd_data_o (cmap_rd_data_w), .map_rd_valid_o (cmap_rd_valid_w),
     .i2s_pair_valid_i (cappb_pv_w),
     .i2s_l_i (cappb_l_w), .i2s_r_i (cappb_r_w),
-    .tdm_pair_valid_i (1'b0), .tdm_pair_slot_i (4'd0),
-    .tdm_l_i (24'd0), .tdm_r_i (24'd0),
+    //! THE SLOT-INDEXED PHYSICAL BUCKET. i2s_pair_valid_i above lands in a
+    //! SINGLE 48-bit hold (KL_chan_map_capture.sv:444 "the single stereo I2S
+    //! pair", read with the cluster's idx IGNORED), so it can only ever carry
+    //! two channels - feed a 4-pair TDM8 master into it and all four slots
+    //! collapse onto whichever pair was written last. tdm_hold_r[] is the
+    //! bucket sized for the job (N_TDM_P=8 -> 4 pairs, already elaborated),
+    //! and it was tied off, so a physical cluster beyond channels 0..1 could
+    //! never be backed on ANY shape. Every front end - I2S capture, TDM
+    //! slave, TDM master, blend - emits the same {pair_valid, pair_slot, L, R}
+    //! contract, so one wiring serves all of them; an I2S-only front end just
+    //! parks at slot 0.
+    //!
+    //! Deliberately aafcap_* and NOT cappb_*: the playback ring has its own
+    //! slot-indexed bucket below (SRC_RING), and folding it in here would make
+    //! a "physical" cluster silently read host audio whenever playback armed.
+    .tdm_pair_valid_i (aafcap_pv_w), .tdm_pair_slot_i (aafcap_slot_w),
+    .tdm_l_i (aafcap_l_w), .tdm_r_i (aafcap_r_w),
     //! follow-up 2: the ALSA-playback ring (KL_pcm_tx) as a selectable source
     .ring_pair_valid_i (ring_src_pv_w), .ring_pair_slot_i (ring_src_slot_w),
     .ring_l_i (ring_src_l_w), .ring_r_i (ring_src_r_w),
@@ -1533,6 +1566,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! public_flat_rd: the media-grid checks assert the trim is pinned BECAUSE
   //! the source is INTERNAL, rather than assuming the harness left it there
   wire [15:0] aecp_clk_src /* verilator public_flat_rd */;
+
+  //! which CLOCK_SOURCE index is the CRF one, exported from the AECP response
+  //! builder (the only module that `include-s the generated AEM ROM). It MOVES
+  //! with the shape - 2 on a 1-listener shape, 9 on an 8-listener one - and
+  //! every consumer below reads it rather than repeating a literal, because a
+  //! literal here silently pointed the servo at "Stream Clock 1".
+  wire [15:0] aem_crf_clksrc_w /* verilator public_flat_rd */;
   wire        i2spb_converged;
   wire [31:0] i2spb_dbg_frame;
   wire [31:0] avtprx_locked_c, avtprx_unlocked_c, avtprx_intr_c;
@@ -2716,7 +2756,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! internal media clock the received CRF bit governs nothing here, and
   //! echoing it would restart every listener's clock over a stream this
   //! device is not slaved to.
-  wire mcr_restart_p_w = (aecp_clk_src == 16'd2)
+  wire mcr_restart_p_w = (aecp_clk_src == aem_crf_clksrc_w)
                        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
 
   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
@@ -2846,6 +2886,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .odmap_wr_slot_o(aecp_odmap_wr_slot_w),
     .odmap_wr_word_o(aecp_odmap_wr_word_w),
     .dmap_dyn_o     (aecp_dmap_dyn_w),
+    .crf_clksrc_o   (aem_crf_clksrc_w),
     .odmap_dyn_o    (aecp_odmap_dyn_w),
     .link_up_i     (cnt_link_w),
     .gs_diag_idx_o (aecp_diag_idx_w),
@@ -2908,9 +2949,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! This pair is the mux's ONE lawful reader (gh #60 F3): every
     //! STREAM_INPUT counter - solicited and pushed - serves its own
     //! descriptor's mon_diag_cnt_w mirror slice above.
-    .in0_cnt_locked_i      ((aecp_clk_src == 16'd2) ? crf_cnt_locked_w
+    .in0_cnt_locked_i      ((aecp_clk_src == aem_crf_clksrc_w) ? crf_cnt_locked_w
                                                     : avtprx_locked_c),
-    .in0_cnt_unlocked_i    ((aecp_clk_src == 16'd2) ? crf_cnt_unlocked_w
+    .in0_cnt_unlocked_i    ((aecp_clk_src == aem_crf_clksrc_w) ? crf_cnt_unlocked_w
                                                     : avtprx_unlocked_c),
     .in0_fmt_o             (aecp_in0_fmt),
     .clk_src_o             (aecp_clk_src),
@@ -4373,6 +4414,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .ps_clk_i      (i_ps_clk),
     .ptp_now_i     (ptp_now_w),
     .clk_src_i     (aecp_clk_src),
+    .crf_src_idx_i (aem_crf_clksrc_w),
     .crf_locked_i  (crf_locked_w),
     .crf_rate_i    (crf_rate_w),
     .auto_repair_i (mcsrv_auto_repair_w),

@@ -749,6 +749,8 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         # SILENCE at the right frame width, exactly as the pmoda-less AX7101
         # I2S front-end does today.
         i_tdm_bclk_i = 0, i_tdm_fsync_i = 0, i_tdm_data_i = 0,
+        # media-grid test point: left open unless the board has a J11 header
+        o_media_lrclk_o = Signal(),
         # chmap follow-up 4: KL_tdm_render serial out is EXPORTED (tdm_dout_o);
         # open here - the same TDM-header platform extension that provides
         # bclk/fsync claims it (extra_ports), no RTL change needed then.
@@ -5223,6 +5225,8 @@ class MilanSoC(SoCCore):
                                                 else "audio"),
                     o_tdm_bclk_o  = (self.tdm_pads.bclk if self.tdm_pads
                                      else Signal()),
+                    o_media_lrclk_o = (self.tdm_pads.lrclk if self.tdm_pads
+                                       else Signal()),
                     o_tdm_fsync_o = (self.tdm_pads.fsync if self.tdm_pads
                                      else Signal()),
                     i_tdm_data_i  = (self.tdm_pads.din if self.tdm_pads else 0),

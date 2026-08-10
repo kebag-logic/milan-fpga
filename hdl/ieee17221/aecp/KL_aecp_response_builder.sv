@@ -169,6 +169,14 @@ module KL_aecp_response_builder (
   //! OTHER file would depend on compilation-unit file order (the class of
   //! silent divergence the derive-never-mirror rule exists for).
   output wire          dmap_dyn_o,         //! render-map machinery compiled
+  //! Which CLOCK_SOURCE index is the CRF one, exported as an elaboration
+  //! constant the way odmap_dyn_o is. This module is the only one that
+  //! `include-s the generated AEM ROM, so it is the only place the answer
+  //! exists - and the answer MOVES with the shape: the CLOCK_SOURCE set is
+  //! internal, then one per AAF listener, then CRF, so a 1-listener shape has
+  //! CRF at 2 and an 8-listener shape has it at 9. 16'hFFFF = this shape
+  //! declares no CRF source.
+  output wire [15:0]   crf_clksrc_o,
   output wire          odmap_dyn_o,        //! capture-map machinery compiled
   input  wire          link_up_i,          //! PHY link (AVB_INTERFACE counters)
 
@@ -341,6 +349,8 @@ module KL_aecp_response_builder (
 `else
   assign dmap_dyn_o = 1'b0;
 `endif
+  assign crf_clksrc_o = AEM_CRF_CLKSRC_C;
+
 `ifdef AEM_ODYNMAP
   assign odmap_dyn_o = 1'b1;
 `else
@@ -3675,8 +3685,15 @@ module KL_aecp_response_builder (
                   status_q     <= STATUS_NO_SUCH_DESCRIPTOR;
                   seg_len_q[0] <= 16'd8;
                 end else if (hdr_q.command_type == CMD_SET_CLOCK_SOURCE &&
-                             {w_b6, w_b7} >= 16'd3) begin
-                  status_q     <= STATUS_BAD_ARGUMENTS;   // only sources 0..2
+                             {w_b6, w_b7} >= 16'(AEM_N_CLKSRC_C)) begin
+                  //! the bound is the DECLARED CLOCK_SOURCE count, not a
+                  //! literal 3. That literal was only right for a 1-listener
+                  //! shape: the set is internal, one per AAF listener, then
+                  //! CRF, so an 8-listener shape has 10 sources and its CRF
+                  //! sits at index 9 - a controller could not select it, which
+                  //! made the mandatory CRF Media Clock Input (Milan v1.2
+                  //! 7.2.2) unreachable on exactly the shape that ships it.
+                  status_q     <= STATUS_BAD_ARGUMENTS;
                   seg_len_q[0] <= 16'd8;
                 end else begin
                   status_q      <= STATUS_SUCCESS;
