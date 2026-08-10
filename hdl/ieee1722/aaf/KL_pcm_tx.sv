@@ -199,7 +199,11 @@ module KL_pcm_tx #(
   // Media-clock pace: internal divider or external strobe                   //
   // ---------------------------------------------------------------------- //
   logic [DIVW_C-1:0] pace_r;
-  logic              tick_r;
+  //! public_flat_rd: with USE_EXT_TICK_P set this LOCAL divider is held at
+  //! zero, and "it never pulses" is the sharpest available proof that the
+  //! playback ring really joined the shared media grid rather than merely
+  //! agreeing with it in ppm
+  logic              tick_r /* verilator public_flat_rd */;
   logic [ACCW_C-1:0] frac_r;      //! Bresenham phase accumulator (0..DEN-1)
 
   //! this period's length. The SAME predicate decides the borrowed cycle and
@@ -231,7 +235,10 @@ module KL_pcm_tx #(
     end
   end : pace_div
 
-  wire tick_w = USE_EXT_TICK_P ? smp_tick_i : tick_r;
+  //! public_flat_rd: the EFFECTIVE grid this module advances on. Comparing it
+  //! cycle-by-cycle against milan_datapath's media_tick_p is what proves the
+  //! wiring, not just the parameter.
+  wire tick_w /* verilator public_flat_rd */ = USE_EXT_TICK_P ? smp_tick_i : tick_r;
   assign smp_tick_o = tick_w;
 
   // ---------------------------------------------------------------------- //

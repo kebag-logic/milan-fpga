@@ -74,6 +74,10 @@ static void do_reset() {
     dut->rst_n = 0;
     dut->a_trim_i = 0;
     dut->b_trim_i = 0;
+    dut->a_servo_trim_i = 0;
+    dut->b_servo_trim_i = 0;
+    dut->a_servo_en_i = 0;
+    dut->b_servo_en_i = 0;
     for (int i = 0; i < 8; ++i) tick_clock();
     dut->rst_n = 1;
 }
@@ -307,6 +311,101 @@ static void test_dynamic(const Shape& sh, bool is_a) {
 }
 
 // ------------------------------------------------------------------------ //
+// 9. The SERVO path: sign, scale, gating and clamp interaction.
+//
+//    This is the arithmetic that used to sit as four naked lines in
+//    milan_datapath.sv with nothing able to exercise it. A sign error here is
+//    a runaway servo, not a wrong number, so it is swept rather than argued.
+//
+//    Oracle, stated independently of the RTL:
+//      servo u is signed, 1/16 ppm, and u > 0 means SPEED UP
+//      one NCO LSB is 1/PPM_LSB ppm and POSITIVE trim SLOWS the grid
+//      => trim = -(u * PPM_LSB) / 16, then clamped to +/-TRIM_MAX
+//      => servo_en = 0 must ignore u entirely and use trim_i
+// ------------------------------------------------------------------------ //
+static long conv_oracle(const Shape& sh, long u, long ppm_lsb) {
+    long t = -((u * ppm_lsb) >> 4);            // arithmetic shift, floors
+    if (t >  sh.spec.trim_max) t =  sh.spec.trim_max;
+    if (t < -sh.spec.trim_max) t = -sh.spec.trim_max;
+    return t;
+}
+
+static void test_servo(const Shape& sh, bool is_a, long ppm_lsb, uint64_t ticks) {
+    printf("\n-- 9. %s: servo path (u in 1/16 ppm -> trim in LSB) --\n", sh.name);
+
+    // The servo's own clamp is +-200 ppm = +-3200 in 1/16 ppm units. Sweep
+    // past it on both sides so the NCO clamp interaction is covered too.
+    const std::vector<long> us = { 0, 16, -16, 160, -160, 1600, -1600,
+                                   3200, -3200, 8000, -8000, 32767, -32768 };
+
+    for (long u : us) {
+        // servo_en = 1: the grid must follow the converted command
+        do_reset();
+        if (is_a) { dut->a_servo_en_i = 1; dut->a_servo_trim_i = (int32_t)u; }
+        else      { dut->b_servo_en_i = 1; dut->b_servo_trim_i = (int32_t)u; }
+
+        const long  want_lsb = conv_oracle(sh, u, ppm_lsb);
+        const double want_ppm = sh.spec.ppm(want_lsb);
+
+        NcoObserver obs(sh.spec);
+        obs.reset(g_clock);
+        uint64_t seen = 0;
+        uint64_t first = 0, last = 0; bool have = false;
+        while (seen <= ticks) {
+            const Ticks t = tick_clock();
+            const bool hit = is_a ? t.a : t.b;
+            if (!hit) continue;
+            obs.on_tick(g_clock, want_lsb);
+            if (!have) { have = true; first = g_clock; } else { last = g_clock; ++seen; }
+        }
+        const long double lhs =
+            (long double)(int64_t)(last - first) * (long double)sh.spec.fs_hz
+          - (long double)seen * (long double)(int64_t(sh.spec.clk_hz) + want_lsb);
+        const bool exact = std::fabsl(lhs) < (long double)sh.spec.fs_hz;
+
+        printf("   %s u %+7ld (1/16 ppm) -> trim %+7ld LSB, %+9.4f ppm "
+               "(measured %+9.4f)\n",
+               sh.name, u, want_lsb, want_ppm, obs.measured_ppm());
+        ok(exact, std::string(sh.name) + " servo u=" + std::to_string(u)
+                  + " lands on the converted rate exactly");
+    }
+
+    // SIGN, stated as its own check so a flipped negation cannot hide inside
+    // a table of numbers: a POSITIVE u must make the grid FASTER.
+    auto rate_at = [&](long u, bool en) {
+        do_reset();
+        if (is_a) { dut->a_servo_en_i = en; dut->a_servo_trim_i = (int32_t)u; }
+        else      { dut->b_servo_en_i = en; dut->b_servo_trim_i = (int32_t)u; }
+        NcoObserver o(sh.spec); o.reset(g_clock);
+        uint64_t seen = 0; bool have = false;
+        while (seen <= ticks) {
+            const Ticks t = tick_clock();
+            const bool hit = is_a ? t.a : t.b;
+            if (!hit) continue;
+            o.on_tick(g_clock, 0);
+            if (!have) have = true; else ++seen;
+        }
+        return o.measured_ppm();
+    };
+    const double up = rate_at(1600, true), zero = rate_at(0, true), dn = rate_at(-1600, true);
+    printf("   sign: u=+1600 -> %+.4f ppm, u=0 -> %+.4f, u=-1600 -> %+.4f\n", up, zero, dn);
+    ok(up > zero, std::string(sh.name) + " servo u > 0 SPEEDS THE GRID UP");
+    ok(dn < zero, std::string(sh.name) + " servo u < 0 slows the grid down");
+
+    // GATING: servo_en = 0 must ignore u completely. This is the check that
+    // was unfalsifiable at datapath level, because there the servo is idle at
+    // u = 0 whenever the gate is closed - here u is forced non-zero.
+    const double gated_off = rate_at(3200, false);
+    const double gated_on  = rate_at(3200, true);
+    printf("   gate: u=+3200 with servo_en=0 -> %+.4f ppm, servo_en=1 -> %+.4f\n",
+           gated_off, gated_on);
+    ok(std::fabs(gated_off) < 0.5,
+       std::string(sh.name) + " servo_en=0 IGNORES a non-zero u (INTERNAL free-runs)");
+    ok(std::fabs(gated_on - sh.spec.ppm(conv_oracle(sh, 3200, ppm_lsb))) < 0.5,
+       std::string(sh.name) + " servo_en=1 follows that same u");
+}
+
+// ------------------------------------------------------------------------ //
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     dut = new Vmedia_nco_wrap;
@@ -338,6 +437,11 @@ int main(int argc, char** argv) {
 
     test_dynamic(A, true);
     test_dynamic(B, false);
+
+    //  PPM_LSB stated independently (CLK/1e6), so a change to the module's
+    //  derived default trips the conversion checks instead of moving with them
+    test_servo(A, true,  100, 1500);
+    test_servo(B, false,  50, 1500);
 
     dut->final();
     delete dut;

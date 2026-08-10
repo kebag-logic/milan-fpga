@@ -80,7 +80,11 @@ module KL_media_nco #(
   //! silently drop a sample, so the default is the maximum legal value and
   //! the guards below refuse anything larger.
   parameter int unsigned TRIM_MAX_P    = FS_HZ_P - (CLK_FREQ_HZ_P % FS_HZ_P),
-  parameter int unsigned TRIMW_P       = 16           //! trim_i width (signed)
+  parameter int unsigned TRIMW_P       = 16,          //! trim_i width (signed)
+  //! NCO LSB per ppm. DERIVED: one LSB moves the rate by 1/CLK_FREQ_HZ_P
+  //! relative, so a ppm is CLK_FREQ_HZ_P/1e6 LSB (100 at 100 MHz, 50 at
+  //! 50 MHz). Used only to rescale the servo's units below.
+  parameter int unsigned PPM_LSB_P     = CLK_FREQ_HZ_P / 1_000_000
 )(
   input  wire                     clk_i,   //! datapath clock
   input  wire                     rst_n,   //! active-low synchronous reset
@@ -89,6 +93,18 @@ module KL_media_nco #(
   //! +/-TRIM_MAX_P, so a wild input degrades to the clamp, never to a
   //! dropped sample.
   input  wire signed [TRIMW_P-1:0] trim_i,
+  //! --- the servo path -----------------------------------------------------
+  //! KL_mmcm_drp_servo's u, signed, in 1/16 ppm units (its A_MCSRV_STAT
+  //! [31:16] field). Lives HERE rather than in the datapath so the sign and
+  //! the rescale are covered by this module's suite: a sign error between the
+  //! two conventions is a runaway servo, not a wrong number, and four naked
+  //! lines in a 5000-line wrapper had no way to be exercised.
+  input  wire signed [15:0]        servo_trim_i,
+  //! 1 = follow servo_trim_i (a clock source is selected), 0 = free-run on
+  //! trim_i. clock_source = INTERNAL must land here as 0: the USER rule is
+  //! "internal media clock = free-run, slips accepted", and it is what keeps
+  //! the shipping default bit-for-bit identical to the pre-NCO divider.
+  input  wire                      servo_en_i,
   output logic                    tick_o,  //! one-cycle sample strobe
   //! fractional accumulator, for the media-clock testbench and CSR taps: it
   //! is the sub-sample phase of the grid and it is the only way to see the
@@ -128,12 +144,28 @@ module KL_media_nco #(
   logic [CNTW_C-1:0]  cnt_r;
   logic [FRACW_C-1:0] frac_r;
 
-  //! clamp first, so the arithmetic below is always inside the span the
-  //! elaboration guards proved
+  //! SERVO PATH. The servo's u > 0 means SPEED UP (KL_mmcm_drp_servo.sv:604);
+  //! this NCO's trim > 0 LENGTHENS the period, i.e. slows down. Hence the
+  //! negation. u is 1/16 ppm and one LSB here is 1/PPM_LSB_P ppm, so the
+  //! conversion is -(u * PPM_LSB_P) / 16. The servo clamps u to +-200 ppm
+  //! (U_MAX_P), which lands at +-200*PPM_LSB_P LSB - 20000 at 100 MHz, inside
+  //! the derived TRIM_MAX_P of 32000, so the two authorities agree by
+  //! construction rather than by a comment.
+  wire signed [31:0] servo_lsb_w =
+      -(($signed(32'(servo_trim_i)) * $signed(32'(PPM_LSB_P))) >>> 4);
+
+  //! one trim, selected. INTERNAL (servo_en_i = 0) free-runs on trim_i, which
+  //! the datapath ties to zero, which is what makes the shipping default
+  //! bit-for-bit the divider this module replaced.
+  wire signed [31:0] trim_sel_w = servo_en_i ? servo_lsb_w : 32'(trim_i);
+
+  //! clamp AFTER the select, so a wild servo command degrades to the clamp on
+  //! exactly the same terms a wild trim_i does - and so the arithmetic below
+  //! is always inside the span the elaboration guards proved
   wire signed [SUMW_C-1:0] trim_cl_w =
-      (trim_i >  TRIMW_P'(signed'(TRIM_MAX_P)))  ?  SUMW_C'(signed'(TRIM_MAX_P))
-    : (trim_i < -TRIMW_P'(signed'(TRIM_MAX_P)))  ? -SUMW_C'(signed'(TRIM_MAX_P))
-                                                 :  SUMW_C'(trim_i);
+      (trim_sel_w >  $signed(32'(TRIM_MAX_P)))  ?  SUMW_C'(signed'(TRIM_MAX_P))
+    : (trim_sel_w < -$signed(32'(TRIM_MAX_P)))  ? -SUMW_C'(signed'(TRIM_MAX_P))
+                                                :  SUMW_C'(trim_sel_w);
 
   //! ONE predicate set decides the borrowed/lent cycle AND the accumulator
   //! wrap, so the two can never disagree (the KL_pcm_tx pace_div discipline)

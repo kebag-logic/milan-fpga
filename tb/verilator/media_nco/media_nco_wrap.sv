@@ -29,12 +29,16 @@ module media_nco_wrap (
 
   //! A: the AX7101 shipping shape
   input  wire signed [17:0] a_trim_i,
+  input  wire signed [15:0] a_servo_trim_i,
+  input  wire               a_servo_en_i,
   output wire               a_tick_o,
   output wire [15:0]        a_phase_o,
   output wire [31:0]        a_cnt_o,
 
   //! B: the Arty shape - same FS, different datapath clock
   input  wire signed [17:0] b_trim_i,
+  input  wire signed [15:0] b_servo_trim_i,
+  input  wire               b_servo_en_i,
   output wire               b_tick_o,
   output wire [15:0]        b_phase_o,
   output wire [31:0]        b_cnt_o
@@ -49,9 +53,11 @@ module media_nco_wrap (
   ) nco_a (
     .clk_i   (clk_i),
     .rst_n   (rst_n),
-    .trim_i  (a_trim_i),
-    .tick_o  (a_tick_o),
-    .phase_o (a_ph_w)
+    .trim_i       (a_trim_i),
+    .servo_trim_i (a_servo_trim_i),
+    .servo_en_i   (a_servo_en_i),
+    .tick_o       (a_tick_o),
+    .phase_o      (a_ph_w)
   );
 
   KL_media_nco #(
@@ -61,9 +67,11 @@ module media_nco_wrap (
   ) nco_b (
     .clk_i   (clk_i),
     .rst_n   (rst_n),
-    .trim_i  (b_trim_i),
-    .tick_o  (b_tick_o),
-    .phase_o (b_ph_w)
+    .trim_i       (b_trim_i),
+    .servo_trim_i (b_servo_trim_i),
+    .servo_en_i   (b_servo_en_i),
+    .tick_o       (b_tick_o),
+    .phase_o      (b_ph_w)
   );
 
   assign a_phase_o = a_ph_w;

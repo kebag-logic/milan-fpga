@@ -4758,6 +4758,112 @@ int main(int argc, char** argv) {
         for (int c = 0; c < 512; c++) step();
     }
 
+    // ------------------------------------------------------------------ //
+    //  MEDIA GRID (VERSION 0x0041): one steerable grid, and the playback
+    //  ring rides it.
+    //
+    //  These are WIRING claims, deliberately. tb/verilator/media_nco already
+    //  grades KL_media_nco's arithmetic to 0.01 ppm against a closed form and
+    //  nothing here re-proves that. What only the whole datapath can show is
+    //  that media_tick_p really comes OUT of the NCO, that KL_pcm_tx really
+    //  advances on it instead of on its own divider, and that
+    //  clock_source = INTERNAL really pins the trim to zero - the three
+    //  things a parameter typo would break silently while every ppm check
+    //  in the tree stayed green.
+    // ------------------------------------------------------------------ //
+    {
+        auto* rp = dut->rootp;
+
+        //  6250 clocks == 3 samples EXACTLY at 100 MHz / 48 kHz (the Bresenham
+        //  walks 2083, 2083, 2084), so a whole multiple of it makes the
+        //  expected count exact arithmetic rather than a rounding. The window
+        //  still starts at an arbitrary phase, hence the +/-1.
+        const long GRID_CLK  = 625000;   // 300 samples exactly
+        const long GRID_WANT = 300;
+
+        //  the servo command the datapath hands the NCO, and the gate that
+        //  decides whether the grid may follow it. The CONVERSION (sign and
+        //  rescale) now lives inside KL_media_nco where tb/verilator/media_nco
+        //  sweeps it; what belongs here is the WIRING - is the servo's
+        //  published field really what reaches the NCO, and is the gate really
+        //  the clock-source selection.
+        auto servo16 = [&]() -> long {
+            const unsigned long raw = rp->milan_datapath__DOT__mnco_servo_trim_w & 0xFFFFul;
+            return (raw & 0x8000ul) ? (long)raw - 0x10000L : (long)raw;
+        };
+        auto stat16 = [&]() -> long {
+            const unsigned long raw = (rp->milan_datapath__DOT__mcsrv_stat_w >> 16) & 0xFFFFul;
+            return (raw & 0x8000ul) ? (long)raw - 0x10000L : (long)raw;
+        };
+
+        long ticks = 0, pcm_local = 0, mismatch = 0;
+        long gate_bad = 0, cmd_bad = 0;
+        for (long c = 0; c < GRID_CLK; c++) {
+            step();
+            const bool mt = rp->milan_datapath__DOT__media_tick_p != 0;
+            if (mt) ticks++;
+
+            //  the gate must BE the clock-source selection, every cycle
+            const bool want_en = (rp->milan_datapath__DOT__aecp_clk_src != 0);
+            if ((rp->milan_datapath__DOT__mnco_servo_en_w != 0) != want_en) gate_bad++;
+            //  and the command must BE the servo's published trim field
+            if (servo16() != stat16()) cmd_bad++;
+#ifdef AAF_PB_TB
+            //  KL_pcm_tx only exists on the playback shape (obj_nxn8); on the
+            //  N=4 build the generate is not taken, so these taps do not exist
+            //  and the one-grid claim is checked by the 8x8 leg alone.
+            const bool pt = rp->milan_datapath__DOT__g_aaf_playback__DOT__pcm_tx__DOT__tick_w != 0;
+            if (pt != mt) mismatch++;
+            if (rp->milan_datapath__DOT__g_aaf_playback__DOT__pcm_tx__DOT__tick_r) pcm_local++;
+#endif
+        }
+        printf("  [i]    media grid: %ld ticks in %ld clocks (want %ld +/-1), "
+               "pcm local-divider pulses %ld, tick mismatches %ld\n",
+               ticks, GRID_CLK, GRID_WANT, pcm_local, mismatch);
+
+        //  vacuity guard first: a grid stuck low would make every "== 0"
+        //  check below pass for the wrong reason
+        ck("0x0041 grid: media_tick_p actually ticks (vacuity guard)",
+           ticks > 0, 1);
+        ck("0x0041 grid: rate is 48 kHz on the milan clock",
+           (ticks >= GRID_WANT - 1 && ticks <= GRID_WANT + 1), 1);
+#ifdef AAF_PB_TB
+        ck("0x0041 grid: KL_pcm_tx's OWN divider never pulses",
+           pcm_local, 0);
+        ck("0x0041 grid: KL_pcm_tx advances on media_tick_p, every cycle",
+           mismatch, 0);
+#endif
+        ck("0x0041 grid: clock_source is INTERNAL for this run",
+           rp->milan_datapath__DOT__aecp_clk_src, 0);
+
+        //  The steering WIRING. Both of these are falsifiable regardless of
+        //  whether the servo ever moves, which the earlier "trim == 0 while
+        //  INTERNAL" formulation was not: with clock_source = INTERNAL the
+        //  servo sits at u = 0, so gated and ungated were both zero and
+        //  deleting the gate left the suite green. Grading the GATE itself
+        //  rather than its arithmetic consequence removes that blind spot -
+        //  and the sign/rescale it used to stand in for is now swept directly
+        //  by tb/verilator/media_nco (13 servo commands x 2 clock shapes).
+        ck("0x0041 grid: the NCO's servo gate IS the clock-source selection",
+           gate_bad, 0);
+        ck("0x0041 grid: INTERNAL leaves the grid free-running",
+           rp->milan_datapath__DOT__mnco_servo_en_w, 0);
+
+        //  "the command is A_MCSRV_STAT[31:16]" can only be graded while the
+        //  servo status is non-zero: idle, the whole word reads 0 and every
+        //  slice of it compares equal. Mutating the slice to [15:0] leaves
+        //  this green - verified - so it is reported, not passed.
+        if (stat16() == 0 && (rp->milan_datapath__DOT__mcsrv_stat_w & 0xFFFFu) == 0) {
+            printf("  [GAP]  0x0041 grid: servo status is all-zero (idle at "
+                   "clock_source=INTERNAL), so WHICH slice feeds the NCO is "
+                   "unfalsifiable here. The sign and rescale it carries are "
+                   "swept by tb/verilator/media_nco; only the slice is open, "
+                   "and it needs a CRF stimulus at clock_source=CRF.\n");
+        } else {
+            ck("0x0041 grid: the NCO's servo command IS A_MCSRV_STAT[31:16]",
+               cmd_bad, 0);
+        }
+    }
 
     printf("--------------------------------------------------------------\n");
     printf("checks: %ld   failures: %ld\n", checks, fails);

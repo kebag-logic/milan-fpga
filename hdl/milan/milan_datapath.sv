@@ -491,7 +491,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! tick-for-tick against a transcription of the old code), which is what
   //! keeps clock_source = INTERNAL the free-running grid every bench number on
   //! record was measured against.
-  wire        media_tick_p;
+  //! public_flat_rd: the media-grid checks in tb/verilator/milan_dp sim_nxn
+  //! count this directly. The grid's rate is the one thing no CSR can show.
+  wire        media_tick_p /* verilator public_flat_rd */;
   //! sub-sample phase of the grid. Not consumed by the fabric: it is a TB tap,
   //! and it is the only way to watch a trim take effect faster than the beat
   //! period (a 0.01 ppm step needs ~48000 ticks to move the tick pattern, but
@@ -501,18 +503,26 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! driven far below, beside KL_mmcm_drp_servo: ONE error signal, two
   //! actuators. Declared here because the grid is built long before the
   //! clock-source selection exists.
-  wire signed [17:0] mnco_trim_w;
+  //! the two signals that steer the grid, driven far below beside
+  //! KL_mmcm_drp_servo. public_flat_rd because neither reaches a CSR, so a
+  //! harness is the only place the steering can be observed at all.
+  wire signed [15:0] mnco_servo_trim_w /* verilator public_flat_rd */;
+  wire               mnco_servo_en_w   /* verilator public_flat_rd */;
 
   KL_media_nco #(
     .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
     .FS_HZ_P       (48_000),
     .TRIMW_P       (18)
   ) media_nco (
-    .clk_i   (axis_clk),
-    .rst_n   (axis_resetn),
-    .trim_i  (mnco_trim_w),
-    .tick_o  (media_tick_p),
-    .phase_o (media_tick_phase_w)
+    .clk_i        (axis_clk),
+    .rst_n        (axis_resetn),
+    //! the direct trim is unused here: the grid follows the servo or it
+    //! free-runs, and nothing else in this design commands it in LSB
+    .trim_i       (18'sd0),
+    .servo_trim_i (mnco_servo_trim_w),
+    .servo_en_i   (mnco_servo_en_w),
+    .tick_o       (media_tick_p),
+    .phase_o      (media_tick_phase_w)
   );
 
   //! media-grid pilot for the capture crossbar: the SAME table, stepped by
@@ -1442,7 +1452,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [7:0]  avtprx_b3;
   wire [63:0] avtprx_sid_frame, avtprx_fsh2;
   wire signed [31:0] crf_delta_w, crf_rate_w;
-  wire [31:0] mcsrv_stat_w;   //! KL_mmcm_drp_servo status (A_MCSRV_STAT 0x8F8)
+  //! public_flat_rd: [31:16] is the servo's signed 1/16 ppm trim, and it is
+  //! the INPUT to the NCO conversion below. A harness that cannot see it
+  //! cannot tell "the gate held the trim at zero" from "the servo was idle
+  //! and zero anyway" - which is the difference between a check and a
+  //! tautology (tb/verilator/milan_dp reports that vacuity rather than
+  //! passing through it).
+  wire [31:0] mcsrv_stat_w /* verilator public_flat_rd */;   //! KL_mmcm_drp_servo status (A_MCSRV_STAT 0x8F8)
   wire        mcsrv_ps_invert_w;  //! MCSRV_CTRL 0x8FC[0] bench sign knob
   wire        mcsrv_auto_repair_w;//! MCSRV_CTRL 0x8FC[1] bench-gated DRP repair enable (default 0)
   //! chmap 0x900 fabric (docs/CHANNEL_MAP_64.md §6): CSR map-RAM write port +
@@ -1514,7 +1530,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire                     crft_tx_tvalid, crft_tx_tlast, crft_tx_tready;
   wire [63:0] avtprx_fsh;
   wire [63:0] aecp_in0_fmt;
-  wire [15:0] aecp_clk_src;
+  //! public_flat_rd: the media-grid checks assert the trim is pinned BECAUSE
+  //! the source is INTERNAL, rather than assuming the harness left it there
+  wire [15:0] aecp_clk_src /* verilator public_flat_rd */;
   wire        i2spb_converged;
   wire [31:0] i2spb_dbg_frame;
   wire [31:0] avtprx_locked_c, avtprx_unlocked_c, avtprx_intr_c;
@@ -4395,27 +4413,20 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  there is only one number to diverge from. Two independently-servoed
   //  48 kHz grids is exactly the failure the ONE-GRID rule was written for.
   //
-  //  SIGN. The servo's u > 0 means "speed up" (KL_mmcm_drp_servo.sv:604); the
-  //  NCO's trim > 0 lengthens the period, i.e. "slow down". Hence the
-  //  negation - getting this backwards is a runaway, not a wrong number.
-  //
-  //  SCALE. u is 1/16 ppm. One NCO LSB is 1e6/MILAN_CLK_FREQ_HZ ppm, so one
-  //  1/16-ppm step is (MILAN_CLK_FREQ_HZ/1e6)/16 LSB - 6.25 at 100 MHz. The
-  //  servo's own +/-200 ppm clamp therefore lands at +/-20000 LSB, comfortably
-  //  inside the NCO's derived +/-32000. Derived from MILAN_CLK_FREQ_HZ, never
-  //  mirrored: at 50 MHz the factor is 3.125 and the clamp +/-10000, and both
-  //  follow without an edit.
+  //  The SIGN and the SCALE of that shared command live inside KL_media_nco,
+  //  not here: they are the two ways this can be wrong, a sign error is a
+  //  runaway rather than a wrong number, and as four naked lines in this file
+  //  they had no suite that could exercise them. tb/verilator/media_nco now
+  //  sweeps them directly. What stays here is only the WIRING - which signal
+  //  is the servo's command, and when the grid is allowed to follow it.
   //
   //  INTERNAL. clock_source 0 is free-run by USER rule ("internal media clock
-  //  = free-run, slips accepted"), so the trim is forced to zero and the grid
-  //  is bit-for-bit the divider that shipped at 0x0040. That is what lets
-  //  every existing bench measurement stand.
+  //  = free-run, slips accepted"), so the grid follows nothing and is
+  //  bit-for-bit the divider that shipped at 0x0040. That is what lets every
+  //  existing bench measurement stand.
   // --------------------------------------------------------------------------
-  localparam int MNCO_PPM_LSB_C = MILAN_CLK_FREQ_HZ / 1_000_000;
-  wire signed [15:0] mcsrv_trim_w  = $signed(mcsrv_stat_w[31:16]);
-  wire signed [31:0] mnco_scaled_w =
-      -(($signed(32'(mcsrv_trim_w)) * $signed(32'(MNCO_PPM_LSB_C))) >>> 4);
-  assign mnco_trim_w = (aecp_clk_src == 16'd0) ? 18'sd0 : 18'(mnco_scaled_w);
+  assign mnco_servo_trim_w = $signed(mcsrv_stat_w[31:16]);
+  assign mnco_servo_en_w   = (aecp_clk_src != 16'd0);
 
   // ==========================================================================
   //  CRF Media Clock Output engine (Milan 7.3.1) - talker half: emits the

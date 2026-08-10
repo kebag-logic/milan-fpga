@@ -34,6 +34,7 @@ structurally unable to follow anything else. Two consequences:
 | 6 | **The sign is the one the datapath assumes** | `trim > 0` slows the grid |
 | 7 | **A wild trim saturates** | 2× past the clamp equals the clamp, to 1e-3 ppm |
 | 8 | **A live trim change is glitchless** | two mid-flight trim steps, period bounds hold throughout |
+| 9 | **The servo path: sign, scale, gate** | 13 servo commands × 2 clock shapes against an independently-written oracle |
 
 Check 5 deserves a note: the *exact* proof of the LSB is check 2 at `trim = ±1`,
 which is integer-exact and needs no statistics. The ppm secant is the
@@ -58,6 +59,36 @@ error in `REM_C` does not change the tick *pattern* for ~144,000 ticks, so a
 600k-clock run cannot see it. That mutation was run and initially survived;
 the phase oracle is the fix.
 
+## The servo path lives here on purpose
+
+`servo_trim_i` / `servo_en_i` convert `KL_mmcm_drp_servo`'s `u` (signed,
+1/16 ppm, published on `A_MCSRV_STAT[31:16]`) into a grid trim:
+
+```
+trim = -(u * PPM_LSB_P) / 16,  then clamped to +/-TRIM_MAX_P
+servo_en_i = 0  ->  ignore u entirely, free-run on trim_i
+```
+
+That arithmetic used to sit as four lines in `milan_datapath.sv`, where it
+could not be exercised: at `clock_source = INTERNAL` the servo sits at `u = 0`,
+so gated and ungated are both zero and **deleting the gate left the whole tree
+green**. It was moved here, unchanged, so it could be swept. The two ways it
+can be wrong are the two ways that matter — a sign error is a runaway servo,
+not a wrong number — so both are checked directly rather than argued:
+
+```
+sign: u=+1600 -> +100.2099 ppm,  u=0 -> +0.1066,  u=-1600 -> -99.9767
+gate: u=+3200 with servo_en=0 -> +0.1066 ppm,  servo_en=1 -> +200.0133
+```
+
+Both shapes report the same ppm for the same `u`. That is the cross-check that
+the derivation is right rather than merely self-consistent: `PPM_LSB_P` scales
+with the clock, so a ppm command has to mean a ppm on either.
+
+The servo's own `U_MAX_P` clamp (±200 ppm = ±3200 in 1/16 ppm) lands inside
+the NCO's derived `TRIM_MAX_P`, and the sweep runs past it on both sides so
+the clamp interaction is covered too.
+
 ## Mutation results
 
 | Mutation | Bites? |
@@ -67,6 +98,9 @@ the phase oracle is the fix.
 | tie `un_w` to 0 (kill the borrow path) | yes — 7 fail |
 | bypass the clamp | yes — 3 fail |
 | drop the overflow subtraction in the phase update | yes — 93 fail |
+| drop the servo negation | yes — 30 fail |
+| `>>> 3` instead of `>>> 4` (wrong rescale) | yes — 18 fail |
+| ignore `servo_en_i` | yes — 104 fail |
 
 ## Two shapes, deliberately
 
@@ -78,10 +112,15 @@ moves with the clock too).
 
 ## What this suite does NOT prove
 
-- **Nothing about the loop.** It grades the actuator against a commanded trim.
-  Whether the *right* trim arrives — the servo, the CRF error signal, the
-  clock-source selection — is `mmcm_servo`, `mmcm_servo_autorepair`, `crf_rx`
-  and `milan_dp`, not here.
+- **Nothing about the loop.** It grades the actuator against a commanded `u`,
+  including the conversion. Whether the *right* `u` arrives — the CRF error
+  signal, the PI response, the clock-source selection — is `mmcm_servo`,
+  `mmcm_servo_autorepair`, `crf_rx` and `milan_dp`, not here.
+- **Nothing about which field carries `u`.** This suite is handed
+  `servo_trim_i` directly. That the datapath wires it from
+  `A_MCSRV_STAT[31:16]` rather than some other slice is a `milan_dp` question,
+  and while the servo is idle its whole status word is zero, so `milan_dp`
+  reports that as an open `[GAP]` rather than passing it.
 - **Nothing about the other actuator.** `clk_audio` is steered by
   `KL_mmcm_drp_servo` from the same command; that they agree in *silicon* is a
   bench measurement, not a simulation one. The arithmetic that converts the
