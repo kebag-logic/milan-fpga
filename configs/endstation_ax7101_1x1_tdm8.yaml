@@ -115,13 +115,46 @@ audio_interface:
                                      # generates bclk/fsync, so the front-end
                                      # is real without a codec behind it.
   word_length_bits: 24
-  physical_channels:                 # WHAT THE BOARD ACTUALLY ROUTES - and
-    capture: 0                       # the AX7101 routes NOTHING (platform
-    render: 0                        # ships _connectors = []); declaring 8
-                                     # here would advertise sources the
-                                     # fabric cannot back. The TDM8 channels
-                                     # this shape carries live in the host
-                                     # and loopback pools below.
+  physical_channels:                 # WHAT THE BOARD ACTUALLY ROUTES.
+    capture: 8                       # the TDM8 bus on J11.3-J11.8, driven as
+                                     # bus MASTER, so the front end is real
+                                     # with or without a codec behind it.
+                                     # Was 0 on the grounds that "the AX7101
+                                     # routes NOTHING (_connectors = [])" -
+                                     # true before the item-4 J11 header, and
+                                     # false since. BACKED as of 0x0042:
+                                     # milan_datapath feeds the crossbar's
+                                     # SLOT-INDEXED bucket (.tdm_pair_valid_i,
+                                     # tied to 1'b0 until then) and the
+                                     # builder emits a uniform src=2,
+                                     # idx=ch/2, so all four pair slots reach
+                                     # a cluster instead of collapsing onto
+                                     # the single-pair I2S hold.
+    render: 0                        # STILL 0, and NOT an oversight. Three
+                                     # things must land first:
+                                     #  (1) KL_tdm_render is a bus SLAVE - its
+                                     #      serializer runs on posedge
+                                     #      tdm_bclk_i, and a MASTER build
+                                     #      ties tdm_bclk_i/tdm_fsync_i to 0
+                                     #      (milan_soc.py:751), so the clock
+                                     #      is constant zero and tdm_dout_o
+                                     #      never leaves reset. There is no
+                                     #      KL_tdm_render_master sibling; the
+                                     #      capture side got one, render did
+                                     #      not.
+                                     #  (2) the render map is keyed by GLOBAL
+                                     #      cluster index and gated at
+                                     #      AEM_DMAP_PHYS_C = 10
+                                     #      (KL_aecp_response_builder.sv:1533).
+                                     #      8 physical + 8 host = 16 clusters
+                                     #      would return BAD_ARGUMENTS for
+                                     #      keys 10..15 - six host clusters
+                                     #      become unmappable. A REGRESSION,
+                                     #      not a gap.
+                                     #  (3) CHMAP_PHYS_C = 10 bakes the blend
+                                     #      layout (2 I2S + 8 TDM) into the
+                                     #      fabric, so phys 0/1 render into a
+                                     #      DAC this shape prunes.
   channel_names: [FL, FR, FC, LFE, RL, RR, SL, SR]
                                      # USER 2026-08-05: the 7.1 order, as a
                                      # PARAMETER. Names the host clusters

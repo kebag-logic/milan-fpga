@@ -14,8 +14,8 @@
  * the CORRECT records. Every prior odmap witness (sim_odmap.cpp) ran the
  * gen_odmap_shape.py TB shape - the tdm8 config had NO aecp sim leg, so
  * this replays the exact silicon sequence on the exact silicon tables:
- * seed settles, ADD {0,0,8,0} -> slot 0 must take the cluster-8 TONE
- * template, ADD {0,1,8,0} -> slot 1, then GET echoes both records.
+ * seed settles, ADD {0,0,PILOT_CL,0} -> slot 0 must take the pilot-cluster TONE
+ * template, ADD {0,1,PILOT_CL,0} -> slot 1, then GET echoes both records.
  *
  * SHAPE (configs/generated/endstation_ax7101_1x1_tdm8): ONE dynamic
  * STREAM_PORT_OUTPUT, 17 clusters (8 ring/host + TONE at cluster_offset 8
@@ -214,7 +214,19 @@ static bool row_is(const std::vector<uint8_t>& b, size_t base, int n,
 //! tdm8 power-on channel entries == AEM_ODMAP_CSRC_C[0..7] (ring identity)
 static const int SEED_W[8] = {0x1300, 0x1B00, 0x1301, 0x1B01,
                               0x1302, 0x1B02, 0x1303, 0x1B03};
-static const int TONE_W = 0x1400;   //! AEM_ODMAP_CSRC_C[8], the pilot tone
+//! The Pilot cluster's OFFSET on the talker port. It is NOT 8 any more:
+//! 0x0043 declared the AX7101's TDM8 channels, and role_pool() lays the port
+//! out physical, host, pilot, loopback - so physical 0-7 pushed host to 8-15
+//! and the pilot to 16. Stated once here; the runtime check below refuses to
+//! run if the model moves again, rather than letting this drift silently.
+static const int PILOT_CL = 16;
+//! Where the boot identity image points. AEM_ODMAP_INIT_C seeds channel k to
+//! cluster HOST_CL0+k - 6'h28..6'h2F since 0x0043, 6'h20..6'h27 before it,
+//! because the host pool moved to offset 8 when physical 0-7 appeared. The
+//! identity is still the HOST ring by explicit USER choice (physical-first
+//! would have made a codec-less board wake up streaming the J11 pins).
+static const int HOST_CL0 = 8;
+static const int TONE_W = 0x1400;   //! AEM_ODMAP_CSRC_C[PILOT_CL], the pilot
 static long wr_key(int slot, int word) { return (long)slot * 65536 + word; }
 
 int main(int argc, char** argv) {
@@ -255,26 +267,26 @@ int main(int argc, char** argv) {
         }
     }
 
-    printf("\n[2] THE silicon record: ADD {SPO,0,nmaps=1,[0,0,8,0]}\n");
+    printf("\n[2] THE silicon record: ADD {SPO,0,nmaps=1,[0,0,PILOT_CL,0]}\n");
     {
         take_wrs();
-        auto r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,0,8,0}}}));
-        ck("ADD {0,0,8,0} SUCCESS", r_status(r), 0);
+        auto r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,0,PILOT_CL,0}}}));
+        ck("ADD {0,0,PILOT_CL,0} SUCCESS", r_status(r), 0);
         auto w = take_wrs();
         ck("exactly one capture-map write", (long)w.size(), 1);
         if (w.size() == 1) {
             //! silicon carried this write at KEY 1 - the +1 defect
             ck("slot IS the stream channel: key 0 (silicon: 1)",
                w[0].slot, 0);
-            ck("word = cluster-8 TONE template 0x1400", w[0].word, TONE_W);
+            ck("word = pilot-cluster TONE template 0x1400", w[0].word, TONE_W);
         }
     }
 
-    printf("\n[3] the second silicon ADD: [0,1,8,0] -> slot 1\n");
+    printf("\n[3] the second silicon ADD: [0,1,PILOT_CL,0] -> slot 1\n");
     {
         take_wrs();
-        auto r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,1,8,0}}}));
-        ck("ADD {0,1,8,0} SUCCESS", r_status(r), 0);
+        auto r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,1,PILOT_CL,0}}}));
+        ck("ADD {0,1,PILOT_CL,0} SUCCESS", r_status(r), 0);
         auto w = take_wrs();
         ck("exactly one capture-map write", (long)w.size(), 1);
         if (w.size() == 1) {
@@ -289,10 +301,12 @@ int main(int argc, char** argv) {
         ck("GET SPO0 page0 SUCCESS", r_status(r), 0);
         ck("number_of_maps = 1", r_be16(r, 44), 1);
         ck("n = 8 (replaced, not added)", r_be16(r, 46), 8);
-        ck("row0 {0,0,8,0}", row_is(r, 50, 0, 0,0,8,0), 1);
-        ck("row1 {0,1,8,0}", row_is(r, 50, 1, 0,1,8,0), 1);
-        ck("row2 keeps identity {0,2,2,0}", row_is(r, 50, 2, 0,2,2,0), 1);
-        ck("row7 keeps identity {0,7,7,0}", row_is(r, 50, 7, 0,7,7,0), 1);
+        ck("row0 {0,0,PILOT_CL,0}", row_is(r, 50, 0, 0,0,PILOT_CL,0), 1);
+        ck("row1 {0,1,PILOT_CL,0}", row_is(r, 50, 1, 0,1,PILOT_CL,0), 1);
+        ck("row2 keeps host identity {0,2,HOST_CL0+2,0}",
+           row_is(r, 50, 2, 0,2,HOST_CL0+2,0), 1);
+        ck("row7 keeps host identity {0,7,HOST_CL0+7,0}",
+           row_is(r, 50, 7, 0,7,HOST_CL0+7,0), 1);
     }
 
     //! ================================================================
@@ -309,8 +323,8 @@ int main(int argc, char** argv) {
         auto r = collect_resp();
         ck("ctlr2 REGISTER SUCCESS", r_status(r), 0);
         take_wrs();
-        r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,2,8,0}}}));
-        ck("ADD {0,2,8,0} SUCCESS", r_status(r), 0);
+        r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,2,PILOT_CL,0}}}));
+        ck("ADD {0,2,PILOT_CL,0} SUCCESS", r_status(r), 0);
         auto u = collect_resp();
         ck("replay (u=1) arrived at ctlr2", r_u(u), 1);
         auto w = take_wrs();
@@ -324,8 +338,8 @@ int main(int argc, char** argv) {
     printf("\n[6] REMOVE under replay: the disarm also re-runs on key\n");
     {
         take_wrs();
-        auto r = xact(CMD_RM_MAP, am_pl(SPO, 0, {{{0,2,8,0}}}));
-        ck("REMOVE {0,2,8,0} SUCCESS", r_status(r), 0);
+        auto r = xact(CMD_RM_MAP, am_pl(SPO, 0, {{{0,2,PILOT_CL,0}}}));
+        ck("REMOVE {0,2,PILOT_CL,0} SUCCESS", r_status(r), 0);
         collect_resp();                       // drain the u=1 replay
         auto w = take_wrs();
         for (auto& x : w) printf("       wr slot=%d word=0x%04X\n", x.slot, x.word);
@@ -350,14 +364,14 @@ int main(int argc, char** argv) {
         r = xact(CMD_ADD_MAP, am_pl(SPI, 0, {{{0,0,0,0}}}));
         ck("input ADD {0,0,0,0} SUCCESS", r_status(r), 0);
         ck("input engine touched NO capture slot", (long)take_wrs().size(), 0);
-        r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,3,8,0}}}));
-        ck("ADD {0,3,8,0} SUCCESS", r_status(r), 0);
+        r = xact(CMD_ADD_MAP, am_pl(SPO, 0, {{{0,3,PILOT_CL,0}}}));
+        ck("ADD {0,3,PILOT_CL,0} SUCCESS", r_status(r), 0);
         { auto w = take_wrs();
           ck("one write", (long)w.size(), 1);
           if (w.size()==1) ck("slot 3 (not 4)",
                               wr_key(w[0].slot, w[0].word), wr_key(3, TONE_W)); }
-        r = xact(CMD_RM_MAP, am_pl(SPO, 0, {{{0,3,8,0}}}));
-        ck("REMOVE {0,3,8,0} SUCCESS", r_status(r), 0);
+        r = xact(CMD_RM_MAP, am_pl(SPO, 0, {{{0,3,PILOT_CL,0}}}));
+        ck("REMOVE {0,3,PILOT_CL,0} SUCCESS", r_status(r), 0);
         { auto w = take_wrs();
           ck("one write", (long)w.size(), 1);
           if (w.size()==1) ck("slot 3 zeroed",
@@ -370,10 +384,10 @@ int main(int argc, char** argv) {
     printf("\n[8] controller retry (same sequence_id) stays on key\n");
     {
         take_wrs();
-        feed_rx(build_aem_cmd(stim, CMD_ADD_MAP, 0x7F00, am_pl(SPO, 0, {{{0,4,8,0}}})));
+        feed_rx(build_aem_cmd(stim, CMD_ADD_MAP, 0x7F00, am_pl(SPO, 0, {{{0,4,PILOT_CL,0}}})));
         auto r = collect_resp();
-        ck("ADD {0,4,8,0} SUCCESS", r_status(r), 0);
-        feed_rx(build_aem_cmd(stim, CMD_ADD_MAP, 0x7F00, am_pl(SPO, 0, {{{0,4,8,0}}})));
+        ck("ADD {0,4,PILOT_CL,0} SUCCESS", r_status(r), 0);
+        feed_rx(build_aem_cmd(stim, CMD_ADD_MAP, 0x7F00, am_pl(SPO, 0, {{{0,4,PILOT_CL,0}}})));
         r = collect_resp();
         ck("retry answered SUCCESS", r_status(r), 0);
         auto w = take_wrs();
@@ -386,8 +400,8 @@ int main(int argc, char** argv) {
         take_wrs();
         r = xact(CMD_GET_MAP, gm_pl(SPO, 0, 0));
         ck("final GET n=8", r_be16(r, 46), 8);
-        ck("row0 stays {0,0,8,0}", row_is(r, 50, 0, 0,0,8,0), 1);
-        ck("row1 stays {0,1,8,0}", row_is(r, 50, 1, 0,1,8,0), 1);
+        ck("row0 stays {0,0,PILOT_CL,0}", row_is(r, 50, 0, 0,0,PILOT_CL,0), 1);
+        ck("row1 stays {0,1,PILOT_CL,0}", row_is(r, 50, 1, 0,1,PILOT_CL,0), 1);
         ck("row2 back to identity {0,2,2,0}", row_is(r, 50, 2, 0,2,2,0), 1);
     }
 

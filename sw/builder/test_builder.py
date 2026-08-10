@@ -3678,8 +3678,21 @@ def test_d8_role_pools():
         assert [g["role"] for g in P["pool"]] == \
             ["physical", "host", "pilot", "loopback"], P
         assert P["clusters"] == 16 + 2 + 1 + 2
-        # with physical present the static map goes THERE, not to loopback
-        assert P["primary_role"] == "physical"
+        # With physical present the static map still does NOT go to loopback -
+        # that was and remains the point of this assertion. Since 0x0043 it
+        # goes to HOST rather than to physical: declaring the AX7101's TDM8
+        # channels made physical-first silently move the talker's power-on
+        # identity off the shared-memory lane and onto the J11 pins, so a
+        # board with no codec would wake up streaming whatever `din` floats
+        # to and the PipeWire path would need a controller mapping every boot.
+        # USER 2026-08-10 chose the host lane again, with physical on the
+        # table this time (the 08-06 rule was decided against loopback, before
+        # a real physical front end existed). Ordering is PRIMARY_ROLE_ORDER;
+        # cluster NUMBERING is unchanged and still physical-first.
+        assert P["primary_role"] == "host", P["primary_role"]
+        assert [g["role"] for g in P["pool"]][0] == "physical", \
+            "cluster numbering must stay physical-first - only the identity " \
+            "preference moved"
         names = [c["name"] for c in r["overlay"]["audio_clusters"]
                  if c["port_index"] == 0 and c["direction"] == "output"]
         # Derived from the variant's own interface kind, not hardcoded: the

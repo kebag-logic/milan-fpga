@@ -60,14 +60,26 @@
                 exception: it is a BURSTY source (a whole PDU of samples at
                 wire speed), so it is QUEUED, not held - see LOOP QUEUE.
 
-                LOOP BUCKET (rx -> talker loopback). The board's physical
-                capture front-ends are the only other multi-channel sources
-                and on the AX7101 there are none (no pmoda -> i2s_sdout tied
-                0; the TDM slave pins are tied 0 on every SoC), while the tone
-                is by construction the SAME value on L and R. A received AAF
-                stream is therefore the only source of real, per-channel
-                DISTINCT audio on that board, so this bucket makes any
-                (rx stream, channel pair) a talker pair source.
+                LOOP BUCKET (rx -> talker loopback). The other multi-channel
+                sources are the board's physical capture front-ends, and the
+                tone is by construction the SAME value on L and R, so a
+                received AAF stream is a source of real, per-channel DISTINCT
+                audio: this bucket makes any (rx stream, channel pair) a
+                talker pair source.
+
+                CORRECTED 0x0042 - this paragraph used to say the AX7101 has
+                NO physical capture front end ("no pmoda -> i2s_sdout tied 0;
+                the TDM slave pins are tied 0 on every SoC"). That was written
+                before the item-4 TDM header existed and is now false twice
+                over: the AX7101 routes a TDM8 bus on J11.3-J11.8 and the
+                shipping shape drives it as a bus MASTER, which generates its
+                own bclk/fsync and is therefore a real front end with or
+                without a codec behind it. The claim about TDM SLAVE pins
+                remains true and is a different statement. The practical
+                consequence of the stale version was that the slot-indexed
+                TDM bucket below looked pointless, so milan_datapath tied
+                tdm_pair_valid_i to 1'b0 and every capture pair collapsed into
+                the single-pair I2S hold - see that port's comment.
 
                 It consumes the depacketizer payload AXIS exactly as
                 KL_chan_map_render does (that de-interleave is the proven

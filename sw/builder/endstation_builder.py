@@ -1301,7 +1301,20 @@ PRIMARY_ROLE_ORDER = {
     #! by a controller, it just is not what the entity wakes up claiming.
     #! (The 8x8 never saw this order matter: its lane was unbacked, so the
     #! preference walk skipped loopback and host won by default.)
-    "output": ("physical", "host", "loopback", "pilot", "virtual"),
+    #!
+    #! USER 2026-08-10, 0x0043: host now outranks PHYSICAL too. The moment the
+    #! AX7101 declared its TDM8 channels (physical_channels.capture 0 -> 8),
+    #! physical-first silently moved the boot identity off the shared-memory
+    #! lane and onto the J11 pins - so a board with no codec attached would
+    #! wake up streaming whatever `din` floats to, and the PipeWire E2E path
+    #! would need a controller mapping on every boot. The 08-06 rule was
+    #! chosen against LOOPBACK, before a real physical front end existed;
+    #! asked again with physical on the table, the answer was the same lane.
+    #! This is a PREFERENCE WALK for the identity seed only - it does not
+    #! move cluster numbering, which role_pool() fixes as physical, host,
+    #! pilot, loopback. The TDM8 stays fully controller-selectable, which was
+    #! the entire point of putting it in the port.
+    "output": ("host", "physical", "loopback", "pilot", "virtual"),
 }
 
 
