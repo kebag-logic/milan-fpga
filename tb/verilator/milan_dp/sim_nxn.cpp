@@ -4831,24 +4831,36 @@ int main(int argc, char** argv) {
                "pcm local-divider pulses %ld, tick mismatches %ld\n",
                ticks, GRID_CLK, GRID_WANT, pcm_local, mismatch);
 
-        //  WHAT THIS HARNESS STRUCTURALLY CANNOT CHECK: alignment between the
-        //  media grid and the TDM/I2S word clock. lo()/hi() above toggle
-        //  clk_audio_i 1:1 with axis_clk, so in simulation the audio domain
-        //  runs at the datapath rate and tdm_fsync_o comes out at clk/512 -
-        //  about 195 kHz, not 48. The 24.576 MHz : 100 MHz ratio that puts
-        //  the two grids -10.64 ppm apart BY CONSTRUCTION does not exist here,
-        //  so no amount of checking in this suite can see them drift apart.
+        //  WHAT THIS LEG CANNOT CHECK: alignment between the media grid and
+        //  the TDM word clock - and the reason is blunter than the earlier
+        //  version of this comment claimed.
         //
-        //  That is why the media grid is brought out on AX7101 J11.9
-        //  (media_lrclk_o, a 50% square at fs/2) next to tdm_fsync_o on
-        //  J11.8: the requirement is that they stay ALIGNED, and a two-channel
-        //  probe on those two pins is currently the only instrument that can
-        //  say whether they do. Expect the phase to walk one sample every
-        //  ~1.96 s until the audio clock is locked to this grid.
-        printf("  [GAP]  0x0041 grid: fsync-vs-grid ALIGNMENT is unobservable in "
-               "simulation (this harness clocks clk_audio_i at the axis rate, "
-               "so the 24.576/100 MHz ratio is absent) - measure J11.8 against "
-               "J11.9 on silicon\n");
+        //  CORRECTED 2026-08-10. This used to say the cause was clk_audio_i being
+        //  toggled 1:1 with axis_clk, so fsync came out near 195 kHz instead
+        //  of 48. That was wrong: on obj_nxn and obj_nxn8 AUDIO_IF_SLOTS_P is
+        //  0, so the g_aif_i2s branch is taken and milan_datapath.sv:694 ties
+        //  `tdm_fsync_o = 1'b0`. There is no fsync HERE AT ALL, at any clock
+        //  rate. What runs at clk_audio/512 on these legs is i2s_lrck_o.
+        //  Pointing the gap at the ratio sent the work at the wrong signal.
+        //
+        //  The alignment question belongs to obj_ax1x1, the leg that
+        //  elaborates the shipping solo TDM8 master - and since 2026-08-10 that
+        //  leg drives clk_tdm_i and checks the master is live (see
+        //  sim_main.cpp). What is STILL absent there is the RATIO: both
+        //  clk_audio_i and clk_tdm_i are toggled at the axis rate, so the
+        //  exact 391/1591 divider plan that puts fsync at 47,999.4893 Hz
+        //  against a 48,000.0000 Hz grid - -10.6393 ppm, one whole sample of
+        //  slip every 1.9582 s = 195,815,385 axis cycles - is not modelled.
+        //
+        //  That is why the grid is brought out on AX7101 J11.9
+        //  (media_lrclk_o, a 50% square at fs/2) beside tdm_fsync_o on J11.8:
+        //  the requirement is that the two stay ALIGNED, and a two-channel
+        //  probe is today the only instrument that can say whether they do.
+        printf("  [GAP]  0x0041 grid: fsync-vs-grid ALIGNMENT is not modelled - "
+               "this leg has no TDM front end at all (AUDIO_IF_SLOTS_P=0 ties "
+               "tdm_fsync_o to 0); the shipping master lives in obj_ax1x1, and "
+               "even there clk_tdm_i runs at the axis rate so the -10.64 ppm "
+               "391/1591 ratio is absent. Measure J11.8 against J11.9.\n");
 
         //  vacuity guard first: a grid stuck low would make every "== 0"
         //  check below pass for the wrong reason

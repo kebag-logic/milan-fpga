@@ -205,6 +205,20 @@ run: $(GEN_ALL)
 	  -GLOOPBACK_P=1 -GAAF_PLAYBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
 	  -CFLAGS "-DWIRE_CHANS_TB=$(AX_CHANS) -DI2SPB_TB=$(AX_I2SPB) -DAIF_SLOTS_TB=$(AX_SLOTS)" \
 	  $(SRCS) $(CPP) -o Vmilan_dp_ax1x1
+# THE SAME SHIPPING SHAPE, CLOCKED HONESTLY. Every other leg toggles
+# clk_audio_i/clk_tdm_i 1:1 with axis_clk, so the 391/1591 divider plan that
+# puts the TDM word clock -10.6393 ppm from the AAF packet grid does not exist
+# anywhere in the tree and the ALIGNMENT requirement cannot be observed. This
+# leg drives the true ratio and measures the drift RATE (waiting for a whole
+# sample of slip would be 195,815,385 axis cycles). Kept a SEPARATE binary
+# rather than an #ifdef through sim_nxn's 380-odd checks: none of those care
+# about the audio clock's rate, and re-clocking them to find out would be a
+# large blast radius for no gain.
+	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_aclk \
+	  -GTALKER_WIRE_CHANS_P=$(AX_CHANS) -GAUDIO_IF_SLOTS_P=$(AX_SLOTS) \
+	  -GAUDIO_IF_MASTER_P=1 \
+	  -GLOOPBACK_P=1 -GAAF_PLAYBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
+	  $(SRCS) sim_aclk.cpp -o Vmilan_dp_aclk
 	@echo "======================================================================"
 	./obj_dir/Vmilan_dp_sim
 	./obj_nxn/Vmilan_dp_nxn
@@ -219,6 +233,8 @@ run: $(GEN_ALL)
 	./obj_txg/Vmilan_dp_txg
 	@echo "---- THE SHIPPING ALINX SHAPE: 1 stream x 8 wire channels, TDM8 master ----"
 	./obj_ax1x1/Vmilan_dp_ax1x1
+	@echo "---- the same shape at the TRUE clk_audio ratio (391/1591) ----"
+	./obj_aclk/Vmilan_dp_aclk
 
 clean:
-	rm -rf obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_txg obj_ax1x1
+	rm -rf obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_txg obj_ax1x1 obj_aclk

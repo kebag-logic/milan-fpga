@@ -103,8 +103,22 @@ static void ck_skip(const char* what, const char* why) {
 
 // ---- clocking: axis_clk and gtx_clk driven together (single domain) ----
 static void eval() { dut->eval(); }
-static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; eval(); }
-static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; eval(); }
+// clk_tdm_i rides clk_audio_i, which is what the SHIPPING BOARD does: a TDM8
+// master needs a 24.576 MHz serial clock, which is the audio MMCM's own
+// contract rate, so milan_soc.py:5012 collapses audio_tdm_hz back to None and
+// :5224 binds i_clk_tdm_i = ClockSignal("audio"). Leaving it at 0 here - which
+// is what this harness did until 2026-08-10 - gives KL_tdm_capture_master a
+// CONSTANT-ZERO clock, so the shipping capture front end produces ZERO pairs
+// in obj_ax1x1, the only leg that elaborates it. Nothing noticed, because
+// A_AAF_PAIRS (0x664) was read by neither milan_dp harness.
+static void lo() {
+    dut->axis_clk = 0; dut->gtx_clk = 0;
+    dut->clk_audio_i = 0; dut->clk_tdm_i = 0; eval();
+}
+static void hi() {
+    dut->axis_clk = 1; dut->gtx_clk = 1;
+    dut->clk_audio_i = 1; dut->clk_tdm_i = 1; eval();
+}
 static long g_step = 0;
 static void step() { lo(); hi(); g_step++; }
 
@@ -2429,6 +2443,42 @@ int main(int argc, char** argv) {
         dut->i_mac_events_cap = 0;
         for (int i = 0; i < 4; i++) step();
     }
+
+    // ------------------------------------------------------------------ //
+    //  THE SHIPPING CAPTURE FRONT END IS ALIVE (2026-08-10)
+    //
+    //  obj_ax1x1 is the ONLY leg that elaborates the shipping solo TDM8
+    //  master (AUDIO_IF_SLOTS_P=8, AUDIO_IF_MASTER_P=1 -> g_solo). Until this
+    //  round it drove clk_tdm_i at 0, so KL_tdm_capture_master's whole
+    //  serializer domain was frozen and the front end produced no pairs at
+    //  all - in the one sim that builds it. The suite passed anyway, because
+    //  A_AAF_PAIRS was read nowhere and tdm_fsync_o was observed nowhere.
+    //
+    //  Two rails, deliberately both: fsync toggling proves the MASTER is
+    //  generating its bus, and the pair counter proves that bus is actually
+    //  clocking samples out of the front end. A master that emits a frame
+    //  sync but no pairs is exactly the failure that hid here.
+    // ------------------------------------------------------------------ //
+#if defined(AIF_SLOTS_TB) && AIF_SLOTS_TB != 0
+    {
+        const uint32_t pairs0 = axi_read(0x664);          // A_AAF_PAIRS
+        int fsync_edges = 0, last = dut->tdm_fsync_o;
+        for (int i = 0; i < 200000; i++) {
+            step();
+            if (dut->tdm_fsync_o != last) { fsync_edges++; last = dut->tdm_fsync_o; }
+        }
+        const uint32_t pairs1 = axi_read(0x664);
+        printf("  [i]    TDM8 master: fsync edges %d, AAF_PAIRS %u -> %u "
+               "(+%u) over 200k cycles\n",
+               fsync_edges, pairs0, pairs1, pairs1 - pairs0);
+        ck("tdm-live: the MASTER generates its frame sync",
+           fsync_edges > 0, 1);
+        ck("tdm-live: the front end captures pairs (A_AAF_PAIRS advances)",
+           pairs1 > pairs0, 1);
+    }
+#else
+    ++skipped;   // no TDM front end in this shape - not a pass
+#endif
 
     printf("======================================================================\n");
     printf("milan_datapath: %ld checks, %ld failures\n", checks, fails);
