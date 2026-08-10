@@ -132,7 +132,7 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/ieee17221/ad
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_render.sv $(RTL_DIR)/ieee1722/aaf/KL_chan_map_render.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_chan_map_capture.sv $(RTL_DIR)/ieee1722/aaf/KL_aaf_packetizer.sv \
        $(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv $(RTL_DIR)/ieee1722/crf/KL_crf_tx.sv \
-       $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv $(RTL_DIR)/ieee1722/maap/KL_maap.sv \
+       $(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv $(RTL_DIR)/ieee1722/crf/KL_media_nco.sv $(RTL_DIR)/ieee1722/maap/KL_maap.sv \
        $(RTL_DIR)/common/eth_event_counter/ethernet_events.sv \
        $(RTL_DIR)/common/eth_event_counter/event_counter.sv \
        $(RTL_DIR)/common/csr/milan_csr.sv \

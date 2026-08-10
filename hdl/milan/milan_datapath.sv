@@ -451,11 +451,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! 97.7 kHz while advertising 48 k (silicon: 16.9k fr/s, servo pegged).
   localparam int MCLK_DIV_LOG2_C = $clog2(MILAN_CLK_FREQ_HZ / 12_500_000);
 
-  //! chmap media grid: a ~48 kHz strobe on the datapath clock that paces the
-  //! render/capture map walks (docs/CHANNEL_MAP_64.md §3/§4) and their tone
-  //! source below. Consumed ONLY by the map fabric; the compliance audio path
-  //! never sees it.
-  localparam int MEDIA_TICK_DIV_C = MILAN_CLK_FREQ_HZ / 48_000;
+  //! chmap media grid: THE 48 kHz strobe on the datapath clock. It paces the
+  //! render/capture map walks (docs/CHANNEL_MAP_64.md §3/§4), their tone
+  //! source below, AND the host playback ring (KL_pcm_tx) - one grid for
+  //! every channel in both directions, which is the precondition for a single
+  //! selected clock master meaning anything. The generator is KL_media_nco
+  //! below; the grid it used to be (a fixed localparam divider that no clock
+  //! source could reach) is why a listener draining a stream on this fabric
+  //! slipped one sample per beat period.
 
   //! ONE-GRID rule (task #59, bench 2026-08-02): a tone producer must step
   //! on the grid its consumer drains. THIS instance steps on clk_audio_i/512
@@ -476,30 +479,41 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! the two grids 160 ppm apart at 100 MHz - the same producer/consumer grid
   //! mismatch documented above, just expressed in ppm instead of in wiring.
   //! Same Bresenham remainder, same denominator, derived from the same ratio.
-  localparam int MEDIA_TICK_REM_C = MILAN_CLK_FREQ_HZ % 48_000;
-  localparam int MEDIA_TICK_ACCW_C = $clog2(2*48_000 + 1);
-  logic [$clog2(MEDIA_TICK_DIV_C + 2)-1:0] media_tick_cnt_r;
-  logic [MEDIA_TICK_ACCW_C-1:0]            media_tick_frac_r;
-  logic                                    media_tick_p;
-  wire [MEDIA_TICK_ACCW_C-1:0] mtk_sum_w = media_tick_frac_r
-                                           + MEDIA_TICK_ACCW_C'(MEDIA_TICK_REM_C);
-  wire mtk_ov_w = (MEDIA_TICK_REM_C != 0)
-                  && (mtk_sum_w >= MEDIA_TICK_ACCW_C'(48_000));
-  always_ff @(posedge axis_clk) begin : chmap_media_tick
-    if (!axis_resetn) begin
-      media_tick_cnt_r  <= '0;
-      media_tick_frac_r <= '0;
-      media_tick_p      <= 1'b0;
-    end else if (32'(media_tick_cnt_r) == MEDIA_TICK_DIV_C - 1 + 32'(mtk_ov_w)) begin
-      media_tick_cnt_r  <= '0;
-      media_tick_frac_r <= mtk_ov_w ? (mtk_sum_w - MEDIA_TICK_ACCW_C'(48_000))
-                                    : mtk_sum_w;
-      media_tick_p      <= 1'b1;
-    end else begin
-      media_tick_cnt_r <= media_tick_cnt_r + 1'b1;
-      media_tick_p     <= 1'b0;
-    end
-  end : chmap_media_tick
+  //! and since the grid became steerable, the SAME strobe rather than two
+  //! dividers that merely agree: KL_pcm_tx takes media_tick_p on its
+  //! USE_EXT_TICK_P port - the hook its own banner reserved for "the recovered
+  //! media clock" - so the host playback ring and the capture crossbar cannot
+  //! drift apart even in phase.
+  //!
+  //! The divider is KL_media_nco: same Bresenham, same remainder, same
+  //! denominator, plus a signed runtime trim. With mnco_trim_w tied to 0 it is
+  //! bit-for-bit the block it replaced (tb/verilator/media_nco pins that
+  //! tick-for-tick against a transcription of the old code), which is what
+  //! keeps clock_source = INTERNAL the free-running grid every bench number on
+  //! record was measured against.
+  wire        media_tick_p;
+  //! sub-sample phase of the grid. Not consumed by the fabric: it is a TB tap,
+  //! and it is the only way to watch a trim take effect faster than the beat
+  //! period (a 0.01 ppm step needs ~48000 ticks to move the tick pattern, but
+  //! moves the accumulator on the very next one).
+  wire [15:0] media_tick_phase_w /* verilator public_flat_rd */;
+
+  //! driven far below, beside KL_mmcm_drp_servo: ONE error signal, two
+  //! actuators. Declared here because the grid is built long before the
+  //! clock-source selection exists.
+  wire signed [17:0] mnco_trim_w;
+
+  KL_media_nco #(
+    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
+    .FS_HZ_P       (48_000),
+    .TRIMW_P       (18)
+  ) media_nco (
+    .clk_i   (axis_clk),
+    .rst_n   (axis_resetn),
+    .trim_i  (mnco_trim_w),
+    .tick_o  (media_tick_p),
+    .phase_o (media_tick_phase_w)
+  );
 
   //! media-grid pilot for the capture crossbar: the SAME table, stepped by
   //! the SAME media_tick_p the crossbar's walk drains on - producer and
@@ -814,7 +828,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .SAMPLE_DIV_C  (PB_SAMPLE_DIV_C),
       .SAMPLE_REM_P  (PB_SAMPLE_REM_C),
       .SAMPLE_DEN_P  (PB_FS_HZ_C),
-      .USE_EXT_TICK_P(1'b0)
+      //! ONE-GRID rule, wiring half: the playback ring drains on the SAME
+      //! strobe the capture crossbar walks on. SAMPLE_DIV/REM/DEN above are
+      //! now vestigial (the module ignores them when USE_EXT_TICK_P is set)
+      //! and are left in place so a build that ever needs the local divider
+      //! back does not have to re-derive them.
+      .USE_EXT_TICK_P(1'b1)
     ) pcm_tx (
       .clk_i (axis_clk), .rst_n (axis_resetn),
       .enable_i (pb_enable_i), .stream_en_i (pb_stream_en_i[PB_T_C-1:0]),
@@ -822,7 +841,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .ring_base_i (pb_ring_base_i), .ring_len_i (pb_ring_len_i),
       .ring_stride_i (pb_ring_stride_i),
       .wr_ptr_i (pb_wr_ptr_i[PB_T_C*32-1:0]),
-      .smp_tick_i (1'b0),
+      .smp_tick_i (media_tick_p),
       .mem_addr_o (pb_mem_addr_o), .mem_rd_o (pb_mem_rd_o),
       .mem_data_i (pb_mem_data_i), .mem_valid_i (pb_mem_valid_i),
       .pair_valid_o (pb_pv_w), .pair_slot_o (pb_slot_w),
@@ -4363,6 +4382,40 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     assign o_mmcm_ps_incdec = 1'b0;
     assign mcsrv_stat_w     = 32'd0;
   end endgenerate
+
+  // --------------------------------------------------------------------------
+  //  ONE ERROR SIGNAL, TWO ACTUATORS (the ONE-GRID rule, actuator half).
+  //
+  //  The servo's u already IS the media-clock correction the selected clock
+  //  source demands - it is the loop tb/verilator/mmcm_servo proves, clamped
+  //  to +/-200 ppm, and it is published in 1/16 ppm units on
+  //  A_MCSRV_STAT[31:16]. Rather than stand up a second PI for the packet
+  //  grid, the NCO takes the SAME command: the MMCM moves the physical audio
+  //  clock, the NCO moves the packet grid, and they cannot diverge because
+  //  there is only one number to diverge from. Two independently-servoed
+  //  48 kHz grids is exactly the failure the ONE-GRID rule was written for.
+  //
+  //  SIGN. The servo's u > 0 means "speed up" (KL_mmcm_drp_servo.sv:604); the
+  //  NCO's trim > 0 lengthens the period, i.e. "slow down". Hence the
+  //  negation - getting this backwards is a runaway, not a wrong number.
+  //
+  //  SCALE. u is 1/16 ppm. One NCO LSB is 1e6/MILAN_CLK_FREQ_HZ ppm, so one
+  //  1/16-ppm step is (MILAN_CLK_FREQ_HZ/1e6)/16 LSB - 6.25 at 100 MHz. The
+  //  servo's own +/-200 ppm clamp therefore lands at +/-20000 LSB, comfortably
+  //  inside the NCO's derived +/-32000. Derived from MILAN_CLK_FREQ_HZ, never
+  //  mirrored: at 50 MHz the factor is 3.125 and the clamp +/-10000, and both
+  //  follow without an edit.
+  //
+  //  INTERNAL. clock_source 0 is free-run by USER rule ("internal media clock
+  //  = free-run, slips accepted"), so the trim is forced to zero and the grid
+  //  is bit-for-bit the divider that shipped at 0x0040. That is what lets
+  //  every existing bench measurement stand.
+  // --------------------------------------------------------------------------
+  localparam int MNCO_PPM_LSB_C = MILAN_CLK_FREQ_HZ / 1_000_000;
+  wire signed [15:0] mcsrv_trim_w  = $signed(mcsrv_stat_w[31:16]);
+  wire signed [31:0] mnco_scaled_w =
+      -(($signed(32'(mcsrv_trim_w)) * $signed(32'(MNCO_PPM_LSB_C))) >>> 4);
+  assign mnco_trim_w = (aecp_clk_src == 16'd0) ? 18'sd0 : 18'(mnco_scaled_w);
 
   // ==========================================================================
   //  CRF Media Clock Output engine (Milan 7.3.1) - talker half: emits the

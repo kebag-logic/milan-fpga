@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 89 modules · 87 with a dedicated TB · 0 exercised-only · 53 field-fuzzed · 1 archived · **0 not in any TB**
+**Totals:** 90 modules · 88 with a dedicated TB · 0 exercised-only · 53 field-fuzzed · 1 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -31,9 +31,9 @@ Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB
 xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["milan", "ieee1722", "ieee8021as", "common", "ieee17221", "ieee8021q"]
-    y-axis "modules" 0 --> 35
-    bar [2, 34, 5, 10, 19, 19]
-    bar [1, 33, 5, 10, 19, 19]
+    y-axis "modules" 0 --> 36
+    bar [2, 35, 5, 10, 19, 19]
+    bar [1, 34, 5, 10, 19, 19]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
@@ -41,7 +41,7 @@ The solid bar is the modules carrying a dedicated Verilator testbench; the pale 
 | family | modules | ✅ dedicated TB | ➰ exercised only | 🔬 field-fuzzed | 🗄️ archived | ⚪ untested |
 |---|---|---|---|---|---|---|
 | Milan integration | 2 | 1 | 0 | 0 | 1 | 0 |
-| IEEE 1722 (AVTP) | 34 | 33 | 0 | 30 | 0 | 0 |
+| IEEE 1722 (AVTP) | 35 | 34 | 0 | 30 | 0 | 0 |
 | IEEE 802.1AS | 5 | 5 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
 | IEEE 1722.1 (ATDECC) | 19 | 19 | 0 | 19 | 0 | 0 |
@@ -122,6 +122,7 @@ _AAF / CRF / MAAP / AVTP common_
 | 📦 `avtp_subtype_pkg` | `ieee1722/avtp/avtp_subtype_pkg.sv` | 🔬`make aaf` | — |
 | ✅ `KL_crf_rx` | `ieee1722/crf/KL_crf_rx.sv` | `crf_rx` · `hostplane` · `milan_dp` | 1.2, 4.4.4.3, 5.3.8.10, 5.4 |
 | ✅ `KL_crf_tx` | `ieee1722/crf/KL_crf_tx.sv` | `crf_tx` · `hostplane` · `milan_dp` | 1.2, 10.4.2, 10.4.3, 10.4.6 |
+| ✅ `KL_media_nco` | `ieee1722/crf/KL_media_nco.sv` | `hostplane` · `media_nco` · `milan_dp` | — |
 | ✅ `KL_mmcm_drp_servo` | `ieee1722/crf/KL_mmcm_drp_servo.sv` | `hostplane` · `milan_dp` · `mmcm_servo` · `mmcm_servo_autorepair` | — |
 | ✅ `KL_maap` | `ieee1722/maap/KL_maap.sv` | `hostplane` · `maap` · `milan_dp` | — |
 

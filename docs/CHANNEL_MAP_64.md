@@ -116,7 +116,7 @@ flowchart LR
     end
 
     RMAP[("RMAP: 10 entries<br/>en bit 7, src bit 6, idx bits 5-0")]
-    TICK["48 kHz media tick<br/>MEDIA_TICK_DIV_C"]
+    TICK["48 kHz media tick<br/>KL_media_nco (steerable)"]
     VEC["phys_smp_o 0..9<br/>WHOLE vector registered in one shot"]
     I2S["KL_i2s_feed_mux to KL_i2s_playback<br/>phys 0 and 1"]
     TDM["burst adapter to KL_tdm_render<br/>phys 2..9 = TDM8 slots 0..7"]

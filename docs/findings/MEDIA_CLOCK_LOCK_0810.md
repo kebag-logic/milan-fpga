@@ -1,5 +1,10 @@
 # Media clock lock: the periodic one sample slip (2026-08-10)
 
+> **UPDATE 2026-08-10 (later the same day). Two things below are wrong, and
+> the actuator half of the fix has landed at VERSION 0x0041. Read
+> [The correction](#the-correction-2026-08-10-pm) before acting on anything
+> in this document.**
+
 **Status: root caused, fix NOT landed. This is an architecture gap, not a
 datapath defect. Do not "fix" the AAF path for it.**
 
@@ -141,6 +146,100 @@ clock, since a converter needs a real clock rather than a tick. Both
 mechanisms are driven from one error signal, and per the ONE-GRID rule
 already documented in `milan_datapath.sv` they must be steered together
 or they will fight.
+
+## The correction (2026-08-10 pm)
+
+Two claims above do not survive.
+
+**1. "Two free running oscillators" is not established, and the bench was on
+the loopback lane.** The channels under test were mapped to the loopback
+cluster (SRC=5), not to a physical front end — confirmed in the RTL, where
+`AEM_ODMAP_CSRC_C` carries only src=3 (host ring), src=4 (tone) and src=5
+(loop), and `milan_datapath.sv` ties `.tdm_pair_valid_i (1'b0)`. The TDM
+front end cannot appear in the map at all.
+
+That puts the slip in a place the document never considered.
+`KL_chan_map_capture`'s LOOP bucket is the only source with an elastic queue,
+and its own banner states the failure mode exactly:
+
+> SLIP, HONEST AND BOUNDED: queue empty at a tick (upstream slower) = the hold
+> repeats the last event, ONE dup, counted on `lb_dup_cnt_o`. Queue full at a
+> push (upstream faster) = the OLDEST event is dropped, ONE skip, counted on
+> `lb_skip_cnt_o`. **With locked clocks both stay at ZERO.**
+
+Push rate is the upstream talker's media clock. Pop rate was `media_tick_p`,
+our own crystal, unsteerable. One dup or one skip per beat period is the
+designed behaviour of a listener that does not recover — not a datapath
+defect and not two crystals meeting on a wire.
+
+Two consequences worth keeping:
+
+- `LB_QDEPTH_C` is jitter margin, **not** rate margin. At 10.6 ppm the
+  occupancy walks to an end in 1.96 s at any depth.
+- A loop-queue dup is a **content** defect. The stream rate stays
+  48,000.000 Hz, `avtp_timestamp` deltas stay flat at 125,000 ns, and one
+  sample *value* repeats. No timestamp or PDU-cadence analysis can see it,
+  which is why the forensics found a flat packet-phase profile and concluded
+  the grid was healthy. It was.
+
+**2. "Our timestamps and our samples cannot drift apart" is false.** They
+share a net, not a rate. The PHC adds `PTP_INCR + PTP_ADJ` per tick and ptp4l
+writes `PTP_ADJ` (0x508) continuously to discipline us to the grandmaster,
+while `media_tick_p` counted raw `axis_clk` and ignored it. Our grid-vs-GM
+error is `PTP_ADJ / 0x0A000000 x 1e6` ppm — one register read, and about 1787
+would mean 10.65 ppm.
+
+**A near miss worth recording so it is not re-derived.** `clk_audio` really is
+`-10.639 ppm` by construction (`milan_soc.py:356,363` PLAN A, and `:5012`
+forces the shipping TDM8 shape onto PLAN A), and `clk_audio/512` slips against
+an exact 48 kHz grid every 1.9582 s. That matches the measurement to four
+figures and is a **coincidence**: `clk_audio` is not in the talker path on
+this shape. It does cause a real latent bug elsewhere — `KL_crf_tx` runs on
+`clk_audio/512` while declaring `base_frequency` 48000, so our CRF output
+advertises a media clock master 10.639 ppm slow.
+
+### What landed at 0x0041
+
+The actuator half, as proposed below, with one correction to the proposal.
+
+- `hdl/ieee1722/crf/KL_media_nco.sv` replaces the inline divider. Same
+  Bresenham, plus a signed runtime trim at `1/CLK_FREQ_HZ` relative per LSB
+  (0.01 ppm at 100 MHz), clamp **derived** from the shape rather than
+  mirrored, elaboration guards that refuse a trim needing a two-step
+  accumulator correction.
+- `KL_pcm_tx` joins that grid on its `USE_EXT_TICK_P` port — the hook its own
+  banner reserved for "the recovered media clock", tied off since it was
+  written. The host playback ring and the capture crossbar are now the same
+  strobe, not two dividers that agree.
+- Both actuators take **one** command: the servo's u (±200 ppm, published in
+  1/16 ppm units on `A_MCSRV_STAT[31:16]`) drives the MMCM for `clk_audio` and
+  the NCO for the packet grid, negated because the servo's `u > 0` means speed
+  up while the NCO's `trim > 0` lengthens the period.
+- `clock_source = INTERNAL` forces the trim to zero, and the grid is then
+  bit-for-bit the 0x0040 divider. `tb/verilator/media_nco` (214 checks) pins
+  that tick-for-tick.
+
+**The correction to the proposal below:** a steerable remainder is a
+*frequency* trim, and frequency-locking lengthens the interval between clicks
+without removing them. Phase-locking removes them. The grid should ultimately
+be a phase accumulator referenced to `ptp_now_w`: one sample is exactly 62,500
+thirds of a nanosecond, a gPTP second holds a whole number of them, so the
+grid becomes second-aligned and identical on every device that runs it. That
+is cheap here because `ptp_ts_top` clocks on `gtx_clk` = `cd_milan` =
+`axis_clk`, so `ptp_now_w` is available with no CDC. Keep the trim register
+for holdover.
+
+### Still open
+
+- The loop-queue slip counters `lb_dup_cnt_o` / `lb_skip_cnt_o` reach
+  `milan_datapath.sv` as a `verilator public_flat_rd` tap and **nowhere else**.
+  They are not readable on silicon. The fabric has been counting this exact
+  event all along and software cannot see it.
+- Nothing yet drives the trim from a recovered reference: the servo only
+  engages at `clock_source == 2`, and `SET_CLOCK_SOURCE` still rejects any
+  index ≥ 3.
+- Whether the two actuators agree in silicon is a bench measurement, not a
+  simulation one.
 
 ## Reproducing the measurement
 
