@@ -4046,26 +4046,43 @@ def test_gptp_domain_is_one_source():
     advertised domain 0, with nothing anywhere to catch it.  Exactly the
     "derive, never mirror" class.
 
-    WHY THE VARIANT IS NON-ZERO.  Asserting `ADP_GPTP_DOMAIN_C == 0` against
-    a shipping config proves nothing - it passes just as well against the
-    old hardcoded zero.  The gate therefore builds a config that STATES a
-    domain no default could produce and follows that number through every
-    link of the chain:
+    WHY THIS GATE CANNOT VARY THE VALUE (USER 2026-08-11).  It used to build a
+    config on domain 3 and follow that number through, because asserting
+    `ADP_GPTP_DOMAIN_C == 0` proves nothing on its own - it passes just as well
+    against the old hardcoded zero.  But 3 is not a legal Milan value: Milan
+    v1.2 section 2 pins 802.1AS-2011, whose 8.1 says "The domain number of a
+    gPTP domain shall be 0", and multi-domain is an 802.1AS-2020 feature Milan
+    does not adopt.  So the variation the gate needs is the REFUSAL, not the
+    value: a non-zero config must raise ConfigError WITH the clause, and the
+    legal chain must still be wired end to end.
 
         gptp.domain -> ADP_GPTP_DOMAIN_C in the generated adp shape header
                     -> milan_csr's adp_domain reset
                     -> milan_csr's csr_default readback ROM (they must mirror)
                     -> emit_gptp_cfg's domainNumber
+                    -> o_adp_gptp_domain -> cfg_adp_gptp_domain
+                    -> adp_advertiser -> ADPDU byte 48
 
     plus the negative: aecp_csr_setup.sh must no longer write 0x62C at all,
     because a boot script that wrote it would clobber the elaborated value
     back to whatever literal it carries."""
-    DOM = 3                                   # not any default, not any config
-    p = _variant(CONFIGS["ax7101_1x1_tdm8"],
-                 lambda c: c["gptp"].__setitem__("domain", DOM))
-    r = eb.build(p, OUT)
+    # 0. a non-zero domain is REFUSED, and the refusal cites the clause - this
+    #    is the varying half of the gate, and it bites if the check is removed
+    bad = _variant(CONFIGS["ax7101_1x1_tdm8"],
+                   lambda c: c["gptp"].__setitem__("domain", 3))
+    try:
+        eb.build(bad, OUT)
+        raise AssertionError("gptp.domain 3 was ACCEPTED - 802.1AS-2011 8.1 "
+                             "says the domain number shall be 0")
+    except eb.ConfigError as e:
+        assert "802.1AS-2011" in str(e) and "shall be 0" in str(e), \
+            f"refused, but without the clause: {e}"
+    os.unlink(bad)
 
-    # 1. the generated header carries the CONFIG's number, not a default
+    DOM = 0                                   # the only value Milan permits
+    r = eb.build(CONFIGS["ax7101_1x1_tdm8"], OUT)
+
+    # 1. the generated header carries the CONFIG's number from a named symbol
     m = re.search(r"^\s*localparam\s+int\s+ADP_GPTP_DOMAIN_C\s*=\s*(\d+);",
                   r["adp_shape_svh"], re.M)
     assert m, ("adp_shape_defaults.svh emits no ADP_GPTP_DOMAIN_C - the ADP "
@@ -4116,9 +4133,9 @@ def test_gptp_domain_is_one_source():
     assert re.search(r"fb\[62\]\s*=\s*gptp_domain_number_i\s*;", adv), \
         "the advertiser no longer places the domain at ADPDU byte 48"
 
-    os.unlink(p)
-    print(f"  [gate 26] gptp.domain is ONE source: a config on domain {DOM} "
-          f"emits ADP_GPTP_DOMAIN_C = {DOM} AND domainNumber {DOM}; "
+    print(f"  [gate 26] gptp.domain is ONE source: domain 3 REFUSED with the "
+          f"802.1AS-2011 8.1 clause; the legal 0 emits ADP_GPTP_DOMAIN_C = "
+          f"{DOM} AND domainNumber {DOM}; "
           f"milan_csr names the symbol in both the reset and the readback "
           f"ROM; aecp_csr_setup.sh writes 0x62C nowhere; the chain reaches "
           f"ADPDU byte 48")

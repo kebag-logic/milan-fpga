@@ -30,6 +30,17 @@ __pycache__/
 # end-station builder emissions (regenerate: python3 sw/builder/endstation_builder.py <cfg>)
 sw/builder/out/
 
+# Per-config builder outputs. ONLY <cfg>/gen/ is tracked - those are the .svh
+# headers the RTL `include-s. The flat files beside it (build_plan.md,
+# aem_overlay.json, soc_params.json, milan-nic.dtsi, ...) are build products of
+# whichever config last ran and belong to nobody. They were swept into the tree
+# twice on 2026-08-11 by a `git add configs/generated`, once carrying 5,194
+# lines and a build_plan.md that then broke the docs gate with 12 bare-reference
+# findings. The negation must name the DIRECTORY: git will not descend into an
+# excluded directory, so `!.../gen/**` alone would never match.
+configs/generated/*/*
+!configs/generated/*/gen/
+
 # Yosys/ABC synthesis artifacts
 abc.history
 *.history

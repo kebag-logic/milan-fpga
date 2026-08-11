@@ -2760,6 +2760,44 @@ def load_config(path):
             if not 0 <= v <= 255:
                 raise ConfigError(f"gptp.{k} {v} outside 0..255")
             return v
+        def _gp_domain():
+            """gptp.domain, and the ONLY legal value is 0 (USER 2026-08-11).
+
+            Milan v1.2 section 2 pins [802.1AS] to IEEE Std 802.1AS-2011 plus
+            Cor1-2013 and Cor2-2015 - explicitly NOT 802.1AS-2020 - and
+            802.1AS-2011 8.1 states: "The domain number of a gPTP domain shall
+            be 0."  Multiple gPTP domains are an 802.1AS-2020 feature that
+            Milan v1.2 does not adopt, so on a Milan network the number is a
+            constant the entity REPORTS, never a parameter it chooses.
+
+            This is not pedantry about an unused field.  Milan defines "the
+            same gPTP domain" OPERATIONALLY, by grandmaster identity - 5.5.2:
+            the source and sink "are located in the same gPTP domain (gPTP
+            grandmaster IDs are the same)".  So the discriminator in ACMP
+            binding is the GM id at CSR 0x624/0x628, and a non-zero
+            domainNumber here would not select a second domain - it would
+            simply make our ADPDU byte 48 disagree with every conformant peer
+            on the wire while changing nothing about who we bind to.
+
+            DO NOT confuse this with a CLOCK_DOMAIN.  Milan uses the word
+            "domain" for five different things and the media-clock sense
+            outnumbers this one 56 to 5: `clock domain` is the AEM
+            CLOCK_DOMAIN descriptor and the `clock_domain_index` every STREAM
+            descriptor carries, and it has nothing to do with 802.1AS.
+            Redundancy is NOT a domain either - Milan 8.2.3 calls those the
+            "Primary network and secondary network", paired by
+            `redundant_streams` (8.2.5), and this build does not implement
+            Section 8 at all."""
+            v = int(gp_raw.get("domain", 0))
+            if v != 0:
+                raise ConfigError(
+                    f"gptp.domain {v} is not 0: Milan v1.2 section 2 pins "
+                    f"802.1AS-2011, whose 8.1 says 'The domain number of a "
+                    f"gPTP domain shall be 0'. Multi-domain is an 802.1AS-2020 "
+                    f"feature Milan does not adopt. If you meant a media clock "
+                    f"domain, that is the CLOCK_DOMAIN descriptor, not this.")
+            return v
+
         def _gp_s8(k, dflt):
             v = int(gp_raw.get(k, dflt))
             if not -128 <= v <= 127:
@@ -2775,7 +2813,7 @@ def load_config(path):
             clock_class=_gp_u8("clock_class", 248),
             clock_accuracy=_gp_u8("clock_accuracy", 0xFE),
             offset_scaled_log_variance=oslv,
-            domain=_gp_u8("domain", 0),
+            domain=_gp_domain(),
             log_sync_interval=_gp_s8("log_sync_interval", -3),
             log_announce_interval=_gp_s8("log_announce_interval", 0),
             log_pdelay_interval=_gp_s8("log_pdelay_interval", 0),
