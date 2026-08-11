@@ -67,8 +67,11 @@ Verilator must be **≥ 5.050** — that is the CI pin, and CI builds it from so
 at that tag rather than trusting a distro package, because 5.020 (Ubuntu 24.04)
 cannot build four of the suites and 5.032 (Debian trixie) reads back zeros on six
 `aecp` checks. The measured table is in
-[docs/testing/TESTING.md](docs/testing/TESTING.md) §7. The repo's *other* submodule, `external`, is SSH-only and is
-**not needed** for anything here — leave it uninitialised. A GitHub *"Download ZIP"* has no
+[docs/testing/TESTING.md](docs/testing/TESTING.md) §7. The repo's *other* submodules are SSH-only and
+**not needed** for anything here — leave them uninitialised: `external`, and
+`protocol-processor` (the IEEE 1722.1 protocol-processor architecture spec plus its
+resource/effort analysis; the planned home of a micro-coded control-plane
+implementation this repo would consume). A GitHub *"Download ZIP"* has no
 submodule content, so the datapath testbenches will not build from a zip.
 
 **Tier 2 · prove device portability (generic synthesis + Lattice ECP5)** — add:
