@@ -4033,6 +4033,97 @@ def test_entity_identity_is_derived_not_mirrored():
               f"{kv['MILAN_N_TALKERS']} talkers, SR VID {kv['MILAN_SR_VID']})")
 
 
+def test_gptp_domain_is_one_source():
+    """Gate 26: the gPTP domain number reaches BOTH consumers from the one
+    `gptp.domain` line, and no hand-written copy survives.
+
+    THE DEFECT THIS GATE CLOSES.  `gptp.domain` used to reach ptp4l only
+    (emit_gptp_cfg's `domainNumber`).  The other consumer - ADPDU byte 48
+    (1722.1-2021 6.2.1.16), served from CSR 0x62C - got its value from a
+    hardcoded `w 0x62C 0x00000000` in avdecc/aecp_csr_setup.sh.  The two
+    agreed only because every shipping config happens to say 0, so a config
+    on domain 1 would have run the daemon on domain 1 while the entity
+    advertised domain 0, with nothing anywhere to catch it.  Exactly the
+    "derive, never mirror" class.
+
+    WHY THE VARIANT IS NON-ZERO.  Asserting `ADP_GPTP_DOMAIN_C == 0` against
+    a shipping config proves nothing - it passes just as well against the
+    old hardcoded zero.  The gate therefore builds a config that STATES a
+    domain no default could produce and follows that number through every
+    link of the chain:
+
+        gptp.domain -> ADP_GPTP_DOMAIN_C in the generated adp shape header
+                    -> milan_csr's adp_domain reset
+                    -> milan_csr's csr_default readback ROM (they must mirror)
+                    -> emit_gptp_cfg's domainNumber
+
+    plus the negative: aecp_csr_setup.sh must no longer write 0x62C at all,
+    because a boot script that wrote it would clobber the elaborated value
+    back to whatever literal it carries."""
+    DOM = 3                                   # not any default, not any config
+    p = _variant(CONFIGS["ax7101_1x1_tdm8"],
+                 lambda c: c["gptp"].__setitem__("domain", DOM))
+    r = eb.build(p, OUT)
+
+    # 1. the generated header carries the CONFIG's number, not a default
+    m = re.search(r"^\s*localparam\s+int\s+ADP_GPTP_DOMAIN_C\s*=\s*(\d+);",
+                  r["adp_shape_svh"], re.M)
+    assert m, ("adp_shape_defaults.svh emits no ADP_GPTP_DOMAIN_C - the ADP "
+               "domain has no config-derived source")
+    assert int(m.group(1)) == DOM, \
+        f"ADP_GPTP_DOMAIN_C = {m.group(1)}, config says {DOM}"
+
+    # 2. and the ptp4l half carries the SAME number, from the same line
+    assert f"domainNumber            {DOM}\n" in eb.emit_gptp_cfg(r["cfg"]), \
+        "the generated gptp.cfg domainNumber does not match gptp.domain"
+
+    # 3. the RTL consumes the symbol in BOTH places, and by NAME - a literal
+    #    in either would let the two drift again (the rule milan_csr states
+    #    at VERSION 0x0026: reset literal and readback ROM move together)
+    csr = open(MILAN_CSR_SV).read()
+    assert re.search(r"adp_domain\s*<=\s*32'\(ADP_GPTP_DOMAIN_C\)\s*;", csr), \
+        "milan_csr's adp_domain reset does not name ADP_GPTP_DOMAIN_C"
+    assert re.search(r"A_ADP_DOMAIN\[10:0\]\s*:\s*csr_default\s*=\s*"
+                     r"32'\(ADP_GPTP_DOMAIN_C\)\s*;", csr), \
+        "milan_csr's csr_default ROM does not mirror the adp_domain reset"
+
+    # 4. and the boot script no longer writes 0x62C - the clobber is gone
+    setup = open(os.path.join(ROOT, "avdecc/aecp_csr_setup.sh")).read()
+    assert not re.search(r"^\s*w\s+0x62[Cc]\b", setup, re.M), \
+        ("aecp_csr_setup.sh still writes 0x62C - it would clobber the "
+         "elaborated gPTP domain back to its literal")
+
+    # 5. the register reaches the WIRE.  A reset value nothing reads is not a
+    #    fix, so walk the chain by NAME - each link is one rename away from
+    #    silently detaching, and none of it is covered above:
+    #      adp_domain[7:0] -> milan_csr.o_adp_gptp_domain
+    #                      -> milan_datapath.cfg_adp_gptp_domain
+    #                      -> adp_advertiser.gptp_domain_number_i
+    #                      -> fb[62] = ADPDU byte 48 (1722.1-2021 6.2.1.16)
+    #    (STALENESS of the tracked headers is deliberately NOT asserted here:
+    #     gate 24d owns it, and earlier gates in this process rebuild those
+    #     files, so a copy of the check here could never fail - a check that
+    #     cannot fail reads as coverage without being any.)
+    assert re.search(r"assign\s+o_adp_gptp_domain\s*=\s*adp_domain\[7:0\]\s*;",
+                     csr), "milan_csr does not export adp_domain[7:0]"
+    dp = open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read()
+    assert re.search(r"\.o_adp_gptp_domain\s*\(\s*cfg_adp_gptp_domain\s*\)",
+                     dp), "milan_datapath does not take the CSR's domain"
+    assert re.search(r"\.gptp_domain_number_i\s*\(\s*cfg_adp_gptp_domain\s*\)",
+                     dp), "the ADP advertiser is not fed the CSR's domain"
+    adv = open(os.path.join(ROOT,
+                            "hdl/ieee17221/adp/adp_advertiser.sv")).read()
+    assert re.search(r"fb\[62\]\s*=\s*gptp_domain_number_i\s*;", adv), \
+        "the advertiser no longer places the domain at ADPDU byte 48"
+
+    os.unlink(p)
+    print(f"  [gate 26] gptp.domain is ONE source: a config on domain {DOM} "
+          f"emits ADP_GPTP_DOMAIN_C = {DOM} AND domainNumber {DOM}; "
+          f"milan_csr names the symbol in both the reset and the readback "
+          f"ROM; aecp_csr_setup.sh writes 0x62C nowhere; the chain reaches "
+          f"ADPDU byte 48")
+
+
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
@@ -4066,7 +4157,8 @@ if __name__ == "__main__":
                test_firmware_version_derived_from_rtl,
                test_d8_role_pools, test_d8_role_pools_reject,
                test_d10_cluster_names, test_d10_names_reach_the_rom,
-               test_entity_identity_is_derived_not_mirrored):
+               test_entity_identity_is_derived_not_mirrored,
+               test_gptp_domain_is_one_source):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")

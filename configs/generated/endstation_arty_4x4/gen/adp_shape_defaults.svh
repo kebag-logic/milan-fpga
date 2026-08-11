@@ -40,3 +40,16 @@
   //! generated pass apart and can be compared:
   //! scripts/check_wire_accountability.py does exactly that.
   localparam int TALKER_WIRE_CHANS_C = 4;
+  //! gptp_domain_number - ADPDU byte 48 (1722.1-2021 6.2.1.16), served
+  //! from CSR 0x62C. It is the RESET value of that register, not a
+  //! read-only word: 802.1AS-2020 8.1 makes domainNumber a CONFIGURED
+  //! attribute of the time-aware system, so a daemon may still publish
+  //! a change, but it now boots holding the SAME number the builder
+  //! wrote into this config's /etc/gptp.<board>.cfg domainNumber line.
+  //! Before this constant the two came from different places - the cfg
+  //! from gptp.domain, the register from a hardcoded
+  //! `w 0x62C 0x00000000` in avdecc/aecp_csr_setup.sh - and agreed only
+  //! because the shipping config happens to say 0. A config that said 1
+  //! would have run ptp4l on domain 1 while ADP advertised domain 0,
+  //! silently. One YAML section, one number (USER 2026-08-05).
+  localparam int ADP_GPTP_DOMAIN_C   = 0;

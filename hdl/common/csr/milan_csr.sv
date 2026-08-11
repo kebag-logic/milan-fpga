@@ -1293,7 +1293,11 @@ module milan_csr #(
       adp_eidlo <= 32'h0; adp_eidhi <= 32'h0; adp_midlo <= 32'h0; adp_midhi <= 32'h0;
       adp_ecaps <= 32'h0; adp_ccaps <= 32'h0;
       adp_gmlo <= 32'h0; adp_gmhi <= 32'h0; adp_gmlo_stg <= 32'h0;
-      adp_domain <= 32'h0;
+      //! NOT 32'h0: the gPTP domain is CONFIG-DEFINED (gptp.domain), and the
+      //! builder writes the same number into /etc/gptp.<board>.cfg. Boot
+      //! holding it so ptp4l's domain and the ADPDU's byte 48 cannot disagree
+      //! before any script runs. Still writable - see the csr_default mirror.
+      adp_domain <= 32'(ADP_GPTP_DOMAIN_C);
       adp_idx0 <= 32'h0; adp_idx1 <= 32'h0; adp_aslo <= 32'h0; adp_ashi <= 32'h0;
       tcam_ctrl <= 32'h1;   // default_pass = 1 (accept-all until software programs entries)
       tcam_klo <= 32'h0; tcam_khi <= 32'h0; tcam_mlo <= 32'h0; tcam_mhi <= 32'h0;
@@ -1741,6 +1745,9 @@ module milan_csr #(
       //! RO shape words: the reset value IS the answer, forever (0x0015)
       A_ADP_TALK[10:0]:   csr_default = ADP_TALK_C;
       A_ADP_LIST[10:0]:   csr_default = ADP_LIST_C;
+      //! MIRROR of the adp_domain reset above (the rule stated at VERSION
+      //! 0x0026: the write-reset literal and this readback ROM move together)
+      A_ADP_DOMAIN[10:0]: csr_default = 32'(ADP_GPTP_DOMAIN_C);
       A_AAF_CTRL[10:0]:   csr_default = 32'h0002_0000;
       A_AAF_DMLO[10:0]:   csr_default = 32'hF000_FE01;
       A_AAF_DMHI[10:0]:   csr_default = 32'h0000_91E0;

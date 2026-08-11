@@ -738,7 +738,7 @@ timing and `available_index`. `station MAC` (source MAC / entity_id seed) comes 
 | `0x620` | `ADP_CONTROLLER_CAPS` | RW | `0` | controller_capabilities |
 | `0x624` | `ADP_GPTP_GM_LO` | RW | `0` | gptp_grandmaster_id `[31:0]` |
 | `0x628` | `ADP_GPTP_GM_HI` | RW | `0` | gptp_grandmaster_id `[63:32]` |
-| `0x62C` | `ADP_GPTP_DOMAIN` | RW | `0` | `[7:0]` gptp_domain_number |
+| `0x62C` | `ADP_GPTP_DOMAIN` | RW | `ADP_GPTP_DOMAIN_C` | `[7:0]` gptp_domain_number — ADPDU byte 48. Reset is **config-derived**: `gptp.domain`, the same line that becomes `domainNumber` in the generated `/etc/gptp.<board>.cfg`. Still writable (802.1AS-2020 8.1 makes `domainNumber` a configured attribute), but it no longer *has* to be written — and `aecp_csr_setup.sh` no longer clobbers it to `0` |
 | `0x630` | `ADP_IDX0` | RW | `0` | `[15:0]` current_configuration_index, `[31:16]` identify_control_index |
 | `0x634` | `ADP_IDX1` | RW | `0` | `[15:0]` interface_index |
 | `0x638` | `ADP_ASSOC_ID_LO` | RW | `0` | association_id `[31:0]` |

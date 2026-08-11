@@ -38,7 +38,16 @@ w 0x614 0x0000C588
 w 0x620 0x00000000     # controller_capabilities
 w 0x624 0x00000000     # gPTP grandmaster id low
 w 0x628 0x00000000     # gPTP grandmaster id high
-w 0x62C 0x00000000     # gPTP domain number
+# 0x62C gPTP domain number is NOT written here any more. It resets to
+# ADP_GPTP_DOMAIN_C, generated from the config's `gptp.domain` - the SAME
+# number the builder writes into /etc/gptp.<board>.cfg as domainNumber. This
+# line used to hardcode 0 and agreed with the config only because the shipping
+# config says 0; a config on domain 1 would have run ptp4l on 1 while ADP
+# advertised 0, with nothing to catch it. Read it back to see the built value:
+#   r 0x62C
+# The register stays WRITABLE (802.1AS-2020 8.1 domainNumber is a configured
+# attribute), so a daemon may still publish a change - it just no longer has
+# to, and no longer gets clobbered back to 0 by this script.
 w 0x630 0x00000000     # ADP_IDX0: current_configuration_index = 0
 w 0x634 0x00000000     # ADP_IDX1: identify/interface index = 0
 w 0x638 0x00000000     # association id low
