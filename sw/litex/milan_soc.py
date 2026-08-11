@@ -4475,6 +4475,13 @@ class MilanDMA(LiteXModule):
             self._pb_rd_ptr = CSRStatus(pbs*32,  description="per-stream consumed pointers (32b each, absolute bytes).")
             self._pb_under  = CSRStatus(pbs*16,  description="per-stream underrun counts (16b each).")
             self._pb_over   = CSRStatus(pbs*16,  description="per-stream overrun counts (16b each).")
+            # BUS ERRORS on the DDR3 fetch path. NOT a duplicate of under/over:
+            # those two are ring-flow faults the FSM can see, this one is the
+            # INTERCONNECT failing a read. It was invisible until 2026-08-11 -
+            # see the err arm in the READ state below for why it silently
+            # corrupted audio. Saturating, not wrapping: a count that rolls to
+            # zero reads as "no errors", and this must never lie.
+            self._pb_bus_err = CSRStatus(32, description="DDR3/interconnect read errors on the playback fetch path (saturating). Nonzero = fetched samples were replaced with digital silence; the audio is not bit-exact.")
             # served-slice <-> N_STREAMS-wide boundary pads
             pb_sen_full = Signal(ns)
             pb_wr_full  = Signal(ns*32)
@@ -4526,10 +4533,37 @@ class MilanDMA(LiteXModule):
             fsm.act("IDLE",
                 req.sys.ready.eq(1),
                 If(req.sys.valid, NextValue(pb_addr_l, req.sys.addr), NextState("READ")))
+            # THE ERROR ARM (2026-08-11). Wishbone's `err` is not an alternative
+            # to `ack` on this path - LiteX's wishbone2axi asserts BOTH in its
+            # error state, so a bare `If(ack, ...)` accepts a FAILED read and
+            # latches whatever dat_r happens to hold. Verified in the flashed
+            # build's own netlist (gateware/alinx_ax7101.v): the error state
+            # drives `..._ack = 1'd1; ..._err = 1'd1;` together, the FSM tests
+            # `if (milandma_aafpb_wb_ack)` alone, and `milandma_aafpb_wb_err`
+            # occurs exactly twice in the whole file - its declaration and its
+            # assign. ZERO consumers. An undefined 64-bit word therefore went
+            # into KL_pcm_tx as a valid PCM sample, in a hard-real-time audio
+            # path, with nothing to observe it by.
+            # The substitution is DIGITAL SILENCE rather than a stall: refusing
+            # to answer would hang KL_pcm_tx, which waits for the word it asked
+            # for (KL_pcm_tx.sv:84 "any latency" means any, not never). Silence
+            # keeps the grid running and makes the damage bounded, deterministic
+            # and - via _pb_bus_err - visible.
+            pb_err_cnt = Signal(32)
+            self.comb += self._pb_bus_err.status.eq(pb_err_cnt)
             fsm.act("READ",
                 self.aafpb_wb.cyc.eq(1), self.aafpb_wb.stb.eq(1),
                 self.aafpb_wb.adr.eq(pb_addr_l[shift:]), self.aafpb_wb.sel.eq(2**nb - 1),
-                If(self.aafpb_wb.ack, NextValue(pb_data_l, self.aafpb_wb.dat_r), NextState("RESP")))
+                If(self.aafpb_wb.ack,
+                    If(self.aafpb_wb.err,
+                        NextValue(pb_data_l, 0),
+                        # saturate: 0xFFFFFFFF is "at least this many", never 0
+                        If(pb_err_cnt != 2**32 - 1,
+                           NextValue(pb_err_cnt, pb_err_cnt + 1)),
+                    ).Else(
+                        NextValue(pb_data_l, self.aafpb_wb.dat_r),
+                    ),
+                    NextState("RESP")))
             fsm.act("RESP",
                 resp.sys.valid.eq(1), resp.sys.data.eq(pb_data_l),
                 If(resp.sys.ready, NextState("IDLE")))
