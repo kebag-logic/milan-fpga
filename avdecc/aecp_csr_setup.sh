@@ -45,9 +45,15 @@ w 0x628 0x00000000     # gPTP grandmaster id high
 # config says 0; a config on domain 1 would have run ptp4l on 1 while ADP
 # advertised 0, with nothing to catch it. Read it back to see the built value:
 #   r 0x62C
-# The register stays WRITABLE (802.1AS-2020 8.1 domainNumber is a configured
-# attribute), so a daemon may still publish a change - it just no longer has
-# to, and no longer gets clobbered back to 0 by this script.
+# The register stays WRITABLE because Milan v1.2 5.3.6.1 makes the gPTP domain
+# number DYNAMIC STATE the PAAD-AE "shall maintain and expose through the
+# Control layer" - and a write already raises the unsolicited GET_AVB_INFO push
+# Milan Table 5.22 requires (gptp_domain_i is a term of w_avbi_sig,
+# KL_aecp_response_builder.sv:2260). It just no longer HAS to be written, and no
+# longer gets clobbered back to 0 by this script.
+# The value is not free, though: Milan 2 pins [802.1AS] to 802.1AS-2011 +Cor1
+# +Cor2 (NOT -2020), and 802.1AS-2011 8.1 says "The domain number of a gPTP
+# domain shall be 0". On a Milan network this reads 0 or the network is wrong.
 w 0x630 0x00000000     # ADP_IDX0: current_configuration_index = 0
 w 0x634 0x00000000     # ADP_IDX1: identify/interface index = 0
 w 0x638 0x00000000     # association id low
