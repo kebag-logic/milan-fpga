@@ -113,7 +113,11 @@ def firmware_version_string(rev=0, path=None):
     major and minor come from the fabric.  `rev` is the one component the
     32-bit register does not carry - a firmware respin that changes no CSR
     ABI - and comes from the optional `entity.firmware_rev` config key,
-    default 0.  32'h0001_0016 -> "1.22.0".
+    default 0.  32'h0002_0043 -> "2.67.0".
+
+    Versioning policy (USER 2026-08-11): MAJOR = entire redesign of blocks
+    (0x0002 = the scenario-B era); MINOR = compliance fixes, flat and
+    continuous across majors; REV = the patch component, bug-fix respins.
     """
     major, minor = rtl_version(path)
     return f"{major}.{minor}.{int(rev)}"
