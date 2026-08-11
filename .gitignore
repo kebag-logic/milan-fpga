@@ -71,7 +71,12 @@ sw/litex/boards.local.sh
 # Vivado journal/log scratch at repo root
 /vivado.jou
 /vivado.log
-.suite-logs/
+# run_all_suites.sh output. The GLOB matters: every campaign picks its own
+# suffix (--outdir .suite-logs-<tag>), so a bare `.suite-logs/` let 57 log
+# files into the tree under `.suite-logs-final/` (added incidentally by
+# 8a1d7d1d) where a later sweep silently MODIFIED tracked files.
+.suite-logs*/
+*.launch.log
 # scripts/run_all_suites.sh whole-sweep lock: concurrent sweeps share the
 # per-suite obj_* build dirs, so the second one refuses rather than corrupt it
 /.run_all_suites.lock

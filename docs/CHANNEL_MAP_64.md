@@ -688,7 +688,7 @@ flowchart LR
     CDC["gray-pointer cdc_pair_fifo<br/>ONE packed frame per entry"]
     DBL["active / next double buffer<br/>bclk side - empty at frame start<br/>= repeat last frame, counted"]
     SER["MSB-first serializer, 24-in-SLOT_BITS_P<br/>shifts on the FALLING bclk edge:<br/>the Philips delay, produced ONCE, here"]
-    OUT["tdm_dout_o - PARKED, no board pin routes it"]
+    OUT["tdm_dout_o - BONDED at J11.5 (A20),<br/>but never shifts: see below"]
     EXT["tdm_bclk_i / tdm_fsync_i<br/>INPUTS: the module is the bus SLAVE"]
 
     XB --> ADP --> BANK --> CDC --> DBL --> SER --> OUT
@@ -701,6 +701,21 @@ codec/DSP master, per the `KL_tdm_render.sv` header, which also states
 the symmetry rule ("the master shifts on the falling edge", so this
 render shifts there). The "we are bus master, dividers off the audio
 MMCM" bullet above is the phase-1 *plan*, not what the RTL does.
+
+And that slave role — not the pin — is what keeps the lane dark on the
+shipping AX7101. The pin is real: `tdm_dout_o` lands on **J11.5, ball
+A20**, claimed by `tdm_pads.dout`
+([`alinx_ax7101.py:180`](../sw/litex/platforms/alinx_ax7101.py),
+[`milan_soc.py:5233`](../sw/litex/milan_soc.py)). But the AX shape is a
+TDM8 **master**, and a master build ties `tdm_bclk_i`/`tdm_fsync_i` to
+`0` (`milan_soc.py:751`) because it generates bclk/fsync on the *output*
+side. The serializer's clock is therefore a constant zero and
+`tdm_dout_o` never leaves reset. The capture side got a master sibling;
+render did not. Three things must land before `render: 8` is real —
+a `KL_tdm_render_master`, an `AEM_DMAP_PHYS_C` key cap lifted past 10,
+and the `CHMAP_PHYS_C` blend layout — all three enumerated in the
+`render: 0` comment of
+[`configs/endstation_ax7101_1x1_tdm8.yaml`](../configs/endstation_ax7101_1x1_tdm8.yaml).
 
 ## 9. Clocking and slip policy (phase 1, normative)
 

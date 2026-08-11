@@ -4954,8 +4954,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! The render xbar emits the whole phys vector once per media tick; the TDM
   //! slave serializer wants slot-indexed writes + a frame commit. A tiny burst
   //! adapter walks phys{2..9} into the bank on each phys_valid, then commits.
-  //! tdm_dout is PARKED (no board pin routes it yet); it shares the datapath
-  //! TDM bus, so it is live only when AUDIO_IF_SLOTS_P>0 drives tdm_bclk_i.
+  //! tdm_dout_o IS BONDED - AX7101 J11.5, ball A20, claimed by tdm_pads.dout
+  //! on a master build (milan_soc.py:5233). What keeps the lane dark is the
+  //! CLOCK, not the pin: KL_tdm_render is a bus SLAVE whose serializer runs on
+  //! posedge tdm_bclk_i, and a MASTER build ties tdm_bclk_i/tdm_fsync_i to 0
+  //! (milan_soc.py:751) because the master generates bclk/fsync on the OUTPUT
+  //! side. There is no KL_tdm_render_master sibling - capture got one, render
+  //! did not. So the adapter below fills the bank correctly and the bank never
+  //! shifts. See the `render: 0` note in the AX7101 configs for the other two
+  //! blockers (AEM_DMAP_PHYS_C key cap, CHMAP_PHYS_C blend layout).
   logic        tdmr_wr_en_r;
   logic [2:0]  tdmr_slot_r;
   logic [23:0] tdmr_data_r;
