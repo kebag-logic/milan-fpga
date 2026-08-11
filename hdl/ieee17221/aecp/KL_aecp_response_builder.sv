@@ -1025,7 +1025,9 @@ module KL_aecp_response_builder (
                || (c == CMD_GET_SAMPLING_RATE) || (c == CMD_GET_CLOCK_SOURCE)
                || (c == 15'd29)                                 // GET_SIGNAL_SELECTOR
                || (c == CMD_GET_COUNTERS)
-               || (c == 15'd71) || (c == 15'd74);   // MEM_OBJ_LEN / STREAM_BACKUP
+               || (c == 15'd72) || (c == 15'd74);   // GET_MEM_OBJ_LEN 0x48 / GET_STREAM_BACKUP 0x4A
+               // 0x47 is SET_MEMORY_OBJECT_LENGTH - carrying 15'd71 here was
+               // wrong twice (accepted a non-member, rejected the member)
   endfunction
 
 `ifdef AEM_DYNMAP

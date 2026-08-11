@@ -2051,6 +2051,33 @@ int main(int argc, char** argv) {
             ck("[21g] BAD_ARGUMENTS echoes the request", 
                memcmp(&r[38], bad.data(), bad.size()) == 0, 1);
 
+            // 7.4.76.2 boundary pair: GET_MEMORY_OBJECT_LENGTH (0x0048) is a
+            // member -> batch accepted; its SET twin (0x0047) is not -> whole
+            // command BAD_ARGUMENTS. Guards the 15'd71/15'd72 constant.
+            {
+                std::vector<uint8_t> mb;
+                auto mrec = [&](uint16_t cmd, const std::vector<uint8_t>& d) {
+                    put_be16(mb, (uint16_t)d.size()); put_be16(mb, 0);
+                    mb.push_back(0); mb.push_back(0); put_be16(mb, cmd);
+                    mb.insert(mb.end(), d.begin(), d.end());
+                };
+                mrec(7, {});
+                mrec(72, gs4(0x000B, 0));   // member, unimplemented here
+                feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID,
+                                       CTLR_ID, 0, 0x4B, 0x210E, mb));
+                r = collect_resp();
+                ck("[21m] GET_MEM_OBJ_LEN batches (member of 7.4.76.2)",
+                   r_status(r), 0);
+                mb.clear();
+                mrec(7, {});
+                mrec(71, gs4(0x000B, 0));   // the SET twin: not a member
+                feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID,
+                                       CTLR_ID, 0, 0x4B, 0x210F, mb));
+                r = collect_resp();
+                ck("[21m] SET_MEM_OBJ_LEN inside a batch -> BAD_ARGUMENTS",
+                   r_status(r), 7);
+            }
+
             // PADDED single-record batch (silicon frames are min-64):
             // pad bytes past cdl must NOT disturb the scan
             {
