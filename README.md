@@ -69,9 +69,15 @@ cannot build four of the suites and 5.032 (Debian trixie) reads back zeros on si
 `aecp` checks. The measured table is in
 [docs/testing/TESTING.md](docs/testing/TESTING.md) §7. The repo's *other* submodules are SSH-only and
 **not needed** for anything here — leave them uninitialised: `external`, and
-`protocol-processor` (the IEEE 1722.1 protocol-processor architecture spec plus its
-resource/effort analysis; the planned home of a micro-coded control-plane
-implementation this repo would consume). A GitHub *"Download ZIP"* has no
+`protocol-processor` — the IEEE 1722.1 protocol-processor **architecture of
+record** (revision 2.0, tagged `v2.0`): the control-plane architecture,
+compliance review, resource/effort analysis and the growing SystemVerilog
+implementation all live there, at
+<https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan> —
+this repository refers to it rather than duplicating it. The in-tree
+1722.1/SRP plane is the incumbent being replaced by that implementation
+(direct substitution at parity; the superseded plane stays in git history).
+A GitHub *"Download ZIP"* has no
 submodule content, so the datapath testbenches will not build from a zip.
 
 **Tier 2 · prove device portability (generic synthesis + Lattice ECP5)** — add:
