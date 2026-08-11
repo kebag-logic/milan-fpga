@@ -2867,6 +2867,24 @@ int main(int argc, char** argv) {
             ck("[26] GET_NAME(absent) cdl 84", r_cdl(r), 84);
             ck("[26] GET_NAME(absent) frame 110 B", (long)r.size(), 110);
         }
+        // IDENTIFY_NOTIFICATION (0x0026) received as a COMMAND: 7.4.39.2 is
+        // opcode-specific - BAD_ARGUMENTS, echo-sized - and must NOT take
+        // the 9.3.5.3.3 NOT_IMPLEMENTED fallback. Guard both directions.
+        {
+            std::vector<uint8_t> ip;                      // desc_type/index
+            put_be16(ip, 0x0000); put_be16(ip, 0);
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID,
+                             0, 38, 0x2630, ip));
+            r = collect_resp();
+            ck("[26i] IDENTIFY_NOTIFICATION as cmd -> BAD_ARGUMENTS (7.4.39.2)",
+               r_status(r), 7);
+            ck("[26i] IDENTIFY_NOTIFICATION echo cdl 16", r_cdl(r), 16);
+            feed_rx(build_aecp_cmd(stim, ENT_MAC, CTL_MAC, ENTITY_ID, CTLR_ID,
+                             0, 0x50, 0x2631, ip));
+            r = collect_resp();
+            ck("[26i] truly-unknown opcode still NOT_IMPLEMENTED",
+               r_status(r), 1);
+        }
     }
 
     // ---------------------------------------------------------------- //

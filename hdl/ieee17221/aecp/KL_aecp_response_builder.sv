@@ -4663,6 +4663,14 @@ module KL_aecp_response_builder (
                 end
               end
 
+              //! IDENTIFY_NOTIFICATION received as a COMMAND: the opcode is
+              //! unsolicited-only and IEEE 1722.1-2021 7.4.39.2 is opcode-
+              //! specific - "it shall return a response with the status
+              //! code BAD_ARGUMENTS" - so it must NOT fall into the
+              //! 9.3.5.3.3 NOT_IMPLEMENTED fallback below. Same echo shape
+              //! as the default, different status.
+              CMD_IDENTIFY_NOTIFICATION: status_q <= STATUS_BAD_ARGUMENTS;
+
               default: ;   // NOT_IMPLEMENTED echo (defaults above)
             endcase
           end
