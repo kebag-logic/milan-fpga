@@ -1,7 +1,7 @@
 # Handover — 2026-07-28
 
 **UNCOMMITTED ON PURPOSE**, same as `HANDOVER_0727_NIGHT.md`: this carries bench
-hosts, IPs and local paths that [`scripts/docs_check.py`](scripts/docs_check.py) rejects in tracked
+hosts, IPs and local paths that [`scripts/docs_check.py`](../../scripts/docs_check.py) rejects in tracked
 markdown. Scrub before committing any of it.
 
 ---
@@ -16,7 +16,7 @@ markdown. Scrub before committing any of it.
 - **[6. check_wire_accountability is SUPPOSED to be red](#6-check_wire_accountability-is-supposed-to-be-red)** — it reports W3 (16 pair slots back four of eight talkers), a different defect from item 00, owned by item 5 — not a regression.
 - **[7. Traps burned today — read before touching the bench](#7-traps-burned-today--read-before-touching-the-bench)** — eight burned traps, from the subtype-masking flood tool and the MRPDU decoder that stopped at the first Message, to the unset `$STANDARDS_DIR` that caused the 5.3.7.3 paraphrase error.
 - **[8. Roadmap — do these in order](#8-roadmap--do-these-in-order)** — pre-flash blockers, build/flash discipline (board telling-apart included), the nine-step silicon validation, the Arty ONE-I2S-plus-TDM8-master decision (§8.3b), and the owned open items.
-- **[9. Documentation written this session](#9-documentation-written-this-session)** — what landed where: [`methodology.md`](docs/testing/methodology.md) as the normative read-first, the findings and traceability updates, and the memory keys carrying the durable facts.
+- **[9. Documentation written this session](#9-documentation-written-this-session)** — what landed where: [`methodology.md`](../../docs/testing/methodology.md) as the normative read-first, the findings and traceability updates, and the memory keys carrying the durable facts.
 
 ## 1. One-line state
 
@@ -40,7 +40,7 @@ One defect class, found five times:
 | 5 | `cfg_aaf_bypass` overrode ACMP+lwSRP | fabric already knew the answer |
 
 **A declaration nobody checked against the thing it describes.** That is roadmap
-item 00, and it is why [`docs/testing/methodology.md`](docs/testing/methodology.md) names **L1 (binding)** as
+item 00, and it is why [`docs/testing/methodology.md`](../../docs/testing/methodology.md) names **L1 (binding)** as
 the missing test tier — six of its nine documented escapes live there.
 
 The sharpest instance is self-referential: `cfg_aaf_bypass` existed because this
@@ -298,16 +298,16 @@ defect from the mis-framing item 00 closed.
 
 ## 9. Documentation written this session
 
-- **[`docs/testing/methodology.md`](docs/testing/methodology.md)** — NORMATIVE. Six levels, seven rules
+- **[`docs/testing/methodology.md`](../../docs/testing/methodology.md)** — NORMATIVE. Six levels, seven rules
   (R1–R7), what a lane owes, and the "a bug found outside your subject gets a
   new lane with fresh context" rule. Read this first.
-- [`docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD.md`](docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD.md) — D7, reproduced 2/2.
-- [`docs/MILAN_COMPLIANCE_GAPS.md`](docs/MILAN_COMPLIANCE_GAPS.md) — item 00 updated with what landed.
-- [`docs/findings/BENCH_TOPOLOGY.md`](docs/findings/BENCH_TOPOLOGY.md) — the boot provisioning value corrected.
-- [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md) — `AAF_CTRL` reset, `CHMAP_SNAP/LOOP`,
+- [`docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD.md`](../../docs/findings/GPTP_GM_LOSS_UNDER_RX_LOAD.md) — D7, reproduced 2/2.
+- [`docs/MILAN_COMPLIANCE_GAPS.md`](../../docs/MILAN_COMPLIANCE_GAPS.md) — item 00 updated with what landed.
+- [`docs/findings/BENCH_TOPOLOGY.md`](../../docs/findings/BENCH_TOPOLOGY.md) — the boot provisioning value corrected.
+- [`docs/reference/REGISTER_MAP.md`](../../docs/reference/REGISTER_MAP.md) — `AAF_CTRL` reset, `CHMAP_SNAP/LOOP`,
   VERSION-as-ATDECC-version.
-- Traceability rows across [`ieee1722-2016.md`](docs/traceability/ieee1722-2016.md), [`ieee1722_1-2021.md`](docs/traceability/ieee1722_1-2021.md),
-  [`milan-v12.md`](docs/traceability/milan-v12.md), [`ieee8021as.md`](docs/traceability/ieee8021as.md), [`ieee8021q.md`](docs/traceability/ieee8021q.md).
+- Traceability rows across [`ieee1722-2016.md`](../../docs/traceability/ieee1722-2016.md), [`ieee1722_1-2021.md`](../../docs/traceability/ieee1722_1-2021.md),
+  [`milan-v12.md`](../../docs/traceability/milan-v12.md), [`ieee8021as.md`](../../docs/traceability/ieee8021as.md), [`ieee8021q.md`](../../docs/traceability/ieee8021q.md).
 
 **Memory** (`~/.claude/projects/.../memory/`) carries the durable facts:
 `standards-pdfs-are-on-this-box`, `d7-gm-loss-rx-queues-rootcause`,

@@ -102,4 +102,13 @@ wedge.vcd
 # Session handovers are working notes: local paths, bench host names and
 # live board detail belong in them, and none of that belongs in a public
 # repo. The older tracked ones predate this rule and stay for their history.
-HANDOVER_0808.md
+#
+# A GLOB, not a filename (2026-08-11). This rule named `HANDOVER_0808.md`
+# literally, so it protected exactly one file and the NEXT handover would have
+# been untracked-but-not-ignored - one `git add -A` from publication. Measured
+# at the time: HANDOVER_0808 carries 19 hits of the gate's own deny patterns
+# (bench hosts, /home paths, the retired evidence token) and HANDOVER_0804
+# carries 5, while every handover that reached origin/main carries zero. The
+# separation was working by luck of one hand-maintained line; now it is a rule.
+HANDOVER_*.md
+handover_*.md

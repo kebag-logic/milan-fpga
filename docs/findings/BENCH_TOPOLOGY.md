@@ -9,8 +9,12 @@ below carry banners where the two-board era is kept as history. The
 single-DUT bench values (hosts, tap interface, outlets, serials) are now
 inline in this doc; anything not inline is in the private test repo's bench
 notes. This is the single document a fresh session needs to operate the
-bench. Live campaign state is tracked in the GitHub issues and the dated
-handovers ([HANDOVER_0802.md](../../HANDOVER_0802.md) is current); the
+bench. Live campaign state is tracked in the GitHub issues and in this
+document; the dated handovers are **local working notes and are no longer
+tracked** — they name bench hosts and local paths, so the public tree keeps
+only the archived pre-2026-08-11 set under
+[`historical_now_obsolete/handovers/`](../../historical_now_obsolete/handovers/).
+Do not cite a handover as the current source of anything; the
 remaining compliance work is
 [`docs/MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md). Naming rule: the conformance suite is
 called **the bench suite** everywhere (commits, docs, comments) — never
@@ -189,7 +193,8 @@ never launch a build without it (an unpinned hash seed forks the VexiiRiscv
 netlist and the A/B comparison dies). The fit recipe that currently gets
 closest is `synth_design -directive AlternateRoutability` +
 `place_design -directive ExtraNetDelay_high`; the full fit ledger lives in
-[HANDOVER_0802.md](../../HANDOVER_0802.md). Flash with the full image set
+[`historical_now_obsolete/handovers/HANDOVER_0802.md`](../../historical_now_obsolete/handovers/HANDOVER_0802.md).
+Flash with the full image set
 (`KERNEL`/`DTB`/`OPENSBI`/`ROOTFS`) — **OpenSBI embeds the FDT**, so a DTB
 change means an OpenSBI rebuild, and a queue-count change shifts the DMA
 windows under an unchanged DTB (`deploy.sh` gates this via

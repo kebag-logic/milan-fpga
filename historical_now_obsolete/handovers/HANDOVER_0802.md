@@ -10,9 +10,9 @@ marked **[session-lore, verify]**.
 
 DUT = **ALINX AX7101 ONLY** (Arty retired by USER 07-31). Shape fixed by
 USER: 8 talkers × 8 listeners, 8ch/stream, RV32 VexiiRiscv. Bench operations:
-[docs/findings/BENCH_TOPOLOGY.md](docs/findings/BENCH_TOPOLOGY.md) (refreshed
+[docs/findings/BENCH_TOPOLOGY.md](../../docs/findings/BENCH_TOPOLOGY.md) (refreshed
 today). The day's three closed defect classes:
-[docs/findings/DEFECT_CLASSES_0802.md](docs/findings/DEFECT_CLASSES_0802.md).
+[docs/findings/DEFECT_CLASSES_0802.md](../../docs/findings/DEFECT_CLASSES_0802.md).
 
 ---
 
@@ -51,10 +51,10 @@ AECP/ACMP round:
 | Talker TSpec describes the emitted frame (the 0x0021 line) | `c88c07b7` |
 
 `devmem 0x90000004` reads **`0x0001_0021`** — the VERSION constant has not
-been bumped since ([`milan_csr.sv:80`](hdl/common/csr/milan_csr.sv#L80)), so 0x0021 now names more than the
+been bumped since ([`milan_csr.sv:80`](../../hdl/common/csr/milan_csr.sv#L80)), so 0x0021 now names more than the
 TSpec fix. **This build's AECP declared-vs-delivered length validator is what
 exposed the years-old cdl defect** — see
-[docs/findings/DEFECT_CLASSES_0802.md](docs/findings/DEFECT_CLASSES_0802.md) §2.
+[docs/findings/DEFECT_CLASSES_0802.md](../../docs/findings/DEFECT_CLASSES_0802.md) §2.
 
 **Rootfs/image** (`milan-tests-avb`): **PREEMPT_RT** (`417840f` fragment +
 threadirqs dtb + OpenSBI re-embed), RT policy fixed for one hart (`1029f16`,
@@ -79,7 +79,7 @@ rounds**: `cc1057ec` (milan-fpga: plan + attribution semantics) and `3576806`
 below repeats.
 
 FAIL-triage results that drove those fixes (details and clause quotes in
-[docs/testing/TORTURE_CAMPAIGN.md](docs/testing/TORTURE_CAMPAIGN.md)):
+[docs/testing/TORTURE_CAMPAIGN.md](../../docs/testing/TORTURE_CAMPAIGN.md)):
 
 - **31 conformant binds filed as SHALL violations** (26 reset→0→re-lock
   shapes + 5 rebinds/leftover binds). Milan 5.3.8.10 resets on the
@@ -195,7 +195,7 @@ aplay -D hw:Milan,0 -f S32_BE -r 48000 -c 8 /tmp/track.raw
 ```
 
 **Campaign launch** (peer host, `milan-tests-avb/tools/`; full flag reference
-in [docs/testing/TORTURE_CAMPAIGN.md](docs/testing/TORTURE_CAMPAIGN.md) §3):
+in [docs/testing/TORTURE_CAMPAIGN.md](../../docs/testing/TORTURE_CAMPAIGN.md) §3):
 
 ```sh
 sudo -E python3 tools/milan_torture.py --areas matrix --iface enp6s0 ...
@@ -203,7 +203,7 @@ python3 tools/test_milan_torture.py        # the runner's own 87-test gate
 ```
 
 **Flash + cold cycle** (details in
-[docs/findings/BENCH_TOPOLOGY.md](docs/findings/BENCH_TOPOLOGY.md) §5):
+[docs/findings/BENCH_TOPOLOGY.md](../../docs/findings/BENCH_TOPOLOGY.md) §5):
 
 ```sh
 AX_FTDI=210512180081 KERNEL=... DTB=... OPENSBI=... ROOTFS=... \
