@@ -83,7 +83,7 @@ box("TBL", 105, 470, 540, 110, "THE REGISTRATION TABLE  (:1682-1685)",
      "unsol_seq_r   [0:SLOTS-1]       16 bits   — per-slot sequence_id",
      "                              = 129 bits of storage PER SLOT"], GREEN)
 
-box("PEND", 105, 600, 540, 200, "TWELVE PENDING CLASSES  (:1686-1711)",
+box("PEND", 105, 600, 540, 200, "ELEVEN PENDING CLASSES  (:1686-1711 — numbering runs to 12, no pend2)",
     ["bit-per-slot vectors  [SLOTS-1:0]:",
      "  unsol_pend_r    stream-info      unsol_pend8_r   GET_AS_PATH",
      "  unsol_pend3_r   AVB_INTERFACE    unsol_pend9_r   CLOCK_DOMAIN",
@@ -142,6 +142,7 @@ box("REG", 770, 285, 335, 130, "REGISTER_UNSOLICITED_NOTIFICATION",
     ["1. scan unsol_valid_r for a FREE slot",
      "2. if none free → status NO_RESOURCES",
      "3. write eid / mac / seq=0, valid←1",
+     "   (a DEDUP re-register PRESERVES seq)",
      "4. pulse mon_arm_p_o[slot]",
      "   (slot born: monitor starts)"], BLUE)
 
@@ -154,7 +155,7 @@ box("DEREG", 1130, 285, 335, 130, "DEREGISTER_UNSOLICITED_NOTIFICATION",
 
 box("TRIG", 770, 460, 695, 140, "STATE CHANGE  →  SET THE PEND BIT FOR EVERY REGISTERED SLOT",
     ["a SET_* write-back, a stream bind, a GM change, a clock-domain change,",
-     "a media-clock event …  each owns ONE of the twelve pend classes and arms",
+     "a media-clock event …  each owns ONE of the eleven pend classes and arms",
      "it per slot, gated on registration (:2661):",
      "      for (s) if (unsol_valid_r[s]) unsol_pendN_r[s] <= 1'b1;",
      "u=1 in the emitted AECPDU marks it unsolicited; a no-change gate stops",
@@ -166,7 +167,7 @@ box("WALK", 770, 615, 695, 158, "THE EMISSION WALK — the part that costs LUTs"
      "then read back unsol_eid_r / unsol_mac_r / unsol_seq_r at that index,",
      "build the AECPDU, emit, seq++, clear the bit (:2957).",
      "",
-     "12 classes × SLOTS priority-encodes + 12 × SLOTS-wide read muxes over a",
+     "11 classes × SLOTS priority-encodes + 11 × SLOTS-wide read muxes over a",
      "129-bit record.  Halving SLOTS halves BOTH — hence the −8.7 %.",
      "NOTE the 2'(s) — the index width is a LITERAL, see panel 3 note 1."], PURPLE)
 
@@ -184,7 +185,9 @@ box("PROBE", 770, 991, 695, 165, "gh #59 — SHEDDING A DEAD CONTROLLER",
      "     ↓",
      "emit CONTROLLER_AVAILABLE to that slot's controller (unicast)",
      "     ↓",
-     "reply?  w_ca_reply_match[slot] && unsol_eid_r[idx] == ca_probe_eid_r",
+     "reply matched by ENTITY_ID, never by MAC — a controller that moved",
+     "MAC still proves itself alive (:1872).  unsol_mac_r is CARRIED, never",
+     "compared: it is the unicast destination and nothing else.",
      "   yes → mon_heard_p_o[slot]  (reload, slot survives)",
      "   no  → probe again, then mon_clear_p_o[slot] + valid←0  (slot freed)",
      "",
@@ -196,8 +199,9 @@ box("SWEEP", 770, 1171, 695, 92, "TABLE FULL → THE NO_RESOURCES SWEEP  (Milan 
      "ONE probe outstanding at a time (ca_inflight_r) — two silent controllers",
      "serialise ~500 ms apart, so a sweep never puts four probes on the wire."], ORANGE)
 
-box("N2", 770, 1278, 695, 90, "WHY 4 AND NOT 2",
-    ["No minimum in 1722.1-2021 §7.5.2 or Milan v1.2 §5.4.5. The real question",
+box("N2", 770, 1278, 695, 112, "WHY 4 AND NOT 2",
+    ["aecp_pkg.sv:183 declares MAX_UNSOLICITED_CTLR_C = 16 — the reference",
+     "bound, which dimensions NOTHING. We implement 4 of a possible 16.",
      "is how many CONTROLLERS touch this entity at once: Hive + la_avdecc + a",
      "test harness is three. Two is a real constraint, four is comfortable —",
      "a PRODUCT decision, not a standards one. Argue it before cutting it."], WHITE, "note")
@@ -226,7 +230,7 @@ box("S_FREE", 1600, 235, 220, 62, "FREE",
 box("S_REG", 1600, 360, 220, 76, "REGISTERED",
     ["valid=1, eid/mac held", "seq counting", "monitor armed"], GOLD)
 box("S_PEND", 1600, 500, 220, 76, "NOTIFY OWED",
-    ["≥1 of 12 pend bits set", "for this slot"], GOLD)
+    ["≥1 of 11 pend bits set", "for this slot"], GOLD)
 box("S_PROBE", 1880, 430, 235, 76, "PROBE OWED",
     ["ca_owed_r[i] = 1", "CONTROLLER_AVAILABLE", "in flight"], ORANGE)
 
@@ -263,8 +267,8 @@ box("N3", 1540, 890, 605, 200, "READING THIS DIAGRAM",
      "emission walk, which serialises them onto one TX arbiter grant.",
      "",
      "So the 4 costs area in two different ways:",
-     "  · STORAGE   129 bits × 4, plus 12 pend classes × 4",
-     "  · SELECTION 12 priority encodes and 12 read muxes, each ×4 wide",
+     "  · STORAGE   129 bits × 4, plus 11 pend classes × 4",
+     "  · SELECTION 11 priority encodes and 11 read muxes, each ×4 wide",
      "The second is the larger, and it is why the saving is super-linear in",
      "the pend-class count rather than just in the slot count."], WHITE, "note")
 

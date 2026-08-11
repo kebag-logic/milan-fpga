@@ -35,7 +35,7 @@
 <text x="117" y="555" font-size="11.5" fill="#37474F">unsol_seq_r   [0:SLOTS-1]       16 bits   — per-slot sequence_id</text>
 <text x="117" y="570" font-size="11.5" fill="#37474F">                              = 129 bits of storage PER SLOT</text>
 <rect x="105" y="600" width="540" height="200" rx="10" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
-<text x="117" y="622" font-size="13.5" font-weight="bold" fill="#212121">TWELVE PENDING CLASSES  (:1686-1711)</text>
+<text x="117" y="622" font-size="13.5" font-weight="bold" fill="#212121">ELEVEN PENDING CLASSES  (:1686-1711 — numbering runs to 12, no pend2)</text>
 <text x="117" y="640" font-size="11.5" fill="#37474F">bit-per-slot vectors  [SLOTS-1:0]:</text>
 <text x="117" y="655" font-size="11.5" fill="#37474F">  unsol_pend_r    stream-info      unsol_pend8_r   GET_AS_PATH</text>
 <text x="117" y="670" font-size="11.5" fill="#37474F">  unsol_pend3_r   AVB_INTERFACE    unsol_pend9_r   CLOCK_DOMAIN</text>
@@ -65,8 +65,9 @@
 <text x="782" y="325" font-size="11.5" fill="#37474F">1. scan unsol_valid_r for a FREE slot</text>
 <text x="782" y="340" font-size="11.5" fill="#37474F">2. if none free → status NO_RESOURCES</text>
 <text x="782" y="355" font-size="11.5" fill="#37474F">3. write eid / mac / seq=0, valid←1</text>
-<text x="782" y="370" font-size="11.5" fill="#37474F">4. pulse mon_arm_p_o[slot]</text>
-<text x="782" y="385" font-size="11.5" fill="#37474F">   (slot born: monitor starts)</text>
+<text x="782" y="370" font-size="11.5" fill="#37474F">   (a DEDUP re-register PRESERVES seq)</text>
+<text x="782" y="385" font-size="11.5" fill="#37474F">4. pulse mon_arm_p_o[slot]</text>
+<text x="782" y="400" font-size="11.5" fill="#37474F">   (slot born: monitor starts)</text>
 <rect x="1130" y="285" width="335" height="130" rx="10" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
 <text x="1142" y="307" font-size="13.5" font-weight="bold" fill="#212121">DEREGISTER_UNSOLICITED_NOTIFICATION</text>
 <text x="1142" y="325" font-size="11.5" fill="#37474F">1. match unsol_eid_r[i] == controller</text>
@@ -77,7 +78,7 @@
 <rect x="770" y="460" width="695" height="140" rx="10" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
 <text x="782" y="482" font-size="13.5" font-weight="bold" fill="#212121">STATE CHANGE  →  SET THE PEND BIT FOR EVERY REGISTERED SLOT</text>
 <text x="782" y="500" font-size="11.5" fill="#37474F">a SET_* write-back, a stream bind, a GM change, a clock-domain change,</text>
-<text x="782" y="515" font-size="11.5" fill="#37474F">a media-clock event …  each owns ONE of the twelve pend classes and arms</text>
+<text x="782" y="515" font-size="11.5" fill="#37474F">a media-clock event …  each owns ONE of the eleven pend classes and arms</text>
 <text x="782" y="530" font-size="11.5" fill="#37474F">it per slot, gated on registration (:2661):</text>
 <text x="782" y="545" font-size="11.5" fill="#37474F">      for (s) if (unsol_valid_r[s]) unsol_pendN_r[s] &lt;= 1&#x27;b1;</text>
 <text x="782" y="560" font-size="11.5" fill="#37474F">u=1 in the emitted AECPDU marks it unsolicited; a no-change gate stops</text>
@@ -89,7 +90,7 @@
 <text x="782" y="685" font-size="11.5" fill="#37474F">then read back unsol_eid_r / unsol_mac_r / unsol_seq_r at that index,</text>
 <text x="782" y="700" font-size="11.5" fill="#37474F">build the AECPDU, emit, seq++, clear the bit (:2957).</text>
 <text x="782" y="715" font-size="11.5" fill="#37474F"></text>
-<text x="782" y="730" font-size="11.5" fill="#37474F">12 classes × SLOTS priority-encodes + 12 × SLOTS-wide read muxes over a</text>
+<text x="782" y="730" font-size="11.5" fill="#37474F">11 classes × SLOTS priority-encodes + 11 × SLOTS-wide read muxes over a</text>
 <text x="782" y="745" font-size="11.5" fill="#37474F">129-bit record.  Halving SLOTS halves BOTH — hence the −8.7 %.</text>
 <text x="782" y="760" font-size="11.5" fill="#37474F">NOTE the 2&#x27;(s) — the index width is a LITERAL, see panel 3 note 1.</text>
 <rect x="770" y="788" width="695" height="95" rx="10" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
@@ -107,11 +108,13 @@
 <text x="782" y="1046" font-size="11.5" fill="#37474F">     ↓</text>
 <text x="782" y="1061" font-size="11.5" fill="#37474F">emit CONTROLLER_AVAILABLE to that slot&#x27;s controller (unicast)</text>
 <text x="782" y="1076" font-size="11.5" fill="#37474F">     ↓</text>
-<text x="782" y="1091" font-size="11.5" fill="#37474F">reply?  w_ca_reply_match[slot] &amp;&amp; unsol_eid_r[idx] == ca_probe_eid_r</text>
-<text x="782" y="1106" font-size="11.5" fill="#37474F">   yes → mon_heard_p_o[slot]  (reload, slot survives)</text>
-<text x="782" y="1121" font-size="11.5" fill="#37474F">   no  → probe again, then mon_clear_p_o[slot] + valid←0  (slot freed)</text>
-<text x="782" y="1136" font-size="11.5" fill="#37474F"></text>
-<text x="782" y="1151" font-size="11.5" fill="#37474F">This is WHY the table has two readers, and why the widths must agree.</text>
+<text x="782" y="1091" font-size="11.5" fill="#37474F">reply matched by ENTITY_ID, never by MAC — a controller that moved</text>
+<text x="782" y="1106" font-size="11.5" fill="#37474F">MAC still proves itself alive (:1872).  unsol_mac_r is CARRIED, never</text>
+<text x="782" y="1121" font-size="11.5" fill="#37474F">compared: it is the unicast destination and nothing else.</text>
+<text x="782" y="1136" font-size="11.5" fill="#37474F">   yes → mon_heard_p_o[slot]  (reload, slot survives)</text>
+<text x="782" y="1151" font-size="11.5" fill="#37474F">   no  → probe again, then mon_clear_p_o[slot] + valid←0  (slot freed)</text>
+<text x="782" y="1166" font-size="11.5" fill="#37474F"></text>
+<text x="782" y="1181" font-size="11.5" fill="#37474F">This is WHY the table has two readers, and why the widths must agree.</text>
 <rect x="770" y="1171" width="695" height="92" rx="10" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
 <text x="782" y="1193" font-size="13.5" font-weight="bold" fill="#212121">TABLE FULL → THE NO_RESOURCES SWEEP  (Milan 5.4.2.21, :327/:2882)</text>
 <text x="782" y="1211" font-size="11.5" fill="#37474F">mon_force_exp_p_o force-expires the monitors so silent controllers are</text>
@@ -129,7 +132,7 @@
 <text x="1612" y="430" font-size="11.5" fill="#37474F">monitor armed</text>
 <rect x="1600" y="500" width="220" height="76" rx="10" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
 <text x="1612" y="522" font-size="13.5" font-weight="bold" fill="#212121">NOTIFY OWED</text>
-<text x="1612" y="540" font-size="11.5" fill="#37474F">≥1 of 12 pend bits set</text>
+<text x="1612" y="540" font-size="11.5" fill="#37474F">≥1 of 11 pend bits set</text>
 <text x="1612" y="555" font-size="11.5" fill="#37474F">for this slot</text>
 <rect x="1880" y="430" width="235" height="76" rx="10" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
 <text x="1892" y="452" font-size="13.5" font-weight="bold" fill="#212121">PROBE OWED</text>
@@ -160,12 +163,13 @@
 <text x="92" y="1365" font-size="11.5" fill="#37474F">4 → 1 slot  :  8583 → 7574 LUT   = −1009,  ≈ −704 in context</text>
 <text x="92" y="1380" font-size="11.5" fill="#37474F">               …but a SECOND controller is then refused registration</text>
 <text x="92" y="1395" font-size="11.5" fill="#37474F">≈ 336 LUT per slot at the top of the range</text>
-<rect x="770" y="1278" width="695" height="90" rx="10" fill="#FFFFFF" stroke="#90A4AE" stroke-width="2" stroke-dasharray="6,4"/>
+<rect x="770" y="1278" width="695" height="112" rx="10" fill="#FFFFFF" stroke="#90A4AE" stroke-width="2" stroke-dasharray="6,4"/>
 <text x="782" y="1300" font-size="13.5" font-weight="bold" fill="#212121">WHY 4 AND NOT 2</text>
-<text x="782" y="1318" font-size="11.5" fill="#37474F">No minimum in 1722.1-2021 §7.5.2 or Milan v1.2 §5.4.5. The real question</text>
-<text x="782" y="1333" font-size="11.5" fill="#37474F">is how many CONTROLLERS touch this entity at once: Hive + la_avdecc + a</text>
-<text x="782" y="1348" font-size="11.5" fill="#37474F">test harness is three. Two is a real constraint, four is comfortable —</text>
-<text x="782" y="1363" font-size="11.5" fill="#37474F">a PRODUCT decision, not a standards one. Argue it before cutting it.</text>
+<text x="782" y="1318" font-size="11.5" fill="#37474F">aecp_pkg.sv:183 declares MAX_UNSOLICITED_CTLR_C = 16 — the reference</text>
+<text x="782" y="1333" font-size="11.5" fill="#37474F">bound, which dimensions NOTHING. We implement 4 of a possible 16.</text>
+<text x="782" y="1348" font-size="11.5" fill="#37474F">is how many CONTROLLERS touch this entity at once: Hive + la_avdecc + a</text>
+<text x="782" y="1363" font-size="11.5" fill="#37474F">test harness is three. Two is a real constraint, four is comfortable —</text>
+<text x="782" y="1378" font-size="11.5" fill="#37474F">a PRODUCT decision, not a standards one. Argue it before cutting it.</text>
 <rect x="1540" y="890" width="605" height="200" rx="10" fill="#FFFFFF" stroke="#90A4AE" stroke-width="2" stroke-dasharray="6,4"/>
 <text x="1552" y="912" font-size="13.5" font-weight="bold" fill="#212121">READING THIS DIAGRAM</text>
 <text x="1552" y="930" font-size="11.5" fill="#37474F">Everything in panel 1&#x27;s green and orange blocks is ×4. Everything in</text>
@@ -174,8 +178,8 @@
 <text x="1552" y="975" font-size="11.5" fill="#37474F">emission walk, which serialises them onto one TX arbiter grant.</text>
 <text x="1552" y="990" font-size="11.5" fill="#37474F"></text>
 <text x="1552" y="1005" font-size="11.5" fill="#37474F">So the 4 costs area in two different ways:</text>
-<text x="1552" y="1020" font-size="11.5" fill="#37474F">  · STORAGE   129 bits × 4, plus 12 pend classes × 4</text>
-<text x="1552" y="1035" font-size="11.5" fill="#37474F">  · SELECTION 12 priority encodes and 12 read muxes, each ×4 wide</text>
+<text x="1552" y="1020" font-size="11.5" fill="#37474F">  · STORAGE   129 bits × 4, plus 11 pend classes × 4</text>
+<text x="1552" y="1035" font-size="11.5" fill="#37474F">  · SELECTION 11 priority encodes and 11 read muxes, each ×4 wide</text>
 <text x="1552" y="1050" font-size="11.5" fill="#37474F">The second is the larger, and it is why the saving is super-linear in</text>
 <text x="1552" y="1065" font-size="11.5" fill="#37474F">the pend-class count rather than just in the slot count.</text>
 <rect x="1540" y="1120" width="605" height="305" rx="10" fill="#FFFFFF" stroke="#90A4AE" stroke-width="2" stroke-dasharray="6,4"/>

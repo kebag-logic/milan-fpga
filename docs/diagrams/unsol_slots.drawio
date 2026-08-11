@@ -9,7 +9,7 @@ unsol_valid_r [0:SLOTS-1]        1 bit    — slot occupied
 unsol_eid_r   [0:SLOTS-1]       64 bits   — controller entity_id
 unsol_mac_r   [0:SLOTS-1]       48 bits   — controller MAC
 unsol_seq_r   [0:SLOTS-1]       16 bits   — per-slot sequence_id
-                              = 129 bits of storage PER SLOT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="105" y="470" width="540" height="110" as="geometry"/></mxCell><mxCell id="n14" value="TWELVE PENDING CLASSES  (:1686-1711)
+                              = 129 bits of storage PER SLOT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="105" y="470" width="540" height="110" as="geometry"/></mxCell><mxCell id="n14" value="ELEVEN PENDING CLASSES  (:1686-1711 — numbering runs to 12, no pend2)
 bit-per-slot vectors  [SLOTS-1:0]:
   unsol_pend_r    stream-info      unsol_pend8_r   GET_AS_PATH
   unsol_pend3_r   AVB_INTERFACE    unsol_pend9_r   CLOCK_DOMAIN
@@ -31,6 +31,7 @@ sequence_id, command_type, + source MAC lifted off the wire" style="rounded=1;wh
 1. scan unsol_valid_r for a FREE slot
 2. if none free → status NO_RESOURCES
 3. write eid / mac / seq=0, valid←1
+   (a DEDUP re-register PRESERVES seq)
 4. pulse mon_arm_p_o[slot]
    (slot born: monitor starts)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="770" y="285" width="335" height="130" as="geometry"/></mxCell><mxCell id="n19" value="DEREGISTER_UNSOLICITED_NOTIFICATION
 1. match unsol_eid_r[i] == controller
@@ -39,7 +40,7 @@ sequence_id, command_type, + source MAC lifted off the wire" style="rounded=1;wh
    (slot died: monitor stops)
 4. all pend bits for that slot cleared" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1130" y="285" width="335" height="130" as="geometry"/></mxCell><mxCell id="n20" value="STATE CHANGE  →  SET THE PEND BIT FOR EVERY REGISTERED SLOT
 a SET_* write-back, a stream bind, a GM change, a clock-domain change,
-a media-clock event …  each owns ONE of the twelve pend classes and arms
+a media-clock event …  each owns ONE of the eleven pend classes and arms
 it per slot, gated on registration (:2661):
       for (s) if (unsol_valid_r[s]) unsol_pendN_r[s] &lt;= 1&#x27;b1;
 u=1 in the emitted AECPDU marks it unsolicited; a no-change gate stops
@@ -49,7 +50,7 @@ ONE priority encode per class, lowest slot wins (:1814-1816):
 then read back unsol_eid_r / unsol_mac_r / unsol_seq_r at that index,
 build the AECPDU, emit, seq++, clear the bit (:2957).
 
-12 classes × SLOTS priority-encodes + 12 × SLOTS-wide read muxes over a
+11 classes × SLOTS priority-encodes + 11 × SLOTS-wide read muxes over a
 129-bit record.  Halving SLOTS halves BOTH — hence the −8.7 %.
 NOTE the 2&#x27;(s) — the index width is a LITERAL, see panel 3 note 1." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="770" y="615" width="695" height="158" as="geometry"/></mxCell><mxCell id="n22" value="RESPONSE SCRATCH  →  segment serialiser
 const_q 80-byte scratch (:945) · seg_kind/seg_addr/seg_len engine
@@ -61,7 +62,9 @@ mon_expired_o[slot]  →  ca_owed_r[slot]
      ↓
 emit CONTROLLER_AVAILABLE to that slot&#x27;s controller (unicast)
      ↓
-reply?  w_ca_reply_match[slot] &amp;&amp; unsol_eid_r[idx] == ca_probe_eid_r
+reply matched by ENTITY_ID, never by MAC — a controller that moved
+MAC still proves itself alive (:1872).  unsol_mac_r is CARRIED, never
+compared: it is the unicast destination and nothing else.
    yes → mon_heard_p_o[slot]  (reload, slot survives)
    no  → probe again, then mon_clear_p_o[slot] + valid←0  (slot freed)
 
@@ -75,7 +78,7 @@ monitor stopped" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strok
 valid=1, eid/mac held
 seq counting
 monitor armed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1600" y="360" width="220" height="76" as="geometry"/></mxCell><mxCell id="n28" value="NOTIFY OWED
-≥1 of 12 pend bits set
+≥1 of 11 pend bits set
 for this slot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1600" y="500" width="220" height="76" as="geometry"/></mxCell><mxCell id="n29" value="PROBE OWED
 ca_owed_r[i] = 1
 CONTROLLER_AVAILABLE
@@ -96,18 +99,19 @@ is about — it agrees on day one and diverges in silence.&quot;
 4 → 1 slot  :  8583 → 7574 LUT   = −1009,  ≈ −704 in context
                …but a SECOND controller is then refused registration
 ≈ 336 LUT per slot at the top of the range" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#90A4AE;dashed=1;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="80" y="1295" width="590" height="130" as="geometry"/></mxCell><mxCell id="n34" value="WHY 4 AND NOT 2
-No minimum in 1722.1-2021 §7.5.2 or Milan v1.2 §5.4.5. The real question
+aecp_pkg.sv:183 declares MAX_UNSOLICITED_CTLR_C = 16 — the reference
+bound, which dimensions NOTHING. We implement 4 of a possible 16.
 is how many CONTROLLERS touch this entity at once: Hive + la_avdecc + a
 test harness is three. Two is a real constraint, four is comfortable —
-a PRODUCT decision, not a standards one. Argue it before cutting it." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#90A4AE;dashed=1;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="770" y="1278" width="695" height="90" as="geometry"/></mxCell><mxCell id="n35" value="READING THIS DIAGRAM
+a PRODUCT decision, not a standards one. Argue it before cutting it." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#90A4AE;dashed=1;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="770" y="1278" width="695" height="112" as="geometry"/></mxCell><mxCell id="n35" value="READING THIS DIAGRAM
 Everything in panel 1&#x27;s green and orange blocks is ×4. Everything in
 panel 3 is ONE slot&#x27;s behaviour, running four times independently and
 concurrently — there is no arbitration BETWEEN slots except in the
 emission walk, which serialises them onto one TX arbiter grant.
 
 So the 4 costs area in two different ways:
-  · STORAGE   129 bits × 4, plus 12 pend classes × 4
-  · SELECTION 12 priority encodes and 12 read muxes, each ×4 wide
+  · STORAGE   129 bits × 4, plus 11 pend classes × 4
+  · SELECTION 11 priority encodes and 11 read muxes, each ×4 wide
 The second is the larger, and it is why the saving is super-linear in
 the pend-class count rather than just in the slot count." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#90A4AE;dashed=1;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1540" y="890" width="605" height="200" as="geometry"/></mxCell><mxCell id="n36" value="IF YOU CHANGE IT
 1. Edit ONLY aecp_pkg.sv:190. Both readers derive from it; a literal
