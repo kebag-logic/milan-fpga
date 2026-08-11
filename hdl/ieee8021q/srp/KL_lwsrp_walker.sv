@@ -47,8 +47,11 @@
 //                only ever emits NumberOfValues=1 and skips this; bridges
 //                aggregate, so we must not. The packed-byte position of the
 //                matched value is found with incremental 3-per-byte /
-//                4-per-byte windows — no dividers. Domain vectors are taken
-//                at value 0 (bridges declare one Domain per SR class).
+//                4-per-byte windows — no dividers. Domain vectors are
+//                range-decoded the same way: value k carries
+//                {SRclassID+k, prio+k, VID}, so the class-A value is surfaced
+//                wherever it sits in the vector, not at value 0 (the certified
+//                bench switch declares NoV=2 from FirstValue {B,2,VID}).
 //
 //                Listener-side Talker hits (the lsid context + the ext
 //                lanes) are THREE-PARAMETER matches (Milan v1.2 Table 5.29):
