@@ -153,11 +153,14 @@ platform:
 gptp:
   # ONE source (USER 2026-08-05): these values generate BOTH the
   # AVB_INTERFACE descriptor's clock fields and /etc/gptp.<board>.cfg.
-  # priority1 238 = the AX bench posture (beats the switch's 246 claim
-  # outright, USER default 2026-07-20; compliance-run posture per Milan es-1.1
-  # is 246|248 - change HERE for a compliance run, nowhere else). The rest are
+  # priority1 248 = the Milan end-station DEFAULT: the device DEFERS rather
+  # than contesting the grandmaster role (Milan es-1.1 compliance posture is
+  # 246|248, and 248 is the deferring end of it). The older 238 "AX bench
+  # posture" deliberately BEAT the switch's 246 claim so the board would win
+  # the BMCA - useful for a bring-up bench, wrong for a shipping end station
+  # and wrong for a compliance run. Change HERE, nowhere else. The rest are
   # the software-clock truth ptp4l announces (linuxptp defaults).
-  priority1: 238
+  priority1: 248
   priority2: 248
   clock_class: 248
   clock_accuracy: 0xFE

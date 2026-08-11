@@ -1,0 +1,129 @@
+<mxfile host="app.diagrams.net"><diagram name="AECP_UNSOL_SLOTS_C"><mxGraphModel dx="1400" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1560" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="n2" value="AECP_UNSOL_SLOTS_C = 4 — what the 4 actually multiplies" style="text;html=1;fontSize=26;fontStyle=1;fontColor=#263238;align=left;verticalAlign=middle" vertex="1" parent="1"><mxGeometry x="40" y="20" width="1600" height="34" as="geometry"/></mxCell><mxCell id="n3" value="IEEE 1722.1-2021 §7.5.2 REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION · Milan v1.2 §5.4.5 · hdl/ieee17221/aecp/  ·  measured: 4→2 slots = −749 LUT OOC (−8.7 %), ~−523 LUT in context" style="text;html=1;fontSize=13;fontColor=#546E7A;align=left;verticalAlign=middle" vertex="1" parent="1"><mxGeometry x="40" y="60" width="2000" height="24" as="geometry"/></mxCell><mxCell id="n4" value="1 · HIERARCHY — where the ×4 physically lives" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#90A4AE;dashed=0;opacity=55;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="30" y="120" width="690" height="1330" as="geometry"/></mxCell><mxCell id="n5" value="KL_aecp_response_builder   — READER 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;dashed=0;opacity=55;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="80" y="415" width="590" height="470" as="geometry"/></mxCell><mxCell id="n6" value="KL_aecp_timers   — READER 2   (:76-101)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;dashed=0;opacity=55;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="80" y="915" width="590" height="175" as="geometry"/></mxCell><mxCell id="n7" value="2 · DATA FLOW — registration in, notification out" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#90A4AE;dashed=0;opacity=55;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="745" y="120" width="745" height="1330" as="geometry"/></mxCell><mxCell id="n8" value="3 · STATE — one slot&#x27;s lifecycle, ×4 independently" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#90A4AE;dashed=0;opacity=55;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1515" y="120" width="655" height="1330" as="geometry"/></mxCell><mxCell id="n9" value="SLOT LIFECYCLE   (per slot i, in the builder)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;dashed=0;opacity=55;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1540" y="175" width="605" height="40" as="geometry"/></mxCell><mxCell id="n10" value="MONITOR TIMER   (per slot i, KL_aecp_timers)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;dashed=0;opacity=55;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1540" y="660" width="605" height="40" as="geometry"/></mxCell><mxCell id="n11" value="milan_datapath
+instantiates KL_aecp_top with only .CLK_FREQ_HZ_P —
+MON_SLOTS_P / MONITOR_* take SV defaults (:2851)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="55" y="175" width="640" height="62" as="geometry"/></mxCell><mxCell id="n12" value="KL_aecp_top   (hdl/ieee17221/aecp/KL_aecp_top.sv)
+THE JOIN. :261 declares the four slot rails
+   logic [AECP_UNSOL_SLOTS_C-1:0] mon_arm_w, mon_heard_w,
+                                  mon_clear_w, mon_exp_w;
+:265 passes .MON_SLOTS_P(AECP_UNSOL_SLOTS_C) to the timers" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="55" y="265" width="640" height="118" as="geometry"/></mxCell><mxCell id="n13" value="THE REGISTRATION TABLE  (:1682-1685)
+unsol_valid_r [0:SLOTS-1]        1 bit    — slot occupied
+unsol_eid_r   [0:SLOTS-1]       64 bits   — controller entity_id
+unsol_mac_r   [0:SLOTS-1]       48 bits   — controller MAC
+unsol_seq_r   [0:SLOTS-1]       16 bits   — per-slot sequence_id
+                              = 129 bits of storage PER SLOT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="105" y="470" width="540" height="110" as="geometry"/></mxCell><mxCell id="n14" value="TWELVE PENDING CLASSES  (:1686-1711)
+bit-per-slot vectors  [SLOTS-1:0]:
+  unsol_pend_r    stream-info      unsol_pend8_r   GET_AS_PATH
+  unsol_pend3_r   AVB_INTERFACE    unsol_pend9_r   CLOCK_DOMAIN
+  unsol_pend4_r   SET-resp replay  unsol_pend11_r  CRF media clock
+  unsol_pend7_r   GET_AVB_INFO     unsol_pend12_r  LOCK_ENTITY
+WIDER, one word per slot  [0:SLOTS-1]:
+  unsol_pend5_r  [TKD_MAX_C-1:0]   per talker descriptor
+  unsol_pend6_r  [1:0]
+  unsol_pend10_r [RXD_MAX_C-1:0]   per rx descriptor
+
+THIS is the LUT cost: every class needs its OWN slot walk" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="105" y="600" width="540" height="200" as="geometry"/></mxCell><mxCell id="n15" value="CONTROLLER-AVAILABLE PROBE  (gh #59, :1743-1779)
+ca_owed_r[SLOTS-1:0] · ca_probe_idx_r · w_ca_reply_match[SLOTS-1:0]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E8F5E9;strokeColor=#2E7D32;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="105" y="815" width="540" height="55" as="geometry"/></mxCell><mxCell id="n16" value="ONE MONITOR TIMER PER SLOT
+parameter MON_SLOTS_P = 4          (must equal the builder&#x27;s, forever)
+MONITOR_MIN_MS_P = 30 000  +  LFSR fold of MONITOR_RND_MS_P = 30 000
+in : mon_arm_i / mon_heard_i / mon_clear_i   [MON_SLOTS_P-1:0]
+out: mon_expired_o                           [MON_SLOTS_P-1:0]" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="105" y="970" width="540" height="105" as="geometry"/></mxCell><mxCell id="n17" value="AECP ingress  →  validator  →  common parser
+controller frame: message_type, target_entity_id, controller_entity_id,
+sequence_id, command_type, + source MAC lifted off the wire" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="770" y="180" width="695" height="70" as="geometry"/></mxCell><mxCell id="n18" value="REGISTER_UNSOLICITED_NOTIFICATION
+1. scan unsol_valid_r for a FREE slot
+2. if none free → status NO_RESOURCES
+3. write eid / mac / seq=0, valid←1
+4. pulse mon_arm_p_o[slot]
+   (slot born: monitor starts)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="770" y="285" width="335" height="130" as="geometry"/></mxCell><mxCell id="n19" value="DEREGISTER_UNSOLICITED_NOTIFICATION
+1. match unsol_eid_r[i] == controller
+2. valid ← 0
+3. pulse mon_clear_p_o[slot]
+   (slot died: monitor stops)
+4. all pend bits for that slot cleared" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1130" y="285" width="335" height="130" as="geometry"/></mxCell><mxCell id="n20" value="STATE CHANGE  →  SET THE PEND BIT FOR EVERY REGISTERED SLOT
+a SET_* write-back, a stream bind, a GM change, a clock-domain change,
+a media-clock event …  each owns ONE of the twelve pend classes and arms
+it per slot, gated on registration (:2661):
+      for (s) if (unsol_valid_r[s]) unsol_pendN_r[s] &lt;= 1&#x27;b1;
+u=1 in the emitted AECPDU marks it unsolicited; a no-change gate stops
+an event that did not actually move a field from waking the bus" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E3F2FD;strokeColor=#1565C0;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="770" y="460" width="695" height="140" as="geometry"/></mxCell><mxCell id="n21" value="THE EMISSION WALK — the part that costs LUTs
+ONE priority encode per class, lowest slot wins (:1814-1816):
+      if (unsol_pendN_r[s]) w_unsol_pushN_idx = 2&#x27;(s);
+then read back unsol_eid_r / unsol_mac_r / unsol_seq_r at that index,
+build the AECPDU, emit, seq++, clear the bit (:2957).
+
+12 classes × SLOTS priority-encodes + 12 × SLOTS-wide read muxes over a
+129-bit record.  Halving SLOTS halves BOTH — hence the −8.7 %.
+NOTE the 2&#x27;(s) — the index width is a LITERAL, see panel 3 note 1." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="770" y="615" width="695" height="158" as="geometry"/></mxCell><mxCell id="n22" value="RESPONSE SCRATCH  →  segment serialiser
+const_q 80-byte scratch (:945) · seg_kind/seg_addr/seg_len engine
+same emitter the solicited responses use — unsolicited is a SOURCE of
+work for it, not a second datapath" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F3E5F5;strokeColor=#6A1B9A;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="770" y="788" width="695" height="95" as="geometry"/></mxCell><mxCell id="n23" value="low-rate TX arbiter chain  →  MAC TX  →  PHY
+pairwise adp_tx_arbiter tree; one WHOLE frame per grant
+unicast to unsol_mac_r[slot] — not multicast" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ECEFF1;strokeColor=#455A64;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="770" y="898" width="695" height="78" as="geometry"/></mxCell><mxCell id="n24" value="gh #59 — SHEDDING A DEAD CONTROLLER
+mon_expired_o[slot]  →  ca_owed_r[slot]
+     ↓
+emit CONTROLLER_AVAILABLE to that slot&#x27;s controller (unicast)
+     ↓
+reply?  w_ca_reply_match[slot] &amp;&amp; unsol_eid_r[idx] == ca_probe_eid_r
+   yes → mon_heard_p_o[slot]  (reload, slot survives)
+   no  → probe again, then mon_clear_p_o[slot] + valid←0  (slot freed)
+
+This is WHY the table has two readers, and why the widths must agree." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="770" y="991" width="695" height="165" as="geometry"/></mxCell><mxCell id="n25" value="TABLE FULL → THE NO_RESOURCES SWEEP  (Milan 5.4.2.21, :327/:2882)
+mon_force_exp_p_o force-expires the monitors so silent controllers are
+probed and shed instead of a live controller being refused forever.
+ONE probe outstanding at a time (ca_inflight_r) — two silent controllers
+serialise ~500 ms apart, so a sweep never puts four probes on the wire." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="770" y="1171" width="695" height="92" as="geometry"/></mxCell><mxCell id="n26" value="FREE
+unsol_valid_r[i] = 0
+monitor stopped" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1600" y="235" width="220" height="62" as="geometry"/></mxCell><mxCell id="n27" value="REGISTERED
+valid=1, eid/mac held
+seq counting
+monitor armed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1600" y="360" width="220" height="76" as="geometry"/></mxCell><mxCell id="n28" value="NOTIFY OWED
+≥1 of 12 pend bits set
+for this slot" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF8E1;strokeColor=#F9A825;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1600" y="500" width="220" height="76" as="geometry"/></mxCell><mxCell id="n29" value="PROBE OWED
+ca_owed_r[i] = 1
+CONTROLLER_AVAILABLE
+in flight" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1880" y="430" width="235" height="76" as="geometry"/></mxCell><mxCell id="n30" value="IDLE
+not counting" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1570" y="720" width="175" height="62" as="geometry"/></mxCell><mxCell id="n31" value="COUNTING
+MIN 30 000 ms
++ LFSR fold of
+RND 30 000 ms" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF3E0;strokeColor=#EF6C00;dashed=0;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1810" y="720" width="175" height="76" as="geometry"/></mxCell><mxCell id="n32" value="THE HAZARD THE PACKAGE COMMENT NAMES
+aecp_pkg.sv:185-190 — &quot;gh #59 gave the table a SECOND reader:
+KL_aecp_timers carries one monitor timer per slot and both
+modules&#x27; port widths have to be the same number, forever.
+A copied 4 is exactly the defect RECURRING_DEFECT_PATTERNS.md
+is about — it agrees on day one and diverges in silence.&quot;
+
+=&gt; change the localparam, never a literal. Both readers move." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFEBEE;strokeColor=#C62828;dashed=1;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="80" y="1120" width="590" height="145" as="geometry"/></mxCell><mxCell id="n33" value="WHAT SHRINKING IT BUYS  (Vivado OOC, AreaOptimized_high)
+4 → 2 slots :  8583 → 7834 LUT   = −749 (−8.7 %), −296 FF
+               ≈ −523 LUT in context  = 2.0 % of the Milan fabric
+4 → 1 slot  :  8583 → 7574 LUT   = −1009,  ≈ −704 in context
+               …but a SECOND controller is then refused registration
+≈ 336 LUT per slot at the top of the range" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#90A4AE;dashed=1;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="80" y="1295" width="590" height="130" as="geometry"/></mxCell><mxCell id="n34" value="WHY 4 AND NOT 2
+No minimum in 1722.1-2021 §7.5.2 or Milan v1.2 §5.4.5. The real question
+is how many CONTROLLERS touch this entity at once: Hive + la_avdecc + a
+test harness is three. Two is a real constraint, four is comfortable —
+a PRODUCT decision, not a standards one. Argue it before cutting it." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#90A4AE;dashed=1;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="770" y="1278" width="695" height="90" as="geometry"/></mxCell><mxCell id="n35" value="READING THIS DIAGRAM
+Everything in panel 1&#x27;s green and orange blocks is ×4. Everything in
+panel 3 is ONE slot&#x27;s behaviour, running four times independently and
+concurrently — there is no arbitration BETWEEN slots except in the
+emission walk, which serialises them onto one TX arbiter grant.
+
+So the 4 costs area in two different ways:
+  · STORAGE   129 bits × 4, plus 12 pend classes × 4
+  · SELECTION 12 priority encodes and 12 read muxes, each ×4 wide
+The second is the larger, and it is why the saving is super-linear in
+the pend-class count rather than just in the slot count." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#90A4AE;dashed=1;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1540" y="890" width="605" height="200" as="geometry"/></mxCell><mxCell id="n36" value="IF YOU CHANGE IT
+1. Edit ONLY aecp_pkg.sv:190. Both readers derive from it; a literal
+   4 anywhere else is the divergence the package comment warns of.
+   (A related live hazard: the 2-bit slot INDEX width is restated as a
+    literal 2 in 27 places instead of $clog2(SLOTS) — fix that first,
+    or a slot-count change silently truncates the index.)
+
+2. Suites that would catch a mistake:
+   tb/verilator/aecp        registration / dereference / NO_RESOURCES
+   tb/verilator/tsn_fuzz    fuzz_aecp field grading
+   tests/  @notifications   the unsolicited BDD tier
+
+3. It is ABI-visible: a controller that registers and is refused sees
+   a different status. Milan es-1.1 does not test the slot count, but
+   a multi-controller bench does.
+
+4. Re-measure with scripts/area_baseline.py --compare against a routed
+   build. The OOC figure above is the response builder ALONE." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#90A4AE;dashed=1;align=left;verticalAlign=top;spacing=8;fontSize=11;" vertex="1" parent="1"><mxGeometry x="1540" y="1120" width="605" height="305" as="geometry"/></mxCell><mxCell id="e37" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="375" y="237" as="sourcePoint"/><mxPoint x="375" y="265" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e38" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="375" y="383" as="sourcePoint"/><mxPoint x="375" y="415" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e39" value="mon_* rails" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#EF6C00;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="375" y="885" as="sourcePoint"/><mxPoint x="375" y="915" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e40" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1117" y="250" as="sourcePoint"/><mxPoint x="1117" y="285" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e41" value="slot table write" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1565C0;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="937" y="415" as="sourcePoint"/><mxPoint x="937" y="460" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e42" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#1565C0;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1297" y="415" as="sourcePoint"/><mxPoint x="1000" y="460" as="targetPoint"/><Array as="points"><mxPoint x="1297" y="440"/><mxPoint x="1000" y="440"/></Array></mxGeometry></mxCell><mxCell id="e43" value="pend bits set" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#6A1B9A;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1117" y="600" as="sourcePoint"/><mxPoint x="1117" y="615" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e44" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1117" y="773" as="sourcePoint"/><mxPoint x="1117" y="788" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e45" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#546E7A;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1117" y="883" as="sourcePoint"/><mxPoint x="1117" y="898" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e46" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#EF6C00;dashed=1;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1117" y="976" as="sourcePoint"/><mxPoint x="1117" y="991" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e47" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#EF6C00;dashed=1;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1117" y="1156" as="sourcePoint"/><mxPoint x="1117" y="1171" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e48" value="REGISTER (free slot)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#F9A825;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1710" y="297" as="sourcePoint"/><mxPoint x="1710" y="360" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e49" value="state change → pend" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#6A1B9A;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1710" y="436" as="sourcePoint"/><mxPoint x="1710" y="500" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e50" value="emitted → bit cleared" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#6A1B9A;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1600" y="538" as="sourcePoint"/><mxPoint x="1600" y="398" as="targetPoint"/><Array as="points"><mxPoint x="1548" y="538"/><mxPoint x="1548" y="398"/></Array></mxGeometry></mxCell><mxCell id="e51" value="mon_expired" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#EF6C00;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1820" y="398" as="sourcePoint"/><mxPoint x="1880" y="430" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e52" value="reply → mon_heard (reload)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2E7D32;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1997" y="506" as="sourcePoint"/><mxPoint x="1710" y="576" as="targetPoint"/><Array as="points"><mxPoint x="1997" y="560"/><mxPoint x="1710" y="560"/></Array></mxGeometry></mxCell><mxCell id="e53" value="no reply → mon_clear, valid←0" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#C62828;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="2115" y="468" as="sourcePoint"/><mxPoint x="1820" y="266" as="targetPoint"/><Array as="points"><mxPoint x="2150" y="468"/><mxPoint x="2150" y="266"/></Array></mxGeometry></mxCell><mxCell id="e54" value="DEREGISTER" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#C62828;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1600" y="266" as="sourcePoint"/><mxPoint x="1552" y="232" as="targetPoint"/><Array as="points"><mxPoint x="1552" y="266"/></Array></mxGeometry></mxCell><mxCell id="e55" value="mon_arm_i[i]" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#EF6C00;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1745" y="751" as="sourcePoint"/><mxPoint x="1810" y="751" as="targetPoint"/><Array as="points"></Array></mxGeometry></mxCell><mxCell id="e56" value="mon_heard_i[i] → reload" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#2E7D32;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1897" y="796" as="sourcePoint"/><mxPoint x="1657" y="782" as="targetPoint"/><Array as="points"><mxPoint x="1897" y="830"/><mxPoint x="1657" y="830"/></Array></mxGeometry></mxCell><mxCell id="e57" value="mon_expired_o[i]" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#EF6C00;dashed=0;endArrow=block;fontSize=11" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="1985" y="751" as="sourcePoint"/><mxPoint x="2060" y="700" as="targetPoint"/><Array as="points"><mxPoint x="2060" y="751"/></Array></mxGeometry></mxCell></root></mxGraphModel></diagram></mxfile>
