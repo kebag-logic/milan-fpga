@@ -60,8 +60,8 @@ _ADP / ACMP / AECP-AEM-MVU_
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_acmp_listener` | `ieee17221/acmp/KL_acmp_listener.sv` | `acmp_lstn` · `hostplane` · `milan_dp` · `pp_shadow` · `tsn_fuzz` · 🔬`make acmp` | — |
-| ✅ `KL_acmp_lstn_ctx` | `ieee17221/acmp/KL_acmp_lstn_ctx.sv` | `acmp_lstn` · `csr` · `hostplane` · `milan_dp` · `persist` · `tsn_fuzz` · ➰pp_shadow · 🔬`make acmp` | 5.5.1.4, 5.5.2.6, M-ACMP-9 |
+| ✅ `KL_acmp_listener` | `ieee17221/acmp/KL_acmp_listener.sv` | `acmp_lstn` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make acmp` | — |
+| ✅ `KL_acmp_lstn_ctx` | `ieee17221/acmp/KL_acmp_lstn_ctx.sv` | `acmp_lstn` · `csr` · `hostplane` · `milan_dp` · `persist` · `tsn_fuzz` · 🔬`make acmp` | 5.5.1.4, 5.5.2.6, M-ACMP-9 |
 | ✅ `KL_acmp_responder` | `ieee17221/acmp/KL_acmp_responder.sv` | `acmp` · `hostplane` · `milan_dp` · 🔬`make acmp` | — |
 | ✅ `KL_acmp_tlkr_ctx` | `ieee17221/acmp/KL_acmp_tlkr_ctx.sv` | `acmp` · `hostplane` · `milan_dp` · 🔬`make acmp` | — |
 | 📦 `acmp_pkg` | `ieee17221/acmp/acmp_pkg.sv` | 🔬`make acmp` | — |

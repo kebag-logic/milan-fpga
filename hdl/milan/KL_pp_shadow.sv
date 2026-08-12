@@ -183,7 +183,15 @@ module KL_pp_shadow #(
   assign da_num_w = {rx_tdata_i[7:0],   rx_tdata_i[15:8],
                      rx_tdata_i[23:16], rx_tdata_i[31:24],
                      rx_tdata_i[39:32], rx_tdata_i[47:40]};
-  assign etype_w  = {rx_tdata_i[47:40], rx_tdata_i[55:48]};
+  //! EtherType is wire bytes 12,13 = beat-1 LANES 4 and 5, i.e. tdata[39:32]
+  //! and tdata[47:40] (lane j = tdata[8j +: 8]). Getting this one lane wrong
+  //! reads bytes 13,14 instead and NOTHING is ever classified as control —
+  //! the tap goes silently deaf, which is exactly how the pp_shadow suite
+  //! found it: every accept check read a structural zero while the processor
+  //! itself was demonstrably alive on the side port and transmitting.
+  //! KL_maap.sv:275-277 is the silicon-proven reference: lane 4 == 0x22,
+  //! lane 5 == 0xF0.
+  assign etype_w  = {rx_tdata_i[39:32], rx_tdata_i[47:40]};
 
   typedef enum logic [1:0] {FW_HEAD0, FW_HEAD1, FW_BODY, FW_SKIP} fw_state_e;
   fw_state_e fw_S;

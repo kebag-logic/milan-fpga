@@ -112,11 +112,27 @@ lint_off -rule GENUNNAMED -file "*/hdl/*"
 lint_off -rule SELRANGE -file "*/hdl/*"
 
 
-// The four rules below still fired after the directory globs above: Verilator's
-// -file wildcard does not span a multi-level path prefix, and this suite reaches
-// its sources through a +incdir with a long ../../.. prefix. Match by trailing
-// filename instead. These are all PRE-EXISTING consumer files, none of them
-// touched by this change.
+// CORRECTED 2026-08-12 — the earlier note here blamed the -file wildcard for
+// not spanning a multi-level path prefix. THAT WAS WRONG: `*` spans `/` freely,
+// and `*/hdl/*` matches a path like
+// `../../../configs/generated/cfg/../../../hdl/common/axi_stream_if.sv` fine.
+//
+// The real cause was a MISSING TRAILING NEWLINE. Four sources ended without
+// one (axi_stream_if.sv, avtp_subtype_pkg.sv, adp_pkg.sv, ptp_ts_top.sv), and
+// while a file lacks its final newline Verilator will not match ANY -file
+// pattern against it except the universal `*` — so every waiver aimed at those
+// files silently missed, and ptp_ts_top.sv alone kept 45 warnings alive.
+// Appending one byte to each dropped them to zero under an UNCHANGED waiver
+// file. EOFNEWLINE is also unwaivable from a .vlt at all — only the banned CLI
+// -Wno-EOFNEWLINE silences it — so the newline was mandatory regardless.
+//
+// Measurement trap worth recording: a .vlt missing its `verilator_config`
+// header is parsed as Verilog, errors at 1:1, and the build stops EARLY with
+// FEWER warnings — which reads exactly like success. Gate on %Error and the
+// exit code, never on a warning count.
+//
+// The entries below stay as a belt-and-braces scope for these pre-existing
+// consumer files; none of them is touched by this change.
 lint_off -rule PINCONNECTEMPTY -file "*axi_stream_if.sv"
 lint_off -rule PINMISSING -file "*axi_stream_if.sv"
 lint_off -rule UNUSEDSIGNAL -file "*axi_stream_if.sv"
