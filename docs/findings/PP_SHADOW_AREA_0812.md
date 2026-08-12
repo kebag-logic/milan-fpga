@@ -3,7 +3,7 @@
 
 The first **measurement** of what the protocol-processor architecture of record
 costs on the die this board ships. Everything before this was estimate:
-`protocol-processor/docs/10_RESOURCE_AND_EFFORT.md` prices scenario B at
+the processor repo's `10_RESOURCE_AND_EFFORT` resource study prices scenario B at
 `−3,250 … +11,150` net LUT, central `≈ +3,000`, and says outright that the
 spread is "owned by three unmeasured numbers". Two of them are measured here.
 
@@ -115,7 +115,7 @@ deleted, and it is that deletion — not the addition measured here — that pay
 for the new plane.
 
 Also worth recording: **3 DSP blocks are inferred** (1 in `KL_adp_engine`, 2 in
-`KL_srp_admission`). `hdl/README.md` rule 1 in the protocol-processor forbids
+`KL_srp_admission`). the processor repo's HDL rule 1 forbids
 vendor primitives, and these are inferences rather than instantiations, so the
 rule is not broken — but this board's area work removed DSPs from `hdl/`
 deliberately, and the µCPU measurement of record reports `DSP 0`. Worth a look
