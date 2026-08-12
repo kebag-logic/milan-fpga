@@ -136,6 +136,30 @@ Against the processor's measured cost:
 at the 1×1 shape the AX7101 flashes. The additive reading above ("does not
 fit") is correct only for coexistence, and coexistence was never the goal.
 
+### The ASSEMBLED design, not just the blocks
+
+Per-block OOC numbers are standalone costs — they do not carry the datapath's
+own interconnect to each plane. `syn/ooc/milan_datapath_ooc.tcl` closes that
+gap by synthesising the whole `milan_datapath` at the 1×1 shape, baseline
+versus plane-ON, same instrument:
+
+| milan_datapath, 1×1 | LUT | FF | BRAM | WNS @ 100 MHz | Failing |
+|---|---|---|---|---|---|
+| baseline (`PP_PLANE_P=0`) | 33,704 | 31,321 | 24.5 | +0.825 ns | 0 |
+| + shadow plane (`PP_PLANE_P=1`) | 40,660 | 41,978 | 46 | **+0.264 ns** | 0 |
+| **in-context cost** | **+6,956** | +10,657 | +21.5 | −0.561 ns | |
+
+Two things worth having:
+
+- **+6,956 in-context is LESS than the 7,463 the plane costs standalone.**
+  Synthesis shares logic across the boundary, so the standalone figure was
+  mildly conservative rather than optimistic — the arithmetic above stands.
+- **The assembled design still CLOSES at 100 MHz out of context**, with
+  0.264 ns to spare. That is a much better result than the standalone 8×8
+  shape (−2.854 ns) predicted, and it says the timing risk lives in the *8×8
+  shape*, not in the plane as such. It is still OOC: no placement pressure
+  from a die that is already 83 % full, so it is not a closure promise.
+
 ### What must be subtracted back before anyone spends this
 
 The processor's 7,463 LUT is measured with **no working AECP**: the pop face is
