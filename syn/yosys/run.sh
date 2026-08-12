@@ -27,7 +27,30 @@ TMP="$(mktemp -d)"
 AECP_SRCS="$K/aecp_pkg.sv $K/KL_aecp_ingress.sv $K/KL_aecp_packet_validator.sv $K/KL_aecp_common_parser.sv $K/KL_aecp_l0_state.sv $K/KL_aecp_timers.sv $K/KL_aecp_accessor.sv $K/KL_aecp_aem_store.sv $K/KL_aem_patch.sv $K/KL_aecp_aem_dyn_mux.sv $K/KL_aecp_response_builder.sv $K/KL_aecp_top.sv"
 LWSRP_SRCS="$S/lwsrp_pkg.sv $S/KL_lwsrp_timers.sv $S/KL_lwsrp_tx.sv $S/KL_lwsrp_ingress.sv $S/KL_lwsrp_walker.sv $S/KL_lwsrp_registrar.sv $S/KL_lwsrp_ta_registrar.sv $S/KL_lwsrp_rx.sv $S/KL_lwsrp_bw_gate.sv $S/KL_lwsrp_ctx.sv $S/KL_lwsrp_ctx_tx.sv $S/KL_lwsrp_top.sv"
 
+# The protocol-processor submodule, as the consumer instantiates it through
+# KL_pp_shadow. This top is the ONLY place the processor meets the open
+# toolchain here, and it is deliberately its OWN entry rather than a part of
+# milan_datapath: the plane is behind PP_PLANE_P (default 0), so the datapath
+# top does not instantiate it, AND the processor declares adp_pkg/acmp_pkg —
+# package names this repository also uses, with different contents. Each tops[]
+# entry gets an isolated source list, so listing it separately is what keeps
+# those two package sets from ever meeting in one compilation unit.
+PP="$R/protocol-processor/hdl"
+PP_SRCS="$PP/common/pp_pkg.sv $PP/srp/srp_pkg.sv $PP/acmp/acmp_pkg.sv $PP/adp/adp_pkg.sv $PP/common/KL_pp_prng.sv $PP/common/KL_pp_timer_service.sv $PP/packet_engine/KL_pp_rx_validator.sv $PP/packet_engine/KL_pp_rx_slots.sv $PP/packet_engine/KL_pp_normalizer.sv $PP/packet_engine/KL_pp_dispatch.sv $PP/packet_engine/KL_pp_tx_slots.sv $PP/packet_engine/KL_pp_tx_arbiter.sv $PP/packet_engine/KL_pp_scoreboard.sv $PP/packet_engine/KL_pp_event_router.sv $PP/packet_engine/KL_pp_originator.sv $PP/packet_engine/KL_pp_trace_ring.sv $PP/packet_engine/KL_pp_side_port.sv $PP/packet_engine/KL_pp_nvm_port.sv $PP/adp/KL_adp_engine.sv $PP/acmp/KL_acmp_listener.sv $PP/acmp/KL_acmp_talker.sv $PP/acmp/KL_acmp_nvm_shadow.sv $PP/srp/KL_srp_decoder.sv $PP/srp/KL_srp_domain.sv $PP/srp/KL_srp_vlan.sv $PP/srp/KL_srp_admission.sv $PP/srp/KL_srp_talker_fsm.sv $PP/srp/KL_srp_listener_fsm.sv $PP/srp/KL_srp_encoder.sv $PP/srp/KL_srp_top.sv $PP/top/KL_mrp_strip.sv $PP/top/protocol_processor_top.sv $R/hdl/milan/KL_pp_shadow.sv"
+
 for t in sv2v yosys; do command -v $t >/dev/null || { echo "missing tool: $t (see syn/yosys/README.md)"; exit 2; }; done
+
+# protocol_processor_top $readmemh's its ACMP transition ROM by a RELATIVE
+# name, and yosys resolves that against ITS OWN working directory - not against
+# the source file. Without this the KL_pp_shadow top dies with
+# "Can not open file `ltn_rom.hex` for $readmemh" and, because that is not an
+# "^ERROR"-prefixed line this script greps for, it reports a FAIL with an EMPTY
+# reason. Generate the image where yosys will look for it.
+# It lands in the CURRENT directory on purpose: that is what yosys inherits,
+# whichever directory this script was invoked from.
+if [ -f "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" ]; then
+  python3 "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" -o ltn_rom.hex >/dev/null 2>&1 || true
+fi
 
 # top | source files (interface modules go through their flat wrapper)
 tops=(
@@ -83,6 +106,7 @@ tops=(
   "KL_mac_rmon_events|$C/cdc_pulse.sv $E/KL_mac_rmon_events.sv"
   "classifier_wrap|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $Q/traffic_class_map.sv $Q/traffic_classifier.sv $A/axis_fifo.v $R/tb/verilator/classifier/classifier_wrap.sv"
   "queues_wrap|$C/axi_stream_if.sv $Q/traffic_queues.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $R/tb/verilator/queues/queues_wrap.sv"
+  "KL_pp_shadow|$A/axis_fifo.v $PP_SRCS"
   "axis_fifo|$A/axis_fifo.v"
   "axis_demux|$A/axis_demux.v"
   "axis_arb_mux|$A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v"
