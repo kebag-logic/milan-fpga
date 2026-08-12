@@ -160,6 +160,50 @@ Two things worth having:
   shape*, not in the plane as such. It is still OOC: no placement pressure
   from a die that is already 83 % full, so it is not a closure promise.
 
+### The net, measured IN CONTEXT — no RTL change required
+
+The removable figures in the table above are **standalone** OOC costs: each
+block elaborated on its own, at its own default parameters. That is not what it
+costs inside the datapath, where `KL_lwsrp_top` is built with the build's real
+`N_LISTENERS_P`/`N_TALKERS_P`/`N_CTX_P` and the ACMP arrays are sized by the
+entity shape. Vivado's **hierarchical** utilization report for the baseline
+synthesis already prices every instance as-assembled, so the honest in-context
+figure needs no parameter, no tie-off, and no new RTL — just reading
+`util_hier_base.rpt`:
+
+| Instance | Module | LUT (in context) | FF |
+|---|---|---|---|
+| `aecp_listener` | `KL_aecp_top` | **8,645** | 5,075 |
+| `lwsrp` | `KL_lwsrp_top` | 3,021 | 2,407 |
+| `acmp_listener_sm` | `KL_acmp_listener` | 2,746 | 2,192 |
+| `persist_journal` | `KL_persist_journal` | 429 | 465 |
+| `adp_adv` | `adp_advertiser` | 302 | 210 |
+| `acmp_responder` | `KL_acmp_tlkr_ctx` | 298 | 198 |
+| `talker_diag` | `KL_talker_diag_ctx` | 33 | 360 |
+| **total removable** | | **15,474** | 10,907 |
+
+In context the old planes cost **more** than standalone (15,474 vs 14,489) —
+they are elaborated at the build's real shape rather than at module defaults.
+
+**So the net, both sides measured in context, same instrument:**
+
+| | LUT |
+|---|---|
+| protocol processor, added to the assembled datapath | **+6,956** |
+| shipping AECP + ACMP + ADP + lwSRP + journal, removed | **−15,474** |
+| **net** | **−8,518** |
+
+The substituted datapath lands at roughly **25,186 LUT against a 33,704
+baseline — a 25 % reduction**, and `KL_aecp_top` alone (8,645) is larger than
+the entire processor plane costs in context (6,956).
+
+After P4 puts a working AECP back (+3,150 … +7,000, plus the mass constant
+propagation pruned while the pop face was tied off), the net is **−5,368
+(optimistic) to −1,518 (pessimistic)**. It is a saving at *both* ends of that
+bracket — which is a different conclusion from the one the resource study
+reached from estimates, and the reason it is different is that nobody had
+measured `KL_aecp_top`.
+
 ### What must be subtracted back before anyone spends this
 
 The processor's 7,463 LUT is measured with **no working AECP**: the pop face is
