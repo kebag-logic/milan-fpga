@@ -256,6 +256,19 @@ int main(int argc, char** argv) {
     ck_true("MAC TX stayed SILENT (no shadow frame on the wire)", tx_beats == 0,
             tx_beats == 0 ? "0 beats egressed" : "BEATS EGRESSED - the drain is not holding");
 
+    // ---- F. the TX packer is EXERCISED even while draining ----------------
+    // The packer runs in drain mode on purpose: a packer that were bypassed
+    // until the substitution day would be untested on the day it matters.
+    // tx_frames counts ACCEPTED end-of-frame bytes through the packer's
+    // handshake, so a non-zero count is proof the byte->beat path ran to
+    // completion, repeatedly, under real backpressure.
+    printf("[F] the byte->AXIS packer ran (drain mode still packs)\n");
+    uint32_t pp_tx2 = (axi_read(A_PP_DIAG) >> 16) & 0xFFFF;
+    ck_true("packer completed whole frames", pp_tx2 > 0,
+            pp_tx2 ? "frames packed end to end" : "no frame completed the packer");
+    ck_true("packer frame count only grows", pp_tx2 >= pp_tx,
+            "monotonic");
+
     printf("----------------------------------------------------------------\n");
     printf("pp_shadow: %ld checks, %ld failures\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");

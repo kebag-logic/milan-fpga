@@ -147,6 +147,25 @@ module KL_pp_shadow #(
     output logic       host_ack_o,         //! completion strobe
     output logic       host_err_o,         //! access refused (with ack)
 
+    //! ---- MAC TX, packed to AXIS (the control-lane leg) ----
+    //! The processor emits ONE merged byte stream for every protocol it
+    //! owns; its per-protocol arbitration is internal. Today that stream
+    //! carries ADP + ACMP + SRP only — the AECP lanes are idle until P4 —
+    //! so it can ride the control cascade as a single leg alongside the
+    //! shipping AECP leg, which is what makes a partial substitution work.
+    //!
+    //! SHADOW: while nothing consumes this port the wrapper still drains the
+    //! processor (see tx_drain_i), so the wire is unchanged. Connecting it to
+    //! the arbiter is the substitution step, and the ONLY step.
+    output logic [TDATA_WIDTH_P-1:0]   m_axis_tx_tdata,  //! little lane order
+    output logic [TDATA_WIDTH_P/8-1:0] m_axis_tx_tkeep,  //! contiguous from lane 0
+    output logic                       m_axis_tx_tvalid,
+    output logic                       m_axis_tx_tlast,
+    input  wire                        m_axis_tx_tready,
+    //! 1 = discard the processor's frames and count them (shadow mode);
+    //! 0 = the packed AXIS port above is the real egress.
+    input  wire                        tx_drain_i,
+
     //! ---- observability ----
     output logic       restore_busy_o,     //! restore walk running
     output logic       restore_done_o,     //! restore complete
@@ -425,6 +444,7 @@ module KL_pp_shadow #(
   //  The processor                                                          //
   // ======================================================================= //
   logic        pp_tx_valid_w, pp_tx_eof_w;
+  logic [7:0]  pp_tx_data_w;
   logic        pp_host_rvalid_w, pp_host_err_w;
   logic [31:0] pp_host_rdata_w;
 
@@ -480,15 +500,9 @@ module KL_pp_shadow #(
 
       .tx_valid_o          (pp_tx_valid_w),
       .tx_sof_o            (),
-      //! the payload itself is DELIBERATELY discarded: shadow mode counts the
-      //! frames the processor would have sent and keeps not one byte of them.
-      //! Landing it in a wire nothing reads would be a lie about intent — and
-      //! the strict build says so (UNUSEDSIGNAL on the dead net).
-      .tx_data_o           (),
+      .tx_data_o           (pp_tx_data_w),
       .tx_eof_o            (pp_tx_eof_w),
-      //! SHADOW: the drain is always ready and the bytes go nowhere. This is
-      //! the one line that keeps the wire unchanged.
-      .tx_ready_i          (1'b1),
+      .tx_ready_i          (pp_tx_ready_w),
 
       //! P4 uCPU seam — unlanded at this pin, tied per the top's contract
       .aecp_txn_valid_o    (),
@@ -550,6 +564,71 @@ module KL_pp_shadow #(
   );
 
   // ======================================================================= //
+  //  TX packer — the processor's 1 B/clk stream into 64 b AXIS beats        //
+  // ======================================================================= //
+  //! Little lane order, matching the RX tap and every plane on this board:
+  //! wire byte n of a beat lands in lane n, tdata[8n +: 8].
+  //!
+  //! The processor offers at most one byte per clock and a beat carries
+  //! eight, so a single beat register is always faster than the source; it
+  //! only has to stall the processor while a completed beat waits for the
+  //! arbiter. That stall is the whole backpressure story — there is no FIFO
+  //! here and none is needed.
+  //!
+  //! In drain mode the packer still runs, so the frame COUNTER and the
+  //! packing logic are exercised identically to the wired case; only the
+  //! egress is thrown away. A drain that bypassed the packer would leave it
+  //! untested until the day it first mattered.
+  logic [TDATA_WIDTH_P-1:0]   txp_data_r;
+  logic [KEEP_W_C-1:0]        txp_keep_r;
+  logic                       txp_valid_r, txp_last_r;
+  logic [2:0]                 txp_idx_r;
+
+  //! a completed beat is consumed by the arbiter, or swallowed when draining
+  logic txp_take_w;
+  assign txp_take_w = txp_valid_r & (tx_drain_i | m_axis_tx_tready);
+
+  //! room for another byte: only when no completed beat is waiting
+  logic pp_tx_ready_w;
+  assign pp_tx_ready_w = ~txp_valid_r;
+
+  always_ff @(posedge clk_i or negedge rst_n) begin
+    if (!rst_n) begin
+      txp_data_r  <= '0;
+      txp_keep_r  <= '0;
+      txp_valid_r <= 1'b0;
+      txp_last_r  <= 1'b0;
+      txp_idx_r   <= 3'd0;
+    end else begin
+      if (txp_take_w) begin
+        txp_valid_r <= 1'b0;
+        txp_keep_r  <= '0;
+        txp_data_r  <= '0;
+      end
+      if (pp_tx_valid_w & pp_tx_ready_w) begin
+        txp_data_r[8*txp_idx_r +: 8] <= pp_tx_data_w;
+        txp_keep_r[txp_idx_r]        <= 1'b1;
+        //! close the beat on the 8th byte OR at end of frame, whichever
+        //! comes first — tkeep then marks exactly the bytes that are real
+        if (pp_tx_eof_w || (txp_idx_r == 3'd7)) begin
+          txp_valid_r <= 1'b1;
+          txp_last_r  <= pp_tx_eof_w;
+          txp_idx_r   <= 3'd0;
+        end else begin
+          txp_idx_r <= txp_idx_r + 3'd1;
+        end
+      end
+    end
+  end
+
+  //! tvalid is held low while draining so a stray connection cannot put a
+  //! shadow frame on the wire: the drain is structural, not a convention.
+  assign m_axis_tx_tdata  = txp_data_r;
+  assign m_axis_tx_tkeep  = txp_keep_r;
+  assign m_axis_tx_tvalid = txp_valid_r & ~tx_drain_i;
+  assign m_axis_tx_tlast  = txp_last_r;
+
+  // ======================================================================= //
   //  Side-port host bridge                                                  //
   // ======================================================================= //
   always_ff @(posedge clk_i or negedge rst_n) begin
@@ -590,7 +669,10 @@ module KL_pp_shadow #(
     end else begin
       if (pp_rx_valid_w & pp_rx_last_w)      rx_frames_o <= rx_frames_o + 16'd1;
       if (drop_evt_w & (rx_drops_o != 8'hFF)) rx_drops_o <= rx_drops_o + 8'd1;
-      if (pp_tx_valid_w & pp_tx_eof_w)       tx_frames_o <= tx_frames_o + 16'd1;
+      //! count on the ACCEPTED final byte: the processor now sees real
+      //! backpressure, so tx_valid alone no longer means the byte moved
+      if (pp_tx_valid_w & pp_tx_ready_w & pp_tx_eof_w)
+        tx_frames_o <= tx_frames_o + 16'd1;
     end
   end
 

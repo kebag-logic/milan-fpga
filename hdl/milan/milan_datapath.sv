@@ -2025,6 +2025,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic        pp_nvm_alarm_w;
   logic [15:0] pp_rx_frames_w, pp_tx_frames_w;
   logic [7:0]  pp_rx_drops_w;
+  //! the processor's packed control-lane egress; unconsumed while draining
+  logic [TDATA_WIDTH-1:0]   pp_tx_tdata_w;
+  logic [TDATA_WIDTH/8-1:0] pp_tx_tkeep_w;
+  logic                     pp_tx_tvalid_w, pp_tx_tlast_w;
 
   milan_csr #(
     .NUM_QUEUES(NUM_QUEUES),
@@ -5667,6 +5671,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .rx_tvalid_i       (rx_axis_to_dma.tvalid),
       .rx_tready_i       (rx_axis_to_dma.tready),
       .rx_tlast_i        (rx_axis_to_dma.tlast),
+      //! SHADOW: drain on, so the packed AXIS port is held silent and the
+      //! shipping planes keep the wire. Turning this off and connecting
+      //! m_axis_tx_* into the control cascade IS the substitution.
+      .tx_drain_i        (1'b1),
+      .m_axis_tx_tdata   (pp_tx_tdata_w),
+      .m_axis_tx_tkeep   (pp_tx_tkeep_w),
+      .m_axis_tx_tvalid  (pp_tx_tvalid_w),
+      .m_axis_tx_tlast   (pp_tx_tlast_w),
+      .m_axis_tx_tready  (1'b0),
       .host_req_i        (pp_req_w),
       .host_we_i         (pp_we_w),
       .host_addr_i       (pp_addr_w),
@@ -5684,6 +5697,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .dbg_now_ms_o      ()
     );
   end else begin : g_no_pp
+    assign pp_tx_tdata_w     = {TDATA_WIDTH{1'b0}};
+    assign pp_tx_tkeep_w     = {(TDATA_WIDTH/8){1'b0}};
+    assign pp_tx_tvalid_w    = 1'b0;
+    assign pp_tx_tlast_w     = 1'b0;
     assign pp_rdata_w        = 32'd0;
     assign pp_ack_w          = 1'b0;
     assign pp_err_w          = 1'b0;
