@@ -35,6 +35,24 @@ P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
 TIM_G  = -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100
 TIM_D  = -DPP_MS_CYCLES=100
 
+# ONE GRID: KL_maap keeps its own millisecond (CLK_FREQ_HZ_P/1000 cycles), and
+# the MAAP claim walk is 3 probes x ~500 ms - 1.5e8 cycles at a real 100 MHz,
+# which no harness can run, so addr_valid_o would never assert and the shim
+# would never be reachable. MAAP_CLK_HZ_P = 100 kHz makes ONE MAAP millisecond
+# 100 cycles, which is EXACTLY the processor's compressed millisecond above
+# (TIM_DIV_US_P=1, TIM_DIV_MS_P=100). Two planes on two different compressed
+# millisecond scales would be a harness that measures its own arithmetic.
+MAAP_G = -GMAAP_CLK_HZ_P=100000
+MAAP_D = -DMAAP_MS_CYCLES=100
+
+# Enable talker source 0 inside the shadow (KL_pp_shadow's SRC_EN_MASK_P; the
+# shipping default is 0 = no sources). Nothing else can exercise the maap face
+# or the DA gate: with no source enabled the processor never issues an
+# ALLOC_DA. Wire-safe - the wrapper's TX stays drained throughout, and the
+# shadow-discipline check still grades that on every run.
+SRCEN_G = -GPP_SRC_EN_P=1
+SRCEN_D = -DPP_SRC_EN=1
+
 # NO -Wno-* ANYWHERE, WARNINGS ARE ERRORS (USER 2026-08-12).
 #
 # There is no global `-Werror` in Verilator (only per-rule `-Werror-<CODE>`),
@@ -62,8 +80,8 @@ VFLAGS = --cc --exe --build -j 0 \
          +incdir+$(RTL_DIR)/ieee17221/aecp +incdir+$(RTL_DIR)/ieee17221/aecp/gen \
          -Wall waivers.vlt \
          -GPB_PREFILL_C=2 -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 \
-         -GPP_PLANE_P=1 $(TIM_G) \
-         -CFLAGS "-std=c++17 -O2 $(TIM_D)"
+         -GPP_PLANE_P=1 $(TIM_G) $(MAAP_G) $(SRCEN_G) \
+         -CFLAGS "-std=c++17 -O2 $(TIM_D) $(MAAP_D) $(SRCEN_D)"
 
 # The consumer's own datapath sources come STRAIGHT FROM milan_dp — that list
 # is the one proven to elaborate, and a second copy here would drift silently.
@@ -93,7 +111,7 @@ PP_SRCS = $(PP_DIR)/common/pp_pkg.sv $(PP_DIR)/srp/srp_pkg.sv \
        $(PP_DIR)/srp/KL_srp_talker_fsm.sv $(PP_DIR)/srp/KL_srp_listener_fsm.sv \
        $(PP_DIR)/srp/KL_srp_encoder.sv $(PP_DIR)/srp/KL_srp_top.sv \
        $(PP_DIR)/top/KL_mrp_strip.sv $(PP_DIR)/top/protocol_processor_top.sv \
-       $(RTL_DIR)/milan/KL_pp_shadow.sv
+       $(RTL_DIR)/milan/KL_pp_shadow.sv $(RTL_DIR)/milan/KL_pp_maap_shim.sv
 
 CPP = sim_main.cpp
 

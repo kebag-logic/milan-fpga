@@ -195,6 +195,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! effectively reserved - the builder gate keys on a config that asks for
   //! dynamic (srp.stream_dmac_base: maap) rather than static addresses.
   parameter int MAAP_P = 1,
+  //! KL_maap's millisecond base, for SIMULATION time compression only (the
+  //! CLKV_QTICK_CYC_P / PP_TIM_DIV_*_P precedent). DERIVED from the real
+  //! clock declaration, never mirrored, so a silicon build is bit-identical
+  //! to what shipped. A harness lowers it so the 3-probe / 500 ms Annex B
+  //! claim walk completes in a few hundred thousand cycles instead of the
+  //! 1.5e8 a real 100 MHz clock needs - the ONLY way a testbench can see
+  //! addr_valid_o assert at all.
+  parameter int MAAP_CLK_HZ_P = MILAN_CLK_FREQ_HZ,
   //! I2S DAC playback (KL_i2s_playback, 552 LUT / 624 FF measured). 0 prunes
   //! the serializer and its rate servo: the four i2s_dac_* pins park at 0 and
   //! the I2SPB CSR group (0x6D8 stat / 0x6E0 trim+fill / 0x6F0 dbg) reads 0.
@@ -236,7 +244,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! 100 MHz, 100 clk = 1 us and 1000 us = 1 ms. A harness overrides them so a
   //! 5 s ADP cadence is reachable in a few thousand cycles.
   parameter int PP_TIM_DIV_US_P = MILAN_CLK_FREQ_HZ / 1_000_000,
-  parameter int PP_TIM_DIV_MS_P = 1000
+  parameter int PP_TIM_DIV_MS_P = 1000,
+  //! Which talker SOURCES the shadow plane is told exist (KL_pp_shadow's
+  //! SRC_EN_MASK_P, bit s = source s). DEFAULT 0 = none, which is the shadow
+  //! contract - see that parameter's banner. Non-zero turns the processor's
+  //! talker half on inside the shadow: it allocates a DA through the maap
+  //! shim below and declares Talker attributes, all of it drained at the
+  //! wrapper's TX and never on the wire.
+  parameter int PP_SRC_EN_P = 0
 )(
   //! axis_clk domain (system clock, ~100 MHz) + active-low sync reset
   input  wire axis_clk,
@@ -2029,6 +2044,62 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic [TDATA_WIDTH-1:0]   pp_tx_tdata_w;
   logic [TDATA_WIDTH/8-1:0] pp_tx_tkeep_w;
   logic                     pp_tx_tvalid_w, pp_tx_tlast_w;
+
+  //! ---- the shadow plane's CLASS-D FABRIC FACE (02 §6, F02.10) ----
+  //! Landed as datapath nets rather than as new module ports: the eventual
+  //! consumers - the AAF talker gate, the CBS slope MUX, the RX stream filter
+  //! - all live INSIDE this file, so publishing them at the LiteX boundary
+  //! would be a detour through the SoC for signals that never leave. Nothing
+  //! consumes them yet: this landing makes the face REACHABLE, the plane
+  //! substitution is the step that consumes it. Marked public_flat_rd (the
+  //! media_tick_p / aaf_stream_en_w precedent in this file) so the pp_shadow
+  //! harness can grade them without a CSR window, which would otherwise mean
+  //! a VERSION story for state no software reads yet.
+  //!
+  //! Flat packing, index s at [W*s +: W] — the processor's own convention,
+  //! carried through unchanged. Every one of these is tied to its structural
+  //! zero when the plane is absent, so a build without the plane reads "no
+  //! information" and never a stale or plausible value.
+  wire [2:0]                 pp_cd_srp_class_a_prio_w;
+  wire [11:0]                pp_cd_srp_class_a_vid_w;
+  wire                       pp_cd_srp_domain_adopted_w;
+  wire                       pp_cd_srp_domain_change_w;
+  wire [N_STREAMS*2-1:0]     pp_cd_srp_tk_decl_state_w;
+  wire [N_STREAMS*2-1:0]     pp_cd_srp_lstn_reg_state_w;
+  wire [N_STREAMS-1:0]       pp_cd_srp_active_w;
+  wire [N_STREAMS-1:0]       pp_cd_srp_sr_admitted_w;
+  wire [N_STREAMS*32-1:0]    pp_cd_srp_granted_slope_bps_w;
+  wire [N_STREAMS*8-1:0]     pp_cd_srp_src_fail_code_w;
+  wire [N_STREAMS*64-1:0]    pp_cd_srp_src_fail_bridge_w;
+  wire [31:0]                pp_cd_srp_sum_slope_bps_w;
+  wire                       pp_cd_srp_over_limit_w;
+  wire [N_STREAMS*2-1:0]     pp_cd_srp_tk_reg_state_w;
+  wire [N_STREAMS*2-1:0]     pp_cd_srp_lstn_decl_state_w;
+  wire [N_STREAMS*32-1:0]    pp_cd_srp_acc_latency_w;
+  wire [N_STREAMS*8-1:0]     pp_cd_srp_snk_fail_code_w;
+  wire [N_STREAMS-1:0]       pp_cd_acmp_declaring_w /* verilator public_flat_rd */;
+  wire [N_STREAMS-1:0]       pp_cd_acmp_bound_w     /* verilator public_flat_rd */;
+  wire [N_STREAMS*64-1:0]    pp_cd_acmp_bound_eid_w;
+  wire [N_STREAMS*64-1:0]    pp_cd_acmp_bound_sid_w;
+  wire [N_STREAMS*48-1:0]    pp_cd_acmp_bound_dmac_w;
+  wire [N_STREAMS*12-1:0]    pp_cd_acmp_bound_vlan_w;
+  wire [31:0]                pp_cd_adp_avail_index_w /* verilator public_flat_rd */;
+
+  //! ---- the shadow plane's maap request face, and the shim's answers ----
+  //! PP_SRC_IDX_W_C clamps exactly as protocol_processor_top and
+  //! KL_acmp_talker clamp their own: the shipping board elaborates at
+  //! N_STREAMS = 1 and an unclamped $clog2(1) declares [-1:0].
+  localparam int PP_SRC_IDX_W_C = (N_STREAMS > 1) ? $clog2(N_STREAMS) : 1;
+  wire                       pp_maap_req_valid_w   /* verilator public_flat_rd */;
+  wire                       pp_maap_req_ready_w;
+  wire                       pp_maap_req_release_w;
+  wire [PP_SRC_IDX_W_C-1:0]  pp_maap_req_src_w;
+  wire                       pp_maap_rsp_valid_w   /* verilator public_flat_rd */;
+  wire                       pp_maap_rsp_ok_w      /* verilator public_flat_rd */;
+  wire [47:0]                pp_maap_rsp_da_w      /* verilator public_flat_rd */;
+  wire                       pp_maap_confl_valid_w;
+  wire [PP_SRC_IDX_W_C-1:0]  pp_maap_confl_src_w;
+  wire                       pp_maap_confl_ack_w;
 
   milan_csr #(
     .NUM_QUEUES(NUM_QUEUES),
@@ -5072,7 +5143,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! wins). eff_aaf_dmac therefore always resolves to the CSR-provisioned
   //! AAF_DMAC, and MAAP_STAT0/1 (0x6D0/0x6D4) read 0.
   generate if (MAAP_P != 0) begin : g_maap
-  KL_maap #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) maap_engine (
+  KL_maap #(.CLK_FREQ_HZ_P(MAAP_CLK_HZ_P)) maap_engine (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .enable_i (cfg_maap_enable),
     .count_i  (cfg_maap_count),
@@ -5637,7 +5708,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .N_STREAM_IN_P  (N_STREAMS),
       .N_STREAM_OUT_P (N_STREAMS),
       .TIM_DIV_US_P   (PP_TIM_DIV_US_P),
-      .TIM_DIV_MS_P   (PP_TIM_DIV_MS_P)
+      .TIM_DIV_MS_P   (PP_TIM_DIV_MS_P),
+      //! which talker sources the shadow is told exist (default 0 = none)
+      .SRC_EN_MASK_P  (PP_SRC_EN_P)
     ) pp_shadow (
       .clk_i             (axis_clk),
       .rst_n             (axis_resetn),
@@ -5694,7 +5767,74 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .rx_frames_o       (pp_rx_frames_w),
       .rx_drops_o        (pp_rx_drops_w),
       .tx_frames_o       (pp_tx_frames_w),
+      //! the class-D fabric face, 1:1 onto the datapath nets declared above
+      .srp_class_a_prio_o      (pp_cd_srp_class_a_prio_w),
+      .srp_class_a_vid_o       (pp_cd_srp_class_a_vid_w),
+      .srp_domain_adopted_o    (pp_cd_srp_domain_adopted_w),
+      .srp_domain_change_o     (pp_cd_srp_domain_change_w),
+      .srp_tk_decl_state_o     (pp_cd_srp_tk_decl_state_w),
+      .srp_lstn_reg_state_o    (pp_cd_srp_lstn_reg_state_w),
+      .srp_active_o            (pp_cd_srp_active_w),
+      .srp_sr_admitted_o       (pp_cd_srp_sr_admitted_w),
+      .srp_granted_slope_bps_o (pp_cd_srp_granted_slope_bps_w),
+      .srp_src_fail_code_o     (pp_cd_srp_src_fail_code_w),
+      .srp_src_fail_bridge_o   (pp_cd_srp_src_fail_bridge_w),
+      .srp_sum_slope_bps_o     (pp_cd_srp_sum_slope_bps_w),
+      .srp_over_limit_o        (pp_cd_srp_over_limit_w),
+      .srp_tk_reg_state_o      (pp_cd_srp_tk_reg_state_w),
+      .srp_lstn_decl_state_o   (pp_cd_srp_lstn_decl_state_w),
+      .srp_acc_latency_o       (pp_cd_srp_acc_latency_w),
+      .srp_snk_fail_code_o     (pp_cd_srp_snk_fail_code_w),
+      .acmp_declaring_o        (pp_cd_acmp_declaring_w),
+      .acmp_bound_o            (pp_cd_acmp_bound_w),
+      .acmp_bound_eid_o        (pp_cd_acmp_bound_eid_w),
+      .acmp_bound_sid_o        (pp_cd_acmp_bound_sid_w),
+      .acmp_bound_dmac_o       (pp_cd_acmp_bound_dmac_w),
+      .acmp_bound_vlan_o       (pp_cd_acmp_bound_vlan_w),
+      .adp_next_avail_index_o  (pp_cd_adp_avail_index_w),
+      //! the maap request face, answered by KL_pp_maap_shim below
+      .maap_req_valid_o        (pp_maap_req_valid_w),
+      .maap_req_ready_i        (pp_maap_req_ready_w),
+      .maap_req_release_o      (pp_maap_req_release_w),
+      .maap_req_src_o          (pp_maap_req_src_w),
+      .maap_rsp_valid_i        (pp_maap_rsp_valid_w),
+      .maap_rsp_ok_i           (pp_maap_rsp_ok_w),
+      .maap_rsp_da_i           (pp_maap_rsp_da_w),
+      .maap_conflict_valid_i   (pp_maap_confl_valid_w),
+      .maap_conflict_src_i     (pp_maap_confl_src_w),
+      .maap_conflict_ack_o     (pp_maap_confl_ack_w),
       .dbg_now_ms_o      ()
+    );
+
+    //! ------------------------------------------------------------------
+    //! The block-allocator -> per-source adapter. Instantiated with the
+    //! PLANE, not with the ENGINE: its block-side inputs are the maap nets,
+    //! which exist in both arms of g_maap (the g_no_maap arm ties
+    //! maap_addr_valid to 0), so a MAAP_P = 0 build elaborates unchanged and
+    //! the shim answers every request "no address" in one cycle. That is the
+    //! refusing value the processor is designed for - ready ASSERTS and the
+    //! response says ok = 0 - and NOT ready-stuck-low, which would park the
+    //! talker's single walker for 1024 cycles per attempt and make the whole
+    //! talker half of ACMP deaf while it waited. See KL_pp_maap_shim.sv's
+    //! banner, decision 1.
+    KL_pp_maap_shim #(
+      .N_SRC_P (N_STREAMS)
+    ) pp_maap_shim (
+      .clk_i            (axis_clk),
+      .rst_n            (axis_resetn),
+      .blk_addr_i       (maap_addr),
+      .blk_valid_i      (maap_addr_valid),
+      .blk_count_i      (cfg_maap_count),
+      .req_valid_i      (pp_maap_req_valid_w),
+      .req_ready_o      (pp_maap_req_ready_w),
+      .req_release_i    (pp_maap_req_release_w),
+      .req_src_i        (pp_maap_req_src_w),
+      .rsp_valid_o      (pp_maap_rsp_valid_w),
+      .rsp_ok_o         (pp_maap_rsp_ok_w),
+      .rsp_da_o         (pp_maap_rsp_da_w),
+      .conflict_valid_o (pp_maap_confl_valid_w),
+      .conflict_src_o   (pp_maap_confl_src_w),
+      .conflict_ack_i   (pp_maap_confl_ack_w)
     );
   end else begin : g_no_pp
     assign pp_tx_tdata_w     = {TDATA_WIDTH{1'b0}};
@@ -5711,6 +5851,46 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     assign pp_rx_frames_w    = 16'd0;
     assign pp_rx_drops_w     = 8'd0;
     assign pp_tx_frames_w    = 16'd0;
+    //! class-D face with no plane behind it: every level parks at its
+    //! STRUCTURAL zero. Read the pair (plane absent, level 0) as "no
+    //! information", exactly as PP_STAT's missing 0x5B tag already says.
+    assign pp_cd_srp_class_a_prio_w      = 3'd0;
+    assign pp_cd_srp_class_a_vid_w       = 12'd0;
+    assign pp_cd_srp_domain_adopted_w    = 1'b0;
+    assign pp_cd_srp_domain_change_w     = 1'b0;
+    assign pp_cd_srp_tk_decl_state_w     = {(N_STREAMS*2){1'b0}};
+    assign pp_cd_srp_lstn_reg_state_w    = {(N_STREAMS*2){1'b0}};
+    assign pp_cd_srp_active_w            = {N_STREAMS{1'b0}};
+    assign pp_cd_srp_sr_admitted_w       = {N_STREAMS{1'b0}};
+    assign pp_cd_srp_granted_slope_bps_w = {(N_STREAMS*32){1'b0}};
+    assign pp_cd_srp_src_fail_code_w     = {(N_STREAMS*8){1'b0}};
+    assign pp_cd_srp_src_fail_bridge_w   = {(N_STREAMS*64){1'b0}};
+    assign pp_cd_srp_sum_slope_bps_w     = 32'd0;
+    assign pp_cd_srp_over_limit_w        = 1'b0;
+    assign pp_cd_srp_tk_reg_state_w      = {(N_STREAMS*2){1'b0}};
+    assign pp_cd_srp_lstn_decl_state_w   = {(N_STREAMS*2){1'b0}};
+    assign pp_cd_srp_acc_latency_w       = {(N_STREAMS*32){1'b0}};
+    assign pp_cd_srp_snk_fail_code_w     = {(N_STREAMS*8){1'b0}};
+    assign pp_cd_acmp_declaring_w        = {N_STREAMS{1'b0}};
+    assign pp_cd_acmp_bound_w            = {N_STREAMS{1'b0}};
+    assign pp_cd_acmp_bound_eid_w        = {(N_STREAMS*64){1'b0}};
+    assign pp_cd_acmp_bound_sid_w        = {(N_STREAMS*64){1'b0}};
+    assign pp_cd_acmp_bound_dmac_w       = {(N_STREAMS*48){1'b0}};
+    assign pp_cd_acmp_bound_vlan_w       = {(N_STREAMS*12){1'b0}};
+    assign pp_cd_adp_avail_index_w       = 32'd0;
+    //! and the maap face with no requester behind it: the shim is not
+    //! instantiated either, so tie its answers to the same refusing values
+    //! the shim itself would produce against an invalid block.
+    assign pp_maap_req_valid_w   = 1'b0;
+    assign pp_maap_req_ready_w   = 1'b0;
+    assign pp_maap_req_release_w = 1'b0;
+    assign pp_maap_req_src_w     = {PP_SRC_IDX_W_C{1'b0}};
+    assign pp_maap_rsp_valid_w   = 1'b0;
+    assign pp_maap_rsp_ok_w      = 1'b0;
+    assign pp_maap_rsp_da_w      = 48'd0;
+    assign pp_maap_confl_valid_w = 1'b0;
+    assign pp_maap_confl_src_w   = {PP_SRC_IDX_W_C{1'b0}};
+    assign pp_maap_confl_ack_w   = 1'b0;
   end endgenerate
 
 endmodule

@@ -107,6 +107,11 @@ tops=(
   "classifier_wrap|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $Q/traffic_class_map.sv $Q/traffic_classifier.sv $A/axis_fifo.v $R/tb/verilator/classifier/classifier_wrap.sv"
   "queues_wrap|$C/axi_stream_if.sv $Q/traffic_queues.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $R/tb/verilator/queues/queues_wrap.sv"
   "KL_pp_shadow|$A/axis_fifo.v $PP_SRCS"
+  # KL_maap claims a BLOCK, the processor asks PER SOURCE; this is the adapter.
+  # Standalone by design - it has no dependency on either side's sources, which
+  # is the whole point of it being its own file rather than glue inside
+  # KL_pp_shadow: it can be synthesised, read and reasoned about on its own.
+  "KL_pp_maap_shim|$R/hdl/milan/KL_pp_maap_shim.sv"
   "axis_fifo|$A/axis_fifo.v"
   "axis_demux|$A/axis_demux.v"
   "axis_arb_mux|$A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v"

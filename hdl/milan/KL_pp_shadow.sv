@@ -73,8 +73,33 @@
                 the board's flash, and it has no business owning a region of
                 it while the shipping planes own binding persistence.
 
+                CLASS-D FABRIC FACE. Everything the processor knows used to be
+                reachable only through a side-port READ TRANSACTION - a
+                software-paced path. An integrating fabric consumes that state
+                as WIRES, every clock: a talker gate is a per-cycle AND of the
+                DA gate and the stream enable, a CBS slope MUX needs the
+                granted idleSlope, an RX filter needs the bound stream's DMAC.
+                So every class-D output protocol_processor_top publishes is
+                republished here, 1:1, same names and same flat packing. This
+                wrapper adds NO logic on that path and NO interpretation: it
+                is a port list, and the point of it being a port list is that
+                the two files read as one contract.
+
+                ADDRESS ALLOCATION. The processor implements no MAAP by
+                design (its 01 section 3 puts allocation in the integrating
+                fabric) and publishes a per-source ALLOC/RELEASE face instead.
+                This fabric's allocator is KL_maap, which claims one BLOCK.
+                KL_pp_maap_shim.sv bridges the two models and
+                milan_datapath.sv wires it between them; the 10 maap pins here
+                are a pass-through so the shim can live outside this wrapper,
+                next to the engine it adapts. Note what depends on it: the DA
+                gate (acmp_declaring_o) is reachable ONLY through an ALLOC_DA
+                success, so with the face unconnected the processor's talker
+                half is dead by construction.
+
   Interfaces  : monitor tap on the MAC RX AXIS stream (input only);
                 a simple request/ack host bridge for the side port;
+                the class-D status levels and the maap request face;
                 a diagnostic bundle for the CSR.
 
   Parameters  : see below; N_STREAM_IN_P/N_STREAM_OUT_P size the processor's
@@ -108,7 +133,33 @@ module KL_pp_shadow #(
     parameter int unsigned TIM_DIV_US_P = CLK_HZ_P / 32'd1_000_000,
     parameter int unsigned TIM_DIV_MS_P = 1000,
     //! ACMP listener transition-ROM image (hdl/acmp/rom/gen_ltn_rom.py)
-    parameter string       TROM_HEX_P      = "ltn_rom.hex"
+    parameter string       TROM_HEX_P      = "ltn_rom.hex",
+    //! Which talker SOURCES the processor is told exist in the current
+    //! configuration (its cfg_src_en_i, bit s = source s). DEFAULT 0 = none,
+    //! and that default is the shadow contract: with no source enabled the
+    //! processor never allocates a DA, never declares a Talker attribute and
+    //! never touches a stream the shipping lwSRP/ACMP planes already own, so
+    //! every existing build keeps exactly the behaviour it has today.
+    //!
+    //! A non-zero mask turns the talker half ON inside the shadow. It stays
+    //! wire-safe - the processor's TX is drained by tx_drain_i, so its SRP
+    //! declarations and ACMP responses are counted and thrown away - but it
+    //! is the only way to EXERCISE the maap face and the DA gate, so the
+    //! pp_shadow harness elaborates with it set.
+    //!
+    //! It is a PARAMETER and not a CSR bit on purpose. Which sources exist is
+    //! a property of the entity model, which is elaboration-static in this
+    //! repository (the shape is READ-ONLY from build parameters, never poked
+    //! at runtime). At the P4 substitution this is where the generated entity
+    //! model's talker count gets wired in; until then a live CSR bit would be
+    //! a second, drifting copy of a number the AEM already owns.
+    parameter int unsigned SRC_EN_MASK_P   = 0,
+    //! derived source-index width for the maap face — do not override.
+    //! CLAMPED exactly as protocol_processor_top clamps its own SRC_IDX_W_C,
+    //! because the shipping board elaborates this at N_STREAM_OUT_P = 1 and
+    //! an unclamped $clog2(1) declares [-1:0].
+    localparam int unsigned SRC_IDX_W_C = (N_STREAM_OUT_P > 32'd1)
+                                          ? $clog2(N_STREAM_OUT_P) : 32'd1
 ) (
     input  wire        clk_i,              //! axis_clk
     input  wire        rst_n,              //! active-low reset
@@ -165,6 +216,65 @@ module KL_pp_shadow #(
     //! 1 = discard the processor's frames and count them (shadow mode);
     //! 0 = the packed AXIS port above is the real egress.
     input  wire                        tx_drain_i,
+
+    //! ---- maap face (02 §4.2) — THE ADDRESS ALLOCATOR SEAM ----
+    //! Passed straight through to protocol_processor_top, names and
+    //! directions unchanged. The fabric's allocator is a BLOCK allocator
+    //! (KL_maap) and this is a PER-SOURCE face; KL_pp_maap_shim.sv bridges
+    //! the two and milan_datapath.sv wires it between them. Leaving these
+    //! unconnected is legal but structurally kills the talker half: the DA
+    //! gate below is reachable only through an ALLOC_DA success, so
+    //! acmp_declaring_o would be stuck at 0 and no source would ever declare
+    //! a Talker attribute to SRP either.
+    output logic                       maap_req_valid_o,      //! ALLOC/RELEASE, held until ready
+    input  wire                        maap_req_ready_i,      //! allocator accepts (0 = no allocator)
+    output logic                       maap_req_release_o,    //! 0 = ALLOC_DA, 1 = RELEASE_DA
+    output logic [SRC_IDX_W_C-1:0]     maap_req_src_o,        //! source index of the request
+    input  wire                        maap_rsp_valid_i,      //! exactly one response per accepted request
+    input  wire                        maap_rsp_ok_i,         //! ALLOC_DA succeeded (ignored on RELEASE_DA)
+    input  wire  [47:0]                maap_rsp_da_i,         //! allocated stream destination MAC
+    input  wire                        maap_conflict_valid_i, //! MAAP_CONFLICT{source}, sticky until acked
+    input  wire  [SRC_IDX_W_C-1:0]     maap_conflict_src_i,   //! conflicted source
+    output logic                       maap_conflict_ack_o,   //! event ack (combinational)
+
+    //! ---- class-D SRP status levels (02 §6, F02.10) — THE FABRIC FACE ----
+    //! Every one of these is a straight pass-through of the identically named
+    //! protocol_processor_top output: same name, same width, same flat
+    //! packing (index s at [W*s +: W]), so the two port lists read as ONE
+    //! contract and a divergence is a compile error rather than a silent
+    //! re-interpretation. They are combinational reads of clk_i-domain
+    //! registers; a consumer in another clock domain owns its own 2FF
+    //! synchroniser. Read protocol_processor_top.sv's own banner for what
+    //! each level MEANS - it is not repeated here, because a second copy of
+    //! that prose is a second copy that drifts.
+    output logic [2:0]                   srp_class_a_prio_o,      //! SRclassPriority, DEFAULTS until adopted
+    output logic [11:0]                  srp_class_a_vid_o,       //! SRclassVID, DEFAULTS until adopted
+    output logic                         srp_domain_adopted_o,    //! 1 = adopted a bridge Domain
+    output logic                         srp_domain_change_o,     //! one-cycle DOMAIN_CHANGE
+    output logic [N_STREAM_OUT_P*2-1:0]  srp_tk_decl_state_o,     //! per-source self-declared Talker attr
+    output logic [N_STREAM_OUT_P*2-1:0]  srp_lstn_reg_state_o,    //! per-source registered Listener attr
+    //! THE AVTP transmit gate — never rebuild it from the terms below
+    output logic [N_STREAM_OUT_P-1:0]    srp_active_o,
+    //! RAW Sigma-slope verdict; lags srp_active_o by up to three admission rounds
+    output logic [N_STREAM_OUT_P-1:0]    srp_sr_admitted_o,
+    output logic [N_STREAM_OUT_P*32-1:0] srp_granted_slope_bps_o, //! per-source granted idleSlope
+    output logic [N_STREAM_OUT_P*8-1:0]  srp_src_fail_code_o,     //! per-source self-declared Failed code
+    output logic [N_STREAM_OUT_P*64-1:0] srp_src_fail_bridge_o,   //! per-source self-declared FailureInformation
+    output logic [31:0]                  srp_sum_slope_bps_o,     //! Sigma granted idleSlope over admitted sources
+    output logic                         srp_over_limit_o,        //! a source was refused against the port ceiling
+    output logic [N_STREAM_IN_P*2-1:0]   srp_tk_reg_state_o,      //! per-sink registered Talker attr
+    output logic [N_STREAM_IN_P*2-1:0]   srp_lstn_decl_state_o,   //! per-sink our Listener declaration
+    output logic [N_STREAM_IN_P*32-1:0]  srp_acc_latency_o,       //! per-sink registered accumulated_latency, ns, RAW
+    output logic [N_STREAM_IN_P*8-1:0]   srp_snk_fail_code_o,     //! per-sink registered Failed code
+
+    //! ---- class-D ACMP / ADP status levels ----
+    output logic [N_STREAM_OUT_P-1:0]    acmp_declaring_o,        //! per-source DA gate open (THE talker egress gate)
+    output logic [N_STREAM_IN_P-1:0]     acmp_bound_o,            //! per-sink binding installed, DEBOUNCED
+    output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_eid_o,        //! per-sink bound talker entity_id
+    output logic [N_STREAM_IN_P*64-1:0]  acmp_bound_sid_o,        //! per-sink bound stream_id
+    output logic [N_STREAM_IN_P*48-1:0]  acmp_bound_dmac_o,       //! per-sink bound stream destination MAC
+    output logic [N_STREAM_IN_P*12-1:0]  acmp_bound_vlan_o,       //! per-sink bound stream VLAN id
+    output logic [31:0]                  adp_next_avail_index_o,  //! available_index the NEXT ENTITY_AVAILABLE carries
 
     //! ---- observability ----
     output logic       restore_busy_o,     //! restore walk running
@@ -488,10 +598,20 @@ module KL_pp_shadow #(
       .port_rate_bps_i     (32'd1_000_000_000),
       .cfg_tspec_max_frame_i(16'd0),
 
-      //! no talker sources are declared to the shadow: it must not attempt a
-      //! reservation for a stream the shipping lwSRP plane already owns.
-      .cfg_src_en_i        ('0),
+      //! Which talker sources exist, from SRC_EN_MASK_P (default 0 = none;
+      //! see the parameter's banner for why a source-enable is elaboration
+      //! static here and what turning it on does).
+      .cfg_src_en_i        (N_STREAM_OUT_P'(SRC_EN_MASK_P)),
+      //! ONE AVB interface on this board, so every source sits on interface
+      //! 0. This is not a placeholder: KL_acmp_talker SILENTLY IGNORES a
+      //! PROBE_TX whose interface_index disagrees with the source's, and the
+      //! processor's own rx_if_index is 0, so any other value here would make
+      //! the talker deaf with no counter moving anywhere.
       .cfg_src_iface_i     ('0),
+      //! stream_id stays 0: it is consumed only by the processor's SRP
+      //! DECLARE_TALKER, and the shipping lwSRP plane owns the reservation
+      //! for these streams. A shadow that declared a real stream_id would be
+      //! a second applicant for the same stream on the same port.
       .cfg_stream_id_i     ('0),
 
       .rx_valid_i          (pp_rx_valid_w),
@@ -559,6 +679,49 @@ module KL_pp_shadow #(
       .svc_rsp_valid_o     (),
       .svc_rsp_status_o    (),
       .svc_rsp_data_o      (),
+
+      //! ---- class-D fabric face: straight through, 1:1 ------------------
+      //! Deliberately NOT repacked, NOT reduced and NOT renamed. A consumer
+      //! needs the per-index values (its CBS slope MUX reads one source's
+      //! granted slope, its RX filter reads one sink's DMAC), and the flat
+      //! [W*s +: W] packing is the same convention cfg_stream_id_i already
+      //! uses in the other direction.
+      .srp_class_a_prio_o      (srp_class_a_prio_o),
+      .srp_class_a_vid_o       (srp_class_a_vid_o),
+      .srp_domain_adopted_o    (srp_domain_adopted_o),
+      .srp_domain_change_o     (srp_domain_change_o),
+      .srp_tk_decl_state_o     (srp_tk_decl_state_o),
+      .srp_lstn_reg_state_o    (srp_lstn_reg_state_o),
+      .srp_active_o            (srp_active_o),
+      .srp_sr_admitted_o       (srp_sr_admitted_o),
+      .srp_granted_slope_bps_o (srp_granted_slope_bps_o),
+      .srp_src_fail_code_o     (srp_src_fail_code_o),
+      .srp_src_fail_bridge_o   (srp_src_fail_bridge_o),
+      .srp_sum_slope_bps_o     (srp_sum_slope_bps_o),
+      .srp_over_limit_o        (srp_over_limit_o),
+      .srp_tk_reg_state_o      (srp_tk_reg_state_o),
+      .srp_lstn_decl_state_o   (srp_lstn_decl_state_o),
+      .srp_acc_latency_o       (srp_acc_latency_o),
+      .srp_snk_fail_code_o     (srp_snk_fail_code_o),
+      .acmp_declaring_o        (acmp_declaring_o),
+      .acmp_bound_o            (acmp_bound_o),
+      .acmp_bound_eid_o        (acmp_bound_eid_o),
+      .acmp_bound_sid_o        (acmp_bound_sid_o),
+      .acmp_bound_dmac_o       (acmp_bound_dmac_o),
+      .acmp_bound_vlan_o       (acmp_bound_vlan_o),
+      .adp_next_avail_index_o  (adp_next_avail_index_o),
+
+      //! ---- maap face: straight through to KL_pp_maap_shim outside -------
+      .maap_req_valid_o        (maap_req_valid_o),
+      .maap_req_ready_i        (maap_req_ready_i),
+      .maap_req_release_o      (maap_req_release_o),
+      .maap_req_src_o          (maap_req_src_o),
+      .maap_rsp_valid_i        (maap_rsp_valid_i),
+      .maap_rsp_ok_i           (maap_rsp_ok_i),
+      .maap_rsp_da_i           (maap_rsp_da_i),
+      .maap_conflict_valid_i   (maap_conflict_valid_i),
+      .maap_conflict_src_i     (maap_conflict_src_i),
+      .maap_conflict_ack_o     (maap_conflict_ack_o),
 
       .dbg_now_ms_o        (dbg_now_ms_o)
   );

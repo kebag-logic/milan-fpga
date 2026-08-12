@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 91 modules · 89 with a dedicated TB · 0 exercised-only · 53 field-fuzzed · 1 archived · **0 not in any TB**
+**Totals:** 92 modules · 90 with a dedicated TB · 0 exercised-only · 53 field-fuzzed · 1 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -32,15 +32,15 @@ xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["milan", "ieee1722", "ieee8021as", "common", "ieee17221", "ieee8021q"]
     y-axis "modules" 0 --> 36
-    bar [3, 35, 5, 10, 19, 19]
-    bar [2, 34, 5, 10, 19, 19]
+    bar [4, 35, 5, 10, 19, 19]
+    bar [3, 34, 5, 10, 19, 19]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
 
 | family | modules | ✅ dedicated TB | ➰ exercised only | 🔬 field-fuzzed | 🗄️ archived | ⚪ untested |
 |---|---|---|---|---|---|---|
-| Milan integration | 3 | 2 | 0 | 0 | 1 | 0 |
+| Milan integration | 4 | 3 | 0 | 0 | 1 | 0 |
 | IEEE 1722 (AVTP) | 35 | 34 | 0 | 30 | 0 | 0 |
 | IEEE 802.1AS | 5 | 5 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
@@ -189,6 +189,7 @@ _datapath + top wrappers_
 
 | module | file | test | clauses |
 |---|---|---|---|
+| ✅ `KL_pp_maap_shim` | `milan/KL_pp_maap_shim.sv` | `pp_shadow` · ➰hostplane,milan_dp | — |
 | ✅ `KL_pp_shadow` | `milan/KL_pp_shadow.sv` | `pp_shadow` · ➰hostplane,milan_dp | — |
 | ✅ `milan_datapath` | `milan/milan_datapath.sv` | `hostplane` · `milan_dp` | 35.2.2, 35.2.4.3, 35.2.7, 4.4.4.3 |
 | 🗄️ `milan_top` | `milan/milan_top.sv` | 🗄️ archived | — |

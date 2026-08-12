@@ -30,6 +30,35 @@
 //      protocol_processor_top, so reading it is proof the fabric is alive and
 //      clocked, not that the bridge returns a plausible constant.
 //
+//   G. The CLASS-D FABRIC FACE is reachable AND LIVE. A port read once at
+//      reset proves only that a wire exists; adp_next_avail_index_o is read
+//      before the processor has ever advertised (must be 0) and again after
+//      its compressed ADP cadence has fired (must have grown), so the check
+//      is about a moving engine and not about a constant.
+//
+//   H. The MAAP ADAPTER REFUSES SAFELY. With no claimed block the shim must
+//      still ACCEPT every request and ANSWER it — ok = 0 — because the
+//      processor's allocator-busy flag is cleared only by a response: accept
+//      once without answering and that source never allocates again. So the
+//      graded invariant is accepted == answered, globally, plus "the DA gate
+//      stayed shut" and "the plane kept serving" (side port still answers,
+//      control frames still accepted). This is the regression test for the
+//      one hazard this adapter can create.
+//
+//   I. The MAAP ADAPTER GRANTS. With KL_maap in ANNOUNCE the same request is
+//      answered ok = 1 with base + source_index, and the processor's
+//      per-source DA gate (acmp_declaring_o — reachable ONLY through an
+//      ALLOC_DA success) goes HIGH. The granted address is checked against
+//      the pool base and the offset KL_maap publishes in MAAP_STAT0, so a
+//      shim that answered a plausible constant fails.
+//
+//      Wire discipline holds here too, in the only form that is true once
+//      MAAP is enabled: the FABRIC's own MAAP engine legitimately transmits
+//      PROBE/ANNOUNCE PDUs, so the graded property becomes "every frame that
+//      egressed was a MAAP PDU" — no ADP, no ACMP, no MRP, i.e. still nothing
+//      from the shadow. Section D's absolute-silence check runs BEFORE MAAP
+//      is enabled and is untouched.
+//
 // Frames are injected LITTLE-LANE (tdata[7:0] = first wire byte). That is the
 // silicon convention of the RX tap — KL_maap.sv:154 states it and tests the
 // EtherType at lanes 4/5, and KL_aecp_ingress.sv documents the same. The
@@ -38,6 +67,7 @@
 // frames and every accept check would read a silent zero.
 
 #include "Vmilan_datapath.h"
+#include "Vmilan_datapath___024root.h"
 #include "verilated.h"
 #include <cstdio>
 #include <cstring>
@@ -46,6 +76,60 @@
 
 static Vmilan_datapath* dut;
 static long checks = 0, fails = 0;
+
+// ---- free-running observers -------------------------------------------------
+// Sampled on EVERY simulated cycle (from lo(), the settled pre-edge state), so
+// nothing that happens between two CSR reads can be missed. The maap face is
+// two cycles wide per transaction; polling it from the check sites would grade
+// whatever the sampling happened to land on.
+//
+// The class-D levels and the maap face are read through Verilator's flat root
+// handle. They are datapath NETS marked `verilator public_flat_rd` — the same
+// mechanism media_tick_p / aaf_stream_en_w already use in this file's DUT —
+// and NOT a CSR window: no software reads this state yet, and inventing a CSR
+// for it would be a VERSION story for a register with no consumer.
+struct MaapObs {
+    long accepted   = 0;   // req_valid && req_ready — the shim took a request
+    long answered   = 0;   // rsp_valid              — the shim completed one
+    long granted    = 0;   // rsp_valid && rsp_ok    — with an address
+    uint64_t last_da = 0;  // the address of the last grant
+    long declaring_cycles = 0;  // cycles acmp_declaring_o[0] was high
+};
+static MaapObs mo;
+
+// MAC TX frame census, by destination MAC of the first beat.
+static long mactx_frames = 0, mactx_nonmaap = 0;
+static bool mactx_in_frame = false;
+static uint64_t mactx_last_da = 0;
+
+static const uint64_t MAAP_DST = 0x91E0F000FF00ull;  // KL_maap's own TX DA
+
+static void observe() {
+    auto* rp = dut->rootp;
+    if (rp->milan_datapath__DOT__pp_maap_req_valid_w
+        && rp->milan_datapath__DOT__pp_maap_req_ready_w) mo.accepted++;
+    if (rp->milan_datapath__DOT__pp_maap_rsp_valid_w) {
+        mo.answered++;
+        if (rp->milan_datapath__DOT__pp_maap_rsp_ok_w) {
+            mo.granted++;
+            mo.last_da = rp->milan_datapath__DOT__pp_maap_rsp_da_w;
+        }
+    }
+    if (rp->milan_datapath__DOT__pp_cd_acmp_declaring_w & 1u) mo.declaring_cycles++;
+
+    if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
+        if (!mactx_in_frame) {
+            uint64_t d = dut->m_axis_mac_tx_tdata;   // little lane: lane0 = wire byte 0
+            uint64_t da = 0;
+            for (int i = 0; i < 6; i++) da = (da << 8) | ((d >> (8 * i)) & 0xFF);
+            mactx_last_da = da;
+            mactx_frames++;
+            if (da != MAAP_DST) mactx_nonmaap++;
+            mactx_in_frame = true;
+        }
+        if (dut->m_axis_mac_tx_tlast) mactx_in_frame = false;
+    }
+}
 
 static void ck(const char* what, uint32_t got, uint32_t exp) {
     checks++;
@@ -61,7 +145,7 @@ static void ck_true(const char* what, bool cond, const char* detail) {
 }
 
 // ---- clocking (single domain, as milan_dp drives it) ----
-static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; dut->clk_tdm_i = 0; dut->eval(); }
+static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; dut->clk_tdm_i = 0; dut->eval(); observe(); }
 static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->clk_tdm_i = 1; dut->eval(); }
 static void step() { lo(); hi(); }
 
@@ -88,9 +172,19 @@ static uint32_t axi_read(uint16_t a) {
 
 enum {
     A_ID = 0x000, A_VERSION = 0x004,
+    A_ADP_EIDLO = 0x604, A_ADP_EIDHI = 0x608,
+    A_MAAP_CTRL = 0x6CC, A_MAAP_STAT0 = 0x6D0, A_MAAP_STAT1 = 0x6D4,
     A_PP_CTRL = 0x920, A_PP_STAT = 0x924,
     A_PP_SPADDR = 0x928, A_PP_SPDATA = 0x92C, A_PP_DIAG = 0x930,
 };
+
+// The entity_id this harness provisions. NOT zero on purpose: the processor's
+// talker matches a PROBE_TX on target_eid == own entity_id, and against a zero
+// entity_id a frame whose bytes never arrived would match just as well.
+static const uint64_t TEST_EID = 0x001BC50CAC000001ull;
+
+// KL_maap's pool: 91:E0:F0:00 + a 16-bit offset (KL_maap.sv POOL_BASE_HI_C).
+static const uint64_t MAAP_POOL_BASE = 0x91E0F0000000ull;
 
 // side-port windows implemented by protocol_processor_top (tb/pp_top README)
 static const uint32_t SP_SNAPSHOT = 0x20000;   // word 0 = magic "KLPP"
@@ -171,7 +265,20 @@ static uint32_t sp_read(uint32_t word_addr, bool* ok) {
 static const uint8_t OUR_MAC[6] = {0x00, 0x1B, 0xC5, 0x0C, 0xAC, 0x00};
 
 // ADP ENTITY_DISCOVER: DA 91:E0:F0:01:00:00, EtherType 0x22F0, subtype 0xFA,
-// msg_type 2. 82 bytes on the wire (the ADPDU rule this repo enforces).
+// msg_type 2. 82 bytes on the wire (the ADPDU rule this repo enforces) = 14 B
+// Ethernet + a 68 B ADPDU, i.e. control_data_length 56.
+//
+// CORRECTED 2026-08-12. This builder used to put the message_type in wire byte
+// 16 and leave byte 15 at 0. Byte 15 is sv/version/MESSAGE_TYPE and byte 16 is
+// valid_time + control_data_length[10:8], so the frame declared msg_type 0
+// (ENTITY_AVAILABLE) with control_data_length 512 against a 68 B payload — the
+// processor's V1 length rule threw it away, every time. Nothing caught it
+// because rx_frames_o counts frames the WRAPPER handed to the processor, not
+// frames the processor accepted: the count moved and the check read green
+// while the engine behind it never saw a valid ADPDU. The class-D
+// available_index check below is what finally made it visible — a level that
+// only moves when the ADP engine actually TRANSMITS cannot be satisfied by a
+// frame the ADP engine never accepted.
 static size_t build_adp_discover(uint8_t* f) {
     memset(f, 0, 82);
     const uint8_t da[6] = {0x91, 0xE0, 0xF0, 0x01, 0x00, 0x00};
@@ -179,12 +286,46 @@ static size_t build_adp_discover(uint8_t* f) {
     memcpy(f, da, 6); memcpy(f + 6, sa, 6);
     f[12] = 0x22; f[13] = 0xF0;          // EtherType
     f[14] = 0xFA;                        // subtype ADP
-    f[15] = 0x00;                        // sv/version
-    f[16] = 0x02;                        // msg_type = ENTITY_DISCOVER
-    f[17] = 0x00;                        // valid_time / control_data_length
-    f[18] = 0x00;
-    // target entity_id at wire byte 18 (0 = discover everybody)
+    f[15] = 0x02;                        // sv=0, version=0, msg_type=ENTITY_DISCOVER
+    f[16] = 0x00; f[17] = 56;            // valid_time 0, control_data_length 56
+    // target entity_id at @4 (wire bytes 18..25) stays 0 = discover everybody
     return 82;
+}
+
+static void put64be(uint8_t* p, uint64_t v) {
+    for (int i = 0; i < 8; i++) p[i] = (uint8_t)(v >> (8 * (7 - i)));
+}
+
+// Milan PROBE_TX = IEEE 1722.1 CONNECT_TX_COMMAND (ACMP message_type 0),
+// aimed at OUR OWN talker source `uid`. 70 bytes on the wire: 14 B Ethernet +
+// a 56 B ACMPDU (control_data_length 44) — the length rule this repo pins
+// after the 68-byte listener-deafness finding.
+//
+// Two offsets are load-bearing and easy to get wrong:
+//   * @20 talker_entity_id (wire 34..41) is what the TALKER discriminates on.
+//     protocol_processor_top's ACMP steer PREFETCHES those eight bytes out of
+//     the RX slot and REWRITES txn.target_eid with them, precisely because the
+//     validator's generic extraction puts the ACMPDU's @4 stream_id there.
+//     Setting only @4 leaves the talker deaf with no counter moving anywhere.
+//   * @36 talker_unique_id (wire 50..51) selects the source; the validator
+//     takes @36 for message types 0..5 and @38 for the listener's 6..11.
+static size_t build_probe_tx(uint8_t* f, uint64_t eid, uint16_t uid) {
+    memset(f, 0, 70);
+    const uint8_t da[6] = {0x91, 0xE0, 0xF0, 0x01, 0x00, 0x00};
+    const uint8_t sa[6] = {0x02, 0x11, 0x22, 0x33, 0x44, 0x55};
+    memcpy(f, da, 6); memcpy(f + 6, sa, 6);
+    f[12] = 0x22; f[13] = 0xF0;      // EtherType 1722
+    f[14] = 0xFC;                    // subtype ACMP
+    f[15] = 0x00;                    // sv=0, version=0, message_type=0
+    f[16] = 0x00; f[17] = 44;        // status 0, control_data_length 44
+    put64be(f + 18, eid);                        // @4  stream_id
+    put64be(f + 26, 0xC0FFEE00DEADBEEFull);      // @12 controller_entity_id
+    put64be(f + 34, eid);                        // @20 talker_entity_id
+    put64be(f + 42, 0x2222222222222222ull);      // @28 listener_entity_id
+    f[50] = (uint8_t)(uid >> 8); f[51] = (uint8_t)uid;   // @36 talker_unique_id
+    f[52] = 0x00; f[53] = 0x00;                          // @38 listener_unique_id
+    f[62] = 0x00; f[63] = 0x01;                          // @48 sequence_id
+    return 70;
 }
 
 // A frame the classifier must REJECT: plain IPv4, EtherType 0x0800.
@@ -210,6 +351,13 @@ int main(int argc, char** argv) {
     uint32_t stat = axi_read(A_PP_STAT);
     ck("PP_STAT tag == 0x5B (plane present)", (stat >> 24) & 0xFF, 0x5B);
     ck("PP_DIAG clean at reset", axi_read(A_PP_DIAG), 0x00000000);
+    // Provision a distinctive entity_id BEFORE the plane is enabled: it is the
+    // discriminator the talker matches a PROBE_TX against, and the CSR resets
+    // it to zero.
+    axi_write(A_ADP_EIDLO, (uint32_t)(TEST_EID & 0xFFFFFFFFu));
+    axi_write(A_ADP_EIDHI, (uint32_t)(TEST_EID >> 32));
+    // class-D baseline, taken before the processor has ever advertised
+    uint32_t aidx0 = dut->rootp->milan_datapath__DOT__pp_cd_adp_avail_index_w;
     axi_write(A_PP_CTRL, 0x1);                       // entity_enable
     ck("PP_CTRL reads back", axi_read(A_PP_CTRL) & 0x3, 0x1);
 
@@ -268,6 +416,119 @@ int main(int argc, char** argv) {
             pp_tx2 ? "frames packed end to end" : "no frame completed the packer");
     ck_true("packer frame count only grows", pp_tx2 >= pp_tx,
             "monotonic");
+
+    // ---- G. the class-D fabric face is REACHABLE and LIVE ------------------
+    // A port that is only ever read at reset proves a wire exists, nothing
+    // more. adp_next_avail_index_o is the class-D level with an engine behind
+    // it that moves on its own: KL_adp_engine publishes the PRE-increment
+    // index, so it reads 0 before the first ENTITY_AVAILABLE and counts up
+    // with every advertisement the compressed cadence fires in section D.
+    //
+    // The wait below is not padding. Milan 5.6.3.5.2 makes the first
+    // advertisement wait T-ADP-DELAY-START, a PRNG draw of 0..2000 ms, so at
+    // this suite's compressed millisecond (100 clk) the engine can legitimately
+    // sit in ADP_ADV_DELAY for 200,000 cycles - far past section D's window.
+    // Poll instead of guessing a cycle count, and keep it bounded so a real
+    // stall still fails instead of hanging.
+    printf("[G] class-D fabric face — reachable, and it MOVES\n");
+    ck("adp_next_avail_index read 0 before any advertisement", aidx0, 0u);
+    uint32_t aidx1 = dut->rootp->milan_datapath__DOT__pp_cd_adp_avail_index_w;
+    for (int r = 0; r < 200 && aidx1 == aidx0; r++) {
+        run_idle(2000);
+        aidx1 = dut->rootp->milan_datapath__DOT__pp_cd_adp_avail_index_w;
+    }
+    ck_true("adp_next_avail_index CHANGED (the engine drives it)", aidx1 > aidx0,
+            aidx1 > aidx0 ? "index advanced with the first ENTITY_AVAILABLE"
+                          : "STILL 0 - the class-D net is not connected to the engine");
+    // ... and the wire is STILL silent while it did: the shadow just built and
+    // committed a whole ENTITY_AVAILABLE, which is exactly the frame a naive
+    // coexistence would have duplicated onto the segment.
+    ck("nothing egressed while the shadow advertised", (uint32_t)mactx_frames, 0u);
+
+    // ---- H. the MAAP adapter REFUSES SAFELY (no block claimed yet) ---------
+    // MAAP_CTRL.en is 0 out of reset, so KL_maap holds no block and the shim
+    // can grant nothing. The processor must be told so — and told PROMPTLY —
+    // rather than left with a stuck allocator-busy flag.
+    printf("[H] maap adapter with NO allocator: refuse, never wedge\n");
+    ck("KL_maap holds no block (MAAP_STAT1.addr_valid = 0)",
+       (axi_read(A_MAAP_STAT1) >> 2) & 1u, 0u);
+    MaapObs h0 = mo;
+    uint8_t pf[128];
+    size_t pn = build_probe_tx(pf, TEST_EID, 0);
+    uint32_t rxf0 = axi_read(A_PP_DIAG) & 0xFF;
+    inject_rx(pf, pn, 400);
+    run_idle(4000);
+    uint32_t rxf1 = axi_read(A_PP_DIAG) & 0xFF;
+    long h_acc = mo.accepted - h0.accepted;
+    long h_ans = mo.answered - h0.answered;
+    long h_gr  = mo.granted  - h0.granted;
+    ck_true("the processor ASKED and the shim ACCEPTED", h_acc > 0,
+            h_acc ? "ALLOC_DA taken" : "no request seen - is a source enabled?");
+    ck_true("every accepted request was ANSWERED", h_acc == h_ans,
+            h_acc == h_ans ? "accepted == answered"
+                           : "an accepted request went unanswered - allocator-busy STICKS");
+    ck("and every answer refused (ok = 0)", (uint32_t)h_gr, 0u);
+    ck("the DA gate stayed SHUT (acmp_declaring = 0)",
+       dut->rootp->milan_datapath__DOT__pp_cd_acmp_declaring_w & 1u, 0u);
+    ck("the ACMP PROBE_TX still reached the processor", rxf1 - rxf0, 1u);
+    bool okh = false;
+    ck("the plane KEEPS SERVING (side port still answers 'KLPP')",
+       sp_read(SP_SNAPSHOT + 0, &okh), 0x4B4C5050);
+
+    // ---- I. the MAAP adapter GRANTS, and the DA gate OPENS -----------------
+    // Enable KL_maap and let it walk IDLE -> 3x PROBE -> ANNOUNCE. From here
+    // on the FABRIC's own MAAP engine legitimately transmits, so absolute
+    // wire silence is no longer the property to grade - "nothing but MAAP on
+    // the wire" is. Section D graded absolute silence, before this point.
+    printf("[I] maap adapter with a claimed block: grant + DA gate\n");
+    long nonmaap0 = mactx_nonmaap;
+    axi_write(A_MAAP_CTRL, 0x00000801);              // count = 8, en = 1
+    bool announced = false;
+    for (int r = 0; r < 200 && !announced; r++) {
+        run_idle(2000);
+        announced = ((axi_read(A_MAAP_STAT1) >> 2) & 1u) != 0;
+    }
+    ck_true("KL_maap reached ANNOUNCE (a block is claimed)", announced,
+            announced ? "addr_valid asserted" : "TIMED OUT - check MAAP_CLK_HZ_P");
+    uint32_t maap_off = axi_read(A_MAAP_STAT0) & 0xFFFF;
+
+    MaapObs i0 = mo;
+    pn = build_probe_tx(pf, TEST_EID, 0);
+    inject_rx(pf, pn, 400);
+    run_idle(8000);
+    long i_acc = mo.accepted - i0.accepted;
+    long i_ans = mo.answered - i0.answered;
+    long i_gr  = mo.granted  - i0.granted;
+    ck_true("the shim GRANTED an address", i_gr > 0,
+            i_gr ? "ok = 1 returned" : "still refusing with a claimed block");
+    ck_true("every accepted request was ANSWERED", i_acc == i_ans,
+            i_acc == i_ans ? "accepted == answered" : "an accepted request went unanswered");
+    // source 0 maps onto block offset 0 — the same base+index rule the fabric
+    // already uses for its own per-stream DMACs (acmp_src_dmac_w).
+    ck_true("granted DA == KL_maap base + source index",
+            mo.last_da == (MAAP_POOL_BASE | (uint64_t)((maap_off + 0) & 0xFFFF)),
+            mo.last_da == (MAAP_POOL_BASE | (uint64_t)((maap_off + 0) & 0xFFFF))
+                ? "matches MAAP_STAT0's offset" : "address disagrees with the engine");
+    ck("the per-source DA GATE is OPEN (acmp_declaring = 1)",
+       dut->rootp->milan_datapath__DOT__pp_cd_acmp_declaring_w & 1u, 1u);
+    ck_true("and it was held, not a one-cycle blip", mo.declaring_cycles > 100,
+            mo.declaring_cycles > 100 ? "gate held" : "gate did not hold");
+    char dadet[96];
+    snprintf(dadet, sizeof dadet, "%ld foreign frame(s), last DA %012llX",
+             mactx_nonmaap - nonmaap0, (unsigned long long)mactx_last_da);
+    ck_true("MAC TX carried ONLY MAAP PDUs (nothing from the shadow)",
+            mactx_nonmaap == nonmaap0,
+            mactx_nonmaap == nonmaap0 ? "every egressed frame was a MAAP PDU" : dadet);
+    ck_true("and the fabric's MAAP engine did transmit", mactx_frames > 0,
+            mactx_frames ? "MAAP frames on the wire" : "no MAAP frame egressed");
+
+    // ---- the global anti-wedge invariant, over the WHOLE run --------------
+    // The hazard the adapter can create is exactly one: take a request and
+    // never answer it. Graded once, over every cycle simulated.
+    printf("[J] global invariant: no accepted maap request was ever dropped\n");
+    ck_true("accepted == answered across the entire run",
+            mo.accepted == mo.answered,
+            mo.accepted == mo.answered ? "balanced" : "UNBALANCED - a source is stranded");
 
     printf("----------------------------------------------------------------\n");
     printf("pp_shadow: %ld checks, %ld failures\n", checks, fails);
