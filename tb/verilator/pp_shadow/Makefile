@@ -35,24 +35,32 @@ P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
 TIM_G  = -GPP_TIM_DIV_US_P=1 -GPP_TIM_DIV_MS_P=100
 TIM_D  = -DPP_MS_CYCLES=100
 
+# NO -Wno-* ANYWHERE, WARNINGS ARE ERRORS (USER 2026-08-12).
+#
+# There is no global `-Werror` in Verilator (only per-rule `-Werror-<CODE>`),
+# and it does not need one: warnings are FATAL BY DEFAULT — `-Wno-fatal` is the
+# flag that turns that off. So removing every -Wno-*, `-Wno-fatal` first, IS
+# the -Werror build. Any warning here stops the build with
+# "Exiting due to N warning(s)" and a non-zero exit.
+#
+# This suite is the reason that rule is right: the adp_pkg/acmp_pkg collision
+# between the two repositories was only a MODDUP WARNING, and under the
+# -Wno-fatal that every other suite in this tree carries, Verilator exited 0
+# and silently kept the FIRST declaration — the processor's engines compiling
+# against the consumer's constants, with no error anywhere. Default-fatal turns
+# that whole class of defect into a build failure by construction, so the
+# -Werror-MODDUP special case this file used to carry is now redundant.
+#
+# Waivers for VENDORED code live in waivers.vlt, scoped to the one rule and
+# the one file that earn them. That is different in kind from a global -Wno-X,
+# which would silence the same finding in RTL we wrote.
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
          +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/common/csr +incdir+$(RTL_DIR)/common/eth_event_counter \
          +incdir+$(RTL_DIR)/ieee17221/adp +incdir+$(RTL_DIR)/ieee8021q/ts \
          +incdir+$(RTL_DIR)/ieee8021as/ptp_timestamp +incdir+$(AXIS_DIR) \
          +incdir+$(RTL_DIR)/ieee17221/aecp +incdir+$(RTL_DIR)/ieee17221/aecp/gen \
-         -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
-         -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
-         -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE \
-         -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-ASCRANGE \
-         -Wno-SYNCASYNCNET -Wno-MULTIDRIVEN -Wno-UNOPTFLAT -Wno-LATCH \
-         -Werror-MODDUP \
-         `# MODDUP MUST be an ERROR here, and -Wno-fatal above is exactly why:` \
-         `# the processor and the consumer BOTH declare adp_pkg and acmp_pkg.` \
-         `# As a plain warning under -Wno-fatal, Verilator exits 0 and silently` \
-         `# keeps the FIRST declaration - so the processor's engines compile` \
-         `# against the consumer's constants and nothing says a word. This flag` \
-         `# is the difference between a loud blocker and silent wrong code.` \
+         -Wall waivers.vlt \
          -GPB_PREFILL_C=2 -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 \
          -GPP_PLANE_P=1 $(TIM_G) \
          -CFLAGS "-std=c++17 -O2 $(TIM_D)"
@@ -63,7 +71,7 @@ DP_SRCS := $(shell $(MAKE) -s -C ../milan_dp print-srcs)
 
 # The protocol-processor submodule, in tb/pp_top's order.
 PP_SRCS = $(PP_DIR)/common/pp_pkg.sv $(PP_DIR)/srp/srp_pkg.sv \
-       $(PP_DIR)/acmp/acmp_pkg.sv $(PP_DIR)/adp/adp_pkg.sv \
+       $(PP_DIR)/acmp/pp_acmp_pkg.sv $(PP_DIR)/adp/pp_adp_pkg.sv \
        $(PP_DIR)/common/KL_pp_prng.sv $(PP_DIR)/common/KL_pp_timer_service.sv \
        $(PP_DIR)/packet_engine/KL_pp_rx_validator.sv \
        $(PP_DIR)/packet_engine/KL_pp_rx_slots.sv \
@@ -78,7 +86,7 @@ PP_SRCS = $(PP_DIR)/common/pp_pkg.sv $(PP_DIR)/srp/srp_pkg.sv \
        $(PP_DIR)/packet_engine/KL_pp_side_port.sv \
        $(PP_DIR)/packet_engine/KL_pp_nvm_port.sv \
        $(PP_DIR)/adp/KL_adp_engine.sv \
-       $(PP_DIR)/acmp/KL_acmp_listener.sv $(PP_DIR)/acmp/KL_acmp_talker.sv \
+       $(PP_DIR)/acmp/KL_pp_acmp_listener.sv $(PP_DIR)/acmp/KL_acmp_talker.sv \
        $(PP_DIR)/acmp/KL_acmp_nvm_shadow.sv \
        $(PP_DIR)/srp/KL_srp_decoder.sv $(PP_DIR)/srp/KL_srp_domain.sv \
        $(PP_DIR)/srp/KL_srp_vlan.sv $(PP_DIR)/srp/KL_srp_admission.sv \
@@ -103,7 +111,7 @@ ltn_rom.hex: $(PP_DIR)/acmp/rom/gen_ltn_rom.py
 # something quietly wrong. The moment the protocol-processor renames its
 # adp_pkg/acmp_pkg, this check passes and the suite runs with no edit here.
 # The reason is printed on EVERY run: a silent skip is the false-green trap.
-PP_PKGS  := $(shell awk '/^package /{print $$2}' $(PP_DIR)/adp/adp_pkg.sv $(PP_DIR)/acmp/acmp_pkg.sv 2>/dev/null | tr -d ';' | sort -u)
+PP_PKGS  := $(shell awk '/^package /{print $$2}' $(PP_DIR)/adp/pp_adp_pkg.sv $(PP_DIR)/acmp/pp_acmp_pkg.sv 2>/dev/null | tr -d ';' | sort -u)
 DP_PKGS  := $(shell awk '/^package /{print $$2}' $(RTL_DIR)/ieee17221/adp/adp_pkg.sv $(RTL_DIR)/ieee17221/acmp/acmp_pkg.sv 2>/dev/null | tr -d ';' | sort -u)
 COLLIDE  := $(filter $(PP_PKGS),$(DP_PKGS))
 

@@ -105,14 +105,77 @@ lwSRP plane on resource grounds. Its estimate for that swap was
 3,198 at 1×1, i.e. at or above the pessimistic end of a bracket the document
 already judged not worth taking.
 
+## THE SUBSTITUTION CASE — measured 2026-08-12, and it reverses the verdict
+
+Everything above prices the plane as an ADDITION (shadow mode: nothing deleted).
+That is the wrong question for scenario B, which deletes the old planes. So the
+shipping 1722.1 + SRP planes were synthesised with the **same instrument**
+(`syn/ooc/old_planes_ooc.tcl`, same part, same 100 MHz OOC) to price what they
+give back. A net figure built from two different instruments would not be a net
+figure.
+
+| Removable plane | top | LUT | FF | BRAM |
+|---|---|---|---|---|
+| AECP / AEM | `KL_aecp_top` | **10,018** | 5,086 | 4 |
+| ACMP listener | `KL_acmp_listener` (+`lstn_ctx`) | 2,270 | 2,394 | 5.5 |
+| lwSRP | `KL_lwsrp_top` | 1,563 | 1,397 | 1.5 |
+| ACMP talker | `KL_acmp_responder` (+`tlkr_ctx`) | 261 | 216 | 0 |
+| ADP | `adp_advertiser` | 377 | 211 | 0 |
+| **total removable** | | **14,489** | 9,304 | 11 |
+
+Against the processor's measured cost:
+
+| | LUT | net |
+|---|---|---|
+| old planes removed | −14,489 | |
+| protocol processor, 1×1 | +7,463 | **−7,026** |
+| protocol processor, 8×8 | +11,508 | **−2,981** |
+
+**The substitution SAVES LUTs — a lot of them.** The single fact that drives it:
+`KL_aecp_top` alone is 10,018 LUT, larger than the *entire* protocol processor
+at the 1×1 shape the AX7101 flashes. The additive reading above ("does not
+fit") is correct only for coexistence, and coexistence was never the goal.
+
+### What must be subtracted back before anyone spends this
+
+The processor's 7,463 LUT is measured with **no working AECP**: the pop face is
+tied `ready = 0`, and Vivado constant-propagated away the AECP dispatch queue
+(6 BRAM), an RX pool and `tx_slots` precisely because nothing consumes them.
+A real substitution has to put that mass back and add the µCPU on top —
+1,068 LUT for the skeleton of record, and the resource study brackets the full
+AECP engine at **+3,150 … +7,000**.
+
+So the honest net, at the 1×1 shape:
+
+| P4 AECP lands at | net LUT |
+|---|---|
+| optimistic (+3,150) | ≈ **−3,900** |
+| pessimistic (+7,000) | ≈ **0** (break-even) |
+
+That is a materially better answer than the estimate this document set started
+from (central `≈ +3,000`, "not worth it for area"): **at worst break-even, and
+plausibly several thousand LUT to the good**, on a board where the shipping
+build sits 917 LUT above the closure cliff and every LUT below it buys closure
+probability.
+
 ## Consequence for the integration
 
 A coexistence (shadow) flash of the 1×1 plane is buildable and worth
 attempting, but should be expected to fail timing closure at 95.1 %. The path
 that is actually affordable is **substitution**, which requires P4: the µCPU
 must land at `protocol_processor_top` before the shipping AECP plane can be
-deleted, and it is that deletion — not the addition measured here — that pays
-for the new plane.
+deleted, and it is that deletion — not the addition — that pays for the new
+plane. The section above now measures exactly how much it pays: 14,489 LUT
+back, against 7,463 spent at the shipping shape.
+
+**Do not delete anything yet.** The removable figures are what the old planes
+cost *standalone*; the datapath's own interconnect to them (CSR fan-out, the
+arbiter legs, the cross-plane wiring documented in `milan_datapath.sv`) is not
+in either column, and the processor cannot answer an AECP command until P4
+lands. The sequence that stays honest is: land P4, prove the processor answers
+AECP on the wire in `pp_shadow`, then delete plane by plane at parity —
+measuring after each, per the standing rule that a block-scale change is judged
+in LUT and packing density, never in slices.
 
 Also worth recording: **3 DSP blocks are inferred** (1 in `KL_adp_engine`, 2 in
 `KL_srp_admission`). the processor repo's HDL rule 1 forbids

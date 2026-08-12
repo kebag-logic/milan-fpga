@@ -25,7 +25,7 @@ set AXIS $REPO/third_party/verilog-axis/rtl
 
 # packages first, then the engines, then the consumer wrapper — tb/pp_top order
 read_verilog -sv \
-  $PP/common/pp_pkg.sv $PP/srp/srp_pkg.sv $PP/acmp/acmp_pkg.sv $PP/adp/adp_pkg.sv \
+  $PP/common/pp_pkg.sv $PP/srp/srp_pkg.sv $PP/acmp/pp_acmp_pkg.sv $PP/adp/pp_adp_pkg.sv \
   $PP/common/KL_pp_prng.sv $PP/common/KL_pp_timer_service.sv \
   $PP/packet_engine/KL_pp_rx_validator.sv \
   $PP/packet_engine/KL_pp_rx_slots.sv \
@@ -40,7 +40,7 @@ read_verilog -sv \
   $PP/packet_engine/KL_pp_side_port.sv \
   $PP/packet_engine/KL_pp_nvm_port.sv \
   $PP/adp/KL_adp_engine.sv \
-  $PP/acmp/KL_acmp_listener.sv $PP/acmp/KL_acmp_talker.sv \
+  $PP/acmp/KL_pp_acmp_listener.sv $PP/acmp/KL_acmp_talker.sv \
   $PP/acmp/KL_acmp_nvm_shadow.sv \
   $PP/srp/KL_srp_decoder.sv $PP/srp/KL_srp_domain.sv \
   $PP/srp/KL_srp_vlan.sv $PP/srp/KL_srp_admission.sv \

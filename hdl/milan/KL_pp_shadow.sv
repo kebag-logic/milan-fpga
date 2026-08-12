@@ -84,6 +84,10 @@
 */
 
 `default_nettype none
+//! The vendored Forencich .v sources carry a timescale; a build that mixes
+//! them with timescale-less SystemVerilog is flagged (IEEE 1800-2023 3.14.2.3).
+//! Simulation-only — synthesis ignores it.
+`timescale 1ns/1ps
 
 module KL_pp_shadow #(
     //! MAC RX AXIS data width (the datapath's TDATA_WIDTH). 64 only.
@@ -413,7 +417,6 @@ module KL_pp_shadow #(
   //  The processor                                                          //
   // ======================================================================= //
   logic        pp_tx_valid_w, pp_tx_eof_w;
-  logic [7:0]  pp_tx_data_w;
   logic        pp_host_rvalid_w, pp_host_err_w;
   logic [31:0] pp_host_rdata_w;
 
@@ -469,7 +472,11 @@ module KL_pp_shadow #(
 
       .tx_valid_o          (pp_tx_valid_w),
       .tx_sof_o            (),
-      .tx_data_o           (pp_tx_data_w),
+      //! the payload itself is DELIBERATELY discarded: shadow mode counts the
+      //! frames the processor would have sent and keeps not one byte of them.
+      //! Landing it in a wire nothing reads would be a lie about intent — and
+      //! the strict build says so (UNUSEDSIGNAL on the dead net).
+      .tx_data_o           (),
       .tx_eof_o            (pp_tx_eof_w),
       //! SHADOW: the drain is always ready and the bytes go nowhere. This is
       //! the one line that keeps the wire unchanged.
