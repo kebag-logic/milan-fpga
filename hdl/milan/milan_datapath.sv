@@ -218,7 +218,25 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! (0x8B4-0x8C4) and PBK (0x8C8-0x8D0) probe groups - closed-finding
   //! diagnostics whose counters/latches die with the parameter; the CSR
   //! range reads 0 on a pruned build (the LTAP precedent).
-  parameter int DPROBES_P = 1
+  parameter int DPROBES_P = 1,
+  //! protocol-processor SHADOW plane (KL_pp_shadow + the protocol-processor
+  //! submodule at its pinned commit). DEFAULT 0 = ABSENT, and that default is
+  //! the contract: scenario B mandates the new plane land behind a
+  //! default-OFF elaboration parameter so the shipping build stays provably
+  //! byte-identical. 1 instantiates the processor as a MONITOR: it sees every
+  //! control frame the shipping planes see and drives NOTHING onto the wire
+  //! (its TX byte stream is drained and counted). It is NOT a substitution -
+  //! the processor's AECP engine is the P4 uCPU, unlanded at this pin, so the
+  //! shipping AECP/ADP/ACMP/lwSRP planes all stay exactly where they are.
+  //! Read KL_pp_shadow.sv's banner before changing this to 1: the plane costs
+  //! real LUTs on a board that is already LUT-bound.
+  parameter int PP_PLANE_P = 0,
+  //! Shadow-plane timer compression for SIMULATION only (the CLKV_QTICK_CYC_P
+  //! precedent). Defaults are REAL time and are what silicon builds use: at
+  //! 100 MHz, 100 clk = 1 us and 1000 us = 1 ms. A harness overrides them so a
+  //! 5 s ADP cadence is reachable in a few thousand cycles.
+  parameter int PP_TIM_DIV_US_P = MILAN_CLK_FREQ_HZ / 1_000_000,
+  parameter int PP_TIM_DIV_MS_P = 1000
 )(
   //! axis_clk domain (system clock, ~100 MHz) + active-low sync reset
   input  wire axis_clk,
@@ -1997,12 +2015,25 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     sat8_f = (c > 32'h0000_00FF) ? 8'hFF : c[7:0];
   endfunction
 
+  //! ---- protocol-processor shadow plane nets (PP_PLANE_P; see below) ----
+  logic        pp_enable_w, pp_restore_go_w;
+  logic        pp_req_w, pp_we_w;
+  logic [19:0] pp_addr_w;
+  logic [31:0] pp_wdata_w, pp_rdata_w;
+  logic        pp_ack_w, pp_err_w;
+  logic        pp_restore_busy_w, pp_restore_done_w, pp_restore_fail_w;
+  logic        pp_nvm_alarm_w;
+  logic [15:0] pp_rx_frames_w, pp_tx_frames_w;
+  logic [7:0]  pp_rx_drops_w;
+
   milan_csr #(
     .NUM_QUEUES(NUM_QUEUES),
     .ADDR_WIDTH(16),
     .N_LISTENERS_P(N_STREAMS),
     .N_TALKERS_P(N_STREAMS),
     .SRP_LSN0_ROW_P(SRP_LSN0_ROW_C),
+    //! the 0x920 shadow-plane window exists only when the plane does
+    .PP_PLANE_P(PP_PLANE_P),
     //! PHC scale truth (t532 wire-scale audit): the PTP_INCR reset value is
     //! derived from THIS clock declaration, so a free-run PHC ticks true ns
     //! on every shape without waiting for software
@@ -2338,6 +2369,23 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_tcam_wr_key      (cfg_tcam_wr_key),
     .o_tcam_wr_mask     (cfg_tcam_wr_mask),
     .o_tcam_wr_action   (cfg_tcam_wr_action),
+    // protocol-processor shadow plane (0x920 window; tied off when absent)
+    .o_pp_enable        (pp_enable_w),
+    .o_pp_restore_go    (pp_restore_go_w),
+    .o_pp_req           (pp_req_w),
+    .o_pp_we            (pp_we_w),
+    .o_pp_addr          (pp_addr_w),
+    .o_pp_wdata         (pp_wdata_w),
+    .i_pp_rdata         (pp_rdata_w),
+    .i_pp_ack           (pp_ack_w),
+    .i_pp_err           (pp_err_w),
+    .i_pp_restore_busy  (pp_restore_busy_w),
+    .i_pp_restore_done  (pp_restore_done_w),
+    .i_pp_restore_fail  (pp_restore_fail_w),
+    .i_pp_nvm_alarm     (pp_nvm_alarm_w),
+    .i_pp_rx_frames     (pp_rx_frames_w),
+    .i_pp_rx_drops      (pp_rx_drops_w),
+    .i_pp_tx_frames     (pp_tx_frames_w),
     // interrupts
     .i_evt_tx_ts_ready  (evt_tx_ts_ready),
     .i_evt_link_change  (evt_link_change),
@@ -5554,6 +5602,99 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign ltap_regs_w[32*13 +: 32] = {16'd0,                     ltap_rx_min_w [16*1 +: 16]};
   assign ltap_regs_w[32*14 +: 32] = {ltap_rx_max_w[16*2 +: 16], ltap_rx_last_w[16*2 +: 16]};
   assign ltap_regs_w[32*15 +: 32] = {16'd0,                     ltap_rx_min_w [16*2 +: 16]};
+
+  // ==========================================================================
+  //  protocol-processor SHADOW plane (PP_PLANE_P, default 0 = absent)
+  // ==========================================================================
+  //! The scenario-B P5 seam in its first landing shape. KL_pp_shadow's banner
+  //! carries the full rationale; the two facts that matter HERE are:
+  //!
+  //!   1. It taps rx_axis_to_dma the same way every other plane does -
+  //!      INPUT ONLY, qualified on tvalid && tready (the gh #65 hazard: a
+  //!      stalled DMA parks a beat with tvalid held and a tvalid-only tap
+  //!      re-eats it).
+  //!   2. It contributes NOTHING to the TX arbiter cascade. Its MAC TX byte
+  //!      stream is drained inside the wrapper and only counted. That is
+  //!      deliberate and load-bearing: the shipping ADP/ACMP/lwSRP planes are
+  //!      still live and still own the wire, so a processor that also
+  //!      transmitted would put a SECOND ENTITY_AVAILABLE (and a second
+  //!      answer to every controller command) on the segment from the same
+  //!      entity_id. Merging its TX is the P4-substitution step, not this one.
+  //!
+  //! The tie-off is the wrapper's reset state: no restore, no alarm, all
+  //! counters 0, and a side-port bridge that acks nothing - so PP_STAT reads
+  //! its structural zero (no 0x5B tag = plane absent) rather than a plausible
+  //! idle.
+  generate if (PP_PLANE_P != 0) begin : g_pp
+    KL_pp_shadow #(
+      .TDATA_WIDTH_P  (TDATA_WIDTH),
+      .CLK_HZ_P       (MILAN_CLK_FREQ_HZ),
+      //! the processor's arrays follow the build's stream shape
+      .N_STREAM_IN_P  (N_STREAMS),
+      .N_STREAM_OUT_P (N_STREAMS),
+      .TIM_DIV_US_P   (PP_TIM_DIV_US_P),
+      .TIM_DIV_MS_P   (PP_TIM_DIV_MS_P)
+    ) pp_shadow (
+      .clk_i             (axis_clk),
+      .rst_n             (axis_resetn),
+      //! identity comes from the SAME CSR words the shipping ADP advertises
+      //! from - derive, never mirror: a second copy would drift and the two
+      //! planes would answer a controller with different entity ids.
+      .entity_id_i       (cfg_adp_entity_id),
+      .entity_model_id_i (cfg_adp_entity_model_id),
+      //! numeric EUI-48 ([47:40] = first wire byte); cfg_mac_addr is the
+      //! platform LSB-first convention, so byte-reverse exactly as the ADP
+      //! advertiser, AECP, ACMP, MAAP and lwSRP instances above all do.
+      .station_mac_i     ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                           cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                           cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
+      .talker_sources_i  (cfg_adp_talker_sources),
+      .talker_caps_i     (cfg_adp_talker_caps),
+      .listener_sinks_i  (cfg_adp_listener_sinks),
+      .listener_caps_i   (cfg_adp_listener_caps),
+      .enable_i          (pp_enable_w),
+      .restore_go_i      (pp_restore_go_w),
+      .link_up_i         (eff_link_w),
+      //! no GM_CHANGE edge detector is wired yet: the shipping ADP plane owns
+      //! that event and takes it as a level-driven re-advertise. Held 0 means
+      //! the shadow simply never sees a GM change - an honest gap, counted as
+      //! such, not a silent zero pretending the GM is stable.
+      .gm_change_i       (1'b0),
+      .gm_id_i           (cfg_adp_gptp_gm),
+      .gptp_domain_i     (cfg_adp_gptp_domain),
+      .rx_tdata_i        (rx_axis_to_dma.tdata),
+      .rx_tkeep_i        (rx_axis_to_dma.tkeep),
+      .rx_tvalid_i       (rx_axis_to_dma.tvalid),
+      .rx_tready_i       (rx_axis_to_dma.tready),
+      .rx_tlast_i        (rx_axis_to_dma.tlast),
+      .host_req_i        (pp_req_w),
+      .host_we_i         (pp_we_w),
+      .host_addr_i       (pp_addr_w),
+      .host_wdata_i      (pp_wdata_w),
+      .host_rdata_o      (pp_rdata_w),
+      .host_ack_o        (pp_ack_w),
+      .host_err_o        (pp_err_w),
+      .restore_busy_o    (pp_restore_busy_w),
+      .restore_done_o    (pp_restore_done_w),
+      .restore_fail_o    (pp_restore_fail_w),
+      .nvm_alarm_o       (pp_nvm_alarm_w),
+      .rx_frames_o       (pp_rx_frames_w),
+      .rx_drops_o        (pp_rx_drops_w),
+      .tx_frames_o       (pp_tx_frames_w),
+      .dbg_now_ms_o      ()
+    );
+  end else begin : g_no_pp
+    assign pp_rdata_w        = 32'd0;
+    assign pp_ack_w          = 1'b0;
+    assign pp_err_w          = 1'b0;
+    assign pp_restore_busy_w = 1'b0;
+    assign pp_restore_done_w = 1'b0;
+    assign pp_restore_fail_w = 1'b0;
+    assign pp_nvm_alarm_w    = 1'b0;
+    assign pp_rx_frames_w    = 16'd0;
+    assign pp_rx_drops_w     = 8'd0;
+    assign pp_tx_frames_w    = 16'd0;
+  end endgenerate
 
 endmodule
 

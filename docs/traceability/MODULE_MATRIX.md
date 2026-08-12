@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 90 modules · 88 with a dedicated TB · 0 exercised-only · 53 field-fuzzed · 1 archived · **0 not in any TB**
+**Totals:** 91 modules · 89 with a dedicated TB · 0 exercised-only · 53 field-fuzzed · 1 archived · **0 not in any TB**
 
 ## Coverage by spec family
 
@@ -32,15 +32,15 @@ xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
     x-axis ["milan", "ieee1722", "ieee8021as", "common", "ieee17221", "ieee8021q"]
     y-axis "modules" 0 --> 36
-    bar [2, 35, 5, 10, 19, 19]
-    bar [1, 34, 5, 10, 19, 19]
+    bar [3, 35, 5, 10, 19, 19]
+    bar [2, 34, 5, 10, 19, 19]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
 
 | family | modules | ✅ dedicated TB | ➰ exercised only | 🔬 field-fuzzed | 🗄️ archived | ⚪ untested |
 |---|---|---|---|---|---|---|
-| Milan integration | 2 | 1 | 0 | 0 | 1 | 0 |
+| Milan integration | 3 | 2 | 0 | 0 | 1 | 0 |
 | IEEE 1722 (AVTP) | 35 | 34 | 0 | 30 | 0 | 0 |
 | IEEE 802.1AS | 5 | 5 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
@@ -60,8 +60,8 @@ _ADP / ACMP / AECP-AEM-MVU_
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_acmp_listener` | `ieee17221/acmp/KL_acmp_listener.sv` | `acmp_lstn` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make acmp` | — |
-| ✅ `KL_acmp_lstn_ctx` | `ieee17221/acmp/KL_acmp_lstn_ctx.sv` | `acmp_lstn` · `csr` · `hostplane` · `milan_dp` · `persist` · `tsn_fuzz` · 🔬`make acmp` | 5.5.1.4, 5.5.2.6, M-ACMP-9 |
+| ✅ `KL_acmp_listener` | `ieee17221/acmp/KL_acmp_listener.sv` | `acmp_lstn` · `hostplane` · `milan_dp` · `pp_shadow` · `tsn_fuzz` · 🔬`make acmp` | — |
+| ✅ `KL_acmp_lstn_ctx` | `ieee17221/acmp/KL_acmp_lstn_ctx.sv` | `acmp_lstn` · `csr` · `hostplane` · `milan_dp` · `persist` · `tsn_fuzz` · ➰pp_shadow · 🔬`make acmp` | 5.5.1.4, 5.5.2.6, M-ACMP-9 |
 | ✅ `KL_acmp_responder` | `ieee17221/acmp/KL_acmp_responder.sv` | `acmp` · `hostplane` · `milan_dp` · 🔬`make acmp` | — |
 | ✅ `KL_acmp_tlkr_ctx` | `ieee17221/acmp/KL_acmp_tlkr_ctx.sv` | `acmp` · `hostplane` · `milan_dp` · 🔬`make acmp` | — |
 | 📦 `acmp_pkg` | `ieee17221/acmp/acmp_pkg.sv` | 🔬`make acmp` | — |
@@ -189,6 +189,7 @@ _datapath + top wrappers_
 
 | module | file | test | clauses |
 |---|---|---|---|
+| ✅ `KL_pp_shadow` | `milan/KL_pp_shadow.sv` | `pp_shadow` · ➰hostplane,milan_dp | — |
 | ✅ `milan_datapath` | `milan/milan_datapath.sv` | `hostplane` · `milan_dp` | 35.2.2, 35.2.4.3, 35.2.7, 4.4.4.3 |
 | 🗄️ `milan_top` | `milan/milan_top.sv` | 🗄️ archived | — |
 

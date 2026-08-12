@@ -236,5 +236,15 @@ run: $(GEN_ALL)
 	@echo "---- the same shape at the TRUE clk_audio ratio (391/1591) ----"
 	./obj_aclk/Vmilan_dp_aclk
 
+# The datapath source list, for suites that must elaborate the SAME gateware
+# under a different parameter set (tb/verilator/pp_shadow). Exporting it beats
+# copying it: a second hand-maintained list is a list that drifts, and the one
+# thing every leg here depends on is that SRCS is the list that elaborates.
+# Paths are relative to a tb/verilator/<suite>/ directory, which every consumer
+# of this target also is.
+.PHONY: print-srcs
+print-srcs:
+	@echo $(SRCS)
+
 clean:
 	rm -rf obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_txg obj_ax1x1 obj_aclk
