@@ -34,9 +34,8 @@ Makefile's flags: as a plain warning the processor's ADP/ACMP engines compile
 against *the consumer's* constants and nothing says a word. That is silent
 wrong code, not a build failure.
 
-**The fix belongs in the protocol-processor repository** (its own
-`protocol-processor/hdl/README.md` makes interface stability its
-responsibility): rename `adp_pkg` →
+**The fix belongs in the protocol-processor repository**, whose own HDL README
+makes interface stability its responsibility: rename `adp_pkg` →
 `pp_adp_pkg` and `acmp_pkg` → `pp_acmp_pkg`, consistent with the `pp_pkg` /
 `KL_pp_*` naming it already uses everywhere else. Only these two collide —
 `pp_pkg`, `srp_pkg` and `ucpu_pkg` are already unique. When it lands and the
