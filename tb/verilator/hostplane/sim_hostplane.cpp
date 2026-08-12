@@ -308,7 +308,7 @@ int main(int argc, char** argv) {
     // ---- [S] silicon-flavored bring-up over the CSR plane ----
     printf("[S] bring-up: identity + station MAC + PTP + TCAM shield + binds\n");
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION major 1", axi_read(A_VERSION) >> 16, 1);
+    ck("VERSION major 2", axi_read(A_VERSION) >> 16, 2);
     // station MAC exactly as kl-eth programs it (LSB-first packing)
     axi_write(A_MAC_ALO, 0x00000002);
     axi_write(A_MAC_AHI, 0x00000100);
