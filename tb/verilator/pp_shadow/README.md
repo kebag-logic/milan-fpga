@@ -8,40 +8,26 @@ not even name the processor — so the two together are the parity contract:
 
 `make` — exit 0 = PASS.
 
-## BLOCKED (2026-08-12): duplicate package names
+## The package collision that used to block this suite — RESOLVED
 
-This suite **cannot build today**, and the Makefile refuses to pretend
-otherwise: a preflight compares the package names in the two repositories and,
-on a collision, prints a `[SKIP]` naming the blocker and exits 0 rather than
-producing a build that is quietly wrong.
+This suite once could not build at all: the protocol-processor declared
+`package adp_pkg` / `package acmp_pkg` and `module KL_acmp_listener`, and this
+repository declares its own with those exact names and different contents.
+SystemVerilog packages and modules share one global namespace per compilation
+unit, so the two could not coexist.
 
-The protocol-processor declares `package adp_pkg` (`hdl/adp/adp_pkg.sv`) and
-`package acmp_pkg` (`hdl/acmp/acmp_pkg.sv`). This repository declares its own
-packages with **those exact names and different contents**
-(`hdl/ieee17221/adp/adp_pkg.sv`, `hdl/ieee17221/acmp/acmp_pkg.sv`).
-SystemVerilog packages share one global namespace per compilation unit, so the
-two cannot coexist.
+The trap worth remembering is how QUIETLY it failed. Verilator rates a
+duplicate as `MODDUP`, a *warning* — and under the `-Wno-fatal` that every
+other suite in this tree carries it **exits 0 and silently keeps the FIRST
+declaration**, compiling the processor's engines against the consumer's
+constants with no error anywhere. It is only visible because this suite carries
+no `-Wno-*` at all (a USER RULE; warnings are fatal by default in Verilator, so
+removing every suppression IS the `-Werror` build).
 
-Verified with Verilator 5.050:
+Fixed at the source, not waived: the processor namespaced its copies to
+`pp_adp_pkg`, `pp_acmp_pkg` and `KL_pp_acmp_listener`.
 
-| Flags | Result |
-|---|---|
-| strict | `%Warning-MODDUP: Duplicate declaration of package: 'adp_pkg'` → exit 1 |
-| `-Wno-fatal` (what **every** suite here uses, incl. `milan_dp`) | **exit 0**, silently keeps the FIRST declaration |
-
-The second row is the dangerous one and the reason `-Werror-MODDUP` is in this
-Makefile's flags: as a plain warning the processor's ADP/ACMP engines compile
-against *the consumer's* constants and nothing says a word. That is silent
-wrong code, not a build failure.
-
-**The fix belongs in the protocol-processor repository**, whose own HDL README
-makes interface stability its responsibility: rename `adp_pkg` →
-`pp_adp_pkg` and `acmp_pkg` → `pp_acmp_pkg`, consistent with the `pp_pkg` /
-`KL_pp_*` naming it already uses everywhere else. Only these two collide —
-`pp_pkg`, `srp_pkg` and `ucpu_pkg` are already unique. When it lands and the
-submodule pin moves, this suite starts running with no change here.
-
-## What it proves (once unblocked)
+## What it proves
 
 | # | Check group | What it establishes |
 |---|---|---|
