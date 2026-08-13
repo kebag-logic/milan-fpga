@@ -1736,7 +1736,15 @@ audio-unit directive define the next fabric round:
    it validates: the milan_datapath wire-channel guard passes (per talker, 4
    pair slots needed vs the TDM8+I2S blend's 5), the class-A budget lands at
    **71.94 %** of the 100 Mb/s port against the 75 % ceiling, the AEM grows to
-   64 AUDIO_CLUSTERs / 100 descriptors / 9,353 ROM bytes, and
+   64 AUDIO_CLUSTERs / 100 descriptors / 9,417 ROM bytes (9,353 until
+   2026-08-13, when two descriptors left the 1722.1-**2013** layouts they had
+   been emitted in: the ten STREAM_INPUT/OUTPUT descriptors each grew the 6
+   octets IEEE 1722.1-2021 7.2.6 Table 7-8 adds ahead of the formats array —
+   `redundant_offset`, `number_of_redundant_streams`, `timing` — for +60, and
+   the AVB_INTERFACE grew the 4 octets 7.2.8 Table 7-13 adds after
+   `port_number` — `number_of_controls`, `base_control`, both zero because
+   Milan v1.2 5.3.2 parents the one "IDENTIFY" CONTROL on the CONFIGURATION —
+   for +4), and
    `check_sweep_shape.py` refuses (exit 1) any launch that points `SWEEP_CFG`
    at it while the OPTS still say `--talker-wire-chans 4`.
    The premise of this item — "TSpec self-derives `24 + 24*C`" — was FALSE and

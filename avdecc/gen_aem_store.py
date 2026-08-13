@@ -259,12 +259,37 @@ def d_stream(dtype, index, name, flags, formats, buffer_len=0):
     b += be16(0)                        # clock_domain_index
     b += be16(flags)                    # stream_flags
     b += be64(formats[0])               # current_format (SET_STREAM_FORMAT)
-    b += be16(132)                      # formats_offset (fixed)
+    #! CONSTRAINT (1722.1-2021 7.2.6 Table 7-8): formats_offset is 138 and the
+    #! descriptor is 138 + 8*N + 2*R octets.  1722.1-2013 ended this descriptor
+    #! at buffer_length (formats at 132); 2021 appends redundant_offset (132),
+    #! number_of_redundant_streams (134) and timing (136) BEFORE the formats
+    #! array, and Milan v1.2 5.3.3.4 binds these descriptors to "[ATDECC,
+    #! Clause 7.2.6]" with [ATDECC] = IEEE Std 1722.1-2021 (Milan v1.2 clause
+    #! 2, References).  Emitting the 2013 layout hands a 2021 controller the
+    #! first two octets of formats[0] as `timing`.
+    #! Milan v1.2 Annex C Table C.1 shows a THIRD layout (formats at 136, no
+    #! timing field) - it is the pre-2021 Avnu redundancy extension, is
+    #! optional here ("A PAAD-AE MAY use the extension ... and SHALL use it
+    #! for the Streams that are part of the redundant pair", 5.3.3.4), and
+    #! this entity declares no redundant pair, so 7.2.6 governs unmodified.
+    b += be16(138)                      # formats_offset (fixed)
     b += be16(len(formats))
     b += (be64(0) + be16(0)) * 4        # backup talkers 0..2 + backedup
     b += be16(0)                        # avb_interface_index
     b += be32(buffer_len)               # buffer_length
-    assert len(b) == 132
+    #! R = 0: no redundant association is declared, so redundant_offset points
+    #! at the empty array just past the formats (Table 7-8: "138 + 8*N").
+    b += be16(138 + 8 * len(formats))   # redundant_offset
+    b += be16(0)                        # number_of_redundant_streams (R)
+    #! timing = 0 is only readable because TIMING_FIELD_VALID (Table 7-9 bit 2,
+    #! mask 0x2000 - the table numbers bits MSB-first) is CLEAR in every
+    #! stream_flags word this model emits: there is no TIMING descriptor in
+    #! this entity, so there is no index to name.
+    assert not (flags & 0x2000), (
+        f"stream_flags 0x{flags:04X} sets TIMING_FIELD_VALID (7.2.6.1) but "
+        "this model defines no TIMING descriptor for `timing` to reference")
+    b += be16(0)                        # timing
+    assert len(b) == 138
     for f in formats:
         b += be64(f)
     return b
@@ -294,7 +319,63 @@ def d_avb_interface(gp=None):
                 int(gp.get("log_announce_interval", 0)) & 0xFF,
                 int(gp.get("log_pdelay_interval", 0)) & 0xFF])
     b += be16(0)                        # port_number
-    assert len(b) == 98
+    #! CONSTRAINT (1722.1-2021 §7.2.8 Table 7-13): the descriptor is 102
+    #! octets and ends at base_control (offset 100).  1722.1-**2013** ended it
+    #! at port_number, and this generator asserted 98 - the 2013 length - until
+    #! 2026-08-13.  2021 appends number_of_controls (98) and base_control (100),
+    #! and Milan v1.2 5.3.3.5 binds this descriptor to "[ATDECC, Clause 7.2.8]"
+    #! with [ATDECC] = IEEE Std 1722.1-2021 (Milan v1.2 clause 2, References),
+    #! so 98 was a compliance defect and not a choice.  A 2021 controller
+    #! reading a 98-octet AVB_INTERFACE takes its number_of_controls from
+    #! whatever the store holds past the descriptor's end.
+    #!
+    #! number_of_controls = 0 / base_control = 0: THE INTERFACE OWNS NO
+    #! CONTROL, and that is a claim about THIS entity, not a placeholder.  The
+    #! model defines exactly one CONTROL descriptor - the IDENTIFY at index 0
+    #! (d_control_identify) - and it is the CONFIGURATION's child, not this
+    #! interface's:
+    #!   * Milan v1.2 5.3.2 lists "IDENTIFY" CONTROL (0..*) as a direct child
+    #!     of CONFIGURATION, a sibling of AVB_INTERFACE, and then forbids the
+    #!     other reading outright: "A descriptor from one subtree shall not be
+    #!     contained in another subtree.  In other words, each of the
+    #!     descriptors above ... shall have one, and only one, parent
+    #!     descriptor."  Milan v1.2 Annex C's worked model draws the same edge
+    #!     (CONTROL.0 / IDENTIFY hanging off CONFIGURATION.0).
+    #!   * d_configuration already claims it: CONTROL is one of the top-level
+    #!     types 1722.1-2021 7.2.2 enumerates for descriptor_counts, and the
+    #!     counts list carries (CONTROL, 1).  Declaring number_of_controls = 1
+    #!     here would give that one descriptor two parents - a defect of its
+    #!     own, and one no controller could resolve, since base_control would
+    #!     name index 0 in the same index space the configuration counts.
+    #!   * 7.2.22 agrees from the CONTROL's own side: "If a control does not
+    #!     act on a signal, for example an IDENTIFY control, then the
+    #!     signal_type and signal_index is set to INVALID and zero" - which is
+    #!     what d_control_identify writes.  The IDENTIFY acts on the PAAD, not
+    #!     on this interface's signal.
+    #! base_control = 0 with a zero count is this file's standing convention
+    #! for an empty base index (d_audio_unit's controls, d_stream_port's), and
+    #! 7.2.3's base-index rule only defines it "with consecutively increasing
+    #! indicies" for descriptors the parent actually has - with none, it names
+    #! nothing and the count is what a controller reads first.
+    #!
+    #! WHAT THIS COSTS, said rather than buried: the four new octets move
+    #! EVERY shape's AVB_INTERFACE bytes, including the pre-gptp-section shapes
+    #! whose bytes the docstring above pins.  That warning is about the gPTP
+    #! FIELD VALUES and it still holds; the length is a separate obligation and
+    #! it wins, because 1722.1-2021 6.2.2.8 makes this a model-structure change
+    #! ("The structure of an ATDECC Entity model is considered changed if any
+    #! descriptor fields in the ATDECC Entity are different excluding the
+    #! following fields" - no field added here is on that list) and therefore
+    #! "shall use a new unique entity_model_id".  The id is hashed from the
+    #! CONFIG shape (endstation_builder.model_shape), never from these bytes,
+    #! so nothing rotates it automatically: the shapes carrying a hash-derived
+    #! id and endstation_arty_current's pinned 0x001BC50AC1000001 need the
+    #! rotation done at the config tier.  Shipping the 2013 length to keep a
+    #! stale id would be trading a cache miss for a wire defect.
+    b += be16(0)                        # number_of_controls (7.2.8: "within
+                                        # this interface" - see above: none)
+    b += be16(0)                        # base_control (no controls to index)
+    assert len(b) == 102
     return b
 
 def d_clock_source(index, name, cs_type, loc_type, loc_index):

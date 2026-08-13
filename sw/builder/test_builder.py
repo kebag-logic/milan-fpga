@@ -210,7 +210,13 @@ FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
               # core) - flow, not design
               "--xlen": 1}
 
-DEPLOYED_MODEL_ID = "0x001BC50AC1000001"     # flashed silicon identity
+# Flashed silicon identity. Moved ...0001 -> ...0002 on 2026-08-13 with the
+# descriptor byte layout (1722.1-2013 -> -2021; see AEM_LAYOUT_REV). 6.2.2.8
+# obliges a changed model to take a new id, so this constant tracking the pin
+# is the gate working, not the gate being relaxed - what it proves is that the
+# PIN still wins over the hash, and the assertion below that hash != pin is
+# what would catch the two being silently reconciled.
+DEPLOYED_MODEL_ID = "0x001BC50AC1000002"
 
 #: The flashed image's boot script - the ONE piece of board software that
 #: programs the entity identity into the ADP/AEM CSRs. It lives in the sibling
@@ -1085,12 +1091,23 @@ def test_gen_aem_store_crf_output_overlay():
         f"expected STREAM_OUTPUT 0..4, got {outs}"
     crf = outs[4]
     b = crf["base"]
-    assert crf["len"] == 132 + 8                  # header + ONE format entry
+    # 1722.1-2021 7.2.6 Table 7-8: the descriptor is 138 + 8*N + 2*R octets.
+    # It was 132 + 8*N until 2026-08-13 - the 2013 layout, which omits
+    # redundant_offset/number_of_redundant_streams/timing and so serves a 2021
+    # controller the first two octets of formats[0] as `timing`.
+    assert crf["len"] == 138 + 8                  # header + ONE format entry
     assert rom[b + 4:b + 7] == b"CRF"             # object_name
     assert rom[b + 70:b + 72] == b"\x00\x00"      # clock_domain_index 0 (7.2.6)
     assert rom[b + 72:b + 74] == b"\x00\x03"      # CLOCK_SYNC_SOURCE|CLASS_A
+    # ...and TIMING_FIELD_VALID (Table 7-9 bit 2, mask 0x2000) stays CLEAR:
+    # this entity has no TIMING descriptor, so `timing` names nothing.
+    assert not int.from_bytes(rom[b + 72:b + 74], "big") & 0x2000
     assert rom[b + 74:b + 82].hex().upper() == CRF_FMT[2:]   # current_format
-    assert rom[b + 132:b + 140].hex().upper() == CRF_FMT[2:]  # formats[0]
+    assert rom[b + 82:b + 84] == b"\x00\x8a"      # formats_offset == 138
+    assert rom[b + 132:b + 134] == b"\x00\x92"    # redundant_offset 138+8*1
+    assert rom[b + 134:b + 136] == b"\x00\x00"    # R = 0 (no redundant pair)
+    assert rom[b + 136:b + 138] == b"\x00\x00"    # timing (TIMING_FIELD clear)
+    assert rom[b + 138:b + 146].hex().upper() == CRF_FMT[2:]  # formats[0]
     b0 = outs[0]["base"]
     assert rom[b0 + 72:b0 + 74] == b"\x00\x02"    # AAF outputs keep CLASS_A
     # CONFIGURATION descriptor_counts advertise the 5 outputs; the CRF one
@@ -1104,6 +1121,26 @@ def test_gen_aem_store_crf_output_overlay():
             int.from_bytes(rom[o + 2:o + 4], "big")
     assert pairs[0x0006] == 5, f"CONFIGURATION counts: {pairs}"
     assert sum(1 for d in dirv if d["type"] == 0x000F) == 4
+    # 1722.1-2021 7.2.8 Table 7-13: the AVB_INTERFACE descriptor is 102 octets
+    # and ends at base_control (100). It was 98 - the 2013 layout, ending at
+    # port_number - until 2026-08-13, which let a 2021 controller read
+    # number_of_controls out of whatever the store held past the descriptor.
+    avb = next(d for d in dirv if d["type"] == 0x0009)
+    a = avb["base"]
+    assert avb["len"] == 102, f"AVB_INTERFACE is {avb['len']} B, 7.2.8 says 102"
+    assert rom[a + 76:a + 78] == b"\x00\x07"      # GPTP_GM|GPTP|SRP (Milan
+                                                  # 5.3.3.5 mandates the last 2)
+    assert rom[a + 96:a + 98] == b"\x00\x00"      # port_number (unchanged)
+    # THE ONE CONTROL HAS ONE PARENT, and this is the assertion that says so.
+    # Milan v1.2 5.3.2 parents the "IDENTIFY" CONTROL on the CONFIGURATION -
+    # "each of the descriptors above ... shall have one, and only one, parent
+    # descriptor" - and the CONFIGURATION descriptor_counts below carry it.
+    # An interface claiming number_of_controls = 1 would hand that same
+    # descriptor a second parent, which no controller could resolve.
+    assert pairs[0x001A] == 1, f"CONFIGURATION counts no CONTROL: {pairs}"
+    assert rom[a + 98:a + 100] == b"\x00\x00", \
+        "AVB_INTERFACE claims a CONTROL the CONFIGURATION already parents"
+    assert rom[a + 100:a + 102] == b"\x00\x00"    # base_control: none to index
     print(f"  [gate 16] gen_aem_store --overlay (4x4 + CRF output): ROM "
           f"{len(rom)} B structurally valid; STREAM_OUTPUT[4] = CRF "
           f"(domain 0, flags 0x0003, {CRF_FMT}), CONFIGURATION count 5, "
@@ -3906,9 +3943,14 @@ def test_d10_cluster_names():
             base["model_id"]["hash"], "a pool WIDTH left the model id frozen"
     finally:
         os.unlink(p)
-    # ... and every config that predates D8 must hash EXACTLY as before
+    # ... and every config that predates D8 must hash EXACTLY as before, up to
+    # the ONE input that is deliberately allowed to move every id at once:
+    # 0x001BC5AB73EC9D1D -> 0x001BC53442950FCB when AEM_LAYOUT_REV went 1 -> 2
+    # (the descriptor byte layout, 1722.1-2013 -> -2021). That is the 6.2.2.8
+    # obligation being discharged, not a D8-era regression - which is why the
+    # D8 conditional keys above stayed conditional and this key did not.
     assert eb.load_config(CONFIGS["arty_current"])["model_id"]["hash"] == \
-        "0x001BC5AB73EC9D1D"
+        "0x001BC53442950FCB"
     # arty_4x4's hash has now moved THREE times, correctly every time:
     # 0x001BC565E07E0DD6 -> 0x001BC5C42E0CEE8B when the per-board routing
     # gate forced tdm8 -> i2s_philips (no header existed), ->
@@ -3916,12 +3958,15 @@ def test_d10_cluster_names():
     # shape went back to tdm8 (now with 4-cluster talkers, the emitted
     # width), and -> 0x001BC5A10610BAB8 when roadmap 23 put every listener
     # on map_mode dynamic, which DROPS four AUDIO_MAP descriptors and sets
-    # number_of_maps=0 on four STREAM_PORT_INPUTs. `interface.kind` and the
-    # descriptor set both ARE model-shaping, so a shape change SHOULD move a
+    # number_of_maps=0 on four STREAM_PORT_INPUTs, and a FOURTH time ->
+    # 0x001BC5CB74696C1C when AEM_LAYOUT_REV went 1 -> 2 (descriptor byte
+    # layout, 1722.1-2013 -> -2021). `interface.kind`, the descriptor set and
+    # the byte layout are all model-shaping, so a shape change SHOULD move a
     # hash-derived id - that is the mechanism working. What must NOT move is
-    # arty_current's PINNED id above (it stays static), and it has not.
+    # arty_current's PINNED id above, and it has not: it was re-pinned by hand
+    # with the reflash, which is the only way a pin is allowed to move.
     assert eb.load_config(CONFIGS["arty_4x4"])["model_id"]["hash"] == \
-        "0x001BC5A10610BAB8"
+        "0x001BC5CB74696C1C"
     print("  [gate 24c] every cluster named for its ROLE; renaming leaves "
           "entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a "
           "pool width moves it; the two pre-D8 shapes hash unchanged")

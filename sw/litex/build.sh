@@ -230,9 +230,13 @@ done
 # Until 2026-07-27 nothing checked WHICH config: the tree carried the 1x1 shape
 # and every build, 8x8 included, compiled it in - so the 8x8 board advertised 1
 # talker source. Refuse to launch if the tree is another shape's.
-# (The AEM descriptor ROM used to be the second half of this gate. It is gone:
-#  with the AECP/AEM engine deleted no descriptor set is served, so there is no
-#  ROM in the gateware to be the wrong shape.)
+# (The AEM descriptor ROM used to be the second half of this gate, and briefly
+#  had no successor: the deleted AECP/AEM engine took the in-gateware ROM with
+#  it. The descriptors are back, in DRAM - milan_soc.py builds the image for
+#  THIS config from the same out/ directory and writes it beside the bitstream,
+#  refusing to launch Vivado if the model is missing or unbuildable. So the
+#  shape check below still covers only the `svh`; the descriptors now police
+#  themselves, per build, and cannot be another config's.)
 ENTITY_CFG_ax8x8="configs/endstation_ax7101_8x8.yaml"
 ENTITY_CFG_arty="configs/endstation_arty_current.yaml"
 for c in "${CONFIGS[@]}"; do

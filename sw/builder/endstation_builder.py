@@ -505,6 +505,23 @@ MILAN_CSR_BASE = 0x9000_0000     #: AXI-Lite Milan CSR window (milan_soc.py)
 MILAN_CSR_BYTES = 0x1_0000
 EV_BANK_BASE = 0xF0002800        #: EventManager (kl-eth MILAN_EV_PHYS)
 
+#: Revision of the AEM descriptor BYTE LAYOUT, an input to every hash-derived
+#: entity_model_id (see model_shape). 1 was the IEEE 1722.1-2013 layout this
+#: project shipped until 2026-08-13; 2 is 1722.1-2021, which Milan v1.2 clause
+#: 2 is what normatively binds: STREAM_INPUT/OUTPUT gained redundant_offset,
+#: number_of_redundant_streams and timing (formats_offset 132 -> 138, §7.2.6
+#: Table 7-8) and AVB_INTERFACE gained number_of_controls and base_control
+#: (98 -> 102 octets, §7.2.8 Table 7-13).
+AEM_LAYOUT_REV = 2
+
+#: DRAM the protocol processor owns: the AEM descriptor image it serves
+#: READ_DESCRIPTOR from, plus the AECP response buffer it writes. Sized for
+#: headroom rather than fit - the largest entity model this project builds is
+#: 23,216 bytes at the 8x8 shape, and DRAM is the resource this design has to
+#: spare (the die does not: the response buffer held as fabric flops was
+#: 5,079 FF and it was those flops that failed placement).
+PP_MEM_BYTES = 0x10_0000
+
 #: phy-mode DT string per board.constraints.phy
 DT_PHY_MODE = {"mii-100": "mii", "gmii-1g": "gmii"}
 
@@ -2444,6 +2461,20 @@ def load_platform(raw, cons, target, listeners):
             f"0x{p['pcm_ring_stride']:X} overruns the reserved PCM ring "
             f"(0x{p['pcm_ring_bytes']:X}) - snd-kl-milan would DMA past the "
             "no-map region")
+    # THE PROTOCOL PROCESSOR'S DRAM WINDOW, immediately below the PCM ring.
+    # Both regions are reserved `no-map` and both are DERIVED from the one
+    # address the config states, so a board cannot end up with a gateware that
+    # reads one place and a kernel that protects another. That is not a
+    # hypothetical: the base used to be computed independently in
+    # sw/litex/milan_soc.py as "top of main_ram", which at the 1x1 shape landed
+    # in kernel RAM and at the 8x8 shape landed INSIDE this ring.
+    p["pp_mem_bytes"] = PP_MEM_BYTES
+    p["pp_mem_phys"] = p["pcm_ring_phys"] - PP_MEM_BYTES
+    if p["pp_mem_phys"] <= 0:
+        raise ConfigError(
+            f"platform.pcm_ring_phys 0x{p['pcm_ring_phys']:X} leaves no room "
+            f"below it for the protocol processor's 0x{PP_MEM_BYTES:X}-byte "
+            "window")
     phy = DT_PHY_MODE.get(cons["phy"])
     if phy is None:
         raise ConfigError(f"platform: no DT phy-mode for board phy "
@@ -2534,6 +2565,12 @@ def emit_platform_shape(cfg):
                     ring_phys=f"0x{p['pcm_ring_phys']:08X}",
                     ring_bytes=f"0x{p['pcm_ring_bytes']:X}",
                     ring_stride=f"0x{p['pcm_ring_stride']:X}"),
+        # The window sw/litex/milan_soc.py compiles into the gateware as
+        # PP_DESC_BASE_P / PP_RESP_BASE_P. Published here so the SoC READS it
+        # rather than deriving it a second way - the device tree above reserves
+        # exactly these bytes, and the two must be the same bytes.
+        "pp_mem": dict(phys=f"0x{p['pp_mem_phys']:08X}",
+                       bytes=f"0x{p['pp_mem_bytes']:X}"),
         "boot_chain_pin": ({k: f"0x{int(v):08X}"
                             for k, v in p["boot_chain_pin"].items()}
                            if p["boot_chain_pin"] else None),
@@ -2570,6 +2607,18 @@ def emit_dt_overlay(cfg):
     a("")
     a(f"\t\tpcmring: pcmring@{p['pcm_ring_phys']:x} {{")
     a(f"\t\t\treg = <0x{p['pcm_ring_phys']:x} 0x{p['pcm_ring_bytes']:x}>;")
+    a("\t\t\tno-map;")
+    a("\t\t};")
+    a("")
+    # The protocol processor's descriptor store READS the entity model from
+    # here and its AECP response buffer WRITES here, both at bases compiled
+    # into the bitstream. Unreserved, this is ordinary kernel RAM and those
+    # writes land on whatever the allocator handed out - silently, because no
+    # counter on either side reports it. `no-map` additionally keeps the region
+    # out of the kernel's linear map, which is what lets the loader reach it
+    # through /dev/mem on a CONFIG_STRICT_DEVMEM kernel.
+    a(f"\t\tppmem: ppmem@{p['pp_mem_phys']:x} {{")
+    a(f"\t\t\treg = <0x{p['pp_mem_phys']:x} 0x{p['pp_mem_bytes']:x}>;")
     a("\t\t\tno-map;")
     a("\t\t};")
     a("\t};")
@@ -2625,6 +2674,21 @@ def model_shape(cfg):
     every hash-derived id - extend deliberately."""
     i, clk = cfg["interface"], cfg["clocking"]
     shape = {
+        # 1722.1-2021 6.2.2.8: the model is "changed" if ANY descriptor field
+        # differs, excluding a short list this is not on - and a changed model
+        # "shall use a new unique entity_model_id". Controllers cache the model
+        # BY this id, so shipping moved fields under an unchanged id serves
+        # every controller that has ever met this device a stale layout from
+        # its own cache: an entity that enumerates wrongly and cannot be
+        # cleared from the device side.
+        #
+        # UNCONDITIONAL, unlike the shape keys below it. Those are conditional
+        # precisely so existing ids do NOT move; this one exists to move them,
+        # and it must move every id at once because the layout change was not
+        # optional per config. Bump it whenever the descriptor BYTE LAYOUT
+        # changes - not when a field's value changes, which the rest of the
+        # shape already covers.
+        "aem_layout": AEM_LAYOUT_REV,
         "cluster_policy": i["cluster_policy"],
         "interface": {"kind": i["kind"], "channels": i["channels"],
                       "word_length_bits": i["word_length_bits"]},

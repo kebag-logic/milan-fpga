@@ -22,12 +22,20 @@ entity:
                                      # JSON, top 8 bytes folded under the
                                      # 00-1B-C5 OUI prefix - exact recipe in
                                      # sw/builder/README-parameters.md)
-  model_id_pin: "0x001BC50AC1000001" # PINNED: the CURRENTLY DEPLOYED model
+  model_id_pin: "0x001BC50AC1000002" # PINNED: the CURRENTLY DEPLOYED model
                                      # id - already-flashed silicon must not
                                      # change identity when the hash recipe
                                      # or shape serialization evolves.
                                      # Remove the pin only with a model-
                                      # changing reflash.
+                                     # ...0001 -> ...0002 on 2026-08-13: the
+                                     # descriptor byte layout moved from
+                                     # 1722.1-2013 to -2021 (see
+                                     # AEM_LAYOUT_REV). 6.2.2.8 requires a new
+                                     # id for a changed model, and a pin that
+                                     # outlives the change is exactly the
+                                     # stale-controller-cache bug the pin is
+                                     # otherwise there to prevent.
   entity_id: mac-derived             # EUI-64 from station MAC (MAC48->FF-FE)
   vendor_name: "Kebag Logic"
   # NO firmware_version KEY - it is DERIVED, not declared. The version lives

@@ -5550,32 +5550,70 @@ class MilanSoC(SoCCore):
             # WHERE THE ENTITY MODEL LIVES. The processor's descriptor store
             # fetches the AEM image from main memory at a COMPILE-TIME base -
             # its design holds no base register, so software cannot point it
-            # somewhere wrong at runtime. DERIVED from this SoC's own memory
-            # map, never restated as a literal: the top 1 MiB of main_ram,
-            # which the Linux DT reserves. Software loads the image there
-            # before enabling the entity; an unloaded (zeroed) region is
-            # caught by the image header's magic/version/checksum, so it reads
-            # as "not loaded" rather than as a valid empty model.
+            # somewhere wrong at runtime. Software loads the image there before
+            # enabling the entity; an unloaded (zeroed) region is caught by the
+            # image header's magic/version/checksum, so it reads as "not
+            # loaded" rather than as a valid empty model.
+            #
+            # THE BASE COMES FROM THE END-STATION CONFIG, NOT FROM THIS SoC.
+            # Deriving it here as "top of main_ram" is what the previous
+            # revision did, and it was WRONG in both directions: the only
+            # region the Linux DT reserves is the PCM ring, which this build
+            # places at 0x7F800000, so the top megabyte of a 1x1 board is
+            # ordinary kernel RAM - and the response buffer WRITES there. At
+            # the 8x8 shape the ring is 8 MiB and swallows the top megabyte
+            # outright, so the two would have shared it. A base that the DT
+            # does not reserve is silent corruption: no counter reports it and
+            # the entity still answers.
+            #
+            # So the window is READ from the config's platform shape - the same
+            # value that generated the `ppmem` no-map reservation in the device
+            # tree the kernel honours - and only CHECKED here.
             _ram = self.bus.regions["main_ram"]
-            _PP_WINDOW = 0x0010_0000          # the reserved top-of-DRAM window
-            _desc_base = _ram.origin + _ram.size - _PP_WINDOW
+            _shape = _platform_shape(entity_gen_dir)
+            _desc_base  = int(_shape["pp_mem"]["phys"], 16)
+            _PP_WINDOW  = int(_shape["pp_mem"]["bytes"], 16)
+            _ring_phys  = int(_shape["pcm"]["ring_phys"], 16)
+            _ring_bytes = int(_shape["pcm"]["ring_bytes"], 16)
+            # Refuse rather than build a bitstream that writes where it must
+            # not. Both failures are invisible on silicon: one corrupts kernel
+            # memory, the other corrupts captured audio.
+            if _desc_base < _ram.origin or (
+                    _desc_base + _PP_WINDOW) > (_ram.origin + _ram.size):
+                raise RuntimeError(
+                    f"the protocol processor's window "
+                    f"0x{_desc_base:08x}+0x{_PP_WINDOW:x} is not inside "
+                    f"main_ram 0x{_ram.origin:08x}+0x{_ram.size:x}")
+            if (_desc_base + _PP_WINDOW) > _ring_phys and (
+                    _ring_phys + _ring_bytes) > _desc_base:
+                raise RuntimeError(
+                    f"the protocol processor's window "
+                    f"0x{_desc_base:08x}+0x{_PP_WINDOW:x} overlaps the PCM "
+                    f"ring 0x{_ring_phys:08x}+0x{_ring_bytes:x}")
             # ...AND WHERE THE AECP RESPONSE BUFFER LIVES. Same reserved window,
             # same derivation from the SoC's own map, one extra rule: this
             # region is WRITTEN by the processor, so it must not overlap the
             # descriptor image. It cannot, and here is the arithmetic rather
             # than the assertion:
             #   * the image starts at `_desc_base` (the FOOT of the window) and
-            #     grows UPWARD. The largest one this project builds is 22,561
+            #     grows UPWARD. The largest one this project builds is 23,216
             #     bytes, at the 8x8 shape;
             #   * the buffer is 16 + PP_DESC_LINE_BYTES_P = 592 bytes and sits
             #     in the LAST 4 KiB of the same window, 0x100000 - 0x1000 =
             #     1,044,480 bytes above the image's first byte.
             # So the two collide only if the entity model grows past a megabyte
-            # - forty-six times the largest shape in the tree - and the window
-            # itself would overflow into unreserved DRAM first. Both bases are
-            # DERIVED from `_ram` and from ONE window constant, so moving main
-            # memory moves both together and neither can be edited alone.
-            _resp_base = _ram.origin + _ram.size - 0x1000
+            # - forty-five times the largest shape in the tree - and the window
+            # would run into the PCM ring first, which the check above refuses.
+            # Both bases are DERIVED from the ring base and ONE window constant,
+            # so moving the reserved band moves both together.
+            _resp_base = _desc_base + _PP_WINDOW - 0x1000
+            # Published for the manifest that ships with the image. The loader
+            # must not restate this address: it is compiled into the gateware,
+            # so a loader that guesses it writes the model somewhere the store
+            # will never look and the entity stays silent with no error.
+            self._pp_windows = {"desc_base": _desc_base,
+                                "resp_base": _resp_base,
+                                "window_bytes": _PP_WINDOW}
             self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
                                   desc_base=_desc_base, resp_base=_resp_base,
                                   milan_cd=milan_cd,
@@ -5844,6 +5882,81 @@ class MilanSoC(SoCCore):
 
 
 # Build --------------------------------------------------------------------------------------------
+
+#: milan-fpga's root, from THIS file's location: sw/litex/milan_soc.py -> up 3.
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
+
+
+def _builder_out(entity_gen_dir, name):
+    """A file in the end-station builder's output for this config.
+
+    The RTL include dir and the builder's output dir are two faces of ONE
+    config, named alike by endstation_builder.py.
+    """
+    if not entity_gen_dir:
+        raise RuntimeError(
+            "this build needs its end-station config: pass --entity-gen-dir "
+            "(build.sh does, for every named config)")
+    cfg = os.path.basename(os.path.normpath(entity_gen_dir))
+    path = os.path.join(REPO_ROOT, "sw", "builder", "out", cfg, name)
+    if not os.path.exists(path):
+        raise RuntimeError(
+            f"config '{cfg}' has no {name} ({path}). Run the end-station "
+            f"builder for this config first")
+    return path
+
+
+def _platform_shape(entity_gen_dir):
+    """The config's platform shape - the authority on the DRAM reservations.
+
+    Read rather than re-derived: the reserved band is declared once, in the
+    config, and generates BOTH the device tree the kernel honours and the
+    bases compiled into the gateware. A second derivation here is how the two
+    come to disagree, and a disagreement about a physical address is memory
+    corruption rather than a build error.
+    """
+    with open(_builder_out(entity_gen_dir, "platform_shape.json"),
+              encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def build_desc_image(entity_gen_dir):
+    """The AEM descriptor image this gateware's store will fetch from DRAM.
+
+    The processor serves READ_DESCRIPTOR out of main memory and holds no
+    descriptors on-die, so a bitstream WITHOUT its image is an end-station that
+    answers BAD_ARGUMENTS to every enumeration - a device that looks broken
+    rather than unprovisioned. Building the image here makes it a build
+    artifact of the gateware that will read it, written beside the bitstream,
+    instead of a step someone has to remember.
+
+    It is generated BEFORE Vivado runs. A model this build cannot express must
+    fail in seconds, not after a forty-minute place-and-route.
+
+    Returns (image bytes, layout report, overlay path).
+    """
+    # Deriving the overlay from the include dir is what stops a build
+    # compiling one shape's `svh` while shipping another shape's descriptors -
+    # the exact class of mismatch the entity-shape gate in build.sh exists to
+    # prevent.
+    overlay = _builder_out(entity_gen_dir, "aem_overlay.json")
+
+    sys.path.insert(0, os.path.join(REPO_ROOT, "avdecc"))
+    sys.path.insert(0, os.path.join(REPO_ROOT, "protocol-processor", "hdl",
+                                    "aecp", "desc"))
+    import gen_aem_store as _aem
+    import gen_desc_image as _img
+    import gen_aemi_image as _join
+
+    with open(overlay, encoding="utf-8") as fh:
+        model = _aem.build_model(_aem.spec_from_overlay(json.load(fh)))
+    # PP_DESC_LINE_BYTES_P: a descriptor longer than the store's line buffer
+    # cannot be answered, and the packer is the only place that can see it
+    # coming. Passed explicitly rather than defaulted so the two move together.
+    blob, report = _img.build(_join.model_to_document(model), 576)
+    return blob, report, overlay
+
 
 def main():
     ap = argparse.ArgumentParser(description="Milan single-core RISC-V Linux SoC")
@@ -6295,7 +6408,35 @@ def main():
     # request min(cores, 32)  -  the rest of the box is idle during a single P&R run.
     if args.vivado_max_threads:
         build_kwargs["vivado_max_threads"] = args.vivado_max_threads
+    # Fail fast, BEFORE Vivado: a model the image cannot express is a seconds-
+    # long error, not a forty-minute one.
+    _desc_blob = _desc_report = _desc_overlay = None
+    if getattr(soc, "_pp_windows", None):
+        _desc_blob, _desc_report, _desc_overlay = build_desc_image(
+            args.entity_gen_dir)
     builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
+    # Ship the entity model WITH the gateware that reads it, and record the
+    # base it was compiled for. Bitstream and image are one deliverable: a
+    # board flashed with one and loaded with the other's model enumerates the
+    # wrong device, which no counter reports.
+    if _desc_blob is not None:
+        _img_path = os.path.join(builder.output_dir, "aem_desc.bin")
+        with open(_img_path, "wb") as f:
+            f.write(_desc_blob)
+        _man = {
+            "desc_base": soc._pp_windows["desc_base"],
+            "resp_base": soc._pp_windows["resp_base"],
+            "window_bytes": soc._pp_windows["window_bytes"],
+            "image": "aem_desc.bin",
+            "image_bytes": len(_desc_blob),
+            "overlay": os.path.relpath(_desc_overlay, REPO_ROOT),
+        }
+        with open(os.path.join(builder.output_dir, "aem_desc.json"), "w") as f:
+            json.dump(_man, f, indent=2)
+        with open(os.path.join(builder.output_dir, "aem_desc.map"), "w") as f:
+            f.write(_desc_report)
+        print(f"[milan] entity model ({len(_desc_blob)} B) -> {_img_path} "
+              f"@ 0x{soc._pp_windows['desc_base']:08x}")
     # Persist the flash-boot layout so deploy.sh writes the exact same offsets the BIOS
     # was compiled with (single source of truth  -  see FLASHBOOT_LAYOUT / deploy.sh flash-images).
     if getattr(soc, "_flashboot_layout", None):
