@@ -793,6 +793,8 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # milan_datapath REFUSES at elaboration any width the front-end selected by
     # audio_if_slots cannot feed - that guard is what makes this a fabric fact
     # and not one more declaration.
+    # milan-fpga/ root - used by the source list AND the pp_plane ROM path
+    base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # milan-fpga/
     dp_params = dict(p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
                      p_N_STREAMS=int(num_streams),
                      p_AUDIO_IF_SLOTS_P=int(audio_if_slots))
@@ -897,7 +899,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     #  -  same file set the tb/verilator/milan_dp + syn/yosys checks use.
     # abspath: normalize a literal "./" in __file__ (e.g. `python ./milan_sim.py` on
     # 3.14 keeps it) — an un-normalized "." component silently eats one dirname level.
-    base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # milan-fpga/
+    # (base is hoisted above dp_params: the pp_plane arm needs it too)
     # Include dirs for the ``include ...`` files (ethernet_packet_pkg.sv, *.svh).
     # Vivado auto-searches source dirs; Verilator (the sim backend) needs -I.
     # PER-CONFIG entity definition (USER 2026-07-28: both boards' 3-seed
