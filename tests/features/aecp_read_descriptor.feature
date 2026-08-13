@@ -62,7 +62,11 @@ Feature: READ_DESCRIPTOR is answered again (IEEE 1722.1-2021 7.4.5)
     And the AECP response AECPDU is <aecpdu> octets
     And the AECP response is well formed against its command
 
-    Examples: the docs/architecture/07 section 3.1 tree, lengths from the shipped image
+    # The lengths are the submodule TEST VECTOR's (example_milan_8.json), not the
+    # shipping entity model's: its streams use Milan v1.2 Annex C Table C.1 on
+    # purpose, where shipping descriptors use IEEE 1722.1-2021 Table 7-8. See
+    # DescriptorImage.MILAN_8 in steps/aecp_engine_steps.py before changing a row.
+    Examples: the docs/architecture/07 section 3.1 tree, lengths from the submodule vector
       | type | len | aecpdu | descriptor    |
       | 0    | 312 | 340    | ENTITY        |
       | 1    | 98  | 126    | CONFIGURATION |

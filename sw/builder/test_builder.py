@@ -166,6 +166,7 @@ Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
 """
 
 import copy
+import json
 import os
 import re
 import shlex
@@ -313,6 +314,53 @@ def _variant(base_path, mutate):
     yaml.safe_dump(cfg, f)
     f.close()
     return f.name
+
+
+def check_stream_layout(rom, dirv, label):
+    """Every STREAM_INPUT/STREAM_OUTPUT is IEEE 1722.1-2021 Table 7-8.
+
+    THE LAYOUT THIS PROJECT SHIPS, pinned so a regression is caught here and
+    not by a controller.  Table 7-8 (1722.1-2021 7.2.6) puts `formats_offset`
+    at 82 reading 138, `redundant_offset` at 132 reading 138 + 8*N,
+    `number_of_redundant_streams` at 134, `timing` at 136 and the formats
+    array at 138, for 138 + 8*N + 2*R octets.  Milan v1.2 5.3.3.4 requires
+    exactly that: these descriptors "shall have the format specified in
+    [ATDECC, Clause 7.2.6]", and Milan v1.2 clause 2 (References) defines
+    [ATDECC] as IEEE Std 1722.1-2021.
+
+    TWO NEAR-MISS LAYOUTS THIS REFUSES.  1722.1-2013 ended the descriptor at
+    `buffer_length` with formats at 132, so a 2021 controller reads the first
+    two octets of formats[0] as `timing`.  Milan v1.2 Annex C Table C.1 puts
+    formats at 136 with no `timing` at all, shifting the whole array by two;
+    5.3.3.4 makes it a "may" for any Stream and a "shall" only "for the
+    Streams that are part of the redundant pair", and this entity declares
+    none, so it is not emitted.  (The submodule test vector
+    protocol-processor/hdl/aecp/desc/example_milan_8.json DOES carry Annex C,
+    on purpose and labelled: it never reaches this generator.)
+
+    R = 0 throughout: with no redundant association `redundant_offset` points
+    at the empty array just past the formats.
+    """
+    streams = [d for d in dirv if d["type"] in (0x0005, 0x0006)]
+    assert streams, f"{label}: no STREAM_INPUT/STREAM_OUTPUT to check"
+    for d in streams:
+        b, who = d["base"], f"{label} type 0x{d['type']:04X} index {d['index']}"
+        u16 = lambda o: int.from_bytes(rom[b + o:b + o + 2], "big")  # noqa: E731
+        n, r = u16(84), u16(134)
+        assert u16(82) == 138, f"{who}: formats_offset {u16(82)}, 7.2.6 says 138"
+        assert r == 0, f"{who}: R = {r}, this entity declares no redundant pair"
+        assert u16(132) == 138 + 8 * n, \
+            f"{who}: redundant_offset {u16(132)}, Table 7-8 says {138 + 8 * n}"
+        assert d["len"] == 138 + 8 * n + 2 * r, \
+            f"{who}: {d['len']} B, Table 7-8 says {138 + 8 * n + 2 * r} at N={n}"
+        #! `timing` names a TIMING descriptor and this model defines none, so
+        #! it reads 0 and TIMING_FIELD_VALID (Table 7-9 bit 2, mask 0x2000 -
+        #! the table numbers bits MSB-first) stays clear.  A set flag with a 0
+        #! index would point a controller at a descriptor that is not there.
+        assert u16(136) == 0, f"{who}: timing {u16(136)}, no TIMING descriptor"
+        assert not u16(72) & 0x2000, \
+            f"{who}: stream_flags 0x{u16(72):04X} sets TIMING_FIELD_VALID"
+    return len(streams)
 
 
 def check_port_layout(ovl, n_listeners, n_talkers):
@@ -870,9 +918,17 @@ def test_gen_aem_store_consumes_overlay():
             "deleted and nothing may write into it"
         assert sorted(os.listdir(td)) == ["aecp_aem_rom.svh", "aem_rom.json"], \
             f"--out-dir emitted unexpected files: {sorted(os.listdir(td))}"
+        # The DEPLOYED shape's stream descriptors, pinned to the layout Milan
+        # v1.2 5.3.3.4 requires. Byte-identity above only proves the two paths
+        # agree; it says nothing about what they agree ON, and the layout is
+        # the part a controller sees.
+        jd = json.load(open(os.path.join(td, "aem_rom.json")))
+        n_str = check_stream_layout(bytes.fromhex(jd["rom_hex"]),
+                                    jd["directory"], owner)
         print(f"  [gate 10] {owner} overlay -> gen_aem_store --overlay: "
               f"svh BYTE-IDENTICAL to the builder's own emit_aem_rom_svh "
-              f"({len(got)} B); no RTL destination touched")
+              f"({len(got)} B); no RTL destination touched; {n_str} stream "
+              "descriptors in 1722.1-2021 Table 7-8 layout")
     with tempfile.TemporaryDirectory() as td:
         # Refactor guard on the BUILTIN model (no --overlay). It is pinned to
         # arty_current's overlay, never to whatever shape the tree carries:
@@ -1152,6 +1208,12 @@ def test_gen_aem_store_crf_output_overlay():
     assert rom[a + 98:a + 100] == b"\x00\x00", \
         "AVB_INTERFACE claims a CONTROL the CONFIGURATION already parents"
     assert rom[a + 100:a + 102] == b"\x00\x00"    # base_control: none to index
+    # ...and the CRF descriptor above is not a special case: EVERY stream in
+    # this ROM is Table 7-8, at its own N.
+    n_str = check_stream_layout(rom, dirv, "arty_4x4+CRF")
+    print(f"  [gate 16] all {n_str} STREAM_INPUT/OUTPUT descriptors are "
+          "1722.1-2021 Table 7-8: formats_offset 138, redundant_offset "
+          "138+8N, R = 0, timing 0 with TIMING_FIELD_VALID clear")
     print(f"  [gate 16] gen_aem_store --overlay (4x4 + CRF output): ROM "
           f"{len(rom)} B structurally valid; STREAM_OUTPUT[4] = CRF "
           f"(domain 0, flags 0x0003, {CRF_FMT}), CONFIGURATION count 5, "

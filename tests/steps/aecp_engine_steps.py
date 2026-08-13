@@ -65,9 +65,17 @@
 #                               owner_id 0).  NOT distinguished today - see the
 #                               tagged gap scenario, which fails on purpose.
 
+import json
+import os
 import struct
+import sys
 
 from behave import given, when, then
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+#! the submodule test vector this model's descriptor LENGTHS are taken from
+DESC_VECTOR = os.path.join(ROOT, "protocol-processor", "hdl", "aecp", "desc",
+                           "example_milan_8.json")
 
 # ---------------------------------------------------------------------------
 # AECP constants (IEEE 1722.1-2021 9.2, Table 9-1, Table 9-2)
@@ -128,6 +136,48 @@ D_CLOCK_DOMAIN = 0x0024
 # the descriptor image + its index map (KL_aecp_desc_store.sv)
 # ---------------------------------------------------------------------------
 
+def _vector_lengths():
+    """`(count, length)` per (configuration, type) as the VECTOR packs it.
+
+    This is the agreement gate between the two fixtures, not the model's
+    source.  This file's contract (see the header) is to re-derive the
+    submodule's arithmetic rather than restate its outputs, so `MILAN_8`
+    below writes the sizing out longhand; calling the packer to obtain it
+    would make the model depend on the code it exists to check independently.
+    What the packer IS good for is catching drift: two fixtures modelling one
+    image and disagreeing about it is indefensible whichever layout they use,
+    so the numbers are compared and a mismatch is fatal at import.
+
+    The lengths come from `gen_desc_image.descriptor_bytes()` - the same
+    function that writes tb/desc_store's image.bin - and `_type_code()`, its
+    own type resolver, so this side of the comparison restates nothing
+    either.  Returns None when the submodule is not checked out.
+    """
+    if not os.path.exists(DESC_VECTOR):
+        return None
+    desc_dir = os.path.dirname(DESC_VECTOR)
+    if desc_dir not in sys.path:
+        sys.path.insert(0, desc_dir)
+    import gen_desc_image as gdi
+    with open(DESC_VECTOR, encoding="utf-8") as fh:
+        doc = json.load(fh)
+    out = {}
+    for d in doc["descriptors"]:
+        key = (int(d.get("configuration", 0)), gdi._type_code(d["type"]))
+        n = len(gdi.descriptor_bytes(d))
+        count, length = out.get(key, (0, n))
+        #! one (count, length) pair per type is all this model carries, so a
+        #! vector whose members differ in length would collapse here.  The
+        #! store itself does NOT have that limit (its index map splits such a
+        #! type into runs, tb/desc_store S4), so say so rather than silently
+        #! model something the RTL does not do.
+        assert length == n, (
+            "%s carries type 0x%04X at two lengths (%d and %d); this model "
+            "holds one length per type" % (DESC_VECTOR, key[1], length, n))
+        out[key] = (count + 1, n)
+    return out
+
+
 class DescriptorImage:
     """The static AEM image as the store sees it.
 
@@ -138,8 +188,25 @@ class DescriptorImage:
     store answers 0 from region 0xD and a miss from every locate.
     """
 
-    #! docs/architecture/07 section 3.1 worked example, lengths from
-    #! desc/example_milan_8.json: one configuration, one in, one out.
+    #! The docs/architecture/07 section 3.1 tree at one configuration, one in,
+    #! one out, sized the way `desc/example_milan_8.json` sizes it.  Written
+    #! longhand per this file's contract, then checked against that vector by
+    #! `_vector_lengths()` at import: the two fixtures model one image, so a
+    #! disagreement between them is fatal here rather than latent.
+    #!
+    #! NOT A DESCRIPTOR LAYOUT, AND MUST NOT BE READ AS ONE.  This model emits
+    #! no real AEM field: `descriptor_bytes()` below is a deterministic fill,
+    #! so only LENGTHS are modelled here.  The stream rows are 136 + 8*2
+    #! because the vector uses Milan v1.2 Annex C Table C.1 (`formats_offset`
+    #! 136, no `timing` field) on purpose, and that is NOT the layout this
+    #! project ships.  Shipping descriptors come out of avdecc/gen_aem_store.py
+    #! in the IEEE 1722.1-2021 Table 7-8 layout, `formats_offset` 138 and
+    #! 138 + 8*N + 2*R octets: Milan v1.2 5.3.3.4 binds this descriptor to
+    #! "[ATDECC, Clause 7.2.6]", and Milan v1.2 clause 2 (References) defines
+    #! [ATDECC] as IEEE Std 1722.1-2021.  Annex C is a "may" there and a
+    #! "shall" only "for the Streams that are part of the redundant pair",
+    #! which this entity declares none of.  The shipping 138 is pinned by
+    #! sw/builder/test_builder.py gate 16, not here.
     MILAN_8 = {
         (0, D_ENTITY): (1, 312),
         (0, D_CONFIGURATION): (1, 74 + 4 * 6),
@@ -150,6 +217,11 @@ class DescriptorImage:
         (0, D_CLOCK_SOURCE): (1, 86),
         (0, D_CLOCK_DOMAIN): (1, 76 + 2 * 1),
     }
+    _FROM_VECTOR = _vector_lengths()
+    assert _FROM_VECTOR is None or _FROM_VECTOR == MILAN_8, (
+        "MILAN_8 and %s disagree about the same image: %r vs %r.  Move both "
+        "or neither." % (DESC_VECTOR, MILAN_8, _FROM_VECTOR))
+    del _FROM_VECTOR
 
     def __init__(self, entries=None, configurations_count=1, valid=True):
         self.valid = valid
