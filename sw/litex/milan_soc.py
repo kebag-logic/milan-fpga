@@ -5155,6 +5155,250 @@ class MilanDebug(LiteXModule):
         self._snap(n, 32, name, desc)
 
 
+class _PPMemDiag(LiteXModule):
+    """Bus-level diagnosis for the protocol processor's two main-memory bridges.
+
+    WHY THIS EXISTS. On 2026-08-13 the flashed entity answered every AECP
+    command with ENTITY_MISBEHAVING because neither main-memory master
+    completed a transaction. The processor's own snapshot named the symptom
+    (descriptor-store fault 8 = FAULT_TIMEOUT, response-buffer fault 1 =
+    FAULT_WTMO, image invalid) and no register anywhere separated the two
+    causes that produce it: a bridge that NEVER ASKED the bus, and a bridge
+    that asked and was never answered. Those have nothing in common - the
+    first is a dead request path inside the fabric, the second is the bus -
+    and telling them apart from the board took a week and several wrong
+    hypotheses. `milan_aaf_pb` had `_pb_bus_err` and was diagnosable in one
+    read; these two had nothing.
+
+    THE DISCRIMINATOR, which is the whole point of the block:
+
+        issued == 0                      the bridge never asked. Look at the
+                                         processor's request face, not the bus
+        issued > acked+errored+timed_out  it asked and is UNANSWERED right now
+                                         (`stat` names which face still holds
+                                         the bus)
+        timed_out > 0                    it asked, the watchdog gave up, and
+                                         the master is poisoned until the
+                                         memory pays its debt
+
+    SATURATING at 65,535, the project convention: a wrapped counter reads as a
+    small number and lies, and 0xFFFF means "at least that many" (the same rule
+    `_pb_bus_err` and the `PBK_RAILS` rails follow). 16 bits, not 32, because
+    area is the binding constraint at 99.88% slice occupancy and a control-path
+    fault that has happened 65,535 times needs no more resolution than that.
+
+    PURE OBSERVER. Everything below is derived from signals the bridges already
+    drive; no FSM arm changed, so the counters cannot alter the behaviour they
+    are there to measure (`syn/yosys/check_tap_purity.sh`'s rule).
+    """
+
+    #: Liveness tag in `stat[31:24]`, the same 0x5B the fabric publishes in
+    #: A_PP_STAT. Without it "every counter reads 0" is ambiguous between a
+    #: bitstream built before these counters existed and a bridge nothing has
+    #: ever asked for anything, which is exactly the confusion this block is
+    #: here to end.
+    TAG_C = 0x5B
+
+    def __init__(self, faces):
+        """`faces` = [(name, wishbone, poison flag, watchdog-fire pulse), ...]."""
+        flags = []
+        for name, wb, psn, tmo_pulse in faces:
+            iss  = Signal(16)
+            ackd = Signal(16)
+            errd = Signal(16)
+            tmod = Signal(16)
+            on   = Signal()      # this master is asking the bus this cycle
+            on_q = Signal()
+            self.comb += on.eq(wb.cyc & wb.stb)
+            self.sync += on_q.eq(on)
+            # ISSUED counts the START of an access, not the cycles it is held.
+            # Both FSMs hold cyc/stb until the access ends and pass through a
+            # non-bus state (EMIT / WDONE / IDLE) before the next one, so every
+            # access is ONE contiguous run of cyc&stb and its rising edge is
+            # the request. Counting cycles instead would report one request per
+            # held cycle - a whole watchdog's worth of them for the single
+            # access that hangs, the reading this register exists to prevent.
+            #
+            # ACKED and ERRORED are gated on `on` because LiteX's
+            # Wishbone2AXILite raises `err` WITH `ack` (axi_lite_to_wishbone.py
+            # ERROR state), so the two are one event with two outcomes, and
+            # because an answer owed to an abandoned access can land while this
+            # master is asking for nothing at all.
+            #
+            # TIMED OUT is the watchdog-fire pulse, which is the ONLY thing
+            # that sets either poison flag (the `_dto == _pp_tmo` arms below
+            # are its only writers), so this counts watchdog fires and not
+            # poison state.
+            for cnt, ev in ((iss,  on & ~on_q),
+                            (ackd, on & wb.ack & ~wb.err),
+                            (errd, on & wb.ack & wb.err),
+                            (tmod, tmo_pulse)):
+                self.sync += If(ev & (cnt != 2**16 - 1), cnt.eq(cnt + 1))
+            req = CSRStatus(32, name=f"{name}_req", description=(
+                f"{name} bridge bus requests (saturating at 0xFFFF): "
+                "[31:16] accesses ISSUED (rising edge of cyc&stb, one per "
+                "access), [15:0] accesses the bus ACKED without err. "
+                "ISSUED = 0 means this bridge never asked; ISSUED > ACKED + "
+                "the two fault counts means an access is outstanding."))
+            flt = CSRStatus(32, name=f"{name}_fault", description=(
+                f"{name} bridge bus faults (saturating at 0xFFFF): "
+                "[31:16] accesses the bus answered with err (ack AND err "
+                "together, the LiteX shape), [15:0] accesses the watchdog "
+                "abandoned with no answer at all (its budget is derived per "
+                "build: see pp_mem_timeout_cycles)."))
+            setattr(self, f"{name}_req", req)
+            setattr(self, f"{name}_fault", flt)
+            self.comb += [req.status.eq(Cat(ackd, iss)),
+                          flt.status.eq(Cat(tmod, errd))]
+            # Live, not counted: what the bridge is doing AT THIS INSTANT.
+            # Two bits per face, in `faces` order: the register map publishes
+            # bit positions, so the order is ABI and the caller owns it.
+            flags += [psn, on]
+        assert len(flags) <= 24, "the live flags would run into the 0x5B tag"
+        self.stat = CSRStatus(32, description=(
+            "protocol-processor memory-bridge live state: [0] descriptor "
+            "bridge POISONED (a timed-out access is still owed an answer; the "
+            "next answer it collects is discarded), [1] descriptor bridge is "
+            "driving cyc/stb right now, [2] response bridge poisoned, [3] "
+            "response bridge driving cyc/stb, [31:24] = 0x5B liveness tag "
+            "(a build without these counters reads 0 here)."))
+        self.comb += self.stat.status.eq(Cat(*flags) | (self.TAG_C << 24))
+
+
+# Protocol-processor memory-bridge watchdog ---------------------------------------------------------
+
+#: The PROCESSOR's own no-progress watchdog on each main-memory face, in
+#: milan_clk cycles, per BEAT: `DESC_MEM_TMO_CYC_P`
+#: (protocol-processor/hdl/top/protocol_processor_top.sv:113), consumed as
+#: `MEM_TIMEOUT_CYC_P` by KL_aecp_desc_store.sv:304 and KL_aecp_resp_buf.sv:243.
+#: Mirrored here because a Python elaboration cannot read a SystemVerilog
+#: parameter; `test_pp_mem_bridge.py` reads the .sv and fails if the two drift
+#: apart, which is the only reason mirroring it is allowed at all.
+PP_PROC_MEM_TMO_CYC = 4096
+
+#: Share of the processor's budget the BRIDGE is allowed to spend before it
+#: reports. Three quarters: the cost of reporting LATE is bounded (the bus is
+#: already dead and the timeout does not release it - see below), while the cost
+#: of reporting EARLY is a wrong answer on a healthy bus, so the trade favours
+#: spending as much of the budget as the ceiling allows.
+PP_MEM_TMO_SHARE = (3, 4)
+
+
+def pp_mem_bus_worst_cycles(sys_clk_hz):
+    """Worst case, in sys cycles, from a bridge entering its bus state to `ack`.
+
+    THE COUNTER STARTS ON ENTRY TO THE BUS STATE, so it measures ARBITRATION
+    WAIT plus memory latency, not memory latency alone. The arithmetic, from the
+    LiteX arbiter and from what the other masters on `dma_bus` actually do:
+
+      * the arbiter re-arbitrates only on
+        ``rr_read_ce = ~(ar.valid | r.valid) & rd_lock.empty``
+        (litex/soc/interconnect/axi/axi_full.py:1188; the generated netlist
+        agrees, `socbushandler1_rr_read_ce`). `r.valid` there is the SLAVE's, so
+        the grant is held for as long as the granted master leaves a read beat
+        UNACCEPTED - the term the old 2,048 left out entirely;
+
+      * eight masters share the bus but only SIX ever assert `ar.valid`: the ts
+        and pcm rings are WishboneDMAWriters with `we` tied 1 (netlist:
+        `assign milandma_interface0_we = 1'd1`), so they never contend for the
+        READ channel at all;
+
+      * the lap is ONE lap, not a livelock: migen's SP_CE round-robin moves the
+        grant to the first requester in i+1..i+n-1 order, so each of the other
+        five is granted AT MOST ONCE before this master;
+
+      * and the lap is DOMINATED by the TX ring reader, not by memory. Its
+        `r.ready` is the TX datapath's backpressure (RingDMAReader's PAY_R:
+        `self.bus.r.ready.eq(source.ready | cs_pass)`) behind a 16-deep CDC
+        FIFO (`_axis_dp_cdc` default depth), and what stalls the
+        datapath is the per-frame TX grant (CBS shaper + MAC store-and-forward),
+        i.e. a FRAME time and not a memory time. Silicon measured that
+        backpressure at 39% of the reader's cycles.
+
+    `MEM` below is the SILICON-measured round trip on THIS bus: L_pay = 45
+    cycles = 450 ns (docs/findings/PERFORMANCE_GOAL.md:155). It is NOT the 1,424
+    ns the old comment cited: that is a CPU-side random DRAM miss, half of it a
+    713 ns sv39 page-table walk no DMA master ever pays.
+
+    WHY THE COUNTER CANNOT JUST STOP WHILE IT WAITS FOR THE GRANT, which is the
+    first idea anyone has on reading the above, and it is dead: the master
+    cannot SEE arbitration. Its face is Wishbone (cyc, stb, we, adr, dat_w, sel
+    out; ack, dat_r, err back) and not one of those carries a grant, so from the
+    bridge FSM "queued behind five masters" and "granted, memory is slow" are
+    the same silence. The only signal that separates them is `_cmd_done` inside
+    LiteX's Wishbone2AXILite, set when `ar` is accepted and therefore meaning
+    exactly "granted, now waiting for data" - and it is a plain local `Signal()`
+    (axi_lite_to_wishbone.py:159), never bound to the converter object, so
+    nothing outside that FSM can reference it without patching vendored LiteX.
+    The wait is ONE indivisible number. Budgeting for all of it, which is what
+    this function does, is the only honest option rather than the cheapest one.
+
+    Conservative by construction: it prices every optional master (both RX
+    queues, the AAF playback fetch) whether or not this build elaborates them.
+    """
+    MEM   = 45                                  # AR -> first R, measured
+    # one maximum-size frame on the wire, 1,522 bytes + preamble/SFD + IFG
+    FRAME = -(-(1522 + 8 + 12) * 8 * int(sys_clk_hz) // 1000000000)
+    return (FRAME + MEM + 64          # TX ring reader: grant wait + 64 beats
+            + 2 * (MEM + 2)           # 2 RX ring writers: BD reads, <=2 beats
+            + (MEM + 1)               # AAF playback fetch: 1 beat
+            + (MEM + 1)               # the other processor bridge: 1 beat
+            + MEM)                    # our own access, once granted
+
+
+def pp_mem_timeout_cycles(sys_clk_hz, milan_clk_hz,
+                          proc_tmo_cyc=PP_PROC_MEM_TMO_CYC,
+                          share=PP_MEM_TMO_SHARE):
+    """The bridge watchdog in sys cycles. Derived, because the RELATION is what
+    the design depends on and a bare number only satisfies it by accident.
+
+    THE CEILING. The bridge must report BEFORE the processor's own per-beat
+    watchdog or the submodule records silence where the truth is a failed bus.
+    The two counters run in DIFFERENT CLOCK DOMAINS - the bridge FSM in sys, the
+    processor in milan_cd - so "first" is a comparison in TIME, and cycle counts
+    alone do not settle it. A fixed 2,048 held at the shipping AX shape only
+    because milan and sys are both 100 MHz there; it was generous on the Arty
+    shape (milan 50, sys 83.333) and it INVERTS on any build with milan faster
+    than sys, silently, with nothing to catch it.
+
+    The processor is also AHEAD: its counter starts on `mreq_valid_r`
+    (KL_aecp_desc_store.sv:500), before the request has crossed the CDC into the
+    sys domain, while `_dto` starts when this FSM enters its bus state. The
+    quarter of the budget left unspent covers that skew several thousand times
+    over.
+
+    WHAT THE TIMEOUT DOES NOT BUY, so nobody re-derives this on a false premise:
+    it does not release the AXI read channel. LiteX's Wishbone2AXILite holds
+    `ar.valid` in its READ state with no `cyc` term at all
+    (axi_lite_to_wishbone.py:223), so dropping cyc/stb abandons the access at the
+    WISHBONE layer only. What it buys is that the PROCESSOR gets an answer and
+    this FSM re-arms - which is why reporting late is cheap and reporting early
+    is not.
+    """
+    num, den = share
+    cyc = int(proc_tmo_cyc * num * int(sys_clk_hz) // (den * int(milan_clk_hz)))
+    # Strictly first IN TIME. Belt and braces on the truncation above, and the
+    # one check that must never be relaxed: without it the processor's watchdog
+    # wins the race and the fault it records is "no progress", not "the bus".
+    if cyc * int(milan_clk_hz) >= proc_tmo_cyc * int(sys_clk_hz):
+        raise RuntimeError(
+            f"the protocol-processor memory-bridge watchdog ({cyc} sys cycles "
+            f"at {sys_clk_hz/1e6:g} MHz) does not expire before the "
+            f"processor's own {proc_tmo_cyc}-cycle per-beat watchdog at "
+            f"{milan_clk_hz/1e6:g} MHz: the bridge would not report first")
+    # And it must still clear the bus. A clock pair that cannot satisfy both
+    # ends is a REFUSAL, not a number to round up: every access would time out
+    # spuriously under TX load and every AECP command would answer wrongly.
+    worst = pp_mem_bus_worst_cycles(sys_clk_hz)
+    if cyc <= worst:
+        raise RuntimeError(
+            f"the protocol-processor memory-bridge watchdog ({cyc} sys cycles) "
+            f"is inside the worst-case dma_bus wait ({worst} sys cycles at "
+            f"{sys_clk_hz/1e6:g} MHz): a healthy bus would time out. "
+            f"milan_clk {milan_clk_hz/1e6:g} MHz is too fast against sys")
+    return cyc
+
+
 # SoC ----------------------------------------------------------------------------------------------
 
 class MilanSoC(SoCCore):
@@ -5694,17 +5938,40 @@ class MilanSoC(SoCCore):
             _pp_selm = 2**(_pp_dw // 8) - 1
             _pp_adrw = 32 - int(_math.log2(_pp_dw // 8))
             _pp_sh   = int(_math.log2(_pp_dw // 8))
-            # Watchdog, in sys cycles, bounded from BOTH sides:
-            #  * above the memory system - the measured worst case on this
-            #    board is a 1,424 ns miss = 143 cycles at 100 MHz, and eight
-            #    masters share the dma_bus arbiter, so an order of magnitude
-            #    over that is still nowhere near the limit;
-            #  * below the PROCESSOR's own per-beat watchdog, 4,096 cycles
-            #    (DESC_MEM_TMO_CYC_P). The bridge has to report FIRST, or the
-            #    submodule records silence where the truth is a failed bus.
-            # Nothing here has a throughput requirement: this is the control
-            # path, and 2,048 cycles is 20.5 us once, not per descriptor.
-            _pp_tmo = 2048
+            # Watchdog, in sys cycles, DERIVED from the two clocks and the
+            # processor's own per-beat budget - see `pp_mem_timeout_cycles` for
+            # the ceiling and `pp_mem_bus_worst_cycles` for the floor, both of
+            # which this call enforces rather than asserts in prose.
+            #
+            # WHAT IT REPLACES AND WHY. The number was 2,048, justified against
+            # "a 1,424 ns worst-case miss = 143 cycles" with the ARBITER left
+            # out. The counter starts on entry to the bus state, so it measures
+            # grant wait plus memory, and the grant wait is not a lap of memory
+            # latencies: the dma_bus arbiter holds the grant while the granted
+            # master leaves a read beat unaccepted, and the TX ring reader is
+            # left unaccepted for a per-frame TX grant - 1,542 wire bytes at
+            # 1 Gbit = 12.34 us = 1,234 sys cycles at 100 MHz, on its own more
+            # than half of the old budget. Priced in full at the shipping AX
+            # shape (sys 100 MHz):
+            #     TX ring reader   1,234 + 45 + 64 = 1,343
+            #     2 RX ring writers      2 x (45 + 2) = 94
+            #     AAF playback fetch          45 + 1 = 46
+            #     the response bridge         45 + 1 = 46
+            #     our own access                       45
+            #                                       = 1,574 cycles
+            # 2,048 was 1.30x that. The derived value is 3,072 (30.7 us) =
+            # 1.95x, and it leaves the processor 1,024 milan cycles of its own
+            # budget. It is FREE: migen sizes the counter `Signal(max=n+1)`, and
+            # both 2,048 and 3,072 need 12 bits, so no flop and no comparator
+            # bit moves.
+            #
+            # It does NOT make a spurious timeout impossible - nothing under the
+            # 4,096-cycle ceiling can, against a term whose scale is a frame
+            # time. It makes one improbable, and `_PPMemDiag`'s `timed_out`
+            # counter is what will settle the residual from the board instead of
+            # from an argument.
+            _pp_tmo = pp_mem_timeout_cycles(sys_clk_freq,
+                                            milan_clk_freq or sys_clk_freq)
             _dq = self.milan.descmem_req_sys
             _ds = self.milan.descmem_rsp_sys
             self.descmem_wb = _dwb = _wb.Interface(data_width=_pp_dw,
@@ -5910,6 +6177,33 @@ class MilanSoC(SoCCore):
                     If(_re | (_rl == 1), NextState("IDLE")
                     ).Else(NextValue(_ra, _ra + 8), NextValue(_rl, _rl - 1),
                            NextValue(_rto, 0), NextState("RD"))))
+
+            # ===============================================================
+            #  THE INSTRUMENT THE 08-13 ROUND DID NOT HAVE
+            # ===============================================================
+            # Both bridges above now fail SAFELY (error arm, watchdog, poison
+            # flag), and a safe failure that nothing can see is still a week of
+            # board time. This is the observer: it separates "never issued"
+            # from "issued and never answered", which are the two causes that
+            # produce the SAME symptom (fault 8 / fault 1, image invalid,
+            # ENTITY_MISBEHAVING on every command) and have nothing else in
+            # common.
+            #
+            # A NEW CSR BANK MUST NOT MOVE AN OLD ONE, and left to itself this
+            # one does: LiteX hands out the LOWEST free location at the moment
+            # a module is added (SoCLocHandler.alloc), and `sdram`/`spiflash`
+            # are allocated later still, so the default landed on sdram's page
+            # and pushed sdram AND spiflash up 0x800 (measured, csr.csv diff).
+            # That silently invalidates every hand-written device tree pinning
+            # the LiteSPI bank - whose master port at bank+0x10 is a WRITE path
+            # to the boot flash - which is precisely the failure
+            # check_dtb_csr.py exists to catch. So this bank is pinned to the
+            # LAST page of the 64 KB CSR window instead, where automatic
+            # allocation (which grows upward from 0) reaches last; a future
+            # bank that does collide raises SoCError rather than moving anyone.
+            self.csr.add("ppmem", n=self.csr.n_locs - 1)
+            self.ppmem = _PPMemDiag([("desc", _dwb, _dpsn, _dpsn_set),
+                                     ("resp", _rwb, _rpsn, _rpsn_set)])
 
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
             # Milan IDENTIFY -> board LED (controllers blink it to locate the

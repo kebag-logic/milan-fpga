@@ -174,6 +174,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 - **[DMA registers (fully-FPGA build only  -  separate CSR space)](#dma-registers-fully-fpga-build-only-----separate-csr-space)** — A different window with different rules: LiteX CSR space, addresses from the build's own `csr.csv`, seven words per ring engine. Two traps documented at length — `base`/`length` are **byte** quantities, and the multi-word ordering is *word* order, not byte order, so a native 64-bit write to `base` swaps the halves and silently corrupts the DMA address.
 - **[Notes](#notes)** — Three bus-level rules that apply everywhere: self-clearing strobes read back 0, 64-bit reads are not atomic (use the snapshot latch for TOD), and how the map is versioned.
   - [PCM ring (LiteX CSR bank, 0xf0003120)](#pcm-ring-litex-csr-bank-0xf0003120) — Where the AAF RX payload actually lands: a wrapping DRAM ring whose write pointer the consumer chases, counted in 64-bit words. Payload is wire byte order — S32BE interleaved PCM, no swap.
+  - [Protocol-processor memory bridges (LiteX CSR bank, 0xf000f800)](#protocol-processor-memory-bridges-litex-csr-bank-0xf000f800) — Five words that answer the question `PP_STAT` cannot: when the entity model is invalid, did the bridge never ask the bus, or ask and never get an answer? Requests issued, acked, errored, timed out, plus the live poison flag, with the verdict table that reads them.
 
 ## Register groups
 
@@ -1952,6 +1953,18 @@ and only control frames enter the frame FIFO ahead of the serialiser. Control
 traffic is orders of magnitude below the serialiser's rate, so `[15:8]` should
 be flat; a moving drop count is a real signal, not background.
 
+**When this window says the entity model is broken, it cannot say why.** The
+descriptor-store and response-buffer faults reached through the side-port
+snapshot (`img_valid = 0`, fault 8 `FAULT_TIMEOUT`, fault 1 `FAULT_WTMO`) are
+the processor's view of *its* two main-memory bridges, and the processor cannot
+see the bus those bridges ride: a bridge that never issued a read and a bridge
+whose read was never answered produce the identical fault here. That
+distinction cost a board week in August 2026. It is now one read away, in the
+LiteX CSR space rather than this window because both bridges are SoC-side
+masters (`milan_soc.py`) with no port into `milan_csr` — see
+[Protocol-processor memory bridges](#protocol-processor-memory-bridges-litex-csr-bank-0xf000f800)
+at the end of this page.
+
 
 ## DMA registers (fully-FPGA build only  -  separate CSR space)
 
@@ -2065,3 +2078,81 @@ declaring more than one capture stream):
 | Offset  | Name  | Access | Value | Description |
 |---------|-------|--------|-------|-------------|
 | `+0x1C` | `CAP` | RO     | `0x4D0000NN` | `[31:24]` = `0x4D` `'M'` magic (guards against stray nonzero reads on older gateware, where this address reads 0 = capability absent); `[23:16]` = baked stride in 64 KiB units — **0**: this engine bakes NO stride, the runtime `stride` CSR at `+0x0C` is driver-programmed; `[15:8]` = T playback rings behind this block — **0**: capture-only, the `KL_pcm_tx` playback rings live behind their own `pb_*` CSR block; `[7:0]` = L capture rings = elaborated `N_STREAMS` (`0x08` on the AX 8x8, `0x04` on the Arty 4x4) |
+
+### Protocol-processor memory bridges (LiteX CSR bank, `0xf000f800`)
+
+**Read this when the entity answers `ENTITY_MISBEHAVING` and `PP_STAT` says the
+image is invalid.** The protocol processor fetches its descriptor tree, and
+writes its AECP responses, through two wishbone masters on the coherent
+`dma_bus` (`milan_desc_mem` and `milan_resp_mem`, both in
+[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)). They live on the SoC
+side of the `milan_datapath` boundary with no port into `milan_csr`, so like the
+playback fetch path's `pb_bus_err` their instrumentation is a **migen** CSR bank
+and not part of the `0x9000_0000` window.
+
+**Why the bank exists (2026-08-13).** On the flashed build both bridges wedged
+on an access the memory never acked, and every AECP command came back
+`ENTITY_MISBEHAVING`. The processor reported `img_valid = 0` with descriptor
+fault 8 and response fault 1, which is the same thing it reports when the
+bridges are never asked for anything at all. Nothing anywhere separated the two
+readings, and they have opposite causes: one is a dead request path inside the
+fabric, the other is the bus. Finding that out took a board, a week and several
+wrong hypotheses. These five words are that week. Priced on the shipping AX
+shape, the observer alone (yosys `synth_xilinx`, out of context): 130 flops and
+46 LUTs, plus 8 INV, 32 CARRY4 and 6 MUXF7 / 2 MUXF8 for the eight increments
+and their saturation compares. Whole-SoC delta against the same elaboration one
+commit back: **+177 flops as migen emits them, +162 after `opt_clean`**
+(20,218 -> 20,380 flop bits) and no register anywhere resized or removed. The
+177 break down exactly: 130 the counters (8 counters x 16 bits, plus the two
+edge-detect flops), 32 the new bank's own read register, and 15 CSR strobe flops
+(a `_re` and a `_we` per register, plus 5 `wr_stb`) that are dead on a read-only
+bank and that any synthesiser drops - which is the 177-versus-162. Registers are
+the slack resource here (45.8% used against slices at 99.9%), which is why the
+counters are flops and not a LUT-built structure.
+
+**The verdict table.** Read `desc_req` and `desc_fault` (or the `resp_` pair)
+and compare:
+
+| ISSUED | ACKED + ERRORED + TIMED OUT | verdict |
+|---|---|---|
+| `0` | `0` | the bridge **never asked the bus**. The bus is not the fault: look at the processor's request face (`PP_DIAG` `0x930`, the side-port snapshot) |
+| `> 0` | equal to ISSUED | every access completed. If the image is still invalid the fault is upstream of the bus: the descriptor image itself, or its base |
+| `> 0` | one short of ISSUED | an access is **outstanding right now**. `stat[1]`/`stat[3]` say which face is still holding `cyc`/`stb`; it will become a `timed_out` when the watchdog expires |
+| `> 0` | ERRORED > 0 | the interconnect answered `err` (LiteX raises `err` **with** `ack`, so a failed access is an answer, not a silence). A descriptor fetched this way is refused, never served |
+| `> 0` | TIMED OUT > 0 | the access was **never answered** and the watchdog abandoned it. `stat[0]`/`stat[2]` show the master poisoned until the memory pays the answer it still owes |
+
+All five words are live RO, free-running from reset, and every counter
+**saturates at `0xFFFF`** — `0xFFFF` means "at least 65,535", never "none"
+(the `pb_bus_err` and `PBK_RAILS` rule: a counter that wraps to a small number
+lies at exactly the moment it matters).
+
+**Know the ceiling before you read the table.** ISSUED and ACKED are the two
+rails a healthy bus advances, and on a busy entity they peg. One controller
+enumeration walks the whole descriptor tree as 64-bit beats, so a pass costs
+hundreds to a few thousand accesses (not measured here — count it off ISSUED
+across one enumeration if you need the real figure), which puts 65,535 tens to
+hundreds of enumerations away: days under a compliance campaign, not years.
+Once both rails read `0xFFFF` the **subtraction is dead** —
+the "one short of ISSUED" row above cannot be evaluated at all, and `stat[1]` /
+`stat[3]` are the only live reading of an outstanding access. The two rows that
+survive saturation are the two that matter most, because the fault counters do
+not advance on a healthy bus: `ISSUED = 0` still means *never asked*, and
+`TIMED OUT > 0` still means *asked and never answered*. There is no clear: these
+words answer "has this ever happened", never "is it happening now".
+
+| Offset | Name | Acc | Reset | Description |
+|--------|------|-----|-------|-------------|
+| `+0x00` | `desc_req` | RO | `0` | descriptor-image read bridge: `[31:16]` accesses **ISSUED** (one per bus access, counted at its start, not per held cycle), `[15:0]` accesses the bus **ACKED** without `err` |
+| `+0x04` | `desc_fault` | RO | `0` | `[31:16]` accesses answered with **err**, `[15:0]` accesses the watchdog **abandoned** with no answer at all |
+| `+0x08` | `resp_req` | RO | `0` | AECP response-buffer read+write bridge, same two fields. This face writes as well as reads: a write that faults voids the response rather than putting a half-written one on the wire |
+| `+0x0C` | `resp_fault` | RO | `0` | same two fields as `desc_fault`, for the response bridge |
+| `+0x10` | `stat` | RO | `0x5B00_0000` | live state, not counts: `[0]` descriptor bridge **poisoned** (a timed-out access is still owed an answer; the next answer it collects is discarded), `[1]` descriptor bridge is driving `cyc`/`stb` **right now**, `[2]` response bridge poisoned, `[3]` response bridge driving `cyc`/`stb`, `[31:24]` constant presence tag `0x5B` — the same tag as `PP_STAT`, and the register to read first: `0` here means the gateware predates this bank, which is otherwise indistinguishable from four zeroed counters |
+
+> **The bank is pinned to the LAST page of the CSR window** (`n_locs - 1`), not
+> auto-allocated. LiteX hands out the lowest free page at the moment a module is
+> added, and an auto-allocated bank here lands on `sdram`'s page and pushes
+> `sdram` **and** `spiflash` up `0x800` — moving the LiteSPI bank whose master
+> port at bank+`0x10` is a write path to the boot flash, under every hand-written
+> device tree that names it. Verified by csr.csv diff: no existing bank moved.
+> The absolute base is still the build's own `csr.csv`, exactly like every other
+> address in this section.

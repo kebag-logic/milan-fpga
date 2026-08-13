@@ -50,20 +50,42 @@ WHAT THIS FILE PROVES, in two independent ways so neither can pass vacuously:
      is required to carry a non-`ack` exit, so the model above cannot drift
      away from the code it stands for, and to be unable to strand its own
      poison flag.
+  4. PRECEDENCE, which is the invariant the whole design intent rests on and
+     which nothing guarded until 2026-08-13: the bridge's watchdog must expire
+     STRICTLY BEFORE the processor's own per-beat watchdog
+     (DESC_MEM_TMO_CYC_P), or the submodule records "no progress" where the
+     truth is a failed bus and the bridge's report is never the one that
+     lands. The two counters are in DIFFERENT CLOCK DOMAINS, so this is a race
+     in TIME and not a comparison of two integers - a bare cycle constant
+     satisfies it only by accident of the clock pair the build happens to use.
+  5. DIAGNOSABLE, and that is a claim about the INSTRUMENT, not about the fix.
+     Failing safely where nothing can see it is what cost the week: on the
+     board, "the bridge never issued a read" and "the bridge issued one and was
+     never answered" both read as img_valid = 0 and ENTITY_MISBEHAVING, and
+     they have completely different causes. The counters that separate them are
+     the REAL `_PPMemDiag` imported out of milan_soc.py - not a copy of it -
+     driven by the model bridge above and graded against what the MEMORY MODEL
+     itself served, never against the DUT's own arithmetic.
 
 Run: cd sw/litex && python3 test_pp_mem_bridge.py
 """
 
 import ast
+import importlib.util
 import os
+import re
 import sys
 
 from migen import *
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MILAN_SOC = os.path.join(HERE, "milan_soc.py")
+# the protocol processor is the AUTHORITY on its own watchdog: read the
+# parameter out of its RTL rather than believing milan_soc.py's mirror of it
+PP_TOP_SV = os.path.join(HERE, "..", "..", "protocol-processor", "hdl", "top",
+                         "protocol_processor_top.sv")
 
-TMO = 32                       # the model's watchdog; the SoC uses 2,048
+TMO = 32                       # the model's watchdog; the SoC derives its own
 
 # Two different words, so a beat can say WHICH answer it carried: the one a
 # healthy memory returns, and the one the abandoned access is still owed.
@@ -95,7 +117,7 @@ class ReadBridge(Module):
     under test.
     """
 
-    def __init__(self, watchdog):
+    def __init__(self, watchdog, tmo=TMO):
         self.req_valid = Signal()
         self.req_addr  = Signal(32)
         self.req_beats = Signal(9)
@@ -108,8 +130,11 @@ class ReadBridge(Module):
         self.wb_adr = Signal(29); self.wb_dat_r = Signal(64)
 
         _da = Signal(32); _dl = Signal(9); _dd = Signal(64); _de = Signal()
-        _dto = Signal(max=TMO + 1)
-        self.psn = _dpsn = Signal(); _dpsn_set = Signal()
+        _dto = Signal(max=tmo + 1)
+        # `psn_set` is exposed because it is the watchdog-fire pulse the real
+        # observer counts (milan_soc.py wires the same signal into _PPMemDiag);
+        # on the pre-fix shape below nothing drives it, which is the truth.
+        self.psn = _dpsn = Signal(); self.psn_set = _dpsn_set = Signal()
         self.sync += If(_dpsn_set, _dpsn.eq(1)
                      ).Elif(_dpsn & (self.wb_ack | self.wb_err), _dpsn.eq(0))
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
@@ -131,7 +156,7 @@ class ReadBridge(Module):
             # POISONED, THE BUS IS STILL DRIVEN. `_de` marks the transaction
             # `err` so the answer it collects is discarded, and driving cyc/stb
             # is what lets that answer reach the master it is owed to.
-            rd.append(If(~self.wb_ack & (_dto == TMO),
+            rd.append(If(~self.wb_ack & (_dto == tmo),
                 NextValue(_dto, 0), NextValue(_de, 1),
                 _dpsn_set.eq(1), NextState("EMIT")))
         fsm.act("RD", *rd)
@@ -325,6 +350,583 @@ def test_recovery():
           f"got {[hex(b[0]) for b in last]}")
 
 
+# ---------------------------------------------------------------------------
+#  4. PRECEDENCE
+# ---------------------------------------------------------------------------
+# Every shape this tree actually builds. The pair matters, not either value:
+# the bridge counts sys cycles and the processor counts milan_clk cycles, so
+# the relation is a race in TIME and a build that changes one clock can invert
+# it. ax7101 from sweep.sh:41 (--milan-clk-freq 100e6, --sys-clk-freq default
+# 100e6); arty from sweep.sh:40; the 112.5 MHz floorplan build is the shape the
+# perf campaign closed timing on and is kept here because it is the one pair in
+# the tree's history where the two clocks DIFFER on the AX.
+SHAPES = [
+    ("ax7101 shipping", 100e6,    100e6),
+    ("arty shipping",    83.333e6, 50e6),
+    ("ax7101 fp 112.5", 112.5e6,  100e6),
+]
+
+
+def _proc_watchdog_from_rtl():
+    """DESC_MEM_TMO_CYC_P, read from the processor's own RTL.
+
+    The authority is the submodule, not milan_soc.py's mirror of it. Bumping
+    the parameter in the .sv and forgetting the mirror would otherwise widen
+    the processor's budget silently - which is harmless - or NARROW it, which
+    hands the race to the processor and voids the design intent with nothing
+    to see.
+    """
+    src = open(PP_TOP_SV).read()
+    m = re.search(r"parameter\s+int\s+unsigned\s+DESC_MEM_TMO_CYC_P\s*=\s*"
+                  r"(\d+)", src)
+    return int(m.group(1)) if m else None
+
+
+def proc_deadline_cycles(proc_tmo, sys_hz, milan_hz):
+    """The sys cycle on which the PROCESSOR's watchdog expires.
+
+    Independent arithmetic, from the submodule's semantics and not from
+    milan_soc.py: KL_aecp_desc_store.sv:500 adds one every milan_clk cycle in
+    which a request of its own is outstanding and no beat has arrived, and
+    :495 clears it on a beat. So it fires after `proc_tmo` milan_clk periods,
+    i.e. at the first sys cycle c with c/sys_hz >= proc_tmo/milan_hz.
+    """
+    return -(-proc_tmo * int(sys_hz) // int(milan_hz))
+
+
+def race(tmo, proc_deadline):
+    """Run the shipping bridge into a bus that never answers; report both fires.
+
+    The processor's counter STARTS EARLIER than the bridge's - on `mreq_valid_r`
+    (KL_aecp_desc_store.sv:500), before the request has crossed the CDC into the
+    sys domain - so it is started here at cycle 0 while the bridge's starts when
+    its FSM first drives the bus, which is what the hardware does and is the
+    pessimistic direction for the claim under test.
+    """
+    out = {"bridge": None}
+
+    def stim():
+        yield dut.req_addr.eq(0x7F700000)
+        yield dut.req_beats.eq(2)
+        yield dut.req_valid.eq(1)
+        yield
+        yield dut.req_valid.eq(0)
+        # one cycle past the processor's deadline: if the bridge has not
+        # reported by then it has LOST the race, and the run must not stop
+        # early or a loss would read as a pass
+        for c in range(1, proc_deadline + 2):
+            if out["bridge"] is None and (yield dut.rsp_valid) and (yield dut.rsp_err):
+                out["bridge"] = c
+            yield
+
+    dut = ReadBridge(True, tmo=tmo)
+    run_simulation(dut, stim())
+    return out["bridge"]
+
+
+def test_precedence():
+    """The bridge must report BEFORE the processor gives up. Nothing guarded it.
+
+    Three claims, and they fail for different reasons on purpose:
+      * the mirror of DESC_MEM_TMO_CYC_P still matches the processor's RTL;
+      * for every shape the tree builds, the derived watchdog expires strictly
+        earlier IN NANOSECONDS, with the margin stated rather than assumed;
+      * and it expires later than the worst-case dma_bus wait, so a healthy bus
+        under TX load is not timed out. A watchdog can only fail in those two
+        directions and this pins both ends of it.
+    """
+    sys.path.insert(0, HERE)
+    import milan_soc
+
+    rtl = _proc_watchdog_from_rtl()
+    check("the processor's DESC_MEM_TMO_CYC_P is readable from its own RTL",
+          rtl is not None, f"not found in {PP_TOP_SV}")
+    check("milan_soc.py's mirror of it has not drifted",
+          rtl == milan_soc.PP_PROC_MEM_TMO_CYC,
+          f"RTL says {rtl}, milan_soc.py says {milan_soc.PP_PROC_MEM_TMO_CYC}")
+    proc_tmo = rtl or milan_soc.PP_PROC_MEM_TMO_CYC
+
+    for name, sys_hz, milan_hz in SHAPES:
+        tmo   = milan_soc.pp_mem_timeout_cycles(sys_hz, milan_hz)
+        worst = milan_soc.pp_mem_bus_worst_cycles(sys_hz)
+        # in nanoseconds, because the two counters do not share a clock
+        bridge_ns = tmo * 1e9 / sys_hz
+        proc_ns   = proc_tmo * 1e9 / milan_hz
+        check(f"{name}: the bridge watchdog expires before the processor's "
+              f"({bridge_ns:.0f} ns vs {proc_ns:.0f} ns)",
+              bridge_ns < proc_ns,
+              "the processor's per-beat watchdog wins the race, so it records "
+              "no-progress where the truth is a failed bus")
+        check(f"{name}: the bridge leaves the processor real headroom",
+              proc_ns - bridge_ns >= proc_ns / 8,
+              f"only {proc_ns - bridge_ns:.1f} ns of the processor's budget "
+              "is left for the response CDC and its own reaction")
+        check(f"{name}: the watchdog clears the worst-case dma_bus wait "
+              f"({tmo} vs {worst} sys cycles)",
+              tmo > worst,
+              "a healthy bus under TX load would time out spuriously: the "
+              "grant is held while the TX ring reader leaves a beat unaccepted")
+
+        # ... and the same claim as a RACE, not as arithmetic. The bridge model
+        # runs at the REAL derived timeout into a bus that never answers.
+        deadline = proc_deadline_cycles(proc_tmo, sys_hz, milan_hz)
+        fired = race(tmo, deadline)
+        check(f"{name}: on a dead bus the bridge's err beat lands first "
+              f"(cycle {fired} of {deadline})",
+              fired is not None and fired < deadline,
+              f"bridge fired at {fired}, processor deadline {deadline}")
+
+    # THE GUARD ITSELF. A clock pair that inverts the relation must be REFUSED
+    # at elaboration, not built. Without this the derivation could be replaced
+    # by any constant and the checks above would still pass on today's shapes.
+    for sys_hz, milan_hz in ((100e6, 200e6), (100e6, 400e6)):
+        try:
+            got = milan_soc.pp_mem_timeout_cycles(sys_hz, milan_hz)
+        except RuntimeError:
+            got = None
+        check(f"a build with milan {milan_hz/1e6:g} MHz against sys "
+              f"{sys_hz/1e6:g} MHz is refused, not silently narrowed",
+              got is None, f"elaboration returned {got}")
+
+
+# ---------------------------------------------------------------------------
+#  5. DIAGNOSABLE  -  the counters
+# ---------------------------------------------------------------------------
+# Everything below drives the REAL `_PPMemDiag` out of milan_soc.py. A model of
+# the counters would prove only that two copies of the same idea agree, and the
+# claim being made is about the register a person reads at 3am.
+
+
+class _BusFace:
+    """The four wishbone fields the observer reads, presented off loose signals.
+
+    `_PPMemDiag` takes the bridges' `wishbone.Interface`; the model bridge above
+    drives individual signals. This adapts them and adds NO behaviour: an
+    observer that starts reading a fifth field raises AttributeError here rather
+    than passing quietly on a stale adapter.
+    """
+
+    def __init__(self, cyc, stb, ack, err):
+        self.cyc, self.stb, self.ack, self.err = cyc, stb, ack, err
+
+
+def _milan_soc():
+    """The real SoC module: the counters under test are ITS code, not a copy."""
+    if HERE not in sys.path:
+        sys.path.insert(0, HERE)
+    import milan_soc
+    return milan_soc
+
+
+class Counted(Module):
+    """The shipping read bridge with the real observer watching its bus."""
+
+    def __init__(self):
+        self.submodules.br = br = ReadBridge(True)
+        self.submodules.diag = _milan_soc()._PPMemDiag(
+            [("desc", _BusFace(br.wb_cyc, br.wb_stb, br.wb_ack, br.wb_err),
+              br.psn, br.psn_set)])
+
+
+def _snap(dut):
+    """The three CSR words, decoded the way the register map documents them."""
+    req = yield dut.diag.desc_req.status
+    flt = yield dut.diag.desc_fault.status
+    st  = yield dut.diag.stat.status
+    return {"issued": req >> 16, "acked": req & 0xFFFF,
+            "errored": flt >> 16, "timed_out": flt & 0xFFFF,
+            "poisoned": st & 1, "on_bus": (st >> 1) & 1, "tag": st >> 24}
+
+
+def counted_run(policy, cycles, peek=None, beats=2, request=True):
+    """One burst against a memory whose behaviour `policy(n)` decides.
+
+    `policy` returns "ack", "err" or "hang" for the n-th access the memory is
+    offered. The memory model keeps its OWN tally of what it served, and that
+    tally - not the DUT's registers, and not a re-implementation of them - is
+    what the counters are graded against.
+
+    `peek` snapshots the counters at that cycle, which is how the case with no
+    other symptom (issued, never answered, watchdog not yet expired) is caught
+    while it still exists.
+    """
+    dut = Counted()
+    out = {"served": 0, "sv_ack": 0, "sv_err": 0, "peek": None, "end": None}
+
+    def stim():
+        if request:
+            yield dut.br.req_addr.eq(0x7F700000)
+            yield dut.br.req_beats.eq(beats)
+            yield dut.br.req_valid.eq(1)
+            yield
+            yield dut.br.req_valid.eq(0)
+        n = 0
+        for c in range(cycles):
+            if (yield dut.br.wb_ack):
+                yield dut.br.wb_ack.eq(0)      # one ack per access, never two
+                yield dut.br.wb_err.eq(0)
+            elif (yield dut.br.wb_cyc) and (yield dut.br.wb_stb):
+                what = policy(n)
+                if what != "hang":
+                    n += 1
+                    out["served"] += 1
+                    yield dut.br.wb_dat_r.eq(FRESH)
+                    yield dut.br.wb_ack.eq(1)
+                    if what == "err":
+                        out["sv_err"] += 1
+                        yield dut.br.wb_err.eq(1)   # LiteX raises err WITH ack
+                    else:
+                        out["sv_ack"] += 1
+            if peek is not None and c == peek:
+                out["peek"] = yield from _snap(dut)
+            yield
+        out["end"] = yield from _snap(dut)
+
+    run_simulation(dut, stim())
+    return out
+
+
+def test_counters():
+    """Each counter counts the thing it claims, and the two causes separate."""
+    # ---- a healthy burst: every access answered ---------------------------
+    ok = counted_run(lambda n: "ack", cycles=60)
+    e = ok["end"]
+    check("healthy bus: ISSUED equals the accesses the memory saw",
+          e["issued"] == ok["served"] == 2,
+          f"issued {e['issued']}, memory served {ok['served']}")
+    check("healthy bus: ACKED equals the accesses the memory acked",
+          e["acked"] == ok["sv_ack"] == 2, f"acked {e['acked']}")
+    check("healthy bus: no fault is counted",
+          (e["errored"], e["timed_out"], e["poisoned"]) == (0, 0, 0), f"{e}")
+
+    # ---- an errored answer: ack and err in the same cycle ------------------
+    er = counted_run(lambda n: "err", cycles=60)
+    e = er["end"]
+    check("errored answer: ERRORED counts it",
+          e["errored"] == er["sv_err"] == 1, f"errored {e['errored']}")
+    check("errored answer: it is NOT counted as acked", e["acked"] == 0,
+          f"acked {e['acked']} (an ack-only test would count a failed access)")
+    check("errored answer: the watchdog did not fire", e["timed_out"] == 0)
+
+    # ---- THE DISCRIMINATOR -------------------------------------------------
+    # A memory that takes the request and never answers. Peeked INSIDE the
+    # watchdog window, this is the reading that did not exist on 2026-08-13.
+    hung = counted_run(lambda n: "hang", cycles=4 * TMO, peek=TMO // 2)
+    mid, e = hung["peek"], hung["end"]
+    check("unanswered access, watchdog still running: ISSUED > 0",
+          mid["issued"] == 1, f"issued {mid['issued']}")
+    check("unanswered access, watchdog still running: ACKED == 0",
+          mid["acked"] == 0, f"acked {mid['acked']}")
+    check("unanswered access, watchdog still running: no fault counted YET "
+          "(so the reading is 'outstanding', not 'failed')",
+          (mid["errored"], mid["timed_out"]) == (0, 0), f"{mid}")
+    check("unanswered access: the live flag says it is ON THE BUS right now",
+          mid["on_bus"] == 1, f"stat {mid}")
+    check("the hung access is counted ONCE, not once per held cycle",
+          e["issued"] == 1,
+          f"issued {e['issued']} after {4 * TMO} cycles of held cyc/stb")
+    check("after the watchdog: TIMED OUT counts it", e["timed_out"] == 1,
+          f"timed_out {e['timed_out']}")
+    check("after the watchdog: it is not miscounted as an err answer",
+          e["errored"] == 0, f"errored {e['errored']}")
+    check("after the watchdog: POISONED is live and set, and the bus is let go",
+          (e["poisoned"], e["on_bus"]) == (1, 0), f"stat {e}")
+
+    # the other cause of the same board symptom
+    idle = counted_run(lambda n: "ack", cycles=60, request=False)
+    i = idle["end"]
+    check("never issued: every counter reads 0",
+          (i["issued"], i["acked"], i["errored"], i["timed_out"]) == (0, 0, 0, 0),
+          f"{i}")
+    check("never issued: the block still identifies itself, so 0 is a "
+          "MEASUREMENT and not an absent register",
+          i["tag"] == 0x5B, f"tag 0x{i['tag']:02x}")
+    # ...and the whole point: the two are different readings
+    check("'never issued' and 'issued, never answered' are DISTINGUISHABLE",
+          (i["issued"], i["on_bus"]) != (mid["issued"], mid["on_bus"]),
+          f"idle {i} vs unanswered {mid}")
+
+    # ---- the memory dies mid-burst, which is what the board did ------------
+    half = counted_run(lambda n: "ack" if n < 1 else "hang", cycles=4 * TMO)
+    e = half["end"]
+    check("bus dies mid-burst: ISSUED counts both accesses",
+          e["issued"] == 2, f"issued {e['issued']}")
+    check("bus dies mid-burst: ACKED counts only the one that was answered",
+          e["acked"] == half["sv_ack"] == 1, f"acked {e['acked']}")
+    check("bus dies mid-burst: TIMED OUT counts the one that was not",
+          e["timed_out"] == 1, f"timed_out {e['timed_out']}")
+
+
+class Bare(Module):
+    """The observer with no bridge at all: every input driven by the test."""
+
+    def __init__(self):
+        self.cyc = Signal(); self.stb = Signal()
+        self.ack = Signal(); self.err = Signal()
+        self.psn = Signal(); self.pset = Signal()
+        self.submodules.diag = _milan_soc()._PPMemDiag(
+            [("desc", _BusFace(self.cyc, self.stb, self.ack, self.err),
+              self.psn, self.pset)])
+
+
+def test_counter_gating():
+    """An answer that lands while this master is asking for nothing is NOT ours.
+
+    Not hypothetical: on a coherent `dma_bus` each master owns its converter, so
+    the answer owed to an access the watchdog abandoned can arrive after the FSM
+    has let go of the bus (which is why milan_soc.py watches the poison flag's
+    clear in EVERY state, not from the bus state's arm). Counting that as an ACK
+    would make `issued - acked` - the arithmetic the whole block is read by -
+    report an outstanding access as settled.
+    """
+    dut = Bare()
+    seen = {}
+
+    def stim():
+        yield dut.ack.eq(1)               # the bus answers, nobody is asking
+        for _ in range(4):
+            yield
+        yield dut.err.eq(1)
+        for _ in range(4):
+            yield
+        yield dut.ack.eq(0)
+        yield dut.err.eq(0)
+        yield
+        seen["stray"] = yield from _snap(dut)
+        yield dut.cyc.eq(1)               # now this master asks, and is answered
+        yield dut.stb.eq(1)
+        yield
+        yield dut.ack.eq(1)
+        yield
+        yield dut.ack.eq(0)
+        yield dut.cyc.eq(0)
+        yield dut.stb.eq(0)
+        yield
+        yield
+        seen["own"] = yield from _snap(dut)
+
+    run_simulation(dut, stim())
+    s, o = seen["stray"], seen["own"]
+    check("an ack with this master off the bus counts nothing",
+          (s["issued"], s["acked"], s["errored"]) == (0, 0, 0), f"{s}")
+    check("its own access is still counted, issued and acked",
+          (o["issued"], o["acked"]) == (1, 1), f"{o}")
+
+
+def test_counter_saturation():
+    """0xFFFF means "at least this many". A wrap would read as almost none.
+
+    Driven on the bare observer: 65,600 events is far past the counter's range
+    and a wrapping counter would land near 64. The watchdog-fire input is used
+    because it is a plain pulse, so the count is exactly the number of cycles
+    the stimulus asserts it - an expectation this test owns rather than infers.
+    """
+    dut = Bare()
+    seen = {}
+
+    def stim():
+        yield dut.pset.eq(1)
+        for c in range(2**16 + 64):
+            if c == 2**16 - 3:            # still short of the range
+                seen["before"] = (yield from _snap(dut))["timed_out"]
+            yield
+        seen["after"] = (yield from _snap(dut))["timed_out"]
+
+    run_simulation(dut, stim())
+    check("the counter reaches its full range (not truncated early)",
+          seen["before"] == 2**16 - 4, f"got {seen['before']}")
+    check("past the range it SATURATES at 0xFFFF rather than wrapping",
+          seen["after"] == 0xFFFF,
+          f"got {seen['after']} - a wrapped counter reads as 'almost none'")
+
+
+class TwoFaced(Module):
+    """The observer as milan_soc.py really builds it: BOTH bridges, no FSM.
+
+    Everything else in this file drives ONE face, so nothing else can see the
+    second one at all: a block that summed both bridges into one set of counters,
+    or that packed the response face's live bits at the wrong offset, would pass
+    every check above and still misdirect the person reading it at 3am - to the
+    descriptor bridge when the response bridge is the one that died.
+    """
+
+    def __init__(self):
+        self.f = []
+        faces = []
+        for tag in ("desc", "resp"):
+            sig = {n: Signal() for n in
+                   ("cyc", "stb", "ack", "err", "psn", "pset")}
+            self.f.append(sig)
+            faces.append((tag, _BusFace(sig["cyc"], sig["stb"],
+                                        sig["ack"], sig["err"]),
+                          sig["psn"], sig["pset"]))
+        self.submodules.diag = _milan_soc()._PPMemDiag(faces)
+
+
+def _snap2(dut):
+    """Both faces, decoded at the offsets and bit positions the map publishes.
+
+    `resp` is read out of ITS OWN registers (+0x08 / +0x0C) and out of stat bits
+    2 and 3, which is the claim under test - not re-derived from the desc face.
+    """
+    dreq = yield dut.diag.desc_req.status
+    dflt = yield dut.diag.desc_fault.status
+    rreq = yield dut.diag.resp_req.status
+    rflt = yield dut.diag.resp_fault.status
+    st = yield dut.diag.stat.status
+
+    def face(req, flt, psn_bit, on_bit):
+        return {"issued": req >> 16, "acked": req & 0xFFFF,
+                "errored": flt >> 16, "timed_out": flt & 0xFFFF,
+                "poisoned": (st >> psn_bit) & 1, "on_bus": (st >> on_bit) & 1}
+
+    return {"desc": face(dreq, dflt, 0, 1), "resp": face(rreq, rflt, 2, 3),
+            "tag": st >> 24}
+
+
+def test_two_faces():
+    """Each bridge is counted SEPARATELY, and at the documented bit positions.
+
+    The register map's whole promise is that a reading names WHICH bridge is
+    stuck. Drive one face and the other must stay at rest, in both directions:
+    the descriptor bridge's traffic must not appear in `resp_req`, and the
+    response bridge's poison must not light `stat[0]`.
+    """
+    dut = TwoFaced()
+    seen = {}
+
+    def one(i):
+        """One issued-and-acked access plus one watchdog fire, on face `i`."""
+        yield dut.f[i]["cyc"].eq(1)
+        yield dut.f[i]["stb"].eq(1)
+        yield
+        yield dut.f[i]["ack"].eq(1)
+        yield
+        yield dut.f[i]["ack"].eq(0)
+        yield dut.f[i]["cyc"].eq(0)
+        yield dut.f[i]["stb"].eq(0)
+        yield
+        yield dut.f[i]["pset"].eq(1)     # the watchdog fires
+        yield dut.f[i]["psn"].eq(1)      # and the master is poisoned
+        yield
+        yield dut.f[i]["pset"].eq(0)
+        yield
+        yield
+
+    def hold(i):
+        """Park face `i` on the bus and read `stat` WHILE it is still there.
+
+        `one()` above lets go of cyc/stb before it snapshots, so every reading
+        it takes has both live on-bus bits at 0 - which means it cannot see them
+        transposed. Measured 2026-08-13: swapping stat[1] with stat[3] left all
+        87 checks green while the verdict table's "which face is still holding
+        cyc/stb" row named the wrong bridge, i.e. it misdirects at exactly the
+        moment the bank exists for. The poison bits latch and are covered; these
+        two are combinational on cyc&stb and only exist mid-access.
+        """
+        yield dut.f[i]["cyc"].eq(1)
+        yield dut.f[i]["stb"].eq(1)
+        yield
+        yield
+        st = yield dut.diag.stat.status
+        yield dut.f[i]["cyc"].eq(0)
+        yield dut.f[i]["stb"].eq(0)
+        yield
+        return st
+
+    def stim():
+        yield from one(0)                # the DESCRIPTOR bridge only
+        seen["desc_only"] = yield from _snap2(dut)
+        yield dut.f[0]["psn"].eq(0)      # its debt is settled
+        yield
+        yield from one(1)                # now the RESPONSE bridge only
+        seen["resp_too"] = yield from _snap2(dut)
+        seen["d_live"] = yield from hold(0)
+        seen["r_live"] = yield from hold(1)
+
+    run_simulation(dut, stim())
+    d, r = seen["desc_only"], seen["resp_too"]
+    check("descriptor traffic lands in the DESCRIPTOR counters",
+          (d["desc"]["issued"], d["desc"]["acked"], d["desc"]["timed_out"])
+          == (1, 1, 1), f"desc {d['desc']}")
+    check("and not one count of it reaches the RESPONSE counters",
+          (d["resp"]["issued"], d["resp"]["acked"], d["resp"]["errored"],
+           d["resp"]["timed_out"]) == (0, 0, 0, 0),
+          f"resp {d['resp']} - the two bridges share a counter")
+    check("the descriptor poison flag is stat[0], and stat[2] stays clear",
+          (d["desc"]["poisoned"], d["resp"]["poisoned"]) == (1, 0),
+          f"desc {d['desc']['poisoned']} resp {d['resp']['poisoned']}")
+    check("the response bridge is counted in ITS OWN registers",
+          (r["resp"]["issued"], r["resp"]["acked"], r["resp"]["timed_out"])
+          == (1, 1, 1), f"resp {r['resp']}")
+    check("and the descriptor counters do not move while it runs",
+          (r["desc"]["issued"], r["desc"]["acked"], r["desc"]["timed_out"])
+          == (1, 1, 1), f"desc {r['desc']} - it was 1/1/1 before resp ran")
+    check("the response poison flag is stat[2], the position the map publishes",
+          (r["resp"]["poisoned"], r["desc"]["poisoned"]) == (1, 0),
+          f"stat resp {r['resp']['poisoned']} desc {r['desc']['poisoned']}")
+    check("the tag survives two faces (it is not overwritten by the flags)",
+          r["tag"] == 0x5B, f"tag 0x{r['tag']:02x}")
+    dl, rl = seen["d_live"], seen["r_live"]
+    check("mid-access, the DESCRIPTOR bridge lights stat[1] and not stat[3]",
+          ((dl >> 1) & 1, (dl >> 3) & 1) == (1, 0),
+          f"stat 0x{dl:08x} - the live on-bus bits are transposed, so the "
+          "verdict table's outstanding-right-now row names the wrong bridge")
+    check("mid-access, the RESPONSE bridge lights stat[3] and not stat[1]",
+          ((rl >> 1) & 1, (rl >> 3) & 1) == (0, 1),
+          f"stat 0x{rl:08x} - the live on-bus bits are transposed, so the "
+          "verdict table's outstanding-right-now row names the wrong bridge")
+
+
+def test_counter_wiring():
+    """The observer must be wired to the REAL bridges, and to BOTH of them.
+
+    Parsed, not grepped. Everything above builds its own wiring, so a perfectly
+    correct block connected to the wrong signals - or to one face only - would
+    pass every behavioural check and still read 0 on the board.
+    """
+    tree = ast.parse(open(MILAN_SOC).read())
+    calls = [n for n in ast.walk(tree)
+             if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
+             and n.func.id == "_PPMemDiag"]
+    check("milan_soc.py instantiates _PPMemDiag", len(calls) == 1,
+          f"found {len(calls)}")
+    if not calls:
+        return
+    faces = {}
+    for face in (calls[0].args[0].elts if calls[0].args
+                 and isinstance(calls[0].args[0], (ast.List, ast.Tuple))
+                 else []):
+        if isinstance(face, ast.Tuple) and isinstance(face.elts[0], ast.Constant):
+            faces[face.elts[0].value] = {n.id for n in ast.walk(face)
+                                         if isinstance(n, ast.Name)}
+    # ORDER IS ABI: `stat` packs two live bits per face in this order, and the
+    # register map publishes those bit positions. Swapping the two faces would
+    # keep every counter correct and silently rename the flags.
+    check("both memory bridges are observed, descriptor face first",
+          list(faces) == ["desc", "resp"], f"faces: {list(faces)}")
+    # The bus objects the FSMs actually drive, the flags they actually set.
+    for face, want in (("desc", {"_dwb", "_dpsn", "_dpsn_set"}),
+                       ("resp", {"_rwb", "_rpsn", "_rpsn_set"})):
+        check(f"the {face} face watches that bridge's own bus, poison flag "
+              "and watchdog pulse",
+              want <= faces.get(face, set()),
+              f"wired to {sorted(faces.get(face, set()))}, want {sorted(want)}")
+
+    # The bank's ADDRESS is part of the ABI the register map publishes, and
+    # LiteX allocates the lowest free page: unpinned, this bank lands on
+    # sdram's page and pushes the LiteSPI bank - a write path to the boot
+    # flash - out from under every device tree that names it.
+    pinned = [n for n in ast.walk(tree)
+              if isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute)
+              and n.func.attr == "add" and n.args
+              and isinstance(n.args[0], ast.Constant) and n.args[0].value == "ppmem"]
+    check("the ppmem CSR bank is pinned to a fixed location",
+          bool(pinned) and any(k.arg == "n" for c in pinned for k in c.keywords),
+          "an unpinned bank moves sdram and spiflash the next time a module "
+          "is added ahead of it")
+
+
 def _act_calls(tree, names):
     out = {}
     for node in ast.walk(tree):
@@ -487,6 +1089,18 @@ if __name__ == "__main__":
     test_behavioural()
     print("test_recovery:")
     test_recovery()
+    print("test_precedence:")
+    test_precedence()
+    print("test_counters:")
+    test_counters()
+    print("test_counter_gating:")
+    test_counter_gating()
+    print("test_counter_saturation:")
+    test_counter_saturation()
+    print("test_two_faces:")
+    test_two_faces()
+    print("test_counter_wiring:")
+    test_counter_wiring()
     print("test_structural:")
     test_structural()
     print(f"\ntest_pp_mem_bridge: {checks} checks: "
