@@ -52,6 +52,7 @@ spread is "owned by three unmeasured numbers". Two of them are measured here.
 - **[THE SUBSTITUTION CASE — measured 2026-08-12, and it reverses the verdict](#the-substitution-case--measured-2026-08-12-and-it-reverses-the-verdict)** — The right question for scenario B, which deletes the old planes rather than coexisting with them. Both sides measured on the **same instrument**: the removable planes give back 14,489 LUT standalone and 15,474 in context, against the processor's 6,956 in context — **net −8,518 LUT, a 25 % reduction**. The single fact that drives it is that `KL_aecp_top` alone (8,645 in context) is larger than the entire processor plane, and nobody had measured it before. After P4 restores a working AECP the net is a saving at both ends of the bracket.
 - **[SETTLED ON THE REAL BUILD — 2026-08-13: shadow mode does not fit the die](#settled-on-the-real-build--2026-08-13-shadow-mode-does-not-fit-the-die)** — The question out-of-context synthesis cannot answer: does a whole SoC with the plane on place on the board? It does not. `--with-pp-plane` — the first build in this project's history to contain the processor — failed `place_design` identically on all three seeds, before timing was ever reached. Shadow mode is therefore not a shipping option, and substitution is the only path.
 - **[Reproduce](#reproduce)** — `syn/ooc/pp_shadow_ooc.tcl`, with `PP_N_IN`/`PP_N_OUT` selecting the shape. The script prints the shape it used, deliberately: a utilization figure quoted without its shape is a figure that gets misapplied.
+- **[THE SUBSTITUTION ON THE REAL BUILD — 2026-08-13](#the-substitution-on-the-real-build--2026-08-13)** — the legacy planes deleted and the processor sole: LUTs fall 1,313 below a tree that never had it, but BRAM hits 135 of 135 and placement fails on the AECP response buffer spilling into 5,079 flops. The binding constraint moves from logic to memory
 
 ## Instrument
 
@@ -346,3 +347,48 @@ before anyone quotes these as vendor-neutral.
 `syn/ooc/pp_shadow_ooc.tcl` (this repo). `PP_N_IN` / `PP_N_OUT` select the
 shape and default to 8; the script prints the shape it used, because a
 utilization figure quoted without its shape is a figure that gets misapplied.
+
+## THE SUBSTITUTION ON THE REAL BUILD — 2026-08-13
+
+The legacy planes are deleted (`eff99a9c`) and the processor — now including the
+AECP µCPU, descriptor store and engine — is the only control plane. Shipping
+AX7101 config, one seed.
+
+| post-synth | baseline | substituted | delta |
+|---|---|---|---|
+| Slice LUTs | 56,779 (89.6 %) | **55,466 (87.5 %)** | **−1,313** |
+| Block RAM | 109 (80.7 %) | **135 (100.0 %)** | **+26** |
+| Registers | — | 62,138 (49.0 %) | — |
+
+**LUTs went the right way** — smaller than the tree that had no processor in it
+at all. But −1,313 is far from the −8,518 predicted earlier, and the reason is
+not an arithmetic error: that prediction measured a processor with **no AECP
+engine**. The µCPU, descriptor store and dispatch queue landed in between, so
+the thing being added grew. The earlier note that constant propagation was
+pruning `u_dispatch/u_aecp_q` "until P4 lands" was exactly this bill arriving.
+
+**PLACEMENT FAILED, on memory, not logic.**
+
+> ERROR: [Place 30-433] Unplaced instances found …
+> `milan_datapath/pp_shadow/u_pp/u_aecp/rbuf_r_reg[3][97][0]` … could not be placed
+> ERROR: [Place 30-99] Placer failed with error: 'failed to commit all instances'
+
+The unplaced instances are the AECP **response buffer**, `rbuf_r`, carried as
+**5,079 flip-flops** in `KL_aecp_engine`'s own glue. A buffer that shape wants
+to be a block RAM — and cannot be, because BRAM is at **135 of 135**. So it
+spilled into fabric, and with LUTs already at 87.5 % the placer had nowhere to
+pack it.
+
+Where the processor's 38 RAMB36 + 3 RAMB18 go:
+
+| block | RAMB36 |
+|---|---|
+| `u_aecp_q` (AECP dispatch queue) | 5 |
+| `u_aecp` (descriptor line buffer etc.) | 5 |
+| `u_ucpu` (µcode ROM, 2048 × 48 b) | 3 |
+| RX slot pools + TX slots + the rest | ~25 |
+
+**The binding constraint has moved from LUTs to BRAM.** Freeing block RAM in the
+processor — the dispatch queue and the RX pools are the obvious candidates — is
+now what decides whether this flashes, and it is a submodule change. Cutting
+LUTs further buys nothing.
