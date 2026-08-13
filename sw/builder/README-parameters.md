@@ -349,7 +349,7 @@ mislead for small modules):
   engines do not exist yet (item 5) - full replication, no sharing;
 - `model` - derived, not measured: L2 BRAM = 1 RAMB36 per 4 KB vs the
   64 KB calibration build (32 KB cross-check exact), AEM ROM growth =
-  128 B per cluster beyond 16 (tracked ROM = 3653 B / 34 descriptors).
+  128 B per cluster beyond 16 (tracked ROM = 3675 B / 34 descriptors).
 
 Verdict = worst category vs the part: **OK** (<70%), **TIGHT** (70-80%,
 area-70 directive: keep slice headroom), **OVER** (>80%).

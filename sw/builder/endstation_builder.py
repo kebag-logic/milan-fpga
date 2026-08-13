@@ -614,7 +614,7 @@ RESOURCE_COSTS = {
                          "16-cluster AEM ROM store)", "measured"),
     "aem_rom_extra_cluster": _cost(0, 0, ROM_BYTES_PER_CLUSTER / 4096.0, 0,
                                    f"model: {ROM_BYTES_PER_CLUSTER} B ROM per "
-                                   "cluster beyond 16 (tracked ROM = 3653 B "
+                                   "cluster beyond 16 (tracked ROM = 3675 B "
                                    "for 34 descriptors)", "model"),
     "crf_rx": _cost(2699, 8457, 0, 0, "arty mf48 row 'crf_rx' (KL_crf_rx)",
                     "measured"),
