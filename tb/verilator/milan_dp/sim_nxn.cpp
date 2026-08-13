@@ -91,6 +91,16 @@ static const uint32_t RESP_BASE  = 0x20100000u;   // PP_RESP_BASE_P default
 static const uint32_t RESP_BYTES = 592u;          // 16 + PP_DESC_LINE_BYTES_P
 
 static uint8_t  rmem[RESP_BYTES];
+// A memory that NEVER ACKS is a distinct failure from a memory that answers an
+// error, and until 2026-08-13 nothing in this tree drove it: the SoC-side
+// bridge left its bus states only on `ack`, so one unanswered access parked it
+// there for good - with `cyc`/`stb` held, which the dma_bus arbiter reads as an
+// outstanding transaction and stops re-arbitrating on, taking every other
+// master with it. On the board that showed up as descriptor-store fault 8
+// (FAULT_TIMEOUT), response-buffer fault 1 (FAULT_WTMO) and every AECP command
+// answered ENTITY_MISBEHAVING. Held low, these four inputs ARE that bridge:
+// section [AECP-WTMO] below drives them so the seam is graded, not assumed.
+static bool     rm_answering = true;
 static bool     rm_busy  = false;                 // read burst in flight
 static uint32_t rm_cur   = 0;
 static int      rm_left  = 0;
@@ -109,6 +119,17 @@ static uint64_t rmem_beat(uint32_t byte_addr) {
 }
 
 static void rmem_drive() {
+    if (!rm_answering) {                           // the wedged-bridge arm
+        dut->i_resp_mem_req_ready = 0;
+        dut->i_resp_mem_rsp_valid = 0;
+        dut->i_resp_mem_rsp_data  = 0;
+        dut->i_resp_mem_rsp_last  = 0;
+        dut->i_resp_mem_rsp_err   = 0;
+        dut->i_resp_mem_wr_ready  = 0;
+        dut->i_resp_mem_wr_done   = 0;
+        dut->i_resp_mem_wr_err    = 0;
+        return;
+    }
     dut->i_resp_mem_req_ready = rm_busy ? 0 : 1;
     dut->i_resp_mem_rsp_valid = rm_busy ? 1 : 0;
     dut->i_resp_mem_rsp_data  = rm_busy ? rmem_beat(rm_cur) : 0;
@@ -120,6 +141,7 @@ static void rmem_drive() {
 }
 
 static void rmem_edge() {
+    if (!rm_answering) return;                     // accepts nothing either
     if (!rm_busy) {
         if (dut->o_resp_mem_req_valid && dut->i_resp_mem_req_ready) {
             rm_cur  = dut->o_resp_mem_req_addr;
@@ -472,6 +494,51 @@ int main(int argc, char** argv) {
             ck("[AECP] ...padded to the 60-octet Ethernet minimum",
                (long)r.size(), 60);
         }
+    }
+
+    //! [AECP-WTMO] THE RESPONSE MEMORY STOPS ANSWERING - AND THE STATION
+    //! MUST REPORT, NOT WEDGE. The 2026-08-13 board defect was exactly this
+    //! shape and nothing in this tree could have caught it: the bridge that
+    //! stands where `rm_answering` stands here left its bus states only on
+    //! `ack`, so ONE unanswered access parked it forever, silently. What made
+    //! it lethal rather than local is the arbiter: the dma_bus re-arbitrates
+    //! only when nothing is outstanding, so a master holding cyc/stb freezes
+    //! every other master on that bus. The visible half of the fix is graded
+    //! here - a memory that never acks must produce a well-formed
+    //! ENTITY_MISBEHAVING and then HEAL, with no reset anywhere - and the
+    //! bridge FSM that has to survive it is graded in
+    //! sw/litex/test_pp_mem_bridge.py, which is where that FSM lives.
+    //!
+    //! This is the SAME degradation pp_shadow's section [N] grades on the bare
+    //! processor, driven here through the whole datapath instead: real RX
+    //! classify, the shared control TX lane, the real frame builder.
+    {
+        rm_answering = false;
+        std::vector<uint8_t> pl = {0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00};
+        auto r = aecp_xact(0x0004, 0x4001, pl);
+        ck("[AECP-WTMO] a memory that NEVER ACKS still gets an ANSWER",
+           (long)(r.size() >= 38), 1);
+        if (r.size() >= 38) {
+            ck("[AECP-WTMO] ...still an AEM_RESPONSE (message_type 1)",
+               r[15] & 0x0F, 1);
+            //! the buffer's write watchdog voided the response, so the engine
+            //! answers the ONE status that says "I could not build it"
+            ck("[AECP-WTMO] ...with ENTITY_MISBEHAVING(10), the documented "
+               "degradation", aecp_status(r), 10);
+            ck("[AECP-WTMO] ...carrying no payload it could not build "
+               "(cdl = 12)",
+               (long)((((unsigned)r[16] & 7) << 8) | r[17]), 12);
+            ck("[AECP-WTMO] ...still padded to the 60-octet minimum",
+               (long)r.size(), 60);
+        }
+        //! ...and the fault is PER-COMMAND, not sticky: the buffer clears on
+        //! the next open, so the very next command answers as it did before
+        //! the memory went away. A wedge would fail HERE even if the check
+        //! above passed on a lucky first frame.
+        rm_answering = true;
+        auto r2 = aecp_xact(0x0004, 0x4002, pl);
+        ck("[AECP-WTMO] the station HEALS when the memory returns (no reset)",
+           (long)(r2.size() >= 38 && aecp_status(r2) == 7), 1);
     }
 
 #ifdef AAF_PB_TB

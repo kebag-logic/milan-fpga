@@ -5662,43 +5662,102 @@ class MilanSoC(SoCCore):
             # master HAS one, so the error is PROPAGATED: the store aborts the
             # burst and degrades that locate to NO_SUCH_DESCRIPTOR. A corrupt
             # descriptor is never served as though it were good.
+            #
+            # NEITHER IS THE WATCHDOG, and THAT is what the 08-13 board round
+            # cost. A timeout is not an error response: LiteX's wishbone2axi
+            # answers a failed access with `err` AND `ack` together, so the
+            # error arm above never fires for an access that is simply never
+            # acked. Every bus state used to leave ONLY on `ack`, so one
+            # unanswered access parked the FSM there with `cyc`/`stb` held -
+            # and the dma_bus arbiter re-arbitrates only when nothing is
+            # outstanding (generated netlist: `rr_read_ce = ~(ar_valid |
+            # r_valid) & rd_lock_empty`), so that one access froze the READ
+            # half of the bus for EVERY master on it, permanently and with
+            # nothing to observe it by. Measured consequence: descriptor store
+            # fault 8 = FAULT_TIMEOUT, response buffer fault 1 = FAULT_WTMO,
+            # image invalid, and every AECP command answered ENTITY_MISBEHAVING
+            # - while the write half stayed alive long enough to commit two
+            # lanes (dbg_lane_wr = 2), which is what proves the masters
+            # themselves transact and the wedge is the missing `ack`.
+            #
+            # WIDTH. One access per 64-bit beat, `milan_aaf_pb`'s shape and
+            # the processor's own lane width, with the address width DERIVED
+            # from it rather than restated. The 32-bit master this replaces
+            # worked (it up-converted, and both halves of a lane reached the
+            # right bytes with the right strobes) but spent two accesses and
+            # an inserted converter per beat - two chances to wedge where the
+            # protocol has one, and a split-strobe write arm that exists only
+            # because the master was narrower than the lane.
             from litex.soc.interconnect import wishbone as _wb
+            import math as _math
+            _pp_dw   = 64                      # the processor's memory lane
+            _pp_selm = 2**(_pp_dw // 8) - 1
+            _pp_adrw = 32 - int(_math.log2(_pp_dw // 8))
+            _pp_sh   = int(_math.log2(_pp_dw // 8))
+            # Watchdog, in sys cycles, bounded from BOTH sides:
+            #  * above the memory system - the measured worst case on this
+            #    board is a 1,424 ns miss = 143 cycles at 100 MHz, and eight
+            #    masters share the dma_bus arbiter, so an order of magnitude
+            #    over that is still nowhere near the limit;
+            #  * below the PROCESSOR's own per-beat watchdog, 4,096 cycles
+            #    (DESC_MEM_TMO_CYC_P). The bridge has to report FIRST, or the
+            #    submodule records silence where the truth is a failed bus.
+            # Nothing here has a throughput requirement: this is the control
+            # path, and 2,048 cycles is 20.5 us once, not per descriptor.
+            _pp_tmo = 2048
             _dq = self.milan.descmem_req_sys
             _ds = self.milan.descmem_rsp_sys
-            self.descmem_wb = _dwb = _wb.Interface(data_width=32, adr_width=30,
+            self.descmem_wb = _dwb = _wb.Interface(data_width=_pp_dw,
+                                                   adr_width=_pp_adrw,
                                                    addressing="word")
             _dmab = getattr(self, "dma_bus", self.bus)
             _dmab.add_master("milan_desc_mem", master=_dwb)
 
             _da = Signal(32); _dl = Signal(9)
-            _dlo = Signal(32); _dhi = Signal(32); _de = Signal()
+            _dd = Signal(64); _de = Signal()
+            _dto = Signal(max=_pp_tmo + 1)
+            # A timed-out access is ABANDONED, not cancelled: AXI forbids
+            # retracting a VALID before its READY, so the bridge downstream may
+            # still be holding the request and will ack it whenever the memory
+            # finally answers. Issuing a NEW access before that stale ack
+            # arrives would pair it with the wrong address, so the master stays
+            # POISONED until it lands - answering `err` immediately meanwhile
+            # (a fault the processor names, instead of a second 41 us stall per
+            # attempt) and healing itself the moment the bus comes back.
+            _dpsn = Signal(); _dpsn_set = Signal()
+            self.sync += If(_dpsn_set, _dpsn.eq(1)
+                         ).Elif(_dpsn & _dwb.ack, _dpsn.eq(0))
             self.descmem_fsm = _dfsm = FSM(reset_state="IDLE")
             _dfsm.act("IDLE",
                 _dq.ready.eq(1),
                 If(_dq.valid,
                     NextValue(_da, _dq.addr), NextValue(_dl, _dq.beats),
-                    NextValue(_de, 0), NextState("RD_LO")))
-            _dfsm.act("RD_LO",
-                _dwb.cyc.eq(1), _dwb.stb.eq(1), _dwb.sel.eq(0xF),
-                _dwb.adr.eq(_da[2:]),
-                If(_dwb.ack,
-                    If(_dwb.err, NextValue(_de, 1), NextState("EMIT")
-                    ).Else(NextValue(_dlo, _dwb.dat_r), NextState("RD_HI"))))
-            _dfsm.act("RD_HI",
-                _dwb.cyc.eq(1), _dwb.stb.eq(1), _dwb.sel.eq(0xF),
-                _dwb.adr.eq((_da + 4)[2:]),
-                If(_dwb.ack,
-                    If(_dwb.err, NextValue(_de, 1), NextState("EMIT")
-                    ).Else(NextValue(_dhi, _dwb.dat_r), NextState("EMIT"))))
+                    NextValue(_de, _dpsn), NextValue(_dto, 0),
+                    NextState("RD")))
+            _dfsm.act("RD",
+                If(_de,
+                    NextState("EMIT")      # poisoned: answer, do not touch it
+                ).Else(
+                    _dwb.cyc.eq(1), _dwb.stb.eq(1), _dwb.sel.eq(_pp_selm),
+                    _dwb.adr.eq(_da[_pp_sh:]),
+                    NextValue(_dto, _dto + 1),
+                    If(_dwb.ack,
+                        NextValue(_dto, 0),
+                        If(_dwb.err, NextValue(_de, 1)
+                        ).Else(NextValue(_dd, _dwb.dat_r)),
+                        NextState("EMIT")
+                    ).Elif(_dto == _pp_tmo,
+                        NextValue(_dto, 0), NextValue(_de, 1),
+                        _dpsn_set.eq(1), NextState("EMIT"))))
             _dfsm.act("EMIT",
                 _ds.valid.eq(1), _ds.err.eq(_de),
                 _ds.blast.eq((_dl == 1) | _de),
-                _ds.data.eq(Cat(_dhi[24:32], _dhi[16:24], _dhi[8:16], _dhi[0:8],
-                                _dlo[24:32], _dlo[16:24], _dlo[8:16], _dlo[0:8])),
+                _ds.data.eq(Cat(_dd[56:64], _dd[48:56], _dd[40:48], _dd[32:40],
+                                _dd[24:32], _dd[16:24], _dd[8:16], _dd[0:8])),
                 If(_ds.ready,
                     If(_de | (_dl == 1), NextState("IDLE")
                     ).Else(NextValue(_da, _da + 8), NextValue(_dl, _dl - 1),
-                           NextState("RD_LO"))))
+                           NextValue(_dto, 0), NextState("RD"))))
 
             # ===============================================================
             #  AECP RESPONSE-BUFFER READ+WRITE BRIDGE (protocol-processor 03 §7)
@@ -5712,13 +5771,19 @@ class MilanSoC(SoCCore):
             #
             # THE STROBES ARE THE POINT. `wr_strb` bit n enables byte n of the
             # big-endian lane and A ZERO-STROBE BYTE MUST NOT BE MODIFIED, so
-            # the 64-bit lane becomes two 32-bit wishbone cycles carrying half
-            # the strobe each as `sel` (LiteX's Wishbone2AXILite forwards `sel`
-            # to AXI `wstrb` verbatim), and a half whose strobe is empty is
-            # SKIPPED rather than issued as a sel=0 cycle. The first lane of
-            # every response has an empty low half - the uCPU's 12-byte header
-            # record is dropped and the payload starts at byte 12 - so that arm
-            # is exercised on every single AECP response, not as an edge case.
+            # the whole strobe rides ONE 64-bit wishbone cycle as `sel` (LiteX
+            # forwards `sel` to AXI `wstrb` verbatim). The first lane of every
+            # response has an empty low half - the uCPU's 12-byte header record
+            # is dropped and the payload starts at byte 12 - which is now just
+            # sel = 0xF0 rather than a skipped half-cycle; an ENTIRELY empty
+            # strobe is still skipped rather than issued as a sel=0 cycle.
+            #
+            # THE WATCHDOG: see the descriptor bridge above for what one
+            # unanswered access did to this bus. The write face is where it was
+            # measured - two lanes committed (dbg_lane_wr = 2), then the
+            # response's read-back went out on the frozen read half and parked
+            # this FSM in its read state forever, so every later write reported
+            # fault 1 = FAULT_WTMO and 35 responses were voided.
             #
             # BYTE ORDER, and it is the exact inverse of the read path above: a
             # beat carries byte `addr+n` in bits [63-8n -: 8] (1722.1 wire
@@ -5735,13 +5800,18 @@ class MilanSoC(SoCCore):
             _rs = self.milan.respmem_rsp_sys      # read response (to datapath)
             _rw = self.milan.respmem_wr_sys       # write         (from datapath)
             _rd = self.milan.respmem_wd_sys       # write done    (to datapath)
-            self.respmem_wb = _rwb = _wb.Interface(data_width=32, adr_width=30,
+            self.respmem_wb = _rwb = _wb.Interface(data_width=_pp_dw,
+                                                   adr_width=_pp_adrw,
                                                    addressing="word")
             _dmab.add_master("milan_resp_mem", master=_rwb)
 
             _ra = Signal(32); _rl = Signal(9)
-            _rlo = Signal(32); _rhi = Signal(32); _re = Signal()
+            _rdat = Signal(64); _re = Signal()
             _wa = Signal(32); _wd = Signal(64); _ws = Signal(8); _werr = Signal()
+            _rto = Signal(max=_pp_tmo + 1)
+            _rpsn = Signal(); _rpsn_set = Signal()
+            self.sync += If(_rpsn_set, _rpsn.eq(1)
+                         ).Elif(_rpsn & _rwb.ack, _rpsn.eq(0))
             self.respmem_fsm = _rfsm = FSM(reset_state="IDLE")
             # The write is offered first when both are pending. Neither face can
             # be starved by that: both are single-transaction and held until
@@ -5750,35 +5820,32 @@ class MilanSoC(SoCCore):
             _rfsm.act("IDLE",
                 _rw.ready.eq(1),
                 _rq.ready.eq(~_rw.valid),
+                NextValue(_rto, 0),
                 If(_rw.valid,
                     NextValue(_wa, _rw.addr), NextValue(_wd, _rw.data),
-                    NextValue(_ws, _rw.strb), NextValue(_werr, 0),
-                    NextState("WR_LO")
+                    NextValue(_ws, _rw.strb), NextValue(_werr, _rpsn),
+                    NextState("WR")
                 ).Elif(_rq.valid,
                     NextValue(_ra, _rq.addr), NextValue(_rl, _rq.beats),
-                    NextValue(_re, 0), NextState("RD_LO")))
-            _rfsm.act("WR_LO",
-                If(_ws[0:4] == 0,
-                    NextState("WR_HI")
+                    NextValue(_re, _rpsn), NextState("RD")))
+            _rfsm.act("WR",
+                If((_ws == 0) | _werr,
+                    NextState("WDONE")     # nothing to write, or poisoned
                 ).Else(
                     _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.we.eq(1),
-                    _rwb.sel.eq(_ws[0:4]), _rwb.adr.eq(_wa[2:]),
+                    _rwb.sel.eq(_ws), _rwb.adr.eq(_wa[_pp_sh:]),
                     _rwb.dat_w.eq(Cat(_wd[56:64], _wd[48:56],
-                                      _wd[40:48], _wd[32:40])),
+                                      _wd[40:48], _wd[32:40],
+                                      _wd[24:32], _wd[16:24],
+                                      _wd[8:16],  _wd[0:8])),
+                    NextValue(_rto, _rto + 1),
                     If(_rwb.ack,
-                        If(_rwb.err, NextValue(_werr, 1), NextState("WDONE")
-                        ).Else(NextState("WR_HI")))))
-            _rfsm.act("WR_HI",
-                If(_ws[4:8] == 0,
-                    NextState("WDONE")
-                ).Else(
-                    _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.we.eq(1),
-                    _rwb.sel.eq(_ws[4:8]), _rwb.adr.eq((_wa + 4)[2:]),
-                    _rwb.dat_w.eq(Cat(_wd[24:32], _wd[16:24],
-                                      _wd[8:16], _wd[0:8])),
-                    If(_rwb.ack,
+                        NextValue(_rto, 0),
                         If(_rwb.err, NextValue(_werr, 1)),
-                        NextState("WDONE"))))
+                        NextState("WDONE")
+                    ).Elif(_rto == _pp_tmo,
+                        NextValue(_rto, 0), NextValue(_werr, 1),
+                        _rpsn_set.eq(1), NextState("WDONE"))))
             # ONE cycle in this state = the one-cycle commit pulse the buffer
             # waits for, and it is STRICTLY LATER than the `wr_ready` that
             # accepted the write - the acknowledged bridge, which is the shape
@@ -5787,29 +5854,33 @@ class MilanSoC(SoCCore):
             _rfsm.act("WDONE",
                 _rd.valid.eq(1), _rd.err.eq(_werr),
                 If(_rd.ready, NextState("IDLE")))
-            _rfsm.act("RD_LO",
-                _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.sel.eq(0xF),
-                _rwb.adr.eq(_ra[2:]),
-                If(_rwb.ack,
-                    If(_rwb.err, NextValue(_re, 1), NextState("REMIT")
-                    ).Else(NextValue(_rlo, _rwb.dat_r), NextState("RD_HI"))))
-            _rfsm.act("RD_HI",
-                _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.sel.eq(0xF),
-                _rwb.adr.eq((_ra + 4)[2:]),
-                If(_rwb.ack,
-                    If(_rwb.err, NextValue(_re, 1), NextState("REMIT")
-                    ).Else(NextValue(_rhi, _rwb.dat_r), NextState("REMIT"))))
+            _rfsm.act("RD",
+                If(_re,
+                    NextState("REMIT")     # poisoned: answer, do not touch it
+                ).Else(
+                    _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.sel.eq(_pp_selm),
+                    _rwb.adr.eq(_ra[_pp_sh:]),
+                    NextValue(_rto, _rto + 1),
+                    If(_rwb.ack,
+                        NextValue(_rto, 0),
+                        If(_rwb.err, NextValue(_re, 1)
+                        ).Else(NextValue(_rdat, _rwb.dat_r)),
+                        NextState("REMIT")
+                    ).Elif(_rto == _pp_tmo,
+                        NextValue(_rto, 0), NextValue(_re, 1),
+                        _rpsn_set.eq(1), NextState("REMIT"))))
             # `_rs.ready` is REAL backpressure here (the descriptor face ties it
             # 1): the beat is HELD until the buffer takes it.
             _rfsm.act("REMIT",
                 _rs.valid.eq(1), _rs.err.eq(_re),
                 _rs.blast.eq((_rl == 1) | _re),
-                _rs.data.eq(Cat(_rhi[24:32], _rhi[16:24], _rhi[8:16], _rhi[0:8],
-                                _rlo[24:32], _rlo[16:24], _rlo[8:16], _rlo[0:8])),
+                _rs.data.eq(Cat(_rdat[56:64], _rdat[48:56], _rdat[40:48],
+                                _rdat[32:40], _rdat[24:32], _rdat[16:24],
+                                _rdat[8:16],  _rdat[0:8])),
                 If(_rs.ready,
                     If(_re | (_rl == 1), NextState("IDLE")
                     ).Else(NextValue(_ra, _ra + 8), NextValue(_rl, _rl - 1),
-                           NextState("RD_LO"))))
+                           NextValue(_rto, 0), NextState("RD"))))
 
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
             # Milan IDENTIFY -> board LED (controllers blink it to locate the

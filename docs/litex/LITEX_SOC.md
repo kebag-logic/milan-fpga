@@ -33,6 +33,7 @@ build/boot recipe stays in [`sw/README.md`](../../sw/README.md) and
 | `milan_sim.py` | Verilator **SoC-level sim**: boots the LiteX BIOS on a softcore with the real `milan_datapath` at `0x9000_0000`, proves the CPU⇄CSR path (reads ID `"MILN"`, milestone M-A2) | everyone |
 | `patches/` | LiteX-ecosystem patches + `apply.sh` (§6) | everyone |
 | `test_ring_dma.py` (+ `test_ring_bd.py`, `test_ring_tx.py`, `test_ring_writeback.py`, `test_rx_steer.py`, `test_tx_bd.py`) | **Migen behavioral sims** of the DMA engines (self-checking, print `ALL PASS`); `test_ring_dma.py` is the base harness the others import | DMA developers |
+| `test_pb_bus_err.py`, `test_pp_mem_bridge.py` | **Migen bus-fault sims** of the non-DMA masters: the AAF playback fetch must not latch a failed read, and the protocol processor's two main-memory bridges must not wedge on an access that is never acked | SoC developers |
 | `tools_*.c` (8 files) | On-target microbenchmarks compiled for the board (`lat_mem_rd`, `mapbench`, `recv_ring`, `recv_spin`, `recv_trunc`, `recv_zc`, `tcp_blast`, `wakebench`) - the instruments behind the perf findings | perf work |
 | `phase0_measure.sh` | On-board telemetry/iperf sweep script (busybox `devmem`); CSR addresses are build-specific - regenerate before reuse | perf work |
 | `poll_cost_model.py` | Analytical model projecting RX pps from measured sweeps | perf work |
@@ -310,6 +311,8 @@ python3 test_ring_dma.py      # base ring engines
 python3 test_ring_bd.py       # BD-mode engines (largest suite)
 python3 test_ring_tx.py  ; python3 test_ring_writeback.py
 python3 test_rx_steer.py ; python3 test_tx_bd.py
+python3 test_pb_bus_err.py    # AAF playback fetch: a FAILED read
+python3 test_pp_mem_bridge.py # pp desc/resp bridges: an UNACKED access
 ```
 
 Each prints `PASS <name>` per test and `ALL PASS` at the end (no pytest;

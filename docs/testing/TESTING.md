@@ -327,8 +327,15 @@ sweep). Self-checking (`ALL PASS`):
 ```sh
 cd sw/litex
 for t in test_ring_dma test_ring_bd test_ring_tx test_ring_writeback \
-         test_rx_steer test_tx_bd; do python3 $t.py || exit 1; done
+         test_rx_steer test_tx_bd test_pb_bus_err test_pp_mem_bridge; do
+    python3 $t.py || exit 1; done
 ```
+
+The last two are bus-fault sims rather than DMA sims: `test_pb_bus_err.py`
+covers the AAF playback fetch (a read that fails must not be latched),
+`test_pp_mem_bridge.py` the protocol processor's two main-memory bridges (an
+access that is never acked must not wedge them, and with them the whole DMA
+bus - the 2026-08-13 board defect).
 
 ## 3. SoC-level simulation - `sw/litex/milan_sim.py`
 
