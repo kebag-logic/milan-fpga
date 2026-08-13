@@ -283,8 +283,99 @@ static void mem_edge() {
     }
 }
 
+// ---- the AECP RESPONSE BUFFER's memory (a SECOND, read+write master) -------
+// milan_datapath grew sixteen more top-level ports (o_resp_mem_req_* /
+// i_resp_mem_rsp_* / o_resp_mem_wr_* / i_resp_mem_wr_done / _wr_err) because
+// the response an AECP command builds is up to 592 bytes and, held as fabric
+// flops, it was 5,079 of them - the state the placer could not pack on a die
+// whose block RAM was already 100% used.
+//
+// THE SAME "NOT NEUTRAL" RULE AS THE DESCRIPTOR FACE, and here it bites
+// harder: leaving i_resp_mem_req_ready / i_resp_mem_wr_ready at 0 makes the
+// buffer's watchdog void EVERY response and KL_aecp_engine answer
+// ENTITY_MISBEHAVING to every command - a legal degrade that section [N]
+// drives on purpose, and a silent gutting of section [L] if left accidental.
+//
+// This model is the bridge contract, enforced rather than assumed:
+//   * ONE outstanding read burst, beats IN ORDER, `last` on the final one;
+//   * rsp_ready is REAL BACKPRESSURE - the beat is HELD until it is taken;
+//   * ONE outstanding single-beat write; byte `addr + n` is wr_data
+//     [63-8n -: 8] and A ZERO-STROBE BYTE IS NOT MODIFIED (the model leaves
+//     those bytes alone, so a bridge that clobbered them would be visible);
+//   * wr_done is a ONE-CYCLE pulse issued STRICTLY AFTER the wr_ready that
+//     accepted the write - the acknowledged bridge, which is what
+//     sw/litex/milan_soc.py builds.
+static const uint32_t RESP_BASE  = 0x20100000u;   // PP_RESP_BASE_P default
+static const uint32_t RESP_BYTES = 592u;          // 16 + PP_DESC_LINE_BYTES_P
+
+static uint8_t  rmem[RESP_BYTES];
+static bool     rmem_answering = true;     // section [N] turns this off
+static bool     rm_busy   = false;         // read burst in flight
+static uint32_t rm_cur    = 0;
+static int      rm_left   = 0;
+static bool     rm_wpend  = false;         // write accepted, commits this cycle
+static uint32_t rm_waddr  = 0;
+static uint64_t rm_wdata  = 0;
+static uint32_t rm_wstrb  = 0;
+static long     rm_reqs   = 0;             // read bursts accepted
+static long     rm_writes = 0;             // lane writes committed
+
+static uint64_t rmem_beat(uint32_t byte_addr) {
+    uint64_t v = 0;
+    for (int i = 0; i < 8; i++) {          // big-endian: byte n at [63-8n-:8]
+        const uint32_t off = byte_addr - RESP_BASE + (uint32_t)i;
+        const uint8_t  b   = (off < RESP_BYTES) ? rmem[off] : 0;
+        v = (v << 8) | b;
+    }
+    return v;
+}
+
+static void rmem_drive() {
+    dut->i_resp_mem_req_ready = (rmem_answering && !rm_busy) ? 1 : 0;
+    dut->i_resp_mem_rsp_valid = rm_busy ? 1 : 0;
+    dut->i_resp_mem_rsp_data  = rm_busy ? rmem_beat(rm_cur) : 0;
+    dut->i_resp_mem_rsp_last  = (rm_busy && rm_left == 1) ? 1 : 0;
+    dut->i_resp_mem_rsp_err   = 0;
+    // a write is accepted on one edge and COMMITTED on the next: wr_done can
+    // never coincide with the wr_ready that took it, which is the only shape
+    // KL_aecp_resp_buf's R_FLUSH arm accepts (it sets wbusy_r on the ready and
+    // only THEN looks for the done)
+    dut->i_resp_mem_wr_ready  = (rmem_answering && !rm_wpend) ? 1 : 0;
+    dut->i_resp_mem_wr_done   = rm_wpend ? 1 : 0;
+    dut->i_resp_mem_wr_err    = 0;
+}
+
+static void rmem_edge() {
+    if (!rm_busy) {
+        if (dut->o_resp_mem_req_valid && dut->i_resp_mem_req_ready) {
+            rm_cur  = dut->o_resp_mem_req_addr;
+            rm_left = (int)dut->o_resp_mem_req_beats;
+            rm_busy = (rm_left > 0);
+            rm_reqs++;
+        }
+    } else if (dut->o_resp_mem_rsp_ready) {   // REAL backpressure: only then
+        rm_cur += 8;
+        if (--rm_left <= 0) rm_busy = false;
+    }
+    if (rm_wpend) {
+        for (int i = 0; i < 8; i++) {
+            if ((rm_wstrb >> i) & 1) {       // a 0 strobe leaves the byte alone
+                const uint32_t k = rm_waddr - RESP_BASE + (uint32_t)i;
+                if (k < RESP_BYTES) rmem[k] = (uint8_t)(rm_wdata >> (56 - 8 * i));
+            }
+        }
+        rm_writes++;
+        rm_wpend = false;
+    } else if (dut->o_resp_mem_wr_valid && dut->i_resp_mem_wr_ready) {
+        rm_waddr = dut->o_resp_mem_wr_addr;
+        rm_wdata = dut->o_resp_mem_wr_data;
+        rm_wstrb = dut->o_resp_mem_wr_strb;
+        rm_wpend = true;
+    }
+}
+
 // ---- clocking (single domain, as milan_dp drives it) ----
-static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; dut->clk_tdm_i = 0; mem_drive(); dut->eval(); observe(); mem_edge(); }
+static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; dut->clk_tdm_i = 0; mem_drive(); rmem_drive(); dut->eval(); observe(); mem_edge(); rmem_edge(); }
 static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->clk_tdm_i = 1; dut->eval(); }
 static void step() { lo(); hi(); }
 
@@ -1329,6 +1420,69 @@ int main(int argc, char** argv) {
         ck_true("M: the image HEALS when memory returns (no reset)",
                 k >= 0 && (tx_frames[k].bytes[16] >> 3) == 0,
                 k >= 0 ? "SUCCESS again" : "still refusing after the load");
+    }
+
+    // ---- N. THE RESPONSE BUFFER'S MEMORY: it is USED, and it degrades -------
+    // Section [L] graded byte-exact SUCCESS responses; every one of those was
+    // assembled through this master, so the first two checks are what separate
+    // "the buffer is in main memory" from "the harness happens to answer a
+    // face nobody drives". Then the same discipline as [M]: withdraw the
+    // memory ON PURPOSE and prove the documented degrade. The buffer's
+    // watchdog VOIDS the response and KL_aecp_engine answers a well-formed
+    // ENTITY_MISBEHAVING (1722.1 Table 7-127 status 10) instead of hanging,
+    // going silent, or - the one that would actually hurt a controller -
+    // putting a half-written response on the wire.
+    printf("[N] response-buffer memory: exercised, then withdrawn\n");
+    {
+        printf("  [i]    resp-buffer traffic so far: %ld lane write(s), "
+               "%ld read burst(s)\n", rm_writes, rm_reqs);
+        ck_true("N: the buffer WROTE its lanes to main memory", rm_writes > 0,
+                rm_writes > 0 ? "lane writes committed"
+                              : "no write ever left the buffer - the response "
+                                "is still fabric state");
+        ck_true("N: ...and READ them back to build the frame", rm_reqs > 0,
+                rm_reqs > 0 ? "read bursts served"
+                            : "no read burst - the frame builder was fed from "
+                              "somewhere else");
+
+        rmem_answering = false;
+        uint8_t cf[128];
+        size_t at = tx_frames.size();
+        size_t cn = build_read_desc(cf, 0, DTY_ENTITY_C, 0, 0x0301);
+        inject_rx(cf, cn, 400);
+        for (int r = 0; r < 8; r++) run_idle(20000);
+        int k = -1;
+        for (size_t i = tx_frames.size(); i-- > at; )
+            if (classify(tx_frames[i]) == FR_AECP) { k = (int)i; break; }
+        ck_true("N: with no memory, the command still gets an ANSWER", k >= 0,
+                k >= 0 ? "the watchdog voided the response cleanly"
+                       : "the uCPU HUNG on an absent bridge");
+        if (k >= 0) {
+            const std::vector<uint8_t>& b = tx_frames[k].bytes;
+            ck("N: status ENTITY_MISBEHAVING(10)", (b[16] >> 3) & 0x1F, 10u);
+            ck("N: the response carries NO payload it could not build",
+               (uint32_t)((((unsigned)b[16] & 7) << 8) | b[17]), 12u);
+            ck("N: the frame is still padded to the Ethernet minimum",
+               (uint32_t)b.size(), 60u);
+            ck("N: ...and it is still addressed back to the requester",
+               ((uint32_t)b[0] << 24) | ((uint32_t)b[1] << 16)
+                   | ((uint32_t)b[2] << 8) | b[3], 0x02112233u);
+        }
+        // ...and it HEALS: a voided response is per-command, not sticky. The
+        // buffer clears its fault on the next `open_i`, so the very next
+        // command must be SUCCESS again with no reset anywhere.
+        rmem_answering = true;
+        at = tx_frames.size();
+        cn = build_read_desc(cf, 0, DTY_ENTITY_C, 0, 0x0302);
+        inject_rx(cf, cn, 400);
+        for (int r = 0; r < 4; r++) run_idle(20000);
+        k = -1;
+        for (size_t i = tx_frames.size(); i-- > at; )
+            if (classify(tx_frames[i]) == FR_AECP) { k = (int)i; break; }
+        ck_true("N: the buffer HEALS when memory returns (no reset)",
+                k >= 0 && (tx_frames[k].bytes[16] >> 3) == 0,
+                k >= 0 ? "SUCCESS again"
+                       : "still misbehaving after the memory came back");
     }
 
     // ---- K. THE SHARED CONTROL LANE (ctl_tx_mux) ---------------------------
