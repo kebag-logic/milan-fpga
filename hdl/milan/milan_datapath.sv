@@ -245,6 +245,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! 5 s ADP cadence is reachable in a few thousand cycles.
   parameter int PP_TIM_DIV_US_P = MILAN_CLK_FREQ_HZ / 1_000_000,
   parameter int PP_TIM_DIV_MS_P = 1000,
+  //! ACMP listener transition-ROM image for the shadow plane. The processor
+  //! $readmemh's it by this name, and Vivado resolves a RELATIVE name against
+  //! its own run directory - so the integration hands over an ABSOLUTE path
+  //! and the build stops depending on where the tool was launched from.
+  parameter string PP_TROM_HEX_P = "ltn_rom.hex" ,
   //! Which talker SOURCES the shadow plane is told exist (KL_pp_shadow's
   //! SRC_EN_MASK_P, bit s = source s). DEFAULT 0 = none, which is the shadow
   //! contract - see that parameter's banner. Non-zero turns the processor's
@@ -5709,6 +5714,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .N_STREAM_OUT_P (N_STREAMS),
       .TIM_DIV_US_P   (PP_TIM_DIV_US_P),
       .TIM_DIV_MS_P   (PP_TIM_DIV_MS_P),
+      .TROM_HEX_P     (PP_TROM_HEX_P),
       //! which talker sources the shadow is told exist (default 0 = none)
       .SRC_EN_MASK_P  (PP_SRC_EN_P)
     ) pp_shadow (

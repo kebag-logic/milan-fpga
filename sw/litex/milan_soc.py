@@ -24,6 +24,7 @@
 import os
 import re
 import sys
+import subprocess
 import json
 import argparse
 
@@ -493,7 +494,7 @@ class MilanNIC(LiteXModule):
                  audio_if_i2s_pair=False, aaf_playback=False, aaf_pb_streams=1,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
-                 cbs_queues_mask=None, entity_gen_dir=None):
+                 cbs_queues_mask=None, entity_gen_dir=None, pp_plane=False):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
         # (held 0 until attached); csr is driven by the datapath.
@@ -526,7 +527,7 @@ class MilanNIC(LiteXModule):
                            loopback_lane=loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
                            cbs_queues_mask=cbs_queues_mask,
-                           entity_gen_dir=entity_gen_dir)
+                           entity_gen_dir=entity_gen_dir, pp_plane=pp_plane)
 
 
 # The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
@@ -677,7 +678,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
                        aaf_playback=False, aaf_pb_streams=1, loopback_lane=False,
                        render_lpf=True,
                        optional_blocks=None, cbs_queues_mask=None,
-                       entity_gen_dir=None):
+                       entity_gen_dir=None, pp_plane=False):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
@@ -795,6 +796,21 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     dp_params = dict(p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
                      p_N_STREAMS=int(num_streams),
                      p_AUDIO_IF_SLOTS_P=int(audio_if_slots))
+    if pp_plane:
+        # Emitted ONLY when asked, so a default build's generated top stays
+        # byte-identical (the same discipline every other optional param here
+        # follows).
+        dp_params["p_PP_PLANE_P"] = 1
+        # protocol_processor_top $readmemh's its ACMP transition ROM by a
+        # RELATIVE name, which Vivado resolves against ITS OWN run directory -
+        # not against the source file. Generate it once and hand over an
+        # ABSOLUTE path, so the build cannot depend on where vivado was
+        # launched from.
+        rom = os.path.join(base, "configs", "generated", "ltn_rom.hex")
+        gen = os.path.join(base, "protocol-processor", "hdl", "acmp", "rom",
+                           "gen_ltn_rom.py")
+        subprocess.run([sys.executable, gen, "-o", rom], check=True)
+        dp_params["p_PP_TROM_HEX_P"] = rom
     if int(talker_wire_chans) != 2:
         dp_params["p_TALKER_WIRE_CHANS_P"] = int(talker_wire_chans)
     if aaf_playback:
@@ -900,6 +916,44 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
                 "hdl/ieee17221/aecp", "hdl/ieee17221/aecp/gen", "hdl/ieee1722/avtp"):
         platform.add_verilog_include_path(os.path.join(base, inc))
     srcs = list(_MILAN_DATAPATH_SOURCES)
+    if pp_plane:
+        # PROTOCOL-PROCESSOR SHADOW PLANE. Every bitstream ever built has had
+        # this absent (nothing set PP_PLANE_P), so this flag is the first time
+        # the submodule reaches silicon. It runs ALONGSIDE the shipping planes
+        # and drives NOTHING: its TX is drained inside KL_pp_shadow, so the
+        # wire is bit-for-bit what it is today. What it buys is the processor's
+        # ADP/ACMP/SRP engines seeing real traffic on real silicon, readable
+        # through the 0x920 CSR window.
+        #
+        # The submodule's own packages MUST precede its modules, and the
+        # processor's pp_adp_pkg/pp_acmp_pkg are namespaced precisely so they
+        # can coexist with this repo's adp_pkg/acmp_pkg in one compilation
+        # unit - they used to collide, and Verilator kept the first silently.
+        pp = "protocol-processor/hdl"
+        srcs += [f"{pp}/common/pp_pkg.sv", f"{pp}/srp/srp_pkg.sv",
+                 f"{pp}/acmp/pp_acmp_pkg.sv", f"{pp}/adp/pp_adp_pkg.sv",
+                 f"{pp}/common/KL_pp_prng.sv", f"{pp}/common/KL_pp_timer_service.sv",
+                 f"{pp}/packet_engine/KL_pp_rx_validator.sv",
+                 f"{pp}/packet_engine/KL_pp_rx_slots.sv",
+                 f"{pp}/packet_engine/KL_pp_normalizer.sv",
+                 f"{pp}/packet_engine/KL_pp_dispatch.sv",
+                 f"{pp}/packet_engine/KL_pp_tx_slots.sv",
+                 f"{pp}/packet_engine/KL_pp_tx_arbiter.sv",
+                 f"{pp}/packet_engine/KL_pp_scoreboard.sv",
+                 f"{pp}/packet_engine/KL_pp_event_router.sv",
+                 f"{pp}/packet_engine/KL_pp_originator.sv",
+                 f"{pp}/packet_engine/KL_pp_trace_ring.sv",
+                 f"{pp}/packet_engine/KL_pp_side_port.sv",
+                 f"{pp}/packet_engine/KL_pp_nvm_port.sv",
+                 f"{pp}/adp/KL_adp_engine.sv",
+                 f"{pp}/acmp/KL_pp_acmp_listener.sv", f"{pp}/acmp/KL_acmp_talker.sv",
+                 f"{pp}/acmp/KL_acmp_nvm_shadow.sv",
+                 f"{pp}/srp/KL_srp_decoder.sv", f"{pp}/srp/KL_srp_domain.sv",
+                 f"{pp}/srp/KL_srp_vlan.sv", f"{pp}/srp/KL_srp_admission.sv",
+                 f"{pp}/srp/KL_srp_talker_fsm.sv", f"{pp}/srp/KL_srp_listener_fsm.sv",
+                 f"{pp}/srp/KL_srp_encoder.sv", f"{pp}/srp/KL_srp_top.sv",
+                 f"{pp}/top/KL_mrp_strip.sv", f"{pp}/top/protocol_processor_top.sv",
+                 "hdl/milan/KL_pp_maap_shim.sv", "hdl/milan/KL_pp_shadow.sv"]
     if aaf_playback:
         # item-7: the host-PCM-ring AAF talker source (only referenced when the
         # AAF_PLAYBACK_P generate is live, so the default source list is unchanged).
@@ -4913,7 +4967,7 @@ class MilanSoC(SoCCore):
                  loopback_lane=False,
                  bus_standard="wishbone",
                  render_lpf=True, optional_blocks=None,
-                 cbs_queues_mask=None, entity_gen_dir=None, **kwargs):
+                 cbs_queues_mask=None, entity_gen_dir=None, pp_plane=False, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -5311,7 +5365,7 @@ class MilanSoC(SoCCore):
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks,
                                   cbs_queues_mask=cbs_queues_mask,
-                                  entity_gen_dir=entity_gen_dir)
+                                  entity_gen_dir=entity_gen_dir, pp_plane=pp_plane)
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
             # Milan IDENTIFY -> board LED (controllers blink it to locate the
             # device). Skipped quietly on platforms without user_led pads.
@@ -5525,6 +5579,19 @@ def main():
                          "when the port is meant to be PROMISCUOUS or filtering is done "
                          "in software. The TCAM_* CSR window still accepts writes and "
                          "nothing reads them. Default off => filter PRESENT.")
+    ap.add_argument("--with-pp-plane", action="store_true",
+                    help="instantiate the protocol-processor SHADOW plane "
+                         "(PP_PLANE_P=1). It runs ALONGSIDE the shipping "
+                         "ADP/ACMP/lwSRP planes and drives NOTHING: its TX is "
+                         "drained inside KL_pp_shadow, so the wire is "
+                         "bit-for-bit unchanged. What it buys is the "
+                         "submodule's engines seeing real traffic on real "
+                         "silicon, read back through the 0x920 CSR window "
+                         "(PP_STAT tag 0x5B, PP_DIAG frame counters, and the "
+                         "side port's own KLPP snapshot). Costs ~7k LUT: "
+                         "docs/findings/PP_SHADOW_AREA_0812.md. NOTHING has "
+                         "ever been built with this on - no bitstream to date "
+                         "contains the processor.")
     ap.add_argument("--aaf-playback", action="store_true",
                     help="item-7 ALSA playback: wire KL_pcm_tx (host PCM ring -> AAF "
                          "talker pair source) into milan_datapath, the TX mirror of the RX "
@@ -5755,6 +5822,7 @@ def main():
                    },
                    cbs_queues_mask=args.cbs_queues_mask,
                    entity_gen_dir=args.entity_gen_dir,
+                   pp_plane=args.with_pp_plane,
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
                    talker_wire_chans=int(args.talker_wire_chans),
