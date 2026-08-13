@@ -49,8 +49,11 @@
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
+#include <cstdlib>
+#include <string>
 #include <vector>
 #include <map>
+#include <unistd.h>
 #include <cstdio>
 
 // Stream count the C++ side walks. Paired with the RTL -GN_STREAMS by the
@@ -168,8 +171,184 @@ static void rmem_edge() {
     }
 }
 
+// ---- AEM DESCRIPTOR MEMORY: THE MEMORY THAT WORKS --------------------------
+// The nine desc_mem ports are the entity model's supply. Every AECP check
+// written before [AECP-IMG] drove them DEAD, and that was the whole of the
+// coverage: a bridge that never transacts and a harness that offers no memory
+// produce the SAME waveform, so a plane that could not fetch a single beat
+// passed every gate. On 2026-08-13 that is what silicon shipped - img_valid 0,
+// descriptor-store fault 8 (FAULT_TIMEOUT), dbg_lane_wr parked at 2 - and no
+// desk test in this tree could go red.
+//
+// So this model ANSWERS, and it answers the way main memory does rather than
+// the way a testbench does:
+//
+//   * ONE outstanding burst, beats IN ORDER, `last` on the final one, and
+//     o_desc_mem_rsp_ready honoured as REAL backpressure even though
+//     KL_aecp_desc_store ties it 1 - a model that ignored it would hide the
+//     day the store stops always sinking;
+//   * the FIRST beat of every burst is DESC_MISS_CYC clocks late. A
+//     zero-latency memory is the one shape that cannot exist behind a bus,
+//     and it is precisely the shape that hides handshake defects: req_ready
+//     and rsp_valid in the same cycle never separate "accepted" from
+//     "answered";
+//   * rsp_valid DROPS mid-burst. The contract orders the beats, it does not
+//     promise them gapless, so a consumer that assumed gapless would only
+//     ever fail against a memory that is not.
+static const uint32_t DESC_BASE = 0x20000000u;   // PP_DESC_BASE_P default
+
+// MEASURED, not invented. The reference SoC's miss to main memory is about
+// 1,424 ns and milan_dp elaborates the processor at MILAN_CLK_FREQ_HZ =
+// 100 MHz, so a miss is 142 clocks. The store's own no-progress watchdog is
+// DESC_MEM_TMO_CYC_P = 4,096 clocks, which is the constraint that keeps this
+// a realistic memory instead of a disguised timeout test.
+static const int DESC_MISS_CYC  = 142;
+static const int DESC_GAP_EVERY = 4;    // beats between one-clock bubbles
+
+static std::vector<uint8_t> desc_img;   // the AEMI image, byte for byte
+// what the wire MUST carry, keyed (type << 16) | index - see aemi_load()
+static std::map<uint32_t, std::vector<uint8_t> > desc_want;
+
+static bool     dm_answering = false;   // [AECP]/[AECP-WTMO] need it OFF
+static bool     dm_busy   = false;      // read burst in flight
+static uint32_t dm_cur    = 0;
+static int      dm_left   = 0;
+static int      dm_wait   = 0;          // clocks still owed before the beat
+static int      dm_run    = 0;          // beats since the last bubble
+static long     dm_bursts = 0, dm_beats = 0;
+
+static uint64_t desc_beat(uint32_t byte_addr) {
+    uint64_t v = 0;
+    for (int i = 0; i < 8; i++) {                 // big-endian: byte n at [63-8n-:8]
+        const uint32_t off = byte_addr - DESC_BASE + (uint32_t)i;
+        v = (v << 8) | (uint64_t)((off < desc_img.size()) ? desc_img[off] : 0);
+    }
+    return v;
+}
+
+static void dmem_drive() {
+    const bool beat = dm_answering && dm_busy && (dm_wait == 0);
+    dut->i_desc_mem_req_ready = (dm_answering && !dm_busy) ? 1 : 0;
+    dut->i_desc_mem_rsp_valid = beat ? 1 : 0;
+    dut->i_desc_mem_rsp_data  = beat ? desc_beat(dm_cur) : 0;
+    dut->i_desc_mem_rsp_last  = (beat && dm_left == 1) ? 1 : 0;
+    dut->i_desc_mem_rsp_err   = 0;
+}
+
+static void dmem_edge() {
+    if (!dm_answering) return;                    // offers nothing either
+    if (!dm_busy) {
+        if (dut->o_desc_mem_req_valid && dut->i_desc_mem_req_ready) {
+            dm_cur  = dut->o_desc_mem_req_addr;
+            dm_left = (int)dut->o_desc_mem_req_beats;
+            dm_busy = (dm_left > 0);
+            dm_wait = DESC_MISS_CYC;              // the miss, paid per burst
+            dm_run  = 0;
+            dm_bursts++;
+        }
+    } else if (dm_wait > 0) {
+        dm_wait--;
+    } else if (dut->o_desc_mem_rsp_ready) {       // real backpressure
+        dm_cur += 8;
+        dm_beats++;
+        if (--dm_left <= 0) dm_busy = false;
+        else if (++dm_run == DESC_GAP_EVERY) { dm_run = 0; dm_wait = 1; }
+    }
+}
+
+// THE IMAGE IS THE ONE THE BUILD SHIPS. avdecc/gen_aemi_image.py is the join
+// between gen_aem_store's descriptor bytes and the submodule's image packer,
+// and sw/litex writes THAT script's output at PP_DESC_BASE_P. Regenerating it
+// here is what makes the byte-exact comparison below worth anything: a
+// harness that packed its own image would agree with itself while the shipped
+// one enumerated nothing.
+//
+// The --json document is the second half, and the reason no image arithmetic
+// appears in this file: it carries every descriptor's bytes keyed by (type,
+// index), so the expectation never restates the header walk, the index map or
+// the elem_off + index*stride locate the store performs. Two independent
+// paths to the same bytes; a store that located the wrong offset has nowhere
+// to hide. --line-bytes MUST match PP_DESC_LINE_BYTES_P (576) or the packer
+// would accept a descriptor longer than the store's line buffer.
+//
+// THE BUILT-IN SPEC, deliberately, and not the overlay of the shape this leg
+// elaborates: sw/builder/out/ is gitignored, so an overlay would make the
+// suite pass or fail on whether someone had run the builder. Nothing is lost.
+// The store serves whatever main memory holds and knows nothing of the
+// elaborated stream count, and the expectation IS that same image.
+//
+// CWD: the harness already runs from tb/verilator/milan_dp - the processor
+// $readmemh's ltn_rom.hex and ucode.hex by relative name - so the generator
+// sits at a known relative depth.
+static bool aemi_load(std::string* why) {
+    char bin[160], js[160], log[160], cmd[720];
+    const int pid = (int)getpid();               // parallel lanes share /tmp
+    snprintf(bin, sizeof bin, "/tmp/milan_nxn_aemi_%d.bin", pid);
+    snprintf(js,  sizeof js,  "/tmp/milan_nxn_aemi_%d.json", pid);
+    snprintf(log, sizeof log, "/tmp/milan_nxn_aemi_%d.log", pid);
+    snprintf(cmd, sizeof cmd,
+             "python3 ../../../avdecc/gen_aemi_image.py -o %s --json %s "
+             "--line-bytes 576 > %s 2>&1", bin, js, log);
+
+    desc_img.clear();
+    desc_want.clear();
+    if (system(cmd) != 0) {
+        *why = std::string("gen_aemi_image.py failed; its output is in ") + log;
+        return false;                            // the log is left for reading
+    }
+
+    FILE* fh = fopen(bin, "rb");
+    if (!fh) { *why = "the generator wrote no image"; return false; }
+    uint8_t buf[4096];
+    size_t n;
+    while ((n = fread(buf, 1, sizeof buf, fh)) > 0)
+        desc_img.insert(desc_img.end(), buf, buf + n);
+    fclose(fh);
+
+    std::string doc;
+    fh = fopen(js, "rb");
+    if (!fh) { *why = "the generator wrote no document"; return false; }
+    while ((n = fread(buf, 1, sizeof buf, fh)) > 0)
+        doc.append((const char*)buf, n);
+    fclose(fh);
+
+    // The document is machine-written (json.dump), one object per descriptor
+    // with configuration/type/index/bytes in that order, so a scan from each
+    // "type" key to its object's "bytes" is unambiguous.
+    size_t p = 0;
+    while ((p = doc.find("\"type\":", p)) != std::string::npos) {
+        const long ty = strtol(doc.c_str() + p + 7, nullptr, 10);
+        const size_t pi = doc.find("\"index\":", p);
+        const size_t pb = doc.find("\"bytes\":", p);
+        if (pi == std::string::npos || pb == std::string::npos) break;
+        const long ix = strtol(doc.c_str() + pi + 8, nullptr, 10);
+        size_t q0 = doc.find('"', pb + 8);
+        if (q0 == std::string::npos) break;
+        const size_t q1 = doc.find('"', ++q0);
+        if (q1 == std::string::npos) break;
+        std::vector<uint8_t> d;
+        for (size_t i = q0; i + 1 < q1; i += 2)
+            d.push_back((uint8_t)strtol(doc.substr(i, 2).c_str(), nullptr, 16));
+        desc_want[((uint32_t)ty << 16) | ((uint32_t)ix & 0xFFFFu)] = d;
+        p = q1;
+    }
+    remove(bin); remove(js); remove(log);
+    if (desc_img.empty() || desc_want.empty()) {
+        *why = "the generator produced an empty image or document";
+        return false;
+    }
+    return true;
+}
+
+static const std::vector<uint8_t>* desc_of(unsigned ty, unsigned ix) {
+    std::map<uint32_t, std::vector<uint8_t> >::const_iterator it =
+        desc_want.find(((uint32_t)ty << 16) | ix);
+    return (it == desc_want.end()) ? nullptr : &it->second;
+}
+
 static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0;
-                   rmem_drive(); dut->eval(); rmem_edge(); }
+                   rmem_drive(); dmem_drive(); dut->eval();
+                   rmem_edge(); dmem_edge(); }
 static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->eval(); }
 static void step() { lo(); hi(); }
 
@@ -217,7 +396,30 @@ enum {
     A_SW_SID_LO = 0x814, A_SW_SID_HI = 0x818, A_SW_DMAC_LO = 0x81C,
     A_SW_DMAC_HI = 0x820, A_SW_FMT_LO = 0x824, A_SW_FMT_HI = 0x828,
     A_SW_STATE = 0x82C, A_SW_CNT0 = 0x830, A_SW_PDUS = 0x858,
+    A_PP_STAT = 0x924, A_PP_SPADDR = 0x928, A_PP_SPDATA = 0x92C,
 };
+
+// ---- the processor's SIDE PORT, through the 0x920 CSR window --------------
+// A fabric walk must never stall an AXI read, so the access is POSTED
+// (milan_csr.sv g_pp_csr): a WRITE to SPADDR arms AND posts a read, PP_STAT[0]
+// (sp_busy) falls when the processor acked, PP_STAT[5] is that access's error,
+// and SPDATA holds the answer. Side-port window 2 is the snapshot dictionary
+// (KL_pp_side_port.sv WIN_SNAP_C), whose word 0 reads "KLPP" - which is what
+// separates "the store says img_valid = 0" from "this window reads zero".
+static const uint32_t SP_SNAPSHOT = 0x20000;
+
+static uint32_t sp_read(uint32_t word_addr, bool* ok) {
+    axi_write(A_PP_SPADDR, word_addr);
+    uint32_t st = 0;
+    int g = 0;
+    for (; g < 256; g++) {
+        st = axi_read(A_PP_STAT);
+        if ((st & 1) == 0) break;               // sp_busy fell: the walk acked
+        step();
+    }
+    if (ok) *ok = (g < 256) && (((st >> 5) & 1) == 0);
+    return axi_read(A_PP_SPDATA);
+}
 
 // route flags (KL_pcm_route / window CTRL[2:1]): bit0 = DMA, bit1 = RENDER
 enum { RT_NULL = 0, RT_DMA = 1, RT_RENDER = 2, RT_RENDER_DMA = 3 };
@@ -399,6 +601,72 @@ static long aecp_status(const std::vector<uint8_t>& b) {
     return b.size() > 16 ? (b[16] >> 3) & 0x1F : -1;
 }
 
+//! ONE served descriptor, graded end to end against the image this harness
+//! generated: the answer exists, its status is SUCCESS, its declared length
+//! agrees with the descriptor's real length, and the BYTES on the wire are
+//! the image's. Returns that length so the caller can bound the response
+//! memory's lane commits from the payload size alone.
+//!
+//! The wire layout (1722.1-2021 9.2.1 + 7.4.5.2), offsets from the frame:
+//!   +16..17  status[4:0] then control_data_length[10:0] = 12 + payload
+//!   +34..35  sequence_id, echoed
+//!   +36..37  u = 0 + command_type, echoed
+//!   +38..39  configuration_index      +40..41 reserved
+//!   +42..    the descriptor itself
+//! so the payload is 4 + descriptor_length and the frame is 42 + that length.
+static size_t grade_read_desc(const char* tag, unsigned ty, unsigned ix,
+                              uint16_t seq) {
+    char w[112];
+    const std::vector<uint8_t>* want = desc_of(ty, ix);
+    snprintf(w, sizeof w, "%s: the image HAS this descriptor", tag);
+    ck(w, (long)(want != nullptr), 1);
+    if (!want) return 0;
+
+    std::vector<uint8_t> pl(8, 0);              // cfg, reserved, type, index
+    pl[4] = (uint8_t)(ty >> 8); pl[5] = (uint8_t)ty;
+    pl[6] = (uint8_t)(ix >> 8); pl[7] = (uint8_t)ix;
+    const std::vector<uint8_t> r = aecp_xact(0x0004, seq, pl);
+
+    snprintf(w, sizeof w, "%s: READ_DESCRIPTOR was ANSWERED", tag);
+    ck(w, (long)(r.size() >= 46), 1);
+    if (r.size() < 46) return 0;
+
+    snprintf(w, sizeof w, "%s: an AEM_RESPONSE (message_type 1)", tag);
+    ck(w, r[15] & 0x0F, 1);
+    snprintf(w, sizeof w, "%s: status SUCCESS(0)", tag);
+    ck(w, aecp_status(r), 0);
+    snprintf(w, sizeof w, "%s: sequence_id echoed", tag);
+    ck(w, ((unsigned)r[34] << 8) | r[35], seq);
+    snprintf(w, sizeof w, "%s: command_type echoed, u = 0", tag);
+    ck(w, ((unsigned)r[36] << 8) | r[37], 0x0004);
+    //! the LENGTH comes from the image, never from the frame being graded
+    snprintf(w, sizeof w, "%s: cdl = 12 + 4 + the descriptor", tag);
+    ck(w, (((unsigned)r[16] & 7) << 8) | r[17], 16 + want->size());
+    size_t flen = 42 + want->size();
+    if (flen < 60) flen = 60;                   // the Ethernet minimum
+    snprintf(w, sizeof w, "%s: the frame is as long as it claims", tag);
+    ck(w, (long)r.size(), (long)flen);
+    snprintf(w, sizeof w, "%s: configuration_index @24 echoed", tag);
+    ck(w, ((unsigned)r[38] << 8) | r[39], 0);
+    snprintf(w, sizeof w, "%s: reserved @26 is zero", tag);
+    ck(w, ((unsigned)r[40] << 8) | r[41], 0);
+
+    long bad = 0;
+    for (size_t i = 0; i < want->size(); i++)
+        if (42 + i >= r.size() || r[42 + i] != (*want)[i]) bad++;
+    snprintf(w, sizeof w, "%s: the bytes ARE the image's, exactly", tag);
+    ck(w, bad, 0);
+    //! ...and they are the descriptor that was ASKED for. The compare above
+    //! already fails on a wrong index; these two say WHICH failure it was,
+    //! which is the difference between "the locate is wrong" and "the image
+    //! is wrong".
+    snprintf(w, sizeof w, "%s: descriptor_type field @28", tag);
+    ck(w, ((unsigned)r[42] << 8) | r[43], ty);
+    snprintf(w, sizeof w, "%s: descriptor_index field @30", tag);
+    ck(w, ((unsigned)r[44] << 8) | r[45], ix);
+    return want->size();
+}
+
 // AAF PDU: sid = 8 wire bytes, chans = wire channels_per_frame
 static const uint8_t* mkaaf(const uint8_t sid[8], uint8_t seq, uint8_t chans,
                             uint8_t pay0) {
@@ -457,25 +725,25 @@ int main(int argc, char** argv) {
     axi_write(A_ADP_EIDLO, 0xFE000001);      // 02:00:00:FF:FE:00:00:01
     for (int c = 0; c < 16; c++) step();
 
-    //! [AECP] THIS LEG BACKS NO DESCRIPTOR MEMORY, ON PURPOSE AND ON RECORD.
-    //! milan_datapath exposes nine ports for the AEM descriptor image the
-    //! AECP store fetches (o_desc_mem_req_valid / i_desc_mem_req_ready /
+    //! [AECP] THIS LEG STARTS WITH NO DESCRIPTOR MEMORY, ON PURPOSE AND ON
+    //! RECORD. milan_datapath exposes nine ports for the AEM descriptor image
+    //! the AECP store fetches (o_desc_mem_req_valid / i_desc_mem_req_ready /
     //! o_desc_mem_req_addr / o_desc_mem_req_beats / i_desc_mem_rsp_valid /
     //! o_desc_mem_rsp_ready / i_desc_mem_rsp_data / i_desc_mem_rsp_last /
     //! i_desc_mem_rsp_err). Driving req_ready LOW is not neutral: it is
     //! KL_aecp_desc_store's documented degrade path - the watchdog abandons
     //! the burst, the image never validates, and READ_DESCRIPTOR comes back
-    //! well formed but empty-handed. That is legal, and it is what this leg
-    //! grades below; the SERVED path (a real image, SUCCESS, byte-exact
-    //! descriptors) lives in tb/verilator/pp_shadow, which backs the ports
-    //! with a memory model. Stating it here is the point: a zero left at a
-    //! port by accident and a zero driven by a decision look identical on a
-    //! waveform.
-    dut->i_desc_mem_req_ready = 0;
-    dut->i_desc_mem_rsp_valid = 0;
-    dut->i_desc_mem_rsp_data  = 0;
-    dut->i_desc_mem_rsp_last  = 0;
-    dut->i_desc_mem_rsp_err   = 0;
+    //! well formed but empty-handed. That is legal, and it is what this
+    //! section grades. A zero left at a port by accident and a zero driven by
+    //! a decision look identical on a waveform, so the decision is named.
+    //!
+    //! WHAT THIS ARM CANNOT CATCH, AND WHAT THAT COST. While it was the ONLY
+    //! arm, a control plane that never transacted on those nine ports passed
+    //! here - "never transacts" and "no memory offered" are the same
+    //! waveform - and that is exactly what reached silicon on 2026-08-13.
+    //! [AECP-IMG] below is the opposite arm: a memory that ANSWERS, the image
+    //! the build ships, img_valid, and byte-exact descriptors on the wire.
+    dm_answering = false;
     {
         std::vector<uint8_t> pl = {0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00};
         auto r = aecp_xact(0x0004, 0x4000, pl);   // READ_DESCRIPTOR(ENTITY,0)
@@ -539,6 +807,131 @@ int main(int argc, char** argv) {
         auto r2 = aecp_xact(0x0004, 0x4002, pl);
         ck("[AECP-WTMO] the station HEALS when the memory returns (no reset)",
            (long)(r2.size() >= 38 && aecp_status(r2) == 7), 1);
+    }
+
+    //! [AECP-IMG] THE DESCRIPTOR MEMORY ANSWERS - AND THE ENTITY ENUMERATES.
+    //!
+    //! THE ARM THAT WAS MISSING, AND THE REASON THIS SECTION EXISTS. Above
+    //! this line the suite proves a station that DEGRADES well: no memory
+    //! gives a well-formed BAD_ARGUMENTS, a wedged memory gives a well-formed
+    //! ENTITY_MISBEHAVING that heals. NEITHER can go red against a control
+    //! plane that never transacts on the descriptor ports at all, because
+    //! that is the stimulus both of them apply. The 2026-08-13 board shipped
+    //! with exactly that: img_valid 0, descriptor-store fault 8, and the
+    //! response memory's dbg_lane_wr parked at 2 where a plane that reports
+    //! reaches 17 on the same traffic. Every gate was green.
+    //!
+    //! So this grades the SUCCESS path, which is the whole supply chain:
+    //!   1. the image the BUILD SHIPS - regenerated here by the same
+    //!      avdecc/gen_aemi_image.py that sw/litex loads at PP_DESC_BASE_P -
+    //!      served out of a memory with real miss latency and real bubbles;
+    //!   2. the store VALIDATES it: snapshot word 34 bit 0 (img_valid) with
+    //!      the fault nibble [4:1] at 0, read through the 0x920 side port;
+    //!   3. READ_DESCRIPTOR answers SUCCESS with the right control_data_
+    //!      length, and the descriptor bytes on the wire are the image's byte
+    //!      for byte - including at a NON-ZERO index, which is the only way
+    //!      the locate arithmetic is exercised at all;
+    //!   4. the response-memory master COMMITTED the lanes those bytes need.
+    //!      A write path that silently drops still produces a plausible frame
+    //!      the moment the response fits in what it did manage to write.
+    {
+        std::string why;
+        const bool built = aemi_load(&why);
+        ck("[AECP-IMG] the shipped generator emitted an image",
+           (long)built, 1);
+        if (!built) printf("  [i]    %s\n", why.c_str());
+
+        if (built) {
+            printf("  [i]    image: %ld bytes, %ld descriptors\n",
+                   (long)desc_img.size(), (long)desc_want.size());
+            //! the magic is the first thing the store looks for at
+            //! PP_DESC_BASE_P, so a generator that quietly emitted something
+            //! else would fail every check below for the wrong reason
+            uint32_t magic = 0;
+            for (int i = 0; i < 4 && i < (int)desc_img.size(); i++)
+                magic = (magic << 8) | desc_img[i];
+            ck("[AECP-IMG] ...beginning with the AEMI magic", magic,
+               0x41454D49);
+
+            //! THE MEMORY ARRIVES, and it never leaves again: a board does
+            //! not lose its DRAM halfway through a session, and every later
+            //! section reads the datapath with the plane in its shipping
+            //! condition.
+            dm_answering = true;
+
+            //! THE SIDE PORT FIRST, so that a zero out of word 34 later can
+            //! only mean "the store rejected the image" and never "this
+            //! window reads zero".
+            bool spok = false;
+            ck("[AECP-IMG] the snapshot window answers ('KLPP')",
+               sp_read(SP_SNAPSHOT + 0, &spok), 0x4B4C5050);
+            ck("[AECP-IMG] ...over a posted access that did not error",
+               (long)spok, 1);
+
+            //! ---- the descriptors on the wire -----------------------------
+            //! NO RESET ANYWHERE, AND ONE COMMAND IS ALL IT TAKES. The store
+            //! is parked in S_BAD with FAULT_TIMEOUT from the two sections
+            //! above and it re-probes on no timer: an image that never
+            //! validated re-arms its header walk after every state-port read
+            //! (KL_aecp_desc_store.sv S_ANSWER, "a late software load heals
+            //! with no reset"), and the µCPU STALLS on the store while that
+            //! walk runs. So the very first command after the memory appears
+            //! is already served, which is the healing claim in the strongest
+            //! form it can be stated: a controller that retries once
+            //! enumerates. MEASURED across that one command: 3 bursts and 75
+            //! beats, being the 32-byte header, the 16-entry index map, and
+            //! the 312-byte ENTITY line it then served.
+            //!
+            //! dbg_lane_wr is CUMULATIVE and [AECP-WTMO] already moved the
+            //! error counter beside it, so both are graded as DELTAS across
+            //! the two reads below. Word 35 is {rerr[15:0], lane_wr[15:0]}.
+            const uint32_t w35_0 = sp_read(SP_SNAPSHOT + 35, &spok);
+            const size_t ent_len =
+                grade_read_desc("[AECP-IMG] ENTITY,0", 0x0000, 0, 0x4011);
+            const uint32_t w35_1 = sp_read(SP_SNAPSHOT + 35, &spok);
+
+            //! ...and WHY it was served, read back rather than assumed. A
+            //! served descriptor with img_valid still 0 would be the store
+            //! answering out of stale line-buffer contents.
+            const uint32_t w34 = sp_read(SP_SNAPSHOT + 34, &spok);
+            printf("  [i]    desc-store word 34 = 0x%08X after %ld burst(s), "
+                   "%ld beat(s)\n", w34, dm_bursts, dm_beats);
+            ck("[AECP-IMG] the store FETCHED from descriptor memory",
+               (long)(dm_bursts > 0), 1);
+            ck("[AECP-IMG] the image VALIDATED (word 34 bit 0)", w34 & 1u, 1);
+            ck("[AECP-IMG] ...with no store fault (word 34 [4:1])",
+               (w34 >> 1) & 0xFu, 0);
+            //! INDEX 1, and a STREAM_INPUT on purpose. This end-station puts
+            //! its media sink and its CRF sink both under STREAM_INPUT at
+            //! different lengths, so the image emits them as two index runs
+            //! and index 1 can only be served by subtracting the run base
+            //! (KL_aecp_desc_store.sv scan_base_r). An index-0-only test
+            //! never touches that arithmetic.
+            const size_t si_len =
+                grade_read_desc("[AECP-IMG] STREAM_INPUT,1", 0x0005, 1, 0x4012);
+            const uint32_t w35_2 = sp_read(SP_SNAPSHOT + 35, &spok);
+
+            const long lane_ent = (long)((w35_1 & 0xFFFFu) - (w35_0 & 0xFFFFu));
+            const long lane_si  = (long)((w35_2 & 0xFFFFu) - (w35_1 & 0xFFFFu));
+            printf("  [i]    response-memory lane writes: +%ld for ENTITY "
+                   "(%ld B), +%ld for STREAM_INPUT 1 (%ld B)\n",
+                   lane_ent, (long)ent_len, lane_si, (long)si_len);
+            //! THE FLOOR IS THE PAYLOAD, not the DUT's accounting: 4 + the
+            //! descriptor has to reach memory eight bytes at a time, so
+            //! anything below (4 + len) / 8 commits means bytes never got
+            //! there. The board's stuck 2 fails this by a factor of twenty.
+            ck("[AECP-IMG] the response memory COMMITTED the ENTITY lanes",
+               (long)(lane_ent >= (long)((4 + ent_len) / 8)), 1);
+            ck("[AECP-IMG] ...and committed STREAM_INPUT 1's as well",
+               (long)(lane_si >= (long)((4 + si_len) / 8)), 1);
+            //! rerr counts responses the memory VOIDED. [AECP-WTMO] added one
+            //! deliberately, so only the delta across a working memory is
+            //! honest here.
+            ck("[AECP-IMG] no response was voided by the memory",
+               (long)((w35_2 >> 16) - (w35_0 >> 16)), 0);
+            ck("[AECP-IMG] the response buffer reports no fault (word 36)",
+               sp_read(SP_SNAPSHOT + 36, &spok) & 0x7u, 0);
+        }
     }
 
 #ifdef AAF_PB_TB

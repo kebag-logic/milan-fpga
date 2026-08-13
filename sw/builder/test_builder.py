@@ -149,7 +149,18 @@ Gates (gaps item 4, generator round):
       Parameter names, RTL defaults and the 192-frame block are PARSED from
       the modules; the non-biphase kinds emit nothing;
   21b. reject paths: a word length the AES3 subframe cannot carry, and an
-      audio PLL that cannot divide to the serial clock, raise ConfigError.
+      audio PLL that cannot divide to the serial clock, raise ConfigError;
+  27. THE PROTOCOL PROCESSOR'S DRAM WINDOW IS RESERVED, for every config: the
+      emitted device tree carries a `no-map` reserved-memory node covering
+      exactly [pp_mem_phys, pp_mem_phys + pp_mem_bytes), that window overlaps
+      neither the PCM ring nor any other reserved region, platform_shape.json
+      publishes the same bytes the tree reserves, and milan_soc.py DERIVES its
+      PP_DESC_BASE_P / PP_RESP_BASE_P from that published window instead of
+      computing one of its own.  The window used to be derived independently
+      on the two sides (the builder emitted no reservation at all, and the SoC
+      took "top of main_ram"), which put it in ordinary kernel RAM at the 1x1
+      shape and INSIDE the PCM ring at 8x8.  Neither failure raises anything:
+      no counter on either side reports a write to a wrong physical address.
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
 """
@@ -4240,6 +4251,185 @@ def test_gptp_domain_is_one_source():
           f"the advertising plane's gptp_domain_i")
 
 
+def _reserved_regions(dtsi):
+    """The emitted device tree's `reserved-memory` node, parsed:
+    ((#address-cells, #size-cells), [{name, base, size, no_map}, ...]).
+
+    PARSED FROM THE TEXT, never asked of the builder that wrote it. This text
+    becomes the DTB the kernel honours, so an expectation taken from the
+    emitter could not disagree with it, and a disagreement between the bytes
+    the gateware compiles and the bytes the kernel protects is the whole
+    reason this parser exists.
+    """
+    i = dtsi.index("reserved-memory")
+    j = dtsi.index("{", i)
+    depth, body = 0, None
+    for k in range(j, len(dtsi)):
+        if dtsi[k] == "{":
+            depth += 1
+        elif dtsi[k] == "}":
+            depth -= 1
+            if depth == 0:
+                body = dtsi[j + 1:k]
+                break
+    assert body is not None, "reserved-memory node is not brace-balanced"
+
+    def cells(prop):
+        m = re.search(rf"#{prop}-cells\s*=\s*<(\d+)>", body)
+        assert m, f"reserved-memory declares no #{prop}-cells"
+        return int(m.group(1))
+
+    out = []
+    for label, node, child in re.findall(
+            r"(?:(\w+)\s*:\s*)?([\w-]+)@[0-9a-fA-F]+\s*\{(.*?)\n\s*\};",
+            body, re.S):
+        m = re.search(r"reg\s*=\s*<([^>]*)>", child)
+        assert m, f"reserved-memory child {node!r} carries no reg"
+        vals = [int(x, 0) for x in m.group(1).split()]
+        assert len(vals) == 2, (
+            f"reserved-memory child {node!r}: reg has {len(vals)} cells, "
+            "expected one base plus one size")
+        out.append(dict(name=label or node, base=vals[0], size=vals[1],
+                        no_map=bool(re.search(r"^\s*no-map\s*;", child, re.M))))
+    assert out, "reserved-memory node has no children"
+    return (cells("address"), cells("size")), out
+
+
+def test_pp_window_is_reserved():
+    """Gate 27: the protocol processor's DRAM window is RESERVED, `no-map`,
+    and the SAME BYTES on both sides of the hardware/software boundary.
+
+    The window is compiled into the bitstream as PP_DESC_BASE_P (the
+    descriptor store READS the entity model from it) and PP_RESP_BASE_P (the
+    AECP response buffer WRITES to it). It used to be derived independently in
+    two places: sw/builder/endstation_builder.py emitted the device tree, and
+    sw/litex/milan_soc.py computed "top of main_ram". They disagreed. At the
+    1x1 shape the window was ordinary kernel RAM and the response buffer wrote
+    into whatever the page allocator had handed out; at 8x8 it sat INSIDE the
+    PCM ring and corrupted captured audio. NEITHER failure raises anything -
+    there is no counter on either side for a write to a wrong physical
+    address, the entity still answers, and the board still plays. So the only
+    place this can be caught is here, before the bitstream exists.
+
+    Every config, four properties:
+      1. a reserved-memory node COVERS the whole window;
+      2. the window overlaps neither the PCM ring nor any other reservation;
+      3. platform_shape.json's pp_mem is the same base and the same length the
+         tree reserves, and milan_soc.py READS it rather than deriving a
+         second answer;
+      4. the covering node is `no-map`, which is load-bearing twice: it keeps
+         the kernel allocator out, and it keeps the region out of the linear
+         map, which is what lets the loader reach it through /dev/mem.
+    """
+    import json
+    PAGE = 0x1000
+    for name in CONFIGS:
+        r = eb.build(CONFIGS[name], OUT)
+        dtsi = open(r["paths"]["dt_overlay"]).read()
+        shape = json.load(open(r["paths"]["platform_shape"]))
+        assert "pp_mem" in shape, (
+            f"{name}: platform_shape.json publishes no pp_mem. milan_soc.py "
+            "reads that key to compile PP_DESC_BASE_P / PP_RESP_BASE_P, so "
+            "without it the SoC has to invent the window a second time")
+        base = int(shape["pp_mem"]["phys"], 16)
+        size = int(shape["pp_mem"]["bytes"], 16)
+        end = base + size
+        assert size > 0, f"{name}: pp_mem window is empty"
+        # the loader mmaps this window through /dev/mem, which takes a
+        # page-aligned offset and length
+        assert base % PAGE == 0 and size % PAGE == 0, (
+            f"{name}: window 0x{base:08X}+0x{size:X} is not 4 KiB aligned, so "
+            "the loader cannot mmap it through /dev/mem")
+        cells, regions = _reserved_regions(dtsi)
+        assert cells == (1, 1), (
+            f"{name}: reserved-memory declares {cells} address/size cells. "
+            "The reg pairs are read here as one base plus one size, and the "
+            "kernel reads them by the same declaration")
+
+        # (1) SOMETHING RESERVES IT. Unreserved, this is ordinary kernel RAM.
+        cover = [g for g in regions
+                 if g["base"] <= base and end <= g["base"] + g["size"]]
+        assert len(cover) == 1, (
+            f"{name}: the processor window 0x{base:08X}+0x{size:X} is covered "
+            f"by {len(cover)} reserved-memory node(s), expected exactly 1. "
+            f"Tree reserves "
+            + ", ".join(f"{g['name']} 0x{g['base']:08X}+0x{g['size']:X}"
+                        for g in regions))
+        cov = cover[0]
+
+        # (4) `no-map`, not merely reserved. A plain reservation leaves the
+        # region in the kernel's linear map, where CONFIG_STRICT_DEVMEM
+        # refuses the loader's /dev/mem mapping of it.
+        assert cov["no_map"], (
+            f"{name}: reserved node {cov['name']!r} covers the window but "
+            "carries no `no-map`, so the kernel keeps it in the linear map "
+            "and the loader cannot reach it through /dev/mem")
+
+        # (3) and it reserves EXACTLY the window the gateware compiles. A
+        # reservation that merely contains it is a second, independently
+        # derived number, and two numbers for one physical address is the
+        # defect itself.
+        assert (cov["base"], cov["size"]) == (base, size), (
+            f"{name}: the device tree reserves "
+            f"0x{cov['base']:08X}+0x{cov['size']:X} but platform_shape.json "
+            f"publishes 0x{base:08X}+0x{size:X}. The gateware compiles one of "
+            "those and the kernel honours the other")
+
+        # (2) and it is nobody else's memory. The PCM ring is named because
+        # that is the region the 8x8 shape landed inside; the pairwise sweep
+        # holds for whatever region is added next.
+        ring = int(shape["pcm"]["ring_phys"], 16)
+        ring_bytes = int(shape["pcm"]["ring_bytes"], 16)
+        assert any((g["base"], g["size"]) == (ring, ring_bytes)
+                   for g in regions), (
+            f"{name}: the PCM ring 0x{ring:08X}+0x{ring_bytes:X} is not among "
+            "the reserved regions, so 'clear of the other reservations' would "
+            "be a claim about an empty set")
+        assert end <= ring or ring + ring_bytes <= base, (
+            f"{name}: the processor window 0x{base:08X}+0x{size:X} OVERLAPS "
+            f"the PCM ring 0x{ring:08X}+0x{ring_bytes:X}. The response buffer "
+            "writes into captured audio and no counter on either side reports "
+            "it")
+        for x in range(len(regions)):
+            for y in range(x + 1, len(regions)):
+                a_, b_ = regions[x], regions[y]
+                assert (a_["base"] + a_["size"] <= b_["base"]
+                        or b_["base"] + b_["size"] <= a_["base"]), (
+                    f"{name}: reserved regions {a_['name']} "
+                    f"0x{a_['base']:08X}+0x{a_['size']:X} and {b_['name']} "
+                    f"0x{b_['base']:08X}+0x{b_['size']:X} overlap")
+        print(f"  [gate 27] {name}: window 0x{base:08X}+0x{size:X} reserved "
+              f"no-map as {cov['name']!r}, byte-identical to "
+              f"platform_shape.json's pp_mem, clear of the PCM ring "
+              f"0x{ring:08X}+0x{ring_bytes:X} and of "
+              f"{len(regions) - 1} other reserved region(s)")
+
+    # THE OTHER HALF of "cannot drift": the SoC must READ that published
+    # window. Up to 00f17a68 it derived its own, `_desc_base = _ram.origin +
+    # _ram.size - _PP_WINDOW` with _PP_WINDOW a local literal, and nothing
+    # compared the two. Stated as a RULE over every assignment rather than as
+    # a copy of the expression: any future spelling is fine as long as the
+    # value comes from the config's published window.
+    soc = open(MILAN_SOC_PY).read()
+    assert re.search(r"^\s*_shape\s*=\s*_platform_shape\(", soc, re.M), \
+        "milan_soc.py no longer loads the config's platform shape"
+    assert "platform_shape.json" in soc, \
+        "milan_soc.py names no platform_shape.json to read the window from"
+    for var in ("_desc_base", "_PP_WINDOW"):
+        rhs = re.findall(rf"^\s*{var}\s*=\s*(.+)$", soc, re.M)
+        assert rhs, f"milan_soc.py assigns {var} nowhere"
+        for expr in rhs:
+            assert '_shape["pp_mem"]' in expr, (
+                f"milan_soc.py derives {var} from {expr.strip()!r} instead of "
+                "the config's published pp_mem window. A second derivation of "
+                "a physical address is not a build error on either side, it "
+                "is silent memory corruption on the board")
+    print(f"  [gate 27] milan_soc.py READS the published window: every "
+          f"_desc_base / _PP_WINDOW assignment ({len(re.findall(r'^ *(?:_desc_base|_PP_WINDOW) *=', soc, re.M))} "
+          "of them) comes from platform_shape.json's pp_mem, so the base the "
+          "bitstream compiles and the base the kernel reserves are ONE number")
+
+
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
@@ -4274,7 +4464,8 @@ if __name__ == "__main__":
                test_d8_role_pools, test_d8_role_pools_reject,
                test_d10_cluster_names, test_d10_names_reach_the_rom,
                test_entity_identity_is_derived_not_mirrored,
-               test_gptp_domain_is_one_source):
+               test_gptp_domain_is_one_source,
+               test_pp_window_is_reserved):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")

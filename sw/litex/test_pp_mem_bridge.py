@@ -39,9 +39,17 @@ WHAT THIS FILE PROVES, in two independent ways so neither can pass vacuously:
      dead-bus stimulus. The pre-fix one must still be holding cyc/stb with no
      answer given; the shipping one must report `err` and let go of the bus.
      If the watchdog were inert the two would agree and this test fails.
-  2. STRUCTURAL. milan_soc.py is parsed and every bus state of both real FSMs
+  2. RECOVERY, and it is a SEPARATE claim from the watchdog's. Letting go of
+     the bus is worth nothing if the master can never take it again. The dead
+     bus is brought BACK - with the answer the bridge abandoned still owed by
+     the memory - and the same bridge, with no reset and nothing poked, has to
+     transact again. That is the poison flag's own documented contract, from
+     the descriptor bridge's comment in milan_soc.py: it answers `err`
+     meanwhile, "healing itself the moment the bus comes back".
+  3. STRUCTURAL. milan_soc.py is parsed and every bus state of both real FSMs
      is required to carry a non-`ack` exit, so the model above cannot drift
-     away from the code it stands for.
+     away from the code it stands for, and to be unable to strand its own
+     poison flag.
 
 Run: cd sw/litex && python3 test_pp_mem_bridge.py
 """
@@ -56,6 +64,12 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 MILAN_SOC = os.path.join(HERE, "milan_soc.py")
 
 TMO = 32                       # the model's watchdog; the SoC uses 2,048
+
+# Two different words, so a beat can say WHICH answer it carried: the one a
+# healthy memory returns, and the one the abandoned access is still owed.
+FRESH      = 0x01000100494D4541
+FRESH_WIRE = 0x41454D4900010001   # FRESH in 1722.1 wire order (byte-reversed)
+STALE      = 0x0BADF00D0BADF00D
 
 fails = 0
 checks = 0
@@ -204,6 +218,112 @@ def test_behavioural():
           pre["cyc_at_end"] != fix["cyc_at_end"])
 
 
+def drive_recovery(dut, tries=4, budget=8 * TMO):
+    """A dead bus, then a HEALTHY one, with no reset anywhere in between.
+
+    THE MEMORY MODEL OBEYS ONE RULE and the test means nothing without it:
+    `ack` reaches a master ONLY while that master is driving cyc/stb. That is
+    what the interconnect does - litex/soc/interconnect/wishbone.py's Arbiter
+    gates every slave->master signal as `dest.eq(source & (rr.grant == i))`
+    and drives `rr.request` from the masters' own `cyc` - so an answer that
+    arrives after a master has let go is delivered to whoever holds the bus
+    then, never to the master that abandoned it. A model free to ack an idle
+    master would clear the poison flag by magic and prove nothing.
+
+    The abandoned access is modelled as an answer the memory still OWES: the
+    first access it serves after coming back carries the OLD access's data
+    (STALE), which is the exact hazard the poison flag exists to cover.
+    """
+    out = {"dead": [], "later": [], "acc": 0,
+           "psn_dead": 0, "cyc_dead": 0, "psn_end": 0}
+    st = {"alive": False, "owed": False, "acc": 0}
+    beats = []
+
+    def step():
+        # EMIT is one cycle wide and this face has no backpressure, so a beat
+        # not sampled here is a beat lost
+        if (yield dut.rsp_valid):
+            beats.append(((yield dut.rsp_data), (yield dut.rsp_err),
+                          (yield dut.rsp_blast)))
+        if (yield dut.wb_ack):
+            yield dut.wb_ack.eq(0)          # one ack per access, never two
+        elif st["alive"] and (yield dut.wb_cyc) and (yield dut.wb_stb):
+            st["acc"] += 1
+            yield dut.wb_dat_r.eq(STALE if st["owed"] else FRESH)
+            yield dut.wb_ack.eq(1)
+            st["owed"] = False
+        yield
+
+    def burst(addr):
+        del beats[:]
+        yield dut.req_addr.eq(addr)
+        yield dut.req_beats.eq(2)
+        yield dut.req_valid.eq(1)
+        yield from step()
+        yield dut.req_valid.eq(0)
+        for _ in range(budget):
+            yield from step()
+            if beats and beats[-1][2]:      # blast: the burst is answered
+                break
+        for _ in range(2):                  # let the FSM settle back in IDLE
+            yield from step()
+        return list(beats)
+
+    def stim():
+        # 1. the memory stops answering
+        out["dead"] = yield from burst(0x7F700000)
+        out["psn_dead"] = (yield dut.psn)
+        out["cyc_dead"] = (yield dut.wb_cyc)
+        # 2. the bus comes back, and it still owes the abandoned answer.
+        #    Nothing else changes: no reset, no poke into the bridge.
+        st.update(alive=True, owed=True, acc=0)
+        # 3. the bridge has to come back on its own
+        for n in range(tries):
+            out["later"].append((yield from burst(0x7F700000 + 64 * (n + 1))))
+        out["acc"] = st["acc"]
+        out["psn_end"] = (yield dut.psn)
+
+    run_simulation(dut, stim())
+    return out
+
+
+def test_recovery():
+    """The poison flag has to be able to clear, and only the bus can clear it.
+
+    A master that answers `err` without asserting cyc/stb is asking the bus
+    for nothing, so no ack can reach it (see drive_recovery for why the model
+    may not hand one to an idle master), so a flag whose only clear is an ack
+    stays set for the life of the bitstream. The processor then sees every
+    descriptor read fail forever after ONE slow access, which is not a stall
+    the board can be talked out of: it is a reset.
+    """
+    r = drive_recovery(ReadBridge(True))
+
+    # the premise. Without a real timeout there is nothing to recover FROM
+    check("dead bus: the burst is answered with err (the timeout reports)",
+          bool(r["dead"]) and any(b[1] == 1 for b in r["dead"]),
+          f"got {r['dead']}")
+    check("dead bus: the master ends up poisoned and off the bus",
+          r["psn_dead"] == 1 and r["cyc_dead"] == 0,
+          f"psn={r['psn_dead']} cyc={r['cyc_dead']}")
+
+    # the contract
+    check("recovered bus: the bridge asks the bus for something again",
+          r["acc"] > 0,
+          f"no cyc/stb in {len(r['later'])} later bursts: the master never "
+          "transacts again, so the ack that would clear its poison flag can "
+          "never arrive")
+    check("recovered bus: the poison flag clears, with no reset",
+          r["psn_end"] == 0, f"psn={r['psn_end']}")
+    last = r["later"][-1]
+    check("recovered bus: a later burst completes, 2 beats and no err",
+          len(last) == 2 and all(b[1] == 0 for b in last), f"got {last}")
+    check("recovered bus: the completed burst carries the fresh word, not the "
+          "abandoned one",
+          bool(last) and all(b[0] == FRESH_WIRE for b in last),
+          f"got {[hex(b[0]) for b in last]}")
+
+
 def _act_calls(tree, names):
     out = {}
     for node in ast.walk(tree):
@@ -215,6 +335,89 @@ def _act_calls(tree, names):
                 and node.args[0].value in names):
             out.setdefault(node.args[0].value, []).append(node)
     return out
+
+
+def _tokens(nodes):
+    """Every Name id and Attribute attr under a list of AST nodes."""
+    out = set()
+    for node in nodes:
+        for sub in ast.walk(node):
+            if isinstance(sub, ast.Attribute):
+                out.add(sub.attr)
+            elif isinstance(sub, ast.Name):
+                out.add(sub.id)
+    return out
+
+
+def _poison_latches(tree):
+    """The per-transaction latches a state loads from a poison flag.
+
+    `NextValue(_de, _dpsn)` in IDLE: `_de` is how the flag reaches the bus
+    state, and finding it by assignment rather than by name is what keeps the
+    bypass check below tied to the poison flag and not to any early exit.
+    """
+    out = set()
+    for node in ast.walk(tree):
+        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
+                and node.func.id == "NextValue" and len(node.args) == 2
+                and isinstance(node.args[0], ast.Name)
+                and isinstance(node.args[1], ast.Name)
+                and node.args[1].id.endswith("psn")):
+            out.add(node.args[0].id)
+    return out
+
+
+def _poison_clear_arms(tree):
+    """The `.Elif(...)` conditions of every `If(<x>psn_set, ...)` register."""
+    out = []
+    for node in ast.walk(tree):
+        outer = node.func.value if (isinstance(node, ast.Call)
+                                    and isinstance(node.func, ast.Attribute)
+                                    and node.func.attr == "Elif") else None
+        if (isinstance(outer, ast.Call) and isinstance(outer.func, ast.Name)
+                and outer.func.id == "If" and outer.args
+                and isinstance(outer.args[0], ast.Name)
+                and outer.args[0].id.endswith("psn_set") and node.args):
+            out.append(node.args[0])
+    return out
+
+
+def _needs_an_ack(cond):
+    """True if only an answer from the bus can meet this clear condition.
+
+    `err` counts as one: wishbone2axi raises it WITH `ack`, so a condition
+    that waits for either still waits for a transaction. The bus object's own
+    name (`_dwb` in `_dwb.ack`) is not an operand and is discounted.
+    """
+    bases = {n.value for n in ast.walk(cond)
+             if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name)}
+    attrs = {n.attr for n in ast.walk(cond) if isinstance(n, ast.Attribute)}
+    free = {n.id for n in ast.walk(cond)
+            if isinstance(n, ast.Name) and n not in bases}
+    return attrs <= {"ack", "err"} and all(f.endswith("psn") for f in free)
+
+
+def _skips_the_bus(act, latches):
+    """True if the state answers a poisoned transaction without driving cyc.
+
+    The shape: `If(<latch>, NextState(...)).Else(cyc.eq(1), ...)`. Reached
+    that way the state never asks the bus for anything, so nothing it does
+    can produce the ack the poison flag is waiting for.
+    """
+    for node in ast.walk(act):
+        outer = node.func.value if (isinstance(node, ast.Call)
+                                    and isinstance(node.func, ast.Attribute)
+                                    and node.func.attr == "Else") else None
+        if not (isinstance(outer, ast.Call)
+                and isinstance(outer.func, ast.Name)
+                and outer.func.id == "If" and len(outer.args) >= 2):
+            continue
+        arm = _tokens(outer.args[1:])
+        if (_tokens(outer.args[:1]) & latches
+                and "NextState" in arm and "cyc" not in arm
+                and "cyc" in _tokens(node.args)):
+            return True
+    return False
 
 
 def test_structural():
@@ -238,6 +441,17 @@ def test_structural():
     check('milan_soc.py has both bus states, act("RD") and act("WR")',
           set(acts) == {"RD", "WR"}, f"found {sorted(acts)}")
 
+    # The poison flag can only be cleared by an event the poisoned master can
+    # still cause. Two shapes satisfy that and this check accepts either: the
+    # bus state keeps driving cyc while poisoned (so the owed ack lands on the
+    # master that is owed it), or the flag has a clear that is not an ack.
+    latches = _poison_latches(tree)
+    check("the poison flags reach the bus states through a loaded latch",
+          len(latches) >= 2, f"found {sorted(latches)}")
+    arms = _poison_clear_arms(tree)
+    heals = bool(arms) and not any(_needs_an_ack(c) for c in arms)
+    stranded = f"clear arms: {[ast.unparse(c) for c in arms]}"
+
     for state in sorted(acts):
         for act in acts[state]:
             names = {n.id for n in ast.walk(act) if isinstance(n, ast.Name)}
@@ -256,6 +470,10 @@ def test_structural():
             check(f'act("{state}") poisons the master on that exit',
                   any(nm.endswith("psn_set") for nm in names),
                   "a late ack would then pair with the NEXT access")
+            check(f'act("{state}") cannot strand the flag it just set',
+                  not _skips_the_bus(act, latches) or heals,
+                  "poisoned, it answers without driving cyc, and the flag "
+                  f"clears only on an ack that therefore never comes ({stranded})")
 
     check("the watchdog is sized in the source, not left to a magic number",
           "_pp_tmo" in src)
@@ -266,6 +484,8 @@ def test_structural():
 if __name__ == "__main__":
     print("test_behavioural:")
     test_behavioural()
+    print("test_recovery:")
+    test_recovery()
     print("test_structural:")
     test_structural()
     print(f"\ntest_pp_mem_bridge: {checks} checks: "
