@@ -226,7 +226,44 @@ plausibly several thousand LUT to the good**, on a board where the shipping
 build sits 917 LUT above the closure cliff and every LUT below it buys closure
 probability.
 
-## Consequence for the integration
+## SETTLED ON THE REAL BUILD — 2026-08-13: shadow mode does not fit the die
+
+Everything above is out-of-context synthesis. The question it could not answer
+is whether a whole SoC with the plane ON places on the board. It does not.
+
+`--with-pp-plane` (the first time anything set `PP_PLANE_P`; no bitstream in
+this project's history had ever contained the processor) was built at the
+shipping AX7101 config as a 3-seed sweep. **All three seeds failed identically
+at `place_design`**, before timing was ever reached:
+
+> ERROR: [Place 30-487] … There are a total of 15850 slices in the device, of
+> which 11286 slices are available, however, the unplaced instances require
+> **12530 slices**. … Luts: **63540** (combined) 74582 (total), available
+> capacity: **63400**
+
+Like-for-like, both post-synthesis (the earlier 52,827 figure is post-PLACE and
+must not be compared against a synth number):
+
+| post-synthesis | baseline | + shadow plane | delta |
+|---|---|---|---|
+| Slice LUTs | 56,779 (89.6 %) | **64,241 (101.3 %)** | **+7,462** |
+| Block RAM | 109 (80.7 %) | **131 (97.0 %)** | +22 |
+| Registers | — | 66,738 (52.6 %) | — |
+
+Two things worth keeping:
+
+- **+7,462 LUT in a real SoC against 7,463 measured standalone OOC.** The
+  out-of-context number was accurate to one LUT. That is a useful calibration
+  for every future estimate made with `syn/ooc/pp_shadow_ooc.tcl`.
+- **BRAM is the quieter problem.** 131 of 135 tiles is 97 %, and placement does
+  not recover BRAM the way it recovers LUTs. Even a design that squeezed under
+  the LUT ceiling would have almost no block memory left.
+
+**Consequence: coexistence is not merely expensive, it is unbuildable here.**
+The processor cannot reach this silicon as a second plane at any effort level —
+no seed, no directive, no floorplan. The ONLY path to silicon is the
+SUBSTITUTION, which removes 15,474 LUT of shipping planes to make room for
+7,462. That is no longer the cheaper option; it is the only option.
 
 A coexistence (shadow) flash of the 1×1 plane is buildable and worth
 attempting, but should be expected to fail timing closure at 95.1 %. The path
