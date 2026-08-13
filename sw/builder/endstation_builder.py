@@ -1811,6 +1811,56 @@ def entity_conf_overlay_path(board_target):
                         f"milan-entity.{board_target}.conf")
 
 
+def _entity_model_image(cfg, overlay):
+    """{filename: content} for the AEM image the descriptor store fetches.
+
+    Delegates to avdecc/gen_aemi_image.py rather than restating the format:
+    that module is itself only a join of gen_aem_store (the bytes) and the
+    protocol processor's own packer (the layout), so this stays one hop from
+    both authorities and cannot drift from either.
+
+    The manifest carries the window from THIS config, which is also what
+    generated the `ppmem` reservation above - the loader reads the base from
+    here and never restates it.
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    repo = os.path.dirname(os.path.dirname(here))
+    for d in (os.path.join(repo, "avdecc"),
+              os.path.join(repo, "protocol-processor", "hdl", "aecp", "desc")):
+        if d not in sys.path:
+            sys.path.insert(0, d)
+    import gen_aem_store as _aem
+    import gen_desc_image as _img
+    import gen_aemi_image as _join
+
+    model = _aem.build_model(_aem.spec_from_overlay(overlay))
+    # 576 = PP_DESC_LINE_BYTES_P. A descriptor longer than the store's line
+    # buffer cannot be answered, and the packer is the only place that sees it.
+    blob, report = _img.build(_join.model_to_document(model), 576)
+    base = int(cfg["platform"]["pp_mem_phys"])
+    manifest = {
+        "desc_base": base,
+        "resp_base": base + int(cfg["platform"]["pp_mem_bytes"]) - 0x1000,
+        "window_bytes": int(cfg["platform"]["pp_mem_bytes"]),
+        "image": "aem_desc.bin",
+        "image_bytes": len(blob),
+        # names the config this model IS, so a board and a bench can tell
+        # whether the image on the board is the one they think it is
+        "config": os.path.basename(str(cfg.get("source", ""))),
+    }
+    # The loader ships WITH the image, from milan-fpga's one copy. A second
+    # copy maintained in the rootfs would be a script that drifts from the
+    # manifest format it parses, and the failure would be a board that reports
+    # a successful load of nothing.
+    with open(os.path.join(repo, "scripts", "load_entity_model.sh"),
+              encoding="utf-8") as fh:
+        loader = fh.read()
+    return {"aem_desc.bin": blob,
+            "aem_desc.json": json.dumps(manifest, indent=1) + "\n",
+            "aem_desc.map": report,
+            "load_entity_model.sh": loader}
+
+
 def emit_lwsrp_table(cfg):
     """The lwSRP reservation table this config defines: SR-class + timer +
     bandwidth constants (today hand-written in lwsrp_pkg.sv), the 0x680 CSR
@@ -4294,6 +4344,27 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
                 with open(p_gp, "w") as f:
                     f.write(gptp_cfg)
                 print(f"  wrote {p_gp}")
+            # THE DESCRIPTOR IMAGE, into the same rootfs the identity ships in.
+            # /etc/init.d/S50milan loads it into the reserved `ppmem` window
+            # before enabling ADP, because the processor serves READ_DESCRIPTOR
+            # from DRAM and has nothing on-die. The manifest beside it carries
+            # the base, so the loader never restates an address.
+            #
+            # Written HERE, not by the SoC build, because this is where the
+            # window is decided (`pp_mem_phys`) and where the identity the
+            # descriptors belong to is written - the id and the descriptors it
+            # names must not be able to move apart, which is the same reason
+            # milan-entity.<board>.conf is generated rather than hand-kept.
+            for path, blob in _entity_model_image(cfg, overlay).items():
+                p_img = os.path.join(os.path.dirname(p_ent_overlay),
+                                     "milan-aem", path)
+                os.makedirs(os.path.dirname(p_img), exist_ok=True)
+                mode = "wb" if isinstance(blob, bytes) else "w"
+                with open(p_img, mode) as f:
+                    f.write(blob)
+                if p_img.endswith(".sh"):
+                    os.chmod(p_img, 0o755)
+                print(f"  wrote {p_img}")
         else:
             print(f"[endstation_builder] WARNING: rootfs overlay etc/ not on "
                   f"disk ({ROOTFS_OVERLAY_ETC}) - the flashed image's "
