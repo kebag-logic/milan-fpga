@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # pp_shadow — milan_datapath with the protocol processor AS the control plane
 
-`make` — exit 0 = PASS. **160 checks, 0 failures, 0 warnings** at the time of
+`make` — exit 0 = PASS. **161 checks, 0 failures, 0 warnings** at the time of
 writing. The suite carries no `-Wno-*` at all (not even `-Wno-fatal`), so any
 Verilator warning stops the build; gate on the **exit code**, never on a warning
 count.
@@ -52,7 +52,7 @@ The name is kept because the wrapper's name is kept; the suite is a
 | L | **the device ANSWERS AECP** | `READ_DESCRIPTOR` returns `SUCCESS` with `configuration_index`/`reserved`/the descriptor **byte-exact against the image**; a locate miss returns `NO_SUCH_DESCRIPTOR` and a bad configuration index `BAD_ARGUMENTS`, both with the IEEE §7.4.5 4-byte `{type, index}` stub; an unimplemented opcode returns a conformant `NOT_IMPLEMENTED` **echo**; `IDENTIFY_NOTIFICATION` sent as a command returns `BAD_ARGUMENTS`; and the two cases the standard allows to be ignored are ignored *without wedging* |
 | M | **no descriptor memory** | with the memory model withdrawn, `READ_DESCRIPTOR` degrades to a well-formed `NO_SUCH_DESCRIPTOR` rather than hanging the µCPU, and the store serves again once memory returns |
 | K | **the shared control lane** | both legs of `ctl_tx_mux` transmitted, every frame is well formed, and no TX-trunk arbiter aborted or stalled. AECP responses are in that census, so a response that was well formed in isolation but corrupted by the shared lane fails here |
-| J | global anti-wedge invariant | `accepted == answered` over every cycle simulated |
+| J | global anti-wedge invariant | `accepted == answered` over every cycle simulated, and **no `RELEASE_DA` is reachable in this shape**: `milan_datapath` ties `cfg_src_en_i` to all-ones, so no talker source can leave the configuration. Graded rather than assumed, because the owed-release law (a release booked per source and retried until the face ACCEPTS it, ahead of any `ALLOC_DA`) is proven in `protocol-processor/tb/acmp_talker` section L. Wire `cfg_src_en_i` to anything live and this check goes red, which is the reminder to bring that path under test here too |
 
 ### Group F — why a decode and not a count
 
