@@ -4,8 +4,25 @@
 # load_entity_model.sh - write the AEM descriptor image into the DRAM window
 #                        the gateware's descriptor store reads from.
 #
-# RUNS ON THE BOARD. POSIX sh + busybox only (dd, cmp, od) - no python, no
-# compiler, nothing the buildroot rootfs does not already carry.
+# SUPERSEDED ON THE BOARD BY `aemi-load` (milan-tests-avb fpga/aemi-load).
+# MEASURED 2026-08-13 on the AX7101, kernel 6.6 rv32: the `dd` path below
+# FAULTS.
+#
+#     dd  -> /dev/mem   kernel trace, then EFAULT
+#     mmap                 works (busybox `devmem` proves it)
+#
+# The window is a `no-map` reserved region, so the kernel builds NO linear
+# mapping for it - but the pages are inside the /memory node, so `pfn_valid()`
+# is true and /dev/mem's READ/WRITE path takes `xlate_dev_mem_ptr()` -> `__va()`
+# and dereferences an address that was never mapped. `mmap()` goes through
+# `remap_pfn_range()` and establishes a real one. `no-map` is still correct and
+# still required; it is only the ACCESS METHOD that was wrong here.
+#
+# This script is kept as the zero-dependency reference for the FORMAT and the
+# checks (manifest parse, pair check, read-back, magic), which `aemi-load`
+# implements identically. Do not put it back on the boot path.
+#
+# POSIX sh + busybox only (dd, cmp, od) - no python, no compiler.
 #
 # WHY THIS EXISTS. The protocol processor holds no descriptors on-die; it
 # fetches them from main memory, at a base compiled into the bitstream. Until
@@ -68,10 +85,9 @@ PAGES=$(( (HAVE + PAGE - 1) / PAGE ))
 
 printf 'loading %s (%s B) at 0x%x\n' "$IMG" "$HAVE" "$BASE"
 dd if="$IMG" of=/dev/mem bs=$PAGE seek=$SEEK count=$PAGES conv=notrunc 2>/dev/null || {
-    echo "write to /dev/mem failed." >&2
-    echo "  If the kernel has CONFIG_STRICT_DEVMEM, the window must be a" >&2
-    echo "  no-map reserved-memory region - a region the kernel still owns" >&2
-    echo "  is refused, and rightly so." >&2
+    echo "write to /dev/mem failed - EXPECTED on a no-map window (see the" >&2
+    echo "  banner): the read/write path has no linear mapping to write" >&2
+    echo "  through. Use aemi-load, which mmaps." >&2
     exit 1; }
 
 # READ BACK AND COMPARE. A write to /dev/mem that lands nowhere does not fail:
