@@ -79,3 +79,24 @@ bitstream.
 The bitstream built earlier on 2026-08-13 (`TAG=drammem`, which placed and routed
 at 84.80% LUT / 125 BRAM, post-route WNS +0.095 ns) was compiled against the OLD
 base and must not be used with the new device tree.
+
+## The rebuild that ships
+
+`TAG=ppmemsw ./build.sh ax7101 --sweep` — three place directives, one closed,
+which is the usual rate for this design (`rv32-fit-campaign-0731`: closure above
+the area cliff is roughly a one-in-three lottery, so a single build failing
+timing is not evidence of a regression).
+
+| directive | WNS | TNS | failing | verdict |
+|---|---|---|---|---|
+| `ExtraPostPlacementOpt` | −0.063 ns | −1.055 | 20 | missed |
+| **`AltSpreadLogic_high`** | **+0.008 ns** | **0.000** | **0** | **MET** (WHS +0.036) |
+| `ExtraTimingOpt` | −0.063 ns | −0.383 | 8 | missed |
+
+**Ship `build_ax7101_asl_ppmemsw`**: 50,040 Slice LUTs post-place (78.9%),
+125/135 Block RAM, `alinx_ax7101.bit` 3,825,992 B, and `aem_desc.bin` (5,520 B,
+base `0x7f700000`) beside it — byte-identical to the copy the builder wrote into
+the rootfs overlay, which is the copy the board actually loads.
+
+The margin is +8 ps. That is met, not comfortable: re-sweep rather than assume
+closure survives an unrelated edit.
