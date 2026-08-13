@@ -70,6 +70,34 @@
                 Milan v1.2 5.3.8.2 wants saved state; this build does not have
                 it, and says so structurally rather than by a zeroed counter.
 
+                AND IT MUST SAY SO IN THE STATUS. Until 0x0045 it did not.
+                Every arm of the processor's per-record vendor default
+                (07 §5.3 F07.9) ends the walk with restore_done and no
+                restore_fail, so the responder above produced the SAME status
+                word a real restore of eight bindings produces: a device with
+                no media reported a completed restore. A report of saved state
+                that was never saved is worse than reporting none, because a
+                Milan 5.3.8.2/5.3.8.3 checklist passes on it and the failure
+                only appears on a bench that cycles the power. So the wrapper
+                publishes two more levels beside done/fail:
+
+                  nvm_backed_o   CONSTANT. Derived from the responder below
+                                 (NVM_BACKED_C), never a parameter: a port an
+                                 integrator can set to 1 while the volatile
+                                 stub is still instantiated is the same lie
+                                 with a longer reach.
+                  restore_blank_o  the walk validated zero records - blank or
+                                 unframed media - as opposed to a walk that
+                                 put bindings back.
+
+                and restore_fail_o is RAISED on a completed walk with no
+                backend. That last choice is deliberate: fail is the bit every
+                existing decoder of this status already reads as "not
+                successful", and landing in an encoding they understand beats
+                inventing a code that only new software can see. Blank media
+                behind a REAL backend is not a failure (nothing was ever
+                saved, which Milan permits): it reports backed with blank.
+
                 CLASS-D FABRIC FACE. Everything the processor knows used to be
                 reachable only through a side-port READ TRANSACTION - a
                 software-paced path. An integrating fabric consumes that state
@@ -378,8 +406,10 @@ module KL_pp_shadow #(
 
     //! ---- observability ----
     output logic       restore_busy_o,     //! restore walk running
-    output logic       restore_done_o,     //! restore complete
-    output logic       restore_fail_o,     //! torn read-back aborted restore
+    output logic       restore_done_o,     //! restore sequencing complete (NOT a verdict)
+    output logic       restore_fail_o,     //! the completed restore did NOT restore: torn read-back, or no backend at all
+    output logic       nvm_backed_o,       //! CONSTANT: 1 = persistent media behind the device face, 0 = none in this build
+    output logic       restore_blank_o,    //! the completed walk validated ZERO records
     output logic       nvm_alarm_o,        //! commit retries exhausted
     output logic [15:0] rx_frames_o,       //! control frames handed to the PP
     output logic [7:0] rx_drops_o,         //! frames lost to a full FIFO
@@ -596,6 +626,15 @@ module KL_pp_shadow #(
   // ======================================================================= //
   //  Blank-flash NVM responder (NOT persistent — see the banner)            //
   // ======================================================================= //
+  //! The responder below IS this build's whole backend and it holds nothing
+  //! across a reset, let alone a power cycle. This constant sits here, beside
+  //! it, so the two move together: whoever replaces the responder with real
+  //! media edits the line under their cursor. It is deliberately NOT a module
+  //! parameter — the fact is a property of the logic in this file, and a
+  //! parameter would let an integrator assert persistence the fabric does not
+  //! have.
+  localparam logic NVM_BACKED_C = 1'b0;
+
   localparam logic [1:0] NVMP_OP_READ_C  = 2'd0;
   localparam logic [1:0] NVMP_OP_WRITE_C = 2'd1;
 
@@ -657,6 +696,7 @@ module KL_pp_shadow #(
   logic [7:0]  pp_tx_data_w;
   logic        pp_host_rvalid_w, pp_host_err_w;
   logic [31:0] pp_host_rdata_w;
+  logic        pp_restore_done_w, pp_restore_fail_w, pp_restore_blank_w;
 
   //! one outstanding side-port access: hold the request until it completes
   logic        hb_pend_r, hb_we_r;
@@ -750,8 +790,9 @@ module KL_pp_shadow #(
 
       .restore_go_i        (restore_go_i),
       .restore_busy_o      (restore_busy_o),
-      .restore_done_o      (restore_done_o),
-      .restore_fail_o      (restore_fail_o),
+      .restore_done_o      (pp_restore_done_w),
+      .restore_fail_o      (pp_restore_fail_w),
+      .restore_blank_o     (pp_restore_blank_w),
       .nvm_alarm_o         (nvm_alarm_o),
 
       .nvm_dev_req_o       (nvm_req_w),
@@ -985,6 +1026,24 @@ module KL_pp_shadow #(
         tx_frames_o <= tx_frames_o + 16'd1;
     end
   end
+
+  // ======================================================================= //
+  //  Saved-state verdict (Milan v1.2 5.3.8.2/5.3.8.3/5.3.8.7)              //
+  // ======================================================================= //
+  //! done stays the SEQUENCING level the processor publishes: the walk ran to
+  //! the end. Everything below is what the walk is allowed to CLAIM.
+  assign restore_done_o  = pp_restore_done_w;
+  assign nvm_backed_o    = NVM_BACKED_C;
+  assign restore_blank_o = pp_restore_blank_w;
+
+  //! A completed walk with no backend is a FAILED restore, not a successful
+  //! one: the bound state Milan 5.3.8.2 requires to survive a power cycle was
+  //! not restored and could not have been. Raising the processor's own fail
+  //! level is what puts it in the encoding existing readers of this status
+  //! already treat as unsuccessful. It is gated on done so the verdict is a
+  //! verdict: before a restore has run there is nothing to have failed.
+  assign restore_fail_o  = pp_restore_fail_w
+                         || (pp_restore_done_w && !NVM_BACKED_C);
 
 endmodule
 

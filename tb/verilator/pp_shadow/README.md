@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # pp_shadow — milan_datapath with the protocol processor AS the control plane
 
-`make` — exit 0 = PASS. **145 checks, 0 failures, 0 warnings** at the time of
+`make` — exit 0 = PASS. **160 checks, 0 failures, 0 warnings** at the time of
 writing. The suite carries no `-Wno-*` at all (not even `-Wno-fatal`), so any
 Verilator warning stops the build; gate on the **exit code**, never on a warning
 count.
@@ -40,6 +40,7 @@ The name is kept because the wrapper's name is kept; the suite is a
 | # | Check group | What it establishes |
 |---|---|---|
 | A | presence + CSR window | `PP_STAT[31:24]` is a constant `0x5B` tag, so a structural zero can never be read as "present and idle"; `TXARB_DIAG` decodes with its `0xA7` tag and its lanes 7:4 read the documented structural zero |
+| P | **the saved-state verdict does not lie** | with `restore_go` driven pre-enable, `PP_STAT` must NOT read as a successful restore on a build whose NVM device face is a blank-flash responder. Graded through the decoder software already has (`done && !fail && !alarm`), so the fix had to land in an encoding existing readers understand, plus `[6] nvm_backed = 0` and `[7] nvm_blank = 1` for the three-way distinction. Before `0x0045` this read `0x5B00_0004`, byte-identical to a genuine restore of every sink |
 | B | RX classify → FIFO → serializer → validator | an ADP `ENTITY_DISCOVER` is accepted end to end; the counter only moves when the **processor** took a whole frame |
 | C | the classifier rejects non-control traffic | 8 IPv4 frames leave `rx_frames` flat. This is the check that protects the board — see the rate note below |
 | D | **substitution** | the processor is run until *it* transmits (`tx_frames > 0`) and frames must **egress** at the MAC boundary over the same window. Catches a build that left `tx_drain_i` asserted or never connected the `ctl_tx_mux` leg — with the legacy plane gone, a drained processor answers nothing at all |

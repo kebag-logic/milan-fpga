@@ -124,6 +124,7 @@ struct MaapObs {
     long accepted   = 0;   // req_valid && req_ready — the shim took a request
     long answered   = 0;   // rsp_valid              — the shim completed one
     long granted    = 0;   // rsp_valid && rsp_ok    — with an address
+    long released   = 0;   // req_valid && req_release — a RELEASE_DA offered
     uint64_t last_da = 0;  // the address of the last grant
     long declaring_cycles = 0;  // cycles acmp_declaring_o[0] was high
 };
@@ -149,6 +150,8 @@ static void observe() {
     auto* rp = dut->rootp;
     if (rp->milan_datapath__DOT__pp_maap_req_valid_w
         && rp->milan_datapath__DOT__pp_maap_req_ready_w) mo.accepted++;
+    if (rp->milan_datapath__DOT__pp_maap_req_valid_w
+        && rp->milan_datapath__DOT__pp_maap_req_release_w) mo.released++;
     if (rp->milan_datapath__DOT__pp_maap_rsp_valid_w) {
         mo.answered++;
         if (rp->milan_datapath__DOT__pp_maap_rsp_ok_w) {
@@ -773,6 +776,60 @@ int main(int argc, char** argv) {
     axi_write(A_ADP_MDLLO, (uint32_t)(TEST_MODEL & 0xFFFFFFFFu));
     axi_write(A_ADP_MDLHI, (uint32_t)(TEST_MODEL >> 32));
     axi_write(A_ADP_CAPS,  0x0000C588u);          // a Milan PAAD's capabilities
+
+    // ---- P. SAVED STATE: an absent backend may not report a restore -------
+    // Milan v1.2 puts unconditional SHALLs on non-volatile state: 5.3.8.2
+    // "The current bound state shall be saved in a non-volatile memory and
+    // restored after a power cycle", 5.3.8.3 the four binding parameters,
+    // 5.3.8.7 the started/stopped state, with 5.5.2.4 fixing WHEN the
+    // Listener writes them. This build cannot meet them: KL_pp_shadow answers
+    // the class-F device face with a blank-flash responder (reads 0xFF,
+    // discards writes), so no binding survives a power cycle.
+    // WHAT IS GRADED HERE IS NOT PERSISTENCE. It is that PP_STAT never
+    // reports a restore that did not happen. The failure mode being closed is
+    // a checklist that reads a clean restore verdict off a device with no
+    // media, passes, and then fails on a bench where the power is cycled.
+    // Runs BEFORE the entity enable below, which is the boot order Milan
+    // 5.5.3.5.2 requires of a real restore.
+    printf("[P] saved state: an absent backend must not report a restore\n");
+    axi_write(A_PP_CTRL, 0x2);                       // restore_go, pre-enable
+    bool p_done = false;
+    for (int i = 0; i < 200 && !p_done; i++) {
+        run_idle(64);
+        p_done = (axi_read(A_PP_STAT) >> 2) & 1;     // STAT[2] restore_done
+    }
+    const uint32_t rstat = axi_read(A_PP_STAT);
+    printf("  [i]    PP_STAT 0x924 = 0x%08X (backed %u blank %u alarm %u "
+           "fail %u done %u)\n", rstat, (rstat >> 6) & 1, (rstat >> 7) & 1,
+           (rstat >> 4) & 1, (rstat >> 3) & 1, (rstat >> 2) & 1);
+    ck_true("the restore walk terminates", p_done,
+            p_done ? "restore_done set" : "restore_done never set");
+    // The verdict every decoder that predates the backed/blank bits computes:
+    // PP_STAT has carried {alarm, fail, done} since the group was defined, so
+    // a completed walk with neither flag raised IS a successful restore to
+    // anything already reading this register. That is the encoding the
+    // absent-backend case has to land in, rather than a new code nothing
+    // downstream understands.
+    const bool legacy_success = ((rstat >> 2) & 1) && !((rstat >> 3) & 1)
+                                                   && !((rstat >> 4) & 1);
+    ck_true("a build with NO backend does not report a successful restore",
+            !legacy_success,
+            legacy_success ? "PP_STAT claims a restore that never happened"
+                           : "reported not-successful");
+    // ...and the two bits that keep the three outcomes apart, so "no media
+    // behind the port" is never confused with "media that happened to be
+    // blank" nor with "a restore that genuinely put bindings back".
+    ck("PP_STAT[6] nvm_backed == 0 (no persistent media behind the device face)",
+       (rstat >> 6) & 1, 0u);
+    ck("PP_STAT[7] nvm_blank == 1 (the walk validated zero records)",
+       (rstat >> 7) & 1, 1u);
+    ck("PP_STAT[3] restore_fail == 1 (an absent backend is not a success)",
+       (rstat >> 3) & 1, 1u);
+    ck("PP_STAT[4] nvm_alarm == 0 (nothing was committed, so nothing retried)",
+       (rstat >> 4) & 1, 0u);
+    ck("the presence tag is unchanged by the verdict bits",
+       (rstat >> 24) & 0xFF, 0x5Bu);
+
     // class-D baseline, taken before the processor has ever advertised
     uint32_t aidx0 = dut->rootp->milan_datapath__DOT__pp_cd_adp_avail_index_w;
     axi_write(A_PP_CTRL, 0x1);                       // entity_enable
@@ -1556,6 +1613,16 @@ int main(int argc, char** argv) {
     ck_true("accepted == answered across the entire run",
             mo.accepted == mo.answered,
             mo.accepted == mo.answered ? "balanced" : "UNBALANCED - a source is stranded");
+    // ...and the OTHER half of the face is unreachable in this shape, on
+    // purpose: milan_datapath ties cfg_src_en_i to all-ones, so no talker
+    // source can ever leave the configuration and no RELEASE_DA can ever be
+    // issued. That is why the owed-release law (a release booked per source
+    // and retried until the face ACCEPTS it, ahead of any ALLOC_DA) is proven
+    // in protocol-processor/tb/acmp_talker section L and not here. Graded
+    // rather than assumed: wire cfg_src_en_i to anything live and this goes
+    // red, which is the reminder to bring that path under test HERE too.
+    ck("no RELEASE_DA is reachable while every source is pinned enabled",
+       (uint32_t)mo.released, 0u);
 
     printf("----------------------------------------------------------------\n");
     printf("pp_shadow: %ld checks, %ld failures\n", checks, fails);

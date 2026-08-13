@@ -95,6 +95,7 @@ and is not repeated here.
 - **[Suggested order of attack (reordered 2026-07-22 per USER)](#suggested-order-of-attack-reordered-2026-07-22-per-user)** — Thirteen roadmap items with a dependency graph: only three wait on another item. Two prepended items outrank all of them, and item 0 records that the freeze hook faked the wedge, so recovery stays unproven.
 - **[Milan 1.3 + audio-unit round (USER 2026-07-29)](#milan-13--audio-unit-round-user-2026-07-29)** — The la_avdecc findings and the USER's audio-unit directives, re-graded 2026-08-13: four of the six items are AECP-side with no local path, so the Milan badge stays unreachable. The 8-channel shape and typed stream ports stand.
 - **[Diagnostics move to a DRAM ring, not to more CSRs (USER 2026-08-13)](#diagnostics-move-to-a-dram-ring-not-to-more-csrs-user-2026-08-13)** — USER directive with the constraints a design must satisfy: one DRAM ring of self-describing, skippable records replaces the per-datum debug CSRs. Names the boundary: spec-mandated counters answer a controller and cannot move.
+- **[The saved-state backend, specified but NOT built (2026-08-13)](#the-saved-state-backend-specified-but-not-built-2026-08-13)** — This device persists nothing, and until VERSION `0x0045` `PP_STAT` reported a completed restore anyway. The reporting is fixed here; the backend is specified and not built: media, record layout, the eleven clauses and two SHALL-NOTs, when a write is owed, how a torn write is detected, and the recovery rule.
 
 ## 0-ter. THE AECP BOUNDARY — the largest open gap on this page
 
@@ -2156,3 +2157,202 @@ a candidate. Getting this boundary wrong trades area for a compliance failure.
   whether the head pointer can live in fabric at all.
 - Whether one ring serves every subsystem or each gets its own region; one ring
   needs arbitration, several need more DRAM windows and more head pointers.
+
+## The saved-state backend, specified but NOT built (2026-08-13)
+
+This device has **no non-volatile backend for Milan state**. The protocol
+processor's class-F NVM device face is answered inside
+[`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv) by a blank-flash
+responder: reads return `0xFF`, writes are accepted and discarded, erase
+completes at once. `KL_persist_journal` went with the legacy control plane, so
+nothing survives a power cycle.
+
+**What changed at VERSION `0x0045` is the reporting, not the capability.** The
+processor's boot walk ends every per-record vendor-default arm with
+`restore_done` set and `restore_fail` clear, so `PP_STAT` `0x924` used to read
+`0x5B00_0004` on a device with no media: byte-identical to a device that had
+genuinely restored every sink. That value passed a checklist and failed on a
+bench that cycled the power. `PP_STAT` now carries `[6] nvm_backed` and
+`[7] nvm_blank`, and raises `[3] restore_fail` when a walk completes with no
+backend, so the three outcomes are distinguishable and the unbacked one lands in
+an encoding existing readers already treat as unsuccessful
+([`REGISTER_MAP.md`](reference/REGISTER_MAP.md)). This build reports
+`0x5B00_008C`.
+
+The rest of this section is the specification the next round implements
+against. Nothing below exists in RTL.
+
+### What must be saved, by clause
+
+The authoritative inventory is
+[`sw/persist/milan_persist_state.py`](../sw/persist/milan_persist_state.py),
+which carries each clause's quoted text and the line of the Milan v1.2
+consolidated PDF it was extracted from. It is the one place either repository
+says "clause X requires state Y", and a backend design must read it rather than
+restate it. Eleven unconditional SHALLs:
+
+| Clause | State | Scope |
+|---|---|---|
+| 5.3.5.1 | AUDIO_UNIT current sampling rate | per-descriptor |
+| 5.3.7.1 | STREAM_OUTPUT current format | per-descriptor |
+| 5.3.7.6 | STREAM_OUTPUT presentation time offset | per-descriptor |
+| 5.3.8.1 | STREAM_INPUT current format | per-descriptor |
+| 5.3.8.2 | STREAM_INPUT **bound state** | per-descriptor |
+| 5.3.8.3 | STREAM_INPUT **binding parameters** — talker Entity ID, index of the Source it is bound to, controller Entity ID, started/stopped | per-descriptor |
+| 5.3.8.7 | STREAM_INPUT started/stopped state (carried inside the 5.3.8.3 record, not a second store) | per-descriptor |
+| 5.3.9.1 | Output audio map | per-descriptor |
+| 5.3.10.1 | Input audio map | per-descriptor |
+| 5.3.11.1 | CLOCK_DOMAIN current clock source | per-descriptor |
+| 5.3.13 | Entity, group and descriptor object names | entity + per-descriptor |
+
+And two **SHALL NOTs**, which a backend has to be as careful to honour: 5.3.4.1
+(the locked state) and 5.3.4.2 (the registered-controller list) are **cleared**
+by a power cycle. Persisting them is as much a violation as dropping the eleven.
+
+Only the 5.3.8.2 / 5.3.8.3 / 5.3.8.7 binding group has a fabric-side manager
+today (`KL_acmp_nvm_shadow` in the protocol-processor submodule, one 20-byte
+`BINDING[i]` record per sink). The other eight need one, and until the AECP
+plane can serve the descriptors they belong to, restoring them has no consumer.
+
+### When a write is owed
+
+5.3.8.1-style clauses say *what* to keep. Two others say *when*, and one of them
+is an erase:
+
+- **5.5.2.4 (Controller Bind):** "The Listener stores the binding parameters
+  contained in the `BIND_RX_COMMAND` message ... in non-volatile memory in order
+  to enable the stream to be quickly reestablished after a power cycle and/or
+  network disruption."
+- **5.5.3.5.3** and its siblings: "then save them to non volatile memory". Milan
+  spells it **unhyphenated** outside 5.3, which is a live trap for anyone
+  re-deriving these quotes with a hyphen-only grep.
+- **5.3.8.3 closing sentence:** "The binding parameters are cleared when the
+  Stream Input gets unbound", matched by "Clear the saved binding parameters."
+  in the 5.5.3.5.x steps. A store that **keeps** a record after `UNBIND_RX`
+  violates the clause exactly as surely as one that never wrote it. The existing
+  shadow represents that erase as a record whose `valid` flag is `0`, which is
+  a written record and not an absent one — the difference matters on restore.
+
+Writes are debounced and coalesced (`T-NVM-DEBOUNCE`, 07 §5.3 F07.9) and only a
+**differing persisted field** marks a record dirty, so `GET_RX_STATE` write-backs
+and probe bookkeeping cost zero flash wear. A backend inherits that discipline;
+it must not add a write per CSR poke.
+
+### The media
+
+The only non-volatile medium on this board is the **QSPI NOR flash** (16 MiB,
+N25Q128A13 / S25FL128S; JEDEC `01 20 18` or `20 BA 18`), 64 KiB erase block.
+The map already reserves space for exactly this and is derived, never mirrored,
+from `FLASHBOOT_RESERVED` in
+[`sw/litex/milan_soc.py`](../sw/litex/milan_soc.py):
+
+- `journal` at `0xEE_0000`, `0x02_0000` — two 64 KiB erase blocks, **raw, no
+  filesystem**, one per A/B slot. Raw is the point: "a torn write cannot damage
+  the other slot" is then a property of the flash geometry rather than a promise
+  from a log-structured filesystem, and a slot is readable before any mount.
+- `user` at `0xF0_0000`, `0x10_0000` — jffs2, and **not** where Milan state
+  belongs.
+
+Two constraints on reaching it. First, this kernel has no driver bound to
+`litex,spiflash`, so `/proc/mtd` is empty while the flash itself is fully
+reachable: read through the XIP window at `0x0100_0000`, write through the
+LiteSPI master CSRs at `0xf000_4810`. A design that assumes an `mtd` device is
+designing for a kernel this board does not run. Second, and the reason the
+backend belongs in **fabric** rather than in a shell script: a restore must land
+before the first ADPDU (5.5.3.5.2), and software that runs after the advertiser
+lets a controller enumerate the entity and cache descriptors that then change
+underneath it.
+
+### Record layout
+
+Do not invent one. The processor already defines the on-media contract, and both
+the manager and the port validate against it (07 §5.2 F07.8, and
+[`KL_pp_nvm_port.sv`](../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv)):
+
+| Offset | Field | Notes |
+|---|---|---|
+| 0–1 | magic `0x1722` | big-endian, streams as `0x17` then `0x22` |
+| 2 | `layout_version` | a record whose version is unknown is a per-record default, never an abort |
+| 3 | `record_id` | also the **region id** on the device face; `BINDING[i]` = `0x20 + sink` |
+| 4–5 | `payload_length` | big-endian; bounds the byte pump, so an oversize value is refused **before** any device traffic |
+| 6–7 | `crc16` | CCITT-FALSE over header-sans-crc plus payload; serialized and checked by the manager, never by the port |
+| 8.. | payload | `BINDING[i]` is 20 bytes: `{flags[valid,started,streaming_wait], rsv, talker_uid, talker_eid, ctlr_eid}`, big-endian |
+
+The device face a backend must implement is a **region port**, not a flat
+address space: `{req/grant, op READ / WRITE / ERASE_REGION, region id, byte
+offset, length, byte-stream data phases, busy/done/err}`. A commit is
+`ERASE_REGION` then `WRITE`, so NOR backends work unmodified; a backend with no
+erase semantics answers `ERASE` with `done` immediately. A restore is an 8-byte
+header read followed by a payload read sized by that header. Long device-busy
+periods are expected and are fine: commits are asynchronous to protocol
+responses (03 §6 ordering rule d), so the port blocks nothing but its own lane.
+
+### Detecting a partial write, and the recovery rule
+
+Three mechanisms, at three scopes. All three are needed; none substitutes for
+another.
+
+1. **Per record: the in-band crc16.** A torn write leaves a region that is
+   erased, short, or crc-failing. Every one of those is detected on read.
+2. **Per record set: A/B slots.** The whole record set is written to the
+   **non-authoritative** slot and read back before it becomes authoritative, so
+   a torn write can only ever damage the slot not currently in use. The slots
+   are one erase block apart precisely so the flash geometry guarantees this.
+   A sequence number picks the winner; a rejected image must **not** advance the
+   watermark, so falling back to the other slot is always permitted.
+3. **Per boot: the epoch canary.** A datapath reset zeroes the live bind CSRs,
+   and that is exactly the case saved state exists *for*. An unbind must never
+   be journalled across an epoch change; a genuine Controller Unbind happens
+   with the epoch stable.
+
+The recovery rule, which the existing manager already implements and a backend
+must not weaken:
+
+- **Empty, unframed, or refused-by-the-port region** → per-record vendor
+  default. That sink has no saved binding, the walk **continues**. Milan permits
+  an entity that was never bound; this is not a failure.
+- **A complete record failing crc, `layout_version`, `record_id` or length** →
+  per-record vendor default. Also not an abort: one bad record must not cost the
+  other seven.
+- **A read-back torn MID-STREAM** (device error or short completion after at
+  least one byte) → abort the **whole** restore. `restore_fail`, not one preload
+  driven, every un-captured sink left invalid. Fail whole and loud; a partial
+  preload is the one outcome that must never be representable, because a
+  controller cannot tell it from a real binding.
+- **A live change during the restore span wins** over the restored image for its
+  sink: the media value is discarded, the preload skipped, and the live value
+  written back after the walk.
+- **Commit failure** is retried a bounded number of times and then raises the
+  sticky side-port alarm (`PP_STAT[4]`). It never blocks protocol service.
+
+### What the status must report when it is built
+
+Whatever the backend is, it has to keep `PP_STAT`'s four verdict bits truthful,
+which means answering all three questions separately: is there media
+(`nvm_backed`), did the walk finish (`restore_done`), and did anything come back
+(`nvm_blank`), with `restore_fail` reserved for a walk that aborted or could not
+have succeeded. The failure this whole section exists to prevent is a status
+word that cannot tell "restored" from "there was nothing to restore from".
+
+### Consumers, checked 2026-08-13
+
+- **`milan-persist`** (board rootfs) is honest: it dispatches on the generated
+  `/etc/milan-persist-state.sh` inventory, every item of which currently reads
+  `none`, so it prints eleven named `NOT RESTORABLE` gaps and exits 0. It does
+  not read `PP_STAT`.
+- **`S51milan-persist`** gates on the `journal` mtd partition existing (empty
+  `/proc/mtd` on this kernel) and, past that gate, on the `0x7C0` verdict field,
+  which is a structural zero since `KL_persist_journal` was deleted. It reports
+  "both slots rejected — clean start". Honest, by accident of the tie-off rather
+  than by design. It does not read `PP_STAT`.
+- **`S51acmp-persist`** only starts the change watcher; the restore moved into
+  `S50milan`. It does not read `PP_STAT`.
+- **OPEN, in the sibling test repository, not fixed here.** `acmp-persist
+  restore`'s `restore_csr_present()` probes the deleted E1 bind-restore group by
+  writing `0x7A0` and reading it back. `0x7A0` is still a plain RW shadow
+  register, so the probe **succeeds**, and the function goes on to print
+  "media sink re-armed" for a commit that can never complete: `i_acmp_rest_ack`
+  is tied to `1'b0` in `milan_datapath.sv`. It is latent — `milan-persist` routes
+  every item to `none`, so nothing calls it during a normal boot — but it is a
+  false success and it should gate on the `0x7B4` `[30] done` bit, which can
+  never set, instead of on a register readback.

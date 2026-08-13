@@ -1897,6 +1897,34 @@ Demanding both would strand every existing script; honouring only the new bit
 would silently ignore the old one. There is exactly one control plane now, so
 there is exactly one thing for either bit to start.
 
+**THE RESTORE VERDICT IS FOUR BITS, AND UNTIL `0x0045` IT WAS A LIE.**
+`restore_done` means the boot walk reached its end. It does *not* mean state
+came back. Every per-record arm of the processor's restore, including the one
+that fires when a region is blank or unframed, ends the walk with `restore_done`
+set and `restore_fail` clear, so a device with **no non-volatile media at all**
+published the identical status word to one that had genuinely restored every
+sink: `0x5B00_0004`. A Milan 5.3.8.2 / 5.3.8.3 checklist reading that register
+passed on a restore that never happened, and the failure surfaced only on a
+bench that cycled the power. Read the four bits together:
+
+| `nvm_backed` `[6]` | `nvm_blank` `[7]` | `restore_fail` `[3]` | Meaning |
+|---|---|---|---|
+| `1` | `0` | `0` | **A restore genuinely completed** — media answered and records were validated |
+| `1` | `1` | `0` | **Blank or invalid media** — the store is real but held nothing this walk could use. Not a failure: Milan permits an entity that has never been bound |
+| `1` | `0`/`1` | `1` | **Torn read-back** — the walk aborted and the whole image was discarded |
+| `0` | `1` | `1` | **No backend at all** — what this build reports, `0x5B00_008C` |
+
+`restore_fail` is deliberately raised in the last row rather than a new code
+being invented for it: `fail` is the bit every reader of this register already
+treats as not-successful, so software that predates `[6]` and `[7]` still grades
+an unbacked build correctly. `nvm_backed` is a **constant derived from the
+fabric**, not a parameter — it is set beside the responder in `KL_pp_shadow.sv`,
+because a knob an integrator can turn to `1` while the volatile stub is still
+instantiated is the same lie with a longer reach. What a real backend would have
+to provide is specified in
+[`MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md); it is **not**
+implemented.
+
 **The side port is POSTED, and one access is outstanding at a time.** The
 processor's side port is a fabric walk behind a request/ack, and an AXI read must
 never wait on it — the bus would stall for as long as the processor takes to
@@ -1908,8 +1936,8 @@ another.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x920` | `PP_CTRL` | RW | `0` | `[0]` **entity enable** — ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane. `[1]` `restore_go`: start the NVM boot-restore walk. The walk always completes with **zero records**: the device face behind it is a blank-flash responder (reads `0xFF`, writes accepted and discarded, erase completes), which is the processor's documented no-saved-binding path. Nothing in this device persists a binding across a power cycle |
-| `0x924` | `PP_STAT` | RO | `0x5B00_0000` | `[0]` `sp_busy` — a side-port access is outstanding, `[1]` `restore_busy`, `[2]` `restore_done`, `[3]` `restore_fail`, `[4]` `nvm_alarm`, `[5]` `sp_err` — the last side-port access returned an error, `[31:24]` **constant presence tag `0x5B`**. A read of `0` here means the gateware predates the group |
+| `0x920` | `PP_CTRL` | RW | `0` | `[0]` **entity enable** — ORed with `ADP_CTRL[0]` (`0x600`); either bit starts the plane. `[1]` `restore_go`: start the NVM boot-restore walk. The walk always completes with **zero records**: the device face behind it is a blank-flash responder (reads `0xFF`, writes accepted and discarded, erase completes), which is the processor's documented no-saved-binding path. Nothing in this device persists a binding across a power cycle, and since `0x0045` `PP_STAT` says so rather than reporting a clean restore |
+| `0x924` | `PP_STAT` | RO | `0x5B00_0000` | `[0]` `sp_busy` — a side-port access is outstanding, `[1]` `restore_busy`, `[2]` `restore_done` — the boot walk **sequenced**, which is not the same as succeeded, `[3]` `restore_fail`, `[4]` `nvm_alarm`, `[5]` `sp_err` — the last side-port access returned an error, `[6]` `nvm_backed` — **constant**: `1` = persistent media sits behind the processor's NVM device face, `0` = none in this build, `[7]` `nvm_blank` — the completed walk validated **zero** records, `[31:24]` **constant presence tag `0x5B`**. A read of `0` here means the gateware predates the group |
 | `0x928` | `PP_SPADDR` | RW | `0` | `[19:0]` side-port **word** address. **A write here POSTS A READ** at that address (ignored while `sp_busy`); the answer lands in `PP_SPDATA`. Readback = the armed address |
 | `0x92C` | `PP_SPDATA` | RW | `0` | **Read**: the data of the last posted read. **Write**: posts a side-port WRITE of this value to the address already in `PP_SPADDR` (ignored while `sp_busy`) |
 | `0x930` | `PP_DIAG` | RO | `0` | Shadow evidence, and the only frame accounting the control plane now publishes: `[31:16]` control frames transmitted, `[15:8]` **RX drops** — control frames lost to a full ingress FIFO, counted rather than silently absorbed, `[7:0]` control frames received. This replaces the per-plane PDU counters at `0x648`, `0x69C` and `0x6B0`, all of which are structural zeros |

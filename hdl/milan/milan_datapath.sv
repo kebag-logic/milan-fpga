@@ -2092,6 +2092,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic [31:0] pp_wdata_w, pp_rdata_w;
   logic        pp_ack_w, pp_err_w;
   logic        pp_restore_busy_w, pp_restore_done_w, pp_restore_fail_w;
+  //! the two levels that keep the saved-state verdict honest: a walk that
+  //! validated nothing, and whether any persistent media exists at all
+  logic        pp_restore_blank_w, pp_nvm_backed_w;
   logic        pp_nvm_alarm_w;
   logic [15:0] pp_rx_frames_w, pp_tx_frames_w;
   logic [7:0]  pp_rx_drops_w;
@@ -2157,7 +2160,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   localparam int PP_SRC_IDX_W_C = (N_STREAMS > 1) ? $clog2(N_STREAMS) : 1;
   wire                       pp_maap_req_valid_w   /* verilator public_flat_rd */;
   wire                       pp_maap_req_ready_w;
-  wire                       pp_maap_req_release_w;
+  //! observed by tb/verilator/pp_shadow: this shape pins every talker source
+  //! enabled, so the processor's RELEASE_DA arc is unreachable here and the
+  //! suite grades that as a fact rather than leaving it an untested gap.
+  wire                       pp_maap_req_release_w /* verilator public_flat_rd */;
   wire [PP_SRC_IDX_W_C-1:0]  pp_maap_req_src_w;
   wire                       pp_maap_rsp_valid_w   /* verilator public_flat_rd */;
   wire                       pp_maap_rsp_ok_w      /* verilator public_flat_rd */;
@@ -2558,6 +2564,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_pp_restore_busy  (pp_restore_busy_w),
     .i_pp_restore_done  (pp_restore_done_w),
     .i_pp_restore_fail  (pp_restore_fail_w),
+    .i_pp_nvm_backed    (pp_nvm_backed_w),
+    .i_pp_nvm_blank     (pp_restore_blank_w),
     .i_pp_nvm_alarm     (pp_nvm_alarm_w),
     .i_pp_rx_frames     (pp_rx_frames_w),
     .i_pp_rx_drops      (pp_rx_drops_w),
@@ -4794,6 +4802,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .restore_busy_o    (pp_restore_busy_w),
       .restore_done_o    (pp_restore_done_w),
       .restore_fail_o    (pp_restore_fail_w),
+      .nvm_backed_o      (pp_nvm_backed_w),
+      .restore_blank_o   (pp_restore_blank_w),
       .nvm_alarm_o       (pp_nvm_alarm_w),
       .rx_frames_o       (pp_rx_frames_w),
       .rx_drops_o        (pp_rx_drops_w),
