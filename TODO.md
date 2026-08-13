@@ -402,12 +402,51 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
   descriptor type (an invalid image reports a configuration count of zero, and
   the `configuration_index` check runs before the locate), which is a clean refusal (the store's watchdog abandons a
   stalled burst; it never hangs) and a useless entity. A late load heals without
-  a reset. Two pieces: (1) generate the image from the same config that drives
-  the rest of the shape, so the model cannot diverge from the gateware; (2) load
-  it at boot before `ADP_CTRL[0]`/`PP_CTRL[0]` is set. Watch the coupling to
+  a reset. Two pieces, and **piece (1) is NOT this repository's to write** —
+  see the ownership decision immediately below. (2) load it at boot before
+  `ADP_CTRL[0]`/`PP_CTRL[0]` is set. Watch the coupling to
   `entity_model_id` — it is advertised from the `0x600` CSR group while the
   descriptors come from the image, so changing one without the other makes every
   controller serve a stale cached model, and nothing in fabric cross-checks it.
+
+- [ ] **The YAML → descriptor-image tool BELONGS IN THE PROTOCOL PROCESSOR, not
+  here** *(USER decision 2026-08-13)*. The generator that turns an end-station
+  YAML into the AEM image the AECP descriptor store fetches is a
+  **protocol-processor deliverable**, landing beside its existing
+  `protocol-processor/hdl/aecp/desc/gen_desc_image.py` and its `example_milan_8.json`.
+
+  **Why there and not in `sw/builder/`.** The image FORMAT is the processor's
+  and nobody else's: the `AEMI` header's magic/version/checksum, the index map,
+  and the `elem_off + index × elem_stride` addressing law are all read by
+  `KL_aecp_desc_store.sv`. A generator living in this repository would be a
+  SECOND implementation of a layout whose only parser is over there — the exact
+  derive-never-mirror failure this codebase keeps paying for, except that here
+  the two halves sit in different repositories and drift with no gate able to
+  see both. Put the writer next to the reader and one change moves both.
+
+  **The seam this repository owns.** milan-fpga supplies the INPUT and nothing
+  else: `configs/endstation_*.yaml` is the declarative shape that already drives
+  the gateware parameters, the ADP counts at `0x618`/`0x61C` and the generated
+  `adp_shape_defaults.svh`. The tool consumes that YAML directly, so the entity
+  a controller enumerates and the entity the fabric elaborates are ONE
+  description — which is the whole point of the declarative end-station rule.
+  What comes back is an image blob plus its load address, which the boot path
+  writes at `PP_DESC_BASE_P` (derived by `sw/litex/milan_soc.py` from the SoC's
+  own `main_ram` map — currently the top 1 MiB, `0x7ff00000` on the AX7101).
+
+  **Blocked here by construction**: the submodule is pinned and this repository
+  must not edit it, so this item cannot be closed from milan-fpga. It is raised
+  as a protocol-processor work item that milan-fpga then consumes across the
+  pin — the same way `gen_ltn_rom.py` and `gen_ucode.py` are consumed today
+  (generated at build time, handed over as an absolute path).
+
+  **Retire the orphan when it lands.** `sw/builder/endstation_builder.py` still
+  emits `out/<cfg>/aecp_aem_rom.svh`, the descriptor ROM for the DELETED
+  `KL_aecp_aem_store`. It is kept only because the entity-model pass that
+  produces it also produces the ADP shape header, and deleting it wholesale
+  would take that with it. Once the YAML → image tool exists, that emission has
+  a real successor and should be dropped rather than left as a generated file
+  no gateware reads.
 
 ## Phase 10 — Persistent user storage (added 2026-07-25)
 
