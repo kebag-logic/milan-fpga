@@ -5717,16 +5717,41 @@ class MilanSoC(SoCCore):
             _dd = Signal(64); _de = Signal()
             _dto = Signal(max=_pp_tmo + 1)
             # A timed-out access is ABANDONED, not cancelled: AXI forbids
-            # retracting a VALID before its READY, so the bridge downstream may
-            # still be holding the request and will ack it whenever the memory
-            # finally answers. Issuing a NEW access before that stale ack
-            # arrives would pair it with the wrong address, so the master stays
-            # POISONED until it lands - answering `err` immediately meanwhile
-            # (a fault the processor names, instead of a second 41 us stall per
-            # attempt) and healing itself the moment the bus comes back.
+            # retracting a VALID before its READY, so the memory still owes one
+            # answer and delivers it whenever it comes back. The master is
+            # POISONED until that answer lands, and poisoned means THE NEXT
+            # ANSWER IS NOT MINE: the transaction in flight is reported `err`
+            # and whatever comes back on it is discarded, which is what keeps a
+            # stale word from being paired with a new address.
+            #
+            # POISONED, THE BUS STATE STILL DRIVES cyc/stb, and that is the
+            # only way the flag can clear. Without a coherent `dma_bus` these
+            # masters land on `self.bus`, whose Arbiter gates every slave->
+            # master signal on the grant (wishbone.py Arbiter: `dest.eq(source
+            # & (rr.grant == i))`) and drives the requests from the masters'
+            # own `cyc`, so an answer owed to a master that is asking for
+            # nothing goes to whoever holds the bus instead. A master that
+            # answered `err` without touching the bus could therefore never be
+            # given the ack its flag waits for: every later descriptor read
+            # would fail for the life of the bitstream, which is a reset and
+            # not a stall. The price is one more watchdog (20.5 us) per attempt
+            # while the memory is still dead, still inside the processor's own
+            # 4,096-cycle per-beat watchdog.
+            #
+            # ONE answer can be owed, never two, so one bit counts the debt:
+            # Wishbone2AXILite (axi_lite_to_wishbone.py:148) samples `stb & cyc`
+            # in IDLE alone and returns there only on the AXI response, so it
+            # cannot take a second access while one is outstanding - a watchdog
+            # firing again while poisoned re-abandons that SAME access. `err`
+            # rides WITH `ack` on a failed access (same file, ERROR state) and
+            # either settles the debt. The debt is watched in EVERY state and
+            # not from the bus state's own arm, because on a `dma_bus` each
+            # master owns its converter (SoCBusHandler.add_master adapts per
+            # master) and that converter's `ack` is combinational on the AXI
+            # response: the answer can land on a master that has already let go.
             _dpsn = Signal(); _dpsn_set = Signal()
             self.sync += If(_dpsn_set, _dpsn.eq(1)
-                         ).Elif(_dpsn & _dwb.ack, _dpsn.eq(0))
+                         ).Elif(_dpsn & (_dwb.ack | _dwb.err), _dpsn.eq(0))
             self.descmem_fsm = _dfsm = FSM(reset_state="IDLE")
             _dfsm.act("IDLE",
                 _dq.ready.eq(1),
@@ -5735,20 +5760,20 @@ class MilanSoC(SoCCore):
                     NextValue(_de, _dpsn), NextValue(_dto, 0),
                     NextState("RD")))
             _dfsm.act("RD",
-                If(_de,
-                    NextState("EMIT")      # poisoned: answer, do not touch it
-                ).Else(
-                    _dwb.cyc.eq(1), _dwb.stb.eq(1), _dwb.sel.eq(_pp_selm),
-                    _dwb.adr.eq(_da[_pp_sh:]),
-                    NextValue(_dto, _dto + 1),
-                    If(_dwb.ack,
-                        NextValue(_dto, 0),
-                        If(_dwb.err, NextValue(_de, 1)
-                        ).Else(NextValue(_dd, _dwb.dat_r)),
-                        NextState("EMIT")
-                    ).Elif(_dto == _pp_tmo,
-                        NextValue(_dto, 0), NextValue(_de, 1),
-                        _dpsn_set.eq(1), NextState("EMIT"))))
+                _dwb.cyc.eq(1), _dwb.stb.eq(1), _dwb.sel.eq(_pp_selm),
+                _dwb.adr.eq(_da[_pp_sh:]),
+                NextValue(_dto, _dto + 1),
+                If(_dwb.ack,
+                    NextValue(_dto, 0),
+                    # `_de` is already set when this access is the one that
+                    # collects an owed answer, so the word is taken and thrown
+                    # away with the beat rather than reaching the processor.
+                    If(_dwb.err, NextValue(_de, 1)
+                    ).Else(NextValue(_dd, _dwb.dat_r)),
+                    NextState("EMIT")
+                ).Elif(_dto == _pp_tmo,
+                    NextValue(_dto, 0), NextValue(_de, 1),
+                    _dpsn_set.eq(1), NextState("EMIT")))
             _dfsm.act("EMIT",
                 _ds.valid.eq(1), _ds.err.eq(_de),
                 _ds.blast.eq((_dl == 1) | _de),
@@ -5809,9 +5834,16 @@ class MilanSoC(SoCCore):
             _rdat = Signal(64); _re = Signal()
             _wa = Signal(32); _wd = Signal(64); _ws = Signal(8); _werr = Signal()
             _rto = Signal(max=_pp_tmo + 1)
+            # THE POISON FLAG: see the descriptor bridge above for why a
+            # poisoned bus state keeps driving cyc/stb rather than answering
+            # off the bus. On this master the poisoned access is a WRITE as
+            # often as a read, and it is still issued: whether the memory
+            # performs it or leaves it queued behind the answer it already
+            # owes, `wr_err` rides the done pulse and the buffer voids that
+            # response, so a write reported failed is never counted committed.
             _rpsn = Signal(); _rpsn_set = Signal()
             self.sync += If(_rpsn_set, _rpsn.eq(1)
-                         ).Elif(_rpsn & _rwb.ack, _rpsn.eq(0))
+                         ).Elif(_rpsn & (_rwb.ack | _rwb.err), _rpsn.eq(0))
             self.respmem_fsm = _rfsm = FSM(reset_state="IDLE")
             # The write is offered first when both are pending. Neither face can
             # be starved by that: both are single-transaction and held until
@@ -5829,8 +5861,8 @@ class MilanSoC(SoCCore):
                     NextValue(_ra, _rq.addr), NextValue(_rl, _rq.beats),
                     NextValue(_re, _rpsn), NextState("RD")))
             _rfsm.act("WR",
-                If((_ws == 0) | _werr,
-                    NextState("WDONE")     # nothing to write, or poisoned
+                If(_ws == 0,
+                    NextState("WDONE")     # no byte enabled: nothing to write
                 ).Else(
                     _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.we.eq(1),
                     _rwb.sel.eq(_ws), _rwb.adr.eq(_wa[_pp_sh:]),
@@ -5855,20 +5887,17 @@ class MilanSoC(SoCCore):
                 _rd.valid.eq(1), _rd.err.eq(_werr),
                 If(_rd.ready, NextState("IDLE")))
             _rfsm.act("RD",
-                If(_re,
-                    NextState("REMIT")     # poisoned: answer, do not touch it
-                ).Else(
-                    _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.sel.eq(_pp_selm),
-                    _rwb.adr.eq(_ra[_pp_sh:]),
-                    NextValue(_rto, _rto + 1),
-                    If(_rwb.ack,
-                        NextValue(_rto, 0),
-                        If(_rwb.err, NextValue(_re, 1)
-                        ).Else(NextValue(_rdat, _rwb.dat_r)),
-                        NextState("REMIT")
-                    ).Elif(_rto == _pp_tmo,
-                        NextValue(_rto, 0), NextValue(_re, 1),
-                        _rpsn_set.eq(1), NextState("REMIT"))))
+                _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.sel.eq(_pp_selm),
+                _rwb.adr.eq(_ra[_pp_sh:]),
+                NextValue(_rto, _rto + 1),
+                If(_rwb.ack,
+                    NextValue(_rto, 0),
+                    If(_rwb.err, NextValue(_re, 1)
+                    ).Else(NextValue(_rdat, _rwb.dat_r)),
+                    NextState("REMIT")
+                ).Elif(_rto == _pp_tmo,
+                    NextValue(_rto, 0), NextValue(_re, 1),
+                    _rpsn_set.eq(1), NextState("REMIT")))
             # `_rs.ready` is REAL backpressure here (the descriptor face ties it
             # 1): the beat is HELD until the buffer takes it.
             _rfsm.act("REMIT",

@@ -44,8 +44,8 @@ WHAT THIS FILE PROVES, in two independent ways so neither can pass vacuously:
      bus is brought BACK - with the answer the bridge abandoned still owed by
      the memory - and the same bridge, with no reset and nothing poked, has to
      transact again. That is the poison flag's own documented contract, from
-     the descriptor bridge's comment in milan_soc.py: it answers `err`
-     meanwhile, "healing itself the moment the bus comes back".
+     the descriptor bridge's comment in milan_soc.py: poisoned, the bus state
+     still drives cyc/stb, "and that is the only way the flag can clear".
   3. STRUCTURAL. milan_soc.py is parsed and every bus state of both real FSMs
      is required to carry a non-`ack` exit, so the model above cannot drift
      away from the code it stands for, and to be unable to strand its own
@@ -111,7 +111,7 @@ class ReadBridge(Module):
         _dto = Signal(max=TMO + 1)
         self.psn = _dpsn = Signal(); _dpsn_set = Signal()
         self.sync += If(_dpsn_set, _dpsn.eq(1)
-                     ).Elif(_dpsn & self.wb_ack, _dpsn.eq(0))
+                     ).Elif(_dpsn & (self.wb_ack | self.wb_err), _dpsn.eq(0))
         self.submodules.fsm = fsm = FSM(reset_state="IDLE")
         fsm.act("IDLE",
             If(self.req_valid,
@@ -128,12 +128,13 @@ class ReadBridge(Module):
                 NextState("EMIT")),
         ]
         if watchdog:
+            # POISONED, THE BUS IS STILL DRIVEN. `_de` marks the transaction
+            # `err` so the answer it collects is discarded, and driving cyc/stb
+            # is what lets that answer reach the master it is owed to.
             rd.append(If(~self.wb_ack & (_dto == TMO),
                 NextValue(_dto, 0), NextValue(_de, 1),
                 _dpsn_set.eq(1), NextState("EMIT")))
-            fsm.act("RD", If(_de, NextState("EMIT")).Else(*rd))
-        else:
-            fsm.act("RD", *rd)
+        fsm.act("RD", *rd)
         fsm.act("EMIT",
             self.rsp_valid.eq(1), self.rsp_err.eq(_de),
             self.rsp_blast.eq((_dl == 1) | _de),
