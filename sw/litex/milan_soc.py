@@ -573,6 +573,15 @@ _MILAN_DATAPATH_SOURCES = [
     "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
     "protocol-processor/hdl/srp/KL_srp_encoder.sv",
     "protocol-processor/hdl/srp/KL_srp_top.sv",
+    # the AECP engine: the uCPU, the DRAM-backed descriptor store it reads
+    # through, and the engine that binds them onto the packet engine's AECP
+    # pop face. Packages and leaves before the top that instantiates them —
+    # Vivado reported the omission as `module KL_aecp_engine not found`, not
+    # as a missing file, which is why the source list is the thing to check.
+    "protocol-processor/hdl/aecp/ucpu_pkg.sv",
+    "protocol-processor/hdl/aecp/KL_aecp_ucpu.sv",
+    "protocol-processor/hdl/aecp/KL_aecp_desc_store.sv",
+    "protocol-processor/hdl/aecp/KL_aecp_engine.sv",
     "protocol-processor/hdl/top/KL_mrp_strip.sv",
     "protocol-processor/hdl/top/protocol_processor_top.sv",
     # the two consumer-side wrappers that bind it into this datapath: the
