@@ -145,6 +145,17 @@ module KL_pp_shadow #(
     parameter int unsigned DESC_IDX_ENTRIES_P  = 32,
     parameter int unsigned DESC_NAME_ENTRIES_P = 16,
     parameter int unsigned DESC_MEM_TMO_CYC_P  = 4096,
+    //! ---- AECP response buffer, also in the integrator's main memory ------
+    //! The response an AECP command builds (up to 16 + DESC_LINE_BYTES_P = 592
+    //! bytes at the shipping geometry) is not fabric state either: held as
+    //! flops it measured 5,079 FF / 3,495 LUT inside KL_aecp_engine and it was
+    //! those flops the placer could not pack on a die whose 135 block-RAM tiles
+    //! were 100% spoken for. Same rule as DESC_BASE_P - a COMPILE-TIME base,
+    //! never a register - with ONE difference that the integrator owns: this
+    //! region is WRITTEN by the processor, so it must be reserved for the
+    //! processor ALONE and it must not overlap the descriptor image. Passed
+    //! straight through; this wrapper adds no policy.
+    parameter logic [31:0] RESP_BASE_P         = 32'h2010_0000,
     //! derived source-index width for the maap face — do not override.
     //! CLAMPED exactly as protocol_processor_top clamps its own SRC_IDX_W_C,
     //! because the shipping board elaborates this at N_STREAM_OUT_P = 1 and
@@ -260,6 +271,51 @@ module KL_pp_shadow #(
     input  wire  [63:0]                desc_mem_rsp_data_i,
     input  wire                        desc_mem_rsp_last_i,
     input  wire                        desc_mem_rsp_err_i,
+
+    //! ---- AECP response-buffer memory master (03 §7, READ + WRITE) -------
+    //! A SECOND, INDEPENDENT main-memory master, straight through to
+    //! protocol_processor_top with names and directions unchanged. It is not
+    //! the descriptor face and it may not share one: both are watchdog-bounded
+    //! clients with one outstanding transaction each, and merging them would
+    //! mean an arbiter whose grant has to be released correctly on every
+    //! timeout arm of BOTH. The integrator's memory system already arbitrates.
+    //!
+    //! THREE THINGS DIFFER FROM desc_mem_* ABOVE, and all three are the
+    //! bridge's obligation (protocol_processor_top's banner is the contract):
+    //!   * resp_mem_rsp_ready_o is REAL BACKPRESSURE - it is NOT tied 1 the way
+    //!     the descriptor face's is, because the buffer takes a beat only once
+    //!     the frame builder has spent the previous one. A bridge SHALL hold a
+    //!     beat until it is taken.
+    //!   * the WRITE channel is ONE outstanding SINGLE-BEAT write, 8-byte
+    //!     aligned, big-endian lane (byte addr+n is wr_data[63-8n -: 8]),
+    //!     wr_strb bit n enabling byte n - and a byte whose strobe is 0 SHALL
+    //!     NOT be modified. wr_done_i is a ONE-CYCLE COMMIT PULSE, same cycle
+    //!     as wr_ready_i for a posted bridge or any later cycle for an
+    //!     acknowledged one; no further write is issued until it arrives.
+    //!   * ORDERING: a read request accepted after a write reported done SHALL
+    //!     observe that write.
+    //! Tying req_ready_i and wr_ready_i to 0 is legal and documented - the
+    //! buffer's watchdog voids the response and KL_aecp_engine answers a
+    //! well-formed ENTITY_MISBEHAVING rather than hanging - but, exactly as for
+    //! the descriptor face, it must be a DELIBERATE tie with a banner and never
+    //! an oversight. This repository's SoC bridges it to LiteX main memory
+    //! (sw/litex/milan_soc.py).
+    output logic                       resp_mem_req_valid_o,
+    input  wire                        resp_mem_req_ready_i,
+    output logic [31:0]                resp_mem_req_addr_o,
+    output logic [8:0]                 resp_mem_req_beats_o,
+    input  wire                        resp_mem_rsp_valid_i,
+    output logic                       resp_mem_rsp_ready_o,
+    input  wire  [63:0]                resp_mem_rsp_data_i,
+    input  wire                        resp_mem_rsp_last_i,
+    input  wire                        resp_mem_rsp_err_i,
+    output logic                       resp_mem_wr_valid_o,
+    input  wire                        resp_mem_wr_ready_i,
+    output logic [31:0]                resp_mem_wr_addr_o,
+    output logic [63:0]                resp_mem_wr_data_o,
+    output logic [7:0]                 resp_mem_wr_strb_o,
+    input  wire                        resp_mem_wr_done_i,
+    input  wire                        resp_mem_wr_err_i,
 
     //! ---- maap face (02 §4.2) — THE ADDRESS ALLOCATOR SEAM ----
     //! Passed straight through to protocol_processor_top, names and
@@ -619,7 +675,8 @@ module KL_pp_shadow #(
       .DESC_LINE_BYTES_P   (DESC_LINE_BYTES_P),
       .DESC_IDX_ENTRIES_P  (DESC_IDX_ENTRIES_P),
       .DESC_NAME_ENTRIES_P (DESC_NAME_ENTRIES_P),
-      .DESC_MEM_TMO_CYC_P  (DESC_MEM_TMO_CYC_P)
+      .DESC_MEM_TMO_CYC_P  (DESC_MEM_TMO_CYC_P),
+      .RESP_BASE_P         (RESP_BASE_P)
   ) u_pp (
       .clk_i               (clk_i),
       .rst_n               (rst_n),
@@ -781,6 +838,24 @@ module KL_pp_shadow #(
       .desc_mem_rsp_data_i  (desc_mem_rsp_data_i),
       .desc_mem_rsp_last_i  (desc_mem_rsp_last_i),
       .desc_mem_rsp_err_i   (desc_mem_rsp_err_i),
+
+      //! response-buffer master: straight through as well, read AND write
+      .resp_mem_req_valid_o (resp_mem_req_valid_o),
+      .resp_mem_req_ready_i (resp_mem_req_ready_i),
+      .resp_mem_req_addr_o  (resp_mem_req_addr_o),
+      .resp_mem_req_beats_o (resp_mem_req_beats_o),
+      .resp_mem_rsp_valid_i (resp_mem_rsp_valid_i),
+      .resp_mem_rsp_ready_o (resp_mem_rsp_ready_o),
+      .resp_mem_rsp_data_i  (resp_mem_rsp_data_i),
+      .resp_mem_rsp_last_i  (resp_mem_rsp_last_i),
+      .resp_mem_rsp_err_i   (resp_mem_rsp_err_i),
+      .resp_mem_wr_valid_o  (resp_mem_wr_valid_o),
+      .resp_mem_wr_ready_i  (resp_mem_wr_ready_i),
+      .resp_mem_wr_addr_o   (resp_mem_wr_addr_o),
+      .resp_mem_wr_data_o   (resp_mem_wr_data_o),
+      .resp_mem_wr_strb_o   (resp_mem_wr_strb_o),
+      .resp_mem_wr_done_i   (resp_mem_wr_done_i),
+      .resp_mem_wr_err_i    (resp_mem_wr_err_i),
 
       .maap_req_valid_o        (maap_req_valid_o),
       .maap_req_ready_i        (maap_req_ready_i),

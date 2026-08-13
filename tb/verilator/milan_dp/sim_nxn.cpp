@@ -50,6 +50,7 @@
 #include <cstdint>
 #include <cstring>
 #include <vector>
+#include <map>
 #include <cstdio>
 
 // Stream count the C++ side walks. Paired with the RTL -GN_STREAMS by the
@@ -73,7 +74,80 @@ static void ck(const char* what, unsigned long got, unsigned long exp) {
     }
 }
 
-static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0; dut->eval(); }
+// ---- AECP RESPONSE MEMORY model -------------------------------------------
+// PORTED VERBATIM IN SHAPE from tb/verilator/pp_shadow, which is the proven
+// one. Two hand-rolled attempts failed here before I copied it, and the reason
+// is one line: wr_ready must go LOW while a commit is pending, so wr_done can
+// never coincide with the wr_ready that accepted the write. That is the only
+// shape KL_aecp_resp_buf's flush arm accepts - it sets wbusy_r on the ready and
+// only THEN looks for the done. Get it wrong and the write never completes,
+// the watchdog fires, and every AECP answer degrades to ENTITY_MISBEHAVING(10)
+// - which looks like an RTL defect and is not.
+//
+// The response buffer is NOT optional the way the descriptor image is: every
+// AECP answer is assembled in it. This leg's deliberate omission is the
+// DESCRIPTOR image (see the [AECP] banner below); the response path is backed.
+static const uint32_t RESP_BASE  = 0x20100000u;   // PP_RESP_BASE_P default
+static const uint32_t RESP_BYTES = 592u;          // 16 + PP_DESC_LINE_BYTES_P
+
+static uint8_t  rmem[RESP_BYTES];
+static bool     rm_busy  = false;                 // read burst in flight
+static uint32_t rm_cur   = 0;
+static int      rm_left  = 0;
+static bool     rm_wpend = false;                 // accepted, commits next edge
+static uint32_t rm_waddr = 0;
+static uint64_t rm_wdata = 0;
+static uint32_t rm_wstrb = 0;
+
+static uint64_t rmem_beat(uint32_t byte_addr) {
+    uint64_t v = 0;
+    for (int i = 0; i < 8; i++) {                 // big-endian: byte n at [63-8n-:8]
+        const uint32_t off = byte_addr - RESP_BASE + (uint32_t)i;
+        v = (v << 8) | (uint64_t)((off < RESP_BYTES) ? rmem[off] : 0);
+    }
+    return v;
+}
+
+static void rmem_drive() {
+    dut->i_resp_mem_req_ready = rm_busy ? 0 : 1;
+    dut->i_resp_mem_rsp_valid = rm_busy ? 1 : 0;
+    dut->i_resp_mem_rsp_data  = rm_busy ? rmem_beat(rm_cur) : 0;
+    dut->i_resp_mem_rsp_last  = (rm_busy && rm_left == 1) ? 1 : 0;
+    dut->i_resp_mem_rsp_err   = 0;
+    dut->i_resp_mem_wr_ready  = rm_wpend ? 0 : 1;   // low while a commit is owed
+    dut->i_resp_mem_wr_done   = rm_wpend ? 1 : 0;
+    dut->i_resp_mem_wr_err    = 0;
+}
+
+static void rmem_edge() {
+    if (!rm_busy) {
+        if (dut->o_resp_mem_req_valid && dut->i_resp_mem_req_ready) {
+            rm_cur  = dut->o_resp_mem_req_addr;
+            rm_left = (int)dut->o_resp_mem_req_beats;
+            rm_busy = (rm_left > 0);
+        }
+    } else if (dut->o_resp_mem_rsp_ready) {         // real backpressure
+        rm_cur += 8;
+        if (--rm_left <= 0) rm_busy = false;
+    }
+    if (rm_wpend) {
+        for (int i = 0; i < 8; i++) {
+            if (rm_wstrb & (1u << i)) {             // zero-strobe byte untouched
+                const uint32_t k = rm_waddr - RESP_BASE + (uint32_t)i;
+                if (k < RESP_BYTES) rmem[k] = (uint8_t)(rm_wdata >> (56 - 8 * i));
+            }
+        }
+        rm_wpend = false;
+    } else if (dut->o_resp_mem_wr_valid && dut->i_resp_mem_wr_ready) {
+        rm_waddr = dut->o_resp_mem_wr_addr;
+        rm_wdata = dut->o_resp_mem_wr_data;
+        rm_wstrb = dut->o_resp_mem_wr_strb;
+        rm_wpend = true;
+    }
+}
+
+static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0;
+                   rmem_drive(); dut->eval(); rmem_edge(); }
 static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->eval(); }
 static void step() { lo(); hi(); }
 

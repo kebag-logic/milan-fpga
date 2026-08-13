@@ -284,7 +284,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   parameter int PP_DESC_LINE_BYTES_P     = 576,
   parameter int PP_DESC_IDX_ENTRIES_P    = 32,
   parameter int PP_DESC_NAME_ENTRIES_P   = 16,
-  parameter int PP_DESC_MEM_TMO_CYC_P    = 4096
+  parameter int PP_DESC_MEM_TMO_CYC_P    = 4096,
+  //! ---- AECP response buffer (protocol-processor 03 §7) -------------------
+  //! Base of the response buffer's own main-memory region - a SECOND window,
+  //! 16 + PP_DESC_LINE_BYTES_P bytes wide, that the processor WRITES as well
+  //! as reads. Compile-time for the same reason PP_DESC_BASE_P is, and the
+  //! integration overrides it to a region reserved for the processor alone:
+  //! unlike the read-only descriptor image, an overlap here is silent
+  //! corruption of whatever it lands on. The SoC derives BOTH bases from its
+  //! own main_ram map and states why they cannot collide.
+  parameter logic [31:0] PP_RESP_BASE_P  = 32'h2010_0000
 )(
   //! ---- AECP descriptor-image READ master (to the SoC's main memory) -----
   //! The protocol processor's entity model lives in DDR3. This is its fetch
@@ -306,6 +315,50 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   input  wire [63:0] i_desc_mem_rsp_data,
   input  wire        i_desc_mem_rsp_last,
   input  wire        i_desc_mem_rsp_err,
+
+  //! ---- AECP response-buffer READ+WRITE master (to the SoC's main memory) -
+  //! The SECOND main-memory master, and the reason it exists is area: the
+  //! response an AECP command builds is up to 16 + PP_DESC_LINE_BYTES_P bytes
+  //! and, held as fabric flops, it was the state that failed placement on a
+  //! die whose block RAM was already 100% used. It is a separate face from the
+  //! descriptor image above BY CONTRACT, not by convenience - both are
+  //! watchdog-bounded one-transaction clients and the SoC's memory system is
+  //! the arbiter.
+  //!
+  //! READ: same shape as the descriptor face - ONE outstanding request,
+  //! responses IN ORDER, `rsp_last` ends the burst, a beat carries its LOWEST
+  //! byte address in bits [63:56] - EXCEPT that o_resp_mem_rsp_ready is REAL
+  //! BACKPRESSURE and is NOT tied 1. A bridge SHALL hold a beat until it is
+  //! taken.
+  //! WRITE: ONE outstanding SINGLE-BEAT write. o_resp_mem_wr_addr is 8-byte
+  //! aligned, o_resp_mem_wr_data is the same big-endian lane as a read beat
+  //! (byte addr+n = bits [63-8n -: 8]), o_resp_mem_wr_strb bit n enables byte
+  //! n and A ZERO-STROBE BYTE SHALL NOT BE MODIFIED. i_resp_mem_wr_done is a
+  //! ONE-CYCLE COMMIT PULSE - same cycle as i_resp_mem_wr_ready for a posted
+  //! bridge, any later cycle for an acknowledged one - and no further write is
+  //! issued until it arrives. ORDERING: a read accepted after a write reported
+  //! done SHALL observe that write.
+  //! An integration with no memory to offer may tie i_resp_mem_req_ready and
+  //! i_resp_mem_wr_ready to 0: the buffer's watchdog then voids the response
+  //! and the AECP engine answers a well-formed ENTITY_MISBEHAVING instead of
+  //! hanging. Legal, but it must be DELIBERATE and stated - every AECP
+  //! response the entity builds is lost that way.
+  output wire        o_resp_mem_req_valid,
+  input  wire        i_resp_mem_req_ready,
+  output wire [31:0] o_resp_mem_req_addr,
+  output wire [8:0]  o_resp_mem_req_beats,
+  input  wire        i_resp_mem_rsp_valid,
+  output wire        o_resp_mem_rsp_ready,
+  input  wire [63:0] i_resp_mem_rsp_data,
+  input  wire        i_resp_mem_rsp_last,
+  input  wire        i_resp_mem_rsp_err,
+  output wire        o_resp_mem_wr_valid,
+  input  wire        i_resp_mem_wr_ready,
+  output wire [31:0] o_resp_mem_wr_addr,
+  output wire [63:0] o_resp_mem_wr_data,
+  output wire [7:0]  o_resp_mem_wr_strb,
+  input  wire        i_resp_mem_wr_done,
+  input  wire        i_resp_mem_wr_err,
 
   //! axis_clk domain (system clock, ~100 MHz) + active-low sync reset
   input  wire axis_clk,
@@ -4628,7 +4681,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .DESC_LINE_BYTES_P   (PP_DESC_LINE_BYTES_P),
       .DESC_IDX_ENTRIES_P  (PP_DESC_IDX_ENTRIES_P),
       .DESC_NAME_ENTRIES_P (PP_DESC_NAME_ENTRIES_P),
-      .DESC_MEM_TMO_CYC_P  (PP_DESC_MEM_TMO_CYC_P)
+      .DESC_MEM_TMO_CYC_P  (PP_DESC_MEM_TMO_CYC_P),
+      .RESP_BASE_P         (PP_RESP_BASE_P)
     ) pp_shadow (
       .clk_i             (axis_clk),
       .rst_n             (axis_resetn),
@@ -4713,6 +4767,23 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .desc_mem_rsp_data_i  (i_desc_mem_rsp_data),
       .desc_mem_rsp_last_i  (i_desc_mem_rsp_last),
       .desc_mem_rsp_err_i   (i_desc_mem_rsp_err),
+      //! ...and the response buffer's own master, read AND write
+      .resp_mem_req_valid_o (o_resp_mem_req_valid),
+      .resp_mem_req_ready_i (i_resp_mem_req_ready),
+      .resp_mem_req_addr_o  (o_resp_mem_req_addr),
+      .resp_mem_req_beats_o (o_resp_mem_req_beats),
+      .resp_mem_rsp_valid_i (i_resp_mem_rsp_valid),
+      .resp_mem_rsp_ready_o (o_resp_mem_rsp_ready),
+      .resp_mem_rsp_data_i  (i_resp_mem_rsp_data),
+      .resp_mem_rsp_last_i  (i_resp_mem_rsp_last),
+      .resp_mem_rsp_err_i   (i_resp_mem_rsp_err),
+      .resp_mem_wr_valid_o  (o_resp_mem_wr_valid),
+      .resp_mem_wr_ready_i  (i_resp_mem_wr_ready),
+      .resp_mem_wr_addr_o   (o_resp_mem_wr_addr),
+      .resp_mem_wr_data_o   (o_resp_mem_wr_data),
+      .resp_mem_wr_strb_o   (o_resp_mem_wr_strb),
+      .resp_mem_wr_done_i   (i_resp_mem_wr_done),
+      .resp_mem_wr_err_i    (i_resp_mem_wr_err),
       .host_req_i        (pp_req_w),
       .host_we_i         (pp_we_w),
       .host_addr_i       (pp_addr_w),

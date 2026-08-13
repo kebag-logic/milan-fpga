@@ -95,7 +95,8 @@ PP_SRCS = $(PP_DIR)/common/pp_pkg.sv $(PP_DIR)/srp/srp_pkg.sv \
        $(PP_DIR)/srp/KL_srp_talker_fsm.sv $(PP_DIR)/srp/KL_srp_listener_fsm.sv \
        $(PP_DIR)/srp/KL_srp_encoder.sv $(PP_DIR)/srp/KL_srp_top.sv \
        $(PP_DIR)/aecp/ucpu_pkg.sv $(PP_DIR)/aecp/KL_aecp_ucpu.sv \
-       $(PP_DIR)/aecp/KL_aecp_desc_store.sv $(PP_DIR)/aecp/KL_aecp_engine.sv \
+       $(PP_DIR)/aecp/KL_aecp_desc_store.sv $(PP_DIR)/aecp/KL_aecp_resp_buf.sv \
+       $(PP_DIR)/aecp/KL_aecp_engine.sv \
        $(PP_DIR)/top/KL_mrp_strip.sv $(PP_DIR)/top/protocol_processor_top.sv \
        $(RTL_DIR)/milan/KL_pp_shadow.sv $(RTL_DIR)/milan/KL_pp_maap_shim.sv
 

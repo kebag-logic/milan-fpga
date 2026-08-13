@@ -489,7 +489,7 @@ class MilanNIC(LiteXModule):
     (proven end-to-end in tb/verilator/milan_dp: CPU reads ID="MILN", M-A2).
     """
     def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
-                 desc_base=None,
+                 desc_base=None, resp_base=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
                  audio_if_i2s_pair=False, aaf_playback=False, aaf_pb_streams=1,
@@ -517,6 +517,7 @@ class MilanNIC(LiteXModule):
         # by the SoC so a controller's "identify" visibly blinks the device.
         self.identify = Signal()
         add_milan_datapath(self, platform, axil, ev.csr.trigger, desc_base=desc_base,
+                           resp_base=resp_base,
                            extra_ports=dict(dma_mac_ports or {}, o_o_identify=self.identify),
                            milan_cd=milan_cd,
                            milan_clk_hz=milan_clk_hz, num_streams=num_streams,
@@ -581,6 +582,7 @@ _MILAN_DATAPATH_SOURCES = [
     "protocol-processor/hdl/aecp/ucpu_pkg.sv",
     "protocol-processor/hdl/aecp/KL_aecp_ucpu.sv",
     "protocol-processor/hdl/aecp/KL_aecp_desc_store.sv",
+    "protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv",
     "protocol-processor/hdl/aecp/KL_aecp_engine.sv",
     "protocol-processor/hdl/top/KL_mrp_strip.sv",
     "protocol-processor/hdl/top/protocol_processor_top.sv",
@@ -707,7 +709,7 @@ def _arty_serial_io(name, pmod):
 
 
 def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys",
-                       desc_base=None,
+                       desc_base=None, resp_base=None,
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
                        talker_wire_chans=2, audio_if_master=False,
                        audio_if_i2s_pair=False,
@@ -882,6 +884,22 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
             "main-memory base to fetch the entity model from. Pass desc_base=.")
     assert desc_base % 8 == 0, "DESC_BASE_P must be 8-byte aligned"
     dp_params["p_PP_DESC_BASE_P"] = desc_base
+
+    # WHERE THE AECP RESPONSE BUFFER LIVES. Second window, same rule, one extra
+    # obligation: the processor WRITES this one. Held as fabric flops the buffer
+    # measured 5,079 FF / 3,495 LUT and it was those flops that failed placement
+    # on a die whose block RAM was 100% used - so it is main memory here too,
+    # and the region must be the processor's alone. RAISE rather than fall back
+    # for exactly the DESC_BASE_P reason above, and one worse: the submodule's
+    # placeholder default (0x2010_0000) is not guaranteed to be memory on this
+    # SoC, and a WRITE master pointed at the wrong place corrupts whatever it
+    # lands on instead of merely reading zeros.
+    if resp_base is None:
+        raise RuntimeError(
+            "milan_datapath: the protocol processor's AECP response buffer "
+            "needs a main-memory region of its own. Pass resp_base=.")
+    assert resp_base % 8 == 0, "RESP_BASE_P must be 8-byte aligned"
+    dp_params["p_PP_RESP_BASE_P"] = resp_base
     if int(talker_wire_chans) != 2:
         dp_params["p_TALKER_WIRE_CHANS_P"] = int(talker_wire_chans)
     if aaf_playback:
@@ -1014,6 +1032,101 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
         i_i_desc_mem_rsp_data  = desc_rsp_data,
         i_i_desc_mem_rsp_last  = desc_rsp_last,
         i_i_desc_mem_rsp_err   = desc_rsp_err,
+    )
+
+    # =======================================================================
+    #  AECP RESPONSE-BUFFER READ+WRITE BRIDGE  (protocol-processor 03 §7)
+    # =======================================================================
+    # The SECOND main-memory master, and the one that made this bitstream
+    # placeable: the AECP response buffer used to be 5,079 flip-flops of fabric
+    # state inside KL_aecp_engine, on a die whose 135 block-RAM tiles were 100%
+    # spoken for. It is a REGION now, and this is its bridge.
+    #
+    # NOT MERGED WITH THE DESCRIPTOR FACE ABOVE, on the submodule's explicit
+    # contract: both masters are watchdog-bounded with one outstanding
+    # transaction each, and one shared channel would need an arbiter whose
+    # grant has to be released correctly on every timeout arm of both. The
+    # SoC's memory system already arbitrates, so they stay two faces.
+    #
+    # THREE CONTRACT DIFFERENCES from `desc_mem_*`, all of them this bridge's
+    # obligation (protocol_processor_top.sv's port banner is the authority):
+    #   * `rsp_ready` is REAL backpressure - it is NOT tied 1 here. The buffer
+    #     takes a beat only once the frame builder spent the previous one, so
+    #     the response endpoint's `ready` comes FROM the datapath and the CDC
+    #     FIFO holds the beat until it is taken.
+    #   * the write channel is ONE outstanding SINGLE-BEAT write: 8-byte
+    #     aligned address, big-endian lane (byte addr+n = data[63-8n -: 8]),
+    #     `strb` bit n enabling byte n, and A ZERO-STROBE BYTE MUST NOT BE
+    #     MODIFIED - which is why the bus side splits the lane into two 32-bit
+    #     wishbone cycles carrying HALF THE STROBE EACH as `sel`, and skips a
+    #     half whose strobe is empty rather than issuing a sel=0 cycle.
+    #   * `wr_done` is a ONE-CYCLE COMMIT PULSE. It is generated as
+    #     `valid & ready` on a CDC endpoint whose `ready` is tied 1, so exactly
+    #     one token = exactly one cycle, and it necessarily lands STRICTLY
+    #     AFTER `wr_ready` (this is the acknowledged bridge, not the posted
+    #     one) - which is also the only shape KL_aecp_resp_buf's R_FLUSH arm
+    #     accepts, since it sets `wbusy_r` on the ready and only then looks for
+    #     the done.
+    # Ordering ("a read accepted after a write reported done observes that
+    # write") is free: one wishbone master, one FSM, strictly serialised.
+    resp_req_valid = Signal();     resp_req_ready = Signal()
+    resp_req_addr  = Signal(32);   resp_req_beats = Signal(9)
+    resp_rsp_valid = Signal();     resp_rsp_ready = Signal()
+    resp_rsp_data  = Signal(64)
+    resp_rsp_last  = Signal();     resp_rsp_err   = Signal()
+    resp_wr_valid  = Signal();     resp_wr_ready  = Signal()
+    resp_wr_addr   = Signal(32);   resp_wr_data   = Signal(64)
+    resp_wr_strb   = Signal(8)
+    resp_wr_done   = Signal();     resp_wr_err    = Signal()
+
+    r_req = _axis_dp_cdc(host, "respmem_req_cdc",
+                         [("addr", 32), ("beats", 9)], milan_cd,
+                         to_datapath=False)
+    r_rsp = _axis_dp_cdc(host, "respmem_rsp_cdc",
+                         [("data", 64), ("blast", 1), ("err", 1)], milan_cd,
+                         to_datapath=True)
+    r_wr  = _axis_dp_cdc(host, "respmem_wr_cdc",
+                         [("addr", 32), ("data", 64), ("strb", 8)], milan_cd,
+                         to_datapath=False)
+    r_wd  = _axis_dp_cdc(host, "respmem_wd_cdc",
+                         [("err", 1)], milan_cd, to_datapath=True)
+    host.comb += [
+        r_req.dp.valid.eq(resp_req_valid), r_req.dp.addr.eq(resp_req_addr),
+        r_req.dp.beats.eq(resp_req_beats), resp_req_ready.eq(r_req.dp.ready),
+        resp_rsp_valid.eq(r_rsp.dp.valid), resp_rsp_data.eq(r_rsp.dp.data),
+        resp_rsp_last.eq(r_rsp.dp.blast),  resp_rsp_err.eq(r_rsp.dp.err),
+        # REAL backpressure - the one place this face differs from descmem's
+        r_rsp.dp.ready.eq(resp_rsp_ready),
+        r_wr.dp.valid.eq(resp_wr_valid),   r_wr.dp.addr.eq(resp_wr_addr),
+        r_wr.dp.data.eq(resp_wr_data),     r_wr.dp.strb.eq(resp_wr_strb),
+        resp_wr_ready.eq(r_wr.dp.ready),
+        # one token in flight by contract, `ready` tied 1 -> `valid` is high
+        # for exactly one cycle: the commit pulse the buffer waits for
+        r_wd.dp.ready.eq(1),
+        resp_wr_done.eq(r_wd.dp.valid), resp_wr_err.eq(r_wd.dp.err),
+    ]
+    host.respmem_req_sys = r_req.sys
+    host.respmem_rsp_sys = r_rsp.sys
+    host.respmem_wr_sys  = r_wr.sys
+    host.respmem_wd_sys  = r_wd.sys
+
+    ports.update(
+        o_o_resp_mem_req_valid = resp_req_valid,
+        i_i_resp_mem_req_ready = resp_req_ready,
+        o_o_resp_mem_req_addr  = resp_req_addr,
+        o_o_resp_mem_req_beats = resp_req_beats,
+        i_i_resp_mem_rsp_valid = resp_rsp_valid,
+        o_o_resp_mem_rsp_ready = resp_rsp_ready,
+        i_i_resp_mem_rsp_data  = resp_rsp_data,
+        i_i_resp_mem_rsp_last  = resp_rsp_last,
+        i_i_resp_mem_rsp_err   = resp_rsp_err,
+        o_o_resp_mem_wr_valid  = resp_wr_valid,
+        i_i_resp_mem_wr_ready  = resp_wr_ready,
+        o_o_resp_mem_wr_addr   = resp_wr_addr,
+        o_o_resp_mem_wr_data   = resp_wr_data,
+        o_o_resp_mem_wr_strb   = resp_wr_strb,
+        i_i_resp_mem_wr_done   = resp_wr_done,
+        i_i_resp_mem_wr_err    = resp_wr_err,
     )
 
     host.specials += Instance("milan_datapath", **dp_params, **ports)
@@ -5444,9 +5557,27 @@ class MilanSoC(SoCCore):
             # caught by the image header's magic/version/checksum, so it reads
             # as "not loaded" rather than as a valid empty model.
             _ram = self.bus.regions["main_ram"]
-            _desc_base = _ram.origin + _ram.size - 0x0010_0000
+            _PP_WINDOW = 0x0010_0000          # the reserved top-of-DRAM window
+            _desc_base = _ram.origin + _ram.size - _PP_WINDOW
+            # ...AND WHERE THE AECP RESPONSE BUFFER LIVES. Same reserved window,
+            # same derivation from the SoC's own map, one extra rule: this
+            # region is WRITTEN by the processor, so it must not overlap the
+            # descriptor image. It cannot, and here is the arithmetic rather
+            # than the assertion:
+            #   * the image starts at `_desc_base` (the FOOT of the window) and
+            #     grows UPWARD. The largest one this project builds is 22,561
+            #     bytes, at the 8x8 shape;
+            #   * the buffer is 16 + PP_DESC_LINE_BYTES_P = 592 bytes and sits
+            #     in the LAST 4 KiB of the same window, 0x100000 - 0x1000 =
+            #     1,044,480 bytes above the image's first byte.
+            # So the two collide only if the entity model grows past a megabyte
+            # - forty-six times the largest shape in the tree - and the window
+            # itself would overflow into unreserved DRAM first. Both bases are
+            # DERIVED from `_ram` and from ONE window constant, so moving main
+            # memory moves both together and neither can be edited alone.
+            _resp_base = _ram.origin + _ram.size - 0x1000
             self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
-                                  desc_base=_desc_base,
+                                  desc_base=_desc_base, resp_base=_resp_base,
                                   milan_cd=milan_cd,
                                   rx_irq=self.milan_dma.rx.non_empty if with_dma else None,
                                   rx1_irq=(self.milan_dma.rx1.non_empty
@@ -5529,6 +5660,117 @@ class MilanSoC(SoCCore):
                 If(_ds.ready,
                     If(_de | (_dl == 1), NextState("IDLE")
                     ).Else(NextValue(_da, _da + 8), NextValue(_dl, _dl - 1),
+                           NextState("RD_LO"))))
+
+            # ===============================================================
+            #  AECP RESPONSE-BUFFER READ+WRITE BRIDGE (protocol-processor 03 §7)
+            # ===============================================================
+            # The bus side of the SECOND master. MilanNIC published four
+            # sys-domain endpoints (read request / read response / write /
+            # write-done); this is the one wishbone master and the one FSM that
+            # serve all four - which is also what gives the contract's ordering
+            # rule ("a read accepted after a write reported done observes that
+            # write") for free, since nothing here can reorder.
+            #
+            # THE STROBES ARE THE POINT. `wr_strb` bit n enables byte n of the
+            # big-endian lane and A ZERO-STROBE BYTE MUST NOT BE MODIFIED, so
+            # the 64-bit lane becomes two 32-bit wishbone cycles carrying half
+            # the strobe each as `sel` (LiteX's Wishbone2AXILite forwards `sel`
+            # to AXI `wstrb` verbatim), and a half whose strobe is empty is
+            # SKIPPED rather than issued as a sel=0 cycle. The first lane of
+            # every response has an empty low half - the uCPU's 12-byte header
+            # record is dropped and the payload starts at byte 12 - so that arm
+            # is exercised on every single AECP response, not as an edge case.
+            #
+            # BYTE ORDER, and it is the exact inverse of the read path above: a
+            # beat carries byte `addr+n` in bits [63-8n -: 8] (1722.1 wire
+            # order, big-endian), while the bus words are little-endian.
+            #
+            # THE ERROR ARM, for the third time on this bus: LiteX's
+            # wishbone2axi asserts `err` TOGETHER WITH `ack`, so a bare
+            # `If(ack, ...)` would treat a FAILED write as committed. It is
+            # propagated instead - `wr_err` with the done pulse makes the buffer
+            # void the response, and KL_aecp_engine answers a well-formed
+            # ENTITY_MISBEHAVING rather than putting a half-written response on
+            # the wire.
+            _rq = self.milan.respmem_req_sys      # read request  (from datapath)
+            _rs = self.milan.respmem_rsp_sys      # read response (to datapath)
+            _rw = self.milan.respmem_wr_sys       # write         (from datapath)
+            _rd = self.milan.respmem_wd_sys       # write done    (to datapath)
+            self.respmem_wb = _rwb = _wb.Interface(data_width=32, adr_width=30,
+                                                   addressing="word")
+            _dmab.add_master("milan_resp_mem", master=_rwb)
+
+            _ra = Signal(32); _rl = Signal(9)
+            _rlo = Signal(32); _rhi = Signal(32); _re = Signal()
+            _wa = Signal(32); _wd = Signal(64); _ws = Signal(8); _werr = Signal()
+            self.respmem_fsm = _rfsm = FSM(reset_state="IDLE")
+            # The write is offered first when both are pending. Neither face can
+            # be starved by that: both are single-transaction and held until
+            # ready, and the buffer never has a read and a write outstanding at
+            # the same time anyway (it flushes the last lane, THEN reads back).
+            _rfsm.act("IDLE",
+                _rw.ready.eq(1),
+                _rq.ready.eq(~_rw.valid),
+                If(_rw.valid,
+                    NextValue(_wa, _rw.addr), NextValue(_wd, _rw.data),
+                    NextValue(_ws, _rw.strb), NextValue(_werr, 0),
+                    NextState("WR_LO")
+                ).Elif(_rq.valid,
+                    NextValue(_ra, _rq.addr), NextValue(_rl, _rq.beats),
+                    NextValue(_re, 0), NextState("RD_LO")))
+            _rfsm.act("WR_LO",
+                If(_ws[0:4] == 0,
+                    NextState("WR_HI")
+                ).Else(
+                    _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.we.eq(1),
+                    _rwb.sel.eq(_ws[0:4]), _rwb.adr.eq(_wa[2:]),
+                    _rwb.dat_w.eq(Cat(_wd[56:64], _wd[48:56],
+                                      _wd[40:48], _wd[32:40])),
+                    If(_rwb.ack,
+                        If(_rwb.err, NextValue(_werr, 1), NextState("WDONE")
+                        ).Else(NextState("WR_HI")))))
+            _rfsm.act("WR_HI",
+                If(_ws[4:8] == 0,
+                    NextState("WDONE")
+                ).Else(
+                    _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.we.eq(1),
+                    _rwb.sel.eq(_ws[4:8]), _rwb.adr.eq((_wa + 4)[2:]),
+                    _rwb.dat_w.eq(Cat(_wd[24:32], _wd[16:24],
+                                      _wd[8:16], _wd[0:8])),
+                    If(_rwb.ack,
+                        If(_rwb.err, NextValue(_werr, 1)),
+                        NextState("WDONE"))))
+            # ONE cycle in this state = the one-cycle commit pulse the buffer
+            # waits for, and it is STRICTLY LATER than the `wr_ready` that
+            # accepted the write - the acknowledged bridge, which is the shape
+            # KL_aecp_resp_buf's R_FLUSH arm requires (it sets `wbusy_r` on the
+            # ready and only THEN looks for the done).
+            _rfsm.act("WDONE",
+                _rd.valid.eq(1), _rd.err.eq(_werr),
+                If(_rd.ready, NextState("IDLE")))
+            _rfsm.act("RD_LO",
+                _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.sel.eq(0xF),
+                _rwb.adr.eq(_ra[2:]),
+                If(_rwb.ack,
+                    If(_rwb.err, NextValue(_re, 1), NextState("REMIT")
+                    ).Else(NextValue(_rlo, _rwb.dat_r), NextState("RD_HI"))))
+            _rfsm.act("RD_HI",
+                _rwb.cyc.eq(1), _rwb.stb.eq(1), _rwb.sel.eq(0xF),
+                _rwb.adr.eq((_ra + 4)[2:]),
+                If(_rwb.ack,
+                    If(_rwb.err, NextValue(_re, 1), NextState("REMIT")
+                    ).Else(NextValue(_rhi, _rwb.dat_r), NextState("REMIT"))))
+            # `_rs.ready` is REAL backpressure here (the descriptor face ties it
+            # 1): the beat is HELD until the buffer takes it.
+            _rfsm.act("REMIT",
+                _rs.valid.eq(1), _rs.err.eq(_re),
+                _rs.blast.eq((_rl == 1) | _re),
+                _rs.data.eq(Cat(_rhi[24:32], _rhi[16:24], _rhi[8:16], _rhi[0:8],
+                                _rlo[24:32], _rlo[16:24], _rlo[8:16], _rlo[0:8])),
+                If(_rs.ready,
+                    If(_re | (_rl == 1), NextState("IDLE")
+                    ).Else(NextValue(_ra, _ra + 8), NextValue(_rl, _rl - 1),
                            NextState("RD_LO"))))
 
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
