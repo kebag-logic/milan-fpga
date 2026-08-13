@@ -174,7 +174,7 @@ foreground pipe wedges the shell (write ctrl-C to the FIFO).
 
 | Path | What |
 |---|---|
-| `~/prjs-avb-on-fpga/milan-fpga` | THE gateware repo. `hdl/` RTL in standards-clause layout (ieee17221/{adp,acmp,aecp}, ieee1722/{avtp,aaf,crf,maap}, ieee8021q/{ts,srp,filtering}, ieee8021as/ptp_timestamp, milan/ tops, common/{csr,eth_event_counter,cdc}), `tb/verilator/*` (aecp 474, milan_dp 105, pcmlpf 7, + suites), [`syn/yosys/run.sh`](../../syn/yosys/run.sh) (device-portability gate), [`sw/litex/`](../../sw/litex) (milan_soc.py, **sweep.sh**, **build.sh** incl. the `flash` verb, deploy.sh), `avdecc/` (AEM JSON models + `gen_aem_store.py` → [`hdl/ieee17221/aecp/gen/aecp_aem_rom.svh`](../../hdl/ieee17221/aecp/gen/aecp_aem_rom.svh) + `milan_controller.py`), `docs/`. Author `hackerman-kl`, ONE-LINE commits, no trailers. |
+| `~/prjs-avb-on-fpga/milan-fpga` | THE gateware repo. `hdl/` RTL in standards-clause layout (ieee17221/ — the acmp and aecp trees are deleted since 2026-08-13, ieee1722/{avtp,aaf,crf,maap}, ieee8021q/{ts,srp,filtering}, ieee8021as/ptp_timestamp, milan/ tops incl. the `KL_pp_shadow` wrapper, common/{csr,eth_event_counter,cdc}), `tb/verilator/*` (milan_dp, pp_shadow, pcmlpf + suites; **the `aecp` suite went with its RTL** — AECP now lives in the pinned submodule's µCPU, which answers `READ_DESCRIPTOR` and echoes `NOT_IMPLEMENTED` at the rest), [`syn/yosys/run.sh`](../../syn/yosys/run.sh) (device-portability gate), [`sw/litex/`](../../sw/litex) (milan_soc.py, **sweep.sh**, **build.sh** incl. the `flash` verb, deploy.sh), `avdecc/` (AEM JSON models + `gen_aem_store.py` → hdl/ieee17221/aecp/gen/aecp_aem_rom.svh, deleted 2026-08-13 with the AECP engine, + `milan_controller.py`), `docs/`. Author `hackerman-kl`, ONE-LINE commits, no trailers. |
 | `~/the-private-test-repo` | Bench/test repo. `fpga/` (kl-eth driver, buildroot br2-external incl. the **rootfs overlay** = S50milan, linkmon.sh, gptp2csr.sh, stream_phc_sync.sh, gptp.cfg, S65/S66), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `fpga/dts+boot/` (dtb + opensbi per board), `private/` (**untracked, git-ignored**: the bench conformance suite + its reference run — see §7). Commits: author `hackerman-kl` (USER 2026-07-22, both repos), one line, no trailers. |
 | `~/litex-milan` | LiteX + venv (`~/litex-milan/venv` — PATH needed for build/flash python). **`work/`** = all Vivado build dirs (`build_<board>_<seed>_<tag>/`). |
 | `~/br-milan-output` | Buildroot out-tree. Rebuild rootfs: `cd ~/br-milan-output && make O=$PWD && xz -9 --check=crc32 -c images/rootfs.cpio > /tmp/scratch/rootfs.cpio.xz`. Kernel `images/Image` (xz it for flashing). |
@@ -251,8 +251,8 @@ rule was earned).
 
 | Tool | Purpose |
 |---|---|
-| `/tmp/milan_controller.py` | Entity(iface) with discover (cdl=56!), read_descriptor, `_aecp`, ACMP helpers. The repo master: `milan-fpga/avdecc/milan_controller.py`. |
-| `/tmp/dyninfo_probe.py <01\|02>` | GET_DYNAMIC_INFO (7.4.76) batch vs classic responses, byte-exact + BAD_ARGUMENTS case. Expect PASS on ≥ mf38/AX23 silicon (mf37 had the BSCAN race). |
+| `/tmp/milan_controller.py` | Entity(iface) with discover (cdl=56!), read_descriptor, `_aecp`, ACMP helpers. The repo master: `milan-fpga/avdecc/milan_controller.py`. **Still useful**: the processor's AECP µCPU answers `READ_DESCRIPTOR` — but only against a descriptor image loaded in DRAM (§8), so on a stock board expect `BAD_ARGUMENTS` on every read — that status means "no image"; `NO_SUCH_DESCRIPTOR` would mean the image loaded and that descriptor is genuinely absent. |
+| `/tmp/dyninfo_probe.py <01\|02>` | GET_DYNAMIC_INFO (7.4.76) batch vs classic responses, byte-exact + BAD_ARGUMENTS case. **HISTORICAL as a PASS**: `0x4B` is not implemented on the current gateware — the µCPU returns a conformant `NOT_IMPLEMENTED` echo carrying no dynamic info, which the probe will read as a failure. The PASS below belongs to the pre-substitution silicon named with it. |
 | `/tmp/crf_inject.py [n]` | 500 Hz Milan CRF source (subtype4/type1/48k/ival96), sid = peer-host MAC + `0001`, synthetic exact-2ms timestamps (CRF_RATE reads ≈0). Provision the DUT: CRF_SIDLO/HI + CTRL en, watch 0x744-0x74C + lock. |
 | `/tmp/ctr.py` | STREAM_INPUT counters snapshot (LOCKED/UNLOCKED/RESET/UNCERT) — the media-health detector. |
 | runner scripts → see §7 | conformance suite runners. |
@@ -277,12 +277,30 @@ segfaults) → scp via the peer host → `tone_thdn.py --chans 2 --f0 1000`.
   home directory + `/tmp/run*` on the peer host. Link-flap helpers:
   `~/bin/arty-linkflap.sh`, `~/bin/ax-linkflap.sh` (phy_crg_reset
   0xf0003800 via console). la_avdecc lib+probe: `~/la_avdecc-{src,build,probe}`
-  (counters-probe expects ENTITY GET_COUNTERS = SUCCESS+empty).
+  (counters-probe expects ENTITY GET_COUNTERS = SUCCESS+empty — that
+  expectation no longer holds: `GET_COUNTERS` is not implemented and the µCPU
+  answers it with a `NOT_IMPLEMENTED` echo).
 - Score to beat: **63/63 scenarios per board** (bench suite; ship pair
   ARTY `asl_milanfinal53e` (VERSION 0x000A) + ALINX `AX39`; the suite grew past
   the earlier 43/43 on asl_mf35 + eppo_AX21).
 
 ## 8. Board runtime (what runs where)
+
+> **PROVISIONING GAINED A STEP NOBODY PERFORMS YET (2026-08-13).** The
+> protocol processor's AECP µCPU answers `READ_DESCRIPTOR` out of a
+> **descriptor image in DRAM**, at a compile-time base the LiteX SoC derives as
+> the top 1 MiB of `main_ram` — there is no base register, so software cannot
+> point it anywhere else. That image must be written **before the entity is
+> enabled** (`PP_CTRL[0]` at `0x920`, ORed with `ADP_CTRL[0]` at `0x600`
+> bit 0 — either bit enables it). `S50milan` does not write it, no build step
+> produces it, and the generator lives in the `protocol-processor` submodule,
+> so **on a stock board every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`**
+> and `read_descriptor` from the controller below returns nothing usable. That
+> is an unloaded image, not a broken entity — the all-zero region fails the
+> image header's `"AEMI"` magic compare, and it is diagnosable and
+> recoverable: nothing hangs (the store's watchdog abandons a stalled burst)
+> and a **late load heals without a reset**, because every locate against an
+> invalid image re-arms the header probe. Load it, then re-ask.
 
 Boot: QSPI/SRAM gateware → BIOS flash-boot (xz kernel) → buildroot →
 `S50milan` provisions CSRs (names, model id, vt=10, MAAP adopt, kernel

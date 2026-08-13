@@ -156,7 +156,8 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
                  # instead of the blunt AreaOptimized flag. The remaining -0.155 was a FALSE path
                  # (cap_luid_r -> shared ctx read mux -> ACMP sweep writeback,
                  # impossible: sweep write needs !w_frame_latch) fixed in RTL by
-                 # a dedicated sweep read port in KL_acmp_lstn_ctx.sv. Result
+                 # a dedicated sweep read port in the then-current ACMP listener
+                 # context (deleted 2026-08-13 with the legacy plane). Result
                  # 2026-07-24: WNS +0.080, LUT 85.15%, TNS 0 (all seeds close).
     echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --all-blocks --coherent-dma \
           --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
@@ -223,13 +224,15 @@ done
 
 # ---- entity-definition gate (HARD, not advisory) --------------------------------
 # The gateware `include-s a GENERATED entity definition: the ADPDU stream counts
-# (hdl/common/csr/gen/adp_shape_defaults.svh, served read-only at 0x618/0x61C and
-# also sizing the ACMP context arrays) and the AEM descriptor ROM
-# (hdl/ieee17221/aecp/gen/aecp_aem_rom.svh). Both come from ONE end-station
-# config via sw/builder/endstation_builder.py --write-rtl. Until 2026-07-27
-# nothing checked WHICH config: the tree carried the 1x1 shape and every build,
-# 8x8 included, compiled it in - so the 8x8 board advertised 1 talker source and
-# enumerated 1 STREAM_OUTPUT. Refuse to launch if the tree is another shape's.
+# in hdl/common/csr/gen/adp_shape_defaults.svh, served read-only at 0x618/0x61C
+# and ALSO sizing the protocol processor's ACMP source/sink context arrays. It
+# comes from ONE end-station config via endstation_builder.py --write-rtl.
+# Until 2026-07-27 nothing checked WHICH config: the tree carried the 1x1 shape
+# and every build, 8x8 included, compiled it in - so the 8x8 board advertised 1
+# talker source. Refuse to launch if the tree is another shape's.
+# (The AEM descriptor ROM used to be the second half of this gate. It is gone:
+#  with the AECP/AEM engine deleted no descriptor set is served, so there is no
+#  ROM in the gateware to be the wrong shape.)
 ENTITY_CFG_ax8x8="configs/endstation_ax7101_8x8.yaml"
 ENTITY_CFG_arty="configs/endstation_arty_current.yaml"
 for c in "${CONFIGS[@]}"; do

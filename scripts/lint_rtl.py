@@ -66,32 +66,34 @@ obvious cheaper spelling - `-y hdl/...` library search - is wrong here and was
 measured to be wrong: Verilator does not honour a compilation-unit-scope
 `import <pkg>::*;` in a file it found through `-y`, so linting milan_datapath
 that way produced 60+ bogus "Can't find definition of variable" errors out of
-KL_lwsrp_registrar and friends, which put their import above the module (house
-style).  Passing the sources explicitly costs ~2 s per top and is correct.
+the then-current SRP registrar and friends, which put their import above the
+module (house style; those files are deleted, the failure mode is not).
+Passing the sources explicitly costs ~2 s per top and is correct.
 Consequences worth knowing:
 
   * a module is elaborated at its DEFAULT parameters, which is why ALL 20
     SELRANGE used to be one bug: a 64-bit `s_axis.tdata` select against
-    axi_stream_if's own `TDATA_WIDTH_P = 32` default (KL_adp_parser 14,
-    ptp_ts_core 5, KL_avtp_common_parser 1).  CLOSED 2026-07-27 by defaulting
-    the interface to 64 - the width every one of its 53 instantiations already
-    passes explicitly, so no elaboration moved - which took the sweep from 188
-    to 150: SELRANGE 20 -> 0 plus 18 width findings that were themselves
-    artifacts of the narrow elaboration.  It also retired two `lint_off
-    SELRANGE` pragmas in hdl/ieee17221/aecp/ whose recorded justification
-    ("the parameter default is 32") had been false since those modules moved
-    to flat `input wire [63:0] s_axis_tdata` ports: they suppressed nothing,
-    and removing them left the count at 150.  NOTE the hole that let a dead
-    pragma sit there - this gate checks that a `lint_off` is well-formed,
-    balanced and justified, but not that it still SUPPRESSES anything.
+    axi_stream_if's own `TDATA_WIDTH_P = 32` default (the then-current ADP
+    parser 14, ptp_ts_core 5, KL_avtp_common_parser 1).  CLOSED 2026-07-27 by
+    defaulting the interface to 64 - the width every one of its 53
+    instantiations already passes explicitly, so no elaboration moved - which
+    took the sweep from 188 to 150: SELRANGE 20 -> 0 plus 18 width findings
+    that were themselves artifacts of the narrow elaboration.  It also retired
+    two `lint_off SELRANGE` pragmas in the (since-deleted) AECP tree whose
+    recorded justification ("the parameter default is 32") had been false since
+    those modules moved to flat `input wire [63:0] s_axis_tdata` ports: they
+    suppressed nothing, and removing them left the count at 150.  NOTE the hole
+    that let a dead pragma sit there - this gate checks that a `lint_off` is
+    well-formed, balanced and justified, but not that it still SUPPRESSES
+    anything.
   * an %Error-rated code MASKS the findings behind it, so a count can go UP
-    when a defect is fixed and that is not a regression.  Measured: with
-    KL_adp_parser's uncast enum assignment in place Verilator stops after the
-    ENUMVALUE error and reports 0 CASEINCOMPLETE for that file; with the cast
-    it runs the later passes and reports 1 (`case (adp_state)`, no default).
-    The adp directory still fell 20 -> 6 because 15 findings went away, but a
-    reviewer seeing a NEW code appear next to a fix should suspect unmasking
-    before suspecting the fix.
+    when a defect is fixed and that is not a regression.  Measured on the ADP
+    parser of the day: with its uncast enum assignment in place Verilator stops
+    after the ENUMVALUE error and reports 0 CASEINCOMPLETE for that file; with
+    the cast it runs the later passes and reports 1 (`case (adp_state)`, no
+    default).  The adp directory still fell 20 -> 6 because 15 findings went
+    away, but a reviewer seeing a NEW code appear next to a fix should suspect
+    unmasking before suspecting the fix.
   * a file that is `` `include ``-d by another (ethernet_packet_pkg.sv) is NOT
     also passed on the command line - that is a MODDUP, not a finding.
   * package/interface-only files declare no module, so they are linted as part
@@ -147,7 +149,8 @@ EXTRA_WARNINGS = [
     # What was found:
     #
     #  * `posedge clk_i or negedge rst_n` was NOT rare here - it was 44
-    #    always_ff blocks across srp/aecp/acmp/crf/aaf/common. SYNCASYNCNET
+    #    always_ff blocks across the then-current srp/aecp/acmp trees plus
+    #    crf/aaf/common (the first three are deleted now). SYNCASYNCNET
     #    fires on 4 of them and not the other 40, purely because those 4 ALSO
     #    carry a 2-FF reset bridge into an audio/bclk domain
     #    (`xrst_n_r <= {xrst_n_r[0], rst_n}` in aaf_talker_i2s:95,
@@ -248,50 +251,17 @@ RULE_WAIVERS = {
 # unexplained tie are the same defect class - a decision with no reader.
 # Keyed `<path>|<CODE>`, same three fields as above.  `--pragmas` FAILS on a
 # `lint_off` with no entry here, and on an entry naming a pragma that is gone.
-PRAGMA_WAIVERS = {
-    "hdl/milan/milan_datapath.sv|UNUSED": (
-        "the AEM_DYNMAP channel-map taps are lifted off KL_aecp_top and "
-        "terminate in an &{} bit bucket until the playback walker consumes "
-        "them; the bucket exists so the wires are legal, not to hide anything",
-        "hdl/milan/milan_datapath.sv:1650-1656 (the //! block above it) and "
-        "docs/MILAN_COMPLIANCE_GAPS.md §1, which owns the follow-up",
-    ),
-    "hdl/ieee17221/aecp/KL_aecp_top.sv|UNUSED": (
-        "val_status_w / evt_drop_w / l0_state_w.entity_id are subsystem-internal "
-        "observability that the top does not re-export; the &{} bucket keeps "
-        "them driven and legal",
-        "hdl/ieee17221/aecp/KL_aecp_top.sv:342-344",
-    ),
-    "hdl/ieee17221/aecp/KL_aecp_ingress.sv|UNUSED": (
-        "fw_ready / ff_keep are AXI-Stream sideband the ingress does not need "
-        "(it never back-pressures mid-frame and the keep is byte-aligned by "
-        "construction)",
-        "hdl/ieee17221/aecp/KL_aecp_ingress.sv:392-394",
-    ),
-    "hdl/ieee17221/aecp/KL_aecp_aem_store.sv|UNUSED": (
-        "the store is volatile: rst_n and factory_reset_i have nothing to flush "
-        "until the NV overlay lands, and reconfiguration restores the generated "
-        "image",
-        "hdl/ieee17221/aecp/KL_aecp_aem_store.sv:66-68 (the //! Factory reset note)",
-    ),
-    "hdl/ieee17221/aecp/KL_aecp_response_builder.sv|UNUSED": (
-        "tkeep plus the l0_state fields this builder does not answer with "
-        "(acquired / acquiring_controller_id / entity_id / locked) and "
-        "req_src_mac_i, which the egress path takes straight from the parser",
-        "hdl/ieee17221/aecp/KL_aecp_response_builder.sv:2611-2615",
-    ),
-    "hdl/ieee17221/aecp/KL_aecp_timers.sv|UNUSED": (
-        "ptp_ts_i is a reserved port: the timers run off the 1 kHz tick, and the "
-        "PTP stamp is plumbed for a future inflight-timestamp response",
-        "hdl/ieee17221/aecp/KL_aecp_timers.sv:160-164 (the named comment block)",
-    ),
-    "hdl/ieee17221/aecp/KL_persist_journal.sv|UNUSED": (
-        "reserved/padding fields of the journal header and command word "
-        "(meta_r[31:16], h_ver_r, rec_w_r, the cmd_r reserved bits) - present on "
-        "the wire format, not consumed by this decoder",
-        "hdl/ieee17221/aecp/KL_persist_journal.sv:431-434",
-    ),
-}
+#
+# EMPTY IS A LEGITIMATE STATE (2026-08-13). Every entry this table ever held
+# was an `hdl/ieee17221/aecp/**` waiver plus the milan_datapath one that
+# justified the AEM_DYNMAP taps lifted off KL_aecp_top. The 1722.1/SRP control
+# plane is deleted and the protocol processor stands in its place, so those
+# files - and the milan_datapath pragma that pointed at them - are gone with
+# it. The table is not "unused": the `--pragmas` gate below still demands a
+# justification for every `lint_off` in the tree, and rejects an entry naming a
+# pragma that no longer exists, so an empty table means exactly one thing -
+# no file under hdl/ currently silences a Verilator warning.
+PRAGMA_WAIVERS = {}
 
 #: `hdl/` files deliberately outside the lint sweep, with the reason.  Only
 #: whole FILES, never whole directories - a directory exclusion is how a scan
@@ -309,11 +279,12 @@ LINT_EXCLUDE = {
         "instantiates eth_mac_1g_rgmii_fifo, which lives in the `external/` "
         "submodule (an SSH remote CI does not and cannot fetch), and milan_dma, "
         "which is Xilinx IP absent from the tree. It is in no build: "
-        "syn/yosys/run.sh's 47 tops end at milan_datapath and the fabric flow "
-        "excludes it by name. NOTE for whoever revives it - linting it against a "
-        "checked-out external/ reports 116 PINMISSING (91 on its milan_csr "
-        "instance, 24 on KL_aecp_top, 1 on ptp_ts_top): it has drifted that far "
-        "behind the modules it wires",
+        "syn/yosys/run.sh's tops end at milan_datapath and the fabric flow "
+        "excludes it by name. NOTE for whoever revives it - the 2026-07 reading, "
+        "linting it against a checked-out external/, was 116 PINMISSING (91 on "
+        "its milan_csr instance, 24 on the AECP top it wired, 1 on ptp_ts_top). "
+        "That AECP top no longer exists, so the drift is now strictly worse than "
+        "that number: it wires a control plane this repository deleted",
         "sw/litex/milan_soc.py:640 and .gitmodules (submodule 'external' = "
         "git@github.com:kebag-logic/fpga-avb-ethernet.git)",
     ),

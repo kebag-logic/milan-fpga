@@ -12,14 +12,16 @@
 //                hdl/common/csr/milan_csr.sv, so the declarative end-
 //                station config IS these values rather than being
 //                compared against a second hand-written copy.
-//                Same values as the full table
-//                hdl/ieee8021q/srp/gen/lwsrp_table.svh (one config,
-//                one pass; test_builder gate 20a compares them).
+//                Same values as the full reference table
+//                out/<cfg>/lwsrp_table.svh (one config, one pass;
+//                test_builder gate 20a compares them).
+//                NOTE the 0x680 registers no longer DRIVE anything:
+//                the applicant (hdl/ieee8021q/srp/**) is deleted and
+//                the group survives as a software-visible ABI only.
 //                Include-only: no `default_nettype directive (it would
 //                leak into the includer's scope), no include guard
 //                (module-scope localparams - each including module
-//                needs its own copy, exactly like
-//                gen/aecp_aem_rom.svh) and no net decls.
+//                needs its own copy) and no net decls.
 //---------------------------------------------------------------------------//
 
   //! PriorityAndRank for CSR-provisioned SRP rows (= lwsrp_pkg::

@@ -55,16 +55,17 @@ ARCHIVE_RE = re.compile(r"^\s*Coverage\s*:\s*ARCHIVED\s*[-:]?\s*(.*)$", re.M)
 
 #: spec family (first path component under hdl/) -> human name + standard
 FAMILY = {
-    "ieee17221": ("IEEE 1722.1 (ATDECC)", "ADP / ACMP / AECP-AEM-MVU"),
+    "ieee17221": ("IEEE 1722.1 (ATDECC)", "TX arbitration only - the ADP / ACMP / AECP engines are the protocol-processor submodule's"),
     "ieee1722": ("IEEE 1722 (AVTP)", "AAF / CRF / MAAP / AVTP common"),
-    "ieee8021q": ("IEEE 802.1Q", "TS/CBS shaping · SRP/MRP · VLAN/TCAM filtering"),
+    "ieee8021q": ("IEEE 802.1Q", "TS/CBS shaping · VLAN/TCAM filtering (SRP/MRP is the protocol-processor submodule's)"),
     "ieee8021as": ("IEEE 802.1AS", "gPTP timestamping / pdelay / sync"),
     "common": ("Common / integration", "CSR, CDC, RMON, utilities"),
     "milan": ("Milan integration", "datapath + top wrappers"),
 }
-#: tsn_fuzz field campaigns by the leaf dir they principally cover
-FUZZ_LEAF = {"aecp": "make aecp", "acmp": "make acmp", "adp": "make adp",
-             "avtp": "make aaf", "aaf": "make aaf"}
+#: tsn_fuzz field campaigns by the leaf dir they principally cover. The
+#: aecp / acmp / adp campaigns went with the RTL they fuzzed (2026-08-13);
+#: only the IEEE 1722 AAF campaign is left.
+FUZZ_LEAF = {"avtp": "make aaf", "aaf": "make aaf"}
 
 
 def archive_reason(txt):

@@ -41,10 +41,13 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 - PRs use the template: Status / Description / how-to-reproduce / how-to-
   validate / DoD. **Self-test results go in a PR comment** — a comment is
   evidence, not approval. Maintainer merges by default.
-- [`tests/steps/tsn_gen_steps.py`](tests/steps/tsn_gen_steps.py) `LAYOUTS` merges are **semantic, never
+- **`LAYOUTS`-style merges in [`tests/steps/`](tests/steps/) are semantic, never
   marker-union**: rebuild each command's block from its owning commit
   verbatim (naive unions broke main twice; a third time gets you named in
-  this file).
+  this file). The rule was written for the PDU-generator step file that carried
+  the 1722.1 command layouts; that file went with the AECP/ACMP/ADP step suites
+  on 2026-08-13, and the rule stands for whatever table-shaped step module
+  replaces it.
 
 ## 3. Verification bar
 

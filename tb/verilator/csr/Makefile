@@ -16,7 +16,6 @@
 #     N_TALKERS_P=4 against MODELED lane-K engines - LCTX/TCTX port-B
 #     pipeline + snap arbitration (SNAP atomicity under a free-running
 #     event pump), lwSRP-ctx/ACMP-tbl master protocols, CFG write bundles.
-#   sim_live.cpp -> obj_live/Vcsr_win_live: the window against LIVE
 #     engines - KL_lwsrp_top (N_CTX_P=3) row provisioning through the
 #     window, KL_acmp_lstn_ctx (N=2) fast-connect bind read back via the
 #     window (csr_win_live.sv wrapper).
@@ -44,7 +43,6 @@ SHAPE_4x4  = +incdir+$(CFG_DIR)/endstation_arty_4x4
 SHAPE_8x8  = +incdir+$(CFG_DIR)/endstation_ax7101_8x8
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
 TOP        = milan_csr
-TOPL       = csr_win_live
 
 # milan_csr.sv `include-s gen/lwsrp_csr_defaults.svh (generated from the
 # end-station config by sw/builder/endstation_builder.py), so hdl/common/csr
@@ -55,8 +53,6 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-UNUSEDPARAM \
          -CFLAGS "-std=c++17 -O2"
 
-LIVEFLAGS = -Wno-WIDTHEXPAND -Wno-WIDTHTRUNC -Wno-PINCONNECTEMPTY \
-            -Wno-PINMISSING -Wno-IMPORTSTAR -Wno-TIMESCALEMOD
 
 # GENERATED INCLUDES ARE PREREQUISITES. milan_csr.sv `include-s these; make
 # cannot see through a `include, so without naming them here a regenerated
@@ -69,22 +65,14 @@ SHAPE_4x4_F = $(CFG_DIR)/endstation_arty_4x4/gen/adp_shape_defaults.svh
 SHAPE_8x8_F = $(CFG_DIR)/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
 
 SRCS = $(RTL_DIR)/common/csr/milan_csr.sv
-LIVE_SRCS = $(RTL_DIR)/ieee8021q/srp/lwsrp_pkg.sv \
-            $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_timers.sv \
-            $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_tx.sv \
-            $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_ingress.sv \
-            $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_walker.sv \
-            $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_registrar.sv \
-            $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_ta_registrar.sv \
-            $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_rx.sv \
-            $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_bw_gate.sv \
-            $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_ctx.sv \
-            $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_ctx_tx.sv \
-            $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_top.sv \
-            $(AXIS_DIR)/axis_fifo.v \
-            $(RTL_DIR)/ieee17221/acmp/acmp_pkg.sv \
-            $(RTL_DIR)/ieee17221/acmp/KL_acmp_lstn_ctx.sv \
-            $(SRCS) csr_win_live.sv
+#! THE LIVE-INTEGRATION LEG IS DELETED. obj_live wired milan_csr's 0x800
+#! window to the REAL context engines behind it - KL_lwsrp_top's attribute-row
+#! table and KL_acmp_lstn_ctx's bind table - and BOTH are deleted with the
+#! legacy 1722.1/SRP plane. There is no context table for that window to
+#! provision any more: milan_datapath leaves the ports open and the window's
+#! grant reads a structural zero. A fixture rebuilt against nothing would
+#! prove nothing, so the leg goes rather than being kept green on stubs.
+#! (csr_win_live.sv and sim_live.cpp deleted with it.)
 
 .PHONY: all run clean
 all: run
@@ -111,17 +99,12 @@ obj_win/Vcsr_win: $(SRCS) $(GEN_CSR) $(SHAPE_4x4_F) sim_win.cpp
 	  -GN_LISTENERS_P=4 -GN_TALKERS_P=4 -GCHMAP_RDBK_P=3 \
 	  $(SRCS) sim_win.cpp -o Vcsr_win
 
-obj_live/V$(TOPL): $(LIVE_SRCS) $(GEN_CSR) $(SHAPE_8x8_F) sim_live.cpp
-	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) $(LIVEFLAGS) --Mdir obj_live --top-module $(TOPL) \
-	  -GCLK_FREQ_HZ_P=10000 \
-	  $(LIVE_SRCS) sim_live.cpp -o V$(TOPL)
 
-run: obj_dir/Vcsr_sim obj_100m/Vcsr_sim100 obj_win/Vcsr_win obj_live/V$(TOPL)
+run: obj_dir/Vcsr_sim obj_100m/Vcsr_sim100 obj_win/Vcsr_win
 	@echo "======================================================================"
 	./obj_dir/Vcsr_sim
 	./obj_100m/Vcsr_sim100
 	./obj_win/Vcsr_win
-	./obj_live/V$(TOPL)
 
 clean:
-	rm -rf obj_dir obj_win obj_live
+	rm -rf obj_dir obj_100m obj_win

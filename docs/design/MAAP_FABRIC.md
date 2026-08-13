@@ -1,20 +1,34 @@
 # MAAP in fabric — design + reference contract (task #18)
 
 Goal: Milan-mandatory dynamic multicast-DMAC allocation for the talker
-(today `cfg_aaf_dmac` is statically provisioned). New [`hdl/ieee1722/maap/KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv)
+(before this, `cfg_aaf_dmac` was statically provisioned).
+[`hdl/ieee1722/maap/KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv)
 on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 
 > **AS-BUILT:** `KL_maap` ([`hdl/ieee1722/maap/KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv)) is implemented in
-> fabric and silicon-proven (per [`docs/ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2) — no
-> longer a plan/future item. The design + reference contract below is the
-> as-built spec; the CSR block has been reconciled to REGISTER_MAP.
+> fabric and silicon-proven — no longer a plan/future item. The design +
+> reference contract below is the as-built spec; the CSR block has been
+> reconciled to REGISTER_MAP.
+>
+> **AND IT SURVIVED THE SUBSTITUTION (2026-08-13).** When this repository's
+> own ADP / ACMP / AECP / lwSRP planes were deleted in favour of the pinned
+> `protocol-processor` submodule, `KL_maap` stayed: **the processor implements
+> no MAAP by design** (its architecture puts address allocation in the
+> integrating fabric) and publishes a **per-source ALLOC_DA / RELEASE_DA
+> face** instead. [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv)
+> bridges the two models and [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv)
+> wires it between them. So this engine is now **the only 1722-family
+> protocol engine left in this repository's own RTL**, and the talker half of
+> the processor's ACMP is dead by construction without it — see §Fabric
+> integration.
 
 ## Contents
 
 - **[Reference contract (byte-extracted from pipewire module-avb maap.c/h)](#reference-contract-byte-extracted-from-pipewire-module-avb-maapch)** — The wire bytes and the IDLE/PROBE/ANNOUNCE machine as the reference implementation actually behaves, including the deliberate quirk: the reference sets LENGTH = 28 where 1722 says `control_data_length` = 16, and we match the reference bytes. Also the rule that the address is only valid in ANNOUNCE.
-- **[Fabric integration](#fabric-integration)** — Where `KL_maap` attaches (RX monitor tap on subtype 0xFE, TX after the ACMP-listener arbiter stage), the `MAAP_CTRL.en=0` soft-migration that keeps `cfg_aaf_dmac` behaviour bit-exact, and the CSR block reconciled to `REGISTER_MAP` — note there are no ADDR_LO/HI registers, the DMAC is the pool base plus the claimed offset in `0x6D0`.
-- **[Open decisions](#open-decisions)** — Two unresolved questions, the load-bearing one being whether AAF admission should AND `maap_valid` when MAAP is enabled, since Milan requires a valid stream DMAC before SRP.
-- **[Appendix: GET_DYNAMIC_INFO 0x4B contract (task #19 tail, pinned 07-17)](#appendix-get_dynamic_info-0x4b-contract-task-19-tail-pinned-07-17)** — Unrelated to MAAP, and it was an `#` heading until 2026-07-27 so it never appeared in this list. The live payload: the exact `0x4B` response layout byte-extracted from the reference `cmd-get-dynamic-info.c` — one record per descriptor carrying mutable state, in descriptor-list order, summing to a **fixed** 112 B payload (CDL 124) for our entity. Also the reason it needed an isolated commit — the records interleave const- and store-sourced fields, so the response builder's four segment slots had to grow to twelve first. **Status: implemented** in `KL_aecp_response_builder.sv`.
+- **[Fabric integration](#fabric-integration)** — Where `KL_maap` attaches (RX monitor tap on subtype 0xFE; TX as the second leg of the ONE control-lane merge), the `MAAP_CTRL.en=0` soft-migration that keeps `cfg_aaf_dmac` behaviour bit-exact, and the CSR block reconciled to `REGISTER_MAP` — note there are no ADDR_LO/HI registers, the DMAC is the pool base plus the claimed offset in `0x6D0`.
+- **[The block ⇄ per-source bridge (KL_pp_maap_shim)](#the-block--per-source-bridge-kl_pp_maap_shim)** — How one block claim answers N per-source ALLOC_DA requests, why `s` gets `base + s`, why a refusal is a state and not an error, and why RELEASE frees nothing.
+- **[Open decisions](#open-decisions)** — Both are now SETTLED, and the load-bearing one settled itself structurally: AAF admission ANDs the DA because the declaration cannot exist without it.
+- **[Appendix: GET_DYNAMIC_INFO 0x4B contract (task #19 tail, pinned 07-17)](#appendix-get_dynamic_info-0x4b-contract-task-19-tail-pinned-07-17)** — Unrelated to MAAP, and still **unimplemented**: the engine that served it is deleted, the processor's AECP µCPU answers AECP but did not reimplement `0x4B`, so a controller gets a `NOT_IMPLEMENTED` echo and no dynamic info. Kept as the byte-extracted contract.
 
 ## Reference contract (byte-extracted from pipewire module-avb maap.c/h)
 
@@ -46,12 +60,22 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 
 - RX: tap `rx_axis_to_dma` (subtype 0xFE @ ether 0x22F0), aligned-lane
   parse (fields land in beats 1..4).
-- TX: extend the low-rate TX arbiter chain (after acmpl's `ctlg` stage).
+- **TX: the second leg of the ONE control-lane merge.** The TX arbiter
+  cascade collapsed from eight muxes to four when the planes that fed the
+  other merges were deleted; what is left on the control lane is
+  `ctl_tx_mux`, whose two sources are the protocol processor's packed TX
+  (ADP + ACMP + SRP, internally arbitrated) and **MAAP's
+  probe/defend/announce**. MAAP is a separate leg precisely because it is the
+  one control protocol the processor does not implement. Lane 0 of
+  `A_TXARB_DIAG 0x784` supervises that merge — **anything decoding `0x784` by
+  the old eight-lane numbering now reads the wrong mux.**
 - Randomness: LFSR seeded from station MAC; interval jitter from the same.
-- Outputs: `maap_addr[47:0]`, `maap_valid` (ANNOUNCE state) → datapath
-  mux into the AAF framer dmac + GET_STREAM_INFO/ACMP dmac reporting when
-  `MAAP_CTRL.en=1 && maap_valid`; `cfg_aaf_dmac` stays the manual lever
-  (en=0 keeps today's behavior bit-exact — soft-migration like CBS bypass).
+- Outputs: `maap_addr[47:0]`, `maap_valid` (ANNOUNCE state) → the datapath's
+  `eff_aaf_dmac` mux into the AAF framer dmac when
+  `MAAP_CTRL.en=1 && maap_valid`, **and** the block side of
+  `KL_pp_maap_shim`, which is how the processor's talker learns a source's
+  destination address. `cfg_aaf_dmac` stays the manual lever (en=0 keeps the
+  pre-MAAP behavior bit-exact — soft-migration like CBS bypass).
 - CSR ([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) is authoritative;
   the block below mirrors its `0x6CC`-`0x6D4` rows): `0x6CC MAAP_CTRL` (RW, reset `0x0800`: `[0]` en,
   `[1]` seed_valid, `[15:8]` block count (default 8), `[31:16]` seed offset),
@@ -61,24 +85,83 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
   registers — the allocated DMAC is 91:E0:F0:00 + claimed offset.
 - NV persistence (reference load/save_state) = softcore provisioning
   (S50milan writes the last-known offset into MAAP_CTRL before enable) —
-  document, not fabric.
+  document, not fabric. Note that **nothing else in this device persists
+  across a power cycle any more**: the saved-state journal died with the AECP
+  plane and the processor's AECP µCPU did not bring persistence back — there
+  is no saved state and no fast-connect — so a boot-time MAAP_CTRL seed is the
+  only continuity there is.
 - TB: golden frames vs the layout above; scenarios: 3-probe→announce
   walk, probe-vs-probe restart, announce-defend, defend-loss restart,
   conflict-window edges (start/end overlap), non-conflicting ranges
   ignored, LFSR re-address distribution sanity; coverage gate ≥95 %
   like avtp_rxmon.
 
+## The block ⇄ per-source bridge (`KL_pp_maap_shim`)
+
+`KL_maap` claims **one contiguous block** — a base plus `count` addresses —
+and publishes `addr_valid_o` only while it is in ANNOUNCE (probed, and being
+defended). It has no notion of a source. The processor asks **per source**: a
+held valid/ready `ALLOC_DA` / `RELEASE_DA` naming one source index, answered
+by exactly one response carrying a 48-bit DA, plus a per-source conflict
+event. The shim is the whole of the translation, and its own header is
+authoritative; the four decisions worth knowing here:
+
+- **Source `s` gets `base + s`** — already this fabric's convention
+  (`eff_aaf_dmac + j` for stream *j*, and the CRF talker on the same rule), so
+  the processor's talker declares exactly the address the AAF framer puts on
+  the wire. Any other mapping would have two planes disagree about one
+  stream's DA.
+- **`ready` means "no response is already in flight", not "the block is
+  valid".** A request is accepted immediately and answered `ok = 0` when the
+  block cannot back it, because the processor's MAAP event sits on the same
+  single walker that serves PROBE_TX / DISCONNECT_TX / GET_TX_STATE for every
+  source: parking that walker for the ~1.5 s a legal PROBE takes would make
+  the talker half of ACMP deaf while the fabric is doing exactly what it is
+  supposed to. The refusal costs two cycles and reaches the identical end
+  state — the source stays without a DA and PROBE_TX answers
+  `TALKER_DEST_MAC_FAILED`, which is the honest answer.
+- **A refusal is a state, not an error.** `ok = 1` requires the block VALID
+  *and* the source index inside the claimed count; outside it, the address
+  belongs to nobody and granting it is a wire defect that shows up as someone
+  else's audio dropping out.
+- **RELEASE frees nothing, and says so.** One block serves the whole engine
+  for as long as it is enabled and Annex B has no partial-release message, so
+  the release is a no-op acknowledgement the processor's tracker needs to
+  clear its busy flag.
+
+**What depends on it:** `acmp_declaring_o` — the talker gate — is reachable
+ONLY through an ALLOC_DA success. With the face unconnected, or with the
+allocator pruned (`MAAP_P = 0`) or disabled (`MAAP_CTRL.en = 0`), every ALLOC
+is answered `ok = 0` in one cycle, no source ever declares, and the talker
+half is dead by construction. That is the same code path in all three cases,
+deliberately: a build without an allocator must not take an untested branch.
+
 ## Open decisions
 
-- ADP/talker gating: should PROBE_TX/streaming wait for maap_valid when
-  enabled? (Milan: stream DMAC must be valid before SRP/streaming.)
-  Proposal: AAF admission gate ANDs maap_valid when MAAP_CTRL.en.
-- range/count: 1 stream today → count=8 like the reference (keeps the
-  contract; uses index 0).
+Both settled.
+
+- **ADP/talker gating: should PROBE_TX/streaming wait for `maap_valid`?**
+  **SETTLED — yes, and structurally.** It is no longer an AND term composed in
+  `milan_datapath`: the processor's talker cannot declare without an ALLOC_DA
+  success, so "a valid Destination MAC Address exists" is a precondition of
+  the declaration itself. One decision, one place.
+- **range/count:** count = 8 like the reference, indices 0..count−1 handed to
+  sources 0..N−1 by the shim.
 
 ---
 
 ## Appendix: GET_DYNAMIC_INFO 0x4B contract (task #19 tail, pinned 07-17)
+
+> **NOT IMPLEMENTED — and this is a real loss, not a formality.** The batch
+> engine that served this lived in the AECP response builder, and the whole
+> `hdl/ieee17221/aecp/**` tree is deleted. The device is *not* silent on AECP
+> any more — the processor's AECP µCPU answers `READ_DESCRIPTOR` and echoes a
+> conformant `NOT_IMPLEMENTED` at everything else — but `0x4B` is in the
+> "everything else". A controller sending it gets a well-formed response
+> carrying no dynamic info, which is a correct answer to a question this entity
+> cannot answer. The byte-extracted contract below is kept because it is
+> reference truth that cost real work to establish, not because anything
+> implements it.
 
 Reference `cmd-get-dynamic-info.c`: response = echo hdr + payload
 `config_index(2)+reserved(2)` then ONE record per descriptor that carries
@@ -93,20 +176,12 @@ mutable state, in descriptor-list order. Records (BE):
 | CLOCK_DOMAIN | clock_source_index(2)+rsvd(2) | 8 |
 
 Our fixed entity ⇒ FIXED response: 4 + 8 + 8 + 28×3 + 8 = 112 B payload
-(+12 AECP hdr = CDL 124). All source fields already exist in the builder
-(store scratch + the load_stream_info_consts / load_input_stream_info_consts
-field logic + clock_src_idx/sampling-rate registers).
+(+12 AECP hdr = CDL 124).
 
-Implement as one DECIDE branch: SEG_ECHO(4: config_index+rsvd from cmd) +
-CONST/STORE segments per record; NO_SUCH_DESCRIPTOR for config_index != 0.
-
-IMPLEMENTATION NOTE: records interleave const-sourced (hdrs, stream_id,
-flags) and store-sourced (formats, sampling rate) fields => needs ~9
-segments; the builder's segment arrays (seg_kind/addr/len/cum_q[0:3]) and
-the WRITE_S cum computation must grow to [0:11] first — mechanical but
-touches the emit core; do it as an isolated commit with the full aecp TB
-before adding the 0x4B branch.
-
-Status: IMPLEMENTED since - the GET_DYNAMIC_INFO (0x4B) batch engine lives in
-[`hdl/ieee17221/aecp/KL_aecp_response_builder.sv`](../../hdl/ieee17221/aecp/KL_aecp_response_builder.sv) (record validate/classify
-passes + the 7.4.76 dispatch branch).
+The implementation note is worth keeping for whoever adds `0x4B` to the
+processor's AECP µCPU — the µCPU has landed, it simply has no handler for this
+opcode: the records interleave const-sourced (headers,
+stream_id, flags) and store-sourced (formats, sampling rate) fields, so a
+segment-based emitter needs ~9 segments rather than the four the builder
+started with — a mechanical widening that touches the emit core, and one that
+was worth landing as an isolated commit before the `0x4B` branch itself.

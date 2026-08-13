@@ -39,10 +39,26 @@ THE SHAPE IS SOFTWARE-DEFINED, NOT SOFTWARE-WRITABLE.  The fix is not to move
 the number into the RTL - RTL choosing the entity shape is the same mistake
 one layer down.  configs/endstation_*.yaml is the single declarative
 definition and it drives the gateware, the AEM model and lwSRP alike, so
-sw/builder/endstation_builder.py emits BOTH this shape's
+sw/builder/endstation_builder.py emits this shape's
 hdl/common/csr/gen/adp_shape_defaults.svh (which milan_csr and milan_datapath
-`include) AND this shape's hdl/ieee17221/aecp/gen/aecp_aem_rom.svh, in one
-pass from one config.  This gate is what makes "one pass, one config" checkable.
+`include) in one pass from one config.  This gate is what makes "one pass,
+one config" checkable.
+
+WHAT MOVED, 2026-08-12.  Two of this gate's three original comparands are
+DELETED with the IEEE 1722.1 control-plane RTL: hdl/ieee17221/aecp/gen/
+aecp_aem_rom.svh (the descriptor set the gateware served) and
+tb/verilator/aecp/aem_golden.h (the TB's byte-exact image of it).  The
+protocol-processor submodule is the control plane now and this device answers
+NO AECP/AEM command, so there is no ROM in the tree to compare against and no
+golden to keep in step.
+
+THE GATE STAYS, AND IS STILL THE SAME GATE.  The defect it was written for -
+an 8x8 gateware shipping a 1x1 shape - is entirely possible today, because
+adp_shape_defaults.svh is STILL a tracked, last-writer-wins artifact that
+`--write-rtl <cfg>` overwrites for whichever config it is handed, and it now
+sizes the protocol processor's source/sink arrays as well as the ADPDU words.
+What it compares is the config's declared shape against the two places that
+copy of it lives on disk.
 
 WHAT IT CHECKS, per end-station config:
 
@@ -52,26 +68,32 @@ WHAT IT CHECKS, per end-station config:
   B  AEM model        this config's AEM overlay declares the same
                       STREAM_OUTPUT / STREAM_INPUT counts, and its
                       entity_counts agree with its descriptor_counts
-  C  AEM ROM          the ROM the builder generates for this config has that
-                      many STREAM_OUTPUT / STREAM_INPUT descriptors - the
-                      descriptor set a controller enumerates
+  C  entity model     the descriptor ROM the builder generates for this
+                      config has that many STREAM_OUTPUT / STREAM_INPUT
+                      descriptors.  NOTE what this is now: a self-consistency
+                      check of the DECLARATIVE model, generated in memory.
+                      No gateware serves those descriptors any more.  It is
+                      kept because the ADP counts in arm A are DERIVED from
+                      that same model, so a model that disagrees with itself
+                      is a shape count nobody should trust
   D  per-config copy  configs/generated/<name>/gen/adp_shape_defaults.svh on
                       disk is byte-identical to the freshly generated text
-                      (harnesses and builds select a shape by include path)
-  E  tracked pair     hdl/common/csr/gen/adp_shape_defaults.svh and
-                      hdl/ieee17221/aecp/gen/aecp_aem_rom.svh both name the
-                      SAME source config and match what it generates - a
-                      gateware cannot carry one shape's counts and another
-                      shape's descriptors
+                      (harnesses and builds select a shape by include path),
+                      and that `gen/` holds NO leftover aecp_aem_rom.svh - a
+                      build artifact in an include dir is a build artifact
+                      something eventually compiles
+  E  tracked shape    hdl/common/csr/gen/adp_shape_defaults.svh names a
+                      source config that exists and is EXACTLY what that
+                      config generates - so "which shape is in the tree" is
+                      always answerable and always current
   F  RTL consumption  milan_csr builds 0x618/0x61C from the generated
                       constants and has a defaults arm, NO write arm and NO
                       is_plain_rw entry for either; milan_datapath sizes its
-                      ACMP context arrays from the SAME constants, so the
-                      advertised range is the addressable range
+                      source/sink context arrays from the SAME constants, so
+                      the advertised range is the addressable range
   G  firmware version the ENTITY descriptor's firmware_version (1722.1-2021
                       7.2.1, offset 116) names the gateware's OWN VERSION
-                      parameter, in the tracked ROM and in the TB golden
-                      alike, and no config declares one of its own
+                      parameter, and no config declares one of its own
 
 THE SAME DEFECT, ONE FIELD OVER (G, 2026-07-28).  All three configs hardcoded
 `firmware_version: "0.1.0"` while hdl/common/csr/milan_csr.sv said
@@ -79,12 +101,14 @@ THE SAME DEFECT, ONE FIELD OVER (G, 2026-07-28).  All three configs hardcoded
 descriptor - so every board we ship told Hive, la_avdecc and every other
 controller on the segment that it ran firmware 0.1.0.  Every gate was green,
 because every gate compared that declaration against another declaration.
-The version is now DERIVED from the parameter (major.minor.rev =
+The version is DERIVED from the parameter (major.minor.rev =
 VERSION[31:16].VERSION[15:0].entity.firmware_rev, so 0x0001_0016 -> "1.22.0")
-and arm G reads it back out of the shipped descriptor BYTES.  Note the TB
-golden is checked here and not by the aecp suite: that sweep deliberately
-EXCLUDES the ENTITY descriptor from its byte-exact compare because it carries
-live overlays, so a golden that is stale only inside ENTITY passes there.
+and arm G reads it back out of the descriptor BYTES.  Those bytes are now
+GENERATED IN MEMORY rather than read from the tracked ROM and the TB golden,
+both of which are deleted; the arm therefore proves the derivation reaches
+offset 116, and no longer proves any artifact is fresh (there is no longer an
+artifact to be stale).  The two mutations that tested exactly that staleness
+are removed from the self-test below, by name and with the reason.
 
 Usage:
     check_entity_shape.py                 # every configs/endstation_*.yaml
@@ -108,16 +132,13 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATAPATH = os.path.join(ROOT, "hdl/milan/milan_datapath.sv")
 CSR = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
-AEM_ROM = os.path.join(ROOT, "hdl/ieee17221/aecp/gen/aecp_aem_rom.svh")
-AEM_GOLDEN = os.path.join(ROOT, "tb/verilator/aecp/aem_golden.h")
-#: the shape the golden's ONE consumer compiles: tb/verilator/aecp's default
-#: VFLAGS put configs/generated/endstation_arty_current FIRST on the include
-#: path, so sim_main byte-compares its READ_DESCRIPTOR wire against THIS
-#: ROM - never against the tracked pair, whose owner is whichever config
-#: last ran --write-rtl (since 08-01 that is the ax7101_8x8 ship config)
-AEM_ROM_GOLDEN_SHAPE = os.path.join(
-    ROOT, "configs/generated/endstation_arty_current/gen/aecp_aem_rom.svh")
 CONFIG_DIR = os.path.join(ROOT, "configs")
+#: What a per-config `gen/` include dir may hold. adp_shape_defaults.svh is
+#: the ONE generated entity artifact any RTL still compiles; aecp_aem_rom.svh
+#: used to sit beside it for KL_aecp_aem_store, and that module is deleted.
+#: Arm D refuses a leftover, because a +incdir that finds a ROM nobody
+#: regenerates is how a stale descriptor set gets compiled by accident.
+GEN_DIR_FORBIDDEN = ("aecp_aem_rom.svh",)
 
 # IEEE 1722.1-2021 Table 7.1 descriptor types
 ENTITY = 0x0000
@@ -226,16 +247,15 @@ def svh_source(text):
 def tracked_owner(builder, adp_text=None, configs=None):
     """WHICH CONFIG OWNS the tracked entity definition - asked of the TREE.
 
-    `endstation_builder.py --write-rtl <cfg>` installs the tracked pair for
-    WHICHEVER config it is handed, so the owner is not a constant a gate may
-    assume: it is a fact the tree records.  The AEM ROM carries no marker of
-    its own (its header names avdecc/gen_aem_store.py, the generator, not the
-    config), so the shape include's `Source :` line is the ONE place the
-    answer lives - and this is the ONE reader of it, shared with
-    sw/builder/test_builder.py gate 10.  Two answers to "who owns the tracked
-    ROM" is exactly how a gate comes to assume a config: gate 10 hardcoded
-    endstation_arty_current and went red for every other owner, blocking any
-    other shape from being written into the tree at all.
+    `endstation_builder.py --write-rtl <cfg>` installs the tracked shape
+    include for WHICHEVER config it is handed, so the owner is not a constant
+    a gate may assume: it is a fact the tree records.  The shape include's
+    `Source :` line is the ONE place the answer lives - and this is the ONE
+    reader of it, shared with sw/builder/test_builder.py gates 10/17/24d.
+    Two answers to "who owns the tracked shape" is exactly how a gate comes
+    to assume a config: gate 10 hardcoded endstation_arty_current and went
+    red for every other owner, blocking any other shape from being written
+    into the tree at all.
 
     adp_text overrides the tracked shape include, so a caller can ask the
     question of a CANDIDATE pair without installing it in the tree.
@@ -304,8 +324,11 @@ def check_config(builder, path):
        got["listener_stream_sinks"], dc["STREAM_INPUT"])
 
     # C: and the DESCRIPTOR SET this config generates really has that many.
-    # This is the arm that would have caught an 8x8 build shipping the 1x1
-    # ROM: the counts and the descriptors come from one pass or not at all.
+    # The ROM is generated IN MEMORY and compiled by nothing (the AECP plane
+    # that served it is deleted) - this is a self-consistency check of the
+    # DECLARATIVE MODEL, and it earns its place because the counts checked in
+    # arm A are derived from that same model. A model that disagrees with
+    # itself produces an ADP count nobody should trust.
     rom = rom_descriptor_counts(builder.emit_aem_rom_svh(cfg, ovl))
     ck(f"{name}: generated ROM STREAM_OUTPUT descriptors",
        rom.get(STREAM_OUTPUT, 0), got["talker_stream_sources"])
@@ -326,12 +349,20 @@ def check_config(builder, path):
         ck(f"{name}: CRF sink uid {L} is inside the advertised range",
            got["listener_stream_sinks"] > L, True)
 
-    # D: the tracked per-config copy on disk is what the builder emits now
-    p_cfg = os.path.join(ROOT, builder.GEN_CONFIG_DIR, name, "gen",
-                         "adp_shape_defaults.svh")
+    # D: the tracked per-config copy on disk is what the builder emits now,
+    # and its `gen/` holds nothing else an +incdir could pick up. The ROM
+    # used to live there for KL_aecp_aem_store; that module is deleted, and a
+    # leftover copy in an include dir is a stale descriptor set waiting to be
+    # compiled by the next harness that points at this directory.
+    p_gen = os.path.join(ROOT, builder.GEN_CONFIG_DIR, name, "gen")
+    p_cfg = os.path.join(p_gen, "adp_shape_defaults.svh")
     ck(f"{name}: configs/generated copy is current",
        os.path.exists(p_cfg) and open(p_cfg).read() == adp_svh, True)
-    return cfg, adp_svh, builder.emit_aem_rom_svh(cfg, ovl)
+    left = sorted(f for f in GEN_DIR_FORBIDDEN
+                  if os.path.exists(os.path.join(p_gen, f)))
+    ck(f"{name}: no deleted-plane artifact left in its gen/ include dir",
+       left, [])
+    return cfg, adp_svh
 
 
 # ------------------------------------------------ firmware version (7.2.1) --
@@ -355,18 +386,10 @@ def svh_rom(text):
         r"([0-9A-Fa-f]{4})_([0-9A-Fa-f]{4})")
 
 
-def golden_rom(text):
-    """(rom bytes, directory) out of tb/verilator/aecp/aem_golden.h - the
-    image the aecp TB byte-compares the RTL against."""
-    body = re.search(r"AEM_ROM\[\]\s*=\s*\{(.*?)\n\};", text, re.S)
-    dirb = re.search(r"AEM_DIR\[\]\s*=\s*\{(.*?)\n\};", text, re.S)
-    if not body or not dirb:
-        raise SystemExit("SETUP: no AEM_ROM / AEM_DIR in the golden header")
-    rom = bytes(int(b, 16)
-                for b in re.findall(r"0x([0-9A-Fa-f]{2})", body.group(1)))
-    return rom, _dir_entries(
-        dirb.group(1), r"\{\s*0x([0-9A-Fa-f]{4})\s*,\s*(\d+)\s*,"
-                       r"\s*(\d+)\s*,\s*(\d+)\s*\}")
+# golden_rom() is GONE (2026-08-12): it parsed tb/verilator/aecp/aem_golden.h,
+# the image the aecp Verilator suite byte-compared the RTL against. That suite
+# and the RTL it exercised are both deleted, so there is no golden to read and
+# no staleness for arm G to catch there.
 
 
 def entity_fw_field(rom, directory, what):
@@ -394,10 +417,17 @@ def check_firmware_version(builder):
     declaration against another declaration.
 
     So this one does not re-derive anything.  It reads the parameter out of
-    the RTL and the string out of the TRACKED DESCRIPTOR BYTES - the ROM the
-    gateware compiles and the golden image the aecp TB byte-compares the RTL
-    against - which makes "VERSION bumped, artifacts not regenerated" a
-    build failure instead of a wrong answer on the wire.
+    the RTL and the string out of the DESCRIPTOR BYTES.
+
+    WHAT THOSE BYTES ARE NOW (2026-08-12).  They used to be the TRACKED ROM
+    the gateware compiled plus the golden image the aecp TB byte-compared
+    against, which made "VERSION bumped, artifacts not regenerated" a build
+    failure.  Both files are deleted with the AECP plane, so the bytes are
+    GENERATED IN MEMORY from the tracked shape's owning config.  The arm
+    therefore still proves the derivation reaches offset 116 in the encoding
+    the clause specifies - but it can no longer prove any artifact is fresh,
+    because there is no longer an artifact that could go stale.  Said plainly
+    here rather than left for a reader to infer from a passing check.
 
     Encoding is checked too, because the field is fixed-size: IEEE
     1722.1-2021 7.2.1 Table 7-2 places it at offset 116 for 64 octets, and
@@ -422,40 +452,27 @@ def check_firmware_version(builder):
            cfg["entity"]["firmware_version"],
            g.firmware_version_string(cfg["entity"]["firmware_rev"], CSR))
 
-    # 2. the DESCRIPTOR BYTES a build serves, and the ones the TB pins.
-    tracked = open(AEM_ROM).read()
-    golden = open(AEM_GOLDEN).read()
-    rom_t, dir_t = svh_rom(tracked)
-    rom_g, dir_g = golden_rom(golden)
+    # 2. the DESCRIPTOR BYTES the tracked shape's owner generates. Generated
+    #    in memory: the tracked ROM and the TB golden are deleted, so there
+    #    is no on-disk descriptor image left to read (or to go stale).
     owner = tracked_owner_cfg(builder, all_configs())
-    want = (g.firmware_version_string(owner["entity"]["firmware_rev"], CSR)
-            if owner else None)
-
-    for what, rom, drc in (("tracked ROM", rom_t, dir_t),
-                           ("TB golden", rom_g, dir_g)):
-        fld = entity_fw_field(rom, drc, what)
-        ck(f"{what}: firmware_version field is {FW_LEN} octets",
-           len(fld), FW_LEN)
-        # 7.2: zero padded after the string, and no interior NUL
-        s = fld.split(b"\x00", 1)[0]
-        ck(f"{what}: firmware_version is zero padded past the string (7.2)",
-           fld[len(s):] == bytes(FW_LEN - len(s)), True)
-        ck(f"{what}: firmware_version decodes as UTF-8 (7.2.1)",
-           _utf8(s), True)
-        ck(f"{what}: firmware_version == the gateware's VERSION",
-           s.decode("utf-8", "replace"), want)
-
-    # 3. and the golden is ITS CONSUMER'S ROM, not a previous one's.
-    #    Regenerating the shape without regenerating the golden produces N
-    #    byte-exact aecp failures at the changed offset and nothing else;
-    #    catching it here names the cause. The comparand is the shape
-    #    sim_main COMPILES (the arty_current per-config svh), NOT the
-    #    tracked pair: the tracked owner moved to the ax7101_8x8 ship
-    #    config on 08-01 and the golden's identity never followed the
-    #    owner - it follows the harness include path.
-    rom_c, _ = svh_rom(open(AEM_ROM_GOLDEN_SHAPE).read())
-    ck("TB golden image == the ROM the aecp harness compiles "
-       "(endstation_arty_current)", rom_g == rom_c, True)
+    if owner is None:
+        ck("tracked shape names an owning config whose descriptors can be "
+           "generated", False, True)
+        return
+    want = g.firmware_version_string(owner["entity"]["firmware_rev"], CSR)
+    rom_o, dir_o = svh_rom(builder.emit_aem_rom_svh(
+        owner, builder.emit_aem_overlay(owner)))
+    what = f"generated ROM ({owner['name']})"
+    fld = entity_fw_field(rom_o, dir_o, what)
+    ck(f"{what}: firmware_version field is {FW_LEN} octets", len(fld), FW_LEN)
+    # 7.2: zero padded after the string, and no interior NUL
+    s = fld.split(b"\x00", 1)[0]
+    ck(f"{what}: firmware_version is zero padded past the string (7.2)",
+       fld[len(s):] == bytes(FW_LEN - len(s)), True)
+    ck(f"{what}: firmware_version decodes as UTF-8 (7.2.1)", _utf8(s), True)
+    ck(f"{what}: firmware_version == the gateware's VERSION",
+       s.decode("utf-8", "replace"), want)
 
 
 def _utf8(b):
@@ -491,33 +508,35 @@ def tracked_owner_cfg(builder, configs):
     return None
 
 
-def check_tracked_pair(builder, configs):
-    """E: the tracked entity definition is ONE config's, whole.
+def check_tracked_shape(builder, configs):
+    """E: the tracked entity definition is ONE config's, and is current.
 
-    hdl/common/csr/gen/adp_shape_defaults.svh and
-    hdl/ieee17221/aecp/gen/aecp_aem_rom.svh are what a build `include-s. They
-    must name the same source config AND be exactly what that config
-    generates - otherwise the gateware advertises one shape and enumerates
-    another, which is the 2026-07-27 defect with the layers swapped."""
+    hdl/common/csr/gen/adp_shape_defaults.svh is what a build `include-s -
+    the whole of it now that the AEM ROM has no RTL destination. It must name
+    a source config that exists AND be exactly what that config generates,
+    otherwise the gateware advertises (and elaborates) a shape nobody chose,
+    which is the 2026-07-27 defect with the layers swapped.
+
+    The descriptor counts are checked against the model that owner GENERATES,
+    which keeps arm C's question askable of the tracked owner specifically:
+    the tracked shape and the entity model it was derived from cannot drift
+    apart without one of them being regenerated alone."""
     print("\n== tracked entity definition (what a build includes) ==")
     adp = open(os.path.join(ROOT, builder.ADP_SHAPE_REL)).read()
-    rom = open(os.path.join(ROOT, builder.AEM_ROM_REL)).read()
     src, owner = tracked_owner(builder, adp_text=adp, configs=configs)
     print(f"  tracked shape source: {src}")
     ck("tracked ADP shape names a source config", src is not None, True)
     ck(f"tracked shape's source config exists ({src})", owner is not None, True)
     if owner is None:
         return
-    ovl = builder.emit_aem_overlay(owner)
     ck("tracked ADP shape == what that config generates",
        adp == builder.emit_adp_shape_svh(owner), True)
-    ck("tracked AEM ROM == what that config generates",
-       rom == builder.emit_aem_rom_svh(owner, ovl), True)
     got = svh_shape(adp, "tracked shape")
-    rc = rom_descriptor_counts(rom)
-    ck("tracked ROM STREAM_OUTPUT == tracked advertised sources",
+    rc = rom_descriptor_counts(
+        builder.emit_aem_rom_svh(owner, builder.emit_aem_overlay(owner)))
+    ck("owner's STREAM_OUTPUT descriptors == tracked advertised sources",
        rc.get(STREAM_OUTPUT, 0), got["talker_stream_sources"])
-    ck("tracked ROM STREAM_INPUT == tracked advertised sinks",
+    ck("owner's STREAM_INPUT descriptors == tracked advertised sinks",
        rc.get(STREAM_INPUT, 0), got["listener_stream_sinks"])
 
 
@@ -529,13 +548,9 @@ def check_built_config(builder, path):
     cfg = builder.load_config(path)
     print(f"\n== pre-build: tracked definition vs {cfg['name']} ==")
     adp = open(os.path.join(ROOT, builder.ADP_SHAPE_REL)).read()
-    rom = open(os.path.join(ROOT, builder.AEM_ROM_REL)).read()
-    ovl = builder.emit_aem_overlay(cfg)
     ok_adp = adp == builder.emit_adp_shape_svh(cfg)
-    ok_rom = rom == builder.emit_aem_rom_svh(cfg, ovl)
     ck(f"tracked ADP shape is {cfg['name']}'s", ok_adp, True)
-    ck(f"tracked AEM ROM is {cfg['name']}'s", ok_rom, True)
-    if not (ok_adp and ok_rom):
+    if not ok_adp:
         print(f"  the tree currently carries {svh_source(adp)}. Fix:\n"
               f"    python3 sw/builder/endstation_builder.py {path} "
               f"--write-rtl")
@@ -561,7 +576,7 @@ def run():
     cfgs = all_configs()
     for p in cfgs:
         check_config(builder, p)
-    check_tracked_pair(builder, cfgs)
+    check_tracked_shape(builder, cfgs)
     check_firmware_version(builder)
 
 
@@ -570,6 +585,12 @@ def mutate(text, old, new):
     if old not in text:
         raise SystemExit(f"SELF-TEST SETUP: {old!r} not in the source")
     return text.replace(old, new, 1)
+
+
+def adp_shape_of(builder, cfg):
+    """This config's talker_stream_sources - read through the builder so the
+    self-test never restates a count the gate exists to keep singular."""
+    return builder.adp_shape(cfg)["talker_stream_sources"]
 
 
 def expect_fail(label, fn):
@@ -591,10 +612,10 @@ def expect_fail(label, fn):
         print(f"         (rejected by: {why})")
 
 
-def with_rtl(dp_text=None, csr_text=None, golden_text=None):
+def with_rtl(dp_text=None, csr_text=None):
     """Context-manager-ish helper: swap in mutated sources for one call."""
-    global DATAPATH, CSR, AEM_GOLDEN
-    keep = (DATAPATH, CSR, AEM_GOLDEN)
+    global DATAPATH, CSR
+    keep = (DATAPATH, CSR)
     td = tempfile.mkdtemp()
     if dp_text is not None:
         DATAPATH = os.path.join(td, "milan_datapath.sv")
@@ -602,13 +623,10 @@ def with_rtl(dp_text=None, csr_text=None, golden_text=None):
     if csr_text is not None:
         CSR = os.path.join(td, "milan_csr.sv")
         open(CSR, "w").write(csr_text)
-    if golden_text is not None:
-        AEM_GOLDEN = os.path.join(td, "aem_golden.h")
-        open(AEM_GOLDEN, "w").write(golden_text)
 
     def restore():
-        global DATAPATH, CSR, AEM_GOLDEN
-        DATAPATH, CSR, AEM_GOLDEN = keep
+        global DATAPATH, CSR
+        DATAPATH, CSR = keep
         shutil.rmtree(td, ignore_errors=True)
     return restore
 
@@ -669,22 +687,53 @@ def self_test():
     finally:
         builder.adp_shape = real_shape
 
-    # 4. the tracked entity definition split in half: the shape include from
-    #    one config, the descriptor ROM from another. This is the 8x8-build-
-    #    with-a-1x1-ROM defect stated exactly.
-    keep = builder.AEM_ROM_REL
+    # 4. THE SHAPE-DRIFT DEFECT ITSELF, restated for the one artifact that is
+    #    left: the tracked shape include carries config A's counts while the
+    #    build is config B's. That is exactly "an 8x8 gateware shipping a 1x1
+    #    shape", and it is still entirely possible - adp_shape_defaults.svh is
+    #    a tracked, last-writer-wins file and `--write-rtl` hands it to
+    #    whichever config it is called with.
+    #
+    #    (This mutation replaces the old "tracked ROM is a DIFFERENT config's
+    #    than the shape" one. That mutation's subject - a second tracked
+    #    entity artifact to disagree WITH - no longer exists: the AEM ROM has
+    #    no RTL destination since hdl/ieee17221/aecp was deleted.)
+    keep = builder.ADP_SHAPE_REL
     with tempfile.TemporaryDirectory() as td:
         other = builder.load_config(os.path.join(CONFIG_DIR,
                                                  "endstation_arty_4x4.yaml"))
-        rom4 = os.path.join(td, "rom.svh")
-        open(rom4, "w").write(builder.emit_aem_rom_svh(
-            other, builder.emit_aem_overlay(other)))
-        builder.AEM_ROM_REL = os.path.relpath(rom4, ROOT)
+        adp4 = os.path.join(td, "adp_shape_defaults.svh")
+        open(adp4, "w").write(builder.emit_adp_shape_svh(other))
+        builder.ADP_SHAPE_REL = os.path.relpath(adp4, ROOT)
         try:
-            expect_fail("tracked ROM is a DIFFERENT config's than the shape",
-                        lambda: check_tracked_pair(builder, all_configs()))
+            expect_fail(
+                "the tree carries a DIFFERENT config's shape than the one "
+                "being built",
+                lambda: check_built_config(
+                    builder,
+                    os.path.join(CONFIG_DIR, "endstation_ax7101_8x8.yaml")))
         finally:
-            builder.AEM_ROM_REL = keep
+            builder.ADP_SHAPE_REL = keep
+
+    # 4b. and the same file left STALE against its own declared owner: the
+    #     `Source :` marker still names config X while the body is no longer
+    #     what X generates. A shape include that lies about being current is
+    #     worse than one that names nobody.
+    with tempfile.TemporaryDirectory() as td:
+        owner = tracked_owner_cfg(builder, all_configs())
+        if owner is None:
+            raise SystemExit("SELF-TEST SETUP: the tracked shape has no owner")
+        stale = os.path.join(td, "adp_shape_defaults.svh")
+        open(stale, "w").write(mutate(
+            builder.emit_adp_shape_svh(owner),
+            f"ADP_TALKER_SRC_C    = {adp_shape_of(builder, owner)};",
+            f"ADP_TALKER_SRC_C    = {adp_shape_of(builder, owner) + 1};"))
+        builder.ADP_SHAPE_REL = os.path.relpath(stale, ROOT)
+        try:
+            expect_fail("tracked shape is STALE against the config it names",
+                        lambda: check_tracked_shape(builder, all_configs()))
+        finally:
+            builder.ADP_SHAPE_REL = keep
 
     # 5. milan_csr regains a write arm for 0x618
     restore = with_rtl(csr_text=mutate(
@@ -711,10 +760,12 @@ def self_test():
         restore()
 
     # 7. THE VERSION DEFECT ITSELF: the gateware's VERSION moves and the
-    #    entity definition is not regenerated, so the descriptor keeps
-    #    telling controllers the old number. Read the current literal out of
-    #    the RTL rather than naming it - naming it here would be a second
-    #    copy of exactly the constant this gate exists to keep singular.
+    #    descriptor keeps telling controllers the old number. Read the current
+    #    literal out of the RTL rather than naming it - naming it here would
+    #    be a second copy of exactly the constant this gate exists to keep
+    #    singular. The mutation makes the VERSION arm G reads disagree with
+    #    the one the model derived its firmware_version from, which is the
+    #    same divergence in the same field.
     cur = re.search(r"(parameter\s+logic\s*\[31:0\]\s+VERSION\s*=\s*32'h)"
                     r"([0-9A-Fa-f_]+)", base_csr)
     if not cur:
@@ -722,23 +773,20 @@ def self_test():
     restore = with_rtl(csr_text=mutate(
         base_csr, cur.group(0), cur.group(1) + "0002_0003"))
     try:
-        expect_fail("milan_csr VERSION bumped, entity NOT regenerated",
+        expect_fail("milan_csr VERSION moved out from under the entity model",
                     lambda: check_firmware_version(builder))
     finally:
         restore()
 
-    # 8. the stale-golden trap, stated: the ROM is regenerated and the TB
-    #    golden is not. Flip one octet INSIDE the firmware_version field.
-    base_gold = open(AEM_GOLDEN).read()
-    rom_g, dir_g = golden_rom(base_gold)
-    stale = entity_fw_field(rom_g, dir_g, "TB golden")[:1].hex().upper()
-    restore = with_rtl(golden_text=mutate(
-        base_gold, f"0x{stale}", "0x30"))            # '1' -> '0': "0.22.0"
-    try:
-        expect_fail("TB golden not regenerated with the AEM ROM",
-                    lambda: check_firmware_version(builder))
-    finally:
-        restore()
+    # 8. REMOVED, not weakened (2026-08-12): "TB golden not regenerated with
+    #    the AEM ROM". It flipped one octet inside the firmware_version field
+    #    of tb/verilator/aecp/aem_golden.h to prove arm G caught a stale
+    #    golden. That file and the aecp Verilator suite that consumed it are
+    #    DELETED, and so is the tracked ROM it was compared against - there is
+    #    no second on-disk copy of the descriptor bytes left to go stale, so
+    #    the mutation has no subject. Faking one (writing a golden nothing
+    #    reads, just to flip a byte in it) would be a check that proves only
+    #    that this file can write a file.
 
     # 9. a config declaring its own firmware_version - the second answer to
     #    "what version is this", which is the one controllers got for months

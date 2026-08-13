@@ -29,7 +29,11 @@ LAYERS = [
     "802.1Q CBS: credit_based_shaper · traffic_classifier · traffic_class_map ·",
     "            traffic_controller_802_1q · traffic_queues · traffic_shaping_core",
     "PTP: ptp_ts_top · ptp_ts_core · timestamp_counter · ptp_csr_sync",
-    "1722 AVTP: KL_avtp_common_parser   ·   ADP: adp_advertiser · adp_tx_arbiter · KL_adp_parser",
+    "1722 AVTP: KL_avtp_common_parser   ·   adp_tx_arbiter (generic 2-in-1-out AXIS mux)",
+    "control plane: KL_pp_shadow (protocol-processor submodule: ADP · ACMP · SRP · AECP)",
+    "               KL_pp_maap_shim + KL_maap  (MAAP stays in this fabric)",
+    "               AECP uCPU: READ_DESCRIPTOR served from a DRAM image at a",
+    "               compile-time base; every other command = NOT_IMPLEMENTED echo",
     "events: ethernet_events · event_counter"]),
  ("Vendored IP", "FPGA fabric · 3rd-party cores", PURPLE, [
     "NaxRiscv (RV64GC/sv39 CPU, SpinalHDL)   ·   LiteEth (MAC + GMII/RGMII PHY)",

@@ -15,9 +15,10 @@
 //   * module KL_acmp_listener declared in BOTH repositories (MODDUP + 50
 //     PINNOTFOUND once the wrong one won).
 // Under -Wno-fatal Verilator exited 0 on the first and would have built the
-// processor against the consumer's listener. Both are now fixed at the source
-// by namespacing the processor's copies (pp_adp_pkg / pp_acmp_pkg /
-// KL_pp_acmp_listener), not waived.
+// processor against the consumer's listener. Both were fixed at the source by
+// namespacing the processor's copies (pp_adp_pkg / pp_acmp_pkg /
+// KL_pp_acmp_listener), not waived — and the consumer's halves are DELETED
+// now, so the collision set is empty on both sides.
 //
 // Every entry below names ONE rule and ONE file scope, and says why. NOTHING
 // here covers hdl/milan/KL_pp_shadow.sv or this suite's own sources: the RTL
@@ -25,11 +26,13 @@
 // findings the strict build raised against it (a dead pp_tx_data_w net and a
 // missing timescale) were FIXED in the RTL rather than listed here.
 //
-// This suite elaborates the WHOLE datapath (90+ modules) plus the processor
-// submodule plus vendored Forencich cores. The 795 remaining warnings are
-// pre-existing style debt in code this change does not own; driving that to
-// zero is a tree-wide campaign, tracked separately, not a precondition for
-// this suite to tell the truth about the integration.
+// This suite elaborates the WHOLE datapath plus the processor submodule plus
+// vendored Forencich cores, and with the scopes below it currently builds with
+// ZERO warnings and a zero exit - which is what the -Werror posture is for.
+// The scopes cover pre-existing style debt in code this change does not own;
+// driving that to zero is a tree-wide campaign (scripts/lint_rtl.py is its
+// gate), not a precondition for this suite to tell the truth about the
+// integration.
 
 `verilator_config
 
@@ -66,7 +69,13 @@ lint_off -rule UNUSEDPARAM -file "*/protocol-processor/hdl/*"
 lint_off -rule WIDTHEXPAND -file "*/protocol-processor/hdl/*"
 lint_off -rule WIDTHTRUNC -file "*/protocol-processor/hdl/*"
 lint_off -rule PINCONNECTEMPTY -file "*/protocol-processor/hdl/*"
-lint_off -rule PINMISSING -file "*/protocol-processor/hdl/*"
+// PINMISSING IS NOT WAIVED HERE (2026-08-13). It was, tree-wide, and that is
+// precisely what let the nine-port descriptor-memory hole build clean: when
+// KL_aecp_engine grew mem_req_valid_o/mem_req_ready_i/... and
+// protocol_processor_top forwarded them, an instantiation that simply did not
+// mention the new ports elaborated silently with the inputs tied to zero. A
+// missing pin is an UNDRIVEN input dressed as style debt; the whole point of a
+// -Werror suite is that a port added upstream cannot arrive unnoticed.
 lint_off -rule IMPORTSTAR -file "*/protocol-processor/hdl/*"
 lint_off -rule VARHIDDEN -file "*/protocol-processor/hdl/*"
 lint_off -rule TIMESCALEMOD -file "*/protocol-processor/hdl/*"
@@ -94,7 +103,10 @@ lint_off -rule UNUSEDPARAM -file "*/hdl/*"
 lint_off -rule WIDTHEXPAND -file "*/hdl/*"
 lint_off -rule WIDTHTRUNC -file "*/hdl/*"
 lint_off -rule PINCONNECTEMPTY -file "*/hdl/*"
-lint_off -rule PINMISSING -file "*/hdl/*"
+// PINMISSING IS NOT WAIVED HERE either, for the same reason as the processor
+// scope above. The per-file entries further down still carry it for a handful
+// of PRE-EXISTING consumer modules, each named and reasoned; a module that is
+// not on that list must connect every port it declares.
 lint_off -rule IMPORTSTAR -file "*/hdl/*"
 lint_off -rule VARHIDDEN -file "*/hdl/*"
 lint_off -rule TIMESCALEMOD -file "*/hdl/*"
@@ -134,61 +146,114 @@ lint_off -rule SELRANGE -file "*/hdl/*"
 // The entries below stay as a belt-and-braces scope for these pre-existing
 // consumer files; none of them is touched by this change.
 lint_off -rule PINCONNECTEMPTY -file "*axi_stream_if.sv"
-lint_off -rule PINMISSING -file "*axi_stream_if.sv"
 lint_off -rule UNUSEDSIGNAL -file "*axi_stream_if.sv"
 lint_off -rule UNUSEDPARAM -file "*axi_stream_if.sv"
 lint_off -rule PINCONNECTEMPTY -file "*ptp_ts_top.sv"
-lint_off -rule PINMISSING -file "*ptp_ts_top.sv"
 lint_off -rule UNUSEDSIGNAL -file "*ptp_ts_top.sv"
 lint_off -rule UNUSEDPARAM -file "*ptp_ts_top.sv"
 lint_off -rule PINCONNECTEMPTY -file "*ptp_ts_core.sv"
-lint_off -rule PINMISSING -file "*ptp_ts_core.sv"
 lint_off -rule UNUSEDSIGNAL -file "*ptp_ts_core.sv"
 lint_off -rule UNUSEDPARAM -file "*ptp_ts_core.sv"
 lint_off -rule PINCONNECTEMPTY -file "*ethernet_events.sv"
-lint_off -rule PINMISSING -file "*ethernet_events.sv"
 lint_off -rule UNUSEDSIGNAL -file "*ethernet_events.sv"
 lint_off -rule UNUSEDPARAM -file "*ethernet_events.sv"
 lint_off -rule PINCONNECTEMPTY -file "*milan_datapath.sv"
-lint_off -rule PINMISSING -file "*milan_datapath.sv"
 lint_off -rule UNUSEDSIGNAL -file "*milan_datapath.sv"
 lint_off -rule UNUSEDPARAM -file "*milan_datapath.sv"
 lint_off -rule PINCONNECTEMPTY -file "*milan_csr.sv"
-lint_off -rule PINMISSING -file "*milan_csr.sv"
 lint_off -rule UNUSEDSIGNAL -file "*milan_csr.sv"
 lint_off -rule UNUSEDPARAM -file "*milan_csr.sv"
 lint_off -rule PINCONNECTEMPTY -file "*KL_media_clock_restart.sv"
-lint_off -rule PINMISSING -file "*KL_media_clock_restart.sv"
 lint_off -rule UNUSEDSIGNAL -file "*KL_media_clock_restart.sv"
 lint_off -rule UNUSEDPARAM -file "*KL_media_clock_restart.sv"
 lint_off -rule PINCONNECTEMPTY -file "*KL_talker_diag_ctx.sv"
-lint_off -rule PINMISSING -file "*KL_talker_diag_ctx.sv"
 lint_off -rule UNUSEDSIGNAL -file "*KL_talker_diag_ctx.sv"
 lint_off -rule UNUSEDPARAM -file "*KL_talker_diag_ctx.sv"
 lint_off -rule PINCONNECTEMPTY -file "*KL_pair_zero_fill.sv"
-lint_off -rule PINMISSING -file "*KL_pair_zero_fill.sv"
 lint_off -rule UNUSEDSIGNAL -file "*KL_pair_zero_fill.sv"
 lint_off -rule UNUSEDPARAM -file "*KL_pair_zero_fill.sv"
 lint_off -rule PINCONNECTEMPTY -file "*KL_pair_blend.sv"
-lint_off -rule PINMISSING -file "*KL_pair_blend.sv"
 lint_off -rule UNUSEDSIGNAL -file "*KL_pair_blend.sv"
 lint_off -rule UNUSEDPARAM -file "*KL_pair_blend.sv"
-lint_off -rule PINCONNECTEMPTY -file "*adp_pkg.sv"
-lint_off -rule PINMISSING -file "*adp_pkg.sv"
-lint_off -rule UNUSEDSIGNAL -file "*adp_pkg.sv"
-lint_off -rule UNUSEDPARAM -file "*adp_pkg.sv"
+// PRUNED 2026-08-13: the four *adp_pkg.sv entries. hdl/ieee17221/adp/adp_pkg.sv
+// is DELETED with the legacy ADP advertiser, and the processor's copy is
+// pp_adp_pkg.sv, which the "*/protocol-processor/hdl/*" scope above already
+// covers. A waiver naming a file that cannot be in the build is a line nobody
+// can ever evaluate.
 lint_off -rule PINCONNECTEMPTY -file "*protocol_processor_top.sv"
-lint_off -rule PINMISSING -file "*protocol_processor_top.sv"
 lint_off -rule UNUSEDSIGNAL -file "*protocol_processor_top.sv"
 lint_off -rule UNUSEDPARAM -file "*protocol_processor_top.sv"
 lint_off -rule PINCONNECTEMPTY -file "*KL_mrp_strip.sv"
-lint_off -rule PINMISSING -file "*KL_mrp_strip.sv"
 lint_off -rule UNUSEDSIGNAL -file "*KL_mrp_strip.sv"
 lint_off -rule UNUSEDPARAM -file "*KL_mrp_strip.sv"
 
 // ---------------------------------------------------------------------------
-// hdl/milan/KL_pp_shadow.sv — THIS change's RTL. Exactly two waivers, both
-// naming a specific rule, and neither hiding a defect:
+// PINMISSING, SCOPED TO THE TWO FILES THAT EARN IT (2026-08-13, replacing the
+// two blanket `*/hdl/*` and `*/protocol-processor/hdl/*` entries).
+//
+// THE FINDING IN BOTH: `interface axi_stream_if` declares an `(input bit clk,
+// input bit rst_n)` port pair (hdl/common/axi_stream_if.sv:28-29) that NOTHING
+// inside the interface body ever references — it carries signals and modports
+// only. All 28 instantiations in hdl/ therefore declare it as `axi_stream_if
+// #(...) name();` and leave the vestigial pair unconnected. Three of those
+// sites are inside modules this suite elaborates and are not already covered by
+// a per-file entry above:
+//   traffic_classifier.sv:75          m_axis_fifo
+//   traffic_controller_802_1q.sv:74   classifier_to_queue
+//   traffic_controller_802_1q.sv:76   queue_to_shaper
+// Two warnings each (clk, rst_n) = the 6 findings.
+//
+// WHY THIS IS SAFE AND A MISSING MODULE PIN IS NOT: an unconnected INTERFACE
+// port that the interface body never reads cannot tie a live input to zero —
+// there is no input. The real fix is to delete the pair from axi_stream_if.sv,
+// which is a tree-wide edit across 28 call sites in RTL this suite does not
+// own; scripts/lint_rtl.py is that campaign's gate. Scoped here so that the
+// same rule still BITES on every other file in the build, which is the whole
+// reason the blanket entries came out.
+
+// ---------------------------------------------------------------------------
+// PINMISSING, SCOPED TO THE FILE *AND* THE MESSAGE THAT EARN IT (2026-08-13,
+// replacing the two blanket `*/hdl/*` and `*/protocol-processor/hdl/*` entries
+// AND the eleven per-file entries that used to sit alongside them).
+//
+// THE FINDING, AND IT IS ONE FINDING REPEATED 22 TIMES: `interface
+// axi_stream_if` declares an `(input bit clk, input bit rst_n)` port pair
+// (hdl/common/axi_stream_if.sv:28-29) that NOTHING inside the interface body
+// ever references — it carries signals and modports only. All 28
+// instantiations in hdl/ therefore write `axi_stream_if #(...) name();` and
+// leave the vestigial pair unconnected. Four files in this build contain such
+// an instantiation: milan_datapath.sv (8), ptp_ts_top.sv (9),
+// traffic_controller_802_1q.sv (2) and traffic_classifier.sv (1).
+//
+// WHY `-match` AND NOT `-file` ALONE — this is the whole point of the change.
+// A bare `-file "*milan_datapath.sv"` also silences a REAL missing pin in the
+// one file most likely to grow one: it instantiates KL_pp_shadow, and the nine
+// `desc_mem_*` ports the AECP descriptor store needs arrived on that
+// instantiation this round. A missing pin is an UNDRIVEN input dressed as
+// style debt, and a blanket waiver for it is exactly how a port added upstream
+// arrives unnoticed. `-match` pins each waiver to the two port NAMES of the
+// vestigial interface pair, so a missing `desc_mem_req_ready` — or any other
+// omitted pin, in any file including these four — still stops the build.
+// Verified: a module instantiation omitting `desc_mem_req_ready` raises
+// PINMISSING with this exact waiver file in place.
+//
+// The real fix is deleting the pair from axi_stream_if.sv: a 28-call-site edit
+// in RTL this suite does not own, gated by scripts/lint_rtl.py.
+lint_off -rule PINMISSING -file "*milan_datapath.sv"           -match "*missing pin: 'clk'*"
+lint_off -rule PINMISSING -file "*milan_datapath.sv"           -match "*missing pin: 'rst_n'*"
+lint_off -rule PINMISSING -file "*traffic_classifier.sv"        -match "*missing pin: 'clk'*"
+lint_off -rule PINMISSING -file "*traffic_classifier.sv"        -match "*missing pin: 'rst_n'*"
+lint_off -rule PINMISSING -file "*traffic_controller_802_1q.sv" -match "*missing pin: 'clk'*"
+lint_off -rule PINMISSING -file "*traffic_controller_802_1q.sv" -match "*missing pin: 'rst_n'*"
+lint_off -rule PINMISSING -file "*ptp_ts_top.sv"                -match "*missing pin: 'clk'*"
+lint_off -rule PINMISSING -file "*ptp_ts_top.sv"                -match "*missing pin: 'rst_n'*"
+
+// ---------------------------------------------------------------------------
+// hdl/milan/KL_pp_shadow.sv — THE SUBSTITUTION'S OWN RTL. Exactly two waivers,
+// both naming a specific rule, and neither hiding a defect. Nothing was added
+// here for the 2026-08-13 substitution round: the strict build raised no new
+// finding against this file when tx_drain_i went to 0 and its packed TX joined
+// ctl_tx_mux.
 // ---------------------------------------------------------------------------
 // Unused OUTPUTS are marked by an explicit empty connection rather than by
 // omitting the pin. The alternative (leave the port off the instantiation)

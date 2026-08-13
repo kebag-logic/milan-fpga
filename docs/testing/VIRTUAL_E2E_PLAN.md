@@ -39,7 +39,7 @@ virtual system with the *real* rootfs and the *real* `S50milan` against the
 *real* `milan_datapath` RTL catches all five mechanically, on every commit.
 
 The same tier is the only realistic way the saved-state fast-connect **reboot
-drill** ([SAVED_STATE_FASTCONNECT](../design/SAVED_STATE_FASTCONNECT.md) §11, gates G0-G2: partition
+drill** (the saved-state fast-connect design record was deleted 2026-08-13 with the persistence engine; **nothing in this device restores a binding across a power cycle** now — gates G0-G2: partition
 appears, journal restores, binds survive a power cycle) ever becomes CI
 instead of a bench ritual.
 
@@ -72,8 +72,8 @@ BIOS, a virtual ethernet (LiteX sim ethernet / TAP), and assertions over the
 CSR end-state after `S50milan` runs. Known fight: Linux-boot wall-clock in a
 cycle-accurate simulation; if it lands under ~15 min it can gate per-PR,
 otherwise nightly. Zero new toolchain, and the module-level socket-bridge
-pattern ([`../../scripts/run-dut-sim.sh`](../../scripts/run-dut-sim.sh),
-[`../../Containerfile.dut-sim`](../../Containerfile.dut-sim)) shows the
+pattern (scripts/run-dut-sim.sh and Containerfile.dut-sim, both deleted
+2026-08-13 with the AECP simulation harness they launched) showed the
 container discipline to reuse.
 
 **B. Renode with a verilated `milan_datapath` — the multi-machine end game.**

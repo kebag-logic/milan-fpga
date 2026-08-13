@@ -18,25 +18,24 @@ export PATH="$HOME/.local/bin:$PATH"
 R="$(cd "$(dirname "$0")/../.." && pwd)"
 A="$R/third_party/verilog-axis/rtl"
 C="$R/hdl/common"; Q="$R/hdl/ieee8021q/ts"; P="$R/hdl/ieee8021as/ptp_timestamp"
-E="$R/hdl/common/eth_event_counter"; D="$R/hdl/ieee17221/adp"; K="$R/hdl/ieee17221/aecp"; M="$R/hdl/ieee17221/acmp"
-S="$R/hdl/ieee8021q/srp"; F="$R/hdl/ieee8021q/filtering"
-INC="-DSYNTHESIS -I $R/hdl/common -I $R/hdl/common/csr -I $Q -I $E -I $D -I $P -I $K -I $K/gen"
+E="$R/hdl/common/eth_event_counter"; D="$R/hdl/ieee17221/adp"
+F="$R/hdl/ieee8021q/filtering"
+INC="-DSYNTHESIS -I $R/hdl/common -I $R/hdl/common/csr -I $Q -I $E -I $D -I $P"
 SYNTH="${YOSYS_SYNTH:-synth}"           # generic 'synth' = device-independent
 TMP="$(mktemp -d)"
 
-AECP_SRCS="$K/aecp_pkg.sv $K/KL_aecp_ingress.sv $K/KL_aecp_packet_validator.sv $K/KL_aecp_common_parser.sv $K/KL_aecp_l0_state.sv $K/KL_aecp_timers.sv $K/KL_aecp_accessor.sv $K/KL_aecp_aem_store.sv $K/KL_aem_patch.sv $K/KL_aecp_aem_dyn_mux.sv $K/KL_aecp_response_builder.sv $K/KL_aecp_top.sv"
-LWSRP_SRCS="$S/lwsrp_pkg.sv $S/KL_lwsrp_timers.sv $S/KL_lwsrp_tx.sv $S/KL_lwsrp_ingress.sv $S/KL_lwsrp_walker.sv $S/KL_lwsrp_registrar.sv $S/KL_lwsrp_ta_registrar.sv $S/KL_lwsrp_rx.sv $S/KL_lwsrp_bw_gate.sv $S/KL_lwsrp_ctx.sv $S/KL_lwsrp_ctx_tx.sv $S/KL_lwsrp_top.sv"
-
-# The protocol-processor submodule, as the consumer instantiates it through
-# KL_pp_shadow. This top is the ONLY place the processor meets the open
-# toolchain here, and it is deliberately its OWN entry rather than a part of
-# milan_datapath: the plane is behind PP_PLANE_P (default 0), so the datapath
-# top does not instantiate it, AND the processor declares adp_pkg/acmp_pkg —
-# package names this repository also uses, with different contents. Each tops[]
-# entry gets an isolated source list, so listing it separately is what keeps
-# those two package sets from ever meeting in one compilation unit.
+# THE PROTOCOL PROCESSOR IS THE CONTROL PLANE (scenario B, 2026-08-13). It used
+# to be a shadow plane behind PP_PLANE_P, which is why this list was once an
+# ISLAND: the datapath did not instantiate it, and the submodule's
+# adp_pkg/acmp_pkg would have collided with this repository's same-named
+# packages in one compilation unit. Both reasons are gone - the legacy
+# 1722.1/SRP plane is deleted, the submodule's packages are namespaced
+# pp_adp_pkg/pp_acmp_pkg, and milan_datapath instantiates KL_pp_shadow
+# unconditionally - so this variable now feeds BOTH the standalone KL_pp_shadow
+# top and the milan_datapath entry. Packages first: their importers follow.
+# Order mirrors tb/verilator/milan_dp/Makefile's PP_SRCS.
 PP="$R/protocol-processor/hdl"
-PP_SRCS="$PP/common/pp_pkg.sv $PP/srp/srp_pkg.sv $PP/acmp/pp_acmp_pkg.sv $PP/adp/pp_adp_pkg.sv $PP/common/KL_pp_prng.sv $PP/common/KL_pp_timer_service.sv $PP/packet_engine/KL_pp_rx_validator.sv $PP/packet_engine/KL_pp_rx_slots.sv $PP/packet_engine/KL_pp_normalizer.sv $PP/packet_engine/KL_pp_dispatch.sv $PP/packet_engine/KL_pp_tx_slots.sv $PP/packet_engine/KL_pp_tx_arbiter.sv $PP/packet_engine/KL_pp_scoreboard.sv $PP/packet_engine/KL_pp_event_router.sv $PP/packet_engine/KL_pp_originator.sv $PP/packet_engine/KL_pp_trace_ring.sv $PP/packet_engine/KL_pp_side_port.sv $PP/packet_engine/KL_pp_nvm_port.sv $PP/adp/KL_adp_engine.sv $PP/acmp/KL_pp_acmp_listener.sv $PP/acmp/KL_acmp_talker.sv $PP/acmp/KL_acmp_nvm_shadow.sv $PP/srp/KL_srp_decoder.sv $PP/srp/KL_srp_domain.sv $PP/srp/KL_srp_vlan.sv $PP/srp/KL_srp_admission.sv $PP/srp/KL_srp_talker_fsm.sv $PP/srp/KL_srp_listener_fsm.sv $PP/srp/KL_srp_encoder.sv $PP/srp/KL_srp_top.sv $PP/top/KL_mrp_strip.sv $PP/top/protocol_processor_top.sv $R/hdl/milan/KL_pp_shadow.sv"
+PP_SRCS="$PP/common/pp_pkg.sv $PP/srp/srp_pkg.sv $PP/acmp/pp_acmp_pkg.sv $PP/adp/pp_adp_pkg.sv $PP/common/KL_pp_prng.sv $PP/common/KL_pp_timer_service.sv $PP/packet_engine/KL_pp_rx_validator.sv $PP/packet_engine/KL_pp_rx_slots.sv $PP/packet_engine/KL_pp_normalizer.sv $PP/packet_engine/KL_pp_dispatch.sv $PP/packet_engine/KL_pp_tx_slots.sv $PP/packet_engine/KL_pp_tx_arbiter.sv $PP/packet_engine/KL_pp_scoreboard.sv $PP/packet_engine/KL_pp_event_router.sv $PP/packet_engine/KL_pp_originator.sv $PP/packet_engine/KL_pp_trace_ring.sv $PP/packet_engine/KL_pp_side_port.sv $PP/packet_engine/KL_pp_nvm_port.sv $PP/adp/KL_adp_engine.sv $PP/acmp/KL_pp_acmp_listener.sv $PP/acmp/KL_acmp_talker.sv $PP/acmp/KL_acmp_nvm_shadow.sv $PP/srp/KL_srp_decoder.sv $PP/srp/KL_srp_domain.sv $PP/srp/KL_srp_vlan.sv $PP/srp/KL_srp_admission.sv $PP/srp/KL_srp_talker_fsm.sv $PP/srp/KL_srp_listener_fsm.sv $PP/srp/KL_srp_encoder.sv $PP/srp/KL_srp_top.sv $PP/aecp/ucpu_pkg.sv $PP/aecp/KL_aecp_ucpu.sv $PP/aecp/KL_aecp_desc_store.sv $PP/aecp/KL_aecp_engine.sv $PP/top/KL_mrp_strip.sv $PP/top/protocol_processor_top.sv $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
 
 for t in sv2v yosys; do command -v $t >/dev/null || { echo "missing tool: $t (see syn/yosys/README.md)"; exit 2; }; done
 
@@ -51,6 +50,10 @@ for t in sv2v yosys; do command -v $t >/dev/null || { echo "missing tool: $t (se
 if [ -f "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" ]; then
   python3 "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" -o ltn_rom.hex >/dev/null 2>&1 || true
 fi
+# ...and the AECP uCPU microcode image, same relative-$readmemh contract.
+if [ -f "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" ]; then
+  python3 "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" -o ucode.hex >/dev/null 2>&1 || true
+fi
 
 # top | source files (interface modules go through their flat wrapper)
 tops=(
@@ -58,14 +61,8 @@ tops=(
   "cdc_pulse|$C/cdc_pulse.sv"
   "cdc_handshake|$C/cdc_handshake.sv"
   "adp_tx_arbiter|$D/adp_tx_arbiter.sv"
-  "adp_advertiser|$D/adp_pkg.sv $D/adp_advertiser.sv"
   "rx_mac_filter|$F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv"
   "milan_csr|$R/hdl/common/csr/milan_csr.sv"
-  "KL_acmp_tlkr_ctx|$M/acmp_pkg.sv $M/KL_acmp_tlkr_ctx.sv"
-  "KL_acmp_lstn_ctx|$M/acmp_pkg.sv $M/KL_acmp_lstn_ctx.sv"
-  "KL_acmp_responder|$M/acmp_pkg.sv $M/KL_acmp_tlkr_ctx.sv $M/KL_acmp_responder.sv"
-  "KL_acmp_listener|$M/acmp_pkg.sv $M/KL_acmp_lstn_ctx.sv $M/KL_acmp_listener.sv"
-  "KL_persist_journal|$K/KL_persist_journal.sv"
   "KL_avtp_rx_monitor|$R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv"
   "KL_stream_table|$R/hdl/ieee1722/avtp/KL_stream_table.sv"
   "avtp_stream_parser|$C/ethernet_packet_pkg.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv"
@@ -95,8 +92,6 @@ tops=(
   "KL_pcm_tx|$R/hdl/ieee1722/aaf/KL_pcm_tx.sv"
   "KL_tone_gen|$R/hdl/ieee1722/aaf/KL_tone_gen.sv"
   "KL_aaf_rx_depacketizer|$A/axis_fifo.v $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv"
-  "KL_lwsrp_top|$A/axis_fifo.v $LWSRP_SRCS"
-  "KL_aecp_top|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $AECP_SRCS"
   "credit_based_shaper|$C/ethernet_packet_pkg.sv $Q/credit_based_shaper.sv"
   "timestamp_counter|$P/timestamp_counter.sv"
   "KL_ptp_clock_validity|$P/KL_ptp_clock_validity.sv"
@@ -115,7 +110,7 @@ tops=(
   "axis_fifo|$A/axis_fifo.v"
   "axis_demux|$A/axis_demux.v"
   "axis_arb_mux|$A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v"
-  "milan_datapath|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $P/KL_ptp_clock_validity.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $AECP_SRCS $M/acmp_pkg.sv $M/KL_acmp_tlkr_ctx.sv $M/KL_acmp_responder.sv $M/KL_acmp_lstn_ctx.sv $M/KL_acmp_listener.sv $LWSRP_SRCS $D/adp_advertiser.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_pcm_tx.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/ieee17221/aecp/KL_persist_journal.sv $R/hdl/ieee1722/avtp/KL_media_clock_restart.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/milan/milan_datapath.sv"
+  "milan_datapath|$PP_SRCS $C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $P/KL_ptp_clock_validity.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_pcm_tx.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/ieee1722/avtp/KL_media_clock_restart.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/milan/milan_datapath.sv"
 )
 
 echo "== Yosys open-synthesis check ($SYNTH, via sv2v) =="

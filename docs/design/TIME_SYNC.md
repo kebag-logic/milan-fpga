@@ -224,7 +224,9 @@ The split is deliberate and normative
 | dma-ts ring + kl-eth | fabric + driver | records to DRAM; `/dev/ptp0` clock ops; `SO_TIMESTAMPING` |
 | `ptp4l` | softcore | BMCA, Announce/Sync/Pdelay state machines, the clock servo |
 | `phc2sys` | softcore | PHC -> `CLOCK_REALTIME` |
-| `gptp2csr.sh` | softcore daemon | publishes gPTP state into fabric CSRs: GM id 0x624/0x628 (the LOCAL clock id when we are GM), measured pdelay 0x6E4, AS_PATH parent bridge 0x730/0x734 from `PARENT_DATA_SET` — so ADP/AEM answer with wire truth ([`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 8) — **and since 2026-07-28 leases the AVTP `tu` sync claim into `CLKV_CTRL` 0x778**, because whether the PHC is disciplined is a servo fact no fabric signal can observe. It is a *lease*, renewed every loop and expiring by itself, so a claim cannot outlive the daemon that made it. Until this existed both boards emitted `tu = 1` on every AAF and CRF frame from boot while genuinely synchronised — see [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) `0x778` |
+| `gptp2csr.sh` | softcore daemon | publishes gPTP state into fabric CSRs: GM id 0x624/0x628 (the LOCAL clock id when we are GM), measured pdelay 0x6E4, AS_PATH parent bridge 0x730/0x734 from `PARENT_DATA_SET` — so ADP answers with wire truth (the AEM half of that
+sentence is retired: the entity model is now a static descriptor image in DRAM
+and no daemon writes into it) ([`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 8) — **and since 2026-07-28 leases the AVTP `tu` sync claim into `CLKV_CTRL` 0x778**, because whether the PHC is disciplined is a servo fact no fabric signal can observe. It is a *lease*, renewed every loop and expiring by itself, so a claim cannot outlive the daemon that made it. Until this existed both boards emitted `tu = 1` on every AAF and CRF frame from boot while genuinely synchronised — see [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) `0x778` |
 | `stream_phc_sync.sh` | softcore daemon | media/PHC watchdog; dormant while `ptp4l` holds SLAVE or MASTER |
 
 The fabric never builds a PTP message (row AS-10 marks that N/A for RTL);
@@ -345,14 +347,41 @@ interval/type increments `fmt_err`) and produces the two servo inputs:
   the exact placer-overflow victim of the first 8×8+chmap build;
 * **lock**: 8 clean consecutive PDUs to lock, 100 ms of silence (or a
   validation error) to unlock — mirroring the AAF media-lock contract —
-  with lock/unlock event counters feeding CLOCK_DOMAIN GET_COUNTERS when
-  `clock_source` = CRF.
+  with lock/unlock event counters that used to feed CLOCK_DOMAIN GET_COUNTERS
+  when `clock_source` = CRF. **`GET_COUNTERS` is not implemented (2026-08-13)**
+  — the fabric engine that served it is deleted and the protocol processor's
+  AECP µCPU answers the opcode with a conformant `NOT_IMPLEMENTED` echo, which
+  returns no counters. So those counters are readable only through the CSR
+  window now: no controller can fetch them, and there is no Milan Table 5.22
+  unsolicited push to carry them either (that lane has no producer at all).
 
 The followed stream comes from the CRF sink bind (ACMP listener sink 1 —
 the bind wins) with the CSR pair 0x738/0x73C/0x740 as the manual bench
 lever (`milan_datapath.sv`, `crf_rx` instance).
 
 ### 3.4 The MMCM-DRP servo — `KL_mmcm_drp_servo` (MCSRV 0x8F8/0x8FC)
+
+> 🔴 **THIS SERVO IS STRUCTURALLY OFF SINCE 2026-08-13, AND SO IS THE
+> PACKET-GRID NCO SERVO.** Both engage only when the live CLOCK_DOMAIN
+> `clock_source_index` selects the CRF descriptor, and AECP `SET_CLOCK_SOURCE`
+> was the **only** writer of that index. The fabric AECP/AEM engine that
+> implemented it is deleted (see the status block at the top of
+> [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md)), and the
+> protocol processor's AECP µCPU — which has landed, and does answer
+> `READ_DESCRIPTOR` — did **not** reimplement `SET_CLOCK_SOURCE`. A controller
+> sending it gets a conformant `NOT_IMPLEMENTED` echo: a well-formed answer
+> that writes no index. Read no comfort into the echo. The selection is pinned
+> at index 0 — the INTERNAL media clock — for the life of the build
+> (`milan_datapath`'s `CRF_CLK_SELECTED_C`), and **the CRF media clock can
+> never be selected**.
+>
+> Everything upstream of the actuator still works: `KL_crf_rx` parses, locks,
+> counts and reports, and the CSR group at `0x738` measures a real recovered
+> clock. What no longer exists is any path from that measurement to the audio
+> MMCM or the packet grid. `A_MCSRV_STAT` `0x8F8` reads state IDLE with trim 0
+> forever, and the loop described below cannot close on this build. It is
+> documented in full because the RTL is still in the tree and the loop is the
+> specification the selection mechanism must be restored against.
 
 [`hdl/ieee1722/crf/KL_mmcm_drp_servo.sv`](../../hdl/ieee1722/crf/KL_mmcm_drp_servo.sv) closes the loop when
 `clock_source == 2` (the CRF CLOCK_SOURCE descriptor); in every other mode
@@ -472,7 +501,7 @@ section 8 remains the bench-side reading of the daemon-written ones.
 | `0x530/0x534` | `PTP_TOD_RD_LO/HI` | latched TOD from the snapshot round trip |
 | `0x540` | `PTP_INGRESS_LAT` | ingress latency correction, ns (fabric hook — unused today, section 2.4) |
 | `0x544` | `PTP_EGRESS_LAT` | egress latency correction, ns (same status) |
-| `0x624/0x628` | `ADP_GPTP_GM_LO/HI` | gptp_grandmaster_id published into ADP/AEM (`gptp2csr.sh`) |
+| `0x624/0x628` | `ADP_GPTP_GM_LO/HI` | gptp_grandmaster_id published into ADP (`gptp2csr.sh`); the AEM path is gone — the entity model is a DRAM descriptor image, not a CSR-fed store |
 | `0x62C` | `ADP_GPTP_DOMAIN` | `[7:0]` gptp_domain_number |
 | `0x6C8` | `PCMRX_TS` | avtp_timestamp of the last ring-accepted PDU |
 | `0x6E4` | `A_GPTP_PDELAY` | measured neighbor propagation delay, ns (daemon-written) |

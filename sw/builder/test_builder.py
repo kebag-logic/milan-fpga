@@ -33,18 +33,21 @@ Gates (gaps item 4, generator round):
       sweep.sh and both fragments;
   10. gen_aem_store.py CONSUMES the OWNING config's overlay (--overlay,
       subprocess) and the generated aecp_aem_rom.svh is byte-identical to
-      the tracked hdl/ieee17221/aecp/gen/aecp_aem_rom.svh - THE key
-      no-regression gate.  WHICH config owns the tracked ROM is READ FROM
-      THE TREE (the shape include's `Source :` marker, via
-      check_entity_shape.tracked_owner - the same single reader its check E
-      uses), never assumed: `--write-rtl <cfg>` installs the pair for
-      whichever config it is handed, and a gate that hardcoded
-      endstation_arty_current went red for every other owner, which blocked
-      any other shape from being written into the tree at all.  The gate
-      ships its own mutations (cross-config ROM, forged marker, unowned
-      marker, a one-field ROM edit) so "follows the owner" cannot decay into
-      "accepts anything".  The default (no-overlay) builtin path is a
-      SEPARATE property - that model is arty_current's, hand-written in
+      the builder's OWN in-memory emit_aem_rom_svh() - the CLI and the
+      library are one generator reached two ways and must not drift.  WHICH
+      config owns the tracked definition is READ FROM THE TREE (the shape
+      include's `Source :` marker, via check_entity_shape.tracked_owner -
+      the same single reader its check E uses), never assumed: `--write-rtl
+      <cfg>` installs it for whichever config it is handed, and a gate that
+      hardcoded endstation_arty_current went red for every other owner,
+      which blocked any other shape from being written into the tree at all.
+      The gate also asserts the CLI writes into no RTL destination.
+      COMPARAND CHANGED 2026-08-12: it used to be the TRACKED
+      hdl/ieee17221/aecp/gen/aecp_aem_rom.svh, which made this the staleness
+      gate for the shipped descriptor set; that file and the whole AECP
+      plane that compiled it are deleted, so both sides are generated now
+      and no on-disk ROM is asserted about.  The builtin (no-overlay) model
+      is a SEPARATE property - that model is arty_current's, hand-written in
       gen_aem_store.py and pinned there by gate 3 - so it is compared
       against arty_current's overlay-built ROM, which does not move when the
       tracked owner does;
@@ -88,17 +91,22 @@ Gates (gaps item 4, generator round):
       the generated LWSRP_*_RST_C symbol -> milan_csr's reset block ->
       milan_csr's csr_default readback table -> the REGISTER_MAP Reset
       column (all parsed at test time);
-  18b. the emitted SR-class / MRP-timer / bandwidth constants equal the
-      lwsrp_pkg.sv localparams, the PriorityAndRank byte milan_csr drives
-      onto o_srp_ctx_prio_rank, and the KL_lwsrp_bw_gate 75%-ceiling literals;
-      the tracked hdl/ieee8021q/srp/gen/lwsrp_table.svh regenerates
-      BYTE-IDENTICALLY (the staleness gate);
+  18b. Milan 4.3.3.2's bandwidth recipe composes to the clause's kb/s (the
+      clamped CRF row, an unclamped 4ch AAF row, and the step-2 clamp), and
+      the PriorityAndRank byte reaches milan_csr's o_srp_ctx_prio_rank
+      through the generated lwsrp_csr_defaults.svh.  SHRUNK 2026-08-12: the
+      ten emitted-vs-lwsrp_pkg.sv comparisons, the KL_lwsrp_bw_gate
+      75%-ceiling literals and the tracked lwsrp_table.svh staleness check
+      are REMOVED - hdl/ieee8021q/srp/** is deleted, so all three comparands
+      are gone.  They are not restated against the builder's own constants,
+      which would compare a value to itself;
   18c. TSpec derivation anchored in the RTL frame geometry (KL_aaf_packetizer
       SAMPLES_PER_FRAME_C + its documented 42+24*C / 90-byte identities),
-      idleSlope == the bw_gate formula, module params == what milan_datapath
-      passes (N_CTX_P = N_STREAMS, bw_gate width = N_CTX_P, NUM_QUEUES ==
-      ethernet_packet_pkg), and the NxN ctx-row shortfall (L+T-1 rows in
-      max(L,T) contexts) surfaces as a planned mark;
+      NUM_QUEUES == ethernet_packet_pkg, milan_datapath's SRP row-map
+      localparams still derived from the generated shape, and the ctx-row
+      arithmetic covering every attribute row.  SHRUNK 2026-08-12: the
+      KL_lwsrp_top instantiation and bw_gate-width assertions are REMOVED -
+      milan_datapath instantiates no lwSRP engine and the modules are gone;
   18d. reject paths: class B, VID 0/4095, class_queue 8, a unicast stream
       DMAC, an unknown TSpec policy and an over-subscribed class-A
       reservation all raise ConfigError;
@@ -121,10 +129,15 @@ Gates (gaps item 4, generator round):
       0x680 literals. The tracked header regenerates byte-identically, every
       emitted word equals the FROZEN pre-switch literal (so the switch is a
       provable zero-change refactor), no 0x680 literal survives in the RTL,
-      the CSR subset agrees word-for-word with lwsrp_table.svh, and every
-      flow that compiles milan_csr.sv carries hdl/common/csr as an include
-      dir (Verilator resolves `include against -I/+incdir and the CWD only,
-      never against the including file's directory);
+      the CSR subset agrees word-for-word with the EMITTED lwSRP table (the
+      tracked hdl/ieee8021q/srp/gen/lwsrp_table.svh comparand is deleted with
+      the srp tree, so the two emitters are compared instead of two files),
+      and every flow that compiles milan_csr.sv carries hdl/common/csr as an
+      include dir (Verilator resolves `include against -I/+incdir and the CWD
+      only, never against the including file's directory).  NOTE the 0x680
+      registers no longer DRIVE anything - the applicant is deleted and the
+      group survives as a software-visible ABI, which is why a wrong reset
+      word is still a wrong readback and still gated;
   20b. reject paths for the newly RTL-consumed word: a non-boolean
       enable_at_reset / talker_declare_at_reset (2 << 1 used to land silently
       in class_queue[0]) or rtl_table raises ConfigError;
@@ -172,9 +185,12 @@ CONFIGS = {
 }
 OUT = os.path.join(HERE, "out")
 SWEEP = os.path.join(ROOT, "sw/litex/sweep.sh")
-#: The TRACKED entity definition - the pair a gateware `include-s.  Paths come
-#: from the builder that writes them, so there is one spelling of each.
-TRACKED_SVH = os.path.join(ROOT, eb.AEM_ROM_REL)
+#: The TRACKED entity definition - now ONE file, the shape include a gateware
+#: `include-s.  Path comes from the builder that writes it, so there is one
+#: spelling of it.  Its old partner hdl/ieee17221/aecp/gen/aecp_aem_rom.svh is
+#: DELETED with the AECP plane: the descriptor ROM has no RTL destination any
+#: more, so every gate that used to compare against a tracked ROM now compares
+#: generated text against generated text (see gates 10/17/24d).
 TRACKED_ADP_SVH = os.path.join(ROOT, eb.ADP_SHAPE_REL)
 
 # Flow flags: sweep.sh mechanics, never part of the end-station definition.
@@ -804,30 +820,49 @@ def _tracked_owner_config():
 
 
 def test_gen_aem_store_consumes_overlay():
+    """Gate 10: the overlay -> gen_aem_store path is byte-stable.
+
+    WHAT MOVED (2026-08-12).  The comparand used to be the TRACKED ROM
+    hdl/ieee17221/aecp/gen/aecp_aem_rom.svh - the descriptor set a build
+    `include-d - which made this the staleness gate for the shipped entity.
+    That file and the whole AECP plane that compiled it are deleted, so the
+    property left is the one that is still true and still worth holding: the
+    builder's IN-MEMORY emit_aem_rom_svh() and the gen_aem_store CLI are the
+    same generator reached two ways, and the CLI must not drift away from the
+    library the builder calls.  Both comparands are generated; nothing on
+    disk is asserted about, because there is nothing on disk to assert."""
     owner, owner_path = _tracked_owner_config()
     r = eb.build(owner_path, OUT)
-    tracked = open(TRACKED_SVH, "rb").read()
     with tempfile.TemporaryDirectory() as td:
-        # THE key no-regression gate: builder overlay -> gen_aem_store ->
-        # byte-identical ROM svh for the shape the tree actually carries
         subprocess.run(
             [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
              "--overlay", r["paths"]["aem_overlay"], "--out-dir", td],
             check=True, capture_output=True)
         got = open(os.path.join(td, "aecp_aem_rom.svh"), "rb").read()
-        assert got == tracked, (
-            "overlay-built aecp_aem_rom.svh differs from the tracked ROM "
-            f"({len(got)} vs {len(tracked)} bytes) for its OWN source config "
-            f"{owner} - the tracked pair is internally inconsistent")
+        want = r["aem_rom_svh"].encode()
+        assert got == want, (
+            "the gen_aem_store CLI and the builder's own emit_aem_rom_svh() "
+            f"disagree for {owner} ({len(got)} vs {len(want)} bytes) - one of "
+            "the two paths through the SAME generator has regressed")
+        # ...and the CLI writes NOTHING into a deleted RTL destination. A
+        # generator that recreates hdl/ieee17221/aecp/gen/ is how a directory
+        # nobody compiles comes back and starts looking authoritative.
+        assert not os.path.exists(
+            os.path.join(ROOT, "hdl/ieee17221/aecp")), \
+            "gen_aem_store recreated hdl/ieee17221/aecp - the AECP plane is " \
+            "deleted and nothing may write into it"
+        assert sorted(os.listdir(td)) == ["aecp_aem_rom.svh", "aem_rom.json"], \
+            f"--out-dir emitted unexpected files: {sorted(os.listdir(td))}"
         print(f"  [gate 10] {owner} overlay -> gen_aem_store --overlay: "
-              f"svh BYTE-IDENTICAL to tracked ROM ({len(got)} B)")
+              f"svh BYTE-IDENTICAL to the builder's own emit_aem_rom_svh "
+              f"({len(got)} B); no RTL destination touched")
     with tempfile.TemporaryDirectory() as td:
-        # Refactor guard on the default (builtin) path. It is pinned to
-        # arty_current's overlay, NOT to the tracked ROM: the builtin
-        # descriptor set is the 1x1 one, so tying it to whatever shape is
-        # tracked would break this guard every time the tree is regenerated
-        # for another board - which is a property of the TREE, not a
-        # regression in gen_aem_store.
+        # Refactor guard on the BUILTIN model (no --overlay). It is pinned to
+        # arty_current's overlay, never to whatever shape the tree carries:
+        # the builtin descriptor set is the 1x1 one, so tying it to the
+        # tracked owner would break this guard every time the tree is
+        # regenerated for another board - which is a property of the TREE,
+        # not a regression in gen_aem_store.
         ref = eb.build(CONFIGS["arty_current"], OUT)
         subprocess.run(
             [sys.executable, os.path.join(ROOT, "avdecc/gen_aem_store.py"),
@@ -1219,12 +1254,22 @@ def test_dynamic_audio_map_overlay():
         assert "localparam int unsigned AEM_DMAP_NPORTS_C = 1;" in svh
         assert "AEM_DMAP_PNMAPS_C [0:0] = '{32'd2}" in svh
         assert "AEM_DMAP_PBASE_C [0:0] = '{32'd0}" in svh
-        # ... and the TRACKED pair carries the engine IFF ITS OWNER asks for
-        # it.  The owner is read from the tree, never assumed (see
-        # _check_tracked_dynmap).  Today's owner declares no dynamic port, so
-        # this still demands absence - the same bytes, a different question.
-        owner_name, owner_dyn = _check_tracked_dynmap(TRACKED_ADP_SVH,
-                                                      TRACKED_SVH)
+        # ... and the ROM the TRACKED SHAPE'S OWNER generates carries the
+        # engine IFF that owner asks for it.  The owner is read from the tree,
+        # never assumed (see _check_tracked_dynmap).  Today's owner declares
+        # no dynamic port, so this still demands absence - the same question,
+        # asked of generated bytes now that the tracked ROM is deleted: the
+        # `Source :` marker in the tracked SHAPE include is still what names
+        # the owner, and that file is still tracked and still drifts.
+        with tempfile.TemporaryDirectory() as td_o:
+            src_o, owner_cfg = ces.tracked_owner(
+                eb, adp_text=open(TRACKED_ADP_SVH).read())
+            assert owner_cfg is not None, \
+                f"tracked shape names no known config ({src_o})"
+            _, owner_rom = _dynmap_candidate(
+                os.path.join(ROOT, src_o), td_o)
+            owner_name, owner_dyn = _check_tracked_dynmap(TRACKED_ADP_SVH,
+                                                          owner_rom)
         # a dynamic listener changes the model hash (capability change) and
         # the conditional key keeps every static config's hash untouched
         assert r["overlay"]["entity"] is not None
@@ -1491,13 +1536,16 @@ def test_dynamic_audio_map_overlay():
 
 
 MILAN_CSR_SV = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
-LWSRP_PKG_SV = os.path.join(ROOT, "hdl/ieee8021q/srp/lwsrp_pkg.sv")
-LWSRP_TOP_SV = os.path.join(ROOT, "hdl/ieee8021q/srp/KL_lwsrp_top.sv")
+#: hdl/ieee8021q/srp/** is DELETED (lwsrp_pkg.sv, KL_lwsrp_top.sv,
+#: KL_lwsrp_bw_gate.sv and gen/lwsrp_table.svh with it).  Gates 18b/18c used
+#: those files as the RTL comparand for the SR-class, MRP-timer, bandwidth and
+#: module-parameter constants; what survives of that loop is the CSR-facing
+#: subset milan_csr.sv still `include-s, and the gates below say per assertion
+#: which comparand each one lost.
 DATAPATH_SV = os.path.join(ROOT, "hdl/milan/milan_datapath.sv")
 PACKETIZER_SV = os.path.join(ROOT, "hdl/ieee1722/aaf/KL_aaf_packetizer.sv")
 ETH_PKG_SV = os.path.join(ROOT, "hdl/common/ethernet_packet_pkg.sv")
 MILAN_SOC_PY = os.path.join(ROOT, "sw/litex/milan_soc.py")
-TRACKED_SRP_SVH = os.path.join(ROOT, "hdl/ieee8021q/srp/gen/lwsrp_table.svh")
 TRACKED_CSR_SVH = os.path.join(ROOT, eb.CSR_DEFAULTS_REL)
 REGMAP_MD = os.path.join(ROOT, "docs/reference/REGISTER_MAP.md")
 
@@ -1612,69 +1660,58 @@ def test_lwsrp_reset_words_match_rtl():
 
 
 def test_lwsrp_class_constants_match_rtl():
-    """Gate 18b: the emitted SR-class / MRP-timer / bandwidth constants equal
-    the hand-written lwsrp_pkg.sv localparams, and the PriorityAndRank byte
-    milan_csr duplicates literally (it does not import the package) agrees
-    with both."""
-    pkg = open(LWSRP_PKG_SV).read()
+    """Gate 18b: the SR-class / MRP-timer / bandwidth constants, and the
+    PriorityAndRank byte milan_csr drives onto o_srp_ctx_prio_rank.
+
+    WHAT THIS GATE LOST (2026-08-12).  Its RTL comparand was
+    hdl/ieee8021q/srp/lwsrp_pkg.sv - the hand-written package the engine
+    compiled - plus KL_lwsrp_bw_gate.sv's 75% ceiling literals and the
+    tracked hdl/ieee8021q/srp/gen/lwsrp_table.svh.  All three are DELETED
+    with the lwSRP engine.  Ten emitted-vs-package comparisons therefore have
+    no second side left, and are removed rather than restated against the
+    builder's own constants (a check that compares a value to itself is not a
+    check).
+
+    WHAT SURVIVES, and is asserted here:
+      * the CLAUSE arithmetic.  Milan 4.3.3.2's recipe is a spec statement,
+        not an RTL detail, and the two worked examples below (the clamped CRF
+        row and an unclamped 4ch AAF row) still compose to the clause's kb/s.
+        These would have caught the folded-+42 defect on their own.
+      * the ONE chain that still reaches silicon: emitter -> the generated
+        LWSRP_PRIO_RANK_C in hdl/common/csr/gen/lwsrp_csr_defaults.svh ->
+        milan_csr.sv's assign to o_srp_ctx_prio_rank.  milan_csr still
+        `include-s that header, so a config edit still re-elaborates it."""
     csr = open(MILAN_CSR_SV).read()
     t = eb.build(CONFIGS["arty_current"], OUT)["lwsrp"]
-    checks = [
-        ("SR class id", t["sr_class"]["class_id"],
-         _sv_int(pkg, r"SR_CLASS_A_ID_C\s*=\s*8'd(\d+)", "pkg")),
-        ("SR priority", t["sr_class"]["priority"],
-         _sv_int(pkg, r"SR_CLASS_A_PRIO_C\s*=\s*8'd(\d+)", "pkg")),
-        ("SR rank", t["sr_class"]["rank"],
-         _sv_int(pkg, r"SR_RANK_C\s*=\s*1'b(\d)", "pkg")),
-        ("join ms", t["timers_ms"]["join"],
-         _sv_int(pkg, r"JOIN_TIME_MS_C\s*=\s*([\d_]+);", "pkg")),
-        ("leave ms", t["timers_ms"]["leave"],
-         _sv_int(pkg, r"LEAVE_TIME_MS_C\s*=\s*([\d_]+);", "pkg")),
-        ("leaveall ms", t["timers_ms"]["leaveall"],
-         _sv_int(pkg, r"LEAVEALL_TIME_MS_C\s*=\s*([\d_]+);", "pkg")),
-        # MSRP_FRAME_OVERHEAD_C stopped being a literal when 0x0020 split
-        # Milan 4.3.3.2's recipe back into its steps; it is now the SUM of
-        # steps 1 and 3, so the emitter's folded constant is checked against
-        # that sum rather than against a number that no longer exists.
-        ("frame overhead", t["bandwidth"]["frame_overhead_bytes"],
-         _sv_int(pkg, r"MSRP_L2_OVERHEAD_C\s*=\s*(\d+);", "pkg") +
-         _sv_int(pkg, r"MSRP_WIRE_OVERHEAD_C\s*=\s*(\d+);", "pkg")),
-        ("intervals/s", t["sr_class"]["intervals_per_second"],
-         _sv_int(pkg, r"CLASS_A_INTERVALS_PS_C\s*=\s*([\d_]+);", "pkg")),
-        ("bw limit pct", t["bandwidth"]["limit_pct"],
-         _sv_int(pkg, r"SRP_BW_LIMIT_PCT_C\s*=\s*(\d+);", "pkg")),
-    ]
-    for label, got, want in checks:
-        assert got == want, f"{label}: emitted {got} != lwsrp_pkg {want}"
-    # ---- gate 18c: Milan 4.3.3.2's recipe, STEP BY STEP, emitter vs RTL ----
-    # The builder computes the class-A ceiling a shape must pass; KL_lwsrp_bw_gate
-    # computes what the engine will actually admit. If those two use different
-    # arithmetic, a config sails through the builder and is refused on the wire -
-    # or worse, passes both while under-reserving, which is what happened when
-    # each side kept its own folded +42. Every step is compared, not the total:
-    # the fold hid the loss of step 2 precisely because the totals agreed for
-    # every frame that never needed the clamp.
-    for label, py, pat in (
-            ("step 1 L2 overhead", eb.SRP_L2_OVERHEAD_B,
-             r"MSRP_L2_OVERHEAD_C\s*=\s*(\d+);"),
-            ("step 2 min tagged frame", eb.SRP_MIN_L2_BYTES_B,
-             r"MSRP_MIN_L2_BYTES_C\s*=\s*(\d+);"),
-            ("step 3 wire overhead", eb.SRP_WIRE_OVERHEAD_B,
-             r"MSRP_WIRE_OVERHEAD_C\s*=\s*(\d+);")):
-        want = _sv_int(pkg, pat, "pkg")
-        assert py == want, f"{label}: builder {py} != lwsrp_pkg {want}"
-    # ...and the composed answer matches the RTL's own worked example: Milan
-    # Table 4.4's CRF row (MaxFrameSize 28 + 1) is the one that exercises the
-    # clamp, so it is the case worth pinning rather than a big AAF frame.
+    # ---- Milan 4.3.3.2's recipe, composed. Step-by-step comparison against
+    # the RTL is gone with lwsrp_pkg.sv; the clause's own worked examples are
+    # not, and they are what the step split was FOR: the fold hid the loss of
+    # step 2 precisely because the totals agreed for every frame that never
+    # needed the clamp, and the CRF row is the row that needs it.
     assert eb.CRF_SRP_MAXFRAME_B == 29, \
         "CRF MaxFrameSize is Table 4.4's 28 + 1"
+    assert eb.SRP_L2_OVERHEAD_B + eb.SRP_WIRE_OVERHEAD_B == \
+        t["bandwidth"]["frame_overhead_bytes"], \
+        "the emitted folded overhead is no longer steps 1 + 3"
     assert eb.srp_idle_slope_bps(29, 1, 8000) == 5_632_000, \
         "CRF slope: 29 -> clamped to 68 -> 88 octets -> 5632 kb/s"
     assert eb.srp_idle_slope_bps(121, 1, 8000) == 10_432_000, \
         "4ch AAF slope: 121 -> 143 (no clamp) -> 163 octets -> 10432 kb/s"
-    print("  [gate 18d] Milan 4.3.3.2 bandwidth recipe: all three step "
-          "constants match lwsrp_pkg, and the clamped CRF row + an unclamped "
-          "4ch AAF row both compose to the clause's kb/s")
+    # the clamp itself, stated in the units the formula uses: step 1 adds
+    # SRP_L2_OVERHEAD_B to MaxFrameSize, so every MaxFrameSize at or below
+    # SRP_MIN_L2_BYTES_B - SRP_L2_OVERHEAD_B lands on the same clamped slope.
+    # This is the arm the folded +42 lost: fold steps 1 and 3 and the CRF row
+    # (MaxFrameSize 29) reserves 5376 kb/s against the mandated 5632.
+    clamp_at = eb.SRP_MIN_L2_BYTES_B - eb.SRP_L2_OVERHEAD_B
+    assert eb.srp_idle_slope_bps(clamp_at - 1, 1, 8000) == \
+        eb.srp_idle_slope_bps(clamp_at, 1, 8000), \
+        "step 2's minimum tagged frame no longer clamps"
+    assert eb.srp_idle_slope_bps(clamp_at + 1, 1, 8000) > \
+        eb.srp_idle_slope_bps(clamp_at, 1, 8000), \
+        "the clamp swallowed a frame that is above the minimum"
+    print("  [gate 18d] Milan 4.3.3.2 bandwidth recipe: the clamped CRF row "
+          "and an unclamped 4ch AAF row both compose to the clause's kb/s, "
+          "and the step-2 clamp bites (lwsrp_pkg.sv comparand DELETED)")
     pr = t["sr_class"]["prio_rank"]
     # milan_csr's literal duplicate is GONE: it drives o_srp_ctx_prio_rank from
     # the generated LWSRP_PRIO_RANK_C, so the chain is emitter -> header -> RTL.
@@ -1686,34 +1723,41 @@ def test_lwsrp_class_constants_match_rtl():
         "milan_csr no longer drives o_srp_ctx_prio_rank from the generated " \
         "LWSRP_PRIO_RANK_C"
     assert pr == (t["sr_class"]["priority"] << 5) | (t["sr_class"]["rank"] << 4)
-    # the bw_gate's hard ceiling literals must agree with the emitted limits
-    bwg = open(os.path.join(ROOT,
-                            "hdl/ieee8021q/srp/KL_lwsrp_bw_gate.sv")).read()
-    for mbps, lit in ((1000, r"SLOPE_W_C'\((750_000_000)\)"),
-                      (100, r"SLOPE_W_C'\((75_000_000)\)")):
-        want = _sv_int(bwg, lit, "bw_gate ceiling")
-        assert want == mbps * 1_000_000 * t["bandwidth"]["limit_pct"] // 100, \
-            f"bw_gate {mbps} Mb/s ceiling literal != {t['bandwidth']['limit_pct']}%"
-    # and the tracked generated svh reproduces every one of them
-    svh = open(TRACKED_SRP_SVH).read()
-    assert svh == eb.build(CONFIGS["arty_current"], OUT)["lwsrp_svh"], \
-        "hdl/ieee8021q/srp/gen/lwsrp_table.svh is STALE - regenerate it"
+    # the FULL table is still emitted (out/<cfg>/lwsrp_table.svh) because the
+    # 0x680 reset words and the bandwidth math are derived in it; it just has
+    # no tracked destination any more. Assert it still carries the words the
+    # CSR subset was cut from, so the two cannot silently diverge.
+    svh = eb.build(CONFIGS["arty_current"], OUT)["lwsrp_svh"]
     for needle in (f"LWSRP_CLASS_ID_C   = 8'd{t['sr_class']['class_id']};",
                    f"LWSRP_PRIO_RANK_C  = 8'h{pr:02X};",
                    "LWSRP_CTRL_RST_C      = 32'h0000_0010;",
                    "LWSRP_TSPEC_RST_C     = 32'h0001_00E0;"):
-        assert needle in svh, f"tracked svh lacks {needle!r}"
-    print(f"  [gate 18b] {len(checks)} SR-class/timer/bandwidth constants == "
-          "lwsrp_pkg.sv, PriorityAndRank == the generated symbol milan_csr "
-          "drives, bw_gate 75% ceilings agree; tracked lwsrp_table.svh "
-          "regenerates byte-identically")
+        assert needle in svh, f"emitted lwsrp_table.svh lacks {needle!r}"
+    assert not os.path.exists(os.path.join(ROOT, "hdl/ieee8021q/srp")), \
+        "hdl/ieee8021q/srp is back - the lwSRP engine is deleted and the " \
+        "builder must not recreate its gen/ directory"
+    print("  [gate 18b] PriorityAndRank == the generated symbol milan_csr "
+          "drives (emitter -> lwsrp_csr_defaults.svh -> RTL); the reference "
+          "lwsrp_table.svh still carries the words the CSR subset was cut "
+          "from, and no hdl/ieee8021q/srp tree was recreated")
 
 
 def test_lwsrp_tspec_and_params():
     """Gate 18c: the TSpec derivation is anchored in the RTL frame geometry
-    (KL_aaf_packetizer), the idleSlope formula matches KL_lwsrp_bw_gate, the
-    emitted module parameters match what milan_datapath actually passes, and
-    the ctx row arithmetic exposes the NxN shortfall."""
+    (KL_aaf_packetizer), and the ctx row arithmetic covers every attribute
+    row the shape needs.
+
+    WHAT THIS GATE LOST (2026-08-12).  It also asserted that milan_datapath
+    instantiates KL_lwsrp_top with N_CTX_P(SRP_CTX_ROWS_C) /
+    N_LISTENERS_P(N_STREAMS) / N_TALKERS_P(SRP_TALKERS_C), and that
+    KL_lwsrp_top ties the bw_gate width to N_TALKERS_P.  Both modules are
+    DELETED and milan_datapath no longer instantiates any lwSRP engine, so
+    those four assertions have no subject.  The ANCHOR that matters most is
+    untouched: KL_aaf_packetizer still exists and still emits the frames the
+    TSpec describes, so the frame geometry is still checked against the RTL
+    that produces it - and the datapath's SRP row-map localparams are still
+    there and still checked, because the protocol processor consumes the same
+    row layout."""
     pk = open(PACKETIZER_SV).read()
     spf = _sv_int(pk, r"SAMPLES_PER_FRAME_C\s*=\s*(\d+);", "packetizer")
     geo = eb.srp_frame_geometry(2, 48000, 8000)
@@ -1733,13 +1777,10 @@ def test_lwsrp_tspec_and_params():
     assert eb.srp_idle_slope_bps(224, 1, 8000) == 1 * (224 + 42) * 8 * 8000
     # per-config: derived TSpec, reservation under the ceiling, module params
     dp = open(DATAPATH_SV).read()
-    top = open(LWSRP_TOP_SV).read()
     epkg = open(ETH_PKG_SV).read()
-    assert re.search(r"KL_lwsrp_top #\(\.CLK_FREQ_HZ_P\(MILAN_CLK_FREQ_HZ\),"
-                     r"\s*\.N_CTX_P\(SRP_CTX_ROWS_C\),"
-                     r"\s*\.N_LISTENERS_P\(N_STREAMS\),"
-                     r"\s*\.N_TALKERS_P\(SRP_TALKERS_C\)\)", dp), \
-        "milan_datapath no longer sizes the ctx table at L+T-1"
+    # (the KL_lwsrp_top instantiation assertion that stood here is REMOVED:
+    #  milan_datapath instantiates no lwSRP engine any more and the module is
+    #  deleted. The row-map localparams below survive and are still checked.)
     # ...and T includes the CRF Media Clock Output's own talker row when the
     # shape has one (Milan v1.2 7.3.3: the media clock stream is an SR class
     # A reservation like any other stream, not an un-declared side channel)
@@ -1748,12 +1789,12 @@ def test_lwsrp_tspec_and_params():
         "milan_datapath no longer counts the CRF output as a talker row"
     # ...plus the appended CRF-sink listener row when the shape declares
     # the pinned-LAST CRF Media Clock Input sink (task #27, 0x002D)
-    assert re.search(r"localparam int SRP_CTX_ROWS_C\s*=\s*"
-                     r"N_STREAMS \+ SRP_TALKERS_C \+ SRP_CRFSNK_C;", dp), \
-        "milan_datapath ctx rows are no longer L+T+CRFSNK (incl the " \
-        "listener-0 and CRF-sink rows)"
-    assert re.search(r"KL_lwsrp_bw_gate #\(\.N_STREAMS_P\(N_TALKERS_P\)\)", top), \
-        "KL_lwsrp_top no longer ties the bw_gate width to N_TALKERS_P"
+    assert re.search(r"localparam int SRP_CRFSNK_C\s*=\s*"
+                     r"\(ADP_LISTENER_SINK_C > N_STREAMS\) \? 1 : 0;", dp), \
+        "milan_datapath no longer derives the CRF-sink row from the " \
+        "generated ADP_LISTENER_SINK_C"
+    # (the KL_lwsrp_bw_gate width assertion that stood here is REMOVED with
+    #  KL_lwsrp_top.sv - both modules are deleted.)
     nq = _sv_int(epkg, r"NUMBER_OF_QUEUES\s*=\s*(\d+);", "ethernet_packet_pkg")
     for name, (L, T) in (("arty_current", (1, 1)), ("arty_4x4", (4, 4)),
                          ("ax7101_8x8", (8, 8))):
@@ -2151,8 +2192,10 @@ def test_csr_defaults_header_consumed():
          would move a deployed reset word fails HERE, loudly, instead of
          silently re-elaborating the CSR block);
       4. no hand-written 0x680 literal survives in milan_csr.sv;
-      5. the CSR subset agrees word-for-word with the full lwSRP table
-         (hdl/ieee8021q/srp/gen/lwsrp_table.svh) - one config, one pass;
+      5. the CSR subset agrees word-for-word with the full lwSRP table this
+         same build() emitted (the tracked
+         hdl/ieee8021q/srp/gen/lwsrp_table.svh is deleted with the srp tree,
+         so it is two emitters compared, not two files) - one config, one pass;
       6. every build/sim/synth flow that compiles milan_csr.sv carries
          hdl/common/csr as an include dir, so the `include always resolves
          (Verilator searches -I/+incdir and the CWD only, NEVER the including
@@ -2184,16 +2227,22 @@ def test_csr_defaults_header_consumed():
         "milan_csr.sv csr_default still returns a LITERAL for a 0x680 register"
     assert "SRP_PRIO_RANK_C = 8'h" not in csr, \
         "milan_csr.sv still declares its own PriorityAndRank literal"
-    # 5. the subset agrees with the full table
-    tbl = _svh_localparams(open(TRACKED_SRP_SVH).read())
+    # 5. the subset agrees with the full table. The comparand MOVED: the
+    #    tracked hdl/ieee8021q/srp/gen/lwsrp_table.svh is deleted with the
+    #    srp tree, so the full table is taken from the SAME build() call's
+    #    in-memory emission. The property is unchanged and still meaningful -
+    #    the subset is CUT from the table by a separate emitter, so the two
+    #    can still be edited apart - but note what it no longer proves: it
+    #    cannot catch a stale file, because there is no second file.
+    tbl = _svh_localparams(r["lwsrp_svh"])
     shared = sorted(set(hdr) & set(tbl))
     assert len(shared) == len(hdr), \
         f"CSR header carries constants the lwSRP table does not: " \
         f"{sorted(set(hdr) - set(tbl))}"
     for k in shared:
         assert hdr[k] == tbl[k], (
-            f"{k}: CSR header 0x{hdr[k]:X} != lwsrp_table.svh 0x{tbl[k]:X} - "
-            "the two generated headers have drifted")
+            f"{k}: CSR header 0x{hdr[k]:X} != the emitted lwSRP table's "
+            f"0x{tbl[k]:X} - the two emitters have drifted")
     # 6. every consumer can resolve the include
     for rel, pat in CSR_INCDIR_CONSUMERS:
         p = os.path.join(ROOT, rel)
@@ -2207,8 +2256,8 @@ def test_csr_defaults_header_consumed():
           f"{len(eb.SRP_FROZEN_RESETS)} reset words + PriorityAndRank == the "
           f"FROZEN literals (LWSRP_CTRL moved TWICE for the queue map: "
           f"0x0C -> 0x14 at 6 queues, 0x14 -> 0x10 at 5), 0 literals "
-          f"left in the RTL, {len(shared)} constants agree with "
-          f"lwsrp_table.svh, {len(CSR_INCDIR_CONSUMERS)} consumers carry the "
+          f"left in the RTL, {len(shared)} constants agree with the emitted "
+          f"lwSRP table, {len(CSR_INCDIR_CONSUMERS)} consumers carry the "
           f"include dir")
 
 
@@ -3729,7 +3778,7 @@ def test_d8_role_pools():
                      write_fragment=False)
             assert False, "--write-rtl must refuse a shape with no ROM"
         except eb.ConfigError as e:
-            assert "cannot be built" in str(e), e
+            assert "entity definition is incomplete" in str(e), e
     finally:
         os.unlink(p)
     print("  [gate 24a] the full 64-wide D8 pool VALIDATES, exceeds the "
@@ -3879,16 +3928,26 @@ def test_d10_cluster_names():
 
 
 def test_d10_names_reach_the_rom():
-    """gate 24d - the names survive the WHOLE path (overlay ->
-    gen_aem_store -> ROM bytes), and the ROM the TB compares against is
-    regenerated with it.
+    """gate 24d - the cluster ROLE NAMES survive the whole path (config ->
+    overlay -> gen_aem_store -> descriptor bytes), and the TRACKED SHAPE
+    include is exactly what the config it names generates.
 
-    This gate exists because of HOW the first attempt failed: the builder's
-    `--write-rtl` writes hdl/.../aecp_aem_rom.svh but NOT
-    tb/verilator/aecp/aem_golden.h, whose only writer is
-    `python3 avdecc/gen_aem_store.py`. Regenerating one and not the other
-    turned the aecp byte-exact sweep red on all 16 AUDIO_CLUSTER
-    descriptors (off=42 - the object_name field) and nothing else."""
+    WHAT THIS GATE LOST (2026-08-12).  Its second half asserted that the role
+    names reached tb/verilator/aecp/aem_golden.h - the byte-exact image the
+    aecp Verilator suite compared the RTL against - because the original D10
+    failure was regenerating hdl/.../aecp_aem_rom.svh and NOT the golden,
+    which turned that sweep red on all 16 AUDIO_CLUSTER descriptors (off=42,
+    the object_name field) and nothing else.  BOTH files are deleted with the
+    AECP plane: there is no golden, no tracked ROM, and no aecp suite to go
+    red.  The two-artifact staleness assertion is therefore removed - there
+    is only one artifact left.
+
+    WHAT SURVIVES: the names still have to reach the descriptor BYTES (they
+    are read out of the generated ROM image at the object_name offset, not
+    out of the overlay that declared them), and the tracked SHAPE include -
+    which is still tracked, still last-writer-wins, and now also sizes the
+    protocol processor's arrays - must still be what its named owner
+    generates."""
     sys.path.insert(0, os.path.join(ROOT, "avdecc"))
     import gen_aem_store as g
     ovl = eb.build(CONFIGS["arty_current"], OUT)["overlay"]
@@ -3900,34 +3959,21 @@ def test_d10_names_reach_the_rom():
             got.append(M["rom"][base+4:base+4+64].split(b"\0")[0].decode())
     assert got == [c["name"] for c in sorted(ovl["audio_clusters"],
                                              key=lambda c: c["index"])], got
-    # the TRACKED artifacts must both carry them (the aem_golden.h lesson)
-    rom = open(TRACKED_SVH, "rb").read()
-    gpath = os.path.join(ROOT, "tb/verilator/aecp/aem_golden.h")
-    gtext = open(gpath).read()
-    body = gtext.split("AEM_ROM[] = {", 1)[1].split("};", 1)[0]
-    gbytes = bytes(int(x, 16) for x in re.findall(r"0x([0-9A-Fa-f]{2})", body))
-    assert gbytes == M["rom"], \
-        (f"{gpath} does not match the ROM this config generates ("
-         f"{len(gbytes)} vs {len(M['rom'])} B) - it is STALE. Its ONLY "
-         "writer is `python3 avdecc/gen_aem_store.py`; the builder's "
-         "--write-rtl writes hdl/.../aecp_aem_rom.svh and NOT this file, "
-         "which is exactly how the first D10 attempt turned the aecp "
-         "byte-exact sweep red on all 16 AUDIO_CLUSTER descriptors.")
     for nm in ("I2S Out 0", "Virtual In 7"):
-        assert nm.encode() in gbytes, f"golden ROM has no cluster '{nm}'"
-    # and the tracked svh must equal what ITS OWNER generates - the owner is
+        assert nm.encode() in M["rom"], f"generated ROM has no cluster '{nm}'"
+    # and the tracked SHAPE must equal what ITS OWNER generates - the owner is
     # READ from the tree (gate 17's rule: never a second answer to "who owns
-    # the tracked ROM"). Hardcoding arty_current here broke the day the
-    # 08-01 flip handed the pair to the ax7101_8x8 ship config.
+    # the tracked definition"). Hardcoding arty_current here broke the day the
+    # 08-01 flip handed the tree to the ax7101_8x8 ship config.
     src, owner = ces.tracked_owner(eb, adp_text=open(TRACKED_ADP_SVH).read())
-    assert owner is not None, f"tracked pair names no owner ({src})"
-    ovl_o = eb.build(os.path.join(ROOT, src), OUT)["overlay"]
-    M_o = g.build_model(g.spec_from_overlay(ovl_o))
-    assert g.emit_svh_text(M_o).encode() == rom, \
-        f"tracked aecp_aem_rom.svh is not what its owner ({src}) generates"
-    print(f"  [gate 24d] role names reach the ROM bytes; aem_golden.h "
-          f"matches the harness shape, and the tracked svh matches its "
-          f"OWNER ({owner['name']}) byte for byte")
+    assert owner is not None, f"tracked shape names no owner ({src})"
+    r_o = eb.build(os.path.join(ROOT, src), OUT)
+    assert r_o["adp_shape_svh"] == open(TRACKED_ADP_SVH).read(), \
+        f"tracked adp_shape_defaults.svh is not what its owner ({src}) " \
+        f"generates - re-run endstation_builder.py {src} --write-rtl"
+    print(f"  [gate 24d] role names reach the descriptor bytes; the tracked "
+          f"shape include matches its OWNER ({owner['name']}) byte for byte "
+          f"(aem_golden.h comparand DELETED with the aecp suite)")
 
 
 #: The four ADP CSRs that carry the entity's IDENTITY. Every one of them is a
@@ -4110,13 +4156,21 @@ def test_gptp_domain_is_one_source():
         ("aecp_csr_setup.sh still writes 0x62C - it would clobber the "
          "elaborated gPTP domain back to its literal")
 
-    # 5. the register reaches the WIRE.  A reset value nothing reads is not a
-    #    fix, so walk the chain by NAME - each link is one rename away from
-    #    silently detaching, and none of it is covered above:
+    # 5. the register reaches the ADVERTISER.  A reset value nothing reads is
+    #    not a fix, so walk the chain by NAME - each link is one rename away
+    #    from silently detaching, and none of it is covered above:
     #      adp_domain[7:0] -> milan_csr.o_adp_gptp_domain
     #                      -> milan_datapath.cfg_adp_gptp_domain
-    #                      -> adp_advertiser.gptp_domain_number_i
-    #                      -> fb[62] = ADPDU byte 48 (1722.1-2021 6.2.1.16)
+    #                      -> the ADP advertiser's gptp_domain_i
+    #    THE LAST LINK MOVED (2026-08-12).  It used to be
+    #    hdl/ieee17221/adp/adp_advertiser.sv's gptp_domain_number_i and the
+    #    fb[62] = ADPDU byte 48 placement (1722.1-2021 6.2.1.16) inside it;
+    #    that advertiser is DELETED and the protocol-processor submodule
+    #    advertises now, so the chain is walked to the datapath's port into
+    #    that plane and stops there.  The byte-48 placement itself is NOT
+    #    re-asserted here: it lives in a PINNED, read-only submodule this
+    #    suite does not own, and a gate reaching into a pin is a gate that
+    #    breaks on a bump it has no say in.
     #    (STALENESS of the tracked headers is deliberately NOT asserted here:
     #     gate 24d owns it, and earlier gates in this process rebuild those
     #     files, so a copy of the check here could never fail - a check that
@@ -4126,19 +4180,19 @@ def test_gptp_domain_is_one_source():
     dp = open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read()
     assert re.search(r"\.o_adp_gptp_domain\s*\(\s*cfg_adp_gptp_domain\s*\)",
                      dp), "milan_datapath does not take the CSR's domain"
-    assert re.search(r"\.gptp_domain_number_i\s*\(\s*cfg_adp_gptp_domain\s*\)",
-                     dp), "the ADP advertiser is not fed the CSR's domain"
-    adv = open(os.path.join(ROOT,
-                            "hdl/ieee17221/adp/adp_advertiser.sv")).read()
-    assert re.search(r"fb\[62\]\s*=\s*gptp_domain_number_i\s*;", adv), \
-        "the advertiser no longer places the domain at ADPDU byte 48"
+    assert re.search(r"\.gptp_domain_i\s*\(\s*cfg_adp_gptp_domain\s*\)", dp), \
+        "the ADP advertiser is not fed the CSR's domain"
+    assert not os.path.exists(
+        os.path.join(ROOT, "hdl/ieee17221/adp/adp_advertiser.sv")), \
+        "hdl/ieee17221/adp/adp_advertiser.sv is back - if the legacy " \
+        "advertiser returns, this gate must walk the domain into it again"
 
     print(f"  [gate 26] gptp.domain is ONE source: domain 3 REFUSED with the "
           f"802.1AS-2011 8.1 clause; the legal 0 emits ADP_GPTP_DOMAIN_C = "
           f"{DOM} AND domainNumber {DOM}; "
           f"milan_csr names the symbol in both the reset and the readback "
           f"ROM; aecp_csr_setup.sh writes 0x62C nowhere; the chain reaches "
-          f"ADPDU byte 48")
+          f"the advertising plane's gptp_domain_i")
 
 
 if __name__ == "__main__":

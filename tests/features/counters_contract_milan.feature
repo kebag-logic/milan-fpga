@@ -482,6 +482,12 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
     # The rule is symmetric: the valid mask and the set of counters backed by a
     # real tally must be THE SAME SET. Narrowing the mask is a legal fix; a
     # served constant is not.
+    #
+    # WHERE THE SECOND HALF READS NOW. It used to catch the constant at the
+    # AECP response builder's CRF loader. hdl/ieee17221/aecp/** is deleted, so
+    # there is no loader; but a counter with no register behind it is a
+    # constant zero however it is served, so the check is resolved out of
+    # KL_crf_rx - the engine that would have to keep the tally - instead.
     Then a counter is either claimed in the mask and measured, or claimed by neither
     And the CRF Media Clock Input counters advertised as valid are all backed by a tally
 
@@ -529,56 +535,12 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
     And the CRF Media Clock Input bind edge drops media lock without scoring an unlock
 
   # --------------------------------------------------- L1: the fabric binding
-  @level:L1 @class:binding
-  Scenario: the response builder emits the masks this contract names
-    # An L1 check: it asks whether the fabric is CONNECTED to the contract, not
-    # whether the counters are right. A mask edited in the RTL without this
-    # file changing breaks here, at a desk, in three seconds.
-    Then KL_aecp_response_builder serves Stream Output mask 0x1F
-    And KL_aecp_response_builder serves AVB_INTERFACE mask 0x23
-    And KL_aecp_response_builder serves the Stream Input mandatory mask
-
-  @level:L1 @class:binding @open-finding @clause:Milan-5.3.8.10
-  Scenario: GET_COUNTERS answers every declared Stream Input, not the first two
-    # AN OPEN FINDING, DELIBERATELY RED, and tagged @open-finding so
-    # `behave --tags ~@open-finding` remains a clean gate.
-    #
-    # Milan v1.2 5.3.8.10: "For each Stream Input of the currently set
-    # Configuration, the PAAD-AE shall keep track of the counters in Table 5.6",
-    # and 5.4.2.25 makes GET_COUNTERS mandatory per descriptor. No sink is
-    # exempt - not the CRF Media Clock Input either.
-    #
-    # WHAT THE SOURCE IN THIS TREE SAYS, and every line of it is checkable:
-    #   * the CMD_GET_COUNTERS case spans lines 1944-2012 of
-    #     KL_aecp_response_builder.sv;
-    #   * that block contains NO `w_in_fidx` and NO `AEM_N_STRIN_C`;
-    #   * its only STREAM_INPUT guard is `w_gs_index < 16'd2`;
-    #   * it calls `load_input_counters_consts(w_gs_index == 16'd0)`, which emits
-    #     mask 0xF3F and loads real counter VALUES only for sink 0.
-    # So sinks >= 2 fall through to BAD_ARGUMENTS and sink 1 answers 0xF3F over
-    # an all-zero block.
-    #
-    # This scenario was briefly re-scoped to grep the WHOLE builder for
-    # `w_gs_index < 16'(AEM_N_STRIN_C)`, which passes by matching line 395 - the
-    # `w_in_fidx` declaration, whose own comment says "range validity is decided
-    # separately in the STREAM_FORMAT arm". A whole-file grep standing in for an
-    # arm-anchored check is precisely the descriptor-context-free defect this
-    # round exists to remove, so the check is anchored on the arm again and its
-    # failure message prints the guard text it found. If silicon disagrees with
-    # the four bullets above, reconcile it against those line numbers.
-    Then the STREAM_INPUT GET_COUNTERS arm answers every Stream Input the entity declares
-
-  @level:L1 @class:binding @open-finding @clause:Milan-5.5.1.2
-  Scenario: every declared Stream Input has somewhere to store a stream format
-    # The SECOND finding in the same file, and a different subsystem from the one
-    # above. The per-input format registers live behind `ifdef
-    # AEM_PER_STREAM_FMT, and the `else arm keeps only inputs 0..1
-    # (`fmt_in0_r` / `fmt_in1_r`). If no shipped config defines that macro then
-    # every sink above index 1 has nowhere to store a format - against Milan v1.2
-    # 5.5.1.2, which makes the Listener's current format the value the bind is
-    # checked against, and against the standing directive that a controller must
-    # ALWAYS SET_STREAM_FORMAT the listener rather than refuse the bind.
-    Then the per-input STREAM_FORMAT store covers every declared Stream Input
+  # (the KL_aecp_response_builder mask-serving and the two @open-finding
+  #  scenarios that lived here were resolved out of hdl/ieee17221/aecp/**,
+  #  which has been deleted - this device answers no AECP command at all,
+  #  so there is no builder to hold to a mask and no GET_COUNTERS arm to
+  #  hold to a descriptor index. What survives is the DOCUMENTED register
+  #  window, which is still the fabric path to the same ten values.)
 
   @level:L1 @class:binding
   Scenario: the per-stream window exposes the ten counters at the block offsets

@@ -158,12 +158,33 @@ lag. Only the full-rate watcher's cycle numbers are ordering-trustworthy.
 
 ## 3. Verilator harnesses (tb/verilator/*, one dir per suite — `ls tb/verilator/` is authoritative)
 
-Standalone self-checking C++ harnesses for the pure-SV modules (adp, adp_tx, cbs,
-cdc, classifier, csr, datapath, ptp, …). Each dir:
+Standalone self-checking C++ harnesses for the pure-SV modules (adp_tx, cbs,
+cdc, classifier, csr, datapath, pp_shadow, ptp, …). Each dir:
 
 ```sh
-cd tb/verilator/adp && make        # builds + runs; self-checking, prints PASS/checks
+cd tb/verilator/adp_tx && make     # builds + runs; self-checking, prints PASS/checks
 ```
+
+> **The suite list shrank on 2026-08-13.** Thirteen suites went with the legacy
+> IEEE 1722.1 / SRP control-plane RTL they exercised — `aecp`, `aempatch`,
+> `acmp`, `acmp_lstn`, `persist`, `adp`, `adp_advertise`, `adp_parser`, `lwsrp`,
+> `lwsrp_ctx`, `lwsrp_rx`, `lwsrp_tx`, `lwsrp_switchpdu` — along with the `csr`
+> suite's `obj_live` leg and the `tsn_fuzz` AECP/ACMP/ADP campaigns (only the
+> AAF campaign survives). The control plane is now the protocol processor, and
+> `tb/verilator/pp_shadow` is its suite. `ls tb/verilator/` remains the
+> authority; do not take a suite name from prose.
+>
+> **It has not grown back for AECP.** The processor's AECP uCPU has since landed
+> — the entity answers `READ_DESCRIPTOR` and refuses every other AECP command
+> with a conformant `NOT_IMPLEMENTED` echo. Nothing in this repository loads the
+> descriptor image, so on a stock build that one answered command comes back
+> `BAD_ARGUMENTS` for every read (the configuration range check runs before the
+> locate, and an invalid image reports a configuration count of zero); a probe
+> that instead sees `NO_SUCH_DESCRIPTOR` is telling you an image *is* loaded and
+> that descriptor is genuinely absent from the model. And **no suite in `tb/verilator/`
+> grades it**. `pp_shadow` grades the processor's presence, RX classify path,
+> class-D face, MAAP adapter and anti-wedge invariant; it does not grade an AECP
+> response. Nothing else does either.
 
 No Xilinx dependencies (the RTL is XPM-free). Run the affected module's harness after
 touching its SV; run the full [tb/verilator/](../../tb/verilator) sweep before a release-ish commit (`for d in tb/verilator/*/;

@@ -7,6 +7,37 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 
 *2026-07-27. A device that could describe itself wrongly, faithfully, forever.*
 
+> **WHERE THE DESCRIPTOR HALF OF THIS CHAIN WENT (2026-08-13).** The finding and
+> its fix stand: the shape is a physical fact about the bitstream, it comes from
+> `configs/endstation_*.yaml`, and `0x618` / `0x61C` are read-only words built
+> from a generated include. What moved is the *other* end of the agreement
+> check. The fabric AEM store and its generated `aecp_aem_rom.svh` are deleted,
+> and the entity model a controller reads now lives in **DDR3** as a descriptor
+> image that the protocol processor's AECP µCPU fetches over a read-only master
+> at a compile-time base (the LiteX SoC derives that base as the top 1 MiB of
+> `main_ram`; there is no base register). The µCPU answers `READ_DESCRIPTOR`
+> — `SUCCESS` with the configuration index and the descriptor,
+> `NO_SUCH_DESCRIPTOR` on a locate miss, `BAD_ARGUMENTS` on a bad configuration
+> index — and echoes a conformant `NOT_IMPLEMENTED` at every other AECP
+> command, so a controller can once again ask this device what shape it is.
+>
+> **But nothing in this repository builds or loads that image.** The generator
+> lives in the `protocol-processor` submodule; no step in `sw/builder/`,
+> `scripts/`, the LiteX SoC builder or the boot path turns a config into it or
+> writes it to DRAM; and the `aecp_aem_rom.svh` that
+> `endstation_builder.py` still emits is an **orphan** of the deleted store, not
+> the image the processor reads. Two consequences follow, and both are this
+> page's defect wearing a new layer. On a stock build every `READ_DESCRIPTOR`
+> answers `BAD_ARGUMENTS` — the device describes itself as nothing at all
+> until software loads an image at that base *before* the entity is enabled; a
+> late load heals without a reset, because each locate against an invalid image
+> re-arms the header probe, and an all-zero region fails the `"AEMI"` magic
+> compare so it reads as *image not loaded* rather than as a hang. And the
+> descriptor leg of the gate below now compares the config against an artifact
+> **nothing on the device reads**, which is agreement without authority — the
+> exact shape of the original bug. Re-point that leg at the real image when the
+> supply chain exists.
+
 ## Contents
 
 - **[The symptom](#the-symptom)** — Decoded off the wire beside its neighbours: our 8×8 AX7101 advertising 1 talker source and 2 listener sinks, so every controller on the segment could bind exactly one of its eight streams.
@@ -141,7 +172,7 @@ config, what the generated shape include carries, what the AEM overlay's
 `entity_counts` and `descriptor_counts` say, and how many `STREAM_OUTPUT` /
 `STREAM_INPUT` descriptors the ROM generated **from that same config** actually
 contains. It also checks the tracked pair — [`hdl/common/csr/gen/adp_shape_defaults.svh`](../../hdl/common/csr/gen/adp_shape_defaults.svh)
-and [`hdl/ieee17221/aecp/gen/aecp_aem_rom.svh`](../../hdl/ieee17221/aecp/gen/aecp_aem_rom.svh) — name the *same* source config
+and the generated AEM descriptor ROM hdl/ieee17221/aecp/gen/aecp_aem_rom.svh (deleted 2026-08-13 with the AECP engine) — named the *same* source config
 and match what it generates, and that the RTL consumes the include rather than
 recomputing anything.
 

@@ -23,6 +23,86 @@ cover.
 > whole layer, and every JSONL record names the sides it used so a reader can
 > tell which one they are looking at.
 
+> ## What the DUT can answer, as of 2026-08-13 — read this before a run
+>
+> This repository's IEEE 1722.1 / SRP control plane was deleted. The control
+> plane is the `protocol-processor` submodule, wrapped by
+> [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) and
+> instantiated unconditionally by
+> [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
+>
+> **The DUT discovers over ADP, connects over ACMP, reserves over SRP — and
+> answers AECP.** An earlier revision of this block said it answered no AECP/AEM
+> command at all; **that was false.** The processor's **AECP uCPU landed**. In
+> one sentence: *it answers `READ_DESCRIPTOR`, and answers every other AECP
+> command with a conformant `NOT_IMPLEMENTED` echo* — correct `message_type`+1,
+> correct length, correct `controller_data_length`.
+> `IDENTIFY_NOTIFICATION` (0x0026) arriving as a **command** draws
+> `BAD_ARGUMENTS` (IEEE 1722.1 §7.4.39.2 beats §9.3.5.3.3). A command whose
+> `target_entity_id` is not ours, and any AECP **response** arriving as input,
+> are silently refused — freed, counted, no reply. **`READ_DESCRIPTOR` answers
+> `BAD_ARGUMENTS` on a stock build**, because nothing in the repository loads the
+> descriptor image into DRAM: the microprogram range-checks `configuration_index`
+> against `configurations_count` before it locates, and an invalid image reports
+> a count of zero, so no index passes. (`NO_SUCH_DESCRIPTOR` is the locate-miss
+> status and needs a loaded image to be reachable — the pair discriminates a
+> missing image from a missing descriptor.)
+>
+> For this campaign that is a large, specific change in what a run can mean:
+>
+> * **Every `counters.*` assertion in §4.1, §4.2 and §4.2.1 reads its counters
+>   over `GET_COUNTERS`.** Against this DUT that command draws a conformant
+>   `NOT_IMPLEMENTED` and returns **no counter block**, so every one of them
+>   **SKIPs** — with a different `why` than before: not "no response" but "the
+>   response was `NOT_IMPLEMENTED`". §4.0's rule is unchanged and now matters
+>   more: a well-formed refusal is not evidence of health, and a runner that
+>   graded "a response arrived" would turn the whole counter inventory green
+>   while measuring nothing. A run of the matrix area against this build is
+>   still a run in which most of the counter inventory reports nothing.
+> * **`aecp.stream-format-readback` / `-round-trip` (§4.3) still cannot be
+>   exercised**: `SET_STREAM_FORMAT` and `GET_STREAM_FORMAT` serve no function
+>   and draw the generic echo, so there is no format to set and none to read
+>   back.
+> * **`adp.alive` (§4.1) is a two-witness check again.** Its FAIL condition is
+>   "not discovered in 2 × 11 s **and** a well-formed AECP command also went
+>   unanswered". The second term was collapsed by the false premise; it is real
+>   now, because a live DUT answers every well-formed AECP command — with a
+>   status, but it answers. §8.4's liveness discriminator recovers the same half.
+>   Note what the term must **not** be tightened into: a `NOT_IMPLEMENTED`
+>   response is an *answer* for liveness purposes and a *refusal* for
+>   conformance purposes.
+> * **The persistence verdict of §7.1 is now a structural absence, not a probe
+>   result.** `KL_persist_journal` is deleted and the NVM device face is answered
+>   by a blank-flash responder (reads `0xFF`, writes accepted and discarded), so
+>   a restore walk always finds blank flash and completes with zero records.
+>   Nothing here persists a binding across a power cycle.
+> * **The Milan Table 5.4 STREAM_OUTPUT counter block does not exist in any
+>   build.** `KL_talker_diag_ctx` is no longer instantiated, because
+>   `GET_COUNTERS(STREAM_OUTPUT)` and its Table 5.22 unsolicited push were its
+>   only two readers — and the processor's **unsolicited** TX lane has no
+>   producer, so that push is genuinely absent. **The STREAM_INPUT counters at
+>   the `0x6B8` `A_STRMW_CNT` CSR window are unaffected and still live** — which
+>   is why the board-side `--csr-cmd` path is still the *only* way this campaign
+>   reads a stream counter.
+> * **The `avdecc_l2.py` control-frame families in §4.7 gain a real target.** A
+>   malformed AECP frame, an overstated or understated `control_data_length`, a
+>   truncated AECP payload, an unknown AEM command and a wrong
+>   `target_entity_id` all now have a specified answer to grade — the first four
+>   a conformant `NOT_IMPLEMENTED` echo (or the opcode's own status), the last
+>   silence. That is new assertable surface and **no runner op drives it yet**.
+>
+> **What still runs at full strength:** every `wt.*` wire-truth family (§4.4),
+> the whole audio inventory (§4.5), the SRP/MVRP declaration families, the
+> licence reading off `0x694`, the `xside.*` invariants that take their numbers
+> from the wire or from the *peer's* counters, and the instrument rule (§4.6).
+> The peer reference device answers AECP with real values, so every verdict
+> attributed to **that** side is unchanged.
+>
+> None of the AECP-dependent procedure below has been deleted. It is marked
+> where it appears, because a reader arriving with an old run in hand needs to
+> know why the answer changed — and because the difference between "no answer"
+> and "a conformant refusal" decides which SKIP reason a record carries.
+
 ## Contents
 
 - **[1. The five pieces and why they are separate](#1-the-five-pieces-and-why-they-are-separate)** — Each script, the question it answers, and the one rule that decides where a new check belongs.
@@ -299,8 +379,12 @@ means**. The general rules, which hold for every row:
 * **A SKIP always carries a `why`.** A silent skip is how a campaign reports
   having tested something it never ran. A SKIP is *never* evidence of health.
 * **A SKIP is never a violation.** Every unavailable reading — an unanswered
-  `GET_COUNTERS`, a missing capture, an absent licence word, a peer mid-reflash
-  — produces SKIP with the reason and the thing to supply.
+  `GET_COUNTERS`, a `GET_COUNTERS` answered `NOT_IMPLEMENTED`, a missing
+  capture, an absent licence word, a peer mid-reflash — produces SKIP with the
+  reason and the thing to supply. **A conformant refusal is an unavailable
+  reading, not a passed check**: it tells you the entity is alive and that the
+  function is absent, and a runner that folded it in as a PASS would report
+  health it never measured.
 * **Severity comes from the plan, not from the runner.** `SHALL` grades the run
   to exit 1; `RECOMMENDED` to exit 2; `INFO` is recorded and never failed.
 * **`sides_used` / `side` say what was measured.** A verdict from one side is a
@@ -317,10 +401,10 @@ run into SHALL failures.
 | assertion | sides | clause | FAILs when | SKIPs when |
 |---|---|---|---|---|
 | `acmp.status` | listener | 1722.1-2021 8.2.2.5 / Milan 5.5.3 | the response carries a status other than SUCCESS for a compatible pair | no ACMP response at all (a peer mid-reflash is not a conformance failure) |
-| `adp.alive` | DUT | 1722.1-2021 6.2.6 | the entity was not discovered in 2 × 11 s **and** a well-formed AECP command also went unanswered | not discovered but no MAC to probe with — absence is not proven (§8.4) |
-| `counters.avb_interface.mask` | **DUT and peer, one verdict each** | 1722.1-2021 Tables 7-152/7-153 + Milan 5.4.2.25 | the mask omits `LINK_UP`/`LINK_DOWN`/`GPTP_GM_CHANGED` (`0x023`) | that end did not answer `GET_COUNTERS` |
-| `counters.stream_input.mandatory-mask` | listener | Milan 5.3.8.10 + Table 5.6 | the mask does not claim all ten (`0xF3F`); the missing names are listed | `stream_input` did not answer |
-| `counters.stream_output.mandatory-mask` | talker | Milan 5.3.7.7 + Table 5.4 | the mask does not claim all five (`0x01F`) | `stream_output` did not answer |
+| `adp.alive` | DUT | 1722.1-2021 6.2.6 | the entity was not discovered in 2 × 11 s **and** a well-formed AECP command also went unanswered. **Both terms are live again** since the AECP uCPU landed: a healthy DUT answers every well-formed AECP command, so silence on AECP is once more real evidence of absence. A `NOT_IMPLEMENTED` status counts as *answered* here | not discovered but no MAC to probe with — absence is not proven (§8.4) |
+| `counters.avb_interface.mask` | **DUT and peer, one verdict each** | 1722.1-2021 Tables 7-152/7-153 + Milan 5.4.2.25 | the mask omits `LINK_UP`/`LINK_DOWN`/`GPTP_GM_CHANGED` (`0x023`) | that end did not answer `GET_COUNTERS`, **or answered it `NOT_IMPLEMENTED`** — which is this DUT's answer, and yields no mask to judge |
+| `counters.stream_input.mandatory-mask` | listener | Milan 5.3.8.10 + Table 5.6 | the mask does not claim all ten (`0xF3F`); the missing names are listed | `stream_input` did not answer, or the command was refused `NOT_IMPLEMENTED` |
+| `counters.stream_output.mandatory-mask` | talker | Milan 5.3.7.7 + Table 5.4 | the mask does not claim all five (`0x01F`) | `stream_output` did not answer, or the command was refused `NOT_IMPLEMENTED` |
 | `counters.stream_input.lock-invariant` | listener | Milan Table 5.6: *"either MEDIA_LOCKED=MEDIA_UNLOCKED … or MEDIA_LOCKED=MEDIA_UNLOCKED+1"* | neither holds | the mask does not claim both counters |
 | `counters.stream_output.start-stop-invariant` | talker | Milan Table 5.4: *"either STREAM_START=STREAM_STOP+1 … or STREAM_START=STREAM_STOP"* | neither holds | the mask does not claim both |
 | `counters.stream_input.tv-plus-tnv` | listener | 1722.1-2021 Table 7-157 | `FRAMES_RX` **exceeds** TV+TNV, which neither reading permits | the mask does not claim all three, **or all three read zero** — Milan 5.3.8.10 zeroes the block at the bind, so that snapshot is vacuous (§8.2). Read **after** the window. |
@@ -350,7 +434,7 @@ and mixing it into the bind made a conformant device read as a violation.
 | assertion | sides | clause | FAILs when | SKIPs when |
 |---|---|---|---|---|
 | `srp.streaming-licence` | DUT (CSR `0x694`) | Milan 5.3.7.3: the licence is a **conjunction** — *"declaring a Talker Advertise attribute **and** receiving a Listener Ready or Listener Ready Failed attribute"* | never FAILs. PASS = gate open; INFO = gate shut, which is a legitimate state | no `0x694` reading was supplied. The SKIP names the register and `--licence-status` |
-| `stream.starts-on-bind-alone` | talker | Milan 5.3.7.3: *"This specification excludes the possibility for a Stream Output to be stopped (STREAMING_WAIT state shall not be implemented)"* | the gate is **open** and `FRAMES_TX` did not move: the talker needs an AECP `START_STREAMING`, i.e. it has implemented the state the clause forbids | the gate is shut or unknown; `FRAMES_TX` unreadable; **or this talker index was left streaming by an earlier pair and the stop was not verified** (§8.5) |
+| `stream.starts-on-bind-alone` | talker | Milan 5.3.7.3: *"This specification excludes the possibility for a Stream Output to be stopped (STREAMING_WAIT state shall not be implemented)"* | the gate is **open** and `FRAMES_TX` did not move: the talker needs an AECP `START_STREAMING`, i.e. it has implemented the state the clause forbids. On this DUT `START_STREAMING` is **not implemented** and draws the conformant `NOT_IMPLEMENTED` echo, which is the clause-conformant posture, so the wire is the whole verdict | the gate is shut or unknown; `FRAMES_TX` unreadable; **or this talker index was left streaming by an earlier pair and the stop was not verified** (§8.5) |
 | `counters.stream_output.frames-tx-advances` | talker | Milan 5.3.7.3 | the gate is open and `FRAMES_TX` still does not move after an explicit `START_STREAMING` | gate shut/unknown, or `FRAMES_TX` unreadable |
 | `counters.stream_input.frames-rx-advances` | listener | Milan 5.3.7.3 + Table 5.6 `FRAMES_RX` | the gate is open and the listener's `FRAMES_RX` does not move | gate shut/unknown, `FRAMES_RX` unreadable, or the step carries no listener |
 | `xside.growth-corroborated` | **talker + listener + test machine** | Milan 5.3.7.3 ties the talker's streaming to the listener's declaration | the sides **disagree** about whether the stream is running — a one-sided claim of streaming is itself the defect, in both directions | any side unreadable (named), or fewer than two independent sides supplied |
@@ -436,7 +520,11 @@ before/during/after sandwich is what attributes a failure to the load.
 * **The reads ride the loaded wire.** AVDECC is best-effort too, and the
   adverse practice says control-plane responsiveness is *not* expected under
   high-rate BE — so a pair whose `GET_COUNTERS` goes unanswered during the
-  load window is named and SKIPped, never failed.
+  load window is named and SKIPped, never failed. On this DUT the command is
+  answered and refused rather than lost, so the load window's SKIP reason
+  distinguishes the two: *unanswered under load* is the adverse-condition case,
+  *answered `NOT_IMPLEMENTED`* is the capability boundary and is present with
+  or without load.
 
 | assertion | sides | clause | FAILs when | SKIPs when |
 |---|---|---|---|---|
@@ -455,11 +543,25 @@ next pair from a latched talker (§8.5).
 
 ### 4.3 The other control-plane assertions
 
+> **The two `aecp.*` rows still cannot be exercised against this DUT, and the
+> reason has changed (2026-08-13, re-triaged).** `SET_STREAM_FORMAT` and
+> `GET_STREAM_FORMAT` are **not implemented**: the `set_format` op now gets a
+> conformant `NOT_IMPLEMENTED` response instead of nothing, which is a refusal
+> and not a format, so both rows still SKIP. Against the **peer reference
+> device** they are unchanged and still meaningful — this is one of the places
+> where "which side" decides whether a row is live.
+>
+> **A new row this section owes and does not have.** The DUT's AECP response
+> contract is assertable now — a well-formed command draws a response with the
+> right `message_type`+1, length and `controller_data_length` — and no assertion
+> here grades it. Adding one would grade IEEE 1722.1 §9.3.5's duty to respond,
+> and **nothing about any command in this table**.
+
 | assertion | op / area | clause | FAILs when | SKIPs when |
 |---|---|---|---|---|
-| `aecp.stream-format-readback` | `set_format`, matrix | 1722.1-2021 7.4.9/7.4.10 + Milan 5.5.1.2 | an unexpected status. `BAD_ARGUMENTS(7)`, `NOT_SUPPORTED(11)` and `STREAM_IS_RUNNING(12)` are recorded as `CONFORMANT-REFUSAL`, not failures — a talker's wire width is an elaboration fact | no response |
-| `aecp.stream-format-round-trip` | `set_format`, matrix | same | a `SET` that returned SUCCESS does not read back | — |
-| `stream.stop-takes-effect` | `disconnect`, matrix + churn | Milan 5.3.7.3 + 1722.1-2021 7.4.36 | `FRAMES_TX` is still advancing after the UNBIND **and** the `STOP_STREAMING`: the talker is framing with no reservation. A `NOT_IMPLEMENTED`/`NOT_SUPPORTED` status is recorded as a conformant refusal — the wire is the verdict | no talker MAC on the step, or `FRAMES_TX` unreadable after the stop. An unproven stop is treated as **still latched**, so the next pair SKIPs rather than guessing (§8.5) |
+| `aecp.stream-format-readback` | `set_format`, matrix | 1722.1-2021 7.4.9/7.4.10 + Milan 5.5.1.2 | an unexpected status. `BAD_ARGUMENTS(7)`, `NOT_SUPPORTED(11)` and `STREAM_IS_RUNNING(12)` are recorded as `CONFORMANT-REFUSAL`, not failures — a talker's wire width is an elaboration fact | no response, **or `NOT_IMPLEMENTED` — always, on this DUT**: the command serves no function, so there is no format to read back |
+| `aecp.stream-format-round-trip` | `set_format`, matrix | same | a `SET` that returned SUCCESS does not read back | — (unreachable on this DUT: no SET ever returns SUCCESS; every one is refused `NOT_IMPLEMENTED`) |
+| `stream.stop-takes-effect` | `disconnect`, matrix + churn | Milan 5.3.7.3 + 1722.1-2021 7.4.36 | `FRAMES_TX` is still advancing after the UNBIND **and** the `STOP_STREAMING`: the talker is framing with no reservation. A `NOT_IMPLEMENTED`/`NOT_SUPPORTED` status is recorded as a conformant refusal — the wire is the verdict. **On this DUT `STOP_STREAMING` is refused `NOT_IMPLEMENTED`**, which Milan 5.3.7.3 makes the conformant posture, so the UNBIND alone must produce silence and the wire is the whole verdict | no talker MAC on the step, or `FRAMES_TX` unreadable after the stop. An unproven stop is treated as **still latched**, so the next pair SKIPs rather than guessing (§8.5) |
 
 ### 4.4 The payload / wire-truth families (31)
 
@@ -572,7 +674,7 @@ asserted by `torture_campaign_plan.feature`:
 | link | software PHY bounce ×5 | SHALL | **no runner op yet** → SKIP naming `link_bounce` |
 | link | **cable pull, same port then a different port** | SHALL | human — a powerstrip has no per-port outlet |
 | gPTP | **grandmaster change**, **grandmaster loss** — both now delivered by the `physical` area's **switch cycle** (§7.1): the partition *is* the loss, the re-join *is* the change | SHALL | physical: powerstrip, or human without the hook |
-| malformed | overstated / understated `control_data_length`, truncated AECP payload, short ACMPDU, bad AVTP version, overstated AAF `stream_data_length`, channel mismatch, unknown AEM command, wrong `target_entity_id` (**silence is correct there**) | SHALL | **no runner op yet** → SKIP naming `malformed_frame` |
+| malformed | overstated / understated `control_data_length`, truncated AECP payload, short ACMPDU, bad AVTP version, overstated AAF `stream_data_length`, channel mismatch, unknown AEM command (**a conformant `NOT_IMPLEMENTED` echo is correct there** — right `message_type`+1, right length, right `controller_data_length`), wrong `target_entity_id` (**silence is correct there**: freed, counted, no reply — as is an AECP *response* arriving as input) | SHALL | **no runner op yet** → SKIP naming `malformed_frame`. This group is the campaign's best-value AECP work now that the uCPU is landed: every entry has a specified answer and nothing drives it |
 | MAAP | DMAC conflict → *withdraw, wait 2 LeaveAll periods, reallocate* (Milan Table 5.3) | SHALL | **no runner op yet** → SKIP naming `maap_conflict` |
 | VLAN | wrong SR VID; **VID 0 as its own case** | SHALL | **no runner op yet** → SKIP naming `vlan_misconfig` |
 | starvation | talker source removed (silence **with** frames); listener stream stops (`STREAM_INTERRUPTED` advances) | SHALL | **no runner op yet** → SKIP naming `starve_source` / `stop_talker` |
@@ -739,40 +841,57 @@ jq -r 'select(.verdict=="SKIP")|[.assertion,.detail.why]|@tsv' b.jsonl | sort -u
 that **fail today and should**. Run `behave --tags ~@open-finding` for a clean
 gate; the findings stay visible and cannot be forgotten.
 
-**(1) `GET_COUNTERS` answers only Stream Inputs 0 and 1.** Milan v1.2 5.3.8.10:
+> **Both findings were OVERTAKEN on 2026-08-13, and neither is closed.** They
+> were source bindings against the old AECP response builder, and that RTL is
+> deleted — so the scenarios can no longer bind to anything, and the two partial
+> implementations they described have been replaced by **no implementation of
+> either function**. The AECP uCPU that landed since does not touch them: it
+> answers `READ_DESCRIPTOR` and refuses `GET_COUNTERS` and `SET_STREAM_FORMAT`
+> with a conformant `NOT_IMPLEMENTED`. Nothing about them got better — a device
+> that answers `GET_COUNTERS` for two sinks out of N is closer to Milan 5.3.8.10
+> than a device that refuses it for all of them. They are recorded below as the
+> last measured state of that engine. Check `ls tests/features/` and the suite's
+> own run before assuming the `@open-finding` scenarios are still present — the
+> feature file survives, the RTL it grepped does not.
+
+**(1) `GET_COUNTERS` answered only Stream Inputs 0 and 1.** Milan v1.2 5.3.8.10:
 *"For each Stream Input of the currently set Configuration, the PAAD-AE shall
 keep track of the counters in Table 5.6"*, and 5.4.2.25 makes `GET_COUNTERS`
-mandatory per descriptor. In [`hdl/ieee17221/aecp/KL_aecp_response_builder.sv`](../../hdl/ieee17221/aecp/KL_aecp_response_builder.sv):
+mandatory per descriptor. In the AECP response builder — `KL_aecp_response_builder.sv`
+under the AECP tree, **deleted 2026-08-13**:
 
-* the `CMD_GET_COUNTERS` case spans lines 1944–2012;
-* that block contains **no** `w_in_fidx` and **no** `AEM_N_STRIN_C`;
-* its only `STREAM_INPUT` guard is `w_gs_index < 16'd2`;
-* it calls `load_input_counters_consts(w_gs_index == 16'd0)`, which emits mask
-  `0xF3F` and loads real counter **values** only for sink 0.
+* the `CMD_GET_COUNTERS` case spanned lines 1944–2012;
+* that block contained **no** `w_in_fidx` and **no** `AEM_N_STRIN_C`;
+* its only `STREAM_INPUT` guard was `w_gs_index < 16'd2`;
+* it called `load_input_counters_consts(w_gs_index == 16'd0)`, which emitted mask
+  `0xF3F` and loaded real counter **values** only for sink 0.
 
-So sinks ≥ 2 — including the CRF Media Clock Input at index 4 — fall through to
-`BAD_ARGUMENTS`, and sink 1 answers `0xF3F` over an all-zero block.
+So sinks ≥ 2 — including the CRF Media Clock Input at index 4 — fell through to
+`BAD_ARGUMENTS`, and sink 1 answered `0xF3F` over an all-zero block. Today every
+sink falls through, because the command serves no function and is refused
+`NOT_IMPLEMENTED` regardless of index.
 
 > **A note on how to argue with this scenario.** It was briefly re-scoped to grep
-> the *whole* builder for `w_gs_index < 16'(AEM_N_STRIN_C)`, which passes by
-> matching line 395 — the `w_in_fidx` declaration, whose own comment says *"range
-> validity is decided separately in the STREAM_FORMAT arm"* and which is used
+> the *whole* builder for `w_gs_index < 16'(AEM_N_STRIN_C)`, which passed by
+> matching line 395 — the `w_in_fidx` declaration, whose own comment said *"range
+> validity is decided separately in the STREAM_FORMAT arm"* and which was used
 > only for `AEM_STRIN_FMT_C`. A whole-file grep standing in for an arm-anchored
 > check is exactly the descriptor-context-free defect this layer exists to
-> remove, so the check is anchored on the arm and its failure message prints the
-> guard text it found. **Silicon evidence to the contrary is welcome and must be
-> reconciled against those four bullets and those line numbers** — not against a
-> broader pattern match.
+> remove, so the check was anchored on the arm and its failure message printed
+> the guard text it found. That discipline is the reusable part; the file it was
+> anchored to is gone.
 
-**(2) Only Stream Input 0 has somewhere to store a stream format.** The per-input
-format registers live behind `` `ifdef AEM_PER_STREAM_FMT ``, and the `` `else ``
-arm defines exactly one — `fmt_in0_r` (line 707). No file under `configs/`
-defines that macro. Milan v1.2 5.5.1.2 makes the Listener's current format the
-value a bind is checked against, and the standing directive is that a controller
-must **always** `SET_STREAM_FORMAT` the listener to the talker's format rather
-than refuse the bind — so a sink with no format storage cannot participate in
-that. This is a **different subsystem** from finding (1) and is tracked
-separately.
+**(2) Only Stream Input 0 had somewhere to store a stream format.** The
+per-input format registers lived behind `` `ifdef AEM_PER_STREAM_FMT ``, and the
+`` `else `` arm defined exactly one — `fmt_in0_r` (line 707). No file under
+`configs/` defined that macro. Milan v1.2 5.5.1.2 makes the Listener's current
+format the value a bind is checked against, and the standing directive is that a
+controller must **always** `SET_STREAM_FORMAT` the listener to the talker's
+format rather than refuse the bind — so a sink with no format storage could not
+participate in that. **There is now no format storage and no `SET_STREAM_FORMAT`
+at all**, so the directive has nothing to act on: a controller cannot adapt this
+listener's format, and the format a bind is checked against is whatever the
+elaborated shape declares.
 
 ---
 
@@ -946,7 +1065,7 @@ assuming:
 |---|---|---|
 | the **domain grandmaster** (this bench: `priority1` 238 vs the bridge's 246, so it wins permanently, is alone in its island while the domain is cut, and wins again on the re-join) | `counters.avb_interface.gptp-gm-continuity` | the ADPDU `gptp_grandmaster_id` is **unchanged** and the delta is **exactly 0**. A counter that moves with an unchanged id is a torn latch / partial-id re-read; a changed id with `priority1` untouched is an election it should have held. `…gptp-gm-changed-advances` SKIPs naming why |
 | a **follower** of a remote GM | `counters.avb_interface.gptp-gm-changed-advances` | it really did lose its grandmaster, so a small bounded **advance** is owed and a frozen counter slept through the partition. `…gptp-gm-continuity` SKIPs naming why |
-| either | `counters.avb_interface.peer-gptp-gm-changed-advances` | the **other** end station is where a permanent-GM DUT's partition is observable, so its counter is read too; a reference device that does not serve `GET_COUNTERS` SKIPs naming that, never a verdict about the DUT |
+| either | `counters.avb_interface.peer-gptp-gm-changed-advances` | the **other** end station is where a permanent-GM DUT's partition is observable, so its counter is read too; a device that does not serve `GET_COUNTERS` — whether by silence or by a conformant `NOT_IMPLEMENTED`, which is our own DUT's answer — SKIPs naming that, never a verdict about the other side |
 | either | `counters.avb_interface.link-event-observed` (**INFO**) | `LINK_UP`/`LINK_DOWN` deltas as context. Whether a switch outage is even a PHY event for the DUT is a **cabling** fact: tap1 is an inline regenerating tap on the DUT link and holds the board-side PHY up while the switch side is dark, so a zero delta is expected and is never graded |
 
 Demanding an advance from a permanent GM demands a *non-conformant* count.
@@ -1072,7 +1191,11 @@ tcpdump**, never on `operstate`.
 gone"* FAIL was near-certain every run. The window is now ≥ 11 s (two advertise
 intervals) with a retry, and a discovery miss **alone** is a SKIP: only a miss
 *plus* an unanswered well-formed AECP command — the real liveness discriminator —
-is a FAIL.
+is a FAIL. **That second witness works again** now that the AECP uCPU is landed:
+a live DUT answers every well-formed AECP command, so silence there is evidence.
+Read the witness as *answered / not answered*, never as *SUCCESS / not SUCCESS* —
+a conformant `NOT_IMPLEMENTED` is a live entity refusing, and treating it as
+absence would resurrect the phantom this section exists to kill.
 
 ### 8.5 An unverified stop destroys the next pair's measurement
 
@@ -1255,13 +1378,29 @@ switch recovery, 8 s + up to 360 s + 120 s DUT boot, two proof pairs).
   per-queue admission). Those are the `0x400` CBS window's own gates.
 * **It does not test redundancy (Milan network redundancy), AVDECC
   authentication, or the AEM descriptor tree.** The descriptor tree has its own
-  gate and is deliberately not duplicated here.
+  gate and is deliberately not duplicated here. Note what that gate does *not*
+  reach: it checks the declared shape in this tree, while the entity a
+  controller reads over `READ_DESCRIPTOR` comes from a descriptor image in DRAM
+  that **nothing in this repository builds or loads**, so on a stock build the
+  wire answer is `BAD_ARGUMENTS` (the configuration range check fails ahead of
+  the locate, because an invalid image reports a configuration count of zero) and
+  the two are not comparable at all.
 * **It does not test gPTP itself** — no `sync`/`Follow_Up`/`Pdelay` timing
   analysis, no BMCA state machine checks. It observes `GPTP_GM_CHANGED` and the
   ADPDU's `gptp_grandmaster_id`, which is the AVDECC-visible surface only.
-* **It does not test AECP command coverage.** Which AEM commands the entity
-  implements, and their per-command payload rules, are the `item10_*` behave
-  features' subject.
+* **It does not test AECP command coverage — and as of 2026-08-13 nothing
+  does.** Which AEM commands the entity implements, and their per-command
+  payload rules, used to be the `item10_*` behave features' subject; those
+  features were deleted with the old AECP engine. The subject is **not** empty
+  any more: the landed AECP uCPU implements `READ_DESCRIPTOR` (three status
+  paths, both error paths carrying the IEEE 1722.1 §7.4.5 4-byte
+  `{descriptor_type, descriptor_index}` stub), the
+  `IDENTIFY_NOTIFICATION`-as-command → `BAD_ARGUMENTS` rule, the conformant
+  `NOT_IMPLEMENTED` echo contract, and two silent-refusal rules. Everything else
+  is still absent. **Nothing in this campaign grades that surface** — the
+  behave suite is where such a check would live, and `ls tests/features/` is the
+  authority on whether one does. Say that, rather than reporting an empty
+  subject or an answered one.
 * **It does not exercise more than one listener per talker beyond the two
   `churn.bind-while-streaming` steps and the `multi` primaries set's cyclic
   assignment** (which shares a talker only when the DUT has fewer AAF talkers
@@ -1286,8 +1425,13 @@ switch recovery, 8 s + up to 360 s + 120 s DUT boot, two proof pairs).
   `audio_walking_tone_identity.feature` rather than worked around.
 * **The desk suite carries two deliberately-failing scenarios** (§5.6) — the
   `GET_COUNTERS` per-sink bound and the per-input `STREAM_FORMAT` store. Use
-  `--tags ~@open-finding` for a gate. Both are L1 source bindings: they say what
-  the RTL in this tree does, and neither is a claim about silicon.
+  `--tags ~@open-finding` for a gate. Both were L1 source bindings: they said
+  what the RTL in this tree did, and neither was a claim about silicon. **Both
+  were overtaken on 2026-08-13** when that RTL was deleted; the underlying gaps
+  did not close, they widened — `GET_COUNTERS` and `SET_STREAM_FORMAT` are now
+  refused `NOT_IMPLEMENTED` by the landed uCPU, which is a well-formed answer
+  and still no counter and no format store. Run the suite to see what it still
+  contains.
 * **The `xside.absent-where-not-registered` pruning check needs a bystander
   side** to be supplied before it can find a leak; with only the talker and the
   listener configured it has no unregistered interface to look at, and SKIPs.

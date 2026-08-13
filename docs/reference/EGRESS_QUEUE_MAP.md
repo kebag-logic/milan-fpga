@@ -15,6 +15,18 @@ Single source of truth in the RTL: `ethernet_packet_pkg::network_priority_t`
 The CSR view is [REGISTER_MAP.md](REGISTER_MAP.md) — `CAP.num_queues`,
 `CLS_TC_QUEUE_MAP` (`0x310`) and the per-queue CBS window at `0x400`.
 
+> **THE QUEUE MAP IS UNCHANGED BY THE 2026-08-13 SUBSTITUTION; ITS SRP INPUTS
+> MOVED.** The lwSRP applicant that supplied the reservation is deleted along
+> with the rest of this repository's 1722.1/SRP plane; SRP is the pinned
+> `protocol-processor` submodule's now, and the datapath takes the **granted
+> slope, the adopted domain priority/VID and the per-stream admission bit**
+> off its class-D face every clock. Nothing in the classifier, the queues, the
+> credit arithmetic or the reset slopes moved. One ordering property changed
+> shape and is written up honestly in
+> [CBS slope ordering](#cbs-slope-ordering-after-the-substitution) below.
+
+
+
 ## Contents
 
 - **[The map at a glance](#the-map-at-a-glance)** — One picture, *generated from the RTL* rather than drawn, with the regenerate command. It is built to make two things hard to misread, both of which have already been "fixed" the wrong way once: gPTP sits below both shaped classes deliberately, and no queue is CBS-shaped at reset.
@@ -25,6 +37,7 @@ The CSR view is [REGISTER_MAP.md](REGISTER_MAP.md) — `CAP.num_queues`,
 - **[CBS reset slopes](#cbs-reset-slopes)** — The per-queue idleSlope, hiCredit and loCredit, summing to 72.5 % under the 75 % ceiling. Two decisions worth knowing: the removed spare's 2.5 % is left unallocated on purpose, and every queue powers up **unshaped** because shaping q0 at reset once paced all best-effort TX to ~250 Mbit/s on silicon.
 - **[Why gPTP sits below the shaped classes](#why-gptp-sits-below-the-shaped-classes)** — Written because someone will read the ordering as a bug. Three arguments: CBS's latency bound assumes the shaped queues are on top, gPTP is stamped at the egress SFD *downstream* of the arbiter so queueing shifts when it leaves and not what it says, and the measured service — 9.18 % of the port, worst gap 23.55 µs — is 40× what 802.1AS consumes. Ends by retiring the misdiagnosis that started the worry.
 - **[FQTSS: what is actually measured](#fqtss-what-is-actually-measured)** — The clause-34 checks with their numbers, including the non-vacuity control that proves the split is the shaper and not the arbiter (CBS off → q4 takes 100 %). Then the honest part: the reservation is **over-delivered** — 90.8 % of the port at a 45 % slope — with the mechanism spelled out. Size a reservation against the delivered share, not the configured slope.
+- **[CBS slope ordering after the substitution](#cbs-slope-ordering-after-the-substitution)** — The one thing the protocol-processor SRP engine does differently from the deleted `KL_lwsrp_bw_gate`: it asserts admission and slope in the *same* cycle instead of sequencing them around a hold. Equal on the opening edge, conservative on the closing one — and what is genuinely lost is the hold as a named, testable behaviour.
 - **[Ingress (RX to the CPU): two queues](#ingress-rx-to-the-cpu-two-queues)** — The RX split is now gPTP versus everything else, and the section records what that *cost*: the TCP flow-hash split that broke the single-NAPI ACK ceiling is gone and bulk RX reverts to the one-hart number. Also the reflash-gated procedure for raising the AX to two queues, which moves every DMA window by `0x74`.
 - **[Where the fabric bypasses all of this](#where-the-fabric-bypasses-all-of-this)** — The scope limit on the whole page: only CPU-originated frames traverse the classifier, the queues and the shaper. Every fabric engine injects downstream, so these assignments bite a software AVDECC controller or MRP stack and nothing else.
 
@@ -177,9 +190,14 @@ place.**
 longer stands alone.** `LPF_P = 0` (**428 LUT / 756 FF ≈ 109 slices**, the
 shipping 8×8 place report's own row) is now declared in
 `board.constraints.render_lpf` of the `ax7101` config and rides `sweep.sh`
-and `build.sh cfg_ax8x8`; four logic levers in `KL_chan_map_render`,
-`KL_lwsrp_walker` and the two ACMP context engines add an **estimated
-383 … 877 slices** on top. The ladder — 282 over, −147 for the queue,
+and `build.sh cfg_ax8x8`; four logic levers in `KL_chan_map_render`, the
+lwSRP walker and the two ACMP context engines added an **estimated
+383 … 877 slices** on top. (Three of those four blocks were **deleted
+outright** on 2026-08-13 with the 1722.1/SRP plane, which returns far more
+than the levers ever would have — measured in
+[`../findings/PP_SHADOW_AREA_0812.md`](../findings/PP_SHADOW_AREA_0812.md).
+The ladder below is kept as the record of the decision that was taken at the
+time.) The ladder — 282 over, −147 for the queue,
 −109 for the filter, −383…877 for the logic — leaves **357 … 851 slices of
 estimated margin**. That is an estimate, not a placement; the caveats in
 *What is not verified* below still apply in full, and a build is still the
@@ -371,9 +389,10 @@ reason. `IDLE_SLOPE_100M` is the same shares of 100 Mb/s.
 oversight. Shaping q0 at reset once paced *all* best-effort TX to ~250 Mbit/s on
 silicon — see [CBS_DEFAULT_SHAPING_BUG.md](../findings/CBS_DEFAULT_SHAPING_BUG.md).
 Software opts a queue in through `CBS_CTRL[0]` once a reservation exists; the
-lwSRP engine does it automatically for the queue named in `LWSRP_CTRL[4:2]`
+SRP path does it automatically for the queue named in `LWSRP_CTRL[4:2]`
 (reset **4**; it was 5 while the map had six queues) when a reservation is
-granted. The field keeps 3 bits, so codes 5-7 name no queue at all —
+granted — the grant is the protocol processor's since 2026-08-13, the CSR
+field and the mux are unchanged. The field keeps 3 bits, so codes 5-7 name no queue at all —
 `milan_datapath` gates the slope mux on `qidx < NUM_QUEUES` so a bogus index
 leaves the `0x400` values alone.
 
@@ -432,7 +451,7 @@ it is the property this whole ordering argument rests on. It is gated in
 | **The shaped class and best effort share the port.** q4 shaped and permanently backlogged, q0 unshaped and permanently backlogged | §8.6.8.2 | q4 outranks q0 absolutely, so only the credit gate can stop it — and it does: **11.97 / 22.91 / 47.04 %** of the port at idleSlope 100 / 200 / 450 Mb/s, q0 taking the rest. Neither queue is ever starved, and the split is monotone in idleSlope. (Pre-debt-law these read 13.70 / 30.11 / 90.82 % — the `REQ-CBS-07` over-delivery.) |
 | **Non-vacuity.** Same stimulus with CBS switched off | — | q4 takes **100.00 %**. So the split above *is* the shaper, not the arbiter and not the harness. |
 | **gPTP is not starved by a saturating class A** | §8.6.8.2 | 52.96 % of the port under the debt law (the shaped class no longer over-consumes), worst gap 3.07 µs — see above. |
-| **Admission.** A reservation whose slope would break the ceiling is refused | §34.3.1 | `KL_lwsrp_bw_gate` carries the 750e6 / 75e6 limits in RTL and tears down an over-budget TSpec on a live reservation ([`tb/verilator/lwsrp`](../../tb/verilator/lwsrp)); the config side is builder gate 18d, which rejects an over-subscribed class-A request before a bitstream exists. |
+| **Admission.** A reservation whose slope would break the ceiling is refused | §34.3.1 | Was `KL_lwsrp_bw_gate`, which carried the 750e6 / 75e6 limits in RTL and tore down an over-budget TSpec on a live reservation — **that block and its suite are deleted (2026-08-13)**; admission is now the protocol processor's `KL_srp_admission`, which walks its sources and latches the grant, the granted slope and the running Σ together at round end. The config side is unchanged: builder gate 18d rejects an over-subscribed class-A request before a bitstream exists. |
 
 **The reservation is honoured and wire-time paced** (`REQ-CBS-07` closed, the
 gh #63 I5 debt law): each CBS carries a per-queue Q16 wire-time debt — bytes
@@ -450,6 +469,39 @@ math (`MaxFrameSize + 42`) reserves that overhead, and the old law handed it
 out twice. [`tb/verilator/shaper_core`](../../tb/verilator/shaper_core) asserts the law's own fixed point and
 that delivery never exceeds `S/8`; [`tb/verilator/cbs`](../../tb/verilator/cbs) pins the debt
 arithmetic state-for-state against a reference model.
+
+## CBS slope ordering after the substitution
+
+An honest change, not a regression, and worth writing down because the
+invariant it protects is the one thing on this page that could hurt the wire.
+
+The deleted `KL_lwsrp_bw_gate` sequenced the two events explicitly. On
+activation it **joined a stream's idleSlope into the running Σ first**, held,
+then opened that stream's gate; on teardown it **closed the gate first**,
+held, then removed the slope. The invariant that bought: *no stream ever
+transmits against a slope the shaper has not budgeted*.
+
+The protocol processor has no such hold. `KL_srp_admission` walks its sources
+and latches the grant, the granted slope and the running sum **together** at
+round end, and the published admission bit is that grant ANDed with the live
+request. So the two edges land like this:
+
+* **Opening edge — equal, never worse.** A source's gate can only rise once a
+  round has granted it, and that same round is what put its slope into the
+  sum. Gate and Σ therefore change on the *same* edge, never gate-first. The
+  hold existed to let the slope settle through the CSR mux; that mux is
+  combinational and in this clock domain, so there is nothing to settle.
+* **Closing edge — conservative, not permissive.** The admission bit drops the
+  cycle the request drops, but the sum is round-latched and keeps the stopped
+  stream's slope until the next round completes. The shaper goes on budgeting
+  bandwidth for a stream that has already stopped: **briefly high for zero
+  traffic**, which is the safe direction.
+
+**Neither edge lets a stream transmit against an un-budgeted slope**, so the
+invariant holds on both. What is genuinely lost is the bw-gate's explicit
+hold as a *named, testable behaviour*: the ordering is now a consequence of
+the admission round's structure rather than a sequencer anyone can point at,
+and the suite that used to point at it is deleted.
 
 ## Ingress (RX to the CPU): two queues
 
@@ -497,9 +549,18 @@ classifier, the per-queue FIFOs and the CBS arbiter. The fabric engines inject
 **after** the shaper, through the `adp_tx_arbiter` chain and the control-lane
 IFG gasket:
 
-* the AAF talker (`KL_aaf_packetizer` / `aaf_talker_i2s`) — paced by the lwSRP
-  bandwidth gate rather than by CBS;
-* ADP, ACMP, AECP, MAAP, the CRF talker, and the lwSRP MSRP/MVRP PDUs.
+* the AAF talker (`KL_aaf_packetizer` / `aaf_talker_i2s`) — paced by the SRP
+  admission gate rather than by CBS;
+* ADP, ACMP, MAAP, the CRF talker, and the MSRP/MVRP PDUs. Since 2026-08-13
+  all of those except MAAP and CRF come from the protocol processor's single
+  packed TX stream, and the control lane's merge is `ctl_tx_mux` — processor
+  plus MAAP, two legs, one arbiter. **AECP responses ride that same packed
+  stream**: the processor's AECP uCPU answers `READ_DESCRIPTOR` and emits a
+  conformant `NOT_IMPLEMENTED` echo for every other command, driving the
+  processor's solicited TX lane, so AECP frames do leave this device on the
+  control lane. What the device never emits is an **unsolicited** AECP frame —
+  the processor's unsolicited lane has no producer, so the Milan Table 5.22 push
+  contributes no traffic to any queue.
 
 So the q4/q3/q1 assignments bite for **CPU-originated** traffic today: a
 software AVDECC controller or a software MSRP stack lands on q1, gPTP from the
@@ -508,8 +569,8 @@ talker inside the shaper is a separate piece of work (the `is_1g` follow-up
 noted in `milan_datapath.sv`).
 
 That bounds what `REQ-CLS-10` changes on the wire, and the honest version is
-worth stating: the fabric already emits ADP, ACMP, AECP, MAAP and the lwSRP
-MSRP/MVRP PDUs downstream of this classifier, so those frames never touched a
+worth stating: the fabric already emits ADP, ACMP, MAAP and the MSRP/MVRP
+PDUs downstream of this classifier, so those frames never touched a
 queue and are unaffected. What moves from q0 to q1 is **software**-originated
 control traffic — a host AVDECC controller or a host MRP stack — plus anything
 the fabric hands to the classifier in future. The map is now true for both.

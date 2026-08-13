@@ -2,10 +2,35 @@
 
 [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) is the single clean integration boundary of
 this project: the whole Milan TSN datapath (classify + 802.1Qav CBS, PTP
-clock + timestamping, TCAM RX filter, ADP advertiser, RMON, CSR) behind flat,
-host-agnostic ports. It is `milan_top.sv` **minus the Zynq PS and minus the
-MAC** - everything inside is vendor-neutral, Verilator-simulated and
-Yosys-checked (see [PORTING_GUIDE.md](PORTING_GUIDE.md)).
+clock + timestamping, TCAM RX filter, the AAF/CRF stream engines, MAAP, RMON,
+CSR) **plus the entire IEEE 1722.1 / SRP control plane** —
+[`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv), wrapping the
+pinned `protocol-processor` submodule — behind flat, host-agnostic ports. It is
+`milan_top.sv` **minus the Zynq PS and minus the MAC** - everything inside is
+vendor-neutral, Verilator-simulated and Yosys-checked (see
+[PORTING_GUIDE.md](PORTING_GUIDE.md)).
+
+Two things an integrator needs to know before wiring anything, because neither
+is visible from the port list:
+
+* **`KL_pp_shadow` is instantiated unconditionally** — there is no parameter,
+  no fallback and no shadow arm, and it brings the `protocol-processor`
+  submodule into your source list (§3). It owns ADP, ACMP (talker and listener)
+  and SRP; MAAP stays in `hdl/` and is bridged to it by `KL_pp_maap_shim.sv`.
+* **On AECP this entity answers `READ_DESCRIPTOR`, and answers every other AECP
+  command with a conformant `NOT_IMPLEMENTED` echo.** The processor's AECP uCPU
+  has landed; this repository's own engine is deleted. `READ_DESCRIPTOR` returns
+  `SUCCESS` with the descriptor, or `NO_SUCH_DESCRIPTOR` / `BAD_ARGUMENTS` with
+  the IEEE 1722.1 §7.4.5 4-byte stub; an `IDENTIFY_NOTIFICATION` sent as a
+  command answers `BAD_ARGUMENTS`; a command aimed at another
+  `target_entity_id`, and any AECP response arriving as input, are refused
+  silently by design. **An echo is not an implementation:** ACQUIRE/LOCK_ENTITY
+  (including Milan Δ7's `NOT_SUPPORTED` answer, which is *not* distinguished
+  from the generic echo), every SET/GET, `GET_COUNTERS` and the Milan Table 5.22
+  unsolicited push, IDENTIFY, and saved-state persistence across a power cycle
+  are all genuinely absent. Plan around that boundary if your product needs
+  AECP — and see §1.6, because the descriptor half comes with an integration
+  obligation you inherit.
 
 This guide is the contract you integrate against. The two in-repo reference
 integrations of exactly this boundary:
@@ -20,23 +45,29 @@ integrations of exactly this boundary:
 CPU  ── AXI4-Lite slave (s_axi_*, 16-bit offset) ─────► control plane
 DMA  ── s_axis_tx_* (DRAM→) / m_axis_rx_* (→DRAM) / m_axis_ts_* (→DRAM)
 MAC  ── m_axis_mac_tx_* (→MAC) / s_axis_mac_rx_* (MAC→) + o_mac_* cfg / i_mac_* status
+MEM  ── o_desc_mem_* / i_desc_mem_* (read-only master → your main memory:
+        the AECP descriptor image lives there, §1.6)
 IRQ  ── o_irq_csr (milan_csr aggregate; DMA-done IRQs come from your DMA engine)
 ```
 
-Internal TX order: DMA → classifier/queues/CBS → PTP-TX timestamp → ADP
-arbiter → MAC. Internal RX order: MAC → PTP-RX timestamp → TCAM dest-MAC
-filter → DMA.
+Internal TX order: DMA → classifier/queues/CBS → PTP-TX timestamp → a
+four-mux arbiter cascade → MAC. LSB-first in `A_TXARB_DIAG` (`0x784`) the muxes
+are 0 `ctl_tx` (the protocol processor's packed TX + MAAP → the control lane),
+1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx` (the MAC boundary); bits 7:4 read a
+structural zero. Internal RX order: MAC → PTP-RX timestamp → TCAM dest-MAC
+filter → DMA, with the control plane and the AVTP media path as pure monitor
+taps that never drive the stream back.
 
 ---
 
 ## Contents
 
-- **[1. Ports, group by group](#1-ports-group-by-group)** — The whole boundary, one table per group: clocks (and the licence to tie `gtx_clk = axis_clk`, which is what the LiteX build does), the AXI4-Lite window that decodes only the low 16 bits so any base works, the three DMA streams, the MAC sideband, and why `o_irq_csr` is the *only* IRQ the datapath raises — DMA completion is yours to generate.
-- **[2. Minimum viable integration (the M-A2 pattern)](#2-minimum-viable-integration-the-m-a2-pattern)** — The stub-everything first step: clocks, reset, CSR port, every AXIS input tied off, then read `"MILN"` at offset `0x0`. This is how both the SoC sim and first silicon were validated, and it names the attach order — MAC, then DMA, each separately testable.
-- **[3. Source files and includes](#3-source-files-and-includes)** — Where the canonical file list lives (`_MILAN_DATAPATH_SOURCES`), and the reason it cannot silently drift: the Verilator harness and the Yosys flow consume the same list. Also the six `svh` include dirs, the submodule prerequisite, and the two files a non-Zynq build must NOT add or it drags in PS7.
+- **[1. Ports, group by group](#1-ports-group-by-group)** — The whole boundary, one table per group: clocks (and the licence to tie `gtx_clk = axis_clk`, which is what the LiteX build does), the AXI4-Lite window that decodes only the low 16 bits so any base works, the three DMA streams, the MAC sideband, and why `o_irq_csr` is the *only* IRQ the datapath raises — DMA completion is yours to generate. §1.6 is the port group that gives you a *job* rather than a wire: the descriptor-image read master, its compile-time base, the error arm you must not mask, and the fact that nothing in this repository loads the image it fetches.
+- **[2. Minimum viable integration (the M-A2 pattern)](#2-minimum-viable-integration-the-m-a2-pattern)** — The stub-everything first step: clocks, reset, CSR port, every AXIS input tied off, then read `"MILN"` at offset `0x0`. This is how both the SoC sim and first silicon were validated, and it names the attach order — MAC, then DMA, then the descriptor-image master, each separately testable.
+- **[3. Source files and includes](#3-source-files-and-includes)** — Where the canonical file list lives (`_MILAN_DATAPATH_SOURCES`), and the reason it cannot silently drift: the Verilator harness and the Yosys flow consume the same list. Also the six `svh` include dirs, the **two** submodule prerequisites (verilog-axis *and* protocol-processor), the two generated `$readmemh` images the control plane loads — the ACMP transition ROM and the AECP uCPU microcode, whose absence fails as *silence* — and the two files a non-Zynq build must NOT add or it drags in PS7.
 - **[4. Running the datapath on its own clock](#4-running-the-datapath-on-its-own-clock)** — The escape hatch when 100 MHz timing is tight (the CBS slope divide is the known critical path): the three crossing mechanisms `--milan-clk-freq` uses, and why it is free — a 64-bit datapath at 50 MHz still exceeds 1 GbE line rate.
 - **[5. Software contract](#5-software-contract)** — The three things software binds to: the register ABI (offsets defined once in RTL, with a harness asserting doc and RTL agree), the `kl,dma-ether-0.9` DT compatible string, and the generated device tree — add an IR JSON for a new host rather than hand-writing a dtsi.
-- **[6. Verifying your integration](#6-verifying-your-integration)** — A three-rung ladder from RTL boundary to first silicon, each rung naming its harness and the doc that walks it.
+- **[6. Verifying your integration](#6-verifying-your-integration)** — A four-rung ladder from RTL boundary to first silicon and on to controller enumeration, each rung naming its harness and the doc that walks it.
 
 ## 1. Ports, group by group
 
@@ -79,7 +110,20 @@ hard-coding into your bring-up:
 * The map is decoded in [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) in 0x100-sized groups
   (0x000 ID/IRQ, 0x100 MAC, 0x200 RMON stats, 0x300 classifier,
   0x400 CBS per-queue (`0x400`-`0x49F`, stride `0x20` × 5 queues), 0x500 PTP,
-  0x600 ADP, 0x700 RX filter/TCAM).
+  0x600 entity identity, 0x700 RX filter/TCAM, and up through the
+  `0x920`-`0x930` protocol-processor window).
+* **The entity enable is ORed from two bits**: `PP_CTRL[0]` (`0x920`) and the
+  historic `ADP_CTRL.en` (`0x600` bit 0). Either one enables the entity, so a
+  bring-up script written against the old bit still works. `milan_csr` has no
+  `PP_PLANE_P` parameter any more — the `0x920` window is always decoded, and
+  `PP_STAT` always carries its `0x5B` tag, which makes it a usable
+  second smoke test after `"MILN"`.
+* **No register was removed** when the legacy control plane was deleted; the map
+  is an ABI. Words whose source went away read documented **structural zeros**,
+  a few provisioning words are **write-only scratch** (they read back what you
+  wrote and reach nothing on the wire), and `A_TXARB_DIAG` **renumbered**. Do
+  not infer liveness from a plausible value — check
+  [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md).
 
 ### 1.3 DMA streams (to/from your memory engine)
 
@@ -100,8 +144,8 @@ design history is in [../findings/RX_RING_DMA.md (archived)](../../historical_no
 
 | Port(s) | Dir | Semantics |
 |---|---|---|
-| `m_axis_mac_tx_*` | out | shaped/timestamped/ADP-merged TX frames to the MAC |
-| `s_axis_mac_rx_*` | in | RX frames from the MAC (CRC-stripped, good frames) |
+| `m_axis_mac_tx_*` | out | TX frames to the MAC: shaped CPU traffic, the AAF/CRF streams and the control lane, merged by the four-mux cascade above |
+| `s_axis_mac_rx_*` | in | RX frames from the MAC (CRC-stripped, good frames). The protocol processor and the AVTP media path tap this stream internally; you drive it exactly as before |
 | `o_mac_tx_en, o_mac_rx_en, o_mac_promisc, o_mac_allmulti, o_mac_is_1g` | out | MAC enables/config, driven from CSR group 0x100 |
 | `o_mac_ifg[7:0]` | out | inter-frame gap config |
 | `o_mac_addr[47:0]`, `o_mc_hash[63:0]` | out | station address + multicast hash for MAC-level filtering |
@@ -125,13 +169,59 @@ four lines named `tx-dma`, `rx-dma`, `ts-dma`, `csr`
 folded into one PLIC line, on Zynq four separate GIC lines - the device
 tree, not the RTL, encodes that difference ([`sw/dts/`](../../sw/dts)).
 
+### 1.6 Descriptor-image read master (the entity model lives in YOUR memory)
+
+The AECP descriptor store does not hold the entity model in fabric — it
+**fetches it from your main memory** over this read-only master. This is the one
+port group that gives the integrator a job beyond wiring.
+
+| Port(s) | Dir | Semantics |
+|---|---|---|
+| `o_desc_mem_req_valid`, `i_desc_mem_req_ready` | out/in | request handshake; **one outstanding request**, held until ready |
+| `o_desc_mem_req_addr[31:0]`, `o_desc_mem_req_beats[8:0]` | out | byte address and burst length in **64-bit beats** (at least 1, at most 128) |
+| `i_desc_mem_rsp_valid`, `o_desc_mem_rsp_ready` | in/out | response handshake; `rsp_ready` is tied 1 by the processor — it always sinks |
+| `i_desc_mem_rsp_data[63:0]`, `i_desc_mem_rsp_last` | in | responses **in order**; a beat carries its **lowest byte address in bits [63:56]** (1722.1 wire order, big-endian — a byte-reverse of what a little-endian bus hands you), and `rsp_last` marks the final beat |
+| `i_desc_mem_rsp_err` | in | read error. **Propagate it, never mask it** |
+
+Four things to get right:
+
+* **The base is compile-time.** `PP_DESC_BASE_P` (8-byte aligned) is an
+  elaboration parameter and the processor holds **no base register**, so nothing
+  can be pointed anywhere at runtime. **Derive it from your own memory map** —
+  the LiteX build takes the top 1 MiB of `main_ram`, which the device tree
+  reserves, rather than mirroring a literal.
+* **The error arm is not optional.** LiteX's `wishbone2axi` asserts `err`
+  *together with* `ack`, so an `If(ack, …)` alone accepts a failed read and
+  latches whatever the data bus held. Wire `rsp_err`: the store aborts the burst
+  and degrades that locate to `NO_SUCH_DESCRIPTOR`, so a corrupt descriptor is
+  never served as though it were good.
+* **Tying `i_desc_mem_req_ready` to 0 is legal, and it must be deliberate.** The
+  store's watchdog (4096 cycles, about 41 µs at 100 MHz, covering the request
+  handshake as well) abandons the burst, so the image never validates and every
+  `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` instead of hanging — but the entity then serves no
+  descriptors at all, and that has to be a stated choice, not an oversight.
+* **Somebody has to load the image, and in this repository nobody does yet.**
+  The generator lives in the submodule
+  (`protocol-processor/hdl/aecp/desc/gen_desc_image.py`: vendor-neutral JSON in,
+  flat image out); no step in `sw/builder`, `scripts/`, the LiteX SoC builder or
+  the boot path produces that JSON or writes the image into DRAM, and the
+  `aecp_aem_rom.svh` the end-station builder still emits belongs to the
+  **deleted** in-fabric store — it is an orphan, not this image. Until your
+  integration supplies one, the entity discovers, connects and streams while
+  enumerating nothing. The image header's magic (`"AEMI"`, `0x41454D49`),
+  layout version and checksum make an unloaded region read as **"image not
+  loaded"** rather than as a valid empty model, and a **late load heals without
+  a reset** — each locate against an invalid image re-arms the header probe.
+
 ---
 
 ## 2. Minimum viable integration (the M-A2 pattern)
 
 Wire only clocks + reset + the AXI4-Lite CSR port; tie every AXIS input to
 zero and every `*_tready` input to 0, tie `i_mac_speed=2'b10`,
-`i_link_up=1`, `i_full_duplex=1`, `i_mac_events=0`.
+`i_link_up=1`, `i_full_duplex=1`, `i_mac_events=0`, and tie
+`i_desc_mem_req_ready=0` / `i_desc_mem_rsp_*=0` (the descriptor store's watchdog
+handles that cleanly — §1.6).
 
 This elaborates, meets timing, and gives you a live CPU⇄CSR path: read
 offset `0x0`, expect `"MILN"`. This exact stub-everything pattern is what
@@ -139,14 +229,21 @@ offset `0x0`, expect `"MILN"`. This exact stub-everything pattern is what
 both the SoC sim and first silicon were validated.
 
 Then attach the MAC (§1.4), then the DMA (§1.3) - in that order, each step
-separately testable.
+separately testable. The descriptor-image master (§1.6) is a fourth step, and
+the only one with a software half: bridging it makes `READ_DESCRIPTOR` capable
+of succeeding, and **loading an image at the base** is what makes it actually
+succeed.
 
 ## 3. Source files and includes
 
 The canonical file list is `_MILAN_DATAPATH_SOURCES` in
 [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) - packages first, then the verilog-axis cores
 (`axis_fifo`, `axis_demux`, `axis_arb_mux`, `arbiter`, `priority_encoder`),
-then the datapath RTL, ending in [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
+then the datapath RTL **including the `protocol-processor` submodule's sources
+and [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv)**, ending in
+[`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv). Read that
+list rather than reconstructing it: the control plane is no longer a directory
+you can glob out of `hdl/`.
 
 The same set is used by the [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) harness and the
 [`syn/yosys`](../../syn/yosys) flow, so it cannot silently drift.
@@ -155,7 +252,21 @@ Add these include directories for the `` `include `` files (`*.svh`):
 [`hdl/common`](../../hdl/common), [`hdl/ieee8021q/ts`](../../hdl/ieee8021q/ts), [`hdl/ieee8021as/ptp_timestamp`](../../hdl/ieee8021as/ptp_timestamp),
 [`hdl/ieee17221/adp`](../../hdl/ieee17221/adp), [`hdl/common/csr`](../../hdl/common/csr), [`hdl/common/eth_event_counter`](../../hdl/common/eth_event_counter).
 
-Prerequisite: `git submodule update --init third_party/verilog-axis`.
+Prerequisites: `git submodule update --init third_party/verilog-axis` **and
+`git submodule update --init protocol-processor`** — the datapath does not
+elaborate without the latter, since `KL_pp_shadow` is instantiated
+unconditionally. `KL_pp_shadow` also takes **two `$readmemh` images** that must
+be readable from the simulator's or synthesiser's working directory — pass them
+as absolute paths, because a relative one resolves against wherever the tool was
+launched: `TROM_HEX_P` (the ACMP listener transition ROM,
+`protocol-processor/hdl/acmp/rom/gen_ltn_rom.py`) and `UCODE_HEX_P` (the **AECP uCPU microcode**,
+`protocol-processor/hdl/aecp/ucode/gen_ucode.py`). Both are generated at build
+time by `add_milan_datapath()`. An all-zero microcode store is an AECP engine
+that answers nothing, which looks exactly like a build from before the uCPU
+landed — so a missing `UCODE_HEX_P` fails as silence, not as an error.
+`PP_DESC_BASE_P` has no default worth inheriting either: the LiteX helper
+**raises** rather than falling back, because the submodule's placeholder base is
+not guaranteed to be memory on your SoC (§1.6).
 
 Do **not** add [`hdl/milan/milan_top.sv`](../../hdl/milan/milan_top.sv) or [`hdl/milan/milan_dma_wrapper.v`](../../hdl/milan/milan_dma_wrapper.v)
 to a non-Zynq build - they are the Zynq variant and drag in the
@@ -198,6 +309,7 @@ for the working pattern, plus the CBS multicycle constraint described in
 | RTL boundary sanity | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) drives this exact module: CSR ID read, classifier program, TX/RX byte-exact | [../testing/TESTING.md](../testing/TESTING.md) |
 | Your SoC in sim | LiteX users: `milan_sim.py` boots the BIOS and reads `"MILN"` over the real CPU bus | [../testing/SIMULATION.md](../testing/SIMULATION.md) |
 | First silicon | CSR ID read at your base address (M-A2), then MAC loopback, then DMA rings | [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md) shows the worked sequence |
+| Enumeration | write a descriptor image at your derived base, then `READ_DESCRIPTOR` the ENTITY descriptor from a controller. `BAD_ARGUMENTS` everywhere means the image is missing or corrupt (or the master is not bridged), not that AECP is broken; `NO_SUCH_DESCRIPTOR` means the opposite — the image loaded and that descriptor is genuinely absent from the model | §1.6; [../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md) §26 |
 
 ---
 

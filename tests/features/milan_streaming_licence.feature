@@ -27,28 +27,20 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
   edit cannot quietly re-widen the condition. The wire evidence is a byte-exact
   MSRPDU captured from the certified bench bridge on 2026-07-28.
 
+  WHAT LEFT WITH THE lwSRP RTL. The applicant/registrar/bw-gate engine under
+  hdl/ieee8021q/srp/** has been deleted; the protocol-processor submodule
+  declares now, and milan_datapath drives lwsrp_stream_gate from the
+  processor's admitted vector. Three @class:clause scenarios (listener_ready_o,
+  the bw-gate req_w, the unconditional TalkerAdvertise inclusion) resolved out
+  of that RTL's own expressions and went with it. So did @matrix:M-DEV-13d:
+  its subject was the fabric provisioner srp_fab_want_v_w / srp_fab_launch_w,
+  which no longer exists - there is no row for the fabric to provision. The
+  remaining scenarios read only what still ships: the AAF admission
+  composition in milan_datapath, the t>0 identity in KL_aaf_packetizer, and
+  the bench capture.
+
   Background:
-    Given the lwSRP RTL sources
-
-  @class:clause
-  Scenario: listener_ready is exactly "Ready or Ready Failed", per 5.3.7.3
-    When I read the listener_ready_o expression from KL_lwsrp_registrar
-    Then it requires the Listener attribute to be registered
-    And it accepts the declaration Ready
-    And it accepts the declaration ReadyFailed
-    And it rejects the declaration AskingFailed
-    And it rejects the declaration Ignore
-
-  @class:clause
-  Scenario: the bandwidth gate's request term carries the licence
-    When I read the req_w expression from KL_lwsrp_bw_gate
-    Then the request requires talker_declared_i
-    And the request requires listener_ready_i
-
-  @class:clause @negative
-  Scenario: the Talker attribute is declared unconditionally, per 5.3.7.2
-    When I read the TalkerAdvertise inclusion term from KL_lwsrp_tx
-    Then the Talker attribute does not depend on any Listener registration
+    Given the Milan datapath and AAF talker RTL sources
 
   @class:structure @known-defect
   Scenario: every term that can open the AAF admission gate is accounted for
@@ -56,28 +48,6 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
     Then the gate has exactly one escape hatch and it is named cfg_aaf_bypass
     And with the escape hatch clear the gate requires the lwSRP stream gate
     And the escape hatch is recorded as a Milan 5.3.7.3 conformance defect
-
-  @class:structure @matrix:M-DEV-13d
-  Scenario: every AAF talker Stream Output has a Talker Advertise provisioner
-    # 5.3.7.2 "shall always declare an MSRP Talker attribute as soon as it has
-    # valid SRP parameters" makes the ADVERTISE half unconditional, and
-    # 5.3.7.3 makes it a PRECONDITION of the licence. Until 2026-07-30 the
-    # provisioning port had two writers and neither served the AAF talker
-    # rows: A_STRMW_SRP read 0x00000000 for talkers 1/2/3 on a 4x4 board and
-    # the ProfiShark tap saw a Talker Advertise for uid 0 and uid 4 (the CRF
-    # output) only, so no talker but 0 could ever be licensed.
-    When I read the per-talker lwSRP provisioning want from milan_datapath
-    # 5.3.7.2 makes the declaration UNCONDITIONAL for a declared Stream
-    # Output, so it must come from the SHAPE, not a runtime poke (USER "shape
-    # is STATIC"): the 0x001E provisioner gated it on the per-context enable
-    # A_STRMW_CTRL[0], which resets to 0 and which S50milan never writes, so a
-    # fresh boot still declared nothing for t>0 - the same silence, one layer
-    # in. The want must NOT depend on that enable.
-    Then the want does NOT require the per-context runtime enable
-    And the want requires the lwSRP engine and its talker declaration
-    And the want does NOT depend on the lwSRP stream gate
-    And the want does NOT depend on ACMP talker_active, per 5.5.2.7
-    And the fabric yields the provisioning port to a CSR write, never to its poll
 
   @class:structure @matrix:M-DEV-13e
   Scenario: a talker above 0 egresses on the SRP licence alone, with its own identity

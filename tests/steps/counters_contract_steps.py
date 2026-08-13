@@ -25,8 +25,6 @@ sys.path.insert(0, os.path.join(ROOT, "tb", "tools"))
 
 import torture_campaign as tc  # noqa: E402
 
-BUILDER = os.path.join(ROOT, "hdl", "ieee17221", "aecp",
-                       "KL_aecp_response_builder.sv")
 REGMAP = os.path.join(ROOT, "docs", "reference", "REGISTER_MAP.md")
 
 
@@ -346,31 +344,6 @@ def step_cc_crf_mask(context, mask):
 # ------------------------------------ advertised-is-measured (AVTP-5t) ------
 CRF_RX = os.path.join(ROOT, "hdl", "ieee1722", "crf", "KL_crf_rx.sv")
 
-#! The CRF loader's port for each Table 5.6 symbol. A bit of the advertised
-#! mask is HONEST only if its four payload octets come from one of these -
-#! anything else is the zero the loader pre-fills, i.e. a served constant.
-CRF_COUNTER_PORT = {
-    "MEDIA_LOCKED":        "crf_cnt_locked_i",
-    "MEDIA_UNLOCKED":      "crf_cnt_unlocked_i",
-    "STREAM_INTERRUPTED":  "crf_cnt_intr_i",
-    "SEQ_NUM_MISMATCH":    "crf_cnt_seqerr_i",
-    "MEDIA_RESET":         "crf_cnt_mreset_i",
-    "TIMESTAMP_UNCERTAIN": "crf_cnt_tu_i",
-    "UNSUPPORTED_FORMAT":  "crf_cnt_fmterr_i",
-    "LATE_TIMESTAMP":      "crf_cnt_late_i",
-    "EARLY_TIMESTAMP":     "crf_cnt_early_i",
-    "FRAMES_RX":           "crf_cnt_pdu_i",
-}
-
-
-def _crf_loader_body():
-    src = open(BUILDER).read()
-    key = "task automatic load_crf_input_counters_consts"
-    assert key in src, "the CRF Media Clock Input counter loader is gone"
-    body = src[src.index(key):]
-    return src, body[:body.index("endtask")]
-
-
 @then("a counter is either claimed in the mask and measured, or claimed by "
       "neither")
 def step_cc_advertised_is_measured(context):
@@ -388,40 +361,23 @@ def step_cc_advertised_is_measured(context):
 @then("the CRF Media Clock Input counters advertised as valid are all backed "
       "by a tally")
 def step_cc_crf_no_constants(context):
-    src, body = _crf_loader_body()
-    # the mask the loader actually advertises, read from the payload octets
-    m = re.search(r"const_q\[2\]\s*<=\s*8'h([0-9A-Fa-f]{2})\s*;\s*"
-                  r"const_q\[3\]\s*<=\s*8'h([0-9A-Fa-f]{2})\s*;", body)
-    assert m, f"the CRF loader no longer emits a valid mask:\n{body[:400]}"
-    mask = int(m.group(1) + m.group(2), 16)
-    assert mask == tc.MILAN_INPUT_MANDATORY_MASK, (
-        f"the CRF input advertises {mask:#05x}, not the Milan mandatory "
-        f"{tc.MILAN_INPUT_MANDATORY_MASK:#05x}")
-
+    # WHERE THIS USED TO READ, and why it moved. The subject was the AECP
+    # response builder's load_crf_input_counters_consts task: it advertised a
+    # valid mask and, for five of the bits, wrote nothing into the payload -
+    # a SERVED CONSTANT ZERO (traceability AVTP-5t). hdl/ieee17221/aecp/** is
+    # deleted, so there is no loader left to catch. What the defect was really
+    # about survives untouched: whether the ENGINE keeps a tally at all. A
+    # counter with no register behind it is a constant zero however it is
+    # served, so the rule is now resolved out of KL_crf_rx directly.
+    src = open(CRF_RX).read()
     unbacked = []
     for name in tc.MILAN_TABLE_56:
-        slot = tc.IEEE_STREAM_INPUT_BLOCK.index(name)
-        bit = 1 << slot
-        if not (mask & bit):
-            continue                       # not claimed: nothing owed
-        off = 4 + 4 * slot
-        # the loader writes const_q[off + k] for k in 0..3
-        assign = re.search(r"const_q\[%d\+k\]\s*<=\s*([A-Za-z0-9_\[\]]+)" % off,
-                           body)
-        port = CRF_COUNTER_PORT[name]
-        if not assign:
-            unbacked.append(f"{name}: mask bit {bit:#05x} claimed, but the "
-                            f"loader writes nothing at const_q[{off}+k] - a "
-                            f"served CONSTANT ZERO")
-            continue
-        rhs = assign.group(1)
-        # either the port itself or a zero-extending wire built from it
-        if port not in rhs:
-            widen = re.search(r"wire\s*\[31:0\]\s*%s\s*=.*?%s"
-                              % (re.escape(rhs), re.escape(port)), src, re.S)
-            if not widen:
-                unbacked.append(f"{name}: const_q[{off}+k] <= {rhs}, which is "
-                                f"not derived from {port}")
+        reg = CRF_COUNTER_REG[name]
+        if not re.search(r"\b%s\s*<=\s*%s\s*\+" % (re.escape(reg),
+                                                    re.escape(reg)), src):
+            unbacked.append(f"{name}: KL_crf_rx never increments {reg}, so the "
+                            f"Milan mandatory mask claims a counter that can "
+                            f"only ever read zero")
     assert not unbacked, (
         "the CRF Media Clock Input advertises counters it does not measure "
         "(traceability AVTP-5t) - a claimed constant is worse than an "
@@ -551,187 +507,10 @@ def step_cc_crf_era_lock(context):
 
 
 # ------------------------------------------------------- L1 fabric bindings --
-def _get_counters_block(src: str) -> str:
-    """The CMD_GET_COUNTERS arm of the response builder, and nothing else.
-
-    Every const_q[3] assignment in this file used to be a candidate for every
-    descriptor's mask check, because the regex was DESCRIPTOR-CONTEXT-FREE: it
-    searched the whole 2500-line source for `const_q[3] <= 8'h1F;` and would have
-    matched an unrelated command's payload byte just as happily.  Two of the
-    three masks in this contract (0x23 for AVB_INTERFACE) literally appear twice
-    in the file, so the check was passing on a line it was not aiming at.
-    """
-    # `CMD_GET_COUNTERS:` appears in more than one case statement (the batch
-    # length function has its own), so take the arm that actually decodes the
-    # descriptor - anything else is not the responder.
-    #! anchor on the CASE ARM (`CMD_GET_COUNTERS: begin`), not on any mention.
-    #! An earlier mention (the batch-length table, the multi-command `||` test)
-    #! has no `begin`, so its "next CMD_/default" boundary lands hundreds of
-    #! lines later and the slice swallows unrelated commands - including the
-    #! SET/GET_STREAM_FORMAT arms whose `w_gs_index < 16'd2` literal then gets
-    #! blamed on the counters path. That mis-slice produced a false "counters
-    #! answers only sinks 0-1" finding that a wire capture refuted (2026-07-30).
-    for m in re.finditer(r"CMD_GET_COUNTERS[ \t]*:[ \t]*begin", src):
-        i = m.start()
-        nxt = re.search(r"\n[ \t]+(?:CMD_[A-Z0-9_]+|default)[ \t]*:",
-                        src[i + 18:])
-        blk = src[i:i + 18 + nxt.start()] if nxt else src[i:]
-        if "w_gs_type" in blk:
-            return blk
-    raise AssertionError("no CMD_GET_COUNTERS arm in the response builder "
-                         "decodes w_gs_type - the responder is gone")
-
-
-def _get_counters_arm(src: str, descriptor: str) -> str:
-    """The one `if (w_gs_type == DESC_<descriptor> ...)` arm INSIDE
-    CMD_GET_COUNTERS, so a mask assertion is anchored to its own descriptor."""
-    blk = _get_counters_block(src)
-    arms = re.split(r"\n[ \t]*(?:end\s*)?else if \(|\n[ \t]*if \(", blk)[1:]
-    want = f"DESC_{descriptor.upper()}"
-    for a in arms:
-        if want in a.split("begin")[0]:
-            return a
-    raise AssertionError(
-        f"CMD_GET_COUNTERS has no arm for {want}; the descriptors it names are "
-        f"{sorted(set(re.findall(r'DESC_[A-Z_]+', blk)))}")
-
-
-def _assert_arm_mask(descriptor, mask):
-    src = open(BUILDER).read()
-    arm = _get_counters_arm(src, descriptor)
-    n = int(mask, 0)
-    assert re.search(rf"const_q\[3\]\s*<=\s*8'h{n:02X}\s*;", arm, re.I), (
-        f"the CMD_GET_COUNTERS arm for DESC_{descriptor.upper()} does not emit "
-        f"mask {mask}.  The arm is:\n{arm[:600]}")
-    return arm
-
-
-@then("KL_aecp_response_builder serves Stream Output mask {mask}")
-def step_cc_rtl_out_mask(context, mask):
-    _assert_arm_mask("stream_output", mask)
-    assert tc.MILAN_OUTPUT_MASK == int(mask, 0), (
-        f"the RTL emits {mask} but Milan Table 5.4 wants "
-        f"{tc.MILAN_OUTPUT_MASK:#04x}; if the RTL changed, this contract and "
-        f"the table have to be revisited together")
-
-
-@then("KL_aecp_response_builder serves AVB_INTERFACE mask {mask}")
-def step_cc_rtl_iface_mask(context, mask):
-    _assert_arm_mask("avb_interface", mask)
-    assert tc.AVB_INTERFACE_EXPECT_MASK == int(mask, 0)
-
-
-@then("KL_aecp_response_builder serves the Stream Input mandatory mask")
-def step_cc_rtl_in_mask(context):
-    src = open(BUILDER).read()
-    arm = _get_counters_arm(src, "stream_input")
-    m = re.search(r"load_input_counters_consts", arm)
-    assert m, ("the CMD_GET_COUNTERS STREAM_INPUT arm does not call the "
-               "per-sink counter loader")
-    # The mask lives in the TASK the arm calls, so follow it there.  The mandatory
-    # ten (0xF3F) or the full twelve (0xFFF) both satisfy Milan 5.3.8.10;
-    # anything narrower drops the badge on that index.
-    task = src[src.index("task automatic load_input_counters_consts"):]
-    task = task[:task.index("endtask")]
-    hit = re.search(r"const_q\[2\]\s*<=\s*8'h0(F|F)\s*;.*?"
-                    r"const_q\[3\]\s*<=\s*8'h(3F|FF)\s*;", task,
-                    re.I | re.S)
-    assert hit, (
-        "load_input_counters_consts no longer loads the Milan mandatory "
-        "STREAM_INPUT mask (0xF3F) or the full 1722.1 twelve (0xFFF); Milan "
-        f"v1.2 5.3.8.10 keeps all ten of Table 5.6 'for each Stream Input'. "
-        f"The task body is:\n{task[:600]}")
-    got = int(f"0{hit.group(1)}{hit.group(2)}", 16)
-    assert got in (tc.MILAN_INPUT_MANDATORY_MASK, tc.MILAN_INPUT_FULL_MASK), (
-        f"the loader emits mask {got:#05x}, which is neither the Milan "
-        f"mandatory {tc.MILAN_INPUT_MANDATORY_MASK:#05x} nor the full "
-        f"{tc.MILAN_INPUT_FULL_MASK:#05x}")
-    # THE DEAD `or` THAT USED TO BE HERE.  The assertion read
-    #     assert re.search(<mask regex>, src) or "load_input_counters_consts" in src
-    # three lines after asserting that same substring was present, so the right
-    # operand was unconditionally True and the mask regex was dead code: the
-    # mask could have been edited to anything and this step would still pass.
-    context.cc_in_mask = got
-
-
-@then("the STREAM_INPUT GET_COUNTERS arm answers every Stream Input the entity "
-      "declares")
-def step_cc_rtl_in_every_index(context):
-    """Milan v1.2 5.3.8.10: "For each Stream Input of the currently set
-    Configuration, the PAAD-AE shall keep track of the counters in Table 5.6";
-    5.4.2.25 makes GET_COUNTERS mandatory per descriptor. So the index bound must
-    follow the DECLARED descriptor set, never a literal.
-
-    SETTLED 2026-07-30 after a source-vs-silicon dispute, by decoding the AECP
-    status byte off an inline tap: desc_type 5 idx 2 -> SUCCESS mask 0xFFF,
-    idx 4 -> SUCCESS mask 0xF3F. The mechanism is `acc_found` (KL_aecp_accessor's
-    descriptor-existence oracle) plus `w_gs_index < n_aaf_sinks_i` splitting the
-    AAF sinks from the CRF Media Clock Input so each gets its own mask - there is
-    no literal bound in this arm. An earlier round of this step matched a
-    `w_gs_index < 16'd2` literal that lives in the SET/GET_STREAM_FORMAT path
-    (the `fmt_in*_r` registers under `ifdef AEM_PER_STREAM_FMT), which is a REAL
-    but SEPARATE gap tracked on its own.
-
-    METHOD NOTE, because it cost real time: the peer-side controller tool emits
-    NO status field, so a payload-only reading cannot distinguish SUCCESS from
-    BAD_ARGUMENTS. Confirm any index-serving claim from the wire or a
-    status-aware client, and never from a mask value alone.
-    """
-    src = open(BUILDER).read()
-    arm = _get_counters_arm(src, "stream_input")
-    literal = re.search(r"w_gs_index\s*<\s*16'd(\d+)", arm.split("begin")[0])
-    assert not literal, (
-        f"the CMD_GET_COUNTERS STREAM_INPUT arm is bounded by the LITERAL "
-        f"{literal.group(0) if literal else ''} instead of the descriptor "
-        f"oracle, so every sink at or above it answers BAD_ARGUMENTS - Milan "
-        f"5.3.8.10 exempts no Stream Input, the CRF Media Clock Input included.")
-    assert re.search(r"DESC_STREAM_INPUT\s*&&\s*acc_found", src), (
-        "the STREAM_INPUT counters arms no longer gate on acc_found, the "
-        "descriptor-existence oracle that makes the served set equal the "
-        "DECLARED set. A narrower gate silently un-serves sinks.")
-
-
-@then("the per-input STREAM_FORMAT store covers every declared Stream Input")
-def step_cc_rtl_per_stream_fmt(context):
-    """The SECOND, separate finding in the same file - a real one, and it is not
-    the counters arm.
-
-    Milan v1.2 5.5.1.2 makes the Listener's current format the value a bind is
-    checked against, and the standing USER directive is that a controller must
-    ALWAYS SET_STREAM_FORMAT the listener to the talker's format rather than
-    refuse the bind.  Per-input format storage therefore has to exist for every
-    declared Stream Input.
-
-    In this builder the per-stream format registers live behind
-    ``ifdef AEM_PER_STREAM_FMT``, and the ``else`` arm keeps only inputs 0..1
-    (`fmt_in0_r` / `fmt_in1_r`, guarded `w_gs_index < 16'd2`).  If no shipped
-    config defines that macro then sinks >= 2 have nowhere to store a format.
-    """
-    src = open(BUILDER).read()
-    if "AEM_PER_STREAM_FMT" not in src:
-        return
-    fmt_regs = sorted(set(re.findall(r"fmt_in(\d+)_r", src)))
-    configs = os.path.join(ROOT, "configs")
-    defined = []
-    for dirpath, _dirs, files in os.walk(configs):
-        for f in files:
-            try:
-                txt = open(os.path.join(dirpath, f), errors="ignore").read()
-            except OSError:
-                continue
-            if "AEM_PER_STREAM_FMT" in txt:
-                defined.append(os.path.relpath(os.path.join(dirpath, f), ROOT))
-    assert defined, (
-        f"the builder keeps per-input STREAM_FORMAT storage behind "
-        f"`ifdef AEM_PER_STREAM_FMT and its else arm defines only "
-        f"fmt_in{{{','.join(fmt_regs)}}}_r, yet no file under configs/ defines "
-        f"AEM_PER_STREAM_FMT - so every Stream Input above index "
-        f"{len(fmt_regs) - 1} has nowhere to store a format.  Milan v1.2 "
-        f"5.5.1.2 makes the Listener's current format the value the bind is "
-        f"checked against, and the standing directive is that a controller must "
-        f"ALWAYS SET_STREAM_FORMAT the listener rather than refuse the bind.")
-
-
+# The KL_aecp_response_builder mask-serving steps that lived here are gone with
+# hdl/ieee17221/aecp/**: this device answers no AECP command, so there is no
+# GET_COUNTERS arm to anchor a mask assertion on. The documented register
+# window below is the surviving fabric path to the same ten values.
 @then("the register map documents A_STRMW_CNT0..9 as the ten Table 5.6 counters")
 def step_cc_regmap_counters(context):
     doc = open(REGMAP).read()

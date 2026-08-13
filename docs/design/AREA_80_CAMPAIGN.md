@@ -7,6 +7,23 @@ xc7a100t) — real headroom, not scraping under the DRC. From the measured
 ~61,000 that means **≈−10,300 LUTs**, which no single lever delivers: the
 method is *static-conversion first* (this page), block diets second.
 
+> **OUTCOME (2026-08-13): the biggest levers on this page were spent, but not
+> by this campaign.** The whole legacy IEEE 1722.1 / SRP plane — AECP/AEM,
+> ADP, ACMP talker and listener, the persistence journal and the lwSRP
+> applicant — was **DELETED** and replaced by the pinned
+> `protocol-processor` submodule. That is neither the static-conversion route
+> of the verdict table nor the software route of the latency table: it is a
+> **substitution**, and it is measured, in context, both sides on the same
+> instrument, in
+> [`../findings/PP_SHADOW_AREA_0812.md`](../findings/PP_SHADOW_AREA_0812.md)
+> — **+6,956 LUT for the processor plane against −15,474 LUT removed.**
+>
+> Read the rest of this page as the *analysis record* it always was. Rows
+> below that name a deleted module are marked; the razors themselves still
+> apply to what is left, and the arithmetic at the bottom must **not** be
+> combined with the findings figures — different instrument, different
+> design, different shape.
+
 **The razor:** for every runtime-configurable surface, ask what the
 governing standard actually requires to be settable at run time on an
 END STATION. Anything the clauses leave static — or explicitly declare
@@ -18,7 +35,7 @@ software, not a controller, not a clause — is entitled to use.
 
 ## Contents
 
-- **[Verdict table](#verdict-table)** — every runtime-configurable surface ruled MAY-STATIC or MUST-DYNAMIC with the governing clause quoted on the row; honest static total ≈0.9–1.9k LUTs, so the block-diet ledger follows.
+- **[Verdict table](#verdict-table)** — every runtime-configurable surface ruled MAY-STATIC or MUST-DYNAMIC with the governing clause quoted on the row; honest static total ≈0.9–1.9k LUTs, so the block-diet ledger follows. Rows whose block was deleted on 2026-08-13 are marked in place.
 - **[AMENDED 2026-07-28 evening (USER): AECP STAYS IN FABRIC](#amended-2026-07-28-evening-user-aecp-stays-in-fabric)** — the software-AECP lane started and stopped the same evening on USER instruction: the 6.2k lever is off the table, its desk-proven responder skeleton parked unused.
 - **[The latency axis (USER 2026-07-28, tightened same day): 100 ms is the line](#the-latency-axis-user-2026-07-28-tightened-same-day-100-ms-is-the-line)** — the second razor: planes with protocol deadlines ≤100 ms stay fabric, slower ones (AECP, ACMP, MAAP, ADP) run as software over CSRs; the arithmetic lands at ≈48.6k / 76.6%.
 
@@ -32,9 +49,9 @@ software, not a controller, not a clause — is entitled to use.
 | Legacy flat regs aliasing window index 0 (the 0x0008 note) | none — a compatibility alias for pre-window software; the deployed boot chain uses the window | **DROP-CANDIDATE** (needs a deployed-software sweep first — gptp2csr.sh/S50milan grep) | ~100–300 |
 | `MAAP` claim engine | IEEE 1722-2016 Annex B — dynamic allocation and defence IS the function | MUST-DYNAMIC | — |
 | TCAM / rx_filter runtime entries | stream DMACs follow MAAP; the kernel shield installs at runtime | MUST-DYNAMIC | — |
-| AEM dynamic surfaces (SET_STREAM_FORMAT, SET_NAME, SET_STREAM_INFO(MSRP_ACC_LAT), START/STOP, counters, GET_STREAM_INFO fields) | Milan v1.2 5.4.2.x "shall implement" table; 5.4.2.25 "shall implement and return" | MUST-DYNAMIC (this is the compliance surface itself) | — |
-| Channel-map crossbars (0x900 window) | no clause — but USER chmap64 directive (ALSA/PipeWire runtime mapping) | MUST-DYNAMIC (directive) | — |
-| lwSRP window CFG overrides | fabric self-provisions since 0x0015/0x0019; overrides are bring-up/test paths exercised by sim_nxn and bench recipes | KEEP (test surface; revisit only if the table above under-delivers) | — |
+| AEM dynamic surfaces (SET_STREAM_FORMAT, SET_NAME, SET_STREAM_INFO(MSRP_ACC_LAT), START/STOP, counters, GET_STREAM_INFO fields) | Milan v1.2 5.4.2.x "shall implement" table; 5.4.2.25 "shall implement and return" | MUST-DYNAMIC (this is the compliance surface itself). **2026-08-13: NOT IMPLEMENTED — the engine is deleted and the processor's AECP µCPU did not reimplement any of these commands. The device is reachable on AECP (it answers `READ_DESCRIPTOR` when a descriptor image is loaded, and echoes a conformant `NOT_IMPLEMENTED` at everything else), but an echo executes nothing: no format, no name, no transit time, no start/stop, no counters. The verdict was right; the surface is absent, which is a stated capability boundary and not a static conversion** | — |
+| Channel-map crossbars (0x900 window) | no clause — but USER chmap64 directive (ALSA/PipeWire runtime mapping) | MUST-DYNAMIC (directive). **2026-08-13: the window is now the ONLY programmer of the map RAMs, so this verdict became structural** | — |
+| lwSRP window CFG overrides | fabric self-provisions since 0x0015/0x0019; overrides are bring-up/test paths exercised by sim_nxn and bench recipes | KEEP (test surface). **2026-08-13: the applicant that read the provisioning words is deleted — DMAC / MaxFrameSize / MaxIntervalFrames / declare-bypass are now WRITE-ONLY SCRATCH that reach nothing. The policy words that still bite are the domain, slope and admission ones on the processor's face** | — |
 | CLKV lease, `AAF_CTRL`, `CRFT_CTRL`, journal group | Milan 4.3.5.2 (tu shall), 5.3.7.3, 5.3.8.2 — the runtime-ness is the point | MUST-DYNAMIC | — |
 
 A MUST-DYNAMIC verdict above answers *static vs runtime* only — it does
@@ -54,6 +71,12 @@ by the rxq2 dynamic keep path — worth one focused look), and the
 rxq2-sans-RSC SoC split (+4.3k went in with rx_queues 2; the D7 fix needs
 the *steered second queue*, not the TCP-coalescing engine — separability
 unverified).
+
+**Ledger status 2026-08-13:** the first two entries — the response-builder
+whale and the lwSRP walker, ~8.3k of the diet target — were not dieted, they
+were **deleted with their planes**. Nobody wrote a smaller emit engine; the
+engine left the design. `milan_csr`'s write-decode, the depacketizer FIFO and
+the rxq2 split are untouched and still the open items.
 
 ## AMENDED 2026-07-28 evening (USER): AECP STAYS IN FABRIC
 
@@ -98,6 +121,37 @@ protocol state machines, with `aem_overlay.json`/the builder outputs as its
 model source (the ONE config still defines the entity) and the CSR windows
 as its only view of live truth. The fabric keeps every per-frame effect
 (gates, tables, counters, stamps); software keeps every conversation.
+
+> **What actually happened instead (2026-08-13).** The conversations did not
+> move to a Linux daemon on the softcore — they moved to a **second processor
+> in fabric**: the pinned `protocol-processor` submodule, which owns ADP,
+> ACMP and SRP in RTL and publishes its state to this fabric as class-D
+> wires, consumed every clock rather than through a software-paced read. The
+> latency table's premise ("above 100 ms ⇒ management ⇒ software") therefore
+> did not decide this; the deciding facts were that the old planes cost
+> 15,474 LUT in context and the replacement costs 6,956, and that a shadow
+> (coexistence) build **did not place at all** — 12,530 slices required
+> against 11,286 available. Two rows of that table are also now moot rather
+> than pending: **MAAP stayed in fabric** (`KL_maap`, because the processor
+> implements none by design), and **AECP is not in software either — it is a
+> µCPU in that same fabric processor**. That µCPU has since landed: the device
+> answers `READ_DESCRIPTOR` and returns a conformant `NOT_IMPLEMENTED` echo to
+> every other AECP command. So the 6.2k row did not become a Linux daemon and
+> did not stay empty; it became a micro-coded engine, and its cost is **not**
+> inside the 6,956 LUT the findings page measures — that figure was taken with
+> the AECP pop face tied off, and nothing has re-synthesised the plane since.
+>
+> One area consequence is worth stating because it changes the shape of the
+> row, not just its size: **the entity model is no longer in fabric at all.**
+> The µCPU's descriptor store reads it from DDR3 over a read-only master at a
+> compile-time base, so any accounting on this page that still charges LUT or
+> BRAM for an AEM descriptor ROM is stale. The reciprocal duty is a software
+> one nothing in this repository discharges yet: no step turns an
+> `endstation_*.yaml` into the image or writes it to DRAM, so on a stock build
+> the region is unloaded and every `READ_DESCRIPTOR` answers
+> `BAD_ARGUMENTS`. What the µCPU does **not** buy back either way is the
+> AEM dynamic surface in the verdict table above — those functions remain
+> unimplemented.
 
 **Arithmetic at the 100 ms razor** (from the measured 61,039):
 −6.2k AECP −2.6k ACMP −0.63k MAAP −0.2k ADP −0.4k journal-verify

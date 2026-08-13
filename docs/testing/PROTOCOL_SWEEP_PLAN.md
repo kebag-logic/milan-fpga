@@ -1,14 +1,73 @@
 # Full protocol sweep — every mandatory command, every state machine, verified per clause
 
-Status: PLAN, 2026-07-28 (USER-requested). Executes AFTER the 0x0019 flash +
-§8.3 validation round; the live halves are gated on R6/R7 (same VERSION on
-both boards, read, not assumed). Owner of the plan: this file. Owner of each
-lane: assigned when the lane opens.
+Status: PLAN, 2026-07-28 (USER-requested), **substantially invalidated
+2026-08-13**. Executes AFTER the 0x0019 flash + §8.3 validation round; the live
+halves are gated on R6/R7 (same VERSION on both boards, read, not assumed).
+Owner of the plan: this file. Owner of each lane: assigned when the lane opens.
+
+> ## What this plan can still be run against (2026-08-13)
+>
+> The control plane this plan was written for **no longer exists**. This
+> repository's AECP/AEM engine, ACMP talker and listener, ADP advertiser and
+> parser, and lwSRP applicant were deleted; the `protocol-processor` submodule,
+> wrapped by [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv), is
+> the control plane and
+> [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv)
+> instantiates it unconditionally.
+>
+> **Lanes E (ADP), F (SRP) and the ACMP half of D are still real work** — they
+> now target the processor, and the oracle (the clause) is unchanged.
+>
+> **CORRECTION 2026-08-13 — this entity DOES answer AECP.** An earlier revision
+> of this block said it answered no AECP/AEM command at all and voided lanes A
+> and B on that basis. **The premise was false**: the processor's **AECP uCPU
+> landed**. In one sentence, *it answers `READ_DESCRIPTOR`, and answers every
+> other AECP command with a conformant `NOT_IMPLEMENTED` echo* — correct
+> `message_type`+1, correct length, correct `controller_data_length`.
+> `IDENTIFY_NOTIFICATION` (0x0026) arriving as a **command** draws
+> `BAD_ARGUMENTS` (IEEE 1722.1 §7.4.39.2 beats §9.3.5.3.3). A command whose
+> `target_entity_id` is not ours, and any AECP **response** arriving as input,
+> are silently refused: freed, counted, no reply.
+>
+> The honest re-triage of the lanes:
+>
+> * **Lane A is revived, and its answer is nearly uniform.** There is an
+>   implementation to diff a command matrix against now. Exactly one command has
+>   a function (`READ_DESCRIPTOR`, three status paths); every other row of the
+>   5.4.2 set reads NOT IMPLEMENTED with a conformant refusal.
+> * **Lane B stays VOID.** Every member is a getter or a setter, and not one of
+>   them exists — `SET_STREAM_INFO`, `START`/`STOP_STREAMING` and the nine
+>   settings-persistence *shalls* all draw the echo and change nothing. The
+>   persistence half is doubly gone.
+> * **Lane G's AECP rows split.** A check that needed a well-formed AECP
+>   *response*, or that walks descriptors, runs again; a check that needed a
+>   getter or a setter does not.
+>
+> **An echo is not an implementation.** Nothing below may be re-graded as
+> covered because the entity answered.
+>
+> **The descriptor image is not supplied by this repository**, so on a stock
+> build every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` — not
+> `NO_SUCH_DESCRIPTOR`: the configuration range check precedes the locate and an
+> invalid image reports `configurations_count` = 0. Enumeration is reachable, not
+> working. The pair is a discriminator for a sweep: `BAD_ARGUMENTS` everywhere =
+> no image or a corrupt one; `NO_SUCH_DESCRIPTOR` = image loaded and that
+> descriptor genuinely absent. **Known gap kept visible:** Milan Δ7 `ACQUIRE_ENTITY`
+> (`NOT_SUPPORTED` with `owner_id` = 0) is not distinguished from the generic
+> echo.
+>
+> Lane C (per-sink probe SM) is likewise not this repository's item any more:
+> the sink state machine lives in the processor.
 
 The question this campaign answers, in one sentence: **for every 1722.1 /
 Milan v1.2 mandatory getter, setter, ADP and ACMP state machine, does the
 entity answer exactly what the clause says — and is the SRP reservation and
-the stream on the wire the consequence the clauses promise?**
+the stream on the wire the consequence the clauses promise?** As of 2026-08-13
+the getter/setter half of that sentence has a nearly fixed answer: the entity
+answers `READ_DESCRIPTOR` and refuses every other AECP command with a conformant
+`NOT_IMPLEMENTED` echo, so no getter returns a value and no setter changes
+state. What this campaign can ask in full is the ADP, ACMP, SRP and wire half,
+plus the narrow AECP surface that really exists.
 
 The method is the repo's standing one
 ([`methodology.md`](methodology.md)): extract the clause tables into matrix
@@ -19,33 +78,50 @@ paraphrase — every lane quotes its clauses out of the PDFs on this machine
 
 ## Contents
 
-- **[What already exists (do not rebuild it)](#what-already-exists-do-not-rebuild-it)** — The 60-70 % of this campaign that is already held by existing suites, named per surface so a lane spends its context on the uncovered remainder instead of re-proving the covered majority.
-- **[Lane A — the 5.4.2 command matrix (the analysis half)](#lane-a--the-542-command-matrix-the-analysis-half)** — Extract Milan's mandatory command table into matrix rows and DIFF them against existing coverage, so "what is untested" becomes a generated list instead of an impression. Names its own expected day-one holes as the extractor's sanity check.
-- **[Lane B — getter/setter gap closure](#lane-b--gettersetter-gap-closure)** — Close what lane A names: remaining SET_STREAM_INFO flags, START/STOP_STREAMING refusal paths, and the nine settings-persistence shalls — the last of which may spawn its own follow-on lane if the restore-path design is not small.
-- **[Lane C — per-sink probe SM (the enabler RTL)](#lane-c--per-sink-probe-sm-the-enabler-rtl)** — The one structural RTL item: PROBE_SM_EN_P covers sink 0 only today, so sinks 1..N-1 have no Auto Connect and no restore target. Everything lane D wants for sinks > 0 waits on this.
+- **[What already exists (do not rebuild it)](#what-already-exists-do-not-rebuild-it)** — Named per surface so a lane spends its context on the uncovered remainder. Reconciled 2026-08-13: five of its eight rows read "nowhere" because the suites and features that held them were deleted with the RTL — and two of those five now have a subject again, since the landed AECP uCPU emits a response contract and a descriptor-read path that the deleted suites used to be the only graders of.
+- **[Lane A — the 5.4.2 command matrix (the analysis half)](#lane-a--the-542-command-matrix-the-analysis-half)** — **Revived** now that the AECP uCPU has landed: there is an implementation to diff against, and the diff is lopsided on purpose — one command with a function, one opcode-specific refusal rule, one response-contract row, two silent-refusal rows, and every other 5.4.2 row NOT IMPLEMENTED.
+- **[Lane B — getter/setter gap closure — VOID](#lane-b--gettersetter-gap-closure--void)** — **Still void after re-triage.** Every member is a getter or a setter and not one exists; the entity now answers them with a conformant refusal that reads, writes and persists nothing, and the persistence half is doubly gone.
+- **[Lane C — per-sink probe SM (the enabler RTL) — NOT THIS REPOSITORY'S ITEM](#lane-c--per-sink-probe-sm-the-enabler-rtl--not-this-repositorys-item)** — **Reassigned.** The sink state machine is the protocol processor's now; only the area-check discipline survives here.
 - **[Lane D — ACMP sink SM, Table 5.30 cell by cell](#lane-d--acmp-sink-sm-table-530-cell-by-cell)** — One scenario per reachable transition cell of Milan's 48-cell listener table, asserting the clause's FULL exit-action list, with the timer-shrink discipline that makes second-scale MRP timers simulable.
 - **[Lane E — ADP state machines](#lane-e--adp-state-machines)** — The advertise and discovery SM walks; discovery feeds Table 5.30's talker-watch events, which is why this lands before or with lane D.
 - **[Lane F — SRP registrar/applicant walk](#lane-f--srp-registrarapplicant-walk)** — 802.1Q registrar/applicant tables plus Milan's quoted IN->MT modification and the class-A-only Domain rules; also owns the recorded min-size/keep rx question, to be decided from 802.3 rather than convenience.
-- **[Lane G — live wire verification (bench, serial)](#lane-g--live-wire-verification-bench-serial)** — Reference-device calibration of C9-C13, full hive runs on both boards, the re-staged LIVE cert suite, and SRP + stream truth on the taps. Strictly after the current round's §8.3 ladder, strictly serial.
-- **[Dependency order](#dependency-order)** — The lane graph and the parallel/serial shape: A/C/E/F first, then B/D, then G alone on the bench.
+- **[Lane G — live wire verification (bench, serial)](#lane-g--live-wire-verification-bench-serial)** — Reference-device calibration of C9-C13, full hive runs on both boards, the re-staged LIVE cert suite, and SRP + stream truth on the taps — with the AECP rows split per check: response-shaped and descriptor-walking ones run again, getter/setter ones stay void. Strictly after the current round's §8.3 ladder, strictly serial.
+- **[Dependency order](#dependency-order)** — The lane graph and the parallel/serial shape: A/C/E/F first, then B/D, then G alone on the bench, with A revived and B and C the only voided nodes.
 - **[Rules that bind every lane](#rules-that-bind-every-lane)** — The standing constraints: quote clauses, ship negative controls, record-don't-detour, never down-declare, bench and Vivado stay serial.
 
 ## What already exists (do not rebuild it)
 
-A lane that re-tests these is spending its context on the covered 60-70 %:
+A lane that re-tests these is spending its context on the covered remainder.
+**Reconciled 2026-08-13** — five of the eight rows this table used to carry
+named suites and features that have been deleted, and the honest entry for each
+is that the coverage is gone, not that it moved:
 
 | Surface | Where it is already held |
 |---|---|
-| AECP command behaviours (item-10 set) | `tests/features/item10_*.feature` (acquire, lock, name, sampling_rate, clock_source, stream_format, stream_info, configuration, control, max_transit_time, read_descriptor, get_milan_info, audio_maps) |
-| Response frame contract (size/status/per-index) | [`tb/verilator/aecp`](../../tb/verilator/aecp) (byte-exact goldens, per-index sweeps), [`tests/features/aecp_response_contract.feature`](../../tests/features/aecp_response_contract.feature) |
-| Per-index GET_COUNTERS, Tables 5.16/5.17 | `KL_talker_diag_ctx` + monitor mirror, [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag), aecp suite (this round) |
-| Independent-controller view | [`tb/tools/hive_compliance.py`](../../tb/tools/hive_compliance.py) C1-C13 (C9-C13 still owe the §8.3.2 reference-device calibration) |
-| ACMP behaviours (not the full SM walk) | [`tb/verilator/acmp`](../../tb/verilator/acmp), `acmp_lstn`, the milan_dp bind/E3 cases |
-| ADP behaviours (cadence, depart, dormancy) | `tb/verilator/adp*`, `A_ADP_DIAG` silicon work |
-| SRP licence + reservation semantics | six `lwsrp*` suites incl. the term-by-term 5.3.7.3 licence; the L2 SRP-only case (Listener Ready alone → `LWSRP_STATUS 0x37E` → frames) |
-| Stream-on-the-wire oracle | hive C13 (bind the reference sink, read ITS counters), the §8.3 tap ladder |
+| AECP command behaviours (item-10 set) | **NOWHERE at the RTL-suite level**, and the subject is no longer empty: the landed uCPU has `READ_DESCRIPTOR`'s three status paths, the `IDENTIFY_NOTIFICATION`-as-command `BAD_ARGUMENTS` rule, the echo contract and the two silent-refusal rules to cover. The `item10_*` features were deleted with the old AECP engine; `ls tests/features/` is the authority on what the behave suite carries now, and no result against this build is recorded here |
+| Response frame contract (size/status/per-index) | **NOWHERE, and it is now the cheapest open lane.** The byte-exact-golden suite and its response-contract feature were deleted with the old response builder. The landed uCPU emits a conformant `NOT_IMPLEMENTED` echo for almost every command — right `message_type`+1, right length, right `controller_data_length` — and **no Verilator suite grades that frame**; check the behave suite itself rather than this page. The per-index half stays empty for a different reason: no per-index getter exists to be indexed |
+| Per-index GET_COUNTERS, Tables 5.16/5.17 | **NOWHERE at the integration level.** [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) still grades `KL_talker_diag_ctx` as a block, but `milan_datapath` no longer instantiates it — `GET_COUNTERS` answers `NOT_IMPLEMENTED`, so nothing could read it. The **STREAM_INPUT** counters at `0x6B8` `A_STRMW_CNT` are unaffected and still live |
+| Independent-controller view | [`tb/tools/hive_compliance.py`](../../tb/tools/hive_compliance.py) C1-C13 (C9-C13 still owe the §8.3.2 reference-device calibration). Its AECP-dependent checks now measure an entity that **answers, and refuses**: expect explicit `NOT_IMPLEMENTED` statuses rather than timeouts, and expect `READ_DESCRIPTOR` to answer `BAD_ARGUMENTS` while no descriptor image is loaded (the configuration range check precedes the locate, and an invalid image reports a configuration count of zero, so `NO_SUCH_DESCRIPTOR` needs a loaded image to appear at all). Read that as the boundary, not as a regression — and do not read a well-formed refusal as a passed check |
+| ACMP behaviours (not the full SM walk) | [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow), end-to-end and coarse (the bind record reaching the class-D face, the MAAP DA gate, the anti-wedge invariant), plus the `milan_dp` bind cases. The two deleted per-message ACMP suites are **not** replaced by it |
+| ADP behaviours (cadence, depart, dormancy) | [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) group B (a real `ENTITY_DISCOVER` accepted end to end) and group G (`adp_next_avail_index_o` advances). Cadence, depart and dormancy had three dedicated suites and `A_ADP_DIAG` silicon work; the suites are deleted and **`A_ADP_DIAG` now reads a structural zero** — see the register map for the per-word verdicts |
+| SRP licence + reservation semantics | the processor's class-D SRP face (`0x680` domain word, granted slope, over-limit bit), graded at the fabric edge. The six `lwsrp*` suites — including the term-by-term 5.3.7.3 licence walk — are deleted, so the *engine-level* semantics are unproven in this tree |
+| Stream-on-the-wire oracle | hive C13 (bind the reference sink, read ITS counters), the §8.3 tap ladder. Unaffected: it reads the reference device's counters, not ours |
 
 ## Lane A — the 5.4.2 command matrix (the analysis half)
+
+> **REVIVED 2026-08-13** — this lane was voided on the false premise that no
+> AECP command is answered. The AECP uCPU landed, so there *is* an
+> implementation to diff a command matrix against, and the diff is worth
+> producing precisely because it is so lopsided. Expect the matrix to come out
+> as: **one command with a function** (`READ_DESCRIPTOR`, with `SUCCESS` /
+> `NO_SUCH_DESCRIPTOR` / `BAD_ARGUMENTS` as three separate rows, and the §7.4.5
+> 4-byte `{descriptor_type, descriptor_index}` stub on the two error paths);
+> **one opcode-specific refusal rule** (`IDENTIFY_NOTIFICATION`-as-command →
+> `BAD_ARGUMENTS`); **one page-wide response-contract row** for the conformant
+> `NOT_IMPLEMENTED` echo, which grades IEEE 1722.1 §9.3.5's duty to respond and
+> **nothing about any command**; **two silent-refusal rows**; and **every other
+> 5.4.2 row NOT IMPLEMENTED**. A row must not be marked covered because the
+> entity answered it.
 
 **Level 3 / oracle = the clause.** Est. 1 day. No RTL.
 
@@ -64,9 +140,26 @@ A lane that re-tests these is spending its context on the covered 60-70 %:
 Acceptance: the matrix names every hole; the holes it is EXPECTED to name on
 day one (or the extractor is wrong): SET_STREAM_INFO flags beyond
 MSRP_ACC_LAT, the nine settings-persistence shalls (5.3.8.x/5.3.13), the
-CRF-input counter mask, START/STOP_STREAMING edge paths.
+CRF-input counter mask, START/STOP_STREAMING edge paths — and, added by the
+uCPU landing, the Milan Δ7 `ACQUIRE_ENTITY` row, which wants `NOT_SUPPORTED`
+with `owner_id` = 0 and gets the generic `NOT_IMPLEMENTED` echo instead. That
+one is a **known gap**, not an unknown; the extractor must show it as a hole,
+not as a refusal that happens to be well-formed.
 
-## Lane B — getter/setter gap closure
+## Lane B — getter/setter gap closure — **VOID**
+
+> **STILL VOID 2026-08-13, after re-triage against the landed AECP uCPU.** Every
+> member of this lane is a getter or a setter, and not one of them exists. The
+> entity now *answers* `SET_STREAM_INFO`, `START`/`STOP_STREAMING` and the nine
+> settings-persistence commands — with a conformant `NOT_IMPLEMENTED` echo that
+> reads nothing, writes nothing and persists nothing. There is a command path
+> and there is no function on it, so there is still no clause-specific refusal
+> to write and no round trip to close. The persistence half is doubly gone: the
+> journal RTL was deleted and the NVM face is answered by a blank-flash
+> responder, so a restore walk always finds blank flash and completes with zero
+> records — **nothing in this device persists a binding across a power cycle.**
+> Milan v1.2 5.3.8.2 wants saved state; this build does not have it, and says so
+> structurally rather than by a zeroed counter.
 
 **Levels 0-3.** Est. 1-2 days once lane A names the rows. Fix order inside
 the lane: cheapest clause-visible refusal first.
@@ -84,7 +177,13 @@ Known members before lane A even runs:
   design stays small — else it becomes its own follow-on lane. The binding
   half is already done (0x7B8 journal, VERSION 0x0019).
 
-## Lane C — per-sink probe SM (the enabler RTL)
+## Lane C — per-sink probe SM (the enabler RTL) — **NOT THIS REPOSITORY'S ITEM**
+
+> **Reassigned 2026-08-13.** `PROBE_SM_EN_P` belonged to the deleted ACMP
+> listener. The sink state machine is the protocol processor's, so the enabler
+> work (if it is still needed) belongs in that submodule, and the E3 journal
+> restore path this lane wanted to re-test no longer exists at all. The area
+> check below is the one part that still applies to whatever replaces it.
 
 **Level 0-2 / oracle = Milan 5.5.3.** Est. 2-3 days RTL + TB. THE structural
 item: `PROBE_SM_EN_P` defaults to sink 0 only and the datapath never
@@ -98,6 +197,17 @@ restore target, half of Table 5.30 unreachable for them. Deliverables:
    believing any area claim — standing rule).
 
 ## Lane D — ACMP sink SM, Table 5.30 cell by cell
+
+> **Still real, retargeted 2026-08-13.** The DUT is now the protocol
+> processor's listener, reached through
+> [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) or on the wire. The
+> timer-shrink discipline below carries over unchanged — `pp_shadow` already
+> compresses time with `-GPP_TIM_DIV_US_P` / `-GPP_TIM_DIV_MS_P`, and keeps
+> `KL_maap` on the **same** compressed millisecond via `-GMAAP_CLK_HZ_P` so the
+> two planes are never measured on two different scales. One assertion class is
+> gone with the CSR words that carried it: `ACMPL_STATE` no longer tracks
+> PROBING/SETTLED (`0x6A4`'s state-machine fields are structural zeros), so a
+> per-cell check must take `bound` as the truth and read the rest from the wire.
 
 **Level 2 / oracle = Milan Table 5.30 (48 transition cells, 5.5.3.5.1-.48).**
 Est. 3-4 days. Depends on lane C for sinks > 0; the sink-0 half can start
@@ -136,10 +246,11 @@ Est. 1-2 days.
    for class A only (verdict recorded 2026-07-28).
 3. The recorded rx-path question from the SRP-only lane: a 60 B
    final-keep-0x0F MRPDU alone does not register where the full-keep 64 B
-   copy does — root-cause in `lwsrp_rx` (min-size/keep handling), fix or
-   document the wire truth (a real MSRP frame on the wire is >= 64 B with
-   FCS, so the TB shape may simply be unphysical — decide from 802.3, not
-   from convenience).
+   copy does. **The `lwsrp_rx` engine and its suite are deleted**, so the
+   original root-cause target is gone; the question survives and must be re-put
+   to the processor's SRP receive path, and the deciding argument is unchanged
+   (a real MSRP frame on the wire is >= 64 B with FCS, so the old TB shape may
+   simply have been unphysical — decide from 802.3, not from convenience).
 
 ## Lane G — live wire verification (bench, serial)
 
@@ -151,7 +262,19 @@ this lane never runs beside a build.
    that fails there is wrong until a clause says otherwise).
 2. hive_compliance full run against both boards; acceptance is the §8.3.3
    shape (our failures collapse to the known remainder; reference stays
-   clean).
+   clean). **The "known remainder" on our boards is every AECP check that
+   needs a getter or a setter** — a controller sees discovery and connection
+   succeed, sees a conformant `NOT_IMPLEMENTED` come back for
+   `GET_COUNTERS`, `GET_MILAN_INFO`, `GET_STREAM_INFO`, `SET_*` and the rest,
+   and gets no value from any of them. The checks that need only a
+   well-formed AECP response, or that walk descriptors, are back in play:
+   `READ_DESCRIPTOR` is answered, and answers `BAD_ARGUMENTS` until a
+   descriptor image is loaded into DRAM, which nothing in this repository does
+   for you — the microprogram's configuration range check runs before the
+   locate, and an invalid image reports a configuration count of zero, so
+   `NO_SUCH_DESCRIPTOR` is not even reachable until an image exists. Record the
+   remainder as the boundary, and do not let a well-formed
+   refusal be re-graded as coverage.
 3. The cert-recreate LIVE suite from the peer host (it must be re-staged
    first — the venv on that host is gone; recipe in the project memory).
 4. SRP on the wire: the tap decoders against our declarations after each
@@ -166,12 +289,13 @@ this lane never runs beside a build.
 
 ```mermaid
 flowchart LR
-    A["A - command matrix"]:::desk --> B["B - getter/setter closure"]:::desk
-    C["C - per-sink probe SM"]:::rtl --> D["D - Table 5.30 walk (sinks > 0)"]:::desk
+    A["A - command matrix<br/>revived: one command, one refusal rule"]:::desk --> B["B - getter/setter closure<br/>VOID: no getter, no setter"]:::void
+    C["C - per-sink probe SM<br/>moved to the processor"]:::void --> D["D - Table 5.30 walk (sinks > 0)"]:::desk
     E["E - ADP SM walks"]:::desk --> D
     D0["D - Table 5.30 walk (sink 0 half)"]:::desk
     F["F - SRP registrar walk"]:::desk
-    B --> G["G - live verification"]:::bench
+    A --> G["G - live verification<br/>AECP: response rows live, getter/setter rows void"]:::bench
+    B -.-> G
     D --> G
     D0 --> G
     E --> G
@@ -179,12 +303,17 @@ flowchart LR
     classDef desk fill:#eeeeee,stroke:#999,color:#000
     classDef rtl fill:#fcf3cf,stroke:#b90,color:#000
     classDef bench fill:#f8d7da,stroke:#a33,color:#000
+    classDef void fill:#e0e0e0,stroke:#888,color:#555,stroke-dasharray: 4 3
 ```
 
-Serial total ~8-10 desk days + 1 bench day; the usual multiwork shape is
-A/C/E/F in parallel first (A is the map the others consult), then B/D, then
-G alone on the bench. Lane C is the only RTL with area risk; everything else
-is tests and small refusal paths.
+The original estimate was ~8-10 desk days + 1 bench day over lanes A-G. With B
+and C void and only the getter/setter rows struck from G, what is left is **A
+(the command matrix, revived and lopsided), D (ACMP), E (ADP) and F (SRP)
+against the protocol processor, plus the bench lane minus its getter/setter
+rows** — all of them retargeted, none of them re-estimated here. Lane C was the
+only RTL with area risk and it is not this repository's item any more;
+everything remaining is tests. G still runs alone on the bench, and bench and
+Vivado still stay serial.
 
 ## Rules that bind every lane
 

@@ -1,9 +1,35 @@
-# 64-in / 64-out Channel Mapping — Render Crossbar + Capture Mux + AEM Audio-Map Binding
+# 64-in / 64-out Channel Mapping — Render Crossbar + Capture Mux
 
 Normative architecture for the channel-mapping layer on top of the NxN
 stream fabric ([`docs/NXN_ARCHITECTURE.md`](NXN_ARCHITECTURE.md), roadmap item 5) and the ALSA
 lane (roadmap item 7). Status: **DESIGN — no RTL in this round.**
 Decisions in §1–§2 are USER-decided inputs, not open questions.
+
+> **THE CROSSBARS SURVIVED; THEIR AECP WRITE PATH DID NOT (2026-08-13).**
+> `KL_chan_map_render` and `KL_chan_map_capture` are untouched by the deletion
+> of this repository's IEEE 1722.1 plane. What is gone is the **AEM audio-map
+> command set** — `GET_AUDIO_MAP` / `ADD_AUDIO_MAPPINGS` /
+> `REMOVE_AUDIO_MAPPINGS` — along with the dynamic-map store that answered
+> them and the boot identity seeder that filled the RAMs at power-on. So:
+>
+> * **the CSR `0x900` window is the ONLY programmer of both map RAMs.** It is
+>   no longer a "debug override subordinate to the AEM engine"; there is no
+>   AEM engine. Every statement of that arbitration below is marked and
+>   corrected in place;
+> * **no controller can read or write this device's channel map.** The
+>   protocol processor's AECP uCPU has landed and answers `READ_DESCRIPTOR`,
+>   so the *static* AUDIO_MAP descriptors of the entity model become readable
+>   again once a descriptor image is loaded into DRAM — but `GET_AUDIO_MAP`
+>   and the two setters are **not implemented**: they are answered with the
+>   conformant `NOT_IMPLEMENTED` echo, which is a refusal, not a path to the
+>   RAMs;
+> * **nothing seeds the RAMs.** `CMAP` resets all-zero and stays that way
+>   until software writes it (§5, §6 — including what that does to the arm
+>   sequence).
+>
+> §7, the AEM binding chapter, is kept as the *contract* a future
+> implementation owes — the engine exists now, the audio-map verbs do not —
+> and is marked NOT IMPLEMENTED throughout.
 
 Companion docs: [`docs/NXN_ARCHITECTURE.md`](NXN_ARCHITECTURE.md) (shared engines, TCTX/LCTX,
 the 0x800 indexed window), [`docs/ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md) (D1: one
@@ -19,8 +45,8 @@ the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` (driver side).
 - **[3. RENDER crossbar contract (KL_chmap_render, phase-1 name)](#3-render-crossbar-contract-kl_chmap_render-phase-1-name)** — Free-running latest-sample latches with nothing queued, and the whole `phys` vector re-registered in one shot on the media tick — so a mid-tick map edit cannot tear a frame and worst-case remap latency is one sample period.
 - **[4. CAPTURE mux contract (KL_chmap_capture, phase-1 name)](#4-capture-mux-contract-kl_chmap_capture-phase-1-name)** — The two ways to be silent that are not the same: `SRC=ZERO` still pulses the slot, `EN=0` skips it. Carries the talker-to-slot arithmetic table (`t` owns `4t..4t+3` at 8 ch) and the required `pair_slot` widening from `[3:0]` to `[4:0]`.
 - **[5. MAP RAM — the two word formats](#5-map-ram--the-two-word-formats)** — Since 0x0027 the two sides store different words: the render side keeps its legacy 16-bit slice, the capture side holds one 13-bit per-channel entry that IS the AEM cluster template
-- **[6. CSR window — 0x900–0x97F (debug override + shadow readback)](#6-csr-window--0x9000x97f-debug-override--shadow-readback)** — Five registers `CHMAP_CTRL/SEL/WORD/STAT`, and the integration trap in bold: without a `rd_in_window` term for `0x900`, every chmap read silently returns 0 — the same defect that hid the servo until 2026-07-23.
-- **[7. AEM binding — IEEE 1722.1 dynamic audio maps (Milan es-4.16)](#7-aem-binding--ieee-17221-dynamic-audio-maps-milan-es-416)** — GET_AUDIO_MAP is answered from the AEM store, never from the map RAMs, so a bench CSR poke stays invisible to a controller. Includes the cluster-to-physical table and the pair-consistency rule that refuses a lone half-pair with `BAD_ARGUMENTS`.
+- **[6. CSR window — 0x900–0x97F (the map's only write path)](#6-csr-window--0x9000x97f-the-maps-only-write-path)** — Five registers `CHMAP_CTRL/SEL/WORD/STAT`, the integration trap in bold (without a `rd_in_window` term for `0x900`, every chmap read silently returns 0 — the same defect that hid the servo until 2026-07-23), and the arm-order consequence of losing the seeder: `CHMAP_CTRL[0]` arms the write window *and* routes the crossbar, so the RAM goes live while you are still filling it.
+- **[7. AEM binding — IEEE 1722.1 dynamic audio maps (Milan es-4.16) — NOT IMPLEMENTED](#7-aem-binding--ieee-17221-dynamic-audio-maps-milan-es-416--not-implemented)** — The binding contract, kept for whoever re-implements it, and marked unimplemented: the store that answered `GET_AUDIO_MAP` and the projector into the map RAMs are deleted, and the three audio-map verbs now draw the processor's `NOT_IMPLEMENTED` echo — answered, not implemented. Includes the cluster-to-physical table and the vendor rules that survived the 0x0027 retirement.
 - **[8. TDM8 render front-end (summary; module = parallel lane)](#8-tdm8-render-front-end-summary-module--parallel-lane)** — The planned contract, then the correction: the module that actually landed is the bus *slave* (`tdm_bclk_i`/`tdm_fsync_i` are inputs) and `tdm_dout_o` is parked with no board pin. Also pins where the one-bclk Philips delay is produced — once, in the serializer.
 - **[9. Clocking and slip policy (phase 1, normative)](#9-clocking-and-slip-policy-phase-1-normative)** — One gPTP-disciplined media clock for everything and no per-stream rate conversion; a stalled source holds its last value, which is the I2S path's existing repeat-last behaviour, so the mapping layer adds no new drift rails. Exception since 0x0036: the capture LOOP bucket paces its bursty PDU source through a per-pair elastic queue (repeat-last only on true underrun, counted).
 - **[10. Phase-2 appendix — fabric 64-ch composed device](#10-phase-2-appendix--fabric-64-ch-composed-device)** — Out of scope now, but stated so phase 1 does not paint it out: the word format already carries what composition needs, phase 2 only widens the entry spaces and drops pair granularity.
@@ -39,7 +65,7 @@ the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` (driver side).
 | G6 | `milan_csr` plain-RW readback is a **512-word shadow BRAM covering 0x000–0x7FF only**: `shadow_ram[0:511]`, write gate `wr_fire && !(|wr_addr[ADDR_WIDTH-1:11])`, word address `wr_addr[10:2]` / `rd_addr[10:2]` (milan_csr.sv ~1173–1201). A 0x900 address has bit 11 set → it can never be shadow-served (it would alias word 0x100) | [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) `shadow_mem` block |
 | G7 | Reads **at/above 0x800 return 0 unless explicitly claimed**: `rd_in_window = ~|rd_addr_q[ADDR_WIDTH-1:11] || (rd_addr_q == A_MCSRV_STAT) || (rd_addr_q == A_MCSRV_CTRL)` (milan_csr.sv ~1363). The comment records that 0x8F8 read 0 on every build until 2026-07-23 because this term was missing | `milan_csr.sv` `rd_in_window` + [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) 0x8F8 note |
 | G8 | Writes to 0x900+ ARE reachable: the AXI window is 64 KB (`ADDR_WIDTH = 16`) and the write decode is a full-address exact-match `case (wr_addr)` (e.g. `A_MCSRV_CTRL: mcsrv_ctrl <= s_axi_wdata;` at 0x8FC) — new registers above 0x800 follow the MCSRV pattern: dedicated storage + explicit live-read arm + `rd_in_window` term | `milan_csr.sv` write decode ~860–915 |
-| G9 | AECP already decodes the audio-map verbs: `CMD_GET_AUDIO_MAP = 15'd43`, `CMD_ADD_AUDIO_MAPPINGS = 15'd44`, `CMD_REMOVE_AUDIO_MAPPINGS = 15'd45`, `DESC_AUDIO_MAP = 16'h0017` | [`hdl/ieee17221/aecp/aecp_pkg.sv`](../hdl/ieee17221/aecp/aecp_pkg.sv) 76–78, 128; `KL_aecp_l0_state.sv` 113 |
+| G9 | **RETIRED 2026-08-13.** It read: "AECP already decodes the audio-map verbs: `CMD_GET_AUDIO_MAP = 15'd43`, `CMD_ADD_AUDIO_MAPPINGS = 15'd44`, `CMD_REMOVE_AUDIO_MAPPINGS = 15'd45`, `DESC_AUDIO_MAP = 16'h0017`". The command values are still the 1722.1-2021 7.4.44/45/46 values; the decoder that recognised them went with this repository's whole AECP/AEM tree. The protocol processor answers all three with the `NOT_IMPLEMENTED` echo, so **no command reaches the map RAMs any more** | was `aecp_pkg.sv` 76–78, 128 + `KL_aecp_l0_state.sv` 113 — both deleted; the surviving fact is the clause, not the file |
 | G10 | The entity model's mapping entry is `(mapping_stream_index, mapping_stream_channel, mapping_cluster_offset, mapping_cluster_channel)`; every AUDIO_CLUSTER in the model is **1-channel MBLA** (`"channel_count": 1, "format": "MBLA"`), STREAM_PORT_INPUT[0] owns clusters 0–7 (`base_cluster 0`), STREAM_PORT_OUTPUT[0] owns clusters 8–15 (`base_cluster 8`), each port has exactly one AUDIO_MAP (1722.1 7.2.13/7.2.19, builder D1) | [`avdecc/milan-v12-entity.json`](../avdecc/milan-v12-entity.json) |
 | G11 | Per-stream DRAM PCM rings exist from the NxN work: route flag `DMA` = "payload lands in the stream's DRAM ring at `pcm base + s*stride`"; ring words are "full 64-bit words in wire byte order = S32BE interleaved PCM" | [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) 0x800 route-flags paragraph + PCM-ring section |
 
@@ -50,9 +76,11 @@ channels/stream (Milan base formats, `ut=1` covers 1..8 ch — G10's
 format strings). Channel mapping is split into exactly two layers:
 
 1. **PipeWire composition (software)** — cross-stream / cross-channel
-   composition for ALSA clients. Driven by the AEM audio-map
-   configuration (the daemon reads GET_AUDIO_MAP); no fabric frame
-   composer exists in phase 1.
+   composition for ALSA clients. This was to be driven by the AEM audio-map
+   configuration (the daemon reading `GET_AUDIO_MAP`); with that command
+   answered `NOT_IMPLEMENTED` the daemon has no wire view of the map and is
+   configured locally.
+   No fabric frame composer exists in phase 1.
 2. **Fabric mapping (this doc)** — two small engines:
    - **RENDER crossbar**: any RX `(stream s ∈ 0..7, wire-ch c ∈ 0..7)`
      → any *physical* output channel (I2S-out ch0..1 + TDM8-out lane 0
@@ -299,6 +327,15 @@ programmed per slot and never per stream.
 
 ### 4.2 Channel granularity (normative since 0x0027), and history
 
+> The **store granularity** below is a property of `KL_chan_map_capture` and
+> is unchanged. The **command rules** in this section (what an
+> `ADD_AUDIO_MAPPINGS` may and may not do) describe an engine that no longer
+> exists on this device — kept because they are clause analysis that cost
+> real work and because the next implementation owes them, not because
+> anything enforces them today. The only writer now is the `0x900` window,
+> which enforces exactly one rule: an out-of-range entry index is refused
+> (§6).
+
 **ONE CLUSTER == ONE AUDIO CHANNEL (USER 2026-08-06).** The capture
 store holds one entry per **stream channel** (`2*N_SLOTS_P` entries);
 every Stream Output channel independently selects any source pair and
@@ -410,37 +447,43 @@ pair 3 R half, which is **silent unless something is playing**. Selecting
 this channel" and looks exactly like a mapping defect. Silicon
 2026-08-10 hit this on channels 0 and 1.
 
-Two diagnostic rules that follow:
+Two diagnostic rules followed from that, and **both are now history**
+(2026-08-13) — recorded because the cluster-offset arithmetic above is still
+how a config's pools are laid out, and because a reader coming from a bench
+recipe needs to know why the recipe no longer applies:
 
-- **The boot seed is the identity map.** `AEM_ODMAP_INIT_C` is
-  `6'h20 .. 6'h27`, and `oco_r[k]` loads `AEM_ODMAP_INIT_C[k][4:0]`, so a
-  freshly booted port reads cluster `k` on channel `k`. Any channel whose
-  cluster is not its own index **was written by a controller since boot**.
-  That separates a commanded map from a fabric fault with no wire capture.
-- **`GET_AUDIO_MAP` agreeing with the capture-map RAM proves nothing about
-  the key.** The commit writes `oco_r[odk_key_q]` and `odmap_wr_slot_o`
-  from the SAME register, so a key shift moves both together and they stay
-  consistent while both are wrong. Agreement only rules out a data skew
-  between the shadow and the RAM. To test the key, issue an
-  `ADD_AUDIO_MAPPINGS` with KNOWN contents on a channel you are not using
-  and read it back; do it once with a single record and once with several
-  records carrying distinct clusters, because the earlier shifts on this
-  port were tied to back-to-back record bursts. Verified clean on
-  2026-08-10 at VERSION 0x0040.
+- **The boot seed WAS the identity map** — `AEM_ODMAP_INIT_C` = `6'h20 ..
+  6'h27` loaded into `oco_r[k]`, so a freshly booted port read cluster `k` on
+  channel `k` and any deviation proved a controller had written it. The
+  seeder lived in the AEM store and is deleted: **`CMAP` now resets all-zero
+  and stays there until software writes it.** The power-on map is not the
+  identity image any more, it is *nothing* — which is why the front-end path
+  (not the crossbar) is what the packetizer sees at reset (§6).
+- **`GET_AUDIO_MAP` agreeing with the capture-map RAM proved nothing about
+  the key** — the commit wrote the shadow and the RAM slot from the same
+  register, so a key shift moved both together and they stayed consistent
+  while both were wrong. Moot: `GET_AUDIO_MAP` is not implemented — a
+  controller asking for it gets the `NOT_IMPLEMENTED` echo — and there is no
+  shadow behind it either. The
+  RAM readback at `CHMAP_LOOP 0x914` is now the only readback, and it is
+  served from the RAM read port, so it cannot disagree with itself.
 
-The capture entry IS the AEM cluster template (`AEM_ODMAP_CSRC_C`,
-gen_aem_store): the `ADD_AUDIO_MAPPINGS` commit writes the addressed
-channel's template verbatim, `REMOVE` writes 13'h0000. Readback adds
-`{loop_fed, loop_mapped}` above the entry (15 bits, §6). Hex stays
-bench-readable: `0x1B01` = EN | R half | PCM_TX | pair 1. Illegal
-encodings (reserved SRC, out-of-range index for the elaborated shape)
-behave as `EN = 0` — never a lockup, RTL-enforced.
+The capture entry was structurally identical to the AEM cluster template
+(`AEM_ODMAP_CSRC_C`, gen_aem_store): an `ADD_AUDIO_MAPPINGS` commit wrote the
+addressed channel's template verbatim and `REMOVE` wrote 13'h0000. **That
+path is deleted**; the entry format below is unchanged and is what the
+`0x900` window writes. Readback adds `{loop_fed, loop_mapped}` above the
+entry (15 bits, §6). Hex stays bench-readable: `0x1B01` = EN | R half |
+PCM_TX | pair 1. Illegal encodings (reserved SRC, out-of-range index for the
+elaborated shape) behave as `EN = 0` — never a lockup, RTL-enforced.
 
 **As wired today (`milan_datapath.sv`, the two `map_wr_data_i` paths).**
-The 16-bit CSR word is the *transport*. The render side keeps its
-8-bit RAM slice; the capture side (0x0027) composes the full 13-bit
-per-channel entry, with `CHMAP_SEL[5:0]` naming a **channel key**, not
-a pair slot:
+The 16-bit CSR word is the *transport*, and since 2026-08-13 it is the
+**only** transport — the AEM commit leg of each write mux is tied off, so
+what follows is not a translation table for a debug path, it is the ABI.
+The render side keeps its 8-bit RAM slice; the capture side (0x0027)
+composes the full 13-bit per-channel entry, with `CHMAP_SEL[5:0]` naming a
+**channel key**, not a pair slot:
 
 | `CHMAP_WORD` bit | Render side (`CHMAP_SEL[8] = 0` → RMAP) | Capture side (`CHMAP_SEL[8] = 1` → CMAP) |
 |---|---|---|
@@ -455,6 +498,18 @@ The render RAM entry stays `{en, src, idx[5:0]}` — both of its index
 nibbles carried 3 bits wide (streams 0..7, channels 0..7). Out-of-range
 indexes are guarded at the RAM *read*, not at the write port, and
 render as 0 / silence.
+
+> **THE PACKING TRAP, now that the CSR word is the only way in.** The render
+> RAM word is 8 bits, `{en[7], src[6], stream[5:3], ch[2:0]}`. The CSR field
+> is 16 bits and its live bits sit at **`{[15] en, [12] src, [6:4] stream,
+> [2:0] ch}`** — the positions in the table above, not a zero-extension.
+> Writing the 8-bit RAM word straight into `CHMAP_WORD` therefore programs
+> **nothing useful**: `en` lands in a dropped bit, `src` lands inside the
+> stream nibble, and the entry commits enabled-bit-clear. `0x8021`, not
+> `0x91`, is how you say "EN, AVB, stream 2, channel 1". The same rule is why
+> `src = 1` (the host playback ring) is reachable **only** through this
+> window: no other writer exists, and the AEM projector that used to be the
+> other writer emitted `SRC = 0` exclusively.
 
 Worked examples, hex as typed at the bench:
 
@@ -481,11 +536,13 @@ word written before item-7 means exactly what it did.
 **Reset state:** `RMAP[0] = 0x8000` (EN, AVTP_RX, s=0, c=0),
 `RMAP[1] = 0x8001`, all other RMAP = 0 — today's "stream 0 renders
 ch0/ch1 on I2S" behavior (the N=1 bit-compat axiom). `CMAP` resets
-ALL-ZERO: the hardware holds no floor mapping, and the AEM builder
-re-seeds every mapped channel with its cluster template a few cycles
-after reset (one key per idle cycle, §7), so the observable power-on
-map is the entity's identity image — and an all-unmapped map still
-pulses every slot (silence, never absence).
+ALL-ZERO: the hardware holds no floor mapping. **It also no longer gets
+seeded** — the AEM builder that re-seeded every mapped channel with its
+cluster template a few cycles after reset died with the AEM store, so the
+observable power-on capture map is empty, not the entity's identity image.
+An all-unmapped map still pulses every slot (silence, never absence), which
+is why an armed-but-unprogrammed crossbar is silent audio on a healthy
+stream rather than a stalled talker.
 
 **Capture `SRC = 5` (LOOP — the rx → talker loopback), normative.** The
 capture side's `IDX_HI` nibble is no longer dropped: `SRC = 5` reads it as
@@ -525,13 +582,20 @@ on `map_wr_data_i[12:0]` with the channel key on `map_wr_addr_i[5:0]`.
 The loopback payload-AXIS pins stay defaulted, so an integration that
 has not wired the listener side yet gets a permanently silent bucket.
 
-**Write-port arbitration (one port, normative):** AEM-projector commit
-wins the port; the CSR debug write takes idle cycles and is *refused*
-(counted, §6) if it collides with an in-flight AEM burst — mirroring
-the packetizer's `tctx_wmux` priority pattern. There is exactly one
-map truth: CSR reads shadow the same RAM the AEM writes (§6).
+**Write-port arbitration (one port, normative — and now a single writer):**
+the rule *was* AEM-projector commit wins the port, with the CSR write taking
+idle cycles and being *refused* (counted, §6) on collision with an in-flight
+AEM burst, mirroring the packetizer's `tctx_wmux` priority pattern. The
+projector leg is tied off since 2026-08-13, so **the CSR write never loses
+the port** and `CHMAP_STAT`'s `aem_commits` / `aem_busy` fields are
+structural zeros. The arbitration mux itself is still in the RTL, holding the
+contract for whoever implements the audio-map verbs — the processor's AECP uCPU
+is landed, but it implements `READ_DESCRIPTOR` only, and answers
+`ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS` / `GET_AUDIO_MAP` with the
+`NOT_IMPLEMENTED` echo. `csr_refused` still counts the one refusal that
+remains — a write with the override disarmed.
 
-## 6. CSR window — 0x900–0x97F (debug override + shadow readback)
+## 6. CSR window — 0x900–0x97F (the map's only write path)
 
 **Decode finding (from G6/G7/G8, drives the implementation):** offset
 0x900 is *reachable* — the AXI window is 64 KB and the write decode is
@@ -552,10 +616,10 @@ reserved to this feature, 5 words used):
 
 | Offset | Name | Acc | Reset | Fields |
 |--------|------|-----|-------|--------|
-| `0x900` | `CHMAP_CTRL` | RW | `0` | `[0]` csr_write_en — debug override arm; while 0, `CHMAP_WORD` writes are ignored (AEM remains the sole programmer). Readback live |
+| `0x900` | `CHMAP_CTRL` | RW | `0` | `[0]` csr_write_en — arms the `CHMAP_WORD` write window; while 0, `CHMAP_WORD` writes are ignored. **It is also the crossbar routing arm** (see the note below). Readback live |
 | `0x904` | `CHMAP_SEL` | RW | `0` | `[5:0]` entry index, `[8]` side (0 = RMAP/render, 1 = CMAP/capture). Out-of-range entries read 0, writes ignored (the 0x800-window out-of-range rule) |
 | `0x908` | `CHMAP_WORD` | RW | — | `[15:0]` the §5 map word of the selected entry. Write: commits through the shared write port (requires `CHMAP_CTRL[0]`; refused while an AEM burst holds the port). Read: **as built, this is `milan_csr`'s own SHADOW of the last word software wrote — not the RAM.** The "entry's CURRENT word" this row originally specified is served by `CHMAP_LOOP` `0x914` instead (VERSION `0x0017`), as a new register rather than a semantic change to `0x908`, so the existing ABI is untouched |
-| `0x90C` | `CHMAP_STAT` | RO | `0` | `[15:0]` aem_commits (map words written by the AEM projector, wraps), `[23:16]` csr_refused (CSR writes dropped: override disarmed or port collision; saturates), `[24]` aem_busy (projector burst in flight) |
+| `0x90C` | `CHMAP_STAT` | RO | `0` | `[15:0]` aem_commits — **STRUCTURAL ZERO** since 2026-08-13, there is no projector; `[23:16]` csr_refused (CSR writes dropped; now only ever "override disarmed", saturates); `[24]` aem_busy — **STRUCTURAL ZERO** |
 | `0x910` | `CHMAP_SNAP` | W1S / RO | `0xC500_0000` | **LANDED, VERSION `0x0017`.** W `[0]` arm a readback of the entry named by `CHMAP_SEL`; R busy/valid/timeout/unsupported/armed + the `CHMAP_RDBK_P` capability in `[9:8]` + the latched `{side,index}` + a constant `0xC5` tag. Full fields in [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) |
 | `0x914` | `CHMAP_LOOP` | RO | `0xDEAD_DEAD` | **LANDED, VERSION `0x0017`.** The word the map RAM *actually holds* — the "shadow readback" this section always promised, finally served from the RAM read port rather than from `0x908`'s copy of what software wrote. `[18]` `LOOP_SUSPECT` = mapped & ~fed. Un-armed reads `0xDEADDEAD`, never `0` (`0` is a legal map entry) |
 | `0x918`–`0x97C` | — | — | `0` | reserved (phase 2: flat per-entry view / composed-device controls) |
@@ -563,13 +627,47 @@ reserved to this feature, 5 words used):
 [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) gains the `0x900` group row; `VERSION` minor bumps
 (additive change).
 
-## 7. AEM binding — IEEE 1722.1 dynamic audio maps (Milan es-4.16)
+> **ONE BIT, TWO JOBS — and losing the seeder made that visible.**
+> `CHMAP_CTRL[0]` arms the write window *and* selects the crossbar in place
+> of the front-end pair stream (`cap_xbar_live` in `milan_datapath.sv`; the
+> DAC feed mux takes the same bit). While the AEM machinery existed the
+> routing decision was made by the *shape* — a dynamic-map build routed the
+> crossbar by construction over a seeded map — and this bit only mattered on
+> a static shape. Every build is the static case now, so the sequence is:
+>
+> 1. write `CHMAP_CTRL[0] = 1` — **the crossbar goes live over an all-zero
+>    map, i.e. silence, from this instant**;
+> 2. write the entries through `CHMAP_SEL` / `CHMAP_WORD`;
+> 3. audio appears as each entry commits (effect lands at the next media
+>    tick).
+>
+> There is no way to program first and arm second, because the arm bit is
+> what opens the write window. The silent interval is bounded by how fast
+> software writes, the stream keeps flowing throughout (unmapped slots pulse
+> zeros), and `CHMAP_LOOP 0x914` reads back what the RAM actually holds if
+> the result is not what you expected.
 
-The canonical programmer of both map RAMs is the AECP engine handling
-`ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS` / `GET_AUDIO_MAP`
-(command values 43/44/45 and `DESC_AUDIO_MAP = 0x0017` already decoded
-— G9). The CSR window is the debug override (§6). **Arbitration: one
-write port per RAM, AEM wins, CSR is shadow-readable always.**
+## 7. AEM binding — IEEE 1722.1 dynamic audio maps (Milan es-4.16) — NOT IMPLEMENTED
+
+> **STATUS 2026-08-13: NOTHING IN THIS SECTION IS BUILT.** The AECP engine
+> that handled `ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS` /
+> `GET_AUDIO_MAP`, the dynamic-map store that answered them, and the
+> projector that wrote the map RAMs are all deleted. The protocol processor's
+> AECP uCPU replaced the engine and implements `READ_DESCRIPTOR` only: all
+> three audio-map verbs are answered with the conformant `NOT_IMPLEMENTED`
+> echo, so a controller can neither read nor write this map, and the `0x900`
+> window (§6) is the whole of the write path. **An echo is not an
+> implementation** — do not grade these verbs as covered because they are
+> answered. The section is kept as the contract — the clause analysis, the
+> cluster↔physical table and the projection rules — that whoever implements
+> them owes. Read every "is" below as "shall be".
+
+The intended canonical programmer of both map RAMs is the AECP engine
+handling `ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS` / `GET_AUDIO_MAP`
+(command values 43/44/45 and `DESC_AUDIO_MAP = 0x0017`, 1722.1-2021
+7.4.44/45/46). The CSR window would then return to being the debug override.
+**Arbitration: one write port per RAM, AEM wins, CSR is shadow-readable
+always** — the mux is still in the RTL with its AEM leg tied off.
 
 ### 7.1 Authority model
 
@@ -581,6 +679,10 @@ for mappings that have no fabric backing (§7.2's PipeWire-domain
 entries) and keeps the fabric words free to be CSR-poked on the bench
 without corrupting AEM readback (a CSR override is bench-visible in
 `CHMAP_WORD`, not in GET_AUDIO_MAP).
+
+**Today there is no store and therefore no authority question:** the RAM is
+the only copy, and `CHMAP_LOOP 0x914` reads it out of the RAM's own read
+port. A mapping with no fabric backing cannot be expressed at all.
 
 ### 7.2 Cluster ↔ physical-channel table
 
@@ -791,11 +893,15 @@ phase-1 engines.
 5. **TDM8 render lane merge** (§8) — parallel lane lands
    independently; until merged, RMAP entries 2..9 are writable but
    sink-less (harmless by §3 semantics).
-6. **AEM projector** — commit path from the AECP audio-map verbs (G9)
-   to the arbitrated map write port; cluster↔physical ROM emitted by
-   the builder; GET_AUDIO_MAP from the dynamic store (§7.1);
-   pair-consistency refusal (§7.3). TB: aecp harness ADD/REMOVE/GET
-   rows + projection vectors + refusal rows.
+6. **AEM projector** — commit path from the AECP audio-map verbs to the
+   arbitrated map write port; cluster↔physical ROM emitted by the builder;
+   GET_AUDIO_MAP from the dynamic store (§7.1); the surviving vendor rules
+   (§7.3). **Landed, then deleted with this repository's AECP plane
+   (2026-08-13). The processor's AECP uCPU that replaced it implements
+   `READ_DESCRIPTOR` only, so the three audio-map verbs — and this projector —
+   are owed by whoever implements them there.** The `aecp` harness that gated
+   it is deleted too, so a re-implementation starts from the contract in §7,
+   not from a regression suite.
 7. **8×8 elaboration** — `N_TALKERS_P = 8` / `N_LISTENERS_P = 8`
    shapes with per-stream rings; builder overlays emit the 8-port
    cluster blocks + maps (G10 pattern per port); estimator re-run
@@ -846,6 +952,17 @@ that is the next bench lane.
 
 Two of the three missing pieces are now built; the recipe below is the one to
 run on the next flash.
+
+> **Re-read the recipe against the 2026-08-13 plane (it still runs, with two
+> substitutions).** Step 1's "with the lwSRP engine on" now means the
+> **protocol processor's** SRP: `LWSRP_CTRL` still enables the admission
+> term, but the reservation, the granted slope and the adopted domain come
+> off the processor's class-D face, and the MRPDU counters at `0x680` are
+> structural zeros. Step 2's probe is answered by the processor's
+> `KL_acmp_talker` rather than by `KL_acmp_responder`, and its `dmac` still
+> comes from the same `KL_maap` block claim (through `KL_pp_maap_shim`), so
+> the "capture that line" evidence is unchanged. Step 3 is unaffected — the
+> `0x900` window is now the *only* programmer, not the bench one.
 
 **Built since the first walk.** `VERSION 0x0001_000C` answers `CONNECT_TX` /
 `PROBE_TX` for **every talker uid `0..N-1`** with `dmac = MAAP base + uid`

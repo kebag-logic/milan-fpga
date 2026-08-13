@@ -9,7 +9,7 @@
 - **[How the boot works](#how-the-boot-works)** — The boot-method priority chain and what full vs partial each do. The reassuring part: every copy is CRC-checked from the FBI header, so an empty or half-written flash falls through to serialboot rather than bricking the boot.
 - **[Usage](#usage)** — The four commands in order — apply the BIOS patch (re-run after every LiteX upgrade), build, flash, then the fast iteration loop that JTAG-loads gateware while the kernel stays in flash.
 - **[Getting to zero-upload](#getting-to-zero-upload)** — The three steps that get a boot to upload nothing, and the size targets they have to hit. `flash-images` refuses an oversized image, so an un-slimmed kernel fails loudly instead of half-writing the layout.
-- **[Caveats](#caveats)** — Six, and the first is the expensive one: `--coherent-dma` is mandatory and *not* implied by `--all-blocks` — without it RX skbs arrive all-zero and TX sends stale data the peer silently filters. The rest cover FBI endianness, flash addressing, and one bullet struck through: the board *does* hold its bitstream in flash and config-boots from it, so JTAG `load` is a speed choice rather than a requirement.
+- **[Caveats](#caveats)** — Seven, and the first is the expensive one: `--coherent-dma` is mandatory and *not* implied by `--all-blocks` — without it RX skbs arrive all-zero and TX sends stale data the peer silently filters. The rest cover FBI endianness, flash addressing, one bullet struck through (the board *does* hold its bitstream in flash and config-boots from it, so JTAG `load` is a speed choice rather than a requirement), and the newest one: the AECP descriptor image has no flash slot at all — it lives in DRAM and has to be written there every boot.
 - **[Validated](#validated)** — What was actually checked at the time, including the negative: the slot check correctly *rejects* a 14 MB kernel against the 8.5 MiB slot.
 - **[2026-07-06: zero-upload ACHIEVED  -  the sizes that made "full" fit](#2026-07-06-zero-upload-achieved-----the-sizes-that-made-full-fit)** — Frozen record of the two rounds of slimming, with the before/after per lever. The kernel-config gotcha worth stealing: without `CONFIG_EXPERT=y` the VT/INPUT disables **silently fail**.
 - **[Planned: boot-chain compression (BIOS-LZ4 kernel)  -  bitstream stays JTAG](#planned-boot-chain-compression-bios-lz4-kernel-----bitstream-stays-jtag)** — A proposal, not shipped. Argues the decompressor belongs in the LiteX BIOS rather than OpenSBI, prices the gain at ~3.4 MiB of freed flash, and records the decision that the bitstream stays JTAG-loaded even though the freed space would fit it.
@@ -203,7 +203,7 @@ generated from:
 ```
 
 The two `RESERVED` slots are not boot images: the BIOS never copies them and a
-reflash must not erase them ([SAVED_STATE_FASTCONNECT.md](../design/SAVED_STATE_FASTCONNECT.md) §5).
+reflash must not erase them. (The saved-state journal that used those slots was deleted 2026-08-13 with this repository's own AECP/AEM engine; the slots stay reserved in the flash map, and nothing writes or reads them today. Persistence is a genuine loss, not a relocation: the protocol processor's NVM face is answered by a blank-flash responder, so a restore walk always completes with zero records and nothing survives a power cycle.)
 
 The manifests (`--flashboot`) select which *images* the BIOS copies, not where
 they live: `kernel` (partial) pre-loads only the kernel and lets serialboot
@@ -338,6 +338,23 @@ kernel fails loudly instead of half-writing.
   verified) writes raw at any offset, so writing offset 0 by hand is fine here
   (it is the bitstream slot in the deployed layout, and was the kernel slot
   pre-v3).
+* **The AECP descriptor image is NOT part of this boot chain, and flashing does
+  not supply it.** Since 2026-08-13 the entity model is not a ROM in gateware:
+  the protocol processor's descriptor store fetches it from **DRAM**, at a
+  **compile-time** base (`PP_DESC_BASE_P`, derived by the SoC as the top 1 MiB
+  of `main_ram` and reserved in the device tree — there is no base register to
+  program). It has no flash slot and none of the four manifest images carries
+  it, so **software must write it into DRAM on every boot, before enabling the
+  entity** (`PP_CTRL[0]` at `0x920`, ORed with `ADP_CTRL[0]` at `0x600`).
+  Nothing in this repository does that yet — no builder, script or boot step
+  produces the image or loads it, and the `aecp_aem_rom.svh` the end-station
+  builder still emits belongs to the deleted in-fabric store — so a board booted
+  from these images advertises, connects and streams while answering
+  `BAD_ARGUMENTS` to every `READ_DESCRIPTOR` — an unloaded image reports zero
+  configurations, and that check precedes the locate. That is expected on a stock
+  build, it never hangs (the store's watchdog abandons a stalled burst), and a
+  late load heals without a reset. Bench walk-through:
+  [../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md) §26.
 
 ---
 

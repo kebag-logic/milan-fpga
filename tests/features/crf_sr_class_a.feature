@@ -14,9 +14,14 @@ Feature: CRF Media Clock Output is an SR class A stream (Milan v1.2 7.3.3)
   is just multicast and floods).
 
   Closing it is THREE things that only work together - the 802.1Q C-TAG, the
-  data lane, and the MSRP Talker Advertise - so these scenarios check the
-  artifacts that have to agree, INCLUDING the interlock that makes the
-  half-done state unreachable.
+  data lane, and the MSRP Talker Advertise. The first two are still ours and
+  are checked here. The THIRD is not: the lwSRP applicant, its TSpec
+  provisioning, the Σ-slope gate and the tag/declaration interlock were
+  resolved out of hdl/ieee8021q/srp/**, which no longer exists in this
+  repository - the protocol-processor submodule declares the reservation now.
+  Those scenarios were DELETED rather than repointed at RTL that cannot
+  answer them; when the processor's declaration state is testable from this
+  layer they come back against it.
 
   LEVEL AND ORACLE (docs/testing/methodology.md). Every scenario here is L3
   conformance-to-clause: the oracle is the CITED CLAUSE, and the subject read
@@ -43,39 +48,6 @@ Feature: CRF Media Clock Output is an SR class A stream (Milan v1.2 7.3.3)
   Scenario: The tag replaces pad, it does not resize the frame
     Then both frame shapes are the same 60-octet frame
 
-  @clause:8021Q-34.5 @clause:Milan-4.2.7.2.1
-  Scenario: The stream carries the SR class A priority the bridge expects
-    Then the SR class A priority is 3
-    And the TalkerAdvertise PriorityAndRank octet is 0x70
-    And the frame PCP and the declared priority are one constant
-    And the frame VID and the declared VID are one wire
-
-  @clause:8021Q-35.2.2.4
-  Scenario: The TSpec describes the frame that is actually emitted
-    Then the declared MaxFrameSize is Table 4.4's, and its reservation still covers the emitted frame
-    And the declared MaxIntervalFrames is 1
-    And the reservation fits the 75 percent class A budget on a 100 Mb link
-    And the reservation fits the 75 percent class A budget on a 1000 Mb link
-    And the reservation is over-provisioned by at least 16x the real rate
-
-  @clause:8021Q-35.1.2 @negative
-  Scenario: A tag can never exist without the declaration that justifies it
-    Then the tag is derived from the provisioned reservation, not from a bare bit
-    And a bare CSR request cannot tag the stream on its own
-
-  @clause:Milan-7.3.3
-  Scenario: The reservation names the stream the fabric actually emits
-    Then the reservation row is provisioned by the fabric, not by software
-    And the request retires only on the beat the engine sampled it
-
   @level:L1 @clause:Milan-7.3.3
   Scenario: The media clock stream leaves on the data lane, not the control merge
     Then the CRF AXIS is bound to the data lane, not the control merge
-
-  @clause:Milan-5.3.7.3 @observability
-  Scenario: A pruned reservation is readable, not a stream that silently vanished
-    Then the reservation state is readable, not inferable from silence
-
-  @negative @coverage-honesty
-  Scenario: SR class B is not silently claimed by this change
-    Then SR class B is still not reachable

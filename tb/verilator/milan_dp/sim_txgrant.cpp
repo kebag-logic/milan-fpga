@@ -2,18 +2,28 @@
  * SPDX-FileCopyrightText: 2026 Kebag Logic
  * SPDX-License-Identifier: CERN-OHL-W-2.0
  *
- * sim_txgrant - the CPU DMA-TX lane under REGISTERED-CONTROLLER push load
+ * sim_txgrant - the CPU DMA-TX lane under CONTROL-LANE load
  * (task #19, silicon 2026-08-06).
  *
  * WHY THIS EXECUTABLE EXISTS: an A/B on the AX7101 proved the 0x0024+
  * fabric starves the CPU DMA-TX lane minutes after an ATDECC controller
  * REGISTERs for unsolicited notifications - ssh/ARP die while the kernel,
- * RX, AAF streaming and the AECP control lane all stay healthy (bd-stage
- * b2 ~146us/frame, TX n~147 frames in 8 min). No sim in this suite had
- * ever REGISTERED a controller, so the Table 5.22 push machinery - the
- * only 0x0024 delta - had never once run against the TX trunk at desk.
- * This harness closes exactly that gap and it is a PERMANENT leg: the
- * push arms must never again be a wire-first code path.
+ * RX, AAF streaming and the control lane all stay healthy (bd-stage b2
+ * ~146us/frame, TX n~147 frames in 8 min). The graded property is the TX
+ * TRUNK's: control-lane traffic must not starve the best-effort CPU lane
+ * through adp_tx_arbiter, whatever is generating it.
+ *
+ * WHAT CHANGED 2026-08-13. The GENERATOR is different now. AECP is
+ * deleted - no REGISTER_UNSOLICITED_NOTIFICATION is answered, and Milan
+ * Table 5.22's push machinery (pend3 GET_COUNTERS, pend6 stream-info,
+ * pend8 GET_AS_PATH) went with it - so the three checks that graded
+ * "pushes really egressed" have no subject and are deleted. The control
+ * lane still has a real generator: the protocol processor answers ACMP
+ * (CONNECT_TX/PROBE_TX/GET_TX_STATE, the BIND_RX ladder and its own
+ * PROBE_TX launches), and every one of those frames rides the SAME
+ * ctl_tx_mux -> IFG gasket -> MAC-boundary path the AECP responses did.
+ * So the load is now ACMP polling plus bind/unbind churn, and the census
+ * counts every control PDU the processor emits rather than subtype 0xFB.
  *
  * SHAPE OF THE DRILL:
  *   [1] streaming posture: talker 0 emits silence-filled AAF (the data
@@ -23,18 +33,21 @@
  *   [2] baseline: continuous best-effort CPU frames (ARP-shaped, q0 -
  *       ssh's exact path) presented on s_axis_tx; measure accepted
  *       throughput and the worst inter-accept gap;
- *   [3] REGISTER a controller (the silicon trigger);
- *   [4] push storm: GM identity flips - each flip arms pend3 (interface
- *       GET_COUNTERS) and pend8 (GET_AS_PATH, deliberately unlimited)
- *       so every flip is a real push emission through the control lane;
- *       plus CONNECT_RX/DISCONNECT_RX churn on sink 0 for the pend6
- *       dwell path (16 ms settle at the real 1 kHz tick);
+ *   [3] control-lane load: continuous ACMP GET_TX_STATE polling;
+ *   [4] churn: GM identity flips (a CSR-visible event the processor's ADP
+ *       engine takes as a re-advertise trigger) plus CONNECT_RX /
+ *       DISCONNECT_RX on sink 0, which drives the listener ladder and its
+ *       PROBE_TX launches through the trunk;
  *   [5] post-storm quiet window - the silicon death was MINUTES AFTER
  *       registration during ordinary traffic, i.e. a leak, not a burst;
  *   [6] verdicts: CPU accept rate in every measured window >= 85% of
- *       baseline, worst gap < 2^18 cycles, pushes actually egressed
- *       (the drill must prove it exercised the machinery), and the
- *       A_TXARB_DIAG 0x784 stickies name any arbiter that locked up.
+ *       baseline, worst gap < 2^18 cycles, the control lane really did
+ *       carry traffic (the drill must prove it exercised the trunk), and
+ *       the A_TXARB_DIAG 0x784 stickies name any arbiter that locked up.
+ *       THE LANE MAP RENUMBERED with the plane deletion: 0 ctl_tx,
+ *       1 aaf_final, 2 crf_dp, 3 adp_tx (MAC boundary), and bits 7:4 are
+ *       a structural zero - the old 0xE0 mask over lanes 5/6/7 now tests
+ *       three lanes that do not exist, which is a check that cannot fail.
  */
 
 #include "Vmilan_datapath.h"
@@ -123,7 +136,7 @@ enum {
 //      its documented mutate-under-stall deviation live in.
 static int  mac_pace_cnt = 0;
 static int  mac_gap_cnt  = 0;
-static long eg_cpu_frames = 0, eg_aaf_frames = 0, eg_aecp_frames = 0;
+static long eg_cpu_frames = 0, eg_aaf_frames = 0, eg_ctl_frames = 0;
 static long eg_other_frames = 0;
 static std::vector<uint8_t> eg_cur;
 
@@ -145,8 +158,14 @@ static void mac_model_post() {  // call AFTER hi() (sampled accepted beat)
                 else if (eg_cur[12] == 0x81 && eg_cur.size() > 18 &&
                          eg_cur[16] == 0x22 && eg_cur[17] == 0xF0 &&
                          eg_cur[18] == 0x02) eg_aaf_frames++;
+                //! EVERY control PDU the processor emits, not just AECP's
+                //! subtype 0xFB (which no longer exists): ADP 0xFA, ACMP
+                //! 0xFC, plus the MSRP/MVRP pair. They all share ctl_tx_mux.
                 else if (eg_cur[12] == 0x22 && eg_cur[13] == 0xF0 &&
-                         eg_cur[14] == 0xFB) eg_aecp_frames++;
+                         (eg_cur[14] == 0xFA || eg_cur[14] == 0xFC ||
+                          eg_cur[14] == 0xFE)) eg_ctl_frames++;
+                else if (eg_cur[12] == 0x22 && eg_cur[13] == 0xEA) eg_ctl_frames++;
+                else if (eg_cur[12] == 0x88 && eg_cur[13] == 0xF5) eg_ctl_frames++;
                 else eg_other_frames++;
             } else eg_other_frames++;
             eg_cur.clear();
@@ -214,15 +233,15 @@ static void bstep() {
 static void brun(long n) { for (long i = 0; i < n; i++) bstep(); }
 
 // measured window: returns accepted-CPU-frame count over n cycles
-struct Win { long cpu; long worst_gap; long aaf; long aecp; };
+struct Win { long cpu; long worst_gap; long aaf; long ctl; };
 static Win measure(long n, const char* label) {
-    long c0 = cpu_accepted_frames, a0 = eg_aaf_frames, e0 = eg_aecp_frames;
+    long c0 = cpu_accepted_frames, a0 = eg_aaf_frames, e0 = eg_ctl_frames;
     cpu_gap_worst = 0; cpu_gap_cur = 0;
     brun(n);
     Win w = { cpu_accepted_frames - c0, cpu_gap_worst,
-              eg_aaf_frames - a0, eg_aecp_frames - e0 };
-    printf("  [win]  %-24s %8ld cyc: cpu %6ld  worst-gap %7ld  aaf %5ld  aecp %4ld\n",
-           label, n, w.cpu, w.worst_gap, w.aaf, w.aecp);
+              eg_aaf_frames - a0, eg_ctl_frames - e0 };
+    printf("  [win]  %-24s %8ld cyc: cpu %6ld  worst-gap %7ld  aaf %5ld  ctl %4ld\n",
+           label, n, w.cpu, w.worst_gap, w.aaf, w.ctl);
     return w;
 }
 
@@ -259,32 +278,25 @@ static const uint8_t ST_MAC[6]  = {0x02,0x00,0x00,0x00,0x00,0x01};
 static const uint8_t CTL_MAC[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
 static const uint8_t ENT_EID[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
 
-// AECP AEM_COMMAND to our entity (unicast to the station MAC)
-static void aecp_cmd(uint16_t cmd, uint16_t seq,
-                     const std::vector<uint8_t>& pl = {}) {
-    uint8_t f[80]; memset(f, 0, sizeof f);
-    memcpy(f, ST_MAC, 6);
-    memcpy(f+6, CTL_MAC, 6);
-    f[12]=0x22; f[13]=0xF0;
-    f[14]=0xFB; f[15]=0x00;                    // AECP, AEM_COMMAND
-    uint16_t cdl = 12 + (uint16_t)pl.size();
-    f[16]=(uint8_t)((cdl>>8)&0x7); f[17]=(uint8_t)cdl;
-    memcpy(f+18, ENT_EID, 8);                  // target = us
-    memcpy(f+26, CTL_MAC, 6);                  // controller eid = MAC<<16
-    f[34]=(uint8_t)(seq>>8); f[35]=(uint8_t)seq;
-    f[36]=(uint8_t)((cmd>>8)&0x7F); f[37]=(uint8_t)cmd;
-    for (size_t i = 0; i < pl.size() && 38 + i < sizeof f; i++)
-        f[38+i] = pl[i];
-    size_t flen = 38 + pl.size(); if (flen < 60) flen = 60;
-    inject(f, flen);
-}
-
-// the Hive posture: a registered controller POLLS while the entity
-// pushes - GET_STREAM_INFO on STREAM_INPUT[0] round after round.
+// ACMP GET_TX_STATE_COMMAND at OUR talker source 0. This is the control
+// load the AECP poll used to be: it crosses the same RX classifier, the
+// same control FIFO and byte serializer, and its answer rides the same
+// ctl_tx_mux -> IFG gasket -> MAC-boundary chain. 70 bytes on the wire
+// (14 B Ethernet + a 56 B ACMPDU, control_data_length 44).
 static uint16_t poll_seq = 0xA000;
-static void hive_poll() {
-    aecp_cmd(0x0026 /* GET_STREAM_INFO */, poll_seq++,
-             {0x00,0x05, 0x00,0x00});          // STREAM_INPUT[0]
+static void ctl_poll() {
+    uint8_t f[72]; memset(f, 0, sizeof f);
+    const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+    memcpy(f, mc, 6);
+    memcpy(f+6, CTL_MAC, 6);
+    f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x04;   // ACMP GET_TX_STATE
+    f[16]=0x00; f[17]=44;
+    memcpy(f+26, CTL_MAC, 6);                         // controller
+    memcpy(f+34, ENT_EID, 8);                         // talker = us
+    f[50]=0x00; f[51]=0x00;                           // talker_unique_id 0
+    const uint16_t seq = poll_seq++;
+    f[62]=(uint8_t)(seq>>8); f[63]=(uint8_t)seq;
+    inject(f, 70);
 }
 
 // ACMP CONNECT_RX / DISCONNECT_RX on sink 0 (fast-connect sid) - the
@@ -358,27 +370,36 @@ int main(int argc, char** argv) {
     Win base = measure(1000000, "baseline");
     ck("baseline moves real CPU traffic", base.cpu > 500, 1);
 
-    // [3] REGISTER a controller - the silicon trigger
-    long e0 = eg_aecp_frames;
-    aecp_cmd(36, 0x9000);                      // REGISTER_UNSOL_NOTIFICATION
+    // [3] put the CONTROL LANE to work. The old trigger was an AECP
+    //     REGISTER_UNSOLICITED_NOTIFICATION and its "answered on the control
+    //     lane" check; there is no AECP engine to answer it, so that check is
+    //     DELETED rather than left asserting against a dead responder. The
+    //     load is an ACMP poll, which the processor does answer.
+    long e0 = eg_ctl_frames;
+    ctl_poll();
     brun(20000);
-    ck("REGISTER_UNSOL answered on the control lane", eg_aecp_frames > e0, 1);
+    ck("the control lane ANSWERED a poll (the load is real)",
+       eg_ctl_frames > e0, 1);
 
-    Win reg = measure(1000000, "registered-quiet");
-    ck_ge("registered-quiet rate vs baseline",
+    Win reg = measure(1000000, "polled-quiet");
+    ck_ge("polled-quiet rate vs baseline",
           (double)reg.cpu / (double)base.cpu, 0.85);
 
-    // [4a] push storm: GM identity flips. Every flip arms pend3
-    //      (AVB_INTERFACE GET_COUNTERS) and pend8 (GET_AS_PATH, no rate
-    //      limiter by design) -> real push emissions through the trunk.
-    long push0 = eg_aecp_frames;
+    // [4a] churn storm: GM identity flips (the processor's ADP engine takes
+    //      a grandmaster change as a re-advertise trigger, 1722.1 6.2.6)
+    //      interleaved with continuous ACMP polling. The old "GM flips really
+    //      emitted pushes" check counted Table 5.22 unsolicited notifications,
+    //      whose whole registry is deleted with AECP - DELETED, not softened.
+    //      What is still graded is the trunk: the CPU lane's rate must hold
+    //      through every storm window.
+    long push0 = eg_ctl_frames;
     double worst_ratio = 1.0;
     for (int i = 0; i < 30; i++) {
         axi_write(A_ADP_GMLO, 0x00000200u + (uint32_t)(i & 1));
         axi_write(A_ADP_GMHI, 0x3CC0C6FFu);    // commit on HI (atomic pair)
-        hive_poll();                           // Hive polls WHILE we push
+        ctl_poll();                           // Hive polls WHILE we push
         brun(15000);
-        hive_poll();
+        ctl_poll();
         brun(15000);                           // let the pushes emit
         if ((i % 6) == 5) {
             char nm[32]; snprintf(nm, sizeof nm, "gm-storm %d", i + 1);
@@ -387,27 +408,28 @@ int main(int argc, char** argv) {
             if (r < worst_ratio) worst_ratio = r;
         }
     }
-    long gm_pushes = eg_aecp_frames - push0;
-    printf("  [info] GM storm emitted %ld AECP frames to the controller\n",
-           gm_pushes);
-    ck("GM flips really emitted pushes", gm_pushes >= 30, 1);
+    long gm_ctl = eg_ctl_frames - push0;
+    printf("  [info] GM storm window carried %ld control frames\n", gm_ctl);
     ck_ge("worst storm-window rate vs baseline", worst_ratio, 0.85);
     print_txarb("after GM storm");
 
     // [4b] pend6: bind/unbind churn on sink 0. The 16 ms dwell is real
     //      (1 kHz tick at the elaborated clock), so give each edge
     //      1.7M cycles of live traffic to settle and emit.
-    push0 = eg_aecp_frames;
+    push0 = eg_ctl_frames;
     for (int i = 0; i < 2; i++) {
         acmp_bind(true,  (uint16_t)(0x7100 + i));
-        for (int k = 0; k < 17; k++) { hive_poll(); brun(100000); }
+        for (int k = 0; k < 17; k++) { ctl_poll(); brun(100000); }
         acmp_bind(false, (uint16_t)(0x7200 + i));
-        for (int k = 0; k < 17; k++) { hive_poll(); brun(100000); }
+        for (int k = 0; k < 17; k++) { ctl_poll(); brun(100000); }
     }
-    long bind_pushes = eg_aecp_frames - push0;
-    printf("  [info] bind churn emitted %ld AECP frames"
-           " (responses + stream-info pushes)\n", bind_pushes);
-    ck("bind churn produced control traffic", bind_pushes >= 4, 1);
+    long bind_ctl = eg_ctl_frames - push0;
+    printf("  [info] bind churn emitted %ld control frames"
+           " (ACMP responses + the listener's own PROBE_TX launches)\n",
+           bind_ctl);
+    //! REPOINTED: the ladder is the processor's, so the evidence that the
+    //! churn reached the trunk is ACMP egress rather than AECP push egress.
+    ck("bind churn produced control traffic", bind_ctl >= 4, 1);
     Win churn = measure(500000, "post-bind-churn");
     ck_ge("post-churn rate vs baseline",
           (double)churn.cpu / ((double)base.cpu * 0.5), 0.85);
@@ -420,12 +442,21 @@ int main(int argc, char** argv) {
     ck("soak worst inter-accept gap < 2^18 cycles",
        soak.worst_gap < (1L << 18), 1);
 
-    // [6] arbiter verdicts: the data-lane muxes (5 aaf_final, 6 crf_dp,
-    //     7 MAC boundary) must have latched neither abort nor stall
+    // [6] arbiter verdicts. THE LANE MAP RENUMBERED (2026-08-13): the
+    //     cascade collapsed from eight muxes to four when the legacy plane's
+    //     five control legs were deleted, and the order is LSB-first
+    //     0 ctl_tx, 1 aaf_final, 2 crf_dp, 3 adp_tx (the MAC boundary).
+    //     The old 0xE0 mask named lanes 5/6/7, which are now part of the
+    //     documented structural zero in bits 7:4 - it could never have
+    //     failed again. All FOUR live lanes are graded instead, ctl_tx
+    //     included: it is the lane this whole drill loads.
     uint32_t d = axi_read(A_TXARB_DIAG);
     print_txarb("final");
-    ck("no ABORT sticky on the data-lane muxes", (d >> 8)  & 0xE0, 0);
-    ck("no STALL sticky on the data-lane muxes", (d >> 16) & 0xE0, 0);
+    ck("TXARB_DIAG tag == 0xA7 (the window decodes)", d >> 24, 0xA7);
+    ck("no ABORT sticky on ANY of the four live muxes", (d >> 8)  & 0x0F, 0);
+    ck("no STALL sticky on ANY of the four live muxes", (d >> 16) & 0x0F, 0);
+    ck("lanes 7:4 are a STRUCTURAL ZERO (four muxes, not eight)",
+       ((d >> 4) & 0xF) | ((d >> 12) & 0xF) | ((d >> 20) & 0xF), 0);
     ck("AAF never stopped (fabric health)", eg_aaf_frames > 1000, 1);
 
     printf("--------------------------------------------------------------\n");

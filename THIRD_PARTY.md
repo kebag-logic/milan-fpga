@@ -1,12 +1,14 @@
 # Third-party (vendored) cores
 
 Open-source RTL vendored as git submodules under `third_party/` (plus the `external`
-AVB/Ethernet submodule at the repo root). See the de-Xilinx plan in
+AVB/Ethernet submodule and the `protocol-processor` control-plane submodule at the
+repo root). See the de-Xilinx plan in
 [`OPEN_SOURCE_MIGRATION.md` (archived)](historical_now_obsolete/integration/OPEN_SOURCE_MIGRATION.md) (archived).
 
 | Submodule | Upstream | License | Pinned commit | Used by |
 |-----------|----------|---------|---------------|---------|
 | `external` | [github.com/kebag-logic/fpga-avb-ethernet](https://github.com/kebag-logic/fpga-avb-ethernet) | see submodule | `efeb541` | AVB/Ethernet MAC + PHY RTL for the datapath (`eth_mac_1g` family); vendored, no longer "assumed present at synth time". |
+| `protocol-processor` | `protocol-processor-control-plane-avb-milan` (private upstream) | see submodule | `dd71217` (`v2.0-13-g...`) | **This device's entire IEEE 1722.1 / SRP control plane** since 2026-08-13 — ADP, ACMP talker and listener, and SRP. Consumed through [`hdl/milan/KL_pp_shadow.sv`](hdl/milan/KL_pp_shadow.sv), instantiated unconditionally by `milan_datapath`. It implements **no MAAP** by design (allocation stays in this fabric, bridged by `KL_pp_maap_shim`), and its **AECP engine — the P4 micro-coded uCPU — has not landed at its top**, so this entity answers no AECP/AEM command. Verify the live pin with `git submodule status protocol-processor` rather than trusting this cell. |
 | [`third_party/verilog-axis`](third_party/verilog-axis) | [github.com/alexforencich/verilog-axis](https://github.com/alexforencich/verilog-axis) | MIT | `48ff7a7` | `axis_fifo` → `traffic_classifier`, `ptp_ts_top` (replacing `xpm_fifo_axis`, T1.2). `axis_demux`/`axis_arb_mux` planned for T1.3. |
 
 ## Generated third-party C (not a submodule)

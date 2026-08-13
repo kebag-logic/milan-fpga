@@ -14,16 +14,20 @@ by [barectf](https://barectf.org/) (dependency-free generated C — no LTTng
 runtime), buffered in DRAM, and written to the `/user` jffs2 partition **only
 when something has gone wrong**, as rotating independent `xz` segments.
 
-> **Roadmap:** [`TODO.md`](../../TODO.md) Phase 10 row **H4**. Composes with
-> [`SAVED_STATE_FASTCONNECT.md`](SAVED_STATE_FASTCONNECT.md) §10, which owns the
-> `/user` partition itself; this document owns what goes in it.
+> **Roadmap:** [`TODO.md`](../../TODO.md) Phase 10 row **H4**. It used to
+> compose with the saved-state / fast-connect design page, which owned the
+> `/user` partition itself; that page was **deleted on 2026-08-13 along with
+> the persistence RTL it described** (see the status note in §1). The
+> partition map survives where it always really lived — `FLASHBOOT_LAYOUT` /
+> `FLASHBOOT_RESERVED` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)
+> — and this document owns what goes in it.
 
 ---
 
 ## Contents
 
 - **[1. Status ledger — proven vs designed-only](#1-status-ledger--proven-vs-designed-only)** — Read this first, as the page says: a row per piece with its evidence gate. The honest bottom line is here — nothing claims fault logging works on a board, because no board has ever booted with an mtd node.
-- **[2. What is worth tracing](#2-what-is-worth-tracing)** — The event catalogue derived backwards from real faults: for each past bug, which registers read in which order would have ended the investigation on day one. Also the two members riding every record — `sev` (WARN+ is what arms a flush) and `src` — and why the producer is edge-triggered rather than a sampler.
+- **[2. What is worth tracing](#2-what-is-worth-tracing)** — The event catalogue derived backwards from real faults: for each past bug, which registers read in which order would have ended the investigation on day one. Also the two members riding every record — `sev` (WARN+ is what arms a flush) and `src` — and why the producer is edge-triggered rather than a sampler. **[§2.1](#21-events-whose-source-rtl-was-deleted-2026-08-13) is the errata**: which events can no longer fire at all, and which fire with some fields pinned to a structural zero, after the 2026-08-13 control-plane substitution.
 - **[3. The trace ABI](#3-the-trace-abi)** — One YAML generates both the decode metadata and the producer C, both checked in so the gate runs without barectf. Two traps worth knowing: event ids are assigned by *sorted event name*, so adding an event renumbers its successors, and the metadata must therefore travel with the segments — a reader using current metadata on an archived trace gets confidently wrong answers, not slightly wrong ones. Also why the clock is monotonic µs and never the PHC.
 - **[4. Where it lives](#4-where-it-lives)** — The CSR-to-flash pipeline in one diagram, and the inversion it is built on: flash is the scarce resource, DRAM is not, so a 4 MiB overwrite-oldest ring holds about an hour of history and flash is written rarely. Names the three conditions that must all hold before a flush, and requires that a refused flush record *why* it was refused.
 - **[5. The flash write budget, and the lifetime it implies](#5-the-flash-write-budget-and-the-lifetime-it-implies)** — The arithmetic that justifies the whole design, in one table: continuous text logging is not a conservative choice, it is a **59-day** choice, and a rate limiter alone still wears the part out in about eighteen months. That is why there is a token bucket as well as an interval.
@@ -53,7 +57,7 @@ Read this first.
 | `journal` + `user` flash slots in the SoC map | **in `FLASHBOOT_LAYOUT`, gated** | gate 1 |
 | `fixed-partitions` DT node | **generated + `dtc`-checked** | gate 1 |
 | Linux **binding** an mtd driver to LiteSPI | **NOT ESTABLISHED** | no board has been booted with an mtd node; §12 gate T1 |
-| `/user` mounted, jffs2 | **designed only** | [`SAVED_STATE_FASTCONNECT.md`](SAVED_STATE_FASTCONNECT.md) §10 |
+| `/user` mounted, jffs2 | **designed only** | its design page was deleted 2026-08-13; the slot itself is in `FLASHBOOT_RESERVED` and gate 1 |
 | The board daemon (poller + compressor + writer) | **private test repo** | §11 |
 | Compressor cost on the softcore | **ESTIMATED, not measured** | §7.3 — the `trace_flush.ms` field exists to replace the estimate |
 
@@ -84,8 +88,8 @@ investigation on day one?**
 | `heartbeat` | — | the box is alive and the tracer is running. Also **mandatory**: it bounds the 32-bit record timestamp (§3.2) |
 | `link` | `LINKG_STAT 0x774`, `LINK_CTRL 0x71C` | the link-guard `eth_rst` deadlock; the MAC-TX wedge on a link bounce. `state`/`rx_alive`/`tx_alive`/`eth_rst` in one record is the guard's whole FSM |
 | `mac_reset` | `RST_EPOCH 0x720` | **the shadow-lie canary.** [Pattern 8](../limitations/RECURRING_DEFECT_PATTERNS.md) — a CSR that reads its pre-reset value is indistinguishable from a configured one *unless you know a reset happened*. This event is what makes every later register value in the trace interpretable |
-| `acmp_listener` | `0x6A4`, `0x6A8/0x6AC`, `0x6B4` | the fast-connect ladder, as a transition list instead of a hand-poll |
-| `srp` | `0x694/0x698/0x69C` | reservation state, and `[11]` **attribute-row shortfall** — documented as the *only* software-visible symptom of a refused reservation row |
+| `acmp_listener` | `0x6A4`, `0x6A8/0x6AC`, `0x6B4` | the fast-connect ladder, as a transition list instead of a hand-poll. **PARTLY DEAD (2026-08-13)** — see §2.1 |
+| `srp` | `0x694/0x698/0x69C` | reservation state, and `[11]` **attribute-row shortfall** — documented as the *only* software-visible symptom of a refused reservation row. **PARTLY DEAD (2026-08-13)** — see §2.1 |
 | `srp_refusal` | (requester side) | an admission refusal as an event, distinct from a status word that happens to read badly |
 | `stream_ctx` | `0x800` window: `0x810` CTRL, `0x814/0x818` SID | **the fabric-listener accept blocker.** [§21](../limitations/TROUBLESHOOTING.md) is one word: `A_STRMW_CTRL` reads `0` while the bind record says bound. That comparison needs both halves in one record |
 | `stream_ctx_write` | the writes themselves | ordering is load-bearing (*stage SID before CTRL*), and an ordering defect is invisible unless the **writes** are traced, not only the resulting state |
@@ -93,7 +97,7 @@ investigation on day one?**
 | `avtp_rx` | `0x6B8/0x6BC/0x6C0/0x6C4/0x6EC` | accept rate, format rejects, sequence gaps, ring drops, stream-sync error |
 | `ltap` | `0x870` taps, `0x898` | per-stage latency, **plus `saturated`** — a 16-bit `max` that hit `0xFFFF` during a fault describes the fault, not the system, so the trace records that the number is contaminated instead of quoting it |
 | `ring` | RX/TX BD + PCM rings | the multi-flow collapse was hardware lapping an un-gated ring; head/tail *at the lap* is the evidence |
-| `journal` | `JNL_STAT 0x7C0`, `JNL_SEQ 0x7C4` | the saved-state verdict taxonomy is exactly this enum ([`SAVED_STATE_FASTCONNECT.md`](SAVED_STATE_FASTCONNECT.md) §6.3) |
+| `journal` | `JNL_STAT 0x7C0`, `JNL_SEQ 0x7C4` | the saved-state verdict taxonomy was exactly this enum. **CANNOT FIRE (2026-08-13)**: `KL_persist_journal` is deleted, the ingest port accepts writes and discards them, and both words read STRUCTURAL ZEROS — an edge-triggered poller sees no edge, ever |
 | `maap` | `0x6D0/0x6D4` | a DMAC collision is the documented cause of lwSRP failure code 5 |
 | `mediaclk` | `0x8F8`, `0x6D8`, `0x6E0` | "pumping" was a media-clock rate error; the trim/fill pair is the signal |
 | `ptp` | GM id, `pdelay 0x6E4`, PHC | `asCapable` never true was a multi-day fault. The PHC value is **payload**, so a clock step is data (§3.2) |
@@ -114,6 +118,48 @@ Two members ride on **every** record, in the CTF event common context, 2 bytes:
 and emits a record when a value *changes* (plus a low-rate heartbeat). That is
 what makes 87 805 records cover 27 minutes of board time in 378 KiB rather than
 in gigabytes.
+
+### 2.1 Events whose source RTL was deleted (2026-08-13)
+
+The catalogue was designed against a fabric that owned ADP, ACMP, AECP/AEM and
+lwSRP. That plane is deleted and replaced by the pinned protocol-processor
+submodule. The processor's AECP µCPU **has** landed — the entity answers
+`READ_DESCRIPTOR` and echoes a conformant `NOT_IMPLEMENTED` at every other AECP
+command — but that changes nothing for this catalogue, because its counters do
+not appear where a poller would look: they live in the processor's **side-port
+snapshot window**, reached through `KL_pp_shadow`'s side-port host bridge, and
+**not** at parent CSR `0x648`, which stays a structural zero (`aecp_locked`
+tied 0 because there is no ACQUIRE/LOCK, `current_config` tied 0 because there
+is no SET_CONFIGURATION). A future AECP event has a real source to poll; it is
+simply not the address the old plane used.
+
+**An edge-triggered producer watching a structural zero emits nothing, ever** —
+which is a silence that looks exactly like a healthy quiet board, so the
+affected events are named here rather than left to be discovered.
+
+| Event | What still fires | What cannot fire |
+|---|---|---|
+| `acmp_listener` | `flags.bound` / `active` and bit 31 (CRF sink bound) are published from the processor's bind record and still transition | `state` / `prev_state` (the `lsm` enum's PRB_W_\* / SETTLED_\* ladder), `probing`, `status`, and the per-sink SRP registrar bits are STRUCTURAL ZEROS. **A reader must take `bound` as the truth**; a trace that shows `UNBOUND` throughout while `bound` toggles is correct, not corrupt |
+| `srp` | `slope_bps`, the domain word, `gate_open`, `reserved_ok`, `talker_failed` and the over-limit bit are repointed to the processor's class-D SRP face | `mrpdu_tx` / `mrpdu_rx` / `ingress_drops` are STRUCTURAL ZEROS — the serializer and ingress that counted them are deleted. `row_shortfall` (`0x694[11]`) refers to an attribute-row table this fabric no longer has |
+| `srp_refusal` | nothing in this build emits it | it was raised by the requester side of the deleted applicant; the processor reports a per-source failure *code* instead, which arrives through the `srp` event's `msrp_fail` field |
+| `journal` | nothing | `KL_persist_journal` is deleted; the ingest port accepts writes and discards them, `JNL_STAT`/`JNL_SEQ` are structural zeros. **No binding survives a power cycle**, so there is no boot replay to trace |
+| `mediaclk` | `trim` / `fill` / `underruns` / `overruns` / `locked` from the I2S playback rails are unaffected | `servo` (`0x8F8`) can only ever read the servo's **idle**: `SET_CLOCK_SOURCE` is not implemented (the µCPU echoes `NOT_IMPLEMENTED` at it and writes no index), the clock-source index is pinned at 0 (INTERNAL), and the MMCM-DRP servo can never leave idle. That is not a structural zero and not a working servo — see the `0x8F8` row of [`../reference/REGISTER_MAP_CLASSES.md`](../reference/REGISTER_MAP_CLASSES.md) |
+| `maap` | **everything** — `KL_maap` survives and is now load-bearing for connectivity (the processor's talker cannot declare without an `ALLOC_DA` success through it) | — |
+| `stream_ctx` / `stream_ctx_write` | **everything** — the `0x800` window is unaffected, and `bound` now comes from the processor | — |
+| `avtp_rx`, `parser_probe`, `ltap`, `ring`, `link`, `mac_reset`, `ptp`, `boot`, the tracer's own events | **everything** | — |
+
+Two things NOT to do with that table. Do not delete the dead events from the
+ABI: event ids are assigned by sorted name (§3.1), so removing one renumbers
+its successors and mis-decodes every archived trace. And do not repoint a dead
+field at a plausible neighbour — a zero that means "no engine" must not be
+made to look like a zero that means "engine idle".
+
+**The generated catalogue does not carry these marks.**
+[`../reference/TRACE_EVENTS.md`](../reference/TRACE_EVENTS.md) is generated
+from `sw/trace/milan_trace.yaml` and byte-checked against it (round-trip gate
+15), so the marking belongs in that YAML's comment blocks — a `sw/trace`
+change, not a docs change. Until it lands, **this section is the errata for
+that page** and is listed in §13.
 
 ---
 
@@ -253,7 +299,7 @@ keeps exactly one ordering policy in the system: the ring empties in order, and
 
 | Quantity | Value | Source |
 |---|---|---|
-| `/user` partition | 1 MiB @ `0xF0_0000` | `FLASHBOOT_RESERVED`, [`SAVED_STATE_FASTCONNECT.md`](SAVED_STATE_FASTCONNECT.md) §5 |
+| `/user` partition | 1 MiB @ `0xF0_0000` | `FLASHBOOT_RESERVED` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) (the page that used to quote it is deleted) |
 | `/user/log` region | **1.5 MiB** = 24 × 64 KiB blocks | `trace_segment.DEFAULT_LOG_BUDGET`, gate 13 |
 | left for the rest of `/user` | 512 KiB | entity/group names, channel maps, mixer state |
 | erase block | 64 KiB | device sector size |
@@ -561,9 +607,10 @@ init system or a board:
 ## 12. Bench recipe for the half that needs a board
 
 Everything here needs a board and a flash. Each gate is falsifiable on its own,
-so a failure localises. This is the trace-side counterpart to
-[`SAVED_STATE_FASTCONNECT.md`](SAVED_STATE_FASTCONNECT.md) §11, and **T1 is
-literally its G1** — the partitions appear once, for both features.
+so a failure localises. T0–T6 used to share their first step with the
+saved-state bring-up plan (its G1 *was* T1 — the partitions appear once, for
+both features); that plan and its RTL are deleted, so **T1 is now this
+document's alone** and nothing else is waiting on it.
 
 ### T0 — build with the new layout (host only, no board)
 
@@ -654,8 +701,9 @@ limiter doing its job rather than the daemon silently going quiet.
   Deliberately left out of scope here; until it lands, the printed size line is
   a manual check.
 * **`build.sh flash` / `deploy.sh flash-images` must never erase the writable
-  slots.** Same requirement as [`SAVED_STATE_FASTCONNECT.md`](SAVED_STATE_FASTCONNECT.md)
-  §10 item 4, and for the same reason: a gateware update that silently wipes the
+  slots.** This was a shared requirement with the saved-state design (deleted
+  2026-08-13), and it is now this page's alone — for the same reason: a
+  gateware update that silently wipes the
   fault log is worse than having no fault log, because the box then comes back
   amnesiac *sometimes*.
 * **No mtd driver is known to bind** to the LiteSPI controller in this kernel
@@ -670,6 +718,21 @@ limiter doing its job rather than the daemon silently going quiet.
 * **Kernel-side events.** `ring` covers the driver's BD rings but nothing emits
   them yet from `kl-eth`; a small trace shim in the driver (or a netlink hook)
   is the natural follow-up.
+* **The generated event catalogue still lists events that cannot fire.**
+  [`../reference/TRACE_EVENTS.md`](../reference/TRACE_EVENTS.md) is generated
+  from `sw/trace/milan_trace.yaml` and gated byte-for-byte against it, so the
+  2026-08-13 marks in §2.1 cannot be written into the page by hand — they have
+  to go into the YAML's per-event comment blocks and be regenerated. That is a
+  `sw/trace` change and is deliberately not made here; until it lands, §2.1 is
+  the errata a reader needs beside that catalogue. Also worth doing in the same
+  pass: the poller in the private test repo currently reads groups that are now
+  structural zeros every cycle, which costs nothing but produces no records —
+  dropping them from the poll set is the honest follow-up.
+* **`ctrl=0` in the §10 worked line is no longer the whole story.** That line
+  reads the accept blocker off `A_STRMW_CTRL` versus `bound`, and both halves
+  are still live — but `ACMPL_STATE`'s state field beside them is now a
+  structural zero, so a triage habit of "check the ladder first" reads a dead
+  word. `bound` is the truth (§2.1).
 * **Segment 0 pinning is per-boot, not per-fault.** It pins the *first* segment,
   which after a clean boot is the boot record plus early steady state. Pinning
   the first segment that carries an `ERROR` would be strictly better and is a

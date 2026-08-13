@@ -285,15 +285,15 @@ walk is in [`../fpga/DATAPLANE_WALKTHROUGH.md`](../fpga/DATAPLANE_WALKTHROUGH.md
 
 Stated plainly so nobody goes looking for a register that is not there:
 
-* **The persistence journal.** The `KLJ1` record format, `KL_persist_journal`
-  and the replay path are **in the tree and Verilator-proven**
-  ([`tb/verilator/persist`](../../tb/verilator/persist)). The CSR ingest group `0x7B8`–`0x7C4` is **specified
-  but not wired into `milan_csr`**. Its executable spec is
-  [`tb/verilator/persist/persist_wrap.sv`](../../tb/verilator/persist/persist_wrap.sv). The flash half cannot be executed
-  without a board, and
-  [`../design/SAVED_STATE_FASTCONNECT.md`](../design/SAVED_STATE_FASTCONNECT.md)
-  §1 keeps a per-piece proven/designed ledger — read it before claiming
-  "persistence works".
+* **The persistence journal.** At the time of this release the `KLJ1` record
+  format, the journal engine and the replay path were in the tree and
+  Verilator-proven, with the CSR ingest group `0x7B8`–`0x7C4` specified but not
+  yet wired. **All of it was deleted on 2026-08-13** together with the AECP
+  plane it lived in. Nothing in this device persists a binding across a power
+  cycle today: the protocol processor's NVM face is answered by a blank-flash
+  responder, so a restore walk always completes with zero records, and Milan
+  v1.2 5.3.8.2 is not met. This release note is kept as the dated record of what
+  was true at `0x0013`.
 * **The CTF fault trace.** Design + host tooling are in [`sw/trace/`](../../sw/trace)
   (`test_trace_roundtrip.py` is a gate). The write target is a `/user` jffs2
   partition that **no board has yet been booted with**. The flash-wear budget is

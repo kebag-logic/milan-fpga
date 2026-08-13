@@ -20,33 +20,43 @@ export PATH="$HOME/.local/bin:$PATH"
 R="$(cd "$(dirname "$0")/../.." && pwd)"
 A="$R/third_party/verilog-axis/rtl"
 C="$R/hdl/common"; Q="$R/hdl/ieee8021q/ts"; P="$R/hdl/ieee8021as/ptp_timestamp"
-E="$R/hdl/common/eth_event_counter"; D="$R/hdl/ieee17221/adp"; K="$R/hdl/ieee17221/aecp"; M="$R/hdl/ieee17221/acmp"
-S="$R/hdl/ieee8021q/srp"; F="$R/hdl/ieee8021q/filtering"
-INC="-DSYNTHESIS -I $R/hdl/common -I $R/hdl/common/csr -I $Q -I $E -I $D -I $P -I $K -I $K/gen"
+E="$R/hdl/common/eth_event_counter"; D="$R/hdl/ieee17221/adp"
+F="$R/hdl/ieee8021q/filtering"
+INC="-DSYNTHESIS -I $R/hdl/common -I $R/hdl/common/csr -I $Q -I $E -I $D -I $P"
 TMP="${OOC_TMP:-$(mktemp -d)}"; mkdir -p "$TMP"
 
-AECP_SRCS="$K/aecp_pkg.sv $K/KL_aecp_ingress.sv $K/KL_aecp_packet_validator.sv $K/KL_aecp_common_parser.sv $K/KL_aecp_l0_state.sv $K/KL_aecp_timers.sv $K/KL_aecp_accessor.sv $K/KL_aecp_aem_store.sv $K/KL_aecp_aem_dyn_mux.sv $K/KL_aem_patch.sv $K/KL_aecp_response_builder.sv $K/KL_aecp_top.sv"
-LWSRP_SRCS="$S/lwsrp_pkg.sv $S/KL_lwsrp_timers.sv $S/KL_lwsrp_tx.sv $S/KL_lwsrp_ingress.sv $S/KL_lwsrp_walker.sv $S/KL_lwsrp_registrar.sv $S/KL_lwsrp_ta_registrar.sv $S/KL_lwsrp_rx.sv $S/KL_lwsrp_bw_gate.sv $S/KL_lwsrp_ctx.sv $S/KL_lwsrp_ctx_tx.sv $S/KL_lwsrp_top.sv"
-DP_SRCS="$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $AECP_SRCS $M/acmp_pkg.sv $M/KL_acmp_tlkr_ctx.sv $M/KL_acmp_responder.sv $M/KL_acmp_lstn_ctx.sv $M/KL_acmp_listener.sv $LWSRP_SRCS $D/adp_advertiser.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_pcm_tx.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/milan/milan_datapath.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/ieee17221/aecp/KL_persist_journal.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv"
+# The protocol processor is the control plane (scenario B): milan_datapath
+# instantiates KL_pp_shadow unconditionally, so its sources are datapath
+# sources and belong in DP_SRCS. Packages first. Order mirrors
+# syn/yosys/run.sh's PP_SRCS and tb/verilator/milan_dp/Makefile's.
+PP="$R/protocol-processor/hdl"
+PP_SRCS="$PP/common/pp_pkg.sv $PP/srp/srp_pkg.sv $PP/acmp/pp_acmp_pkg.sv $PP/adp/pp_adp_pkg.sv $PP/common/KL_pp_prng.sv $PP/common/KL_pp_timer_service.sv $PP/packet_engine/KL_pp_rx_validator.sv $PP/packet_engine/KL_pp_rx_slots.sv $PP/packet_engine/KL_pp_normalizer.sv $PP/packet_engine/KL_pp_dispatch.sv $PP/packet_engine/KL_pp_tx_slots.sv $PP/packet_engine/KL_pp_tx_arbiter.sv $PP/packet_engine/KL_pp_scoreboard.sv $PP/packet_engine/KL_pp_event_router.sv $PP/packet_engine/KL_pp_originator.sv $PP/packet_engine/KL_pp_trace_ring.sv $PP/packet_engine/KL_pp_side_port.sv $PP/packet_engine/KL_pp_nvm_port.sv $PP/adp/KL_adp_engine.sv $PP/acmp/KL_pp_acmp_listener.sv $PP/acmp/KL_acmp_talker.sv $PP/acmp/KL_acmp_nvm_shadow.sv $PP/srp/KL_srp_decoder.sv $PP/srp/KL_srp_domain.sv $PP/srp/KL_srp_vlan.sv $PP/srp/KL_srp_admission.sv $PP/srp/KL_srp_talker_fsm.sv $PP/srp/KL_srp_listener_fsm.sv $PP/srp/KL_srp_encoder.sv $PP/srp/KL_srp_top.sv $PP/top/KL_mrp_strip.sv $PP/top/protocol_processor_top.sv $R/hdl/milan/KL_pp_shadow.sv $R/hdl/milan/KL_pp_maap_shim.sv"
 
-# The area-relevant tops: the four zero-BRAM LUT hogs of the placer-overflow
-# report, their parents, and the crf_rx precedent for calibration.
+# ...and with the processor comes its ROM. protocol_processor_top $readmemh's
+# the ACMP listener transition image by the RELATIVE name "ltn_rom.hex", which
+# yosys resolves against ITS OWN working directory, not against the source
+# file. Generate it where yosys will look (syn/yosys/run.sh does the same, and
+# for the same reason - without it the top dies on a file-open error).
+if [ -f "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" ]; then
+  python3 "$R/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py" -o ltn_rom.hex >/dev/null 2>&1 || true
+fi
+
+DP_SRCS="$PP_SRCS $C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $A/axis_fifo.v $A/axis_demux.v $A/axis_arb_mux.v $A/arbiter.v $A/priority_encoder.v $Q/traffic_class_map.sv $Q/traffic_classifier.sv $Q/credit_based_shaper.sv $Q/traffic_shaping_core.sv $Q/traffic_queues.sv $Q/traffic_controller_802_1q.sv $P/timestamp_counter.sv $P/ptp_csr_sync.sv $C/cdc_pulse.sv $C/cdc_handshake.sv $C/axis_mux_rr_2in_1out.sv $P/ptp_ts_core.sv $P/ptp_ts_top.sv $F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv $R/hdl/ieee1722/aaf/KL_pcm_lpf.sv $C/KL_link_guard.sv $D/adp_tx_arbiter.sv $E/ethernet_events.sv $E/event_counter.sv $R/hdl/common/csr/milan_csr.sv $R/hdl/ieee1722/aaf/aaf_talker_i2s.sv $R/hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv $R/hdl/ieee1722/avtp/KL_stream_table.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv $R/hdl/ieee1722/crf/KL_crf_rx.sv $R/hdl/ieee1722/crf/KL_crf_tx.sv $R/hdl/ieee1722/maap/KL_maap.sv $R/hdl/ieee1722/aaf/KL_i2s_playback.sv $R/hdl/ieee1722/aaf/KL_i2s_feed_mux.sv $R/hdl/ieee1722/aaf/KL_tone_gen.sv $R/hdl/ieee1722/aaf/KL_media_adv.sv $C/cdc_pair_fifo.sv $R/hdl/ieee1722/aaf/KL_pcm_route.sv $R/hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv $R/hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv $R/hdl/ieee1722/aaf/KL_tdm_capture.sv $R/hdl/ieee1722/aaf/KL_aaf_packetizer.sv $R/hdl/ieee1722/crf/KL_mmcm_drp_servo.sv $R/hdl/ieee1722/crf/KL_media_nco.sv $R/hdl/ieee1722/aaf/KL_aaf_latency_taps.sv $R/hdl/ieee1722/aaf/KL_chan_map_capture.sv $R/hdl/ieee1722/aaf/KL_chan_map_render.sv $R/hdl/ieee1722/aaf/KL_pcm_tx.sv $R/hdl/ieee1722/aaf/KL_tdm_render.sv $R/hdl/milan/milan_datapath.sv $R/hdl/ieee1722/aaf/KL_tdm_capture_master.sv $R/hdl/ieee1722/aaf/KL_pair_blend.sv $R/hdl/ieee1722/aaf/KL_pair_zero_fill.sv $R/hdl/ieee1722/avtp/KL_talker_diag_ctx.sv $R/hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv"
+
+# The area-relevant tops: the zero-BRAM LUT hogs of the placer-overflow report,
+# their parents, and the crf_rx precedent for calibration.
+#
+# THE 1722.1/SRP ENTRIES ARE GONE, not moved. KL_aecp_response_builder,
+# KL_aem_patch, KL_aecp_top, KL_lwsrp_walker/_rx/_top and the two ACMP contexts
+# were the biggest names on this list and every one of them measured RTL that
+# no longer exists - the protocol processor replaced that whole plane. Its own
+# area is measured as KL_pp_shadow (syn/yosys/run.sh has the elaboration) and
+# inside milan_datapath below, which is the number that decides placement.
 tops=(
-  "KL_aecp_response_builder|$C/ethernet_packet_pkg.sv $D/adp_pkg.sv $K/aecp_pkg.sv $K/KL_aecp_accessor.sv $K/KL_aecp_aem_store.sv $K/KL_aecp_aem_dyn_mux.sv $K/KL_aecp_response_builder.sv"
-  "KL_lwsrp_walker|$S/lwsrp_pkg.sv $S/KL_lwsrp_walker.sv"
-  "KL_acmp_lstn_ctx|$M/acmp_pkg.sv $M/KL_acmp_lstn_ctx.sv"
-  "KL_acmp_tlkr_ctx|$M/acmp_pkg.sv $M/KL_acmp_tlkr_ctx.sv"
   "KL_chan_map_render|$R/hdl/ieee1722/aaf/KL_chan_map_render.sv"
   "KL_chan_map_capture|$R/hdl/ieee1722/aaf/KL_chan_map_capture.sv"
   "KL_crf_rx|$R/hdl/ieee1722/crf/KL_crf_rx.sv"
-  "KL_acmp_listener|$M/acmp_pkg.sv $M/KL_acmp_lstn_ctx.sv $M/KL_acmp_listener.sv"
-  "KL_lwsrp_rx|$A/axis_fifo.v $S/lwsrp_pkg.sv $S/KL_lwsrp_ingress.sv $S/KL_lwsrp_walker.sv $S/KL_lwsrp_registrar.sv $S/KL_lwsrp_ta_registrar.sv $S/KL_lwsrp_rx.sv"
-  "KL_aecp_top|$C/ethernet_packet_pkg.sv $C/axi_stream_if.sv $D/adp_pkg.sv $A/axis_fifo.v $AECP_SRCS"
-  # the E4 saved-state ingest engine, measured ALONE so its cost can be
-  # priced without the AECP top's shared decode and constants around it
-  # (standalone is the UPPER bound; the in-context delta is always smaller)
-  "KL_aem_patch|$K/aecp_pkg.sv $K/KL_aem_patch.sv"
-  "KL_lwsrp_top|$A/axis_fifo.v $LWSRP_SRCS"
+  "KL_pp_shadow|$A/axis_fifo.v $PP_SRCS"
   # docs/design/AREA_BUDGET.md tier-1 optional blocks, each measured ALONE so
   # its prune parameter can be priced against a standalone figure as well as
   # against the milan_datapath delta. Standalone OOC is the UPPER bound for a

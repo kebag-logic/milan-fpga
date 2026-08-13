@@ -75,7 +75,7 @@ Action = KEEP / UPDATE / MERGE / ARCHIVE.
 | [`TODO.md`](../TODO.md) | STALE | UPDATE | Phase 0-9 plan largely done/superseded; keep open-REQ ledger, point to 12-item roadmap + BEHAVE plan. |
 | [`CHANGELOG.md`](../CHANGELOG.md) | STALE | UPDATE | Canonical perf lever→effect ledger; add 07-10/11 header-split closing rows + "perf-lineage, ship=1-hart" banner. |
 | [`THIRD_PARTY.md`](../THIRD_PARTY.md) | STALE | UPDATE | Add `external` (fpga-avb-ethernet) submodule row; move verilog-ethernet Planned→Vendored. |
-| `aem-and-aecp.md` | STALE | UPDATE + RELOCATE | AEM/AECP design rationale; relocate root→`docs/architecture/`; reconcile to as-built (small↔full entity, static AUDIO_MAP, NOT_IMPLEMENTED cmds). **DONE 2026-07-25 → landed at [`docs/design/AEM_AND_AECP.md`](../docs/design/AEM_AND_AECP.md).** |
+| `aem-and-aecp.md` | STALE | UPDATE + RELOCATE | AEM/AECP design rationale; relocate root→`docs/architecture/`; reconcile to as-built (small↔full entity, static AUDIO_MAP, NOT_IMPLEMENTED cmds). **DONE 2026-07-25 → landed at ``docs/design/AEM_AND_AECP.md``.** |
 | [`docs/overview/FULL_FPGA_SOLUTION.md`](../docs/overview/FULL_FPGA_SOLUTION.md) | STALE | UPDATE | Master "read first" overview; fix CPU config, RGMII→GMII contradiction, AVDECC-in-fabric status, counts. |
 | [`docs/overview/ARCHITECTURE.md`](../docs/overview/ARCHITECTURE.md) | STALE | UPDATE | By-flow arch map; fix hdl/ tree (spec-aligned reorg), 1-hart, harness/top counts. Near-dup pair w/ FULL_FPGA_SOLUTION. |
 | [`docs/overview/SYSTEM_DOMAIN_MAP.md`](../docs/overview/SYSTEM_DOMAIN_MAP.md) | CURRENT | KEEP | By-domain/by-language partition; accurate, ideal "where does X live". |
@@ -139,7 +139,7 @@ Action = KEEP / UPDATE / MERGE / ARCHIVE.
 | [`docs/MVP_TALKER.md`](../docs/MVP_TALKER.md) | STALE | UPDATE | AAF frame/CSR still live; headline media-clock caveat superseded by servo — add status banner. |
 | [`docs/ENDSTATION_BUILDER.md`](../docs/ENDSTATION_BUILDER.md) | CURRENT | KEEP | Fresh (07-22) SW-defined end-station builder design; item-4-DONE. |
 | [`docs/NXN_ARCHITECTURE.md`](../docs/NXN_ARCHITECTURE.md) | CURRENT | KEEP | Normative NxN AAF architecture (item 5); P12 estimator note current. |
-| [`docs/LWSRP_FPGA_ARCHITECTURE.md`](../docs/LWSRP_FPGA_ARCHITECTURE.md) | CURRENT | KEEP | Canonical single-stream lwSRP engine spec; light refresh (listener half done, defer counts). |
+| ``docs/LWSRP_FPGA_ARCHITECTURE.md`` | CURRENT | KEEP | Canonical single-stream lwSRP engine spec; light refresh (listener half done, defer counts). |
 | [`docs/testing/TESTING.md`](../docs/testing/TESTING.md) | STALE | UPDATE | Top-level verification index; drop hardcoded 17-name list for "ls tb/verilator/ is authoritative". |
 | [`docs/testing/RUNNING_TESTS.md`](../docs/testing/RUNNING_TESTS.md) | STALE | UPDATE | Layered test runbook; refresh harness/top counts. |
 | [`docs/testing/SIMULATION.md`](../docs/testing/SIMULATION.md) | STALE | UPDATE | Sim-layers explainer; fix 15-vs-17 inconsistency, add VexiiRiscv-now note. |

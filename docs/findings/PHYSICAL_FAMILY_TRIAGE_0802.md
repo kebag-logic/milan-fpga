@@ -17,6 +17,24 @@ family), [BENCH_TOPOLOGY.md](BENCH_TOPOLOGY.md) (what is cabled to what),
 [MILAN_COMPLIANCE_GAPS.md](../MILAN_COMPLIANCE_GAPS.md) (the persistence
 column).
 
+> **HOW MUCH OF THIS RUN IS STILL RUNNABLE (2026-08-13).** The triage stands as
+> reasoning; what changed is which assertions can reach an answer. This
+> repository's AECP/AEM engine was deleted and the pinned `protocol-processor`
+> submodule's AECP µCPU took over: it **answers `READ_DESCRIPTOR`** — `SUCCESS`
+> with the configuration index and the descriptor, `NO_SUCH_DESCRIPTOR` on a
+> locate miss, `BAD_ARGUMENTS` on a bad configuration index — and returns a
+> conformant `NOT_IMPLEMENTED` echo to every other AECP command. It is not
+> silent, and it is not an implementation of anything else.
+>
+> For this page that means: every assertion built on `GET_COUNTERS` (all of
+> §1's replacement set) and every one built on `GET_STREAM_FORMAT` /
+> `SET_STREAM_FORMAT` (§2's companions, and the two CONFORMANT-REFUSALs in §3)
+> now gets a well-formed `NOT_IMPLEMENTED` instead of the status they were
+> written against. A runner must grade that as **not implemented**, never as a
+> refusal and never as coverage. Descriptor reads are the one thing that came
+> back, and only in the narrow sense §2 spells out. Persistence did not come
+> back at all.
+
 ## Contents
 
 - **[1. FAIL 1 — GPTP_GM_CHANGED: the assertion was wrong](#1-fail-1--gptp_gm_changed-the-assertion-was-wrong)** — the assertion encoded a follower bench but the AX is the domain GM (priority1 238, verified), so the conformant delta is exactly zero; four replacement assertions, with LINK_UP demoted to INFO because the inline tap masks link events.
@@ -55,9 +73,12 @@ not elections that re-confirm the incumbent.
 So the AX was GM before the cut, GM of its island of one during it (lower
 `priority1` wins, and it is alone anyway), and GM again on the re-join. **Its
 own `grandmasterIdentity` never changed, so the conformant delta is exactly
-zero.** The gateware implements precisely the clause —
+zero.** The gateware implemented precisely the clause —
 `KL_aecp_response_builder.sv`: `if (gptp_gm_id_i != gm_prev_r) cnt_gmchg_r <=
-cnt_gmchg_r + 32'd1`.
+cnt_gmchg_r + 32'd1`. That module is deleted, and `GET_COUNTERS` was not
+reimplemented, so the counter has neither a source nor a way out: the argument
+above is still the right reading of the clause, but it can no longer be
+*measured* over AECP on this build.
 
 **Verdict: the assertion was misapplied.** It encoded a bench where the DUT
 is a follower, and the bench is the opposite.
@@ -139,7 +160,13 @@ task-worthy note):
 - **Where:** a writable MTD partition declared in the DUT's DTB (the 16 MB
   N25Q128 has the room — the "full" manifest map already carves a 4 MiB
   bitstream slot), plus a restore-on-boot step that replays it into the AEM
-  dynamic state before the entity starts advertising. Neither exists today.
+  dynamic state before the entity starts advertising. Neither exists today, and
+  since 2026-08-13 the target of that replay does not exist either: there is no
+  AEM dynamic state to write into. `KL_persist_journal` is deleted, the setters
+  that would have moved the state (`SET_STREAM_FORMAT`, the audio-map commands,
+  `SET_MAX_TRANSIT_TIME`, `SET_CLOCK_SOURCE`) are unimplemented, and the model
+  a controller reads is a static descriptor image in DRAM that nothing writes
+  at runtime. The gap got deeper, not shallower.
 
 **The fix.** The assertion is **never deleted** — the clause is a SHALL. What
 changes is the verdict it may return, decided by a **probe, not a guess**
@@ -160,7 +187,13 @@ its own state:
   store at all)*: every descriptor that answered `GET_STREAM_FORMAT` before
   the cycle answers again after it, with a well-formed 8-octet format. That
   is the half of 5.3.8.1 ("shall always be using a format…", + 1722.1-2021
-  7.4.10) a no-store build still owes.
+  7.4.10) a no-store build still owes. **Not gradable as written since
+  2026-08-13**: `GET_STREAM_FORMAT` returns a `NOT_IMPLEMENTED` echo. And do
+  not substitute `READ_DESCRIPTOR` for it — the STREAM_INPUT descriptor's
+  `current_format` comes from a static image in DRAM that no runtime writer
+  touches, so it reads identically before and after a power cycle by
+  construction. Agreement there proves the image is loaded, nothing about
+  dynamic state.
 - `state.format-after-power-cycle` *(new, INFO)*: what each descriptor
   actually read back, pre vs post — the datum that makes the gap measurable
   before it is fixed.
@@ -189,4 +222,9 @@ host, no runner op): the CSR path was live all run — the licence word, the
 
 Also worth keeping: the two `CONFORMANT-REFUSAL`s are the talker refusing
 `SET_STREAM_FORMAT` with status 7, which is the documented correct behaviour
-per FR-STR-03 — not a defect, and correctly not graded as one.
+per FR-STR-03 — not a defect, and correctly not graded as one. On the current
+gateware the same probe gets a different answer: `SET_STREAM_FORMAT` is
+unimplemented, so the µCPU replies `NOT_IMPLEMENTED`. That is still a
+well-formed response and still not a defect, but it is a **different verdict
+class** — a command with no implementation behind it, not a talker exercising
+a documented refusal. Do not let the two collapse into one row.

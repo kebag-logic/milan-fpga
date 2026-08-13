@@ -22,7 +22,8 @@ part), and a check that would have caught it earlier.
 - **[5. Toolchain tolerance masking malformed source](#5-toolchain-tolerance-masking-malformed-source)** — Green on your desk, unbuildable everywhere else, because one tool version forgave malformed source that others reject.
 - **[6. Comparing paths when the question is about content](#6-comparing-paths-when-the-question-is-about-content)** — A real command, really run, answering a subtly different question than the one asked — and quoted back as if it answered yours.
 - **[7. A model that shares the implementation's bug](#7-a-model-that-shares-the-implementations-bug)** — When the testbench's expected values come from the device or from an existing model, the suite agrees with the defect and passes.
-- **[8. Reads that lie: snapshots, shadows and saturated counters](#8-reads-that-lie-snapshots-shadows-and-saturated-counters)** — Zero looks idle, a stale shadow looks like configuration, and a saturated maximum looks like a measurement. How to tell a real reading from a plausible one.
+- **[8. Reads that lie: snapshots, shadows and saturated counters](#8-reads-that-lie-snapshots-shadows-and-saturated-counters)** — Zero looks idle, a stale shadow looks like configuration, and a saturated maximum looks like a measurement. How to tell a real reading from a plausible one — and the 2026-08-13 instance that turned this from an occasional trap into a whole class, when a deleted subsystem left its ABI standing and "the counter reads 0" stopped meaning "nothing happened".
+- **[9. A capability is deleted and its test estate goes with it](#9-a-capability-is-deleted-and-its-test-estate-goes-with-it)** — The newest pattern, and the one this corpus is most exposed to: when the RTL goes, the suites that graded it go too, and the coverage they carried quietly becomes nobody's. How the reassignment happens by accident, and the rule that stops it.
 - **[The two habits behind most of these](#the-two-habits-behind-most-of-these)** — The short version, if you only remember two things from this page.
 
 ## Which pattern is this?
@@ -49,6 +50,10 @@ flowchart TB
     K -->|"the hardware, and it<br/>worked once"| I{"what is different between<br/>the run that worked and this one?"}
     I -->|"a second index was staged<br/>or committed in between"| P2["2 - Shared state where the<br/>protocol is per-index"]
     I -->|"nothing, and only a reset<br/>brings the old mode back"| P3["3 - Sets on any write,<br/>clears only on reset"]
+    I -->|"a subsystem was deleted, and<br/>the register that reported it<br/>still decodes"| P8b["8 - Structural zero:<br/>the source is gone"]
+
+    K -->|"a coverage matrix row,<br/>naming a suite"| C{"does that suite still exist,<br/>and does it make THAT claim?"}
+    C -->|"the suite is gone, or it<br/>covers the protocol but not<br/>the claim"| P9["9 - Capability deleted,<br/>coverage reassigned"]
 ```
 
 | # | Pattern | The tell | The check that confirms it | Where it bit us |
@@ -60,7 +65,8 @@ flowchart TB
 | [5](#5-toolchain-tolerance-masking-malformed-source) | Toolchain tolerance masking malformed source | green on the desk, unbuildable everywhere else | CI on a **different** toolchain than the one on the desk — [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml) | a trailing `//` comment after a Verilator waiver code: fine on 5.050, four suites unbuildable on 5.020 |
 | [6](#6-comparing-paths-when-the-question-is-about-content) | Paths compared, content asked | the measurement is real, the command ran, and it answered a different question | compare by **basename and function**; `git diff --name-status <branch> origin/main` before anything destructive | a branch audit read "0 `.sv` files absent from trunk"; by basename, 13 modules were exclusive to that lineage |
 | [7](#7-a-model-that-shares-the-implementations-bug) | The model shares the implementation's bug | the suite agrees with the defect and passes | derive expected values from the **standard**; mutation-prove every check — revert the fix, confirm it fails, restore | the I2S sign-square defect: a doubled Philips-format delay in the RTL *and* in the testbench chip models |
-| [8](#8-reads-that-lie-snapshots-shadows-and-saturated-counters) | Reads that lie | the value is plausible: zero looks idle, a stale shadow looks like configuration, a saturated max looks like a measurement | follow the snapshot discipline (write, poll busy, read) and **read until a value repeats**; liveness is that it *ticks*, not that it is non-zero | `0x800` reads of `0` before the snapshot is fresh; CSR shadows after a MAC reset; latency-tap `max` pinned at `0xFFFF` |
+| [8](#8-reads-that-lie-snapshots-shadows-and-saturated-counters) | Reads that lie | the value is plausible: zero looks idle, a stale shadow looks like configuration, a saturated max looks like a measurement, a structural zero looks like a quiet system | follow the snapshot discipline (write, poll busy, read) and **read until a value repeats**; liveness is that it *ticks*, not that it is non-zero; for a word whose subsystem was deleted, look up its class in the register map before measuring anything | `0x800` reads of `0` before the snapshot is fresh; CSR shadows after a MAC reset; latency-tap `max` pinned at `0xFFFF`; the whole structural-zero class left by the 2026-08-13 control-plane deletion |
+| [9](#9-a-capability-is-deleted-and-its-test-estate-goes-with-it) | Capability deleted, coverage silently reassigned | a matrix row that was green stays green after the thing it graded was removed, because a surviving suite's name is near enough | for every deleted suite, name what it proved and check whether ANY surviving suite makes that same assertion — a suite covering the same *protocol* is not the same as covering the same *claim* | 13 Verilator suites, ~33 `.feature` files and four `tsn_fuzz` campaigns deleted 2026-08-13 with the control plane |
 
 ---
 
@@ -269,15 +275,101 @@ CSR shadow registers keep reporting the pre-reset value after a MAC reset. Laten
 tap `max` fields and sample counters saturate at `0xFFFF` and stay there, so a
 number read after a long fault period describes the fault, not the system.
 
-**Why it survived.** Every one of these returns a *plausible* value. Zero looks
-like idle; a stale shadow looks like configuration; a saturated max looks like a
-measurement.
+**Seen as (2026-08-13, the largest instance yet — and it is not a defect).**
+Deleting this repository's IEEE 1722.1 / SRP control plane in favour of the
+`protocol-processor` submodule left a whole class of CSR words whose source RTL
+no longer exists. No register was removed — the map is an ABI — so every one of
+those addresses still decodes and still returns a value. **"The counter reads 0"
+therefore no longer means "nothing happened".** The design does the right thing
+with it: a word whose source is gone reads a **structural zero** and is
+documented as such, and a word in that class that returned a *plausible* value
+instead would be the defect, because a plausible idle cannot be told from a
+working engine with nothing to report. A second class is worse to read: words
+that still store what software writes and read it back faithfully while the
+value **no longer reaches the wire** — pattern 1 arrived at by deletion instead
+of by never being wired, and the readback agrees with you.
+
+**Why it survived / why it will bite anyway.** Every one of these returns a
+*plausible* value. Zero looks like idle; a stale shadow looks like configuration;
+a saturated max looks like a measurement; and a structural zero looks exactly
+like a quiet system. The new class has an extra edge: **a group is not uniformly
+dead.** The ACMP listener group keeps `bound`/`active` live while its
+state-machine fields are structural zeros, and the SRP group keeps the domain
+word, the granted slope and the over-limit bit while its MRPDU counts are gone —
+so "this whole window is dead now" is as wrong as "this window still works".
 
 **Catch it with.** Follow the documented snapshot discipline (write, poll busy,
 read) and **read until a value repeats**. The truth test for "is this counter
 live" is that it *ticks*, not that it is non-zero. When quoting measurements,
 quote `min`/`last` and say plainly when `max` is contaminated, rather than
-quoting a number you cannot defend.
+quoting a number you cannot defend. For the structural-zero class, the check is
+documentary before it is empirical: look the word up in
+[`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md), which carries
+the class per word, and read [TROUBLESHOOTING §24](TROUBLESHOOTING.md) for the
+diagnosis order. **Never infer a word's class from its group name.**
+
+**The reusable shape.** When a subsystem is removed but its ABI is kept, decide
+explicitly — and write down — what each surviving word now reads. Three
+outcomes, and only three: **structural zero** (source gone, no replacement),
+**write-only scratch** (stored, read back, reaches nothing — say "writing this
+changes nothing observable" in as many words), or **live and repointed**. A
+fourth outcome, "it reads something plausible and nobody wrote down why", is how
+this pattern reproduces itself.
+
+---
+
+## 9. A capability is deleted and its test estate goes with it
+
+**Seen as (2026-08-13, and this one is a warning rather than a post-mortem).**
+This repository's IEEE 1722.1 / SRP control plane was deleted by decision, not by
+accident: the AECP/AEM engine, the ACMP talker and listener, the ADP advertiser
+and parser, and the lwSRP applicant, replaced by the `protocol-processor`
+submodule. Thirteen Verilator suites, ~33 BDD feature files and four of the five
+`tsn_fuzz` campaigns went with them, because a suite whose DUT no longer exists
+cannot build. The device now discovers over ADP, connects over ACMP and reserves
+over SRP, answers `READ_DESCRIPTOR` from the processor's AECP uCPU, and answers
+**every other AECP command with a conformant `NOT_IMPLEMENTED` echo**.
+
+The pattern is not the deletion. The pattern is what happens next to every
+document that claimed coverage: a traceability row that reads
+"✅ — covered by the ACMP suite" is now covered by nothing, and the nearest
+surviving suite (`pp_shadow`, which exercises the *same protocols*) is close
+enough in name that re-pointing the row looks like housekeeping. It is not. The
+old suite asserted per-message field decode against the clause; the new one
+asserts that the plane is present, classifies, answers and does not wedge. Both
+are about ACMP. They make different claims.
+
+**Why it will survive if nobody looks.** Nothing fails. The sweep is green,
+because the deleted suites are not there to fail. The matrix is green, because
+its rows were graded when the evidence existed and nothing re-grades them. The
+only artifact that changes is a directory listing, and no gate compares a
+coverage claim against one. This is pattern 1 at the level of a *document*: a
+green row that names a suite nobody can run any more is a decorative claim.
+
+**Catch it with.** When a subsystem is removed, three things, in order:
+
+1. **Enumerate what died with it** — by suite, by feature file, by campaign.
+   `git show --stat` on the deleting commit is the cheap version.
+2. **For each, name the claim it made, then ask whether ANY surviving suite
+   makes that same claim.** Not the same protocol — the same claim. If the
+   answer is no, write **GONE** in the coverage document. A withdrawn claim is
+   information; a silently reassigned one is a lie with a citation.
+3. **Re-grade the clause matrix by where the implementation really is**: OWNED
+   BY <the replacement> where it really is, and **NOT IMPLEMENTED** where it
+   really is. The AECP surface is the live worked example, and it cuts both
+   ways. `READ_DESCRIPTOR` really is implemented by the processor, so a row that
+   still says "not implemented" is now wrong — but the model it serves has to be
+   loaded into DRAM and **nothing in this repository builds or loads that
+   image**, so a row claiming working enumeration is wrong too. And every other
+   command is answered with a conformant `NOT_IMPLEMENTED` echo, which is
+   coverage of the §9.3.5 *duty to respond* and of nothing else: it does not
+   make `GET_COUNTERS`, `SET_NAME` or `GET_MILAN_INFO` covered. **An answer is
+   not an implementation**, and a matrix that grades the answer instead of the
+   function is this pattern wearing the replacement's badge.
+
+The corollary is the honest-reporting rule this whole page rests on: **a
+documented gap is worth more than a green matrix.** Deleting the gap to make the
+page look better is the same defect as deleting the test.
 
 ---
 
@@ -286,9 +378,9 @@ quoting a number you cannot defend.
 1. **Verify the artifact, not the intention.** Patterns 1, 4 and 6 are all the
    same mistake: trusting that a declaration, a recipe or a command *means* what
    it says. Read what was actually produced.
-2. **Green is a claim, not a proof.** Patterns 5 and 7 passed every test that
-   existed. Ask what a test would have to do to fail, and if there is no such
-   thing, the test is not evidence.
+2. **Green is a claim, not a proof.** Patterns 5, 7 and 9 passed every test that
+   existed — pattern 9 by the tests ceasing to exist. Ask what a test would have
+   to do to fail, and if there is no such thing, the test is not evidence.
 
 Both reduce to the standing rule: **measure, do not assume — and measure the
 thing you are actually claiming.**

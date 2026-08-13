@@ -87,7 +87,7 @@ left a witness — which is exactly what the fix changes.
    >= 2 periods.
 
 ## Gates
-- [`tb/verilator/adp`](../../tb/verilator/adp): 246 checks PASS — new cases: cmd-depart, dormancy
+- tb/verilator/adp (deleted 2026-08-13 with the ADP advertiser it exercised): 246 checks PASS — new cases: cmd-depart, dormancy
   self-re-arm (2 ticks -> AVAILABLE + rearm_cnt), periodic resumes after heal,
   re-arm gated by link level (departed-link-down stays silent) and by enable
   (disabled stays silent, re-enable self-heals), DIAG counts/src.

@@ -77,7 +77,7 @@ box("lg4", 656, 70, 90, 26, "off-chip", fill=EXT[0], stroke=EXT[1], font=10)
 box("lg5", 758, 70, 210, 26, "memory / register cell (w/ address)", fill="#d5e8d4", stroke="#82b366", font=10)
 box("lg6", 980, 70, 80, 26, "arbiter", fill=CTL[0], stroke=CTL[1], font=10)
 box("lg7", 1072, 70, 720, 26,
-    "lanes: LE = little (tdata[7:0] = first wire byte) · BE = big (AECP parser chain only) · clocks: sys 100 / milan 100 (Arty 50) / eth 125 / DDR3-800",
+    "lanes: LE = little (tdata[7:0] = first wire byte) · the processor eats a 1 byte/clk stream · clocks: sys 100 / milan 100 (Arty 50) / eth 125 / DDR3-800",
     fill=NOTE[0], stroke=NOTE[1], font=9, align="left")
 
 # =========================================================================== #
@@ -129,55 +129,75 @@ rows("r_rmon", 2170, 468, 300, [
 
 # ---- ATDECC container ---- #
 cont("c_atdecc", 620, 520, 2060, 940,
-     "ATDECC control plane — zero-CPU responders (taps in, one merged control stream out)",
+     "IEEE 1722.1 / SRP control plane — the protocol processor, and only that "
+     "(2026-08-13: this repo's own ADP/AECP/ACMP/lwSRP RTL is DELETED)",
      stroke=MIL[1], fill="#eef4fc", parent="c_fab")
 
-cont("c_aecp", 20, 40, 680, 860, "KL_aecp_top — AECP/AEM (§5.4, la_avdecc-clean)", stroke=MIL[1], fill="#f4f8fd", parent="c_atdecc")
-box("aecppipe", 15, 35, 650, 190,
-    "ingress tap (registered) -> validator -> parser [64b BE] ->\nl0 (LOCK 60 s · ACQUIRE=NOT_SUPPORTED) -> response builder\n(segments NONE/ECHO/STORE/CONST x4 · CDL = frame-26)\n\ncommands: READ_DESCRIPTOR · names · config · rate · format ·\nSTREAM_INFO 56 B · AVB_INFO · COUNTERS 136 B (errors too) ·\nAS_PATH · MVU GET_MILAN_INFO",
-    fill=MIL[0], stroke=MIL[1], align="left", parent="c_aecp")
-box("aehdr1", 15, 240, 650, 24, "working memories:", fill="#f4f8fd", stroke=MIL[1], font=9, align="left", parent="c_aecp")
-rows("r_ae", 15, 264, 650, [
- "ingress frame buf  128 B LUTRAM",
- "builder buf_r 64 B FF · const_q 64 B FF",
-], parent="c_aecp")
-box("aehdr2", 15, 330, 650, 24, "AEM store — BRAM 808 B (byte port 8b · addr 16b · 1 cy):", fill="#f4f8fd", stroke=MIL[1], font=9, align="left", parent="c_aecp")
-rows("r_dir", 15, 354, 650, [
- "dir  ENTITY        @ 0x000  len 312",
- "dir  CONFIGURATION @ 0x138  len 86",
- "dir  AUDIO_UNIT    @ 0x18E  len 156",
- "dir  STREAM_OUTPUT @ 0x22A  len 156",
- "dir  AVB_INTERFACE @ 0x2C6  len 98",
- "wb   names @ 48·180·316·402·558·714 (64 B)",
- "wb   rate @ 534 (4 B) · format @ 628 (8 B)",
- "ovl  live CSR wins: eid·MAC·caps·idx·cfg·clk",
-], parent="c_aecp")
-box("aehdr3", 15, 570, 650, 24, "status cells (read over AXI-Lite):", fill="#f4f8fd", stroke=MIL[1], font=9, align="left", parent="c_aecp")
-rows("r_aest", 15, 594, 650, [
- "0x648  {locked[16], cmd_count[15:0]}  RO",
- "0x64C  {resp_count[31:16], config[15:0]}  RO",
-], parent="c_aecp")
+cont("c_pp", 20, 40, 1380, 860,
+     "KL_pp_shadow — wrapper around the pinned protocol-processor submodule "
+     "(architecture of record v2.0)",
+     stroke=MIL[1], fill="#f4f8fd", parent="c_atdecc")
+box("pppipe", 15, 35, 1350, 210,
+    "RX tap (registered, qualified on tvalid && tready) -> CLASSIFY FIRST\n"
+    "  EtherType 0x22F0 (any DA) · 01:80:C2:00:00:0E + 0x22EA (MSRP)\n"
+    "  01:80:C2:00:00:21 + 0x88F5 (MVRP)\n"
+    "-> BRAM control-frame FIFO (4 KB) -> 1 byte/clk serializer -> processor\n\n"
+    "WHY CLASSIFY FIRST: the processor eats 1 byte/clk = 100 MB/s at 100 MHz,\n"
+    "against gigabit's 125 MB/s. A serializer fed from the raw tap would lag\n"
+    "and CORRUPT frames rather than drop them. Control traffic is orders of\n"
+    "magnitude below that rate; a frame lost to a full FIFO is COUNTED.",
+    fill=MIL[0], stroke=MIL[1], align="left", parent="c_pp")
+box("pphdr1", 15, 260, 1350, 24, "what it owns:", fill="#f4f8fd", stroke=MIL[1],
+    font=9, align="left", parent="c_pp")
+rows("r_pp", 15, 284, 1350, [
+ "ADP   KL_adp_engine — AVAILABLE / DEPARTING / discover answer · available_index",
+ "ACMP  KL_acmp_talker — CONNECT_TX · PROBE_TX · GET_TX_STATE",
+ "ACMP  KL_pp_acmp_listener — the BIND_RX ladder, publishing a BIND RECORD",
+ "SRP   Talker Advertise + Listener Ready · Domain adopt · granted idleSlope",
+], parent="c_pp")
+box("pphdr2", 15, 400, 1350, 24,
+    "AECP: PRESENT, NARROW. The processor's AECP uCPU answers READ_DESCRIPTOR; "
+    "every other command gets a conformant NOT_IMPLEMENTED echo.",
+    fill="#fff2cc", stroke="#d6b656", font=9, align="left", parent="c_pp")
+rows("r_ppgone", 15, 424, 1350, [
+ "READ_DESCRIPTOR 0x0004 SERVED — SUCCESS {cfg_index, reserved, descriptor} · NO_SUCH_DESCRIPTOR on locate miss",
+ "   · BAD_ARGUMENTS on bad cfg index; both errors carry the 7.4.5 {desc_type, desc_index} stub.",
+ "   Descriptors are FETCHED FROM DDR3 at a COMPILE-TIME base (no base register). No image = every read BAD_ARGUMENTS.",
+ "IDENTIFY_NOTIFICATION 0x0026 as a COMMAND = BAD_ARGUMENTS (7.4.39.2 beats 9.3.5.3.3).",
+ "Every other opcode + AA + MVU = NOT_IMPLEMENTED echo (message_type+1, right length, right cdl). Never silence.",
+ "Wrong target_entity_id, or an AECP RESPONSE as input: freed, counted, NO reply.",
+ "AN ECHO IS NOT AN IMPLEMENTATION. Still absent: ACQUIRE/LOCK_ENTITY (Milan d7 NOT_SUPPORTED owner_id=0 is",
+ "   NOT distinguished from the echo — KNOWN GAP) · SET/GET of configuration · name · sampling rate · stream",
+ "   format · stream info · max transit time · clock source · GET_AUDIO_MAP / ADD_ / REMOVE_AUDIO_MAPPINGS ·",
+ "   GET_COUNTERS · Table 5.22 unsolicited push (no producer on the unsolicited TX lane) · GET_AVB_INFO /",
+ "   GET_AS_PATH / GET_MILAN_INFO · IDENTIFY (o_identify tied 0)",
+ "no saved-state persistence: the NVM face is a BLANK-FLASH responder, so a restore walk",
+ "   always finds blank flash and completes with ZERO records (Milan 5.3.8.2 NOT met)",
+], parent="c_pp")
+box("pphdr3", 15, 600, 1350, 24,
+    "class-D fabric face — published as WIRES, consumed every clock (no read transaction):",
+    fill="#f4f8fd", stroke=MIL[1], font=9, align="left", parent="c_pp")
+rows("r_ppcd", 15, 624, 1350, [
+ "acmp_declaring / acmp_bound + bound sid · dmac · vlan  ->  AAF admission, stream table, RX classify",
+ "srp granted idleSlope (sum over admitted sources) · domain {prio, VID} · over-limit  ->  CBS slope mux",
+ "adp_next_avail_index  ->  0x644 ADP_STATUS (the one live ADP diagnostic left)",
+], parent="c_pp")
+box("pphdr4", 15, 720, 1350, 24, "CSR window (always decoded — milan_csr's PP_PLANE_P parameter is GONE):",
+    fill="#f4f8fd", stroke=MIL[1], font=9, align="left", parent="c_pp")
+rows("r_ppcsr", 15, 744, 1350, [
+ "0x920 PP_CTRL {restore_go[1], enable[0]}   —   enable is ORed with the historic ADP_CTRL[0] at 0x600",
+ "0x924 PP_STAT  tag 0x5B (constant) · 0x928/0x92C posted side port · 0x930 PP_DIAG {tx, drops, rx}",
+], parent="c_pp")
 
-cont("c_acmp", 740, 40, 640, 400, "KL_acmp_responder — ACMP stateless talker (§5.5)", stroke=MIL[1], fill="#f4f8fd", parent="c_atdecc")
-box("acmppipe", 15, 35, 610, 230,
-    "registered tap · 70 B ACMPDU (CDL 44)\n\nGET_TX_STATE -> SUCCESS, count=0, stream fields zeroed,\nprobe flags cleared (uid!=0 -> TALKER_UNKNOWN_ID)\nGET_TX_CONNECTION -> NOT_SUPPORTED (Milan 5.5.4.4)\nCONNECT/DISCONNECT_TX -> NOT_SUPPORTED until the\nsoftcore policy mailbox (HW answers / SW decides)\nSILICON: la_avdecc Milan=1 CLEAN (eto_acmp2, 31/31)",
-    fill=MIL[0], stroke=MIL[1], align="left", parent="c_acmp")
-rows("r_ac", 15, 280, 610, [
- "frame buf: 72 B LUTRAM (9 beats x 8 B)",
- "0x650  {resp_count[31:16], cmd_count[15:0]}  RO",
-], parent="c_acmp")
+cont("c_maap", 1420, 40, 300, 400, "KL_maap + KL_pp_maap_shim — MAAP stays HERE",
+     stroke=ETH[1], fill="#fdf6ec", parent="c_atdecc")
+box("maappipe", 15, 35, 270, 340,
+    "The processor implements no MAAP\nby design: its spec puts address\nallocation in the integrating\nfabric, and it publishes a\nper-source ALLOC / RELEASE face\ninstead.\n\nKL_pp_maap_shim bridges that face\nto KL_maap, which claims ONE block.\n\nTHE DA GATE IS THE TALKER GATE:\nacmp_declaring is reachable only\nthrough an ALLOC_DA success, so\nwith this face unconnected the\nprocessor's talker half is dead\nby construction.",
+    fill=ETH[0], stroke=ETH[1], align="left", parent="c_maap")
 
-cont("c_adp", 740, 480, 640, 420, "adp_advertiser — ADP (§6.2)", stroke=ETH[1], fill="#fdf6ec", parent="c_atdecc")
-box("adppipe", 15, 35, 610, 230,
-    "82 B ADPDU (CDL 0x38) · periodic MIN(5, MAX(1, vt/2)) s\n(reset vt=10, Milan 5.6.2 -> 5 s, validity 20 s) ·\nAVAILABLE / DEPARTING / discover response ·\navailable_index +1 on EVERY ADPDU (la_avdecc strict rule)\n· priority: depart > link_up > info/gm change >\ndiscover > timer · enable-edge with link up == link_up",
-    fill=ETH[0], stroke=ETH[1], align="left", parent="c_adp")
-rows("r_adp", 15, 280, 610, [
- "0x644  available_index 32b (RO, live)",
- "identity in = CSR 0x600 group (= AEM overlay)",
-], parent="c_adp")
-
-box("mux1", 1480, 120, 240, 90, "aecp_acmp_mux\nframe-atomic RR", fill=CTL[0], stroke=CTL[1], parent="c_atdecc")
-box("mux2", 1480, 320, 240, 90, "ctl_tx_mux\nADP + (AECP|ACMP)\nframe-atomic RR", fill=CTL[0], stroke=CTL[1], parent="c_atdecc")
+box("mux2", 1420, 480, 300, 120,
+    "ctl_tx_mux — THE control merge\nprocessor packed TX + MAAP\nframe-atomic RR\n\nTXARB_DIAG 0x784 lane 0\n(the cascade went 8 muxes -> 4)",
+    fill=CTL[0], stroke=CTL[1], parent="c_atdecc")
 
 # ---- milan_csr register-map column ---- #
 cont("c_csr", 2760, 520, 460, 940,
@@ -198,10 +218,15 @@ rows("r_csr", 15, 70, 430, [
  "0x62C  domain · 0x630/0x634 IDX0/IDX1",
  "0x638/0x63C  ASSOCIATION_ID",
  "0x640  ADP_CMD W1S [0]adv [1]depart",
- "0x644  avail_idx RO · 0x648/64C AECP RO",
- "0x650  ACMP RO · 0x700-0x718 TCAM",
+ "0x644  avail_idx RO (LIVE, from the processor)",
+ "0x648/64C AECP RO — STRUCTURAL ZERO (no lock, no",
+ "   SET_CONFIGURATION; the uCPU's counters are on the",
+ "   processor SIDE PORT, not here)",
+ "0x650  ACMP RO — STRUCTURAL ZERO (bind record only)",
+ "0x920-0x930  PP_CTRL/STAT/SPADDR/SPDATA/DIAG",
+ "0x700-0x718  TCAM",
 ], parent="c_csr", h=27)
-box("csrirq", 15, 520, 430, 70, "o_irq_csr -> PLIC · identity fans out to\nADP + AEM + ACMP: ONE source of wire truth",
+box("csrirq", 15, 520, 430, 70, "o_irq_csr -> PLIC · the 0x600 identity group\nfeeds KL_pp_shadow: ONE source of wire truth.\nNOTE five ADPDU fields are write-only scratch\n(caps, valid_time, assoc_id, ctlr_caps, if_idx)",
     fill="#f0f7ee", stroke="#82b366", font=9, align="left", parent="c_csr")
 
 # ---- TX lane (abs band y 1700..2020; lane wire ~y 1880) ---- #
@@ -270,7 +295,7 @@ box("ptpd", 15, 335, 1490, 110,
     "linuxptp: ptp4l (802.1AS BMCA + servo) + phc2sys — in the rootfs, unvalidated until the PHC lands;\nthen a small bridge writes GM id/domain -> CSR 0x624/0x628 on change (fabric re-advertises, AS_PATH stays true)",
     fill=SYS[0], stroke=SYS[1], align="left", parent="c_drv")
 box("pw", 15, 465, 1490, 110,
-    "media rev 2 (2026-07-12, user directive: EVERYTHING FPGA + lwSRP): softcore only fills a DMA PCM ring (ms cadence);\nfabric does lwSRP (MSRP/MVRP + bandwidth gate) · AAF framer (PTP presentation time) · ACMP connection table",
+    "media rev 3 (2026-08-13): softcore only fills a DMA PCM ring (ms cadence); fabric does SRP (MSRP/MVRP + admission),\nAAF framer (PTP presentation time) and the ACMP bind record - all three from the protocol processor. NO AECP anywhere.",
     fill=SYS[0], stroke=SYS[1], align="left", parent="c_drv")
 box("qspihdr", 15, 595, 1490, 24, "QSPI flash N25Q128 16 MB (off-chip, flashboot slots):",
     fill="#faf6fc", stroke=SYS[1], font=9, align="left", parent="c_drv")
@@ -335,17 +360,16 @@ edge("ex4", "ptptx", "dparb", "64b AXIS LE", color=MIL[1], kind="data", ex=0.0, 
 edge("ex6", "dparb", "c_mac", "64b AXIS LE", color=MIL[1], kind="data", ex=0.0, ey=0.55, nx=1.0, ny=0.92)
 edge("ex7", "c_mac", "phy", "GMII 8b @125 (gtx)", color=ETH[1], kind="data", ex=0.0, ey=0.95, nx=1.0, ny=0.93)
 # taps (big dashed copies) via shelves in the RX/ATDECC corridor
-edge("et1", "tap", "c_aecp", "tap copy 64b LE", kind="copy", ex=0.25, ey=1.0, nx=0.5, ny=0.0, vy=640)
-edge("et2", "tap", "c_acmp", "tap copy 64b LE", kind="copy", ex=0.75, ey=1.0, nx=0.5, ny=0.0, vy=672)
-# responses into the mux column (aecp over the top shelf; acmp/adp direct)
-edge("em1", "c_aecp", "mux1", "resp 64b LE", color=MIL[1], kind="data", ex=0.9, ey=0.0, nx=0.5, ny=0.0, vy=690)
-edge("em2", "c_acmp", "mux1", "resp 64b LE", color=MIL[1], kind="data", ex=1.0, ey=0.4, nx=0.0, ny=0.5)
-edge("em3", "mux1", "mux2", "64b LE", color=MIL[1], kind="data", ex=0.5, ey=1.0, nx=0.5, ny=0.0)
-edge("em4", "c_adp", "mux2", "advertise 64b LE", color=ETH[1], kind="data", ex=1.0, ey=0.3, nx=0.0, ny=0.5)
+edge("et1", "tap", "c_pp", "tap copy 64b LE (monitor only)", kind="copy", ex=0.25, ey=1.0, nx=0.5, ny=0.0, vy=640)
+# ONE packed control stream out of the processor (ADP + ACMP + SRP, internally
+# arbitrated), merged with MAAP - the four control merges the deleted planes
+# needed collapsed into this single one.
+edge("em1", "c_pp", "mux2", "packed TX 64b LE (ADP+ACMP+SRP)", color=MIL[1], kind="data", ex=1.0, ey=0.5, nx=0.0, ny=0.35)
+edge("em4", "c_maap", "mux2", "MAAP 64b LE", color=ETH[1], kind="data", ex=0.5, ey=1.0, nx=0.5, ny=0.0)
 # control out: mux2 -> dparb via the shelf under the ATDECC container
 edge("em5", "mux2", "dparb", "control 64b LE (IFG insert)", color=MIL[1], kind="data", ex=0.5, ey=1.0, nx=0.5, ny=0.0, vy=1650)
 # thin config
-edge("et3", "c_aecp", "c_adp", "ENTITY_DISCOVER 1b", kind="cfg", ex=1.0, ey=0.75, nx=0.0, ny=0.5)
+edge("et3", "c_pp", "c_maap", "ALLOC_DA / RELEASE req+rsp", kind="cfg", ex=1.0, ey=0.15, nx=0.0, ny=0.5)
 edge("ev1", "c_mac", "rmon", "event pulses 1b", kind="cfg", ex=0.7, ey=0.0, nx=0.5, ny=0.0, vy=185)
 edge("ec1", "bus", "c_csr", "AXI-Lite 32b (CDC sys->milan)", kind="cfg", ex=0.5, ey=1.0, nx=0.9, ny=0.0, vy=640)
 edge("ec2", "c_csr", "c_atdecc", "identity 0x600 + status (CDC)", kind="cfg", ex=0.0, ey=0.5, nx=1.0, ny=0.5)

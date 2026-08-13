@@ -7,13 +7,59 @@ the processor repo's `10_RESOURCE_AND_EFFORT` resource study prices scenario B a
 `−3,250 … +11,150` net LUT, central `≈ +3,000`, and says outright that the
 spread is "owned by three unmeasured numbers". Two of them are measured here.
 
+> **STATUS 2026-08-13 — the µCPU landed, the substitution happened, and none of
+> these numbers moved.** Every figure below was taken while the AECP pop face
+> was tied `ready = 0`, and every "when P4 lands" / "do not delete anything
+> yet" sentence on this page is the record of a decision as it stood on 08-12,
+> not a standing instruction. Both have been overtaken: the protocol
+> processor's **AECP µCPU is in**, and the shipping 1722.1 / SRP planes are
+> **deleted**. The device is not silent on AECP — it answers `READ_DESCRIPTOR`
+> (`SUCCESS` with the configuration index and descriptor, `NO_SUCH_DESCRIPTOR`
+> on a locate miss, `BAD_ARGUMENTS` on a bad configuration index, both errors
+> carrying the IEEE 1722.1 §7.4.5 4-byte `{descriptor_type, descriptor_index}`
+> stub) and returns a conformant `NOT_IMPLEMENTED` echo to every other AECP
+> command. Enumeration is reachable rather than working: nothing in this
+> repository builds or loads the descriptor image those reads need, so on a
+> stock build every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`.
+>
+> What this page does **not** contain is a re-measurement. The AECP engine's
+> `+3,150 … +7,000` bracket below is still an estimate, and the mass constant
+> propagation pruned while the pop face was tied off is still un-repriced. Do
+> not quote this page as post-µCPU area; quote it as the measurement that
+> decided substitution over coexistence.
+>
+> One structural change is worth carrying here because it is an area fact: the
+> entity model is **not** in fabric memory. The µCPU's descriptor store fetches
+> it from DDR3 over a read-only master with a compile-time base (`DESC_BASE_P`
+> in the submodule's `KL_aecp_desc_store`, surfaced in the parent as
+> `milan_datapath`'s `PP_DESC_BASE_P`; no base register), which the LiteX SoC
+> **derives** as the top 1 MiB of `main_ram` rather than mirroring a literal.
+> So the descriptor mass that used to be a fabric ROM is main memory now, and
+> any area accounting that still charges LUT or BRAM for an AEM ROM is stale.
+> Software must load the image before the entity is enabled — nothing in this
+> repository does, per the note above — and a missing image is a clean refusal
+> rather than a lockup: the all-zero region fails the `"AEMI"` magic compare,
+> the store's watchdog (`MEM_TIMEOUT_CYC_P` = 4096 cycles, about 41 µs at
+> 100 MHz) abandons a stalled burst and covers the request handshake too, and a
+> late load heals without a reset.
+
+## Contents
+
+- **[Instrument](#instrument)** — Out-of-context Vivado synthesis of `KL_pp_shadow` — the wrapper containing the whole `protocol_processor_top` plus the RX classifier, control-frame FIFO and byte serializer that feed it. Same instrument as the processor's own µCPU measurement of record, so the numbers here are directly comparable to it, with the exact invocation and part given.
+- **[Result](#result)** — The two shapes, and the finding that matters more than the LUT count: at `N_STREAM_IN/OUT = 8` the plane is 11,508 LUT and **does not close timing out of context** (WNS −2.854 ns, 11 failing endpoints) with nothing else on the die competing for routing. At 1×1 it is 7,463 LUT and closes with 1.4 ns to spare. The sub-table locates the mass: `KL_srp_top` is 52 % of it.
+- **[What it means against the board](#what-it-means-against-the-board)** — Priced against the shipping AX7101 build at 52,827 LUT (83.32 %). The verdict is neither "fits" nor "impossible": physically it fits at 1×1 (95.1 %) but lands about 11 points past this board's 84.77 % conformance cliff, where closure has been measured as roughly a one-in-three lottery; the 8×8 shape is over the die. Present headroom to the cliff is 917 LUT and the plane needs 7,463.
+- **[Two things that make these numbers OPTIMISTIC](#two-things-that-make-these-numbers-optimistic)** — Constant propagation deleted real blocks because shadow mode ties the AECP pop face `ready = 0` — 6 BRAM of dispatch queue, an RX pool and `tx_slots` — and all of that mass comes back with the µCPU that has since landed, its own skeleton on top; none of it is re-measured here. And because this is a shadow, every number is pure addition with nothing netted against it.
+- **[THE SUBSTITUTION CASE — measured 2026-08-12, and it reverses the verdict](#the-substitution-case--measured-2026-08-12-and-it-reverses-the-verdict)** — The right question for scenario B, which deletes the old planes rather than coexisting with them. Both sides measured on the **same instrument**: the removable planes give back 14,489 LUT standalone and 15,474 in context, against the processor's 6,956 in context — **net −8,518 LUT, a 25 % reduction**. The single fact that drives it is that `KL_aecp_top` alone (8,645 in context) is larger than the entire processor plane, and nobody had measured it before. After P4 restores a working AECP the net is a saving at both ends of the bracket.
+- **[SETTLED ON THE REAL BUILD — 2026-08-13: shadow mode does not fit the die](#settled-on-the-real-build--2026-08-13-shadow-mode-does-not-fit-the-die)** — The question out-of-context synthesis cannot answer: does a whole SoC with the plane on place on the board? It does not. `--with-pp-plane` — the first build in this project's history to contain the processor — failed `place_design` identically on all three seeds, before timing was ever reached. Shadow mode is therefore not a shipping option, and substitution is the only path.
+- **[Reproduce](#reproduce)** — `syn/ooc/pp_shadow_ooc.tcl`, with `PP_N_IN`/`PP_N_OUT` selecting the shape. The script prints the shape it used, deliberately: a utilization figure quoted without its shape is a figure that gets misapplied.
+
 ## Instrument
 
 Out-of-context Vivado synthesis of `KL_pp_shadow` — the consumer-side wrapper,
 which contains the whole `protocol_processor_top` (packet engine + ADP + ACMP +
 SRP + side port + NVM port) plus the RX classifier, control-frame FIFO and byte
 serializer that feed it. Same instrument as the protocol-processor's own
-`syn/ooc/ucpu_ooc.tcl` (post-synthesis hierarchical utilization, ship part,
+syn/ooc/ucpu_ooc.tcl (deleted since; post-synthesis hierarchical utilization, ship part,
 100 MHz OOC), so these numbers are directly comparable to that document's
 anchors and to its 1,068 LUT µCPU measurement of record.
 
@@ -90,8 +136,9 @@ Present headroom to the cliff is **917 LUT**. The plane needs 7,463.
    face `ready = 0` (the unlanded P4 µCPU seam), the SRP service face
    `valid = 0`, and `cfg_src_en = 0`. Vivado pruned what those unreach:
    `u_dispatch/u_aecp_q` (6 BRAM), one `g_rx_pool[3].u_rx_slots` BRAM, and
-   `u_tx_slots/i_0`. When P4 lands and the µCPU consumes that queue, the
-   pruned mass returns *and* the µCPU's own 1,068 LUT skeleton arrives on top.
+   `u_tx_slots/i_0`. The µCPU has since landed and does consume that queue, so
+   the pruned mass is back *and* the µCPU's own 1,068 LUT skeleton sits on top
+   — neither has been re-synthesised into a figure on this page.
 2. **It is a shadow, so nothing is deleted.** Every number here is pure
    addition. The substitution case — which is what scenario B actually
    proposes — would net the shipping planes' removal against it, and only
@@ -110,7 +157,7 @@ already judged not worth taking.
 Everything above prices the plane as an ADDITION (shadow mode: nothing deleted).
 That is the wrong question for scenario B, which deletes the old planes. So the
 shipping 1722.1 + SRP planes were synthesised with the **same instrument**
-(`syn/ooc/old_planes_ooc.tcl`, same part, same 100 MHz OOC) to price what they
+(syn/ooc/old_planes_ooc.tcl, deleted 2026-08-13 with the planes it measured; same part, same 100 MHz OOC) to price what they
 give back. A net figure built from two different instruments would not be a net
 figure.
 
@@ -211,7 +258,9 @@ tied `ready = 0`, and Vivado constant-propagated away the AECP dispatch queue
 (6 BRAM), an RX pool and `tx_slots` precisely because nothing consumes them.
 A real substitution has to put that mass back and add the µCPU on top —
 1,068 LUT for the skeleton of record, and the resource study brackets the full
-AECP engine at **+3,150 … +7,000**.
+AECP engine at **+3,150 … +7,000**. That is exactly what the landed µCPU did,
+and the bracket has **not** been replaced by a measurement: the table below is
+still the estimate it always was.
 
 So the honest net, at the 1×1 shape:
 
@@ -267,20 +316,23 @@ SUBSTITUTION, which removes 15,474 LUT of shipping planes to make room for
 
 A coexistence (shadow) flash of the 1×1 plane is buildable and worth
 attempting, but should be expected to fail timing closure at 95.1 %. The path
-that is actually affordable is **substitution**, which requires P4: the µCPU
-must land at `protocol_processor_top` before the shipping AECP plane can be
-deleted, and it is that deletion — not the addition — that pays for the new
-plane. The section above now measures exactly how much it pays: 14,489 LUT
-back, against 7,463 spent at the shipping shape.
+that is actually affordable is **substitution**, which required the µCPU to
+land at `protocol_processor_top` before the shipping AECP plane could be
+deleted, because it is that deletion — not the addition — that pays for the new
+plane. The section above measures exactly how much it pays: 14,489 LUT back,
+against 7,463 spent at the shipping shape.
 
-**Do not delete anything yet.** The removable figures are what the old planes
-cost *standalone*; the datapath's own interconnect to them (CSR fan-out, the
-arbiter legs, the cross-plane wiring documented in `milan_datapath.sv`) is not
-in either column, and the processor cannot answer an AECP command until P4
-lands. The sequence that stays honest is: land P4, prove the processor answers
-AECP on the wire in `pp_shadow`, then delete plane by plane at parity —
-measuring after each, per the standing rule that a block-scale change is judged
-in LUT and packing density, never in slices.
+**That sequence has since run to completion.** The condition written here as
+"do not delete anything yet" was: land the µCPU, prove the processor answers
+AECP on the wire, then delete plane by plane at parity, measuring after each,
+per the standing rule that a block-scale change is judged in LUT and packing
+density, never in slices. The µCPU landed, the entity answers `READ_DESCRIPTOR`
+(against whatever descriptor image DRAM holds, and nothing here loads one) and
+echoes `NOT_IMPLEMENTED` at everything else, and the old planes are gone.
+The caveat attached to the removable figures still holds and is worth
+re-reading before anyone reuses them: they are *standalone* costs, and the
+datapath's own interconnect to those planes (CSR fan-out, the arbiter legs, the
+cross-plane wiring documented in `milan_datapath.sv`) is in neither column.
 
 Also worth recording: **3 DSP blocks are inferred** (1 in `KL_adp_engine`, 2 in
 `KL_srp_admission`). the processor repo's HDL rule 1 forbids

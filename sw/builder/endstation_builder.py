@@ -7,10 +7,33 @@ endstation_builder.py - software-defined Milan End-Station builder.
 docs/MILAN_COMPLIANCE_GAPS.md attack item 4: ONE declarative definition
 drives gateware elaboration, AEM ROM, lwSRP tables and DT/driver shape
 consistently. This round turns the scaffold into the working generator:
-the emitted AEM overlay is CONSUMED by avdecc/gen_aem_store.py (--overlay)
-and, for the current shape, reproduces the tracked aecp_aem_rom.svh
-byte-identically; the emitted sweep_opts fragment is SOURCED by
-sw/litex/sweep.sh (single source for the per-board design OPTS/L2).
+the emitted AEM overlay is CONSUMED by avdecc/gen_aem_store.py (--overlay);
+the emitted sweep_opts fragment is SOURCED by sw/litex/sweep.sh (single
+source for the per-board design OPTS/L2).
+
+WHAT THIS BUILDER STILL PUTS INTO THE RTL TREE (2026-08-12).  The IEEE
+1722.1 / SRP control-plane RTL is DELETED (hdl/ieee17221/{aecp,acmp} and
+hdl/ieee8021q/srp are gone; the protocol-processor submodule is the control
+plane now).  Exactly TWO generated includes are still compiled:
+
+  hdl/common/csr/gen/adp_shape_defaults.svh  - `include-d by BOTH
+        hdl/milan/milan_datapath.sv and hdl/common/csr/milan_csr.sv.  It
+        carries ADP_TALKER_SRC_C / ADP_LISTENER_SINK_C (which now also size
+        the protocol processor's source/sink arrays), the two capability
+        words, TALKER_WIRE_CHANS_C and ADP_GPTP_DOMAIN_C.  LOAD-BEARING.
+  hdl/common/csr/gen/lwsrp_csr_defaults.svh  - still `include-d by
+        milan_csr.sv for the 0x680 group's reset words and
+        LWSRP_PRIO_RANK_C.  Those registers remain as an ABI (software can
+        still write them) but drive NOTHING: the applicant is deleted.
+
+The AEM descriptor ROM is STILL GENERATED - the entity model is the
+declarative source the ADP shape counts and the capability words are
+DERIVED from, and this file's own self-consistency gates read it - but it
+is NO LONGER AN RTL ARTIFACT.  It describes a descriptor set nothing in
+this gateware serves: this device answers no AECP/AEM command, so no
+controller can READ_DESCRIPTOR any of it.  It is written to
+out/<cfg>/aecp_aem_rom.svh (and rendered by avdecc/gen_aem_store.py
+--out-dir) for reading, never into hdl/ or into configs/generated/*/gen/.
 
 Input:  a YAML end-station config (schema kebag-logic/milan-endstation-config,
         see configs/endstation_*.yaml for annotated examples).
@@ -26,7 +49,13 @@ Outputs (into OUTDIR/<config-stem>/):
   lwsrp_table.json  - lwSRP (802.1Q MSRP/MVRP) reservation table: SR class,
   lwsrp_table.svh     MRP timers, class-A bandwidth math, the 0x680 CSR reset
                       words, the engine's elaboration parameters and one
-                      provisioning record per stream.
+                      provisioning record per stream. REFERENCE ONLY since the
+                      applicant was deleted: only the CSR-facing subset below
+                      still reaches RTL. Kept because the 0x680 reset words
+                      and the bandwidth arithmetic are derived here.
+  aecp_aem_rom.svh  - this config's AEM descriptor ROM. GENERATED, NOT
+                      COMPILED: see the note at the top - nothing in this
+                      gateware serves these descriptors.
   platform_shape.json - driver-visible layout: Milan CSR base, the DMA window
   milan-nic.dtsi      map DERIVED from board.constraints.rx_queues, the
                       physical addresses kl-eth hardcodes, and the
@@ -48,12 +77,18 @@ Plus (repo-level, single-sourced so nothing can drift):
                       board programs into the ADP/AEM CSRs. Same rule, same
                       moment: the config that owns the board's bitstream owns
                       its advertised identity.
-  hdl/ieee8021q/srp/gen/lwsrp_table.svh   - the DEPLOYED shape's lwSRP table
-                      (written by the one config carrying srp.rtl_table).
-  hdl/common/csr/gen/lwsrp_csr_defaults.svh - the CSR-facing SUBSET of that
-                      table (0x680 reset words + the PriorityAndRank byte),
-                      `include-d BY hdl/common/csr/milan_csr.sv: the config
-                      IS those literals now, they are not copied into RTL.
+  hdl/common/csr/gen/lwsrp_csr_defaults.svh - the CSR-facing SUBSET of the
+                      lwSRP table (0x680 reset words + the PriorityAndRank
+                      byte), `include-d BY hdl/common/csr/milan_csr.sv: the
+                      config IS those literals now, they are not copied into
+                      RTL. Written by the one config carrying srp.rtl_table.
+                      (Its sibling hdl/ieee8021q/srp/gen/lwsrp_table.svh is
+                      NO LONGER WRITTEN - that whole directory is deleted.)
+  hdl/common/csr/gen/adp_shape_defaults.svh - the ADVERTISED SHAPE, written
+  configs/generated/<cfg>/gen/adp_shape_defaults.svh   only by --write-rtl
+                      (tracked tree) and by every build of a configs/ config
+                      (its own per-shape include dir, which Verilator suites
+                      and Vivado builds point +incdir at).
 
 Usage:
   python3 sw/builder/endstation_builder.py configs/endstation_arty_current.yaml
@@ -290,11 +325,16 @@ BUFLEN_DEFAULT_NS = 2126000
 
 # --------------------------------------------------------- lwSRP constants --
 # Item-4 emitter: the lwSRP (802.1Q MSRP/MVRP) reservation table. The config
-# becomes the single source of truth for what is TODAY hand-written twice -
+# was the single source of truth for what had been hand-written twice -
 # hdl/ieee8021q/srp/lwsrp_pkg.sv (SR class + timers + bandwidth math) and the
-# 0x680 CSR reset defaults in hdl/common/csr/milan_csr.sv. test_builder gates
-# 18a/18b PARSE both RTL files and assert the emission agrees, so a hand edit
-# on either side that the config does not know about fails the build.
+# 0x680 CSR reset defaults in hdl/common/csr/milan_csr.sv.
+# THE PACKAGE IS DELETED (2026-08-12) with the engine that compiled it. What
+# survives is the 0x680 half: milan_csr.sv still `include-s the generated
+# gen/lwsrp_csr_defaults.svh and still serves those words to software, so
+# test_builder gate 18a still parses milan_csr and asserts the emission
+# agrees. The SR-class / timer / bandwidth constants below now have no RTL
+# comparand at all; they are held to the CLAUSE instead (gate 18b's Milan
+# 4.3.3.2 worked examples), which is the only honest check left for them.
 
 #: SR classes. Milan v1.2 §5.6 defines class A only for a Milan end station;
 #: the table is keyed so a class-B RTL round has somewhere to land.
@@ -312,10 +352,15 @@ L2_HDR_BYTES = 18                 #: DA 6 + SA 6 + VLAN 4 + EtherType 2
 #: nominal frequency". It is a DECLARATION headroom, not a byte on the wire -
 #: so it belongs to max_frame_bytes and never to l2_frame_bytes.
 MILAN_TSPEC_HEADROOM_B = 1
-#: Milan v1.2 4.3.3.2's four-step bandwidth recipe, one constant per step, the
-#: same split hdl/ieee8021q/srp/lwsrp_pkg.sv carries (MSRP_L2_OVERHEAD_C /
-#: MSRP_MIN_L2_BYTES_C / MSRP_WIRE_OVERHEAD_C) and KL_lwsrp_bw_gate runs.
-#: test_builder gate 18d parses the package and refuses a divergence.
+#: Milan v1.2 4.3.3.2's four-step bandwidth recipe, one constant per step -
+#: the split hdl/ieee8021q/srp/lwsrp_pkg.sv used to carry as
+#: MSRP_L2_OVERHEAD_C / MSRP_MIN_L2_BYTES_C / MSRP_WIRE_OVERHEAD_C for
+#: KL_lwsrp_bw_gate to run. That package and that gate are DELETED, so these
+#: three are now the ONLY copy. The split is kept anyway: folding steps 1 and
+#: 3 into a single +42 drops step 2's clamp, which is right for every frame
+#: big enough not to need it and wrong for the CRF Media Clock at
+#: MaxFrameSize 29. test_builder gate 18d holds them to the clause's own
+#: worked kb/s figures instead of to the deleted package.
 SRP_L2_OVERHEAD_B = 22            #: step 1: eth hdr 14 + VLAN 4 + FCS 4
 SRP_MIN_L2_BYTES_B = 68           #: step 2: minimum TAGGED frame, a CLAMP
 SRP_WIRE_OVERHEAD_B = 20          #: step 3: preamble 8 + IPG 12
@@ -1685,21 +1730,33 @@ SRP_FROZEN_PRIO_RANK = 0x70          #: milan_csr's old SRP_PRIO_RANK_C literal
 #: Where milan_csr.sv `include-s the emitted CSR defaults from. The path is
 #: RELATIVE TO hdl/common/csr (Verilator resolves `include against -I/+incdir
 #: and the CWD only, never against the including file), which every consumer
-#: already carries as an include dir - exactly like gen/aecp_aem_rom.svh.
+#: already carries as an include dir - exactly like gen/adp_shape_defaults.svh
+#: next door.
+#: The 0x680 REGISTERS THEMSELVES NO LONGER DRIVE ANYTHING (2026-08-12): the
+#: applicant (hdl/ieee8021q/srp/**) is deleted. milan_csr.sv still `include-s
+#: this header and still serves those words as an ABI software can read and
+#: write, so the header stays generated and stays gated - a stale reset word
+#: is still a wrong readback.
 CSR_DEFAULTS_INCLUDE = "gen/lwsrp_csr_defaults.svh"
 CSR_DEFAULTS_REL = "hdl/common/csr/" + CSR_DEFAULTS_INCLUDE
 
-#: Same rule for the ADP shape. Both milan_csr.sv (the RO 0x618/0x61C words)
-#: and milan_datapath.sv (the ACMP context array sizing) `include this, so the
-#: config is the single definition of how many streams the entity HAS.
+#: Same rule for the ADP shape, and this one is fully LOAD-BEARING. Both
+#: milan_csr.sv (the RO 0x618/0x61C words) and milan_datapath.sv (which sizes
+#: the protocol processor's source/sink arrays from ADP_TALKER_SRC_C /
+#: ADP_LISTENER_SINK_C) `include this, so the config is the single definition
+#: of how many streams the entity HAS.
 ADP_SHAPE_INCLUDE = "gen/adp_shape_defaults.svh"
 ADP_SHAPE_REL = "hdl/common/csr/" + ADP_SHAPE_INCLUDE
 
-#: The AEM descriptor ROM. `include-d by KL_aecp_aem_store.sv relative to
-#: hdl/ieee17221/aecp. Generated from THIS config's AEM overlay, so a build no
-#: longer inherits whatever shape happened to be committed.
-AEM_ROM_INCLUDE = "gen/aecp_aem_rom.svh"
-AEM_ROM_REL = "hdl/ieee17221/aecp/" + AEM_ROM_INCLUDE
+#: THE AEM DESCRIPTOR ROM HAS NO RTL PATH ANY MORE. It used to be
+#: `include-d by KL_aecp_aem_store.sv out of hdl/ieee17221/aecp/gen/; that
+#: module and its whole directory are DELETED. The ROM is still generated
+#: (the entity model is what the ADP shape counts and capability words are
+#: DERIVED from, and the gates below read it) but it is written ONLY to
+#: out/<cfg>/aecp_aem_rom.svh, never into hdl/ and never into
+#: configs/generated/<cfg>/gen/ - a build artifact in an include dir is a
+#: build artifact something will eventually compile.
+AEM_ROM_OUT_NAME = "aecp_aem_rom.svh"
 
 #: Per-config copies of the shape include, tracked so a harness or a build can
 #: point its include path at ONE config's definition without regenerating
@@ -1831,10 +1888,13 @@ def emit_lwsrp_svh(cfg, table):
     a("//                class, MRP timers, bandwidth math and the 0x680 CSR")
     a("//                reset words - emitted from the declarative end-")
     a("//                station config so the config and the RTL can never")
-    a("//                drift. Values are gated against the hand-written")
-    a("//                hdl/ieee8021q/srp/lwsrp_pkg.sv and")
-    a("//                hdl/common/csr/milan_csr.sv by")
-    a("//                sw/builder/test_builder.py (gates 18a-18c).")
+    a("//                drift. REFERENCE ONLY: the lwSRP engine that")
+    a("//                consumed this table (hdl/ieee8021q/srp/**) is")
+    a("//                DELETED, so nothing compiles this file. The CSR-")
+    a("//                facing subset that IS still compiled lives in")
+    a("//                hdl/common/csr/gen/lwsrp_csr_defaults.svh and is")
+    a("//                gated against milan_csr.sv by")
+    a("//                sw/builder/test_builder.py (gates 18a/20a).")
     a("//                Include-only: no `default_nettype directive (it would")
     a("//                leak into the includer's scope) and no net decls.")
     a("//--------------------------------------------------------------------"
@@ -1925,7 +1985,7 @@ def emit_csr_defaults_svh(cfg):
     written from ONE config in ONE pass, and gate 20a compares them word for
     word, so the subset can never disagree with the table.
 
-    Include-only, exactly like hdl/ieee17221/aecp/gen/aecp_aem_rom.svh: no
+    Include-only, exactly like gen/adp_shape_defaults.svh next door: no
     `default_nettype (it would leak into the includer's scope), no include
     guard (these are MODULE-scope localparams - a second including module in
     the same compilation unit must get its own copy) and no net decls."""
@@ -1947,14 +2007,16 @@ def emit_csr_defaults_svh(cfg):
     a("//                hdl/common/csr/milan_csr.sv, so the declarative end-")
     a("//                station config IS these values rather than being")
     a("//                compared against a second hand-written copy.")
-    a("//                Same values as the full table")
-    a("//                hdl/ieee8021q/srp/gen/lwsrp_table.svh (one config,")
-    a("//                one pass; test_builder gate 20a compares them).")
+    a("//                Same values as the full reference table")
+    a("//                out/<cfg>/lwsrp_table.svh (one config, one pass;")
+    a("//                test_builder gate 20a compares them).")
+    a("//                NOTE the 0x680 registers no longer DRIVE anything:")
+    a("//                the applicant (hdl/ieee8021q/srp/**) is deleted and")
+    a("//                the group survives as a software-visible ABI only.")
     a("//                Include-only: no `default_nettype directive (it would")
     a("//                leak into the includer's scope), no include guard")
     a("//                (module-scope localparams - each including module")
-    a("//                needs its own copy, exactly like")
-    a("//                gen/aecp_aem_rom.svh) and no net decls.")
+    a("//                needs its own copy) and no net decls.")
     a("//--------------------------------------------------------------------"
       "-------//")
     a("")
@@ -2009,16 +2071,23 @@ def emit_adp_shape_svh(cfg):
     the gateware, the AEM model and lwSRP alike (docs/ENDSTATION_BUILDER.md).
 
     These are not merely the CSR's reset words.  milan_datapath sizes its
-    ACMP talker/listener CONTEXT ARRAYS from the same two constants, so the
-    advertised range and the addressable range are the same number by
-    construction - there is no edit that moves one without the other, and a
-    gateware built for one shape cannot be handed another shape's entity
-    definition without failing to elaborate.
+    talker/listener CONTEXT ARRAYS from the same two constants - the ACMP
+    contexts once, the protocol processor's source/sink arrays since that
+    plane replaced them - so the advertised range and the addressable range
+    are the same number by construction: there is no edit that moves one
+    without the other, and a gateware built for one shape cannot be handed
+    another shape's entity definition without failing to elaborate.
 
-    Include-only, exactly like gen/lwsrp_csr_defaults.svh and
-    gen/aecp_aem_rom.svh: no `default_nettype (it would leak into the
-    includer's scope), no include guard (module-scope localparams - each
-    including module needs its own copy) and no net decls."""
+    This is now the ONLY generated entity artifact any RTL compiles: the AEM
+    descriptor ROM's `include-r (KL_aecp_aem_store) is deleted with the rest
+    of the AECP plane, so scripts/check_entity_shape.py guards this file
+    alone - and it guards it harder, because it is still a tracked
+    last-writer-wins artifact.
+
+    Include-only, exactly like gen/lwsrp_csr_defaults.svh: no
+    `default_nettype (it would leak into the includer's scope), no include
+    guard (module-scope localparams - each including module needs its own
+    copy) and no net decls."""
     sh = adp_shape(cfg)
     L, T = len(cfg["listeners"]), len(cfg["talkers"])
     crf_o = "yes" if cfg["clocking"]["crf_output"] else "no"
@@ -2038,11 +2107,11 @@ def emit_adp_shape_svh(cfg):
       f"CRF sink {crf_s}, CRF output {crf_o}")
     a("//  Description : The entity's ADVERTISED SHAPE - the 1722.1-2021")
     a("//                6.2.1.9/6.2.1.11 ADPDU counts served READ-ONLY at")
-    a("//                0x618/0x61C, and the ACMP source/sink context counts")
+    a("//                0x618/0x61C, and the source/sink context counts")
     a("//                milan_datapath elaborates. Same numbers as this")
     a("//                config's AEM STREAM_OUTPUT / STREAM_INPUT descriptor")
     a("//                counts (one config, one pass; check_entity_shape.py")
-    a("//                compares all three).")
+    a("//                compares them).")
     a("//                Include-only: no `default_nettype directive, no")
     a("//                include guard, no net decls.")
     a("//--------------------------------------------------------------------"
@@ -2097,6 +2166,29 @@ def emit_adp_shape_svh(cfg):
     a(f"  localparam int ADP_GPTP_DOMAIN_C   = "
       f"{(cfg.get('gptp') or {}).get('domain', 0)};")
     a("")
+    #! STREAM_INPUT[0]'s declared stream_format, as a 64-bit constant.
+    #!
+    #! WHY IT MOVED HERE.  It used to reach the fabric as the RESET VALUE of
+    #! the AECP response builder's fmt_in0_r, taken from the generated AEM ROM
+    #! (AEM_STRIN_FMT_C[0]).  That ROM is deleted with the AECP engine, and the
+    #! constant is NOT AECP's to own: KL_avtp_rx_monitor_ctx compares every
+    #! arriving AVTPDU's subtype/format against it (fmt0_i), so it decides
+    #! whether stream 0 can accept a frame AT ALL - with no AECP in the build
+    #! it is a pure entity-model fact and belongs in the entity-model header.
+    #! Tying it to zero (the first cut of the plane deletion) made the compare
+    #! fail for every conformant AAF PDU: stream 0 accepted nothing, on every
+    #! build.  Same class as the presentation-time default, same fix.
+    #!
+    #! The FIRST declared format is the one the descriptor reports as current,
+    #! which is exactly what the deleted register file reset to.
+    fmts0 = ((cfg.get("listeners") or [{}])[0].get("formats") or ["0x0"])
+    f0 = int(str(fmts0[0]), 16)
+    a("  //! STREAM_INPUT[0]'s declared (and, with no AECP to change it, its")
+    a("  //! ONLY) stream_format - the value KL_avtp_rx_monitor_ctx accepts")
+    a("  //! frames against. Was the AEM ROM's AEM_STRIN_FMT_C[0]; the ROM is")
+    a("  //! gone and this is the same number from the same config.")
+    a(f"  localparam logic [63:0] ADP_STRIN0_FMT_C = 64'h{f0:016X};")
+    a("")
     return "\n".join(ln)
 
 
@@ -2127,16 +2219,21 @@ def rtl_version():
 
 
 def emit_aem_rom_svh(cfg, overlay):
-    """This config's AEM descriptor ROM, as the SystemVerilog include
-    KL_aecp_aem_store.sv compiles (`include "gen/aecp_aem_rom.svh").
+    """This config's AEM descriptor ROM, rendered as SystemVerilog text.
 
-    The overlay -> ROM consumer has existed in avdecc/gen_aem_store.py since
-    the builder landed and is byte-gated against the tracked ROM, but NOTHING
-    RAN IT AS PART OF A BUILD: the tracked ROM is a single artifact generated
-    from the 1x1 shape and every build included it, so an 8x8 gateware carried
-    a 2-STREAM_INPUT / 1-STREAM_OUTPUT descriptor set. Emitting it here puts
-    the ROM on the same config-driven path as the lwSRP tables and the ADP
-    shape, so `--write-rtl` on the config being built refreshes all three."""
+    NOTHING COMPILES THE RESULT. Its `include-r, KL_aecp_aem_store.sv, is
+    deleted with the rest of hdl/ieee17221/aecp; this gateware answers no
+    AECP command, so no controller can READ_DESCRIPTOR any of these
+    descriptors. It is still generated for two reasons that are not
+    decorative: (1) the descriptor set IS the declarative entity definition
+    that adp_shape() derives talker_stream_sources / listener_stream_sinks
+    and the two capability words from, and those DO reach silicon through
+    gen/adp_shape_defaults.svh; (2) building it is the only check that the
+    declared model is expressible at all - a shape whose descriptor set
+    cannot be generated has a shape count nobody should trust, which is why
+    --write-rtl refuses on that failure.
+
+    Written to out/<cfg>/aecp_aem_rom.svh only. See the module banner."""
     sys.path.insert(0, os.path.join(ROOT, "avdecc"))
     import gen_aem_store as g
     return g.emit_svh_text(g.build_model(g.spec_from_overlay(overlay)))
@@ -3995,25 +4092,26 @@ def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
 
 
 # ------------------------------------------------------------------ driver --
-def write_rtl_entity(cfg, adp_svh, aem_rom, paths):
-    """Write the ENTITY-DEFINITION artifacts into the tracked RTL tree.
+def write_rtl_entity(cfg, adp_svh, paths):
+    """Write the ENTITY-DEFINITION artifact into the tracked RTL tree.
 
     Called ONLY by `--write-rtl`, for the config you are about to build - see
-    the note at the call site for why this is not automatic. The AEM ROM is here
-    because it is the same kind of thing as the ADP shape - a descriptor set
-    that a controller reads to learn what this entity has - and leaving it as
-    one committed 1x1 artifact is what let an 8x8 gateware ship a 1x1
-    descriptor set (docs/findings/ADP_SHAPE_STATIC_0727.md)."""
+    the note at the call site for why this is not automatic.
+
+    ONE FILE, not two.  This used to write the AEM descriptor ROM beside the
+    shape include, on the reasoning that both describe the same entity and
+    shipping one without the other is what let an 8x8 gateware carry a 1x1
+    descriptor set (docs/findings/ADP_SHAPE_STATIC_0727.md).  The ROM's
+    destination - hdl/ieee17221/aecp/gen/ - is DELETED with the AECP plane,
+    and writing a file into a directory that a deleted module used to compile
+    would just recreate the directory and mislead the next reader.  The shape
+    include survives and is MORE load-bearing than before: milan_datapath.sv
+    now sizes the protocol processor's source/sink arrays from it."""
     adp_gen = os.path.join(ROOT, ADP_SHAPE_REL)
     os.makedirs(os.path.dirname(adp_gen), exist_ok=True)
     with open(adp_gen, "w") as f:
         f.write(adp_svh)
     paths["rtl_adp_shape_svh"] = adp_gen
-    rom_gen = os.path.join(ROOT, AEM_ROM_REL)
-    os.makedirs(os.path.dirname(rom_gen), exist_ok=True)
-    with open(rom_gen, "w") as f:
-        f.write(aem_rom)
-    paths["rtl_aem_rom_svh"] = rom_gen
 
 
 def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
@@ -4030,7 +4128,9 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     # emit (a shape with no CRF sink has no AEM_CRF_FMTS_C table). That is a
     # real limit, not a reason to fail every OTHER artifact: record it and
     # let --write-rtl below be the thing that refuses, because a shape whose
-    # descriptor set cannot be generated is a shape that cannot be built.
+    # descriptor set cannot be generated is a shape whose declarative entity
+    # definition is incomplete - and the ADP counts and capability words that
+    # DO reach silicon are derived from that same definition.
     try:
         aem_rom = emit_aem_rom_svh(cfg, overlay)
         aem_rom_why = None
@@ -4074,7 +4174,7 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     p_adp_svh = os.path.join(d, "adp_shape_defaults.svh")
     with open(p_adp_svh, "w") as f:
         f.write(adp_svh)
-    p_aem_rom = os.path.join(d, "aecp_aem_rom.svh")
+    p_aem_rom = os.path.join(d, AEM_ROM_OUT_NAME)
     if aem_rom is not None:
         with open(p_aem_rom, "w") as f:
             f.write(aem_rom)
@@ -4152,20 +4252,14 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     os.makedirs(os.path.dirname(p_cfg_adp), exist_ok=True)
     with open(p_cfg_adp, "w") as f:
         f.write(adp_svh)
-    # ...and the DESCRIPTOR SET beside it. The shape include alone is only
-    # half an entity definition: KL_aecp_aem_store `include-s gen/
-    # aecp_aem_rom.svh from the SAME `gen/` directory, so a harness that
-    # points +incdir at a config to get its ACMP array sizes still picked up
-    # whatever ROM was last written into hdl/. That is how regenerating the
-    # tree for the 8x8 ship shape broke the aecp suite (a 1x1 harness asking
-    # for descriptors that only exist in the 8x8 model) while the shape
-    # include it DID select was perfectly correct. One directory, one whole
-    # entity: shape + descriptors, or neither.
-    if aem_rom is not None:
-        p_cfg_rom = os.path.join(os.path.dirname(p_cfg_adp),
-                                 "aecp_aem_rom.svh")
-        with open(p_cfg_rom, "w") as f:
-            f.write(aem_rom)
+    # NO DESCRIPTOR SET BESIDE IT ANY MORE (2026-08-12). This directory used
+    # to get gen/aecp_aem_rom.svh too, because KL_aecp_aem_store `include-d it
+    # out of the SAME `gen/` a harness pointed +incdir at, and shipping the
+    # shape without the descriptors is how a 1x1 harness came to ask for
+    # descriptors that only exist in the 8x8 model. That module is deleted:
+    # a `gen/` dir now holds exactly what an elaboration still reads - the
+    # shape - and the ROM stays a readable artifact under out/<cfg>/ where no
+    # +incdir can accidentally pick it up.
     paths = dict(soc_params=p_soc, aem_overlay=p_ovl, build_plan=p_plan,
                  lwsrp_table=p_srp, lwsrp_svh=p_srp_svh,
                  csr_defaults_svh=p_csr_svh, adp_shape_svh=p_adp_svh,
@@ -4177,29 +4271,28 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     # imprecise about whether a file moved
     if write_fragment and p_ent_overlay:
         paths["rootfs_entity_conf"] = p_ent_overlay
-    # The TRACKED RTL headers: exactly one config (the DEPLOYED shape, marked
-    # srp.rtl_table) owns them. lwsrp_table.svh is the full contract for the
-    # srp tree; lwsrp_csr_defaults.svh is the subset milan_csr.sv COMPILES,
-    # so a config edit re-elaborates the CSR block instead of drifting away
-    # from it (test_builder 18a/18b/20a).
+    # The TRACKED RTL header: exactly one config (the DEPLOYED shape, marked
+    # srp.rtl_table) owns hdl/common/csr/gen/lwsrp_csr_defaults.svh, the
+    # subset milan_csr.sv COMPILES, so a config edit re-elaborates the CSR
+    # block instead of drifting away from it (test_builder 18a/20a).
+    # ITS SIBLING IS GONE: hdl/ieee8021q/srp/gen/lwsrp_table.svh was the full
+    # contract for the srp tree, and that whole tree is deleted. The full
+    # table is still emitted to out/<cfg>/lwsrp_table.svh for reading; it is
+    # not written into a directory nothing compiles.
     # The ENTITY DEFINITION is written ONLY on an explicit --write-rtl, never
     # as a side effect of building a config: test_builder alone runs build()
     # on a dozen throwaway config variants, and any one of them silently
-    # rewriting the shape include or the descriptor ROM would put a shape in
-    # the tree that nobody chose. The gate reads the `Source:` header, so
-    # "which shape is in the tree" is always answerable.
+    # rewriting the shape include would put a shape in the tree that nobody
+    # chose. The gate reads the `Source:` header, so "which shape is in the
+    # tree" is always answerable.
     if write_rtl:
         if aem_rom is None:
             raise ConfigError(
                 f"--write-rtl: this shape's AEM descriptor ROM cannot be "
-                f"generated, so it cannot be built - {aem_rom_why}")
-        write_rtl_entity(cfg, adp_svh, aem_rom, paths)
+                f"generated, so its entity definition is incomplete and the "
+                f"ADP counts derived from it cannot be trusted - {aem_rom_why}")
+        write_rtl_entity(cfg, adp_svh, paths)
     if cfg["srp"]["rtl_table"]:
-        gen_svh = os.path.join(ROOT, "hdl/ieee8021q/srp/gen/lwsrp_table.svh")
-        os.makedirs(os.path.dirname(gen_svh), exist_ok=True)
-        with open(gen_svh, "w") as f:
-            f.write(lwsrp_svh)
-        paths["rtl_lwsrp_svh"] = gen_svh
         csr_gen = os.path.join(ROOT, CSR_DEFAULTS_REL)
         os.makedirs(os.path.dirname(csr_gen), exist_ok=True)
         with open(csr_gen, "w") as f:
@@ -4226,13 +4319,15 @@ def main():
                          "WITHOUT taking tracked-svh ownership (fragments "
                          "are per-board files; the svh is per-tree)")
     ap.add_argument("--write-rtl", action="store_true",
-                    help="also write THIS config's entity definition into the "
+                    help="also write THIS config's advertised shape into the "
                          "tracked RTL tree (hdl/common/csr/gen/"
-                         "adp_shape_defaults.svh + hdl/ieee17221/aecp/gen/"
-                         "aecp_aem_rom.svh). Run this for the config you are "
-                         "about to build: the gateware `include-s those files, "
-                         "so without it a build inherits whatever shape was "
-                         "last committed")
+                         "adp_shape_defaults.svh - ONE file: the AEM "
+                         "descriptor ROM no longer has an RTL destination, "
+                         "the AECP plane that compiled it is deleted). Run "
+                         "this for the config you are about to build: "
+                         "milan_csr.sv and milan_datapath.sv `include that "
+                         "file, so without it a build inherits whatever shape "
+                         "was last committed")
     args = ap.parse_args()
     try:
         r = build(args.config, args.outdir, write_rtl=args.write_rtl,

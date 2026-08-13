@@ -15,7 +15,7 @@
 #      monitors): no OUTPUT port may carry a stream-handshake name
 #      (tvalid/tready/tdata/tkeep/tlast/tuser);
 #   2. site level (pure observers + every raw-stream tap reader wired in
-#      hdl/milan/milan_datapath.sv - AECP/ACMP/parser/MAAP/lwSRP): every
+#      hdl/milan/milan_datapath.sv - parser/MAAP/protocol processor): every
 #      instantiation port binding one of the datapath's observed stream nets
 #      (rx_axis_*/tx_axis_*/ts_metadata_axis members, [sm]_axis_* boundary
 #      lanes) must be an INPUT of that module - reads only, never drives.
@@ -44,12 +44,15 @@ PURE_FILES+=("$R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv"
 # own TX lanes, so only the site-level input-only rule applies to the
 # OBSERVED stream nets they tap.
 READER_FILES=(
-    "$R/hdl/ieee17221/aecp/KL_aecp_top.sv"
-    "$R/hdl/ieee17221/acmp/KL_acmp_responder.sv"
-    "$R/hdl/ieee17221/acmp/KL_acmp_listener.sv"
     "$R/hdl/ieee1722/avtp/avtp_stream_parser.sv"
     "$R/hdl/ieee1722/maap/KL_maap.sv"
-    "$R/hdl/ieee8021q/srp/KL_lwsrp_top.sv"
+    # THE CONTROL PLANE IS ONE READER NOW. The four 1722.1/SRP tops that used
+    # to be listed here (KL_aecp_top, KL_acmp_responder, KL_acmp_listener,
+    # KL_lwsrp_top) are deleted; the protocol processor replaced them, and
+    # KL_pp_shadow is exactly what this gate exists to police - it hangs off
+    # rx_axis as a monitor tap and owns its own TX lane, so it must never
+    # appear on the drive side of an observed stream net.
+    "$R/hdl/milan/KL_pp_shadow.sv"
 )
 
 STREAM_TERM='t(valid|ready|data|keep|last|user)'

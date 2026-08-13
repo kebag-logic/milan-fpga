@@ -20,6 +20,61 @@ It is written for two audiences:
 - **Medium-level** (§4–§8): module-by-module wiring, the CSR/DMA/IRQ ABI, the exact
   build/run commands, how each boundary is attached, and how to add the next piece.
 
+**Read this before the rest of the page (2026-08-13).** The IEEE 1722.1 / SRP
+control plane of this device is [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv),
+wrapping the pinned `protocol-processor` submodule, instantiated
+**unconditionally** by [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) —
+no parameter, no fallback, no shadow arm. It owns ADP, ACMP (talker and
+listener) and SRP; MAAP stays in this fabric (`KL_maap` bridged by
+`hdl/milan/KL_pp_maap_shim.sv`) because the processor implements none by design.
+This repository's own ADP advertiser, AECP/AEM engine, ACMP talker and listener,
+and lwSRP applicant are **deleted**.
+
+**The AECP surface came with it, in one specific shape: this entity answers
+READ_DESCRIPTOR, and answers every other AECP command with a conformant
+NOT_IMPLEMENTED echo.** The responder is the processor's AECP uCPU, which has
+landed. `READ_DESCRIPTOR` (0x0004) returns `SUCCESS` with `configuration_index`,
+the reserved field and the descriptor, `NO_SUCH_DESCRIPTOR` on a locate miss and
+`BAD_ARGUMENTS` on a bad configuration index — the error paths carrying the IEEE
+1722.1 §7.4.5 4-byte `{descriptor_type, descriptor_index}` stub — so the device
+DISCOVERS over ADP, CONNECTS over ACMP, RESERVES over SRP, and **enumeration is
+reachable again, once a descriptor image is in DRAM: nothing in this repository
+puts one there yet** (see the third paragraph).
+Every other opcode and every other message type (AEM, ADDRESS_ACCESS,
+VENDOR_UNIQUE/MVU) gets an echo with the correct `message_type`+1, length and
+`controller_data_length`; a command addressed to another `target_entity_id`, or
+an AECP *response* arriving as input, is silently refused — freed, counted, no
+reply. `IDENTIFY_NOTIFICATION` (0x0026) as a command is `BAD_ARGUMENTS`
+(§7.4.39.2). **Known gap:** Milan Δ7 `ACQUIRE_ENTITY` (`NOT_SUPPORTED` with
+`owner_id` = 0) is not distinguished from the generic echo.
+
+**An echo is not an implementation.** Absent behind it, and absent for real:
+`SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME` (and `SET_STREAM_INFO`'s
+`MSRP_ACC_LAT`), the audio-map setters, `GET_COUNTERS` with the Milan Table 5.22
+unsolicited push, IDENTIFY, and saved-state persistence — nothing here restores a
+binding across a power cycle. This is a stated capability boundary from an
+informed decision, not a regression and not a blip. Everywhere below where this
+page says "AVDECC in fabric", read it against these two paragraphs.
+
+**The entity model lives in DDR3, not in a fabric ROM — and nothing here fills
+it.** The processor's descriptor store fetches the model over a read-only master
+whose base is a **compile-time** parameter (`PP_DESC_BASE_P`, derived by the SoC
+as the top 1 MiB of `main_ram`, not mirrored as a literal); there is no base
+register. Software must load the image at that base **before** enabling the
+entity, and no software in this repository does: the generator is in the
+submodule (`protocol-processor/hdl/aecp/desc/gen_desc_image.py`), no step in
+[`sw/builder/`](../../sw/builder), `scripts/`, the LiteX SoC builder or the boot
+path emits or writes it, and the `aecp_aem_rom.svh` the builder still produces
+is an orphan of the deleted fabric descriptor store. On a stock build the region
+is therefore unloaded, its header magic (`"AEMI"` = `0x41454D49`, layout version
+1, plus checksum) fails, and every `READ_DESCRIPTOR` answers
+`BAD_ARGUMENTS` — an invalid image reports zero configurations, and the
+argument check runs ahead of the locate, so no configuration index passes. It
+never hangs on it — the store's watchdog (4096 cycles,
+about 41 us at 100 MHz) abandons a stalled burst and covers the request
+handshake — and a late load heals without a reset, because each locate re-arms
+the header probe.
+
 Companion documents:
 - [`PROTOCOL_VALIDATION_MATRIX.md`](../testing/PROTOCOL_VALIDATION_MATRIX.md)  -  **every protocol
   × where it's implemented × the test that validates it** (the validation contract).
@@ -35,8 +90,8 @@ Companion documents:
 ## Contents
 
 - **[1. What the full-FPGA solution is (high level)](#1-what-the-full-fpga-solution-is-high-level)** — One ASCII block plus the four claims it makes: single-hart VexiiRiscv is what ships (NaxRiscv stays the CLI *default*), the datapath contains no vendor primitives, three boundaries are separately swappable, and only the final bitstream needs Vivado.
-- **[2. The protocol stack (high level)](#2-the-protocol-stack-high-level)** — Plane by plane, the answer to "is this in fabric or in software?" — media, control, reservation, timing, shaping and L2. Only the gPTP daemon is software.
-- **[3. Status at a glance](#3-status-at-a-glance)** — A layer-by-layer state table where every ✅ names the log or harness that backs it, including the milestone evidence files (`hw_*_MILN*.log`, the DDR3-800 memtest, the M-A3 write-up).
+- **[2. The protocol stack (high level)](#2-the-protocol-stack-high-level)** — Plane by plane, the answer to "is this in fabric or in software?" — media, control, reservation, timing, shaping and L2. Only the gPTP daemon is software; AECP/AEM is in fabric but partial, answering `READ_DESCRIPTOR` and echoing `NOT_IMPLEMENTED` at everything else, which §2.1 prices in bench terms.
+- **[3. Status at a glance](#3-status-at-a-glance)** — A layer-by-layer state table where every ✅ names the log or harness that backs it, including the milestone evidence files (`hw_*_MILN*.log`, the DDR3-800 memtest, the M-A3 write-up) — and the two AECP rows that are deliberately not ✅: enumeration answered but image-less, control not implemented.
 - **[4. Repository map (medium level)](#4-repository-map-medium-level)** — The annotated tree: which spec clause each `hdl/` directory mirrors, and where the SoC, the builder, the harnesses and the portability check live.
 - **[5. The three datapath boundaries (medium level)](#5-the-three-datapath-boundaries-medium-level)** — CSR, DMA and MAC taken one at a time, plus the event path. Worth reading for two facts: only the CSR *base* is host-specific (the offsets are the ABI), and the M-A2 log's `VERSION` word is stale by design — only the `"MILN"` ID is the stable part of that check.
 - **[6. Build & run (medium level)](#6-build--run-medium-level)** — Copy-pasteable commands per tier: harnesses and Yosys with no LiteX, the softcore sim, elaboration with no vendor tools, then the bitstream and the Linux device-tree generation.
@@ -75,7 +130,8 @@ Companion documents:
   see [docs/litex/LITEX_SOC.md](../litex/LITEX_SOC.md) §2.5.)
 - **The whole TSN datapath is in fabric**  -  `milan_datapath` (the §A.9 PS-less
   wrapper) owns classification, the credit-based shaper, PTP timestamping, the
-  dest-MAC TCAM filter, and the hardware ADP advertiser. It is completely
+  dest-MAC TCAM filter, MAAP, the AAF/CRF stream engines, and `KL_pp_shadow` —
+  the protocol processor that IS the 1722.1/SRP control plane. It is completely
   vendor-neutral (Verilator- and Yosys-verified; no Xilinx primitives inside).
 - **Three clean boundaries** hang off the datapath: the **CSR** control plane
   (to the CPU), the **DMA** boundary (to memory), and the **MAC** boundary (to the
@@ -90,9 +146,11 @@ Companion documents:
 
 | Plane | Protocols | Where |
 |-------|-----------|-------|
-| **Media transport** | AVTP (IEEE 1722) AAF / CRF, 48/96/192 kHz | **in fabric** (AAF packetizer/depacketizer + CRF + media-clock servo, [`hdl/ieee1722/`](../../hdl/ieee1722), silicon-validated) |
-| **Control / AVDECC** | ADP, AECP/AEM, ACMP, MVU (Milan)  -  IEEE 1722.1-2021 + Milan v1.2 | **in fabric** (ADP/AECP/ACMP/MAAP, silicon-validated; per ARCHITECTURE_HW_SW_SPLIT rev 2) |
-| **Reservation** | SRP / MSRP / MVRP (802.1Q) | **lwSRP in fabric** (silicon-validated) + HW TCAM filter |
+| **Media transport** | AVTP (IEEE 1722) AAF / CRF, 48/96/192 kHz | **in fabric** (AAF packetizer/depacketizer + CRF TX/RX, [`hdl/ieee1722/`](../../hdl/ieee1722), silicon-validated). The media-clock servos are present but structurally off — §2.1 |
+| **Discovery + connection** | ADP, ACMP (talker and listener)  -  IEEE 1722.1-2021 + Milan v1.2 | **in fabric**, in the protocol processor ([`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) → the pinned `protocol-processor` submodule) |
+| **Enumeration + control** | AECP / AEM, MVU | **in fabric, PARTIAL** — the processor's AECP uCPU. `READ_DESCRIPTOR` is answered from a DDR3 descriptor image, so enumeration is reachable once that image exists (no step here builds or loads it); **control is NOT IMPLEMENTED** — every other opcode, and MVU, gets a conformant `NOT_IMPLEMENTED` echo. See §2.1 |
+| **Address allocation** | MAAP (1722 Annex B) | **in fabric** (`KL_maap`, bridged to the processor's per-source ALLOC/RELEASE face by `hdl/milan/KL_pp_maap_shim.sv`) |
+| **Reservation** | SRP / MSRP / MVRP (802.1Q) | **in fabric**, in the protocol processor (the class-D SRP face drives the CBS slope and the talker gate) + HW TCAM filter |
 | **Timing** | gPTP / 802.1AS, PTP hardware clock | HW PHC + timestamping, SW `ptp4l` |
 | **Shaping / QoS** | 802.1Qav CBS, 802.1Q PCP classification | HW (per-queue, only shaped queues) |
 | **L2 / L1** | 802.3 1G MAC, GMII PHY, dest-MAC filtering, RMON | HW MAC + fabric datapath |
@@ -103,11 +161,48 @@ The per-protocol **status and the test that validates each** is the subject of
 recorded in [`MILAN_V12_DEPENDENCY_MATRIX.md`](../reference/MILAN_V12_DEPENDENCY_MATRIX.md) and
 the entity model under `avdecc/`.
 
+### 2.1 What the AECP row costs, named
+
+The echo is a *protocol* answer, not a functional one: the command is
+acknowledged with the right message type, length and `controller_data_length`,
+and nothing in the device changes. Three of the losses behind it are functional,
+not paperwork, and each has a place a bench will notice it:
+
+1. **The CRF media clock can never be SELECTED.** `SET_CLOCK_SOURCE` was the
+   only writer of the live CLOCK_DOMAIN `clock_source_index`; it is pinned at 0
+   (the INTERNAL media clock) for the life of the build. `KL_mmcm_drp_servo` and
+   the `KL_media_nco` packet-grid servo are therefore structurally off and
+   `A_MCSRV_STAT` (`0x8F8`) reads its idle. `KL_crf_rx` still parses, counts and
+   reports — it cannot steer.
+2. **Every Stream Output's presentation-time offset is pinned at the Milan 2 ms
+   DEFAULT** (`SET_MAX_TRANSIT_TIME` is gone). A default, not a zero: 0 ns is a
+   presentation time in the past, and every listener would drop every frame as
+   late.
+3. **Milan Table 5.4 per-STREAM_OUTPUT counters are gone** — `KL_talker_diag_ctx`
+   is not instantiated, because `GET_COUNTERS(STREAM_OUTPUT)` and the Table 5.22
+   push were its only readers. The **STREAM_INPUT** counters at the `0x6B8`
+   `A_STRMW_CNT` window are unaffected and still live.
+
+Also structural, and cheaper to learn here than on a wire capture: the entity
+enable is now **either** `PP_CTRL[0]` (`0x920`) **or** the historic
+`ADP_CTRL.en` (`0x600` bit 0) — the two are ORed, and `milan_csr`'s
+`PP_PLANE_P` parameter is gone so the `0x920` window is always decoded. And the
+bring-up order is now load-then-enable: the descriptor image must already be in
+DRAM at `PP_DESC_BASE_P` when that bit goes high, or the entity comes up
+enumerable-but-empty — a zeroed region reads as "image not loaded" through the
+image header's magic / version / checksum, and every `READ_DESCRIPTOR` answers
+`BAD_ARGUMENTS` (an invalid image reports zero configurations, and the argument
+check precedes the locate — `NO_SUCH_DESCRIPTOR` would instead mean the image
+loaded and that one descriptor is absent). Because no build or boot step in this repository writes
+that image, **enumerable-but-empty is what a stock build does**, and it is the
+first thing to check before blaming the responder. It cannot wedge on it: the
+store's watchdog abandons a stalled burst.
+
 ## 3. Status at a glance
 
 | Layer | State | Evidence |
 |-------|-------|----------|
-| TSN datapath RTL (classify/CBS/PTP/filter/ADP) | ✅ complete + verified | all Verilator harnesses green + the Yosys tops (`ls tb/verilator/` and the `tops` list in [`syn/yosys/run.sh`](../../syn/yosys/run.sh) are the authoritative counts) |
+| TSN datapath RTL (classify/CBS/PTP/filter) | ✅ complete + verified | all Verilator harnesses green + the Yosys tops (`ls tb/verilator/` and the `tops` list in [`syn/yosys/run.sh`](../../syn/yosys/run.sh) are the authoritative counts) |
 | `milan_datapath` §A.9 PS-less wrapper | ✅ complete + verified | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) (11 checks); Yosys |
 | VexiiRiscv SoC (CPU + CSR + IRQ) | ✅ boots Linux **on silicon** (RV64IMA/sv39; NaxRiscv also boots in sim) | `deploy.sh`; [`sw/litex/evidence/naxriscv_sim_boot.log`](../../sw/litex/evidence/naxriscv_sim_boot.log) |
 | **CPU reads NIC ID="MILN" (M-A2)** | ✅ **on silicon** (25 MHz + 100 MHz) | `sw/litex/evidence/hw_*_MILN*.log` |
@@ -115,31 +210,40 @@ the entity model under `avdecc/`.
 | §A.6 DMA (AXIS↔memory, simple-mode CSRs) | ✅ DMA-TX + AXIS-CDC verified on silicon (M-A3 half) | `evidence/hw_ma3_dma_datapath_100mhz.md` |
 | §A.7 MAC + PHY (LiteEth **GMII**  -  AX7101 is GMII, not RGMII) | ✅ **on silicon**  -  correct frames both directions (M-A3) | `milan_soc.py --all-blocks`; TROUBLESHOOTING §17; [`kl-eth-tx-debug.md`](../findings/kl-eth-tx-debug.md) |
 | **Full SoC (`--all-blocks`: NIC+DMA+MAC+DDR3 @100 MHz)** | ✅ boots Linux on silicon | `deploy.sh` |
-| HW ADP advertiser | ✅ complete + verified | [`tb/verilator/adp`](../../tb/verilator/adp) (121 checks) |
-| AVDECC in fabric (ADP/AECP/ACMP/MAAP + MVU) | ✅ **in fabric, silicon-validated** | RTL in [`hdl/ieee17221/`](../../hdl/ieee17221) + [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap) (per [`ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2); entity model in `avdecc/`, design record [`docs/design/AEM_AND_AECP.md`](../design/AEM_AND_AECP.md); per-command glyphs live in the validation matrix |
+| Control plane (ADP + ACMP + SRP) in fabric | ✅ in fabric, unconditional | [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) over the pinned `protocol-processor` submodule; harness [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) |
+| MAAP | ✅ in fabric, silicon-validated | [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap) + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv); the ALLOC_DA success **is** the talker DA gate |
+| **AECP / AEM enumeration** | ⚠️ **responder in fabric, image not supplied** — `READ_DESCRIPTOR` is answered (SUCCESS / NO_SUCH_DESCRIPTOR / BAD_ARGUMENTS) out of DDR3, but a stock build has no image there, so every read answers `BAD_ARGUMENTS` — the locate is never even reached | the processor's AECP uCPU via [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv); the generator is in the submodule and no repo step runs it — see the preamble |
+| **AECP / AEM control** | ❌ **NOT IMPLEMENTED** — every other opcode is a conformant `NOT_IMPLEMENTED` echo, and an echo is not coverage | `SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME`, `GET_COUNTERS` + the Table 5.22 push, the audio-map setters, IDENTIFY and persistence are genuinely absent; Milan Δ7 `ACQUIRE_ENTITY` is not distinguished from the echo |
 | Linux driver (kl-eth) | ✅ **on silicon**  -  ping/iperf/CBS + ring DMA (M-A5) | [`RX_RING_DMA.md` (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md), [`AVB_SWITCH_DIRECTION.md`](AVB_SWITCH_DIRECTION.md) |
 | Artix-7 bitstream + board bring-up | ✅ built + running on the AX7101 | `deploy.sh`, [`QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md) |
-| lwSRP (MSRP/MVRP) + AAF/CRF media datapath | ✅ **in fabric, silicon-validated** | [`hdl/ieee8021q/srp/`](../../hdl/ieee8021q/srp), [`hdl/ieee1722/aaf/`](../../hdl/ieee1722/aaf)+`crf/` (per rev 2); per-clause glyphs live in the validation matrix |
+| SRP (MSRP/MVRP) + AAF/CRF media datapath | ✅ **in fabric** | SRP is the protocol processor's (its class-D face drives the CBS slope and the talker gate); media datapath [`hdl/ieee1722/aaf/`](../../hdl/ieee1722/aaf)+`crf/`, silicon-validated; per-clause glyphs live in the validation matrix |
 
 ---
 
 ## 4. Repository map (medium level)
 
 ```
+protocol-processor/          the pinned control-plane submodule (ADP · ACMP · SRP)
 hdl/                         vendor-neutral RTL (Verilator + Yosys verified), spec-aligned tree
   milan/                     milan_datapath.sv (§A.9 PS-less wrapper - the fabric NIC)
                              + milan_top.sv (Zynq variant, PS + MAC in-line)
+                             + KL_pp_shadow.sv (the protocol-processor wrapper = the
+                             whole 1722.1/SRP control plane, instantiated
+                             unconditionally) + KL_pp_maap_shim.sv (its ALLOC/RELEASE
+                             face bridged onto KL_maap's one block claim)
   common/                    csr/milan_csr.sv (AXI4-Lite control plane), CDC primitives
                              (cdc_pulse/handshake/pair_fifo), AXIS iface + pkgs,
                              KL_link_guard, tx_ifg_gasket, eth_event_counter/ (RMON)
   ieee1722/                  aaf/ (packetizer/depacketizer, I2S/TDM capture+render, PCM
                              ring/LPF/route, tone gen) · avtp/ (parsers, stream table,
-                             RX monitor) · crf/ (CRF RX/TX + KL_mmcm_drp_servo) · maap/
-  ieee17221/                 adp/ (advertiser, parser, TX arbiter) · aecp/ (AEM entity)
-                             · acmp/ (responder + listener)
+                             RX monitor) · crf/ (CRF RX/TX + the servos, off) · maap/
+  ieee17221/                 adp/ - adp_tx_arbiter.sv only (a generic 2-in/1-out AXIS
+                             merge, used on the data lane too). The advertiser, the ADP
+                             parser, aecp/ and acmp/ were deleted with the legacy plane
   ieee8021as/                ptp_timestamp/ (PHC + TX/RX timestamping, ptp_ts_top)
-  ieee8021q/                 ts/ (classify + queues + 802.1Qav CBS) · srp/ (lwSRP engine)
-                             · filtering/ (dest-MAC TCAM + RX filter)
+  ieee8021q/                 ts/ (classify + queues + 802.1Qav CBS)
+                             · filtering/ (dest-MAC TCAM + RX filter). srp/ is deleted;
+                             SRP is the protocol processor's
 third_party/verilog-axis/    Forencich AXIS cores (vendored)
 sw/
   litex/
@@ -163,6 +267,15 @@ external boundaries; each is attached by a small LiteX submodule in `milan_soc.p
 via the shared `add_milan_datapath()` helper (`extra_ports`). This is the same
 control/data/event pattern documented generically in
 [`AXIS_CORES_ON_NAXRISCV.md`](../integration/AXIS_CORES_ON_NAXRISCV.md).
+
+One more face crosses out of the wrapper and is *not* one of the three, because
+it carries no packets and takes no configuration: the **descriptor-memory
+master** `o_desc_mem_*` / `i_desc_mem_*`, a read-only request/response port the
+processor's AECP store uses to fetch the entity model from main memory.
+`milan_soc.py` bridges it to DRAM at `PP_DESC_BASE_P`, propagating a response
+error rather than masking it — an aborted burst degrades that locate to
+`NO_SUCH_DESCRIPTOR`, so a corrupt descriptor is never served as though it were
+good.
 
 ### 5.1 Control  -  `milan_csr` (AXI4-Lite)
 - A 64 KB AXI4-Lite slave mapped in the CPU IO region at **`0x9000_0000`**. Only
@@ -237,6 +350,11 @@ sw/dts/milan_dt.py extract --platform litex build/csr.json --board sw/dts/boards
   > sw/dts/ir/milan-dt.litex.json
 sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-ether (generated, real addrs)
 # build Image + OpenSBI + Buildroot; boot; then bring the NIC up (ethtool/ptp4l/tc cbs)
+# then, BEFORE enabling the entity: write the AEM descriptor image into main
+# memory at PP_DESC_BASE_P. NO STEP ABOVE PRODUCES IT - the generator lives in
+# the submodule (protocol-processor/hdl/aecp/desc/gen_desc_image.py) and nothing
+# in sw/builder, scripts/ or the boot path calls it. Until you do this by hand,
+# every READ_DESCRIPTOR answers BAD_ARGUMENTS.
 ```
 
 ## 7. How to extend (medium level, cookbook)
@@ -249,22 +367,41 @@ sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-eth
 | the LiteDRAM controller | add a `ddram` pad group to `platforms/alinx_ax7101.py` (needs the AX7101 DDR3 pinout) + `A7DDRPHY`/`MT41J256M16` in `_CRG`/`MilanSoC` (migration §A.3) |
 | link/speed status (MDIO) | drive `i_i_mac_speed`/`i_i_link_up` from the LiteEth PHY status / a fabric MDIO master (§A.7 refine) |
 | scatter-gather DMA | replace `MilanDMA`'s simple-mode engines with a descriptor-ring DMA (Option 6b) + rework the driver rings |
-| an AVDECC protocol behavior (AECP/ACMP/MAAP) | extend the fabric engines ([`hdl/ieee17221/`](../../hdl/ieee17221), [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap)) + their harnesses; the entity model ([`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json)) and [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) stay the contract |
+| ADP / ACMP / AECP / SRP behaviour | change the pinned `protocol-processor` submodule and bump its pin — **not** `hdl/`; then re-run [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) and the `milan_dp` integration harness. The fabric side of the seam is [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) (a port list by design: it adds no logic and no interpretation on the class-D path) |
+| MAAP behaviour | [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap) + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv) + [`tb/verilator/maap`](../../tb/verilator/maap). Remember the coupling: `acmp_declaring_o` asserts only after an `ALLOC_DA` success, so MAAP **is** the talker gate |
+| an AECP/AEM command | not here: the responder is the processor's AECP uCPU, so a new opcode is a microprogram in the submodule, behind its own pin bump. What *is* missing on this side is the image-supply chain — an `endstation_*.yaml` → descriptor-image JSON step feeding `protocol-processor/hdl/aecp/desc/gen_desc_image.py`, plus a boot-time load into `PP_DESC_BASE_P`. Until that exists, `READ_DESCRIPTOR` has nothing to serve |
 
 ## 8. The CSR / DMA / IRQ ABI (medium level)
 
-- **milan_csr** window `0x9000_0000` + offsets `0x000..0x900`  -  full table in
+- **milan_csr** window `0x9000_0000` + offsets `0x000..0x930`  -  full table in
   [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md), which is normative; the list
   below is a summary of the group *bases* only. `0x000` ID/VERSION/CAP, `0x100`
   MAC, `0x200` RMON stats, `0x300` classifier, `0x400` CBS (per-queue), `0x500`
-  PTP, `0x600` ADP, then the AVDECC/SRP control groups (`0x648` AECP/ACMP + AAF
-  talker, `0x680` lwSRP, `0x6A4` ACMP listener + AVTP RX/MAAP/audio), `0x700`
-  TCAM and the `0x71C`-`0x7B8` overlay/CRF/bind-restore words. Above those sit
-  the two **indexed** windows that are not a flat register block: `0x800` the
-  per-stream window (`A_STRM_SEL` selects one of the N listener / N talker
-  contexts, `A_STRM_SNAP` latches it), with the latency taps at `0x870` and the
-  probe groups at `0x8B4`/`0x8C8`/`0x8F8` above it, and `0x900` the channel-map
-  fabric debug port.
+  PTP, `0x600` entity identity + enable, then the control groups (`0x648`
+  AECP/ACMP status + AAF talker, `0x680` SRP, `0x6A4` ACMP listener bind record +
+  AVTP RX/MAAP/audio), `0x700` TCAM and the `0x71C`-`0x7B8`
+  overlay/CRF/bind-restore words. Above those sit the two **indexed** windows
+  that are not a flat register block: `0x800` the per-stream window
+  (`A_STRM_SEL` selects one of the N listener / N talker contexts,
+  `A_STRM_SNAP` latches it), with the latency taps at `0x870` and the probe
+  groups at `0x8B4`/`0x8C8`/`0x8F8` above it, `0x900` the channel-map fabric
+  debug port, and `0x920`-`0x930` the protocol processor's own window
+  (`PP_CTRL`/`PP_STAT`/side port/`PP_DIAG`), which is now **always decoded** —
+  `PP_PLANE_P` is gone.
+- **The entity model is not in this window**, and never becomes visible in it:
+  `READ_DESCRIPTOR` is served from DRAM over the descriptor-memory master at
+  `PP_DESC_BASE_P`, and the AECP engine's counters (commands, responses, drops,
+  locate misses, last status/length, image-valid, image-fault) are read through
+  the processor's side-port snapshot window (`PP_SPADDR`/`PP_SPDATA`), not from
+  `0x648` — which stays a structural zero because `aecp_locked` (no ACQUIRE/LOCK)
+  and `current_config` (no `SET_CONFIGURATION`) are tied off.
+- **No register was removed** when the legacy plane was deleted; the map is an
+  ABI. What changed is meaning: words whose source is gone read documented
+  **structural zeros**, a few provisioning words became **write-only scratch**
+  (they read back what software wrote and reach nothing on the wire), and
+  `A_TXARB_DIAG` (`0x784`) **renumbered** with the 8→4 arbiter collapse — LSB
+  first it is now 0 `ctl_tx`, 1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx`, bits 7:4 a
+  structural zero. Decoding it by the old numbers reads the wrong mux.
 - **DMA** simple-mode CSRs (LiteX CSR space, auto-mapped; names in `build/csr.csv`):
   `milan_dma_tx_{base,length,enable,done}`, `milan_dma_rx_{…}`, `milan_dma_ts_{…}`.
 - **IRQ** → PLIC sources `tx-dma, rx-dma, ts-dma, csr` (DT `interrupts = <1..4>`).
@@ -275,10 +412,10 @@ sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-eth
 
 **Silicon bring-up is done.** Steps 1–6 below are all **complete on the AX7101**  -  the
 board boots Linux on VexiiRiscv, passes traffic both directions (`iperf3`), and offloads
-802.1Qav CBS. Step 7 (the AVDECC/SRP control stack + media datapath) has since landed
-**in fabric** — ADP/AECP/ACMP/MAAP/lwSRP and the AAF/CRF datapath are silicon-validated
-(per [`ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md) rev 2).
-Kept here as the historical order, each item marked with its result.
+802.1Qav CBS. Step 7 (the AVDECC/SRP control stack + media datapath) landed in fabric,
+and was then **substituted**: the plane it describes was deleted on 2026-08-13 and the
+protocol processor took ADP/ACMP/SRP, and AECP with them (see the preamble and
+§2.1). Kept here as the historical order, each item marked with its result.
 
 1. **Artix-7 Vivado device support**  -  ✅ **DONE.** Vivado has Artix-7 device data
    installed; `--full --build` places & routes to a real `.bit` (see the
@@ -296,12 +433,23 @@ Kept here as the historical order, each item marked with its result.
 6. **Driver bring-up (M-A5)**  -  ✅ **DONE.** `kl-eth` is up: `ping`, `ethtool -T` (PHC),
    `ptp4l`, `tc … cbs offload`, and ring-DMA networking at the measured scoreboard
    ([`RX_RING_DMA.md` (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md), [`AVB_SWITCH_DIRECTION.md`](AVB_SWITCH_DIRECTION.md)). **M-A5 = "Milan on FPGA" closed.**
-7. **AVDECC protocols**  -  ✅ **DONE, in fabric.** AECP/AEM enumeration, ACMP, MAAP,
-   MVU, lwSRP (MSRP/MVRP) and the AAF/CRF media datapath are all silicon-validated RTL
-   ([`hdl/ieee17221/`](../../hdl/ieee17221), [`hdl/ieee1722/`](../../hdl/ieee1722), [`hdl/ieee8021q/srp/`](../../hdl/ieee8021q/srp)). Each row in the
-   [`PROTOCOL_VALIDATION_MATRIX.md`](../testing/PROTOCOL_VALIDATION_MATRIX.md) names its test.
+7. **AVDECC protocols**  -  **SUPERSEDED 2026-08-13, and not uniformly.** The
+   fabric ACMP/ADP/lwSRP engines this step delivered were silicon-validated and
+   are now **deleted**; ADP, ACMP and SRP are the protocol processor's
+   ([`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv)), MAAP stayed
+   in this fabric ([`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap)), and
+   **AECP/AEM came back partial**: the processor's uCPU answers
+   `READ_DESCRIPTOR` and echoes `NOT_IMPLEMENTED` at everything else, with the
+   descriptor image still to be supplied from outside this repo. The AAF/CRF
+   media datapath ([`hdl/ieee1722/`](../../hdl/ieee1722)) is untouched. Each row
+   in the [`PROTOCOL_VALIDATION_MATRIX.md`](../testing/PROTOCOL_VALIDATION_MATRIX.md)
+   names its test; read every AECP row other than `READ_DESCRIPTOR` and the
+   respond-to-everything duty as NOT IMPLEMENTED, not as covered by the
+   processor.
 
-The full SoC builds, boots Linux, passes traffic, and runs the Milan control + media
-planes in fabric on silicon today. What is still open lives in
+The full SoC builds, boots Linux, passes traffic, and runs discovery, connection,
+reservation and the media plane in fabric on silicon today — with an AECP
+responder that answers `READ_DESCRIPTOR` and nothing else, and with no descriptor
+image built for it here yet. What is still open lives in
 [`KNOWN_ISSUES_AND_LIMITATIONS.md`](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) and
 the GitHub issue tracker (the per-round status files were retired in favor of issues).

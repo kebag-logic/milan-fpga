@@ -16,7 +16,9 @@ from behave import given, when, then
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
 _ROOT = os.path.abspath(os.path.join(_HERE, "..", ".."))
-_SRP = os.path.join(_ROOT, "hdl", "ieee8021q", "srp")
+_DATAPATH = os.path.join(_ROOT, "hdl", "milan", "milan_datapath.sv")
+_PACKETIZER = os.path.join(_ROOT, "hdl", "ieee1722", "aaf",
+                           "KL_aaf_packetizer.sv")
 
 # ---------------------------------------------------------------------------
 # The capture. MSRP payload only: ProtocolVersion .. message-list EndMark.
@@ -91,77 +93,10 @@ def _decode(pdu):
 # ---------------------------------------------------------------------------
 # Background
 # ---------------------------------------------------------------------------
-@given("the lwSRP RTL sources")
-def step_srp_sources(context):
-    for name in ("KL_lwsrp_registrar.sv", "KL_lwsrp_bw_gate.sv",
-                 "KL_lwsrp_tx.sv"):
-        path = os.path.join(_SRP, name)
+@given("the Milan datapath and AAF talker RTL sources")
+def step_rtl_sources(context):
+    for path in (_DATAPATH, _PACKETIZER):
         assert os.path.isfile(path), "missing %s" % path
-    context.srp_dir = _SRP
-
-
-# ---------------------------------------------------------------------------
-# Clause scenarios - resolved from the RTL expressions
-# ---------------------------------------------------------------------------
-@when("I read the listener_ready_o expression from KL_lwsrp_registrar")
-def step_read_listener_ready(context):
-    context.expr = _assign(
-        _read(os.path.join(_SRP, "KL_lwsrp_registrar.sv")), "listener_ready_o")
-
-
-@then("it requires the Listener attribute to be registered")
-def step_requires_registered(context):
-    assert "listener_reg_o" in context.expr, context.expr
-    assert "&&" in context.expr or "&" in context.expr, context.expr
-
-
-@then('it accepts the declaration {name}')
-def step_accepts_decl(context, name):
-    token = {"Ready": "LSTN_DECL_READY_C",
-             "ReadyFailed": "LSTN_DECL_READY_FAIL_C"}[name]
-    assert token in context.expr, \
-        "Milan 5.3.7.3 names %s as licensing streaming; %s" % (name, context.expr)
-
-
-@then('it rejects the declaration {name}')
-def step_rejects_decl(context, name):
-    token = {"AskingFailed": "LSTN_DECL_ASKING_FAIL_C",
-             "Ignore": "LSTN_DECL_IGNORE_C"}[name]
-    assert token not in context.expr, \
-        "%s does not license streaming under 5.3.7.3; %s" % (name, context.expr)
-
-
-@when("I read the req_w expression from KL_lwsrp_bw_gate")
-def step_read_reqw(context):
-    context.expr = _assign(
-        _read(os.path.join(_SRP, "KL_lwsrp_bw_gate.sv")), "req_w")
-
-
-@then("the request requires {signal}")
-def step_request_requires(context, signal):
-    assert signal in context.expr, \
-        "%s is not a term of the bw-gate request: %s" % (signal, context.expr)
-
-
-@when("I read the TalkerAdvertise inclusion term from KL_lwsrp_tx")
-def step_read_talker_incl(context):
-    body = _strip_comments(_read(os.path.join(_SRP, "KL_lwsrp_tx.sv")))
-    terms = re.findall(r"talker_incl_r\s*<=\s*(.*?);", body, flags=re.S)
-    assert terms, "no talker_incl_r assignment found"
-    context.terms = [" ".join(t.split()) for t in terms]
-
-
-@then("the Talker attribute does not depend on any Listener registration")
-def step_talker_unconditional(context):
-    for term in context.terms:
-        for forbidden in ("lstn_ready_i", "listener_ready", "lstn_declare_i",
-                          "ta_registered"):
-            assert forbidden not in term, (
-                "Milan 5.3.7.2: the Talker attribute is declared as soon as the "
-                "SRP parameters are valid, unconditionally. Found %r in %r"
-                % (forbidden, term))
-    joined = " ".join(context.terms)
-    assert "talker_en_i" in joined, context.terms
 
 
 # ---------------------------------------------------------------------------
@@ -169,8 +104,7 @@ def step_talker_unconditional(context):
 # ---------------------------------------------------------------------------
 @when("I read the aaf_gate expression from milan_datapath")
 def step_read_aaf_gate(context):
-    path = os.path.join(_ROOT, "hdl", "milan", "milan_datapath.sv")
-    context.expr = _assign(_read(path), "aaf_gate")
+    context.expr = _assign(_read(_DATAPATH), "aaf_gate")
 
 
 @then("the gate has exactly one escape hatch and it is named cfg_aaf_bypass")
@@ -204,84 +138,6 @@ def step_gate_requires_lwsrp(context):
     assert "lwsrp_stream_gate" in context.expr, context.expr
     assert "cfg_lwsrp_enable" in context.expr, context.expr
     assert "acmp_talker_active" in context.expr, context.expr
-
-
-@when("I read the per-talker lwSRP provisioning want from milan_datapath")
-def step_read_srp_want(context):
-    path = os.path.join(_ROOT, "hdl", "milan", "milan_datapath.sv")
-    context.dp_src = _strip_comments(_read(path))
-    # the AAF slot arm of the per-slot want vector (the generate branch that
-    # covers talkers 1..N-1; the top slot is the CRF Media Clock Output)
-    # the AAF slot arm is the FIRST srp_fab_want_v_w[gw] assign inside the
-    # `g_slot_aaf branch (slot 0 is a constant 0, the CRF slot uses
-    # crf_srp_want_w). Anchor on the branch label so a comment mentioning the
-    # signal cannot be mistaken for the arm.
-    aaf = re.search(r"g_slot_aaf(.*?)g_slot_crf",
-                    context.dp_src, flags=re.S)
-    assert aaf, "no g_slot_aaf branch in milan_datapath"
-    m = re.search(r"assign\s+srp_fab_want_v_w\[gw\]\s*=\s*(.*?);",
-                  aaf.group(1), flags=re.S)
-    assert m, "no per-AAF-talker srp_fab_want_v_w arm in milan_datapath"
-    context.expr = " ".join(m.group(1).split())
-
-
-@then("the want does NOT require the per-context runtime enable")
-def step_want_not_tctx_en(context):
-    # Milan 5.3.7.2 makes the declaration unconditional for a DECLARED Stream
-    # Output; gating it on the per-context runtime enable (tctx_en_r, reset 0,
-    # A_STRMW_CTRL[0]) is a runtime poke the shape-static directive forbids and
-    # left a fresh boot silent for t>0.
-    assert "tctx_en_r" not in context.expr, context.expr
-
-
-@then("the want requires the lwSRP engine and its talker declaration")
-def step_want_engine(context):
-    assert "cfg_lwsrp_enable" in context.expr, context.expr
-    assert "cfg_lwsrp_talker_en" in context.expr, context.expr
-
-
-@then("the want does NOT depend on the lwSRP stream gate")
-def step_want_not_circular(context):
-    # THE CIRCULAR-DEPENDENCY TRAP. lwsrp_stream_gate[] is an OUTPUT of this
-    # engine - it needs the row provisioned AND a Listener Ready - so a want
-    # built on it (or on the composed aaf_stream_en_w, which contains it)
-    # can never be satisfied: no row because no stream, no stream because no
-    # row. Only UPSTREAM terms may appear here.
-    for bad in ("lwsrp_stream_gate", "aaf_stream_en_w", "lwsrp_res_active"):
-        assert bad not in context.expr, (
-            "%s is an engine OUTPUT - wanting on it deadlocks provisioning: %s"
-            % (bad, context.expr))
-
-
-@then("the want does NOT depend on ACMP talker_active, per 5.5.2.7")
-def step_want_not_acmp(context):
-    # Milan 5.5.2.7: "Talkers rely only on SRP (not ACMP) to determine when to
-    # transmit", so a registered Listener Ready starts the stream with no ACMP
-    # involvement at all - the advertisement has to exist BEFORE a controller
-    # binds, or fast-connect (5.5.3.5.3) finds no reservation to register
-    # against.
-    assert "acmp_talker_active" not in context.expr, (
-        "an SRP-only listener could never be served: %s" % context.expr)
-
-
-@then("the fabric yields the provisioning port to a CSR write, never to its poll")
-def step_arbiter_yields_write_only(context):
-    # 2026-08-02: the yield rule lives in the LAUNCH beat (the capture into
-    # the timing-closure launch stage) and in the captured record's own
-    # port-mux select - both must step aside for a pending CSR WRITE.
-    for lhs in ("srp_fab_launch_w", "srp_fab_qsel_w"):
-        expr = _assign(context.dp_src, lhs)
-        assert "csr_srp_ctx_we" in expr, expr
-        # gating on the REQUEST is the recorded starvation bug: milan_csr's
-        # window master polls level-high for as long as a non-zero row is
-        # selected, which every boot script and TB leave in place, so the
-        # fabric would never be granted at all.
-        assert "csr_srp_ctx_req" not in expr, (
-            "yielding to the CSR POLL pins the fabric requesters off forever:"
-            " %s" % expr)
-    # and the beat that writes must be KL_lwsrp_ctx's own service expression
-    svc = _assign(context.dp_src, "srp_fab_qsvc_w")
-    assert "srp_fab_qsel_w" in svc and "srp_ctx_gnt_w" in svc, svc
 
 
 @then("the escape hatch is recorded as a Milan 5.3.7.3 conformance defect")
@@ -364,8 +220,7 @@ def step_withdrawal(context):
 # ---------------------------------------------------------------------------
 @when("I read the t>0 AAF admission expression from milan_datapath")
 def step_read_tgt0_admission(context):
-    path = os.path.join(_ROOT, "hdl", "milan", "milan_datapath.sv")
-    src = _strip_comments(_read(path))
+    src = _strip_comments(_read(_DATAPATH))
     m = re.search(r"g_aaf_stream_en(.*?)endgenerate", src, flags=re.S)
     assert m, "no g_aaf_stream_en branch in milan_datapath"
     a = re.search(r"assign\s+aaf_stream_en_w\[gs\]\s*=\s*(.*?);",
@@ -396,9 +251,7 @@ def step_tgt0_gate_unconditional(context):
 
 @when("I read the t>0 wire identity from KL_aaf_packetizer")
 def step_read_tgt0_identity(context):
-    path = os.path.join(_ROOT, "hdl", "ieee1722", "aaf",
-                        "KL_aaf_packetizer.sv")
-    src = _strip_comments(_read(path))
+    src = _strip_comments(_read(_PACKETIZER))
     context.ident = {}
     for name in ("eff_dmac_w", "eff_vid_w", "eff_uid_w"):
         m = re.search(r"wire\s*\[[^\]]*\]\s*%s\s*=\s*(.*?);" % name,

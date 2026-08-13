@@ -1,32 +1,37 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
-# Out-of-context synthesis of the WHOLE milan_datapath — the baseline against
-# which a substituted datapath (shipping 1722.1/SRP planes deleted, protocol
-# processor in their place) is differenced.
+# Out-of-context synthesis of the WHOLE milan_datapath — the assembled,
+# substituted design: the shipping 1722.1/SRP planes are deleted and the
+# protocol processor stands in their place, instantiated unconditionally.
 #
-# Same instrument as syn/ooc/pp_shadow_ooc.tcl and syn/ooc/old_planes_ooc.tcl
-# (post-synthesis utilization, ship part, 100 MHz OOC), because a net figure
-# built from two different instruments is not a net figure.
+# Same instrument as syn/ooc/pp_shadow_ooc.tcl (post-synthesis utilization,
+# ship part, 100 MHz OOC), because a net figure built from two different
+# instruments is not a net figure.
 #
-# The per-block OOC numbers those two scripts produce are STANDALONE costs;
-# they do not carry the datapath's own interconnect to each plane. This script
-# is what closes that gap: it prices the assembled design, so
-# (substituted - baseline) is the number that actually decides the campaign.
+# The per-block OOC number pp_shadow_ooc.tcl produces is a STANDALONE cost; it
+# does not carry the datapath's own interconnect to the plane. This script is
+# what closes that gap: it prices the assembled design, so a difference against
+# a stored baseline is the number that actually decides the campaign.
 #
-#   PP=0 vivado -mode batch -source .../milan_datapath_ooc.tcl -nojournal   ;# baseline
-#   PP=1 ...                                                               ;# plane ON
+#   vivado -mode batch -source .../milan_datapath_ooc.tcl -nojournal
+#   TAG=<name> ...     ;# names the .rpt files
+#
+# There is no PP switch any more. milan_datapath instantiates KL_pp_shadow
+# unconditionally (PP_PLANE_P is gone with the plane it used to gate), so
+# "the datapath" and "the datapath with the processor" are the same design.
 #
 # The shape include MUST be named (milan_datapath and milan_csr both
 # `include gen/adp_shape_defaults.svh); the 1x1 arty config is the default
 # elaboration shape the yosys gate also uses.
 
 set REPO [file normalize [file dirname [info script]]/../..]
-set PP   [expr {[info exists ::env(PP)] ? $::env(PP) : 0}]
 set TAG  [expr {[info exists ::env(TAG)] ? $::env(TAG) : "base"}]
-puts "milan_datapath OOC: PP_PLANE_P=$PP tag=$TAG"
+puts "milan_datapath OOC: tag=$TAG"
 
 # The source list comes from syn/yosys/run.sh via dp_srcs.py — the ONE list
-# the portability gate proves elaborates. A copy of it here would drift.
+# the portability gate proves elaborates. A copy of it here would drift, and
+# since the processor's files are part of that list now, a copy would drift a
+# whole control plane. Nothing is read outside it.
 set SRC_LINES [split [string trim [exec python3 $REPO/syn/ooc/dp_srcs.py]] "\n"]
 set SV {}
 set V  {}
@@ -37,33 +42,25 @@ puts "milan_datapath OOC: [llength $SV] SystemVerilog + [llength $V] Verilog sou
 read_verilog -sv $SV
 read_verilog $V
 
-if {$PP} {
-  set P $REPO/protocol-processor/hdl
-  read_verilog -sv \
-    $P/common/pp_pkg.sv $P/srp/srp_pkg.sv $P/acmp/pp_acmp_pkg.sv $P/adp/pp_adp_pkg.sv \
-    $P/common/KL_pp_prng.sv $P/common/KL_pp_timer_service.sv \
-    $P/packet_engine/KL_pp_rx_validator.sv $P/packet_engine/KL_pp_rx_slots.sv \
-    $P/packet_engine/KL_pp_normalizer.sv $P/packet_engine/KL_pp_dispatch.sv \
-    $P/packet_engine/KL_pp_tx_slots.sv $P/packet_engine/KL_pp_tx_arbiter.sv \
-    $P/packet_engine/KL_pp_scoreboard.sv $P/packet_engine/KL_pp_event_router.sv \
-    $P/packet_engine/KL_pp_originator.sv $P/packet_engine/KL_pp_trace_ring.sv \
-    $P/packet_engine/KL_pp_side_port.sv $P/packet_engine/KL_pp_nvm_port.sv \
-    $P/adp/KL_adp_engine.sv $P/acmp/KL_pp_acmp_listener.sv $P/acmp/KL_acmp_talker.sv \
-    $P/acmp/KL_acmp_nvm_shadow.sv $P/srp/KL_srp_decoder.sv $P/srp/KL_srp_domain.sv \
-    $P/srp/KL_srp_vlan.sv $P/srp/KL_srp_admission.sv $P/srp/KL_srp_talker_fsm.sv \
-    $P/srp/KL_srp_listener_fsm.sv $P/srp/KL_srp_encoder.sv $P/srp/KL_srp_top.sv \
-    $P/top/KL_mrp_strip.sv $P/top/protocol_processor_top.sv \
-    $REPO/hdl/milan/KL_pp_shadow.sv
-}
+# protocol_processor_top $readmemh's its ACMP listener transition ROM by the
+# RELATIVE name "ltn_rom.hex", which Vivado resolves against ITS OWN run
+# directory. Generate it into that directory and hand synth_design the absolute
+# path, so the utilization report cannot depend on where vivado was launched
+# from — and cannot quietly measure an all-zero ROM.
+set TROM [file normalize ltn_rom.hex]
+exec python3 $REPO/protocol-processor/hdl/acmp/rom/gen_ltn_rom.py -o $TROM
+# UG901: a STRING generic's value must reach -generic wrapped in literal
+# double quotes, or Vivado takes it for an integer/bit-vector and drops it.
+set TROM_GENERIC "PP_TROM_HEX_P=\"$TROM\""
 
 set INCS [list $REPO/hdl/common $REPO/hdl/common/csr \
                $REPO/hdl/common/eth_event_counter $REPO/hdl/ieee17221/adp \
                $REPO/hdl/ieee8021q/ts $REPO/hdl/ieee8021as/ptp_timestamp \
-               $REPO/hdl/ieee17221/aecp $REPO/hdl/ieee17221/aecp/gen \
+               $REPO/hdl/ieee1722/avtp \
                $REPO/configs/generated/endstation_arty_current]
 
 synth_design -mode out_of_context -top milan_datapath -part xc7a100tfgg484-2 \
-  -include_dirs $INCS -generic PP_PLANE_P=$PP
+  -include_dirs $INCS -generic $TROM_GENERIC
 
 create_clock -period 10.000 -name clk [get_ports -quiet axis_clk]
 report_utilization -hierarchical -file util_hier_$TAG.rpt

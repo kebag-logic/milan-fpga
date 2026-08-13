@@ -1,11 +1,17 @@
 # SPDX-FileCopyrightText: 2025 Kebag Logic <contact@kebag-logic.com>
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
-# Container image for the behave BDD test runner (T1 tier).
-# See aem-aecp.md §5.2 and §5.3.
+# Container image for the behave BDD test runner.
+#
+# It is GENERIC: it installs behave and runs `tests/features`, whatever those
+# features happen to cover. It was written for the AECP tier and outlived it -
+# the 1722.1 DUT-simulation half of that pair (Containerfile.dut-sim +
+# scripts/run-dut-sim.sh + scripts/aecp_sim_main.cpp) is deleted with the RTL
+# it drove, while this image still runs the live conformance suite.
 
 FROM python:3.12-slim
-LABEL org.opencontainers.image.title="aecp-behave-runner"
+LABEL org.opencontainers.image.title="milan-behave-runner"
+LABEL org.opencontainers.image.description="behave BDD runner for tests/features"
 
 RUN pip install --no-cache-dir behave pyyaml
 

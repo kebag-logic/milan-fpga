@@ -10,6 +10,17 @@ running entirely from QSPI flash on power-up.
 > `0x8F8`/`0x8FC`): coherent CS4344+CS5343 chain, analog loop measured
 > **-83.9 dB** (the converter floor). Read this doc as the flash-standalone MVP
 > talker milestone; the AAF frame/CSR content below is unchanged and accurate.
+>
+> **STATUS SUPERSEDED (the control plane, 2026-08-13):** "discoverable,
+> la_avdecc-clean" no longer follows from the boot sequence below. ADP, ACMP and
+> SRP are the pinned `protocol-processor` submodule's, and its AECP µCPU answers
+> `READ_DESCRIPTOR` while returning a conformant `NOT_IMPLEMENTED` echo to every
+> other AECP command. Those descriptor reads come from an image in DRAM at a
+> compile-time base which **must be loaded before the entity is enabled** —
+> nothing in this repository builds or writes it, and `S50milan` does not, so a
+> board booted exactly as described below is discovered over ADP and then
+> answers `BAD_ARGUMENTS` to every enumeration read. The media path is
+> unaffected: the talker streams regardless.
 
 ## Contents
 
@@ -31,7 +42,9 @@ datapath merge (post-shaper) -> MAC -> wire.
 silicon the CBS credit math is scaled for 1 Gb/s while the Arty wire is 100 M
 (the known `is_1g=0` pending item), so the CBS credit-gated the stream to ~1
 frame per 30 s. For the MVP the talker is injected AFTER the shaper (the same
-post-shaper path ADP/AECP/ACMP use) -> continuous emission, UNSHAPED. Proper
+post-shaper path the control plane uses -> today that is the protocol
+processor's packed TX plus MAAP on the one control lane; when this was written
+it was the separate ADP/AECP/ACMP legs) -> continuous emission, UNSHAPED. Proper
 class-A shaping (classifier + CBS at 100 M) is the `is_1g` follow-up; the
 frame FORMAT and content are identical either way.
 
@@ -74,7 +87,11 @@ INT32 (24-bit left-justified). One AVTPDU per 6/48k = 125 us nominal.
 | 0x658/0x65C | AAF_DMAC lo/hi (reset MAAP-range 91:E0:F0:00:FE:01) |
 
 Brought up by `/etc/init.d/S50milan` (rootfs overlay): identity :02, ADP
-enable, AAF_CTRL enable. Fully autonomous after boot.
+enable, AAF_CTRL enable. Fully autonomous after boot for the media path. Note
+that the ADP enable bit is now one of two — `ADP_CTRL[0]` (`0x600` bit 0) is
+ORed with `PP_CTRL[0]` (`0x920`), either enables the entity — and that enabling
+it without first loading the descriptor image into DRAM leaves the entity
+discoverable but unreadable (banner above).
 
 ## Verification
 

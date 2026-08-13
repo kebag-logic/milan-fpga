@@ -10,38 +10,32 @@
   File        : KL_pp_shadow.sv
   Description : Consumer-side integration wrapper for the protocol-processor
                 submodule (protocol_processor_top, architecture of record
-                v2.0) — the scenario-B P5 seam, in its FIRST landing shape:
-                SHADOW MODE.
+                v2.0) — the scenario-B P5 seam. SUBSTITUTION LANDED: this
+                wrapper IS this device's IEEE 1722.1 / SRP control plane.
 
-                WHY SHADOW AND NOT SUBSTITUTION. Scenario B's contract is
-                "direct substitution at parity, old planes deleted". That is
-                not reachable at this pin: the processor's AECP engine is the
-                P4 micro-coded uCPU, which has NOT landed at its top — the
-                AECP pop face is tied ready = 0 there and TX arbiter lanes 0
-                and 1 (LANE_AECP_SOL_C / LANE_AECP_UNS_C) are, in the top's
-                own words, "idle until P4". Deleting this repository's AECP
-                plane against that pin would delete a shipping, live-validated
-                AEM/AECP implementation and replace it with silence. So the
-                first landing runs the processor ALONGSIDE the shipping
-                planes and lets it drive NOTHING:
+                WHAT THIS REPLACED, AND WHAT IT DID NOT. The repository's own
+                ADP advertiser, ACMP talker/listener, AECP/AEM engine and
+                lwSRP applicant are DELETED (USER, explicit and repeated:
+                "remove the old code AECP/ACMP/ADP the lwSRP shall be removed
+                as well. Only use the uCPU code" / "do not leave the option,
+                remove everything out of the code base that is legacy"). There
+                is no parameter, no fallback and no shadow arm: this module is
+                instantiated unconditionally and its TX rides the control lane.
 
-                  - it sees every control frame the shipping planes see, from
-                    the same monitor tap, on real silicon and real traffic;
-                  - its MAC TX byte stream is drained and COUNTED, never
-                    merged into the control lane, so the wire is bit-for-bit
-                    what it is today (no duplicate ADPDU, no second answer to
-                    a controller — the failure mode a naive coexistence would
-                    ship);
-                  - its state is read out over the side port, so its ADP,
-                    ACMP and SRP state machines can be compared against the
-                    shipping planes' CSRs and against the wire.
-
-                That comparison is the point. Two independent implementations
-                observing one live stream is an INDEPENDENT observation in the
-                sense the conformance rules demand — unlike a plane grading
-                its own CSRs. When P4 lands, the substitution flips this
-                wrapper's TX from the drain to the control-lane arbiter and
-                deletes the old planes; nothing else here changes.
+                THE AECP HOLE IS REAL AND IT IS ACCEPTED. The processor's AECP
+                engine is the P4 micro-coded uCPU, which has NOT landed at its
+                top — the AECP pop face is tied ready = 0 there and TX arbiter
+                lanes 0 and 1 (LANE_AECP_SOL_C / LANE_AECP_UNS_C) are, in the
+                top's own words, "idle until P4". So this entity DISCOVERS
+                over ADP, connects over ACMP and reserves over SRP, and
+                answers NO AECP/AEM command at all. Everything downstream of
+                that — the AEM descriptor ROM, SET_CLOCK_SOURCE, entity
+                lock/acquire, SET_MAX_TRANSIT_TIME, GET_COUNTERS, the
+                unsolicited-notification duty and saved-state persistence —
+                is gone with it, and milan_datapath publishes the CSR words
+                those fed as STRUCTURAL ZEROS rather than plausible idles.
+                That is the user's call and it is made; it is not a defect to
+                be quietly patched around here.
 
                 RATE. protocol_processor_top eats a 1 byte/clk stream, which
                 at 100 MHz is 100 MB/s against gigabit's 125 MB/s: a byte
@@ -68,10 +62,13 @@
 
                 NVM. The device face is answered by a BLANK-FLASH responder
                 (reads 0xFF, writes accepted and discarded, erase completes).
-                That is the processor's documented no-saved-binding path, and
-                it is deliberately NOT persistent: shadow mode must not write
-                the board's flash, and it has no business owning a region of
-                it while the shipping planes own binding persistence.
+                That is the processor's documented no-saved-binding path. It
+                is deliberately NOT persistent, and with KL_persist_journal
+                deleted alongside the rest of the legacy plane NOTHING in this
+                device now persists a binding across a power cycle: a restore
+                walk always finds blank flash and completes with zero records.
+                Milan v1.2 5.3.8.2 wants saved state; this build does not have
+                it, and says so structurally rather than by a zeroed counter.
 
                 CLASS-D FABRIC FACE. Everything the processor knows used to be
                 reachable only through a side-port READ TRANSACTION - a
@@ -134,26 +131,20 @@ module KL_pp_shadow #(
     parameter int unsigned TIM_DIV_MS_P = 1000,
     //! ACMP listener transition-ROM image (hdl/acmp/rom/gen_ltn_rom.py)
     parameter string       TROM_HEX_P      = "ltn_rom.hex",
-    //! Which talker SOURCES the processor is told exist in the current
-    //! configuration (its cfg_src_en_i, bit s = source s). DEFAULT 0 = none,
-    //! and that default is the shadow contract: with no source enabled the
-    //! processor never allocates a DA, never declares a Talker attribute and
-    //! never touches a stream the shipping lwSRP/ACMP planes already own, so
-    //! every existing build keeps exactly the behaviour it has today.
-    //!
-    //! A non-zero mask turns the talker half ON inside the shadow. It stays
-    //! wire-safe - the processor's TX is drained by tx_drain_i, so its SRP
-    //! declarations and ACMP responses are counted and thrown away - but it
-    //! is the only way to EXERCISE the maap face and the DA gate, so the
-    //! pp_shadow harness elaborates with it set.
-    //!
-    //! It is a PARAMETER and not a CSR bit on purpose. Which sources exist is
-    //! a property of the entity model, which is elaboration-static in this
-    //! repository (the shape is READ-ONLY from build parameters, never poked
-    //! at runtime). At the P4 substitution this is where the generated entity
-    //! model's talker count gets wired in; until then a live CSR bit would be
-    //! a second, drifting copy of a number the AEM already owns.
-    parameter int unsigned SRC_EN_MASK_P   = 0,
+    //! ---- AECP descriptor store (07 §3.3) ---------------------------------
+    //! The uCPU microcode image, and the geometry of the entity-model image
+    //! the store fetches from the integrator's main memory. DESC_BASE_P is a
+    //! COMPILE-TIME base by design - the processor holds no base register, so
+    //! there is nothing for software to get wrong at runtime - and the
+    //! integrator overrides it to a region of ITS memory map that software
+    //! reserves and loads. Passed straight through; this wrapper adds no
+    //! policy.
+    parameter string       UCODE_HEX_P         = "ucode.hex",
+    parameter logic [31:0] DESC_BASE_P         = 32'h2000_0000,
+    parameter int unsigned DESC_LINE_BYTES_P   = 576,
+    parameter int unsigned DESC_IDX_ENTRIES_P  = 32,
+    parameter int unsigned DESC_NAME_ENTRIES_P = 16,
+    parameter int unsigned DESC_MEM_TMO_CYC_P  = 4096,
     //! derived source-index width for the maap face — do not override.
     //! CLAMPED exactly as protocol_processor_top clamps its own SRC_IDX_W_C,
     //! because the shipping board elaborates this at N_STREAM_OUT_P = 1 and
@@ -173,6 +164,44 @@ module KL_pp_shadow #(
     input  wire [15:0] talker_caps_i,      //! ADPDU talker_capabilities
     input  wire [15:0] listener_sinks_i,   //! ADPDU listener_stream_sinks
     input  wire [15:0] listener_caps_i,    //! ADPDU listener_capabilities
+    input  wire [15:0] current_cfg_i,      //! ADPDU current_configuration_index
+    input  wire [15:0] identify_index_i,   //! ADPDU identify_control_index
+
+    //! ---- per-source quasi-static provisioning (the TALKER HALF's oxygen) --
+    //! Both of these were tied off in the shadow landing PRECISELY because a
+    //! shadow must not act, and both are load-bearing now that this wrapper
+    //! IS the control plane.
+    //!
+    //! cfg_src_en_i, bit s = "source s exists in this configuration". The
+    //! processor's talker walk is gated on it: with the mask at 0 no source
+    //! ever allocates a DA, acmp_declaring_o is stuck 0 and NOTHING
+    //! transmits. It is a PORT and not a parameter because the number it
+    //! encodes belongs to the ENTITY MODEL - milan_datapath drives it from
+    //! the generated shape header (ADP_TALKER_SRC_C), so the count a
+    //! controller is told at 0x618 and the count of sources that can answer
+    //! are one constant, derived and never mirrored.
+    input  wire [N_STREAM_OUT_P-1:0]    cfg_src_en_i,
+    //! per-source stream_id, flat [64*s +: 64] - the SAME packing the class-D
+    //! outputs use. This is what the processor's SRP DECLARE_TALKER puts in
+    //! its StreamID and what its ACMP answers a controller; tied '0 it would
+    //! declare and answer stream_id 0 for every source. The {station MAC,
+    //! talker_unique_id} law is the fabric's (KL_aaf_packetizer stamps the
+    //! same 64 bits onto the wire), so the integrator computes it once and
+    //! hands it here rather than this wrapper inventing a second copy.
+    input  wire [N_STREAM_OUT_P*64-1:0] cfg_stream_id_i,
+    //! TSpec MaxFrameSize for the engine-driven DECLARE_TALKER (802.1Q
+    //! 35.2.2.4). Milan v1.2 4.3.3.2 Table 4.4 makes it a FUNCTION of the
+    //! channel count (24*C + 24 + 1), which the integrator already derives
+    //! for the framer - so it arrives here rather than being re-derived. It
+    //! was tied 16'd0 in shadow mode, where a declaration nobody sends can
+    //! carry any number; on the wire a zero MaxFrameSize is a reservation for
+    //! zero bandwidth, which a bridge grants and a stream then overruns.
+    input  wire [15:0]                  cfg_tspec_max_frame_i,
+    //! initial accumulated_latency for the Listener direction (802.1Q
+    //! 35.2.2.8.4). Same story: tied 0 in shadow mode.
+    input  wire [31:0]                  cfg_acc_lat_ns_i,
+    //! port rate for the SRP admission ceiling (75% of it, 802.1Q 34.3.1)
+    input  wire [31:0]                  port_rate_bps_i,
 
     //! ---- level controls ----
     input  wire        enable_i,           //! Milan 5.6.1 boot gate (CSR bit)
@@ -200,22 +229,37 @@ module KL_pp_shadow #(
 
     //! ---- MAC TX, packed to AXIS (the control-lane leg) ----
     //! The processor emits ONE merged byte stream for every protocol it
-    //! owns; its per-protocol arbitration is internal. Today that stream
-    //! carries ADP + ACMP + SRP only — the AECP lanes are idle until P4 —
-    //! so it can ride the control cascade as a single leg alongside the
-    //! shipping AECP leg, which is what makes a partial substitution work.
-    //!
-    //! SHADOW: while nothing consumes this port the wrapper still drains the
-    //! processor (see tx_drain_i), so the wire is unchanged. Connecting it to
-    //! the arbiter is the substitution step, and the ONLY step.
+    //! owns; its per-protocol arbitration is internal. That stream carries
+    //! ADP + ACMP + SRP — the AECP lanes are idle until P4 — and it rides
+    //! the control cascade as the ONE control leg beside MAAP.
     output logic [TDATA_WIDTH_P-1:0]   m_axis_tx_tdata,  //! little lane order
     output logic [TDATA_WIDTH_P/8-1:0] m_axis_tx_tkeep,  //! contiguous from lane 0
     output logic                       m_axis_tx_tvalid,
     output logic                       m_axis_tx_tlast,
     input  wire                        m_axis_tx_tready,
-    //! 1 = discard the processor's frames and count them (shadow mode);
-    //! 0 = the packed AXIS port above is the real egress.
+    //! 1 = discard the processor's frames and count them; 0 = the packed
+    //! AXIS port above is the real egress. milan_datapath drives it 0 — the
+    //! drain survives only as the harness lever that lets a testbench count
+    //! the processor's frames without standing up a MAC.
     input  wire                        tx_drain_i,
+
+    //! ---- descriptor-image memory master (07 §3.3, READ-ONLY) ------------
+    //! Straight through to protocol_processor_top, names and directions
+    //! unchanged. THE INTEGRATOR OWNS THE BRIDGE: this repository's SoC wires
+    //! it to LiteX main memory (sw/litex/milan_soc.py), because on this board
+    //! the entity model lives in DDR3. Tying req_ready_i to 0 is legal and
+    //! documented - the store's watchdog abandons the burst and every
+    //! READ_DESCRIPTOR degrades to NO_SUCH_DESCRIPTOR rather than hanging -
+    //! but it must be a DELIBERATE tie with a banner, never an oversight.
+    output logic                       desc_mem_req_valid_o,
+    input  wire                        desc_mem_req_ready_i,
+    output logic [31:0]                desc_mem_req_addr_o,
+    output logic [8:0]                 desc_mem_req_beats_o,
+    input  wire                        desc_mem_rsp_valid_i,
+    output logic                       desc_mem_rsp_ready_o,
+    input  wire  [63:0]                desc_mem_rsp_data_i,
+    input  wire                        desc_mem_rsp_last_i,
+    input  wire                        desc_mem_rsp_err_i,
 
     //! ---- maap face (02 §4.2) — THE ADDRESS ALLOCATOR SEAM ----
     //! Passed straight through to protocol_processor_top, names and
@@ -569,7 +613,13 @@ module KL_pp_shadow #(
       .CLK_HZ_P       (CLK_HZ_P),
       .TIM_DIV_US_P   (TIM_DIV_US_P),
       .TIM_DIV_MS_P   (TIM_DIV_MS_P),
-      .TROM_HEX_P     (TROM_HEX_P)
+      .TROM_HEX_P     (TROM_HEX_P),
+      .UCODE_HEX_P         (UCODE_HEX_P),
+      .DESC_BASE_P         (DESC_BASE_P),
+      .DESC_LINE_BYTES_P   (DESC_LINE_BYTES_P),
+      .DESC_IDX_ENTRIES_P  (DESC_IDX_ENTRIES_P),
+      .DESC_NAME_ENTRIES_P (DESC_NAME_ENTRIES_P),
+      .DESC_MEM_TMO_CYC_P  (DESC_MEM_TMO_CYC_P)
   ) u_pp (
       .clk_i               (clk_i),
       .rst_n               (rst_n),
@@ -581,8 +631,8 @@ module KL_pp_shadow #(
       .talker_caps_i       (talker_caps_i),
       .listener_sinks_i    (listener_sinks_i),
       .listener_caps_i     (listener_caps_i),
-      .current_cfg_i       (16'd0),
-      .identify_index_i    (16'd0),
+      .current_cfg_i       (current_cfg_i),
+      .identify_index_i    (identify_index_i),
 
       .entity_enable_i     (enable_i),
       .link_up_i           (link_up_i),
@@ -590,29 +640,34 @@ module KL_pp_shadow #(
       .gm_id_i             (gm_id_i),
       .gptp_domain_i       (gptp_domain_i),
 
-      //! SRP quasi-static: Milan mandates point-to-point; the rest are the
-      //! engine's own defaults and are inert while the service face is idle.
+      //! SRP quasi-static. Milan mandates point-to-point.
+      //!
+      //! RANK IS 1, NOT 0. 802.1Q Table 35-6: the Rank bit of PriorityAndRank
+      //! is 0 = EMERGENCY, 1 = non-emergency, and this device's declarations
+      //! have always carried the non-emergency rank (the deleted lwsrp_pkg
+      //! pinned PriorityAndRank at 0x70 = priority 3, rank 1). The 1'b0 here
+      //! was a shadow-mode don't-care - a drained declaration can say
+      //! anything - and would have put an emergency-rank Talker Advertise on
+      //! the wire the moment the drain came off.
       .p2p_i               (1'b1),
-      .cfg_rank_i          (1'b0),
-      .cfg_acc_lat_ns_i    (32'd0),
-      .port_rate_bps_i     (32'd1_000_000_000),
-      .cfg_tspec_max_frame_i(16'd0),
+      .cfg_rank_i          (1'b1),
+      .cfg_acc_lat_ns_i    (cfg_acc_lat_ns_i),
+      .port_rate_bps_i     (port_rate_bps_i),
+      .cfg_tspec_max_frame_i(cfg_tspec_max_frame_i),
 
-      //! Which talker sources exist, from SRC_EN_MASK_P (default 0 = none;
-      //! see the parameter's banner for why a source-enable is elaboration
-      //! static here and what turning it on does).
-      .cfg_src_en_i        (N_STREAM_OUT_P'(SRC_EN_MASK_P)),
+      //! Which talker sources exist — straight from the port, which the
+      //! integrator derives from the entity shape (see the port's banner).
+      .cfg_src_en_i        (cfg_src_en_i),
       //! ONE AVB interface on this board, so every source sits on interface
       //! 0. This is not a placeholder: KL_acmp_talker SILENTLY IGNORES a
       //! PROBE_TX whose interface_index disagrees with the source's, and the
       //! processor's own rx_if_index is 0, so any other value here would make
       //! the talker deaf with no counter moving anywhere.
       .cfg_src_iface_i     ('0),
-      //! stream_id stays 0: it is consumed only by the processor's SRP
-      //! DECLARE_TALKER, and the shipping lwSRP plane owns the reservation
-      //! for these streams. A shadow that declared a real stream_id would be
-      //! a second applicant for the same stream on the same port.
-      .cfg_stream_id_i     ('0),
+      //! the per-source stream_id the SRP DECLARE_TALKER and the ACMP talker
+      //! answer with — the fabric's {station MAC, uid} law, computed once by
+      //! the integrator and passed straight through (see the port's banner).
+      .cfg_stream_id_i     (cfg_stream_id_i),
 
       .rx_valid_i          (pp_rx_valid_w),
       .rx_data_i           (pp_rx_data_w),
@@ -666,7 +721,11 @@ module KL_pp_shadow #(
       .host_rvalid_o       (pp_host_rvalid_w),
       .host_err_o          (pp_host_err_w),
 
-      //! config-plane seam: unused in shadow mode
+      //! CONFIG-PLANE SEAM, UNUSED. The processor's svc_* face is how a
+      //! host would inject a binding or a reservation directly; nothing in
+      //! this fabric drives it. Bindings arrive over the wire (ACMP) and
+      //! reservations follow them, which is the ATDECC-authoritative shape
+      //! this device is built to. Tied off, not forgotten.
       .svc_valid_i         (1'b0),
       .svc_ready_o         (),
       .svc_op_i            ('0),
@@ -712,6 +771,17 @@ module KL_pp_shadow #(
       .adp_next_avail_index_o  (adp_next_avail_index_o),
 
       //! ---- maap face: straight through to KL_pp_maap_shim outside -------
+      //! descriptor-image master: straight through to the integrator
+      .desc_mem_req_valid_o (desc_mem_req_valid_o),
+      .desc_mem_req_ready_i (desc_mem_req_ready_i),
+      .desc_mem_req_addr_o  (desc_mem_req_addr_o),
+      .desc_mem_req_beats_o (desc_mem_req_beats_o),
+      .desc_mem_rsp_valid_i (desc_mem_rsp_valid_i),
+      .desc_mem_rsp_ready_o (desc_mem_rsp_ready_o),
+      .desc_mem_rsp_data_i  (desc_mem_rsp_data_i),
+      .desc_mem_rsp_last_i  (desc_mem_rsp_last_i),
+      .desc_mem_rsp_err_i   (desc_mem_rsp_err_i),
+
       .maap_req_valid_o        (maap_req_valid_o),
       .maap_req_ready_i        (maap_req_ready_i),
       .maap_req_release_o      (maap_req_release_o),
@@ -741,7 +811,8 @@ module KL_pp_shadow #(
   //! In drain mode the packer still runs, so the frame COUNTER and the
   //! packing logic are exercised identically to the wired case; only the
   //! egress is thrown away. A drain that bypassed the packer would leave it
-  //! untested until the day it first mattered.
+  //! untested until the day it first mattered. milan_datapath drives
+  //! tx_drain_i = 0 - the drain is a harness lever now, not a mode.
   logic [TDATA_WIDTH_P-1:0]   txp_data_r;
   logic [KEEP_W_C-1:0]        txp_keep_r;
   logic                       txp_valid_r, txp_last_r;
@@ -784,8 +855,9 @@ module KL_pp_shadow #(
     end
   end
 
-  //! tvalid is held low while draining so a stray connection cannot put a
-  //! shadow frame on the wire: the drain is structural, not a convention.
+  //! tvalid is held low while draining, so a harness that drains cannot put a
+  //! frame on the wire by accident: the drain is structural, not a
+  //! convention. milan_datapath does not drain.
   assign m_axis_tx_tdata  = txp_data_r;
   assign m_axis_tx_tkeep  = txp_keep_r;
   assign m_axis_tx_tvalid = txp_valid_r & ~tx_drain_i;

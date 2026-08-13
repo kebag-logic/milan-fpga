@@ -23,14 +23,56 @@ Grouped as:
   `reg` windows are mapped by index, so a stale dtb writes DMA into the wrong CSRs),
 - and streaming, listener and talker ([Section 21](#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26):
   a bound listener that accepts nothing; [Section 22](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened):
-  the bandwidth gate *is* the pacer, and the arm that never happened).
+  the bandwidth gate *is* the pacer, and the arm that never happened),
+- and the control-plane substitution ([Section 24](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution):
+  a whole class of CSR words whose source is deleted; [Section 25](#section-25-a_txarb_diag-0x784-decodes-to-the-wrong-mux---the-lanes-were-renumbered):
+  the TX-arbiter lane renumbering; [Section 26](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram):
+  the entity model now lives in DRAM and somebody has to put it there).
 
 Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) (the architecture).
 
+> **Before you debug anything on the control plane (2026-08-13).** This
+> repository's IEEE 1722.1 / SRP engines were deleted; the
+> `protocol-processor` submodule wrapped by
+> [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) is the control
+> plane. The device discovers over ADP, connects over ACMP and reserves over
+> SRP, and on AECP it **answers `READ_DESCRIPTOR` and answers every other
+> command with a conformant `NOT_IMPLEMENTED` echo.** Three things follow that
+> decide whether you have a fault at all:
+>
+> * **Enumeration is reachable again — but only once the descriptor image is in
+>   DRAM, and nothing in this repository puts it there yet.** The entity model
+>   lives in main memory at a **compile-time** base with no base register, and
+>   software must write it there. No builder, script or boot step does, so on a
+>   stock build **every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`** — the
+>   argument check (`configuration_index` against `configurations_count`) runs
+>   *before* the locate, and an invalid image reports a count of zero, so no
+>   configuration index passes. A clean refusal, never a hang. That status is
+>   also the discriminator: `BAD_ARGUMENTS` everywhere means the image was never
+>   loaded or is corrupt, while `NO_SUCH_DESCRIPTOR` means the image **is**
+>   loaded and that one descriptor is genuinely absent from the model. Expect
+>   the former on the bench and read
+>   [Section 26](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram)
+>   before concluding the control plane is broken.
+> * **`NOT_IMPLEMENTED` is an answer, not a fault** — and so is `BAD_ARGUMENTS`
+>   to an `IDENTIFY_NOTIFICATION` sent as a command. "GET_COUNTERS came back
+>   NOT_IMPLEMENTED", "the name will not set", "IDENTIFY does nothing", "the
+>   binding did not survive the power cycle": that is the stated capability
+>   boundary, written up in
+>   [KNOWN_ISSUES_AND_LIMITATIONS §0](KNOWN_ISSUES_AND_LIMITATIONS.md), not
+>   something to diagnose.
+> * **Silence has exactly two legal causes**, both by design: the command's
+>   `target_entity_id` is not ours, or an AECP *response* was sent as input.
+>   Those are freed and counted with no reply. Any other silence on AECP is
+>   worth investigating.
+>
+> Sections 24, 25 and 26 below are the three field traps the substitution
+> introduced.
+
 ## Contents
 
-- **[Start here: which section is your problem in?](#start-here-which-section-is-your-problem-in)** — The router. One question — how far did you get before it broke? — narrows 22 field reports to one or two, with a sub-branch for the three different ways the wire goes dead. Ends on the observation that Sections 20, 21 and 22 are all the same lesson: a readback that agreed with you.
+- **[Start here: which section is your problem in?](#start-here-which-section-is-your-problem-in)** — The router. One question — how far did you get before it broke? — narrows 26 field reports to one or two, with a sub-branch for the three different ways the wire goes dead. Ends on the observation that Sections 20, 21 and 22 are all the same lesson: a readback that agreed with you.
 - **[Section index](#section-index)** — The searchable table: the exact error string or symptom you would grep for, against the one-line root cause. Scan this before reading any section body.
 - **[Section 1: import litex resolves to a namespace package](#section-1-import-litex-resolves-to-a-namespace-package)** — `litex.__file__` is `None` because the repo-root directory named `litex/` shadows the installed package. Fix is a `cd`; the one-line check that confirms it is here.
 - **[Section 2: NaxRiscv generation needs JAVA_HOME](#section-2-naxriscv-generation-needs-java_home)** — The build dies in "netlist generation" because the core is generated from SpinalHDL and wants a JDK. Exact packages to install, and the note that first generation needs network.
@@ -54,16 +96,22 @@ Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 - **[Section 20: host plane dead, CSR readbacks perfect  -  a stale device tree maps every DMA window onto the wrong registers](#section-20-host-plane-dead-csr-readbacks-perfect-----a-stale-device-tree-maps-every-dma-window-onto-the-wrong-registers)** — The driver maps `reg` windows **by index**, so an obsolete dtb sent every DMA write to a wrong-but-writable CSR that stored it happily. Four false leads costed, then the experiment that cracked it in one shot: ping out while capturing at the tap. The twist is that flashing a corrected dtb fixes nothing — this boot path only reads the FDT embedded in the OpenSBI image, which is why `check_dtb_csr.py` now validates both.
 - **[Section 21: ACMP says SUCCESS, the listener declares itself bound - and not one frame is accepted (ROOT-CAUSED and FIXED, VERSION 0x000F; mechanism confirmed on silicon 2026-07-26)](#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26)** — The fabric-listener blocker, start to finish. A shared sid staging register plus a `ovr_armed_r` latch that cleared only on reset meant one stray `CTRL` write pinned entry 0 disabled forever — so every later `CONNECT_RX` bound cleanly and changed nothing. Read the top block for the fix and the **four-`devmem` workaround** for pre-`0x000F` gateware, plus the measured RX latency chain (~105–126 µs, ring-fill dominated). The refuted-suspect list below it is kept as method, not guidance, and the `0x800`-window trap at the end — a snapshot read returns literal `0` until the re-poll lands — briefly looked like the root cause itself.
 - **[Section 22: arming a second talker takes the peer board off the network (and the arm that never happened)](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened)** — With the lwSRP engine off, an armed `t > 0` context sends ~56,000 frames/s and drowns the peer, because **the bandwidth gate is the pacer** — there is no free-running timer behind it. The companion trap is worse: with the engine off, `TCTX` word-0 writes are dropped while the bus write completes, so "disable → arm → enable" produces an unarmed context whose readback agrees with you. Take arm truth from the `0x804` snapshot instead.
-- **[Section 23: ADD_AUDIO_MAPPINGS answers BAD_ARGUMENTS — which of the four rules did the record break?](#section-23-add_audio_mappings-answers-bad_arguments--which-of-the-four-rules-did-the-record-break)** — The vendor validity rules behind the refusal, each with its physical reason (rule 2 retired since the half-swap mux), the practical cluster-offset map for the 8×8, and the two probe-tool caveats that cost an hour.
+- **[Section 23: ADD_AUDIO_MAPPINGS answers BAD_ARGUMENTS — which of the four rules did the record break?](#section-23-add_audio_mappings-answers-bad_arguments--which-of-the-four-rules-did-the-record-break)** — The vendor validity rules behind the refusal, each with its physical reason (rule 2 retired since the half-swap mux), the practical cluster-offset map for the 8×8, and the two probe-tool caveats that cost an hour. **This symptom cannot occur since 2026-08-13** — `ADD_AUDIO_MAPPINGS` is not implemented and is answered with the `NOT_IMPLEMENTED` echo, never `BAD_ARGUMENTS`; kept because the rules are the fabric's, not the parser's.
+- **[Section 24: "the counter reads 0" and nothing is wrong - structural zeros after the control-plane substitution](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution)** — The first thing to check before debugging a dead-looking register: a whole class of CSR words now reads a structural zero because the RTL behind it was deleted, and another class reads back what software wrote while reaching nothing. How to tell those two from a real fault, and where the per-word verdicts live.
+- **[Section 25: A_TXARB_DIAG 0x784 decodes to the wrong mux - the lanes were renumbered](#section-25-a_txarb_diag-0x784-decodes-to-the-wrong-mux---the-lanes-were-renumbered)** — The TX arbiter cascade collapsed from eight muxes to four, so every old decode of `0x784` now reads a different mux than it names. Old and new orders side by side.
+- **[Section 26: the controller finds the entity and enumerates nothing - the descriptor image was never loaded into DRAM](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram)** — The default state of a stock build, not an exception: discovery works, ACMP works, and every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` immediately, because nothing in this repository builds or loads the DRAM descriptor image the store reads. Why that status and not `NO_SUCH_DESCRIPTOR` — and how the two tell you, in one read, whether the image is missing or merely incomplete. The base is compile-time with no base register and therefore no status word, so the diagnosis is an `"AEMI"` header read at a base you **derive** from the build's memory map. Also: why it never hangs, why a late load heals without a reset, and why loading is a per-boot obligation rather than a per-flash one.
 
 ## Start here: which section is your problem in?
 
-*One question — how far did you get before it broke? — routes 22 field reports
+*One question — how far did you get before it broke? — routes 26 field reports
 down to one or two.*
 
 ```mermaid
 flowchart TB
     S(["something is wrong"]) --> W{"how far did you get<br/>before it broke?"}
+    W -->|"a controller discovers and connects,<br/>but every READ_DESCRIPTOR comes<br/>back BAD_ARGUMENTS"| AE["Section 26<br/>the descriptor image was never<br/>loaded into DRAM"]
+    W -->|"a command is answered<br/>NOT_IMPLEMENTED, or IDENTIFY_NOTIFICATION<br/>is answered BAD_ARGUMENTS"| AB["NOT A FAULT<br/>the AECP capability boundary<br/>KNOWN_ISSUES §0"]
+    W -->|"a counter reads 0 forever, or a<br/>register accepts a write and<br/>changes nothing on the wire"| SZ["Section 24<br/>structural zeros and<br/>write-only scratch"]
 
     W -->|"the SoC build never produced<br/>a bitstream"| B["Sections 1-6<br/>toolchain env + LiteX/SoC build"]
     W -->|"a Verilator suite will not build,<br/>blocks, or fails a check"| V["Sections 7, 8, 11-14<br/>simulation + harness"]
@@ -80,11 +128,13 @@ flowchart TB
     WI -->|"the HOST lane only: rx_packets 0,<br/>ptp4l timing out, readbacks perfect"| H["Section 20<br/>device tree vs csr.csv drift"]
 ```
 
-Two of these branches are the same lesson in different clothes: **Sections 20,
-21 and 22 all begin with a readback that agreed with you.** If your evidence is
-a register echo rather than an engine ticking, read
+Several of these branches are the same lesson in different clothes: **Sections
+20, 21, 22 and now 24 all begin with a readback that agreed with you.** If your
+evidence is a register echo rather than an engine ticking, read
 [`RECURRING_DEFECT_PATTERNS.md`](RECURRING_DEFECT_PATTERNS.md) before spending a
-build cycle.
+build cycle — and note that Section 24 is the case where the echo agreeing with
+you is the *documented, correct* behaviour of the word, which is a harder thing
+to argue with than a bug.
 
 ## Section index
 
@@ -111,7 +161,10 @@ build cycle.
 | [19](#section-19-kernel-hangs-after-opensbi-no-linux-version-----a-stale-litex_term-served-the-wrong-boot-manifest) | OpenSBI's full banner, then silence — no `Linux version`, no panic | a stale `litex_term` still held the port and served the kernel-from-QSPI manifest, so `Image` was never uploaded (and the QSPI had been erased) |
 | [20](#section-20-host-plane-dead-csr-readbacks-perfect-----a-stale-device-tree-maps-every-dma-window-onto-the-wrong-registers) | `rx_packets=0`, `ptp4l` times out, every driver readback is perfect, fabric streaming is fine | a stale device tree with an obsolete `reg` list; the driver maps windows **by index**, so every DMA register write landed on a wrong-but-writable CSR |
 | [21](#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26) | ACMP returns SUCCESS, the listener reports bound, and `AVTPRX_FRX` stays `0` | a shared staging register plus a set-on-any-write `ovr_armed_r` detached entry 0 from the ACMP bound record, with no runtime path back (fixed, `VERSION 0x000F`) |
-| [22](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened) | arming a `t > 0` talker takes the peer board off the network; and an arm that a readback confirms but that never happened | class-A pacing comes from the lwSRP **bandwidth gate**, not a timer; and with the engine off, `TCTX` word-0 writes are dropped while the bus write completes |
+| [22](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened) | arming a `t > 0` talker takes the peer board off the network; and an arm that a readback confirms but that never happened | class-A pacing comes from the SRP **reservation gate**, not a timer; and with the engine off, `TCTX` word-0 writes are dropped while the bus write completes |
+| [24](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution) | a diagnostic counter reads `0` forever; a control register accepts a write, reads it back, and changes nothing on the wire | its source RTL was **deleted** on 2026-08-13 — the word is a **structural zero** or a **write-only scratch**, not a measurement and not a control |
+| [25](#section-25-a_txarb_diag-0x784-decodes-to-the-wrong-mux---the-lanes-were-renumbered) | `A_TXARB_DIAG 0x784` reports activity on the "wrong" lane, or bits 7:4 are always 0 | the TX arbiter cascade collapsed from **eight muxes to four** and the lanes were renumbered; an old decoder reads a different mux than it names |
+| [26](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram) | the controller discovers the entity, ACMP works, and **every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`** — immediately, never a timeout | the entity model lives in DRAM at a **compile-time** base, and **nothing in this repository builds or loads that image**, so a stock build has none; an invalid image reports zero configurations, which fails the argument check ahead of the locate; the store refuses cleanly rather than hanging |
 
 ---
 
@@ -873,10 +926,17 @@ context - roughly 5x the paced class-A rate - and 626 807 frames landed in a sin
 observation window. Disarming the context restores the peer instantly.
 
 **Root cause - the pacer is the reservation.** Class-A pacing on the extra-talker path comes
-from the lwSRP **bandwidth gate**, not from a free-running timer. `~LWSRP_CTRL[0]` is a
+from the SRP **reservation gate**, not from a free-running timer. `~LWSRP_CTRL[0]` is a
 deliberate escape hatch (it lets a stream run with no reservation), and with it engaged the
 context transmits as fast as the packetizer can build frames. A 50 MHz peer core cannot
 survive that interrupt load.
+
+> **Still true after the 2026-08-13 control-plane substitution**, with one
+> substitution of its own: `LWSRP_CTRL[0]` (`cfg_lwsrp_enable`) is unchanged and
+> still the escape hatch, but the gate it bypasses is now the protocol
+> processor's class-D admitted vector rather than the deleted
+> `KL_lwsrp_bw_gate`. The hazard, the measured rate and the rule below are
+> unaffected.
 
 **Rule.** Never leave the engine off with an armed `t > 0` context. Arm extras **only** with
 `LWSRP_CTRL[0] = 1`; the escape hatch is for deliberate, watched experiments on a link whose
@@ -899,6 +959,16 @@ full rate, while a *registered but listener-less* stream is pruned. A peer board
 frames it never asked for is a switch-forwarding behaviour, not a fabric fault.
 
 ## Section 23: `ADD_AUDIO_MAPPINGS` answers `BAD_ARGUMENTS` — which of the four rules did the record break?
+
+> **THIS SYMPTOM CANNOT OCCUR since 2026-08-13.** `ADD_AUDIO_MAPPINGS` is not
+> implemented: the entity answers it — like every other AECP command except
+> `READ_DESCRIPTOR` — with a conformant `NOT_IMPLEMENTED` echo, so a controller
+> gets a refusal that names the boundary, never the `BAD_ARGUMENTS` this section
+> is about. The section is kept because the four rules are properties of the
+> **fabric** (what the capture and render crossbars can physically route), not
+> of the deleted parser, and they are what any future mapping interface will
+> have to enforce. The cluster-offset map below is likewise still the fabric's
+> shape.
 
 **Symptom.** A controller (Hive / la_avdecc: *"One or more of the values in
 the fields of the frame were deemed to be bad by the AVDECC Entity"*) edits
@@ -937,3 +1007,231 @@ through them serves clusters (200 of them) with the echoed index rewritten,
 which looks exactly like a corrupt directory. And the entity enforces
 1722.1's `control_data_length` = octets **after** `target_entity_id`; a
 frame whose cdl includes those 8 bytes is dropped without a response.
+
+## Section 24: "the counter reads 0" and nothing is wrong - structural zeros after the control-plane substitution
+
+**Symptom (2026-08-13 onward).** A diagnostic counter you have read for months
+sits at `0` and never moves, while the thing it counts is demonstrably
+happening on the wire. Or: you write a control register, read it back, get
+exactly what you wrote — and nothing whatsoever changes on the link.
+
+**Cause.** Neither is a fault. On 2026-08-13 this repository's own IEEE 1722.1 /
+SRP control plane was deleted and replaced by the `protocol-processor`
+submodule. **The register map is an ABI and no register was removed**, so every
+address still decodes. What changed is what is behind it, and there are three
+outcomes, not one:
+
+* **STRUCTURAL ZERO.** The source RTL is gone and there is no replacement, so
+  the word reads a hard zero by construction. **A structural zero is not a
+  measurement.** Reading `0` from one of these says nothing about the system —
+  it says the source was deleted. A word in this class that read a *plausible*
+  value instead would be a defect, because a plausible idle is indistinguishable
+  from a working engine with nothing to report (the standing
+  `STATS_CAP` rule; see [RECURRING_DEFECT_PATTERNS §8](RECURRING_DEFECT_PATTERNS.md)).
+* **WRITE-ONLY SCRATCH.** The word still stores what software writes and reads
+  it back faithfully, and **the value no longer reaches the wire**. Writing it
+  changes nothing observable. This is [RECURRING_DEFECT_PATTERNS §1](RECURRING_DEFECT_PATTERNS.md),
+  decorative ABI, arrived at by deletion rather than by never being wired — and
+  it is the more dangerous of the two, because the readback agrees with you.
+* **STILL LIVE, REPOINTED.** The word is real and its source is now the
+  processor's class-D face. Several of these sit *inside* groups that are
+  otherwise dead, which is why the group cannot be judged wholesale.
+
+**The per-word verdicts are in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)**
+— read them there rather than inferring from a group name; that page carries
+the class for each word and this one deliberately does not duplicate it.
+
+**Diagnosis.** Three questions, in this order:
+
+1. **Is the word in the register map's structural-zero or write-only-scratch
+   class?** If yes, stop: there is nothing to fix here, and the next question is
+   whether you needed the capability, not whether the register is broken.
+2. **Is what you are actually looking for the AECP boundary?** "GET_COUNTERS
+   came back NOT_IMPLEMENTED", "IDENTIFY does nothing", "the name will not set",
+   "the binding did not survive the power cycle" — every AECP command except
+   `READ_DESCRIPTOR` is answered with the `NOT_IMPLEMENTED` echo, and nothing
+   persists a binding across a power cycle
+   ([KNOWN_ISSUES_AND_LIMITATIONS §0](KNOWN_ISSUES_AND_LIMITATIONS.md)). If the
+   symptom is instead "the controller cannot read a **descriptor**", that is a
+   different animal and it is diagnosable —
+   [Section 26](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram).
+3. **If it is live, does it TICK?** The truth test is unchanged and it is the
+   one that survives all of this: read twice and require movement. A live
+   counter ticks; a structural zero cannot.
+
+**Two specific traps worth naming, because they read as faults:**
+
+* **A group is not uniformly dead.** In the ACMP listener group at `0x6A4` the
+  state-machine fields no longer track PROBING/SETTLED, but `bound`, `active`
+  and the CRF-sink bit are real, published from the processor's bind record.
+  **A reader must take `bound` as the truth** and stop decoding `ACMPL_STATE`'s
+  state field. The same shape appears at `0x600` (`available_index` is live
+  while the advertiser diagnostics are not), at `0x648` (ACMP `talker_active` is
+  live while the AECP/ACMP counts are not), and at `0x680` (the domain word, the
+  granted slope and the over-limit bit are live while the MRPDU counts are not).
+* **The entity-enable bit still works from either place.** `PP_CTRL[0]` at
+  `0x920` and the historic `ADP_CTRL.en` at `0x600` bit 0 are **ORed** — either
+  one enables the entity. That is deliberate: `ADP_CTRL.en` is the bit every
+  existing board script writes, and there is only one control plane now, so
+  **existing scripts keep working unchanged.** The `0x920`-`0x930` window is
+  also unconditional now (the old `PP_PLANE_P` build parameter is gone), so
+  `PP_STAT` always carries its `0x5B` presence tag — which is exactly how you
+  tell "the processor is present and clocked" from "this address reads a
+  structural zero".
+
+**Lesson.** The project's standing rule was *a structural zero is not a
+measurement*. The substitution turned that from an occasional trap into a whole
+class: **"the counter reads 0" no longer means "nothing happened"**, and the
+register map is now load-bearing documentation rather than a reference you
+consult occasionally.
+
+## Section 25: `A_TXARB_DIAG` `0x784` decodes to the wrong mux - the lanes were renumbered
+
+**Symptom.** A script that has decoded `0x784` for months reports activity on a
+lane that cannot possibly be active — control-lane traffic attributed to the
+CRF datapath, say — or reports the top four lanes permanently at zero and
+concludes four muxes have died.
+
+**Cause.** The TX arbiter cascade **collapsed from eight muxes to four** when
+the control plane was deleted: four of the control merges had only one source
+left once the planes feeding them were gone, so the merge itself went away. The
+diagnostic word kept its address and its shape; its **lane numbering changed**.
+
+| bit | was | is |
+|---|---|---|
+| 0 | `aecp_acmp` | **`ctl_tx`** — the protocol processor + MAAP into the control lane |
+| 1 | `ctl_tx` | **`aaf_final`** |
+| 2 | `srp_ctl` | **`crf_dp`** |
+| 3 | `lstn_ctl` | **`adp_tx`** — the MAC boundary mux |
+| 4 | `maap_ctl` | structural zero |
+| 5 | `aaf_final` | structural zero |
+| 6 | `crf_dp` | structural zero |
+| 7 | `adp_tx` | structural zero |
+
+**Anything decoding `0x784` by the old numbers now reads the WRONG mux.** Note
+how quietly it fails: the old bit 5 (`aaf_final`) reads the new structural zero,
+so a stream-liveness check built on it reports *silence* while audio flows; and
+the old bit 1 (`ctl_tx`) now reads `aaf_final`, so a control-plane liveness
+check reports *activity* that is really the audio path. Both directions produce
+a confident wrong answer rather than an obvious break.
+
+**Fix.** Update the decoder to the four-lane order above. Bits 7:4 are a
+structural zero and are not evidence of anything — see
+[Section 24](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution).
+Per-word detail, as always, in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
+
+## Section 26: the controller finds the entity and enumerates nothing - the descriptor image was never loaded into DRAM
+
+**Symptom (2026-08-13 onward, and it is the DEFAULT state of a stock build).** A
+controller discovers the entity from its ADPDU and lists it normally. ACMP
+works — it connects, the listener binds, audio flows. But the entity expands to
+**nothing**: every `READ_DESCRIPTOR`, including ENTITY at index 0, comes back
+`BAD_ARGUMENTS`. The refusals are **immediate** — no timeout, no retry
+storm, no wedged control plane.
+
+**Read the status before anything else — it is the whole discriminator.** The
+`READ_DESCRIPTOR` microprogram checks the arguments *before* it locates: it
+reads `configurations_count` out of the store's pseudo-register region, requires
+`configuration_index` to be below it, and only then runs the locate. An image
+that fails its header magic, version or checksum is marked invalid, and while
+invalid the store **deliberately reports a `configurations_count` of zero** — it
+reports nothing rather than the garbage its header walk happened to read. So the
+argument check fails for *every* configuration index, index 0 included, and the
+locate is never reached. Hence:
+
+* **every read answering `BAD_ARGUMENTS`** => the image was never loaded, or it
+  is corrupt — this section;
+* **a read answering `NO_SUCH_DESCRIPTOR`** => the image **is** loaded and
+  valid, and that particular descriptor type/index is genuinely absent from the
+  model — a modelling question, not a provisioning one.
+
+Both are clean refusals and neither hangs. Both also carry the IEEE 1722.1
+§7.4.5 4-byte `{descriptor_type, descriptor_index}` stub, so a controller that
+prints the payload shows you which read it was.
+
+**Cause.** The entity model is no longer a ROM in fabric. It is a **descriptor
+image in main memory**, which on this board is DDR3, fetched by the processor's
+descriptor store over a read-only master (`o_desc_mem_*` / `i_desc_mem_*` at the
+`milan_datapath` boundary, bridged to the DMA bus by `add_milan_datapath()`).
+The base is the elaboration parameter `PP_DESC_BASE_P`: **compile-time by
+design, with no base register**, so software cannot point the store somewhere
+wrong at runtime — and cannot point it anywhere right at runtime either.
+Software has to write the image there, and **nothing in this repository does**:
+the generator lives in the submodule
+(`protocol-processor/hdl/aecp/desc/gen_desc_image.py`), no step in
+[`sw/builder`](../../sw/builder), [`scripts/`](../../scripts), the LiteX SoC
+builder or the boot path produces its input JSON or loads its output, and the
+`aecp_aem_rom.svh` that
+[`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py)
+still emits is an orphan of the **deleted** `KL_aecp_aem_store` — not this
+image, and loading it would not help. So the expected finding is "the region is
+empty", and the question to answer first is whether anything was *ever* supposed
+to have filled it on your bench.
+
+Two deliberate properties keep the failure quiet rather than dramatic, and both
+are why you get a clean status instead of a hang:
+
+* the store's **watchdog abandons a stalled burst** — `MEM_TIMEOUT_CYC_P` =
+  4096 cycles, about 41 µs at 100 MHz, and it covers the request handshake too,
+  so a bridge that never accepts (including an integration that legitimately
+  ties `i_desc_mem_req_ready` to 0) degrades the locate instead of parking the
+  AECP path;
+* a fetch error is **propagated, never masked**: `i_desc_mem_rsp_err` aborts the
+  burst and degrades that locate, so a corrupt descriptor is never served as
+  though it were good.
+
+**Diagnosis, in this order.**
+
+1. **Confirm the shape of the refusal.** `BAD_ARGUMENTS` on *every* read (a
+   status, from a well-formed response) means the plane is alive and answering
+   and the image is missing or corrupt — this section. `NO_SUCH_DESCRIPTOR`
+   instead means the image loaded and that descriptor simply is not in the
+   model, so stop chasing provisioning and go look at the model you generated.
+   *No response at all* means something else entirely: a command to a
+   `target_entity_id` that is not ours, or an AECP response sent as input, are
+   both refused silently by design. `NOT_IMPLEMENTED` to a non-`READ_DESCRIPTOR`
+   command is the capability boundary, not a fault
+   ([KNOWN_ISSUES_AND_LIMITATIONS §0](KNOWN_ISSUES_AND_LIMITATIONS.md)).
+2. **Confirm the plane is present and enabled.** `PP_STAT` (`0x924`) carries the
+   constant presence tag `0x5B` in `[31:24]`; a read of `0` means the gateware
+   predates the group. The enable is two bits ORed — `PP_CTRL[0]` (`0x920`) and
+   `ADP_CTRL[0]` (`0x600`) — and if the controller sees the ADPDU at all, the
+   entity is enabled.
+3. **Derive the base, never quote one.** It is this SoC's own memory map: the
+   **top 1 MiB of `main_ram`**, i.e. `main_ram` origin + size − `0x0010_0000`,
+   which the Linux device tree reserves. Read origin and size out of the build
+   (`csr.csv` / `soc.json`) for the bitstream that is actually flashed — a
+   literal copied from another build is exactly the drift this project keeps
+   paying for.
+4. **Read the image header at that base.** It starts with the magic `"AEMI"`
+   (`0x41454D49`), then a layout version of 1 and a checksum, so an unloaded
+   region is *distinguishable* rather than ambiguous: an all-zero region fails
+   the magic compare first and reads as **"image not loaded"**, never as a valid
+   empty model. That single read is the whole diagnosis — it separates "nobody
+   loaded it" (today's expected answer) from "it is loaded and the store is
+   still missing".
+
+**What to do about it.** There is no fix to apply on the board, because the
+missing piece is tooling: produce the JSON for the shape you built, run the
+submodule's `gen_desc_image.py`, and write the resulting image at the derived
+base. Two properties make that survivable to do by hand:
+
+* **a late load heals without a reset** — every locate against an invalid image
+  re-arms the header probe, so an image written after the entity is already
+  enabled starts being served; "load, then enable" is the discipline, not a
+  one-shot window you can miss;
+* **DRAM is volatile, so this is a per-boot obligation, not a per-flash one.**
+  Reflashing the bitstream or the QSPI boot chain stashes nothing, and neither
+  does a warm bitstream reload. Whatever stage already programs the identity
+  CSRs at boot is the natural home for it.
+
+**Lesson.** The entity model moved from fabric to memory, and the failure moved
+with it: from "the build is wrong" to "nothing supplies the model". A device
+that discovers, connects and streams while enumerating nothing is a
+**provisioning** symptom on this design, not a gateware one — and because the
+base is compile-time there is no status register to tell you so, which is why
+the header read above is the instrument. (The AECP engine's own counters —
+command, response, drop, locate-miss, last status, last length, image-valid,
+image-fault — are not at parent CSR `0x648`, which stays a structural zero; they
+live in the protocol processor's side-port snapshot window, reached through
+`KL_pp_shadow`'s side-port host bridge.)

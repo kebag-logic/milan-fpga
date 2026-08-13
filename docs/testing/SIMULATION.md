@@ -24,6 +24,32 @@ which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](../limitati
 > NaxRiscv is the historical / pure-NIC option, and the NaxRiscv boot logs referenced below
 > are retained as the original softcore-boot evidence trail.
 
+> **Control-plane note (2026-08-13).** `milan_datapath` no longer contains this
+> repository's own IEEE 1722.1 / SRP engines — they are deleted, and the
+> `protocol-processor` submodule wrapped by
+> [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) is the control
+> plane, instantiated unconditionally. In simulation terms that means: ADP, ACMP
+> and SRP are simulable through [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow),
+> the suite that grades the processor as the control plane, and the thirteen
+> deleted suites' AECP/ACMP/ADP/lwSRP coverage is gone rather than moved.
+> **Correction to an earlier revision of this note: there IS AECP to simulate.**
+> The processor's **AECP uCPU landed** — it answers `READ_DESCRIPTOR` (three
+> status paths), answers `IDENTIFY_NOTIFICATION`-as-a-command `BAD_ARGUMENTS`,
+> answers every other AECP command with a conformant `NOT_IMPLEMENTED` echo, and
+> silently refuses a foreign `target_entity_id` or a response arriving as input.
+> **No suite in this tree simulates any of it yet**, and no AEM getter or setter
+> exists to simulate: the echo is a response contract, not a function. A
+> `READ_DESCRIPTOR` in simulation answers `BAD_ARGUMENTS` unless the descriptor
+> image is placed in DRAM by the testbench — nothing in this repository builds or
+> loads one, and an image that fails its header magic/version/checksum reports
+> `configurations_count` = 0, which the microprogram's range check meets *before*
+> the locate. A bench that wants to see `NO_SUCH_DESCRIPTOR` must supply a valid
+> image first and then miss inside it. Because the wrapper instantiates the processor
+> unconditionally, every suite that elaborates `milan_datapath` — `pp_shadow`,
+> `milan_dp` and `hostplane` — now needs
+> `git submodule update --init protocol-processor`, an SSH-only remote. Layer 3
+> below is unaffected: it exercises the CPU⇄CSR path, not the control plane.
+
 ---
 
 ## Contents
@@ -118,8 +144,12 @@ run:
 	$(VERILATOR) $(VFLAGS) $(SRCS) sim_main.cpp -o Vmilan_dp_sim
 	./obj_dir/Vmilan_dp_sim
 ```
-Source order matters: packages (`ethernet_packet_pkg.sv`, `adp_pkg.sv`) and the
-`axi_stream_if.sv` interface come first, then leaf modules, then the DUT. The
+Source order matters: packages (`ethernet_packet_pkg.sv`, `avtp_subtype_pkg.sv`)
+and the `axi_stream_if.sv` interface come first, then leaf modules, then the DUT.
+(`adp_pkg.sv` and `acmp_pkg.sv` used to head that list; they were deleted with
+the control plane on 2026-08-13, and the processor's own copies are namespaced
+`pp_adp_pkg` / `pp_acmp_pkg` precisely so the two can never collide in one
+compilation unit.) The
 `+incdir` paths are required  -  see
 [Section 7](../limitations/TROUBLESHOOTING.md#section-7-verilator-cannot-find-include-file) of
 [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
@@ -267,8 +297,12 @@ Memory dump:
   the characters "MILN"). This is the NIC identifying itself  -  **M-A2 reached**.
 - The next word `03 00 01 00` = `0x00010003` = the `VERSION` register **as it read
   at the time of this M-A2 log**. VERSION is bumped on every gateware change, so a
-  build from the current tree returns `0x0001_0013` here — the byte pattern above
-  is the historical capture, not what you should expect to see.
+  build from the current tree returns something else — `0x0002_0043` on
+  2026-08-13, the major having stepped to 2 when the protocol processor replaced
+  the 1722.1/SRP plane. The byte pattern above is the historical capture, not
+  what you should expect to see; read the `VERSION` default in
+  [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) for the
+  current word rather than trusting this line.
 
 Captured output: [`../sw/litex/evidence/naxriscv_reads_MILN.log`](../../sw/litex/evidence/naxriscv_reads_MILN.log).
 

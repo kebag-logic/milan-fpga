@@ -198,12 +198,28 @@ def apply(path, text):
 
 
 def pages():
+    """Every hand-written .md the gate has an opinion about.
+
+    The corpus comes from `git ls-files`, i.e. THE INDEX - which can name a
+    page that is not on disk, most often mid-change when a deletion has been
+    made in the working tree but not staged. That used to raise
+    FileNotFoundError out of read_text() and take the whole run down, and a
+    gate that dies on one missing path reports NOTHING about the other
+    hundred-odd pages: one loud traceback reads like a single failure when it
+    is really an unmeasured corpus. So a vanished page is SKIPPED and NAMED,
+    never fatal - it is a git-state observation, not a table-of-contents
+    finding, and it must not be able to mask one.
+    """
     out = subprocess.run(["git", "-C", str(REPO), "ls-files", "-z", "*.md"],
                          capture_output=True, text=True, check=True).stdout
     for p in sorted(out.split("\0")):
         if not p or p.startswith("historical_now_obsolete/") or p in SKIP:
             continue
         md = REPO / p
+        if not md.is_file():
+            print(f"  GONE  {p}: tracked in the index but not on disk "
+                  f"(stage the deletion, or restore the file) - skipped")
+            continue
         head = "\n".join(md.read_text().split("\n")[:GENERATED_SCAN_LINES])
         if GENERATED_RE.search(head):
             continue                       # generator-owned; see GENERATED_RE

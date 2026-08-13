@@ -9,9 +9,41 @@
 //! vendor-neutral RTL and therefore fully open-toolchain verifiable (Verilator +
 //! Yosys), with **no Xilinx PS7 and no verilog-ethernet dependency**.
 //!
-//! What it owns (identical instances/wiring to `milan_top`):
+//! What it owns:
 //!   milan_csr · traffic_controller_802_1q (classify + CBS) · ptp_ts_top ·
-//!   rx_mac_filter (TCAM) · adp_advertiser + adp_tx_arbiter · ethernet_events.
+//!   rx_mac_filter (TCAM) · the AVTP/AAF/CRF stream engines · KL_maap ·
+//!   adp_tx_arbiter · ethernet_events · **KL_pp_shadow**, the protocol
+//!   processor, which is this device's entire IEEE 1722.1 / SRP control plane.
+//!
+//! THE CONTROL PLANE IS THE PROTOCOL PROCESSOR, AND ONLY THAT (2026-08-13).
+//! This repository's own ADP advertiser, AECP/AEM engine, ACMP talker and
+//! listener, and lwSRP applicant are DELETED - no parameter, no fallback, no
+//! shadow arm (USER, explicit and repeated: "remove the old code AECP/ACMP/ADP
+//! the lwSRP shall be removed as well. Only use the uCPU code"; "do not leave
+//! the option, remove everything out of the code base that is legacy").
+//!
+//! WHAT A CONTROLLER GETS, STATED ONCE SO NO READER HAS TO DISCOVER IT:
+//! the entity DISCOVERS over ADP, connects over ACMP, reserves over SRP,
+//! ANSWERS READ_DESCRIPTOR out of an entity model held in MAIN MEMORY, and
+//! answers every other AECP command with a conformant NOT_IMPLEMENTED echo
+//! (message_type+1, correct length, correct cdl) - never silence, never
+//! malformed. IDENTIFY_NOTIFICATION sent as a command is BAD_ARGUMENTS.
+//! AN ECHO IS NOT AN IMPLEMENTATION: GET_COUNTERS and its Table 5.22 push,
+//! entity lock/acquire, SET_CLOCK_SOURCE (so the media clock is pinned
+//! INTERNAL, see CRF_CLK_SELECTED_C), SET_MAX_TRANSIT_TIME (every Stream
+//! Output holds the Milan 2 ms default), the audio-map setters and
+//! saved-state persistence are all genuinely absent and read STRUCTURAL
+//! ZEROS. If the descriptor image was never loaded at PP_DESC_BASE_P the
+//! range check fails before any locate runs, so an unloaded image answers
+//! BAD_ARGUMENTS - not NO_SUCH_DESCRIPTOR. That difference is the bench
+//! discriminator: BAD_ARGUMENTS everywhere = no image. Everything only an AECP engine could
+//! have driven is gone with it and its CSR words read STRUCTURAL ZEROS, each
+//! documented at the point it is tied: the AEM descriptor ROM and every
+//! READ_DESCRIPTOR/GET/SET, entity lock and acquire, SET_CLOCK_SOURCE (so the
+//! media clock can never be switched to the CRF source), SET_MAX_TRANSIT_TIME
+//! (every Stream Output holds the Milan 2 ms default), GET_COUNTERS and the
+//! Table 5.22 unsolicited push, IDENTIFY, and saved-state persistence.
+//! milan_top.sv remains the (archived, unbuildable) Zynq variant.
 //!
 //! What moved OUT to the integration layer:
 //!   * the **Zynq PS + AXI-DMA** → replaced by the exposed AXI4-Lite CSR **slave**
@@ -227,37 +259,54 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! diagnostics whose counters/latches die with the parameter; the CSR
   //! range reads 0 on a pruned build (the LTAP precedent).
   parameter int DPROBES_P = 1,
-  //! protocol-processor SHADOW plane (KL_pp_shadow + the protocol-processor
-  //! submodule at its pinned commit). DEFAULT 0 = ABSENT, and that default is
-  //! the contract: scenario B mandates the new plane land behind a
-  //! default-OFF elaboration parameter so the shipping build stays provably
-  //! byte-identical. 1 instantiates the processor as a MONITOR: it sees every
-  //! control frame the shipping planes see and drives NOTHING onto the wire
-  //! (its TX byte stream is drained and counted). It is NOT a substitution -
-  //! the processor's AECP engine is the P4 uCPU, unlanded at this pin, so the
-  //! shipping AECP/ADP/ACMP/lwSRP planes all stay exactly where they are.
-  //! Read KL_pp_shadow.sv's banner before changing this to 1: the plane costs
-  //! real LUTs on a board that is already LUT-bound.
-  parameter int PP_PLANE_P = 0,
-  //! Shadow-plane timer compression for SIMULATION only (the CLKV_QTICK_CYC_P
-  //! precedent). Defaults are REAL time and are what silicon builds use: at
-  //! 100 MHz, 100 clk = 1 us and 1000 us = 1 ms. A harness overrides them so a
-  //! 5 s ADP cadence is reachable in a few thousand cycles.
+  //! Protocol-processor timer compression for SIMULATION only (the
+  //! CLKV_QTICK_CYC_P precedent). Defaults are REAL time and are what silicon
+  //! builds use: at 100 MHz, 100 clk = 1 us and 1000 us = 1 ms. A harness
+  //! overrides them so a 5 s ADP cadence is reachable in a few thousand
+  //! cycles. THERE IS NO PP_PLANE_P: the processor is not optional, it is the
+  //! control plane (the legacy 1722.1/SRP plane is deleted, USER 2026-08-13).
   parameter int PP_TIM_DIV_US_P = MILAN_CLK_FREQ_HZ / 1_000_000,
   parameter int PP_TIM_DIV_MS_P = 1000,
-  //! ACMP listener transition-ROM image for the shadow plane. The processor
-  //! $readmemh's it by this name, and Vivado resolves a RELATIVE name against
-  //! its own run directory - so the integration hands over an ABSOLUTE path
-  //! and the build stops depending on where the tool was launched from.
-  parameter string PP_TROM_HEX_P = "ltn_rom.hex" ,
-  //! Which talker SOURCES the shadow plane is told exist (KL_pp_shadow's
-  //! SRC_EN_MASK_P, bit s = source s). DEFAULT 0 = none, which is the shadow
-  //! contract - see that parameter's banner. Non-zero turns the processor's
-  //! talker half on inside the shadow: it allocates a DA through the maap
-  //! shim below and declares Talker attributes, all of it drained at the
-  //! wrapper's TX and never on the wire.
-  parameter int PP_SRC_EN_P = 0
+  //! ACMP listener transition-ROM image. The processor $readmemh's it by this
+  //! name, and Vivado resolves a RELATIVE name against its own run directory -
+  //! so the integration hands over an ABSOLUTE path and the build stops
+  //! depending on where the tool was launched from.
+  parameter string PP_TROM_HEX_P = "ltn_rom.hex",
+  //! ---- AECP descriptor store (protocol-processor 07 §3.3) ----------------
+  //! The uCPU microcode image and the geometry/base of the entity-model image
+  //! the descriptor store FETCHES FROM MAIN MEMORY. On this board that memory
+  //! is DDR3 and the SoC bridges the master (sw/litex/milan_soc.py); the base
+  //! is COMPILE-TIME by the processor's design, so there is no base register
+  //! for software to get wrong. The integration overrides PP_DESC_BASE_P to a
+  //! region the SoC reserves and software loads before enabling the entity.
+  parameter string PP_UCODE_HEX_P        = "ucode.hex",
+  parameter logic [31:0] PP_DESC_BASE_P  = 32'h2000_0000,
+  parameter int PP_DESC_LINE_BYTES_P     = 576,
+  parameter int PP_DESC_IDX_ENTRIES_P    = 32,
+  parameter int PP_DESC_NAME_ENTRIES_P   = 16,
+  parameter int PP_DESC_MEM_TMO_CYC_P    = 4096
 )(
+  //! ---- AECP descriptor-image READ master (to the SoC's main memory) -----
+  //! The protocol processor's entity model lives in DDR3. This is its fetch
+  //! path, surfaced at the wrapper boundary rather than tied off inside it:
+  //! ONE outstanding request, responses IN ORDER, `rsp_last` ends the burst,
+  //! and a beat carries its LOWEST byte address in bits [63:56].
+  //! o_desc_mem_rsp_ready is tied 1 by the processor - it always sinks.
+  //! An integration with no memory to offer may tie i_desc_mem_req_ready to
+  //! 0: the store's watchdog then abandons the burst and every
+  //! READ_DESCRIPTOR degrades to NO_SUCH_DESCRIPTOR instead of hanging. That
+  //! is a legal wiring, but it must be DELIBERATE and stated, because the
+  //! entity then serves no descriptors at all.
+  output wire        o_desc_mem_req_valid,
+  input  wire        i_desc_mem_req_ready,
+  output wire [31:0] o_desc_mem_req_addr,
+  output wire [8:0]  o_desc_mem_req_beats,
+  input  wire        i_desc_mem_rsp_valid,
+  output wire        o_desc_mem_rsp_ready,
+  input  wire [63:0] i_desc_mem_rsp_data,
+  input  wire        i_desc_mem_rsp_last,
+  input  wire        i_desc_mem_rsp_err,
+
   //! axis_clk domain (system clock, ~100 MHz) + active-low sync reset
   input  wire axis_clk,
   input  wire        clk_audio_i,      //! clean MMCM audio clock (24.576 MHz nominal) for the I2S DAC serializer
@@ -513,6 +562,48 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! media_tick_p divider below): ~4-12 sample repeats/drops per second,
   //! THD+N capped at -32 dB on a -147.7 dB-clean loop. The crossbar now has
   //! its own media-grid instance below.
+  //! ------------------------------------------------------------------------
+  //! CONSTANTS THAT USED TO LIVE IN A DELETED PACKAGE.
+  //! lwsrp_pkg.sv is gone with the lwSRP engine, so the one constant this file
+  //! still needs from it is named here. IEEE 802.1Q-2018 34.5 / Milan v1.2
+  //! 4.2.7.2: SR class A rides priority 3 by default, and the OPERATIONAL
+  //! priority the processor adopts (pp_cd_srp_class_a_prio_w) overrides it
+  //! wherever a declaration exists - this is the pre-adoption fallback only.
+  localparam logic [2:0] SR_CLASS_A_PRIO_C = 3'd3;
+  //! ------------------------------------------------------------------------
+  //! THE MEDIA CLOCK SOURCE, AND WHY IT IS A CONSTANT NOW.
+  //! IEEE 1722.1 SET_CLOCK_SOURCE was the ONLY writer of the live
+  //! CLOCK_DOMAIN clock_source_index, and the AEM descriptor ROM was the only
+  //! source of "which CLOCK_SOURCE index is the CRF one". Both died with the
+  //! AECP engine. The selection is therefore pinned at index 0 = the INTERNAL
+  //! media clock for the life of the build and can NEVER become the CRF one.
+  //!
+  //! THE TRAP THIS EXISTS TO AVOID, which the first cut of the plane deletion
+  //! walked straight into: keeping the two 16-bit nets and tying the live one
+  //! to 0 leaves every consumer comparing 0 == 0, which reads TRUE - a build
+  //! that claims the CRF source IS selected. Measured on that build:
+  //! A_MCSRV_STAT = 0x21, i.e. the MMCM servo out of IDLE while the clock
+  //! source is INTERNAL. (The undriven CRF-index net slipped past
+  //! -Werror-UNDRIVEN because it carried a `verilator public_flat_rd`
+  //! attribute, which exempts a net from that check.)
+  //!
+  //! So the nets are GONE and these three constants replace them. The
+  //! comparison is resolved HERE, once, instead of being re-derived by four
+  //! consumers that can each get it wrong.
+  localparam logic        CRF_CLK_SELECTED_C   = 1'b0;      //! never
+  localparam logic [15:0] MEDIA_CLK_SRC_IDX_C  = 16'd0;     //! INTERNAL
+  //! 0xFFFF is the AEM "no descriptor" index: it names no CLOCK_SOURCE, so a
+  //! consumer that compares the live index against it is structurally false
+  //! rather than accidentally true.
+  localparam logic [15:0] MEDIA_CLK_SRC_NONE_C = 16'hFFFF;
+  //! the station MAC as a NUMERIC EUI-48 ([47:40] = first wire byte).
+  //! cfg_mac_addr is the platform LSB-first convention (the driver packs
+  //! MAC_ADDR_LO/HI that way and the RX filter consumes it that way), and
+  //! every protocol engine here wants the other one. Byte-reversed ONCE.
+  wire [47:0] station_mac_be_w = {cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
+                                  cfg_mac_addr[23:16], cfg_mac_addr[31:24],
+                                  cfg_mac_addr[39:32], cfg_mac_addr[47:40]};
+
   KL_tone_gen #(.MCLK_DIV_LOG2(MCLK_DIV_LOG2_C)) tone_gen (
     .clk_i (clk_audio_i), .rst_n (axis_resetn), .adv_i (1'b1),
     .enable_i (cfg_tone_enable), .att_i (cfg_tone_att), .smp_o (tone_smp)
@@ -1191,7 +1282,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! software-owned default VID.
     .vlan_vid_i (lwsrp_adopt_valid ? lwsrp_op_vid : cfg_aaf_vid),
     .vlan_pcp_i (lwsrp_adopt_valid ? lwsrp_op_prio[2:0]
-                                   : lwsrp_pkg::SR_CLASS_A_PRIO_C[2:0]),
+                                   : SR_CLASS_A_PRIO_C[2:0]),
     .dom_ovr_i  (lwsrp_adopt_valid),
     //! per-talker slice of the AECP per-STREAM_OUTPUT offset file: talker
     //! t stamps its avtp_timestamp with ITS OWN entry t
@@ -1273,15 +1364,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        evt_tx_ts_ready;
 
   wire        cfg_adp_enable;
-  wire [4:0]  cfg_adp_valid_time;
-  wire [63:0] cfg_adp_entity_id, cfg_adp_entity_model_id, cfg_adp_gptp_gm, cfg_adp_association_id;
-  wire [31:0] cfg_adp_entity_caps, cfg_adp_controller_caps;
+  wire [63:0] cfg_adp_entity_id, cfg_adp_entity_model_id, cfg_adp_gptp_gm;
   wire [15:0] cfg_adp_talker_sources, cfg_adp_talker_caps;
   wire [15:0] cfg_adp_listener_sinks, cfg_adp_listener_caps;
   wire [7:0]  cfg_adp_gptp_domain;
-  wire [31:0] cfg_gptp_pdelay_ns;
-  wire [15:0] cfg_adp_current_config, cfg_adp_identify_index, cfg_adp_interface_index;
-  wire        cfg_adp_advertise_p, cfg_adp_depart_p;
+  wire [15:0] cfg_adp_current_config, cfg_adp_identify_index;
   wire [31:0] adp_available_index;
   wire [7:0]  adp_depart_cnt, adp_rearm_cnt;
   wire [1:0]  adp_depart_src;
@@ -1290,32 +1377,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [7:0]  adp_sent_cnt, adp_disc_rx_cnt;
   wire [3:0]  adp_last_msg, adp_state;
   wire        adp_disc_seen_p;   //! any ENTITY_DISCOVER on the wire (counted in milan_csr)
-  wire [TDATA_WIDTH-1:0]   adp_tx_tdata;
-  wire [TDATA_WIDTH/8-1:0] adp_tx_tkeep;
-  wire                     adp_tx_tvalid, adp_tx_tlast, adp_tx_tready;
 
   //! AECP/AEM listener (KL_aecp_top) — response AXIS + status + ADP-discover.
-  wire [TDATA_WIDTH-1:0]   aecp_tx_tdata;
-  wire [TDATA_WIDTH/8-1:0] aecp_tx_tkeep;
-  wire                     aecp_tx_tvalid, aecp_tx_tlast, aecp_tx_tready;
-  wire                     aecp_discover_p;
   wire                     aecp_locked;
   //! the locking controller's Entity ID (valid while aecp_locked): feeds
   //! the ACMP listener's BIND/UNBIND step-1 authorization check — same
   //! axis_clk domain as the listener, no CDC
-  wire [63:0]              aecp_locking_ctlr;
   wire [15:0]              aecp_current_config, aecp_cmd_count, aecp_resp_count;
   //! gh #59 departing-controller detection (Milan v1.2 §5.4.5.3), CSR 0x6F4
   //! A_CTLR_DIAG: {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12],
   //! CONTROLLER_AVAILABLE probes sent[11:0]}
   wire [31:0]              aecp_ctlr_diag;
   //! ACMP stateless responder (KL_acmp_responder) — response AXIS + counters.
-  wire [TDATA_WIDTH-1:0]   acmp_tx_tdata;
-  wire [TDATA_WIDTH/8-1:0] acmp_tx_tkeep;
-  wire                     acmp_tx_tvalid, acmp_tx_tlast, acmp_tx_tready;
-  wire [TDATA_WIDTH-1:0]   ctl2_tx_tdata;
-  wire [TDATA_WIDTH/8-1:0] ctl2_tx_tkeep;
-  wire                     ctl2_tx_tvalid, ctl2_tx_tlast, ctl2_tx_tready;
   wire [15:0]              acmp_cmd_count, acmp_resp_count;
   //! AAF talker (aaf_talker_i2s): CSR control + frame stream + PHC time
   wire                     cfg_aaf_enable;
@@ -1378,15 +1451,21 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! entry k = talker k's transit offset; the CRF Media Clock Output's
   //! entry sits at CRF_TUID_C. Unbacked entries read the 2 ms default.
   wire [16*32-1:0]         aecp_pres_offset;
-  //! lwSRP engine (KL_lwsrp_top, docs/LWSRP_FPGA_ARCHITECTURE.md)
+  //! SRP CSR bits (0x680). THE ENGINE THEY USED TO ENABLE IS DELETED and the
+  //! processor's SRP engine has no enable - it runs whenever the entity does.
+  //! What survives is their SECOND job, which is the one the fabric reads:
+  //!   cfg_lwsrp_enable    - "a reservation is REQUIRED before this device
+  //!                          streams" (FR-SRP-03). Clear it and the AAF/CRF
+  //!                          gates stop consulting the admission verdict;
+  //!                          it does not stop the processor declaring.
+  //!   cfg_lwsrp_talker_en - the same, for the CRF Media Clock Output's
+  //!                          emission licence.
+  //! Read them as STREAM-ADMISSION POLICY, not as an engine on/off switch.
   wire        cfg_lwsrp_enable, cfg_lwsrp_talker_en;
   //! LWSRP_CTRL[5], reset 0: declare-always bypass of the 4.3.3.1
   //! TalkerAdvertise gate (the pre-gate posture, bring-up escape only)
-  wire        cfg_lwsrp_decl_bypass;
   wire [2:0]  cfg_lwsrp_qidx;
   wire [11:0] cfg_lwsrp_vid;
-  wire [47:0] cfg_lwsrp_dmac;
-  wire [15:0] cfg_lwsrp_max_frame, cfg_lwsrp_interval;
   wire [31:0] cfg_lwsrp_latency;
   // ------------------------------------------------------------------------
   //  SR CLASS A FOR THE CRF MEDIA CLOCK OUTPUT (2026-07-28).
@@ -1444,7 +1523,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [SRP_TALKERS_C-1:0] lwsrp_stream_gate;
   //! per-TALKER "registering a Listener Asking Failed attribute", SAME
   //! index law as lwsrp_stream_gate (gh #56 A2: -> ACMP REGISTERING_FAILED)
-  wire [SRP_TALKERS_C-1:0] lwsrp_lstn_ask_fail;
   wire        lwsrp_slope_en, lwsrp_res_active;
   //! sticky ctx-table shortfall -> LWSRP_STATUS[11]
   wire        lwsrp_ctx_oor_w;
@@ -1462,24 +1540,30 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        lwsrp_tfail_valid;
   wire [7:0]  lwsrp_tfail_code, lwsrp_rx_drops;
   wire [15:0] lwsrp_tx_count, lwsrp_rx_pdus;
-  wire [TDATA_WIDTH-1:0]   lwsrp_tx_tdata;
-  wire [TDATA_WIDTH/8-1:0] lwsrp_tx_tkeep;
-  wire                     lwsrp_tx_tvalid, lwsrp_tx_tlast, lwsrp_tx_tready;
   //! CRF sink-1 bind record (same listener SM) + 0x4B BSCAN forensics
+  //! THE CRF MEDIA CLOCK INPUT SINK's bind record. The entity pins it LAST
+  //! (listener_unique_id = the AAF sink count), which the deleted listener's
+  //! "view1" port got right only at N_STREAMS = 1: on a 4x4 or 8x8 shape it
+  //! published AAF sink 1's binding and the CRF receiver locked to an audio
+  //! stream. Indexed by the documented law here instead.
+  localparam int CRF_SNK_IDX_C = (ACMP_SINKS_C > N_STREAMS) ? N_STREAMS : 0;
   wire        acmpl1_bound;
   wire [63:0] acmpl1_sid;
-  wire [47:0] acmpl1_dmac;
   wire [31:0] aecp_bdbg0_w, aecp_bdbg1_w, aecp_bdbg2_w;
-  //! ACMP listener SM (KL_acmp_listener, STREAM_INPUT[0] sink)
-  acmp_pkg::acmp_lsm_t acmpl_state;
-  wire        acmpl_bound = (acmpl_state != acmp_pkg::LSM_UNBOUND_S);
-  wire [63:0] acmpl_talker, acmpl_sid;
+  //! the bound stream's VLAN, kept only for the 0x6A4 status word's field
+  wire [11:0] acmpl_vlan_w = pp_cd_acmp_bound_vlan_w[11:0];
+  //! ACMP listener bind record, republished from the protocol processor's
+  //! class-D face (the legacy KL_acmp_listener state machine is deleted, so
+  //! there is no acmp_pkg enum to carry any more - see the ACMP section).
+  //! acmpl_state keeps its net so ACMPL_STATE 0x6E0 keeps its shape; it reads
+  //! a STRUCTURAL ZERO because no state machine here has a state.
+  wire [2:0]  acmpl_state;
+  wire        acmpl_bound;
+  wire [63:0] acmpl_sid;
   wire [15:0] acmpl_tuid;
   wire [4:0]  acmpl_status;
   wire [1:0]  acmpl_probing;
   wire        acmpl_tk_avail, acmpl_lstn_declare, acmpl_active;
-  wire [11:0] acmpl_vlan;
-  wire [47:0] acmpl_dmac;
   wire [15:0] acmpl_cmd_count, acmpl_probe_count;
   wire [7:0]  acmpl_tx_wedge;
   wire [31:0] acmpl_dbg;
@@ -1491,15 +1575,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! per-sink probed SRP {dmac, vlan} (record shadows, same write edge as
   //! the sid lane) — the lwSRP listener rows' EXPECTED pair for the
   //! walker's Table 5.29 three-parameter registrar match
-  wire [ACMP_SINKS_C*48-1:0] acmpl_dmac_v_w;
-  wire [ACMP_SINKS_C*12-1:0] acmpl_vlan_v_w;
-  wire [ACMP_SINKS_C-1:0]    acmpl_upd_p_w;
   wire        lwsrp_ta_registered, lwsrp_ta_failed;
   //! per-ROW lwSRP registrar levels (KL_lwsrp_ctx): bit 0 = the legacy row-0
   //! registrar, bits 1..15 = the extension lanes. A LISTENER row's bit is
   //! its TalkerAdvertise / TalkerFailed registration, which is exactly the
   //! event Milan 5.5.3.5.42 / 5.5.3.5.48 move a settled sink on.
-  wire [31:0] lwsrp_ctx_reg_w, lwsrp_ctx_failed_w;
   //! ...projected onto the ACMP sink index. Sink k's attribute row IS k for
   //! 1..N_STREAMS-1 (srp_fab_row_w's listener branch); sink 0's is the
   //! DEDICATED listener-0 row (SRP_LSN0_ROW_C, the 5-bit-widened space).
@@ -1507,15 +1587,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! (MILAN_COMPLIANCE_GAPS.md 3 — widen further to close it), so its bit
   //! is honestly 0: that sink probes, settles and re-probes every TMR_NO_TK
   //! instead of parking in SETTLED_RSV_OK.
-  wire [ACMP_SINKS_C-1:0] acmpl_ta_reg_v_w, acmpl_ta_fail_v_w;
   wire [7:0]  lwsrp_ta_fail_code;
-  wire [11:0] lwsrp_ta_vlan;
-  wire [31:0] lwsrp_ta_acclat;
-  wire [63:0] lwsrp_ta_fail_bridge, lwsrp_tfail_bridge;
-  wire        lwsrp_lstn_declared;
-  wire [TDATA_WIDTH-1:0]   acmpl_tx_tdata;
-  wire [TDATA_WIDTH/8-1:0] acmpl_tx_tkeep;
-  wire                     acmpl_tx_tvalid, acmpl_tx_tlast, acmpl_tx_tready;
   //! AVTP RX monitor (KL_avtp_rx_monitor, STREAM_INPUT[0] Table 7-156)
   wire        avtprx_match, avtprx_tu_bit, avtprx_tv_bit, avtprx_mr_bit;
   wire [7:0]  avtprx_subtype, avtprx_seq;
@@ -1579,17 +1651,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [31:0] crf_pducnt_w;
   wire [31:0] crf_fmterr_w, crf_seqerr_w;
   wire        crf_locked_w;
-  wire        crf_cnt_dirty_p_w;   //! Table 5.22 push source (gh #60 F2)
   //! IEEE 1722-2016 10.4.3 restart echo: the received mr bit TOGGLED on an
   //! accepted PDU of the followed CRF stream (gh #62 H2a)
   wire        crf_mr_toggle_p_w;
-  wire [31:0] crf_cnt_locked_w, crf_cnt_unlocked_w, crf_cnt_intr_w;
   //! the four Table 5.6 interval tallies the CRF sink used to advertise as
   //! valid and never move (traceability AVTP-5t)
-  wire [31:0] crf_mrcnt_w, crf_tucnt_w, crf_latecnt_w, crf_earlycnt_w;
   //! CRF talker (KL_crf_tx): CSR control + PDU stream into the control merge
   wire        cfg_crft_en;
-  wire        cfg_crft_class_a;   //! CRFT_CTRL[1]: declare + tag (Milan 7.3.3)
   wire [63:0] cfg_crft_sid;
   wire [47:0] cfg_crft_dmac;
   wire [31:0] crft_count_w, crft_stat_w;
@@ -1603,21 +1671,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [63:0] aecp_in0_fmt;
   //! public_flat_rd: the media-grid checks assert the trim is pinned BECAUSE
   //! the source is INTERNAL, rather than assuming the harness left it there
-  wire [15:0] aecp_clk_src /* verilator public_flat_rd */;
 
-  //! which CLOCK_SOURCE index is the CRF one, exported from the AECP response
-  //! builder (the only module that `include-s the generated AEM ROM). It MOVES
-  //! with the shape - 2 on a 1-listener shape, 9 on an 8-listener one - and
-  //! every consumer below reads it rather than repeating a literal, because a
-  //! literal here silently pointed the servo at "Stream Clock 1".
-  wire [15:0] aem_crf_clksrc_w /* verilator public_flat_rd */;
   wire        i2spb_converged;
   wire [31:0] i2spb_dbg_frame;
   wire [31:0] avtprx_locked_c, avtprx_unlocked_c, avtprx_intr_c;
   wire [31:0] avtprx_seqmm_c, avtprx_tu_c, avtprx_unsupp_c, avtprx_frx_c;
   wire        avtprx_locked;
   //! per-context Table 5.22 counter-change pulses (gh #60 F2)
-  wire [N_STREAMS-1:0] avtprx_dirty_p_w;
   wire        avtprx_accept_p;
   wire [31:0] avtprx_ts, avtprx_last_ts, avtprx_last_tsd;
   wire [15:0] pcmrx_pdus, pcmrx_drops;
@@ -1647,78 +1707,37 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! (en=0 keeps the static-provisioning behavior bit-exact)
   wire [47:0] eff_aaf_dmac = (cfg_maap_enable && maap_addr_valid)
                              ? maap_addr : cfg_aaf_dmac;
-  //! "a valid Destination MAC Address is available" per source (Milan
-  //! 5.5.4.1 step 3 via the 4.3.3.1 condition-1 definition): ONE MAAP
-  //! engine claims ONE block for all sources, so validity is engine-wide —
-  //! MAAP disabled = static CSR provisioning (always valid); enabled = the
-  //! claim must be live and unconflicted, else every PROBE_TX answers
-  //! TALKER_DEST_MAC_FAILED (Table 5.42) until MAAP re-acquires.
-  wire [ACMP_SRC_C-1:0] acmp_dmac_valid_w =
-      {ACMP_SRC_C{~cfg_maap_enable | maap_addr_valid}};
+  //! "a valid Destination MAC Address is available" is no longer composed
+  //! here: KL_pp_maap_shim answers the processor's per-source ALLOC_DA out
+  //! of the same KL_maap block claim, so a source without an address simply
+  //! never reaches acmp_declaring_o. One decision, one place.
   //! listener_observed: the lwSRP Listener registrar is the real source once
   //! the engine is enabled; A_ACMP_LOBS stays as the manual override socket.
   wire listener_observed_w = cfg_acmp_lobs |
                              (cfg_lwsrp_enable & lwsrp_listener_ready);
 
-  //! per-source ACMP talker parameters (2026-07-26 N-context responder):
-  //! the MAAP claim is a BLOCK of N_STREAMS addresses (MAAP_CTRL block
-  //! count), so source j answers probes with base+j - the same DMAC the
-  //! TCTX window provisions for talker j's frames. observed[0] keeps the
-  //! legacy composition; observed[j>0] = that stream's reservation row (a
-  //! granted per-stream reservation implies a ready listener) with the
-  //! same A_ACMP_LOBS manual override socket.
-  //!
-  //! CRF MEDIA CLOCK OUTPUT as an ACMP talker source (roadmap item 5,
-  //! NXN_ARCHITECTURE.md §3.5 / [M-7.2.3]):
-  //! "With N >= 2 AAF listener sinks the CRF Media Clock Output is
-  //! mandatory": at N_STREAMS > 1 the ACMP talker responder gains ONE more
-  //! source context, talker_unique_id = N_STREAMS, so a controller binds the
-  //! media-clock stream with the same CONNECT_TX/PROBE_TX it uses for audio
-  //! instead of it being an un-addressable side channel. Its stream_id is
-  //! {station MAC, N_STREAMS} (the responder echoes the uid tail) and its
-  //! DMAC is the MAAP block slot base+N_STREAMS - the same base+uid rule the
-  //! audio sources use, one slot past them (so MAAP_CTRL's claimed count
-  //! must be N_STREAMS+1 for the address to be ours).
-  //! At N_STREAMS = 1 the extra context does not exist and the responder is
-  //! the byte-identical single-source shape (the no-regression axiom).
+  //! per-source ACMP talker parameters. The DMAC/VID/observed/asking-failed
+  //! vectors that used to be composed here fed KL_acmp_tlkr_ctx, which is
+  //! deleted: the processor resolves a source's destination MAC through its
+  //! own ALLOC_DA (KL_pp_maap_shim -> KL_maap, the same block+uid law) and
+  //! its own SRP registrar tells it when a Listener is ready. Composing them
+  //! here as well would be a second copy of a decision the plane already
+  //! makes. Only the per-AAF-talker activity slice survives, because the
+  //! FRAMER admission gate below reads it.
   wire [N_STREAMS-1:0]     acmp_talker_active_aaf_w =
                                acmp_talker_active_v[N_STREAMS-1:0];
-  wire [ACMP_SRC_C*48-1:0] acmp_src_dmac_w;
-  wire [ACMP_SRC_C*12-1:0] acmp_src_vid_w;
-  wire [ACMP_SRC_C-1:0]    acmp_lobs_v_w;
-  //! per-source "registering a Listener Asking Failed attribute" -> the
-  //! GET_TX_STATE REGISTERING_FAILED flag (gh #56 A2). Source j reads the
-  //! SAME lwSRP talker lane its observation/gate terms read — the index law
-  //! lives in this ONE generate so the three vectors cannot drift.
-  wire [ACMP_SRC_C-1:0]    acmp_laf_v_w;
+  //! A_ACMP_LOBS + the SRP Listener-Ready level, kept for the 0x6E8
+  //! forensics word only (i_tlk_lobs_v): "a listener is observed for
+  //! talker j", composed from the manual socket and the reservation.
+  wire [ACMP_SRC_C-1:0] acmp_lobs_v_w;
   generate
-    for (genvar gj = 0; gj < N_STREAMS; gj++) begin : g_acmp_src
-      assign acmp_src_dmac_w[gj*48 +: 48] = eff_aaf_dmac + 48'(gj);
-      assign acmp_src_vid_w [gj*12 +: 12] = cfg_aaf_vid;
-      assign acmp_laf_v_w[gj] = cfg_lwsrp_enable &
-                                lwsrp_lstn_ask_fail[gj];
+    for (genvar gj = 0; gj < ACMP_SRC_C; gj++) begin : g_acmp_lobs
       if (gj == 0) begin : g_lobs0
         assign acmp_lobs_v_w[gj] = listener_observed_w;
       end else begin : g_lobsn
         assign acmp_lobs_v_w[gj] = cfg_acmp_lobs |
                                    (cfg_lwsrp_enable & lwsrp_stream_gate[gj]);
       end
-    end
-    if (ACMP_SRC_C > N_STREAMS) begin : g_acmp_crf_src
-      assign acmp_src_dmac_w[CRF_TUID_C*48 +: 48] =
-          eff_aaf_dmac + 48'(CRF_TUID_C);
-      assign acmp_src_vid_w [CRF_TUID_C*12 +: 12] = cfg_aaf_vid;
-      //! the CRF output HAS an lwSRP attribute row since 2026-07-28 (the
-      //! fabric-provisioned talker row at SRP_CRF_ROW_C), so its listener
-      //! observation composes exactly like the AAF sources': the PROBE_TX
-      //! window, the A_ACMP_LOBS manual socket, OR a granted reservation -
-      //! a granted reservation implies a Listener Ready registered for this
-      //! stream, which is what "observed" means.
-      assign acmp_lobs_v_w[CRF_TUID_C] = cfg_acmp_lobs |
-                 (cfg_lwsrp_enable & lwsrp_stream_gate[SRP_TALKERS_C-1]);
-      //! ...and its asking-failed term reads the same top talker lane
-      assign acmp_laf_v_w[CRF_TUID_C] = cfg_lwsrp_enable &
-                 lwsrp_lstn_ask_fail[SRP_TALKERS_C-1];
     end
   endgenerate
 
@@ -1729,17 +1748,20 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! recompute the pair and no mismatch is possible. A non-zero CRFT_SID /
   //! CRFT_DMAC still wins outright (today's static provisioning, exact).
   wire [47:0] crft_auto_dmac_w = eff_aaf_dmac + 48'(CRF_TUID_C);
-  wire [63:0] crft_auto_sid_w  =
-      {cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
-       cfg_mac_addr[23:16], cfg_mac_addr[31:24],
-       cfg_mac_addr[39:32], cfg_mac_addr[47:40], 16'(CRF_TUID_C)};
+  //! ...and this IS the law the protocol processor is handed for every
+  //! source (pp_src_sid_w): {station MAC, talker_unique_id}. Stated once.
+  wire [63:0] crft_auto_sid_w  = {station_mac_be_w, 16'(CRF_TUID_C)};
   wire [47:0] eff_crft_dmac_w = (|cfg_crft_dmac || (ACMP_SRC_C == N_STREAMS))
                                 ? cfg_crft_dmac : crft_auto_dmac_w;
   wire [63:0] eff_crft_sid_w  = (|cfg_crft_sid  || (ACMP_SRC_C == N_STREAMS))
                                 ? cfg_crft_sid  : crft_auto_sid_w;
-  //! AAF admission: probe-gated as before; with lwSRP enabled a reservation
-  //! is additionally required (FR-SRP-03: no reservation -> no stream tx).
-  //! The bypass bit stays the legacy stream-whenever-enabled escape hatch.
+  //! AAF admission, UNCHANGED IN SHAPE, repointed in source: the talker is
+  //! live only while the processor declares it (acmp_talker_active is the
+  //! processor's acmp_declaring_o, which is itself only reachable through an
+  //! ALLOC_DA success) and, when a reservation is required, only while the
+  //! processor's SRP admission has granted this stream (FR-SRP-03: no
+  //! reservation -> no stream tx). The bypass bit stays the legacy
+  //! stream-whenever-enabled escape hatch.
   wire aaf_gate = cfg_aaf_enable & (~cfg_maap_enable | maap_addr_valid) &
                   (cfg_aaf_bypass |
                   (acmp_talker_active &
@@ -1857,19 +1879,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [TDATA_WIDTH/8-1:0] aaf_tx_tkeep;
   wire                     aaf_tx_tvalid, aaf_tx_tlast, aaf_tx_tready;
   //! merged low-rate control stream (ADP advertise + AECP response)
-  wire [TDATA_WIDTH-1:0]   ctl_tx_tdata;
-  wire [TDATA_WIDTH/8-1:0] ctl_tx_tkeep;
-  wire                     ctl_tx_tvalid, ctl_tx_tlast, ctl_tx_tready;
 
   wire        cfg_sw_link, cfg_mac_reinit;
-  wire [63:0] cfg_entity_name8;
   wire        cfg_lpf_enable;
   wire        cfg_crf_en;
   wire [63:0] cfg_crf_sid;
-  wire [63:0] cfg_as_parent_ckid;
   //! gh #64 J4 published PathTrace tail (CSR 0x7DC group)
-  wire [7*64-1:0] cfg_asp_path;
-  wire [3:0]  cfg_asp_count, cfg_asp_gen;
   wire [63:0] pcm_lpf_tdata;
   wire        pcm_lpf_tvalid;
   wire        pcm_lpf_active;
@@ -1924,13 +1939,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ==========================================================================
   //! P11 window -> lwSRP attribute-context provisioning port (the one
   //! context engine that exists in the datapath today)
-  wire        csr_srp_ctx_req, csr_srp_ctx_we, csr_srp_ctx_valid, csr_srp_ctx_dir;
-  wire [4:0]  csr_srp_ctx_idx;
-  wire [63:0] csr_srp_ctx_sid;
-  wire [47:0] csr_srp_ctx_dmac;
-  wire [7:0]  csr_srp_ctx_prio;
-  wire [15:0] csr_srp_ctx_maxf, csr_srp_ctx_intv;
-  wire [31:0] csr_srp_ctx_lat;
   wire        srp_ctx_gnt_w;
   wire [63:0] srp_ctx_rd_sid_w;
   wire [15:0] srp_ctx_rd_stat_w;
@@ -1962,37 +1970,26 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [6:0]  csr_tctx_wr_addr_w;
   wire [31:0] csr_tctx_wr_data_w;
   wire        tctx_wr_rdy_w;
-  wire        csr_acmp_tbl_req_w;
-  wire [3:0]  csr_acmp_tbl_idx_w;
   wire        acmp_tbl_gnt_w;
-  //! full record (338 b since seq/adp_vt joined the struct MSBs); the CSR
-  //! window consumes the pre-existing [316:0] fields only, so its
-  //! package-free literal-offset map keeps working on the slice
-  wire [acmp_pkg::ACMP_LSTN_CTX_W_C-1:0] acmp_tbl_ctx_w;
+  //! The 0x800 window's ACMP context record. There is no context table in
+  //! this fabric any more (the processor keeps its bind state internally and
+  //! publishes only the bound record), so the window's grant never asserts
+  //! and this reads a STRUCTURAL ZERO. The width is the CSR window's own
+  //! literal-offset map, which is what it always consumed.
+  localparam int ACMP_LSTN_CTX_W_C = 338;
+  wire [ACMP_LSTN_CTX_W_C-1:0] acmp_tbl_ctx_w;
   //! E1 bind-restore master (0x7A0 group) -> ACMP listener ctx injection
-  wire        csr_acmp_rest_req_w;
-  wire [3:0]  csr_acmp_rest_idx_w;
-  wire [63:0] csr_acmp_rest_talker_w;
-  wire [15:0] csr_acmp_rest_tuid_w;
-  wire [63:0] csr_acmp_rest_ctlr_w;
-  wire [15:0] csr_acmp_rest_flags_w;
   wire        acmp_rest_ack_w;
   wire [1:0]  acmp_rest_status_w;
-  //! persistence-journal restore master (E3) - shares the E1 rest port,
-  //! journal-wins arbitration at the lstn ctx instance below
-  wire        jnl_rest_req_w;
-  wire [3:0]  jnl_rest_idx_w;
-  wire [63:0] jnl_rest_talker_w, jnl_rest_ctlr_w;
-  wire [15:0] jnl_rest_tuid_w, jnl_rest_flags_w;
-  wire        cfg_jnl_start_w, cfg_jnl_wr_w, cfg_jnl_end_w, cfg_jnl_abort_w;
-  wire [31:0] cfg_jnl_data_w;
+  //! Persistence-journal ingest (E3) is DELETED with KL_persist_journal. The
+  //! 0x7B8-0x7C4 CSR strobes still exist as a write port - milan_csr owns
+  //! them - but nothing consumes them and JNL_STAT/JNL_SEQ read STRUCTURAL
+  //! ZEROS: this build restores no saved binding, ever.
   wire [31:0] jnl_stat_w, jnl_seq_w;
   //! E4 AEM dynamic-state patch port (0x7C8-0x7D4). The engine lives inside
   //! KL_aecp_top, next to the store it writes and to the enable bit that
   //! gates it, so nothing but the CSR strobes crosses this boundary.
-  wire        cfg_aemp_sel_w, cfg_aemp_field_w, cfg_aemp_data_w;
-  wire        cfg_aemp_commit_w, cfg_aemp_abort_w;
-  wire [31:0] cfg_aemp_wdata_w, aemp_stat_w;
+  wire [31:0] aemp_stat_w;
 
   //! item-11 AAF per-stage latency taps (LTAP CSR group, base 0x870):
   //! 16 packed RO words + status feed milan_csr; en/clr come back from it.
@@ -2046,48 +2043,58 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic [15:0] pp_rx_frames_w, pp_tx_frames_w;
   logic [7:0]  pp_rx_drops_w;
   //! the processor's packed control-lane egress; unconsumed while draining
+  //! the control lane's backpressure into the processor's packed TX
+  wire                      pp_tx_tready_w;
+  //! per-source stream_id handed to the processor: the fabric's {station MAC,
+  //! talker_unique_id} law, the SAME 64 bits KL_aaf_packetizer stamps on the
+  //! wire, with the CRF Media Clock Output's CSR override applied where the
+  //! CRF engine applies it (eff_crft_sid_w) so the answer and the stream can
+  //! never disagree. Derive, never mirror.
+  wire [ACMP_SRC_C*64-1:0]  pp_src_sid_w;
+  //! 1722.1-2021 6.2.6 GM_CHANGE: an edge on the committed grandmaster pair
+  logic [63:0]              pp_gm_id_q_r;
+  logic [7:0]               pp_gm_dom_q_r;
+  logic                     pp_gm_change_p_w;
   logic [TDATA_WIDTH-1:0]   pp_tx_tdata_w;
   logic [TDATA_WIDTH/8-1:0] pp_tx_tkeep_w;
   logic                     pp_tx_tvalid_w, pp_tx_tlast_w;
 
-  //! ---- the shadow plane's CLASS-D FABRIC FACE (02 §6, F02.10) ----
-  //! Landed as datapath nets rather than as new module ports: the eventual
-  //! consumers - the AAF talker gate, the CBS slope MUX, the RX stream filter
-  //! - all live INSIDE this file, so publishing them at the LiteX boundary
-  //! would be a detour through the SoC for signals that never leave. Nothing
-  //! consumes them yet: this landing makes the face REACHABLE, the plane
-  //! substitution is the step that consumes it. Marked public_flat_rd (the
-  //! media_tick_p / aaf_stream_en_w precedent in this file) so the pp_shadow
-  //! harness can grade them without a CSR window, which would otherwise mean
-  //! a VERSION story for state no software reads yet.
+  //! ---- the control plane's CLASS-D FABRIC FACE (02 §6, F02.10) ----
+  //! Landed as datapath nets rather than as new module ports: the consumers -
+  //! the AAF talker gate, the CBS slope MUX, the RX stream filter, the ACMP
+  //! bind record every listener path reads - all live INSIDE this file, so
+  //! publishing them at the LiteX boundary would be a detour through the SoC
+  //! for signals that never leave. Marked public_flat_rd (the media_tick_p /
+  //! aaf_stream_en_w precedent in this file) so the pp_shadow harness can
+  //! grade them without a CSR window.
   //!
   //! Flat packing, index s at [W*s +: W] — the processor's own convention,
-  //! carried through unchanged. Every one of these is tied to its structural
-  //! zero when the plane is absent, so a build without the plane reads "no
-  //! information" and never a stale or plausible value.
+  //! carried through unchanged. WIDTHS ARE THE ENTITY'S DESCRIPTOR COUNTS
+  //! (ACMP_SRC_C / ACMP_SINKS_C), not the AAF stream count: a STREAM_OUTPUT
+  //! the entity advertises must have a source context that can answer for it.
   wire [2:0]                 pp_cd_srp_class_a_prio_w;
   wire [11:0]                pp_cd_srp_class_a_vid_w;
   wire                       pp_cd_srp_domain_adopted_w;
   wire                       pp_cd_srp_domain_change_w;
-  wire [N_STREAMS*2-1:0]     pp_cd_srp_tk_decl_state_w;
-  wire [N_STREAMS*2-1:0]     pp_cd_srp_lstn_reg_state_w;
-  wire [N_STREAMS-1:0]       pp_cd_srp_active_w;
-  wire [N_STREAMS-1:0]       pp_cd_srp_sr_admitted_w;
-  wire [N_STREAMS*32-1:0]    pp_cd_srp_granted_slope_bps_w;
-  wire [N_STREAMS*8-1:0]     pp_cd_srp_src_fail_code_w;
-  wire [N_STREAMS*64-1:0]    pp_cd_srp_src_fail_bridge_w;
+  wire [ACMP_SRC_C*2-1:0]    pp_cd_srp_tk_decl_state_w;
+  wire [ACMP_SRC_C*2-1:0]    pp_cd_srp_lstn_reg_state_w;
+  wire [ACMP_SRC_C-1:0]      pp_cd_srp_active_w;
+  wire [ACMP_SRC_C-1:0]      pp_cd_srp_sr_admitted_w;
+  wire [ACMP_SRC_C*32-1:0]   pp_cd_srp_granted_slope_bps_w;
+  wire [ACMP_SRC_C*8-1:0]    pp_cd_srp_src_fail_code_w;
+  wire [ACMP_SRC_C*64-1:0]   pp_cd_srp_src_fail_bridge_w;
   wire [31:0]                pp_cd_srp_sum_slope_bps_w;
   wire                       pp_cd_srp_over_limit_w;
-  wire [N_STREAMS*2-1:0]     pp_cd_srp_tk_reg_state_w;
-  wire [N_STREAMS*2-1:0]     pp_cd_srp_lstn_decl_state_w;
-  wire [N_STREAMS*32-1:0]    pp_cd_srp_acc_latency_w;
-  wire [N_STREAMS*8-1:0]     pp_cd_srp_snk_fail_code_w;
-  wire [N_STREAMS-1:0]       pp_cd_acmp_declaring_w /* verilator public_flat_rd */;
-  wire [N_STREAMS-1:0]       pp_cd_acmp_bound_w     /* verilator public_flat_rd */;
-  wire [N_STREAMS*64-1:0]    pp_cd_acmp_bound_eid_w;
-  wire [N_STREAMS*64-1:0]    pp_cd_acmp_bound_sid_w;
-  wire [N_STREAMS*48-1:0]    pp_cd_acmp_bound_dmac_w;
-  wire [N_STREAMS*12-1:0]    pp_cd_acmp_bound_vlan_w;
+  wire [ACMP_SINKS_C*2-1:0]  pp_cd_srp_tk_reg_state_w;
+  wire [ACMP_SINKS_C*2-1:0]  pp_cd_srp_lstn_decl_state_w;
+  wire [ACMP_SINKS_C*32-1:0] pp_cd_srp_acc_latency_w;
+  wire [ACMP_SINKS_C*8-1:0]  pp_cd_srp_snk_fail_code_w;
+  wire [ACMP_SRC_C-1:0]      pp_cd_acmp_declaring_w /* verilator public_flat_rd */;
+  wire [ACMP_SINKS_C-1:0]    pp_cd_acmp_bound_w     /* verilator public_flat_rd */;
+  wire [ACMP_SINKS_C*64-1:0] pp_cd_acmp_bound_eid_w;
+  wire [ACMP_SINKS_C*64-1:0] pp_cd_acmp_bound_sid_w;
+  wire [ACMP_SINKS_C*48-1:0] pp_cd_acmp_bound_dmac_w;
+  wire [ACMP_SINKS_C*12-1:0] pp_cd_acmp_bound_vlan_w;
   wire [31:0]                pp_cd_adp_avail_index_w /* verilator public_flat_rd */;
 
   //! ---- the shadow plane's maap request face, and the shim's answers ----
@@ -2106,14 +2113,37 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [PP_SRC_IDX_W_C-1:0]  pp_maap_confl_src_w;
   wire                       pp_maap_confl_ack_w;
 
+  //! ------------------------------------------------------------------------
+  //! CSR OUTPUTS LEFT DELIBERATELY OPEN. A group of config words below has no
+  //! consumer any more because the plane that consumed it is deleted: the ADP
+  //! advertiser's timing/identity extras (valid_time, entity_capabilities,
+  //! controller_capabilities, association_id, interface_index, the
+  //! advertise/depart strobes), the AEM patch port (0x7C8), the AS_PATH
+  //! staging group (0x7DC), the lwSRP provisioning words the applicant read
+  //! (DMAC, MaxFrameSize, MaxIntervalFrames, the declare-bypass bit), the
+  //! 0x7A0 ACMP bind-restore master, and the 0x800 window's ACMP table and
+  //! SRP attribute-row ports.
+  //!
+  //! They are OPEN rather than bound to a net, so a reader sees AT THE
+  //! CONNECTION that nothing consumes them - a named net going nowhere is
+  //! exactly the "dead RTL that looks alive" shape. The REGISTERS still exist
+  //! and still read back what software wrote: the register map is an ABI and
+  //! shrinking it would break every board script. What changed is that
+  //! writing them no longer changes anything on the wire.
+  //!
+  //! FIVE ADPDU FIELDS ARE NOW BEYOND SOFTWARE'S REACH, and that is a real
+  //! loss rather than a tidy-up: entity_capabilities, valid_time,
+  //! association_id, controller_capabilities and interface_index are
+  //! CONSTANTS inside the protocol processor's KL_adp_engine, which exposes
+  //! no port for them. The 0x600 words are accepted and ignored; the ADPDU
+  //! carries the processor's values. Closing that needs a port on the
+  //! submodule, which is pinned.
   milan_csr #(
     .NUM_QUEUES(NUM_QUEUES),
     .ADDR_WIDTH(16),
     .N_LISTENERS_P(N_STREAMS),
     .N_TALKERS_P(N_STREAMS),
     .SRP_LSN0_ROW_P(SRP_LSN0_ROW_C),
-    //! the 0x920 shadow-plane window exists only when the plane does
-    .PP_PLANE_P(PP_PLANE_P),
     //! PHC scale truth (t532 wire-scale audit): the PTP_INCR reset value is
     //! derived from THIS clock declaration, so a free-run PHC ticks true ns
     //! on every shape without waiting for software
@@ -2199,24 +2229,24 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_ptp_tod_valid   (ptp_tod_rd_valid),
     // ADP advertiser identity/control (0x600 group, FR-DISC-*)
     .o_adp_enable         (cfg_adp_enable),
-    .o_adp_valid_time     (cfg_adp_valid_time),
+    .o_adp_valid_time     (),
     .o_adp_entity_id      (cfg_adp_entity_id),
     .o_adp_entity_model_id(cfg_adp_entity_model_id),
-    .o_adp_entity_caps    (cfg_adp_entity_caps),
+    .o_adp_entity_caps    (),
     .o_adp_talker_sources (cfg_adp_talker_sources),
     .o_adp_talker_caps    (cfg_adp_talker_caps),
     .o_adp_listener_sinks (cfg_adp_listener_sinks),
     .o_adp_listener_caps  (cfg_adp_listener_caps),
-    .o_adp_controller_caps(cfg_adp_controller_caps),
+    .o_adp_controller_caps(),
     .o_adp_gptp_gm        (cfg_adp_gptp_gm),
-    .o_gptp_pdelay_ns     (cfg_gptp_pdelay_ns),
+    .o_gptp_pdelay_ns     (),
     .o_adp_gptp_domain    (cfg_adp_gptp_domain),
     .o_adp_current_config (cfg_adp_current_config),
     .o_adp_identify_index (cfg_adp_identify_index),
-    .o_adp_interface_index(cfg_adp_interface_index),
-    .o_adp_association_id (cfg_adp_association_id),
-    .o_adp_advertise_p    (cfg_adp_advertise_p),
-    .o_adp_depart_p       (cfg_adp_depart_p),
+    .o_adp_interface_index(),
+    .o_adp_association_id (),
+    .o_adp_advertise_p    (),
+    .o_adp_depart_p       (),
     .i_adp_available_index(adp_available_index),
     .i_adp_depart_cnt     (adp_depart_cnt),
     .i_adp_rearm_cnt      (adp_rearm_cnt),
@@ -2252,12 +2282,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     // lwSRP engine (0x680 group)
     .o_lwsrp_enable       (cfg_lwsrp_enable),
     .o_lwsrp_talker_en    (cfg_lwsrp_talker_en),
-    .o_lwsrp_decl_bypass  (cfg_lwsrp_decl_bypass),
+    .o_lwsrp_decl_bypass  (),
     .o_lwsrp_qidx         (cfg_lwsrp_qidx),
     .o_lwsrp_vid          (cfg_lwsrp_vid),
-    .o_lwsrp_dest_mac     (cfg_lwsrp_dmac),
-    .o_lwsrp_max_frame    (cfg_lwsrp_max_frame),
-    .o_lwsrp_interval     (cfg_lwsrp_interval),
+    .o_lwsrp_dest_mac     (),
+    .o_lwsrp_max_frame    (),
+    .o_lwsrp_interval     (),
     .o_lwsrp_latency      (cfg_lwsrp_latency),
     //! [11] = ctx-table shortfall (sticky): a provisioning request named an
     //! attribute row this build does not have. It is 0 on a correctly-sized
@@ -2276,8 +2306,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! software FOLLOWS this (never mirrors it into its own config)
     .i_lwsrp_dom          ({7'd0, lwsrp_adopt_valid, lwsrp_op_prio,
                             4'd0, lwsrp_op_vid}),
-    // ACMP listener SM (0x6A4 group, RO); bit 31 = CRF sink-1 bound
-    .i_acmpl_state        ({acmpl1_bound, 3'd0, acmpl_vlan, acmpl_tk_avail,
+    //! ACMP listener status (0x6A4 group, RO); bit 31 = CRF sink bound.
+    //! MOST OF THIS WORD IS A STRUCTURAL ZERO NOW. The processor publishes a
+    //! BOUND RECORD, not a state machine, so the fields that described the
+    //! ladder (state, probing, acmp_status, tk_avail, lstn_declare) and the
+    //! per-sink SRP registrar levels have no source. What is still real:
+    //! bit 31 (CRF sink bound), acmpl_bound and acmpl_active.
+    .i_acmpl_state        ({acmpl1_bound, 3'd0, acmpl_vlan_w, acmpl_tk_avail,
                             acmpl_probing, acmpl_status,
                             lwsrp_ta_failed, lwsrp_ta_registered,
                             acmpl_lstn_declare, acmpl_active,
@@ -2318,7 +2353,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     // RX dest-MAC TCAM filter programming (0x700 group)
     .o_sw_link          (cfg_sw_link),
     .o_mac_reinit       (cfg_mac_reinit),
-    .o_entity_name8     (cfg_entity_name8),
+    .o_entity_name8     (),
     .o_lpf_enable       (cfg_lpf_enable),
     .o_crf_en           (cfg_crf_en),
     .o_crf_sid          (cfg_crf_sid),
@@ -2351,7 +2386,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_chmap_rd_data    (cfg_chmap_rd_data),
     .i_chmap_rd_valid   (cfg_chmap_rd_valid),
     .o_crft_en          (cfg_crft_en),
-    .o_crft_class_a     (cfg_crft_class_a),
+    //! CRFT_CTRL's manual class-A bit: the tag is now the PROCESSOR's Talker
+    //! Advertise state (crft_class_a_w), never a bare CSR bit, so a tagged
+    //! stream that no bridge would forward is unreachable. Left open.
+    .o_crft_class_a     (),
     .o_crft_sid         (cfg_crft_sid),
     .o_crft_dest_mac    (cfg_crft_dmac),
     .i_crft_stat        (crft_stat_w),
@@ -2380,53 +2418,58 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_tctx_wr_addr     (csr_tctx_wr_addr_w),
     .o_tctx_wr_data     (csr_tctx_wr_data_w),
     .i_tctx_wr_rdy      (tctx_wr_rdy_w),
-    .o_acmp_tbl_req     (csr_acmp_tbl_req_w),
-    .o_acmp_tbl_idx     (csr_acmp_tbl_idx_w),
+    .o_acmp_tbl_req     (),
+    .o_acmp_tbl_idx     (),
     .i_acmp_tbl_gnt     (acmp_tbl_gnt_w),
     .i_acmp_tbl_ctx     (acmp_tbl_ctx_w[316:0]),
-    .o_acmp_rest_req    (csr_acmp_rest_req_w),
-    .o_acmp_rest_idx    (csr_acmp_rest_idx_w),
-    .o_acmp_rest_talker (csr_acmp_rest_talker_w),
-    .o_acmp_rest_tuid   (csr_acmp_rest_tuid_w),
-    .o_acmp_rest_ctlr   (csr_acmp_rest_ctlr_w),
-    .o_acmp_rest_flags  (csr_acmp_rest_flags_w),
-    //! owner-routed (see the rest-port arbitration note): the 0x7A0 direct
-    //! master only sees a completion while the journal is idle
-    .i_acmp_rest_ack    (acmp_rest_ack_w & ~jnl_rest_req_w),
+    .o_acmp_rest_req    (),
+    .o_acmp_rest_idx    (),
+    .o_acmp_rest_talker (),
+    .o_acmp_rest_tuid   (),
+    .o_acmp_rest_ctlr   (),
+    .o_acmp_rest_flags  (),
+    //! the E1 bind-restore port has no engine behind it any more: the ACMP
+    //! context table it injected into is deleted, so the ack is a STRUCTURAL
+    //! ZERO and a 0x7A0 commit never completes
+    .i_acmp_rest_ack    (acmp_rest_ack_w),
     .i_acmp_rest_status (acmp_rest_status_w),
-    //! persistence-journal ingest group 0x7B8-0x7C4 (E3)
-    .o_jnl_start        (cfg_jnl_start_w),
-    .o_jnl_wr           (cfg_jnl_wr_w),
-    .o_jnl_data         (cfg_jnl_data_w),
-    .o_jnl_end          (cfg_jnl_end_w),
-    .o_jnl_abort        (cfg_jnl_abort_w),
+    //! Persistence-journal ingest group 0x7B8-0x7C4 (E3). KL_persist_journal
+    //! is deleted, so these strobes land nowhere: software may still write
+    //! the group and the writes are accepted and DISCARDED, and JNL_STAT /
+    //! JNL_SEQ below read structural zeros. No image is ever verified and no
+    //! binding is ever restored.
+    .o_jnl_start        (),
+    .o_jnl_wr           (),
+    .o_jnl_data         (),
+    .o_jnl_end          (),
+    .o_jnl_abort        (),
     .i_jnl_stat         (jnl_stat_w),
     .i_jnl_seq          (jnl_seq_w),
     //! AEM dynamic-state patch port 0x7C8-0x7D4 (E4)
-    .o_aemp_wdata       (cfg_aemp_wdata_w),
-    .o_aemp_sel_p       (cfg_aemp_sel_w),
-    .o_aemp_field_p     (cfg_aemp_field_w),
-    .o_aemp_data_p      (cfg_aemp_data_w),
-    .o_aemp_commit_p    (cfg_aemp_commit_w),
-    .o_aemp_abort_p     (cfg_aemp_abort_w),
+    .o_aemp_wdata       (),
+    .o_aemp_sel_p       (),
+    .o_aemp_field_p     (),
+    .o_aemp_data_p      (),
+    .o_aemp_commit_p    (),
+    .o_aemp_abort_p     (),
     .i_aemp_stat        (aemp_stat_w),
-    .o_srp_ctx_req      (csr_srp_ctx_req),
-    .o_srp_ctx_we       (csr_srp_ctx_we),
-    .o_srp_ctx_idx      (csr_srp_ctx_idx),
-    .o_srp_ctx_valid    (csr_srp_ctx_valid),
-    .o_srp_ctx_dir      (csr_srp_ctx_dir),
-    .o_srp_ctx_sid      (csr_srp_ctx_sid),
-    .o_srp_ctx_dmac     (csr_srp_ctx_dmac),
-    .o_srp_ctx_prio_rank(csr_srp_ctx_prio),
-    .o_srp_ctx_max_frame(csr_srp_ctx_maxf),
-    .o_srp_ctx_interval (csr_srp_ctx_intv),
-    .o_srp_ctx_latency  (csr_srp_ctx_lat),
-    //! the window only sees the grants IT asked for: the CRF Media Clock
-    //! Output shares this port and a fabric grant must not retire a CSR write
-    //! a grant belongs to whoever owned the SERVICE beat behind it, so the
-    //! mask is the registered ownership flag and not the live request
-    .i_srp_ctx_gnt      (srp_ctx_gnt_w & ~srp_fab_own_r),
-    .i_srp_ctx_stolen   (srp_fab_qsvc_w | srp_fab_own_r),
+    .o_srp_ctx_req      (),
+    .o_srp_ctx_we       (),
+    .o_srp_ctx_idx      (),
+    .o_srp_ctx_valid    (),
+    .o_srp_ctx_dir      (),
+    .o_srp_ctx_sid      (),
+    .o_srp_ctx_dmac     (),
+    .o_srp_ctx_prio_rank(),
+    .o_srp_ctx_max_frame(),
+    .o_srp_ctx_interval (),
+    .o_srp_ctx_latency  (),
+    //! The 0x800 window's SRP attribute-row port has no engine and no
+    //! fabric requester behind it any more: no grant is ever issued and no
+    //! write is ever stolen. Both read STRUCTURAL ZEROS - a write to the
+    //! window is accepted by the CSR and lands nowhere.
+    .i_srp_ctx_gnt      (srp_ctx_gnt_w),
+    .i_srp_ctx_stolen   (1'b0),
     .i_srp_ctx_rd_sid   (srp_ctx_rd_sid_w),
     .i_srp_ctx_rd_stat  (srp_ctx_rd_stat_w),
     .i_bdbg0            (aecp_bdbg0_w),
@@ -2437,10 +2480,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_mac_reinit       (linkg_reinit_w),
     .o_linkg_dis        (cfg_linkg_dis),
     .o_linkg_freeze     (cfg_linkg_freeze),
-    .o_as_parent_ckid   (cfg_as_parent_ckid),
-    .o_asp_path         (cfg_asp_path),
-    .o_asp_count        (cfg_asp_count),
-    .o_asp_gen          (cfg_asp_gen),
+    .o_as_parent_ckid   (),
+    .o_asp_path         (),
+    .o_asp_count        (),
+    .o_asp_gen          (),
     .o_tcam_default_pass(cfg_tcam_default_pass),
     .o_tcam_addr_filt_en(cfg_tcam_addr_filt_en),
     .o_tcam_wr_en       (cfg_tcam_wr_en),
@@ -2477,10 +2520,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ==========================================================================
   //  802.1Q classify + 802.1Qav CBS shaper (CSR-configured)
   // ==========================================================================
-  //! lwSRP slope MUX (LWSRP_FPGA_ARCHITECTURE.md §5): an ACTIVE reservation
-  //! drives the class-A queue's idleSlope from the granted TSpec and shapes
-  //! the queue; the 0x400 CSR values stay intact and win back the moment the
-  //! grant releases. No CSR write-back.
+  //! SRP slope MUX: an ACTIVE reservation drives the class-A queue's
+  //! idleSlope from the granted TSpec and shapes the queue; the 0x400 CSR
+  //! values stay intact and win back the moment the grant releases. No CSR
+  //! write-back.
+  //!
+  //! ITS SOURCE MOVED. KL_lwsrp_bw_gate is deleted; the Sigma of granted
+  //! idleSlopes now comes from the protocol processor's admission engine
+  //! (srp_sum_slope_bps_o) and the select from its per-source admitted vector
+  //! (srp_sr_admitted_o). The ORDERING DIFFERENCE between the two is analysed
+  //! in full at the SRP section below - short version: the invariant "no
+  //! stream transmits against an un-budgeted slope" holds on both edges, and
+  //! the teardown edge is now MORE conservative because the Sigma is
+  //! round-latched and lags the gate closing.
   logic [32*NUM_QUEUES-1:0] cbs_idle_slope_mux;
   logic [NUM_QUEUES-1:0]    cbs_enable_mux;
   //! LWSRP_CTRL[4:2] is 3 bits wide (it must reach the top queue - q4 in the
@@ -2684,130 +2736,39 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end endgenerate
 
   // ==========================================================================
-  //  ADP advertiser (IEEE 1722.1 / Milan v1.2) + MAC-TX arbiter
+  //  ADP — served by the protocol processor (KL_pp_shadow), not here
   // ==========================================================================
-  //! 1-second tick for the ADP re-advertise timer. MUST track the actual
-  //! datapath clock: the old hardcoded 100_000_000 made a 50 MHz datapath
-  //! (Arty) tick every 2 s, stretching the re-advertise period to 62 s =
-  //! exactly the ADP validity horizon (2*valid_time at valid_time 31) with
-  //! zero margin, instead of the intended half-validity cadence.
-  localparam int ADP_TICK_DIV = MILAN_CLK_FREQ_HZ;
-  reg [26:0] adp_tick_cnt;
-  reg        adp_tick_1s;
-  always_ff @(posedge axis_clk) begin : adp_tick_gen
-    if (!axis_resetn) begin
-      adp_tick_cnt <= 27'd0; adp_tick_1s <= 1'b0;
-    end else if (adp_tick_cnt >= ADP_TICK_DIV-1) begin
-      adp_tick_cnt <= 27'd0; adp_tick_1s <= 1'b1;
-    end else begin
-      adp_tick_cnt <= adp_tick_cnt + 27'd1; adp_tick_1s <= 1'b0;
-    end
-  end
-
-  //! Link edge -> advertise (up) / depart (down). ALSO synthesize the link-up
-  //! event on an ADP-ENABLE rising edge while the link is already up: on the
-  //! fully-FPGA SoC i_link_up is constant 1 (no MDIO tracking yet), so its only
-  //! real edge fires one cycle after reset while ADP is still disabled (CSR
-  //! reset default) - without this, enabling ADP later could NEVER reach the
-  //! advertiser's available state (available_r needs link_up_i && enable_i;
-  //! silicon-diagnosed 2026-07-11: strobes swallowed, available_index stuck 0).
-  //! Per 1722.1 semantics an entity being enabled on a live link advertises.
-  reg link_up_q; reg adp_en_q; reg adp_link_up_p, adp_link_down_p;
-  always_ff @(posedge axis_clk) begin : adp_link_edge
-    if (!axis_resetn) begin
-      link_up_q <= 1'b0; adp_en_q <= 1'b0;
-      adp_link_up_p <= 1'b0; adp_link_down_p <= 1'b0;
-    end else begin
-      link_up_q       <= i_link_up;
-      adp_en_q        <= cfg_adp_enable;
-      adp_link_up_p   <= (i_link_up & ~link_up_q) |
-                         (cfg_adp_enable & ~adp_en_q & i_link_up);
-      adp_link_down_p <= ~i_link_up &  link_up_q;
-    end
-  end
-
-  //! discover-DELAY range scaled by the datapath clock (the params are in
-  //! clk cycles; unscaled, the 100 MHz AX halved the wall-time range and
-  //! failed the internal COMPLIANCE es-2.1 randomness spread). BASE = 200 ms; the mask
-  //! passes the full 26-bit LFSR = up to ~0.67 s @100 MHz / ~1.34 s @50 MHz
-  //! (both << the 4.5 s TMR_DELAY bound).
-  adp_advertiser #(
-    .DISC_DLY_BASE (MILAN_CLK_FREQ_HZ / 5),
-    .DISC_DLY_MASK (26'h3FF_FFFF)
-  ) adp_adv (
-    .clk_i (axis_clk),
-    .rst_n (axis_resetn),
-    .enable_i (cfg_adp_enable),
-    .tick_i   (adp_tick_1s),
-    .link_level_i  (eff_link_w),
-    .link_up_i     (adp_link_up_p),
-    .link_down_i   (adp_link_down_p),
-    .shutdown_i    (cfg_adp_depart_p),
-    .gm_change_i   (1'b0),
-    .info_changed_i(cfg_adp_advertise_p),
-    .rcv_discover_i(aecp_discover_p),   // ENTITY_DISCOVER decoded by KL_aecp_ingress
-    // cfg_mac_addr is the PLATFORM (CSR) convention: [7:0] = FIRST wire byte
-    // (the driver packs MAC_ADDR_LO/HI that way and the RX filter consumes it
-    // that way). The advertiser's port is a numeric EUI-48 ([47:40] = first
-    // byte, matching its harness + the 1722.1 field constants), so byte-reverse
-    // at the boundary. Without this the ADP source MAC egressed byte-swapped =
-    // a MULTICAST source address (01:..), which 802.1D bridges MUST discard -
-    // silicon-diagnosed 2026-07-11 through the AVB switch (index bumped, wire
-    // silent).
-    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
-                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
-                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
-    .valid_time_i  (cfg_adp_valid_time),
-    .entity_id_i             (cfg_adp_entity_id),
-    .entity_model_id_i       (cfg_adp_entity_model_id),
-    .entity_capabilities_i   (cfg_adp_entity_caps),
-    .talker_stream_sources_i (cfg_adp_talker_sources),
-    .talker_capabilities_i   (cfg_adp_talker_caps),
-    .listener_stream_sinks_i (cfg_adp_listener_sinks),
-    .listener_capabilities_i (cfg_adp_listener_caps),
-    .controller_capabilities_i(cfg_adp_controller_caps),
-    .gptp_grandmaster_id_i   (cfg_adp_gptp_gm),
-    .gptp_domain_number_i    (cfg_adp_gptp_domain),
-    .current_configuration_index_i(cfg_adp_current_config),
-    .identify_control_index_i(cfg_adp_identify_index),
-    .interface_index_i       (cfg_adp_interface_index),
-    .association_id_i        (cfg_adp_association_id),
-    .m_axis_tdata (adp_tx_tdata),
-    .m_axis_tkeep (adp_tx_tkeep),
-    .m_axis_tvalid(adp_tx_tvalid),
-    .m_axis_tlast (adp_tx_tlast),
-    .m_axis_tready(adp_tx_tready),
-    .available_index_o(adp_available_index),
-    .busy_o (),
-    .frame_sent_o (),
-    .depart_cnt_o (adp_depart_cnt),
-    .rearm_cnt_o  (adp_rearm_cnt),
-    .depart_src_o (adp_depart_src),
-    .sent_cnt_o    (adp_sent_cnt),
-    .disc_rx_cnt_o (adp_disc_rx_cnt),
-    .last_msg_o    (adp_last_msg),
-    .state_o       (adp_state)
-  );
+  //! adp_advertiser.sv, KL_adp_parser.sv and adp_pkg.sv are DELETED. The
+  //! processor's KL_adp_engine owns ENTITY_AVAILABLE/DEPARTING, the
+  //! ENTITY_DISCOVER answer and the available_index, off the SAME 0x600 CSR
+  //! identity group this file used to feed the advertiser from.
+  //!
+  //! WHAT MOVED, AND WHAT DIED WITH IT:
+  //!   - available_index: LIVE, published by the processor
+  //!     (adp_next_avail_index_o -> pp_cd_adp_avail_index_w).
+  //!   - the 1 Hz re-advertise tick, the link-edge -> advertise/depart pulses
+  //!     and the ENTITY_DISCOVER decode: INTERNAL to the processor now. It
+  //!     takes link_up_i as a LEVEL and runs its own timer service, so this
+  //!     file no longer synthesises an edge for it.
+  //!   - A_ADP_DIAG 0x668's depart/rearm/sent/discover-rx counters, the last
+  //!     message word and the advertiser state: STRUCTURAL ZERO. The
+  //!     processor publishes no equivalent through the class-D face, and a
+  //!     plausible-looking count here would be a mirror of nothing.
+  assign adp_available_index = pp_cd_adp_avail_index_w;
+  assign adp_depart_cnt = 8'd0;
+  assign adp_rearm_cnt = 8'd0;
+  assign adp_depart_src = 2'd0;
+  assign adp_sent_cnt = 8'd0;
+  assign adp_disc_rx_cnt = 8'd0;
+  assign adp_last_msg = 4'd0;
+  assign adp_state = 4'd0;
+  assign adp_disc_seen_p = 1'b0;
 
   // ==========================================================================
   //  AECP / AEM listener (IEEE 1722.1 / Milan v1.2). Non-intrusive MONITOR of
   //  the post-filter RX stream (rx_axis_to_dma — reads only, never drives its
-  //  tready) answers AECP commands against the 5-descriptor Milan entity and
-  //  decodes ENTITY_DISCOVER -> aecp_discover_p. Response frames merge with the
-  //  advertiser in a low-rate arbiter that takes the ADP slot below. Identity =
-  //  the milan_csr 0x600 group, so ADP and AEM cannot disagree.
+  //  AECP / AEM — DELETED. Nothing answers an AECP command on this device.
   // ==========================================================================
-  //! dynamic audio-map render taps (gaps item 8): live only when the AEM
-  //! shape compiles `AEM_DYNMAP (deployed static shapes tie en=0 with the
-  //! wire-truth ch0/ch1 defaults). CONSUMPTION by the playback walker
-  //! (KL_i2s_playback position remap) is the documented follow-up —
-  //! docs/MILAN_COMPLIANCE_GAPS.md §1 — so the taps terminate here.
-  wire [3:0] dmap_l_ch_w, dmap_r_ch_w;
-  wire       dmap_l_en_w, dmap_r_en_w;
-  // verilator lint_off UNUSED
-  wire       dmap_unused_ok = &{1'b0, dmap_l_ch_w, dmap_r_ch_w,
-                                dmap_l_en_w, dmap_r_en_w};
-  // verilator lint_on  UNUSED
 
   // ==========================================================================
   //  Milan Table 5.4 diagnostic counters, one context per Stream Output
@@ -2823,8 +2784,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        aaf_frame_mr_w;
   wire [N_STREAMS-1:0] aaf_mr_w;
   wire [3:0]  aecp_diag_idx_w;
-  wire [12*32-1:0] mon_diag_cnt_w;
-  wire [5*32-1:0]  tkdiag_cnt_w;
   //! CRF PDU strobe from the tx counter delta; deferred one cycle when an
   //! AAF frame pulse occupies the diag event port (events are ~8.5 k/s
   //! against a 50+ MHz clock, so the skid never accumulates)
@@ -2844,11 +2803,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! context vector: AAF talkers 0..N-1, CRF (when this shape has one) at N
   //! (a generate, not a width-bending conditional: the two arms have
   //! different exact widths and the ternary form lints as trunc+expand)
-  wire [ACMP_SRC_C-1:0] tkd_streaming_w;
   generate if (ACMP_SRC_C > N_STREAMS) begin : g_tkd_crf
-    assign tkd_streaming_w = {cfg_crft_en, aaf_stream_en_w};
   end else begin : g_tkd_nocrf
-    assign tkd_streaming_w = aaf_stream_en_w[ACMP_SRC_C-1:0];
   end endgenerate
   // --------------------------------------------------------------------------
   //  IEEE 1722-2016 4.4.4.3: the mr (media clock restart) level. The clause
@@ -2884,7 +2840,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! internal media clock the received CRF bit governs nothing here, and
   //! echoing it would restart every listener's clock over a stream this
   //! device is not slaved to.
-  wire mcr_restart_p_w = (aecp_clk_src == aem_crf_clksrc_w)
+  //! CRF_CLK_SELECTED_C, not a live compare: this device cannot select the
+  //! CRF media clock, so 4.4.4.3's "disruption of the CRF stream" cannot be
+  //! a disruption of OUR clock and must not toggle mr on our streams.
+  wire mcr_restart_p_w = CRF_CLK_SELECTED_C
                        & ((tkd_crflk_q_r & ~crf_locked_w) | crf_mr_toggle_p_w);
 
   //! the 4.4.4.3 / 10.4.3 level, for EVERY stream this fabric can emit -
@@ -2914,7 +2873,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   KL_media_clock_restart #(.N_TALKERS_P(MCR_CTX_C)) media_clock_restart (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .restart_p_i (mcr_restart_p_w),
-    .clk_src_i   (aecp_clk_src),
+    .clk_src_i   (MEDIA_CLK_SRC_IDX_C),
     .streaming_i (mcr_streaming_w),
     //! the SAME muxed PDU feed KL_talker_diag_ctx takes below (AAF strobe or
     //! the deferred CRF strobe, never both in a cycle) ...
@@ -2930,36 +2889,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign aaf_mr_w  = mcr_mr_v_w[N_STREAMS-1:0];
   assign crft_mr_w = mcr_mr_v_w[N_STREAMS];
 
-  //! per-source Table 5.4 counter-update pulses -> the AECP unsolicited
-  //! GET_COUNTERS(STREAM_OUTPUT, idx) push source (Milan 5.4.5 Table 5.22);
-  //! zero-extended to the builder's fixed 4-bit index space
-  wire [ACMP_SRC_C-1:0] tkd_dirty_p_w;
-  KL_talker_diag_ctx #(
-    .N_CTX_P    (ACMP_SRC_C),
-    .TICK_CYC_P (DIAG_TICK_CYC_P)
-  ) talker_diag (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .streaming_i (tkd_streaming_w),
-    .frame_p_i   (aaf_frame_p_w | tkd_crf_p_w),
-    .frame_idx_i (aaf_frame_p_w ? aaf_frame_idx_w : 4'(N_STREAMS)),
-    .tu_i        (clkv_tu_w),
-    .dirty_p_o   (tkd_dirty_p_w),
-    //! the mr bit the announced PDU carried, per side. This used to be
-    //! `aaf_frame_p_w & aaf_frame_mr_w`, which fed the CRF context a
-    //! CONSTANT 0 - defensible only while KL_crf_tx really did stamp a
-    //! constant mr, and a tie-off the moment it stopped (gh #62 H2b). The
-    //! CRF Media Clock Output now carries a real 10.4.3 level, so its
-    //! MEDIA_RESET has to score the real wire: crft_mr_last_w is the bit its
-    //! last completed PDU put on it, which is the same bit tkd_crf_p_w
-    //! announces.
-    .frame_mr_i  (aaf_frame_p_w ? aaf_frame_mr_w : crft_mr_last_w),
-    .rd_idx_i    (aecp_diag_idx_w),
-    .rd_start_o  (tkdiag_cnt_w[0*32 +: 32]),
-    .rd_stop_o   (tkdiag_cnt_w[1*32 +: 32]),
-    .rd_mreset_o (tkdiag_cnt_w[2*32 +: 32]),
-    .rd_tu_o     (tkdiag_cnt_w[3*32 +: 32]),
-    .rd_ftx_o    (tkdiag_cnt_w[4*32 +: 32])
-  );
+  //! ------------------------------------------------------------------------
+  //! MILAN TABLE 5.4 PER-STREAM_OUTPUT DIAGNOSTIC COUNTERS ARE UNREADABLE
+  //! WITHOUT AECP, so KL_talker_diag_ctx is no longer instantiated. Its five
+  //! counters (STREAM_START / STREAM_STOP / MEDIA_RESET / TIMESTAMP_UNCERTAIN
+  //! / FRAMES_TX) had exactly two consumers, GET_COUNTERS(STREAM_OUTPUT, idx)
+  //! and its Milan Table 5.22 unsolicited push, and both are deleted. Keeping
+  //! the engine would have burned per-context counters into a build where
+  //! nothing on earth can read them - dead logic that looks alive. The MODULE
+  //! survives in hdl/ieee1722/avtp/ with its own suite; what is gone is this
+  //! integration.
+  //!
+  //! Note this is NOT the same as the STREAM_INPUT counters: those reach
+  //! software through the 0x6B8 A_STRMW_CNT CSR window and stay wired.
 
   //! gh #58 stream-command law truth vectors — the LIVE gates, never
   //! mirrors. Outputs: aaf_stream_en_w IS the composed 5.3.7.3 wire gate
@@ -2969,373 +2911,142 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! Output (when this shape has one) contributes crft_emit_en_w, the
   //! LICENCE-gated emission enable, not the bare CSR bit. A generate,
   //! not a width-bending ternary (the tkd_streaming_w precedent).
-  wire [15:0] aecp_out_strm_v_w;
+  //! (the composed per-source streaming truth the deleted AECP stream-command
+  //! law read; no reader remains)
   generate if (ACMP_SRC_C > N_STREAMS) begin : g_aecp_ostrm_crf
-    assign aecp_out_strm_v_w = 16'({crft_emit_en_w, aaf_stream_en_w});
   end else begin : g_aecp_ostrm
-    assign aecp_out_strm_v_w = 16'(aaf_stream_en_w);
   end endgenerate
 
-  KL_aecp_top #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ)) aecp_listener (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .enable_i (cfg_adp_enable),
-    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
-                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
-                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
-    .entity_id_i       (cfg_adp_entity_id),
-    .entity_model_id_i (cfg_adp_entity_model_id),
-    .entity_name8_i    (cfg_entity_name8),
-    .entity_caps_i     (cfg_adp_entity_caps),
-    .talker_sources_i  (cfg_adp_talker_sources),
-    .talker_caps_i     (cfg_adp_talker_caps),
-    .listener_sinks_i  (cfg_adp_listener_sinks),
-    .listener_caps_i   (cfg_adp_listener_caps),
-    .controller_caps_i (cfg_adp_controller_caps),
-    .available_index_i (adp_available_index),
-    .association_id_i  (cfg_adp_association_id),
-    .gptp_gm_id_i      (cfg_adp_gptp_gm),
-    .pdelay_ns_i       (cfg_gptp_pdelay_ns),
-    //! J3: the leased asCapable claim, NOT "some pdelay was once written"
-    .as_capable_i      (clkv_as_cap_w),
-    .gptp_domain_i     (cfg_adp_gptp_domain),
-    .aaf_dmac_i (eff_aaf_dmac), .aaf_vid_i (cfg_aaf_vid),
-    .talker_active_i (acmp_talker_active),
-    .listener_observed_i (listener_observed_w),
-    .pres_offset_o (aecp_pres_offset),
-    .identify_o    (o_identify),
-    .dmap_l_ch_o   (dmap_l_ch_w),
-    .dmap_l_en_o   (dmap_l_en_w),
-    .dmap_r_ch_o   (dmap_r_ch_w),
-    .dmap_r_en_o   (dmap_r_en_w),
-    .dmap_wr_p_o   (aecp_dmap_wr_p_w),
-    .dmap_wr_addr_o(aecp_dmap_wr_addr_w),
-    .dmap_wr_word_o(aecp_dmap_wr_word_w),
-    .odmap_wr_p_o   (aecp_odmap_wr_p_w),
-    .odmap_wr_slot_o(aecp_odmap_wr_slot_w),
-    .odmap_wr_word_o(aecp_odmap_wr_word_w),
-    .dmap_dyn_o     (aecp_dmap_dyn_w),
-    .crf_clksrc_o   (aem_crf_clksrc_w),
-    .odmap_dyn_o    (aecp_odmap_dyn_w),
-    .link_up_i     (cnt_link_w),
-    .gs_diag_idx_o (aecp_diag_idx_w),
-    .rxdiag_cnt_i  (mon_diag_cnt_w),
-    .tkdiag_cnt_i  (tkdiag_cnt_w),
-    .tkdiag_dirty_p_i (16'(tkd_dirty_p_w)),
-    //! per-sink Table 5.22 counter-change pulses (gh #60 F2): the monitor
-    //! ctx dirty vector, zero-extended like its tkdiag twin above
-    .rxdiag_dirty_p_i (16'(avtprx_dirty_p_w)),
-    .crf_cnt_dirty_p_i (crf_cnt_dirty_p_w),
-    .n_aaf_sinks_i (16'(N_STREAMS)),
-    //! CRF Media Clock Input GET_COUNTERS (Milan Table 5.16 mandatory
-    //! ten): served straight out of the KL_crf_rx sink engine. The first
-    //! five also reach the 0x738 CSR group; the last five have no CSR
-    //! window on purpose - a second copy of a live counter is a mirror
-    //! that agrees on day one and drifts in silence
-    .crf_cnt_locked_i   (crf_cnt_locked_w),
-    .crf_cnt_unlocked_i (crf_cnt_unlocked_w),
-    .crf_cnt_seqerr_i   (crf_seqerr_w),
-    .crf_cnt_fmterr_i   (crf_fmterr_w),
-    .crf_cnt_pdu_i      (crf_pducnt_w),
-    .crf_cnt_intr_i     (crf_cnt_intr_w),
-    .crf_cnt_mreset_i   (crf_mrcnt_w),
-    .crf_cnt_tu_i       (crf_tucnt_w),
-    .crf_cnt_late_i     (crf_latecnt_w),
-    .crf_cnt_early_i    (crf_earlycnt_w),
-    .lstn_bound_i   (acmpl_bound),
-    .lstn_sid_i     (acmpl_sid),
-    .lstn_dmac_i    (acmpl_dmac),
-    .lstn1_bound_i  (acmpl1_bound),
-    .lstn1_sid_i    (acmpl1_sid),
-    .lstn1_dmac_i   (acmpl1_dmac),
-    //! gh #58: per-sink bind level straight from the listener SM (the
-    //! same vector the lwSRP provisioner derives its rows from) + the
-    //! per-source streaming truth composed above
-    .lstn_bound_v_i    (16'(acmpl_bound_v_w)),
-    .out_streaming_v_i (aecp_out_strm_v_w),
-    .bdbg0_o        (aecp_bdbg0_w),
-    .bdbg1_o        (aecp_bdbg1_w),
-    .bdbg2_o        (aecp_bdbg2_w),
-    .lstn_vlan_i    (acmpl_vlan),
-    .lstn_pbsta_i   (acmpl_probing),
-    .lstn_acmpsta_i (acmpl_status),
-    .lstn_ta_reg_i  (lwsrp_ta_registered),
-    .lstn_ta_fail_i (lwsrp_ta_failed),
-    .as_parent_ckid_i   (cfg_as_parent_ckid),
-    .asp_path_i         (cfg_asp_path),
-    .asp_count_i        (cfg_asp_count),
-    .asp_gen_i          (cfg_asp_gen),
-    .lstn_fail_code_i   (lwsrp_ta_fail_code),
-    .lstn_fail_bridge_i (lwsrp_ta_fail_bridge),
-    .lstn_ta_vlan_i     (lwsrp_ta_vlan),
-    .lstn_ta_acclat_i   (lwsrp_ta_acclat),
-    .tk_fail_valid_i    (lwsrp_tfail_valid),
-    .tk_fail_code_i     (lwsrp_tfail_code),
-    .tk_fail_bridge_i   (lwsrp_tfail_bridge),
-    .srp_domain_vid_i   (cfg_lwsrp_vid),
-    //! CLOCK_DOMAIN lock events follow the ACTIVE clock source: index 2 =
-    //! the CRF input engine, else the AAF media-lock monitor (Milan 5.4.4).
-    //! This pair is the mux's ONE lawful reader (gh #60 F3): every
-    //! STREAM_INPUT counter - solicited and pushed - serves its own
-    //! descriptor's mon_diag_cnt_w mirror slice above.
-    .in0_cnt_locked_i      ((aecp_clk_src == aem_crf_clksrc_w) ? crf_cnt_locked_w
-                                                    : avtprx_locked_c),
-    .in0_cnt_unlocked_i    ((aecp_clk_src == aem_crf_clksrc_w) ? crf_cnt_unlocked_w
-                                                    : avtprx_unlocked_c),
-    .in0_fmt_o             (aecp_in0_fmt),
-    .clk_src_o             (aecp_clk_src),
-    //! HANDSHAKE HAZARD (gh #65): the tap MUST see tready - a stalled DMA
-    //! parks a beat with tvalid held and a tvalid-only tap re-eats it
-    .rx_tvalid_i (rx_axis_to_dma.tvalid),
-    .rx_tready_i (rx_axis_to_dma.tready),
-    .rx_tdata_i  (rx_axis_to_dma.tdata),
-    .rx_tkeep_i  (rx_axis_to_dma.tkeep),
-    .rx_tlast_i  (rx_axis_to_dma.tlast),
-    .adp_discover_o (aecp_discover_p),
-    .adp_disc_seen_o(adp_disc_seen_p),
-    .m_axis_tdata (aecp_tx_tdata), .m_axis_tkeep (aecp_tx_tkeep),
-    .m_axis_tvalid(aecp_tx_tvalid), .m_axis_tlast (aecp_tx_tlast),
-    .m_axis_tready(aecp_tx_tready),
-    //! E4 saved-state ingest (CSR 0x7C8-0x7D4). enable_i above IS the gate:
-    //! the same cfg_adp_enable that starts the advertiser closes this port.
-    .pat_wdata_i    (cfg_aemp_wdata_w),
-    .pat_sel_p_i    (cfg_aemp_sel_w),
-    .pat_field_p_i  (cfg_aemp_field_w),
-    .pat_data_p_i   (cfg_aemp_data_w),
-    .pat_commit_p_i (cfg_aemp_commit_w),
-    .pat_abort_p_i  (cfg_aemp_abort_w),
-    .pat_stat_o     (aemp_stat_w),
-    .locked_o(aecp_locked), .locking_ctlr_o(aecp_locking_ctlr),
-    .current_config_o(aecp_current_config),
-    .cmd_count_o(aecp_cmd_count), .resp_count_o(aecp_resp_count),
-    .ca_diag_o(aecp_ctlr_diag)
-  );
+  //! ------------------------------------------------------------------------
+  //! THERE IS NO AECP. KL_aecp_top and its whole plane (the packet validator,
+  //! the common parser, the L0 state, the timers, the accessor, the AEM store
+  //! and its generated descriptor ROM, the dynamic-map mux, the 292 KB
+  //! response builder, the ingress decoder, KL_aem_patch and
+  //! KL_persist_journal) are DELETED. The protocol processor's AECP engine is
+  //! the P4 micro-coded uCPU and it has not landed at the processor's top -
+  //! aecp_txn_ready_i is tied 0 there and TX lanes 0/1 are idle - so this
+  //! device now DISCOVERS over ADP, connects over ACMP and reserves over SRP,
+  //! and answers no AECP/AEM command at all. USER decision, made knowingly.
+  //!
+  //! Everything below is what that costs, stated as STRUCTURAL ZEROS so a
+  //! reader can tell "no engine" from "engine idle":
+  assign aecp_bdbg0_w = 32'd0, aecp_bdbg1_w = 32'd0, aecp_bdbg2_w = 32'd0;
+  assign aecp_locked = 1'b0;   //! no ACQUIRE/LOCK_ENTITY
+  assign aecp_current_config = 16'd0;  //! no SET_CONFIGURATION
+  assign aecp_cmd_count = 16'd0;
+  assign aecp_resp_count = 16'd0;
+  assign aecp_ctlr_diag = 32'd0;
+  assign aemp_stat_w = 32'd0;  //! no AEM patch ingest
+  //! STREAM_INPUT[0]'s stream_format. NOT ZERO: KL_avtp_rx_monitor_ctx
+  //! accepts frames against this value, so 0 rejects every conformant AAF
+  //! PDU and stream 0 accepts NOTHING. It was the AEM ROM's
+  //! AEM_STRIN_FMT_C[0]; the ROM is deleted, so the same number now comes
+  //! from the same config through the entity-shape header. With no AECP
+  //! there is no SET_STREAM_FORMAT, so the declared format is also the only
+  //! one this build will ever have.
+  assign aecp_in0_fmt = ADP_STRIN0_FMT_C;
+  //! per-STREAM_OUTPUT presentation offset. SET_MAX_TRANSIT_TIME /
+  //! SET_STREAM_INFO(ACC_LAT) was the only writer, so every entry now holds
+  //! the Milan v1.2 default the deleted register file booted with. This is a
+  //! DEFAULT, not a zero: 0 ns would be a presentation time in the past and
+  //! every listener would drop every frame as late.
+  localparam logic [31:0] PRES_DFLT_C = 32'd2_000_000;   //! 2 ms
+  assign aecp_pres_offset = {16{PRES_DFLT_C}};
+  //! (the media clock source is a constant now - see CRF_CLK_SELECTED_C and
+  //!  its banner at the top of this file. The CRF Media Clock Input engine
+  //!  still parses, counts and reports; what it can no longer do is STEER the
+  //!  audio MMCM or the packet-grid NCO.)
+  //! ...and the AEM descriptor-map write ports, whose only master was
+  //! SET_AUDIO_MAP / the dynamic-map overlay in the response builder
+  assign aecp_dmap_wr_p_w = 1'b0;
+  assign aecp_dmap_wr_addr_w = 6'd0;
+  assign aecp_dmap_wr_word_w = 8'd0;
+  assign aecp_dmap_dyn_w = 1'b0;
+  assign aecp_odmap_wr_p_w = 1'b0;
+  assign aecp_odmap_wr_slot_w = 6'd0;
+  assign aecp_odmap_wr_word_w = 13'd0;
+  assign aecp_odmap_dyn_w = 1'b0;
+  //! GET_COUNTERS read index: no reader, so the counter contexts are read at
+  //! index 0 and their windows are the CSR groups, not an AECP response
+  assign aecp_diag_idx_w = 4'd0;
+  //! IDENTIFY: 1722.1-2021 7.4.x drives it from a CONTROL descriptor an AECP
+  //! command writes. No AECP, no identify - the LED is structurally dark.
+  assign o_identify = 1'b0;
 
   // ==========================================================================
-  //  ACMP stateless responder (Milan v1.2 §5.5) — same monitor-tap pattern.
-  //  GET_TX_STATE -> SUCCESS/count=0; GET_TX_CONNECTION + CONNECT/DISCONNECT_TX
-  //  -> NOT_SUPPORTED (connection POLICY is the softcore's, via a future
-  //  mailbox — docs/ARCHITECTURE_HW_SW_SPLIT.md).
+  //  ACMP — talker AND listener, served by the protocol processor
   // ==========================================================================
-  //! 2026-07-26: KL_acmp_tlkr_ctx consumed DIRECTLY at N_SRC_P = N_STREAMS
-  //! (the wrapper's documented NxN integration path) - CONNECT_TX/PROBE_TX
-  //! answers SUCCESS for every talker_unique_id 0..N-1 with dmac = MAAP
-  //! base+uid, so Milan listeners can probe-bind every talker stream.
-  KL_acmp_tlkr_ctx #(.N_SRC_P(ACMP_SRC_C)) acmp_responder (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .enable_i (cfg_adp_enable),
-    .src_dmac_i (acmp_src_dmac_w), .src_vid_i (acmp_src_vid_w),
-    .src_dmac_valid_i (acmp_dmac_valid_w),
-    .tick_1s_i (adp_tick_1s),
-    .listener_observed_i (acmp_lobs_v_w),
-    .lstn_ask_fail_i (acmp_laf_v_w),
-    .talker_active_o (acmp_talker_active_v),
-    .probe_armed_o (acmp_probe_armed_v),
-    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
-                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
-                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
-    .entity_id_i (cfg_adp_entity_id),
-    //! HANDSHAKE HAZARD (gh #65): the tap MUST see tready - a stalled DMA
-    //! parks a beat with tvalid held and a tvalid-only tap re-eats it
-    .rx_tvalid_i (rx_axis_to_dma.tvalid),
-    .rx_tready_i (rx_axis_to_dma.tready),
-    .rx_tdata_i  (rx_axis_to_dma.tdata),
-    .rx_tkeep_i  (rx_axis_to_dma.tkeep),
-    .rx_tlast_i  (rx_axis_to_dma.tlast),
-    .m_axis_tdata (acmp_tx_tdata), .m_axis_tkeep (acmp_tx_tkeep),
-    .m_axis_tvalid(acmp_tx_tvalid), .m_axis_tlast (acmp_tx_tlast),
-    .m_axis_tready(acmp_tx_tready),
-    .cmd_count_o (acmp_cmd_count), .resp_count_o (acmp_resp_count)
-  );
-  assign acmp_talker_active = acmp_talker_active_v[0];
-  assign acmp_probe_armed   = acmp_probe_armed_v[0];
+  //! KL_acmp_tlkr_ctx, KL_acmp_responder, KL_acmp_listener, KL_acmp_lstn_ctx
+  //! and acmp_pkg.sv are DELETED. The processor's KL_acmp_talker /
+  //! KL_pp_acmp_listener pair answers CONNECT_TX/PROBE_TX/GET_TX_STATE and
+  //! runs the BIND_RX ladder, and republishes the result through the class-D
+  //! face - which is what every consumer in this file reads now.
+  //!
+  //! THE DA GATE IS THE TALKER GATE. acmp_declaring_o asserts only after an
+  //! ALLOC_DA success through KL_pp_maap_shim, so the composed AAF admission
+  //! below is still "a destination address exists AND the source is
+  //! declaring", exactly as it was.
+  assign acmp_talker_active_v = pp_cd_acmp_declaring_w;
+  assign acmp_talker_active   = acmp_talker_active_v[0];
+  //! PROBE_ARMED was the legacy talker SM's "a probe window is open" level,
+  //! read only by the 0x6E8 forensics word. The processor exposes no
+  //! equivalent through the class-D face: STRUCTURAL ZERO.
+  assign acmp_probe_armed_v   = {ACMP_SRC_C{1'b0}};
+  assign acmp_probe_armed     = 1'b0;
+  assign acmp_cmd_count = 16'd0;
+  assign acmp_resp_count = 16'd0;
 
-  // ==========================================================================
-  //  ACMP listener SM (Milan v1.2 §5.5, FR-CONN-01) — the STREAM_INPUT[0]
-  //  sink: BIND_RX/UNBIND_RX/GET_RX_STATE + the talker-probe ladder; SRP
-  //  coupling through the lwSRP TalkerAdvertise registrar + the Listener
-  //  attribute applicant below.
-  //  N-sink round: N_STREAMS feeds the wrapper's context count; contexts
-  //  1..N-1 are the further AAF sinks for the 0x800-window streams and the
-  //  LAST context is the pinned CRF sink at listener_unique_id = N_STREAMS,
-  //  mirroring the CRF source at talker_unique_id = N_STREAMS. Since task
-  //  #64 EVERY one of them runs the probe ladder, so every one of them needs
-  //  its own SRP registrar levels (acmpl_ta_reg_v_w below).
-  //
-  //  2026-07-27: this count was max(N_STREAMS, 2) computed HERE, which
-  //  reserved the CRF sink only while N <= 2 and then SILENTLY DROPPED IT -
-  //  a 4x4 or 8x8 build had N sinks where its own AEM model declares N + 1
-  //  (N AAF STREAM_INPUTs plus the CRF STREAM_INPUT), so the CRF sink was
-  //  un-addressable exactly the way the CRF source was un-advertised. It is
-  //  no longer computed here at all: ADP_LISTENER_SINK_C comes from the
-  //  config, which is also what generated the AEM descriptor set, so the
-  //  two cannot drift. 1x1 still elaborates 2 sinks, byte-identical.
-  // ==========================================================================
-  //! ACMP sink k <-> lwSRP attribute row (the listener branch of
-  //! srp_fab_row_w). Sink 0 reads the DEDICATED listener-0 row's registrar
-  //! (SRP_LSN0_ROW_C) - the legacy row-0 signal is the talker-0 side's and
-  //! promoted a probing sink on the talker's reservation edge (ax-rv32-g);
-  //! sinks 1..N_STREAMS-1 read the per-row registrars the lsn_srp_prov
-  //! provisioner declares those rows into; the CRF sink (ctx N_STREAMS)
-  //! reads its own appended row since task #27, so it can park in
-  //! SETTLED_RSV_OK instead of re-probing forever.
-  generate
-    for (genvar gk = 0; gk < ACMP_SINKS_C; gk++) begin : g_acmpl_ta
-      if (gk == 0) begin : g_row0
-        //! sink 0 reads its OWN dedicated listener row now - NOT the legacy
-        //! row-0 registrar, which is the TALKER-0 side's reservation and
-        //! promoted a probing sink to SETTLED_RSV_OK on the talker's edge
-        //! (the ax-rv32-g false-promotion evidence, ACMPL_STATE state 7
-        //! while re-probing).
-        assign acmpl_ta_reg_v_w[gk]  = lwsrp_ctx_reg_w[SRP_LSN0_ROW_C];
-        assign acmpl_ta_fail_v_w[gk] = lwsrp_ctx_failed_w[SRP_LSN0_ROW_C];
-      end else if (gk < N_STREAMS) begin : g_rowk
-        assign acmpl_ta_reg_v_w[gk]  = lwsrp_ctx_reg_w[gk];
-        assign acmpl_ta_fail_v_w[gk] = lwsrp_ctx_failed_w[gk];
-      end else if ((gk == N_STREAMS) && (SRP_CRFSNK_C != 0)) begin : g_crfsnk
-        //! task #27: the pinned-LAST CRF sink reads its appended row
-        assign acmpl_ta_reg_v_w[gk]  = lwsrp_ctx_reg_w[SRP_CRFSNK_ROW_C];
-        assign acmpl_ta_fail_v_w[gk] = lwsrp_ctx_failed_w[SRP_CRFSNK_ROW_C];
-      end else begin : g_norow
-        assign acmpl_ta_reg_v_w[gk]  = 1'b0;
-        assign acmpl_ta_fail_v_w[gk] = 1'b0;
-      end
-    end
-  endgenerate
-
-  KL_acmp_listener #(
-    .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
-    .N_SINKS_P     (ACMP_SINKS_C)
-  ) acmp_listener_sm (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .enable_i (cfg_adp_enable),
-    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
-                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
-                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
-    .entity_id_i (cfg_adp_entity_id),
-    //! AECP entity lock -> Milan 5.5.3.5 step 1: a locked entity refuses
-    //! BIND/UNBIND from any controller but the locking one (reads exempt)
-    .locked_i    (aecp_locked),
-    .lock_ctlr_i (aecp_locking_ctlr),
-    .tick_1s_i (adp_tick_1s),
-    //! Milan 5.6.4.5.1 step 1: the committed grandmaster pair + domain
-    //! (CSR 0x624/8 + 0x62C, aclk = axis_clk — no CDC) gate the talker
-    //! ENTITY_AVAILABLE watch; all-zero pair = no commitment yet, gate off
-    .gm_id_i     (cfg_adp_gptp_gm),
-    .gm_domain_i (cfg_adp_gptp_domain),
-    .ta_registered_i (acmpl_ta_reg_v_w),
-    .ta_failed_i     (acmpl_ta_fail_v_w),
-    .lstn_declare_o  (acmpl_lstn_declare),
-    .bound_sid_o     (acmpl_sid),
-    .stream_vlan_o   (acmpl_vlan),
-    .stream_dmac_o   (acmpl_dmac),
-    .stream_active_o (acmpl_active),
-    .lstn_bound_v_o  (acmpl_bound_v_w),
-    .lstn_sid_v_o    (acmpl_sid_v_w),
-    .lstn_dmac_v_o   (acmpl_dmac_v_w),
-    .lstn_vlan_v_o   (acmpl_vlan_v_w),
-    .bind_upd_p_o    (acmpl_upd_p_w),
-    //! HANDSHAKE HAZARD (gh #65): the tap MUST see tready - a stalled DMA
-    //! parks a beat with tvalid held and a tvalid-only tap re-eats it
-    .rx_tvalid_i (rx_axis_to_dma.tvalid),
-    .rx_tready_i (rx_axis_to_dma.tready),
-    .rx_tdata_i  (rx_axis_to_dma.tdata),
-    .rx_tkeep_i  (rx_axis_to_dma.tkeep),
-    .rx_tlast_i  (rx_axis_to_dma.tlast),
-    .m_axis_tdata (acmpl_tx_tdata), .m_axis_tkeep (acmpl_tx_tkeep),
-    .m_axis_tvalid(acmpl_tx_tvalid), .m_axis_tlast (acmpl_tx_tlast),
-    .m_axis_tready(acmpl_tx_tready),
-    .state_o (acmpl_state),
-    .bound_talker_o (acmpl_talker),
-    .bound_tuid_o   (acmpl_tuid),
-    .acmp_status_o  (acmpl_status),
-    .probing_o      (acmpl_probing),
-    .tk_avail_o     (acmpl_tk_avail),
-    .cmd_count_o    (acmpl_cmd_count),
-    .probe_count_o  (acmpl_probe_count),
-    .tx_wedge_cnt_o (acmpl_tx_wedge),
-    .dbg_o          (acmpl_dbg),
-    .s1_bound_o     (acmpl1_bound),
-    .s1_sid_o       (acmpl1_sid),
-    .s1_dmac_o      (acmpl1_dmac),
-    //! P12/N-sink round: the 0x800 window's ACMP tbl master serves EVERY
-    //! context idx < ACMP_SINKS_C 1:1 (ctx0 = STREAM_INPUT[0], ctx1 = CRF
-    //! sink, 2..N-1 = window streams). Requests beyond the context table
-    //! are NOT granted (acmp_fresh stays 0 in the CSR -> those window
-    //! SID/DMAC/STATE-acmp fields read 0 honestly).
-    .tbl_req_i (csr_acmp_tbl_req_w && (32'(csr_acmp_tbl_idx_w) < ACMP_SINKS_C)),
-    .tbl_idx_i (ACMP_SIDXW_C'(csr_acmp_tbl_idx_w)),
-    .tbl_gnt_o (acmp_tbl_gnt_w),
-    .tbl_ctx_o (acmp_tbl_ctx_w),
-    //! E1 saved-state fast-connect: the 0x7A0 commit injects the Milan
-    //! 5.5.3.5.2 entry record (PRB_W_AVAIL / PASSIVE, SRP params cleared)
-    //! into the ctx table; the engine range/occupancy-checks and acks.
-    //! TWO masters share the port since the journal wired in (E3): the
-    //! atomic replay engine wins while it is restoring, the 0x7A0 direct
-    //! path otherwise - both are boot-software-sequenced and never
-    //! legitimately concurrent, and the ack routes to the owner only so a
-    //! loser cannot mistake the winner's completion for its own.
-    .rest_req_i    (jnl_rest_req_w | csr_acmp_rest_req_w),
-    .rest_idx_i    (jnl_rest_req_w ? jnl_rest_idx_w
-                                   : csr_acmp_rest_idx_w),
-    .rest_talker_i (jnl_rest_req_w ? jnl_rest_talker_w
-                                   : csr_acmp_rest_talker_w),
-    .rest_tuid_i   (jnl_rest_req_w ? jnl_rest_tuid_w
-                                   : csr_acmp_rest_tuid_w),
-    .rest_ctlr_i   (jnl_rest_req_w ? jnl_rest_ctlr_w
-                                   : csr_acmp_rest_ctlr_w),
-    .rest_flags_i  (jnl_rest_req_w ? jnl_rest_flags_w
-                                   : csr_acmp_rest_flags_w),
-    .rest_ack_o    (acmp_rest_ack_w),
-    .rest_status_o (acmp_rest_status_w)
-  );
-
-  // ==========================================================================
-  //  Persistence-journal ingest (saved-state fast-connect E3, Milan v1.2
-  //  5.3.8.2: "The current bound state shall be saved in a non-volatile
-  //  memory and restored after a power cycle", 5.3.8.3 the four binding
-  //  parameters). Software lifts one flash slot image VERBATIM through the
-  //  0x7B8-0x7C4 CSR group; KL_persist_journal verifies magic / format /
-  //  shape / owning entity / CRC-32 - the CRC is the LAST word, so a torn,
-  //  foreign or stale image yields ZERO restores; a half-applied context
-  //  table is not representable - and only then drives the E1 restore
-  //  port, one Milan 5.5.3.5.2 entry record per journal record. The
-  //  executable spec of this group is tb/verilator/persist/persist_wrap.sv.
-  // ==========================================================================
-  KL_persist_journal #(
-    //! records cover every sink this shape has, inside the engine's 8-slot
-    //! refusal bitmap
-    .MAX_REC_P ((ACMP_SINKS_C > 8) ? 8 : ACMP_SINKS_C)
-  ) persist_journal (
-    .clk_i         (axis_clk),
-    .rst_n         (axis_resetn),
-    .entity_id_i   (cfg_adp_entity_id),
-    .jnl_start_i   (cfg_jnl_start_w),
-    .jnl_wr_i      (cfg_jnl_wr_w),
-    .jnl_data_i    (cfg_jnl_data_w),
-    .jnl_end_i     (cfg_jnl_end_w),
-    .jnl_abort_i   (cfg_jnl_abort_w),
-    .rest_req_o    (jnl_rest_req_w),
-    .rest_idx_o    (jnl_rest_idx_w),
-    .rest_talker_o (jnl_rest_talker_w),
-    .rest_tuid_o   (jnl_rest_tuid_w),
-    .rest_ctlr_o   (jnl_rest_ctlr_w),
-    .rest_flags_o  (jnl_rest_flags_w),
-    //! owner-routed ack: the journal only sees a completion while ITS
-    //! request holds the port
-    .rest_ack_i    (acmp_rest_ack_w & jnl_rest_req_w),
-    .rest_status_i (acmp_rest_status_w),
-    .stat_o        (jnl_stat_w),
-    .seq_o         (jnl_seq_w)
-  );
+  //! ---- the listener half's bind record, per sink -------------------------
+  //! Same index law the deleted listener used: sink k is listener_unique_id
+  //! k, sinks 0..N_STREAMS-1 the AAF sinks and the last one the CRF Media
+  //! Clock Input when this shape declares it.
+  assign acmpl_bound_v_w = pp_cd_acmp_bound_w;
+  assign acmpl_sid_v_w   = pp_cd_acmp_bound_sid_w;
+  //! the scalar sink-0 shadows every legacy consumer here still reads
+  assign acmpl_bound = acmpl_bound_v_w[0];
+  assign acmpl_sid   = acmpl_sid_v_w [63:0];
+  //! ...and sink 1's, the 0x4B BSCAN forensics pair
+  assign acmpl1_bound = (ACMP_SINKS_C > N_STREAMS) &
+                        acmpl_bound_v_w[CRF_SNK_IDX_C];
+  assign acmpl1_sid   = (ACMP_SINKS_C > N_STREAMS)
+                        ? acmpl_sid_v_w[64*CRF_SNK_IDX_C +: 64] : 64'd0;
+  //! The legacy listener SM's observable surface. There is no state machine
+  //! here any more - the processor runs the ladder internally and publishes
+  //! only the BOUND record - so everything that described the ladder itself
+  //! reads a STRUCTURAL ZERO. ACMPL_STATE 0x6E0 in particular no longer
+  //! tracks PROBING/SETTLED: a reader must take acmpl_bound as the truth.
+  assign acmpl_state = 3'd0;
+  wire [63:0] acmpl_talker = 64'd0;
+  assign acmpl_tuid = 16'd0;
+  assign acmpl_status = 5'd0;
+  assign acmpl_probing = 2'd0;
+  assign acmpl_tk_avail = 1'b0;
+  assign acmpl_lstn_declare = 1'b0;
+  assign acmpl_active = acmpl_bound;
+  assign acmpl_cmd_count = 16'd0;
+  assign acmpl_probe_count = 16'd0;
+  assign acmpl_tx_wedge = 8'd0;
+  assign acmpl_dbg = 32'd0;
+  //! the 0x800 window's ACMP table master: no context table to serve
+  assign acmp_tbl_gnt_w = 1'b0;
+  assign acmp_tbl_ctx_w = {ACMP_LSTN_CTX_W_C{1'b0}};
+  //! E1/E3 saved-state fast-connect: the journal AND the restore port are
+  //! deleted. The processor has its own NVM restore walk, answered here by a
+  //! BLANK-FLASH responder inside KL_pp_shadow, so nothing is restored.
+  assign acmp_rest_ack_w = 1'b0;
+  assign acmp_rest_status_w = 2'd0;
+  assign jnl_stat_w = 32'd0;
+  assign jnl_seq_w = 32'd0;
 
   // ==========================================================================
   //  AVTP RX monitor (Milan v1.2 §5.4.5.3, Table 7-156) — non-intrusive
-  //  parser on the same RX tap, matched to the BOUND stream_id from the ACMP
-  //  listener SM; the counter engine feeds AECP GET_COUNTERS(STREAM_INPUT 0),
-  //  its 1 Hz unsolicited push, and the 0x6B8 CSR observability group.
+  //  parser on the same RX tap, matched to the BOUND stream_id the protocol
+  //  processor publishes. Its counters reach software through the 0x6B8
+  //  A_STRMW_CNT CSR window ONLY: GET_COUNTERS and the Table 5.22 push were
+  //  AECP, and are gone.
   // ==========================================================================
   //! NXN §1.1 (P1): stream-table classification authority. Entry 0 aliases
-  //! the ACMP bound record combinationally (bit-exact N=1 legacy); entries
+  //! the processor's ACMP bound record combinationally; entries
   //! 1..N-1 + bench overrides arrive via the 0x800 CSR window (P12 glue
   //! below).
   localparam int NSIDX_W_C = (N_STREAMS <= 1) ? 1 : $clog2(N_STREAMS);
@@ -3523,803 +3234,40 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     end
   end : tctx_chans_shadow
 
-  //! ctx row -> talker index (the window's (L-1)+t map, L = N_STREAMS).
-  //! A ctx write in the talker direction naming row (N-1)+t takes talker
-  //! t's derived MaxFrameSize; everything else (listener rows, reads, row
-  //! 0) keeps the shared LWSRP_TSPEC value. MaxIntervalFrames stays shared
-  //! on purpose - it is an SR-class property (1 for class A) and the
-  //! builder emits the same value on every row.
-  wire [4:0]  srp_tk_idx_w = 5'(csr_srp_ctx_idx) - 5'(N_STREAMS - 1);
-  wire        srp_tk_row_w = csr_srp_ctx_we && !csr_srp_ctx_dir &&
-                             (srp_tk_idx_w >= 5'd1) &&
-                             (32'(srp_tk_idx_w) < N_STREAMS);
-  //! index the array only inside its range (the mux below discards the
-  //! value when srp_tk_row_w is low, but the SELECT must stay legal)
-  wire [4:0]  srp_tk_sel_w = srp_tk_row_w ? srp_tk_idx_w : 5'd0;
-  wire [15:0] srp_ctx_maxf_w = srp_tk_row_w
-                               ? tctx_maxf_w[srp_tk_sel_w]
-                               : cfg_lwsrp_max_frame;
-
   // ==========================================================================
-  //  CRF MEDIA CLOCK OUTPUT -> lwSRP TALKER ADVERTISE (Milan v1.2 7.3.3;
-  //  802.1Q 35.2.2.4 attribute encoding). THE FABRIC provisions this row, not
-  //  a boot script: the CRF stream_id and DMAC are DERIVED here
-  //  (eff_crft_sid_w / eff_crft_dmac_w follow the ACMP answer for
-  //  talker_unique_id = N_STREAMS), so a software provisioner could only
-  //  restate them and get them wrong. Same reasoning as the read-only ADP
-  //  shape words.
-  //
-  //  TSpec, and why these exact numbers (802.1Q 35.2.2.4 TSpec; the engine's
-  //  idleSlope = MaxIntervalFrames x (MaxFrameSize + 42) x 8 x 8000):
-  //    MaxFrameSize     = 42 = the PADDED MSDU of the tagged 60-octet CRF
-  //                       frame (60 - 14 eth - 4 tag). NOT the 28-octet
-  //                       AVTPDU: the pad is on the wire and the bridge must
-  //                       budget for it. 42 + 42 = the 84-octet wire slot
-  //                       docs/SPEC_TRACEABILITY.md already measures the
-  //                       stream at (500 PDU/s x 84 B = 0.336 Mb/s); that
-  //                       page's "MaxFrameSize 18" would have declared a
-  //                       60-octet slot for an 84-octet frame.
-  //    MaxIntervalFrames= 1, the FLOOR. Class A's classMeasurementInterval is
-  //                       125 us and CRF sends every 2 ms = one PDU per 16
-  //                       intervals; a TSpec cannot express a fraction. The
-  //                       resulting 5.376 Mb/s reservation for a 0.336 Mb/s
-  //                       stream is a STRUCTURAL 16x over-provision, not an
-  //                       arithmetic bug, and it is NOT to be "optimised" by
-  //                       weakening the class (USER standing rule; Milan
-  //                       7.3.3 fixes the class at A).
-  //    PriorityAndRank  = lwsrp_pkg SR_PRIO_RANK_C {priority 3, rank 1} -
-  //                       the same SR class A priority the C-TAG carries.
-  //    AccumulatedLatency = the shared LWSRP_LAT, a port property.
+  //  THE lwSRP FABRIC PROVISIONER IS DELETED WITH THE ENGINE IT FED.
   // ==========================================================================
-  localparam int unsigned CRF_L2_BYTES_C  = 60;   //! KL_crf_tx FRAME_BYTES
-  localparam int unsigned CRF_TAGGED_HDR_C = 18;  //! eth 14 + 802.1Q tag 4
-  localparam int unsigned CRF_PDU_OCTETS_C = 28;  //! KL_crf_tx CRF_PDU_C
-  //! MILAN v1.2 4.3.3.2 Table 4.4, row "CRF, 1 ts/pdu": MaxFrameSize = 28 + 1
-  //! (the CRF AVTPDU plus the same clock-tolerance byte every AAF row gets),
-  //! and the clause says a Talker "shall use the Tspec parameters" the table
-  //! defines. This used to derive 42 from the padded wire frame
-  //! (CRF_L2_BYTES_C - CRF_TAGGED_HDR_C) because declaring the bare payload
-  //! once left a 60-octet slot reserved for an 84-octet frame - but the real
-  //! fix for that was step 2 of the bandwidth recipe, the minimum-frame
-  //! clamp, which KL_lwsrp_bw_gate was missing and now implements. With the
-  //! clamp the clause's own 29 reserves 88 wire octets, which COVERS this
-  //! stream's actual 84, so the table value and the padding are consistent
-  //! rather than in tension. Declaring 42 with no clamp reserved 5376 kbps
-  //! where Table 4.4 mandates 5632.
-  localparam [15:0] CRF_SRP_MAXF_C = 16'(CRF_PDU_OCTETS_C + 1);
-  localparam [15:0] CRF_SRP_INTV_C = 16'd1;
-
-  // ==========================================================================
-  //  THE TALKER-ADVERTISE DECLARATION GATE (Milan 4.3.3.1 / 5.3.7.2 /
-  //  5.3.7.4). 5.3.7.2 obliges the TalkerAdvertise "as soon as it has VALID
-  //  SRP parameters", and 4.3.3.1 defines valid for the Stream DMAC: (1)
-  //  MAAP-allocated with no conflict, AND (2) a PROBE_TX received within the
-  //  last 15 seconds OR a Listener attribute registered for this stream.
-  //  Declaring from boot violated the clause's own Note ("avoid declaring
-  //  talker attributes for Streams that are not requested by any Listener").
-  //
-  //  One gate per talker, indexed like stream_gate (top = the CRF Media
-  //  Clock Output when the shape has one):
-  //    * ACMP term      : acmp_talker_active_v[t] = the PROBE_TX 15 s window
-  //                       (KL_acmp_tlkr_ctx, armed by CONNECT_TX too - the
-  //                       fast-connect path) | listener_observed. A lapsed
-  //                       window withdraws the TA (talker_fall -> LV pend in
-  //                       KL_lwsrp_tx; want-fall -> row LV for t>0).
-  //    * listener term  : ANY registered Listener ATTRIBUTE for the stream -
-  //                       lwsrp_listener_reg for row 0 (its registrar matches
-  //                       the derived sid whether or not we declare), the ctx
-  //                       row's registration for t>0. DELIBERATELY the
-  //                       registration and NOT listener_ready: an
-  //                       AskingFailed listener must still see our TA or it
-  //                       can never become Ready (the deadlock the naive
-  //                       ready-term reuse builds).
-  //    * bypass         : LWSRP_CTRL[5], reset 0 (a conformant reset - the
-  //                       0x0018 lesson) - the declare-always escape.
-  //    * MAAP term      : condition (1), the same (~en | valid) expression
-  //                       the streaming gate uses.
-  //  Composed from UPSTREAM terms plus the engine's REGISTRAR levels only -
-  //  never the stream gate (want <-> streaming deadlock) - and the listener
-  //  term can only HOLD an open t>0 declaration (an unprovisioned ctx row's
-  //  match lane is off), which is exactly the SRP-licence continuity 5.5.2.7
-  //  needs; OPENING one takes the probe/bind window or the bypass.
-  // ==========================================================================
-  wire lwsrp_decl_maap_w = ~cfg_maap_enable | maap_addr_valid;
-  wire [SRP_TALKERS_C-1:0] lwsrp_decl_gate_w;
-  generate
-    for (genvar gd = 0; gd < SRP_TALKERS_C; gd++) begin : g_lwsrp_decl_gate
-      //! this talker's Listener-attribute registration level: the legacy
-      //! registrar for row 0, the talker's own ctx row ((L-1)+t - the same
-      //! formula for the CRF output at t = N_STREAMS) for every other
-      if (gd == 0) begin : g_row0
-        assign lwsrp_decl_gate_w[gd] =
-            (acmp_talker_active_v[gd] | lwsrp_listener_reg |
-             cfg_lwsrp_decl_bypass) & lwsrp_decl_maap_w;
-      end else begin : g_rowt
-        assign lwsrp_decl_gate_w[gd] =
-            (acmp_talker_active_v[gd] |
-             lwsrp_ctx_reg_w[(N_STREAMS - 1) + gd] |
-             cfg_lwsrp_decl_bypass) & lwsrp_decl_maap_w;
-      end
-    end
-  endgenerate
-
-  //! request/grant state for the fabric-owned CRF row. The provisioning port
-  //! is SHARED with the 0x800 CSR window, so the CRF requester only asserts
-  //! in a cycle the window is idle and re-arms until it is granted.
-  //! The top declaration gate IS the CRF output's whenever the shape has
-  //! one (SRP_CRF_TK_C != 0 leads the term, so the bit is inert otherwise).
-  wire crf_srp_want_w = (SRP_CRF_TK_C != 0) & cfg_crft_class_a & cfg_crft_en &
-                        cfg_lwsrp_enable & cfg_lwsrp_talker_en &
-                        lwsrp_decl_gate_w[SRP_TALKERS_C-1];
-  logic crf_srp_req_r;      //! a provisioning write is owed to the engine
-  logic crf_srp_val_r;      //! the row is provisioned VALID right now
-  logic crf_srp_last_r;     //! last committed "want" (edge detect)
-  logic [63:0] crf_srp_sid_r;   //! ...and the identity it was committed with
-  logic [47:0] crf_srp_dmac_r;
-
-  //! ARBITRATION - and the first version of this was a STARVATION BUG worth
-  //! recording. "CSR always wins" (`~csr_srp_ctx_req`) never granted at all:
-  //! milan_csr's window master is a CONTINUOUS status poll
-  //! (`o_srp_ctx_req = srp_wr_pend_r || srp_poll_w`, and srp_poll_w is level
-  //! -high for as long as a non-zero row is selected), so any software that
-  //! leaves A_STRM_SEL pointing at a stream - which the boot script and every
-  //! TB do - would have pinned the fabric's request off forever, silently.
+  //! Roughly 780 lines lived here: the per-AAF-talker, per-CRF-output and
+  //! per-AAF-sink requesters, the two-deep launch pipeline that resolved one
+  //! of them per rotation, the record muxes that composed {sid, dmac, vlan,
+  //! maxframe, interval, latency} for an attribute row, and the CSR-window
+  //! arbitration between them. Every one of them existed to write a
+  //! KL_lwsrp_ctx attribute ROW, and there is no attribute row table any
+  //! more: the protocol processor keeps its own per-source and per-sink SRP
+  //! state and is provisioned by the quasi-static ports on KL_pp_shadow
+  //! (cfg_stream_id_i, cfg_src_en_i, cfg_tspec_max_frame_i) plus the ACMP
+  //! binds it resolves itself. Provisioning a row is not something this file
+  //! does any longer, so nothing here mirrors it.
   //!
-  //! The asymmetry that fixes it: a CSR WRITE is a discrete committed
-  //! operation that must never be dropped, while the CSR poll is a READ that
-  //! re-issues every single cycle and loses nothing by yielding one beat. So
-  //! the fabric yields to a pending write only, and the yielded poll beat is
-  //! declared stale to the window through i_srp_ctx_stolen (its ctx_rd_*
-  //! snapshot registers hold the CRF row for that one beat).
-  //! ...and since 2026-07-30 the CRF row is one SLOT of a rotating fabric
-  //! arbiter (srp_fab_pick below) rather than the only fabric requester: the
-  //! AAF talker rows t>0 joined it. The CRF retire is that arbiter's LAUNCH
-  //! beat restricted to the CRF slot, so there is exactly ONE place where
-  //! the window/fabric priority rule lives and the two cannot drift.
-  wire srp_ctx_req_w = csr_srp_ctx_req | srp_fab_qv_r;
-  //! THE BEAT THAT RETIRES. Retiring on `ctx_gnt_o` was a real defect the
-  //! dp TB caught (2026-07-28): the CSR window POLLS this port continuously,
-  //! so ctx_gnt_o is pulsing all the time for somebody else's read. The
-  //! request retired on the first foreign grant, crf_srp_val_r went high,
-  //! the interlock opened and the CRF frames went out TAGGED - while the
-  //! attribute row had never been written and no Talker Advertise existed.
-  //! That is precisely the tagged-but-undeclared state this whole design
-  //! exists to make unreachable, reached through the back door. Retirement
-  //! is therefore OUR OWN capture beat only (srp_fab_launch_w latches this
-  //! slot's complete record into the launch stage below, whose delivery to
-  //! KL_lwsrp_ctx is guaranteed), never anybody's grant.
-  wire crf_srp_ret_w = srp_fab_launch_w & srp_fab_is_crf_w;
+  //! The tctx_maxf_w derivation above SURVIVES and is now consumed directly:
+  //! it is the Milan Table 4.4 MaxFrameSize the processor declares with.
 
-  always_ff @(posedge axis_clk) begin : crf_srp_prov
-    if (!axis_resetn) begin
-      crf_srp_req_r  <= 1'b0;
-      crf_srp_val_r  <= 1'b0;
-      crf_srp_last_r <= 1'b0;
-      crf_srp_sid_r  <= '0;
-      crf_srp_dmac_r <= '0;
-    end
-    else begin
-      //! (re)declare on any change of the request or of the identity the row
-      //! must carry - a stale sid/dmac in the TA is a reservation for a
-      //! stream nobody emits
-      if ((crf_srp_want_w != crf_srp_last_r) ||
-          (crf_srp_want_w && ((eff_crft_sid_w  != crf_srp_sid_r) ||
-                              (eff_crft_dmac_w != crf_srp_dmac_r))))
-        crf_srp_req_r <= 1'b1;
-
-      //! ...and only the beat the pick stage took us on retires it (narrow
-      //! state here - the pick cone must load almost nothing)
-      if (crf_srp_ret_w) begin
-        crf_srp_req_r  <= 1'b0;
-        crf_srp_last_r <= crf_srp_want_w;
-        crf_srp_val_r  <= crf_srp_want_w;
-      end
-      //! the WIDE identity shadow latches on the CAPTURE beat, from the
-      //! SAME wires the record mux samples on this same edge - the shadow
-      //! and the row take the same value or nothing (its CE is flop terms
-      //! only; the x32fb2 critical path was this latch behind the scan)
-      if (srp_fab_cap_w && srp_fab_pcrf_r) begin
-        crf_srp_sid_r  <= eff_crft_sid_w;
-        crf_srp_dmac_r <= eff_crft_dmac_w;
-      end
-    end
-  end : crf_srp_prov
-
-  // ==========================================================================
-  //  EVERY AAF TALKER ROW GETS A PROVISIONER (2026-07-30).
-  //
-  //  THE DEFECT, measured twice. The lwSRP provisioning port had exactly TWO
-  //  writers - the 0x800 CSR window (software staging) and the CRF row above
-  //  (crf_srp_prov) - and NO board software stages the AAF talker rows. So:
-  //    * CSR, live read via A_STRM_SEL 0x100+idx: A_STRMW_SRP (0x85C) reads
-  //      0x0000_037E for talker 0 (idx 0 is a hard alias of the legacy flat
-  //      row, which is why it looked healthy) and 0x0000_0000 for talkers
-  //      1/2/3 on a 4x4 board - the row's OWN valid bit is 0.
-  //    * WIRE, ProfiShark inline on the board link with a licensed stream
-  //      running: MSRP declares a Talker Advertise for exactly
-  //      {02:00:00:00:00:02, uid 0x0000} and {..., uid 0x0004} - uid 4 is
-  //      N_STREAMS, i.e. the CRF Media Clock Output. NOTHING for uid 1/2/3.
-  //  The two stream_ids on the wire were exactly the two rows that had a
-  //  provisioner. Milan v1.2 5.3.7.3 conditions streaming on declaring a
-  //  Talker Advertise AND receiving a Listener Ready/Ready Failed, so an
-  //  unadvertised stream can NEVER be licensed: no talker but 0 could stream.
-  //
-  //  THE WANT IS THE ENABLE, NEVER THE STREAMING (the circular-dependency
-  //  trap). aaf_stream_en_w[t] already contains lwsrp_stream_gate[t], which
-  //  is an OUTPUT of this engine and goes high only once the row is
-  //  provisioned AND a Listener Ready is registered. Building the "want" from
-  //  the gate (or from aaf_stream_en_w) would deadlock: no row because the
-  //  talker is not streaming, no streaming because there is no row. So the
-  //  want is composed from UPSTREAM terms only - the same discipline
-  //  crf_srp_want_w uses (cfg_crft_en, not "CRF frames are leaving").
-  //
-  //  ...and since the 4.3.3.1 round (gh #63 I2) the want DOES carry
-  //  acmp_talker_active_v[t] - as ONE OR-ARM of the per-talker DECLARATION
-  //  GATE (lwsrp_decl_gate_w banner above), beside the registered-Listener
-  //  arm and the LWSRP_CTRL[5] bypass, never as a bare AND. What the 07-30
-  //  rationale protected still holds under it:
-  //    (a) row 0 and the CRF row ride the SAME gate (their enables alone no
-  //        longer declare - 4.3.3.1's Note forbids advertising streams no
-  //        Listener asked for);
-  //    (b) Milan v1.2 5.5.2.7 - a Talker relies only on SRP, not ACMP, to
-  //        decide when to STREAM. The licence stays pure SRP (the bw-gate's
-  //        terms are untouched); the DECLARATION's fast-connect path is
-  //        covered because 5.5.3.5.3's CONNECT_TX itself arms the probe
-  //        window (KL_acmp_tlkr_ctx) -> TA within one JoinTime, before the
-  //        listener SM times out - and a pure-SRP listener HOLDS an open
-  //        declaration through the registered-Listener arm;
-  //    (c) the bandwidth budget note is unchanged - a gate that only ever
-  //        NARROWS the want cannot over-commit what declaring all rows
-  //        could not.
-  //
-  //  IDENTITY is DERIVED, exactly as the CRF row's is: stream_id
-  //  {station MAC, uid = t} and DMAC = the MAAP block slot base+t - literally
-  //  the same wires acmp_src_dmac_w[t] carries, so the Talker Advertise and
-  //  the answer a controller was given for talker_unique_id t cannot
-  //  disagree. TSpec MaxFrameSize comes from the EXISTING per-row path
-  //  (tctx_maxf_w[t] = 24 + 24*C from that talker's own TCTX w0 chans), so a
-  //  2ch and an 8ch talker do not reserve identically; MaxIntervalFrames
-  //  stays shared because it is an SR-class property.
-  //
-  //  SOFTWARE STILL WINS IF IT NAMES A STREAM_ID - the CRFT_SID precedent
-  //  (`|cfg_crft_sid` beats crft_auto_sid_w) applied per row: a 0x800 window
-  //  commit that carries a NON-ZERO staged sid takes the row and the fabric
-  //  forgets it without a withdrawal, while a commit that names no sid (the
-  //  CTRL-write side effect every enable carries) is RETAKEN, because a row
-  //  holding the zero sid is a reservation for a stream this station does not
-  //  emit. One bit of state per row buys back the whole staging path.
-  // ==========================================================================
-  //! the stream_id MAC half, byte order as KL_aaf_packetizer's station_mac_i
-  wire [47:0] srp_station_mac_w = {cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
-                                   cfg_mac_addr[23:16], cfg_mac_addr[31:24],
-                                   cfg_mac_addr[39:32], cfg_mac_addr[47:40]};
-
-  //! the CSR window's OWN service beat (it owns the port on every cycle a
-  //! write is pending) naming an AAF talker row t in 1..N-1, and whether that
-  //! write named a stream_id. srp_tk_row_w/srp_tk_idx_w are the SAME decode
-  //! the per-row TSpec mux uses - one row map, one place.
-  wire csr_srp_tk_svc_w = srp_tk_row_w & ~srp_ctx_gnt_w;
-  wire csr_srp_tk_own_w = csr_srp_ctx_valid & (|csr_srp_ctx_sid);
-  //! ...and the same beat naming a LISTENER row k in 1..N-1 (the window
-  //! maps listener k -> ctx row k and drives ctx dir = 1 for it; see
-  //! milan_csr srp_sel_row_w / o_srp_ctx_dir). Same ownership rule, same
-  //! sid test (csr_srp_tk_own_w is row-agnostic: valid + a named sid).
-  wire csr_srp_ls_svc_w = csr_srp_ctx_we && csr_srp_ctx_dir &&
-                          ~srp_ctx_gnt_w &&
-                          (((csr_srp_ctx_idx != 5'd0) &&
-                            (32'(csr_srp_ctx_idx) < N_STREAMS)) ||
-                           (32'(csr_srp_ctx_idx) == SRP_LSN0_ROW_C));
-  //! software owns this talker row (reset-only assignment at t = 0: row 0 is
-  //! the legacy CSR/LWSRP_TSPEC pair and the fabric never touches it)
-  logic [N_STREAMS-1:0] srp_sw_own_r;
-
-  //! ---- the shared provisioning arbiter ----------------------------------
-  //! Slot map (ONE place; every slot mux below derives from it):
-  //!   s = 0                       never a requester (row 0 = the legacy
-  //!                               pair, no-regression axiom)
-  //!   s = 1..N-1                  AAF talker t = s  -> ctx row (N-1)+s
-  //!   s = N_STREAMS               CRF Media Clock Output row, when this
-  //!                               shape has one (SRP_TALKERS_C)
-  //!   s = SRP_TALKERS_C ..        AAF LISTENER sink k = s-SRP_TALKERS_C+1
-  //!       SRP_FAB_SLOTS_C-1       -> ctx row k, direction LISTENER (the
-  //!                               task-21 ACMP->lwSRP fabric half below)
-  //! EVERY sink now has a fabric listener slot, sink 0 included: its slot
-  //! is the TOP one (appended, so sinks 1..N-1 keep their historic slot and
-  //! want-vector positions) and its ctx row is the DEDICATED row one past
-  //! the CRF talker - the row-0 legacy pair keeps the talker-0 side only.
-  //! This is the ax-rv32-g return-leg fix: sink 0's Listener Ready used to
-  //! ride the software-owned legacy row (stale dmac, garbage sid), so the
-  //! remote talker was never licensed and t0/l0 loops could not flow.
-  //! + the appended CRF-sink slot (task #27) when the shape declares it
-  localparam int SRP_LSTN_SLOTS_C = N_STREAMS + SRP_CRFSNK_C;
-  localparam int SRP_FAB_SLOTS_C  = SRP_TALKERS_C + SRP_LSTN_SLOTS_C;
-  localparam int SRP_SEL_W_C = (SRP_FAB_SLOTS_C > 1) ? $clog2(SRP_FAB_SLOTS_C)
-                                                     : 1;
-  wire  [SRP_FAB_SLOTS_C-1:0] srp_fab_want_v_w;  //! per-slot want LEVEL
-  wire  [SRP_FAB_SLOTS_C-1:0] srp_fab_req_v_w;   //! per-slot write owed
-  logic [SRP_SEL_W_C-1:0]     srp_fab_rr_r;      //! slot served last
-  logic                       srp_fab_any_c;
-  logic [SRP_SEL_W_C-1:0]     srp_fab_sel_c;
-
-  //! ROTATING GRANT, so no slot can be starved by a busier neighbour: the
-  //! scan starts at the slot AFTER the one served last (the KL_aaf_packetizer
-  //! rr_pick idiom - descending loop, so the nearest match wins), and every
-  //! service moves the pointer onto the slot just served, making it the
-  //! LOWEST priority. A pending slot is therefore passed over at most
-  //! SRP_FAB_SLOTS_C-1 times before it is the highest priority.
-  always_comb begin : srp_fab_pick
-    srp_fab_any_c = 1'b0;
-    srp_fab_sel_c = '0;
-    for (int k = SRP_FAB_SLOTS_C-1; k >= 0; k--) begin
-      int s;
-      s = (32'(srp_fab_rr_r) + k + 1) % SRP_FAB_SLOTS_C;
-      if (srp_fab_req_v_w[s]) begin
-        srp_fab_any_c = 1'b1;
-        srp_fab_sel_c = SRP_SEL_W_C'(s);
-      end
-    end
-  end : srp_fab_pick
-
-  // ==========================================================================
-  //  THE LAUNCH STAGE (2026-08-02 timing closure). The pick cone above -
-  //  request vector + rotating pointer -> slot select -> record mux - used
-  //  to feed KL_lwsrp_ctx's write port COMBINATIONALLY: grant resolution,
-  //  the 64-bit sid mux and the ctx row/flag write CEs all in ONE cycle,
-  //  and that cone was the whole design's critical path (WNS -0.62 ns,
-  //  lsnsrp_req_r/srp_fab_rr_r -> lwsrp/ctx/sid_r, 11 logic levels, ~80 %
-  //  route). SRP row writes are MRP-timescale - milliseconds between row
-  //  updates - so ONE registered stage is functionally free: the LAUNCH
-  //  beat captures the granted slot's COMPLETE record (the by-SOURCE mux
-  //  rule survives: a half-window/half-fabric row still cannot be
-  //  composed), retires the requester and advances the rotating pointer;
-  //  the ctx write lands on the q's own service beat, >= 1 cycle later.
-  //  row_fresh_o / fastjoin_p_o are generated INSIDE KL_lwsrp_ctx at the
-  //  write beat, so they move WITH the write, and the walker still sees
-  //  every row update whole on a single edge - the coherency contracts
-  //  are untouched.
-  //
-  //  ORDERING vs the 0x800 window (software must still WIN a row it names):
-  //  a CSR WRITE serviced while a captured record is in flight for the SAME
-  //  row SQUASHES the q - otherwise the stale fabric record would land ON
-  //  TOP of software's commit one cycle later. Nothing is lost: the
-  //  requester's own settle on that very beat (req <= ~csr_srp_tk_own_w)
-  //  already schedules a fresh fabric rewrite iff software named no sid.
-  //  A CSR write for a DIFFERENT row only delays the q (the port yields to
-  //  the write, the q holds), so no captured record is ever dropped.
-  // ==========================================================================
-  //  ...and the stage is TWO deep since the x32fb2 probe (2026-08-02): the
-  //  one-register version moved the violation, not the depth - the pick
-  //  scan still resolved the slot AND drove the record muxes (a 48-bit
-  //  DMAC add fed by the late select) and the wide shadow-latch CEs in the
-  //  same cycle (WNS -0.74, aafsrp_req_r -> crf_srp_sid_r/CE and
-  //  crf_srp_req_r -> srp_fab_qdmac_r/D). So:
-  //    PICK    beat: the scan resolves; ONLY narrow state registers - the
-  //            rotating pointer, the picked slot + its row/class decodes
-  //            (srp_fab_p*), and the requester retires. ~50 flops total.
-  //    CAPTURE beat (+1): the record muxes run FROM the p-registers
-  //            (the DMAC add starts at a flop, not behind the scan) into
-  //            the q; the wide identity shadows latch HERE on flop-term
-  //            CEs, from the very wires the record mux samples on this
-  //            same edge - shadow and row take the same value or nothing.
-  //    PORT    beat (+2..): the q presents to KL_lwsrp_ctx, as before.
-  //  A requester that re-arms during the pipeline (identity change under
-  //  an in-flight capture) simply buys one idempotent re-write - the
-  //  mismatch detector compares against the OLD shadow for one cycle,
-  //  which is a pending rewrite, never a lost one.
-  // ==========================================================================
-  logic                   srp_fab_pv_r;      //! picked slot awaiting capture
-  logic [SRP_SEL_W_C-1:0] srp_fab_psel_r;
-  logic [4:0]             srp_fab_prow_r;
-  logic                   srp_fab_pcrf_r, srp_fab_plstn_r;
-  logic [3:0]             srp_fab_plsk_r;
-  logic        srp_fab_qv_r;             //! captured record in flight
-  logic [4:0]  srp_fab_qrow_r;
-  logic        srp_fab_qvalid_r, srp_fab_qdir_r;
-  logic [63:0] srp_fab_qsid_r;
-  logic [47:0] srp_fab_qdmac_r;
-  logic [11:0] srp_fab_qvlan_r;
-  logic [15:0] srp_fab_qmaxf_r, srp_fab_qintv_r;
-  logic [31:0] srp_fab_qlat_r;
-  //! the window/fabric priority rule, in ONE place (see the arbitration
-  //! banner above): yield to a pending CSR WRITE, never to its poll; and
-  //! never pick over a slot or record still in flight.
-  wire srp_fab_launch_w = srp_fab_any_c & ~csr_srp_ctx_we &
-                          ~srp_fab_pv_r & ~srp_fab_qv_r;
-  //! the q's port-mux select, and KL_lwsrp_ctx's OWN service expression
-  //! (`ctx_req_i && !ctx_gnt_o`) restricted to it - written that way so the
-  //! two cannot drift
-  wire srp_fab_qsel_w  = srp_fab_qv_r & ~csr_srp_ctx_we;
-  wire srp_fab_qsvc_w  = srp_fab_qsel_w & ~srp_ctx_gnt_w;
-  //! software wins: a serviced CSR WRITE naming the row in flight at EITHER
-  //! stage squashes that stage (the requester's settle on the same beat
-  //! re-arms the fabric iff software named no sid)
-  wire srp_fab_csrwr_w = csr_srp_ctx_we & ~srp_ctx_gnt_w;
-  wire srp_fab_pkill_w = srp_fab_pv_r & srp_fab_csrwr_w &
-                         (csr_srp_ctx_idx == srp_fab_prow_r);
-  wire srp_fab_qkill_w = srp_fab_qv_r & srp_fab_csrwr_w &
-                         (csr_srp_ctx_idx == srp_fab_qrow_r);
-  //! the CAPTURE beat: pick -> record, all selects registered
-  wire srp_fab_cap_w   = srp_fab_pv_r & ~srp_fab_qv_r & ~srp_fab_pkill_w;
-  logic srp_fab_own_r;      //! we owned the service beat behind THIS write
-  wire srp_fab_is_crf_w = (SRP_CRF_TK_C != 0) &&
-                          (32'(srp_fab_sel_c) == N_STREAMS);
-  //! LISTENER slot decode + its sink index (clamped to a lane that always
-  //! exists so the wide sid select below never leaves acmpl_sid_v_w's range
-  //! on a non-listener beat, where the value is discarded anyway)
-  wire       srp_fab_is_lstn_w = (32'(srp_fab_sel_c) >= SRP_TALKERS_C);
-  wire [3:0] srp_fab_lsk_w     = !srp_fab_is_lstn_w        ? 4'd1
-                                 : (32'(srp_fab_sel_c) == SRP_LSN0_SLOT_C)
-                                   ? 4'd0
-                                   //! task #27: the appended CRF-sink slot
-                                   //! carries ACMP ctx N_STREAMS (the
-                                   //! pinned-LAST sink)
-                                   : ((SRP_CRFSNK_C != 0) &&
-                                      (32'(srp_fab_sel_c) == SRP_CRFSNK_SLOT_C))
-                                     ? 4'(N_STREAMS)
-                                     : 4'(32'(srp_fab_sel_c) - SRP_TALKERS_C + 1);
-  //! one-hot LAUNCH pulse: ONLY the slot the pick stage took retires. The
-  //! pipeline latches one whole record from one source per beat, so a
-  //! half-CSR/half-fabric row cannot be composed even for one cycle.
-  //! Delivery is guaranteed (p and q hold until KL_lwsrp_ctx samples the
-  //! record; the sole squash paths re-arm through the CSR settle), so
-  //! retiring at the pick cannot lose a write.
-  wire [SRP_FAB_SLOTS_C-1:0] srp_fab_ret_v_w;
-  generate
-    for (genvar gv = 0; gv < SRP_FAB_SLOTS_C; gv++) begin : g_srp_fab_ret
-      assign srp_fab_ret_v_w[gv] = srp_fab_launch_w &
-                                   (32'(srp_fab_sel_c) == gv);
-    end
-  endgenerate
-
-  always_ff @(posedge axis_clk) begin : srp_fab_arb_S
-    if (!axis_resetn) begin
-      srp_fab_own_r    <= 1'b0;
-      srp_fab_rr_r     <= '0;
-      srp_fab_pv_r     <= 1'b0;
-      srp_fab_psel_r   <= '0;
-      srp_fab_prow_r   <= '0;
-      srp_fab_pcrf_r   <= 1'b0;
-      srp_fab_plstn_r  <= 1'b0;
-      srp_fab_plsk_r   <= 4'd1;
-      srp_fab_qv_r     <= 1'b0;
-      srp_fab_qrow_r   <= '0;
-      srp_fab_qvalid_r <= 1'b0;
-      srp_fab_qdir_r   <= 1'b0;
-      srp_fab_qsid_r   <= '0;
-      srp_fab_qdmac_r  <= '0;
-      srp_fab_qvlan_r  <= '0;
-      srp_fab_qmaxf_r  <= '0;
-      srp_fab_qintv_r  <= '0;
-      srp_fab_qlat_r   <= '0;
-    end
-    else begin
-      srp_fab_own_r <= srp_fab_qsvc_w;
-      //! stage P: the pick - narrow state only, retire happens here
-      if (srp_fab_launch_w) begin
-        srp_fab_rr_r    <= srp_fab_sel_c;
-        srp_fab_pv_r    <= 1'b1;
-        srp_fab_psel_r  <= srp_fab_sel_c;
-        srp_fab_prow_r  <= srp_fab_row_w;
-        srp_fab_pcrf_r  <= srp_fab_is_crf_w;
-        srp_fab_plstn_r <= srp_fab_is_lstn_w;
-        srp_fab_plsk_r  <= srp_fab_lsk_w;
-      end
-      else if (srp_fab_cap_w | srp_fab_pkill_w)
-        srp_fab_pv_r <= 1'b0;
-      //! stage Q: the capture - every mux below starts at a p-register
-      if (srp_fab_cap_w) begin
-        srp_fab_qv_r     <= 1'b1;
-        srp_fab_qrow_r   <= srp_fab_prow_r;
-        srp_fab_qvalid_r <= srp_fab_valid_c;
-        srp_fab_qdir_r   <= srp_fab_dir_w;
-        srp_fab_qsid_r   <= srp_fab_sid_w;
-        srp_fab_qdmac_r  <= srp_fab_dmac_w;
-        srp_fab_qvlan_r  <= srp_fab_vlan_w;
-        srp_fab_qmaxf_r  <= srp_fab_maxf_c;
-        srp_fab_qintv_r  <= srp_fab_intv_c;
-        srp_fab_qlat_r   <= cfg_lwsrp_latency;
-      end
-      else if (srp_fab_qsvc_w | srp_fab_qkill_w)
-        srp_fab_qv_r <= 1'b0;
-    end
-  end : srp_fab_arb_S
-
-  //! ---- the per-AAF-talker requesters ------------------------------------
-  logic [N_STREAMS-1:0] aafsrp_req_r;    //! a write is owed for this row
-  logic [N_STREAMS-1:0] aafsrp_last_r;   //! last committed want (edge detect)
-  //! the identity ROOTS every AAF row derives from. Shared, so ONE shadow
-  //! covers all of them: a MAC change or a fresh MAAP claim re-declares every
-  //! wanted row (a stale sid/dmac in a TA is a reservation for a stream
-  //! nobody emits - the crf_srp_prov rule, one level up).
-  logic [47:0] aafsrp_mac_r, aafsrp_dmac_r;
-  wire aafsrp_root_chg_w = (srp_station_mac_w != aafsrp_mac_r) ||
-                           (eff_aaf_dmac     != aafsrp_dmac_r);
-
-  //! LISTENER-slot requester state (declared before the want generate that
-  //! reads it; the provisioner process itself lives below, after
-  //! srp_fab_ret_v_w exists)
-  //! one lane per ACMP sink incl. the appended CRF sink (task #27): lane
-  //! k < N_STREAMS = AAF sink k, lane N_STREAMS = the CRF sink
-  logic [N_STREAMS+SRP_CRFSNK_C-1:0] lsnsrp_req_r;    //! a write is owed for ctx row k
-  logic [N_STREAMS+SRP_CRFSNK_C-1:0] lsnsrp_last_r;   //! last committed want (edge detect)
-  logic [N_STREAMS+SRP_CRFSNK_C-1:0] lsnsrp_sw_own_r; //! software claimed the row (sid)
-
-  generate
-    for (genvar gw = 0; gw < SRP_FAB_SLOTS_C; gw++) begin : g_srp_fab_want
-      if (gw == 0) begin : g_slot0_never
-        assign srp_fab_want_v_w[gw] = 1'b0;   //! row 0 = the legacy pair
-        assign srp_fab_req_v_w[gw]  = 1'b0;
-      end else if (gw == SRP_LSN0_SLOT_C) begin : g_slot_lstn0
-        //! sink 0's own fabric slot -> the DEDICATED listener-0 ctx row.
-        //! Same want as every other sink: the ACMP BIND level, software
-        //! override via the 0x800 window (listener dir, idx 0).
-        //! |sid GUARD (every listener slot): a bound sink whose record sid
-        //! is ZERO — a settled exit's 5.3.8.9 parameter clear, or an E1
-        //! restore awaiting its probe response — must WITHDRAW its row,
-        //! never declare a Listener attribute for stream 0. The next
-        //! probe response re-keys the record and the want rises again.
-        assign srp_fab_want_v_w[gw] = ~lsnsrp_sw_own_r[0] &
-                                      cfg_lwsrp_enable &
-                                      acmpl_bound_v_w[0] &
-                                      (|acmpl_sid_v_w[63:0]);
-        assign srp_fab_req_v_w[gw]  = lsnsrp_req_r[0];
-      end else if ((SRP_CRFSNK_C != 0) &&
-                   (gw == SRP_CRFSNK_SLOT_C)) begin : g_slot_crfsnk
-        //! task #27: the CRF Media Clock Input sink (ACMP ctx N_STREAMS,
-        //! the pinned LAST) -> the appended SRP_CRFSNK_ROW_C. Same law as
-        //! every AAF sink: want = the ACMP BIND level, upstream terms
-        //! only. Closes MILAN_COMPLIANCE_GAPS.md 3 - with a row to
-        //! declare Listener Ready into, a Milan talker's CRF stream
-        //! actually starts (5.3.7.3 licences on the registration).
-        assign srp_fab_want_v_w[gw] = ~lsnsrp_sw_own_r[N_STREAMS] &
-                                      cfg_lwsrp_enable &
-                                      acmpl_bound_v_w[N_STREAMS] &
-                                      (|acmpl_sid_v_w[64*N_STREAMS +: 64]);
-        assign srp_fab_req_v_w[gw]  = lsnsrp_req_r[N_STREAMS];
-      end else if (gw >= SRP_TALKERS_C) begin : g_slot_lstn
-        //! AAF LISTENER sink k -> ctx row k, direction LISTENER. The want
-        //! is the ACMP BIND level (Milan v1.2 5.5: a bound listener
-        //! declares the Listener attribute; Ready vs AskingFailed is the
-        //! engine's TA-registrar business, not ours) - upstream terms only,
-        //! never the engine's own outputs. cfg_lwsrp_talker_en is a TALKER
-        //! knob and deliberately absent. Software still WINS a row it
-        //! claims with a non-zero sid through the 0x800 window
-        //! (~lsnsrp_sw_own_r - the CRFT_SID precedent, listener direction).
-        localparam int unsigned SK = gw - SRP_TALKERS_C + 1;  //! sink index
-        assign srp_fab_want_v_w[gw] = ~lsnsrp_sw_own_r[SK] &
-                                      cfg_lwsrp_enable &
-                                      acmpl_bound_v_w[SK] &
-                                      (|acmpl_sid_v_w[64*SK +: 64]);
-        assign srp_fab_req_v_w[gw]  = lsnsrp_req_r[SK];
-      end else if (gw < N_STREAMS) begin : g_slot_aaf
-        //! SHAPE-DERIVED (USER "shape is STATIC, not a runtime poke"): every
-        //! talker gw < N_STREAMS EXISTS in this elaborated shape and its AEM
-        //! model advertises a STREAM_OUTPUT for it, so it must declare a
-        //! MSRP TalkerAdvertise from reset - the same way row 0 and the CRF
-        //! output declare on enable alone. The per-context runtime enable
-        //! `tctx_en_r[gw]` (A_STRMW_CTRL[0], reset 0) was gating this, so a
-        //! fresh boot declared nothing for gw>0 and only stream 0 could ever
-        //! reserve (silicon + ProfiShark, 2026-07-30): S50milan never writes
-        //! the 0x800 window, so those enables stayed 0 forever. DECLARING is
-        //! not STREAMING: `aaf_stream_en_w[gw]` still independently gates the
-        //! wire on acmp_talker_active AND the lwSRP stream gate (a registered
-        //! Listener Ready) or the AAF_CTRL bypass, so a shape-on declaration
-        //! advertises availability without emitting one AAF frame unlicensed
-        //! (Milan v1.2 5.3.7.3). Software still WINS a row it claims with a
-        //! non-zero sid (`~srp_sw_own_r`); the derived {MAC,uid=gw} identity
-        //! is what advertises otherwise. Upstream terms only - never the
-        //! stream gate, which would be a provisioning<->streaming deadlock.
-        //! ...and since the 4.3.3.1 round the want carries this talker's
-        //! DECLARATION GATE (lwsrp_decl_gate_w banner above): shape-on no
-        //! longer means declared-from-boot - a probe/bind window, a
-        //! registered Listener attribute or the LWSRP_CTRL[5] bypass opens
-        //! the declaration, and its lapse withdraws the row (valid=0 -> the
-        //! ctx engine's one LV).
-        assign srp_fab_want_v_w[gw] = ~srp_sw_own_r[gw] &
-                                      cfg_lwsrp_enable & cfg_lwsrp_talker_en &
-                                      lwsrp_decl_gate_w[gw];
-        assign srp_fab_req_v_w[gw]  = aafsrp_req_r[gw];
-      end else begin : g_slot_crf
-        assign srp_fab_want_v_w[gw] = crf_srp_want_w;
-        assign srp_fab_req_v_w[gw]  = crf_srp_req_r;
-      end
-    end
-  endgenerate
-
-  //! the ROW is a pick-time decode (registered into srp_fab_prow_r); the
-  //! RECORD below is capture-time, keyed on the p-registers so no mux or
-  //! adder ever sits behind the pick scan. Talker/CRF sid+dmac need no wide
-  //! mux - they are ARITHMETIC in the slot index, the same rule
-  //! acmp_src_dmac_w[t] and the packetizer's stream_id_w follow. A LISTENER
-  //! slot's sid is DATA (the bind's stream_id, whatever the controller
-  //! named), so it comes off the ACMP bind view - the same registers the
-  //! engine writes on the bind's own record-write edge, so the row and the
-  //! binding cannot disagree.
-  wire [4:0]  srp_fab_row_w  = srp_fab_is_lstn_w
-                               ? ((32'(srp_fab_sel_c) == SRP_LSN0_SLOT_C)
-                                  ? 5'(SRP_LSN0_ROW_C)
-                                  : ((SRP_CRFSNK_C != 0) &&
-                                     (32'(srp_fab_sel_c) == SRP_CRFSNK_SLOT_C))
-                                    ? 5'(SRP_CRFSNK_ROW_C)
-                                    : {1'b0, srp_fab_lsk_w})
-                               : 5'((N_STREAMS - 1) + 32'(srp_fab_sel_c));
-  wire [63:0] srp_fab_sid_w  = srp_fab_plstn_r
-                               ? acmpl_sid_v_w[64*srp_fab_plsk_r +: 64]
-                               : srp_fab_pcrf_r
-                                 ? eff_crft_sid_w
-                                 : {srp_station_mac_w, 16'(srp_fab_psel_r)};
-  //! the Listener declaration itself carries no DataFrameParameters, but a
-  //! listener row's dmac/vlan are the EXPECTED pair for the walker's Table
-  //! 5.29 three-parameter Talker match: the sink's probed SRP parameters,
-  //! read off the same write-edge shadows as the sid (zero until the probe
-  //! response learns them — the walker then matches sid-only)
-  wire [47:0] srp_fab_dmac_w = srp_fab_plstn_r
-                               ? acmpl_dmac_v_w[48*srp_fab_plsk_r +: 48]
-                               : srp_fab_pcrf_r
-                                 ? eff_crft_dmac_w
-                                 : (eff_aaf_dmac + 48'(srp_fab_psel_r));
-  //! talker/CRF rows: KL_lwsrp_ctx pins the pair at zero for dir=0 rows,
-  //! so the vlan lane only matters on listener beats
-  wire [11:0] srp_fab_vlan_w = srp_fab_plstn_r
-                               ? acmpl_vlan_v_w[12*srp_fab_plsk_r +: 12]
-                               : 12'd0;
-  wire        srp_fab_dir_w  = srp_fab_plstn_r;     //! ctx: 0 talker, 1 lstn
-  logic       srp_fab_valid_c;
-  logic [15:0] srp_fab_maxf_c, srp_fab_intv_c;
-  always_comb begin : srp_fab_rec_mux
-    srp_fab_valid_c = 1'b0;
-    srp_fab_maxf_c  = cfg_lwsrp_max_frame;
-    srp_fab_intv_c  = cfg_lwsrp_interval;
-    for (int s = 1; s < SRP_FAB_SLOTS_C; s++) begin
-      if (32'(srp_fab_psel_r) == s) begin
-        srp_fab_valid_c = srp_fab_want_v_w[s];
-        if (s < N_STREAMS) begin
-          //! per-row TSpec: 24 + 24*C from THIS talker's TCTX w0 chans
-          srp_fab_maxf_c = tctx_maxf_w[s];
-        end
-        else if (s < SRP_TALKERS_C) begin
-          srp_fab_maxf_c = CRF_SRP_MAXF_C;
-          srp_fab_intv_c = CRF_SRP_INTV_C;
-        end
-        //! listener slots keep the shared LWSRP_TSPEC defaults: the wire
-        //! Listener declaration has no TSpec and the bw-gate never reads a
-        //! listener row (their reservation is the remote talker's)
-      end
-    end
-  end : srp_fab_rec_mux
-
-  always_ff @(posedge axis_clk) begin : aaf_srp_prov
-    if (!axis_resetn) begin
-      aafsrp_req_r  <= '0;
-      aafsrp_last_r <= '0;
-      aafsrp_mac_r  <= '0;
-      aafsrp_dmac_r <= '0;
-      srp_sw_own_r  <= '0;
-    end
-    else begin
-      for (int t = 1; t < N_STREAMS; t++) begin
-        //! (re)declare on a change of the want or of the identity the row
-        //! must carry
-        if ((srp_fab_want_v_w[t] != aafsrp_last_r[t]) ||
-            (srp_fab_want_v_w[t] && aafsrp_root_chg_w))
-          aafsrp_req_r[t] <= 1'b1;
-
-        //! a 0x800 window commit on THIS row settles ownership. It cannot
-        //! collide with a fabric LAUNCH beat: a pending CSR write masks
-        //! every launch, so the two are mutually exclusive by construction
-        //! (an already-captured record for this row is squashed by
-        //! srp_fab_qkill_w on this very beat - software wins).
-        if (csr_srp_tk_svc_w && (32'(srp_tk_idx_w) == t)) begin
-          srp_sw_own_r[t]  <= csr_srp_tk_own_w;
-          //! named a sid -> software's row: stand down, and forget the row
-          //! WITHOUT a withdrawal (last_r 0 means the want edge that would
-          //! request one never happens). Named none -> retake it.
-          aafsrp_req_r[t]  <= ~csr_srp_tk_own_w;
-          aafsrp_last_r[t] <= 1'b0;
-        end
-
-        //! ...and only the beat the launch stage captured us on retires it
-        if (srp_fab_ret_v_w[t]) begin
-          aafsrp_req_r[t]  <= 1'b0;
-          aafsrp_last_r[t] <= srp_fab_want_v_w[t];
-        end
-      end
-
-      //! the roots latch on the CAPTURE beat, from the SAME wires the
-      //! record mux samples on this same edge, so the shadow and the rows
-      //! cannot disagree (flop-term CE - never behind the pick scan; a
-      //! root change during the one-cycle pipeline re-arms the requester
-      //! against the old shadow, buying one idempotent rewrite)
-      if (srp_fab_cap_w && !srp_fab_pcrf_r && !srp_fab_plstn_r) begin
-        aafsrp_mac_r  <= srp_station_mac_w;
-        aafsrp_dmac_r <= eff_aaf_dmac;
-      end
-    end
-  end : aaf_srp_prov
-
-  // ==========================================================================
-  //  EVERY AAF LISTENER SINK GETS A PROVISIONER (task-21 fabric half,
-  //  2026-08-01). The 07-29 peer-device silicon finding: a CONNECT_RX bind of
-  //  STREAM_INPUT k>0 staged the ACMP record but NOTHING wrote the lwSRP
-  //  LISTENER attribute row - the only listener-direction writer on the ctx
-  //  port was the 0x800 CSR window (ctx_dir_i was literally hardwired 0 on
-  //  the fabric grant path), so the talker's reservation could only complete
-  //  after manual CSR staging. Milan v1.2 5.3.7.3 makes the remote talker's
-  //  streaming licence CONDITIONAL on receiving a Listener Ready/ReadyFailed,
-  //  so an unstaged bind was a bind that never pulled its stream.
-  //
-  //  The requester is the aaf_srp_prov pattern, listener direction:
-  //    * want  = the ACMP bind LEVEL (acmpl_bound_v_w[k], state != UNBOUND)
-  //      qualified by the engine enable - upstream terms only, never the
-  //      engine's own outputs. Bind -> declare, unbind -> want falls and the
-  //      service writes valid=0, which KL_lwsrp_ctx turns into the one LV
-  //      withdraw if the attribute is on the wire. SRP loss handling
-  //      (TA lost -> Ready becomes AskingFailed) is the engine's registrar
-  //      contract and needs nothing from us.
-  //    * identity = DERIVED from the bind record: acmpl_sid_v_w[k] is
-  //      written by KL_acmp_lstn_ctx on the SAME edge as the bind record
-  //      itself, and the slot mux reads it LIVE at the launch beat (a
-  //      rewrite between capture and landing re-arms via acmpl_upd_p_w).
-  //    * re-provision on acmpl_upd_p_w[k] while wanted: a REBIND to a new
-  //      talker rewrites the record in place (bound never blinks), and a
-  //      row still carrying the old sid would be a reservation for a stream
-  //      nobody asked for - the crf_srp_prov identity rule.
-  //    * software still wins a row it names a sid for through the 0x800
-  //      window (csr_srp_ls_svc_w / lsnsrp_sw_own_r - the per-row CRFT_SID
-  //      precedent); a commit naming no sid hands the row back.
-  //  Listener rows never reach KL_lwsrp_bw_gate (it is T slots wide by
-  //  construction), so these declarations cannot gate our own talker CBS.
-  //  Since task #27 the CRF Media Clock Input sink is lane N_STREAMS of
-  //  this same provisioner (the 0x0023 5-bit widening made the room; the
-  //  old "row space exactly full" note predated it) - closing
-  //  MILAN_COMPLIANCE_GAPS.md 3.
-  // ==========================================================================
-  always_ff @(posedge axis_clk) begin : lsn_srp_prov
-    if (!axis_resetn) begin
-      lsnsrp_req_r    <= '0;
-      lsnsrp_last_r   <= '0;
-      lsnsrp_sw_own_r <= '0;
-    end
-    else begin
-      for (int k = 0; k < N_STREAMS + SRP_CRFSNK_C; k++) begin
-        //! sink k's slot and its ctx row (sink 0 = the appended top slot
-        //! and the dedicated row; the CRF sink k = N_STREAMS = the pair
-        //! appended one past those; see the SRP_LSN0_*/SRP_CRFSNK_* banner)
-        automatic int kslot = (k == 0)         ? SRP_LSN0_SLOT_C
-                            : (k == N_STREAMS) ? SRP_CRFSNK_SLOT_C
-                                               : SRP_TALKERS_C + k - 1;
-        automatic int krow  = (k == 0)         ? SRP_LSN0_ROW_C
-                            : (k == N_STREAMS) ? SRP_CRFSNK_ROW_C : k;
-        //! (re)provision on a want edge, or on any bind-record rewrite
-        //! while wanted (rebind = same row, new identity)
-        if ((srp_fab_want_v_w[kslot] != lsnsrp_last_r[k]) ||
-            (srp_fab_want_v_w[kslot] && acmpl_upd_p_w[k]))
-          lsnsrp_req_r[k] <= 1'b1;
-
-        //! a 0x800 window commit on THIS listener row settles ownership
-        //! (cannot collide with a fabric LAUNCH beat: a pending CSR write
-        //! masks every launch; an in-flight capture is qkill-squashed)
-        if (csr_srp_ls_svc_w && (32'(csr_srp_ctx_idx) == krow)) begin
-          lsnsrp_sw_own_r[k] <= csr_srp_tk_own_w;
-          lsnsrp_req_r[k]    <= ~csr_srp_tk_own_w;
-          lsnsrp_last_r[k]   <= 1'b0;
-        end
-
-        //! ...and only the beat the launch stage captured us on retires it
-        if (srp_fab_ret_v_w[kslot]) begin
-          lsnsrp_req_r[k]  <= 1'b0;
-          lsnsrp_last_r[k] <= srp_fab_want_v_w[kslot];
-        end
-      end
-    end
-  end : lsn_srp_prov
-
-  //! THE INTERLOCK. Frames are tagged only while the row is provisioned
-  //! VALID and the applicant is running - i.e. only while the MSRP Talker
-  //! Advertise for this stream is on the wire. Drop lwSRP or the class-A bit
-  //! and the stream falls back to the untagged (flooding, but ALIVE) shape
-  //! rather than becoming a tagged stream no bridge will forward.
-  wire crft_class_a_w = crf_srp_val_r & cfg_lwsrp_enable & cfg_lwsrp_talker_en;
+  //! THE INTERLOCK, repointed. Frames are tagged only while THIS STREAM's
+  //! MSRP Talker Advertise is on the wire - otherwise 802.1Q 35.1.2 prunes a
+  //! tagged-but-undeclared stream to zero ports, which is strictly worse than
+  //! the untagged flood. The level used to be "the fabric provisioned the row
+  //! AND the applicant is running"; it is now the processor's own declaration
+  //! state for the CRF source, which is the same fact one step closer to the
+  //! wire. Shapes with no CRF Stream Output have no source to declare and
+  //! keep the untagged fallback.
+  //! ...and the select must stay LEGAL at a shape that has no CRF source:
+  //! at ACMP_SRC_C == N_STREAMS the vector is 2*N_STREAMS wide and slot
+  //! CRF_TUID_C = N_STREAMS is one past its end. Verilator called that out as
+  //! SELRANGE; synthesis would have taken the out-of-range bits as X/0 and
+  //! the guard above would have hidden it. Clamp the INDEX, not the answer.
+  localparam int CRF_DECL_SLOT_C = (ACMP_SRC_C > N_STREAMS) ? CRF_TUID_C : 0;
+  wire crft_class_a_w = (ACMP_SRC_C > N_STREAMS) &
+                        (|pp_cd_srp_tk_decl_state_w[2*CRF_DECL_SLOT_C +: 2]);
   //! the CRF talker's own bw-gate slot (top of the vector when it exists)
   wire crft_res_active_w = (SRP_CRF_TK_C != 0) &
                            lwsrp_stream_gate[SRP_TALKERS_C-1];
@@ -4332,7 +3280,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! SAME pair here keeps the frame and the declaration one wire.
   wire [2:0]  crft_pcp_w = lwsrp_adopt_valid
                            ? lwsrp_op_prio[2:0]
-                           : lwsrp_pkg::SR_CLASS_A_PRIO_C[2:0];
+                           : SR_CLASS_A_PRIO_C[2:0];
   wire [11:0] crft_vid_w = lwsrp_adopt_valid ? lwsrp_op_vid : cfg_lwsrp_vid;
   //! THE LICENCE (Milan v1.2 5.3.7.3): a talker streams while it declares a
   //! Talker Advertise AND receives a Listener Ready - the CRF output is a
@@ -4353,7 +3301,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic [31:0] crft_stat_c;
   always_comb begin : crft_stat_pack
     crft_stat_c        = 32'd0;
-    crft_stat_c[4]     = crf_srp_val_r;         //! TA row provisioned valid
+    //! [4] used to be "the fabric provisioned this stream's TA row valid".
+    //! There is no row to provision: STRUCTURAL ZERO. [5]/[6] below still
+    //! carry the real tagged/reserved levels, from the processor.
+    crft_stat_c[4]     = 1'b0;
     crft_stat_c[5]     = crft_class_a_w;        //! frames leaving tagged
     crft_stat_c[6]     = crft_res_active_w;     //! reservation ACTIVE
     crft_stat_c[7]     = crft_emit_en_w;        //! emission licensed NOW
@@ -4503,17 +3454,24 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pdu_count_o (crf_pducnt_w),
     .fmt_err_o   (crf_fmterr_w),
     .seq_err_o   (crf_seqerr_w),
-    .mr_cnt_o    (crf_mrcnt_w),
-    .tu_cnt_o    (crf_tucnt_w),
-    .late_cnt_o  (crf_latecnt_w),
-    .early_cnt_o (crf_earlycnt_w),
+    //! Milan Table 5.16's CRF Media Clock Input counters. Their ONE reader
+    //! was AECP GET_COUNTERS(CLOCK_DOMAIN / STREAM_INPUT), which is deleted:
+    //! nothing in this gateware can read them, so they are left OPEN rather
+    //! than latched into nets no consumer touches. The five that DO reach
+    //! software keep their CSR window below (0x738: pdu, fmt_err, seq_err).
+    .mr_cnt_o    (),
+    .tu_cnt_o    (),
+    .late_cnt_o  (),
+    .early_cnt_o (),
     .locked_o    (crf_locked_w),
-    .cnt_locked_o   (crf_cnt_locked_w),
-    .cnt_unlocked_o (crf_cnt_unlocked_w),
-    .cnt_intr_o     (crf_cnt_intr_w),
+    .cnt_locked_o   (),
+    .cnt_unlocked_o (),
+    .cnt_intr_o     (),
     //! Table 5.22 push source for the CRF sink's GET_COUNTERS row (gh #60
     //! F2): anomaly/lock events only, never a healthy FRAMES_RX interval
-    .dirty_p_o      (crf_cnt_dirty_p_w)
+    //! ...and the Table 5.22 unsolicited push source: there is no
+    //! unsolicited-notification registry without AECP.
+    .dirty_p_o      ()
   );
 
   // ==========================================================================
@@ -4541,8 +3499,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .clk_audio_i   (clk_audio_i),
     .ps_clk_i      (i_ps_clk),
     .ptp_now_i     (ptp_now_w),
-    .clk_src_i     (aecp_clk_src),
-    .crf_src_idx_i (aem_crf_clksrc_w),
+    //! servo_sel_w is (clk_src_i == crf_src_idx_i) INSIDE the servo. Feeding
+    //! INTERNAL against the never-a-descriptor index makes that select
+    //! structurally false: the servo stays in IDLE and drives no DRP/phase
+    //! command, which is the honest behaviour for a build that cannot select
+    //! the CRF source. Feeding 0 and 0 made it TRUE and ran the servo.
+    .clk_src_i     (MEDIA_CLK_SRC_IDX_C),
+    .crf_src_idx_i (MEDIA_CLK_SRC_NONE_C),
     .crf_locked_i  (crf_locked_w),
     .crf_rate_i    (crf_rate_w),
     .auto_repair_i (mcsrv_auto_repair_w),
@@ -4596,7 +3559,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  existing bench measurement stand.
   // --------------------------------------------------------------------------
   assign mnco_servo_trim_w = $signed(mcsrv_stat_w[31:16]);
-  assign mnco_servo_en_w   = (aecp_clk_src != 16'd0);
+  assign mnco_servo_en_w   = CRF_CLK_SELECTED_C;
 
   // ==========================================================================
   //  CRF Media Clock Output engine (Milan 7.3.1) - talker half: emits the
@@ -4687,7 +3650,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! this by a talker index would conflate the two. A per-SINK window
     //! is future LCTX work, not a per-talker mux.
     .pres_ofs_i     (aecp_pres_offset[31:0]),
-    .clk_src_i      (aecp_clk_src),
+    .clk_src_i      (MEDIA_CLK_SRC_IDX_C),
     .servo_conv_i   (i2spb_converged),
     .render_sel_i   (route_render_sel_w),  //! route policy's RENDER stream
     .depkt_pdu_p_i    (pcmrx_pdu_p_w),
@@ -4711,14 +3674,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! Milan 5.4.2.25: every sink's Table 5.6 set, muxed by the AECP's
     //! GET_COUNTERS descriptor index
     .diag_idx_i               (aecp_diag_idx_w),
-    .diag_cnt_o               (mon_diag_cnt_w),
+    //! Milan Table 5.16 STREAM_INPUT counters. Their ONE reader was AECP
+    //! GET_COUNTERS, which is deleted, and the 0x6B8 A_STRMW_CNT window is
+    //! served from the per-context counters beside it - not from this port.
+    //! Left OPEN rather than latched into a net nothing reads.
+    .diag_cnt_o               (),
     .cnt_media_reset_o (avtprx_mreset_c),
     .cnt_late_ts_o     (avtprx_late_c),
     .cnt_early_ts_o    (avtprx_early_c),
     .cnt_ts_valid_o     (avtprx_tv_c),
     .cnt_ts_not_valid_o (avtprx_tnv_c),
     .media_locked_o (avtprx_locked),
-    .dirty_p_o      (avtprx_dirty_p_w),
+    //! per-sink Table 5.22 counter-change pulse: no push registry, no reader
+    .dirty_p_o      (),
     .pdu_accept_p_o   (avtprx_accept_p_w),
     .pdu_accept_idx_o (avtprx_accept_idx_w),
     .last_ts_o      (avtprx_last_ts),
@@ -4894,7 +3862,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                     .SETPOINT_P((6 * 2) + 4)) i2s_player (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .clk_audio_i  (clk_audio_i),
-    .servo_en_i   (aecp_clk_src != 16'd0),
+    .servo_en_i   (CRF_CLK_SELECTED_C),
     .recenter_p_i (gm_recentre_p_r),
     .pcm_tdata_i  (i2s_feed_tdata_w),
     .lpf_tdata_i  (pcm_lpf_tdata),
@@ -5183,252 +4151,144 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end endgenerate
 
   // ==========================================================================
-  //  lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6) — same monitor-tap +
-  //  low-rate-TX recipe. Declares Domain/TalkerAdvertise/VID, registers the
-  //  Listener attribute for our stream, and resolves the reservation into
-  //  the AAF admission gate + the CBS class-A slope (mux above).
+  //  SRP — served by the protocol processor, not by an lwSRP engine here
   // ==========================================================================
-  //! ATTRIBUTE-ROW sizing (2026-07-26 fix). N_CTX_P used to be N_STREAMS =
-  //! max(L,T), but an attribute row is not a stream: the 0x800 window maps
-  //! listener k -> row k and talker t -> row (L-1)+t (milan_csr
-  //! `srp_sel_row_w`), so the top row is (L-1)+(T-1) and the table needs
-  //! L+T-1 rows. At L=T=N that is 2N-1 — 15 at 8x8, where 8 existed and
-  //! rows 8..14 (EVERY t>0 talker declaration) were refused in silence by
-  //! KL_lwsrp_ctx's `ctx_idx_i < N_CTX_P` guard. The talker gate then read
-  //! a LISTENER row and pinned every t>0 stream shut whenever lwSRP was on.
-  //! N_TALKERS_P keeps stream_gate_o (and the Σ-slope engine) T wide, so
-  //! aaf_stream_en_w still indexes it by talker index and the bw-gate does
-  //! not grow to 15 slots. N=1 -> 2*1-1 = 1 = today's shape exactly.
-  //! ...and +1 more row when this shape carries a CRF Media Clock Output:
-  //! it is talker t = N_STREAMS, hence row (L-1)+t = 2*N_STREAMS-1, so the
-  //! table needs L+T-1 = 2*N_STREAMS rows (see the SRP_CRF_TK_C banner).
-  //! rows: [0] legacy pair, [1..N-1] AAF sinks, [N..] talkers (+CRF out),
-  //! [SRP_LSN0_ROW_C] sink 0, [SRP_CRFSNK_ROW_C] the CRF sink (task #27)
-  localparam int SRP_CTX_ROWS_C = N_STREAMS + SRP_TALKERS_C + SRP_CRFSNK_C;
-  //! ctx_idx_i is 5 bits since the listener-0 row round: row 31 is the last
-  //! addressable attribute row (8x8+CRF+listener-0 uses 17). One more row
-  //! than the space would silently lose its reservation (KL_lwsrp_ctx's
-  //! `ctx_idx_i < N_CTX_P` guard only latches ctx_oor_o), so fail the build
-  //! instead - the shape is an elaboration fact and must be checkable here.
-  initial begin : srp_ctx_rows_guard
-    assert (SRP_CTX_ROWS_C <= 32) else
-      $error("milan_datapath: lwSRP needs %0d attribute rows but ctx_idx is 5 bits (max 32) - N_STREAMS=%0d with a CRF Media Clock Output is too wide", SRP_CTX_ROWS_C, N_STREAMS);
-    //! only meaningful when this shape HAS a CRF Media Clock Output - at
-    //! SRP_CRF_TK_C = 0 the row index is a don't-care that is never driven
-    assert ((SRP_CRF_TK_C == 0) || (SRP_CRF_ROW_C < SRP_CTX_ROWS_C)) else
-      $error("milan_datapath: CRF lwSRP row %0d outside the %0d-row table", SRP_CRF_ROW_C, SRP_CTX_ROWS_C);
-    //! the lwSRP listener-row provisioner reads ACMP bind context k for
-    //! every AAF sink k < N_STREAMS - the entity shape must declare them
-    assert (ACMP_SINKS_C >= N_STREAMS) else
-      $error("milan_datapath: %0d ACMP sink contexts cannot back %0d AAF listener streams", ACMP_SINKS_C, N_STREAMS);
-  end : srp_ctx_rows_guard
-
-  KL_lwsrp_top #(.CLK_FREQ_HZ_P(MILAN_CLK_FREQ_HZ),
-                 .N_CTX_P(SRP_CTX_ROWS_C),
-                 .N_LISTENERS_P(N_STREAMS),
-                 .N_TALKERS_P(SRP_TALKERS_C)) lwsrp (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .enable_i (cfg_lwsrp_enable),
-    //! row 0's TalkerAdvertise rides the 4.3.3.1 declaration gate
-    //! (lwsrp_decl_gate_w banner): the CSR talker knob arms it, a
-    //! probe/bind window or a registered Listener attribute (or the
-    //! LWSRP_CTRL[5] bypass) opens it, and KL_lwsrp_tx's talker_fall ->
-    //! LV pend withdraws it on lapse
-    .talker_en_i (cfg_lwsrp_talker_en & lwsrp_decl_gate_w[0]),
-    .is_1g_i (cfg_mac_is_1g),
-    //! Domain adoption reverts on link-down (Milan 4.2.7.2.1 reset list)
-    .link_up_i (eff_link_w),
-    .lstn_bound_i   (acmpl_bound),
-    .lstn_declare_i (acmpl_lstn_declare),
-    .lstn_sid_i     (acmpl_sid),
-    //! sink 0's probed pair (view0 record shadows) — the legacy lsid
-    //! walker context gets the same Table 5.29 three-parameter match as
-    //! the ctx-table rows (its registrar feeds the AECP status surfaces)
-    .lstn_dmac_i    (acmpl_dmac),
-    .lstn_vlan_i    (acmpl_vlan),
-    .ta_registered_o (lwsrp_ta_registered),
-    .ta_failed_o     (lwsrp_ta_failed),
-    .ta_fail_code_o  (lwsrp_ta_fail_code),
-    .ta_vlan_o       (lwsrp_ta_vlan),
-    .ta_acclat_o     (lwsrp_ta_acclat),
-    .ta_fail_bridge_o(lwsrp_ta_fail_bridge),
-    .tfail_bridge_o  (lwsrp_tfail_bridge),
-    .lstn_declared_o (lwsrp_lstn_declared),
-    .station_mac_i ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
-                     cfg_mac_addr[23:16], cfg_mac_addr[31:24],
-                     cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
-    .unique_id_i (16'd0),          // stream_id = {station_mac, 0} everywhere
-    .dest_mac_i (cfg_lwsrp_dmac),
-    .vid_i (cfg_lwsrp_vid),
-    //! DERIVED, like every other talker row. Frame size is a FUNCTION of
-    //! the channel count (Milan 4.3.3.2 Table 4.4: 24*C + 24 + 1), so it
-    //! cannot be an independent constant without the two disagreeing.
-    //! Row 0 used to take the CSR word, whose reset was pinned to 224 - a
-    //! value 24*C + 25 yields for NO integer C (224 - 25 = 199, and 199/24
-    //! is 8.29), so it was never right for any shape. The derived mux at
-    //! srp_ctx_maxf_w only covers talker rows 1..N-1, so on the shipping
-    //! 1-stream shape it never activates and row 0, our ONLY AAF talker,
-    //! declared 224 where the clause mandates 217. tctx_maxf_w[0] already
-    //! existed and already computed the right answer; it simply was not
-    //! wired here. The override survives where it belongs: write the TCTX
-    //! w0 chans field and the reservation follows the width.
-    .max_frame_i (tctx_maxf_w[0]),
-    .interval_frames_i (cfg_lwsrp_interval),
-    .latency_i (cfg_lwsrp_latency),
-    //! HANDSHAKE HAZARD (gh #65): the tap MUST see tready - a stalled DMA
-    //! parks a beat with tvalid held and a tvalid-only tap re-eats it
-    .rx_tvalid_i (rx_axis_to_dma.tvalid),
-    .rx_tready_i (rx_axis_to_dma.tready),
-    .rx_tdata_i  (rx_axis_to_dma.tdata),
-    .rx_tkeep_i  (rx_axis_to_dma.tkeep),
-    .rx_tlast_i  (rx_axis_to_dma.tlast),
-    .m_axis_tdata (lwsrp_tx_tdata), .m_axis_tkeep (lwsrp_tx_tkeep),
-    .m_axis_tvalid(lwsrp_tx_tvalid), .m_axis_tlast (lwsrp_tx_tlast),
-    .m_axis_tready(lwsrp_tx_tready),
-    // P11 CSR-window provisioning port (0x800 window CTRL/SID/DMAC commits;
-    // extra attribute rows only exist when N_CTX_P > 1 — inert at N = 1)
-    //! TWO KINDS of provisioner share this port: the 0x800 CSR window
-    //! (priority on its WRITES) and the fabric's own rotating requesters -
-    //! every AAF talker row t>0, the CRF Media Clock Output row, and every
-    //! AAF LISTENER row k>0 bound over ACMP (srp_fab_pick / aaf_srp_prov /
-    //! crf_srp_prov / lsn_srp_prov above), presented THROUGH the launch
-    //! stage's captured record (srp_fab_q*, timing closure). The mux is by
-    //! SOURCE, not by field, so a half-window/half-fabric record cannot be
-    //! composed even for one cycle.
-    .ctx_req_i (srp_ctx_req_w),
-    .ctx_we_i  (srp_fab_qsel_w ? 1'b1              : csr_srp_ctx_we),
-    .ctx_idx_i (srp_fab_qsel_w ? srp_fab_qrow_r    : csr_srp_ctx_idx),
-    .ctx_valid_i (srp_fab_qsel_w ? srp_fab_qvalid_r : csr_srp_ctx_valid),
-    .ctx_dir_i (srp_fab_qsel_w ? srp_fab_qdir_r    : csr_srp_ctx_dir),
-    .ctx_sid_i (srp_fab_qsel_w ? srp_fab_qsid_r    : csr_srp_ctx_sid),
-    .ctx_dmac_i (srp_fab_qsel_w ? srp_fab_qdmac_r  : csr_srp_ctx_dmac),
-    //! the 0x800 window stages no VLAN word: a window-claimed listener row
-    //! compares only if a dmac was staged (expected vlan then pins at 0);
-    //! rows with nothing staged keep the zero pair = sid-only, exactly the
-    //! pre-0x0037 behaviour for every software flow that exists
-    .ctx_vlan_i (srp_fab_qsel_w ? srp_fab_qvlan_r  : 12'd0),
-    .ctx_prio_rank_i (srp_fab_qsel_w ? lwsrp_pkg::SR_PRIO_RANK_C
-                                     : csr_srp_ctx_prio),
-    //! per-row MaxFrameSize (see the tctx_chans_shadow block); the CSR's
-    //! shared LWSRP_TSPEC word still serves row 0 and every listener row
-    .ctx_max_frame_i (srp_fab_qsel_w ? srp_fab_qmaxf_r : srp_ctx_maxf_w),
-    .ctx_interval_i (srp_fab_qsel_w ? srp_fab_qintv_r : csr_srp_ctx_intv),
-    .ctx_latency_i (srp_fab_qsel_w ? srp_fab_qlat_r : csr_srp_ctx_lat),
-    .ctx_gnt_o (srp_ctx_gnt_w), .ctx_rd_sid_o (srp_ctx_rd_sid_w),
-    .ctx_rd_stat_o (srp_ctx_rd_stat_w), .ctx_oor_o (lwsrp_ctx_oor_w),
-    //! per-row registrar levels: the ACMP listener's per-sink SETTLED_RSV_OK
-    //! coupling reads rows 1..N_STREAMS-1 out of these (acmpl_ta_reg_v_w)
-    .ctx_reg_o (lwsrp_ctx_reg_w), .ctx_ready_o (),
-    .ctx_failed_o (lwsrp_ctx_failed_w), .ctx_tx_count_o (),
-    .stream_gate_o (lwsrp_stream_gate),
-    .lstn_ask_fail_o (lwsrp_lstn_ask_fail),
-    .slope_en_o (lwsrp_slope_en), .idle_slope_o (lwsrp_idle_slope),
-    .res_active_o (lwsrp_res_active),
-    .listener_ready_o (lwsrp_listener_ready),
-    .talker_declared_o (lwsrp_talker_declared),
-    .listener_reg_o (lwsrp_listener_reg), .listener_decl_o (lwsrp_listener_decl),
-    .domain_ok_o (lwsrp_domain_ok),
-    .adopt_valid_o (lwsrp_adopt_valid),
-    .op_prio_o (lwsrp_op_prio), .op_vid_o (lwsrp_op_vid),
-    .over_limit_o (lwsrp_over_limit),
-    .tfail_valid_o (lwsrp_tfail_valid), .tfail_code_o (lwsrp_tfail_code),
-    .tx_count_o (lwsrp_tx_count),
-    .rx_pdus_o (lwsrp_rx_pdus), .rx_drops_o (lwsrp_rx_drops)
-  );
+  //! hdl/ieee8021q/srp/ is DELETED in full - the applicant, the registrar, the
+  //! TA registrar, the walker, the ingress/rx path, the context table, the
+  //! MRPDU serializer, the timers and KL_lwsrp_bw_gate. The processor's SRP
+  //! engine declares Talker Advertise and Listener Ready, registers the
+  //! bridge's answers, adopts the Domain and publishes the result through the
+  //! class-D face.
+  //!
+  //! THE CBS SLOPE ORDERING CHANGED. RECORDED HONESTLY, WITH THE ANSWER.
+  //!
+  //! KL_lwsrp_bw_gate sequenced the two edges explicitly, with a settling
+  //! HOLD between them: on activation the stream's idleSlope joined the
+  //! running Sigma, then HOLD_CYCLES_C elapsed, then the gate opened; on
+  //! teardown the gate closed, then HOLD_CYCLES_C, then the slope left the
+  //! Sigma. The invariant it bought is "no stream ever transmits against a
+  //! slope the shaper has not budgeted".
+  //!
+  //! The processor has no hold. KL_srp_admission walks its sources and
+  //! latches grant_r, gslope_r and sum_r TOGETHER at round end; the published
+  //! sr_admitted_o is grant_r AND the live request. So:
+  //!
+  //!   OPENING EDGE - a source's gate can only rise once a round has granted
+  //!   it, and that same round is what put its slope into sum_r. Gate and
+  //!   Sigma therefore change on the SAME edge, never gate-first. The hold
+  //!   existed to let the slope settle through the CSR mux; that mux is
+  //!   combinational and in this clock domain, so there is nothing to settle.
+  //!   EQUAL, not worse.
+  //!
+  //!   CLOSING EDGE - sr_admitted_o drops the cycle the request drops (the
+  //!   live AND), but sum_r is ROUND-LATCHED and keeps the stopped stream's
+  //!   slope until the next round completes. The shaper goes on budgeting
+  //!   bandwidth for a stream that has already stopped: MORE conservative
+  //!   than the bw-gate, not less.
+  //!
+  //! ANSWER: the invariant HOLDS on both edges. What is genuinely lost is the
+  //! bw-gate's explicit hold as a named, testable behaviour - the ordering is
+  //! now a consequence of the admission round's structure rather than a
+  //! sequencer anyone can point at.
+  assign lwsrp_stream_gate = pp_cd_srp_sr_admitted_w[SRP_TALKERS_C-1:0];
+  //! the class-A idleSlope the CBS mux takes: the SUM across admitted
+  //! sources, which is what a single shaped queue's idleSlope must be
+  assign lwsrp_slope_en    = |pp_cd_srp_sr_admitted_w;
+  assign lwsrp_idle_slope  = pp_cd_srp_sum_slope_bps_w;
+  //! Milan 4.2.7.2.1 Domain adoption surface: the OPERATIONAL {priority, VID}
+  //! every declaration serializes, and which the AAF/CRF C-TAG muxes take.
+  assign lwsrp_adopt_valid = pp_cd_srp_domain_adopted_w;
+  assign lwsrp_op_prio     = {5'd0, pp_cd_srp_class_a_prio_w};
+  assign lwsrp_op_vid      = pp_cd_srp_class_a_vid_w;
+  assign lwsrp_domain_ok   = pp_cd_srp_domain_adopted_w;
+  assign lwsrp_over_limit  = pp_cd_srp_over_limit_w;
+  assign lwsrp_res_active  = |pp_cd_srp_active_w;
+  //! per-source Talker failure (802.1Q 35.2.2.8.6 FailureCode + BridgeID)
+  assign lwsrp_tfail_code   = pp_cd_srp_src_fail_code_w[7:0];
+  assign lwsrp_tfail_valid  = |pp_cd_srp_src_fail_code_w[7:0];
+  //! SINK 0's registrar levels - the flat 0x6A4/0x690 status words are
+  //! scalars and always described sink 0. [2*k +: 2] is the per-sink slice;
+  //! bit 1 of it is "a Talker Advertise for this sink's stream is REGISTERED"
+  //! (802.1Q 35.2.4.4.1), which is exactly what the deleted TA registrar
+  //! published. The per-sink Failure BridgeID and registered VLAN are NOT on
+  //! the class-D face (it carries the per-SOURCE bridge id only), so the CSR
+  //! fields that carried them are gone from this file rather than wearing a
+  //! source's value under a sink's name.
+  assign lwsrp_ta_registered = pp_cd_srp_tk_reg_state_w[1];
+  assign lwsrp_ta_failed     = |pp_cd_srp_snk_fail_code_w[7:0];
+  assign lwsrp_ta_fail_code  = pp_cd_srp_snk_fail_code_w[7:0];
+  assign lwsrp_listener_reg   = pp_cd_srp_lstn_reg_state_w[1];
+  assign lwsrp_listener_decl  = pp_cd_srp_lstn_decl_state_w[1:0];
+  assign lwsrp_listener_ready = (pp_cd_srp_lstn_decl_state_w[1:0] == 2'd1);
+  assign lwsrp_talker_declared= |pp_cd_srp_tk_decl_state_w;
+  //! GONE, and worth naming: the per-talker "a Listener Asking Failed
+  //! attribute is registered" level (gh #56 A2) that promoted an ACMP talker
+  //! context to REGISTERING_FAILED. The class-D face reports a per-source
+  //! failure CODE, not the attribute type it arrived on, so this fabric can
+  //! no longer observe that level at all - it is not tied to zero here, it
+  //! has no net.
+  //! MRPDU tx/rx accounting lived in the deleted serializer/ingress pair
+  assign lwsrp_tx_count = 16'd0;
+  assign lwsrp_rx_pdus  = 16'd0;
+  assign lwsrp_rx_drops = 8'd0;
+  //! the 0x800 window's SRP context-table master and its per-row readback:
+  //! there is no attribute-row table in this fabric any more
+  assign lwsrp_ctx_oor_w   = 1'b0;
+  assign srp_ctx_gnt_w     = 1'b0;
+  assign srp_ctx_rd_sid_w  = 64'd0;
+  assign srp_ctx_rd_stat_w = 16'd0;
 
   //! A_TXARB_DIAG 0x784 lock supervision, one lane per TX-trunk arbiter.
-  //! Lane order (LSB first): 0 aecp_acmp, 1 ctl_tx, 2 srp_ctl, 3 lstn_ctl,
-  //! 4 maap_ctl, 5 aaf_final, 6 crf_dp, 7 adp_tx (= the MAC boundary mux).
-  //! Watchdog windows are STAGGERED shortest-upstream (control chain 2^15,
+  //!
+  //! THE LANE MAP RENUMBERED when the legacy 1722.1/SRP plane was deleted.
+  //! It used to be eight muxes - 0 aecp_acmp, 1 ctl_tx, 2 srp_ctl, 3 lstn_ctl,
+  //! 4 maap_ctl, 5 aaf_final, 6 crf_dp, 7 adp_tx - because five independent
+  //! control sources (AECP responses, ACMP talker answers, ADP advertisements,
+  //! lwSRP MRPDUs, ACMP listener probes) each needed a merge step. The
+  //! protocol processor emits ONE byte stream for every protocol it owns and
+  //! arbitrates internally, so four of those merges have no second source left
+  //! and are gone with the planes that fed them.
+  //!
+  //! Lane order (LSB first): 0 ctl_tx (processor + MAAP -> the control lane),
+  //! 1 aaf_final, 2 crf_dp, 3 adp_tx (= the MAC boundary mux).
+  //! Bits 7:4 read a STRUCTURAL ZERO - there is no fifth..eighth arbiter to
+  //! supervise, as opposed to four arbiters that happen never to have locked.
+  //! Anything decoding 0x784 by the old lane numbers reads the WRONG mux.
+  //!
+  //! Watchdog windows stay STAGGERED shortest-upstream (control chain 2^15,
   //! data merges 2^16, MAC boundary 2^17): an abandoned source starves every
   //! downstream mux on the SAME cycle (the IFG gasket passes tvalid
   //! combinationally), so equal windows would expire together and each level
-  //! would inject its own close beat - six runts on the wire per event. With
-  //! the stagger only the true origin fires; its injected tlast propagates
-  //! down as an accepted beat and clears every downstream counter normally.
+  //! would inject its own close beat - runts on the wire per event. With the
+  //! stagger only the true origin fires; its injected tlast propagates down as
+  //! an accepted beat and clears every downstream counter normally.
   wire [7:0] txarb_locked_w, txarb_abort_w, txarb_stall_w;
+  //! the four supervised lanes; 7:4 are the structural zero above
+  assign txarb_locked_w[7:4] = 4'd0;
+  assign txarb_abort_w [7:4] = 4'd0;
+  assign txarb_stall_w [7:4] = 4'd0;
 
-  //! AECP response (s_data) + ACMP response (s_adp) -> one control stream.
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) aecp_acmp_mux (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .s_data_tdata (aecp_tx_tdata),  .s_data_tkeep (aecp_tx_tkeep),
-    .s_data_tvalid(aecp_tx_tvalid), .s_data_tlast (aecp_tx_tlast),
-    .s_data_tready(aecp_tx_tready),
-    .s_adp_tdata (acmp_tx_tdata),  .s_adp_tkeep (acmp_tx_tkeep),
-    .s_adp_tvalid(acmp_tx_tvalid), .s_adp_tlast (acmp_tx_tlast),
-    .s_adp_tready(acmp_tx_tready),
-    .m_tdata (ctl2_tx_tdata), .m_tkeep (ctl2_tx_tkeep),
-    .m_tvalid(ctl2_tx_tvalid), .m_tlast (ctl2_tx_tlast), .m_tready(ctl2_tx_tready),
-    .diag_locked_o(txarb_locked_w[0]),
-    .abort_evt_o (txarb_abort_w[0]), .stall_evt_o (txarb_stall_w[0])
-  );
-
-  //! Low-rate control merge: ADP advertise (s_data) + AECP response (s_adp).
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) ctl_tx_mux (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .s_data_tdata (adp_tx_tdata),  .s_data_tkeep (adp_tx_tkeep),
-    .s_data_tvalid(adp_tx_tvalid), .s_data_tlast (adp_tx_tlast),
-    .s_data_tready(adp_tx_tready),
-    .s_adp_tdata (ctl2_tx_tdata),  .s_adp_tkeep (ctl2_tx_tkeep),
-    .s_adp_tvalid(ctl2_tx_tvalid), .s_adp_tlast (ctl2_tx_tlast),
-    .s_adp_tready(ctl2_tx_tready),
-    .m_tdata (ctl_tx_tdata), .m_tkeep (ctl_tx_tkeep),
-    .m_tvalid(ctl_tx_tvalid), .m_tlast (ctl_tx_tlast), .m_tready(ctl_tx_tready),
-    .diag_locked_o(txarb_locked_w[1]),
-    .abort_evt_o (txarb_abort_w[1]), .stall_evt_o (txarb_stall_w[1])
-  );
-
-  //! ...then merge the lwSRP MRPDUs (4th low-rate source, established pattern).
-  wire [TDATA_WIDTH-1:0]   ctlf_tx_tdata;
-  wire [TDATA_WIDTH/8-1:0] ctlf_tx_tkeep;
-  wire                     ctlf_tx_tvalid, ctlf_tx_tlast, ctlf_tx_tready;
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) srp_ctl_mux (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .s_data_tdata (ctl_tx_tdata),  .s_data_tkeep (ctl_tx_tkeep),
-    .s_data_tvalid(ctl_tx_tvalid), .s_data_tlast (ctl_tx_tlast),
-    .s_data_tready(ctl_tx_tready),
-    .s_adp_tdata (lwsrp_tx_tdata),  .s_adp_tkeep (lwsrp_tx_tkeep),
-    .s_adp_tvalid(lwsrp_tx_tvalid), .s_adp_tlast (lwsrp_tx_tlast),
-    .s_adp_tready(lwsrp_tx_tready),
-    .m_tdata (ctlf_tx_tdata), .m_tkeep (ctlf_tx_tkeep),
-    .m_tvalid(ctlf_tx_tvalid), .m_tlast (ctlf_tx_tlast), .m_tready(ctlf_tx_tready),
-    .diag_locked_o(txarb_locked_w[2]),
-    .abort_evt_o (txarb_abort_w[2]), .stall_evt_o (txarb_stall_w[2])
-  );
-
-  //! ...and the ACMP listener's responses/probes (5th low-rate source).
-  wire [TDATA_WIDTH-1:0]   ctlg_tx_tdata;
-  wire [TDATA_WIDTH/8-1:0] ctlg_tx_tkeep;
-  wire                     ctlg_tx_tvalid, ctlg_tx_tlast, ctlg_tx_tready;
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) lstn_ctl_mux (
-    .clk_i (axis_clk), .rst_n (axis_resetn),
-    .s_data_tdata (ctlf_tx_tdata),  .s_data_tkeep (ctlf_tx_tkeep),
-    .s_data_tvalid(ctlf_tx_tvalid), .s_data_tlast (ctlf_tx_tlast),
-    .s_data_tready(ctlf_tx_tready),
-    .s_adp_tdata (acmpl_tx_tdata),  .s_adp_tkeep (acmpl_tx_tkeep),
-    .s_adp_tvalid(acmpl_tx_tvalid), .s_adp_tlast (acmpl_tx_tlast),
-    .s_adp_tready(acmpl_tx_tready),
-    .m_tdata (ctlg_tx_tdata), .m_tkeep (ctlg_tx_tkeep),
-    .m_tvalid(ctlg_tx_tvalid), .m_tlast (ctlg_tx_tlast), .m_tready(ctlg_tx_tready),
-    .diag_locked_o(txarb_locked_w[3]),
-    .abort_evt_o (txarb_abort_w[3]), .stall_evt_o (txarb_stall_w[3])
-  );
-
+  //! THE control merge: the protocol processor's packed TX (s_data - ADP,
+  //! ACMP and SRP, internally arbitrated) + MAAP's announce/probe/defend
+  //! (s_adp). MAAP is the one control protocol the processor does not
+  //! implement by design (its 01 section 3 puts address allocation in the
+  //! integrating fabric), so it stays a separate leg here and reaches the
+  //! processor through KL_pp_maap_shim instead.
   wire [TDATA_WIDTH-1:0]   ctlh_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] ctlh_tx_tkeep;
   wire                     ctlh_tx_tvalid, ctlh_tx_tlast, ctlh_tx_tready;
-  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) maap_ctl_mux (
+  adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(15)) ctl_tx_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .s_data_tdata (ctlg_tx_tdata),  .s_data_tkeep (ctlg_tx_tkeep),
-    .s_data_tvalid(ctlg_tx_tvalid), .s_data_tlast (ctlg_tx_tlast),
-    .s_data_tready(ctlg_tx_tready),
+    .s_data_tdata (pp_tx_tdata_w),  .s_data_tkeep (pp_tx_tkeep_w),
+    .s_data_tvalid(pp_tx_tvalid_w), .s_data_tlast (pp_tx_tlast_w),
+    .s_data_tready(pp_tx_tready_w),
     .s_adp_tdata (maap_tx_tdata),  .s_adp_tkeep (maap_tx_tkeep),
     .s_adp_tvalid(maap_tx_tvalid), .s_adp_tlast (maap_tx_tlast),
     .s_adp_tready(maap_tx_tready),
     .m_tdata (ctlh_tx_tdata), .m_tkeep (ctlh_tx_tkeep),
     .m_tvalid(ctlh_tx_tvalid), .m_tlast (ctlh_tx_tlast), .m_tready(ctlh_tx_tready),
-    .diag_locked_o(txarb_locked_w[4]),
-    .abort_evt_o (txarb_abort_w[4]), .stall_evt_o (txarb_stall_w[4])
+    .diag_locked_o(txarb_locked_w[0]),
+    .abort_evt_o (txarb_abort_w[0]), .stall_evt_o (txarb_stall_w[0])
   );
 
   //! Merge datapath (ptp_ts_top output) + low-rate control into the MAC TX.
@@ -5447,8 +4307,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .s_adp_tready(aaf_tx_tready),
     .m_tdata (dpaaf_tdata), .m_tkeep (dpaaf_tkeep),
     .m_tvalid(dpaaf_tvalid), .m_tlast (dpaaf_tlast), .m_tready(dpaaf_tready),
-    .diag_locked_o(txarb_locked_w[5]),
-    .abort_evt_o (txarb_abort_w[5]), .stall_evt_o (txarb_stall_w[5])
+    .diag_locked_o(txarb_locked_w[1]),
+    .abort_evt_o (txarb_abort_w[1]), .stall_evt_o (txarb_stall_w[1])
   );
 
   //! ...and the CRF talker's PDUs - on the DATA lane beside AAF, NOT on the
@@ -5480,8 +4340,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .s_adp_tready(crft_tx_tready),
     .m_tdata (dpcrf_tdata), .m_tkeep (dpcrf_tkeep),
     .m_tvalid(dpcrf_tvalid), .m_tlast (dpcrf_tlast), .m_tready(dpcrf_tready),
-    .diag_locked_o(txarb_locked_w[6]),
-    .abort_evt_o (txarb_abort_w[6]), .stall_evt_o (txarb_stall_w[6])
+    .diag_locked_o(txarb_locked_w[2]),
+    .abort_evt_o (txarb_abort_w[2]), .stall_evt_o (txarb_stall_w[2])
   );
 
   //! min-IFG gasket on the CONTROL lane ONLY (2026-07-19): the MilanMAC
@@ -5520,9 +4380,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .m_tvalid(tx_axis_to_mac.tvalid),
     .m_tlast (tx_axis_to_mac.tlast),
     .m_tready(tx_axis_to_mac.tready),
-    .diag_locked_o(txarb_locked_w[7]),
-    .abort_evt_o (txarb_abort_w[7]),
-    .stall_evt_o (txarb_stall_w[7])
+    .diag_locked_o(txarb_locked_w[3]),
+    .abort_evt_o (txarb_abort_w[3]),
+    .stall_evt_o (txarb_stall_w[3])
   );
 
   //! Sticky event capture for A_TXARB_DIAG: which mux ever fired which
@@ -5684,65 +4544,149 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign ltap_regs_w[32*15 +: 32] = {16'd0,                     ltap_rx_min_w [16*2 +: 16]};
 
   // ==========================================================================
-  //  protocol-processor SHADOW plane (PP_PLANE_P, default 0 = absent)
+  //  protocol-processor plane inputs the fabric computes
   // ==========================================================================
-  //! The scenario-B P5 seam in its first landing shape. KL_pp_shadow's banner
-  //! carries the full rationale; the two facts that matter HERE are:
+  //! GM_CHANGE (1722.1-2021 6.2.6). The deleted advertiser took a grandmaster
+  //! change as a level-driven re-advertise off cfg_adp_advertise_p; the
+  //! processor wants a STROBE, so the edge is detected here, on the committed
+  //! pair the 0x624/0x628/0x62C CSR words carry. An all-zero pair is "no
+  //! commitment yet" and its first write is NOT a change - otherwise every
+  //! boot would announce a grandmaster change that never happened.
+  always_ff @(posedge axis_clk) begin : pp_gm_edge
+    if (!axis_resetn) begin
+      pp_gm_id_q_r     <= 64'd0;
+      pp_gm_dom_q_r    <= 8'd0;
+      pp_gm_change_p_w <= 1'b0;
+    end else begin
+      pp_gm_id_q_r     <= cfg_adp_gptp_gm;
+      pp_gm_dom_q_r    <= cfg_adp_gptp_domain;
+      pp_gm_change_p_w <= (|pp_gm_id_q_r) &
+                          ((pp_gm_id_q_r  != cfg_adp_gptp_gm) |
+                           (pp_gm_dom_q_r != cfg_adp_gptp_domain));
+    end
+  end : pp_gm_edge
+
+  //! THE STREAM-ID LAW, computed once for every talker source. It is the same
+  //! law KL_aaf_packetizer stamps onto the wire ({station_mac, uid}) and the
+  //! same one crft_auto_sid_w computes for the CRF Media Clock Output, so a
+  //! controller that binds source s is told the stream_id the frames of
+  //! source s actually carry. The CRF source additionally honours its CSR
+  //! override (eff_crft_sid_w), which is the provisioning lever that already
+  //! exists; without that arm a provisioned CRFT_SID would put one number on
+  //! the wire and a different one in the ACMP answer and the SRP declaration.
+  generate
+    for (genvar gsid = 0; gsid < ACMP_SRC_C; gsid++) begin : g_pp_sid
+      if (gsid == CRF_TUID_C) begin : g_sid_crf
+        assign pp_src_sid_w[64*gsid +: 64] = eff_crft_sid_w;
+      end else begin : g_sid_aaf
+        assign pp_src_sid_w[64*gsid +: 64] = {station_mac_be_w, 16'(gsid)};
+      end
+    end
+  endgenerate
+
+  // ==========================================================================
+  //  protocol-processor CONTROL plane — THE control plane, unconditional
+  // ==========================================================================
+  //! The scenario-B P5 seam, substituted. There is no PP_PLANE_P: the legacy
+  //! ADP advertiser, ACMP talker/listener, AECP/AEM engine and lwSRP
+  //! applicant are DELETED from this repository (USER, explicit: "remove the
+  //! old code AECP/ACMP/ADP the lwSRP shall be removed as well. Only use the
+  //! uCPU code"), so there is nothing to fall back to and no option to leave.
+  //! KL_pp_shadow's banner carries the full rationale; the facts that matter
+  //! HERE are:
   //!
   //!   1. It taps rx_axis_to_dma the same way every other plane does -
   //!      INPUT ONLY, qualified on tvalid && tready (the gh #65 hazard: a
   //!      stalled DMA parks a beat with tvalid held and a tvalid-only tap
   //!      re-eats it).
-  //!   2. It contributes NOTHING to the TX arbiter cascade. Its MAC TX byte
-  //!      stream is drained inside the wrapper and only counted. That is
-  //!      deliberate and load-bearing: the shipping ADP/ACMP/lwSRP planes are
-  //!      still live and still own the wire, so a processor that also
-  //!      transmitted would put a SECOND ENTITY_AVAILABLE (and a second
-  //!      answer to every controller command) on the segment from the same
-  //!      entity_id. Merging its TX is the P4-substitution step, not this one.
-  //!
-  //! The tie-off is the wrapper's reset state: no restore, no alarm, all
-  //! counters 0, and a side-port bridge that acks nothing - so PP_STAT reads
-  //! its structural zero (no 0x5B tag = plane absent) rather than a plausible
-  //! idle.
-  generate if (PP_PLANE_P != 0) begin : g_pp
-    KL_pp_shadow #(
+  //!   2. Its packed TX is the ONE control-lane leg beside MAAP
+  //!      (ctl_tx_mux). tx_drain_i is 0: the processor owns the wire.
+  //!   3. Its class-D face IS this fabric's ACMP bind record, talker
+  //!      declaration and SRP reservation - every consumer that used to read
+  //!      a deleted plane reads pp_cd_* now.
+  //!   4. It answers NO AECP command (the P4 uCPU has not landed at the
+  //!      processor's top). Every CSR word that only an AECP/AEM engine could
+  //!      have filled reads a STRUCTURAL ZERO and is documented as such.
+  KL_pp_shadow #(
       .TDATA_WIDTH_P  (TDATA_WIDTH),
       .CLK_HZ_P       (MILAN_CLK_FREQ_HZ),
-      //! the processor's arrays follow the build's stream shape
-      .N_STREAM_IN_P  (N_STREAMS),
-      .N_STREAM_OUT_P (N_STREAMS),
+      //! THE PROCESSOR'S ARRAYS ARE THE ENTITY'S DESCRIPTOR COUNTS, not the
+      //! AAF stream count. ACMP_SINKS_C / ACMP_SRC_C come from the generated
+      //! shape header, which is the same pass that emitted the descriptors a
+      //! controller enumerates, so a STREAM_OUTPUT the entity advertises
+      //! always has a source context that can answer a CONNECT_TX for it -
+      //! including the CRF Media Clock Output at talker_unique_id
+      //! N_STREAMS, which a bare N_STREAMS-wide array would have left
+      //! unanswerable exactly the way the pre-0x0027 shapes did.
+      .N_STREAM_IN_P  (ACMP_SINKS_C),
+      .N_STREAM_OUT_P (ACMP_SRC_C),
       .TIM_DIV_US_P   (PP_TIM_DIV_US_P),
       .TIM_DIV_MS_P   (PP_TIM_DIV_MS_P),
       .TROM_HEX_P     (PP_TROM_HEX_P),
-      //! which talker sources the shadow is told exist (default 0 = none)
-      .SRC_EN_MASK_P  (PP_SRC_EN_P)
+      .UCODE_HEX_P         (PP_UCODE_HEX_P),
+      .DESC_BASE_P         (PP_DESC_BASE_P),
+      .DESC_LINE_BYTES_P   (PP_DESC_LINE_BYTES_P),
+      .DESC_IDX_ENTRIES_P  (PP_DESC_IDX_ENTRIES_P),
+      .DESC_NAME_ENTRIES_P (PP_DESC_NAME_ENTRIES_P),
+      .DESC_MEM_TMO_CYC_P  (PP_DESC_MEM_TMO_CYC_P)
     ) pp_shadow (
       .clk_i             (axis_clk),
       .rst_n             (axis_resetn),
-      //! identity comes from the SAME CSR words the shipping ADP advertises
-      //! from - derive, never mirror: a second copy would drift and the two
-      //! planes would answer a controller with different entity ids.
+      //! identity comes from the 0x600 CSR group, which is also what the
+      //! generated entity model wrote - derive, never mirror.
       .entity_id_i       (cfg_adp_entity_id),
       .entity_model_id_i (cfg_adp_entity_model_id),
       //! numeric EUI-48 ([47:40] = first wire byte); cfg_mac_addr is the
-      //! platform LSB-first convention, so byte-reverse exactly as the ADP
-      //! advertiser, AECP, ACMP, MAAP and lwSRP instances above all do.
-      .station_mac_i     ({cfg_mac_addr[7:0],   cfg_mac_addr[15:8],
-                           cfg_mac_addr[23:16], cfg_mac_addr[31:24],
-                           cfg_mac_addr[39:32], cfg_mac_addr[47:40]}),
+      //! platform LSB-first convention, so byte-reverse exactly as the MAAP
+      //! engine and the AAF/CRF framers do.
+      .station_mac_i     (station_mac_be_w),
       .talker_sources_i  (cfg_adp_talker_sources),
       .talker_caps_i     (cfg_adp_talker_caps),
       .listener_sinks_i  (cfg_adp_listener_sinks),
       .listener_caps_i   (cfg_adp_listener_caps),
-      .enable_i          (pp_enable_w),
+      //! the two ADPDU index fields the processor DOES expose a port for
+      //! (0x600 group). The other five - entity_capabilities, valid_time,
+      //! association_id, controller_capabilities, interface_index - have no
+      //! port on protocol_processor_top and are beyond software's reach; see
+      //! the milan_csr instantiation banner.
+      .current_cfg_i     (cfg_adp_current_config),
+      .identify_index_i  (cfg_adp_identify_index),
+      //! WHICH SOURCES EXIST — derived from the entity shape, never a
+      //! hand-set mask. ACMP_SRC_C is ADP_TALKER_SRC_C out of the generated
+      //! header, so every declared STREAM_OUTPUT is enabled and no other
+      //! index is. This is the gate the whole talker half hangs off: at 0 the
+      //! walk never allocates a DA, acmp_declaring_o is stuck 0 and nothing
+      //! this device owns ever transmits.
+      .cfg_src_en_i      ({ACMP_SRC_C{1'b1}}),
+      //! ...and the per-source stream_id the processor DECLAREs and ANSWERs
+      //! with. Tied '0 (the shadow value) ACMP would answer, and SRP would
+      //! declare, stream_id 0 for every source.
+      .cfg_stream_id_i   (pp_src_sid_w),
+      //! Milan v1.2 4.3.3.2 Table 4.4 MaxFrameSize, DERIVED from the wire
+      //! width the framer was elaborated with (tctx_maxf_w) - never an
+      //! independent constant, or the declaration and the frame disagree.
+      //! Talker 0's value: every AAF talker in a build shares one width.
+      .cfg_tspec_max_frame_i (tctx_maxf_w[0]),
+      .cfg_acc_lat_ns_i  (cfg_lwsrp_latency),
+      //! the SRP admission ceiling follows the negotiated link rate
+      .port_rate_bps_i   (cfg_mac_is_1g ? 32'd1_000_000_000 : 32'd100_000_000),
+      //! THE ENTITY ENABLE, from EITHER gate. ADP_CTRL.en (0x600 bit 0) is
+      //! the historic entity-enable every board script and every bring-up
+      //! recipe in this repository writes, and it used to start the ADP
+      //! advertiser, the AECP listener and both ACMP halves at once. PP_CTRL.en
+      //! (0x920 bit 0) is the plane's own. There is exactly ONE control plane
+      //! now, so demanding both would strand every existing script and having
+      //! only the new one would silently ignore the old bit: either enables
+      //! the entity, and REGISTER_MAP records that.
+      .enable_i          (pp_enable_w | cfg_adp_enable),
       .restore_go_i      (pp_restore_go_w),
       .link_up_i         (eff_link_w),
-      //! no GM_CHANGE edge detector is wired yet: the shipping ADP plane owns
-      //! that event and takes it as a level-driven re-advertise. Held 0 means
-      //! the shadow simply never sees a GM change - an honest gap, counted as
-      //! such, not a silent zero pretending the GM is stable.
-      .gm_change_i       (1'b0),
+      //! GM_CHANGE: an edge on the committed grandmaster pair (CSR 0x624/8 +
+      //! 0x62C). 1722.1-2021 6.2.6 makes a gPTP grandmaster change one of the
+      //! events an entity re-advertises on, and with the legacy advertiser
+      //! deleted this is the ONLY path to it - the old plane took the same
+      //! fact as a level-driven re-advertise off cfg_adp_advertise_p.
+      .gm_change_i       (pp_gm_change_p_w),
       .gm_id_i           (cfg_adp_gptp_gm),
       .gptp_domain_i     (cfg_adp_gptp_domain),
       .rx_tdata_i        (rx_axis_to_dma.tdata),
@@ -5750,15 +4694,25 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .rx_tvalid_i       (rx_axis_to_dma.tvalid),
       .rx_tready_i       (rx_axis_to_dma.tready),
       .rx_tlast_i        (rx_axis_to_dma.tlast),
-      //! SHADOW: drain on, so the packed AXIS port is held silent and the
-      //! shipping planes keep the wire. Turning this off and connecting
-      //! m_axis_tx_* into the control cascade IS the substitution.
-      .tx_drain_i        (1'b1),
+      //! SUBSTITUTED: the drain is OFF and the packed AXIS port is this
+      //! device's control egress (ctl_tx_mux, the leg the deleted
+      //! aecp/acmp/acmpl/adp/lwsrp legs used to occupy).
+      .tx_drain_i        (1'b0),
       .m_axis_tx_tdata   (pp_tx_tdata_w),
       .m_axis_tx_tkeep   (pp_tx_tkeep_w),
       .m_axis_tx_tvalid  (pp_tx_tvalid_w),
       .m_axis_tx_tlast   (pp_tx_tlast_w),
-      .m_axis_tx_tready  (1'b0),
+      .m_axis_tx_tready  (pp_tx_tready_w),
+      //! the descriptor-image read master, straight out to the SoC
+      .desc_mem_req_valid_o (o_desc_mem_req_valid),
+      .desc_mem_req_ready_i (i_desc_mem_req_ready),
+      .desc_mem_req_addr_o  (o_desc_mem_req_addr),
+      .desc_mem_req_beats_o (o_desc_mem_req_beats),
+      .desc_mem_rsp_valid_i (i_desc_mem_rsp_valid),
+      .desc_mem_rsp_ready_o (o_desc_mem_rsp_ready),
+      .desc_mem_rsp_data_i  (i_desc_mem_rsp_data),
+      .desc_mem_rsp_last_i  (i_desc_mem_rsp_last),
+      .desc_mem_rsp_err_i   (i_desc_mem_rsp_err),
       .host_req_i        (pp_req_w),
       .host_we_i         (pp_we_w),
       .host_addr_i       (pp_addr_w),
@@ -5812,7 +4766,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .dbg_now_ms_o      ()
     );
 
-    //! ------------------------------------------------------------------
+  //! ------------------------------------------------------------------
     //! The block-allocator -> per-source adapter. Instantiated with the
     //! PLANE, not with the ENGINE: its block-side inputs are the maap nets,
     //! which exist in both arms of g_maap (the g_no_maap arm ties
@@ -5824,7 +4778,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! talker half of ACMP deaf while it waited. See KL_pp_maap_shim.sv's
     //! banner, decision 1.
     KL_pp_maap_shim #(
-      .N_SRC_P (N_STREAMS)
+      .N_SRC_P (ACMP_SRC_C)
     ) pp_maap_shim (
       .clk_i            (axis_clk),
       .rst_n            (axis_resetn),
@@ -5842,62 +4796,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .conflict_src_o   (pp_maap_confl_src_w),
       .conflict_ack_i   (pp_maap_confl_ack_w)
     );
-  end else begin : g_no_pp
-    assign pp_tx_tdata_w     = {TDATA_WIDTH{1'b0}};
-    assign pp_tx_tkeep_w     = {(TDATA_WIDTH/8){1'b0}};
-    assign pp_tx_tvalid_w    = 1'b0;
-    assign pp_tx_tlast_w     = 1'b0;
-    assign pp_rdata_w        = 32'd0;
-    assign pp_ack_w          = 1'b0;
-    assign pp_err_w          = 1'b0;
-    assign pp_restore_busy_w = 1'b0;
-    assign pp_restore_done_w = 1'b0;
-    assign pp_restore_fail_w = 1'b0;
-    assign pp_nvm_alarm_w    = 1'b0;
-    assign pp_rx_frames_w    = 16'd0;
-    assign pp_rx_drops_w     = 8'd0;
-    assign pp_tx_frames_w    = 16'd0;
-    //! class-D face with no plane behind it: every level parks at its
-    //! STRUCTURAL zero. Read the pair (plane absent, level 0) as "no
-    //! information", exactly as PP_STAT's missing 0x5B tag already says.
-    assign pp_cd_srp_class_a_prio_w      = 3'd0;
-    assign pp_cd_srp_class_a_vid_w       = 12'd0;
-    assign pp_cd_srp_domain_adopted_w    = 1'b0;
-    assign pp_cd_srp_domain_change_w     = 1'b0;
-    assign pp_cd_srp_tk_decl_state_w     = {(N_STREAMS*2){1'b0}};
-    assign pp_cd_srp_lstn_reg_state_w    = {(N_STREAMS*2){1'b0}};
-    assign pp_cd_srp_active_w            = {N_STREAMS{1'b0}};
-    assign pp_cd_srp_sr_admitted_w       = {N_STREAMS{1'b0}};
-    assign pp_cd_srp_granted_slope_bps_w = {(N_STREAMS*32){1'b0}};
-    assign pp_cd_srp_src_fail_code_w     = {(N_STREAMS*8){1'b0}};
-    assign pp_cd_srp_src_fail_bridge_w   = {(N_STREAMS*64){1'b0}};
-    assign pp_cd_srp_sum_slope_bps_w     = 32'd0;
-    assign pp_cd_srp_over_limit_w        = 1'b0;
-    assign pp_cd_srp_tk_reg_state_w      = {(N_STREAMS*2){1'b0}};
-    assign pp_cd_srp_lstn_decl_state_w   = {(N_STREAMS*2){1'b0}};
-    assign pp_cd_srp_acc_latency_w       = {(N_STREAMS*32){1'b0}};
-    assign pp_cd_srp_snk_fail_code_w     = {(N_STREAMS*8){1'b0}};
-    assign pp_cd_acmp_declaring_w        = {N_STREAMS{1'b0}};
-    assign pp_cd_acmp_bound_w            = {N_STREAMS{1'b0}};
-    assign pp_cd_acmp_bound_eid_w        = {(N_STREAMS*64){1'b0}};
-    assign pp_cd_acmp_bound_sid_w        = {(N_STREAMS*64){1'b0}};
-    assign pp_cd_acmp_bound_dmac_w       = {(N_STREAMS*48){1'b0}};
-    assign pp_cd_acmp_bound_vlan_w       = {(N_STREAMS*12){1'b0}};
-    assign pp_cd_adp_avail_index_w       = 32'd0;
-    //! and the maap face with no requester behind it: the shim is not
-    //! instantiated either, so tie its answers to the same refusing values
-    //! the shim itself would produce against an invalid block.
-    assign pp_maap_req_valid_w   = 1'b0;
-    assign pp_maap_req_ready_w   = 1'b0;
-    assign pp_maap_req_release_w = 1'b0;
-    assign pp_maap_req_src_w     = {PP_SRC_IDX_W_C{1'b0}};
-    assign pp_maap_rsp_valid_w   = 1'b0;
-    assign pp_maap_rsp_ok_w      = 1'b0;
-    assign pp_maap_rsp_da_w      = 48'd0;
-    assign pp_maap_confl_valid_w = 1'b0;
-    assign pp_maap_confl_src_w   = {PP_SRC_IDX_W_C{1'b0}};
-    assign pp_maap_confl_ack_w   = 1'b0;
-  end endgenerate
+
 
 endmodule
 

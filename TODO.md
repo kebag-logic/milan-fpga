@@ -389,30 +389,60 @@ AVDECC SW protocols (AECP/ACMP/MAAP/MVU, then SRP/MSRP/MVRP, then AVTP media).
 - [ ] `ethtool -T` advertises PHC · `ptp4l`/`phc2sys` lock · `tc qdisc … cbs
   offload 1` shapes SR while BE uses the remainder · `ethtool -S` counters · CBS +
   CSR harnesses green in CI.
+- [ ] **Build and load the AEM descriptor image into DRAM** *(added 2026-08-13,
+  the highest-leverage local gap on this list)*. The protocol processor's AECP
+  uCPU answers `READ_DESCRIPTOR` for real, and fetches every descriptor from
+  main memory over a read-only master at a **compile-time base** — there is no
+  base register, so the image must be written at that base **before the entity is
+  enabled**. Nothing in this repository does that: the image generator lives in
+  the submodule, no step turns an `endstation_*.yaml` into its input, and the
+  end-station builder still emits `aecp_aem_rom.svh` for the deleted
+  `KL_aecp_aem_store` — an orphan, not the image. Until this lands, a controller
+  discovers the entity over ADP and then gets `BAD_ARGUMENTS` for every
+  descriptor type (an invalid image reports a configuration count of zero, and
+  the `configuration_index` check runs before the locate), which is a clean refusal (the store's watchdog abandons a
+  stalled burst; it never hangs) and a useless entity. A late load heals without
+  a reset. Two pieces: (1) generate the image from the same config that drives
+  the rest of the shape, so the model cannot diverge from the gateware; (2) load
+  it at boot before `ADP_CTRL[0]`/`PP_CTRL[0]` is set. Watch the coupling to
+  `entity_model_id` — it is advertised from the `0x600` CSR group while the
+  descriptors come from the image, so changing one without the other makes every
+  controller serve a stale cached model, and nothing in fabric cross-checks it.
 
 ## Phase 10 — Persistent user storage (added 2026-07-25)
 
-Design record for everything below:
-[`docs/design/SAVED_STATE_FASTCONNECT.md`](docs/design/SAVED_STATE_FASTCONNECT.md)
-(record format §4, QSPI slot map §5, torn-write contract §6, boot replay §7, CSR
-ingest ABI §8, bench recipe §11).
+> 🔴 **THE FAST-CONNECT HALF OF THIS PHASE WAS DELETED ON 2026-08-13.** The
+> journal engine, the E1 bind-restore path and the design record that specified
+> them went with the AECP plane (USER: "remove the old code AECP/ACMP/ADP the
+> lwSRP shall be removed as well. Only use the uCPU code"). **Nothing in this
+> device restores a binding across a power cycle**: the protocol processor's NVM
+> face is answered by a blank-flash responder, so a restore walk always
+> completes with zero records, and Milan v1.2 5.3.8.2 is not met. The `/user`
+> overlay and flash-partition work below is unaffected and still open. The H1/H2
+> entries are kept as the dated record of what existed and as the specification
+> a replacement must satisfy.
 
 - [x] **H1 — journal record format + fabric replay path** *(2026-07-26)*.
   `KLJ1` v1: 6-word header (magic / format version / `SEQ` / shape / owning
   `entity_id`) + N 6-word records that ARE the six E1 register writes
-  (`0x7A0-0x7B4`) + a `zlib.crc32` trailer. New
-  [`hdl/ieee17221/aecp/KL_persist_journal.sv`](hdl/ieee17221/aecp/KL_persist_journal.sv)
-  verifies the WHOLE image before issuing a single bind-restore, so a torn slot
-  is rejected rather than half-applied. Gated by [`tb/verilator/persist`](tb/verilator/persist)
-  (96 checks: golden format, every rejection class with **zero** restores, the
-  5.5.3.5.2 entry record, a restored sink driven to SETTLED with no controller,
-  A/B fall-back, `SEQ` monotonicity); yosys portability sweep green (the `tops=()` array in [`syn/yosys/run.sh`](syn/yosys/run.sh) is the authoritative count).
-- [ ] **H2 — wire the ingest group into the CSR plane**. Add `0x7B8-0x7C4`
-  (`JNL_CTRL`/`JNL_DATA`/`JNL_STAT`/`JNL_SEQ`) to [`hdl/common/csr/milan_csr.sv`](hdl/common/csr/milan_csr.sv)
-  and instance `KL_persist_journal` in `milan_datapath`, including the `rest_*`
-  arbiter between the journal master and the manual `0x7B4` commit path. The
-  decode is already written and gated as an executable spec in
-  [`tb/verilator/persist/persist_wrap.sv`](tb/verilator/persist/persist_wrap.sv). Needs a `VERSION` bump.
+  (`0x7A0-0x7B4`) + a `zlib.crc32` trailer. The journal engine verified the
+  WHOLE image before issuing a single bind-restore, so a torn slot was rejected
+  rather than half-applied; it was gated by a 96-check Verilator suite (golden
+  format, every rejection class with **zero** restores, the 5.5.3.5.2 entry
+  record, a restored sink driven to SETTLED with no controller, A/B fall-back,
+  `SEQ` monotonicity). **The RTL and the suite were both deleted 2026-08-13.**
+  This entry records the design that was proven, not code you can run.
+- [ ] **H2 — re-implement persistence behind the protocol processor**
+  *(reopened 2026-08-13, wider than the original item)*. The `0x7B8-0x7C4`
+  ingest group is still decoded in `milan_csr` and its writes are **accepted and
+  discarded**; `JNL_STAT`/`JNL_SEQ` read structural zeros. Restoring the
+  capability now means an engine on the processor side, not a CSR wiring job,
+  because the E1 bind-restore port it fed has no ACMP context table behind it
+  either. Blocked on the processor's AECP work: the AECP uCPU has landed, but it
+  implements `READ_DESCRIPTOR` only — every setter whose result would need
+  persisting still answers a conformant `NOT_IMPLEMENTED` echo, and the engine's
+  NVM strobes are unconnected at the processor's top. Landing the commands comes
+  first; persisting their results comes after.
 - [ ] **H3 — 2 MiB `/user` overlay + 128 KiB raw journal slot** *(new REQ candidate)*.
   Carve the QSPI slots as mtd partitions and mount `/user` writable over the
   initramfs (wear-aware NOR filesystem, jffs2 first), so runtime state survives

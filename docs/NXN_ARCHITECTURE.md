@@ -6,6 +6,37 @@ Normative architecture for roadmap item 5 ([`docs/MILAN_COMPLIANCE_GAPS.md`](MIL
 [`configs/endstation_arty_4x4.yaml`](../configs/endstation_arty_4x4.yaml)). Status: IMPLEMENTED — shared-engine RTL
 is live; the 8x8 shape elaborates and sim-scales green (§6 item-5 note).
 
+> **The control-plane half of this document was SUBSTITUTED on 2026-08-13.**
+> The dataplane architecture below (§1, §2) is as-built and unchanged. §3 is
+> not: this device's entire IEEE 1722.1 / SRP control plane is now
+> [`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv), wrapping the
+> pinned `protocol-processor` submodule and instantiated **unconditionally** by
+> [`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv) — no
+> parameter, no fallback, no shadow arm. It owns ADP, ACMP (talker and
+> listener) and SRP, and its N-scaling is internal: this fabric sizes it with
+> `N_STREAM_IN_P` / `N_STREAM_OUT_P` and consumes the result as a class-D wire
+> face. MAAP stays here (`KL_maap` + `hdl/milan/KL_pp_maap_shim.sv`, §3.3
+> unchanged) because the processor implements none by design. The ACMP listener
+> SM, the talker activation array and the lwSRP attribute contexts this document
+> specified are **deleted RTL**; the sections are kept as the record of what the
+> shapes need, marked where the owner changed.
+>
+> **And the AECP half came back partial, not whole: this entity answers
+> READ_DESCRIPTOR, and answers every other AECP command with a conformant
+> NOT_IMPLEMENTED echo.** The responder is the processor's AECP uCPU, which has
+> landed; its descriptors come from a flat image in DRAM at a compile-time base,
+> not from the descriptor ROM this document's §3.5(a) compiles — and nothing in
+> this repository builds or loads that image yet, so a stock build answers
+> `BAD_ARGUMENTS` to every read (an unloaded image reports zero configurations,
+> checked before the locate). Of everything §1.5 and §3.6 describe
+> reaching a controller, only the descriptor read is implemented:
+> GET_COUNTERS with its Table 5.22 unsolicited push, SET/GET_STREAM_FORMAT,
+> SET_CLOCK_SOURCE and SET_MAX_TRANSIT_TIME are answered by the echo and do
+> nothing — an echo is not an implementation. The per-stream CSR window is
+> unaffected and remains the way software reads per-stream state. This is a
+> stated capability boundary from an informed decision, not a regression and not
+> a temporary blip.
+
 **The replication verdict (why this doc exists).** The calibrated resource
 estimator ([`sw/builder/endstation_builder.py`](../sw/builder/endstation_builder.py), per-module costs measured from
 the real mf48/mf38 hierarchical place reports) prices full per-stream
@@ -21,6 +52,14 @@ Replication is dead. The architecture is therefore:
 > (a full 8-stream RX context is 8 Kb — 1/4 of one RAMB36); **muxing is the
 > cost**, so the design rules below exist to bound mux growth.
 
+The same rule is what the protocol processor applies internally to the control
+plane: one engine per protocol, `N_STREAM_IN_P` sink contexts and
+`N_STREAM_OUT_P` source contexts, sized here from the entity's *descriptor*
+counts (`ACMP_SINKS_C` / `ACMP_SRC_C`) rather than from `N_STREAMS`, so a
+STREAM_OUTPUT the entity advertises always has a source context that can answer
+a CONNECT_TX for it — including the CRF Media Clock Output at
+`talker_unique_id = N_STREAMS`.
+
 *The one question this picture answers: when N grows, what is actually
 replicated?*
 
@@ -33,55 +72,58 @@ flowchart TB
         E1["depacketizer FSM<br/>+ the single 2 KB frame FIFO"]
         E2["RX monitor verdict"]
         E3["AAF packetizer<br/>+ epoch round-robin"]
-        E4["ACMP frame engine"]
-        E5["lwSRP walker<br/>+ MRPDU serializer"]
+        E4["KL_pp_shadow → protocol processor<br/>ADP · ACMP · SRP<br/>contexts are INTERNAL, sized by params"]
         E6["MAAP claim SM<br/>ONE block, no context at all"]
     end
-    subgraph CX["PER-STREAM STATE — BRAM context rows"]
+    subgraph CX["PER-STREAM STATE — BRAM context rows, and the wire face"]
         C1["LCTX<br/>32 words x N"]
         C2["TCTX<br/>16 words x N"]
-        C3["ACTX<br/>12 words x (N+1)"]
-        C4["SCTX<br/>L+T-1 rows"]
+        C5["class-D face<br/>bind record · declaration · slope<br/>(wires, not RAM)"]
     end
     E1 <-->|"pdus / drops at row s"| C1
     E2 <-->|"RMW walk at row s"| C1
     E3 <-->|"row t"| C2
-    E4 <-->|"row = listener_unique_id"| C3
-    E5 <-->|"one row per attribute"| C4
+    E4 -->|"published every clock"| C5
+    E4 <-->|"ALLOC_DA / RELEASE per source"| E6
 ```
 
 Only the lower band deepens with N. Term by term:
 
 | Grows with N | Stays ×1 whatever N is |
 |---|---|
-| Context-RAM depth: LCTX 32 w/stream (§1.4), TCTX 16 w/stream (§2.2), ACTX one row per sink (§3.1), SCTX `L+T-1` rows (§3.4.1) | The engines themselves — depacketizer FSM, monitor verdict, packetizer framer, ACMP frame engine, lwSRP walker and MRPDU serializer |
+| Context-RAM depth: LCTX 32 w/stream (§1.4), TCTX 16 w/stream (§2.2); the processor's own sink/source arrays, sized by `N_STREAM_IN_P`/`N_STREAM_OUT_P` (§3.1) | The engines themselves — depacketizer FSM, monitor verdict, packetizer framer, and the protocol processor, which is ONE instance whatever N is |
 | Stream-table `stream_id` flops, 64 b per entry (§6.1) | The RX frame FIFO — single, 2 KB, `{tuser=s}` tagged (§1.2) |
-| Narrow per-stream timer flop arrays: 100 ms silence = a 7-bit ms counter ×N (56 FF at N=8, §1.4); responder activation N × 6 b (§3.2) | The render path — LPF + playback walker, instantiated once; the lowest-indexed RENDER stream wins (§1.3) |
-| lwSRP match lanes — one 64-bit compare per context, 2 → 18 at N=8 (§3.4) — and the per-stream `stream_gate` (§2.4) | MAAP — ONE contiguous block claim of `T+1` addresses covers every stream; DMACs are `base + t` (§3.3) |
+| Narrow per-stream timer flop arrays: 100 ms silence = a 7-bit ms counter ×N (§1.4) | The render path — LPF + playback walker, instantiated once; the lowest-indexed RENDER stream wins (§1.3) |
+| The class-D face's per-stream vectors — bind record, declaration, per-stream `stream_gate` (§2.4, §3.4) | MAAP — ONE contiguous block claim of `T+1` addresses covers every stream; DMACs are `base + t` (§3.3) |
 | Index and mux widths — by `log2 N` only (§6.1) | `KL_crf_rx` / `KL_crf_tx` — dedicated engines, not stream slots (§2.5) |
 | | The class-A egress queue and its CBS credit accounting (§2.4) |
 | | Every clock-domain crossing: one TX capture, one RX render, one CRF event pulse (§4) |
 
-**The no-regression axiom (normative).** Every increment in §5 keeps ALL
-existing TBs green, and a build with `N = 1` SHALL produce today's behavior:
-same wire bytes from the talker, same CSR map semantics at the legacy
-addresses, byte-identical `aecp_aem_rom.svh` for `endstation_arty_current`
-(the tracked-ROM identity gate). The legacy flat per-stream CSRs remain and
-alias stream index 0.
+**The no-regression axiom (normative, as it stood).** Every increment in §5 kept
+ALL existing TBs green, and a build with `N = 1` SHALL produce today's behavior:
+same wire bytes from the talker, same CSR map semantics at the legacy addresses.
+The legacy flat per-stream CSRs remain and alias stream index 0. *The third leg
+of that axiom — a byte-identical tracked `aecp_aem_rom.svh` for
+`endstation_arty_current` — retired with the AEM descriptor ROM on 2026-08-13:
+the builder still writes that file, but no RTL consumes it (the AECP uCPU reads
+a DRAM image instead), so there is nothing left for the comparison to prove, and
+the thirteen control-plane Verilator suites the
+axiom was checked against (`aecp`, `acmp`, `acmp_lstn`, `adp`, `lwsrp`, … )
+are deleted along with the RTL they drove. `ls tb/verilator/` is the live list.*
 
 Companion docs: [`docs/ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md) (design decisions D1–D8; one
 STREAM_PORT per stream; config-selectable clusters),
-[`docs/LWSRP_FPGA_ARCHITECTURE.md`](LWSRP_FPGA_ARCHITECTURE.md) (single-attribute engine being scaled
-here), [`docs/SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md) rows M-CNT-2 (Table 7-156 counters),
+[`docs/SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md) rows M-CNT-2 (Table 7-156 counters),
 AAF-4 / M-FMT-2 (wire-truth channel policy), SRP-9 (per-stream attribute
-instances).
+instances). The lwSRP engine spec that used to be cited here documented deleted
+RTL and is retired with it.
 
 ## Contents
 
 - **[0. Clause references (verified via pdftotext against the local standards PDFs, $STANDARDS_DIR)](#0-clause-references-verified-via-pdftotext-against-the-local-standards-pdfs-standards_dir)** — The standards receipts. Every requirement this architecture rests on, traced to a clause verified against the local PDFs rather than recalled — Milan 5.3.8 per-stream state, the 10 diagnostic counters per Stream Input, GET_COUNTERS coherency.
 - **[1. Dataplane RX — shared depacketizer + monitor engine](#1-dataplane-rx--shared-depacketizer--monitor-engine)** — The listener side, and the key discovery that shaped the whole design: `avtp_stream_parser` ALREADY carries an 8-entry match table, so classification needed no new matcher — only new table writers. Covers the stream table as single authority, then the shared depacketizer and monitor.
 - **[2. Dataplane TX — shared packetizer](#2-dataplane-tx--shared-packetizer)** — The talker side. Where `aaf_talker_i2s` splits cleanly — the audio capture front-end is physical-interface-scoped and stays x1, while the framer/serializer becomes the shared packetizer with per-stream state lifted into context.
-- **[3. Control plane](#3-control-plane)** — ACMP, MAAP, lwSRP and AECP at N contexts. `KL_acmp_listener` already had the right split (shared frame engine, per-sink binding record) — it was just duplicating the record by hand.
+- **[3. Control plane](#3-control-plane)** — ACMP, MAAP, SRP and AECP at N contexts. Written against the fabric engines that were deleted on 2026-08-13; kept as the record of what each shape needs, with each section marked where the owner changed. MAAP (§3.3) is the one part still implemented exactly as written; §3.6 is the AECP surface as it now stands — `READ_DESCRIPTOR` out of a DRAM image nobody here builds, an echo for everything else.
 - **[4. Clock domains, CDC, and the timing-risk register](#4-clock-domains-cdc-and-the-timing-risk-register)** — The CDC audit for the NxN shape, and the load-bearing invariant that keeps it simple: every context engine and context RAM lives entirely in the milan clock domain, verified per module. Also the timing-risk register.
 - **[5. Phasing — TB-gated increments (no-regression axiom throughout)](#5-phasing--tb-gated-increments-no-regression-axiom-throughout)** — How this lands without a big-bang merge — TB-gated increments under the no-regression axiom, with the N=1 shape staying bit-compatible at every step. Names which lanes parallelize and which integration steps must stay serial.
 - **[6. Resource budget per subsystem](#6-resource-budget-per-subsystem)** — What NxN costs per subsystem, with the shared-engine numbers set against the replicated upper bound. Read the stated assumptions first — context RAM is charged at BRAM cost only, which is what makes the comparison fair.
@@ -273,8 +315,16 @@ Justification of indexed over flat:
 - (d) legacy flat registers (0x648–0x764) stay wired to index 0 / the
   dedicated CRF engines, which IS the no-regression axiom for N=1.
 
-AECP GET_COUNTERS handling in firmware switches from fixed 0x6B8-group
-reads to SEL/SNAP/window reads keyed by descriptor index.
+**The window is now the ONLY reader of per-stream state**, which is why it
+matters more than when it was written. `GET_COUNTERS` is not implemented — a
+controller that sends it gets a conformant `NOT_IMPLEMENTED` echo and no
+counters — so no firmware switch from the fixed `0x6B8` group to
+descriptor-keyed reads is pending: nothing off-box can obtain these counters at
+all, and software on the softcore reads them here. The STREAM_INPUT counters themselves are
+untouched by the substitution; the per-STREAM_OUTPUT Table 5.4 counters are not
+(§3.6). Note also that `A_STRMW_STATE`'s ACMP fields are thinner than this
+table implies: the processor publishes a **bind record**, not a ladder, so
+`bound` is the truth and the state/probing/status fields read structural zeros.
 
 ## 2. Dataplane TX — shared packetizer
 
@@ -344,13 +394,23 @@ packetizer walk. What it lacks is provisioning, not datapath — §3.5.
 
 ## 3. Control plane
 
-### 3.1 ACMP listener SM × N
+> **Owner changed 2026-08-13.** §3.1, §3.2, §3.4 and §3.6 below specify RTL that
+> no longer exists in this repository. ADP, ACMP, SRP **and AECP** are the
+> protocol processor's, wrapped by [`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv);
+> the AECP surface it brings is `READ_DESCRIPTOR` plus a conformant
+> `NOT_IMPLEMENTED` echo for everything else (§3.6). MAAP (§3.3) and the CRF provisioning arithmetic
+> (§3.5) are unchanged and still describe live fabric. Read the deleted-engine
+> sections as the requirement each shape places on whatever implements the
+> protocol — they are why the processor is instantiated with the entity's
+> descriptor counts rather than with `N_STREAMS`.
 
-`KL_acmp_listener` already contains the exact split this architecture
+### 3.1 ACMP listener SM × N  *(engine DELETED — now the processor's)*
+
+`KL_acmp_listener` contained the exact split this architecture
 needs: a shared frame engine (COLLECT/CLASSIFY/RESPOND scratch: 9×64
 frame buffer, `cap_*` captures, TX watchdog, LFSR/ms timebase — stays x1)
-and a per-sink binding record — which the RTL **already duplicates by hand
-once** (the sink-1 CRF record `s1_*`). That duplication generalizes into
+and a per-sink binding record — which the RTL **already duplicated by hand
+once** (the sink-1 CRF record `s1_*`). That duplication generalized into
 the ACMP context RAM (ACTX), `N_LISTENERS + 1` entries (AAF sinks + CRF
 sink), selected by `listener_unique_id` from the classified ACMPDU:
 
@@ -377,14 +437,29 @@ tick scan, one context per tick slot. On bind edge the engine pulses
 `ctx_bind_rise[s]`, which resets that stream's LCTX CNT region ([M-5.3.8.10]
 reset rule) and writes the stream table entry (§1.1).
 
-### 3.2 Talker activation × N
+**As built now:** the processor runs the ladder internally across
+`N_STREAM_IN_P` sink contexts and publishes only the settled **bind record** —
+`bound`, `stream_id`, DMAC — on the class-D face. `milan_datapath` derives the
+bind-edge pulse from that record rather than receiving it, so the LCTX counter
+reset and the stream-table write still happen exactly at the [M-5.3.8.10] edge.
+What is *not* published is the ladder itself: `ACMPL_STATE` no longer tracks
+PROBING/SETTLED, and a reader must take `bound` as the truth.
+
+### 3.2 Talker activation × N  *(engine DELETED — now the processor's)*
 
 `KL_acmp_responder`: shared frame engine stays; the per-talker activation
 state (`probe_armed`, 5-bit `probe_tmr`, 15 s window, [M-5.5.4]) becomes a
 flop array indexed by `talker_unique_id` (N × 6 b = 48 FF — below the RAM
 threshold, stays in flops). `talker_active[t] = probe_armed[t] |
 listener_observed[t]`, where `listener_observed[t]` comes from the
-per-stream lwSRP listener-ready bit (§3.4).
+per-stream SRP listener-ready bit (§3.4).
+
+**As built now:** the composed gate survives with one term renamed and one
+retired. `acmp_talker_active` is the processor's `acmp_declaring_o`, and **that
+signal is the DA gate**: it asserts only after a MAAP `ALLOC_DA` success through
+`KL_pp_maap_shim`, so AAF admission is still "a destination address exists AND
+the source is declaring". `probe_armed` had no equivalent on the class-D face
+and is a structural zero at `0x6E8`.
 
 ### 3.3 MAAP — one block claim covers all N (block count 8 already)
 
@@ -403,9 +478,31 @@ block, so the single SM defends all stream DMACs at today's cost. The
 This is the cheapest subsystem of the whole item — by design the protocol
 did the N-scaling for us.
 
-### 3.4 lwSRP — N + N attribute contexts (subsumes the CRF-reservation gap)
+**This section is the one part of §3 that is still literally as-built**, and it
+gained a second consumer on 2026-08-13: the protocol processor implements no
+MAAP by design and publishes a per-source ALLOC/RELEASE face instead, which
+[`hdl/milan/KL_pp_maap_shim.sv`](../hdl/milan/KL_pp_maap_shim.sv) answers out of
+this same one block claim, under the same `base + t` law. Note the coupling that
+creates: with the face unconnected the processor's talker half is dead by
+construction, because `acmp_declaring_o` is reachable only through an `ALLOC_DA`
+success.
 
-The walker (`KL_lwsrp_walker`) already carries TWO hard-coded match
+### 3.4 SRP — N + N attribute contexts  *(engine DELETED — now the processor's)*
+
+*(Written against the deleted lwSRP engine. The processor owns SRP now: it
+declares per source, registers per sink, and publishes `srp_active_o` +
+`srp_granted_slope_bps_o` + the domain word on the class-D face, which is what
+the CBS slope mux and the talker gate consume. One ordering difference is worth
+recording because it is an honest change and not a regression: `KL_lwsrp_bw_gate`
+joined a stream's idleSlope into the running sum BEFORE opening its gate and
+closed the gate BEFORE removing the slope; the processor asserts activity and
+slope in the SAME cycle. On the opening edge that is at worst equal, never
+worse; on the closing edge the sum is briefly high for zero traffic —
+conservative, not permissive. Neither edge lets a stream transmit against an
+un-budgeted slope. The §3.4.1–§3.4.3 subsections below describe the deleted
+engine's row table and are kept for the sizing law they derive.)*
+
+The walker (`KL_lwsrp_walker`) carried TWO hard-coded match
 contexts (`{val_match_r, k_r, cap_evt_r, cap_par_r}` for our talker sid,
 `{lval_match_r, lk_r, lcap_evt_r}` for the ACMP-bound sid) — the seed of
 the context engine. Generalization (SRP-9, [Q-35.2.7]):
@@ -578,6 +675,22 @@ back the sid staged for listener idx2). It now carries the same
 
 ### 3.5 CRF Media Clock Output provisioning ([M-7.2.3])
 
+> **Three of the four steps survive the substitution; read the table with this
+> in mind.** (b) the MAAP slot and (d) the `KL_crf_tx` identity default are
+> live, unchanged fabric. (a) still generates the read-only `0x618`/`0x61C`
+> shape words the processor advertises from — that half is what matters — but
+> the descriptor ROM it also emitted has no consumer: `READ_DESCRIPTOR` is
+> answered out of a DRAM image the processor fetches, in a different format,
+> and nothing here produces that image. (c) is where the ownership moved: the row table it wanted was
+> the lwSRP engine's, which is deleted, and the Class A reservation for the CRF
+> output is now the protocol processor's to declare out of its own source
+> contexts. It is sized here at `ACMP_SRC_C`, which includes the CRF output at
+> `talker_unique_id = N_STREAMS`, so the context exists; whether the declaration
+> reaches the wire for that source is a processor-side question, not a
+> `0x800`-window one. Note separately that the CRF **input** cannot be selected
+> as the media clock at all any more (§3.6) — that is a different loss from this
+> section's reservation gap, and it is not a gap in the CRF output.
+
 With N ≥ 2 AAF listener sinks, the CRF Media Clock Output is mandatory.
 KL_crf_tx exists; the item-5 round provisions it: (a) AEM overlay emits the
 CRF `STREAM_OUTPUT` descriptor (builder change — the 8x8/4x4 overlays gain
@@ -591,7 +704,7 @@ individually and the rest of this section is their detail:
 
 | Step | What it is | Status |
 |---|---|---|
-| (a) | AEM overlay emits the CRF `STREAM_OUTPUT`; `ADP_TALKER_SOURCES` and the AEM output count include it | **SHIPPED 2026-07-27** — the builder already emitted the CRF `STREAM_OUTPUT` and `entity_counts.talker_stream_sources = len(T) + 1`; what was missing was that nothing carried it to the `0x600` group or into the compiled descriptor ROM. The builder now emits `gen/adp_shape_defaults.svh` (the **read-only** `0x618`/`0x61C` words, which also size `ACMP_SRC_C`/`ACMP_SINKS_C`) and this shape's `aecp_aem_rom.svh`, from one config in one pass. Gated by [`scripts/check_entity_shape.py`](../scripts/check_entity_shape.py), including a pre-build refusal in `build.sh`/`sweep.sh` |
+| (a) | AEM overlay emits the CRF `STREAM_OUTPUT`; `ADP_TALKER_SOURCES` and the AEM output count include it | **SHIPPED 2026-07-27** — the builder already emitted the CRF `STREAM_OUTPUT` and `entity_counts.talker_stream_sources = len(T) + 1`; what was missing was that nothing carried it to the `0x600` group or into the compiled descriptor ROM. The builder now emits `gen/adp_shape_defaults.svh` (the **read-only** `0x618`/`0x61C` words, which also size `ACMP_SRC_C`/`ACMP_SINKS_C`) and this shape's `aecp_aem_rom.svh` — **now an orphan**, the deleted fabric store's format rather than the DRAM image the AECP uCPU reads — from one config in one pass. Gated by [`scripts/check_entity_shape.py`](../scripts/check_entity_shape.py), including a pre-build refusal in `build.sh`/`sweep.sh` |
 | (b) | MAAP DMAC slot `base + T` (§3.3) | **SHIPPED 2026-07-26** — the responder answers `stream_dest_mac` = block base + `N_STREAMS`; `MAAP_CTRL`'s claimed count must therefore be `N_STREAMS+1` |
 | (c) | lwSRP talker attribute context `T` — the Class A reservation ([M-7.3.3]) | **OPEN** — the `0x800` window addresses talker idx `< T` only, so no selection reaches the row; needs `N_CTX_P = L+T` plus a way to name it |
 | (d) | provisioning daemon arms `A_CRFT_*` from the claimed DMAC and identity | **COLLAPSED TO NOTHING** — `KL_crf_tx` takes the responder's own pair whenever `CRFT_SIDLO/HI` + `CRFT_DMLO/HI` are left at 0 |
@@ -647,28 +760,63 @@ computed here — which also retired `max(N_STREAMS, 2)`, under which the CRF
 open on the CRF path is (c) alone — the Class A reservation, [M-CLK-2] —
 which is a different question from discoverability.
 
-### 3.6 AEM / AECP changes
+### 3.6 AEM / AECP  *(READ_DESCRIPTOR only — every other command is an echo)*
 
-The overlay path already builds structurally valid multi-port ROMs (one
-STREAM_PORT per stream, per-port cluster blocks, §7.2.19-relative maps —
-builder D1/D2/D3); nothing in fabric consumes them yet.
+**This entity answers `READ_DESCRIPTOR`, and answers every other AECP command
+with a conformant `NOT_IMPLEMENTED` echo.** The AECP/AEM engine this section
+extended — the descriptor ROM, the per-descriptor validation tables, the
+response builder — is deleted; the responder is the protocol processor's AECP
+uCPU. `READ_DESCRIPTOR` (0x0004) answers `SUCCESS` with `configuration_index`,
+the reserved field and the descriptor, `NO_SUCH_DESCRIPTOR` on a locate miss and
+`BAD_ARGUMENTS` on a bad configuration index, the error paths carrying the
+§7.4.5 `{descriptor_type, descriptor_index}` stub; `IDENTIFY_NOTIFICATION` sent
+as a command is `BAD_ARGUMENTS`. Everything else this section's shapes wanted —
+SET/GET_STREAM_FORMAT, GET_STREAM_INFO, `GET_COUNTERS` and its Milan Table 5.22
+unsolicited push, SET_CLOCK_SOURCE, SET_MAX_TRANSIT_TIME, ACQUIRE/LOCK_ENTITY,
+the audio-map get/add/remove trio, IDENTIFY — gets the echo, which is a
+well-formed answer and not a function. Milan Δ7 `ACQUIRE_ENTITY` is a **known
+gap**: it is not distinguished from that echo.
 
-AECP RTL changes: DONE (item-4 follow-up) — the svh validation tables
-became per-descriptor arrays (`AEM_STRIN_*`/`AEM_STROUT_FMT_C` +
-`WB_STRIN/STROUT_FMT_ADDR_C`) emitted by `gen_aem_store.py` for
-multi-stream shapes behind `` `AEM_PER_STREAM_FMT`` (the deployed
-1-AAF-in shape keeps the legacy layout byte-identical).
+The descriptors themselves are no longer in fabric. The store fetches a flat
+image from DRAM at a compile-time base, and **nothing in this repository
+generates or loads it** — the generator is
+`protocol-processor/hdl/aecp/desc/gen_desc_image.py`, and no builder, script or
+boot step feeds it a shape or writes its output to memory. Until that chain
+exists, an 8x8 or 4x4 build enumerates as empty: every read a
+`BAD_ARGUMENTS`, the locate never reached.
 
-SET/GET_STREAM_FORMAT and the RX monitor's format-compare reference key
-the addressed descriptor's own entry ([tb/verilator/aecp](../tb/verilator/aecp) `sim_fmt2`, and
-`sim_fmt4` on the shipped 4-AAF arty_4x4 input count, which round-trips
-SET→GET on the MIDDLE sinks idx 2 & 3 — the band index-0/1-only coverage
-hid; its `--else-arm` shape reproduces the pre-fix bite, idx≥2 →
-NO_SUCH_DESCRIPTOR).
+What survives, and what it costs the NxN shapes:
 
-Remaining: GET_STREAM_INFO and GET_COUNTERS handlers keying the §1.5
-window by descriptor index. ADP source/sink counts already come honest
-from the overlay.
+* **The builder's overlay path is unchanged** — it still emits structurally
+  valid multi-port entity models (one STREAM_PORT per stream, per-port cluster
+  blocks, §7.2.19-relative maps; builder D1/D2/D3), and the ADP source/sink
+  counts still come honestly from it, because the read-only `0x618`/`0x61C`
+  words the processor advertises from are generated in the same pass (§3.5(a)).
+  What it compiles into `aecp_aem_rom.svh` is now an **orphan**: that ROM was
+  the deleted fabric store's format, not the DRAM image the uCPU reads, so a
+  shape's descriptors reach a controller only once someone converts the model
+  and loads it.
+* **Per-STREAM_OUTPUT Milan Table 5.4 counters are gone entirely.**
+  `KL_talker_diag_ctx` is no longer instantiated: `GET_COUNTERS(STREAM_OUTPUT,
+  idx)` and the Table 5.22 push were its only two consumers. **The STREAM_INPUT
+  counters of §1.4/§1.5 are UNAFFECTED and still live** at the `0x6B8`
+  `A_STRMW_CNT` window.
+* **Per-stream stream format can no longer be negotiated.** The
+  format-compare reference the RX monitor uses stays a build-time fact; a
+  controller that sends `SET_STREAM_FORMAT` or `GET_STREAM_FORMAT` gets the
+  `NOT_IMPLEMENTED` echo — an answer, not a format — so a listener shape still
+  has to be *elaborated* into the format it will accept.
+* **Presentation-time offset is pinned at the Milan 2 ms DEFAULT** for every
+  Stream Output, `SET_MAX_TRANSIT_TIME` being its only writer. A default, not a
+  zero — 0 ns would be a presentation time in the past and every listener would
+  drop every frame as late.
+* **The media clock source can never be SELECTED** (`SET_CLOCK_SOURCE` was the
+  only writer of the live `clock_source_index`), so `KL_mmcm_drp_servo` and the
+  `KL_media_nco` packet-grid servo are structurally off and `A_MCSRV_STAT`
+  (`0x8F8`) reads idle. `KL_crf_rx` still parses, counts and reports.
+* **Nothing persists across a power cycle.** The journal is deleted and the
+  processor's NVM face is answered by a blank-flash responder, so a restore walk
+  always completes with zero records.
 
 ## 4. Clock domains, CDC, and the timing-risk register
 
@@ -704,9 +852,16 @@ divergence caught by BDBG):
 
 Every increment: full `tb/verilator/*` sweep green (`for d in */; do (cd $d
 && make) done`), yosys portability check, builder gates
-(`python3 sw/builder/test_builder.py` incl. the ROM byte-identity gate),
-and the N=1 shape bit-compatible. Lanes A–D are parallelizable after P0;
-integration steps are serial at the end.
+(`python3 sw/builder/test_builder.py`), and the N=1 shape bit-compatible.
+Lanes A–D are parallelizable after P0; integration steps are serial at the end.
+
+> **Historical, and some gates no longer exist.** P0–P12 all landed. The suites
+> named in the TB-gate column for the control-plane lanes — `acmp`, `acmp_lstn`,
+> `aecp`, `lwsrp`, `lwsrp_rx`, `lwsrp_tx`, `lwsrp_ctx`, `lwsrp_switchpdu` — were
+> deleted on 2026-08-13 with the RTL they drove, as was the ROM byte-identity
+> gate. The control-plane lane's gate today is [`tb/verilator/pp_shadow`](../tb/verilator/pp_shadow)
+> plus the `milan_dp` integration harness; `ls tb/verilator/` is the authority
+> on the live list. The dataplane lanes (A, B) are unaffected.
 
 | # | Increment | Lane | TB gate | Parallel? |
 |---|-----------|------|---------|-----------|
@@ -781,6 +936,14 @@ this doc's scope.
 Baseline = the estimator's calibrated per-module numbers (mf48 measured
 x1); "replicated" = the estimator's UPPER BOUND (dead); "shared" = this
 architecture.
+
+> **These are dated measurements of a tree that has since changed shape.** The
+> ACMP-listener, lwSRP-context, AECP-per-stream and CSR-window rows below priced
+> RTL that was deleted on 2026-08-13, and the protocol processor that replaced
+> it has its own cost. Nothing here has been re-measured against the substituted
+> tree; the rows stand as the record of the NxN decision they justified, not as
+> a budget for the current build. The measured substitution area lives in
+> `docs/findings/`.
 
 **Stated assumptions:** context RAM in BRAM is charged at its BRAM cost
 only; the shared-engine LUT/FF overhead for context indexing, RMW
@@ -1267,9 +1430,9 @@ in the pruned branch fails the byte-exact I2S sample check.
   that. **Deferred, not refuted** — and with the margin now measured at
   357 … 851 slices there is no reason to take the risk.
 - **`aem_name_lookup` → ROM** (29 arms of 48-bit compare plus a 29-deep
-  priority mux inside the AECP builder, order 400–500 LUT). Real, but it
-  lives in [`hdl/ieee17221/aecp/gen/aecp_aem_rom.svh`](../hdl/ieee17221/aecp/gen/aecp_aem_rom.svh), a **generated** file —
-  the lever is a change to [`avdecc/gen_aem_store.py`](../avdecc/gen_aem_store.py), not to RTL.
+  priority mux inside the AECP builder, order 400–500 LUT). Real at the time,
+  but it lived in the *generated* AEM ROM include — the lever was a change to
+  [`avdecc/gen_aem_store.py`](../avdecc/gen_aem_store.py), not to RTL.
 - **`probe_byte()` replicated ×8** in `KL_acmp_lstn_ctx` (a ~66-arm byte
   selector instantiated once per lane; order 700 LUT by the same reasoning
   that priced the other cones). The fix shape is the per-beat 64-bit case
@@ -1277,14 +1440,20 @@ in the pruned branch fails the byte-exact I2S sample check.
 
 #### Banked levers, in the `LPF_P` style
 
-Both are **wired nowhere**; they are recorded so the next space-bound round
-does not have to rediscover them.
+They are recorded so the next space-bound round does not have to rediscover
+them. **All three were superseded on 2026-08-13**: their cones lived in the
+AECP builder, `KL_acmp_lstn_ctx` and the lwSRP walker, and all three modules
+were deleted with the legacy control plane. The area they would have bought is
+already off the books — and off the books along with the rest of those planes,
+which is a far larger number than any row here. The rows stay because the
+*shapes* of the levers (a compare tree → ROM, a replicated selector → one
+shared case, a parallel lane scan → a serial one) are the reusable part.
 
 | lever | buys (estimated) | costs | forces a re-measurement of |
 |---|---|---|---|
-| `aem_name_lookup` → ROM | ≈ 400–500 LUT ≈ 100–130 slices | a generator change, not an RTL one; the AEM store's byte-exactness becomes a `gen_aem_store.py` property | the `aecp` suite's descriptor byte-compares, and `tsn_fuzz`'s 2 644 AECP checks |
-| `probe_byte()` shared selector | ≈ 700 LUT ≈ 180 slices | re-opens the ACMP probe response path, which has a silicon-deafness history (07-18) | the whole `acmp_lstn` suite plus the ACMP field campaign |
-| walker serial lane scan | ≈ 700 LUT ≈ 180 slices | re-opens the same-edge write/emit hazard fixed once in silicon | `lwsrp_rx`, `lwsrp_ctx`, `lwsrp_switchpdu` |
+| `aem_name_lookup` → ROM | ≈ 400–500 LUT ≈ 100–130 slices | a generator change, not an RTL one | *moot — the AECP builder is deleted* |
+| `probe_byte()` shared selector | ≈ 700 LUT ≈ 180 slices | re-opens the ACMP probe response path, which has a silicon-deafness history (07-18) | *moot — `KL_acmp_lstn_ctx` is deleted* |
+| walker serial lane scan | ≈ 700 LUT ≈ 180 slices | re-opens the same-edge write/emit hazard fixed once in silicon | *moot — the lwSRP walker is deleted* |
 
 #### Does it reach 80 %? No — and that was never a fabric-lever target
 

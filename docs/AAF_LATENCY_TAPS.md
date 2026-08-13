@@ -42,8 +42,9 @@ flowchart LR
 * **PKT_EOF → MAC_TX** (`D2`) is the **`adp_tx_arbiter` merge chain + the MAC
   boundary** — *not* a CBS queue. The fabric AAF talker injects **after** the
   shaper (`aaf_final_mux` in `milan_datapath.sv`), so its frames never enter a
-  queue and never wait for credit; pacing comes from the lwSRP bandwidth gate
-  instead. See
+  queue and never wait for credit; pacing comes from the SRP admission gate
+  instead — published by the protocol processor's class-D face since the lwSRP
+  engine was deleted (2026-08-13). See
   [`reference/EGRESS_QUEUE_MAP.md`](reference/EGRESS_QUEUE_MAP.md#where-the-fabric-bypasses-all-of-this)
   and [`fpga/DATAPLANE_WALKTHROUGH.md`](fpga/DATAPLANE_WALKTHROUGH.md) §0. Under
   mixed traffic this shared boundary may catch a nearer non-AAF edge, which is
@@ -111,11 +112,23 @@ every measured token walked CAP→SOF→EOF→MAC_TX to completion.
 **Worst-case fabric TX ≈ 25 044 cycles ≈ 250 µs** (ΣMAX). Read it as an
 envelope bound, not one frame's flight time — each chain follows one in-flight
 frame at a time, so the three maxima need not belong to the same frame. Against
-the shipped **presentation-time offset of 500 µs**, the fabric talker path
-accounts for at most half the budget, and both halves of it (accumulation
+the **presentation-time offset of 500 µs** this run was measured at, the fabric
+talker path accounts for at most half the budget, and both halves of it
+(accumulation
 window, pacing interval) are protocol-structural: they do not shrink with a
 faster clock, only with a smaller `samples_per_frame` or a shorter class
 interval.
+
+**That 500 µs is no longer settable (2026-08-13).** `SET_MAX_TRANSIT_TIME` and
+`SET_STREAM_INFO`'s `MSRP_ACC_LAT` sub-command were its only writers, and
+neither is implemented: this repository's AECP engine is deleted, and the
+protocol processor's AECP µCPU — which does answer `READ_DESCRIPTOR` — returns
+a conformant `NOT_IMPLEMENTED` echo to both, which writes nothing. Every Stream
+Output therefore holds the **Milan 2 ms default**, a default and not a zero.
+Nothing measured above moves: the taps report fabric transit, not policy. What
+changes is the comparison — the same ≈ 250 µs envelope now sits inside a 2 ms
+budget instead of a 500 µs one, so the fabric path is a smaller fraction of it
+and cannot be tuned back down from a controller.
 
 ### RX chain — measured 2026-07-26, with a caveat
 

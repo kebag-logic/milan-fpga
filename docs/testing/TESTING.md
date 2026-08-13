@@ -12,11 +12,58 @@ protocol-level coverage contract is
 > one dir per suite) and the authoritative synthesis-top count is the `tops`
 > array in [`syn/yosys/run.sh`](../../syn/yosys/run.sh). If a doc and the tree disagree, the tree wins.
 
+> ### The capability boundary this page is now written against (2026-08-13)
+>
+> This repository's own IEEE 1722.1 / SRP control plane — the AECP/AEM engine,
+> the ACMP talker and listener, the ADP advertiser and parser, the lwSRP
+> applicant — was **deleted**. The control plane is the `protocol-processor`
+> submodule, wrapped by [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv)
+> and instantiated **unconditionally** by
+> [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv). No
+> parameter, no fallback, no shadow arm.
+>
+> **ADP, ACMP and SRP are testable**, now against the processor. **AECP is
+> testable too, and only just** — an earlier revision of this block said this
+> entity answers no AECP/AEM command at all, and **that was false**: the
+> processor's **AECP uCPU landed**. In one sentence, *it answers
+> `READ_DESCRIPTOR`, and answers every other AECP command with a conformant
+> `NOT_IMPLEMENTED` echo* (right `message_type`+1, right length, right
+> `controller_data_length`). `IDENTIFY_NOTIFICATION` (0x0026) arriving as a
+> **command** draws `BAD_ARGUMENTS` per IEEE 1722.1 §7.4.39.2. A command whose
+> `target_entity_id` is not ours, and any AECP **response** arriving as input,
+> are silently refused — freed, counted, no reply.
+>
+> **Everything else is still absent, and the echo is not coverage.** There is no
+> GET or SET of anything, no `GET_COUNTERS`, no Milan Table 5.22 unsolicited
+> push (the processor's unsolicited TX lane has no producer), no IDENTIFY
+> (`o_identify` is tied 0) and no saved-state persistence.
+>
+> So **an AECP test procedure on this page is testing one of two things**: a
+> response contract that now exists and that no Verilator suite grades, or a
+> function that does not exist. Each is marked where it appears rather than
+> quietly deleted, because a reader arriving with an old recipe needs to know
+> which. Thirteen Verilator suites and ~33 BDD feature files went with the RTL
+> they graded; the coverage they carried is **GONE**, not reassigned to another
+> suite, and **no Verilator suite grades the landed AECP uCPU** — check
+> `ls tests/features/` for the behave side rather than trusting prose here, and
+> note that no result against this build is recorded anywhere in this corpus
+> (§1.1, §1.0, §7).
+>
+> **Descriptor enumeration is reachable — once the descriptor image is in DRAM,
+> which nothing in this repository does for you yet**, so on a stock build every
+> `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` — the configuration range check runs
+> before the locate and an invalid image reports `configurations_count` = 0.
+> Use the two error statuses as a discriminator: `BAD_ARGUMENTS` to every read
+> means no image (or a corrupt one), `NO_SUCH_DESCRIPTOR` means the image is
+> loaded and that descriptor is genuinely absent. **Known gap kept visible:**
+> Milan Δ7 `ACQUIRE_ENTITY` (`NOT_SUPPORTED` with `owner_id` = 0) is not
+> distinguished from the generic echo.
+
 ## Contents
 
 - **[Which layer do I run?](#which-layer-do-i-run)** — Start here: a flowchart keyed on *what you changed*, answering "what is the cheapest thing that would catch me being wrong". The point it makes is the one-way door at the bottom — timing, PHY and switch interop cannot be simulated here, so exhaust the free layers first.
 - **[0. Prerequisites](#0-prerequisites)** — What each layer needs before it will run, including the two that bite: the Verilator floor of 5.050 (see §7 for why) and the `verilog-axis` submodule that five suites elaborate.
-- **[1. Verilator RTL harnesses - tb/verilator/ (the live regression)](#1-verilator-rtl-harnesses---tbverilator-the-live-regression)** — The main regression layer: the one-line sweep, the generated module↔spec↔test coverage map with its ⚪ untested list, the tsn_fuzz field-validation campaign, and a full per-suite result table from the 2026-07-26 sweep — with the standing reminder that `ls tb/verilator/` is the authority, not the table.
+- **[1. Verilator RTL harnesses - tb/verilator/ (the live regression)](#1-verilator-rtl-harnesses---tbverilator-the-live-regression)** — The main regression layer: the one-line sweep, the generated module↔spec↔test coverage map with its ⚪ untested list, the tsn_fuzz field-validation campaign (AAF only since 2026-08-13), and the per-suite table — reconciled against the tree on 2026-08-13, when it **shrank** by the thirteen suites deleted with the control-plane RTL, with the standing reminder that `ls tb/verilator/` is the authority, not the table.
 - **[2. Migen DMA-engine sims - sw/litex/test_\*.py](#2-migen-dma-engine-sims---swlitextest_py)** — The ring/BD engine sims, and the niche they fill: this layer is invisible to the RTL harnesses and too slow to sweep in the SoC sim.
 - **[3. SoC-level simulation - sw/litex/milan_sim.py](#3-soc-level-simulation---swlitexmilan_simpy)** — Booting the real BIOS on the softcore over Verilator to prove the CPU⇄CSR path end to end — the M-A2 `"MILN"` read, in simulation, before any board exists.
 - **[4. Device-portability check - syn/yosys/](#4-device-portability-check---synyosys)** — sv2v + Yosys over every top, proving synthesizability off-Xilinx (not behaviour, not timing). Also the two structural reports `run.sh` prints: the tied-off-input inventory and the observer-purity check that taps must never drive the streams they observe.
@@ -24,7 +71,7 @@ protocol-level coverage contract is
 - **[5. Legacy / auxiliary testbenches](#5-legacy--auxiliary-testbenches)** — What still lives under [`tb/utests`](../../tb/utests), [`tb/itests`](../../tb/itests) and the Questa packet-generator library, why none of it gates anything, and the rule when they disagree with a Verilator suite: trust the Verilator suite.
 - **[6. On-silicon validation](#6-on-silicon-validation)** — The mandatory post-flash step and the reason it exists: a build whose fabric paths run perfectly can still ship with a dead host plane, and every audio drill stays green while the kernel sees nothing. Then the bring-up order and where silicon measurements get logged.
 - **[6b. Unattended campaigns — status file and alert webhook](#6b-unattended-campaigns--status-file-and-alert-webhook)** — The design contract for multi-day runs where silence means healthy: one STATUS word answering "alive and healthy" without parsing a log, the deliberate `FAILED` vs `BLOCKED` split (blocked never alerts — that is the false alarm that teaches people to ignore the next one), a fire-once webhook, and why the primary record lives on the host.
-- **[7. Known gaps (kept honest)](#7-known-gaps-kept-honest)** — What CI does and does not cover now, and the measured Verilator version table worth knowing before you file a build bug: 5.020 cannot build four suites, 5.032 silently mis-reads six `aecp` checks, 5.050 is the pin. States why CI builds Verilator from source instead of trusting `apt`, and why the RTL was deliberately not contorted to satisfy the older tool.
+- **[7. Known gaps (kept honest)](#7-known-gaps-kept-honest)** — What CI does and does not cover now — starting with the whole of AECP, untested for two different reasons: the narrow part the landed uCPU really implements has no Verilator suite and no recorded result, and everything else has no implementation to test — and the measured Verilator version table worth knowing before you file a build bug: 5.020 could not build four suites, 5.032 silently mis-read six checks in a suite since deleted, 5.050 is the pin. States why CI builds Verilator from source instead of trusting `apt`, and why the RTL was deliberately not contorted to satisfy the older tool.
 - **[Policy](#policy)** — The two standing rules in three sentences: a DUT change ships with its harness update in the same commit, and a module is not done until it appears in layer 1 (and layer 4 unless vendor-gated).
 
 ## Which layer do I run?
@@ -72,7 +119,7 @@ is generated (§0.1).
 
 | Layer | Needs |
 |---|---|
-| Verilator harnesses | `verilator >= 5.050` (the CI pin — see §7: 5.020 **cannot build** four suites and 5.032 mis-reads six `aecp` checks), a C++17 compiler, **and** `git submodule update --init third_party/verilog-axis` (five suites elaborate Forencich cores) - no vendor tools |
+| Verilator harnesses | `verilator >= 5.050` (the CI pin — see §7: 5.020 **cannot build** four suites and 5.032 mis-read six checks in a suite that has since been deleted), a C++17 compiler, **and** `git submodule update --init third_party/verilog-axis` (five suites elaborate Forencich cores) - no vendor tools. The three suites that elaborate `milan_datapath` (`pp_shadow`, `milan_dp`, `hostplane`) additionally need `git submodule update --init protocol-processor`, because the wrapper instantiates the processor unconditionally |
 | Yosys portability | `yosys` + [`sv2v`](https://github.com/zachjs/sv2v) on `PATH` + the same submodule |
 | Migen DMA sims / SoC sim | a LiteX Python environment ([../litex/LITEX_SOC.md](../litex/LITEX_SOC.md) §7) |
 | Legacy utests/itests | Vivado (xsim); [`tb/avtp_packet_gen_sv`](../../tb/avtp_packet_gen_sv) needs Modelsim/Questa |
@@ -90,9 +137,20 @@ Per-suite DUT/what-it-proves table: [`tb/verilator/README.md`](../../tb/verilato
 `ls tb/verilator/` is authoritative (one dir per suite).
 Highlights: `milan_dp` drives the **whole `milan_datapath` wrapper** (the
 LiteX integration boundary - CSR ID read, classifier programming, byte-exact
-TX/RX); `controller_rate` is the gating regression born from the
+TX/RX); `pp_shadow` is the suite that **grades** the protocol processor as this
+device's control plane, and since 2026-08-13 it is the only control-plane suite
+of any kind; `controller_rate` is the gating regression born from the
 [CBS datapath bug](../findings/CBS_DATAPATH_BUG.md); `cbs`/`ptp` check
 arithmetic against independent reference models (10⁴-10⁵ checks each).
+
+**Three suites now need a submodule the public checkout cannot fetch.**
+`milan_datapath` instantiates `KL_pp_shadow` unconditionally, so every suite
+that elaborates the wrapper elaborates the processor with it: `pp_shadow`,
+`milan_dp` and `hostplane` all resolve `protocol-processor/hdl`, whose remote is
+SSH-only — the same constraint `external` carries. Run
+`git submodule update --init protocol-processor` before `make` in any of them;
+without it they do not build, and [`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh) has no skip verdict
+for a missing submodule, so it reports a failure rather than an absence.
 
 
 ### 0.1 Coverage map — the module ↔ spec ↔ test matrix
@@ -106,53 +164,73 @@ it never drifts: `make matrix` regenerates it and `make matrix-check` (run by
 `make` in [`tb/verilator/tsn_fuzz/`](../../tb/verilator/tsn_fuzz)) fails if the committed copy is stale. Each
 spec-family leaf dir carries the same table as `README-tests.md`.
 
-### 1.0 `tb/verilator/tsn_fuzz/` — IEEE 1722.1 field-validation campaign (2026-07-25)
+### 1.0 `tb/verilator/tsn_fuzz/` — the field-validation campaign (AAF only since 2026-08-13)
 
-Four co-simulation campaigns that drive the **real RTL** with spec-modelled
-1722.1 traffic and grade every field of every message. tsn-gen supplies the
-field/constraint model; the campaign builds real wire frames, reads DUT state
-in-band, and gates on state stability.
+Co-simulation campaigns that drive the **real RTL** with spec-modelled traffic
+and grade every field of every message. tsn-gen supplies the field/constraint
+model; the campaign builds real wire frames, reads DUT state in-band, and gates
+on state stability.
 
 | campaign | DUT | covers |
 |---|---|---|
-| `make aecp` | `KL_aecp_top` | getters × 19 descriptor types, setters (legal/illegal/SET→GET), header fuzz, addressing, length, **Milan v1.2 mandatory census 10/10** |
-| `make adp` | `adp_advertiser` | all 20 advertised fields at their wire offsets, events, `available_index` |
-| `make acmp` | `KL_acmp_listener` | 15 ACMP fields, all 16 message types, BIND→state→UNBIND, 70-byte rule |
 | `make aaf` | parser→rxmon→depacketizer | the listener **accept verdict** graded on the parser's own pre-match counters, per-field verdicts, wire-truth channels, **lock survival** |
-| `make legacy` | `KL_aecp_top` | the original 14-command cosim smoke driver |
 
-Run `make` in that directory (~3 min). It **skips cleanly** when tsn-gen is
-absent, so the suite stays runnable without the generator.
+> **The four 1722.1 campaigns are DELETED, and that is a coverage loss.**
+> `make aecp`, `make adp`, `make acmp` and the `legacy` smoke driver fuzzed
+> `KL_aecp_top`, `adp_advertiser` and `KL_acmp_listener` — RTL that no longer
+> exists in this tree. Nothing replaced them: **there is no field-level fuzzing
+> of ADP, ACMP or AECP in this repository any more.** ADP and ACMP are the
+> protocol processor's and are exercised end-to-end by `pp_shadow`, which is a
+> different and much coarser thing than a per-field campaign — do not read
+> `pp_shadow` as inheriting their coverage. **AECP is now a real fuzz target
+> again, and an unfuzzed one**: the landed uCPU has a response contract (the
+> conformant `NOT_IMPLEMENTED` echo), three `READ_DESCRIPTOR` status paths, an
+> opcode-specific `BAD_ARGUMENTS` rule and two silent-refusal rules — all of
+> which a malformed-frame campaign could grade, and none of which any campaign
+> grades today. It is not a *command* fuzz target: there are no getters or
+> setters to fuzz values into. The AAF campaign survives untouched because it
+> fuzzes `hdl/ieee1722`, which is data plane and was not replaced.
 
-**No check total is quoted here on purpose.** Every campaign ends by printing
-its own `N pass, M fail, K known gaps` line, and writes that same line into a
+Run `make` in that directory. It **skips cleanly** when tsn-gen is absent, so
+the suite stays runnable without the generator.
+
+**No check total is quoted here on purpose.** The campaign ends by printing its
+own `N pass, M fail, K known gaps` line, and writes that same line into a
 `TEST_RESULTS.md` **in the folder of the RTL it validates**
-(`hdl/ieee17221/{aecp,acmp,adp}/doc/`, [`hdl/ieee1722/avtp/doc/`](../../hdl/ieee1722/avtp/doc)) — so a block's
+([`hdl/ieee1722/avtp/doc/`](../../hdl/ieee1722/avtp/doc)) — so a block's
 verification status is visible from the block itself and there is no
 hand-maintained copy to drift. A second copy here rotted once already: this
 page carried a total and a per-campaign breakdown that were both a campaign
 behind the suite. Current tally, full rationale, the tsn-gen wire-layout caveat
 and the tracked gaps: [`tb/verilator/tsn_fuzz/README.md`](../../tb/verilator/tsn_fuzz/README.md).
 
-### 1.1 Suite index — the full sweep, run 2026-07-26
+### 1.1 Suite index — reconciled against the tree 2026-08-13
 
-[`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh) over every dir under [`tb/verilator/`](../../tb/verilator) that has a
-`Makefile`:
+[`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh) runs every dir under [`tb/verilator/`](../../tb/verilator) that has a
+`Makefile`. **Run it for the verdicts; this page does not carry them.** The last
+whole-tree sweep recorded here (2026-07-26, Verilator v5.050, 55/55 green)
+described a tree that no longer exists — twelve of the suites it graded have
+since been deleted — so quoting it would be quoting a measurement of a
+different design. Its check total was also an under-count: that total came from
+`grep -o 'checks: *[0-9]*'` and suites do not all print that string (the tree
+emits six summary shapes, and 28 of 57 suite logs matched none of them and
+contributed a silent zero — shown by adding 66 assertions to a suite and
+watching the printed total not move). Rerun the sweep for both figures.
 
-```
-suites: 55   passed: 55   failed: 0
-checks: 2064050   in-suite failures: 0
-```
-
-Verilator v5.050.
-
-> **The totals above predate the 2026-07-28 accounting fix and are too low.**
-> The check total used to come from `grep -o 'checks: *[0-9]*'`, and suites do
-> not all print that string — the tree emits six different summary shapes, so
-> **28 of the 57 suite logs matched none of them and contributed a silent
-> zero**. The defect was shown by adding 66 assertions to a suite and watching
-> the printed total not move at all. Rerun the sweep for a current figure; do
-> not quote the block above.
+> **This table SHRANK on 2026-08-13, and that is the first time it ever has.**
+> The standing rule was that every round grows it. Thirteen suites — `aecp`,
+> `aempatch`, `acmp`, `acmp_lstn`, `persist`, `adp`, `adp_advertise`,
+> `adp_parser`, `lwsrp`, `lwsrp_ctx`, `lwsrp_rx`, `lwsrp_tx`,
+> `lwsrp_switchpdu` — were deleted with the RTL they graded, together with the
+> `csr` suite's `obj_live` leg and the four 1722.1 `tsn_fuzz` campaigns. **What
+> each of them proved is now unproven by anything in this tree.** In
+> particular: byte-exact AECP response goldens, the per-index getter/setter
+> sweeps, the AEM dynamic-state patch port round trip, the KLJ1 saved-state
+> journal decode + replay, the ADP receive `%Error-ENUMVALUE` gate, and the six
+> lwSRP applicant/registrar/walker suites. `pp_shadow` does **not** inherit any
+> of it — it grades the processor's presence, its RX classify→serializer path,
+> its class-D fabric face, the MAAP adapter and the anti-wedge invariant, which
+> is a different question from "does this PDU field decode per the clause".
 
 Since 2026-07-28 the tallying lives in
 [`scripts/suite_tally.py`](../../scripts/suite_tally.py), which knows every
@@ -179,70 +257,66 @@ Two more things the sweep now refuses to guess at:
   not exist. That case is now its own `TIMEOUT` verdict (exit 92): not a pass,
   not a failure, an unknown. Raise it with `SUITE_TIMEOUT`.
 
-**This table is not the authority — `ls tb/verilator/` is.** Rerun the sweep
-rather than trusting the row count here.
+**This table is not the authority — `ls tb/verilator/` is.** It names every
+suite the tree carried on 2026-08-13 and what each is for; run the sweep for
+verdicts and for check counts.
 
-| suite | 2026-07-26 sweep | note |
-|---|---|---|
-| [`tb/verilator/aaf`](../../tb/verilator/aaf) | PASS | — |
-| [`tb/verilator/aaf_audio_loop`](../../tb/verilator/aaf_audio_loop) | PASS | — |
-| [`tb/verilator/aaf_latency_taps`](../../tb/verilator/aaf_latency_taps) | PASS | 73 checks — the per-stage TX/RX taps |
-| [`tb/verilator/acmp`](../../tb/verilator/acmp) | PASS | — |
-| [`tb/verilator/acmp_lstn`](../../tb/verilator/acmp_lstn) | PASS | — |
-| [`tb/verilator/adp`](../../tb/verilator/adp) | PASS | — |
-| [`tb/verilator/aempatch`](../../tb/verilator/aempatch) | PASS | 92 checks — the E4 AEM dynamic-state ingest port (CSR 0x7C8-0x7D4). Central leg is a **round trip**: restore a stream format over CSR with ADP down, advertise, read it back over a normal `GET_STREAM_FORMAT`. Second executable gates the store's write-port arbitration at the RAM directly, because the frame level cannot collide the two masters — a mutation campaign is what found that. 10 of 10 injected defects caught |
-| [`tb/verilator/adp_parser`](../../tb/verilator/adp_parser) | PASS | 228 checks — ADP receive; the one suite with `-Wno-fatal` deliberately absent, so `%Error-ENUMVALUE` is a build failure |
-| [`tb/verilator/adp_tx`](../../tb/verilator/adp_tx) | PASS | — |
-| [`tb/verilator/aecp`](../../tb/verilator/aecp) | PASS | — |
-| [`tb/verilator/aes3`](../../tb/verilator/aes3) | PASS | 50 checks — the AES3/S-PDIF ser/des family |
-| [`tb/verilator/avtp_parser`](../../tb/verilator/avtp_parser) | PASS | 10 665 checks — the listener ACCEPT VERDICT at every shipping shape; carries the entry-0 blocker guard (T6) |
-| [`tb/verilator/avtp_rxmon`](../../tb/verilator/avtp_rxmon) | PASS | — |
-| [`tb/verilator/avtp_stream`](../../tb/verilator/avtp_stream) | PASS | — |
-| [`tb/verilator/cbs`](../../tb/verilator/cbs) | PASS | 129 407 checks — CBS arithmetic vs a fixed-point replica and an ideal 802.1Qav model |
-| [`tb/verilator/cdc`](../../tb/verilator/cdc) | PASS | — |
-| [`tb/verilator/chmap_capture`](../../tb/verilator/chmap_capture) | PASS | — |
-| [`tb/verilator/chmap_render`](../../tb/verilator/chmap_render) | PASS | — |
-| [`tb/verilator/classifier`](../../tb/verilator/classifier) | PASS | — |
-| [`tb/verilator/cls`](../../tb/verilator/cls) | PASS | 200 073 checks — classification incl. the reserved-DMAC control table and the tagged-0x22F0 negative |
-| [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) | PASS | the gating regression born from the CBS datapath bug |
-| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | PASS | — |
-| [`tb/verilator/crf_tx`](../../tb/verilator/crf_tx) | PASS | — |
-| [`tb/verilator/csr`](../../tb/verilator/csr) | PASS | 337 checks — the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md) |
-| [`tb/verilator/datapath`](../../tb/verilator/datapath) | PASS | — |
-| [`tb/verilator/eth_tx_reset`](../../tb/verilator/eth_tx_reset) | PASS | — |
-| [`tb/verilator/hostplane`](../../tb/verilator/hostplane) | PASS | 77 checks — the silicon-shape host lanes (RX delivery, ts records, filter-no-leak) |
-| [`tb/verilator/i2spb`](../../tb/verilator/i2spb) | PASS | — |
-| [`tb/verilator/ifg`](../../tb/verilator/ifg) | PASS | — |
-| [`tb/verilator/lat_history_ring`](../../tb/verilator/lat_history_ring) | PASS | — |
-| [`tb/verilator/link_guard`](../../tb/verilator/link_guard) | PASS | — |
-| [`tb/verilator/lwsrp`](../../tb/verilator/lwsrp) | PASS | — |
-| [`tb/verilator/lwsrp_ctx`](../../tb/verilator/lwsrp_ctx) | PASS | — |
-| [`tb/verilator/lwsrp_rx`](../../tb/verilator/lwsrp_rx) | PASS | — |
-| [`tb/verilator/lwsrp_switchpdu`](../../tb/verilator/lwsrp_switchpdu) | PASS | — |
-| [`tb/verilator/lwsrp_tx`](../../tb/verilator/lwsrp_tx) | PASS | — |
-| [`tb/verilator/maap`](../../tb/verilator/maap) | PASS | — |
-| [`tb/verilator/mac_rmon`](../../tb/verilator/mac_rmon) | PASS | the revived RMON event derivation + STATS_CAP |
-| [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | PASS | 282 checks — the whole milan_datapath wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1) |
-| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | PASS | — |
-| [`tb/verilator/mmcm_servo_autorepair`](../../tb/verilator/mmcm_servo_autorepair) | PASS | — |
-| [`tb/verilator/pcm_playback`](../../tb/verilator/pcm_playback) | PASS | 40 checks — host ring → KL_pcm_tx → render crossbar → feed mux → DAC pin, bit-exact plus the negatives |
-| [`tb/verilator/pcm_ring_bram`](../../tb/verilator/pcm_ring_bram) | PASS | — |
-| [`tb/verilator/pcm_tx`](../../tb/verilator/pcm_tx) | PASS | — |
-| [`tb/verilator/pcmlpf`](../../tb/verilator/pcmlpf) | PASS | — |
-| [`tb/verilator/persist`](../../tb/verilator/persist) | PASS | the KLJ1 saved-state journal decode + replay |
-| [`tb/verilator/ptp`](../../tb/verilator/ptp) | PASS | 201 250 checks — PHC arithmetic vs an independent reference model |
-| [`tb/verilator/ptp_sync`](../../tb/verilator/ptp_sync) | PASS | — |
-| [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts) | PASS | — |
-| [`tb/verilator/queues`](../../tb/verilator/queues) | PASS | — |
-| [`tb/verilator/rx_filter`](../../tb/verilator/rx_filter) | PASS | — |
-| [`tb/verilator/shaper_core`](../../tb/verilator/shaper_core) | PASS | 1 520 848 checks — FQTSS/arbitration, incl. the gPTP-not-starved measurement |
-| [`tb/verilator/tcam`](../../tb/verilator/tcam) | PASS | — |
-| [`tb/verilator/tcam_csr`](../../tb/verilator/tcam_csr) | PASS | — |
-| [`tb/verilator/tdm`](../../tb/verilator/tdm) | PASS | — |
-| [`tb/verilator/tdm_render`](../../tb/verilator/tdm_render) | PASS | — |
-| [`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) | PASS | the IEEE 1722.1 field-validation campaign (skips cleanly without tsn-gen) |
+| suite | what it is for |
+|---|---|
+| [`tb/verilator/aaf`](../../tb/verilator/aaf) | — |
+| [`tb/verilator/aaf_audio_loop`](../../tb/verilator/aaf_audio_loop) | — |
+| [`tb/verilator/aaf_latency_taps`](../../tb/verilator/aaf_latency_taps) | the per-stage TX/RX latency taps |
+| [`tb/verilator/adp_tx`](../../tb/verilator/adp_tx) | `adp_tx_arbiter` — the generic 2-in-1-out AXIS arbiter, which SURVIVED the control-plane deletion because the data lane uses it too |
+| [`tb/verilator/aes3`](../../tb/verilator/aes3) | the AES3/S-PDIF ser/des family |
+| [`tb/verilator/avtp_parser`](../../tb/verilator/avtp_parser) | the listener ACCEPT VERDICT at every shipping shape; carries the entry-0 blocker guard (T6) |
+| [`tb/verilator/avtp_rxmon`](../../tb/verilator/avtp_rxmon) | — |
+| [`tb/verilator/avtp_stream`](../../tb/verilator/avtp_stream) | — |
+| [`tb/verilator/cbs`](../../tb/verilator/cbs) | CBS arithmetic vs a fixed-point replica and an ideal 802.1Qav model |
+| [`tb/verilator/cdc`](../../tb/verilator/cdc) | — |
+| [`tb/verilator/chmap_capture`](../../tb/verilator/chmap_capture) | — |
+| [`tb/verilator/chmap_render`](../../tb/verilator/chmap_render) | — |
+| [`tb/verilator/classifier`](../../tb/verilator/classifier) | — |
+| [`tb/verilator/clkvalid`](../../tb/verilator/clkvalid) | `KL_ptp_clock_validity` — the AVTP `tu` verdict, two shapes |
+| [`tb/verilator/cls`](../../tb/verilator/cls) | classification incl. the reserved-DMAC control table and the tagged-0x22F0 negative |
+| [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) | the gating regression born from the CBS datapath bug |
+| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | the CRF Media Clock Input engine. It still parses, counts and reports — but see §7: with `SET_CLOCK_SOURCE` gone it cannot steer anything |
+| [`tb/verilator/crf_tx`](../../tb/verilator/crf_tx) | — |
+| [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** — that leg drove the old control-plane windows live |
+| [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |
+| [`tb/verilator/eth_tx_reset`](../../tb/verilator/eth_tx_reset) | — |
+| [`tb/verilator/hostplane`](../../tb/verilator/hostplane) | the silicon-shape host lanes (RX delivery, ts records, filter-no-leak). Elaborates `milan_datapath`, so it needs the `protocol-processor` submodule |
+| [`tb/verilator/i2spb`](../../tb/verilator/i2spb) | — |
+| [`tb/verilator/ifg`](../../tb/verilator/ifg) | — |
+| [`tb/verilator/lat_history_ring`](../../tb/verilator/lat_history_ring) | — |
+| [`tb/verilator/link_guard`](../../tb/verilator/link_guard) | — |
+| [`tb/verilator/maap`](../../tb/verilator/maap) | `KL_maap`, which stays in this fabric: the protocol processor implements no MAAP by design |
+| [`tb/verilator/mac_rmon`](../../tb/verilator/mac_rmon) | the revived RMON event derivation + STATS_CAP |
+| [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. See §7 — the servo that would steer it is structurally off in every build |
+| [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | the whole `milan_datapath` wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1). Elaborates the processor with the wrapper, so it needs the `protocol-processor` submodule |
+| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Same §7 caveat: the block is graded, the build never enables it |
+| [`tb/verilator/mmcm_servo_autorepair`](../../tb/verilator/mmcm_servo_autorepair) | — |
+| [`tb/verilator/pair_fill`](../../tb/verilator/pair_fill) | `KL_pair_blend` + `KL_pair_zero_fill` |
+| [`tb/verilator/pcm_playback`](../../tb/verilator/pcm_playback) | host ring → `KL_pcm_tx` → render crossbar → feed mux → DAC pin, bit-exact plus the negatives |
+| [`tb/verilator/pcm_ring_bram`](../../tb/verilator/pcm_ring_bram) | — |
+| [`tb/verilator/pcm_tx`](../../tb/verilator/pcm_tx) | — |
+| [`tb/verilator/pcmlpf`](../../tb/verilator/pcmlpf) | — |
+| [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) | **the control plane.** `milan_datapath` with the protocol processor elaborated in: presence + the `PP_STAT` `0x5B` tag, RX classify → FIFO → serializer → validator on a real ADP `ENTITY_DISCOVER`, the classifier rejecting non-control traffic, the side port answering with the processor's own `KLPP` magic, the class-D fabric face moving (`adp_next_avail_index_o` advances), the MAAP adapter refusing safely and granting, and a global `accepted == answered` anti-wedge invariant. It carries **no** `-Wno-*` at all, so every warning is fatal — which is how it caught the package-name collision between this repo's `adp_pkg`/`acmp_pkg` and the processor's, a `MODDUP` *warning* that every other suite's `-Wno-fatal` would have swallowed while silently keeping the first declaration. Needs the SSH-only `protocol-processor` submodule |
+| [`tb/verilator/ptp`](../../tb/verilator/ptp) | PHC arithmetic vs an independent reference model |
+| [`tb/verilator/ptp_sync`](../../tb/verilator/ptp_sync) | — |
+| [`tb/verilator/ptp_ts`](../../tb/verilator/ptp_ts) | — |
+| [`tb/verilator/queues`](../../tb/verilator/queues) | — |
+| [`tb/verilator/rx_filter`](../../tb/verilator/rx_filter) | — |
+| [`tb/verilator/shaper_core`](../../tb/verilator/shaper_core) | FQTSS/arbitration, incl. the gPTP-not-starved measurement |
+| [`tb/verilator/tcam`](../../tb/verilator/tcam) | — |
+| [`tb/verilator/tcam_csr`](../../tb/verilator/tcam_csr) | — |
+| [`tb/verilator/tdm`](../../tb/verilator/tdm) | — |
+| [`tb/verilator/tdm_render`](../../tb/verilator/tdm_render) | — |
+| [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) | `KL_talker_diag_ctx` (Milan Table 5.4 per-STREAM_OUTPUT counters) as a **block**. The module and this suite survive; the **integration does not** — `milan_datapath` no longer instantiates it, because `GET_COUNTERS` and the Table 5.22 push were its only two readers. A green run here says the counter arithmetic is right, not that any build carries those counters |
+| [`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) | the field-validation campaign — **AAF only** since 2026-08-13 (§1.0); skips cleanly without tsn-gen |
 
-The standing rule: every round grows this table, never shrinks it.
+The standing rule is that every round grows this table. 2026-08-13 is the one
+round that shrank it, by deliberate deletion of the RTL underneath — recorded
+above rather than smoothed over.
 
 ## 2. Migen DMA-engine sims - `sw/litex/test_*.py`
 
@@ -479,14 +553,71 @@ host-only.
 
 ## 7. Known gaps (kept honest)
 
+* **The whole of AECP is untested — for two different reasons, and the
+  difference matters.** The processor's **AECP uCPU is landed**: it answers
+  `READ_DESCRIPTOR` with all three status paths, answers
+  `IDENTIFY_NOTIFICATION`-as-a-command `BAD_ARGUMENTS`, answers every other AECP
+  command with a conformant `NOT_IMPLEMENTED` echo, and silently refuses a
+  foreign `target_entity_id` or a response arriving as input. **No Verilator
+  suite grades any of that, and no result against this build is recorded**
+  (`ls tests/features/` for what the behave suite carries) — that half is
+  untested because no test result exists, not because there is nothing to test.
+  Descriptor enumeration is reachable **once a descriptor image is
+  loaded into DRAM, which nothing in this repository does**, so on a stock build
+  every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`: the microprogram checks
+  `configuration_index` against `configurations_count` before it locates, and an
+  invalid image reports a count of zero, so no index passes and the locate is
+  never reached. `NO_SUCH_DESCRIPTOR` — the locate-miss status — is therefore
+  only reachable against a loaded image, which makes the pair a useful
+  discriminator when a controller probe comes back empty. The other half — GET/SET
+  of anything, `GET_COUNTERS`, the Milan Table 5.22 unsolicited push, IDENTIFY
+  (`o_identify` is tied 0, so the LED is structurally dark), saved-state
+  persistence — is untested because **none of it is implemented**, and the
+  well-formed refusal it now returns is not coverage. That is a **stated
+  capability boundary**, not a regression to be worked around. Known gap kept
+  visible: Milan Δ7 `ACQUIRE_ENTITY` (`NOT_SUPPORTED` with `owner_id` = 0) is
+  not distinguished from the generic echo. Three consequences that are easy to
+  mistake for test failures, and are not:
+  * **The CRF media clock can never be SELECTED.** `SET_CLOCK_SOURCE` was the
+    only writer of the live CLOCK_DOMAIN `clock_source_index`, so it is pinned
+    at 0 (the INTERNAL media clock) for the life of a build. `KL_mmcm_drp_servo`
+    and the `KL_media_nco` packet-grid servo are therefore **structurally off**
+    and `A_MCSRV_STAT` (`0x8F8`) reads its idle. Their suites still pass; the
+    build never enables what they grade.
+  * **Presentation-time offset is pinned at the Milan 2 ms DEFAULT** for every
+    Stream Output (`SET_MAX_TRANSIT_TIME` is gone). That is a default, not a
+    zero — 0 ns would be a presentation time in the past and every listener
+    would drop every frame as late.
+  * **Milan Table 5.4 per-STREAM_OUTPUT counters are gone entirely**, because
+    nothing could read them (§1.1, `tkdiag`): `GET_COUNTERS` answers
+    `NOT_IMPLEMENTED` and the Table 5.22 push has no producer on the processor's
+    unsolicited TX lane. The STREAM_INPUT counters at the `0x6B8` `A_STRMW_CNT`
+    window are **unaffected** and still live.
+* **The three datapath-level suites are not in CI any more.** `pp_shadow`,
+  `milan_dp` and `hostplane` all elaborate `milan_datapath`, which instantiates
+  the protocol processor unconditionally, and that submodule's remote is
+  SSH-only; [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml)
+  initialises only `third_party/verilog-axis`. Until the workflow is taught to
+  fetch it (or to record a SKIP rather than a failure), the control plane **and**
+  the whole-wrapper integration are graded on a developer's desk, not on every
+  push — and the sweep will report them as failures on any checkout that lacks
+  the submodule, which is every anonymous one.
 * **The BDD conformance suite runs on every verification round** (USER standing
-  order, 2026-07-26). `cd tests && behave` — 45 features / 594 scenarios /
-  3548 steps (measured 2026-08-06; the run's own tally is authoritative,
-  prose counts go stale), offline by default (the Python models in [`tests/steps`](../../tests/steps) mirror the
-  RTL, so it needs no DUT binary and no simulator, and finishes in ~3 s). It is
+  order, 2026-07-26). `cd tests && behave -f plain` — the run's own tally is
+  authoritative, so read it there rather than here; on 2026-08-13 it stood at 12
+  features. It is offline by default (the Python models in [`tests/steps`](../../tests/steps) mirror the
+  RTL, so it needs no DUT binary and no simulator, and finishes in ~1 s). It is
   the spec-facing counterpart to the Verilator suites: those prove the RTL does
   what it does, this proves it does what the standard says. Wired in as the
   `bdd-conformance` job so it is a gate, not something to remember.
+  **It shrank on 2026-08-13 too:** ~33 `.feature` files went with the deleted
+  control plane, and what they asserted — the AECP command contracts, the ADP
+  advertiser's wire fields, the ACMP listener state machine, the saved-state
+  fast-connect walk — is now asserted by nothing. It has **not** grown back for
+  the landed AECP uCPU: the `READ_DESCRIPTOR` status paths, the echo contract,
+  the `IDENTIFY_NOTIFICATION`-as-command rule and the two silent-refusal rules
+  are authorable again. `ls tests/features/` before citing a feature
+  file; several pages in this corpus still name ones that are gone.
 * **CI now runs the RTL gates too** (2026-07-26).
   [`.github/workflows/docs.yml`](../../.github/workflows/docs.yml) runs the docs
   gate (twice — the second time with `.git` deleted, so the tarball/zip path
@@ -501,9 +632,9 @@ host-only.
 
   | Verilator | ships with | result |
   |---|---|---|
-  | 5.020 | Ubuntu 24.04 | **cannot build** `aecp`/`hostplane`/`milan_dp`/`tsn_fuzz` — `BLKLOOPINIT: Delayed assignment to array inside for loops`, on legal SystemVerilog that Yosys synthesises fine |
-  | 5.032 | Debian trixie, Ubuntu 25.04 | builds, but **6 of 490 `aecp` checks** read back `0` (AS_PATH / AVB_INFO CDL, `UNSUPPORTED_FORMAT`, `FRAMES_RX`) — a testbench/C++ ABI sensitivity, not a known RTL fault. **Open.** |
-  | 5.050 | Arch, and the CI pin | reference: **55/55 suites green, 0 failures** (full sweep 2026-07-26). The check total recorded here was 2 064 050, which is an *under-count* — see the note in §1.1; the suite/failure columns are what this row is comparing |
+  | 5.020 | Ubuntu 24.04 | **cannot build** `hostplane`/`milan_dp`/`tsn_fuzz` and the (since-deleted) `aecp` — `BLKLOOPINIT: Delayed assignment to array inside for loops`, on legal SystemVerilog that Yosys synthesises fine |
+  | 5.032 | Debian trixie, Ubuntu 25.04 | builds, but **6 of 490 `aecp` checks** read back `0` (AS_PATH / AVB_INFO CDL, `UNSUPPORTED_FORMAT`, `FRAMES_RX`) — a testbench/C++ ABI sensitivity, not a known RTL fault. **Moot since 2026-08-13**: the suite it was measured on is deleted, so this row can no longer be reproduced. Kept because the sensitivity is a property of the tool, and the next suite it bites will look exactly like this |
+  | 5.050 | Arch, and the CI pin | the reference. The 55/55-green figure this row used to quote was the 2026-07-26 sweep of a tree that no longer exists (§1.1) — rerun the sweep |
 
   CI therefore **builds Verilator from source at a pinned tag** (`VERILATOR_VERSION`
   in the workflow) and caches it, rather than trusting `apt`. The RTL was
@@ -516,9 +647,11 @@ host-only.
   `milan_dp`. It is out of the §4b lint sweep for the same reason — it cannot
   even *elaborate* without the `external/` submodule (an SSH remote CI cannot
   fetch) and the Xilinx `milan_dma` core. Linted against a checked-out
-  `external/` it reports **116 `PINMISSING`** — 91 on its `milan_csr`
-  instance, 24 on `KL_aecp_top`, 1 on `ptp_ts_top` — i.e. it has drifted that
-  far behind the modules it wires. Budget that before reviving it.
+  `external/` it reported **116 `PINMISSING`** — 91 on its `milan_csr`
+  instance, 24 on the AECP top, 1 on `ptp_ts_top` — i.e. it had drifted that
+  far behind the modules it wires, and that was *before* the control-plane
+  deletion removed one of those modules outright. Budget that before reviving
+  it.
 * The legacy xsim TBs test pre-rework interfaces in places; trust the
   Verilator suites where they disagree.
 * Check-counts quoted in READMEs are informational; the harnesses print

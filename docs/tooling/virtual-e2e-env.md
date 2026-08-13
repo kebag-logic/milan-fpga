@@ -161,7 +161,7 @@ cross-run object cache to invalidate.
   independent AVDECC oracle wired in. These are engineering tasks R3/R5, not
   artifacts that already exist.
 - **No `import "DPI-C"` exists anywhere in `hdl/` or `tb/`.** The co-simulation
-  bridges ([`tb/verilator/tsn_fuzz/cosim_axis.h`](../../tb/verilator/tsn_fuzz/cosim_axis.h), [`scripts/run-dut-sim.sh`](../../scripts/run-dut-sim.sh)) are
+  bridges ([`tb/verilator/tsn_fuzz/cosim_axis.h`](../../tb/verilator/tsn_fuzz/cosim_axis.h); and, until 2026-08-13, scripts/run-dut-sim.sh, deleted with the AECP simulation harness it launched) are
   Verilator `--exe` C++ harnesses over UNIX sockets, not DPI. `--threads-dpi`
   therefore has nothing to act on today; it becomes relevant only if T3's bridge
   introduces DPI imports. See the policy in

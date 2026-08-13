@@ -21,7 +21,7 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
 
 - **[How it works](#how-it-works)** — The two-stage pipeline and why each stage is there: sv2v converts the SystemVerilog Yosys cannot parse (interfaces, packages, assignment patterns), then `hierarchy -check` is what makes a PASS mean something — it fails on any surviving vendor primitive, so green = fully mapped to generic logic with nothing Xilinx-specific left.
 - **[Tooling](#tooling)** — The two binaries you need and where to get them. No Xilinx tools are required, which is the point — this flow is the evidence that the RTL is not tied to one vendor's toolchain.
-- **[Coverage](#coverage)** — What the 47 tops actually span, and the standing rule that the `tops=()` array is the count while this prose is not. Also names the one deliberate gap: `milan_top`, which pulls in the RGMII SelectIO and PS block design.
+- **[Coverage](#coverage)** — What the tops actually span, and the standing rule that the `tops=()` array is the count while this prose is not. Also names the one deliberate gap: `milan_top`, which pulls in the RGMII SelectIO and PS block design.
 - **[Notes](#notes)** — Two facts that stop you misreading the output: the concrete non-Xilinx targets (`synth_ecp5`, `synth_ice40`) with real cell counts, and why `axis_fifo` looks enormous — its 4096-deep default, which no instance in the design uses.
 - **[ooc.sh — AREA measurement (a different question from run.sh)](#oocsh--area-measurement-a-different-question-from-runsh)** — `run.sh` asks *does it map*; this asks *what does it cost*, which is the only number an area lever may be judged on. Three traps it exists to avoid, and the third is the sharpest: `-flatten` can read a genuinely deleted block as **−1 LUT / −0 FF**, so a structural lever needs the hierarchy-preserving form as well. Ends with the honest caveat — these are estimates with a yosys→Vivado ratio between 0.25 and 0.86, and control sets are not measurable here at all.
 
@@ -42,12 +42,16 @@ make ecp5       # map to a real non-Xilinx device: Lattice ECP5 (TRELLIS_FF/LUT4
   (drop into `~/.local/bin`). No Xilinx tools required.
 
 ## Coverage
-47 tops as of 2026-07-26 (the `tops=()` array in `run.sh` is authoritative — that
+44 tops as of 2026-08-13 (the `tops=()` array in `run.sh` is authoritative — that
 array is the count, this prose is not; re-read it rather than trusting a number
 here):
 
 - the new open blocks (`tcam`, `rx_mac_filter`, `cdc_pulse`, `cdc_handshake`,
-  `adp_advertiser`, `adp_tx_arbiter`),
+  `adp_tx_arbiter`),
+- the control plane (`KL_pp_shadow`, `KL_pp_maap_shim`) — the protocol
+  processor as this datapath instantiates it. The 1722.1/SRP tops it replaced
+  (`adp_advertiser`, `KL_aecp_top`, the two ACMP contexts and their two
+  wrappers, `KL_persist_journal`, `KL_lwsrp_top`) are gone with that RTL,
 - the CSR (`milan_csr`),
 - the de-Xilinx'd 802.1Q datapath (`classifier_wrap`→`traffic_classifier`,
   `queues_wrap`→`traffic_queues`),

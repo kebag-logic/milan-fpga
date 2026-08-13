@@ -21,6 +21,7 @@
 
 VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
+PP_DIR     = ../../../protocol-processor/hdl
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
 TOP        = milan_datapath
 
@@ -30,7 +31,6 @@ VFLAGS_COMMON = --cc --exe --build -j 0 \
          +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/common/csr +incdir+$(RTL_DIR)/common/eth_event_counter \
          +incdir+$(RTL_DIR)/ieee17221/adp +incdir+$(RTL_DIR)/ieee8021q/ts \
          +incdir+$(RTL_DIR)/ieee8021as/ptp_timestamp +incdir+$(AXIS_DIR) \
-         +incdir+$(RTL_DIR)/ieee17221/aecp +incdir+$(RTL_DIR)/ieee17221/aecp/gen \
          -Wall -Wno-fatal -Werror-USERERROR -Werror-UNDRIVEN -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
          -Wno-WIDTHTRUNC -Wno-UNUSEDPARAM -Wno-PINCONNECTEMPTY -Wno-IMPORTSTAR \
          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE \
@@ -84,7 +84,11 @@ P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
 # de-duplicated (the Python list carries a few doubles Vivado tolerates) and
 # minus KL_pcm_ring_bram.sv (SoC-layer --pcm-ring bram glue, not instantiated
 # inside milan_datapath). event_counter.sv resolves via +incdir like Vivado.
-SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/ieee17221/adp/adp_pkg.sv \
+# The protocol processor is part of the datapath now (milan_datapath
+# instantiates KL_pp_shadow unconditionally), so its sources come from the
+# ONE list that is proven to elaborate rather than a second copy here.
+PP_SRCS := $(shell $(MAKE) -s -C ../milan_dp print-pp-srcs)
+SRCS = $(PP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv \
        $(AXIS_DIR)/axis_fifo.v $(AXIS_DIR)/axis_demux.v $(AXIS_DIR)/axis_arb_mux.v \
        $(AXIS_DIR)/arbiter.v $(AXIS_DIR)/priority_encoder.v \
        $(Q)/traffic_class_map.sv $(Q)/traffic_classifier.sv $(Q)/credit_based_shaper.sv \
@@ -96,23 +100,7 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/ieee17221/ad
        $(C)/tx_ifg_gasket.sv $(RTL_DIR)/ieee1722/aaf/KL_pcm_lpf.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_pcm_tx.sv \
        $(C)/KL_link_guard.sv \
-       $(RTL_DIR)/ieee17221/adp/adp_advertiser.sv $(RTL_DIR)/ieee17221/adp/adp_tx_arbiter.sv \
-       $(RTL_DIR)/ieee17221/aecp/aecp_pkg.sv \
-       $(RTL_DIR)/ieee17221/aecp/KL_aecp_packet_validator.sv $(RTL_DIR)/ieee17221/aecp/KL_aecp_common_parser.sv \
-       $(RTL_DIR)/ieee17221/aecp/KL_aecp_l0_state.sv $(RTL_DIR)/ieee17221/aecp/KL_aecp_timers.sv \
-       $(RTL_DIR)/ieee17221/aecp/KL_aecp_accessor.sv $(RTL_DIR)/ieee17221/aecp/KL_aecp_aem_store.sv \
-       $(RTL_DIR)/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv $(RTL_DIR)/ieee17221/aecp/KL_aecp_response_builder.sv \
-       $(RTL_DIR)/ieee17221/aecp/KL_aecp_ingress.sv $(RTL_DIR)/ieee17221/aecp/KL_aecp_top.sv \
-       $(RTL_DIR)/ieee17221/acmp/acmp_pkg.sv \
-       $(RTL_DIR)/ieee17221/acmp/KL_acmp_tlkr_ctx.sv $(RTL_DIR)/ieee17221/acmp/KL_acmp_responder.sv \
-       $(RTL_DIR)/ieee17221/acmp/KL_acmp_lstn_ctx.sv $(RTL_DIR)/ieee17221/acmp/KL_acmp_listener.sv \
-       $(RTL_DIR)/ieee8021q/srp/lwsrp_pkg.sv $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_timers.sv \
-       $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_tx.sv $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_ingress.sv \
-       $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_walker.sv $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_registrar.sv \
-       $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_ta_registrar.sv \
-       $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_ctx.sv $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_ctx_tx.sv \
-       $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_rx.sv $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_bw_gate.sv \
-       $(RTL_DIR)/ieee8021q/srp/KL_lwsrp_top.sv \
+       $(RTL_DIR)/ieee17221/adp/adp_tx_arbiter.sv \
        $(RTL_DIR)/ieee1722/aaf/aaf_talker_i2s.sv $(RTL_DIR)/ieee1722/aaf/KL_aaf_rx_depacketizer.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_i2s_playback.sv $(RTL_DIR)/ieee1722/aaf/KL_i2s_feed_mux.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tone_gen.sv \
@@ -122,8 +110,7 @@ SRCS = $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv $(RTL_DIR)/ieee17221/ad
        $(RTL_DIR)/ieee1722/avtp/KL_stream_table.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv \
-       $(RTL_DIR)/ieee1722/avtp/KL_talker_diag_ctx.sv \
-       $(RTL_DIR)/ieee1722/avtp/KL_media_clock_restart.sv \
+              $(RTL_DIR)/ieee1722/avtp/KL_media_clock_restart.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_capture_i2s.sv $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture_master.sv \
@@ -147,7 +134,7 @@ banner:
 	@echo " tb/verilator/hostplane - host-plane lanes in the SILICON SHAPE"
 	@echo "======================================================================"
 
-# Entity definition per shape. hdl/common/csr/gen/ + hdl/ieee17221/aecp/gen/
+       # Entity definition per shape. hdl/common/csr/gen/ + \
 # hold whichever config was last written with --write-rtl, so every leg must
 # name the shape it is actually elaborating or it inherits a foreign one.
 CFG_DIR    = ../../../configs/generated
@@ -201,7 +188,12 @@ guards:
 
 # run every shape even when one fails (a red shape must not hide the others);
 # the aggregate exit code stays honest.
-run: banner build guards
+# protocol_computed_top $readmemh's the ACMP transition ROM by a RELATIVE
+# name, so it must exist in the RUN directory.
+ltn_rom.hex: $(PP_DIR)/acmp/rom/gen_ltn_rom.py
+	python3 $< -o $@
+
+run: ltn_rom.hex banner build guards
 	@rc=0; \
 	./obj_ax8x8/Vhostplane_ax8x8        || rc=1; \
 	./obj_small/Vhostplane_smoke_small  || rc=1; \
@@ -211,4 +203,5 @@ run: banner build guards
 	exit $$rc
 
 clean:
+	rm -f ltn_rom.hex
 	rm -rf obj_ax8x8 obj_small obj_n4 obj_tdm8 obj_tdm32m

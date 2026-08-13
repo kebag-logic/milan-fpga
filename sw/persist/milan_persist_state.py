@@ -4,6 +4,40 @@
 """milan_persist_state.py - THE definition of what Milan v1.2 requires to survive
 a power cycle, and of what this end station can actually restore.
 
+THIS BUILD RESTORES NOTHING.  READ THIS FIRST (2026-08-12).
+========================================================================
+Both ingest paths this file used to describe are DELETED with the IEEE 1722.1
+control plane:
+
+  * the E3 persistence journal - ``KL_persist_journal.sv``, CSR
+    ``0x7B8-0x7C4`` - which verified and applied a saved binding into
+    ``KL_acmp_lstn_ctx``'s ``rest_*`` ports.  Both that engine and the ACMP
+    listener contexts it wrote into are gone.
+  * the E4 AEM patch port - ``KL_aem_patch.sv``, CSR ``0x7C8-0x7D4`` - the
+    write master ``KL_aecp_aem_store`` never had.  That engine, that store,
+    and the whole ``hdl/ieee17221/aecp`` tree are gone.
+
+The two CSR groups still ACCEPT WRITES, because the register block outlived
+the engines behind them; the writes land NOWHERE, and ``JNL_STAT`` /
+``JNL_SEQ`` read structural zeros.  No binding, no format, no mapping and no
+name is ever restored after a power cycle on this gateware.
+
+So EVERY item below now carries ``restore=None``.  That is not a downgrade of
+the inventory - it is the inventory doing its job.  The alternative, leaving
+verdicts that say "fabric-journal" and "csr" beside registers that swallow
+writes, is software that appears to persist state when nothing does, and this
+file exists precisely to make that state of affairs unsayable.  The clause
+list itself is UNCHANGED and still true: Milan still requires these things:
+what changed is our answer to "and can this build put it back".
+
+The generated ``milan-persist-state.sh`` says the same thing in the form a
+board helper reads: ``MILAN_PERSIST_SUPPORTED=0`` and an EMPTY
+``MILAN_PERSIST_ITEMS``, so a helper that iterates the item list does nothing
+at all rather than saving records it can never replay.  The clause register
+survives beside it as ``MILAN_PERSIST_INVENTORY`` for tools that report
+compliance status.
+========================================================================
+
 ONE DEFINITION, MANY READERS.  ``PERSIST_ITEMS`` below is the only place in
 either repo that says "clause X requires state Y".  Everything that needs the
 list derives it from here:
@@ -20,45 +54,28 @@ second place (``docs/limitations/RECURRING_DEFECT_PATTERNS.md``); a clause list
 is exactly the kind of thing that agrees on day one and diverges in silence, so
 it is generated, byte-gated by ``--check``, and never retyped.
 
-THE THREE VERDICTS.  Each item carries ``restore`` naming HOW the saved value
-gets back into the entity after a power cycle.  There are only three answers and
-the difference is the whole point of this file:
+THE VERDICTS.  Each item carries ``restore`` naming HOW the saved value gets
+back into the entity after a power cycle.  Two of the three answers are
+currently unreachable and are kept documented so that a future plane can claim
+them again by name rather than by re-inventing the vocabulary:
 
-  ``"fabric-journal"``  the fabric verifies and applies it (KL_persist_journal
-                        -> KL_acmp_lstn_ctx rest_*, CSR 0x7B8-0x7C4).  Save and
-                        restore both work TODAY on gateware >= 0x0019.
+  ``"fabric-journal"``  the fabric verifies and applies it.  UNREACHABLE: its
+                        engine (``KL_persist_journal``) and its destination
+                        (``KL_acmp_lstn_ctx``) are deleted.
 
-  ``"csr"``             a plain CSR write puts the value back.  Works today.
-                        Since gateware ``0x0022`` this includes the E4 AEM
-                        patch port (CSR ``0x7C8-0x7D4``, ``KL_aem_patch``),
-                        which is the write master ``KL_aecp_aem_store`` never
-                        had: software names a DESCRIPTOR and a FIELD, the
-                        fabric resolves the byte range from the generated
-                        ``WB_*`` tables, revalidates the payload through the
-                        same acceptance the AECP setter applies, and refuses
-                        the whole group while ``ADP_CTRL[0]`` is set.
+  ``"csr"``             a plain CSR write puts the value back.  UNREACHABLE
+                        for AEM state: the E4 patch port (``KL_aem_patch``)
+                        and the store it wrote into are deleted.
 
-  ``None``              NO INGEST PATH EXISTS.  ``gap`` names precisely what is
-                        missing.  For every one of these the value CAN be saved
-                        (it is readable over AECP or CSR) but CANNOT be put
-                        back.  Until 2026-08-03 this was the whole AEM store,
-                        whose write port was driven solely by
-                        ``KL_aecp_response_builder``'s SET_* write-back; the E4
-                        port closed that.  What remains is narrower and lives
-                        one level further in - register FILES inside the
-                        response builder (the presentation-offset array, the
-                        live clock-source shadow, the dynamic channel maps,
-                        the descriptor-name pointer cone) that have no slave
-                        port of their own.  The E4 port answers those by NAME
-                        (verdict ``VD_FIELD``) rather than by silence, so a
-                        daemon learns the field is unserved instead of
-                        believing a no-op restored it.
+  ``None``              NO INGEST PATH EXISTS.  ``gap`` names precisely what
+                        is missing.  This is every item today.
 
 CLAUSES THAT REQUIRE THE OPPOSITE.  Milan 5.3.4.1 and 5.3.4.2 say the locked
 state and the registered-controller list are CLEARED by a power cycle.  They are
 listed here with ``restore=None, gap="must NOT persist"`` so that a future,
 broader store cannot quietly start saving them: the inventory is the register of
-both obligations.
+both obligations.  They are the only two rows this round did not change - and
+they are, trivially and for the wrong reason, the only two currently satisfied.
 
 usage:
     milan_persist_state.py --emit-sh    write sw/persist/milan-persist-state.sh
@@ -109,6 +126,16 @@ def _flash_reserved():
                     return ast.literal_eval(node.value)
     raise SystemExit(f"milan_persist_state: FLASHBOOT_RESERVED not in {SOC}")
 
+#: The one sentence every unreachable-path ``gap`` ends with. A single string
+#: rather than eleven paraphrases: this is exactly the kind of fact that is
+#: retyped slightly differently in each row and then updated in only some of
+#: them when a plane comes back.
+PLANE_DELETED = (
+    "2026-08-12: the IEEE 1722.1 control plane is deleted, so this cannot be "
+    "restored by any path. CSR 0x7B8-0x7C4 (E3 journal) and 0x7C8-0x7D4 (E4 "
+    "AEM patch port) still accept writes and land nowhere; JNL_STAT/JNL_SEQ "
+    "read structural zeros")
+
 #: Container magic for the SOFTWARE-verified AEM dynamic-state record set.
 #: 'KLS1' little-endian, byte 0 = 'K' - deliberately the same shape as the
 #: fabric's 'KLJ1' (KL_persist_journal MAGIC_P) so a hexdump of either slot is
@@ -131,16 +158,12 @@ PERSIST_ITEMS = [
         scope="per-descriptor", descriptor="STREAM_INPUT", width_words=2,
         read="AECP GET_STREAM_FORMAT(STREAM_INPUT, idx); also the 0x800 window "
              "words 0x824/0x828 for the bound stream",
-        restore="csr",
-        restore_note="E4 AEM patch port, CSR 0x7C8-0x7D4 (KL_aem_patch, "
-                     "gateware >= 0x0022): SEL {0x0005, idx}, FIELD 0, two "
-                     "DATA words MSW-first, CTRL commit. Accepted ONLY while "
-                     "ADP_CTRL[0] is clear, and revalidated against this "
-                     "descriptor's own AEM_STRIN_FMT_C entry. Residual: the "
-                     "RX monitor's live compare shadow (fmt_in0_r, index 0 "
-                     "only) does not follow - it is an internal reference, "
-                     "not state this clause names",
-        gap=None,
+        restore=None,
+        restore_note="was the E4 AEM patch port, CSR 0x7C8-0x7D4 "
+                     "(KL_aem_patch, gateware 0x0022-0x0042): SEL {0x0005, "
+                     "idx}, FIELD 0, two DATA words MSW-first, CTRL commit",
+        gap="the E4 patch port (KL_aem_patch) and the AEM store it wrote "
+            "into (KL_aecp_aem_store) are both deleted. " + PLANE_DELETED,
     ),
     dict(
         key="strout_fmt", clause="5.3.7.1", pdf_line=1758,
@@ -149,13 +172,11 @@ PERSIST_ITEMS = [
               "restored after a power cycle.",
         scope="per-descriptor", descriptor="STREAM_OUTPUT", width_words=2,
         read="AECP GET_STREAM_FORMAT(STREAM_OUTPUT, idx)",
-        restore="csr",
-        restore_note="E4 AEM patch port, CSR 0x7C8-0x7D4 (gateware >= 0x0022): "
-                     "SEL {0x0006, idx}, FIELD 0. A Stream Output accepts ONLY "
-                     "its declared format (declared == transmitted), so the "
-                     "restore is a no-op unless the descriptor was patched "
-                     "away from it in the first place",
-        gap=None,
+        restore=None,
+        restore_note="was the E4 AEM patch port, CSR 0x7C8-0x7D4 (gateware "
+                     "0x0022-0x0042): SEL {0x0006, idx}, FIELD 0",
+        gap="the E4 patch port and the AEM store it wrote into are both "
+            "deleted. " + PLANE_DELETED,
     ),
     dict(
         key="bound", clause="5.3.8.2", pdf_line=1942,
@@ -164,8 +185,11 @@ PERSIST_ITEMS = [
               "and restored after a power cycle.",
         scope="per-descriptor", descriptor="STREAM_INPUT", width_words=1,
         read="CSR 0x6A4 lsm state; 0x800 window 0x82C per index",
-        restore="fabric-journal",
-        gap=None,
+        restore=None,
+        restore_note="was the fabric journal: KL_persist_journal (CSR "
+                     "0x7B8-0x7C4) -> KL_acmp_lstn_ctx rest_*",
+        gap="KL_persist_journal and the ACMP listener contexts it restored "
+            "into are both deleted. " + PLANE_DELETED,
     ),
     dict(
         key="bind_params", clause="5.3.8.3", pdf_line=1947,
@@ -194,8 +218,11 @@ PERSIST_ITEMS = [
         #: violates this clause exactly as surely as one that never wrote it.
         #: The journal's VALID[30]=0 hole is how that erase is represented.
         also_clauses=["5.5.2.4", "5.5.3.5.3"],
-        restore="fabric-journal",
-        gap=None,
+        restore=None,
+        restore_note="was the fabric journal: KL_persist_journal (CSR "
+                     "0x7B8-0x7C4) -> KL_acmp_lstn_ctx rest_*",
+        gap="KL_persist_journal and the ACMP listener contexts it restored "
+            "into are both deleted. " + PLANE_DELETED,
     ),
     dict(
         key="started", clause="5.3.8.7", pdf_line=2029,
@@ -206,8 +233,11 @@ PERSIST_ITEMS = [
         read="the STREAMING_WAIT bit of the binding flags, 0x800 window 0x868",
         # carried INSIDE the 5.3.8.3 binding-parameter record, which 5.3.8.3
         # itself lists as one of the four parameters - not a second store.
-        restore="fabric-journal",
-        gap=None,
+        restore=None,
+        restore_note="was the fabric journal: KL_persist_journal (CSR "
+                     "0x7B8-0x7C4) -> KL_acmp_lstn_ctx rest_*",
+        gap="KL_persist_journal and the ACMP listener contexts it restored "
+            "into are both deleted. " + PLANE_DELETED,
     ),
     dict(
         key="pres_offset", clause="5.3.7.6", pdf_line=1880,
@@ -218,9 +248,9 @@ PERSIST_ITEMS = [
         read="AECP GET_STREAM_INFO(STREAM_OUTPUT, idx) presentation offset; the "
              "per-output file lives in KL_aecp_response_builder (pres_offset_o)",
         restore=None,
-        gap="the presentation-offset file is a response-builder register array "
-            "with no slave port; the E4 patch port reserves FIELD 3 for it "
-            "and answers VD_FIELD until that port exists",
+        gap="the presentation-offset file lived in KL_aecp_response_builder, "
+            "which is deleted along with the E4 patch port that reserved "
+            "FIELD 3 for it. " + PLANE_DELETED,
     ),
     dict(
         key="samp_rate", clause="5.3.5.1", pdf_line=1684,
@@ -229,12 +259,11 @@ PERSIST_ITEMS = [
               "memory and restored after a power cycle.",
         scope="per-descriptor", descriptor="AUDIO_UNIT", width_words=1,
         read="AECP GET_SAMPLING_RATE(AUDIO_UNIT, idx)",
-        restore="csr",
-        restore_note="E4 AEM patch port, CSR 0x7C8-0x7D4 (gateware >= 0x0022): "
-                     "SEL {0x0002, 0}, FIELD 1, ONE DATA word. Revalidated "
-                     "against the generated AEM_RATES_C list, so a rate this "
-                     "entity never advertised cannot be restored into it",
-        gap=None,
+        restore=None,
+        restore_note="was the E4 AEM patch port, CSR 0x7C8-0x7D4 (gateware "
+                     "0x0022-0x0042): SEL {0x0002, 0}, FIELD 1, ONE DATA word",
+        gap="the E4 patch port and the AEM store it wrote into are both "
+            "deleted. " + PLANE_DELETED,
     ),
     dict(
         key="clock_src", clause="5.3.11.1", pdf_line=2187,
@@ -252,10 +281,10 @@ PERSIST_ITEMS = [
         #: than one that admits the revert, so this stays unmet until the
         #: shadow follows.
         restore=None,
-        gap="descriptor bytes restorable via the E4 port (CSR 0x7C8 FIELD 2, "
-            "gateware >= 0x0022), but the LIVE selector clk_src_r in "
-            "KL_aecp_response_builder still has no write port - a restore "
-            "would report a source the fabric is not actually using",
+        gap="the descriptor bytes were restorable via the E4 port (CSR 0x7C8 "
+            "FIELD 2) while the live selector clk_src_r in "
+            "KL_aecp_response_builder never was; both are now deleted. " +
+            PLANE_DELETED,
     ),
     dict(
         key="omap", clause="5.3.9.1", pdf_line=2151,
@@ -266,9 +295,10 @@ PERSIST_ITEMS = [
         scope="per-descriptor", descriptor="STREAM_PORT_OUTPUT", width_words=0,
         read="AECP GET_AUDIO_MAP(STREAM_PORT_OUTPUT, idx, page) walk",
         restore=None,
-        gap="the output dynamic-map store is written only by "
-            "ADD/REMOVE_AUDIO_MAPPINGS inside KL_aecp_response_builder; the "
-            "E4 patch port reaches the AEM store, not that register file",
+        gap="the output dynamic-map store lived in "
+            "KL_aecp_response_builder, written only by "
+            "ADD/REMOVE_AUDIO_MAPPINGS, and is deleted with it. " +
+            PLANE_DELETED,
     ),
     dict(
         key="imap", clause="5.3.10.1", pdf_line=2171,
@@ -279,9 +309,10 @@ PERSIST_ITEMS = [
         scope="per-descriptor", descriptor="STREAM_PORT_INPUT", width_words=0,
         read="AECP GET_AUDIO_MAP(STREAM_PORT_INPUT, idx, page) walk",
         restore=None,
-        gap="the input dynamic-map store is written only by "
-            "ADD/REMOVE_AUDIO_MAPPINGS inside KL_aecp_response_builder; the "
-            "E4 patch port reaches the AEM store, not that register file",
+        gap="the input dynamic-map store lived in "
+            "KL_aecp_response_builder, written only by "
+            "ADD/REMOVE_AUDIO_MAPPINGS, and is deleted with it. " +
+            PLANE_DELETED,
     ),
     dict(
         key="names", clause="5.3.13", pdf_line=2255,
@@ -296,14 +327,15 @@ PERSIST_ITEMS = [
         # serves it from the CSR overlay slot OVL_ENT_NAME8_C, driven by
         # 0x724/0x728, which S50milan already writes.  Everything else is a
         # SET_NAME write-back into the AEM store.
-        restore="csr",
-        restore_note="ENTITY name only, via CSR 0x724/0x728 (OVL_ENT_NAME8_C); "
-                     "every other descriptor's name is an AEM store write-back "
-                     "and needs the E4 port",
-        gap="all names except the ENTITY descriptor's: SET_NAME resolves its "
-            "store address through KL_aecp_accessor's descriptor-name pointer "
-            "cone, which the E4 patch port has no requester on - FIELD 4 is "
-            "reserved for it and answers VD_FIELD until it does",
+        restore=None,
+        restore_note="was the ENTITY name only, via CSR 0x724/0x728 "
+                     "(OVL_ENT_NAME8_C) served out of the AEM ROM's overlay "
+                     "slot; every other descriptor's name needed the E4 port",
+        gap="every name, including the ENTITY descriptor's: the overlay slot "
+            "0x724/0x728 fed KL_aecp_aem_store's ROM image and nothing reads "
+            "it now, and SET_NAME's own path (KL_aecp_accessor's "
+            "descriptor-name pointer cone) is deleted with it. " +
+            PLANE_DELETED,
     ),
     # ---- the two clauses that require the OPPOSITE ------------------------
     dict(
@@ -343,13 +375,22 @@ def open_gaps():
 
 
 def emit_sh():
-    """The board-side include: tags, order and per-item restore verdict.
+    """The board-side include: the REFUSAL, plus the clause register.
 
     Deliberately data-only - no logic - so ``milan-persist`` owns the
     behaviour and this file owns the facts.
+
+    ``MILAN_PERSIST_ITEMS`` is EMPTY (2026-08-12) and
+    ``MILAN_PERSIST_SUPPORTED`` is 0: no item has a restore path, so a helper
+    that loops over the item list correctly does nothing.  Saving records that
+    can never be replayed is not a half-measure, it is a lie told in flash.
+    The clause register moves to ``MILAN_PERSIST_INVENTORY`` so a compliance
+    reporter still has the list.
     """
     res = _flash_reserved()
     jnl = res["journal"]
+    live = [i["key"] for i in PERSIST_ITEMS
+            if i["key"] not in MUST_NOT_PERSIST and restorable(i)]
     lines = [
         "# SPDX-License-Identifier: (GPL-2.0 OR MIT)",
         "# GENERATED by sw/persist/milan_persist_state.py - DO NOT EDIT BY HAND.",
@@ -358,15 +399,32 @@ def emit_sh():
         "# generator; nothing here restates a clause number that is not also",
         "# there.",
         "#",
-        "# MILAN_PERSIST_ITEMS   record tags, in image order",
+        "# THIS BUILD RESTORES NOTHING (2026-08-12).  The E3 persistence",
+        "# journal (KL_persist_journal, CSR 0x7B8-0x7C4) and the E4 AEM patch",
+        "# port (KL_aem_patch, CSR 0x7C8-0x7D4) are DELETED with the IEEE",
+        "# 1722.1 control plane.  Both CSR groups still accept writes; the",
+        "# writes land nowhere and JNL_STAT/JNL_SEQ read structural zeros.",
+        "# So MILAN_PERSIST_SUPPORTED is 0 and MILAN_PERSIST_ITEMS is EMPTY:",
+        "# a helper that iterates the item list does nothing, which is the",
+        "# only honest behaviour when nothing can be put back.  Do not",
+        "# 'fix' this by looping over MILAN_PERSIST_INVENTORY instead - that",
+        "# is the clause register, not a work list.",
+        "#",
+        "# MILAN_PERSIST_SUPPORTED       1 iff any item can be restored",
+        "# MILAN_PERSIST_ITEMS   record tags a helper may save+replay, in",
+        "#                       image order (EMPTY while SUPPORTED=0)",
+        "# MILAN_PERSIST_INVENTORY  every clause-mandated item, restorable or",
+        "#                       not - for reporting, never for saving",
         "# MILAN_PERSIST_RESTORE_<tag>   fabric-journal | csr | none",
         "# MILAN_PERSIST_CLAUSE_<tag>    the clause that demands it",
+        "# MILAN_PERSIST_GAP_<tag>       why it cannot be restored",
         "#",
         "# The flash geometry below is READ OUT OF FLASHBOOT_RESERVED in",
         "# sw/litex/milan_soc.py, the single source of truth the mtd partition",
         "# node is also generated from.  A board tool that hardcodes an offset",
         "# instead is how the shipping acmp-persist ended up journalling into",
-        "# the `user` slot.",
+        "# the `user` slot.  It is kept CURRENT even while nothing writes it:",
+        "# a stale offset that comes back to life is the same defect twice.",
         "",
         f"MILAN_PERSIST_MAGIC=0x{KLS1_MAGIC:08X}",
         f"MILAN_PERSIST_FMT=0x{(KLS1_FMT_MAJOR << 16) | KLS1_FMT_MINOR:08X}",
@@ -376,7 +434,9 @@ def emit_sh():
         f"MILAN_USER_OFF=0x{res['user']['offset']:X}",
         f"MILAN_USER_SIZE=0x{res['user']['size']:X}",
         "",
-        "MILAN_PERSIST_ITEMS=\"" + " ".join(
+        f"MILAN_PERSIST_SUPPORTED={1 if live else 0}",
+        "MILAN_PERSIST_ITEMS=\"" + " ".join(live) + "\"",
+        "MILAN_PERSIST_INVENTORY=\"" + " ".join(
             i["key"] for i in PERSIST_ITEMS
             if i["key"] not in MUST_NOT_PERSIST) + "\"",
         "MILAN_PERSIST_MUST_NOT=\"" + " ".join(sorted(MUST_NOT_PERSIST)) + "\"",
@@ -396,6 +456,9 @@ def emit_sh():
 def emit_md():
     rows = ["| Clause | State | Scope | Restore path | Status |",
             "|---|---|---|---|---|"]
+    # every OPEN row's status carries its own gap text, which since
+    # 2026-08-12 ends in the same PLANE_DELETED sentence - so the table says
+    # WHY without a reader having to hold a separate note in their head.
     for i in PERSIST_ITEMS:
         if i["key"] in MUST_NOT_PERSIST:
             status = "**must NOT persist** (satisfied: nothing saves it)"

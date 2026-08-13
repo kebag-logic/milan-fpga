@@ -9,6 +9,16 @@ make          # build + run, exit 0 = PASS
 make clean
 ```
 
+## Contents
+
+- **[Why this module exists](#why-this-module-exists)** — The ONE-GRID rule: a single servo command must move the audio clock and the packet grid together, or two independently-servoed 48 kHz grids drift apart
+- **[What the suite proves](#what-the-suite-proves)** — The NCO's sign, scale and clamp behaviour swept directly, where four naked wiring lines in the datapath had no suite that could exercise them
+- **[The oracle is a closed form, not the DUT's recurrence](#the-oracle-is-a-closed-form-not-the-duts-recurrence)** — Why the reference model integrates analytically instead of re-implementing the DUT's accumulator — a model that copies the DUT cannot fail with it
+- **[The servo path lives here on purpose](#the-servo-path-lives-here-on-purpose)** — Why the shared servo command is verified in this suite rather than at the datapath level, where a sign error reads as a slow drift instead of a runaway
+- **[Mutation results](#mutation-results)** — The planted breaks that were confirmed to turn the suite red, and restored to green — the evidence the assertions actually bite
+- **[Two shapes, deliberately](#two-shapes-deliberately)** — The two elaborations swept, and what each one covers that the other cannot
+- **[What this suite does NOT prove](#what-this-suite-does-not-prove)** — The honest bound: timing closure, the physical MMCM response and anything requiring silicon are outside what a desk simulation can claim
+
 ## Why this module exists
 
 The grid used to be an inline Bresenham divider in `milan_datapath.sv` whose

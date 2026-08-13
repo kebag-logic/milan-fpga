@@ -9,6 +9,21 @@
 ==============================================================================
   STATUS 2026-07-27: THIS FILE IS IN NO BUILD, CANNOT BE ELABORATED HERE, AND
   HAS DRIFTED 116 PINS BEHIND THE MODULES IT WIRES. READ THIS BEFORE EDITING.
+
+  STATUS 2026-08-13: IT IS NOW UNREVIVABLE, not merely drifted. FIVE of the
+  modules it instantiates no longer exist in this repository - adp_advertiser,
+  KL_aecp_top, KL_acmp_responder, KL_acmp_listener and KL_lwsrp_top were
+  deleted with the whole legacy IEEE 1722.1 / SRP control plane (USER: "remove
+  the old code AECP/ACMP/ADP the lwSRP shall be removed as well. Only use the
+  uCPU code"). Reviving this top means rewriting its control-plane half around
+  KL_pp_shadow from scratch, which is a new design and not a repair.
+
+  IT IS KEPT ONLY BECAUSE bd/build.tcl AND bd/bringup.tcl STILL NAME IT as the
+  Zynq block-design top - a flow that is itself already unbuildable here (the
+  external/ MAC submodule is SSH-only and milan_dma is Xilinx IP generated
+  outside the tree). It is a deletion candidate the moment that flow is
+  retired; nothing in this repository gates on it, and no edit to it is
+  verified by anything.
 ==============================================================================
 
   NOT BUILT. Nothing in this repository compiles milan_top.sv:

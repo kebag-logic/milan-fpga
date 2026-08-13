@@ -8,7 +8,7 @@ tool-agnostic JSON file, plus the notes to turn it into an implementation.
 | [`milan-v12-entity-small-48k.json`](milan-v12-entity-small-48k.json) | **Small baseline** entity: stereo (2-ch) talker+listener, 48 kHz, non-redundant. The scale-from baseline in [`../docs/reference/FR_NFR.md`](../docs/reference/FR_NFR.md). |
 | [`milan-v12-entity.json`](milan-v12-entity.json) | **Full/scaled** entity: 8-ch, 48/96/192 kHz. The **single source of truth** for the larger descriptor tree. |
 | [`../docs/reference/FR_NFR.md`](../docs/reference/FR_NFR.md) | Functional & Non-Functional Requirements for the Milan v1.2 endpoint, incl. **scale-up / scale-out (multi-softcore)** and the Milan-compliance procedure. |
-| [`../docs/design/AEM_AND_AECP.md`](../docs/design/AEM_AND_AECP.md) / `../aem-and-aecp.pdf` | Prior design of the **FPGA AEM memory (4-level block)** and the **AECP state machines / MVU**, reconciled to the as-built subsystem. The JSON is the data that design consumes. |
+| `../aem-and-aecp.pdf` | Prior design of the **FPGA AEM memory (4-level block)** and the **AECP state machines / MVU**, reconciled to the as-built subsystem. The JSON is the data that design consumes. |
 
 ## Contents
 
@@ -33,7 +33,7 @@ entity, and test controller), we keep **one** JSON and generate the rest:
   FPGA AEM memory           software entity              test controller
   (4-level L0..L3 image,    (PipeWire module-avb /       (avdecc_l2.py,
    docs/design/              la_avdecc descriptors)       tsn-gen READ_DESCRIPTOR)
-   AEM_AND_AECP.md)
+   the AEM design note)
 ```
 
 It is a **byte-accurate mirror** of the reference software entity in
@@ -53,7 +53,7 @@ Top-level keys: `spec`, `avtp_subtypes`, `milan_mvu`, `adp`, `counters`,
 `configurations[]` array; each configuration has `descriptor_counts` and a flat
 `descriptors[]` list addressed by **`(configuration_index, descriptor_type,
 descriptor_index)`** — exactly the READ_DESCRIPTOR key and the L1/L2/L3 levels of
-the [`docs/design/AEM_AND_AECP.md`](../docs/design/AEM_AND_AECP.md) memory.
+the four-level AEM memory that design described.
 
 ### Field classes (the important convention)
 
@@ -72,13 +72,13 @@ that touches it:
 This is the exact split the FPGA design needs: `static`/`semi_static` land in the
 read-only factory NVM, `nonvolatile` in the modifiable overlay, `dynamic` in the
 volatile mirror that the AECP memory-mapped module updates
-([`docs/design/AEM_AND_AECP.md`](../docs/design/AEM_AND_AECP.md) §"Memory-mapped dynamic information").
+(`../aem-and-aecp.pdf`, "Memory-mapped dynamic information").
 
 ## How to use it
 
 ### A. Generate the FPGA AEM memory image
 Feed the JSON to a small generator (to be written under `hdl/ieee17221/aecp/` or a
-`tools/aem_gen.py`) that emits the L0..L3 memory per [`docs/design/AEM_AND_AECP.md`](../docs/design/AEM_AND_AECP.md):
+`tools/aem_gen.py`) that emits the L0..L3 memory per `../aem-and-aecp.pdf`:
 - **L0** ENTITY + current-configuration/current-entity-id pointers.
 - **L1** per-configuration table of descriptor-type addresses (ordered from
   CONFIGURATION).

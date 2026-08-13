@@ -9,11 +9,11 @@
 //  Shape       : 4 AAF listener(s) + 4 AAF talker(s); CRF sink yes, CRF output yes
 //  Description : The entity's ADVERTISED SHAPE - the 1722.1-2021
 //                6.2.1.9/6.2.1.11 ADPDU counts served READ-ONLY at
-//                0x618/0x61C, and the ACMP source/sink context counts
+//                0x618/0x61C, and the source/sink context counts
 //                milan_datapath elaborates. Same numbers as this
 //                config's AEM STREAM_OUTPUT / STREAM_INPUT descriptor
 //                counts (one config, one pass; check_entity_shape.py
-//                compares all three).
+//                compares them).
 //                Include-only: no `default_nettype directive, no
 //                include guard, no net decls.
 //---------------------------------------------------------------------------//
@@ -63,3 +63,9 @@
   //! would have run ptp4l on domain 1 while ADP advertised domain 0,
   //! silently. One YAML section, one number (USER 2026-08-05).
   localparam int ADP_GPTP_DOMAIN_C   = 0;
+
+  //! STREAM_INPUT[0]'s declared (and, with no AECP to change it, its
+  //! ONLY) stream_format - the value KL_avtp_rx_monitor_ctx accepts
+  //! frames against. Was the AEM ROM's AEM_STRIN_FMT_C[0]; the ROM is
+  //! gone and this is the same number from the same config.
+  localparam logic [63:0] ADP_STRIN0_FMT_C = 64'h0205022002006000;

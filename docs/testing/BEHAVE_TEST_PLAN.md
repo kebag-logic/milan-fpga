@@ -1,10 +1,67 @@
 # Behave test plan — validate every aspect of the Milan end-station
 
-Status: 2026-07-23 (planning round). Executes **roadmap item 10** (peer-review the
+Status: 2026-07-23 (planning round), **partly superseded 2026-08-13** — see the
+capability-boundary block below before working any AVDECC row. Executes
+**roadmap item 10** (peer-review the
 204-row traceability matrix 1:1, then author a behave per confirmed row). Companion
 docs: [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) (the 204-row matrix this suite mirrors),
 [`docs/testing/PROTOCOL_VALIDATION_MATRIX.md`](PROTOCOL_VALIDATION_MATRIX.md), [`docs/reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md)
 (CSR ABI, base `0x90000000`), [`docs/findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) (rig + tap tools).
+
+> ## The capability boundary this plan now runs into (2026-08-13)
+>
+> This repository's IEEE 1722.1 / SRP control plane was deleted and replaced by
+> the `protocol-processor` submodule
+> ([`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv), instantiated
+> unconditionally by
+> [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv)).
+>
+> * **ADP, ACMP and SRP are still testable** and are now the processor's. Every
+>   domain row below that asserts on discovery, connection management or a
+>   reservation is still authorable; the DUT behind it changed.
+> * **CORRECTION — this entity DOES answer AECP.** An earlier revision of this
+>   block, written the same day, said it answered no AECP/AEM command at all.
+>   **That was false**: the processor's **AECP uCPU landed**. In one sentence,
+>   *it answers `READ_DESCRIPTOR`, and answers every other AECP command with a
+>   conformant `NOT_IMPLEMENTED` echo* (correct `message_type`+1, correct length,
+>   correct `controller_data_length`).  `IDENTIFY_NOTIFICATION` (0x0026) arriving
+>   as a **command** is answered `BAD_ARGUMENTS` (IEEE 1722.1 §7.4.39.2 beats
+>   §9.3.5.3.3). A command whose `target_entity_id` is not ours, and any AECP
+>   **response** arriving as input, are silently refused — freed, counted, no
+>   reply.
+> * **What that re-opens, and what it does not.** A scenario that needed only a
+>   *well-formed AECP response*, or that walks descriptors, is **authorable
+>   again** — subject to the descriptor image, below. A scenario that needed a
+>   getter or a setter is **still unauthorable**: `GET_COUNTERS`, the Milan
+>   Table 5.22 unsolicited push, `SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME`,
+>   saved-state persistence, the audio-map setters, `GET_DYNAMIC_INFO`,
+>   `GET_MILAN_INFO` and the whole MVU family, ACQUIRE/LOCK_ENTITY, SET/GET_NAME,
+>   SET/GET_SAMPLING_RATE, SET/GET_STREAM_FORMAT, SET/GET_STREAM_INFO,
+>   SET/GET_CONFIGURATION, GET_AVB_INFO, GET_AS_PATH, IDENTIFY,
+>   CONTROLLER_AVAILABLE, REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION and
+>   START/STOP_STREAMING all draw the echo and serve **no function**. **The echo
+>   is not coverage.**
+> * **The descriptor image is not supplied by this repository.** The processor's
+>   descriptor store reads the entity model from DRAM at a compile-time base, and
+>   no step in `sw/builder/`, `scripts/`, the SoC builder or the boot path writes
+>   an image there. On a stock build **every `READ_DESCRIPTOR` answers
+>   `BAD_ARGUMENTS`** — not `NO_SUCH_DESCRIPTOR`: the microprogram range-checks
+>   `configuration_index` against `configurations_count` before it locates, and
+>   an invalid image reports a count of zero, so the locate is never reached.
+>   That is itself an assertable behaviour, and is not enumeration. It is also a
+>   discriminator worth asserting on: `BAD_ARGUMENTS` to every read = no image or
+>   a corrupt one, `NO_SUCH_DESCRIPTOR` = image loaded and that descriptor
+>   genuinely absent from the model.
+> * **Known gap kept visible:** Milan Δ7 `ACQUIRE_ENTITY` (`NOT_SUPPORTED` with
+>   `owner_id` = 0) is **not** distinguished from the generic echo.
+> * The in-repo suite **shrank**: ~33 `.feature` files went with the deleted
+>   plane. `ls tests/features/` is the authority on what survives — several
+>   feature names below are among the casualties, and the AECP command coverage
+>   they carried is **GONE**, not reassigned. The AECP tier is authorable again
+>   only for the narrow surface listed above, and the same listing is the
+>   authority on what covers it now. **No result against this build's gateware is
+>   recorded in this corpus** — a feature existing is not a feature having been
+>   run against the device.
 
 ## Contents
 
@@ -37,11 +94,19 @@ together, and the two conformance-suite copies are drifting.
 > suite (`milan-fpga/tests/`) is now the **BDD conformance suite** and runs as a
 > **gate** in the `bdd-conformance` job of
 > [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml), per the USER
-> standing order that it runs on every verification round. It has also roughly
-> doubled: **45 features / 594 scenarios / 3548 steps** (measured 2026-08-06;
-> the run's own tally is authoritative — prose counts go stale),
-> the growth being the `item10_*` command coverage. The `behave.ini` / shared
-> tag-taxonomy work below is still open, and suites A/B/C are still un-gated.
+> standing order that it runs on every verification round. It had roughly
+> doubled by 2026-08-06, the growth being the `item10_*` command coverage. The
+> `behave.ini` / shared tag-taxonomy work below is still open, and suites A/B/C
+> are still un-gated.
+>
+> **Update 2026-08-13 — it then shrank, by more than it had grown.** The
+> `item10_*` command features and ~33 `.feature` files in total were deleted
+> with the AECP/ACMP/ADP/lwSRP RTL they asserted against. Run
+> `cd tests && behave -f plain` and read its own tally; no number is quoted
+> here, because the point of the number was to show growth and it would now be
+> read as a target. What is gone with those files — the AECP command contracts,
+> the ADP advertiser's wire fields, the ACMP listener state machine, the
+> saved-state fast-connect walk — is asserted by nothing else in this tree.
 
 | Suite | Path | Feat/Scen | Class | Role in the new plan |
 |-------|------|-----------|-------|----------------------|
@@ -98,15 +163,15 @@ the "Then" assertion mechanism (see BENCH_TOPOLOGY / REGISTER_MAP for each).
 | 1 | **gPTP/802.1AS** | es-1.1 cadence via tap | AS-4 latency calib ❌; AS-6 DUT-BMCA 🟡; M-DEV-2/3/4 Pdelay 🟡; M-DEV-13 tu 🟡 | `gptp.feature`, `gptp_latency.feature`, `gptp_bmca.feature`(@wip switch-gated) | `gptp_cadence.py` (tap1, ether[40:2]=0x88f7); CSR GM `0x624/8`, pdelay `0x6E4` |
 | 2 | **SRP/lwSRP** | es-1.2 Domain via tap | SRP-9 NxN ❌; SRP-8 class B 🟡; SRP-2 single-stream 🟡; MRP-7 🟡; M-CLK-2 ❌ | `srp.feature`, `srp_nxn.feature`, `srp_classb.feature`(@wip) | `srp_domain.py` (0x22ea), `srp_qna.py`; CSR `0x680/694/698/69C` |
 | 3 | **MAAP** | silicon_battery defend check (thin) | (MAAP ✅ RTL, no behave) | `maap.feature` | inject conflict on the peer host → tap defend frame; CSR eff dmac |
-| 4 | **AVDECC/ATDECC** | es-2.1..4.18 (63), Suite C bind, Suite D AECP models | AECP-8 🟡; CMD-7 🟡; CMD-14/M-AECP-12 🟡; M-AECP-11 🟡; **M-AECP-9 ❌** | retag es-4.x; `aecp_mvu.feature`(M-AECP-9 @wip); `aecp_identify_cadence.feature` | raw AF_PACKET (`aem/controller.py`, `avdecc_l2.py`, `silicon_battery.Ctl`); la_avdecc counters-probe `verdict CLEAN` |
+| 4 | **AVDECC/ATDECC** | ADP + ACMP survive, retargeted onto the protocol processor. **The AECP half is PARTLY re-opened (uCPU landed)**: `READ_DESCRIPTOR` + its three status paths, the `IDENTIFY_NOTIFICATION`-as-command `BAD_ARGUMENTS` rule, the `NOT_IMPLEMENTED` echo contract and the two silent-refusal rules are authorable — none of them is written yet | the AECP rows (AECP-8, CMD-7, CMD-14/M-AECP-12, M-AECP-11, M-AECP-9) are **NOT IMPLEMENTED**, not partial — every one of them needs a getter or a setter that does not exist. Do not re-grade a row as covered because the echo arrived | ADP/ACMP scenarios, plus a new `aecp_descriptor_read.feature` and an `aecp_response_contract.feature`; every getter/setter `aecp_*.feature` stays unauthorable | raw AF_PACKET (`avdecc_l2.py`) for ADP/ACMP **and for AECP** — a controller probe now sees discovery and connection succeed, `READ_DESCRIPTOR` answer (`BAD_ARGUMENTS` with no image loaded — the configuration range check precedes the locate), and a conformant `NOT_IMPLEMENTED` for everything else |
 | 5 | **AAF talker** | Suite C talker_steps (VID2/prio3/subtype/dmac, rate) | SRP-2/SRP-9 NxN | `aaf_talker.feature`, extend for NxN | tap AAF capture → inter-frame Δt histogram, byte fields (`pcap2s32.py`) |
-| 6 | **AAF listener** | Suite C bind + counters | **es-4.16 media-map ADD/REMOVE** (absent); AVTP-3 🟡; AVTP-5/M-CNT-4 🟡 | `aaf_listener.feature`, `media_maps.feature`(es-4.16), `pcm_ring.feature` | STREAM_INPUT GET_COUNTERS; AVTPRX `0x6B8/6BC/6C0/6C4` |
-| 7 | **CRF/media clock** | Suite C clock_recovery | **CRF-8 ❌**, **M-CLK-3 ✅** (actuator built + silicon-proven; the row was resolved 2026-07-27) | `media_clock_servo.feature` (lock/rails/holdover/auto_repair/soak) | MCSRV_STAT `0x8F8` (state,verified[3],locked[5],trim[31:16]); THD |
+| 6 | **AAF listener** | Suite C bind + counters | **es-4.16 media-map ADD/REMOVE** is still unauthorable — `ADD`/`REMOVE_AUDIO_MAPPINGS` and `SET_AUDIO_MAP` are among the setters the uCPU refuses with the generic echo; AVTP-3 🟡; AVTP-5/M-CNT-4 🟡 | `aaf_listener.feature`, `pcm_ring.feature` | the CSR window **only**: AVTPRX `0x6B8/6BC/6C0/6C4`. The STREAM_INPUT counters there are unaffected by the deletion and still live; `GET_COUNTERS` as an assertion mechanism is still gone — it answers `NOT_IMPLEMENTED`, which reads no counter |
+| 7 | **CRF/media clock** | Suite C clock_recovery | **CRF-8 ❌**. **M-CLK-3 was resolved 2026-07-27 and is now UNREACHABLE**: `SET_CLOCK_SOURCE` was the only writer of the live `clock_source_index`, so it is pinned at 0 (INTERNAL) for the life of a build, the MMCM-DRP and media-NCO servos are **structurally off**, and `A_MCSRV_STAT` reads its idle. `KL_crf_rx` still parses, counts and reports — it just cannot steer anything | `media_clock_servo.feature` cannot be driven on this build: its `Given clock_source == 2` has no writer | MCSRV_STAT `0x8F8` reads the idle state, which is a structural zero and not a measurement |
 | 8 | **ALSA/audio** | Suite C audio THD+N | roadmap-7 playback (KL_pcm_tx); arecord byte-exact | `alsa_record.feature`, `alsa_playback.feature`(@wip) | `tone_thdn.py` (digital ≤−120, analog ≤−80); `pcm_ring_dump.c` |
 | 9 | **Link/L1-L2** | es link-flap → counters | **AX42 TX-wedge recovery** (gaps item 0); <50 ms timing | `link_guard.feature` | real flap (`devmem 0xf0003800`); tap TX-liveness; LINK_CTRL `0x71C`, RST_EPOCH `0x720`; LINKG_STAT `0x774` (`{bounce16,flags,state,eth_rst,alive}`) |
 | 10 | **QoS/datapath** | `cbs-iperf3-interference.sh` (no behave) | CBS/classifier/TCAM/VLAN behave absent | `cbs_shaper.feature`, `classifier.feature` | iperf3 dual-flow reserved-vs-BE; CBS slopes `0x400+q*0x20` |
 | 11 | **DMA/perf** | perf harness (no behave) | throughput/RSC/fanout behave absent | `perf_throughput.feature`(@bench) | iperf3 Mbit; queue-drop + RMON `0x21C/0x230` |
-| 12 | **Saved-state** | acmp-persist (no behave) | **M-ACMP-9 ❌** (*proven this session*) | `saved_state.feature` | reboot survival; ACMPL_STATE `0x6A4`; `acmp-persist show` |
+| 12 | **Saved-state** | **NOTHING — the feature was removed, not just untested** | **M-ACMP-9: NOT IMPLEMENTED**, and the uCPU landing does not touch it. `KL_persist_journal` is deleted and the NVM face is a blank-flash responder (reads `0xFF`, writes accepted and discarded), so a restore walk always finds blank flash and completes with zero records. Nothing in this device persists a binding across a power cycle; Milan v1.2 5.3.8.2 wants saved state and this build does not have it | `saved_state.feature` is **still unauthorable** — there is no restore to observe | `ACMPL_STATE 0x6A4` still publishes `bound`/`active` from the processor's bind record, but its state-machine fields are structural zeros; the `0x7A0` bind-restore port accepts writes and **never** asserts ack |
 | 13 | **RMON/diag** | es-4.15, hive-get-counters | good/bad vs tap ground-truth | `rmon.feature` | RMON `0x21C/0x230` (snapshot `STATS_CTRL 0x200[0]`) vs tap count |
 | 14 | **Robustness** | Suite D tsn_gen fuzz; es-4.x refusals | AVTP-3 version gate 🟡; back-to-back eater; reset-defaults | `robustness.feature` (@negative/@rtl-defect) | tsn_gen `packet_gen` fuzz; malformed inject → no-crash + reject |
 
@@ -117,6 +182,16 @@ scenarios *flip the matrix to ✅*. Four already-drafted roadmap gates back the 
 now in flight. The rest start `@wip` and *drive* their implementation.
 
 ### 5.1 "Lock the win" (proven this session → author behave → flip ❌→✅)
+
+> **2026-08-13: both skeletons below are unauthorable on this build, and the
+> AECP uCPU landing does not change either verdict.** The saved-state one has no
+> persistence to observe (`KL_persist_journal` deleted, blank-flash NVM
+> responder, `acmp-persist` has nothing to save into), and the servo one opens
+> with `Given clock_source == 2`, which still has no writer — `SET_CLOCK_SOURCE`
+> is one of the commands that draws the generic `NOT_IMPLEMENTED` echo, so the
+> index stays pinned at 0. They are kept verbatim because they are the correct
+> scenarios for the behaviours, and the day either capability returns they are
+> the starting point. Do **not** flip the matrix rows they were written to flip.
 
 ```gherkin
 # saved_state.feature  — M-ACMP-9
@@ -218,25 +293,73 @@ exists and passes; the behave scenarios above are the *wire* half:
 ### 5.3 "Drive the impl" (`@wip` until the RTL lands)
 
 - `srp_nxn.feature` — **SRP-9** (802.1Q 35.2.7): N simultaneous reservations (AX 8×8),
-  per-stream registrar; gated on AX42→8×8 (lane A). `@wip @roadmap:5`.
+  per-stream registrar; gated on AX42→8×8 (lane A). `@wip @roadmap:5`. Still
+  live; the registrar is the protocol processor's now.
 - `crf_reservation.feature` — **M-CLK-2** (Milan 7.3.3): CRF carried under an SRP
-  reservation (2nd lwSRP listener attribute). `@wip`.
-- `aecp_mvu.feature` — **M-AECP-9** (Milan 5.4.4.4/.5): SET/GET_MEDIA_CLOCK_REFERENCE_INFO
-  (no tokens in `aecp_pkg.sv` yet). `@wip @tier:t0` (tsn_gen model first).
-- `media_clock_mgmt.feature` — **M-CLK-5** (Milan 7.6): reference election / MCRI
-  priorities; depends on M-AECP-9. `@wip`.
+  reservation (a second listener attribute). `@wip`. Still live, same
+  retargeting.
+- ~~`aecp_mvu.feature`~~ — **M-AECP-9** (Milan 5.4.4.4/.5):
+  SET/GET_MEDIA_CLOCK_REFERENCE_INFO. **Still void** — re-triaged after the
+  AECP uCPU landed: MVU is an unimplemented message type, so the command draws
+  the generic `NOT_IMPLEMENTED` echo. The blocker is no longer "there is no AECP
+  engine", it is "the function is absent"; there is no MCRI to get and none to
+  set. NOT IMPLEMENTED.
+- ~~`media_clock_mgmt.feature`~~ — **M-CLK-5** (Milan 7.6): reference election /
+  MCRI priorities. **Still void** — it depended on M-AECP-9, and separately the
+  media clock cannot be selected at all on this build (domain 7 above).
+- **NEW and authorable** — a descriptor-read feature and a response-contract
+  feature (`ls tests/features/` says whether they are in the tree; do not take
+  the answer from here). Between them they cover the `READ_DESCRIPTOR` status
+  paths (SUCCESS only with an image in DRAM; `NO_SUCH_DESCRIPTOR` on a locate
+  miss, which likewise needs a loaded image to be reachable at all;
+  `BAD_ARGUMENTS` on a bad configuration index — and therefore on *every* read
+  while no image is loaded, since an invalid image reports a configuration count
+  of zero and the range check precedes the locate; the §7.4.5 4-byte
+  `{descriptor_type, descriptor_index}` stub on both error paths), the
+  `IDENTIFY_NOTIFICATION`-as-command → `BAD_ARGUMENTS` rule, the
+  `NOT_IMPLEMENTED` echo's `message_type`/length/`controller_data_length`, and
+  the two silent-refusal rules (foreign `target_entity_id`, response-as-input).
+  `tests/features/aecp_read_descriptor.feature` already pins the unloaded-image
+  case as `BAD_ARGUMENTS` with the §7.4.5 stub — it was right where the prose
+  was wrong — but it is an offline model of the command path, and its presence
+  is not a run.
+  A `@tier:t2 @bench` version needs a wire; **no result against this build's
+  gateware is recorded anywhere in this corpus.**
 - `gptp_latency.feature` — **AS-4** (802.1AS 8.4.3): per-board ingress/egress latency
   calibration procedure (only the sum is measured today). `@wip @tier:t2`.
+  Unaffected — gPTP is not part of the deleted plane.
 
 ## 6. P1 backlog — the 17 🟡 partials (each pins the one missing assertion)
+
+> **2026-08-13, RE-TRIAGED after the AECP uCPU landed.** Six rows in this table
+> pin an assertion about an AECP command. They were all marked void on the false
+> premise that no AECP command is answered; the honest split is now per row:
+>
+> * **AECP-8 and M-AECP-11 are runnable again**, because each needed only a
+>   well-formed AECP *response* — AECP-8 to see an ADDRESS_ACCESS command
+>   answered at all, M-AECP-11 to use "a well-formed AECP command went
+>   unanswered" as a liveness witness. Neither is a claim about the command's
+>   function, and neither has been run against this build.
+> * **CMD-7, M-CNT-4 and M-AECP-12 stay void**, because each needs a getter or a
+>   setter that does not exist: `SET_STREAM_INFO`, `GET_COUNTERS`, and
+>   `SET_CONTROL`-driven identification respectively.
+> * **CMD-14 splits**: the IDENTIFY cadence half stays void (`o_identify` is
+>   tied 0 and there is no `SET_CONTROL`), while one narrow 7.4.39 rule is now
+>   assertable — `IDENTIFY_NOTIFICATION` arriving as a **command** is answered
+>   `BAD_ARGUMENTS` per §7.4.39.2.
+>
+> The Milan Table 5.4 STREAM_OUTPUT counters M-CNT-4 wanted are gone entirely —
+> `KL_talker_diag_ctx` is no longer instantiated, because `GET_COUNTERS` and the
+> Table 5.22 push were its only two readers, and the processor's unsolicited TX
+> lane has no producer. The **STREAM_INPUT** counters at `0x6B8` are unaffected.
 
 | Matrix | Clause | Feature / step | The specific assertion to add |
 |--------|--------|----------------|-------------------------------|
 | AVTP-3 | 4.4.3.4 | `robustness.feature` `@rtl-defect` | a v1 PDU is (currently) parsed as v0 — assert present behavior, flip on fix |
 | AVTP-5 | 4.4.4.3 | `aaf_listener.feature` `@rtl-defect` | talker `mr` toggle never ticks MEDIA_RESET (pairs M-CNT-4) |
-| CMD-7 | 7.4.15/16 | `aecp_stream_info.feature` | SET_STREAM_INFO flags beyond MSRP_ACC_LAT → NOT_SUPPORTED (documented) |
-| CMD-14 | 7.4.39 | `aecp_identify_cadence.feature` | IDENTIFY_NOTIFICATION periodic re-send cadence while active |
-| AECP-8 | 9.4 | `aecp_address_access.feature` `@negative` | ADDRESS_ACCESS admits only AEM/VU; hostile write-TLVs dropped |
+| CMD-7 | 7.4.15/16 | ~~`aecp_stream_info.feature`~~ | **STILL VOID** — `SET_STREAM_INFO` serves no function. It now draws the generic `NOT_IMPLEMENTED` echo, which is not the clause's flag-by-flag refusal and grades nothing about 7.4.15/16 |
+| CMD-14 | 7.4.39 | `aecp_identify_cadence.feature` (cadence half) / new `aecp_identify_notification.feature` | **SPLIT** — the cadence half is **still void** (`IDENTIFY` needs `SET_CONTROL`, which is absent, and `o_identify` is tied 0: the LED is structurally dark). **Newly assertable:** `IDENTIFY_NOTIFICATION` (0x0026) arriving as a *command* is answered `BAD_ARGUMENTS` per §7.4.39.2, which beats §9.3.5.3.3. No result against this build is recorded |
+| AECP-8 | 9.4 | `aecp_address_access.feature` | **RUNNABLE AGAIN, as a response-contract check only** — an ADDRESS_ACCESS command draws a conformant `NOT_IMPLEMENTED` echo (right `message_type`+1, length, `controller_data_length`), which is IEEE 1722.1 §9.3.5's duty to respond. **ADDRESS_ACCESS itself is NOT IMPLEMENTED**; do not mark 9.4 covered on the strength of the echo. No result against this build is recorded |
 | MRP-7 | 10.7.10 | `srp.feature` | explicit PeriodicTransmission enable/disable vector |
 | SRP-2 | 35.1.2 | `srp.feature` | talker declare/withdraw (single-stream today; NxN → SRP-9) |
 | SRP-8 | 35.1.4/34.5 | `srp_classb.feature` `@wip` | declaring/using SR class B (engine is class A only) |
@@ -245,10 +368,10 @@ exists and passes; the behave scenarios above are the *wire* half:
 | M-DEV-3 | 4.2.6.2.6 | `gptp.feature` | Pdelay turnaround bound measurement |
 | M-DEV-4 | 4.2.6.2.7 | `gptp.feature` `@negative` | negative Pdelay values |
 | M-DEV-13 | 4.3.5.2 | `aaf_talker.feature` | talker-side `tu` set on a real GM change |
-| M-AECP-11 | 5.4.5.3 | `avdecc` | ADP-departure-triggered controller cleanup |
-| M-AECP-12 | 5.4.5.4 | (= CMD-14) | identify notification |
-| M-CNT-4 | Table 5.17 | `aaf_talker.feature` | STREAM_OUTPUT MEDIA_RESET asserted (pairs AVTP-5) |
-| M-CLK-3 | 7.2.2/7.5.2 | (= §5.1 servo) | actuator — covered by media_clock_servo.feature |
+| M-AECP-11 | 5.4.5.3 | `avdecc` | **RUNNABLE AGAIN** — the row's assertion needs an AECP exchange to prove the entity stopped answering, and the entity now answers, so the two-witness discriminator (ADP miss **and** an unanswered well-formed AECP command) works again. Note the separate, unchanged gap: the *entity-side* 5.4.5.3 duty — per-controller monitor timer, `CONTROLLER_AVAILABLE` probe, auto-deregister — is **NOT IMPLEMENTED**, so this row grades the controller-side cleanup only. No result against this build is recorded |
+| M-AECP-12 | 5.4.5.4 | (= CMD-14, cadence half) | **STILL VOID** — identify notification needs `SET_CONTROL`-driven identification, which is absent |
+| M-CNT-4 | Table 5.17 | ~~`aaf_talker.feature`~~ | **STILL VOID** — the STREAM_OUTPUT counter block does not exist in any build (`KL_talker_diag_ctx` is not instantiated) and `GET_COUNTERS` answers `NOT_IMPLEMENTED`, so it could not read it if it did |
+| M-CLK-3 | 7.2.2/7.5.2 | (= §5.1 servo) | **UNREACHABLE** — the actuator is built and was silicon-proven, and the build can no longer select the clock source that engages it (domain 7) |
 
 **Doc bug — RECONCILED (2026-07-23):** the summary tallied 18 partials / 9 Milan, but a
 1:1 re-count of every Milan row's leading glyph gives **39✅ / 8🟡 / 4❌ / 1➖ = 52**. It
@@ -262,20 +385,32 @@ changed. [`SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) now reads **163✅ / 
 - **Regression-pin** one scenario per hard-won past bug (`@regression`): mf52 ring-shed,
   vid2-clobber, ACMP listener deafness, back-to-back eater, double-Philips, mac-tx-wedge,
   ingressLatency, I2SPB double-delay. Red-if-it-regresses forever.
-- **tsn_gen model authoring — committed P1 lane** (USER 2026-07-23: in scope). The
-  verification-infra gap is that only AECP/ADP have tsn_gen YAML models; ACMP, all of
-  802.1Q, gPTP, MAAP, and CRF have none, so those ✅ rows can only be *replayed*, not
-  *fuzzed*. Author order (highest value first):
-  1. **ACMP model** (`protocols/acmp/*.yaml`) — lets the suite fuzz connection-management
-     (BIND/UNBIND/PROBE/GET_RX_STATE); pairs with Suite D `acmp_listener_tsn_gen.feature`
-     and the bench-suite ACMP path. Highest-value: ACMP is the most stateful engine with no model.
+- **tsn_gen model authoring — committed P1 lane** (USER 2026-07-23: in scope),
+  **rewritten 2026-08-13.** The gap is now larger, not smaller: the AECP, ADP
+  and ACMP `tsn_fuzz` campaigns were **deleted** with the RTL they drove, so
+  there is no field-level fuzzing of *any* 1722.1 protocol left in this
+  repository — only the AAF campaign survives, because it fuzzes the data plane.
+  Author order (highest value first):
+  1. **ACMP and ADP models against the protocol processor.** The old campaigns
+     drove this repository's engines; the models describe the *wire*, so the
+     model work carries over and the DUT binding does not. ACMP first: it is the
+     most stateful engine and it now has neither a model nor a per-message
+     suite.
   2. **CRF model** (M-CLK-1 params) + **MRPDU/MSRP models** (M-DEV-5..9, 802.1Q) — fuzz the
-     reservation + media-clock framing.
-  3. **gPTP model** + **MVU payload models** (GET_MILAN_INFO / SYSTEM_UNIQUE_ID /
-     MEDIA_CLOCK_REFERENCE_INFO — the last unblocks the M-AECP-9 `@wip` scenario).
-  Each model is exercised via the existing `@tsn_gen` tier (`packet_gen` codec, `tsn_gen_steps.py`),
-  so no new harness — just the YAML + a fuzz scenario per model asserting "no illegal
-  transition on N seeded frames" (the pattern already in `acmp_listener_tsn_gen.feature`).
+     reservation + media-clock framing. The SRP side is the processor's now, and
+     the six deleted `lwsrp*` suites make this the *only* proposed coverage of
+     that engine's message handling.
+  3. **gPTP model.** The MVU *payload* models that used to sit here
+     (GET_MILAN_INFO / SYSTEM_UNIQUE_ID / MEDIA_CLOCK_REFERENCE_INFO) still have
+     no target — MVU is an unimplemented message type, so there is no payload to
+     model, only a refusal to observe. What the uCPU landing does put back on
+     the table is a much narrower AECP fuzz target: malformed and hostile AECP
+     frames against the response contract (echo shape, the two silent-refusal
+     rules, `READ_DESCRIPTOR` bounds). That is a frame-level model, not a
+     command model.
+  Each model is exercised via the existing `@tsn_gen` tier (`packet_gen` codec),
+  so no new harness — just the YAML + a fuzz scenario per model asserting "no
+  illegal transition on N seeded frames".
 - **Breadth pass**: a single passing scenario across all 14 domains (the "whole-system
   smoke" ring) once P0 lands.
 
@@ -289,7 +424,8 @@ changed. [`SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) now reads **163✅ / 
 - **CI**: `Containerfile.bdd-runner` + `Containerfile.dut-sim` already exist for Suite D.
   **The in-repo suite is already gated** — [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml)
   carries a `bdd-conformance` job that runs `behave -f plain` on every push and
-  pull request (45 features / 594 scenarios / 3548 steps, measured 2026-08-06), alongside
+  pull request (the run prints its own tally; do not carry one here — the last
+  one this page quoted counted ~33 features that no longer exist), alongside
   [`docs.yml`](../../.github/workflows/docs.yml) (docs, cited paths, archive,
   contents, traceability, builder, DT, trace). What is still unwired is the
   **Suite D container** path — the DUT-sim gate, not the suite itself.

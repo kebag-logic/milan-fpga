@@ -14,13 +14,33 @@ repo's minimal headless renderer
 
 | Diagram | Shows | Editable source | Render(s) | Embedded in |
 |---|---|---|---|---|
-| `milan_system_map` | THE GIANT single-page system map (4640x2980): the complete AX7101 SoC + NIC datapath with every block, bus width and byte-lane convention on every edge, clock domains by colour, DMA/ring geometry, and all address maps (SoC, milan_csr, AEM store, QSPI slots, control-plane frame formats) | `milan_system_map.gen.py` → `milan_system_map.drawio` (regenerate: `python3 milan_system_map.gen.py milan_system_map.drawio`) | `.svg` / `.png` (via `atdecc_architecture.render.py`) | [`../overview/FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) |
+> 🔴 **`milan_system_map`'s raster renders are STALE as of 2026-08-13; its
+> generator and `.drawio` are CURRENT.** The generator was rewritten for the
+> control-plane substitution (the ATDECC container is one `KL_pp_shadow` block
+> plus the MAAP shim and a single `ctl_tx_mux`) and then corrected for the AECP
+> uCPU: the AECP panel no longer says "NOT PRESENT", and now states that
+> `READ_DESCRIPTOR` is served out of a DRAM image at a compile-time base, that
+> every other opcode and message type draws a conformant `NOT_IMPLEMENTED` echo,
+> that `IDENTIFY_NOTIFICATION`-as-command answers `BAD_ARGUMENTS`, and that Milan
+> Δ7 `ACQUIRE_ENTITY` is **not** distinguished from that echo. The `.drawio` was
+> re-emitted from it in the same pass. **One thing the map still does not draw:**
+> the read-only descriptor-memory master out of `milan_datapath`
+> (`o_desc_mem_*`/`i_desc_mem_*`) into DRAM — whoever next touches the generator
+> owes it that edge. The committed `.svg`/`.png`, meanwhile, still show the
+> deleted AECP/ACMP/ADP/lwSRP blocks: the minimal drawio renderer this repo used
+> was deleted with the AECP doc tree, and the drawio desktop CLI hangs headless
+> on this box (verified again in the same pass). **Read the `.drawio` for the
+> block structure and the AECP truth, and treat the raster renders as a dated
+> snapshot until someone re-exports them on a headed machine.**
+> `SYSTEM_DOMAIN_MAP` was regenerated in full — its generator writes SVG
+> directly, so its renders are current.
+
+| `milan_system_map` | THE GIANT single-page system map (4640x2980): the complete AX7101 SoC + NIC datapath with every block, bus width and byte-lane convention on every edge, clock domains by colour, DMA/ring geometry, and all address maps (SoC, milan_csr, AEM store, QSPI slots, control-plane frame formats) | `milan_system_map.gen.py` → `milan_system_map.drawio` (regenerate: `python3 milan_system_map.gen.py milan_system_map.drawio`) | `.svg` / `.png` (rsvg-convert; the minimal drawio renderer this row used to name was deleted with the AECP doc tree on 2026-08-13) | [`../overview/FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) |
 | `rx_path_wall.svg` | Perf campaign: the RX receive path - where the CPU time goes, and the wall | `diag_rxpath.py` (uses `svglib.py`; run `python3 diag_rxpath.py rx_path_wall.svg`) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
 | `memory_hierarchy_levers.svg` | Perf campaign: the memory hierarchy and the three levers pulled on it | `diag_memhier.py` (same usage) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
 | `ddio_before_after.svg` | Perf campaign: the DDIO-analog experiment, before/after | `diag_ddio.py` (same usage) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
 | `audio_stream_path` | The end-to-end AAF path: talker + listener chains, CSR touchpoints, the 8 latency-tap chips | `audio_stream_path.gen.py` → `.drawio` | `.svg` / `.png` (rsvg-convert) | [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md) |
 | `timesync_chain` | The three-clock chain (network PHC / system / media) with CSR touchpoints | `timesync_chain.gen.py` → `.drawio` | `.svg` / `.png` (rsvg-convert) | [`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) |
-| `atdecc_control_plane` | The fabric control plane (ADP / AECP / ACMP / MAAP + the CSR/driver touchpoints) | `atdecc_control_plane.gen.py` → `.drawio` | `.svg` / `.png` (rsvg-convert) | [`../design/AEM_AND_AECP.md`](../design/AEM_AND_AECP.md) |
 | `wd_i2s_philips` | Chronogram: the I2S Philips frame at the capture/render frontends — 64 fs, MSB-first, the 1-bit delay after every LRCK edge, the L/pair latch points | `wd_i2s_philips.json` (WaveDrom master; regenerate: `~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_i2s_philips.json`) | `.svg` / `.png` | [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md) §2.1 |
 | `wd_tdm8_frame` | Chronogram: the TDM8 slave frame — armed fsync 0→1 (pulse and 50%-duty), DATA_DELAY_P, MSB-first 32-bit slots, even-holds/odd-pushes pair events | `wd_tdm8_frame.json` (same regen pattern) | `.svg` / `.png` | [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md) §2.1 |
 | `wd_aaf_pacing` | Chronogram: AAF class-A pacing — 6-sample epochs at 48 kHz, presentation stamped at the first sample, emit at the bank swap, listener accept vs the presentation instant (ts_delta) | `wd_aaf_pacing.json` (same regen pattern) | `.svg` / `.png` | [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md) §1 |
@@ -119,7 +139,19 @@ The chronograms need only `pip install wavedrom` in any virtualenv plus
 
 ## Elsewhere in the repo
 
-- The ATDECC subsystem's own multi-page deep-dive (per-block, bit level) lives
-  in [`hdl/ieee17221/aecp/doc/atdecc_architecture.drawio`](../../hdl/ieee17221/aecp/doc/atdecc_architecture.drawio) (pages 1-9), rendered
-  by [`hdl/ieee17221/aecp/doc/atdecc_architecture.render.py`](../../hdl/ieee17221/aecp/doc/atdecc_architecture.render.py) (one `.svg`/`.png`
-  per page, committed next to it).
+- The ATDECC subsystem's own multi-page deep-dive (pages 1-9) and the minimal
+  drawio renderer that produced its pages lived under the AECP RTL's doc
+  directory. **Both were deleted on 2026-08-13** with the fabric engine they
+  described. The AECP responder that answers today is the protocol processor's
+  uCPU — `READ_DESCRIPTOR` served from a DRAM descriptor image, a conformant
+  `NOT_IMPLEMENTED` echo for everything else — and its drawings live in the
+  submodule, not here. Nothing in the surviving pipeline depends on that
+  renderer: the diagrams below render with `rsvg-convert`.
+
+- Two catalog entries were retired in the same pass: `atdecc_control_plane` (the
+  fabric ADP/AECP/ACMP/MAAP control plane) and `unsol_slots` (the Milan Table
+  5.22 unsolicited-notification slots). Both drew engines that no longer exist,
+  and the Table 5.22 push is genuinely absent from this device, so there is no
+  unsolicited lane to draw. The control plane is now the protocol processor,
+  AECP included — see the status block at the top of
+  [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md).

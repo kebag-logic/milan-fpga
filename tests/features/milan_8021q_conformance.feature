@@ -1,30 +1,29 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic <contact@kebag-logic.com>
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
-# Milan v1.2 §4.2.7 (MRP/MSRP/MVRP), §4.3.3 (Talker MSRP), §4.3.4 (FQTSS),
-# §4.4 (Listener), §4.3.5.1 (MAAP)
-# 802.1Q-2022 §34 (FQTSS/CBS), §35 (SRP/MVRP)
+# Milan v1.2 §4.3.4 (FQTSS), §4.4 (Listener)
+# 802.1Q-2022 §34 (FQTSS/CBS), §6.9.3 (PCP -> traffic class)
 # Offline model: tests/steps/milan_8021q_steps.py
 # Constants sourced from:
 #   hdl/common/ethernet_packet_pkg.sv   (queue count, idle slopes, hi/lo credit)
 #   hdl/ieee8021q/ts/credit_based_shaper.sv  (CBS algorithm)
 #   hdl/ieee8021q/ts/traffic_class_map.sv     (PCP->TC->queue)
-#   hdl/ieee8021q/srp/lwsrp_pkg.sv            (SR class, timers, bandwidth)
-#   hdl/ieee8021q/srp/KL_lwsrp_bw_gate.sv     (Σ-slope gate)
+#
+# The MRP/MSRP/MVRP, Talker-Advertise-eligibility, Milan TSpec and Σ-slope
+# admission scenarios that used to live here were resolved out of the lwSRP
+# RTL (hdl/ieee8021q/srp/**), which no longer exists in this repository: the
+# protocol-processor submodule owns SRP now. They were deleted rather than
+# retargeted at a model with nothing behind it.
 
 @milan_conformance @8021q
-Feature: Milan 802.1Q VLAN classification, CBS shaping, and SRP bandwidth
+Feature: Milan 802.1Q VLAN classification and CBS shaping
 
   Milan v1.2 mandates specific 802.1Q behaviours for PAAD end-stations:
   - 5 egress queues in 802.1Q priority order (q4 = highest)
   - PCP 3 maps to SR class A (q4) for tagged AVTP frames
   - CBS shapes SR class A (q4) and class B (q3)
   - idleSlope sum ≤ 75% of port rate (REQ-CBS-03)
-  - MRP timers: join=200ms, leave=600ms (Milan relaxes to instant IN→MT),
-    leaveall=10-15s
-  - MSRP Domain: SR class ID 6, priority 3, VID 2
-  - MVRP: listener declares VID for settled sinks
-  - MAAP: one contiguous block claim, DMAC = base + stream_index
+  - a listener accepts a stream only on its own VID and channel count
 
   Background:
     Given a fresh 802.1Q conformance model
@@ -123,144 +122,6 @@ Feature: Milan 802.1Q VLAN classification, CBS shaping, and SRP bandwidth
     And queue 4 has idleSlope 450000000 bits per second
     When loCredit is calculated for a 1522 byte frame
     Then loCredit equals -837 bytes
-
-  # === Milan §4.2.7.1: MRP timing and malformed messages ===
-
-  Scenario: the MRP periodic timer is within the Milan tolerance
-    Then the MRP periodic timer is between 900 and 1500 ms
-
-  Scenario: the MRP JoinTime is within the Milan tolerance
-    Then the MRP JoinTime is between 180 and 240 ms
-
-  @open-finding
-  Scenario: the MRP LeaveTime matches the Milan default tolerance
-    Then the RTL MRP LeaveTime is between 4500 and 7500 ms
-
-  Scenario: the MRP LeaveAll timer is within the Milan tolerance
-    Then the MRP LeaveAll timer is between 9500 and 15500 ms
-
-  Scenario: an invalid vector discards the remainder of its list and subsequent messages
-    Given an MRPDU with a valid vector followed by an invalid vector
-    When the MRPDU is parsed
-    Then information before the invalid vector is retained
-    And information after the invalid vector is discarded
-    And subsequent messages in the same MRPDU are discarded
-
-  Scenario: a padded MRPDU uses a 0x0000 EndMark
-    Given an MRPDU that requires Ethernet padding
-    When the MRPDU is serialized
-    Then the EndMark is 0x0000 before the padding
-
-  # === Milan §4.2.7.2: MSRP Domain declaration ===
-
-  Scenario: the default MSRP Domain is class A priority 3 on VID 2
-    When the MSRP Domain is reset to Milan defaults
-    Then the MSRP Domain class ID is 6
-    And the MSRP Domain priority is 3
-    And the MSRP Domain VID is 2
-
-  Scenario: a received Domain declaration updates all three parameters atomically
-    Given the MSRP Domain is class ID 6 priority 3 VID 2
-    When a Domain declaration is received with class ID 6 priority 4 VID 3
-    Then the MSRP Domain class ID is 6
-    And the MSRP Domain priority is 4
-    And the MSRP Domain VID is 3
-    And the next Domain declaration matches the received FirstValue
-
-  Scenario: Domain declaration is independent of gPTP lock state
-    Given gPTP is not locked
-    When the MSRP Domain declaration timer expires
-    Then an MSRP Domain declaration is transmitted
-
-  Scenario: MSRP Leave causes an instantaneous IN to MT transition
-    Given an MSRP Registrar is in state IN
-    When an MSRP Leave event is received
-    Then the MSRP Registrar state is MT
-    And no LeaveTime wait is required
-
-  # === Milan §4.2.7.3 and §4.4.1: MVRP ===
-
-  Scenario: a settled listener sink declares its Stream VLAN through MVRP
-    Given a listener sink is settled on VLAN 2
-    When the MVRP applicant is evaluated
-    Then VID 2 is declared
-
-  Scenario: unbinding the last sink withdraws the MVRP VID
-    Given a listener sink is settled on VLAN 2
-    And it is the last sink using VLAN 2
-    When that listener sink is unbound
-    Then VID 2 is withdrawn
-
-  Scenario: another settled sink keeps the shared VID declared
-    Given two listener sinks are settled on VLAN 2
-    When one listener sink is unbound
-    Then VID 2 remains declared
-
-  # === Milan §4.3.3.1: Talker declaration eligibility ===
-
-  Scenario: a talker declares only with a valid MAAP address and recent probe
-    Given a talker has a conflict-free MAAP destination address
-    And the talker received PROBE_TX 10 seconds ago
-    Then the Talker Advertise attribute is eligible for declaration
-
-  Scenario: a MAAP conflict prevents Talker Advertise declaration
-    Given a talker has a conflicted MAAP destination address
-    And the talker received PROBE_TX 10 seconds ago
-    Then the Talker Advertise attribute is not eligible for declaration
-
-  Scenario: a probe older than 15 seconds does not sustain declaration by itself
-    Given a talker has a conflict-free MAAP destination address
-    And the talker received PROBE_TX 16 seconds ago
-    And no matching Listener attribute is registered
-    Then the Talker Advertise attribute is not eligible for declaration
-
-  Scenario: a matching Listener registration sustains declaration without a recent probe
-    Given a talker has a conflict-free MAAP destination address
-    And the talker received PROBE_TX 16 seconds ago
-    And a matching Listener attribute is registered
-    Then the Talker Advertise attribute is eligible for declaration
-
-  # === Milan §4.3.3.2: TSpec and bandwidth ===
-
-  @open-finding
-  Scenario: a 2-channel PCM32 48 kHz stream uses the Milan MaxFrameSize
-    When Milan TSpec is calculated for PCM32 48 kHz 2 channels
-    Then MaxFrameSize is 73 bytes
-    And MaxIntervalFrames is 1
-    And reserved bandwidth is 7360 kbps
-
-  Scenario: a CRF stream with one timestamp per PDU uses the Milan TSpec
-    When Milan TSpec is calculated for CRF with 1 timestamp per PDU
-    Then MaxFrameSize is 29 bytes
-    And MaxIntervalFrames is 1
-    And reserved bandwidth is 5632 kbps
-
-  Scenario: wire bandwidth accounts for Ethernet header FCS preamble and IPG
-    When wire bandwidth is calculated for MaxFrameSize 73 and MaxIntervalFrames 1
-    Then the wire slot is 115 bytes
-    And reserved bandwidth is 7360 kbps
-
-  # === Σ-slope admission gate / KL_lwsrp_bw_gate.sv ===
-
-  Scenario: streams are admitted in deterministic index order within the ceiling
-    Given the port rate is 100000000 bits per second
-    And the SRP bandwidth ceiling is 75 percent
-    When stream slopes 20000000,20000000,20000000 are requested
-    Then all 3 streams are admitted
-    And the aggregate idleSlope is 60000000 bits per second
-
-  Scenario: the first stream exceeding the 75 percent ceiling is refused
-    Given the port rate is 100000000 bits per second
-    And the SRP bandwidth ceiling is 75 percent
-    When stream slopes 30000000,30000000,30000000 are requested
-    Then streams 0 and 1 are admitted
-    And stream 2 is refused
-    And the aggregate idleSlope is 60000000 bits per second
-
-  Scenario: withdrawing one stream releases its slope from the aggregate
-    Given admitted stream slopes 30000000,30000000
-    When stream 0 is withdrawn
-    Then the aggregate idleSlope is 30000000 bits per second
 
   # === VLAN and stream filtering ===
 

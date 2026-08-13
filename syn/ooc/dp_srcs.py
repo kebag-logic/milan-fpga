@@ -30,8 +30,14 @@ def main() -> int:
         return 2
     srcs = m.group(1)
 
-    # the two collected lists that entry references
-    for var in ("AECP_SRCS", "LWSRP_SRCS"):
+    # The one collected list that entry references. It used to be three
+    # (AECP_SRCS / LWSRP_SRCS / PP_SRCS): the first two named the 1722.1 and
+    # SRP planes, which are deleted, and PP_SRCS - the protocol processor that
+    # replaced them - is no longer optional, so the datapath entry expands it
+    # like any other source. A name listed here that run.sh no longer defines
+    # is a hard error on purpose: silently dropping it would emit a source list
+    # missing a whole plane, and Vivado would only say "module not found".
+    for var in ("PP_SRCS",):
         mv = re.search(r'%s="(.*?)"' % var, s, re.S)
         if not mv:
             print("dp_srcs: %s not found in run.sh" % var, file=sys.stderr)
@@ -46,13 +52,13 @@ def main() -> int:
         "P": os.path.join(REPO, "hdl/ieee8021as/ptp_timestamp"),
         "E": os.path.join(REPO, "hdl/common/eth_event_counter"),
         "D": os.path.join(REPO, "hdl/ieee17221/adp"),
-        "K": os.path.join(REPO, "hdl/ieee17221/aecp"),
-        "M": os.path.join(REPO, "hdl/ieee17221/acmp"),
-        "S": os.path.join(REPO, "hdl/ieee8021q/srp"),
         "F": os.path.join(REPO, "hdl/ieee8021q/filtering"),
+        # the protocol-processor submodule root, as run.sh's PP_SRCS spells it
+        "PP": os.path.join(REPO, "protocol-processor/hdl"),
     }
-    for k, v in env.items():
-        srcs = srcs.replace("$" + k + "/", v + "/")
+    # longest key first: "$PP/" must not be eaten by the "$P" rule
+    for k in sorted(env, key=len, reverse=True):
+        srcs = srcs.replace("$" + k + "/", env[k] + "/")
 
     files = [f for f in srcs.split() if f.endswith((".sv", ".v"))]
     missing = [f for f in files if not os.path.exists(f)]

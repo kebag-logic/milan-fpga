@@ -1,5 +1,18 @@
 # BDD Conformance Testing — How It Runs
 
+> **SUPERSEDED 2026-08-12 — HISTORICAL RECORD.** Every feature and step file
+> this document describes has been DELETED. The legacy IEEE 1722.1 and SRP
+> control-plane RTL they modelled (`hdl/ieee17221/aecp/**`,
+> `hdl/ieee17221/acmp/**`, the ADP advertiser/parser, `hdl/ieee8021q/srp/**`)
+> is gone from this repository; the protocol-processor submodule is the
+> control plane now, and this device answers no AECP command at all. Kept for
+> the method sections that outlived their subject — §7 (behave treats
+> `{code:d}` and `{s:d}` as ONE parse pattern, so a same-worded step shadows
+> silently), §8 (mutation testing: break the assertion, confirm red, restore,
+> confirm green) and §9 (the adversarial audit for stub steps and
+> status-bypass tautologies). For what the suite contains TODAY, see
+> [`README.md`](README.md) §T1 or, better, the tally `behave -f plain` prints.
+
 **Branch:** `test-bdd-conformance`  
 **Workspace:** `<worktree>`  
 **Commit:** `382fe49` — `extend BDD conformance with ADP/SRP/entity-model/AECP/notification coverage`  

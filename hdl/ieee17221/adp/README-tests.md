@@ -10,8 +10,5 @@ hand-edit. Part of the IEEE 1722.1 (ATDECC) family; rolled up in
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_adp_parser` | `KL_adp_parser.sv` | `adp_parser` · 🔬`make adp` | — |
-| ✅ `adp_advertiser` | `adp_advertiser.sv` | `adp` · `adp_advertise` · `hostplane` · `milan_dp` · `tsn_fuzz` · 🔬`make adp` | — |
-| 📦 `adp_pkg` | `adp_pkg.sv` | 🔬`make adp` | — |
-| ✅ `adp_tx_arbiter` | `adp_tx_arbiter.sv` | `adp_tx` · `hostplane` · `milan_dp` · 🔬`make adp` | — |
+| ✅ `adp_tx_arbiter` | `adp_tx_arbiter.sv` | `adp_tx` · `hostplane` · `milan_dp` | — |
 

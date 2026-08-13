@@ -9,6 +9,47 @@ This page deliberately **excludes the CPU**. The soft CPU and its caches are a
 vendored component with their own configuration surface; everything below is
 logic this project owns and can therefore choose not to build.
 
+> **THE DIE CHANGED SHAPE ON 2026-08-13 — a whole plane left, and the
+> protocol processor arrived.** This repository's ADP advertiser, ACMP talker
+> and listener, AECP/AEM engine, persistence journal and lwSRP applicant were
+> **deleted** and replaced by the pinned `protocol-processor` submodule. Every
+> measurement on this page is still a real Vivado (or, where labelled, yosys)
+> reading of the design **as it stood on 2026-07-27**, and is kept as such:
+> the rows below are marked **REMOVED** where the block no longer exists, and
+> no number has been invented to replace one.
+>
+> **The measured record of what that change cost and returned is
+> [`../findings/PP_SHADOW_AREA_0812.md`](../findings/PP_SHADOW_AREA_0812.md)**
+> — same instrument, both sides in context. Read it, not an extrapolation
+> from this page, for any question about post-substitution area. Two things
+> from it are worth carrying here because they change how this page should be
+> used:
+>
+> * the single biggest line item below, `u_bld` (`KL_aecp_response_builder`,
+>   5,300 LUT here), was part of an AECP plane that measured **8,645 LUT
+>   in context** for `KL_aecp_top` alone — larger than the entire replacement
+>   plane costs in context (**+6,956**);
+> * the tier-3 "core, not reclaimable by parametrisation" verdict was
+>   correct about *parametrisation* and was overtaken by **deletion**: three
+>   of its five entries are gone.
+>
+> **AECP came back, and not as fabric memory.** The processor's AECP µCPU has
+> since landed: the entity answers `READ_DESCRIPTOR` and returns a conformant
+> `NOT_IMPLEMENTED` echo to every other AECP command. Its cost is **not** in
+> any figure on this page, and it is not in the `+6,956` either — that was
+> measured with the AECP pop face tied off. Two area consequences are worth
+> carrying: the **entity model is no longer in fabric at all** (the µCPU's
+> descriptor store reads it from DDR3 over a read-only master at a compile-time
+> base, so no descriptor ROM or store is charged to LUT or BRAM anywhere in the
+> replacement), and the mass Vivado constant-propagated away while that face
+> was tied off is back and un-repriced. Nothing in this repository writes that
+> DRAM image yet, so a stock build enumerates to `BAD_ARGUMENTS` — a
+> software gap, not an area one.
+>
+> What is NOT changed by any of that: the governing fact in the next section
+> (this design is **LUT-bound**, FFs sit at 42 %), the prune-parameter rules,
+> the memory-cascade reasoning, and every honest limit at the bottom.
+
 ## Contents
 
 - **[The budget](#the-budget)** — The four-way split of the device: 61,959 of 63,400 LUTs used, of which the datapath is 35,113 and the CPU 16,799. Also the fact that governs every other decision on this page — FFs are only 42 %, so **the design is LUT-bound** and trading LUTs for FFs is a win.
@@ -87,29 +128,40 @@ by the `shaper_core` suite's dual-core mask oracle.
 Leaf blocks over 400 LUTs. Parent rows are omitted where a single child
 dominates them.
 
-| block | module | LUT | FF | BRAM |
-|---|---|---|---|---|
-| `u_bld` | `KL_aecp_response_builder` | **5,300** | 2,342 | — |
-| `csr` | `milan_csr` | **4,066** | 3,763 | R18×2 |
-| `walker` | `KL_lwsrp_walker` | **2,938** | 904 | — |
-| `u_ctx` | `KL_acmp_lstn_ctx` | **2,650** | 1,984 | — |
-| `traffic_shaper` | `traffic_shaping_core` | **2,579** | 1,276 | — |
-| `chan_map_render` | `KL_chan_map_render` | **2,547** | 1,625 | — |
-| `ctx` | `KL_lwsrp_ctx` | 1,615 | 1,515 | R36×2 |
-| `avtp_rx_monitor` | `KL_avtp_rx_monitor_ctx` | 1,268 | 1,113 | R18×1 |
-| `aaf_packetizer` | `KL_aaf_packetizer` | 1,226 | 1,473 | R36+R18 |
-| `ptp_timestamp` | `ptp_ts_top` | 1,069 | 1,669 | — |
-| `mmcm_servo` | `KL_mmcm_drp_servo` | 933 | 807 | — |
-| `acmp_responder` | `KL_acmp_tlkr_ctx` | 770 | 797 | — |
-| `aaf_latency_taps` | `KL_aaf_latency_taps` | 696 | 614 | — |
-| `maap_engine` | `KL_maap` | 621 | 268 | — |
-| `rx_filter` | `rx_mac_filter` | 569 | 1,570 | — |
-| `bw_gate` | `KL_lwsrp_bw_gate` | 564 | 676 | — |
-| `i2s_player` | `KL_i2s_playback` | 552 | 624 | R36×1 |
-| `buffer_queues` | `traffic_queues` | 531 | 321 | R36×6 R18×6 |
-| `ctx_tx` | `KL_lwsrp_ctx_tx` | 505 | 312 | — |
-| `mac_cam` | `tcam` | 504 | 1,568 | — |
-| `pcm_lpf` | `KL_pcm_lpf` | 445 | 756 | — |
+| block | module | LUT | FF | BRAM | 2026-08-13 |
+|---|---|---|---|---|---|
+| `u_bld` | `KL_aecp_response_builder` | **5,300** | 2,342 | — | **REMOVED** |
+| `csr` | `milan_csr` | **4,066** | 3,763 | R18×2 | present |
+| `walker` | `KL_lwsrp_walker` | **2,938** | 904 | — | **REMOVED** |
+| `u_ctx` | `KL_acmp_lstn_ctx` | **2,650** | 1,984 | — | **REMOVED** |
+| `traffic_shaper` | `traffic_shaping_core` | **2,579** | 1,276 | — | present |
+| `chan_map_render` | `KL_chan_map_render` | **2,547** | 1,625 | — | present |
+| `ctx` | `KL_lwsrp_ctx` | 1,615 | 1,515 | R36×2 | **REMOVED** |
+| `avtp_rx_monitor` | `KL_avtp_rx_monitor_ctx` | 1,268 | 1,113 | R18×1 | present |
+| `aaf_packetizer` | `KL_aaf_packetizer` | 1,226 | 1,473 | R36+R18 | present |
+| `ptp_timestamp` | `ptp_ts_top` | 1,069 | 1,669 | — | present |
+| `mmcm_servo` | `KL_mmcm_drp_servo` | 933 | 807 | — | present, permanently idle |
+| `acmp_responder` | `KL_acmp_tlkr_ctx` | 770 | 797 | — | **REMOVED** |
+| `aaf_latency_taps` | `KL_aaf_latency_taps` | 696 | 614 | — | present |
+| `maap_engine` | `KL_maap` | 621 | 268 | — | present — and now load-bearing |
+| `rx_filter` | `rx_mac_filter` | 569 | 1,570 | — | present |
+| `bw_gate` | `KL_lwsrp_bw_gate` | 564 | 676 | — | **REMOVED** |
+| `i2s_player` | `KL_i2s_playback` | 552 | 624 | R36×1 | present |
+| `buffer_queues` | `traffic_queues` | 531 | 321 | R36×6 R18×6 | present |
+| `ctx_tx` | `KL_lwsrp_ctx_tx` | 505 | 312 | — | **REMOVED** |
+| `mac_cam` | `tcam` | 504 | 1,568 | — | present |
+| `pcm_lpf` | `KL_pcm_lpf` | 445 | 756 | — | present |
+
+Seven of the twenty-one leaf blocks over 400 LUTs are gone, and **`KL_maap`
+changed job**: it is the only 1722-family protocol engine left in this
+repository's RTL, and the protocol processor's talker cannot declare a stream
+without an `ALLOC_DA` success through it — so the `MAAP_P` prune below is no
+longer a "static addresses" trade, it disables the talker. In their place
+sits `KL_pp_shadow`, which is not in this table because this table predates
+it; its measured cost is in the findings page named in the banner. The servo
+row is marked *permanently idle* rather than removed: it is still built, but
+`SET_CLOCK_SOURCE` was the only writer of its selector, so it can never leave
+idle.
 
 ## What is actually optional
 
@@ -288,6 +340,14 @@ AAF admission *shut*, because the claim can never complete.
 `srp.stream_dmac_base` is the literal `maap`.
 *Forces re-measurement of* MAAP claim/defend behaviour and any address-collision
 result that depended on the engine answering. **Defaults to PRESENT.**
+**Re-read this lever after 2026-08-13**: the protocol processor implements no
+MAAP by design and reaches `KL_maap` through `KL_pp_maap_shim`, and its
+talker declares only after an `ALLOC_DA` success. So `MAAP_P = 0` no longer
+means "static addresses" — **it means no source ever declares and the talker
+half of ACMP is dead by construction**. The tie-off path is deliberately the
+same one a still-probing allocator takes, so nothing takes an untested
+branch; the capability loss is total and must be a config decision, never a
+size-pressure reflex.
 
 **`I2SPB_P = 0` — I2S DAC playback.**
 *Buys* 454 LUT / 631 FF / 1 BRAM36 (yosys estimate).
@@ -338,12 +398,17 @@ These are not prune-or-keep; they are built for the largest shape regardless of
 what the config asks for. Parameterising them to the *actual* shape is worth more
 than pruning in a small build and costs nothing in a large one.
 
-| candidate | LUT | scales with |
-|---|---|---|
-| `chan_map_render` | 2,547 | physical channels and slot count — a 2-channel build should not carry a 64-channel crossbar |
-| `avtp_rx_monitor` | 1,268 | per-context counter banks |
-| `KL_lwsrp_ctx` + `ctx_tx` | 2,120 | the L+T attribute rows |
-| `acmp_responder` | 770 | talker contexts — a listener-only entity needs none |
+| candidate | LUT | scales with | 2026-08-13 |
+|---|---|---|---|
+| `chan_map_render` | 2,547 | physical channels and slot count — a 2-channel build should not carry a 64-channel crossbar | still open |
+| `avtp_rx_monitor` | 1,268 | per-context counter banks | still open |
+| `KL_lwsrp_ctx` + `ctx_tx` | 2,120 | the L+T attribute rows | **REMOVED** — the processor sizes its SRP arrays from the entity shape instead |
+| `acmp_responder` | 770 | talker contexts — a listener-only entity needs none | **REMOVED** — same, via `ACMP_SRC_C` |
+
+Half of tier 2 was answered by deletion rather than by parametrisation, and
+the half that answered it did so *better*: the processor's ACMP and SRP arrays
+are sized from `adp_shape_defaults.svh`, i.e. from the same config that
+declares the shape, which is exactly what this tier was asking for.
 
 ### Tier 3 — core, not reclaimable by parametrisation
 
@@ -353,6 +418,20 @@ implement mandatory behaviour; the only route into them is **structural** —
 sequentialising wide parallel compares, sharing duplicated decode, replacing
 per-index logic with a mux behind a counter. That is a redesign question, not a
 parameter question, and it should be costed separately.
+
+> **And that is precisely what happened (2026-08-13).** `u_bld`, `walker` and
+> `u_ctx` — **10,888 of those 17,533 LUTs** — were not parameterised, dieted
+> or shared: they were **REMOVED**, together with the rest of the 1722.1/SRP
+> plane, and replaced by a processor plane that measures **+6,956 LUT in
+> context** against **−15,474** removed
+> ([`../findings/PP_SHADOW_AREA_0812.md`](../findings/PP_SHADOW_AREA_0812.md),
+> hierarchical utilization, both sides same instrument). The tier-3 verdict
+> was right that no parameter could reach them, and wrong to imply that made
+> them permanent. `csr` and `traffic_shaper` remain, and their structural
+> question is unchanged. **Do not add these figures to the findings page's
+> net** — this page is a 2026-07-27 synthesis snapshot at the 8×8 shape and
+> that page is an in-context measurement at the shipping 1×1 shape; they are
+> different instruments on different designs.
 
 ## The 9,993 LUTs outside the datapath
 
@@ -372,8 +451,8 @@ the work:
 | soft CPU + caches | 29 | out of scope |
 | SoC glue (DMA rings etc.) | 41 | largest single consumer, never reviewed |
 | `traffic_queues` — egress FIFOs | 9 | largest datapath user |
-| lwSRP (`top`+`rx`+`ingress`+`mrpdu_fifo`) | ~6.5 | |
-| AECP ingress | 1.5 | |
+| lwSRP (`top`+`rx`+`ingress`+`mrpdu_fifo`) | ~6.5 | **REMOVED 2026-08-13** |
+| AECP ingress | 1.5 | **REMOVED 2026-08-13** |
 | `milan_csr` | 1.0 | |
 | **free** | **44** | |
 
@@ -388,13 +467,13 @@ use it, not a yosys estimate and not a hierarchy roll-up. Ranked (LUTRAM LUTs;
 | array | where | size | primitives | LUTs | ~slices |
 |---|---|---|---|---|---|
 | `storage_31` = `tx_sf` payload | LiteX glue, `milan_soc.py` | 512 × 82 | **RAM64M ×224** | **896** | **224** |
-| `ctx_ram` | [`KL_acmp_lstn_ctx.sv:282`](../../hdl/ieee17221/acmp/KL_acmp_lstn_ctx.sv#L282) | 9 × 317 | RAM32M ×112 | 448 | 112 |
+| `ctx_ram` | `KL_acmp_lstn_ctx.sv:282` — module REMOVED 2026-08-13 | 9 × 317 | RAM32M ×112 | 448 | 112 |
 | `col_r` diag mirror (×10) | [`KL_avtp_rx_monitor_ctx.sv:750`](../../hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv#L750) | 8 × 32 | RAM32M ×6 ea | 240 | 60 |
 | `mem` (3× `axis_fifo`) | `ptp_timestamp`, third_party | 2 × 73 | RAM32M ×13 ea | 132 | 33 |
-| `cbuf_r` | [`KL_aecp_response_builder.sv:360`](../../hdl/ieee17221/aecp/KL_aecp_response_builder.sv#L360) | 64 × 64 | RAM64M ×22 | 86 | 22 |
-| `fword_r` ×2 | `KL_acmp_{lstn,tlkr}_ctx.sv` | 9 × 64 | RAM32M ×11 ea | 88 | 22 |
+| `cbuf_r` | `KL_aecp_response_builder.sv:360` — module REMOVED 2026-08-13 | 64 × 64 | RAM64M ×22 | 86 | 22 |
+| `fword_r` ×2 | `KL_acmp_{lstn,tlkr}_ctx.sv` — both REMOVED 2026-08-13 | 9 × 64 | RAM32M ×11 ea | 88 | 22 |
 | `mem_r` | [`cdc_pair_fifo.sv:45`](../../hdl/common/cdc_pair_fifo.sv#L45) | 8 × 52 | RAM32M ×9 | 36 | 9 |
-| `rec_ram_r` | [`KL_persist_journal.sv:179`](../../hdl/ieee17221/aecp/KL_persist_journal.sv#L179) | 48 × 32 | RAM64X1S ×32 | 32 | 8 |
+| `rec_ram_r` | `KL_persist_journal.sv:179` — module REMOVED 2026-08-13 | 48 × 32 | RAM64X1S ×32 | 32 | 8 |
 
 The table is the `AreaOptimized_medium` build (the only one that placed, so the
 only one with a full report). `storage_31` sat in the *"SoC glue — largest single
@@ -432,6 +511,13 @@ the shortfall was packing, and this one array was ~196 slices of it.
 **Rule:** census with Vivado's RAM report, never by module. The array that decides
 packing may be in generated glue that no module owner is watching.
 
+Four of the eight rows above named modules that no longer exist (≈654 LUTRAM
+LUTs, ≈164 SLICEMs, all of it in the deleted 1722.1 plane). The *rule* is
+what survives and it is the point of the section — and it applies with more
+force now, not less: the protocol processor brings its own arrays, so the
+next census must be run on a build that contains it rather than
+extrapolated from this one.
+
 ### Stage 1 — spend the free tiles first: BRAM as the register file
 
 **BRAM is not the constraint; LUTs are.** So the trade that matters is *LUTs into
@@ -452,7 +538,9 @@ logic into memory lookups**:
   reads combinationally — so this is a partition exercise, not a wholesale swap.
 * **`u_bld` — 5,300 LUT.** A response builder is largely a wide field mux over
   descriptor data. Whatever part is a pure function of a descriptor index is a
-  ROM.
+  ROM. The replacement took that argument to its end point rather than halfway:
+  the protocol processor's AECP µCPU keeps no descriptor memory in fabric at
+  all and fetches the model from DDR3.
 * **`u_ctx` — 2,650 LUT**, `walker` — 2,938 LUT: same question, per block.
 
 Each conversion costs a **read latency** and that is the real risk, not the
@@ -467,7 +555,7 @@ the 512 MB DDR3. The candidates are **not equal**:
 | FIFO | tiles | move to DDR3? |
 |---|---|---|
 | DMA / host rings (in the SoC glue's 41) | large | **yes** — already the pattern; the PCM ring already offers `--pcm-ring dram` |
-| `mrpdu_fifo`, AECP ingress | ~3 | **yes** — control-plane, elastic, no deadline |
+| `mrpdu_fifo`, AECP ingress | ~3 | **moot** — both blocks REMOVED 2026-08-13. The processor's own control-frame FIFO is the equivalent candidate, and it is BRAM by construction |
 | `traffic_queues` egress buffers | 9 | **NO, or only with proof** |
 
 **The egress queue buffers are the dangerous one.** They feed the MAC at line

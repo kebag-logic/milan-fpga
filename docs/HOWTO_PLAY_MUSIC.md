@@ -9,6 +9,15 @@ The player already ships on the board as **`/usr/bin/play-milan`** (source of
 truth: `milan-tests-avb/fpga/buildroot/br2-external/board/milan_naxriscv/rootfs_overlay/usr/bin/play-milan`).
 Read its header before changing anything — every parameter in it is measured.
 
+## Contents
+
+- **[1. Convert, on a peer host — never on the board](#1-convert-on-a-peer-host--never-on-the-board)** — The one `ffmpeg` line that produces the ring's native format (raw **S32_BE**, 48 kHz, 8 ch interleaved) and why each part of it is mandatory rather than preferred: the board is a 1-hart softcore at 0 % idle so decoding on it guarantees underruns, there is no sample-rate converter in the datapath, and a 44.1 kHz source needs `-1 dB` because resampling overshoots by a measured +0.91 dB and a loud master will clip.
+- **[2. Transfer — HTTP, not scp](#2-transfer--http-not-scp)** — Stage the whole file in `/tmp` first, over HTTP. The numbers are the argument: dropbear moves ~41 KB/s (softcore crypto), `wget` ~800 KB/s, and playback needs 1.536 MB/s — so streaming during playback competes with playback for the same hart.
+- **[3. Play](#3-play)** — `play-milan`, the four things it does that are all load-bearing (the `ktimers/0` priority raise, killing the PipeWire consumer, the map write, the exact `aplay` invocation), and an explicit do-not-improve list: `plughw:` underruns on format conversion alone, the buffer size is a cap not a choice, and the `HRTIMER_MODE_REL_HARD` "fix" hung the board dead.
+- **[Honest expectation](#honest-expectation)** — This board does **not** play 8ch/48k gap-free, and the section says so with numbers. What the recipe reliably buys is survival — without it `aplay` dies at ~20 s on the first 1.7 ms underrun. Treat a nonzero xrun count as the platform's capacity limit, not a regression.
+- **[The channel map changed at VERSION 0x0043](#the-channel-map-changed-at-version-0x0043)** — The old first trap — "the power-on map is silence" — is retired: since `0x0043` stream channels 0-7 boot mapped to the host ring, so `play-milan` should sound with no map write at all. Keeps the manual bench layout for the tone-plus-music case, with two cautions: the map has been per stream **channel** since `0x0027`, not per pair slot, and the window writes a source word, so it is untouched by the `0x0043` cluster renumbering.
+- **[If it is silent](#if-it-is-silent)** — A symptom → first-check table for the failures that actually happen here: dying at ~20 s (you bypassed `play-milan`), continuous underruns (`plughw:` or the file is not on tmpfs), a silent listener needing an explicit connect-tx, a board that looks dead after cold boot until it transmits once, wrong channels (check the `0x0043` map, not an older recipe), an entity that discovers but enumerates nothing (the descriptor image was never loaded into DRAM), and a `NOT_IMPLEMENTED` reply — which is designed behaviour for every opcode except `READ_DESCRIPTOR`, not a fault.
+
 ## 1. Convert, on a peer host — never on the board
 
 The board is a 1-hart 100 MHz softcore at 0% idle. Decoding on it guarantees
@@ -119,9 +128,15 @@ Two cautions on those writes:
   2k and 2k+1"), so on current gateware these two writes set **channel 0** and
   **channel 1**, not channels 0/1 and 2/3. Channels 2-7 keep their boot value.
 * The window writes a *source word*, not a cluster index, so it is unaffected
-  by the 0x0043 cluster renumbering. `GET_AUDIO_MAP` and the RAM readback are
-  keyed by the same register, so their agreeing proves storage, not the write
-  key — probe with a known-content `ADD_AUDIO_MAPPINGS` if you doubt it.
+  by the 0x0043 cluster renumbering. The AEM readback that used to cross-check
+  this is still **not available**: the protocol processor's AECP uCPU answers
+  `READ_DESCRIPTOR` and nothing else, so `GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`
+  and `REMOVE_AUDIO_MAPPINGS` come back as a conformant `NOT_IMPLEMENTED` echo
+  — a well-formed response, not a mapping. The `0x900` window is therefore the
+  only programmer AND the only reader of the map. Use the
+  `CHMAP_SNAP`/`CHMAP_LOOP` readback at `0x910`/`0x914` — it reports what the
+  RAM actually holds, and its `LOOP_SUSPECT` bit separates a slot that is
+  mapped but never fed from one that is working and quiet.
 
 ## If it is silent
 
@@ -132,3 +147,6 @@ Two cautions on those writes:
 | wire is up, listener silent | the peer needs an explicit connect-tx: our ACMP listener answers CONNECT_RX SUCCESS with a null stream_id and never issues CONNECT_TX |
 | board looks dead from the peer after a cold boot | the RX shield drops unsolicited inbound ARP until the board transmits once — ping *out* first |
 | plays but wrong channels | check the map against the 0x0043 table above, not against an older recipe |
+| the controller sees the entity but enumerates nothing — every `READ_DESCRIPTOR` returns `BAD_ARGUMENTS` | the **descriptor image was not loaded into DRAM** before the entity was enabled. The AEM model is no longer a fabric ROM: the processor's descriptor store fetches it from main memory at a **compile-time base** (the top 1 MiB of `main_ram`, derived by the LiteX builder — there is no base register to reprogram). An unloaded region fails the `"AEMI"` header magic, reports a configuration count of zero, and the read is rejected on its `configuration_index` before any locate is attempted — hence `BAD_ARGUMENTS` rather than `NO_SUCH_DESCRIPTOR`. Load the image, then re-enable — a late load heals **without a reset**, because every locate against an invalid image re-arms the header probe |
+| enumeration mostly works but one descriptor type comes back `NO_SUCH_DESCRIPTOR` | **not the same fault as the row above.** `NO_SUCH_DESCRIPTOR` means the image *is* loaded and that descriptor type/index is genuinely not in it — a model-content problem, not a load problem. Check the image against the config it was generated from |
+| a controller command comes back `NOT_IMPLEMENTED` | **expected, not a fault.** `READ_DESCRIPTOR` is the only opcode this build implements; everything else — AEM, ADDRESS_ACCESS, MVU alike — gets a conformant `NOT_IMPLEMENTED` echo with the right `message_type`, length and `controller_data_length`. `IDENTIFY_NOTIFICATION` sent as a *command* answers `BAD_ARGUMENTS`, also by design |

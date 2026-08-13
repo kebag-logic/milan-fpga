@@ -24,6 +24,62 @@ docs/
 > Superseded and completed-plan docs are moved out of this tree into
 > [`../historical_now_obsolete/`](../historical_now_obsolete/README.md) — indexed there.
 
+## Read this before anything else: the control plane was replaced (2026-08-13)
+
+This repository's own IEEE 1722.1 / SRP control-plane RTL — the ADP advertiser
+and parser, the whole AECP/AEM engine, the ACMP talker and listener, and the
+lwSRP applicant — is **deleted**. No parameter, no fallback, no shadow arm. What
+serves the control plane now is `hdl/milan/KL_pp_shadow.sv`, the wrapper around
+the pinned `protocol-processor` submodule, instantiated unconditionally by
+`hdl/milan/milan_datapath.sv`. It owns ADP, ACMP and SRP; MAAP stays in this
+fabric.
+
+**The AECP surface, stated plainly: this entity answers `READ_DESCRIPTOR`, and
+answers every other AECP command with a conformant `NOT_IMPLEMENTED` echo.** The
+processor's AECP uCPU has landed. `READ_DESCRIPTOR` (0x0004) returns `SUCCESS`
+carrying `configuration_index`, the reserved field and the descriptor;
+`NO_SUCH_DESCRIPTOR` on a locate miss; `BAD_ARGUMENTS` on a bad configuration
+index — both with the IEEE 1722.1 §7.4.5 4-byte `{descriptor_type,
+descriptor_index}` stub. Every other opcode and message type (AEM, ADDRESS_ACCESS,
+MVU) gets an echo with the correct `message_type`+1, length and
+`controller_data_length` — never silence, never malformed.
+`IDENTIFY_NOTIFICATION` (0x0026) sent as a *command* is `BAD_ARGUMENTS` per
+§7.4.39.2. A command whose `target_entity_id` is not ours, and any AECP
+*response* arriving as input, are silently refused: freed, counted, no reply.
+**Known gap:** Milan Δ7 `ACQUIRE_ENTITY` (`NOT_SUPPORTED`, `owner_id` = 0) is
+not distinguished from the generic echo.
+
+An echo is not an implementation. `SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME`,
+`GET_COUNTERS` and the Milan Table 5.22 push, saved-state persistence and the
+audio-map setters are genuinely absent, and so is anything reached only through
+them: the **CRF media clock can never be selected** (the media clock is pinned
+INTERNAL and both media-clock servos are structurally off); every Stream Output's
+**presentation-time offset is pinned at the Milan 2 ms default**; **Milan
+Table 5.4 per-STREAM_OUTPUT counters are gone** (the STREAM_INPUT counters are
+unaffected); and nothing restores a binding across a power cycle.
+
+**The entity model lives in main memory now.** The descriptor store fetches it
+from DDR3 over a read-only master at a **compile-time base** — no base register.
+Software must load the image there **before the entity is enabled**, or every
+`READ_DESCRIPTOR` answers `BAD_ARGUMENTS`: a zeroed region reads as "image not
+loaded" via its header magic/version/checksum, an invalid image reports a
+configuration count of zero, and the microprogram rejects the
+`configuration_index` before it ever attempts a locate. The store's watchdog
+abandons a stalled burst rather than hanging, and a late load heals without a
+reset. **The two error codes discriminate:** `BAD_ARGUMENTS` on every read means
+no image (or a corrupt one); `NO_SUCH_DESCRIPTOR` means the image is loaded and
+that descriptor is genuinely absent from the model. **Nothing in this repository builds or loads that image yet**: the
+generator is the submodule's `protocol-processor/hdl/aecp/desc/gen_desc_image.py`,
+no step turns an `endstation_*.yaml` into its JSON or writes the result to DRAM,
+and the end-station builder's `aecp_aem_rom.svh` is an orphan of the deleted
+`KL_aecp_aem_store`. So on a stock build enumeration returns `BAD_ARGUMENTS`
+until someone supplies the image.
+
+Start at [reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) — its status
+block is the per-register verdict, including the term **STRUCTURAL ZERO** for a
+word whose source is deleted, and the `0x784` TX-arbiter **lane renumbering**
+that makes an old decoder read the wrong mux.
+
 ## ⭐ New here? Start with the guide, then pick your lane
 
 **Two shortcuts before the long form.** If you want to *know what this is* in one page —
@@ -205,7 +261,6 @@ walkthrough), [`../sw/litex/patches/README.md`](../sw/litex/patches/README.md),
 | [MILAN_V12_DEPENDENCY_MATRIX.md](reference/MILAN_V12_DEPENDENCY_MATRIX.md) | Milan v1.2 → FR/NFR dependency matrix with verification traceability. |
 | [`../REQUIREMENTS.md`](../REQUIREMENTS.md) | Normative requirements + the 802.1 gap analysis (REQ-*; partly Zynq-era). |
 | [`../TODO.md`](../TODO.md) | Phased, dependency-ordered task list with status. |
-| [`design/AEM_AND_AECP.md`](design/AEM_AND_AECP.md) | AVDECC entity-model / AECP design record, reconciled to as-built 2026-07-25 (pairs with [`../avdecc/README.md`](../avdecc/README.md)). |
 
 ## 8 - findings/ (the engineering record)
 
@@ -232,11 +287,10 @@ per-lever measured ledger is [`../CHANGELOG.md`](../CHANGELOG.md)
 
 | Where | Purpose |
 |----------|---------|
-| [design/TIME_SYNC.md](design/TIME_SYNC.md) · [design/AUDIO_STREAMING.md](design/AUDIO_STREAMING.md) · [design/AEM_AND_AECP.md](design/AEM_AND_AECP.md) · [design/MAAP_FABRIC.md](design/MAAP_FABRIC.md) · [design/MILAN_TALKER_SM.md](design/MILAN_TALKER_SM.md) | Protocol subsystem design records: the time-sync deep-dive (gPTP → PHC → media clock, servo, every time CSR), the end-to-end audio path (talker/listener chains + latency taps), the AEM/AECP entity-model record (as-built), the fabric MAAP engine, the Milan talker connection SM. |
-| [design/SAVED_STATE_FASTCONNECT.md](design/SAVED_STATE_FASTCONNECT.md) | **Saved-state fast-connect — the persistence journal** (Milan v1.2 §5.5.3.5): the `KLJ1` record format, the QSPI slot map, the torn-write contract, boot replay, and the CSR ingest ABI. The implementation ledger is [`../TODO.md`](../TODO.md) Phase 10. |
+| [design/TIME_SYNC.md](design/TIME_SYNC.md) · [design/AUDIO_STREAMING.md](design/AUDIO_STREAMING.md) · [design/MAAP_FABRIC.md](design/MAAP_FABRIC.md) · [design/MILAN_TALKER_SM.md](design/MILAN_TALKER_SM.md) | Protocol subsystem design records: the time-sync deep-dive (gPTP → PHC → media clock, servo, every time CSR), the end-to-end audio path (talker/listener chains + latency taps), the fabric MAAP engine, the Milan talker connection SM. The AEM/AECP design record was **deleted 2026-08-13 with the engine it described**, and no page has replaced it for the protocol processor's AECP uCPU — which answers `READ_DESCRIPTOR` and echoes a conformant `NOT_IMPLEMENTED` at everything else. Until one exists, the status block at the top of [reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) and §3 of [traceability/ieee1722_1-2021.md](traceability/ieee1722_1-2021.md) are the authoritative statement. |
 | [design/AREA_BUDGET.md](design/AREA_BUDGET.md) · [design/AREA_80_CAMPAIGN.md](design/AREA_80_CAMPAIGN.md) | Where the non-CPU LUTs are, which blocks are optional, the DDR3/BRAM cascade — and the 80% campaign: what may go static, by clause, if the reference builds still fail placement. |
 | [design/PRESENTATION_TIME_WRAP.md](design/PRESENTATION_TIME_WRAP.md) | **Why a far-off talker clock alternates EARLY/LATE instead of biasing.** `avtp_timestamp` is 32 unsigned bits of absolute time, so the listener's comparison is modular with a half-range split at 2³¹; past one 4.294967296 s lap the result carries no direction and no magnitude, and drift walks it round the ring. Three generated figures, and the 214.66 s-vs-90.62 s half-period discrepancy left open rather than reconciled. Settles where `TIMESTAMP_UNCERTAIN` must be driven from. |
-| [NXN_ARCHITECTURE.md](NXN_ARCHITECTURE.md) · [LWSRP_FPGA_ARCHITECTURE.md](LWSRP_FPGA_ARCHITECTURE.md) · [ENDSTATION_BUILDER.md](ENDSTATION_BUILDER.md) · [CHANNEL_MAP_64.md](CHANNEL_MAP_64.md) · [CHMAP64_AEM_BINDING.md](CHMAP64_AEM_BINDING.md) · [AAF_LATENCY_TAPS.md](AAF_LATENCY_TAPS.md) · [LATENCY_HISTORY_RING.md](LATENCY_HISTORY_RING.md) · [MVP_TALKER.md](MVP_TALKER.md) | Top-level subsystem specs: NxN stream scaling, the lwSRP engine, the end-station builder, the 64-channel map + its AEM binding, the per-stage latency taps + DDR3 history ring, the first AAF talker. |
+| [NXN_ARCHITECTURE.md](NXN_ARCHITECTURE.md) · [ENDSTATION_BUILDER.md](ENDSTATION_BUILDER.md) · [CHANNEL_MAP_64.md](CHANNEL_MAP_64.md) · [AAF_LATENCY_TAPS.md](AAF_LATENCY_TAPS.md) · [LATENCY_HISTORY_RING.md](LATENCY_HISTORY_RING.md) · [MVP_TALKER.md](MVP_TALKER.md) | Top-level subsystem specs: NxN stream scaling, the end-station builder, the 64-channel map, the per-stage latency taps + DDR3 history ring, the first AAF talker. The lwSRP architecture record and the chmap64 AEM binding contract were **deleted 2026-08-13** with the engine and the command set they described: SRP is the protocol processor's now, and the CSR `0x900` window is the only programmer of the channel map. |
 | [templates/](templates/README-tests.template.md) | Per-module doc templates (parameters, tests) — their rows roll up 1:1 into the traceability matrix. |
 | [diagrams/](diagrams/README.md) | Generated system diagrams (the giant single-page system map and friends). Every diagram ships as an editable `.drawio` + rendered `.svg`/`.png`; edit the source (`.gen.py` or the `.drawio`), never the render. |
 | [DOC_GENERATION.md](DOC_GENERATION.md) | **How to generate the docs**: the matrix generator, the TerosHDL module pages, the diagram + chronogram pipelines, the gate/CI — commands + the you-changed-X-run-Y cheat sheet. |

@@ -81,9 +81,9 @@ Commit all of: the `.gen.py`, the `.drawio`, the `.svg`, the `.png` — and
 register the diagram in the catalog,
 [`diagrams/README.md`](diagrams/README.md) (what it shows, editable source,
 renders, embed sites). Caveat: the drawio desktop CLI hangs headless on this
-box; the repo's minimal renderer
-([`hdl/ieee17221/aecp/doc/atdecc_architecture.render.py`](../hdl/ieee17221/aecp/doc/atdecc_architecture.render.py)) works for
-plain-label files but mangles HTML-formatted labels — verify its output.
+box, and the repo's own minimal drawio renderer was **deleted on 2026-08-13**
+with the AECP doc tree it lived in. Render with `rsvg-convert`, which is what
+every catalog entry in `diagrams/README.md` now names.
 
 ## 4. Waveform chronograms (WaveDrom)
 
@@ -150,5 +150,5 @@ honest — run them locally first, exit-checked, never piped through `tail`.
 | A `.gen.py` or `.drawio` diagram master | the `.gen.py` (or draw.io export) + `rsvg-convert`; update the catalog |
 | A `wd_*.json` chronogram | [`scripts/gen_wavedrom.py`](../scripts/gen_wavedrom.py) on it; inspect the png |
 | Deleted or archived a doc | add its basename to `RETIRED` in [`scripts/docs_check.py`](../scripts/docs_check.py), then run the gate — it lists every reference now pointing at nothing |
-| A config schema / builder emission | [`sw/builder/test_builder.py`](../sw/builder/test_builder.py) |
+| A config schema / builder emission | [`sw/builder/test_builder.py`](../sw/builder/test_builder.py) — note the builder's `aecp_aem_rom.svh` output is an **orphan** since 2026-08-13: it fed the deleted fabric AEM store, not the DRAM descriptor image the protocol processor's AECP µCPU reads, and no generator in this repo produces that image |
 | Any `*.md` at all | [`scripts/docs_check.py`](../scripts/docs_check.py) before pushing |

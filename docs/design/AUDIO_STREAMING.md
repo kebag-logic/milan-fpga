@@ -13,6 +13,58 @@ deep-dive for the media plane; the scaling model behind it is
 [`NXN_ARCHITECTURE.md`](../NXN_ARCHITECTURE.md), the CSR authority is
 [`reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
 
+> **THE MEDIA PLANE IS INTACT; ITS CONTROL SURFACE IS THIN (2026-08-13).**
+> Nothing in the datapath below changed when this repository's IEEE 1722.1 /
+> SRP plane was deleted in favour of the pinned `protocol-processor`
+> submodule. The submodule has since landed its **AECP µCPU**, so the earlier
+> reading of this page — that the device answers nothing on AECP — is wrong and
+> is corrected here. The device is reachable: it **answers `READ_DESCRIPTOR`**
+> (`SUCCESS` carrying the configuration index, the reserved field and the
+> descriptor; `NO_SUCH_DESCRIPTOR` on a locate miss; `BAD_ARGUMENTS` on a bad
+> configuration index, both error paths carrying the IEEE 1722.1 §7.4.5 4-byte
+> `{descriptor_type, descriptor_index}` stub), and it **answers every other
+> AECP command with a conformant `NOT_IMPLEMENTED` echo** — right
+> `message_type`, right length, right `controller_data_length`. Controller
+> enumeration is therefore **reachable** again — once the descriptor image is in
+> DRAM, which nothing in this repository does for you yet (§6).
+>
+> What did **not** come back is every command that used to configure this media
+> plane. An echo is not an implementation, and none of the bullets below is
+> softened by one:
+>
+> * **The presentation-time offset is pinned at the Milan 2 ms default** for
+>   every Stream Output. `SET_MAX_TRANSIT_TIME` / `SET_STREAM_INFO`
+>   (MSRP_ACC_LAT) was its only writer. That is a DEFAULT, not a zero — 0 ns
+>   would be a presentation time in the past and every listener would drop
+>   every frame as late (§4).
+> * **No `SET_STREAM_FORMAT`, no `SET_SAMPLING_RATE`, no audio-map commands.**
+>   The wire format and the channel map are whatever the build elaborated
+>   with, plus the CSR debug ports (§2.2, §5).
+> * **The CRF media clock can never be SELECTED.** `SET_CLOCK_SOURCE` was the
+>   only writer of the live CLOCK_DOMAIN `clock_source_index`, so it is pinned
+>   at 0 (INTERNAL) for the life of the build: `KL_mmcm_drp_servo` and the
+>   `KL_media_nco` packet-grid servo can never leave idle and `A_MCSRV_STAT`
+>   `0x8F8` reads that idle. `KL_crf_rx` still parses, counts and reports —
+>   it simply cannot steer anything (§3.2, §9 of
+>   [`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md)).
+> * **Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are gone**
+>   (`KL_talker_diag_ctx` is no longer instantiated — with `GET_COUNTERS`
+>   unimplemented nothing could read it). **The STREAM_INPUT counters at `0x6B8`
+>   `A_STRMW_CNT` are UNAFFECTED and still live** (§3.2).
+>
+> Two more facts belong on any page that talks to this control surface. The
+> known gap: Milan Δ7 `ACQUIRE_ENTITY` is **not** distinguished from the
+> generic echo — a controller gets `NOT_IMPLEMENTED`, not the `NOT_SUPPORTED`
+> with `owner_id` = 0 that Milan asks for. And the descriptors that
+> `READ_DESCRIPTOR` serves are an **image in DDR3 at a compile-time base** —
+> there is no base register, software cannot relocate it, and it must be loaded
+> **before the entity is enabled** or every read answers
+> `BAD_ARGUMENTS`. On a stock build of this repository it is not loaded,
+> because no step here builds or writes it (§6).
+>
+> ADP, ACMP and SRP are served by the processor, so a stream still gets
+> discovered, connected, reserved and paced exactly as described below.
+
 ![Audio stream path — talker chain and listener chain with CSR touchpoints and latency taps](../diagrams/audio_stream_path.png)
 
 > The picture above is generated (editable
@@ -26,8 +78,8 @@ deep-dive for the media plane; the scaling model behind it is
 - **[2. Talker path — capture to wire](#2-talker-path--capture-to-wire)** — Everything from a microphone or a host ring to the MAC. The one contract all four sources speak, the packetizer's channel math (`42 + 24·C` bytes, always `≡ 2 (mod 8)`), the fractional-N strobe that fixed the 48,828.125 Hz audible pumping, and the egress fact people trip on — the fabric AAF stream is injected *after* the shaper and never queues through CBS.
 - **[3. Listener path — wire to render](#3-listener-path--wire-to-render)** — The receive half, with the counter contract spelled out: what UNSUPPORTED_FORMAT suppresses, the 8-PDU settle window, the 100 ms unlock, and that counters reset on not-bound → bound *only*. Also the DRAM-vs-BRAM PCM ring choice and the wire-truth rule that de-interleaves by `channels_per_frame` from the wire, never the AEM store.
 - **[4. Latency: presentation offset vs pipeline](#4-latency-presentation-offset-vs-pipeline)** — Two numbers usually conflated, then the measurement: end-to-end equals the presentation offset *exactly* (pto 500 µs, `ts_delta` +384 µs, 0 LATE) while the pipeline is ≈ 116 µs. The per-stage talker breakdown shows why neither dominant term shrinks with a faster clock — they are the 6-sample window and the class-A interval.
-- **[5. Channel mapping — 64 in / 64 out](#5-channel-mapping--64-in--64-out)** — One paragraph of orientation: the fabric selects and never composes, the canonical programmer is `ADD/REMOVE/GET_AUDIO_MAP` (43/44/45) with CSR `0x900` as the bench override, and pointers to the two deep docs.
-- **[6. Status (2026-07-26)](#6-status-2026-07-26)** — What is actually proven, per path. Record path: silicon, with the tone table matched 900/900 and a −72.7 dB loop. Playback path: the fabric chain went continuous on 2026-07-26 and is TB-proven 40/40 through a decoded DAC pin, **never flashed**. Plus the open DRAM-ring read artifact I6, why `--pcm-ring bram` kills it at the root, and the AVTP-3 version-field gate (closed 2026-08-08).
+- **[5. Channel mapping — 64 in / 64 out](#5-channel-mapping--64-in--64-out)** — One paragraph of orientation: the fabric selects and never composes, and — since the audio-map commands draw a `NOT_IMPLEMENTED` echo rather than an implementation — the CSR `0x900` window is the **only** programmer of the map RAMs.
+- **[6. Status (2026-07-26; control-surface addendum 2026-08-13)](#6-status-2026-07-26-control-surface-addendum-2026-08-13)** — What is proven on silicon versus what is only simulated, and then the addendum that reframes it: the audio datapath is intact and the device is enumerable again over `READ_DESCRIPTOR`, but nothing that *sets* this plane came back. Presentation offset pinned at the Milan 2 ms default, no SET_STREAM_FORMAT or SET_SAMPLING_RATE, no audio-map setters, the CRF media clock unselectable, the Table 5.4 talker counters not merely unreadable but uninstantiated — plus the descriptor-image-in-DRAM load order the reads depend on.
 
 ## 1. A stream's life
 
@@ -38,9 +90,12 @@ talker groups **6 samples per channel into one PDU**, 8000 PDUs/s at
 
 Each PDU's `avtp_timestamp` is the **presentation time**: the gPTP
 nanosecond clock latched when the PDU's first sample was captured, plus
-the configurable transit offset (packetizer TCTX word `w4 TS`, "latched
+the transit offset (packetizer TCTX word `w4 TS`, "latched
 presentation time (ptp_ns + transit at first-sample capture)"; row
-[AVTP-10](../traceability/ieee1722-2016.md)).
+[AVTP-10](../traceability/ieee1722-2016.md)). That offset was configurable
+per Stream Output over AECP and no longer is — `SET_MAX_TRANSIT_TIME` draws a
+`NOT_IMPLEMENTED` echo, which changes nothing — so it holds the **Milan 2 ms
+default** for the life of the build (banner above, §4).
 
 The listener does the inverse: for every accepted PDU it computes
 `ts_delta = avtp_timestamp − ptp_now` (signed; negative = LATE, i.e. the
@@ -152,19 +207,32 @@ media tick the engine walks the enabled slots low-to-high and injects
 one pair per slot with a settle gap — six ticks fill one PDU per talker
 (module header).
 
-The map is programmed by the AEM (ADD/REMOVE mappings), with the CSR
-`0x900` window as the bring-up debug port
-([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) "0x900 — channel-map fabric"). Since
-VERSION `0x002C` the lane selection follows the SHAPE: a build that
-compiles the dynamic-map machinery (writers + boot identity seeder)
-routes the crossbar into the packetizer **by construction** — power-on
-reproduces the declared front-end THROUGH the seeded map, no software
-arm involved. On a static shape (no writer, no seeder) the front-end
-pair stream drives the packetizer bit-identically as before, and
-`CHMAP_CTRL[0]` keeps its bring-up meaning there: arm the debug-written
-crossbar. The host-playback wholesale override (`pb_enable`) outranks
-the lane mux either way — an active ALSA session claims the pair source
-exactly as the driver contract documents.
+**The CSR `0x900` window is now the only programmer of that map RAM**
+([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) "0x900 — channel-map
+fabric"). The AEM audio-map command set (`GET_AUDIO_MAP` /
+`ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS`) is **not implemented** — the
+µCPU answers each of them with the conformant `NOT_IMPLEMENTED` echo, which
+programs nothing — so the two-writer arbitration this page used to describe
+(AEM canonical, CSR subordinate) has one writer left. Two consequences follow,
+and both are observable:
+
+* **The VERSION `0x002C` shape rule collapsed to its static leg.** The
+  dynamic-map writers *and the boot identity seeder* lived in the deleted
+  engine and nothing on the processor side replaced them, so `aecp_odmap_dyn`
+  is a structural 0 on every build and the lane
+  select is `CHMAP_CTRL[0]` alone. At reset that is 0, and the front-end pair
+  stream drives the packetizer **bit-identically** to the pre-crossbar
+  wiring — the shipping default is unchanged.
+* **Arming the crossbar over an unprogrammed RAM is now silence.** `CMAP`
+  resets all-zero and nothing seeds it any more, so `CHMAP_CTRL[0] = 1`
+  before writing entries emits digital silence on every channel — every slot
+  still *pulses* (§4 of [`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md): unmapped
+  owes the wire silence inside a frame that still goes out), so the stream
+  keeps flowing and the audio is gone. Program first, then arm.
+
+The host-playback wholesale override (`pb_enable`) outranks the lane mux
+either way — an active ALSA session claims the pair source exactly as the
+driver contract documents.
 
 ### 2.3 The shared packetizer and the channel math
 
@@ -215,15 +283,22 @@ comment is explicit: "AAF injected AFTER the shaper (MVP: bypasses CBS
 for continuous emission, like ADP; class-A shaping = the is_1g
 follow-up)" (`milan_datapath.sv`).
 
-Bandwidth protection instead comes from admission: an lwSRP reservation
+Bandwidth protection instead comes from admission: an SRP reservation
 is a precondition for AAF transmit (`FR-SRP-03`), the reservation also
 resolves into the class-A CBS idleSlope for the host-side queue, and
 `AAF_CTRL[1]` remains the bypass escape hatch
-([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) 0x680 lwSRP section).
+([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) 0x680 SRP section).
+That reservation is the **protocol processor's** now — the datapath reads
+`sr_admitted` / granted slope / adopted domain off its class-D face every
+clock, where it used to read `KL_lwsrp_bw_gate`. The slope-vs-gate ordering
+changed shape and not safety; the honest account is in
+[`../reference/EGRESS_QUEUE_MAP.md`](../reference/EGRESS_QUEUE_MAP.md).
 
 Per-stream admission for talker t > 0 composes TCTX enable, the
-per-stream lwSRP gate and the engine-wide MAAP claim
-(`milan_datapath.sv`, `aaf_stream_en_w`).
+per-stream SRP admission gate and the engine-wide MAAP claim
+(`milan_datapath.sv`, `aaf_stream_en_w`); at t = 0 the same terms compose as
+`aaf_gate`, where the DA term now lives *inside* the declaration (the
+processor's talker cannot declare without a MAAP `ALLOC_DA` success).
 
 Presentation time is **not** stamped at egress — it was latched at
 first-sample capture inside the packetizer (§1). The independent
@@ -239,9 +314,11 @@ pipeline notes).
 RX frames pass the MAC, the `ptp_ts_top` RX timestamp point and the
 TCAM DMAC filter; `avtp_stream_parser` observes the RX AXI-Stream
 non-intrusively and matches the **wire-truth stream_id** against
-`KL_stream_table` — never the DMAC. Table entry 0 aliases the ACMP
-listener SM's bound record combinationally (the N = 1 no-regression
-shape); entries 1..N−1 are written through the CSR 0x800 window
+`KL_stream_table` — never the DMAC. Table entry 0 aliases the bound record
+combinationally (the N = 1 no-regression shape) — that record is now
+published by the protocol processor's ACMP listener over the class-D face,
+and `bound` is what a reader must take as truth (`ACMPL_STATE` no longer
+tracks PROBING/SETTLED); entries 1..N−1 are written through the CSR 0x800 window
 ([`hdl/ieee1722/avtp/KL_stream_table.sv`](../../hdl/ieee1722/avtp/KL_stream_table.sv) header).
 
 ### 3.2 The RX monitor: lock and counter contract
@@ -268,7 +345,16 @@ byte-extracted from the PipeWire module-avb reference (module header):
 - The ctx engine also computes LATE/EARLY timestamps from `ts_delta`
   against the presentation offset (§1), and for an external clock
   source the media-lock condition additionally requires playback-servo
-  convergence (`servo_conv_i` port note — house rule).
+  convergence (`servo_conv_i` port note — house rule). On this build the
+  clock source can never *be* external (`SET_CLOCK_SOURCE` is gone, index
+  pinned at 0 = INTERNAL), so that arm of the rule is unreachable and media
+  lock is the immediate internal-clock case.
+
+These are the **STREAM_INPUT** counters, and they are untouched by the
+control-plane substitution: the `0x6B8` `A_STRMW_CNT` window and the
+per-stream Table 7-157 views are live. What died with GET_COUNTERS is the
+**STREAM_OUTPUT** side — the Milan Table 5.4 talker counter context is no
+longer instantiated at all, because nothing could have read it.
 
 The monitor's `pdu_accept_p` pulse (bound + stream_id + format valid,
 fired at parse-complete) is the **commit verdict** for the
@@ -355,10 +441,10 @@ output - the only route from an ALSA playback ring to the line-out that
 does not go out on the wire and back.
 
 Which of the two sources reaches the DAC, and at what rate, is
-`KL_i2s_feed_mux`: on a dynamic-map shape the render crossbar owns the
-feed by construction (0x002C); on a static shape `CHMAP_CTRL[0]`
-selects it (0 = the listener render tap passed through bit- and
-cycle-identically, LPF override included). Crossbar mode delivers
+`KL_i2s_feed_mux`. Its select was `aecp_dmap_dyn | CHMAP_CTRL[0]`; with no
+dynamic-map writer anywhere on the device the first term is a structural 0, so
+**`CHMAP_CTRL[0]` alone selects** (0 = the listener render tap passed through
+bit- and cycle-identically, LPF override included). Crossbar mode delivers
 the phys{0,1} pair on the **48 kHz media tick**, with the
 LPF masked because it belongs to the listener tap it filters. The pace
 has to move with the source: the listener feed's strobe is an inbound
@@ -372,7 +458,14 @@ read the chain end to end.
 The rendering rule throughout is **wire truth**: de-interleave stride
 and channel count follow `channels_per_frame` *from the wire* (the
 monitors export `wire_chans` per stream; 0-before-first-accept is
-treated as 2), never the AEM store.
+treated as 2), never a declared format. The rule was written against the AEM
+store, and a declared format can be readable on this device again — whatever
+descriptor image is loaded in DDR3 is what `READ_DESCRIPTOR` serves, so a
+controller can once more be told a channel count. That is exactly the input the
+rule refuses to trust. The image is authored ahead of the build and no runtime
+writer updates it, so it can declare a width the front-end cannot feed just as
+easily as a live AEM store could; the fabric keeps de-interleaving by what
+arrived on the wire.
 
 The declared-8ch/wire-2ch mismatch produced total silence in the field
 and the store-driven stride bug played quarter-rate garbage (rows
@@ -385,9 +478,17 @@ and the store-driven stride bug played quarter-rate garbage (rows
 Two different numbers, often conflated:
 
 - The **presentation offset** (transit time) is policy: how far in the
-  future the talker stamps each PDU.
+  future the talker stamps each PDU. **On this build the policy is fixed at
+  the Milan 2 ms default** — `SET_MAX_TRANSIT_TIME` and the
+  `SET_STREAM_INFO(MSRP_ACC_LAT)` sub-command were its only writers, and
+  neither is implemented: the µCPU echoes `NOT_IMPLEMENTED` and the offset
+  stays where it was. Every measurement below was taken at a
+  *chosen* offset (pto 500 µs) on a build that could still be told; the
+  relationship it establishes holds, the number a controller can set does
+  not.
 - The **pipeline latency** is physics: how long capture → wire → ring
-  actually takes.
+  actually takes. Unchanged — no measurement on this page was taken through
+  anything that was deleted.
 
 The measured relationship on this bench (2026-07-24/25,
 [`SYSTEMS_ENGINEER_GUIDE.md`](../SYSTEMS_ENGINEER_GUIDE.md) §0
@@ -443,19 +544,60 @@ side is the render crossbar of §3.6 (any stream-channel to any of 10
 physical outputs) plus the per-stream DMA rings that PipeWire composes
 in software.
 
-The map RAM is canonically programmed by the IEEE 1722.1 dynamic
-audio-map commands — `GET_AUDIO_MAP` / `ADD_AUDIO_MAPPINGS` /
-`REMOVE_AUDIO_MAPPINGS` (command_type 43/44/45, verified against
-`aecp_pkg.sv`) — with the CSR `0x900` window as the bench override.
+**The CSR `0x900` window is the only programmer of both map RAMs.** The
+IEEE 1722.1 dynamic audio-map commands — `GET_AUDIO_MAP` /
+`ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS` (command_type 43/44/45) — are
+**not implemented**; each draws the µCPU's conformant `NOT_IMPLEMENTED` echo,
+which is a well-formed answer and nothing more. So there is no way for a
+controller to change this device's channel map, and no live readback of it
+either: `READ_DESCRIPTOR` hands out whatever AUDIO_MAP descriptors the loaded
+descriptor image contains — an authored statement, not a read of the map RAMs
+the CSR window writes, and on a stock build there is no image loaded at all.
+Agreement between the two would prove nothing even when there is one.
+The bench window is not an override any more, it is the interface.
 
-Deep docs: [`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) (the normative
-64×64 architecture, map-word format, pair-slot widening) and
-[`CHMAP64_AEM_BINDING.md`](../CHMAP64_AEM_BINDING.md) (the AEM binding
-contract and its executable model).
+Deep doc: [`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) — the normative 64×64
+architecture, both map-word formats, the pair-slot widening, and the
+CSR-word-vs-RAM-word packing trap that eats an afternoon if you write the
+8-bit RAM word into the 16-bit `CHMAP_WORD` field.
 
-## 6. Status (2026-07-26)
+## 6. Status (2026-07-26; control-surface addendum 2026-08-13)
 
 Honest state of this subsystem, with evidence:
+
+- **The media plane's own status is unchanged by the 2026-08-13
+  substitution** — every result below was measured through blocks that are
+  still in the tree. What the substitution removed is the ability to
+  *reconfigure* the plane from a controller (banner at the top of this page):
+  no format or rate command, no audio-map setter, no transit-time command,
+  no clock-source selection, and no STREAM_OUTPUT counters to report with.
+  A stream is still discovered, connected, reserved and streamed; it is
+  configured by the build and by the CSR plane, over ssh. Enumeration is
+  **reachable** again — the processor's AECP µCPU answers `READ_DESCRIPTOR`, so
+  a controller can read this entity's model and see the streams it is talking
+  to — but see the next bullet before expecting it on a stock build.
+
+- **Bring-up gained a step nothing in this repository performs: load the
+  descriptor image before enabling the entity.** The µCPU's descriptor store
+  fetches the model from main memory over a read-only master whose base is
+  fixed at compile time — no base register, not relocatable, derived by the
+  LiteX SoC as the top 1 MiB of `main_ram`. Write the image there first; enable
+  the entity second. Get that order wrong, or skip the load entirely, and every
+  `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` — an invalid image reports zero
+  configurations, and the argument check runs before the locate. That status is
+  how you tell the two failures apart: `BAD_ARGUMENTS` everywhere means no image
+  (or a corrupt one), while `NO_SUCH_DESCRIPTOR` means the image loaded and that
+  descriptor is genuinely absent from the model. **Today it is skipped**: the
+  image generator lives in the `protocol-processor` submodule, no step in
+  `sw/builder/`, `scripts/`, the SoC builder or the boot path turns an
+  `endstation_*.yaml` into it or writes it to DRAM, and the
+  `aecp_aem_rom.svh` the builder still emits is an orphan of the deleted
+  fabric AEM store, not this image. The failure is at least diagnosable and
+  recoverable: a zeroed region fails the header's magic compare (`"AEMI"`,
+  layout version 1, plus checksum) so it reads as *image not loaded*, the
+  store's watchdog abandons a stalled burst rather than hanging, and a **late
+  load heals without a reset** because every locate against an invalid image
+  re-arms the header probe.
 
 - **Record path (listener → ALSA): proven on silicon.** E2E
   capture→render = the presentation offset (pto 500 µs, 0 LATE), talker

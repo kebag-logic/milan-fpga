@@ -2,7 +2,15 @@
 SPDX-FileCopyrightText: 2026 Kebag Logic
 SPDX-License-Identifier: CERN-OHL-W-2.0
 -->
-# `tsn_fuzz` — IEEE 1722.1 / 1722 field-validation campaign
+# `tsn_fuzz` — IEEE 1722 field-validation campaign
+
+> **2026-08-13 — the 1722.1 campaigns are DELETED.** `fuzz_aecp`, `fuzz_acmp`,
+> `fuzz_adp` and the `legacy` smoke driver drove `hdl/ieee17221/{aecp,acmp,adp}`
+> engines that no longer exist: this repository's AECP/AEM, ACMP and ADP RTL
+> was deleted when the protocol-processor submodule became the control plane.
+> Only the **AAF** campaign remains, and it fuzzes `hdl/ieee1722`, which is
+> data plane and was not replaced. This is a real coverage loss on IEEE 1722.1
+> field fuzzing, not a reorganisation.
 
 Four co-simulation campaigns that drive the **real RTL** with spec-modelled
 1722.1 traffic, validate every field of every message, and prove the
@@ -10,12 +18,8 @@ end-station's state machines are unmoved by malformed input.
 
 ```
 make            build the DUTs and run everything   (~3 min)
-make aecp       AECP / AEM getter-setter + descriptor sweep
-make acmp       ACMP connection management + listener state machine
-make adp        ADP discovery: every advertised field at its wire offset
 make aaf        AAF / AVTP stream: the listener ACCEPT VERDICT + lock stability
 make legacy     the original 14-command cosim smoke driver
-TSN_FUZZ_VERBOSE=1 make aecp     print passing checks too
 ```
 
 Current tally — 3153 checks, 0 failures, 2 tracked gaps. This is what `make`
@@ -25,9 +29,6 @@ they ever disagree:
 
 | campaign | checks | what it drives |
 |---|---:|---|
-| `fuzz_aecp.py` | 2644 | `KL_aecp_top` — 16 tsn-gen command models, 9 getters × 19 descriptor types, 8 setters, header fuzz, addressing/length |
-| `fuzz_adp.py`  | 222 | `adp_advertiser` — 20 advertised fields, events, `available_index`, departing |
-| `fuzz_acmp.py` | 123 | `KL_acmp_listener` — 15 ACMP fields, all 16 message types, BIND→state→UNBIND |
 | `fuzz_aaf.py`  | 164 | parser → rx-monitor → depacketizer — the **accept verdict** (wire `stream_id` vs bound, graded on the parser's own pre-match counters = the `0x8B4` APRB sources), per-field verdicts, lock survival |
 
 ## Contents
@@ -74,9 +75,6 @@ exists:
 
 | campaign | results file |
 |---|---|
-| `make aecp` | [`hdl/ieee17221/aecp/doc/TEST_RESULTS.md`](../../../hdl/ieee17221/aecp/doc/TEST_RESULTS.md) |
-| `make acmp` | [`hdl/ieee17221/acmp/doc/TEST_RESULTS.md`](../../../hdl/ieee17221/acmp/doc/TEST_RESULTS.md) |
-| `make adp`  | [`hdl/ieee17221/adp/doc/TEST_RESULTS.md`](../../../hdl/ieee17221/adp/doc/TEST_RESULTS.md) |
 | `make aaf`  | [`hdl/ieee1722/avtp/doc/TEST_RESULTS.md`](../../../hdl/ieee1722/avtp/doc/TEST_RESULTS.md) (pointer in `hdl/ieee1722/aaf/doc/`) |
 
 Each file records the verdict, the DUT, the exact RTL files under test, the

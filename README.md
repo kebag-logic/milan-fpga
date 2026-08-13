@@ -39,8 +39,9 @@ More lanes (system engineer, tester, hobbyist) and the full index:
 
 | Area | State |
 |---|---|
-| Milan v1.2 end-station (talker + listener) | internal conformance suite **green on both boards** |
-| TSN datapath in fabric | MAC · 802.1Qav CBS · gPTP · AVTP/AAF/CRF · ADP/AECP/ACMP · MAAP · lwSRP |
+| Milan v1.2 end-station (talker + listener) | internal conformance suite was **green on both boards** at the last measured round — read the control-plane note below before reading that as a current verdict |
+| TSN datapath in fabric | MAC · 802.1Qav CBS · gPTP · AVTP/AAF/CRF · MAAP |
+| Control plane in fabric | ADP · ACMP · SRP, served by the pinned `protocol-processor` submodule. **AECP/AEM: not implemented** — see below |
 | Media-clock servo | MMCM-DRP, analog loop **−83.9 dB** (converter floor) |
 | Networking / boot | ring-DMA line-rate ingest · QSPI flash-boot (zero-upload) |
 | Audio | ALSA record over Milan · live talker↔listener E2E |
@@ -50,6 +51,84 @@ More lanes (system engineer, tester, hobbyist) and the full index:
 > Those rows are **measurements on specific boards on specific dates**, not promises about
 > your hardware. Live perf numbers live in the measured ledger — [CHANGELOG.md](CHANGELOG.md) +
 > [docs/findings/](docs/findings/README.md). Any number quoted elsewhere is a dated snapshot.
+
+### The control plane was replaced, and the processor answers AECP
+
+As of 2026-08-13 (firmware VERSION major 2) this repository's own IEEE 1722.1 /
+SRP control-plane RTL — the ADP advertiser and parser, the whole AECP/AEM
+engine, the ACMP talker and listener, and the lwSRP applicant — is **deleted**.
+No parameter, no fallback, no shadow arm. The control plane is now
+`hdl/milan/KL_pp_shadow.sv`, wrapping the pinned `protocol-processor` submodule,
+which `milan_datapath.sv` instantiates unconditionally. It owns ADP, ACMP and
+SRP; MAAP stays in this fabric.
+
+**The AECP surface, stated plainly rather than buried: this entity answers
+`READ_DESCRIPTOR`, and answers every other AECP command with a conformant
+`NOT_IMPLEMENTED` echo.** The processor's AECP uCPU has landed. Concretely:
+
+- **`READ_DESCRIPTOR` (0x0004) is answered.** `SUCCESS` carries
+  `configuration_index`, the reserved field and the descriptor itself;
+  `NO_SUCH_DESCRIPTOR` comes back on a locate miss and `BAD_ARGUMENTS` on a bad
+  configuration index — both carrying the IEEE 1722.1 §7.4.5 4-byte
+  `{descriptor_type, descriptor_index}` stub. Controller enumeration is
+  reachable again — **once the descriptor image is in DRAM**, which nothing in
+  this repository does for you yet; see the image note below.
+- **Every other opcode and message type — AEM, ADDRESS_ACCESS, MVU — gets a
+  conformant `NOT_IMPLEMENTED` echo**: correct `message_type`+1, correct length,
+  correct `controller_data_length`. Never silence, never a malformed frame.
+- **`IDENTIFY_NOTIFICATION` (0x0026) arriving as a *command* is
+  `BAD_ARGUMENTS`** — IEEE 1722.1 §7.4.39.2's opcode-specific rule wins over
+  §9.3.5.3.3.
+- **Silently refused** — freed, counted, no reply — are a command whose
+  `target_entity_id` is not ours, and any AECP *response* arriving as input.
+- **Known gap, stated rather than smoothed over:** Milan Δ7 `ACQUIRE_ENTITY`
+  (`NOT_SUPPORTED` with `owner_id` = 0) is **not** distinguished from the
+  generic echo.
+
+What an echo is not, is an implementation. These commands remain genuinely
+absent, and everything reached only through them is a real loss:
+`SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME`, `GET_COUNTERS` and the Milan
+Table 5.22 unsolicited push, saved-state persistence, and the audio-map setters.
+Their consequences: the **CRF media clock can never be selected**
+(`SET_CLOCK_SOURCE` was its only writer, so the media clock is pinned INTERNAL
+and both media-clock servos are structurally off), every Stream Output's
+**presentation-time offset is pinned at the Milan 2 ms default**, **Milan
+Table 5.4 per-STREAM_OUTPUT counters are gone** (the STREAM_INPUT counters are
+unaffected), and **nothing restores a binding across a power cycle**.
+
+**The entity model now lives in main memory.** The processor's descriptor store
+fetches descriptors from DDR3 over a read-only master at a **compile-time base**
+— there is no base register to program. Software must load the descriptor image
+at that base **before the entity is enabled**, or every `READ_DESCRIPTOR`
+answers `BAD_ARGUMENTS`; a zeroed region reads as "image not loaded" through its
+header magic/version/checksum, and an invalid image reports a configuration
+count of zero, which the microprogram's `configuration_index` check rejects
+before it ever attempts a locate. The store's watchdog abandons a
+stalled burst, so a missing image is a clean refusal, never a hang, and a late
+load heals without a reset — each locate against an invalid image re-arms the
+header probe.
+
+> **Read this before expecting enumeration to work: nothing in this repository
+> builds or loads that image yet.** The generator lives in the submodule
+> (`protocol-processor/hdl/aecp/desc/gen_desc_image.py`, JSON in, flat image
+> out); no step in `sw/builder`, `scripts/` or the boot path produces its JSON
+> from an `endstation_*.yaml` config or writes the result to DRAM. The
+> end-station builder still emits `aecp_aem_rom.svh` for the deleted
+> `KL_aecp_aem_store` — an orphaned artifact, not the image the processor
+> reads. So on a stock build the region is unloaded and **every
+> `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`**. The engine is real and the path is
+> real; the image-supply chain is the missing link, and it is named here rather
+> than assumed.
+>
+> **Those two error codes are a diagnostic, so read them carefully.** Every read
+> answering `BAD_ARGUMENTS` means the image was never loaded or is corrupt. A
+> read answering `NO_SUCH_DESCRIPTOR` means the opposite — the image *is* loaded,
+> and that particular descriptor is genuinely not in the model. Both are clean
+> refusals; neither hangs.
+
+The per-register consequences — including the term **STRUCTURAL ZERO** and the
+`0x784` TX-arbiter lane renumbering that makes an old decoder read the wrong mux
+— are in [docs/reference/REGISTER_MAP.md](docs/reference/REGISTER_MAP.md).
 
 ## Prerequisites — by what you actually want to do
 
@@ -205,14 +284,28 @@ Standing invariants across every phase: the ATDECC model stays authoritative
 (no side-channel state), every closed bitstream is flashed and soaked, and
 the desk suites + internal COMPLIANCE behave gates stay green at 100 % coverage.
 
+> The first invariant now has a hole in it that nothing in this tree can close:
+> **the model is authoritative but unreadable on the wire**, because no AECP
+> engine answers READ_DESCRIPTOR. The entity model still drives the gateware,
+> the shape header and the ACMP array sizes; a controller simply cannot
+> enumerate it from the device.
+
 ### P1.5 — Conformance hardening (2026-08, rides P1)
 
 The clause-by-clause traceability review
 ([`docs/reference/PROTOCOL_TRACEABILITY.md`](docs/reference/PROTOCOL_TRACEABILITY.md))
-mapped 153 protocol-facing RTL elements and adversarially verified the
-divergences. The resulting fix campaign is tracked as twelve work packages,
-landing in this order (each with desk-suite proof and a live compliance
-observable before it closes):
+mapped the protocol-facing RTL elements and adversarially verified the
+divergences. The resulting fix campaign was tracked as twelve work packages.
+
+> **Most of this campaign was overtaken by the 2026-08-13 substitution.** The
+> RTL that carried these packages is deleted: the ADP, ACMP and SRP items are
+> now the protocol processor's to satisfy, and the AECP items (#58, #60, and the
+> AECP half of anything else here) are **still not implemented**: the
+> processor's AECP uCPU landed, but it implements `READ_DESCRIPTOR` and answers
+> every other command with a conformant `NOT_IMPLEMENTED` echo, so none of these
+> packages is discharged by it. The table is kept as the record of what was found
+> and what a conformant implementation still owes; do not read a row as work in
+> flight against this tree.
 
 | Order | Package | Issue |
 |---|---|---|

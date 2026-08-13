@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="1338" viewBox="0 0 1340 1338" font-family="Helvetica,Arial,sans-serif">
-<rect width="1340" height="1338" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1340" height="1466" viewBox="0 0 1340 1466" font-family="Helvetica,Arial,sans-serif">
+<rect width="1340" height="1466" fill="#ffffff"/>
 <text x="30" y="40" font-size="24" font-weight="bold" fill="#263238">Milan TSN NIC — system domain map</text>
 <text x="30" y="66" font-size="13" fill="#546E7A">every module by domain / language · software (top) → silicon (bottom) · host tooling generates &amp; deploys the stack</text>
 <rect x="30" y="90" width="900" height="120" rx="8" fill="#B2DFDB" stroke="#00796B" stroke-width="2"/>
@@ -40,7 +40,7 @@
 <text x="50" y="663" font-size="12.5" fill="#212121">MilanNIC / add_milan_datapath   ·   MilanMAC (LiteEth glue)</text>
 <rect x="40" y="678" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#2E7D32" stroke-opacity="0.5" stroke-width="1"/>
 <text x="50" y="695" font-size="12.5" fill="#212121">MilanDMA (WishboneDMA engines)   ·   MilanDebug (pipeline telemetry)</text>
-<rect x="30" y="730" width="900" height="280" rx="8" fill="#BBDEFB" stroke="#1565C0" stroke-width="2"/>
+<rect x="30" y="730" width="900" height="408" rx="8" fill="#BBDEFB" stroke="#1565C0" stroke-width="2"/>
 <text x="44" y="755" font-size="16" font-weight="bold" fill="#212121">Milan datapath — RTL</text>
 <text x="44" y="755" font-size="16" fill="#212121"><tspan> </tspan></text>
 <text x="916" y="755" font-size="11.5" fill="#1565C0" text-anchor="end">FPGA fabric · SystemVerilog / Verilog  (hdl/)</text>
@@ -55,25 +55,33 @@
 <rect x="40" y="910" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
 <text x="50" y="927" font-size="12.5" fill="#212121">PTP: ptp_ts_top · ptp_ts_core · timestamp_counter · ptp_csr_sync</text>
 <rect x="40" y="942" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
-<text x="50" y="959" font-size="12.5" fill="#212121">1722 AVTP: KL_avtp_common_parser   ·   ADP: adp_advertiser · adp_tx_arbiter · KL_adp_parser</text>
+<text x="50" y="959" font-size="12.5" fill="#212121">1722 AVTP: KL_avtp_common_parser   ·   adp_tx_arbiter (generic 2-in-1-out AXIS mux)</text>
 <rect x="40" y="974" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
-<text x="50" y="991" font-size="12.5" fill="#212121">events: ethernet_events · event_counter</text>
-<rect x="30" y="1026" width="900" height="120" rx="8" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2"/>
-<text x="44" y="1051" font-size="16" font-weight="bold" fill="#212121">Vendored IP</text>
-<text x="44" y="1051" font-size="16" fill="#212121"><tspan> </tspan></text>
-<text x="916" y="1051" font-size="11.5" fill="#6A1B9A" text-anchor="end">FPGA fabric · 3rd-party cores</text>
-<rect x="40" y="1078" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#6A1B9A" stroke-opacity="0.5" stroke-width="1"/>
-<text x="50" y="1095" font-size="12.5" fill="#212121">NaxRiscv (RV64GC/sv39 CPU, SpinalHDL)   ·   LiteEth (MAC + GMII/RGMII PHY)</text>
-<rect x="40" y="1110" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#6A1B9A" stroke-opacity="0.5" stroke-width="1"/>
-<text x="50" y="1127" font-size="12.5" fill="#212121">LiteDRAM (DDR3, A7DDRPHY)   ·   LiteSPI (QSPI flash)   ·   verilog-axis (Forencich)</text>
-<rect x="30" y="1162" width="900" height="120" rx="8" fill="#CFD8DC" stroke="#37474F" stroke-width="2"/>
-<text x="44" y="1187" font-size="16" font-weight="bold" fill="#212121">Board / silicon</text>
-<text x="44" y="1187" font-size="16" fill="#212121"><tspan> </tspan></text>
-<text x="916" y="1187" font-size="11.5" fill="#37474F" text-anchor="end">physical</text>
-<rect x="40" y="1214" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#37474F" stroke-opacity="0.5" stroke-width="1"/>
-<text x="50" y="1231" font-size="12.5" fill="#212121">XC7A100T-2FGG484 (Artix-7)  ·  DDR3 512 MB (MT41J256M16)</text>
-<rect x="40" y="1246" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#37474F" stroke-opacity="0.5" stroke-width="1"/>
-<text x="50" y="1263" font-size="12.5" fill="#212121">QSPI 16 MB (Micron N25Q128)  ·  RTL8211E GbE PHY  ·  200 MHz clk</text>
+<text x="50" y="991" font-size="12.5" fill="#212121">control plane: KL_pp_shadow (protocol-processor submodule: ADP · ACMP · SRP · AECP)</text>
+<rect x="40" y="1006" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="1023" font-size="12.5" fill="#212121">               KL_pp_maap_shim + KL_maap  (MAAP stays in this fabric)</text>
+<rect x="40" y="1038" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="1055" font-size="12.5" fill="#212121">               AECP uCPU: READ_DESCRIPTOR served from a DRAM image at a</text>
+<rect x="40" y="1070" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="1087" font-size="12.5" fill="#212121">               compile-time base; every other command = NOT_IMPLEMENTED echo</text>
+<rect x="40" y="1102" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#1565C0" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="1119" font-size="12.5" fill="#212121">events: ethernet_events · event_counter</text>
+<rect x="30" y="1154" width="900" height="120" rx="8" fill="#E1BEE7" stroke="#6A1B9A" stroke-width="2"/>
+<text x="44" y="1179" font-size="16" font-weight="bold" fill="#212121">Vendored IP</text>
+<text x="44" y="1179" font-size="16" fill="#212121"><tspan> </tspan></text>
+<text x="916" y="1179" font-size="11.5" fill="#6A1B9A" text-anchor="end">FPGA fabric · 3rd-party cores</text>
+<rect x="40" y="1206" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#6A1B9A" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="1223" font-size="12.5" fill="#212121">NaxRiscv (RV64GC/sv39 CPU, SpinalHDL)   ·   LiteEth (MAC + GMII/RGMII PHY)</text>
+<rect x="40" y="1238" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#6A1B9A" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="1255" font-size="12.5" fill="#212121">LiteDRAM (DDR3, A7DDRPHY)   ·   LiteSPI (QSPI flash)   ·   verilog-axis (Forencich)</text>
+<rect x="30" y="1290" width="900" height="120" rx="8" fill="#CFD8DC" stroke="#37474F" stroke-width="2"/>
+<text x="44" y="1315" font-size="16" font-weight="bold" fill="#212121">Board / silicon</text>
+<text x="44" y="1315" font-size="16" fill="#212121"><tspan> </tspan></text>
+<text x="916" y="1315" font-size="11.5" fill="#37474F" text-anchor="end">physical</text>
+<rect x="40" y="1342" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#37474F" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="1359" font-size="12.5" fill="#212121">XC7A100T-2FGG484 (Artix-7)  ·  DDR3 512 MB (MT41J256M16)</text>
+<rect x="40" y="1374" width="880" height="26" rx="4" fill="#ffffff" fill-opacity="0.72" stroke="#37474F" stroke-opacity="0.5" stroke-width="1"/>
+<text x="50" y="1391" font-size="12.5" fill="#212121">QSPI 16 MB (Micron N25Q128)  ·  RTL8211E GbE PHY  ·  200 MHz clk</text>
 <rect x="970" y="90" width="340" height="248" rx="8" fill="#FFF9C4" stroke="#F9A825" stroke-width="2"/>
 <text x="984" y="115" font-size="16" font-weight="bold" fill="#212121">Host tooling</text>
 <text x="984" y="115" font-size="16" fill="#212121"><tspan> </tspan></text>

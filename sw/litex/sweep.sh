@@ -84,13 +84,14 @@ python3 "$R/scripts/check_sweep_shape.py" --board "$BOARD" \
         --config "$CFG" --num-streams "$NS" --rx-queues "$RXQ" --l2-bytes "$L2" \
         --opts "$OPTS"
 # SAME GATE, ONE LAYER UP: the gateware `include-s a GENERATED entity
-# definition - hdl/common/csr/gen/adp_shape_defaults.svh (the ADPDU stream
-# counts served RO at 0x618/0x61C, and the ACMP context-array sizing) and
-# hdl/ieee17221/aecp/gen/aecp_aem_rom.svh (the descriptor set a controller
-# enumerates). Both are written by the builder FROM A CONFIG, and until
-# 2026-07-27 nothing checked that it was THIS config: the tracked ROM was the
-# 1x1 shape and every build - including the 8x8 - compiled it in. Refuse to
-# launch unless the tree carries the definition of the config being built.
+# definition - hdl/common/csr/gen/adp_shape_defaults.svh, the ADPDU stream
+# counts served RO at 0x618/0x61C and the sizing of the protocol processor's
+# ACMP source/sink context arrays. It is written by the builder FROM A CONFIG,
+# and until 2026-07-27 nothing checked that it was THIS config: the tracked
+# shape was 1x1 and every build - including the 8x8 - compiled it in. Refuse
+# to launch unless the tree carries the definition of the config being built.
+# (The AEM descriptor ROM was the other half of this gate until 2026-08-13;
+#  the AECP/AEM engine that served it is deleted, so there is no ROM left.)
 # PER-CONFIG entity definition (USER 2026-07-28: both boards concurrently):
 # regenerate THIS config's generated/ copy right here and point the build at
 # it with --entity-gen-dir. The tracked hdl/ svh stops being a sweep concern

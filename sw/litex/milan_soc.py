@@ -489,12 +489,13 @@ class MilanNIC(LiteXModule):
     (proven end-to-end in tb/verilator/milan_dp: CPU reads ID="MILN", M-A2).
     """
     def __init__(self, platform, axil, dma_mac_ports=None, milan_cd="sys", rx_irq=None,
+                 desc_base=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
                  audio_if_i2s_pair=False, aaf_playback=False, aaf_pb_streams=1,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
-                 cbs_queues_mask=None, entity_gen_dir=None, pp_plane=False):
+                 cbs_queues_mask=None, entity_gen_dir=None):
         # Interrupts, level-triggered, CPU-facing via the SoC IRQ handler. Four lines
         # match the DT/driver (tx/rx/ts-dma + csr); tx/ts come from the §A.6 DMA engine
         # (held 0 until attached); csr is driven by the datapath.
@@ -515,7 +516,7 @@ class MilanNIC(LiteXModule):
         # AECP IDENTIFY control level (Milan FR-MGT-01) - wired to a board LED
         # by the SoC so a controller's "identify" visibly blinks the device.
         self.identify = Signal()
-        add_milan_datapath(self, platform, axil, ev.csr.trigger,
+        add_milan_datapath(self, platform, axil, ev.csr.trigger, desc_base=desc_base,
                            extra_ports=dict(dma_mac_ports or {}, o_o_identify=self.identify),
                            milan_cd=milan_cd,
                            milan_clk_hz=milan_clk_hz, num_streams=num_streams,
@@ -527,14 +528,57 @@ class MilanNIC(LiteXModule):
                            loopback_lane=loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
                            cbs_queues_mask=cbs_queues_mask,
-                           entity_gen_dir=entity_gen_dir, pp_plane=pp_plane)
+                           entity_gen_dir=entity_gen_dir)
 
 
 # The milan_datapath source set (ordered: packages first). Mirrors the milan_dp
 # Verilator Makefile and the syn/yosys entry  -  the single source of truth for what
 # the §A.9 wrapper is built from.
+#
+# THE PROTOCOL PROCESSOR IS PART OF THE DATAPATH NOW (scenario B, 2026-08-13).
+# milan_datapath instantiates KL_pp_shadow UNCONDITIONALLY - there is no
+# PP_PLANE_P any more - so the submodule's files are datapath files, not an
+# opt-in extra. They come FIRST because their packages must be declared before
+# the modules that import them, and the order below is copied from the
+# authoritative `PP_SRCS` in tb/verilator/milan_dp/Makefile. Paths are repo-root
+# relative like every other entry here (add_source joins them onto `base`).
 _MILAN_DATAPATH_SOURCES = [
-    "hdl/common/ethernet_packet_pkg.sv", "hdl/common/axi_stream_if.sv", "hdl/ieee17221/adp/adp_pkg.sv",
+    "protocol-processor/hdl/common/pp_pkg.sv",
+    "protocol-processor/hdl/srp/srp_pkg.sv",
+    "protocol-processor/hdl/acmp/pp_acmp_pkg.sv",
+    "protocol-processor/hdl/adp/pp_adp_pkg.sv",
+    "protocol-processor/hdl/common/KL_pp_prng.sv",
+    "protocol-processor/hdl/common/KL_pp_timer_service.sv",
+    "protocol-processor/hdl/packet_engine/KL_pp_rx_validator.sv",
+    "protocol-processor/hdl/packet_engine/KL_pp_rx_slots.sv",
+    "protocol-processor/hdl/packet_engine/KL_pp_normalizer.sv",
+    "protocol-processor/hdl/packet_engine/KL_pp_dispatch.sv",
+    "protocol-processor/hdl/packet_engine/KL_pp_tx_slots.sv",
+    "protocol-processor/hdl/packet_engine/KL_pp_tx_arbiter.sv",
+    "protocol-processor/hdl/packet_engine/KL_pp_scoreboard.sv",
+    "protocol-processor/hdl/packet_engine/KL_pp_event_router.sv",
+    "protocol-processor/hdl/packet_engine/KL_pp_originator.sv",
+    "protocol-processor/hdl/packet_engine/KL_pp_trace_ring.sv",
+    "protocol-processor/hdl/packet_engine/KL_pp_side_port.sv",
+    "protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv",
+    "protocol-processor/hdl/adp/KL_adp_engine.sv",
+    "protocol-processor/hdl/acmp/KL_pp_acmp_listener.sv",
+    "protocol-processor/hdl/acmp/KL_acmp_talker.sv",
+    "protocol-processor/hdl/acmp/KL_acmp_nvm_shadow.sv",
+    "protocol-processor/hdl/srp/KL_srp_decoder.sv",
+    "protocol-processor/hdl/srp/KL_srp_domain.sv",
+    "protocol-processor/hdl/srp/KL_srp_vlan.sv",
+    "protocol-processor/hdl/srp/KL_srp_admission.sv",
+    "protocol-processor/hdl/srp/KL_srp_talker_fsm.sv",
+    "protocol-processor/hdl/srp/KL_srp_listener_fsm.sv",
+    "protocol-processor/hdl/srp/KL_srp_encoder.sv",
+    "protocol-processor/hdl/srp/KL_srp_top.sv",
+    "protocol-processor/hdl/top/KL_mrp_strip.sv",
+    "protocol-processor/hdl/top/protocol_processor_top.sv",
+    # the two consumer-side wrappers that bind it into this datapath: the
+    # shadow/substitution wrapper and the block-vs-per-source MAAP adapter.
+    "hdl/milan/KL_pp_shadow.sv", "hdl/milan/KL_pp_maap_shim.sv",
+    "hdl/common/ethernet_packet_pkg.sv", "hdl/common/axi_stream_if.sv",
     "third_party/verilog-axis/rtl/axis_fifo.v", "third_party/verilog-axis/rtl/axis_demux.v",
     "third_party/verilog-axis/rtl/axis_arb_mux.v", "third_party/verilog-axis/rtl/arbiter.v",
     "third_party/verilog-axis/rtl/priority_encoder.v",
@@ -547,28 +591,10 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv",
     "hdl/ieee8021q/filtering/tcam.sv", "hdl/ieee8021q/filtering/rx_mac_filter.sv", "hdl/common/tx_ifg_gasket.sv", "hdl/ieee1722/aaf/KL_pcm_lpf.sv",
     "hdl/common/KL_link_guard.sv",
-    "hdl/ieee17221/adp/adp_advertiser.sv", "hdl/ieee17221/adp/adp_tx_arbiter.sv",
-    # AECP/AEM listener (IEEE 1722.1 / Milan v1.2). Order: pkg, then leaf
-    # modules, then KL_aecp_top. The store/accessor read the generated ROM
-    # include hdl/ieee17221/aecp/gen/aecp_aem_rom.svh (avdecc/gen_aem_store.py).
-    "hdl/ieee17221/aecp/aecp_pkg.sv",
-    "hdl/ieee17221/aecp/KL_aecp_packet_validator.sv", "hdl/ieee17221/aecp/KL_aecp_common_parser.sv",
-    "hdl/ieee17221/aecp/KL_aecp_l0_state.sv", "hdl/ieee17221/aecp/KL_aecp_timers.sv",
-    "hdl/ieee17221/aecp/KL_aecp_accessor.sv", "hdl/ieee17221/aecp/KL_aecp_aem_store.sv",
-    "hdl/ieee17221/aecp/KL_aem_patch.sv",
-    "hdl/ieee17221/aecp/KL_aecp_aem_dyn_mux.sv", "hdl/ieee17221/aecp/KL_aecp_response_builder.sv",
-    "hdl/ieee17221/aecp/KL_aecp_ingress.sv", "hdl/ieee17221/aecp/KL_aecp_top.sv",
-    # ACMP N-context engine + compatibility wrappers (Milan v1.2 §5.5)
-    "hdl/ieee17221/acmp/acmp_pkg.sv",
-    "hdl/ieee17221/acmp/KL_acmp_tlkr_ctx.sv", "hdl/ieee17221/acmp/KL_acmp_responder.sv",
-    "hdl/ieee17221/acmp/KL_acmp_lstn_ctx.sv", "hdl/ieee17221/acmp/KL_acmp_listener.sv",
-    # lwSRP engine (802.1Q MSRP/MVRP, Milan v1.2 §5.6). Order: pkg first.
-    "hdl/ieee8021q/srp/lwsrp_pkg.sv", "hdl/ieee8021q/srp/KL_lwsrp_timers.sv",
-    "hdl/ieee8021q/srp/KL_lwsrp_tx.sv", "hdl/ieee8021q/srp/KL_lwsrp_ingress.sv",
-    "hdl/ieee8021q/srp/KL_lwsrp_walker.sv", "hdl/ieee8021q/srp/KL_lwsrp_registrar.sv", "hdl/ieee8021q/srp/KL_lwsrp_ta_registrar.sv",
-    "hdl/ieee8021q/srp/KL_lwsrp_ctx.sv", "hdl/ieee8021q/srp/KL_lwsrp_ctx_tx.sv",
-    "hdl/ieee8021q/srp/KL_lwsrp_rx.sv", "hdl/ieee8021q/srp/KL_lwsrp_bw_gate.sv",
-    "hdl/ieee8021q/srp/KL_lwsrp_top.sv",
+    # ADP TX arbitration survives the scenario-B substitution: the advertiser
+    # itself is the processor's KL_adp_engine now, but the two-source TX merge
+    # in front of the MAC is still this module.
+    "hdl/ieee17221/adp/adp_tx_arbiter.sv",
     # AVTP AAF talker (MVP: Pmod I2S2 on pmoda -> class-A stream, fabric-only)
     "hdl/ieee1722/aaf/aaf_talker_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv",
     "hdl/ieee1722/aaf/KL_pcm_ring_bram.sv",   # --pcm-ring bram: shed-proof on-chip PCM ring
@@ -583,7 +609,7 @@ _MILAN_DATAPATH_SOURCES = [
     "hdl/ieee1722/avtp/avtp_subtype_pkg.sv", "hdl/ieee1722/avtp/avtp_stream_parser.sv",
     "hdl/ieee1722/avtp/KL_stream_table.sv",
     "hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv",
-    "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv", "hdl/ieee1722/avtp/KL_talker_diag_ctx.sv", "hdl/ieee1722/avtp/KL_media_clock_restart.sv", "hdl/ieee17221/aecp/KL_persist_journal.sv",
+    "hdl/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv", "hdl/ieee1722/avtp/KL_talker_diag_ctx.sv", "hdl/ieee1722/avtp/KL_media_clock_restart.sv",
     "hdl/ieee1722/aaf/KL_pcm_route.sv",
     "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_tdm_capture.sv", "hdl/ieee1722/aaf/KL_tdm_capture_master.sv", "hdl/ieee1722/aaf/KL_pair_blend.sv", "hdl/ieee1722/aaf/KL_pair_zero_fill.sv", "hdl/ieee1722/aaf/KL_tdm_render.sv", "hdl/ieee1722/aaf/KL_chan_map_render.sv", "hdl/ieee1722/aaf/KL_chan_map_capture.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/maap/KL_maap.sv",
     "hdl/ieee1722/aaf/KL_aaf_capture_i2s.sv", "hdl/ieee1722/aaf/KL_aaf_packetizer.sv", "hdl/ieee1722/crf/KL_crf_rx.sv", "hdl/ieee1722/crf/KL_crf_tx.sv", "hdl/ieee1722/crf/KL_mmcm_drp_servo.sv", "hdl/ieee1722/crf/KL_media_nco.sv", "hdl/ieee1722/maap/KL_maap.sv",
@@ -672,13 +698,14 @@ def _arty_serial_io(name, pmod):
 
 
 def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_cd="sys",
+                       desc_base=None,
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
                        talker_wire_chans=2, audio_if_master=False,
                        audio_if_i2s_pair=False,
                        aaf_playback=False, aaf_pb_streams=1, loopback_lane=False,
                        render_lpf=True,
                        optional_blocks=None, cbs_queues_mask=None,
-                       entity_gen_dir=None, pp_plane=False):
+                       entity_gen_dir=None):
     """Instantiate `milan_datapath` and add its RTL sources  -  the single place the
     wrapper is wired, reused by the board SoC (`MilanNIC`) and the sim SoC
     (`milan_sim.py`). `axil` is the AXI-Lite CSR slave; `o_irq_csr` gets the datapath
@@ -793,26 +820,59 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # milan_datapath REFUSES at elaboration any width the front-end selected by
     # audio_if_slots cannot feed - that guard is what makes this a fabric fact
     # and not one more declaration.
-    # milan-fpga/ root - used by the source list AND the pp_plane ROM path
+    # milan-fpga/ root - used by the source list AND the processor ROM path
     base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # milan-fpga/
     dp_params = dict(p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
                      p_N_STREAMS=int(num_streams),
                      p_AUDIO_IF_SLOTS_P=int(audio_if_slots))
-    if pp_plane:
-        # Emitted ONLY when asked, so a default build's generated top stays
-        # byte-identical (the same discipline every other optional param here
-        # follows).
-        dp_params["p_PP_PLANE_P"] = 1
-        # protocol_processor_top $readmemh's its ACMP transition ROM by a
-        # RELATIVE name, which Vivado resolves against ITS OWN run directory -
-        # not against the source file. Generate it once and hand over an
-        # ABSOLUTE path, so the build cannot depend on where vivado was
-        # launched from.
-        rom = os.path.join(base, "configs", "generated", "ltn_rom.hex")
-        gen = os.path.join(base, "protocol-processor", "hdl", "acmp", "rom",
-                           "gen_ltn_rom.py")
-        subprocess.run([sys.executable, gen, "-o", rom], check=True)
-        dp_params["p_PP_TROM_HEX_P"] = rom
+    # THE ACMP TRANSITION ROM IS NOT OPTIONAL. protocol_processor_top - which
+    # milan_datapath now instantiates unconditionally through KL_pp_shadow -
+    # $readmemh's its listener transition ROM by the RELATIVE name
+    # "ltn_rom.hex", and Vivado resolves that against ITS OWN run directory,
+    # not against the source file. Every build therefore generates the image
+    # and hands over an ABSOLUTE path, so the bitstream cannot depend on where
+    # vivado was launched from and cannot silently elaborate an all-zero ROM
+    # (which is a listener that answers nothing).
+    rom = os.path.join(base, "configs", "generated", "ltn_rom.hex")
+    gen = os.path.join(base, "protocol-processor", "hdl", "acmp", "rom",
+                       "gen_ltn_rom.py")
+    os.makedirs(os.path.dirname(rom), exist_ok=True)
+    subprocess.run([sys.executable, gen, "-o", rom], check=True)
+    dp_params["p_PP_TROM_HEX_P"] = rom
+
+    # THE AECP uCPU MICROCODE IMAGE, same relative-$readmemh contract as the
+    # ACMP ROM above and the same failure mode if it is not handed over as an
+    # absolute path: an all-zero microcode store is an AECP engine that
+    # answers nothing, which looks exactly like the pre-uCPU build.
+    uc = os.path.join(base, "configs", "generated", "ucode.hex")
+    ucgen = os.path.join(base, "protocol-processor", "hdl", "aecp", "ucode",
+                         "gen_ucode.py")
+    subprocess.run([sys.executable, ucgen, "-o", uc], check=True)
+    dp_params["p_PP_UCODE_HEX_P"] = uc
+
+    # WHERE THE ENTITY MODEL LIVES. The processor's descriptor store fetches
+    # the AEM image from MAIN MEMORY over a read-only master, at a base that is
+    # COMPILE-TIME by its design - there is no base register, so software
+    # cannot point it somewhere wrong at runtime. On this SoC that memory is
+    # DDR3, so the base must be a real address inside the SoC's main_ram
+    # region that software reserves and loads before enabling the entity.
+    #
+    # DERIVED, NEVER MIRRORED: taken from the SoC's own memory map rather than
+    # restated as a literal, because a copied base is a base that diverges the
+    # first time the map moves. The offset is the top 1 MiB of main memory,
+    # which the Linux DT reserves.
+    # RAISE rather than fall back. The processor's default base (0x2000_0000)
+    # is ITS repository's placeholder and is not guaranteed to be memory on
+    # this SoC; letting it stand would give the store a base that reads as
+    # "image not loaded" forever - indistinguishable from a software bug, and
+    # found on a board instead of here. The SoC computes it (only the SoC
+    # knows its memory map) and hands it down.
+    if desc_base is None:
+        raise RuntimeError(
+            "milan_datapath: the protocol processor's descriptor store needs a "
+            "main-memory base to fetch the entity model from. Pass desc_base=.")
+    assert desc_base % 8 == 0, "DESC_BASE_P must be 8-byte aligned"
+    dp_params["p_PP_DESC_BASE_P"] = desc_base
     if int(talker_wire_chans) != 2:
         dp_params["p_TALKER_WIRE_CHANS_P"] = int(talker_wire_chans)
     if aaf_playback:
@@ -887,6 +947,66 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # trap above).
     if cbs_queues_mask is not None and int(cbs_queues_mask) != (1 << 5) - 1:
         dp_params["p_CBS_QUEUES_MASK_P"] = int(cbs_queues_mask)
+    # =======================================================================
+    #  AECP DESCRIPTOR-IMAGE READ BRIDGE  (protocol-processor 07 §3.3)
+    # =======================================================================
+    # The processor's descriptor store fetches the entity model from main
+    # memory. This is that master, bridged to a LiteX wishbone READ master on
+    # the DMA bus - the same shape as the AAF playback word-fetch bridge above
+    # (`milan_aaf_pb`), extended from one word to a BURST.
+    #
+    # CONTRACT (the submodule's): ONE outstanding request, held until ready;
+    # responses IN ORDER; `beats` is 64-bit beats, >= 1, max 128; `rsp_last`
+    # marks the final beat; `rsp_ready` is tied 1 by the processor, it always
+    # sinks. A beat carries its LOWEST byte address in bits [63:56] - 1722.1
+    # wire order, i.e. BIG-ENDIAN, a byte-reverse of the little-endian words
+    # the bus returns.
+    #
+    # THE ERROR ARM IS NOT OPTIONAL, and this is the second time this exact
+    # trap has been paid for on this bus: LiteX's wishbone2axi asserts `err`
+    # TOGETHER WITH `ack` in its error state, so `If(ack, ...)` alone accepts a
+    # FAILED read and latches whatever `dat_r` held. The audio path had to
+    # substitute silence because KL_pcm_tx has no error input. THIS master has
+    # one: `desc_mem_rsp_err` aborts the burst and the store degrades that
+    # locate to NO_SUCH_DESCRIPTOR. So the error is PROPAGATED, never masked -
+    # a corrupt descriptor is never served as though it were good.
+    desc_req_valid = Signal();     desc_req_ready = Signal()
+    desc_req_addr  = Signal(32);   desc_req_beats = Signal(9)
+    desc_rsp_valid = Signal();     desc_rsp_ready = Signal()
+    desc_rsp_data  = Signal(64)
+    desc_rsp_last  = Signal();     desc_rsp_err   = Signal()
+
+    d_req = _axis_dp_cdc(host, "descmem_req_cdc",
+                         [("addr", 32), ("beats", 9)], milan_cd,
+                         to_datapath=False)
+    d_rsp = _axis_dp_cdc(host, "descmem_rsp_cdc",
+                         [("data", 64), ("blast", 1), ("err", 1)], milan_cd,
+                         to_datapath=True)
+    host.comb += [
+        d_req.dp.valid.eq(desc_req_valid), d_req.dp.addr.eq(desc_req_addr),
+        d_req.dp.beats.eq(desc_req_beats), desc_req_ready.eq(d_req.dp.ready),
+        desc_rsp_valid.eq(d_rsp.dp.valid), desc_rsp_data.eq(d_rsp.dp.data),
+        desc_rsp_last.eq(d_rsp.dp.blast),  desc_rsp_err.eq(d_rsp.dp.err),
+        d_rsp.dp.ready.eq(1),   # the processor's rsp_ready is tied 1
+    ]
+    # THE BUS MASTER LIVES AT THE SoC, not here: this is a LiteXModule and has
+    # no bus. Publish the sys-domain endpoints and let the SoC bridge them
+    # (see `descmem` in the SoC body) - the same split MilanDMA already uses.
+    host.descmem_req_sys = d_req.sys
+    host.descmem_rsp_sys = d_rsp.sys
+
+    ports.update(
+        o_desc_mem_req_valid = desc_req_valid,
+        i_desc_mem_req_ready = desc_req_ready,
+        o_desc_mem_req_addr  = desc_req_addr,
+        o_desc_mem_req_beats = desc_req_beats,
+        i_desc_mem_rsp_valid = desc_rsp_valid,
+        o_desc_mem_rsp_ready = desc_rsp_ready,
+        i_desc_mem_rsp_data  = desc_rsp_data,
+        i_desc_mem_rsp_last  = desc_rsp_last,
+        i_desc_mem_rsp_err   = desc_rsp_err,
+    )
+
     host.specials += Instance("milan_datapath", **dp_params, **ports)
     # CBS slope timing: no XDC exception needed since the sequential slope
     # engine (credit_based_shaper.sv slope_engine, 2026-07-11). The old per-
@@ -899,63 +1019,24 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     #  -  same file set the tb/verilator/milan_dp + syn/yosys checks use.
     # abspath: normalize a literal "./" in __file__ (e.g. `python ./milan_sim.py` on
     # 3.14 keeps it) — an un-normalized "." component silently eats one dirname level.
-    # (base is hoisted above dp_params: the pp_plane arm needs it too)
+    # (base is hoisted above dp_params: the transition-ROM path needs it too)
     # Include dirs for the ``include ...`` files (ethernet_packet_pkg.sv, *.svh).
     # Vivado auto-searches source dirs; Verilator (the sim backend) needs -I.
     # PER-CONFIG entity definition (USER 2026-07-28: both boards' 3-seed
     # sweeps run CONCURRENTLY): when set, the generated entity svh
-    # (gen/adp_shape_defaults.svh + aecp_aem_rom.svh) resolves from THIS
-    # config's own configs/generated/<cfg>/ copy instead of the single
-    # tracked hdl/ one - two boards can then build from one tree at the same
-    # time with no svh-ownership handoff. Prepended so it WINS the include
-    # search; the tracked dirs below stay as the fallback for every other
-    # include.
+    # (gen/adp_shape_defaults.svh) resolves from THIS config's own
+    # configs/generated/<cfg>/ copy instead of the single tracked hdl/ one -
+    # two boards can then build from one tree at the same time with no
+    # svh-ownership handoff. Prepended so it WINS the include search; the
+    # tracked dirs below stay as the fallback for every other include.
     if entity_gen_dir:
         platform.add_verilog_include_path(entity_gen_dir)
         platform.add_verilog_include_path(os.path.join(entity_gen_dir, "gen"))
     for inc in ("hdl/common", "hdl/ieee8021q/ts", "hdl/ieee8021as/ptp_timestamp",
                 "hdl/ieee17221/adp", "hdl/common/csr", "hdl/common/eth_event_counter",
-                "hdl/ieee17221/aecp", "hdl/ieee17221/aecp/gen", "hdl/ieee1722/avtp"):
+                "hdl/ieee1722/avtp"):
         platform.add_verilog_include_path(os.path.join(base, inc))
     srcs = list(_MILAN_DATAPATH_SOURCES)
-    if pp_plane:
-        # PROTOCOL-PROCESSOR SHADOW PLANE. Every bitstream ever built has had
-        # this absent (nothing set PP_PLANE_P), so this flag is the first time
-        # the submodule reaches silicon. It runs ALONGSIDE the shipping planes
-        # and drives NOTHING: its TX is drained inside KL_pp_shadow, so the
-        # wire is bit-for-bit what it is today. What it buys is the processor's
-        # ADP/ACMP/SRP engines seeing real traffic on real silicon, readable
-        # through the 0x920 CSR window.
-        #
-        # The submodule's own packages MUST precede its modules, and the
-        # processor's pp_adp_pkg/pp_acmp_pkg are namespaced precisely so they
-        # can coexist with this repo's adp_pkg/acmp_pkg in one compilation
-        # unit - they used to collide, and Verilator kept the first silently.
-        pp = "protocol-processor/hdl"
-        srcs += [f"{pp}/common/pp_pkg.sv", f"{pp}/srp/srp_pkg.sv",
-                 f"{pp}/acmp/pp_acmp_pkg.sv", f"{pp}/adp/pp_adp_pkg.sv",
-                 f"{pp}/common/KL_pp_prng.sv", f"{pp}/common/KL_pp_timer_service.sv",
-                 f"{pp}/packet_engine/KL_pp_rx_validator.sv",
-                 f"{pp}/packet_engine/KL_pp_rx_slots.sv",
-                 f"{pp}/packet_engine/KL_pp_normalizer.sv",
-                 f"{pp}/packet_engine/KL_pp_dispatch.sv",
-                 f"{pp}/packet_engine/KL_pp_tx_slots.sv",
-                 f"{pp}/packet_engine/KL_pp_tx_arbiter.sv",
-                 f"{pp}/packet_engine/KL_pp_scoreboard.sv",
-                 f"{pp}/packet_engine/KL_pp_event_router.sv",
-                 f"{pp}/packet_engine/KL_pp_originator.sv",
-                 f"{pp}/packet_engine/KL_pp_trace_ring.sv",
-                 f"{pp}/packet_engine/KL_pp_side_port.sv",
-                 f"{pp}/packet_engine/KL_pp_nvm_port.sv",
-                 f"{pp}/adp/KL_adp_engine.sv",
-                 f"{pp}/acmp/KL_pp_acmp_listener.sv", f"{pp}/acmp/KL_acmp_talker.sv",
-                 f"{pp}/acmp/KL_acmp_nvm_shadow.sv",
-                 f"{pp}/srp/KL_srp_decoder.sv", f"{pp}/srp/KL_srp_domain.sv",
-                 f"{pp}/srp/KL_srp_vlan.sv", f"{pp}/srp/KL_srp_admission.sv",
-                 f"{pp}/srp/KL_srp_talker_fsm.sv", f"{pp}/srp/KL_srp_listener_fsm.sv",
-                 f"{pp}/srp/KL_srp_encoder.sv", f"{pp}/srp/KL_srp_top.sv",
-                 f"{pp}/top/KL_mrp_strip.sv", f"{pp}/top/protocol_processor_top.sv",
-                 "hdl/milan/KL_pp_maap_shim.sv", "hdl/milan/KL_pp_shadow.sv"]
     if aaf_playback:
         # item-7: the host-PCM-ring AAF talker source (only referenced when the
         # AAF_PLAYBACK_P generate is live, so the default source list is unchanged).
@@ -4969,7 +5050,7 @@ class MilanSoC(SoCCore):
                  loopback_lane=False,
                  bus_standard="wishbone",
                  render_lpf=True, optional_blocks=None,
-                 cbs_queues_mask=None, entity_gen_dir=None, pp_plane=False, **kwargs):
+                 cbs_queues_mask=None, entity_gen_dir=None, **kwargs):
         # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
@@ -5344,7 +5425,19 @@ class MilanSoC(SoCCore):
                           "this platform - bclk/fsync/dout float and the "
                           "capture front-end frames DIGITAL SILENCE at the "
                           "declared width")
+            # WHERE THE ENTITY MODEL LIVES. The processor's descriptor store
+            # fetches the AEM image from main memory at a COMPILE-TIME base -
+            # its design holds no base register, so software cannot point it
+            # somewhere wrong at runtime. DERIVED from this SoC's own memory
+            # map, never restated as a literal: the top 1 MiB of main_ram,
+            # which the Linux DT reserves. Software loads the image there
+            # before enabling the entity; an unloaded (zeroed) region is
+            # caught by the image header's magic/version/checksum, so it reads
+            # as "not loaded" rather than as a valid empty model.
+            _ram = self.bus.regions["main_ram"]
+            _desc_base = _ram.origin + _ram.size - 0x0010_0000
             self.milan = MilanNIC(platform, axil, dma_mac_ports=dp_ports or None,
+                                  desc_base=_desc_base,
                                   milan_cd=milan_cd,
                                   rx_irq=self.milan_dma.rx.non_empty if with_dma else None,
                                   rx1_irq=(self.milan_dma.rx1.non_empty
@@ -5367,7 +5460,68 @@ class MilanSoC(SoCCore):
                                   render_lpf=bool(render_lpf),
                                   optional_blocks=optional_blocks,
                                   cbs_queues_mask=cbs_queues_mask,
-                                  entity_gen_dir=entity_gen_dir, pp_plane=pp_plane)
+                                  entity_gen_dir=entity_gen_dir)
+            # ===============================================================
+            #  AECP DESCRIPTOR-IMAGE READ BRIDGE (protocol-processor 07 §3.3)
+            # ===============================================================
+            # The processor's descriptor store fetches the entity model from
+            # DDR3 over a read-only master. MilanNIC published the sys-domain
+            # endpoints; this is the bus side, a wishbone READ master on the
+            # DMA bus - the same shape as `milan_aaf_pb`, extended from one
+            # word to a BURST.
+            #
+            # CONTRACT: ONE outstanding request; responses IN ORDER; `beats`
+            # counts 64-bit beats (>=1, max 128); `last` ends the burst. A
+            # beat carries its LOWEST byte address in bits [63:56] - 1722.1
+            # wire order, i.e. BIG-ENDIAN, a byte-reverse of the little-endian
+            # words the bus returns.
+            #
+            # THE ERROR ARM IS NOT OPTIONAL, and this bus has already charged
+            # for that lesson once: LiteX's wishbone2axi asserts `err`
+            # TOGETHER WITH `ack`, so `If(ack, ...)` alone accepts a FAILED
+            # read and latches whatever `dat_r` held. The audio path had to
+            # substitute silence because KL_pcm_tx has no error input. This
+            # master HAS one, so the error is PROPAGATED: the store aborts the
+            # burst and degrades that locate to NO_SUCH_DESCRIPTOR. A corrupt
+            # descriptor is never served as though it were good.
+            from litex.soc.interconnect import wishbone as _wb
+            _dq = self.milan.descmem_req_sys
+            _ds = self.milan.descmem_rsp_sys
+            self.descmem_wb = _dwb = _wb.Interface(data_width=32, adr_width=30,
+                                                   addressing="word")
+            _dmab = getattr(self, "dma_bus", self.bus)
+            _dmab.add_master("milan_desc_mem", master=_dwb)
+
+            _da = Signal(32); _dl = Signal(9)
+            _dlo = Signal(32); _dhi = Signal(32); _de = Signal()
+            self.descmem_fsm = _dfsm = FSM(reset_state="IDLE")
+            _dfsm.act("IDLE",
+                _dq.ready.eq(1),
+                If(_dq.valid,
+                    NextValue(_da, _dq.addr), NextValue(_dl, _dq.beats),
+                    NextValue(_de, 0), NextState("RD_LO")))
+            _dfsm.act("RD_LO",
+                _dwb.cyc.eq(1), _dwb.stb.eq(1), _dwb.sel.eq(0xF),
+                _dwb.adr.eq(_da[2:]),
+                If(_dwb.ack,
+                    If(_dwb.err, NextValue(_de, 1), NextState("EMIT")
+                    ).Else(NextValue(_dlo, _dwb.dat_r), NextState("RD_HI"))))
+            _dfsm.act("RD_HI",
+                _dwb.cyc.eq(1), _dwb.stb.eq(1), _dwb.sel.eq(0xF),
+                _dwb.adr.eq((_da + 4)[2:]),
+                If(_dwb.ack,
+                    If(_dwb.err, NextValue(_de, 1), NextState("EMIT")
+                    ).Else(NextValue(_dhi, _dwb.dat_r), NextState("EMIT"))))
+            _dfsm.act("EMIT",
+                _ds.valid.eq(1), _ds.err.eq(_de),
+                _ds.blast.eq((_dl == 1) | _de),
+                _ds.data.eq(Cat(_dhi[24:32], _dhi[16:24], _dhi[8:16], _dhi[0:8],
+                                _dlo[24:32], _dlo[16:24], _dlo[8:16], _dlo[0:8])),
+                If(_ds.ready,
+                    If(_de | (_dl == 1), NextState("IDLE")
+                    ).Else(NextValue(_da, _da + 8), NextValue(_dl, _dl - 1),
+                           NextState("RD_LO"))))
+
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
             # Milan IDENTIFY -> board LED (controllers blink it to locate the
             # device). Skipped quietly on platforms without user_led pads.
@@ -5555,7 +5709,7 @@ def main():
                          "converge). Default off => playback PRESENT.")
     ap.add_argument("--entity-gen-dir", default=None,
                     help="resolve the generated entity definition "
-                         "(gen/adp_shape_defaults.svh + aecp_aem_rom.svh) from "
+                         "(gen/adp_shape_defaults.svh) from "
                          "this directory (a configs/generated/<cfg>/ tree) "
                          "instead of the tracked hdl/ copy - lets both boards' "
                          "sweeps build CONCURRENTLY from one tree with no "
@@ -5581,19 +5735,11 @@ def main():
                          "when the port is meant to be PROMISCUOUS or filtering is done "
                          "in software. The TCAM_* CSR window still accepts writes and "
                          "nothing reads them. Default off => filter PRESENT.")
-    ap.add_argument("--with-pp-plane", action="store_true",
-                    help="instantiate the protocol-processor SHADOW plane "
-                         "(PP_PLANE_P=1). It runs ALONGSIDE the shipping "
-                         "ADP/ACMP/lwSRP planes and drives NOTHING: its TX is "
-                         "drained inside KL_pp_shadow, so the wire is "
-                         "bit-for-bit unchanged. What it buys is the "
-                         "submodule's engines seeing real traffic on real "
-                         "silicon, read back through the 0x920 CSR window "
-                         "(PP_STAT tag 0x5B, PP_DIAG frame counters, and the "
-                         "side port's own KLPP snapshot). Costs ~7k LUT: "
-                         "docs/findings/PP_SHADOW_AREA_0812.md. NOTHING has "
-                         "ever been built with this on - no bitstream to date "
-                         "contains the processor.")
+    # NOTE: there is no --with-pp-plane any more. The protocol processor was a
+    # shadow plane behind PP_PLANE_P for exactly one round; scenario B
+    # SUBSTITUTED it for the legacy 1722.1/SRP plane, which is deleted, so
+    # milan_datapath instantiates KL_pp_shadow unconditionally and every build
+    # gets the processor. A flag that can only be "on" is not a flag.
     ap.add_argument("--aaf-playback", action="store_true",
                     help="item-7 ALSA playback: wire KL_pcm_tx (host PCM ring -> AAF "
                          "talker pair source) into milan_datapath, the TX mirror of the RX "
@@ -5824,7 +5970,6 @@ def main():
                    },
                    cbs_queues_mask=args.cbs_queues_mask,
                    entity_gen_dir=args.entity_gen_dir,
-                   pp_plane=args.with_pp_plane,
                    audio_if_slots={"i2s_philips": 0, "tdm8": 8, "tdm16": 16,
                                    "tdm32": 32}[args.audio_interface],
                    talker_wire_chans=int(args.talker_wire_chans),

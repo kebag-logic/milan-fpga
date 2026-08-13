@@ -10,7 +10,9 @@ env:
   # Distro Verilator is NOT usable here - see docs/testing/TESTING.md §7:
   #   5.020 (Ubuntu 24.04)  cannot BUILD the datapath harnesses at all
   #                         (BLKLOOPINIT on legal SystemVerilog).
-  #   5.032 (Debian trixie) builds, but 6 aecp checks read back 0.
+  #   5.032 (Debian trixie) builds, but read back 0 on 6 checks of the AECP
+  #                         suite of the day (that suite is gone with the
+  #                         1722.1 plane; the version defect it exposed is not).
   # Both measured. Bump this pin deliberately, never incidentally.
   VERILATOR_VERSION: v5.050
 
