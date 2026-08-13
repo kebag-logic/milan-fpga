@@ -1005,15 +1005,15 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     host.descmem_rsp_sys = d_rsp.sys
 
     ports.update(
-        o_desc_mem_req_valid = desc_req_valid,
-        i_desc_mem_req_ready = desc_req_ready,
-        o_desc_mem_req_addr  = desc_req_addr,
-        o_desc_mem_req_beats = desc_req_beats,
-        i_desc_mem_rsp_valid = desc_rsp_valid,
-        o_desc_mem_rsp_ready = desc_rsp_ready,
-        i_desc_mem_rsp_data  = desc_rsp_data,
-        i_desc_mem_rsp_last  = desc_rsp_last,
-        i_desc_mem_rsp_err   = desc_rsp_err,
+        o_o_desc_mem_req_valid = desc_req_valid,
+        i_i_desc_mem_req_ready = desc_req_ready,
+        o_o_desc_mem_req_addr  = desc_req_addr,
+        o_o_desc_mem_req_beats = desc_req_beats,
+        i_i_desc_mem_rsp_valid = desc_rsp_valid,
+        o_o_desc_mem_rsp_ready = desc_rsp_ready,
+        i_i_desc_mem_rsp_data  = desc_rsp_data,
+        i_i_desc_mem_rsp_last  = desc_rsp_last,
+        i_i_desc_mem_rsp_err   = desc_rsp_err,
     )
 
     host.specials += Instance("milan_datapath", **dp_params, **ports)
