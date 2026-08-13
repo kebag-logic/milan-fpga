@@ -84,6 +84,7 @@ and is not repeated here.
 - **[6. Conformance scope](#6-conformance-scope)** — The honest framing of what the bench suite is: an in-house recreation, not an official lab run — plus the 2026-08-13 addition that the es-4.x AECP family is now runnable but fails on the NOT_IMPLEMENTED status rather than timing out, and that a formal validation still cannot be attempted while MVU is unimplemented and no descriptor image is loaded.
 - **[Suggested order of attack (reordered 2026-07-22 per USER)](#suggested-order-of-attack-reordered-2026-07-22-per-user)** — The thirteen roadmap items with a dependency graph up front, now read with one prepended item that outranks all of them: the P4 uCPU landing in the protocol-processor submodule. Each item carries its current landing state, including item 0's corrected verdict: the guard FSM is silicon-proven but the freeze hook fakes the liveness indicators without wedging anything, so recovery from a *real* wedge is still unproven.
 - **[Milan 1.3 + audio-unit round (USER 2026-07-29)](#milan-13--audio-unit-round-user-2026-07-29)** — The Hive/la_avdecc field findings and the USER's audio-unit directives as one round, **re-graded 2026-08-13**: items 1, 2, 5 and 6 are AECP-side and open with no local path to close them (the Milan badge stays unreachable because `GET_MILAN_INFO` and the rest of the MVU family answer `NOT_IMPLEMENTED`, and because enumeration returns `BAD_ARGUMENTS` until a descriptor image is loaded into DRAM), while the 8-channel shape and the typed stream ports are media-plane work and stand.
+- **[Diagnostics move to a DRAM ring, not to more CSRs (USER 2026-08-13)](#diagnostics-move-to-a-dram-ring-not-to-more-csrs-user-2026-08-13)** — USER directive: retire the per-datum debug CSRs for ONE DRAM ring of self-describing, skippable binary records. Problem statement plus the constraints a design must satisfy — including the boundary that must not be crossed, since spec-mandated counters answer a controller and cannot move.
 
 ## 0-ter. THE AECP BOUNDARY — the largest open gap on this page
 
@@ -1804,3 +1805,98 @@ audio-unit directive define the next fabric round:
    `hdl/milan/KL_pp_shadow.sv` now, so the observed behaviour must be
    re-measured before anything is called a defect; the clause verdict is owed
    either way and is unaffected by who implements the machine.
+
+## Diagnostics move to a DRAM ring, not to more CSRs (USER 2026-08-13)
+
+**USER DIRECTIVE.** Stop spending a CSR on every piece of debug information.
+Replace the per-datum registers with **one ring buffer carrying self-describing
+binary records**, whose payload layout varies with the subsystem being reported.
+The goal is to **remove as many CSRs as possible**. This is for the DEBUG path
+only.
+
+Not yet designed — this section is the problem statement plus the constraints
+any design has to satisfy, so the details can be settled before RTL exists.
+
+### Why this is worth doing here specifically
+
+Area on this die is not academic. The 2026-08-13 build closed at **+0.008 ns**
+with **17–27 free slices out of 15,850** (99.88 % slice occupancy) while LUT
+utilisation was only 75.6 % — the design is *slice*-bound, and a CSR is not free:
+it is a register bank plus its share of a readback mux that grows with every
+address added. Diagnostic registers are the cheapest thing to cut because,
+unlike the counters below, nothing on the wire depends on them.
+
+### The distinction that must not be got wrong
+
+**Spec-mandated counters STAY addressable.** IEEE 1722.1-2021 `GET_COUNTERS`
+and Milan v1.2 5.3.8.10 ("for each Stream Input") are answered to a controller
+over AECP; a controller cannot read a ring. Those values must remain readable
+by the command that is required to serve them.
+
+What moves is the **diagnostic / forensic** state that exists only for us: the
+`A_PP_DIAG` word, the MAAP and ACMP forensics registers, walker traces, the
+latency taps, drop and wedge tallies. If a datum answers a controller, it is not
+a candidate. Getting this boundary wrong trades area for a compliance failure.
+
+### Constraints any design must satisfy
+
+1. **The ring lives in DRAM, at a compile-time base.** Same rule and same
+   pattern as the descriptor store and the AECP response buffer — a reserved
+   `no-map` window, an address the fabric holds no register for. See
+   [`docs/findings/PP_DRAM_WINDOW_0813.md`](findings/PP_DRAM_WINDOW_0813.md):
+   the window must be generated from the end-station config, never derived a
+   second time, and the device tree must reserve it.
+
+2. **Records are SKIPPABLE.** A fixed header — subsystem id, record type,
+   **payload length**, sequence number, timestamp — followed by a
+   variable payload, 8-byte aligned. The length field is the load-bearing part:
+   a decoder built today must be able to walk a ring produced by newer gateware
+   by stepping over records it does not recognise. Big-endian, to match the wire
+   order the rest of the project uses.
+
+3. **Drop, never stall.** Telemetry must not be able to back-pressure the thing
+   it observes — that is the standing observer-purity rule the tap-purity gate
+   already enforces (`syn/yosys/check_tap_purity.sh`). A full ring drops.
+
+4. **A drop is never silent.** A dropped record must increment a counter that is
+   itself emitted into the ring, with the gap visible in the sequence numbers. A
+   diagnostic facility that quietly loses records is worse than none, because it
+   is then evidence of absence that is not absence.
+
+5. **Timestamp at CAPTURE, not at write.** The DRAM write is asynchronous and
+   can be microseconds late; a timestamp taken there describes the logger, not
+   the event. Take the PHC/media tick where the event occurs.
+
+6. **Width, not depth, is what costs BRAM.** The staging FIFO in front of the
+   single DRAM writer must be NARROW. Measured precedent: `u_dispatch` spent
+   **17 BRAM tiles on 4,716 bits** (0.8 % occupancy) purely because it was
+   393 bits wide — the synthesiser bands tiles side by side. Serialise into a
+   narrow FIFO; do not park a wide record in fabric.
+
+7. **The head pointer is the only thing software strictly needs.** Mirroring it
+   into a header page in the ring's own DRAM window makes even that zero CSRs,
+   at the cost of software polling DRAM — which is cheap. Whether one control
+   word survives (enable/reset) is a design choice; the target is *approximately
+   zero*, and the honest accounting is CSRs retired minus CSRs added.
+
+8. **ONE source for the record dictionary.** The encoder constants in RTL and
+   the decoder in software must be generated from a single declarative
+   description, in the pattern the end-station builder already uses. A
+   hand-maintained decoder drifts, and a drifted decoder mis-reads a payload
+   into plausible nonsense — the same failure class as
+   [[derive-never-mirror-constants]] in every other part of this project.
+
+9. **Prove the area claim by measurement, both ways.** OOC-synthesise the ring
+   writer plus its staging FIFO, and the CSR bank it retires, on the ship part,
+   before believing the trade. "Measure before AND after" is the standing rule
+   and this item exists entirely on an area argument.
+
+### Open questions to settle first
+
+- Which subsystems emit, and at what rate — a ring sized for the worst burst is
+  a different design from one sized for an average.
+- Whether records are fixed-rate samples or event-triggered, or both.
+- Whether the ring must survive a reset for post-mortem reading, which decides
+  whether the head pointer can live in fabric at all.
+- Whether one ring serves every subsystem or each gets its own region; one ring
+  needs arbitration, several need more DRAM windows and more head pointers.

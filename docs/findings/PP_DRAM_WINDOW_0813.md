@@ -4,6 +4,14 @@
 supply chain, by reading the generated device tree rather than the comment that
 described it.
 
+## Contents
+
+- **[What was wrong](#what-was-wrong)** — Two shapes, two different failures: at 1x1 the window was plain kernel RAM, at 8x8 it sat inside the PCM ring. Neither raises anything.
+- **[Root cause](#root-cause)** — The builder and the SoC each decided where the reserved band was, from different inputs, and the comment recorded only the first one's intent.
+- **[The fix](#the-fix)** — `platform.pcm_ring_phys` becomes the single authority: the builder derives the window and emits the reservation, the SoC reads it and only checks it.
+- **[What this costs operationally](#what-this-costs-operationally)** — The DTB must be rebuilt, not just the gateware — and the earlier `drammem` bitstream was compiled against the old base.
+- **[The rebuild that ships](#the-rebuild-that-ships)** — Three place directives swept, one closed at +0.008 ns; which build to ship and what it measured.
+
 ## What was wrong
 
 `KL_aecp_desc_store` READS the AEM descriptor image from main memory and
