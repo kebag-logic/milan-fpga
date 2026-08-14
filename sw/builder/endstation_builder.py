@@ -176,9 +176,12 @@ SCHEMA_ID = "kebag-logic/milan-endstation-config"
 SCHEMA_MAJOR = "1"
 
 OVERLAY_SCHEMA_ID = "kebag-logic/aem-overlay"
-OVERLAY_SCHEMA_VERSION = "2.1.0"     # 2.x: per-stream STREAM_PORT layout
+OVERLAY_SCHEMA_VERSION = "2.2.0"     # 2.x: per-stream STREAM_PORT layout
                                      # 2.1: role-tagged cluster pools +
                                      #      per-cluster object_name (D8/D10)
+                                     # 2.2: the "adp" identity block - the
+                                     #      Table 7-2 fields the descriptor
+                                     #      image must repeat
 
 LWSRP_SCHEMA_ID = "kebag-logic/lwsrp-table"
 LWSRP_SCHEMA_VERSION = "1.0.0"       # 1.x: SR class + 0x680 resets + rows
@@ -1836,7 +1839,9 @@ def _entity_model_image(cfg, overlay):
     model = _aem.build_model(_aem.spec_from_overlay(overlay))
     # 576 = PP_DESC_LINE_BYTES_P. A descriptor longer than the store's line
     # buffer cannot be answered, and the packer is the only place that sees it.
-    blob, report = _img.build(_join.model_to_document(model), 576)
+    blob, report = _img.build(
+        _join.model_to_document(model, _join.identity_from_overlay(overlay)),
+        576)
     base = int(cfg["platform"]["pp_mem_phys"])
     manifest = {
         "desc_base": base,
@@ -2122,6 +2127,33 @@ def adp_shape(cfg):
                                    else 0)
     return dict(talker_stream_sources=n_src, listener_stream_sinks=n_sink,
                 talker_capabilities=tcaps, listener_capabilities=lcaps)
+
+
+def overlay_adp_block(cfg):
+    """The ADP-advertised identity, for the consumers that must REPEAT it.
+
+    1722.1-2021 Table 7-2 makes the ENTITY descriptor's identity fields the
+    ADPDU's fields ("is the same as the ... field in ATDECC Discovery
+    Protocol"), so the AEM descriptor image has to carry the numbers ADP
+    advertises rather than pick its own.  It is the same adp_shape() the
+    gateware include is generated from and the same derive_entity_id() the
+    board's milan-entity.conf carries, so there is no third derivation to go
+    stale: one function, three artifacts.
+
+    entity_capabilities is deliberately absent, for the reason emit_entity_
+    conf() states: the builder does not compute it.  It is a fixed RTL
+    constant (pp_adp_pkg::ADP_ENTITY_CAPS_C) and gen_aemi_image reads it from
+    there, which is the only place it exists.
+    """
+    sh = adp_shape(cfg)
+    return {
+        "entity_id": f"0x{derive_entity_id(cfg):016X}",
+        "mac_address": cfg["platform"]["mac_address"],
+        "talker_stream_sources": sh["talker_stream_sources"],
+        "listener_stream_sinks": sh["listener_stream_sinks"],
+        "talker_capabilities": f"0x{sh['talker_capabilities']:04X}",
+        "listener_capabilities": f"0x{sh['listener_capabilities']:04X}",
+    }
 
 
 def emit_adp_shape_svh(cfg):
@@ -3834,6 +3866,21 @@ def emit_aem_overlay(cfg):
         "_source_config": cfg["source"],
         "entity": cfg["entity"],
         "model_id": cfg["model_id"],
+        #! CONSTRAINT (1722.1-2021 Table 7-2): the ENTITY descriptor's
+        #! entity_id, entity_capabilities, talker_stream_sources,
+        #! talker_capabilities, listener_stream_sinks and
+        #! listener_capabilities each "is the same as the ... field in ATDECC
+        #! Discovery Protocol", and 7.2.8 binds AVB_INTERFACE's mac_address
+        #! the same way.  gen_aem_store zero-fills those spans - the deleted
+        #! KL_aecp_aem_dyn_mux substituted them from the CSR group at read
+        #! time - and the descriptor store that replaced it has no identity
+        #! input, so avdecc/gen_aemi_image.py has to bake them into the image.
+        #! It can only bake what the overlay states, and until 2026-08-14 the
+        #! overlay stated neither the station MAC nor the resolved entity_id:
+        #! the image shipped entity_capabilities = 0, AEM_SUPPORTED clear.
+        #! entity_model_id is NOT restated here - it is already above, and a
+        #! second copy is a second thing to go stale.
+        "adp": overlay_adp_block(cfg),
         **({"gptp": cfg["gptp"]} if cfg.get("gptp") is not None else {}),
         "sampling_rates_hz": clk["audio_unit_rates_hz"],
         "current_sampling_rate_hz": clk["sampling_rate_hz"],

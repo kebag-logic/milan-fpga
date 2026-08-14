@@ -6527,11 +6527,13 @@ def build_desc_image(entity_gen_dir):
     import gen_aemi_image as _join
 
     with open(overlay, encoding="utf-8") as fh:
-        model = _aem.build_model(_aem.spec_from_overlay(json.load(fh)))
+        ovl = json.load(fh)
+    model = _aem.build_model(_aem.spec_from_overlay(ovl))
     # PP_DESC_LINE_BYTES_P: a descriptor longer than the store's line buffer
     # cannot be answered, and the packer is the only place that can see it
     # coming. Passed explicitly rather than defaulted so the two move together.
-    blob, report = _img.build(_join.model_to_document(model), 576)
+    blob, report = _img.build(
+        _join.model_to_document(model, _join.identity_from_overlay(ovl)), 576)
     return blob, report, overlay
 
 

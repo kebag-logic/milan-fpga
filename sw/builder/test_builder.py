@@ -161,6 +161,20 @@ Gates (gaps item 4, generator round):
       took "top of main_ram"), which put it in ordinary kernel RAM at the 1x1
       shape and INSIDE the PCM ring at 8x8.  Neither failure raises anything:
       no counter on either side reports a write to a wrong physical address.
+  28. THE DESCRIPTOR IMAGE CARRIES THE IDENTITY IEEE 1722.1-2021 Table 7-2
+      obliges it to: the ENTITY descriptor read back OUT of the packed
+      aem_desc.bin must repeat the ADPDU's entity_id, entity_model_id,
+      entity_capabilities (with AEM_SUPPORTED set), stream counts and
+      capability words, and AVB_INTERFACE must carry the station MAC and its
+      802.1AS clock_identity.  gen_aem_store zero-fills all of those - the
+      deleted KL_aecp_aem_dyn_mux substituted them at read time from the CSR
+      group - and the replacement image path never picked the step up, so
+      silicon served 44 zero bytes where the identity belongs.  Each value is
+      compared against the artifact that OWNS it (milan-entity.conf,
+      adp_shape_defaults.svh, pp_adp_pkg.sv, the config's MAC), and every
+      overlay span gen_aem_store declares must be either resolved or named as
+      genuinely dynamic - there is no third option, which is what stops the
+      next added span from shipping as zeros.
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
 """
@@ -170,6 +184,7 @@ import json
 import os
 import re
 import shlex
+import struct
 import subprocess
 import sys
 import tempfile
@@ -361,6 +376,39 @@ def check_stream_layout(rom, dirv, label):
         assert not u16(72) & 0x2000, \
             f"{who}: stream_flags 0x{u16(72):04X} sets TIMING_FIELD_VALID"
     return len(streams)
+
+
+def image_descriptor(blob, dtype, index=0, config=0):
+    """One descriptor out of the packed AEM image, located the way the STORE
+    locates it.
+
+    Header, then the (configuration, type) index map, then
+    `elem_off + index * elem_stride` for `elem_len` bytes - the layout
+    protocol-processor/hdl/aecp/desc/gen_desc_image.py documents and
+    KL_aecp_desc_store implements.  Walked here rather than taken from the
+    generator's own ROM slice on purpose: gate 28 is about the bytes that
+    reach a controller, and reading them back out of the image is the only
+    way to assert about those.
+    """
+    magic, ver = struct.unpack_from(">IH", blob, 0)
+    assert magic == 0x41454D49, f"image magic 0x{magic:08X}, not 'AEMI'"
+    assert ver == 1, f"image layout version {ver}, this reader speaks 1"
+    n_entries, = struct.unpack_from(">H", blob, 8)
+    index_off, = struct.unpack_from(">I", blob, 12)
+    for k in range(n_entries):
+        o = index_off + 16 * k
+        cfg_i, typ, count, elem_len = struct.unpack_from(">HHHH", blob, o)
+        elem_off, _name_base, stride = struct.unpack_from(">IHH", blob, o + 8)
+        if (cfg_i, typ) != (config, dtype):
+            continue
+        assert index < count, (
+            f"image holds {count} descriptor(s) of type 0x{dtype:04X} in "
+            f"configuration {config}, asked for index {index}")
+        start = elem_off + index * stride
+        return blob[start:start + elem_len]
+    raise AssertionError(
+        f"image has no type 0x{dtype:04X} in configuration {config} "
+        f"({n_entries} index-map entries)")
 
 
 def check_port_layout(ovl, n_listeners, n_talkers):
@@ -4492,6 +4540,185 @@ def test_pp_window_is_reserved():
           "bitstream compiles and the base the kernel reserves are ONE number")
 
 
+def test_image_identity_is_baked():
+    """Gate 28: the descriptor IMAGE carries the Table 7-2 identity.
+
+    IEEE 1722.1-2021 Table 7-2 states, field by field, that the ENTITY
+    descriptor's entity_id, entity_model_id, entity_capabilities,
+    talker_stream_sources, talker_capabilities, listener_stream_sinks,
+    listener_capabilities, controller_capabilities and association_id "is the
+    same as the ... field in ATDECC Discovery Protocol", and 7.2.8 binds
+    AVB_INTERFACE's mac_address and clock_identity to the station the same
+    way.  gen_aem_store ZERO-FILLS every one of those spans and records them
+    in M["OVERLAYS"]: KL_aecp_aem_dyn_mux substituted them from the CSR group
+    while the response streamed.  That module was deleted with the legacy
+    plane in eff99a9c, along with the only test that asserted these bytes
+    (tb/verilator/aecp/sim_main.cpp), and the descriptor store that replaced
+    it has NO identity input - so the step had to move to image generation
+    and did not.  On 2026-08-14 silicon served bytes 4..47 of the ENTITY
+    descriptor as 44 zeros while ADP advertised the real values two frames
+    away.
+
+    The worst of those zeros is entity_capabilities: AEM_SUPPORTED (Table
+    6-3, mask 0x08) clear tells a controller the entity has no entity model
+    at all.
+
+    This gate reads the values back OUT OF THE PACKED IMAGE and compares each
+    against the artifact that owns it - the boot script's milan-entity.conf
+    for the two ids, the gateware's adp_shape_defaults.svh for the counts and
+    capability words, pp_adp_pkg.sv for entity_capabilities, the config for
+    the MAC - so it fails both ways round: an unbaked image and a baked image
+    that disagrees with what ADP sends.
+    """
+    sys.path.insert(0, os.path.join(ROOT, "protocol-processor/hdl/aecp/desc"))
+    import gen_aem_store as aem                    # noqa: E402
+    import gen_aemi_image as aemi                  # noqa: E402
+
+    ENTITY, AVB_INTERFACE = 0x0000, 0x0009
+    AEM_SUPPORTED = 0x0000_0008                    # 1722.1-2021 Table 6-3
+
+    #! Read here as well as in the generator: two independent reads of one
+    #! constant is what makes this an assertion rather than a tautology.
+    pkg = open(os.path.join(ROOT, "protocol-processor/hdl/adp/pp_adp_pkg.sv"))
+    m = re.search(r"ADP_ENTITY_CAPS_C\s*=\s*32'h([0-9A-Fa-f_]+)\s*;",
+                  pkg.read())
+    assert m, "pp_adp_pkg.sv declares no ADP_ENTITY_CAPS_C"
+    adp_caps = int(m.group(1).replace("_", ""), 16)
+    assert adp_caps & AEM_SUPPORTED, (
+        f"ADP advertises entity_capabilities 0x{adp_caps:08X} with "
+        "AEM_SUPPORTED clear (Table 6-3): the entity would be telling every "
+        "controller it has no entity model, and no READ_DESCRIPTOR would "
+        "ever arrive to serve this image from")
+
+    for name in ("ax7101_1x1_tdm8", "arty_current", "arty_4x4",
+                 "ax7101_8x8"):
+        cfg = eb.load_config(CONFIGS[name])
+        overlay = eb.emit_aem_overlay(cfg)
+        blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
+        ent = image_descriptor(blob, ENTITY)
+        avbi = image_descriptor(blob, AVB_INTERFACE)
+
+        # ---- the ADP side of Table 7-2, from the artifacts ADP is built from
+        conf = dict(
+            ln.split("=", 1) for ln in eb.emit_entity_conf(cfg).splitlines()
+            if "=" in ln and not ln.startswith("#"))
+        want_eid = (int(conf["MILAN_ENTITY_ID_HI"], 16) << 32) \
+            | int(conf["MILAN_ENTITY_ID_LO"], 16)
+        want_mid = (int(conf["MILAN_MODEL_ID_HI"], 16) << 32) \
+            | int(conf["MILAN_MODEL_ID_LO"], 16)
+        svh = eb.emit_adp_shape_svh(cfg)
+
+        def sym(n, s=svh, who=name):
+            g = re.search(rf"{n}\s*=\s*(?:\d+'h([0-9A-Fa-f]+)|(\d+))\s*;", s)
+            assert g, f"{who}: adp_shape_defaults.svh declares no {n}"
+            return int(g.group(1), 16) if g.group(1) else int(g.group(2))
+
+        mac = bytes(int(x, 16)
+                    for x in cfg["platform"]["mac_address"].split(":"))
+        #! 802.1AS-2011 8.5.2.2: EUI-48 widened to EUI-64 with FF-FE at the
+        #! OUI boundary, the recipe the deleted mux applied in RTL.
+        want_clock_id = mac[:3] + b"\xFF\xFE" + mac[3:]
+
+        # ---- what the image actually serves
+        u = lambda b, o, n: int.from_bytes(b[o:o + n], "big")  # noqa: E731
+        got = {
+            "entity_id": u(ent, 4, 8),
+            "entity_model_id": u(ent, 12, 8),
+            "entity_capabilities": u(ent, 20, 4),
+            "talker_stream_sources": u(ent, 24, 2),
+            "talker_capabilities": u(ent, 26, 2),
+            "listener_stream_sinks": u(ent, 28, 2),
+            "listener_capabilities": u(ent, 30, 2),
+        }
+        want = {
+            "entity_id": want_eid,
+            "entity_model_id": want_mid,
+            "entity_capabilities": adp_caps,
+            "talker_stream_sources": sym("ADP_TALKER_SRC_C"),
+            "talker_capabilities": sym("ADP_TALKER_CAPS_C"),
+            "listener_stream_sinks": sym("ADP_LISTENER_SINK_C"),
+            "listener_capabilities": sym("ADP_LISTENER_CAPS_C"),
+        }
+        for k, w in want.items():
+            assert w != 0, (
+                f"{name}: the ADP side of {k} is itself 0, so this gate would "
+                "be comparing two zeros and proving nothing")
+            assert got[k] == w, (
+                f"{name}: ENTITY descriptor {k} reads 0x{got[k]:X} in the "
+                f"image, ADP advertises 0x{w:X}. 1722.1-2021 Table 7-2: the "
+                "descriptor field 'is the same as' the ADP one"
+                + ("  [entity_capabilities = 0 clears AEM_SUPPORTED: the "
+                   "entity model says it has no entity model]"
+                   if k == "entity_capabilities" and got[k] == 0 else ""))
+        assert got["entity_capabilities"] & AEM_SUPPORTED, (
+            f"{name}: entity_capabilities 0x{got['entity_capabilities']:08X} "
+            "has AEM_SUPPORTED clear")
+        # The teeth on the model id: the number the CONFIG generates, not
+        # merely the number the boot script happens to carry.
+        assert got["entity_model_id"] == int(overlay["model_id"]["value"], 16),\
+            (f"{name}: image entity_model_id 0x{got['entity_model_id']:016X} "
+             f"is not the id this config generates "
+             f"({overlay['model_id']['value']}). 1722.1-2021 6.2.1.10 makes "
+             "that id the identity OF the model, and a controller caches the "
+             "descriptors under it")
+
+        assert avbi[70:76] == mac, (
+            f"{name}: AVB_INTERFACE mac_address {avbi[70:76].hex()} is not "
+            f"the station MAC {cfg['platform']['mac_address']}")
+        assert avbi[78:86] == want_clock_id, (
+            f"{name}: AVB_INTERFACE clock_identity {avbi[78:86].hex()}, "
+            f"802.1AS says {want_clock_id.hex()}")
+
+        # ---- and NO build-constant span left zero-filled anywhere.
+        # Stated over gen_aem_store's own overlay list so a span added there
+        # cannot ship as zeros the way this whole set did: every entry is
+        # either resolved or explicitly declared dynamic, with no third
+        # option.
+        model = aem.build_model(aem.spec_from_overlay(overlay))
+        ident = aemi.identity_from_overlay(overlay)
+        for base, nbytes, src in model["OVERLAYS"]:
+            assert src in ident or src in aemi.UNBAKED_SPANS, (
+                f"{name}: overlay span {src} (ROM 0x{base:04X}, {nbytes} B) "
+                "is neither resolved nor declared dynamic - it would ship as "
+                "zeros")
+            if src in ident and any(ident[src]):
+                assert len(ident[src]) == nbytes
+        #! available_index is the one field here that genuinely cannot be
+        #! baked: it counts THIS entity's advertisements and increments per
+        #! ADPDU (6.2.1.14). Pinned so that baking a counter into a static
+        #! image is a visible diff.
+        assert "AVAIL_IDX" in aemi.UNBAKED_SPANS, \
+            "available_index is a live counter; a flat image cannot state it"
+        assert u(ent, 36, 4) == 0, f"{name}: available_index baked non-zero"
+        #! controller_capabilities and association_id are 0 BECAUSE ADP sends
+        #! them as 0 (KL_adp_engine frame_byte_f wire bytes 46..49 and 70..77)
+        #! - this entity implements no controller and associates with nobody.
+        #! Asserted against the RTL so the day either becomes a real value,
+        #! this fails rather than silently shipping stale zeros.
+        eng = open(os.path.join(ROOT,
+                                "protocol-processor/hdl/adp/KL_adp_engine.sv"))
+        src = eng.read()
+        assert re.search(r"i < 50\)\s*b = 8'h00;\s*// ctrl caps", src), \
+            "KL_adp_engine no longer sends controller_capabilities as zero"
+        assert u(ent, 32, 4) == 0, f"{name}: controller_capabilities non-zero"
+        assert u(ent, 40, 8) == 0, f"{name}: association_id non-zero"
+        #! current_configuration: d_configuration emits configurations_count
+        #! = 1, so 0 is the only index SET_CONFIGURATION could select.
+        assert u(ent, 308, 2) == 1, f"{name}: configurations_count != 1"
+        assert u(ent, 310, 2) == 0, f"{name}: current_configuration != 0"
+
+        print(f"  [gate 28] {name}: image ENTITY carries entity_id "
+              f"0x{got['entity_id']:016X}, entity_model_id "
+              f"0x{got['entity_model_id']:016X}, entity_capabilities "
+              f"0x{got['entity_capabilities']:08X} (AEM_SUPPORTED set), "
+              f"{got['talker_stream_sources']} source(s)/"
+              f"0x{got['talker_capabilities']:04X} + "
+              f"{got['listener_stream_sinks']} sink(s)/"
+              f"0x{got['listener_capabilities']:04X}, AVB_INTERFACE the "
+              f"station MAC {cfg['platform']['mac_address']} and its 802.1AS "
+              f"clock_identity - all equal to what ADP advertises (Table 7-2)")
+
+
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
@@ -4527,7 +4754,8 @@ if __name__ == "__main__":
                test_d10_cluster_names, test_d10_names_reach_the_rom,
                test_entity_identity_is_derived_not_mirrored,
                test_gptp_domain_is_one_source,
-               test_pp_window_is_reserved):
+               test_pp_window_is_reserved,
+               test_image_identity_is_baked):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")
