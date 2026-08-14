@@ -2159,7 +2159,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! N_STREAMS = 1 and an unclamped $clog2(1) declares [-1:0].
   localparam int PP_SRC_IDX_W_C = (N_STREAMS > 1) ? $clog2(N_STREAMS) : 1;
   wire                       pp_maap_req_valid_w   /* verilator public_flat_rd */;
-  wire                       pp_maap_req_ready_w;
+  wire                       pp_maap_req_ready_w   /* verilator public_flat_rd */;
   //! observed by tb/verilator/pp_shadow: this shape pins every talker source
   //! enabled, so the processor's RELEASE_DA arc is unreachable here and the
   //! suite grades that as a fact rather than leaving it an untested gap.
@@ -2171,6 +2171,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire                       pp_maap_confl_valid_w;
   wire [PP_SRC_IDX_W_C-1:0]  pp_maap_confl_src_w;
   wire                       pp_maap_confl_ack_w;
+  //! the processor's INTERNAL Annex B claim - all-zero while
+  //! cfg_maap_internal_i is tied 0 below (_nc: no consumer until the
+  //! KL_maap-retirement round)
+  wire [47:0]                pp_maap_int_addr_nc_w;
+  wire                       pp_maap_int_valid_nc_w;
+  wire [1:0]                 pp_maap_int_state_nc_w;
+  wire [7:0]                 pp_maap_int_confl_nc_w;
+  wire [7:0]                 pp_maap_int_dfnd_nc_w;
 
   //! ------------------------------------------------------------------------
   //! CSR OUTPUTS LEFT DELIBERATELY OPEN. A group of config words below has no
@@ -5093,6 +5101,26 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .maap_conflict_valid_i   (pp_maap_confl_valid_w),
       .maap_conflict_src_i     (pp_maap_confl_src_w),
       .maap_conflict_ack_o     (pp_maap_confl_ack_w),
+      //! The processor's INTERNAL Annex B engine stays DARK in this fabric:
+      //! KL_maap above is the one allocator on this wire, and two engines
+      //! defending one claim is a protocol violation, not a redundancy. The
+      //! block config is fed from the SAME CSR words KL_maap consumes, so
+      //! the day the internal engine is enabled (the KL_maap-retirement
+      //! round) it claims exactly the block the fabric claims today and no
+      //! second source of truth appears in the meantime.
+      .cfg_maap_internal_i     (1'b0),
+      .cfg_maap_count_i        (cfg_maap_count),
+      .cfg_maap_seed_offset_i  (cfg_maap_seed_offset),
+      .cfg_maap_seed_valid_i   (cfg_maap_seed_valid),
+      //! the internal claim: all-zero while the engine is dark. Landed on
+      //! named nets rather than open pins so the pp_shadow harness's
+      //! no-waiver build stays PINMISSING-clean; the retirement round turns
+      //! these into the real eff_aaf_dmac / gate sources.
+      .maap_addr_o             (pp_maap_int_addr_nc_w),
+      .maap_addr_valid_o       (pp_maap_int_valid_nc_w),
+      .maap_state_o            (pp_maap_int_state_nc_w),
+      .maap_conflicts_o        (pp_maap_int_confl_nc_w),
+      .maap_defends_o          (pp_maap_int_dfnd_nc_w),
       .dbg_now_ms_o      ()
     );
 

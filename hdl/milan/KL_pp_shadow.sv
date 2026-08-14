@@ -406,6 +406,27 @@ module KL_pp_shadow #(
     input  wire  [SRC_IDX_W_C-1:0]     maap_conflict_src_i,   //! conflicted source
     output logic                       maap_conflict_ack_o,   //! event ack (combinational)
 
+    //! ---- the INTERNAL Annex B option (processor 11; quasi-static) ------
+    //! The processor now carries its own MAAP engine (KL_pp_maap). With
+    //! cfg_maap_internal_i = 0 (this fabric's shipping value) the engine is
+    //! dark, the per-source face above stays the seam, and behaviour is
+    //! byte-identical to the pre-engine top. 1 answers the talker from the
+    //! processor's own Annex B claim and quiesces the external port group -
+    //! the KL_maap-retirement option, taken only when the fabric's own
+    //! allocator is REMOVED in the same build (two Annex B engines defending
+    //! one wire is a protocol violation, not a redundancy).
+    input  wire                        cfg_maap_internal_i,    //! 1 = internal allocator
+    input  wire  [7:0]                 cfg_maap_count_i,       //! block size to claim
+    input  wire  [15:0]                cfg_maap_seed_offset_i, //! preferred pool offset
+    input  wire                        cfg_maap_seed_valid_i,  //! 1 = first walk probes the seed
+    //! the internal claim, republished (KL_maap-compatible naming; all-zero
+    //! while the internal engine is dark)
+    output logic [47:0]                maap_addr_o,        //! claimed base DMAC (source 0)
+    output logic                       maap_addr_valid_o,  //! 1 = Annex B DEFEND (claim held)
+    output logic [1:0]                 maap_state_o,       //! 0 INITIAL / 1 PROBE / 2 DEFEND
+    output logic [7:0]                 maap_conflicts_o,   //! re-address events (saturating)
+    output logic [7:0]                 maap_defends_o,     //! DEFEND frames sent (saturating)
+
     //! ---- class-D SRP status levels (02 §6, F02.10) — THE FABRIC FACE ----
     //! Every one of these is a straight pass-through of the identically named
     //! protocol_processor_top output: same name, same width, same flat
@@ -965,6 +986,16 @@ module KL_pp_shadow #(
       .maap_conflict_valid_i   (maap_conflict_valid_i),
       .maap_conflict_src_i     (maap_conflict_src_i),
       .maap_conflict_ack_o     (maap_conflict_ack_o),
+
+      .cfg_maap_internal_i     (cfg_maap_internal_i),
+      .cfg_maap_count_i        (cfg_maap_count_i),
+      .cfg_maap_seed_offset_i  (cfg_maap_seed_offset_i),
+      .cfg_maap_seed_valid_i   (cfg_maap_seed_valid_i),
+      .maap_addr_o             (maap_addr_o),
+      .maap_addr_valid_o       (maap_addr_valid_o),
+      .maap_state_o            (maap_state_o),
+      .maap_conflicts_o        (maap_conflicts_o),
+      .maap_defends_o          (maap_defends_o),
 
       .dbg_now_ms_o        (dbg_now_ms_o)
   );

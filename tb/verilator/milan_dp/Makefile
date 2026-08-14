@@ -88,6 +88,7 @@ PP_SRCS = $(PP_DIR)/common/pp_pkg.sv $(PP_DIR)/srp/srp_pkg.sv \
        $(PP_DIR)/packet_engine/KL_pp_side_port.sv \
        $(PP_DIR)/packet_engine/KL_pp_nvm_port.sv \
        $(PP_DIR)/adp/KL_adp_engine.sv \
+       $(PP_DIR)/maap/KL_pp_maap.sv \
        $(PP_DIR)/acmp/KL_pp_acmp_listener.sv $(PP_DIR)/acmp/KL_acmp_talker.sv \
        $(PP_DIR)/acmp/KL_acmp_nvm_shadow.sv \
        $(PP_DIR)/srp/KL_srp_decoder.sv $(PP_DIR)/srp/KL_srp_domain.sv \
