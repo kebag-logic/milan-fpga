@@ -2336,10 +2336,17 @@ word that cannot tell "restored" from "there was nothing to restore from".
 
 ### Consumers, checked 2026-08-13, re-checked 2026-08-14
 
-- **`milan-persist`** (board rootfs) is honest: it dispatches on the generated
-  `/etc/milan-persist-state.sh` inventory, every item of which currently reads
-  `none`, so it prints eleven named `NOT RESTORABLE` gaps and exits 0. It does
-  not read `PP_STAT`.
+- **`milan-persist`** (board rootfs) claims nothing it cannot do, but it is
+  silent rather than loud, and the sentence that used to stand here was wrong.
+  Both `restore` and `status` iterate `MILAN_PERSIST_ITEMS`, which the
+  generator emits **empty** on this build, so `restore` calls its per-item
+  dispatcher zero times: it prints the store-probe line, no `NOT RESTORABLE`
+  gap at all, and exits 0, while `status` prints the `CLAUSE STATE RESTORE`
+  header with no rows under it. The eleven clause-mandated items are in
+  `MILAN_PERSIST_INVENTORY`, which no branch of the tool reads (verified
+  2026-08-14 by running both subcommands against the generated
+  [`sw/persist/milan-persist-state.sh`](../sw/persist/milan-persist-state.sh)).
+  It does not read `PP_STAT`.
 - **`S51milan-persist`** gates on the `journal` mtd partition existing (empty
   `/proc/mtd` on this kernel) and, past that gate, on the `0x7C0` verdict field,
   which is a structural zero since `KL_persist_journal` was deleted. It reports

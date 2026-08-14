@@ -456,9 +456,14 @@ is on the resolution path and is **never linted** — it is upstream code.
 
 **Mandatory first step after EVERY flash: [`scripts/hostplane_smoke.sh`](../../scripts/hostplane_smoke.sh) on
 the board shell (~60 s).** It verifies the host plane specifically —
-`rx_packets` increments, the dma-ts ring offset advances, ID=`MILN` +
-VERSION readable, the `AAF_CTRL` VID field intact (`0x0002xxxx`), the ALSA
-card module loaded — one PASS/FAIL line per check, nonzero exit on any FAIL.
+`rx_packets` increments, the dma-ts ring offset advances
+(`milan_dma_ts_offset`, `0xf0003118` on the flashed AX build — read it from
+that build's own `csr.csv`), ID=`MILN` + VERSION readable, the `AAF_CTRL` VID
+field intact (`0x0002xxxx`), the ALSA card module loaded, and the protocol
+processor's two memory bridges acked every bus access they issued with no
+error and no timeout (the `ppmem` counters, plus the `0x5B` presence tag and
+the DFI handover in `stat[4]`, so an absent bank cannot pass as a quiet bus) —
+one PASS/FAIL line per check, nonzero exit on any FAIL.
 Rationale: a build whose fabric paths (AAF/CRF/SRP/ADP) run perfectly can
 still ship with a dead host plane (2026-07-25 regression class), and every
 audio-first drill stays green while the kernel sees nothing. Do not start

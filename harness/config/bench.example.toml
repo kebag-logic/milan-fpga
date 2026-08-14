@@ -143,9 +143,12 @@ version_expect = 0x00010013
 n_listeners = 8
 n_talkers = 8
 # LiteX CSR space - these move with the build, so they are configuration.
+# Take every one of them from the FLASHED build's csr.csv: dma_ts_offset_csr
+# read 0xf00030a4 until 2026-08-14, which csr.csv names milan_dma_rx1_wr_ptr,
+# so p1_smoke's "TS ring advanced" was graded on RX ring 1 instead.
 pcm_ring_csr = 0xf0003120
 mac_loopback_csr = 0xf0003818
-dma_ts_offset_csr = 0xf00030a4
+dma_ts_offset_csr = 0xf0003118
 alsa_capture_device = "hw:0,0"
 alsa_capture_channels = 2
 # Optional board-side durable log mount. NOT PRESENT TODAY (no mtd node is in
@@ -169,7 +172,7 @@ n_listeners = 4
 n_talkers = 4
 pcm_ring_csr = 0xf0003120
 mac_loopback_csr = 0xf0003818
-dma_ts_offset_csr = 0xf00030a4
+dma_ts_offset_csr = 0xf0003118
 alsa_capture_device = "hw:0,0"
 alsa_capture_channels = 2
 user_mtd_mount = "/user"
