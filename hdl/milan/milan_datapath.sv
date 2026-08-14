@@ -2110,7 +2110,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! 1722.1-2021 6.2.6 GM_CHANGE: an edge on the committed grandmaster pair
   logic [63:0]              pp_gm_id_q_r;
   logic [7:0]               pp_gm_dom_q_r;
-  logic                     pp_gm_change_p_w;
+  logic                     pp_gm_change_p_w /* verilator public_flat_rd */;
   logic [TDATA_WIDTH-1:0]   pp_tx_tdata_w;
   logic [TDATA_WIDTH/8-1:0] pp_tx_tkeep_w;
   logic                     pp_tx_tvalid_w, pp_tx_tlast_w;
@@ -3129,14 +3129,119 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     endcase
   end
 
-  //! Everything that is not a Stream Input this build measures: zero data AND
-  //! an empty mask, on the same term, so the two can never disagree. That
-  //! covers ENTITY (Table 7-155), AVB_INTERFACE (Table 7-159) and
-  //! CLOCK_DOMAIN (Table 7-161), whose counters are a NAMED GAP - Milan
-  //! v1.2 5.3.8.10 asks for them and this build keeps none of them here.
-  assign pp_ctr_data_w = ctr_sin_w ? ctr_blk_w : 32'd0;
-  //! HOLD, not a ready. The block is a combinational read of flops that are
-  //! already settled, so the beat is never held.
+  // ------------------------------------------------------------------------
+  //  AVB_INTERFACE and CLOCK_DOMAIN counters (Milan v1.2 5.3.6.3 Table 5.1,
+  //  5.3.11.2 Table 5.7; IEEE 1722.1-2021 Tables 7-158..7-161)
+  // ------------------------------------------------------------------------
+  //! The two counter families la_avdecc's Milan gate demands beside the
+  //! Stream Input set (avdeccControllerImplHandlers.cpp: LinkUp + LinkDown +
+  //! GptpGmChanged for the interface, Locked + Unlocked for the clock
+  //! domain). Until this block they answered an EMPTY mask - honest, and
+  //! DIRTY: 5.3.6.3 and 5.3.11.2 are shalls.
+  //!
+  //! EVERY COUNT IS AN EDGE OF ONE LEVEL, and that construction IS the
+  //! clause's invariant: 5.3.6.3 requires "at any time, either
+  //! LINK_UP=LINK_DOWN (the link is currently down) or LINK_UP=LINK_DOWN+1"
+  //! and 5.3.11.2 the same of LOCKED/UNLOCKED. Two counters incremented on
+  //! opposite edges of the SAME registered level can never diverge by more
+  //! than one, and both levels reset LOW (link down, clock not valid), which
+  //! is the equal-counts arm. Nothing enforces the invariant; it is
+  //! structural.
+  //!
+  //! THE LEVELS, and why these are the honest ones:
+  //!   * link:   eff_link_w - the ENTITY-VISIBLE link (PHY link AND the
+  //!     software link gate), the same level the protocol processor, the
+  //!     link guard consumers and the ADP availability logic already treat
+  //!     as "the AVB interface is up". Counting the raw PHY here would let
+  //!     LINK_UP outrun what every other part of this device reports.
+  //!   * GM:     pp_gm_change_p_w - the strobe already derived for the
+  //!     processor's Milan Table 5.50 GM_CHANGE duty: a change of the
+  //!     nonzero grandmaster identity the daemon publishes. One source for
+  //!     both consumers, so GPTP_GM_CHANGED and the ADP GM_CHANGE
+  //!     re-announce can never disagree about how many times the GM moved.
+  //!   * media clock: ~clkv_tu_w. Milan leaves "locked" explicitly open
+  //!     ("the definition of locked is left open to each manufacturer",
+  //!     5.3.11.2); this build's definition is the CLKV lease verdict - the
+  //!     SAME truth the tu bit stamps into every AVTPDU (VERSION 0x0016).
+  //!     One clock-validity authority, two views; a LOCKED count that
+  //!     disagreed with the tu bit on the wire would be two answers to one
+  //!     question. tu resets 1 (unknown is NOT valid), so locked resets LOW.
+  localparam logic [15:0] DESC_AVB_INTERFACE_C = 16'h0009;  //! Table 7-4
+  localparam logic [15:0] DESC_CLOCK_DOMAIN_C  = 16'h0024;  //! Table 7-4
+  //! Table 7-158 numbers LINK_UP bit #31 (quadlet 0), LINK_DOWN #30 (1),
+  //! GPTP_GM_CHANGED #26 (5, block byte 20); Table 7-160 LOCKED #31 (0),
+  //! UNLOCKED #30 (1). Mask bit n = quadlet n, LSB-0 (the Table 7-156
+  //! arithmetic in the Stream Input section above).
+  localparam logic [31:0] CTR_VALID_AVB_C  = 32'h0000_0023;
+  localparam logic [31:0] CTR_VALID_CKD_C  = 32'h0000_0003;
+
+  logic        ctr_link_q_r, ctr_mclk_q_r;
+  logic [31:0] ctr_linkup_r, ctr_linkdn_r;
+  logic [31:0] ctr_gmchg_r /* verilator public_flat_rd */;
+  logic [31:0] ctr_mlock_r, ctr_munlock_r;
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : itf_ctrs
+    if (!axis_resetn) begin
+      ctr_link_q_r <= 1'b0;
+      ctr_mclk_q_r <= 1'b0;
+      ctr_linkup_r <= 32'd0;
+      ctr_linkdn_r <= 32'd0;
+      ctr_gmchg_r  <= 32'd0;
+      ctr_mlock_r  <= 32'd0;
+      ctr_munlock_r<= 32'd0;
+    end else begin
+      ctr_link_q_r <= eff_link_w;
+      ctr_mclk_q_r <= ~clkv_tu_w;
+      //! 32-bit and wrapping, exactly as both clauses specify ("wraps over
+      //! to zero when it reaches the maximum value")
+      if ( eff_link_w && !ctr_link_q_r) ctr_linkup_r <= ctr_linkup_r + 32'd1;
+      if (!eff_link_w &&  ctr_link_q_r) ctr_linkdn_r <= ctr_linkdn_r + 32'd1;
+      if (pp_gm_change_p_w)             ctr_gmchg_r  <= ctr_gmchg_r  + 32'd1;
+      if (~clkv_tu_w && !ctr_mclk_q_r)  ctr_mlock_r  <= ctr_mlock_r  + 32'd1;
+      if ( clkv_tu_w &&  ctr_mclk_q_r)  ctr_munlock_r<= ctr_munlock_r+ 32'd1;
+    end
+  end
+
+  //! ONE interface and ONE clock domain in every shipped shape, so index 0
+  //! is the only object either family can answer for - the same
+  //! wrong-object rule as the Stream Input clamp above: any other index is
+  //! an EMPTY mask over a zero block, never quadlets that belong to 0.
+  wire ctr_avb_w = (pp_ctr_desc_type_w == DESC_AVB_INTERFACE_C)
+                && (pp_ctr_desc_index_w == 16'd0);
+  wire ctr_ckd_w = (pp_ctr_desc_type_w == DESC_CLOCK_DOMAIN_C)
+                && (pp_ctr_desc_index_w == 16'd0);
+
+  logic [31:0] ctr_avb_blk_w;
+  always_comb begin
+    unique case (pp_ctr_word_w)
+      6'd0    : ctr_avb_blk_w = ctr_linkup_r;    // @0   LINK_UP
+      6'd1    : ctr_avb_blk_w = ctr_linkdn_r;    // @4   LINK_DOWN
+      6'd5    : ctr_avb_blk_w = ctr_gmchg_r;     // @20  GPTP_GM_CHANGED
+      6'd32   : ctr_avb_blk_w = CTR_VALID_AVB_C; //      counters_valid
+      default : ctr_avb_blk_w = 32'd0;  // FRAMES_TX/RX + RX_CRC_ERROR live
+                                        // in mac_rmon's domain: unclaimed
+                                        // here rather than claimed-zero
+    endcase
+  end
+
+  logic [31:0] ctr_ckd_blk_w;
+  always_comb begin
+    unique case (pp_ctr_word_w)
+      6'd0    : ctr_ckd_blk_w = ctr_mlock_r;     // @0   LOCKED
+      6'd1    : ctr_ckd_blk_w = ctr_munlock_r;   // @4   UNLOCKED
+      6'd32   : ctr_ckd_blk_w = CTR_VALID_CKD_C; //      counters_valid
+      default : ctr_ckd_blk_w = 32'd0;
+    endcase
+  end
+
+  //! Everything else - ENTITY (Table 7-154's set is all ENTITY_SPECIFIC,
+  //! none kept), STREAM_OUTPUT, out-of-range indices - answers zero data
+  //! AND an empty mask on the same term, so the two can never disagree.
+  assign pp_ctr_data_w = ctr_sin_w ? ctr_blk_w
+                       : ctr_avb_w ? ctr_avb_blk_w
+                       : ctr_ckd_w ? ctr_ckd_blk_w
+                       : 32'd0;
+  //! HOLD, not a ready. Every block is a combinational read of flops that
+  //! are already settled, so the beat is never held.
   assign pp_ctr_wait_w = 1'b0;
 
   // ------------------------------------------------------------------------

@@ -739,7 +739,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x00020046);
+       axi_read(A_VERSION), 0x00020047);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
     //! These two writes used to sit inside the N-sink ACMP ctx2 section,
@@ -1310,6 +1310,108 @@ int main(int argc, char** argv) {
             long dirty = 0;
             for (int q = 12; q < 32; q++) if (blk(q) != 0) dirty++;
             ck("[CTRS] the unclaimed quadlets 12..31 are zero", dirty, 0);
+        }
+
+        //! ------------------------------------------------------------------
+        //! [CTRS2] AVB_INTERFACE and CLOCK_DOMAIN: the other two families
+        //! la_avdecc's Milan gate demands (5.3.6.3 Table 5.1, 5.3.11.2
+        //! Table 5.7). Graded as DELTAS around events THIS section fires, so
+        //! nothing depends on how many times earlier sections moved the
+        //! levels; the link pair is graded by its INVARIANT instead, because
+        //! bouncing the link mid-suite would drag the eth domains through a
+        //! reset every later section would pay for.
+        {
+            auto ctr_of = [&](unsigned ty, unsigned ix, int q) -> uint32_t {
+                std::vector<uint8_t> p(4, 0);
+                p[0] = (uint8_t)(ty >> 8); p[1] = (uint8_t)ty;
+                p[2] = (uint8_t)(ix >> 8); p[3] = (uint8_t)ix;
+                const std::vector<uint8_t> rr = aecp_xact(0x0029, 0x4030, p);
+                if (rr.size() < 174) return 0xDEADBEEFu;
+                const size_t o = (q == 32) ? 42u : 46u + 4u * (size_t)q;
+                return ((uint32_t)rr[o] << 24) | ((uint32_t)rr[o+1] << 16)
+                     | ((uint32_t)rr[o+2] << 8) | (uint32_t)rr[o+3];
+            };
+
+            // -- the interface family ---------------------------------------
+            ck("[CTRS2] AVB_INTERFACE mask = 0x23 (LINK_UP, LINK_DOWN, "
+               "GPTP_GM_CHANGED)", (long)ctr_of(0x0009, 0, 32), 0x23);
+            const uint32_t lu = ctr_of(0x0009, 0, 0);
+            const uint32_t ld = ctr_of(0x0009, 0, 1);
+            //! 5.3.6.3's own invariant, held by construction (edges of one
+            //! level): the link is UP while streams flow, so up = down + 1
+            ck("[CTRS2] LINK_UP = LINK_DOWN + 1 (the link is up)",
+               (long)lu, (long)(ld + 1));
+            ck("[CTRS2] the link has risen at least once", (long)(lu >= 1), 1);
+
+            // -- GPTP_GM_CHANGED, by delta ----------------------------------
+            //! the strobe fires only when a NONZERO grandmaster identity
+            //! changes (a first publication is a discovery, not a change) -
+            //! so publish A, then move to B, and expect exactly the B edge
+            const uint32_t gm0 = ctr_of(0x0009, 0, 5);
+            //! the GM pair is COMMIT-ON-HI (milan_csr: "LO stages, HI
+            //! commits both halves in one cycle") - a LO write alone changes
+            //! NOTHING, which is the atomicity a torn 64-bit id would
+            //! otherwise leak through. So every change here ends with an HI
+            //! write. The first commit is a DISCOVERY (0 -> A) and must NOT
+            //! count; the second (A -> B) is the change.
+            axi_write(0x624, 0x00C0FFEEu);           // stage LO of gm A
+            axi_write(0x628, 0x001BC500u);           // COMMIT gm A (discovery)
+            snap_and_wait();
+            axi_write(0x624, 0x00C0FFEFu);           // stage LO of gm B
+            axi_write(0x628, 0x001BC500u);           // COMMIT gm B (the change)
+            snap_and_wait();
+            printf("  [i]    GMLO rb 0x%08X GMHI rb 0x%08X CLKV_STAT 0x%08X\n",
+                   axi_read(0x624), axi_read(0x628), axi_read(0x77C));
+            printf("  [i]    gmchg flop %u strobe %u\n",
+                   (unsigned)dut->rootp->milan_datapath__DOT__ctr_gmchg_r,
+                   (unsigned)dut->rootp->milan_datapath__DOT__pp_gm_change_p_w);
+            const uint32_t gm1 = ctr_of(0x0009, 0, 5);
+            ck("[CTRS2] GPTP_GM_CHANGED counted the A-to-B move",
+               (long)(gm1 - gm0 >= 1), 1);
+
+            // -- the clock-domain family, by delta --------------------------
+            //! the GM commits above are gPTP DISCONTINUITIES to the clock
+            //! validity block (gm_id_i != gm_r arms HOLD_QTICK_P = 2
+            //! quarter-ticks of holdover, 4096 cycles each in this leg), and
+            //! tu cannot fall while holdover runs. Drain it first, or the
+            //! lock edge lands after the read that grades it.
+            for (int i = 0; i < 15000; i++) step();
+            const uint32_t lk0 = ctr_of(0x0024, 0, 0);
+            const uint32_t ul0 = ctr_of(0x0024, 0, 1);
+            ck("[CTRS2] CLOCK_DOMAIN mask = 0x3 (LOCKED, UNLOCKED)",
+               (long)ctr_of(0x0024, 0, 32), 0x3);
+            //! lock = the CLKV lease (0x778: [0] SYNC_OK, [15:4] lease in
+            //! quarter-ticks; any write reloads). tu falls -> LOCKED++
+            axi_write(0x778, (0xFFFu << 4) | 1u);
+            snap_and_wait();
+            printf("  [i]    after lease: CLKV_STAT 0x%08X\n", axi_read(0x77C));
+            const uint32_t lk1 = ctr_of(0x0024, 0, 0);
+            ck("[CTRS2] the lease LOCKED the domain (+1)",
+               (long)(lk1 - lk0), 1);
+            //! a reported gPTP discontinuity (bit 1, W1S) drops the verdict:
+            //! tu rises -> UNLOCKED++ (write keeps SYNC_OK so the NEXT lease
+            //! re-locks; here we only grade the unlock edge)
+            axi_write(0x778, (0xFFFu << 4) | 2u | 1u);
+            for (int i = 0; i < 32; i++) step();
+            const uint32_t ul1 = ctr_of(0x0024, 0, 1);
+            ck("[CTRS2] the discontinuity UNLOCKED the domain (+1)",
+               (long)(ul1 - ul0 >= 1), 1);
+            //! 5.3.11.2's invariant across whatever the two writes left
+            const uint32_t lkf = ctr_of(0x0024, 0, 0);
+            const uint32_t ulf = ctr_of(0x0024, 0, 1);
+            ck("[CTRS2] LOCKED - UNLOCKED is 0 or 1 (the shall-invariant)",
+               (long)(lkf - ulf <= 1), 1);
+
+            // -- the unclaimed stay unclaimed -------------------------------
+            //! FRAMES_TX/RX + RX_CRC_ERROR live in mac_rmon's domain: the
+            //! mask must not claim them and the quadlets must read zero -
+            //! a claimed-zero is the lie this face exists to prevent
+            ck("[CTRS2] AVB_INTERFACE @8 FRAMES_TX unclaimed and zero",
+               (long)ctr_of(0x0009, 0, 2), 0);
+            ck("[CTRS2] AVB_INTERFACE index 1 answers an EMPTY mask",
+               (long)ctr_of(0x0009, 1, 32), 0);
+            ck("[CTRS2] CLOCK_DOMAIN index 1 answers an EMPTY mask",
+               (long)ctr_of(0x0024, 1, 32), 0);
         }
 
         //! THE WRONG-OBJECT GUARD, on the shape that can actually expose it.
