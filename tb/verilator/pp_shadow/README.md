@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # pp_shadow — milan_datapath with the protocol processor AS the control plane
 
-`make` — exit 0 = PASS. **161 checks, 0 failures, 0 warnings** at the time of
+`make` - exit 0 = PASS. **248 checks, 0 failures, 0 warnings** at the time of
 writing. The suite carries no `-Wno-*` at all (not even `-Wno-fatal`), so any
 Verilator warning stops the build; gate on the **exit code**, never on a warning
 count.
@@ -49,7 +49,7 @@ The name is kept because the wrapper's name is kept; the suite is a
 | G | the **class-D fabric face** is reachable *and live* | `adp_next_avail_index_o` reads 0 before the first advertisement and has advanced after it |
 | H | the **MAAP adapter refuses safely** | with no claimed block, every request is still accepted **and answered** (`ok = 0`), the DA gate stays shut, the plane keeps serving — and the refusal is visible on the wire as `TALKER_DEST_MAC_FAILED(3)` |
 | I | the **MAAP adapter grants** | with `KL_maap` in ANNOUNCE the request returns `ok = 1` with `base + source_index` (checked against `MAAP_STAT0`), `acmp_declaring_o` goes HIGH, and the next `PROBE_TX` is answered **SUCCESS** naming `{station MAC, uid}` and the granted `stream_dest_mac` |
-| L | **the device ANSWERS AECP** | `READ_DESCRIPTOR` returns `SUCCESS` with `configuration_index`/`reserved`/the descriptor **byte-exact against the image**; a locate miss returns `NO_SUCH_DESCRIPTOR` and a bad configuration index `BAD_ARGUMENTS`, both with the IEEE §7.4.5 4-byte `{type, index}` stub; an unimplemented opcode returns a conformant `NOT_IMPLEMENTED` **echo**; `IDENTIFY_NOTIFICATION` sent as a command returns `BAD_ARGUMENTS`; and the two cases the standard allows to be ignored are ignored *without wedging* |
+| L | **the device ANSWERS AECP** | `READ_DESCRIPTOR` returns `SUCCESS` with `configuration_index`/`reserved`/the descriptor **byte-exact against the image**; a locate miss returns `NO_SUCH_DESCRIPTOR` and a bad configuration index `BAD_ARGUMENTS`, both with the IEEE §7.4.5 4-byte `{type, index}` stub; `GET_COUNTERS` and `GET_AUDIO_MAP` are answered from this repository's own faces (the Table 7-157 mux; the render map RAM under the 0x001C index law, cross-read through `CHMAP_LOOP`); an unimplemented opcode returns a conformant `NOT_IMPLEMENTED` **echo**; `IDENTIFY_NOTIFICATION` sent as a command returns `BAD_ARGUMENTS`; and the two cases the standard allows to be ignored are ignored *without wedging* |
 | M | **no descriptor memory** | with the memory model withdrawn, `READ_DESCRIPTOR` degrades to a well-formed `NO_SUCH_DESCRIPTOR` rather than hanging the µCPU, and the store serves again once memory returns |
 | K | **the shared control lane** | both legs of `ctl_tx_mux` transmitted, every frame is well formed, and no TX-trunk arbiter aborted or stalled. AECP responses are in that census, so a response that was well formed in isolation but corrupted by the shared lane fails here |
 | J | global anti-wedge invariant | `accepted == answered` over every cycle simulated, and **no `RELEASE_DA` is reachable in this shape**: `milan_datapath` ties `cfg_src_en_i` to all-ones, so no talker source can leave the configuration. Graded rather than assumed, because the owed-release law (a release booked per source and retried until the face ACCEPTS it, ahead of any `ALLOC_DA`) is proven in `protocol-processor/tb/acmp_talker` section L. Wire `cfg_src_en_i` to anything live and this check goes red, which is the reminder to bring that path under test here too |
@@ -101,6 +101,18 @@ is **dead as a premise**. `KL_aecp_engine` pops the dispatch queue's AECP head,
 runs `KL_aecp_ucpu` against `KL_aecp_desc_store` and emits a byte-exact AECPDU:
 
 * `0x0004 READ_DESCRIPTOR` is answered for real;
+* `0x0029 GET_COUNTERS` is answered for real, the values coming from this
+  repository's Table 7-157 mux over `KL_avtp_rx_monitor_ctx`;
+* `0x002B GET_AUDIO_MAP` is answered for real on `STREAM_PORT_INPUT`, the
+  geometry and records coming from this repository's 7.4.44 answer block over
+  the render crossbar's map RAM (the same flops `CHMAP_LOOP` 0x914 reads -
+  group L provisions the map through the CSR `0x900` window, reads it back
+  through `CHMAP_SNAP`/`CHMAP_LOOP`, then fetches it over the wire: two
+  independent readers of one store). A page past `number_of_maps` is
+  `BAD_ARGUMENTS` (7.4.44.1), an index past the image is
+  `NO_SUCH_DESCRIPTOR` (the store rules existence), and any other
+  descriptor type - the recorded `STREAM_PORT_OUTPUT` gap - keeps the
+  `NOT_IMPLEMENTED` echo;
 * `0x0026 IDENTIFY_NOTIFICATION` *sent as a command* is `BAD_ARGUMENTS` — IEEE
   1722.1 §7.4.39.2's opcode-specific rule beats §9.3.5.3.3's fallback;
 * every other opcode gets a conformant `NOT_IMPLEMENTED` **echo**: the command
@@ -122,8 +134,11 @@ grew nine top-level ports (`o_desc_mem_req_valid`, `i_desc_mem_req_ready`,
 `i_desc_mem_rsp_err`) and the store fetches from `PP_DESC_BASE_P`
 (`0x2000_0000`). `sim_main.cpp` builds a real `AEMI` image — header with magic,
 layout version and the checksum that must make the eight header words sum to
-`0xFFFFFFFF`, a two-entry index map, an `ENTITY` descriptor and **two**
-`CONFIGURATION` descriptors — and serves it one outstanding burst at a time.
+`0xFFFFFFFF`, a three-entry index map, an `ENTITY` descriptor, **two**
+`CONFIGURATION` descriptors and a `STREAM_PORT_INPUT` whose Table 7-23 body
+declares the elaborated shape's 2 clusters with `number_of_maps` 0 (the
+§7.2.13 dynamic-mapping convention) - and serves it one outstanding burst at
+a time.
 
 Two details are deliberate. The image is assembled **in the harness**, not
 shelled out to `gen_desc_image.py`: an image produced by the tool the DUT trusts

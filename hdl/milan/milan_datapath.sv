@@ -2852,6 +2852,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire  [5:0] pp_ctr_word_w;
   wire [31:0] pp_ctr_data_w;
   wire        pp_ctr_wait_w;
+  //! ...and its GET_AUDIO_MAP read face (served beside the counters mux)
+  wire        pp_amap_req_w;
+  wire [15:0] pp_amap_desc_type_w;
+  wire [15:0] pp_amap_desc_index_w;
+  wire [15:0] pp_amap_map_index_w;
+  wire  [1:0] pp_amap_sel_w;
+  wire  [7:0] pp_amap_rec_w;
+  logic [63:0] pp_amap_data_w;
+  wire        pp_amap_wait_w;
   //! CRF PDU strobe from the tx counter delta; deferred one cycle when an
   //! AAF frame pulse occupies the diag event port (events are ~8.5 k/s
   //! against a 50+ MHz clock, so the skid never accumulates)
@@ -3121,6 +3130,126 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! HOLD, not a ready. The block is a combinational read of flops that are
   //! already settled, so the beat is never held.
   assign pp_ctr_wait_w = 1'b0;
+
+  // ------------------------------------------------------------------------
+  //  GET_AUDIO_MAP (1722.1-2021 7.4.44, Milan v1.2 5.4.2.26 / 5.3.3.9)
+  // ------------------------------------------------------------------------
+  //! The processor parses the command, enforces the 7.4.44.1 page rule and
+  //! lays out the response; THIS file says what a dynamic mapping IS,
+  //! because the live state is the render crossbar's map RAM - the same
+  //! flops CHMAP_LOOP 0x914 reads back, so the wire answer and the CSR
+  //! readback are two independent readers of one store.
+  //!
+  //! THE INDEX LAW IS 0x001C's: the dynamic map is keyed by the GLOBAL
+  //! cluster index = the addressed port's base_cluster + the record's
+  //! port-relative mapping_cluster_offset, and that global index IS the
+  //! render map RAM's address (the AEM projector wrote it so, gated at
+  //! CHMAP_PHYS_C). A global index this board does not render (>= 10 keys
+  //! on an 8x8 model) has no RAM behind it and truthfully answers
+  //! "not mapped" - those clusters cannot be routed, so no mapping exists.
+  //!
+  //! WHAT A RECORD MEANS IN THIS BUILD, and what is NOT represented: the
+  //! map entry is {en[7], src[6], idx[5:0]}. An AEM dynamic mapping exists
+  //! iff en = 1 AND src = 0 (an AVB listener source): mapping_stream_index
+  //! = idx[5:3], mapping_stream_channel = idx[2:0], mapping_cluster_offset
+  //! = the port-relative offset, mapping_cluster_channel = 0 - every
+  //! cluster of this model is MONO (one cluster == one audio channel, the
+  //! 0x0027 law), so channel 0 is the only channel a cluster has. NOT
+  //! represented: an en = 1, src = 1 entry (the host playback ring feeding
+  //! a physical output) is real routing but not a Stream Input mapping, so
+  //! GET_AUDIO_MAP reports that cluster channel as unmapped - the ring is
+  //! not a STREAM_INPUT and 7.4.44.2.1 has no words for it.
+  //!
+  //! WHO SUPPLIES THE PER-PORT GEOMETRY: this fabric, from elaboration
+  //! constants, because it CANNOT come from anywhere else - the µISA has no
+  //! subtract (a store-read base_cluster could never produce port-relative
+  //! offsets) and the gather face carries no µCPU operands. The constants
+  //! DERIVE from what this build already elaborates: one STREAM_PORT_INPUT
+  //! per AAF listener (the builder's one-port-per-stream law, so the port
+  //! count is N_STREAMS) with a uniform cluster block whose width is the
+  //! listener stream format's channels_per_frame (ADP_STRIN0_FMT_C[31:22]
+  //! out of the SAME generated shape header the descriptor image derives
+  //! from). Every shipped DYNAMIC-map config's cluster pool equals its
+  //! channel count, so the derivation is exact where GET_AUDIO_MAP is the
+  //! mapping authority; the one static legacy shape (endstation_arty_current:
+  //! 8 declared clusters over a 2-channel format, its map served by a static
+  //! AUDIO_MAP descriptor) narrows to its first 2 clusters here - a RECORDED
+  //! limitation, and a config that breaks the equality on a dynamic port
+  //! must extend the generated header rather than let two authorities
+  //! drift. The page constant is the builder's own default law
+  //! (min(clusters, 8), Milan 5.4.2.26 only bounds a subset's SIZE at 176
+  //! and demands the partition be fixed).
+  //! EXISTENCE is not decided here at all: the processor locates the
+  //! STREAM_PORT_INPUT descriptor in the image first, so an index the image
+  //! lacks answers NO_SUCH_DESCRIPTOR whatever these constants claim, and
+  //! this face's own guard only ever ADDS refusals (empty pages), never
+  //! objects.
+  localparam int AMAP_IN_PORTS_C = N_STREAMS;
+  localparam int AMAP_FMT_CH_C   = int'(ADP_STRIN0_FMT_C[31:22]);
+  localparam int AMAP_IN_CLUS_C  = (AMAP_FMT_CH_C < 1) ? 1 : AMAP_FMT_CH_C;
+  localparam int AMAP_PAGE_C     = (AMAP_IN_CLUS_C < 8) ? AMAP_IN_CLUS_C : 8;
+  localparam int AMAP_NMAPS_C    = (AMAP_IN_CLUS_C + AMAP_PAGE_C - 1)
+                                   / AMAP_PAGE_C;
+  localparam logic [15:0] DESC_STREAM_PORT_IN_C = 16'h000E;  //! Table 7-1
+
+  //! WHICH OBJECT WE ARE ALLOWED TO ANSWER FOR - the counters-face rule
+  //! restated: a port or page this fabric has no context for answers an
+  //! EMPTY page (number_of_mappings 0, zero records), never another
+  //! object's data. number_of_maps 0 for an unknown port is what lets the
+  //! processor agree with its descriptor store instead of this guard.
+  wire amap_spi_w = (pp_amap_desc_type_w == DESC_STREAM_PORT_IN_C)
+                 && (32'(pp_amap_desc_index_w) < AMAP_IN_PORTS_C);
+  wire amap_page_ok_w = amap_spi_w
+                     && (32'(pp_amap_map_index_w) < AMAP_NMAPS_C);
+
+  //! the page walk, combinational over the flat map export: page P covers
+  //! port-relative offsets [P*PAGE, min((P+1)*PAGE, clusters)); global
+  //! g = index*clusters + offset (uniform blocks, so base = index*clusters).
+  //! At most PAGE (<= 8) candidate slots, so the popcount and the k-th
+  //! select are a handful of LUTs, and the answer never holds the beat.
+  logic [15:0] amap_cnt_w;
+  logic [63:0] amap_rec_data_w;
+  always_comb begin : amap_page_walk
+    int unsigned off_c, g_c, seen_c;
+    logic [7:0] ent_c;
+    amap_cnt_w      = 16'd0;
+    amap_rec_data_w = 64'd0;
+    seen_c          = 0;
+    for (int unsigned j = 0; j < AMAP_PAGE_C; j++) begin
+      off_c = (amap_page_ok_w ? 32'(pp_amap_map_index_w) : 32'd0)
+              * AMAP_PAGE_C + j;
+      g_c   = 32'(pp_amap_desc_index_w[3:0]) * AMAP_IN_CLUS_C + off_c;
+      //! a slot outside the page, the port or the rendered RAM reads as
+      //! UNMAPPED - its en bit below is 0, so it cannot count or match
+      ent_c = (amap_page_ok_w && (off_c < AMAP_IN_CLUS_C)
+               && (g_c < CHMAP_PHYS_C)) ? rmap_flat_w[g_c*8 +: 8] : 8'd0;
+      //! en && !src: an AVB listener mapping (see the banner above)
+      if (ent_c[7] && !ent_c[6]) begin
+        if (seen_c == 32'(pp_amap_rec_w)) begin
+          amap_rec_data_w = {13'd0, ent_c[5:3],       // mapping_stream_index
+                             13'd0, ent_c[2:0],       // mapping_stream_channel
+                             16'(off_c),              // mapping_cluster_offset
+                             16'd0};                  // mapping_cluster_channel
+        end
+        seen_c = seen_c + 1;
+        amap_cnt_w = amap_cnt_w + 16'd1;
+      end
+    end
+  end : amap_page_walk
+
+  always_comb begin : amap_answer
+    unique case (pp_amap_sel_w)
+      2'd0:    pp_amap_data_w = {48'd0, amap_spi_w ? 16'(AMAP_NMAPS_C)
+                                                   : 16'd0};
+      2'd1:    pp_amap_data_w = {32'd0,
+                                 amap_spi_w ? 16'(AMAP_NMAPS_C) : 16'd0,
+                                 amap_page_ok_w ? amap_cnt_w : 16'd0};
+      2'd2:    pp_amap_data_w = amap_page_ok_w ? amap_rec_data_w : 64'd0;
+      default: pp_amap_data_w = 64'd0;
+    endcase
+  end : amap_answer
+  //! HOLD, not a ready - combinational flops again, never held
+  assign pp_amap_wait_w = 1'b0;
 
   //! IDENTIFY: 1722.1-2021 7.4.x drives it from a CONTROL descriptor an AECP
   //! command writes. No AECP, no identify - the LED is structurally dark.
@@ -4066,6 +4195,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire                       chmap_phys_v_w;
   wire [CHMAP_PHYS_C-1:0]    chmap_pb_mask_w;
   wire [CHMAP_PHYS_C-1:0]    chmap_mapped_mask_w;
+  //! the whole render map, exported for the GET_AUDIO_MAP page walk (the
+  //! single map_rd_* readback port stays the CSR CHMAP_SNAP path's - two
+  //! independent readers of the same flops, by construction)
+  wire [CHMAP_PHYS_C*8-1:0]  rmap_flat_w;
 
   KL_chan_map_render #(
     .N_STREAMS_P  (N_STREAMS),
@@ -4133,6 +4266,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! valid of its own; rmap_rd_valid_r above supplies the 1-clock valid.
     .map_rd_addr_i (cfg_chmap_rd_addr[$clog2(CHMAP_PHYS_C)-1:0]),
     .map_rd_data_o (rmap_rd_data_w),
+    .map_flat_o (rmap_flat_w),
     .phys_smp_o (chmap_phys_w), .phys_valid_o (chmap_phys_v_w),
     .mapped_mask_o (chmap_mapped_mask_w), .pb_mask_o (chmap_pb_mask_w)
   );
@@ -4758,9 +4892,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!   3. Its class-D face IS this fabric's ACMP bind record, talker
   //!      declaration and SRP reservation - every consumer that used to read
   //!      a deleted plane reads pp_cd_* now.
-  //!   4. It answers NO AECP command (the P4 uCPU has not landed at the
-  //!      processor's top). Every CSR word that only an AECP/AEM engine could
-  //!      have filled reads a STRUCTURAL ZERO and is documented as such.
+  //!   4. Its AECP engine answers READ_DESCRIPTOR, GET_COUNTERS,
+  //!      GET_AUDIO_MAP (STREAM_PORT_INPUT) and GET_MILAN_INFO for real -
+  //!      counters from the Table 7-157 mux above, mappings from the render
+  //!      map RAM's 7.4.44 answer block above - and echoes NOT_IMPLEMENTED
+  //!      for the rest. Every CSR word that only the DELETED plane's AEM
+  //!      engine could have filled still reads a STRUCTURAL ZERO and is
+  //!      documented as such.
   KL_pp_shadow #(
       .TDATA_WIDTH_P  (TDATA_WIDTH),
       .CLK_HZ_P       (MILAN_CLK_FREQ_HZ),
@@ -4795,6 +4933,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .ctr_word_o        (pp_ctr_word_w),
       .ctr_data_i        (pp_ctr_data_w),
       .ctr_wait_i        (pp_ctr_wait_w),
+      //! GET_AUDIO_MAP: the processor asks, this file answers from the
+      //! render map RAM (see the 7.4.44 answer block above)
+      .amap_req_o        (pp_amap_req_w),
+      .amap_desc_type_o  (pp_amap_desc_type_w),
+      .amap_desc_index_o (pp_amap_desc_index_w),
+      .amap_map_index_o  (pp_amap_map_index_w),
+      .amap_sel_o        (pp_amap_sel_w),
+      .amap_rec_o        (pp_amap_rec_w),
+      .amap_data_i       (pp_amap_data_w),
+      .amap_wait_i       (pp_amap_wait_w),
       //! identity comes from the 0x600 CSR group, which is also what the
       //! generated entity model wrote - derive, never mirror.
       .entity_id_i       (cfg_adp_entity_id),

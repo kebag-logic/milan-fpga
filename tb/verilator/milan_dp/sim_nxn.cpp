@@ -1336,6 +1336,134 @@ int main(int argc, char** argv) {
         }
     }
 
+    // ======================================================================
+    //  GET_AUDIO_MAP over the wire, against the CHMAP_LOOP readback that
+    //  reads the same map RAM (1722.1-2021 7.4.44, Milan v1.2 5.4.2.26,
+    //  the 0x001C global-cluster index law)
+    // ======================================================================
+    //! TWO INDEPENDENT READERS of the render map RAM: mappings are
+    //! provisioned through the 0x900 CHMAP debug window, read back through
+    //! CHMAP_SNAP/CHMAP_LOOP (0x910/0x914 - the RAM's own readback port),
+    //! and then fetched over the wire with GET_AUDIO_MAP, whose answer
+    //! block walks a SEPARATE flat export of the same flops. The wire
+    //! records below are derived FROM the CHMAP_LOOP words, so a mux that
+    //! served anything but the RAM disagrees with a reader it shares
+    //! nothing with.
+    //!
+    //! GEOMETRY ACROSS LEGS: this file elaborates under the 4x4 header
+    //! (4 channels -> 4 clusters/port) and the 8x8 header (8 -> 8), while
+    //! the descriptor image is always the 1x1 config's (ONE
+    //! STREAM_PORT_INPUT). Both provisioned clusters sit below 4 so every
+    //! leg serves them; number_of_maps is 1 in every leg (page = clusters).
+    {
+        printf("-- GET_AUDIO_MAP: the wire vs the CHMAP_LOOP readback --\n");
+        enum { A_CHMAP_CTRL = 0x900, A_CHMAP_SEL = 0x904,
+               A_CHMAP_WORD = 0x908, A_CHMAP_SNAP = 0x910,
+               A_CHMAP_LOOP = 0x914 };
+        // provision: cluster 0 <- AVB {stream 1, ch 1}, cluster 2 <- AVB
+        // {stream 0, ch 3}, cluster 1 <- HOST RING ch 5 (real routing that
+        // must NOT appear as a 7.4.44.2.1 record), cluster 3 left unmapped
+        axi_write(A_CHMAP_CTRL, 0x1);
+        axi_write(A_CHMAP_SEL, 0);  axi_write(A_CHMAP_WORD, 0x8011);
+        axi_write(A_CHMAP_SEL, 2);  axi_write(A_CHMAP_WORD, 0x8003);
+        axi_write(A_CHMAP_SEL, 1);  axi_write(A_CHMAP_WORD, 0x9005);
+        axi_write(A_CHMAP_CTRL, 0x0);
+
+        auto loop_rd = [&](uint32_t k) -> uint32_t {
+            axi_write(A_CHMAP_SEL, k);            // side 0 = RMAP
+            axi_write(A_CHMAP_SNAP, 1);           // W1S arm
+            for (int g = 0; g < 256; g++)
+                if ((axi_read(A_CHMAP_SNAP) & 1) == 0) break;
+            return axi_read(A_CHMAP_LOOP) & 0xFFu;
+        };
+        const uint32_t e0 = loop_rd(0), e1 = loop_rd(1), e2 = loop_rd(2),
+                       e3 = loop_rd(3);
+        ck("[AMAP] LOOP reads cluster 0 = {en, avb 1.1}", (long)e0, 0x89);
+        ck("[AMAP] LOOP reads cluster 1 = {en, RING 5}",  (long)e1, 0xC5);
+        ck("[AMAP] LOOP reads cluster 2 = {en, avb 0.3}", (long)e2, 0x83);
+        ck("[AMAP] LOOP reads cluster 3 = unmapped",      (long)e3, 0x00);
+
+        //! the model's own record, DERIVED from the LOOP word: an AVB entry
+        //! ({en, src 0}) at global cluster g means {stream idx[5:3],
+        //! channel idx[2:0], cluster_offset g (base 0 on port 0),
+        //! cluster_channel 0 (mono clusters)}
+        auto rec_of = [](uint32_t ent, uint32_t g, uint8_t* out) {
+            out[0] = 0; out[1] = (uint8_t)((ent >> 3) & 7);
+            out[2] = 0; out[3] = (uint8_t)(ent & 7);
+            out[4] = 0; out[5] = (uint8_t)g;
+            out[6] = 0; out[7] = 0;
+        };
+
+        std::vector<uint8_t> pl(8, 0);
+        pl[1] = 0x0E;                                 // STREAM_PORT_INPUT 0
+        const std::vector<uint8_t> r = aecp_xact(0x002B, 0x4030, pl);
+        ck("[AMAP] GET_AUDIO_MAP(SPI 0, page 0) was ANSWERED",
+           (long)(r.size() >= 60), 1);
+        if (r.size() >= 60) {
+            ck("[AMAP] status SUCCESS(0), not NOT_IMPLEMENTED",
+               aecp_status(r), 0);
+            ck("[AMAP] cdl = 24 + 8*2 (two records)",
+               (long)((((unsigned)r[16] & 7) << 8) | r[17]), 40);
+            ck("[AMAP] the frame is as long as it claims", (long)r.size(),
+               66);
+            ck("[AMAP] descriptor_type echoed",
+               (long)(((unsigned)r[38] << 8) | r[39]), 0x000E);
+            ck("[AMAP] descriptor_index echoed",
+               (long)(((unsigned)r[40] << 8) | r[41]), 0);
+            ck("[AMAP] map_index echoed",
+               (long)(((unsigned)r[42] << 8) | r[43]), 0);
+            ck("[AMAP] number_of_maps = the ONE fixed partition",
+               (long)(((unsigned)r[44] << 8) | r[45]), 1);
+            ck("[AMAP] number_of_mappings = 2 (the RING entry excluded)",
+               (long)(((unsigned)r[46] << 8) | r[47]), 2);
+            ck("[AMAP] reserved zero",
+               (long)(((unsigned)r[48] << 8) | r[49]), 0);
+            uint8_t want0[8], want1[8];
+            rec_of(e0, 0, want0);
+            rec_of(e2, 2, want1);
+            long bad = 0;
+            for (int i = 0; i < 8; i++) {
+                if (r[50 + i] != want0[i]) bad++;
+                if (r[58 + i] != want1[i]) bad++;
+            }
+            ck("[AMAP] both records equal the LOOP-derived expectation",
+               bad, 0);
+        }
+
+        //! the 7.4.44.1 page rule: map_index 1 of a 1-page port
+        pl[5] = 0x01;
+        const std::vector<uint8_t> rb = aecp_xact(0x002B, 0x4031, pl);
+        ck("[AMAP] page 1 answers BAD_ARGUMENTS(7)", aecp_status(rb), 7);
+        ck("[AMAP] ...with the real number_of_maps and an EMPTY page",
+           (long)(rb.size() >= 50
+                  ? (long)((((unsigned)rb[44] << 8) | rb[45]) << 16
+                           | (((unsigned)rb[46] << 8) | rb[47]))
+                  : -1), 0x00010000);
+
+        //! the image is the existence authority: SPI 1 is absent from the
+        //! 1x1 image whatever N_STREAMS this leg elaborates
+        pl[5] = 0x00; pl[3] = 0x01;
+        const std::vector<uint8_t> rn = aecp_xact(0x002B, 0x4032, pl);
+        ck("[AMAP] SPI 1 answers NO_SUCH_DESCRIPTOR(2) - the image rules",
+           aecp_status(rn), 2);
+
+        //! the recorded STREAM_PORT_OUTPUT gap keeps the 9.3.5.3.3 echo
+        pl[1] = 0x0F; pl[3] = 0x00;
+        const std::vector<uint8_t> ro = aecp_xact(0x002B, 0x4033, pl);
+        ck("[AMAP] STREAM_PORT_OUTPUT keeps NOT_IMPLEMENTED(1)",
+           aecp_status(ro), 1);
+        ck("[AMAP] ...as the sized ECHO of the command",
+           (long)((((unsigned)ro.size() > 17)
+                   ? (((unsigned)ro[16] & 7) << 8) | ro[17] : 0)), 20);
+
+        // leave the map as this section found it: unmapped
+        axi_write(A_CHMAP_CTRL, 0x1);
+        axi_write(A_CHMAP_SEL, 0);  axi_write(A_CHMAP_WORD, 0x0000);
+        axi_write(A_CHMAP_SEL, 1);  axi_write(A_CHMAP_WORD, 0x0000);
+        axi_write(A_CHMAP_SEL, 2);  axi_write(A_CHMAP_WORD, 0x0000);
+        axi_write(A_CHMAP_CTRL, 0x0);
+    }
+
     printf("-- TCTX: talker CFG words through the live packetizer port --\n");
     axi_write(A_STRM_SEL, 0x101);                    // dir=1 idx=1
     axi_write(A_SW_DMAC_LO, 0xF000AB01);

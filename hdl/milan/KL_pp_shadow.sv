@@ -279,6 +279,25 @@ module KL_pp_shadow #(
     input  wire  [31:0] ctr_data_i,         //! that quadlet, 1722.1 value order
     input  wire         ctr_wait_i,         //! HOLD the beat (not a ready)
 
+    //! ---- GET_AUDIO_MAP read face (1722.1-2021 7.4.44, Milan v1.2 5.4.2.26) ----
+    //! Straight through to protocol_processor_top, names and directions
+    //! unchanged - the counters bargain again. The processor parses the
+    //! command, enforces the 7.4.44.1 page rule and lays out the response;
+    //! THIS WRAPPER OWNS NOTHING about the mappings, because they live in
+    //! the integrator's routing fabric (milan_datapath answers from the
+    //! render crossbar's map RAM, the same flops CHMAP_LOOP 0x914 reads).
+    //! Same warnings-are-errors rule as the counters face: wiring is
+    //! mandatory, not optional - an unconnected pin is a fatal PINMISSING
+    //! in this tree's pp_shadow harness.
+    output logic        amap_req_o,         //! a word is being asked for
+    output logic [15:0] amap_desc_type_o,   //! AECPDU @24 (STREAM_PORT_INPUT)
+    output logic [15:0] amap_desc_index_o,  //! AECPDU @26
+    output logic [15:0] amap_map_index_o,   //! AECPDU @28 - the page
+    output logic  [1:0] amap_sel_o,         //! 0 NMAPS, 1 GEOM, 2 RECORD
+    output logic  [7:0] amap_rec_o,         //! record ordinal within the page
+    input  wire  [63:0] amap_data_i,        //! the word (upper 32 zero unless RECORD)
+    input  wire         amap_wait_i,        //! HOLD the beat (not a ready)
+
     //! ---- side-port host bridge (CSR-driven, one outstanding access) ----
     input  wire        host_req_i,         //! single-cycle request strobe
     input  wire        host_we_i,          //! 1 = write
@@ -816,6 +835,15 @@ module KL_pp_shadow #(
       .ctr_word_o          (ctr_word_o),
       .ctr_data_i          (ctr_data_i),
       .ctr_wait_i          (ctr_wait_i),
+
+      .amap_req_o          (amap_req_o),
+      .amap_desc_type_o    (amap_desc_type_o),
+      .amap_desc_index_o   (amap_desc_index_o),
+      .amap_map_index_o    (amap_map_index_o),
+      .amap_sel_o          (amap_sel_o),
+      .amap_rec_o          (amap_rec_o),
+      .amap_data_i         (amap_data_i),
+      .amap_wait_i         (amap_wait_i),
 
       .restore_go_i        (restore_go_i),
       .restore_busy_o      (restore_busy_o),

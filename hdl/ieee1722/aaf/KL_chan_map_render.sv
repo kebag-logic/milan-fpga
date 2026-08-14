@@ -137,6 +137,14 @@ module KL_chan_map_render #(
   input  wire [$clog2(N_PHYS_P)-1:0] map_rd_addr_i,
   output logic [7:0]                 map_rd_data_o,
 
+  //! --- whole-map export (combinational; entry p = [p*8 +: 8]) ------------
+  //! The AEM GET_AUDIO_MAP answer walks a PAGE of entries in one query
+  //! window, and the single readback port above is owned by the CSR
+  //! CHMAP_SNAP path; the map is N_PHYS_P bytes of flops, so exporting it
+  //! whole is wires, not logic, and keeps the two readers independent -
+  //! which is exactly what lets a testbench compare them against each other.
+  output logic [N_PHYS_P*8-1:0]      map_flat_o,
+
   //! --- rendered physical channels (registered at tick_i) -----------------
   output logic [N_PHYS_P*24-1:0]     phys_smp_o,    //! phys p = [p*24 +: 24]
   output logic                       phys_valid_o,  //! one-cycle pulse
@@ -170,8 +178,9 @@ module KL_chan_map_render #(
     map_rd_data_o = 8'h00;
     for (int p = 0; p < N_PHYS_P; p++) begin
       if (32'(map_rd_addr_i) == p) map_rd_data_o = map_r[p];
-      mapped_mask_o[p] = map_r[p][MAP_EN_B_C];
-      pb_mask_o[p]     = map_r[p][MAP_EN_B_C] && map_r[p][MAP_SRC_B_C];
+      mapped_mask_o[p]      = map_r[p][MAP_EN_B_C];
+      pb_mask_o[p]          = map_r[p][MAP_EN_B_C] && map_r[p][MAP_SRC_B_C];
+      map_flat_o[p*8 +: 8]  = map_r[p];
     end
   end : map_read
 

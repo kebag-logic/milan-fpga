@@ -593,11 +593,18 @@ static size_t build_probe_tx(uint8_t* f, uint64_t eid, uint16_t uid) {
 static const uint16_t DTY_ENTITY_C = 0x0000;
 static const uint16_t DTY_CONFIG_C = 0x0001;
 static const uint16_t DTY_ABSENT_C = 0x0002;   // AUDIO_UNIT: not in this image
+//! STREAM_PORT_INPUT (Table 7-1 0x000E), ONE of them - the 1x1 shape's
+//! listener port, and the object GET_AUDIO_MAP's locate must find: the image
+//! is the EXISTENCE authority (index 1 answers NO_SUCH_DESCRIPTOR because
+//! it is absent HERE, whatever the fabric's port constants say)
+static const uint16_t DTY_SPI_C    = 0x000E;
 static const size_t   ENT_LEN_C    = 40;
 static const size_t   CFG_LEN_C    = 24;
-static const uint32_t ENT_OFF_C    = 0x40;
-static const uint32_t CFG_OFF_C    = 0x40 + 40;          // 0x68
-static const uint32_t IMG_END_C    = CFG_OFF_C + 2 * 24; // 0x98
+static const size_t   SPI_LEN_C    = 20;                 // Table 7-23
+static const uint32_t ENT_OFF_C    = 0x50;               // 3 index entries now
+static const uint32_t CFG_OFF_C    = ENT_OFF_C + 40;     // 0x78
+static const uint32_t SPI_OFF_C    = CFG_OFF_C + 2 * 24; // 0xA8
+static const uint32_t IMG_END_C    = SPI_OFF_C + 24;     // 0xC0 (8-aligned)
 
 static void put32be_v(std::vector<uint8_t>& v, size_t off, uint32_t x) {
     for (int i = 0; i < 4; i++) v[off + i] = (uint8_t)(x >> (8 * (3 - i)));
@@ -608,10 +615,23 @@ static void put16be_v(std::vector<uint8_t>& v, size_t off, uint16_t x) {
 
 // the descriptor bytes this harness expects back on the wire
 static std::vector<uint8_t> desc_bytes(uint16_t type, uint16_t index) {
-    const size_t n = (type == DTY_ENTITY_C) ? ENT_LEN_C : CFG_LEN_C;
+    const size_t n = (type == DTY_ENTITY_C) ? ENT_LEN_C
+                   : (type == DTY_SPI_C)    ? SPI_LEN_C : CFG_LEN_C;
     std::vector<uint8_t> d(n, 0);
     put16be_v(d, 0, type);
     put16be_v(d, 2, index);
+    if (type == DTY_SPI_C) {
+        // a REAL Table 7-23 body, CONSISTENT with the elaborated shape: this
+        // suite includes endstation_arty_current's generated header, whose
+        // STREAM_INPUT[0] format carries channels_per_frame = 2, so the
+        // fabric's audio-map geometry is 2 clusters at base 0 (one page).
+        // number_of_maps 0 is the 7.2.13 dynamic-mapping declaration this
+        // whole face serves.
+        put16be_v(d, 12, 2);                     // number_of_clusters
+        put16be_v(d, 14, 0);                     // base_cluster
+        put16be_v(d, 16, 0);                     // number_of_maps: dynamic
+        return d;
+    }
     const uint8_t seed = (uint8_t)(0xA0 + 0x10 * type + 0x08 * index);
     for (size_t i = 4; i < n; i++) d[i] = (uint8_t)(seed + i);
     return d;
@@ -635,6 +655,13 @@ static void build_desc_image() {
     put32be_v(desc_img, 0x30 + 0x8, CFG_OFF_C);
     put16be_v(desc_img, 0x30 + 0xC, 0xFFFF);
     put16be_v(desc_img, 0x30 + 0xE, (uint16_t)CFG_LEN_C);
+    put16be_v(desc_img, 0x40 + 0x0, 0);
+    put16be_v(desc_img, 0x40 + 0x2, DTY_SPI_C);
+    put16be_v(desc_img, 0x40 + 0x4, 1);              // the 1x1 listener port
+    put16be_v(desc_img, 0x40 + 0x6, (uint16_t)SPI_LEN_C);
+    put32be_v(desc_img, 0x40 + 0x8, SPI_OFF_C);
+    put16be_v(desc_img, 0x40 + 0xC, 0xFFFF);
+    put16be_v(desc_img, 0x40 + 0xE, 24);             // stride (8-aligned)
     // --- descriptors -------------------------------------------------------
     {
         auto e = desc_bytes(DTY_ENTITY_C, 0);
@@ -643,12 +670,14 @@ static void build_desc_image() {
         memcpy(&desc_img[CFG_OFF_C], c0.data(), c0.size());
         auto c1 = desc_bytes(DTY_CONFIG_C, 1);
         memcpy(&desc_img[CFG_OFF_C + CFG_LEN_C], c1.data(), c1.size());
+        auto s0 = desc_bytes(DTY_SPI_C, 0);
+        memcpy(&desc_img[SPI_OFF_C], s0.data(), s0.size());
     }
     // --- header @0x00, checksum LAST ---------------------------------------
     put32be_v(desc_img, 0x00, 0x41454D49u);          // "AEMI"
     put16be_v(desc_img, 0x04, 1);                    // layout_version
     put16be_v(desc_img, 0x06, 1);                    // n_config
-    put16be_v(desc_img, 0x08, 2);                    // n_entries
+    put16be_v(desc_img, 0x08, 3);                    // n_entries
     put16be_v(desc_img, 0x0A, 0);                    // n_names
     put32be_v(desc_img, 0x0C, 0x20);                 // index_off
     put32be_v(desc_img, 0x10, IMG_END_C);            // names_off (empty)
@@ -1516,6 +1545,198 @@ int main(int argc, char** argv) {
                 for (int q = 0; q < 32; q++)
                     if (get_be(b, 46 + 4 * (size_t)q, 4) != 0) dirty++;
                 ck("L5d: ...and the block is all zeros", (uint32_t)dirty, 0u);
+            }
+        }
+
+        // --- L5e. GET_AUDIO_MAP answered for real, from the RENDER MAP RAM -
+        // IEEE 1722.1-2021 7.4.44.2 response payload: descriptor_type @0,
+        // descriptor_index @2, map_index @4, number_of_maps @6,
+        // number_of_mappings @8, reserved @10, then 8-byte records @12.
+        // Milan v1.2 5.3.3.9 makes every Stream Port Input dynamic, so this
+        // command is the ONLY window a controller has onto an input's
+        // mappings - a NOT_IMPLEMENTED here is "no mappings at all" to a
+        // strict la_avdecc and fails its enumeration.
+        //
+        // WHAT THIS SECTION IS FOR: the processor lays the response out;
+        // THIS repository decides what a mapping IS, by answering the
+        // amap_* face from KL_chan_map_render's map RAM under the 0x001C
+        // index law (global cluster index == render RAM address). The map
+        // is provisioned through the CSR 0x900 debug window - the same
+        // write port the AEM projector owned - and the GET must read back
+        // exactly what was committed, with the host-ring entry (src = 1)
+        // EXCLUDED: the ring is not a STREAM_INPUT and 7.4.44.2.1 has no
+        // words for it.
+        //
+        // THE GEOMETRY IS THE ELABORATED SHAPE'S: this suite includes the
+        // endstation_arty_current header (channels_per_frame = 2), so the
+        // port's window is clusters 0..1 in one page - which is exactly why
+        // both provisioned slots sit inside it.
+        {
+            enum { A_CHMAP_CTRL = 0x900, A_CHMAP_SEL = 0x904,
+                   A_CHMAP_WORD = 0x908, A_CHMAP_SNAP = 0x910,
+                   A_CHMAP_LOOP = 0x914 };
+            // arm the CSR write port, commit two entries, restore the arm
+            // (the RAM keeps its contents; CHMAP_CTRL[0] only gates the
+            // bring-up bypass and the write strobe, not the state)
+            axi_write(A_CHMAP_CTRL, 0x1);
+            // cluster 0 <- {en, src 0, stream 0, ch 1}: §5 word en[15],
+            // src[12], stream[6:4], ch[2:0]
+            axi_write(A_CHMAP_SEL, 0);
+            axi_write(A_CHMAP_WORD, 0x8001);
+            // cluster 1 <- {en, src 1 (HOST RING), pb ch 2}: real routing,
+            // NOT an AEM dynamic mapping - must not appear in the response
+            axi_write(A_CHMAP_SEL, 1);
+            axi_write(A_CHMAP_WORD, 0x9002);
+            axi_write(A_CHMAP_CTRL, 0x0);
+
+            // the OTHER reader first: CHMAP_LOOP 0x914 reads the render RAM
+            // through its own port, so the wire answer below and this word
+            // are two independent readers of the same flops - agreement of
+            // the GET with a reader that shares its mux would prove nothing
+            auto loop_rd = [&](uint32_t k) -> uint32_t {
+                axi_write(A_CHMAP_SEL, k);        // side 0 = RMAP
+                axi_write(A_CHMAP_SNAP, 1);       // W1S arm
+                for (int g = 0; g < 64; g++) {
+                    if ((axi_read(A_CHMAP_SNAP) & 1) == 0) break;
+                    run_idle(4);
+                }
+                return axi_read(A_CHMAP_LOOP);
+            };
+            ck("L5e0: CHMAP_LOOP reads cluster 0 back as {en, avb 0.1}",
+               loop_rd(0) & 0xFFFFu, 0x0081u);
+            ck("L5e0: CHMAP_LOOP reads cluster 1 back as {en, ring ch 2}",
+               loop_rd(1) & 0xFFFFu, 0x00C2u);
+
+            uint8_t pl[8] = {0x00, 0x0E, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            size_t at = tx_frames.size();
+            cn = build_aecp(cf, 0, TEST_EID, 0x002B, 0x0140, pl, sizeof pl);
+            inject_rx(cf, cn, 400);
+            run_idle(20000);
+            int k = last_aecp(at);
+            ck_true("L5e GET_AUDIO_MAP(SPI 0, page 0) was ANSWERED", k >= 0,
+                    k >= 0 ? "an AECPDU egressed" : "SILENCE");
+            if (k >= 0) {
+                const std::vector<uint8_t>& b = tx_frames[k].bytes;
+                grade_common(b, "L5e", 0x002B, 0x0140, 1);
+                grade_len(b, "L5e", 12 + 8 * 1);
+                ck("L5e: status SUCCESS(0), not NOT_IMPLEMENTED",
+                   (b[16] >> 3) & 0x1F, 0u);
+                ck("L5e: descriptor_type echoed @0",
+                   (uint32_t)get_be(b, 38, 2), 0x000Eu);
+                ck("L5e: descriptor_index echoed @2",
+                   (uint32_t)get_be(b, 40, 2), 0u);
+                ck("L5e: map_index echoed @4", (uint32_t)get_be(b, 42, 2), 0u);
+                // 2 clusters, page 2 -> ONE fixed partition (Milan 5.4.2.26)
+                ck("L5e: number_of_maps @6 is the fixed partition count",
+                   (uint32_t)get_be(b, 44, 2), 1u);
+                ck("L5e: number_of_mappings @8 counts the AVB entry only - "
+                   "the ring-fed cluster 1 is real routing, not a mapping",
+                   (uint32_t)get_be(b, 46, 2), 1u);
+                ck("L5e: reserved @10 is zero", (uint32_t)get_be(b, 48, 2), 0u);
+                // mono clusters: cluster_channel 0, and cluster_offset IS
+                // the RAM address (base_cluster 0 on port 0)
+                ck("L5e: record 0 = {stream 0, ch 1, cluster 0, chan 0}",
+                   (uint32_t)get_be(b, 50, 4), 0x00000001u);
+                ck("L5e: record 0 offset half",
+                   (uint32_t)get_be(b, 54, 4), 0x00000000u);
+            }
+            // ...and ADDITION is visible: the ring slot becomes an AVB
+            // mapping {stream 0, ch 0} and the count moves 1 -> 2
+            axi_write(A_CHMAP_CTRL, 0x1);
+            axi_write(A_CHMAP_SEL, 1);
+            axi_write(A_CHMAP_WORD, 0x8000);
+            axi_write(A_CHMAP_CTRL, 0x0);
+            at = tx_frames.size();
+            cn = build_aecp(cf, 0, TEST_EID, 0x002B, 0x0141, pl, sizeof pl);
+            inject_rx(cf, cn, 400);
+            run_idle(20000);
+            k = last_aecp(at);
+            ck_true("L5e2 the re-read was ANSWERED", k >= 0,
+                    k >= 0 ? "an AECPDU egressed" : "SILENCE");
+            if (k >= 0) {
+                const std::vector<uint8_t>& b = tx_frames[k].bytes;
+                grade_len(b, "L5e2", 12 + 8 * 2);
+                ck("L5e2: number_of_mappings rose to 2",
+                   (uint32_t)get_be(b, 46, 2), 2u);
+                ck("L5e2: record 1 is cluster 1's {stream 0, ch 0}",
+                   (uint32_t)get_be(b, 58, 4), 0x00000000u);
+                ck("L5e2: record 1 offset half",
+                   (uint32_t)get_be(b, 62, 4), 0x00010000u);
+            }
+        }
+
+        // --- L5f. the 7.4.44.1 page rule: map_index >= N is BAD_ARGUMENTS --
+        // ...and the refusal still carries the full fixed part with the REAL
+        // number_of_maps over an empty page (Milan 5.4.2.26: always N)
+        {
+            uint8_t pl[8] = {0x00, 0x0E, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
+            size_t at = tx_frames.size();
+            cn = build_aecp(cf, 0, TEST_EID, 0x002B, 0x0142, pl, sizeof pl);
+            inject_rx(cf, cn, 400);
+            run_idle(20000);
+            int k = last_aecp(at);
+            ck_true("L5f GET_AUDIO_MAP(page 1 of 1) was ANSWERED", k >= 0,
+                    k >= 0 ? "an AECPDU egressed" : "SILENCE");
+            if (k >= 0) {
+                const std::vector<uint8_t>& b = tx_frames[k].bytes;
+                grade_len(b, "L5f", 12);
+                ck("L5f: status BAD_ARGUMENTS(7) - 7.4.44.1's page rule",
+                   (b[16] >> 3) & 0x1F, 7u);
+                ck("L5f: number_of_maps still tells the real N",
+                   (uint32_t)get_be(b, 44, 2), 1u);
+                ck("L5f: number_of_mappings 0 - an empty page, no records",
+                   (uint32_t)get_be(b, 46, 2), 0u);
+            }
+        }
+
+        // --- L5g. an index past the image: NO_SUCH_DESCRIPTOR --------------
+        // The IMAGE is the existence authority - the processor locates
+        // STREAM_PORT_INPUT[1] in the same store READ_DESCRIPTOR serves and
+        // misses, whatever the fabric's port constants would have said
+        {
+            uint8_t pl[8] = {0x00, 0x0E, 0x00, 0x01, 0x00, 0x00, 0x00, 0x00};
+            size_t at = tx_frames.size();
+            cn = build_aecp(cf, 0, TEST_EID, 0x002B, 0x0143, pl, sizeof pl);
+            inject_rx(cf, cn, 400);
+            run_idle(20000);
+            int k = last_aecp(at);
+            ck_true("L5g GET_AUDIO_MAP(SPI 1) was ANSWERED", k >= 0,
+                    k >= 0 ? "an AECPDU egressed" : "SILENCE");
+            if (k >= 0) {
+                const std::vector<uint8_t>& b = tx_frames[k].bytes;
+                grade_len(b, "L5g", 12);
+                ck("L5g: status NO_SUCH_DESCRIPTOR(2)",
+                   (b[16] >> 3) & 0x1F, 2u);
+                ck("L5g: descriptor_index 1 echoed, not clamped",
+                   (uint32_t)get_be(b, 40, 2), 1u);
+            }
+        }
+
+        // --- L5h. STREAM_PORT_OUTPUT: the RECORDED gap keeps the echo ------
+        // Milan 5.4.2.26 also wants no-static-map outputs served; this
+        // build's talker-side store has a different shape, so the honest
+        // refusal is the 9.3.5.3.3 NOT_IMPLEMENTED echo - a well-formed
+        // frame sized by the command, never silence
+        {
+            uint8_t pl[8] = {0x00, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+            size_t at = tx_frames.size();
+            cn = build_aecp(cf, 0, TEST_EID, 0x002B, 0x0144, pl, sizeof pl);
+            inject_rx(cf, cn, 400);
+            run_idle(20000);
+            int k = last_aecp(at);
+            ck_true("L5h GET_AUDIO_MAP(STREAM_PORT_OUTPUT) was ANSWERED",
+                    k >= 0, k >= 0 ? "an AECPDU egressed" : "SILENCE");
+            if (k >= 0) {
+                const std::vector<uint8_t>& b = tx_frames[k].bytes;
+                grade_common(b, "L5h", 0x002B, 0x0144, 1);
+                grade_len(b, "L5h", sizeof pl);
+                ck("L5h: status NOT_IMPLEMENTED(1) - the recorded SPO gap",
+                   (b[16] >> 3) & 0x1F, 1u);
+                long bad = 0;
+                for (size_t i = 0; i < sizeof pl; i++)
+                    if (38 + i >= b.size() || b[38 + i] != pl[i]) bad++;
+                ck("L5h: the command's payload is ECHOED back",
+                   (uint32_t)bad, 0u);
             }
         }
 
