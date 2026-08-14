@@ -22,6 +22,17 @@
 # checks (manifest parse, pair check, read-back, magic), which `aemi-load`
 # implements identically. Do not put it back on the boot path.
 #
+# ONE CHECK LIVES ONLY IN `aemi-load`: the PAIRING check (2026-08-14). The C
+# loader also walks the image's index map to the ENTITY descriptor, reads the
+# baked firmware_version at offset 116 (1722.1-2021 Table 7-2), and compares
+# its "major.minor." prefix against the live VERSION CSR at the manifest's
+# `csr_base` + 0x004 - exit 3 when the image describes a build the flashed
+# gateware is not (a bitstream flash never refreshes the rootfs, so the two
+# CAN diverge, and did: a 2.68 model served on 2.69 gateware, 2026-08-14).
+# It is not mirrored here because this reference is also the zero-dependency
+# fallback, and busybox `devmem` - the only way to read the CSR from sh - is
+# exactly the kind of dependency it exists to not have.
+#
 # POSIX sh + busybox only (dd, cmp, od) - no python, no compiler.
 #
 # WHY THIS EXISTS. The protocol processor holds no descriptors on-die; it

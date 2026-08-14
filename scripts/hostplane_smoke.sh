@@ -147,6 +147,29 @@ else
     # so on a quiet bench 0 is legitimate and only the fault rails condemn it.
     pp_bridge DESC $((PPMEM + 0x00)) $((PPMEM + 0x04)) 1
     pp_bridge RESP $((PPMEM + 0x08)) $((PPMEM + 0x0c)) 0
+
+    # THE PAIRING CHECK (task: a bitstream flash does not refresh the image).
+    # aemi-load is idempotent by design, so re-running it here is the probe:
+    # it re-loads the image, re-verifies the read-back, and compares the
+    # image's baked firmware_version against the live VERSION CSR. Exit 3 is
+    # its stale-pairing verdict - the model being served describes a build the
+    # flashed gateware is not, which is exactly what this post-flash smoke
+    # exists to refuse. Boot tolerates it with a warning; THIS is the gate.
+    # An old rootfs whose aemi-load predates the check exits 0 here - the
+    # first flash carrying the new loader closes that hole for every later one.
+    if command -v aemi-load >/dev/null 2>&1 && [ -f /etc/milan-aem/aem_desc.bin ]; then
+        aemi-load /etc/milan-aem >/dev/null 2>&1
+        pair_rc=$?
+        if [ "$pair_rc" -eq 0 ]; then
+            verdict "pp-image-pairing" 0 "(image firmware_version matches the live VERSION CSR)"
+        elif [ "$pair_rc" -eq 3 ]; then
+            verdict "pp-image-pairing" 1 "(STALE: the served model describes a different build - reflash the boot images from this build)"
+        else
+            verdict "pp-image-pairing" 1 "(aemi-load rc=$pair_rc - the image did not load)"
+        fi
+    else
+        echo "CHECK pp-image-pairing: SKIPPED (no aemi-load or no /etc/milan-aem on this rootfs)"
+    fi
 fi
 
 # ---- 1. kernel RX liveness ---------------------------------------------------

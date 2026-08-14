@@ -2014,6 +2014,14 @@ def _entity_model_image(cfg, overlay):
         "desc_base": base,
         "resp_base": base + int(cfg["platform"]["pp_mem_bytes"]) - 0x1000,
         "window_bytes": int(cfg["platform"]["pp_mem_bytes"]),
+        # the AXI-Lite Milan CSR window, for the loader's PAIRING CHECK: the
+        # image bakes firmware_version from milan_csr's VERSION at generation
+        # time, the fabric serves that register live, and comparing the two at
+        # load time is what catches a bitstream flash that left the rootfs -
+        # and therefore this image - a build behind (the 2.68-image-on-2.69-
+        # gateware finding, 2026-08-14). Same rule as desc_base: the loader
+        # reads it from here and never restates it.
+        "csr_base": int(cfg["platform"]["csr_base"]),
         "image": "aem_desc.bin",
         "image_bytes": len(blob),
         # names the config this model IS, so a board and a bench can tell
