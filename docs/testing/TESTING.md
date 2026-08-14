@@ -70,6 +70,7 @@ protocol-level coverage contract is
 - **[4b. RTL lint - scripts/lint_rtl.py (the ratcheted gate)](#4b-rtl-lint---scriptslint_rtlpy-the-ratcheted-gate)** — Verilator `--lint-only` over all 82 modules in `hdl/` for the price of a cache restore, why Verible was not worth a second toolchain (155 of the opening 188 findings were width warnings it cannot compute), and the split that keeps it honest: a per-directory ratchet grandfathers today's backlog and prints it in full, while a malformed `lint_off` or a module that will not elaborate fails outright.
 - **[5. Legacy / auxiliary testbenches](#5-legacy--auxiliary-testbenches)** — What still lives under [`tb/utests`](../../tb/utests), [`tb/itests`](../../tb/itests) and the Questa packet-generator library, why none of it gates anything, and the rule when they disagree with a Verilator suite: trust the Verilator suite.
 - **[6. On-silicon validation](#6-on-silicon-validation)** — The mandatory post-flash step and the reason it exists: a build whose fabric paths run perfectly can still ship with a dead host plane, and every audio drill stays green while the kernel sees nothing. Then the bring-up order and where silicon measurements get logged.
+- **[6c. Controller-side validation — la_avdecc and Hive](#6c-controller-side-validation--la_avdecc-and-hive)** — The standing rule that every round validates with BOTH la_avdecc and Hive, and why our own tools cannot substitute: how to run the counters probe and read its CLEAN/DIRTY verdict, where the example controllers live, the feature-define ABI trap that SIGSEGVs at run time, and the Hive compile option that makes malformed responses look like a pass.
 - **[6b. Unattended campaigns — status file and alert webhook](#6b-unattended-campaigns--status-file-and-alert-webhook)** — The design contract for multi-day runs where silence means healthy: one STATUS word answering "alive and healthy" without parsing a log, the deliberate `FAILED` vs `BLOCKED` split (blocked never alerts — that is the false alarm that teaches people to ignore the next one), a fire-once webhook, and why the primary record lives on the host.
 - **[7. Known gaps (kept honest)](#7-known-gaps-kept-honest)** — What CI does and does not cover now — starting with the whole of AECP, untested for two different reasons: the narrow part the landed uCPU really implements has no Verilator suite and no recorded result, and everything else has no implementation to test — and the measured Verilator version table worth knowing before you file a build bug: 5.020 could not build four suites, 5.032 silently mis-read six checks in a suite since deleted, 5.050 is the pin. States why CI builds Verilator from source instead of trusting `apt`, and why the RTL was deliberately not contorted to satisfy the older tool.
 - **[Policy](#policy)** — The two standing rules in three sentences: a DUT change ships with its harness update in the same commit, and a module is not done until it appears in layer 1 (and layer 4 unless vendor-gated).
@@ -478,6 +479,71 @@ board), and the in-fabric telemetry that instruments silicon runs:
 protocol validation status: [PROTOCOL_VALIDATION_MATRIX.md](PROTOCOL_VALIDATION_MATRIX.md).
 Performance measurements on silicon are logged in the
 [findings log](../findings/README.md) with their methodology.
+
+## 6c. Controller-side validation — la_avdecc and Hive
+
+**STANDING RULE: every round validates with BOTH la_avdecc and Hive.** They are
+not interchangeable with the repo's own tools. `avdecc/milan_controller.py` and
+the behave models are OUR implementation of the standard; la_avdecc is a
+third-party one, and Hive is a GUI over that same library. A defect that both
+our tools and our models share is invisible until a foreign implementation
+parses the wire.
+
+Everything below runs on the peer/controller host, whose AVB NIC is the one
+that sees the DUT. See [../findings/BENCH_TOPOLOGY.md](../findings/BENCH_TOPOLOGY.md)
+for hosts and paths.
+
+### The counters probe (scriptable, has a verdict)
+
+```sh
+ssh <peer-host>
+cd ~/la_avdecc-probe/bin && sudo -n ./counters-probe <avb-iface>
+```
+
+It links real la_avdecc 4.3.1-beta1, so it enforces what Hive enforces, and it
+ends in a machine-readable line:
+
+```
+PROBE: verdict CLEAN|DIRTY (rc=<n>, complaints=<n>)
+```
+
+`rc` counts failed `GET_COUNTERS` calls; `complaints` counts la_avdecc's own
+model-validation objections. **`CLEAN` is the pass criterion**, and the two
+numbers fail for different reasons: a non-zero `complaints` means the library
+rejected something about our descriptors, which is a worse finding than a
+missing command.
+
+What it exercises: `GET_COUNTERS` on ENTITY, STREAM_INPUT 0, **STREAM_INPUT
+999**, AVB_INTERFACE 0 and CLOCK_DOMAIN 0. Index 999 is deliberate — a bad
+index must be answered correctly, not crashed and not answered SUCCESS.
+
+Baseline measured 2026-08-14: **`DIRTY (rc=5, complaints=0)`** — all five
+`GET_COUNTERS` answer `NOT_IMPLEMENTED`, while `complaints=0` says la_avdecc
+finds nothing wrong with the descriptor tree itself.
+
+### The example controllers (full model, and connections)
+
+`~/la_avdecc-src/examples/src` carries `entityDumper.cpp` (walks and prints the
+whole entity model) and `simpleController.cpp`, alongside `discovery.cpp` and
+`streamFormatInfo.cpp`. `~/la_avdecc-probe` is an install tree (`include/`,
+`lib/`, `cmake/`) and is the **proven-good recipe**: `counters-probe` was built
+against it and runs.
+
+**TRAP, and it has bitten this project: the la_avdecc ABI is sensitive to
+feature defines.** A program built with different defines than the library
+links cleanly and then SIGSEGVs at run time. On a segfault, suspect the defines
+before suspecting the device, and take them from the installed cmake config
+rather than guessing.
+
+### Hive
+
+Hive is the GUI. Save its log and read it: it reports `Success` per descriptor,
+names each `NOT_IMPLEMENTED` opcode, and emits deserialize warnings that no
+other tool shows. Note that Hive is compiled with
+`IGNORE_INVALID_NON_SUCCESS_AEM_RESPONSES`, so it **processes malformed
+non-success responses anyway** — a size violation shows up as an `Info` line,
+not a failure, and a stricter controller would reject it. Do not read a Hive
+pass as proof a response is well formed.
 
 ## 6b. Unattended campaigns — status file and alert webhook
 

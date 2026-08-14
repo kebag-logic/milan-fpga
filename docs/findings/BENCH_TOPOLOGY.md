@@ -276,10 +276,30 @@ segfaults) → scp via the peer host → `tone_thdn.py --chans 2 --f0 1000`.
   EXACT paths are in the session memory index (private), or list the suite's
   home directory + `/tmp/run*` on the peer host. Link-flap helpers:
   `~/bin/arty-linkflap.sh`, `~/bin/ax-linkflap.sh` (phy_crg_reset
-  0xf0003800 via console). la_avdecc lib+probe: `~/la_avdecc-{src,build,probe}`
-  (counters-probe expects ENTITY GET_COUNTERS = SUCCESS+empty — that
-  expectation no longer holds: `GET_COUNTERS` is not implemented and the µCPU
-  answers it with a `NOT_IMPLEMENTED` echo).
+  0xf0003800 via console).
+- **la_avdecc, the third-party controller stack** (peer-host-local):
+  `~/la_avdecc-src` (source, and `examples/src/` carries `entityDumper.cpp`,
+  `simpleController.cpp`, `discovery.cpp`, `streamFormatInfo.cpp`),
+  `~/la_avdecc-build` (libraries), and `~/la_avdecc-probe` — an INSTALL tree
+  with `include/`, `lib/`, `cmake/` and a built `bin/counters-probe`.
+  **`~/la_avdecc-probe` is the proven-good build recipe**: `counters-probe`
+  links against it and runs, so anything else built the same way will too.
+  Run it as `cd ~/la_avdecc-probe/bin && sudo -n ./counters-probe <avb-iface>`;
+  it ends in `PROBE: verdict CLEAN|DIRTY (rc=<n>, complaints=<n>)`, where `rc`
+  counts failed `GET_COUNTERS` and `complaints` counts la_avdecc's own
+  model-validation objections. **CLEAN is the pass criterion.** It probes
+  ENTITY, STREAM_INPUT 0, **STREAM_INPUT 999** (a deliberate out-of-range
+  index, which must be answered rather than crashed), AVB_INTERFACE 0 and
+  CLOCK_DOMAIN 0, and it expects ENTITY `GET_COUNTERS` to answer SUCCESS with
+  an EMPTY set.
+  Baseline measured 2026-08-14: **`DIRTY (rc=5, complaints=0)`** — every
+  `GET_COUNTERS` answers `NOT_IMPLEMENTED`, while `complaints=0` says the
+  library finds nothing wrong with the descriptor tree itself.
+  **ABI TRAP:** the la_avdecc ABI is sensitive to feature defines. A program
+  built with different defines than the library links cleanly and then
+  SIGSEGVs at run time. On a segfault suspect the defines first, and take them
+  from the installed cmake config rather than guessing.
+  How to run all of this: [../testing/TESTING.md](../testing/TESTING.md) §6c.
 - Score to beat: **63/63 scenarios per board** (bench suite; ship pair
   ARTY `asl_milanfinal53e` (VERSION 0x000A) + ALINX `AX39`; the suite grew past
   the earlier 43/43 on asl_mf35 + eppo_AX21).
