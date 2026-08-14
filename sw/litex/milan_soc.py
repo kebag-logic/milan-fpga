@@ -5172,9 +5172,11 @@ class _PPMemDiag(LiteXModule):
 
     THE DISCRIMINATOR, which is the whole point of the block:
 
-        issued == 0, stat[4] == 0        the bridge is HELD OFF the bus because
-                                         main memory has not been initialised
-                                         yet. Expected before the BIOS runs
+        issued == 0, stat[4] == 0        the bridge is HELD OFF the bus: the
+                                         BIOS has not handed the DFI back to
+                                         the LiteDRAM controller yet. Expected
+                                         between FPGA configuration and the end
+                                         of `sdram_init`
         issued == 0, stat[4] == 1        the bridge never asked. Look at the
                                          processor's request face, not the bus
         issued > acked+errored+timed_out  it asked and is UNANSWERED right now
@@ -5205,11 +5207,12 @@ class _PPMemDiag(LiteXModule):
     def __init__(self, faces, mem_rdy=None):
         """`faces` = [(name, wishbone, poison flag, watchdog-fire pulse), ...].
 
-        `mem_rdy` is the gate that keeps both bridges off the bus until main
-        memory can end a transaction. Without it published, `issued` = 0 stays
-        ambiguous between the two things it now means - a dead request path
-        inside the fabric, and a bridge deliberately holding back - which is
-        the same ambiguity this block exists to end.
+        `mem_rdy` is the gate that keeps both bridges off the bus until the
+        BIOS has finished with the DDR3 (see `pp_mem_gate`). Without it
+        published, `issued` = 0 stays ambiguous between the two things it now
+        means - a dead request path inside the fabric, and a bridge
+        deliberately holding back - which is the same ambiguity this block
+        exists to end.
         """
         flags = []
         for name, wb, psn, tmo_pulse in faces:
@@ -5264,8 +5267,15 @@ class _PPMemDiag(LiteXModule):
             # Two bits per face, in `faces` order: the register map publishes
             # bit positions, so the order is ABI and the caller owns it.
             flags += [psn, on]
-        # The gate lands ABOVE the per-face pairs so adding a face never moves
-        # it, and every bit already published keeps its position.
+        # THE GATE IS APPENDED, so it lands at bit 2 * len(faces) and every bit
+        # already published keeps its position. With the two faces this SoC
+        # builds that is BIT 4, and the generated netlist is the check rather
+        # than this sentence: `status = ({mem_rdy, on1, rpsn, on0, dpsn} |
+        # 31'h5b000000)` (alinx_ax7101.v:25786, build_ax7101_eppo_dfigate),
+        # i.e. [0] desc poisoned, [1] desc cyc&stb, [2] resp poisoned, [3] resp
+        # cyc&stb, [4] the gate. A THIRD FACE WOULD MOVE THE GATE to bit 6,
+        # which is why the register map documents bit 4 against the two-face
+        # shape and not as a fixed address.
         flags += [C(1, 1) if mem_rdy is None else mem_rdy]
         assert len(flags) <= 24, "the live flags would run into the 0x5B tag"
         self.stat = CSRStatus(32, description=(
@@ -5273,9 +5283,11 @@ class _PPMemDiag(LiteXModule):
             "bridge POISONED (a timed-out access is still owed an answer; the "
             "next answer it collects is discarded), [1] descriptor bridge is "
             "driving cyc/stb right now, [2] response bridge poisoned, [3] "
-            "response bridge driving cyc/stb, [4] main memory has been "
-            "INITIALISED and can end a transaction (0 = both bridges answer "
-            "err without touching the bus, which is why `issued` is 0), "
+            "response bridge driving cyc/stb, [4] the LiteDRAM DFI handover "
+            "has been seen, i.e. the BIOS got past sdram_init (0 = both "
+            "bridges answer err without touching the bus, which is why "
+            "`issued` is 0). Bit 4 observes LiteDRAM only: the dma_bus slave "
+            "is the CPU's coherent-DMA port and nothing here watches it, "
             "[31:24] = 0x5B liveness tag "
             "(a build without these counters reads 0 here)."))
         self.comb += self.stat.status.eq(Cat(*flags) | (self.TAG_C << 24))
@@ -5308,11 +5320,13 @@ def pp_mem_bus_worst_cycles(sys_clk_hz):
     LiteX arbiter and from what the other masters on `dma_bus` actually do:
 
       * the arbiter re-arbitrates only on
-        ``rr_read_ce = ~(ar.valid | r.valid) & rd_lock.empty``
-        (litex/soc/interconnect/axi/axi_full.py:1188; the generated netlist
-        agrees, `socbushandler1_rr_read_ce`). `r.valid` there is the SLAVE's, so
-        the grant is held for as long as the granted master leaves a read beat
-        UNACCEPTED - the term the old 2,048 left out entirely;
+        ``rr_read.ce = ~(ar.valid | r.valid) & rd_lock.ready``
+        (litex/soc/interconnect/axi/axi_full.py:1188; `ready` is that counter's
+        own alias for `empty`, same file:1113, and `empty` is the spelling the
+        generated netlist carries, `socbushandler1_rd_lock_empty`). `r.valid`
+        there is the SLAVE's, so the grant is held for as long as the granted
+        master leaves a read beat UNACCEPTED - the term the old 2,048 left out
+        entirely;
 
       * eight masters share the bus but only SIX ever assert `ar.valid`: the ts
         and pcm rings are WishboneDMAWriters with `we` tied 1 (netlist:
@@ -5413,6 +5427,134 @@ def pp_mem_timeout_cycles(sys_clk_hz, milan_clk_hz,
             f"{sys_clk_hz/1e6:g} MHz): a healthy bus would time out. "
             f"milan_clk {milan_clk_hz/1e6:g} MHz is too fast against sys")
     return cyc
+
+
+def pp_mem_gate(m, dfi_sel):
+    """`mem_rdy`: the DFI has been handed BACK to the LiteDRAM controller.
+
+    A LEVEL, and it is READ from LiteDRAM rather than restated: the BIOS takes
+    the DFI away from the controller to level the DDR3 ("Switching SDRAM to
+    software control") and hands it back when it is done. `sel` RESETS TO 1
+    (litedram/dfii.py DFIInjector, `reset=0b1  # Defaults to HW control.`), so
+    hardware control on its own is not evidence that the BIOS ever ran. The
+    1 -> 0 -> 1 edge is, and only that edge opens this gate.
+
+    WHAT IT OBSERVES IS ONE HOP, and the label has to say so: that the BIOS got
+    past `sdram_init`. It does not observe the CPU's coherent-DMA port, which
+    is the block that took the AR and never answered it (see the bridge below),
+    and it cannot - nothing on that path publishes a ready. What defends the
+    gate is WHERE IT SITS IN TIME, not what it measures.
+
+    Factored out of `MilanSoC.__init__` so `test_pp_boot_bus_freeze.py` drives
+    THIS expression and not a copy of it: a copy passes against a gate wired to
+    a constant, which is the failure that test was written to catch.
+    """
+    _sw_seen = Signal()
+    _mem_rdy = Signal()
+    m.sync += If(~dfi_sel, _sw_seen.eq(1))
+    m.comb += _mem_rdy.eq(_sw_seen & dfi_sel)
+    return _mem_rdy
+
+
+def pp_desc_bridge(m, req, rsp, wb, mem_rdy, tmo, sel_mask, addr_sh):
+    """The descriptor-image read bridge: one wishbone READ master, one FSM.
+
+    `req`/`rsp` are the processor's sys-domain request and response faces, `wb`
+    the master this drives, `mem_rdy` the gate above, `tmo` the watchdog in sys
+    cycles. Returns `(fsm, poisoned, poison_set)`; the caller owns the
+    attribute the FSM is named by and the observer that reads the two flags.
+
+    A FUNCTION AND NOT AN INLINE BLOCK because the behaviour has to be
+    simulable: `MilanSoC` cannot be elaborated in a migen simulation (it wraps
+    a `milan_datapath` blackbox on a Vivado platform), so before this was
+    factored out the boot-freeze simulation drove a REPLICA of these arms and
+    graded the shipping shape by parsing this file for the identifier
+    `_mem_rdy`. That grades spelling. `test_pp_boot_bus_freeze.py` now builds
+    what is below, on the real LiteX interconnect, and fails against a gate
+    that is present and ineffective.
+
+    THE ARMS THEMSELVES ARE UNCHANGED by the move, and the check that says so
+    is a gateware export (`--output-dir`, no `--build`) diffed against the
+    export of the tree the waiting bitstreams were built from: identical RTL,
+    to the character, comments and the CPU blackbox hash aside. Keep it that
+    way - a refactor here that moves a signal name reshapes the netlist, and
+    the bitstreams stop corresponding to the source.
+    """
+    _da = Signal(32); _dl = Signal(9)
+    _dd = Signal(64); _de = Signal()
+    _dto = Signal(max=tmo + 1)
+    # A timed-out access is ABANDONED, not cancelled: AXI forbids retracting a
+    # VALID before its READY, so the memory still owes one answer and delivers
+    # it whenever it comes back. The master is POISONED until that answer
+    # lands, and poisoned means THE NEXT ANSWER IS NOT MINE: the transaction in
+    # flight is reported `err` and whatever comes back on it is discarded,
+    # which is what keeps a stale word from being paired with a new address.
+    #
+    # POISONED, THE BUS STATE STILL DRIVES cyc/stb, and that is the only way
+    # the flag can clear. Without a coherent `dma_bus` these masters land on
+    # `self.bus`, whose Arbiter gates every slave->master signal on the grant
+    # (wishbone.py Arbiter: `dest.eq(source & (rr.grant == i))`) and drives the
+    # requests from the masters' own `cyc`, so an answer owed to a master that
+    # is asking for nothing goes to whoever holds the bus instead. A master
+    # that answered `err` without touching the bus could therefore never be
+    # given the ack its flag waits for: every later descriptor read would fail
+    # for the life of the bitstream, which is a reset and not a stall. The
+    # price is one more watchdog (20.5 us) per attempt while the memory is
+    # still dead, still inside the processor's own 4,096-cycle per-beat
+    # watchdog.
+    #
+    # ONE answer can be owed, never two, so one bit counts the debt:
+    # Wishbone2AXILite (axi_lite_to_wishbone.py:148) samples `stb & cyc` in
+    # IDLE alone and returns there only on the AXI response, so it cannot take
+    # a second access while one is outstanding - a watchdog firing again while
+    # poisoned re-abandons that SAME access. `err` rides WITH `ack` on a failed
+    # access (same file, ERROR state) and either settles the debt. The debt is
+    # watched in EVERY state and not from the bus state's own arm, because on a
+    # `dma_bus` each master owns its converter (SoCBusHandler.add_master adapts
+    # per master) and that converter's `ack` is combinational on the AXI
+    # response: the answer can land on a master that has already let go.
+    _dpsn = Signal(); _dpsn_set = Signal()
+    m.sync += If(_dpsn_set, _dpsn.eq(1)
+              ).Elif(_dpsn & (wb.ack | wb.err), _dpsn.eq(0))
+    _dfsm = FSM(reset_state="IDLE")
+    # THE GATE IS AN ANSWER, NOT A STALL. Holding `ready` low would park the
+    # request until the processor's own 4,096-cycle watchdog noticed, and would
+    # report "no progress" where the truth is "the BIOS has not finished with
+    # the DDR3". Taking the request and answering `err` on the spot degrades
+    # the locate to NO_SUCH_DESCRIPTOR immediately, leaves `issued` at 0 - the
+    # discriminator `_PPMemDiag` exists for - and never puts a transaction on a
+    # bus that may not be able to end one.
+    _dfsm.act("IDLE",
+        req.ready.eq(1),
+        If(req.valid,
+            NextValue(_da, req.addr), NextValue(_dl, req.beats),
+            NextValue(_de, _dpsn | ~mem_rdy), NextValue(_dto, 0),
+            If(mem_rdy, NextState("RD")).Else(NextState("EMIT"))))
+    _dfsm.act("RD",
+        wb.cyc.eq(1), wb.stb.eq(1), wb.sel.eq(sel_mask),
+        wb.adr.eq(_da[addr_sh:]),
+        NextValue(_dto, _dto + 1),
+        If(wb.ack,
+            NextValue(_dto, 0),
+            # `_de` is already set when this access is the one that collects an
+            # owed answer, so the word is taken and thrown away with the beat
+            # rather than reaching the processor.
+            If(wb.err, NextValue(_de, 1)
+            ).Else(NextValue(_dd, wb.dat_r)),
+            NextState("EMIT")
+        ).Elif(_dto == tmo,
+            NextValue(_dto, 0), NextValue(_de, 1),
+            _dpsn_set.eq(1), NextState("EMIT")))
+    _dfsm.act("EMIT",
+        rsp.valid.eq(1), rsp.err.eq(_de),
+        rsp.blast.eq((_dl == 1) | _de),
+        rsp.data.eq(Cat(_dd[56:64], _dd[48:56], _dd[40:48], _dd[32:40],
+                        _dd[24:32], _dd[16:24], _dd[8:16], _dd[0:8])),
+        If(rsp.ready,
+            If(_de | (_dl == 1), NextState("IDLE")
+            ).Else(NextValue(_da, _da + 8), NextValue(_dl, _dl - 1),
+                   NextValue(_dto, 0), NextState("RD"))))
+    return _dfsm, _dpsn, _dpsn_set
 
 
 # SoC ----------------------------------------------------------------------------------------------
@@ -5902,11 +6044,17 @@ class MilanSoC(SoCCore):
             # ===============================================================
             #  AECP DESCRIPTOR-IMAGE READ BRIDGE (protocol-processor 07 §3.3)
             # ===============================================================
-            # The processor's descriptor store fetches the entity model from
-            # DDR3 over a read-only master. MilanNIC published the sys-domain
-            # endpoints; this is the bus side, a wishbone READ master on the
-            # DMA bus - the same shape as `milan_aaf_pb`, extended from one
-            # word to a BURST.
+            # The processor's descriptor store fetches the entity model from a
+            # DDR3 ADDRESS over a read-only master. MilanNIC published the
+            # sys-domain endpoints; this is the bus side, a wishbone READ
+            # master on the DMA bus - the same shape as `milan_aaf_pb`,
+            # extended from one word to a BURST.
+            #
+            # THE ROUTE IS NOT DIRECT, and every fault report below turns on
+            # that: this master's ONLY slave is the CPU's coherent-DMA port
+            # ("AXIInterconnectShared (8 <-> 1)"), so an unanswered access is
+            # unanswered BY THE CPU's coherency hub. Main memory is two hops
+            # further on. See the gate block below.
             #
             # CONTRACT: ONE outstanding request; responses IN ORDER; `beats`
             # counts 64-bit beats (>=1, max 128); `last` ends the burst. A
@@ -5989,7 +6137,7 @@ class MilanSoC(SoCCore):
             _pp_tmo = pp_mem_timeout_cycles(sys_clk_freq,
                                             milan_clk_freq or sys_clk_freq)
             # ---------------------------------------------------------------
-            #  NO BUS ACCESS BEFORE MAIN MEMORY CAN ANSWER ONE
+            #  NO BUS ACCESS UNTIL THE BIOS HAS FINISHED WITH THE DDR3
             # ---------------------------------------------------------------
             # A TIMED-OUT ACCESS IS NOT A RELEASED BUS, and that is what the
             # watchdog above cannot do anything about. Dropping `cyc`/`stb`
@@ -5997,43 +6145,66 @@ class MilanSoC(SoCCore):
             # cannot be retracted. LiteX's Wishbone2AXILite stays parked in its
             # READ state (it samples `stb & cyc` in IDLE alone), and the
             # arbiter's `rd_lock` still counts the accepted AR, so
-            # `rr_read.ce = ~(ar.valid | r.valid) & rd_lock.empty` is 0 for the
-            # LIFE OF THE BITSTREAM. Measured in simulation against the real
-            # LiteX chain (test_pp_boot_bus_freeze.py): rd_lock 1, grant 6,
-            # ce 0, another master requesting and never granted. Measured on
-            # silicon 2026-08-14: milan_dma_tx_rd_ptr 0, milan_dma_tx_sent 0
-            # and STAT_TX_GOOD 0 after 1,800 s with tx_enable 1 and tx_wr_ptr
+            # `rr_read.ce = ~(ar.valid | r.valid) & rd_lock.ready`
+            # (axi_full.py:1188; `ready` is that counter's own alias for
+            # `empty`, same file:1113) is 0 for the LIFE OF THE BITSTREAM.
+            # Measured in simulation against the real LiteX chain
+            # (test_pp_boot_bus_freeze.py): rd_lock 1, grant 6, ce 0, another
+            # master requesting and never granted. Measured on silicon
+            # 2026-08-14: milan_dma_tx_rd_ptr 0, milan_dma_tx_sent 0 and
+            # STAT_TX_GOOD 0 after 1,800 s with tx_enable 1 and tx_wr_ptr
             # 0x760 - Linux transmitted NOTHING all session, because the TX
             # ring reader is a read master on this same bus.
             #
-            # SO THE ACCESS MUST NOT BE MADE. `KL_aecp_desc_store` starts in
-            # S_HDR_REQ out of reset (KL_aecp_desc_store.sv:449), i.e. it asks
-            # for DDR3 at FPGA-configuration time - before the BIOS has run
-            # `sdram_init`, and the board's receipt is the fresh-boot counter
-            # pair: 1 issued, 1 timed out, with no AECP traffic at all. There
-            # is nothing at 0x7F700000 to read at that moment either: software
-            # loads the image later.
+            # WHO NEVER ANSWERED IS NOT THE DDR3, and naming it wrongly sends
+            # the next reader to the wrong block. `dma_bus` has EXACTLY ONE
+            # SLAVE and it is the CPU: "Interconnect: AXIInterconnectShared
+            # (8 <-> 1)" (litex.log:103 of the flashed build) and the slave's
+            # AR lands on `milansoc_milansoc_vexiiriscv_dma_bus_ar_valid`
+            # (alinx_ax7101.v:12288). What accepted that AR and never returned
+            # R is the VexiiRiscv coherent-DMA slave port and its coherency
+            # hub; main memory is two hops further on.
             #
-            # THE GATE IS THE DFI HANDOVER, and it is read from LiteDRAM
-            # rather than restated: the BIOS takes DFI away from the controller
-            # to level the DDR3 ("Switching SDRAM to software control") and
-            # hands it back when it is done. `sel` RESETS TO 1
-            # (litedram/dfii.py DFIInjector), so hardware control alone does
-            # not prove the DDR3 was ever initialised - the 1 -> 0 -> 1 edge
-            # does, and only that edge is taken as "main memory answers now".
-            # Without DDR3 main_ram is on-chip and always answerable, so the
-            # gate is a constant 1 there.
+            # THE TRIGGER IS UNIDENTIFIED, and this comment says so rather than
+            # supplying a mechanism. What is measured: `KL_aecp_desc_store`
+            # resets to S_HDR_REQ (KL_aecp_desc_store.sv:449), so it is the one
+            # master here that TRANSACTS OUT OF RESET - the response buffer has
+            # no software enable either, but resets to R_FILL
+            # (KL_aecp_resp_buf.sv:353), which does not transact - and it asks
+            # at FPGA-configuration time. The board's receipt is the fresh-boot
+            # counter pair: 1 issued, 1 timed out, with no AECP traffic at all.
+            # What is NOT known is why that first access was never answered.
+            # Two mechanisms were written here before and BOTH ARE REFUTED:
+            #   * "the DDR3 is not up yet". At configuration LiteDRAM's own
+            #     controller owns the DFI (`sel` resets to 1, litedram/dfii.py
+            #     DFIInjector) and `rddata_valid` is a pure latency shift of
+            #     `rddata_en` with no dependence on initialisation
+            #     (litedram/phy/s7ddrphy.py:510), so an uninitialised but
+            #     hardware-controlled LiteDRAM ANSWERS a read, with garbage.
+            #   * "nothing is loaded at 0x7F700000 yet". That answers too, and
+            #     garbage fails the store's own header check as fault 1 =
+            #     FAULT_MAGIC_C, not the fault 8 = FAULT_TIMEOUT_C measured.
+            # The one DRAM-side window that can genuinely swallow a read is
+            # `sel` = 0, the BIOS's SOFTWARE-CONTROL window, which is DURING
+            # `sdram_init` and not before it. That window is inside the one
+            # this gate holds shut, but no measurement ties the boot probe to
+            # it, and the CPU-side path above is not covered by that reading at
+            # all.
+            #
+            # SO THE GATE IS DEFENDED BY ITS PLACE IN TIME, not by a mechanism:
+            # it opens STRICTLY LATER than every boot-window culprit that can
+            # be named, which is how it covers one that cannot be. If the board
+            # still reads a timed-out boot probe with `stat[4]` = 1, the cause
+            # is downstream of the BIOS and this gate was the wrong fix.
             #
             # SAMPLED PER REQUEST, in IDLE, so it can never stall a burst
             # half-way: `sel` drops exactly once, inside the window where the
             # gate is already shut and no burst can be in flight, and nothing
-            # in this SoC re-levels afterwards.
+            # in this SoC re-levels afterwards. Without DDR3 main_ram is
+            # on-chip and always answerable, so the gate is a constant 1 there.
             if with_dram:
-                _dfi_hw  = self.sdram.dfii._control.fields.sel
-                _sw_seen = Signal()
-                _mem_rdy = Signal()
-                self.sync += If(~_dfi_hw, _sw_seen.eq(1))
-                self.comb += _mem_rdy.eq(_sw_seen & _dfi_hw)
+                _mem_rdy = pp_mem_gate(self,
+                                       self.sdram.dfii._control.fields.sel)
             else:
                 _mem_rdy = C(1)
             _dq = self.milan.descmem_req_sys
@@ -6044,83 +6215,14 @@ class MilanSoC(SoCCore):
             _dmab = getattr(self, "dma_bus", self.bus)
             _dmab.add_master("milan_desc_mem", master=_dwb)
 
-            _da = Signal(32); _dl = Signal(9)
-            _dd = Signal(64); _de = Signal()
-            _dto = Signal(max=_pp_tmo + 1)
-            # A timed-out access is ABANDONED, not cancelled: AXI forbids
-            # retracting a VALID before its READY, so the memory still owes one
-            # answer and delivers it whenever it comes back. The master is
-            # POISONED until that answer lands, and poisoned means THE NEXT
-            # ANSWER IS NOT MINE: the transaction in flight is reported `err`
-            # and whatever comes back on it is discarded, which is what keeps a
-            # stale word from being paired with a new address.
-            #
-            # POISONED, THE BUS STATE STILL DRIVES cyc/stb, and that is the
-            # only way the flag can clear. Without a coherent `dma_bus` these
-            # masters land on `self.bus`, whose Arbiter gates every slave->
-            # master signal on the grant (wishbone.py Arbiter: `dest.eq(source
-            # & (rr.grant == i))`) and drives the requests from the masters'
-            # own `cyc`, so an answer owed to a master that is asking for
-            # nothing goes to whoever holds the bus instead. A master that
-            # answered `err` without touching the bus could therefore never be
-            # given the ack its flag waits for: every later descriptor read
-            # would fail for the life of the bitstream, which is a reset and
-            # not a stall. The price is one more watchdog (20.5 us) per attempt
-            # while the memory is still dead, still inside the processor's own
-            # 4,096-cycle per-beat watchdog.
-            #
-            # ONE answer can be owed, never two, so one bit counts the debt:
-            # Wishbone2AXILite (axi_lite_to_wishbone.py:148) samples `stb & cyc`
-            # in IDLE alone and returns there only on the AXI response, so it
-            # cannot take a second access while one is outstanding - a watchdog
-            # firing again while poisoned re-abandons that SAME access. `err`
-            # rides WITH `ack` on a failed access (same file, ERROR state) and
-            # either settles the debt. The debt is watched in EVERY state and
-            # not from the bus state's own arm, because on a `dma_bus` each
-            # master owns its converter (SoCBusHandler.add_master adapts per
-            # master) and that converter's `ack` is combinational on the AXI
-            # response: the answer can land on a master that has already let go.
-            _dpsn = Signal(); _dpsn_set = Signal()
-            self.sync += If(_dpsn_set, _dpsn.eq(1)
-                         ).Elif(_dpsn & (_dwb.ack | _dwb.err), _dpsn.eq(0))
-            self.descmem_fsm = _dfsm = FSM(reset_state="IDLE")
-            # THE GATE IS AN ANSWER, NOT A STALL. Holding `ready` low would
-            # park the request until the processor's own 4,096-cycle watchdog
-            # noticed, and would report "no progress" where the truth is "main
-            # memory is not up yet". Taking the request and answering `err` on
-            # the spot degrades the locate to NO_SUCH_DESCRIPTOR immediately,
-            # leaves `issued` at 0 - the discriminator `_PPMemDiag` exists for
-            # - and never puts a transaction on a bus that cannot end one.
-            _dfsm.act("IDLE",
-                _dq.ready.eq(1),
-                If(_dq.valid,
-                    NextValue(_da, _dq.addr), NextValue(_dl, _dq.beats),
-                    NextValue(_de, _dpsn | ~_mem_rdy), NextValue(_dto, 0),
-                    If(_mem_rdy, NextState("RD")).Else(NextState("EMIT"))))
-            _dfsm.act("RD",
-                _dwb.cyc.eq(1), _dwb.stb.eq(1), _dwb.sel.eq(_pp_selm),
-                _dwb.adr.eq(_da[_pp_sh:]),
-                NextValue(_dto, _dto + 1),
-                If(_dwb.ack,
-                    NextValue(_dto, 0),
-                    # `_de` is already set when this access is the one that
-                    # collects an owed answer, so the word is taken and thrown
-                    # away with the beat rather than reaching the processor.
-                    If(_dwb.err, NextValue(_de, 1)
-                    ).Else(NextValue(_dd, _dwb.dat_r)),
-                    NextState("EMIT")
-                ).Elif(_dto == _pp_tmo,
-                    NextValue(_dto, 0), NextValue(_de, 1),
-                    _dpsn_set.eq(1), NextState("EMIT")))
-            _dfsm.act("EMIT",
-                _ds.valid.eq(1), _ds.err.eq(_de),
-                _ds.blast.eq((_dl == 1) | _de),
-                _ds.data.eq(Cat(_dd[56:64], _dd[48:56], _dd[40:48], _dd[32:40],
-                                _dd[24:32], _dd[16:24], _dd[8:16], _dd[0:8])),
-                If(_ds.ready,
-                    If(_de | (_dl == 1), NextState("IDLE")
-                    ).Else(NextValue(_da, _da + 8), NextValue(_dl, _dl - 1),
-                           NextValue(_dto, 0), NextState("RD"))))
+            # The arms live in `pp_desc_bridge` above, not here, for one
+            # reason: this SoC cannot be elaborated in a migen simulation, so
+            # arms written inline can only ever be graded by a replica or by
+            # parsing this file for an identifier. Both pass against a gate
+            # wired to a constant. The export is diffed netlist-identical
+            # across the move.
+            self.descmem_fsm, _dpsn, _dpsn_set = pp_desc_bridge(
+                self, _dq, _ds, _dwb, _mem_rdy, _pp_tmo, _pp_selm, _pp_sh)
 
             # ===============================================================
             #  AECP RESPONSE-BUFFER READ+WRITE BRIDGE (protocol-processor 03 §7)
@@ -6187,10 +6289,13 @@ class MilanSoC(SoCCore):
             # be starved by that: both are single-transaction and held until
             # ready, and the buffer never has a read and a write outstanding at
             # the same time anyway (it flushes the last lane, THEN reads back).
-            # `_mem_rdy`: see the descriptor bridge above. A write refused here
-            # rides `wr_err` with the done pulse and the buffer VOIDS that
-            # response, which is the right answer - a response the memory could
-            # not take must never reach the wire as though it had.
+            # `_mem_rdy`: see `pp_mem_gate` and the block above the descriptor
+            # master. A write refused here rides `wr_err` with the done pulse
+            # and the buffer VOIDS that response, which is the right answer - a
+            # response the memory could not take must never reach the wire as
+            # though it had. This face does not transact out of reset
+            # (KL_aecp_resp_buf.sv:353 resets to R_FILL), so it is gated for
+            # symmetry and not because it was ever measured to freeze the bus.
             _rfsm.act("IDLE",
                 _rw.ready.eq(1),
                 _rq.ready.eq(~_rw.valid),

@@ -973,10 +973,10 @@ def _poison_latches(tree):
     bypass check below tied to the poison flag and not to any early exit.
 
     The loaded value only has to NAME the flag, not be it: since 2026-08-14
-    IDLE loads `_dpsn | ~_mem_rdy`, because a request that arrives before main
-    memory can end a transaction is answered `err` without a bus cycle at all.
-    Requiring a bare name here would grade the expression's shape, which is not
-    the claim.
+    IDLE loads `_dpsn | ~_mem_rdy`, because a request that arrives before the
+    BIOS has finished with the DDR3 is answered `err` without a bus cycle at
+    all. Requiring a bare name here would grade the expression's shape, which
+    is not the claim.
     """
     out = set()
     for node in ast.walk(tree):

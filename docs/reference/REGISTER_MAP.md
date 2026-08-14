@@ -174,7 +174,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 - **[DMA registers (fully-FPGA build only  -  separate CSR space)](#dma-registers-fully-fpga-build-only-----separate-csr-space)** — A different window with different rules: LiteX CSR space, addresses from the build's own `csr.csv`, seven words per ring engine. Two traps documented at length — `base`/`length` are **byte** quantities, and the multi-word ordering is *word* order, not byte order, so a native 64-bit write to `base` swaps the halves and silently corrupts the DMA address.
 - **[Notes](#notes)** — Three bus-level rules that apply everywhere: self-clearing strobes read back 0, 64-bit reads are not atomic (use the snapshot latch for TOD), and how the map is versioned.
   - [PCM ring (LiteX CSR bank, 0xf0003120)](#pcm-ring-litex-csr-bank-0xf0003120) — Where the AAF RX payload actually lands: a wrapping DRAM ring whose write pointer the consumer chases, counted in 64-bit words. Payload is wire byte order — S32BE interleaved PCM, no swap.
-  - [Protocol-processor memory bridges (LiteX CSR bank, 0xf000f800)](#protocol-processor-memory-bridges-litex-csr-bank-0xf000f800) — Five words that answer the question `PP_STAT` cannot: when the entity model is invalid, did the bridge never ask the bus, or ask and never get an answer? Requests issued, acked, errored, timed out, plus the live poison flag, with the verdict table that reads them.
+  - [Protocol-processor memory bridges (LiteX CSR bank, 0xf000f800)](#protocol-processor-memory-bridges-litex-csr-bank-0xf000f800) — Five words that answer the question `PP_STAT` cannot: when the entity model is invalid, did the bridge never ask the bus, or ask and never get an answer? Requests issued, acked, errored, timed out, plus the live poison flags and the DFI-handover gate that says whether the bridges were held off the bus at all, with the verdict table that reads them.
 
 ## Register groups
 
@@ -2115,7 +2115,8 @@ and compare:
 
 | ISSUED | ACKED + ERRORED + TIMED OUT | verdict |
 |---|---|---|
-| `0` | `0` | the bridge **never asked the bus**. The bus is not the fault: look at the processor's request face (`PP_DIAG` `0x930`, the side-port snapshot) |
+| `0` | `0`, `stat[4]` = `0` | the bridges are **held off the bus**: the BIOS has not handed the DFI back to the LiteDRAM controller yet, so both answer `err` without touching the bus. Expected between FPGA configuration and the end of `sdram_init`, and a standing `0` here means the BIOS never got that far |
+| `0` | `0`, `stat[4]` = `1` | the bridge **never asked the bus**. The bus is not the fault: look at the processor's request face (`PP_DIAG` `0x930`, the side-port snapshot) |
 | `> 0` | equal to ISSUED | every access completed. If the image is still invalid the fault is upstream of the bus: the descriptor image itself, or its base |
 | `> 0` | one short of ISSUED | an access is **outstanding right now**. `stat[1]`/`stat[3]` say which face is still holding `cyc`/`stb`; it will become a `timed_out` when the watchdog expires |
 | `> 0` | ERRORED > 0 | the interconnect answered `err` (LiteX raises `err` **with** `ack`, so a failed access is an answer, not a silence). A descriptor fetched this way is refused, never served |
@@ -2146,7 +2147,19 @@ words answer "has this ever happened", never "is it happening now".
 | `+0x04` | `desc_fault` | RO | `0` | `[31:16]` accesses answered with **err**, `[15:0]` accesses the watchdog **abandoned** with no answer at all |
 | `+0x08` | `resp_req` | RO | `0` | AECP response-buffer read+write bridge, same two fields. This face writes as well as reads: a write that faults voids the response rather than putting a half-written one on the wire |
 | `+0x0C` | `resp_fault` | RO | `0` | same two fields as `desc_fault`, for the response bridge |
-| `+0x10` | `stat` | RO | `0x5B00_0000` | live state, not counts: `[0]` descriptor bridge **poisoned** (a timed-out access is still owed an answer; the next answer it collects is discarded), `[1]` descriptor bridge is driving `cyc`/`stb` **right now**, `[2]` response bridge poisoned, `[3]` response bridge driving `cyc`/`stb`, `[31:24]` constant presence tag `0x5B` — the same tag as `PP_STAT`, and the register to read first: `0` here means the gateware predates this bank, which is otherwise indistinguishable from four zeroed counters |
+| `+0x10` | `stat` | RO | `0x5B00_0000` | live state, not counts: `[0]` descriptor bridge **poisoned** (a timed-out access is still owed an answer; the next answer it collects is discarded), `[1]` descriptor bridge is driving `cyc`/`stb` **right now**, `[2]` response bridge poisoned, `[3]` response bridge driving `cyc`/`stb`, `[4]` the **LiteDRAM DFI handover has been seen** (see below), `[31:24]` constant presence tag `0x5B` — the same tag as `PP_STAT`, and the register to read first: `0` here means the gateware predates this bank, which is otherwise indistinguishable from four zeroed counters |
+
+> **What `stat[4]` measures, and what it does not.** It is `sw_seen & sel` on
+> LiteDRAM's DFI select (`litedram/dfii.py` `DFIInjector`, whose `sel` **resets
+> to 1**), so it reads 1 once the BIOS has taken the DFI to software control
+> and handed it back, i.e. once it got past `sdram_init`. It is a **proxy
+> for the boot's progress, not a readiness signal for the path the bridges
+> use**: `dma_bus` has exactly one slave and it is the CPU's coherent-DMA port
+> (`AXIInterconnectShared (8 <-> 1)`; the slave AR lands on
+> `milansoc_milansoc_vexiiriscv_dma_bus_*`), with main memory two hops beyond
+> it, and nothing in this bank observes that port. A build without DDR3 ties
+> the bit to 1. Its **position is the two-face shape's**: the flag is appended
+> after the per-face pairs, so a third bridge would move it to `[6]`.
 
 > **The bank is pinned to the LAST page of the CSR window** (`n_locs - 1`), not
 > auto-allocated. LiteX hands out the lowest free page at the moment a module is
