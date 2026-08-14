@@ -37,8 +37,15 @@ WHAT THIS FILE PROVES, in two independent ways so neither can pass vacuously:
   1. BEHAVIOURAL. Both FSM shapes are built in the same run - the pre-fix one
      (ack-only) and the shipping one (ack + watchdog) - and driven by the SAME
      dead-bus stimulus. The pre-fix one must still be holding cyc/stb with no
-     answer given; the shipping one must report `err` and let go of the bus.
-     If the watchdog were inert the two would agree and this test fails.
+     answer given; the shipping one must report `err` and end the wishbone
+     cycle. If the watchdog were inert the two would agree and this test fails.
+     THE SCOPE IS THE WISHBONE FACE ONLY, and the 2026-08-14 board round is the
+     receipt for saying so: the memory model here IS the bus, so ending the
+     cycle looks like releasing the bus, and on the real chain it is not. The
+     AXI transaction the converter already launched cannot be retracted, so the
+     dma_bus read grant freezes behind it and takes every other read master
+     with it. That claim needs the real LiteX arbiter in the simulation, and
+     `test_pp_boot_bus_freeze.py` is where it is graded.
   2. RECOVERY, and it is a SEPARATE claim from the watchdog's. Letting go of
      the bus is worth nothing if the master can never take it again. The dead
      bus is brought BACK - with the answer the bridge abandoned still owed by
@@ -236,7 +243,13 @@ def test_behavioural():
     check("watchdog FSM reports it as err", any(b[1] == 1 for b in fix["beats"]))
     check("watchdog FSM ends the burst on that beat",
           any(b[1] == 1 and b[2] == 1 for b in fix["beats"]))
-    check("watchdog FSM LETS GO of the bus (the arbiter is freed)",
+    # NOT "the arbiter is freed", and the 2026-08-14 board round is why the
+    # name changed: this model's memory IS the bus, so ending the wishbone
+    # cycle looks like releasing it. On the real chain it is not - the AXI
+    # transaction the converter already launched cannot be retracted, and the
+    # dma_bus read grant stays frozen behind it. That claim needs the real
+    # arbiter in the simulation and lives in test_pp_boot_bus_freeze.py.
+    check("watchdog FSM ends the WISHBONE cycle it abandoned",
           fix["cyc_at_end"] == 0, f"cyc={fix['cyc_at_end']}")
     check("watchdog FSM marks the master poisoned (a stale ack is still owed)",
           fix["psn"] == 1, f"psn={fix['psn']}")
@@ -958,14 +971,20 @@ def _poison_latches(tree):
     `NextValue(_de, _dpsn)` in IDLE: `_de` is how the flag reaches the bus
     state, and finding it by assignment rather than by name is what keeps the
     bypass check below tied to the poison flag and not to any early exit.
+
+    The loaded value only has to NAME the flag, not be it: since 2026-08-14
+    IDLE loads `_dpsn | ~_mem_rdy`, because a request that arrives before main
+    memory can end a transaction is answered `err` without a bus cycle at all.
+    Requiring a bare name here would grade the expression's shape, which is not
+    the claim.
     """
     out = set()
     for node in ast.walk(tree):
         if (isinstance(node, ast.Call) and isinstance(node.func, ast.Name)
                 and node.func.id == "NextValue" and len(node.args) == 2
                 and isinstance(node.args[0], ast.Name)
-                and isinstance(node.args[1], ast.Name)
-                and node.args[1].id.endswith("psn")):
+                and any(isinstance(n, ast.Name) and n.id.endswith("psn")
+                        for n in ast.walk(node.args[1]))):
             out.add(node.args[0].id)
     return out
 

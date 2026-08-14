@@ -5172,7 +5172,10 @@ class _PPMemDiag(LiteXModule):
 
     THE DISCRIMINATOR, which is the whole point of the block:
 
-        issued == 0                      the bridge never asked. Look at the
+        issued == 0, stat[4] == 0        the bridge is HELD OFF the bus because
+                                         main memory has not been initialised
+                                         yet. Expected before the BIOS runs
+        issued == 0, stat[4] == 1        the bridge never asked. Look at the
                                          processor's request face, not the bus
         issued > acked+errored+timed_out  it asked and is UNANSWERED right now
                                          (`stat` names which face still holds
@@ -5199,8 +5202,15 @@ class _PPMemDiag(LiteXModule):
     #: here to end.
     TAG_C = 0x5B
 
-    def __init__(self, faces):
-        """`faces` = [(name, wishbone, poison flag, watchdog-fire pulse), ...]."""
+    def __init__(self, faces, mem_rdy=None):
+        """`faces` = [(name, wishbone, poison flag, watchdog-fire pulse), ...].
+
+        `mem_rdy` is the gate that keeps both bridges off the bus until main
+        memory can end a transaction. Without it published, `issued` = 0 stays
+        ambiguous between the two things it now means - a dead request path
+        inside the fabric, and a bridge deliberately holding back - which is
+        the same ambiguity this block exists to end.
+        """
         flags = []
         for name, wb, psn, tmo_pulse in faces:
             iss  = Signal(16)
@@ -5254,13 +5264,19 @@ class _PPMemDiag(LiteXModule):
             # Two bits per face, in `faces` order: the register map publishes
             # bit positions, so the order is ABI and the caller owns it.
             flags += [psn, on]
+        # The gate lands ABOVE the per-face pairs so adding a face never moves
+        # it, and every bit already published keeps its position.
+        flags += [C(1, 1) if mem_rdy is None else mem_rdy]
         assert len(flags) <= 24, "the live flags would run into the 0x5B tag"
         self.stat = CSRStatus(32, description=(
             "protocol-processor memory-bridge live state: [0] descriptor "
             "bridge POISONED (a timed-out access is still owed an answer; the "
             "next answer it collects is discarded), [1] descriptor bridge is "
             "driving cyc/stb right now, [2] response bridge poisoned, [3] "
-            "response bridge driving cyc/stb, [31:24] = 0x5B liveness tag "
+            "response bridge driving cyc/stb, [4] main memory has been "
+            "INITIALISED and can end a transaction (0 = both bridges answer "
+            "err without touching the bus, which is why `issued` is 0), "
+            "[31:24] = 0x5B liveness tag "
             "(a build without these counters reads 0 here)."))
         self.comb += self.stat.status.eq(Cat(*flags) | (self.TAG_C << 24))
 
@@ -5972,6 +5988,54 @@ class MilanSoC(SoCCore):
             # from an argument.
             _pp_tmo = pp_mem_timeout_cycles(sys_clk_freq,
                                             milan_clk_freq or sys_clk_freq)
+            # ---------------------------------------------------------------
+            #  NO BUS ACCESS BEFORE MAIN MEMORY CAN ANSWER ONE
+            # ---------------------------------------------------------------
+            # A TIMED-OUT ACCESS IS NOT A RELEASED BUS, and that is what the
+            # watchdog above cannot do anything about. Dropping `cyc`/`stb`
+            # ends the WISHBONE cycle; the AXI transaction it already became
+            # cannot be retracted. LiteX's Wishbone2AXILite stays parked in its
+            # READ state (it samples `stb & cyc` in IDLE alone), and the
+            # arbiter's `rd_lock` still counts the accepted AR, so
+            # `rr_read.ce = ~(ar.valid | r.valid) & rd_lock.empty` is 0 for the
+            # LIFE OF THE BITSTREAM. Measured in simulation against the real
+            # LiteX chain (test_pp_boot_bus_freeze.py): rd_lock 1, grant 6,
+            # ce 0, another master requesting and never granted. Measured on
+            # silicon 2026-08-14: milan_dma_tx_rd_ptr 0, milan_dma_tx_sent 0
+            # and STAT_TX_GOOD 0 after 1,800 s with tx_enable 1 and tx_wr_ptr
+            # 0x760 - Linux transmitted NOTHING all session, because the TX
+            # ring reader is a read master on this same bus.
+            #
+            # SO THE ACCESS MUST NOT BE MADE. `KL_aecp_desc_store` starts in
+            # S_HDR_REQ out of reset (KL_aecp_desc_store.sv:449), i.e. it asks
+            # for DDR3 at FPGA-configuration time - before the BIOS has run
+            # `sdram_init`, and the board's receipt is the fresh-boot counter
+            # pair: 1 issued, 1 timed out, with no AECP traffic at all. There
+            # is nothing at 0x7F700000 to read at that moment either: software
+            # loads the image later.
+            #
+            # THE GATE IS THE DFI HANDOVER, and it is read from LiteDRAM
+            # rather than restated: the BIOS takes DFI away from the controller
+            # to level the DDR3 ("Switching SDRAM to software control") and
+            # hands it back when it is done. `sel` RESETS TO 1
+            # (litedram/dfii.py DFIInjector), so hardware control alone does
+            # not prove the DDR3 was ever initialised - the 1 -> 0 -> 1 edge
+            # does, and only that edge is taken as "main memory answers now".
+            # Without DDR3 main_ram is on-chip and always answerable, so the
+            # gate is a constant 1 there.
+            #
+            # SAMPLED PER REQUEST, in IDLE, so it can never stall a burst
+            # half-way: `sel` drops exactly once, inside the window where the
+            # gate is already shut and no burst can be in flight, and nothing
+            # in this SoC re-levels afterwards.
+            if with_dram:
+                _dfi_hw  = self.sdram.dfii._control.fields.sel
+                _sw_seen = Signal()
+                _mem_rdy = Signal()
+                self.sync += If(~_dfi_hw, _sw_seen.eq(1))
+                self.comb += _mem_rdy.eq(_sw_seen & _dfi_hw)
+            else:
+                _mem_rdy = C(1)
             _dq = self.milan.descmem_req_sys
             _ds = self.milan.descmem_rsp_sys
             self.descmem_wb = _dwb = _wb.Interface(data_width=_pp_dw,
@@ -6020,12 +6084,19 @@ class MilanSoC(SoCCore):
             self.sync += If(_dpsn_set, _dpsn.eq(1)
                          ).Elif(_dpsn & (_dwb.ack | _dwb.err), _dpsn.eq(0))
             self.descmem_fsm = _dfsm = FSM(reset_state="IDLE")
+            # THE GATE IS AN ANSWER, NOT A STALL. Holding `ready` low would
+            # park the request until the processor's own 4,096-cycle watchdog
+            # noticed, and would report "no progress" where the truth is "main
+            # memory is not up yet". Taking the request and answering `err` on
+            # the spot degrades the locate to NO_SUCH_DESCRIPTOR immediately,
+            # leaves `issued` at 0 - the discriminator `_PPMemDiag` exists for
+            # - and never puts a transaction on a bus that cannot end one.
             _dfsm.act("IDLE",
                 _dq.ready.eq(1),
                 If(_dq.valid,
                     NextValue(_da, _dq.addr), NextValue(_dl, _dq.beats),
-                    NextValue(_de, _dpsn), NextValue(_dto, 0),
-                    NextState("RD")))
+                    NextValue(_de, _dpsn | ~_mem_rdy), NextValue(_dto, 0),
+                    If(_mem_rdy, NextState("RD")).Else(NextState("EMIT"))))
             _dfsm.act("RD",
                 _dwb.cyc.eq(1), _dwb.stb.eq(1), _dwb.sel.eq(_pp_selm),
                 _dwb.adr.eq(_da[_pp_sh:]),
@@ -6116,17 +6187,23 @@ class MilanSoC(SoCCore):
             # be starved by that: both are single-transaction and held until
             # ready, and the buffer never has a read and a write outstanding at
             # the same time anyway (it flushes the last lane, THEN reads back).
+            # `_mem_rdy`: see the descriptor bridge above. A write refused here
+            # rides `wr_err` with the done pulse and the buffer VOIDS that
+            # response, which is the right answer - a response the memory could
+            # not take must never reach the wire as though it had.
             _rfsm.act("IDLE",
                 _rw.ready.eq(1),
                 _rq.ready.eq(~_rw.valid),
                 NextValue(_rto, 0),
                 If(_rw.valid,
                     NextValue(_wa, _rw.addr), NextValue(_wd, _rw.data),
-                    NextValue(_ws, _rw.strb), NextValue(_werr, _rpsn),
-                    NextState("WR")
+                    NextValue(_ws, _rw.strb),
+                    NextValue(_werr, _rpsn | ~_mem_rdy),
+                    If(_mem_rdy, NextState("WR")).Else(NextState("WDONE"))
                 ).Elif(_rq.valid,
                     NextValue(_ra, _rq.addr), NextValue(_rl, _rq.beats),
-                    NextValue(_re, _rpsn), NextState("RD")))
+                    NextValue(_re, _rpsn | ~_mem_rdy),
+                    If(_mem_rdy, NextState("RD")).Else(NextState("REMIT"))))
             _rfsm.act("WR",
                 If(_ws == 0,
                     NextState("WDONE")     # no byte enabled: nothing to write
@@ -6203,7 +6280,8 @@ class MilanSoC(SoCCore):
             # bank that does collide raises SoCError rather than moving anyone.
             self.csr.add("ppmem", n=self.csr.n_locs - 1)
             self.ppmem = _PPMemDiag([("desc", _dwb, _dpsn, _dpsn_set),
-                                     ("resp", _rwb, _rpsn, _rpsn_set)])
+                                     ("resp", _rwb, _rpsn, _rpsn_set)],
+                                    mem_rdy=_mem_rdy)
 
             self.irq.add("milan", use_loc_if_exists=True)  # 4 lines -> CPU via EventManager
             # Milan IDENTIFY -> board LED (controllers blink it to locate the
