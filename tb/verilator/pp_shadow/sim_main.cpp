@@ -1331,27 +1331,191 @@ int main(int argc, char** argv) {
         // IEEE 1722.1 9.3.5.3.3 / F06.14 "echo command": the command comes
         // back with message_type + 1, status NOT_IMPLEMENTED, its OWN payload
         // copied through and its own length declared. Never silence, never a
-        // malformed frame. 0x0029 GET_COUNTERS is a Milan-mandatory opcode
-        // this build does not serve, so it is the honest exemplar.
+        // malformed frame.
+        //
+        // THE OPCODE IS UNASSIGNED ON PURPOSE. This arm used to send 0x0029
+        // GET_COUNTERS, under a comment calling it "a Milan-mandatory opcode
+        // this build does not serve". The processor now serves it for real
+        // (L5b below), and these four checks went red the moment it did: an
+        // exemplar chosen because a feature was MISSING expires when the
+        // feature lands, and it expires as a test failure rather than as a
+        // note. 0x7FFE is outside 1722.1-2021 Table 7-140's assigned range,
+        // so nothing can ever implement it and this arm grades the echo law
+        // itself for as long as the law stands.
         {
             uint8_t pl[8] = {0x00, 0x05, 0x00, 0x00, 0xDE, 0xAD, 0xBE, 0xEF};
             size_t at = tx_frames.size();
-            cn = build_aecp(cf, 0, TEST_EID, 0x0029, 0x0105, pl, sizeof pl);
+            cn = build_aecp(cf, 0, TEST_EID, 0x7FFE, 0x0105, pl, sizeof pl);
             inject_rx(cf, cn, 400);
             run_idle(20000);
             int k = last_aecp(at);
-            ck_true("L5 GET_COUNTERS (unimplemented) was ANSWERED, not dropped",
+            ck_true("L5 an unassigned opcode was ANSWERED, not dropped",
                     k >= 0, k >= 0 ? "an AECPDU egressed"
                                    : "SILENCE - an unimplemented opcode must ECHO");
             if (k >= 0) {
                 const std::vector<uint8_t>& b = tx_frames[k].bytes;
-                grade_common(b, "L5", 0x0029, 0x0105, 1);
+                grade_common(b, "L5", 0x7FFE, 0x0105, 1);
                 grade_len(b, "L5", sizeof pl);
                 ck("L5: status NOT_IMPLEMENTED(1)", (b[16] >> 3) & 0x1F, 1u);
                 long bad = 0;
                 for (size_t i = 0; i < sizeof pl; i++)
                     if (38 + i >= b.size() || b[38 + i] != pl[i]) bad++;
                 ck("L5: the command's payload is ECHOED back", (uint32_t)bad, 0u);
+            }
+        }
+
+        // --- L5b. GET_COUNTERS answered for real, through the wired face ---
+        // IEEE 1722.1-2021 7.4.42.2 response payload: descriptor_type @0,
+        // descriptor_index @2, counters_valid @4, then THIRTY-TWO quadlets of
+        // counters_block @8. Payload byte 0 is frame byte 38, so the mask is
+        // at 42 and the block runs 46..173.
+        //
+        // WHAT THIS SECTION IS FOR. The processor lays the block out; THIS
+        // repository decides what the numbers mean, by driving ctr_data_i
+        // from KL_avtp_rx_monitor_ctx (milan_datapath's Table 7-157 mux).
+        // Those six ports were briefly left unconnected, on the reasoning
+        // that an unwired face answers zero with an empty mask and is
+        // therefore safe. It is not available as a choice here - this suite
+        // is warnings-are-errors, so six unconnected pins are six fatal
+        // PINMISSING - and the checks below exist so the WIRING is graded and
+        // not just the elaboration.
+        const size_t CTR_PLD_C = 2 + 2 + 4 + 128;     // 136, 7.4.42.2
+        {
+            // descriptor_type STREAM_INPUT (Table 7-4 0x0005), index 0: the
+            // one sink this 1x1 shape elaborates.
+            uint8_t pl[4] = {0x00, 0x05, 0x00, 0x00};
+            size_t at = tx_frames.size();
+            cn = build_aecp(cf, 0, TEST_EID, 0x0029, 0x0130, pl, sizeof pl);
+            inject_rx(cf, cn, 400);
+            run_idle(20000);
+            int k = last_aecp(at);
+            ck_true("L5b GET_COUNTERS(STREAM_INPUT 0) was ANSWERED", k >= 0,
+                    k >= 0 ? "an AECPDU egressed" : "SILENCE");
+            if (k >= 0) {
+                const std::vector<uint8_t>& b = tx_frames[k].bytes;
+                grade_common(b, "L5b", 0x0029, 0x0130, 1);
+                grade_len(b, "L5b", CTR_PLD_C);
+                ck("L5b: status SUCCESS(0), not NOT_IMPLEMENTED",
+                   (b[16] >> 3) & 0x1F, 0u);
+                ck("L5b: descriptor_type echoed @0", (uint32_t)get_be(b, 38, 2),
+                   0x0005u);
+                ck("L5b: descriptor_index echoed @2",
+                   (uint32_t)get_be(b, 40, 2), 0u);
+                // 0xFFF = quadlets 0..11, every counter Table 7-157 defines
+                // for a STREAM_INPUT before the reserved span at offset 48.
+                // Table 7-156 numbers MEDIA_LOCKED bit #31 at offset 0 and
+                // TIMESTAMP_VALID bit #25 at offset 24, so the mask bit for
+                // quadlet n is bit n of a conventional LSB-0 word.
+                ck("L5b: counters_valid @4 is the twelve we keep (0xFFF)",
+                   (uint32_t)get_be(b, 42, 4), 0x0000'0FFFu);
+                // Table 7-157 reserves offsets 48..92 and gives 96.. to the
+                // ENTITY_SPECIFIC set. This build claims none of them, and a
+                // claimed-zero is the lie this face exists to prevent, so
+                // they must be BOTH unclaimed in the mask and zero in the
+                // block. The mask check above covers the first half.
+                long dirty = 0;
+                for (int q = 12; q < 32; q++)
+                    if (get_be(b, 46 + 4 * (size_t)q, 4) != 0) dirty++;
+                ck("L5b: the unclaimed quadlets 12..31 are zero",
+                   (uint32_t)dirty, 0u);
+                ck_true("L5b: the block is a full 32 quadlets",
+                        b.size() == 46 + 128, "the frame ends at 174");
+            }
+        }
+        {
+            // THE WRONG-OBJECT GUARD. milan_datapath narrows the descriptor
+            // index to the monitor's four-bit diag_idx_i, and the monitor
+            // CLAMPS an out-of-range value to context 0. Driven unguarded,
+            // a GET_COUNTERS for a Stream Input this shape does not have
+            // would come back with SINK 0's counters under a full mask -
+            // the right shape, the wrong object, and nothing on the wire to
+            // say so. There is no NO_SUCH_DESCRIPTOR arm on this face, so
+            // the honest answer is an EMPTY mask over a zero block.
+            uint8_t pl[4] = {0x00, 0x05, 0x00, 0x09};   // STREAM_INPUT 9
+            size_t at = tx_frames.size();
+            cn = build_aecp(cf, 0, TEST_EID, 0x0029, 0x0131, pl, sizeof pl);
+            inject_rx(cf, cn, 400);
+            run_idle(20000);
+            int k = last_aecp(at);
+            ck_true("L5c GET_COUNTERS(STREAM_INPUT 9) was ANSWERED", k >= 0,
+                    k >= 0 ? "an AECPDU egressed" : "SILENCE");
+            if (k >= 0) {
+                const std::vector<uint8_t>& b = tx_frames[k].bytes;
+                grade_len(b, "L5c", CTR_PLD_C);
+                ck("L5c: descriptor_index 9 echoed, not clamped to 0",
+                   (uint32_t)get_be(b, 40, 2), 9u);
+                ck("L5c: counters_valid is EMPTY - no such sink here",
+                   (uint32_t)get_be(b, 42, 4), 0u);
+                long dirty = 0;
+                for (int q = 0; q < 32; q++)
+                    if (get_be(b, 46 + 4 * (size_t)q, 4) != 0) dirty++;
+                ck("L5c: ...and the block is all zeros, not sink 0's numbers",
+                   (uint32_t)dirty, 0u);
+            }
+        }
+        {
+            // THE PADDED-COMMAND GUARD, and it is the engine's, not this
+            // repository's. KL_aecp_engine walks the AECPDU into ONE pair of
+            // registers for two incompatible payload shapes: 7.4.42.1 puts
+            // GET_COUNTERS' {descriptor_type, descriptor_index} at @24 and
+            // @26 and stops, while 7.4.5.1 puts READ_DESCRIPTOR's at @28 and
+            // @30. Walk arms 6..9 therefore carry `if (!ctrs_r)`, under a
+            // comment that says guarding both directions matters.
+            //
+            // Nothing exercised it. A GET_COUNTERS whose payload stops at
+            // four octets never reaches @28, so the guard could be deleted
+            // with every suite still green. This command is eight octets and
+            // its tail is shaped like a READ_DESCRIPTOR for a DIFFERENT
+            // object: without the guard the engine would answer about ENTITY
+            // 9 while the controller asked about Stream Input 0, and the mask
+            // would collapse to empty on the way past.
+            uint8_t pl[8] = {0x00, 0x05,   // @24 descriptor_type STREAM_INPUT
+                             0x00, 0x00,   // @26 descriptor_index 0
+                             0x00, 0x00,   // @28 = READ_DESCRIPTOR's type
+                             0x00, 0x09};  // @30 = READ_DESCRIPTOR's index
+            size_t at = tx_frames.size();
+            cn = build_aecp(cf, 0, TEST_EID, 0x0029, 0x0133, pl, sizeof pl);
+            inject_rx(cf, cn, 400);
+            run_idle(20000);
+            int k = last_aecp(at);
+            ck_true("L5e a PADDED GET_COUNTERS was ANSWERED", k >= 0,
+                    k >= 0 ? "an AECPDU egressed" : "SILENCE");
+            if (k >= 0) {
+                const std::vector<uint8_t>& b = tx_frames[k].bytes;
+                grade_len(b, "L5e", CTR_PLD_C);
+                ck("L5e: the type is @24's, NOT the padding at @28",
+                   (uint32_t)get_be(b, 38, 2), 0x0005u);
+                ck("L5e: the index is @26's, NOT the padding at @30",
+                   (uint32_t)get_be(b, 40, 2), 0u);
+                ck("L5e: ...so the mask is still Stream Input 0's",
+                   (uint32_t)get_be(b, 42, 4), 0x0000'0FFFu);
+            }
+        }
+        {
+            // THE WRONG-TYPE GUARD, same term in the RTL. ENTITY counters are
+            // Table 7-155's ENTITY_SPECIFIC_1..8; this build keeps none, so
+            // the mask must be empty. A build that answered STREAM_INPUT's
+            // numbers here would be claiming counters for the wrong object
+            // class entirely.
+            uint8_t pl[4] = {0x00, 0x00, 0x00, 0x00};   // ENTITY 0
+            size_t at = tx_frames.size();
+            cn = build_aecp(cf, 0, TEST_EID, 0x0029, 0x0132, pl, sizeof pl);
+            inject_rx(cf, cn, 400);
+            run_idle(20000);
+            int k = last_aecp(at);
+            ck_true("L5d GET_COUNTERS(ENTITY) was ANSWERED", k >= 0,
+                    k >= 0 ? "an AECPDU egressed" : "SILENCE");
+            if (k >= 0) {
+                const std::vector<uint8_t>& b = tx_frames[k].bytes;
+                grade_len(b, "L5d", CTR_PLD_C);
+                ck("L5d: descriptor_type ENTITY echoed",
+                   (uint32_t)get_be(b, 38, 2), 0u);
+                ck("L5d: counters_valid is EMPTY - no ENTITY counters here",
+                   (uint32_t)get_be(b, 42, 4), 0u);
+                long dirty = 0;
+                for (int q = 0; q < 32; q++)
+                    if (get_be(b, 46 + 4 * (size_t)q, 4) != 0) dirty++;
+                ck("L5d: ...and the block is all zeros", (uint32_t)dirty, 0u);
             }
         }
 

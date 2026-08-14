@@ -209,6 +209,11 @@ static std::vector<uint8_t> desc_img;   // the AEMI image, byte for byte
 // what the wire MUST carry, keyed (type << 16) | index - see aemi_load()
 static std::map<uint32_t, std::vector<uint8_t> > desc_want;
 
+// The tracked config aemi_load() builds its overlay from. The 1x1 shipping
+// shape, because it is the one on silicon; the store is shape-agnostic, so
+// this choice fixes the identity bytes and nothing else.
+static const char AEMI_CFG_C[] = "endstation_ax7101_1x1_tdm8";
+
 static bool     dm_answering = false;   // [AECP]/[AECP-WTMO] need it OFF
 static bool     dm_busy   = false;      // read burst in flight
 static uint32_t dm_cur    = 0;
@@ -271,27 +276,51 @@ static void dmem_edge() {
 // to hide. --line-bytes MUST match PP_DESC_LINE_BYTES_P (576) or the packer
 // would accept a descriptor longer than the store's line buffer.
 //
-// THE BUILT-IN SPEC, deliberately, and not the overlay of the shape this leg
-// elaborates: sw/builder/out/ is gitignored, so an overlay would make the
-// suite pass or fail on whether someone had run the builder. Nothing is lost.
-// The store serves whatever main memory holds and knows nothing of the
-// elaborated stream count, and the expectation IS that same image.
+// A REAL OVERLAY, BUILT HERE, and not the generator's built-in spec. The
+// generator requires --overlay on purpose (07f256fc): the built-in shape names
+// no board, so its ADP identity spans - entity_id, entity_model_id, the
+// capability words - would go into the image UNBAKED, and an image whose
+// identity is zeros enumerates as a different entity than the one the ROM
+// describes. Refusing to guess is the right behaviour and this harness must
+// not be the reason it is weakened.
+//
+// So the harness builds its own overlay first, from a TRACKED config, into its
+// own temp dir. sw/builder/out/ being gitignored was the original reason to
+// avoid an overlay; -o removes it. Nothing about the suite depends on WHICH
+// shape: the store serves whatever main memory holds and knows nothing of the
+// elaborated stream count, so the 1x1 shipping config is used for every leg
+// and the expectation IS that same image. The gain over the built-in spec is
+// that the bytes compared are now the bytes a board would actually be served.
 //
 // CWD: the harness already runs from tb/verilator/milan_dp - the processor
 // $readmemh's ltn_rom.hex and ucode.hex by relative name - so the generator
 // sits at a known relative depth.
 static bool aemi_load(std::string* why) {
-    char bin[160], js[160], log[160], cmd[720];
+    char bin[160], js[160], log[160], bld[160], ovl[224], cmd[900];
     const int pid = (int)getpid();               // parallel lanes share /tmp
     snprintf(bin, sizeof bin, "/tmp/milan_nxn_aemi_%d.bin", pid);
     snprintf(js,  sizeof js,  "/tmp/milan_nxn_aemi_%d.json", pid);
     snprintf(log, sizeof log, "/tmp/milan_nxn_aemi_%d.log", pid);
-    snprintf(cmd, sizeof cmd,
-             "python3 ../../../avdecc/gen_aemi_image.py -o %s --json %s "
-             "--line-bytes 576 > %s 2>&1", bin, js, log);
+    snprintf(bld, sizeof bld, "/tmp/milan_nxn_bld_%d", pid);
 
     desc_img.clear();
     desc_want.clear();
+
+    // The builder writes into <outdir>/<config-stem>/; no --write-rtl and no
+    // --write-fragment, so it touches nothing tracked.
+    snprintf(cmd, sizeof cmd,
+             "python3 ../../../sw/builder/endstation_builder.py "
+             "../../../configs/%s.yaml -o %s > %s 2>&1", AEMI_CFG_C, bld, log);
+    if (system(cmd) != 0) {
+        *why = std::string("endstation_builder.py failed; its output is in ")
+             + log;
+        return false;
+    }
+    snprintf(ovl, sizeof ovl, "%s/%s/aem_overlay.json", bld, AEMI_CFG_C);
+
+    snprintf(cmd, sizeof cmd,
+             "python3 ../../../avdecc/gen_aemi_image.py --overlay %s "
+             "-o %s --json %s --line-bytes 576 > %s 2>&1", ovl, bin, js, log);
     if (system(cmd) != 0) {
         *why = std::string("gen_aemi_image.py failed; its output is in ") + log;
         return false;                            // the log is left for reading
@@ -1185,6 +1214,127 @@ int main(int argc, char** argv) {
     snap_and_wait();
     ck("s2 CNT3 still 0", axi_read(A_SW_CNT0 + 3*4), 0);
     ck("s2 CNT9 still 2", axi_read(A_SW_CNT0 + 9*4), 2);
+
+    // ======================================================================
+    //  GET_COUNTERS over the wire, against the CSR window that reads the
+    //  same flops (1722.1-2021 7.4.42.2, Tables 7-156 and 7-157)
+    // ======================================================================
+    //! WHY HERE AND NOT IN A QUIETER SECTION. Stream 1 has just been driven
+    //! to a state where its counters are DISTINCT: FRAMES_RX 10,
+    //! SEQ_NUM_MISMATCH 1, STREAM_INTERRUPTED 1, MEDIA_LOCKED 1, and the rest
+    //! zero. Against all-zero counters a block mux that permuted its inputs
+    //! would look perfect, so a section that asked for the block before any
+    //! traffic could not grade the mapping at all - only its shape.
+    //!
+    //! TWO INDEPENDENT READERS, TWO DIFFERENT ORDERS. The CSR window at
+    //! A_SW_CNT0 publishes KL_avtp_rx_monitor_ctx's OWN order (CNT9 is
+    //! FRAMES_RX, CNT6 is UNSUPPORTED_FORMAT - the tv pair was appended at 10
+    //! and 11 after the rest). The wire must carry Table 7-157's order, which
+    //! interleaves TIMESTAMP_VALID and TIMESTAMP_NOT_VALID at offsets 24 and
+    //! 28, ahead of UNSUPPORTED_FORMAT at 32. milan_datapath's mux is the
+    //! only thing between them, and this table states the correspondence a
+    //! second time, from the standard, so the mux cannot be graded against
+    //! itself.
+    {
+        printf("-- GET_COUNTERS: Table 7-157 block vs the CSR window --\n");
+        static const struct { int q; int csr; const char* sym; } CTRMAP[] = {
+            { 0,  0, "MEDIA_LOCKED"        },   // @0
+            { 1,  1, "MEDIA_UNLOCKED"      },   // @4
+            { 2,  2, "STREAM_INTERRUPTED"  },   // @8
+            { 3,  3, "SEQ_NUM_MISMATCH"    },   // @12
+            { 4,  4, "MEDIA_RESET"         },   // @16
+            { 5,  5, "TIMESTAMP_UNCERTAIN" },   // @20
+            // @24 TIMESTAMP_VALID and @28 TIMESTAMP_NOT_VALID have no CSR
+            // twin: that window is ten words wide (A_SW_PDUS follows at
+            // A_SW_CNT0 + 40) and the tv pair is not in it. They are graded
+            // by their own invariant below instead of by comparison.
+            { 8,  6, "UNSUPPORTED_FORMAT"  },   // @32
+            { 9,  7, "LATE_TIMESTAMP"      },   // @36
+            {10,  8, "EARLY_TIMESTAMP"     },   // @40
+            {11,  9, "FRAMES_RX"           },   // @44
+        };
+        axi_write(A_STRM_SEL, 0x001);
+        snap_and_wait();
+        uint32_t csr[10];
+        for (int k = 0; k < 10; k++) csr[k] = axi_read(A_SW_CNT0 + (uint16_t)(k*4));
+
+        std::vector<uint8_t> pl(4, 0);
+        pl[0] = 0x00; pl[1] = 0x05;                   // STREAM_INPUT, Table 7-4
+        pl[2] = 0x00; pl[3] = 0x01;                   // index 1
+        const std::vector<uint8_t> r = aecp_xact(0x0029, 0x4020, pl);
+        ck("[CTRS] GET_COUNTERS(STREAM_INPUT,1) was ANSWERED",
+           (long)(r.size() >= 174), 1);
+        if (r.size() >= 174) {
+            ck("[CTRS] status SUCCESS(0), not NOT_IMPLEMENTED", aecp_status(r), 0);
+            ck("[CTRS] cdl = 12 + 136", (((unsigned)r[16] & 7) << 8) | r[17], 148);
+            ck("[CTRS] the frame is as long as it claims", (long)r.size(), 174);
+            ck("[CTRS] descriptor_type echoed", ((unsigned)r[38] << 8) | r[39], 5);
+            ck("[CTRS] descriptor_index echoed", ((unsigned)r[40] << 8) | r[41], 1);
+            const uint32_t mask = ((uint32_t)r[42] << 24) | ((uint32_t)r[43] << 16)
+                                | ((uint32_t)r[44] << 8)  |  (uint32_t)r[45];
+            ck("[CTRS] counters_valid = 0xFFF (quadlets 0..11)",
+               (long)mask, 0x0FFF);
+
+            auto blk = [&](int q) -> uint32_t {
+                const size_t o = 46 + 4 * (size_t)q;
+                return ((uint32_t)r[o] << 24) | ((uint32_t)r[o+1] << 16)
+                     | ((uint32_t)r[o+2] << 8) | (uint32_t)r[o+3];
+            };
+            char w[128];
+            for (size_t i = 0; i < sizeof CTRMAP / sizeof CTRMAP[0]; i++) {
+                snprintf(w, sizeof w, "[CTRS] @%d %s == CSR CNT%d",
+                         CTRMAP[i].q * 4, CTRMAP[i].sym, CTRMAP[i].csr);
+                ck(w, (long)blk(CTRMAP[i].q), (long)csr[CTRMAP[i].csr]);
+            }
+            //! ...and the values are not all the same number, or the ten
+            //! checks above would pass under ANY permutation. This is the
+            //! term that makes them load-bearing.
+            ck("[CTRS] the graded counters are DISTINCT, not a flat block",
+               (long)(blk(11) != blk(3) && blk(11) != blk(8) && blk(11) != 0), 1);
+
+            //! THE tv PAIR, by its own invariant. 7.4.42.2: TIMESTAMP_VALID
+            //! increments on a Stream data AVTPDU with tv set and
+            //! TIMESTAMP_NOT_VALID on one with it cleared, so across a run of
+            //! frames the two must sum to FRAMES_RX. mkaaf sets tv, so the
+            //! split is all-valid, and a mux that swapped @24 with @28 would
+            //! put the whole tally on the wrong side of it.
+            ck("[CTRS] @24 TIMESTAMP_VALID + @28 TIMESTAMP_NOT_VALID = FRAMES_RX",
+               (long)(blk(6) + blk(7)), (long)blk(11));
+            ck("[CTRS] @24 TIMESTAMP_VALID carries the tally (tv was set)",
+               (long)blk(6), (long)blk(11));
+            ck("[CTRS] @28 TIMESTAMP_NOT_VALID is zero", (long)blk(7), 0);
+
+            //! Table 7-157 reserves @48..@92 and gives @96.. to
+            //! ENTITY_SPECIFIC_1..8. Unclaimed in the mask above AND zero
+            //! here: a claimed zero is the failure this face exists to stop.
+            long dirty = 0;
+            for (int q = 12; q < 32; q++) if (blk(q) != 0) dirty++;
+            ck("[CTRS] the unclaimed quadlets 12..31 are zero", dirty, 0);
+        }
+
+        //! THE WRONG-OBJECT GUARD, on the shape that can actually expose it.
+        //! milan_datapath narrows the descriptor index to the monitor's
+        //! four-bit diag_idx_i, and the monitor CLAMPS out of range to
+        //! context 0. Stream 2 is the neighbour with DIFFERENT numbers
+        //! (FRAMES_RX 2 against stream 1's 10), so an index that leaked one
+        //! sink's block into another's answer shows up as a value, not just
+        //! as a shape.
+        {
+            std::vector<uint8_t> p2(4, 0);
+            p2[1] = 0x05; p2[3] = 0x02;               // STREAM_INPUT 2
+            const std::vector<uint8_t> r2 = aecp_xact(0x0029, 0x4021, p2);
+            ck("[CTRS] GET_COUNTERS(STREAM_INPUT,2) was ANSWERED",
+               (long)(r2.size() >= 174), 1);
+            if (r2.size() >= 174) {
+                const size_t o = 46 + 4 * 11;         // @44 FRAMES_RX
+                const uint32_t frx = ((uint32_t)r2[o] << 24)
+                                   | ((uint32_t)r2[o+1] << 16)
+                                   | ((uint32_t)r2[o+2] << 8) | (uint32_t)r2[o+3];
+                ck("[CTRS] sink 2 answers its OWN FRAMES_RX (2), not sink 1's",
+                   (long)frx, 2);
+            }
+        }
+    }
 
     printf("-- TCTX: talker CFG words through the live packetizer port --\n");
     axi_write(A_STRM_SEL, 0x101);                    // dir=1 idx=1

@@ -258,7 +258,7 @@ FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
 # is the gate working, not the gate being relaxed - what it proves is that the
 # PIN still wins over the hash, and the assertion below that hash != pin is
 # what would catch the two being silently reconciled.
-DEPLOYED_MODEL_ID = "0x001BC50AC1000002"
+DEPLOYED_MODEL_ID = "0x001BC50AC1000003"
 
 #: The flashed image's boot script - the ONE piece of board software that
 #: programs the entity identity into the ADP/AEM CSRs. It lives in the sibling
@@ -4082,11 +4082,14 @@ def test_d10_cluster_names():
     # ... and every config that predates D8 must hash EXACTLY as before, up to
     # the ONE input that is deliberately allowed to move every id at once:
     # 0x001BC5AB73EC9D1D -> 0x001BC53442950FCB when AEM_LAYOUT_REV went 1 -> 2
-    # (the descriptor byte layout, 1722.1-2013 -> -2021). That is the 6.2.2.8
+    # (the descriptor byte layout, 1722.1-2013 -> -2021), and
+    # -> 0x001BC54079789FCA when it went 2 -> 3 (AUDIO_CLUSTER finished the
+    # same move: 87 octets was the 2013 length, 2021 Table 7-27 adds
+    # aes3_data_type_reference and aes3_data_type for 90). That is the 6.2.2.8
     # obligation being discharged, not a D8-era regression - which is why the
     # D8 conditional keys above stayed conditional and this key did not.
     assert eb.load_config(CONFIGS["arty_current"])["model_id"]["hash"] == \
-        "0x001BC53442950FCB"
+        "0x001BC54079789FCA"
     # arty_4x4's hash has now moved THREE times, correctly every time:
     # 0x001BC565E07E0DD6 -> 0x001BC5C42E0CEE8B when the per-board routing
     # gate forced tdm8 -> i2s_philips (no header existed), ->
@@ -4102,13 +4105,15 @@ def test_d10_cluster_names():
     # 48 kHz Base format to advertise them ALL, and 6.2 defines the channel
     # counts as {1, 2, 4, 6, 8}, so the ut entry has to reach 8 (gate 29).
     # The advertised formats list is descriptor content, so 6.2.2.8 obliges
-    # the new id. `interface.kind`, the descriptor set and
+    # the new id. And a SIXTH time -> 0x001BC59AB5D4ADE1 when AEM_LAYOUT_REV
+    # went 2 -> 3 and AUDIO_CLUSTER grew from the 2013 87 octets to 2021's 90.
+    # `interface.kind`, the descriptor set and
     # the byte layout are all model-shaping, so a shape change SHOULD move a
     # hash-derived id - that is the mechanism working. What must NOT move is
     # arty_current's PINNED id above, and it has not: it was re-pinned by hand
     # with the reflash, which is the only way a pin is allowed to move.
     assert eb.load_config(CONFIGS["arty_4x4"])["model_id"]["hash"] == \
-        "0x001BC56D12DF80ED"
+        "0x001BC59AB5D4ADE1"
     print("  [gate 24c] every cluster named for its ROLE; renaming leaves "
           "entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a "
           "pool width moves it; the two pre-D8 shapes hash unchanged")

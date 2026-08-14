@@ -515,7 +515,23 @@ EV_BANK_BASE = 0xF0002800        #: EventManager (kl-eth MILAN_EV_PHYS)
 #: number_of_redundant_streams and timing (formats_offset 132 -> 138, §7.2.6
 #: Table 7-8) and AVB_INTERFACE gained number_of_controls and base_control
 #: (98 -> 102 octets, §7.2.8 Table 7-13).
-AEM_LAYOUT_REV = 2
+#:
+#: 3 (2026-08-14) finishes that move. AUDIO_CLUSTER was left on the 2013 length
+#: when the rest went to 2021: 1722.1-2013 Table 7.27 ends at `format`, offset
+#: 86, for 87 octets, and 1722.1-2021 Table 7-27 ADDS aes3_data_type_reference
+#: (offset 87, length 1) and aes3_data_type (offset 88, length 2) for 90. The
+#: descriptor had been truncated deliberately, under a code comment citing 2021
+#: for the opposite of what 2021 says, to silence a trace-level "Remaining
+#: bytes in buffer" line from la_avdecc - whose own constant is the 2013 one
+#: and whose length test is a minimum, so the surplus was never an error.
+#:
+#: THIS IS WHY THE REVISION EXISTS. A hash-derived entity_model_id is taken
+#: over the config SHAPE (stream counts, rates, names), so a change to the
+#: emitted descriptor BYTES is invisible to it: the model would change while
+#: its id did not, which is exactly the stale-controller-cache failure
+#: 1722.1-2021 §6.2.2.8 forbids. Bumping this number is what makes a layout
+#: change reach every id.
+AEM_LAYOUT_REV = 3
 
 #: DRAM the protocol processor owns: the AEM descriptor image it serves
 #: READ_DESCRIPTOR from, plus the AECP response buffer it writes. Sized for

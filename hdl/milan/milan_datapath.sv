@@ -2845,6 +2845,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        aaf_frame_mr_w;
   wire [N_STREAMS-1:0] aaf_mr_w;
   wire [3:0]  aecp_diag_idx_w;
+  //! the processor's GET_COUNTERS read face (served further down)
+  wire        pp_ctr_req_w;
+  wire [15:0] pp_ctr_desc_type_w;
+  wire [15:0] pp_ctr_desc_index_w;
+  wire  [5:0] pp_ctr_word_w;
+  wire [31:0] pp_ctr_data_w;
+  wire        pp_ctr_wait_w;
   //! CRF PDU strobe from the tx counter delta; deferred one cycle when an
   //! AAF frame pulse occupies the diag event port (events are ~8.5 k/s
   //! against a 50+ MHz clock, so the skid never accumulates)
@@ -3027,9 +3034,94 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign aecp_odmap_wr_slot_w = 6'd0;
   assign aecp_odmap_wr_word_w = 13'd0;
   assign aecp_odmap_dyn_w = 1'b0;
-  //! GET_COUNTERS read index: no reader, so the counter contexts are read at
-  //! index 0 and their windows are the CSR groups, not an AECP response
-  assign aecp_diag_idx_w = 4'd0;
+  // ------------------------------------------------------------------------
+  //  GET_COUNTERS (1722.1-2021 7.4.42, Milan v1.2 5.4.2.25 / Table 5.16)
+  // ------------------------------------------------------------------------
+  //! The processor parses the command and lays out the response; THIS file
+  //! says what the numbers mean, because the events Table 5.6 counts happen
+  //! here. One quadlet is asked for at a time on ctr_word_o: 0..31 is the
+  //! Table 7-157 counters_block quadlet at block byte 4*n, and 32 is the
+  //! counters_valid mask itself.
+  //!
+  //! TWO ORDERS, AND THEY DIFFER. KL_avtp_rx_monitor_ctx publishes its twelve
+  //! tallies in its OWN order (its C_*_C localparams: ..., UF, LT, ET, FRX,
+  //! then TV, TNV last, because the tv pair was added after the rest). The
+  //! standard interleaves them: TIMESTAMP_VALID and TIMESTAMP_NOT_VALID sit
+  //! at offsets 24 and 28, BEFORE UNSUPPORTED_FORMAT at 32. The case below is
+  //! written in the standard's offset order with the monitor's own symbol
+  //! names on the right, so the two orderings are visible side by side rather
+  //! than fused into a transcribed table of numbers.
+  //!
+  //! MASK BIT == QUADLET INDEX. Table 7-156 numbers MEDIA_LOCKED bit #31 and
+  //! Table 7-157 puts it at offset 0; TIMESTAMP_VALID is bit #25 at offset
+  //! 24. So the table's bit # is 31 - n and its weight is 2^n, which makes
+  //! the counters_valid bit for quadlet n exactly bit n of a conventional
+  //! LSB-0 word. 0xFFF is quadlets 0..11 = every counter Table 7-157 defines
+  //! for a STREAM_INPUT before the reserved span at offset 48.
+  //!
+  //! ALL TWELVE, not the ten Milan makes mandatory. Milan v1.2 Table 5.6
+  //! does not require TIMESTAMP_VALID / TIMESTAMP_NOT_VALID (they are an IEEE
+  //! set Milan declines to compel, NOT a Milan addition), but this monitor
+  //! genuinely counts them per sink, and 7.4.42.2's bit means "this counter
+  //! exists and is valid". Claiming a counter we keep is honest; the failure
+  //! mode this face exists to avoid is the reverse - a mask of ones over a
+  //! block that never moves.
+  localparam int MON_ML_C  = 0, MON_MU_C  = 1, MON_SI_C = 2, MON_SM_C  = 3,
+                 MON_MR_C  = 4, MON_TU_C  = 5, MON_UF_C = 6, MON_LT_C  = 7,
+                 MON_ET_C  = 8, MON_FRX_C = 9, MON_TV_C = 10, MON_TNV_C = 11;
+  localparam logic [31:0] CTR_VALID_SIN_C = 32'h0000_0FFF;
+  localparam logic [15:0] DESC_STREAM_INPUT_C = 16'h0005;  //! Table 7-4
+
+  wire [12*32-1:0] mon_diag_cnt_w;
+
+  //! WHICH OBJECT WE ARE ALLOWED TO ANSWER FOR. There is no NO_SUCH_DESCRIPTOR
+  //! arm on this face - it carries data and a mask, nothing else - so an
+  //! index the monitor has no context for MUST come back as an empty mask
+  //! rather than as some other sink's numbers. aecp_diag_idx_w is only four
+  //! bits and KL_avtp_rx_monitor_ctx CLAMPS an out-of-range value to 0, so
+  //! feeding it ctr_desc_index_o unguarded would answer a GET_COUNTERS for
+  //! STREAM_INPUT 9 with sink 0's counters under a full mask: a wrong-object
+  //! answer, which is the same class of lie as an advertised zero. The guard
+  //! is the reason the index is qualified before it is narrowed.
+  //!
+  //! N_STREAMS is the monitor's N_LISTENERS_P. A CRF sink appended after the
+  //! AAF inputs has no monitor context and so reports an empty mask, which is
+  //! true: this build keeps no Table 5.6 counters for it.
+  wire ctr_sin_w = (pp_ctr_desc_type_w == DESC_STREAM_INPUT_C)
+                && (pp_ctr_desc_index_w < 16'(N_STREAMS));
+
+  assign aecp_diag_idx_w = ctr_sin_w ? pp_ctr_desc_index_w[3:0] : 4'd0;
+
+  logic [31:0] ctr_blk_w;
+  always_comb begin
+    unique case (pp_ctr_word_w)
+      6'd0    : ctr_blk_w = mon_diag_cnt_w[MON_ML_C  * 32 +: 32]; // @0   MEDIA_LOCKED
+      6'd1    : ctr_blk_w = mon_diag_cnt_w[MON_MU_C  * 32 +: 32]; // @4   MEDIA_UNLOCKED
+      6'd2    : ctr_blk_w = mon_diag_cnt_w[MON_SI_C  * 32 +: 32]; // @8   STREAM_INTERRUPTED
+      6'd3    : ctr_blk_w = mon_diag_cnt_w[MON_SM_C  * 32 +: 32]; // @12  SEQ_NUM_MISMATCH
+      6'd4    : ctr_blk_w = mon_diag_cnt_w[MON_MR_C  * 32 +: 32]; // @16  MEDIA_RESET
+      6'd5    : ctr_blk_w = mon_diag_cnt_w[MON_TU_C  * 32 +: 32]; // @20  TIMESTAMP_UNCERTAIN
+      6'd6    : ctr_blk_w = mon_diag_cnt_w[MON_TV_C  * 32 +: 32]; // @24  TIMESTAMP_VALID
+      6'd7    : ctr_blk_w = mon_diag_cnt_w[MON_TNV_C * 32 +: 32]; // @28  TIMESTAMP_NOT_VALID
+      6'd8    : ctr_blk_w = mon_diag_cnt_w[MON_UF_C  * 32 +: 32]; // @32  UNSUPPORTED_FORMAT
+      6'd9    : ctr_blk_w = mon_diag_cnt_w[MON_LT_C  * 32 +: 32]; // @36  LATE_TIMESTAMP
+      6'd10   : ctr_blk_w = mon_diag_cnt_w[MON_ET_C  * 32 +: 32]; // @40  EARLY_TIMESTAMP
+      6'd11   : ctr_blk_w = mon_diag_cnt_w[MON_FRX_C * 32 +: 32]; // @44  FRAMES_RX
+      6'd32   : ctr_blk_w = CTR_VALID_SIN_C;                      //      counters_valid
+      default : ctr_blk_w = 32'd0;   // @48..@92 reserved, @96.. ENTITY_SPECIFIC
+    endcase
+  end
+
+  //! Everything that is not a Stream Input this build measures: zero data AND
+  //! an empty mask, on the same term, so the two can never disagree. That
+  //! covers ENTITY (Table 7-155), AVB_INTERFACE (Table 7-159) and
+  //! CLOCK_DOMAIN (Table 7-161), whose counters are a NAMED GAP - Milan
+  //! v1.2 5.3.8.10 asks for them and this build keeps none of them here.
+  assign pp_ctr_data_w = ctr_sin_w ? ctr_blk_w : 32'd0;
+  //! HOLD, not a ready. The block is a combinational read of flops that are
+  //! already settled, so the beat is never held.
+  assign pp_ctr_wait_w = 1'b0;
+
   //! IDENTIFY: 1722.1-2021 7.4.x drives it from a CONTROL descriptor an AECP
   //! command writes. No AECP, no identify - the LED is structurally dark.
   assign o_identify = 1'b0;
@@ -3735,11 +3827,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! Milan 5.4.2.25: every sink's Table 5.6 set, muxed by the AECP's
     //! GET_COUNTERS descriptor index
     .diag_idx_i               (aecp_diag_idx_w),
-    //! Milan Table 5.16 STREAM_INPUT counters. Their ONE reader was AECP
-    //! GET_COUNTERS, which is deleted, and the 0x6B8 A_STRMW_CNT window is
-    //! served from the per-context counters beside it - not from this port.
-    //! Left OPEN rather than latched into a net nothing reads.
-    .diag_cnt_o               (),
+    //! Milan Table 5.16 STREAM_INPUT counters, muxed by diag_idx_i above.
+    //! Its reader is the protocol processor's GET_COUNTERS face; the 0x6B8
+    //! A_STRMW_CNT CSR window is served from the per-context counters beside
+    //! it, NOT from this port, so the two views are independent readers of
+    //! the same flops and a divergence between them is a real defect.
+    .diag_cnt_o               (mon_diag_cnt_w),
     .cnt_media_reset_o (avtprx_mreset_c),
     .cnt_late_ts_o     (avtprx_late_c),
     .cnt_early_ts_o    (avtprx_early_c),
@@ -4694,6 +4787,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     ) pp_shadow (
       .clk_i             (axis_clk),
       .rst_n             (axis_resetn),
+      //! GET_COUNTERS: the processor asks, this file answers (see the
+      //! Table 7-157 mux above)
+      .ctr_req_o         (pp_ctr_req_w),
+      .ctr_desc_type_o   (pp_ctr_desc_type_w),
+      .ctr_desc_index_o  (pp_ctr_desc_index_w),
+      .ctr_word_o        (pp_ctr_word_w),
+      .ctr_data_i        (pp_ctr_data_w),
+      .ctr_wait_i        (pp_ctr_wait_w),
       //! identity comes from the 0x600 CSR group, which is also what the
       //! generated entity model wrote - derive, never mirror.
       .entity_id_i       (cfg_adp_entity_id),

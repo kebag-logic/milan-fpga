@@ -257,6 +257,28 @@ module KL_pp_shadow #(
     input  wire                         rx_tready_i, //! consumer accepts (gh #65)
     input  wire                         rx_tlast_i,  //! final beat of frame
 
+    //! ---- GET_COUNTERS read face (1722.1-2021 7.4.42, Milan v1.2 5.4.2.25) ----
+    //! Straight through to protocol_processor_top, names and directions
+    //! unchanged. The processor parses the command and lays out Table 7-157's
+    //! 32-quadlet block; THIS WRAPPER OWNS NOTHING about what the numbers
+    //! mean, because the events Milan Table 5.6 counts happen in the
+    //! integrator's stream datapath (milan_datapath drives it from
+    //! KL_avtp_rx_monitor_ctx's diag_cnt_o).
+    //!
+    //! `ctr_wait_i` is a HOLD, not a ready: 0 means "the answer is on
+    //! ctr_data_i now". The submodule banner offers an unwired face as the
+    //! safe state, and in isolation that is true - it answers 0 with an empty
+    //! mask. It is NOT available here: this tree's pp_shadow harness is
+    //! warnings-are-errors (USER 2026-08-12), so six unconnected ports are six
+    //! fatal PINMISSING and the unconnected state does not compile. Wiring is
+    //! mandatory, not optional.
+    output logic        ctr_req_o,          //! a quadlet is being asked for
+    output logic [15:0] ctr_desc_type_o,    //! AECPDU @24
+    output logic [15:0] ctr_desc_index_o,   //! AECPDU @26
+    output logic  [5:0] ctr_word_o,         //! 0..31 = block quadlet, 32 = mask
+    input  wire  [31:0] ctr_data_i,         //! that quadlet, 1722.1 value order
+    input  wire         ctr_wait_i,         //! HOLD the beat (not a ready)
+
     //! ---- side-port host bridge (CSR-driven, one outstanding access) ----
     input  wire        host_req_i,         //! single-cycle request strobe
     input  wire        host_we_i,          //! 1 = write
@@ -787,6 +809,13 @@ module KL_pp_shadow #(
       .aecp_rxs_slot_len_o (),
       .aecp_rxs_free_i     (1'b0),
       .aecp_rxs_free_slot_i('0),
+
+      .ctr_req_o           (ctr_req_o),
+      .ctr_desc_type_o     (ctr_desc_type_o),
+      .ctr_desc_index_o    (ctr_desc_index_o),
+      .ctr_word_o          (ctr_word_o),
+      .ctr_data_i          (ctr_data_i),
+      .ctr_wait_i          (ctr_wait_i),
 
       .restore_go_i        (restore_go_i),
       .restore_busy_o      (restore_busy_o),

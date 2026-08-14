@@ -465,11 +465,25 @@ def d_audio_cluster(index, name, signal_type):
     b += be16(0) + be16(0)              # signal_index, signal_output
     b += be32(500) + be32(500)          # path/block latency
     b += be16(1)                        # channel_count
-    b += bytes([0x40])                  # format MBLA (1722.1-2021 §7.2.16:
-                                        # the descriptor ENDS at format u8 -
-                                        # la_avdecc flagged the 3 stray bytes
-                                        # of the former aes3_* tail)
-    assert len(b) == 87
+    b += bytes([0x40])                  # format MBLA, offset 86 (Table 7-28)
+    # 1722.1-2021 Table 7-27 CONTINUES past format. The comment that used to
+    # sit here said "the descriptor ENDS at format u8" and cited 2021 for it,
+    # which is backwards: 2013 Table 7.27 ends at format for 87 octets and
+    # 2021 ADDS aes3_data_type_reference (offset 87, length 1) and
+    # aes3_data_type (offset 88, length 2) for 90. What la_avdecc "flagged"
+    # was a TRACE-level "Remaining bytes in buffer" line - its own constant is
+    # the 2013 one (AecpAemReadAudioClusterDescriptorResponsePayloadSize =
+    # common + 83) and its length test is a MINIMUM (`<`), so the surplus was
+    # never an error. Truncating to 87 to silence a trace message put the
+    # device on the superseded layout, which Milan v1.2 §5.3.3.4 does not
+    # allow, and then the comment made that look deliberate.
+    #
+    # Both fields are zero here and that is their specified value: Table 7-27
+    # defines them "when format is IEC_60958", and this cluster's format is
+    # MBLA.
+    b += bytes([0x00])                  # aes3_data_type_reference @87
+    b += be16(0)                        # aes3_data_type @88
+    assert len(b) == 90
     return b
 
 def d_audio_map(index, rows):
