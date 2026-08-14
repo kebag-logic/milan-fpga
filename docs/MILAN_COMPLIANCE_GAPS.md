@@ -2334,7 +2334,7 @@ which means answering all three questions separately: is there media
 have succeeded. The failure this whole section exists to prevent is a status
 word that cannot tell "restored" from "there was nothing to restore from".
 
-### Consumers, checked 2026-08-13
+### Consumers, checked 2026-08-13, re-checked 2026-08-14
 
 - **`milan-persist`** (board rootfs) is honest: it dispatches on the generated
   `/etc/milan-persist-state.sh` inventory, every item of which currently reads
@@ -2347,12 +2347,26 @@ word that cannot tell "restored" from "there was nothing to restore from".
   than by design. It does not read `PP_STAT`.
 - **`S51acmp-persist`** only starts the change watcher; the restore moved into
   `S50milan`. It does not read `PP_STAT`.
-- **OPEN, in the sibling test repository, not fixed here.** `acmp-persist
-  restore`'s `restore_csr_present()` probes the deleted E1 bind-restore group by
-  writing `0x7A0` and reading it back. `0x7A0` is still a plain RW shadow
-  register, so the probe **succeeds**, and the function goes on to print
-  "media sink re-armed" for a commit that can never complete: `i_acmp_rest_ack`
-  is tied to `1'b0` in `milan_datapath.sv`. It is latent — `milan-persist` routes
-  every item to `none`, so nothing calls it during a normal boot — but it is a
-  false success and it should gate on the `0x7B4` `[30] done` bit, which can
-  never set, instead of on a register readback.
+- **`acmp-persist restore`: CLOSED 2026-08-14, in the sibling test
+  repository.** It had the software twin of the defect this whole section
+  exists to prevent. `restore_csr_present()` licensed the commit by writing
+  `0xA5C35A3C` to `0x7A0` and reading it back; `0x7A0`-`0x7B0` are plain-RW
+  staging words (`milan_csr.sv` `is_plain_rw`), so the probe **succeeded** on a
+  build with no restore engine behind the port at all, and the tool printed
+  "media sink re-armed" for a commit that can never complete (`i_acmp_rest_ack`
+  is tied to `1'b0` in `milan_datapath.sv`). A readback of a shadow proves only
+  that the shadow exists. It never bit anyone because it is unreachable in a
+  normal boot: `milan-persist` routes every item to `none` and `S51acmp-persist`
+  starts only the change watcher. The fix issues the commit and grades it on the
+  fabric's own verdict, `REST_CMD` `0x7B4` `[30] done` with `[9:8]` status, and
+  it separates the two answers the same way `PP_STAT` now separates "no backend"
+  from "blank media": `injected` (done, status 0) is the only success; `occupied`
+  (status 1) reports that 5.5.1.2 left a bound context alone; `badindex`
+  (status 2) is a refusal the fabric issued and the only verdict that exits
+  non-zero, because `milan-persist` grades non-zero as "attempted and FAILED"
+  and `S50milan` then leaves ADP disabled; `noengine` (busy latched, done never
+  rises, which is this build) and `noport` (nothing latched) name the missing path
+  loudly and exit 0, since a build gap must not make the entity refuse to
+  advertise forever. All five verdicts are exercised host-side in
+  `fpga/tools/test-acmp-persist/`, whose mock now models `0x7B4` as the W1S/RO
+  register it is rather than as a plain-RW word.
