@@ -175,6 +175,21 @@ Gates (gaps item 4, generator round):
       overlay span gen_aem_store declares must be either resolved or named as
       genuinely dynamic - there is no third option, which is what stops the
       next added span from shipping as zeros.
+  29. EVERY STREAM INPUT ADVERTISES THE WHOLE MILAN BASE FORMAT FAMILY, for
+      every config.  Milan v1.2 6.4 obliges a Stream Input that advertises one
+      48 kHz (resp. 96, 192) Base format to advertise them ALL, and 6.2 fixes
+      what "all" is: channel counts {1, 2, 4, 6, 8}.  endstation_arty_4x4
+      spelled that family out by hand as an "up to" entry capped at FOUR
+      channels, so its four Stream Inputs advertised counts 1, 2 and 4 and
+      left the 6- and 8-channel 48 kHz Base formats unadvertised.  The
+      completion is derived now (base_format_complete), and this gate grades
+      it against Milan Table 6.2 TRANSCRIBED rather than recomputed.  It also
+      holds the other half of Section 6: Stream Outputs get NO completion
+      (6.3 asks a Base Talker for none, and a talker cannot correct a wider
+      claim), the CRF Media Clock streams carry exactly the 7.3.2 format and
+      no AAF (5.3.3.4 exclusivity), every advertised Base rate is one the
+      AUDIO_UNIT reports (5.3.3.3), and no descriptor outgrows the store's
+      576-octet line buffer (1722.1-2021 Table 7-8: 138 + 8*N + 2*R).
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
 """
@@ -4081,13 +4096,19 @@ def test_d10_cluster_names():
     # on map_mode dynamic, which DROPS four AUDIO_MAP descriptors and sets
     # number_of_maps=0 on four STREAM_PORT_INPUTs, and a FOURTH time ->
     # 0x001BC5CB74696C1C when AEM_LAYOUT_REV went 1 -> 2 (descriptor byte
-    # layout, 1722.1-2013 -> -2021). `interface.kind`, the descriptor set and
+    # layout, 1722.1-2013 -> -2021), and a FIFTH time -> 0x001BC56D12DF80ED
+    # when its four Stream Inputs stopped advertising a family capped at four
+    # channels: Milan v1.2 6.4 obliges a Stream Input that advertises one
+    # 48 kHz Base format to advertise them ALL, and 6.2 defines the channel
+    # counts as {1, 2, 4, 6, 8}, so the ut entry has to reach 8 (gate 29).
+    # The advertised formats list is descriptor content, so 6.2.2.8 obliges
+    # the new id. `interface.kind`, the descriptor set and
     # the byte layout are all model-shaping, so a shape change SHOULD move a
     # hash-derived id - that is the mechanism working. What must NOT move is
     # arty_current's PINNED id above, and it has not: it was re-pinned by hand
     # with the reflash, which is the only way a pin is allowed to move.
     assert eb.load_config(CONFIGS["arty_4x4"])["model_id"]["hash"] == \
-        "0x001BC5CB74696C1C"
+        "0x001BC56D12DF80ED"
     print("  [gate 24c] every cluster named for its ROLE; renaming leaves "
           "entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a "
           "pool width moves it; the two pre-D8 shapes hash unchanged")
@@ -4719,6 +4740,217 @@ def test_image_identity_is_baked():
               f"clock_identity - all equal to what ADP advertises (Table 7-2)")
 
 
+# ------------------------------------------- Milan Base Stream Formats (29) --
+#: Milan v1.2 Table 6.2 "Summary of Base Audio Stream Formats", TRANSCRIBED
+#: from the specification (printed p. 111) instead of computed.  This gate is
+#: an ORACLE, so it must not import the arithmetic it is grading: the builder
+#: DERIVES these strings from the fields, and check A below is what proves the
+#: derivation lands on all fifteen of them.  3 rates x Milan 6.2's five
+#: channel counts N in {1, 2, 4, 6, 8}.
+MILAN_TABLE_6_2 = {
+    48000: {1: 0x0205022000406000, 2: 0x0205022000806000,
+            4: 0x0205022001006000, 6: 0x0205022001806000,
+            8: 0x0205022002006000},
+    96000: {1: 0x020702200040C000, 2: 0x020702200080C000,
+            4: 0x020702200100C000, 6: 0x020702200180C000,
+            8: 0x020702200200C000},
+    192000: {1: 0x0209022000418000, 2: 0x0209022000818000,
+             4: 0x0209022001018000, 6: 0x0209022001818000,
+             8: 0x0209022002018000},
+}
+#: Milan v1.2 7.3.2 + Table 7.1: the ONE Avnu Pro Audio CRF Media Clock Stream
+#: Format ("The base frequency shall be 48000Hz.  Each PDU shall contain 1
+#: timestamp, and the timestamp interval shall be 96.").
+MILAN_TABLE_7_1_CRF = 0x041060010000BB80
+#: IEEE 1722.1-2021 Table 7-8: a STREAM descriptor is 138 + 8*N + 2*R octets.
+#: KL_aecp_desc_store's LINE_BYTES_P is 576 and a descriptor longer than the
+#: line buffer cannot be answered at all.
+DESC_LINE_BYTES = 576
+
+
+def _oracle_cover(fmts):
+    """{rate_hz: set(Base channel counts advertised)}, computed from Table 6.2
+    alone.
+
+    IEEE 1722-2016 Annex I.2.4 on the ut bit: "The ut field is used to
+    determine if the AAF stream source or sink is capable of sourcing or
+    sinking a stream with less than the number of channels indicated by the
+    channels_per_frame field.  When set to one (1) the stream source or sink
+    is capable of using fewer channels than specified." - so one ut entry
+    advertises every Base count up to its own, which Milan v1.2 6.5 makes the
+    recommended spelling ("it should use the ut bit ... to describe all the
+    related formats using a single ATDECC format string") and 5.3.3.4 confirms
+    reads that way ("a single entry in the formats list can describe a range
+    of formats when using the "up to" bit")."""
+    cover = {}
+    for f in fmts:
+        n = int(str(f), 16)
+        ut, ch = (n >> 52) & 1, (n >> 22) & 0x3FF
+        stem = n & ~((1 << 52) | (0x3FF << 22))
+        for rate, row in MILAN_TABLE_6_2.items():
+            if stem != row[8] & ~(0x3FF << 22):
+                continue
+            add = {c for c in row if c <= ch} if ut else {ch} & set(row)
+            # a rate is only "advertised" once something at it IS a Base
+            # format: 6.2 defines N in {1, 2, 4, 6, 8}, so a lone 3-channel
+            # AAF PCM32 48 kHz entry does not arm 6.4's family rule.
+            if add:
+                cover.setdefault(rate, set()).update(add)
+    return cover
+
+
+def test_milan_base_formats_are_rate_complete():
+    """Gate 29: every Stream Input that advertises a Base format advertises
+    the WHOLE rate family, the CRF streams carry the CRF format and nothing
+    else, and no stream's descriptor outgrows the store's line buffer.
+
+    THE CLAUSES, and they are not symmetric.
+
+    Milan v1.2 6.4 (Listeners requirements), third paragraph: "If the PAAD-AE
+    Base Listener advertises support for a 48kHz (resp. 96kHz, 192kHz) Base
+    format in a Stream Input, then it shall also advertise support for all the
+    other 48kHz (resp. 96kHz, 192kHz) Base formats in this Stream Input.
+    Note: This ensures that a Stream Input that supports the Base format
+    supports all defined channel counts."  Fifth paragraph: the same rate
+    "in all the Stream Input which advertise support for a Base format, in
+    this Configuration".
+
+    Milan v1.2 6.3 (Requirements - the Talker clause) is the WHOLE of what
+    Talkers owe: one Configuration with one Stream Output advertising a Base
+    format, Class A transport, and "A PAAD-AE Base Talker may advertise any
+    Base Format that is reasonable for its functionality."  There is no
+    all-channel-counts rule and no cross-Stream-Output rate rule anywhere in
+    Section 6.  So this gate holds Stream Inputs to the family and Stream
+    Outputs to wire truth, and the asymmetry in the shipped configs is that
+    clause difference rather than an oversight.  (The talker half is also
+    load-bearing the other way: SET_STREAM_FORMAT on our STREAM_OUTPUT
+    answers NOT_SUPPORTED - FR-STR-03 makes adaptivity a LISTENER
+    requirement - so a talker format the framer cannot emit is a declaration
+    nothing can correct, which is the 2026-07-27 defect that cost 296,294
+    discarded frames out of 296,294.)
+
+    Milan v1.2 5.3.3.4 keeps the CRF streams out of it: "If a Stream
+    Input/Output supports the Avnu Pro Audio CRF Media Clock Stream Format, it
+    shall not support the Avnu Pro Audio AAF Audio Stream Format, and vice
+    versa."  6.2 defines the Base Format Type as AAF only and 6.4 scopes its
+    rule to "all the Stream Input which advertise support for a Base format",
+    so a CRF Media Clock Input is outside the family rule and must stay that
+    way - giving it AAF formats would break 5.3.3.4 to satisfy a clause that
+    never reached it.
+
+    Milan v1.2 5.3.3.3 binds the rates to the AUDIO_UNIT: "The list of
+    supported sampling rates of each AUDIO_UNIT descriptor shall correctly
+    report the sampling rates supported by the Audio Unit", and 5.3.3.4 says
+    the same of the formats list.  A stream advertising a 96 kHz Base format
+    under an AUDIO_UNIT that lists 48 kHz only is one of the two lying."""
+    # A. the builder DERIVES Table 6.2 rather than carrying a copy of it
+    for rate, row in sorted(MILAN_TABLE_6_2.items()):
+        for ch, want in sorted(row.items()):
+            got = eb.aaf_pcm32(ch, rate)
+            assert got == want, (
+                f"aaf_pcm32({ch}, {rate}) = 0x{got:016X}, Milan Table 6.2 "
+                f"says 0x{want:016X}")
+            ut = eb.aaf_pcm32(ch, rate, ut=True)
+            assert ut == want | (1 << 52), (
+                f"aaf_pcm32({ch}, {rate}, ut=True) = 0x{ut:016X}: the ut bit "
+                f"is bit 52 (IEEE 1722-2016 Annex I.2.4)")
+    assert set(eb.BASE_CHANNELS) == set(MILAN_TABLE_6_2[48000]), \
+        f"BASE_CHANNELS {eb.BASE_CHANNELS} != Milan 6.2 {{1, 2, 4, 6, 8}}"
+    print(f"  [gate 29] the builder's aaf_pcm32 derivation reproduces all "
+          f"{sum(len(r) for r in MILAN_TABLE_6_2.values())} Milan Table 6.2 "
+          f"Base format strings (3 rates x {len(eb.BASE_CHANNELS)} channel "
+          f"counts) and the AVTP I.2.4 ut bit of each")
+
+    worst = (0, "")
+    for name, path in CONFIGS.items():
+        r = eb.build(path, OUT)
+        ovl, cfg = r["overlay"], r["cfg"]
+        rates = [int(x) for x in cfg["clocking"]["audio_unit_rates_hz"]]
+        streams = ([("STREAM_INPUT", s) for s in ovl["stream_inputs"]]
+                   + [("STREAM_OUTPUT", s) for s in ovl["stream_outputs"]])
+        in_rates, complete, base_streams = [], 0, {}
+        for kind, s in streams:
+            who = f"{name} {kind}[{s['index']}] ('{s['name']}')"
+            cover = _oracle_cover(s["formats"])
+            # E. CRF exclusivity, both directions (5.3.3.4)
+            if s["kind"] == "crf":
+                assert [f.upper() for f in s["formats"]] == \
+                    [f"0X{MILAN_TABLE_7_1_CRF:016X}"], (
+                    f"{who}: a CRF Media Clock stream advertises "
+                    f"{s['formats']}, and Milan 7.3.2 / Table 7.1 define "
+                    f"exactly one Avnu Pro Audio CRF Media Clock Stream "
+                    f"Format, 0x{MILAN_TABLE_7_1_CRF:016X}")
+                assert not cover, (
+                    f"{who}: a CRF stream advertises AAF Base format(s) "
+                    f"{sorted(cover)} - Milan 5.3.3.4: \"If a Stream "
+                    f"Input/Output supports the Avnu Pro Audio CRF Media "
+                    f"Clock Stream Format, it shall not support the Avnu Pro "
+                    f"Audio AAF Audio Stream Format, and vice versa\"")
+            else:
+                assert MILAN_TABLE_7_1_CRF not in \
+                    [int(str(f), 16) for f in s["formats"]], \
+                    f"{who}: an AAF stream advertises the CRF format (5.3.3.4)"
+                base_streams.setdefault(kind, []).append(bool(cover))
+            # D. rate coherence with the AUDIO_UNIT (5.3.3.3 + 5.3.3.4)
+            for rate in cover:
+                assert rate in rates, (
+                    f"{who}: advertises a {rate} Hz Base format while the "
+                    f"AUDIO_UNIT reports sampling rates {rates} - Milan "
+                    f"5.3.3.3 makes that list the Audio Unit's truth")
+            # B. the family rule, Stream Inputs only (6.4 third paragraph)
+            if kind == "STREAM_INPUT" and s["kind"] != "crf":
+                in_rates.append(sorted(cover))
+                for rate, got in sorted(cover.items()):
+                    missing = sorted(set(eb.BASE_CHANNELS) - got)
+                    assert not missing, (
+                        f"{who}: advertises {s['formats']} = {rate} Hz Base "
+                        f"channel counts {sorted(got)}, missing {missing}. "
+                        f"Milan v1.2 6.4: \"If the PAAD-AE Base Listener "
+                        f"advertises support for a 48kHz (resp. 96kHz, "
+                        f"192kHz) Base format in a Stream Input, then it "
+                        f"shall also advertise support for all the other "
+                        f"48kHz (resp. 96kHz, 192kHz) Base formats in this "
+                        f"Stream Input.\" One ut entry at "
+                        f"0x{eb.aaf_pcm32(max(eb.BASE_CHANNELS), rate, ut=True):016X} "
+                        f"covers the whole family (6.5)")
+                    complete += 1
+            # G. IEEE 1722.1-2021 Table 7-8 against the store's line buffer
+            n = len(s["formats"])
+            length = 138 + 8 * n
+            assert length <= DESC_LINE_BYTES, (
+                f"{who}: {n} formats = {length} octets (Table 7-8: "
+                f"138 + 8*N + 2*R at R=0), past KL_aecp_desc_store's "
+                f"{DESC_LINE_BYTES}-octet line buffer")
+            worst = max(worst, (length, who))
+        # F. one Base stream per direction (6.3 / 6.4 second paragraphs: "at
+        #    least one Configuration that contains at least one Stream
+        #    Output/Input which advertises support for a Base format in its
+        #    list of supported formats")
+        for kind, seen in sorted(base_streams.items()):
+            assert any(seen), (
+                f"{name}: no {kind} advertises a Milan 6.2 Base format - "
+                f"{'6.4' if kind.endswith('INPUT') else '6.3'} requires at "
+                f"least one in at least one Configuration, and this entity "
+                f"declares exactly one Configuration")
+        # C. same rates across every Base Stream Input (6.4 fifth paragraph)
+        assert len(set(map(tuple, in_rates))) <= 1, (
+            f"{name}: its Stream Inputs advertise Base formats at differing "
+            f"rate sets {in_rates} - Milan v1.2 6.4: \"then it shall "
+            f"advertise support for a 48kHz (resp. 96kHz, 192kHz) Base format "
+            f"in all the Stream Input which advertise support for a Base "
+            f"format, in this Configuration\"")
+        print(f"  [gate 29] {name}: {len(in_rates)} Base Stream Input(s) "
+              f"complete at {in_rates[0] if in_rates else []} Hz "
+              f"({complete} rate famil(ies) x "
+              f"{len(eb.BASE_CHANNELS)} channel counts), "
+              f"{sum(1 for k, s in streams if s['kind'] == 'crf')} CRF "
+              f"stream(s) carrying only 0x{MILAN_TABLE_7_1_CRF:016X}, "
+              f"AUDIO_UNIT rates {rates}")
+    print(f"  [gate 29] longest STREAM descriptor {worst[0]} octets "
+          f"({worst[1]}), {DESC_LINE_BYTES - worst[0]} clear of the "
+          f"{DESC_LINE_BYTES}-octet line buffer")
+
+
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
@@ -4755,7 +4987,8 @@ if __name__ == "__main__":
                test_entity_identity_is_derived_not_mirrored,
                test_gptp_domain_is_one_source,
                test_pp_window_is_reserved,
-               test_image_identity_is_baked):
+               test_image_identity_is_baked,
+               test_milan_base_formats_are_rate_complete):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")

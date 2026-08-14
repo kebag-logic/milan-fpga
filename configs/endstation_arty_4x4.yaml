@@ -155,11 +155,21 @@ streams:
     # 7.2.13); a controller then routes with ADD/REMOVE_AUDIO_MAPPINGS and
     # reads back with GET_AUDIO_MAP (Milan 5.4.2.26-28). map_page defaults
     # to min(clusters, 8) = 4 here, so each port is ONE fixed partition.
-    - { name: "Stream In 0", channels: 4, map_mode: dynamic, formats: ["0x0205022001006000", "0x0215022001006000"] }
-    - { name: "Stream In 1", channels: 4, map_mode: dynamic, formats: ["0x0205022001006000", "0x0215022001006000"] }
-    - { name: "Stream In 2", channels: 4, map_mode: dynamic, formats: ["0x0205022001006000", "0x0215022001006000"] }
-    - { name: "Stream In 3", channels: 4, map_mode: dynamic, formats: ["0x0205022001006000", "0x0215022001006000"] }
-    # 0x0205022001006000 = AAF PCM32 48k 4ch; 0x0215... = ut-bit 1..4 family
+    - { name: "Stream In 0", channels: 4, map_mode: dynamic }
+    - { name: "Stream In 1", channels: 4, map_mode: dynamic }
+    - { name: "Stream In 2", channels: 4, map_mode: dynamic }
+    - { name: "Stream In 3", channels: 4, map_mode: dynamic }
+    # No `formats` list: current format = the Milan 6.2 Base format for
+    # `channels` at clocking.sampling_rate_hz (0x0205022001006000 = AAF PCM32
+    # 48 kHz 4ch), then 6.4's family DERIVED after it. These four Stream
+    # Inputs used to spell the family out as a ut entry capped at FOUR
+    # channels, which advertised Base channel counts 1, 2 and 4 and left the
+    # 6- and 8-channel 48 kHz Base formats unadvertised - a 6.4 violation
+    # that a hand-written encoding is exactly the way to acquire. A Stream
+    # Input owes the whole family whatever its own width: 6.4's Note says
+    # "This ensures that a Stream Input that supports the Base format
+    # supports all defined channel counts", and channels past this port's
+    # four simply go unmapped (Milan 5.3.10.1 maps a subset).
     # clusters default = channels (4 mono clusters per stream port)
   talkers:
     # clusters default = channels (4 mono clusters per stream port). The
@@ -170,7 +180,12 @@ streams:
     # (KL_pair_zero_fill, Milan v1.2 5.3.7.3) - reported as source coverage
     # by check_wire_accountability, not hidden by a down-declaration (the
     # reverted dade536 mistake).
-    - { name: "Stream Out 0", channels: 4, formats: ["0x0205022001006000"] }
-    - { name: "Stream Out 1", channels: 4, formats: ["0x0205022001006000"] }
-    - { name: "Stream Out 2", channels: 4, formats: ["0x0205022001006000"] }
-    - { name: "Stream Out 3", channels: 4, formats: ["0x0205022001006000"] }
+    # No family completion on a Stream Output: Milan v1.2 6.3 asks a Base
+    # Talker only for one Stream Output advertising a Base format and then
+    # says "A PAAD-AE Base Talker may advertise any Base Format that is
+    # reasonable for its functionality". Section 6 has no all-channel-counts
+    # rule and no cross-Stream-Output rate rule at all.
+    - { name: "Stream Out 0", channels: 4 }
+    - { name: "Stream Out 1", channels: 4 }
+    - { name: "Stream Out 2", channels: 4 }
+    - { name: "Stream Out 3", channels: 4 }

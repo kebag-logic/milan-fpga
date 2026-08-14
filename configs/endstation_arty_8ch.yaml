@@ -191,10 +191,10 @@ streams:
     # 7.2.13); a controller then routes with ADD/REMOVE_AUDIO_MAPPINGS and
     # reads back with GET_AUDIO_MAP (Milan 5.4.2.26-28). map_page defaults
     # to min(clusters, 8) = 4 here, so each port is ONE fixed partition.
-    - { name: "Stream In 0", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
-    - { name: "Stream In 1", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
-    - { name: "Stream In 2", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
-    - { name: "Stream In 3", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
+    - { name: "Stream In 0", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 1", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 2", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 3", channels: 8, map_mode: dynamic }
     # 0x0205022002006000 = AAF PCM32 48k 8ch; 0x0215... = ut-bit family
     # clusters default = channels (8 mono clusters per stream port)
   talkers:
@@ -207,7 +207,7 @@ streams:
     # (KL_pair_zero_fill, Milan v1.2 5.3.7.3) - reported as source coverage
     # by check_wire_accountability, not hidden by a down-declaration (the
     # reverted dade536 mistake).
-    - { name: "Stream Out 0", channels: 8, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 1", channels: 8, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 2", channels: 8, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 3", channels: 8, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 0", channels: 8 }
+    - { name: "Stream Out 1", channels: 8 }
+    - { name: "Stream Out 2", channels: 8 }
+    - { name: "Stream Out 3", channels: 8 }

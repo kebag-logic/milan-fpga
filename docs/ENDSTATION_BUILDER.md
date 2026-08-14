@@ -328,11 +328,12 @@ interface width instead.
   stream" with a per-cluster `channel_count` and a single `format` for all
   its channels (7.2.16.1: MBLA = Multi-bit Linear Audio) — mono clusters
   are legal and give per-channel granularity.
-- Milan 6.4 (+ its note): a Stream Input that advertises one 48 kHz Base
-  format shall advertise **all** 48 kHz Base formats — i.e. all channel
-  counts up to 8 (Milan 6.2: N ∈ {1, 2, 4, 6, 8}). The model must be able
-  to represent maps for the largest advertised format, not for the
-  physical interface.
+- Milan 6.4, third paragraph (+ its note): a Stream Input that advertises
+  one 48 kHz Base format shall advertise **all** the other 48 kHz Base
+  formats — i.e. every channel count in Milan 6.2's N ∈ {1, 2, 4, 6, 8},
+  whatever the stream's own width. The model must be able to represent
+  maps for the largest advertised format, not for the physical interface.
+  Derived, not enumerated: see "Base format completeness" below.
 - Milan 5.3.10.1: a mapped cluster channel must reference a Stream Input
   channel "lower than the number of channels in the current format" — with
   one mono cluster per stream channel the representable map space exactly
@@ -772,6 +773,62 @@ and its clause basis — including the
 proof that renaming cannot move `entity_model_id`, which is a property of
 the model, not of the ROM.
 
+### D11 — Base format completeness is derived, and it is a listener rule
+
+**Decision.** A config states a stream's **current** format and nothing
+else. Milan v1.2 6.4's Base format family is derived by
+`endstation_builder.base_format_complete()` and appended to every Stream
+Input's `formats` list; Stream Outputs get no completion at all. Restating
+the family in a config is a `ConfigError`.
+
+**Clause basis.**
+- Milan 6.2 + Table 6.1 define the Base Format Type: AAF, PCM, bit depth
+  32, "sampling rate = SR, where SR is an element from {48 kHz, 96 kHz,
+  192 kHz}", "number of channels = N, where N is an element from
+  {1, 2, 4, 6, 8}", NS = 6/12/24 samples per PDU. Fifteen formats, listed
+  as ATDECC format strings in Table 6.2 — reproduced by
+  `aaf_pcm32()` from the field encoding (1722 I.2.4/I.2.4.1) and checked
+  string-for-string by `test_builder.py` gate 29.
+- Milan 6.4, third paragraph: "If the PAAD-AE Base Listener advertises
+  support for a 48kHz (resp. 96kHz, 192kHz) Base format in a Stream Input,
+  then it shall also advertise support for all the other 48kHz (resp.
+  96kHz, 192kHz) Base formats in this Stream Input." Its Note: "This
+  ensures that a Stream Input that supports the Base format supports all
+  defined channel counts." Fifth paragraph extends the **rate** across
+  every Base Stream Input of a Configuration.
+- Milan 6.5: "If a PAAD-AE supports any count from 1 up to N channels per
+  frame, then it should use the ut bit, as specified in [AVTP, Annex
+  I.2.4], to describe all the related formats using a single ATDECC format
+  string" — so the family is **one** entry, not five, and 5.3.3.4 confirms
+  a controller must read it that way ("a single entry in the formats list
+  can describe a range of formats when using the "up to" bit").
+- Milan 6.3 is the **whole** of a Base Talker's obligation: one
+  Configuration, one Stream Output advertising a Base format, Class A
+  transport, and "A PAAD-AE Base Talker may advertise any Base Format that
+  is reasonable for its functionality". Section 6 has no all-channel-counts
+  rule and no cross-Stream-Output rate rule. The input/output asymmetry is
+  that clause difference.
+- Milan 5.3.3.4 keeps the CRF Media Clock streams out: a Stream
+  Input/Output that supports the Pro Audio CRF Media Clock Stream Format
+  "shall not support the [...] AAF Audio Stream Format, and vice versa".
+  They are appended from `clocking.crf_format` / `crf_output_format`, so
+  they never reach the completion at all.
+- IEEE 1722-2016 I.2.4: "The ut field shall be set to zero (0) when the
+  stream format is the current format of the stream" — the derived entry is
+  appended, never made `formats[0]`.
+
+**Why derived.** `endstation_arty_4x4.yaml` spelled the family out by hand
+as a ut entry capped at **four** channels. That advertised Base channel
+counts 1, 2 and 4 and left the 6- and 8-channel 48 kHz Base formats
+unadvertised: a 6.4 violation visible only to a controller, in four Stream
+Inputs at once, in a file where the encoding sat one character away from
+the right one. Deriving it from the rate and 6.2's channel counts is the
+only spelling that cannot be written wrong.
+
+**Cost.** The completion adds one 8-octet entry per Stream Input, so a
+STREAM descriptor is 138 + 8×2 = **154 octets** (1722.1-2021 Table 7-8 at
+N = 2, R = 0) against `KL_aecp_desc_store`'s 576-octet line buffer.
+
 ## 3. Config schema → AEM descriptor mapping
 
 Consumers: **AEM** = [`avdecc/gen_aem_store.py`](../avdecc/gen_aem_store.py) (via `aem_overlay.json` —
@@ -804,11 +861,11 @@ the field itself.
 | 16b | `audio_interface.cluster_mapping.pools.{host,pilot,loopback}` | D8 role pools, read ONLY by `role-pools` (declaring them under another policy is a `ConfigError`). Widths become the port's cluster block; `pilot`/`loopback` are talker-port-only. The static AUDIO_MAP is written against the first non-empty of `physical`, `loopback`, `host`, `pilot`. `pilot` fan-out is *planned* (needs D7); the `loopback` **fabric lane** is *planned* (`KL_chan_map_capture` has no such source bucket) | 1722.1 7.2.13, 7.2.16, 7.2.19 | AEM (planned RTL) |
 | 16c | cluster ROLE (derived, D10) | AUDIO_CLUSTER `object_name`: `I2S Out 0` / `TDM16 In 3` / `Virtual Out 5` / `Host Cap 2` / `Pilot Tone` / `Loopback S3 ch 1`. **Excluded from the model hash** — 6.2.2.8 lists `object_name` among the fields that do not constitute model structure, so a rename never moves `entity_model_id` | 1722.1 7.2.16, 6.2.2.8 | AEM |
 | 17 | `streams.listeners[].channels` | STREAM_INPUT default `current_format` channel count (= wire `channels_per_frame`) | 1722.1 7.2.6; 1722 7.3.3; Milan 6.4 | AEM, SoC |
-| 18 | `streams.listeners[].formats` | STREAM_INPUT `formats` list (ut families per Milan) | 1722.1 7.2.6; Milan 5.3.8.1, 6.5; 1722 I.2.4 | AEM |
+| 18 | `streams.listeners[].formats` | STREAM_INPUT `formats` list. **Optional, and states the CURRENT format only** (`formats[0]`; defaults to the Base format for row 17's `channels` at `clocking.sampling_rate_hz`). Milan 6.4's family is DERIVED after it by `base_format_complete()` as one ut string per advertised rate, never enumerated per config — a hand-written ut entry is now a `ConfigError`, and so is a ut entry at `formats[0]` (1722 I.2.4 forbids ut in `current_format`) | 1722.1 7.2.6; Milan 5.3.8.1, 6.2, 6.4, 6.5; 1722 I.2.4 | AEM |
 | 19 | `streams.listeners[].buffer_length_ns` | STREAM_INPUT `buffer_length` (ns, MAC ingress buffer) | 1722.1 7.2.6 (Table 7-8) | AEM |
 | 20 | `streams.listeners[].clusters` | input AUDIO_CLUSTERs (mono MBLA) + STREAM_PORT_INPUT `number_of_clusters`/`base_cluster` + identity AUDIO_MAP (D1/D2) | 1722.1 7.2.13, 7.2.16, 7.2.19 | AEM |
 | 21 | `streams.talkers[].channels` | STREAM_OUTPUT `current_format` = framer wire truth (D3) | 1722.1 7.2.6, 7.4.10.2; Milan 5.3.7.1; 1722 7.3.3 | AEM, SoC |
-| 22 | `streams.talkers[].formats` | STREAM_OUTPUT `formats` list | 1722.1 7.2.6; Milan 6.3 | AEM |
+| 22 | `streams.talkers[].formats` | STREAM_OUTPUT `formats` list. Optional, defaults to the Base format for row 21's `channels` at `clocking.sampling_rate_hz`. **No family completion**: Milan 6.3 is the whole of a Base Talker's obligation and ends "may advertise any Base Format that is reasonable for its functionality" — 6.4's SHALL is Stream Inputs only, and a talker cannot honour a wider claim anyway (one emitted width, `SET_STREAM_FORMAT` on a STREAM_OUTPUT answers NOT_SUPPORTED) | 1722.1 7.2.6; Milan 6.3 | AEM |
 | 23 | `streams.talkers[].clusters` | output AUDIO_CLUSTERs + STREAM_PORT_OUTPUT bases + AUDIO_MAP (D1/D3) | 1722.1 7.2.13, 7.2.16, 7.2.19; Milan 5.3.9.1 | AEM |
 | 24 | `len(listeners)` / `len(talkers)` | CONFIGURATION `descriptor_counts`; ADPDU `talker_stream_sources` / `listener_stream_sinks` (honest counts) | 1722.1 7.2.2, 6.2.2.10, 6.2.2.12 | AEM, prov |
 | 25 | stream count (NxN shapes) | per-stream ACMP/MAAP/monitor contexts + per-stream SRP attribute instances (capacity is an implementation decision, stated in PICS). Since 2026-08-13 the ACMP and SRP halves are the protocol processor's arrays, sized from `adp_shape_defaults.svh` as `ACMP_SINKS_C` / `ACMP_SRC_C`; MAAP and the monitors stay this fabric's | Q 35.2.7 | SoC |

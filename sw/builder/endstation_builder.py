@@ -1093,15 +1093,136 @@ def fmt_channels(fmt):
     return (n >> 22) & 0x3FF
 
 
+#: Milan v1.2 6.2 "Base Format Type" + Table 6.1: the Base formats are AAF
+#: PCM, 32-bit, at "sampling rate = SR, where SR is an element from {48 kHz,
+#: 96 kHz, 192 kHz}" with "number of channels = N, where N is an element from
+#: {1, 2, 4, 6, 8}", and "Each PDU shall contain NS audio samples per channel
+#: and 1 timestamp (normal timestamp mode, not sparse), where NS = 6 for
+#: SR = 48 kHz, NS = 12 for SR = 96 kHz, NS = 24 for SR = 192 kHz."
+#: {rate_hz: (nsr, samples_per_frame)}; nsr is IEEE 1722-2016 Table 11.
+BASE_RATE_HZ = {48000: (0x5, 6), 96000: (0x7, 12), 192000: (0x9, 24)}
+#: Milan v1.2 6.2 / Table 6.1 - the ONLY channel counts that are Base formats.
+BASE_CHANNELS = (1, 2, 4, 6, 8)
+
+
+def aaf_pcm32(channels, rate_hz=48000, ut=False):
+    """One AAF PCM 32-bit stream-format qword, DERIVED from the fields rather
+    than copied out of Milan Table 6.2 (test_builder gate 29 proves the
+    derivation reproduces all fifteen of that table's strings).
+
+    Field placement is IEEE 1722-2016 Annex I.2.4 / I.2.4.1 (the AAF PCM
+    stream format): subtype 0x02 at bits [63:56], ut at bit 52, nsr at bits
+    [51:48], format at [47:40] (Table 9: 2 = INT_32BIT), bit_depth at [39:32],
+    channels_per_frame at [31:22] and samples_per_frame at [21:12].
+
+    ut is the "up to" bit: I.2.4 - "The ut field is used to determine if the
+    AAF stream source or sink is capable of sourcing or sinking a stream with
+    less than the number of channels indicated by the channels_per_frame
+    field.  When set to one (1) the stream source or sink is capable of using
+    fewer channels than specified.  The ut field shall be set to zero (0) when
+    the stream format is the current format of the stream and when used in a
+    SET_STREAM_FORMAT command." - so a ut entry may never be formats[0]."""
+    nsr, spf = BASE_RATE_HZ[rate_hz]
+    return ((0x02 << 56) | (int(bool(ut)) << 52) | (nsr << 48)
+            | (0x02 << 40) | (32 << 32) | (channels << 22) | (spf << 12))
+
+
 def aaf_pcm32_48k(channels, ut=False):
-    """AAF PCM 32-bit 48k-base stream format qword (channels at bits [31:22]
-    of the low word; ut = bit 52 'up-to' family bit). Reproduces the
-    gen_aem_store.py constants: 2ch=0x0205022000806000, 8ch=0x0205022002006000,
+    """48 kHz spelling of aaf_pcm32, kept because it is the rate every shipping
+    config runs at: 2ch=0x0205022000806000, 8ch=0x0205022002006000,
     ut8=0x0215022002006000."""
-    base = 0x0205022000006000
-    if ut:
-        base |= 1 << 52
-    return base | (channels << 22)
+    return aaf_pcm32(channels, 48000, ut)
+
+
+def base_format_rate(fmt):
+    """(rate_hz, channels_per_frame, ut) when `fmt` is an AAF PCM 32-bit format
+    at one of Milan 6.2's three Base sampling rates, else None.
+
+    The channel count is NOT required to be one of BASE_CHANNELS here: a
+    3-channel AAF PCM32 48 kHz format is not itself a Base format, but a ut
+    entry carrying it still advertises the 1- and 2-channel Base formats, and
+    the coverage arithmetic below needs to see it."""
+    n = int(str(fmt), 16)
+    ut = bool((n >> 52) & 1)
+    ch = (n >> 22) & 0x3FF
+    stem = n & ~((1 << 52) | (0x3FF << 22))
+    for rate in BASE_RATE_HZ:
+        if stem == aaf_pcm32(0, rate):
+            return rate, ch, ut
+    return None
+
+
+def base_format_cover(fmts):
+    """{rate_hz: set(channel counts)} of Milan 6.2 Base formats an advertised
+    formats list covers.
+
+    A ut entry covers every Base channel count up to its channels_per_frame,
+    which is Milan v1.2 6.5 read together with 5.3.3.4: "If a PAAD-AE supports
+    any count from 1 up to N channels per frame, then it should use the ut bit,
+    as specified in [AVTP, Annex I.2.4], to describe all the related formats
+    using a single ATDECC format string", and "Note that a single entry in the
+    formats list can describe a range of formats when using the "up to" bit as
+    described in [AVTP, Annex I.2.4]"."""
+    cover = {}
+    for f in fmts:
+        row = base_format_rate(f)
+        if row is None:
+            continue
+        rate, ch, ut = row
+        add = {c for c in BASE_CHANNELS if c <= ch} if ut \
+            else {ch} & set(BASE_CHANNELS)
+        # a rate appears only once something at it is a Base format: a
+        # 3-channel AAF PCM32 48 kHz entry is not one (6.2: N in {1, 2, 4,
+        # 6, 8}), so on its own it does not arm 6.4's family rule.
+        if add:
+            cover.setdefault(rate, set()).update(add)
+    return cover
+
+
+def base_format_complete(fmts):
+    """A Stream Input's formats list with Milan v1.2 6.4's family completion
+    DERIVED here instead of enumerated per config.
+
+    6.4, third paragraph: "If the PAAD-AE Base Listener advertises support for
+    a 48kHz (resp. 96kHz, 192kHz) Base format in a Stream Input, then it shall
+    also advertise support for all the other 48kHz (resp. 96kHz, 192kHz) Base
+    formats in this Stream Input.  Note: This ensures that a Stream Input that
+    supports the Base format supports all defined channel counts."
+
+    ONE ut ENTRY PER RATE, not five fixed strings, because Section 6 says so
+    itself in 6.5: "If a PAAD-AE supports any count from 1 up to N channels
+    per frame, then it should use the ut bit, as specified in [AVTP, Annex
+    I.2.4], to describe all the related formats using a single ATDECC format
+    string" - and 5.3.3.4 confirms that a controller must read it that way:
+    "Note that a single entry in the formats list can describe a range of
+    formats when using the "up to" bit as described in [AVTP, Annex I.2.4]."
+    It is appended, never prepended: formats[0] is the current_format, and
+    IEEE 1722-2016 I.2.4 forbids ut there.
+
+    A LISTENER RULE ONLY.  Milan 6.3 is the whole of what a Talker owes - one
+    Configuration with one Stream Output advertising a Base format, Class A
+    transport, and "A PAAD-AE Base Talker may advertise any Base Format that
+    is reasonable for its functionality" - with no all-channel-counts rule and
+    no cross-Stream-Output rate rule anywhere in Section 6.  Completing a
+    Stream Output would also be a claim nothing can walk back: the framer
+    emits ONE width (framer_wire_channels), SET_STREAM_FORMAT on a
+    STREAM_OUTPUT answers NOT_SUPPORTED because FR-STR-03 makes adaptivity a
+    listener requirement, and a listener handed a width the talker cannot
+    produce discards every frame (silicon 2026-07-27: 296,294 of 296,294).
+
+    The CRF Media Clock streams cannot reach this function: they are appended
+    from clocking.crf_format / crf_output_format rather than from
+    streams.listeners.  That is Milan 5.3.3.4 structurally - "If a Stream
+    Input/Output supports the Avnu Pro Audio CRF Media Clock Stream Format, it
+    shall not support the Avnu Pro Audio AAF Audio Stream Format, and vice
+    versa" - and 6.4's own scope, "all the Stream Input which advertise
+    support for a Base format"."""
+    out = list(fmts)
+    for rate, got in sorted(base_format_cover(fmts).items()):
+        if set(BASE_CHANNELS) - got:
+            out.append(
+                f"0x{aaf_pcm32(max(BASE_CHANNELS), rate, ut=True):016X}")
+    return out
 
 
 # --------------------------------------------------------------- validation --
@@ -1132,7 +1253,7 @@ def _pow2(v, ctx):
     return v
 
 
-def _streams(lst, ctx, direction):
+def _streams(lst, ctx, direction, rate_hz=48000):
     if not isinstance(lst, list) or not lst:
         raise ConfigError(f"{ctx}: needs at least one {direction} stream")
     if len(lst) > 16:
@@ -1143,8 +1264,38 @@ def _streams(lst, ctx, direction):
         ch = _req(s, "channels", sctx)
         if not (isinstance(ch, int) and 1 <= ch <= 32):
             raise ConfigError(f"{sctx}: channels {ch} outside 1..32")
-        fmts = s.get("formats") or [f"0x{aaf_pcm32_48k(ch):016X}"]
+        # A config states the CURRENT format (formats[0]) and nothing else it
+        # does not have to: the default is the Base format for this stream's
+        # own channel count at the AUDIO_UNIT's rate, and Milan 6.4's family
+        # is DERIVED below rather than transcribed into every config, where a
+        # hand-copied encoding rots out of sight (endstation_arty_4x4 carried
+        # a ut entry capped at 4 channels, so its Stream Inputs advertised
+        # neither the 6- nor the 8-channel 48 kHz Base format).
+        fmts = s.get("formats") or [f"0x{aaf_pcm32(ch, rate_hz):016X}"]
         fmts = [_fmt64(f, f"{sctx}.formats") for f in fmts]
+        # IEEE 1722-2016 Annex I.2.4: "The ut field shall be set to zero (0)
+        # when the stream format is the current format of the stream and when
+        # used in a SET_STREAM_FORMAT command." formats[0] IS the current
+        # format (1722.1-2021 7.2.6), so a ut entry may never lead the list.
+        head = base_format_rate(fmts[0])
+        if head and head[2]:
+            raise ConfigError(
+                f"{sctx}.formats: {fmts[0]} carries the AVTP I.2.4 'up to' "
+                f"bit and is formats[0], which 1722.1-2021 7.2.6 reports as "
+                f"current_format - I.2.4 requires ut = 0 there")
+        if direction == "listener":
+            for f in fmts:
+                row = base_format_rate(f)
+                if row and row[2]:
+                    raise ConfigError(
+                        f"{sctx}.formats: {f} carries the AVTP I.2.4 'up to' "
+                        f"bit. Milan v1.2 6.4's family completion is derived "
+                        f"from the rate and 6.2's channel counts (see "
+                        f"base_format_complete), so a config restating it is "
+                        f"a second answer to the same question - and the one "
+                        f"that goes stale, since only the config half can be "
+                        f"written with the wrong channel count")
+            fmts = base_format_complete(fmts)
         clusters = s.get("clusters", ch)
         if not (isinstance(clusters, int) and 1 <= clusters <= 32):
             raise ConfigError(f"{sctx}: clusters {clusters} outside 1..32")
@@ -2944,8 +3095,9 @@ def load_config(path):
     # clocking
     clk = _req(cfg, "clocking", path)
     rate = int(_req(clk, "sampling_rate_hz", "clocking"))
-    if rate not in (48000, 96000, 192000):
-        raise ConfigError(f"sampling_rate_hz {rate} not an AAF base rate")
+    if rate not in BASE_RATE_HZ:
+        raise ConfigError(f"sampling_rate_hz {rate} not an AAF base rate "
+                          f"(Milan v1.2 6.2: {sorted(BASE_RATE_HZ)})")
     srcs = clk.get("media_clock_sources", ["internal", "input_stream", "crf"])
     bad = set(srcs) - {"internal", "input_stream", "crf"}
     if bad:
@@ -3194,10 +3346,14 @@ def load_config(path):
 
     # streams
     st = _req(cfg, "streams", path)
+    # the AUDIO_UNIT's current rate is the one a stream's default Base format
+    # is stated at: Milan 5.3.3.3 makes the AUDIO_UNIT list the Audio Unit's
+    # truth, and 5.3.3.4 makes the formats list the Stream's - a stream
+    # defaulting to a rate the unit does not report would put the two at odds.
     listeners = _streams(_req(st, "listeners", "streams"), "streams.listeners",
-                         "listener")
+                         "listener", clocking["sampling_rate_hz"])
     talkers = _streams(_req(st, "talkers", "streams"), "streams.talkers",
-                       "talker")
+                       "talker", clocking["sampling_rate_hz"])
 
     # Milan 7.2.3 RULE (PDF-verified): "an AAF Media Listener with two or
     # more AAF Media Inputs shall implement a CRF Media Clock Output" (per

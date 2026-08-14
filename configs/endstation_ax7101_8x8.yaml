@@ -324,15 +324,20 @@ streams:
     # address space exactly; keys past CHMAP_PHYS_C are model-only (the
     # board renders 10 physical channels - milan_datapath drops the write
     # rather than aliasing it).
-    - { name: "Stream In 0", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
-    - { name: "Stream In 1", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
-    - { name: "Stream In 2", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
-    - { name: "Stream In 3", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
-    - { name: "Stream In 4", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
-    - { name: "Stream In 5", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
-    - { name: "Stream In 6", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
-    - { name: "Stream In 7", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
-    # 0x0205022002006000 = AAF PCM32 48k 8ch; 0x0215... = ut-bit 1..8 family
+    - { name: "Stream In 0", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 1", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 2", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 3", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 4", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 5", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 6", channels: 8, map_mode: dynamic }
+    - { name: "Stream In 7", channels: 8, map_mode: dynamic }
+    # No `formats` list: current format = the Milan 6.2 Base format for
+    # `channels` at clocking.sampling_rate_hz (0x0205022002006000 = AAF PCM32
+    # 48 kHz 8ch), then 6.4's family DERIVED after it as the 6.5 ut string
+    # 0x0215022002006000. Milan 6.4 also wants the SAME rate in every Stream
+    # Input that advertises a Base format in this Configuration, which is one
+    # more reason the eight rows must not be able to drift apart by hand.
     # clusters default = channels (8 mono clusters per stream port)
   talkers:
     # THE TALKER IS AN 8-CHANNEL TALKER AND ITS FORMAT STAYS 8-CHANNEL
@@ -364,11 +369,11 @@ streams:
     # WIRE TRUTH 2 - today's framer RTL is stereo, only 2 physical channels
     # exist behind any talker stream until the item-5 NxN talker lands.
     # The legacy-8 layout stays expressible (see endstation_arty_current.yaml).
-    - { name: "Stream Out 0", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 1", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 2", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 3", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 4", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 5", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 6", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
-    - { name: "Stream Out 7", channels: 8, map_mode: dynamic, clusters: 2, formats: ["0x0205022002006000"] }
+    - { name: "Stream Out 0", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 1", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 2", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 3", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 4", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 5", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 6", channels: 8, map_mode: dynamic, clusters: 2 }
+    - { name: "Stream Out 7", channels: 8, map_mode: dynamic, clusters: 2 }

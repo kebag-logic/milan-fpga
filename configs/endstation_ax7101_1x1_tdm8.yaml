@@ -189,10 +189,22 @@ streams:
     # map_mode dynamic (Milan v1.2 5.3.3.9 shall). One port, 8 mono
     # clusters host + 0 physical; GET_AUDIO_MAP pages the port as one
     # fixed partition.
-    - { name: "Stream In 0", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000", "0x0215022002006000"] }
-    # 0x0205022002006000 = AAF PCM32 48k 8ch; 0x0215... = ut-bit 1..8 family
+    # No `formats` list: the builder states the current format as the Milan
+    # 6.2 Base format for `channels` at clocking.sampling_rate_hz
+    # (0x0205022002006000 = AAF PCM32 48 kHz 8ch) and DERIVES 6.4's family
+    # completion after it (0x0215022002006000, the 6.5 ut string covering
+    # every Base channel count 1..8 at 48 kHz).
+    - { name: "Stream In 0", channels: 8, map_mode: dynamic }
   talkers:
     # 8-channel talker, 8-channel format, and at THIS shape the framer's
     # 8-channel emission is the item-5 NxN talker already landed - the
     # declaration and the wire agree.
-    - { name: "Stream Out 0", channels: 8, map_mode: dynamic, formats: ["0x0205022002006000"] }
+    #
+    # NO family completion here, and that asymmetry with the Stream Input is
+    # the clause: Milan v1.2 6.3 asks a Base Talker only for one Stream
+    # Output advertising a Base format and then says "A PAAD-AE Base Talker
+    # may advertise any Base Format that is reasonable for its
+    # functionality", where 6.4 makes the family a SHALL for Stream Inputs.
+    # A talker cannot honour a wider claim either: it emits one width and
+    # SET_STREAM_FORMAT on a STREAM_OUTPUT answers NOT_SUPPORTED.
+    - { name: "Stream Out 0", channels: 8, map_mode: dynamic }

@@ -169,15 +169,25 @@ audio_interface:
 streams:
   listeners:
     - name: "Stream 1"               # AAF STREAM_INPUT 0 (CRF appended after)
-      channels: 8                    # up-to-8 Milan 6.4 family
-      formats: ["0x0205022000806000", "0x0215022002006000"]
-      # 2ch-first reset default + ut-bit 1..8ch family entry (gen_aem_store)
+      channels: 8                    # 8 clusters; the Milan 6.4 family below
+      formats: ["0x0205022000806000"]
+      # The CURRENT format ONLY, and it is deliberately NARROWER than
+      # `channels`: 2ch-first is the deployed reset default (kernel-shield
+      # lesson 2026-07-19 - an 8ch default plus a reboot plus a pure-ACMP
+      # bind starved the render to a quarter rate), so it cannot be derived
+      # from `channels` the way the other configs' can. Milan v1.2 6.4's
+      # family completion is appended by the builder (base_format_complete),
+      # not written here: the ut entry it used to carry by hand,
+      # 0x0215022002006000, is now derived from 6.2's channel counts.
       buffer_length_ns: 2126000
       clusters: 8
   talkers:
     - name: "Stream Output 0"
       channels: 2                    # talker truth: stereo framer
-      formats: ["0x0205022000806000"]
+      # No family completion on a Stream Output: Milan v1.2 6.3 asks a Base
+      # Talker only for one Stream Output advertising a Base format, then
+      # "A PAAD-AE Base Talker may advertise any Base Format that is
+      # reasonable for its functionality" - 6.4's SHALL is Stream Inputs.
       clusters: 8                    # legacy-8: today's DEPLOYED ROM keeps 8
                                      # output clusters (pipewire reference
                                      # layout); `clusters` is the single

@@ -160,12 +160,20 @@ RATES = [0x0000BB80, 0x00017700, 0x0002EE00]          # 48 k / 96 k / 192 k
 #! 0205022002006000 default): the monitor now ADAPTS to any wire channel
 #! count 1..8 under the declared format, so a pure-ACMP 2ch connect works
 #! against the 8ch default. 2ch stays in the supported list.
-#! Milan 6.4/6.5 (2026-07-21, USER-caught): a Stream Input advertising a
-#! 48k Base format SHALL cover ALL channel counts 1..8 - entry 1 is the
-#! ut-bit (qword bit 52) "up to 8" string that covers the whole family in
-#! one entry (the spec's own recommendation). 96k/192k entries DROPPED:
-#! the render path is 48k-only and each advertised rate drags its own
-#! full-family obligation (talker-truth honesty, listener edition).
+#! Milan v1.2 6.4, third paragraph (2026-07-21, USER-caught): a Stream
+#! Input advertising a 48 kHz Base format SHALL "advertise support for all
+#! the other 48kHz ... Base formats in this Stream Input", and 6.2 fixes
+#! what "all" is - "number of channels = N, where N is an element from
+#! {1, 2, 4, 6, 8}". Entry 1 is the ut-bit (qword bit 52, IEEE 1722-2016
+#! Annex I.2.4) "up to 8" string, which covers that whole family in ONE
+#! entry: 6.5 says "it should use the ut bit ... to describe all the
+#! related formats using a single ATDECC format string" and 5.3.3.4 says a
+#! controller must read it that way. 96k/192k entries DROPPED: the render
+#! path is 48k-only and each advertised rate drags its own full-family
+#! obligation (talker-truth honesty, listener edition).
+#! The config-driven path does not restate any of this - the completion is
+#! derived in endstation_builder.base_format_complete() and arrives here
+#! through the overlay; these constants are the builtin model's own.
 #! order matters: FORMATS[0] is the RESET default of the dynamic store.
 #! 2ch-first (kernel-shield lesson 2026-07-19, re-learned 2026-07-21: an
 #! 8ch default + reboot + pure-ACMP bind starved the render at 1/4 rate);
@@ -485,6 +493,36 @@ def fmt_channels(fmt):
     if (fmt >> 56) != 0x02:
         return None
     return (fmt >> 22) & 0x3FF
+
+
+#! Milan v1.2 6.2 + Table 6.1: "number of channels = N, where N is an element
+#! from {1, 2, 4, 6, 8}". These five, at one sampling rate, are what 6.4 means
+#! by "all the other 48kHz ... Base formats".
+MILAN_BASE_CHANNELS = (1, 2, 4, 6, 8)
+
+
+def base_channel_cover(fmts, rate_fmt=0x0205022000006000):
+    """The 48 kHz Milan Base channel counts an advertised formats list covers.
+
+    IEEE 1722-2016 Annex I.2.4: "The ut field is used to determine if the AAF
+    stream source or sink is capable of sourcing or sinking a stream with less
+    than the number of channels indicated by the channels_per_frame field.
+    When set to one (1) the stream source or sink is capable of using fewer
+    channels than specified." So ONE ut entry advertises every Base count up
+    to its own - which is what Milan 6.5 recommends ("it should use the ut bit
+    ... to describe all the related formats using a single ATDECC format
+    string") and 5.3.3.4 confirms a controller must read ("a single entry in
+    the formats list can describe a range of formats when using the "up to"
+    bit"). `rate_fmt` is the 48 kHz AAF PCM32 stem with channels zeroed."""
+    got = set()
+    for f in fmts:
+        n = int(str(f), 16) if isinstance(f, str) else int(f)
+        ut, ch = (n >> 52) & 1, (n >> 22) & 0x3FF
+        if n & ~((1 << 52) | (0x3FF << 22)) != rate_fmt:
+            continue
+        got |= {c for c in MILAN_BASE_CHANNELS if c <= ch} if ut \
+            else {ch} & set(MILAN_BASE_CHANNELS)
+    return got
 
 
 #! The RTL's port-index mux width (KL_aecp_response_builder w_smap_pi is 5 b)
@@ -1971,6 +2009,33 @@ def self_test():
     except ValueError as e:
         print(f"  [ok  ] a mask bit on an unnamed type is refused\n"
               f"         -> {str(e)[:150]}")
+
+    # Milan v1.2 6.4 over the BUILTIN model's own FORMATS constant, which no
+    # config and no overlay reaches: the config-driven path has its family
+    # derived (endstation_builder.base_format_complete) and gated by
+    # test_builder gate 29, so the constants in this file are the one
+    # advertised formats list in the tree with no owner but this check.
+    print("\n=== Milan 6.4 Base format family (builtin model) ===")
+    for label, fmts in (("FORMATS (STREAM_INPUT)", FORMATS),):
+        missing = sorted(set(MILAN_BASE_CHANNELS) - base_channel_cover(fmts))
+        if missing:
+            ok[0] = False
+            print(f"  [FAIL] {label}: 48 kHz Base channel count(s) {missing} "
+                  f"unadvertised - Milan 6.4 wants the whole family")
+        else:
+            print(f"  [ok  ] {label}: all {len(MILAN_BASE_CHANNELS)} 48 kHz "
+                  f"Base channel counts {list(MILAN_BASE_CHANNELS)} covered "
+                  f"by {len(fmts)} entries (6.5's ut string does the family)")
+    # negative control: the ut entry is what carries the family, so dropping
+    # it must be REPORTED and not shrugged at
+    short = sorted(set(MILAN_BASE_CHANNELS) - base_channel_cover(FORMATS[:1]))
+    if short:
+        print(f"  [ok  ] without the ut entry the family check REPORTS "
+              f"{short} missing")
+    else:
+        ok[0] = False
+        print("  [FAIL] the family check passes without the ut entry - it has "
+              "stopped being able to say no")
 
     print("\ngen_aem_store self-test:", "PASS" if ok[0] else "FAIL")
     return 0 if ok[0] else 1
