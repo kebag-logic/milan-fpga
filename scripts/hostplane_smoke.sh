@@ -142,7 +142,18 @@ else
         verdict "pp-bridge-bank" 0 "(PPMEM_STAT=$PP_STAT)"
     fi
 
-    # The descriptor face walks the image at startup, so 0 there is a fault.
+    # PROVOKE THE STORE BEFORE GRADING IT (2026-08-15). The startup walk runs
+    # BEFORE the DFI handover, and pre-handover accesses are refused without
+    # touching the bus - deliberately uncounted - so a freshly booted board
+    # that no controller has commanded yet reads 0 issued while being
+    # perfectly healthy (measured on the w3a flash: the first READ_DESCRIPTOR
+    # healed it to 190/190 with no faults, exactly the documented
+    # one-command re-arm). A side-port STATE read is the store's own re-arm
+    # trigger, so issue one and give the walk a moment before counting.
+    devmem $((BASE + 0x928)) 32 $((0x20000 + 34)) 2>/dev/null
+    devmem $((BASE + 0x92C)) 32 >/dev/null 2>&1
+    sleep 1
+    # The descriptor face walks the image on that poke, so 0 there is a fault.
     # The response face only moves once a controller has sent an AECP command,
     # so on a quiet bench 0 is legitimate and only the fault rails condemn it.
     pp_bridge DESC $((PPMEM + 0x00)) $((PPMEM + 0x04)) 1
