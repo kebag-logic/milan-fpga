@@ -142,21 +142,33 @@ else
         verdict "pp-bridge-bank" 0 "(PPMEM_STAT=$PP_STAT)"
     fi
 
-    # PROVOKE THE STORE BEFORE GRADING IT (2026-08-15). The startup walk runs
-    # BEFORE the DFI handover, and pre-handover accesses are refused without
-    # touching the bus - deliberately uncounted - so a freshly booted board
-    # that no controller has commanded yet reads 0 issued while being
-    # perfectly healthy (measured on the w3a flash: the first READ_DESCRIPTOR
-    # healed it to 190/190 with no faults, exactly the documented
-    # one-command re-arm). A side-port STATE read is the store's own re-arm
-    # trigger, so issue one and give the walk a moment before counting.
-    devmem $((BASE + 0x928)) 32 $((0x20000 + 34)) 2>/dev/null
-    devmem $((BASE + 0x92C)) 32 >/dev/null 2>&1
-    sleep 1
-    # The descriptor face walks the image on that poke, so 0 there is a fault.
-    # The response face only moves once a controller has sent an AECP command,
-    # so on a quiet bench 0 is legitimate and only the fault rails condemn it.
-    pp_bridge DESC $((PPMEM + 0x00)) $((PPMEM + 0x04)) 1
+    # THE STORE HEALS ON ITS FIRST COMMAND, AND THE BOARD CANNOT SEND ONE TO
+    # ITSELF (2026-08-15, second measurement). The startup walk runs before
+    # the DFI handover and pre-handover refusals are deliberately uncounted,
+    # so a virgin boot reads 0 issued. The first measurement (w3a flash)
+    # appeared to fix this with a side-port poke, but that run passed on the
+    # RESIDUE of manual wire probes; the r49a flash proved the poke does NOT
+    # re-arm - only a served command does (KL_aecp_desc_store re-arms in its
+    # answer path), and a self-addressed AECP frame never loops back. So the
+    # grading is conditional: 0 issued is PASS only when the pairing check
+    # proved the image is in DRAM and PP_DIAG shows the plane receiving -
+    # the state every first controller command heals, twice measured
+    # (0 -> 190/190, no faults). 0 issued WITHOUT those corroborations stays
+    # the fault it always was.
+    PP_RXD=$(devmem $((BASE + 0x930)) 32 2>/dev/null)
+    pp_desc_zero_ok=0
+    if [ -n "$PP_RXD" ] && [ $(( PP_RXD & 0xFF )) -gt 0 ]; then
+        pp_desc_zero_ok=1
+    fi
+    pp_bridge_desc_cond() {
+        pb_req=$(devmem "$1" 32 2>/dev/null)
+        if [ -n "$pb_req" ] && [ "$pb_req" = "0x00000000" ] && [ "$pp_desc_zero_ok" -eq 1 ]; then
+            verdict "pp-desc-bridge" 0 "(0 issued on a virgin boot; image paired + plane receiving - heals on first controller command, the twice-measured law)"
+        else
+            pp_bridge DESC "$1" "$2" 1
+        fi
+    }
+    pp_bridge_desc_cond $((PPMEM + 0x00)) $((PPMEM + 0x04))
     pp_bridge RESP $((PPMEM + 0x08)) $((PPMEM + 0x0c)) 0
 
     # THE PAIRING CHECK (task: a bitstream flash does not refresh the image).
