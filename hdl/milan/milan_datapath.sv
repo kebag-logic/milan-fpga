@@ -3367,7 +3367,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic [15:0] amapq_type_r, amapq_index_r, amapq_map_r;
   logic  [1:0] amapq_sel_r;
   logic  [7:0] amapq_rec_r;
-  logic        amap_srv1_r, amap_srv2_r;
   logic [63:0] amap_data_r;
   logic [63:0] amap_ans_raw_w;  //! written by the amap_answer comb block
   wire amap_sel_match_w = (amapq_type_r  == pp_amap_desc_type_w)
@@ -3375,21 +3374,55 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                        && (amapq_map_r   == pp_amap_map_index_w)
                        && (amapq_sel_r   == pp_amap_sel_w)
                        && (amapq_rec_r   == pp_amap_rec_w);
+  //! SEQUENTIAL page walk (v48b verdict: the 8-slot combinational scans -
+  //! eight parallel indexed reads of the flat map exports - were the
+  //! worst path at WNS -1.3 all by themselves; registering the selectors
+  //! in front changed nothing about the scan's own depth). One slot per
+  //! cycle under the face's hold: per-cycle logic is ONE indexed read plus
+  //! an increment, and a beat costs ten cycles against ms-scale commands.
+  logic [3:0]  amap_walk_j_r;      //! slot cursor, 0..8
+  logic        amap_done_r;
+  logic [7:0]  amap_seen_r;
+  logic [15:0] amap_cnt_r;
+  logic [63:0] amap_rec_r2;
   always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_answer_srv
     if (!axis_resetn) begin
       amapq_type_r <= 16'd0; amapq_index_r <= 16'd0; amapq_map_r <= 16'd0;
       amapq_sel_r  <= 2'd0;  amapq_rec_r   <= 8'd0;
-      amap_srv1_r  <= 1'b0;  amap_srv2_r   <= 1'b0; amap_data_r <= 64'd0;
+      amap_walk_j_r <= 4'd0; amap_done_r <= 1'b0;
+      amap_seen_r <= 8'd0; amap_cnt_r <= 16'd0; amap_rec_r2 <= 64'd0;
+      amap_data_r <= 64'd0;
     end else begin
       amapq_type_r  <= pp_amap_desc_type_w;
       amapq_index_r <= pp_amap_desc_index_w;
       amapq_map_r   <= pp_amap_map_index_w;
       amapq_sel_r   <= pp_amap_sel_w;
       amapq_rec_r   <= pp_amap_rec_w;
-      amap_srv1_r   <= pp_amap_req_w && amap_sel_match_w;
-      amap_srv2_r   <= pp_amap_req_w && amap_sel_match_w && amap_srv1_r;
-      amap_data_r   <= amap_ans_raw_w;
+      if (!amap_sel_match_w) begin
+        //! a fresh beat restarts the walk against the newly latched selector
+        amap_walk_j_r <= 4'd0;
+        amap_done_r   <= 1'b0;
+        amap_seen_r   <= 8'd0;
+        amap_cnt_r    <= 16'd0;
+        amap_rec_r2   <= 64'd0;
+      end else if (!amap_done_r) begin
+        if (amap_slot_hit_w) begin
+          if (amap_seen_r == amapq_rec_r) amap_rec_r2 <= amap_slot_rec_w;
+          amap_seen_r <= amap_seen_r + 8'd1;
+          amap_cnt_r  <= amap_cnt_r + 16'd1;
+        end
+        if (amap_walk_j_r == 4'd7) amap_done_r <= 1'b1;
+        else                       amap_walk_j_r <= amap_walk_j_r + 4'd1;
+      end else begin
+        amap_data_r <= amap_ans_raw_w;
+      end
     end
+  end
+  //! served = walked + one data-register cycle behind it
+  logic amap_srv_r;
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_srv_track
+    if (!axis_resetn) amap_srv_r <= 1'b0;
+    else amap_srv_r <= amap_done_r && amap_sel_match_w;
   end
 
   wire amap_spi_w = (amapq_type_r == DESC_STREAM_PORT_IN_C)
@@ -3402,35 +3435,32 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! g = index*clusters + offset (uniform blocks, so base = index*clusters).
   //! At most PAGE (<= 8) candidate slots, so the popcount and the k-th
   //! select are a handful of LUTs, and the answer never holds the beat.
-  logic [15:0] amap_cnt_w;
-  logic [63:0] amap_rec_data_w;
-  always_comb begin : amap_page_walk
-    int unsigned off_c, g_c, seen_c;
+  //! per-slot terms of the SEQUENTIAL walk: slot j of the queried page,
+  //! one indexed read per cycle (the whole point of the sequential form)
+  logic        amap_in_hit_w;
+  logic [63:0] amap_in_rec_w;
+  always_comb begin : amap_page_slot
+    int unsigned off_c, g_c;
     logic [7:0] ent_c;
-    amap_cnt_w      = 16'd0;
-    amap_rec_data_w = 64'd0;
-    seen_c          = 0;
-    for (int unsigned j = 0; j < AMAP_PAGE_C; j++) begin
-      off_c = (amap_page_ok_w ? 32'(amapq_map_r) : 32'd0)
-              * AMAP_PAGE_C + j;
-      g_c   = 32'(amapq_index_r[3:0]) * AMAP_IN_CLUS_C + off_c;
-      //! a slot outside the page, the port or the rendered RAM reads as
-      //! UNMAPPED - its en bit below is 0, so it cannot count or match
-      ent_c = (amap_page_ok_w && (off_c < AMAP_IN_CLUS_C)
-               && (g_c < CHMAP_PHYS_C)) ? rmap_flat_w[g_c*8 +: 8] : 8'd0;
-      //! en && !src: an AVB listener mapping (see the banner above)
-      if (ent_c[7] && !ent_c[6]) begin
-        if (seen_c == 32'(amapq_rec_r)) begin
-          amap_rec_data_w = {13'd0, ent_c[5:3],       // mapping_stream_index
-                             13'd0, ent_c[2:0],       // mapping_stream_channel
-                             16'(off_c),              // mapping_cluster_offset
-                             16'd0};                  // mapping_cluster_channel
-        end
-        seen_c = seen_c + 1;
-        amap_cnt_w = amap_cnt_w + 16'd1;
-      end
+    amap_in_hit_w = 1'b0;
+    amap_in_rec_w = 64'd0;
+    off_c = (amap_page_ok_w ? 32'(amapq_map_r) : 32'd0)
+            * AMAP_PAGE_C + 32'(amap_walk_j_r);
+    g_c   = 32'(amapq_index_r[3:0]) * AMAP_IN_CLUS_C + off_c;
+    //! a slot outside the page, the port or the rendered RAM reads as
+    //! UNMAPPED - its en bit below is 0, so it cannot count or match
+    ent_c = (amap_page_ok_w && (32'(amap_walk_j_r) < AMAP_PAGE_C)
+             && (off_c < AMAP_IN_CLUS_C)
+             && (g_c < CHMAP_PHYS_C)) ? rmap_flat_w[g_c*8 +: 8] : 8'd0;
+    //! en && !src: an AVB listener mapping (see the banner above)
+    if (ent_c[7] && !ent_c[6]) begin
+      amap_in_hit_w = 1'b1;
+      amap_in_rec_w = {13'd0, ent_c[5:3],       // mapping_stream_index
+                       13'd0, ent_c[2:0],       // mapping_stream_channel
+                       16'(off_c),              // mapping_cluster_offset
+                       16'd0};                  // mapping_cluster_channel
     end
-  end : amap_page_walk
+  end : amap_page_slot
 
   always_comb begin : amap_answer
     unique case (amapq_sel_r)
@@ -3441,10 +3471,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       2'd1:    amap_ans_raw_w = {32'd0,
                                  amap_spi_w ? 16'(AMAP_NMAPS_C)
                                : amap_spo_w ? 16'(AMAP_OUT_NMAPS_C) : 16'd0,
-                                 amap_page_ok_w  ? amap_cnt_w
-                               : amap_opage_ok_w ? amap_ocnt_w : 16'd0};
-      2'd2:    amap_ans_raw_w = amap_page_ok_w  ? amap_rec_data_w
-                              : amap_opage_ok_w ? amap_orec_data_w : 64'd0;
+                                 (amap_page_ok_w || amap_opage_ok_w)
+                                   ? amap_cnt_r : 16'd0};
+      2'd2:    amap_ans_raw_w = (amap_page_ok_w || amap_opage_ok_w)
+                                   ? amap_rec_r2 : 64'd0;
       default: amap_ans_raw_w = 64'd0;
     endcase
   end : amap_answer
@@ -3509,41 +3539,40 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! page walk over the port's 8 stream channels: a record exists where the
   //! entry is enabled, its source resolves to a cluster, and that cluster
   //! falls inside the queried page - 7.4.44.2.1 read back off live routing
-  logic [15:0] amap_ocnt_w;
-  logic [63:0] amap_orec_data_w;
-  always_comb begin : amap_out_walk
-    int unsigned seen_c;
+  //! per-slot terms of the OUTPUT walk, same sequential form
+  logic        amap_out_hit_w;
+  logic [63:0] amap_out_rec_w;
+  always_comb begin : amap_out_slot
     logic [16:0] cl_c;
     logic [12:0] ent_c;
     int unsigned base_c;
-    amap_ocnt_w      = 16'd0;
-    amap_orec_data_w = 64'd0;
-    seen_c           = 0;
+    amap_out_hit_w = 1'b0;
+    amap_out_rec_w = 64'd0;
     base_c = amap_opage_ok_w ? 32'(amapq_map_r) * AMAP_OPAGE_C : 0;
-    for (int unsigned c = 0; c < 8; c++) begin
-      ent_c = (amap_opage_ok_w
-               && (32'(amapq_index_r[3:0]) * 8 + c < N_STREAMS * 8))
-              ? cmap_flat_w[(32'(amapq_index_r[3:0]) * 8 + c) * 13 +: 13]
-              : 13'd0;
-      cl_c = amap_out_cluster(ent_c);
-      if (cl_c[16] && (32'(cl_c[15:0]) >= base_c)
-          && (32'(cl_c[15:0]) < base_c + AMAP_OPAGE_C)
-          && (32'(cl_c[15:0]) < AMAP_OUT_CLUS_C)) begin
-        if (seen_c == 32'(amapq_rec_r)) begin
-          amap_orec_data_w = {16'(amapq_index_r),  // stream_index
-                              16'(c),                     // stream_channel
-                              cl_c[15:0],                 // cluster_offset
-                              16'd0};                     // cluster_channel
-        end
-        seen_c = seen_c + 1;
-        amap_ocnt_w = amap_ocnt_w + 16'd1;
-      end
+    ent_c = (amap_opage_ok_w
+             && (32'(amapq_index_r[3:0]) * 8 + 32'(amap_walk_j_r) < N_STREAMS * 8))
+            ? cmap_flat_w[(32'(amapq_index_r[3:0]) * 8 + 32'(amap_walk_j_r)) * 13 +: 13]
+            : 13'd0;
+    cl_c = amap_out_cluster(ent_c);
+    if (cl_c[16] && (32'(cl_c[15:0]) >= base_c)
+        && (32'(cl_c[15:0]) < base_c + AMAP_OPAGE_C)
+        && (32'(cl_c[15:0]) < AMAP_OUT_CLUS_C)) begin
+      amap_out_hit_w = 1'b1;
+      amap_out_rec_w = {16'(amapq_index_r),  // stream_index
+                        16'(32'(amap_walk_j_r)),      // stream_channel
+                        cl_c[15:0],                   // cluster_offset
+                        16'd0};                       // cluster_channel
     end
-  end : amap_out_walk
+  end : amap_out_slot
+
+  //! the direction select the sequential accumulator consumes
+  wire        amap_slot_hit_w = amap_spi_w ? amap_in_hit_w
+                              : amap_spo_w ? amap_out_hit_w : 1'b0;
+  wire [63:0] amap_slot_rec_w = amap_spi_w ? amap_in_rec_w : amap_out_rec_w;
 
   //! HOLD, not a ready - combinational flops again, never held
   assign pp_amap_data_w = amap_data_r;
-  assign pp_amap_wait_w = pp_amap_req_w && !(amap_srv2_r && amap_sel_match_w);  //! live-match: see the counters face
+  assign pp_amap_wait_w = pp_amap_req_w && !(amap_srv_r && amap_sel_match_w);  //! live-match: see the counters face
 
   //! ==== the Milan-info answer block (06 SS6.2/SS6.10) ====================
   //! GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH, one word at a time; the
