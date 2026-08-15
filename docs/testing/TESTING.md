@@ -500,6 +500,21 @@ ssh <peer-host>
 cd ~/la_avdecc-probe/bin && sudo -n ./counters-probe <avb-iface>
 ```
 
+**GRADE IT BY PARITY, NOT BY ITS EXIT CODE (measured 2026-08-15).** Run the
+same probe against the Milan-validated reference peer on the same wire and
+compare the two transcripts. On the 0x004A build ours and the peer's are
+identical line for line: `GET_COUNTERS ENTITY` refused `NOT_SUPPORTED` by
+both, `STREAM_INPUT 0` Success with `counters_valid 0x00000FFF` on both,
+`STREAM_INPUT 999` `NO_SUCH_DESCRIPTOR` on both, `AVB_INTERFACE 0` Success
+`0x00000023`, `CLOCK_DOMAIN 0` Success `0x00000003`, and **zero la_avdecc
+complaints** on both. The peer nevertheless reports `DIRTY rc=5`, so that code
+is unreachable: the compiled binary still expects `GET_COUNTERS ENTITY` to
+succeed, which contradicts its own source (`expectSuccess = false`) and
+contradicts a real Milan device, since an entity that keeps no ENTITY counters
+must refuse. **The bar is: byte-identical behaviour to the reference peer and
+`complaints = 0`.** If a true `rc = 0` is ever wanted, rebuild the probe from
+its source first, minding the feature-define ABI trap below.
+
 It links real la_avdecc 4.3.1-beta1, so it enforces what Hive enforces, and it
 ends in a machine-readable line:
 
