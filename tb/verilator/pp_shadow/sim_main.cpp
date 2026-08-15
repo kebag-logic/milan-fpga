@@ -1712,11 +1712,13 @@ int main(int argc, char** argv) {
             }
         }
 
-        // --- L5h. STREAM_PORT_OUTPUT: the RECORDED gap keeps the echo ------
-        // Milan 5.4.2.26 also wants no-static-map outputs served; this
-        // build's talker-side store has a different shape, so the honest
-        // refusal is the 9.3.5.3.3 NOT_IMPLEMENTED echo - a well-formed
-        // frame sized by the command, never silence
+        // --- L5h. STREAM_PORT_OUTPUT: SERVED since the P5 landing ----------
+        // Milan 5.4.2.26's second half runs through the same program with
+        // the capture-side type constant, and EXISTENCE stays the image's:
+        // this harness's hand image declares NO STREAM_PORT_OUTPUT, so the
+        // honest answer is NO_SUCH_DESCRIPTOR carrying the full 7.4.44.2
+        // fixed part (cdl 24) with the addressed type echoed - never the
+        // old NOT_IMPLEMENTED echo and never an invented page
         {
             uint8_t pl[8] = {0x00, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
             size_t at = tx_frames.size();
@@ -1729,14 +1731,12 @@ int main(int argc, char** argv) {
             if (k >= 0) {
                 const std::vector<uint8_t>& b = tx_frames[k].bytes;
                 grade_common(b, "L5h", 0x002B, 0x0144, 1);
-                grade_len(b, "L5h", sizeof pl);
-                ck("L5h: status NOT_IMPLEMENTED(1) - the recorded SPO gap",
-                   (b[16] >> 3) & 0x1F, 1u);
-                long bad = 0;
-                for (size_t i = 0; i < sizeof pl; i++)
-                    if (38 + i >= b.size() || b[38 + i] != pl[i]) bad++;
-                ck("L5h: the command's payload is ECHOED back",
-                   (uint32_t)bad, 0u);
+                grade_len(b, "L5h", 12);
+                ck("L5h: status NO_SUCH_DESCRIPTOR(2) - the image rules the "
+                   "served OUTPUT side too",
+                   (b[16] >> 3) & 0x1F, 2u);
+                ck("L5h: the addressed type is in the fixed part",
+                   (uint32_t)get_be(b, 38, 2), 0x000Fu);
             }
         }
 

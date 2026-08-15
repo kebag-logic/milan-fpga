@@ -873,6 +873,18 @@ module milan_csr #(
   logic         b_valid;                 //! Write-response valid, held until BREADY
   logic         r_valid;                 //! Read-data valid, held until RREADY
   logic         rd_pend;                 //! BRAM read latency stage
+  //! Second read stage (the mux-split pipeline, 2026-08-15): the v47 route
+  //! put the 13-level live/stream read mux on the failing-endpoint list at
+  //! 100 MHz (rd_addr_q -> r_data, WNS -0.089). The wide case trees now
+  //! LAND in their own registers on rd_pend, and the final four-way select
+  //! into r_data runs a cycle later on rd_pend2 - the deep OR-trees and the
+  //! AXI output flops no longer have to close in one cycle or one placement
+  //! neighbourhood. One added cycle of CSR read latency; every AXI-Lite
+  //! consumer in this tree waits on rvalid, and no read has a side effect
+  //! keyed to the old timing.
+  logic         rd_pend2;                //! staged-mux -> r_data stage
+  logic [31:0]  live_mux_q, strm_mux_q, shadow_qq;
+  logic         live_hit_q, strm_hit_q, rd_in_window_q;
   logic [31:0]  r_data;                  //! Registered read data
   logic [ADDR_WIDTH-1:0] rd_addr_q;      //! Latched read address (decode stage)
   logic         sweep_busy;              //! defaults -> shadow copy after reset
@@ -885,7 +897,7 @@ module milan_csr #(
   //! software except as AWREADY backpressure.
   wire wr_fire = s_axi_awvalid && s_axi_wvalid && !b_valid && !sweep_busy &&
                  !lctx_wr_p_r && !tctx_wr_p_r;
-  wire rd_fire = s_axi_arvalid && !r_valid && !rd_pend && !rds_busy_r &&
+  wire rd_fire = s_axi_arvalid && !r_valid && !rd_pend && !rd_pend2 && !rds_busy_r &&
                  !sweep_busy;
   wire [ADDR_WIDTH-1:0] wr_addr = s_axi_awaddr;             //! Decoded write address
   wire [ADDR_WIDTH-1:0] rd_addr = s_axi_araddr;             //! Decoded read address
@@ -922,13 +934,15 @@ module milan_csr #(
   //! AXI response-channel valids: raise on a transfer, clear when accepted
   always_ff @(posedge aclk) begin : axi_resp_fsm
     if (!aresetn) begin
-      b_valid <= 1'b0; r_valid <= 1'b0; rd_pend <= 1'b0; rd_addr_q <= '0;
+      b_valid <= 1'b0; r_valid <= 1'b0; rd_pend <= 1'b0; rd_pend2 <= 1'b0;
+      rd_addr_q <= '0;
     end else begin
       if (wr_fire)           b_valid <= 1'b1;
       else if (s_axi_bready) b_valid <= 1'b0;
-      rd_pend <= rd_fire && !rd_is_slow_w;
+      rd_pend  <= rd_fire && !rd_is_slow_w;
+      rd_pend2 <= rd_pend;
       if (rd_fire)           rd_addr_q <= rd_addr;
-      if (rd_pend || rds_done_w) r_valid <= 1'b1;
+      if (rd_pend2 || rds_done_w) r_valid <= 1'b1;
       else if (s_axi_rready)     r_valid <= 1'b0;
     end
   end
@@ -940,18 +954,41 @@ module milan_csr #(
   logic [31:0] irq_mask;                 //! IRQ_MASK: 1 = interrupt source enabled
   logic [31:0] irq_status;               //! IRQ_STATUS: W1C latched event bits
   logic [31:0] mac_ctrl;                 //! MAC_CTRL: tx/rx enable, promisc, allmulti, is_1g, speed_manual
-  logic [31:0] mac_ifg;                  //! MAC_IFG: inter-frame gap (bytes)
-  logic [31:0] mac_alo;                  //! MAC_ADDR_LO: station MAC [31:0]
-  logic [31:0] mac_ahi;                  //! MAC_ADDR_HI: station MAC [47:32]
-  logic [31:0] mc_lo;                    //! MC_HASH_LO: multicast hash [31:0]
-  logic [31:0] mc_hi;                    //! MC_HASH_HI: multicast hash [63:32]
+  //! ------------------------------------------------------------------------
+  //! QUASI-STATIC TAGGING (USER 2026-08-15: relax the placer by CLASS, never
+  //! by per-endpoint analysis). A register marked (* quasi_static = "yes" *)
+  //! is written by boot software before the plane it configures is enabled,
+  //! changes rarely-to-never afterwards, and every consumer treats it as a
+  //! LEVEL. One generic XDC rule in sw/litex/milan_soc.py gives every tagged
+  //! cell set_multicycle_path 4 setup / 3 hold, pruning its whole fan-out
+  //! cone from the single-cycle timing graph - tag once at the declaration
+  //! and the constraint follows the register through every future sweep.
+  //!
+  //! TAGGING RULES, and they are load-bearing:
+  //!   * NEVER tag a strobe/pulse (*_p), a handshake (r_valid, rd_pend, ...),
+  //!     a W1C/W1S event register, or anything a counter or edge-detector
+  //!     consumes - multicycle routing may deliver BITS in different cycles,
+  //!     and a torn multi-bit value into a != compare mints phantom edges.
+  //!     That is exactly why the ADP GM pair (adp_gmlo/gmhi) is NOT tagged:
+  //!     pp_gm_edge counts its changes.
+  //!   * NEVER tag a register whose value is compared against per-frame wire
+  //!     data in the same cycle it can change (the TCAM entries are handled
+  //!     by their own structural pipeline instead).
+  //!   * A tag is a CLAIM the consumer tolerates 4-cycle skew between bits;
+  //!     when in doubt, leave it untagged - the default is the safe side.
+  //! ------------------------------------------------------------------------
+  (* quasi_static = "yes" *) logic [31:0] mac_ifg;   //! MAC_IFG: inter-frame gap (bytes)
+  (* quasi_static = "yes" *) logic [31:0] mac_alo;   //! MAC_ADDR_LO: station MAC [31:0]
+  (* quasi_static = "yes" *) logic [31:0] mac_ahi;   //! MAC_ADDR_HI: station MAC [47:32]
+  (* quasi_static = "yes" *) logic [31:0] mc_lo;     //! MC_HASH_LO: multicast hash [31:0]
+  (* quasi_static = "yes" *) logic [31:0] mc_hi;     //! MC_HASH_HI: multicast hash [63:32]
   logic [31:0] phy_rst;                  //! PHY_RESET: PHY reset (active-low bit 0)
   logic        eth_guard;                //! ETH_GUARD[0]: 1 = CPU eth levers refused
   logic [31:0] cls_ctrl;                 //! CLS_CTRL: classifier mode bits
-  logic [31:0] cls_dpcp;                 //! CLS_DEFAULT_PCP: default port priority
-  logic [31:0] cls_map;                  //! CLS_PCP_TC_MAP: PCP->TC table
-  logic [31:0] cls_regen;                //! CLS_PRIO_REGEN: priority regeneration table
-  logic [31:0] cls_tcq;                  //! CLS_TC_QUEUE_MAP: TC->queue map
+  (* quasi_static = "yes" *) logic [31:0] cls_dpcp;  //! CLS_DEFAULT_PCP: default port priority
+  (* quasi_static = "yes" *) logic [31:0] cls_map;   //! CLS_PCP_TC_MAP: PCP->TC table
+  (* quasi_static = "yes" *) logic [31:0] cls_regen; //! CLS_PRIO_REGEN: priority regeneration table
+  (* quasi_static = "yes" *) logic [31:0] cls_tcq;   //! CLS_TC_QUEUE_MAP: TC->queue map
   logic [31:0] ptp_ctrl;                 //! PTP_CTRL: PTP clock enable
   //! PTP_INCR reset value: the clock period in Q8.24 ns, derived from the
   //! instantiator's declared PHC clock (never a mirrored per-board constant)
@@ -2297,14 +2334,30 @@ module milan_csr #(
                       (rd_addr_q >= A_CHMAP_CTRL &&
                        rd_addr_q <  A_CHMAP_CTRL + 16'h40);
   always_ff @(posedge aclk) begin : read_data_reg
-    if (!aresetn) r_data <= 32'h0;
-    else if (rd_pend)
-      r_data <= strm_hit      ? strm_mux
-              : !rd_in_window ? 32'h0
-              : live_hit      ? live_mux
-              : shadow_q;
-    else if (rds_done_w)
-      r_data <= rds_dir_r ? i_tctx_rd_data : i_lctx_rd_data;
+    if (!aresetn) begin
+      r_data <= 32'h0;
+      live_mux_q <= 32'h0; strm_mux_q <= 32'h0; shadow_qq <= 32'h0;
+      live_hit_q <= 1'b0;  strm_hit_q <= 1'b0;  rd_in_window_q <= 1'b0;
+    end else begin
+      //! stage 1: the wide case trees terminate HERE (their whole cost)
+      if (rd_pend) begin
+        live_mux_q     <= live_mux;
+        live_hit_q     <= live_hit;
+        strm_mux_q     <= strm_mux;
+        strm_hit_q     <= strm_hit;
+        rd_in_window_q <= rd_in_window;
+        shadow_qq      <= shadow_q;
+      end
+      //! stage 2: a four-way select of registered words - shallow by
+      //! construction, whatever the register map grows to
+      if (rd_pend2)
+        r_data <= strm_hit_q      ? strm_mux_q
+                : !rd_in_window_q ? 32'h0
+                : live_hit_q      ? live_mux_q
+                : shadow_qq;
+      else if (rds_done_w)
+        r_data <= rds_dir_r ? i_tctx_rd_data : i_lctx_rd_data;
+    end
   end
 
   // ==========================================================================

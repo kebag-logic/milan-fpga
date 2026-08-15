@@ -307,6 +307,12 @@ module KL_chan_map_capture #(
   //!   mapped=1, fed=1     : live; zeros in the payload are real silence
   output logic [14:0] map_rd_data_o,     //! (valid with rd_valid)
   output logic        map_rd_valid_o,    //! read data valid this cycle
+  //! the whole store as wires (the render side's map_flat_o precedent):
+  //! entry k = channel k's {en, half, src, idxh, idx}. Pure fan-out of
+  //! flops that already exist - zero logic - so the fabric's GET_AUDIO_MAP
+  //! answer block can walk the OUTPUT-side mappings the same way it walks
+  //! the render map, without arbitrating the CSR's read port.
+  output logic [2*N_SLOTS_P*13-1:0] map_flat_o,
 
   //! --- I2S capture pair source (single stereo pair) ----------------------
   input  wire         i2s_pair_valid_i,  //! latch pulse
@@ -412,6 +418,10 @@ module KL_chan_map_capture #(
   // ---------------------------------------------------------------------- //
   //! one 13-bit entry PER STREAM CHANNEL (2 per pair slot)
   logic [12:0] map_r [2*N_SLOTS_P];
+
+  for (genvar gmf = 0; gmf < 2*N_SLOTS_P; gmf++) begin : g_map_flat
+    assign map_flat_o[gmf*13 +: 13] = map_r[gmf];
+  end
 
   always_ff @(posedge clk_i) begin : map_write_port
     if (!rst_n) begin

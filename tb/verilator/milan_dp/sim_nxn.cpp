@@ -1549,14 +1549,21 @@ int main(int argc, char** argv) {
         ck("[AMAP] SPI 1 answers NO_SUCH_DESCRIPTOR(2) - the image rules",
            aecp_status(rn), 2);
 
-        //! the recorded STREAM_PORT_OUTPUT gap keeps the 9.3.5.3.3 echo
+        //! the STREAM_PORT_OUTPUT gap is RETIRED: the capture-side map RAM
+        //! answers through the same face, routed by descriptor_type. This
+        //! leg's capture map is empty here, so the honest answer is SUCCESS
+        //! with the D8 role-pool page count (25 clusters -> 4 pages of 8)
+        //! and an EMPTY page - the full 7.4.44.2 fixed part, cdl 24.
         pl[1] = 0x0F; pl[3] = 0x00;
         const std::vector<uint8_t> ro = aecp_xact(0x002B, 0x4033, pl);
-        ck("[AMAP] STREAM_PORT_OUTPUT keeps NOT_IMPLEMENTED(1)",
-           aecp_status(ro), 1);
-        ck("[AMAP] ...as the sized ECHO of the command",
-           (long)((((unsigned)ro.size() > 17)
-                   ? (((unsigned)ro[16] & 7) << 8) | ro[17] : 0)), 20);
+        ck("[AMAP] STREAM_PORT_OUTPUT is served now: SUCCESS(0)",
+           aecp_status(ro), 0);
+        ck("[AMAP] ...number_of_maps 4 (role pools), empty page, cdl 24",
+           (long)(ro.size() >= 50
+                  ? (long)(((((unsigned)ro[16] & 7) << 8) | ro[17]) << 16
+                           | (((unsigned)ro[44] << 8) | ro[45]) << 8
+                           | (((unsigned)ro[46] << 8) | ro[47]))
+                  : -1), (24 << 16) | (4 << 8) | 0);
 
         // leave the map as this section found it: unmapped
         axi_write(A_CHMAP_CTRL, 0x1);
@@ -3402,12 +3409,96 @@ int main(int argc, char** argv) {
                 0x00, 0x00, 0x00, 0x00 };            // map_index 0
             const uint16_t seq = sq++;
             auto r = aecp_xact(CMD_GET_AUDIO_MAP, seq, pl);
-            ck("T66: GET_AUDIO_MAP is NOT_IMPLEMENTED", aecp_status(r), 1);
-            ck("T66: ...and its echo is still a well-formed AECPDU",
-               (long)(r.size() >= 38 && (r[15] & 0x0F) == 1
+            //! the OUTPUT side is SERVED now (the P5 landing): SUCCESS with
+            //! the full 7.4.44.2 fixed part off the capture-side store; the
+            //! record count reflects whatever this leg's earlier sections
+            //! left mapped, so the shape law - cdl = 24 + 8*count - is the
+            //! stable assertion, not a pinned count
+            ck("T66: GET_AUDIO_MAP on the OUTPUT side answers SUCCESS",
+               aecp_status(r), 0);
+            ck("T66: ...as a well-formed 7.4.44.2 response",
+               (long)(r.size() >= 50 && (r[15] & 0x0F) == 1
                       && ((((unsigned)r[16] & 7) << 8) | r[17])
-                         == (unsigned)(12 + pl.size())
+                         == (unsigned)(24 + 8 * (((unsigned)r[46] << 8) | r[47]))
                       && ((r[34] << 8) | r[35]) == seq), 1);
+        }
+
+        // ---- (B2) the Milan-mandatory set the demotion round landed ------
+        // (Milan 5.4.2.21/2/1/2/10/23/24: REGISTER_UNSOLICITED_NOTIFICATION,
+        //  LOCK_ENTITY, GET_STREAM_INFO, GET_AVB_INFO, GET_AS_PATH - wire
+        //  truth through the REAL datapath servers: binding view, SRP nets,
+        //  the gPTP CSR pair, the clock validator's asCapable.)
+        {
+            // REGISTER (2021 format, flags 0) -> SUCCESS with flags echoed
+            std::vector<uint8_t> fl0(4, 0);
+            uint16_t seq = sq++;
+            auto r = aecp_xact(0x0024, seq, fl0);
+            ck("B2: REGISTER_UNSOLICITED_NOTIFICATION answers SUCCESS",
+               aecp_status(r), 0);
+            ck("B2: ...2021 format, flags echoed (cdl 16)",
+               (long)(r.size() >= 42
+                      && ((((unsigned)r[16] & 7) << 8) | r[17]) == 16
+                      && r[38] == 0 && r[41] == 0), 1);
+
+            // LOCK -> SUCCESS naming the taker; foreign LOCK -> ENTITY_LOCKED
+            std::vector<uint8_t> lk(16, 0);
+            seq = sq++;
+            r = aecp_xact(0x0001, seq, lk);
+            ck("B2: LOCK_ENTITY takes (SUCCESS)", aecp_status(r), 0);
+            ck("B2: ...locked_id = the taker",
+               (long)(r.size() >= 50 && r[42] == r[26] && r[49] == r[33]), 1);
+            // UNLOCK again so nothing later in the leg runs gated
+            std::vector<uint8_t> ul(16, 0); ul[3] = 0x01;
+            seq = sq++;
+            r = aecp_xact(0x0001, seq, ul);
+            ck("B2: UNLOCK releases (SUCCESS, locked_id 0)",
+               (long)(aecp_status(r) == 0 && r.size() >= 50
+                      && r[42] == 0 && r[49] == 0), 1);
+            // ACQUIRE: the Milan 5.4.2.1 refusal, command echoed
+            std::vector<uint8_t> aq(16, 0);
+            seq = sq++;
+            r = aecp_xact(0x0000, seq, aq);
+            ck("B2: ACQUIRE_ENTITY refuses NOT_SUPPORTED(11)",
+               aecp_status(r), 11);
+
+            // GET_STREAM_INFO on STREAM_INPUT[0]: the Milan 80-byte body
+            std::vector<uint8_t> gs = {0x00, 0x05, 0x00, 0x00};
+            seq = sq++;
+            r = aecp_xact(0x000F, seq, gs);
+            ck("B2: GET_STREAM_INFO answers the Milan response (cdl 68)",
+               (long)(aecp_status(r) == 0
+                      && ((((unsigned)r[16] & 7) << 8) | r[17]) == 68), 1);
+            ck("B2: ...STREAM_FORMAT_VALID with the generated AAF format",
+               (long)(r.size() >= 62 && (r[42] & 0x80) != 0
+                      && r[46] == 0x02 && r[47] == 0x05), 1);
+
+            // GET_AVB_INFO: gm + domain + flags + the one class-A mapping
+            std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
+            seq = sq++;
+            r = aecp_xact(0x0027, seq, ga);
+            ck("B2: GET_AVB_INFO answers SUCCESS with one msrp mapping",
+               (long)(aecp_status(r) == 0
+                      && ((((unsigned)r[16] & 7) << 8) | r[17]) == 36
+                      && (((unsigned)r[56] << 8) | r[57]) == 1
+                      && r[58] == 0x06), 1);
+            ck("B2: ...the grandmaster is the committed CSR pair",
+               (long)(r.size() >= 50
+                      && r[42] == 0x00 && r[43] == 0x1B && r[44] == 0xC5), 1);
+
+            // GET_AS_PATH: count 1 = {gm} - the leaf's honest path
+            std::vector<uint8_t> gp = {0x00, 0x00, 0x00, 0x00};
+            seq = sq++;
+            r = aecp_xact(0x0028, seq, gp);
+            ck("B2: GET_AS_PATH answers count 1 with the grandmaster",
+               (long)(aecp_status(r) == 0
+                      && ((((unsigned)r[16] & 7) << 8) | r[17]) == 24
+                      && (((unsigned)r[40] << 8) | r[41]) == 1
+                      && r[42] == 0x00 && r[43] == 0x1B && r[44] == 0xC5), 1);
+
+            // DEREGISTER: leave the registry clean for the rest of the leg
+            seq = sq++;
+            r = aecp_xact(0x0025, seq, {});
+            ck("B2: DEREGISTER answers SUCCESS", aecp_status(r), 0);
         }
 
         // ---- (C) live-audio proof, through the writer that is LEFT ------

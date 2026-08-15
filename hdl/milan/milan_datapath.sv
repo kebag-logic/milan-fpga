@@ -1167,6 +1167,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [15:0] lb_dup_cnt_w  /* verilator public_flat_rd */;
   wire [15:0] lb_skip_cnt_w /* verilator public_flat_rd */;
 
+  wire [N_STREAMS*8*13-1:0] cmap_flat_w;   //! GET_AUDIO_MAP OUTPUT walk
+
   KL_chan_map_capture #(
     .N_SLOTS_P (N_STREAMS*4),
     .N_TDM_P   (8),
@@ -1204,6 +1206,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .map_rd_en_i   (cfg_chmap_rd_en && cfg_chmap_rd_side),
     .map_rd_addr_i (cfg_chmap_rd_addr[$clog2(N_STREAMS*8)-1:0]),
     .map_rd_data_o (cmap_rd_data_w), .map_rd_valid_o (cmap_rd_valid_w),
+    .map_flat_o    (cmap_flat_w),
     .i2s_pair_valid_i (cappb_pv_w),
     .i2s_l_i (cappb_l_w), .i2s_r_i (cappb_r_w),
     //! THE SLOT-INDEXED PHYSICAL BUCKET. i2s_pair_valid_i above lands in a
@@ -2869,6 +2872,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire  [7:0] pp_amap_rec_w;
   logic [63:0] pp_amap_data_w;
   wire        pp_amap_wait_w;
+  // Milan-info gather face (GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH)
+  wire        pp_gsi_req_w;
+  wire  [1:0] pp_gsi_kind_w;
+  wire [15:0] pp_gsi_desc_type_w, pp_gsi_desc_index_w;
+  wire  [3:0] pp_gsi_sel_w;
+  wire  [7:0] pp_gsi_ord_w;
+  logic [63:0] pp_gsi_data_w;
+  wire        pp_gsi_wait_w;
   //! CRF PDU strobe from the tx counter delta; deferred one cycle when an
   //! AAF frame pulse occupies the diag event port (events are ~8.5 k/s
   //! against a 50+ MHz clock, so the skid never accumulates)
@@ -3352,17 +3363,291 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   always_comb begin : amap_answer
     unique case (pp_amap_sel_w)
-      2'd0:    pp_amap_data_w = {48'd0, amap_spi_w ? 16'(AMAP_NMAPS_C)
-                                                   : 16'd0};
+      2'd0:    pp_amap_data_w = {48'd0,
+                                 amap_spi_w ? 16'(AMAP_NMAPS_C)
+                               : amap_spo_w ? 16'(AMAP_OUT_NMAPS_C)
+                                            : 16'd0};
       2'd1:    pp_amap_data_w = {32'd0,
-                                 amap_spi_w ? 16'(AMAP_NMAPS_C) : 16'd0,
-                                 amap_page_ok_w ? amap_cnt_w : 16'd0};
-      2'd2:    pp_amap_data_w = amap_page_ok_w ? amap_rec_data_w : 64'd0;
+                                 amap_spi_w ? 16'(AMAP_NMAPS_C)
+                               : amap_spo_w ? 16'(AMAP_OUT_NMAPS_C) : 16'd0,
+                                 amap_page_ok_w  ? amap_cnt_w
+                               : amap_opage_ok_w ? amap_ocnt_w : 16'd0};
+      2'd2:    pp_amap_data_w = amap_page_ok_w  ? amap_rec_data_w
+                              : amap_opage_ok_w ? amap_orec_data_w : 64'd0;
       default: pp_amap_data_w = 64'd0;
     endcase
   end : amap_answer
+  //! ---- the OUTPUT half of the same answer (Milan 5.4.2.26's second
+  //! sentence: "for each Stream Port Output of the currently set
+  //! Configuration"). The capture-side map RAM is STREAM-CHANNEL indexed
+  //! (entry t*8+c names the SOURCE feeding stream t channel c), the inverse
+  //! orientation of the render side, so the record's cluster_offset is
+  //! DERIVED from the entry's source class through the D8 role-pool bases
+  //! the builder's role_pool() fixes: physical (the TDM8 capture width, 8),
+  //! host (8), pilot (1), loopback - offsets 0 / 8 / 16 / 17, 25 clusters,
+  //! 4 pages of the same min(...,8) page law. The pilot-at-16 base is the
+  //! 0x0043 cluster renumbering, cross-checked against the builder. EXACT
+  //! for both shipping role-pools shapes, whose pools all derive from the
+  //! same TDM8 platform declaration; a config that changes the platform
+  //! pools must extend the generated shape header rather than let two
+  //! authorities drift - the input block's rule, restated. Legacy static-
+  //! map shapes narrow exactly as the input side records.
+  localparam int AMAP_OPHYS_W_C  = 8;
+  localparam int AMAP_OHOST_W_C  = 8;
+  localparam int AMAP_OPILOT_B_C = AMAP_OPHYS_W_C + AMAP_OHOST_W_C;   // 16
+  localparam int AMAP_OLB_B_C    = AMAP_OPILOT_B_C + 1;               // 17
+  localparam int AMAP_OUT_CLUS_C = AMAP_OLB_B_C + 8;                  // 25
+  //! the OUTPUT pool pages by ITS OWN min(clusters, 8) law - the input
+  //! side's page constant follows the input format's channel count and has
+  //! no business sizing a 25-cluster pool
+  localparam int AMAP_OPAGE_C     = (AMAP_OUT_CLUS_C < 8) ? AMAP_OUT_CLUS_C : 8;
+  localparam int AMAP_OUT_NMAPS_C = (AMAP_OUT_CLUS_C + AMAP_OPAGE_C - 1)
+                                    / AMAP_OPAGE_C;
+  localparam logic [15:0] DESC_STREAM_PORT_OUT_C = 16'h000F;
+
+  wire amap_spo_w = (pp_amap_desc_type_w == DESC_STREAM_PORT_OUT_C)
+                 && (32'(pp_amap_desc_index_w) < N_STREAMS);
+  wire amap_opage_ok_w = amap_spo_w
+                      && (32'(pp_amap_map_index_w) < AMAP_OUT_NMAPS_C);
+
+  //! entry {en[12], half[11], src[10:8], idxh[7:4], idx[3:0]} -> the AEM
+  //! cluster its source names (KL_chan_map_capture's resolver, re-read as
+  //! coordinates). An entry naming no pool (SRC_ZERO, unknown codes) maps
+  //! nowhere and emits no record.
+  function automatic logic [16:0] amap_out_cluster(input logic [12:0] e);
+    logic [16:0] r;
+    logic [31:0] ch;
+    begin
+      r = 17'd0;                                  // [16] = valid
+      ch = {28'd0, e[3:0]} * 2 + {31'd0, e[11]};  // pair*2 + half
+      unique case (e[10:8])
+        3'd1: r = {1'b1, 16'({31'd0, e[11]})};                  // I2S
+        3'd2: r = {1'b1, 16'(ch)};                              // TDM
+        3'd3: r = {1'b1, 16'(32'(AMAP_OPHYS_W_C) + ch)};        // RING
+        3'd4: r = {1'b1, 16'(AMAP_OPILOT_B_C)};                 // TONE
+        3'd5: r = {1'b1, 16'(32'(AMAP_OLB_B_C)                  // LOOP
+                   + ({28'd0, e[7:4]} * 32'(LB_CH_C/2)
+                      + {28'd0, e[3:0]}) * 2 + {31'd0, e[11]})};
+        default: r = 17'd0;
+      endcase
+      if (!e[12]) r = 17'd0;
+      amap_out_cluster = r;
+    end
+  endfunction
+
+  //! page walk over the port's 8 stream channels: a record exists where the
+  //! entry is enabled, its source resolves to a cluster, and that cluster
+  //! falls inside the queried page - 7.4.44.2.1 read back off live routing
+  logic [15:0] amap_ocnt_w;
+  logic [63:0] amap_orec_data_w;
+  always_comb begin : amap_out_walk
+    int unsigned seen_c;
+    logic [16:0] cl_c;
+    logic [12:0] ent_c;
+    int unsigned base_c;
+    amap_ocnt_w      = 16'd0;
+    amap_orec_data_w = 64'd0;
+    seen_c           = 0;
+    base_c = amap_opage_ok_w ? 32'(pp_amap_map_index_w) * AMAP_OPAGE_C : 0;
+    for (int unsigned c = 0; c < 8; c++) begin
+      ent_c = (amap_opage_ok_w
+               && (32'(pp_amap_desc_index_w[3:0]) * 8 + c < N_STREAMS * 8))
+              ? cmap_flat_w[(32'(pp_amap_desc_index_w[3:0]) * 8 + c) * 13 +: 13]
+              : 13'd0;
+      cl_c = amap_out_cluster(ent_c);
+      if (cl_c[16] && (32'(cl_c[15:0]) >= base_c)
+          && (32'(cl_c[15:0]) < base_c + AMAP_OPAGE_C)
+          && (32'(cl_c[15:0]) < AMAP_OUT_CLUS_C)) begin
+        if (seen_c == 32'(pp_amap_rec_w)) begin
+          amap_orec_data_w = {16'(pp_amap_desc_index_w),  // stream_index
+                              16'(c),                     // stream_channel
+                              cl_c[15:0],                 // cluster_offset
+                              16'd0};                     // cluster_channel
+        end
+        seen_c = seen_c + 1;
+        amap_ocnt_w = amap_ocnt_w + 16'd1;
+      end
+    end
+  end : amap_out_walk
+
   //! HOLD, not a ready - combinational flops again, never held
   assign pp_amap_wait_w = 1'b0;
+
+  //! ==== the Milan-info answer block (06 SS6.2/SS6.10) ====================
+  //! GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH, one word at a time; the
+  //! processor lays the responses out and THIS fabric owns every value and
+  //! every validity flag, because the truth lives here: the pp's own
+  //! class-D binding view and SRP registrars (read back on the same nets
+  //! every other consumer reads), the declared stream identities, the gPTP
+  //! CSR pair and the clock-validator's asCapable.
+  //!
+  //! HONESTY LEDGER (what this face says and why):
+  //!  - a sink is SETTLED when it is bound and its settled stream_id is
+  //!    nonzero (the binding view latches identity at settle and zeroes it
+  //!    at unbind) - while actively probing, pbsta reports PASSIVE (1),
+  //!    never ACTIVE, and acmpsta is therefore 0 by Milan 5.3.8.6's own
+  //!    "otherwise" arm: the listener's probe-retry detail never leaves the
+  //!    processor, and claiming ACTIVE without the matching acmpsta would
+  //!    be the invented half of a truth.
+  //!  - msrp_failure_bridge_id for a SINK reads 0: the processor exports
+  //!    the registered failure CODE but not the bridge id; MSRP_FAILURE_
+  //!    VALID still follows the FAILED registration so a controller sees
+  //!    the failure, with the code carried and the bridge honestly zero.
+  //!  - stream_format is the one generated AAF format both directions
+  //!    elaborate (ADP_STRIN0_FMT_C; TALKER_WIRE_CHANS_C equals its
+  //!    channels_per_frame by the same generated pass) - with no
+  //!    SET_STREAM_FORMAT there is nothing else it could be.
+  //!  - a source's declared DA is the block-allocator law the maap shim
+  //!    already applies (blk_addr + source), valid while a claim is held.
+  //!  - propagation_delay reads 0: the gPTP plane does not surface pDelay.
+  //!  - GET_AS_PATH answers count 1 = {grandmaster} (0 with no GM): the
+  //!    pathSequence a leaf directly under its GM sees; bridges between
+  //!    would lengthen the true TLV this fabric never receives.
+  localparam logic [63:0] GSI_FMT_C = ADP_STRIN0_FMT_C;
+
+  //! CLAMPED index widths - a 1-sink shape's 2-bit vectors must never be
+  //! part-selected with a wider index (the lint ratchet's own catch)
+  localparam int GSI_SNK_W_C = (ACMP_SINKS_C > 1) ? $clog2(ACMP_SINKS_C) : 1;
+  localparam int GSI_SRC_W_C = (ACMP_SRC_C  > 1) ? $clog2(ACMP_SRC_C)  : 1;
+  wire [3:0]             gsi_ix_w  = pp_gsi_desc_index_w[3:0];
+  wire [GSI_SNK_W_C-1:0] gsi_six_w = pp_gsi_desc_index_w[GSI_SNK_W_C-1:0];
+  wire [GSI_SRC_W_C-1:0] gsi_oix_w = pp_gsi_desc_index_w[GSI_SRC_W_C-1:0];
+  wire        gsi_in_w   = (pp_gsi_desc_type_w == 16'h0005)
+                           && (32'(pp_gsi_desc_index_w) < ACMP_SINKS_C);
+  wire        gsi_out_w  = (pp_gsi_desc_type_w == 16'h0006)
+                           && (32'(pp_gsi_desc_index_w) < ACMP_SRC_C);
+  wire        gsi_bnd_w  = gsi_in_w && pp_cd_acmp_bound_w[gsi_six_w];
+  wire [63:0] gsi_sid_w  = pp_cd_acmp_bound_sid_w[64*gsi_six_w +: 64];
+  wire        gsi_setl_w = gsi_bnd_w && (gsi_sid_w != 64'd0);
+  wire [1:0]  gsi_tkreg_w = pp_cd_srp_tk_reg_state_w[2*gsi_six_w +: 2];
+  wire        gsi_tkfail_w = gsi_in_w && (gsi_tkreg_w == 2'd2);
+  wire        gsi_reging_w = gsi_in_w && (gsi_tkreg_w != 2'd0);
+  wire        gsi_decl_w  = gsi_out_w && pp_cd_acmp_declaring_w[gsi_oix_w];
+  wire [1:0]  gsi_lreg_w  = pp_cd_srp_lstn_reg_state_w[2*gsi_oix_w +: 2];
+  wire [1:0]  gsi_tkdcl_w = pp_cd_srp_tk_decl_state_w[2*gsi_oix_w +: 2];
+  wire        gsi_oreging_w = gsi_decl_w && (gsi_lreg_w != 2'd0);
+  wire        gsi_ofail_w   = gsi_out_w && (gsi_tkdcl_w == 2'd2);
+
+  //! Milan Tables 5.9/5.11 flags + Tables 5.10/5.12 flags_ex, per direction
+  logic [31:0] gsi_flags_w, gsi_flags_ex_w;
+  always_comb begin : gsi_flag_law
+    gsi_flags_w    = 32'd0;
+    gsi_flags_ex_w = 32'd0;
+    if (gsi_in_w) begin
+      gsi_flags_w = {1'b1,                    // STREAM_FORMAT_VALID
+                     gsi_setl_w,              // STREAM_ID_VALID
+                     gsi_reging_w,            // MSRP_ACC_LAT_VALID
+                     gsi_setl_w,              // STREAM_DEST_MAC_VALID
+                     gsi_tkfail_w,            // MSRP_FAILURE_VALID
+                     gsi_bnd_w,               // BOUND
+                     gsi_setl_w,              // STREAM_VLAN_ID_VALID
+                     18'd0,
+                     gsi_tkfail_w,            // REGISTERING_FAILED
+                     2'b0,
+                     1'b0,                    // STREAMING_WAIT (bound = started)
+                     gsi_bnd_w,               // SAVED_STATE (recommended)
+                     gsi_bnd_w,               // FAST_CONNECT (= bound, T5.9)
+                     1'b0};                   // CLASS_B
+      gsi_flags_ex_w = {31'd0, gsi_reging_w}; // REGISTERING
+    end else if (gsi_out_w) begin
+      gsi_flags_w = {1'b1,                    // STREAM_FORMAT_VALID
+                     gsi_decl_w,              // STREAM_ID_VALID
+                     1'b1,                    // MSRP_ACC_LAT_VALID (always)
+                     gsi_decl_w,              // STREAM_DEST_MAC_VALID
+                     gsi_ofail_w,             // MSRP_FAILURE_VALID
+                     1'b0,                    // BOUND (outputs: always 0)
+                     gsi_decl_w,              // STREAM_VLAN_ID_VALID
+                     18'd0,
+                     gsi_decl_w && (gsi_lreg_w == 2'd1),  // REGISTERING_FAILED
+                     6'd0};
+      gsi_flags_ex_w = {31'd0, gsi_oreging_w};
+    end
+  end : gsi_flag_law
+
+  wire [47:0] gsi_odmac_w = maap_addr + 48'(gsi_ix_w);
+  wire [63:0] gsi_osid_w  = pp_src_sid_w[64*gsi_oix_w +: 64];
+
+  always_comb begin : gsi_answer
+    pp_gsi_data_w = 64'd0;
+    unique case (pp_gsi_kind_w)
+      2'd0: begin                            // ---- GET_STREAM_INFO ----
+        unique case (pp_gsi_sel_w)
+          4'd0: pp_gsi_data_w = {32'd0, gsi_flags_w};
+          4'd1: pp_gsi_data_w = (gsi_in_w || gsi_out_w) ? GSI_FMT_C : 64'd0;
+          4'd2: pp_gsi_data_w = gsi_in_w  ? gsi_sid_w
+                              : gsi_decl_w ? gsi_osid_w : 64'd0;
+          4'd3: pp_gsi_data_w = gsi_in_w
+                              ? {32'd0, gsi_reging_w
+                                 ? pp_cd_srp_acc_latency_w[32*gsi_six_w +: 32]
+                                 : 32'd0}
+                              : {32'd0, gsi_out_w ? PRES_DFLT_C : 32'd0};
+          4'd4: pp_gsi_data_w = gsi_setl_w
+                              ? {pp_cd_acmp_bound_dmac_w[48*gsi_six_w +: 48],
+                                 gsi_tkfail_w
+                                 ? pp_cd_srp_snk_fail_code_w[8*gsi_six_w +: 8]
+                                 : 8'd0, 8'd0}
+                              : gsi_decl_w
+                              ? {(maap_addr_valid ? gsi_odmac_w : 48'd0),
+                                 gsi_ofail_w
+                                 ? pp_cd_srp_src_fail_code_w[8*gsi_oix_w +: 8]
+                                 : 8'd0, 8'd0}
+                              : {48'd0,
+                                 gsi_tkfail_w
+                                 ? pp_cd_srp_snk_fail_code_w[8*gsi_six_w +: 8]
+                                 : 8'd0, 8'd0};
+          4'd5: pp_gsi_data_w = gsi_ofail_w
+                              ? pp_cd_srp_src_fail_bridge_w[64*gsi_oix_w +: 64]
+                              : 64'd0;       // sink bridge id: honest zero
+          4'd6: pp_gsi_data_w = {gsi_setl_w
+                                 ? {4'd0, pp_cd_acmp_bound_vlan_w[12*gsi_six_w +: 12]}
+                                 : gsi_decl_w
+                                 ? {4'd0, pp_cd_srp_class_a_vid_w}
+                                 : 16'd0,
+                                 16'd0, gsi_flags_ex_w};
+          4'd7: pp_gsi_data_w = {32'd0,
+                                 gsi_in_w
+                                 ? {(!gsi_bnd_w ? 3'd0
+                                     : gsi_setl_w ? 3'd3 : 3'd1), 5'd0}
+                                 : 8'd0,
+                                 24'd0};
+          default: pp_gsi_data_w = 64'd0;
+        endcase
+      end
+      2'd1: begin                            // ---- GET_AVB_INFO ----
+        unique case (pp_gsi_sel_w)
+          4'd0: pp_gsi_data_w = cfg_adp_gptp_gm;
+          4'd1: pp_gsi_data_w = {32'd0,      // propagation_delay: unmeasured
+                                 cfg_adp_gptp_domain,
+                                 {3'd0, 1'b1, !eff_link_w, 1'b1, 1'b1,
+                                  clkv_as_cap_w},
+                                 16'd1};     // one msrp mapping: class A
+          4'd8: pp_gsi_data_w = (pp_gsi_ord_w == 8'd0)
+                              ? {32'd0, 8'd6,       // SRclassID A
+                                 {5'd0, pp_cd_srp_class_a_prio_w},
+                                 {4'd0, pp_cd_srp_class_a_vid_w}}
+                              : 64'd0;
+          default: pp_gsi_data_w = 64'd0;
+        endcase
+      end
+      default: begin                         // ---- GET_AS_PATH ----
+        unique case (pp_gsi_sel_w)
+          4'd0: pp_gsi_data_w = {63'd0, |cfg_adp_gptp_gm};
+          4'd8: pp_gsi_data_w = ((pp_gsi_ord_w == 8'd0) && (|cfg_adp_gptp_gm))
+                              ? cfg_adp_gptp_gm : 64'd0;
+          default: pp_gsi_data_w = 64'd0;
+        endcase
+      end
+    endcase
+  end : gsi_answer
+  assign pp_gsi_wait_w = 1'b0;               //! combinational nets: never held
+
+  //! asCapable moved: the one AVB-info word this fabric changes OUTSIDE the
+  //! processor's sight - edge-detected here into the Table 5.22 trigger pin
+  logic gsi_ascap_q_r;
+  always_ff @(posedge axis_clk) begin : gsi_ascap_edge
+    if (!axis_resetn) gsi_ascap_q_r <= 1'b0;
+    else              gsi_ascap_q_r <= clkv_as_cap_w;
+  end
 
   //! IDENTIFY: 1722.1-2021 7.4.x drives it from a CONTROL descriptor an AECP
   //! command writes. No AECP, no identify - the LED is structurally dark.
@@ -4893,6 +5178,27 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! 0 ns end-to-end, so the builder gate refuses to prune the taps in a
   //! config that keeps its probes (board.constraints.strip_probes: false).
   generate if (LTAP_P != 0) begin : g_ltap
+  //! STAGE-PULSE PIPELINE (2026-08-15). The asl v47 route failed timing
+  //! (WNS -0.168) on a cone running from the RX filter's CAM entry masks
+  //! through the MAC-stream handshake into last_r's reset term INSIDE the
+  //! taps: the frame-accept qualifier is combinational off the CAM compare,
+  //! and the taps' arm logic extended that cone. The taps are PURE OBSERVERS
+  //! (tap-purity gate), so delaying EVERY stage pulse by one uniform cycle
+  //! is invisible to every measurement they make - last/min/max are
+  //! stage-to-stage DELTAS between pulses that all shift together, and the
+  //! epoch timestamp moves by one 10 ns cycle on a diagnostic. The CAM cone
+  //! now terminates here, in one 8-bit register, instead of inside the tap
+  //! chain's resets.
+  logic [3:0] ltap_txp_q_r, ltap_rxp_q_r;
+  always_ff @(posedge axis_clk) begin : ltap_stage_pipe
+    if (!axis_resetn) begin
+      ltap_txp_q_r <= 4'd0;
+      ltap_rxp_q_r <= 4'd0;
+    end else begin
+      ltap_txp_q_r <= {ltap_txmac_w, ltap_txeof_w, ltap_txsof_w, ltap_txcap_w};
+      ltap_rxp_q_r <= {ltap_rxring_w, ltap_rxdpk_w, ltap_rxacc_w, ltap_rxsof_w};
+    end
+  end
   KL_aaf_latency_taps #(
     .N_STAGES_P (4), .CW_P (32), .DW_P (16),
     .TIMEOUT_C  (MILAN_CLK_FREQ_HZ / 2000)   //! ~0.5 ms per-stage re-arm guard
@@ -4900,8 +5206,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .en_i  (ltap_en_w), .clr_i (ltap_clr_w),
     .now_i (ptp_now_w[31:0]),
-    .tx_stage_p_i ({ltap_txmac_w, ltap_txeof_w, ltap_txsof_w, ltap_txcap_w}),
-    .rx_stage_p_i ({ltap_rxring_w, ltap_rxdpk_w, ltap_rxacc_w, ltap_rxsof_w}),
+    .tx_stage_p_i (ltap_txp_q_r),
+    .rx_stage_p_i (ltap_rxp_q_r),
     .tx_epoch_o (ltap_tx_epoch_w), .rx_epoch_o (ltap_rx_epoch_w),
     .tx_samples_o (ltap_tx_smp_w), .rx_samples_o (ltap_rx_smp_w),
     .tx_timeouts_o (ltap_tx_to_w), .rx_timeouts_o (ltap_rx_to_w),
@@ -5056,6 +5362,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .amap_rec_o        (pp_amap_rec_w),
       .amap_data_i       (pp_amap_data_w),
       .amap_wait_i       (pp_amap_wait_w),
+      //! the Milan-info face: GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH
+      //! answered from the gsi_answer block above
+      .gsi_req_o         (pp_gsi_req_w),
+      .gsi_kind_o        (pp_gsi_kind_w),
+      .gsi_desc_type_o   (pp_gsi_desc_type_w),
+      .gsi_desc_index_o  (pp_gsi_desc_index_w),
+      .gsi_sel_o         (pp_gsi_sel_w),
+      .gsi_ord_o         (pp_gsi_ord_w),
+      .gsi_data_i        (pp_gsi_data_w),
+      .gsi_wait_i        (pp_gsi_wait_w),
+      .gsi_avb_chg_i     (clkv_as_cap_w != gsi_ascap_q_r),
       //! identity comes from the 0x600 CSR group, which is also what the
       //! generated entity model wrote - derive, never mirror.
       .entity_id_i       (cfg_adp_entity_id),

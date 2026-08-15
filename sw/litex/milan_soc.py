@@ -585,6 +585,7 @@ _MILAN_DATAPATH_SOURCES = [
     "protocol-processor/hdl/aecp/KL_aecp_desc_store.sv",
     "protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv",
     "protocol-processor/hdl/aecp/KL_aecp_engine.sv",
+    "protocol-processor/hdl/aecp/KL_aecp_notify.sv",
     "protocol-processor/hdl/top/KL_mrp_strip.sv",
     "protocol-processor/hdl/top/protocol_processor_top.sv",
     # the two consumer-side wrappers that bind it into this datapath: the
@@ -1371,6 +1372,28 @@ class MilanMAC(LiteXModule):
                 "[get_clocks {{crg_audio_ref_raw crg_audio_mclk_raw "
                 "crg_pll_audio_fb crg_clkout2 crg_clkout3 crg_clkout4}}]"
                 % eth_ck)
+
+        # QUASI-STATIC CLASS RELAXATION (USER 2026-08-15: constrain by CLASS,
+        # never by per-endpoint analysis). Registers tagged
+        # (* quasi_static = "yes" *) in the RTL (the tagging rules live at the
+        # tag site in milan_csr.sv) are boot-written levels whose whole
+        # fan-out cone is legitimately multi-cycle: one rule here prunes
+        # every tagged cone from the single-cycle graph, and a register
+        # tagged in any FUTURE round inherits the relaxation with no XDC
+        # edit. Guarded so a build with zero tagged cells (or a synthesis
+        # that dropped the attribute) degrades to full-strictness rather
+        # than a Tcl error - the constraint can only ever RELAX known-safe
+        # paths, never mask an untagged one. Hold 3 accompanies setup 4 per
+        # the standard multicycle pairing, so hold analysis does not move to
+        # the wrong capture edge. (Doubled braces: LiteX templates these
+        # lines through str.format.)
+        platform.toolchain.additional_xdc_commands.add(
+            "set qs_cells [get_cells -hierarchical -quiet "
+            "-filter {{quasi_static == \"yes\"}}]")
+        platform.toolchain.additional_xdc_commands.add(
+            "if {{[llength $qs_cells] > 0}} {{ "
+            "set_multicycle_path 4 -setup -from $qs_cells ; "
+            "set_multicycle_path 3 -hold  -from $qs_cells }}")
 
         # MAC-path supervised reset (link-bounce wedge, 2026-07-19): the eth
         # clock domains reset via phy_crg_reset, but the core's SYS-side CDC

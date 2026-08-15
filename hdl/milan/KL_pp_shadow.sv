@@ -290,13 +290,28 @@ module KL_pp_shadow #(
     //! mandatory, not optional - an unconnected pin is a fatal PINMISSING
     //! in this tree's pp_shadow harness.
     output logic        amap_req_o,         //! a word is being asked for
-    output logic [15:0] amap_desc_type_o,   //! AECPDU @24 (STREAM_PORT_INPUT)
+    output logic [15:0] amap_desc_type_o,   //! AECPDU @24 (STREAM_PORT_INPUT or _OUTPUT)
     output logic [15:0] amap_desc_index_o,  //! AECPDU @26
     output logic [15:0] amap_map_index_o,   //! AECPDU @28 - the page
     output logic  [1:0] amap_sel_o,         //! 0 NMAPS, 1 GEOM, 2 RECORD
     output logic  [7:0] amap_rec_o,         //! record ordinal within the page
     input  wire  [63:0] amap_data_i,        //! the word (upper 32 zero unless RECORD)
     input  wire         amap_wait_i,        //! HOLD the beat (not a ready)
+
+    //! ---- Milan-info gather face (06 SS6.2/SS6.10) ----
+    //! Straight through to protocol_processor_top: GET_STREAM_INFO /
+    //! GET_AVB_INFO / GET_AS_PATH ask one word at a time and milan_datapath
+    //! answers from its binding view, SRP registrars and gPTP plane - the
+    //! same warnings-are-errors rule as the other faces, wiring mandatory.
+    output logic        gsi_req_o,          //! a word is being asked for
+    output logic [1:0]  gsi_kind_o,         //! 0 STRI / 1 AVB / 2 ASP
+    output logic [15:0] gsi_desc_type_o,    //! addressed descriptor_type
+    output logic [15:0] gsi_desc_index_o,   //! addressed descriptor_index
+    output logic  [3:0] gsi_sel_o,          //! word selector within the kind
+    output logic  [7:0] gsi_ord_o,          //! array ordinal (ASP path, AVB maps)
+    input  wire  [63:0] gsi_data_i,         //! the word
+    input  wire         gsi_wait_i,         //! HOLD the beat (not a ready)
+    input  wire         gsi_avb_chg_i,      //! integrator-side AVB-info word changed
 
     //! ---- side-port host bridge (CSR-driven, one outstanding access) ----
     input  wire        host_req_i,         //! single-cycle request strobe
@@ -865,6 +880,15 @@ module KL_pp_shadow #(
       .amap_rec_o          (amap_rec_o),
       .amap_data_i         (amap_data_i),
       .amap_wait_i         (amap_wait_i),
+      .gsi_req_o           (gsi_req_o),
+      .gsi_kind_o          (gsi_kind_o),
+      .gsi_desc_type_o     (gsi_desc_type_o),
+      .gsi_desc_index_o    (gsi_desc_index_o),
+      .gsi_sel_o           (gsi_sel_o),
+      .gsi_ord_o           (gsi_ord_o),
+      .gsi_data_i          (gsi_data_i),
+      .gsi_wait_i          (gsi_wait_i),
+      .gsi_avb_chg_i       (gsi_avb_chg_i),
 
       .restore_go_i        (restore_go_i),
       .restore_busy_o      (restore_busy_o),
