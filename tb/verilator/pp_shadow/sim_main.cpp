@@ -1541,13 +1541,15 @@ int main(int argc, char** argv) {
             }
         }
         {
-            // THE WRONG-TYPE ANSWER, upgraded by the same round: ENTITY
-            // counters are Table 7-155's ENTITY_SPECIFIC_1..8, this build
-            // keeps none, and the honest refusal is now Table 7-141's
-            // NOT_SUPPORTED ("the command is implemented but the target of
-            // the command is not supported") with the command echoed -
-            // never SUCCESS over an empty mask, and never STREAM_INPUT's
-            // numbers under an ENTITY heading.
+            // THE WRONG-TYPE ANSWER, re-sized by the r49a bench round:
+            // ENTITY counters are Table 7-155's ENTITY_SPECIFIC_1..8, this
+            // build keeps none, and the refusal is Table 7-141's
+            // NOT_SUPPORTED carried in the FULL fixed 7.4.42.2 body (zero
+            // mask, zero block, cdl 148) - la_avdecc's checkResponsePayload
+            // reflects ONLY NOT_IMPLEMENTED at command length and sizes
+            // every other non-success answer against the response form; the
+            // old 4-byte echo here was exactly its "Incorrect payload size"
+            // complaint on the wire.
             uint8_t pl[4] = {0x00, 0x00, 0x00, 0x00};   // ENTITY 0
             size_t at = tx_frames.size();
             cn = build_aecp(cf, 0, TEST_EID, 0x0029, 0x0132, pl, sizeof pl);
@@ -1558,13 +1560,17 @@ int main(int argc, char** argv) {
                     k >= 0 ? "an AECPDU egressed" : "SILENCE");
             if (k >= 0) {
                 const std::vector<uint8_t>& b = tx_frames[k].bytes;
-                grade_len(b, "L5d", sizeof pl);
+                grade_len(b, "L5d", CTR_PLD_C);
                 ck("L5d: status NOT_SUPPORTED(11) - no ENTITY counters here",
                    (uint32_t)((b[16] >> 3) & 0x1F), 11u);
                 ck("L5d: descriptor_type ENTITY echoed",
                    (uint32_t)get_be(b, 38, 2), 0u);
-                ck("L5d: the 4-byte command payload is the whole echo",
-                   (uint32_t)get_be(b, 16, 2) & 0x7FF, 16u);
+                ck("L5d: counters_valid ZERO in the full body",
+                   (uint32_t)get_be(b, 42, 4), 0u);
+                long dirty = 0;
+                for (int q = 0; q < 32; q++)
+                    if (get_be(b, 46 + 4 * (size_t)q, 4) != 0) dirty++;
+                ck("L5d: ...and the block is all zeros", (uint32_t)dirty, 0u);
             }
         }
 
@@ -2028,6 +2034,80 @@ int main(int argc, char** argv) {
     // red, which is the reminder to bring that path under test HERE too.
     ck("no RELEASE_DA is reachable while every source is pinned enabled",
        (uint32_t)mo.released, 0u);
+
+    // ---- M2. HEAL BEFORE ANSWER: the silicon arrangement, end to end ------
+    // (r49a/w3a, 2026-08-15: the store parks at boot - pre-handover the DFI
+    //  gate refuses the memory - and the loader lands the image AFTER. On
+    //  the old order the FIRST wire command answered its miss from the
+    //  parked state and only the SECOND was served: a first READ_DESCRIPTOR
+    //  came back BAD_ARGUMENTS on w3a, a first GET_COUNTERS came back
+    //  NO_SUCH_DESCRIPTOR on r49a. No suite ever built this arrangement -
+    //  the image was always in memory before the first clock - which is why
+    //  sim stayed green while silicon raced. This section IS the silicon
+    //  sequence: park, hand the memory over, then demand the FIRST
+    //  locate-bearing command be served.)
+    printf("[M2] heal-before-answer: park, hand over, first command serves\n");
+    {
+        mem_answering = false;                 // pre-handover: memory refused
+        do_reset();                            // the boot walk parks
+        // re-provision (the reset wiped the CSR plane)
+        axi_write(A_MAC_ALO, STA_MAC_LO);
+        axi_write(A_MAC_AHI, STA_MAC_HI);
+        axi_write(A_ADP_EIDLO, (uint32_t)(TEST_EID & 0xFFFFFFFFu));
+        axi_write(A_ADP_EIDHI, (uint32_t)(TEST_EID >> 32));
+        axi_write(A_ADP_MDLLO, (uint32_t)(TEST_MODEL & 0xFFFFFFFFu));
+        axi_write(A_ADP_MDLHI, (uint32_t)(TEST_MODEL >> 32));
+        axi_write(A_ADP_CAPS,  0x0000C588u);
+        axi_write(A_PP_CTRL, 0x1);             // entity_enable
+        // let the walk burn its watchdog into the parked fault
+        for (int r = 0; r < 6; r++) run_idle(20000);
+        mem_answering = true;                  // HANDOVER: memory + image now
+        // the FIRST locate-bearing command after the handover must SERVE
+        uint8_t cf[128];
+        size_t at = tx_frames.size();
+        size_t cn = build_read_desc(cf, 0, DTY_ENTITY_C, 0, 0x0301);
+        inject_rx(cf, cn, 400);
+        for (int r = 0; r < 4; r++) run_idle(20000);
+        int k = -1;
+        for (size_t i = tx_frames.size(); i-- > at; )
+            if (classify(tx_frames[i]) == FR_AECP) { k = (int)i; break; }
+        ck_true("M2: the FIRST post-handover command was answered", k >= 0,
+                k >= 0 ? "an AECPDU egressed" : "SILENCE");
+        if (k >= 0) {
+            const std::vector<uint8_t>& b = tx_frames[k].bytes;
+            ck("M2: ...and SERVED, not sacrificed to the re-arm (status)",
+               (b[16] >> 3) & 0x1F, 0u);
+            ck("M2: the ENTITY descriptor's cdl (12 + 4 + 40)",
+               (uint32_t)((((unsigned)b[16] & 7) << 8) | b[17]), 56u);
+            //! the hand image's ENTITY body is the seed pattern (desc_bytes:
+            //! seed 0xA0, byte i = seed + i), so descriptor bytes 4..7 on
+            //! the wire (frame 46..49) must read A4 A5 A6 A7 - the IMAGE'S
+            //! OWN bytes, proving the walk that served this command is the
+            //! one that read the freshly handed-over memory
+            ck("M2: the served bytes are the image's (seed body @4..7)",
+               (uint32_t)get_be(b, 46, 4), 0xA4A5A6A7u);
+        }
+        // the SECOND command serves too, and the counters path is sane
+        at = tx_frames.size();
+        {
+            uint8_t pl[4] = {0x00, 0x05, 0x00, 0x00};   // STREAM_INPUT 0
+            cn = build_aecp(cf, 0, TEST_EID, 0x0029, 0x0302, pl, sizeof pl);
+            inject_rx(cf, cn, 400);
+            for (int r = 0; r < 4; r++) run_idle(20000);
+        }
+        k = -1;
+        for (size_t i = tx_frames.size(); i-- > at; )
+            if (classify(tx_frames[i]) == FR_AECP) { k = (int)i; break; }
+        ck_true("M2: the second command (GET_COUNTERS) answered", k >= 0,
+                k >= 0 ? "an AECPDU egressed" : "SILENCE");
+        if (k >= 0) {
+            const std::vector<uint8_t>& b = tx_frames[k].bytes;
+            ck("M2: GET_COUNTERS STREAM_INPUT 0 is SUCCESS",
+               (b[16] >> 3) & 0x1F, 0u);
+            ck("M2: ...with the twelve-counter mask, not a raced zero",
+               (uint32_t)get_be(b, 42, 4), 0x00000FFFu);
+        }
+    }
 
     printf("----------------------------------------------------------------\n");
     printf("pp_shadow: %ld checks, %ld failures\n", checks, fails);
