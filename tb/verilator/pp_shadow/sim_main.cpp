@@ -598,13 +598,20 @@ static const uint16_t DTY_ABSENT_C = 0x0002;   // AUDIO_UNIT: not in this image
 //! is the EXISTENCE authority (index 1 answers NO_SUCH_DESCRIPTOR because
 //! it is absent HERE, whatever the fabric's port constants say)
 static const uint16_t DTY_SPI_C    = 0x000E;
+//! STREAM_INPUT (0x0005), ONE of them - the counters strictness round made
+//! the image the EXISTENCE authority for GET_COUNTERS too, so the object
+//! whose 0xFFF mask the L5 series grades must exist here and index 9 must
+//! not
+static const uint16_t DTY_STRIN_C  = 0x0005;
 static const size_t   ENT_LEN_C    = 40;
 static const size_t   CFG_LEN_C    = 24;
 static const size_t   SPI_LEN_C    = 20;                 // Table 7-23
-static const uint32_t ENT_OFF_C    = 0x50;               // 3 index entries now
-static const uint32_t CFG_OFF_C    = ENT_OFF_C + 40;     // 0x78
-static const uint32_t SPI_OFF_C    = CFG_OFF_C + 2 * 24; // 0xA8
-static const uint32_t IMG_END_C    = SPI_OFF_C + 24;     // 0xC0 (8-aligned)
+static const size_t   STRIN_LEN_C  = 24;                 // existence is enough
+static const uint32_t ENT_OFF_C    = 0x60;               // 4 index entries now
+static const uint32_t CFG_OFF_C    = ENT_OFF_C + 40;     // 0x88
+static const uint32_t STRIN_OFF_C  = CFG_OFF_C + 2 * 24; // 0xB8
+static const uint32_t SPI_OFF_C    = STRIN_OFF_C + 24;   // 0xD0
+static const uint32_t IMG_END_C    = SPI_OFF_C + 24;     // 0xE8 (8-aligned)
 
 static void put32be_v(std::vector<uint8_t>& v, size_t off, uint32_t x) {
     for (int i = 0; i < 4; i++) v[off + i] = (uint8_t)(x >> (8 * (3 - i)));
@@ -616,7 +623,8 @@ static void put16be_v(std::vector<uint8_t>& v, size_t off, uint16_t x) {
 // the descriptor bytes this harness expects back on the wire
 static std::vector<uint8_t> desc_bytes(uint16_t type, uint16_t index) {
     const size_t n = (type == DTY_ENTITY_C) ? ENT_LEN_C
-                   : (type == DTY_SPI_C)    ? SPI_LEN_C : CFG_LEN_C;
+                   : (type == DTY_SPI_C)    ? SPI_LEN_C
+                   : (type == DTY_STRIN_C)  ? STRIN_LEN_C : CFG_LEN_C;
     std::vector<uint8_t> d(n, 0);
     put16be_v(d, 0, type);
     put16be_v(d, 2, index);
@@ -655,13 +663,21 @@ static void build_desc_image() {
     put32be_v(desc_img, 0x30 + 0x8, CFG_OFF_C);
     put16be_v(desc_img, 0x30 + 0xC, 0xFFFF);
     put16be_v(desc_img, 0x30 + 0xE, (uint16_t)CFG_LEN_C);
+    // sorted by (config, type): 0x0005 sits between CONFIG and SPI
     put16be_v(desc_img, 0x40 + 0x0, 0);
-    put16be_v(desc_img, 0x40 + 0x2, DTY_SPI_C);
-    put16be_v(desc_img, 0x40 + 0x4, 1);              // the 1x1 listener port
-    put16be_v(desc_img, 0x40 + 0x6, (uint16_t)SPI_LEN_C);
-    put32be_v(desc_img, 0x40 + 0x8, SPI_OFF_C);
+    put16be_v(desc_img, 0x40 + 0x2, DTY_STRIN_C);
+    put16be_v(desc_img, 0x40 + 0x4, 1);              // STREAM_INPUT[0] only
+    put16be_v(desc_img, 0x40 + 0x6, (uint16_t)STRIN_LEN_C);
+    put32be_v(desc_img, 0x40 + 0x8, STRIN_OFF_C);
     put16be_v(desc_img, 0x40 + 0xC, 0xFFFF);
     put16be_v(desc_img, 0x40 + 0xE, 24);             // stride (8-aligned)
+    put16be_v(desc_img, 0x50 + 0x0, 0);
+    put16be_v(desc_img, 0x50 + 0x2, DTY_SPI_C);
+    put16be_v(desc_img, 0x50 + 0x4, 1);              // the 1x1 listener port
+    put16be_v(desc_img, 0x50 + 0x6, (uint16_t)SPI_LEN_C);
+    put32be_v(desc_img, 0x50 + 0x8, SPI_OFF_C);
+    put16be_v(desc_img, 0x50 + 0xC, 0xFFFF);
+    put16be_v(desc_img, 0x50 + 0xE, 24);             // stride (8-aligned)
     // --- descriptors -------------------------------------------------------
     {
         auto e = desc_bytes(DTY_ENTITY_C, 0);
@@ -670,6 +686,8 @@ static void build_desc_image() {
         memcpy(&desc_img[CFG_OFF_C], c0.data(), c0.size());
         auto c1 = desc_bytes(DTY_CONFIG_C, 1);
         memcpy(&desc_img[CFG_OFF_C + CFG_LEN_C], c1.data(), c1.size());
+        auto t0 = desc_bytes(DTY_STRIN_C, 0);
+        memcpy(&desc_img[STRIN_OFF_C], t0.data(), t0.size());
         auto s0 = desc_bytes(DTY_SPI_C, 0);
         memcpy(&desc_img[SPI_OFF_C], s0.data(), s0.size());
     }
@@ -677,7 +695,7 @@ static void build_desc_image() {
     put32be_v(desc_img, 0x00, 0x41454D49u);          // "AEMI"
     put16be_v(desc_img, 0x04, 1);                    // layout_version
     put16be_v(desc_img, 0x06, 1);                    // n_config
-    put16be_v(desc_img, 0x08, 3);                    // n_entries
+    put16be_v(desc_img, 0x08, 4);                    // n_entries
     put16be_v(desc_img, 0x0A, 0);                    // n_names
     put32be_v(desc_img, 0x0C, 0x20);                 // index_off
     put32be_v(desc_img, 0x10, IMG_END_C);            // names_off (empty)
@@ -1452,14 +1470,14 @@ int main(int argc, char** argv) {
             }
         }
         {
-            // THE WRONG-OBJECT GUARD. milan_datapath narrows the descriptor
-            // index to the monitor's four-bit diag_idx_i, and the monitor
-            // CLAMPS an out-of-range value to context 0. Driven unguarded,
-            // a GET_COUNTERS for a Stream Input this shape does not have
-            // would come back with SINK 0's counters under a full mask -
-            // the right shape, the wrong object, and nothing on the wire to
-            // say so. There is no NO_SUCH_DESCRIPTOR arm on this face, so
-            // the honest answer is an EMPTY mask over a zero block.
+            // THE WRONG-OBJECT ANSWER, upgraded by the counters strictness
+            // round: the engine's store locate now refuses an index the
+            // image lacks with NO_SUCH_DESCRIPTOR (Table 7-141: "A
+            // descriptor with the descriptor_type and descriptor_index
+            // specified does not exist") while still carrying the fixed
+            // 7.4.42.2 body, all zero. The fabric's clamp-guard on the face
+            // stays as the second line of defense - a full mask over sink
+            // 0's numbers remains the failure this block exists to catch.
             uint8_t pl[4] = {0x00, 0x05, 0x00, 0x09};   // STREAM_INPUT 9
             size_t at = tx_frames.size();
             cn = build_aecp(cf, 0, TEST_EID, 0x0029, 0x0131, pl, sizeof pl);
@@ -1471,6 +1489,8 @@ int main(int argc, char** argv) {
             if (k >= 0) {
                 const std::vector<uint8_t>& b = tx_frames[k].bytes;
                 grade_len(b, "L5c", CTR_PLD_C);
+                ck("L5c: status NO_SUCH_DESCRIPTOR(2) - the image rules",
+                   (uint32_t)((b[16] >> 3) & 0x1F), 2u);
                 ck("L5c: descriptor_index 9 echoed, not clamped to 0",
                    (uint32_t)get_be(b, 40, 2), 9u);
                 ck("L5c: counters_valid is EMPTY - no such sink here",
@@ -1521,11 +1541,13 @@ int main(int argc, char** argv) {
             }
         }
         {
-            // THE WRONG-TYPE GUARD, same term in the RTL. ENTITY counters are
-            // Table 7-155's ENTITY_SPECIFIC_1..8; this build keeps none, so
-            // the mask must be empty. A build that answered STREAM_INPUT's
-            // numbers here would be claiming counters for the wrong object
-            // class entirely.
+            // THE WRONG-TYPE ANSWER, upgraded by the same round: ENTITY
+            // counters are Table 7-155's ENTITY_SPECIFIC_1..8, this build
+            // keeps none, and the honest refusal is now Table 7-141's
+            // NOT_SUPPORTED ("the command is implemented but the target of
+            // the command is not supported") with the command echoed -
+            // never SUCCESS over an empty mask, and never STREAM_INPUT's
+            // numbers under an ENTITY heading.
             uint8_t pl[4] = {0x00, 0x00, 0x00, 0x00};   // ENTITY 0
             size_t at = tx_frames.size();
             cn = build_aecp(cf, 0, TEST_EID, 0x0029, 0x0132, pl, sizeof pl);
@@ -1536,15 +1558,13 @@ int main(int argc, char** argv) {
                     k >= 0 ? "an AECPDU egressed" : "SILENCE");
             if (k >= 0) {
                 const std::vector<uint8_t>& b = tx_frames[k].bytes;
-                grade_len(b, "L5d", CTR_PLD_C);
+                grade_len(b, "L5d", sizeof pl);
+                ck("L5d: status NOT_SUPPORTED(11) - no ENTITY counters here",
+                   (uint32_t)((b[16] >> 3) & 0x1F), 11u);
                 ck("L5d: descriptor_type ENTITY echoed",
                    (uint32_t)get_be(b, 38, 2), 0u);
-                ck("L5d: counters_valid is EMPTY - no ENTITY counters here",
-                   (uint32_t)get_be(b, 42, 4), 0u);
-                long dirty = 0;
-                for (int q = 0; q < 32; q++)
-                    if (get_be(b, 46 + 4 * (size_t)q, 4) != 0) dirty++;
-                ck("L5d: ...and the block is all zeros", (uint32_t)dirty, 0u);
+                ck("L5d: the 4-byte command payload is the whole echo",
+                   (uint32_t)get_be(b, 16, 2) & 0x7FF, 16u);
             }
         }
 

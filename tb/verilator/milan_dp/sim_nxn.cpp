@@ -1408,19 +1408,32 @@ int main(int argc, char** argv) {
             //! a claimed-zero is the lie this face exists to prevent
             ck("[CTRS2] AVB_INTERFACE @8 FRAMES_TX unclaimed and zero",
                (long)ctr_of(0x0009, 0, 2), 0);
-            ck("[CTRS2] AVB_INTERFACE index 1 answers an EMPTY mask",
-               (long)ctr_of(0x0009, 1, 32), 0);
-            ck("[CTRS2] CLOCK_DOMAIN index 1 answers an EMPTY mask",
-               (long)ctr_of(0x0024, 1, 32), 0);
+            //! index 1 of either family does not exist in this image, and
+            //! the counters strictness round made the store the existence
+            //! authority: NO_SUCH_DESCRIPTOR with the zero-flagged fixed
+            //! body, never SUCCESS over an empty mask
+            {
+                std::vector<uint8_t> p1 = {0x00, 0x09, 0x00, 0x01};
+                auto ra = aecp_xact(0x0029, 0x402E, p1);
+                ck("[CTRS2] AVB_INTERFACE index 1 refuses NO_SUCH_DESCRIPTOR",
+                   (long)(!ra.empty() ? ((ra[16] >> 3) & 0x1F) : -1), 2);
+                ck("[CTRS2] ...with the zero mask in the fixed body",
+                   (long)(ra.size() >= 174
+                          ? (long)(((unsigned)ra[42] << 8) | ra[43]) : -1), 0);
+                std::vector<uint8_t> p2 = {0x00, 0x24, 0x00, 0x01};
+                auto rc = aecp_xact(0x0029, 0x402F, p2);
+                ck("[CTRS2] CLOCK_DOMAIN index 1 refuses NO_SUCH_DESCRIPTOR",
+                   (long)(!rc.empty() ? ((rc[16] >> 3) & 0x1F) : -1), 2);
+            }
         }
 
-        //! THE WRONG-OBJECT GUARD, on the shape that can actually expose it.
-        //! milan_datapath narrows the descriptor index to the monitor's
-        //! four-bit diag_idx_i, and the monitor CLAMPS out of range to
-        //! context 0. Stream 2 is the neighbour with DIFFERENT numbers
-        //! (FRAMES_RX 2 against stream 1's 10), so an index that leaked one
-        //! sink's block into another's answer shows up as a value, not just
-        //! as a shape.
+        //! THE WRONG-OBJECT ANSWER, upgraded by the counters strictness
+        //! round: this leg's IMAGE is the real 1x1 build (two STREAM_INPUT
+        //! descriptors), so index 2 - which the elaborated N=4 datapath
+        //! could physically answer for - now refuses NO_SUCH_DESCRIPTOR off
+        //! the store locate, with the fixed body zeroed. The monitor's
+        //! clamp-guard stays the second line; sink 1 answering its OWN
+        //! numbers (the CSR-mirror loop above) still proves no index leak.
         {
             std::vector<uint8_t> p2(4, 0);
             p2[1] = 0x05; p2[3] = 0x02;               // STREAM_INPUT 2
@@ -1428,12 +1441,15 @@ int main(int argc, char** argv) {
             ck("[CTRS] GET_COUNTERS(STREAM_INPUT,2) was ANSWERED",
                (long)(r2.size() >= 174), 1);
             if (r2.size() >= 174) {
-                const size_t o = 46 + 4 * 11;         // @44 FRAMES_RX
-                const uint32_t frx = ((uint32_t)r2[o] << 24)
-                                   | ((uint32_t)r2[o+1] << 16)
-                                   | ((uint32_t)r2[o+2] << 8) | (uint32_t)r2[o+3];
-                ck("[CTRS] sink 2 answers its OWN FRAMES_RX (2), not sink 1's",
-                   (long)frx, 2);
+                ck("[CTRS] index 2 is outside the image: NO_SUCH_DESCRIPTOR",
+                   (long)((r2[16] >> 3) & 0x1F), 2);
+                long dirty = 0;
+                for (int q = 0; q < 32; q++) {
+                    const size_t o = 46 + 4 * (size_t)q;
+                    if (r2[o] | r2[o+1] | r2[o+2] | r2[o+3]) dirty++;
+                }
+                ck("[CTRS] ...and the block is all zeros, not a neighbour's",
+                   dirty, 0);
             }
         }
     }
