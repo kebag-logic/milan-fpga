@@ -3115,14 +3115,48 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! N_STREAMS is the monitor's N_LISTENERS_P. A CRF sink appended after the
   //! AAF inputs has no monitor context and so reports an empty mask, which is
   //! true: this build keeps no Table 5.6 counters for it.
-  wire ctr_sin_w = (pp_ctr_desc_type_w == DESC_STREAM_INPUT_C)
-                && (pp_ctr_desc_index_w < 16'(N_STREAMS));
+  //! -------------------------------------------------------------------
+  //! REGISTERED ANSWER SERVER (USER 2026-08-15: pipeline the failing
+  //! endpoints). The v48 route failed at WNS -1.7 on ONE cone: the engine's
+  //! captured selectors left the processor, ran the answer muxes below
+  //! combinationally (the audio-map page scans and the Tables 5.9-5.12 flag
+  //! terms are over a nanosecond deep), and landed back in the engine's
+  //! gather register in the same cycle. The faces' OWN wait contract is the
+  //! cut: selectors register HERE, the deep mux computes from the REGISTERED
+  //! copy into a data register, and wait holds each beat for the two cycles
+  //! that takes. The engine's gather beats are HOLD-tolerant by design (the
+  //! integrator-hold checks in the harnesses), and the per-beat cost is two
+  //! 10 ns cycles against millisecond commands.
+  wire  [31:0] ctr_ans_raw_w;
+  logic [15:0] ctrq_type_r, ctrq_index_r;
+  logic  [5:0] ctrq_word_r;
+  logic        ctr_srv1_r, ctr_srv2_r;
+  logic [31:0] ctr_data_r;
+  wire ctr_sel_match_w = (ctrq_type_r  == pp_ctr_desc_type_w)
+                      && (ctrq_index_r == pp_ctr_desc_index_w)
+                      && (ctrq_word_r  == pp_ctr_word_w);
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : ctr_answer_srv
+    if (!axis_resetn) begin
+      ctrq_type_r <= 16'd0; ctrq_index_r <= 16'd0; ctrq_word_r <= 6'd0;
+      ctr_srv1_r  <= 1'b0;  ctr_srv2_r   <= 1'b0;  ctr_data_r  <= 32'd0;
+    end else begin
+      ctrq_type_r  <= pp_ctr_desc_type_w;
+      ctrq_index_r <= pp_ctr_desc_index_w;
+      ctrq_word_r  <= pp_ctr_word_w;
+      ctr_srv1_r   <= pp_ctr_req_w && ctr_sel_match_w;
+      ctr_srv2_r   <= pp_ctr_req_w && ctr_sel_match_w && ctr_srv1_r;
+      ctr_data_r   <= ctr_ans_raw_w;
+    end
+  end
 
-  assign aecp_diag_idx_w = ctr_sin_w ? pp_ctr_desc_index_w[3:0] : 4'd0;
+  wire ctr_sin_w = (ctrq_type_r == DESC_STREAM_INPUT_C)
+                && (ctrq_index_r < 16'(N_STREAMS));
+
+  assign aecp_diag_idx_w = ctr_sin_w ? ctrq_index_r[3:0] : 4'd0;
 
   logic [31:0] ctr_blk_w;
   always_comb begin
-    unique case (pp_ctr_word_w)
+    unique case (ctrq_word_r)
       6'd0    : ctr_blk_w = mon_diag_cnt_w[MON_ML_C  * 32 +: 32]; // @0   MEDIA_LOCKED
       6'd1    : ctr_blk_w = mon_diag_cnt_w[MON_MU_C  * 32 +: 32]; // @4   MEDIA_UNLOCKED
       6'd2    : ctr_blk_w = mon_diag_cnt_w[MON_SI_C  * 32 +: 32]; // @8   STREAM_INTERRUPTED
@@ -3216,14 +3250,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! is the only object either family can answer for - the same
   //! wrong-object rule as the Stream Input clamp above: any other index is
   //! an EMPTY mask over a zero block, never quadlets that belong to 0.
-  wire ctr_avb_w = (pp_ctr_desc_type_w == DESC_AVB_INTERFACE_C)
-                && (pp_ctr_desc_index_w == 16'd0);
-  wire ctr_ckd_w = (pp_ctr_desc_type_w == DESC_CLOCK_DOMAIN_C)
-                && (pp_ctr_desc_index_w == 16'd0);
+  wire ctr_avb_w = (ctrq_type_r == DESC_AVB_INTERFACE_C)
+                && (ctrq_index_r == 16'd0);
+  wire ctr_ckd_w = (ctrq_type_r == DESC_CLOCK_DOMAIN_C)
+                && (ctrq_index_r == 16'd0);
 
   logic [31:0] ctr_avb_blk_w;
   always_comb begin
-    unique case (pp_ctr_word_w)
+    unique case (ctrq_word_r)
       6'd0    : ctr_avb_blk_w = ctr_linkup_r;    // @0   LINK_UP
       6'd1    : ctr_avb_blk_w = ctr_linkdn_r;    // @4   LINK_DOWN
       6'd5    : ctr_avb_blk_w = ctr_gmchg_r;     // @20  GPTP_GM_CHANGED
@@ -3236,7 +3270,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   logic [31:0] ctr_ckd_blk_w;
   always_comb begin
-    unique case (pp_ctr_word_w)
+    unique case (ctrq_word_r)
       6'd0    : ctr_ckd_blk_w = ctr_mlock_r;     // @0   LOCKED
       6'd1    : ctr_ckd_blk_w = ctr_munlock_r;   // @4   UNLOCKED
       6'd32   : ctr_ckd_blk_w = CTR_VALID_CKD_C; //      counters_valid
@@ -3247,13 +3281,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! Everything else - ENTITY (Table 7-154's set is all ENTITY_SPECIFIC,
   //! none kept), STREAM_OUTPUT, out-of-range indices - answers zero data
   //! AND an empty mask on the same term, so the two can never disagree.
-  assign pp_ctr_data_w = ctr_sin_w ? ctr_blk_w
+  assign ctr_ans_raw_w = ctr_sin_w ? ctr_blk_w
                        : ctr_avb_w ? ctr_avb_blk_w
                        : ctr_ckd_w ? ctr_ckd_blk_w
                        : 32'd0;
-  //! HOLD, not a ready. Every block is a combinational read of flops that
-  //! are already settled, so the beat is never held.
-  assign pp_ctr_wait_w = 1'b0;
+  //! HOLD per the face contract: two cycles per beat while the registered
+  //! server settles, then the answer is stable in ctr_data_r.
+  assign pp_ctr_data_w = ctr_data_r;
+  //! the LIVE match term closes the stale-beat window: the engine may
+  //! advance its selector in the same cycle it consumes a beat, and srv2
+  //! stays high one cycle past the change - without this term that one
+  //! cycle accepted the NEW word with the OLD answer
+  assign pp_ctr_wait_w = pp_ctr_req_w && !(ctr_srv2_r && ctr_sel_match_w);
 
   // ------------------------------------------------------------------------
   //  GET_AUDIO_MAP (1722.1-2021 7.4.44, Milan v1.2 5.4.2.26 / 5.3.3.9)
@@ -3321,10 +3360,42 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! EMPTY page (number_of_mappings 0, zero records), never another
   //! object's data. number_of_maps 0 for an unknown port is what lets the
   //! processor agree with its descriptor store instead of this guard.
-  wire amap_spi_w = (pp_amap_desc_type_w == DESC_STREAM_PORT_IN_C)
-                 && (32'(pp_amap_desc_index_w) < AMAP_IN_PORTS_C);
+  //! REGISTERED ANSWER SERVER - same cut as the counters face above (the
+  //! v48 -1.7 ns cone): selectors register in, the page walks below compute
+  //! from the registered copy, the answer lands in a register, wait holds
+  //! two cycles per beat under the face's own HOLD contract.
+  logic [15:0] amapq_type_r, amapq_index_r, amapq_map_r;
+  logic  [1:0] amapq_sel_r;
+  logic  [7:0] amapq_rec_r;
+  logic        amap_srv1_r, amap_srv2_r;
+  logic [63:0] amap_data_r;
+  logic [63:0] amap_ans_raw_w;  //! written by the amap_answer comb block
+  wire amap_sel_match_w = (amapq_type_r  == pp_amap_desc_type_w)
+                       && (amapq_index_r == pp_amap_desc_index_w)
+                       && (amapq_map_r   == pp_amap_map_index_w)
+                       && (amapq_sel_r   == pp_amap_sel_w)
+                       && (amapq_rec_r   == pp_amap_rec_w);
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_answer_srv
+    if (!axis_resetn) begin
+      amapq_type_r <= 16'd0; amapq_index_r <= 16'd0; amapq_map_r <= 16'd0;
+      amapq_sel_r  <= 2'd0;  amapq_rec_r   <= 8'd0;
+      amap_srv1_r  <= 1'b0;  amap_srv2_r   <= 1'b0; amap_data_r <= 64'd0;
+    end else begin
+      amapq_type_r  <= pp_amap_desc_type_w;
+      amapq_index_r <= pp_amap_desc_index_w;
+      amapq_map_r   <= pp_amap_map_index_w;
+      amapq_sel_r   <= pp_amap_sel_w;
+      amapq_rec_r   <= pp_amap_rec_w;
+      amap_srv1_r   <= pp_amap_req_w && amap_sel_match_w;
+      amap_srv2_r   <= pp_amap_req_w && amap_sel_match_w && amap_srv1_r;
+      amap_data_r   <= amap_ans_raw_w;
+    end
+  end
+
+  wire amap_spi_w = (amapq_type_r == DESC_STREAM_PORT_IN_C)
+                 && (32'(amapq_index_r) < AMAP_IN_PORTS_C);
   wire amap_page_ok_w = amap_spi_w
-                     && (32'(pp_amap_map_index_w) < AMAP_NMAPS_C);
+                     && (32'(amapq_map_r) < AMAP_NMAPS_C);
 
   //! the page walk, combinational over the flat map export: page P covers
   //! port-relative offsets [P*PAGE, min((P+1)*PAGE, clusters)); global
@@ -3340,16 +3411,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     amap_rec_data_w = 64'd0;
     seen_c          = 0;
     for (int unsigned j = 0; j < AMAP_PAGE_C; j++) begin
-      off_c = (amap_page_ok_w ? 32'(pp_amap_map_index_w) : 32'd0)
+      off_c = (amap_page_ok_w ? 32'(amapq_map_r) : 32'd0)
               * AMAP_PAGE_C + j;
-      g_c   = 32'(pp_amap_desc_index_w[3:0]) * AMAP_IN_CLUS_C + off_c;
+      g_c   = 32'(amapq_index_r[3:0]) * AMAP_IN_CLUS_C + off_c;
       //! a slot outside the page, the port or the rendered RAM reads as
       //! UNMAPPED - its en bit below is 0, so it cannot count or match
       ent_c = (amap_page_ok_w && (off_c < AMAP_IN_CLUS_C)
                && (g_c < CHMAP_PHYS_C)) ? rmap_flat_w[g_c*8 +: 8] : 8'd0;
       //! en && !src: an AVB listener mapping (see the banner above)
       if (ent_c[7] && !ent_c[6]) begin
-        if (seen_c == 32'(pp_amap_rec_w)) begin
+        if (seen_c == 32'(amapq_rec_r)) begin
           amap_rec_data_w = {13'd0, ent_c[5:3],       // mapping_stream_index
                              13'd0, ent_c[2:0],       // mapping_stream_channel
                              16'(off_c),              // mapping_cluster_offset
@@ -3362,19 +3433,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end : amap_page_walk
 
   always_comb begin : amap_answer
-    unique case (pp_amap_sel_w)
-      2'd0:    pp_amap_data_w = {48'd0,
+    unique case (amapq_sel_r)
+      2'd0:    amap_ans_raw_w = {48'd0,
                                  amap_spi_w ? 16'(AMAP_NMAPS_C)
                                : amap_spo_w ? 16'(AMAP_OUT_NMAPS_C)
                                             : 16'd0};
-      2'd1:    pp_amap_data_w = {32'd0,
+      2'd1:    amap_ans_raw_w = {32'd0,
                                  amap_spi_w ? 16'(AMAP_NMAPS_C)
                                : amap_spo_w ? 16'(AMAP_OUT_NMAPS_C) : 16'd0,
                                  amap_page_ok_w  ? amap_cnt_w
                                : amap_opage_ok_w ? amap_ocnt_w : 16'd0};
-      2'd2:    pp_amap_data_w = amap_page_ok_w  ? amap_rec_data_w
+      2'd2:    amap_ans_raw_w = amap_page_ok_w  ? amap_rec_data_w
                               : amap_opage_ok_w ? amap_orec_data_w : 64'd0;
-      default: pp_amap_data_w = 64'd0;
+      default: amap_ans_raw_w = 64'd0;
     endcase
   end : amap_answer
   //! ---- the OUTPUT half of the same answer (Milan 5.4.2.26's second
@@ -3405,10 +3476,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                     / AMAP_OPAGE_C;
   localparam logic [15:0] DESC_STREAM_PORT_OUT_C = 16'h000F;
 
-  wire amap_spo_w = (pp_amap_desc_type_w == DESC_STREAM_PORT_OUT_C)
-                 && (32'(pp_amap_desc_index_w) < N_STREAMS);
+  wire amap_spo_w = (amapq_type_r == DESC_STREAM_PORT_OUT_C)
+                 && (32'(amapq_index_r) < N_STREAMS);
   wire amap_opage_ok_w = amap_spo_w
-                      && (32'(pp_amap_map_index_w) < AMAP_OUT_NMAPS_C);
+                      && (32'(amapq_map_r) < AMAP_OUT_NMAPS_C);
 
   //! entry {en[12], half[11], src[10:8], idxh[7:4], idx[3:0]} -> the AEM
   //! cluster its source names (KL_chan_map_capture's resolver, re-read as
@@ -3448,18 +3519,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     amap_ocnt_w      = 16'd0;
     amap_orec_data_w = 64'd0;
     seen_c           = 0;
-    base_c = amap_opage_ok_w ? 32'(pp_amap_map_index_w) * AMAP_OPAGE_C : 0;
+    base_c = amap_opage_ok_w ? 32'(amapq_map_r) * AMAP_OPAGE_C : 0;
     for (int unsigned c = 0; c < 8; c++) begin
       ent_c = (amap_opage_ok_w
-               && (32'(pp_amap_desc_index_w[3:0]) * 8 + c < N_STREAMS * 8))
-              ? cmap_flat_w[(32'(pp_amap_desc_index_w[3:0]) * 8 + c) * 13 +: 13]
+               && (32'(amapq_index_r[3:0]) * 8 + c < N_STREAMS * 8))
+              ? cmap_flat_w[(32'(amapq_index_r[3:0]) * 8 + c) * 13 +: 13]
               : 13'd0;
       cl_c = amap_out_cluster(ent_c);
       if (cl_c[16] && (32'(cl_c[15:0]) >= base_c)
           && (32'(cl_c[15:0]) < base_c + AMAP_OPAGE_C)
           && (32'(cl_c[15:0]) < AMAP_OUT_CLUS_C)) begin
-        if (seen_c == 32'(pp_amap_rec_w)) begin
-          amap_orec_data_w = {16'(pp_amap_desc_index_w),  // stream_index
+        if (seen_c == 32'(amapq_rec_r)) begin
+          amap_orec_data_w = {16'(amapq_index_r),  // stream_index
                               16'(c),                     // stream_channel
                               cl_c[15:0],                 // cluster_offset
                               16'd0};                     // cluster_channel
@@ -3471,7 +3542,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end : amap_out_walk
 
   //! HOLD, not a ready - combinational flops again, never held
-  assign pp_amap_wait_w = 1'b0;
+  assign pp_amap_data_w = amap_data_r;
+  assign pp_amap_wait_w = pp_amap_req_w && !(amap_srv2_r && amap_sel_match_w);  //! live-match: see the counters face
 
   //! ==== the Milan-info answer block (06 SS6.2/SS6.10) ====================
   //! GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH, one word at a time; the
@@ -3511,11 +3583,43 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   localparam int GSI_SRC_W_C = (ACMP_SRC_C  > 1) ? $clog2(ACMP_SRC_C)  : 1;
   wire [3:0]             gsi_ix_w  = pp_gsi_desc_index_w[3:0];
   wire [GSI_SNK_W_C-1:0] gsi_six_w = pp_gsi_desc_index_w[GSI_SNK_W_C-1:0];
-  wire [GSI_SRC_W_C-1:0] gsi_oix_w = pp_gsi_desc_index_w[GSI_SRC_W_C-1:0];
-  wire        gsi_in_w   = (pp_gsi_desc_type_w == 16'h0005)
-                           && (32'(pp_gsi_desc_index_w) < ACMP_SINKS_C);
-  wire        gsi_out_w  = (pp_gsi_desc_type_w == 16'h0006)
-                           && (32'(pp_gsi_desc_index_w) < ACMP_SRC_C);
+  //! REGISTERED ANSWER SERVER - the third face, same v48 cut. The info
+  //! flags (Tables 5.9-5.12) and the iterated AVB/path records compute from
+  //! REGISTERED selectors into a register; wait holds two cycles per beat.
+  logic  [1:0] gsiq_kind_r;
+  logic [15:0] gsiq_type_r, gsiq_index_r;
+  logic  [3:0] gsiq_sel_r;
+  logic  [7:0] gsiq_ord_r;
+  logic        gsi_srv1_r, gsi_srv2_r;
+  logic [63:0] gsi_data_r;
+  logic [63:0] gsi_ans_raw_w;   //! written by the answer comb block below
+  wire gsi_sel_match_w = (gsiq_kind_r  == pp_gsi_kind_w)
+                      && (gsiq_type_r  == pp_gsi_desc_type_w)
+                      && (gsiq_index_r == pp_gsi_desc_index_w)
+                      && (gsiq_sel_r   == pp_gsi_sel_w)
+                      && (gsiq_ord_r   == pp_gsi_ord_w);
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : gsi_answer_srv
+    if (!axis_resetn) begin
+      gsiq_kind_r <= 2'd0;  gsiq_type_r <= 16'd0; gsiq_index_r <= 16'd0;
+      gsiq_sel_r  <= 4'd0;  gsiq_ord_r  <= 8'd0;
+      gsi_srv1_r  <= 1'b0;  gsi_srv2_r  <= 1'b0;  gsi_data_r <= 64'd0;
+    end else begin
+      gsiq_kind_r  <= pp_gsi_kind_w;
+      gsiq_type_r  <= pp_gsi_desc_type_w;
+      gsiq_index_r <= pp_gsi_desc_index_w;
+      gsiq_sel_r   <= pp_gsi_sel_w;
+      gsiq_ord_r   <= pp_gsi_ord_w;
+      gsi_srv1_r   <= pp_gsi_req_w && gsi_sel_match_w;
+      gsi_srv2_r   <= pp_gsi_req_w && gsi_sel_match_w && gsi_srv1_r;
+      gsi_data_r   <= gsi_ans_raw_w;
+    end
+  end
+
+  wire [GSI_SRC_W_C-1:0] gsi_oix_w = gsiq_index_r[GSI_SRC_W_C-1:0];
+  wire        gsi_in_w   = (gsiq_type_r == 16'h0005)
+                           && (32'(gsiq_index_r) < ACMP_SINKS_C);
+  wire        gsi_out_w  = (gsiq_type_r == 16'h0006)
+                           && (32'(gsiq_index_r) < ACMP_SRC_C);
   wire        gsi_bnd_w  = gsi_in_w && pp_cd_acmp_bound_w[gsi_six_w];
   wire [63:0] gsi_sid_w  = pp_cd_acmp_bound_sid_w[64*gsi_six_w +: 64];
   wire        gsi_setl_w = gsi_bnd_w && (gsi_sid_w != 64'd0);
@@ -3568,20 +3672,20 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [63:0] gsi_osid_w  = pp_src_sid_w[64*gsi_oix_w +: 64];
 
   always_comb begin : gsi_answer
-    pp_gsi_data_w = 64'd0;
-    unique case (pp_gsi_kind_w)
+    gsi_ans_raw_w = 64'd0;
+    unique case (gsiq_kind_r)
       2'd0: begin                            // ---- GET_STREAM_INFO ----
-        unique case (pp_gsi_sel_w)
-          4'd0: pp_gsi_data_w = {32'd0, gsi_flags_w};
-          4'd1: pp_gsi_data_w = (gsi_in_w || gsi_out_w) ? GSI_FMT_C : 64'd0;
-          4'd2: pp_gsi_data_w = gsi_in_w  ? gsi_sid_w
+        unique case (gsiq_sel_r)
+          4'd0: gsi_ans_raw_w = {32'd0, gsi_flags_w};
+          4'd1: gsi_ans_raw_w = (gsi_in_w || gsi_out_w) ? GSI_FMT_C : 64'd0;
+          4'd2: gsi_ans_raw_w = gsi_in_w  ? gsi_sid_w
                               : gsi_decl_w ? gsi_osid_w : 64'd0;
-          4'd3: pp_gsi_data_w = gsi_in_w
+          4'd3: gsi_ans_raw_w = gsi_in_w
                               ? {32'd0, gsi_reging_w
                                  ? pp_cd_srp_acc_latency_w[32*gsi_six_w +: 32]
                                  : 32'd0}
                               : {32'd0, gsi_out_w ? PRES_DFLT_C : 32'd0};
-          4'd4: pp_gsi_data_w = gsi_setl_w
+          4'd4: gsi_ans_raw_w = gsi_setl_w
                               ? {pp_cd_acmp_bound_dmac_w[48*gsi_six_w +: 48],
                                  gsi_tkfail_w
                                  ? pp_cd_srp_snk_fail_code_w[8*gsi_six_w +: 8]
@@ -3595,51 +3699,52 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                  gsi_tkfail_w
                                  ? pp_cd_srp_snk_fail_code_w[8*gsi_six_w +: 8]
                                  : 8'd0, 8'd0};
-          4'd5: pp_gsi_data_w = gsi_ofail_w
+          4'd5: gsi_ans_raw_w = gsi_ofail_w
                               ? pp_cd_srp_src_fail_bridge_w[64*gsi_oix_w +: 64]
                               : 64'd0;       // sink bridge id: honest zero
-          4'd6: pp_gsi_data_w = {gsi_setl_w
+          4'd6: gsi_ans_raw_w = {gsi_setl_w
                                  ? {4'd0, pp_cd_acmp_bound_vlan_w[12*gsi_six_w +: 12]}
                                  : gsi_decl_w
                                  ? {4'd0, pp_cd_srp_class_a_vid_w}
                                  : 16'd0,
                                  16'd0, gsi_flags_ex_w};
-          4'd7: pp_gsi_data_w = {32'd0,
+          4'd7: gsi_ans_raw_w = {32'd0,
                                  gsi_in_w
                                  ? {(!gsi_bnd_w ? 3'd0
                                      : gsi_setl_w ? 3'd3 : 3'd1), 5'd0}
                                  : 8'd0,
                                  24'd0};
-          default: pp_gsi_data_w = 64'd0;
+          default: gsi_ans_raw_w = 64'd0;
         endcase
       end
       2'd1: begin                            // ---- GET_AVB_INFO ----
-        unique case (pp_gsi_sel_w)
-          4'd0: pp_gsi_data_w = cfg_adp_gptp_gm;
-          4'd1: pp_gsi_data_w = {32'd0,      // propagation_delay: unmeasured
+        unique case (gsiq_sel_r)
+          4'd0: gsi_ans_raw_w = cfg_adp_gptp_gm;
+          4'd1: gsi_ans_raw_w = {32'd0,      // propagation_delay: unmeasured
                                  cfg_adp_gptp_domain,
                                  {3'd0, 1'b1, !eff_link_w, 1'b1, 1'b1,
                                   clkv_as_cap_w},
                                  16'd1};     // one msrp mapping: class A
-          4'd8: pp_gsi_data_w = (pp_gsi_ord_w == 8'd0)
+          4'd8: gsi_ans_raw_w = (gsiq_ord_r == 8'd0)
                               ? {32'd0, 8'd6,       // SRclassID A
                                  {5'd0, pp_cd_srp_class_a_prio_w},
                                  {4'd0, pp_cd_srp_class_a_vid_w}}
                               : 64'd0;
-          default: pp_gsi_data_w = 64'd0;
+          default: gsi_ans_raw_w = 64'd0;
         endcase
       end
       default: begin                         // ---- GET_AS_PATH ----
-        unique case (pp_gsi_sel_w)
-          4'd0: pp_gsi_data_w = {63'd0, |cfg_adp_gptp_gm};
-          4'd8: pp_gsi_data_w = ((pp_gsi_ord_w == 8'd0) && (|cfg_adp_gptp_gm))
+        unique case (gsiq_sel_r)
+          4'd0: gsi_ans_raw_w = {63'd0, |cfg_adp_gptp_gm};
+          4'd8: gsi_ans_raw_w = ((gsiq_ord_r == 8'd0) && (|cfg_adp_gptp_gm))
                               ? cfg_adp_gptp_gm : 64'd0;
-          default: pp_gsi_data_w = 64'd0;
+          default: gsi_ans_raw_w = 64'd0;
         endcase
       end
     endcase
   end : gsi_answer
-  assign pp_gsi_wait_w = 1'b0;               //! combinational nets: never held
+  assign pp_gsi_data_w = gsi_data_r;
+  assign pp_gsi_wait_w = pp_gsi_req_w && !(gsi_srv2_r && gsi_sel_match_w);  //! live-match: see the counters face
 
   //! asCapable moved: the one AVB-info word this fabric changes OUTSIDE the
   //! processor's sight - edge-detected here into the Table 5.22 trigger pin
