@@ -661,7 +661,7 @@ int main(int argc, char** argv) {
     //     check that passes for the wrong reason.
 
     // --- 9. Milan talker: the admission gate, and what now opens it -------
-    // docs/design/MILAN_TALKER_SM.md: with AAF_CTRL bypass=0 (Milan mode) the
+    // docs/overview/ARCHITECTURE.md: with AAF_CTRL bypass=0 (Milan mode) the
     // framer is gated. Before anything arms it: enable=1 yields NO AAF frames.
     // CSR A_ACMP_TALKER 0x66C witnesses {[0] probe_armed, [1] talker_active,
     // [3] the resolved gate}.
@@ -1164,11 +1164,10 @@ int main(int argc, char** argv) {
         }
 
         // ------------------------------------------------------------------
-        // [ASPATH] gh #64 J4: the published PathTrace store, integrated.
-        // The staging group is what lets GET_AS_PATH serve the real
-        // 1722.1-2021 7.4.41.2 path_sequence instead of the two-entry
-        // derivation. Here the datapath proves the ABI end to end - the
-        // response bytes themselves are the aecp suite's job.
+        // [ASPATH] gh #64 J4: local PathTrace staging and readback only.
+        // The root leaves the CSR path outputs disconnected, so this test does
+        // not prove GET_AS_PATH. The wire response remains the leaf-only
+        // grandmaster path. Here the datapath proves only the local ABI.
         // ------------------------------------------------------------------
         {
             printf("[ASPATH] published 802.1AS PathTrace store (0x7DC)\n");

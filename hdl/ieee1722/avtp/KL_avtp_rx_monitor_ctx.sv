@@ -10,7 +10,7 @@
 
   Date        : 2026-07-22
   Description : Shared NxN STREAM_INPUT diagnostic-counter engine
-                (docs/NXN_ARCHITECTURE.md §1.2/§1.4, phase P2): ONE monitor
+                (docs/fpga/FPGA_DESIGN.md section 2): ONE monitor
                 datapath, N listener contexts in a BRAM-backed context RAM
                 (LCTX). Per-PDU verdict contract = KL_avtp_rx_monitor
                 (the pipewire-extracted engine): lock on first valid PDU /

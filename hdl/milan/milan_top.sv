@@ -74,7 +74,7 @@
   it, and deliberately did not attempt a revival.
 
   Recorded in docs/testing/TESTING.md §7 "Known gaps" and
-  docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md.
+  docs/testing/MILAN_V12_AUDIT_2026-08-16.md.
 
 ------------------------------------------------------------------------------
   File        : milan_top.sv
@@ -137,7 +137,7 @@ module milan_top import ethernet_packet_pkg::*; #(
   //! axis_clk (datapath) frequency: AX7101 100 MHz, Arty 50 MHz. Drives the
   //! AECP 1 kHz lock-timer divider so LOCK_ENTITY expires at a true 60 s.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
-  //! NxN dataplane width (docs/NXN_ARCHITECTURE.md P0) — plumbing only on the
+  //! NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2), plumbing only on the
   //! Zynq variant (its stream engines are the milan_datapath set; N unused
   //! here until that wrapper's shared engines are ported back).
   parameter int N_STREAMS = 1,

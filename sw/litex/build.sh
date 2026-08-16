@@ -178,7 +178,7 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
                  # slots through the 64ch chmap. The render sample bank
                  # behind it is unloaded on this padless board and sweeps.
                  # --no-render-lpf = the SPENT LPF_P area lever (2026-07-27,
-                 # docs/NXN_ARCHITECTURE.md 6.2/6.3). 428 LUT / 756 FF / 0 DSP
+                 # docs/design/AREA_BUDGET.md). 428 LUT / 756 FF / 0 DSP
                  # from the shipping 8x8 place report - the only Vivado-PROVEN
                  # figure of that round - on the board whose 6-queue map missed
                  # placement by 282 slices. Pruned, the render tap behaves

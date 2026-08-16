@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// NxN talker lane harness (docs/NXN_ARCHITECTURE.md):
+// NxN talker lane harness (docs/fpga/FPGA_DESIGN.md):
 //   [GB] P4 matrix row "golden-frame check: N=1 emits today's exact wire
 //        bytes" - flat aaf_talker_i2s vs KL_aaf_capture_i2s +
 //        KL_aaf_packetizer(N=1) on the same I2S stimulus, frames compared

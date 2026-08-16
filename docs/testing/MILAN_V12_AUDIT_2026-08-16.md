@@ -65,7 +65,7 @@ The pinned processor currently gives real behavior to `READ_DESCRIPTOR`,
 `ACQUIRE_ENTITY`, `LOCK_ENTITY`, `ENTITY_AVAILABLE`, `SET_CONFIGURATION`, `GET_CONFIGURATION`,
 `GET_STREAM_FORMAT`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
 `SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
-`GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `GET_STREAM_INFO`, `GET_AVB_INFO`, `GET_AS_PATH`,
+`GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `GET_STREAM_INFO`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
 `GET_COUNTERS`, `GET_AUDIO_MAP`, the unsolicited registration pair, and Milan
 `GET_MILAN_INFO`.
 
@@ -142,7 +142,24 @@ remove a silent controller and send the targeted deregistration notification.
 This is a mandatory controller-liveness gap, separate from the Table 5.22
 counter-change notification producer in B4.
 
-### B6. The physical media clock and packet grid are not proven aligned
+### B6. Multi-bridge AS_PATH reporting is incomplete
+
+The root gather face serves `GET_AS_PATH` as a zero-entry response when no
+grandmaster is known, or as a one-entry response containing only the
+grandmaster identity. The CSR PathTrace staging group stores and reads back a
+tail, but the root leaves its path, count, and generation outputs disconnected.
+The processor therefore never receives the traversed bridge identities.
+
+This leaf-only behavior is useful but incomplete. A topology with one or more
+bridges is reported without those bridges, so the mandatory IEEE 1722.1 path
+semantics used by Milan are not closed.
+
+Evidence: the disconnected `o_asp_path`, `o_asp_count`, and `o_asp_gen` ports
+and the `GET_AS_PATH` gather selection in
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), plus the staging
+status in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
+
+### B7. The physical media clock and packet grid are not proven aligned
 
 The true-ratio simulation measures the TDM frame clock at about 10.6 ppm below
 the exact 48 kHz packet grid. The test currently passes by proving that the two
@@ -152,7 +169,7 @@ exercised in the current integration.
 
 Evidence: [`sim_aclk.cpp`](../../tb/verilator/milan_dp/sim_aclk.cpp).
 
-### B7. Required external evidence is missing
+### B8. Required external evidence is missing
 
 No current Vivado place-and-route, timing report, bitstream build, physical
 peer-format-matched audio run, long-duration gPTP run, or external lab run
@@ -189,7 +206,7 @@ clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
 
 ## Release rule
 
-Do not remove the **not compliant** verdict until all B1 through B7 items have
+Do not remove the **not compliant** verdict until all B1 through B8 items have
 current evidence. A green regression is necessary, but it is not sufficient.
 The final review must include a synchronized clause matrix, zero unresolved
 mandatory rows, a successful bitstream and timing build, a matched-format

@@ -76,11 +76,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   parameter bit [NUM_QUEUES-1:0] CBS_QUEUES_MASK_P = '1,
   //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
-  //! NxN dataplane width (docs/NXN_ARCHITECTURE.md P0): AAF stream contexts
+  //! NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2): AAF stream contexts
   //! per shared engine (listener sinks = talker sources = N_STREAMS). The
   //! N = 1 default is today's shape, bit-compatible (no-regression axiom).
   parameter int N_STREAMS = 1,
-  //! THE WIRE CHANNEL CONSTANT (roadmap item 00, docs/MILAN_COMPLIANCE_GAPS.md).
+  //! THE WIRE CHANNEL CONSTANT (docs/ENDSTATION_BUILDER.md section 3).
   //! channels_per_frame this fabric puts in every talker's AAF PDU - the
   //! 7.3.3 field and the 24*C payload both. It sits beside N_STREAMS
   //! deliberately: a stream COUNT and a stream WIDTH are the same kind of
@@ -566,7 +566,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   output wire [N_STREAMS*16-1:0] pb_overrun_o,  //! per-stream overrun count
   output wire        pb_playing_o             //! engine walking a sample tick
 );
-  // P12 (NXN_ARCHITECTURE.md §1.5): the 0x800 window's LCTX/TCTX port-B
+  // P12 (docs/fpga/FPGA_DESIGN.md section 2): the 0x800 window's LCTX/TCTX port-B
   // read/snap/write bundles and the ACMP context-table port are wired to
   // the REAL engines inside this module (KL_avtp_rx_monitor_ctx /
   // KL_aaf_packetizer / KL_acmp_lstn_ctx via its wrapper) — the P11
@@ -803,7 +803,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
            TALKER_WIRE_CHANS_P);
   else if (WIRE_PAIRS_NEEDED_C > AIF_PAIRS_C)
-    $error("milan_datapath: the fabric cannot emit what this build declares. TALKER_WIRE_CHANS_P=%0d needs %0d fed pair slots per talker and the capture front-end selected by AUDIO_IF_SLOTS_P=%0d supplies %0d in total. Raise the framer (roadmap item 5, docs/MILAN_COMPLIANCE_GAPS.md order item 5) - do NOT lower the entity's declared format, which was tried on 2026-07-27 (dade536) and reverted (e103d8e): it makes an 8x8 board advertise itself as stereo forever.",
+    $error("milan_datapath: the fabric cannot emit what this build declares. TALKER_WIRE_CHANS_P=%0d needs %0d fed pair slots per talker and the capture front-end selected by AUDIO_IF_SLOTS_P=%0d supplies %0d in total. Raise the framer per docs/ENDSTATION_BUILDER.md section 3. Do NOT lower the entity's declared format, which was tried on 2026-07-27 (dade536) and reverted (e103d8e): it makes an 8x8 board advertise itself as stereo forever.",
            TALKER_WIRE_CHANS_P, WIRE_PAIRS_NEEDED_C, AUDIO_IF_SLOTS_P,
            AIF_PAIRS_C);
 
@@ -1452,7 +1452,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire                     cfg_aaf_bypass;
   wire [47:0]              cfg_aaf_dmac;
   wire [11:0]              cfg_aaf_vid;
-  //! Milan talker SM (docs/design/MILAN_TALKER_SM.md): ACMP probe state,
+  //! Milan talker SM (docs/overview/ARCHITECTURE.md): ACMP probe state,
   //! the lwSRP listener socket (CSR override retained as the manual lever),
   //! the AECP presentation offset, and the resolved AAF gate.
   wire                     cfg_acmp_lobs;
@@ -1561,15 +1561,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! talker, fabric-provisioned like every other sink's.
   localparam int SRP_LSN0_ROW_C   = N_STREAMS + (N_STREAMS + ((ACMP_SRC_C > N_STREAMS) ? 1 : 0)) - 1;
   localparam int SRP_LSN0_SLOT_C  = (N_STREAMS + ((ACMP_SRC_C > N_STREAMS) ? 1 : 0)) + N_STREAMS - 1;
-  //! task #27: the CRF Media Clock Input sink's OWN listener row + fabric
-  //! slot, appended past the sink-0 pair exactly the way that pair was
-  //! appended (rows never renumber). Present only when the shape declares
-  //! the pinned-LAST CRF sink (ACMP_SINKS_C > N_STREAMS); a shape without
-  //! one elaborates zero of this. Closes MILAN_COMPLIANCE_GAPS.md 3: a
-  //! CONNECT_RX on the CRF sink now provisions a row the walker declares
-  //! Listener Ready into, so a Milan talker will actually start CRF at us
-  //! (silicon 08-07: DS20 CRF bound + one PDU, then silence - our Ready
-  //! was never declared and the talker rightly stood down).
+  //! Reserved legacy row arithmetic for the CRF Media Clock Input sink.
+  //! These constants have no consumer after SRP ownership moved to the
+  //! protocol processor and do not prove a CRF listener declaration.
   localparam int SRP_CRFSNK_C      = (ADP_LISTENER_SINK_C > N_STREAMS) ? 1 : 0;
   localparam int SRP_CRFSNK_ROW_C  = SRP_LSN0_ROW_C + 1;
   localparam int SRP_CRFSNK_SLOT_C = SRP_LSN0_SLOT_C + 1;
@@ -1640,10 +1634,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! ...projected onto the ACMP sink index. Sink k's attribute row IS k for
   //! 1..N_STREAMS-1 (srp_fab_row_w's listener branch); sink 0's is the
   //! DEDICATED listener-0 row (SRP_LSN0_ROW_C, the 5-bit-widened space).
-  //! The CRF Media Clock Input sink still has no listener row
-  //! (MILAN_COMPLIANCE_GAPS.md 3 — widen further to close it), so its bit
-  //! is honestly 0: that sink probes, settles and re-probes every TMR_NO_TK
-  //! instead of parking in SETTLED_RSV_OK.
+  //! This legacy projection has no CRF Media Clock Input listener row. SRP is
+  //! now processor-owned, so these fabric bits are not processor SRP evidence.
   wire [7:0]  lwsrp_ta_fail_code;
   //! AVTP RX monitor (KL_avtp_rx_monitor, STREAM_INPUT[0] Table 7-156)
   wire        avtprx_match, avtprx_tu_bit, avtprx_tv_bit, avtprx_mr_bit;
@@ -1941,7 +1933,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        cfg_lpf_enable;
   wire        cfg_crf_en;
   wire [63:0] cfg_crf_sid;
-  //! gh #64 J4 published PathTrace tail (CSR 0x7DC group)
+  //! gh #64 J4 local PathTrace staging (CSR 0x7DC group). Its outputs remain
+  //! disconnected below and GET_AS_PATH serves only cfg_adp_gptp_gm.
   wire [63:0] pcm_lpf_tdata;
   wire        pcm_lpf_tvalid;
   wire        pcm_lpf_active;
@@ -4304,7 +4297,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  and validates the Avnu Pro Audio CRF stream selected by the CRF CSRs,
   //  produces the phase/frequency error the media-clock servo consumes and
   //  the CLOCK_DOMAIN lock events for clock_source = CRF. The ACMP sink-1
-  //  bind chain is the remaining CRF work (MILAN_COMPLIANCE_GAPS.md).
+  //  remaining CRF integration gaps are recorded in
+  //  docs/testing/MILAN_V12_AUDIT_2026-08-16.md B3 and B4.
   // ==========================================================================
   KL_crf_rx #(
     .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
@@ -5201,7 +5195,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   );
 
   //! ...and the CRF talker's PDUs - on the DATA lane beside AAF, NOT on the
-  //! low-rate control merge (job 2 of docs/MILAN_COMPLIANCE_GAPS.md §2,
+  //! low-rate control merge (docs/overview/ARCHITECTURE.md section 3,
   //! moved 2026-07-28). The CRF PDU is a STREAM carrying a gPTP timestamp
   //! that a listener steers its 48 kHz recovery clock against; behind the
   //! control lane's min-IFG gasket it inherited a 512-cycle spacing PER

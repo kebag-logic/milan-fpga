@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: CERN-OHL-W-2.0
  *
  * P12 NxN integration harness: milan_datapath at N_STREAMS=4, CSR 0x800
- * window -> REAL engines end-to-end (NXN_ARCHITECTURE.md P12 gate):
+ * window -> REAL engines end-to-end (docs/fpga/FPGA_DESIGN.md section 2):
  *
  *   1. provision listener streams 1..2 THROUGH the window (SID/FMT staged,
  *      CTRL commit -> LCTX CFG words + stream-table entry + route field),

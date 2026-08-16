@@ -3087,7 +3087,7 @@ def load_config(path):
                             "board.constraints.hs_page_bytes"),
         strip_probes=bool(c.get("strip_probes", True)),
         eth_port=c.get("eth_port"),
-        # milan_datapath LPF_P (docs/NXN_ARCHITECTURE.md 6.2/6.3): the
+        # milan_datapath LPF_P (docs/design/AREA_BUDGET.md): the
         # render-tap Butterworth is PRESENT unless a config prunes it, so
         # omitting the key leaves every existing argv byte-identical.
         render_lpf=bool(c.get("render_lpf", True)),
@@ -4268,7 +4268,7 @@ FEATURE_REMEASURE = {
         "the port is PROMISCUOUS in the pruned build",
     "render_lpf":
         "the analog loop THD+N record, which was measured THROUGH this "
-        "filter (docs/NXN_ARCHITECTURE.md 6.2)",
+        "filter (docs/design/AREA_BUDGET.md)",
     "datapath_probes":
         "the APRB pre-match view (parsed/matched/last-sid) and PBK chain "
         "evidence - the 0x8B4-0x8D0 words read 0, so bench recipes that "

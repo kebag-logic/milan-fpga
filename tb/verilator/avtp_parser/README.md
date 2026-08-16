@@ -13,7 +13,7 @@ silicon read of those five words maps back to a named case in `sim_parser.cpp`
 / `sim_tbl.cpp`.
 
 Born 2026-07-26 against the open blocker in
-[`KNOWN_ISSUES_AND_LIMITATIONS.md`](../../../docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md):
+[the current audit](../../../docs/testing/MILAN_V12_AUDIT_2026-08-16.md):
 the fabric listener accepts nothing on the flashed 8×8 gateware while ACMP
 reports a clean bind and both ends agree on the `stream_id`. Nothing owned the
 N=8 compare that issues that verdict.

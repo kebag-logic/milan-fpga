@@ -229,20 +229,20 @@ predicted — they are what `gen_aem_store.py` is handed:
 | Board, audio interface | arty, `i2s_philips` | arty, `tdm8` | ax7101, `tdm32` |
 | AAF listeners × talkers | 1 × 1 | 4 × 4 | 8 × 8 |
 | Listener / talker channels | 8 / 2 | 4 / 4 | 8 / 8 |
-| Talker `clusters` (D3) | 8 | 2 | *(unused under `role-pools`)* |
-| `audio_interface.physical_channels` | default (2/2) | default (8/8) | **0 / 0 — the board routes no audio pins** |
+| Talker `clusters` (D3) | 8 | 4 | *(unused under `role-pools`)* |
+| `audio_interface.physical_channels` | default (2/2) | **8 / 2** | **0 / 0, the board routes no audio pins** |
 | `cluster_mapping.policy` | `cluster-per-stream-channel` | `cap-at-interface` | `role-pools` (D8) |
 | `clocking.crf_output` | absent (legal at 1 listener) | enabled | enabled |
 | STREAM_INPUT / STREAM_OUTPUT | 2 / 1 | 5 / 5 | 9 / 9 |
 | STREAM_PORT_INPUT / _OUTPUT | 1 / 1 | 4 / 4 | 8 / 8 |
-| AUDIO_CLUSTER | 16 | 24 | **200** |
-| AUDIO_MAP | 2 | 8 | 16 |
+| AUDIO_CLUSTER | 16 | 32 | **200** |
+| AUDIO_MAP | 2 | 4 | 0 |
 | CLOCK_SOURCE | 3 | 6 | 10 |
 
 The cluster row is where the policy bites and where a guess would have been
 wrong. `cap-at-interface` takes `min(stream.clusters, interface channels per
-direction)` — that is why `arty_4x4` emits 24 and not one cluster per stream
-channel in both directions.
+direction). The TDM8 interface has eight channels per direction, so each 4ch
+stream keeps all four clusters and `arty_4x4` emits 32.
 
 The 8×8 row moved on 2026-07-28: it now selects **`role-pools`** (D8), so its
 ports carry role-tagged pools instead of a copy of a stream field —
@@ -891,24 +891,22 @@ Descriptor growth under D1–D3, relative to today's 1(+CRF)x1 model
 | STREAM_INPUT | 2 (1 AAF + CRF) | 9 (8 AAF + CRF) | 1722.1 7.2.6; Milan 7.2.2 (CRF input stays mandatory) |
 | STREAM_OUTPUT | 1 | 9 (8 AAF + CRF output) | 1722.1 7.2.6; Milan 7.2.3 (>=2 AAF inputs => CRF Media Clock Output) |
 | STREAM_PORT_INPUT / _OUTPUT | 1 / 1 | 8 / 8 (D1: one per AAF stream; CRF gets none) | 1722.1 7.2.13 |
-| AUDIO_CLUSTER | 16 (8 in + 8 out) | 128 (64 + 64, mono MBLA) | 1722.1 7.2.16; Milan 6.4 |
-| AUDIO_MAP | 2 | 16 (one identity map per port) | 1722.1 7.2.19 |
+| AUDIO_CLUSTER | 16 (8 in + 8 out) | 200 (`role-pools`, D8) | 1722.1 7.2.16; Milan 6.4 |
+| AUDIO_MAP | 2 | 0 (all ports dynamic) | 1722.1 7.2.19; Milan 5.3.3.9 |
 | CLOCK_SOURCE | 3 | 10 (internal + 8× INPUT_STREAM + CRF) | 1722.1 7.2.9.2 |
 | ADP `talker_stream_sources` / `listener_stream_sinks` | 1 / 2 | 9 / 9 (CRF output counted) | 1722.1 6.2.2.10 / 6.2.2.12 |
 
 Unchanged: ENTITY, CONFIGURATION, AUDIO_UNIT (still one clock domain,
 1722.1 7.2.3), AVB_INTERFACE, CLOCK_DOMAIN, CONTROL, LOCALE, STRINGS.
 
-> **The AUDIO_CLUSTER row is the count under `cluster-per-stream-channel`
-> with talker `clusters` = 8.** Since 2026-07-28 the tracked
-> `endstation_ax7101_8x8.yaml` selects **`role-pools`** (D8) instead, so the
-> overlay it actually emits carries **200** clusters (8 input ports ×
+> The tracked `endstation_ax7101_8x8.yaml` selects **`role-pools`** (D8), so
+> the overlay it emits carries **200** clusters (8 input ports ×
 > 8 `host`, 8 output ports × 8 `host` + 1 `pilot` + 8 `loopback`, and **no**
-> `physical` clusters because the board routes no audio pins) — see the
-> shapes table in §1 and the D8 status block. Every other row above matches
-> the emitted overlay exactly.
+> `physical` clusters because the board routes no audio pins). All listener
+> and talker ports are dynamic and therefore emit no AUDIO_MAP descriptors.
+> See the shapes table in section 1 and the D8 status block.
 
-**New Milan obligation the shape triggers — model half DONE.** With two
+**Milan obligation triggered by the shape.** With two
 or more AAF Media Inputs, Milan 7.2.3 makes a **CRF Media Clock Output**
 mandatory (7.2.2 already mandates the CRF input, which we have).
 
@@ -916,26 +914,16 @@ The builder now ENFORCES the rule (`clocking.crf_output`, mapping row 27:
 a >=2-AAF-listener config without it is a validation error citing 7.2.3)
 and the overlay/`gen_aem_store.py` advertise the CRF STREAM_OUTPUT
 (Milan 7.3.2 format `0x041060010000BB80`, `clock_domain_index` 0,
-CLOCK_SYNC_SOURCE|CLASS_A, no audio port — mirrors the CRF sink; counts
+CLOCK_SYNC_SOURCE|CLASS_A, no audio port, mirroring the CRF sink; counts
 above include it).
 
-The fabric talker exists (`KL_crf_tx`, CSRs 0x750–0x764, silicon-proven at
-500 PDU/s); what still rides with the item-5 round is the *provisioning*
-half: S50 boot wiring + the ACMP talker context for the CRF stream (plus
-its Class-A reservation, Milan 7.3.3 — traceability M-CLK-2).
-
-**Stays planned-item-5** (config validates, build plan marks it):
-
-- per-stream ACMP listener/talker contexts;
-- per-stream MAAP allocations and RX-monitor counter blocks;
-- per-stream lwSRP registrar/declaration instances (Q 35.2.7 — today's
-  engine is single-stream, traceability row SRP-9);
-- the CRF stream's own reservation (Milan 7.3.3, Class A — traceability
-  M-CLK-2);
-- the TDM16 ser/des (item-4 audio subtask, D5).
-
-What 8 depacketizer/framer contexts cost the AX7101 in area/timing at
-100 MHz is an item-5 measurement, not a claim this document makes.
+The model count is not a compliance verdict. The current root uses the
+processor-owned ADP, ACMP, and SRP plane, while the media engines remain in
+this fabric. Runtime gaps, including CRF clock selection and CRF Stream Input
+counter coverage, are recorded in
+[`MILAN_V12_AUDIT_2026-08-16.md`](testing/MILAN_V12_AUDIT_2026-08-16.md).
+Physical area, timing, and interoperability evidence also remain separate
+release obligations in that audit.
 
 ## 5. Relation to the bench suite and the traceability matrix
 

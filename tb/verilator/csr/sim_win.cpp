@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: CERN-OHL-W-2.0
  *
  * P11 indexed per-stream CSR window at N_LISTENERS_P=4 / N_TALKERS_P=4
- * (NXN_ARCHITECTURE.md §1.5) against MODELED lane-K engines:
+ * (docs/fpga/FPGA_DESIGN.md section 2) against MODELED lane-K engines:
  *   - LCTX/TCTX context-RAM port-B model (2-stage registered pipeline, the
  *     T2 contract) serving the slow window reads (CTRL/FMT listener side,
  *     CTRL/DMAC extra talker contexts)

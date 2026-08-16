@@ -11,7 +11,7 @@
   Date        : 2026-07-23
   Description : TDM slave audio-render front-end - the OUTPUT-side symmetric
                 twin of KL_tdm_capture (item-4 audio-interface family;
-                docs/NXN_ARCHITECTURE.md §2.1 "physical interface x1"). The
+                docs/fpga/FPGA_DESIGN.md section 2 "physical interface x1"). The
                 mapping fabric writes SLOTS_P per-slot 24-bit samples into a
                 slot bank on clk_i; a whole-frame double-buffer crosses into
                 the external TDM bit-clock domain, where the module serializes

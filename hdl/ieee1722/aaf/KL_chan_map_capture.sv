@@ -9,8 +9,8 @@
   Author      : Kebag Logic
 
   Date        : 2026-07-23
-  Description : Per-pair-slot TX source multiplexer (docs/NXN_ARCHITECTURE.md
-                §2.1 capture family; the SW-defined end-station channel map).
+  Description : Per-pair-slot TX source multiplexer (docs/fpga/FPGA_DESIGN.md
+                section 2 capture family; the SW-defined end-station channel map).
                 Sits between the several pair-stream sources and the shared
                 KL_aaf_packetizer's pair-injection interface: for every one of
                 the N_SLOTS_P TX pair slots (the prefix-sum slot space; talker
