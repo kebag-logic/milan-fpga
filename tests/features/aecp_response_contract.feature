@@ -62,16 +62,26 @@ Feature: the AECP answer contract - an echo for everything, silence for two thin
     And the AECP response is well formed against its command
     And the AECP engine counted a command and a response
 
-    Examples: commands Milan mandates that this processor does not implement yet
+    # Every row below is an OPEN Milan v1.2 compliance gap: the clause makes
+    # the command a SHALL and this engine answers the NOT_IMPLEMENTED echo.
+    # When one lands, DELETE its row and add it to the SERVED inventory in
+    # tests/steps/aecp_engine_steps.py - never leave it here passing for the
+    # wrong reason, which is how this table went stale the last time.
+    Examples: Milan SHALL commands this processor has not implemented yet
       | opcode | command                           |
-      | 1      | LOCK_ENTITY                       |
-      | 2      | ENTITY_AVAILABLE                  |
-      | 7      | GET_CONFIGURATION                 |
-      | 15     | GET_STREAM_INFO                   |
+      | 6      | SET_CONFIGURATION                 |
+      | 8      | SET_STREAM_FORMAT                 |
+      | 14     | SET_STREAM_INFO                   |
+      | 16     | SET_NAME                          |
       | 17     | GET_NAME                          |
-      | 23     | GET_CLOCK_SOURCE                  |
-      | 41     | GET_COUNTERS                      |
-      | 43     | GET_AUDIO_MAP                     |
+      | 20     | SET_SAMPLING_RATE                 |
+      | 22     | SET_CLOCK_SOURCE                  |
+      | 24     | SET_CONTROL                       |
+      | 25     | GET_CONTROL                       |
+      | 34     | START_STREAMING                   |
+      | 35     | STOP_STREAMING                    |
+      | 44     | ADD_AUDIO_MAPPINGS                |
+      | 45     | REMOVE_AUDIO_MAPPINGS             |
       | 75     | GET_DYNAMIC_INFO                  |
 
     Examples: opcodes with no command behind them at all
@@ -113,12 +123,19 @@ Feature: the AECP answer contract - an echo for everything, silence for two thin
 
   # ------------------------------------ never silence, never malformed ---
   @class:negative
-  Scenario: the whole AEM opcode space answers, and the three verdicts partition it
+  Scenario: the whole AEM opcode space answers, and the verdicts partition it
+    # The served set is an INVENTORY, not a literal in this file: it lives in
+    # tests/steps/aecp_engine_steps.py's SERVED table with a Milan clause per
+    # row, and the last step below parses the engine's own opcode localparams
+    # and fails if the two disagree. That gate is the point of the scenario.
+    # Without it this suite spent three days green while asserting
+    # NOT_IMPLEMENTED for twelve commands the RTL had started answering.
     When the controller sweeps AEM opcodes 0 to 104 plus 16383
     Then every swept opcode was answered and none was met with silence
     And every swept answer is well formed against its command
-    And the swept opcodes are SUCCESS for READ_DESCRIPTOR, BAD_ARGUMENTS for IDENTIFY_NOTIFICATION and NOT_IMPLEMENTED for the other 104
-    And every swept answer carries the command payload verbatim except READ_DESCRIPTOR
+    And the swept opcodes partition into the served set and the NOT_IMPLEMENTED remainder
+    And the served inventory matches the opcodes the engine RTL decodes
+    And every swept answer carries the command payload verbatim except the served set
 
   # --------------------------------------------------- silent refusal ---
   @class:negative @silent

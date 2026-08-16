@@ -13,13 +13,23 @@ PACKET_MR_MULTICAST = 0
 
 SUBTYPE_ADP, SUBTYPE_AECP, SUBTYPE_ACMP = 0xFA, 0xFB, 0xFC
 
+#! Opcodes are IEEE 1722.1-2021 Table 7-140. EVERY entry here is a READ:
+#! this tool points at live silicon, so a typo that lands on a mutating
+#! opcode changes the device under test instead of reporting on it. That is
+#! not hypothetical - GET_AUDIO_MAP was 0x002C here until 2026-08-16, which
+#! is ADD_AUDIO_MAPPINGS; the read is 0x002B.
 CMD = {
+    'ENTITY_AVAILABLE': 0x0002,
     'READ_DESCRIPTOR': 0x0004,
+    'GET_CONFIGURATION': 0x0007,
+    'GET_STREAM_FORMAT': 0x0009,
     'GET_STREAM_INFO': 0x000F,
+    'GET_SAMPLING_RATE': 0x0015,
+    'GET_CLOCK_SOURCE': 0x0017,
     'GET_AVB_INFO': 0x0027,
     'GET_AS_PATH': 0x0028,
     'GET_COUNTERS': 0x0029,
-    'GET_AUDIO_MAP': 0x002C,
+    'GET_AUDIO_MAP': 0x002B,
 }
 
 DESC = {

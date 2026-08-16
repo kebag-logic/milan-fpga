@@ -101,6 +101,66 @@ OP_ACQUIRE_ENTITY = 0x0000
 OP_READ_DESCRIPTOR = 0x0004
 OP_IDENTIFY_NOTIFICATION = 0x0026
 
+# ---- THE SERVED-OPCODE INVENTORY -------------------------------------------
+# The one place this suite records which AECP opcodes the protocol processor
+# answers for real, and the Milan v1.2 clause that makes each one a SHALL.
+#
+# WHY IT EXISTS: this file is an OFFLINE MODEL, so it can only ever be as
+# current as somebody remembered to make it - and it was not. Between the
+# 2026-08-13 substitution and 2026-08-16 the engine gained twelve commands
+# while every scenario here went on asserting NOT_IMPLEMENTED for them, and
+# the suite stayed 100 % green the whole time. A model that mirrors RTL fails
+# silently in exactly one direction: the RTL moves and the model does not.
+#
+# So the inventory is GATED AGAINST THE RTL TEXT (see
+# `step_inventory_matches_rtl`): the opcode constants in
+# protocol-processor/hdl/aecp/KL_aecp_engine.sv are parsed and compared to
+# the keys below. Add a command to the engine without adding it here and this
+# suite goes RED - which is the only property that makes the table worth
+# trusting. `verdict` is what a well-formed command for an EXISTING target
+# draws; `cdl` is the response's control_data_length per the cited clause,
+# which is the size law la_avdecc's checkResponsePayload enforces.
+SERVED = {
+    0x0000: dict(name="ACQUIRE_ENTITY", clause="Milan 5.4.2.1",
+                 verdict=ST_NOT_SUPPORTED, cdl=28),
+    0x0001: dict(name="LOCK_ENTITY", clause="Milan 5.4.2.2",
+                 verdict=ST_SUCCESS, cdl=28),
+    0x0002: dict(name="ENTITY_AVAILABLE", clause="Milan 5.4.2.3",
+                 verdict=ST_SUCCESS, cdl=32),
+    0x0004: dict(name="READ_DESCRIPTOR", clause="Milan 5.4.2.4",
+                 verdict=ST_SUCCESS, cdl=None),   # 16 + descriptor length
+    0x0007: dict(name="GET_CONFIGURATION", clause="Milan 5.4.2.6",
+                 verdict=ST_SUCCESS, cdl=16),
+    0x0009: dict(name="GET_STREAM_FORMAT", clause="Milan 5.4.2.8",
+                 verdict=ST_SUCCESS, cdl=24),
+    0x000F: dict(name="GET_STREAM_INFO", clause="Milan 5.4.2.10",
+                 verdict=ST_SUCCESS, cdl=68),     # the Milan 80-byte form
+    0x0015: dict(name="GET_SAMPLING_RATE", clause="Milan 5.4.2.14",
+                 verdict=ST_SUCCESS, cdl=20),
+    0x0017: dict(name="GET_CLOCK_SOURCE", clause="Milan 5.4.2.16",
+                 verdict=ST_SUCCESS, cdl=20),
+    0x0024: dict(name="REGISTER_UNSOLICITED_NOTIFICATION",
+                 clause="Milan 5.4.2.21", verdict=ST_SUCCESS, cdl=16),
+    0x0025: dict(name="DEREGISTER_UNSOLICITED_NOTIFICATION",
+                 clause="Milan 5.4.2.22", verdict=ST_SUCCESS, cdl=12),
+    0x0026: dict(name="IDENTIFY_NOTIFICATION", clause="IEEE 7.4.39.2",
+                 verdict=ST_BAD_ARGUMENTS, cdl=None),  # echoed at command size
+    0x0027: dict(name="GET_AVB_INFO", clause="Milan 5.4.2.23",
+                 verdict=ST_SUCCESS, cdl=None),   # 32 + 4 x mappings
+    0x0028: dict(name="GET_AS_PATH", clause="Milan 5.4.2.24",
+                 verdict=ST_SUCCESS, cdl=None),   # 16 + 8 x count
+    0x0029: dict(name="GET_COUNTERS", clause="Milan 5.4.2.25",
+                 verdict=ST_SUCCESS, cdl=148),
+    0x002B: dict(name="GET_AUDIO_MAP", clause="Milan 5.4.2.26",
+                 verdict=ST_SUCCESS, cdl=None),   # 24 + 8 x mappings
+}
+
+#! the engine's own path to the RTL, resolved from this file so the gate works
+#! from any working directory behave is launched in
+_ENGINE_SV = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    "protocol-processor", "hdl", "aecp", "KL_aecp_engine.sv")
+
 #! Milan v1.2 vendor-unique protocol_id, on the wire at AECPDU @22..@27
 MILAN_PROTOCOL_ID = bytes((0x00, 0x1B, 0xC5, 0x0A, 0xC1, 0x00))
 MVU_GET_MILAN_INFO = 0x0000
@@ -340,11 +400,28 @@ class AecpEngineModel:
         # configuration_index + reserved + type + index is BAD_ARGUMENTS, never
         # a locate of whatever zeros happened to be there.
         short = cdl < 20
+        #! the served row the SERVED program reads its response form from.
+        #! The dispatch arm that uses it is guarded on MT_AEM_COMMAND for the
+        #! reason the engine guards every discriminator on PP_PROTO_AEM: on an
+        #! ADDRESS_ACCESS PDU the @22..@23 word is tlv_count (IEEE 9.4.2.1)
+        #! and on a VENDOR_UNIQUE one it is the first half of a 48-bit
+        #! protocol_id - neither is a command_type, and reading either as one
+        #! turns an unrelated count into a served opcode.
+        self.opcode_served = opcode
         if opcode == OP_READ_DESCRIPTOR and not short:
             program, echo = "RDESC", False
         elif opcode == OP_IDENTIFY_NOTIFICATION or (
                 opcode == OP_READ_DESCRIPTOR and short):
             program, echo = "BADARG", True
+        elif (msg_type == MT_AEM_COMMAND) and (opcode in SERVED):
+            #! a command this engine answers for real. This model does NOT
+            #! reproduce its payload - that would be re-implementing the
+            #! microprograms in Python, which is how the model went stale in
+            #! the first place, and pp_top already grades every one of them
+            #! byte-exactly against the wire. What the model owns here is the
+            #! PARTITION: a served opcode must not fall to the
+            #! NOT_IMPLEMENTED echo, and it is graded as SERVED, not guessed.
+            program, echo = "SERVED", False
         else:
             program, echo = "NOTIMPL", True
 
@@ -369,6 +446,13 @@ class AecpEngineModel:
             return ST_NOT_IMPLEMENTED, 12       # E_NOTIMPL
         if program == "BADARG":
             return ST_BAD_ARGUMENTS, 12         # E_BADARG
+        if program == "SERVED":
+            #! the response FORM from the inventory's clause. A None cdl is a
+            #! variable-length response (READ_DESCRIPTOR's descriptor,
+            #! GET_AVB_INFO's mapping list, GET_AS_PATH's path, an audio-map
+            #! page) whose length this model has no business predicting.
+            row = SERVED[self.opcode_served]
+            return row["verdict"], (12 if row["cdl"] is None else row["cdl"])
         return self._read_descriptor(buf, cfg_ix, desc_ty, desc_ix)
 
     def _read_descriptor(self, buf, cfg_ix, desc_ty, desc_ix):
@@ -884,34 +968,81 @@ def step_sweep_wellformed(context):
     assert not bad, "%d malformed answers: %s" % (len(bad), "; ".join(bad[:5]))
 
 
-@then('the swept opcodes are SUCCESS for READ_DESCRIPTOR, BAD_ARGUMENTS for '
-      'IDENTIFY_NOTIFICATION and NOT_IMPLEMENTED for the other {n:d}')
-def step_sweep_partition(context, n):
+@then('the swept opcodes partition into the served set and the '
+      'NOT_IMPLEMENTED remainder')
+def step_sweep_partition(context):
     wrong = []
+    served = 0
     others = 0
     for op, _cmd, rsp in context.aecp_sweep:
         got = decode(rsp)["status"]
-        if op == OP_READ_DESCRIPTOR:
-            want = ST_SUCCESS
-        elif op == OP_IDENTIFY_NOTIFICATION:
-            want = ST_BAD_ARGUMENTS
+        if op in SERVED:
+            want = SERVED[op]["verdict"]
+            served += 1
         else:
             want = ST_NOT_IMPLEMENTED
             others += 1
         if got != want:
-            wrong.append("opcode %#06x: status %d, expected %d" % (op, got, want))
+            wrong.append("opcode %#06x (%s): status %d, expected %d"
+                         % (op, SERVED.get(op, {}).get("name", "unserved"),
+                            got, want))
     assert not wrong, "%d opcodes answered wrong: %s" % (len(wrong),
                                                          "; ".join(wrong[:5]))
-    assert others == n, "%d opcodes fell to NOT_IMPLEMENTED, expected %d" \
-        % (others, n)
+    #! the sweep must actually have covered the inventory: a sweep range that
+    #! stopped short of the served opcodes would report a clean partition
+    #! having proved nothing about them
+    missed = sorted(set(SERVED) - {op for op, _c, _r in context.aecp_sweep})
+    assert not missed, "the sweep never reached served opcodes %s" \
+        % ", ".join("%#06x" % o for o in missed)
+    assert served == len(SERVED), \
+        "%d served opcodes swept, the inventory holds %d" % (served,
+                                                             len(SERVED))
+    assert others > 0, "the sweep found no unserved opcode to refuse"
+    context.sweep_counts = (served, others)
+
+
+@then('the served inventory matches the opcodes the engine RTL decodes')
+def step_inventory_matches_rtl(context):
+    """The anti-staleness gate: parse the engine's own opcode localparams and
+    compare them to SERVED.  This is the check that would have caught the
+    twelve commands this suite went on calling NOT_IMPLEMENTED for three days
+    after they landed."""
+    import re
+    assert os.path.exists(_ENGINE_SV), \
+        "the engine RTL is not readable at %s - the submodule is probably " \
+        "not checked out, and an unreadable gate is a SKIP, never a PASS" \
+        % _ENGINE_SV
+    with open(_ENGINE_SV, "r", encoding="utf-8", errors="replace") as fh:
+        text = fh.read()
+    #! the opcode constants, but NOT the descriptor-type ones: both are 16-bit
+    #! localparams in the same block and only the OP_ prefix separates them
+    rtl = {int(m, 16) for m in
+           re.findall(r"localparam\s+logic\s*\[15:0\]\s+OP_[A-Z0-9_]+_C\s*=\s*"
+                      r"16'h([0-9A-Fa-f]{4})\s*;", text)}
+    assert rtl, "no OP_*_C opcode constants parsed out of %s" % _ENGINE_SV
+    missing = sorted(rtl - set(SERVED))
+    extra = sorted(set(SERVED) - rtl)
+    assert not missing, \
+        "the engine decodes %s but this suite's SERVED inventory does not " \
+        "list them - add the row (with its Milan clause) or the model is " \
+        "asserting behaviour the RTL no longer has" \
+        % ", ".join("%#06x" % o for o in missing)
+    assert not extra, \
+        "this suite claims %s are served but the engine decodes no such " \
+        "opcode" % ", ".join("%#06x" % o for o in extra)
 
 
 @then('every swept answer carries the command payload verbatim except '
-      'READ_DESCRIPTOR')
+      'the served set')
 def step_sweep_echo(context):
+    #! only the ECHO path replays the command bytes. A served opcode builds
+    #! its own response body, so it is excluded here and graded byte-exactly
+    #! by protocol-processor/tb/pp_top instead - the layer that drives the
+    #! real RTL. IDENTIFY_NOTIFICATION stays in the echo set: its
+    #! BAD_ARGUMENTS answer IS the reflected command (IEEE 7.4.39.2).
     bad = []
     for op, cmd, rsp in context.aecp_sweep:
-        if op == OP_READ_DESCRIPTOR:
+        if op in SERVED and op != OP_IDENTIFY_NOTIFICATION:
             continue
         want = decode_command(cmd)["payload"]
         got = decode(rsp)["payload"]

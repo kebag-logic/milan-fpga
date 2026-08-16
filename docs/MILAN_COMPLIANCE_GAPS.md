@@ -1,5 +1,20 @@
 # Milan v1.2 — remaining gaps to FULL compliance
 
+> ## SUPERSEDED FOR AECP, 2026-08-16 (VERSION 0x004B).
+> ## The ordered plan now lives in [`MILAN_V12_ROADMAP.md`](MILAN_V12_ROADMAP.md). Read that first.
+>
+> The status banner below is dated 2026-08-13 and says this device answers
+> **only** `READ_DESCRIPTOR`. That expired: the engine now serves **sixteen**
+> AEM opcodes plus MVU `GET_MILAN_INFO`, and the authority for which ones is
+> `protocol-processor/hdl/aecp/KL_aecp_engine.sv`'s `OP_*_C` constants — parsed
+> and gated by `tests/features/aecp_response_contract.feature` so no prose,
+> including this page, can be believed over the tree.
+>
+> Everything on this page that is NOT about the AECP command set — the
+> streaming, SRP, gPTP, media-clock and robustness sections — is unaffected and
+> still current.
+
+
 > ## STATUS 2026-08-13 — **THIS DEVICE ANSWERS `READ_DESCRIPTOR`; EVERY OTHER AECP COMMAND GETS A CONFORMANT `NOT_IMPLEMENTED` ECHO.**
 > ## Read [§0-ter](#0-ter-the-aecp-boundary--the-largest-open-gap-on-this-page) before anything else on this page.
 >

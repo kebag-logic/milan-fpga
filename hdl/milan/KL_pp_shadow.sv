@@ -22,20 +22,36 @@
                 is no parameter, no fallback and no shadow arm: this module is
                 instantiated unconditionally and its TX rides the control lane.
 
-                THE AECP HOLE IS REAL AND IT IS ACCEPTED. The processor's AECP
-                engine is the P4 micro-coded uCPU, which has NOT landed at its
-                top — the AECP pop face is tied ready = 0 there and TX arbiter
-                lanes 0 and 1 (LANE_AECP_SOL_C / LANE_AECP_UNS_C) are, in the
-                top's own words, "idle until P4". So this entity DISCOVERS
-                over ADP, connects over ACMP and reserves over SRP, and
-                answers NO AECP/AEM command at all. Everything downstream of
-                that — the AEM descriptor ROM, SET_CLOCK_SOURCE, entity
-                lock/acquire, SET_MAX_TRANSIT_TIME, GET_COUNTERS, the
-                unsolicited-notification duty and saved-state persistence —
-                is gone with it, and milan_datapath publishes the CSR words
-                those fed as STRUCTURAL ZEROS rather than plausible idles.
-                That is the user's call and it is made; it is not a defect to
-                be quietly patched around here.
+                THE AECP HOLE IS CLOSED ON THE READ SIDE (2026-08-16,
+                VERSION 0x004B). This banner said "answers NO AECP/AEM command
+                at all" from 2026-08-12 until the micro-coded uCPU landed
+                inside protocol_processor_top; that sentence is retired. The
+                EXTERNAL AECP pop face this wrapper exposes is still tied
+                ready = 0 (see the tie-off below) and that is CORRECT: the
+                engine pops that queue INSIDE the processor now, so a second
+                consumer here would steal its commands.
+
+                What this entity answers today: sixteen AEM opcodes plus MVU
+                GET_MILAN_INFO — the discovery/enumeration set
+                (READ_DESCRIPTOR, ENTITY_AVAILABLE, GET_CONFIGURATION), the
+                stream and clock getters (GET_STREAM_FORMAT, GET_STREAM_INFO,
+                GET_SAMPLING_RATE, GET_CLOCK_SOURCE), the gPTP pair
+                (GET_AVB_INFO, GET_AS_PATH), GET_COUNTERS, GET_AUDIO_MAP,
+                LOCK_ENTITY, the unsolicited registration pair, and the two
+                deliberate refusals (ACQUIRE_ENTITY, IDENTIFY_NOTIFICATION as
+                a command). The AUTHORITY is
+                protocol-processor/hdl/aecp/KL_aecp_engine.sv's OP_*_C
+                constants, never this comment.
+
+                WHAT IS STILL OPEN, and is a compliance gap rather than a
+                design choice: the whole SET_* family, GET_NAME/GET_CONTROL,
+                the audio-mapping writers, GET_DYNAMIC_INFO, the
+                unsolicited-notification trigger set, the departing-controller
+                monitor and saved-state persistence. The ordered plan is
+                docs/MILAN_V12_ROADMAP.md. Because SET_CLOCK_SOURCE is among
+                them, the live clock_source_index is still pinned at 0 and
+                milan_datapath still publishes the CSR words those writers fed
+                as STRUCTURAL ZEROS rather than plausible idles.
 
                 RATE. protocol_processor_top eats a 1 byte/clk stream, which
                 at 100 MHz is 100 MB/s against gigabit's 125 MB/s: a byte

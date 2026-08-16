@@ -284,11 +284,13 @@ Standing invariants across every phase: the ATDECC model stays authoritative
 (no side-channel state), every closed bitstream is flashed and soaked, and
 the desk suites + internal COMPLIANCE behave gates stay green at 100 % coverage.
 
-> The first invariant now has a hole in it that nothing in this tree can close:
-> **the model is authoritative but unreadable on the wire**, because no AECP
-> engine answers READ_DESCRIPTOR. The entity model still drives the gateware,
-> the shape header and the ACMP array sizes; a controller simply cannot
-> enumerate it from the device.
+> That hole is closed. The entity model is now readable on the wire: the
+> protocol processor's AECP engine serves `READ_DESCRIPTOR` out of a DRAM
+> descriptor image the build generates, and `tb/verilator/milan_dp`'s
+> `[AECP-MODEL]` block proves it by walking **every** descriptor the generator
+> emits and grading each answer against the model's own bytes. What is still
+> open is the write side — see
+> [`docs/MILAN_V12_ROADMAP.md`](docs/MILAN_V12_ROADMAP.md).
 
 ### P1.5 — Conformance hardening (2026-08, rides P1)
 
@@ -297,15 +299,16 @@ The clause-by-clause traceability review
 mapped the protocol-facing RTL elements and adversarially verified the
 divergences. The resulting fix campaign was tracked as twelve work packages.
 
-> **Most of this campaign was overtaken by the 2026-08-13 substitution.** The
-> RTL that carried these packages is deleted: the ADP, ACMP and SRP items are
-> now the protocol processor's to satisfy, and the AECP items (#58, #60, and the
-> AECP half of anything else here) are **still not implemented**: the
-> processor's AECP uCPU landed, but it implements `READ_DESCRIPTOR` and answers
-> every other command with a conformant `NOT_IMPLEMENTED` echo, so none of these
-> packages is discharged by it. The table is kept as the record of what was found
-> and what a conformant implementation still owes; do not read a row as work in
-> flight against this tree.
+> **Most of this campaign was overtaken by the 2026-08-13 substitution**, and
+> the AECP half of it has since been partly discharged. The RTL that carried
+> these packages is deleted: the ADP, ACMP and SRP items are now the protocol
+> processor's to satisfy. The processor's AECP uCPU serves **sixteen** AEM
+> opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x004B`, so some AECP rows
+> below are closed and some are not — and the per-clause status is **not** kept
+> here. The current, ordered, clause-cited plan is
+> [`docs/MILAN_V12_ROADMAP.md`](docs/MILAN_V12_ROADMAP.md); this table is kept
+> only as the record of what the traceability review found. Do not read a row
+> as work in flight against this tree.
 
 | Order | Package | Issue |
 |---|---|---|

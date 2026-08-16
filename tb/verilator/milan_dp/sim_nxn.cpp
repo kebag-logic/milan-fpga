@@ -696,6 +696,65 @@ static size_t grade_read_desc(const char* tag, unsigned ty, unsigned ix,
     return want->size();
 }
 
+// ---------------------------------------------------------------------------
+// THE MODEL-DRIVEN COMMAND SWEEP
+// ---------------------------------------------------------------------------
+// Every expectation below is DERIVED FROM THE GENERATED ENTITY MODEL - the
+// same `desc_want` map `grade_read_desc` grades against, built by running
+// endstation_builder.py and gen_aemi_image.py live in this testbench. Nothing
+// here is a literal, and nothing is taken from the DUT's own answer, so a
+// device that is consistently wrong still fails.
+//
+// This is the layer that answers "do all the commands respond correctly TO
+// THE ENTITY MODEL". READ_DESCRIPTOR walks every row of the model rather than
+// the two descriptors it used to spot-check, and each read-side command is
+// graded against the very field of the very descriptor the standard says it
+// mirrors:
+//   GET_CONFIGURATION  = ENTITY.current_configuration       @310 (IEEE 7.4.8.2)
+//   GET_SAMPLING_RATE  = AUDIO_UNIT.current_sampling_rate   @136 (IEEE 7.4.22.2)
+//   GET_CLOCK_SOURCE   = CLOCK_DOMAIN.clock_source_index     @70 (IEEE 7.4.24.2)
+// GET_STREAM_FORMAT is deliberately NOT graded against the descriptor's
+// current_format: IEEE 7.4.10.2 says "the current stream format", and current
+// means after a SET_STREAM_FORMAT or a Milan 5.5 bind has adapted it, so the
+// integrator's face - not the static image - is the authority. Its SHAPE is
+// graded here and its VALUE byte-exactly in protocol-processor/tb/pp_top.
+static unsigned model_be16(const std::vector<uint8_t>& d, size_t off) {
+    return (off + 1 < d.size()) ? (((unsigned)d[off] << 8) | d[off + 1]) : 0u;
+}
+static unsigned long model_be32(const std::vector<uint8_t>& d, size_t off) {
+    if (off + 3 >= d.size()) return 0ul;
+    return ((unsigned long)d[off] << 24) | ((unsigned long)d[off + 1] << 16)
+         | ((unsigned long)d[off + 2] << 8) | (unsigned long)d[off + 3];
+}
+
+//! shared prologue for the {type, index} read-side commands: send it, prove
+//! it was answered as an AEM response with the right status, cdl and echoes.
+//! Returns false when the frame is too short to grade a value out of, so a
+//! caller never indexes into a truncated answer.
+static bool grade_ti_head(const char* tag, const std::vector<uint8_t>& r,
+                          uint16_t op, uint16_t seq, unsigned ty, unsigned ix,
+                          unsigned want_cdl) {
+    char w[144];
+    snprintf(w, sizeof w, "%s: ANSWERED, not silence", tag);
+    ck(w, (long)(r.size() >= 46), 1);
+    if (r.size() < 46) return false;
+    snprintf(w, sizeof w, "%s: an AEM_RESPONSE (message_type 1)", tag);
+    ck(w, r[15] & 0x0F, 1);
+    snprintf(w, sizeof w, "%s: status SUCCESS(0)", tag);
+    ck(w, aecp_status(r), 0);
+    snprintf(w, sizeof w, "%s: sequence_id echoed", tag);
+    ck(w, ((unsigned)r[34] << 8) | r[35], seq);
+    snprintf(w, sizeof w, "%s: command_type echoed, u = 0", tag);
+    ck(w, ((unsigned)r[36] << 8) | r[37], op);
+    snprintf(w, sizeof w, "%s: control_data_length is the clause's", tag);
+    ck(w, (((unsigned)r[16] & 7) << 8) | r[17], (long)want_cdl);
+    snprintf(w, sizeof w, "%s: descriptor_type @24 echoed", tag);
+    ck(w, ((unsigned)r[38] << 8) | r[39], (long)ty);
+    snprintf(w, sizeof w, "%s: descriptor_index @26 echoed", tag);
+    ck(w, ((unsigned)r[40] << 8) | r[41], (long)ix);
+    return true;
+}
+
 // AAF PDU: sid = 8 wire bytes, chans = wire channels_per_frame
 static const uint8_t* mkaaf(const uint8_t sid[8], uint8_t seq, uint8_t chans,
                             uint8_t pay0) {
@@ -739,7 +798,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x0002004A);
+       axi_read(A_VERSION), 0x0002004B);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
     //! These two writes used to sit inside the N-sink ACMP ctx2 section,
@@ -960,6 +1019,196 @@ int main(int argc, char** argv) {
                (long)((w35_2 >> 16) - (w35_0 >> 16)), 0);
             ck("[AECP-IMG] the response buffer reports no fault (word 36)",
                sp_read(SP_SNAPSHOT + 36, &spok) & 0x7u, 0);
+
+            // ---- [AECP-MODEL] every command, against the whole model ----
+            // The two spot-checks above proved the store serves A descriptor.
+            // This proves it serves THE MODEL: every row the generator
+            // emitted, then each read-side command against the field of the
+            // descriptor its clause names. See the banner on grade_ti_head.
+            {
+                uint16_t sq = 0x4100;
+                long rows = 0, worst_short = 0;
+                for (std::map<uint32_t, std::vector<uint8_t> >::const_iterator
+                         it = desc_want.begin(); it != desc_want.end(); ++it) {
+                    const unsigned ty = (unsigned)(it->first >> 16);
+                    const unsigned ix = (unsigned)(it->first & 0xFFFFu);
+                    char tag[96];
+                    snprintf(tag, sizeof tag,
+                             "[AECP-MODEL] READ_DESCRIPTOR type %#06x index %u",
+                             ty, ix);
+                    if (grade_read_desc(tag, ty, ix, sq++) == 0) worst_short++;
+                    rows++;
+                }
+                printf("  [i]    model-driven READ_DESCRIPTOR: %ld of the "
+                       "generator's %ld descriptors served\n",
+                       rows - worst_short, rows);
+                //! a model with nothing in it would sail through the loop
+                //! above having proved nothing at all - the vacuity check
+                ck("[AECP-MODEL] the generated model is not empty",
+                   (long)(rows >= 8), 1);
+
+                // ---- GET_CONFIGURATION vs ENTITY.current_configuration ----
+                const std::vector<uint8_t>* ent = desc_of(0x0000, 0);
+                ck("[AECP-MODEL] the model HAS an ENTITY descriptor",
+                   (long)(ent != nullptr), 1);
+                if (ent && ent->size() >= 312) {
+                    const unsigned want_cfg = model_be16(*ent, 310);
+                    const std::vector<uint8_t> r =
+                        aecp_xact(0x0007, sq, std::vector<uint8_t>());
+                    char t[96];
+                    snprintf(t, sizeof t, "[AECP-MODEL] GET_CONFIGURATION");
+                    if (r.size() >= 42) {
+                        char w[144];
+                        snprintf(w, sizeof w, "%s: ANSWERED", t);
+                        ck(w, (long)(r.size() >= 42), 1);
+                        snprintf(w, sizeof w, "%s: status SUCCESS(0)", t);
+                        ck(w, aecp_status(r), 0);
+                        snprintf(w, sizeof w, "%s: cdl 16 (IEEE 7.4.8.2)", t);
+                        ck(w, (((unsigned)r[16] & 7) << 8) | r[17], 16);
+                        snprintf(w, sizeof w, "%s: reserved @24 is zero", t);
+                        ck(w, ((unsigned)r[38] << 8) | r[39], 0);
+                        snprintf(w, sizeof w,
+                                 "%s: configuration_index IS the model's "
+                                 "ENTITY.current_configuration", t);
+                        ck(w, ((unsigned)r[40] << 8) | r[41], (long)want_cfg);
+                    } else {
+                        ck("[AECP-MODEL] GET_CONFIGURATION: ANSWERED",
+                           (long)r.size(), 42);
+                    }
+                    sq++;
+                }
+
+                // ---- GET_SAMPLING_RATE vs AUDIO_UNIT.current_sampling_rate
+                for (unsigned ix = 0; ix < 4; ix++) {
+                    const std::vector<uint8_t>* au = desc_of(0x0002, ix);
+                    if (!au) continue;
+                    char t[96];
+                    snprintf(t, sizeof t,
+                             "[AECP-MODEL] GET_SAMPLING_RATE AUDIO_UNIT %u",
+                             ix);
+                    std::vector<uint8_t> pl(4, 0);
+                    pl[0] = 0x00; pl[1] = 0x02;
+                    pl[2] = (uint8_t)(ix >> 8); pl[3] = (uint8_t)ix;
+                    const std::vector<uint8_t> r = aecp_xact(0x0015, sq, pl);
+                    if (grade_ti_head(t, r, 0x0015, sq, 0x0002, ix, 20)
+                        && r.size() >= 46) {
+                        char w[144];
+                        const unsigned long want_sr = model_be32(*au, 136);
+                        snprintf(w, sizeof w,
+                                 "%s: sampling_rate IS the model's "
+                                 "current_sampling_rate (%lu)", t, want_sr);
+                        ck(w, (long)model_be32(
+                                  std::vector<uint8_t>(r.begin() + 42,
+                                                       r.end()), 0),
+                           (long)want_sr);
+                        //! ...and it is a rate the model actually declares.
+                        //! A device answering a plausible-but-undeclared rate
+                        //! passes the compare above only if the model says so.
+                        ck("[AECP-MODEL] ...and the model's rate is non-zero",
+                           (long)(want_sr > 0), 1);
+                    }
+                    sq++;
+                }
+
+                // ---- GET_CLOCK_SOURCE vs CLOCK_DOMAIN.clock_source_index --
+                for (unsigned ix = 0; ix < 4; ix++) {
+                    const std::vector<uint8_t>* cd = desc_of(0x0024, ix);
+                    if (!cd) continue;
+                    char t[96];
+                    snprintf(t, sizeof t,
+                             "[AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN %u",
+                             ix);
+                    std::vector<uint8_t> pl(4, 0);
+                    pl[0] = 0x00; pl[1] = 0x24;
+                    pl[2] = (uint8_t)(ix >> 8); pl[3] = (uint8_t)ix;
+                    const std::vector<uint8_t> r = aecp_xact(0x0017, sq, pl);
+                    if (grade_ti_head(t, r, 0x0017, sq, 0x0024, ix, 20)
+                        && r.size() >= 48) {
+                        char w[144];
+                        snprintf(w, sizeof w,
+                                 "%s: clock_source_index IS the model's", t);
+                        ck(w, ((unsigned)r[42] << 8) | r[43],
+                           (long)model_be16(*cd, 70));
+                        snprintf(w, sizeof w, "%s: reserved @30 is zero", t);
+                        ck(w, ((unsigned)r[44] << 8) | r[45], 0);
+                    }
+                    sq++;
+                }
+
+                // ---- GET_STREAM_FORMAT: shape only, and why --------------
+                for (unsigned ty = 0x0005; ty <= 0x0006; ty++) {
+                    for (unsigned ix = 0; ix < 4; ix++) {
+                        if (!desc_of(ty, ix)) continue;
+                        char t[96];
+                        snprintf(t, sizeof t,
+                                 "[AECP-MODEL] GET_STREAM_FORMAT %#06x/%u",
+                                 ty, ix);
+                        std::vector<uint8_t> pl(4, 0);
+                        pl[0] = (uint8_t)(ty >> 8); pl[1] = (uint8_t)ty;
+                        pl[2] = (uint8_t)(ix >> 8); pl[3] = (uint8_t)ix;
+                        const std::vector<uint8_t> r =
+                            aecp_xact(0x0009, sq, pl);
+                        grade_ti_head(t, r, 0x0009, sq, ty, ix, 24);
+                        sq++;
+                    }
+                }
+
+                // ---- ENTITY_AVAILABLE: the liveness probe (es-4.2) --------
+                {
+                    const std::vector<uint8_t> r =
+                        aecp_xact(0x0002, sq, std::vector<uint8_t>());
+                    ck("[AECP-MODEL] ENTITY_AVAILABLE: ANSWERED",
+                       (long)(r.size() >= 58), 1);
+                    if (r.size() >= 58) {
+                        ck("[AECP-MODEL] ENTITY_AVAILABLE: status SUCCESS(0)",
+                           aecp_status(r), 0);
+                        ck("[AECP-MODEL] ENTITY_AVAILABLE: cdl 32 (7.4.3.2)",
+                           (((unsigned)r[16] & 7) << 8) | r[17], 32);
+                        //! Milan D7 forbids ever granting ACQUIRE, so
+                        //! ENTITY_ACQUIRED and acquired_controller_id are
+                        //! structurally zero on a compliant Milan device -
+                        //! not merely zero because nothing acquired it yet
+                        ck("[AECP-MODEL] ...ENTITY_ACQUIRED is clear (Milan D7)",
+                           (long)(model_be32(std::vector<uint8_t>(
+                                      r.begin() + 38, r.end()), 0) & 1ul), 0);
+                        long acq = 0;
+                        for (int i = 0; i < 8; i++) if (r[42 + i]) acq++;
+                        ck("[AECP-MODEL] ...acquired_controller_id is zero",
+                           acq, 0);
+                    }
+                    sq++;
+                }
+
+                // ---- THE NEGATIVE ORACLE: one past the end of the model ---
+                // desc_of() returning nullptr IS the model saying "absent",
+                // so the whole type space gets a miss oracle for free. A
+                // device that answers SUCCESS for a descriptor its own model
+                // does not declare is the failure this catches.
+                {
+                    const unsigned tys[] = {0x0000, 0x0002, 0x0005, 0x0006,
+                                            0x0009, 0x0024};
+                    long probed = 0;
+                    for (unsigned k = 0; k < sizeof tys / sizeof tys[0]; k++) {
+                        unsigned ix = 0;
+                        while (ix < 64 && desc_of(tys[k], ix)) ix++;
+                        if (ix == 0 || ix >= 64) continue;   // absent type
+                        std::vector<uint8_t> pl(8, 0);
+                        pl[4] = (uint8_t)(tys[k] >> 8); pl[5] = (uint8_t)tys[k];
+                        pl[6] = (uint8_t)(ix >> 8);      pl[7] = (uint8_t)ix;
+                        const std::vector<uint8_t> r =
+                            aecp_xact(0x0004, sq++, pl);
+                        char w[144];
+                        snprintf(w, sizeof w,
+                                 "[AECP-MODEL] type %#06x index %u is NOT in "
+                                 "the model and refuses NO_SUCH_DESCRIPTOR",
+                                 tys[k], ix);
+                        ck(w, (long)(r.size() >= 18 ? aecp_status(r) : -1), 2);
+                        probed++;
+                    }
+                    ck("[AECP-MODEL] the negative oracle actually probed",
+                       (long)(probed >= 3), 1);
+                }
+            }
         }
     }
 
