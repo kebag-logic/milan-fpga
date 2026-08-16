@@ -2,7 +2,7 @@
 
 Status: **2026-08-01.** The copy-paste-runnable operator guide for the boardless
 validation tier. Companion docs: [`VIRTUAL_E2E_QEMU.md`](VIRTUAL_E2E_QEMU.md) (roadmap T0–T6),
-[`TRUE_E2E_REQUIREMENTS.md`](TRUE_E2E_REQUIREMENTS.md) (stable requirement IDs),
+[historical TRUE E2E requirements](TRUE_E2E_REQUIREMENTS.md) (retired requirement IDs),
 [`../tooling/virtual-e2e-env.md`](../tooling/virtual-e2e-env.md) (verified environment inventory),
 [`VIRTUAL_E2E_PLAN.md`](VIRTUAL_E2E_PLAN.md) (original scope + honest boundaries).
 

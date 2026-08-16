@@ -154,10 +154,10 @@ Both settled.
 
 > **NOT IMPLEMENTED — and this is a real loss, not a formality.** The batch
 > engine that served this lived in the AECP response builder, and the whole
-> `hdl/ieee17221/aecp/**` tree is deleted. The device is *not* silent on AECP
-> any more — the processor's AECP µCPU answers `READ_DESCRIPTOR` and echoes a
-> conformant `NOT_IMPLEMENTED` at everything else — but `0x4B` is in the
-> "everything else". A controller sending it gets a well-formed response
+> `hdl/ieee17221/aecp/**` tree is deleted. The processor's AECP uCPU now serves
+> its declared command inventory, but `0x4B` remains one of the mandatory
+> commands that returns a conformant `NOT_IMPLEMENTED` response. A controller
+> sending it gets a well-formed response
 > carrying no dynamic info, which is a correct answer to a question this entity
 > cannot answer. The byte-extracted contract below is kept because it is
 > reference truth that cost real work to establish, not because anything

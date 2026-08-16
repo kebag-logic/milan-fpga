@@ -507,10 +507,11 @@ def step_cc_crf_era_lock(context):
 
 
 # ------------------------------------------------------- L1 fabric bindings --
-# The KL_aecp_response_builder mask-serving steps that lived here are gone with
-# hdl/ieee17221/aecp/**: this device answers no AECP command, so there is no
-# GET_COUNTERS arm to anchor a mask assertion on. The documented register
-# window below is the surviving fabric path to the same ten values.
+# The repository-local response builder was deleted, but the protocol processor
+# now serves GET_COUNTERS through KL_pp_shadow's root gather face. Wire-format
+# and descriptor-index checks live in the pp_shadow and milan_dp harnesses. The
+# step below independently pins the documented fabric register path to the same
+# ten Stream Input values.
 @then("the register map documents A_STRMW_CNT0..9 as the ten Table 5.6 counters")
 def step_cc_regmap_counters(context):
     doc = open(REGMAP).read()

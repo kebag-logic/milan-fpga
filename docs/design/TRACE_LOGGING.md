@@ -14,7 +14,8 @@ by [barectf](https://barectf.org/) (dependency-free generated C — no LTTng
 runtime), buffered in DRAM, and written to the `/user` jffs2 partition **only
 when something has gone wrong**, as rotating independent `xz` segments.
 
-> **Roadmap:** [`TODO.md`](../../TODO.md) Phase 10 row **H4**. It used to
+> **Historical roadmap origin:** [historical `TODO.md`](../../TODO.md) Phase 10
+> row **H4**. Current implementation status is recorded in §1. It used to
 > compose with the saved-state / fast-connect design page, which owned the
 > `/user` partition itself; that page was **deleted on 2026-08-13 along with
 > the persistence RTL it described** (see the status note in §1). The

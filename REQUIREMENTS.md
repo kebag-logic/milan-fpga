@@ -2,15 +2,15 @@
 
 ## Contents
 
-- **[1. Goal and scope](#1-goal-and-scope)** — The four standards in scope and the software deliverables, prefaced by the platform-migration note that supersedes the Zynq framing everywhere below: softcore on Artix-7, GMII not RGMII, CSR base `0x9000_0000`. The `REQ-*` IDs survived the move; only the mechanics changed.
-- **[2. Reference standards](#2-reference-standards)** — One table pinning each abbreviation to an edition and the clauses actually used (802.1Q §8.6.8 CBS, §34 deltaBandwidth, 802.3 Clauses 22/28/30/31), plus the Linux-side contracts a driver must satisfy.
-- **[3. Missing elements to comply with the 802.1 configuration standards (gap analysis)](#3-missing-elements-to-comply-with-the-8021-configuration-standards-gap-analysis)** — The frozen original audit: 60 gaps across six domains, one root cause (no memory-mapped CSR plane at all), and the CBS-math verdict split into confirmed / latent / refuted. Historical — it is the motivation for §4, not current state; the refuted "hiCredit wrong at 100 M" claim is worth reading before you re-raise it.
-- **[4. Requirements (normative)](#4-requirements-normative)** — The normative register itself, `REQ-CSR/PTP/CBS/CLS/MAC/DRV/DT/VER-*`, each with a standard clause and an acceptance criterion. The long entries carry the history: REQ-CLS-10 on why untagged control frames match by destination MAC and not PCP, and REQ-MAC-04 on why "readable via CSR" was not enough when the event bus was tied to `0`.
-- **[5. Priority / phasing](#5-priority--phasing)** — Two sentences: the CSR plane is the critical path that unblocks everything else; the ordered work items live in [`TODO.md`](TODO.md).
-- **[6. Out of scope (future work)](#6-out-of-scope-future-work)** — The explicit not-doing list — 802.1Qbv/TAS, Qci PSFP, one-step PTP, UDP/IPv4 transport, 802.1ad, frame preemption — so their absence reads as a decision rather than an oversight.
-- **[7. Traceability](#7-traceability)** — Where the per-gap detail went: each requirement traces to a clause and a §3 gap ID, with the full detail mirrored in [`TODO.md`](TODO.md) task descriptions.
-- **[8. Acceptance (end-to-end)](#8-acceptance-end-to-end)** — The five-part definition of done for the whole interface, from driver bind through `ptp4l` lock, `tc … cbs offload`, `ethtool -S` and green harnesses in CI.
-- **[9. Original brief (preserved)](#9-original-brief-preserved)** — The verbatim starting brief and its status snapshot, kept so the scope creep is visible, with a delivered-so-far list appended at the end.
+- **[1. Goal and scope](#1-goal-and-scope)** -- The four standards in scope and the software deliverables, prefaced by the platform-migration note that supersedes the Zynq framing everywhere below: softcore on Artix-7, GMII not RGMII, CSR base `0x9000_0000`. The `REQ-*` IDs survived the move; only the mechanics changed.
+- **[2. Reference standards](#2-reference-standards)** -- One table pinning each abbreviation to an edition and the clauses actually used (802.1Q §8.6.8 CBS, §34 deltaBandwidth, 802.3 Clauses 22/28/30/31), plus the Linux-side contracts a driver must satisfy.
+- **[3. Missing elements to comply with the 802.1 configuration standards (gap analysis)](#3-missing-elements-to-comply-with-the-8021-configuration-standards-gap-analysis)** -- The frozen original audit: 60 gaps across six domains, one root cause (no memory-mapped CSR plane at all), and the CBS-math verdict split into confirmed / latent / refuted. Historically it is the motivation for §4, not current state; the refuted "hiCredit wrong at 100 M" claim is worth reading before you re-raise it.
+- **[4. Requirements (normative)](#4-requirements-normative)** -- The normative register itself, `REQ-CSR/PTP/CBS/CLS/MAC/DRV/DT/VER-*`, each with a standard clause and an acceptance criterion. The long entries carry the history: REQ-CLS-10 on why untagged control frames match by destination MAC and not PCP, and REQ-MAC-04 on why "readable via CSR" was not enough when the event bus was tied to `0`.
+- **[5. Priority / phasing](#5-priority--phasing)** -- Two sentences: the CSR plane was the critical path that unblocked everything else; current compliance blockers live in the [Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) and open GitHub issues.
+- **[6. Out of scope (future work)](#6-out-of-scope-future-work)** -- The explicit not-doing list, 802.1Qbv/TAS, Qci PSFP, one-step PTP, UDP/IPv4 transport, 802.1ad, and frame preemption, so their absence reads as a decision rather than an oversight.
+- **[7. Traceability](#7-traceability)** -- Where the per-gap detail went: each requirement traces to a clause and a §3 gap ID, while current implementation coverage is in the [generated module matrix](docs/traceability/MODULE_MATRIX.md).
+- **[8. Acceptance (end-to-end)](#8-acceptance-end-to-end)** -- The five-part definition of done for the whole interface, from driver bind through `ptp4l` lock, `tc … cbs offload`, `ethtool -S` and green harnesses in CI.
+- **[9. Original brief (preserved)](#9-original-brief-preserved)** -- The verbatim starting brief and its status snapshot, kept so the scope creep is visible, with a delivered-so-far list appended at the end.
 
 ## 1. Goal and scope
 
@@ -43,9 +43,11 @@ Software deliverables (sibling repos under `../`):
 * A **device-tree generator** integrated into `../fpga-ps-tools`, reusing the
   Xilinx `device-tree-xlnx` (dtg) and overlaying the TSN driver node.
 
-> This document is the normative requirements spec. The concrete, ordered work
-> items live in [`TODO.md`](TODO.md). The prior free-form brief is preserved in
-> §9. The gap analysis backing every requirement is summarised in §3.
+> This document is the normative requirements spec. Current compliance blockers
+> live in the [Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md),
+> and executable work is tracked in the repository's open GitHub issues. The
+> prior free-form brief is preserved in §9. The gap analysis backing every
+> requirement is summarised in §3.
 
 ## 2. Reference standards
 
@@ -110,7 +112,8 @@ Verilator harness ([`tb/verilator/cbs`](tb/verilator/cbs)):
 ## 4. Requirements (normative)
 
 Keywords **MUST / SHOULD / MAY** per RFC 2119. Each item lists a standard ref
-and the acceptance criterion. IDs are stable and referenced from [`TODO.md`](TODO.md).
+and the acceptance criterion. IDs are stable across the current documentation
+and verification artifacts.
 
 ### 4.A Control plane — memory-mapped CSR (foundation)
 
@@ -356,9 +359,11 @@ and the acceptance criterion. IDs are stable and referenced from [`TODO.md`](TOD
 
 ## 5. Priority / phasing
 
-The CSR plane (§4.A) is the **critical path** — it unblocks PTP, CBS, classifier,
-MAC config, the driver, and the device tree. Ordered work items, dependencies,
-effort, and status are in [`TODO.md`](TODO.md).
+The CSR plane (§4.A) was the **critical path** that unblocked PTP, CBS,
+classifier, MAC config, the driver, and the device tree. Current blockers and
+their release rule are in the
+[Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md); executable work
+is tracked in the repository's open GitHub issues.
 
 ## 6. Out of scope (future work)
 
@@ -369,9 +374,10 @@ frame preemption (802.1Qbu/802.3br).
 ## 7. Traceability
 
 Every requirement traces to a standard clause (above) and to a gap ID from the
-§3 audit. The audit's full per-gap detail (current file:line, required behavior,
-recommendation) is retained in the project analysis output and mirrored by the
-[`TODO.md`](TODO.md) task descriptions.
+§3 audit. Current implementation and verification coverage is published in the
+[generated module matrix](docs/traceability/MODULE_MATRIX.md). The
+[historical `TODO.md`](TODO.md) preserves the original per-gap task descriptions
+as historical evidence only.
 
 ## 8. Acceptance (end-to-end)
 
@@ -397,10 +403,11 @@ the HW shaper and SR streams meet their reservation while BE uses the remainder;
 >
 > **What was to do →** ① list the missing elements for 802.1 compliance → **done
 > (§3)**; ② add standards-compliant requirements → **done (§4)**; ③ create
-> [`TODO.md`](TODO.md) → **done**; ④ tackle the tasks → **in progress**. Delivered so far:
+> [historical `TODO.md`](TODO.md) → **done**; ④ tackle the tasks → **in progress**. Delivered so far:
 > the CBS verification harness ([`tb/verilator/cbs`](tb/verilator/cbs), REQ-VER-01), the CSR register
 > ABI ([`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md), REQ-CSR-05), the AXI4-Lite control-plane RTL
 > ([`hdl/common/csr/milan_csr.sv`](hdl/common/csr/milan_csr.sv), REQ-CSR-01/02/04) — the previously-missing
 > memory-mapped configuration — and its verification harness
-> ([`tb/verilator/csr`](tb/verilator/csr), REQ-VER-04). Remaining work is tracked in [`TODO.md`](TODO.md)
-> (block-design integration, then PTP/CBS/classifier/MAC wiring, driver, DT).
+> ([`tb/verilator/csr`](tb/verilator/csr), REQ-VER-04). The remaining work named
+> at that snapshot is preserved in the [historical `TODO.md`](TODO.md). Current
+> work is tracked by the audit and open GitHub issues.

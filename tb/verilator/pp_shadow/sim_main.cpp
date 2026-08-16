@@ -784,8 +784,8 @@ static void expected_adpdu(uint8_t* e, uint32_t talk_w, uint32_t list_w,
     put64be(e + 54, gm);
     e[62] = dom;
     // 63 reserved, 64..65 current_configuration, 66..67 identify_control_index,
-    // 68..69 interface_index, 70..81 association_id + reserved: all zero on
-    // this build (no AECP means no SET_CONFIGURATION and no IDENTIFY).
+    // 68..69 interface_index, 70..81 association_id + reserved: all zero in
+    // this fixture before any AECP setters are issued.
 }
 
 int main(int argc, char** argv) {

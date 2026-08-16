@@ -3,8 +3,9 @@
 Status: **2026-08-01.** What tests exist for the boardless validation tier, the
 exact commands to run them, what PASS/FAIL/BLOCKED mean, and the recorded
 result against the current commit. Read with [`VIRTUAL_E2E_HOWTO.md`](VIRTUAL_E2E_HOWTO.md) (operator
-guide), [`VIRTUAL_E2E_QEMU.md`](VIRTUAL_E2E_QEMU.md) (roadmap), [`TRUE_E2E_REQUIREMENTS.md`](TRUE_E2E_REQUIREMENTS.md) (requirement
-IDs). **A green run here is a simulation result, never a hardware claim.**
+guide), [`VIRTUAL_E2E_QEMU.md`](VIRTUAL_E2E_QEMU.md) (roadmap), and the
+[historical TRUE E2E requirements](TRUE_E2E_REQUIREMENTS.md) (retired
+requirement IDs). **A green run here is a simulation result, never a hardware claim.**
 
 ## Contents
 

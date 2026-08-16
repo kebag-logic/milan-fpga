@@ -26,11 +26,12 @@ Since the endstation-builder round (gaps item 4) the model can also be built
 from a builder-emitted AEM overlay (sw/builder/endstation_builder.py):
   python3 avdecc/gen_aem_store.py --overlay <aem_overlay.json> [--out-dir D]
 
-NO RTL CONSUMES THIS MODEL ANY MORE (2026-08-12).  The whole IEEE 1722.1
-control plane that used to serve it — hdl/ieee17221/aecp/** — is DELETED and
-the protocol-processor submodule is the control plane now.  This gateware
-answers NO AECP/AEM command, so the descriptor set below is a DECLARATIVE
-MODEL, not something a controller can read back off this device:
+NO RTL ROM CONSUMES THIS MODEL DIRECTLY (2026-08-16). The repository-local
+IEEE 1722.1 control plane that used to compile it into
+hdl/ieee17221/aecp/** is deleted. The protocol processor is the control plane
+now and serves READ_DESCRIPTOR from a main-memory image built from this model.
+The model is therefore still controller-visible after the builder packs it and
+software loads the resulting aem_desc.bin before entity enable:
 
   * the two file targets that made it RTL are gone with the plane.  The
     default run no longer writes hdl/ieee17221/aecp/gen/aecp_aem_rom.svh
@@ -38,11 +39,12 @@ MODEL, not something a controller can read back off this device:
     tb/verilator/aecp/aem_golden.h (that whole suite is deleted).  A code
     path whose only destination is a deleted directory is worse than no
     path: it fails at runtime, or worse, resurrects the directory.
-  * what the model IS still good for: it is the single declarative entity
+  * what the model IS used for: it is the single declarative entity
     definition the ADP shape counts (talker_stream_sources /
     listener_stream_sinks) and the ADP capability words are DERIVED from,
-    and the builder's own self-consistency gates read it.  Those counts DO
-    reach the gateware, through hdl/common/csr/gen/adp_shape_defaults.svh.
+    and the builder's own self-consistency gates read it. Those counts reach
+    the gateware through hdl/common/csr/gen/adp_shape_defaults.svh, while the
+    builder packs the descriptor bytes into the processor's DRAM image.
 
 Outputs (all generated, do not edit):
   avdecc/aem_rom.json             - the model for the python controller and

@@ -323,7 +323,7 @@ this table whenever `hdl/` changes shape.
 | module | description |
 |---|---|
 | `KL_pp_maap_shim` | adapter between this fabric's BLOCK allocator (`KL_maap`) and the processor's per-source ALLOC/RELEASE face — the same block+uid law on both sides |
-| `KL_pp_shadow` | **this device's entire IEEE 1722.1 / SRP control plane**: the consumer-side wrapper around the pinned `protocol-processor` submodule (ADP, ACMP talker + listener, SRP, and the AECP uCPU that answers `READ_DESCRIPTOR` and echoes `NOT_IMPLEMENTED` at the rest), its classify-first control-frame tap, its blank-flash NVM responder, the side-port host bridge the AECP counters are read through, and the class-D face republished 1:1 |
+| `KL_pp_shadow` | **this device's entire IEEE 1722.1 / SRP control plane**: the consumer-side wrapper around the pinned `protocol-processor` submodule (ADP, ACMP talker + listener, SRP, and the live AECP uCPU), its classify-first control-frame tap, its blank-flash NVM responder, the root gather faces used by counters and audio-map reads, and the class-D face republished 1:1. The [current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md) owns the exact served-command inventory |
 | `milan_datapath` | the single clean HW/gateware boundary the LiteX SoC ([sw/litex/milan_soc.py](../../sw/litex/milan_soc.py)) instantiates — including the read-only descriptor-memory master (`o_desc_mem_*`) the AECP store fetches the entity model over |
 | `milan_top` | the Zynq variant (PS + MAC in line) |
 

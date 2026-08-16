@@ -15,8 +15,8 @@ tracked** — they name bench hosts and local paths, so the public tree keeps
 only the archived pre-2026-08-11 set under
 [`historical_now_obsolete/handovers/`](../../historical_now_obsolete/handovers/).
 Do not cite a handover as the current source of anything; the
-remaining compliance work is
-[`docs/MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md). Naming rule: the conformance suite is
+remaining compliance work is in the
+[current Milan v1.2 audit](../testing/MILAN_V12_AUDIT_2026-08-16.md). Naming rule: the conformance suite is
 called **the bench suite** everywhere (commits, docs, comments) — never
 any other name; its material is private (see §7).
 
@@ -174,7 +174,7 @@ foreground pipe wedges the shell (write ctrl-C to the FIFO).
 
 | Path | What |
 |---|---|
-| `~/prjs-avb-on-fpga/milan-fpga` | THE gateware repo. `hdl/` RTL in standards-clause layout (ieee17221/ — the acmp and aecp trees are deleted since 2026-08-13, ieee1722/{avtp,aaf,crf,maap}, ieee8021q/{ts,srp,filtering}, ieee8021as/ptp_timestamp, milan/ tops incl. the `KL_pp_shadow` wrapper, common/{csr,eth_event_counter,cdc}), `tb/verilator/*` (milan_dp, pp_shadow, pcmlpf + suites; **the `aecp` suite went with its RTL** — AECP now lives in the pinned submodule's µCPU, which answers `READ_DESCRIPTOR` and echoes `NOT_IMPLEMENTED` at the rest), [`syn/yosys/run.sh`](../../syn/yosys/run.sh) (device-portability gate), [`sw/litex/`](../../sw/litex) (milan_soc.py, **sweep.sh**, **build.sh** incl. the `flash` verb, deploy.sh), `avdecc/` (AEM JSON models + `gen_aem_store.py` → hdl/ieee17221/aecp/gen/aecp_aem_rom.svh, deleted 2026-08-13 with the AECP engine, + `milan_controller.py`), `docs/`. Author `hackerman-kl`, ONE-LINE commits, no trailers. |
+| `~/prjs-avb-on-fpga/milan-fpga` | THE gateware repo. `hdl/` RTL uses a standards-clause layout: the old local acmp and aecp trees are deleted, while ieee1722/{avtp,aaf,crf,maap}, ieee8021q/{ts,filtering}, ieee8021as/ptp_timestamp, the milan tops including `KL_pp_shadow`, and common/{csr,eth_event_counter,cdc} remain. `tb/verilator/*` contains milan_dp, pp_shadow, pcmlpf and the other live suites. AECP now lives in the pinned processor uCPU and serves the inventory in the [current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md). [`syn/yosys/run.sh`](../../syn/yosys/run.sh) is the device-portability gate. [`sw/litex/`](../../sw/litex) holds milan_soc.py, **sweep.sh**, **build.sh** including the `flash` verb, and deploy.sh. `avdecc/` holds the declarative AEM model and controller support; the builder packs the processor's main-memory descriptor image. Author `hackerman-kl`, one-line commits, no trailers. |
 | `~/the-private-test-repo` | Bench/test repo. `fpga/` (kl-eth driver, buildroot br2-external incl. the **rootfs overlay** = S50milan, linkmon.sh, gptp2csr.sh, stream_phc_sync.sh, gptp.cfg, S65/S66), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `fpga/dts+boot/` (dtb + opensbi per board), `private/` (**untracked, git-ignored**: the bench conformance suite + its reference run — see §7). Commits: author `hackerman-kl` (USER 2026-07-22, both repos), one line, no trailers. |
 | `~/litex-milan` | LiteX + venv (`~/litex-milan/venv` — PATH needed for build/flash python). **`work/`** = all Vivado build dirs (`build_<board>_<seed>_<tag>/`). |
 | `~/br-milan-output` | Buildroot out-tree. Rebuild rootfs: `cd ~/br-milan-output && make O=$PWD && xz -9 --check=crc32 -c images/rootfs.cpio > /tmp/scratch/rootfs.cpio.xz`. Kernel `images/Image` (xz it for flashing). |
@@ -292,9 +292,11 @@ segfaults) → scp via the peer host → `tone_thdn.py --chans 2 --f0 1000`.
   index, which must be answered rather than crashed), AVB_INTERFACE 0 and
   CLOCK_DOMAIN 0, and it expects ENTITY `GET_COUNTERS` to answer SUCCESS with
   an EMPTY set.
-  Baseline measured 2026-08-14: **`DIRTY (rc=5, complaints=0)`** — every
-  `GET_COUNTERS` answers `NOT_IMPLEMENTED`, while `complaints=0` says the
-  library finds nothing wrong with the descriptor tree itself.
+  Historical baseline measured 2026-08-14, before `GET_COUNTERS` landed:
+  **`DIRTY (rc=5, complaints=0)`**. Every request then answered
+  `NOT_IMPLEMENTED`, while `complaints=0` showed that the library found
+  nothing wrong with the descriptor tree itself. The current tracked Stream
+  Output fixture passes the official decoder; see the current audit.
   **ABI TRAP:** the la_avdecc ABI is sensitive to feature defines. A program
   built with different defines than the library links cleanly and then
   SIGSEGVs at run time. On a segfault suspect the defines first, and take them

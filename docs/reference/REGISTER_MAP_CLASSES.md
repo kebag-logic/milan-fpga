@@ -135,4 +135,4 @@ Expected recovery from the full debug prune at 1×1: ~700–900 LUTs and a
 simpler CSR decode — the ABI hygiene is the real value. That estimate
 predates the substitution and is not re-measured here; the measured record of
 what the plane change itself cost and returned is
-[`../findings/PP_SHADOW_AREA_0812.md`](../findings/PP_SHADOW_AREA_0812.md).
+[historical protocol-processor area measurement](../findings/PP_SHADOW_AREA_0812.md).

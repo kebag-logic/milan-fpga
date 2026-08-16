@@ -145,15 +145,13 @@ octet for octet, the locate miss, the bad configuration index, the
 `NOT_IMPLEMENTED` echo, the two silent-refusal cases, and the no-memory degrade
 with recovery.
 
-`sim_nxn.cpp`'s `[T66]` covers the other side of the same coin: the
-dynamic-output-map opcodes (`GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`,
-`REMOVE_AUDIO_MAPPINGS`) are a **capability regression** against the
-pre-substitution device — they answered `SUCCESS` and edited the capture
-crossbar, and now they answer `NOT_IMPLEMENTED`. That is graded as what it is:
-each response is decoded (status, `message_type`, `cdl`, frame length, echoed
-payload, echoed `sequence_id` and `command_type`), and the crossbar RAM is read
-back on the very keys the commands named to prove **nothing moved** — a phantom
-write from a half-deleted mirror would be far worse than an honest refusal.
+`sim_nxn.cpp`'s `[T66]` covers the other side of the same coin.
+`GET_AUDIO_MAP` now succeeds on the Stream Port Output store, while
+`ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` remain a capability regression
+against the pre-substitution device and answer `NOT_IMPLEMENTED`. Each writer
+response is decoded, and the crossbar RAM is read back on the named keys to
+prove **nothing moved**. A phantom write from a half-deleted mirror would be far
+worse than an honest refusal.
 
 ## Check counts, before and after
 

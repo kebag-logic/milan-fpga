@@ -1046,14 +1046,15 @@ the class for each word and this one deliberately does not duplicate it.
 1. **Is the word in the register map's structural-zero or write-only-scratch
    class?** If yes, stop: there is nothing to fix here, and the next question is
    whether you needed the capability, not whether the register is broken.
-2. **Is what you are actually looking for the AECP boundary?** "GET_COUNTERS
-   came back NOT_IMPLEMENTED", "IDENTIFY does nothing", "the name will not set",
-   "the binding did not survive the power cycle" — every AECP command except
-   `READ_DESCRIPTOR` is answered with the `NOT_IMPLEMENTED` echo, and nothing
-   persists a binding across a power cycle
-   ([current audit, blocker B2](../testing/MILAN_V12_AUDIT_2026-08-16.md)). If the
-   symptom is instead "the controller cannot read a **descriptor**", that is a
-   different animal and it is diagnosable —
+2. **Is what you are actually looking for the AECP boundary?** `GET_COUNTERS`,
+   Identify control, selected stream, clock and configuration operations,
+   `GET_AUDIO_MAP`, registration, and Milan info are served. Name access,
+   `SET_STREAM_FORMAT`, `SET_STREAM_INFO`, the audio-map writers, and
+   `GET_DYNAMIC_INFO` remain mandatory gaps. Nothing persists a binding across
+   a power cycle. Check the exact inventory and persistence verdict in the
+   [current audit, blockers B1 and B2](../testing/MILAN_V12_AUDIT_2026-08-16.md).
+   If the symptom is instead "the controller cannot read a **descriptor**",
+   that is a different animal and it is diagnosable:
    [Section 26](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram).
 3. **If it is live, does it TICK?** The truth test is unchanged and it is the
    one that survives all of this: read twice and require movement. A live

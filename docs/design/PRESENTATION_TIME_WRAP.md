@@ -44,7 +44,7 @@ Checked end to end rather than assumed:
 | Where | What it says | Type |
 |---|---|---|
 | IEEE 1722-2016 **4.4.4.9** | `avtp_timestamp` = presentation time, gPTP ns, mod 2³² | — |
-| [`../traceability/ieee1722-2016.md`](../traceability/ieee1722-2016.md) row AVTP-10 | our traceability entry for that clause | — |
+| [historical IEEE 1722 traceability](../traceability/ieee1722-2016.md) row AVTP-10 | historical evidence for that clause mapping | n/a |
 | [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) | `wire [63:0] ptp_now_w` — the PHC as the fabric sees it | unsigned 64 |
 | [`hdl/ieee1722/aaf/aaf_talker_i2s.sv`](../../hdl/ieee1722/aaf/aaf_talker_i2s.sv) | `ts_r <= ptp_ns_i[31:0] + transit_ns_i`, `reg [31:0] ts_r` | unsigned 32 |
 | [`hdl/ieee1722/aaf/KL_aaf_packetizer.sv`](../../hdl/ieee1722/aaf/KL_aaf_packetizer.sv) | `logic [31:0] ets_r` placed at frame bytes 30..33 | unsigned 32 |
@@ -337,4 +337,4 @@ traps that cost time on the way — is in
 [`../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md`](../findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md).
 The clock chain the presentation timestamp comes from is in
 [`TIME_SYNC.md`](TIME_SYNC.md), and the talker/listener chains that carry it in
-[`AUDIO_STREAMING.md`](AUDIO_STREAMING.md).
+[dataplane walkthrough](../fpga/DATAPLANE_WALKTHROUGH.md).

@@ -535,12 +535,11 @@ Feature: GET_COUNTERS is a contract - the mask, the layout and the invariants
     And the CRF Media Clock Input bind edge drops media lock without scoring an unlock
 
   # --------------------------------------------------- L1: the fabric binding
-  # (the KL_aecp_response_builder mask-serving and the two @open-finding
-  #  scenarios that lived here were resolved out of hdl/ieee17221/aecp/**,
-  #  which has been deleted - this device answers no AECP command at all,
-  #  so there is no builder to hold to a mask and no GET_COUNTERS arm to
-  #  hold to a descriptor index. What survives is the DOCUMENTED register
-  #  window, which is still the fabric path to the same ten values.)
+  # (The repository-local response builder was deleted. The protocol processor
+  #  now serves GET_COUNTERS through KL_pp_shadow's root gather face, with its
+  #  wire mask and descriptor indexing checked in the pp_shadow and milan_dp
+  #  harnesses. This scenario independently holds the documented register
+  #  window to the same ten Stream Input values.)
 
   @level:L1 @class:binding
   Scenario: the per-stream window exposes the ten counters at the block offsets

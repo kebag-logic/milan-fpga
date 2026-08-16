@@ -1320,15 +1320,15 @@ def _streams(lst, ctx, direction, rate_hz=48000):
             raise ConfigError(f"{sctx}: clusters {clusters} outside 1..32")
         # map_mode (gaps item 8, generalized by roadmap 23): "dynamic"
         # drops the port's static AUDIO_MAP (1722.1-2021 7.2.13
-        # number_of_maps=0) and arms the RTL ADD/REMOVE/GET_AUDIO_MAP
-        # engine. Milan v1.2 5.3.3.9 makes that the SHALL for listeners
+        # number_of_maps=0). The processor serves GET_AUDIO_MAP from the root
+        # store, but ADD/REMOVE remain mandatory gaps and no AECP writer is
+        # connected. Milan v1.2 5.3.3.9 makes dynamic maps the SHALL for listeners
         # ("The Stream Port Input of a Configuration shall not contain any
         # AUDIO_MAP descriptor. Note: this means that a PAAD-AE implements
         # dynamic mappings on all of its Stream Port Inputs"), so ANY
-        # subset of the listener ports may be dynamic. Talkers stay static:
-        # 5.3.3.9 leaves Stream Port Outputs free to keep Audio Maps, and
-        # 5.4.2.26-28 then mandate NOT_SUPPORTED there - which is exactly
-        # what the RTL answers.
+        # subset of the listener ports may be dynamic. Talkers stay static in
+        # this configuration model. The current getter serves both directions;
+        # see docs/testing/MILAN_V12_AUDIT_2026-08-16.md for the open writers.
         map_mode = s.get("map_mode", "static")
         if map_mode not in ("static", "dynamic"):
             raise ConfigError(f"{sctx}: map_mode '{map_mode}' not "
@@ -2446,12 +2446,13 @@ def emit_adp_shape_svh(cfg):
     #! STREAM_INPUT[0]'s declared stream_format, as a 64-bit constant.
     #!
     #! WHY IT MOVED HERE.  It used to reach the fabric as the RESET VALUE of
-    #! the AECP response builder's fmt_in0_r, taken from the generated AEM ROM
-    #! (AEM_STRIN_FMT_C[0]).  That ROM is deleted with the AECP engine, and the
-    #! constant is NOT AECP's to own: KL_avtp_rx_monitor_ctx compares every
+    #! the repository-local AECP response builder's fmt_in0_r, taken from the
+    #! generated AEM ROM (AEM_STRIN_FMT_C[0]).  That local engine and ROM are
+    #! deleted. The constant is not the processor's dynamic store to own:
+    #! KL_avtp_rx_monitor_ctx compares every
     #! arriving AVTPDU's subtype/format against it (fmt0_i), so it decides
-    #! whether stream 0 can accept a frame AT ALL - with no AECP in the build
-    #! it is a pure entity-model fact and belongs in the entity-model header.
+    #! whether stream 0 can accept a frame AT ALL. SET_STREAM_FORMAT remains
+    #! unimplemented, so it is a fixed entity-model fact and belongs here.
     #! Tying it to zero (the first cut of the plane deletion) made the compare
     #! fail for every conformant AAF PDU: stream 0 accepted nothing, on every
     #! build.  Same class as the presentation-time default, same fix.
@@ -2460,7 +2461,8 @@ def emit_adp_shape_svh(cfg):
     #! which is exactly what the deleted register file reset to.
     fmts0 = ((cfg.get("listeners") or [{}])[0].get("formats") or ["0x0"])
     f0 = int(str(fmts0[0]), 16)
-    a("  //! STREAM_INPUT[0]'s declared (and, with no AECP to change it, its")
+    a("  //! STREAM_INPUT[0]'s declared (SET_STREAM_FORMAT is unimplemented,")
+    a("  //! so this is also its")
     a("  //! ONLY) stream_format - the value KL_avtp_rx_monitor_ctx accepts")
     a("  //! frames against. Was the AEM ROM's AEM_STRIN_FMT_C[0]; the ROM is")
     a("  //! gone and this is the same number from the same config.")
@@ -3974,8 +3976,8 @@ def emit_aem_overlay(cfg):
 
     # one AUDIO_MAP per STATIC port; rows = (stream_index, stream_channel,
     # cluster_offset RELATIVE to the port's base_cluster, cluster_channel).
-    # map_mode dynamic ports (gaps item 8) emit NO map - their mappings are
-    # runtime state behind ADD/REMOVE/GET_AUDIO_MAPPINGS (Milan 5.4.2.26-28).
+    # map_mode dynamic ports (gaps item 8) emit NO map. GET_AUDIO_MAP reads
+    # their root store; ADD/REMOVE are not implemented (Milan 5.4.2.26-28).
     #
     # Under the legacy policies the port's cluster block IS the stream's
     # channel space, so the map is the identity over the whole block. Under
@@ -4688,7 +4690,8 @@ def main():
                          "tracked RTL tree (hdl/common/csr/gen/"
                          "adp_shape_defaults.svh - ONE file: the AEM "
                          "descriptor ROM no longer has an RTL destination, "
-                         "the AECP plane that compiled it is deleted). Run "
+                         "the repository-local AECP plane that compiled it "
+                         "is deleted). Run "
                          "this for the config you are about to build: "
                          "milan_csr.sv and milan_datapath.sv `include that "
                          "file, so without it a build inherits whatever shape "

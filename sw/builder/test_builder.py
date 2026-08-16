@@ -954,7 +954,7 @@ def test_gen_aem_store_consumes_overlay():
     WHAT MOVED (2026-08-12).  The comparand used to be the TRACKED ROM
     hdl/ieee17221/aecp/gen/aecp_aem_rom.svh - the descriptor set a build
     `include-d - which made this the staleness gate for the shipped entity.
-    That file and the whole AECP plane that compiled it are deleted, so the
+    That file and the repository-local AECP plane that compiled it are deleted, so the
     property left is the one that is still true and still worth holding: the
     builder's IN-MEMORY emit_aem_rom_svh() and the gen_aem_store CLI are the
     same generator reached two ways, and the CLI must not drift away from the
@@ -4130,10 +4130,11 @@ def test_d10_names_reach_the_rom():
     aecp Verilator suite compared the RTL against - because the original D10
     failure was regenerating hdl/.../aecp_aem_rom.svh and NOT the golden,
     which turned that sweep red on all 16 AUDIO_CLUSTER descriptors (off=42,
-    the object_name field) and nothing else.  BOTH files are deleted with the
-    AECP plane: there is no golden, no tracked ROM, and no aecp suite to go
-    red.  The two-artifact staleness assertion is therefore removed - there
-    is only one artifact left.
+    the object_name field) and nothing else. BOTH files are deleted with the
+    legacy AECP plane: the processor now serves the builder's descriptor image
+    through its external store, and there is no legacy golden, tracked RTL ROM,
+    or legacy AECP suite. The two-artifact staleness assertion is therefore
+    removed because there is only one generated artifact left.
 
     WHAT SURVIVES: the names still have to reach the descriptor BYTES (they
     are read out of the generated ROM image at the object_name offset, not

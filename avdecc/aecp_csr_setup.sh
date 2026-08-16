@@ -85,9 +85,9 @@ echo "identity programmed; entity enabled. status:"
 printf '  ADP_CTRL   0x600 = '; devmem $(printf '0x%x' $(( B + 0x600 ))) 32
 # the ELABORATED shape, read-only - this is the answer to "what did this
 # bitstream actually get built as". The old AECP_STAT0/1 readback at
-# 0x648/0x64C is gone: with no AECP engine behind them those words are
-# structural zeros, and printing a zero as if it were a status is worse than
-# printing nothing.
+# 0x648/0x64C belonged to the deleted repository-local AECP engine. The
+# protocol processor owns AECP now, while those legacy CSR words remain
+# structural zeros. Printing them as live status would be misleading.
 printf '  ADP_TALK   0x618 = '; devmem $(printf '0x%x' $(( B + 0x618 ))) 32
 printf '  ADP_LIST   0x61C = '; devmem $(printf '0x%x' $(( B + 0x61C ))) 32
 printf '  GPTP_DOM   0x62C = '; devmem $(printf '0x%x' $(( B + 0x62C ))) 32
