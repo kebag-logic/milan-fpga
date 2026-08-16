@@ -218,30 +218,28 @@ consumes them. Everything else is regenerated into
 | `build_plan.md` | human review, capability marks, the LUT/FF/BRAM36/DSP estimate and its OK / TIGHT / OVER verdict | a human | 4 (planned marks), 11 (estimate within ±15 % of the real place report), 12 (deterministic), 13 (verdict thresholds and UPPER BOUND labelling) |
 | `configs/generated/sweep_opts_<board>.sh` | `OPTS` / `L2` / `RXQ` for the board | sourced by [`sw/litex/sweep.sh`](../sw/litex/sweep.sh), whose inline tables are the loud fallback | 9 — byte-for-byte against `sweep.sh`, per board, and `sh -n` on all three files |
 
-Three example shapes exist: `endstation_arty_current.yaml` (today's real
-Arty build — the identity gate), `endstation_arty_4x4.yaml` and
-`endstation_ax7101_8x8.yaml` (the roadmap-item-5 NxN test shapes). Descriptor
-counts below are read out of the **emitted** `aem_overlay.json`, not
-predicted — they are what `gen_aem_store.py` is handed:
+Five tracked shapes exist. Descriptor counts below are read out of the
+**emitted** `aem_overlay.json`, not predicted. They are what
+`gen_aem_store.py` is handed:
 
-| | `arty_current` | `arty_4x4` | `ax7101_8x8` |
-|---|---|---|---|
-| Board, audio interface | arty, `i2s_philips` | arty, `tdm8` | ax7101, `tdm32` |
-| AAF listeners × talkers | 1 × 1 | 4 × 4 | 8 × 8 |
-| Listener / talker channels | 8 / 2 | 4 / 4 | 8 / 8 |
-| Talker `clusters` (D3) | 8 | 4 | *(unused under `role-pools`)* |
-| `audio_interface.physical_channels` | default (2/2) | **8 / 2** | **0 / 0, the board routes no audio pins** |
-| `cluster_mapping.policy` | `cluster-per-stream-channel` | `cap-at-interface` | `role-pools` (D8) |
-| `clocking.crf_output` | absent (legal at 1 listener) | enabled | enabled |
-| STREAM_INPUT / STREAM_OUTPUT | 2 / 1 | 5 / 5 | 9 / 9 |
-| STREAM_PORT_INPUT / _OUTPUT | 1 / 1 | 4 / 4 | 8 / 8 |
-| AUDIO_CLUSTER | 16 | 32 | **200** |
-| AUDIO_MAP | 2 | 4 | 0 |
-| CLOCK_SOURCE | 3 | 6 | 10 |
+| | `arty_current` | `arty_4x4` | `arty_8ch` | `ax7101_1x1_tdm8` | `ax7101_8x8` |
+|---|---|---|---|---|---|
+| Board, audio interface | arty, `i2s_philips` | arty, `tdm8` | arty, `tdm8` | ax7101, `tdm8` | ax7101, `tdm32` |
+| AAF listeners × talkers | 1 × 1 | 4 × 4 | 4 × 4 | 1 × 1 | 8 × 8 |
+| Listener / talker channels | 8 / 2 | 4 / 4 | 8 / 8 | 8 / 8 | 8 / 8 |
+| Talker `clusters` (D3) | 8 | 4 | 8 | *(unused under `role-pools`)* | *(unused under `role-pools`)* |
+| `audio_interface.physical_channels` | default (2/2) | **8 / 2** | **8 / 2** | **8 / 0** | **0 / 0** |
+| `cluster_mapping.policy` | `cluster-per-stream-channel` | `cap-at-interface` | `cap-at-interface` | `role-pools` (D8) | `role-pools` (D8) |
+| `clocking.crf_output` | absent (legal at 1 listener) | enabled | enabled | enabled | enabled |
+| STREAM_INPUT / STREAM_OUTPUT | 2 / 1 | 5 / 5 | 5 / 5 | 2 / 2 | 9 / 9 |
+| STREAM_PORT_INPUT / _OUTPUT | 1 / 1 | 4 / 4 | 4 / 4 | 1 / 1 | 8 / 8 |
+| AUDIO_CLUSTER | 16 | 32 | 64 | 33 | **200** |
+| AUDIO_MAP | 2 | 4 | 4 | 0 | 0 |
+| CLOCK_SOURCE | 3 | 6 | 6 | 3 | 10 |
 
 The cluster row is where the policy bites and where a guess would have been
 wrong. `cap-at-interface` takes `min(stream.clusters, interface channels per
-direction). The TDM8 interface has eight channels per direction, so each 4ch
+direction)`. The TDM8 interface has eight channels per direction, so each 4ch
 stream keeps all four clusters and `arty_4x4` emits 32.
 
 The 8×8 row moved on 2026-07-28: it now selects **`role-pools`** (D8), so its

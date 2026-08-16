@@ -221,6 +221,7 @@ import check_entity_shape as ces  # noqa: E402
 CONFIGS = {
     "arty_current": os.path.join(ROOT, "configs/endstation_arty_current.yaml"),
     "arty_4x4": os.path.join(ROOT, "configs/endstation_arty_4x4.yaml"),
+    "arty_8ch": os.path.join(ROOT, "configs/endstation_arty_8ch.yaml"),
     "ax7101_8x8": os.path.join(ROOT, "configs/endstation_ax7101_8x8.yaml"),
     "ax7101_1x1_tdm8": os.path.join(
         ROOT, "configs/endstation_ax7101_1x1_tdm8.yaml"),

@@ -93,6 +93,10 @@ missing include the stream-format setter, stream-info setter, name access,
 audio-map mutation, and dynamic-info reads.
 The processor accepts and stores clock-source and sampling-rate changes, but
 the root wrapper does not yet expose those dynamic values to the media plane.
+Identify control is stored but the root indication remains tied low.
+`GET_AVB_INFO` returns zero propagation delay instead of the value published at
+`GPTP_PDELAY`, and the writable AAF admission bypass remains a deployment
+hazard.
 The integration also reports no nonvolatile backend, so required state does not
 survive a power cycle. Solicited Stream Output counters are now served; their
 rate-limited unsolicited notification path remains a separate task. These are

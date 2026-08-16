@@ -531,7 +531,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //      the MMCM PSCLK domain (SoC: 200 MHz idelay; DS181 MMCM_FMAX_PSCLK
   //      450 MHz at -1); the DRP DCLK is axis_clk. Tops without the MMCM
   //      tie: ps_clk = axis_clk, drp_rdy/do = 0, locked = 1, ps_done = 0
-  //      (servo idles unless clock_source == 2). ----
+  //      The current root cannot select CRF, so the servo stays idle. ----
   input  wire        i_ps_clk,
   output wire [6:0]  o_mmcm_drp_addr,
   output wire        o_mmcm_drp_en,
@@ -4352,8 +4352,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   // ==========================================================================
   //  CRF media-clock recovery ACTUATOR (Milan 7.3.4): the audio-MMCM servo.
-  //  Consumes the KL_crf_rx rate measurement when clock_source == 2 and
-  //  steers the SoC audio MMCM through the UG472 fine-phase-shift port
+  //  The actuator can consume the KL_crf_rx rate measurement, but the current
+  //  root hardwires INTERNAL against NONE and cannot select it. If selected by
+  //  a future dynamic root connection, it steers the SoC audio MMCM through
+  //  the UG472 fine-phase-shift port
   //  (ppm-fine, glitch-free) + the XAPP888 DRP engine (verified divider
   //  reprogramming, reset-sequenced). auto_repair defaults OFF for silicon
   //  bring-up (MCSRV_CTRL 0x8FC[1] resets 0): the DRP limb read-verifies but
@@ -4363,7 +4365,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ==========================================================================
   //! MCSERVO_P = 0 prunes the servo (see the parameter note). The tie-off is
   //! the servo's own IDLE state, term by term: it drives drp_en/we = 0 and
-  //! ps_en = 0 whenever clock_source != 2, and mmcm_rst_o is asserted only
+  //! ps_en = 0 while CRF is unselected, and mmcm_rst_o is asserted only
   //! inside a REPAIR sequence that a pruned build never enters. status_o = 0
   //! makes A_MCSRV_STAT 0x8F8 a STRUCTURAL zero - REGISTER_MAP records that
   //! this window already has a dead-read carve-out, so a reader cannot tell

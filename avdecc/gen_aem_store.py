@@ -1554,8 +1554,8 @@ def build_model(spec):
 #: how many of those channels reach a PIN on a given board (arty_4x4 says 2,
 #: ax7101_8x8 says 0). A key inside the crossbar but past the routed width
 #: still maps onto a parked wire - that is the separate, pre-existing
-#: "audio_interface unbacked by fabric" gap, flagged in
-#: docs/MILAN_COMPLIANCE_GAPS.md and deliberately NOT silently closed here.
+#: physical source-coverage gap, graded by scripts/check_wire_accountability.py
+#: and deliberately NOT silently closed here.
 CHMAP_PHYS_DEPTH = 10
 
 SRC_IDS = {name: n for n, name in enumerate(

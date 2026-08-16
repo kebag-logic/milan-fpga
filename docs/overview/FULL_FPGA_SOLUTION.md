@@ -70,8 +70,8 @@ handshake. A late valid load heals without a reset because each locate re-arms
 the header probe.
 
 Companion documents:
-- [`PROTOCOL_VALIDATION_MATRIX.md`](../testing/PROTOCOL_VALIDATION_MATRIX.md)  -  **every protocol
-  × where it's implemented × the test that validates it** (the validation contract).
+- [Current Milan v1.2 audit](../testing/MILAN_V12_AUDIT_2026-08-16.md), the
+  verified behavior, current blockers, and validation evidence.
 - [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md)  -  the deep, step-
   numbered migration plan (§A.x parts are referenced throughout here).
 - [`ARCHITECTURE.md`](ARCHITECTURE.md)  -  the datapath/control-plane internals.
@@ -149,11 +149,12 @@ Companion documents:
 | **Shaping / QoS** | 802.1Qav CBS, 802.1Q PCP classification | HW (per-queue, only shaped queues) |
 | **L2 / L1** | 802.3 1G MAC, GMII PHY, dest-MAC filtering, RMON | HW MAC + fabric datapath |
 
-The per-protocol **status and the test that validates each** is the subject of
-[`PROTOCOL_VALIDATION_MATRIX.md`](../testing/PROTOCOL_VALIDATION_MATRIX.md). Scope decisions
-(redundancy out; only 48/96/192 kHz; stereo talker + format-adaptive listener) are
-recorded in [`MILAN_V12_DEPENDENCY_MATRIX.md`](../reference/MILAN_V12_DEPENDENCY_MATRIX.md) and
-the entity model under `avdecc/`.
+The verified protocol status and open blockers are in the
+[current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md). Live RTL and
+test ownership is in the
+[generated module matrix](../traceability/MODULE_MATRIX.md). Shape decisions
+are recorded in [`ENDSTATION_BUILDER.md`](../ENDSTATION_BUILDER.md) and the
+selected entity configuration.
 
 ### 2.1 What the AECP row costs, named
 
@@ -432,14 +433,14 @@ protocol processor took ADP/ACMP/SRP, and AECP with them (see the preamble and
    inventory listed in the current audit, and the tracked builder and board flow
    supply its descriptor image. The AAF/CRF media datapath
    ([`hdl/ieee1722/`](../../hdl/ieee1722)) is untouched. Each row in the
-   [`PROTOCOL_VALIDATION_MATRIX.md`](../testing/PROTOCOL_VALIDATION_MATRIX.md)
-   names its test. A conformant fallback remains a refusal, not command
-   coverage.
+   [current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md) names the verified
+   behavior and remaining blockers. A conformant fallback remains a refusal,
+   not command coverage.
 
 The full SoC builds, boots Linux, passes traffic, and runs discovery, connection,
 reservation and the media plane in fabric on silicon today. Its AECP responder
 serves the current inventory and the tracked flow supplies its descriptor image.
 The current audit lists the mandatory control, dynamic-state integration,
-notification, and persistence gaps. What is still open lives in
-[`KNOWN_ISSUES_AND_LIMITATIONS.md`](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) and
-the GitHub issue tracker (the per-round status files were retired in favor of issues).
+notification, and persistence gaps. What is still open lives in the
+[current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md) and the GitHub issue
+tracker.

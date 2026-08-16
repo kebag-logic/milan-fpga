@@ -2,7 +2,8 @@
 
 This index contains the current entry points for the Milan TSN FPGA network
 interface. Pages whose first line is `[OBSOLETE + 2026-08-16]` are historical
-evidence and are not part of the current navigation.
+evidence, not current authorities. A current page may cite one only when the
+link is explicitly identified as historical evidence.
 
 The implementation is not yet fully Milan v1.2 compliant. The current audit
 records verified behavior and the remaining mandatory gaps:

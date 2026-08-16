@@ -67,7 +67,10 @@ Software deliverables (sibling repos under `../`):
 > for example "stats invisible to SW" is satisfied by `REQ-MAC-04` (§4), the
 > `0x200` RMON group and the `STATS_CAP` capability mask. **Read §4's per-`REQ`
 > status for what is true today**, and
-> [`docs/SPEC_TRACEABILITY.md`](docs/SPEC_TRACEABILITY.md) for clause coverage.
+> [the current Milan audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) for
+> the compliance verdict and
+> [the generated module matrix](docs/traceability/MODULE_MATRIX.md) for live
+> RTL-to-test coverage.
 
 A structured, multi-domain audit of the RTL/driver **as it stood at the time**
 was performed (with adversarial verification of the CBS arithmetic). **60 gaps**

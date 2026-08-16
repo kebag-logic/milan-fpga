@@ -3,7 +3,7 @@
 Chronological engineering record: every entry is a "symptom → measurement
 chain → root cause → fix → verification" write-up (or a campaign plan with
 its measured verdicts). Read these to learn *how this system is debugged*;
-read [../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)
+read [the current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md)
 for what is still open, and [`CHANGELOG.md`](../../CHANGELOG.md) for the
 per-lever measured ledger.
 

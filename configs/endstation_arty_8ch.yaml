@@ -147,14 +147,14 @@ clocking:
   crf_output:                        # Milan 7.2.3 (MANDATORY here: >=2 AAF
     enabled: true                    # media inputs => CRF Media Clock Output;
                                      # the builder rejects the config without
-                                     # it). Model half; RTL provisioning of
-                                     # KL_crf_tx rides with item-5 NxN.
+                                     # it). Runtime gaps are graded in the
+                                     # current audit B3 and B4.
     format: "0x041060010000BB80"     # Milan 7.3.2 Table 7.1 (subtype 4 CRF,
                                      # type 1 AUDIO_SAMPLE, 48k, interval 96,
                                      # 1 ts/PDU)
   audio_pll_hz: 24576000             # Pmod I2S2: MCLK /2, SCLK /8 = 64 fs,
                                      # LRCK /512 = 48.000 kHz exactly
-                                     # (docs/design/AUDIO_STREAMING.md)
+                                     # (docs/fpga/FPGA_DESIGN.md section 2)
 
 audio_interface:
   kind: tdm8                         # tdm8|tdm16|tdm32|i2s_philips|aes3|spdif
