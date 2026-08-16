@@ -95,7 +95,7 @@ flowchart LR
      that branch is deleted, and `git submodule update` on a fresh clone fails
      with no useful message.
    - **A conflict in the µcode or the engine means re-running
-     `scripts/check_upc_map.py`.** A merge that lands the engine's dispatch
+     `protocol-processor/scripts/check_upc_map.py`.** A merge that lands the engine's dispatch
      constant from one side and the microprogram's entry point from the other
      does not fail to elaborate — the µCPU executes ROM fill and answers a
      well-formed response carrying garbage.
