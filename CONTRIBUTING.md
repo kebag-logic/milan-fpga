@@ -48,7 +48,9 @@ flowchart LR
     PR --> RV[In review<br/>multiple agents, CLEARED context]
     RV -->|findings| W
     RV -->|validated| M[merge to main-push]
-    M --> D[Done]
+    M --> G[re-run the FULL bar<br/>on the merge result]
+    G -->|regression| W
+    G -->|clean| D[Done]
 ```
 
 1. **Move the issue to *In progress*** on the project board before the first
@@ -71,6 +73,32 @@ flowchart LR
    whether the tests can actually fail — and let them read the diff cold.
 6. **Merge back into `main-push`** only once the findings are answered. The
    issue closes itself; move the card to *Done* if it does not.
+7. **Re-run the whole verification bar ON THE MERGE RESULT, every time.** A
+   merge is a change nobody wrote and nobody reviewed, and *"Merge made by the
+   'ort' strategy"* is not evidence of anything. Gate the merged tree exactly
+   as §3 gates a hand-written one — full Verilator sweep, both repos' suites,
+   behave, the lint ratchet, yosys — before the merge button, not after.
+
+   This is not defensive box-ticking. On 2026-08-16 two lanes independently
+   added the *same* six AECP settings-face pins to `KL_pp_shadow.sv` — one
+   tied off, one connected. Git reported **no conflict** and kept **both**,
+   producing duplicate pin connections that would not elaborate. Nothing but
+   running the tools on the merged tree could have found it. The same merge
+   also silently re-armed a VERSION story describing commands that had been
+   split out, and restored an inventory row for an opcode the engine no longer
+   decodes.
+
+   Two merge-specific traps worth naming, both paid for:
+
+   - **Push the submodule before the superproject.** A superproject pin to a
+     processor commit that only exists on a feature branch dangles the moment
+     that branch is deleted, and `git submodule update` on a fresh clone fails
+     with no useful message.
+   - **A conflict in the µcode or the engine means re-running
+     `scripts/check_upc_map.py`.** A merge that lands the engine's dispatch
+     constant from one side and the microprogram's entry point from the other
+     does not fail to elaborate — the µCPU executes ROM fill and answers a
+     well-formed response carrying garbage.
 
 Two board rules that go with it:
 
