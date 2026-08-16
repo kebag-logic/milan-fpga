@@ -459,10 +459,12 @@ module KL_pp_shadow #(
     output logic [7:0]                 maap_defends_o,     //! DEFEND frames sent (saturating)
 
     //! ---- the AECP SETTINGS face (Milan §5.3.x) ------------------------
-    //! NOT the whole dynamic store. It holds eight fields and exposes five;
-    //! current_sampling_rate and the two current_format fields are served over
-    //! AECP but have no output on KL_aecp_dyn_state, so they are absent here
-    //! too. What IS below is republished 1:1 so the fabric can act on a
+    //! NOT the whole dynamic store. It holds eight fields and exposes five.
+    //! Absent here because KL_aecp_dyn_state declares no output for them:
+    //! current_sampling_rate (which AECP does serve), and the two
+    //! current_format fields (which nothing reads or writes yet — storage
+    //! allocated ahead of SET_STREAM_FORMAT). What IS below is republished
+    //! 1:1 so the fabric can act on a
     //! setting rather than be told about it. Every one reads its reset
     //! default until a controller writes it, so a datapath that leaves these
     //! unread behaves exactly as it did before the store existed — which is

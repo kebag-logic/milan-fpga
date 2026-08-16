@@ -141,19 +141,27 @@ kept in §P2.1 below, because they still govern every command that has not
 landed yet.
 
 **What it does not yet do is reach its consumers.** `KL_aecp_dyn_state` holds
-**eight** fields and declares **five** value outputs. The five — current
-configuration, IDENTIFY, clock source, presentation-time offset and the
-started/stopped vector — are published out to `milan_datapath` (`pp_aecp_*_w`)
-and read by nothing: the media clock still uses its compile-time select, so
-`SET_CLOCK_SOURCE` stores a value the servo does not act on, and
-`strm_started_o` is published but permanently zero because START/STOP_STREAMING
-was withdrawn (#78).
+**eight** fields, and *served over AECP* and *published to the fabric* are two
+different lists — worth setting out in full, because collapsing them is how an
+earlier revision of this section came to claim something untrue:
 
-The other **three stop at the store** — `current_sampling_rate`, and
-`current_format` for Stream Inputs and for Stream Outputs. They are held and
-served over AECP but have no output port at all, so no consumer can be wired to
-them without widening the module first. Aligning the audio grid to the rate is
-#74's work; the formats wait on `SET_STREAM_FORMAT` (§1). That is deliberate
+| field | a microprogram reads/writes it | it has an output port |
+|---|---|---|
+| `current_configuration` | yes | yes |
+| `clock_source_index` | yes | yes |
+| IDENTIFY | yes | yes |
+| `current_sampling_rate` | yes | **no** |
+| presentation-time offset | **no** | yes |
+| started/stopped | **no** (withdrawn, #78) | yes, permanently zero |
+| `current_format`, Stream Inputs | **no** | **no** |
+| `current_format`, Stream Outputs | **no** | **no** |
+
+So five fields have an output and all five are read by nothing downstream: the
+media clock still uses its compile-time select, so `SET_CLOCK_SOURCE` stores a
+value the servo does not act on. `current_sampling_rate` is the one field a
+controller can move that the fabric cannot see — aligning the audio grid to it
+is #74's work. The two `current_format` rows are storage allocated ahead of
+`SET_STREAM_FORMAT` (§1) and are reachable from neither side today. That is deliberate
 sequencing — the AECP side is complete and provable on its own, and each
 consumer is its own change — but it means a green suite here is **not** yet a
 claim that the device behaves differently on the bench.
