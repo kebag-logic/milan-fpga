@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Item-10 — PDU getter/setter verification (the plan, and what the AECP half can and cannot run)
 
 > ## STATUS 2026-08-13 — **THIS DEVICE ANSWERS AECP: READ_DESCRIPTOR, PLUS A CONFORMANT NOT_IMPLEMENTED ECHO FOR EVERYTHING ELSE.**

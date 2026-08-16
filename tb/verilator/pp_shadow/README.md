@@ -156,13 +156,9 @@ the status there is `BAD_ARGUMENTS` rather than `NO_SUCH_DESCRIPTOR` because an
 unvalidated image reports `configurations_count = 0` and the µprogram
 range-checks the configuration index before it ever locates.
 
-**Known gap, recorded not claimed.** Milan Δ7 wants `ACQUIRE_ENTITY` (`0x0000`)
-answered `NOT_SUPPORTED` with `owner_id = 0`. `gen_ucode.py` carries an `E_ACQ`
-exemplar for it, but `KL_aecp_engine`'s three-arm decode never dispatches there,
-so `0x0000` currently takes the generic `NOT_IMPLEMENTED` echo. That is a
-conformant answer to a controller and not a defect in this harness — it is
-simply not the Milan answer, and nothing here should be read as proving it. The
-run prints it as a `[GAP]` line.
+Milan 5.4.2.1 `ACQUIRE_ENTITY` is graded on the wire. The suite requires a
+`NOT_SUPPORTED` response, never `SUCCESS`, with the IEEE 1722.1 7.4.1 body and
+an all-zero `owner_id`. The generic `NOT_IMPLEMENTED` echo fails this check.
 
 ## The blanket PINMISSING waivers came out (2026-08-13)
 

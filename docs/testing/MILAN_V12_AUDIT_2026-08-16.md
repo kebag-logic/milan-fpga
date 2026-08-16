@@ -1,0 +1,138 @@
+# Milan v1.2 implementation audit, 2026-08-16
+
+## Verdict
+
+The current `main-push-fixes` tree is **not fully compliant with Milan v1.2**.
+It must not be represented as a conformant or formally approved release.
+
+The automated RTL and software gates are broadly green, and this audit closed
+two false-green documentation and verification defects. Those results do not
+override the structural blockers listed below.
+
+The normative source used for this review is the consolidated Milan v1.2 Final
+Approved specification dated 2023-11-30 from the local standards archive.
+
+The target is the non-redundant PAAD profile. Milan chapter 8 redundancy is
+outside this build's declared scope.
+
+## Current verification record
+
+| Gate | Result | Interpretation |
+|---|---:|---|
+| All 50 `tb/verilator/*/Makefile` suites | PASS | Every suite returned zero. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
+| `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
+| `tb/verilator/pp_shadow` | PASS | Milan `ACQUIRE_ENTITY` is now checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. |
+| `tests/` Behave suite | 15 features, 321 scenarios passed, 1 scenario skipped | 1,521 steps passed and 4 steps were skipped. This is an offline behavior model, not an external compliance lab result. |
+| Pinned protocol processor suites | 13,308 checks passed | All 24 processor suites passed. The processor's zero-tolerance RTL lint also passed. |
+| Pinned gPTP processor skeleton | 799 checks passed | 768 uCPU checks and 31 parser checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
+| Root RTL lint | PASS under ratchet | The ratchet remains at 100 existing warnings. This is not a zero-warning result. |
+| Module matrix | PASS | 63 modules, 0 untested under the current matrix rules. |
+| End-station builder gates | PASS | The AEM image, identity, shape, and base-format generation gates passed. |
+| Documentation gate | PASS before final edits | It covered 202 Markdown files with zero findings. It is rerun as part of the final commit gate. |
+| Optional `tsn-gen` field campaign | SKIPPED | The generator binary was not installed at the configured path. |
+| Vivado build and timing closure | NOT RUN | Vivado 2026.1 is not installed in this environment. |
+| Current physical Milan interoperability bench | NOT RUN | The external bench repository contains valuable dated evidence, but its present worktree is active and its last recorded audio result used a mismatched peer format. |
+
+## Structural compliance blockers
+
+### B1. The mandatory AECP command set is incomplete
+
+The pinned processor currently gives real behavior to `READ_DESCRIPTOR`,
+`ACQUIRE_ENTITY`, `LOCK_ENTITY`, `GET_STREAM_INFO`, `GET_AVB_INFO`,
+`GET_AS_PATH`, `GET_COUNTERS`, `GET_AUDIO_MAP`, the unsolicited registration
+pair, and Milan `GET_MILAN_INFO`.
+
+The following mandatory surface still falls through to an unimplemented echo
+or otherwise lacks the required behavior:
+
+- `ENTITY_AVAILABLE`
+- `SET_CONFIGURATION` and `GET_CONFIGURATION`
+- `SET_STREAM_FORMAT` and `GET_STREAM_FORMAT`
+- `SET_STREAM_INFO`
+- `SET_NAME` and `GET_NAME`
+- `SET_SAMPLING_RATE` and `GET_SAMPLING_RATE`
+- `SET_CLOCK_SOURCE` and `GET_CLOCK_SOURCE`
+- `SET_CONTROL` and `GET_CONTROL` for Identify
+- `START_STREAMING` and `STOP_STREAMING` for Stream Inputs
+- `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS`
+- `GET_DYNAMIC_INFO`
+
+Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
+`NOT_IMPLEMENTED` response is transport-safe, but it is not implementation of
+a mandatory command.
+
+Implementation evidence:
+[`KL_aecp_engine.sv`](../../protocol-processor/hdl/aecp/KL_aecp_engine.sv) and
+the current command table in
+[`06_aecp_engine.md`](../../protocol-processor/docs/architecture/06_aecp_engine.md).
+
+### B2. Required state is not persistent
+
+The integration intentionally exposes a blank-flash responder. The verified
+reset result is `nvm_backed = 0`, `nvm_blank = 1`, and `restore_fail = 1`.
+Bindings and the other Milan-specified dynamic state therefore do not survive
+a power cycle.
+
+This blocks the persistence requirements in Milan sections 5.3.6, 5.3.8,
+5.3.11, 5.3.13, and the saved-state connection behavior in section 5.5.
+
+Evidence: the `[P] saved state` checks in
+[`sim_main.cpp`](../../tb/verilator/pp_shadow/sim_main.cpp) and the device face
+in [`KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv).
+
+### B3. The CRF media clock cannot be selected
+
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) sets
+`CRF_CLK_SELECTED_C` to zero. The current processor has no
+`SET_CLOCK_SOURCE` implementation, so the CRF Media Clock Input cannot select
+or steer the media clock. The MMCM servo and packet-grid servo remain idle in
+the shipping control-plane shape.
+
+This blocks the media-clock behavior required by Milan section 7.2.2.
+
+### B4. Stream Output counters and the full notification duty are incomplete
+
+`GET_COUNTERS` is implemented only for the supported object families wired by
+the root integration. A Stream Output target is refused, and the processor's
+notification block records that GET_COUNTERS notifications are not present.
+The full Milan Table 5.22 asynchronous notification behavior is therefore not
+closed.
+
+This blocks Milan sections 5.4.2.25 and 5.4.5.2.
+
+### B5. The physical media clock and packet grid are not proven aligned
+
+The true-ratio simulation measures the TDM frame clock at about 10.6 ppm below
+the exact 48 kHz packet grid. The test currently passes by proving that the two
+grids are not aligned and reports the result as an open finding. The selectable
+CRF clock blocker prevents the intended closed-loop correction from being
+exercised in the current integration.
+
+Evidence: [`sim_aclk.cpp`](../../tb/verilator/milan_dp/sim_aclk.cpp).
+
+### B6. Required external evidence is missing
+
+No current Vivado place-and-route, timing report, bitstream build, physical
+peer-format-matched audio run, long-duration gPTP run, or external lab run
+was produced in this audit. Automated simulation cannot establish electrical,
+clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
+
+## Corrections made by this audit
+
+1. The host-plane suite now generates both processor ROM images before any
+   simulator starts. Verilator otherwise warns and continues with an all-zero
+   ROM, which allowed false-green integration runs.
+2. The root processor integration now grades Milan `ACQUIRE_ENTITY` instead of
+   printing a stale unconditional gap.
+3. The repository README now describes the current VERSION `0x0002_004A`
+   control-plane surface and the remaining blockers.
+4. Documents whose August 13 status text materially contradicts the current
+   processor pin are marked `[OBSOLETE + 2026-08-16]` at the top.
+
+## Release rule
+
+Do not remove the **not compliant** verdict until all B1 through B6 items have
+current evidence. A green regression is necessary, but it is not sufficient.
+The final review must include a synchronized clause matrix, zero unresolved
+mandatory rows, a successful bitstream and timing build, a matched-format
+physical interoperability run, and the intended external conformance process.

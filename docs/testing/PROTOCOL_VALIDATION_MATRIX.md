@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Protocol validation matrix  -  every protocol, and every test that validates it
 
 The full-FPGA Milan solution implements a stack of AVB/TSN/AVDECC protocols. This

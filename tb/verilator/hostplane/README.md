@@ -142,6 +142,11 @@ make          # build all shapes + run (banner first; nonzero exit on any FAIL)
 make build    # elaboration/build only (the "suite BUILDS" gate)
 ```
 
+The `run` target generates both `ltn_rom.hex` and `ucode.hex` from the pinned
+protocol processor before starting a simulator. This is fail-closed: a missing
+generator or failed image build stops the suite instead of running the ACMP or
+AECP engines with an all-zero ROM.
+
 Conventions: little-endian byte lanes everywhere (first wire byte in
 `tdata[7:0]` — the silicon-proven MAC-side truth); one universal `tick()`
 pump drives all AXIS masters and samples all sinks pre-edge, and the CSR BFM

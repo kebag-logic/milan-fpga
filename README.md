@@ -41,7 +41,7 @@ More lanes (system engineer, tester, hobbyist) and the full index:
 |---|---|
 | Milan v1.2 end-station (talker + listener) | internal conformance suite was **green on both boards** at the last measured round — read the control-plane note below before reading that as a current verdict |
 | TSN datapath in fabric | MAC · 802.1Qav CBS · gPTP · AVTP/AAF/CRF · MAAP |
-| Control plane in fabric | ADP · ACMP · SRP, served by the pinned `protocol-processor` submodule. **AECP/AEM: not implemented** — see below |
+| Control plane in fabric | ADP · ACMP · SRP and a partial AECP/AEM surface, served by the pinned `protocol-processor` submodule. See the current boundary below |
 | Media-clock servo | MMCM-DRP, analog loop **−83.9 dB** (converter floor) |
 | Networking / boot | ring-DMA line-rate ingest · QSPI flash-boot (zero-upload) |
 | Audio | ALSA record over Milan · live talker↔listener E2E |
@@ -52,83 +52,47 @@ More lanes (system engineer, tester, hobbyist) and the full index:
 > your hardware. Live perf numbers live in the measured ledger — [CHANGELOG.md](CHANGELOG.md) +
 > [docs/findings/](docs/findings/README.md). Any number quoted elsewhere is a dated snapshot.
 
-### The control plane was replaced, and the processor answers AECP
+### Current control-plane boundary
 
-As of 2026-08-13 (firmware VERSION major 2) this repository's own IEEE 1722.1 /
-SRP control-plane RTL — the ADP advertiser and parser, the whole AECP/AEM
-engine, the ACMP talker and listener, and the lwSRP applicant — is **deleted**.
-No parameter, no fallback, no shadow arm. The control plane is now
-`hdl/milan/KL_pp_shadow.sv`, wrapping the pinned `protocol-processor` submodule,
-which `milan_datapath.sv` instantiates unconditionally. It owns ADP, ACMP and
-SRP; MAAP stays in this fabric.
+Firmware VERSION `0x0002_004A` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
+`protocol-processor` as its only IEEE 1722.1 and SRP control plane. MAAP remains
+in this repository. There is no legacy fallback.
 
-**The AECP surface, stated plainly rather than buried: this entity answers
-`READ_DESCRIPTOR`, and answers every other AECP command with a conformant
-`NOT_IMPLEMENTED` echo.** The processor's AECP uCPU has landed. Concretely:
+The current AECP implementation answers these operations with real behavior:
 
-- **`READ_DESCRIPTOR` (0x0004) is answered.** `SUCCESS` carries
-  `configuration_index`, the reserved field and the descriptor itself;
-  `NO_SUCH_DESCRIPTOR` comes back on a locate miss and `BAD_ARGUMENTS` on a bad
-  configuration index — both carrying the IEEE 1722.1 §7.4.5 4-byte
-  `{descriptor_type, descriptor_index}` stub. Controller enumeration is
-  reachable again — **once the descriptor image is in DRAM**, which nothing in
-  this repository does for you yet; see the image note below.
-- **Every other opcode and message type — AEM, ADDRESS_ACCESS, MVU — gets a
-  conformant `NOT_IMPLEMENTED` echo**: correct `message_type`+1, correct length,
-  correct `controller_data_length`. Never silence, never a malformed frame.
-- **`IDENTIFY_NOTIFICATION` (0x0026) arriving as a *command* is
-  `BAD_ARGUMENTS`** — IEEE 1722.1 §7.4.39.2's opcode-specific rule wins over
-  §9.3.5.3.3.
-- **Silently refused** — freed, counted, no reply — are a command whose
-  `target_entity_id` is not ours, and any AECP *response* arriving as input.
-- **Known gap, stated rather than smoothed over:** Milan Δ7 `ACQUIRE_ENTITY`
-  (`NOT_SUPPORTED` with `owner_id` = 0) is **not** distinguished from the
-  generic echo.
+- `READ_DESCRIPTOR`
+- `ACQUIRE_ENTITY` with Milan's required `NOT_SUPPORTED` result
+- `LOCK_ENTITY`
+- `GET_STREAM_INFO`, `GET_AVB_INFO`, and `GET_AS_PATH`
+- `REGISTER_UNSOLICITED_NOTIFICATION` and its deregistration pair
+- `GET_COUNTERS` for the counter families wired by this integration
+- `GET_AUDIO_MAP` for both stream-port directions
+- Milan Vendor Unique `GET_MILAN_INFO`
 
-What an echo is not, is an implementation. These commands remain genuinely
-absent, and everything reached only through them is a real loss:
-`SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME`, `GET_COUNTERS` and the Milan
-Table 5.22 unsolicited push, saved-state persistence, and the audio-map setters.
-Their consequences: the **CRF media clock can never be selected**
-(`SET_CLOCK_SOURCE` was its only writer, so the media clock is pinned INTERNAL
-and both media-clock servos are structurally off), every Stream Output's
-**presentation-time offset is pinned at the Milan 2 ms default**, **Milan
-Table 5.4 per-STREAM_OUTPUT counters are gone** (the STREAM_INPUT counters are
-unaffected), and **nothing restores a binding across a power cycle**.
+Unknown and unimplemented operations still receive the correctly sized IEEE
+1722.1 echo. `IDENTIFY_NOTIFICATION` sent as a command receives
+`BAD_ARGUMENTS`. Commands for another entity and incoming AECP responses are
+silently discarded as required.
 
-**The entity model now lives in main memory.** The processor's descriptor store
-fetches descriptors from DDR3 over a read-only master at a **compile-time base**
-— there is no base register to program. Software must load the descriptor image
-at that base **before the entity is enabled**, or every `READ_DESCRIPTOR`
-answers `BAD_ARGUMENTS`; a zeroed region reads as "image not loaded" through its
-header magic/version/checksum, and an invalid image reports a configuration
-count of zero, which the microprogram's `configuration_index` check rejects
-before it ever attempts a locate. The store's watchdog abandons a
-stalled burst, so a missing image is a clean refusal, never a hang, and a late
-load heals without a reset — each locate against an invalid image re-arms the
-header probe.
+The descriptor image supply chain is also present. The end-station builder and
+`sw/litex/milan_soc.py` generate `aem_desc.bin`, `aem_desc.json`, and
+`aem_desc.map` from the selected configuration. The board-side `aemi-load`
+utility loads and verifies the paired image before the entity is enabled. The
+store validates its `AEMI` header, version, checksum, and configuration before
+serving it, and a late valid image heals without a reset.
 
-> **Read this before expecting enumeration to work: nothing in this repository
-> builds or loads that image yet.** The generator lives in the submodule
-> (`protocol-processor/hdl/aecp/desc/gen_desc_image.py`, JSON in, flat image
-> out); no step in `sw/builder`, `scripts/` or the boot path produces its JSON
-> from an `endstation_*.yaml` config or writes the result to DRAM. The
-> end-station builder still emits `aecp_aem_rom.svh` for the deleted
-> `KL_aecp_aem_store` — an orphaned artifact, not the image the processor
-> reads. So on a stock build the region is unloaded and **every
-> `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`**. The engine is real and the path is
-> real; the image-supply chain is the missing link, and it is named here rather
-> than assumed.
->
-> **Those two error codes are a diagnostic, so read them carefully.** Every read
-> answering `BAD_ARGUMENTS` means the image was never loaded or is corrupt. A
-> read answering `NO_SUCH_DESCRIPTOR` means the opposite — the image *is* loaded,
-> and that particular descriptor is genuinely not in the model. Both are clean
-> refusals; neither hangs.
+This is still not a full Milan v1.2 implementation. Mandatory setters and
+several related commands are not decoded by the current processor, including
+stream format, sampling rate, name, configuration, clock source, control,
+stream start and stop, maximum transit time, and audio-map mutation. The root
+integration also reports no nonvolatile backend, so required state does not
+survive a power cycle. The CRF media clock source is pinned unselected, and the
+Stream Output counter bank is not served. These are compliance blockers, not
+documentation-only limitations.
 
-The per-register consequences — including the term **STRUCTURAL ZERO** and the
-`0x784` TX-arbiter lane renumbering that makes an old decoder read the wrong mux
-— are in [docs/reference/REGISTER_MAP.md](docs/reference/REGISTER_MAP.md).
+The dated evidence and exact gate results are recorded in
+[the 2026-08-16 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md). The register
+interface is in [docs/reference/REGISTER_MAP.md](docs/reference/REGISTER_MAP.md).
 
 ## Prerequisites — by what you actually want to do
 

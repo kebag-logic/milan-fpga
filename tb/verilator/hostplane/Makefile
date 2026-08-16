@@ -188,12 +188,18 @@ guards:
 
 # run every shape even when one fails (a red shape must not hide the others);
 # the aggregate exit code stays honest.
-# protocol_computed_top $readmemh's the ACMP transition ROM by a RELATIVE
-# name, so it must exist in the RUN directory.
+# protocol_processor_top $readmemh's the ACMP transition ROM and the AECP uCPU
+# image by RELATIVE names, so both must exist in the RUN directory. Verilator
+# only warns when a readmem file is absent and then continues with an all-zero
+# ROM. Making both files prerequisites keeps a missing generator or image from
+# producing a false-green integration run.
 ltn_rom.hex: $(PP_DIR)/acmp/rom/gen_ltn_rom.py
 	python3 $< -o $@
 
-run: ltn_rom.hex banner build guards
+ucode.hex: $(PP_DIR)/aecp/ucode/gen_ucode.py
+	python3 $< -o $@
+
+run: ltn_rom.hex ucode.hex banner build guards
 	@rc=0; \
 	./obj_ax8x8/Vhostplane_ax8x8        || rc=1; \
 	./obj_small/Vhostplane_smoke_small  || rc=1; \
@@ -203,5 +209,5 @@ run: ltn_rom.hex banner build guards
 	exit $$rc
 
 clean:
-	rm -f ltn_rom.hex
+	rm -f ltn_rom.hex ucode.hex
 	rm -rf obj_ax8x8 obj_small obj_n4 obj_tdm8 obj_tdm32m

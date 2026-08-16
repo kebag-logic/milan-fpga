@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Milan v1.2 — remaining gaps to FULL compliance
 
 > ## SUPERSEDED FOR AECP, 2026-08-16 (VERSION 0x004B).

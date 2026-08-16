@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # milan-fpga at a glance — one page
 
 *For someone deciding whether to use this at all.* Everything here is a summary
