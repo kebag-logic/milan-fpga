@@ -95,9 +95,9 @@ Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/8f244e403feeb01be0b13c5ddbc9d344820ff035/hdl/aecp/KL_aecp_engine.sv) and
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/68c86d772713f9f81ca67ef567b2861bf65bf5cc/hdl/aecp/KL_aecp_engine.sv) and
 the current command table in
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/8f244e403feeb01be0b13c5ddbc9d344820ff035/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/68c86d772713f9f81ca67ef567b2861bf65bf5cc/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 

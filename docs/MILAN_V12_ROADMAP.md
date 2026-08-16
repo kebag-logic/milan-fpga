@@ -421,9 +421,10 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
    does not light up the media-clock servo.
 3. **P2.2** `GET_NAME` + **P2.3** `SET_NAME` — one pair, one storage question
    (`name_index` fan-out), and five test items.
-4. **P2.3** `START`/`STOP_STREAMING`, `SET_CONFIGURATION`, `SET_STREAM_FORMAT`,
-   `SET_STREAM_INFO` — these need the bound/streaming interlocks, so they land
-   after the state store can express "bound" and "streaming".
+4. **P2.3** `START`/`STOP_STREAMING`, `SET_STREAM_FORMAT`, and
+   `SET_STREAM_INFO`: these still need the bound/streaming interlocks. The
+   already-landed `SET_CONFIGURATION` path now applies its running reduction
+   at dispatch.
 5. **P3.2** notification triggers, folded into each command above as it lands.
 6. **P2.2/P2.3** `GET`/`SET_CONTROL` with the IDENTIFY indicator wired.
 7. **P2.4** ADD/REMOVE_AUDIO_MAPPINGS.
