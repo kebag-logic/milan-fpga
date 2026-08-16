@@ -9,13 +9,15 @@ jobs:
   docs-check:
     runs-on: ubuntu-latest
     steps:
-      # No submodules on purpose: all three gates below are pure Python and must
-      # keep working for someone who only has the repo (see QUICKSTART.md).
+      # The documentation-only gates run before any submodule checkout. The
+      # builder identity gate below consumes the pinned processor image tools.
       - uses: actions/checkout@v4
       - name: Link health, wording, dead-reference and local-info gate
         run: python3 scripts/docs_check.py
       - name: Traceability matrix no-drift gate
         run: python3 docs/traceability/gen_module_matrix.py --check
+      - name: Fetch the processor image tools
+        run: git submodule update --init protocol-processor
       - name: End-station builder gates
         run: |
           python3 -m pip install --quiet pyyaml

@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Handover — 2026-07-28
 
 **UNCOMMITTED ON PURPOSE**, same as `HANDOVER_0727_NIGHT.md`: this carries bench

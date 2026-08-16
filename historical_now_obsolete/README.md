@@ -39,6 +39,11 @@ dates with conflicting scoreboards. They consolidate to a small living set:
 | [`fpga/HSPLIT14_DESIGN.md`](fpga/HSPLIT14_DESIGN.md) | merged 2026-07-25: hsq12 cut-through chapter folded in (v3 `fill_len`/`hdr_idx` ABI lives there) | [`docs/fpga/HEADER_SPLIT_DESIGN.md`](../docs/fpga/HEADER_SPLIT_DESIGN.md) |
 | [`integration/FULLY_FPGA_RISCV_MIGRATION.md`](integration/FULLY_FPGA_RISCV_MIGRATION.md) | completed PS→fabric migration plan | [`docs/litex/LITEX_SOC.md`](../docs/litex/LITEX_SOC.md), [`docs/integration/BOARD_PORTING_AX7101.md`](../docs/integration/BOARD_PORTING_AX7101.md), [`docs/integration/INTEGRATION_GUIDE.md`](../docs/integration/INTEGRATION_GUIDE.md) |
 | [`integration/OPEN_SOURCE_MIGRATION.md`](integration/OPEN_SOURCE_MIGRATION.md) | completed de-Xilinx plan | [`docs/integration/PORTING_GUIDE.md`](../docs/integration/PORTING_GUIDE.md) §2 |
+| [`handovers/HANDOVER_0728.md`](handovers/HANDOVER_0728.md) | point-in-time handover from 2026-07-28 | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
+| [`handovers/HANDOVER_0731.md`](handovers/HANDOVER_0731.md) | point-in-time handover from 2026-07-31 | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
+| [`handovers/HANDOVER_0801.md`](handovers/HANDOVER_0801.md) | point-in-time handover from 2026-08-01 | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
+| [`handovers/HANDOVER_0802.md`](handovers/HANDOVER_0802.md) | point-in-time handover from 2026-08-02 | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
+| [`handovers/HANDOVER_0805.md`](handovers/HANDOVER_0805.md) | point-in-time handover from 2026-08-05 | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
 | [`DOC_AUDIT.md`](DOC_AUDIT.md) | completed plan — a self-declared "planning + drafting only" frozen record whose §2 archive move was executed 2026-07-25; the living ledger of what is archived is **this page** | [`docs/README.md`](../docs/README.md), [`docs/SYSTEMS_ENGINEER_GUIDE.md`](../docs/SYSTEMS_ENGINEER_GUIDE.md) |
 
 Preserved evergreen nuggets (recorded so nothing is lost): the datapath-input TX-vs-CPU

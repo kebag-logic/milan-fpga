@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Milan v1.2 → FR/NFR dependency matrix
 
 > ## STATUS 2026-08-13 — a `Today` column, because the control plane changed

@@ -143,32 +143,35 @@ def plan(text):
 
 
 def existing(text):
-    """Descriptions already written, keyed by anchor, plus the TOC's span."""
+    """Descriptions keyed by anchor, the TOC span, and its separator."""
     lines = text.split("\n")
     start = next((i for i, l in enumerate(lines) if l.strip() == TOC_HEAD), None)
     if start is None:
-        return {}, None, None
+        return {}, None, None, None
     end = start + 1
     while end < len(lines) and not lines[end].startswith("## "):
         end += 1
     desc = {}
+    separator = None
     for l in lines[start:end]:
-        m = re.match(r"\s*-\s+(?:\*\*)?\[[^\]]*\]\(#([^)]*)\)(?:\*\*)?\s*(?:—|--)\s*(.*)",
+        m = re.match(r"\s*-\s+(?:\*\*)?\[[^\]]*\]\(#([^)]*)\)(?:\*\*)?\s*(—|--)\s*(.*)",
                      l)
         if m:
-            desc[m.group(1)] = m.group(2).strip()
-    return desc, start, end
+            desc[m.group(1)] = m.group(3).strip()
+            if separator is None:
+                separator = m.group(2)
+    return desc, start, end, separator
 
 
-def render(items, desc):
+def render(items, desc, separator):
     out = [TOC_HEAD, ""]
     for lvl, raw, anc in items:
         lab = label(raw)
         d = desc.get(anc, TODO)
         if lvl == 2:
-            out.append(f"- **[{lab}](#{anc})** — {d}")
+            out.append(f"- **[{lab}](#{anc})** {separator} {d}")
         else:
-            out.append(f"  - [{lab}](#{anc}) — {d}")
+            out.append(f"  - [{lab}](#{anc}) {separator} {d}")
     out.append("")
     return out
 
@@ -176,7 +179,7 @@ def render(items, desc):
 def apply(path, text):
     """Return the page with its TOC inserted/refreshed, or None if unchanged."""
     items = plan(text)
-    desc, start, end = existing(text)
+    desc, start, end, separator = existing(text)
     lines = text.split("\n")
 
     if items is None:
@@ -185,7 +188,7 @@ def apply(path, text):
         del lines[start:end]                      # too few sections now
         return "\n".join(lines)
 
-    block = render(items, desc)
+    block = render(items, desc, separator or "—")
     if start is not None:
         lines[start:end] = block
     else:
@@ -267,7 +270,7 @@ def main():
         if new is not None:
             (missing if TOC_HEAD not in text else stale).append(rel)
         elif TOC_HEAD in text:
-            desc, _, _ = existing(text)
+            desc, _, _, _ = existing(text)
             if any(d == TODO or not d for d in desc.values()):
                 stale.append(rel)
 

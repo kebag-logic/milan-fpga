@@ -47,7 +47,7 @@ which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](../limitati
 > image first and then miss inside it. Because the wrapper instantiates the processor
 > unconditionally, every suite that elaborates `milan_datapath` — `pp_shadow`,
 > `milan_dp` and `hostplane` — now needs
-> `git submodule update --init protocol-processor`, an SSH-only remote. Layer 3
+> `git submodule update --init protocol-processor`, an anonymous HTTPS remote. Layer 3
 > below is unaffected: it exercises the CPU⇄CSR path, not the control plane.
 
 ---

@@ -69,17 +69,10 @@ Feature: the AECP answer contract - an echo for everything, silence for two thin
     # wrong reason, which is how this table went stale the last time.
     Examples: Milan SHALL commands this processor has not implemented yet
       | opcode | command                           |
-      | 6      | SET_CONFIGURATION                 |
       | 8      | SET_STREAM_FORMAT                 |
       | 14     | SET_STREAM_INFO                   |
       | 16     | SET_NAME                          |
       | 17     | GET_NAME                          |
-      | 20     | SET_SAMPLING_RATE                 |
-      | 22     | SET_CLOCK_SOURCE                  |
-      | 24     | SET_CONTROL                       |
-      | 25     | GET_CONTROL                       |
-      | 34     | START_STREAMING                   |
-      | 35     | STOP_STREAMING                    |
       | 44     | ADD_AUDIO_MAPPINGS                |
       | 45     | REMOVE_AUDIO_MAPPINGS             |
       | 75     | GET_DYNAMIC_INFO                  |

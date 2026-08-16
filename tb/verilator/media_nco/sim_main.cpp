@@ -172,7 +172,7 @@ static void test_trim_point(const Shape& sh, int64_t trim, uint64_t want_ticks,
     const long double lhs =
         (long double)E * (long double)sh.spec.fs_hz
       - (long double)N * (long double)(int64_t(sh.spec.clk_hz) + clamped);
-    const bool rate_exact = std::fabsl(lhs) < (long double)sh.spec.fs_hz;
+    const bool rate_exact = std::fabs(lhs) < (long double)sh.spec.fs_hz;
 
     // CHECK 3 - phase never a whole clock adrift
     const bool phase_ok = obs.worst_drift() < 1.0;
@@ -361,7 +361,7 @@ static void test_servo(const Shape& sh, bool is_a, long ppm_lsb, uint64_t ticks)
         const long double lhs =
             (long double)(int64_t)(last - first) * (long double)sh.spec.fs_hz
           - (long double)seen * (long double)(int64_t(sh.spec.clk_hz) + want_lsb);
-        const bool exact = std::fabsl(lhs) < (long double)sh.spec.fs_hz;
+        const bool exact = std::fabs(lhs) < (long double)sh.spec.fs_hz;
 
         printf("   %s u %+7ld (1/16 ppm) -> trim %+7ld LSB, %+9.4f ppm "
                "(measured %+9.4f)\n",

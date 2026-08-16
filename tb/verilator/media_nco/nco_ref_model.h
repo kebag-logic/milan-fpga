@@ -98,7 +98,7 @@ public:
             (long double)(elapsed * spec_.period_den()
                           - int64_t(ticks_) * spec_.period_num(trim_))
             / (long double)spec_.period_den();
-        worst_drift_ = std::max(worst_drift_, (double)std::fabsl(err));
+        worst_drift_ = std::max(worst_drift_, (double)std::fabs(err));
     }
 
     uint64_t ticks()        const { return ticks_; }

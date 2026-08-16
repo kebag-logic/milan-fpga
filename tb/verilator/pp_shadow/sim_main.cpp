@@ -1824,17 +1824,36 @@ int main(int argc, char** argv) {
                            : "the plane went silent - it was WEDGED, not refusing");
         }
 
-        // KNOWN GAP, RECORDED NOT CLAIMED: Milan Δ7 wants ACQUIRE_ENTITY
-        // (0x0000) answered NOT_SUPPORTED with owner_id = 0. gen_ucode.py
-        // carries an E_ACQ exemplar for exactly that, but KL_aecp_engine's
-        // three-arm decode does not dispatch to it, so 0x0000 currently takes
-        // the generic NOT_IMPLEMENTED echo. That is a conformant answer to a
-        // controller and NOT a defect in this harness; it is simply not the
-        // Milan answer, and nothing here should be read as proving it.
-        printf("  [GAP]  Milan D7 ACQUIRE_ENTITY (NOT_SUPPORTED, owner_id=0) is "
-               "NOT distinguished from the generic NOT_IMPLEMENTED echo: "
-               "KL_aecp_engine decodes 0x0004 and 0x0026 only. Ungraded here "
-               "on purpose.\n");
+        // --- L8. Milan delta 7 ACQUIRE_ENTITY refusal ---------------------
+        // Milan 5.4.2.1 requires NOT_SUPPORTED, never SUCCESS. The response
+        // keeps the 7.4.1 body with owner_id zero. This used to be printed as
+        // an unconditional gap after the processor had already landed the
+        // registered ACQUIRE re-dispatch, which made a closed requirement
+        // look open while leaving the real wire behavior ungraded.
+        {
+            uint8_t pl[16] = {};  // flags, owner_id, ENTITY type and index
+            size_t at = tx_frames.size();
+            cn = build_aecp(cf, 0, TEST_EID, 0x0000, 0x010A, pl, sizeof pl);
+            inject_rx(cf, cn, 400);
+            run_idle(20000);
+            int k = last_aecp(at);
+            ck_true("L8 ACQUIRE_ENTITY was ANSWERED", k >= 0,
+                    k >= 0 ? "an AECPDU egressed" : "SILENCE");
+            if (k >= 0) {
+                const std::vector<uint8_t>& b = tx_frames[k].bytes;
+                grade_common(b, "L8", 0x0000, 0x010A, 1);
+                grade_len(b, "L8", sizeof pl);
+                ck("L8: status NOT_SUPPORTED(11), never SUCCESS",
+                   (b[16] >> 3) & 0x1F, 11u);
+                ck("L8: flags remain zero", (uint32_t)get_be(b, 38, 4), 0u);
+                ck("L8: owner_id high remains zero",
+                   (uint32_t)get_be(b, 42, 4), 0u);
+                ck("L8: owner_id low remains zero",
+                   (uint32_t)get_be(b, 46, 4), 0u);
+                ck("L8: ENTITY descriptor target remains zero",
+                   (uint32_t)get_be(b, 50, 4), 0u);
+            }
+        }
     }
 
     // ---- M. NO DESCRIPTOR MEMORY: the DOCUMENTED degrade path --------------
