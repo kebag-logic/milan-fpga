@@ -1224,8 +1224,8 @@ def base_format_complete(fmts):
     is reasonable for its functionality" - with no all-channel-counts rule and
     no cross-Stream-Output rate rule anywhere in Section 6.  Completing a
     Stream Output would also be a claim nothing can walk back: the framer
-    emits ONE width (framer_wire_channels), SET_STREAM_FORMAT on a
-    STREAM_OUTPUT answers NOT_SUPPORTED because FR-STR-03 makes adaptivity a
+    emits ONE width (framer_wire_channels), while SET_STREAM_FORMAT remains
+    unimplemented and returns NOT_IMPLEMENTED. FR-STR-03 makes adaptivity a
     listener requirement, and a listener handed a width the talker cannot
     produce discards every frame (silicon 2026-07-27: 296,294 of 296,294).
 
@@ -2498,19 +2498,19 @@ def rtl_version():
 
 
 def emit_aem_rom_svh(cfg, overlay):
-    """This config's AEM descriptor ROM, rendered as SystemVerilog text.
+    """This config's legacy AEM SVH rendering.
 
-    NOTHING COMPILES THE RESULT. Its `include-r, KL_aecp_aem_store.sv, is
-    deleted with the rest of hdl/ieee17221/aecp; this gateware answers no
-    AECP command, so no controller can READ_DESCRIPTOR any of these
-    descriptors. It is still generated for two reasons that are not
-    decorative: (1) the descriptor set IS the declarative entity definition
-    that adp_shape() derives talker_stream_sources / listener_stream_sinks
-    and the two capability words from, and those DO reach silicon through
-    gen/adp_shape_defaults.svh; (2) building it is the only check that the
-    declared model is expressible at all - a shape whose descriptor set
-    cannot be generated has a shape count nobody should trust, which is why
-    --write-rtl refuses on that failure.
+    Nothing compiles this result. Its former include consumer,
+    KL_aecp_aem_store.sv, was deleted with hdl/ieee17221/aecp. The current
+    processor serves READ_DESCRIPTOR from the flat DRAM image emitted by
+    _entity_model_image(). This compatibility rendering is still generated
+    for two reasons that are not decorative: (1) the descriptor set is the
+    declarative entity definition from which adp_shape() derives
+    talker_stream_sources, listener_stream_sinks, and the capability words
+    that reach silicon through gen/adp_shape_defaults.svh; (2) building it is
+    the check that the declared model is expressible at all. A shape whose
+    descriptor set cannot be generated has a shape count nobody should trust,
+    which is why --write-rtl refuses on that failure.
 
     Written to out/<cfg>/aecp_aem_rom.svh only. See the module banner."""
     sys.path.insert(0, os.path.join(ROOT, "avdecc"))

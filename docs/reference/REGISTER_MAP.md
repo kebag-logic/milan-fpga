@@ -795,9 +795,10 @@ found nothing.
 Identity and control for the ADP transmit engine — which is now the protocol
 processor's `KL_adp_engine`, reached through [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv). This
 repository's `adp_advertiser.sv` and `KL_adp_parser.sv` are deleted. The software
-AVDECC stack still programs the entity identity here (typically mirroring the
-[`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json) ENTITY descriptor); the hardware still owns the
-advertise timing and `available_index`. `station MAC` (source MAC / entity_id
+AVDECC stack still programs the entity identity here, matching the selected
+[`configs/endstation_*.yaml`](../../configs/) definition and builder-generated
+ENTITY descriptor. The hardware still owns the advertise timing and
+`available_index`. `station MAC` (source MAC / entity_id
 seed) comes from `MAC_ADDR_{LO,HI}`, not this group.
 
 **Three things changed in this group and none of them is cosmetic.**

@@ -308,21 +308,18 @@ segfaults) → scp via the peer host → `tone_thdn.py --chans 2 --f0 1000`.
 
 ## 8. Board runtime (what runs where)
 
-> **PROVISIONING GAINED A STEP NOBODY PERFORMS YET (2026-08-13).** The
-> protocol processor's AECP µCPU answers `READ_DESCRIPTOR` out of a
-> **descriptor image in DRAM**, at a compile-time base the LiteX SoC derives as
-> the top 1 MiB of `main_ram` — there is no base register, so software cannot
-> point it anywhere else. That image must be written **before the entity is
-> enabled** (`PP_CTRL[0]` at `0x920`, ORed with `ADP_CTRL[0]` at `0x600`
-> bit 0 — either bit enables it). `S50milan` does not write it, no build step
-> produces it, and the generator lives in the `protocol-processor` submodule,
-> so **on a stock board every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`**
-> and `read_descriptor` from the controller below returns nothing usable. That
-> is an unloaded image, not a broken entity — the all-zero region fails the
-> image header's `"AEMI"` magic compare, and it is diagnosable and
-> recoverable: nothing hangs (the store's watchdog abandons a stalled burst)
-> and a **late load heals without a reset**, because every locate against an
-> invalid image re-arms the header probe. Load it, then re-ask.
+> **DESCRIPTOR PROVISIONING IS PART OF DEPLOYMENT (2026-08-16).** The protocol
+> processor's AECP microprocessor answers `READ_DESCRIPTOR` from a descriptor
+> image in DRAM at a compile-time base derived by the LiteX SoC. There is no
+> base register. An explicit builder `--write-fragment` or `--write-rtl`
+> transfer generates `aem_desc.bin` with its paired manifest and map in the
+> sibling rootfs overlay when that overlay is present. The tracked `aemi-load`
+> step verifies the pair and writes the image before entity enable through
+> `PP_CTRL[0]` at `0x920` or `ADP_CTRL[0]` at `0x600`. An omitted or invalid
+> image fails closed with `BAD_ARGUMENTS`; a valid-image locate miss returns
+> `NO_SUCH_DESCRIPTOR`. The store watchdog abandons a stalled memory burst,
+> and a late valid load heals without reset because each invalid locate
+> re-arms the header probe.
 
 Boot: QSPI/SRAM gateware → BIOS flash-boot (xz kernel) → buildroot →
 `S50milan` provisions CSRs (names, model id, vt=10, MAAP adopt, kernel

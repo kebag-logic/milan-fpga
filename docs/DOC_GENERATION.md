@@ -150,5 +150,5 @@ honest — run them locally first, exit-checked, never piped through `tail`.
 | A `.gen.py` or `.drawio` diagram master | the `.gen.py` (or draw.io export) + `rsvg-convert`; update the catalog |
 | A `wd_*.json` chronogram | [`scripts/gen_wavedrom.py`](../scripts/gen_wavedrom.py) on it; inspect the png |
 | Deleted or archived a doc | add its basename to `RETIRED` in [`scripts/docs_check.py`](../scripts/docs_check.py), then run the gate — it lists every reference now pointing at nothing |
-| A config schema / builder emission | [`sw/builder/test_builder.py`](../sw/builder/test_builder.py) — note the builder's `aecp_aem_rom.svh` output is an **orphan** since 2026-08-13: it fed the deleted fabric AEM store, not the DRAM descriptor image the protocol processor's AECP µCPU reads, and no generator in this repo produces that image |
+| A config schema / builder emission | [`sw/builder/test_builder.py`](../sw/builder/test_builder.py); an explicit `--write-fragment` or `--write-rtl` transfer generates paired `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` artifacts when the sibling rootfs overlay is present. The board-side `aemi-load` verifies and writes the image before entity enable |
 | Any `*.md` at all | [`scripts/docs_check.py`](../scripts/docs_check.py) before pushing |

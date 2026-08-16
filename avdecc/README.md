@@ -1,4 +1,13 @@
+[OBSOLETE + 2026-08-16]
+
 # AVDECC entity model (IEEE 1722.1-2021 / Milan v1.2)
+
+This page preserves the retired JSON and L0/L1/L2/L3 fabric-memory design. It
+is not the current descriptor supply chain. Read
+[`docs/ENDSTATION_BUILDER.md`](../docs/ENDSTATION_BUILDER.md) for image
+generation and loading, and the
+[`current Milan v1.2 audit`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md)
+for implementation status and remaining gaps.
 
 This directory holds the **AEM entity model** for the Milan endpoint as a single,
 tool-agnostic JSON file, plus the notes to turn it into an implementation.

@@ -1744,10 +1744,10 @@ this repo.
      (existing / tsn_gen / MISSING) → why. The tree shows missing
      implementation; the matrix shows missing verification.
 
-4. **Software-defined End-Station build (USER 2026-07-22):** one
-   declarative definition (build params / config file, cf.
-   [avdecc/milan-v12-entity.json](../avdecc/milan-v12-entity.json)) drives gateware elaboration, AEM
-   ROM, lwSRP tables and DT/driver shape consistently.
+4. **Software-defined End-Station build (USER 2026-07-22):** one selected
+   [`configs/endstation_*.yaml`](../configs/) definition drives gateware
+   elaboration, the processor descriptor image, lwSRP tables, and DT/driver
+   shape consistently.
    - **Generator round DONE 2026-07-22** ([sw/builder/](../sw/builder), 10-gate suite):
      - config-selectable cluster policy (cap-at-interface |
        cluster-per-stream-channel).

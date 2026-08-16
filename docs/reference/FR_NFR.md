@@ -7,8 +7,8 @@ the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101; NaxRiscv his
 one softcore).
 
 - **Current Milan v1.2 implementation verdict:** [`../testing/MILAN_V12_AUDIT_2026-08-16.md`](../testing/MILAN_V12_AUDIT_2026-08-16.md)
-- **Baseline entity:** [`avdecc/milan-v12-entity-small-48k.json`](../../avdecc/milan-v12-entity-small-48k.json)
-- **Full/scaled entity:** [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json) (8-ch, 48/96/192 kHz)
+- **Current entity definitions:** [`configs/endstation_*.yaml`](../../configs/) through the [end-station builder](../ENDSTATION_BUILDER.md)
+- **Historical model snapshots:** [`avdecc/milan-v12-entity-small-48k.json`](../../avdecc/milan-v12-entity-small-48k.json) and [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json), both marked obsolete in place
 - **Platform & phasing:** [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md)
 - **HW AEM/AECP design:** the fabric AECP/AEM engine and its design page are
   **deleted** (2026-08-13); AECP now lives in the pinned `protocol-processor`

@@ -6,9 +6,9 @@ Feature: READ_DESCRIPTOR is answered again (IEEE 1722.1-2021 7.4.5)
   On 2026-08-12 this repository's AECP/AEM RTL was deleted and this tier went
   with it, on the premise "this device answers no AECP command at all". The
   protocol-processor submodule then landed its AECP uCPU and the premise
-  expired: READ_DESCRIPTOR (0x0004) is the one AEM command this processor
-  really answers, out of a static descriptor image, and it answers the two
-  failure cases apart from each other.
+  expired: READ_DESCRIPTOR (0x0004) is one of the processor's served AEM
+  commands. It reads the supplied descriptor image and answers its two failure
+  cases apart from each other.
 
   THREE ANSWERS, ONE COMMAND. Success is configuration_index, a reserved
   halfword and the descriptor itself, so the AECPDU is 28 + N. A locate that
