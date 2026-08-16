@@ -192,8 +192,14 @@ on state stability.
 > setters to fuzz values into. The AAF campaign survives untouched because it
 > fuzzes `hdl/ieee1722`, which is data plane and was not replaced.
 
-Run `make` in that directory. It **skips cleanly** when tsn-gen is absent, so
-the suite stays runnable without the generator.
+Run `make` in that directory. A focused local run **skips cleanly** when
+tsn-gen is absent, so the harness remains buildable without the generator.
+That skip is not a full-sweep pass: it emits no campaign tally, and
+`scripts/suite_tally.py` correctly classifies the result as unknown. CI builds
+the public `tsn-gen` revision pinned by `TSN_GEN_REV` in
+`.github/workflows/rtl.yml`, exports `TSN_GEN_ROOT`, and runs the 164-check AAF
+campaign. A missing, truncated, or malformed campaign tally therefore remains
+fatal to the repository sweep.
 
 **No check total is quoted here on purpose.** The campaign ends by printing its
 own `N pass, M fail, K known gaps` line, and writes that same line into a
@@ -313,7 +319,7 @@ verdicts and for check counts.
 | [`tb/verilator/tdm`](../../tb/verilator/tdm) | — |
 | [`tb/verilator/tdm_render`](../../tb/verilator/tdm_render) | — |
 | [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) | `KL_talker_diag_ctx` (Milan Table 5.4 per-STREAM_OUTPUT counters) as a **block**. The module and this suite survive; the **integration does not** — `milan_datapath` no longer instantiates it, because `GET_COUNTERS` and the Table 5.22 push were its only two readers. A green run here says the counter arithmetic is right, not that any build carries those counters |
-| [`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) | the field-validation campaign — **AAF only** since 2026-08-13 (§1.0); skips cleanly without tsn-gen |
+| [`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) | the field-validation campaign — **AAF only** since 2026-08-13 (§1.0); standalone `make` skips without tsn-gen, CI installs the pinned generator, and the full sweep rejects an uncounted skip |
 
 The standing rule is that every round grows this table. 2026-08-13 is the one
 round that shrank it, by deliberate deletion of the RTL underneath — recorded

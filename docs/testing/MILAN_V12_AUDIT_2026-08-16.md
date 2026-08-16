@@ -30,8 +30,8 @@ outside this build's declared scope.
 | All 50 `tb/verilator/*/Makefile` suites | PASS | Every suite returned zero. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
 | `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
 | `tb/verilator/pp_shadow` | PASS | Milan `ACQUIRE_ENTITY` is now checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. |
-| `tests/` Behave suite | 15 features, 319 scenarios passed, 1 scenario skipped | 1,500 steps passed and 4 steps were skipped. This is an offline behavior model, not an external compliance lab result. |
-| Pinned protocol processor suites | 13,457 checks passed | All 27 processor suites passed. The processor's zero-tolerance RTL lint and documentation gates also passed. |
+| `tests/` Behave suite | 15 features, 321 scenarios passed, 1 scenario skipped | 1,522 steps passed and 4 steps were skipped. This is an offline behavior model, not an external compliance lab result. |
+| Pinned protocol processor suites | 13,504 checks passed | All 27 processor suites passed. The processor's zero-tolerance RTL lint and documentation gates also passed. |
 | Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,255 and 3,759 checks, including every declared AAF and CRF Stream Output. |
 | Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
 | Pinned gPTP processor skeleton | 799 checks passed | 768 uCPU checks and 31 parser checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
@@ -39,7 +39,7 @@ outside this build's declared scope.
 | Module matrix | PASS | 63 modules, 0 untested under the current matrix rules. |
 | End-station builder gates | PASS | The AEM image, identity, shape, and base-format generation gates passed. |
 | Documentation gate | PASS | It covered 204 Markdown files with zero findings after the final edits. |
-| Optional `tsn-gen` field campaign | SKIPPED | The generator binary was not installed at the configured path. |
+| Pinned `tsn-gen` field campaign | 164 checks passed | The public generator revision pinned in `.github/workflows/rtl.yml` was built with parser tests disabled; the AAF/AVTP field campaign reported 164 pass, 0 fail, and 0 known gaps. |
 | Vivado build and timing closure | NOT RUN | Vivado 2026.1 is not installed in this environment. |
 | Current physical Milan interoperability bench | NOT RUN | The external bench repository contains valuable dated evidence, but its present worktree is active and its last recorded audio result used a mismatched peer format. |
 
@@ -65,12 +65,20 @@ The pinned processor currently gives real behavior to `READ_DESCRIPTOR`,
 `ACQUIRE_ENTITY`, `LOCK_ENTITY`, `ENTITY_AVAILABLE`, `SET_CONFIGURATION`, `GET_CONFIGURATION`,
 `GET_STREAM_FORMAT`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
 `SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
-`GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `GET_STREAM_INFO`, `GET_AVB_INFO`, `GET_AS_PATH`,
+`GET_CONTROL`, `GET_STREAM_INFO`, `GET_AVB_INFO`, `GET_AS_PATH`,
 `GET_COUNTERS`, `GET_AUDIO_MAP`, the unsolicited registration pair, and Milan
 `GET_MILAN_INFO`.
 
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
+
+`START_STREAMING` and `STOP_STREAMING` (Milan 5.4.2.19 / 5.4.2.20) belong in
+this list and are called out here because an earlier revision of this document
+placed them in the list above. They were implemented and then **withdrawn**
+before merge: started/stopped already has a home in the ACMP binding record,
+which clears on unbind and is persisted, and a second copy in the AECP dynamic
+store would be neither. The work is preserved on branch
+`78-start-stop-streaming` pending that decision.
 
 - `SET_STREAM_FORMAT`
 - `SET_STREAM_INFO`
@@ -83,9 +91,9 @@ Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/51e03e7f6139769cdd3a26b59780659c06401ac8/hdl/aecp/KL_aecp_engine.sv) and
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/82281d550f04b78089d6445fc039d01ab231ddf0/hdl/aecp/KL_aecp_engine.sv) and
 the current command table in
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/51e03e7f6139769cdd3a26b59780659c06401ac8/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/82281d550f04b78089d6445fc039d01ab231ddf0/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 
@@ -103,11 +111,12 @@ in [`KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv).
 
 ### B3. The CRF media clock cannot be selected
 
-The processor now accepts and stores `SET_CLOCK_SOURCE`, but
-[`KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) does not expose the
-dynamic clock-source output to the root integration.
-[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) therefore keeps
-`CRF_CLK_SELECTED_C` at zero. The CRF Media Clock Input cannot select or steer
+The processor now accepts and stores `SET_CLOCK_SOURCE`, and
+[`KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) now does expose the
+dynamic clock-source output to the root integration, where
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) receives it. Nothing
+reads it: `CRF_CLK_SELECTED_C` is still a compile-time zero, so the published
+selection reaches the datapath and stops there. The CRF Media Clock Input cannot select or steer
 the media clock, and the shipping control-plane shape leaves the servo path
 idle.
 

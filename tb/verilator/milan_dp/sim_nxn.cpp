@@ -1089,6 +1089,145 @@ int main(int argc, char** argv) {
                     sq++;
                 }
 
+                // ---- GET_CLOCK_SOURCE vs CLOCK_DOMAIN.clock_source_index --
+                for (unsigned ix = 0; ix < 4; ix++) {
+                    const std::vector<uint8_t>* cd = desc_of(0x0024, ix);
+                    if (!cd) continue;
+                    char t[96];
+                    snprintf(t, sizeof t,
+                             "[AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN %u",
+                             ix);
+                    std::vector<uint8_t> pl(4, 0);
+                    pl[0] = 0x00; pl[1] = 0x24;
+                    pl[2] = (uint8_t)(ix >> 8); pl[3] = (uint8_t)ix;
+                    const std::vector<uint8_t> r = aecp_xact(0x0017, sq, pl);
+                    if (grade_ti_head(t, r, 0x0017, sq, 0x0024, ix, 20)
+                        && r.size() >= 48) {
+                        char w[144];
+                        snprintf(w, sizeof w,
+                                 "%s: clock_source_index IS the model's", t);
+                        ck(w, ((unsigned)r[42] << 8) | r[43],
+                           (long)model_be16(*cd, 70));
+                        snprintf(w, sizeof w, "%s: reserved @30 is zero", t);
+                        ck(w, ((unsigned)r[44] << 8) | r[45], 0);
+                    }
+                    sq++;
+                }
+
+                // ---- the SETTINGS FACE reaches the datapath ---------------
+                // KL_pp_shadow republishes the dynamic store into
+                // milan_datapath, where nothing reads it yet. Unread is not
+                // untestable: `cur_config` and `clk_src_index` are BOTH 16
+                // bits, so swapping them at the port map is width-legal and
+                // was invisible to every suite. Writing a distinguishing
+                // value through one and asserting the OTHER did not move is
+                // what makes the connection graded rather than merely
+                // present.
+                //
+                // ORDER MATTERS. This block must stay below every
+                // [AECP-MODEL] check that reads a field it writes — today
+                // that is GET_CLOCK_SOURCE and GET_CONTROL. Setting the clock
+                // source arms the dynamic store's valid bit for THAT field,
+                // after which GET_CLOCK_SOURCE answers the overlay instead of
+                // the image, and a model check above would compare the
+                // overlay against the image and pass only because both happen
+                // to read 0. A review caught exactly that.
+                //
+                // The valid bits are per field AND per index
+                // (KL_aecp_dyn_state.sv), so the GET_SAMPLING_RATE,
+                // GET_STREAM_FORMAT and ENTITY_AVAILABLE groups below are
+                // unaffected — writing SEL_CLKSRC cannot arm SEL_RATE. Widen
+                // this block and that stops being true: anything it writes
+                // must have its model check ABOVE it.
+                {
+                    const uint16_t cfg0 = (uint16_t)
+                        dut->rootp->milan_datapath__DOT__pp_aecp_cur_config_w;
+                    std::vector<uint8_t> cs(8, 0);
+                    cs[0] = 0x00; cs[1] = 0x24;      // CLOCK_DOMAIN @24
+                    cs[2] = 0x00; cs[3] = 0x00;      // index 0     @26
+                    cs[4] = 0x00; cs[5] = 0x01;      // clock_source_index 1
+                    const std::vector<uint8_t> r = aecp_xact(0x0016, sq++, cs);
+                    ck("[AECP-FACE] SET_CLOCK_SOURCE(1) was ANSWERED",
+                       (long)(r.size() >= 42), 1);
+                    if (r.size() >= 42 && aecp_status(r) == 0) {
+                        ck("[AECP-FACE] the datapath sees clock source 1",
+                           (long)dut->rootp
+                               ->milan_datapath__DOT__pp_aecp_clk_src_index_w,
+                           1);
+                        //! THE ANTI-SWAP ASSERTION: same width, must NOT move.
+                        //! This is what the check proves — that the two 16-bit
+                        //! ports are not crossed at the port map. It does NOT
+                        //! prove the configuration face carries anything; see
+                        //! the GAP printed below.
+                        ck("[AECP-FACE] ...and the configuration face did NOT "
+                           "move with it (the two are both 16 bits)",
+                           (long)dut->rootp
+                               ->milan_datapath__DOT__pp_aecp_cur_config_w,
+                           (long)cfg0);
+                    } else {
+                        ck("[AECP-FACE] SET_CLOCK_SOURCE(1) status SUCCESS(0)",
+                           r.size() >= 42 ? aecp_status(r) : -1, 0);
+                    }
+
+                    //! IDENTIFY is 8 bits and volatile (Milan 5.3.12), so it
+                    //! is the one field whose face can be moved and moved back
+                    std::vector<uint8_t> id(8, 0);
+                    id[0] = 0x00; id[1] = 0x1A;      // CONTROL @24
+                    id[2] = 0x00; id[3] = 0x00;      // index 0 @26
+                    id[4] = 0xFF;                    // value 255 @28
+                    const std::vector<uint8_t> ri = aecp_xact(0x0018, sq++, id);
+                    ck("[AECP-FACE] SET_CONTROL(IDENTIFY, 255) was ANSWERED",
+                       (long)(ri.size() >= 42), 1);
+                    //! grade the STATUS, not just the arrival. Gating the face
+                    //! check on an ungraded precondition made it vanish rather
+                    //! than fail when the SET was refused — a check that can
+                    //! silently not run is not a check.
+                    ck("[AECP-FACE] SET_CONTROL(IDENTIFY, 255) is SUCCESS(0)",
+                       ri.size() >= 42 ? aecp_status(ri) : -1, 0);
+                    if (ri.size() >= 42 && aecp_status(ri) == 0)
+                        ck("[AECP-FACE] the datapath sees IDENTIFY asserted",
+                           (long)dut->rootp
+                               ->milan_datapath__DOT__pp_aecp_identify_w,
+                           255);
+
+                    //! PUT IT BACK. The model-driven GET_* checks below read
+                    //! the same store and compare against the IMAGE, so a
+                    //! test that writes and walks away turns into a failure
+                    //! two hundred lines later — which is exactly what the
+                    //! first cut of this block did. Restoring is also the
+                    //! only way to grade that the face follows DOWN as well
+                    //! as up; a latch that only ever sets looks identical.
+                    cs[5] = 0x00;                     // clock source back to 0
+                    aecp_xact(0x0016, sq++, cs);
+                    ck("[AECP-FACE] the face follows back DOWN to 0",
+                       (long)dut->rootp
+                           ->milan_datapath__DOT__pp_aecp_clk_src_index_w, 0);
+                    id[4] = 0x00;                     // IDENTIFY back off
+                    aecp_xact(0x0018, sq++, id);
+                    ck("[AECP-FACE] ...and IDENTIFY deasserts",
+                       (long)dut->rootp
+                           ->milan_datapath__DOT__pp_aecp_identify_w, 0);
+
+                    //! HONEST LIMIT, stated rather than papered over. The
+                    //! configuration face cannot be MOVED on this model:
+                    //! avdecc/gen_aem_store.py emits configurations_count = 1,
+                    //! so E_SCFG's range check admits only index 0, which is
+                    //! also the reset value and the image's value. Tying
+                    //! pp_aecp_cur_config_w to zero is therefore
+                    //! indistinguishable from a working connection HERE, and
+                    //! the two checks above are honest about what they cover:
+                    //! the port map is not crossed, and the OTHER two faces do
+                    //! carry values. The tie-off itself is caught one level
+                    //! down, at the module output, by protocol-processor's
+                    //! tb/dyn_state ("current_configuration face is 0").
+                    printf("  [GAP]  [AECP-FACE] the configuration face is "
+                           "graded for CROSSING, not for carrying: this model "
+                           "declares 1 configuration so the only legal value "
+                           "is the reset value. A multi-configuration model "
+                           "would close it; tb/dyn_state covers the tie-off "
+                           "at the module boundary.\n");
+                }
+
                 // ---- GET_SAMPLING_RATE vs AUDIO_UNIT.current_sampling_rate
                 for (unsigned ix = 0; ix < 4; ix++) {
                     const std::vector<uint8_t>* au = desc_of(0x0002, ix);
@@ -1117,31 +1256,6 @@ int main(int argc, char** argv) {
                         //! passes the compare above only if the model says so.
                         ck("[AECP-MODEL] ...and the model's rate is non-zero",
                            (long)(want_sr > 0), 1);
-                    }
-                    sq++;
-                }
-
-                // ---- GET_CLOCK_SOURCE vs CLOCK_DOMAIN.clock_source_index --
-                for (unsigned ix = 0; ix < 4; ix++) {
-                    const std::vector<uint8_t>* cd = desc_of(0x0024, ix);
-                    if (!cd) continue;
-                    char t[96];
-                    snprintf(t, sizeof t,
-                             "[AECP-MODEL] GET_CLOCK_SOURCE CLOCK_DOMAIN %u",
-                             ix);
-                    std::vector<uint8_t> pl(4, 0);
-                    pl[0] = 0x00; pl[1] = 0x24;
-                    pl[2] = (uint8_t)(ix >> 8); pl[3] = (uint8_t)ix;
-                    const std::vector<uint8_t> r = aecp_xact(0x0017, sq, pl);
-                    if (grade_ti_head(t, r, 0x0017, sq, 0x0024, ix, 20)
-                        && r.size() >= 48) {
-                        char w[144];
-                        snprintf(w, sizeof w,
-                                 "%s: clock_source_index IS the model's", t);
-                        ck(w, ((unsigned)r[42] << 8) | r[43],
-                           (long)model_be16(*cd, 70));
-                        snprintf(w, sizeof w, "%s: reserved @30 is zero", t);
-                        ck(w, ((unsigned)r[44] << 8) | r[45], 0);
                     }
                     sq++;
                 }
