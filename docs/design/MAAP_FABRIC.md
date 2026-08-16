@@ -66,8 +66,9 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
   other merges were deleted; what is left on the control lane is
   `ctl_tx_mux`, whose two sources are the protocol processor's packed TX
   (ADP + ACMP + SRP, internally arbitrated) and **MAAP's
-  probe/defend/announce**. MAAP is a separate leg precisely because it is the
-  one control protocol the processor does not implement. Lane 0 of
+  probe/defend/announce**. The selected processor pin also contains
+  `KL_pp_maap`, but this integration ties `cfg_maap_internal_i` low and
+  selects the fabric `KL_maap` leg through `KL_pp_maap_shim`. Lane 0 of
   `A_TXARB_DIAG 0x784` supervises that merge — **anything decoding `0x784` by
   the old eight-lane numbering now reads the wrong mux.**
 - Randomness: LFSR seeded from station MAC; interval jitter from the same.

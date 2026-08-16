@@ -5139,11 +5139,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign txarb_stall_w [7:4] = 4'd0;
 
   //! THE control merge: the protocol processor's packed TX (s_data - ADP,
-  //! ACMP and SRP, internally arbitrated) + MAAP's announce/probe/defend
-  //! (s_adp). MAAP is the one control protocol the processor does not
-  //! implement by design (its 01 section 3 puts address allocation in the
-  //! integrating fabric), so it stays a separate leg here and reaches the
-  //! processor through KL_pp_maap_shim instead.
+  //! ACMP and SRP, internally arbitrated) + the fabric KL_maap
+  //! announce/probe/defend lane (s_adp). The selected processor pin also
+  //! contains KL_pp_maap, but this integration ties cfg_maap_internal_i low,
+  //! selects the fabric allocator, and presents it through KL_pp_maap_shim.
   wire [TDATA_WIDTH-1:0]   ctlh_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] ctlh_tx_tkeep;
   wire                     ctlh_tx_tvalid, ctlh_tx_tlast, ctlh_tx_tready;
