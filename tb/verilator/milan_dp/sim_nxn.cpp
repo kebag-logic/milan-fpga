@@ -379,7 +379,11 @@ static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0;
                    rmem_drive(); dmem_drive(); dut->eval();
                    rmem_edge(); dmem_edge(); }
 static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->eval(); }
-static void step() { lo(); hi(); }
+static unsigned long tkd_dirty_seen = 0;
+static void step() {
+    lo(); hi();
+    tkd_dirty_seen |= dut->rootp->milan_datapath__DOT__tkd_dirty_p_w;
+}
 
 // ---- AXI4-Lite BFM (same protocol as the milan_dp legacy harness) ----
 static void axi_write(uint16_t a, uint32_t d) {
@@ -798,7 +802,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x0002004B);
+       axi_read(A_VERSION), 0x0002004E);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
     //! These two writes used to sit inside the N-sink ACMP ctx2 section,
@@ -1559,6 +1563,75 @@ int main(int argc, char** argv) {
             long dirty = 0;
             for (int q = 12; q < 32; q++) if (blk(q) != 0) dirty++;
             ck("[CTRS] the unclaimed quadlets 12..31 are zero", dirty, 0);
+        }
+
+        //! ------------------------------------------------------------------
+        //! [CTRS-OUT] Milan Table 5.17 is not the IEEE Stream Output layout.
+        //! It compacts the five mandatory counters into quadlets 0..4 and a
+        //! mask of 0x1F. Drive the real admission gate through start and stop
+        //! edges, then read the bank through the full processor and response
+        //! path. The standalone tkdiag suite proves interval and wrap laws;
+        //! this section proves the integration and wire positions.
+        {
+            auto sout = [&](uint16_t seq, uint16_t index) {
+                std::vector<uint8_t> p = {0x00, 0x06,
+                                          (uint8_t)(index >> 8),
+                                          (uint8_t)index};
+                return aecp_xact(0x0029, seq, p);
+            };
+            auto word = [](const std::vector<uint8_t>& f, int q) -> uint32_t {
+                const size_t o = (q == 32) ? 42u : 46u + 4u * (size_t)q;
+                if (f.size() < o + 4) return 0xDEADBEEFu;
+                return ((uint32_t)f[o] << 24) | ((uint32_t)f[o+1] << 16)
+                     | ((uint32_t)f[o+2] << 8) | (uint32_t)f[o+3];
+            };
+
+            auto r0 = sout(0x4022, 0);
+            ck("[CTRS-OUT] Stream Output 0 answers SUCCESS",
+               (long)(!r0.empty() ? aecp_status(r0) : -1), 0);
+            ck("[CTRS-OUT] Table 5.17 mask is compact 0x1F",
+               (long)word(r0, 32), 0x1F);
+            auto rout1 = sout(0x4025, 1);
+            ck("[CTRS-OUT] Stream Output 1 answers SUCCESS",
+               (long)(!rout1.empty() ? aecp_status(rout1) : -1), 0);
+            ck("[CTRS-OUT] Stream Output 1 has the same mandatory mask",
+               (long)word(rout1, 32), 0x1F);
+            const uint32_t start0 = word(r0, 0);
+            const uint32_t stop0 = word(r0, 1);
+
+            tkd_dirty_seen = 0;
+            axi_write(A_AAF_CTRL, 0x00020003);       // enable + bypass
+            for (int i = 0; i < 32; i++) step();
+            ck("[CTRS-OUT] composed Stream Output gate rose",
+               tap_stream_en() & 1, 1);
+            ck("[CTRS-OUT] start edge raised its descriptor dirty pulse",
+               tkd_dirty_seen & 1, 1);
+            auto r1 = sout(0x4023, 0);
+            ck("[CTRS-OUT] STREAM_START incremented through the wire bank",
+               (long)word(r1, 0), (long)(start0 + 1));
+            ck("[CTRS-OUT] STREAM_STOP stayed unchanged while streaming",
+               (long)word(r1, 1), (long)stop0);
+
+            tkd_dirty_seen = 0;
+            axi_write(A_AAF_CTRL, 0x00020002);       // bypass, disabled
+            for (int i = 0; i < 32; i++) step();
+            ck("[CTRS-OUT] composed Stream Output gate fell",
+               tap_stream_en() & 1, 0);
+            ck("[CTRS-OUT] stop edge raised its descriptor dirty pulse",
+               tkd_dirty_seen & 1, 1);
+            auto r2 = sout(0x4024, 0);
+            ck("[CTRS-OUT] STREAM_START survives a stop",
+               (long)word(r2, 0), (long)(start0 + 1));
+            ck("[CTRS-OUT] STREAM_STOP incremented through the wire bank",
+               (long)word(r2, 1), (long)(stop0 + 1));
+            ck("[CTRS-OUT] stopped invariant START equals STOP",
+               (long)word(r2, 0), (long)word(r2, 1));
+
+            long reserved_dirty = 0;
+            for (int q = 5; q < 32; q++)
+                if (word(r2, q) != 0) reserved_dirty++;
+            ck("[CTRS-OUT] unclaimed quadlets 5..31 are zero",
+               reserved_dirty, 0);
         }
 
         //! ------------------------------------------------------------------

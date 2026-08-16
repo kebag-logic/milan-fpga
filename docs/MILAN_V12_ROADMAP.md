@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
@@ -165,7 +167,7 @@ problem already:
 
 *Acceptance*: a new `protocol-processor/tb/dyn_state` suite proving
 overlay-beats-image per field and per descriptor index; the five 0x004B GETs
-re-graded in `tb/pp_top` §W through both arms (unwritten → image, written →
+re-graded in `protocol-processor/tb/pp_top` §W through both arms (unwritten → image, written →
 overlay); and reset behaviour — the volatile fields (lock, registry, IDENTIFY)
 clear, the persisted ones do not (see P3.1).
 

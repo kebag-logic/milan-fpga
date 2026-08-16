@@ -2856,6 +2856,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        aaf_frame_mr_w;
   wire [N_STREAMS-1:0] aaf_mr_w;
   wire [3:0]  aecp_diag_idx_w;
+  wire [5*32-1:0] tkdiag_cnt_w;
+  wire [ACMP_SRC_C-1:0] tkd_dirty_p_w /* verilator public_flat_rd */;
   //! the processor's GET_COUNTERS read face (served further down)
   wire        pp_ctr_req_w;
   wire [15:0] pp_ctr_desc_type_w;
@@ -2899,8 +2901,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! context vector: AAF talkers 0..N-1, CRF (when this shape has one) at N
   //! (a generate, not a width-bending conditional: the two arms have
   //! different exact widths and the ternary form lints as trunc+expand)
+  wire [ACMP_SRC_C-1:0] tkd_streaming_w;
   generate if (ACMP_SRC_C > N_STREAMS) begin : g_tkd_crf
+    assign tkd_streaming_w = {crft_emit_en_w, aaf_stream_en_w};
   end else begin : g_tkd_nocrf
+    assign tkd_streaming_w = aaf_stream_en_w;
   end endgenerate
   // --------------------------------------------------------------------------
   //  IEEE 1722-2016 4.4.4.3: the mr (media clock restart) level. The clause
@@ -2985,19 +2990,31 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign aaf_mr_w  = mcr_mr_v_w[N_STREAMS-1:0];
   assign crft_mr_w = mcr_mr_v_w[N_STREAMS];
 
-  //! ------------------------------------------------------------------------
-  //! MILAN TABLE 5.4 PER-STREAM_OUTPUT DIAGNOSTIC COUNTERS ARE UNREADABLE
-  //! WITHOUT AECP, so KL_talker_diag_ctx is no longer instantiated. Its five
-  //! counters (STREAM_START / STREAM_STOP / MEDIA_RESET / TIMESTAMP_UNCERTAIN
-  //! / FRAMES_TX) had exactly two consumers, GET_COUNTERS(STREAM_OUTPUT, idx)
-  //! and its Milan Table 5.22 unsolicited push, and both are deleted. Keeping
-  //! the engine would have burned per-context counters into a build where
-  //! nothing on earth can read them - dead logic that looks alive. The MODULE
-  //! survives in hdl/ieee1722/avtp/ with its own suite; what is gone is this
-  //! integration.
-  //!
-  //! Note this is NOT the same as the STREAM_INPUT counters: those reach
-  //! software through the 0x6B8 A_STRMW_CNT CSR window and stay wired.
+  //! Milan Table 5.4 per-Stream Output counters. The context count follows
+  //! the generated descriptor shape, not the unconditional CRF transmitter:
+  //! an output absent from AEM has no counter row to serve. AAF and CRF events
+  //! share the same feed as the media-clock-restart generator so MEDIA_RESET
+  //! observes the bit that actually reached the wire.
+  KL_talker_diag_ctx #(
+    .N_CTX_P    (ACMP_SRC_C),
+    .TICK_CYC_P (DIAG_TICK_CYC_P)
+  ) talker_diag (
+    .clk_i (axis_clk), .rst_n (axis_resetn),
+    .streaming_i (tkd_streaming_w),
+    .frame_p_i   (aaf_frame_p_w | tkd_crf_p_w),
+    .frame_idx_i (aaf_frame_p_w ? aaf_frame_idx_w : 4'(N_STREAMS)),
+    .tu_i        (clkv_tu_w),
+    .frame_mr_i  (aaf_frame_p_w ? aaf_frame_mr_w : crft_mr_last_w),
+    .rd_idx_i    (ctrq_index_r[3:0]),
+    .rd_start_o  (tkdiag_cnt_w[0*32 +: 32]),
+    .rd_stop_o   (tkdiag_cnt_w[1*32 +: 32]),
+    .rd_mreset_o (tkdiag_cnt_w[2*32 +: 32]),
+    .rd_tu_o     (tkdiag_cnt_w[3*32 +: 32]),
+    .rd_ftx_o    (tkdiag_cnt_w[4*32 +: 32]),
+    //! The processor notification trigger face is tracked by issue #69.
+    //! Keep the per-descriptor source visible and tested here until it lands.
+    .dirty_p_o   (tkd_dirty_p_w)
+  );
 
   //! gh #58 stream-command law truth vectors — the LIVE gates, never
   //! mirrors. Outputs: aaf_stream_en_w IS the composed 5.3.7.3 wire gate
@@ -3278,10 +3295,29 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     endcase
   end
 
-  //! Everything else - ENTITY (Table 7-154's set is all ENTITY_SPECIFIC,
-  //! none kept), STREAM_OUTPUT, out-of-range indices - answers zero data
+  //! Stream Output uses Milan Table 5.17, not IEEE Table 7-159. Milan removes
+  //! three IEEE counters and compacts the surviving five into quadlets 0..4.
+  localparam logic [15:0] DESC_STREAM_OUTPUT_C = 16'h0006; //! Table 7-4
+  localparam logic [31:0] CTR_VALID_SOUT_C = 32'h0000_001F;
+  wire ctr_sout_w = (ctrq_type_r == DESC_STREAM_OUTPUT_C)
+                 && (32'(ctrq_index_r) < ACMP_SRC_C);
+  logic [31:0] ctr_sout_blk_w;
+  always_comb begin
+    unique case (ctrq_word_r)
+      6'd0    : ctr_sout_blk_w = tkdiag_cnt_w[0*32 +: 32]; // STREAM_START
+      6'd1    : ctr_sout_blk_w = tkdiag_cnt_w[1*32 +: 32]; // STREAM_STOP
+      6'd2    : ctr_sout_blk_w = tkdiag_cnt_w[2*32 +: 32]; // MEDIA_RESET
+      6'd3    : ctr_sout_blk_w = tkdiag_cnt_w[3*32 +: 32]; // TIMESTAMP_UNCERTAIN
+      6'd4    : ctr_sout_blk_w = tkdiag_cnt_w[4*32 +: 32]; // FRAMES_TX
+      6'd32   : ctr_sout_blk_w = CTR_VALID_SOUT_C;
+      default : ctr_sout_blk_w = 32'd0;
+    endcase
+  end
+
+  //! Everything else, including ENTITY and out-of-range indices, answers zero data
   //! AND an empty mask on the same term, so the two can never disagree.
   assign ctr_ans_raw_w = ctr_sin_w ? ctr_blk_w
+                       : ctr_sout_w ? ctr_sout_blk_w
                        : ctr_avb_w ? ctr_avb_blk_w
                        : ctr_ckd_w ? ctr_ckd_blk_w
                        : 32'd0;
@@ -5479,13 +5515,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!   3. Its class-D face IS this fabric's ACMP bind record, talker
   //!      declaration and SRP reservation - every consumer that used to read
   //!      a deleted plane reads pp_cd_* now.
-  //!   4. Its AECP engine answers READ_DESCRIPTOR, GET_COUNTERS,
-  //!      GET_AUDIO_MAP (STREAM_PORT_INPUT) and GET_MILAN_INFO for real -
-  //!      counters from the Table 7-157 mux above, mappings from the render
-  //!      map RAM's 7.4.44 answer block above - and echoes NOT_IMPLEMENTED
-  //!      for the rest. Every CSR word that only the DELETED plane's AEM
-  //!      engine could have filled still reads a STRUCTURAL ZERO and is
-  //!      documented as such.
+  //!   4. Its AECP engine serves the implemented AEM command set documented
+  //!      in protocol-processor/docs/architecture/06_aecp_engine.md.
+  //!      Integrator-owned counters, mappings and Milan information come
+  //!      from the answer blocks above. Unsupported mandatory commands remain
+  //!      explicit compliance blockers in the current Milan audit.
   KL_pp_shadow #(
       .TDATA_WIDTH_P  (TDATA_WIDTH),
       .CLK_HZ_P       (MILAN_CLK_FREQ_HZ),

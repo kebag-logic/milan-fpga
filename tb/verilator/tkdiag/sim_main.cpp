@@ -33,6 +33,7 @@
  */
 
 #include "Vtkdiag_tb_top.h"
+#include "Vtkdiag_tb_top___024root.h"
 #include "verilated.h"
 #include <cstdio>
 #include <cstdint>
@@ -479,6 +480,33 @@ int main(int argc, char** argv) {
     count_dirty(70);
     ck("T14 ctx2-only tu interval -> the pulse rides bit 2", dpulses[2], 1);
     ck("T14 ... and not bit 0", dpulses[0], 0);
+
+    // ---------------------------------------------------------------------
+    //  T16: every Table 5.4 counter is a 32-bit wrapping counter. Reaching
+    //  the boundary through 2^32 wire events is impractical in simulation,
+    //  so preload the implementation state one count below wrap and drive
+    //  the normal edge and interval inputs for the final increment.
+    // ---------------------------------------------------------------------
+    printf("[T16] all five 32-bit counters wrap on their normal events\n");
+    dut->rst_n = 0; dut->streaming_i = 0; dut->frame_p_i = 0;
+    dut->tu_i = 0; dut->frame_mr_i = 0;
+    cyc(4); dut->rst_n = 1; cyc(4);
+    dut->rootp->tkdiag_tb_top__DOT__u_diag__DOT__start_r[0] = UINT32_MAX;
+    dut->streaming_i = 0b001; step();
+    ck("T16 STREAM_START wraps", snap(0).start, 0);
+    dut->rootp->tkdiag_tb_top__DOT__u_diag__DOT__stop_r[0] = UINT32_MAX;
+    dut->streaming_i = 0; step();
+    ck("T16 STREAM_STOP wraps", snap(0).stop, 0);
+
+    dut->streaming_i = 0b001; step(); cyc(2);
+    dut->rootp->tkdiag_tb_top__DOT__u_diag__DOT__mreset_r[0] = UINT32_MAX;
+    dut->rootp->tkdiag_tb_top__DOT__u_diag__DOT__tuiv_r[0] = UINT32_MAX;
+    dut->rootp->tkdiag_tb_top__DOT__u_diag__DOT__ftx_r[0] = UINT32_MAX;
+    frame_mr(0, 1, 1);
+    interval();
+    ck("T16 MEDIA_RESET wraps", snap(0).mreset, 0);
+    ck("T16 TIMESTAMP_UNCERTAIN wraps", snap(0).tu, 0);
+    ck("T16 FRAMES_TX wraps", snap(0).ftx, 0);
 
     printf("checks: %ld   failures: %ld\n", checks, fails);
     printf("RESULT: %s\n", fails ? "FAIL" : "PASS");

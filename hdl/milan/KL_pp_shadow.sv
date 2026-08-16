@@ -881,6 +881,16 @@ module KL_pp_shadow #(
       .aecp_rxs_free_i     (1'b0),
       .aecp_rxs_free_slot_i('0),
 
+      //! Dynamic state is served by AECP but is not consumed by this wrapper
+      //! yet. Name every output explicitly so integration lint cannot mistake
+      //! the deliberate boundary for an accidentally omitted connection.
+      .aecp_cur_config_o   (),
+      .aecp_identify_o     (),
+      .aecp_clk_src_index_o(),
+      .aecp_strm_started_o (),
+      .aecp_pt_offset_o    (),
+      .aecp_dyn_dirty_o    (),
+
       .ctr_req_o           (ctr_req_o),
       .ctr_desc_type_o     (ctr_desc_type_o),
       .ctr_desc_index_o    (ctr_desc_index_o),

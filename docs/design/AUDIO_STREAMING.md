@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 <!--
 SPDX-FileCopyrightText: 2026 Kebag Logic
 SPDX-License-Identifier: CERN-OHL-W-2.0

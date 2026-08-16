@@ -22,13 +22,13 @@ outside this build's declared scope.
 | All 50 `tb/verilator/*/Makefile` suites | PASS | Every suite returned zero. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
 | `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
 | `tb/verilator/pp_shadow` | PASS | Milan `ACQUIRE_ENTITY` is now checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. |
-| `tests/` Behave suite | 15 features, 321 scenarios passed, 1 scenario skipped | 1,521 steps passed and 4 steps were skipped. This is an offline behavior model, not an external compliance lab result. |
-| Pinned protocol processor suites | 13,308 checks passed | All 24 processor suites passed. The processor's zero-tolerance RTL lint also passed. |
+| `tests/` Behave suite | 15 features, 319 scenarios passed, 1 scenario skipped | 1,500 steps passed and 4 steps were skipped. This is an offline behavior model, not an external compliance lab result. |
+| Pinned protocol processor suites | 13,457 checks passed | All 27 processor suites passed. The processor's zero-tolerance RTL lint and documentation gates also passed. |
 | Pinned gPTP processor skeleton | 799 checks passed | 768 uCPU checks and 31 parser checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
 | Root RTL lint | PASS under ratchet | The ratchet remains at 100 existing warnings. This is not a zero-warning result. |
 | Module matrix | PASS | 63 modules, 0 untested under the current matrix rules. |
 | End-station builder gates | PASS | The AEM image, identity, shape, and base-format generation gates passed. |
-| Documentation gate | PASS before final edits | It covered 202 Markdown files with zero findings. It is rerun as part of the final commit gate. |
+| Documentation gate | PASS | It covered 204 Markdown files with zero findings after the final edits. |
 | Optional `tsn-gen` field campaign | SKIPPED | The generator binary was not installed at the configured path. |
 | Vivado build and timing closure | NOT RUN | Vivado 2026.1 is not installed in this environment. |
 | Current physical Milan interoperability bench | NOT RUN | The external bench repository contains valuable dated evidence, but its present worktree is active and its last recorded audio result used a mismatched peer format. |
@@ -38,22 +38,19 @@ outside this build's declared scope.
 ### B1. The mandatory AECP command set is incomplete
 
 The pinned processor currently gives real behavior to `READ_DESCRIPTOR`,
-`ACQUIRE_ENTITY`, `LOCK_ENTITY`, `GET_STREAM_INFO`, `GET_AVB_INFO`,
-`GET_AS_PATH`, `GET_COUNTERS`, `GET_AUDIO_MAP`, the unsolicited registration
-pair, and Milan `GET_MILAN_INFO`.
+`ACQUIRE_ENTITY`, `LOCK_ENTITY`, `ENTITY_AVAILABLE`, `SET_CONFIGURATION`, `GET_CONFIGURATION`,
+`GET_STREAM_FORMAT`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
+`SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
+`GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `GET_STREAM_INFO`, `GET_AVB_INFO`, `GET_AS_PATH`,
+`GET_COUNTERS`, `GET_AUDIO_MAP`, the unsolicited registration pair, and Milan
+`GET_MILAN_INFO`.
 
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
 
-- `ENTITY_AVAILABLE`
-- `SET_CONFIGURATION` and `GET_CONFIGURATION`
-- `SET_STREAM_FORMAT` and `GET_STREAM_FORMAT`
+- `SET_STREAM_FORMAT`
 - `SET_STREAM_INFO`
 - `SET_NAME` and `GET_NAME`
-- `SET_SAMPLING_RATE` and `GET_SAMPLING_RATE`
-- `SET_CLOCK_SOURCE` and `GET_CLOCK_SOURCE`
-- `SET_CONTROL` and `GET_CONTROL` for Identify
-- `START_STREAMING` and `STOP_STREAMING` for Stream Inputs
 - `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS`
 - `GET_DYNAMIC_INFO`
 
@@ -82,23 +79,27 @@ in [`KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv).
 
 ### B3. The CRF media clock cannot be selected
 
-[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) sets
-`CRF_CLK_SELECTED_C` to zero. The current processor has no
-`SET_CLOCK_SOURCE` implementation, so the CRF Media Clock Input cannot select
-or steer the media clock. The MMCM servo and packet-grid servo remain idle in
-the shipping control-plane shape.
+The processor now accepts and stores `SET_CLOCK_SOURCE`, but
+[`KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) does not expose the
+dynamic clock-source output to the root integration.
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) therefore keeps
+`CRF_CLK_SELECTED_C` at zero. The CRF Media Clock Input cannot select or steer
+the media clock, and the shipping control-plane shape leaves the servo path
+idle.
 
 This blocks the media-clock behavior required by Milan section 7.2.2.
 
-### B4. Stream Output counters and the full notification duty are incomplete
+### B4. The full counter notification duty is incomplete
 
-`GET_COUNTERS` is implemented only for the supported object families wired by
-the root integration. A Stream Output target is refused, and the processor's
-notification block records that GET_COUNTERS notifications are not present.
-The full Milan Table 5.22 asynchronous notification behavior is therefore not
-closed.
+Solicited `GET_COUNTERS` now serves every declared Stream Output with the five
+mandatory Milan Table 5.17 counters in the compact quadlet layout. Counter
+updates also produce a per-descriptor dirty pulse. The processor notification
+block does not yet connect those pulses to the rate-limited `GET_COUNTERS`
+notification scheduler, so the full Milan Table 5.22 asynchronous behavior is
+not closed.
 
-This blocks Milan sections 5.4.2.25 and 5.4.5.2.
+This blocks Milan section 5.4.5.2. Solicited reads satisfy the Stream Output
+portion of section 5.4.2.25.
 
 ### B5. The physical media clock and packet grid are not proven aligned
 
@@ -124,10 +125,12 @@ clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
    ROM, which allowed false-green integration runs.
 2. The root processor integration now grades Milan `ACQUIRE_ENTITY` instead of
    printing a stale unconditional gap.
-3. The repository README now describes the current VERSION `0x0002_004A`
+3. The repository README now describes the current VERSION `0x0002_004E`
    control-plane surface and the remaining blockers.
 4. Documents whose August 13 status text materially contradicts the current
    processor pin are marked `[OBSOLETE + 2026-08-16]` at the top.
+5. Stream Output counters now use Milan Table 5.17's compact mask and quadlet
+   layout through the solicited processor path.
 
 ## Release rule
 

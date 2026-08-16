@@ -111,6 +111,7 @@ SRCS = $(PP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv \
               $(RTL_DIR)/ieee1722/avtp/KL_media_clock_restart.sv \
+              $(RTL_DIR)/ieee1722/avtp/KL_talker_diag_ctx.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_pcm_route.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_aaf_capture_i2s.sv $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture.sv \
        $(RTL_DIR)/ieee1722/aaf/KL_tdm_capture_master.sv \

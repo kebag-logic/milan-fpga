@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Spec ↔ test traceability matrix
 
 > ## STATUS 2026-08-13 — the control plane changed hands, and the tallies below predate it

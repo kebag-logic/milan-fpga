@@ -54,7 +54,7 @@ More lanes (system engineer, tester, hobbyist) and the full index:
 
 ### Current control-plane boundary
 
-Firmware VERSION `0x0002_004A` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
+Firmware VERSION `0x0002_004E` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
 `protocol-processor` as its only IEEE 1722.1 and SRP control plane. MAAP remains
 in this repository. There is no legacy fallback.
 
@@ -63,9 +63,16 @@ The current AECP implementation answers these operations with real behavior:
 - `READ_DESCRIPTOR`
 - `ACQUIRE_ENTITY` with Milan's required `NOT_SUPPORTED` result
 - `LOCK_ENTITY`
+- `ENTITY_AVAILABLE` and `GET_CONFIGURATION`
+- `SET_CONFIGURATION`
+- `GET_STREAM_FORMAT`
+- `SET_SAMPLING_RATE` and `GET_SAMPLING_RATE`
+- `SET_CLOCK_SOURCE` and `GET_CLOCK_SOURCE`
+- `SET_CONTROL` and `GET_CONTROL` for Identify
+- `START_STREAMING` and `STOP_STREAMING` for Stream Inputs
 - `GET_STREAM_INFO`, `GET_AVB_INFO`, and `GET_AS_PATH`
 - `REGISTER_UNSOLICITED_NOTIFICATION` and its deregistration pair
-- `GET_COUNTERS` for the counter families wired by this integration
+- `GET_COUNTERS` for Stream Input, Stream Output, AVB Interface, and Clock Domain
 - `GET_AUDIO_MAP` for both stream-port directions
 - Milan Vendor Unique `GET_MILAN_INFO`
 
@@ -81,14 +88,15 @@ utility loads and verifies the paired image before the entity is enabled. The
 store validates its `AEMI` header, version, checksum, and configuration before
 serving it, and a late valid image heals without a reset.
 
-This is still not a full Milan v1.2 implementation. Mandatory setters and
-several related commands are not decoded by the current processor, including
-stream format, sampling rate, name, configuration, clock source, control,
-stream start and stop, maximum transit time, and audio-map mutation. The root
-integration also reports no nonvolatile backend, so required state does not
-survive a power cycle. The CRF media clock source is pinned unselected, and the
-Stream Output counter bank is not served. These are compliance blockers, not
-documentation-only limitations.
+This is still not a full Milan v1.2 implementation. Mandatory operations still
+missing include the stream-format setter, stream-info setter, name access,
+audio-map mutation, and dynamic-info reads.
+The processor accepts and stores clock-source and sampling-rate changes, but
+the root wrapper does not yet expose those dynamic values to the media plane.
+The integration also reports no nonvolatile backend, so required state does not
+survive a power cycle. Solicited Stream Output counters are now served; their
+rate-limited unsolicited notification path remains a separate task. These are
+compliance blockers, not documentation-only limitations.
 
 The dated evidence and exact gate results are recorded in
 [the 2026-08-16 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md). The register
@@ -266,8 +274,8 @@ divergences. The resulting fix campaign was tracked as twelve work packages.
 > **Most of this campaign was overtaken by the 2026-08-13 substitution**, and
 > the AECP half of it has since been partly discharged. The RTL that carried
 > these packages is deleted: the ADP, ACMP and SRP items are now the protocol
-> processor's to satisfy. The processor's AECP uCPU serves **sixteen** AEM
-> opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x004B`, so some AECP rows
+> processor's to satisfy. The processor's AECP uCPU serves **twenty-two** AEM
+> opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x004E`, so some AECP rows
 > below are closed and some are not — and the per-clause status is **not** kept
 > here. The current, ordered, clause-cited plan is
 > [`docs/MILAN_V12_ROADMAP.md`](docs/MILAN_V12_ROADMAP.md); this table is kept
