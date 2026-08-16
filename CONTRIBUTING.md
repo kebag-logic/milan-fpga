@@ -47,7 +47,8 @@ flowchart LR
     W --> PR[open the PR]
     PR --> RV[In review<br/>multiple agents, CLEARED context]
     RV -->|findings| W
-    RV -->|validated| M[merge to main-push]
+    W -->|fixed| RV
+    RV -->|2 positive:<br/>1 own + 1 EXTERNAL| M[merge to main-push]
     M --> G[re-run the FULL bar<br/>on the merge result]
     G -->|regression| W
     G -->|clean| D[Done]
@@ -71,6 +72,21 @@ flowchart LR
    same blind spot when asked to check it. Give each one a different lens —
    clause conformance, wire format and response sizing, test adequacy and
    whether the tests can actually fail — and let them read the diff cold.
+
+   **Two positive reviews are the merge bar, and one of them must be
+   EXTERNAL.** One from this lane's own review agents, at least one from an
+   agent outside it. A lane reviewing only itself converges on its own
+   assumptions no matter how many agents it spawns — the cleared context stops
+   an agent inheriting the *reasoning*, not the lane inheriting its own
+   *premises*. Findings are not a review verdict: a round that returns
+   blockers is answered and then **re-reviewed**, and it is the re-review that
+   can be positive. Do not count the round that found the bugs as the sign-off
+   for the fixes.
+
+   **Keep the PR comment short.** State what the PR does and that it is
+   validated, with the gate results. The findings, the mutation tables and the
+   clause arguments belong in the review itself and in the commit messages —
+   a PR thread that reprints them is a PR thread nobody reads to the end.
 6. **Merge back into `main-push`** only once the findings are answered. The
    issue closes itself; move the card to *Done* if it does not.
 7. **Re-run the whole verification bar ON THE MERGE RESULT, every time.** A
