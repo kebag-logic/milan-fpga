@@ -90,8 +90,10 @@ serving it, and a late valid image heals without a reset.
 This is still not a full Milan v1.2 implementation. Mandatory operations still
 missing include the stream-format setter, stream-info setter, name access,
 audio-map mutation, and dynamic-info reads.
-The processor accepts and stores clock-source and sampling-rate changes, but
-the root wrapper does not yet expose those dynamic values to the media plane.
+The processor accepts and stores clock-source and sampling-rate changes. The
+clock-source selection now reaches the media plane's wrapper but nothing there
+reads it yet, and the sampling rate is stored and readable over AECP without
+being republished to the fabric at all.
 The integration also reports no nonvolatile backend, so required state does not
 survive a power cycle. Solicited Stream Output counters are now served; their
 rate-limited unsolicited notification path remains a separate task. These are

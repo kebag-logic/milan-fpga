@@ -31,7 +31,7 @@ outside this build's declared scope.
 | `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
 | `tb/verilator/pp_shadow` | PASS | Milan `ACQUIRE_ENTITY` is now checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. |
 | `tests/` Behave suite | 15 features, 321 scenarios passed, 1 scenario skipped | 1,522 steps passed and 4 steps were skipped. This is an offline behavior model, not an external compliance lab result. |
-| Pinned protocol processor suites | 13,492 checks passed | All 27 processor suites passed. The processor's zero-tolerance RTL lint and documentation gates also passed. |
+| Pinned protocol processor suites | 13,496 checks passed | All 27 processor suites passed. The processor's zero-tolerance RTL lint and documentation gates also passed. |
 | Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,255 and 3,759 checks, including every declared AAF and CRF Stream Output. |
 | Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
 | Pinned gPTP processor skeleton | 799 checks passed | 768 uCPU checks and 31 parser checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
@@ -91,9 +91,9 @@ Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/9f364084bb21643d12769b1108d7841edbeb687f/hdl/aecp/KL_aecp_engine.sv) and
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/64c2f3340cde71d15a79c1371970b8ff98d65114/hdl/aecp/KL_aecp_engine.sv) and
 the current command table in
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/9f364084bb21643d12769b1108d7841edbeb687f/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/64c2f3340cde71d15a79c1371970b8ff98d65114/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 

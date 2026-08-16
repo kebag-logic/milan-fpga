@@ -131,10 +131,14 @@ happen (issue #78). The design and the two constraints that forced it are
 kept in §P2.1 below, because they still govern every command that has not
 landed yet.
 
-**What it does not yet do is reach its consumers.** The settings face is
-published all the way out to `milan_datapath` (`pp_aecp_*_w`) and read by
+**What it does not yet do is reach its consumers.** Four of the five stored
+fields — current configuration, IDENTIFY, clock source and presentation-time
+offset — are published out to `milan_datapath` (`pp_aecp_*_w`) and read by
 nothing: the media clock still uses its compile-time select, so
-`SET_CLOCK_SOURCE` stores a value the servo does not act on. That is deliberate
+`SET_CLOCK_SOURCE` stores a value the servo does not act on. The fifth,
+**`current_sampling_rate`, is not published at all**: `KL_aecp_dyn_state` holds
+it and serves it over AECP but declares no output for it, so it stops at the
+store. Aligning the audio grid to it is #74's work. That is deliberate
 sequencing — the AECP side is complete and provable on its own, and each
 consumer is its own change — but it means a green suite here is **not** yet a
 claim that the device behaves differently on the bench.
