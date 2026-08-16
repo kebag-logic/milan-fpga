@@ -149,10 +149,6 @@ SERVED = {
                  verdict=ST_SUCCESS, cdl=17),     # one LINEAR_UINT8 value
     0x0019: dict(name="GET_CONTROL", clause="Milan 5.4.2.18",
                  verdict=ST_SUCCESS, cdl=17),
-    0x0022: dict(name="START_STREAMING", clause="Milan 5.4.2.19",
-                 verdict=ST_SUCCESS, cdl=16),
-    0x0023: dict(name="STOP_STREAMING", clause="Milan 5.4.2.20",
-                 verdict=ST_SUCCESS, cdl=16),
     0x0024: dict(name="REGISTER_UNSOLICITED_NOTIFICATION",
                  clause="Milan 5.4.2.21", verdict=ST_SUCCESS, cdl=16),
     0x0025: dict(name="DEREGISTER_UNSOLICITED_NOTIFICATION",
