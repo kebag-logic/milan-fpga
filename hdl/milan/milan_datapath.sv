@@ -1357,8 +1357,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! IEEE 1722-2016 4.4.4.3 media clock restart level, per talker
     .mr_i (aaf_mr_w),
     //! Milan Table 5.4 event feed (KL_talker_diag_ctx): the strobe, the
-    //! talker, and the mr bit that PDU actually carried
+    //! talker, and the tu/mr bits that PDU actually carried
     .frame_p_o (aaf_frame_p_w), .frame_idx_o (aaf_frame_idx_w),
+    .frame_tu_o (aaf_frame_tu_w),
     .frame_mr_o (aaf_frame_mr_w)
   );
   // arbiter out -> MAC-facing TX
@@ -1719,7 +1720,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [31:0] crft_count_w, crft_stat_w;
   //! the 10.4.3 mr level the CRF Media Clock Output stamps, and the level its
   //! last COMPLETED PDU carried (gh #62 H2b)
-  wire        crft_mr_w, crft_mr_last_w;
+  wire        crft_mr_w, crft_tu_last_w, crft_mr_last_w;
   wire [TDATA_WIDTH-1:0]   crft_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] crft_tx_tkeep;
   wire                     crft_tx_tvalid, crft_tx_tlast, crft_tx_tready;
@@ -2853,6 +2854,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ==========================================================================
   wire        aaf_frame_p_w;
   wire [3:0]  aaf_frame_idx_w;
+  wire        aaf_frame_tu_w;
   wire        aaf_frame_mr_w;
   wire [N_STREAMS-1:0] aaf_mr_w;
   wire [3:0]  aecp_diag_idx_w;
@@ -3003,7 +3005,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .streaming_i (tkd_streaming_w),
     .frame_p_i   (aaf_frame_p_w | tkd_crf_p_w),
     .frame_idx_i (aaf_frame_p_w ? aaf_frame_idx_w : 4'(N_STREAMS)),
-    .tu_i        (clkv_tu_w),
+    //! Match the completion strobe to the bit frozen into that PDU. The live
+    //! PHC verdict may change while an AAF frame is draining or while a CRF
+    //! completion event waits behind the AAF event port.
+    .tu_i        (aaf_frame_p_w ? aaf_frame_tu_w : crft_tu_last_w),
     .frame_mr_i  (aaf_frame_p_w ? aaf_frame_mr_w : crft_mr_last_w),
     .rd_idx_i    (ctrq_index_r[3:0]),
     .rd_start_o  (tkdiag_cnt_w[0*32 +: 32]),
@@ -4473,6 +4478,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! Stream Output, and the level the last completed PDU carried going back
     //! to it (the eight-PDU hold counts transmitted PDUs, not grants)
     .mr_i          (crft_mr_w),
+    .tu_last_o     (crft_tu_last_w),
     .mr_last_o     (crft_mr_last_w),
     //! SR class A C-TAG. vlan_en is the RESERVATION's shadow, never a bare
     //! CSR bit: see crf_srp_prov / crft_class_a_w. {PCP, VID} come from

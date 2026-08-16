@@ -42,6 +42,8 @@ module aaf_nx_wrap (
   output wire         d_tlast_o,
   input  wire         d_tready_i,
   output wire [31:0]  d_frames_o,
+  output wire         d_frame_p_o,
+  output wire         d_frame_tu_o,
 
   //! N=2 packetizer with direct pair injection (interleave checks)
   input  wire         p2_pair_valid_i,
@@ -113,7 +115,8 @@ module aaf_nx_wrap (
     .m_axis_tdata (d_tdata_o), .m_axis_tkeep (d_tkeep_o),
     .m_axis_tvalid (d_tvalid_o), .m_axis_tlast (d_tlast_o),
     .m_axis_tready (d_tready_i),
-    .frames_sent_o (d_frames_o)
+    .frames_sent_o (d_frames_o),
+    .frame_p_o (d_frame_p_o), .frame_tu_o (d_frame_tu_o)
   );
 
   // ---- N=2 packetizer, direct pair injection ------------------------------

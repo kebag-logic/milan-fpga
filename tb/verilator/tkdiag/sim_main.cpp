@@ -132,6 +132,8 @@ int main(int argc, char** argv) {
     ck("T4 clean interval leaves it", dut->rd_tu_o, 1);
 
     printf("[T5] reset-on-start zeroes the three interval counters\n");
+    frame_mr(0, 0, 1); interval(); rd(0);
+    ck("T5 precondition: MEDIA_RESET is nonzero", dut->rd_mreset_o, 1);
     rd(0);
     { uint64_t s0 = dut->rd_start_o;
       dut->streaming_i = 0b000; cyc(3);
@@ -437,15 +439,11 @@ int main(int argc, char** argv) {
 
     printf("--------------------------------------------------------------\n");
     // ---------------------------------------------------------------------
-    //  T14: dirty_p_o, the Milan 5.4.5 Table 5.22 push source. Pushes are
-    //  for EVENTS: START/STOP edges and anomaly intervals (TU, MEDIA_RESET)
-    //  pulse; a HEALTHY interval - FRAMES_TX ticking and nothing else -
-    //  must be SILENT, or every streaming talker pushes GET_COUNTERS at
-    //  exactly 1/s to every registered controller forever (the task-#21
-    //  self-excitation, decoded on silicon 2026-08-06). The 1/s rate limit
-    //  is the AECP builder's, NOT this module's.
+    //  T14: dirty_p_o, the Milan 5.4.5 Table 5.22 raw push source. Every
+    //  counter update pulses, including a healthy FRAMES_TX interval. The
+    //  separate scheduler owns per-controller coalescing and the 1/s limit.
     // ---------------------------------------------------------------------
-    printf("[T14] dirty_p_o pulses on EVENTS, never on healthy intervals\n");
+    printf("[T14] dirty_p_o pulses whenever any counter updates\n");
     dut->streaming_i = 0; dut->tu_i = 0; dut->frame_p_i = 0;
     dut->frame_mr_i = 0;
     cyc(200);                                // drain edges + open intervals
@@ -461,8 +459,7 @@ int main(int argc, char** argv) {
     frame(0, 0); count_dirty(70);
     for (int f = 0; f < 3; f++) frame(0, 0); // 3 healthy PDUs, one interval
     count_dirty(70);                         // crosses exactly one close
-    ck("T14 HEALTHY interval close -> SILENT (frames are not events)",
-       dpulses[0], 0);
+    ck("T14 healthy FRAMES_TX close -> ONE raw pulse", dpulses[0], 1);
     for (int f = 0; f < 3; f++) frame(0, 1); // 3 tu PDUs: an ACTIVE anomaly
     count_dirty(70);
     ck("T14 tu interval -> ONE pulse at its close", dpulses[0], 1);
@@ -472,7 +469,7 @@ int main(int argc, char** argv) {
     frame(0, 0); count_dirty(70);            // absorb the mr 1->0 toggle
     for (int f = 0; f < 3; f++) frame(0, 0);
     count_dirty(70);
-    ck("T14 back to healthy -> silent again", dpulses[0], 0);
+    ck("T14 back to healthy -> FRAMES_TX raw pulse", dpulses[0], 1);
     dut->streaming_i = 0b000;
     count_dirty(6);
     ck("T14 stop edge -> ONE pulse on ctx0", dpulses[0], 1);

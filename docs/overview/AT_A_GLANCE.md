@@ -7,6 +7,15 @@ with a link; nothing here is the authority on its own subject.
 
 ---
 
+## Contents
+
+- **[What it is, in three sentences](#what-it-is-in-three-sentences)** -- Product scope, architecture, and the important capability boundary.
+- **[The block diagram](#the-block-diagram)** -- Host, control, media, and network data flow.
+- **[The standards it implements](#the-standards-it-implements)** -- Standards coverage and links to clause-level traceability.
+- **[The register map at a glance](#the-register-map-at-a-glance)** -- Compact view of the software-visible control window.
+- **[What is proven, and how](#what-is-proven-and-how)** -- Self-checking evidence and limits of the current verification.
+- **[Is this for you?](#is-this-for-you)** -- Suitability guidance for adopters.
+
 ## What it is, in three sentences
 
 **A Milan v1.2 AVB/TSN audio end-station implemented in FPGA fabric.**
@@ -189,7 +198,8 @@ is an ABI.** What changed is what the words *mean*: a group whose source is gone
 reads a documented **structural zero**, and a few provisioning words are now
 **write-only scratch** that read back what software wrote while reaching nothing
 on the wire. `A_TXARB_DIAG` (`0x784`) additionally **renumbered** its lanes with
-the 8→4 mux collapse. `REGISTER_MAP.md` is the authority for every one of those,
+the 8→4 mux collapse. [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) is the
+authority for every one of those,
 word by word; do not infer liveness from a plausible value.
 
 The ring-DMA engines of the fully-FPGA build live in their **own**

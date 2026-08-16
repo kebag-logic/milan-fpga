@@ -1,5 +1,13 @@
 # Milan v1.2 implementation audit, 2026-08-16
 
+## Contents
+
+- **[Verdict](#verdict)** -- Release-level compliance conclusion and declared scope.
+- **[Current verification record](#current-verification-record)** -- Automated, decoder, build, and physical evidence available for this audit.
+- **[Structural compliance blockers](#structural-compliance-blockers)** -- Mandatory work that remains before a compliant release can be claimed.
+- **[Corrections made by this audit](#corrections-made-by-this-audit)** -- False-green fixes and verification improvements completed during the audit.
+- **[Release rule](#release-rule)** -- Evidence required before the noncompliance verdict can change.
+
 ## Verdict
 
 The current `main-push-fixes` tree is **not fully compliant with Milan v1.2**.
@@ -24,6 +32,8 @@ outside this build's declared scope.
 | `tb/verilator/pp_shadow` | PASS | Milan `ACQUIRE_ENTITY` is now checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. |
 | `tests/` Behave suite | 15 features, 319 scenarios passed, 1 scenario skipped | 1,500 steps passed and 4 steps were skipped. This is an offline behavior model, not an external compliance lab result. |
 | Pinned protocol processor suites | 13,457 checks passed | All 27 processor suites passed. The processor's zero-tolerance RTL lint and documentation gates also passed. |
+| Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,255 and 3,759 checks, including every declared AAF and CRF Stream Output. |
+| Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
 | Pinned gPTP processor skeleton | 799 checks passed | 768 uCPU checks and 31 parser checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
 | Root RTL lint | PASS under ratchet | The ratchet remains at 100 existing warnings. This is not a zero-warning result. |
 | Module matrix | PASS | 63 modules, 0 untested under the current matrix rules. |
@@ -59,9 +69,9 @@ Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](../../protocol-processor/hdl/aecp/KL_aecp_engine.sv) and
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/51e03e7f6139769cdd3a26b59780659c06401ac8/hdl/aecp/KL_aecp_engine.sv) and
 the current command table in
-[`06_aecp_engine.md`](../../protocol-processor/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/51e03e7f6139769cdd3a26b59780659c06401ac8/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 
@@ -131,6 +141,19 @@ clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
    processor pin are marked `[OBSOLETE + 2026-08-16]` at the top.
 5. Stream Output counters now use Milan Table 5.17's compact mask and quadlet
    layout through the solicited processor path.
+6. Packet-completion metadata now freezes the `tu` bit carried by each AAF and
+   CRF PDU. `TIMESTAMP_UNCERTAIN` therefore counts transmitted wire state, not
+   a later live clock verdict.
+7. Every counter update, including a healthy `FRAMES_TX` interval, asserts the
+   raw per-descriptor dirty source. Rate limiting and notification coalescing
+   remain the scheduler work identified in B4.
+8. The integration proof now boots each simulation with its matching entity
+   image, checks every declared output, rejects the first undeclared output
+   with a full empty response body, and exercises real AAF and CRF enable
+   surfaces. The standalone diagnostic suite proves unique per-index state,
+   reset behavior, and 32-bit wrap.
+9. The CI checkout uses anonymous HTTPS for both required submodules, and all
+   jobs that consume the processor initialize it explicitly.
 
 ## Release rule
 

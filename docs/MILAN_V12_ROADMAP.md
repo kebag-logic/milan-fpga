@@ -26,6 +26,16 @@ leaves the clause open.
 
 ---
 
+## Contents
+
+- **[0. Where the device actually is](#0-where-the-device-actually-is)** -- Implemented command surface, measured cost, and the state-store constraint.
+- **[1. The remaining SHALL set](#1-the-remaining-shall-set)** -- Ordered command and dynamic-state work required by the profile.
+- **[2. The non-command SHALLs](#2-the-non-command-shalls)** -- Persistence, notification, and controller-departure duties.
+- **[3. Tracked, but NOT compliance gaps](#3-tracked-but-not-compliance-gaps)** -- Recommended or optional work kept outside the mandatory count.
+- **[4. Two traps to carry into every round](#4-two-traps-to-carry-into-every-round)** -- Design constraints that repeatedly affect implementation choices.
+- **[5. Suggested order](#5-suggested-order)** -- Dependency-aware sequence for closing the remaining items.
+- **[6. How each row gets proved](#6-how-each-row-gets-proved)** -- Required verification and acceptance evidence.
+
 ## 0. Where the device actually is
 
 ### 0.1 Served for real, today

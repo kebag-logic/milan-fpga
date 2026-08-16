@@ -235,13 +235,13 @@ module KL_talker_diag_ctx #(
           end
           if (seen_tu_r[c] | ev_tu_w[c]) tuiv_r[c]   <= tuiv_r[c] + 32'd1;
           if (seen_mr_r[c] | ev_mr_w[c]) mreset_r[c] <= mreset_r[c] + 32'd1;
-          //! Table 5.22 pushes are for EVENTS. FRAMES_TX closing another
-          //! interval is the passage of time, not a state change - arming
-          //! dirty on it made every streaming talker push GET_COUNTERS at
-          //! exactly 1/s to every registered controller forever (decoded
-          //! on silicon 2026-08-06, task #21). TU/MEDIA_RESET intervals
-          //! still arm: an ACTIVE anomaly is a changing state.
-          if ((seen_tu_r[c] | ev_tu_w[c]) | (seen_mr_r[c] | ev_mr_w[c]))
+          //! Table 5.22 triggers whenever any counter is updated. This raw
+          //! source therefore includes FRAMES_TX interval closes as well as
+          //! anomaly counters. Per-controller coalescing and the 1/s limit
+          //! belong to the notification scheduler, never to this producer.
+          if ((seen_f_r[c]  | ev_f_w[c]) |
+              (seen_tu_r[c] | ev_tu_w[c]) |
+              (seen_mr_r[c] | ev_mr_w[c]))
             dirty_p_o[c] <= 1'b1;
         end
         seen_f_r  <= '0;

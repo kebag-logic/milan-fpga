@@ -154,6 +154,9 @@ module KL_crf_tx (
   //! launch beside ts_r/tu_r/vln_r - a flip mid-frame would emit a header
   //! byte the rest of the PDU does not belong to.
   input  wire         mr_i,
+  //! tu from the last completed PDU. The diagnostic counter must sample the
+  //! bit latched at launch, not ts_uncertain_i after the frame has departed.
+  output logic        tu_last_o,
   //! ... and the level the last COMPLETED PDU carried, back to that engine.
   //! 10.4.3's hold counts CRF AVTPDUs THAT WENT OUT, and a frame already
   //! launched when the level flips still carries the old value: counting it
@@ -487,7 +490,7 @@ module KL_crf_tx (
       vln_r <= 1'b0; vpcp_r <= 3'd0; vvid_r <= 12'd0;
       //! reset mr = 0 is the wire's own reset state, and mr_last_o starts
       //! there too: no PDU has gone out, so nothing has been carried
-      mr_r <= 1'b0; mr_last_o <= 1'b0;
+      mr_r <= 1'b0; tu_last_o <= 1'b0; mr_last_o <= 1'b0;
       tx_count_o <= '0;
     end
     else begin
@@ -516,6 +519,7 @@ module KL_crf_tx (
             //! the PDU is on the wire: THIS is the level 10.4.3's eight-PDU
             //! hold may count, published with the same edge as tx_count_o so
             //! the integration's PDU strobe and the bit it announces agree
+            tu_last_o <= tu_r;
             mr_last_o <= mr_r;
           end
           else begin

@@ -66,7 +66,6 @@
 
 static Vmilan_datapath* dut;
 static long checks = 0, fails = 0;
-
 static void ck(const char* what, unsigned long got, unsigned long exp) {
     checks++;
     if (got != exp) {
@@ -209,10 +208,17 @@ static std::vector<uint8_t> desc_img;   // the AEMI image, byte for byte
 // what the wire MUST carry, keyed (type << 16) | index - see aemi_load()
 static std::map<uint32_t, std::vector<uint8_t> > desc_want;
 
-// The tracked config aemi_load() builds its overlay from. The 1x1 shipping
-// shape, because it is the one on silicon; the store is shape-agnostic, so
-// this choice fixes the identity bytes and nothing else.
+// Boot the processor with the image matching this elaborated entity shape.
+// The descriptor store validates and caches its index at startup, just like
+// the board, so replacing only the backing bytes later is not a valid image
+// change and cannot prove the declared NxN descriptor set.
+#if NSTREAMS_TB == 8
+static const char AEMI_CFG_C[] = "endstation_ax7101_8x8";
+#elif NSTREAMS_TB == 4
+static const char AEMI_CFG_C[] = "endstation_arty_4x4";
+#else
 static const char AEMI_CFG_C[] = "endstation_ax7101_1x1_tdm8";
+#endif
 
 static bool     dm_answering = false;   // [AECP]/[AECP-WTMO] need it OFF
 static bool     dm_busy   = false;      // read burst in flight
@@ -295,7 +301,7 @@ static void dmem_edge() {
 // CWD: the harness already runs from tb/verilator/milan_dp - the processor
 // $readmemh's ltn_rom.hex and ucode.hex by relative name - so the generator
 // sits at a known relative depth.
-static bool aemi_load(std::string* why) {
+static bool aemi_load(const char* cfg, std::string* why) {
     char bin[160], js[160], log[160], bld[160], ovl[224], cmd[900];
     const int pid = (int)getpid();               // parallel lanes share /tmp
     snprintf(bin, sizeof bin, "/tmp/milan_nxn_aemi_%d.bin", pid);
@@ -310,13 +316,13 @@ static bool aemi_load(std::string* why) {
     // --write-fragment, so it touches nothing tracked.
     snprintf(cmd, sizeof cmd,
              "python3 ../../../sw/builder/endstation_builder.py "
-             "../../../configs/%s.yaml -o %s > %s 2>&1", AEMI_CFG_C, bld, log);
+             "../../../configs/%s.yaml -o %s > %s 2>&1", cfg, bld, log);
     if (system(cmd) != 0) {
         *why = std::string("endstation_builder.py failed; its output is in ")
              + log;
         return false;
     }
-    snprintf(ovl, sizeof ovl, "%s/%s/aem_overlay.json", bld, AEMI_CFG_C);
+    snprintf(ovl, sizeof ovl, "%s/%s/aem_overlay.json", bld, cfg);
 
     snprintf(cmd, sizeof cmd,
              "python3 ../../../avdecc/gen_aemi_image.py --overlay %s "
@@ -421,6 +427,7 @@ static uint32_t axi_read(uint16_t a) {
 enum {
     A_ID = 0x000, A_VERSION = 0x004,
     A_AAF_CTRL = 0x654, A_AAF_FRAMES = 0x660, A_LWSRP_CTRL = 0x680,
+    A_CRFT_CTRL = 0x750,
     A_ADP_CTRL = 0x600, A_ADP_EIDLO = 0x604, A_ADP_EIDHI = 0x608,
     A_ADP_TALK = 0x618, A_ADP_LIST = 0x61C,
     A_AVTPRX_STAT = 0x6B8, A_AVTPRX_FRX = 0x6BC, A_PCMRX_CNT = 0x6C4,
@@ -928,7 +935,7 @@ int main(int argc, char** argv) {
     //!      the moment the response fits in what it did manage to write.
     {
         std::string why;
-        const bool built = aemi_load(&why);
+        const bool built = aemi_load(AEMI_CFG_C, &why);
         ck("[AECP-IMG] the shipped generator emitted an image",
            (long)built, 1);
         if (!built) printf("  [i]    %s\n", why.c_str());
@@ -1586,18 +1593,82 @@ int main(int argc, char** argv) {
                      | ((uint32_t)f[o+2] << 8) | (uint32_t)f[o+3];
             };
 
+            bool shape_loaded = true;
+            for (int out = 0; out <= NSTREAMS_TB; out++)
+                shape_loaded &= desc_want.count((0x0006u << 16) |
+                                                (uint32_t)out) == 1;
+            shape_loaded &= desc_want.count((0x0006u << 16) |
+                                            (uint32_t)(NSTREAMS_TB + 1)) == 0;
+            ck("[CTRS-OUT] descriptor image matches this entity shape",
+               shape_loaded, 1);
+
             auto r0 = sout(0x4022, 0);
+            if (const char* frame_out = getenv("MILAN_COUNTER_FRAME_OUT")) {
+                FILE* dump = fopen(frame_out, "wb");
+                const size_t written = dump ? fwrite(r0.data(), 1, r0.size(), dump) : 0;
+                if (dump) fclose(dump);
+                ck("[CTRS-OUT] optional reference frame dump is complete",
+                   written, r0.size());
+            }
             ck("[CTRS-OUT] Stream Output 0 answers SUCCESS",
                (long)(!r0.empty() ? aecp_status(r0) : -1), 0);
             ck("[CTRS-OUT] Table 5.17 mask is compact 0x1F",
                (long)word(r0, 32), 0x1F);
-            auto rout1 = sout(0x4025, 1);
-            ck("[CTRS-OUT] Stream Output 1 answers SUCCESS",
-               (long)(!rout1.empty() ? aecp_status(rout1) : -1), 0);
-            ck("[CTRS-OUT] Stream Output 1 has the same mandatory mask",
-               (long)word(rout1, 32), 0x1F);
-            const uint32_t start0 = word(r0, 0);
-            const uint32_t stop0 = word(r0, 1);
+            long all_outputs_ok = 1;
+            for (int out = 0; out <= NSTREAMS_TB; out++) {
+                const auto rr = sout((uint16_t)(0x4025 + out), (uint16_t)out);
+                if (rr.empty() || aecp_status(rr) != 0 || word(rr, 32) != 0x1F)
+                    all_outputs_ok = 0;
+            }
+            ck("[CTRS-OUT] every AAF and CRF output returns mask 0x1F",
+               all_outputs_ok, 1);
+            const auto no_such = sout(0x4030, (uint16_t)(NSTREAMS_TB + 1));
+            ck("[CTRS-OUT] first undeclared output returns NO_SUCH_DESCRIPTOR",
+               (long)(!no_such.empty() ? aecp_status(no_such) : -1), 2);
+            ck("[CTRS-OUT] refusal keeps the full empty body",
+               (long)(word(no_such, 32) == 0 && no_such.size() == 174), 1);
+
+            //! Exercise both real enable surfaces. AAF has one global enable,
+            //! so one transition moves every declared AAF output; CRF has its
+            //! own enable and must move only the final Stream Output.
+            axi_write(A_AAF_CTRL, 0x00020002);       // bypass, t0 disabled
+            for (int out = 1; out < NSTREAMS_TB; out++) {
+                axi_write(A_STRM_SEL, 0x100u | (uint32_t)out);
+                axi_write(A_SW_CTRL, 0);
+            }
+            axi_write(A_CRFT_CTRL, 0);
+            for (int i = 0; i < 32; i++) step();
+
+            std::vector<uint32_t> start_base(NSTREAMS_TB + 1);
+            std::vector<uint32_t> stop_base(NSTREAMS_TB + 1);
+            for (int out = 0; out <= NSTREAMS_TB; out++) {
+                const auto rr = sout((uint16_t)(0x4040 + out),
+                                     (uint16_t)out);
+                start_base[out] = word(rr, 0);
+                stop_base[out] = word(rr, 1);
+            }
+
+            tkd_dirty_seen = 0;
+            axi_write(A_AAF_CTRL, 0x00020003);
+            axi_write(A_AAF_CTRL, 0x00020002);
+            axi_write(A_CRFT_CTRL, 1);
+            axi_write(A_CRFT_CTRL, 0);
+            const unsigned long all_dirty = (1ul << (NSTREAMS_TB + 1)) - 1ul;
+            ck("[CTRS-OUT] every output asserted its raw dirty bit",
+               tkd_dirty_seen & all_dirty, all_dirty);
+            long isolated = 1;
+            for (int out = 0; out <= NSTREAMS_TB; out++) {
+                const auto rr = sout((uint16_t)(0x4060 + out),
+                                     (uint16_t)out);
+                if (word(rr, 0) - start_base[out] != 1 ||
+                    word(rr, 1) - stop_base[out] != 1)
+                    isolated = 0;
+            }
+            ck("[CTRS-OUT] real start/stop edges reach every index",
+               isolated, 1);
+            const auto rbase = sout(0x4070, 0);
+            const uint32_t start0 = word(rbase, 0);
+            const uint32_t stop0 = word(rbase, 1);
 
             tkd_dirty_seen = 0;
             axi_write(A_AAF_CTRL, 0x00020003);       // enable + bypass
@@ -1611,6 +1682,32 @@ int main(int argc, char** argv) {
                (long)word(r1, 0), (long)(start0 + 1));
             ck("[CTRS-OUT] STREAM_STOP stayed unchanged while streaming",
                (long)word(r1, 1), (long)stop0);
+
+            //! Drive completed AAF PDUs through the real packetizer. The
+            //! clock starts uncertain, so the same transmitted frames must
+            //! advance q3 TIMESTAMP_UNCERTAIN and q4 FRAMES_TX, then assert
+            //! the descriptor's raw dirty source at the interval close.
+            ck("[CTRS-OUT] precondition: PHC verdict is uncertain",
+               dut->rootp->milan_datapath__DOT__clkv_tu_w, 1);
+            tkd_dirty_seen = 0;
+            for (int i = 0; i < 6000; i++) step();
+            auto rpdu = sout(0x4071, 0);
+            ck("[CTRS-OUT] transmitted PDU advances TIMESTAMP_UNCERTAIN q3",
+               (long)(word(rpdu, 3) > word(r1, 3)), 1);
+            ck("[CTRS-OUT] transmitted PDU advances FRAMES_TX q4",
+               (long)(word(rpdu, 4) > word(r1, 4)), 1);
+            ck("[CTRS-OUT] FRAMES_TX update raises the raw dirty source",
+               tkd_dirty_seen & 1, 1);
+
+            //! Inject the media-clock target change at the actual restart
+            //! engine. The next packetizer PDU carries the new mr bit, then
+            //! the diagnostic block and processor must expose it at q2.
+            dut->rootp->milan_datapath__DOT__media_clock_restart__DOT__tgt_r ^= 1;
+            step();
+            for (int i = 0; i < 6000; i++) step();
+            auto rmr = sout(0x4072, 0);
+            ck("[CTRS-OUT] transmitted mr toggle advances MEDIA_RESET q2",
+               (long)(word(rmr, 2) > word(rpdu, 2)), 1);
 
             tkd_dirty_seen = 0;
             axi_write(A_AAF_CTRL, 0x00020002);       // bypass, disabled
@@ -1632,6 +1729,7 @@ int main(int argc, char** argv) {
                 if (word(r2, q) != 0) reserved_dirty++;
             ck("[CTRS-OUT] unclaimed quadlets 5..31 are zero",
                reserved_dirty, 0);
+
         }
 
         //! ------------------------------------------------------------------
@@ -1750,20 +1848,20 @@ int main(int argc, char** argv) {
         }
 
         //! THE WRONG-OBJECT ANSWER, upgraded by the counters strictness
-        //! round: this leg's IMAGE is the real 1x1 build (two STREAM_INPUT
-        //! descriptors), so index 2 - which the elaborated N=4 datapath
-        //! could physically answer for - now refuses NO_SUCH_DESCRIPTOR off
-        //! the store locate, with the fixed body zeroed. The monitor's
-        //! clamp-guard stays the second line; sink 1 answering its OWN
-        //! numbers (the CSR-mirror loop above) still proves no index leak.
+        //! round: ask one past this leg's matching NxN image. The monitor
+        //! could physically clamp that index, but the store must refuse it
+        //! as NO_SUCH_DESCRIPTOR with the fixed body zeroed. Sink 1 answering
+        //! its own numbers above still proves no index leak.
         {
+            const unsigned miss = NSTREAMS_TB + 1;
             std::vector<uint8_t> p2(4, 0);
-            p2[1] = 0x05; p2[3] = 0x02;               // STREAM_INPUT 2
+            p2[1] = 0x05;
+            p2[2] = (uint8_t)(miss >> 8); p2[3] = (uint8_t)miss;
             const std::vector<uint8_t> r2 = aecp_xact(0x0029, 0x4021, p2);
-            ck("[CTRS] GET_COUNTERS(STREAM_INPUT,2) was ANSWERED",
+            ck("[CTRS] GET_COUNTERS(first undeclared Stream Input) answered",
                (long)(r2.size() >= 174), 1);
             if (r2.size() >= 174) {
-                ck("[CTRS] index 2 is outside the image: NO_SUCH_DESCRIPTOR",
+                ck("[CTRS] first undeclared input returns NO_SUCH_DESCRIPTOR",
                    (long)((r2[16] >> 3) & 0x1F), 2);
                 long dirty = 0;
                 for (int q = 0; q < 32; q++) {
@@ -1880,11 +1978,14 @@ int main(int argc, char** argv) {
                            | (((unsigned)rb[46] << 8) | rb[47]))
                   : -1), 0x00010000);
 
-        //! the image is the existence authority: SPI 1 is absent from the
-        //! 1x1 image whatever N_STREAMS this leg elaborates
-        pl[5] = 0x00; pl[3] = 0x01;
+        //! the image is the existence authority: probe the first SPI index
+        //! absent from this leg's matching entity model
+        unsigned spi_miss = 0;
+        while (spi_miss < 64 && desc_of(0x000E, spi_miss)) spi_miss++;
+        pl[5] = 0x00;
+        pl[2] = (uint8_t)(spi_miss >> 8); pl[3] = (uint8_t)spi_miss;
         const std::vector<uint8_t> rn = aecp_xact(0x002B, 0x4032, pl);
-        ck("[AMAP] SPI 1 answers NO_SUCH_DESCRIPTOR(2) - the image rules",
+        ck("[AMAP] first undeclared SPI returns NO_SUCH_DESCRIPTOR(2)",
            aecp_status(rn), 2);
 
         //! the STREAM_PORT_OUTPUT gap is RETIRED: the capture-side map RAM

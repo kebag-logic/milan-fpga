@@ -184,6 +184,10 @@ module KL_aaf_packetizer #(
   //! over TRANSMITTED PDUs, so they need the emission event, not a total)
   output logic        frame_p_o,         //! one-cycle pulse per emitted PDU
   output logic [3:0]  frame_idx_o,       //! that PDU's talker index
+  //! the tu bit from the same completed PDU. This is the latched etu_r
+  //! value, not the live PHC verdict, so a validity transition after launch
+  //! cannot change which observation interval TIMESTAMP_UNCERTAIN records.
+  output logic        frame_tu_o,
   //! the mr bit that PDU actually carried. Milan v1.2 Table 5.4 counts
   //! intervals "during which the mr bit has been toggled in any of the
   //! TRANSMITTED Stream Data AVTPDUs", so the counter is fed the wire's own
@@ -587,6 +591,7 @@ module KL_aaf_packetizer #(
       frames_sent_o   <= '0;
       frame_p_o       <= 1'b0;
       frame_idx_o     <= 4'd0;
+      frame_tu_o      <= 1'b0;
       frame_mr_o      <= 1'b0;
       tctx_rd_data_o  <= '0;
       tctx_rd_valid_o <= 1'b0;
@@ -689,6 +694,7 @@ module KL_aaf_packetizer #(
             //! Table 5.4 event feed: this PDU is complete
             frame_p_o   <= 1'b1;
             frame_idx_o <= 4'(et_r);
+            frame_tu_o  <= etu_r;
             frame_mr_o  <= emr_r;
             est_r <= E_IDLE_S;
           end

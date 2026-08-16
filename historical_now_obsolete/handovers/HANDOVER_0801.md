@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # HANDOVER 08-01 — the fit endgame + flash-ready software + harness truth fixes
 
 Continues [HANDOVER_0731.md](HANDOVER_0731.md). DUT = ALINX AX7101 ONLY (Arty retired by USER).

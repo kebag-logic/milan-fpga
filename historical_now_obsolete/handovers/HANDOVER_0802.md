@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Handover — 2026-08-02
 
 Continues [HANDOVER_0731.md](HANDOVER_0731.md) (the [`HANDOVER_0801.md`](HANDOVER_0801.md) in the

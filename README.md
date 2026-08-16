@@ -6,7 +6,7 @@
 
 ```sh
 git clone https://github.com/kebag-logic/milan-fpga && cd milan-fpga
-git submodule update --init third_party/verilog-axis   # REQUIRED — not optional
+git submodule update --init third_party/verilog-axis protocol-processor  # required
 cd tb/verilator/tcam && make                           # ~5 s → RESULT: PASS
 ```
 
@@ -111,23 +111,21 @@ equivalents exist on any distro. Each tier *adds* to the one above it.
 
 ```sh
 sudo pacman -S --needed gcc make python python-yaml verilator git
-git submodule update --init third_party/verilog-axis     # anonymous HTTPS
+git submodule update --init third_party/verilog-axis protocol-processor
 ```
 
 Verilator must be **≥ 5.050** — that is the CI pin, and CI builds it from source
 at that tag rather than trusting a distro package, because 5.020 (Ubuntu 24.04)
 cannot build four of the suites and 5.032 (Debian trixie) reads back zeros on six
 `aecp` checks. The measured table is in
-[docs/testing/TESTING.md](docs/testing/TESTING.md) §7. The repo's *other* submodules are SSH-only and
-**not needed** for anything here — leave them uninitialised: `external`, and
-`protocol-processor` — the IEEE 1722.1 protocol-processor **architecture of
-record** (revision 2.0, tagged `v2.0`): the control-plane architecture,
-compliance review, resource/effort analysis and the growing SystemVerilog
-implementation all live there, at
-<https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan> —
-this repository refers to it rather than duplicating it. The in-tree
-1722.1/SRP plane is the incumbent being replaced by that implementation
-(direct substitution at parity; the superseded plane stays in git history).
+[docs/testing/TESTING.md](docs/testing/TESTING.md) §7. The protocol processor is
+required by every datapath-level harness and is fetched over anonymous HTTPS.
+The remaining submodules are not needed for this tier and may stay
+uninitialised: `external`, `gptp-processor`, and `third_party/buildroot`.
+The processor architecture, compliance review, and SystemVerilog
+implementation live at
+<https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan>;
+this repository pins that implementation rather than duplicating it.
 A GitHub *"Download ZIP"* has no
 submodule content, so the datapath testbenches will not build from a zip.
 
@@ -155,9 +153,9 @@ exactly: `podman build -t milan-fpga-dev -f Containerfile.dev . && podman run --
 ## Quickstart — copy/paste
 
 ```sh
-# 1 · clone + the one required submodule
+# 1. clone and initialize the two required RTL submodules
 git clone https://github.com/kebag-logic/milan-fpga && cd milan-fpga
-git submodule update --init third_party/verilog-axis
+git submodule update --init third_party/verilog-axis protocol-processor
 
 # 2 · tier-1 toolchain, once (Arch shown — see Prerequisites for your distro)
 sudo pacman -S --needed gcc make python python-yaml verilator git

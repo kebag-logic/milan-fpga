@@ -390,6 +390,8 @@ int main(int argc, char** argv) {
             ck(L.name, f[15], L.b1);
             ck("[H2b] ... mr_last_o mirrors the wire", dut->mr_last_o,
                (f[15] >> 3) & 1);
+            ck("[H2b] ... tu_last_o mirrors the wire", dut->tu_last_o,
+               f[15] & 1);
             ck("[H2b] ... frame still 64 lane bytes", (long)f.size(), 64);
         }
         dut->mr_i = 0; dut->ts_uncertain_i = 0;

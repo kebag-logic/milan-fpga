@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # HANDOVER — 2026-07-31
 
 Repo: `~/prjs/milan-fpga`, branch **`main-push`**, head `31861d7e`
