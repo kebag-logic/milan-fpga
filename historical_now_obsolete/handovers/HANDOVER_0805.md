@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # HANDOVER 2026-08-05 — listener-0 row closed at desk, the 1×1×8 TDM8 pivot, gptp single-source
 
 State when written: the 3-seed Vivado sweep `tdm8b` for the NEW shipping

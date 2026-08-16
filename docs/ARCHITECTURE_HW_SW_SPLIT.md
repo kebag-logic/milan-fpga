@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Architecture — what runs on the softcore, what does not
 
 Status: **rev 3, 2026-08-13** (USER DIRECTIVE: *"remove the old code AECP/ACMP/ADP

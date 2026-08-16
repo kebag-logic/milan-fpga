@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Protocol Traceability Map
 
 This map ties every protocol-facing RTL element to the clause that governs it, the

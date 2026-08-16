@@ -60,6 +60,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -Wno-CASEINCOMPLETE -Wno-EOFNEWLINE -Wno-PINMISSING -Wno-SELRANGE \
          -Wno-TIMESCALEMOD \
          -GPB_PREFILL_C=2 -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 \
+         -GDIAG_TICK_CYC_P=256 \
          -CFLAGS "-std=c++17 -O2"
 
 C  = $(RTL_DIR)/common
@@ -129,7 +130,8 @@ SRCS = $(PP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_stream_table.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor.sv \
        $(RTL_DIR)/ieee1722/avtp/KL_avtp_rx_monitor_ctx.sv \
-              $(RTL_DIR)/ieee1722/avtp/KL_media_clock_restart.sv \
+       $(RTL_DIR)/ieee1722/avtp/KL_media_clock_restart.sv \
+       $(RTL_DIR)/ieee1722/avtp/KL_talker_diag_ctx.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_crf_rx.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_crf_tx.sv \
 	$(RTL_DIR)/ieee1722/crf/KL_mmcm_drp_servo.sv \

@@ -23,9 +23,11 @@ static void ck(const char* t, long got, long exp){
 
 using Frame = std::vector<uint8_t>;
 static std::vector<Frame> gfr, dfr, p2fr;   // collected frames per port
+static std::vector<int> dtu;                // tu paired with each completion
 static Frame gcur, dcur, p2cur;
 
 static void sample(){
+    if(dut->d_frame_p_o) dtu.push_back(dut->d_frame_tu_o);
     if(dut->g_tvalid_o && dut->g_tready_i){
         for(int i=0;i<8;i++) if((dut->g_tkeep_o>>i)&1)
             gcur.push_back((dut->g_tdata_o>>(8*i))&0xFF);
@@ -125,6 +127,10 @@ int main(int argc,char**argv){
                                     : -1, (long)(0x11223344UL+2000000UL));
     cyc(50);                            // let the last TCTX writeback land
     ck("frames_sent_o alias tracks", dut->d_frames_o >= 4, 1);
+    long tuple_ok = dtu.size() == dfr.size();
+    for(size_t f=0; tuple_ok && f<dfr.size(); f++)
+        if(dfr[f].size()!=90 || dtu[f]!=(dfr[f][21]&1)) tuple_ok=0;
+    ck("completion tu matches every emitted PDU", tuple_ok, 1);
 
     // [GBU] the same byte-compare with the clock declared UNCERTAIN. Two
     // things must hold at once: the flat golden talker and the shared
@@ -149,6 +155,11 @@ int main(int argc,char**argv){
     ck("tu=1: byte 21 bit 0 set on the wire", u_tu, 1);
     ck("tu=1: tv untouched (1722-2016 7.5)", u_tv, 1);
     dut->ts_uncertain_i=0;
+    cyc(50);                            // collect the last completion tuple
+    tuple_ok = dtu.size() == dfr.size();
+    for(size_t f=0; tuple_ok && f<dfr.size(); f++)
+        if(dfr[f].size()!=90 || dtu[f]!=(dfr[f][21]&1)) tuple_ok=0;
+    ck("tu transition: completion tuple stays wire-aligned", tuple_ok, 1);
 
     printf("\n[I2T] two-talker interleave (N=2, direct pair injection)\n");
     // t1 CFG via the TCTX window: DMAC base+1, uid=1, vid=2

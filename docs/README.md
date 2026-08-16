@@ -34,46 +34,29 @@ the pinned `protocol-processor` submodule, instantiated unconditionally by
 `hdl/milan/milan_datapath.sv`. It owns ADP, ACMP and SRP; MAAP stays in this
 fabric.
 
-**The AECP surface, stated plainly: this entity answers `READ_DESCRIPTOR`, and
-answers every other AECP command with a conformant `NOT_IMPLEMENTED` echo.** The
-processor's AECP uCPU has landed. `READ_DESCRIPTOR` (0x0004) returns `SUCCESS`
-carrying `configuration_index`, the reserved field and the descriptor;
-`NO_SUCH_DESCRIPTOR` on a locate miss; `BAD_ARGUMENTS` on a bad configuration
-index — both with the IEEE 1722.1 §7.4.5 4-byte `{descriptor_type,
-descriptor_index}` stub. Every other opcode and message type (AEM, ADDRESS_ACCESS,
-MVU) gets an echo with the correct `message_type`+1, length and
-`controller_data_length` — never silence, never malformed.
-`IDENTIFY_NOTIFICATION` (0x0026) sent as a *command* is `BAD_ARGUMENTS` per
-§7.4.39.2. A command whose `target_entity_id` is not ours, and any AECP
-*response* arriving as input, are silently refused: freed, counted, no reply.
-**Known gap:** Milan Δ7 `ACQUIRE_ENTITY` (`NOT_SUPPORTED`, `owner_id` = 0) is
-not distinguished from the generic echo.
+**The AECP surface now includes real read, state, control, and counter paths.**
+It serves descriptor reads, entity availability, locking, configuration set/get and
+stream-format reads, sampling-rate and clock-source set/get, Identify set/get,
+Stream Input start/stop, stream and gPTP information, unsolicited registration, both audio-map read
+directions, Milan information, and `GET_COUNTERS` for Stream Input, Stream
+Output, AVB Interface, and Clock Domain. `ACQUIRE_ENTITY` returns Milan's
+required `NOT_SUPPORTED` result. Unknown operations retain a correctly sized
+`NOT_IMPLEMENTED` echo.
 
-An echo is not an implementation. `SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME`,
-`GET_COUNTERS` and the Milan Table 5.22 push, saved-state persistence and the
-audio-map setters are genuinely absent, and so is anything reached only through
-them: the **CRF media clock can never be selected** (the media clock is pinned
-INTERNAL and both media-clock servos are structurally off); every Stream Output's
-**presentation-time offset is pinned at the Milan 2 ms default**; **Milan
-Table 5.4 per-STREAM_OUTPUT counters are gone** (the STREAM_INPUT counters are
-unaffected); and nothing restores a binding across a power cycle.
+The implementation remains incomplete. The stream-format setter, stream-info
+setter, name access, audio-map mutation, dynamic-info reads, persistence, and
+the complete notification duty remain open. The processor stores clock-source
+and sampling-rate changes, but
+the root wrapper does not yet connect those values to the media plane. Stream
+Output counter updates produce per-descriptor dirty pulses; the rate-limited
+Table 5.22 notification scheduler connection is tracked separately.
 
 **The entity model lives in main memory now.** The descriptor store fetches it
-from DDR3 over a read-only master at a **compile-time base** — no base register.
-Software must load the image there **before the entity is enabled**, or every
-`READ_DESCRIPTOR` answers `BAD_ARGUMENTS`: a zeroed region reads as "image not
-loaded" via its header magic/version/checksum, an invalid image reports a
-configuration count of zero, and the microprogram rejects the
-`configuration_index` before it ever attempts a locate. The store's watchdog
-abandons a stalled burst rather than hanging, and a late load heals without a
-reset. **The two error codes discriminate:** `BAD_ARGUMENTS` on every read means
-no image (or a corrupt one); `NO_SUCH_DESCRIPTOR` means the image is loaded and
-that descriptor is genuinely absent from the model. **Nothing in this repository builds or loads that image yet**: the
-generator is the submodule's `protocol-processor/hdl/aecp/desc/gen_desc_image.py`,
-no step turns an `endstation_*.yaml` into its JSON or writes the result to DRAM,
-and the end-station builder's `aecp_aem_rom.svh` is an orphan of the deleted
-`KL_aecp_aem_store`. So on a stock build enumeration returns `BAD_ARGUMENTS`
-until someone supplies the image.
+from DDR3 over a read-only master at a compile-time base. The end-station
+builder generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`, and the
+board-side `aemi-load` utility loads and verifies the paired image before the
+entity is enabled. The store validates its header, version, checksum, and
+configuration, and a late valid image heals without a reset.
 
 Start at [reference/REGISTER_MAP.md](reference/REGISTER_MAP.md) — its status
 block is the per-register verdict, including the term **STRUCTURAL ZERO** for a

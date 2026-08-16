@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Milan v1.2 — remaining gaps to FULL compliance
 
 > ## SUPERSEDED FOR AECP, 2026-08-16 (VERSION 0x004B).
@@ -2282,7 +2284,7 @@ underneath it.
 
 Do not invent one. The processor already defines the on-media contract, and both
 the manager and the port validate against it (07 §5.2 F07.8, and
-[`KL_pp_nvm_port.sv`](../protocol-processor/hdl/packet_engine/KL_pp_nvm_port.sv)):
+[`KL_pp_nvm_port.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/51e03e7f6139769cdd3a26b59780659c06401ac8/hdl/packet_engine/KL_pp_nvm_port.sv)):
 
 | Offset | Field | Notes |
 |---|---|---|

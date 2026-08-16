@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Known issues & limitations
 
 The single page that makes every error, limitation and hazard apparent.

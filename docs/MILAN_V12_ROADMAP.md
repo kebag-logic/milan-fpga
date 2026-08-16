@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
-**Status 2026-08-16, VERSION `0x0002_004D`.** This is the ordered, clause-cited
+**Status 2026-08-16, VERSION `0x0002_004E`.** This is the ordered, clause-cited
 plan from where the device is to a device that passes the Milan
 end-station validation test plan. It supersedes the AECP sections of
 [`MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
@@ -24,11 +24,21 @@ leaves the clause open.
 
 ---
 
+## Contents
+
+- **[0. Where the device actually is](#0-where-the-device-actually-is)** -- Implemented command surface, measured cost, and the state-store constraint.
+- **[1. The remaining SHALL set](#1-the-remaining-shall-set)** -- Ordered command and dynamic-state work required by the profile.
+- **[2. The non-command SHALLs](#2-the-non-command-shalls)** -- Persistence, notification, and controller-departure duties.
+- **[3. Tracked, but NOT compliance gaps](#3-tracked-but-not-compliance-gaps)** -- Recommended or optional work kept outside the mandatory count.
+- **[4. Two traps to carry into every round](#4-two-traps-to-carry-into-every-round)** -- Design constraints that repeatedly affect implementation choices.
+- **[5. Suggested order](#5-suggested-order)** -- Dependency-aware sequence for closing the remaining items.
+- **[6. How each row gets proved](#6-how-each-row-gets-proved)** -- Required verification and acceptance evidence.
+
 ## 0. Where the device actually is
 
 ### 0.1 Served for real, today
 
-**Twenty-four** AEM opcodes plus one MVU command. The authority is
+**Twenty-two** AEM opcodes plus one MVU command. The authority is
 `protocol-processor/hdl/aecp/KL_aecp_engine.sv`'s `OP_*_C` constants, and
 `tests/steps/aecp_engine_steps.py`'s `SERVED` table is gated against that list
 by a behave step that parses the RTL — so this section cannot silently rot
@@ -50,8 +60,6 @@ again.
 | `0x0017` | GET_CLOCK_SOURCE | 5.4.2.16 | **0x004B** |
 | `0x0018` | SET_CONTROL (IDENTIFY) | 5.4.2.17 | **0x004C** |
 | `0x0019` | GET_CONTROL (IDENTIFY) | 5.4.2.18 | **0x004C** |
-| `0x0022` | START_STREAMING | 5.4.2.19 | **0x004D** |
-| `0x0023` | STOP_STREAMING | 5.4.2.20 | **0x004D** |
 | `0x0024` | REGISTER_UNSOLICITED_NOTIFICATION | 5.4.2.21 | 0x0045 |
 | `0x0025` | DEREGISTER_UNSOLICITED_NOTIFICATION | 5.4.2.22 | 0x0045 |
 | `0x0026` | IDENTIFY_NOTIFICATION as a command → `BAD_ARGUMENTS` | IEEE 7.4.39.2 | 0x0042 |
@@ -102,9 +110,12 @@ every value the device served came from the read-only descriptor image or a
 live fabric face, and neither can hold a *setting*.
 
 `KL_aecp_dyn_state.sv` is that store, and it is landed, tested and load-bearing
-— `SET_SAMPLING_RATE`, `SET_CLOCK_SOURCE`, `SET_CONTROL`, `SET_CONFIGURATION`
-and `START`/`STOP_STREAMING` all write it, and their getters read it in
-preference to the image. The design and the two constraints that forced it are
+— `SET_SAMPLING_RATE`, `SET_CLOCK_SOURCE`, `SET_CONTROL` and
+`SET_CONFIGURATION` all write it, and their getters read it in preference to
+the image. `START`/`STOP_STREAMING` also wrote it and were pulled back out:
+started/stopped already has a home in the ACMP binding record, which clears on
+unbind and persists, and two copies of one Milan state is a defect waiting to
+happen (issue #78). The design and the two constraints that forced it are
 kept in §P2.1 below, because they still govern every command that has not
 landed yet.
 
@@ -177,7 +188,7 @@ problem already:
 
 *Acceptance*: a new `protocol-processor/tb/dyn_state` suite proving
 overlay-beats-image per field and per descriptor index; the five 0x004B GETs
-re-graded in `tb/pp_top` §W through both arms (unwritten → image, written →
+re-graded in `protocol-processor/tb/pp_top` §W through both arms (unwritten → image, written →
 overlay); and reset behaviour — the volatile fields (lock, registry, IDENTIFY)
 clear, the persisted ones do not (see P3.1).
 

@@ -17,17 +17,15 @@ env:
   VERILATOR_VERSION: v5.050
 
 jobs:
-  # The full Verilator suite sweep. Unlike the docs workflow this one DOES need
-  # the verilog-axis submodule: every datapath-level harness (milan_dp,
-  # hostplane, the csr live leg, ...) instantiates it. Anonymous HTTPS, so a
-  # fork's CI can fetch it too.
+  # The full Verilator suite sweep needs verilog-axis and protocol-processor.
+  # Both use anonymous HTTPS so a fork can fetch them too.
   verilator-suites:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch the one submodule the harnesses need
-        run: git submodule update --init third_party/verilog-axis
+      - name: Fetch the RTL submodules
+        run: git submodule update --init third_party/verilog-axis protocol-processor
 
       - name: Cache the pinned Verilator build
         id: cache-verilator
@@ -118,6 +116,8 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - name: Fetch the processor model inputs
+        run: git submodule update --init protocol-processor
       - name: Install behave
         run: python3 -m pip install --quiet behave
       - name: Run the suite
@@ -134,8 +134,8 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
-      - name: Fetch the one submodule the tops need
-        run: git submodule update --init third_party/verilog-axis
+      - name: Fetch the RTL submodules
+        run: git submodule update --init third_party/verilog-axis protocol-processor
       - name: Install Yosys
         run: |
           sudo apt-get update -qq

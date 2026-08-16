@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # The CPU and the FPGA — one die, two machines, one contract
 
 Everything runs inside a single Artix-7 (XC7A100T). There is no external

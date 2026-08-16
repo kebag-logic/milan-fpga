@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Milan v1.2 compliance matrix — counters + notifications first
 
 > ## STATUS 2026-08-13 — **EVERY ROW ON THIS PAGE IS STILL NOT IMPLEMENTED — BUT NOT FOR THE REASON THIS BANNER USED TO GIVE.**

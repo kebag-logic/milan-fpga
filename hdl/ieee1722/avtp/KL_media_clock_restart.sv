@@ -141,7 +141,7 @@ module KL_media_clock_restart #(
   localparam int unsigned HOLDW_C = $clog2(HOLD_PDU_P + 1);
 
   //! engine-wide target: one media clock, so one restart history
-  logic                     tgt_r;
+  logic                     tgt_r /* verilator public_flat_rw */;
   //! shadow of the media clock source; a difference is a source-change edge
   logic [15:0]              clk_src_q_r;
   wire                      src_change_w = (clk_src_q_r != clk_src_i);

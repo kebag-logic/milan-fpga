@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Traceability — Milan v1.2 (Consolidated, 2023-11-30) — profile deltas
 
 Part of [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md). Section
