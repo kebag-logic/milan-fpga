@@ -61,13 +61,18 @@ existing checkout at the pinned commit for an offline rerun.
 
 ### B1. The mandatory AECP command set is incomplete
 
-The pinned processor currently gives real behavior to `READ_DESCRIPTOR`,
+The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `ACQUIRE_ENTITY`, `LOCK_ENTITY`, `ENTITY_AVAILABLE`, `SET_CONFIGURATION`, `GET_CONFIGURATION`,
 `GET_STREAM_FORMAT`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
 `SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
-`GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `GET_STREAM_INFO`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
+`GET_CONTROL`, Stream Input `START_STREAMING` and `STOP_STREAMING`,
+`GET_STREAM_INFO`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
 `GET_COUNTERS`, `GET_AUDIO_MAP`, the unsolicited registration pair, and Milan
 `GET_MILAN_INFO`.
+
+This inventory describes command handling, not end-to-end effect. In
+particular, B12 records that the accepted Stream Input start state is discarded
+at the root wrapper and does not control the media plane.
 
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
@@ -216,6 +221,19 @@ peer-format-matched audio run, long-duration gPTP run, or external lab run
 was produced in this audit. Automated simulation cannot establish electrical,
 clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
 
+### B12. Stream Input START/STOP state does not reach the media plane
+
+The processor accepts `START_STREAMING` and `STOP_STREAMING` for Stream Input
+descriptors and stores the resulting per-input state. `KL_pp_shadow.sv` leaves
+`aecp_strm_started_o` unconnected, so the root cannot use that state to process
+started inputs and discard stopped inputs. A successful command response does
+not close the Milan section 5.3.8.7 media behavior.
+
+Evidence: the disconnected `aecp_strm_started_o` port in
+[`KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) and the absence of a
+corresponding media-plane gate in
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
+
 ## Corrections made by this audit
 
 1. The host-plane suite now generates both processor ROM images before any
@@ -225,8 +243,9 @@ clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
    printing a stale unconditional gap.
 3. The repository README now describes the current VERSION `0x0002_004E`
    control-plane surface and the remaining blockers.
-4. Documents whose August 13 status text materially contradicts the current
-   processor pin are marked `[OBSOLETE + 2026-08-16]` at the top.
+4. First-line-obsolete documents are no longer current authorities. Current
+   entry points route compliance verdicts to this audit and the generated
+   module matrix.
 5. Stream Output counters now use Milan Table 5.17's compact mask and quadlet
    layout through the solicited processor path.
 6. Packet-completion metadata now freezes the `tu` bit carried by each AAF and
@@ -246,7 +265,7 @@ clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
 
 ## Release rule
 
-Do not remove the **not compliant** verdict until all B1 through B11 items have
+Do not remove the **not compliant** verdict until all B1 through B12 items have
 current evidence. A green regression is necessary, but it is not sufficient.
 The final review must include a synchronized clause matrix, zero unresolved
 mandatory rows, a successful bitstream and timing build, a matched-format

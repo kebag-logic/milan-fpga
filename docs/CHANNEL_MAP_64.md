@@ -1,71 +1,61 @@
-# 64-in / 64-out Channel Mapping — Render Crossbar + Capture Mux
+# 64-in / 64-out Channel Mapping -- Render Crossbar + Capture Mux
 
-Normative architecture for the channel-mapping layer on top of the NxN
-stream fabric ([`docs/NXN_ARCHITECTURE.md`](NXN_ARCHITECTURE.md), roadmap item 5) and the ALSA
-lane (roadmap item 7). Status: **DESIGN — no RTL in this round.**
-Decisions in §1–§2 are USER-decided inputs, not open questions.
+Current implementation guide for the channel-mapping layer on top of the
+multi-stream fabric and ALSA lane. Status: **AS BUILT**, with the remaining
+AECP writer gap identified below.
 
-> **THE CROSSBARS SURVIVED; THEIR AECP WRITE PATH DID NOT (2026-08-13).**
-> `KL_chan_map_render` and `KL_chan_map_capture` are untouched by the deletion
-> of this repository's IEEE 1722.1 plane. What is gone is the **AEM audio-map
-> command set** — `GET_AUDIO_MAP` / `ADD_AUDIO_MAPPINGS` /
-> `REMOVE_AUDIO_MAPPINGS` — along with the dynamic-map store that answered
-> them and the boot identity seeder that filled the RAMs at power-on. So:
+> **CURRENT BOUNDARY (2026-08-16).** `KL_chan_map_render` and
+> `KL_chan_map_capture` are integrated, and the pair-slot path is five bits
+> wide for all 32 slots. The current processor serves `GET_AUDIO_MAP` for both
+> Stream Port Input and Stream Port Output. It does not implement
+> `ADD_AUDIO_MAPPINGS` or `REMOVE_AUDIO_MAPPINGS`, and no processor-to-root
+> write projector is connected. Therefore:
 >
-> * **the CSR `0x900` window is the ONLY programmer of both map RAMs.** It is
->   no longer a "debug override subordinate to the AEM engine"; there is no
->   AEM engine. Every statement of that arbitration below is marked and
->   corrected in place;
-> * **no controller can read or write this device's channel map.** The
->   protocol processor's AECP uCPU has landed and answers `READ_DESCRIPTOR`,
->   so the *static* AUDIO_MAP descriptors of the entity model become readable
->   again once a descriptor image is loaded into DRAM — but `GET_AUDIO_MAP`
->   and the two setters are **not implemented**: they are answered with the
->   conformant `NOT_IMPLEMENTED` echo, which is a refusal, not a path to the
->   RAMs;
+> * **the CSR `0x900` window is the only programmer of both map RAMs.**
+>   Solicited `GET_AUDIO_MAP` reads those live stores, but a controller cannot
+>   modify them through AECP;
 > * **nothing seeds the RAMs.** `CMAP` resets all-zero and stays that way
->   until software writes it (§5, §6 — including what that does to the arm
+>   until software writes it (§5, §6, including what that does to the arm
 >   sequence).
 >
-> §7, the AEM binding chapter, is kept as the *contract* a future
-> implementation owes — the engine exists now, the audio-map verbs do not —
-> and is marked NOT IMPLEMENTED throughout.
+> §7 is kept as the contract for the missing dynamic-map writers and their
+> projection into the map RAMs. The getter is already implemented.
 
-Companion docs: [`docs/NXN_ARCHITECTURE.md`](NXN_ARCHITECTURE.md) (shared engines, TCTX/LCTX,
-the 0x800 indexed window), [`docs/ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md) (D1: one
+Companion docs: [`docs/overview/FULL_FPGA_SOLUTION.md`](overview/FULL_FPGA_SOLUTION.md)
+(current system integration), [`docs/ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md) (D1: one
 STREAM_PORT per stream, config-selectable clusters),
 [`docs/reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md) (CSR ABI authority),
 the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` (driver side).
 
 ## Contents
 
-- **[0. Grounding facts (read from the tree, quoted not assumed)](#0-grounding-facts-read-from-the-tree-quoted-not-assumed)** — Eleven facts G1–G11, each quoted from the RTL or the entity JSON with its file. Two of them set the whole design: G3 (`pair_slot_i` is 4 bits, and 8×8 needs 32 slots) and G7 (any read at/above `0x800` returns 0 unless a term claims it).
-- **[1. The 64×64 model](#1-the-6464-model)** — The split that keeps the fabric small: PipeWire composes, the fabric only *selects*. Plus the table fixing every count at the 8×8 shape — 10 physical render channels, 32 TX pair slots, 8-bit map entries — and the parameter each one comes from.
-- **[2. ALSA topology + per-stream ring ABI (decided; unchanged ABI)](#2-alsa-topology--per-stream-ring-abi-decided-unchanged-abi)** — Eight 8-channel subdevices per direction, one per stream, over the *existing* PDU-payload ring ABI (S32BE interleaved, base + `s`·stride). Nothing new to implement on the ring side.
-- **[3. RENDER crossbar contract (KL_chmap_render, phase-1 name)](#3-render-crossbar-contract-kl_chmap_render-phase-1-name)** — Free-running latest-sample latches with nothing queued, and the whole `phys` vector re-registered in one shot on the media tick — so a mid-tick map edit cannot tear a frame and worst-case remap latency is one sample period.
-- **[4. CAPTURE mux contract (KL_chmap_capture, phase-1 name)](#4-capture-mux-contract-kl_chmap_capture-phase-1-name)** — The two ways to be silent that are not the same: `SRC=ZERO` still pulses the slot, `EN=0` skips it. Carries the talker-to-slot arithmetic table (`t` owns `4t..4t+3` at 8 ch) and the required `pair_slot` widening from `[3:0]` to `[4:0]`.
-- **[5. MAP RAM — the two word formats](#5-map-ram--the-two-word-formats)** — Since 0x0027 the two sides store different words: the render side keeps its legacy 16-bit slice, the capture side holds one 13-bit per-channel entry that IS the AEM cluster template
-- **[6. CSR window — 0x900–0x97F (the map's only write path)](#6-csr-window--0x9000x97f-the-maps-only-write-path)** — Five registers `CHMAP_CTRL/SEL/WORD/STAT`, the integration trap in bold (without a `rd_in_window` term for `0x900`, every chmap read silently returns 0 — the same defect that hid the servo until 2026-07-23), and the arm-order consequence of losing the seeder: `CHMAP_CTRL[0]` arms the write window *and* routes the crossbar, so the RAM goes live while you are still filling it.
-- **[7. AEM binding — IEEE 1722.1 dynamic audio maps (Milan es-4.16) — NOT IMPLEMENTED](#7-aem-binding--ieee-17221-dynamic-audio-maps-milan-es-416--not-implemented)** — The binding contract, kept for whoever re-implements it, and marked unimplemented: the store that answered `GET_AUDIO_MAP` and the projector into the map RAMs are deleted, and the three audio-map verbs now draw the processor's `NOT_IMPLEMENTED` echo — answered, not implemented. Includes the cluster-to-physical table and the vendor rules that survived the 0x0027 retirement.
-- **[8. TDM8 render front-end (summary; module = parallel lane)](#8-tdm8-render-front-end-summary-module--parallel-lane)** — The planned contract, then the correction: the module that actually landed is the bus *slave* (`tdm_bclk_i`/`tdm_fsync_i` are inputs) and `tdm_dout_o` is parked with no board pin. Also pins where the one-bclk Philips delay is produced — once, in the serializer.
-- **[9. Clocking and slip policy (phase 1, normative)](#9-clocking-and-slip-policy-phase-1-normative)** — One gPTP-disciplined media clock for everything and no per-stream rate conversion; a stalled source holds its last value, which is the I2S path's existing repeat-last behaviour, so the mapping layer adds no new drift rails. Exception since 0x0036: the capture LOOP bucket paces its bursty PDU source through a per-pair elastic queue (repeat-last only on true underrun, counted).
-- **[10. Phase-2 appendix — fabric 64-ch composed device](#10-phase-2-appendix--fabric-64-ch-composed-device)** — Out of scope now, but stated so phase 1 does not paint it out: the word format already carries what composition needs, phase 2 only widens the entry spaces and drops pair granularity.
-- **[11. Integration checklist (order matters)](#11-integration-checklist-order-matters)** — Eight steps in dependency order, widening first and the AEM projector last, each with the testbench rows it owes.
-- **[12. Silicon validation — the first crossbar walk (2026-07-25)](#12-silicon-validation--the-first-crossbar-walk-2026-07-25)** — All 32 slots on TONE came back sample-exact against the 48-sample period, and the one-slot identity walk gave true digital silence (`nz=0`) at deltas 1, 4 and 8. Scope stated honestly: 1 slot of 32 directly lit. §12.1 gives the per-stream recipe for the full walk and the listener blocker still in the way.
+- **[0. Grounding facts (read from the tree, quoted not assumed)](#0-grounding-facts-read-from-the-tree-quoted-not-assumed)** -- Eleven facts G1-G11, each quoted from the RTL or entity JSON. G3 records the landed five-bit slot path, and G7 records the explicit high-address read decode.
+- **[1. The 64×64 model](#1-the-6464-model)** -- PipeWire composes while the fabric selects. The section fixes the counts and parameters for the 8x8 shape.
+- **[2. ALSA topology + per-stream ring ABI (decided; unchanged ABI)](#2-alsa-topology--per-stream-ring-abi-decided-unchanged-abi)** -- Eight 8-channel subdevices per direction, one per stream, over the *existing* PDU-payload ring ABI (S32BE interleaved, base + `s`·stride). Nothing new to implement on the ring side.
+- **[3. RENDER crossbar contract (KL_chmap_render, phase-1 name)](#3-render-crossbar-contract-kl_chmap_render-phase-1-name)** -- Free-running latest-sample latches feed one atomic physical-output update on each media tick.
+- **[4. CAPTURE mux contract (KL_chmap_capture, phase-1 name)](#4-capture-mux-contract-kl_chmap_capture-phase-1-name)** -- The two ways to be silent that are not the same: `SRC=ZERO` still pulses the slot, `EN=0` skips it. Carries the talker-to-slot arithmetic table and the landed five-bit pair-slot path.
+- **[5. MAP RAM: the two word formats](#5-map-ram-the-two-word-formats)** -- Defines the render and capture stores, their entry fields, and their distinct readback packing.
+- **[6. CSR window: 0x900-0x97F (the map's only write path)](#6-csr-window-0x900-0x97f-the-maps-only-write-path)** -- Documents the only current map writer, its arm sequence, status counters, and live RAM readback.
+- **[7. AEM binding -- IEEE 1722.1 dynamic audio maps (Milan es-4.16) -- WRITERS NOT IMPLEMENTED](#7-aem-binding----ieee-17221-dynamic-audio-maps-milan-es-416----writers-not-implemented)** -- Separates the implemented getter from the missing AECP writers and records the required future projection contract.
+- **[8. TDM8 render front-end (summary; module = parallel lane)](#8-tdm8-render-front-end-summary-module--parallel-lane)** -- Records the landed bus-slave implementation, parked board output, and the single Philips-delay point.
+- **[9. Clocking and slip policy (phase 1, normative)](#9-clocking-and-slip-policy-phase-1-normative)** -- One gPTP-disciplined media clock for everything and no per-stream rate conversion; a stalled source holds its last value, which is the I2S path's existing repeat-last behaviour, so the mapping layer adds no new drift rails. Exception since 0x0036: the capture LOOP bucket paces its bursty PDU source through a per-pair elastic queue (repeat-last only on true underrun, counted).
+- **[10. Phase-2 appendix: fabric 64-ch composed device](#10-phase-2-appendix-fabric-64-ch-composed-device)** -- Preserves the optional full-fabric composition direction without presenting it as current scope.
+- **[11. Integration checklist (order matters)](#11-integration-checklist-order-matters)** -- Lists remaining writer, projection, build, and validation work in dependency order.
+- **[12. Silicon validation: the first crossbar walk (2026-07-25)](#12-silicon-validation-the-first-crossbar-walk-2026-07-25)** -- Records the dated slot-walk evidence, its direct-observation limits, and the required release-candidate rerun.
 
 ## 0. Grounding facts (read from the tree, quoted not assumed)
 
 | # | Fact | Where verified |
 |---|------|----------------|
 | G1 | Depacketizer PCM output is a 64-bit AXIS master, one frame per AAF PDU, payload in **wire byte order = S32BE interleaved PCM**, always full 8-byte beats, with `m_axis_tuser[3:0]` = stream index `s` riding each buffered frame | [`hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv`](../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv) (header + ports 89–99; "wire byte order = S32BE interleaved PCM", "NXN §1.2: {tuser=s} rides each buffered frame") |
-| G2 | Packetizer input is the pair stream `{pair_valid_i, pair_slot_i[3:0], pair_l_i[23:0], pair_r_i[23:0]}`; the pair-slot space is partitioned by a **prefix sum of chans/2** (`pbase_w[t+1] = pbase_w[t] + chans_r[t][3:1]`, `logic [5:0] pbase_w`) — talker `t` owns pair slots `[pbase(t), pbase(t)+chans/2)` | [`hdl/ieee1722/aaf/KL_aaf_packetizer.sv`](../hdl/ieee1722/aaf/KL_aaf_packetizer.sv) ports 94–98, `pair_base` block |
-| G3 | **`pair_slot_i` is 4 bits — 16 slots. 8 streams × 8 ch = 32 pairs. The 8×8 shape structurally exceeds the 4-bit slot space**; the internal ownership compare already zero-extends (`6'(pair_slot_i)` vs `pbase_w[5:0]`), so the widening is interface-level (§4.3) | `KL_aaf_packetizer.sv` line 95 (`input wire [3:0] pair_slot_i`) vs the `[5:0]` prefix sum |
-| G4 | The whole capture family shares the pair-stream contract: `KL_tdm_capture` ("emits the same {slot, L, R} pair stream toward KL_aaf_packetizer that KL_aaf_capture_i2s emits"), pairs cross into `clk_i` via a 52-bit gray-pointer `cdc_pair_fifo` (`{cap_slot_r[3:0], cap_l_r[23:0], cap_r_r[23:0]}`); `KL_pcm_tx` is "a drop-in replacement for the physical capture front-end … emits the SAME {pair_valid, pair_slot, pair_l, pair_r} contract", tick-paced ("one media sample tick emits ONE audio sample for EVERY stream and EVERY channel pair") | `KL_tdm_capture.sv`, `KL_pcm_tx.sv` headers |
+| G2 | Packetizer input is the pair stream `{pair_valid_i, pair_slot_i[4:0], pair_l_i[23:0], pair_r_i[23:0]}`; the pair-slot space is partitioned by a **prefix sum of chans/2** (`pbase_w[t+1] = pbase_w[t] + chans_r[t][3:1]`, `logic [5:0] pbase_w`). Talker `t` owns pair slots `[pbase(t), pbase(t)+chans/2)` | [`hdl/ieee1722/aaf/KL_aaf_packetizer.sv`](../hdl/ieee1722/aaf/KL_aaf_packetizer.sv) input port and `pair_base` block |
+| G3 | **`pair_slot_i` is 5 bits and addresses all 32 pair slots required by 8 streams with 8 channels each.** The internal ownership compare zero-extends it against `pbase_w[5:0]` (§4.3) | `KL_aaf_packetizer.sv` (`input wire [4:0] pair_slot_i`) and the `[5:0]` prefix sum |
+| G4 | The capture family shares the five-bit pair-stream contract across `KL_tdm_capture`, `KL_aaf_capture_i2s`, `KL_pcm_tx`, `cdc_pair_fifo`, the capture map, and `KL_aaf_packetizer` | module headers and the current root wiring |
 | G5 | The I2S render path already keeps a latest-sample discipline: `KL_i2s_playback` re-strides the AXIS tap by the **wire-truth** channel count (`wire_chans_i`, "0 until first accept -> 2"), repeats the last pair on underrun, and its physical render is 2-channel (stream ch0/ch1, extras virtual) | [`hdl/ieee1722/aaf/KL_i2s_playback.sv`](../hdl/ieee1722/aaf/KL_i2s_playback.sv) header + walker |
 | G6 | `milan_csr` plain-RW readback is a **512-word shadow BRAM covering 0x000–0x7FF only**: `shadow_ram[0:511]`, write gate `wr_fire && !(|wr_addr[ADDR_WIDTH-1:11])`, word address `wr_addr[10:2]` / `rd_addr[10:2]` (milan_csr.sv ~1173–1201). A 0x900 address has bit 11 set → it can never be shadow-served (it would alias word 0x100) | [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) `shadow_mem` block |
 | G7 | Reads **at/above 0x800 return 0 unless explicitly claimed**: `rd_in_window = ~|rd_addr_q[ADDR_WIDTH-1:11] || (rd_addr_q == A_MCSRV_STAT) || (rd_addr_q == A_MCSRV_CTRL)` (milan_csr.sv ~1363). The comment records that 0x8F8 read 0 on every build until 2026-07-23 because this term was missing | `milan_csr.sv` `rd_in_window` + [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) 0x8F8 note |
 | G8 | Writes to 0x900+ ARE reachable: the AXI window is 64 KB (`ADDR_WIDTH = 16`) and the write decode is a full-address exact-match `case (wr_addr)` (e.g. `A_MCSRV_CTRL: mcsrv_ctrl <= s_axi_wdata;` at 0x8FC) — new registers above 0x800 follow the MCSRV pattern: dedicated storage + explicit live-read arm + `rd_in_window` term | `milan_csr.sv` write decode ~860–915 |
-| G9 | **RETIRED 2026-08-13.** It read: "AECP already decodes the audio-map verbs: `CMD_GET_AUDIO_MAP = 15'd43`, `CMD_ADD_AUDIO_MAPPINGS = 15'd44`, `CMD_REMOVE_AUDIO_MAPPINGS = 15'd45`, `DESC_AUDIO_MAP = 16'h0017`". The command values are still the 1722.1-2021 7.4.44/45/46 values; the decoder that recognised them went with this repository's whole AECP/AEM tree. The protocol processor answers all three with the `NOT_IMPLEMENTED` echo, so **no command reaches the map RAMs any more** | was `aecp_pkg.sv` 76–78, 128 + `KL_aecp_l0_state.sv` 113 — both deleted; the surviving fact is the clause, not the file |
+| G9 | The processor serves `GET_AUDIO_MAP` for both Stream Port directions from the root gather face. `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` remain unimplemented, so no AECP command writes the map RAMs | `protocol-processor/hdl/aecp/KL_aecp_engine.sv` plus the root `amap_*` gather and tied-off `aecp_*map_wr_*` legs |
 | G10 | The entity model's mapping entry is `(mapping_stream_index, mapping_stream_channel, mapping_cluster_offset, mapping_cluster_channel)`; every AUDIO_CLUSTER in the model is **1-channel MBLA** (`"channel_count": 1, "format": "MBLA"`), STREAM_PORT_INPUT[0] owns clusters 0–7 (`base_cluster 0`), STREAM_PORT_OUTPUT[0] owns clusters 8–15 (`base_cluster 8`), each port has exactly one AUDIO_MAP (1722.1 7.2.13/7.2.19, builder D1) | [`avdecc/milan-v12-entity.json`](../avdecc/milan-v12-entity.json) |
 | G11 | Per-stream DRAM PCM rings exist from the NxN work: route flag `DMA` = "payload lands in the stream's DRAM ring at `pcm base + s*stride`"; ring words are "full 64-bit words in wire byte order = S32BE interleaved PCM" | [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) 0x800 route-flags paragraph + PCM-ring section |
 
@@ -77,9 +67,9 @@ format strings). Channel mapping is split into exactly two layers:
 
 1. **PipeWire composition (software)** — cross-stream / cross-channel
    composition for ALSA clients. This was to be driven by the AEM audio-map
-   configuration (the daemon reading `GET_AUDIO_MAP`); with that command
-   answered `NOT_IMPLEMENTED` the daemon has no wire view of the map and is
-   configured locally.
+   configuration (the daemon reading `GET_AUDIO_MAP`). The getter exposes the
+   current map, but the missing writers require changes to be made locally
+   through the CSR path.
    No fabric frame composer exists in phase 1.
 2. **Fabric mapping (this doc)** — two small engines:
    - **RENDER crossbar**: any RX `(stream s ∈ 0..7, wire-ch c ∈ 0..7)`
@@ -368,27 +358,17 @@ them; and 5.4.2.26 states the granularity outright - "at most one
 dynamic mapping per Stream Output's channel". That granularity is now
 also the store's.
 
-### 4.3 The pair-slot widening (REQUIRED, normative)
+### 4.3 The pair-slot widening (LANDED)
 
-`KL_aaf_packetizer.pair_slot_i` is `[3:0]` today (G3) — a 16-slot
-space. The prefix-sum partition at 8 streams × 8 ch needs **32 pair
-slots**, so:
-
-> **`pair_slot` widens from `[3:0]` to `[4:0]` across the entire
-> pair-stream contract** before any stream whose cumulative pair base
-> reaches 16 can be addressed: `KL_aaf_packetizer.pair_slot_i`,
-> `KL_aaf_capture_i2s.pair_slot_o`, `KL_tdm_capture.pair_slot_o`
-> (incl. `cap_slot_r` and the CDC payload — the 52-bit
-> `cdc_pair_fifo` word `{slot[3:0], L[23:0], R[23:0]}` becomes 53
-> bits), `KL_pcm_tx`'s slot walk, and the new capture mux output.
-
-The packetizer's *internal* ownership decode needs no logic change —
-`pbase_w` is already `[5:0]` and the compares already zero-extend
-(`6'(pair_slot_i)`, G3); only the port and its `6'(...)` casts widen.
+The full pair-stream contract is now five bits wide. It covers the 32 pair
+slots needed by 8 streams with 8 channels each across
+`KL_aaf_packetizer`, `KL_aaf_capture_i2s`, `KL_tdm_capture`,
+`cdc_pair_fifo`, `KL_pcm_tx`, and the capture mux. The packetizer ownership
+decode keeps its six-bit prefix sum and zero-extends the five-bit slot index.
 The N=1 golden byte-compare gates stay green by construction (slot 0
 encodings are identical in 4 and 5 bits).
 
-## 5. MAP RAM — the two word formats
+## 5. MAP RAM: the two word formats
 
 Two map RAMs. Per the defect-4 house rule each RAM has one sync write
 process and one explicit sync read port. Since 0x0027 the two sides
@@ -459,14 +439,12 @@ recipe needs to know why the recipe no longer applies:
   and stays there until software writes it.** The power-on map is not the
   identity image any more, it is *nothing* — which is why the front-end path
   (not the crossbar) is what the packetizer sees at reset (§6).
-- **`GET_AUDIO_MAP` agreeing with the capture-map RAM proved nothing about
-  the key** — the commit wrote the shadow and the RAM slot from the same
-  register, so a key shift moved both together and they stayed consistent
-  while both were wrong. Moot: `GET_AUDIO_MAP` is not implemented — a
-  controller asking for it gets the `NOT_IMPLEMENTED` echo — and there is no
-  shadow behind it either. The
-  RAM readback at `CHMAP_LOOP 0x914` is now the only readback, and it is
-  served from the RAM read port, so it cannot disagree with itself.
+- **`GET_AUDIO_MAP` agreeing with the capture-map RAM proves the served view,
+  not an independent projector**: the getter reads the same live RAM that the
+  CSR path writes. A key shift could therefore move both views together and
+  still appear internally consistent. The
+  RAM readback at `CHMAP_LOOP 0x914` is served from the RAM read port, while
+  `GET_AUDIO_MAP` uses the flattened view of the same store.
 
 The capture entry was structurally identical to the AEM cluster template
 (`AEM_ODMAP_CSRC_C`, gen_aem_store): an `ADD_AUDIO_MAPPINGS` commit wrote the
@@ -595,7 +573,7 @@ unimplemented, and no projector connects processor state to the root map RAMs.
 `csr_refused` still counts the one refusal that remains: a write with the
 override disarmed.
 
-## 6. CSR window — 0x900–0x97F (the map's only write path)
+## 6. CSR window: 0x900-0x97F (the map's only write path)
 
 **Decode finding (from G6/G7/G8, drives the implementation):** offset
 0x900 is *reachable* — the AXI window is 64 KB and the write decode is
@@ -647,41 +625,31 @@ reserved to this feature, 5 words used):
 > zeros), and `CHMAP_LOOP 0x914` reads back what the RAM actually holds if
 > the result is not what you expected.
 
-## 7. AEM binding — IEEE 1722.1 dynamic audio maps (Milan es-4.16) — NOT IMPLEMENTED
+## 7. AEM binding -- IEEE 1722.1 dynamic audio maps (Milan es-4.16) -- WRITERS NOT IMPLEMENTED
 
-> **STATUS 2026-08-13: NOTHING IN THIS SECTION IS BUILT.** The AECP engine
-> that handled `ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS` /
-> `GET_AUDIO_MAP`, the dynamic-map store that answered them, and the
-> projector that wrote the map RAMs are all deleted. The protocol processor's
-> AECP uCPU serves `GET_AUDIO_MAP`, but the two audio-map writers still receive
-> the conformant `NOT_IMPLEMENTED` fallback. No processor-to-root projector
+> **STATUS 2026-08-16: THE GETTER IS BUILT; THE WRITERS ARE NOT.** The
+> protocol processor serves `GET_AUDIO_MAP`, but
+> `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` still receive the
+> conformant `NOT_IMPLEMENTED` fallback. No processor-to-root projector
 > applies returned or stored map state to these RAMs, so the `0x900` window
 > remains the whole root write path. **A getter is not implementation of the
 > mandatory writers.** The section is kept as the contract for the clause
 > analysis, cluster-to-physical table, and projection rules that a complete
 > implementation owes. Read every "is" below as "shall be".
 
-The intended canonical programmer of both map RAMs is the AECP engine
-handling `ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS` / `GET_AUDIO_MAP`
-(command values 43/44/45 and `DESC_AUDIO_MAP = 0x0017`, 1722.1-2021
-7.4.44/45/46). The CSR window would then return to being the debug override.
-**Arbitration: one write port per RAM, AEM wins, CSR is shadow-readable
-always** — the mux is still in the RTL with its AEM leg tied off.
+The missing AECP write path must handle `ADD_AUDIO_MAPPINGS` and
+`REMOVE_AUDIO_MAPPINGS` (command values 44/45 and
+`DESC_AUDIO_MAP = 0x0017`, IEEE 1722.1-2021 7.4.45/46). The existing root mux
+retains a tied-off AECP leg, so the intended arbitration is one write port per
+RAM, AECP writer priority, and CSR access as the bring-up override.
 
 ### 7.1 Authority model
 
-The **AEM dynamic-map store** (the descriptor-side mapping list) is the
-readback authority: `GET_AUDIO_MAP` is answered from it, never from the
-map RAMs. The map RAMs are a *projection* of the store onto the
-physical fabric — derived state. This keeps GET_AUDIO_MAP complete even
-for mappings that have no fabric backing (§7.2's PipeWire-domain
-entries) and keeps the fabric words free to be CSR-poked on the bench
-without corrupting AEM readback (a CSR override is bench-visible in
-`CHMAP_WORD`, not in GET_AUDIO_MAP).
-
-**Today there is no store and therefore no authority question:** the RAM is
-the only copy, and `CHMAP_LOOP 0x914` reads it out of the RAM's own read
-port. A mapping with no fabric backing cannot be expressed at all.
+**Today the map RAMs are the readback authority.** `GET_AUDIO_MAP` reads their
+flattened views, and `CHMAP_LOOP 0x914` reads the corresponding RAM port. A
+mapping with no fabric backing cannot be represented. A future dynamic writer
+must either update these same stores atomically or introduce one authoritative
+dynamic store and keep the fabric projection synchronized with it.
 
 ### 7.2 Cluster ↔ physical-channel table
 
@@ -771,8 +739,8 @@ pins its contract as the mirror of `KL_tdm_capture` (G4 conventions):
   fractional-N edge), `tdm_mclk_o` = clk_audio/2 shared with capture.
 - Feed: 8 mapped channels per media tick from the render xbar cross
   one widened `cdc_pair_fifo`-style crossing into the bclk domain
-  (one crossing for the whole lane — the §4 CDC-does-not-multiply
-  rule of [`NXN_ARCHITECTURE.md`](NXN_ARCHITECTURE.md) §4).
+  (one crossing for the whole lane, following the current shared-lane CDC
+  implementation).
 - Status: `frames_out` liveness counter, CSR-exposed later (not in the
   0x900 window; it is a front-end, not the map).
 
@@ -850,7 +818,7 @@ and the `CHMAP_PHYS_C` blend layout — all three enumerated in the
 - Remap effect point = media tick (§3/§4): switching sources produces
   at worst one sample-step discontinuity; no ramping in phase 1.
 
-## 10. Phase-2 appendix — fabric 64-ch composed device
+## 10. Phase-2 appendix: fabric 64-ch composed device
 
 Phase 2 (explicitly out of scope now) lifts the PipeWire-only
 composition into fabric as a **composed 64-channel device**: a frame
@@ -899,7 +867,7 @@ phase-1 engines.
    (2026-08-13). The processor's AECP uCPU that replaced it now serves
    `GET_AUDIO_MAP`, but the audio-map writers and this projector are still
    owed by whoever completes the root integration.** The `aecp` harness that gated
-   it is deleted too, so a re-implementation starts from the contract in §7,
+   it is absent, so a writer implementation starts from the contract in §7,
    not from a regression suite.
 7. **8×8 elaboration** — `N_TALKERS_P = 8` / `N_LISTENERS_P = 8`
    shapes with per-stream rings; builder overlays emit the 8-port
@@ -907,11 +875,10 @@ phase-1 engines.
    (the map layer is small: 2 LUTRAM-class RAMs + latch arrays ≈
    64×24 b + walk FSMs — but measure, don't assume: OOC-synth before
    believing any area number).
-8. **Docs/tests close-out** — SPEC_TRACEABILITY rows (1722.1
-   7.2.19 / es-4.16), behave-suite scenarios (roadmap 10), this doc
-   flipped DESIGN → AS-BUILT per phase.
+8. **Docs/tests close-out** -- update current traceability rows for 1722.1
+   7.2.19 / es-4.16 and keep getter and writer behavior separately graded.
 
-## 12. Silicon validation — the first crossbar walk (2026-07-25)
+## 12. Silicon validation: the first crossbar walk (2026-07-25)
 
 Run on the deployed 8×8 chmap bitstream, with the second board's PCM ring
 (pair 0 of its bound stream) as the observation window and the pilot tone
@@ -992,8 +959,8 @@ direct observation (the honest scope statement of §12 still stands). Closing
 it needs the NxN ring engine or an 8-channel ALSA capture on a refreshed
 listener image.
 
-**And one blocker.** On the currently flashed gateware the fabric listener
-never accepts a bound stream
-([KNOWN_ISSUES §1.1](limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)), so the
-listener-side half of every verification step above has to be re-checked on
-the next netlist before the walk is trusted.
+**Hardware evidence remains open.** No current listener-side hardware walk is
+attached to this audit round, so every listener-side step above must be
+repeated on the release candidate before the walk is accepted. This is part of
+the external-evidence blocker in the
+[current Milan audit](testing/MILAN_V12_AUDIT_2026-08-16.md).

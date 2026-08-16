@@ -12,18 +12,18 @@ LAYERS = [
     "PipeWire + module-avb (AVB talker/listener)",
     "alsa-lib · buildroot rootfs (busybox init, cpio→tmpfs)"]),
  ("Linux kernel", "on target · C (in-tree + out-of-tree)", RED, [
-    "kl-eth — out-of-tree Milan NIC driver (TX/RX DMA, telemetry sysfs, PTP)",
+    "kl-eth: out-of-tree Milan NIC driver (TX/RX DMA, telemetry sysfs, PTP)",
     "in-tree: liteuart, litex-soc-controller, sifive-plic, clint-timer",
     "net: PTP-1588 core · sch_cbs + mqprio qdisc · AF_PACKET · 8021Q",
     "device tree: milan_ax7101_linux.dts  ·  kernel .config: linux.fragment"]),
  ("Boot firmware", "on target · C", ORANGE, [
     "LiteX BIOS (ROM) + linux_flashboot (QSPI→DRAM image copy)",
-    "OpenSBI — custom litex_nax platform (M-mode fw_jump, embedded DTB)"]),
- ("SoC integration — LiteX / Migen", "dev host · Python → Verilog  (sw/litex/milan_soc.py)", GREEN, [
+    "OpenSBI: custom litex_nax platform (M-mode fw_jump, embedded DTB)"]),
+ ("SoC integration: LiteX / Migen", "dev host · Python → Verilog  (sw/litex/milan_soc.py)", GREEN, [
     "MilanSoC (top: NaxRiscv + DDR3 + NIC + flash)   ·   _CRG (PLL/clocks/CDC)",
     "MilanNIC / add_milan_datapath   ·   MilanMAC (LiteEth glue)",
     "MilanDMA (WishboneDMA engines)   ·   MilanDebug (pipeline telemetry)"]),
- ("Milan datapath — RTL", "FPGA fabric · SystemVerilog / Verilog  (hdl/)", BLUE, [
+ ("Milan datapath: RTL", "FPGA fabric · SystemVerilog / Verilog  (hdl/)", BLUE, [
     "common: milan_top · milan_datapath · rx_mac_filter · tcam · milan_dma_wrapper · cdc_*",
     "csr: milan_csr  (the AXI-Lite register ABI shared with the driver + DT)",
     "802.1Q CBS: credit_based_shaper · traffic_classifier · traffic_class_map ·",
@@ -32,8 +32,9 @@ LAYERS = [
     "1722 AVTP: KL_avtp_common_parser   ·   adp_tx_arbiter (generic 2-in-1-out AXIS mux)",
     "control plane: KL_pp_shadow (protocol-processor submodule: ADP · ACMP · SRP · AECP)",
     "               KL_pp_maap_shim + KL_maap  (MAAP stays in this fabric)",
-    "               AECP uCPU: READ_DESCRIPTOR served from a DRAM image at a",
-    "               compile-time base; every other command = NOT_IMPLEMENTED echo",
+    "               AECP uCPU: READ_DESCRIPTOR plus mandatory control/state subset",
+    "               GET_COUNTERS / GET_AUDIO_MAP / GET_AS_PATH / GET_AVB_INFO / Milan info",
+    "               unsupported commands return NOT_IMPLEMENTED",
     "events: ethernet_events · event_counter"]),
  ("Vendored IP", "FPGA fabric · 3rd-party cores", PURPLE, [
     "NaxRiscv (RV64GC/sv39 CPU, SpinalHDL)   ·   LiteEth (MAC + GMII/RGMII PHY)",
@@ -43,12 +44,12 @@ LAYERS = [
     "QSPI 16 MB (Micron N25Q128)  ·  RTL8211E GbE PHY  ·  200 MHz clk"]),
 ]
 SIDE = ("Host tooling", "Python / bash", YELLOW, [
-    "milan_soc.py — SoC/gateware generator",
-    "milan_dt.py — device-tree generator (csr.json→dts)",
-    "deploy.sh — build / load / flash / flash-images",
-    "boot.sh — serialboot (+ FLASH_KERNEL mode)",
-    "patches/apply.sh — BIOS linux_flashboot",
-    "crcfbigen — FBI image wrapper"])
+    "milan_soc.py: SoC/gateware generator",
+    "milan_dt.py: device-tree generator (csr.json→dts)",
+    "deploy.sh: build / load / flash / flash-images",
+    "boot.sh: serialboot (+ FLASH_KERNEL mode)",
+    "patches/apply.sh: BIOS linux_flashboot",
+    "crcfbigen: FBI image wrapper"])
 
 # ---- layout geometry ----
 X0, Y0 = 30, 90
@@ -74,7 +75,7 @@ def svg():
     W=SIDE_X+SIDE_W+30; H=max(total_h, side_y+side_h+40)
     o=[f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" font-family="Helvetica,Arial,sans-serif">']
     o.append(f'<rect width="{W}" height="{H}" fill="#ffffff"/>')
-    o.append(f'<text x="{X0}" y="40" font-size="24" font-weight="bold" fill="#263238">Milan TSN NIC — system domain map</text>')
+    o.append(f'<text x="{X0}" y="40" font-size="24" font-weight="bold" fill="#263238">Milan TSN NIC: system domain map</text>')
     o.append(f'<text x="{X0}" y="66" font-size="13" fill="#546E7A">every module by domain / language · software (top) → silicon (bottom) · host tooling generates &amp; deploys the stack</text>')
     def box(x,y,w,h,fill,stroke,title,sub,mods):
         o.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="8" fill="{fill}" stroke="{stroke}" stroke-width="2"/>')
@@ -109,10 +110,10 @@ def drawio():
         cells.append(f'<mxCell id="n{i}" value="{esc(label)}" style="{style}" vertex="1" parent="{vparent}">'
                      f'<mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" as="geometry"/></mxCell>')
         return f"n{i}"
-    add(X0,20,700,30,"Milan TSN NIC — system domain map","none","none",20,1)
+    add(X0,20,700,30,"Milan TSN NIC: system domain map","none","none",20,1)
     for (t,s,f,st,m,x,yy,w,h) in layers:
-        add(x,yy,w,h,f"{t}   —   {s}\n\n"+"\n".join("• "+mm for mm in m),f,st,12,1)
-    add(SIDE_X,side_y,SIDE_W,side_h,f"{SIDE[0]}   —   {SIDE[1]}\n\n"+"\n".join("• "+mm for mm in SIDE[3]),
+        add(x,yy,w,h,f"{t}   |   {s}\n\n"+"\n".join("• "+mm for mm in m),f,st,12,1)
+    add(SIDE_X,side_y,SIDE_W,side_h,f"{SIDE[0]}   |   {SIDE[1]}\n\n"+"\n".join("• "+mm for mm in SIDE[3]),
         SIDE[2][0],SIDE[2][1],12,1)
     body="\n".join(cells)
     return (f'<mxfile host="app.diagrams.net"><diagram name="domain-map">'

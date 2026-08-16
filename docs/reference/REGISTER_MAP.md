@@ -1157,18 +1157,13 @@ is consulted until the CRC has closed.
 
 > 🔴 **UNWIRED AT VERSION MAJOR 2. Writes are accepted and DISCARDED; `0x7D4`
 > reads a STRUCTURAL ZERO.** The patch engine and the AEM store it wrote are
-> both deleted, and the AECP uCPU that replaced them does not restore this port:
-> its descriptor tree is a **read-only** fetch from main memory, and it
-> implements no AECP setter whose acceptance this port could re-run. The way to
-> change what a controller reads is now to change the descriptor image in DRAM
-> before enabling the entity — not to patch a descriptor RAM at runtime, because
-> there is no longer a descriptor RAM to patch.
+> both deleted. The current AECP uCPU owns volatile dynamic state and accepts
+> several setters, but this port is not connected to that state. Writes cannot
+> replay a saved value into the processor or change what a controller reads.
 
-This was the write master the AEM store never had, and therefore the half of
-Milan persistence that was missing: saving the eleven §5.3 dynamic-state items
-always worked, putting them back had no path at all. Both halves are gone now —
-there is no dynamic state to save, because nothing can set it in the first
-place.
+This was the write master for the deleted AEM store. The current processor has
+volatile dynamic state, but neither saving that state nor restoring it through
+this port is implemented. A reset therefore loses accepted changes.
 
 The register layout and the verdict codes below are preserved as the ABI and as
 the specification a future implementation must satisfy. Reading `0x7D4` tells
@@ -1620,7 +1615,7 @@ fabric counts fine — the `0x8F8` dead-read trap).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x8C8` | `PBK_STAT` | RO | `0` | `[15:0]` disarmed-render frames: media frames delivered to the DAC while the crossbar was selected and **no** map entry backed phys{0,1} (saturates at `0xFFFF`) — nonzero means the audio is silent because the map is empty, not because the source is; `[16]` feed source (1 = render crossbar, 0 = legacy listener tap; = `CHMAP_CTRL[0]` on static shapes, constant 1 on dynamic-map shapes since `0x002C`); `[17]` `KL_pcm_tx` is walking a sample tick; `[18]` playback master enable; `[19]` phys{0,1} armed in the render map; `[21:20]` reserved 0; `[31:22]` per-phys playback-source mask (map entry `EN` **and** `SRC` = playback), phys 0..9 |
+| `0x8C8` | `PBK_STAT` | RO | `0` | `[15:0]` disarmed-render frames: media frames delivered to the DAC while the crossbar was selected and **no** map entry backed phys{0,1} (saturates at `0xFFFF`); `[16]` feed source (1 = render crossbar, 0 = legacy listener tap, currently `CHMAP_CTRL[0]`); `[17]` `KL_pcm_tx` is walking a sample tick; `[18]` playback master enable; `[19]` phys{0,1} armed in the render map; `[21:20]` reserved 0; `[31:22]` per-phys playback-source mask, phys 0..9 |
 | `0x8CC` | `PBK_FEEDS` | RO | `0` | media frames handed to the `KL_i2s_playback` producer on the **live** source (32-bit, wraps). Render mode counts 48 kHz media ticks; legacy mode counts accepted listener-tap beats. A **static** count with the chain armed is the "nothing is being delivered" verdict |
 | `0x8D0` | `PBK_RAILS` | RO | `0` | `KL_pcm_tx` host-ring rails, summed across streams and saturating at `0xFFFF` per half: `[31:16]` underruns (ring empty at a media tick — the host is not refilling; the pair is still emitted so the cadence never skews), `[15:0]` overruns (host lapped the reader by more than one sub-ring; `rd_ptr` fast-forwards one lap) |
 | `0x8D4` | - | - | `0` | unmapped (reads 0, never shadow-aliased) |
@@ -1677,23 +1672,23 @@ dedicated-arm carve-out as MCSRV (NOT in `is_plain_rw` - a 0x900 shadow write
 would alias word 0x100 - plus its own `rd_in_window` 0x900-0x93F term, or every
 read here would be the 0x8F8 dead-read trap).
 
-`CHMAP_CTRL[0]` = 0 (reset) leaves a STATIC shape's audio path bit-identical (dynamic-map shapes route the crossbars by construction since `0x002C`): the
+`CHMAP_CTRL[0]` = 0 (reset) leaves the audio path bit-identical: the
 render/capture crossbars are muxed OUT of both the packetizer feed and the
 i2s_playback feed. Setting it to 1 also moves the DAC's **pace** onto the
 48 kHz media grid and masks the render LPF (`KL_i2s_feed_mux`; see the
 `0x8C8` group) - without that a host-ring playback can never advance the
-DAC, because the legacy feed only ticks when an inbound AVB stream does. **This window is now the ONLY programmer of the map RAMs.** The AEM audio-map
-projector (1722.1 7.2.19 / Milan es-4.16) was the canonical programmer;
-`GET_AUDIO_MAP` and `ADD_`/`REMOVE_AUDIO_MAPPINGS` are gone with the AECP
-engine, so no controller can route a channel at runtime and `CHMAP_STAT[15:0]`
-now counts CSR commits only. What was a bench override is the production path.
+DAC, because the legacy feed only ticks when an inbound AVB stream does.
+**This window is now the only programmer of the map RAMs.** The current
+processor serves `GET_AUDIO_MAP` from those stores, but
+`ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` remain unimplemented. A
+controller can inspect the live map but cannot change it through AECP.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x900` | `CHMAP_CTRL` | RW | `0` | `[0]` debug arm. Since `0x002C` a dynamic-map shape routes both crossbars **by construction** (boot-seeded identity map; this bit has no routing effect there). On a static shape it keeps the bring-up meaning: while 0 the default capture/render paths drive bit-identically, set 1 to select the debug-written crossbar. On every shape it still gates the `CHMAP_WORD` debug write window (refusals counted in `CHMAP_STAT[23:16]`) |
+| `0x900` | `CHMAP_CTRL` | RW | `0` | `[0]` map arm. While 0 the default capture/render paths drive bit-identically; set 1 to select the CSR-programmed crossbars. It also gates the `CHMAP_WORD` write window (refusals counted in `CHMAP_STAT[23:16]`) |
 | `0x904` | `CHMAP_SEL` | RW | `0` | `[5:0]` map entry index, `[8]` side (0 = RMAP/render phys channel 0..9, 1 = CMAP/capture **stream-channel key** `port*8 + sc`, 0..`2*N_SLOTS_P-1` — per-channel since 0x0027). Selects the target of the next `CHMAP_WORD` write |
-| `0x908` | `CHMAP_WORD` | RW | - | `[15:0]` the §5 map word `{EN[15], SRC[14:12], rsvd[11:9], HALF[8], IDX_HI[7:4], IDX_LO[3:0]}`. Write commits through the shared map write port when `CHMAP_CTRL[0]` = 1; readback = last committed word. **Render side (RMAP)**: `SRC[12]` selects the source bank — 0 = AVB listener, `IDX` = `{stream[6:4], ch[2:0]}` (the pre-item-7 meaning, and what the AEM projector always writes); 1 = **host playback ring**, `IDX` = `{[6:4],[2:0]}` read as one linear playback channel `2*pair_slot + (0 L / 1 R)` from `KL_pcm_tx`; `[8]` unused. This is the only route from an ALSA playback ring to the line-out. **Capture side (CMAP, per-channel since 0x0027)**: composes the addressed channel's 13-bit entry `{EN, HALF, SRC[2:0], IDX_HI, IDX_LO}` — `HALF` picks the source pair's L (0) or R (1) half; `[8]` was reserved, so every pre-0x0027 word means "L half" |
-| `0x90C` | `CHMAP_STAT` | RO | `0` | `[15:0]` aem/csr commits (wraps), `[23:16]` csr_refused (override disarmed; saturates) |
+| `0x908` | `CHMAP_WORD` | RW | - | `[15:0]` the §5 map word `{EN[15], SRC[14:12], rsvd[11:9], HALF[8], IDX_HI[7:4], IDX_LO[3:0]}`. Write commits through the shared map write port when `CHMAP_CTRL[0]` = 1; readback = last committed word. **Render side (RMAP)**: `SRC[12]` selects the source bank, 0 = AVB listener and 1 = **host playback ring**. `IDX` is `{stream[6:4], ch[2:0]}` for AVB or one linear playback channel for the host ring. `[8]` is unused. **Capture side (CMAP)**: composes the addressed channel's 13-bit entry `{EN, HALF, SRC[2:0], IDX_HI, IDX_LO}`; `HALF` selects the source pair's L or R half |
+| `0x90C` | `CHMAP_STAT` | RO | `0` | `[15:0]` map commits (currently CSR only, wraps), `[23:16]` CSR writes refused while disarmed (saturates) |
 | `0x910` | `CHMAP_SNAP` | W1S / RO | `0xC500_0000` | **W** `[0]` arm a readback of the entry named by `CHMAP_SEL` (ignored while busy). **R** `[0]` busy, `[1]` valid — the LAST snapshot carries fabric data, `[2]` timeout — the LAST snapshot ended without the fabric answering, `[3]` unsupported — the LAST arm was refused because this side has no readback port in this build, `[4]` armed — a snapshot has been armed since reset, `[9:8]` capability (`[8]` render port wired, `[9]` capture port wired **and** carrying the `{loop_fed, loop_mapped}` mask), `[22:16]` `{side, index}` latched at the last arm, `[31:24]` **constant `0xC5`** |
 | `0x914` | `CHMAP_LOOP` | RO | `0xDEAD_DEAD` | The map word **the RAM actually holds**. `[15:0]` raw fabric readback word — capture side `{1'b0, loop_fed[14], loop_mapped[13], entry[12:0]}` where the entry is the per-channel word `{en[12], half[11], src[10:8], idxh[7:4], idx[3:0]}` (one entry per stream channel since 0x0027). NOTE the two formats: the `CHMAP_WORD` you WRITE is `{EN[15], SRC[14:12], rsvd, HALF[8], IDXH, IDXL}`; the ENTRY you read BACK here re-packs those fields — e.g. word `0xB000` reads back as entry `0x1300`, and mistaking the packing for corruption cost a bench session. `loop_fed`/`loop_mapped`/`LOOP_SUSPECT` grade the LOOP source only, never general slot health, render side `{8'd0, entry[7:0]}`; `[16]` mapped, `[17]` fed, `[18]` **`LOOP_SUSPECT` = mapped & ~fed** (extracted from the raw word's canonical flag bits, stable here whatever the raw layout), `[19]` side, `[25:20]` index, `[26]` **VALID** (this word is a measurement), `[27]` **MASK_VALID** (`[18:16]` are a measurement — capture side only). **`0xDEADDEAD` = there is no measurement behind this word** |
 | `0x918`-`0x91C` | - | - | `0` | reserved to this feature (read 0, never shadow-aliased). **`0x920`-`0x930` are the protocol-processor window** — see the next section; `0x934`-`0x93C` remain reserved |
@@ -1756,10 +1751,9 @@ clocks sets `[2]` timeout and leaves `CHMAP_LOOP` poisoned, rather than
 latching whatever the bus happened to hold.
 
 **No standard is cited here on purpose.** IEEE 1722.1 and Milan v1.2 say
-nothing about a vendor debug register; the canonical, standardised view of an
-audio map is `GET_AUDIO_MAP` (1722.1 7.2.19 / Milan es-4.16) over AECP, which
-reads the *model*. This register reads the *RAM*, which is the only way to
-tell the model and the fabric apart.
+nothing about a vendor debug register. The standard view is `GET_AUDIO_MAP`
+over AECP, which the current integration serves from the live map stores. This
+register exposes one raw RAM word and its fabric-specific capability flags.
 
 **Hardware acceptance (desk-verified only; no bitstream built for this):**
 

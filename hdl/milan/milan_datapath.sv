@@ -162,7 +162,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! prune it. Priced at the instantiation below (+2303 LUT / +1542 FF OOC
   //! at 8x8) - a real feature with a real bill, not a free connection.
   parameter int LOOPBACK_P = 0,
-  //! BANKED AREA LEVER (NXN_ARCHITECTURE section 6.2): 1 (default) keeps the
+  //! BANKED AREA LEVER (docs/CHANNEL_MAP_64.md): 1 (default) keeps the
   //! render-tap Butterworth LPF; 0 prunes KL_pcm_lpf and ties its outputs to
   //! the exact nets the runtime bypass (LPF_CTRL[0] = 0) already produces, so
   //! a pruned build behaves like a shipped build with the filter switched
@@ -1088,7 +1088,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     assign pb_overrun_o  = '0;
     assign pb_playing_o  = 1'b0;
   end endgenerate
-  //  Channel-map CAPTURE mux (docs/CHANNEL_MAP_64.md §4) — ADD-ALONGSIDE.
+  //  Channel-map CAPTURE mux (docs/CHANNEL_MAP_64.md §4), added alongside.
   //  Sits between the physical capture front-end and the shared packetizer.
   //  cfg_chmap_enable = 0 (reset default) selects the front-end pair stream
   //  BIT-IDENTICALLY (today's compliance wiring); = 1 selects the CMAP-routed source
@@ -1101,17 +1101,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [4:0]  cmap_slot_w;
   wire [23:0] cmap_l_w, cmap_r_w;
 
-  //! talker-side AEM dynamic-map mirror (USER 08-01): the capture write
-  //! port gets the same two-writer mux as the render side - the AEM
-  //! ADD/REMOVE mirror is the canonical programmer, the CSR 0x900 window
-  //! is the debug port and yields on collision. Same drop-not-truncate
-  //! rule: a slot past N_STREAMS*4 is refused, never wrapped.
+  //! Reserved capture-side AECP map-write leg. The current processor serves
+  //! GET_AUDIO_MAP but does not implement ADD/REMOVE_AUDIO_MAPPINGS, so this
+  //! leg is tied off below and the CSR 0x900 window is the only writer.
+  //! A slot past N_STREAMS*4 is refused, never wrapped.
   wire        aecp_odmap_wr_p_w;
   wire [5:0]  aecp_odmap_wr_slot_w;
   wire [12:0] aecp_odmap_wr_word_w;
-  //! task #26 shape truth from the AECP builder (the one module that
-  //! compiles the generated ROM): 1 = this build carries the dynamic-map
-  //! writers + boot seeder for that side. Elaboration constants.
+  //! Reserved dynamic-map ownership flags. Both are tied low in the current
+  //! integration because no AECP map writer or boot seeder is connected.
   wire        aecp_dmap_dyn_w;
   wire        aecp_odmap_dyn_w;
 
@@ -1183,9 +1181,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   ) chan_map_capture (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! PER-CHANNEL store (0x0027, USER "one cluster == one audio channel"):
-    //! the key space is N_STREAMS*8 channels; the AEM mirror's 13-bit word
-    //! passes straight through. The DEBUG window (bring-up only, ATDECC is
-    //! the authority) composes {en=WORD[15], half=WORD[8], src=WORD[14:12],
+    //! the key space is N_STREAMS*8 channels. The reserved AECP leg would
+    //! pass a 13-bit word straight through. The current CSR window composes
+    //! {en=WORD[15], half=WORD[8], src=WORD[14:12],
     //! idxh=WORD[7:4], idx=WORD[3:0]} - WORD[8] was reserved.
     .map_wr_en_i   ((aecp_odmap_wr_p_w &&
                      32'(aecp_odmap_wr_slot_w) < N_STREAMS*8) ||
@@ -1302,16 +1300,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   //! task #26 (USER: the ATDECC map IS the model): on a shape that
   //! compiled the capture-map machinery the crossbar is IN-CIRCUIT BY
-  //! CONSTRUCTION - the map RAM resets to silence, the AEM seeder writes
-  //! the identity image a few cycles after reset, and the power-on path
-  //! reproduces the legacy front-end THROUGH the map with no software arm
-  //! to forget. (Silicon 08-07: the tone sat mapped-and-committed in the
-  //! RAM while CHMAP_CTRL[0]=0 kept the wire on silence-fill for hours;
-  //! the ATDECC-authoritative cleanup had removed the bench poke that
-  //! used to hide this.) On a STATIC shape there is no AECP writer and no
-  //! seeder - the RAM would stay empty forever - so the declared
-  //! front-end routing stays wired and CHMAP_CTRL[0] keeps its bring-up
-  //! meaning: arm the debug-written crossbar in place of the front-end.
+  //! CURRENT CONSTRUCTION: the map RAM resets to silence and has no AECP
+  //! writer or boot seeder. The declared front-end routing stays selected
+  //! after reset. Software writes the map through the CSR window and then
+  //! uses CHMAP_CTRL[0] to select that crossbar in place of the front end.
   wire        cap_xbar_live_w = aecp_odmap_dyn_w | cfg_chmap_enable;
   wire        pkt_pv_w   = cap_xbar_live_w ? cmap_pv_w   : zf_pv_w;
   wire [4:0]  pkt_slot_w = cap_xbar_live_w ? cmap_slot_w : zf_slot_w;
@@ -1658,9 +1650,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! bit-identical (render/capture crossbars are muxed OUT of both the
   //! packetizer feed and the i2s_playback feed).
   wire        cfg_chmap_enable;
-  //! chmap64 AEM binding: the AECP dynamic-map engine's accepted commits
-  //! mirrored into the render map RAM (the CANONICAL programmer; the CSR
-  //! 0x900 window below stays as the debug/bringup port)
+  //! Reserved render-side AECP map-write leg. It is tied off in the current
+  //! integration; the CSR 0x900 window is the only map-RAM writer.
   wire        aecp_dmap_wr_p_w;
   wire [5:0]  aecp_dmap_wr_addr_w;
   wire [7:0]  aecp_dmap_wr_word_w;
@@ -1891,18 +1882,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!                     instance claims ONE BLOCK of N_STREAMS addresses;
   //!                     stream j uses base+j (probe answers, the SRP row
   //!                     and now the packetizer all derive that same rule).
-  //!   * ACMP term     : per-stream talker_active from KL_acmp_tlkr_ctx
-  //!                     at N_SRC_P = N_STREAMS (probe window per uid |
-  //!                     per-stream listener observation), with t0's
-  //!                     cfg_aaf_bypass escape hatch mirrored.
-  //!   * lwSRP term    : the per-stream P5 gate, REQUIRED - t0's
-  //!                     ~cfg_lwsrp_enable escape is deliberately NOT
-  //!                     mirrored here. LWSRP_CTRL resets to engine-OFF
-  //!                     (0x10), so mirroring it would make every talker
+  //!   * ACMP term     : per-stream talker-active state from the processor's
+  //!                     class-D face, with t0's cfg_aaf_bypass escape hatch
+  //!                     mirrored.
+  //!   * SRP term      : the processor's per-stream bandwidth gate, REQUIRED.
+  //!                     Allowing an engine-off escape would make every talker
   //!                     admissible out of reset on a bare PROBE_TX with no
-  //!                     reservation and therefore no CBS pacing - the
-  //!                     documented board-killer (KNOWN_ISSUES: ~56 k
-  //!                     frames/s unpaced, the peer softcore drowns), whose
+  //!                     reservation and therefore no CBS pacing. It could
+  //!                     transmit about 56 k frames/s without reservation,
+  //!                     which can overwhelm the peer softcore. The historical
   //!                     mitigation used to be "never arm a t>0 context
   //!                     with the engine off" and is unenforceable once
   //!                     arming is implicit. Requiring the gate is strictly
@@ -2036,9 +2024,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! them - but nothing consumes them and JNL_STAT/JNL_SEQ read STRUCTURAL
   //! ZEROS: this build restores no saved binding, ever.
   wire [31:0] jnl_stat_w, jnl_seq_w;
-  //! E4 AEM dynamic-state patch port (0x7C8-0x7D4). The engine lives inside
-  //! KL_aecp_top, next to the store it writes and to the enable bit that
-  //! gates it, so nothing but the CSR strobes crosses this boundary.
+  //! E4 AEM dynamic-state patch port (0x7C8-0x7D4). No current engine
+  //! consumes its CSR strobes, and its status is tied to structural zero.
   wire [31:0] aemp_stat_w;
 
   //! item-11 AAF per-stage latency taps (LTAP CSR group, base 0x870):
@@ -3061,8 +3048,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!  its banner at the top of this file. The CRF Media Clock Input engine
   //!  still parses, counts and reports; what it can no longer do is STEER the
   //!  audio MMCM or the packet-grid NCO.)
-  //! ...and the AEM descriptor-map write ports, whose only master was
-  //! SET_AUDIO_MAP / the dynamic-map overlay in the response builder
+  //! Reserved AEM descriptor-map write ports. ADD/REMOVE_AUDIO_MAPPINGS are
+  //! not implemented by the current processor, so these legs remain tied off.
   assign aecp_dmap_wr_p_w = 1'b0;
   assign aecp_dmap_wr_addr_w = 6'd0;
   assign aecp_dmap_wr_word_w = 8'd0;
@@ -3334,13 +3321,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! THE INDEX LAW IS 0x001C's: the dynamic map is keyed by the GLOBAL
   //! cluster index = the addressed port's base_cluster + the record's
   //! port-relative mapping_cluster_offset, and that global index IS the
-  //! render map RAM's address (the AEM projector wrote it so, gated at
-  //! CHMAP_PHYS_C). A global index this board does not render (>= 10 keys
+  //! render map RAM's address. A global index this board does not render
+  //! (>= 10 keys
   //! on an 8x8 model) has no RAM behind it and truthfully answers
   //! "not mapped" - those clusters cannot be routed, so no mapping exists.
   //!
   //! WHAT A RECORD MEANS IN THIS BUILD, and what is NOT represented: the
-  //! map entry is {en[7], src[6], idx[5:0]}. An AEM dynamic mapping exists
+  //! map entry is {en[7], src[6], idx[5:0]}. A reported dynamic mapping exists
   //! iff en = 1 AND src = 0 (an AVB listener source): mapping_stream_index
   //! = idx[5:3], mapping_stream_channel = idx[2:0], mapping_cluster_offset
   //! = the port-relative offset, mapping_cluster_channel = 0 - every
@@ -3946,7 +3933,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! instead (the pre-2026-07-26 form) let a route-flags-only CTRL write at
   //! idx 0 arm entry 0 with another listener's sid, permanently detaching the
   //! ACMP alias -> bound-but-never-matching. See `tb/verilator/milan_dp`
-  //! TRAP-1 and NXN_ARCHITECTURE §1.3.
+  //! TRAP-1 and the current stream-table integration notes.
   logic [31:0] wing_sid_lo_r, wing_sid_hi_r;
   logic        wing_tbl_we_r, wing_route_we_r;
   logic [3:0]  wing_idx_r;
@@ -4824,10 +4811,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pb_valid_i (ring_src_pv_w), .pb_slot_i (ring_src_slot_w),
     .pb_l_i (ring_src_l_w), .pb_r_i (ring_src_r_w),
     .tick_i (media_tick_p),
-    //! write mux: the AEM ADD/REMOVE mirror is the canonical programmer
-    //! (docs/CHMAP64_AEM_BINDING.md); the CSR 0x900 window is the debug port
-    //! and yields on collision (one write/cycle, AEM strobes are 1-cycle).
-    //! The AEM key is the GLOBAL cluster index and the model may declare
+    //! write mux with a reserved AECP leg and the current CSR 0x900 writer.
+    //! The map key is the GLOBAL cluster index and the model may declare
     //! MORE input clusters than this board renders (8x8 = 64 keys against
     //! CHMAP_PHYS_C = 10), so an out-of-range key must be DROPPED, not
     //! truncated - truncation would silently alias key 16 onto the I2S L
@@ -4854,8 +4839,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                     : cfg_chmap_wr_addr[$clog2(CHMAP_PHYS_C)-1:0]),
     //! §5 16-bit word -> render 8-bit {en[7], src[6], idx[5:0]}. SRC[12] of
     //! the §5 word selects the source bank (0 = AVB listener {stream,ch},
-    //! 1 = host playback ring channel); the AEM projector always emits bit 6
-    //! = 0, so every map word written before item-7 still means AVB.
+    //! 1 = host playback ring channel). The reserved AECP leg is tied off.
     .map_wr_data_i (aecp_dmap_wr_p_w ? aecp_dmap_wr_word_w
                     : {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
                        cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]}),
@@ -4875,10 +4859,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //      which a host-ring playback can reach the line-out at all). ------
   KL_i2s_feed_mux i2s_feed_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    //! task #26: on a dynamic-map shape the render crossbar owns the DAC
-    //! feed by construction (identity-seeded at boot, media-tick pace =
-    //! the ONE grid, task #59); a static shape keeps the bring-up tap
-    //! passthrough unless CHMAP_CTRL[0] arms the debug crossbar
+    //! The crossbar has no current boot seeder. The bring-up tap passes
+    //! through unless CHMAP_CTRL[0] selects the CSR-programmed crossbar.
     .sel_render_i (aecp_dmap_dyn_w | cfg_chmap_enable),
     .tap_tdata_i  (rend_pcm_tdata_w),
     .tap_tvalid_i (rend_pcm_tvalid_w),

@@ -279,7 +279,7 @@ module KL_chan_map_capture #(
   input  wire         clk_i,             //! datapath clock
   input  wire         rst_n,             //! active-low synchronous reset
 
-  //! --- map RAM write port (the AEM mirror / CSR debug window / TB) -------
+  //! --- map RAM write port (root-selected producer / TB) ------------------
   //! PER-CHANNEL since 0x0027 (USER 2026-08-06: "one cluster == one audio
   //! channel"): the store holds one entry PER STREAM CHANNEL, each
   //! independently selecting one MONO cluster = {source bucket, stream
