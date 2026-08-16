@@ -49,18 +49,19 @@ where?"* A driver → needed. A support engineer over ssh → optional. An
 engineer with a ProfiShark beside the board → debug.
 
 **One input to that test changed.** The *optional* class used to lean on
-"diagnoses a failure over ssh **or AECP**". AECP now answers exactly one
-command — `READ_DESCRIPTOR`, and only from a descriptor image nothing in this
-repository builds or loads, so on a stock build even that one command answers
-`BAD_ARGUMENTS` (the microprogram's configuration range check precedes the
-locate, and an invalid image reports `configurations_count` = 0) — so the only
-thing a controller can ever learn over AECP is the static entity model, and
-only once someone loads it. **No dynamic state, no counter and no CSR is
-readable over AECP**: every getter draws a `NOT_IMPLEMENTED` echo. Every
-observability question therefore still goes through the CSR plane over ssh,
-which makes the observability groups *more* load bearing, not less. `0x6B8` is
-the clearest case: it is the CSR face of counters that a controller can also
-fetch with GET_COUNTERS.
+"diagnoses a failure over ssh **or AECP**". The processor now serves a broader
+AECP inventory, including `READ_DESCRIPTOR`, `GET_COUNTERS`, stream-state
+getters, clock-source operations, Identify controls, and Milan information.
+The tracked builder generates `aem_desc.bin`, and the board rootfs runs
+`aemi-load` before enabling the entity. Custom integrations that omit that load
+still fail closed with `BAD_ARGUMENTS`.
+
+AECP does not replace the local observability plane. Several root dynamic-state
+connections remain absent, the CRF Stream Input counter bank is not connected
+to the solicited gather face, and processor diagnostics live in its side-port
+snapshot window rather than this legacy CSR group. The CSR classes below are
+therefore based on the live consumer and source of each word, not on an obsolete
+assumption that AECP answers only one command.
 
 ## Classification
 
@@ -77,7 +78,7 @@ fetch with GET_COUNTERS.
 | `0x648–0x650` | AECP/ACMP status (locked, current config, cmd/resp counts, probe_armed) | **optional** | **STRUCTURAL ZERO** | The processor serves LOCK_ENTITY and configuration operations, but its dynamic-state outputs are not exported into this legacy CSR group. Command/response diagnostics instead live in the processor side-port snapshot window at `0x928`/`0x92C`. `probe_armed` has no fabric ACMP state machine to count. **`acmp talker_active` is the exception and remains live** through the processor's `acmp_declaring_o` |
 | `0x680–0x694` | SRP CTRL / TSPEC / STATUS | **needed** | **split** | Reservation policy plus the licence word `0x694` and its `[11]` row-shortfall flag. Repointed to the processor's class-D SRP face: the **DOMAIN word (adopted/priority/VID), the granted slope and the over-limit bit are LIVE**. The **MRPDU tx/rx counts and rx drops are STRUCTURAL ZEROS** (the serializer/ingress pair that counted them is deleted), and the provisioning words the deleted applicant read — DMAC, MaxFrameSize, MaxIntervalFrames, the declare-bypass bit — are **WRITE-ONLY SCRATCH** |
 | `0x6A4` | ACMPL_STATE | **optional** | **split** | Still the first stop in connection triage, but read it differently: **`bound`, `active` and bit 31 (CRF sink bound) are real**, published from the processor's bind record. The state-machine fields (state, probing, acmp_status, tk_avail, lstn_declare) and the per-sink SRP registrar bits are **STRUCTURAL ZEROS** — `ACMPL_STATE` no longer tracks PROBING/SETTLED and **a reader must take `bound` as the truth** |
-| `0x6B8` | RX-monitor CSR mirror | **optional local face** | live | STREAM_INPUT counters remain readable locally and through GET_COUNTERS. STREAM_OUTPUT counters use their own `KL_talker_diag_ctx` banks and are served through the same AECP command |
+| `0x6B8` | RX-monitor CSR mirror | **optional local face** | live | AAF STREAM_INPUT counters remain readable locally and through GET_COUNTERS. The declared CRF input is excluded from that gather face. STREAM_OUTPUT counters use their own `KL_talker_diag_ctx` banks and are served through the same AECP command |
 | `0x6CC–0x6D4` | MAAP | **needed** | live | Address acquisition is production function, `KL_maap` survives, and the processor's talker cannot declare without an ALLOC_DA success through it — this group is now load-bearing for connectivity, not just for addressing |
 | `0x6E8` | ACMPL_DBG (walker forensics) | **debug** | **STRUCTURAL ZERO** | Classify-stage byte forensics of a walker that is deleted |
 | `0x730/0x734` | AS_PATH | **needed → dead end** | staging **STRUCTURAL ZERO** | The processor serves GET_AS_PATH, but this legacy CSR staging pair is not connected to that response. `0x7DC` staging accepts writes and discards them. The Table 5.22 unsolicited producer remains open |
@@ -103,10 +104,10 @@ fetch with GET_COUNTERS.
    field question over ssh — licence, bind state, counters, GM, the chmap
    readback — are product quality, classed *optional*, and default ON. Only
    what needs lab context beside it (captures, probes, calibration) is
-   *debug*. This rule got sharper on 2026-08-13: AECP can be *asked* but
-   answers only `READ_DESCRIPTOR`, so ssh is the **only** management interface
-   that can read state, and dropping an *optional* group removes the last way
-   to see that fact.
+   *debug*. AECP now serves several state and counter operations, but root
+   integration gaps and processor-local diagnostics mean ssh remains the only
+   view for some facts. Dropping an *optional* group can therefore still remove
+   the last observable face for a live mechanism.
 2. **The mapping law has been overtaken by events.** It said: one truth (the
    AEM store == the crossbar), one edit path (AECP), with the raw window as a
    bring-up bypass. There is no AEM store, and the AECP commands that would

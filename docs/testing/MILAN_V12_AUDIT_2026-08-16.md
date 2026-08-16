@@ -30,7 +30,7 @@ outside this build's declared scope.
 | All 50 `tb/verilator/*/Makefile` suites | PASS | Every suite returned zero. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
 | `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
 | `tb/verilator/pp_shadow` | PASS | Milan `ACQUIRE_ENTITY` is now checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. |
-| `tests/` Behave suite | 15 features, 319 scenarios passed, 1 scenario skipped | 1,500 steps passed and 4 steps were skipped. This is an offline behavior model, not an external compliance lab result. |
+| `tests/` Behave suite | 15 features and 320 scenarios passed | 1,504 steps passed with no skipped scenarios or steps. This is an offline behavior model, not an external compliance lab result. |
 | Pinned protocol processor suites | 13,457 checks passed | All 27 processor suites passed. The processor's zero-tolerance RTL lint and documentation gates also passed. |
 | Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,255 and 3,759 checks, including every declared AAF and CRF Stream Output. |
 | Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
@@ -113,7 +113,7 @@ idle.
 
 This blocks the media-clock behavior required by Milan section 7.2.2.
 
-### B4. The full counter notification duty is incomplete
+### B4. Counter coverage and notification duty are incomplete
 
 Solicited `GET_COUNTERS` now serves every declared Stream Output with the five
 mandatory Milan Table 5.17 counters in the compact quadlet layout. Counter
@@ -122,8 +122,14 @@ block does not yet connect those pulses to the rate-limited `GET_COUNTERS`
 notification scheduler, so the full Milan Table 5.22 asynchronous behavior is
 not closed.
 
-This blocks Milan section 5.4.5.2. Solicited reads satisfy the Stream Output
-portion of section 5.4.2.25.
+The declared CRF Media Clock Input is a separate mandatory gap. The root gather
+face serves AAF Stream Input indices below `N_STREAMS`, but the appended CRF
+Stream Input at index `N_STREAMS` returns an empty mask. Its Table 5.16 counter
+outputs and dirty source are unconnected. This leaves the CRF Stream Input
+requirements in Milan sections 5.3.8.10 and 5.4.2.25 open.
+
+This also blocks Milan section 5.4.5.2. Solicited reads satisfy only the Stream
+Output portion of section 5.4.2.25.
 
 ### B5. The physical media clock and packet grid are not proven aligned
 
@@ -158,9 +164,10 @@ clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
 6. Packet-completion metadata now freezes the `tu` bit carried by each AAF and
    CRF PDU. `TIMESTAMP_UNCERTAIN` therefore counts transmitted wire state, not
    a later live clock verdict.
-7. Every counter update, including a healthy `FRAMES_TX` interval, asserts the
-   raw per-descriptor dirty source. Rate limiting and notification coalescing
-   remain the scheduler work identified in B4.
+7. Every served Stream Output counter update, including a healthy `FRAMES_TX`
+   interval, asserts the raw per-descriptor dirty source. Rate limiting and
+   notification coalescing remain the scheduler work identified in B4. The CRF
+   Stream Input counter and dirty connections remain open.
 8. The integration proof now boots each simulation with its matching entity
    image, checks every declared output, rejects the first undeclared output
    with a full empty response body, and exercises real AAF and CRF enable

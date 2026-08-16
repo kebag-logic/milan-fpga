@@ -589,11 +589,11 @@ AEM burst, mirroring the packetizer's `tctx_wmux` priority pattern. The
 projector leg is tied off since 2026-08-13, so **the CSR write never loses
 the port** and `CHMAP_STAT`'s `aem_commits` / `aem_busy` fields are
 structural zeros. The arbitration mux itself is still in the RTL, holding the
-contract for whoever implements the audio-map verbs — the processor's AECP uCPU
-is landed, but it implements `READ_DESCRIPTOR` only, and answers
-`ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS` / `GET_AUDIO_MAP` with the
-`NOT_IMPLEMENTED` echo. `csr_refused` still counts the one refusal that
-remains — a write with the override disarmed.
+contract for whoever implements the audio-map writers. The processor now serves
+`GET_AUDIO_MAP`, but `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` remain
+unimplemented, and no projector connects processor state to the root map RAMs.
+`csr_refused` still counts the one refusal that remains: a write with the
+override disarmed.
 
 ## 6. CSR window — 0x900–0x97F (the map's only write path)
 
@@ -653,14 +653,13 @@ reserved to this feature, 5 words used):
 > that handled `ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS` /
 > `GET_AUDIO_MAP`, the dynamic-map store that answered them, and the
 > projector that wrote the map RAMs are all deleted. The protocol processor's
-> AECP uCPU replaced the engine and implements `READ_DESCRIPTOR` only: all
-> three audio-map verbs are answered with the conformant `NOT_IMPLEMENTED`
-> echo, so a controller can neither read nor write this map, and the `0x900`
-> window (§6) is the whole of the write path. **An echo is not an
-> implementation** — do not grade these verbs as covered because they are
-> answered. The section is kept as the contract — the clause analysis, the
-> cluster↔physical table and the projection rules — that whoever implements
-> them owes. Read every "is" below as "shall be".
+> AECP uCPU serves `GET_AUDIO_MAP`, but the two audio-map writers still receive
+> the conformant `NOT_IMPLEMENTED` fallback. No processor-to-root projector
+> applies returned or stored map state to these RAMs, so the `0x900` window
+> remains the whole root write path. **A getter is not implementation of the
+> mandatory writers.** The section is kept as the contract for the clause
+> analysis, cluster-to-physical table, and projection rules that a complete
+> implementation owes. Read every "is" below as "shall be".
 
 The intended canonical programmer of both map RAMs is the AECP engine
 handling `ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS` / `GET_AUDIO_MAP`
@@ -897,9 +896,9 @@ phase-1 engines.
    arbitrated map write port; cluster↔physical ROM emitted by the builder;
    GET_AUDIO_MAP from the dynamic store (§7.1); the surviving vendor rules
    (§7.3). **Landed, then deleted with this repository's AECP plane
-   (2026-08-13). The processor's AECP uCPU that replaced it implements
-   `READ_DESCRIPTOR` only, so the three audio-map verbs — and this projector —
-   are owed by whoever implements them there.** The `aecp` harness that gated
+   (2026-08-13). The processor's AECP uCPU that replaced it now serves
+   `GET_AUDIO_MAP`, but the audio-map writers and this projector are still
+   owed by whoever completes the root integration.** The `aecp` harness that gated
    it is deleted too, so a re-implementation starts from the contract in §7,
    not from a regression suite.
 7. **8×8 elaboration** — `N_TALKERS_P = 8` / `N_LISTENERS_P = 8`

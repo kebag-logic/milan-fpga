@@ -327,8 +327,10 @@ and parser, and the lwSRP applicant, replaced by the `protocol-processor`
 submodule. Thirteen Verilator suites, ~33 BDD feature files and four of the five
 `tsn_fuzz` campaigns went with them, because a suite whose DUT no longer exists
 cannot build. The device now discovers over ADP, connects over ACMP and reserves
-over SRP, answers `READ_DESCRIPTOR` from the processor's AECP uCPU, and answers
-**every other AECP command with a conformant `NOT_IMPLEMENTED` echo**.
+over SRP, and serves the processor's declared AECP command inventory. That
+inventory includes `READ_DESCRIPTOR`, `GET_COUNTERS`, stream-state getters,
+clock-source operations, Identify controls, and Milan information. Commands
+outside it receive the conformant fallback.
 
 The pattern is not the deletion. The pattern is what happens next to every
 document that claimed coverage: a traceability row that reads

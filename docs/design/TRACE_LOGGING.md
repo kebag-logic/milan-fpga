@@ -124,14 +124,14 @@ in gigabytes.
 The catalogue was designed against a fabric that owned ADP, ACMP, AECP/AEM and
 lwSRP. That plane is deleted and replaced by the pinned protocol-processor
 submodule. The processor's AECP µCPU **has** landed — the entity answers
-`READ_DESCRIPTOR` and echoes a conformant `NOT_IMPLEMENTED` at every other AECP
-command — but that changes nothing for this catalogue, because its counters do
+its declared command inventory, but that changes nothing for this catalogue,
+because its counters do
 not appear where a poller would look: they live in the processor's **side-port
 snapshot window**, reached through `KL_pp_shadow`'s side-port host bridge, and
-**not** at parent CSR `0x648`, which stays a structural zero (`aecp_locked`
-tied 0 because there is no ACQUIRE/LOCK, `current_config` tied 0 because there
-is no SET_CONFIGURATION). A future AECP event has a real source to poll; it is
-simply not the address the old plane used.
+**not** at parent CSR `0x648`, which stays a structural zero because processor
+lock and configuration state are not exported into that legacy group. A future
+AECP event has a real source to poll; it is simply not the address the old plane
+used.
 
 **An edge-triggered producer watching a structural zero emits nothing, ever** —
 which is a silence that looks exactly like a healthy quiet board, so the
@@ -143,7 +143,7 @@ affected events are named here rather than left to be discovered.
 | `srp` | `slope_bps`, the domain word, `gate_open`, `reserved_ok`, `talker_failed` and the over-limit bit are repointed to the processor's class-D SRP face | `mrpdu_tx` / `mrpdu_rx` / `ingress_drops` are STRUCTURAL ZEROS — the serializer and ingress that counted them are deleted. `row_shortfall` (`0x694[11]`) refers to an attribute-row table this fabric no longer has |
 | `srp_refusal` | nothing in this build emits it | it was raised by the requester side of the deleted applicant; the processor reports a per-source failure *code* instead, which arrives through the `srp` event's `msrp_fail` field |
 | `journal` | nothing | `KL_persist_journal` is deleted; the ingest port accepts writes and discards them, `JNL_STAT`/`JNL_SEQ` are structural zeros. **No binding survives a power cycle**, so there is no boot replay to trace |
-| `mediaclk` | `trim` / `fill` / `underruns` / `overruns` / `locked` from the I2S playback rails are unaffected | `servo` (`0x8F8`) can only ever read the servo's **idle**: `SET_CLOCK_SOURCE` is not implemented (the µCPU echoes `NOT_IMPLEMENTED` at it and writes no index), the clock-source index is pinned at 0 (INTERNAL), and the MMCM-DRP servo can never leave idle. That is not a structural zero and not a working servo — see the `0x8F8` row of [`../reference/REGISTER_MAP_CLASSES.md`](../reference/REGISTER_MAP_CLASSES.md) |
+| `mediaclk` | `trim` / `fill` / `underruns` / `overruns` / `locked` from the I2S playback rails are unaffected | `servo` (`0x8F8`) can only ever read the servo's **idle**: the processor accepts and stores `SET_CLOCK_SOURCE`, but the wrapper does not export that selection to the root, so the clock-source index remains pinned at 0 (INTERNAL). The MMCM-DRP servo can never leave idle. That is not a structural zero and not a working servo; see the `0x8F8` row of [`../reference/REGISTER_MAP_CLASSES.md`](../reference/REGISTER_MAP_CLASSES.md) |
 | `maap` | **everything** — `KL_maap` survives and is now load-bearing for connectivity (the processor's talker cannot declare without an `ALLOC_DA` success through it) | — |
 | `stream_ctx` / `stream_ctx_write` | **everything** — the `0x800` window is unaffected, and `bound` now comes from the processor | — |
 | `avtp_rx`, `parser_probe`, `ltap`, `ring`, `link`, `mac_reset`, `ptp`, `boot`, the tracer's own events | **everything** | — |

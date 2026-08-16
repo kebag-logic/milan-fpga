@@ -587,10 +587,10 @@ The ADD/REMOVE contract (all-or-nothing validate-commit, unsolicited on
 change, lock rules) is unchanged and owed on every dynamic port.
 
 **Status 2026-08-13: the projector this decision reshapes no longer exists.**
-The AEM engine, its dynamic-map store and the boot seeder are deleted, and the
-processor's AECP uCPU implements `READ_DESCRIPTOR` only — the audio-map setters
-(`SET_AUDIO_MAP` / `ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS`) are answered
-with the `NOT_IMPLEMENTED` echo, which is a refusal, not a projector. So the
+The AEM engine, its dynamic-map store and the boot seeder are deleted. The
+processor's AECP uCPU serves `GET_AUDIO_MAP`, but the audio-map writers
+(`ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS`) are answered with the
+`NOT_IMPLEMENTED` fallback, which is a refusal, not a projector. So the
 `0x900` window is the only writer of the fabric map, and the decision below is
 an obligation on whoever implements those verbs rather than a migration of live
 RTL. The fabric-side contract is

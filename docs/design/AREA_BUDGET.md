@@ -34,17 +34,19 @@ logic this project owns and can therefore choose not to build.
 >   of its five entries are gone.
 >
 > **AECP came back, and not as fabric memory.** The processor's AECP µCPU has
-> since landed: the entity answers `READ_DESCRIPTOR` and returns a conformant
-> `NOT_IMPLEMENTED` echo to every other AECP command. Its cost is **not** in
+> since landed and serves its declared command inventory, including
+> `READ_DESCRIPTOR`, `GET_COUNTERS`, stream-state getters, clock-source
+> operations, Identify controls, and Milan information. Unsupported commands
+> receive the conformant fallback. Its cost is **not** in
 > any figure on this page, and it is not in the `+6,956` either — that was
 > measured with the AECP pop face tied off. Two area consequences are worth
 > carrying: the **entity model is no longer in fabric at all** (the µCPU's
 > descriptor store reads it from DDR3 over a read-only master at a compile-time
 > base, so no descriptor ROM or store is charged to LUT or BRAM anywhere in the
 > replacement), and the mass Vivado constant-propagated away while that face
-> was tied off is back and un-repriced. Nothing in this repository writes that
-> DRAM image yet, so a stock build enumerates to `BAD_ARGUMENTS` — a
-> software gap, not an area one.
+> was tied off is back and un-repriced. The tracked builder generates the DRAM
+> image and the board rootfs loads it with `aemi-load` before entity enable.
+> Custom integrations that omit that step fail closed with `BAD_ARGUMENTS`.
 >
 > What is NOT changed by any of that: the governing fact in the next section
 > (this design is **LUT-bound**, FFs sit at 42 %), the prune-parameter rules,

@@ -48,6 +48,11 @@ a clean refusal, not a hang — the store's watchdog abandons a stalled burst �
 a late load heals without a reset, because each locate against an invalid image
 re-arms the header probe.
 
+The tracked build supplies this image. The end-station builder emits
+`aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the board rootfs packages
+the paired image and manifest and runs `aemi-load` before entity enable. A
+custom integration must preserve that load-before-enable ordering.
+
 **The AECP counters are not on this page.** The engine's command, response, drop
 and locate-miss tallies, plus its last status, last length, image-valid and
 image-fault bits, live in the **protocol processor's side-port snapshot window**,
@@ -81,9 +86,10 @@ own registers below:
 Three functional losses have no register of their own and are recorded here so
 they are not discovered by surprise:
 
-1. **The CRF media clock can never be SELECTED.** AECP `SET_CLOCK_SOURCE` was the
-   only writer of the live CLOCK_DOMAIN `clock_source_index`, so it is pinned at
-   index 0 — the INTERNAL media clock — for the life of the build.
+1. **The CRF media clock can never be SELECTED at the root.** The processor
+   accepts and stores AECP `SET_CLOCK_SOURCE`, but `KL_pp_shadow.sv` does not
+   export that dynamic clock-source output to the media plane. The root is
+   therefore pinned at index 0, the INTERNAL media clock, for the life of the build.
    `KL_mmcm_drp_servo` and the `KL_media_nco` packet-grid servo are therefore
    **structurally off** and `A_MCSRV_STAT` `0x8F8` reads its idle. The CRF Media
    Clock Input engine still parses, counts and reports at `0x738`; what it can no
@@ -141,22 +147,22 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [Link guard / MAC recovery (VERSION minor ≥ 0x0006)](#link-guard--mac-recovery-version-minor--0x0006) -- The link-bounce supervisor, added here after `0x774` was misread as a TCAM register. The chronogram is the payload: the two resets do **not** release together -- `eth_rst` drops half-way through SETTLE so both CDC pointer sets restart matched, which means reading the guard bit alone mid-episode gives you the wrong answer.
   - [0x778  -  Clock validity: the AVTP tu verdict  (VERSION minor >= 0x0016)](#0x778-----clock-validity-the-avtp-tu-verdict--version-minor--0x0016) -- The register that stops this device claiming timestamps it cannot prove. Reset is `tu = 1`, so a board whose software never leases the sync claim declares uncertainty rather than health -- and the section explains why the fix is a header bit and **not** a stream gate: Milan 5.3.7.3 forbids stopping the stream and 1722 7.5 forbids `tv = 0` on AAF. Also draws the line between what fabric can see for itself (PHC steps, grandmaster changes) and what only `ptp4l` knows.
   - [0x724  -  identity / playback / 802.1AS overlay](#0x724-----identity--playback--8021as-overlay) -- Five words the softcore daemons write so the fabric ADP/AEM engines answer with wire truth instead of ROM defaults -- board name, playback LPF enable, and the gPTP parent bridge clock identity behind AS_PATH.
-  - [0x738  -  CRF media-clock sink  (Milan v1.2 7.3, KL_crf_rx)](#0x738-----crf-media-clock-sink--milan-v12-73-kl_crf_rx) -- The measurement half of clock recovery: lock takes 8 clean PDUs and drops after 100 ms of silence. Note which word is *not* a loop input -- `CRF_DELTA` carries the talker+transit phase constant; the servo steers on `CRF_RATE`, where 1 ppm = 512 units.
+  - [0x738  -  CRF media-clock sink  (Milan v1.2 7.3, KL_crf_rx)](#0x738-----crf-media-clock-sink--milan-v12-73-kl_crf_rx) -- The measurement half of clock recovery: lock takes 8 clean PDUs and drops after 100 ms of silence. The local CSR exposes only PDU, format-error, and sequence-error counts. The declared CRF Stream Input returns an empty AECP counter mask because the complete bank and dirty source are not connected at the root.
   - [0x750  -  CRF media-clock talker  (Milan v1.2 7.3.1, KL_crf_tx)](#0x750-----crf-media-clock-talker--milan-v12-731-kl_crf_tx) -- Emits 500 PDU/s timestamped off the real audio-MMCM sample grid. All four identity words treat **reset 0 as AUTO**, deriving stream id and dest MAC from the MAAP block -- which is why the claimed MAAP count has to be `N_STREAMS+1`.
   - [0x768  -  AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- 🔴 STRUCTURAL ZERO](#0x768-----aecp-get_dynamic_info-scan-forensics-bdbg-----structural-zero) -- All three words read a structural zero. They latched the verdicts of the `0x4B` batch scanner inside the AECP response builder; the AECP uCPU that replaced it implements no `GET_DYNAMIC_INFO` and no scanner -- `0x4B` gets the conformant `NOT_IMPLEMENTED` echo -- so there is no verdict to latch. The `0` here is the absence of a scanner, not a scan that found nothing.
   - [0x600  -  ADP advertiser  (IEEE 1722.1-2021 / Milan v1.2, FR-DISC-01..04)](#0x600-----adp-advertiser--ieee-17221-2021--milan-v12-fr-disc-0104) -- Entity identity in, advertise timing and `available_index` owned by hardware -- the protocol processor's now. Two things to know before writing anything here: `ADP_CTRL[0]` is ORed with `PP_CTRL[0]` at `0x920`, so either bit enables the entity; and five ADPDU fields (entity_capabilities, valid_time, association_id, controller_capabilities, interface_index) are **write-only scratch** -- the processor holds them as internal constants and the wire carries those, whatever you write. `ADP_STATUS` available_index is still the liveness read, and now the only one: the dormancy counters at `0x668`/`0x674` are structural zeros.
-  - [0x648  -  AECP/ACMP status + AAF talker  (IEEE 1722.1 / Milan v1.2)](#0x648-----aecpacmp-status--aaf-talker--ieee-17221--milan-v12) -- **Every AECP counter here is a structural zero** -- no engine accepts a command, sends a response, or can be locked or acquired. The ACMP PDU counters are structural zeros too, but ACMP itself is alive: `ACMP_TALKER[1]` talker_active is the processor's declaring level. `AAF_CTRL` still must be written bit-preserving -- a bare `0x3` zeroes the SR VID, and VID-0 frames leave the reserved tree and flood unshaped.
+  - [0x648  -  AECP/ACMP status + AAF talker  (IEEE 1722.1 / Milan v1.2)](#0x648-----aecpacmp-status--aaf-talker--ieee-17221--milan-v12) -- **Every AECP counter here is a structural zero because processor state is not exported into this legacy group.** The processor accepts and answers its declared inventory; diagnostics live in its side-port snapshot window. ACMP PDU counters are structural zeros too, but `ACMP_TALKER[1]` talker_active remains the processor's live declaring level.
   - [0x680  -  lwSRP engine  (802.1Q MSRP/MVRP, Milan v1.2 §5.6, FR-SRP-\*)](#0x680-----lwsrp-engine--8021q-msrpmvrp-milan-v12-56-fr-srp-) -- The SRP endpoint, now the protocol processor's. The state words (domain, granted slope, over-limit, declaration and registration levels) are live and repointed; the MRPDU counts and the row-shortfall bit are structural zeros; the provisioning words the deleted applicant read (DMAC, TSpec, declare bypass) are write-only scratch. Read the honest note on the CBS slope ordering change -- the slope now arrives with the gate rather than one cycle ahead of it, which is equal at worst and conservative on the closing edge.
   - [0x6A4  -  ACMP listener SM  (Milan v1.2 §5.5 listener, FR-CONN-01)](#0x6a4-----acmp-listener-sm--milan-v12-55-listener-fr-conn-01) -- **`ACMPL_STATE` no longer tracks PROBING/SETTLED -- take `bound` as the truth.** The processor publishes a bind record, not a state machine, so the ladder fields, the bound talker id, the counters and the walker forensics are structural zeros; bound, active and the CRF-sink bit are real. The Milan Table 7-156 stream counters, MAAP status, pilot tone, playback rails and ts_delta in this group are untouched and still live.
   - [0x7A0  -  ACMP bind-restore  (saved-state fast-connect E1, Milan 5.5.3.5.2)](#0x7a0-----acmp-bind-restore--saved-state-fast-connect-e1-milan-55352) -- **Dead port.** Writes are accepted, the ack never asserts, and nothing is restored -- the ACMP context table it injected into is deleted. The `0xA5C35A3C` feature probe still passes, which is precisely why software must gate on `VERSION` major and not on the probe.
   - [0x7B8  -  Persistence-journal ingest  (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) -- **Unwired again at VERSION major 2: writes are accepted and DISCARDED, `JNL_STAT` and `JNL_SEQ` read structural zeros.** Milan v1.2 5.3.8.2 makes the saved bound state a *shall*; this build does not meet it, and nothing in this device restores a binding across a power cycle. The record format and verdict table are kept as the specification a replacement must satisfy.
   - [0x7C8  -  AEM dynamic-state patch port  (saved-state fast-connect E4)](#0x7c8-----aem-dynamic-state-patch-port--saved-state-fast-connect-e4) -- **Unwired: writes accepted and discarded.** The patch engine and the AEM store it wrote are both deleted, so there is no descriptor RAM to patch and no setter whose acceptance it could re-run. Kept as ABI and as specification.
-  - [0x7DC  -  AS_PATH staging: the published PathTrace  (gh #64 J4)](#0x7dc-----as_path-staging-the-published-pathtrace--gh-64-j4) -- **Dead port: the staging writes are accepted and discarded.** `GET_AS_PATH` is unimplemented -- it gets the conformant `NOT_IMPLEMENTED` echo like every opcode but `READ_DESCRIPTOR` -- so nothing reads this store and nothing serves a `path_sequence` on the wire. The design point -- slot 0 is the grandmaster and is never mirrored here -- is kept as the specification.
+  - [0x7DC  -  AS_PATH staging: the published PathTrace  (gh #64 J4)](#0x7dc-----as_path-staging-the-published-pathtrace--gh-64-j4) -- **Disconnected staging port.** The local store accepts and reads back writes, but the root leaves its published outputs open. `GET_AS_PATH` is served separately with only the grandmaster identity, so bridged path tails staged here never reach the wire.
   - [0x800  -  Indexed per-stream window  (NxN streams, NXN_ARCHITECTURE.md §1.5)](#0x800-----indexed-per-stream-window--nxn-streams-nxn_architecturemd-15) -- SELECT-then-read over N listener and N talker contexts, so decode area stays O(1) in N. The dense part of the whole map: index 0 is a hard *alias* of the flat registers rather than a copy, `0xDEADDEAD` marks a word not backed here (distinct from a true zero), route flags are independent bits not an enum, and the staging rule -- a commit only overrides the stream table when a stream_id was staged **for that index** -- is the fabric-listener blocker fix. Read the bench warning before arming extra talkers with the SRP engine off.
   - [0x870  -  AAF per-stage latency taps  (roadmap item-11, KL_aaf_latency_taps)](#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps) -- Six inter-stage deltas as `{max,last}` plus a separate min word, in `axis_clk` cycles. They characterise an envelope, not one threaded frame -- the token is followed by order, so a shared MAC boundary can catch a nearer non-AAF edge. Like every group at `>= 0x800` it needs the read carve-out or the whole block reads 0.
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
   - [0x8C8  -  Playback chain probe  (PBK, roadmap item-7: KL_pcm_tx -> KL_chan_map_render -> KL_i2s_feed_mux -> KL_i2s_playback)](#0x8c8-----playback-chain-probe--pbk-roadmap-item-7-kl_pcm_tx---kl_chan_map_render---kl_i2s_feed_mux---kl_i2s_playback) -- Three words that answer the first question about a silent line-out: did any frame reach the DAC, and if not where did it stop. Exists because the playback engine's own registers are migen CSRs on the LiteX build and appear nowhere in this map. The four-row table separates "map never programmed" from "host is starving the ring".
-  - [0x8F8  -  MMCM-DRP media-clock servo  (Milan v1.2 7.3.4, KL_mmcm_drp_servo)](#0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo) -- **Structurally off, and reading its idle.** `SET_CLOCK_SOURCE` was the only writer of the live clock_source_index, so the selection is pinned at the internal media clock and the CRF source can never be selected. The CRF sink at `0x738` still measures; nothing can steer from it. This is the one capability loss on this page with teeth.
+  - [0x8F8  -  MMCM-DRP media-clock servo  (Milan v1.2 7.3.4, KL_mmcm_drp_servo)](#0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo) -- **Structurally off, and reading its idle.** The processor accepts and stores `SET_CLOCK_SOURCE`, but the wrapper does not export that selection to the root. The CRF sink at `0x738` still measures; nothing can steer from it.
   - [0x900  -  channel-map fabric  (docs/CHANNEL_MAP_64.md §6, KL_chan_map_render / KL_chan_map_capture)](#0x900-----channel-map-fabric--docschannel_map_64md-6-kl_chan_map_render--kl_chan_map_capture) -- Bench write port into the 64×64 render/capture map RAMs, disarmed at reset so the deployed audio path stays bit-identical. Arming it also moves the DAC's *pace* onto the 48 kHz media grid -- without that a host-ring playback can never advance the DAC, because the legacy feed only ticks when an inbound stream does. Also holds the `0x910`/`0x914` **map-RAM readback**: what the RAM actually contains, not `0x908`'s shadow of what software last wrote, with `LOOP_SUSPECT` = *mapped but never fed* -- the one bit that separates a slot that is working and quiet from a slot that was never connected, since both emit `24'd0`. Its un-armed state is `0xDEADDEAD`, never `0`.
   - [0x920  -  protocol-processor control plane  (KL_pp_shadow, VERSION major 2)](#0x920-----protocol-processor-control-plane--kl_pp_shadow-version-major-2) -- The control plane's own window, now unconditionally decoded: `milan_csr`'s `PP_PLANE_P` parameter is gone. `PP_STAT`'s constant `0x5B` tag is the register to read first -- a `0` there means the gateware predates the group and can never mean "present and idle". The side port is POSTED and one access is outstanding at a time: a request offered while busy is refused, not queued, so software can never read one address's answer believing it asked for another. `PP_DIAG` carries the only frame accounting the control plane still publishes, including the ingress FIFO drop count.
 - **[DMA registers (fully-FPGA build only  -  separate CSR space)](#dma-registers-fully-fpga-build-only-----separate-csr-space)** -- A different window with different rules: LiteX CSR space, addresses from the build's own `csr.csv`, seven words per ring engine. Two traps documented at length -- `base`/`length` are **byte** quantities, and the multi-word ordering is *word* order, not byte order, so a native 64-bit write to `base` swaps the halves and silently corrupts the DMA address.
@@ -188,7 +194,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x7A0` | ACMP bind-restore (E1) — **dead port: writes accepted, ack never asserts** |
 | `0x7B8` | Persistence-journal ingest (E3) — **writes accepted and discarded; nothing is restored** |
 | `0x7C8` | AEM dynamic-state patch port (E4) — **writes accepted and discarded** |
-| `0x7DC` | AS_PATH staging — **accepted and discarded; `GET_AS_PATH` is gone with AECP** |
+| `0x7DC` | AS_PATH staging: **accepted and discarded; `GET_AS_PATH` is served from the root gather face and ignores this staging port** |
 | `0x800` | Indexed per-stream window (NxN streams, SEL/SNAP + 0x810-0x868) |
 | `0x870` | AAF per-stage latency taps (item-11, `KL_aaf_latency_taps`) |
 | `0x8B4` | RX stream-parser probe (the pre-match listener view) |
@@ -725,67 +731,27 @@ bind-restore group notes that this sink re-arms via `0x738`.
 | `0x748` | `CRF_RATE` | RO | `0` | signed ns error per 512 ms window (256-PDU ring): the talker's media clock measured against gPTP — the servo frequency input (1 ppm = 512 units) |
 | `0x74C` | `CRF_STATUS` | RO | `0` | `[31:16]` PDUs accepted, `[15:8]` format errors (7.3.2 pull/base/dlen/interval/type check), `[7:0]` sequence errors |
 
-Those three are **three of the ten** Milan Table 5.6 counters this sink keeps
-(FRAMES_RX, UNSUPPORTED_FORMAT, SEQ_NUM_MISMATCH). The other seven —
-MEDIA_LOCKED, MEDIA_UNLOCKED, STREAM_INTERRUPTED, MEDIA_RESET,
-TIMESTAMP_UNCERTAIN, LATE_TIMESTAMP, EARLY_TIMESTAMP — have **no CSR window
-and are not getting one**: they are served by AECP `GET_COUNTERS` on the CRF
-Media Clock Input descriptor, straight off the `KL_crf_rx` ports, and a CSR
-copy would be a second source for a live value that agrees on day one and
-drifts in silence. Read them with a controller, not with `devmem`.
+Those three are the only CRF input counters exported into the local CSR plane.
+The other Table 5.16 outputs from `KL_crf_rx`, including lock transitions,
+interruptions, media reset, timestamp uncertainty, and early or late arrival,
+are currently left open in `milan_datapath.sv`.
 
-#### Bench recipe - proving the Table 5.6 laws on silicon
+The same root integration gap affects AECP. The solicited gather face accepts
+AAF Stream Input indices below `N_STREAMS`; the declared CRF Media Clock Input
+at index `N_STREAMS` returns an empty `counters_valid` mask. The CRF dirty pulse
+is also unconnected, so it cannot feed the Table 5.22 notification path. Do not
+use a successful standalone `tb/verilator/crf_rx` run as evidence that the root
+serves these counters.
 
-Desk-proven by [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) (20 mutations bite) and the
-`@rule:advertised-is-measured` / `@rule:era-wipe` behave scenarios; this is
-what to run on the **next flash** to see the same laws on the wire. Nothing
-here needs a Vivado run - all four probes are `devmem` plus one controller
-`GET_COUNTERS`. The CRF sink must be bound to a live CRF talker first
-(`0x73C`/`0x740` = its stream_id, then `0x738` bit 0 = 1).
+#### Closure criteria for the CRF Stream Input counter gap
 
-1. **The era wipe is visible with `devmem` alone** - `CRF_STATUS[31:16]`
-   (FRAMES_RX) is one of the ten, so a bind edge must snap it to zero:
-
-   ```sh
-   devmem 0x9000074C 32        # let it run: [31:16] climbs ~1/s, not ~500/s
-   devmem 0x90000738 32 0      # unbind
-   devmem 0x9000074C 32        # MUST HOLD - 5.3.8.10 does not wipe on unbind
-   devmem 0x90000738 32 1      # bind
-   devmem 0x9000074C 32        # MUST read 0x00000000 - all three fields wiped
-   devmem 0x90000738 32        # and [31] locked must be 0, re-earned in 8 PDUs
-   ```
-
-   Two failure signatures to watch for: a value that *survives* the last bind
-   is the pre-2026-08-03 behaviour (a dead era's totals leaking into a new
-   binding), and a `[31:16]` that climbs at ~500/s instead of ~1/s is the
-   per-frame counter reading, not Milan's observation interval.
-
-2. **The interval law** - park a stopwatch on `CRF_STATUS[31:16]`. At the
-   shipping `IVAL_CYC_P` (= `MILAN_CLK_FREQ_HZ`, the clause's 1 s ceiling) it
-   must advance by **1 per second** while 500 PDU/s arrive. Same for
-   `[15:8]`/`[7:0]` under a fault.
-
-3. **The five with no CSR window** - `GET_COUNTERS` on **STREAM_INPUT index
-   8** (the CRF Media Clock Input; indices 0..7 are the AAF sinks on the 8x8
-   shape). The response must carry `counters_valid = 0x00000F3F`, and the
-   movement that proves each one:
-
-   | counter | how to provoke it on the bench | expected |
-   |---|---|---|
-   | `MEDIA_RESET` | make the CRF talker change its media-clock source (1722-2016 10.4.3 says it toggles `mr` and holds the new level ≥ 8 PDUs) | +1 per observation interval containing the toggle - **not** +1 per PDU of the hold |
-   | `TIMESTAMP_UNCERTAIN` | disturb the talker's gPTP (unplug its GM path) so it emits `tu = 1` | +1/s while `tu` is set, stops when it clears |
-   | `LATE_TIMESTAMP` | drop the CRF reservation / flood the path so PDUs arrive after their reference instant | +1/s while late |
-   | `EARLY_TIMESTAMP` | a talker whose Max Transit Time exceeds `MAXTT_NS_P + EARLY_MARGIN_NS_P` (2 ms + 10 ms) | +1/s while early |
-   | `STREAM_INTERRUPTED` | bounce the talker's link, or block ≥ 2 consecutive CRF PDUs | **per event**, so a burst of 3 gaps inside one second reads +3, while `SEQ_NUM_MISMATCH` reads +1 for the same burst |
-
-   The last row is the sharpest single check: the two counters diverging on
-   one burst is what distinguishes Table 5.6's two grammars, and it is the
-   thing a served constant could never do.
-
-4. **A Controller Unbind must not be an interruption** (Table 5.6's own
-   exclusion). `GET_COUNTERS`, then unbind via ACMP, then `GET_COUNTERS`
-   again: `STREAM_INTERRUPTED` must be unchanged. Re-bind and it - with the
-   other nine - must read 0.
+1. Connect the complete `KL_crf_rx` Table 5.16 bank to the root solicited
+   gather face for STREAM_INPUT index `N_STREAMS`.
+2. Return the correct compact valid mask and counter words for that declared
+   descriptor while preserving the empty response for undeclared indices.
+3. Connect the CRF dirty source to the rate-limited Table 5.22 scheduler.
+4. Add root-wire tests for reset, wrap, descriptor isolation, and controller
+   decoding before treating the CRF input counter duty as closed.
 
 ### 0x750  -  CRF media-clock talker  `(Milan v1.2 7.3.1, KL_crf_tx)`
 
@@ -897,18 +863,15 @@ The AECP and ACMP *counter* words of this group are now **structural zeros**;
 the AAF talker configuration and the one live ACMP level are not. Read the
 verdict column, not the register name.
 
-* **Everything AECP here is still a structural zero, for narrower reasons than
-  before.** The processor's AECP uCPU does accept commands and does send
-  responses — `READ_DESCRIPTOR` for real, a conformant `NOT_IMPLEMENTED` echo for
-  everything else — so "no command is accepted" is no longer why these words read
-  `0`. They read `0` because the *specific* state behind them does not exist:
-  `ACQUIRE_ENTITY`/`LOCK_ENTITY` are unimplemented and the processor's lock
-  manager is unwired, so `aecp_locked` is tied `0`; `SET_CONFIGURATION` is
-  unimplemented, so the configuration index cannot move; and the parent CSR is
-  not wired to the engine's command/response tallies. **Those tallies do exist** —
-  command, response, drop and locate-miss counts, plus last status, last length,
-  image-valid and image-fault — in the protocol processor's **side-port snapshot
-  window**, read through `KL_pp_shadow`'s side-port host bridge. Do not read a
+* **Everything AECP here is still a structural zero because this legacy group
+  is not connected to the processor state.** The processor's AECP uCPU accepts
+  and answers its declared command inventory. `ACQUIRE_ENTITY` returns Milan
+  Delta 7 `NOT_SUPPORTED` with no owner, and configuration operations are
+  served inside the processor. None of the lock, current-configuration, or
+  command and response count fields are exported into this CSR group.
+  Processor command, response, drop, locate-miss, last-status, last-length,
+  image-valid, and image-fault diagnostics instead live in the **side-port
+  snapshot window**, read through `KL_pp_shadow`'s host bridge. Do not read a
   zero here as "the engine saw nothing".
 * **The ADP dormancy forensics are structural zeros too** — depart count, re-arm
   count, depart cause, ADPDUs egressed, ENTITY_DISCOVERs accepted and seen, last
@@ -930,8 +893,8 @@ Stream semantics: [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md)
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x648` | `AECP_STAT0` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was `[16]` entity locked (a controller holds LOCK_ENTITY), `[15:0]` AECP commands accepted. There is no ACQUIRE/LOCK_ENTITY and no command is ever accepted |
-| `0x64C` | `AECP_STAT1` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was `[31:16]` AECP responses sent, `[15:0]` live current_configuration_index. No response is ever sent, and with `SET_CONFIGURATION` gone nothing can move a configuration index |
+| `0x648` | `AECP_STAT0` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was `[16]` entity locked and `[15:0]` AECP commands accepted. The processor serves these functions, but neither field is connected to this legacy word |
+| `0x64C` | `AECP_STAT1` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was `[31:16]` AECP responses sent and `[15:0]` live current configuration index. The processor sends responses and stores configuration state, but neither field is connected here |
 | `0x650` | `ACMP_STAT` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was the ACMP responder's `[31:16]` responses sent / `[15:0]` commands accepted. ACMP itself is **alive** — the processor answers CONNECT_TX/PROBE_TX/GET_TX_STATE and runs the BIND_RX ladder — but it publishes a bind RECORD, not PDU counters, so these two fields have no source. Take `ACMPL_STATE[3]` bound (`0x6A4`) and `ACMP_TALKER[1]` (`0x66C`) as the truth instead |
 | `0x654` | `AAF_CTRL` | RW | `0x0002_0000` | `[0]` talker enable, `[1]` **gate bypass — 1 = stream whenever enabled; RESET IS NOW 0 (VERSION `0x0018`), so a build must ASK for the legacy bring-up behaviour. Milan v1.2 5.3.7.3 conditions streaming on receiving a Listener Ready/Ready Failed**; 0 = Milan-gated, `[27:16]` SR VID (reset 2). Write bit-preserving: **`0x0002_0001` to enable** (talker on, bypass CLEAR). A bare `0x3` zeroes the VID, and VID-0 frames leave the reserved SR tree (bridges strip the tag on egress) and flood unshaped. 🔴 **`0x0002_0003` — the recipe this table gave until 2026-07-28 — keeps the bypass set and makes the board stream SR-class-A-tagged AAF with no reservation, which Milan v1.2 5.3.7.3 does not license** (*"As long as a PAAD is declaring a Talker Advertise attribute **and receiving a Listener Ready or Listener Ready Failed attribute** for a Stream Output, it shall be streaming AVTP packets"*). Measured on both boards, nothing bound: `0x694 = 0x00000030` (no Listener, gate shut) beside 18,488 tagged AAF frames in 6 s on the inline tap. Clearing `[1]` stopped them — and a bound listener (`0x694 = 0x0000037E`) kept them flowing. The escape hatch exists for deliberate, watched experiments on a link whose other end can take it; it is not a boot setting. See [`docs/MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) §3 |
 | `0x658` | `AAF_DMLO` | RW | `0xF000_FE01` | AAF stream dest MAC `[31:0]` (reset = MAAP-range `91:E0:F0:00:FE:01`). Fallback value: while `MAAP_CTRL[0]` is set and `MAAP_STAT1[2]` addr_valid, the datapath streams to the MAAP-claimed DMAC instead (`eff_aaf_dmac` mux) |
@@ -1249,12 +1212,12 @@ are cleared by a power cycle. Neither has a field code or a table entry here,
 so the refusal is not a policy someone can forget to apply; it is the absence
 of a mechanism.
 
-**What is open after this group is now everything.** 5.3.7.6 (presentation time
-offset — pinned at the Milan 2 ms default), 5.3.13 (names), 5.3.9.1 / 5.3.10.1
-(the dynamic channel maps) and the live clock-source selection (pinned at the
-internal media clock) were all held in AECP register files that had no slave
-port yet. Those register files are deleted with the engine, so the gap is no
-longer "no port to the state" but "no state, and nothing that could set it".
+**What remains open after the control-plane substitution.** Presentation-time
+offset changes and names remain outside the served inventory, and the mandatory
+audio-map writers remain unimplemented. The processor accepts and stores
+`SET_CLOCK_SOURCE`, but the root does not export that selection to the media
+plane. These are current command or integration gaps, not evidence that the
+processor has no dynamic state.
 
 ### 0x7DC  -  AS_PATH staging: the published PathTrace  `(gh #64 J4)`
 
@@ -1266,67 +1229,22 @@ caps it at two entries: with two or more bridges between us and the
 grandmaster both the **count** and the **membership** were wrong, and a
 controller drawing a topology from it drew the wrong one.
 
-🔴 **DEAD PORT AT VERSION MAJOR 2: the staging writes are accepted and
-DISCARDED.** The AECP uCPU implements `READ_DESCRIPTOR` and nothing else, so
-`GET_AS_PATH` comes back as a conformant `NOT_IMPLEMENTED` echo: nothing reads
-this store and nothing serves a `path_sequence` on the wire. A controller now
-gets a well-formed refusal instead of silence — which is a protocol improvement
-and **not** a `path_sequence`. The
-group is documented in full because the ABI is unchanged and because the design
-point below — slot 0 is the grandmaster and is never mirrored here — is the
-specification any future implementation must keep.
+🔴 **DISCONNECTED STAGING PORT AT VERSION MAJOR 2.** The CSR still stores
+and reads back the staged path, but `milan_datapath.sv` leaves `o_asp_path`,
+`o_asp_count`, and `o_asp_gen` open. Writes therefore do not change any AECP
+response.
 
-The daemon parses the TLV (`linuxptp`'s `pmc` has no PathTrace support, so this
-is an `AF_PACKET` tap on `0x88F7` Announce, `messageType` 11, TLV type
-`0x0008`) and publishes it here. Depth is **eight entries**: the grandmaster
-plus seven bridges.
-
-**Slot 0 is the grandmaster and is never stored here.** It already lives in
-`ADP_GM_LO/HI` (`0x624`/`0x628`) and the response builder takes entry 0 from
-there. A second copy is exactly the *derive, never mirror* defect — two
-registers that can disagree, with nothing to say which one is right.
-
-**A publish is the atomic cutover.** Slots are staged and committed one at a
-time, so the store is inconsistent *while software fills it*; nothing serves
-that state, because the served length only moves on the publish. The publish
-also bumps a **generation** nibble, which is what makes a re-publish of an
-identical path a Milan v1.2 Table 5.22 **push** event: the daemon saying "this
-is current" is itself the notification, even when no identity changed.
-
-**A published length of `0` is the legacy arm**, not a path of length zero.
-Reset is `0`, so a gateware whose software never publishes keeps serving the
-old `[GM, parent]` derivation and an old daemon that only writes `AS2_LO/HI`
-regresses nothing.
+The processor does serve `GET_AS_PATH` through the root gather face. That face
+returns a one-entry path containing the grandmaster identity, or a zero count
+when no grandmaster is known. It does not consume the PathTrace tail staged in
+this group, so a topology with one or more bridges is reported incompletely.
+This is a root data-source gap, not an unimplemented-command echo.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x7DC` | `ASP_LO` | RW | `0` | Staged `clockIdentity[31:0]`. Plain-RW: reads back what was written, like the `0x7A0` restore staging |
-| `0x7E0` | `ASP_HI` | RW | `0` | Staged `clockIdentity[63:32]` |
-| `0x7E4` | `ASP_CMD` | W / RO live | `0` | Write `[31]` **commit** the staged `{HI, LO}` pair into the slot named by `[10:8]`, which must be **1..7** — slot 0 is refused, it is the grandmaster. Write `[30]` **publish**: latch the served path length from `[3:0]` (entries **including** the grandmaster, clamped to 8) and bump the generation. The two bits are independent; a write may do both. Read (live): `{24'd0, generation[7:4], count[3:0]}` — the length that will actually be served, not the command word software wrote, so a read of `0` means "no path published" |
-
-**Serving arithmetic.** With a published count of *N*: the response carries
-`descriptor_index(2) + count(2) + N x EUI64`, so `control_data_length` =
-`16 + 8N`, topping out at **80** at the depth-8 ceiling. Entry 0 is
-`ADP_GM_LO/HI`; entries 1..*N*-1 are slots 1..*N*-1 in order. A count larger
-than the store holds is **saturated**, both at the publish (so the readback
-tells the truth) and in the response builder (so the wire can never advertise
-identities that are not in the frame).
-
-**Software recipe.**
-
-```
-# one bridge per slot, in Announce PathTrace order after the grandmaster
-devmem 0x9000_07DC 32 0xFFFE0210 ; devmem 0x9000_07E0 32 0x3CC0C6FF
-devmem 0x9000_07E4 32 0x80000100          # commit -> slot 1
-devmem 0x9000_07DC 32 0xFE001122 ; devmem 0x9000_07E0 32 0xAABBCCFF
-devmem 0x9000_07E4 32 0x80000200          # commit -> slot 2
-devmem 0x9000_07E4 32 0x40000003          # publish: GM + 2 bridges = 3
-devmem 0x9000_07E4                        # reads {gen, 3}
-```
-
-> **Note on the address.** The handover named `0x7B8`-`0x7C0` for this group;
-> those words were already the persistence-journal ingest (`JNL_CTRL`/`DATA`/
-> `STAT`), so the group took the next free words after `ETH_GUARD` instead.
+| `0x7DC` | `ASP_LO` | RW | `0` | Staged `clockIdentity[31:0]`. Reads back what was written, but the root leaves the published path output disconnected |
+| `0x7E0` | `ASP_HI` | RW | `0` | Staged `clockIdentity[63:32]`. Reads back what was written, but does not affect `GET_AS_PATH` |
+| `0x7E4` | `ASP_CMD` | W / RO live | `0` | The commit and publish machinery still updates its local generation and count. Those outputs are not consumed by the root gather face, so the readback is staging state rather than the path served on the wire |
 
 ### 0x800  -  Indexed per-stream window  `(NxN streams, [NXN_ARCHITECTURE.md](../NXN_ARCHITECTURE.md) §1.5)`
 
@@ -1719,22 +1637,21 @@ fabric counts fine — the `0x8F8` dead-read trap).
 
 > 🔴 **THE SERVO IS STRUCTURALLY OFF AT VERSION MAJOR 2, AND `MCSRV_STAT` READS
 > ITS IDLE.** The servo engages only when the live CLOCK_DOMAIN
-> `clock_source_index` selects the CRF descriptor. AECP `SET_CLOCK_SOURCE` was
-> the **only** writer of that index, and it is deleted, so the selection is
-> pinned at index 0 — the INTERNAL media clock — for the life of the build.
+> `clock_source_index` selects the CRF descriptor. The processor accepts and
+> stores AECP `SET_CLOCK_SOURCE`, but `KL_pp_shadow.sv` does not export its
+> dynamic clock-source output to the root. The selection is therefore pinned
+> at index 0, the INTERNAL media clock, for the life of the build.
 > `KL_mmcm_drp_servo` and the `KL_media_nco` packet-grid servo therefore
 > generate zero DRP/PS activity and `0x8F8` reads state IDLE with trim 0
 > forever.
 >
 > **This is the one loss in this page with teeth.** The CRF Media Clock Input
-> engine at `0x738` still parses, counts and reports — lock, rate, delta, PDU
-> and error counts are all real — so a reader can still *see* the recovered
+> engine at `0x738` still parses and measures lock, rate, delta, PDU, and error
+> state, so a local CSR reader can still *see* part of the recovered
 > clock. What no longer exists is any way to *select* it, and therefore any way
-> to steer the audio MMCM or the packet grid from it. The AECP uCPU being
-> present does not help here: it implements `READ_DESCRIPTOR` only, and
-> `SET_CLOCK_SOURCE` is one of the commands behind the `NOT_IMPLEMENTED` echo. A
-> build that must discipline its media clock from CRF needs `SET_CLOCK_SOURCE`
-> implemented in the processor.
+> to steer the audio MMCM or the packet grid from it. A build that must
+> discipline its media clock from CRF needs the processor's stored selection
+> exported through the wrapper and connected to the root media plane.
 >
 > Note the trap this creates at `0x8F8`: an IDLE reading now has three possible
 > causes — the servo was pruned at elaboration (`MCSERVO_P = 0`), the servo is
