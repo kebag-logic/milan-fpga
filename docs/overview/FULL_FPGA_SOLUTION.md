@@ -30,9 +30,9 @@ listener) and SRP; MAAP stays in this fabric (`KL_maap` bridged by
 This repository's own ADP advertiser, AECP/AEM engine, ACMP talker and listener,
 and lwSRP applicant are **deleted**.
 
-**The AECP surface came with it, in one specific shape: this entity answers
-READ_DESCRIPTOR, and answers every other AECP command with a conformant
-NOT_IMPLEMENTED echo.** The responder is the processor's AECP uCPU, which has
+**The AECP surface serves the processor's declared command inventory, including
+READ_DESCRIPTOR and GET_COUNTERS.** Unsupported commands receive the conformant
+fallback. The responder is the processor's AECP uCPU, which has
 landed. `READ_DESCRIPTOR` (0x0004) returns `SUCCESS` with `configuration_index`,
 the reserved field and the descriptor, `NO_SUCH_DESCRIPTOR` on a locate miss and
 `BAD_ARGUMENTS` on a bad configuration index — the error paths carrying the IEEE
@@ -178,10 +178,10 @@ not paperwork, and each has a place a bench will notice it:
    DEFAULT** (`SET_MAX_TRANSIT_TIME` is gone). A default, not a zero: 0 ns is a
    presentation time in the past, and every listener would drop every frame as
    late.
-3. **Milan Table 5.4 per-STREAM_OUTPUT counters are gone** — `KL_talker_diag_ctx`
-   is not instantiated, because `GET_COUNTERS(STREAM_OUTPUT)` and the Table 5.22
-   push were its only readers. The **STREAM_INPUT** counters at the `0x6B8`
-   `A_STRMW_CNT` window are unaffected and still live.
+3. **Milan Table 5.4 per-STREAM_OUTPUT counters are live.**
+   `KL_talker_diag_ctx` is instantiated per declared output and served through
+   GET_COUNTERS. The Table 5.22 unsolicited change producer remains open.
+   STREAM_INPUT counters remain live too.
 
 Also structural, and cheaper to learn here than on a wire capture: the entity
 enable is now **either** `PP_CTRL[0]` (`0x920`) **or** the historic

@@ -20,18 +20,16 @@ stated here so this guide is accurate *today*; the doc audit ([`DOC_AUDIT.md` (a
 > applicant are **deleted**, along with their Verilator suites and their design
 > docs.
 >
-> **And the AECP surface is now partial, not absent: this entity answers
-> `READ_DESCRIPTOR`, and answers every other AECP command with a conformant
-> `NOT_IMPLEMENTED` echo.** The responder is the processor's AECP uCPU, which
-> landed. `READ_DESCRIPTOR` returns `SUCCESS` with `configuration_index`, the
-> reserved field and the descriptor, `NO_SUCH_DESCRIPTOR` on a locate miss and
-> `BAD_ARGUMENTS` on a bad configuration index; `IDENTIFY_NOTIFICATION` as a
-> command is `BAD_ARGUMENTS`; a command for another entity, or a response
-> arriving as input, is silently refused. **Known gap:** Milan Δ7
-> `ACQUIRE_ENTITY` is not distinguished from the echo. An echo is not an
-> implementation, so `SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME`, `GET_COUNTERS`
-> with the Milan Table 5.22 push, the audio-map setters, IDENTIFY and
-> saved-state persistence are still genuinely absent. And the descriptors now
+> **The AECP surface is partial and actively served.** The processor's AECP
+> uCPU handles the inventory in `tests/steps/aecp_engine_steps.py`, including
+> `READ_DESCRIPTOR` and `GET_COUNTERS`. Unsupported commands receive a
+> conformant `NOT_IMPLEMENTED` response. `IDENTIFY_NOTIFICATION` as a command
+> receives `BAD_ARGUMENTS`; a command for another entity, or a response arriving
+> as input, is silently refused. Every declared Stream Output exposes the Milan
+> Table 5.17 five-counter bank through solicited GET_COUNTERS. The Table 5.22
+> unsolicited counter-change producer, IDENTIFY and saved-state persistence
+> remain open. **Known gap:** Milan Delta 7 `ACQUIRE_ENTITY` is not
+> distinguished from the fallback response. The descriptors now
 > live in DRAM, fetched at a compile-time base: **nothing in this repository
 > builds or loads that image**, so a stock build still enumerates as empty
 > (`BAD_ARGUMENTS` for every read — an unloaded image reports zero
@@ -58,8 +56,8 @@ stated here so this guide is accurate *today*; the doc audit ([`DOC_AUDIT.md` (a
 Two Artix-7 boards are Milan/AVB end-stations: gPTP-synced fabric PHC, SRP
 reservations, ADP discovery and ACMP connection (all three now the protocol
 processor's), MAAP, 8×8 AAF streams, and an ALSA capture card fed straight from
-the fabric DMA ring — with an AECP/AEM responder that serves `READ_DESCRIPTOR`
-and echoes `NOT_IMPLEMENTED` at everything else, per the boundary above.
+the fabric DMA ring — with an AECP/AEM responder that serves the processor's
+declared command inventory, including `READ_DESCRIPTOR` and `GET_COUNTERS`.
 The measurements below were taken on silicon before the substitution; they are
 dated for that reason, and the media-plane ones are unaffected by it.
 
@@ -118,8 +116,8 @@ audio end-station (talker + listener) on the wire.
   PTP timestamp unit, AVTP/AAF/CRF streaming, MAAP) and whose *ADP/ACMP/SRP control plane*
   (the protocol processor, via `KL_pp_shadow`) are both implemented in fabric, and whose
   *policy plane* (linuxptp, provisioning, the kl-eth driver) runs on the softcore under Linux.
-  AECP/AEM is in fabric too, but partial: `READ_DESCRIPTOR` and a conformant
-  `NOT_IMPLEMENTED` echo for every other command.
+  AECP/AEM is in fabric too, but partial: the processor serves its declared
+  command inventory and returns the conformant fallback for unsupported commands.
 - **The dividing principle** (normative, [`docs/ARCHITECTURE_HW_SW_SPLIT.md`](ARCHITECTURE_HW_SW_SPLIT.md) rev 3):
   per-frame / line-rate / liveness work → **fabric**; negotiation / policy / provisioning →
   **softcore**. This is the plan of record; where older overview docs say "AVDECC/SRP is future
@@ -154,8 +152,8 @@ audio end-station (talker + listener) on the wire.
   exists, so the pass does not carry forward to this tree unexamined.
 - Compliance matrix: the row counts move with the substitution — a clause once owned by
   deleted RTL is now **owned by the protocol processor** where it really is (ADP / ACMP / SRP,
-  plus AECP `READ_DESCRIPTOR` and the duty to respond) and **NOT IMPLEMENTED** where it really
-  is (every other AECP command; a `NOT_IMPLEMENTED` echo is not coverage). Read
+  plus the AECP served-command inventory) and **NOT IMPLEMENTED** where the
+  processor still returns its fallback response. Read
   [`docs/SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md) for the live tally rather than a number
   quoted here.
 - **Media-clock servo (MMCM-DRP)**: silicon-proven at **-83.9 dB** (the CS4344+CS5343 converter
@@ -491,15 +489,16 @@ corpus, because the RTL they name is deleted:
   `PP_DESC_BASE_P`, not from a ROM. The `aecp_aem_rom.svh` the builder still writes is an
   orphan of the deleted store, and **nothing in this repo generates or loads the DRAM image**,
   so "discovers and connects but enumerates nothing" is the stock-build state, not a fault.
-- "GET_COUNTERS", "the Table 5.22 unsolicited push", "the persistence journal", "saved-state
-  fast connect", "IDENTIFY", "SET_/GET_ anything" → **still not implemented.** They now draw a
-  conformant `NOT_IMPLEMENTED` echo instead of silence; an echo is a protocol answer, not a
-  function, so a page describing how one of them *behaves* is describing deleted RTL.
+- "GET_COUNTERS is not implemented" → **stale.** Solicited GET_COUNTERS serves
+  the supported descriptor banks, including every declared Stream Output. The
+  Table 5.22 unsolicited counter-change producer, persistence and commands
+  outside the served inventory remain open.
 - "this entity answers no AECP/AEM command at all" (including in
   [`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv)'s banner and the "P4 uCPU seam —
   unlanded" note in [`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv)) → **stale**:
-  `READ_DESCRIPTOR` is answered and every other command gets the echo. Milan Δ7
-  `ACQUIRE_ENTITY` is the one gap to keep visible — it is not distinguished from the echo.
+  the processor serves its declared command inventory. Milan Delta 7
+  `ACQUIRE_ENTITY` remains a visible gap because it is not distinguished from
+  the fallback response.
 - "`adp_advertiser`", "`KL_adp_parser`", "`KL_acmp_listener`/`_responder`/`_lstn_ctx`/`_tlkr_ctx`",
   "the lwSRP engine / walker / registrar" → **the protocol processor**, via
   [`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv). `adp_tx_arbiter.sv` is the one

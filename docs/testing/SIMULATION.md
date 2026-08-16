@@ -32,13 +32,11 @@ which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](../limitati
 > and SRP are simulable through [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow),
 > the suite that grades the processor as the control plane, and the thirteen
 > deleted suites' AECP/ACMP/ADP/lwSRP coverage is gone rather than moved.
-> **Correction to an earlier revision of this note: there IS AECP to simulate.**
-> The processor's **AECP uCPU landed** — it answers `READ_DESCRIPTOR` (three
-> status paths), answers `IDENTIFY_NOTIFICATION`-as-a-command `BAD_ARGUMENTS`,
-> answers every other AECP command with a conformant `NOT_IMPLEMENTED` echo, and
-> silently refuses a foreign `target_entity_id` or a response arriving as input.
-> **No suite in this tree simulates any of it yet**, and no AEM getter or setter
-> exists to simulate: the echo is a response contract, not a function. A
+> **There is AECP to simulate.** The processor's AECP uCPU serves its declared
+> command inventory, including `READ_DESCRIPTOR` and `GET_COUNTERS`.
+> Unsupported commands receive the conformant fallback, and invalid input takes
+> the command-specific refusal path. The processor `pp_top` suite simulates the
+> AECP engine and root `milan_dp` simulates the integrated wire response. A
 > `READ_DESCRIPTOR` in simulation answers `BAD_ARGUMENTS` unless the descriptor
 > image is placed in DRAM by the testbench — nothing in this repository builds or
 > loads one, and an image that fails its header magic/version/checksum reports

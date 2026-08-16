@@ -28,9 +28,10 @@ shaper, the PTP hardware clock, AVTP/AAF/CRF streaming, MAAP, and — through
 talks to real Milan gear on a real wire; the reference build runs 8 talker × 8 listener
 streams on an Artix-7 (xc7a100t) with 512 MB of DDR3.
 
-**The one boundary to know before anything else: this entity answers
-READ_DESCRIPTOR, and answers every other AECP command with a conformant
-NOT_IMPLEMENTED echo.** The responder is the protocol processor's AECP uCPU, in
+**The one boundary to know before anything else: this entity serves the
+processor's declared AECP inventory, including READ_DESCRIPTOR and
+GET_COUNTERS.** Unsupported commands receive the conformant fallback. The
+responder is the protocol processor's AECP uCPU in
 fabric; this repository's own AECP/AEM engine was deleted rather than kept as a
 fallback. So the device DISCOVERS over ADP, CONNECTS over ACMP, RESERVES over
 SRP, and **enumeration is reachable again**: a controller's descriptor walk gets
@@ -137,11 +138,10 @@ nothing happens: the **CRF media clock can never be selected**
 (`SET_CLOCK_SOURCE` was its only writer, so the MMCM-DRP and media-NCO servos
 are structurally off and `A_MCSRV_STAT` reads idle, while `KL_crf_rx` still
 parses and counts); every Stream Output's **presentation-time offset is pinned
-at the Milan 2 ms default** (a default, not a zero); and the **Milan Table 5.4
-per-STREAM_OUTPUT counters are gone** — `KL_talker_diag_ctx` is not
-instantiated, since GET_COUNTERS and the Table 5.22 push were its only readers.
-The STREAM_INPUT counters at the `0x6B8` `A_STRMW_CNT` window are unaffected and
-still live.
+at the Milan 2 ms default** (a default, not a zero). The **Milan Table 5.4
+per-STREAM_OUTPUT counters are live for solicited GET_COUNTERS reads** through
+one `KL_talker_diag_ctx` per declared output. The Table 5.22 unsolicited
+counter-change producer remains open. STREAM_INPUT counters remain live too.
 
 Deeper, generated versions of this picture:
 [`SYSTEM_DOMAIN_MAP.md`](SYSTEM_DOMAIN_MAP.md) (every module by domain and

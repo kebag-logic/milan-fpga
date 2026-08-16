@@ -124,7 +124,7 @@ capability boundary, decided by the USER, not a defect in triage.
 | **FR-DISC-01..05** (ADP) | **OWNED BY THE PROTOCOL PROCESSOR** | `KL_adp_engine`. Advertisement content is the entity model via `adp_shape_defaults.svh`; `available_index` is published to the CSR plane. The historic `ADP_CTRL.en` still enables the entity (ORed with `PP_CTRL[0]`), but the ADPDU *content* CSR words are write-only scratch that reach nothing |
 | **FR-ENUM-01** (`READ_DESCRIPTOR`) | **IMPLEMENTED (protocol processor), SERVABLE NOT SUPPLIED** | The uCPU's descriptor store answers it, fetching over a read-only master at the compile-time `PP_DESC_BASE_P` (the SoC derives it as the top 1 MiB of `main_ram`; there is no base register, so software cannot relocate it). **No step in this repository writes an image there**, and the image header's magic/version/checksum makes an unloaded region read as "not loaded"; an image marked invalid then reports `configurations_count` = 0 — which the microprogram's configuration range check meets *before* the locate, so every read is refused with `BAD_ARGUMENTS` (the §7.4.5 stub still attached), never `NO_SUCH_DESCRIPTOR`. A late load heals without a reset, and a 4096-cycle watchdog means a missing image is a clean refusal rather than a hang |
 | **FR-ENUM-02** (the Milan-mandatory descriptor tree) | **NOT MET on a stock build** | Same reason from the other side: the tree is still generated and gated from the entity model, and nothing turns it into the image the engine reads. The requirement is a build step away, not an engine away |
-| **FR-CTRL-01..05** (acquire/lock, get/set, unsolicited, counters, fast enumeration) | **NOT IMPLEMENTED** | Every one of these commands draws the `NOT_IMPLEMENTED` echo — answered, not implemented. ACQUIRE/LOCK additionally have no lock manager wired, so nothing can ever hold this entity; the unsolicited lane has no producer. Note FR-CTRL-04's data still exists for **STREAM_INPUT** at CSR `0x6B8`; the **STREAM_OUTPUT** (Milan Table 5.4) counters are gone entirely, their context no longer instantiated |
+| **FR-CTRL-01..05** (acquire/lock, get/set, unsolicited, counters, fast enumeration) | **PARTLY MET** | The processor serves its declared command inventory. FR-CTRL-04 now serves every declared STREAM_OUTPUT counter bank through GET_COUNTERS with the Milan compact layout. The Table 5.22 unsolicited change producer remains open, and commands outside the served inventory retain the conformant fallback response. ACQUIRE still lacks the Milan Delta 7 status and owner semantics |
 | **FR-CTRL-06** (validate cdl / message_type / target, correct status) | **PARTLY MET** | Met: the duty to answer, and the shape of the answer — `message_type` + 1, correct length, correct `controller_data_length`, echoed `controller_entity_id` / `sequence_id`; a foreign `target_entity_id` and a response-as-input are silently refused; `IDENTIFY_NOTIFICATION`-as-command is `BAD_ARGUMENTS`; `READ_DESCRIPTOR` carries its own `NO_SUCH_DESCRIPTOR` / `BAD_ARGUMENTS` paths with the §7.4.5 stub. Not met: `ENTITY_LOCKED`, per-payload `BAD_ARGUMENTS` and every `NOT_SUPPORTED` Milan names, because the commands that would raise them do not exist |
 | **FR-MVU-01..03** (Milan Vendor Unique, GET_MILAN_INFO) | **NOT IMPLEMENTED** | The engine recognises **no** VENDOR_UNIQUE `protocol_id`. That satisfies IEEE 1722.1 §9.6.2 by construction for an *unknown* protocol — the `protocol_id` bytes are echoed unaltered inside a `NOT_IMPLEMENTED` response — and it means Milan's own 00-1B-C5-0A-C1-00 is refused exactly like a stranger's. The 1722.1 win does not close the Milan requirement |
 | **FR-CONN-01/02** (ACMP connect/disconnect/state, program the datapath) | **OWNED BY THE PROTOCOL PROCESSOR** | `KL_acmp_talker` + the listener half; the bind record and the talker declaration reach the fabric as class-D wires, and the CBS/classifier programming follows the reservation |
@@ -142,10 +142,10 @@ capability boundary, decided by the USER, not a defect in triage.
 | **NFR-\*** | unchanged in kind | The budgets and bounds still apply. Two are worth re-reading against the new plane: **NFR-LAT-01** (the presentation-time bound is now the Milan **2 ms default and is not configurable**, since `SET_MAX_TRANSIT_TIME` is unimplemented — a default, not a zero) and **NFR-SCUP-04** (the AEM memory it sizes has moved out of the gateware into main memory) |
 
 The honest one-line summary: **this device discovers over ADP, connects over
-ACMP, reserves over SRP, streams audio, answers READ_DESCRIPTOR, and answers
-every other AECP command with a conformant NOT_IMPLEMENTED echo** — with the
-descriptor image that would make the first of those useful supplied by nothing
-in this repository.
+ACMP, reserves over SRP, streams audio and serves the processor's AECP command
+inventory, including READ_DESCRIPTOR and GET_COUNTERS.** Unsupported commands
+receive the conformant fallback. The descriptor image that makes enumeration
+useful is supplied by nothing in this repository.
 
 ### 2.1 Discovery  -  ADP  *(1722.1-2021 §6; Milan v1.2 §5.2)*
 | ID | Requirement | Pri | Ver |
@@ -424,10 +424,9 @@ cites the FRs it satisfies and the milestone in
   the processor's own verification lives in the pinned submodule, and the
   datapath-level coverage is `tb/verilator/milan_dp`.
 - **Integration/interop:** Hive + `srcs/the-private-test-repo/controller/avdecc_l2.py`
-  (ADP and ACMP; on AECP a controller now gets well-formed refusals —
-  **GET_COUNTERS and every other command answer `NOT_IMPLEMENTED`**, and
-  enumeration answers `BAD_ARGUMENTS` until someone loads a descriptor
-  image), `ptp4l`/`phc2sys`, `tc qdisc … cbs offload`.
+  (ADP and ACMP; on AECP, GET_COUNTERS serves the declared counter banks and
+  enumeration answers `BAD_ARGUMENTS` until someone loads a descriptor image),
+  `ptp4l`/`phc2sys`, `tc qdisc … cbs offload`.
 - **PDU byte-exactness:** the AECP PDU model campaigns have a responder again.
   `aecp_read_descriptor` is a real byte-exact test **once an image is in DRAM**;
   the rest measure the echo's header discipline, which is the conformance floor

@@ -31,12 +31,11 @@ cover.
 > instantiated unconditionally by
 > [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
 >
-> **The DUT discovers over ADP, connects over ACMP, reserves over SRP — and
-> answers AECP.** An earlier revision of this block said it answered no AECP/AEM
-> command at all; **that was false.** The processor's **AECP uCPU landed**. In
-> one sentence: *it answers `READ_DESCRIPTOR`, and answers every other AECP
-> command with a conformant `NOT_IMPLEMENTED` echo* — correct `message_type`+1,
-> correct length, correct `controller_data_length`.
+> **The DUT discovers over ADP, connects over ACMP, reserves over SRP and
+> answers AECP.** The processor's AECP uCPU serves its declared command
+> inventory, including `READ_DESCRIPTOR` and `GET_COUNTERS`. Unsupported
+> commands receive the conformant fallback with the correct message type,
+> length and control data length.
 > `IDENTIFY_NOTIFICATION` (0x0026) arriving as a **command** draws
 > `BAD_ARGUMENTS` (IEEE 1722.1 §7.4.39.2 beats §9.3.5.3.3). A command whose
 > `target_entity_id` is not ours, and any AECP **response** arriving as input,
@@ -402,7 +401,7 @@ run into SHALL failures.
 |---|---|---|---|---|
 | `acmp.status` | listener | 1722.1-2021 8.2.2.5 / Milan 5.5.3 | the response carries a status other than SUCCESS for a compatible pair | no ACMP response at all (a peer mid-reflash is not a conformance failure) |
 | `adp.alive` | DUT | 1722.1-2021 6.2.6 | the entity was not discovered in 2 × 11 s **and** a well-formed AECP command also went unanswered. **Both terms are live again** since the AECP uCPU landed: a healthy DUT answers every well-formed AECP command, so silence on AECP is once more real evidence of absence. A `NOT_IMPLEMENTED` status counts as *answered* here | not discovered but no MAC to probe with — absence is not proven (§8.4) |
-| `counters.avb_interface.mask` | **DUT and peer, one verdict each** | 1722.1-2021 Tables 7-152/7-153 + Milan 5.4.2.25 | the mask omits `LINK_UP`/`LINK_DOWN`/`GPTP_GM_CHANGED` (`0x023`) | that end did not answer `GET_COUNTERS`, **or answered it `NOT_IMPLEMENTED`** — which is this DUT's answer, and yields no mask to judge |
+| `counters.avb_interface.mask` | **DUT and peer, one verdict each** | 1722.1-2021 Tables 7-152/7-153 + Milan 5.4.2.25 | the mask omits `LINK_UP`/`LINK_DOWN`/`GPTP_GM_CHANGED` (`0x023`) | that end did not provide a decodable GET_COUNTERS response |
 | `counters.stream_input.mandatory-mask` | listener | Milan 5.3.8.10 + Table 5.6 | the mask does not claim all ten (`0xF3F`); the missing names are listed | `stream_input` did not answer, or the command was refused `NOT_IMPLEMENTED` |
 | `counters.stream_output.mandatory-mask` | talker | Milan 5.3.7.7 + Table 5.4 | the mask does not claim all five (`0x01F`) | `stream_output` did not answer, or the command was refused `NOT_IMPLEMENTED` |
 | `counters.stream_input.lock-invariant` | listener | Milan Table 5.6: *"either MEDIA_LOCKED=MEDIA_UNLOCKED … or MEDIA_LOCKED=MEDIA_UNLOCKED+1"* | neither holds | the mask does not claim both counters |
@@ -1065,7 +1064,7 @@ assuming:
 |---|---|---|
 | the **domain grandmaster** (this bench: `priority1` 238 vs the bridge's 246, so it wins permanently, is alone in its island while the domain is cut, and wins again on the re-join) | `counters.avb_interface.gptp-gm-continuity` | the ADPDU `gptp_grandmaster_id` is **unchanged** and the delta is **exactly 0**. A counter that moves with an unchanged id is a torn latch / partial-id re-read; a changed id with `priority1` untouched is an election it should have held. `…gptp-gm-changed-advances` SKIPs naming why |
 | a **follower** of a remote GM | `counters.avb_interface.gptp-gm-changed-advances` | it really did lose its grandmaster, so a small bounded **advance** is owed and a frozen counter slept through the partition. `…gptp-gm-continuity` SKIPs naming why |
-| either | `counters.avb_interface.peer-gptp-gm-changed-advances` | the **other** end station is where a permanent-GM DUT's partition is observable, so its counter is read too; a device that does not serve `GET_COUNTERS` — whether by silence or by a conformant `NOT_IMPLEMENTED`, which is our own DUT's answer — SKIPs naming that, never a verdict about the other side |
+| either | `counters.avb_interface.peer-gptp-gm-changed-advances` | the **other** end station is where a permanent-GM DUT's partition is observable, so its counter is read too; an unavailable or undecodable GET_COUNTERS response SKIPs with the reason |
 | either | `counters.avb_interface.link-event-observed` (**INFO**) | `LINK_UP`/`LINK_DOWN` deltas as context. Whether a switch outage is even a PHY event for the DUT is a **cabling** fact: tap1 is an inline regenerating tap on the DUT link and holds the board-side PHY up while the switch side is dark, so a zero delta is expected and is never graded |
 
 Demanding an advance from a permanent GM demands a *non-conformant* count.

@@ -49,10 +49,11 @@ deep-dive for the media plane; the scaling model behind it is
 >   `0x8F8` reads that idle. `KL_crf_rx` still parses, counts and reports —
 >   it simply cannot steer anything (§3.2, §9 of
 >   [`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md)).
-> * **Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are gone**
->   (`KL_talker_diag_ctx` is no longer instantiated — with `GET_COUNTERS`
->   unimplemented nothing could read it). **The STREAM_INPUT counters at `0x6B8`
->   `A_STRMW_CNT` are UNAFFECTED and still live** (§3.2).
+> * **Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are live for
+>   solicited reads.** `KL_talker_diag_ctx` is instantiated per declared output
+>   and GET_COUNTERS serves the compact five-counter layout. The Table 5.22
+>   unsolicited producer remains open. **The STREAM_INPUT counters at `0x6B8`
+>   remain live too** (§3.2).
 >
 > Two more facts belong on any page that talks to this control surface. The
 > known gap: Milan Δ7 `ACQUIRE_ENTITY` is **not** distinguished from the

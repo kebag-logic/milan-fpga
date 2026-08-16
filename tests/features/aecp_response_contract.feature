@@ -2,15 +2,16 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 
 @aecp @matrix:AECP-3
-Feature: the AECP answer contract - an echo for everything, silence for two things
+Feature: the AECP answer contract - served commands, fallback, and two silent cases
   IEEE 1722.1-2021 9.3.5.3.3: "Any command that is received and not
   implemented shall be responded to with a correctly sized response and a
   status of NOT_IMPLEMENTED." NOT_IMPLEMENTED is an ANSWER, not silence, and
   a correctly sized one - so an unimplemented opcode has to produce a
   well-formed AECPDU, never a dropped frame and never a malformed one. The
-  protocol-processor's AECP engine satisfies that for every opcode and every
-  message type by copying the command payload into the response buffer before
-  the microprogram runs and emitting the command's own length back.
+  protocol-processor's AECP engine satisfies that fallback for unsupported
+  opcodes and message types by copying the command payload into the response
+  buffer before the microprogram runs and emitting the command's own length
+  back. Served opcodes use their command-specific microprograms instead.
 
   ONE OPCODE IS NOT NOT_IMPLEMENTED. IEEE 7.4.39.2 is opcode-specific:
   "IDENTIFY_NOTIFICATION is only ever sent as an unsolicited response ... If
@@ -38,9 +39,9 @@ Feature: the AECP answer contract - an echo for everything, silence for two thin
   2026-08-12: those measured GET_STREAM_INFO against READ_DESCRIPTOR and the
   per-command response-size table, and GET_STREAM_INFO is one of the commands
   that is genuinely absent. Nor does it cover ENTITY_AVAILABLE,
-  CONTROLLER_AVAILABLE, LOCK_ENTITY, the unsolicited registry or GET_COUNTERS
-  as anything other than members of the NOT_IMPLEMENTED sweep, because that
-  is all they are today.
+  CONTROLLER_AVAILABLE, LOCK_ENTITY or the unsolicited registry. It does not
+  duplicate the served-command behavior, including GET_COUNTERS. Those paths
+  are covered by their command-specific BDD features and RTL suites.
 
   This is an OFFLINE model (tests/README.md T1); tests/steps/aecp_engine_steps.py
   lists the submodule sources it mirrors.

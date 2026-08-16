@@ -59,9 +59,8 @@ only once someone loads it. **No dynamic state, no counter and no CSR is
 readable over AECP**: every getter draws a `NOT_IMPLEMENTED` echo. Every
 observability question therefore still goes through the CSR plane over ssh,
 which makes the observability groups *more* load bearing, not less. `0x6B8` is
-the clearest case: it used to be "the CSR face of counters a controller could
-also fetch with GET_COUNTERS", GET_COUNTERS is unimplemented, and it is now the
-only face there is.
+the clearest case: it is the CSR face of counters that a controller can also
+fetch with GET_COUNTERS.
 
 ## Classification
 
@@ -78,7 +77,7 @@ only face there is.
 | `0x648–0x650` | AECP/ACMP status (locked, current config, cmd/resp counts, probe_armed) | **optional** | **STRUCTURAL ZERO** | Verdict unchanged, reasons narrowed now that the AECP uCPU has landed — it is **not** "no engine". `aecp_locked` is tied 0 because ACQUIRE_ENTITY and LOCK_ENTITY are unimplemented and the processor's lock manager is unwired, so nothing can ever lock this entity. `current_config` is tied 0 because SET_CONFIGURATION is unimplemented. The command/response tallies read zero because **this CSR is simply not wired to the engine** — those tallies DO exist (command, response, drop, locate-miss, last status, last length, image-valid, image-fault), in the protocol processor's **side-port snapshot window**, reached through `KL_pp_shadow`'s side-port host bridge at `0x928`/`0x92C`. `probe_armed` has no fabric ACMP SM to count. **`acmp talker_active` is the exception and is STILL LIVE** — it is the processor's `acmp_declaring_o` |
 | `0x680–0x694` | SRP CTRL / TSPEC / STATUS | **needed** | **split** | Reservation policy plus the licence word `0x694` and its `[11]` row-shortfall flag. Repointed to the processor's class-D SRP face: the **DOMAIN word (adopted/priority/VID), the granted slope and the over-limit bit are LIVE**. The **MRPDU tx/rx counts and rx drops are STRUCTURAL ZEROS** (the serializer/ingress pair that counted them is deleted), and the provisioning words the deleted applicant read — DMAC, MaxFrameSize, MaxIntervalFrames, the declare-bypass bit — are **WRITE-ONLY SCRATCH** |
 | `0x6A4` | ACMPL_STATE | **optional** | **split** | Still the first stop in connection triage, but read it differently: **`bound`, `active` and bit 31 (CRF sink bound) are real**, published from the processor's bind record. The state-machine fields (state, probing, acmp_status, tk_avail, lstn_declare) and the per-sink SRP registrar bits are **STRUCTURAL ZEROS** — `ACMPL_STATE` no longer tracks PROBING/SETTLED and **a reader must take `bound` as the truth** |
-| `0x6B8` | RX-monitor CSR mirror | **optional → the only face** | live | STREAM_INPUT counters, unaffected by the substitution. GET_COUNTERS used to carry the same truth to controllers and is **not implemented** in the AECP uCPU — a controller asking for it gets a `NOT_IMPLEMENTED` echo, never a counter — so this window is the *sole* reader of Milan Table 5.6/7-157 counters. The STREAM_OUTPUT (Table 5.4) counterpart is gone entirely — its context is not instantiated |
+| `0x6B8` | RX-monitor CSR mirror | **optional local face** | live | STREAM_INPUT counters remain readable locally and through GET_COUNTERS. STREAM_OUTPUT counters use their own `KL_talker_diag_ctx` banks and are served through the same AECP command |
 | `0x6CC–0x6D4` | MAAP | **needed** | live | Address acquisition is production function, `KL_maap` survives, and the processor's talker cannot declare without an ALLOC_DA success through it — this group is now load-bearing for connectivity, not just for addressing |
 | `0x6E8` | ACMPL_DBG (walker forensics) | **debug** | **STRUCTURAL ZERO** | Classify-stage byte forensics of a walker that is deleted |
 | `0x730/0x734` | AS_PATH | **needed → dead end** | staging **STRUCTURAL ZERO** | It fed GET_AS_PATH (a Milan Table 5.22 push source). GET_AS_PATH is **not implemented** in the uCPU and the unsolicited lane has no producer, so neither half exists; `0x7DC` AS_PATH staging accepts writes and discards them. statd may still maintain it locally, but nothing serves it |

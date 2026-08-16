@@ -50,27 +50,19 @@ with it, and the mixed features below were pruned scenario by scenario. The
 protocol YAMLs, and there is nothing left to feed them to. Nothing in the
 suite skips any more.
 
-**2026-08-13 — part of the AECP tier came BACK, because the device answers
-again.** The deletion above was made on the premise "this device answers no
-AECP command at all". That premise expired when the protocol-processor landed
-its AECP µCPU (`protocol-processor/hdl/aecp/**`). The device now answers
-**READ_DESCRIPTOR** (0x0004) for real out of a static descriptor image;
-answers **IDENTIFY_NOTIFICATION-as-a-command** with `BAD_ARGUMENTS`
-(IEEE §7.4.39.2, the opcode-specific rule, over §9.3.5.3.3's fallback);
-answers **every other opcode and message type** — AEM, ADDRESS_ACCESS and
-MVU alike — with a conformant `NOT_IMPLEMENTED` echo at `message_type + 1`,
-the command's own length and a matching `control_data_length`; and stays
-**silent** for exactly two inputs: a command whose `target_entity_id` is not
-ours, and an AECP *response* arriving as input. Two features cover that and
-only that: `aecp_read_descriptor.feature` and `aecp_response_contract.feature`.
+**2026-08-16: the AECP tier follows the processor's served inventory.** The
+protocol-processor AECP uCPU (`protocol-processor/hdl/aecp/**`) serves the
+opcodes listed in `tests/steps/aecp_engine_steps.py`, including
+READ_DESCRIPTOR and GET_COUNTERS. Unsupported commands receive a conformant
+NOT_IMPLEMENTED fallback. IDENTIFY_NOTIFICATION as a command receives
+BAD_ARGUMENTS. The engine stays silent for a command whose target_entity_id is
+not ours and for an AECP response arriving as input.
 
-**Still genuinely absent, and deliberately NOT covered** — a scenario
-asserting an answer nothing gives is a conformance claim with no device
-behind it: SET/GET_CLOCK_SOURCE, SET/GET_MAX_TRANSIT_TIME, GET_COUNTERS and
-the Table 5.22 unsolicited push, the audio-map getters/setters, entity
-lock/acquire semantics beyond the generic echo, saved-state persistence, and
-SET_CONFIGURATION / NAME / SAMPLING_RATE / STREAM_FORMAT / STREAM_INFO. Their
-features stay deleted.
+`aecp_read_descriptor.feature`, `aecp_response_contract.feature` and
+`counters_contract_milan.feature` cover the standards-facing contract. The
+processor `pp_top` suite and root `milan_dp` suite cover the RTL and integrated
+wire path. The Milan Table 5.22 unsolicited counter-change producer and
+commands outside the served inventory remain explicit gaps.
 
 **14 features / 307 scenarios / 1460 steps**, all passing, counted by running
 the suite on 2026-08-13 (the run's own tally is authoritative — prose counts

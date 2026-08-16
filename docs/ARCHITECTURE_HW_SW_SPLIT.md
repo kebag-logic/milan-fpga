@@ -17,30 +17,22 @@ ACMP talker/listener and lwSRP applicant are **deleted**. This document is the
 normative delimitation; the rev-2 `atdecc_architecture.drawio` page
 `9-hw-sw-split` that used to mirror it was deleted with the plane it drew.
 
-**The AECP row is the one to read first: this entity answers `READ_DESCRIPTOR`,
-and answers every other AECP command with a conformant `NOT_IMPLEMENTED` echo.**
-The responder is the processor's AECP uCPU, in fabric — no software responder
-was ever added, because putting one on the softcore would break the very
-principle below: a controller's 250 ms retry is a deadline independent of CPU
-load. So the device discovers over ADP, connects over ACMP, reserves over SRP,
-and **is enumerable**: `READ_DESCRIPTOR` (0x0004) answers `SUCCESS` with
-`configuration_index`, the reserved field and the descriptor, `NO_SUCH_DESCRIPTOR`
-on a locate miss and `BAD_ARGUMENTS` on a bad configuration index, the two error
-paths carrying the IEEE 1722.1 §7.4.5 4-byte `{descriptor_type,
-descriptor_index}` stub. Everything else — every other AEM opcode,
-ADDRESS_ACCESS, MVU — gets an echo with the correct `message_type`+1, length and
-`controller_data_length`; never silence, never a malformed frame.
-`IDENTIFY_NOTIFICATION` (0x0026) as a *command* is `BAD_ARGUMENTS` (§7.4.39.2).
-A command whose `target_entity_id` is not ours and any AECP *response* arriving
-as input are silently refused — freed, counted, no reply. **Known gap:** Milan
-Δ7 `ACQUIRE_ENTITY` (`NOT_SUPPORTED` with `owner_id` = 0) is not distinguished
-from the generic echo.
+**The AECP row is the one to read first: this entity serves the processor's
+declared command inventory, including `READ_DESCRIPTOR` and `GET_COUNTERS`.**
+The responder is the processor's AECP uCPU in fabric. No software responder was
+added because a controller's 250 ms retry deadline is independent of CPU load.
+`READ_DESCRIPTOR` provides its three standard status paths. GET_COUNTERS serves
+every declared Stream Output with the Milan Table 5.17 mask and compact
+five-counter layout. Unsupported commands receive a conformant
+`NOT_IMPLEMENTED` response with the correct message type, length and control
+data length. `IDENTIFY_NOTIFICATION` (0x0026) as a command receives
+`BAD_ARGUMENTS`. A command for another entity and an AECP response arriving as
+input are silently refused, freed and counted.
 
-**An echo is not an implementation.** `SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME`,
-`GET_COUNTERS` and the Milan Table 5.22 unsolicited push, saved-state persistence
-and the audio-map setters remain genuinely absent, and everything reached only
-through them is a real loss — a **stated capability boundary** from an informed
-decision, not a regression and not a temporary blip.
+**The remaining boundary is explicit.** The Milan Table 5.22 unsolicited
+counter-change producer, saved-state persistence and commands outside the
+served inventory remain open. Milan Delta 7 `ACQUIRE_ENTITY` is not
+distinguished from the generic fallback response.
 
 **The entity model lives in DDR3.** The processor's descriptor store fetches it
 over a read-only master at a **compile-time base** (no base register), surfaced
@@ -50,12 +42,12 @@ boot sequence below.
 
 ## Contents
 
-- **[The dividing principle](#the-dividing-principle)** — The test for "fabric or softcore", plus the measurement that forced rev 2: class-A AAF wants a frame every 125 us and the measured softcore wakeup is 340–560 us, so the framer cannot live in userspace.
-- **[Per-function delimitation](#per-function-delimitation)** — The normative table: every function, which side it lands on, and how far it has actually got. Read the Status column — most rows say silicon; the rev-3 rows say which block owns the function now, and the AECP row says partial: READ_DESCRIPTOR answered, everything else a conformant NOT_IMPLEMENTED echo.
-- **[What rev 3 costs, named](#what-rev-3-costs-named)** — The three functional losses that ride with the AECP boundary: the media clock source can never be selected, the presentation offset is pinned at the Milan 2 ms default, and the Table 5.4 per-STREAM_OUTPUT counters are gone (STREAM_INPUT's are not).
-- **[Boundary contracts (the only crossings)](#boundary-contracts-the-only-crossings)** — The interfaces that are allowed to cross: the 0x600 identity CSRs, the DMA rings + timestamp window, the read-only descriptor-memory master into DRAM, the PHC, the DMA audio ring, and the mailbox — now telemetry-and-override, explicitly not a liveness gate.
-- **[Rationale anchors (paid-for evidence)](#rationale-anchors-paid-for-evidence)** — Why the split is believed rather than asserted: la_avdecc enumerated the rev-2 entity with the CPU idle (evidence that must now be re-taken against the uCPU and its DDR3 image), one hardware counter fed both ADP and AEM so wire truth could not diverge, and the TX-ceiling work showed the CPU is the scarce resource.
-- **[Open decisions (flagged, not blocking)](#open-decisions-flagged-not-blocking)** — Three things deliberately left unsettled: how far the AECP uCPU is taken past READ_DESCRIPTOR, gPTP staying on the softcore (linuxptp, revisit only if servo jitter blocks), and whether audio ever arrives from a native I2S/TDM input instead of the DMA ring.
+- **[The dividing principle](#the-dividing-principle)** -- The test for "fabric or softcore", plus the measurement that forced rev 2: class-A AAF wants a frame every 125 us and the measured softcore wakeup is 340–560 us, so the framer cannot live in userspace.
+- **[Per-function delimitation](#per-function-delimitation)** -- The normative table names which side owns each function, the served AECP inventory and the remaining gaps.
+- **[What rev 3 costs, named](#what-rev-3-costs-named)** -- The remaining losses include unavailable media-clock selection, the pinned presentation offset and the missing Table 5.22 producer. Solicited Stream Output counters are live.
+- **[Boundary contracts (the only crossings)](#boundary-contracts-the-only-crossings)** -- The interfaces that are allowed to cross: the 0x600 identity CSRs, the DMA rings + timestamp window, the read-only descriptor-memory master into DRAM, the PHC, the DMA audio ring, and the mailbox — now telemetry-and-override, explicitly not a liveness gate.
+- **[Rationale anchors (paid-for evidence)](#rationale-anchors-paid-for-evidence)** -- Why the split is believed rather than asserted: la_avdecc enumerated the rev-2 entity with the CPU idle (evidence that must now be re-taken against the uCPU and its DDR3 image), one hardware counter fed both ADP and AEM so wire truth could not diverge, and the TX-ceiling work showed the CPU is the scarce resource.
+- **[Open decisions (flagged, not blocking)](#open-decisions-flagged-not-blocking)** -- Three things deliberately left unsettled: how far the AECP uCPU is taken past READ_DESCRIPTOR, gPTP staying on the softcore (linuxptp, revisit only if servo jitter blocks), and whether audio ever arrives from a native I2S/TDM input instead of the DMA ring.
 
 ## The dividing principle
 
@@ -95,7 +87,7 @@ the framer, the reservation gate and connection liveness are fabric work.
 | RX DMA: RSC coalescing, header-split, multi-slot | fabric | silicon | driver-paired (hsplit16/mslot60) |
 | HW-TSO header generation | fabric | silicon | TX 143/186 zc validated |
 | **ADP** (available/depart/discover, available_index) | fabric | rev 3 | the protocol processor's ADP engine, via `KL_pp_shadow`; `available_index` is published on its class-D face and stays live at CSR `0x644`. The rev-2 `adp_advertiser`/`KL_adp_parser` are deleted, and the `0x600` diagnostic words they fed read structural zeros |
-| **AECP/AEM entity** | fabric | rev 3, **partial** | the protocol processor's AECP uCPU, via `KL_pp_shadow`. `READ_DESCRIPTOR` is answered for real (SUCCESS / NO_SUCH_DESCRIPTOR / BAD_ARGUMENTS with the §7.4.5 stub), so the entity is enumerable — once a descriptor image is loaded into DRAM, which nothing in this repository does, so a stock build answers `BAD_ARGUMENTS` to every read; every other opcode and message type gets a conformant `NOT_IMPLEMENTED` echo, and `IDENTIFY_NOTIFICATION` as a command is `BAD_ARGUMENTS`. Descriptors are fetched from DDR3 at a compile-time base. **Not implemented behind the echo:** `SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME`, `GET_COUNTERS` + the Table 5.22 push, persistence, the audio-map setters — and Milan Δ7 `ACQUIRE_ENTITY` is not distinguished from the echo. See the boundary above and the losses below |
+| **AECP/AEM entity** | fabric | rev 3, **partial** | The protocol processor's AECP uCPU, via `KL_pp_shadow`, serves its declared command inventory. `READ_DESCRIPTOR` provides SUCCESS, NO_SUCH_DESCRIPTOR and BAD_ARGUMENTS. GET_COUNTERS serves every declared Stream Output counter bank. Unsupported commands receive a conformant fallback, and `IDENTIFY_NOTIFICATION` as a command receives BAD_ARGUMENTS. Descriptors are fetched from DDR3 at a compile-time base. Remaining gaps include the Table 5.22 unsolicited producer, persistence and Milan Delta 7 ACQUIRE_ENTITY semantics |
 | **ACMP** (CONNECT_TX / PROBE_TX / GET_TX_STATE, the BIND_RX ladder) | fabric | rev 3 | the processor's talker + listener pair; the result is republished as a **bind record** on the class-D face, which is what every consumer in `milan_datapath` reads. `ACMPL_STATE` no longer tracks PROBING/SETTLED — take `bound` as the truth |
 | **The talker DA gate** | fabric | rev 3 | `acmp_declaring_o` asserts only after a MAAP `ALLOC_DA` success through `KL_pp_maap_shim`, so AAF admission is still "a destination address exists AND the source is declaring" |
 | kl-eth driver (rings, NAPI, ethtool, CSR) | softcore | silicon | Linux 6.x, kl,dma-ether |
@@ -127,11 +119,11 @@ Three losses are functional, not paperwork, and each is where a bench meets it:
    was its only writer. That is a *default*, not a zero: 0 ns would be a
    presentation time in the past and every listener would drop every frame as
    late.
-3. **Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are gone entirely.**
-   `KL_talker_diag_ctx` is no longer instantiated — with GET_COUNTERS and the
-   Table 5.22 push deleted, nothing could read it, and keeping it would have
-   burned per-context counters that only look alive. **The STREAM_INPUT
-   counters at the `0x6B8` `A_STRMW_CNT` window are UNAFFECTED and still live.**
+3. **Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are live.**
+   `KL_talker_diag_ctx` is instantiated for every declared AAF output and the
+   CRF output. Solicited GET_COUNTERS reads the compact five-counter Milan
+   layout. The Table 5.22 unsolicited change notification remains open because
+   its producer is not connected to the processor's unsolicited TX lane.
 
 ## Boundary contracts (the only crossings)
 
@@ -180,12 +172,11 @@ Three losses are functional, not paperwork, and each is where a bench meets it:
 
 ## Open decisions (flagged, not blocking)
 
-- **How far the AECP uCPU is taken.** The engine has landed and answers
-  `READ_DESCRIPTOR`; the setters and getters behind the `NOT_IMPLEMENTED` echo
-  are upstream work in the submodule, not a new engine in `hdl/`. Until they
-  land, every AECP-derived capability in the losses above stays absent, and
-  Milan Δ7 `ACQUIRE_ENTITY` stays undistinguished from the generic echo; do not
-  plan around a date.
+- **How far the AECP uCPU is taken.** The engine serves the inventory recorded
+  in `tests/steps/aecp_engine_steps.py`, including GET_COUNTERS. Commands outside
+  that inventory are upstream work in the submodule. The Table 5.22 producer
+  and Milan Delta 7 ACQUIRE_ENTITY semantics remain open; do not plan around a
+  date.
 - **gPTP in fabric**: explicitly NOT now — linuxptp on the softcore is the
   plan (task: Arty+Milan pair), with fabric timestamps + INCR/ADJ discipline
   hooks. Revisit only if servo jitter proves blocking.

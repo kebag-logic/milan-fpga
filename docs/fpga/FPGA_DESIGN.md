@@ -22,8 +22,8 @@ lwSRP applicant are **deleted** — the *ieee17221/aecp*, *ieee17221/acmp* and
 *ieee8021q/srp* directories no longer exist. `adp_tx_arbiter.sv` survives: it is a
 generic 2-in/1-out AXIS packet merge the data lane uses too.
 
-**The AECP surface that comes with it: this entity answers READ_DESCRIPTOR, and
-answers every other AECP command with a conformant NOT_IMPLEMENTED echo.** The
+**The AECP surface that comes with it serves the processor's declared command
+inventory, including READ_DESCRIPTOR and GET_COUNTERS.** The
 responder is the processor's AECP uCPU, inside the submodule and reached through
 the same wrapper. `READ_DESCRIPTOR` (0x0004) returns `SUCCESS` with
 `configuration_index`, the reserved field and the descriptor, `NO_SUCH_DESCRIPTOR`
@@ -166,10 +166,10 @@ has a module in the inventory below that is present but idle:
    Stream Output (`SET_MAX_TRANSIT_TIME` is gone). A default, not a zero: 0 ns
    would be a presentation time in the past and every listener would drop every
    frame as late.
-3. **Milan Table 5.4 per-STREAM_OUTPUT counters are gone.**
-   `KL_talker_diag_ctx` is **not instantiated** — the module survives in
-   `hdl/ieee1722/avtp/` with its own suite, but `GET_COUNTERS(STREAM_OUTPUT)`
-   and the Table 5.22 push were its only two consumers. The **STREAM_INPUT**
+3. **Milan Table 5.4 per-STREAM_OUTPUT counters are live.**
+   `KL_talker_diag_ctx` is instantiated for every declared AAF output and the
+   CRF output. GET_COUNTERS serves the compact five-counter layout. The
+   Table 5.22 unsolicited change producer remains open. The **STREAM_INPUT**
    counters at the `0x6B8` `A_STRMW_CNT` window are unaffected and still live.
 
 One structural note for anyone wiring a board script: the entity enable is now

@@ -27,9 +27,10 @@ AECP/AEM engine, ACMP talker/listener and lwSRP applicant are **deleted**;
 MAAP stays in this fabric (`KL_maap` + `hdl/milan/KL_pp_maap_shim.sv`) because
 the processor implements none by design.
 
-**And state the AECP surface before reading anything else: this entity answers
-READ_DESCRIPTOR, and answers every other AECP command with a conformant
-NOT_IMPLEMENTED echo.** The responder is the processor's AECP uCPU, which has
+**State the AECP surface before reading anything else: this entity serves the
+processor's declared command inventory, including READ_DESCRIPTOR and
+GET_COUNTERS.** Unsupported commands receive a conformant fallback. The
+responder is the processor's AECP uCPU, which has
 landed — the device is reachable on AECP, not silent. `READ_DESCRIPTOR`
 (0x0004) returns `SUCCESS` carrying `configuration_index`, the reserved field
 and the descriptor; `NO_SUCH_DESCRIPTOR` on a locate miss; `BAD_ARGUMENTS` on a
@@ -227,10 +228,10 @@ conformantly and do nothing. Not CSR cosmetics — behaviour a bench will notice
    was its only writer. That is a *default*, not a zero: 0 ns would be a
    presentation time in the past and every listener would drop every frame as
    late.
-3. **Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are gone.**
-   `KL_talker_diag_ctx` is no longer instantiated: its two consumers were
-   `GET_COUNTERS(STREAM_OUTPUT, idx)` and the Table 5.22 unsolicited push, and
-   both are deleted. **The STREAM_INPUT counters at the `0x6B8` `A_STRMW_CNT`
+3. **Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are live.**
+   `KL_talker_diag_ctx` is instantiated per declared output and served through
+   GET_COUNTERS. The Table 5.22 unsolicited change producer remains open.
+   **The STREAM_INPUT counters at the `0x6B8` `A_STRMW_CNT`
    window are unaffected and still live** — they reach software through a CSR,
    not through AECP.
 

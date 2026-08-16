@@ -20,14 +20,11 @@ Feature: READ_DESCRIPTOR is answered again (IEEE 1722.1-2021 7.4.5)
   descriptor_index} stub, "in the same location as in the command frame", so
   a controller can tell which read failed without keeping its own book.
 
-  WHAT IS DELIBERATELY NOT HERE. Everything the submodule still does not
-  implement: SET/GET_CLOCK_SOURCE, SET/GET_MAX_TRANSIT_TIME, GET_COUNTERS and
-  the Table 5.22 unsolicited push, the audio-map getters and setters, entity
-  lock and acquire semantics beyond the generic echo, saved-state persistence
-  and SET_CONFIGURATION / NAME / SAMPLING_RATE / STREAM_FORMAT / STREAM_INFO.
-  Those features were deleted with the RTL and stay deleted: a scenario that
-  asserts an answer nothing gives is a conformance claim with no device
-  behind it.
+  WHAT IS DELIBERATELY NOT HERE. This feature covers READ_DESCRIPTOR only. The
+  served inventory, including GET_COUNTERS, has command-specific BDD and RTL
+  coverage. Commands outside that inventory and the Table 5.22 unsolicited
+  push remain separate gaps. A scenario that asserts an answer nothing gives
+  would be a conformance claim with no device behind it.
 
   This is an OFFLINE model (tests/README.md T1) - a Python mirror of the
   shipped command path in tests/steps/aecp_engine_steps.py, which lists the

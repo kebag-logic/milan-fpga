@@ -21,9 +21,9 @@ is live; the 8x8 shape elaborates and sim-scales green (§6 item-5 note).
 > specified are **deleted RTL**; the sections are kept as the record of what the
 > shapes need, marked where the owner changed.
 >
-> **And the AECP half came back partial, not whole: this entity answers
-> READ_DESCRIPTOR, and answers every other AECP command with a conformant
-> NOT_IMPLEMENTED echo.** The responder is the processor's AECP uCPU, which has
+> **The AECP half is partial and actively served.** The processor's AECP uCPU
+> serves its declared command inventory, including READ_DESCRIPTOR and
+> GET_COUNTERS. Unsupported commands receive the conformant fallback. It has
 > landed; its descriptors come from a flat image in DRAM at a compile-time base,
 > not from the descriptor ROM this document's §3.5(a) compiles — and nothing in
 > this repository builds or loads that image yet, so a stock build answers
@@ -760,10 +760,10 @@ computed here — which also retired `max(N_STREAMS, 2)`, under which the CRF
 open on the CRF path is (c) alone — the Class A reservation, [M-CLK-2] —
 which is a different question from discoverability.
 
-### 3.6 AEM / AECP  *(READ_DESCRIPTOR only — every other command is an echo)*
+### 3.6 AEM / AECP
 
-**This entity answers `READ_DESCRIPTOR`, and answers every other AECP command
-with a conformant `NOT_IMPLEMENTED` echo.** The AECP/AEM engine this section
+**This entity serves the processor's declared command inventory, including
+`READ_DESCRIPTOR` and `GET_COUNTERS`.** The AECP/AEM engine this section
 extended — the descriptor ROM, the per-descriptor validation tables, the
 response builder — is deleted; the responder is the protocol processor's AECP
 uCPU. `READ_DESCRIPTOR` (0x0004) answers `SUCCESS` with `configuration_index`,
@@ -796,10 +796,11 @@ What survives, and what it costs the NxN shapes:
   the deleted fabric store's format, not the DRAM image the uCPU reads, so a
   shape's descriptors reach a controller only once someone converts the model
   and loads it.
-* **Per-STREAM_OUTPUT Milan Table 5.4 counters are gone entirely.**
-  `KL_talker_diag_ctx` is no longer instantiated: `GET_COUNTERS(STREAM_OUTPUT,
-  idx)` and the Table 5.22 push were its only two consumers. **The STREAM_INPUT
-  counters of §1.4/§1.5 are UNAFFECTED and still live** at the `0x6B8`
+* **Per-STREAM_OUTPUT Milan Table 5.4 counters are live.**
+  `KL_talker_diag_ctx` is instantiated per declared AAF output and for CRF.
+  GET_COUNTERS serves every index with the compact five-counter layout. The
+  Table 5.22 unsolicited change producer remains open. **The STREAM_INPUT
+  counters of §1.4/§1.5 remain live** at the `0x6B8`
   `A_STRMW_CNT` window.
 * **Per-stream stream format can no longer be negotiated.** The
   format-compare reference the RX monitor uses stays a build-time fact; a

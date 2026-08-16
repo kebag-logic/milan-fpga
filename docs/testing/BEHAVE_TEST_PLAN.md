@@ -19,12 +19,11 @@ docs: [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) (the 204-row matrix
 > * **ADP, ACMP and SRP are still testable** and are now the processor's. Every
 >   domain row below that asserts on discovery, connection management or a
 >   reservation is still authorable; the DUT behind it changed.
-> * **CORRECTION — this entity DOES answer AECP.** An earlier revision of this
->   block, written the same day, said it answered no AECP/AEM command at all.
->   **That was false**: the processor's **AECP uCPU landed**. In one sentence,
->   *it answers `READ_DESCRIPTOR`, and answers every other AECP command with a
->   conformant `NOT_IMPLEMENTED` echo* (correct `message_type`+1, correct length,
->   correct `controller_data_length`).  `IDENTIFY_NOTIFICATION` (0x0026) arriving
+> * **CORRECTION: this entity serves AECP commands.** The processor's AECP uCPU
+>   serves its declared inventory, including `READ_DESCRIPTOR` and
+>   `GET_COUNTERS`. Unsupported commands receive the conformant fallback with
+>   the correct message type, length and control data length.
+>   `IDENTIFY_NOTIFICATION` (0x0026) arriving
 >   as a **command** is answered `BAD_ARGUMENTS` (IEEE 1722.1 §7.4.39.2 beats
 >   §9.3.5.3.3). A command whose `target_entity_id` is not ours, and any AECP
 >   **response** arriving as input, are silently refused — freed, counted, no
@@ -163,9 +162,9 @@ the "Then" assertion mechanism (see BENCH_TOPOLOGY / REGISTER_MAP for each).
 | 1 | **gPTP/802.1AS** | es-1.1 cadence via tap | AS-4 latency calib ❌; AS-6 DUT-BMCA 🟡; M-DEV-2/3/4 Pdelay 🟡; M-DEV-13 tu 🟡 | `gptp.feature`, `gptp_latency.feature`, `gptp_bmca.feature`(@wip switch-gated) | `gptp_cadence.py` (tap1, ether[40:2]=0x88f7); CSR GM `0x624/8`, pdelay `0x6E4` |
 | 2 | **SRP/lwSRP** | es-1.2 Domain via tap | SRP-9 NxN ❌; SRP-8 class B 🟡; SRP-2 single-stream 🟡; MRP-7 🟡; M-CLK-2 ❌ | `srp.feature`, `srp_nxn.feature`, `srp_classb.feature`(@wip) | `srp_domain.py` (0x22ea), `srp_qna.py`; CSR `0x680/694/698/69C` |
 | 3 | **MAAP** | silicon_battery defend check (thin) | (MAAP ✅ RTL, no behave) | `maap.feature` | inject conflict on the peer host → tap defend frame; CSR eff dmac |
-| 4 | **AVDECC/ATDECC** | ADP + ACMP survive, retargeted onto the protocol processor. **The AECP half is PARTLY re-opened (uCPU landed)**: `READ_DESCRIPTOR` + its three status paths, the `IDENTIFY_NOTIFICATION`-as-command `BAD_ARGUMENTS` rule, the `NOT_IMPLEMENTED` echo contract and the two silent-refusal rules are authorable — none of them is written yet | the AECP rows (AECP-8, CMD-7, CMD-14/M-AECP-12, M-AECP-11, M-AECP-9) are **NOT IMPLEMENTED**, not partial — every one of them needs a getter or a setter that does not exist. Do not re-grade a row as covered because the echo arrived | ADP/ACMP scenarios, plus a new `aecp_descriptor_read.feature` and an `aecp_response_contract.feature`; every getter/setter `aecp_*.feature` stays unauthorable | raw AF_PACKET (`avdecc_l2.py`) for ADP/ACMP **and for AECP** — a controller probe now sees discovery and connection succeed, `READ_DESCRIPTOR` answer (`BAD_ARGUMENTS` with no image loaded — the configuration range check precedes the locate), and a conformant `NOT_IMPLEMENTED` for everything else |
+| 4 | **AVDECC/ATDECC** | ADP and ACMP use the protocol processor. AECP serves the inventory synchronized by `aecp_engine_steps.py`, including READ_DESCRIPTOR and GET_COUNTERS | Commands outside the served inventory, the Table 5.22 producer and Milan Delta 7 ACQUIRE_ENTITY semantics remain open | `aecp_read_descriptor.feature`, `aecp_response_contract.feature`, `counters_contract_milan.feature` and the processor `pp_top` suite | raw AF_PACKET (`avdecc_l2.py`) plus the pinned la_avdecc counter decoder |
 | 5 | **AAF talker** | Suite C talker_steps (VID2/prio3/subtype/dmac, rate) | SRP-2/SRP-9 NxN | `aaf_talker.feature`, extend for NxN | tap AAF capture → inter-frame Δt histogram, byte fields (`pcap2s32.py`) |
-| 6 | **AAF listener** | Suite C bind + counters | **es-4.16 media-map ADD/REMOVE** is still unauthorable — `ADD`/`REMOVE_AUDIO_MAPPINGS` and `SET_AUDIO_MAP` are among the setters the uCPU refuses with the generic echo; AVTP-3 🟡; AVTP-5/M-CNT-4 🟡 | `aaf_listener.feature`, `pcm_ring.feature` | the CSR window **only**: AVTPRX `0x6B8/6BC/6C0/6C4`. The STREAM_INPUT counters there are unaffected by the deletion and still live; `GET_COUNTERS` as an assertion mechanism is still gone — it answers `NOT_IMPLEMENTED`, which reads no counter |
+| 6 | **AAF listener** | Suite C bind + counters | media-map coverage remains separate; the supported GET_COUNTERS targets are live | `aaf_listener.feature`, `pcm_ring.feature`, `counters_contract_milan.feature` | AVTPRX CSR window plus GET_COUNTERS and integrated `milan_dp` evidence |
 | 7 | **CRF/media clock** | Suite C clock_recovery | **CRF-8 ❌**. **M-CLK-3 was resolved 2026-07-27 and is now UNREACHABLE**: `SET_CLOCK_SOURCE` was the only writer of the live `clock_source_index`, so it is pinned at 0 (INTERNAL) for the life of a build, the MMCM-DRP and media-NCO servos are **structurally off**, and `A_MCSRV_STAT` reads its idle. `KL_crf_rx` still parses, counts and reports — it just cannot steer anything | `media_clock_servo.feature` cannot be driven on this build: its `Given clock_source == 2` has no writer | MCSRV_STAT `0x8F8` reads the idle state, which is a structural zero and not a measurement |
 | 8 | **ALSA/audio** | Suite C audio THD+N | roadmap-7 playback (KL_pcm_tx); arecord byte-exact | `alsa_record.feature`, `alsa_playback.feature`(@wip) | `tone_thdn.py` (digital ≤−120, analog ≤−80); `pcm_ring_dump.c` |
 | 9 | **Link/L1-L2** | es link-flap → counters | **AX42 TX-wedge recovery** (gaps item 0); <50 ms timing | `link_guard.feature` | real flap (`devmem 0xf0003800`); tap TX-liveness; LINK_CTRL `0x71C`, RST_EPOCH `0x720`; LINKG_STAT `0x774` (`{bounce16,flags,state,eth_rst,alive}`) |
@@ -348,10 +347,10 @@ exists and passes; the behave scenarios above are the *wire* half:
 >   assertable — `IDENTIFY_NOTIFICATION` arriving as a **command** is answered
 >   `BAD_ARGUMENTS` per §7.4.39.2.
 >
-> The Milan Table 5.4 STREAM_OUTPUT counters M-CNT-4 wanted are gone entirely —
-> `KL_talker_diag_ctx` is no longer instantiated, because `GET_COUNTERS` and the
-> Table 5.22 push were its only two readers, and the processor's unsolicited TX
-> lane has no producer. The **STREAM_INPUT** counters at `0x6B8` are unaffected.
+> The Milan Table 5.4 STREAM_OUTPUT counters M-CNT-4 requires are live for
+> solicited GET_COUNTERS reads. The processor's unsolicited TX lane still lacks
+> the Table 5.22 counter-change producer. The STREAM_INPUT counters at `0x6B8`
+> remain live.
 
 | Matrix | Clause | Feature / step | The specific assertion to add |
 |--------|--------|----------------|-------------------------------|
@@ -370,7 +369,7 @@ exists and passes; the behave scenarios above are the *wire* half:
 | M-DEV-13 | 4.3.5.2 | `aaf_talker.feature` | talker-side `tu` set on a real GM change |
 | M-AECP-11 | 5.4.5.3 | `avdecc` | **RUNNABLE AGAIN** — the row's assertion needs an AECP exchange to prove the entity stopped answering, and the entity now answers, so the two-witness discriminator (ADP miss **and** an unanswered well-formed AECP command) works again. Note the separate, unchanged gap: the *entity-side* 5.4.5.3 duty — per-controller monitor timer, `CONTROLLER_AVAILABLE` probe, auto-deregister — is **NOT IMPLEMENTED**, so this row grades the controller-side cleanup only. No result against this build is recorded |
 | M-AECP-12 | 5.4.5.4 | (= CMD-14, cadence half) | **STILL VOID** — identify notification needs `SET_CONTROL`-driven identification, which is absent |
-| M-CNT-4 | Table 5.17 | ~~`aaf_talker.feature`~~ | **STILL VOID** — the STREAM_OUTPUT counter block does not exist in any build (`KL_talker_diag_ctx` is not instantiated) and `GET_COUNTERS` answers `NOT_IMPLEMENTED`, so it could not read it if it did |
+| M-CNT-4 | Table 5.17 | `counters_contract_milan.feature`, `tkdiag`, `milan_dp` | **CLOSED FOR SOLICITED READS 2026-08-16.** Every declared Stream Output returns the compact five-counter Milan bank. Table 5.22 unsolicited notification remains separate |
 | M-CLK-3 | 7.2.2/7.5.2 | (= §5.1 servo) | **UNREACHABLE** — the actuator is built and was silicon-proven, and the build can no longer select the clock source that engages it (domain 7) |
 
 **Doc bug — RECONCILED (2026-07-23):** the summary tallied 18 partials / 9 Milan, but a
