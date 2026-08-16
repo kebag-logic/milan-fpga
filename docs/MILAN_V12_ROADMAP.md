@@ -51,8 +51,9 @@ only `NOTIFY_ENQ` in `gen_ucode.py` sits in an exemplar program, and
 `pp_pkg.sv` defines notification kinds for the deregistration and GET family
 only. Every `SET_*` row below therefore carries an open half, tracked as #69 —
 not as a per-row caveat, because it is the same missing mechanism in all of
-them. Two more caveats worth naming here rather than burying: `0x0006` stores
-the configuration index without re-pointing the served descriptor set (#82),
+them. Two more caveats worth naming here rather than burying: `0x0006` now keeps
+`GET_CONFIGURATION` and `READ_DESCRIPTOR(ENTITY)` equivalent, but the shipping
+one-configuration image cannot exercise a real active-configuration switch;
 and `0x0016`'s stored clock source reaches `milan_datapath` and is read by
 nothing (audit B3).
 
