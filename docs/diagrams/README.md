@@ -131,8 +131,9 @@ The chronograms need only `pip install wavedrom` in any virtualenv plus
   drawio renderer that produced its pages lived under the AECP RTL's doc
   directory. **Both were deleted on 2026-08-13** with the fabric engine they
   described. The AECP responder that answers today is the protocol processor's
-  uCPU — `READ_DESCRIPTOR` served from a DRAM descriptor image, a conformant
-  `NOT_IMPLEMENTED` echo for everything else — and its drawings live in the
+  uCPU. It handles 21 AEM opcodes plus Milan `GET_MILAN_INFO`, and returns a
+  conformant `NOT_IMPLEMENTED` echo for commands outside that inventory. Its
+  authoritative command table and architecture drawings live in the pinned
   submodule, not here. Nothing in the surviving pipeline depends on that
   renderer: the diagrams below render with `rsvg-convert`.
 

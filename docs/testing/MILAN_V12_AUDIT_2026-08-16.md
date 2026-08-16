@@ -70,8 +70,8 @@ The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `GET_MILAN_INFO`.
 
 This inventory describes command handling, not end-to-end effect. In
-particular, B12 records that the accepted Stream Input start state is discarded
-at the root wrapper and does not control the media plane.
+particular, B12 records that START/STOP is unimplemented, so no AECP Stream
+Input started state reaches the root wrapper or controls the media plane.
 
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
@@ -95,9 +95,9 @@ Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/a53b2616826f2203685a9591f82987b23841d490/hdl/aecp/KL_aecp_engine.sv) and
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/a9242a3e797a8bbc2754dc0fe6d548c0c8fefe6f/hdl/aecp/KL_aecp_engine.sv) and
 the current command table in
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/a53b2616826f2203685a9591f82987b23841d490/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/a9242a3e797a8bbc2754dc0fe6d548c0c8fefe6f/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 

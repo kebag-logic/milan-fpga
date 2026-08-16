@@ -13,8 +13,10 @@
 # AECP/AEM listener reads the SAME group, so this one script configures both
 # ADP advertise and AEM responses". THAT LISTENER IS DELETED - the whole
 # hdl/ieee17221/{aecp,acmp} plane and hdl/ieee8021q/srp with it - and the
-# protocol-processor submodule advertises now. This device answers NO
-# AECP/AEM command, so nothing here configures an AEM response.
+# protocol-processor submodule advertises and answers the served AECP/AEM
+# inventory now. This script programs the shared identity inputs only. The
+# builder and aemi-load provision the descriptor image, while command state
+# remains inside the processor and its live fabric faces.
 #
 # WHICH WRITES STILL DO SOMETHING. Every register below was checked against
 # the KL_pp_shadow / protocol_processor_top port map in
