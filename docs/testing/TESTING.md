@@ -45,29 +45,32 @@ protocol-level coverage contract is
 > counter arithmetic, and the BDD suite grades the standards-facing contract.
 > The full Verilator sweep and BDD suite run in CI.
 >
-> **Descriptor enumeration is reachable — once the descriptor image is in DRAM,
-> which nothing in this repository does for you yet**, so on a stock build every
-> `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` — the configuration range check runs
-> before the locate and an invalid image reports `configurations_count` = 0.
+> **Descriptor enumeration is reachable once the descriptor image is in DRAM.**
+> The end-station builder emits `aem_desc.bin`, `aem_desc.json`, and
+> `aem_desc.map`; the tracked board flow packages the paired artifacts and runs
+> `aemi-load` before enabling the entity. If a custom integration skips that
+> step, every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` because the configuration
+> range check runs before the locate and an invalid image reports
+> `configurations_count` = 0.
 > Use the two error statuses as a discriminator: `BAD_ARGUMENTS` to every read
 > means no image (or a corrupt one), `NO_SUCH_DESCRIPTOR` means the image is
-> loaded and that descriptor is genuinely absent. **Known gap kept visible:**
-> Milan Δ7 `ACQUIRE_ENTITY` (`NOT_SUPPORTED` with `owner_id` = 0) is not
-> distinguished from the generic echo.
+> loaded and that descriptor is genuinely absent. Milan Delta 7
+> `ACQUIRE_ENTITY` is graded for `NOT_SUPPORTED`, a zero `owner_id`, and the
+> command-specific response length.
 
 ## Contents
 
 - **[Which layer do I run?](#which-layer-do-i-run)** -- Start here: a flowchart keyed on *what you changed*, answering "what is the cheapest thing that would catch me being wrong". The point it makes is the one-way door at the bottom: timing, PHY and switch interop cannot be simulated here, so exhaust the free layers first.
 - **[0. Prerequisites](#0-prerequisites)** -- What each layer needs before it will run, including the two that bite: the Verilator floor of 5.050 (see §7 for why) and the `verilog-axis` submodule that five suites elaborate.
-- **[1. Verilator RTL harnesses - tb/verilator/ (the live regression)](#1-verilator-rtl-harnesses---tbverilator-the-live-regression)** -- The main regression layer: the one-line sweep, the generated module↔spec↔test coverage map with its ⚪ untested list, the tsn_fuzz field-validation campaign (AAF only since 2026-08-13), and the per-suite table — reconciled against the tree on 2026-08-13, when it **shrank** by the thirteen suites deleted with the control-plane RTL, with the standing reminder that `ls tb/verilator/` is the authority, not the table.
+- **[1. Verilator RTL harnesses - tb/verilator/ (the live regression)](#1-verilator-rtl-harnesses---tbverilator-the-live-regression)** -- The main regression layer: the one-line sweep, the generated module↔spec↔test coverage map with its ⚪ untested list, the tsn_fuzz field-validation campaign (AAF only since 2026-08-13), and the per-suite table -- reconciled against the tree on 2026-08-13, when it **shrank** by the thirteen suites deleted with the control-plane RTL, with the standing reminder that `ls tb/verilator/` is the authority, not the table.
 - **[2. Migen DMA-engine sims - sw/litex/test_\*.py](#2-migen-dma-engine-sims---swlitextest_py)** -- The ring/BD engine sims, and the niche they fill: this layer is invisible to the RTL harnesses and too slow to sweep in the SoC sim.
-- **[3. SoC-level simulation - sw/litex/milan_sim.py](#3-soc-level-simulation---swlitexmilan_simpy)** -- Booting the real BIOS on the softcore over Verilator to prove the CPU⇄CSR path end to end — the M-A2 `"MILN"` read, in simulation, before any board exists.
+- **[3. SoC-level simulation - sw/litex/milan_sim.py](#3-soc-level-simulation---swlitexmilan_simpy)** -- Booting the real BIOS on the softcore over Verilator to prove the CPU⇄CSR path end to end -- the M-A2 `"MILN"` read, in simulation, before any board exists.
 - **[4. Device-portability check - syn/yosys/](#4-device-portability-check---synyosys)** -- sv2v + Yosys over every top, proving synthesizability off-Xilinx (not behaviour, not timing). Also the two structural reports `run.sh` prints: the tied-off-input inventory and the observer-purity check that taps must never drive the streams they observe.
 - **[4b. RTL lint - scripts/lint_rtl.py (the ratcheted gate)](#4b-rtl-lint---scriptslint_rtlpy-the-ratcheted-gate)** -- Verilator `--lint-only` over all 82 modules in `hdl/` for the price of a cache restore, why Verible was not worth a second toolchain (155 of the opening 188 findings were width warnings it cannot compute), and the split that keeps it honest: a per-directory ratchet grandfathers today's backlog and prints it in full, while a malformed `lint_off` or a module that will not elaborate fails outright.
 - **[5. Legacy / auxiliary testbenches](#5-legacy--auxiliary-testbenches)** -- What still lives under [`tb/utests`](../../tb/utests), [`tb/itests`](../../tb/itests) and the Questa packet-generator library, why none of it gates anything, and the rule when they disagree with a Verilator suite: trust the Verilator suite.
 - **[6. On-silicon validation](#6-on-silicon-validation)** -- The mandatory post-flash step and the reason it exists: a build whose fabric paths run perfectly can still ship with a dead host plane, and every audio drill stays green while the kernel sees nothing. Then the bring-up order and where silicon measurements get logged.
-- **[6c. Controller-side validation — la_avdecc and Hive](#6c-controller-side-validation--la_avdecc-and-hive)** -- The standing rule that every round validates with BOTH la_avdecc and Hive, and why our own tools cannot substitute: how to run the counters probe and read its CLEAN/DIRTY verdict, where the example controllers live, the feature-define ABI trap that SIGSEGVs at run time, and the Hive compile option that makes malformed responses look like a pass.
-- **[6b. Unattended campaigns — status file and alert webhook](#6b-unattended-campaigns--status-file-and-alert-webhook)** -- The design contract for multi-day runs where silence means healthy: one STATUS word answering "alive and healthy" without parsing a log, the deliberate `FAILED` vs `BLOCKED` split (blocked never alerts — that is the false alarm that teaches people to ignore the next one), a fire-once webhook, and why the primary record lives on the host.
+- **[6c. Controller-side validation -- la_avdecc and Hive](#6c-controller-side-validation----la_avdecc-and-hive)** -- The standing rule that every round validates with BOTH la_avdecc and Hive, and why our own tools cannot substitute: how to run the counters probe and read its CLEAN/DIRTY verdict, where the example controllers live, the feature-define ABI trap that SIGSEGVs at run time, and the Hive compile option that makes malformed responses look like a pass.
+- **[6b. Unattended campaigns -- status file and alert webhook](#6b-unattended-campaigns----status-file-and-alert-webhook)** -- The design contract for multi-day runs where silence means healthy: one STATUS word answering "alive and healthy" without parsing a log, the deliberate `FAILED` vs `BLOCKED` split (blocked never alerts -- that is the false alarm that teaches people to ignore the next one), a fire-once webhook, and why the primary record lives on the host.
 - **[7. Known gaps (kept honest)](#7-known-gaps-kept-honest)** -- The current CI boundary, including the missing Table 5.22 counter-change producer, remaining controller commands and the supported Verilator version.
 - **[Policy](#policy)** -- The two standing rules in three sentences: a DUT change ships with its harness update in the same commit, and a module is not done until it appears in layer 1 (and layer 4 unless vendor-gated).
 
@@ -473,7 +476,7 @@ protocol validation status: [PROTOCOL_VALIDATION_MATRIX.md](PROTOCOL_VALIDATION_
 Performance measurements on silicon are logged in the
 [findings log](../findings/README.md) with their methodology.
 
-## 6c. Controller-side validation — la_avdecc and Hive
+## 6c. Controller-side validation -- la_avdecc and Hive
 
 **STANDING RULE: every round validates with BOTH la_avdecc and Hive.** They are
 not interchangeable with the repo's own tools. `avdecc/milan_controller.py` and
@@ -555,7 +558,7 @@ non-success responses anyway** — a size violation shows up as an `Info` line,
 not a failure, and a stricter controller would reject it. Do not read a Hive
 pass as proof a response is well formed.
 
-## 6b. Unattended campaigns — status file and alert webhook
+## 6b. Unattended campaigns -- status file and alert webhook
 
 A long on-silicon campaign can run for **days**. It is driven from a host, not
 from a board, and it is built so that **nobody is woken unless something is
@@ -647,9 +650,10 @@ host-only.
   conformant fallback response. The processor `pp_top` suite, the root
   `milan_dp` integration suite and the BDD conformance suite grade the served
   paths and the response contract.
-  Descriptor enumeration is reachable **once a descriptor image is
-  loaded into DRAM, which nothing in this repository does**, so on a stock build
-  every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`: the microprogram checks
+  Descriptor enumeration is reachable once the builder-generated image is
+  loaded into DRAM. The tracked board flow packages the paired artifacts and
+  runs `aemi-load` before enabling the entity. A custom integration that omits
+  that step gets `BAD_ARGUMENTS`: the microprogram checks
   `configuration_index` against `configurations_count` before it locates, and an
   invalid image reports a count of zero, so no index passes and the locate is
   never reached. `NO_SUCH_DESCRIPTOR` — the locate-miss status — is therefore
@@ -657,9 +661,9 @@ host-only.
   discriminator when a controller probe comes back empty. Remaining gaps
   include the Milan Table 5.22 unsolicited counter-change producer, IDENTIFY,
   saved-state persistence and commands still outside the served inventory.
-  Milan Delta 7 `ACQUIRE_ENTITY` (`NOT_SUPPORTED` with `owner_id` = 0) is not
-  distinguished from the generic fallback. Three consequences remain easy to
-  mistake for test failures:
+  Milan Delta 7 `ACQUIRE_ENTITY` is graded for `NOT_SUPPORTED`, a zero owner,
+  correct addressing, and the command-specific length. Three consequences
+  remain easy to mistake for test failures:
   * **The CRF media clock can never be SELECTED.** `SET_CLOCK_SOURCE` was the
     only writer of the live CLOCK_DOMAIN `clock_source_index`, so it is pinned
     at 0 (the INTERNAL media clock) for the life of a build. `KL_mmcm_drp_servo`

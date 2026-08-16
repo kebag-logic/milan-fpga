@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Behave test plan — validate every aspect of the Milan end-station
 
 Status: 2026-07-23 (planning round), **partly superseded 2026-08-13** — see the
@@ -28,18 +30,17 @@ docs: [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) (the 204-row matrix
 >   §9.3.5.3.3). A command whose `target_entity_id` is not ours, and any AECP
 >   **response** arriving as input, are silently refused — freed, counted, no
 >   reply.
-> * **What that re-opens, and what it does not.** A scenario that needed only a
->   *well-formed AECP response*, or that walks descriptors, is **authorable
->   again** — subject to the descriptor image, below. A scenario that needed a
->   getter or a setter is **still unauthorable**: `GET_COUNTERS`, the Milan
->   Table 5.22 unsolicited push, `SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME`,
->   saved-state persistence, the audio-map setters, `GET_DYNAMIC_INFO`,
->   `GET_MILAN_INFO` and the whole MVU family, ACQUIRE/LOCK_ENTITY, SET/GET_NAME,
->   SET/GET_SAMPLING_RATE, SET/GET_STREAM_FORMAT, SET/GET_STREAM_INFO,
->   SET/GET_CONFIGURATION, GET_AVB_INFO, GET_AS_PATH, IDENTIFY,
->   CONTROLLER_AVAILABLE, REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION and
->   START/STOP_STREAMING all draw the echo and serve **no function**. **The echo
->   is not coverage.**
+> * **What that re-opens, and what it does not.** Scenarios for commands in the
+>   implemented inventory are authorable again. That inventory includes
+>   `READ_DESCRIPTOR`, `GET_COUNTERS`, stream and clock getters, configuration
+>   and rate setters, Identify control, stream start and stop, the unsolicited
+>   registration pair, `GET_AUDIO_MAP`, and `GET_MILAN_INFO`. The exact current
+>   list is maintained in `tests/steps/aecp_engine_steps.py` and summarized in
+>   the [current Milan v1.2 audit](MILAN_V12_AUDIT_2026-08-16.md). Commands outside that inventory
+>   still draw the conformant fallback and serve no function. The Milan Table
+>   5.22 counter-change scheduler, persistence, stream-format and stream-info
+>   setters, name access, audio-map mutation, and `GET_DYNAMIC_INFO` remain
+>   open. A fallback response is not coverage.
 > * **The descriptor image is not supplied by this repository.** The processor's
 >   descriptor store reads the entity model from DRAM at a compile-time base, and
 >   no step in `sw/builder/`, `scripts/`, the SoC builder or the boot path writes
@@ -339,11 +340,13 @@ exists and passes; the behave scenarios above are the *wire* half:
 >   answered at all, M-AECP-11 to use "a well-formed AECP command went
 >   unanswered" as a liveness witness. Neither is a claim about the command's
 >   function, and neither has been run against this build.
-> * **CMD-7, M-CNT-4 and M-AECP-12 stay void**, because each needs a getter or a
->   setter that does not exist: `SET_STREAM_INFO`, `GET_COUNTERS`, and
->   `SET_CONTROL`-driven identification respectively.
-> * **CMD-14 splits**: the IDENTIFY cadence half stays void (`o_identify` is
->   tied 0 and there is no `SET_CONTROL`), while one narrow 7.4.39 rule is now
+> * **CMD-7 stays void** because `SET_STREAM_INFO` remains unimplemented.
+>   **M-CNT-4 is runnable** because solicited `GET_COUNTERS` now serves every
+>   declared Stream Output. **M-AECP-12 remains split**: the processor implements
+>   Identify control, but the root wrapper discards its dynamic Identify output
+>   and `o_identify` remains tied low.
+> * **CMD-14 splits**: the physical IDENTIFY cadence half stays void because
+>   `o_identify` is tied low, while one narrow 7.4.39 rule is
 >   assertable — `IDENTIFY_NOTIFICATION` arriving as a **command** is answered
 >   `BAD_ARGUMENTS` per §7.4.39.2.
 >

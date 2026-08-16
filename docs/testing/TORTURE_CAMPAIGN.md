@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # The torture / compliance campaign — one entry point, one place to extend
 
 Status: 2026-08-01. The standing campaign the USER asked for: *"test everything,
@@ -50,18 +52,15 @@ cover.
 > For this campaign that is a large, specific change in what a run can mean:
 >
 > * **Every `counters.*` assertion in §4.1, §4.2 and §4.2.1 reads its counters
->   over `GET_COUNTERS`.** Against this DUT that command draws a conformant
->   `NOT_IMPLEMENTED` and returns **no counter block**, so every one of them
->   **SKIPs** — with a different `why` than before: not "no response" but "the
->   response was `NOT_IMPLEMENTED`". §4.0's rule is unchanged and now matters
->   more: a well-formed refusal is not evidence of health, and a runner that
->   graded "a response arrived" would turn the whole counter inventory green
->   while measuring nothing. A run of the matrix area against this build is
->   still a run in which most of the counter inventory reports nothing.
-> * **`aecp.stream-format-readback` / `-round-trip` (§4.3) still cannot be
->   exercised**: `SET_STREAM_FORMAT` and `GET_STREAM_FORMAT` serve no function
->   and draw the generic echo, so there is no format to set and none to read
->   back.
+>   over `GET_COUNTERS`.** The DUT now serves supported Stream Input, Stream
+>   Output, AVB Interface, and Clock Domain targets. Every declared Stream Output
+>   has a live compact five-counter bank. An unsupported target or an unavailable
+>   external controller still produces SKIP with a precise reason. The campaign
+>   must grade the returned mask and values, not merely the presence of a reply.
+> * **Stream-format readback and round-trip have different status.**
+>   `GET_STREAM_FORMAT` is implemented and may be graded. `SET_STREAM_FORMAT`
+>   remains unimplemented, so the round-trip still cannot pass and must not be
+>   inferred from a successful getter.
 > * **`adp.alive` (§4.1) is a two-witness check again.** Its FAIL condition is
 >   "not discovered in 2 × 11 s **and** a well-formed AECP command also went
 >   unanswered". The second term was collapsed by the false premise; it is real
@@ -75,14 +74,13 @@ cover.
 >   by a blank-flash responder (reads `0xFF`, writes accepted and discarded), so
 >   a restore walk always finds blank flash and completes with zero records.
 >   Nothing here persists a binding across a power cycle.
-> * **The Milan Table 5.4 STREAM_OUTPUT counter block does not exist in any
->   build.** `KL_talker_diag_ctx` is no longer instantiated, because
->   `GET_COUNTERS(STREAM_OUTPUT)` and its Table 5.22 unsolicited push were its
->   only two readers — and the processor's **unsolicited** TX lane has no
->   producer, so that push is genuinely absent. **The STREAM_INPUT counters at
->   the `0x6B8` `A_STRMW_CNT` CSR window are unaffected and still live** — which
->   is why the board-side `--csr-cmd` path is still the *only* way this campaign
->   reads a stream counter.
+> * **The Milan Table 5.4 STREAM_OUTPUT counter block is live for solicited
+>   reads.** `KL_talker_diag_ctx` is instantiated for every declared AAF output
+>   and the CRF output when present. `GET_COUNTERS(STREAM_OUTPUT)` returns the
+>   0x1F mask and five compact counter quadlets. The raw per-descriptor dirty
+>   source is present, but the Milan Table 5.22 rate-limited notification
+>   scheduler is not connected. STREAM_INPUT CSR windows remain available as a
+>   separate local diagnostic path.
 > * **The `avdecc_l2.py` control-frame families in §4.7 gain a real target.** A
 >   malformed AECP frame, an overstated or understated `control_data_length`, a
 >   truncated AECP payload, an unknown AEM command and a wrong
@@ -834,63 +832,24 @@ jq -r 'select(.verdict=="PASS" and (.detail.sides_used|length)<2)|.assertion' b.
 jq -r 'select(.verdict=="SKIP")|[.assertion,.detail.why]|@tsv' b.jsonl | sort -u
 ```
 
-### 5.6 The two deliberately-red desk scenarios
+### 5.6 The deliberately-red desk scenario
 
-`counters_contract_milan.feature` carries two scenarios tagged `@open-finding`
-that **fail today and should**. Run `behave --tags ~@open-finding` for a clean
-gate; the findings stay visible and cannot be forgotten.
+The suite currently carries one `@wip @open-finding` scenario in
+`aecp_response_contract.feature`. It records the remaining acquisition-contract
+gap and stays outside the default gate. Run `behave --tags ~@open-finding` for
+the clean gate, and run the tagged scenario explicitly when working that gap.
 
-> **Both findings were OVERTAKEN on 2026-08-13, and neither is closed.** They
-> were source bindings against the old AECP response builder, and that RTL is
-> deleted — so the scenarios can no longer bind to anything, and the two partial
-> implementations they described have been replaced by **no implementation of
-> either function**. The AECP uCPU that landed since does not touch them: it
-> answers `READ_DESCRIPTOR` and refuses `GET_COUNTERS` and `SET_STREAM_FORMAT`
-> with a conformant `NOT_IMPLEMENTED`. Nothing about them got better — a device
-> that answers `GET_COUNTERS` for two sinks out of N is closer to Milan 5.3.8.10
-> than a device that refuses it for all of them. They are recorded below as the
-> last measured state of that engine. Check `ls tests/features/` and the suite's
-> own run before assuming the `@open-finding` scenarios are still present — the
-> feature file survives, the RTL it grepped does not.
+The former GET_COUNTERS desk finding closed on 2026-08-16. The processor gather
+face now serves supported Stream Input banks, AVB Interface and Clock Domain
+banks, and every declared Stream Output. The Stream Output response uses mask
+0x1F and five compact counter quadlets. The integrated NxN suites and pinned
+LA_avdecc decoder grade this path. The separate Table 5.22 rate-limited
+notification scheduler remains open.
 
-**(1) `GET_COUNTERS` answered only Stream Inputs 0 and 1.** Milan v1.2 5.3.8.10:
-*"For each Stream Input of the currently set Configuration, the PAAD-AE shall
-keep track of the counters in Table 5.6"*, and 5.4.2.25 makes `GET_COUNTERS`
-mandatory per descriptor. In the AECP response builder — `KL_aecp_response_builder.sv`
-under the AECP tree, **deleted 2026-08-13**:
-
-* the `CMD_GET_COUNTERS` case spanned lines 1944–2012;
-* that block contained **no** `w_in_fidx` and **no** `AEM_N_STRIN_C`;
-* its only `STREAM_INPUT` guard was `w_gs_index < 16'd2`;
-* it called `load_input_counters_consts(w_gs_index == 16'd0)`, which emitted mask
-  `0xF3F` and loaded real counter **values** only for sink 0.
-
-So sinks ≥ 2 — including the CRF Media Clock Input at index 4 — fell through to
-`BAD_ARGUMENTS`, and sink 1 answered `0xF3F` over an all-zero block. Today every
-sink falls through, because the command serves no function and is refused
-`NOT_IMPLEMENTED` regardless of index.
-
-> **A note on how to argue with this scenario.** It was briefly re-scoped to grep
-> the *whole* builder for `w_gs_index < 16'(AEM_N_STRIN_C)`, which passed by
-> matching line 395 — the `w_in_fidx` declaration, whose own comment said *"range
-> validity is decided separately in the STREAM_FORMAT arm"* and which was used
-> only for `AEM_STRIN_FMT_C`. A whole-file grep standing in for an arm-anchored
-> check is exactly the descriptor-context-free defect this layer exists to
-> remove, so the check was anchored on the arm and its failure message printed
-> the guard text it found. That discipline is the reusable part; the file it was
-> anchored to is gone.
-
-**(2) Only Stream Input 0 had somewhere to store a stream format.** The
-per-input format registers lived behind `` `ifdef AEM_PER_STREAM_FMT ``, and the
-`` `else `` arm defined exactly one — `fmt_in0_r` (line 707). No file under
-`configs/` defined that macro. Milan v1.2 5.5.1.2 makes the Listener's current
-format the value a bind is checked against, and the standing directive is that a
-controller must **always** `SET_STREAM_FORMAT` the listener to the talker's
-format rather than refuse the bind — so a sink with no format storage could not
-participate in that. **There is now no format storage and no `SET_STREAM_FORMAT`
-at all**, so the directive has nothing to act on: a controller cannot adapt this
-listener's format, and the format a bind is checked against is whatever the
-elaborated shape declares.
+The former stream-format finding remains a product gap but is no longer one of
+the deliberately-red desk scenarios. `GET_STREAM_FORMAT` is implemented;
+`SET_STREAM_FORMAT` is not. A controller can read the elaborated format but
+cannot adapt a listener at runtime.
 
 ---
 
@@ -1422,15 +1381,11 @@ switch recovery, 8 s + up to 360 s + 120 s DUT boot, two proof pairs).
   [`harness/milanharness/thdn.py`](../../harness/milanharness/thdn.py) sit
   *after* its `import numpy`, so they cannot fire there — recorded in
   `audio_walking_tone_identity.feature` rather than worked around.
-* **The desk suite carries two deliberately-failing scenarios** (§5.6) — the
-  `GET_COUNTERS` per-sink bound and the per-input `STREAM_FORMAT` store. Use
-  `--tags ~@open-finding` for a gate. Both were L1 source bindings: they said
-  what the RTL in this tree did, and neither was a claim about silicon. **Both
-  were overtaken on 2026-08-13** when that RTL was deleted; the underlying gaps
-  did not close, they widened — `GET_COUNTERS` and `SET_STREAM_FORMAT` are now
-  refused `NOT_IMPLEMENTED` by the landed uCPU, which is a well-formed answer
-  and still no counter and no format store. Run the suite to see what it still
-  contains.
+* **The desk suite carries one deliberately-failing scenario** (§5.6), tagged
+  `@wip @open-finding`, for the remaining acquisition-contract gap. Solicited
+  GET_COUNTERS is implemented for supported targets. `SET_STREAM_FORMAT`
+  remains unimplemented, but it is tracked as a product gap rather than as one
+  of the current open-finding scenarios. Run the suite to see the live inventory.
 * **The `xside.absent-where-not-registered` pruning check needs a bystander
   side** to be supplied before it can find a leak; with only the talker and the
   listener configured it has no unregistered interface to look at, and SKIPs.

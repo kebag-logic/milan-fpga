@@ -48,31 +48,26 @@ reply. `IDENTIFY_NOTIFICATION` (0x0026) as a command is `BAD_ARGUMENTS`
 (§7.4.39.2). **Known gap:** Milan Δ7 `ACQUIRE_ENTITY` (`NOT_SUPPORTED` with
 `owner_id` = 0) is not distinguished from the generic echo.
 
-**An echo is not an implementation.** Absent behind it, and absent for real:
-`SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME` (and `SET_STREAM_INFO`'s
-`MSRP_ACC_LAT`), the audio-map setters, `GET_COUNTERS` with the Milan Table 5.22
-unsolicited push, IDENTIFY, and saved-state persistence — nothing here restores a
-binding across a power cycle. This is a stated capability boundary from an
+**An echo is not an implementation.** Operations outside the current processor
+inventory still use the fallback. The stream-format and stream-info setters,
+name access, audio-map mutation, dynamic information, the Milan Table 5.22
+counter-change scheduler, and saved-state persistence remain open. Nothing here
+restores a binding across a power cycle. This is a stated capability boundary from an
 informed decision, not a regression and not a blip. Everywhere below where this
 page says "AVDECC in fabric", read it against these two paragraphs.
 
-**The entity model lives in DDR3, not in a fabric ROM — and nothing here fills
-it.** The processor's descriptor store fetches the model over a read-only master
+**The entity model lives in DDR3, not in a fabric ROM.** The processor's
+descriptor store fetches the model over a read-only master
 whose base is a **compile-time** parameter (`PP_DESC_BASE_P`, derived by the SoC
 as the top 1 MiB of `main_ram`, not mirrored as a literal); there is no base
-register. Software must load the image at that base **before** enabling the
-entity, and no software in this repository does: the generator is in the
-submodule (`protocol-processor/hdl/aecp/desc/gen_desc_image.py`), no step in
-[`sw/builder/`](../../sw/builder), `scripts/`, the LiteX SoC builder or the boot
-path emits or writes it, and the `aecp_aem_rom.svh` the builder still produces
-is an orphan of the deleted fabric descriptor store. On a stock build the region
-is therefore unloaded, its header magic (`"AEMI"` = `0x41454D49`, layout version
-1, plus checksum) fails, and every `READ_DESCRIPTOR` answers
-`BAD_ARGUMENTS` — an invalid image reports zero configurations, and the
-argument check runs ahead of the locate, so no configuration index passes. It
-never hangs on it — the store's watchdog (4096 cycles,
+register. The end-station builder generates the flat image and its JSON and map
+companions from the selected configuration. The board-side `aemi-load` utility
+verifies and loads the paired image at that base before enabling the entity. A
+missing or corrupt image still fails closed with `BAD_ARGUMENTS`, and a valid
+image without the requested descriptor returns `NO_SUCH_DESCRIPTOR`. The store
+never hangs on a failed read: its watchdog (4096 cycles,
 about 41 us at 100 MHz) abandons a stalled burst and covers the request
-handshake — and a late load heals without a reset, because each locate re-arms
+handshake. A late valid load heals without a reset because each locate re-arms
 the header probe.
 
 Companion documents:
@@ -188,15 +183,12 @@ enable is now **either** `PP_CTRL[0]` (`0x920`) **or** the historic
 `ADP_CTRL.en` (`0x600` bit 0) — the two are ORed, and `milan_csr`'s
 `PP_PLANE_P` parameter is gone so the `0x920` window is always decoded. And the
 bring-up order is now load-then-enable: the descriptor image must already be in
-DRAM at `PP_DESC_BASE_P` when that bit goes high, or the entity comes up
-enumerable-but-empty — a zeroed region reads as "image not loaded" through the
-image header's magic / version / checksum, and every `READ_DESCRIPTOR` answers
-`BAD_ARGUMENTS` (an invalid image reports zero configurations, and the argument
-check precedes the locate — `NO_SUCH_DESCRIPTOR` would instead mean the image
-loaded and that one descriptor is absent). Because no build or boot step in this repository writes
-that image, **enumerable-but-empty is what a stock build does**, and it is the
-first thing to check before blaming the responder. It cannot wedge on it: the
-store's watchdog abandons a stalled burst.
+DRAM at `PP_DESC_BASE_P` when that bit goes high. The tracked board flow performs
+this with `aemi-load`. If a custom integration skips the load, the zeroed region
+reads as "image not loaded" and descriptor reads answer `BAD_ARGUMENTS`.
+`NO_SUCH_DESCRIPTOR` instead means the image is valid and the requested
+descriptor is absent. The store's watchdog prevents a stalled memory path from
+wedging the responder.
 
 ## 3. Status at a glance
 
@@ -212,8 +204,8 @@ store's watchdog abandons a stalled burst.
 | **Full SoC (`--all-blocks`: NIC+DMA+MAC+DDR3 @100 MHz)** | ✅ boots Linux on silicon | `deploy.sh` |
 | Control plane (ADP + ACMP + SRP) in fabric | ✅ in fabric, unconditional | [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) over the pinned `protocol-processor` submodule; harness [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) |
 | MAAP | ✅ in fabric, silicon-validated | [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap) + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv); the ALLOC_DA success **is** the talker DA gate |
-| **AECP / AEM enumeration** | ⚠️ **responder in fabric, image not supplied** — `READ_DESCRIPTOR` is answered (SUCCESS / NO_SUCH_DESCRIPTOR / BAD_ARGUMENTS) out of DDR3, but a stock build has no image there, so every read answers `BAD_ARGUMENTS` — the locate is never even reached | the processor's AECP uCPU via [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv); the generator is in the submodule and no repo step runs it — see the preamble |
-| **AECP / AEM control** | ❌ **NOT IMPLEMENTED** — every other opcode is a conformant `NOT_IMPLEMENTED` echo, and an echo is not coverage | `SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME`, `GET_COUNTERS` + the Table 5.22 push, the audio-map setters, IDENTIFY and persistence are genuinely absent; Milan Δ7 `ACQUIRE_ENTITY` is not distinguished from the echo |
+| **AECP / AEM enumeration** | ✅ **responder and image supply chain implemented**. `READ_DESCRIPTOR` serves the builder-generated DRAM image with command-specific success and error statuses | processor AECP uCPU, end-station builder image artifacts, and board-side `aemi-load`; see the preamble |
+| **AECP / AEM control** | ⚠️ **PARTIAL**. The processor serves the inventory listed in the current audit; unsupported operations receive the conformant fallback, which is not coverage | Solicited GET_COUNTERS is implemented for supported targets, including every declared Stream Output. The Table 5.22 scheduler, remaining mandatory commands, media-plane exposure of selected dynamic state, and persistence remain open |
 | Linux driver (kl-eth) | ✅ **on silicon**  -  ping/iperf/CBS + ring DMA (M-A5) | [`RX_RING_DMA.md` (archived)](../../historical_now_obsolete/findings/RX_RING_DMA.md), [`AVB_SWITCH_DIRECTION.md`](AVB_SWITCH_DIRECTION.md) |
 | Artix-7 bitstream + board bring-up | ✅ built + running on the AX7101 | `deploy.sh`, [`QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md) |
 | SRP (MSRP/MVRP) + AAF/CRF media datapath | ✅ **in fabric** | SRP is the protocol processor's (its class-D face drives the CBS slope and the talker gate); media datapath [`hdl/ieee1722/aaf/`](../../hdl/ieee1722/aaf)+`crf/`, silicon-validated; per-clause glyphs live in the validation matrix |

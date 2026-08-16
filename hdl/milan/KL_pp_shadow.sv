@@ -31,27 +31,23 @@
                 engine pops that queue INSIDE the processor now, so a second
                 consumer here would steal its commands.
 
-                What this entity answers today: sixteen AEM opcodes plus MVU
-                GET_MILAN_INFO — the discovery/enumeration set
-                (READ_DESCRIPTOR, ENTITY_AVAILABLE, GET_CONFIGURATION), the
-                stream and clock getters (GET_STREAM_FORMAT, GET_STREAM_INFO,
-                GET_SAMPLING_RATE, GET_CLOCK_SOURCE), the gPTP pair
-                (GET_AVB_INFO, GET_AS_PATH), GET_COUNTERS, GET_AUDIO_MAP,
-                LOCK_ENTITY, the unsolicited registration pair, and the two
-                deliberate refusals (ACQUIRE_ENTITY, IDENTIFY_NOTIFICATION as
-                a command). The AUTHORITY is
+                What this entity answers today includes discovery and
+                enumeration, solicited counters, selected stream, clock, and
+                configuration operations, Identify control, stream start and
+                stop, the unsolicited registration pair, GET_AUDIO_MAP, and MVU
+                GET_MILAN_INFO. The AUTHORITY is
                 protocol-processor/hdl/aecp/KL_aecp_engine.sv's OP_*_C
                 constants, never this comment.
 
                 WHAT IS STILL OPEN, and is a compliance gap rather than a
-                design choice: the whole SET_* family, GET_NAME/GET_CONTROL,
+                design choice: SET_STREAM_FORMAT, SET_STREAM_INFO, name access,
                 the audio-mapping writers, GET_DYNAMIC_INFO, the
                 unsolicited-notification trigger set, the departing-controller
                 monitor and saved-state persistence. The ordered plan is
-                docs/MILAN_V12_ROADMAP.md. Because SET_CLOCK_SOURCE is among
-                them, the live clock_source_index is still pinned at 0 and
-                milan_datapath still publishes the CSR words those writers fed
-                as STRUCTURAL ZEROS rather than plausible idles.
+                docs/MILAN_V12_ROADMAP.md. SET_CLOCK_SOURCE is accepted and
+                stored by the processor, but the selected value is not exposed
+                through this root wrapper. The media plane therefore remains
+                pinned at clock_source_index 0.
 
                 RATE. protocol_processor_top eats a 1 byte/clk stream, which
                 at 100 MHz is 100 MB/s against gigabit's 125 MB/s: a byte

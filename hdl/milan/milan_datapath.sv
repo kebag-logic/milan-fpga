@@ -23,26 +23,26 @@
 //! the option, remove everything out of the code base that is legacy").
 //!
 //! WHAT A CONTROLLER GETS, STATED ONCE SO NO READER HAS TO DISCOVER IT:
-//! the entity DISCOVERS over ADP, connects over ACMP, reserves over SRP,
-//! ANSWERS READ_DESCRIPTOR out of an entity model held in MAIN MEMORY, and
-//! answers every other AECP command with a conformant NOT_IMPLEMENTED echo
-//! (message_type+1, correct length, correct cdl) - never silence, never
-//! malformed. IDENTIFY_NOTIFICATION sent as a command is BAD_ARGUMENTS.
-//! AN ECHO IS NOT AN IMPLEMENTATION: GET_COUNTERS and its Table 5.22 push,
-//! entity lock/acquire, SET_CLOCK_SOURCE (so the media clock is pinned
-//! INTERNAL, see CRF_CLK_SELECTED_C), SET_MAX_TRANSIT_TIME (every Stream
-//! Output holds the Milan 2 ms default), the audio-map setters and
-//! saved-state persistence are all genuinely absent and read STRUCTURAL
-//! ZEROS. If the descriptor image was never loaded at PP_DESC_BASE_P the
+//! the entity DISCOVERS over ADP, connects over ACMP, reserves over SRP, and
+//! serves the protocol processor's implemented AECP inventory. That includes
+//! READ_DESCRIPTOR, solicited GET_COUNTERS, selected getters and setters,
+//! Identify control, stream start and stop, the unsolicited registration pair,
+//! GET_AUDIO_MAP, and Milan GET_MILAN_INFO. Unsupported operations receive the
+//! conformant NOT_IMPLEMENTED fallback. IDENTIFY_NOTIFICATION sent as a command
+//! is BAD_ARGUMENTS.
+//! AN ECHO IS NOT AN IMPLEMENTATION. The missing mandatory surface includes
+//! SET_STREAM_FORMAT, SET_STREAM_INFO, name access, audio-map mutation, and
+//! GET_DYNAMIC_INFO. The Table 5.22 counter-change scheduler and saved-state
+//! persistence are also absent. SET_CLOCK_SOURCE is accepted by the processor,
+//! but its dynamic value is not exposed here, so the media clock remains pinned
+//! INTERNAL through CRF_CLK_SELECTED_C. If the descriptor image was never
+//! loaded at PP_DESC_BASE_P the
 //! range check fails before any locate runs, so an unloaded image answers
 //! BAD_ARGUMENTS - not NO_SUCH_DESCRIPTOR. That difference is the bench
-//! discriminator: BAD_ARGUMENTS everywhere = no image. Everything only an AECP engine could
-//! have driven is gone with it and its CSR words read STRUCTURAL ZEROS, each
-//! documented at the point it is tied: the AEM descriptor ROM and every
-//! READ_DESCRIPTOR/GET/SET, entity lock and acquire, SET_CLOCK_SOURCE (so the
-//! media clock can never be switched to the CRF source), SET_MAX_TRANSIT_TIME
-//! (every Stream Output holds the Milan 2 ms default), GET_COUNTERS and the
-//! Table 5.22 unsolicited push, IDENTIFY, and saved-state persistence.
+//! discriminator: BAD_ARGUMENTS everywhere = no image. Legacy CSR faces with no
+//! live processor output read STRUCTURAL ZEROS and are documented at their
+//! tie-offs. The current compliance blockers are recorded in
+//! docs/testing/MILAN_V12_AUDIT_2026-08-16.md.
 //! milan_top.sv remains the (archived, unbuildable) Zynq variant.
 //!
 //! What moved OUT to the integration layer:
@@ -2838,9 +2838,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign adp_disc_seen_p = 1'b0;
 
   // ==========================================================================
-  //  AECP / AEM listener (IEEE 1722.1 / Milan v1.2). Non-intrusive MONITOR of
-  //  the post-filter RX stream (rx_axis_to_dma — reads only, never drives its
-  //  AECP / AEM — DELETED. Nothing answers an AECP command on this device.
+  //  AECP / AEM listener (IEEE 1722.1 / Milan v1.2). The local legacy engine
+  //  is deleted; KL_pp_shadow below integrates the protocol processor's active
+  //  responder and its live gather faces.
   // ==========================================================================
 
   // ==========================================================================
@@ -3036,21 +3036,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end endgenerate
 
   //! ------------------------------------------------------------------------
-  //! THERE IS NO AECP. KL_aecp_top and its whole plane (the packet validator,
-  //! the common parser, the L0 state, the timers, the accessor, the AEM store
-  //! and its generated descriptor ROM, the dynamic-map mux, the 292 KB
-  //! response builder, the ingress decoder, KL_aem_patch and
-  //! KL_persist_journal) are DELETED. The protocol processor's AECP engine is
-  //! the P4 micro-coded uCPU and it has not landed at the processor's top -
-  //! aecp_txn_ready_i is tied 0 there and TX lanes 0/1 are idle - so this
-  //! device now DISCOVERS over ADP, connects over ACMP and reserves over SRP,
-  //! and answers no AECP/AEM command at all. USER decision, made knowingly.
-  //!
-  //! Everything below is what that costs, stated as STRUCTURAL ZEROS so a
-  //! reader can tell "no engine" from "engine idle":
+  //! The deleted local AECP plane has no fallback instance. KL_pp_shadow below
+  //! is the active processor responder and consumes the counter, audio-map, and
+  //! Milan-info gather faces in this file. The assignments below preserve only
+  //! legacy CSR ABI locations for state that has no root integration output.
+  //! Structural zero means "no connected source", not "an active engine is
+  //! idle".
   assign aecp_bdbg0_w = 32'd0, aecp_bdbg1_w = 32'd0, aecp_bdbg2_w = 32'd0;
-  assign aecp_locked = 1'b0;   //! no ACQUIRE/LOCK_ENTITY
-  assign aecp_current_config = 16'd0;  //! no SET_CONFIGURATION
+  assign aecp_locked = 1'b0;   //! processor lock state is not exported to this legacy CSR
+  assign aecp_current_config = 16'd0;  //! processor config state is not exported here
   assign aecp_cmd_count = 16'd0;
   assign aecp_resp_count = 16'd0;
   assign aecp_ctlr_diag = 32'd0;
@@ -3059,9 +3053,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! accepts frames against this value, so 0 rejects every conformant AAF
   //! PDU and stream 0 accepts NOTHING. It was the AEM ROM's
   //! AEM_STRIN_FMT_C[0]; the ROM is deleted, so the same number now comes
-  //! from the same config through the entity-shape header. With no AECP
-  //! there is no SET_STREAM_FORMAT, so the declared format is also the only
-  //! one this build will ever have.
+  //! from the same config through the entity-shape header. SET_STREAM_FORMAT
+  //! remains unimplemented, so the declared format is also the only one this
+  //! build will ever have.
   assign aecp_in0_fmt = ADP_STRIN0_FMT_C;
   //! per-STREAM_OUTPUT presentation offset. SET_MAX_TRANSIT_TIME /
   //! SET_STREAM_INFO(ACC_LAT) was the only writer, so every entry now holds
@@ -3930,9 +3924,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ==========================================================================
   //  AVTP RX monitor (Milan v1.2 §5.4.5.3, Table 7-156) — non-intrusive
   //  parser on the same RX tap, matched to the BOUND stream_id the protocol
-  //  processor publishes. Its counters reach software through the 0x6B8
-  //  A_STRMW_CNT CSR window ONLY: GET_COUNTERS and the Table 5.22 push were
-  //  AECP, and are gone.
+  //  processor publishes. Its counters reach local software through the 0x6B8
+  //  A_STRMW_CNT CSR window and supported controller targets through solicited
+  //  GET_COUNTERS. The Table 5.22 notification scheduler remains open.
   // ==========================================================================
   //! NXN §1.1 (P1): stream-table classification authority. Entry 0 aliases
   //! the processor's ACMP bound record combinationally; entries
@@ -4343,10 +4337,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pdu_count_o (crf_pducnt_w),
     .fmt_err_o   (crf_fmterr_w),
     .seq_err_o   (crf_seqerr_w),
-    //! Milan Table 5.16's CRF Media Clock Input counters. Their ONE reader
-    //! was AECP GET_COUNTERS(CLOCK_DOMAIN / STREAM_INPUT), which is deleted:
-    //! nothing in this gateware can read them, so they are left OPEN rather
-    //! than latched into nets no consumer touches. The five that DO reach
+    //! Milan Table 5.16's CRF Media Clock Input counters are not connected to
+    //! the current solicited gather face. Leave the unserved outputs open rather
+    //! than create a shadow with no reader. The three values that do reach local
     //! software keep their CSR window below (0x738: pdu, fmt_err, seq_err).
     .mr_cnt_o    (),
     .tu_cnt_o    (),
@@ -4356,10 +4349,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .cnt_locked_o   (),
     .cnt_unlocked_o (),
     .cnt_intr_o     (),
-    //! Table 5.22 push source for the CRF sink's GET_COUNTERS row (gh #60
-    //! F2): anomaly/lock events only, never a healthy FRAMES_RX interval
-    //! ...and the Table 5.22 unsolicited push source: there is no
-    //! unsolicited-notification registry without AECP.
+    //! The CRF sink's Table 5.22 dirty source is also unconnected. The
+    //! processor has registration support, but the rate-limited counter-change
+    //! scheduler does not yet consume this source.
     .dirty_p_o      ()
   );
 

@@ -346,14 +346,11 @@ interval/type increments `fmt_err`) and produces the two servo inputs:
   [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) regression). The previous 256×64 flop file was
   the exact placer-overflow victim of the first 8×8+chmap build;
 * **lock**: 8 clean consecutive PDUs to lock, 100 ms of silence (or a
-  validation error) to unlock — mirroring the AAF media-lock contract —
-  with lock/unlock event counters that used to feed CLOCK_DOMAIN GET_COUNTERS
-  when `clock_source` = CRF. **`GET_COUNTERS` is not implemented (2026-08-13)**
-  — the fabric engine that served it is deleted and the protocol processor's
-  AECP µCPU answers the opcode with a conformant `NOT_IMPLEMENTED` echo, which
-  returns no counters. So those counters are readable only through the CSR
-  window now: no controller can fetch them, and there is no Milan Table 5.22
-  unsolicited push to carry them either (that lane has no producer at all).
+  validation error) to unlock, mirroring the AAF media-lock contract.
+  Solicited `GET_COUNTERS` serves the supported CLOCK_DOMAIN bank through the
+  processor counter face. The selected source remains structurally INTERNAL in
+  this integration, so the served lock pair cannot follow a CRF selection.
+  The Milan Table 5.22 unsolicited counter-change scheduler also remains open.
 
 The followed stream comes from the CRF sink bind (ACMP listener sink 1 —
 the bind wins) with the CSR pair 0x738/0x73C/0x740 as the manual bench

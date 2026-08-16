@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Minimal Milan v1.2 talker — ACMP state machine + AECP streaming (design)
 
 Reference truth (measure-don't-assume): every behavior below was extracted

@@ -208,6 +208,24 @@ processor's side-port snapshot window, reached through
 | M-CNT-3 | Table 5.15 (CLOCK_DOMAIN) | LOCKED/UNLOCKED counters follow the selected clock source | `KL_crf_rx` lock events and processor counter face | 🟡 **SERVED BUT SINGLE-SOURCE.** GET_COUNTERS returns the bank, while `clock_source_index` remains pinned at INTERNAL and CRF selection is unreachable | Counting the wrong source makes SET_CLOCK_SOURCE appear ineffective. |
 | M-CNT-4 | Table 5.17 (STREAM_OUTPUT) | STREAM_START, STREAM_STOP, MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX | per-output `KL_talker_diag_ctx`, driven from the transmitted mr/tu levels and frame completion | ✅ **IMPLEMENTED.** The 0x1F mask is backed by real sources and served through GET_COUNTERS. MEDIA_RESET uses the mr level carried by the transmitted PDU | Talker-side counters are the wire-free audit surface for a talker with no listeners. |
 
+### Retained Stream Output counter evidence
+
+The 2026-07-30 silicon window measured Stream Output `FRAMES_TX` advancing at
+1.0/s while the peer Stream Input `FRAMES_RX` advanced at 7,995.7/s over a
+26.1-second window. The Stream Output result is the conformant observation-
+interval reading, not a frame-rate defect. Milan Table 5.4 increments once at
+the end of each observation interval that transmitted at least one Stream Data
+AVTPDU. The similarly named optional AVB_INTERFACE counter is a since-boot frame
+total, so the descriptor type must be checked before interpreting the rate.
+
+The interval-boundary regression is also retained. An event coincident with the
+interval tick belongs to the interval that the tick closes. Before the harvest
+fix, tick phases 64 and 128 at `TICK_CYC_P = 64` lost a lone transmitted PDU
+from both intervals, leaving both `FRAMES_TX` and `TIMESTAMP_UNCERTAIN` at zero.
+The current engine folds the boundary event into the closing interval. The
+`MEDIA_RESET` source is the `mr` level carried by the transmitted PDU, not the
+old tied-low event port. This backs mask bit 2 with observed wire state.
+
 ## 6. Stream formats (Milan §6) and media clocking (Milan §7)
 
 | # | Section | Required behavior | Module | Verification today / tsn_gen | Why it matters |

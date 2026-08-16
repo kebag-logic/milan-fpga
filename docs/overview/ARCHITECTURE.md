@@ -36,40 +36,37 @@ landed — the device is reachable on AECP, not silent. `READ_DESCRIPTOR`
 and the descriptor; `NO_SUCH_DESCRIPTOR` on a locate miss; `BAD_ARGUMENTS` on a
 bad configuration index — both error paths carrying the IEEE 1722.1 §7.4.5
 4-byte `{descriptor_type, descriptor_index}` stub. **Controller enumeration is
-reachable again — once the descriptor image is in DRAM, which nothing in this
-repository does for you yet (§4).** Every other opcode, and every other message
-type (AEM, ADDRESS_ACCESS, VENDOR_UNIQUE/MVU), gets an echo with the correct
-`message_type`+1, length and `controller_data_length`: never silence, never
-malformed. `IDENTIFY_NOTIFICATION` (0x0026) arriving as a *command* is
+reachable once the builder-generated descriptor image is loaded into DRAM.**
+The tracked board flow verifies and loads the paired image with `aemi-load`
+before entity enable. Unsupported operations get the conformant fallback with
+the correct message type, length, and `controller_data_length`: never silence,
+never malformed. `IDENTIFY_NOTIFICATION` (0x0026) arriving as a *command* is
 `BAD_ARGUMENTS` — §7.4.39.2's opcode-specific rule beats §9.3.5.3.3. A command
 whose `target_entity_id` is not ours, and any AECP *response* arriving as input,
-are silently refused: freed, counted, no reply. **Known gap:** Milan Δ7
-`ACQUIRE_ENTITY` (`NOT_SUPPORTED` with `owner_id` = 0) is not distinguished from
-the generic echo.
+are silently refused: freed, counted, no reply. Milan Delta 7
+`ACQUIRE_ENTITY` returns `NOT_SUPPORTED` with a zero owner.
 
 **An echo is not an implementation**, so read the echo as a duty discharged
 (IEEE 1722.1 §9.3.5: respond to what you do not implement), never as coverage.
-Genuinely absent behind it: `SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME` (and
-`SET_STREAM_INFO`'s `MSRP_ACC_LAT`), `GET_COUNTERS` with the Milan Table 5.22
-unsolicited push, the audio-map setters (`SET_AUDIO_MAP` / `ADD_` /
-`REMOVE_AUDIO_MAPPINGS`), IDENTIFY (`o_identify` is tied 0 — the LED is
-structurally dark), and saved-state persistence: nothing in this device restores
-a binding across a power cycle. Those are stated capability boundaries from an
-informed user decision — not regressions, and not temporary blips. What they
-cost functionally is §3.2; what the affected CSR words read is
+Genuinely absent behind it: `SET_STREAM_FORMAT`, `SET_STREAM_INFO`, name access,
+the audio-map writers, `GET_DYNAMIC_INFO`, the Milan Table 5.22 counter-change
+scheduler, root-level IDENTIFY indication, and saved-state persistence.
+`SET_CLOCK_SOURCE` is accepted by the processor but its dynamic selection is not
+exported through the root, so the media plane remains pinned to INTERNAL. Those
+are stated capability boundaries. What they cost functionally is §3.2; what the
+affected CSR words read is
 [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md).
 
 **The entity model is no longer a fabric ROM — it lives in DDR3.** The
 processor's descriptor store fetches it over a read-only master at a
 **compile-time base**: there is no base register and software cannot relocate it
 at runtime, so the image must be written at that base **before** the entity is
-enabled. Nothing in this repository writes it: the generator is in the submodule
-(`protocol-processor/hdl/aecp/desc/gen_desc_image.py`), and no step in
-`sw/builder/`, `scripts/`, the LiteX SoC builder or the boot path turns a config
-into that image or loads it. So a stock build comes up with the region unloaded
-and answers `BAD_ARGUMENTS` to every read — the argument check runs before the
-locate and an invalid image reports zero configurations, so the locate is never
-reached. §4 has the detail and the symptom.
+enabled. The end-station builder emits `aem_desc.bin`, `aem_desc.json`, and
+`aem_desc.map`; the tracked board flow packages the paired artifacts and runs
+`aemi-load` before entity enable. A custom integration that omits this step
+answers `BAD_ARGUMENTS` to every read because the argument check runs before the
+locate and an invalid image reports zero configurations. §4 has the detail and
+the symptom.
 
 ---
 

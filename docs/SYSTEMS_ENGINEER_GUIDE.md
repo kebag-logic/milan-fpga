@@ -27,14 +27,10 @@ stated here so this guide is accurate *today*; the doc audit ([`DOC_AUDIT.md` (a
 > receives `BAD_ARGUMENTS`; a command for another entity, or a response arriving
 > as input, is silently refused. Every declared Stream Output exposes the Milan
 > Table 5.17 five-counter bank through solicited GET_COUNTERS. The Table 5.22
-> unsolicited counter-change producer, IDENTIFY and saved-state persistence
-> remain open. **Known gap:** Milan Delta 7 `ACQUIRE_ENTITY` is not
-> distinguished from the fallback response. The descriptors now
-> live in DRAM, fetched at a compile-time base: **nothing in this repository
-> builds or loads that image**, so a stock build still enumerates as empty
-> (`BAD_ARGUMENTS` for every read — an unloaded image reports zero
-> configurations, and that check precedes the locate) until someone supplies
-> one. A stated
+> unsolicited counter-change producer and saved-state persistence remain open.
+> The descriptors live in DRAM at a compile-time base. The end-station builder
+> generates the flat image artifacts, and `aemi-load` verifies and loads the
+> paired image before enabling the entity. A stated
 > capability boundary from an informed decision — not a regression, not a
 > temporary blip. **Any page in the map below written before this date and
 > describing the fabric AECP/AEM engine, the ACMP or ADP fabric engines, or
@@ -45,18 +41,18 @@ stated here so this guide is accurate *today*; the doc audit ([`DOC_AUDIT.md` (a
 
 ## Contents
 
-- **[0. The system at a glance (start here)](#0-the-system-at-a-glance-start-here)** — Two diagrams — the board-to-board media path and the power-on-to-network boot chain — plus the measured headline: E2E capture→render equals the presentation offset exactly (pto 500 µs, `ts_delta` +384 µs, 0 LATE), talker wire output bit-exact 900/900, gPTP slave rms 44 ns.
-- **[1. What this system is](#1-what-this-system-is)** — The one-paragraph definition, the normative dividing principle (per-frame work → fabric, negotiation → softcore), the two-board ship pair, and the framing fact everything else depends on: the ship CPU is **1-hart**, so the 2-hart perf-campaign numbers are lineage, not behaviour.
-- **[2. The reading path (annotated doc map)](#2-the-reading-path-annotated-doc-map)** — The bulk of the guide: every page in the corpus in journey order across nine stages, each with *when to read it* and, where it matters, what in it is already known stale. The `→` markers give one starting doc per stage and per protocol.
-- **[3. Fast lookups ("I need to…")](#3-fast-lookups-i-need-to)** — A thirteen-row task→page table for when you already know what you want to do. The shortcut past §2.
-- **[4. Watch-outs when reading older docs (2026-07-23 reconciliation)](#4-watch-outs-when-reading-older-docs-2026-07-23-reconciliation)** — The phrasings that mark a stale page, each with the current fact to substitute: dual-hart→1-hart, −73.4→−83.9 dB, RGMII→GMII, `0x43C0_0000`→`0x9000_0000` — plus the 2026-08-13 control-plane set, which is the largest of them: fabric-ACMP/ADP, lwSRP and fabric-AECP phrasings all name deleted RTL, and "answers no AECP command" is itself now stale — `READ_DESCRIPTOR` is answered, from a DRAM image nothing here builds.
+- **[0. The system at a glance (start here)](#0-the-system-at-a-glance-start-here)** -- Two diagrams -- the board-to-board media path and the power-on-to-network boot chain -- plus the measured headline: E2E capture→render equals the presentation offset exactly (pto 500 µs, `ts_delta` +384 µs, 0 LATE), talker wire output bit-exact 900/900, gPTP slave rms 44 ns.
+- **[1. What this system is](#1-what-this-system-is)** -- The one-paragraph definition, the normative dividing principle (per-frame work → fabric, negotiation → softcore), the two-board ship pair, and the framing fact everything else depends on: the ship CPU is **1-hart**, so the 2-hart perf-campaign numbers are lineage, not behaviour.
+- **[2. The reading path (annotated doc map)](#2-the-reading-path-annotated-doc-map)** -- The bulk of the guide: every page in the corpus in journey order across nine stages, each with *when to read it* and, where it matters, what in it is already known stale. The `→` markers give one starting doc per stage and per protocol.
+- **[3. Fast lookups ("I need to…")](#3-fast-lookups-i-need-to)** -- A thirteen-row task→page table for when you already know what you want to do. The shortcut past §2.
+- **[4. Watch-outs when reading older docs (2026-07-23 reconciliation)](#4-watch-outs-when-reading-older-docs-2026-07-23-reconciliation)** -- The phrasings that mark a stale page, each with the current fact to substitute: dual-hart to 1-hart, -73.4 to -83.9 dB, RGMII to GMII, and `0x43C0_0000` to `0x9000_0000`. The 2026-08-13 control-plane set is the largest: fabric ACMP, ADP, lwSRP, and AECP phrasings name deleted RTL, while the processor now serves its declared command inventory and the builder plus `aemi-load` supply the DRAM descriptor image.
 
 ## 0. The system at a glance (start here)
 
 Two Artix-7 boards are Milan/AVB end-stations: gPTP-synced fabric PHC, SRP
 reservations, ADP discovery and ACMP connection (all three now the protocol
 processor's), MAAP, 8×8 AAF streams, and an ALSA capture card fed straight from
-the fabric DMA ring — with an AECP/AEM responder that serves the processor's
+the fabric DMA ring -- with an AECP/AEM responder that serves the processor's
 declared command inventory, including `READ_DESCRIPTOR` and `GET_COUNTERS`.
 The measurements below were taken on silicon before the substitution; they are
 dated for that reason, and the media-plane ones are unaffected by it.
@@ -89,17 +85,16 @@ flowchart LR
     PWR((power-on)) --> CFG["FPGA self-config from QSPI\n(SPIx4/50, ~0.2 s)"] --> BIOS[LiteX BIOS] -->|"flashboot: kernel/opensbi/dtb/rootfs\nfrom their QSPI slots"| SBI["OpenSBI (carries the kernel's DTB!)"] --> LNX[Linux] --> NET["network up (~7 min total)"]
 ```
 
-**One provisioning step that boot chain does not yet contain.** The entity model
+**The descriptor-image provisioning step.** The entity model
 is no longer a fabric ROM: the AECP uCPU fetches descriptors from DRAM at a
 compile-time base (`PP_DESC_BASE_P`, derived by the SoC as the top 1 MiB of main
 memory — no base register, so it cannot be moved at runtime), and the image must
 be written there **before** the entity is enabled by either `PP_CTRL[0]` or
-`ADP_CTRL.en`. No step in this repository produces or loads it — the generator
-lives in the submodule (`protocol-processor/hdl/aecp/desc/gen_desc_image.py`) —
-so until that gap is closed, expect a board that discovers and connects but
-answers `BAD_ARGUMENTS` to every descriptor read. (`NO_SUCH_DESCRIPTOR` instead
-would mean the image is loaded and that descriptor is genuinely absent — a
-useful discriminator on the bench.) It never hangs on it: the
+`ADP_CTRL.en`. The end-station builder produces the flat image and paired
+metadata, and `aemi-load` verifies and loads it before entity enable. A custom
+flow that omits this step gets `BAD_ARGUMENTS` on descriptor reads.
+`NO_SUCH_DESCRIPTOR` instead means the image is valid and that descriptor is
+absent. It never hangs on a failed read: the
 store's watchdog abandons a stalled burst, and a late load heals without a reset.
 
 Fastest useful commands: [`docs/integration/QSPI_FLASHBOOT.md`](integration/QSPI_FLASHBOOT.md) (flash/boot),
@@ -484,11 +479,10 @@ Several docs predate recent changes. When you hit these phrasings, substitute th
 **And the 2026-08-13 substitution adds these** — the largest set of stale phrasings in the
 corpus, because the RTL they name is deleted:
 
-- "the fabric AECP/AEM entity", "the descriptor ROM" → **deleted RTL**. The responder is the
-  protocol processor's AECP uCPU, and the descriptors come from a flat image in DRAM at
-  `PP_DESC_BASE_P`, not from a ROM. The `aecp_aem_rom.svh` the builder still writes is an
-  orphan of the deleted store, and **nothing in this repo generates or loads the DRAM image**,
-  so "discovers and connects but enumerates nothing" is the stock-build state, not a fault.
+- "the fabric AECP/AEM entity", "the descriptor ROM" -> **deleted RTL**. The
+  responder is the protocol processor's AECP uCPU, and descriptors come from the
+  builder-generated flat image in DRAM at `PP_DESC_BASE_P`. `aemi-load` verifies
+  and loads the paired image before entity enable.
 - "GET_COUNTERS is not implemented" → **stale.** Solicited GET_COUNTERS serves
   the supported descriptor banks, including every declared Stream Output. The
   Table 5.22 unsolicited counter-change producer, persistence and commands
@@ -497,8 +491,8 @@ corpus, because the RTL they name is deleted:
   [`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv)'s banner and the "P4 uCPU seam —
   unlanded" note in [`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv)) → **stale**:
   the processor serves its declared command inventory. Milan Delta 7
-  `ACQUIRE_ENTITY` remains a visible gap because it is not distinguished from
-  the fallback response.
+  `ACQUIRE_ENTITY` now returns `NOT_SUPPORTED` with a zero owner and is graded
+  through the integrated response path.
 - "`adp_advertiser`", "`KL_adp_parser`", "`KL_acmp_listener`/`_responder`/`_lstn_ctx`/`_tlkr_ctx`",
   "the lwSRP engine / walker / registrar" → **the protocol processor**, via
   [`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv). `adp_tx_arbiter.sv` is the one
@@ -510,9 +504,10 @@ corpus, because the RTL they name is deleted:
   structurally off and `A_MCSRV_STAT` reads idle.
 - "`SET_MAX_TRANSIT_TIME` sets the presentation offset" → **pinned at the Milan 2 ms default**
   for every Stream Output. A default, not a zero.
-- "Milan Table 5.4 per-STREAM_OUTPUT counters" → **gone** (`KL_talker_diag_ctx` is not
-  instantiated). The **STREAM_INPUT** counters at the `0x6B8` `A_STRMW_CNT` window are
-  unaffected and still live — do not conflate the two.
+- "Milan Table 5.4 per-STREAM_OUTPUT counters are gone" -> **stale.**
+  `KL_talker_diag_ctx` is instantiated for every declared output, and solicited
+  GET_COUNTERS serves the five-counter bank. The Table 5.22 notification
+  scheduler remains open. STREAM_INPUT counters remain a separate family.
 - "`A_TXARB_DIAG` lane 0 is `aecp_acmp`" or any eight-lane reading of `0x784` → the cascade
   collapsed to **four** muxes: LSB first, 0 `ctl_tx`, 1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx`,
   bits 7:4 a structural zero.

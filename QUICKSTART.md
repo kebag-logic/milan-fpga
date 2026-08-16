@@ -9,7 +9,7 @@ git clone https://github.com/kebag-logic/milan-fpga && cd milan-fpga
 git submodule update --init third_party/verilog-axis protocol-processor
 ```
 
-> **§0 — the one thing people get wrong.** [`third_party/verilog-axis`](third_party/verilog-axis)
+> **§0 -- the one thing people get wrong.** [`third_party/verilog-axis`](third_party/verilog-axis)
 > and [`protocol-processor`](protocol-processor) are git submodules. Both use
 > anonymous HTTPS, with no account needed. Several testbenches and most of the
 > datapath need both dependencies, and the builder gate imports descriptor and
@@ -231,7 +231,7 @@ needs a vendor licence:
 |---|---|---|
 | Run every self-checking RTL testbench | [§2.3](#23-the-verilator-testbenches) | verilator, gcc |
 | Prove the RTL is vendor-neutral, and map it to an ECP5 | [§3](#3-track-2--device-portability-still-no-vendor-tools) | yosys, sv2v |
-| Generate a whole end-station (AEM descriptors, SV headers, build plan) from a YAML declaration | `python3 sw/builder/endstation_builder.py configs/endstation_arty_4x4.yaml` · [`docs/ENDSTATION_BUILDER.md`](docs/ENDSTATION_BUILDER.md) — note the AEM descriptor ROM it emits (`aecp_aem_rom.svh`) is an **orphan** since 2026-08-13: it fed the deleted fabric AEM store, not the DRAM descriptor image the protocol processor's AECP µCPU reads, and nothing in this repo builds that image yet | python, pyyaml |
+| Generate a whole end-station (AEM descriptors, SV headers, build plan) from a YAML declaration | `python3 sw/builder/endstation_builder.py configs/endstation_arty_4x4.yaml`; [`docs/ENDSTATION_BUILDER.md`](docs/ENDSTATION_BUILDER.md). The builder emits the processor image artifacts `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the tracked board flow loads the paired image with `aemi-load` before entity enable | python, pyyaml |
 | Read the register ABI and write driver code against it | [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md), asserted by the `csr` suite | nothing |
 | Check the spec↔module↔test coverage of every clause | [`docs/SPEC_TRACEABILITY.md`](docs/SPEC_TRACEABILITY.md), [`docs/traceability/MODULE_MATRIX.md`](docs/traceability/MODULE_MATRIX.md) | nothing |
 | Simulate the softcore booting with the NIC attached (sim DUT) | [`sw/litex/milan_sim.py`](sw/litex/milan_sim.py) — **needs the LiteX stack + a JVM**, see [§6](#6-track-3--build-a-bitstream-vivado) | migen/litex, JDK |

@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Full protocol sweep — every mandatory command, every state machine, verified per clause
 
 Status: PLAN, 2026-07-28 (USER-requested), **substantially invalidated
