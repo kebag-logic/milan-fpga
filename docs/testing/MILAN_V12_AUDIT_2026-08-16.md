@@ -179,11 +179,12 @@ and the `GET_AS_PATH` gather selection in
 [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), plus the staging
 status in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
 
-### B7. Identify control has no root indication
+### B7. Identify control has no public indication
 
 The processor accepts Identify `SET_CONTROL` and stores its dynamic value, but
-`KL_pp_shadow.sv` does not export that value to the root. The public
-`o_identify` output is tied low, so no board indication can follow the control.
+`KL_pp_shadow.sv` exports that value to the root wire
+`pp_aecp_identify_w`. Nothing consumes the wire and the public `o_identify`
+output is tied low, so no board indication can follow the control.
 
 Evidence: the `o_identify` assignment in
 [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
@@ -238,9 +239,9 @@ the existing ACMP binding record. No per-input started state controls the media
 plane, so Milan section 5.3.8.7 remains open.
 
 Evidence: the command inventory and withdrawal note in the pinned processor,
-the intentionally unconnected `aecp_strm_started_o` port in
-[`KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv), and the absence of a
-corresponding media-plane gate in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
+the exported `aecp_strm_started_o` value received on an unconsumed root wire,
+and the absence of a corresponding media-plane gate in
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
 
 ## Corrections made by this audit
 

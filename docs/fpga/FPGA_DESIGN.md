@@ -150,13 +150,13 @@ numbers reads the wrong mux.** The stagger is deliberate: an abandoned source
 starves every downstream mux on the same cycle, so equal windows would each
 inject their own close beat and put a runt on the wire per level.
 
-Three losses are functional rather than cosmetic — they sit behind the
-`NOT_IMPLEMENTED` echo, so the command is answered and nothing moves — and each
-has a module in the inventory below that is present but idle:
+Three losses are functional rather than cosmetic. Each has a module in the
+inventory below that is present but idle:
 
-1. **The CRF media clock can never be SELECTED.** AECP `SET_CLOCK_SOURCE` was
-   the only writer of the live CLOCK_DOMAIN `clock_source_index`; it is pinned
-   at 0, the INTERNAL media clock, for the life of the build. So
+1. **The CRF media clock can never be SELECTED.** AECP `SET_CLOCK_SOURCE` is
+   accepted and stored, and the wrapper exports the selected index to the root.
+   No media-plane consumer reads it, so the active selection stays pinned at
+   0, the INTERNAL media clock, for the life of the build. Therefore
    `KL_mmcm_drp_servo` and the `KL_media_nco` packet-grid servo are
    **structurally off** and `A_MCSRV_STAT` (`0x8F8`) reads its idle.
    `KL_crf_rx` still parses, counts and reports — it cannot steer.

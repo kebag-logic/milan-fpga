@@ -31,7 +31,7 @@ leaves the clause open.
 - **[2. The non-command SHALLs](#2-the-non-command-shalls)** -- Persistence, notification, and controller-departure duties.
 - **[3. Tracked, but NOT compliance gaps](#3-tracked-but-not-compliance-gaps)** -- Recommended or optional work kept outside the mandatory count.
 - **[4. Two traps to carry into every round](#4-two-traps-to-carry-into-every-round)** -- Design constraints that repeatedly affect implementation choices.
-- **[5. Suggested order](#5-suggested-order)** -- Dependency-aware sequence for closing the remaining items.
+- **[5. Recorded order and remaining follow-ups](#5-recorded-order-and-remaining-follow-ups)** -- Completed state-store work and the ordered consumer, command, notification, and persistence follow-ups.
 - **[6. How each row gets proved](#6-how-each-row-gets-proved)** -- Required verification and acceptance evidence.
 
 ## 0. Where the device actually is
@@ -291,11 +291,11 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 | `0x0022` | START_STREAMING | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output**; on a bound+stopped input → started | es-4.11, es-12.7 |
 | `0x0023` | STOP_STREAMING | 5.4.2.20 | mirror of the above | es-4.11, es-12.7 |
 
-> **`SET_CLOCK_SOURCE` is worth more than one row.** It is the **only** writer
-> of the live `clock_source_index`, which is why the CRF media clock can never
-> be selected today and why `KL_mmcm_drp_servo` and the `KL_media_nco` packet-
-> grid servo are structurally off. Landing it converts a dead actuator into a
-> live one and is the precondition for the P1.7 media-clock-lock finding.
+> **`SET_CLOCK_SOURCE` is worth more than one row.** Its dynamic-state store
+> and wrapper output have landed. The selected index now reaches the root, but
+> no media-plane consumer reads it. Replacing the INTERNAL selection constant
+> with that validated value is still required before `KL_mmcm_drp_servo` and
+> the `KL_media_nco` packet-grid servo can become live.
 
 ### P2.4 — dynamic audio mappings
 
@@ -413,11 +413,12 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
 
 ---
 
-## 5. Suggested order
+## 5. Recorded order and remaining follow-ups
 
-1. **P2.1** dynamic-state store — one piece of work, eleven commands unblocked.
-2. **P2.3** `SET_CLOCK_SOURCE` and `SET_SAMPLING_RATE` first of the SET family:
-   smallest, and `SET_CLOCK_SOURCE` lights up the media-clock servo.
+1. **P2.1** dynamic-state store: landed and serving the implemented setters.
+2. **P2.3 consumer follow-up**: validate and consume the exported clock-source
+   and sampling-rate state in the media plane. The clock-source command alone
+   does not light up the media-clock servo.
 3. **P2.2** `GET_NAME` + **P2.3** `SET_NAME` — one pair, one storage question
    (`name_index` fan-out), and five test items.
 4. **P2.3** `START`/`STOP_STREAMING`, `SET_CONFIGURATION`, `SET_STREAM_FORMAT`,

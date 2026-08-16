@@ -7,12 +7,11 @@ interface: a single **VexiiRiscv RV64IMA** softcore running Linux (the historica
 an **Alinx AX7101 (Xilinx Artix-7 xc7a100t)**  -  built with an **open toolchain**
 (LiteX + Verilator + Yosys; Vivado only for the final Artix bitstream).
 
-![The full system on one page - SoC, datapath, clock domains, address maps](../diagrams/milan_system_map.png)
-
-> The picture above is generated (editable
-> [`milan_system_map.drawio`](../diagrams/milan_system_map.drawio); regenerate with
-> `python3 docs/diagrams/milan_system_map.gen.py docs/diagrams/milan_system_map.drawio`,
-> render per [`docs/diagrams/README.md`](../diagrams/README.md) - never edit the render).
+> The former `milan_system_map` artifact set is obsolete as of 2026-08-16 and
+> is not embedded here. It predates the current control-plane integration.
+> Use this page together with the [current architecture](ARCHITECTURE.md), the
+> [current Milan v1.2 audit](../testing/MILAN_V12_AUDIT_2026-08-16.md), and the
+> retirement note in the [diagram catalog](../diagrams/README.md).
 
 It is written for two audiences:
 - **High-level** (§1–§3): what the system is, the protocol stack, the block diagram,
@@ -161,11 +160,12 @@ selected entity configuration.
 
 The echo is a *protocol* answer, not a functional one: the command is
 acknowledged with the right message type, length and `controller_data_length`,
-and nothing in the device changes. Three of the losses behind it are functional,
-not paperwork, and each has a place a bench will notice it:
+and nothing in the device changes. Three functional losses remain at the
+control and media boundary, and each has a place a bench will notice it:
 
-1. **The CRF media clock can never be SELECTED.** `SET_CLOCK_SOURCE` was the
-   only writer of the live CLOCK_DOMAIN `clock_source_index`; it is pinned at 0
+1. **The CRF media clock can never be SELECTED.** `SET_CLOCK_SOURCE` is
+   accepted and stored, and the wrapper exports the selected index to the root.
+   No media-plane consumer reads it, so the active selection stays pinned at 0
    (the INTERNAL media clock) for the life of the build. `KL_mmcm_drp_servo` and
    the `KL_media_nco` packet-grid servo are therefore structurally off and
    `A_MCSRV_STAT` (`0x8F8`) reads its idle. `KL_crf_rx` still parses, counts and
@@ -385,8 +385,9 @@ sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-eth
   `PP_DESC_BASE_P`, and the AECP engine's counters (commands, responses, drops,
   locate misses, last status/length, image-valid, image-fault) are read through
   the processor's side-port snapshot window (`PP_SPADDR`/`PP_SPDATA`), not from
-  `0x648`. The legacy AECP status word remains a structural zero because the
-  processor's dynamic-state outputs are not exported through this root wrapper.
+  `0x648`. The legacy AECP status word remains a structural zero because its
+  fields are not wired from the processor's exported dynamic-state signals
+  into that CSR group.
 - **No register was removed** when the legacy plane was deleted; the map is an
   ABI. What changed is meaning: words whose source is gone read documented
   **structural zeros**, a few provisioning words became **write-only scratch**

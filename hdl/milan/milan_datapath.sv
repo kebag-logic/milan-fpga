@@ -627,10 +627,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! ------------------------------------------------------------------------
   //! THE MEDIA CLOCK SOURCE, AND WHY IT IS A CONSTANT NOW.
   //! The protocol processor accepts and stores IEEE 1722.1 SET_CLOCK_SOURCE,
-  //! but KL_pp_shadow does not export its dynamic clock-source output into this
-  //! root integration. The selection is therefore pinned at index 0 = the
-  //! INTERNAL media clock for the life of the build and can NEVER become the
-  //! CRF one until that root seam is connected.
+  //! and KL_pp_shadow exports its dynamic clock-source output into this root
+  //! integration. No media-clock consumer reads that root wire yet. The
+  //! selection is therefore pinned at index 0 = the INTERNAL media clock for
+  //! the life of the build and can NEVER become the CRF one until that
+  //! consumer seam is connected.
   //!
   //! THE TRAP THIS EXISTS TO AVOID, which the first cut of the plane deletion
   //! walked straight into: keeping the two 16-bit nets and tying the live one
@@ -3024,8 +3025,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! Structural zero means "no connected source", not "an active engine is
   //! idle".
   assign aecp_bdbg0_w = 32'd0, aecp_bdbg1_w = 32'd0, aecp_bdbg2_w = 32'd0;
-  assign aecp_locked = 1'b0;   //! processor lock state is not exported to this legacy CSR
-  assign aecp_current_config = 16'd0;  //! processor config state is not exported here
+  assign aecp_locked = 1'b0;   //! processor lock state has no source wired to this legacy CSR
+  assign aecp_current_config = 16'd0;  //! exported config state is not wired into this legacy CSR
   assign aecp_cmd_count = 16'd0;
   assign aecp_resp_count = 16'd0;
   assign aecp_ctlr_diag = 32'd0;
@@ -3834,8 +3835,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end
 
   //! IDENTIFY: the processor serves the CONTROL descriptor and stores its
-  //! dynamic value, but KL_pp_shadow does not export aecp_identify_o into this
-  //! root integration yet. The physical output remains structurally dark.
+  //! dynamic value. KL_pp_shadow exports aecp_identify_o into
+  //! pp_aecp_identify_w, but no root consumer drives the public indication
+  //! from that wire yet. The physical output remains structurally dark.
   assign o_identify = 1'b0;
 
   // ==========================================================================

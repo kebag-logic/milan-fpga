@@ -1907,9 +1907,9 @@ int main(int argc, char** argv) {
     // ---------------------------------------------------------------- //
     // [SERVO] DYNAMIC MEDIA-CLOCK SELECTION IS NOT INTEGRATED.          //
     //                                                                  //
-    // The protocol processor accepts and stores SET_CLOCK_SOURCE, but   //
-    // KL_pp_shadow does not expose the selected value to milan_datapath.//
-    // The root therefore keeps CRF_CLK_SELECTED_C low and               //
+    // The protocol processor accepts and stores SET_CLOCK_SOURCE, and   //
+    // KL_pp_shadow exports the value to milan_datapath. No media-plane   //
+    // consumer reads it, so the root keeps CRF_CLK_SELECTED_C low and    //
     // MEDIA_CLK_SRC_IDX_C at the INTERNAL source for this build. The    //
     // old controller-effect check cannot be kept because no dynamic     //
     // value reaches the media plane. The command path itself is tested  //
@@ -1920,7 +1920,7 @@ int main(int argc, char** argv) {
     // servo's own knob register.                                       //
     // ---------------------------------------------------------------- //
     printf("\n[SERVO] clock_source is pinned INTERNAL "
-           "(processor selection disconnected)\n");
+           "(processor selection unconsumed)\n");
     {
         enum { A_CRF_CTRL = 0x738, A_CRF_SIDLO = 0x73C, A_CRF_SIDHI = 0x740,
                A_MCSRV_STAT = 0x8F8 };
@@ -2138,8 +2138,9 @@ int main(int argc, char** argv) {
         //       Clock Output actually reaches the wire byte — KEPT;         //
         //   (2) a media clock SOURCE change drives it (4.4.4.3's primary    //
         //       trigger, PICS Table F.16 CRF-3) - OPEN AT INTEGRATION. The  //
-        //       processor accepts SET_CLOCK_SOURCE, but KL_pp_shadow does   //
-        //       not export its stored value and the root remains INTERNAL; //
+        //       processor accepts SET_CLOCK_SOURCE and KL_pp_shadow exports //
+        //       its stored value, but no media consumer reads it and the    //
+        //       root remains INTERNAL;                                      //
         //   (3) a RECEIVED mr toggle must NOT be echoed while the device is //
         //       on an internal clock (10.4.3: "only the mr bit from the     //
         //       stream being used by the Listener for recovering the media  //
@@ -2202,8 +2203,8 @@ int main(int argc, char** argv) {
             }
             printf("  [GAP]  10.4.3 source-change trigger cannot reach the "
                    "media plane: SET_CLOCK_SOURCE is accepted and stored, but "
-                   "KL_pp_shadow does not export the selection and the root "
-                   "keeps CRF_CLK_SELECTED_C low.\n");
+                   "KL_pp_shadow exports the selection to an unconsumed root "
+                   "wire and CRF_CLK_SELECTED_C stays low.\n");
 
         }
 

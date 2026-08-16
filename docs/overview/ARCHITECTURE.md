@@ -52,8 +52,9 @@ are silently refused: freed, counted, no reply. Milan Delta 7
 Genuinely absent behind it: `SET_STREAM_FORMAT`, `SET_STREAM_INFO`, name access,
 the audio-map writers, `GET_DYNAMIC_INFO`, the Milan Table 5.22 counter-change
 scheduler, root-level IDENTIFY indication, and saved-state persistence.
-`SET_CLOCK_SOURCE` is accepted by the processor but its dynamic selection is not
-exported through the root, so the media plane remains pinned to INTERNAL. Those
+`SET_CLOCK_SOURCE` is accepted by the processor and its dynamic selection is
+exported to the root, but no media-plane logic consumes it, so the media plane
+remains pinned to INTERNAL. Those
 are stated capability boundaries. What they cost functionally is §3.2; what the
 affected CSR words read is
 [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md).
@@ -209,15 +210,15 @@ numbers now reads the wrong mux. The watchdog windows stay staggered
 shortest-upstream (control chain 2^15, data merges 2^16, MAC boundary 2^17) so
 only the true origin of a stall fires.
 
-### 3.2 Three functional losses the AECP boundary costs
+### 3.2 Three functional losses at the control and media boundary
 
-These sit *behind* the `NOT_IMPLEMENTED` echo: the commands are answered
-conformantly and do nothing. Not CSR cosmetics — behaviour a bench will notice:
+These are not CSR cosmetics. They are behavior a bench will notice:
 
-1. **The CRF media clock can never be SELECTED.** AECP `SET_CLOCK_SOURCE` was
-   the only writer of the live CLOCK_DOMAIN `clock_source_index`, so the
-   selection is pinned at index 0, the INTERNAL media clock, for the life of
-   the build. `KL_mmcm_drp_servo` and the `KL_media_nco` packet-grid servo are
+1. **The CRF media clock can never be SELECTED.** AECP `SET_CLOCK_SOURCE` is
+   accepted and stored, and the wrapper exports the selected index to the root.
+   No media-plane consumer reads it, so the active selection stays pinned at
+   index 0, the INTERNAL media clock, for the life of the build.
+   `KL_mmcm_drp_servo` and the `KL_media_nco` packet-grid servo are
    therefore **structurally off** and `A_MCSRV_STAT` (`0x8F8`) reads its idle.
    The CRF Media Clock Input engine (`KL_crf_rx`) still parses, counts and
    reports — it simply cannot steer anything.

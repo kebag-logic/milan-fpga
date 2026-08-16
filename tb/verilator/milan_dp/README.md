@@ -104,10 +104,11 @@ PDU two sections later: `nsr 0x07` still counts `UNSUPPORTED_FORMAT` and
 delivers no ring traffic.
 
 **The CRF clock-source compare had no driver.** `aem_crf_clksrc_w` lost its
-only writer with the AECP response builder, while `KL_mmcm_drp_servo` and
+only writer with the old AECP response builder, while `KL_mmcm_drp_servo` and
 `mcr_restart_p_w` still compared it against `aecp_clk_src`; `0 == 0` read TRUE,
-so the fabric behaved as if the CRF media clock were selected on a build where
-software cannot select it. Both nets are **deleted**. `milan_datapath` declares
+so the fabric behaved as if the CRF media clock were selected. Both nets are
+**deleted**. The current processor selection reaches an unconsumed root wire,
+while `milan_datapath` declares
 `CRF_CLK_SELECTED_C = 1'b0`, `MEDIA_CLK_SRC_IDX_C = 16'd0` (INTERNAL) and
 `MEDIA_CLK_SRC_NONE_C = 16'hFFFF`, and the consumers read those constants.
 `sim_main.cpp` and `sim_nxn.cpp` assert the consequence rather than the

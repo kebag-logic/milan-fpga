@@ -362,8 +362,8 @@ lever (`milan_datapath.sv`, `crf_rx` instance).
 > PACKET-GRID NCO SERVO.** Both engage only when the live CLOCK_DOMAIN
 > `clock_source_index` selects the CRF descriptor. The current protocol
 > processor accepts `SET_CLOCK_SOURCE` and stores the selected index, but
-> `KL_pp_shadow.sv` leaves `aecp_clk_src_index_o` unconnected. The selection
-> therefore never reaches the root media plane. It is pinned at index 0, the
+> `KL_pp_shadow.sv` exports `aecp_clk_src_index_o` to the root and no
+> media-plane consumer reads it. The active selection is pinned at index 0, the
 > INTERNAL media clock, for the life of the build
 > (`milan_datapath`'s `CRF_CLK_SELECTED_C`), and **the CRF media clock can
 > never be selected**.

@@ -162,8 +162,8 @@ longer a "static addresses" trade, it disables the talker. In their place
 sits `KL_pp_shadow`, which is not in this table because this table predates
 it; its measured cost is in the findings page named in the banner. The servo
 row is marked *permanently idle* rather than removed: it is still built, but
-`SET_CLOCK_SOURCE` was the only writer of its selector, so it can never leave
-idle.
+the stored `SET_CLOCK_SOURCE` value reaches an unconsumed root wire. Its active
+selector remains the INTERNAL constant, so it can never leave idle.
 
 ## What is actually optional
 
@@ -342,9 +342,10 @@ AAF admission *shut*, because the claim can never complete.
 `srp.stream_dmac_base` is the literal `maap`.
 *Forces re-measurement of* MAAP claim/defend behaviour and any address-collision
 result that depended on the engine answering. **Defaults to PRESENT.**
-**Re-read this lever after 2026-08-13**: the protocol processor implements no
-MAAP by design and reaches `KL_maap` through `KL_pp_maap_shim`, and its
-talker declares only after an `ALLOC_DA` success. So `MAAP_P = 0` no longer
+**Re-read this lever after 2026-08-13**: the protocol processor contains an
+internal MAAP engine, but this shipping integration disables it and reaches
+the fabric `KL_maap` through `KL_pp_maap_shim`. Its talker declares only after
+an `ALLOC_DA` success. So `MAAP_P = 0` no longer
 means "static addresses" — **it means no source ever declares and the talker
 half of ACMP is dead by construction**. The tie-off path is deliberately the
 same one a still-probing allocator takes, so nothing takes an untested

@@ -670,9 +670,10 @@ host-only.
   Milan Delta 7 `ACQUIRE_ENTITY` is graded for `NOT_SUPPORTED`, a zero owner,
   correct addressing, and the command-specific length. Three consequences
   remain easy to mistake for test failures:
-  * **The CRF media clock can never be SELECTED.** `SET_CLOCK_SOURCE` was the
-    only writer of the live CLOCK_DOMAIN `clock_source_index`, so it is pinned
-    at 0 (the INTERNAL media clock) for the life of a build. `KL_mmcm_drp_servo`
+  * **The CRF media clock can never be SELECTED.** `SET_CLOCK_SOURCE` is
+    accepted and stored, and the wrapper exports the selected index to the root.
+    No media-plane consumer reads it, so the active selection stays pinned at
+    0 (the INTERNAL media clock) for the life of a build. `KL_mmcm_drp_servo`
     and the `KL_media_nco` packet-grid servo are therefore **structurally off**
     and `A_MCSRV_STAT` (`0x8F8`) reads its idle. Their suites still pass; the
     build never enables what they grade.
