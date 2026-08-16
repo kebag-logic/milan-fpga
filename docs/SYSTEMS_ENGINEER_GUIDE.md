@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Systems Engineer's Guide to milan-fpga
 
 **If you read one doc first, read this one.** It tells you what the system is and hands you an

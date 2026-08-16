@@ -1,6 +1,6 @@
-# milan-fpga — IEEE 1722 / 1722.1 / Milan v1.2 on FPGA
+# milan-fpga: IEEE 1722 / 1722.1 and Milan on FPGA
 
-> A fully-FPGA **Milan v1.2 AVB/TSN audio end-station**: a RISC-V/LiteX softcore SoC
+> A fully-FPGA **Milan-oriented AVB/TSN audio end-station**: a RISC-V/LiteX softcore SoC
 > running Linux, with the entire TSN datapath in **vendor-neutral SystemVerilog fabric**, on
 > an Alinx AX7101 (Artix-7). Evolving toward a 4-port AVB switch.
 
@@ -12,8 +12,7 @@ cd tb/verilator/tcam && make                           # ~5 s → RESULT: PASS
 
 **Never seen this repo before?** → **[QUICKSTART.md](QUICKSTART.md)** — clone to a green
 test run in 30 minutes, no FPGA and no bench access assumed. Want to know what this *is*
-before installing anything? → **[docs/overview/AT_A_GLANCE.md](docs/overview/AT_A_GLANCE.md)**
-(one page: block diagram, the standards, the register map, what's proven).
+before installing anything? → **[docs/overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md)**.
 
 ![System domain map — every module by layer](docs/SYSTEM_DOMAIN_MAP.png)
 
@@ -26,12 +25,12 @@ Four doors, three links each. Every other doc hangs off one of these.
 | 🔌 | **Integrator** — putting this datapath in *your* SoC or on *your* board | [integration/INTEGRATION_GUIDE.md](docs/integration/INTEGRATION_GUIDE.md) — the `milan_datapath` boundary as a port-by-port contract | [reference/REGISTER_MAP.md](docs/reference/REGISTER_MAP.md) — the AXI4-Lite ABI your driver programs | [integration/PORTING_GUIDE.md](docs/integration/PORTING_GUIDE.md) — off-Xilinx, off-Vivado, per-vendor translation |
 | 🛠 | **RTL developer** — changing or adding fabric | [overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md) §8 "where to change things" | [fpga/FPGA_DESIGN.md](docs/fpga/FPGA_DESIGN.md) — every module in `hdl/` and the harness that verifies it | [CONTRIBUTING.md](CONTRIBUTING.md) — house style; a DUT change ships its testbench in the same commit |
 | 🔧 | **Bench operator** — building, flashing, bringing a board up | [integration/BUILDING.md](docs/integration/BUILDING.md) — `build.sh` configs and the gates a build must pass | [integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) — flash a **matched** image set, boot Linux | [limitations/TROUBLESHOOTING.md](docs/limitations/TROUBLESHOOTING.md) — symptom → cause → fix, from the field |
-| 📖 | **Curious reader / evaluator** — deciding if this is worth your time | [overview/AT_A_GLANCE.md](docs/overview/AT_A_GLANCE.md) — the whole thing on one page | [SPEC_TRACEABILITY.md](docs/SPEC_TRACEABILITY.md) — clause-level verification status, 204 rows | [limitations/KNOWN_ISSUES_AND_LIMITATIONS.md](docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md) — what does not work |
+| 📖 | **Curious reader / evaluator**, deciding if this is worth your time | [overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md) | [the current Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) | [reference/FR_NFR.md](docs/reference/FR_NFR.md) |
 
 More lanes (system engineer, tester, hobbyist) and the full index:
 **[docs/README.md](docs/README.md)**. Everyone's long-form orientation is the
-**[Systems-Engineer Guide](docs/SYSTEMS_ENGINEER_GUIDE.md)**. Terms →
-[glossary](docs/GLOSSARY.md).
+current architecture, verification, and audit entry points are listed there.
+Terms → [glossary](docs/GLOSSARY.md).
 
 ![Documentation map — the four reading lanes by role](docs/DOC_MAP.png)
 
@@ -81,9 +80,10 @@ Unknown and unimplemented operations still receive the correctly sized IEEE
 `BAD_ARGUMENTS`. Commands for another entity and incoming AECP responses are
 silently discarded as required.
 
-The descriptor image supply chain is also present. The end-station builder and
-`sw/litex/milan_soc.py` generate `aem_desc.bin`, `aem_desc.json`, and
-`aem_desc.map` from the selected configuration. The board-side `aemi-load`
+The descriptor image supply chain is also present. During an explicit
+`--write-fragment` or `--write-rtl` ownership transfer, the end-station builder
+generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` from the selected
+configuration in the sibling rootfs overlay. The board-side `aemi-load`
 utility loads and verifies the paired image before the entity is enabled. The
 store validates its `AEMI` header, version, checksum, and configuration before
 serving it, and a late valid image heals without a reset.
@@ -193,7 +193,7 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 | Traceability no-drift gate | `python3 docs/traceability/gen_module_matrix.py --check` | python3 |
 | End-station builder gates | `python3 sw/builder/test_builder.py` | python3 + pyyaml |
 | Device portability | `cd syn/yosys && make && make ecp5` | yosys + sv2v |
-| **BDD conformance suite** (22 features / 122 scenarios, offline, ~3 s) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
+| **BDD conformance suite** (15 features / 320 scenarios / 1504 steps, no skips in the 2026-08-16 audit) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
 
 `ls tb/verilator/` is the authoritative suite list. Full map: [docs/testing/TESTING.md](docs/testing/TESTING.md).
 
@@ -259,24 +259,24 @@ the desk suites + internal COMPLIANCE behave gates stay green at 100 % coverage.
 > descriptor image the build generates, and `tb/verilator/milan_dp`'s
 > `[AECP-MODEL]` block proves it by walking **every** descriptor the generator
 > emits and grading each answer against the model's own bytes. What is still
-> open is the write side — see
-> [`docs/MILAN_V12_ROADMAP.md`](docs/MILAN_V12_ROADMAP.md).
+> open is the write side. See the mandatory gaps in
+> [the current audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) and the open GitHub issues.
 
 ### P1.5 — Conformance hardening (2026-08, rides P1)
 
-The clause-by-clause traceability review
-([`docs/reference/PROTOCOL_TRACEABILITY.md`](docs/reference/PROTOCOL_TRACEABILITY.md))
-mapped the protocol-facing RTL elements and adversarially verified the
-divergences. The resulting fix campaign was tracked as twelve work packages.
+An earlier clause-by-clause traceability review mapped the protocol-facing RTL
+elements and identified twelve work packages. The original review page is now
+marked obsolete because the 2026-08-13 control-plane substitution changed the
+implementation boundary.
 
 > **Most of this campaign was overtaken by the 2026-08-13 substitution**, and
 > the AECP half of it has since been partly discharged. The RTL that carried
 > these packages is deleted: the ADP, ACMP and SRP items are now the protocol
 > processor's to satisfy. The processor's AECP uCPU serves **twenty-two** AEM
 > opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x004E`, so some AECP rows
-> below are closed and some are not — and the per-clause status is **not** kept
-> here. The current, ordered, clause-cited plan is
-> [`docs/MILAN_V12_ROADMAP.md`](docs/MILAN_V12_ROADMAP.md); this table is kept
+> below are closed and some are not, and the per-clause status is **not** kept
+> here. [The current audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) records
+> the exact evidence and remaining gaps. This table is kept
 > only as the record of what the traceability review found. Do not read a row
 > as work in flight against this tree.
 

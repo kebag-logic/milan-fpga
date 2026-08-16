@@ -134,11 +134,13 @@ longer exist in this repository, and no `@T2` scenario survives.
 
 `tb/avtp_packet_gen_sv/tb_classes/avtp_aecp_packet_gen.svh` still builds AECP
 command frames and is still useful as a CONTROLLER-side instrument. Since
-2026-08-13 a bench that sends one is no longer testing the absence of a reply:
-the protocol-processor answers READ_DESCRIPTOR, and answers everything else
-with a `NOT_IMPLEMENTED` echo — see the two `aecp_*` features under T1 for the
-contract it has to meet. The AVTP/AAF generators in the same library are
-unaffected.
+2026-08-13 a bench that sends one is no longer testing the absence of a reply.
+The protocol processor serves the declared AECP inventory, including descriptor
+reads, state and control operations, stream and gPTP information, counters,
+audio-map reads, unsolicited registration, and Milan information. Unsupported
+operations receive the correctly sized `NOT_IMPLEMENTED` echo. See the
+`aecp_*` features under T1 and the current audit for the exact contract. The
+AVTP/AAF generators in the same library are unaffected.
 
 ---
 

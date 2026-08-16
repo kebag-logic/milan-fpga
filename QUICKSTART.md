@@ -231,9 +231,9 @@ needs a vendor licence:
 |---|---|---|
 | Run every self-checking RTL testbench | [§2.3](#23-the-verilator-testbenches) | verilator, gcc |
 | Prove the RTL is vendor-neutral, and map it to an ECP5 | [§3](#3-track-2--device-portability-still-no-vendor-tools) | yosys, sv2v |
-| Generate a whole end-station (AEM descriptors, SV headers, build plan) from a YAML declaration | `python3 sw/builder/endstation_builder.py configs/endstation_arty_4x4.yaml`; [`docs/ENDSTATION_BUILDER.md`](docs/ENDSTATION_BUILDER.md). The builder emits the processor image artifacts `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the tracked board flow loads the paired image with `aemi-load` before entity enable | python, pyyaml |
+| Generate and validate a whole end-station model, SV headers, and build plan from a YAML declaration | `python3 sw/builder/endstation_builder.py configs/endstation_arty_4x4.yaml`; [`docs/ENDSTATION_BUILDER.md`](docs/ENDSTATION_BUILDER.md). This ordinary command writes review artifacts under `sw/builder/out/`. A deployment ownership transfer with `--write-fragment` or `--write-rtl` also generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` in the sibling rootfs overlay, when that overlay is present; `aemi-load` verifies and loads the paired image before entity enable | python, pyyaml |
 | Read the register ABI and write driver code against it | [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md), asserted by the `csr` suite | nothing |
-| Check the spec↔module↔test coverage of every clause | [`docs/SPEC_TRACEABILITY.md`](docs/SPEC_TRACEABILITY.md), [`docs/traceability/MODULE_MATRIX.md`](docs/traceability/MODULE_MATRIX.md) | nothing |
+| Check the current compliance audit and module-to-test coverage | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md), [`docs/traceability/MODULE_MATRIX.md`](docs/traceability/MODULE_MATRIX.md) | nothing |
 | Simulate the softcore booting with the NIC attached (sim DUT) | [`sw/litex/milan_sim.py`](sw/litex/milan_sim.py) — **needs the LiteX stack + a JVM**, see [§6](#6-track-3--build-a-bitstream-vivado) | migen/litex, JDK |
 
 What you **cannot** do without proprietary tools: place & route (`.bit`
@@ -325,8 +325,9 @@ will not boot) → boot Linux → bring the network up → connect a stream.
    flash layout, `deploy.sh flash-images`, why the set must match.
 2. [`docs/limitations/TROUBLESHOOTING.md`](docs/limitations/TROUBLESHOOTING.md) —
    the field log: symptom → cause → fix, for boot, flash, link and stream faults.
-3. [`docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md`](docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)
-   — read the **lethal gateware⇄driver pairings** table *before* flashing anything.
+3. [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md)
+   and [`docs/limitations/RECURRING_DEFECT_PATTERNS.md`](docs/limitations/RECURRING_DEFECT_PATTERNS.md)
+   for current limitations and integration hazards.
 4. [`docs/findings/BENCH_TOPOLOGY.md`](docs/findings/BENCH_TOPOLOGY.md) — how the
    reference lab is wired, which board runs which image. Host names, outlet
    numbers and addresses in there are specific to that lab; the *topology* is the
@@ -345,7 +346,7 @@ no media clock and no stream.
 
 | You are | Read |
 |---|---|
-| deciding whether to use this at all | [`docs/overview/AT_A_GLANCE.md`](docs/overview/AT_A_GLANCE.md) — the one-page picture |
+| deciding whether to use this at all | [`docs/overview/ARCHITECTURE.md`](docs/overview/ARCHITECTURE.md) and [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
 | integrating the datapath into your own SoC | [`docs/integration/INTEGRATION_GUIDE.md`](docs/integration/INTEGRATION_GUIDE.md) → [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md) |
 | going to write RTL | [`docs/overview/ARCHITECTURE.md`](docs/overview/ARCHITECTURE.md) §8 → [`docs/fpga/FPGA_DESIGN.md`](docs/fpga/FPGA_DESIGN.md) → [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | lost in the vocabulary | [`docs/GLOSSARY.md`](docs/GLOSSARY.md) |

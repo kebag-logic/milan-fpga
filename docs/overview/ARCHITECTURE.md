@@ -297,11 +297,14 @@ reset, because every locate against an invalid image re-arms the header probe.
 
 **The descriptor supply chain is part of the tracked build and boot flow.**
 [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py)
-turns the selected `endstation_*.yaml` into `aem_desc.bin`, `aem_desc.json`,
-and `aem_desc.map`. The root filesystem packages the paired image and manifest,
-and `aemi-load` verifies their pairing and writes the image to the derived base
-before entity enable. A custom integration that omits the load receives the
-fail-closed `BAD_ARGUMENTS` behavior described above.
+turns the selected `endstation_*.yaml` into deployment image artifacts only
+during an explicit `--write-fragment` or `--write-rtl` ownership transfer. It
+writes `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` into the sibling
+rootfs overlay when that overlay is present. `aemi-load` verifies their pairing
+and writes the image to the derived base before entity enable. An ordinary
+builder run only writes review artifacts under `sw/builder/out/`. A custom
+integration that omits the load receives the fail-closed `BAD_ARGUMENTS`
+behavior described above.
 
 **The entity enable is ORed from two bits.** `PP_CTRL[0]` at `0x920` is the
 protocol processor's own gate; `ADP_CTRL.en` at `0x600` bit 0 is the historic
@@ -386,7 +389,7 @@ porting: [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §4.
 | MAC/PHY | MAC regs (0x100) | phylib `adjust_link`, `ndo_set_rx_mode` | `phy-handle` |
 | Stats | RMON regs (0x200) | `ethtool -S` | - |
 | Entity identity | `0x600` group (entity_id, model_id, talker/listener counts) | boot-time identity programming (`ADP_CTRL.en` also enables the entity) | - |
-| Entity model (AEM) | the descriptor-memory master `o_desc_mem_*` at `PP_DESC_BASE_P` — what `READ_DESCRIPTOR` is served from | write the descriptor image into that DRAM window **before** the enable — **no code in this repo does this yet**, so today the window is unloaded | the reserved main-memory region it sits in |
+| Entity model (AEM) | the descriptor-memory master `o_desc_mem_*` at `PP_DESC_BASE_P`, which serves `READ_DESCRIPTOR` | an explicit builder deployment transfer writes the paired image into the sibling rootfs overlay; `aemi-load` verifies and loads it before enable | the reserved main-memory region it sits in |
 | Control plane | `KL_pp_shadow` + `PP_*` regs (0x920) | enable / side-port diagnostics only — no per-frame CPU work | - |
 | RX filter | TCAM regs (0x700) | dest-MAC filtering | - |
 
