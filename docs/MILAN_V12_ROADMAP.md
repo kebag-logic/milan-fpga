@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
-**Status 2026-08-16, VERSION `0x0002_004B`.** This is the ordered, clause-cited
+**Status 2026-08-16, VERSION `0x0002_004D`.** This is the ordered, clause-cited
 plan from where the device is to a device that passes the Milan
 end-station validation test plan. It supersedes the AECP sections of
 [`MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
@@ -28,7 +28,7 @@ leaves the clause open.
 
 ### 0.1 Served for real, today
 
-Sixteen AEM opcodes plus one MVU command. The authority is
+**Twenty-four** AEM opcodes plus one MVU command. The authority is
 `protocol-processor/hdl/aecp/KL_aecp_engine.sv`'s `OP_*_C` constants, and
 `tests/steps/aecp_engine_steps.py`'s `SERVED` table is gated against that list
 by a behave step that parses the RTL — so this section cannot silently rot
@@ -40,11 +40,18 @@ again.
 | `0x0001` | LOCK_ENTITY | 5.4.2.2 | 0x0046 |
 | `0x0002` | ENTITY_AVAILABLE | 5.4.2.3 | **0x004B** |
 | `0x0004` | READ_DESCRIPTOR | 5.4.2.4 | 0x0040 |
+| `0x0006` | SET_CONFIGURATION | 5.4.2.5 | **0x004D** |
 | `0x0007` | GET_CONFIGURATION | 5.4.2.6 | **0x004B** |
 | `0x0009` | GET_STREAM_FORMAT | 5.4.2.8 | **0x004B** |
 | `0x000F` | GET_STREAM_INFO (Milan 80-byte form) | 5.4.2.10 | 0x0047 |
+| `0x0014` | SET_SAMPLING_RATE | 5.4.2.13 | **0x004C** |
 | `0x0015` | GET_SAMPLING_RATE | 5.4.2.14 | **0x004B** |
+| `0x0016` | SET_CLOCK_SOURCE | 5.4.2.15 | **0x004C** |
 | `0x0017` | GET_CLOCK_SOURCE | 5.4.2.16 | **0x004B** |
+| `0x0018` | SET_CONTROL (IDENTIFY) | 5.4.2.17 | **0x004C** |
+| `0x0019` | GET_CONTROL (IDENTIFY) | 5.4.2.18 | **0x004C** |
+| `0x0022` | START_STREAMING | 5.4.2.19 | **0x004D** |
+| `0x0023` | STOP_STREAMING | 5.4.2.20 | **0x004D** |
 | `0x0024` | REGISTER_UNSOLICITED_NOTIFICATION | 5.4.2.21 | 0x0045 |
 | `0x0025` | DEREGISTER_UNSOLICITED_NOTIFICATION | 5.4.2.22 | 0x0045 |
 | `0x0026` | IDENTIFY_NOTIFICATION as a command → `BAD_ARGUMENTS` | IEEE 7.4.39.2 | 0x0042 |
@@ -87,23 +94,27 @@ Read the LUT delta as *"of order tens"*, not as 35: the same
 (visible above — LUT6 fell 117 while LUT3 rose 116 and the muxes rose 31). The
 **flop count is exact and attributable**: +6.
 
-### 0.2 The one structural fact that shapes everything below
+### 0.2 The structural fact that shaped everything below — now built
 
-**There is no dynamic-state store.** Every value the device serves today comes
-from one of exactly two places: the read-only descriptor image in DRAM, or a
-live fabric face (counters, gPTP, stream info, the lock registry). `grep -n
-"dyn_\|dynamic" protocol-processor/hdl/aecp/*.sv` finds one comment and no
-storage.
+Until VERSION `0x004C` **there was no dynamic-state store**, and that single
+absence was why the whole `SET_*` family answered the `NOT_IMPLEMENTED` echo:
+every value the device served came from the read-only descriptor image or a
+live fabric face, and neither can hold a *setting*.
 
-That is why the read side landed first and the write side has not: **every
-remaining `SET_*` needs somewhere to put the value**, and the same store is
-what `GET_NAME`, `GET_CONTROL` and `GET_DYNAMIC_INFO` must read back. It is one
-piece of work that unblocks eleven commands, and it is item **P2.1** below.
+`KL_aecp_dyn_state.sv` is that store, and it is landed, tested and load-bearing
+— `SET_SAMPLING_RATE`, `SET_CLOCK_SOURCE`, `SET_CONTROL`, `SET_CONFIGURATION`
+and `START`/`STOP_STREAMING` all write it, and their getters read it in
+preference to the image. The design and the two constraints that forced it are
+kept in §P2.1 below, because they still govern every command that has not
+landed yet.
 
-The descriptor store already has the shape to copy: a read-only image with
-**one writable overlay region** — the 07 §3.4 name table, initialised from the
-image at boot (`KL_aecp_desc_store.sv:127-131`). The dynamic-state store is
-that pattern generalised to the dozen or so fields Milan makes settable.
+**What it does not yet do is reach its consumers.** The settings face is
+published all the way out to `milan_datapath` (`pp_aecp_*_w`) and read by
+nothing: the media clock still uses its compile-time select, so
+`SET_CLOCK_SOURCE` stores a value the servo does not act on. That is deliberate
+sequencing — the AECP side is complete and provable on its own, and each
+consumer is its own change — but it means a green suite here is **not** yet a
+claim that the device behaves differently on the bench.
 
 ---
 
@@ -112,9 +123,10 @@ that pattern generalised to the dozen or so fields Milan makes settable.
 Fifteen AEM commands, in the order they should land. "Blocks" names the test
 items from the validation test plan that cannot pass until the row does.
 
-### P2.1 — the dynamic-state store (no opcode; unblocks eleven)
+### P2.1 — the dynamic-state store — **LANDED at `0x004C`**
 
-Not a command. A small register file, reachable as a new µISA state-port
+Kept in full because the two constraints it is built around still govern every
+command below. Not a command. A small register file, reachable as a new µISA state-port
 region, holding exactly the fields Milan v1.2 declares settable:
 
 | Field | Owner descriptor | Count here | Clause |

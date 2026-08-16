@@ -458,6 +458,19 @@ module KL_pp_shadow #(
     output logic [7:0]                 maap_conflicts_o,   //! re-address events (saturating)
     output logic [7:0]                 maap_defends_o,     //! DEFEND frames sent (saturating)
 
+    //! ---- the AECP SETTINGS face (Milan §5.3.x) ------------------------
+    //! What a controller has SET, republished 1:1 so the fabric can act on a
+    //! setting rather than be told about it. Every one reads its reset
+    //! default until a controller writes it, so a datapath that leaves these
+    //! unread behaves exactly as it did before the store existed — which is
+    //! how they land here ahead of their consumers.
+    output logic [15:0]                aecp_cur_config_o,   //! ENTITY.current_configuration
+    output logic  [7:0]                aecp_identify_o,     //! IDENTIFY, 0 or 255
+    output logic [15:0]                aecp_clk_src_index_o,//! CLOCK_DOMAIN[0] clock source
+    output logic [N_STREAM_IN_P-1:0]   aecp_strm_started_o, //! per sink, 1 = started
+    output logic [31:0]                aecp_pt_offset_o,    //! presentation-time offset
+    output logic                       aecp_dyn_dirty_o,    //! a persisted field moved
+
     //! ---- class-D SRP status levels (02 §6, F02.10) — THE FABRIC FACE ----
     //! Every one of these is a straight pass-through of the identically named
     //! protocol_processor_top output: same name, same width, same flat
@@ -813,6 +826,13 @@ module KL_pp_shadow #(
   ) u_pp (
       .clk_i               (clk_i),
       .rst_n               (rst_n),
+
+      .aecp_cur_config_o   (aecp_cur_config_o),
+      .aecp_identify_o     (aecp_identify_o),
+      .aecp_clk_src_index_o(aecp_clk_src_index_o),
+      .aecp_strm_started_o (aecp_strm_started_o),
+      .aecp_pt_offset_o    (aecp_pt_offset_o),
+      .aecp_dyn_dirty_o    (aecp_dyn_dirty_o),
 
       .entity_id_i         (entity_id_i),
       .entity_model_id_i   (entity_model_id_i),
