@@ -33,7 +33,7 @@ outside this build's declared scope.
 | `tests/` Behave suite | 15 features, 319 scenarios passed, 1 scenario skipped | 1,500 steps passed and 4 steps were skipped. This is an offline behavior model, not an external compliance lab result. |
 | Pinned protocol processor suites | 13,457 checks passed | All 27 processor suites passed. The processor's zero-tolerance RTL lint and documentation gates also passed. |
 | Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,255 and 3,759 checks, including every declared AAF and CRF Stream Output. |
-| Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
+| Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/a2087320fb106ea55e378a8a6fdd6a158932792e) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
 | Pinned gPTP processor skeleton | 799 checks passed | 768 uCPU checks and 31 parser checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
 | Root RTL lint | PASS under ratchet | The ratchet remains at 100 existing warnings. This is not a zero-warning result. |
 | Module matrix | PASS | 63 modules, 0 untested under the current matrix rules. |
@@ -65,12 +65,20 @@ The pinned processor currently gives real behavior to `READ_DESCRIPTOR`,
 `ACQUIRE_ENTITY`, `LOCK_ENTITY`, `ENTITY_AVAILABLE`, `SET_CONFIGURATION`, `GET_CONFIGURATION`,
 `GET_STREAM_FORMAT`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
 `SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
-`GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `GET_STREAM_INFO`, `GET_AVB_INFO`, `GET_AS_PATH`,
+`GET_CONTROL`, `GET_STREAM_INFO`, `GET_AVB_INFO`, `GET_AS_PATH`,
 `GET_COUNTERS`, `GET_AUDIO_MAP`, the unsolicited registration pair, and Milan
 `GET_MILAN_INFO`.
 
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
+
+`START_STREAMING` and `STOP_STREAMING` (Milan 5.4.2.19 / 5.4.2.20) belong in
+this list and are called out here because an earlier revision of this document
+placed them in the list above. They were implemented and then **withdrawn**
+before merge: started/stopped already has a home in the ACMP binding record,
+which clears on unbind and is persisted, and a second copy in the AECP dynamic
+store would be neither. The work is preserved on branch
+`78-start-stop-streaming` pending that decision.
 
 - `SET_STREAM_FORMAT`
 - `SET_STREAM_INFO`
@@ -83,9 +91,9 @@ Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/51e03e7f6139769cdd3a26b59780659c06401ac8/hdl/aecp/KL_aecp_engine.sv) and
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/a2087320fb106ea55e378a8a6fdd6a158932792e/hdl/aecp/KL_aecp_engine.sv) and
 the current command table in
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/51e03e7f6139769cdd3a26b59780659c06401ac8/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/a2087320fb106ea55e378a8a6fdd6a158932792e/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 

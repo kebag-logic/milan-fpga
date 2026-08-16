@@ -137,8 +137,6 @@ SERVED = {
                  verdict=ST_SUCCESS, cdl=24),
     0x000F: dict(name="GET_STREAM_INFO", clause="Milan 5.4.2.10",
                  verdict=ST_SUCCESS, cdl=68),     # the Milan 80-byte form
-    0x0014: dict(name="SET_SAMPLING_RATE", clause="Milan 5.4.2.13",
-                 verdict=ST_SUCCESS, cdl=20),
     0x0015: dict(name="GET_SAMPLING_RATE", clause="Milan 5.4.2.14",
                  verdict=ST_SUCCESS, cdl=20),
     0x0014: dict(name="SET_SAMPLING_RATE", clause="Milan 5.4.2.13",
