@@ -1,12 +1,10 @@
-[OBSOLETE + 2026-08-16]
-
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
-**Status 2026-08-16, VERSION `0x0002_004B`.** This is the ordered, clause-cited
+**Status 2026-08-16, VERSION `0x0002_004E`.** This is the ordered, clause-cited
 plan from where the device is to a device that passes the Milan
 end-station validation test plan. It supersedes the AECP sections of
-[`MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
+[historical `MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
 banner ("every AECP command except READ_DESCRIPTOR draws a NOT_IMPLEMENTED
 echo") expired three days after it was written.
 
@@ -40,11 +38,32 @@ leaves the clause open.
 
 ### 0.1 Served for real, today
 
-Sixteen AEM opcodes plus one MVU command. The authority is
+**Twenty-one** AEM opcodes plus one MVU command. The authority is
 `protocol-processor/hdl/aecp/KL_aecp_engine.sv`'s `OP_*_C` constants, and
 `tests/steps/aecp_engine_steps.py`'s `SERVED` table is gated against that list
 by a behave step that parses the RTL — so this section cannot silently rot
 again.
+
+**"Served" here means the command's own request/response contract.** It does
+**not** include the unsolicited notification that Milan §5.4.5.2 and IEEE
+§7.4.7 require after a successful `SET_*`: no microprogram enqueues one, the
+only `NOTIFY_ENQ` in `gen_ucode.py` sits in an exemplar program, and
+`pp_pkg.sv` defines notification kinds for the deregistration and GET family
+only. Every `SET_*` row below therefore carries an open half, tracked as #69 —
+not as a per-row caveat, because it is the same missing mechanism in all of
+them. One more caveat worth naming here rather than burying: `0x0016`'s stored
+clock source reaches `milan_datapath` and is read by nothing (audit B3).
+
+`0x0006` used to carry a second caveat — it stored an index that
+`READ_DESCRIPTOR(ENTITY)` did not reflect, so §7.4.8.2's equivalence broke on a
+multi-configuration image. That is closed: `E_RDESCENT` overlays the ENTITY
+descriptor's last field with the same dynamic value `GET_CONFIGURATION` reads,
+and `protocol-processor/tb/pp_top` W18c3/W18h grade the two commands **against
+each other** rather than each against a literal, which is how the divergence hid
+in the first place. What remains is narrower and worth stating: the shipping
+one-configuration image cannot exercise a real active-configuration switch, so
+the command stores and reports an index without any descriptor set changing
+underneath it.
 
 | Opcode | Command | Milan clause | Landed |
 |---|---|---|---|
@@ -52,11 +71,16 @@ again.
 | `0x0001` | LOCK_ENTITY | 5.4.2.2 | 0x0046 |
 | `0x0002` | ENTITY_AVAILABLE | 5.4.2.3 | **0x004B** |
 | `0x0004` | READ_DESCRIPTOR | 5.4.2.4 | 0x0040 |
+| `0x0006` | SET_CONFIGURATION | 5.4.2.5 | **0x004D** |
 | `0x0007` | GET_CONFIGURATION | 5.4.2.6 | **0x004B** |
 | `0x0009` | GET_STREAM_FORMAT | 5.4.2.8 | **0x004B** |
 | `0x000F` | GET_STREAM_INFO (Milan 80-byte form) | 5.4.2.10 | 0x0047 |
+| `0x0014` | SET_SAMPLING_RATE | 5.4.2.13 | **0x004C** |
 | `0x0015` | GET_SAMPLING_RATE | 5.4.2.14 | **0x004B** |
+| `0x0016` | SET_CLOCK_SOURCE | 5.4.2.15 | **0x004C** |
 | `0x0017` | GET_CLOCK_SOURCE | 5.4.2.16 | **0x004B** |
+| `0x0018` | SET_CONTROL (IDENTIFY) | 5.4.2.17 | **0x004C** |
+| `0x0019` | GET_CONTROL (IDENTIFY) | 5.4.2.18 | **0x004C** |
 | `0x0024` | REGISTER_UNSOLICITED_NOTIFICATION | 5.4.2.21 | 0x0045 |
 | `0x0025` | DEREGISTER_UNSOLICITED_NOTIFICATION | 5.4.2.22 | 0x0045 |
 | `0x0026` | IDENTIFY_NOTIFICATION as a command → `BAD_ARGUMENTS` | IEEE 7.4.39.2 | 0x0042 |
@@ -99,34 +123,51 @@ Read the LUT delta as *"of order tens"*, not as 35: the same
 (visible above — LUT6 fell 117 while LUT3 rose 116 and the muxes rose 31). The
 **flop count is exact and attributable**: +6.
 
-### 0.2 The one structural fact that shapes everything below
+### 0.2 The structural fact that shaped everything below — now built
 
-**There is no dynamic-state store.** Every value the device serves today comes
-from one of exactly two places: the read-only descriptor image in DRAM, or a
-live fabric face (counters, gPTP, stream info, the lock registry). `grep -n
-"dyn_\|dynamic" protocol-processor/hdl/aecp/*.sv` finds one comment and no
-storage.
+Until VERSION `0x004C` **there was no dynamic-state store**, and that single
+absence was why the whole `SET_*` family answered the `NOT_IMPLEMENTED` echo:
+every value the device served came from the read-only descriptor image or a
+live fabric face, and neither can hold a *setting*.
 
-That is why the read side landed first and the write side has not: **every
-remaining `SET_*` needs somewhere to put the value**, and the same store is
-what `GET_NAME`, `GET_CONTROL` and `GET_DYNAMIC_INFO` must read back. It is one
-piece of work that unblocks eleven commands, and it is item **P2.1** below.
+`KL_aecp_dyn_state.sv` is that store, and it is landed, tested and load-bearing
+— `SET_SAMPLING_RATE`, `SET_CLOCK_SOURCE`, `SET_CONTROL` and
+`SET_CONFIGURATION` all write it, and their getters read it in preference to
+the image. `START`/`STOP_STREAMING` also wrote it and were pulled back out:
+started/stopped already has a home in the ACMP binding record, which clears on
+unbind and persists, and two copies of one Milan state is a defect waiting to
+happen (issue #78). The design and the two constraints that forced it are
+kept in §P2.1 below, because they still govern every command that has not
+landed yet.
 
-The descriptor store already has the shape to copy: a read-only image with
-**one writable overlay region** — the 07 §3.4 name table, initialised from the
-image at boot (`KL_aecp_desc_store.sv:127-131`). The dynamic-state store is
-that pattern generalised to the dozen or so fields Milan makes settable.
+**What it does not yet do is reach its consumers.** Four of the five stored
+fields — current configuration, IDENTIFY, clock source and presentation-time
+offset — are published out to `milan_datapath` (`pp_aecp_*_w`) and read by
+nothing: the media clock still uses its compile-time select, so
+`SET_CLOCK_SOURCE` stores a value the servo does not act on. The fifth,
+**`current_sampling_rate`, is not published at all**: `KL_aecp_dyn_state` holds
+it and serves it over AECP but declares no output for it, so it stops at the
+store. Aligning the audio grid to it is #74's work. That is deliberate
+sequencing — the AECP side is complete and provable on its own, and each
+consumer is its own change — but it means a green suite here is **not** yet a
+claim that the device behaves differently on the bench.
 
 ---
 
 ## 1. The remaining SHALL set
 
-Fifteen AEM commands, in the order they should land. "Blocks" names the test
+**Nine** AEM commands, in the order they should land. "Blocks" names the test
 items from the validation test plan that cannot pass until the row does.
 
-### P2.1 — the dynamic-state store (no opcode; unblocks eleven)
+Five rows in the tables below carry a **LANDED** mark: they have shipped since
+this section was written, and they stay in place because their clause notes and
+"Blocks" lists are the record of what shipping them bought. Section 0.1 is the
+authority on what is served; a row here without a LANDED mark is open.
 
-Not a command. A small register file, reachable as a new µISA state-port
+### P2.1 — the dynamic-state store — **LANDED at `0x004C`**
+
+Kept in full because the two constraints it is built around still govern every
+command below. Not a command. A small register file, reachable as a new µISA state-port
 region, holding exactly the fields Milan v1.2 declares settable:
 
 | Field | Owner descriptor | Count here | Clause |
@@ -186,7 +227,7 @@ clear, the persisted ones do not (see P3.1).
 | Opcode | Command | Clause | Response | Blocks |
 |---|---|---|---|---|
 | `0x0011` | GET_NAME | 5.4.2.12 | cdl 84: type, index, name_index, configuration_index, 64-byte name | es-4.7, es-4.18, es-5.1, es-6.1, es-6.2 |
-| `0x0019` | GET_CONTROL | 5.4.2.18 | cdl 17: type, index, one `CONTROL_LINEAR_UINT8` value (0 or 255) | es-4.10 |
+| `0x0019` | GET_CONTROL **— LANDED** | 5.4.2.18 | cdl 17: type, index, one `CONTROL_LINEAR_UINT8` value (0 or 255) | es-4.10 |
 
 Both of these look like one-afternoon reads and are not. Measured 2026-08-16
 while scoping this round:
@@ -240,13 +281,13 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 
 | Opcode | Command | Clause | The Milan-specific refusal | Blocks |
 |---|---|---|---|---|
-| `0x0006` | SET_CONFIGURATION | 5.4.2.5 | `STREAM_IS_RUNNING` (12) if **any** Stream Input is bound or **any** Stream Output is streaming | es-4.3, es-5.1, es-12.1, es-12.2 |
+| `0x0006` | SET_CONFIGURATION **— LANDED** | 5.4.2.5 | `STREAM_IS_RUNNING` (12) if **any** Stream Input is bound or **any** Stream Output is streaming | es-4.3, es-5.1, es-12.1, es-12.2 |
 | `0x0008` | SET_STREAM_FORMAT | 5.4.2.7 | `STREAM_IS_RUNNING` on a **bound** input or streaming output; `BAD_ARGUMENTS` if any existing mapping references a channel absent from the new format | es-4.4, es-5.1, es-9.x, es-10.x, es-12.1, es-12.2 |
 | `0x000E` | SET_STREAM_INFO | 5.4.2.9 | `NOT_SUPPORTED` on **any** Stream Input; `MSRP_ACC_LAT_VALID` sets the presentation offset, range `0x0`–`0x7FFFFFFF` ns, outside → `BAD_ARGUMENTS`; any unsupported sub-flag → refuse the **whole** command `NOT_SUPPORTED` | es-4.5, es-5.1, es-10.2, es-12.1 |
 | `0x0010` | SET_NAME | 5.4.2.11 | must accept names of **non-active** configurations too (es-4.7) | es-4.7, es-4.18, es-5.1, es-6.1, es-6.2 |
-| `0x0014` | SET_SAMPLING_RATE | 5.4.2.13 | the rate/mapping-mismatch refusal is a **MAY**, not a SHALL | es-4.16, es-5.1 |
-| `0x0016` | SET_CLOCK_SOURCE | 5.4.2.15 | — | es-4.9, es-5.1, es-10.1 |
-| `0x0018` | SET_CONTROL | 5.4.2.17 | IDENTIFY only; values 0 and 255 | es-4.10 |
+| `0x0014` | SET_SAMPLING_RATE **— LANDED** | 5.4.2.13 | the rate/mapping-mismatch refusal is a **MAY**, not a SHALL | es-4.16, es-5.1 |
+| `0x0016` | SET_CLOCK_SOURCE **— LANDED** | 5.4.2.15 | — | es-4.9, es-5.1, es-10.1 |
+| `0x0018` | SET_CONTROL **— LANDED** | 5.4.2.17 | IDENTIFY only; values 0 and 255 | es-4.10 |
 | `0x0022` | START_STREAMING | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output**; on a bound+stopped input → started | es-4.11, es-12.7 |
 | `0x0023` | STOP_STREAMING | 5.4.2.20 | mirror of the above | es-4.11, es-12.7 |
 

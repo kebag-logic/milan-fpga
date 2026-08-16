@@ -7,7 +7,7 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 ## Contents
 
 - **[1. HDL house style (Cemal Dogan / Oguz Kahraman school)](#1-hdl-house-style-cemal-dogan--oguz-kahraman-school)** — The naming, reset and banner conventions a new `.sv` file must follow, ending in the CDC rule that cost us the 07-24 link-guard deadlock: clock-liveness observers must be `reset_less`.
-- **[2. Workflow](#2-workflow)** — One lane = one worktree = one branch = one PR, one-line commits, and two traps with history: `cp -r` (never symlink) `third_party/` into a worktree, and rebuild `LAYOUTS` merges semantically rather than by marker-union.
+- **[2. Workflow](#2-workflow)** — The issue-to-merge lane: an issue moves to *In progress*, a branch is cut **from the issue**, the work lands on it, a PR opens, review runs as **multiple agents with cleared context**, and only then does it merge back to `main-push`. Plus one lane = one worktree, one-line commits, and two traps with history: `cp -r` (never symlink) `third_party/` into a worktree, and rebuild `LAYOUTS` merges semantically rather than by marker-union.
 - **[3. Verification bar](#3-verification-bar)** — What a change owes before it merges: a self-checking Verilator harness under `tb/verilator/<name>/`, a ratcheted `scripts/lint_rtl.py --check` that fails on any new lint violation, a justification for every `lint_off`, a matrix row that only turns ✅ with a runnable test, and timing claims quoted with the full cell recipe rather than a bare WNS.
 - **[4. Bench discipline (the expensive lessons)](#4-bench-discipline-the-expensive-lessons)** — Four rules paid for on hardware: ≥ 8 min AX boot probes, never resume a frozen PCM ring, dump a QSPI slot before overwriting it, and regenerate the DTB from `csr.csv` on any gateware block-set change.
 
@@ -30,6 +30,103 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
   link-guard deadlock).
 
 ## 2. Workflow
+
+### 2.1 The issue-to-merge lane
+
+Every change of substance runs this lane, in this order. The point of writing
+it down is that the two steps people skip — cutting the branch **from the
+issue**, and reviewing with **cleared context** — are the two that keep the
+board honest and stop a reviewer from rubber-stamping their own reasoning.
+
+```mermaid
+flowchart LR
+    B[Backlog] -->|scope settled,<br/>no open decision| R[Ready]
+    R -->|take it| P[In progress]
+    P --> BR[branch cut FROM the issue<br/>gh issue develop N]
+    BR --> W[work + gates green]
+    W --> PR[open the PR]
+    PR --> RV[In review<br/>multiple agents, CLEARED context]
+    RV -->|findings| W
+    W -->|fixed| RV
+    RV -->|2 positive:<br/>1 own + 1 EXTERNAL| M[merge to main-push]
+    M --> G[re-run the FULL bar<br/>on the merge result]
+    G -->|regression| W
+    G -->|clean| D[Done]
+```
+
+1. **Move the issue to *In progress*** on the project board before the first
+   edit, not after. An issue in *Ready* that somebody is already working is
+   how two lanes collide — which has happened: the dynamic-state store was
+   built twice on 2026-08-16 because the issue was filed after the work
+   started.
+2. **Cut the branch from the issue**: `gh issue develop <N> --base main-push`.
+   This links branch to issue on GitHub, so the PR closes the issue and the
+   board moves itself. A hand-named branch does neither.
+3. **Do the work on that branch**, with the §3 verification bar met *on the
+   branch* — a PR is not the place to discover the sweep is red.
+4. **Open the PR** against `main-push`, with the template below and the
+   self-test results as a **comment** (a comment is evidence, not approval).
+5. **Review with multiple agents, each with CLEARED context.** Not forks of
+   the authoring session: agents that have never seen the reasoning that
+   produced the diff. An agent that helped write a change will re-derive the
+   same blind spot when asked to check it. Give each one a different lens —
+   clause conformance, wire format and response sizing, test adequacy and
+   whether the tests can actually fail — and let them read the diff cold.
+
+   **Two positive reviews are the merge bar, and one of them must be
+   EXTERNAL.** One from this lane's own review agents, at least one from an
+   agent outside it. A lane reviewing only itself converges on its own
+   assumptions no matter how many agents it spawns — the cleared context stops
+   an agent inheriting the *reasoning*, not the lane inheriting its own
+   *premises*. Findings are not a review verdict: a round that returns
+   blockers is answered and then **re-reviewed**, and it is the re-review that
+   can be positive. Do not count the round that found the bugs as the sign-off
+   for the fixes.
+
+   **Keep the PR comment short.** State what the PR does and that it is
+   validated, with the gate results. The findings, the mutation tables and the
+   clause arguments belong in the review itself and in the commit messages —
+   a PR thread that reprints them is a PR thread nobody reads to the end.
+6. **Merge back into `main-push`** only once the findings are answered. The
+   issue closes itself; move the card to *Done* if it does not.
+7. **Re-run the whole verification bar ON THE MERGE RESULT, every time.** A
+   merge is a change nobody wrote and nobody reviewed, and *"Merge made by the
+   'ort' strategy"* is not evidence of anything. Gate the merged tree exactly
+   as §3 gates a hand-written one — full Verilator sweep, both repos' suites,
+   behave, the lint ratchet, yosys — before the merge button, not after.
+
+   This is not defensive box-ticking. On 2026-08-16 two lanes independently
+   added the *same* six AECP settings-face pins to `KL_pp_shadow.sv` — one
+   tied off, one connected. Git reported **no conflict** and kept **both**,
+   producing duplicate pin connections that would not elaborate. Nothing but
+   running the tools on the merged tree could have found it. The same merge
+   also silently re-armed a VERSION story describing commands that had been
+   split out, and restored an inventory row for an opcode the engine no longer
+   decodes.
+
+   Two merge-specific traps worth naming, both paid for:
+
+   - **Push the submodule before the superproject.** A superproject pin to a
+     processor commit that only exists on a feature branch dangles the moment
+     that branch is deleted, and `git submodule update` on a fresh clone fails
+     with no useful message.
+   - **A conflict in the µcode or the engine means re-running
+     `protocol-processor/scripts/check_upc_map.py`.** A merge that lands the engine's dispatch
+     constant from one side and the microprogram's entry point from the other
+     does not fail to elaborate — the µCPU executes ROM fill and answers a
+     well-formed response carrying garbage.
+
+Two board rules that go with it:
+
+- **Backlog vs Ready is about decisions, not size.** A large task with settled
+  scope is *Ready*. A small task with an open trade-off is *Backlog* until
+  somebody makes the call — file the options and the recommendation in the
+  issue rather than picking silently.
+- **A superseded issue is moved to *In review*, never quietly closed**, with a
+  comment saying what landed, where, and which acceptance criteria were **not**
+  met. Closing it hides the divergence.
+
+### 2.2 Lanes and traps
 
 - **One lane = one worktree = one branch = one PR** (`~/milan-avb-multiwork`
   pattern). Copy (`cp -r`), never symlink, `third_party/` into a worktree —

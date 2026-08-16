@@ -68,7 +68,6 @@ The current AECP implementation answers these operations with real behavior:
 - `SET_SAMPLING_RATE` and `GET_SAMPLING_RATE`
 - `SET_CLOCK_SOURCE` and `GET_CLOCK_SOURCE`
 - `SET_CONTROL` and `GET_CONTROL` for Identify
-- `START_STREAMING` and `STOP_STREAMING` for Stream Inputs
 - `GET_STREAM_INFO`, `GET_AVB_INFO`, and leaf-only `GET_AS_PATH`
 - `REGISTER_UNSOLICITED_NOTIFICATION` and its deregistration pair
 - `GET_COUNTERS` for Stream Input, Stream Output, AVB Interface, and Clock Domain
@@ -91,8 +90,10 @@ serving it, and a late valid image heals without a reset.
 This is still not a full Milan v1.2 implementation. Mandatory operations still
 missing include the stream-format setter, stream-info setter, name access,
 audio-map mutation, and dynamic-info reads.
-The processor accepts and stores clock-source and sampling-rate changes, but
-the root wrapper does not yet expose those dynamic values to the media plane.
+The processor accepts and stores clock-source and sampling-rate changes. The
+clock-source selection now reaches the media plane's wrapper but nothing there
+reads it yet, and the sampling rate is stored and readable over AECP without
+being republished to the fabric at all.
 Identify control is stored but the root indication remains tied low.
 `GET_AVB_INFO` returns zero propagation delay instead of the value published at
 `GPTP_PDELAY`, and the writable AAF admission bypass remains a deployment

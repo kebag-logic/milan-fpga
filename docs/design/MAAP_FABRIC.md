@@ -12,13 +12,14 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 >
 > **AND IT SURVIVED THE SUBSTITUTION (2026-08-13).** When this repository's
 > own ADP / ACMP / AECP / lwSRP planes were deleted in favour of the pinned
-> `protocol-processor` submodule, `KL_maap` stayed: **the processor implements
-> no MAAP by design** (its architecture puts address allocation in the
-> integrating fabric) and publishes a **per-source ALLOC_DA / RELEASE_DA
-> face** instead. [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv)
+> `protocol-processor` submodule, `KL_maap` stayed as the selected shipping
+> allocator. The processor now also contains an internal `KL_pp_maap` engine,
+> but this integration holds it disabled with `cfg_maap_internal_i = 0` and
+> uses the processor's **per-source ALLOC_DA / RELEASE_DA face** instead.
+> [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv)
 > bridges the two models and [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv)
-> wires it between them. So this engine is now **the only 1722-family
-> protocol engine left in this repository's own RTL**, and the talker half of
+> wires it between them. So this engine is the active MAAP engine in this
+> repository's own RTL, and the talker half of
 > the processor's ACMP is dead by construction without it — see §Fabric
 > integration.
 

@@ -26,7 +26,7 @@
 //! the entity DISCOVERS over ADP, connects over ACMP, reserves over SRP, and
 //! serves the protocol processor's implemented AECP inventory. That includes
 //! READ_DESCRIPTOR, solicited GET_COUNTERS, selected getters and setters,
-//! Identify control, stream start and stop, the unsolicited registration pair,
+//! Identify control, the unsolicited registration pair,
 //! GET_AUDIO_MAP, and Milan GET_MILAN_INFO. Unsupported operations receive the
 //! conformant NOT_IMPLEMENTED fallback. IDENTIFY_NOTIFICATION sent as a command
 //! is BAD_ARGUMENTS.
@@ -34,8 +34,9 @@
 //! SET_STREAM_FORMAT, SET_STREAM_INFO, name access, audio-map mutation, and
 //! GET_DYNAMIC_INFO. The Table 5.22 counter-change scheduler and saved-state
 //! persistence are also absent. SET_CLOCK_SOURCE is accepted by the processor,
-//! but its dynamic value is not exposed here, so the media clock remains pinned
-//! INTERNAL through CRF_CLK_SELECTED_C. If the descriptor image was never
+//! and its dynamic value reaches this wrapper, but the media plane does not
+//! consume it. The media clock remains pinned INTERNAL through
+//! CRF_CLK_SELECTED_C. If the descriptor image was never
 //! loaded at PP_DESC_BASE_P the
 //! range check fails before any locate runs, so an unloaded image answers
 //! BAD_ARGUMENTS - not NO_SUCH_DESCRIPTOR. That difference is the bench
@@ -5497,6 +5498,28 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!      Integrator-owned counters, mappings and Milan information come
   //!      from the answer blocks above. Unsupported mandatory commands remain
   //!      explicit compliance blockers in the current Milan audit.
+
+  //! The AECP settings face, republished by KL_pp_shadow (see the instance).
+  //! `public_flat_rd` because no consumer reads these yet: without a probe a
+  //! review found that `cur_config` and `clk_src_index` are both 16 bits, so
+  //! the two could be swapped at the port map and every suite would stay
+  //! green. The milan_dp bench now moves the clock-source and IDENTIFY faces
+  //! through real AECP commands and reads them back here, asserting the
+  //! configuration face does NOT move with them. It cannot move the
+  //! configuration face itself: the image declares one configuration, so the
+  //! only legal index is also the reset value — the bench prints that as an
+  //! explicit gap rather than implying coverage it does not have.
+  logic [15:0]              pp_aecp_cur_config_w /* verilator public_flat_rd */;
+  logic  [7:0]              pp_aecp_identify_w /* verilator public_flat_rd */;
+  logic [15:0]              pp_aecp_clk_src_index_w /* verilator public_flat_rd */;
+  //! ACMP_SINKS_C, not N_STREAMS: KL_pp_shadow is elaborated at the ACMP
+  //! shape (see the .N_STREAM_IN_P connection below), which is deliberately
+  //! wider than N_STREAMS — a bare N_STREAMS-wide array would have truncated
+  //! the started vector and silently dropped the top sinks' state.
+  logic [ACMP_SINKS_C-1:0]  pp_aecp_strm_started_w;
+  logic [31:0]              pp_aecp_pt_offset_w;
+  logic                     pp_aecp_dyn_dirty_w;
+
   KL_pp_shadow #(
       .TDATA_WIDTH_P  (TDATA_WIDTH),
       .CLK_HZ_P       (MILAN_CLK_FREQ_HZ),
@@ -5523,6 +5546,24 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     ) pp_shadow (
       .clk_i             (axis_clk),
       .rst_n             (axis_resetn),
+      //! ---- the AECP settings face (Milan §5.3.x) ----------------------
+      //! What a controller has SET. Landed as observable state ahead of its
+      //! consumers ON PURPOSE: every one of these reads its reset default
+      //! until a controller writes it, so wiring them changes no behaviour
+      //! today and gives the media clock, the listener gate and the talker
+      //! offset a settled place to read from when each is converted.
+      //!
+      //! NOT YET CONSUMED, and it is worth being plain about which:
+      //! `pp_aecp_clk_src_index_w` is the value SET_CLOCK_SOURCE writes, but
+      //! the media-clock select is still the compile-time constant this file
+      //! has always used — converting it is a media-clock change, not an
+      //! AECP one, and it gets its own round.
+      .aecp_cur_config_o   (pp_aecp_cur_config_w),
+      .aecp_identify_o     (pp_aecp_identify_w),
+      .aecp_clk_src_index_o(pp_aecp_clk_src_index_w),
+      .aecp_strm_started_o (pp_aecp_strm_started_w),
+      .aecp_pt_offset_o    (pp_aecp_pt_offset_w),
+      .aecp_dyn_dirty_o    (pp_aecp_dyn_dirty_w),
       //! GET_COUNTERS: the processor asks, this file answers (see the
       //! Table 7-157 mux above)
       .ctr_req_o         (pp_ctr_req_w),

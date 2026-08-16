@@ -26,7 +26,8 @@ wrapping the pinned `protocol-processor` submodule, instantiated
 **unconditionally** by [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) —
 no parameter, no fallback, no shadow arm. It owns ADP, ACMP (talker and
 listener) and SRP; MAAP stays in this fabric (`KL_maap` bridged by
-`hdl/milan/KL_pp_maap_shim.sv`) because the processor implements none by design.
+`hdl/milan/KL_pp_maap_shim.sv`) because the shipping integration disables the
+processor's internal `KL_pp_maap` engine and selects the fabric allocator.
 This repository's own ADP advertiser, AECP/AEM engine, ACMP talker and listener,
 and lwSRP applicant are **deleted**.
 

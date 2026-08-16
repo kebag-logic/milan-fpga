@@ -15,6 +15,9 @@ env:
   #                         1722.1 plane; the version defect it exposed is not).
   # Both measured. Bump this pin deliberately, never incidentally.
   VERILATOR_VERSION: v5.050
+  # The tsn_fuzz suite is a required field campaign. Pin its packet generator
+  # so suite accounting never degrades to an uncounted local-only skip.
+  TSN_GEN_REV: 07534e64218ebbf486cc651d75727369f0ed3c83
 
 jobs:
   # The full Verilator suite sweep needs verilog-axis and protocol-processor.
@@ -94,6 +97,21 @@ jobs:
           unzip -q -o /tmp/sv2v.zip -d /tmp/sv2v
           sudo install -m755 "$(find /tmp/sv2v -name sv2v -type f | head -1)" /usr/local/bin/sv2v
           sv2v --version
+
+      - name: Build the pinned tsn-gen field oracle
+        run: |
+          set -eu
+          git clone --filter=blob:none \
+            https://github.com/kebag-logic/tsn-gen.git "$RUNNER_TEMP/tsn-gen"
+          git -C "$RUNNER_TEMP/tsn-gen" checkout "$TSN_GEN_REV"
+          git -C "$RUNNER_TEMP/tsn-gen" submodule update \
+            --init --depth 1 --recursive external/rapidyaml
+          cmake -S "$RUNNER_TEMP/tsn-gen" -B "$RUNNER_TEMP/tsn-gen/build" \
+            -DCMAKE_BUILD_TYPE=Release -DENABLE_PARSER_TESTS=OFF
+          cmake --build "$RUNNER_TEMP/tsn-gen/build" \
+            --target packet_gen --parallel
+          test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"
+          echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"
 
       - name: Run every suite
         run: scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs"

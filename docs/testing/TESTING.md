@@ -188,8 +188,14 @@ on state stability.
 > setters to fuzz values into. The AAF campaign survives untouched because it
 > fuzzes `hdl/ieee1722`, which is data plane and was not replaced.
 
-Run `make` in that directory. It **skips cleanly** when tsn-gen is absent, so
-the suite stays runnable without the generator.
+Run `make` in that directory. A focused local run **skips cleanly** when
+tsn-gen is absent, so the harness remains buildable without the generator.
+That skip is not a full-sweep pass: it emits no campaign tally, and
+`scripts/suite_tally.py` correctly classifies the result as unknown. CI builds
+the public `tsn-gen` revision pinned by `TSN_GEN_REV` in
+`.github/workflows/rtl.yml`, exports `TSN_GEN_ROOT`, and runs the 164-check AAF
+campaign. A missing, truncated, or malformed campaign tally therefore remains
+fatal to the repository sweep.
 
 **No check total is quoted here on purpose.** The campaign ends by printing its
 own `N pass, M fail, K known gaps` line, and writes that same line into a
@@ -276,7 +282,7 @@ verdicts and for check counts.
 | [`tb/verilator/clkvalid`](../../tb/verilator/clkvalid) | `KL_ptp_clock_validity` — the AVTP `tu` verdict, two shapes |
 | [`tb/verilator/cls`](../../tb/verilator/cls) | classification incl. the reserved-DMAC control table and the tagged-0x22F0 negative |
 | [`tb/verilator/controller_rate`](../../tb/verilator/controller_rate) | the gating regression born from the CBS datapath bug |
-| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | the CRF Media Clock Input engine. It still parses, counts and reports — but see §7: with `SET_CLOCK_SOURCE` gone it cannot steer anything |
+| [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) | the CRF Media Clock Input engine. It parses, counts and reports, but the root media plane does not consume the processor's stored clock-source selection, so it cannot steer anything |
 | [`tb/verilator/crf_tx`](../../tb/verilator/crf_tx) | — |
 | [`tb/verilator/csr`](../../tb/verilator/csr) | the executable form of [REGISTER_MAP.md](../reference/REGISTER_MAP.md). Its `obj_live` leg is **deleted** — that leg drove the old control-plane windows live |
 | [`tb/verilator/datapath`](../../tb/verilator/datapath) | — |
@@ -286,7 +292,7 @@ verdicts and for check counts.
 | [`tb/verilator/ifg`](../../tb/verilator/ifg) | — |
 | [`tb/verilator/lat_history_ring`](../../tb/verilator/lat_history_ring) | — |
 | [`tb/verilator/link_guard`](../../tb/verilator/link_guard) | — |
-| [`tb/verilator/maap`](../../tb/verilator/maap) | `KL_maap`, which stays in this fabric: the protocol processor implements no MAAP by design |
+| [`tb/verilator/maap`](../../tb/verilator/maap) | `KL_maap`, which remains the shipping allocator while the processor's internal MAAP engine is disabled |
 | [`tb/verilator/mac_rmon`](../../tb/verilator/mac_rmon) | the revived RMON event derivation + STATS_CAP |
 | [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. See §7 — the servo that would steer it is structurally off in every build |
 | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | the whole `milan_datapath` wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1). Elaborates the processor with the wrapper, so it needs the `protocol-processor` submodule |
@@ -309,7 +315,7 @@ verdicts and for check counts.
 | [`tb/verilator/tdm`](../../tb/verilator/tdm) | — |
 | [`tb/verilator/tdm_render`](../../tb/verilator/tdm_render) | — |
 | [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) | `KL_talker_diag_ctx` grades the Milan Table 5.4 per-STREAM_OUTPUT counter arithmetic, including the nonvacuous MEDIA_RESET reset-on-start path. `milan_datapath` instantiates one context for every AAF output and the CRF output; `milan_dp` grades that integration and its AECP response path |
-| [`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) | the field-validation campaign — **AAF only** since 2026-08-13 (§1.0); skips cleanly without tsn-gen |
+| [`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) | the field-validation campaign — **AAF only** since 2026-08-13 (§1.0); standalone `make` skips without tsn-gen, CI installs the pinned generator, and the full sweep rejects an uncounted skip |
 
 The standing rule is that every round grows this table. 2026-08-13 is the one
 round that shrank it, by deliberate deletion of the RTL underneath — recorded
