@@ -295,5 +295,5 @@ def require_tsn_gen(report):
         return True
     print("  SKIP: tsn-gen not found at %s" % tsn_model.PACKET_GEN)
     print("        set TSN_GEN_ROOT / PACKET_GEN to enable the field campaign")
-    report.note("campaign skipped (tsn-gen absent) — not a failure")
+    report.note("campaign skipped: 0 pass, 0 fail (tsn-gen absent)")
     sys.exit(0)
