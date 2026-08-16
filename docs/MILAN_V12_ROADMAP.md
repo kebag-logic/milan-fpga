@@ -54,6 +54,39 @@ again.
 | `0x002B` | GET_AUDIO_MAP (both port directions) | 5.4.2.26 | 0x0048 |
 | MVU `0x0000` | GET_MILAN_INFO | 5.4.4.1 | 0x0043 |
 
+### 0.1b What the read-side set cost, measured
+
+`KL_aecp_engine` out of context, yosys 0.66 `synth_xilinx -family xc7 -flatten`,
+`HEAD~1` vs `HEAD` of the protocol-processor submodule:
+
+| | 0x004A | 0x004B | delta |
+|---|---|---|---|
+| LUT (1..6 summed) | 3,242 | 3,277 | **+35** |
+| FDRE + FDSE | 1,990 | 1,996 | **+6** |
+| RAMB36E1 | 5 | 5 | **0** |
+| CARRY4 | 194 | 194 | 0 |
+| MUXF7 + MUXF8 | 210 | 241 | +31 |
+
+**Five commands for about thirty-five LUTs and no block RAM.** Two reasons, and
+both are reusable:
+
+1. **The microprograms are free.** The µcode ROM is instantiated at its full
+   2,048-word depth whatever is in it; the five programs plus two shared
+   refusal stubs took 62 words of the 1,050-word free run, so the cost is ROM
+   *contents*, not ROM. This is the whole point of the microcoded architecture
+   and it will hold for the SET family too.
+2. **The dispatch terms were shared, not grown.** Rather than adding five
+   one-hot discriminators to the four OR chains that already listed seven, the
+   round introduced `tix_w` (the `{descriptor_type @24, descriptor_index @26}`
+   command shape) and `rgy_any_w` (the registry face's clients) and rewrote the
+   chains through them. The operand muxes, the two payload-walk capture guards
+   and both gather-face selects each went from a spelled-out OR to one name.
+
+Read the LUT delta as *"of order tens"*, not as 35: the same
+`-flatten` method rebalances decode between LUTs and F7/F8 muxes run to run
+(visible above — LUT6 fell 117 while LUT3 rose 116 and the muxes rose 31). The
+**flop count is exact and attributable**: +6.
+
 ### 0.2 The one structural fact that shapes everything below
 
 **There is no dynamic-state store.** Every value the device serves today comes
@@ -111,13 +144,48 @@ per field, plus reset behaviour (volatile fields clear, persisted fields do not
 | `0x0011` | GET_NAME | 5.4.2.12 | cdl 84: type, index, name_index, configuration_index, 64-byte name | es-4.7, es-4.18, es-5.1, es-6.1, es-6.2 |
 | `0x0019` | GET_CONTROL | 5.4.2.18 | cdl 17: type, index, one `CONTROL_LINEAR_UINT8` value (0 or 255) | es-4.10 |
 
-`GET_NAME`'s storage exists already (the name-table overlay); what is missing
-is the `name_index` fan-out — the ENTITY descriptor carries **two** settable
-names (`entity_name` index 0, `group_name` index 1, IEEE §7.4.18.1), and the
-name table is one 64-byte entry per descriptor today.
+Both of these look like one-afternoon reads and are not. Measured 2026-08-16
+while scoping this round:
 
-`GET_CONTROL` needs the IDENTIFY value, which is live fabric state
-(`o_identify`, currently tied 0), not image state.
+**`GET_NAME` has no name table to read.** The store's name-table overlay
+exists and is writable, but `avdecc/gen_aemi_image.py:239-241` deliberately
+emits **no** name table — *"Names are left to the descriptors' own inline
+`object_name` fields, so no name table is emitted (`name_index` unset means
+'unnamed' to the packer)."* So every descriptor's `nbase` reads `0xFFFF` and
+the names live inline at descriptor offset 4. Two consequences:
+
+1. **Offset 4 is not lane-aligned**, and the µISA has no shift. `COPY_BUF`
+   starts at the 8-byte lane the address falls in, so it cannot lift a 64-byte
+   field that begins 4 bytes into lane 0. Serving names from the inline field
+   needs either a byte-offset `COPY_BUF` (a µCPU change) or the name table.
+2. **The name table has to grow.** `KL_aecp_desc_store.sv:153`
+   `NAME_ENTRIES_P = 16`, and the store *refuses an image* whose `n_names`
+   exceeds it (`:460`). Milan §5.3.13's settable-name list on the 1x1 shipping
+   shape comes to about 29 entries — ENTITY contributes two
+   (`entity_name` index 0, `group_name` index 1, IEEE §7.4.18.1) and the 16
+   AUDIO_CLUSTERs contribute 16. Sixteen entries is 1 KB of on-chip RAM;
+   thirty-two is 2 KB, **on a die already at 67 % BRAM**.
+
+So P2.2's real first question is a sizing decision, not a microprogram:
+inline-with-a-µISA-change, or name-table-with-more-BRAM. Take it to the area
+budget before writing either.
+
+**`GET_CONTROL` cannot honestly read the image.** The IDENTIFY value is
+dynamic state: Milan §5.3.12 makes it 0 or 255 with 0 the reset default, and
+`SET_CONTROL` is its writer. The image's copy sits at CONTROL offset 108
+(`avdecc/gen_aem_store.py:1351`), which is lane byte 4 — mid-lane, so the same
+extraction limit applies — and it would in any case go stale the moment
+`SET_CONTROL` lands. `o_identify` is tied 0 in the fabric today. This command
+belongs with `SET_CONTROL` and the P2.1 store, not before them.
+
+> **The cross-cutting constraint both of these hit:** a field is servable from
+> the descriptor image only if it **ends its 8-byte lane** (readable
+> right-justified by `READ_ST` + `BUILD_FLD`) or **begins one** (liftable by
+> `COPY_BUF`). Everything else needs a shift the µISA does not have. The five
+> commands that landed at 0x004B were chosen because their fields satisfy
+> exactly that: `current_configuration` @310 and `clock_source_index` @70 end
+> their lanes; `current_sampling_rate` @136 begins one. Check the offset before
+> promising the command.
 
 ### P2.3 — the SET half
 
