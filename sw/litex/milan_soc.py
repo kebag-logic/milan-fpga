@@ -583,6 +583,7 @@ _MILAN_DATAPATH_SOURCES = [
     "protocol-processor/hdl/aecp/ucpu_pkg.sv",
     "protocol-processor/hdl/aecp/KL_aecp_ucpu.sv",
     "protocol-processor/hdl/aecp/KL_aecp_desc_store.sv",
+    "protocol-processor/hdl/aecp/KL_aecp_dyn_state.sv",
     "protocol-processor/hdl/aecp/KL_aecp_resp_buf.sv",
     "protocol-processor/hdl/aecp/KL_aecp_engine.sv",
     "protocol-processor/hdl/aecp/KL_aecp_notify.sv",
