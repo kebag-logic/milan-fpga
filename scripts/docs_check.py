@@ -57,7 +57,12 @@ ALLOW = (
 )
 
 DENY_CI = re.compile(r"avnu|aets|certif", re.IGNORECASE)
-DENY_CS = re.compile(r"\bCERT\b")   # the old evidence token, case-sensitive
+#! Case-SENSITIVE, because these are short acronyms whose lowercase forms are
+#! ordinary words or appear inside longer identifiers. A review found "ATL"
+#! sitting in docs/traceability/milan-v12.md for weeks: the case-insensitive
+#! list above could never have matched it, and no stem for a certification
+#! LAB name existed at all. Committed text says "compliance", never a lab.
+DENY_CS = re.compile(r"\bCERT\b|\bATL\b|\bUNH\b|\bIOL\b")
 
 # Documents removed from the tree that must never be referenced again.
 # The 2026-07-20 privacy scrub untracked these three; the live state they used

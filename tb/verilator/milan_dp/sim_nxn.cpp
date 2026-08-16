@@ -1089,6 +1089,75 @@ int main(int argc, char** argv) {
                     sq++;
                 }
 
+                // ---- the SETTINGS FACE reaches the datapath ---------------
+                // KL_pp_shadow republishes the dynamic store into
+                // milan_datapath, where nothing reads it yet. Unread is not
+                // untestable: `cur_config` and `clk_src_index` are BOTH 16
+                // bits, so swapping them at the port map is width-legal and
+                // was invisible to every suite. Writing a distinguishing
+                // value through one and asserting the OTHER did not move is
+                // what makes the connection graded rather than merely
+                // present.
+                {
+                    const uint16_t cfg0 = (uint16_t)
+                        dut->rootp->milan_datapath__DOT__pp_aecp_cur_config_w;
+                    std::vector<uint8_t> cs(8, 0);
+                    cs[0] = 0x00; cs[1] = 0x24;      // CLOCK_DOMAIN @24
+                    cs[2] = 0x00; cs[3] = 0x00;      // index 0     @26
+                    cs[4] = 0x00; cs[5] = 0x01;      // clock_source_index 1
+                    const std::vector<uint8_t> r = aecp_xact(0x0016, sq++, cs);
+                    ck("[AECP-FACE] SET_CLOCK_SOURCE(1) was ANSWERED",
+                       (long)(r.size() >= 42), 1);
+                    if (r.size() >= 42 && aecp_status(r) == 0) {
+                        ck("[AECP-FACE] the datapath sees clock source 1",
+                           (long)dut->rootp
+                               ->milan_datapath__DOT__pp_aecp_clk_src_index_w,
+                           1);
+                        //! the anti-swap assertion: same width, must NOT move
+                        ck("[AECP-FACE] ...and the configuration face did NOT "
+                           "move with it (the two are both 16 bits)",
+                           (long)dut->rootp
+                               ->milan_datapath__DOT__pp_aecp_cur_config_w,
+                           (long)cfg0);
+                    } else {
+                        ck("[AECP-FACE] SET_CLOCK_SOURCE(1) status SUCCESS(0)",
+                           r.size() >= 42 ? aecp_status(r) : -1, 0);
+                    }
+
+                    //! IDENTIFY is 8 bits and volatile (Milan 5.3.12), so it
+                    //! is the one field whose face can be moved and moved back
+                    std::vector<uint8_t> id(8, 0);
+                    id[0] = 0x00; id[1] = 0x1A;      // CONTROL @24
+                    id[2] = 0x00; id[3] = 0x00;      // index 0 @26
+                    id[4] = 0xFF;                    // value 255 @28
+                    const std::vector<uint8_t> ri = aecp_xact(0x0018, sq++, id);
+                    ck("[AECP-FACE] SET_CONTROL(IDENTIFY, 255) was ANSWERED",
+                       (long)(ri.size() >= 42), 1);
+                    if (ri.size() >= 42 && aecp_status(ri) == 0)
+                        ck("[AECP-FACE] the datapath sees IDENTIFY asserted",
+                           (long)dut->rootp
+                               ->milan_datapath__DOT__pp_aecp_identify_w,
+                           255);
+
+                    //! PUT IT BACK. The model-driven GET_* checks below read
+                    //! the same store and compare against the IMAGE, so a
+                    //! test that writes and walks away turns into a failure
+                    //! two hundred lines later — which is exactly what the
+                    //! first cut of this block did. Restoring is also the
+                    //! only way to grade that the face follows DOWN as well
+                    //! as up; a latch that only ever sets looks identical.
+                    cs[5] = 0x00;                     // clock source back to 0
+                    aecp_xact(0x0016, sq++, cs);
+                    ck("[AECP-FACE] the face follows back DOWN to 0",
+                       (long)dut->rootp
+                           ->milan_datapath__DOT__pp_aecp_clk_src_index_w, 0);
+                    id[4] = 0x00;                     // IDENTIFY back off
+                    aecp_xact(0x0018, sq++, id);
+                    ck("[AECP-FACE] ...and IDENTIFY deasserts",
+                       (long)dut->rootp
+                           ->milan_datapath__DOT__pp_aecp_identify_w, 0);
+                }
+
                 // ---- GET_SAMPLING_RATE vs AUDIO_UNIT.current_sampling_rate
                 for (unsigned ix = 0; ix < 4; ix++) {
                     const std::vector<uint8_t>* au = desc_of(0x0002, ix);

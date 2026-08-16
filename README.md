@@ -69,7 +69,6 @@ The current AECP implementation answers these operations with real behavior:
 - `SET_SAMPLING_RATE` and `GET_SAMPLING_RATE`
 - `SET_CLOCK_SOURCE` and `GET_CLOCK_SOURCE`
 - `SET_CONTROL` and `GET_CONTROL` for Identify
-- `START_STREAMING` and `STOP_STREAMING` for Stream Inputs
 - `GET_STREAM_INFO`, `GET_AVB_INFO`, and `GET_AS_PATH`
 - `REGISTER_UNSOLICITED_NOTIFICATION` and its deregistration pair
 - `GET_COUNTERS` for Stream Input, Stream Output, AVB Interface, and Clock Domain

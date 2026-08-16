@@ -38,11 +38,23 @@ leaves the clause open.
 
 ### 0.1 Served for real, today
 
-**Twenty-two** AEM opcodes plus one MVU command. The authority is
+**Twenty-one** AEM opcodes plus one MVU command. The authority is
 `protocol-processor/hdl/aecp/KL_aecp_engine.sv`'s `OP_*_C` constants, and
 `tests/steps/aecp_engine_steps.py`'s `SERVED` table is gated against that list
 by a behave step that parses the RTL — so this section cannot silently rot
 again.
+
+**"Served" here means the command's own request/response contract.** It does
+**not** include the unsolicited notification that Milan §5.4.5.2 and IEEE
+§7.4.7 require after a successful `SET_*`: no microprogram enqueues one, the
+only `NOTIFY_ENQ` in `gen_ucode.py` sits in an exemplar program, and
+`pp_pkg.sv` defines notification kinds for the deregistration and GET family
+only. Every `SET_*` row below therefore carries an open half, tracked as #69 —
+not as a per-row caveat, because it is the same missing mechanism in all of
+them. Two more caveats worth naming here rather than burying: `0x0006` stores
+the configuration index without re-pointing the served descriptor set (#82),
+and `0x0016`'s stored clock source reaches `milan_datapath` and is read by
+nothing (audit B3).
 
 | Opcode | Command | Milan clause | Landed |
 |---|---|---|---|
@@ -131,8 +143,13 @@ claim that the device behaves differently on the bench.
 
 ## 1. The remaining SHALL set
 
-Fifteen AEM commands, in the order they should land. "Blocks" names the test
+**Nine** AEM commands, in the order they should land. "Blocks" names the test
 items from the validation test plan that cannot pass until the row does.
+
+Five rows in the tables below carry a **LANDED** mark: they have shipped since
+this section was written, and they stay in place because their clause notes and
+"Blocks" lists are the record of what shipping them bought. Section 0.1 is the
+authority on what is served; a row here without a LANDED mark is open.
 
 ### P2.1 — the dynamic-state store — **LANDED at `0x004C`**
 
@@ -197,7 +214,7 @@ clear, the persisted ones do not (see P3.1).
 | Opcode | Command | Clause | Response | Blocks |
 |---|---|---|---|---|
 | `0x0011` | GET_NAME | 5.4.2.12 | cdl 84: type, index, name_index, configuration_index, 64-byte name | es-4.7, es-4.18, es-5.1, es-6.1, es-6.2 |
-| `0x0019` | GET_CONTROL | 5.4.2.18 | cdl 17: type, index, one `CONTROL_LINEAR_UINT8` value (0 or 255) | es-4.10 |
+| `0x0019` | GET_CONTROL **— LANDED** | 5.4.2.18 | cdl 17: type, index, one `CONTROL_LINEAR_UINT8` value (0 or 255) | es-4.10 |
 
 Both of these look like one-afternoon reads and are not. Measured 2026-08-16
 while scoping this round:
@@ -251,13 +268,13 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 
 | Opcode | Command | Clause | The Milan-specific refusal | Blocks |
 |---|---|---|---|---|
-| `0x0006` | SET_CONFIGURATION | 5.4.2.5 | `STREAM_IS_RUNNING` (12) if **any** Stream Input is bound or **any** Stream Output is streaming | es-4.3, es-5.1, es-12.1, es-12.2 |
+| `0x0006` | SET_CONFIGURATION **— LANDED** | 5.4.2.5 | `STREAM_IS_RUNNING` (12) if **any** Stream Input is bound or **any** Stream Output is streaming | es-4.3, es-5.1, es-12.1, es-12.2 |
 | `0x0008` | SET_STREAM_FORMAT | 5.4.2.7 | `STREAM_IS_RUNNING` on a **bound** input or streaming output; `BAD_ARGUMENTS` if any existing mapping references a channel absent from the new format | es-4.4, es-5.1, es-9.x, es-10.x, es-12.1, es-12.2 |
 | `0x000E` | SET_STREAM_INFO | 5.4.2.9 | `NOT_SUPPORTED` on **any** Stream Input; `MSRP_ACC_LAT_VALID` sets the presentation offset, range `0x0`–`0x7FFFFFFF` ns, outside → `BAD_ARGUMENTS`; any unsupported sub-flag → refuse the **whole** command `NOT_SUPPORTED` | es-4.5, es-5.1, es-10.2, es-12.1 |
 | `0x0010` | SET_NAME | 5.4.2.11 | must accept names of **non-active** configurations too (es-4.7) | es-4.7, es-4.18, es-5.1, es-6.1, es-6.2 |
-| `0x0014` | SET_SAMPLING_RATE | 5.4.2.13 | the rate/mapping-mismatch refusal is a **MAY**, not a SHALL | es-4.16, es-5.1 |
-| `0x0016` | SET_CLOCK_SOURCE | 5.4.2.15 | — | es-4.9, es-5.1, es-10.1 |
-| `0x0018` | SET_CONTROL | 5.4.2.17 | IDENTIFY only; values 0 and 255 | es-4.10 |
+| `0x0014` | SET_SAMPLING_RATE **— LANDED** | 5.4.2.13 | the rate/mapping-mismatch refusal is a **MAY**, not a SHALL | es-4.16, es-5.1 |
+| `0x0016` | SET_CLOCK_SOURCE **— LANDED** | 5.4.2.15 | — | es-4.9, es-5.1, es-10.1 |
+| `0x0018` | SET_CONTROL **— LANDED** | 5.4.2.17 | IDENTIFY only; values 0 and 255 | es-4.10 |
 | `0x0022` | START_STREAMING | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output**; on a bound+stopped input → started | es-4.11, es-12.7 |
 | `0x0023` | STOP_STREAMING | 5.4.2.20 | mirror of the above | es-4.11, es-12.7 |
 

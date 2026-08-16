@@ -9,7 +9,7 @@ This file carries only what Milan **adds to or overrides in** the base
 standards; base rows live in the per-standard files. BENCH = our bench behave
 recreation of the end-station validation plan (63 scenarios, both boards
 green 2026-07-21; scope caveats in [`docs/MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) §6 — it is
-a recreation, not the official ATL run).
+a recreation, not an official compliance-lab run).
 
 ## STATUS 2026-08-13 — the control plane this file profiles was replaced
 

@@ -5527,10 +5527,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!      from the answer blocks above. Unsupported mandatory commands remain
   //!      explicit compliance blockers in the current Milan audit.
 
-  //! the AECP settings face, republished by KL_pp_shadow (see the instance)
-  logic [15:0]              pp_aecp_cur_config_w;
-  logic  [7:0]              pp_aecp_identify_w;
-  logic [15:0]              pp_aecp_clk_src_index_w;
+  //! The AECP settings face, republished by KL_pp_shadow (see the instance).
+  //! `public_flat_rd` because no consumer reads these yet: without a probe a
+  //! review found that `cur_config` and `clk_src_index` are both 16 bits, so
+  //! the two could be swapped at the port map and every suite would stay
+  //! green. The milan_dp bench now writes DIFFERENT values through
+  //! SET_CONFIGURATION and SET_CLOCK_SOURCE and reads them back here.
+  logic [15:0]              pp_aecp_cur_config_w /* verilator public_flat_rd */;
+  logic  [7:0]              pp_aecp_identify_w /* verilator public_flat_rd */;
+  logic [15:0]              pp_aecp_clk_src_index_w /* verilator public_flat_rd */;
   //! ACMP_SINKS_C, not N_STREAMS: KL_pp_shadow is elaborated at the ACMP
   //! shape (see the .N_STREAM_IN_P connection below), which is deliberately
   //! wider than N_STREAMS — a bare N_STREAMS-wide array would have truncated
