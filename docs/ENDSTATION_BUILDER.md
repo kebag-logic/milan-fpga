@@ -547,25 +547,27 @@ file** — a model change no longer needs a bitstream rebuild.
 3. **Integrity** — a hash mismatch means no advertise plus a diagnostic CSR
    code, never a silently wrong model.
 
-**Status 2026-08-13: the DRAM half of this decision landed — in the protocol
-processor, not here, and with one rule dropped.** The processor's descriptor
-store *is* the read-only fetch master this decision asked for: the whole entity
-model (not just the bulk tree) lives in main memory at a **compile-time** base,
-`milan_datapath` surfaces it as `o_desc_mem_*` / `i_desc_mem_*`, and the LiteX
-SoC bridges it to DDR3 at the top 1 MiB of `main_ram`. The blob emitter exists
-too — `protocol-processor/hdl/aecp/desc/gen_desc_image.py` — but it lives in the
-submodule and **this builder does not feed it**, and **no driver loader
-exists**: nothing in `sw/builder`, `scripts/`, the SoC builder or the boot path
-writes an image into DRAM. Rule 1 (boot sequencing) did **not** survive as
-written: nothing gates the advertisement on a loaded model, so today the device
-advertises and then answers `BAD_ARGUMENTS` — precisely the "advertised
-entity that cannot be enumerated" this decision called worse than a late one.
-What replaces the hash gate is detection rather than prevention: the image
-header's magic (`"AEMI"`), layout version and checksum make an unloaded or
-damaged region read as *not loaded*, a fetch error degrades that locate instead
-of serving a corrupt descriptor, and a late load heals without a reset. The open
-subtask is therefore the **supply chain**, not the engine: config → image JSON →
-image → DRAM, plus somewhere to put the D4 hash check.
+**Status 2026-08-16: the whole model landed in DRAM, and the tracked build and
+boot supply chain is implemented.** The processor's descriptor store is the
+read-only fetch master: the whole entity model lives in main memory at a
+**compile-time** base. `milan_datapath` surfaces it as `o_desc_mem_*` /
+`i_desc_mem_*`, and the LiteX SoC bridges it to the reserved top 1 MiB of
+`main_ram`. `_entity_model_image()` feeds the builder overlay through
+`avdecc/gen_aemi_image.py` and the processor's own `gen_desc_image.py`, then
+emits `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`. An explicit
+deployment ownership transfer installs that set in the sibling rootfs overlay.
+The board's `S50milan` stage invokes `aemi-load` before it programs identity and
+enables advertisement.
+
+The original stronger rules did not all survive. `aemi-load` checks the
+manifest pairing, window bounds, read-back bytes, AEMI magic, and the ENTITY
+`firmware_version` against the live VERSION CSR. It does not verify the D4
+`entity_model_id` hash. A missing loader or image is warned about but does not
+block advertisement, and a firmware-version mismatch loads the coherent stale
+image while returning a distinct pairing verdict. An unloaded or damaged image
+therefore still fails closed at the descriptor store with `BAD_ARGUMENTS`, and
+a late valid load heals without a reset. The remaining gap is strict
+advertisement gating and D4 hash enforcement, not the image supply chain.
 
 ### D7 — dynamic-map store keyed by the TARGET (stream channel), not the source cluster
 
