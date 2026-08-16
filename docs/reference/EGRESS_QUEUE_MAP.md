@@ -555,8 +555,8 @@ IFG gasket:
   all of those except MAAP and CRF come from the protocol processor's single
   packed TX stream, and the control lane's merge is `ctl_tx_mux` — processor
   plus MAAP, two legs, one arbiter. **AECP responses ride that same packed
-  stream**: the processor's AECP uCPU answers `READ_DESCRIPTOR` and emits a
-  conformant `NOT_IMPLEMENTED` echo for every other command, driving the
+  stream**: the processor's AECP uCPU serves the current command inventory and
+  emits a conformant `NOT_IMPLEMENTED` echo for commands outside it, driving the
   processor's solicited TX lane, so AECP frames do leave this device on the
   control lane. What the device never emits is an **unsolicited** AECP frame —
   the processor's unsolicited lane has no producer, so the Milan Table 5.22 push

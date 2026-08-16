@@ -11,14 +11,14 @@ Read its header before changing anything — every parameter in it is measured.
 
 ## Contents
 
-- **[1. Convert, on a peer host — never on the board](#1-convert-on-a-peer-host--never-on-the-board)** — The one `ffmpeg` line that produces the ring's native format (raw **S32_BE**, 48 kHz, 8 ch interleaved) and why each part of it is mandatory rather than preferred: the board is a 1-hart softcore at 0 % idle so decoding on it guarantees underruns, there is no sample-rate converter in the datapath, and a 44.1 kHz source needs `-1 dB` because resampling overshoots by a measured +0.91 dB and a loud master will clip.
-- **[2. Transfer — HTTP, not scp](#2-transfer--http-not-scp)** — Stage the whole file in `/tmp` first, over HTTP. The numbers are the argument: dropbear moves ~41 KB/s (softcore crypto), `wget` ~800 KB/s, and playback needs 1.536 MB/s — so streaming during playback competes with playback for the same hart.
-- **[3. Play](#3-play)** — `play-milan`, the four things it does that are all load-bearing (the `ktimers/0` priority raise, killing the PipeWire consumer, the map write, the exact `aplay` invocation), and an explicit do-not-improve list: `plughw:` underruns on format conversion alone, the buffer size is a cap not a choice, and the `HRTIMER_MODE_REL_HARD` "fix" hung the board dead.
-- **[Honest expectation](#honest-expectation)** — This board does **not** play 8ch/48k gap-free, and the section says so with numbers. What the recipe reliably buys is survival — without it `aplay` dies at ~20 s on the first 1.7 ms underrun. Treat a nonzero xrun count as the platform's capacity limit, not a regression.
-- **[The channel map changed at VERSION 0x0043](#the-channel-map-changed-at-version-0x0043)** — The old first trap — "the power-on map is silence" — is retired: since `0x0043` stream channels 0-7 boot mapped to the host ring, so `play-milan` should sound with no map write at all. Keeps the manual bench layout for the tone-plus-music case, with two cautions: the map has been per stream **channel** since `0x0027`, not per pair slot, and the window writes a source word, so it is untouched by the `0x0043` cluster renumbering.
-- **[If it is silent](#if-it-is-silent)** — A symptom → first-check table for the failures that actually happen here: dying at ~20 s (you bypassed `play-milan`), continuous underruns (`plughw:` or the file is not on tmpfs), a silent listener needing an explicit connect-tx, a board that looks dead after cold boot until it transmits once, wrong channels (check the `0x0043` map, not an older recipe), an entity that discovers but enumerates nothing (the descriptor image was never loaded into DRAM), and a `NOT_IMPLEMENTED` reply — which is designed behaviour for every opcode except `READ_DESCRIPTOR`, not a fault.
+- **[1. Convert, on a peer host: never on the board](#1-convert-on-a-peer-host-never-on-the-board)** -- The one `ffmpeg` line that produces the ring's native format (raw **S32_BE**, 48 kHz, 8 ch interleaved) and why each part of it is mandatory rather than preferred: the board is a 1-hart softcore at 0 % idle so decoding on it guarantees underruns, there is no sample-rate converter in the datapath, and a 44.1 kHz source needs `-1 dB` because resampling overshoots by a measured +0.91 dB and a loud master will clip.
+- **[2. Transfer: HTTP, not scp](#2-transfer-http-not-scp)** -- Stage the whole file in `/tmp` first, over HTTP. The numbers are the argument: dropbear moves ~41 KB/s (softcore crypto), `wget` ~800 KB/s, and playback needs 1.536 MB/s, so streaming during playback competes with playback for the same hart.
+- **[3. Play](#3-play)** -- `play-milan`, the four things it does that are all load-bearing (the `ktimers/0` priority raise, killing the PipeWire consumer, the map write, the exact `aplay` invocation), and an explicit do-not-improve list: `plughw:` underruns on format conversion alone, the buffer size is a cap not a choice, and the `HRTIMER_MODE_REL_HARD` "fix" hung the board dead.
+- **[Honest expectation](#honest-expectation)** -- This board does **not** play 8ch/48k gap-free, and the section says so with numbers. What the recipe reliably buys is survival: without it `aplay` dies at ~20 s on the first 1.7 ms underrun. Treat a nonzero xrun count as the platform's capacity limit, not a regression.
+- **[The channel map changed at VERSION 0x0043](#the-channel-map-changed-at-version-0x0043)** -- The old first trap, "the power-on map is silence," is retired: since `0x0043` stream channels 0-7 boot mapped to the host ring, so `play-milan` should sound with no map write at all. Keeps the manual bench layout for the tone-plus-music case, with two cautions: the map has been per stream **channel** since `0x0027`, not per pair slot, and the window writes a source word, so it is untouched by the `0x0043` cluster renumbering.
+- **[If it is silent](#if-it-is-silent)** -- A symptom → first-check table for the failures that actually happen here: dying at ~20 s (you bypassed `play-milan`), continuous underruns (`plughw:` or the file is not on tmpfs), a silent listener needing an explicit connect-tx, a board that looks dead after cold boot until it transmits once, wrong channels (check the `0x0043` map, not an older recipe), an entity that discovers but enumerates nothing (the descriptor image was never loaded into DRAM), and a `NOT_IMPLEMENTED` reply from a command outside the current served inventory.
 
-## 1. Convert, on a peer host — never on the board
+## 1. Convert, on a peer host: never on the board
 
 The board is a 1-hart 100 MHz softcore at 0% idle. Decoding on it guarantees
 ring underruns. Produce the ring's native format: **raw S32_BE, 48 kHz, 8 ch
@@ -37,7 +37,7 @@ here), and a commercial master near full scale will clip.
 
 Size: 48000 x 8 x 4 = **1.536 MB/s**, so 120 s = 184,320,000 B.
 
-## 2. Transfer — HTTP, not scp
+## 2. Transfer: HTTP, not scp
 
 dropbear on the board runs **~41 KB/s** (softcore crypto); wget gets
 **~800 KB/s**. Playback needs 1.536 MB/s, so stage the whole file in `/tmp`
@@ -128,15 +128,14 @@ Two cautions on those writes:
   2k and 2k+1"), so on current gateware these two writes set **channel 0** and
   **channel 1**, not channels 0/1 and 2/3. Channels 2-7 keep their boot value.
 * The window writes a *source word*, not a cluster index, so it is unaffected
-  by the 0x0043 cluster renumbering. The AEM readback that used to cross-check
-  this is still **not available**: the protocol processor's AECP uCPU answers
-  `READ_DESCRIPTOR` and nothing else, so `GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`
-  and `REMOVE_AUDIO_MAPPINGS` come back as a conformant `NOT_IMPLEMENTED` echo
-  — a well-formed response, not a mapping. The `0x900` window is therefore the
-  only programmer AND the only reader of the map. Use the
-  `CHMAP_SNAP`/`CHMAP_LOOP` readback at `0x910`/`0x914` — it reports what the
-  RAM actually holds, and its `LOOP_SUSPECT` bit separates a slot that is
-  mapped but never fed from one that is working and quiet.
+  by the 0x0043 cluster renumbering. The protocol processor serves
+  `GET_AUDIO_MAP` for both Stream Port directions from the live root mapping
+  stores. `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` still return the
+  conformant `NOT_IMPLEMENTED` echo, so the `0x900` window remains the only
+  programmer. Controllers can read mappings through `GET_AUDIO_MAP`; software
+  can use the `CHMAP_SNAP`/`CHMAP_LOOP` readback at `0x910`/`0x914`. The latter
+  reports what the RAM actually holds, and its `LOOP_SUSPECT` bit separates a
+  slot that is mapped but never fed from one that is working and quiet.
 
 ## If it is silent
 

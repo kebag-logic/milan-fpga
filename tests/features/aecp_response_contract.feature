@@ -36,12 +36,13 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
 
   WHAT IS DELIBERATELY NOT HERE. This feature does not restore the D1 index
   coverage and D2 non-success size cases the file of this name carried before
-  2026-08-12: those measured GET_STREAM_INFO against READ_DESCRIPTOR and the
-  per-command response-size table, and GET_STREAM_INFO is one of the commands
-  that is genuinely absent. Nor does it cover ENTITY_AVAILABLE,
-  CONTROLLER_AVAILABLE, LOCK_ENTITY or the unsolicited registry. It does not
-  duplicate the served-command behavior, including GET_COUNTERS. Those paths
-  are covered by their command-specific BDD features and RTL suites.
+  2026-08-12. Those measured GET_STREAM_INFO against READ_DESCRIPTOR and the
+  per-command response-size table. GET_STREAM_INFO is served now, and those
+  exact response cases are graded by the processor and milan_dp RTL suites.
+  Nor does this feature cover ENTITY_AVAILABLE, CONTROLLER_AVAILABLE,
+  LOCK_ENTITY or the unsolicited registry. It does not duplicate other
+  served-command behavior, including GET_COUNTERS. Those paths are covered by
+  their command-specific BDD features and RTL suites.
 
   This is an OFFLINE model (tests/README.md T1); tests/steps/aecp_engine_steps.py
   lists the submodule sources it mirrors.
