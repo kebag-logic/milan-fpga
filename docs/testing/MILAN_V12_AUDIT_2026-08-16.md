@@ -43,6 +43,20 @@ outside this build's declared scope.
 | Vivado build and timing closure | NOT RUN | Vivado 2026.1 is not installed in this environment. |
 | Current physical Milan interoperability bench | NOT RUN | The external bench repository contains valuable dated evidence, but its present worktree is active and its last recorded audio result used a mismatched peer format. |
 
+The official controller decoder result is reproducible from the tracked DUT
+capture without relying on the audit prose. Run:
+
+```console
+scripts/verify_la_avdecc_counters.sh
+```
+
+The script checks out LA_avdecc v4.3.1 at commit `2fd57534`, builds its static
+library, and calls `deserializeGetCountersResponse` on
+[`stream_output_counters_response.hex`](../../tb/verilator/milan_dp/reference/stream_output_counters_response.hex).
+The fixture is the 174-byte response written by the NxN DUT harness when
+`MILAN_COUNTER_FRAME_OUT` names an output file. Set `LA_AVDECC_DIR` to an
+existing checkout at the pinned commit for an offline rerun.
+
 ## Structural compliance blockers
 
 ### B1. The mandatory AECP command set is incomplete

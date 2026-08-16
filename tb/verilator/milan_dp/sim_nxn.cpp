@@ -1672,6 +1672,7 @@ int main(int argc, char** argv) {
 
             tkd_dirty_seen = 0;
             axi_write(A_AAF_CTRL, 0x00020003);       // enable + bypass
+            axi_write(A_CRFT_CTRL, 1);               // real CRF output enable
             for (int i = 0; i < 32; i++) step();
             ck("[CTRS-OUT] composed Stream Output gate rose",
                tap_stream_en() & 1, 1);
@@ -1683,35 +1684,61 @@ int main(int argc, char** argv) {
             ck("[CTRS-OUT] STREAM_STOP stayed unchanged while streaming",
                (long)word(r1, 1), (long)stop0);
 
-            //! Drive completed AAF PDUs through the real packetizer. The
-            //! clock starts uncertain, so the same transmitted frames must
-            //! advance q3 TIMESTAMP_UNCERTAIN and q4 FRAMES_TX, then assert
-            //! the descriptor's raw dirty source at the interval close.
+            //! Drive every AAF context through the real packetizer and the
+            //! CRF context through the real transmitter. The clock starts
+            //! uncertain, so each declared output must advance q3 and q4.
+            //! This checks the event sources at every high index, not only
+            //! that the processor accepts a GET_COUNTERS request for it.
             ck("[CTRS-OUT] precondition: PHC verdict is uncertain",
                dut->rootp->milan_datapath__DOT__clkv_tu_w, 1);
+            std::vector<uint32_t> real_mr0(NSTREAMS_TB + 1);
+            std::vector<uint32_t> real_tu0(NSTREAMS_TB + 1);
+            std::vector<uint32_t> real_ftx0(NSTREAMS_TB + 1);
+            for (int out = 0; out <= NSTREAMS_TB; out++) {
+                const auto rr = sout((uint16_t)(0x4071 + out),
+                                     (uint16_t)out);
+                real_mr0[out]  = word(rr, 2);
+                real_tu0[out]  = word(rr, 3);
+                real_ftx0[out] = word(rr, 4);
+            }
+            //! The CRF grid is one PDU per 96 audio samples, or 49,152
+            //! harness clocks. Wait past that real cadence instead of using
+            //! an AAF-only delay that could never observe a CRF completion.
+            constexpr int RealPduWait = 52000;
             tkd_dirty_seen = 0;
-            for (int i = 0; i < 6000; i++) step();
-            auto rpdu = sout(0x4071, 0);
-            ck("[CTRS-OUT] transmitted PDU advances TIMESTAMP_UNCERTAIN q3",
-               (long)(word(rpdu, 3) > word(r1, 3)), 1);
-            ck("[CTRS-OUT] transmitted PDU advances FRAMES_TX q4",
-               (long)(word(rpdu, 4) > word(r1, 4)), 1);
-            ck("[CTRS-OUT] FRAMES_TX update raises the raw dirty source",
-               tkd_dirty_seen & 1, 1);
+            for (int i = 0; i < RealPduWait; i++) step();
+            long all_real_tu_ftx = 1;
+            for (int out = 0; out <= NSTREAMS_TB; out++) {
+                const auto rr = sout((uint16_t)(0x4080 + out),
+                                     (uint16_t)out);
+                if (word(rr, 3) <= real_tu0[out] ||
+                    word(rr, 4) <= real_ftx0[out])
+                    all_real_tu_ftx = 0;
+            }
+            ck("[CTRS-OUT] real q3/q4 stimuli reach every AAF and CRF index",
+               all_real_tu_ftx, 1);
+            ck("[CTRS-OUT] every real FRAMES_TX source raises dirty",
+               tkd_dirty_seen & all_dirty, all_dirty);
 
             //! Inject the media-clock target change at the actual restart
-            //! engine. The next packetizer PDU carries the new mr bit, then
-            //! the diagnostic block and processor must expose it at q2.
+            //! engine. The next packetizer and CRF PDUs carry the new mr bit,
+            //! then each diagnostic context and processor row must expose it.
             dut->rootp->milan_datapath__DOT__media_clock_restart__DOT__tgt_r ^= 1;
             step();
-            for (int i = 0; i < 6000; i++) step();
-            auto rmr = sout(0x4072, 0);
-            ck("[CTRS-OUT] transmitted mr toggle advances MEDIA_RESET q2",
-               (long)(word(rmr, 2) > word(rpdu, 2)), 1);
+            for (int i = 0; i < RealPduWait; i++) step();
+            long all_real_mr = 1;
+            for (int out = 0; out <= NSTREAMS_TB; out++) {
+                const auto rr = sout((uint16_t)(0x4090 + out),
+                                     (uint16_t)out);
+                if (word(rr, 2) <= real_mr0[out]) all_real_mr = 0;
+            }
+            ck("[CTRS-OUT] real q2 stimulus reaches every AAF and CRF index",
+               all_real_mr, 1);
 
             tkd_dirty_seen = 0;
             axi_write(A_AAF_CTRL, 0x00020002);       // bypass, disabled
-            for (int i = 0; i < 32; i++) step();
+            axi_write(A_CRFT_CTRL, 0);
+            for (int i = 0; i < 512; i++) step();
             ck("[CTRS-OUT] composed Stream Output gate fell",
                tap_stream_en() & 1, 0);
             ck("[CTRS-OUT] stop edge raised its descriptor dirty pulse",
@@ -1724,9 +1751,41 @@ int main(int argc, char** argv) {
             ck("[CTRS-OUT] stopped invariant START equals STOP",
                (long)word(r2, 0), (long)word(r2, 1));
 
+            //! A real shared enable legitimately gives the AAF contexts the
+            //! same START/STOP history. Seed distinct verification signatures
+            //! only after all outputs stop, then traverse the real diagnostic
+            //! read mux, processor request port, response builder, and wire
+            //! decoder for every index. Any clamped or aliased row now fails.
+            for (int out = 0; out <= NSTREAMS_TB; out++) {
+                const uint32_t tag = 0x10000u * (uint32_t)(out + 1);
+                dut->rootp->milan_datapath__DOT__talker_diag__DOT__start_r[out]
+                    = tag + 0x0101u;
+                dut->rootp->milan_datapath__DOT__talker_diag__DOT__stop_r[out]
+                    = tag + 0x0202u;
+                dut->rootp->milan_datapath__DOT__talker_diag__DOT__mreset_r[out]
+                    = tag + 0x0303u;
+                dut->rootp->milan_datapath__DOT__talker_diag__DOT__tuiv_r[out]
+                    = tag + 0x0404u;
+                dut->rootp->milan_datapath__DOT__talker_diag__DOT__ftx_r[out]
+                    = tag + 0x0505u;
+            }
+            long every_row_isolated = 1;
+            std::vector<uint8_t> last_sig;
+            for (int out = 0; out <= NSTREAMS_TB; out++) {
+                const auto rr = sout((uint16_t)(0x40A0 + out),
+                                     (uint16_t)out);
+                const uint32_t tag = 0x10000u * (uint32_t)(out + 1);
+                for (int q = 0; q < 5; q++)
+                    if (word(rr, q) != tag + 0x0101u * (uint32_t)(q + 1))
+                        every_row_isolated = 0;
+                last_sig = rr;
+            }
+            ck("[CTRS-OUT] every NxN row preserves its unique five-word signature",
+               every_row_isolated, 1);
+
             long reserved_dirty = 0;
             for (int q = 5; q < 32; q++)
-                if (word(r2, q) != 0) reserved_dirty++;
+                if (word(last_sig, q) != 0) reserved_dirty++;
             ck("[CTRS-OUT] unclaimed quadlets 5..31 are zero",
                reserved_dirty, 0);
 

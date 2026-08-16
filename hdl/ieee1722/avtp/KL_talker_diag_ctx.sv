@@ -158,11 +158,15 @@ module KL_talker_diag_ctx #(
   end : diag_tick
 
   //! the five counters + the per-interval seen flags
-  logic [31:0] start_r  [N_CTX_P];
-  logic [31:0] stop_r   [N_CTX_P];
-  logic [31:0] mreset_r [N_CTX_P];
-  logic [31:0] tuiv_r   [N_CTX_P];
-  logic [31:0] ftx_r    [N_CTX_P];
+  //! Read/write visibility is verification-only. The NxN integration bench
+  //! seeds a different signature in every context, then reads every one back
+  //! through the real processor GET_COUNTERS path. That makes an aliased or
+  //! clamped index fail even when real talkers happen to share event history.
+  logic [31:0] start_r  [N_CTX_P] /* verilator public_flat_rw */;
+  logic [31:0] stop_r   [N_CTX_P] /* verilator public_flat_rw */;
+  logic [31:0] mreset_r [N_CTX_P] /* verilator public_flat_rw */;
+  logic [31:0] tuiv_r   [N_CTX_P] /* verilator public_flat_rw */;
+  logic [31:0] ftx_r    [N_CTX_P] /* verilator public_flat_rw */;
   logic [N_CTX_P-1:0] seen_f_r;    //! >=1 PDU transmitted this interval
   //! USER 2026-08-05 FRAMES_TX law (ATDECC quantity, Milan cadence): count
   //! FRAMES, publish coalesced at the interval close - the counter advances
