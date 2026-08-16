@@ -25,7 +25,8 @@ The project has **two host variants around one datapath**:
 ACMP (talker and listener) and SRP. This repository's own ADP advertiser,
 AECP/AEM engine, ACMP talker/listener and lwSRP applicant are **deleted**;
 MAAP stays in this fabric (`KL_maap` + `hdl/milan/KL_pp_maap_shim.sv`) because
-the processor implements none by design.
+the shipping integration holds the processor's internal `KL_pp_maap` engine
+disabled with `cfg_maap_internal_i = 0` and selects this fabric allocator.
 
 **State the AECP surface before reading anything else: this entity serves the
 processor's declared command inventory, including READ_DESCRIPTOR and

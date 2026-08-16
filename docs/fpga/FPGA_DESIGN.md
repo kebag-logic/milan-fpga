@@ -16,7 +16,8 @@ no parameter, no fallback, no shadow arm. It owns ADP, ACMP (talker and
 listener) and SRP, and publishes a class-D wire face the fabric consumes every
 clock (bind record, talker declaration, SRP reservation/slope/domain). MAAP
 stays in `hdl/` (`KL_maap` + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv))
-because the processor implements none by design. This repository's own ADP
+because the shipping integration disables the processor's internal `KL_pp_maap`
+engine with `cfg_maap_internal_i = 0` and selects the fabric allocator. This repository's own ADP
 advertiser and parser, the whole AECP/AEM engine, both ACMP engines and the
 lwSRP applicant are **deleted** — the *ieee17221/aecp*, *ieee17221/acmp* and
 *ieee8021q/srp* directories no longer exist. `adp_tx_arbiter.sv` survives: it is a
@@ -274,7 +275,7 @@ this table whenever `hdl/` changes shape.
 
 | module | description |
 |---|---|
-| `KL_maap` | MAAP (IEEE 1722 Annex B) block claim: probe / defend / announce. Still this fabric's allocator — the processor implements no MAAP by design |
+| `KL_maap` | MAAP (IEEE 1722 Annex B) block claim: probe / defend / announce. This remains the shipping allocator while the processor's internal MAAP engine is disabled |
 
 ### `hdl/ieee17221/adp/`
 
