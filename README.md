@@ -93,7 +93,8 @@ audio-map mutation, and dynamic-info reads.
 The processor accepts and stores clock-source and sampling-rate changes. The
 clock-source selection now reaches the media plane's wrapper but nothing there
 reads it yet, and the sampling rate is stored and readable over AECP without
-being republished to the fabric at all.
+being republished to the fabric at all — as are the per-direction stream
+formats.
 The integration also reports no nonvolatile backend, so required state does not
 survive a power cycle. Solicited Stream Output counters are now served; their
 rate-limited unsolicited notification path remains a separate task. These are

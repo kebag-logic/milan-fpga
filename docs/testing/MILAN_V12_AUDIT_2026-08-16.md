@@ -31,7 +31,7 @@ outside this build's declared scope.
 | `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
 | `tb/verilator/pp_shadow` | PASS | Milan `ACQUIRE_ENTITY` is now checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. |
 | `tests/` Behave suite | 15 features, 321 scenarios passed, 1 scenario skipped | 1,522 steps passed and 4 steps were skipped. This is an offline behavior model, not an external compliance lab result. |
-| Pinned protocol processor suites | 13,504 checks passed | All 27 processor suites passed. The processor's zero-tolerance RTL lint and documentation gates also passed. |
+| Pinned protocol processor suites | 13,507 checks passed | All 27 processor suites passed. The processor's zero-tolerance RTL lint and documentation gates also passed. |
 | Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,255 and 3,759 checks, including every declared AAF and CRF Stream Output. |
 | Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
 | Pinned gPTP processor skeleton | 799 checks passed | 768 uCPU checks and 31 parser checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
@@ -39,7 +39,7 @@ outside this build's declared scope.
 | Module matrix | PASS | 63 modules, 0 untested under the current matrix rules. |
 | End-station builder gates | PASS | The AEM image, identity, shape, and base-format generation gates passed. |
 | Documentation gate | PASS | It covered 204 Markdown files with zero findings after the final edits. |
-| Pinned `tsn-gen` field campaign | 164 checks passed | The public generator revision pinned in `.github/workflows/rtl.yml` was built with parser tests disabled; the AAF/AVTP field campaign reported 164 pass, 0 fail, and 0 known gaps. |
+| `tsn-gen` field campaign | 164 checks passed | The AAF/AVTP field campaign reported 164 pass, 0 fail, and 0 known gaps, built with parser tests disabled. The number was measured against a working tree of the public generator, not against the `TSN_GEN_REV` commit `.github/workflows/rtl.yml` pins — CI does exercise that pin, but this row is not reproducible from the pin alone. Treat it as a floor. |
 | Vivado build and timing closure | NOT RUN | Vivado 2026.1 is not installed in this environment. |
 | Current physical Milan interoperability bench | NOT RUN | The external bench repository contains valuable dated evidence, but its present worktree is active and its last recorded audio result used a mismatched peer format. |
 
@@ -91,9 +91,9 @@ Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/82281d550f04b78089d6445fc039d01ab231ddf0/hdl/aecp/KL_aecp_engine.sv) and
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/cebe26f9bd5dd4e012ddc089a8916ba41455e9a0/hdl/aecp/KL_aecp_engine.sv) and
 the current command table in
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/82281d550f04b78089d6445fc039d01ab231ddf0/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/cebe26f9bd5dd4e012ddc089a8916ba41455e9a0/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 
