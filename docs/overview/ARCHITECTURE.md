@@ -275,8 +275,8 @@ base differs, the offsets are the ABI in
 The ring-DMA engines have their own LiteX-generated CSR space
 (`0xf000_xxxx`) - documented in the DMA section of the register map.
 
-**Load the descriptor image before you enable the entity — and today nobody
-does.** The AECP uCPU serves `READ_DESCRIPTOR` out of main memory, not out of a
+**Load the descriptor image before you enable the entity.** The tracked board
+flow does this with `aemi-load`. The AECP uCPU serves `READ_DESCRIPTOR` out of main memory, not out of a
 fabric ROM: `milan_datapath` exposes a read-only descriptor-memory master
 (`o_desc_mem_*` / `i_desc_mem_*`) that the LiteX SoC bridges to DRAM, and its
 base is a **compile-time** parameter — `PP_DESC_BASE_P`, derived by the SoC from
@@ -295,17 +295,13 @@ is loaded and that descriptor is genuinely not in the model. It cannot hang eith
 so a bridge that never accepts is a clean refusal. A late load heals without a
 reset, because every locate against an invalid image re-arms the header probe.
 
-**That load has no producer in this tree, and that is the state a stock build
-boots in.** The image generator lives in the submodule
-(`protocol-processor/hdl/aecp/desc/gen_desc_image.py`, vendor-neutral JSON in,
-flat image out); nothing in [`sw/builder/`](../../sw/builder), `scripts/`, the
-LiteX SoC builder or the boot path turns an `endstation_*.yaml` into that JSON
-or writes the result to DRAM. The `aecp_aem_rom.svh` that
+**The descriptor supply chain is part of the tracked build and boot flow.**
 [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py)
-still emits is an **orphan** — the ROM of the deleted `KL_aecp_aem_store`, not
-the image the processor reads. So "the entity discovers, connects, and
-enumerates nothing" is the default symptom until that chain is built, not an
-edge case.
+turns the selected `endstation_*.yaml` into `aem_desc.bin`, `aem_desc.json`,
+and `aem_desc.map`. The root filesystem packages the paired image and manifest,
+and `aemi-load` verifies their pairing and writes the image to the derived base
+before entity enable. A custom integration that omits the load receives the
+fail-closed `BAD_ARGUMENTS` behavior described above.
 
 **The entity enable is ORed from two bits.** `PP_CTRL[0]` at `0x920` is the
 protocol processor's own gate; `ADP_CTRL.en` at `0x600` bit 0 is the historic

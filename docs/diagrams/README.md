@@ -14,24 +14,12 @@ repo's minimal headless renderer
 
 | Diagram | Shows | Editable source | Render(s) | Embedded in |
 |---|---|---|---|---|
-> 🔴 **`milan_system_map`'s raster renders are STALE as of 2026-08-13; its
-> generator and `.drawio` are CURRENT.** The generator was rewritten for the
-> control-plane substitution (the ATDECC container is one `KL_pp_shadow` block
-> plus the MAAP shim and a single `ctl_tx_mux`) and then corrected for the AECP
-> uCPU: the AECP panel no longer says "NOT PRESENT", and now states that
-> `READ_DESCRIPTOR` is served out of a DRAM image at a compile-time base, that
-> every other opcode and message type draws a conformant `NOT_IMPLEMENTED` echo,
-> that `IDENTIFY_NOTIFICATION`-as-command answers `BAD_ARGUMENTS`, and that Milan
-> Δ7 `ACQUIRE_ENTITY` is **not** distinguished from that echo. The `.drawio` was
-> re-emitted from it in the same pass. **One thing the map still does not draw:**
-> the read-only descriptor-memory master out of `milan_datapath`
-> (`o_desc_mem_*`/`i_desc_mem_*`) into DRAM — whoever next touches the generator
-> owes it that edge. The committed `.svg`/`.png`, meanwhile, still show the
-> deleted AECP/ACMP/ADP/lwSRP blocks: the minimal drawio renderer this repo used
-> was deleted with the AECP doc tree, and the drawio desktop CLI hangs headless
-> on this box (verified again in the same pass). **Read the `.drawio` for the
-> block structure and the AECP truth, and treat the raster renders as a dated
-> snapshot until someone re-exports them on a headed machine.**
+> **`milan_system_map` is obsolete as of 2026-08-16.** Its generator,
+> `.drawio`, and raster renders predate the current AECP served inventory,
+> descriptor-image supply chain, root dynamic-state boundaries, and counter
+> coverage. Do not use any of them as implementation evidence. The current
+> architecture and audit pages are authoritative until the complete map is
+> regenerated and reviewed as one artifact set.
 > `SYSTEM_DOMAIN_MAP` was regenerated in full — its generator writes SVG
 > directly, so its renders are current.
 

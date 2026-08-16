@@ -36,12 +36,13 @@ which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](../limitati
 > command inventory, including `READ_DESCRIPTOR` and `GET_COUNTERS`.
 > Unsupported commands receive the conformant fallback, and invalid input takes
 > the command-specific refusal path. The processor `pp_top` suite simulates the
-> AECP engine and root `milan_dp` simulates the integrated wire response. A
-> `READ_DESCRIPTOR` in simulation answers `BAD_ARGUMENTS` unless the descriptor
-> image is placed in DRAM by the testbench — nothing in this repository builds or
-> loads one, and an image that fails its header magic/version/checksum reports
-> `configurations_count` = 0, which the microprogram's range check meets *before*
-> the locate. A bench that wants to see `NO_SUCH_DESCRIPTOR` must supply a valid
+> AECP engine and root `milan_dp` simulates the integrated wire response. The
+> end-station builder generates `aem_desc.bin`, `aem_desc.json`, and
+> `aem_desc.map`; the tracked board flow verifies and loads the pair with
+> `aemi-load`. A simulation bench must model that DRAM load explicitly. Without
+> a valid image, `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` because a failed
+> header reports `configurations_count` = 0 and the microprogram performs the
+> range check before the locate. To grade `NO_SUCH_DESCRIPTOR`, supply a valid
 > image first and then miss inside it. Because the wrapper instantiates the processor
 > unconditionally, every suite that elaborates `milan_datapath` — `pp_shadow`,
 > `milan_dp` and `hostplane` — now needs

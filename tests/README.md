@@ -47,8 +47,8 @@ the control plane now, through `hdl/milan/KL_pp_shadow.sv`.
 33 feature files and 9 step modules that tested only that RTL were deleted
 with it, and the mixed features below were pruned scenario by scenario. The
 `@tsn_gen` tier went with them: it generated AECP/ACMP frames from tsn-gen
-protocol YAMLs, and there is nothing left to feed them to. Nothing in the
-suite skips any more.
+protocol YAMLs, and there is nothing left to feed them to. No scenario is
+currently excluded from the default suite.
 
 **2026-08-16: the AECP tier follows the processor's served inventory.** The
 protocol-processor AECP uCPU (`protocol-processor/hdl/aecp/**`) serves the
@@ -64,24 +64,25 @@ processor `pp_top` suite and root `milan_dp` suite cover the RTL and integrated
 wire path. The Milan Table 5.22 unsolicited counter-change producer and
 commands outside the served inventory remain explicit gaps.
 
-**14 features / 307 scenarios / 1460 steps**, all passing, counted by running
-the suite on 2026-08-13 (the run's own tally is authoritative — prose counts
+**15 features / 320 scenarios / 1504 steps**, all passing, counted by running
+the suite on 2026-08-16 (the run's own tally is authoritative -- prose counts
 go stale). It is the **conformance suite**, and it is a CI gate (the
 `bdd-conformance` job in `.github/workflows/rtl.yml`).
 
 | Feature file | Scenarios | What it reads |
 |---|---|---|
-| `wire_truth_avtp.feature` | 34 | `@torture`; hand-built AVTP **and MSRP/MVRP** byte vectors through `tb/tools/avtp_wire_truth.py` |
-| `counters_contract_milan.feature` | 36 | `@torture` + L1; the Milan Table 5.6 counter table, its mask arithmetic and update laws, the CRF sink's per-era obligations in `KL_crf_rx`, and the documented `A_STRMW_CNT0..9` window |
+| `wire_truth_avtp.feature` | 37 | `@torture`; hand-built AVTP **and MSRP/MVRP** byte vectors through `tb/tools/avtp_wire_truth.py` |
+| `counters_contract_milan.feature` | 86 | `@torture` + L1; the Milan Table 5.6 counter table, its mask arithmetic and update laws, the CRF sink's per-era obligations in `KL_crf_rx`, and the documented `A_STRMW_CNT0..9` window |
 | `aecp_read_descriptor.feature` | 28 | the READ_DESCRIPTOR answer — the SUCCESS shape (28 + N), the NO_SUCH_DESCRIPTOR locate miss, the BAD_ARGUMENTS bad-configuration index, and the IEEE §7.4.5 four-octet {type, index} stub on **both** failure paths |
-| `aecp_response_contract.feature` | 20 (+1 `@wip`) | the answer contract — the `NOT_IMPLEMENTED` echo over AEM/AA/MVU and the whole opcode space, IDENTIFY_NOTIFICATION → `BAD_ARGUMENTS`, and the two silent refusals asserted as **no frame at all** |
+| `aecp_response_contract.feature` | 19 | the served-inventory and fallback contract, IDENTIFY_NOTIFICATION → `BAD_ARGUMENTS`, Milan Delta 7 ACQUIRE_ENTITY refusal, and the two silent refusals asserted as **no frame at all** |
 | `torture_campaign_plan.feature` | 27 | `@torture`; audits `tb/tools/torture_campaign.py`'s own plan, assertion contract and cross-participant invariants |
 | `milan_8021q_conformance.feature` | 22 | the 5-queue architecture, the PCP→TC→queue map, the CBS algorithm and its idleSlope/hiCredit/loCredit budgets, and listener VID/format filtering |
-| `audio_walking_tone_identity.feature` | 19 | `@torture` + L1; channel identity through the production decode path and a THD+N method validated against an independent coherent DFT |
-| `clkv_tu_lease.feature` | 18 | the AVTP `tu` verdict and its CLKV lease |
-| `wire_channel_accountability.feature` | 9 | the end-station builder's own width derivation over the shipping configs, plus the `milan_datapath` elaboration guards |
-| `chmap_capture_identity.feature` | 9 | the capture-side chmap64 mux |
-| `gptp_announce_receipt_timeout.feature` | 7 | the BMCA announce-receipt timeout |
+| `milan_base_formats.feature` | 14 | the required Base Audio Format family for every declared AAF Stream Input, with Stream Output and CRF exclusions |
+| `audio_walking_tone_identity.feature` | 22 | `@torture` + L1; channel identity through the production decode path and a THD+N method validated against an independent coherent DFT |
+| `clkv_tu_lease.feature` | 22 | the AVTP `tu` verdict and its CLKV lease |
+| `wire_channel_accountability.feature` | 11 | the end-station builder's own width derivation over the shipping configs, plus the `milan_datapath` elaboration guards |
+| `chmap_capture_identity.feature` | 11 | the capture-side chmap64 mux |
+| `gptp_announce_receipt_timeout.feature` | 10 | the BMCA announce-receipt timeout |
 | `item10_audio_maps.feature` | 4 | the chmap64 render-crossbar word format and its base_cluster + offset key space |
 | `milan_streaming_licence.feature` | 4 | the AAF admission composition, the t>0 wire identity in `KL_aaf_packetizer`, and a byte-exact bench MSRPDU capture |
 | `crf_sr_class_a.feature` | 3 | the CRF emitter's 802.1Q C-TAG and the lane it leaves on |
@@ -98,17 +99,8 @@ audit the campaign's plan, its payload decoders, its counter contract and its
 audio properties, so the parts that can be wrong silently are wrong at a desk
 instead of on the bench.
 
-**`@open-finding`:** ONE, and it is also `@wip`, so it is out of the gate and
-out of the default run and fails on purpose when you ask for it. Milan v1.2
-Δ7 requires `ACQUIRE_ENTITY` to never succeed and to answer `NOT_SUPPORTED`
-with `owner_id` zero; the shipped µcode has that program (`E_ACQ`) but the
-engine's three-arm dispatch never selects it, so 0x0000 falls through to the
-generic `NOT_IMPLEMENTED` echo like any other unimplemented opcode. The
-scenario in `aecp_response_contract.feature` asserts what Δ7 requires, so it
-is the oracle for the fix rather than a description of one — run it with
-`behave --tags=wip`. The two older findings lived in
-`counters_contract_milan.feature`, cited line numbers in
-`KL_aecp_response_builder.sv` and were deleted with that file.
+**`@open-finding`:** none at present. Milan Delta 7 `ACQUIRE_ENTITY` is part of
+the default response-contract run and must return `NOT_SUPPORTED` with no owner.
 
 ```bash
 cd tests && behave --tags @torture -f plain     # just the campaign features
@@ -120,7 +112,7 @@ python3 tb/tools/torture_campaign.py --checklist # what a human must do at the b
 
 **Run everything (offline, no DUT, no simulator — finishes in under a second):**
 ```bash
-cd tests && behave -f plain          # 14 features / 307 scenarios (2026-08-13)
+cd tests && behave -f plain          # 15 features / 320 scenarios (2026-08-16)
 ```
 `behave` is not installed system-wide here; any virtualenv with it will do
 (CI does `python3 -m pip install behave`).

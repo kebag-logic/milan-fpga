@@ -273,12 +273,10 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   model; its §3 control-plane sections are marked where the owner changed.
 
 **AVDECC (control)**
-- → **[`docs/traceability/ieee1722_1-2021.md`](traceability/ieee1722_1-2021.md)** — per-clause ATDECC map (ADP/ACMP/AECP/AEM +
-  commands); the authoritative "which clause is verified where" for the control plane. Expect
-  exactly two AECP entries to read implemented — `READ_DESCRIPTOR` with its three status paths,
-  and the §9.3.5 duty to answer an unimplemented command — with every other AECP clause NOT
-  IMPLEMENTED, `ACQUIRE_ENTITY` flagged as the known Milan Δ7 gap, and the ADP/ACMP rows not
-  covering any of it.
+- → **[`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](testing/MILAN_V12_AUDIT_2026-08-16.md)**,
+  the current served-command inventory, exact evidence, root integration
+  boundaries, and remaining mandatory gaps. The older clause traceability page
+  is marked obsolete and remains only as a historical evidence trail.
 - **[`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv) + [`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv) banners** —
   the design record for what the control plane is now, what it replaced, and what it does not do.
   Read these before any older control-plane page.

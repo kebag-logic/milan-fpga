@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # The 80% campaign — what may go static, by clause
 
 **Trigger (USER 2026-07-28):** if the m0019f reference builds (L2-32K,

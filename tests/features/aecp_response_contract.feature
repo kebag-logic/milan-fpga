@@ -156,19 +156,13 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
       | ADDRESS_ACCESS response |
       | VENDOR_UNIQUE response  |
 
-  # --------------------------------------------------------- the gap ---
-  # KNOWN GAP, recorded so it cannot pass for coverage. Milan v1.2 Delta 7
-  # requires ACQUIRE_ENTITY to never succeed and to answer NOT_SUPPORTED (11)
-  # with owner_id zero over the 8 octets of the acquire form; the shipped
-  # microcode HAS that program (E_ACQ) but the engine's three-arm dispatch
-  # never selects it, so 0x0000 falls through to the generic NOT_IMPLEMENTED
-  # echo like any other unimplemented opcode. This scenario asserts what
-  # Delta 7 requires, so it FAILS today on purpose and becomes the oracle for
-  # the fix. It is @wip (out of the default run, behave.ini) and
-  # @open-finding (out of the `behave --tags ~@open-finding` gate); run it
-  # deliberately with `behave --tags=wip`.
-  @wip @open-finding @gap:acquire-entity @cmd:ACQUIRE_ENTITY
-  Scenario: Milan Delta 7 ACQUIRE_ENTITY is NOT distinguished from the generic echo
+  # ----------------------------------------------------- profile refusal ---
+  # Milan v1.2 Delta 7 requires ACQUIRE_ENTITY to never succeed and to answer
+  # NOT_SUPPORTED (11) with owner_id zero over the 8 octets of the acquire
+  # form. The processor selects that refusal for opcode 0x0000, and the root
+  # wire harness independently grades its length, addressing, and zero owner.
+  @cmd:ACQUIRE_ENTITY
+  Scenario: Milan Delta 7 ACQUIRE_ENTITY returns NOT_SUPPORTED with no owner
     When the controller sends ACQUIRE_ENTITY to the AECP engine
     Then the AECP response status is 11
     And the AECP response owner_id is zero, not the acquiring controller

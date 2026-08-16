@@ -357,13 +357,11 @@ green row that names a suite nobody can run any more is a decorative claim.
 3. **Re-grade the clause matrix by where the implementation really is**: OWNED
    BY <the replacement> where it really is, and **NOT IMPLEMENTED** where it
    really is. The AECP surface is the live worked example, and it cuts both
-   ways. `READ_DESCRIPTOR` really is implemented by the processor, so a row that
-   still says "not implemented" is now wrong — but the model it serves has to be
-   loaded into DRAM and **nothing in this repository builds or loads that
-   image**, so a row claiming working enumeration is wrong too. And every other
-   command is answered with a conformant `NOT_IMPLEMENTED` echo, which is
-   coverage of the §9.3.5 *duty to respond* and of nothing else: it does not
-   make `GET_COUNTERS`, `SET_NAME` or `GET_MILAN_INFO` covered. **An answer is
+   ways. `READ_DESCRIPTOR` really is implemented by the processor and the
+   tracked builder plus `aemi-load` supply its image, so a row that still says
+   "not implemented" or "not supplied" is wrong. The current served inventory
+   includes `GET_COUNTERS` and `GET_MILAN_INFO`, while `SET_NAME` remains a
+   conformant fallback. **An answer is
    not an implementation**, and a matrix that grades the answer instead of the
    function is this pattern wearing the replacement's badge.
 

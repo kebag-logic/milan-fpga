@@ -625,11 +625,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   localparam logic [2:0] SR_CLASS_A_PRIO_C = 3'd3;
   //! ------------------------------------------------------------------------
   //! THE MEDIA CLOCK SOURCE, AND WHY IT IS A CONSTANT NOW.
-  //! IEEE 1722.1 SET_CLOCK_SOURCE was the ONLY writer of the live
-  //! CLOCK_DOMAIN clock_source_index, and the AEM descriptor ROM was the only
-  //! source of "which CLOCK_SOURCE index is the CRF one". Both died with the
-  //! AECP engine. The selection is therefore pinned at index 0 = the INTERNAL
-  //! media clock for the life of the build and can NEVER become the CRF one.
+  //! The protocol processor accepts and stores IEEE 1722.1 SET_CLOCK_SOURCE,
+  //! but KL_pp_shadow does not export its dynamic clock-source output into this
+  //! root integration. The selection is therefore pinned at index 0 = the
+  //! INTERNAL media clock for the life of the build and can NEVER become the
+  //! CRF one until that root seam is connected.
   //!
   //! THE TRAP THIS EXISTS TO AVOID, which the first cut of the plane deletion
   //! walked straight into: keeping the two 16-bit nets and tying the live one
@@ -3852,8 +3852,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     else              gsi_ascap_q_r <= clkv_as_cap_w;
   end
 
-  //! IDENTIFY: 1722.1-2021 7.4.x drives it from a CONTROL descriptor an AECP
-  //! command writes. No AECP, no identify - the LED is structurally dark.
+  //! IDENTIFY: the processor serves the CONTROL descriptor and stores its
+  //! dynamic value, but KL_pp_shadow does not export aecp_identify_o into this
+  //! root integration yet. The physical output remains structurally dark.
   assign o_identify = 1'b0;
 
   // ==========================================================================
