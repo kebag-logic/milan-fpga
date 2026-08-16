@@ -10,7 +10,7 @@
 
 ## Verdict
 
-The current `main-push-fixes` tree is **not fully compliant with Milan v1.2**.
+The tree reviewed by this audit is **not fully compliant with Milan v1.2**.
 It must not be represented as a conformant or formally approved release.
 
 The automated RTL and software gates are broadly green, and this audit closed
