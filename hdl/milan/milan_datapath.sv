@@ -5531,8 +5531,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! `public_flat_rd` because no consumer reads these yet: without a probe a
   //! review found that `cur_config` and `clk_src_index` are both 16 bits, so
   //! the two could be swapped at the port map and every suite would stay
-  //! green. The milan_dp bench now writes DIFFERENT values through
-  //! SET_CONFIGURATION and SET_CLOCK_SOURCE and reads them back here.
+  //! green. The milan_dp bench now moves the clock-source and IDENTIFY faces
+  //! through real AECP commands and reads them back here, asserting the
+  //! configuration face does NOT move with them. It cannot move the
+  //! configuration face itself: the image declares one configuration, so the
+  //! only legal index is also the reset value — the bench prints that as an
+  //! explicit gap rather than implying coverage it does not have.
   logic [15:0]              pp_aecp_cur_config_w /* verilator public_flat_rd */;
   logic  [7:0]              pp_aecp_identify_w /* verilator public_flat_rd */;
   logic [15:0]              pp_aecp_clk_src_index_w /* verilator public_flat_rd */;

@@ -1124,14 +1124,21 @@ int main(int argc, char** argv) {
                 // what makes the connection graded rather than merely
                 // present.
                 //
-                // ORDER MATTERS AND THIS BLOCK MUST STAY BELOW THE
-                // [AECP-MODEL] GET_* CHECKS. Setting the clock source arms the
-                // dynamic store's valid bit, after which GET_CLOCK_SOURCE
-                // answers the OVERLAY instead of the image — so the model
-                // check above would compare the overlay against the image and
-                // pass only because both happen to read 0. A review caught
-                // exactly that: an earlier placement of this block left the
-                // image arm mutable with no test noticing.
+                // ORDER MATTERS. This block must stay below every
+                // [AECP-MODEL] check that reads a field it writes — today
+                // that is GET_CLOCK_SOURCE and GET_CONTROL. Setting the clock
+                // source arms the dynamic store's valid bit for THAT field,
+                // after which GET_CLOCK_SOURCE answers the overlay instead of
+                // the image, and a model check above would compare the
+                // overlay against the image and pass only because both happen
+                // to read 0. A review caught exactly that.
+                //
+                // The valid bits are per field AND per index
+                // (KL_aecp_dyn_state.sv), so the GET_SAMPLING_RATE,
+                // GET_STREAM_FORMAT and ENTITY_AVAILABLE groups below are
+                // unaffected — writing SEL_CLKSRC cannot arm SEL_RATE. Widen
+                // this block and that stops being true: anything it writes
+                // must have its model check ABOVE it.
                 {
                     const uint16_t cfg0 = (uint16_t)
                         dut->rootp->milan_datapath__DOT__pp_aecp_cur_config_w;

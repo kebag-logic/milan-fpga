@@ -51,11 +51,19 @@ only `NOTIFY_ENQ` in `gen_ucode.py` sits in an exemplar program, and
 `pp_pkg.sv` defines notification kinds for the deregistration and GET family
 only. Every `SET_*` row below therefore carries an open half, tracked as #69 —
 not as a per-row caveat, because it is the same missing mechanism in all of
-them. Two more caveats worth naming here rather than burying: `0x0006` now keeps
-`GET_CONFIGURATION` and `READ_DESCRIPTOR(ENTITY)` equivalent, but the shipping
-one-configuration image cannot exercise a real active-configuration switch;
-and `0x0016`'s stored clock source reaches `milan_datapath` and is read by
-nothing (audit B3).
+them. One more caveat worth naming here rather than burying: `0x0016`'s stored
+clock source reaches `milan_datapath` and is read by nothing (audit B3).
+
+`0x0006` used to carry a second caveat — it stored an index that
+`READ_DESCRIPTOR(ENTITY)` did not reflect, so §7.4.8.2's equivalence broke on a
+multi-configuration image. That is closed: `E_RDESCENT` overlays the ENTITY
+descriptor's last field with the same dynamic value `GET_CONFIGURATION` reads,
+and `protocol-processor/tb/pp_top` W18c3/W18h grade the two commands **against
+each other** rather than each against a literal, which is how the divergence hid
+in the first place. What remains is narrower and worth stating: the shipping
+one-configuration image cannot exercise a real active-configuration switch, so
+the command stores and reports an index without any descriptor set changing
+underneath it.
 
 | Opcode | Command | Milan clause | Landed |
 |---|---|---|---|

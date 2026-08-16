@@ -57,12 +57,22 @@ ALLOW = (
 )
 
 DENY_CI = re.compile(r"avnu|aets|certif", re.IGNORECASE)
-#! Case-SENSITIVE, because these are short acronyms whose lowercase forms are
-#! ordinary words or appear inside longer identifiers. A review found "ATL"
-#! sitting in docs/traceability/milan-v12.md for weeks: the case-insensitive
-#! list above could never have matched it, and no stem for a certification
-#! LAB name existed at all. Committed text says "compliance", never a lab.
-DENY_CS = re.compile(r"\bCERT\b|\bATL\b|\bUNH\b|\bIOL\b")
+
+#! Case-SENSITIVE: these are short acronyms whose lowercase forms are ordinary
+#! words or live inside longer identifiers. A review found one of them sitting
+#! in a tracked document for weeks — the case-insensitive list above could
+#! never have matched it, and no stem for a certification LAB name existed.
+#! Committed text says "compliance", never a lab.
+#!
+#! THE TOKENS ARE ASSEMBLED, NOT WRITTEN OUT. This file is tracked on a public
+#! repo, and a denylist that spells the names it forbids publishes them just as
+#! surely as the document it is meant to catch — the first cut of this gate did
+#! exactly that, trading one leaked name for three. `docs_check` scans only
+#! *.md, so it cannot catch itself; the assembly is what keeps the rule honest.
+_LAB_TOKENS = tuple("".join(chr(c) for c in cs) for cs in (
+    (67, 69, 82, 84), (65, 84, 76), (85, 78, 72), (73, 79, 76),
+))
+DENY_CS = re.compile("|".join(r"\b%s\b" % t for t in _LAB_TOKENS))
 
 # Documents removed from the tree that must never be referenced again.
 # The 2026-07-20 privacy scrub untracked these three; the live state they used
