@@ -128,14 +128,46 @@ region, holding exactly the fields Milan v1.2 declares settable:
 | IDENTIFY value | CONTROL | 1 | 5.3.12 |
 
 Ten to twelve entries on the shipping shape. **LUTRAM, not flops** — the die is
-LUT-bound and the standing area directive is explicit about it. The GET side
-then reads the overlay-or-image the way the name table already works, so the
-five commands landed at 0x004B change from "read the image" to "read the
-overlay if written, else the image" without changing their response layout.
+LUT-bound and the standing area directive is explicit about it.
 
-*Acceptance*: a new `protocol-processor/tb/` suite proving overlay-beats-image
-per field, plus reset behaviour (volatile fields clear, persisted fields do not
-— see P3.1).
+#### The design, validated against the µISA on 2026-08-16
+
+The obvious shape — "one lane per {field, descriptor index}, addressed by the
+µprogram" — **does not work**, and it is worth writing down why so nobody
+spends a day rediscovering it. `READ_ST` and `WRITE_ST` compute
+`st_addr_o = desc_base_r + uop_e_r.imm[19:0]` (`KL_aecp_ucpu.sv:311`) and
+`desc_base_r` is invariantly 0 in this system, so **the state-port address is
+an immediate and nothing else**. There is no register-indexed addressing, so a
+µprogram cannot say "the lane for the descriptor this command names".
+
+The shape that does work follows the gather faces, which solved the same
+problem already:
+
+- **The address selects the FIELD.** `st_addr[15:3]` is a field selector —
+  0 = sampling rate, 1 = clock source index, 2 = current format, and so on —
+  so each µprogram names its own field with a constant, which is all an
+  immediate can express.
+- **The descriptor index comes from the engine**, registered, exactly the way
+  `ctr_desc_index_o`, `gsi_desc_index_o` and `amap_desc_index_o` already do
+  (`KL_aecp_engine.sv:966-1007`). The store module takes `desc_type_i` and
+  `desc_index_i` alongside its state port and picks the row itself.
+- **Put it in its own module**, `KL_aecp_dyn_state.sv`, muxed onto the state
+  port by region code at the engine — regions `0x1` (value) and `0x2` (valid
+  flag) are free; only `0x0`, `0xC`, `0xD`, `0xE` and `0xF` are taken. A
+  separate module leaves `KL_aecp_desc_store`'s 501 checks untouched, which
+  matters more than saving the file.
+- **Valid-bit with image fallback, not seed-at-boot.** A GET reads the valid
+  flag, branches, and takes either the overlay or the image — about five extra
+  µwords per command. This is the variant that **composes with P3.1**: a
+  persistence restore just writes values and sets valid bits, whereas a
+  seed-from-image design would have to be taught not to overwrite what NVM
+  restored. Pick the one that does not fight the next item.
+
+*Acceptance*: a new `protocol-processor/tb/dyn_state` suite proving
+overlay-beats-image per field and per descriptor index; the five 0x004B GETs
+re-graded in `tb/pp_top` §W through both arms (unwritten → image, written →
+overlay); and reset behaviour — the volatile fields (lock, registry, IDENTIFY)
+clear, the persisted ones do not (see P3.1).
 
 ### P2.2 — the GET half that P2.1 unblocks
 
