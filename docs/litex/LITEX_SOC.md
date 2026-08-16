@@ -189,8 +189,8 @@ only.
 So: the ship build is `--cpu vexiiriscv` **1-hart + `--l2-bytes 32768`**
 at 100e6; to reproduce the older published Linux/perf results build the
 SUPERSEDED perf-lineage `--cpu vexiiriscv --cpu-count 2` (L2-64K) instead; a
-bare `deploy.sh build` gives you a NaxRiscv SoC. This asymmetry is tracked in
-[KNOWN_ISSUES_AND_LIMITATIONS.md](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md).
+bare `deploy.sh build` gives you a NaxRiscv SoC. Use the named build
+configurations below for the supported flow.
 The full named build configurations (`build.sh`) live in
 [../integration/BUILDING.md](../integration/BUILDING.md).
 
@@ -297,8 +297,7 @@ against LiteX `master`. Known-good anchors, recorded from working builds:
   elaboration).
 
 If `apply.sh` fails after a LiteX upgrade, the patch context moved - re-diff
-per `patches/README.md`. This gap (and the plan to pin properly) is tracked
-in [KNOWN_ISSUES_AND_LIMITATIONS.md](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md).
+per `patches/README.md`. The open pinning work is tracked in GitHub issues.
 
 ## 8. The Migen DMA sims and on-target tools
 

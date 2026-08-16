@@ -91,10 +91,10 @@ go stale). It is the **conformance suite**, and it is a CI gate (the
 > every run; if this table and the run disagree, the run wins.
 
 **`@torture` tier (2026-07-30):** the desk half of the standing
-torture/compliance campaign — see
-[`../docs/testing/TORTURE_CAMPAIGN.md`](../docs/testing/TORTURE_CAMPAIGN.md) for
-the whole thing, including the on-bench runner and **how to add a check in one
-place**. These features need no DUT, no simulator and no `numpy`; they
+torture/compliance campaign. See the current
+[`testing/TESTING.md`](../docs/testing/TESTING.md) map and the
+[`harness/README.md`](../harness/README.md) runner contract. These features need
+no DUT, no simulator and no `numpy`; they
 audit the campaign's plan, its payload decoders, its counter contract and its
 audio properties, so the parts that can be wrong silently are wrong at a desk
 instead of on the bench.

@@ -6,7 +6,7 @@ the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101; NaxRiscv his
 **scale up** (more channels / streams / sample rates) and **scale out** (more than
 one softcore).
 
-- **Milan v1.2 → FR/NFR dependency matrix (why each is necessary):** [`MILAN_V12_DEPENDENCY_MATRIX.md`](MILAN_V12_DEPENDENCY_MATRIX.md)
+- **Current Milan v1.2 implementation verdict:** [`../testing/MILAN_V12_AUDIT_2026-08-16.md`](../testing/MILAN_V12_AUDIT_2026-08-16.md)
 - **Baseline entity:** [`avdecc/milan-v12-entity-small-48k.json`](../../avdecc/milan-v12-entity-small-48k.json)
 - **Full/scaled entity:** [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json) (8-ch, 48/96/192 kHz)
 - **Platform & phasing:** [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md)

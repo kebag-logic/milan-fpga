@@ -43,8 +43,8 @@
                 design choice: SET_STREAM_FORMAT, SET_STREAM_INFO, name access,
                 the audio-mapping writers, GET_DYNAMIC_INFO, the
                 unsolicited-notification trigger set, the departing-controller
-                monitor and saved-state persistence. The ordered plan is
-                docs/MILAN_V12_ROADMAP.md. SET_CLOCK_SOURCE is accepted and
+                monitor and saved-state persistence. The current verdict is in
+                docs/testing/MILAN_V12_AUDIT_2026-08-16.md. SET_CLOCK_SOURCE is accepted and
                 stored by the processor, but the selected value is not exposed
                 through this root wrapper. The media plane therefore remains
                 pinned at clock_source_index 0.

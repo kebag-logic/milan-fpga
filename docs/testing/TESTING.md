@@ -4,8 +4,8 @@ Every layer of verification in this repo, what it proves, and the exact
 command to run it. This page is the map; the per-layer detail stays next to
 the tests ([`tb/verilator/README.md`](../../tb/verilator/README.md),
 [SIMULATION.md](SIMULATION.md), [RUNNING_TESTS.md](RUNNING_TESTS.md)) and the
-protocol-level coverage contract is
-[PROTOCOL_VALIDATION_MATRIX.md](PROTOCOL_VALIDATION_MATRIX.md).
+current protocol-level verdict is the
+[Milan v1.2 audit](MILAN_V12_AUDIT_2026-08-16.md).
 
 > **Suite counts in prose go stale.** Never trust a number in a doc: the
 > authoritative harness count is the directory listing (`ls tb/verilator/`,
@@ -471,8 +471,8 @@ Bring-up order and board procedures:
 (CSR ID read → MAC → DMA), [../integration/QSPI_FLASHBOOT.md](../integration/QSPI_FLASHBOOT.md)
 (boot), [RUNNING_TESTS.md](RUNNING_TESTS.md) (all-layers walkthrough incl.
 board), and the in-fabric telemetry that instruments silicon runs:
-[../fpga/pipeline-telemetry.md](../fpga/pipeline-telemetry.md). Protocol-by-
-protocol validation status: [PROTOCOL_VALIDATION_MATRIX.md](PROTOCOL_VALIDATION_MATRIX.md).
+[../fpga/pipeline-telemetry.md](../fpga/pipeline-telemetry.md). Current protocol
+validation status: [Milan v1.2 audit](MILAN_V12_AUDIT_2026-08-16.md).
 Performance measurements on silicon are logged in the
 [findings log](../findings/README.md) with their methodology.
 

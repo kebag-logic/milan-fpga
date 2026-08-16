@@ -102,8 +102,8 @@ gateware** (exit 0):
   they are the reason PHY management is still open: `LiteEthPHYMDIO` is a **software
   bit-bang** register pair, not an autoneg-result register, and there is no hardware
   MDIO master anywhere in the design — so `MAC_STATUS` is software-published from the
-  `milan_mac_link_status` CSR and reports its reset default until a driver writes it
-  ([KNOWN_ISSUES §1](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)). Until then the
+  `milan_mac_link_status` CSR and reports its reset default until a driver writes it.
+  Until then the
   data path runs on the PHY power-on straps. Migration §A.7.
 - **Artix-7 bitstream**  -  `--full --build` needs Vivado with Artix-7 device
   support (the original dev host had only Spartan-7 installed). This gate has since

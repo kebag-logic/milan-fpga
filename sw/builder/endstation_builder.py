@@ -4,10 +4,10 @@
 """
 endstation_builder.py - software-defined Milan End-Station builder.
 
-docs/MILAN_COMPLIANCE_GAPS.md attack item 4: ONE declarative definition
-drives gateware elaboration, AEM ROM, lwSRP tables and DT/driver shape
-consistently. This round turns the scaffold into the working generator:
-the emitted AEM overlay is CONSUMED by avdecc/gen_aem_store.py (--overlay);
+One declarative definition drives gateware elaboration, the AEM model, lwSRP
+tables and the DT/driver shape consistently. The current compliance boundary
+is recorded in docs/testing/MILAN_V12_AUDIT_2026-08-16.md. The emitted AEM
+overlay is consumed by avdecc/gen_aem_store.py (--overlay), and
 the emitted sweep_opts fragment is SOURCED by sw/litex/sweep.sh (single
 source for the per-board design OPTS/L2).
 
@@ -26,14 +26,12 @@ plane now).  Exactly TWO generated includes are still compiled:
         LWSRP_PRIO_RANK_C.  Those registers remain as an ABI (software can
         still write them) but drive NOTHING: the applicant is deleted.
 
-The AEM descriptor ROM is STILL GENERATED - the entity model is the
-declarative source the ADP shape counts and the capability words are
-DERIVED from, and this file's own self-consistency gates read it - but it
-is NO LONGER AN RTL ARTIFACT.  It describes a descriptor set nothing in
-this gateware serves: this device answers no AECP/AEM command, so no
-controller can READ_DESCRIPTOR any of it.  It is written to
-out/<cfg>/aecp_aem_rom.svh (and rendered by avdecc/gen_aem_store.py
---out-dir) for reading, never into hdl/ or into configs/generated/*/gen/.
+The legacy AEM descriptor ROM is still generated as a readable model artifact,
+but it is no longer compiled into RTL. The protocol processor serves
+READ_DESCRIPTOR from a flat DRAM image instead. An explicit --write-fragment
+or --write-rtl deployment ownership transfer generates that image, manifest,
+map, and loader in the sibling rootfs overlay when the overlay is present.
+An ordinary builder run does not touch that deployment overlay.
 
 Input:  a YAML end-station config (schema kebag-logic/milan-endstation-config,
         see configs/endstation_*.yaml for annotated examples).
@@ -53,9 +51,8 @@ Outputs (into OUTDIR/<config-stem>/):
                       applicant was deleted: only the CSR-facing subset below
                       still reaches RTL. Kept because the 0x680 reset words
                       and the bandwidth arithmetic are derived here.
-  aecp_aem_rom.svh  - this config's AEM descriptor ROM. GENERATED, NOT
-                      COMPILED: see the note at the top - nothing in this
-                      gateware serves these descriptors.
+  aecp_aem_rom.svh  - legacy AEM descriptor ROM. Generated for model review,
+                      not compiled and not served by the processor.
   platform_shape.json - driver-visible layout: Milan CSR base, the DMA window
   milan-nic.dtsi      map DERIVED from board.constraints.rx_queues, the
                       physical addresses kl-eth hardcodes, and the
@@ -77,6 +74,10 @@ Plus (repo-level, single-sourced so nothing can drift):
                       board programs into the ADP/AEM CSRs. Same rule, same
                       moment: the config that owns the board's bitstream owns
                       its advertised identity.
+  <rootfs overlay>/etc/milan-aem/aem_desc.{bin,json,map}
+                    - the processor descriptor image, paired manifest, and
+                      readable map. Written only by --write-fragment or
+                      --write-rtl when the sibling overlay is present.
   hdl/common/csr/gen/lwsrp_csr_defaults.svh - the CSR-facing SUBSET of the
                       lwSRP table (0x680 reset words + the PriorityAndRank
                       byte), `include-d BY hdl/common/csr/milan_csr.sv: the
@@ -93,6 +94,8 @@ Plus (repo-level, single-sourced so nothing can drift):
 Usage:
   python3 sw/builder/endstation_builder.py configs/endstation_arty_current.yaml
   python3 sw/builder/endstation_builder.py <cfg.yaml> -o <outdir>
+  python3 sw/builder/endstation_builder.py <cfg.yaml> --write-fragment
+  python3 sw/builder/endstation_builder.py <cfg.yaml> --write-rtl
 
 Schema summary (see the example configs for the annotated normative form):
   schema / schema_version      - "kebag-logic/milan-endstation-config" / 1.1.x

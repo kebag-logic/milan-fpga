@@ -158,7 +158,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x7B8  -  Persistence-journal ingest  (saved-state fast-connect E3)](#0x7b8-----persistence-journal-ingest--saved-state-fast-connect-e3) -- **Unwired again at VERSION major 2: writes are accepted and DISCARDED, `JNL_STAT` and `JNL_SEQ` read structural zeros.** Milan v1.2 5.3.8.2 makes the saved bound state a *shall*; this build does not meet it, and nothing in this device restores a binding across a power cycle. The record format and verdict table are kept as the specification a replacement must satisfy.
   - [0x7C8  -  AEM dynamic-state patch port  (saved-state fast-connect E4)](#0x7c8-----aem-dynamic-state-patch-port--saved-state-fast-connect-e4) -- **Unwired: writes accepted and discarded.** The patch engine and the AEM store it wrote are both deleted, so there is no descriptor RAM to patch and no setter whose acceptance it could re-run. Kept as ABI and as specification.
   - [0x7DC  -  AS_PATH staging: the published PathTrace  (gh #64 J4)](#0x7dc-----as_path-staging-the-published-pathtrace--gh-64-j4) -- **Disconnected staging port.** The local store accepts and reads back writes, but the root leaves its published outputs open. `GET_AS_PATH` is served separately with only the grandmaster identity, so bridged path tails staged here never reach the wire.
-  - [0x800  -  Indexed per-stream window  (NxN streams, NXN_ARCHITECTURE.md §1.5)](#0x800-----indexed-per-stream-window--nxn-streams-nxn_architecturemd-15) -- SELECT-then-read over N listener and N talker contexts, so decode area stays O(1) in N. The dense part of the whole map: index 0 is a hard *alias* of the flat registers rather than a copy, `0xDEADDEAD` marks a word not backed here (distinct from a true zero), route flags are independent bits not an enum, and the staging rule -- a commit only overrides the stream table when a stream_id was staged **for that index** -- is the fabric-listener blocker fix. Read the bench warning before arming extra talkers with the SRP engine off.
+  - [0x800  -  Indexed per-stream window](#0x800-----indexed-per-stream-window) -- SELECT-then-read access to listener and talker contexts without duplicating decode logic. Index 0 aliases the legacy flat registers, `0xDEADDEAD` marks an unbacked word, and a staged stream id applies only to the selected index.
   - [0x870  -  AAF per-stage latency taps  (roadmap item-11, KL_aaf_latency_taps)](#0x870-----aaf-per-stage-latency-taps--roadmap-item-11-kl_aaf_latency_taps) -- Six inter-stage deltas as `{max,last}` plus a separate min word, in `axis_clk` cycles. They characterise an envelope, not one threaded frame -- the token is followed by order, so a shared MAC boundary can catch a nearer non-AAF edge. Like every group at `>= 0x800` it needs the read carve-out or the whole block reads 0.
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
   - [0x8C8  -  Playback chain probe  (PBK, roadmap item-7: KL_pcm_tx -> KL_chan_map_render -> KL_i2s_feed_mux -> KL_i2s_playback)](#0x8c8-----playback-chain-probe--pbk-roadmap-item-7-kl_pcm_tx---kl_chan_map_render---kl_i2s_feed_mux---kl_i2s_playback) -- Three words that answer the first question about a silent line-out: did any frame reach the DAC, and if not where did it stop. Exists because the playback engine's own registers are migen CSRs on the LiteX build and appear nowhere in this map. The four-row table separates "map never programmed" from "host is starving the ring".
@@ -766,7 +766,7 @@ truthful, only the cadence stretches
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x750` | `CRFT_CTRL` | RW | `0` | `[0]` CRF talker enable; `[1]` **class-A declare + tag** (Milan v1.2 7.3.3: "An AVB Class A Stream Reservation *shall* be used to transmit [the] CRF Media Clock Stream") — the fabric provisions its own lwSRP talker row and derives the C-TAG (PCP 3, VID = `LWSRP_VID` — or the **operational adopted pair** whenever `LWSRP_DOM[24]` is set, Milan 4.2.7.2.1) from that row's *validity*, so tagged-but-undeclared is unreachable; with `[1]` clear the stream falls back to the untagged control-lane shape (flooded by the bridge, but alive). Since the substitution the reservation is the protocol processor's, not a fabric-provisioned lwSRP row. Live read: `[4]` 🔴 **STRUCTURAL ZERO** (was "the fabric provisioned this stream's TA row valid" — there is no row to provision), `[5]` frames leaving tagged, `[6]` reservation active, `[7]` emission licensed now, `[19:8]` VID, `[22:20]` PCP (both = the pair on the frames, one wire with the declaration) |
-| `0x754` | `CRFT_SIDLO` | RW | `0` | CRF talker stream_id `[31:0]`. **Reset 0 = AUTO (since VERSION `0x0010`, `N_STREAMS > 1` builds only):** the fabric uses `{station MAC, N_STREAMS}` — exactly the stream_id the ACMP talker responder answers with for `talker_unique_id = N_STREAMS`, the CRF Media Clock Output context ([NXN_ARCHITECTURE.md](../NXN_ARCHITECTURE.md) §3.5). A non-zero pair wins outright (static provisioning, unchanged) |
+| `0x754` | `CRFT_SIDLO` | RW | `0` | CRF talker stream_id `[31:0]`. Reset 0 selects AUTO in multi-stream builds: the fabric uses `{station MAC, N_STREAMS}`, matching the CRF Media Clock Output context described by the [end-station builder](../ENDSTATION_BUILDER.md). A non-zero pair wins outright |
 | `0x758` | `CRFT_SIDHI` | RW | `0` | stream_id `[63:32]`, same AUTO rule (the pair is tested together) |
 | `0x75C` | `CRFT_DMLO` | RW | `0` | CRF stream dest MAC `[31:0]` (same packing as `AAF_DM*`). **Reset 0 = AUTO:** the MAAP block slot `base + N_STREAMS`, one past the audio talkers — so `MAAP_CTRL`'s claimed count must be `N_STREAMS+1`. A non-zero pair wins outright |
 | `0x760` | `CRFT_DMHI` | RW | `0` | dest MAC `[47:32]` in `[15:0]`, same AUTO rule |
@@ -889,14 +889,15 @@ verdict column, not the register name.
 
 The legacy flat AAF talker configuration for stream 0 is untouched (talker index
 0 of the `0x800` window is a hard alias of these — see the alias rule there).
-Stream semantics: [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md).
+Stream semantics: [`../overview/ARCHITECTURE.md`](../overview/ARCHITECTURE.md)
+and [`../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x648` | `AECP_STAT0` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was `[16]` entity locked and `[15:0]` AECP commands accepted. The processor serves these functions, but neither field is connected to this legacy word |
 | `0x64C` | `AECP_STAT1` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was `[31:16]` AECP responses sent and `[15:0]` live current configuration index. The processor sends responses and stores configuration state, but neither field is connected here |
 | `0x650` | `ACMP_STAT` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was the ACMP responder's `[31:16]` responses sent / `[15:0]` commands accepted. ACMP itself is **alive** — the processor answers CONNECT_TX/PROBE_TX/GET_TX_STATE and runs the BIND_RX ladder — but it publishes a bind RECORD, not PDU counters, so these two fields have no source. Take `ACMPL_STATE[3]` bound (`0x6A4`) and `ACMP_TALKER[1]` (`0x66C`) as the truth instead |
-| `0x654` | `AAF_CTRL` | RW | `0x0002_0000` | `[0]` talker enable, `[1]` **gate bypass — 1 = stream whenever enabled; RESET IS NOW 0 (VERSION `0x0018`), so a build must ASK for the legacy bring-up behaviour. Milan v1.2 5.3.7.3 conditions streaming on receiving a Listener Ready/Ready Failed**; 0 = Milan-gated, `[27:16]` SR VID (reset 2). Write bit-preserving: **`0x0002_0001` to enable** (talker on, bypass CLEAR). A bare `0x3` zeroes the VID, and VID-0 frames leave the reserved SR tree (bridges strip the tag on egress) and flood unshaped. 🔴 **`0x0002_0003` — the recipe this table gave until 2026-07-28 — keeps the bypass set and makes the board stream SR-class-A-tagged AAF with no reservation, which Milan v1.2 5.3.7.3 does not license** (*"As long as a PAAD is declaring a Talker Advertise attribute **and receiving a Listener Ready or Listener Ready Failed attribute** for a Stream Output, it shall be streaming AVTP packets"*). Measured on both boards, nothing bound: `0x694 = 0x00000030` (no Listener, gate shut) beside 18,488 tagged AAF frames in 6 s on the inline tap. Clearing `[1]` stopped them — and a bound listener (`0x694 = 0x0000037E`) kept them flowing. The escape hatch exists for deliberate, watched experiments on a link whose other end can take it; it is not a boot setting. See [`docs/MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) §3 |
+| `0x654` | `AAF_CTRL` | RW | `0x0002_0000` | `[0]` talker enable, `[1]` gate bypass; 1 streams whenever enabled. Reset is 0, so Milan v1.2 5.3.7.3 admission is in force unless software explicitly bypasses it. `[27:16]` is the SR VID, reset 2. Write `0x0002_0001` to enable with bypass clear. A bare `0x3` zeroes the VID. `0x0002_0003` enables the experimental bypass and is not a compliant boot setting. The resolved admission result is reported in `ACMP_TALKER 0x66C[3]`. |
 | `0x658` | `AAF_DMLO` | RW | `0xF000_FE01` | AAF stream dest MAC `[31:0]` (reset = MAAP-range `91:E0:F0:00:FE:01`). Fallback value: while `MAAP_CTRL[0]` is set and `MAAP_STAT1[2]` addr_valid, the datapath streams to the MAAP-claimed DMAC instead (`eff_aaf_dmac` mux) |
 | `0x65C` | `AAF_DMHI` | RW | `0x91E0` | dest MAC `[47:32]` in `[15:0]` |
 | `0x660` | `AAF_FRAMES` | RO | `0` | AAF frames sent (the window `PDUS` word latches this at talker idx 0) |
@@ -962,8 +963,8 @@ While enabled it also:
 * makes a reservation a PRECONDITION for AAF transmit (`FR-SRP-03`;
   `AAF_CTRL[1]` bypass remains the escape hatch, and since VERSION `0x0018` it
   is **CLEAR at reset**, so the precondition IS in force on a board nobody has
-  told otherwise; see the `0x654` row and
-  [`docs/MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) §3).
+  told otherwise; see the `0x654` row and the
+  [current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md)).
 
 `LWSRP_STATUS[8]` is the licence Milan v1.2 5.3.7.3 defines, and it is
 honest: it reads 0 when no Listener Ready / Ready Failed is registered.
@@ -1246,7 +1247,7 @@ This is a root data-source gap, not an unimplemented-command echo.
 | `0x7E0` | `ASP_HI` | RW | `0` | Staged `clockIdentity[63:32]`. Reads back what was written, but does not affect `GET_AS_PATH` |
 | `0x7E4` | `ASP_CMD` | W / RO live | `0` | The commit and publish machinery still updates its local generation and count. Those outputs are not consumed by the root gather face, so the readback is staging state rather than the path served on the wire |
 
-### 0x800  -  Indexed per-stream window  `(NxN streams, [NXN_ARCHITECTURE.md](../NXN_ARCHITECTURE.md) §1.5)`
+### 0x800  -  Indexed per-stream window
 
 One SELECT register plus ONE decoded word block views any of the N listener /
 N talker stream contexts — decode area is O(1) in N instead of the O(N) flat
@@ -1827,9 +1828,8 @@ an unbacked build correctly. `nvm_backed` is a **constant derived from the
 fabric**, not a parameter — it is set beside the responder in `KL_pp_shadow.sv`,
 because a knob an integrator can turn to `1` while the volatile stub is still
 instantiated is the same lie with a longer reach. What a real backend would have
-to provide is specified in
-[`MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md); it is **not**
-implemented.
+to provide is recorded as blocker B2 in the
+[current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md); it is **not** implemented.
 
 **The side port is POSTED, and one access is outstanding at a time.** The
 processor's side port is a fabric walk behind a request/ack, and an AXI read must

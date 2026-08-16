@@ -2,8 +2,9 @@
 
 **Purpose.** One declarative config (`configs/endstation_*.yaml`, schema
 `kebag-logic/milan-endstation-config`) drives gateware elaboration, the AEM
-entity model, lwSRP tables and the DT/driver shape consistently
-([`docs/MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md) attack item 4).
+entity model, lwSRP tables and the DT/driver shape consistently. The current
+compliance boundary is recorded in
+[`testing/MILAN_V12_AUDIT_2026-08-16.md`](testing/MILAN_V12_AUDIT_2026-08-16.md).
 
 This document is the specification-referenced design record for that
 builder: the settled design decisions with their clause basis, and the
@@ -50,22 +51,21 @@ config-schema → AEM-descriptor mapping.
 > ever had. Rows and gates below are marked where they are affected.
 
 Every clause reference below was verified against the local standards PDFs
-(`$STANDARDS_DIR`) (pdftotext extraction, 2026-07-22) — the same rule as
-[`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md). Cited documents: IEEE
+(`$STANDARDS_DIR`) using a 2026-07-22 pdftotext extraction. Cited documents: IEEE
 1722.1-2021 ("1722.1"), IEEE 1722-2016 ("1722"), Milan Specification v1.2
 Consolidated ("Milan"), IEEE 802.1Q-2022 ("Q").
 
 The implementation lane ([`sw/builder/endstation_builder.py`](../sw/builder/endstation_builder.py), the three
 emitters, the `test_builder.py` identity gate against today's ROM) runs in
-parallel; this document is the contract it converges on, and its rows are
-meant to be promoted into the traceability matrix / bench features per the
-[`SPEC_TRACEABILITY.md`](SPEC_TRACEABILITY.md) review workflow.
+parallel; this document is the contract it converges on. Its rows are reflected
+in the generated [`traceability/MODULE_MATRIX.md`](traceability/MODULE_MATRIX.md)
+and in executable verification where the behavior is implemented.
 
 ## Contents
 
-- **[1. Artifacts and flow](#1-artifacts-and-flow)** -- What one config emits and, more usefully, who reads each file and where a stale one is caught. The descriptor ROM remains an orphan of the deleted fabric store; the flat image, manifest, and map are the processor deliverables. The section ends with the three example shapes side by side, where the cluster row shows the policy biting (8×8 emits 80 clusters, not 128).
-- **[2. Settled design decisions](#2-settled-design-decisions)** -- D1-D11 with their clause basis, opening with the index that says which you can rely on today. D3 keeps talker `channels` and `clusters` separate, D8 records the role-tagged cluster pools, D10 names every cluster without moving `entity_model_id`, and D6 records the processor DRAM image contract and its implemented supply chain.
-- **[3. Config schema → AEM descriptor mapping](#3-config-schema--aem-descriptor-mapping)** -- The 27-row field-by-field contract: each config key, the descriptor or argv it generates, the clause that governs it, and which consumer reads it. Three rows generate *planned* artifacts -- the config validates and the build plan marks them rather than erroring.
+- **[1. Artifacts and flow](#1-artifacts-and-flow)** -- What one config emits and, more usefully, who reads each file and where a stale one is caught. The descriptor ROM remains an orphan of the deleted fabric store; the flat image, manifest, and map are the processor deliverables. The section ends with the three example shapes side by side, where the 8x8 role-pool policy emits 200 clusters.
+- **[2. Settled design decisions](#2-settled-design-decisions)** -- Ten recorded decisions with their clause basis, opening with the index that says which you can rely on today. D3 keeps talker `channels` and `clusters` separate, D8 records the role-tagged cluster pools, D10 names every cluster without moving `entity_model_id`, and D6 records the processor DRAM image contract and its implemented supply chain.
+- **[3. Config schema → AEM descriptor mapping](#3-config-schema--aem-descriptor-mapping)** -- The field-by-field contract numbered through row 29: each config key, the descriptor or argv it generates, the clause that governs it, and which consumer reads it. Three rows generate *planned* artifacts; the config validates and the build plan marks them rather than erroring.
 - **[4. What the 8x8 shape adds (endstation_ax7101_8x8.yaml)](#4-what-the-8x8-shape-adds-endstation_ax7101_8x8yaml)** -- Descriptor growth from 1×1 to 8×8 with the clause driving each count, and the new obligation the shape triggers: two or more AAF inputs make a CRF Media Clock Output mandatory, now enforced as a validation error. Also the honest split -- the model half is done, the provisioning half rides with item 5, and the area cost at 100 MHz is a measurement this page declines to claim.
 - **[5. Relation to the bench suite and the traceability matrix](#5-relation-to-the-bench-suite-and-the-traceability-matrix)** -- Why the builder adds no normative behaviour of its own, and the two gates that hold it honest: today's config must reproduce the shipped ROM and `sweep.sh` argv byte-for-byte, and an unchanged model must keep an unchanged `entity_model_id`.
 
@@ -226,7 +226,7 @@ predicted — they are what `gen_aem_store.py` is handed:
 
 | | `arty_current` | `arty_4x4` | `ax7101_8x8` |
 |---|---|---|---|
-| Board · audio interface | arty · `i2s_philips` | arty · `tdm8` | ax7101 · `tdm16` |
+| Board, audio interface | arty, `i2s_philips` | arty, `tdm8` | ax7101, `tdm32` |
 | AAF listeners × talkers | 1 × 1 | 4 × 4 | 8 × 8 |
 | Listener / talker channels | 8 / 2 | 4 / 4 | 8 / 8 |
 | Talker `clusters` (D3) | 8 | 2 | *(unused under `role-pools`)* |
@@ -253,9 +253,8 @@ precisely why the loopback pool is there.
 
 ## 2. Settled design decisions
 
-Ten decisions, one still unimplemented and one landed only in part — and the
-part that did land is in the protocol processor, not here. Read this index
-first; it is the only place that says which of D1–D10 you can rely on today:
+The decisions below include planned and partially integrated work. Read this
+index first; it states which behavior can be relied on today.
 
 | # | Decision, in one line | Rests on | Status |
 |---|---|---|---|

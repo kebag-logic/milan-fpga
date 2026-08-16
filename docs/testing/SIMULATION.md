@@ -16,9 +16,10 @@ These three layers map to the sections below:
 [Section 2](#section-2-softcore-boot-with-litex_sim), and
 [Section 3](#section-3-softcore-plus-nic-milestone-m-a2).
 
-Read alongside [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) (architecture) and
-[`PROTOCOL_VALIDATION_MATRIX.md`](PROTOCOL_VALIDATION_MATRIX.md) (which test covers
-which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
+Read alongside [`ARCHITECTURE.md`](../overview/ARCHITECTURE.md), the generated
+[`MODULE_MATRIX.md`](../traceability/MODULE_MATRIX.md), and the current
+[`Milan v1.2 audit`](MILAN_V12_AUDIT_2026-08-16.md). If something goes wrong,
+see [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
 
 > **Softcore note:** the current ship softcore is **VexiiRiscv** (1-hart, `--l2-bytes 32768`);
 > NaxRiscv is the historical / pure-NIC option, and the NaxRiscv boot logs referenced below

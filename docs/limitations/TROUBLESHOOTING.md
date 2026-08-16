@@ -61,7 +61,7 @@ Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 >   NOT_IMPLEMENTED", "the name will not set", "IDENTIFY does nothing", "the
 >   binding did not survive the power cycle": that is the stated capability
 >   boundary, written up in
->   [KNOWN_ISSUES_AND_LIMITATIONS §0](KNOWN_ISSUES_AND_LIMITATIONS.md), not
+>   [the current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md), not
 >   something to diagnose.
 > * **Silence has exactly two legal causes**, both by design: the command's
 >   `target_entity_id` is not ours, or an AECP *response* was sent as input.
@@ -711,7 +711,7 @@ out of any binary, so the image that actually boots is the image that gets check
 
 - A matching readback proves only that *something* stored the write. Verify the **engine**
   (live counters ticking, pointers advancing), never the register echo - the same class as
-  the CSR-shadow-lies trap in [KNOWN_ISSUES_AND_LIMITATIONS](KNOWN_ISSUES_AND_LIMITATIONS.md).
+  the CSR-shadow-lies trap in [recurring defect patterns](RECURRING_DEFECT_PATTERNS.md).
 - "TX works" must name the lane. Fabric TX flowing proves nothing about host TX.
 - A capture tap proves frames reached the *tap*; it never proves they exited toward the DUT.
 - Boot artifacts are part of the ABI. dtb ↔ `csr.csv` drift is the same failure class as
@@ -1051,7 +1051,7 @@ the class for each word and this one deliberately does not duplicate it.
    "the binding did not survive the power cycle" — every AECP command except
    `READ_DESCRIPTOR` is answered with the `NOT_IMPLEMENTED` echo, and nothing
    persists a binding across a power cycle
-   ([KNOWN_ISSUES_AND_LIMITATIONS §0](KNOWN_ISSUES_AND_LIMITATIONS.md)). If the
+   ([current audit, blocker B2](../testing/MILAN_V12_AUDIT_2026-08-16.md)). If the
    symptom is instead "the controller cannot read a **descriptor**", that is a
    different animal and it is diagnosable —
    [Section 26](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram).
@@ -1187,7 +1187,7 @@ are why you get a clean status instead of a hang:
    `target_entity_id` that is not ours, or an AECP response sent as input, are
    both refused silently by design. `NOT_IMPLEMENTED` to a non-`READ_DESCRIPTOR`
    command is the capability boundary, not a fault
-   ([KNOWN_ISSUES_AND_LIMITATIONS §0](KNOWN_ISSUES_AND_LIMITATIONS.md)).
+   ([current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md)).
 2. **Confirm the plane is present and enabled.** `PP_STAT` (`0x924`) carries the
    constant presence tag `0x5B` in `[31:24]`; a read of `0` means the gateware
    predates the group. The enable is two bits ORed — `PP_CTRL[0]` (`0x920`) and

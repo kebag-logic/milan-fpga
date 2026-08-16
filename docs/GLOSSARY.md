@@ -20,7 +20,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 |------|---------|
 | **AVB** | Audio Video Bridging  -  the IEEE 802.1 suite (gPTP + SRP + CBS + AVTP) for synchronized, bounded-latency media over Ethernet. |
 | **TSN** | Time-Sensitive Networking  -  the successor umbrella to AVB (adds preemption, TAS, per-stream policing, …). |
-| **Milan** | The pro-audio interoperability profile of AVB/AVDECC (this project targets **Milan v1.2**). See [`MILAN_V12_DEPENDENCY_MATRIX.md`](reference/MILAN_V12_DEPENDENCY_MATRIX.md). |
+| **Milan** | The pro-audio interoperability profile of AVB/AVDECC. This project targets Milan v1.2; see the [current implementation audit](testing/MILAN_V12_AUDIT_2026-08-16.md). |
 | **AVTP** | Audio Video Transport Protocol (IEEE 1722)  -  the L2 media transport; carries streams with presentation timestamps. |
 | **AVDECC** | Device discovery, enumeration, and control under IEEE 1722.1; comprises ADP, AECP, and ACMP. Here ADP and ACMP are integrated, while AECP is partial. See the AECP row and the current Milan v1.2 audit. |
 | **ADP** | AVDECC Discovery Protocol  -  entity advertise/depart. Implemented by the **protocol processor** ([`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv)); the fabric `adp_advertiser` module it replaced was deleted 2026-08-13. |

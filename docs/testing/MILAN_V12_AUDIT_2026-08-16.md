@@ -38,7 +38,7 @@ outside this build's declared scope.
 | Root RTL lint | PASS under ratchet | The ratchet remains at 100 existing warnings. This is not a zero-warning result. |
 | Module matrix | PASS | 63 modules, 0 untested under the current matrix rules. |
 | End-station builder gates | PASS | The AEM image, identity, shape, and base-format generation gates passed. |
-| Documentation gate | PASS | It covered 204 Markdown files with zero findings after the final edits. |
+| Documentation gates | PASS | The Git-aware gate covered 204 tracked Markdown files. The no-Git filesystem gate covered 199 files. Both reported zero findings. |
 | Optional `tsn-gen` field campaign | SKIPPED | The generator binary was not installed at the configured path. |
 | Vivado build and timing closure | NOT RUN | Vivado 2026.1 is not installed in this environment. |
 | Current physical Milan interoperability bench | NOT RUN | The external bench repository contains valuable dated evidence, but its present worktree is active and its last recorded audio result used a mismatched peer format. |
@@ -131,7 +131,18 @@ requirements in Milan sections 5.3.8.10 and 5.4.2.25 open.
 This also blocks Milan section 5.4.5.2. Solicited reads satisfy only the Stream
 Output portion of section 5.4.2.25.
 
-### B5. The physical media clock and packet grid are not proven aligned
+### B5. Registered-controller liveness monitoring is absent
+
+The processor stores unsolicited-notification registrations and applies the
+time-limited expiry policy, but it does not originate the random 30 to 60 s
+`CONTROLLER_AVAILABLE` monitor required by Milan section 5.4.5.3. It therefore
+cannot retry the probe once, re-arm the monitor on any response status, or
+remove a silent controller and send the targeted deregistration notification.
+
+This is a mandatory controller-liveness gap, separate from the Table 5.22
+counter-change notification producer in B4.
+
+### B6. The physical media clock and packet grid are not proven aligned
 
 The true-ratio simulation measures the TDM frame clock at about 10.6 ppm below
 the exact 48 kHz packet grid. The test currently passes by proving that the two
@@ -141,7 +152,7 @@ exercised in the current integration.
 
 Evidence: [`sim_aclk.cpp`](../../tb/verilator/milan_dp/sim_aclk.cpp).
 
-### B6. Required external evidence is missing
+### B7. Required external evidence is missing
 
 No current Vivado place-and-route, timing report, bitstream build, physical
 peer-format-matched audio run, long-duration gPTP run, or external lab run
@@ -178,7 +189,7 @@ clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
 
 ## Release rule
 
-Do not remove the **not compliant** verdict until all B1 through B6 items have
+Do not remove the **not compliant** verdict until all B1 through B7 items have
 current evidence. A green regression is necessary, but it is not sufficient.
 The final review must include a synchronized clause matrix, zero unresolved
 mandatory rows, a successful bitstream and timing build, a matched-format

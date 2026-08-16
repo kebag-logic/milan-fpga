@@ -431,7 +431,7 @@ months).
 | ADP / ACMP / SRP behaviour | the pinned `protocol-processor` submodule — **not** `hdl/` | bump the submodule pin, re-run [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) and the `milan_dp` integration harness; the fabric side of the seam is [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) and its class-D port list |
 | MAAP behaviour | [`hdl/ieee1722/maap/KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv) + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv) (the per-source ALLOC/RELEASE bridge) | re-run [`tb/verilator/maap`](../../tb/verilator/maap); the DA gate is the talker gate, so a MAAP change moves AAF admission |
 | PTP rate/offset | `timestamp_counter.sv` + `ptp_csr_sync.sv` | re-run `ptp`, `ptp_sync`; driver `ptp_clock_info` |
-| DMA/BD format | `milan_soc.py` engines | `sw/litex/test_*.py` sims + the driver in lockstep (see the [pairing hazards](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)) |
+| DMA/BD format | `milan_soc.py` engines | `sw/litex/test_*.py` sims + the driver in lockstep (see [recurring defect patterns](../limitations/RECURRING_DEFECT_PATTERNS.md)) |
 | Add an IRQ source | `milan_csr` IRQ_STATUS/MASK (+ EventManager wiring in `milan_soc.py`, or `bd/milan-dma.tcl` `IRQ_F2P` on Zynq) | DT regeneration |
 | Board pins / new board | [`sw/litex/platforms/`](../../sw/litex/platforms) | [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) |
 
