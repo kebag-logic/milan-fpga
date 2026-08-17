@@ -68,6 +68,8 @@ USAGE = __doc__.split("WHY THIS EXISTS")[0].strip()
 
 #! rc 0 contained · rc 1 something is stranded or unknown · rc 2 cannot run
 RC_OK, RC_FINDING, RC_CANNOT_RUN = 0, 1, 2
+RAW_DIFF_FLAGS = ("--no-ext-diff", "--no-textconv",
+                  "--ignore-submodules=none")
 
 
 def _git(*args):
@@ -78,7 +80,7 @@ def _git(*args):
 
 def _verbatim_patch_id(commit):
     """Return a whitespace-preserving patch ID for one commit."""
-    rc, patch = _git("show", "--format=medium", "--no-ext-diff", "--binary",
+    rc, patch = _git("show", *RAW_DIFF_FLAGS, "--format=medium", "--binary",
                      "--full-index", "--no-renames", commit)
     if rc != 0:
         return (None, f"git show could not read {commit}")
@@ -92,8 +94,9 @@ def _verbatim_patch_id(commit):
 
 def _commit_paths(commit):
     """Return the literal paths one commit changed, with renames unfolded."""
-    rc, names = _git("diff-tree", "--root", "--no-commit-id", "--name-only",
-                     "--no-renames", "-z", "-r", commit)
+    rc, names = _git("diff-tree", *RAW_DIFF_FLAGS, "--root",
+                     "--no-commit-id", "--name-only", "--no-renames", "-z",
+                     "-r", commit)
     if rc != 0:
         return (None, f"diff-tree could not enumerate {commit}")
     return ([name for name in names.split("\0") if name], None)
@@ -110,8 +113,8 @@ def _same_patch_postimage(branch_commit, base_commit):
     paths = list(dict.fromkeys(branch_paths + base_paths))
     if not paths:
         return (True, None)
-    rc, _ = _git("--literal-pathspecs", "diff", "--quiet", branch_commit,
-                 base_commit, "--", *paths)
+    rc, _ = _git("--literal-pathspecs", "diff", *RAW_DIFF_FLAGS, "--quiet",
+                 branch_commit, base_commit, "--", *paths)
     if rc == 0:
         return (True, None)
     if rc == 1:
@@ -287,15 +290,15 @@ def contained(branch, base):
         #! added path.  Comparing only the destination can certify a base that
         #! copied the file but never removed the source.  NUL delimiters keep
         #! unusual but valid path names exact.
-        rc, names = _git("diff", "--name-only", "--no-renames", "-z",
-                         mb, branch)
+        rc, names = _git("diff", *RAW_DIFF_FLAGS, "--name-only",
+                         "--no-renames", "-z", mb, branch)
         paths = [n for n in names.split("\0") if n]
         if rc == 0 and paths:
             #! Names came from git, not from a pathspec language.  A real file
             #! beginning with `:(exclude)` must not turn itself into an exclude
             #! rule and make a missing change compare equal.
-            rc, _ = _git("--literal-pathspecs", "diff", "--quiet",
-                         base, branch, "--", *paths)
+            rc, _ = _git("--literal-pathspecs", "diff", *RAW_DIFF_FLAGS,
+                         "--quiet", base, branch, "--", *paths)
             if rc == 0:
                 return (True, ahead,
                         f"every path this branch touched is identical in "
@@ -334,8 +337,8 @@ def contained(branch, base):
     #! learning to ignore the check.
     differing = []
     if mb_rc == 0 and mb:
-        rc2, names = _git("diff", "--name-only", "--no-renames", "-z",
-                          base, branch)
+        rc2, names = _git("diff", *RAW_DIFF_FLAGS, "--name-only",
+                          "--no-renames", "-z", base, branch)
         differing = [n for n in names.split("\0") if n][:6]
     return (False, ahead, ("paths differing: " + ", ".join(differing))
             if differing else None)
@@ -769,6 +772,107 @@ def selftest():
                  "different repeated locations cannot false-pass")
             case("hunk-postimage-path", "repeated.txt" in out, True,
                  "...and the differing path is reported")
+
+            # Diff configuration and attributes are untrusted inputs.  A
+            # textconv that prints nothing can hide changed blobs from both
+            # the path proof and patch fallback, while ignoreSubmodules=all can
+            # hide a missing gitlink update.  Each fixture uses a separate repo
+            # so its deliberately hostile configuration cannot leak onward.
+            with tempfile.TemporaryDirectory() as config_parent:
+                textconv_path = os.path.join(config_parent, "textconv-path")
+                os.mkdir(textconv_path)
+                os.chdir(textconv_path)
+                _git("init", "-q", "-b", "root")
+                _git("config", "user.email", "s@s")
+                _git("config", "user.name", "s")
+                open("f", "w").write("root\n")
+                open(".gitattributes", "w").write("f diff=quiet\n")
+                _git("add", "f", ".gitattributes")
+                _git("commit", "-qm", "root")
+                _git("checkout", "-qb", "feature")
+                open("f", "w").write("stranded\n")
+                _git("commit", "-qam", "feature")
+                _git("checkout", "-qb", "base", "root")
+                open("unrelated", "w").write("base")
+                _git("add", "unrelated"); _git("commit", "-qm", "base")
+                _git("config", "diff.quiet.textconv", "/bin/true")
+                raw_rc, _ = _git("diff", *RAW_DIFF_FLAGS, "--quiet",
+                                 "base", "feature", "--", "f")
+                case("textconv-path-raw", raw_rc, 1,
+                     "raw diff sees content hidden by textconv")
+                rc, out = run(["--no-fetch", "--base", "base", "feature"])
+                case("textconv-path-rc", rc, RC_FINDING,
+                     "textconv cannot create path-equivalence containment")
+                case("textconv-path-name", "f" in out, True,
+                     "...and the raw differing path is reported")
+
+                textconv_patch = os.path.join(config_parent, "textconv-patch")
+                os.mkdir(textconv_patch)
+                os.chdir(textconv_patch)
+                _git("init", "-q", "-b", "root")
+                _git("config", "user.email", "s@s")
+                _git("config", "user.name", "s")
+                open("f", "w").write("root\n")
+                open(".gitattributes", "w").write("f diff=quiet\n")
+                _git("add", "f", ".gitattributes")
+                _git("commit", "-qm", "root")
+                _git("checkout", "-qb", "feature")
+                open("f", "w").write("stranded\n")
+                open("g", "w").write("landed\n")
+                _git("add", "f", "g"); _git("commit", "-qm", "first")
+                rc, branch_first = _git("rev-parse", "HEAD")
+                open("h", "w").write("landed\n")
+                _git("add", "h"); _git("commit", "-qm", "second")
+                _git("checkout", "-qb", "base", "root")
+                open("g", "w").write("landed\n")
+                _git("add", "g"); _git("commit", "-qm", "first replay")
+                rc2, base_first = _git("rev-parse", "HEAD")
+                open("h", "w").write("landed\n")
+                _git("add", "h"); _git("commit", "-qm", "second replay")
+                open("h", "w").write("superseded\n")
+                _git("commit", "-qam", "later")
+                _git("config", "diff.quiet.textconv", "/bin/true")
+                branch_id, branch_err = _verbatim_patch_id(branch_first)
+                base_id, base_err = _verbatim_patch_id(base_first)
+                case("textconv-patch-raw",
+                     (rc, rc2, branch_err, base_err, branch_id != base_id),
+                     (0, 0, None, None, True),
+                     "raw patch IDs include content hidden by textconv")
+                rc, out = run(["--no-fetch", "--base", "base", "feature"])
+                case("textconv-patch-rc", rc, RC_FINDING,
+                     "textconv cannot create patch-equivalence containment")
+                case("textconv-patch-name", "f" in out, True,
+                     "...and the hidden file is reported")
+
+                submodule_repo = os.path.join(config_parent, "submodule")
+                os.mkdir(submodule_repo)
+                os.chdir(submodule_repo)
+                _git("init", "-q", "-b", "root")
+                _git("config", "user.email", "s@s")
+                _git("config", "user.name", "s")
+                open("seed", "w").write("seed")
+                _git("add", "seed"); _git("commit", "-qm", "root")
+                rc, root_oid = _git("rev-parse", "HEAD")
+                _git("checkout", "-qb", "feature")
+                open("landed", "w").write("landed")
+                _git("add", "landed")
+                _git("update-index", "--add", "--cacheinfo",
+                     f"160000,{root_oid},submodule-pin")
+                _git("commit", "-qm", "feature")
+                _git("checkout", "-qb", "base", "root")
+                open("landed", "w").write("landed")
+                _git("add", "landed"); _git("commit", "-qm", "partial")
+                _git("config", "diff.ignoreSubmodules", "all")
+                raw_rc, _ = _git("diff", *RAW_DIFF_FLAGS, "--quiet",
+                                 "base", "feature", "--", "submodule-pin")
+                case("submodule-pin-raw", (rc, raw_rc), (0, 1),
+                     "raw diff includes a gitlink despite ignore configuration")
+                rc, out = run(["--no-fetch", "--base", "base", "feature"])
+                case("submodule-pin-rc", rc, RC_FINDING,
+                     "an ignored submodule pin cannot false-pass")
+                case("submodule-pin-name", "submodule-pin" in out, True,
+                     "...and the missing gitlink path is reported")
+                os.chdir(td)
 
             # git cherry intentionally omits merge commits.  An equivalent
             # normal commit must not hide unique merge-resolution content.
