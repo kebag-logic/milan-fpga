@@ -322,9 +322,9 @@ command and completes `MAP_VALID` validation before the root commits any row.
 It enforces all-or-nothing `BAD_ARGUMENTS`, duplicate REMOVE handling,
 cross-port output ownership, lock protection, and the running-output gate.
 The builder supplies exact input geometry, physical projections, and output
-source templates for each entity model. Changed commands notify every other
-registered controller; an idempotent ADD does not. Nonvolatile mapping replay
-remains open in issue #70.
+source templates for each entity model. Every successful command notifies every
+other registered controller, including an idempotent ADD; only changed commands
+mark mapping state dirty. Nonvolatile mapping replay remains open in issue #70.
 
 ### P2.5 — the packed getter
 

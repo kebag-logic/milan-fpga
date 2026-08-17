@@ -618,14 +618,21 @@ reserved to this feature, 5 words used):
 > rechecks at commit, and applies no changes when any row is invalid. The root
 > updates the model store and any backed render or capture projection only on
 > a successful commit.
-> Successful changes generate unsolicited responses for registered controllers
-> other than the requester. Nonvolatile replay remains open in issue #70.
+> Every successful ADD or REMOVE generates an unsolicited response for each
+> registered controller other than the requester, including an idempotent ADD.
+> Only a changed command marks the mapping state dirty. Nonvolatile replay
+> remains open in issue #70.
 
 The AECP write path handles `ADD_AUDIO_MAPPINGS` and
 `REMOVE_AUDIO_MAPPINGS` (command values 44/45 and
 `DESC_AUDIO_MAP = 0x0017`, IEEE 1722.1-2021 7.4.45/46). The root provides one
 transactional port for each map direction and freezes CSR updates while a
 transaction is active.
+
+Phase 1 acceptance is the commit reservation and point of no return. The root
+has no deferred resource allocation and never asserts back-pressure, so every
+phase 5 record write and the phase 2 finish complete after that acceptance.
+An integration that cannot make the same guarantee must refuse phase 1.
 
 ### 7.1 Authority model
 

@@ -3697,6 +3697,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! The CSR debug writer is held out while amap_edit_txn_active_r is set.
   //! This freezes the live baseline between the validation and commit passes,
   //! so a host write cannot create a time-of-check/time-of-use partial edit.
+  //! Phase 1 rechecks that baseline and reserves the complete commit. This
+  //! root never asserts wait, so phases 5 and 2 complete without a timeout
+  //! point between live writes.
   logic        amap_edit_seen_r;
   logic  [2:0] amap_edit_seen_phase_r;
   logic  [7:0] amap_edit_seen_rec_r;
