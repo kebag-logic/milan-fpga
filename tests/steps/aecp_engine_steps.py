@@ -520,7 +520,16 @@ class AecpEngineModel:
         f += struct.pack(">Q", self.entity_id)
         f += ctlr_eid
         f += seq
-        f.append(raw_ct[0] & 0x7F)                   # u = 0 on a solicited answer
+        #! The u bit exists only on an AEM command_type (IEEE 1722.1-2021
+        #! 9.3.2.1). Masking it for EVERY message type is the same defect the
+        #! engine records at KL_aecp_engine.sv's u-bit banner and that
+        #! tb/pp_top fixed with `aem_like`: on a VENDOR_UNIQUE PDU these two
+        #! bytes are the head of a 48-bit protocol_id, so clearing bit 7 of
+        #! byte 0 corrupts any OUI with that bit set -- and made every such
+        #! protocol_id untestable, because the model could not put one on the
+        #! wire to disagree about.
+        f.append(raw_ct[0] & 0x7F if cmd_msg_type == MT_AEM_COMMAND
+                 else raw_ct[0])
         f.append(raw_ct[1])
         f += bytes(buf[12:12 + pld])
         while len(f) < ETH_MIN:                      # zero pad to the 802.3 minimum
@@ -664,7 +673,13 @@ def complaints(frame, cmd_frame, entity_id=ENTITY_ID):
     if r["sequence_id"] != c["sequence_id"]:
         bad.append("sequence_id %d, command sent %d"
                    % (r["sequence_id"], c["sequence_id"]))
-    if r["u"] != 0:
+    #! ...on an AEM response. Only an AEM command_type has a `u` bit (IEEE
+    #! 1722.1-2021 9.3.2.1); on a VENDOR_UNIQUE PDU that bit is part of the
+    #! 48-bit protocol_id and on an ADDRESS_ACCESS one it belongs to
+    #! tlv_count. Asserting it unconditionally made every OUI with the top bit
+    #! set "malformed" -- the well-formedness check enforcing the same
+    #! misreading of @22..@23 that issue #83 is about, one level up.
+    if r["message_type"] == MT_AEM_RESPONSE and r["u"] != 0:
         bad.append("u set on a solicited response")
     if r["dst_mac"] != c["src_mac"]:
         bad.append("not unicast back to the requester")

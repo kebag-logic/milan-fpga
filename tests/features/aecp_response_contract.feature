@@ -113,7 +113,8 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
   # READ_DESCRIPTOR, so the suite and the gateware agreed on the wrong answer.
   # The list is the DISPATCH's opcodes, not a guess: 0x0026 is
   # IDENTIFY_NOTIFICATION, and an earlier attempt at this used 0x0024, which is
-  # a descriptor type and collides with nothing.
+  # REGISTER_UNSOLICITED_NOTIFICATION - an opcode, but a guarded one, so it was
+  # neither the arm that was broken nor "nothing".
   @class:negative
   Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED
     When the controller sends a VENDOR_UNIQUE command whose protocol_id starts <oui> to the AECP engine
@@ -129,6 +130,11 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
       | 0x0026 |
       | 0x0029 |
       | 0x002B |
+
+    Examples: OUIs with bit 15 set, which the u-bit mask used to eat
+      | oui    |
+      | 0x8004 |
+      | 0xFC1B |
 
   # --------------------------------------------- 7.4.39.2 beats 9.3.5.3.3 ---
   @class:negative @cmd:IDENTIFY_NOTIFICATION
