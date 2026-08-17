@@ -3889,9 +3889,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! stopping an AAF sink must not disturb either. Nor does it touch SRP —
   //! a stopped Stream Input is still BOUND, so its reservation stands; the
   //! clause discards the AVTPDUs, it does not withdraw the registration.
-  //! Routing it through the classification table means a stopped stream's
-  //! frames become FOREIGN at the parser, which is the same path an unbind
-  //! already takes, so the per-stream counters do not advance either.
+  //! It is NOT routed through the classification table. That was the first
+  //! cut and it was wrong: the table's bind level feeds the bind edges, and
+  //! Milan Table 5.6 makes a not-bound->bound edge the counter RESET event,
+  //! so a stop/start pair wiped all ten counters on a sink that never
+  //! unbound. The discard is on the accept pulse instead - see the comment
+  //! at `avtprx_accept_p` below, which is the authority on this.
   //! The sinks §5.3.8.7 says to DISCARD for: bound AND stopped. Stated as
   //! the stop condition rather than as "bound and started" on purpose - the
   //! clause calls the state "undefined when the Stream Input is not bound",
@@ -3912,7 +3915,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! the guard is here so that stays true of shapes nobody has built yet.
   wire crf_snk_stopped_w = (ACMP_SINKS_C > N_STREAMS)
                            && acmpl_stopped_v_w[CRF_SNK_IDX_C];
-  //! Two consumers read this: the listener accept gate (the AAF sinks) and
+  //! One consumer reads this: the listener accept gate (the AAF sinks) and
   //! `KL_crf_rx`'s frame strobe (the CRF Media Clock Input, which has no
   //! classification-table entry of its own). Between them every Stream Input
   //! the entity advertises is covered, which is what §5.4.2.19's "For each
@@ -5644,13 +5647,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .clk_i             (axis_clk),
       .rst_n             (axis_resetn),
       //! ---- the AECP settings face (Milan §5.3.x) ----------------------
-      //! What a controller has SET. Landed as observable state ahead of its
-      //! consumers ON PURPOSE: every one of these reads its reset default
-      //! until a controller writes it, so wiring them changes no behaviour
-      //! today and gives the media clock, the listener gate and the talker
-      //! offset a settled place to read from when each is converted.
+      //! What a controller has SET. Most of these landed as observable state
+      //! ahead of their consumers ON PURPOSE: they read a reset default until
+      //! a controller writes them, so wiring them changed no behaviour and
+      //! gave the media clock, the listener gate and the talker offset a
+      //! settled place to read from when each is converted.
       //!
-      //! NOT YET CONSUMED, and it is worth being plain about which:
+      //! `aecp_strm_started_o` is NO LONGER one of them. It is LOAD-BEARING
+      //! since issue #78 and has three consumers in this file: the listener
+      //! accept gate, the CRF frame strobe, and GET_STREAM_INFO's Table 5.9
+      //! bit 28. A stopped sink really does stop feeding the media path, so
+      //! do not read this block as "wiring these is inert".
+      //!
+      //! STILL NOT CONSUMED, and it is worth being plain about which:
       //! `pp_aecp_clk_src_index_w` is the value SET_CLOCK_SOURCE writes, but
       //! the media-clock select is still the compile-time constant this file
       //! has always used — converting it is a media-clock change, not an
