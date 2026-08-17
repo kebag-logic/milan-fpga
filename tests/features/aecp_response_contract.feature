@@ -107,6 +107,29 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
     And the AECP response control_data_length is 20
     And the AECP response is well formed against its command
 
+  # An OUI head that collides with an AEM opcode (issue #83). The engine and
+  # this model both read @22..@23 as `opcode`, and on a VENDOR_UNIQUE PDU those
+  # bytes are the first half of a 48-bit protocol_id. Both dispatched 00-04 to
+  # READ_DESCRIPTOR, so the suite and the gateware agreed on the wrong answer.
+  # The list is the DISPATCH's opcodes, not a guess: 0x0026 is
+  # IDENTIFY_NOTIFICATION, and an earlier attempt at this used 0x0024, which is
+  # a descriptor type and collides with nothing.
+  @class:negative
+  Scenario Outline: a VENDOR_UNIQUE protocol_id that collides with an AEM opcode is still NOT_IMPLEMENTED
+    When the controller sends a VENDOR_UNIQUE command whose protocol_id starts <oui> to the AECP engine
+    Then the AECP response message_type is 7
+    And the AECP response status is 1
+    And the AECP response protocol_id is echoed whole
+    And the AECP response carries the command payload verbatim
+    And the AECP response is well formed against its command
+
+    Examples: the AEM opcodes the dispatch names
+      | oui    |
+      | 0x0004 |
+      | 0x0026 |
+      | 0x0029 |
+      | 0x002B |
+
   # --------------------------------------------- 7.4.39.2 beats 9.3.5.3.3 ---
   @class:negative @cmd:IDENTIFY_NOTIFICATION
   Scenario: IDENTIFY_NOTIFICATION arriving as a command is BAD_ARGUMENTS
