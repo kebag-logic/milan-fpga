@@ -136,6 +136,27 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
       | 0x8004 |
       | 0xFC1B |
 
+  # VENDOR_UNIQUE is only one of the message types whose @22..@23 is not a
+  # command_type. The model may be widened to re-expose AVC_COMMAND (4),
+  # HDCP_APM_COMMAND (8), the reserved 10/12 and EXTENDED_COMMAND (14) and stay
+  # green unless something sends them, so this outline sweeps the message type
+  # as well as the word.
+  @class:negative
+  Scenario Outline: a NON-AEM message carrying an AEM opcode is NOT_IMPLEMENTED whatever its type
+    When the controller sends a message_type <mt> command whose word at 22 is <oui> to the AECP engine
+    Then the AECP response status is 1
+    And the AECP response protocol_id is echoed whole
+    And the AECP response is well formed against its command
+
+    Examples: the residual bucket
+      | mt | oui    |
+      |  4 | 0x0004 |
+      |  4 | 0x0014 |
+      |  8 | 0x0004 |
+      | 10 | 0x0006 |
+      | 12 | 0x0016 |
+      | 14 | 0x0018 |
+
   # --------------------------------------------- 7.4.39.2 beats 9.3.5.3.3 ---
   @class:negative @cmd:IDENTIFY_NOTIFICATION
   Scenario: IDENTIFY_NOTIFICATION arriving as a command is BAD_ARGUMENTS

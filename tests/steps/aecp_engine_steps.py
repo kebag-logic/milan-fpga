@@ -800,6 +800,21 @@ def step_send_vu_oui(context, oui_hi):
     _send(context, build_command(MT_VU_COMMAND, ct_word, payload))
 
 
+@when('the controller sends a message_type {mt:d} command whose word at 22 '
+      'is {word} to the AECP engine')
+def step_send_non_aem(context, mt, word):
+    """A non-AEM message whose @22..@23 collides with an AEM opcode.
+
+    VENDOR_UNIQUE is not the only type with something other than a
+    command_type there: AVC_COMMAND carries an `avc_length` (Figure 9-9),
+    ADDRESS_ACCESS a `tlv_count` (9.4.2.1), and the RX validator files every
+    type it does not recognise into the AEM bucket.
+    """
+    payload = struct.pack(">IHH", 0xAABBCCDD, 0, 0)
+    context.vu_oui_payload = payload
+    _send(context, build_command(mt, int(word, 0), payload))
+
+
 @then('the AECP response protocol_id is echoed whole')
 def step_vu_protocol_id_whole(context):
     r = _rsp(context)
