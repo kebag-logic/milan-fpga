@@ -172,13 +172,20 @@ flowchart LR
      constant from one side and the microprogram's entry point from the other
      does not fail to elaborate — the µCPU executes ROM fill and answers a
      well-formed response carrying garbage.
-   - **`MERGEABLE` is not `green`.** GitHub reports `MERGEABLE/UNSTABLE` while
-     checks are still running, and the two long jobs, `verilator-suites` and
-     `yosys-portability`, are the ones that would catch a real regression.
-     Merging on `UNSTABLE` means the local bar is the only bar that ran. That
-     is sometimes an acceptable trade with the sweep verified locally, but make
-     it a decision and say so on the PR, because if a job then comes back red
-     the fix lands on `main-push` instead of being caught before it.
+   - **The two long GitHub jobs are optional; their local gates are not.**
+     `verilator-suites` and `yosys-portability` are informational GitHub checks.
+     A PR may merge without waiting for them, including while GitHub reports
+     `MERGEABLE/UNSTABLE`. Before the PR is marked validated, run both equivalent
+     gates locally and record their results on the PR:
+
+     ```bash
+     suite_logs=$(mktemp -d)
+     scripts/run_all_suites.sh "$suite_logs"
+     syn/yosys/run.sh
+     ```
+
+     The optional status applies only to the remote jobs. The local Verilator
+     sweep and Yosys portability sweep are mandatory merge evidence.
 
 Two board rules that go with it:
 
