@@ -92,11 +92,15 @@ flowchart LR
    a round outstanding; merging past it is merging unreviewed code with a
    review thread attached.
 
-   This has happened twice, both times losing work rather than shipping a bug:
+   Twice this went wrong, and the two cases are not the same shape - which is
+   the point. One merged with a round genuinely mid-flight; the other merged
+   having met the bar, while review that was still happening went on to find
+   three more blockers. The rule that covers both is that the merge waits for
+   review to be **finished**, not for a quota of positives to be reached:
 
    | PR | merged | state at that moment | cost |
    |---|---|---|---|
-   | #77 | 2026-08-16 18:10 | round 3 of 6 running | rounds 4 and 5 returned NEGATIVE **after** the merge (round 6 was positive) - an ungraded refusal arm where mutating the code was silent, and a test that could not fail. Re-landed as #85 |
+   | #77 | 2026-08-16 18:10 | round 3 answered, a positive validation posted 32 min earlier - the stated bar was **met** | review did not stop there, and rounds 4 and 5 returned NEGATIVE afterwards (6 was positive): an ungraded refusal arm where mutating the code was silent, and a test that could not fail. Re-landed as #85 |
    | #86 | 2026-08-17 07:54 | a round running, which then found a hole in its own fix | three commits stranded on the branch; re-landed as #89, tracked by #87 |
 
    Both were recoverable and neither was noticed by anything except a reviewer
@@ -132,21 +136,30 @@ flowchart LR
    #77 and **4** for #86 - the latter is 3 as of that merge plus the one pushed
    during the #89 re-land. Nobody was told either number at the time.
 
-   It is a script rather than a line in this file because a check that depends
-   on somebody remembering is not a check; the same reason
-   `scripts/suite_tally.py` exists. `--selftest` gates it, including the case
-   that a ref which cannot be resolved is an UNKNOWN and **fails**, never a
-   quiet pass.
+   **Run it when the branch stops moving, not at the merge button.** Both
+   incidents were *contained* at the instant they merged — the commits that
+   ended up stranded were pushed afterwards, by the review round that was still
+   running. A check run at merge time cannot see them. The moment that catches
+   it is the one where the card moves to *Done*.
+
+   Its `--selftest` runs inside `scripts/run_all_suites.sh` next to
+   `suite_tally.py`'s, so the tool cannot rot into a green that means nothing
+   between merges. The check *itself* is still a thing a person runs: nothing
+   here can schedule a post-merge action, and CI does not run on `main-push`
+   at all (both workflows are `on: push: branches: [main]`). That gap is worth
+   closing separately — a `push: [main-push]` trigger would run the bar on the
+   merge result and this check with it.
 
    **Do not hand-roll it by reading `git log` output.** The script uses
    `git rev-list --count` and `git merge-base --is-ancestor` because one prints
    a single integer and the other answers only through its exit status: neither
    needs its prose parsed, so neither can be half-read or mis-scraped. #89's
    description claimed a fast-forward that was not one, off a `git log A..B`
-   that came back empty in the author's terminal; the cause was never pinned
-   down and a later attempt could not reproduce it, which is itself the
-   argument: a check whose failure mode you cannot characterise is not one to
-   build on.
+   that came back empty in the author's terminal. A cause was proposed at the
+   time and a later attempt could not reproduce it in twelve variations, so it
+   stands unexplained - which is itself the argument. A check whose failure
+   mode nobody can characterise is not one to build on, whatever the cause
+   turns out to be.
 
    Three merge-specific traps worth naming, all paid for:
 
