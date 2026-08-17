@@ -102,6 +102,40 @@ def refreshed_origin_ref(ref):
     return remote_ref if rc == 0 else ref
 
 
+def fetched_branch_refs(ref):
+    """Return every distinct local/remote tip named by a branch argument.
+
+    A local branch can be either behind its fetched remote tip or ahead with
+    unpushed work.  Replacing one with the other hides one of those two failure
+    modes.  When both exist and differ, containment must be proven for both.
+    The source labels are used only to make the two answers distinguishable.
+    """
+    if ref.startswith("refs/remotes/origin/"):
+        return [(ref, "origin")]
+    if ref.startswith("origin/"):
+        return [("refs/remotes/" + ref, "origin")]
+    if ref.startswith("refs/heads/"):
+        name = ref[len("refs/heads/"):]
+    elif ref.startswith("refs/"):
+        return [(ref, None)]
+    else:
+        name = ref
+
+    local_ref = "refs/heads/" + name
+    remote_ref = "refs/remotes/origin/" + name
+    local_rc, local_oid = _git("rev-parse", "--verify", "--quiet",
+                               local_ref + "^{commit}")
+    remote_rc, remote_oid = _git("rev-parse", "--verify", "--quiet",
+                                 remote_ref + "^{commit}")
+    if local_rc == 0 and remote_rc == 0 and local_oid != remote_oid:
+        return [(local_ref, "local"), (remote_ref, "origin")]
+    if remote_rc == 0:
+        return [(remote_ref, "origin")]
+    if local_rc == 0:
+        return [(local_ref, "local")]
+    return [(ref, None)]
+
+
 def contained(branch, base):
     """(is_contained, commits_ahead, note_or_error).
 
@@ -352,6 +386,15 @@ def selftest():
             case("e2e-unknown-flag", rc, RC_CANNOT_RUN,
                  "an unrecognised flag is refused, never read as a branch")
 
+            rc, out = run(["--no-fetch", "--base", "base", "--base",
+                           "work", "work"])
+            case("e2e-duplicate-base", rc, RC_CANNOT_RUN,
+                 "a repeated base option is refused")
+
+            rc, out = run(["--no-fetch", "--merged-prs", "1", "work"])
+            case("e2e-sweep-operand", rc, RC_CANNOT_RUN,
+                 "a merged sweep cannot silently ignore a branch operand")
+
             # Fetch updates origin/work but not the checked-out local work
             # branch.  The default path must assess the fetched tip, or the
             # exact incident this command guards becomes a quiet rc 0.
@@ -391,6 +434,29 @@ def selftest():
                          "...and assesses origin/work instead")
                 finally:
                     globals()["merged_pr_heads"] = saved_merged_pr_heads
+
+                # The opposite divergence matters too: a local commit that is
+                # not pushed must not disappear merely because origin is
+                # refreshed and already contained.
+                _git("checkout", "-qb", "local-ahead", "base")
+                _git("push", "-q", "origin", "local-ahead")
+                open("local-only", "w").write("not pushed")
+                _git("add", "local-only")
+                _git("commit", "-qm", "local-only")
+                rc, local_ahead = _git(
+                    "rev-list", "--count", "origin/base..local-ahead")
+                rc2, remote_ahead = _git(
+                    "rev-list", "--count", "origin/base..origin/local-ahead")
+                case("local-ahead-fixture",
+                     (rc, local_ahead, rc2, remote_ahead),
+                     (0, "1", 0, "0"),
+                     "only the local tip carries the unpushed commit")
+                rc, out = run(["--base", "base", "local-ahead"])
+                case("local-ahead-rc", rc, RC_FINDING,
+                     "a fetched remote cannot hide unpushed local work")
+                case("local-ahead-word",
+                     "local-ahead (local)" in out and "STRANDED" in out,
+                     True, "...and the local tip is named in the finding")
 
             # A multi-commit squash remains contained after unrelated work
             # advances the base, because only branch-touched paths matter.
@@ -487,8 +553,6 @@ KNOWN_FLAGS = {"--selftest", "--base", "--merged-prs", "--no-fetch"}
 
 def main(argv):
     args = argv[1:]
-    if "--selftest" in args:
-        return selftest()
 
     #! Reject unknown options rather than silently treating them as branches.
     #! `--bse 43a4c417 origin/foo` used to check TWO branches called
@@ -498,6 +562,17 @@ def main(argv):
         if a.startswith("-") and a not in KNOWN_FLAGS:
             sys.stderr.write(f"unknown option: {a}\n{USAGE}\n")
             return RC_CANNOT_RUN
+
+    for flag in ("--selftest", "--base", "--merged-prs"):
+        if args.count(flag) > 1:
+            sys.stderr.write(f"{flag} may be specified only once\n{USAGE}\n")
+            return RC_CANNOT_RUN
+
+    if "--selftest" in args:
+        if args != ["--selftest"]:
+            sys.stderr.write(f"--selftest accepts no other arguments\n{USAGE}\n")
+            return RC_CANNOT_RUN
+        return selftest()
 
     base = "origin/main-push"
     if "--base" in args:
@@ -532,6 +607,10 @@ def main(argv):
             limit = int(args[i + 1])
             del args[i + 1]
         del args[i]
+        if args:
+            sys.stderr.write(
+                f"--merged-prs does not accept branch operands\n{USAGE}\n")
+            return RC_CANNOT_RUN
         prs, err = merged_pr_heads(limit, base)
         if err:
             sys.stderr.write(err + "\n")
@@ -555,8 +634,13 @@ def main(argv):
                 sys.stderr.write(USAGE + "\n")
                 return RC_CANNOT_RUN
             branches = [cur]
-        targets = [(b, refreshed_origin_ref(b) if do_fetch else b)
-                   for b in branches]
+        targets = []
+        for branch in branches:
+            refs = (fetched_branch_refs(branch) if do_fetch
+                    else [(branch, None)])
+            for ref, source in refs:
+                label = (f"{branch} ({source})" if len(refs) > 1 else branch)
+                targets.append((label, ref))
 
     stranded = 0
     unknown = 0
@@ -574,7 +658,7 @@ def main(argv):
 
     if stranded:
         print()
-        print(f"{stranded} branch(es) have work that {base} does not.")
+        print(f"{stranded} branch tip(s) have work that {base} does not.")
         print("  A merge that landed before the branch stopped moving leaves")
         print("  the rest behind, and nothing else reports it. Open a")
         print("  follow-up PR for the remainder -- see CONTRIBUTING.md 2.1")
