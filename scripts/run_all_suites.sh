@@ -144,6 +144,20 @@ if ! selftest_out=$(python3 "$ROOT/scripts/suite_tally.py" --selftest 2>&1); the
   exit 2
 fi
 
+# Same argument, different gate: check_merge_containment.py decides whether a
+# merge left work behind, and a review pointed out it was wired into nothing at
+# all -- its only caller was a sentence in CONTRIBUTING.md telling a human to
+# run it. The CHECK itself is a post-merge act nobody can schedule from here,
+# but its self-test can be gated exactly like the tally's, so the tool cannot
+# rot into a green that means nothing between merges.
+if ! selftest_out=$(cd "$ROOT" && \
+        python3 "$ROOT/scripts/check_merge_containment.py" --selftest 2>&1); then
+  echo "$selftest_out" >&2
+  echo "ABORTING: scripts/check_merge_containment.py fails its own self-test," >&2
+  echo "so its 'contained' verdicts cannot be trusted either." >&2
+  exit 2
+fi
+
 mkdir -p "$OUT"
 rm -f "$OUT"/*.log            # a stale log from a previous sweep is not evidence
 
