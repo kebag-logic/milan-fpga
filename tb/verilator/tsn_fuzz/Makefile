@@ -64,8 +64,28 @@ matrix:
 	$(PY) ../../../docs/traceability/gen_module_matrix.py
 
 # fail if the committed matrix is stale (the no-drift contract)
+#
+# The echo is this suite's ONLY unconditional tally. gen_module_matrix.py
+# prints prose, not a count shape, so before this line the whole suite reported
+# nothing at all whenever the optional campaign skipped -- a NOCOUNT, and the
+# sweep could not go green on a machine without tsn-gen.
+#
+# TWO is the number, and it is worth being exact about because a first cut said
+# one. --check gates two INDEPENDENT contracts under a single exit code (see
+# gen_module_matrix.py's two `rc = 1` sites): that the 13 generated artifacts
+# are not stale, and that the untested-module ratchet has not slipped. Either
+# can fail while the other holds, so they are two assertions.
+#
+# It is deliberately NOT 63, the module count: the ratchet inspects 63 modules
+# to reach one verdict, and billing the sweep's headline 63 checks for two
+# assertions would inflate it with work this suite did not do. Understating is
+# the safe direction here; overstating is what the headline exists to prevent.
+#
+# The echo runs only when the check above exits 0, so a stale matrix or a
+# slipped ratchet stays a failure with NO tally, never a passing 2.
 matrix-check:
 	$(PY) ../../../docs/traceability/gen_module_matrix.py --check
+	@echo "traceability contracts (drift + ratchet): 2 checks: 2 PASS, 0 FAIL"
 
 
 aaf: obj_aaf/Vaaf_cosim
