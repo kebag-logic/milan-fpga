@@ -64,7 +64,7 @@ processor `pp_top` suite and root `milan_dp` suite cover the RTL and integrated
 wire path. The Milan Table 5.22 unsolicited counter-change producer and
 commands outside the served inventory remain explicit gaps.
 
-**15 features / 333 scenarios / 1583 steps**, all passing, counted by running
+**15 features / 333 scenarios / 1,584 steps**, all passing, counted by running
 the suite on 2026-08-16 (the run's own tally is authoritative -- prose counts
 go stale). It is the **conformance suite**, and it is a CI gate (the
 `bdd-conformance` job in `.github/workflows/rtl.yml`).
