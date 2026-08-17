@@ -99,6 +99,7 @@ ST_NOT_SUPPORTED = 11
 OP_ACQUIRE_ENTITY = 0x0000
 OP_READ_DESCRIPTOR = 0x0004
 OP_IDENTIFY_NOTIFICATION = 0x0026
+OP_GET_DYNAMIC_INFO = 0x004B
 
 # ---- THE SERVED-OPCODE INVENTORY -------------------------------------------
 # The one place this suite records which AECP opcodes the protocol processor
@@ -162,6 +163,8 @@ SERVED = {
                  verdict=ST_SUCCESS, cdl=148),
     0x002B: dict(name="GET_AUDIO_MAP", clause="Milan 5.4.2.26",
                  verdict=ST_SUCCESS, cdl=None),   # 24 + 8 x mappings
+    0x004B: dict(name="GET_DYNAMIC_INFO", clause="Milan 5.4.2.29",
+                 verdict=ST_SUCCESS, cdl=None),   # 12 + packed records
 }
 
 #! the engine's own path to the RTL, resolved from this file so the gate works
@@ -585,6 +588,17 @@ def build_aem_command(opcode, payload=None, **kw):
     return build_command(MT_AEM_COMMAND, opcode, payload, **kw)
 
 
+def build_get_dynamic_info(**kw):
+    """One legal fixed-size record requesting GET_CONFIGURATION.
+
+    The contract model owns the served-opcode partition, not the packet-level
+    record encoder. The real response records are graded byte-exactly by the
+    protocol processor pp_top suite.
+    """
+    record = struct.pack(">HHBBH", 0, 0, ST_SUCCESS, 0, 0x0007)
+    return build_command(MT_AEM_COMMAND, OP_GET_DYNAMIC_INFO, record, **kw)
+
+
 def build_acquire_entity(owner_id=0, **kw):
     """IEEE 7.4.1: flags, owner_id, descriptor_type, descriptor_index - the
     16-octet acquire form, so the response is the 40-octet AECPDU of F06.14.
@@ -855,7 +869,8 @@ def step_sweep(context, lo, hi, extra):
     exercises all three dispatch arms and the partition is exact."""
     context.aecp_sweep = []
     for op in list(range(lo, hi + 1)) + [extra]:
-        cmd = build_aem_command(op)
+        cmd = build_get_dynamic_info() if op == OP_GET_DYNAMIC_INFO \
+            else build_aem_command(op)
         context.aecp_sweep.append((op, cmd, context.aecp.deliver(cmd)))
 
 

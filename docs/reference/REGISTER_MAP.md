@@ -149,7 +149,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x724  -  identity / playback / 802.1AS overlay](#0x724-----identity--playback--8021as-overlay) -- Five words the softcore daemons write so the fabric ADP/AEM engines answer with wire truth instead of ROM defaults -- board name, playback LPF enable, and the gPTP parent bridge clock identity behind AS_PATH.
   - [0x738  -  CRF media-clock sink  (Milan v1.2 7.3, KL_crf_rx)](#0x738-----crf-media-clock-sink--milan-v12-73-kl_crf_rx) -- The measurement half of clock recovery: lock takes 8 clean PDUs and drops after 100 ms of silence. The local CSR exposes only PDU, format-error, and sequence-error counts. The declared CRF Stream Input returns an empty AECP counter mask because the complete bank and dirty source are not connected at the root.
   - [0x750  -  CRF media-clock talker  (Milan v1.2 7.3.1, KL_crf_tx)](#0x750-----crf-media-clock-talker--milan-v12-731-kl_crf_tx) -- Emits 500 PDU/s timestamped off the real audio-MMCM sample grid. All four identity words treat **reset 0 as AUTO**, deriving stream id and dest MAC from the MAAP block -- which is why the claimed MAAP count has to be `N_STREAMS+1`.
-  - [0x768  -  AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- 🔴 STRUCTURAL ZERO](#0x768-----aecp-get_dynamic_info-scan-forensics-bdbg-----structural-zero) -- All three words read a structural zero. They latched the verdicts of the `0x4B` batch scanner inside the AECP response builder; the AECP uCPU that replaced it implements no `GET_DYNAMIC_INFO` and no scanner -- `0x4B` gets the conformant `NOT_IMPLEMENTED` echo -- so there is no verdict to latch. The `0` here is the absence of a scanner, not a scan that found nothing.
+  - [0x768  -  AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- 🔴 STRUCTURAL ZERO](#0x768-----aecp-get_dynamic_info-scan-forensics-bdbg-----structural-zero) -- All three legacy words read a structural zero. The processor implements `GET_DYNAMIC_INFO` internally, but its batch scanner has no connection to this deleted fabric engine's BDBG ABI.
   - [0x600  -  ADP advertiser  (IEEE 1722.1-2021 / Milan v1.2, FR-DISC-01..04)](#0x600-----adp-advertiser--ieee-17221-2021--milan-v12-fr-disc-0104) -- Entity identity in, advertise timing and `available_index` owned by hardware -- the protocol processor's now. Two things to know before writing anything here: `ADP_CTRL[0]` is ORed with `PP_CTRL[0]` at `0x920`, so either bit enables the entity; and five ADPDU fields (entity_capabilities, valid_time, association_id, controller_capabilities, interface_index) are **write-only scratch** -- the processor holds them as internal constants and the wire carries those, whatever you write. `ADP_STATUS` available_index is still the liveness read, and now the only one: the dormancy counters at `0x668`/`0x674` are structural zeros.
   - [0x648  -  AECP/ACMP status + AAF talker  (IEEE 1722.1 / Milan v1.2)](#0x648-----aecpacmp-status--aaf-talker--ieee-17221--milan-v12) -- **Every AECP counter here is a structural zero because processor state is not wired into this legacy group.** The processor accepts and answers its declared inventory; diagnostics live in its side-port snapshot window. ACMP PDU counters are structural zeros too, but `ACMP_TALKER[1]` talker_active remains the processor's live declaring level.
   - [0x680  -  lwSRP engine  (802.1Q MSRP/MVRP, Milan v1.2 §5.6, FR-SRP-\*)](#0x680-----lwsrp-engine--8021q-msrpmvrp-milan-v12-56-fr-srp-) -- The SRP endpoint, now the protocol processor's. The state words (domain, granted slope, over-limit, declaration and registration levels) are live and repointed; the MRPDU counts and the row-shortfall bit are structural zeros; the provisioning words the deleted applicant read (DMAC, TSpec, declare bypass) are write-only scratch. Read the honest note on the CBS slope ordering change -- the slope now arrives with the gate rather than one cycle ahead of it, which is equal at worst and conservative on the closing edge.
@@ -774,15 +774,12 @@ truthful, only the cadence stretches
 
 ### 0x768  -  AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- 🔴 STRUCTURAL ZERO
 
-**All three words are STRUCTURAL ZEROS.** They were latched at each record
-verdict of the `0x4B` GET_DYNAMIC_INFO batch scanner inside the AECP response
-builder. There is an AECP engine now — the processor's uCPU — but it implements
-no batch scanner and no `GET_DYNAMIC_INFO`: `0x4B` gets the same conformant
-`NOT_IMPLEMENTED` echo every unimplemented opcode gets, so there is still no
-verdict to latch. **A well-formed refusal is not a scan.** The words keep their
-addresses because the map is an ABI; they will read `0` for as long as `0x4B` is
-unimplemented, and that `0` is the absence of a scanner rather than a scan that
-found nothing.
+**All three words are STRUCTURAL ZEROS.** They belonged to the deleted fabric
+AECP response builder. The processor now implements `GET_DYNAMIC_INFO` and its
+own internal batch scanner, but the scanner exposes no BDBG connection to this
+legacy CSR group. The words keep their addresses because the map is an ABI.
+Their zero means "legacy forensics not connected", not "the latest scan found
+nothing" and not "GET_DYNAMIC_INFO is unavailable".
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|

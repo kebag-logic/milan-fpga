@@ -160,7 +160,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-CTRL-02 | `GET/SET_CONFIGURATION`, `GET/SET_NAME`, `GET/SET_STREAM_FORMAT`, `GET/SET_CLOCK_SOURCE`, `SET_SAMPLING_RATE` MUST be supported for the descriptors that expose them (per the model's `dynamic`/`nonvolatile` fields). | M | T |
 | FR-CTRL-03 | `REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION` MUST be supported for ≥ 16 controllers; state changes MUST emit unsolicited responses to registered controllers. | M | T |
 | FR-CTRL-04 | `GET_COUNTERS` MUST return the 1722.1-2021/Milan counter sets for STREAM_INPUT, STREAM_OUTPUT, AVB_INTERFACE (see model `counters`), throttled ≤ 1/s. | M | T |
-| FR-CTRL-05 | `GET_DYNAMIC_INFO` (fast enumeration) SHOULD be supported. | S | T |
+| FR-CTRL-05 | `GET_DYNAMIC_INFO` (fast enumeration) MUST be supported per Milan v1.2 5.4.2.29. | M | T |
 | FR-CTRL-06 | AECP MUST validate `control_data_length`, `message_type=AEM_COMMAND`, and target `entity_id`; malformed/unsupported commands MUST return the correct AECP status (`NOT_IMPLEMENTED`, `BAD_ARGUMENTS`, `ENTITY_LOCKED`, …). | M | T |
 
 ### 2.3 Milan Vendor Unique  -  MVU  *(Milan v1.2 §5.4.3)*

@@ -66,8 +66,16 @@ The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `GET_STREAM_FORMAT`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
 `SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
 `GET_CONTROL`, `GET_STREAM_INFO`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
-`GET_COUNTERS`, `GET_AUDIO_MAP`, the unsolicited registration pair, and Milan
-`GET_MILAN_INFO`.
+`GET_COUNTERS`, `GET_AUDIO_MAP`, `GET_DYNAMIC_INFO`, the unsolicited
+registration pair, and Milan `GET_MILAN_INFO`.
+
+`GET_DYNAMIC_INFO` implements the IEEE 1722.1-2021 section 7.4.76 fixed-getter
+whitelist with a full pre-scan, independent record statuses, silent overflow
+omission, continued processing after an omission, and Milan's 56-byte
+`GET_STREAM_INFO` record body. Legal getters that are not implemented as
+standalone commands receive record-level `NOT_SUPPORTED` with their command
+data copied. A forbidden or malformed record rejects the complete command with
+`BAD_ARGUMENTS` before any getter is processed.
 
 This inventory describes command handling, not end-to-end effect. In
 particular, B12 records that START/STOP is unimplemented, so no AECP Stream
@@ -88,16 +96,17 @@ store would be neither. The work is preserved on branch
 - `SET_STREAM_INFO`
 - `SET_NAME` and `GET_NAME`
 - `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS`
-- `GET_DYNAMIC_INFO`
 
 Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 `NOT_IMPLEMENTED` response is transport-safe, but it is not implementation of
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/301073b4f8a98b8c1b92421171abb1d3391baa47/hdl/aecp/KL_aecp_engine.sv) and
-the current command table in
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/301073b4f8a98b8c1b92421171abb1d3391baa47/docs/architecture/06_aecp_engine.md).
+[`KL_aecp_engine.sv`](../../protocol-processor/hdl/aecp/KL_aecp_engine.sv),
+the packet-level W8 cases in
+[`sim_main.cpp`](../../protocol-processor/tb/pp_top/sim_main.cpp), and the
+current command table in
+[`06_aecp_engine.md`](../../protocol-processor/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 
