@@ -238,6 +238,16 @@ before merge because the authoritative started state must be reconciled with
 the existing ACMP binding record. No per-input started state controls the media
 plane, so Milan section 5.3.8.7 remains open.
 
+> **RESOLVED 2026-08-17 (issue #78).** The reconciliation went the way this
+> finding assumed: the ACMP binding record is the single source of truth, and
+> the AECP dynamic store's selector 6 is retired rather than reused. Both
+> halves of 5.3.8.7 are now implemented and graded — a started Stream Input
+> processes its AVTPDUs and a stopped one **discards** them, proven end to end
+> in `tb/verilator/milan_dp` by a frame that still reaches the parser and is
+> no longer matched. The audit's own words for what was missing, "no per-input
+> started state controls the media plane", were exact: the vector existed and
+> was connected, and nothing read it.
+
 Evidence: the command inventory and withdrawal note in the pinned processor,
 the exported `aecp_strm_started_o` value received on an unconsumed root wire,
 and the absence of a corresponding media-plane gate in

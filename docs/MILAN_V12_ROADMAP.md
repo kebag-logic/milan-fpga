@@ -134,10 +134,15 @@ live fabric face, and neither can hold a *setting*.
 `KL_aecp_dyn_state.sv` is that store, and it is landed, tested and load-bearing
 — `SET_SAMPLING_RATE`, `SET_CLOCK_SOURCE`, `SET_CONTROL` and
 `SET_CONFIGURATION` all write it, and their getters read it in preference to
-the image. `START`/`STOP_STREAMING` also wrote it and were pulled back out:
-started/stopped already has a home in the ACMP binding record, which clears on
-unbind and persists, and two copies of one Milan state is a defect waiting to
-happen (issue #78). The design and the two constraints that forced it are
+the image. `START`/`STOP_STREAMING` also wrote it and were pulled back out, and issue #78
+has now settled where they belong: started/stopped lives in the **ACMP binding
+record** and nowhere else. Milan §5.3.8.7 calls the state "undefined when the
+Stream Input is not bound", so it is a property of the binding, and only that
+record has the lifecycle — it is cleared on unbind, captured by the NVM shadow
+and restored through the boot preload. Selector 6 of the dynamic store is
+**retired, not reused**, and the two commands reach the record through a
+write-only request region that stores nothing, so a second copy cannot come
+back by accident. The design and the two constraints that forced it are
 kept in §P2.1 below, because they still govern every command that has not
 landed yet.
 
@@ -301,8 +306,8 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 | `0x0014` | SET_SAMPLING_RATE **— LANDED** | 5.4.2.13 | the rate/mapping-mismatch refusal is a **MAY**, not a SHALL | es-4.16, es-5.1 |
 | `0x0016` | SET_CLOCK_SOURCE **— LANDED** | 5.4.2.15 | — | es-4.9, es-5.1, es-10.1 |
 | `0x0018` | SET_CONTROL **— LANDED** | 5.4.2.17 | IDENTIFY only; values 0 and 255 | es-4.10 |
-| `0x0022` | START_STREAMING | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output**; on a bound+stopped input → started | es-4.11, es-12.7 |
-| `0x0023` | STOP_STREAMING | 5.4.2.20 | mirror of the above | es-4.11, es-12.7 |
+| `0x0022` | START_STREAMING **— LANDED** | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output** (and on every other type); on a bound+stopped input → started | es-4.11, es-12.7 |
+| `0x0023` | STOP_STREAMING **— LANDED** | 5.4.2.20 | mirror of the above | es-4.11, es-12.7 |
 
 > **`SET_CLOCK_SOURCE` is worth more than one row.** Its dynamic-state store
 > and wrapper output have landed. The selected index now reaches the root, but
@@ -434,10 +439,12 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
    does not light up the media-clock servo.
 3. **P2.2** `GET_NAME` + **P2.3** `SET_NAME` — one pair, one storage question
    (`name_index` fan-out), and five test items.
-4. **P2.3** `START`/`STOP_STREAMING`, `SET_STREAM_FORMAT`, and
-   `SET_STREAM_INFO`: these still need the bound/streaming interlocks. The
-   already-landed `SET_CONFIGURATION` path now applies its running reduction
-   at dispatch.
+4. **P2.3** `SET_STREAM_FORMAT` and `SET_STREAM_INFO`: these still need the
+   bound/streaming interlocks. The already-landed `SET_CONFIGURATION` path now
+   applies its running reduction at dispatch, and `START`/`STOP_STREAMING`
+   landed with issue #78 — their interlock turned out to be the binding
+   record's own (§5.3.8.7's "undefined when not bound"), not a reduction over
+   every stream.
 5. **P3.2** notification triggers, folded into each command above as it lands.
 6. **P2.2/P2.3** `GET`/`SET_CONTROL` with the IDENTIFY indicator wired.
 7. **P2.4** ADD/REMOVE_AUDIO_MAPPINGS.
