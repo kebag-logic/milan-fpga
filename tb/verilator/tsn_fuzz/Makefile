@@ -3,9 +3,10 @@
 #
 # IEEE 1722.1 / 1722 field-validation campaign, tsn-gen driven.
 #
-#   make            build the co-simulation DUTs and run every campaign
+#   make            build the DUT, run the campaign and the traceability check
 #   make build      build only
-#   make aaf                 run the AAF campaign (the only one left)
+#   make aaf        run the AAF campaign (the only one left)
+#   make matrix-check   the module<->spec<->test no-drift contract
 #   make clean
 #
 # Each campaign is a Python driver talking to a Verilator server built from
@@ -88,10 +89,37 @@ matrix-check:
 	@echo "traceability contracts (drift + ratchet): 2 checks: 2 PASS, 0 FAIL"
 
 
+# THE CAMPAIGN MUST ACCOUNT FOR ITSELF, and this check is here because giving
+# the suite an unconditional 2-check floor (see matrix-check) took away the
+# backstop it used to have. Before that floor, a campaign whose summary line was
+# reworded printed no shape suite_tally.py knew, the suite fell to NOCOUNT and
+# the sweep stopped. Now the floor clears NOCOUNT on its own, so the same
+# rewording would silently drop 164 checks from the headline with everything
+# green.
+#
+# THE CHECK IS DELEGATED, NOT REIMPLEMENTED. suite_tally.py --campaign-guard
+# applies the same recognisers the sweep applies, because a second matcher
+# written here is how the two come to disagree — a first cut of this rule was a
+# hand-rolled grep, and a review found it rejected four tally shapes the sweep
+# reads perfectly well while ACCEPTING "0 pass, 0 fail", the one outcome it most
+# needed to reject.
+#
+# tee, not `> file`: run_all_suites.sh treats a timeout as UNKNOWN rather than
+# failure, and with a plain redirect a timed-out campaign leaves nothing in the
+# suite log to read. The exit code travels in a sidecar because pipefail is not
+# portable to every /bin/sh.
+#
+# BOTH scratch files are removed first. tee's exit status is discarded (that is
+# the price of not having pipefail), so if it cannot open aaf.out the previous
+# run's log survives and the guard reads THAT -- a reworded summary would then
+# be waved through by a stale copy of the old one. Contrived, but the fix is a
+# filename.
 aaf: obj_aaf/Vaaf_cosim
-	$(PY) fuzz_aaf.py
+	@rm -f obj_aaf/aaf.rc obj_aaf/aaf.out; \
+	 { $(PY) fuzz_aaf.py 2>&1; echo $$? > obj_aaf/aaf.rc; } | tee obj_aaf/aaf.out; \
+	 rc=$$(cat obj_aaf/aaf.rc); \
+	 if [ "$$rc" -ne 0 ]; then exit "$$rc"; fi; \
+	 $(PY) ../../../scripts/suite_tally.py --campaign-guard obj_aaf/aaf.out
 
-# the original 14-command smoke driver that predates this campaign; run it
-# too so its expectations cannot drift from the RTL again
 clean:
 	rm -rf obj_aaf __pycache__
