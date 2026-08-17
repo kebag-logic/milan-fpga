@@ -73,7 +73,33 @@ RC_OK, RC_FINDING, RC_CANNOT_RUN = 0, 1, 2
 def _git(*args):
     """Run git, returning (rc, stdout).  Never raises on a non-zero rc."""
     p = subprocess.run(("git",) + args, capture_output=True, text=True)
-    return p.returncode, p.stdout.strip()
+    return p.returncode, p.stdout.rstrip("\n")
+
+
+def refreshed_origin_ref(ref):
+    """Prefer the fetched origin tip when ``ref`` names a branch.
+
+    ``git fetch origin`` refreshes ``refs/remotes/origin/*``; it deliberately
+    does not move a checked-out local branch.  Checking that local ref after a
+    fetch therefore gives exactly the stale answer this command exists to
+    prevent.  Full non-branch refs remain exact, and callers using
+    ``--no-fetch`` do not call this helper.
+    """
+    if ref.startswith("refs/remotes/origin/"):
+        return ref
+    if ref.startswith("origin/"):
+        return "refs/remotes/" + ref
+    if ref.startswith("refs/heads/"):
+        name = ref[len("refs/heads/"):]
+    elif ref.startswith("refs/"):
+        return ref
+    else:
+        name = ref
+
+    remote_ref = "refs/remotes/origin/" + name
+    rc, _ = _git("rev-parse", "--verify", "--quiet",
+                 remote_ref + "^{commit}")
+    return remote_ref if rc == 0 else ref
 
 
 def contained(branch, base):
@@ -123,10 +149,15 @@ def contained(branch, base):
     #! byte-identical -- one unrelated commit later and every squash-merged
     #! branch reads stranded again. A review demonstrated exactly that: five
     #! sequential squash merges, only the newest passing.
-    rc, mb = _git("merge-base", base, branch)
-    if rc == 0 and mb:
-        rc, names = _git("diff", "--name-only", mb, branch)
-        paths = [n for n in names.splitlines() if n]
+    mb_rc, mb = _git("merge-base", base, branch)
+    if mb_rc == 0 and mb:
+        #! Disable rename folding so a move contributes both the deleted and
+        #! added path.  Comparing only the destination can certify a base that
+        #! copied the file but never removed the source.  NUL delimiters keep
+        #! unusual but valid path names exact.
+        rc, names = _git("diff", "--name-only", "--no-renames", "-z",
+                         mb, branch)
+        paths = [n for n in names.split("\0") if n]
         if rc == 0 and paths:
             rc, _ = _git("diff", "--quiet", base, branch, "--", *paths)
             if rc == 0:
@@ -135,12 +166,23 @@ def contained(branch, base):
                         f"{base} ({ahead} commit(s) not ancestors -- squash "
                         f"or rebase merge)")
 
-    #! rebase keeps one commit per change, so patch-ids still match
-    rc, cherry = _git("cherry", base, branch)
-    if rc == 0 and cherry and all(l.startswith("-") for l in cherry.splitlines()):
-        return (True, ahead,
-                f"every commit has an equivalent in {base} ({ahead} not "
-                f"ancestors -- rebase merge)")
+    #! Rebase keeps one commit per change, so patch-ids still match.  `cherry`
+    #! omits merge commits, however.  Accepting its output for a history that
+    #! contains a merge can hide unique conflict-resolution content and turn
+    #! real stranded work into rc 0.  Use the patch-id fallback only when every
+    #! commit being assessed is linear.
+    rc, merge_count = _git("rev-list", "--min-parents=2", "--count",
+                           f"{base}..{branch}")
+    if rc != 0 or not merge_count.isdigit():
+        return (None, None,
+                f"could not determine whether {branch} contains merge commits")
+    if int(merge_count) == 0:
+        rc, cherry = _git("cherry", base, branch)
+        if (rc == 0 and cherry
+                and all(l.startswith("-") for l in cherry.splitlines())):
+            return (True, ahead,
+                    f"every commit has an equivalent in {base} ({ahead} not "
+                    f"ancestors -- rebase merge)")
 
     #! NAME THE PATHS. "3 commits not in base" does not tell anyone whether
     #! this is real, and there is one case that reads STRANDED without being
@@ -151,9 +193,10 @@ def contained(branch, base):
     #! naming the paths is what lets a reader settle it in one look instead of
     #! learning to ignore the check.
     differing = []
-    if rc == 0 and mb:
-        rc2, names = _git("diff", "--name-only", base, branch)
-        differing = [n for n in names.splitlines() if n][:6]
+    if mb_rc == 0 and mb:
+        rc2, names = _git("diff", "--name-only", "--no-renames", "-z",
+                          base, branch)
+        differing = [n for n in names.split("\0") if n][:6]
     return (False, ahead, ("paths differing: " + ", ".join(differing))
             if differing else None)
 
@@ -166,19 +209,25 @@ def merged_pr_heads(limit, base):
     branch at all, and answers "diverged" for all of them -- noise that would
     bury the one real finding.
 
-    THE HEAD OID, NOT THE BRANCH REF, because a branch deleted after merge
-    leaves no ``origin/<name>``.  Note the OID is not fetchable either once
-    nothing points at it: such a PR is reported UNKNOWN, loudly, rather than
-    guessed at.  ``delete_branch_on_merge`` is false on this repository, so
-    that path is not the normal case here -- when it becomes one, the answer
-    is GitHub's compare endpoint, and it needs its own review rather than the
-    unexercised version this file used to carry.
+    GitHub's head OID is the head that was merged, not the branch tip after the
+    merge.  It is retained only as evidence for diagnostics.  The sweep must
+    check the fetched branch ref instead: commits pushed after the merge are
+    precisely the stranded work this command exists to find.  A deleted branch
+    has no observable post-merge tip and is therefore UNKNOWN, never guessed
+    from the merge-time OID.
     """
     import json
     #! gh wants a branch NAME; `base` is a git ref and usually carries the
     #! remote. Passing "origin/main-push" here silently matched nothing, so the
     #! sweep printed an empty list and exited 0 -- a pass by vacancy.
-    base_name = base.split("/", 1)[1] if base.startswith("origin/") else base
+    if base.startswith("refs/remotes/origin/"):
+        base_name = base[len("refs/remotes/origin/"):]
+    elif base.startswith("origin/"):
+        base_name = base[len("origin/"):]
+    elif base.startswith("refs/heads/"):
+        base_name = base[len("refs/heads/"):]
+    else:
+        base_name = base
     try:
         p = subprocess.run(
             ["gh", "pr", "list", "--state", "merged", "--base", base_name,
@@ -302,6 +351,130 @@ def selftest():
             rc, out = run(["--no-fetch", "--bogus", "work"])
             case("e2e-unknown-flag", rc, RC_CANNOT_RUN,
                  "an unrecognised flag is refused, never read as a branch")
+
+            # Fetch updates origin/work but not the checked-out local work
+            # branch.  The default path must assess the fetched tip, or the
+            # exact incident this command guards becomes a quiet rc 0.
+            rc, base_oid = _git("rev-parse", "base")
+            with tempfile.TemporaryDirectory() as remote:
+                _git("init", "--bare", "-q", remote)
+                _git("remote", "add", "origin", remote)
+                _git("push", "-q", "origin", "base", "work")
+                _git("checkout", "-q", "work")
+                _git("reset", "--hard", "base")
+
+                rc, local_work = _git("rev-parse", "work")
+                rc2, remote_ahead = _git(
+                    "rev-list", "--count", "base..refs/remotes/origin/work")
+                case("fresh-fixture-local", local_work == base_oid, True,
+                     "the local branch is deliberately stale at base")
+                case("fresh-fixture-remote", (rc2, remote_ahead), (0, "3"),
+                     "the fetched branch has three later commits")
+
+                rc, out = run(["--base", "base", "work"])
+                case("fresh-local-ref-rc", rc, RC_FINDING,
+                     "fetch checks origin/work, not the stale local branch")
+                case("fresh-local-ref-word", "STRANDED" in out, True,
+                     "...and reports the work on the fetched tip")
+
+                # A merged PR's head OID is frozen at merge time.  The live
+                # branch tip is the only ref that can expose later pushes.
+                saved_merged_pr_heads = globals()["merged_pr_heads"]
+                globals()["merged_pr_heads"] = lambda _limit, _base: (
+                    [(86, "work", base_oid)], None)
+                try:
+                    rc, out = run(["--no-fetch", "--base", "base",
+                                   "--merged-prs", "1"])
+                    case("merged-live-tip-rc", rc, RC_FINDING,
+                         "the merged sweep ignores the frozen head OID")
+                    case("merged-live-tip-word", "STRANDED" in out, True,
+                         "...and assesses origin/work instead")
+                finally:
+                    globals()["merged_pr_heads"] = saved_merged_pr_heads
+
+            # A multi-commit squash remains contained after unrelated work
+            # advances the base, because only branch-touched paths matter.
+            _git("checkout", "-qb", "squash-feature", "base")
+            open("sq0", "w").write("0")
+            _git("add", "sq0"); _git("commit", "-qm", "sq0")
+            open("sq1", "w").write("1")
+            _git("add", "sq1"); _git("commit", "-qm", "sq1")
+            _git("checkout", "-qb", "squash-base", "base")
+            _git("merge", "-q", "--squash", "squash-feature")
+            _git("commit", "-qm", "squash")
+            open("unrelated", "w").write("later")
+            _git("add", "unrelated"); _git("commit", "-qm", "later")
+            rc, out = run(["--no-fetch", "--base", "squash-base",
+                           "squash-feature"])
+            case("squash-base-advanced", rc, RC_OK,
+                 "unrelated base work does not hide a squash merge")
+            case("squash-path-equivalence",
+                 "every path this branch touched" in out, True,
+                 "...through the path-scoped content check")
+
+            # A copied destination is not equivalent to a rename because the
+            # source path still exists.  Rename folding must not hide it.
+            _git("checkout", "-qb", "rename-feature", "base")
+            _git("mv", "f", "renamed")
+            _git("commit", "-qm", "rename")
+            _git("checkout", "-qb", "rename-base", "base")
+            open("renamed", "w").write("1")
+            _git("add", "renamed"); _git("commit", "-qm", "copy")
+            rc, out = run(["--no-fetch", "--base", "rename-base",
+                           "rename-feature"])
+            case("rename-source-remains", rc, RC_FINDING,
+                 "a copied destination cannot hide a missing deletion")
+
+            # Patch-id equivalence is valid for a linear rebased history even
+            # when the base later edits the same path.
+            _git("checkout", "-qb", "linear-feature", "base")
+            open("linear", "w").write("landed\n")
+            _git("add", "linear"); _git("commit", "-qm", "linear")
+            rc, linear_commit = _git("rev-parse", "HEAD")
+            _git("checkout", "-qb", "linear-base", "base")
+            open("advance", "w").write("first")
+            _git("add", "advance"); _git("commit", "-qm", "advance")
+            _git("cherry-pick", linear_commit)
+            open("linear", "a").write("superseded\n")
+            _git("add", "linear"); _git("commit", "-qm", "supersede")
+            rc, out = run(["--no-fetch", "--base", "linear-base",
+                           "linear-feature"])
+            case("linear-patch-fallback", rc, RC_OK,
+                 "patch equivalence handles a linear rebase")
+            case("linear-patch-word", "every commit has an equivalent" in out,
+                 True, "...through the patch-id fallback")
+
+            # git cherry intentionally omits merge commits.  An equivalent
+            # normal commit must not hide unique merge-resolution content.
+            _git("checkout", "-qb", "merge-side", "base")
+            open("side", "w").write("side")
+            _git("add", "side"); _git("commit", "-qm", "side")
+            _git("checkout", "-qb", "merge-feature", "base")
+            open("normal", "w").write("normal")
+            _git("add", "normal"); _git("commit", "-qm", "normal")
+            _git("checkout", "-qb", "merge-replayed", "merge-side")
+            open("normal", "w").write("normal")
+            _git("add", "normal"); _git("commit", "-qm", "replayed")
+            _git("checkout", "-q", "merge-feature")
+            _git("merge", "-q", "--no-ff", "--no-commit", "merge-side")
+            open("resolution", "w").write("unique")
+            _git("add", "resolution"); _git("commit", "-qm", "merge")
+            rc, merge_count = _git(
+                "rev-list", "--min-parents=2", "--count",
+                "merge-replayed..merge-feature")
+            rc2, cherry = _git("cherry", "merge-replayed", "merge-feature")
+            case("merge-fixture-count", (rc, merge_count), (0, "1"),
+                 "the fixture contains one unique merge commit")
+            case("merge-fixture-cherry",
+                 rc2 == 0 and bool(cherry)
+                 and all(line.startswith("-") for line in cherry.splitlines()),
+                 True, "git cherry hides that merge behind equivalent commits")
+            rc, out = run(["--no-fetch", "--base", "merge-replayed",
+                           "merge-feature"])
+            case("merge-resolution-rc", rc, RC_FINDING,
+                 "a merge commit cannot disappear from the patch fallback")
+            case("merge-resolution-path", "resolution" in out, True,
+                 "...and its unique path is reported as stranded")
         finally:
             os.chdir(cwd)
 
@@ -350,6 +523,7 @@ def main(argv):
                 "are certain the refs are current: a stale ref reports "
                 "'contained' for stranded work.\n")
             return RC_CANNOT_RUN
+        base = refreshed_origin_ref(base)
 
     if "--merged-prs" in args:
         i = args.index("--merged-prs")
@@ -362,14 +536,17 @@ def main(argv):
         if err:
             sys.stderr.write(err + "\n")
             return RC_CANNOT_RUN
-        #! the OID is the ref we ask about; the branch name is for the reader,
-        #! and may well no longer exist
         if not prs:
             sys.stderr.write(
                 f"no merged PRs found targeting {base}. That is not a pass -- "
                 f"check the base name.\n")
             return RC_CANNOT_RUN
-        targets = [(f"#{n} {b}", oid) for n, b, oid in prs]
+        #! headRefOid is frozen at merge time and therefore cannot reveal work
+        #! pushed afterwards.  Always assess the fetched live branch tip.  A
+        #! deleted branch becomes UNKNOWN through contained(), which is safer
+        #! than certifying the old merge-time OID.
+        targets = [(f"#{n} {b}", f"refs/remotes/origin/{b}")
+                   for n, b, _oid in prs]
     else:
         branches = [a for a in args if not a.startswith("-")]
         if not branches:
@@ -378,7 +555,8 @@ def main(argv):
                 sys.stderr.write(USAGE + "\n")
                 return RC_CANNOT_RUN
             branches = [cur]
-        targets = [(b, b) for b in branches]
+        targets = [(b, refreshed_origin_ref(b) if do_fetch else b)
+                   for b in branches]
 
     stranded = 0
     unknown = 0

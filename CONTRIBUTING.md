@@ -133,7 +133,7 @@ flowchart LR
    during the #89 re-land. Nobody was told either number at the time.
 
    It is a script rather than a line in this file because a check that depends
-   on somebody remembering is not a check — the same reason
+   on somebody remembering is not a check; the same reason
    `scripts/suite_tally.py` exists. `--selftest` gates it, including the case
    that a ref which cannot be resolved is an UNKNOWN and **fails**, never a
    quiet pass.
@@ -145,7 +145,7 @@ flowchart LR
    description claimed a fast-forward that was not one, off a `git log A..B`
    that came back empty in the author's terminal; the cause was never pinned
    down and a later attempt could not reproduce it, which is itself the
-   argument — a check whose failure mode you cannot characterise is not one to
+   argument: a check whose failure mode you cannot characterise is not one to
    build on.
 
    Three merge-specific traps worth naming, all paid for:
@@ -160,8 +160,8 @@ flowchart LR
      does not fail to elaborate — the µCPU executes ROM fill and answers a
      well-formed response carrying garbage.
    - **`MERGEABLE` is not `green`.** GitHub reports `MERGEABLE/UNSTABLE` while
-     checks are still running, and the two long jobs — `verilator-suites` and
-     `yosys-portability` — are the ones that would catch a real regression.
+     checks are still running, and the two long jobs, `verilator-suites` and
+     `yosys-portability`, are the ones that would catch a real regression.
      Merging on `UNSTABLE` means the local bar is the only bar that ran. That
      is sometimes an acceptable trade with the sweep verified locally, but make
      it a decision and say so on the PR, because if a job then comes back red
