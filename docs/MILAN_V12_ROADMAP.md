@@ -38,7 +38,7 @@ leaves the clause open.
 
 ### 0.1 Served for real, today
 
-**Twenty-three** AEM opcodes plus one MVU command. The authority is
+**Twenty-four** AEM opcodes plus one MVU command. The authority is
 `protocol-processor/hdl/aecp/KL_aecp_engine.sv`'s `OP_*_C` constants, and
 `tests/steps/aecp_engine_steps.py`'s `SERVED` table is gated against that list
 by a behave step that parses the RTL — so this section cannot silently rot
