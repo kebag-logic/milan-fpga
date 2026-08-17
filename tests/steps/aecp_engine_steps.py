@@ -417,10 +417,18 @@ class AecpEngineModel:
         #! protocol_id - neither is a command_type, and reading either as one
         #! turns an unrelated count into a served opcode.
         self.opcode_served = opcode
-        if opcode == OP_READ_DESCRIPTOR and not short:
+        #! ...and the guard belongs on THESE TWO ARMS as well, which is where
+        #! the paragraph above was written and not applied. The model mirrored
+        #! the engine's own defect (issue #83): a VENDOR_UNIQUE protocol_id
+        #! beginning 00-04 was dispatched to READ_DESCRIPTOR by both, so the
+        #! contract suite and the gateware agreed on the wrong answer and no
+        #! gate could see it. A model that reproduces the bug it exists to
+        #! catch is worse than no model.
+        aem = (msg_type == MT_AEM_COMMAND)
+        if aem and opcode == OP_READ_DESCRIPTOR and not short:
             program, echo = "RDESC", False
-        elif opcode == OP_IDENTIFY_NOTIFICATION or (
-                opcode == OP_READ_DESCRIPTOR and short):
+        elif aem and (opcode == OP_IDENTIFY_NOTIFICATION or (
+                opcode == OP_READ_DESCRIPTOR and short)):
             program, echo = "BADARG", True
         elif (msg_type == MT_AEM_COMMAND) and (opcode in SERVED):
             #! a command this engine answers for real. This model does NOT
@@ -512,7 +520,16 @@ class AecpEngineModel:
         f += struct.pack(">Q", self.entity_id)
         f += ctlr_eid
         f += seq
-        f.append(raw_ct[0] & 0x7F)                   # u = 0 on a solicited answer
+        #! The u bit exists only on an AEM command_type (IEEE 1722.1-2021
+        #! 9.3.2.1). Masking it for EVERY message type is the same defect the
+        #! engine records at KL_aecp_engine.sv's u-bit banner and that
+        #! tb/pp_top fixed with `aem_like`: on a VENDOR_UNIQUE PDU these two
+        #! bytes are the head of a 48-bit protocol_id, so clearing bit 7 of
+        #! byte 0 corrupts any OUI with that bit set -- and made every such
+        #! protocol_id untestable, because the model could not put one on the
+        #! wire to disagree about.
+        f.append(raw_ct[0] & 0x7F if cmd_msg_type == MT_AEM_COMMAND
+                 else raw_ct[0])
         f.append(raw_ct[1])
         f += bytes(buf[12:12 + pld])
         while len(f) < ETH_MIN:                      # zero pad to the 802.3 minimum
@@ -656,7 +673,13 @@ def complaints(frame, cmd_frame, entity_id=ENTITY_ID):
     if r["sequence_id"] != c["sequence_id"]:
         bad.append("sequence_id %d, command sent %d"
                    % (r["sequence_id"], c["sequence_id"]))
-    if r["u"] != 0:
+    #! ...on an AEM response. Only an AEM command_type has a `u` bit (IEEE
+    #! 1722.1-2021 9.3.2.1); on a VENDOR_UNIQUE PDU that bit is part of the
+    #! 48-bit protocol_id and on an ADDRESS_ACCESS one it belongs to
+    #! tlv_count. Asserting it unconditionally made every OUI with the top bit
+    #! set "malformed" -- the well-formedness check enforcing the same
+    #! misreading of @22..@23 that issue #83 is about, one level up.
+    if r["message_type"] == MT_AEM_RESPONSE and r["u"] != 0:
         bad.append("u set on a solicited response")
     if r["dst_mac"] != c["src_mac"]:
         bad.append("not unicast back to the requester")
@@ -758,6 +781,57 @@ def step_send_aa(context):
 @when('the controller sends the Milan MVU command to the AECP engine')
 def step_send_mvu(context):
     _send(context, build_mvu_command())
+
+
+@when('the controller sends a VENDOR_UNIQUE command whose protocol_id '
+      'starts {oui_hi} to the AECP engine')
+def step_send_vu_oui(context, oui_hi):
+    """A vendor command whose OUI head collides with an AEM opcode.
+
+    The engine and this model both read AECPDU @22..@23 as `opcode`, and on a
+    VENDOR_UNIQUE PDU those two bytes are the first half of a 48-bit
+    protocol_id.  Issue #83: a vendor whose OUI began 00-04 was dispatched to
+    READ_DESCRIPTOR by BOTH, so the contract suite agreed with the gateware
+    about the wrong answer and nothing could see it.
+    """
+    ct_word = int(oui_hi, 0)
+    payload = struct.pack(">IHH", 0xAABBCCDD, 0, 0)
+    context.vu_oui_payload = payload
+    _send(context, build_command(MT_VU_COMMAND, ct_word, payload))
+
+
+@when('the controller sends a message_type {mt:d} command whose word at 22 '
+      'is {word} to the AECP engine')
+def step_send_non_aem(context, mt, word):
+    """A non-AEM message whose @22..@23 collides with an AEM opcode.
+
+    VENDOR_UNIQUE is not the only type with something other than a
+    command_type there: AVC_COMMAND carries an `avc_length` (Figure 9-9),
+    ADDRESS_ACCESS a `tlv_count` (9.4.2.1), and the RX validator files every
+    type it does not recognise into the AEM bucket.
+    """
+    payload = struct.pack(">IHH", 0xAABBCCDD, 0, 0)
+    context.vu_oui_payload = payload
+    _send(context, build_command(mt, int(word, 0), payload))
+
+
+@then('the AECP response protocol_id is echoed whole')
+def step_vu_protocol_id_whole(context):
+    r = _rsp(context)
+    sent = context.aecp_cmd
+    #! @22..@23 rides the header field the engine echoes; @24..@27 rides the
+    #! payload it copies back. Both halves, or the check misses the exact
+    #! corruption issue #83 produced -- READ_DESCRIPTOR overwriting @24..@27
+    #! with configuration_index and reserved while the head looked right.
+    head_got, head_sent = bytes(context.aecp_rsp[36:38]), bytes(sent[36:38])
+    assert head_got == head_sent, \
+        "protocol_id head came back %s, sent %s" % (head_got.hex(),
+                                                    head_sent.hex())
+    tail_sent = bytes(context.vu_oui_payload[0:4])
+    tail_got = r["payload"][0:4]
+    assert tail_got == tail_sent, \
+        "protocol_id tail came back %s, sent %s" % (tail_got.hex(),
+                                                    tail_sent.hex())
 
 
 @when('a command for entity {eid} reaches the AECP engine')
