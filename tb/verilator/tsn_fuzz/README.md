@@ -130,13 +130,9 @@ ran and checked nothing. `suite_tally.py`'s self-test pins all of it —
 
 Fuzzing an entity to see if it crashes is a weak test — this RTL has no
 software to crash. What matters is that **garbage does not move state**. So
-every campaign interleaves storms with a *canary*:
+every campaign interleaves storms with a *canary*. Only AAF's remains; the
+AECP, ACMP and ADP canaries went with their campaigns on 2026-08-13:
 
-* AECP replays `READ_DESCRIPTOR(ENTITY,0)` and requires it **byte-identical**
-  to the pre-storm baseline;
-* ACMP requires `state_o` to stay inside the eight legal LSM states, never
-  wedge, and a legitimate BIND to still work afterwards;
-* ADP requires a complete, correct 82-byte ADPDU after an event storm;
 * AAF requires the stream to **stay locked** through every malformed PDU —
   an unlock is an audible dropout and a Milan compliance failure — and,
   inversely, requires it to **unlock** during a sustained accept drought: a
@@ -166,12 +162,18 @@ So the models are used as the field/constraint oracle only, never as the
 frame builder. `tsn_model.decode_pdu()` shifts the PDU left one nibble before
 handing it to `packet_gen --decode`; with that correction tsn-gen decodes
 real frames exactly and serves as a genuine independent decoder (the ADP
-campaign cross-checks 12 fields this way).
+campaign cross-checked 12 fields this way, before it was deleted).
 
 ## Tracked gaps (visible, counted, non-failing)
 
-Printed as `[GAP ]` and listed in each campaign's summary. Both were found by
-this campaign:
+Printed as `[GAP ]` and listed in each campaign's summary.
+
+> **Both belonged to the AECP campaign, which was deleted on 2026-08-13 with
+> the RTL it fuzzed.** The surviving AAF campaign reports **0 known gaps**, so
+> nothing below is currently being re-measured. They are kept because the
+> defects were real and were never fixed — deleting the record along with the
+> campaign would have quietly retired two findings rather than resolving them.
+> The second is tracked as #48.
 
 1. **`LOCK_ENTITY` ignores `descriptor_type`/`descriptor_index`** and answers
    SUCCESS for any value; §7.4.2 scopes LOCK to the ENTITY descriptor, so a

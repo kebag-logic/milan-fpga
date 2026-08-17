@@ -3,9 +3,10 @@
 #
 # IEEE 1722.1 / 1722 field-validation campaign, tsn-gen driven.
 #
-#   make            build the co-simulation DUTs and run every campaign
+#   make            build the DUT, run the campaign and the traceability check
 #   make build      build only
-#   make aaf                 run the AAF campaign (the only one left)
+#   make aaf        run the AAF campaign (the only one left)
+#   make matrix-check   the module<->spec<->test no-drift contract
 #   make clean
 #
 # Each campaign is a Python driver talking to a Verilator server built from
@@ -94,19 +95,25 @@ matrix-check:
 # reworded printed no shape suite_tally.py knew, the suite fell to NOCOUNT and
 # the sweep stopped. Now the floor clears NOCOUNT on its own, so the same
 # rewording would silently drop 164 checks from the headline with everything
-# green. UNPARSED still catches a reword that stays tally-shaped; it does not
-# catch "164 ok / 0 bad".
+# green.
 #
-# So: exactly two outcomes are valid, a tally or a declared skip. Anything else
-# fails here, where it is loud, instead of vanishing into the total.
+# THE CHECK IS DELEGATED, NOT REIMPLEMENTED. suite_tally.py --campaign-guard
+# applies the same recognisers the sweep applies, because a second matcher
+# written here is how the two come to disagree — a first cut of this rule was a
+# hand-rolled grep, and a review found it rejected four tally shapes the sweep
+# reads perfectly well while ACCEPTING "0 pass, 0 fail", the one outcome it most
+# needed to reject.
+#
+# tee, not `> file`: run_all_suites.sh treats a timeout as UNKNOWN rather than
+# failure, and with a plain redirect a timed-out campaign leaves nothing in the
+# suite log to read. The exit code travels in a sidecar because pipefail is not
+# portable to every /bin/sh.
 aaf: obj_aaf/Vaaf_cosim
-	@$(PY) fuzz_aaf.py > obj_aaf/aaf.out 2>&1; rc=$$?; cat obj_aaf/aaf.out; \
-	 if [ $$rc -ne 0 ]; then exit $$rc; fi; \
-	 grep -qE '^(==.*: [0-9]+ pass, [0-9]+ fail|SUITE-SKIP:)' obj_aaf/aaf.out || { \
-	   echo "tsn_fuzz: the campaign printed NEITHER a tally suite_tally.py can"; \
-	   echo "  read NOR a declared skip. Its checks would be counted as zero"; \
-	   echo "  with the sweep still green. Restore one of the two shapes."; \
-	   exit 1; }
+	@rm -f obj_aaf/aaf.rc; \
+	 { $(PY) fuzz_aaf.py 2>&1; echo $$? > obj_aaf/aaf.rc; } | tee obj_aaf/aaf.out; \
+	 rc=$$(cat obj_aaf/aaf.rc); \
+	 if [ "$$rc" -ne 0 ]; then exit "$$rc"; fi; \
+	 $(PY) ../../../scripts/suite_tally.py --campaign-guard obj_aaf/aaf.out
 
 clean:
 	rm -rf obj_aaf __pycache__
