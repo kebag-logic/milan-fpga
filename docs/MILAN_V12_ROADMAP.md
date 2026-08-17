@@ -48,8 +48,9 @@ again.
 **not** include the unsolicited notification that Milan §5.4.5.2 and IEEE
 §7.4.7 require after a successful `SET_*`: no microprogram enqueues one, the
 only `NOTIFY_ENQ` in `gen_ucode.py` sits in an exemplar program, and
-`pp_pkg.sv` defines notification kinds for the deregistration and GET family
-only. Every `SET_*` row below therefore carries an open half, tracked as #69 —
+`pp_pkg.sv` defines notification kinds for the deregistration, `LOCK_ENTITY`,
+and GET families only, with none for any `SET_*`. Every `SET_*` row below
+therefore carries an open half tracked as #69.
 not as a per-row caveat, because it is the same missing mechanism in all of
 them. One more caveat worth naming here rather than burying: `0x0016`'s stored
 clock source reaches `milan_datapath` and is read by nothing (audit B3).
@@ -140,17 +141,29 @@ happen (issue #78). The design and the two constraints that forced it are
 kept in §P2.1 below, because they still govern every command that has not
 landed yet.
 
-**What it does not yet do is reach its consumers.** Four of the five stored
-fields — current configuration, IDENTIFY, clock source and presentation-time
-offset — are published out to `milan_datapath` (`pp_aecp_*_w`) and read by
-nothing: the media clock still uses its compile-time select, so
-`SET_CLOCK_SOURCE` stores a value the servo does not act on. The fifth,
-**`current_sampling_rate`, is not published at all**: `KL_aecp_dyn_state` holds
-it and serves it over AECP but declares no output for it, so it stops at the
-store. Aligning the audio grid to it is #74's work. That is deliberate
-sequencing — the AECP side is complete and provable on its own, and each
-consumer is its own change — but it means a green suite here is **not** yet a
-claim that the device behaves differently on the bench.
+**What it does not yet do is reach its consumers.** The dynamic store holds
+eight fields. The fields served through AECP and those published to the fabric
+are different sets:
+
+| field | a microprogram reads or writes it | it has an output port |
+|---|---|---|
+| `current_configuration` | yes | yes |
+| `clock_source_index` | yes | yes |
+| IDENTIFY | yes | yes |
+| `current_sampling_rate` | yes | **no** |
+| presentation-time offset | **no** | yes |
+| started or stopped | **no** (withdrawn, #78) | yes, permanently zero |
+| `current_format`, Stream Inputs | **no** | **no** |
+| `current_format`, Stream Outputs | **no** | **no** |
+
+Five fields have an output, and all five are read by nothing downstream. The
+media clock still uses its compile-time select, so `SET_CLOCK_SOURCE` stores a
+value the servo does not act on. `current_sampling_rate` is the one field a
+controller can move that the fabric cannot see. Aligning the audio grid to it
+is #74's work. The two `current_format` rows are storage allocated ahead of
+`SET_STREAM_FORMAT`, and neither side can reach them today. This deliberate
+sequencing keeps the AECP side independently provable, but a green suite is
+**not** a claim that the device behaves differently on the bench.
 
 ---
 

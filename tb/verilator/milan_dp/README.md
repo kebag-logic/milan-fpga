@@ -129,7 +129,7 @@ receive a conformant `NOT_IMPLEMENTED` echo with the command payload and length
 preserved and the frame padded to the 60-octet minimum. The exact inventory is
 gated by [`aecp_engine_steps.py`](../../../tests/steps/aecp_engine_steps.py) and
 the pinned processor's
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/68c86d772713f9f81ca67ef567b2861bf65bf5cc/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/301073b4f8a98b8c1b92421171abb1d3391baa47/docs/architecture/06_aecp_engine.md).
 
 **This suite backs no descriptor memory, on purpose and on record.**
 `milan_datapath` exposes nine ports for the AEM image the store fetches

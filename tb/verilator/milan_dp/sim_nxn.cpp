@@ -1125,8 +1125,8 @@ int main(int argc, char** argv) {
                 // present.
                 //
                 // ORDER MATTERS. This block must stay below every
-                // [AECP-MODEL] check that reads a field it writes — today
-                // that is GET_CLOCK_SOURCE and GET_CONTROL. Setting the clock
+                // [AECP-MODEL] check that reads a field it writes. Today that
+                // is GET_CLOCK_SOURCE alone. Setting the clock
                 // source arms the dynamic store's valid bit for THAT field,
                 // after which GET_CLOCK_SOURCE answers the overlay instead of
                 // the image, and a model check above would compare the

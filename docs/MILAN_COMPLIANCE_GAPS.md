@@ -2285,7 +2285,7 @@ underneath it.
 
 Do not invent one. The processor already defines the on-media contract, and both
 the manager and the port validate against it (07 §5.2 F07.8, and
-[`KL_pp_nvm_port.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/68c86d772713f9f81ca67ef567b2861bf65bf5cc/hdl/packet_engine/KL_pp_nvm_port.sv)):
+[`KL_pp_nvm_port.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/301073b4f8a98b8c1b92421171abb1d3391baa47/hdl/packet_engine/KL_pp_nvm_port.sv)):
 
 | Offset | Field | Notes |
 |---|---|---|
