@@ -4231,19 +4231,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   KL_stream_table #(.N_LISTENERS_P(N_STREAMS)) stream_table (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    //! entry 0 is the ACMP ALIAS and it has its own port, so it needs the
-    //! started gate too - gating only the vector below left the one entry
-    //! the bench listener actually comes up on ungated, and a stopped sink 0
-    //! went on matching frames. `acmpl_bound` itself stays UNGATED where it
-    //! reports state (the CSR bound bit, `acmpl_active`): Milan 5.3.8.7
-    //! stops the DATA, it does not unbind the sink.
+    //! entry 0 is the ACMP alias and it gets the PURE bind level, exactly
+    //! like the vector below and for the same reason: this port feeds the
+    //! bind edges that Table 5.6 resets counters on. The started gate is on
+    //! the accept pulse further down.
     .bound0_i (acmpl_bound), .sid0_i (acmpl_sid),
-    //! task #32: every entry rides its own sink's bind level, so an
-    //! UNBIND evicts the classification entry and the departed stream's
-    //! frames become foreign at the parser (the AAF slice of the ACMP
-    //! view - the CRF sink classifies in its own path)
-    //! the PURE bind level, deliberately NOT the started gate. This port
-    //! feeds `bind_rise_o`/`bind_fall_o`, and Milan Table 5.6 resets the
+    //! task #32: every entry rides its own sink's bind level, so an UNBIND
+    //! evicts the classification entry and the departed stream's frames
+    //! become foreign at the parser (the AAF slice of the ACMP view - the
+    //! CRF sink classifies in its own path).
+    //!
+    //! It is the PURE bind level and deliberately NOT the started gate: this
+    //! port feeds `bind_rise_o`/`bind_fall_o`, and Milan Table 5.6 resets the
     //! Stream Input counters "each time the Stream Input changes its state
     //! from not bound to bound" - a STOP_STREAMING is not that. Gating here
     //! synthesised a fake unbind/rebind pair around every stop/start, which
