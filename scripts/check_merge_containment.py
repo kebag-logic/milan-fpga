@@ -74,6 +74,16 @@ def contained(branch, base):
         rc, _ = _git("rev-parse", "--verify", "--quiet", ref + "^{commit}")
         if rc != 0:
             return (None, None, f"no such ref: {ref}")
+        #! An ambiguous name (a tag AND a branch called the same thing) is
+        #! resolved silently by git's own precedence -- the tag wins, and a
+        #! stranded branch reads as contained. git says so on stderr, which
+        #! _git discards, so ask explicitly instead of trusting the default.
+        hits = [k for k in ("refs/heads/", "refs/remotes/", "refs/tags/")
+                if _git("rev-parse", "--verify", "--quiet", k + ref)[0] == 0]
+        if len(hits) > 1:
+            return (None, None,
+                    f"{ref!r} is ambiguous ({', '.join(h + ref for h in hits)})"
+                    f" -- name the full ref")
 
     rc, _ = _git("merge-base", "--is-ancestor", branch, base)
     if rc == 0:
@@ -90,14 +100,28 @@ def contained(branch, base):
                 f"UNKNOWN rather than as zero")
     ahead = int(out)
 
-    #! Not an ancestor, but is the WORK there? A squash or rebase merge lands
-    #! every change without keeping the commits, and calling that stranded is
-    #! how this check would come to be ignored.
-    rc, diff = _git("diff", "--quiet", base, branch)
-    if rc == 0:
-        return (True, ahead,
-                f"content is identical to {base} ({ahead} commit(s) not "
-                f"ancestors -- squash or rebase merge)")
+    #! Not an ancestor -- but is the WORK there? A squash or rebase merge lands
+    #! every change without keeping the commits, and reporting those as
+    #! stranded forever is how this check would come to be ignored.
+    #!
+    #! Compare only the PATHS THIS BRANCH TOUCHED. A whole-tree `git diff base
+    #! branch` was the first cut and it is true only while base's tree is still
+    #! byte-identical -- one unrelated commit later and every squash-merged
+    #! branch reads stranded again. A review demonstrated exactly that: five
+    #! sequential squash merges, only the newest passing.
+    rc, mb = _git("merge-base", base, branch)
+    if rc == 0 and mb:
+        rc, names = _git("diff", "--name-only", mb, branch)
+        paths = [n for n in names.splitlines() if n]
+        if rc == 0 and paths:
+            rc, _ = _git("diff", "--quiet", base, branch, "--", *paths)
+            if rc == 0:
+                return (True, ahead,
+                        f"every path this branch touched is identical in "
+                        f"{base} ({ahead} commit(s) not ancestors -- squash "
+                        f"or rebase merge)")
+
+    #! rebase keeps one commit per change, so patch-ids still match
     rc, cherry = _git("cherry", base, branch)
     if rc == 0 and cherry and all(l.startswith("-") for l in cherry.splitlines()):
         return (True, ahead,
@@ -115,10 +139,13 @@ def merged_pr_heads(limit, base):
     branch at all, and answers "diverged" for all of them -- noise that would
     bury the one real finding.
 
-    THE HEAD OID, NOT THE BRANCH REF: deleting a branch after merge is normal
-    housekeeping and leaves no ``origin/<name>`` to resolve.  The OID is not
-    fetchable either once the ref is gone, so containment for those is asked
-    of GitHub directly -- see ``contained_via_api``.
+    THE HEAD OID, NOT THE BRANCH REF, because a branch deleted after merge
+    leaves no ``origin/<name>``.  Note the OID is not fetchable either once
+    nothing points at it: such a PR is reported UNKNOWN, loudly, rather than
+    guessed at.  ``delete_branch_on_merge`` is false on this repository, so
+    that path is not the normal case here -- when it becomes one, the answer
+    is GitHub's compare endpoint, and it needs its own review rather than the
+    unexercised version this file used to carry.
     """
     import json
     #! gh wants a branch NAME; `base` is a git ref and usually carries the
@@ -143,47 +170,6 @@ def merged_pr_heads(limit, base):
                  for d in json.loads(p.stdout)], None)
     except (ValueError, KeyError) as exc:
         return (None, f"could not parse gh output: {exc}")
-
-
-def contained_via_api(head_oid, base):
-    """(is_contained, ahead, note_or_error) asked of GitHub, not the clone.
-
-    For a branch deleted after its merge there is no local ref AND no local
-    object: `git fetch` will not retrieve an OID that nothing points at.  The
-    first cut reported every such PR as UNKNOWN, which on a repository that
-    tidies up its branches meant the prescribed command was red for 12 of the
-    last 20 PRs with nothing actually wrong -- a check that cries wolf, which
-    is the failure this file exists to prevent.
-
-    GitHub's compare endpoint still knows: `ahead_by == 0` means the base has
-    everything, and an empty file list means the content landed even though
-    the commits did not (squash or rebase).
-    """
-    import json
-    ref = base.split("/", 1)[1] if base.startswith("origin/") else base
-    try:
-        p = subprocess.run(
-            ["gh", "api", f"repos/{{owner}}/{{repo}}/compare/{ref}...{head_oid}",
-             "--jq", "{ahead: .ahead_by, files: (.files | length)}"],
-            capture_output=True, text=True)
-    except FileNotFoundError:
-        return (None, None, "gh is not installed")
-    if p.returncode != 0:
-        return (None, None,
-                "GitHub could not compare it: "
-                + (p.stderr or "").strip().splitlines()[-1][:120])
-    try:
-        d = json.loads(p.stdout)
-        ahead, files = int(d["ahead"]), int(d["files"])
-    except (ValueError, KeyError, IndexError):
-        return (None, None, "could not read the compare result")
-    if ahead == 0:
-        return (True, 0, None)
-    if files == 0:
-        return (True, ahead,
-                f"content landed ({ahead} commit(s) not ancestors -- squash "
-                f"or rebase merge)")
-    return (False, ahead, None)
 
 
 # --- self-test ---------------------------------------------------------------
@@ -233,6 +219,65 @@ def selftest():
     case("missing-base", (ok, ahead), (None, None),
          "...and so is a base that cannot be resolved")
 
+    # --- END TO END, through main() -----------------------------------------
+    # Everything above calls contained() directly, and a review showed that
+    # leaves the whole verdict-aggregation path uncovered: the exit code could
+    # be pinned to 0, STRANDED could be printed and not counted, the advertised
+    # number could be printed as a literal 0, and UNKNOWN could be made a pass
+    # -- SEVEN mutations, all silent. These run the tool and assert both the
+    # exit code and what it printed.
+    import io
+    import contextlib
+    import tempfile
+
+    def run(argv):
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), \
+                contextlib.redirect_stderr(io.StringIO()):
+            rc = main([sys.argv[0], *argv])
+        return rc, buf.getvalue()
+
+    with tempfile.TemporaryDirectory() as td:
+        import os
+        cwd = os.getcwd()
+        try:
+            os.chdir(td)
+            _git("init", "-q", "-b", "base")
+            _git("config", "user.email", "s@s")
+            _git("config", "user.name", "s")
+            open("f", "w").write("1")
+            _git("add", "-A"); _git("commit", "-qm", "c0")
+            _git("checkout", "-qb", "work")
+            #! THREE commits, so a count hard-coded to 1 -- the mutation the
+            #! previous round named and that still survived -- cannot pass
+            for i in range(3):
+                open(f"w{i}", "w").write(str(i))
+                _git("add", "-A"); _git("commit", "-qm", f"w{i}")
+
+            rc, out = run(["--no-fetch", "--base", "base", "work"])
+            case("e2e-stranded-rc", rc, RC_FINDING,
+                 "a stranded branch exits non-zero through main()")
+            case("e2e-stranded-count", "3 commit(s)" in out, True,
+                 "...and prints the real count, not a placeholder")
+            case("e2e-stranded-word", "STRANDED" in out, True,
+                 "...and says STRANDED")
+
+            rc, out = run(["--no-fetch", "--base", "work", "base"])
+            case("e2e-contained-rc", rc, RC_OK,
+                 "a contained branch exits 0")
+
+            rc, out = run(["--no-fetch", "--base", "base", "no-such-branch"])
+            case("e2e-unknown-rc", rc, RC_FINDING,
+                 "an unresolvable ref FAILS -- an unknown is not a pass")
+            case("e2e-unknown-word", "UNKNOWN" in out, True,
+                 "...and says UNKNOWN")
+
+            rc, out = run(["--no-fetch", "--bogus", "work"])
+            case("e2e-unknown-flag", rc, RC_CANNOT_RUN,
+                 "an unrecognised flag is refused, never read as a branch")
+        finally:
+            os.chdir(cwd)
+
     print("selftest:", "PASS" if bad == 0 else f"{bad} FAILURE(S)")
     return 1 if bad else 0
 
@@ -257,7 +302,10 @@ def main(argv):
     base = "origin/main-push"
     if "--base" in args:
         i = args.index("--base")
-        if i + 1 >= len(args):
+        if i + 1 >= len(args) or args[i + 1].startswith("-"):
+            #! `--base --no-fetch origin/x` used to set base to "--no-fetch"
+            #! AND consume the flag, so the fetch ran despite being asked not
+            #! to, and the run failed for the wrong reason
             sys.stderr.write(f"--base needs a ref\n{USAGE}\n")
             return RC_CANNOT_RUN
         base = args[i + 1]
@@ -295,7 +343,6 @@ def main(argv):
                 f"check the base name.\n")
             return RC_CANNOT_RUN
         targets = [(f"#{n} {b}", oid) for n, b, oid in prs]
-        api_fallback = True
     else:
         branches = [a for a in args if not a.startswith("-")]
         if not branches:
@@ -305,15 +352,11 @@ def main(argv):
                 return RC_CANNOT_RUN
             branches = [cur]
         targets = [(b, b) for b in branches]
-        api_fallback = False
 
     stranded = 0
     unknown = 0
     for label, ref in targets:
         ok, ahead, note = contained(ref, base)
-        #! a deleted branch leaves no local object to ask about, so ask GitHub
-        if ok is None and api_fallback and note and note.startswith("no such ref"):
-            ok, ahead, note = contained_via_api(ref, base)
         if ok is None:
             print(f"  UNKNOWN    {label}: {note}")
             unknown += 1
