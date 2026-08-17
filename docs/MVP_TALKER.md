@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # MVP Milan Talker (Arty, flash-standalone)
 
 Status: 2026-07-12. Goal: a discoverable, la_avdecc-clean Milan endstation that

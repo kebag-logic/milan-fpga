@@ -30,16 +30,16 @@ outside this build's declared scope.
 | All 50 `tb/verilator/*/Makefile` suites | PASS | Every suite returned zero. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
 | `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
 | `tb/verilator/pp_shadow` | PASS | Milan `ACQUIRE_ENTITY` is now checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. |
-| `tests/` Behave suite | 15 features, 321 scenarios passed, 1 scenario skipped | 1,522 steps passed and 4 steps were skipped. This is an offline behavior model, not an external compliance lab result. |
-| Pinned protocol processor suites | 13,504 checks passed | All 27 processor suites passed. The processor's zero-tolerance RTL lint and documentation gates also passed. |
-| Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,255 and 3,759 checks, including every declared AAF and CRF Stream Output. |
+| `tests/` Behave suite | 15 features and 322 scenarios passed | 1,526 steps passed with no skipped scenarios or steps. This is an offline behavior model, not an external compliance lab result. |
+| Pinned protocol processor suites | 13,512 checks passed | All 27 processor suites passed. The processor's zero-tolerance RTL lint and documentation gates also passed. |
+| Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,263 and 3,767 checks, including every declared AAF and CRF Stream Output. |
 | Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
-| Pinned gPTP processor skeleton | 799 checks passed | 768 uCPU checks and 31 parser checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
+| Pinned gPTP processor skeleton | 877 checks passed | 768 uCPU, 31 parser, and 78 engine checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
 | Root RTL lint | PASS under ratchet | The ratchet remains at 100 existing warnings. This is not a zero-warning result. |
 | Module matrix | PASS | 63 modules, 0 untested under the current matrix rules. |
 | End-station builder gates | PASS | The AEM image, identity, shape, and base-format generation gates passed. |
 | Documentation gate | PASS | It covered 204 Markdown files with zero findings after the final edits. |
-| Pinned `tsn-gen` field campaign | 164 checks passed | The public generator revision pinned in `.github/workflows/rtl.yml` was built with parser tests disabled; the AAF/AVTP field campaign reported 164 pass, 0 fail, and 0 known gaps. |
+| `tsn-gen` field campaign | 164 checks passed | The AAF/AVTP field campaign reported 164 pass, 0 fail, and 0 known gaps with parser tests disabled. The result came from a working tree of the public generator, not solely from the `TSN_GEN_REV` commit pinned by `.github/workflows/rtl.yml`. CI exercises that pin, but this campaign count is a measured floor rather than a pin-reproducible result. |
 | Vivado build and timing closure | NOT RUN | Vivado 2026.1 is not installed in this environment. |
 | Current physical Milan interoperability bench | NOT RUN | The external bench repository contains valuable dated evidence, but its present worktree is active and its last recorded audio result used a mismatched peer format. |
 
@@ -61,13 +61,17 @@ existing checkout at the pinned commit for an offline rerun.
 
 ### B1. The mandatory AECP command set is incomplete
 
-The pinned processor currently gives real behavior to `READ_DESCRIPTOR`,
+The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `ACQUIRE_ENTITY`, `LOCK_ENTITY`, `ENTITY_AVAILABLE`, `SET_CONFIGURATION`, `GET_CONFIGURATION`,
 `GET_STREAM_FORMAT`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
 `SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
-`GET_CONTROL`, `GET_STREAM_INFO`, `GET_AVB_INFO`, `GET_AS_PATH`,
+`GET_CONTROL`, `GET_STREAM_INFO`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
 `GET_COUNTERS`, `GET_AUDIO_MAP`, the unsolicited registration pair, and Milan
 `GET_MILAN_INFO`.
+
+This inventory describes command handling, not end-to-end effect. In
+particular, B12 records that START/STOP is unimplemented, so no AECP Stream
+Input started state reaches the root wrapper or controls the media plane.
 
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
@@ -91,9 +95,9 @@ Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/82281d550f04b78089d6445fc039d01ab231ddf0/hdl/aecp/KL_aecp_engine.sv) and
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/301073b4f8a98b8c1b92421171abb1d3391baa47/hdl/aecp/KL_aecp_engine.sv) and
 the current command table in
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/82281d550f04b78089d6445fc039d01ab231ddf0/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/301073b4f8a98b8c1b92421171abb1d3391baa47/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 
@@ -109,7 +113,7 @@ Evidence: the `[P] saved state` checks in
 [`sim_main.cpp`](../../tb/verilator/pp_shadow/sim_main.cpp) and the device face
 in [`KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv).
 
-### B3. The CRF media clock cannot be selected
+### B3. Dynamic clock and sampling-rate state does not reach the media plane
 
 The processor now accepts and stores `SET_CLOCK_SOURCE`, and
 [`KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) now does expose the
@@ -120,9 +124,15 @@ selection reaches the datapath and stops there. The CRF Media Clock Input cannot
 the media clock, and the shipping control-plane shape leaves the servo path
 idle.
 
-This blocks the media-clock behavior required by Milan section 7.2.2.
+The same boundary applies to `SET_SAMPLING_RATE`: the processor stores the new
+descriptor value, but the root media clock, packet grid, and audio engines do
+not consume it. A controller can therefore read back a selected rate that the
+media plane has not adopted.
 
-### B4. The full counter notification duty is incomplete
+This blocks the media-clock behavior required by Milan sections 5.3.5, 5.3.11,
+and 7.2.2.
+
+### B4. Counter coverage and notification duty are incomplete
 
 Solicited `GET_COUNTERS` now serves every declared Stream Output with the five
 mandatory Milan Table 5.17 counters in the compact quadlet layout. Counter
@@ -131,10 +141,79 @@ block does not yet connect those pulses to the rate-limited `GET_COUNTERS`
 notification scheduler, so the full Milan Table 5.22 asynchronous behavior is
 not closed.
 
-This blocks Milan section 5.4.5.2. Solicited reads satisfy the Stream Output
-portion of section 5.4.2.25.
+The declared CRF Media Clock Input is a separate mandatory gap. The root gather
+face serves AAF Stream Input indices below `N_STREAMS`, but the appended CRF
+Stream Input at index `N_STREAMS` returns an empty mask. Its Table 5.16 counter
+outputs and dirty source are unconnected. This leaves the CRF Stream Input
+requirements in Milan sections 5.3.8.10 and 5.4.2.25 open.
 
-### B5. The physical media clock and packet grid are not proven aligned
+This also blocks Milan section 5.4.5.2. Solicited reads serve AAF Stream Input,
+Stream Output, AVB Interface, and Clock Domain counters. The CRF Stream Input
+and the Table 5.22 notification path remain open under section 5.4.2.25.
+
+### B5. Registered-controller liveness monitoring is absent
+
+The processor stores unsolicited-notification registrations and applies the
+time-limited expiry policy, but it does not originate the random 30 to 60 s
+`CONTROLLER_AVAILABLE` monitor required by Milan section 5.4.5.3. It therefore
+cannot retry the probe once, re-arm the monitor on any response status, or
+remove a silent controller and send the targeted deregistration notification.
+
+This is a mandatory controller-liveness gap, separate from the Table 5.22
+counter-change notification producer in B4.
+
+### B6. Multi-bridge AS_PATH reporting is incomplete
+
+The root gather face serves `GET_AS_PATH` as a zero-entry response when no
+grandmaster is known, or as a one-entry response containing only the
+grandmaster identity. The CSR PathTrace staging group stores and reads back a
+tail, but the root leaves its path, count, and generation outputs disconnected.
+The processor therefore never receives the traversed bridge identities.
+
+This leaf-only behavior is useful but incomplete. A topology with one or more
+bridges is reported without those bridges, so the mandatory IEEE 1722.1 path
+semantics used by Milan are not closed.
+
+Evidence: the disconnected `o_asp_path`, `o_asp_count`, and `o_asp_gen` ports
+and the `GET_AS_PATH` gather selection in
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv), plus the staging
+status in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
+
+### B7. Identify control has no public indication
+
+The processor accepts Identify `SET_CONTROL` and stores its dynamic value, but
+`KL_pp_shadow.sv` exports that value to the root wire
+`pp_aecp_identify_w`. Nothing consumes the wire and the public `o_identify`
+output is tied low, so no board indication can follow the control.
+
+Evidence: the `o_identify` assignment in
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
+
+### B8. GET_AVB_INFO omits the measured propagation delay
+
+Software can publish the measured neighbor propagation delay through
+`GPTP_PDELAY` at `0x6E4`, but the processor gather face does not consume that
+CSR. `GET_AVB_INFO` always returns zero for `propagation_delay`, even when the
+stored measurement is nonzero. This leaves the network-interface state
+required by Milan section 5.3.6.1 and the mandatory section 5.4.2.23 response
+incomplete.
+
+Evidence: the `GET_AVB_INFO` gather selection in
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) and the `GPTP_PDELAY`
+entry in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
+
+### B9. The debug bypass can defeat talker admission
+
+`AAF_CTRL[1]` is an explicit bring-up escape hatch that bypasses both the ACMP
+and SRP admission terms. It resets clear, but software can still enable it and
+transmit without the Milan section 5.3.7.3 listener and reservation license.
+Any conforming deployment must keep this control clear; its writable presence
+remains a structural conformance defect.
+
+Evidence: the admission composition graded by
+[`milan_streaming_licence.feature`](../../tests/features/milan_streaming_licence.feature).
+
+### B10. The physical media clock and packet grid are not proven aligned
 
 The true-ratio simulation measures the TDM frame clock at about 10.6 ppm below
 the exact 48 kHz packet grid. The test currently passes by proving that the two
@@ -144,12 +223,25 @@ exercised in the current integration.
 
 Evidence: [`sim_aclk.cpp`](../../tb/verilator/milan_dp/sim_aclk.cpp).
 
-### B6. Required external evidence is missing
+### B11. Required external evidence is missing
 
 No current Vivado place-and-route, timing report, bitstream build, physical
 peer-format-matched audio run, long-duration gPTP run, or external lab run
 was produced in this audit. Automated simulation cannot establish electrical,
 clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
+
+### B12. Stream Input START/STOP behavior is absent
+
+The processor currently returns the conformant unimplemented fallback for
+`START_STREAMING` and `STOP_STREAMING`. The commands were built and withdrawn
+before merge because the authoritative started state must be reconciled with
+the existing ACMP binding record. No per-input started state controls the media
+plane, so Milan section 5.3.8.7 remains open.
+
+Evidence: the command inventory and withdrawal note in the pinned processor,
+the exported `aecp_strm_started_o` value received on an unconsumed root wire,
+and the absence of a corresponding media-plane gate in
+[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
 
 ## Corrections made by this audit
 
@@ -160,16 +252,18 @@ clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
    printing a stale unconditional gap.
 3. The repository README now describes the current VERSION `0x0002_004E`
    control-plane surface and the remaining blockers.
-4. Documents whose August 13 status text materially contradicts the current
-   processor pin are marked `[OBSOLETE + 2026-08-16]` at the top.
+4. First-line-obsolete documents are no longer current authorities. Current
+   entry points route compliance verdicts to this audit and the generated
+   module matrix.
 5. Stream Output counters now use Milan Table 5.17's compact mask and quadlet
    layout through the solicited processor path.
 6. Packet-completion metadata now freezes the `tu` bit carried by each AAF and
    CRF PDU. `TIMESTAMP_UNCERTAIN` therefore counts transmitted wire state, not
    a later live clock verdict.
-7. Every counter update, including a healthy `FRAMES_TX` interval, asserts the
-   raw per-descriptor dirty source. Rate limiting and notification coalescing
-   remain the scheduler work identified in B4.
+7. Every served Stream Output counter update, including a healthy `FRAMES_TX`
+   interval, asserts the raw per-descriptor dirty source. Rate limiting and
+   notification coalescing remain the scheduler work identified in B4. The CRF
+   Stream Input counter and dirty connections remain open.
 8. The integration proof now boots each simulation with its matching entity
    image, checks every declared output, rejects the first undeclared output
    with a full empty response body, and exercises real AAF and CRF enable
@@ -180,7 +274,7 @@ clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
 
 ## Release rule
 
-Do not remove the **not compliant** verdict until all B1 through B6 items have
+Do not remove the **not compliant** verdict until all B1 through B12 items have
 current evidence. A green regression is necessary, but it is not sufficient.
 The final review must include a synchronized clause matrix, zero unresolved
 mandatory rows, a successful bitstream and timing build, a matched-format

@@ -15,9 +15,9 @@ device tree. This is the smallest bootable slice of
                                      kl-eth driver binds ─▶ eth0 up (NAPI/XDP/PTP/ethtool)
 ```
 
-> **The full architecture, protocol coverage, and roadmap live in
-> [`../docs/overview/FULL_FPGA_SOLUTION.md`](../docs/overview/FULL_FPGA_SOLUTION.md) and
-> [`../docs/testing/PROTOCOL_VALIDATION_MATRIX.md`](../docs/testing/PROTOCOL_VALIDATION_MATRIX.md).**
+> **The current architecture and compliance boundary live in
+> [`../docs/overview/ARCHITECTURE.md`](../docs/overview/ARCHITECTURE.md) and
+> [`../docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md).**
 > This file is the quick build/boot reference.
 
 | File | What |

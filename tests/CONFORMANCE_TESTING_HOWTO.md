@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # BDD Conformance Testing — How It Runs
 
 > **SUPERSEDED 2026-08-12 — HISTORICAL RECORD.** Every feature and step file
@@ -5,7 +7,8 @@
 > control-plane RTL they modelled (`hdl/ieee17221/aecp/**`,
 > `hdl/ieee17221/acmp/**`, the ADP advertiser/parser, `hdl/ieee8021q/srp/**`)
 > is gone from this repository; the protocol-processor submodule is the
-> control plane now, and this device answers no AECP command at all. Kept for
+> control plane now and serves the command inventory recorded by the current
+> audit. Kept for
 > the method sections that outlived their subject — §7 (behave treats
 > `{code:d}` and `{s:d}` as ONE parse pattern, so a same-worded step shadows
 > silently), §8 (mutation testing: break the assertion, confirm red, restore,

@@ -25,64 +25,64 @@ The project has **two host variants around one datapath**:
 ACMP (talker and listener) and SRP. This repository's own ADP advertiser,
 AECP/AEM engine, ACMP talker/listener and lwSRP applicant are **deleted**;
 MAAP stays in this fabric (`KL_maap` + `hdl/milan/KL_pp_maap_shim.sv`) because
-the processor implements none by design.
+the shipping integration holds the processor's internal `KL_pp_maap` engine
+disabled with `cfg_maap_internal_i = 0` and selects this fabric allocator.
 
-**And state the AECP surface before reading anything else: this entity answers
-READ_DESCRIPTOR, and answers every other AECP command with a conformant
-NOT_IMPLEMENTED echo.** The responder is the processor's AECP uCPU, which has
+**State the AECP surface before reading anything else: this entity serves the
+processor's declared command inventory, including READ_DESCRIPTOR and
+GET_COUNTERS.** Unsupported commands receive a conformant fallback. The
+responder is the processor's AECP uCPU, which has
 landed — the device is reachable on AECP, not silent. `READ_DESCRIPTOR`
 (0x0004) returns `SUCCESS` carrying `configuration_index`, the reserved field
 and the descriptor; `NO_SUCH_DESCRIPTOR` on a locate miss; `BAD_ARGUMENTS` on a
 bad configuration index — both error paths carrying the IEEE 1722.1 §7.4.5
 4-byte `{descriptor_type, descriptor_index}` stub. **Controller enumeration is
-reachable again — once the descriptor image is in DRAM, which nothing in this
-repository does for you yet (§4).** Every other opcode, and every other message
-type (AEM, ADDRESS_ACCESS, VENDOR_UNIQUE/MVU), gets an echo with the correct
-`message_type`+1, length and `controller_data_length`: never silence, never
-malformed. `IDENTIFY_NOTIFICATION` (0x0026) arriving as a *command* is
+reachable once the builder-generated descriptor image is loaded into DRAM.**
+The tracked board flow verifies and loads the paired image with `aemi-load`
+before entity enable. Unsupported operations get the conformant fallback with
+the correct message type, length, and `controller_data_length`: never silence,
+never malformed. `IDENTIFY_NOTIFICATION` (0x0026) arriving as a *command* is
 `BAD_ARGUMENTS` — §7.4.39.2's opcode-specific rule beats §9.3.5.3.3. A command
 whose `target_entity_id` is not ours, and any AECP *response* arriving as input,
-are silently refused: freed, counted, no reply. **Known gap:** Milan Δ7
-`ACQUIRE_ENTITY` (`NOT_SUPPORTED` with `owner_id` = 0) is not distinguished from
-the generic echo.
+are silently refused: freed, counted, no reply. Milan Delta 7
+`ACQUIRE_ENTITY` returns `NOT_SUPPORTED` with a zero owner.
 
 **An echo is not an implementation**, so read the echo as a duty discharged
 (IEEE 1722.1 §9.3.5: respond to what you do not implement), never as coverage.
-Genuinely absent behind it: `SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME` (and
-`SET_STREAM_INFO`'s `MSRP_ACC_LAT`), `GET_COUNTERS` with the Milan Table 5.22
-unsolicited push, the audio-map setters (`SET_AUDIO_MAP` / `ADD_` /
-`REMOVE_AUDIO_MAPPINGS`), IDENTIFY (`o_identify` is tied 0 — the LED is
-structurally dark), and saved-state persistence: nothing in this device restores
-a binding across a power cycle. Those are stated capability boundaries from an
-informed user decision — not regressions, and not temporary blips. What they
-cost functionally is §3.2; what the affected CSR words read is
+Genuinely absent behind it: `SET_STREAM_FORMAT`, `SET_STREAM_INFO`, name access,
+the audio-map writers, `GET_DYNAMIC_INFO`, the Milan Table 5.22 counter-change
+scheduler, root-level IDENTIFY indication, and saved-state persistence.
+`SET_CLOCK_SOURCE` is accepted by the processor and its dynamic selection is
+exported to the root, but no media-plane logic consumes it, so the media plane
+remains pinned to INTERNAL. Those
+are stated capability boundaries. What they cost functionally is §3.2; what the
+affected CSR words read is
 [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md).
 
 **The entity model is no longer a fabric ROM — it lives in DDR3.** The
 processor's descriptor store fetches it over a read-only master at a
 **compile-time base**: there is no base register and software cannot relocate it
 at runtime, so the image must be written at that base **before** the entity is
-enabled. Nothing in this repository writes it: the generator is in the submodule
-(`protocol-processor/hdl/aecp/desc/gen_desc_image.py`), and no step in
-`sw/builder/`, `scripts/`, the LiteX SoC builder or the boot path turns a config
-into that image or loads it. So a stock build comes up with the region unloaded
-and answers `BAD_ARGUMENTS` to every read — the argument check runs before the
-locate and an invalid image reports zero configurations, so the locate is never
-reached. §4 has the detail and the symptom.
+enabled. The end-station builder emits `aem_desc.bin`, `aem_desc.json`, and
+`aem_desc.map`; the tracked board flow packages the paired artifacts and runs
+`aemi-load` before entity enable. A custom integration that omits this step
+answers `BAD_ARGUMENTS` to every read because the argument check runs before the
+locate and an invalid image reports zero configurations. §4 has the detail and
+the symptom.
 
 ---
 
 ## Contents
 
-- **[1. Repository layout](#1-repository-layout)** — Annotated directory tree — one line per directory saying what it holds. Fastest way to learn that `hdl/` mirrors the standards clauses (`ieee1722/`, `ieee17221/`, `ieee8021as/`, `ieee8021q/`) rather than the block hierarchy.
-- **[2. System block diagram (fully-FPGA softcore)](#2-system-block-diagram-fully-fpga-softcore)** — The whole SoC in one ASCII drawing: CPU and DMA engines above, `milan_datapath` below, TX/RX/TS lanes across. Says which SoC shape actually ships (1-hart, 32 KB L2) versus the superseded 2-hart perf peak, and names the five consumers of that one boundary.
-- **[3. Datapath](#3-datapath)** — Frame flow in both directions, and the two structural facts everything else follows from: the fabric engines inject *downstream* of the shaper (never touching classifier or queue), and the media copy is tapped *upstream* of the TCAM filter so the fabric keeps consuming AVTP while the CPU stays shielded from the multicast flood. §3.1 is the TX arbiter cascade after it collapsed 8 muxes → 4, and §3.2 the three functional losses the AECP boundary costs.
-- **[4. Control plane (milan_csr)](#4-control-plane-milan_csr)** — One AXI4-Lite window, sorted by direction: `o_*` configuration out, `i_*` status back, single-cycle command strobes, one IRQ line. Carries the boot ordering that bites: the descriptor image must be in DRAM at its compile-time base before the entity is enabled, and the enable is now *either* `PP_CTRL[0]` or the historic `ADP_CTRL.en`. Also the boundary that trips people up — the ring-DMA engines live in a separate LiteX CSR space at `0xf000_xxxx`.
-- **[5. Clock domains & CDC](#5-clock-domains--cdc)** — The domain table plus the generated crossing census, and the two things to read off it: every `sys ⇄ cd_milan` crossing comes from `add_milan_datapath()` (a hand-rolled extra is a bug), and the census is a *lower* bound — a bare assignment between clocked processes is invisible to it and to simulation alike.
-- **[6. HDL ↔ software mapping](#6-hdl--software-mapping)** — One row per concern joining a CSR group to the driver entry point and the device-tree property that binds them, so you can trace a feature end to end without opening three repos.
-- **[7. Verification](#7-verification)** — What the six layers each prove, including the split worth internalising: the Verilator suites prove the RTL does what it does, the BDD conformance suite proves it does what the standard says. Also the Yosys gate on tied-off datapath inputs — the defect class that let RMON read zero for months.
-- **[8. Where to change things (maintainability)](#8-where-to-change-things-maintainability)** — The maintenance table: for each kind of change, every file that must move together and the harnesses to re-run. Note the paired edits that are easy to half-do — queue count lives in two places, CBS defaults in two more.
-- **[9. The Zynq-7020 variant (legacy)](#9-the-zynq-7020-variant-legacy)** — The legacy host, kept working but off the main line. Read it for the decoder ring on older docs: wherever [`REQUIREMENTS.md`](../../REQUIREMENTS.md) or [`TODO.md`](../../TODO.md) mention `0x43C0_0000`, `IRQ_F2P` or `device-tree-xlnx`, they mean this variant only.
+- **[1. Repository layout](#1-repository-layout)** -- Annotated directory tree, one line per directory saying what it holds. Fastest way to learn that `hdl/` mirrors the standards clauses (`ieee1722/`, `ieee17221/`, `ieee8021as/`, `ieee8021q/`) rather than the block hierarchy.
+- **[2. System block diagram (fully-FPGA softcore)](#2-system-block-diagram-fully-fpga-softcore)** -- The whole SoC in one ASCII drawing: CPU and DMA engines above, `milan_datapath` below, TX/RX/TS lanes across. Says which SoC shape actually ships (1-hart, 32 KB L2) versus the superseded 2-hart perf peak, and names the five consumers of that one boundary.
+- **[3. Datapath](#3-datapath)** -- Frame flow in both directions, and the two structural facts everything else follows from: the fabric engines inject *downstream* of the shaper (never touching classifier or queue), and the media copy is tapped *upstream* of the TCAM filter so the fabric keeps consuming AVTP while the CPU stays shielded from the multicast flood. §3.1 is the TX arbiter cascade after it collapsed 8 muxes → 4, and §3.2 the three functional losses the AECP boundary costs.
+- **[4. Control plane (milan_csr)](#4-control-plane-milan_csr)** -- One AXI4-Lite window, sorted by direction: `o_*` configuration out, `i_*` status back, single-cycle command strobes, one IRQ line. Carries the boot ordering that bites: the descriptor image must be in DRAM at its compile-time base before the entity is enabled, and the enable is now *either* `PP_CTRL[0]` or the historic `ADP_CTRL.en`. Also the boundary that trips people up: the ring-DMA engines live in a separate LiteX CSR space at `0xf000_xxxx`.
+- **[5. Clock domains & CDC](#5-clock-domains--cdc)** -- The domain table plus the generated crossing census, and the two things to read off it: every `sys ⇄ cd_milan` crossing comes from `add_milan_datapath()` (a hand-rolled extra is a bug), and the census is a *lower* bound. A bare assignment between clocked processes is invisible to it and to simulation alike.
+- **[6. HDL ↔ software mapping](#6-hdl--software-mapping)** -- One row per concern joining a CSR group to the driver entry point and the device-tree property that binds them, so you can trace a feature end to end without opening three repos.
+- **[7. Verification](#7-verification)** -- What the six layers each prove, including the split worth internalising: the Verilator suites prove the RTL does what it does, the BDD conformance suite proves it does what the standard says. Also the Yosys gate on tied-off datapath inputs, the defect class that let RMON read zero for months.
+- **[8. Where to change things (maintainability)](#8-where-to-change-things-maintainability)** -- The maintenance table: for each kind of change, every file that must move together and the harnesses to re-run. Note the paired edits that are easy to half-do: queue count lives in two places, CBS defaults in two more.
+- **[9. The Zynq-7020 variant (legacy)](#9-the-zynq-7020-variant-legacy)** -- The legacy host, kept working but off the main line. Read it for the decoder ring on older docs: wherever [`REQUIREMENTS.md`](../../REQUIREMENTS.md) or [historical `TODO.md`](../../TODO.md) mention `0x43C0_0000`, `IRQ_F2P` or `device-tree-xlnx`, they mean this variant only.
 
 ## 1. Repository layout
 
@@ -90,7 +90,7 @@ reached. §4 has the detail and the symptom.
 milan-fpga/
 ├─ README.md                 landing page + quick jumps
 ├─ REQUIREMENTS.md           normative requirements + 802.1 gap analysis
-├─ TODO.md                   phased task list (partly Zynq-era)
+├─ TODO.md                   obsolete historical task list
 ├─ CHANGELOG.md              the measured per-lever performance ledger
 ├─ docs/                     ← the documentation tree (see docs/README.md)
 │  ├─ overview/  integration/  fpga/  litex/  testing/  limitations/
@@ -210,15 +210,15 @@ numbers now reads the wrong mux. The watchdog windows stay staggered
 shortest-upstream (control chain 2^15, data merges 2^16, MAC boundary 2^17) so
 only the true origin of a stall fires.
 
-### 3.2 Three functional losses the AECP boundary costs
+### 3.2 Three functional losses at the control and media boundary
 
-These sit *behind* the `NOT_IMPLEMENTED` echo: the commands are answered
-conformantly and do nothing. Not CSR cosmetics — behaviour a bench will notice:
+These are not CSR cosmetics. They are behavior a bench will notice:
 
-1. **The CRF media clock can never be SELECTED.** AECP `SET_CLOCK_SOURCE` was
-   the only writer of the live CLOCK_DOMAIN `clock_source_index`, so the
-   selection is pinned at index 0, the INTERNAL media clock, for the life of
-   the build. `KL_mmcm_drp_servo` and the `KL_media_nco` packet-grid servo are
+1. **The CRF media clock can never be SELECTED.** AECP `SET_CLOCK_SOURCE` is
+   accepted and stored, and the wrapper exports the selected index to the root.
+   No media-plane consumer reads it, so the active selection stays pinned at
+   index 0, the INTERNAL media clock, for the life of the build.
+   `KL_mmcm_drp_servo` and the `KL_media_nco` packet-grid servo are
    therefore **structurally off** and `A_MCSRV_STAT` (`0x8F8`) reads its idle.
    The CRF Media Clock Input engine (`KL_crf_rx`) still parses, counts and
    reports — it simply cannot steer anything.
@@ -227,10 +227,10 @@ conformantly and do nothing. Not CSR cosmetics — behaviour a bench will notice
    was its only writer. That is a *default*, not a zero: 0 ns would be a
    presentation time in the past and every listener would drop every frame as
    late.
-3. **Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are gone.**
-   `KL_talker_diag_ctx` is no longer instantiated: its two consumers were
-   `GET_COUNTERS(STREAM_OUTPUT, idx)` and the Table 5.22 unsolicited push, and
-   both are deleted. **The STREAM_INPUT counters at the `0x6B8` `A_STRMW_CNT`
+3. **Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are live.**
+   `KL_talker_diag_ctx` is instantiated per declared output and served through
+   GET_COUNTERS. The Table 5.22 unsolicited change producer remains open.
+   **The STREAM_INPUT counters at the `0x6B8` `A_STRMW_CNT`
    window are unaffected and still live** — they reach software through a CSR,
    not through AECP.
 
@@ -277,8 +277,8 @@ base differs, the offsets are the ABI in
 The ring-DMA engines have their own LiteX-generated CSR space
 (`0xf000_xxxx`) - documented in the DMA section of the register map.
 
-**Load the descriptor image before you enable the entity — and today nobody
-does.** The AECP uCPU serves `READ_DESCRIPTOR` out of main memory, not out of a
+**Load the descriptor image before you enable the entity.** The tracked board
+flow does this with `aemi-load`. The AECP uCPU serves `READ_DESCRIPTOR` out of main memory, not out of a
 fabric ROM: `milan_datapath` exposes a read-only descriptor-memory master
 (`o_desc_mem_*` / `i_desc_mem_*`) that the LiteX SoC bridges to DRAM, and its
 base is a **compile-time** parameter — `PP_DESC_BASE_P`, derived by the SoC from
@@ -297,17 +297,16 @@ is loaded and that descriptor is genuinely not in the model. It cannot hang eith
 so a bridge that never accepts is a clean refusal. A late load heals without a
 reset, because every locate against an invalid image re-arms the header probe.
 
-**That load has no producer in this tree, and that is the state a stock build
-boots in.** The image generator lives in the submodule
-(`protocol-processor/hdl/aecp/desc/gen_desc_image.py`, vendor-neutral JSON in,
-flat image out); nothing in [`sw/builder/`](../../sw/builder), `scripts/`, the
-LiteX SoC builder or the boot path turns an `endstation_*.yaml` into that JSON
-or writes the result to DRAM. The `aecp_aem_rom.svh` that
+**The descriptor supply chain is part of the tracked build and boot flow.**
 [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py)
-still emits is an **orphan** — the ROM of the deleted `KL_aecp_aem_store`, not
-the image the processor reads. So "the entity discovers, connects, and
-enumerates nothing" is the default symptom until that chain is built, not an
-edge case.
+turns the selected `endstation_*.yaml` into deployment image artifacts only
+during an explicit `--write-fragment` or `--write-rtl` ownership transfer. It
+writes `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` into the sibling
+rootfs overlay when that overlay is present. `aemi-load` verifies their pairing
+and writes the image to the derived base before entity enable. An ordinary
+builder run only writes review artifacts under `sw/builder/out/`. A custom
+integration that omits the load receives the fail-closed `BAD_ARGUMENTS`
+behavior described above.
 
 **The entity enable is ORed from two bits.** `PP_CTRL[0]` at `0x920` is the
 protocol processor's own gate; `ADP_CTRL.en` at `0x600` bit 0 is the historic
@@ -392,7 +391,7 @@ porting: [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §4.
 | MAC/PHY | MAC regs (0x100) | phylib `adjust_link`, `ndo_set_rx_mode` | `phy-handle` |
 | Stats | RMON regs (0x200) | `ethtool -S` | - |
 | Entity identity | `0x600` group (entity_id, model_id, talker/listener counts) | boot-time identity programming (`ADP_CTRL.en` also enables the entity) | - |
-| Entity model (AEM) | the descriptor-memory master `o_desc_mem_*` at `PP_DESC_BASE_P` — what `READ_DESCRIPTOR` is served from | write the descriptor image into that DRAM window **before** the enable — **no code in this repo does this yet**, so today the window is unloaded | the reserved main-memory region it sits in |
+| Entity model (AEM) | the descriptor-memory master `o_desc_mem_*` at `PP_DESC_BASE_P`, which serves `READ_DESCRIPTOR` | an explicit builder deployment transfer writes the paired image into the sibling rootfs overlay; `aemi-load` verifies and loads it before enable | the reserved main-memory region it sits in |
 | Control plane | `KL_pp_shadow` + `PP_*` regs (0x920) | enable / side-port diagnostics only — no per-frame CPU work | - |
 | RX filter | TCAM regs (0x700) | dest-MAC filtering | - |
 
@@ -434,7 +433,7 @@ months).
 | ADP / ACMP / SRP behaviour | the pinned `protocol-processor` submodule — **not** `hdl/` | bump the submodule pin, re-run [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) and the `milan_dp` integration harness; the fabric side of the seam is [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) and its class-D port list |
 | MAAP behaviour | [`hdl/ieee1722/maap/KL_maap.sv`](../../hdl/ieee1722/maap/KL_maap.sv) + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv) (the per-source ALLOC/RELEASE bridge) | re-run [`tb/verilator/maap`](../../tb/verilator/maap); the DA gate is the talker gate, so a MAAP change moves AAF admission |
 | PTP rate/offset | `timestamp_counter.sv` + `ptp_csr_sync.sv` | re-run `ptp`, `ptp_sync`; driver `ptp_clock_info` |
-| DMA/BD format | `milan_soc.py` engines | `sw/litex/test_*.py` sims + the driver in lockstep (see the [pairing hazards](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)) |
+| DMA/BD format | `milan_soc.py` engines | `sw/litex/test_*.py` sims + the driver in lockstep (see [recurring defect patterns](../limitations/RECURRING_DEFECT_PATTERNS.md)) |
 | Add an IRQ source | `milan_csr` IRQ_STATUS/MASK (+ EventManager wiring in `milan_soc.py`, or `bd/milan-dma.tcl` `IRQ_F2P` on Zynq) | DT regeneration |
 | Board pins / new board | [`sw/litex/platforms/`](../../sw/litex/platforms) | [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) |
 
@@ -451,7 +450,7 @@ harness. Every DUT change ships with its harness update in the same commit.
 PS7 via `milan_dma_wrapper.v` + the `bd/milan-dma.tcl` block design (PS7,
 2× AXI-DMA, `clk_wiz`, `smartconnect`; CSR at `0x43C0_0000`, four GIC IRQ
 lines). Constraints in `constraints/*.xdc`. [`REQUIREMENTS.md`](../../REQUIREMENTS.md) and parts of
-[`TODO.md`](../../TODO.md) were written in this era - where they talk about `0x43C0_0000`,
+[historical `TODO.md`](../../TODO.md) were written in this era - where they talk about `0x43C0_0000`,
 `IRQ_F2P` or `device-tree-xlnx`, they describe this variant only. The
 migration story from PS to softcore is
 [../integration/FULLY_FPGA_RISCV_MIGRATION.md (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).

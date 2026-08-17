@@ -37,22 +37,23 @@ Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 > `protocol-processor` submodule wrapped by
 > [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) is the control
 > plane. The device discovers over ADP, connects over ACMP and reserves over
-> SRP, and on AECP it **answers `READ_DESCRIPTOR` and answers every other
-> command with a conformant `NOT_IMPLEMENTED` echo.** Three things follow that
+> SRP, and on AECP it serves the inventory recorded in the current Milan audit.
+> Unsupported commands receive a conformant fallback response. Three things follow that
 > decide whether you have a fault at all:
 >
-> * **Enumeration is reachable again — but only once the descriptor image is in
->   DRAM, and nothing in this repository puts it there yet.** The entity model
+> * **Enumeration requires the descriptor image in DRAM.** The entity model
 >   lives in main memory at a **compile-time** base with no base register, and
->   software must write it there. No builder, script or boot step does, so on a
->   stock build **every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`** — the
+>   software must write it there. The builder generates the flat image,
+>   manifest, and map, and the tracked board flow runs `aemi-load` before entity
+>   enable. If a custom integration skips that step, every `READ_DESCRIPTOR`
+>   answers `BAD_ARGUMENTS`; the
 >   argument check (`configuration_index` against `configurations_count`) runs
 >   *before* the locate, and an invalid image reports a count of zero, so no
 >   configuration index passes. A clean refusal, never a hang. That status is
 >   also the discriminator: `BAD_ARGUMENTS` everywhere means the image was never
 >   loaded or is corrupt, while `NO_SUCH_DESCRIPTOR` means the image **is**
 >   loaded and that one descriptor is genuinely absent from the model. Expect
->   the former on the bench and read
+>   the former when image provisioning fails and read
 >   [Section 26](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram)
 >   before concluding the control plane is broken.
 > * **`NOT_IMPLEMENTED` is an answer, not a fault** — and so is `BAD_ARGUMENTS`
@@ -60,7 +61,7 @@ Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 >   NOT_IMPLEMENTED", "the name will not set", "IDENTIFY does nothing", "the
 >   binding did not survive the power cycle": that is the stated capability
 >   boundary, written up in
->   [KNOWN_ISSUES_AND_LIMITATIONS §0](KNOWN_ISSUES_AND_LIMITATIONS.md), not
+>   [the current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md), not
 >   something to diagnose.
 > * **Silence has exactly two legal causes**, both by design: the command's
 >   `target_entity_id` is not ours, or an AECP *response* was sent as input.
@@ -72,34 +73,34 @@ Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 
 ## Contents
 
-- **[Start here: which section is your problem in?](#start-here-which-section-is-your-problem-in)** — The router. One question — how far did you get before it broke? — narrows 26 field reports to one or two, with a sub-branch for the three different ways the wire goes dead. Ends on the observation that Sections 20, 21 and 22 are all the same lesson: a readback that agreed with you.
-- **[Section index](#section-index)** — The searchable table: the exact error string or symptom you would grep for, against the one-line root cause. Scan this before reading any section body.
-- **[Section 1: import litex resolves to a namespace package](#section-1-import-litex-resolves-to-a-namespace-package)** — `litex.__file__` is `None` because the repo-root directory named `litex/` shadows the installed package. Fix is a `cd`; the one-line check that confirms it is here.
-- **[Section 2: NaxRiscv generation needs JAVA_HOME](#section-2-naxriscv-generation-needs-java_home)** — The build dies in "netlist generation" because the core is generated from SpinalHDL and wants a JDK. Exact packages to install, and the note that first generation needs network.
-- **[Section 3: Identifier string must not contain commas](#section-3-identifier-string-must-not-contain-commas)** — `SoCCore(ident=…)` becomes a hardware string ROM, which forbids commas. Thirty-second fix.
-- **[Section 4: SoCError at _finalize_cpu_reset_address (no ROM)](#section-4-socerror-at-_finalize_cpu_reset_address-no-rom)** — A bare `SoCError` with no message: the CPU reset vector points at an integrated ROM nobody added. Tell is that the bus slave list has no `rom`.
-- **[Section 5: NaxRiscv has no attribute no_netlist_cache](#section-5-naxriscv-has-no-attribute-no_netlist_cache)** — Hand-setting a couple of CPU class attributes leaves the rest unset. The fix is the general pattern for LiteX CPUs: drive the core's own `args_fill`/`args_read` pipeline instead of assigning attributes.
-- **[Section 6: Region not in IO region, it must be cached](#section-6-region-not-in-io-region-it-must-be-cached)** — Why the CSR window is at `0x9000_0000` and not the Zynq's `0x43C0_0000`: uncached MMIO must sit above `0x8000_0000` on this address map. Register offsets are unchanged — only the base is host-specific, and the device tree must agree.
-- **[Section 7: Verilator cannot find include file](#section-7-verilator-cannot-find-include-file)** — A bare `` `include`` that Vivado resolves and Verilator does not, because Vivado searches the directories of added sources and Verilator only searches `+incdir`. The board build kept working, which is what hid it.
-- **[Section 8: The interactive and non-interactive sim both block](#section-8-the-interactive-and-non-interactive-sim-both-block)** — Three tangled causes behind a "flaky" sim driver: LiteX couples build and run, `--non-interactive` still runs, and the `OSError` was just the SIGKILL. Fix is to build once and pipe commands into the cached `Vsim` binary, with `BIOS_NO_DELAYS` so the prompt appears before the command does.
-- **[Section 9: pkill -f self-matches the running shell](#section-9-pkill--f-self-matches-the-running-shell)** — Cleanup exits 143/144 and takes your shell with it, because `pkill -f` matches its own parent's argv. Use `pkill -x <binary>`.
-- **[Section 10: Yosys / sv2v cannot find axis_mux_rr_2in_1out](#section-10-yosys--sv2v-cannot-find-axis_mux_rr_2in_1out)** — Verilator auto-resolves undefined modules from the source directories; sv2v and Yosys compile only what you list. The standing rule that comes out of it: list every source explicitly so the flows agree.
-- **[Section 11: milan_dp AXI-write BFM did not commit writes](#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)** — A CSR reads back `0` while reset values read fine, because the BFM sampled `awready`/`wready` after the edge and `milan_csr` takes AW and W together. Carries the transferable heuristic: when a write "silently does nothing", check the clock phase first.
-- **[Section 12: Benign Verilator warnings (PINMISSING and SELRANGE)](#section-12-benign-verilator-warnings-pinmissing-and-selrange)** — The two warnings that are noise here and why — optional interface pins, and out-of-range selects inside provably dead branches — plus the `VFLAGS` line that silences exactly those two.
-- **[Section 13: traffic_queues silently dropped a frame](#section-13-traffic_queues-silently-dropped-a-frame)** — Only the arbiter's `tvalid` was grant-gated, so the prefetching mux drained a FIFO it had no grant to forward from. The rule: gate **both** sides — `tvalid` and the FIFO's `tready`.
-- **[Section 14: datapath harness "≥2 queues" assertion failed](#section-14-datapath-harness-2-queues-assertion-failed)** — Not a bug: the classifier's *reset* PCP→queue map is not an identity, so a harness that wants distinct queues has to program one. Gives the exact identity constants, and the caveat that the identity only holds for `p < 5`.
-- **[Section 15: --full fails 100 MHz timing in the CBS credit-shaper](#section-15---full-fails-100-mhz-timing-in-the-cbs-credit-shaper)** — `WNS = -19.25 ns` with every worst path in the credit shaper: a wide constant-divide and its multiply sharing one clock period, 36 logic levels. Read past the original multicycle fix (superseded, along with both of its `dont_touch`/XDC gotchas) to the sequential slope engine that deleted ~9.3 k LUTs of divide cone — and to the area-report trap it exposed, where the cones were attributed to `milan_csr`.
-- **[Section 16: clean 100 MHz  -  run the dense datapath in its own clock domain](#section-16-clean-100-mhz-----run-the-dense-datapath-in-its-own-clock-domain)** — The residual `WNS ≈ -1 to -2 ns` is routing congestion, not logic depth — a CSR read-mux pipeline made it *worse*. The structural answer: `--milan-clk-freq 50e6` puts the datapath in its own domain behind an AXI-Lite CDC, leaving `sys` for CPU and DDR3. Also records the DDR3 ceiling and why the PLL rejects intermediate frequencies.
-- **[Section 17: on-hardware NIC bring-up  -  DMA works, but no packet on the wire (it's GMII, not RGMII)](#section-17-on-hardware-nic-bring-up-----dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii)** — 20,000 frames in, `preamble_errors` +20,000, `crc` +0, zero captured. **Exactly one error per frame is the tell**: a 100 %-deterministic data error is structural, so stop tuning timing. Four IDELAY/clock-inversion rebuilds were burned before the real answer — the board's PHY is strapped for 8-bit SDR GMII, which the vendor's own working example says plainly.
-- **[Section 18: TX frames egress truncated / not at all  -  AXIS tkeep vs LiteEth last_be](#section-18-tx-frames-egress-truncated--not-at-all-----axis-tkeep-vs-liteeth-last_be)** — `tkeep` is a contiguous mask, LiteEth's `last_be` is a one-hot pointer to the last valid byte, and wiring one onto the other truncates an 8-byte word to one byte. Both conversion expressions are here. Note the coverage gap it exposes: the datapath harness checks `m_tdata` but not `m_tkeep`, so this class of bug in the LiteX glue is caught by no RTL harness.
-- **[Section 19: kernel hangs after OpenSBI (no Linux version)  -  a STALE litex_term served the wrong boot manifest](#section-19-kernel-hangs-after-opensbi-no-linux-version-----a-stale-litex_term-served-the-wrong-boot-manifest)** — Hours spent on the FPU, the kernel config, and timing — and the kernel had simply never been uploaded. The diagnostic is to read the *upload* lines rather than the hang point and notice `Image` missing. `tmux send-keys C-c` does not free a serial port; kill the PID.
-- **[Section 20: host plane dead, CSR readbacks perfect  -  a stale device tree maps every DMA window onto the wrong registers](#section-20-host-plane-dead-csr-readbacks-perfect-----a-stale-device-tree-maps-every-dma-window-onto-the-wrong-registers)** — The driver maps `reg` windows **by index**, so an obsolete dtb sent every DMA write to a wrong-but-writable CSR that stored it happily. Four false leads costed, then the experiment that cracked it in one shot: ping out while capturing at the tap. The twist is that flashing a corrected dtb fixes nothing — this boot path only reads the FDT embedded in the OpenSBI image, which is why `check_dtb_csr.py` now validates both.
-- **[Section 21: ACMP says SUCCESS, the listener declares itself bound - and not one frame is accepted (ROOT-CAUSED and FIXED, VERSION 0x000F; mechanism confirmed on silicon 2026-07-26)](#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26)** — The fabric-listener blocker, start to finish. A shared sid staging register plus a `ovr_armed_r` latch that cleared only on reset meant one stray `CTRL` write pinned entry 0 disabled forever — so every later `CONNECT_RX` bound cleanly and changed nothing. Read the top block for the fix and the **four-`devmem` workaround** for pre-`0x000F` gateware, plus the measured RX latency chain (~105–126 µs, ring-fill dominated). The refuted-suspect list below it is kept as method, not guidance, and the `0x800`-window trap at the end — a snapshot read returns literal `0` until the re-poll lands — briefly looked like the root cause itself.
-- **[Section 22: arming a second talker takes the peer board off the network (and the arm that never happened)](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened)** — With the lwSRP engine off, an armed `t > 0` context sends ~56,000 frames/s and drowns the peer, because **the bandwidth gate is the pacer** — there is no free-running timer behind it. The companion trap is worse: with the engine off, `TCTX` word-0 writes are dropped while the bus write completes, so "disable → arm → enable" produces an unarmed context whose readback agrees with you. Take arm truth from the `0x804` snapshot instead.
-- **[Section 23: ADD_AUDIO_MAPPINGS answers BAD_ARGUMENTS — which of the four rules did the record break?](#section-23-add_audio_mappings-answers-bad_arguments--which-of-the-four-rules-did-the-record-break)** — The vendor validity rules behind the refusal, each with its physical reason (rule 2 retired since the half-swap mux), the practical cluster-offset map for the 8×8, and the two probe-tool caveats that cost an hour. **This symptom cannot occur since 2026-08-13** — `ADD_AUDIO_MAPPINGS` is not implemented and is answered with the `NOT_IMPLEMENTED` echo, never `BAD_ARGUMENTS`; kept because the rules are the fabric's, not the parser's.
-- **[Section 24: "the counter reads 0" and nothing is wrong - structural zeros after the control-plane substitution](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution)** — The first thing to check before debugging a dead-looking register: a whole class of CSR words now reads a structural zero because the RTL behind it was deleted, and another class reads back what software wrote while reaching nothing. How to tell those two from a real fault, and where the per-word verdicts live.
-- **[Section 25: A_TXARB_DIAG 0x784 decodes to the wrong mux - the lanes were renumbered](#section-25-a_txarb_diag-0x784-decodes-to-the-wrong-mux---the-lanes-were-renumbered)** — The TX arbiter cascade collapsed from eight muxes to four, so every old decode of `0x784` now reads a different mux than it names. Old and new orders side by side.
-- **[Section 26: the controller finds the entity and enumerates nothing - the descriptor image was never loaded into DRAM](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram)** — The default state of a stock build, not an exception: discovery works, ACMP works, and every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` immediately, because nothing in this repository builds or loads the DRAM descriptor image the store reads. Why that status and not `NO_SUCH_DESCRIPTOR` — and how the two tell you, in one read, whether the image is missing or merely incomplete. The base is compile-time with no base register and therefore no status word, so the diagnosis is an `"AEMI"` header read at a base you **derive** from the build's memory map. Also: why it never hangs, why a late load heals without a reset, and why loading is a per-boot obligation rather than a per-flash one.
+- **[Start here: which section is your problem in?](#start-here-which-section-is-your-problem-in)** -- The router. One question -- how far did you get before it broke? -- narrows 26 field reports to one or two, with a sub-branch for the three different ways the wire goes dead. Ends on the observation that Sections 20, 21 and 22 are all the same lesson: a readback that agreed with you.
+- **[Section index](#section-index)** -- The searchable table: the exact error string or symptom you would grep for, against the one-line root cause. Scan this before reading any section body.
+- **[Section 1: import litex resolves to a namespace package](#section-1-import-litex-resolves-to-a-namespace-package)** -- `litex.__file__` is `None` because the repo-root directory named `litex/` shadows the installed package. Fix is a `cd`; the one-line check that confirms it is here.
+- **[Section 2: NaxRiscv generation needs JAVA_HOME](#section-2-naxriscv-generation-needs-java_home)** -- The build dies in "netlist generation" because the core is generated from SpinalHDL and wants a JDK. Exact packages to install, and the note that first generation needs network.
+- **[Section 3: Identifier string must not contain commas](#section-3-identifier-string-must-not-contain-commas)** -- `SoCCore(ident=…)` becomes a hardware string ROM, which forbids commas. Thirty-second fix.
+- **[Section 4: SoCError at _finalize_cpu_reset_address (no ROM)](#section-4-socerror-at-_finalize_cpu_reset_address-no-rom)** -- A bare `SoCError` with no message: the CPU reset vector points at an integrated ROM nobody added. Tell is that the bus slave list has no `rom`.
+- **[Section 5: NaxRiscv has no attribute no_netlist_cache](#section-5-naxriscv-has-no-attribute-no_netlist_cache)** -- Hand-setting a couple of CPU class attributes leaves the rest unset. The fix is the general pattern for LiteX CPUs: drive the core's own `args_fill`/`args_read` pipeline instead of assigning attributes.
+- **[Section 6: Region not in IO region, it must be cached](#section-6-region-not-in-io-region-it-must-be-cached)** -- Why the CSR window is at `0x9000_0000` and not the Zynq's `0x43C0_0000`: uncached MMIO must sit above `0x8000_0000` on this address map. Register offsets are unchanged -- only the base is host-specific, and the device tree must agree.
+- **[Section 7: Verilator cannot find include file](#section-7-verilator-cannot-find-include-file)** -- A bare `` `include`` that Vivado resolves and Verilator does not, because Vivado searches the directories of added sources and Verilator only searches `+incdir`. The board build kept working, which is what hid it.
+- **[Section 8: The interactive and non-interactive sim both block](#section-8-the-interactive-and-non-interactive-sim-both-block)** -- Three tangled causes behind a "flaky" sim driver: LiteX couples build and run, `--non-interactive` still runs, and the `OSError` was just the SIGKILL. Fix is to build once and pipe commands into the cached `Vsim` binary, with `BIOS_NO_DELAYS` so the prompt appears before the command does.
+- **[Section 9: pkill -f self-matches the running shell](#section-9-pkill--f-self-matches-the-running-shell)** -- Cleanup exits 143/144 and takes your shell with it, because `pkill -f` matches its own parent's argv. Use `pkill -x <binary>`.
+- **[Section 10: Yosys / sv2v cannot find axis_mux_rr_2in_1out](#section-10-yosys--sv2v-cannot-find-axis_mux_rr_2in_1out)** -- Verilator auto-resolves undefined modules from the source directories; sv2v and Yosys compile only what you list. The standing rule that comes out of it: list every source explicitly so the flows agree.
+- **[Section 11: milan_dp AXI-write BFM did not commit writes](#section-11-milan_dp-axi-write-bfm-did-not-commit-writes)** -- A CSR reads back `0` while reset values read fine, because the BFM sampled `awready`/`wready` after the edge and `milan_csr` takes AW and W together. Carries the transferable heuristic: when a write "silently does nothing", check the clock phase first.
+- **[Section 12: Benign Verilator warnings (PINMISSING and SELRANGE)](#section-12-benign-verilator-warnings-pinmissing-and-selrange)** -- The two warnings that are noise here and why -- optional interface pins, and out-of-range selects inside provably dead branches -- plus the `VFLAGS` line that silences exactly those two.
+- **[Section 13: traffic_queues silently dropped a frame](#section-13-traffic_queues-silently-dropped-a-frame)** -- Only the arbiter's `tvalid` was grant-gated, so the prefetching mux drained a FIFO it had no grant to forward from. The rule: gate **both** sides -- `tvalid` and the FIFO's `tready`.
+- **[Section 14: datapath harness "≥2 queues" assertion failed](#section-14-datapath-harness-2-queues-assertion-failed)** -- Not a bug: the classifier's *reset* PCP→queue map is not an identity, so a harness that wants distinct queues has to program one. Gives the exact identity constants, and the caveat that the identity only holds for `p < 5`.
+- **[Section 15: --full fails 100 MHz timing in the CBS credit-shaper](#section-15---full-fails-100-mhz-timing-in-the-cbs-credit-shaper)** -- `WNS = -19.25 ns` with every worst path in the credit shaper: a wide constant-divide and its multiply sharing one clock period, 36 logic levels. Read past the original multicycle fix (superseded, along with both of its `dont_touch`/XDC gotchas) to the sequential slope engine that deleted ~9.3 k LUTs of divide cone -- and to the area-report trap it exposed, where the cones were attributed to `milan_csr`.
+- **[Section 16: clean 100 MHz  -  run the dense datapath in its own clock domain](#section-16-clean-100-mhz-----run-the-dense-datapath-in-its-own-clock-domain)** -- The residual `WNS ≈ -1 to -2 ns` is routing congestion, not logic depth -- a CSR read-mux pipeline made it *worse*. The structural answer: `--milan-clk-freq 50e6` puts the datapath in its own domain behind an AXI-Lite CDC, leaving `sys` for CPU and DDR3. Also records the DDR3 ceiling and why the PLL rejects intermediate frequencies.
+- **[Section 17: on-hardware NIC bring-up  -  DMA works, but no packet on the wire (it's GMII, not RGMII)](#section-17-on-hardware-nic-bring-up-----dma-works-but-no-packet-on-the-wire-its-gmii-not-rgmii)** -- 20,000 frames in, `preamble_errors` +20,000, `crc` +0, zero captured. **Exactly one error per frame is the tell**: a 100 %-deterministic data error is structural, so stop tuning timing. Four IDELAY/clock-inversion rebuilds were burned before the real answer -- the board's PHY is strapped for 8-bit SDR GMII, which the vendor's own working example says plainly.
+- **[Section 18: TX frames egress truncated / not at all  -  AXIS tkeep vs LiteEth last_be](#section-18-tx-frames-egress-truncated--not-at-all-----axis-tkeep-vs-liteeth-last_be)** -- `tkeep` is a contiguous mask, LiteEth's `last_be` is a one-hot pointer to the last valid byte, and wiring one onto the other truncates an 8-byte word to one byte. Both conversion expressions are here. Note the coverage gap it exposes: the datapath harness checks `m_tdata` but not `m_tkeep`, so this class of bug in the LiteX glue is caught by no RTL harness.
+- **[Section 19: kernel hangs after OpenSBI (no Linux version)  -  a STALE litex_term served the wrong boot manifest](#section-19-kernel-hangs-after-opensbi-no-linux-version-----a-stale-litex_term-served-the-wrong-boot-manifest)** -- Hours spent on the FPU, the kernel config, and timing -- and the kernel had simply never been uploaded. The diagnostic is to read the *upload* lines rather than the hang point and notice `Image` missing. `tmux send-keys C-c` does not free a serial port; kill the PID.
+- **[Section 20: host plane dead, CSR readbacks perfect  -  a stale device tree maps every DMA window onto the wrong registers](#section-20-host-plane-dead-csr-readbacks-perfect-----a-stale-device-tree-maps-every-dma-window-onto-the-wrong-registers)** -- The driver maps `reg` windows **by index**, so an obsolete dtb sent every DMA write to a wrong-but-writable CSR that stored it happily. Four false leads costed, then the experiment that cracked it in one shot: ping out while capturing at the tap. The twist is that flashing a corrected dtb fixes nothing -- this boot path only reads the FDT embedded in the OpenSBI image, which is why `check_dtb_csr.py` now validates both.
+- **[Section 21: ACMP says SUCCESS, the listener declares itself bound - and not one frame is accepted (ROOT-CAUSED and FIXED, VERSION 0x000F; mechanism confirmed on silicon 2026-07-26)](#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26)** -- The fabric-listener blocker, start to finish. A shared sid staging register plus a `ovr_armed_r` latch that cleared only on reset meant one stray `CTRL` write pinned entry 0 disabled forever -- so every later `CONNECT_RX` bound cleanly and changed nothing. Read the top block for the fix and the **four-`devmem` workaround** for pre-`0x000F` gateware, plus the measured RX latency chain (~105–126 µs, ring-fill dominated). The refuted-suspect list below it is kept as method, not guidance, and the `0x800`-window trap at the end -- a snapshot read returns literal `0` until the re-poll lands -- briefly looked like the root cause itself.
+- **[Section 22: arming a second talker takes the peer board off the network (and the arm that never happened)](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened)** -- With the lwSRP engine off, an armed `t > 0` context sends ~56,000 frames/s and drowns the peer, because **the bandwidth gate is the pacer** -- there is no free-running timer behind it. The companion trap is worse: with the engine off, `TCTX` word-0 writes are dropped while the bus write completes, so "disable → arm → enable" produces an unarmed context whose readback agrees with you. Take arm truth from the `0x804` snapshot instead.
+- **[Section 23: ADD_AUDIO_MAPPINGS answers BAD_ARGUMENTS - which of the four rules did the record break?](#section-23-add_audio_mappings-answers-bad_arguments---which-of-the-four-rules-did-the-record-break)** -- The vendor validity rules behind the historical refusal, each with its physical reason, the practical cluster-offset map for the 8×8, and the two probe-tool caveats that cost an hour. The writer remains unimplemented and now receives a conformant fallback; the section is retained because the routing rules still constrain the fabric.
+- **[Section 24: "the counter reads 0" and nothing is wrong - structural zeros after the control-plane substitution](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution)** -- The first thing to check before debugging a dead-looking register: a whole class of CSR words now reads a structural zero because the RTL behind it was deleted, and another class reads back what software wrote while reaching nothing. How to tell those two from a real fault, and where the per-word verdicts live.
+- **[Section 25: A_TXARB_DIAG 0x784 decodes to the wrong mux - the lanes were renumbered](#section-25-a_txarb_diag-0x784-decodes-to-the-wrong-mux---the-lanes-were-renumbered)** -- The TX arbiter cascade collapsed from eight muxes to four, so every old decode of `0x784` now reads a different mux than it names. Old and new orders side by side.
+- **[Section 26: the controller finds the entity and enumerates nothing - the descriptor image was never loaded into DRAM](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram)** -- A provisioning failure: discovery and ACMP work, but every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` immediately because the generated image was not loaded or failed verification. The section explains the status split, derived base, `aemi-load` checks, watchdog, and late-load recovery.
 
 ## Start here: which section is your problem in?
 
@@ -164,7 +165,7 @@ to argue with than a bug.
 | [22](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened) | arming a `t > 0` talker takes the peer board off the network; and an arm that a readback confirms but that never happened | class-A pacing comes from the SRP **reservation gate**, not a timer; and with the engine off, `TCTX` word-0 writes are dropped while the bus write completes |
 | [24](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution) | a diagnostic counter reads `0` forever; a control register accepts a write, reads it back, and changes nothing on the wire | its source RTL was **deleted** on 2026-08-13 — the word is a **structural zero** or a **write-only scratch**, not a measurement and not a control |
 | [25](#section-25-a_txarb_diag-0x784-decodes-to-the-wrong-mux---the-lanes-were-renumbered) | `A_TXARB_DIAG 0x784` reports activity on the "wrong" lane, or bits 7:4 are always 0 | the TX arbiter cascade collapsed from **eight muxes to four** and the lanes were renumbered; an old decoder reads a different mux than it names |
-| [26](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram) | the controller discovers the entity, ACMP works, and **every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`** — immediately, never a timeout | the entity model lives in DRAM at a **compile-time** base, and **nothing in this repository builds or loads that image**, so a stock build has none; an invalid image reports zero configurations, which fails the argument check ahead of the locate; the store refuses cleanly rather than hanging |
+| [26](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram) | the controller discovers the entity, ACMP works, and **every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`** | the generated image was omitted, failed pairing or verification, or was written to the wrong derived base; an invalid image reports zero configurations and the store refuses cleanly rather than hanging |
 
 ---
 
@@ -710,7 +711,7 @@ out of any binary, so the image that actually boots is the image that gets check
 
 - A matching readback proves only that *something* stored the write. Verify the **engine**
   (live counters ticking, pointers advancing), never the register echo - the same class as
-  the CSR-shadow-lies trap in [KNOWN_ISSUES_AND_LIMITATIONS](KNOWN_ISSUES_AND_LIMITATIONS.md).
+  the CSR-shadow-lies trap in [recurring defect patterns](RECURRING_DEFECT_PATTERNS.md).
 - "TX works" must name the lane. Fabric TX flowing proves nothing about host TX.
 - A capture tap proves frames reached the *tap*; it never proves they exited toward the DUT.
 - Boot artifacts are part of the ABI. dtb ↔ `csr.csv` drift is the same failure class as
@@ -958,11 +959,10 @@ DMAC is **flooded** by the bridge - a stream nobody registered still reaches eve
 full rate, while a *registered but listener-less* stream is pruned. A peer board drowning in
 frames it never asked for is a switch-forwarding behaviour, not a fabric fault.
 
-## Section 23: `ADD_AUDIO_MAPPINGS` answers `BAD_ARGUMENTS` — which of the four rules did the record break?
+## Section 23: `ADD_AUDIO_MAPPINGS` answers `BAD_ARGUMENTS` - which of the four rules did the record break?
 
 > **THIS SYMPTOM CANNOT OCCUR since 2026-08-13.** `ADD_AUDIO_MAPPINGS` is not
-> implemented: the entity answers it — like every other AECP command except
-> `READ_DESCRIPTOR` — with a conformant `NOT_IMPLEMENTED` echo, so a controller
+> implemented: the entity answers it with a conformant fallback, so a controller
 > gets a refusal that names the boundary, never the `BAD_ARGUMENTS` this section
 > is about. The section is kept because the four rules are properties of the
 > **fabric** (what the capture and render crossbars can physically route), not
@@ -1046,14 +1046,15 @@ the class for each word and this one deliberately does not duplicate it.
 1. **Is the word in the register map's structural-zero or write-only-scratch
    class?** If yes, stop: there is nothing to fix here, and the next question is
    whether you needed the capability, not whether the register is broken.
-2. **Is what you are actually looking for the AECP boundary?** "GET_COUNTERS
-   came back NOT_IMPLEMENTED", "IDENTIFY does nothing", "the name will not set",
-   "the binding did not survive the power cycle" — every AECP command except
-   `READ_DESCRIPTOR` is answered with the `NOT_IMPLEMENTED` echo, and nothing
-   persists a binding across a power cycle
-   ([KNOWN_ISSUES_AND_LIMITATIONS §0](KNOWN_ISSUES_AND_LIMITATIONS.md)). If the
-   symptom is instead "the controller cannot read a **descriptor**", that is a
-   different animal and it is diagnosable —
+2. **Is what you are actually looking for the AECP boundary?** `GET_COUNTERS`,
+   Identify control, selected stream, clock and configuration operations,
+   `GET_AUDIO_MAP`, registration, and Milan info are served. Name access,
+   `SET_STREAM_FORMAT`, `SET_STREAM_INFO`, the audio-map writers, and
+   `GET_DYNAMIC_INFO` remain mandatory gaps. Nothing persists a binding across
+   a power cycle. Check the exact inventory and persistence verdict in the
+   [current audit, blockers B1 and B2](../testing/MILAN_V12_AUDIT_2026-08-16.md).
+   If the symptom is instead "the controller cannot read a **descriptor**",
+   that is a different animal and it is diagnosable:
    [Section 26](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram).
 3. **If it is live, does it TICK?** The truth test is unchanged and it is the
    one that survives all of this: read twice and require movement. A live
@@ -1122,7 +1123,7 @@ Per-word detail, as always, in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md)
 
 ## Section 26: the controller finds the entity and enumerates nothing - the descriptor image was never loaded into DRAM
 
-**Symptom (2026-08-13 onward, and it is the DEFAULT state of a stock build).** A
+**Symptom.** A
 controller discovers the entity from its ADPDU and lists it normally. ACMP
 works — it connects, the listener binds, audio flows. But the entity expands to
 **nothing**: every `READ_DESCRIPTOR`, including ENTITY at index 0, comes back
@@ -1156,17 +1157,13 @@ descriptor store over a read-only master (`o_desc_mem_*` / `i_desc_mem_*` at the
 The base is the elaboration parameter `PP_DESC_BASE_P`: **compile-time by
 design, with no base register**, so software cannot point the store somewhere
 wrong at runtime — and cannot point it anywhere right at runtime either.
-Software has to write the image there, and **nothing in this repository does**:
-the generator lives in the submodule
-(`protocol-processor/hdl/aecp/desc/gen_desc_image.py`), no step in
-[`sw/builder`](../../sw/builder), [`scripts/`](../../scripts), the LiteX SoC
-builder or the boot path produces its input JSON or loads its output, and the
-`aecp_aem_rom.svh` that
-[`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py)
-still emits is an orphan of the **deleted** `KL_aecp_aem_store` — not this
-image, and loading it would not help. So the expected finding is "the region is
-empty", and the question to answer first is whether anything was *ever* supposed
-to have filled it on your bench.
+Software has to write the image there. The end-station builder generates
+`aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` from the selected
+configuration and packages the paired image and manifest for the deployed
+board shape. The board-side `aemi-load` utility verifies their pairing, base,
+identity, header, and readback before entity enable. The older
+`aecp_aem_rom.svh` artifact belongs to the deleted fabric store and is not a
+processor image.
 
 Two deliberate properties keep the failure quiet rather than dramatic, and both
 are why you get a clean status instead of a hang:
@@ -1191,7 +1188,7 @@ are why you get a clean status instead of a hang:
    `target_entity_id` that is not ours, or an AECP response sent as input, are
    both refused silently by design. `NOT_IMPLEMENTED` to a non-`READ_DESCRIPTOR`
    command is the capability boundary, not a fault
-   ([KNOWN_ISSUES_AND_LIMITATIONS §0](KNOWN_ISSUES_AND_LIMITATIONS.md)).
+   ([current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md)).
 2. **Confirm the plane is present and enabled.** `PP_STAT` (`0x924`) carries the
    constant presence tag `0x5B` in `[31:24]`; a read of `0` means the gateware
    predates the group. The enable is two bits ORed — `PP_CTRL[0]` (`0x920`) and
@@ -1203,18 +1200,17 @@ are why you get a clean status instead of a hang:
    (`csr.csv` / `soc.json`) for the bitstream that is actually flashed — a
    literal copied from another build is exactly the drift this project keeps
    paying for.
-4. **Read the image header at that base.** It starts with the magic `"AEMI"`
+4. **Run `aemi-load` and read the image header at the derived base.** The loader
+   verifies the paired image and manifest before writing. The header starts with the magic `"AEMI"`
    (`0x41454D49`), then a layout version of 1 and a checksum, so an unloaded
    region is *distinguishable* rather than ambiguous: an all-zero region fails
    the magic compare first and reads as **"image not loaded"**, never as a valid
-   empty model. That single read is the whole diagnosis — it separates "nobody
-   loaded it" (today's expected answer) from "it is loaded and the store is
-   still missing".
+   empty model. The loader result plus that read separates a missing load from
+   a valid image whose requested descriptor is absent.
 
-**What to do about it.** There is no fix to apply on the board, because the
-missing piece is tooling: produce the JSON for the shape you built, run the
-submodule's `gen_desc_image.py`, and write the resulting image at the derived
-base. Two properties make that survivable to do by hand:
+**What to do about it.** Rebuild the selected end-station configuration,
+install its paired `aem_desc.bin` and `aem_desc.json`, and run `aemi-load`
+before enabling the entity. Two properties make recovery safe:
 
 * **a late load heals without a reset** — every locate against an invalid image
   re-arms the header probe, so an image written after the entity is already
@@ -1225,8 +1221,8 @@ base. Two properties make that survivable to do by hand:
   does a warm bitstream reload. Whatever stage already programs the identity
   CSRs at boot is the natural home for it.
 
-**Lesson.** The entity model moved from fabric to memory, and the failure moved
-with it: from "the build is wrong" to "nothing supplies the model". A device
+**Lesson.** The entity model moved from fabric to memory, and provisioning is
+now an explicit build-and-boot contract. A device
 that discovers, connects and streams while enumerating nothing is a
 **provisioning** symptom on this design, not a gateware one — and because the
 base is compile-time there is no status register to tell you so, which is why

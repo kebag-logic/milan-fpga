@@ -16,9 +16,10 @@ These three layers map to the sections below:
 [Section 2](#section-2-softcore-boot-with-litex_sim), and
 [Section 3](#section-3-softcore-plus-nic-milestone-m-a2).
 
-Read alongside [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) (architecture) and
-[`PROTOCOL_VALIDATION_MATRIX.md`](PROTOCOL_VALIDATION_MATRIX.md) (which test covers
-which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
+Read alongside [`ARCHITECTURE.md`](../overview/ARCHITECTURE.md), the generated
+[`MODULE_MATRIX.md`](../traceability/MODULE_MATRIX.md), and the current
+[`Milan v1.2 audit`](MILAN_V12_AUDIT_2026-08-16.md). If something goes wrong,
+see [`TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md).
 
 > **Softcore note:** the current ship softcore is **VexiiRiscv** (1-hart, `--l2-bytes 32768`);
 > NaxRiscv is the historical / pure-NIC option, and the NaxRiscv boot logs referenced below
@@ -32,18 +33,17 @@ which protocol). If something goes wrong, see [`TROUBLESHOOTING.md`](../limitati
 > and SRP are simulable through [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow),
 > the suite that grades the processor as the control plane, and the thirteen
 > deleted suites' AECP/ACMP/ADP/lwSRP coverage is gone rather than moved.
-> **Correction to an earlier revision of this note: there IS AECP to simulate.**
-> The processor's **AECP uCPU landed** — it answers `READ_DESCRIPTOR` (three
-> status paths), answers `IDENTIFY_NOTIFICATION`-as-a-command `BAD_ARGUMENTS`,
-> answers every other AECP command with a conformant `NOT_IMPLEMENTED` echo, and
-> silently refuses a foreign `target_entity_id` or a response arriving as input.
-> **No suite in this tree simulates any of it yet**, and no AEM getter or setter
-> exists to simulate: the echo is a response contract, not a function. A
-> `READ_DESCRIPTOR` in simulation answers `BAD_ARGUMENTS` unless the descriptor
-> image is placed in DRAM by the testbench — nothing in this repository builds or
-> loads one, and an image that fails its header magic/version/checksum reports
-> `configurations_count` = 0, which the microprogram's range check meets *before*
-> the locate. A bench that wants to see `NO_SUCH_DESCRIPTOR` must supply a valid
+> **There is AECP to simulate.** The processor's AECP uCPU serves its declared
+> command inventory, including `READ_DESCRIPTOR` and `GET_COUNTERS`.
+> Unsupported commands receive the conformant fallback, and invalid input takes
+> the command-specific refusal path. The processor `pp_top` suite simulates the
+> AECP engine and root `milan_dp` simulates the integrated wire response. The
+> end-station builder generates `aem_desc.bin`, `aem_desc.json`, and
+> `aem_desc.map`; the tracked board flow verifies and loads the pair with
+> `aemi-load`. A simulation bench must model that DRAM load explicitly. Without
+> a valid image, `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` because a failed
+> header reports `configurations_count` = 0 and the microprogram performs the
+> range check before the locate. To grade `NO_SUCH_DESCRIPTOR`, supply a valid
 > image first and then miss inside it. Because the wrapper instantiates the processor
 > unconditionally, every suite that elaborates `milan_datapath` — `pp_shadow`,
 > `milan_dp` and `hostplane` — now needs

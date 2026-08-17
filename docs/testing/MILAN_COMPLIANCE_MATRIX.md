@@ -28,8 +28,8 @@
 > `hdl/milan/KL_pp_shadow.sv`, instantiated unconditionally by
 > `hdl/milan/milan_datapath.sv` — and it owns **ADP, ACMP, SRP and AECP**.
 >
-> So there is still no `GET_COUNTERS` responder, no unsolicited-notification
-> registry, no `REGISTER_UNSOLICITED_NOTIFICATION`, no `CONTROLLER_AVAILABLE`
+> GET_COUNTERS serves the supported descriptor targets. There is still no
+> Table 5.22 counter-change producer, no `CONTROLLER_AVAILABLE`
 > probe and no `LOCK_ENTITY` to auto-unlock. The processor's **unsolicited** TX
 > lane has no producer at all: the Table 5.22 push is genuinely absent, and the
 > landed engine drives only the *solicited* lane. **The former `IMPLEMENTED` /
@@ -52,10 +52,9 @@
 > `owner_id` = 0) is **not** distinguished from the generic echo.
 >
 > **Two counter facts a reader needs before the tables.** The Milan Table 5.4
-> **per-STREAM_OUTPUT** counters are gone *at the source*, not merely unreadable:
-> `KL_talker_diag_ctx` is no longer instantiated, because `GET_COUNTERS` and its
-> Table 5.22 push were its only two consumers and keeping it would have burned
-> per-context counters into a build where nothing can read them. The
+> **per-STREAM_OUTPUT** counters are live for solicited GET_COUNTERS reads.
+> `KL_talker_diag_ctx` is instantiated per declared output. The Table 5.22
+> unsolicited change producer remains open. The
 > **STREAM_INPUT** counters at the `0x6B8` `A_STRMW_CNT` window are
 > **UNAFFECTED and still live** — `KL_avtp_rx_monitor_ctx` still tallies them
 > and software still reads them over CSR; what is gone is the AECP command that
@@ -115,11 +114,11 @@ fabric, and whether anything can *serve* it. Only the first is ever green.
 
 | clause | law | today | was (pre-2026-08-13) | evidence / gap |
 |---|---|---|---|---|
-| T5.13 AVB_IF mandatory | LINK_UP, LINK_DOWN, GPTP_GM_CHANGED served | **NOT IMPLEMENTED** — `GET_COUNTERS` draws the `NOT_IMPLEMENTED` echo. The link/GM event tallies still exist in `milan_csr` and are readable over CSR | IMPLEMENTED | was: response_builder `DESC_AVB_INTERFACE` arm, mask 0x23; sources `cnt_linkup_r/linkdn_r/gmchg_r` |
+| T5.13 AVB_IF mandatory | LINK_UP, LINK_DOWN, GPTP_GM_CHANGED served | **IMPLEMENTED through the processor GET_COUNTERS path** | IMPLEMENTED | `pp_top`, `milan_dp`; sources `cnt_linkup_r/linkdn_r/gmchg_r` |
 | T5.14 AVB_IF optional | FRAMES_TX/RX, RX_CRC_ERROR | **NOT IMPLEMENTED** (was allowed-missing, and is now moot) | MISSING (allowed) | optional — RMON has the raw events if ever wanted |
-| T5.15 CLOCK_DOMAIN | LOCKED, UNLOCKED served | **NOT IMPLEMENTED** — same echo, no set. Worse for this set: the domain can only ever be the INTERNAL source now (see §1a), so a CRF-sourced lock/unlock event is unreachable as well as unreadable | IMPLEMENTED | was: mask 0x03 from `in0_cnt_locked/unlocked` (RX monitor media-lock) |
-| T5.16 STREAM_INPUT | the mandatory ten, per sink | **NOT IMPLEMENTED over AECP** — but the **tallies are UNAFFECTED**: `KL_avtp_rx_monitor_ctx` still counts all ten per sink and they are still read over the `0x6B8` `A_STRMW_CNT` CSR window. This is the one set whose data survived the deletion intact | IMPLEMENTED+ | all-context mirror since 0x0019; CRF sink serves its own (`0xF3F`). Extras TIMESTAMP_VALID/NOT_VALID are 1722.1-legal |
-| T5.17 STREAM_OUTPUT | START, STOP, MEDIA_RESET, TS_UNCERTAIN, FRAMES_TX; **interval semantics** (the spec's own "not in line with ATDECC" note) | **NOT IMPLEMENTED, AND THE COUNTERS THEMSELVES ARE GONE.** `KL_talker_diag_ctx` is no longer instantiated by `milan_datapath` — GET_COUNTERS(STREAM_OUTPUT) and its Table 5.22 push were its only two consumers. The module survives under `hdl/ieee1722/avtp/` with its own suite; what is gone is the integration | IMPLEMENTED | was: `KL_talker_diag_ctx` per index incl CRF; interval FRAMES_TX since 0x001B-era fix |
+| T5.15 CLOCK_DOMAIN | LOCKED, UNLOCKED served | **SERVED through GET_COUNTERS.** The domain can only select the INTERNAL source today, so CRF-sourced events remain unreachable | IMPLEMENTED | `pp_top`, `milan_dp` |
+| T5.16 STREAM_INPUT | the mandatory ten, per sink | **SERVED through GET_COUNTERS.** The tallies also remain readable through the `0x6B8` CSR window | IMPLEMENTED+ | all-context mirror; CRF sink serves its own set |
+| T5.17 STREAM_OUTPUT | START, STOP, MEDIA_RESET, TS_UNCERTAIN, FRAMES_TX; **interval semantics** | **IMPLEMENTED FOR EVERY DECLARED OUTPUT.** `KL_talker_diag_ctx` is instantiated per AAF output and CRF, with integrated GET_COUNTERS coverage. The Table 5.22 producer remains separate | IMPLEMENTED | `tkdiag`, `milan_dp`, pinned la_avdecc decoder |
 
 ### 1a. What the loss of SET_CLOCK_SOURCE does to §1 and §2
 

@@ -95,7 +95,7 @@ board:
                                      # move the cable FIRST, then change this.
                                      # See docs/integration/BUILDING.md.
     render_lpf: false                # SPENT AREA LEVER (milan_datapath LPF_P,
-                                     # docs/NXN_ARCHITECTURE.md 6.2/6.3): prune
+                                     # docs/design/AREA_BUDGET.md): prune
                                      # KL_pcm_lpf, the 2nd-order Butterworth on
                                      # the DAC render tap. This is the ONLY
                                      # Vivado-PROVEN area figure in the 07-27
@@ -179,8 +179,8 @@ clocking:
   crf_output:                        # Milan 7.2.3 (MANDATORY here: >=2 AAF
     enabled: true                    # media inputs => CRF Media Clock Output;
                                      # the builder rejects the config without
-                                     # it). Model half; RTL provisioning of
-                                     # KL_crf_tx rides with item-5 NxN.
+                                     # it). Runtime gaps are graded in the
+                                     # current audit B3 and B4.
     format: "0x041060010000BB80"     # Milan 7.3.2 Table 7.1 (subtype 4 CRF,
                                      # type 1 AUDIO_SAMPLE, 48k, interval 96,
                                      # 1 ts/PDU)
@@ -340,35 +340,16 @@ streams:
     # more reason the eight rows must not be able to drift apart by hand.
     # clusters default = channels (8 mono clusters per stream port)
   talkers:
-    # THE TALKER IS AN 8-CHANNEL TALKER AND ITS FORMAT STAYS 8-CHANNEL
-    # (USER 2026-07-27, deciding this deliberately). This is the shipping
-    # 8x8 product: the declaration states what the device IS, and the
-    # FRAMER is what must be raised to meet it (item-5 NxN talker).
+    # The declared and emitted AAF width is eight channels. The TDM32 capture
+    # front end supplies 16 pair slots, enough to physically back four of the
+    # eight talkers; the remaining bound talkers frame legal silence through
+    # KL_pair_zero_fill. scripts/check_wire_accountability.py grades both the
+    # wire width and the separate source-coverage limit.
     #
-    # Measured on silicon 2026-07-27 so the cost is on record: a
-    # Milan-validated reference device bound to talker 0, passed the
-    # 5.5.1.2 format check, got ACMP SUCCESS with correct MAAP/MSRP - and
-    # counted UNSUPPORTED_FORMAT on 100 % of 296,294 frames at 8000/s,
-    # because it was promised 8ch AAF and handed the stereo the framer
-    # actually produces. THAT IS THE OPEN GAP, and it closes by making the
-    # framer emit 8 channels - NOT by down-declaring the entity to 2ch,
-    # which was briefly committed (dade536) and is reverted here: it would
-    # have made an 8x8 board advertise itself as stereo forever.
-    #
-    # `clusters: 2` still records today's physical render width; it is NOT
-    # the wire format and must not be used to derive one.
-    # ships
-    # WIRE TRUTH 2 (today's framer RTL is stereo - only 2 physical channels
-    # exist behind any talker stream until the item-5 NxN talker lands;
-    # raise together with that RTL). The legacy-8 layout stays expressible
-    # (see endstation_arty_current.yaml).
     # `clusters` is IGNORED under cluster_mapping.policy role-pools (D8): the
     # port's cluster block is the sum of its declared pools, not a copy of a
-    # stream field. It is kept as the value this shape would emit under
-    # cluster-per-stream-channel / cap-at-interface, and it still records
-    # WIRE TRUTH 2 - today's framer RTL is stereo, only 2 physical channels
-    # exist behind any talker stream until the item-5 NxN talker lands.
-    # The legacy-8 layout stays expressible (see endstation_arty_current.yaml).
+    # stream field. It is kept only so alternate cluster policies remain
+    # expressible; it does not describe the wire format or physical backing.
     - { name: "Stream Out 0", channels: 8, map_mode: dynamic, clusters: 2 }
     - { name: "Stream Out 1", channels: 8, map_mode: dynamic, clusters: 2 }
     - { name: "Stream Out 2", channels: 8, map_mode: dynamic, clusters: 2 }

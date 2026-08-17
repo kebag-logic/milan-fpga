@@ -101,7 +101,7 @@ Two traps this exists to avoid:
 
 **These are estimates, not Artix LUT6 counts.** The yosys→Vivado LUT ratio
 measured against this tree's own two Vivado anchors is **0.31 … 0.71** —
-see [NXN_ARCHITECTURE](../../docs/NXN_ARCHITECTURE.md) section 6.3. Quote a
+see [the area budget](../../docs/design/AREA_BUDGET.md). Quote a
 band, never a single figure, and never call an `ooc.sh` number a placement
 result. **Flip-flops are the exception**: they convert one-for-one (the
 `KL_pcm_lpf` row is 756 FF in both toolchains), which makes an FF count the
@@ -150,7 +150,7 @@ context a block shares decode and constants with its neighbours.
 **These are estimates, not Artix LUT6 counts.** The yosys→Vivado ratio
 measured against this tree's own place report ranges 0.25 (wide muxes,
 shared serial arithmetic) to 0.86 (the whole flattened datapath) — see
-[NXN_ARCHITECTURE](../../docs/NXN_ARCHITECTURE.md) section 6.3. Quote a band, never a single figure, and
+[the area budget](../../docs/design/AREA_BUDGET.md). Quote a band, never a single figure, and
 never call an `ooc.sh` number a placement result.
 **Control sets are NOT measurable here.** A yosys proxy was tried and
 discarded: counting `(clock, enable, set/reset)` triples over the `FD*` cells

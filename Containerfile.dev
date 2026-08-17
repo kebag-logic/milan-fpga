@@ -58,6 +58,10 @@ if [ ! -e third_party/verilog-axis/rtl ]; then \
   echo '== fetching third_party/verilog-axis =='; \
   git submodule update --init third_party/verilog-axis; \
 fi; \
+if [ ! -e protocol-processor/hdl ]; then \
+  echo '== fetching protocol-processor =='; \
+  git submodule update --init protocol-processor; \
+fi; \
 echo '== gate 1/4: docs =='        && python3 scripts/docs_check.py; \
 echo '== gate 2/4: traceability ==' && python3 docs/traceability/gen_module_matrix.py --check; \
 echo '== gate 3/4: builder =='      && python3 sw/builder/test_builder.py | tail -1; \

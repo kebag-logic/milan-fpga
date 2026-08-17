@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Minimal Milan v1.2 talker — ACMP state machine + AECP streaming (design)
 
 Reference truth (measure-don't-assume): every behavior below was extracted
@@ -228,9 +230,9 @@ aaf_gate = cfg_aaf_enable & (~cfg_maap_enable | maap_addr_valid) &
   IMPLEMENTED: the µCPU echoes `NOT_IMPLEMENTED` at it, which returns no
   dynamic info. This one is a real loss, not a formality.)**
 - Talker counters STREAM_START/STREAM_STOP wiring into GET_COUNTERS.
-  **(Moot: GET_COUNTERS is gone and the Milan Table 5.4 per-STREAM_OUTPUT
-  counter context is no longer instantiated — nothing could read it. The
-  STREAM_INPUT counters at `0x6B8` are unaffected and still live.)**
+  **Closed for solicited reads 2026-08-16:** the Milan Table 5.4 counter context
+  is instantiated per declared Stream Output and served through GET_COUNTERS.
+  The Table 5.22 unsolicited change producer remains open.
 
 ## Gates
 

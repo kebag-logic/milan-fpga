@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # The protocol-processor plane, measured — 2026-08-12
 

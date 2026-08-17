@@ -251,8 +251,9 @@ non-LiteX host.
 - [ ] SDC equivalents written: async clock groups, CDC attributes, CBS
       multicycle (§4.5)
 - [ ] CSR ID readback (`"MILN"` @ base+0x0) plan for first silicon (M-A2)
-- [ ] Read [KNOWN_ISSUES_AND_LIMITATIONS.md](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)
-      before committing to targets (MTU, single-port, perf ceilings)
+- [ ] Read the [current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md)
+      and [recurring defect patterns](../limitations/RECURRING_DEFECT_PATTERNS.md)
+      before committing to targets
 
 ---
 

@@ -2,15 +2,16 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 
 @aecp @matrix:AECP-3
-Feature: the AECP answer contract - an echo for everything, silence for two things
+Feature: the AECP answer contract - served commands, fallback, and two silent cases
   IEEE 1722.1-2021 9.3.5.3.3: "Any command that is received and not
   implemented shall be responded to with a correctly sized response and a
   status of NOT_IMPLEMENTED." NOT_IMPLEMENTED is an ANSWER, not silence, and
   a correctly sized one - so an unimplemented opcode has to produce a
   well-formed AECPDU, never a dropped frame and never a malformed one. The
-  protocol-processor's AECP engine satisfies that for every opcode and every
-  message type by copying the command payload into the response buffer before
-  the microprogram runs and emitting the command's own length back.
+  protocol-processor's AECP engine satisfies that fallback for unsupported
+  opcodes and message types by copying the command payload into the response
+  buffer before the microprogram runs and emitting the command's own length
+  back. Served opcodes use their command-specific microprograms instead.
 
   ONE OPCODE IS NOT NOT_IMPLEMENTED. IEEE 7.4.39.2 is opcode-specific:
   "IDENTIFY_NOTIFICATION is only ever sent as an unsolicited response ... If
@@ -35,12 +36,13 @@ Feature: the AECP answer contract - an echo for everything, silence for two thin
 
   WHAT IS DELIBERATELY NOT HERE. This feature does not restore the D1 index
   coverage and D2 non-success size cases the file of this name carried before
-  2026-08-12: those measured GET_STREAM_INFO against READ_DESCRIPTOR and the
-  per-command response-size table, and GET_STREAM_INFO is one of the commands
-  that is genuinely absent. Nor does it cover ENTITY_AVAILABLE,
-  CONTROLLER_AVAILABLE, LOCK_ENTITY, the unsolicited registry or GET_COUNTERS
-  as anything other than members of the NOT_IMPLEMENTED sweep, because that
-  is all they are today.
+  2026-08-12. Those measured GET_STREAM_INFO against READ_DESCRIPTOR and the
+  per-command response-size table. GET_STREAM_INFO is served now, and those
+  exact response cases are graded by the processor and milan_dp RTL suites.
+  Nor does this feature cover ENTITY_AVAILABLE, CONTROLLER_AVAILABLE,
+  LOCK_ENTITY or the unsolicited registry. It does not duplicate other
+  served-command behavior, including GET_COUNTERS. Those paths are covered by
+  their command-specific BDD features and RTL suites.
 
   This is an OFFLINE model (tests/README.md T1); tests/steps/aecp_engine_steps.py
   lists the submodule sources it mirrors.
@@ -157,19 +159,13 @@ Feature: the AECP answer contract - an echo for everything, silence for two thin
       | ADDRESS_ACCESS response |
       | VENDOR_UNIQUE response  |
 
-  # --------------------------------------------------------- the gap ---
-  # KNOWN GAP, recorded so it cannot pass for coverage. Milan v1.2 Delta 7
-  # requires ACQUIRE_ENTITY to never succeed and to answer NOT_SUPPORTED (11)
-  # with owner_id zero over the 8 octets of the acquire form; the shipped
-  # microcode HAS that program (E_ACQ) but the engine's three-arm dispatch
-  # never selects it, so 0x0000 falls through to the generic NOT_IMPLEMENTED
-  # echo like any other unimplemented opcode. This scenario asserts what
-  # Delta 7 requires, so it FAILS today on purpose and becomes the oracle for
-  # the fix. It is @wip (out of the default run, behave.ini) and
-  # @open-finding (out of the `behave --tags ~@open-finding` gate); run it
-  # deliberately with `behave --tags=wip`.
-  @wip @open-finding @gap:acquire-entity @cmd:ACQUIRE_ENTITY
-  Scenario: Milan Delta 7 ACQUIRE_ENTITY is NOT distinguished from the generic echo
+  # ----------------------------------------------------- profile refusal ---
+  # Milan v1.2 Delta 7 requires ACQUIRE_ENTITY to never succeed and to answer
+  # NOT_SUPPORTED (11) with owner_id zero over the 8 octets of the acquire
+  # form. The processor selects that refusal for opcode 0x0000, and the root
+  # wire harness independently grades its length, addressing, and zero owner.
+  @cmd:ACQUIRE_ENTITY
+  Scenario: Milan Delta 7 ACQUIRE_ENTITY returns NOT_SUPPORTED with no owner
     When the controller sends ACQUIRE_ENTITY to the AECP engine
     Then the AECP response status is 11
     And the AECP response owner_id is zero, not the acquiring controller

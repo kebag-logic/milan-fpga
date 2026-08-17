@@ -6,8 +6,8 @@
 #! **The registry FILE is not in this repository.** Item procedures, expected
 #! values and pass criteria are derived from material that stays private; this
 #! module is the generic machinery that loads such a file, checks it is sound,
-#! and makes an unimplemented item VISIBLE. Only item IDs appear in this repo,
-#! which is what `docs/SPEC_TRACEABILITY.md` already does.
+#! and makes an unimplemented item VISIBLE. Only item IDs appear in this repo;
+#! `docs/testing/MILAN_V12_AUDIT_2026-08-16.md` records the public evidence boundary.
 #!
 #! The registry's whole job is that a run report listing 22 passes cannot stay
 #! silent about the rest: every id has a row, a stub row says `not-implemented`

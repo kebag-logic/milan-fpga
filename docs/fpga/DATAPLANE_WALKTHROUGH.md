@@ -24,11 +24,11 @@ wrong — say so.
 
 ## Contents
 
-- **[0. The one thing to know first](#0-the-one-thing-to-know-first)** — The correction most readers arrive needing: an AAF stream never enters the classifier, the queues or the shaper. Fabric engines inject *downstream* of CBS and are paced by the lwSRP bandwidth gate, so queue assignments only bite CPU-originated traffic.
-- **[1. Egress — a captured sample becomes an AAF frame (the fabric talker)](#1-egress--a-captured-sample-becomes-an-aaf-frame-the-fabric-talker)** — Eight hops from I2S/TDM capture to the wire, each with the RTL instance name and the counter that proves the frame got that far. Also flags a contradiction it does not resolve: `LTAP_TX_D2` cannot be spanning a shaper slot on this lane, whatever the taps page attributes it to.
-- **[2. Egress — a frame the CPU sent (where the queue map applies)](#2-egress--a-frame-the-cpu-sent-where-the-queue-map-applies)** — The lane the 802.1Q machinery actually governs. Includes the three classifier entry points in priority order, and the reset fact worth remembering: every queue powers up *unshaped*, so out of reset this is plain strict priority.
-- **[3. Ingress — a frame off the wire becomes PCM](#3-ingress--a-frame-off-the-wire-becomes-pcm)** — The RX tee — taken upstream of the dest-MAC filter, which is how the fabric keeps listening while the TCAM shields the CPU. Ends with the debug recipe: four counters ordered so the first one stuck at zero names the hop that failed, the probe that was missing while the entry-0 defect was being chased.
-- **[4. What is \*not\* on either path](#4-what-is-not-on-either-path)** — Three things people go looking for in the wrong place, including the fact that capture and render are two *different* crossbars with two different map RAMs.
+- **[0. The one thing to know first](#0-the-one-thing-to-know-first)** -- An AAF stream never enters the classifier, queues, or shaper. Its admission combines MAAP, ACMP, and processor SRP state, so queue assignments apply only to CPU-originated traffic.
+- **[1. Egress: a captured sample becomes an AAF frame (the fabric talker)](#1-egress-a-captured-sample-becomes-an-aaf-frame-the-fabric-talker)** -- Follows capture, mapping, packetization, admission, arbitration, and MAC egress with a live observation point at each hop.
+- **[2. Egress: a frame the CPU sent (where the queue map applies)](#2-egress-a-frame-the-cpu-sent-where-the-queue-map-applies)** -- Follows the CPU-originated lane through classification, queues, CBS, timestamps, and the shared output mergers.
+- **[3. Ingress: a frame off the wire becomes PCM](#3-ingress-a-frame-off-the-wire-becomes-pcm)** -- Follows the RX tee through parsing, stream matching, monitoring, depacketization, routing, and playback.
+- **[4. What is \*not\* on either path](#4-what-is-not-on-either-path)** -- Three things people go looking for in the wrong place, including the fact that capture and render are two *different* crossbars with two different map RAMs.
 
 ## 0. The one thing to know first
 
@@ -37,14 +37,14 @@ skips the shaper.**
 
 The classifier, the five queues and the credit-based shaper sit on the
 **CPU-originated** lane only — the `s_axis_tx_*` port that the SoC's TX ring
-DMA drives. Every fabric engine (the AAF talker, ADP, ACMP, AECP, MAAP, the CRF
-talker, the lwSRP MRPDUs) injects **downstream** of the shaper, through a chain
-of `adp_tx_arbiter` two-input mergers.
+DMA drives. The AAF and CRF talkers, the protocol processor's ADP/ACMP/AECP/SRP
+traffic, and the separate MAAP engine all inject **downstream** of the shaper
+through `adp_tx_arbiter` mergers.
 
 That is deliberate and it is stated in the RTL at the merge point: the AAF
 talker is *"injected AFTER the shaper (MVP: bypasses CBS for continuous
-emission, like ADP; class-A shaping = the `is_1g` follow-up)"*. Its pacing comes
-from the lwSRP bandwidth gate instead. The consequence for a reader:
+emission, like ADP; class-A shaping = the `is_1g` follow-up)"*. Its admission
+uses the processor's ACMP and SRP class-D state plus MAAP. The consequence for a reader:
 **q4/q3/q1 assignments bite for software-originated traffic today**, which is
 the same thing
 [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#where-the-fabric-bypasses-all-of-this)
@@ -55,7 +55,7 @@ actually comes from); §2 is the CPU lane (where the queue map applies).
 
 ---
 
-## 1. Egress — a captured sample becomes an AAF frame (the fabric talker)
+## 1. Egress: a captured sample becomes an AAF frame (the fabric talker)
 
 ```mermaid
 flowchart LR
@@ -65,7 +65,7 @@ flowchart LR
     XBAR --> PKT["KL_aaf_packetizer<br/>(per-talker TCTX)"]
     PKT --> AMUX["aaf_final_mux<br/>adp_tx_arbiter"]
     CPU["CPU lane §2<br/>(shaped)"] --> AMUX
-    CTRL["ADP · ACMP · AECP · MAAP<br/>CRF · lwSRP → ctl_ifg"] --> TMUX
+    CTRL["protocol processor: ADP · ACMP · AECP · SRP<br/>MAAP → ctl_ifg"] --> TMUX
     AMUX --> TMUX["adp_tx_mux<br/>adp_tx_arbiter"]
     TMUX --> MAC["MilanMAC → GMII → PHY"]
 ```
@@ -73,11 +73,11 @@ flowchart LR
 | # | hop | instance in `milan_datapath.sv` | what happens | read it at |
 |---|---|---|---|---|
 | 1 | **capture** | `aaf_capture` (`KL_aaf_capture_i2s`) or `tdm_capture` (`KL_tdm_capture`) | the I2S/TDM front end recovers L/R sample pairs and hands them over as a `pair_valid` + slot + 24-bit L/R bus. Which one is built is an elaboration choice, not a runtime one | `LTAP_TX_EPOCH` `0x874` samples the gPTP ns at this edge |
-| 2 | **channel map** | `KL_chan_map_capture` | the capture crossbar picks, per wire slot, which physical pair (or the `KL_pcm_tx` host-ring pair, or the tone generator) feeds it. In-circuit by construction on dynamic-map shapes since `0x002C` (boot-seeded identity); on static shapes `CHMAP_CTRL` arms it, and with the enable clear the front-end pair drives the packetizer bit-identically | `CHMAP_CTRL` `0x900` — **the only programmer of the map since 2026-08-13**: the AEM audio-map command set went with the AECP engine, so no controller can re-route a channel at runtime. See [../CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md) |
+| 2 | **channel map** | `KL_chan_map_capture` | the capture crossbar picks, per wire slot, which physical pair, host-ring pair, tone source, loopback source, or zero feeds it. The map resets empty; `CHMAP_CTRL` selects the CSR-programmed crossbar, and with the enable clear the front-end pair drives the packetizer bit-identically | `CHMAP_CTRL` `0x900` is the only map writer. `GET_AUDIO_MAP` reads the live stores, while the two AECP map writers remain unimplemented. See [../CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md) |
 | 3 | **packetize** | `aaf_packetizer` (`KL_aaf_packetizer`) | accumulates a PDU's worth of pairs, then emits one AAF frame: VLAN tag from `AAF_CTRL[27:16]`, destination from `AAF_DMLO`/`AAF_DMHI`, source = the station MAC, `avtp_timestamp` = the PHC now plus the presentation offset AECP holds. Per-talker state lives in the TCTX rows the `0x800` window writes | `AAF_FRAMES` `0x660`, `AAF_PAIRS` `0x664`; `LTAP_TX_D0/D1` `0x87C`/`0x884` bracket the accumulate + serialize |
-| 4 | **admission** | `aaf_stream_en_w` inside the packetizer | a stream only emits when its admission term is true: talker 0 keeps the legacy gate; `t>0` needs the window `TCTX CTRL[0]` **and** its per-stream lwSRP grant **and** the engine-wide MAAP term | `LWSRP_STATUS` `0x694`, `A_STRMW_SRP` `0x85C` per index |
+| 4 | **admission** | `aaf_stream_en_w` inside the packetizer | a stream emits when the common AAF enable and MAAP term are true and its processor-owned ACMP talker and SRP bandwidth state grant admission. `AAF_CTRL[1]` is the documented debug bypass | `PP_STAT` `0x924`, `AAF_CTRL` `0x678`, and the processor class-D diagnostics |
 | 5 | **merge with the shaped lane** | `aaf_final_mux` (`adp_tx_arbiter`) | the packetizer output is the *low-rate* port of a two-input merger whose other port is the shaped CPU datapath. **This is the bypass**: no queue, no credit | — |
-| 6 | **merge with control** | `adp_tx_mux` (`adp_tx_arbiter`) | the final merger. The control side of it is a chain — `aecp_acmp_mux` → `ctl_tx_mux` → `srp_ctl_mux` → `lstn_ctl_mux` → `maap_ctl_mux` → `crf_ctl_mux` → `ctl_ifg` — which folds ADP, ACMP (responder and listener), AECP, lwSRP, MAAP and the CRF talker into one stream | — |
+| 6 | **merge with control** | `adp_tx_mux` (`adp_tx_arbiter`) | the protocol processor's packed ADP/ACMP/AECP/SRP stream merges with MAAP in `ctl_tx_mux`, passes through `ctl_ifg`, and joins the data lane here. CRF joins AAF on the data lane through `crf_dp_mux` | -- |
 | 7 | **control-lane IFG** | `ctl_ifg` (`tx_ifg_gasket`, `GAP_CYCLES = 512`) | spaces control frames so the MAC cannot eat one that arrives back-to-back behind another. **Control lane only** — audio and CPU data do not pass through it, so it costs no stream throughput | — |
 | 8 | **MAC** | `tx_axis_to_mac` → `m_axis_mac_tx_*` | out of `milan_datapath`, into the SoC's MilanMAC (LiteEth GMII), onto the wire | `STAT_TX_FIFO_GOOD_FRAME` `0x21C`; `LTAP_TX_D2` `0x88C` closes the chain |
 
@@ -92,7 +92,7 @@ The PTP TX timestamp is taken independently of all of this, at the egress SFD
 inside `ptp_ts_top` — which is why queueing order does not perturb gPTP
 accuracy ([EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#why-gptp-sits-below-the-shaped-classes)).
 
-## 2. Egress — a frame the CPU sent (where the queue map applies)
+## 2. Egress: a frame the CPU sent (where the queue map applies)
 
 This is the lane the five queues, the classifier and the CBS actually govern:
 gPTP from `linuxptp`, a host AVDECC controller, a host MRP stack, and all bulk
@@ -124,7 +124,7 @@ for gPTP sitting at q3 are all in
 [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md) — it is the authority
 and this page does not restate it.
 
-## 3. Ingress — a frame off the wire becomes PCM
+## 3. Ingress: a frame off the wire becomes PCM
 
 The RX side **tees**. One copy goes to the host; a second copy, taken
 *upstream of the dest-MAC filter*, feeds the media plane. That pre-filter tap is
@@ -183,10 +183,10 @@ provisioning defect take so long to corner — see
 
 Worth stating so nobody looks for them in the wrong place:
 
-* **ADP, ACMP, AECP, MAAP, lwSRP and the CRF talker on egress** never touch the
-  classifier or a queue — they enter at the `adp_tx_arbiter` control chain
-  (§1 hop 6). Their *ingress* is a separate set of taps off the RX stream, each
-  engine parsing what it cares about.
+* **The protocol processor's ADP, ACMP, AECP, and SRP traffic plus MAAP** never
+  touches the classifier or a queue. It enters through the control merge in
+  §1 hop 6. CRF joins AAF on the separate data-side merge. Their ingress is
+  handled by taps from the RX stream.
 * **The channel-map render crossbar** (`KL_chan_map_render`) sits on the
   playback side of §3 hop 7b, not on the capture side of §1 hop 2. They are two
   different crossbars with two different map RAMs —

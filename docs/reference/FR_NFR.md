@@ -6,14 +6,15 @@ the fully-FPGA RISC-V platform (VexiiRiscv + LiteX on Alinx AX7101; NaxRiscv his
 **scale up** (more channels / streams / sample rates) and **scale out** (more than
 one softcore).
 
-- **Milan v1.2 → FR/NFR dependency matrix (why each is necessary):** [`MILAN_V12_DEPENDENCY_MATRIX.md`](MILAN_V12_DEPENDENCY_MATRIX.md)
-- **Baseline entity:** [`avdecc/milan-v12-entity-small-48k.json`](../../avdecc/milan-v12-entity-small-48k.json)
-- **Full/scaled entity:** [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json) (8-ch, 48/96/192 kHz)
+- **Current Milan v1.2 implementation verdict:** [`../testing/MILAN_V12_AUDIT_2026-08-16.md`](../testing/MILAN_V12_AUDIT_2026-08-16.md)
+- **Current entity definitions:** [`configs/endstation_*.yaml`](../../configs/) through the [end-station builder](../ENDSTATION_BUILDER.md)
+- **Historical model snapshots:** [`avdecc/milan-v12-entity-small-48k.json`](../../avdecc/milan-v12-entity-small-48k.json) and [`avdecc/milan-v12-entity.json`](../../avdecc/milan-v12-entity.json), both marked obsolete in place
 - **Platform & phasing:** [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md)
 - **HW AEM/AECP design:** the fabric AECP/AEM engine and its design page are
   **deleted** (2026-08-13); AECP now lives in the pinned `protocol-processor`
-  submodule's AECP uCPU, which answers `READ_DESCRIPTOR` and refuses everything
-  else — see the implementation-status ledger in §2.0
+  submodule's AECP uCPU. The current served-command inventory and root
+  integration boundaries are recorded in the implementation-status ledger in
+  §2.0.
 
 Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement has a
 **priority** (M=MUST, S=SHOULD, C=MAY), a **source**, and a **verification method**
@@ -23,13 +24,13 @@ Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement ha
 
 ## Contents
 
-- **[1. Scope, actors, and the baseline system](#1-scope-actors-and-the-baseline-system)** — What "the baseline endpoint" concretely means, plus the `P_CH`/`P_SI`/`P_SO`/`P_SR`/`P_CORES`/`P_PORTS` parameter table every later requirement is written against. States the asymmetry that drives §2.7: the talker is fixed stereo, the listener is format-adaptive.
-- **[2. Functional Requirements (FR)](#2-functional-requirements-fr)** — Opens with **[§2.0, the implementation-status ledger](#20-implementation-status-after-the-protocol-processor-substitution-2026-08-13)**: which groups the protocol processor owns — ADP, ACMP, SRP and now AECP, whose uCPU implements `READ_DESCRIPTOR` and refuses the rest with a conformant `NOT_IMPLEMENTED` echo — and which requirements are consequently NOT MET, including the descriptor image no build step in this repository produces. Read it before any row, and read a refusal as a refusal. Then eleven subsections of MUST/SHOULD rows with priority and verification method, covering ADP through AECP/MVU, ACMP, MAAP/SRP, clocking, streaming, QoS, and then the two software contracts most requirement docs omit — the Linux driver's NAPI/XDP/PTP/ethtool surface (FR-DRV-\*) and the device-tree binding (FR-DT-\*).
-- **[3. Non-Functional Requirements (NFR)](#3-non-functional-requirements-nfr)** — The budgets and bounds: line rate, 8000 pkt/s per stream, ≤ 1 µs gPTP sync, ≤ 60 % LUT at baseline. Scale-out (§3.4) is flagged in the page as *the* key architectural NFR — both SMP and AMP must be buildable, and adding cores must not change the ABI.
-- **[4. Scalability architecture](#4-scalability-architecture)** — How the three growth axes are actually meant to work: the JSON entity model as the scale-up knob, the control/media/time plane split as the basis for scale-out, an SMP-vs-AMP comparison with a worked 3-core diagram, and the sizing formula §4.5 admits is not yet populated.
-- **[5. Steps to comply with Milan v1.2 (procedure)](#5-steps-to-comply-with-milan-v12-procedure)** — The ordered twelve-step path from bare platform to conformance run, each step citing the FRs it discharges. Ends with the explicit out-of-scope list — redundancy, rates beyond 192 kHz, AEM authentication.
-- **[6. Traceability (summary)](#6-traceability-summary)** — One compact table joining each functional area to its Milan clause, its entity-model artifact, and its plan milestone — the index to use when you need "which requirement covers this".
-- **[7. Verification approach](#7-verification-approach)** — Which evidence class answers which kind of requirement: Verilator harnesses for leaf blocks, controller/`ptp4l`/`tc` tooling for interop, YAML models for PDU byte-exactness, and repetition at full profile for the scale claims.
+- **[1. Scope, actors, and the baseline system](#1-scope-actors-and-the-baseline-system)** -- What "the baseline endpoint" concretely means, plus the `P_CH`/`P_SI`/`P_SO`/`P_SR`/`P_CORES`/`P_PORTS` parameter table every later requirement is written against. States the asymmetry that drives §2.7: the talker is fixed stereo, the listener is format-adaptive.
+- **[2. Functional Requirements (FR)](#2-functional-requirements-fr)** -- Opens with **[§2.0, the implementation-status ledger](#20-implementation-status-after-the-protocol-processor-substitution-2026-08-13)**: which groups the protocol processor owns, which AECP commands it serves, which dynamic outputs the root integration does not yet consume, and which mandatory requirements remain open. Read it before any row, and read a refusal as a refusal. Then eleven subsections of MUST/SHOULD rows with priority and verification method, covering ADP through AECP/MVU, ACMP, MAAP/SRP, clocking, streaming, QoS, and then the two software contracts most requirement docs omit, the Linux driver's NAPI/XDP/PTP/ethtool surface (FR-DRV-\*) and the device-tree binding (FR-DT-\*).
+- **[3. Non-Functional Requirements (NFR)](#3-non-functional-requirements-nfr)** -- The budgets and bounds: line rate, 8000 pkt/s per stream, ≤ 1 µs gPTP sync, ≤ 60 % LUT at baseline. Scale-out (§3.4) is flagged in the page as *the* key architectural NFR -- both SMP and AMP must be buildable, and adding cores must not change the ABI.
+- **[4. Scalability architecture](#4-scalability-architecture)** -- How the three growth axes are actually meant to work: the JSON entity model as the scale-up knob, the control/media/time plane split as the basis for scale-out, an SMP-vs-AMP comparison with a worked 3-core diagram, and the sizing formula §4.5 admits is not yet populated.
+- **[5. Steps to comply with Milan v1.2 (procedure)](#5-steps-to-comply-with-milan-v12-procedure)** -- The ordered twelve-step path from bare platform to conformance run, each step citing the FRs it discharges. Ends with the explicit out-of-scope list -- redundancy, rates beyond 192 kHz, AEM authentication.
+- **[6. Traceability (summary)](#6-traceability-summary)** -- One compact table joining each functional area to its Milan clause, its entity-model artifact, and its plan milestone -- the index to use when you need "which requirement covers this".
+- **[7. Verification approach](#7-verification-approach)** -- Which evidence class answers which kind of requirement: Verilator harnesses for leaf blocks, controller/`ptp4l`/`tc` tooling for interop, YAML models for PDU byte-exactness, and repetition at full profile for the scale claims.
 
 ## 1. Scope, actors, and the baseline system
 
@@ -90,62 +91,56 @@ by `hdl/milan/KL_pp_shadow.sv` and instantiated unconditionally. The
 processor owns **ADP, ACMP, SRP — and now AECP**: its AECP uCPU has landed and
 the entity is reachable on AECP.
 
-**What that engine does, exactly.** It implements `READ_DESCRIPTOR` (0x0004)
-with all three status paths — `SUCCESS` carrying `configuration_index`, the
-reserved field and the descriptor; `NO_SUCH_DESCRIPTOR` on a locate miss;
-`BAD_ARGUMENTS` on a bad configuration index, both errors carrying the IEEE
-1722.1 §7.4.5 4-byte `{descriptor_type, descriptor_index}` stub. It answers
-`IDENTIFY_NOTIFICATION`-as-command with `BAD_ARGUMENTS` (§7.4.39.2's
-opcode-specific rule beats §9.3.5.3.3). It silently refuses — freed, counted, no
-reply — a command whose `target_entity_id` is not ours and any AECP *response*
-arriving as input. **Every other opcode, and every other message type (AEM,
-ADDRESS_ACCESS, VENDOR_UNIQUE/MVU), gets a conformant `NOT_IMPLEMENTED` echo**:
-`message_type` + 1, correct length, correct `controller_data_length`,
-`controller_entity_id` and `sequence_id` echoed verbatim.
+**What that engine does, exactly.** The authoritative served set is the
+`OP_*_C` table in `protocol-processor/hdl/aecp/KL_aecp_engine.sv`. It includes
+`READ_DESCRIPTOR`, `ACQUIRE_ENTITY`, `LOCK_ENTITY`, entity and configuration
+operations, stream and clock getters, sampling-rate operations,
+`SET_CLOCK_SOURCE`, Identify control, `GET_STREAM_INFO`,
+`GET_AVB_INFO`, `GET_AS_PATH`, `GET_COUNTERS`, `GET_AUDIO_MAP`, unsolicited
+registration, and Milan `GET_MILAN_INFO`. `READ_DESCRIPTOR` has command-specific
+`SUCCESS`, `NO_SUCH_DESCRIPTOR`, and `BAD_ARGUMENTS` paths. `ACQUIRE_ENTITY`
+returns `NOT_SUPPORTED`, never `SUCCESS`, with the zero-owner command form
+required by Milan Delta 7. The validator silently refuses a foreign target and
+an AECP response presented as input. Unsupported commands receive a conformant
+fallback response, but that fallback does not implement their required behavior.
 
 **Read the ledger with that in mind: an echo is not an implementation.** A row
-below that reads NOT IMPLEMENTED is not describing silence — it is describing a
-device that answers "no" correctly and does not do the thing. Two further facts
-bound what the one implemented command is worth today: **nothing in this
-repository builds or loads the descriptor image** the store reads from main
-memory (the generator is the submodule's,
-`protocol-processor/hdl/aecp/desc/gen_desc_image.py`, and no builder, script or
-boot step drives it), so on a stock build enumeration answers `BAD_ARGUMENTS` —
-the microprogram range-checks `configuration_index` against
-`configurations_count` before it locates, and an invalid image reports a count of
-zero, which also makes the status a clean discriminator between "no image" and
-the `NO_SUCH_DESCRIPTOR` that means "image loaded, descriptor genuinely absent";
-and the processor's **unsolicited** AECP TX lane has no
-producer, so no notification of any kind leaves this device. That is a stated
-capability boundary, decided by the USER, not a defect in triage.
+below that reads NOT IMPLEMENTED is not describing silence. It describes a
+device that answers "no" correctly and does not perform the operation. The
+end-station builder generates `aem_desc.bin`, `aem_desc.json`, and
+`aem_desc.map` from the selected configuration. The tracked board flow packages
+the paired image and manifest and runs `aemi-load` to verify and load them at
+`PP_DESC_BASE_P` before entity enable. A custom integration that omits that step
+still fails closed with `BAD_ARGUMENTS`. The Table 5.22 counter-change producer,
+the departing-controller monitor, and saved-state persistence remain open.
 
 | Requirement group | Verdict | Where it lives now |
 |---|---|---|
 | **FR-DISC-01..05** (ADP) | **OWNED BY THE PROTOCOL PROCESSOR** | `KL_adp_engine`. Advertisement content is the entity model via `adp_shape_defaults.svh`; `available_index` is published to the CSR plane. The historic `ADP_CTRL.en` still enables the entity (ORed with `PP_CTRL[0]`), but the ADPDU *content* CSR words are write-only scratch that reach nothing |
-| **FR-ENUM-01** (`READ_DESCRIPTOR`) | **IMPLEMENTED (protocol processor), SERVABLE NOT SUPPLIED** | The uCPU's descriptor store answers it, fetching over a read-only master at the compile-time `PP_DESC_BASE_P` (the SoC derives it as the top 1 MiB of `main_ram`; there is no base register, so software cannot relocate it). **No step in this repository writes an image there**, and the image header's magic/version/checksum makes an unloaded region read as "not loaded"; an image marked invalid then reports `configurations_count` = 0 — which the microprogram's configuration range check meets *before* the locate, so every read is refused with `BAD_ARGUMENTS` (the §7.4.5 stub still attached), never `NO_SUCH_DESCRIPTOR`. A late load heals without a reset, and a 4096-cycle watchdog means a missing image is a clean refusal rather than a hang |
-| **FR-ENUM-02** (the Milan-mandatory descriptor tree) | **NOT MET on a stock build** | Same reason from the other side: the tree is still generated and gated from the entity model, and nothing turns it into the image the engine reads. The requirement is a build step away, not an engine away |
-| **FR-CTRL-01..05** (acquire/lock, get/set, unsolicited, counters, fast enumeration) | **NOT IMPLEMENTED** | Every one of these commands draws the `NOT_IMPLEMENTED` echo — answered, not implemented. ACQUIRE/LOCK additionally have no lock manager wired, so nothing can ever hold this entity; the unsolicited lane has no producer. Note FR-CTRL-04's data still exists for **STREAM_INPUT** at CSR `0x6B8`; the **STREAM_OUTPUT** (Milan Table 5.4) counters are gone entirely, their context no longer instantiated |
-| **FR-CTRL-06** (validate cdl / message_type / target, correct status) | **PARTLY MET** | Met: the duty to answer, and the shape of the answer — `message_type` + 1, correct length, correct `controller_data_length`, echoed `controller_entity_id` / `sequence_id`; a foreign `target_entity_id` and a response-as-input are silently refused; `IDENTIFY_NOTIFICATION`-as-command is `BAD_ARGUMENTS`; `READ_DESCRIPTOR` carries its own `NO_SUCH_DESCRIPTOR` / `BAD_ARGUMENTS` paths with the §7.4.5 stub. Not met: `ENTITY_LOCKED`, per-payload `BAD_ARGUMENTS` and every `NOT_SUPPORTED` Milan names, because the commands that would raise them do not exist |
-| **FR-MVU-01..03** (Milan Vendor Unique, GET_MILAN_INFO) | **NOT IMPLEMENTED** | The engine recognises **no** VENDOR_UNIQUE `protocol_id`. That satisfies IEEE 1722.1 §9.6.2 by construction for an *unknown* protocol — the `protocol_id` bytes are echoed unaltered inside a `NOT_IMPLEMENTED` response — and it means Milan's own 00-1B-C5-0A-C1-00 is refused exactly like a stranger's. The 1722.1 win does not close the Milan requirement |
+| **FR-ENUM-01** (`READ_DESCRIPTOR`) | **IMPLEMENTED AND SUPPLIED** | The uCPU's descriptor store fetches over a read-only master at compile-time `PP_DESC_BASE_P`. The builder generates the image, JSON manifest, and map; `aemi-load` verifies and writes the paired image before entity enable. An omitted or invalid image fails closed with `BAD_ARGUMENTS`, a locate miss returns `NO_SUCH_DESCRIPTOR`, a late load heals without reset, and the 4096-cycle watchdog prevents a stalled memory path from hanging the responder |
+| **FR-ENUM-02** (the Milan-mandatory descriptor tree) | **IMPLEMENTED IN THE TRACKED BUILD FLOW** | The selected entity configuration generates the mandatory descriptor tree and flat image artifacts. The tracked board flow packages and loads them. Custom integrations must preserve the same load-before-enable ordering |
+| **FR-CTRL-01..05** (acquire/lock, get/set, unsolicited, counters, fast enumeration) | **PARTLY MET** | The processor serves its declared command inventory. `ACQUIRE_ENTITY` returns Milan Delta 7 `NOT_SUPPORTED` with no owner. FR-CTRL-04 serves every declared STREAM_OUTPUT counter bank through `GET_COUNTERS` with the Milan compact layout. Mandatory setters and getters listed in the current audit, the Table 5.22 unsolicited change producer, and persistence remain open |
+| **FR-CTRL-06** (validate cdl / message_type / target, correct status) | **PARTLY MET** | Met: the duty to answer, correct response shape and identity fields, silent refusal of a foreign target or response-as-input, command-specific `BAD_ARGUMENTS`, `NOT_SUPPORTED`, and descriptor-locate statuses, and lock conflict behavior within the served inventory. The mandatory commands listed in the current audit still need their own payload validation and behavior before this group can be closed |
+| **FR-MVU-01..03** (Milan Vendor Unique, GET_MILAN_INFO) | **PARTLY MET** | The engine recognizes the Milan protocol ID and serves `GET_MILAN_INFO`, including a zero redundancy feature flag. The system/media-clock reference operations in FR-MVU-02 remain outside the served inventory and receive the conformant fallback |
 | **FR-CONN-01/02** (ACMP connect/disconnect/state, program the datapath) | **OWNED BY THE PROTOCOL PROCESSOR** | `KL_acmp_talker` + the listener half; the bind record and the talker declaration reach the fabric as class-D wires, and the CBS/classifier programming follows the reservation |
 | **FR-CONN-03/04** (fast-connect, nonvolatile connection state) | **NOT MET** | The persistence journal and the bind-restore port are structural zeros: writes are accepted, nothing is restored, **no binding survives a power cycle**. Milan v1.2 5.3.8.2 wants saved state; this build does not have it and says so structurally |
-| **FR-MAAP-01** | **MET, in this fabric** | `KL_maap` survives; the processor implements no MAAP by design and reaches it through `KL_pp_maap_shim`. The talker cannot declare without an `ALLOC_DA` success, so the DA gate *is* the talker gate |
+| **FR-MAAP-01** | **MET, in this fabric** | `KL_maap` remains the shipping allocator. The processor also contains `KL_pp_maap`, but this integration disables it with `cfg_maap_internal_i = 0` and reaches the selected fabric engine through `KL_pp_maap_shim`. The talker cannot declare without an `ALLOC_DA` success, so the DA gate *is* the talker gate |
 | **FR-SRP-01/02/03** | **OWNED BY THE PROTOCOL PROCESSOR** | Its SRP engine registers/deregisters and admits; the granted slope, adopted domain and admission bit drive the CBS mux and the AAF gate exactly as before. The slope/gate *ordering* changed shape and not safety — see [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md) |
 | **FR-CLK-01/02/04/05** (gPTP, PHC, CRF source/recovery, HW timestamps) | **MET** | Untouched by the substitution |
-| **FR-CLK-03** (media clock MUST be selectable among Internal / input-stream / CRF) | **NOT MET** | `SET_CLOCK_SOURCE` is unimplemented (answered `NOT_IMPLEMENTED`, and a refusal writes nothing) and it was the only writer of the live CLOCK_DOMAIN `clock_source_index`. It is pinned at 0 (INTERNAL) for the life of the build; the MMCM-DRP servo and the packet-grid NCO servo can never leave idle. `KL_crf_rx` still parses, counts and reports — it cannot steer |
+| **FR-CLK-03** (media clock MUST be selectable among Internal / input-stream / CRF) | **NOT MET AT THE ROOT INTEGRATION** | The processor accepts and stores `SET_CLOCK_SOURCE`, and `KL_pp_shadow.sv` exports `aecp_clk_src_index_o` to the root. The media plane does not consume that selection, so `CRF_CLK_SELECTED_C` remains zero (INTERNAL) and the MMCM-DRP and packet-grid NCO servos stay idle. `KL_crf_rx` still parses, counts and reports, but cannot steer the media clock |
 | **FR-STR-01/02/04/05** (AAF encapsulation, de-encapsulation, listener counters, parameterisation) | **MET** | The media plane is intact |
 | **FR-STR-03/03a/03b** (listener format adaptation via SET_STREAM_FORMAT) | **NOT MET** | `SET_STREAM_FORMAT` is unimplemented — it is answered with the `NOT_IMPLEMENTED` echo, which adapts nothing. The listener's format is what the build elaborated; the *wire-truth* rule still governs de-interleaving, so a format-mismatched PDU is still counted `UNSUPPORTED_FORMAT` rather than mis-rendered — but the entity cannot adapt on connection |
 | **FR-QOS-01..03** | **MET** | Classifier + CBS untouched; the Σ idleSlope ceiling is enforced by the processor's admission now |
-| **FR-MGT-01** (IDENTIFY) | **NOT IMPLEMENTED** | `o_identify` is tied 0 — the LED is structurally dark — and the SET_CONTROL that would write the IDENTIFY CONTROL descriptor draws the `NOT_IMPLEMENTED` echo. Adjacent but unrelated: an inbound `IDENTIFY_NOTIFICATION` **command** is refused with `BAD_ARGUMENTS`, which is §7.4.39.2 conformance, not identification |
+| **FR-MGT-01** (IDENTIFY) | **IMPLEMENTED IN THE PROCESSOR, UNCONSUMED AT ROOT** | Identify `SET_CONTROL` and `GET_CONTROL` are served by the processor, and `KL_pp_shadow.sv` exports `aecp_identify_o` to the root wire `pp_aecp_identify_w`. Nothing consumes the wire and the root ties `o_identify` low. The controller-visible state exists while the physical Identify output remains dark. An inbound `IDENTIFY_NOTIFICATION` command is separately refused with `BAD_ARGUMENTS` as required by §7.4.39.2 |
 | **FR-MGT-02** (names settable and persisted) | **NOT IMPLEMENTED** | `SET_NAME` is unimplemented (answered, then nothing changes) and there is no persistence |
 | **FR-DRV-\*, FR-DT-\*** | unchanged | Driver and device-tree surfaces are unaffected; the CSR ABI kept every register |
 | **NFR-\*** | unchanged in kind | The budgets and bounds still apply. Two are worth re-reading against the new plane: **NFR-LAT-01** (the presentation-time bound is now the Milan **2 ms default and is not configurable**, since `SET_MAX_TRANSIT_TIME` is unimplemented — a default, not a zero) and **NFR-SCUP-04** (the AEM memory it sizes has moved out of the gateware into main memory) |
 
 The honest one-line summary: **this device discovers over ADP, connects over
-ACMP, reserves over SRP, streams audio, answers READ_DESCRIPTOR, and answers
-every other AECP command with a conformant NOT_IMPLEMENTED echo** — with the
-descriptor image that would make the first of those useful supplied by nothing
-in this repository.
+ACMP, reserves over SRP, streams audio and serves the processor's AECP command
+inventory, including READ_DESCRIPTOR and GET_COUNTERS.** The tracked builder
+and board flow supply the descriptor image. Unsupported commands receive the
+conformant fallback, and the current audit lists the remaining mandatory gaps.
 
 ### 2.1 Discovery  -  ADP  *(1722.1-2021 §6; Milan v1.2 §5.2)*
 | ID | Requirement | Pri | Ver |
@@ -371,14 +366,11 @@ cites the FRs it satisfies and the milestone in
    classifier/PHC) and the driver (PHC, HW timestamps, CBS offload). *(M-A5)*
 2. **gPTP (802.1AS)**  -  run `linuxptp` as a time-aware endpoint on a fixed 125 MHz
    PHC; verify ≤ 1 µs sync. *(FR-CLK-01/02, NFR-TIME-01)*
-3. **Entity model**  -  load [`avdecc/milan-v12-entity-small-48k.json`](../../avdecc/milan-v12-entity-small-48k.json); generate the
-   descriptor **image** the protocol processor's AECP store fetches from main
-   memory, and write it at `PP_DESC_BASE_P` before enabling the entity. **This
-   step is the missing link today**: the generator lives in the submodule
-   (`protocol-processor/hdl/aecp/desc/gen_desc_image.py`) and nothing in
-   `sw/builder/`, `scripts/`, the SoC builder or the boot path produces its JSON
-   or loads DRAM, so `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` on a stock
-   build. *(FR-ENUM-01/02)*
+3. **Entity model**  -  select an `endstation_*.yaml` configuration. The
+   builder generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the
+   tracked board flow packages the pair and runs `aemi-load` at
+   `PP_DESC_BASE_P` before enabling the entity. Verify a byte-exact
+   `READ_DESCRIPTOR` walk. *(FR-ENUM-01/02)*
 4. **ADP**  -  advertise/discover/depart with correct `available_index`. *(FR-DISC-\*)*
 5. **AECP/AEM + MVU**  -  enumerate (READ_DESCRIPTOR byte-match), acquire/lock,
    set/get, GET_COUNTERS, GET_MILAN_INFO. *(FR-ENUM/CTRL/MVU)*
@@ -407,7 +399,7 @@ cites the FRs it satisfies and the milestone in
 | Area | FR/NFR | Milan v1.2 | Entity model | Plan milestone |
 |------|--------|-----------|--------------|----------------|
 | Discovery | FR-DISC-\* | §5.2 | `adp`, ENTITY | M-B2 — processor (§2.0) |
-| Enum/Control | FR-ENUM/CTRL | §5.3–5.4 | full descriptor tree | M-B3 — `READ_DESCRIPTOR` on the processor's uCPU, **with no image supplied**; every other command **NOT IMPLEMENTED** (§2.0) |
+| Enum/Control | FR-ENUM/CTRL | §5.3–5.4 | full descriptor tree | M-B3, processor AECP uCPU plus builder-generated image and `aemi-load`; the served inventory and mandatory gaps are listed in §2.0 |
 | MVU | FR-MVU-\* | §5.4.3 | `milan_mvu` | M-B3 — **NOT IMPLEMENTED**, no `protocol_id` recognised (§2.0) |
 | Connection | FR-CONN-\* | §5.5 | STREAM_\*, CBS CSR | M-B4 — processor; fast-connect/persistence **NOT MET** |
 | MAAP/SRP | FR-MAAP/SRP | §5.6 | STREAM_\*, classifier/CBS | M-B5 — MAAP in fabric, SRP on the processor |
@@ -424,10 +416,9 @@ cites the FRs it satisfies and the milestone in
   the processor's own verification lives in the pinned submodule, and the
   datapath-level coverage is `tb/verilator/milan_dp`.
 - **Integration/interop:** Hive + `srcs/the-private-test-repo/controller/avdecc_l2.py`
-  (ADP and ACMP; on AECP a controller now gets well-formed refusals —
-  **GET_COUNTERS and every other command answer `NOT_IMPLEMENTED`**, and
-  enumeration answers `BAD_ARGUMENTS` until someone loads a descriptor
-  image), `ptp4l`/`phc2sys`, `tc qdisc … cbs offload`.
+  (ADP and ACMP; on AECP, GET_COUNTERS serves the declared counter banks and
+  the tracked flow loads the descriptor image before entity enable),
+  `ptp4l`/`phc2sys`, `tc qdisc … cbs offload`.
 - **PDU byte-exactness:** the AECP PDU model campaigns have a responder again.
   `aecp_read_descriptor` is a real byte-exact test **once an image is in DRAM**;
   the rest measure the echo's header discipline, which is the conformance floor

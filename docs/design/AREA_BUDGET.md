@@ -19,7 +19,7 @@ logic this project owns and can therefore choose not to build.
 > no number has been invented to replace one.
 >
 > **The measured record of what that change cost and returned is
-> [`../findings/PP_SHADOW_AREA_0812.md`](../findings/PP_SHADOW_AREA_0812.md)**
+> [historical protocol-processor area measurement](../findings/PP_SHADOW_AREA_0812.md)**
 > — same instrument, both sides in context. Read it, not an extrapolation
 > from this page, for any question about post-substitution area. Two things
 > from it are worth carrying here because they change how this page should be
@@ -34,17 +34,19 @@ logic this project owns and can therefore choose not to build.
 >   of its five entries are gone.
 >
 > **AECP came back, and not as fabric memory.** The processor's AECP µCPU has
-> since landed: the entity answers `READ_DESCRIPTOR` and returns a conformant
-> `NOT_IMPLEMENTED` echo to every other AECP command. Its cost is **not** in
+> since landed and serves its declared command inventory, including
+> `READ_DESCRIPTOR`, `GET_COUNTERS`, stream-state getters, clock-source
+> operations, Identify controls, and Milan information. Unsupported commands
+> receive the conformant fallback. Its cost is **not** in
 > any figure on this page, and it is not in the `+6,956` either — that was
 > measured with the AECP pop face tied off. Two area consequences are worth
 > carrying: the **entity model is no longer in fabric at all** (the µCPU's
 > descriptor store reads it from DDR3 over a read-only master at a compile-time
 > base, so no descriptor ROM or store is charged to LUT or BRAM anywhere in the
 > replacement), and the mass Vivado constant-propagated away while that face
-> was tied off is back and un-repriced. Nothing in this repository writes that
-> DRAM image yet, so a stock build enumerates to `BAD_ARGUMENTS` — a
-> software gap, not an area one.
+> was tied off is back and un-repriced. The tracked builder generates the DRAM
+> image and the board rootfs loads it with `aemi-load` before entity enable.
+> Custom integrations that omit that step fail closed with `BAD_ARGUMENTS`.
 >
 > What is NOT changed by any of that: the governing fact in the next section
 > (this design is **LUT-bound**, FFs sit at 42 %), the prune-parameter rules,
@@ -160,8 +162,8 @@ longer a "static addresses" trade, it disables the talker. In their place
 sits `KL_pp_shadow`, which is not in this table because this table predates
 it; its measured cost is in the findings page named in the banner. The servo
 row is marked *permanently idle* rather than removed: it is still built, but
-`SET_CLOCK_SOURCE` was the only writer of its selector, so it can never leave
-idle.
+the stored `SET_CLOCK_SOURCE` value reaches an unconsumed root wire. Its active
+selector remains the INTERNAL constant, so it can never leave idle.
 
 ## What is actually optional
 
@@ -340,9 +342,10 @@ AAF admission *shut*, because the claim can never complete.
 `srp.stream_dmac_base` is the literal `maap`.
 *Forces re-measurement of* MAAP claim/defend behaviour and any address-collision
 result that depended on the engine answering. **Defaults to PRESENT.**
-**Re-read this lever after 2026-08-13**: the protocol processor implements no
-MAAP by design and reaches `KL_maap` through `KL_pp_maap_shim`, and its
-talker declares only after an `ALLOC_DA` success. So `MAAP_P = 0` no longer
+**Re-read this lever after 2026-08-13**: the protocol processor contains an
+internal MAAP engine, but this shipping integration disables it and reaches
+the fabric `KL_maap` through `KL_pp_maap_shim`. Its talker declares only after
+an `ALLOC_DA` success. So `MAAP_P = 0` no longer
 means "static addresses" — **it means no source ever declares and the talker
 half of ACMP is dead by construction**. The tie-off path is deliberately the
 same one a still-probing allocator takes, so nothing takes an untested
@@ -424,7 +427,7 @@ parameter question, and it should be costed separately.
 > or shared: they were **REMOVED**, together with the rest of the 1722.1/SRP
 > plane, and replaced by a processor plane that measures **+6,956 LUT in
 > context** against **−15,474** removed
-> ([`../findings/PP_SHADOW_AREA_0812.md`](../findings/PP_SHADOW_AREA_0812.md),
+> ([historical protocol-processor area measurement](../findings/PP_SHADOW_AREA_0812.md),
 > hierarchical utilization, both sides same instrument). The tier-3 verdict
 > was right that no parameter could reach them, and wrong to imply that made
 > them permanent. `csr` and `traffic_shaper` remain, and their structural

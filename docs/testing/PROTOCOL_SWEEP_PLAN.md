@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # Full protocol sweep — every mandatory command, every state machine, verified per clause
 
 Status: PLAN, 2026-07-28 (USER-requested), **substantially invalidated
@@ -63,11 +65,10 @@ The question this campaign answers, in one sentence: **for every 1722.1 /
 Milan v1.2 mandatory getter, setter, ADP and ACMP state machine, does the
 entity answer exactly what the clause says — and is the SRP reservation and
 the stream on the wire the consequence the clauses promise?** As of 2026-08-13
-the getter/setter half of that sentence has a nearly fixed answer: the entity
-answers `READ_DESCRIPTOR` and refuses every other AECP command with a conformant
-`NOT_IMPLEMENTED` echo, so no getter returns a value and no setter changes
-state. What this campaign can ask in full is the ADP, ACMP, SRP and wire half,
-plus the narrow AECP surface that really exists.
+the getter/setter half follows the processor's served command inventory. That
+inventory includes `READ_DESCRIPTOR` and `GET_COUNTERS`; unsupported commands
+receive the conformant fallback. The campaign must grade the served AECP paths
+as well as ADP, ACMP, SRP and the resulting stream on the wire.
 
 The method is the repo's standing one
 ([`methodology.md`](methodology.md)): extract the clause tables into matrix
@@ -98,9 +99,9 @@ is that the coverage is gone, not that it moved:
 
 | Surface | Where it is already held |
 |---|---|
-| AECP command behaviours (item-10 set) | **NOWHERE at the RTL-suite level**, and the subject is no longer empty: the landed uCPU has `READ_DESCRIPTOR`'s three status paths, the `IDENTIFY_NOTIFICATION`-as-command `BAD_ARGUMENTS` rule, the echo contract and the two silent-refusal rules to cover. The `item10_*` features were deleted with the old AECP engine; `ls tests/features/` is the authority on what the behave suite carries now, and no result against this build is recorded here |
-| Response frame contract (size/status/per-index) | **NOWHERE, and it is now the cheapest open lane.** The byte-exact-golden suite and its response-contract feature were deleted with the old response builder. The landed uCPU emits a conformant `NOT_IMPLEMENTED` echo for almost every command — right `message_type`+1, right length, right `controller_data_length` — and **no Verilator suite grades that frame**; check the behave suite itself rather than this page. The per-index half stays empty for a different reason: no per-index getter exists to be indexed |
-| Per-index GET_COUNTERS, Tables 5.16/5.17 | **NOWHERE at the integration level.** [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) still grades `KL_talker_diag_ctx` as a block, but `milan_datapath` no longer instantiates it — `GET_COUNTERS` answers `NOT_IMPLEMENTED`, so nothing could read it. The **STREAM_INPUT** counters at `0x6B8` `A_STRMW_CNT` are unaffected and still live |
+| AECP command behaviours (item-10 set) | The processor `pp_top` suite grades the command engine end to end. The BDD inventory in `tests/steps/aecp_engine_steps.py` is checked against the RTL dispatch so a newly served opcode cannot remain in the fallback set |
+| Response frame contract (size/status/per-index) | The processor `pp_top` suite grades the byte-exact AECP response contract. Root `milan_dp` grades the integrated wire path, including supported and missing descriptor indices |
+| Per-index GET_COUNTERS, Tables 5.16/5.17 | [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) grades the Stream Output counter arithmetic. [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) grades every declared AAF output and the CRF output through GET_COUNTERS at the integrated wire boundary, including isolation, wrap, reset-on-start and missing-index refusal. The pinned la_avdecc decoder checks the generated fixed response body |
 | Independent-controller view | [`tb/tools/hive_compliance.py`](../../tb/tools/hive_compliance.py) C1-C13 (C9-C13 still owe the §8.3.2 reference-device calibration). Its AECP-dependent checks now measure an entity that **answers, and refuses**: expect explicit `NOT_IMPLEMENTED` statuses rather than timeouts, and expect `READ_DESCRIPTOR` to answer `BAD_ARGUMENTS` while no descriptor image is loaded (the configuration range check precedes the locate, and an invalid image reports a configuration count of zero, so `NO_SUCH_DESCRIPTOR` needs a loaded image to appear at all). Read that as the boundary, not as a regression — and do not read a well-formed refusal as a passed check |
 | ACMP behaviours (not the full SM walk) | [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow), end-to-end and coarse (the bind record reaching the class-D face, the MAAP DA gate, the anti-wedge invariant), plus the `milan_dp` bind cases. The two deleted per-message ACMP suites are **not** replaced by it |
 | ADP behaviours (cadence, depart, dormancy) | [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) group B (a real `ENTITY_DISCOVER` accepted end to end) and group G (`adp_next_avail_index_o` advances). Cadence, depart and dormancy had three dedicated suites and `A_ADP_DIAG` silicon work; the suites are deleted and **`A_ADP_DIAG` now reads a structural zero** — see the register map for the per-word verdicts |

@@ -9,8 +9,8 @@
   Author      : Kebag Logic
 
   Date        : 2026-07-22
-  Description : Shared NxN AAF talker packetizer (docs/NXN_ARCHITECTURE.md
-                §2.1-§2.3, phase P4): ONE framer/serializer, N talker
+  Description : Shared NxN AAF talker packetizer (docs/fpga/FPGA_DESIGN.md
+                section 2): ONE framer/serializer, N talker
                 contexts in a BRAM-backed context RAM (TCTX) + a double-
                 banked sample staging RAM. Consumes the {slot, L, R} pair
                 stream from the physical capture front-end

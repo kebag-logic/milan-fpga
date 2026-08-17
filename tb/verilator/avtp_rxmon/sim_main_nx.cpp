@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Kebag Logic
 // SPDX-License-Identifier: CERN-OHL-W-2.0
 //
-// NxN lane-A RX stack harness (docs/NXN_ARCHITECTURE.md):
+// NxN lane-A RX stack harness (docs/fpga/FPGA_DESIGN.md):
 //   [G]  P2 matrix row: N=1-shape golden regression - the ctx engine's
 //        stream-0 legacy view reproduces the flat KL_avtp_rx_monitor
 //        contract (lock/settle/mismatch/interrupt/silence/format/bind).

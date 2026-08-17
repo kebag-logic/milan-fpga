@@ -125,9 +125,9 @@ module KL_talker_diag_ctx #(
   //! one-cycle per-context pulse the cycle a Table 5.4 counter is WRITTEN
   //! (START/STOP edge or an interval-close increment) - the Milan 5.4.5
   //! Table 5.22 unsolicited GET_COUNTERS trigger ("sent when one of the
-  //! counters is updated"). The 1/s-per-descriptor restriction is the
-  //! consumer's (KL_aecp_response_builder rate-limits per index); this
-  //! port only states the raw fact. A start edge zeroing the three
+  //! counters is updated"). The 1/s-per-descriptor restriction belongs to
+  //! a notification scheduler, but the current root leaves this pulse
+  //! unconsumed. This port only states the raw fact. A start edge zeroing the three
   //! interval counters rides the SAME pulse as its START increment.
   output logic [N_CTX_P-1:0] dirty_p_o
 );
@@ -168,9 +168,8 @@ module KL_talker_diag_ctx #(
   logic [31:0] tuiv_r   [N_CTX_P] /* verilator public_flat_rw */;
   logic [31:0] ftx_r    [N_CTX_P] /* verilator public_flat_rw */;
   logic [N_CTX_P-1:0] seen_f_r;    //! >=1 PDU transmitted this interval
-  //! USER 2026-08-05 FRAMES_TX law (ATDECC quantity, Milan cadence): count
-  //! FRAMES, publish coalesced at the interval close - the counter advances
-  //! by the interval's frame total, not +1. Saturating 16-bit per context.
+  //! FRAMES_TX is a 32-bit wrapping counter. It advances by one for each
+  //! observation interval that contains at least one transmitted frame.
   logic [N_CTX_P-1:0] seen_tu_r;   //! ... with tu set
   logic [N_CTX_P-1:0] seen_mr_r;   //! ... with mr toggled
   logic [N_CTX_P-1:0] strm_q_r;    //! streaming level, for the edge

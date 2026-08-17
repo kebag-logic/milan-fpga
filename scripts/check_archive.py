@@ -39,6 +39,12 @@ BANNER_RE = re.compile(
     r"|frozen|completed plan|snapshot", re.I)
 BANNER_SCAN_LINES = 20
 
+#: Historical pages can also stay at their original path when moving them
+#: would break long-lived references. Their first line is the current-tree
+#: equivalent of the archive banner.
+OBSOLETE_HEADER_RE = re.compile(
+    r"^\[OBSOLETE \+ \d{4}-\d{2}-\d{2}\]$")
+
 #: a link to something inside the archive: `[text](findings/X.md)`
 IN_LINK_RE = re.compile(r"\[[^\]]*\]\((?!\.\./)([A-Za-z0-9_./-]+\.md)\)")
 #: a link OUT of the archive, i.e. the living successor: `[text](../docs/Y.md)`
@@ -59,6 +65,16 @@ def archived():
         capture_output=True, text=True, check=True).stdout
     return sorted(REPO / p for p in out.split("\0") if p and
                   (REPO / p) != INDEX)
+
+
+def in_place_obsolete():
+    """Tracked pages outside the archive that carry the obsolete header."""
+    pages = []
+    for md in tracked_outside_archive():
+        lines = md.read_text().split("\n", 1)
+        if lines and OBSOLETE_HEADER_RE.fullmatch(lines[0]):
+            pages.append(md.resolve())
+    return set(pages)
 
 
 def index_rows():
@@ -141,6 +157,31 @@ def main():
                 problems.append(f"UNMARKED    {rel}: link text {text!r} points "
                                 f"into the archive but does not say so")
 
+    # 4. In-place obsolete pages follow the same routing rule as moved archive
+    #    pages. A current page may use one as historical evidence, but the
+    #    visible link must tell the reader that it is not a current authority.
+    obsolete = in_place_obsolete()
+    for md in tracked_outside_archive():
+        if md.resolve() in obsolete:
+            continue
+        rel = md.relative_to(REPO)
+        for line in md.read_text().split("\n"):
+            for m in re.finditer(r"\[([^\]]+)\]\(([^)]+)\)", line):
+                link_text, raw_target = m.group(1), m.group(2)
+                target = raw_target.split("#", 1)[0].strip("<>")
+                if not target or "://" in target or target.startswith("/"):
+                    continue
+                resolved = (md.parent / target).resolve()
+                if resolved not in obsolete:
+                    continue
+                low = link_text.lower()
+                if any(word in low for word in
+                       ("archiv", "historical", "obsolete")):
+                    continue
+                problems.append(
+                    f"UNMARKED OBSOLETE {rel}: link text {link_text!r} points "
+                    "to an in-place obsolete page but does not say so")
+
     if problems:
         print(f"archive gate: {len(problems)} problem(s)\n")
         for p in problems:
@@ -152,7 +193,8 @@ def main():
         return 1
 
     print(f"archive gate: OK ({len(pages)} archived page(s), each bannered, "
-          f"indexed once, with a living successor)")
+          f"indexed once, with a living successor; {len(obsolete)} in-place "
+          "obsolete page(s), with every current inbound link marked)")
     return 0
 
 

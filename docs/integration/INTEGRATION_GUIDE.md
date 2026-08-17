@@ -17,18 +17,18 @@ is visible from the port list:
   no fallback and no shadow arm, and it brings the `protocol-processor`
   submodule into your source list (§3). It owns ADP, ACMP (talker and listener)
   and SRP; MAAP stays in `hdl/` and is bridged to it by `KL_pp_maap_shim.sv`.
-* **On AECP this entity answers `READ_DESCRIPTOR`, and answers every other AECP
-  command with a conformant `NOT_IMPLEMENTED` echo.** The processor's AECP uCPU
-  has landed; this repository's own engine is deleted. `READ_DESCRIPTOR` returns
+* **On AECP this entity serves the processor's implemented command inventory.**
+  The processor's AECP uCPU has landed; this repository's own engine is deleted.
+  The inventory includes solicited `GET_COUNTERS` for supported descriptor banks.
+  `READ_DESCRIPTOR` returns
   `SUCCESS` with the descriptor, or `NO_SUCH_DESCRIPTOR` / `BAD_ARGUMENTS` with
   the IEEE 1722.1 §7.4.5 4-byte stub; an `IDENTIFY_NOTIFICATION` sent as a
   command answers `BAD_ARGUMENTS`; a command aimed at another
   `target_entity_id`, and any AECP response arriving as input, are refused
-  silently by design. **An echo is not an implementation:** ACQUIRE/LOCK_ENTITY
-  (including Milan Δ7's `NOT_SUPPORTED` answer, which is *not* distinguished
-  from the generic echo), every SET/GET, `GET_COUNTERS` and the Milan Table 5.22
-  unsolicited push, IDENTIFY, and saved-state persistence across a power cycle
-  are all genuinely absent. Plan around that boundary if your product needs
+  silently by design. Unsupported operations receive the conformant fallback,
+  which is not command coverage. The Milan Table 5.22 counter-change scheduler,
+  remaining mandatory commands, and saved-state persistence across a power cycle
+  are genuinely absent. Plan around that boundary if your product needs
   AECP — and see §1.6, because the descriptor half comes with an integration
   obligation you inherit.
 
@@ -62,12 +62,12 @@ taps that never drive the stream back.
 
 ## Contents
 
-- **[1. Ports, group by group](#1-ports-group-by-group)** — The whole boundary, one table per group: clocks (and the licence to tie `gtx_clk = axis_clk`, which is what the LiteX build does), the AXI4-Lite window that decodes only the low 16 bits so any base works, the three DMA streams, the MAC sideband, and why `o_irq_csr` is the *only* IRQ the datapath raises — DMA completion is yours to generate. §1.6 is the port group that gives you a *job* rather than a wire: the descriptor-image read master, its compile-time base, the error arm you must not mask, and the fact that nothing in this repository loads the image it fetches.
-- **[2. Minimum viable integration (the M-A2 pattern)](#2-minimum-viable-integration-the-m-a2-pattern)** — The stub-everything first step: clocks, reset, CSR port, every AXIS input tied off, then read `"MILN"` at offset `0x0`. This is how both the SoC sim and first silicon were validated, and it names the attach order — MAC, then DMA, then the descriptor-image master, each separately testable.
-- **[3. Source files and includes](#3-source-files-and-includes)** — Where the canonical file list lives (`_MILAN_DATAPATH_SOURCES`), and the reason it cannot silently drift: the Verilator harness and the Yosys flow consume the same list. Also the six `svh` include dirs, the **two** submodule prerequisites (verilog-axis *and* protocol-processor), the two generated `$readmemh` images the control plane loads — the ACMP transition ROM and the AECP uCPU microcode, whose absence fails as *silence* — and the two files a non-Zynq build must NOT add or it drags in PS7.
-- **[4. Running the datapath on its own clock](#4-running-the-datapath-on-its-own-clock)** — The escape hatch when 100 MHz timing is tight (the CBS slope divide is the known critical path): the three crossing mechanisms `--milan-clk-freq` uses, and why it is free — a 64-bit datapath at 50 MHz still exceeds 1 GbE line rate.
-- **[5. Software contract](#5-software-contract)** — The three things software binds to: the register ABI (offsets defined once in RTL, with a harness asserting doc and RTL agree), the `kl,dma-ether-0.9` DT compatible string, and the generated device tree — add an IR JSON for a new host rather than hand-writing a dtsi.
-- **[6. Verifying your integration](#6-verifying-your-integration)** — A four-rung ladder from RTL boundary to first silicon and on to controller enumeration, each rung naming its harness and the doc that walks it.
+- **[1. Ports, group by group](#1-ports-group-by-group)** -- The whole boundary, one table per group: clocks, the AXI4-Lite window, DMA streams, MAC sideband, and the descriptor-image read master. Section 1.6 records the compile-time base, mandatory error arm, and the tracked builder plus loader flow.
+- **[2. Minimum viable integration (the M-A2 pattern)](#2-minimum-viable-integration-the-m-a2-pattern)** -- The stub-everything first step: clocks, reset, CSR port, every AXIS input tied off, then read `"MILN"` at offset `0x0`. This is how both the SoC sim and first silicon were validated, and it names the separately testable attach order: MAC, DMA, then the descriptor-image master.
+- **[3. Source files and includes](#3-source-files-and-includes)** -- Where the canonical file list lives (`_MILAN_DATAPATH_SOURCES`), and the reason it cannot silently drift: the Verilator harness and the Yosys flow consume the same list. Also the six `svh` include dirs, both submodule prerequisites, the two generated control-plane ROM images, and the two files a non-Zynq build must exclude.
+- **[4. Running the datapath on its own clock](#4-running-the-datapath-on-its-own-clock)** -- The escape hatch when 100 MHz timing is tight: the three crossing mechanisms `--milan-clk-freq` uses, and why a 64-bit datapath at 50 MHz still exceeds 1 GbE line rate.
+- **[5. Software contract](#5-software-contract)** -- The register ABI, the `kl,dma-ether-0.9` DT compatible string, and the generated device tree. Add an IR JSON for a new host rather than hand-writing a dtsi.
+- **[6. Verifying your integration](#6-verifying-your-integration)** -- A four-rung ladder from RTL boundary to first silicon and on to controller enumeration, each rung naming its harness and the doc that walks it.
 
 ## 1. Ports, group by group
 
@@ -200,15 +200,12 @@ Four things to get right:
   handshake as well) abandons the burst, so the image never validates and every
   `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` instead of hanging — but the entity then serves no
   descriptors at all, and that has to be a stated choice, not an oversight.
-* **Somebody has to load the image, and in this repository nobody does yet.**
-  The generator lives in the submodule
-  (`protocol-processor/hdl/aecp/desc/gen_desc_image.py`: vendor-neutral JSON in,
-  flat image out); no step in `sw/builder`, `scripts/`, the LiteX SoC builder or
-  the boot path produces that JSON or writes the image into DRAM, and the
-  `aecp_aem_rom.svh` the end-station builder still emits belongs to the
-  **deleted** in-fabric store — it is an orphan, not this image. Until your
-  integration supplies one, the entity discovers, connects and streams while
-  enumerating nothing. The image header's magic (`"AEMI"`, `0x41454D49`),
+* **Load the builder-generated image before entity enable.** The end-station
+  builder produces `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` for the
+  selected configuration. The tracked board flow uses `aemi-load` to verify the
+  paired metadata and place the image at `PP_DESC_BASE_P` before enabling the
+  entity. A custom integration must provide the equivalent step. The image
+  header's magic (`"AEMI"`, `0x41454D49`),
   layout version and checksum make an unloaded region read as **"image not
   loaded"** rather than as a valid empty model, and a **late load heals without
   a reset** — each locate against an invalid image re-arms the header probe.

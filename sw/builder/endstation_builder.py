@@ -4,10 +4,10 @@
 """
 endstation_builder.py - software-defined Milan End-Station builder.
 
-docs/MILAN_COMPLIANCE_GAPS.md attack item 4: ONE declarative definition
-drives gateware elaboration, AEM ROM, lwSRP tables and DT/driver shape
-consistently. This round turns the scaffold into the working generator:
-the emitted AEM overlay is CONSUMED by avdecc/gen_aem_store.py (--overlay);
+One declarative definition drives gateware elaboration, the AEM model, lwSRP
+tables and the DT/driver shape consistently. The current compliance boundary
+is recorded in docs/testing/MILAN_V12_AUDIT_2026-08-16.md. The emitted AEM
+overlay is consumed by avdecc/gen_aem_store.py (--overlay), and
 the emitted sweep_opts fragment is SOURCED by sw/litex/sweep.sh (single
 source for the per-board design OPTS/L2).
 
@@ -26,14 +26,12 @@ plane now).  Exactly TWO generated includes are still compiled:
         LWSRP_PRIO_RANK_C.  Those registers remain as an ABI (software can
         still write them) but drive NOTHING: the applicant is deleted.
 
-The AEM descriptor ROM is STILL GENERATED - the entity model is the
-declarative source the ADP shape counts and the capability words are
-DERIVED from, and this file's own self-consistency gates read it - but it
-is NO LONGER AN RTL ARTIFACT.  It describes a descriptor set nothing in
-this gateware serves: this device answers no AECP/AEM command, so no
-controller can READ_DESCRIPTOR any of it.  It is written to
-out/<cfg>/aecp_aem_rom.svh (and rendered by avdecc/gen_aem_store.py
---out-dir) for reading, never into hdl/ or into configs/generated/*/gen/.
+The legacy AEM descriptor ROM is still generated as a readable model artifact,
+but it is no longer compiled into RTL. The protocol processor serves
+READ_DESCRIPTOR from a flat DRAM image instead. An explicit --write-fragment
+or --write-rtl deployment ownership transfer generates that image, manifest,
+map, and loader in the sibling rootfs overlay when the overlay is present.
+An ordinary builder run does not touch that deployment overlay.
 
 Input:  a YAML end-station config (schema kebag-logic/milan-endstation-config,
         see configs/endstation_*.yaml for annotated examples).
@@ -53,9 +51,8 @@ Outputs (into OUTDIR/<config-stem>/):
                       applicant was deleted: only the CSR-facing subset below
                       still reaches RTL. Kept because the 0x680 reset words
                       and the bandwidth arithmetic are derived here.
-  aecp_aem_rom.svh  - this config's AEM descriptor ROM. GENERATED, NOT
-                      COMPILED: see the note at the top - nothing in this
-                      gateware serves these descriptors.
+  aecp_aem_rom.svh  - legacy AEM descriptor ROM. Generated for model review,
+                      not compiled and not served by the processor.
   platform_shape.json - driver-visible layout: Milan CSR base, the DMA window
   milan-nic.dtsi      map DERIVED from board.constraints.rx_queues, the
                       physical addresses kl-eth hardcodes, and the
@@ -77,6 +74,10 @@ Plus (repo-level, single-sourced so nothing can drift):
                       board programs into the ADP/AEM CSRs. Same rule, same
                       moment: the config that owns the board's bitstream owns
                       its advertised identity.
+  <rootfs overlay>/etc/milan-aem/aem_desc.{bin,json,map}
+                    - the processor descriptor image, paired manifest, and
+                      readable map. Written only by --write-fragment or
+                      --write-rtl when the sibling overlay is present.
   hdl/common/csr/gen/lwsrp_csr_defaults.svh - the CSR-facing SUBSET of the
                       lwSRP table (0x680 reset words + the PriorityAndRank
                       byte), `include-d BY hdl/common/csr/milan_csr.sv: the
@@ -93,6 +94,8 @@ Plus (repo-level, single-sourced so nothing can drift):
 Usage:
   python3 sw/builder/endstation_builder.py configs/endstation_arty_current.yaml
   python3 sw/builder/endstation_builder.py <cfg.yaml> -o <outdir>
+  python3 sw/builder/endstation_builder.py <cfg.yaml> --write-fragment
+  python3 sw/builder/endstation_builder.py <cfg.yaml> --write-rtl
 
 Schema summary (see the example configs for the annotated normative form):
   schema / schema_version      - "kebag-logic/milan-endstation-config" / 1.1.x
@@ -1221,8 +1224,8 @@ def base_format_complete(fmts):
     is reasonable for its functionality" - with no all-channel-counts rule and
     no cross-Stream-Output rate rule anywhere in Section 6.  Completing a
     Stream Output would also be a claim nothing can walk back: the framer
-    emits ONE width (framer_wire_channels), SET_STREAM_FORMAT on a
-    STREAM_OUTPUT answers NOT_SUPPORTED because FR-STR-03 makes adaptivity a
+    emits ONE width (framer_wire_channels), while SET_STREAM_FORMAT remains
+    unimplemented and returns NOT_IMPLEMENTED. FR-STR-03 makes adaptivity a
     listener requirement, and a listener handed a width the talker cannot
     produce discards every frame (silicon 2026-07-27: 296,294 of 296,294).
 
@@ -1317,15 +1320,15 @@ def _streams(lst, ctx, direction, rate_hz=48000):
             raise ConfigError(f"{sctx}: clusters {clusters} outside 1..32")
         # map_mode (gaps item 8, generalized by roadmap 23): "dynamic"
         # drops the port's static AUDIO_MAP (1722.1-2021 7.2.13
-        # number_of_maps=0) and arms the RTL ADD/REMOVE/GET_AUDIO_MAP
-        # engine. Milan v1.2 5.3.3.9 makes that the SHALL for listeners
+        # number_of_maps=0). The processor serves GET_AUDIO_MAP from the root
+        # store, but ADD/REMOVE remain mandatory gaps and no AECP writer is
+        # connected. Milan v1.2 5.3.3.9 makes dynamic maps the SHALL for listeners
         # ("The Stream Port Input of a Configuration shall not contain any
         # AUDIO_MAP descriptor. Note: this means that a PAAD-AE implements
         # dynamic mappings on all of its Stream Port Inputs"), so ANY
-        # subset of the listener ports may be dynamic. Talkers stay static:
-        # 5.3.3.9 leaves Stream Port Outputs free to keep Audio Maps, and
-        # 5.4.2.26-28 then mandate NOT_SUPPORTED there - which is exactly
-        # what the RTL answers.
+        # subset of the listener ports may be dynamic. Talkers stay static in
+        # this configuration model. The current getter serves both directions;
+        # see docs/testing/MILAN_V12_AUDIT_2026-08-16.md for the open writers.
         map_mode = s.get("map_mode", "static")
         if map_mode not in ("static", "dynamic"):
             raise ConfigError(f"{sctx}: map_mode '{map_mode}' not "
@@ -2443,12 +2446,13 @@ def emit_adp_shape_svh(cfg):
     #! STREAM_INPUT[0]'s declared stream_format, as a 64-bit constant.
     #!
     #! WHY IT MOVED HERE.  It used to reach the fabric as the RESET VALUE of
-    #! the AECP response builder's fmt_in0_r, taken from the generated AEM ROM
-    #! (AEM_STRIN_FMT_C[0]).  That ROM is deleted with the AECP engine, and the
-    #! constant is NOT AECP's to own: KL_avtp_rx_monitor_ctx compares every
+    #! the repository-local AECP response builder's fmt_in0_r, taken from the
+    #! generated AEM ROM (AEM_STRIN_FMT_C[0]).  That local engine and ROM are
+    #! deleted. The constant is not the processor's dynamic store to own:
+    #! KL_avtp_rx_monitor_ctx compares every
     #! arriving AVTPDU's subtype/format against it (fmt0_i), so it decides
-    #! whether stream 0 can accept a frame AT ALL - with no AECP in the build
-    #! it is a pure entity-model fact and belongs in the entity-model header.
+    #! whether stream 0 can accept a frame AT ALL. SET_STREAM_FORMAT remains
+    #! unimplemented, so it is a fixed entity-model fact and belongs here.
     #! Tying it to zero (the first cut of the plane deletion) made the compare
     #! fail for every conformant AAF PDU: stream 0 accepted nothing, on every
     #! build.  Same class as the presentation-time default, same fix.
@@ -2457,7 +2461,8 @@ def emit_adp_shape_svh(cfg):
     #! which is exactly what the deleted register file reset to.
     fmts0 = ((cfg.get("listeners") or [{}])[0].get("formats") or ["0x0"])
     f0 = int(str(fmts0[0]), 16)
-    a("  //! STREAM_INPUT[0]'s declared (and, with no AECP to change it, its")
+    a("  //! STREAM_INPUT[0]'s declared (SET_STREAM_FORMAT is unimplemented,")
+    a("  //! so this is also its")
     a("  //! ONLY) stream_format - the value KL_avtp_rx_monitor_ctx accepts")
     a("  //! frames against. Was the AEM ROM's AEM_STRIN_FMT_C[0]; the ROM is")
     a("  //! gone and this is the same number from the same config.")
@@ -2493,19 +2498,19 @@ def rtl_version():
 
 
 def emit_aem_rom_svh(cfg, overlay):
-    """This config's AEM descriptor ROM, rendered as SystemVerilog text.
+    """This config's legacy AEM SVH rendering.
 
-    NOTHING COMPILES THE RESULT. Its `include-r, KL_aecp_aem_store.sv, is
-    deleted with the rest of hdl/ieee17221/aecp; this gateware answers no
-    AECP command, so no controller can READ_DESCRIPTOR any of these
-    descriptors. It is still generated for two reasons that are not
-    decorative: (1) the descriptor set IS the declarative entity definition
-    that adp_shape() derives talker_stream_sources / listener_stream_sinks
-    and the two capability words from, and those DO reach silicon through
-    gen/adp_shape_defaults.svh; (2) building it is the only check that the
-    declared model is expressible at all - a shape whose descriptor set
-    cannot be generated has a shape count nobody should trust, which is why
-    --write-rtl refuses on that failure.
+    Nothing compiles this result. Its former include consumer,
+    KL_aecp_aem_store.sv, was deleted with hdl/ieee17221/aecp. The current
+    processor serves READ_DESCRIPTOR from the flat DRAM image emitted by
+    _entity_model_image(). This compatibility rendering is still generated
+    for two reasons that are not decorative: (1) the descriptor set is the
+    declarative entity definition from which adp_shape() derives
+    talker_stream_sources, listener_stream_sinks, and the capability words
+    that reach silicon through gen/adp_shape_defaults.svh; (2) building it is
+    the check that the declared model is expressible at all. A shape whose
+    descriptor set cannot be generated has a shape count nobody should trust,
+    which is why --write-rtl refuses on that failure.
 
     Written to out/<cfg>/aecp_aem_rom.svh only. See the module banner."""
     sys.path.insert(0, os.path.join(ROOT, "avdecc"))
@@ -3084,7 +3089,7 @@ def load_config(path):
                             "board.constraints.hs_page_bytes"),
         strip_probes=bool(c.get("strip_probes", True)),
         eth_port=c.get("eth_port"),
-        # milan_datapath LPF_P (docs/NXN_ARCHITECTURE.md 6.2/6.3): the
+        # milan_datapath LPF_P (docs/design/AREA_BUDGET.md): the
         # render-tap Butterworth is PRESENT unless a config prunes it, so
         # omitting the key leaves every existing argv byte-identical.
         render_lpf=bool(c.get("render_lpf", True)),
@@ -3971,8 +3976,8 @@ def emit_aem_overlay(cfg):
 
     # one AUDIO_MAP per STATIC port; rows = (stream_index, stream_channel,
     # cluster_offset RELATIVE to the port's base_cluster, cluster_channel).
-    # map_mode dynamic ports (gaps item 8) emit NO map - their mappings are
-    # runtime state behind ADD/REMOVE/GET_AUDIO_MAPPINGS (Milan 5.4.2.26-28).
+    # map_mode dynamic ports (gaps item 8) emit NO map. GET_AUDIO_MAP reads
+    # their root store; ADD/REMOVE are not implemented (Milan 5.4.2.26-28).
     #
     # Under the legacy policies the port's cluster block IS the stream's
     # channel space, so the map is the identity over the whole block. Under
@@ -4265,7 +4270,7 @@ FEATURE_REMEASURE = {
         "the port is PROMISCUOUS in the pruned build",
     "render_lpf":
         "the analog loop THD+N record, which was measured THROUGH this "
-        "filter (docs/NXN_ARCHITECTURE.md 6.2)",
+        "filter (docs/design/AREA_BUDGET.md)",
     "datapath_probes":
         "the APRB pre-match view (parsed/matched/last-sid) and PBK chain "
         "evidence - the 0x8B4-0x8D0 words read 0, so bench recipes that "
@@ -4685,7 +4690,8 @@ def main():
                          "tracked RTL tree (hdl/common/csr/gen/"
                          "adp_shape_defaults.svh - ONE file: the AEM "
                          "descriptor ROM no longer has an RTL destination, "
-                         "the AECP plane that compiled it is deleted). Run "
+                         "the repository-local AECP plane that compiled it "
+                         "is deleted). Run "
                          "this for the config you are about to build: "
                          "milan_csr.sv and milan_datapath.sv `include that "
                          "file, so without it a build inherits whatever shape "

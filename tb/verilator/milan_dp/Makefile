@@ -207,7 +207,7 @@ run: ltn_rom.hex ucode.hex $(GEN_ALL)
 	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS) --Mdir obj_nxn4c -GN_STREAMS=4 \
 	  -GTALKER_WIRE_CHANS_P=4 -GAUDIO_IF_SLOTS_P=8 -GAUDIO_IF_MASTER_P=1 \
 	  -GAUDIO_IF_I2S_PAIR_P=1 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn4c
-# LPF_P=0 is the SPENT area lever (docs/NXN_ARCHITECTURE.md 6.2/6.3): the
+# LPF_P=0 is the SPENT area lever (docs/design/AREA_BUDGET.md): the
 # ax7101 shipping argv carries --no-render-lpf, so the pruned shape is a
 # SHIPPING shape and has to be in the suite. The claim being proved is
 # "no digital acceptance surface moves" - so this leg runs the SAME

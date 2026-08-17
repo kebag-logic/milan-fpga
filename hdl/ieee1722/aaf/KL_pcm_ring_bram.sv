@@ -48,7 +48,7 @@
                 driver still programs the base CSR = the mmap base, keeping
                 the pcm CSR ABI unchanged.
 
-  Spec refs   : docs/NXN_ARCHITECTURE.md §1.3 P12 (per-stream ring key);
+  Spec refs   : docs/fpga/FPGA_DESIGN.md section 2 (per-stream ring key);
                 milan_soc.py _PCMRingNxN (CSR/address ABI mirrored);
                 mf52 SHED + I6 (DRAM-path silicon failures this sinks)
   Company     : Kebag Logic

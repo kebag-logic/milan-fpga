@@ -212,7 +212,7 @@ Rows are now sized **`L+T−1`**. Consequences you can observe:
 * the CRF media clock output became a bindable ACMP talker source at
   `talker_unique_id = N_STREAMS`.
 
-Detail: [`../NXN_ARCHITECTURE.md`](../NXN_ARCHITECTURE.md) §3.4.1.
+Historical detail: [historical NxN architecture](../NXN_ARCHITECTURE.md) §3.4.1.
 
 ## 5. RMON counts again — and now tells you when it does not
 
@@ -262,7 +262,7 @@ cycle-identically, so this is additive.
 
 New probe group `0x8C8`–`0x8D0` (`PBK_STAT` / `PBK_FEEDS` / `PBK_RAILS`) reports
 delivered frames, disarmed-render frames and the `KL_pcm_tx` rails.
-Detail: [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md),
+Historical detail: [historical audio-streaming design](../design/AUDIO_STREAMING.md),
 [`../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md).
 
 ## 7. New instrumentation you did not have
@@ -341,7 +341,8 @@ classified by destination MAC) · `REQ-MAC-02` (RX station-MAC address filter) �
 `REQ-PTP-05` (event-only timestamping) · `REQ-PTP-09` (C-VLAN-tagged gPTP
 offsets) · `REQ-CBS-06` (slope fixed-point rounding).
 
-Status is tracked in [`../../TODO.md`](../../TODO.md); the normative text is
+Status at this release is preserved in [historical `TODO.md`](../../TODO.md);
+the normative text is
 [`../../REQUIREMENTS.md`](../../REQUIREMENTS.md).
 
 ---

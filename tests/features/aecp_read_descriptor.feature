@@ -6,9 +6,9 @@ Feature: READ_DESCRIPTOR is answered again (IEEE 1722.1-2021 7.4.5)
   On 2026-08-12 this repository's AECP/AEM RTL was deleted and this tier went
   with it, on the premise "this device answers no AECP command at all". The
   protocol-processor submodule then landed its AECP uCPU and the premise
-  expired: READ_DESCRIPTOR (0x0004) is the one AEM command this processor
-  really answers, out of a static descriptor image, and it answers the two
-  failure cases apart from each other.
+  expired: READ_DESCRIPTOR (0x0004) is one of the processor's served AEM
+  commands. It reads the supplied descriptor image and answers its two failure
+  cases apart from each other.
 
   THREE ANSWERS, ONE COMMAND. Success is configuration_index, a reserved
   halfword and the descriptor itself, so the AECPDU is 28 + N. A locate that
@@ -20,14 +20,11 @@ Feature: READ_DESCRIPTOR is answered again (IEEE 1722.1-2021 7.4.5)
   descriptor_index} stub, "in the same location as in the command frame", so
   a controller can tell which read failed without keeping its own book.
 
-  WHAT IS DELIBERATELY NOT HERE. Everything the submodule still does not
-  implement: SET/GET_CLOCK_SOURCE, SET/GET_MAX_TRANSIT_TIME, GET_COUNTERS and
-  the Table 5.22 unsolicited push, the audio-map getters and setters, entity
-  lock and acquire semantics beyond the generic echo, saved-state persistence
-  and SET_CONFIGURATION / NAME / SAMPLING_RATE / STREAM_FORMAT / STREAM_INFO.
-  Those features were deleted with the RTL and stay deleted: a scenario that
-  asserts an answer nothing gives is a conformance claim with no device
-  behind it.
+  WHAT IS DELIBERATELY NOT HERE. This feature covers READ_DESCRIPTOR only. The
+  served inventory, including GET_COUNTERS, has command-specific BDD and RTL
+  coverage. Commands outside that inventory and the Table 5.22 unsolicited
+  push remain separate gaps. A scenario that asserts an answer nothing gives
+  would be a conformance claim with no device behind it.
 
   This is an OFFLINE model (tests/README.md T1) - a Python mirror of the
   shipped command path in tests/steps/aecp_engine_steps.py, which lists the

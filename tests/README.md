@@ -47,49 +47,42 @@ the control plane now, through `hdl/milan/KL_pp_shadow.sv`.
 33 feature files and 9 step modules that tested only that RTL were deleted
 with it, and the mixed features below were pruned scenario by scenario. The
 `@tsn_gen` tier went with them: it generated AECP/ACMP frames from tsn-gen
-protocol YAMLs, and there is nothing left to feed them to. Nothing in the
-suite skips any more.
+protocol YAMLs, and there is nothing left to feed them to. No scenario is
+currently excluded from the default suite.
 
-**2026-08-13 — part of the AECP tier came BACK, because the device answers
-again.** The deletion above was made on the premise "this device answers no
-AECP command at all". That premise expired when the protocol-processor landed
-its AECP µCPU (`protocol-processor/hdl/aecp/**`). The device now answers
-**READ_DESCRIPTOR** (0x0004) for real out of a static descriptor image;
-answers **IDENTIFY_NOTIFICATION-as-a-command** with `BAD_ARGUMENTS`
-(IEEE §7.4.39.2, the opcode-specific rule, over §9.3.5.3.3's fallback);
-answers **every other opcode and message type** — AEM, ADDRESS_ACCESS and
-MVU alike — with a conformant `NOT_IMPLEMENTED` echo at `message_type + 1`,
-the command's own length and a matching `control_data_length`; and stays
-**silent** for exactly two inputs: a command whose `target_entity_id` is not
-ours, and an AECP *response* arriving as input. Two features cover that and
-only that: `aecp_read_descriptor.feature` and `aecp_response_contract.feature`.
+**2026-08-16: the AECP tier follows the processor's served inventory.** The
+protocol-processor AECP uCPU (`protocol-processor/hdl/aecp/**`) serves the
+opcodes listed in `tests/steps/aecp_engine_steps.py`, including
+READ_DESCRIPTOR and GET_COUNTERS. Unsupported commands receive a conformant
+NOT_IMPLEMENTED fallback. IDENTIFY_NOTIFICATION as a command receives
+BAD_ARGUMENTS. The engine stays silent for a command whose target_entity_id is
+not ours and for an AECP response arriving as input.
 
-**Still genuinely absent, and deliberately NOT covered** — a scenario
-asserting an answer nothing gives is a conformance claim with no device
-behind it: SET/GET_CLOCK_SOURCE, SET/GET_MAX_TRANSIT_TIME, GET_COUNTERS and
-the Table 5.22 unsolicited push, the audio-map getters/setters, entity
-lock/acquire semantics beyond the generic echo, saved-state persistence, and
-SET_CONFIGURATION / NAME / SAMPLING_RATE / STREAM_FORMAT / STREAM_INFO. Their
-features stay deleted.
+`aecp_read_descriptor.feature`, `aecp_response_contract.feature` and
+`counters_contract_milan.feature` cover the standards-facing contract. The
+processor `pp_top` suite and root `milan_dp` suite cover the RTL and integrated
+wire path. The Milan Table 5.22 unsolicited counter-change producer and
+commands outside the served inventory remain explicit gaps.
 
-**14 features / 307 scenarios / 1460 steps**, all passing, counted by running
-the suite on 2026-08-13 (the run's own tally is authoritative — prose counts
+**15 features / 322 scenarios / 1526 steps**, all passing, counted by running
+the suite on 2026-08-16 (the run's own tally is authoritative -- prose counts
 go stale). It is the **conformance suite**, and it is a CI gate (the
 `bdd-conformance` job in `.github/workflows/rtl.yml`).
 
 | Feature file | Scenarios | What it reads |
 |---|---|---|
-| `wire_truth_avtp.feature` | 34 | `@torture`; hand-built AVTP **and MSRP/MVRP** byte vectors through `tb/tools/avtp_wire_truth.py` |
-| `counters_contract_milan.feature` | 36 | `@torture` + L1; the Milan Table 5.6 counter table, its mask arithmetic and update laws, the CRF sink's per-era obligations in `KL_crf_rx`, and the documented `A_STRMW_CNT0..9` window |
+| `wire_truth_avtp.feature` | 37 | `@torture`; hand-built AVTP **and MSRP/MVRP** byte vectors through `tb/tools/avtp_wire_truth.py` |
+| `counters_contract_milan.feature` | 86 | `@torture` + L1; the Milan Table 5.6 counter table, its mask arithmetic and update laws, the CRF sink's per-era obligations in `KL_crf_rx`, and the documented `A_STRMW_CNT0..9` window |
 | `aecp_read_descriptor.feature` | 28 | the READ_DESCRIPTOR answer — the SUCCESS shape (28 + N), the NO_SUCH_DESCRIPTOR locate miss, the BAD_ARGUMENTS bad-configuration index, and the IEEE §7.4.5 four-octet {type, index} stub on **both** failure paths |
-| `aecp_response_contract.feature` | 20 (+1 `@wip`) | the answer contract — the `NOT_IMPLEMENTED` echo over AEM/AA/MVU and the whole opcode space, IDENTIFY_NOTIFICATION → `BAD_ARGUMENTS`, and the two silent refusals asserted as **no frame at all** |
+| `aecp_response_contract.feature` | 19 | the served-inventory and fallback contract, IDENTIFY_NOTIFICATION → `BAD_ARGUMENTS`, Milan Delta 7 ACQUIRE_ENTITY refusal, and the two silent refusals asserted as **no frame at all** |
 | `torture_campaign_plan.feature` | 27 | `@torture`; audits `tb/tools/torture_campaign.py`'s own plan, assertion contract and cross-participant invariants |
 | `milan_8021q_conformance.feature` | 22 | the 5-queue architecture, the PCP→TC→queue map, the CBS algorithm and its idleSlope/hiCredit/loCredit budgets, and listener VID/format filtering |
-| `audio_walking_tone_identity.feature` | 19 | `@torture` + L1; channel identity through the production decode path and a THD+N method validated against an independent coherent DFT |
-| `clkv_tu_lease.feature` | 18 | the AVTP `tu` verdict and its CLKV lease |
-| `wire_channel_accountability.feature` | 9 | the end-station builder's own width derivation over the shipping configs, plus the `milan_datapath` elaboration guards |
-| `chmap_capture_identity.feature` | 9 | the capture-side chmap64 mux |
-| `gptp_announce_receipt_timeout.feature` | 7 | the BMCA announce-receipt timeout |
+| `milan_base_formats.feature` | 14 | the required Base Audio Format family for every declared AAF Stream Input, with Stream Output and CRF exclusions |
+| `audio_walking_tone_identity.feature` | 22 | `@torture` + L1; channel identity through the production decode path and a THD+N method validated against an independent coherent DFT |
+| `clkv_tu_lease.feature` | 22 | the AVTP `tu` verdict and its CLKV lease |
+| `wire_channel_accountability.feature` | 11 | the end-station builder's own width derivation over the shipping configs, plus the `milan_datapath` elaboration guards |
+| `chmap_capture_identity.feature` | 11 | the capture-side chmap64 mux |
+| `gptp_announce_receipt_timeout.feature` | 10 | the BMCA announce-receipt timeout |
 | `item10_audio_maps.feature` | 4 | the chmap64 render-crossbar word format and its base_cluster + offset key space |
 | `milan_streaming_licence.feature` | 4 | the AAF admission composition, the t>0 wire identity in `KL_aaf_packetizer`, and a byte-exact bench MSRPDU capture |
 | `crf_sr_class_a.feature` | 3 | the CRF emitter's 802.1Q C-TAG and the lane it leaves on |
@@ -98,25 +91,16 @@ go stale). It is the **conformance suite**, and it is a CI gate (the
 > every run; if this table and the run disagree, the run wins.
 
 **`@torture` tier (2026-07-30):** the desk half of the standing
-torture/compliance campaign — see
-[`../docs/testing/TORTURE_CAMPAIGN.md`](../docs/testing/TORTURE_CAMPAIGN.md) for
-the whole thing, including the on-bench runner and **how to add a check in one
-place**. These features need no DUT, no simulator and no `numpy`; they
+torture/compliance campaign. See the current
+[`testing/TESTING.md`](../docs/testing/TESTING.md) map and the
+[`harness/README.md`](../harness/README.md) runner contract. These features need
+no DUT, no simulator and no `numpy`; they
 audit the campaign's plan, its payload decoders, its counter contract and its
 audio properties, so the parts that can be wrong silently are wrong at a desk
 instead of on the bench.
 
-**`@open-finding`:** ONE, and it is also `@wip`, so it is out of the gate and
-out of the default run and fails on purpose when you ask for it. Milan v1.2
-Δ7 requires `ACQUIRE_ENTITY` to never succeed and to answer `NOT_SUPPORTED`
-with `owner_id` zero; the shipped µcode has that program (`E_ACQ`) but the
-engine's three-arm dispatch never selects it, so 0x0000 falls through to the
-generic `NOT_IMPLEMENTED` echo like any other unimplemented opcode. The
-scenario in `aecp_response_contract.feature` asserts what Δ7 requires, so it
-is the oracle for the fix rather than a description of one — run it with
-`behave --tags=wip`. The two older findings lived in
-`counters_contract_milan.feature`, cited line numbers in
-`KL_aecp_response_builder.sv` and were deleted with that file.
+**`@open-finding`:** none at present. Milan Delta 7 `ACQUIRE_ENTITY` is part of
+the default response-contract run and must return `NOT_SUPPORTED` with no owner.
 
 ```bash
 cd tests && behave --tags @torture -f plain     # just the campaign features
@@ -128,7 +112,7 @@ python3 tb/tools/torture_campaign.py --checklist # what a human must do at the b
 
 **Run everything (offline, no DUT, no simulator — finishes in under a second):**
 ```bash
-cd tests && behave -f plain          # 14 features / 307 scenarios (2026-08-13)
+cd tests && behave -f plain          # 15 features / 322 scenarios (2026-08-16)
 ```
 `behave` is not installed system-wide here; any virtualenv with it will do
 (CI does `python3 -m pip install behave`).
@@ -150,11 +134,13 @@ longer exist in this repository, and no `@T2` scenario survives.
 
 `tb/avtp_packet_gen_sv/tb_classes/avtp_aecp_packet_gen.svh` still builds AECP
 command frames and is still useful as a CONTROLLER-side instrument. Since
-2026-08-13 a bench that sends one is no longer testing the absence of a reply:
-the protocol-processor answers READ_DESCRIPTOR, and answers everything else
-with a `NOT_IMPLEMENTED` echo — see the two `aecp_*` features under T1 for the
-contract it has to meet. The AVTP/AAF generators in the same library are
-unaffected.
+2026-08-13 a bench that sends one is no longer testing the absence of a reply.
+The protocol processor serves the declared AECP inventory, including descriptor
+reads, state and control operations, stream and gPTP information, counters,
+audio-map reads, unsolicited registration, and Milan information. Unsupported
+operations receive the correctly sized `NOT_IMPLEMENTED` echo. See the
+`aecp_*` features under T1 and the current audit for the exact contract. The
+AVTP/AAF generators in the same library are unaffected.
 
 ---
 

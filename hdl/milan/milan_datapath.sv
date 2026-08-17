@@ -23,26 +23,27 @@
 //! the option, remove everything out of the code base that is legacy").
 //!
 //! WHAT A CONTROLLER GETS, STATED ONCE SO NO READER HAS TO DISCOVER IT:
-//! the entity DISCOVERS over ADP, connects over ACMP, reserves over SRP,
-//! ANSWERS READ_DESCRIPTOR out of an entity model held in MAIN MEMORY, and
-//! answers every other AECP command with a conformant NOT_IMPLEMENTED echo
-//! (message_type+1, correct length, correct cdl) - never silence, never
-//! malformed. IDENTIFY_NOTIFICATION sent as a command is BAD_ARGUMENTS.
-//! AN ECHO IS NOT AN IMPLEMENTATION: GET_COUNTERS and its Table 5.22 push,
-//! entity lock/acquire, SET_CLOCK_SOURCE (so the media clock is pinned
-//! INTERNAL, see CRF_CLK_SELECTED_C), SET_MAX_TRANSIT_TIME (every Stream
-//! Output holds the Milan 2 ms default), the audio-map setters and
-//! saved-state persistence are all genuinely absent and read STRUCTURAL
-//! ZEROS. If the descriptor image was never loaded at PP_DESC_BASE_P the
+//! the entity DISCOVERS over ADP, connects over ACMP, reserves over SRP, and
+//! serves the protocol processor's implemented AECP inventory. That includes
+//! READ_DESCRIPTOR, solicited GET_COUNTERS, selected getters and setters,
+//! Identify control, the unsolicited registration pair,
+//! GET_AUDIO_MAP, and Milan GET_MILAN_INFO. Unsupported operations receive the
+//! conformant NOT_IMPLEMENTED fallback. IDENTIFY_NOTIFICATION sent as a command
+//! is BAD_ARGUMENTS.
+//! AN ECHO IS NOT AN IMPLEMENTATION. The missing mandatory surface includes
+//! SET_STREAM_FORMAT, SET_STREAM_INFO, name access, audio-map mutation, and
+//! GET_DYNAMIC_INFO. The Table 5.22 counter-change scheduler and saved-state
+//! persistence are also absent. SET_CLOCK_SOURCE is accepted by the processor,
+//! and its dynamic value reaches this wrapper, but the media plane does not
+//! consume it. The media clock remains pinned INTERNAL through
+//! CRF_CLK_SELECTED_C. If the descriptor image was never
+//! loaded at PP_DESC_BASE_P the
 //! range check fails before any locate runs, so an unloaded image answers
 //! BAD_ARGUMENTS - not NO_SUCH_DESCRIPTOR. That difference is the bench
-//! discriminator: BAD_ARGUMENTS everywhere = no image. Everything only an AECP engine could
-//! have driven is gone with it and its CSR words read STRUCTURAL ZEROS, each
-//! documented at the point it is tied: the AEM descriptor ROM and every
-//! READ_DESCRIPTOR/GET/SET, entity lock and acquire, SET_CLOCK_SOURCE (so the
-//! media clock can never be switched to the CRF source), SET_MAX_TRANSIT_TIME
-//! (every Stream Output holds the Milan 2 ms default), GET_COUNTERS and the
-//! Table 5.22 unsolicited push, IDENTIFY, and saved-state persistence.
+//! discriminator: BAD_ARGUMENTS everywhere = no image. Legacy CSR faces with no
+//! live processor output read STRUCTURAL ZEROS and are documented at their
+//! tie-offs. The current compliance blockers are recorded in
+//! docs/testing/MILAN_V12_AUDIT_2026-08-16.md.
 //! milan_top.sv remains the (archived, unbuildable) Zynq variant.
 //!
 //! What moved OUT to the integration layer:
@@ -76,11 +77,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   parameter bit [NUM_QUEUES-1:0] CBS_QUEUES_MASK_P = '1,
   //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
-  //! NxN dataplane width (docs/NXN_ARCHITECTURE.md P0): AAF stream contexts
+  //! NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2): AAF stream contexts
   //! per shared engine (listener sinks = talker sources = N_STREAMS). The
   //! N = 1 default is today's shape, bit-compatible (no-regression axiom).
   parameter int N_STREAMS = 1,
-  //! THE WIRE CHANNEL CONSTANT (roadmap item 00, docs/MILAN_COMPLIANCE_GAPS.md).
+  //! THE WIRE CHANNEL CONSTANT (docs/ENDSTATION_BUILDER.md section 3).
   //! channels_per_frame this fabric puts in every talker's AAF PDU - the
   //! 7.3.3 field and the 24*C payload both. It sits beside N_STREAMS
   //! deliberately: a stream COUNT and a stream WIDTH are the same kind of
@@ -162,7 +163,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! prune it. Priced at the instantiation below (+2303 LUT / +1542 FF OOC
   //! at 8x8) - a real feature with a real bill, not a free connection.
   parameter int LOOPBACK_P = 0,
-  //! BANKED AREA LEVER (NXN_ARCHITECTURE section 6.2): 1 (default) keeps the
+  //! BANKED AREA LEVER (docs/CHANNEL_MAP_64.md): 1 (default) keeps the
   //! render-tap Butterworth LPF; 0 prunes KL_pcm_lpf and ties its outputs to
   //! the exact nets the runtime bypass (LPF_CTRL[0] = 0) already produces, so
   //! a pruned build behaves like a shipped build with the filter switched
@@ -531,7 +532,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //      the MMCM PSCLK domain (SoC: 200 MHz idelay; DS181 MMCM_FMAX_PSCLK
   //      450 MHz at -1); the DRP DCLK is axis_clk. Tops without the MMCM
   //      tie: ps_clk = axis_clk, drp_rdy/do = 0, locked = 1, ps_done = 0
-  //      (servo idles unless clock_source == 2). ----
+  //      The current root cannot select CRF, so the servo stays idle. ----
   input  wire        i_ps_clk,
   output wire [6:0]  o_mmcm_drp_addr,
   output wire        o_mmcm_drp_en,
@@ -566,7 +567,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   output wire [N_STREAMS*16-1:0] pb_overrun_o,  //! per-stream overrun count
   output wire        pb_playing_o             //! engine walking a sample tick
 );
-  // P12 (NXN_ARCHITECTURE.md §1.5): the 0x800 window's LCTX/TCTX port-B
+  // P12 (docs/fpga/FPGA_DESIGN.md section 2): the 0x800 window's LCTX/TCTX port-B
   // read/snap/write bundles and the ACMP context-table port are wired to
   // the REAL engines inside this module (KL_avtp_rx_monitor_ctx /
   // KL_aaf_packetizer / KL_acmp_lstn_ctx via its wrapper) — the P11
@@ -625,11 +626,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   localparam logic [2:0] SR_CLASS_A_PRIO_C = 3'd3;
   //! ------------------------------------------------------------------------
   //! THE MEDIA CLOCK SOURCE, AND WHY IT IS A CONSTANT NOW.
-  //! IEEE 1722.1 SET_CLOCK_SOURCE was the ONLY writer of the live
-  //! CLOCK_DOMAIN clock_source_index, and the AEM descriptor ROM was the only
-  //! source of "which CLOCK_SOURCE index is the CRF one". Both died with the
-  //! AECP engine. The selection is therefore pinned at index 0 = the INTERNAL
-  //! media clock for the life of the build and can NEVER become the CRF one.
+  //! The protocol processor accepts and stores IEEE 1722.1 SET_CLOCK_SOURCE,
+  //! and KL_pp_shadow exports its dynamic clock-source output into this root
+  //! integration. No media-clock consumer reads that root wire yet. The
+  //! selection is therefore pinned at index 0 = the INTERNAL media clock for
+  //! the life of the build and can NEVER become the CRF one until that
+  //! consumer seam is connected.
   //!
   //! THE TRAP THIS EXISTS TO AVOID, which the first cut of the plane deletion
   //! walked straight into: keeping the two 16-bit nets and tying the live one
@@ -803,7 +805,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     $error("milan_datapath: TALKER_WIRE_CHANS_P=%0d is not an even 2..8. It is the channels_per_frame the framer emits (IEEE 1722-2016 7.3.3) and the pair stream is 2-channel-granular.",
            TALKER_WIRE_CHANS_P);
   else if (WIRE_PAIRS_NEEDED_C > AIF_PAIRS_C)
-    $error("milan_datapath: the fabric cannot emit what this build declares. TALKER_WIRE_CHANS_P=%0d needs %0d fed pair slots per talker and the capture front-end selected by AUDIO_IF_SLOTS_P=%0d supplies %0d in total. Raise the framer (roadmap item 5, docs/MILAN_COMPLIANCE_GAPS.md order item 5) - do NOT lower the entity's declared format, which was tried on 2026-07-27 (dade536) and reverted (e103d8e): it makes an 8x8 board advertise itself as stereo forever.",
+    $error("milan_datapath: the fabric cannot emit what this build declares. TALKER_WIRE_CHANS_P=%0d needs %0d fed pair slots per talker and the capture front-end selected by AUDIO_IF_SLOTS_P=%0d supplies %0d in total. Raise the framer per docs/ENDSTATION_BUILDER.md section 3. Do NOT lower the entity's declared format, which was tried on 2026-07-27 (dade536) and reverted (e103d8e): it makes an 8x8 board advertise itself as stereo forever.",
            TALKER_WIRE_CHANS_P, WIRE_PAIRS_NEEDED_C, AUDIO_IF_SLOTS_P,
            AIF_PAIRS_C);
 
@@ -1088,7 +1090,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     assign pb_overrun_o  = '0;
     assign pb_playing_o  = 1'b0;
   end endgenerate
-  //  Channel-map CAPTURE mux (docs/CHANNEL_MAP_64.md §4) — ADD-ALONGSIDE.
+  //  Channel-map CAPTURE mux (docs/CHANNEL_MAP_64.md §4), added alongside.
   //  Sits between the physical capture front-end and the shared packetizer.
   //  cfg_chmap_enable = 0 (reset default) selects the front-end pair stream
   //  BIT-IDENTICALLY (today's compliance wiring); = 1 selects the CMAP-routed source
@@ -1101,17 +1103,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [4:0]  cmap_slot_w;
   wire [23:0] cmap_l_w, cmap_r_w;
 
-  //! talker-side AEM dynamic-map mirror (USER 08-01): the capture write
-  //! port gets the same two-writer mux as the render side - the AEM
-  //! ADD/REMOVE mirror is the canonical programmer, the CSR 0x900 window
-  //! is the debug port and yields on collision. Same drop-not-truncate
-  //! rule: a slot past N_STREAMS*4 is refused, never wrapped.
+  //! Reserved capture-side AECP map-write leg. The current processor serves
+  //! GET_AUDIO_MAP but does not implement ADD/REMOVE_AUDIO_MAPPINGS, so this
+  //! leg is tied off below and the CSR 0x900 window is the only writer.
+  //! A slot past N_STREAMS*4 is refused, never wrapped.
   wire        aecp_odmap_wr_p_w;
   wire [5:0]  aecp_odmap_wr_slot_w;
   wire [12:0] aecp_odmap_wr_word_w;
-  //! task #26 shape truth from the AECP builder (the one module that
-  //! compiles the generated ROM): 1 = this build carries the dynamic-map
-  //! writers + boot seeder for that side. Elaboration constants.
+  //! Reserved dynamic-map ownership flags. Both are tied low in the current
+  //! integration because no AECP map writer or boot seeder is connected.
   wire        aecp_dmap_dyn_w;
   wire        aecp_odmap_dyn_w;
 
@@ -1183,9 +1183,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   ) chan_map_capture (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! PER-CHANNEL store (0x0027, USER "one cluster == one audio channel"):
-    //! the key space is N_STREAMS*8 channels; the AEM mirror's 13-bit word
-    //! passes straight through. The DEBUG window (bring-up only, ATDECC is
-    //! the authority) composes {en=WORD[15], half=WORD[8], src=WORD[14:12],
+    //! the key space is N_STREAMS*8 channels. The reserved AECP leg would
+    //! pass a 13-bit word straight through. The current CSR window composes
+    //! {en=WORD[15], half=WORD[8], src=WORD[14:12],
     //! idxh=WORD[7:4], idx=WORD[3:0]} - WORD[8] was reserved.
     .map_wr_en_i   ((aecp_odmap_wr_p_w &&
                      32'(aecp_odmap_wr_slot_w) < N_STREAMS*8) ||
@@ -1302,16 +1302,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   //! task #26 (USER: the ATDECC map IS the model): on a shape that
   //! compiled the capture-map machinery the crossbar is IN-CIRCUIT BY
-  //! CONSTRUCTION - the map RAM resets to silence, the AEM seeder writes
-  //! the identity image a few cycles after reset, and the power-on path
-  //! reproduces the legacy front-end THROUGH the map with no software arm
-  //! to forget. (Silicon 08-07: the tone sat mapped-and-committed in the
-  //! RAM while CHMAP_CTRL[0]=0 kept the wire on silence-fill for hours;
-  //! the ATDECC-authoritative cleanup had removed the bench poke that
-  //! used to hide this.) On a STATIC shape there is no AECP writer and no
-  //! seeder - the RAM would stay empty forever - so the declared
-  //! front-end routing stays wired and CHMAP_CTRL[0] keeps its bring-up
-  //! meaning: arm the debug-written crossbar in place of the front-end.
+  //! CURRENT CONSTRUCTION: the map RAM resets to silence and has no AECP
+  //! writer or boot seeder. The declared front-end routing stays selected
+  //! after reset. Software writes the map through the CSR window and then
+  //! uses CHMAP_CTRL[0] to select that crossbar in place of the front end.
   wire        cap_xbar_live_w = aecp_odmap_dyn_w | cfg_chmap_enable;
   wire        pkt_pv_w   = cap_xbar_live_w ? cmap_pv_w   : zf_pv_w;
   wire [4:0]  pkt_slot_w = cap_xbar_live_w ? cmap_slot_w : zf_slot_w;
@@ -1452,7 +1446,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire                     cfg_aaf_bypass;
   wire [47:0]              cfg_aaf_dmac;
   wire [11:0]              cfg_aaf_vid;
-  //! Milan talker SM (docs/design/MILAN_TALKER_SM.md): ACMP probe state,
+  //! Milan talker SM (docs/overview/ARCHITECTURE.md): ACMP probe state,
   //! the lwSRP listener socket (CSR override retained as the manual lever),
   //! the AECP presentation offset, and the resolved AAF gate.
   wire                     cfg_acmp_lobs;
@@ -1561,15 +1555,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! talker, fabric-provisioned like every other sink's.
   localparam int SRP_LSN0_ROW_C   = N_STREAMS + (N_STREAMS + ((ACMP_SRC_C > N_STREAMS) ? 1 : 0)) - 1;
   localparam int SRP_LSN0_SLOT_C  = (N_STREAMS + ((ACMP_SRC_C > N_STREAMS) ? 1 : 0)) + N_STREAMS - 1;
-  //! task #27: the CRF Media Clock Input sink's OWN listener row + fabric
-  //! slot, appended past the sink-0 pair exactly the way that pair was
-  //! appended (rows never renumber). Present only when the shape declares
-  //! the pinned-LAST CRF sink (ACMP_SINKS_C > N_STREAMS); a shape without
-  //! one elaborates zero of this. Closes MILAN_COMPLIANCE_GAPS.md 3: a
-  //! CONNECT_RX on the CRF sink now provisions a row the walker declares
-  //! Listener Ready into, so a Milan talker will actually start CRF at us
-  //! (silicon 08-07: DS20 CRF bound + one PDU, then silence - our Ready
-  //! was never declared and the talker rightly stood down).
+  //! Reserved legacy row arithmetic for the CRF Media Clock Input sink.
+  //! These constants have no consumer after SRP ownership moved to the
+  //! protocol processor and do not prove a CRF listener declaration.
   localparam int SRP_CRFSNK_C      = (ADP_LISTENER_SINK_C > N_STREAMS) ? 1 : 0;
   localparam int SRP_CRFSNK_ROW_C  = SRP_LSN0_ROW_C + 1;
   localparam int SRP_CRFSNK_SLOT_C = SRP_LSN0_SLOT_C + 1;
@@ -1640,10 +1628,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! ...projected onto the ACMP sink index. Sink k's attribute row IS k for
   //! 1..N_STREAMS-1 (srp_fab_row_w's listener branch); sink 0's is the
   //! DEDICATED listener-0 row (SRP_LSN0_ROW_C, the 5-bit-widened space).
-  //! The CRF Media Clock Input sink still has no listener row
-  //! (MILAN_COMPLIANCE_GAPS.md 3 — widen further to close it), so its bit
-  //! is honestly 0: that sink probes, settles and re-probes every TMR_NO_TK
-  //! instead of parking in SETTLED_RSV_OK.
+  //! This legacy projection has no CRF Media Clock Input listener row. SRP is
+  //! now processor-owned, so these fabric bits are not processor SRP evidence.
   wire [7:0]  lwsrp_ta_fail_code;
   //! AVTP RX monitor (KL_avtp_rx_monitor, STREAM_INPUT[0] Table 7-156)
   wire        avtprx_match, avtprx_tu_bit, avtprx_tv_bit, avtprx_mr_bit;
@@ -1666,9 +1652,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! bit-identical (render/capture crossbars are muxed OUT of both the
   //! packetizer feed and the i2s_playback feed).
   wire        cfg_chmap_enable;
-  //! chmap64 AEM binding: the AECP dynamic-map engine's accepted commits
-  //! mirrored into the render map RAM (the CANONICAL programmer; the CSR
-  //! 0x900 window below stays as the debug/bringup port)
+  //! Reserved render-side AECP map-write leg. It is tied off in the current
+  //! integration; the CSR 0x900 window is the only map-RAM writer.
   wire        aecp_dmap_wr_p_w;
   wire [5:0]  aecp_dmap_wr_addr_w;
   wire [7:0]  aecp_dmap_wr_word_w;
@@ -1899,18 +1884,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!                     instance claims ONE BLOCK of N_STREAMS addresses;
   //!                     stream j uses base+j (probe answers, the SRP row
   //!                     and now the packetizer all derive that same rule).
-  //!   * ACMP term     : per-stream talker_active from KL_acmp_tlkr_ctx
-  //!                     at N_SRC_P = N_STREAMS (probe window per uid |
-  //!                     per-stream listener observation), with t0's
-  //!                     cfg_aaf_bypass escape hatch mirrored.
-  //!   * lwSRP term    : the per-stream P5 gate, REQUIRED - t0's
-  //!                     ~cfg_lwsrp_enable escape is deliberately NOT
-  //!                     mirrored here. LWSRP_CTRL resets to engine-OFF
-  //!                     (0x10), so mirroring it would make every talker
+  //!   * ACMP term     : per-stream talker-active state from the processor's
+  //!                     class-D face, with t0's cfg_aaf_bypass escape hatch
+  //!                     mirrored.
+  //!   * SRP term      : the processor's per-stream bandwidth gate, REQUIRED.
+  //!                     Allowing an engine-off escape would make every talker
   //!                     admissible out of reset on a bare PROBE_TX with no
-  //!                     reservation and therefore no CBS pacing - the
-  //!                     documented board-killer (KNOWN_ISSUES: ~56 k
-  //!                     frames/s unpaced, the peer softcore drowns), whose
+  //!                     reservation and therefore no CBS pacing. It could
+  //!                     transmit about 56 k frames/s without reservation,
+  //!                     which can overwhelm the peer softcore. The historical
   //!                     mitigation used to be "never arm a t>0 context
   //!                     with the engine off" and is unenforceable once
   //!                     arming is implicit. Requiring the gate is strictly
@@ -1941,7 +1923,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        cfg_lpf_enable;
   wire        cfg_crf_en;
   wire [63:0] cfg_crf_sid;
-  //! gh #64 J4 published PathTrace tail (CSR 0x7DC group)
+  //! gh #64 J4 local PathTrace staging (CSR 0x7DC group). Its outputs remain
+  //! disconnected below and GET_AS_PATH serves only cfg_adp_gptp_gm.
   wire [63:0] pcm_lpf_tdata;
   wire        pcm_lpf_tvalid;
   wire        pcm_lpf_active;
@@ -2043,9 +2026,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! them - but nothing consumes them and JNL_STAT/JNL_SEQ read STRUCTURAL
   //! ZEROS: this build restores no saved binding, ever.
   wire [31:0] jnl_stat_w, jnl_seq_w;
-  //! E4 AEM dynamic-state patch port (0x7C8-0x7D4). The engine lives inside
-  //! KL_aecp_top, next to the store it writes and to the enable bit that
-  //! gates it, so nothing but the CSR strobes crosses this boundary.
+  //! E4 AEM dynamic-state patch port (0x7C8-0x7D4). No current engine
+  //! consumes its CSR strobes, and its status is tied to structural zero.
   wire [31:0] aemp_stat_w;
 
   //! item-11 AAF per-stage latency taps (LTAP CSR group, base 0x870):
@@ -2838,9 +2820,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign adp_disc_seen_p = 1'b0;
 
   // ==========================================================================
-  //  AECP / AEM listener (IEEE 1722.1 / Milan v1.2). Non-intrusive MONITOR of
-  //  the post-filter RX stream (rx_axis_to_dma — reads only, never drives its
-  //  AECP / AEM — DELETED. Nothing answers an AECP command on this device.
+  //  AECP / AEM listener (IEEE 1722.1 / Milan v1.2). The local legacy engine
+  //  is deleted; KL_pp_shadow below integrates the protocol processor's active
+  //  responder and its live gather faces.
   // ==========================================================================
 
   // ==========================================================================
@@ -3036,21 +3018,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end endgenerate
 
   //! ------------------------------------------------------------------------
-  //! THERE IS NO AECP. KL_aecp_top and its whole plane (the packet validator,
-  //! the common parser, the L0 state, the timers, the accessor, the AEM store
-  //! and its generated descriptor ROM, the dynamic-map mux, the 292 KB
-  //! response builder, the ingress decoder, KL_aem_patch and
-  //! KL_persist_journal) are DELETED. The protocol processor's AECP engine is
-  //! the P4 micro-coded uCPU and it has not landed at the processor's top -
-  //! aecp_txn_ready_i is tied 0 there and TX lanes 0/1 are idle - so this
-  //! device now DISCOVERS over ADP, connects over ACMP and reserves over SRP,
-  //! and answers no AECP/AEM command at all. USER decision, made knowingly.
-  //!
-  //! Everything below is what that costs, stated as STRUCTURAL ZEROS so a
-  //! reader can tell "no engine" from "engine idle":
+  //! The deleted local AECP plane has no fallback instance. KL_pp_shadow below
+  //! is the active processor responder and consumes the counter, audio-map, and
+  //! Milan-info gather faces in this file. The assignments below preserve only
+  //! legacy CSR ABI locations for state that has no root integration output.
+  //! Structural zero means "no connected source", not "an active engine is
+  //! idle".
   assign aecp_bdbg0_w = 32'd0, aecp_bdbg1_w = 32'd0, aecp_bdbg2_w = 32'd0;
-  assign aecp_locked = 1'b0;   //! no ACQUIRE/LOCK_ENTITY
-  assign aecp_current_config = 16'd0;  //! no SET_CONFIGURATION
+  assign aecp_locked = 1'b0;   //! processor lock state has no source wired to this legacy CSR
+  assign aecp_current_config = 16'd0;  //! exported config state is not wired into this legacy CSR
   assign aecp_cmd_count = 16'd0;
   assign aecp_resp_count = 16'd0;
   assign aecp_ctlr_diag = 32'd0;
@@ -3059,9 +3035,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! accepts frames against this value, so 0 rejects every conformant AAF
   //! PDU and stream 0 accepts NOTHING. It was the AEM ROM's
   //! AEM_STRIN_FMT_C[0]; the ROM is deleted, so the same number now comes
-  //! from the same config through the entity-shape header. With no AECP
-  //! there is no SET_STREAM_FORMAT, so the declared format is also the only
-  //! one this build will ever have.
+  //! from the same config through the entity-shape header. SET_STREAM_FORMAT
+  //! remains unimplemented, so the declared format is also the only one this
+  //! build will ever have.
   assign aecp_in0_fmt = ADP_STRIN0_FMT_C;
   //! per-STREAM_OUTPUT presentation offset. SET_MAX_TRANSIT_TIME /
   //! SET_STREAM_INFO(ACC_LAT) was the only writer, so every entry now holds
@@ -3074,8 +3050,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!  its banner at the top of this file. The CRF Media Clock Input engine
   //!  still parses, counts and reports; what it can no longer do is STEER the
   //!  audio MMCM or the packet-grid NCO.)
-  //! ...and the AEM descriptor-map write ports, whose only master was
-  //! SET_AUDIO_MAP / the dynamic-map overlay in the response builder
+  //! Reserved AEM descriptor-map write ports. ADD/REMOVE_AUDIO_MAPPINGS are
+  //! not implemented by the current processor, so these legs remain tied off.
   assign aecp_dmap_wr_p_w = 1'b0;
   assign aecp_dmap_wr_addr_w = 6'd0;
   assign aecp_dmap_wr_word_w = 8'd0;
@@ -3347,13 +3323,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! THE INDEX LAW IS 0x001C's: the dynamic map is keyed by the GLOBAL
   //! cluster index = the addressed port's base_cluster + the record's
   //! port-relative mapping_cluster_offset, and that global index IS the
-  //! render map RAM's address (the AEM projector wrote it so, gated at
-  //! CHMAP_PHYS_C). A global index this board does not render (>= 10 keys
+  //! render map RAM's address. A global index this board does not render
+  //! (>= 10 keys
   //! on an 8x8 model) has no RAM behind it and truthfully answers
   //! "not mapped" - those clusters cannot be routed, so no mapping exists.
   //!
   //! WHAT A RECORD MEANS IN THIS BUILD, and what is NOT represented: the
-  //! map entry is {en[7], src[6], idx[5:0]}. An AEM dynamic mapping exists
+  //! map entry is {en[7], src[6], idx[5:0]}. A reported dynamic mapping exists
   //! iff en = 1 AND src = 0 (an AVB listener source): mapping_stream_index
   //! = idx[5:3], mapping_stream_channel = idx[2:0], mapping_cluster_offset
   //! = the port-relative offset, mapping_cluster_channel = 0 - every
@@ -3858,8 +3834,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     else              gsi_ascap_q_r <= clkv_as_cap_w;
   end
 
-  //! IDENTIFY: 1722.1-2021 7.4.x drives it from a CONTROL descriptor an AECP
-  //! command writes. No AECP, no identify - the LED is structurally dark.
+  //! IDENTIFY: the processor serves the CONTROL descriptor and stores its
+  //! dynamic value. KL_pp_shadow exports aecp_identify_o into
+  //! pp_aecp_identify_w, but no root consumer drives the public indication
+  //! from that wire yet. The physical output remains structurally dark.
   assign o_identify = 1'b0;
 
   // ==========================================================================
@@ -3930,9 +3908,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ==========================================================================
   //  AVTP RX monitor (Milan v1.2 §5.4.5.3, Table 7-156) — non-intrusive
   //  parser on the same RX tap, matched to the BOUND stream_id the protocol
-  //  processor publishes. Its counters reach software through the 0x6B8
-  //  A_STRMW_CNT CSR window ONLY: GET_COUNTERS and the Table 5.22 push were
-  //  AECP, and are gone.
+  //  processor publishes. Its counters reach local software through the 0x6B8
+  //  A_STRMW_CNT CSR window and supported controller targets through solicited
+  //  GET_COUNTERS. The Table 5.22 notification scheduler remains open.
   // ==========================================================================
   //! NXN §1.1 (P1): stream-table classification authority. Entry 0 aliases
   //! the processor's ACMP bound record combinationally; entries
@@ -3958,7 +3936,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! instead (the pre-2026-07-26 form) let a route-flags-only CTRL write at
   //! idx 0 arm entry 0 with another listener's sid, permanently detaching the
   //! ACMP alias -> bound-but-never-matching. See `tb/verilator/milan_dp`
-  //! TRAP-1 and NXN_ARCHITECTURE §1.3.
+  //! TRAP-1 and the current stream-table integration notes.
   logic [31:0] wing_sid_lo_r, wing_sid_hi_r;
   logic        wing_tbl_we_r, wing_route_we_r;
   logic [3:0]  wing_idx_r;
@@ -4309,7 +4287,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  and validates the Avnu Pro Audio CRF stream selected by the CRF CSRs,
   //  produces the phase/frequency error the media-clock servo consumes and
   //  the CLOCK_DOMAIN lock events for clock_source = CRF. The ACMP sink-1
-  //  bind chain is the remaining CRF work (MILAN_COMPLIANCE_GAPS.md).
+  //  remaining CRF integration gaps are recorded in
+  //  docs/testing/MILAN_V12_AUDIT_2026-08-16.md B3 and B4.
   // ==========================================================================
   KL_crf_rx #(
     .CLK_FREQ_HZ_P (MILAN_CLK_FREQ_HZ),
@@ -4343,10 +4322,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pdu_count_o (crf_pducnt_w),
     .fmt_err_o   (crf_fmterr_w),
     .seq_err_o   (crf_seqerr_w),
-    //! Milan Table 5.16's CRF Media Clock Input counters. Their ONE reader
-    //! was AECP GET_COUNTERS(CLOCK_DOMAIN / STREAM_INPUT), which is deleted:
-    //! nothing in this gateware can read them, so they are left OPEN rather
-    //! than latched into nets no consumer touches. The five that DO reach
+    //! Milan Table 5.16's CRF Media Clock Input counters are not connected to
+    //! the current solicited gather face. Leave the unserved outputs open rather
+    //! than create a shadow with no reader. The three values that do reach local
     //! software keep their CSR window below (0x738: pdu, fmt_err, seq_err).
     .mr_cnt_o    (),
     .tu_cnt_o    (),
@@ -4356,17 +4334,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .cnt_locked_o   (),
     .cnt_unlocked_o (),
     .cnt_intr_o     (),
-    //! Table 5.22 push source for the CRF sink's GET_COUNTERS row (gh #60
-    //! F2): anomaly/lock events only, never a healthy FRAMES_RX interval
-    //! ...and the Table 5.22 unsolicited push source: there is no
-    //! unsolicited-notification registry without AECP.
+    //! The CRF sink's Table 5.22 dirty source is also unconnected. The
+    //! processor has registration support, but the rate-limited counter-change
+    //! scheduler does not yet consume this source.
     .dirty_p_o      ()
   );
 
   // ==========================================================================
   //  CRF media-clock recovery ACTUATOR (Milan 7.3.4): the audio-MMCM servo.
-  //  Consumes the KL_crf_rx rate measurement when clock_source == 2 and
-  //  steers the SoC audio MMCM through the UG472 fine-phase-shift port
+  //  The actuator can consume the KL_crf_rx rate measurement, but the current
+  //  root hardwires INTERNAL against NONE and cannot select it. If selected by
+  //  a future dynamic root connection, it steers the SoC audio MMCM through
+  //  the UG472 fine-phase-shift port
   //  (ppm-fine, glitch-free) + the XAPP888 DRP engine (verified divider
   //  reprogramming, reset-sequenced). auto_repair defaults OFF for silicon
   //  bring-up (MCSRV_CTRL 0x8FC[1] resets 0): the DRP limb read-verifies but
@@ -4376,7 +4355,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // ==========================================================================
   //! MCSERVO_P = 0 prunes the servo (see the parameter note). The tie-off is
   //! the servo's own IDLE state, term by term: it drives drp_en/we = 0 and
-  //! ps_en = 0 whenever clock_source != 2, and mmcm_rst_o is asserted only
+  //! ps_en = 0 while CRF is unselected, and mmcm_rst_o is asserted only
   //! inside a REPAIR sequence that a pruned build never enters. status_o = 0
   //! makes A_MCSRV_STAT 0x8F8 a STRUCTURAL zero - REGISTER_MAP records that
   //! this window already has a dead-read carve-out, so a reader cannot tell
@@ -4835,10 +4814,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pb_valid_i (ring_src_pv_w), .pb_slot_i (ring_src_slot_w),
     .pb_l_i (ring_src_l_w), .pb_r_i (ring_src_r_w),
     .tick_i (media_tick_p),
-    //! write mux: the AEM ADD/REMOVE mirror is the canonical programmer
-    //! (docs/CHMAP64_AEM_BINDING.md); the CSR 0x900 window is the debug port
-    //! and yields on collision (one write/cycle, AEM strobes are 1-cycle).
-    //! The AEM key is the GLOBAL cluster index and the model may declare
+    //! write mux with a reserved AECP leg and the current CSR 0x900 writer.
+    //! The map key is the GLOBAL cluster index and the model may declare
     //! MORE input clusters than this board renders (8x8 = 64 keys against
     //! CHMAP_PHYS_C = 10), so an out-of-range key must be DROPPED, not
     //! truncated - truncation would silently alias key 16 onto the I2S L
@@ -4865,8 +4842,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                     : cfg_chmap_wr_addr[$clog2(CHMAP_PHYS_C)-1:0]),
     //! §5 16-bit word -> render 8-bit {en[7], src[6], idx[5:0]}. SRC[12] of
     //! the §5 word selects the source bank (0 = AVB listener {stream,ch},
-    //! 1 = host playback ring channel); the AEM projector always emits bit 6
-    //! = 0, so every map word written before item-7 still means AVB.
+    //! 1 = host playback ring channel). The reserved AECP leg is tied off.
     .map_wr_data_i (aecp_dmap_wr_p_w ? aecp_dmap_wr_word_w
                     : {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
                        cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]}),
@@ -4886,10 +4862,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //      which a host-ring playback can reach the line-out at all). ------
   KL_i2s_feed_mux i2s_feed_mux (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    //! task #26: on a dynamic-map shape the render crossbar owns the DAC
-    //! feed by construction (identity-seeded at boot, media-tick pace =
-    //! the ONE grid, task #59); a static shape keeps the bring-up tap
-    //! passthrough unless CHMAP_CTRL[0] arms the debug crossbar
+    //! The crossbar has no current boot seeder. The bring-up tap passes
+    //! through unless CHMAP_CTRL[0] selects the CSR-programmed crossbar.
     .sel_render_i (aecp_dmap_dyn_w | cfg_chmap_enable),
     .tap_tdata_i  (rend_pcm_tdata_w),
     .tap_tvalid_i (rend_pcm_tvalid_w),
@@ -5165,11 +5139,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign txarb_stall_w [7:4] = 4'd0;
 
   //! THE control merge: the protocol processor's packed TX (s_data - ADP,
-  //! ACMP and SRP, internally arbitrated) + MAAP's announce/probe/defend
-  //! (s_adp). MAAP is the one control protocol the processor does not
-  //! implement by design (its 01 section 3 puts address allocation in the
-  //! integrating fabric), so it stays a separate leg here and reaches the
-  //! processor through KL_pp_maap_shim instead.
+  //! ACMP and SRP, internally arbitrated) + the fabric KL_maap
+  //! announce/probe/defend lane (s_adp). The selected processor pin also
+  //! contains KL_pp_maap, but this integration ties cfg_maap_internal_i low,
+  //! selects the fabric allocator, and presents it through KL_pp_maap_shim.
   wire [TDATA_WIDTH-1:0]   ctlh_tx_tdata;
   wire [TDATA_WIDTH/8-1:0] ctlh_tx_tkeep;
   wire                     ctlh_tx_tvalid, ctlh_tx_tlast, ctlh_tx_tready;
@@ -5208,7 +5181,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   );
 
   //! ...and the CRF talker's PDUs - on the DATA lane beside AAF, NOT on the
-  //! low-rate control merge (job 2 of docs/MILAN_COMPLIANCE_GAPS.md §2,
+  //! low-rate control merge (docs/overview/ARCHITECTURE.md section 3,
   //! moved 2026-07-28). The CRF PDU is a STREAM carrying a gPTP timestamp
   //! that a listener steers its 48 kHz recovery clock against; behind the
   //! control lane's min-IFG gasket it inherited a 512-cycle spacing PER

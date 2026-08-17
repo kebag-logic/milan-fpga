@@ -12,13 +12,14 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 >
 > **AND IT SURVIVED THE SUBSTITUTION (2026-08-13).** When this repository's
 > own ADP / ACMP / AECP / lwSRP planes were deleted in favour of the pinned
-> `protocol-processor` submodule, `KL_maap` stayed: **the processor implements
-> no MAAP by design** (its architecture puts address allocation in the
-> integrating fabric) and publishes a **per-source ALLOC_DA / RELEASE_DA
-> face** instead. [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv)
+> `protocol-processor` submodule, `KL_maap` stayed as the selected shipping
+> allocator. The processor now also contains an internal `KL_pp_maap` engine,
+> but this integration holds it disabled with `cfg_maap_internal_i = 0` and
+> uses the processor's **per-source ALLOC_DA / RELEASE_DA face** instead.
+> [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv)
 > bridges the two models and [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv)
-> wires it between them. So this engine is now **the only 1722-family
-> protocol engine left in this repository's own RTL**, and the talker half of
+> wires it between them. So this engine is the active MAAP engine in this
+> repository's own RTL, and the talker half of
 > the processor's ACMP is dead by construction without it — see §Fabric
 > integration.
 
@@ -65,8 +66,9 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
   other merges were deleted; what is left on the control lane is
   `ctl_tx_mux`, whose two sources are the protocol processor's packed TX
   (ADP + ACMP + SRP, internally arbitrated) and **MAAP's
-  probe/defend/announce**. MAAP is a separate leg precisely because it is the
-  one control protocol the processor does not implement. Lane 0 of
+  probe/defend/announce**. The selected processor pin also contains
+  `KL_pp_maap`, but this integration ties `cfg_maap_internal_i` low and
+  selects the fabric `KL_maap` leg through `KL_pp_maap_shim`. Lane 0 of
   `A_TXARB_DIAG 0x784` supervises that merge — **anything decoding `0x784` by
   the old eight-lane numbering now reads the wrong mux.**
 - Randomness: LFSR seeded from station MAC; interval jitter from the same.
@@ -154,10 +156,10 @@ Both settled.
 
 > **NOT IMPLEMENTED — and this is a real loss, not a formality.** The batch
 > engine that served this lived in the AECP response builder, and the whole
-> `hdl/ieee17221/aecp/**` tree is deleted. The device is *not* silent on AECP
-> any more — the processor's AECP µCPU answers `READ_DESCRIPTOR` and echoes a
-> conformant `NOT_IMPLEMENTED` at everything else — but `0x4B` is in the
-> "everything else". A controller sending it gets a well-formed response
+> `hdl/ieee17221/aecp/**` tree is deleted. The processor's AECP uCPU now serves
+> its declared command inventory, but `0x4B` remains one of the mandatory
+> commands that returns a conformant `NOT_IMPLEMENTED` response. A controller
+> sending it gets a well-formed response
 > carrying no dynamic info, which is a correct answer to a question this entity
 > cannot answer. The byte-extracted contract below is kept because it is
 > reference truth that cost real work to establish, not because anything

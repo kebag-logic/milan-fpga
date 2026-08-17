@@ -818,7 +818,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # stretching the ADP re-advertise to 62 s (the validity horizon) and the
     # Milan probe window to ~30 s. The adpfix RTL fix was correct but this
     # parameter never reached it.
-    # N_STREAMS: NxN dataplane width (docs/NXN_ARCHITECTURE.md P0). The builder
+    # N_STREAMS: NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2). The builder
     # emits --num-streams in soc_params for the 4x4/8x8 shapes; default 1 =
     # today's bit-compatible single-stream build.
     # AUDIO_IF_SLOTS_P: item-4 audio-interface family front-end generate
@@ -947,7 +947,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
             # when the board routes BOTH pad sets - same byte-identical
             # discipline, same character-for-character name rule as above.
             dp_params["p_AUDIO_IF_I2S_PAIR_P"] = 1
-    # LPF_P: BANKED AREA LEVER (docs/NXN_ARCHITECTURE.md 6.2). Passed ONLY when
+    # LPF_P: BANKED AREA LEVER (docs/design/AREA_BUDGET.md). Passed ONLY when
     # the filter is pruned, so the default build's Instance - and the generated
     # top .v - stay byte-identical; the SV default LPF_P=1 keeps KL_pcm_lpf.
     # Pruning it makes the render tap behave exactly like LPF_CTRL[0]=0 does
@@ -1612,7 +1612,7 @@ class MilanMAC(LiteXModule):
         # master anywhere in the SoC, so the negotiated state only ever exists where
         # the MDIO transactions happen: in software (kl-eth's phylib/ethtool path,
         # `phy` reg window 0xf000_3800). A fabric MDIO poller would be new
-        # SystemVerilog, i.e. a different lane - see docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md.
+        # SystemVerilog, i.e. a different lane - see docs/testing/MILAN_V12_AUDIT_2026-08-16.md.
         #
         # Before this register the three datapath status inputs were CONSTANTS
         # (`i_link_up = 1`, `i_full_duplex = 1`, `i_mac_speed` = a per-board build-time
@@ -4278,7 +4278,7 @@ class RxSteer(LiteXModule):
 
 
 class _PCMRingNxN(LiteXModule):
-    """NxN per-stream PCM DRAM ring writer (NXN_ARCHITECTURE.md §1.3 P3 / P12).
+    """NxN per-stream PCM DRAM ring writer (docs/fpga/FPGA_DESIGN.md section 2).
 
     Generalizes the single `WishboneDMAWriter` PCM ring with the stream index:
     a beat tagged `user = s` (the datapath's `m_axis_pcm_tuser`) lands at
@@ -6618,7 +6618,7 @@ def main():
                          "DMA/MAC AXIS boundary  -  lifts the dense datapath off the 100 MHz "
                          "sys critical path (it still exceeds 1 GbE). Works with --full.")
     ap.add_argument("--num-streams", default=1, type=int,
-                    help="NxN dataplane width (docs/NXN_ARCHITECTURE.md P0): AAF stream "
+                    help="NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2): AAF stream "
                          "contexts per shared engine (milan_datapath N_STREAMS). The "
                          "builder emits this from the config's streams section; default "
                          "1 = today's bit-compatible single-stream shape.")
@@ -6630,7 +6630,7 @@ def main():
                          "root). CPU mmaps MILAN_PCM_BRAM_BASE (0x9010_0000); the pcm CSR ABI "
                          "is unchanged. ~8 RAMB36.")
     ap.add_argument("--no-render-lpf", action="store_true",
-                    help="AREA LEVER (banked, docs/NXN_ARCHITECTURE.md 6.2): prune "
+                    help="AREA LEVER (banked, docs/design/AREA_BUDGET.md): prune "
                          "KL_pcm_lpf, the 2nd-order Butterworth on the DAC render tap. "
                          "Vivado place report of the shipping 8x8 bitstream prices it at "
                          "428 LUT / 756 FF / 0 DSP. The pruned datapath behaves exactly "

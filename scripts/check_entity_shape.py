@@ -48,9 +48,9 @@ WHAT MOVED, 2026-08-12.  Two of this gate's three original comparands are
 DELETED with the IEEE 1722.1 control-plane RTL: hdl/ieee17221/aecp/gen/
 aecp_aem_rom.svh (the descriptor set the gateware served) and
 tb/verilator/aecp/aem_golden.h (the TB's byte-exact image of it).  The
-protocol-processor submodule is the control plane now and this device answers
-NO AECP/AEM command, so there is no ROM in the tree to compare against and no
-golden to keep in step.
+protocol-processor submodule is the control plane now. Its AECP uCPU serves a
+descriptor image loaded through the external descriptor-memory interface, so
+there is no legacy RTL ROM or matching testbench golden to keep in step.
 
 THE GATE STAYS, AND IS STILL THE SAME GATE.  The defect it was written for -
 an 8x8 gateware shipping a 1x1 shape - is entirely possible today, because
@@ -72,10 +72,11 @@ WHAT IT CHECKS, per end-station config:
                       config has that many STREAM_OUTPUT / STREAM_INPUT
                       descriptors.  NOTE what this is now: a self-consistency
                       check of the DECLARATIVE model, generated in memory.
-                      No gateware serves those descriptors any more.  It is
-                      kept because the ADP counts in arm A are DERIVED from
-                      that same model, so a model that disagrees with itself
-                      is a shape count nobody should trust
+                      The processor serves the resulting descriptor image
+                      through its external store. It is kept because the ADP
+                      counts in arm A are DERIVED from that same model, so a
+                      model that disagrees with itself is a shape count nobody
+                      should trust
   D  per-config copy  configs/generated/<name>/gen/adp_shape_defaults.svh on
                       disk is byte-identical to the freshly generated text
                       (harnesses and builds select a shape by include path),

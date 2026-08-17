@@ -21,20 +21,20 @@ def esc(s): return html.escape(s, quote=True)
 PERSONAS = [
  ("Developer", "you write RTL / gateware / firmware",
   "add or change a module in the fabric", BLUE, [
-   ("SYSTEMS_ENGINEER_GUIDE.md", "orient: what the system is + the doc map"),
-   ("overview/ARCHITECTURE.md", "the developer guide — §8 'where to change things'"),
-   ("ARCHITECTURE_HW_SW_SPLIT.md", "does your feature belong in fabric or the softcore?"),
+   ("README.md", "current documentation index and authority rules"),
+   ("overview/ARCHITECTURE.md", "the developer guide, including where to change things"),
+   ("overview/FULL_FPGA_SOLUTION.md", "current fabric and softcore integration boundary"),
    ("fpga/FPGA_DESIGN.md", "the hdl/ module map + which TB verifies each"),
    ("reference/REGISTER_MAP.md", "the CSR/AXI-Lite ABI shared by RTL + driver + DT"),
    ("testing/TESTING.md  +  tb/verilator/", "build + run the unit TBs for your change"),
  ]),
  ("System Engineer", "you reason about the whole system",
   "understand it + assess compliance & roadmap", GREEN, [
-   ("SYSTEMS_ENGINEER_GUIDE.md", "the single best starting doc — read first"),
-   ("ARCHITECTURE_HW_SW_SPLIT.md", "normative plan of record: fabric vs softcore"),
+   ("README.md", "current index and documentation authority rules"),
+   ("overview/ARCHITECTURE.md", "current architecture and subsystem boundaries"),
    ("overview/SYSTEM_DOMAIN_MAP.md", "every module by domain/language, one picture"),
-   ("SPEC_TRACEABILITY.md", "IEEE/Milan clause → module → test, with status"),
-   ("MILAN_COMPLIANCE_GAPS.md", "what is + isn't compliant, honest gaps"),
+   ("../REQUIREMENTS.md", "current requirements and implementation evidence"),
+   ("testing/MILAN_V12_AUDIT_2026-08-16.md", "current verdict and structural blockers"),
    ("GitHub Issues", "the live roadmap + open gaps, tracked as issues"),
  ]),
  ("Integrator", "you make it RUN on hardware",
@@ -51,9 +51,9 @@ PERSONAS = [
    ("testing/TESTING.md", "the test taxonomy: TB · behave · compliance/bench"),
    ("tb/verilator/README.md", "run every Verilator TB (ls tb/verilator/ = the list)"),
    ("tests/README.md", "run the behave/tsn_gen fixtures (venv + TSAGEN_DIR)"),
-   ("testing/BEHAVE_TEST_PLAN.md", "the tag taxonomy, tiers, @bench / compliance"),
-   ("SPEC_TRACEABILITY.md", "read the pass / partial / fail matrix (204 rows)"),
-   ("MILAN_COMPLIANCE_GAPS.md", "what is validated vs pending"),
+   ("testing/MILAN_V12_AUDIT_2026-08-16.md", "current evidence and release blockers"),
+   ("traceability/MODULE_MATRIX.md", "generated module-to-test coverage"),
+   ("reference/REGISTER_MAP.md", "live CSR behavior and integration status"),
  ]),
 ]
 
@@ -77,14 +77,14 @@ def svg():
     o=[f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" font-family="Helvetica,Arial,sans-serif">']
     o.append(f'<rect width="{W}" height="{H}" fill="#FAFAFA"/>')
     # title
-    o.append(f'<text x="{X0}" y="56" font-size="30" font-weight="bold" fill="#263238">milan-fpga documentation — where do I start?</text>')
+    o.append(f'<text x="{X0}" y="56" font-size="30" font-weight="bold" fill="#263238">milan-fpga documentation: where do I start?</text>')
     o.append(f'<text x="{X0}" y="88" font-size="15" fill="#546E7A">Pick your lane. Each column is an ordered reading journey, top to bottom. Boxes are clickable doc paths under <tspan font-weight="bold">docs/</tspan> (or the repo).</text>')
     o.append(f'<text x="{X0}" y="112" font-size="15" fill="#546E7A">New to the project? Read the universal entry first, then follow your lane.</text>')
 
     # universal entry banner
     bx, bw = X0, W-2*X0
     o.append(f'<rect x="{bx}" y="{Y0}" width="{bw}" height="{TOP_H}" rx="10" fill="{GOLD[0]}" stroke="{GOLD[1]}" stroke-width="2.5"/>')
-    o.append(f'<text x="{bx+22}" y="{Y0+26}" font-size="16" font-weight="bold" fill="#212121">★ Everyone starts here — docs/SYSTEMS_ENGINEER_GUIDE.md</text>')
+    o.append(f'<text x="{bx+22}" y="{Y0+26}" font-size="16" font-weight="bold" fill="#212121">★ Everyone starts here: docs/README.md</text>')
     o.append(f'<text x="{bx+22}" y="{Y0+48}" font-size="13.5" fill="#5D4037">what the system is + a journey-ordered map of the whole doc set. Then jump into your lane below. Unsure of a term? → docs/GLOSSARY.md</text>')
     o.append(f'<text x="{bx+22}" y="{Y0+72}" font-size="13.5" fill="#5D4037">First 30 minutes, no FPGA and no bench: <tspan font-weight="bold">QUICKSTART.md</tspan>   ·   the whole system on one page: <tspan font-weight="bold">docs/overview/AT_A_GLANCE.md</tspan></text>')
 
@@ -118,15 +118,15 @@ def svg():
     # shared-references footer
     fy = bottom_y
     o.append(f'<rect x="{X0}" y="{fy}" width="{W-2*X0}" height="96" rx="10" fill="{GREY[0]}" stroke="{GREY[1]}" stroke-width="2"/>')
-    o.append(f'<text x="{X0+22}" y="{fy+28}" font-size="16" font-weight="bold" fill="#212121">Shared references — every lane comes back to these</text>')
-    refs = ["reference/REGISTER_MAP.md — the CSR ABI", "GLOSSARY.md — every term",
-            "SPEC_TRACEABILITY.md — clause→module→test", "findings/ — dated bug post-mortems",
-            "historical_now_obsolete/DOC_AUDIT.md — archived audit"]
+    o.append(f'<text x="{X0+22}" y="{fy+28}" font-size="16" font-weight="bold" fill="#212121">Shared references: every lane comes back to these</text>')
+    refs = ["reference/REGISTER_MAP.md | the CSR ABI", "GLOSSARY.md | every term",
+            "traceability/MODULE_MATRIX.md | module→test coverage", "findings/ | dated bug post-mortems",
+            "testing/MILAN_V12_AUDIT_2026-08-16.md | current audit"]
     rw = (W-2*X0-44)//len(refs)
     for k,r in enumerate(refs):
         rx = X0+22+k*rw
         o.append(f'<rect x="{rx}" y="{fy+42}" width="{rw-14}" height="38" rx="6" fill="#ffffff" stroke="{GREY[1]}" stroke-opacity="0.6"/>')
-        d,b = r.split(" — ")
+        d,b = r.split(" | ")
         o.append(f'<text x="{rx+12}" y="{fy+60}" font-size="12" font-weight="bold" fill="#212121">{esc(d)}</text>')
         o.append(f'<text x="{rx+12}" y="{fy+75}" font-size="11.5" fill="#546E7A">{esc(b)}</text>')
 
@@ -143,8 +143,8 @@ def drawio():
         cells.append(f'<mxCell id="n{i}" value="{esc(label)}" style="{style}" vertex="1" parent="1">'
                      f'<mxGeometry x="{x}" y="{y}" width="{w}" height="{h}" as="geometry"/></mxCell>')
         return f"n{i}"
-    add(X0,20,1100,34,"milan-fpga documentation — where do I start?","none","none",22,1)
-    add(X0,Y0,W-2*X0,TOP_H,"★ Everyone starts here — docs/SYSTEMS_ENGINEER_GUIDE.md\n(what the system is + a journey-ordered doc map; then follow your lane)\n"
+    add(X0,20,1100,34,"milan-fpga documentation: where do I start?","none","none",22,1)
+    add(X0,Y0,W-2*X0,TOP_H,"★ Everyone starts here: docs/README.md\n(current documentation index and authority rules; then follow your lane)\n"
         "first 30 minutes, no FPGA: QUICKSTART.md  ·  one page: docs/overview/AT_A_GLANCE.md",GOLD[0],GOLD[1],14,1)
     for i,(name,who,goal,(fill,stroke),steps) in enumerate(PERSONAS):
         x=col_x(i); hy=Y0+TOP_H+34
@@ -152,7 +152,7 @@ def drawio():
         for j,(doc,blurb) in enumerate(steps):
             sy=steps_top+j*(SH+SGAP)
             add(x,sy,COLW,SH,f"{j+1}.  {doc}\n{blurb}",fill,stroke,13,0)
-    add(X0,bottom_y,W-2*X0,96,"Shared references — every lane comes back to these\n\nreference/REGISTER_MAP.md · GLOSSARY.md · SPEC_TRACEABILITY.md · findings/ · historical_now_obsolete/DOC_AUDIT.md",GREY[0],GREY[1],13,1)
+    add(X0,bottom_y,W-2*X0,96,"Shared references: every lane comes back to these\n\nreference/REGISTER_MAP.md · GLOSSARY.md · traceability/MODULE_MATRIX.md · findings/ · testing/MILAN_V12_AUDIT_2026-08-16.md",GREY[0],GREY[1],13,1)
     body="\n".join(cells)
     return (f'<mxfile host="app.diagrams.net"><diagram name="doc-map">'
             f'<mxGraphModel dx="1400" dy="1000" grid="0" gridSize="10" guides="1" tooltips="1" '

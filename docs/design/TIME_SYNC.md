@@ -48,8 +48,8 @@ Three clocks exist on each board, chained in one direction:
    When the board is GM, the PHC free-runs and everyone else follows it.
 2. **The system clock** — Linux `CLOCK_REALTIME` on the softcore. `phc2sys`
    copies the PHC into it so userland timestamps and timers agree with
-   network time ([`../ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md)
-   "PHC clock ops": *ptp4l disciplines it, phc2sys mirrors it to
+   network time ([current architecture](../overview/ARCHITECTURE.md)).
+   `ptp4l` disciplines it and `phc2sys` mirrors it to
    CLOCK_REALTIME*). Nothing in the media path depends on it.
 3. **The media clock** — the 24.576 MHz audio MMCM output, divided to the
    48 kHz sample grid that the I2S/TDM front-ends run on. It is a *physical*
@@ -196,7 +196,7 @@ The values are **tap-measured** (ProfiShark, inline):
 **ingressLatency 3511 ns on the Arty, 1490 ns on the AX7101, egressLatency
 0**, provisioned by `S50milan` at boot
 ([`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 8;
-[`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) section 4).
+[current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md)).
 
 Uncompensated, the late RX stamps kept `asCapable` permanently false — the
 single biggest gPTP field bug of this project
@@ -212,8 +212,8 @@ entirely in the `ptp4l` config.
 
 ### 2.5 Who runs where
 
-The split is deliberate and normative
-([`../ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md);
+The split follows the current architecture
+([`../overview/ARCHITECTURE.md`](../overview/ARCHITECTURE.md);
 [`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) header):
 **protocol in software, time in fabric.**
 
@@ -257,8 +257,8 @@ The chain is two-stage and **integer-only** ([`sw/litex/milan_soc.py`](../../sw/
 
 Integer dividers are a servo prerequisite: UG472 forbids fractional divide
 in fine-phase-shift mode, and the best single-stage integer alternative
-lands -186 ppm — beyond the servo's trim budget
-([`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) section 2).
+lands -186 ppm, beyond the servo's trim budget
+([current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md)).
 
 `/512` of this clock is the 48 kHz sample grid; I2S (`MCLK/SCLK/LRCK`) and
 TDM front-ends are plain registered dividers of it.
@@ -346,14 +346,11 @@ interval/type increments `fmt_err`) and produces the two servo inputs:
   [`tb/verilator/crf_rx`](../../tb/verilator/crf_rx) regression). The previous 256×64 flop file was
   the exact placer-overflow victim of the first 8×8+chmap build;
 * **lock**: 8 clean consecutive PDUs to lock, 100 ms of silence (or a
-  validation error) to unlock — mirroring the AAF media-lock contract —
-  with lock/unlock event counters that used to feed CLOCK_DOMAIN GET_COUNTERS
-  when `clock_source` = CRF. **`GET_COUNTERS` is not implemented (2026-08-13)**
-  — the fabric engine that served it is deleted and the protocol processor's
-  AECP µCPU answers the opcode with a conformant `NOT_IMPLEMENTED` echo, which
-  returns no counters. So those counters are readable only through the CSR
-  window now: no controller can fetch them, and there is no Milan Table 5.22
-  unsolicited push to carry them either (that lane has no producer at all).
+  validation error) to unlock, mirroring the AAF media-lock contract.
+  Solicited `GET_COUNTERS` serves the supported CLOCK_DOMAIN bank through the
+  processor counter face. The selected source remains structurally INTERNAL in
+  this integration, so the served lock pair cannot follow a CRF selection.
+  The Milan Table 5.22 unsolicited counter-change scheduler also remains open.
 
 The followed stream comes from the CRF sink bind (ACMP listener sink 1 —
 the bind wins) with the CSR pair 0x738/0x73C/0x740 as the manual bench
@@ -363,15 +360,11 @@ lever (`milan_datapath.sv`, `crf_rx` instance).
 
 > 🔴 **THIS SERVO IS STRUCTURALLY OFF SINCE 2026-08-13, AND SO IS THE
 > PACKET-GRID NCO SERVO.** Both engage only when the live CLOCK_DOMAIN
-> `clock_source_index` selects the CRF descriptor, and AECP `SET_CLOCK_SOURCE`
-> was the **only** writer of that index. The fabric AECP/AEM engine that
-> implemented it is deleted (see the status block at the top of
-> [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md)), and the
-> protocol processor's AECP µCPU — which has landed, and does answer
-> `READ_DESCRIPTOR` — did **not** reimplement `SET_CLOCK_SOURCE`. A controller
-> sending it gets a conformant `NOT_IMPLEMENTED` echo: a well-formed answer
-> that writes no index. Read no comfort into the echo. The selection is pinned
-> at index 0 — the INTERNAL media clock — for the life of the build
+> `clock_source_index` selects the CRF descriptor. The current protocol
+> processor accepts `SET_CLOCK_SOURCE` and stores the selected index, but
+> `KL_pp_shadow.sv` exports `aecp_clk_src_index_o` to the root and no
+> media-plane consumer reads it. The active selection is pinned at index 0, the
+> INTERNAL media clock, for the life of the build
 > (`milan_datapath`'s `CRF_CLK_SELECTED_C`), and **the CRF media clock can
 > never be selected**.
 >
@@ -437,7 +430,7 @@ nor fills and the drift-glitch class (underrun repeats / overrun drops) ends.
 
 The chain was measured end to end 2026-07-23 at **-83.9 dB loop THD+N — the
 CS4344+CS5343 converter datasheet floor**
-([`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) roadmap item 6;
+([current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md);
 [`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 2).
 
 The **media-lock rule** ([`hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv`](../../hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv), the
@@ -574,8 +567,8 @@ Proven, with the evidence next to each claim:
   [`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 9.
 * **Media-clock servo silicon-proven**: coherent chain measured **-83.9 dB
   loop THD+N = the converter floor** (2026-07-23) —
-  [`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) item 6;
-  [`../traceability/milan-v12.md`](../traceability/milan-v12.md) row M-DEV-15.
+  [current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md);
+  [historical Milan traceability](../traceability/milan-v12.md) row M-DEV-15.
 
 Partial or missing, each with its row id:
 
@@ -583,29 +576,29 @@ Partial or missing, each with its row id:
   no per-unit calibration procedure exists and the ingress/egress split was
   never measured separately —
   [`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) row AS-4,
-  [`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) section 4. Any
+  [current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md). Any
   new PHY/board is wrong by an unknown amount — silently degrading, not
   failing.
 * **AS-6 — partial**: the DUT-wins-BMCA recreation is blocked on the bench:
   the reference AVB switch claims priority1 246 / clockClass 248 /
   clockAccuracy 0x20 and outranks every Milan-legal end-station value. The
   shipping priority1 must be 246; the bench 100 override is bench-only —
-  row AS-6; [`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md)
-  section 4; [`../traceability/milan-v12.md`](../traceability/milan-v12.md)
+  row AS-6; [current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md);
+  [historical Milan traceability](../traceability/milan-v12.md)
   row M-DEV-1.
 * **M-DEV-2/3/4 — partial**: the Milan pdelay edge-case deltas (multiple
   responses to one request, turnaround bound, negative pdelay handling) ride
   on `ptp4l` and were never explicitly recreated; only the normal path is
-  wire-proven — [`../traceability/milan-v12.md`](../traceability/milan-v12.md)
+  wire-proven - [historical Milan traceability](../traceability/milan-v12.md)
   section 1.
 * **M-CLK-2 — MISSING**: the CRF stream rides untagged best-effort (an
   SR-tagged unregistered stream would be pruned to zero ports); it needs the
   second lwSRP listener/talker attribute — row M-CLK-2;
-  [`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) section 2.
+  [current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md).
 * **M-CLK-3 — CLOSED**: the clock-recovery actuator is built and
   silicon-proven (servo LOCKED, coherent chain −83.9 dB), and the matrix row
   now reads ✅ rather than carrying both "actuator MISSING" and "now BUILT" at
-  once — [`../traceability/milan-v12.md`](../traceability/milan-v12.md)
+  once - [historical Milan traceability](../traceability/milan-v12.md)
   row M-CLK-3. What survives is the two bench-gated knobs in the "Servo
   residuals" bullet below, not a missing function.
 * **M-CLK-5 — MISSING**: Milan 7.6 media-clock reference election /
@@ -617,7 +610,7 @@ Partial or missing, each with its row id:
 * **Servo residuals**: `auto_repair` stays 0 until the one-shot ClkReg
   readback is blessed on the bench, and the winning `ps_invert` polarity is
   still a CSR knob rather than the RTL default —
-  [`../MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md) item 6.
+  [current Milan audit](../testing/MILAN_V12_AUDIT_2026-08-16.md).
 * **Unconsumed map rows**: `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` exist in
   [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) but their
   fabric wires are unconsumed (section 2.4) — writing them changes nothing on

@@ -34,8 +34,9 @@ two allocation models. The ACMP **DA gate is the talker gate**:
 `acmp_declaring_o` asserts only after a MAAP `ALLOC_DA` success, so AAF admission
 is still "a destination address exists AND the source is declaring".
 
-**This entity answers `READ_DESCRIPTOR`, and answers every other AECP command
-with a conformant `NOT_IMPLEMENTED` echo.** The processor's AECP uCPU has landed
+**This entity serves the processor's declared AECP command inventory, including
+`READ_DESCRIPTOR` and `GET_COUNTERS`.** Unsupported commands receive the
+conformant fallback. The processor's AECP uCPU has landed
 and its solicited response drives the processor's TX lane 0 onto the parent's
 control lane. So this device DISCOVERS over ADP, CONNECTS over ACMP, RESERVES
 over SRP — and is reachable on AECP, narrowly. `READ_DESCRIPTOR` (0x0004) is
@@ -77,10 +78,10 @@ Three of those are function rather than paperwork and get their own sentence:
    Stream Output, `SET_MAX_TRANSIT_TIME` being gone. That is a DEFAULT, not a
    zero: 0 ns would be a presentation time in the past and every listener would
    drop every frame as late.
-3. **The Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are gone
-   entirely.** `KL_talker_diag_ctx` is no longer instantiated, because with
-   GET_COUNTERS deleted nothing could read it. The STREAM_INPUT counters behind
-   the 0x6B8 `A_STRMW_CNT` window are **unaffected and still live**.
+3. **The Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are live for
+   solicited reads.** `KL_talker_diag_ctx` is instantiated per declared output
+   and GET_COUNTERS serves the compact five-counter layout. The Table 5.22
+   unsolicited producer remains open. STREAM_INPUT counters remain live.
 
 This is a stated capability boundary, taken by the user with the price in front
 of him. It is not a regression under repair, and no row below is written as
@@ -267,7 +268,7 @@ still goes unmet.
 | START/STOP_STREAMING | none | Milan v1.2 5.4.2.19/5.4.2.20 | — | not-implemented. A Stream Input's delivery is governed by the ACMP bind and a Stream Output's by the 5.3.7.3 licence chain; neither is commandable |
 | REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION, the 4-slot registration table, and the whole unsolicited push engine (every Table 5.22 row, u=1 SET replay, per-descriptor 1 s limiters, no-change suppression) | none | Milan v1.2 5.4.2.21/5.4.2.22, 5.4.5.1, 5.4.5.2 Table 5.22; 1722.1-2021 7.4.37/7.4.38, 7.5.2 | — | not-implemented. **No unsolicited notification of any kind leaves this device** |
 | Detection of departing controllers: per-slot monitors, the CONTROLLER_AVAILABLE probe with its retry, atomic eviction, the DEREGISTER push | none — `KL_aecp_timers` and the initiator arm are deleted | Milan v1.2 5.4.5.3; 1722.1-2021 7.4.4, 9.3.2.6/9.3.6 | — | not-implemented; the 0x6F4 diagnostics word reads a structural zero. gh #59's desk-proven engine (94 checks) went with the plane, and its outstanding silicon step is closed as not-pursued |
-| GET_COUNTERS on every descriptor type (AVB_INTERFACE, CLOCK_DOMAIN, STREAM_INPUT, STREAM_OUTPUT, ENTITY) and the Table 5.22 counter pushes | none. The counters themselves largely survive — see §6 — but nothing serves them on the wire | Milan v1.2 5.4.2.25 Tables 5.13-5.17; 1722.1-2021 7.4.42, Tables 7-150 to 7-159 | — | not-implemented. The STREAM_INPUT set stays readable through the 0x6B8 `A_STRMW_CNT` CSR window; the per-STREAM_OUTPUT Table 5.4 set is gone entirely, `KL_talker_diag_ctx` no longer being instantiated |
+| GET_COUNTERS on AVB_INTERFACE, CLOCK_DOMAIN, STREAM_INPUT and STREAM_OUTPUT, plus Table 5.22 counter pushes | processor counter face plus per-output `KL_talker_diag_ctx` banks | Milan v1.2 5.4.2.25 Tables 5.13-5.17; 1722.1-2021 7.4.42, Tables 7-150 to 7-159 | `pp_top`, `milan_dp`, `tkdiag`, pinned la_avdecc decoder | solicited reads implemented for supported targets; ENTITY refusal and missing-index bodies are graded. Table 5.22 unsolicited pushes remain open |
 | GET_AVB_INFO | none | Milan v1.2 5.4.2.23; 1722.1-2021 7.4.40.2 | — | not-implemented. The gPTP state it served is still published to software through the 0x624/0x628/0x62C/0x6E4 CSR group and the CLKV lease; what is gone is the ATDECC read of it |
 | GET_AS_PATH and the AS_PATH staging group at 0x7DC-0x7E4 | none — the response builder is deleted; the CSR staging store itself survives | Milan v1.2 5.4.2.24; 1722.1-2021 7.4.41.2 | — | not-implemented. The daemon can still stage and commit a PathTrace into the CSR group; no reader turns it into a response, so the staged value is write-only in effect |
 | GET_AUDIO_MAP / ADD_AUDIO_MAPPINGS / REMOVE_AUDIO_MAPPINGS, static and dynamic, and the dynamic-mapping store with its two-pass validate-then-commit | none — the store, the paging engine and the AEM write-back port are deleted | Milan v1.2 5.4.2.26/5.4.2.27/5.4.2.28, 5.3.9.1, 5.3.10.1; 1722.1-2021 7.4.44/7.4.45/7.4.46, Tables 7-33/7-162 | — | not-implemented. The capture and render crossbars keep their CSR-programmed maps (§3), so channel mapping is a **build-and-boot** fact now, not a controller-negotiated one. Task #32's audio-map key-shift investigation is moot on the AECP side |

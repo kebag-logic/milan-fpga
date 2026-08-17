@@ -2,18 +2,17 @@
 # SPDX-FileCopyrightText: 2026 Kebag Logic
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 """
-gen_aem_store.py - generate the HW AEM descriptor store from the entity model.
+gen_aem_store.py - generate descriptor bytes and a legacy SVH rendering.
 
-Single source of truth for the Milan v1.2 HW entity. Since the FR-ENUM-02
-close-out this is the FULL mandatory descriptor set of
-avdecc/milan-v12-entity.json: ENTITY, CONFIGURATION, AUDIO_UNIT,
+The end-station builder supplies the current model through an overlay. The
+default compatibility model contains ENTITY, CONFIGURATION, AUDIO_UNIT,
 STREAM_INPUT x2 (AAF + CRF), STREAM_OUTPUT, AVB_INTERFACE, CLOCK_SOURCE x3,
 CLOCK_DOMAIN, CONTROL (IDENTIFY), LOCALE, STRINGS, STREAM_PORT_IN/OUT,
 AUDIO_CLUSTER x16, AUDIO_MAP x2.
 
-Documented deviation from the JSON: AUDIO_UNIT external in/out ports stay 0
-(the JSON says 8 but defines no EXTERNAL_PORT descriptors — advertising them
-would dangle and fail controller enumeration; the tree stays closed).
+The historical JSON snapshot declares eight AUDIO_UNIT external ports but no
+EXTERNAL_PORT descriptors. The compatibility model keeps both counts at zero
+so the tree remains closed during controller enumeration.
 
 Byte layouts mirror IEEE 1722.1-2021 clause 7.2 exactly as encoded by the
 reference implementation (pipewire module-avb aecp-aem-descriptors.h).
@@ -26,11 +25,12 @@ Since the endstation-builder round (gaps item 4) the model can also be built
 from a builder-emitted AEM overlay (sw/builder/endstation_builder.py):
   python3 avdecc/gen_aem_store.py --overlay <aem_overlay.json> [--out-dir D]
 
-NO RTL CONSUMES THIS MODEL ANY MORE (2026-08-12).  The whole IEEE 1722.1
-control plane that used to serve it — hdl/ieee17221/aecp/** — is DELETED and
-the protocol-processor submodule is the control plane now.  This gateware
-answers NO AECP/AEM command, so the descriptor set below is a DECLARATIVE
-MODEL, not something a controller can read back off this device:
+NO RTL ROM CONSUMES THIS MODEL DIRECTLY (2026-08-16). The repository-local
+IEEE 1722.1 control plane that used to compile it into
+hdl/ieee17221/aecp/** is deleted. The protocol processor is the control plane
+now and serves READ_DESCRIPTOR from a main-memory image built from this model.
+The model is therefore still controller-visible after the builder packs it and
+software loads the resulting aem_desc.bin before entity enable:
 
   * the two file targets that made it RTL are gone with the plane.  The
     default run no longer writes hdl/ieee17221/aecp/gen/aecp_aem_rom.svh
@@ -38,11 +38,12 @@ MODEL, not something a controller can read back off this device:
     tb/verilator/aecp/aem_golden.h (that whole suite is deleted).  A code
     path whose only destination is a deleted directory is worse than no
     path: it fails at runtime, or worse, resurrects the directory.
-  * what the model IS still good for: it is the single declarative entity
+  * what the model IS used for: it is the single declarative entity
     definition the ADP shape counts (talker_stream_sources /
     listener_stream_sinks) and the ADP capability words are DERIVED from,
-    and the builder's own self-consistency gates read it.  Those counts DO
-    reach the gateware, through hdl/common/csr/gen/adp_shape_defaults.svh.
+    and the builder's own self-consistency gates read it. Those counts reach
+    the gateware through hdl/common/csr/gen/adp_shape_defaults.svh, while the
+    builder packs the descriptor bytes into the processor's DRAM image.
 
 Outputs (all generated, do not edit):
   avdecc/aem_rom.json             - the model for the python controller and
@@ -155,7 +156,7 @@ NO_STRING = 0xFFFF
 # Sampling rates: pull=0 | base freq (Table 7.5 encoding; pull 0 => the
 # encoded 32-bit value IS the base frequency in Hz)
 RATES = [0x0000BB80, 0x00017700, 0x0002EE00]          # 48 k / 96 k / 192 k
-# AAF PCM 32-bit 8ch stream formats (from milan-v12-entity.json, byte-exact)
+# AAF PCM 32-bit 8ch stream formats for the compatibility model
 #! 8ch default restored (2026-07-20, internal COMPLIANCE es-4.4 expects the classic
 #! 0205022002006000 default): the monitor now ADAPTS to any wire channel
 #! count 1..8 under the declared format, so a pure-ACMP 2ch connect works
@@ -184,7 +185,7 @@ FORMATS = [0x0205022000806000, 0x0215022002006000]
 #! DECLARE exactly what the wire carries or format-matching controllers
 #! strand every listener (user bugs 5/6)
 OUT_FORMATS = [0x0205022000806000]
-# CRF AUDIO_SAMPLE media-clock formats (milan-v12-entity.json STREAM_INPUT[1])
+# CRF AUDIO_SAMPLE media-clock format for the compatibility model
 #! 48k only (the CRF engine validates base 48000/pull 0 - advertising
 #! unlockable rates is the same honesty violation)
 CRF_FORMATS = [0x041060010000BB80]
@@ -225,8 +226,8 @@ def d_entity(e):
     return b
 
 def d_configuration(n_inputs, n_outputs, n_clk_sources):
-    # top-level counts per milan-v12-entity.json (sub-tree types — STREAM_PORT,
-    # AUDIO_CLUSTER, AUDIO_MAP, STRINGS — are reached via their parents)
+    # Top-level compatibility-model counts. STREAM_PORT, AUDIO_CLUSTER,
+    # AUDIO_MAP, and STRINGS are reached through their parents.
     counts = [(AUDIO_UNIT, 1), (STREAM_INPUT, n_inputs),
               (STREAM_OUTPUT, n_outputs),
               (AVB_INTERFACE, 1), (CLOCK_DOMAIN, 1),
@@ -825,10 +826,11 @@ def static_map_tables(spec, base_of, n_str_in, n_str_out):
 
 # ----------------------------------------------------------------- specs ----
 def builtin_spec():
-    """Today's flashed model (milan-v12-entity.json shape) expressed as a
-    build_model() spec — byte-identical to the pre-refactor hardcoded
-    assembly. The endstation builder's arty_current overlay maps onto this
-    exact spec (test-gated)."""
+    """The compatibility model expressed as a build_model() specification.
+
+    The end-station builder's arty_current overlay maps onto this exact model
+    and is test-gated. Current deployments use the selected config overlay.
+    """
     return dict(
         entity=dict(name="Milan FPGA Talker",
                     firmware_version=firmware_version_string(),
@@ -1554,8 +1556,8 @@ def build_model(spec):
 #: how many of those channels reach a PIN on a given board (arty_4x4 says 2,
 #: ax7101_8x8 says 0). A key inside the crossbar but past the routed width
 #: still maps onto a parked wire - that is the separate, pre-existing
-#: "audio_interface unbacked by fabric" gap, flagged in
-#: docs/MILAN_COMPLIANCE_GAPS.md and deliberately NOT silently closed here.
+#: physical source-coverage gap, graded by scripts/check_wire_accountability.py
+#: and deliberately NOT silently closed here.
 CHMAP_PHYS_DEPTH = 10
 
 SRC_IDS = {name: n for n, name in enumerate(
@@ -1590,15 +1592,15 @@ def emit_svh_text(M):
     lines = []
     a = lines.append
     a("// GENERATED by avdecc/gen_aem_store.py - DO NOT EDIT.")
-    a("// Milan v1.2 HW entity, FULL mandatory descriptor set (FR-ENUM-02).")
-    a("// See avdecc/milan-v12-entity.json.")
+    a("// Legacy SVH rendering of the selected builder entity model.")
+    a("// See docs/ENDSTATION_BUILDER.md.")
     a("//")
     a("// NOT COMPILED BY ANY RTL (2026-08-12). This is a rendering of the")
     a("// DECLARATIVE entity model. The IEEE 1722.1 control plane that used to")
     a("// `include it (hdl/ieee17221/aecp/**, KL_aecp_aem_store) is DELETED and")
-    a("// the protocol-processor submodule is the control plane now, so NO")
-    a("// controller can READ_DESCRIPTOR any of the descriptors below off this")
-    a("// gateware. What DOES reach silicon from this same model is the ADP")
+    a("// the protocol-processor submodule is the control plane now. It serves")
+    a("// READ_DESCRIPTOR from the flat DRAM image emitted from this same model.")
+    a("// The model also supplies the ADP")
     a("// shape - talker_stream_sources / listener_stream_sinks and the two")
     a("// capability words - via hdl/common/csr/gen/adp_shape_defaults.svh.")
     a("")

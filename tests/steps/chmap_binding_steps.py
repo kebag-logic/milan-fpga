@@ -3,10 +3,11 @@
 """The chmap64 render-crossbar binding contract, offline.
 
 WHAT THIS IS, AND WHAT IT IS NOT.  This module carries the dynamic audio-map
-model that used to live in tests/steps/tsn_gen_steps.py.  That file, and the
-AECP wire scenarios it served, are gone with hdl/ieee17221/aecp/**: this
-device answers NO AECP command, so there is no READ_DESCRIPTOR, no
-GET_AUDIO_MAP and no ADD_/REMOVE_AUDIO_MAPPINGS to hold to a status code.
+model that used to live in tests/steps/tsn_gen_steps.py. The repository-local
+AECP engine and those wire scenarios are gone. The protocol processor now
+serves READ_DESCRIPTOR and GET_AUDIO_MAP, while ADD_AUDIO_MAPPINGS and
+REMOVE_AUDIO_MAPPINGS remain unimplemented. Their wire behavior is tested in
+the processor and milan_dp harnesses, not in this offline model.
 
 What SURVIVES is the fabric half - the render crossbar KL_chan_map_render and
 its capture twin KL_chan_map_capture - and the WORD FORMAT a mapping projects

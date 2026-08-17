@@ -9,8 +9,8 @@
   Author      : Kebag Logic
 
   Date        : 2026-07-22
-  Description : Physical-interface audio capture front-end (docs/
-                NXN_ARCHITECTURE.md §2.1, phase P4) - the audio-domain half
+  Description : Physical-interface audio capture front-end
+                (docs/fpga/FPGA_DESIGN.md section 2) - the audio-domain half
                 split VERBATIM out of aaf_talker_i2s (clean-clock 07-18
                 lineage): I2S master clocking for the Pmod I2S2 ADC
                 (CS5343) from the 24.576 MHz audio MMCM (MCLK /2, SCLK /8

@@ -104,10 +104,11 @@ PDU two sections later: `nsr 0x07` still counts `UNSUPPORTED_FORMAT` and
 delivers no ring traffic.
 
 **The CRF clock-source compare had no driver.** `aem_crf_clksrc_w` lost its
-only writer with the AECP response builder, while `KL_mmcm_drp_servo` and
+only writer with the old AECP response builder, while `KL_mmcm_drp_servo` and
 `mcr_restart_p_w` still compared it against `aecp_clk_src`; `0 == 0` read TRUE,
-so the fabric behaved as if the CRF media clock were selected on a build where
-software cannot select it. Both nets are **deleted**. `milan_datapath` declares
+so the fabric behaved as if the CRF media clock were selected. Both nets are
+**deleted**. The current processor selection reaches an unconsumed root wire,
+while `milan_datapath` declares
 `CRF_CLK_SELECTED_C = 1'b0`, `MEDIA_CLK_SRC_IDX_C = 16'd0` (INTERNAL) and
 `MEDIA_CLK_SRC_NONE_C = 16'hFFFF`, and the consumers read those constants.
 `sim_main.cpp` and `sim_nxn.cpp` assert the consequence rather than the
@@ -118,11 +119,17 @@ build `MCSRV_STAT` read `0x21`.
 
 "No AECP" is dead as a premise. The protocol processor carries an AECP µCPU
 (`KL_aecp_ucpu` + `KL_aecp_desc_store` + `KL_aecp_engine`, driven from
-`ucode.hex`), and it answers: `READ_DESCRIPTOR` for real, `IDENTIFY_NOTIFICATION`
-sent as a command with `BAD_ARGUMENTS` (IEEE §7.4.39.2 beats §9.3.5.3.3), and
-every other opcode with a conformant `NOT_IMPLEMENTED` **echo** — the command
-back with `message_type + 1`, its own payload copied through, its own length
-declared, padded to the 60-octet minimum. Never silence, never malformed.
+`ucode.hex`) and handles 21 AEM opcodes plus Milan `GET_MILAN_INFO`. The served
+set includes descriptor reads, lock and configuration operations, read-side
+stream and clock commands, sampling-rate and clock-source setters, Identify,
+registration, counters, AVB information, AS path, and both audio-map
+directions. `IDENTIFY_NOTIFICATION` sent as a command returns `BAD_ARGUMENTS`
+(IEEE §7.4.39.2 beats §9.3.5.3.3). Commands outside the implemented inventory
+receive a conformant `NOT_IMPLEMENTED` echo with the command payload and length
+preserved and the frame padded to the 60-octet minimum. The exact inventory is
+gated by [`aecp_engine_steps.py`](../../../tests/steps/aecp_engine_steps.py) and
+the pinned processor's
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/301073b4f8a98b8c1b92421171abb1d3391baa47/docs/architecture/06_aecp_engine.md).
 
 **This suite backs no descriptor memory, on purpose and on record.**
 `milan_datapath` exposes nine ports for the AEM image the store fetches
@@ -145,15 +152,13 @@ octet for octet, the locate miss, the bad configuration index, the
 `NOT_IMPLEMENTED` echo, the two silent-refusal cases, and the no-memory degrade
 with recovery.
 
-`sim_nxn.cpp`'s `[T66]` covers the other side of the same coin: the
-dynamic-output-map opcodes (`GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`,
-`REMOVE_AUDIO_MAPPINGS`) are a **capability regression** against the
-pre-substitution device — they answered `SUCCESS` and edited the capture
-crossbar, and now they answer `NOT_IMPLEMENTED`. That is graded as what it is:
-each response is decoded (status, `message_type`, `cdl`, frame length, echoed
-payload, echoed `sequence_id` and `command_type`), and the crossbar RAM is read
-back on the very keys the commands named to prove **nothing moved** — a phantom
-write from a half-deleted mirror would be far worse than an honest refusal.
+`sim_nxn.cpp`'s `[T66]` covers the other side of the same coin.
+`GET_AUDIO_MAP` now succeeds on the Stream Port Output store, while
+`ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` remain a capability regression
+against the pre-substitution device and answer `NOT_IMPLEMENTED`. Each writer
+response is decoded, and the crossbar RAM is read back on the named keys to
+prove **nothing moved**. A phantom write from a half-deleted mirror would be far
+worse than an honest refusal.
 
 ## Check counts, before and after
 

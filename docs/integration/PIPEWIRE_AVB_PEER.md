@@ -78,7 +78,7 @@ rows):**
    incident).
 3. Addressing + reservation are automatic in fabric: MAAP claims the DMAC
    (`eff_aaf_dmac`), lwSRP declares the stream and gates bandwidth. See
-   [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md) §2 for the
+   [dataplane walkthrough](../fpga/DATAPLANE_WALKTHROUGH.md) §1 for the
    full talker chain.
 
 **Connecting the listener — three paths:**
@@ -92,7 +92,7 @@ rows):**
   but check frame length first — PipeWire-lineage stacks historically
   emitted **68-byte ACMPDUs**, and the fabric rejects anything under the
   1722.1 70-byte minimum by design (the length-validation rule in
-  [`../SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md)'s tsn_gen notes). A
+  [testing guide](../testing/TESTING.md)'s field-validation notes). A
   silent no-bind from the peer is this, not a board fault.
 
 **Recording + acceptance:** `pw-record` the AVB capture node on the peer,
@@ -185,7 +185,7 @@ Notes that cost time to rediscover:
   binding was accepted; it says nothing about frames being accepted by the
   listener datapath. Confirm on the listener with `AVTPRX_STAT`/`FRX` and
   the RX latency taps — see the accept blocker in
-  [`../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md`](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md).
+  [troubleshooting guide](../limitations/TROUBLESHOOTING.md#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26).
 
 **The peer's own talker stays silent by design.** `module-avb` creates the
 talker stream node, but the AVB core runs **without a session manager**, so

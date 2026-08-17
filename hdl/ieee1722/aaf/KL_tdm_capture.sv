@@ -10,7 +10,7 @@
 
   Date        : 2026-07-22
   Description : TDM slave audio-capture front-end (item-4 audio-interface
-                family; docs/NXN_ARCHITECTURE.md §2.1 "physical interface
+                family; docs/fpga/FPGA_DESIGN.md section 2 "physical interface
                 x1"). Deserializes a SLOTS_P-slot TDM bus (8/16/32 slots,
                 WORD_BITS_P bit clocks per slot, MSB first) and emits the
                 same {slot, L, R} pair stream toward KL_aaf_packetizer that

@@ -9,8 +9,8 @@
   Author      : Kebag Logic
 
   Date        : 2026-07-22
-  Description : NxN stream-table authority (docs/NXN_ARCHITECTURE.md §1.1,
-                phase P1). The classification table consumed by
+  Description : NxN stream-table authority (docs/fpga/FPGA_DESIGN.md section 2).
+                The classification table consumed by
                 avtp_stream_parser: one 64-bit stream_id + enable per AAF
                 listener sink s = 0..N_LISTENERS_P-1. The match key is the
                 wire-truth stream_id, never the DMAC.

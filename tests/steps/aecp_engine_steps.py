@@ -7,14 +7,14 @@
 # WHY THIS EXISTS AGAIN.  On 2026-08-12 this repository's own AECP/AEM RTL was
 # deleted and the whole AECP tier of this suite went with it, on the premise
 # "this device answers no AECP command at all".  That premise expired when the
-# protocol-processor submodule landed its AECP uCPU: the device answers
-# READ_DESCRIPTOR for real, answers IDENTIFY_NOTIFICATION-as-a-command with
-# BAD_ARGUMENTS, and answers every other opcode and message type with a
-# conformant NOT_IMPLEMENTED echo.  These steps cover THAT, and only that.
+# protocol-processor submodule landed its AECP uCPU. The device serves the
+# inventory gated below against the RTL opcode table, applies command-specific
+# refusals, and returns a conformant NOT_IMPLEMENTED response for the remainder.
+# These steps cover that offline response contract, and only that.
 #
 # WHAT THIS LAYER IS.  An OFFLINE model, in the manner of the rest of the
 # suite (tests/README.md T1): a Python mirror of the shipped command path -
-# the dispatch decision, the two microprograms that answer, the response
+# the dispatch decision, the modeled response forms, the response
 # builder and the frame assembler - which emits a WHOLE Ethernet frame.  Every
 # Then decodes that frame.  Nothing here talks to RTL, a simulator or a DUT,
 # and nothing asserts a status that did not come out of the model.
@@ -62,8 +62,7 @@
 #   IEEE 1722.1-2021 9.2.1    - responses are unicast back to the Controller
 #                               that sent the command.
 #   Milan v1.2 Delta 7        - ACQUIRE_ENTITY never succeeds (NOT_SUPPORTED,
-#                               owner_id 0).  NOT distinguished today - see the
-#                               tagged gap scenario, which fails on purpose.
+#                               owner_id 0).
 
 import json
 import os
@@ -354,11 +353,11 @@ class DescriptorImage:
 class AecpEngineModel:
     """One AECP command in, one Ethernet frame or nothing out.
 
-    The three dispatch arms are the shipped decode: READ_DESCRIPTOR carrying
-    its operands runs the real microprogram, IDENTIFY_NOTIFICATION and a
-    truncated READ_DESCRIPTOR run the BAD_ARGUMENTS echo, everything else runs
-    the NOT_IMPLEMENTED echo.  A response arriving as input and a command for
-    another entity are freed without a reply.
+    READ_DESCRIPTOR carrying its operands runs the descriptor microprogram,
+    IDENTIFY_NOTIFICATION and a truncated READ_DESCRIPTOR run the
+    BAD_ARGUMENTS echo, declared commands enter the served inventory, and the
+    remainder runs the NOT_IMPLEMENTED echo. A response arriving as input and
+    a command for another entity are freed without a reply.
     """
 
     def __init__(self, image=None, entity_id=ENTITY_ID, own_mac=OWN_MAC):
@@ -569,11 +568,11 @@ def build_aem_command(opcode, payload=None, **kw):
     return build_command(MT_AEM_COMMAND, opcode, payload, **kw)
 
 
-def build_acquire_entity(owner_id=CONTROLLER_EID, **kw):
+def build_acquire_entity(owner_id=0, **kw):
     """IEEE 7.4.1: flags, owner_id, descriptor_type, descriptor_index - the
     16-octet acquire form, so the response is the 40-octet AECPDU of F06.14.
-    A Controller acquiring puts ITSELF in owner_id; Milan Delta 7 says the
-    answer must come back NOT_SUPPORTED with owner_id zero."""
+    The command carries owner_id zero. Milan Delta 7 requires the response to
+    remain unowned and return NOT_SUPPORTED."""
     payload = struct.pack(">IQHH", 0, owner_id, D_ENTITY, 0)
     return build_command(MT_AEM_COMMAND, OP_ACQUIRE_ENTITY, payload, **kw)
 
@@ -1078,14 +1077,14 @@ def step_protocol_id(context):
 
 
 # ---------------------------------------------------------------------------
-# Steps - the Milan Delta 7 ACQUIRE_ENTITY gap (fails on purpose)
+# Steps - the Milan Delta 7 ACQUIRE_ENTITY refusal
 # ---------------------------------------------------------------------------
 
 @then('the AECP response owner_id is zero, not the acquiring controller')
 def step_owner_id(context):
     """7.4.1 puts owner_id at payload offset 4, right after the 4-octet flags.
     Milan Delta 7: the entity never grants an acquisition, so it answers zero
-    there - echoing the requester's own id back is granting it by accident."""
+    there."""
     p = _rsp(context)["payload"]
     assert len(p) >= 12, \
         "payload %d octets, too short for the 16-octet ACQUIRE form" % len(p)

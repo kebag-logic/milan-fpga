@@ -174,17 +174,20 @@ cd tb/verilator/adp_tx && make     # builds + runs; self-checking, prints PASS/c
 > `tb/verilator/pp_shadow` is its suite. `ls tb/verilator/` remains the
 > authority; do not take a suite name from prose.
 >
-> **It has not grown back for AECP.** The processor's AECP uCPU has since landed
-> — the entity answers `READ_DESCRIPTOR` and refuses every other AECP command
-> with a conformant `NOT_IMPLEMENTED` echo. Nothing in this repository loads the
-> descriptor image, so on a stock build that one answered command comes back
-> `BAD_ARGUMENTS` for every read (the configuration range check runs before the
-> locate, and an invalid image reports a configuration count of zero); a probe
-> that instead sees `NO_SUCH_DESCRIPTOR` is telling you an image *is* loaded and
-> that descriptor is genuinely absent from the model. And **no suite in `tb/verilator/`
-> grades it**. `pp_shadow` grades the processor's presence, RX classify path,
-> class-D face, MAAP adapter and anti-wedge invariant; it does not grade an AECP
-> response. Nothing else does either.
+> **AECP now has an integration acceptance lane.** The processor serves its
+> declared command inventory, including `READ_DESCRIPTOR`, `GET_COUNTERS`,
+> stream-state getters, clock-source operations, Identify controls, and Milan
+> information. Unsupported commands receive the conformant fallback. The
+> builder generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the
+> tracked board rootfs runs `aemi-load` before enabling the entity. A custom
+> integration that omits the load still fails closed with `BAD_ARGUMENTS`, while
+> a locate miss in a valid image returns `NO_SUCH_DESCRIPTOR`.
+>
+> `tb/verilator/pp_shadow` grades processor presence, the RX classify path, the
+> class-D face, the MAAP adapter, the anti-wedge invariant, and Milan Delta 7
+> `ACQUIRE_ENTITY` response shape on the root wire. The processor's own pinned
+> suites remain the field-level command evidence. Consult the current audit for
+> the mandatory commands and root dynamic-state connections that remain open.
 
 No Xilinx dependencies (the RTL is XPM-free). Run the affected module's harness after
 touching its SV; run the full [tb/verilator/](../../tb/verilator) sweep before a release-ish commit (`for d in tb/verilator/*/;
