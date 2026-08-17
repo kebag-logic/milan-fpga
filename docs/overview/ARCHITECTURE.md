@@ -325,13 +325,12 @@ what software wrote, and writing them changes nothing observable). Which is
 which, word by word, is
 [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md) — read it before
 believing a plausible-looking idle value. `0x648` is one of them despite the
-uCPU having landed: `aecp_locked` is tied 0 because there is no ACQUIRE/LOCK and
-the lock manager is unwired, and `current_config` is tied 0 because there is no
-`SET_CONFIGURATION`. The AECP engine's own telemetry — command, response and
-drop counts, locate misses, last status, last length, image-valid and
-image-fault — is **not** there; it lives in the protocol processor's side-port
-snapshot window, reached through `KL_pp_shadow`'s side-port host bridge
-(`PP_SPADDR`/`PP_SPDATA`).
+uCPU having landed: `[16]` now carries the processor's live entity-lock level,
+while `current_config` and the legacy counters remain structural zeros. The
+AECP engine's own telemetry, including command, response and drop counts,
+locate misses, last status, last length, image-valid and image-fault, is
+**not** there; it lives in the protocol processor's side-port snapshot window,
+reached through `KL_pp_shadow`'s side-port host bridge (`PP_SPADDR`/`PP_SPDATA`).
 
 ## 5. Clock domains & CDC
 

@@ -57,7 +57,8 @@ custom integration must preserve that load-before-enable ordering.
 and locate-miss tallies, plus its last status, last length, image-valid and
 image-fault bits, live in the **protocol processor's side-port snapshot window**,
 reached through `KL_pp_shadow`'s side-port host bridge — not at `0x648`, which
-stays a structural zero because nothing in the parent is wired to them.
+keeps those counter fields at structural zero. `AECP_STAT0[16]` is the
+exception: it carries the processor's live `LOCK_ENTITY` level.
 
 ### How to read this page now: three verdicts, and why the distinction matters
 
@@ -151,7 +152,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x750  -  CRF media-clock talker  (Milan v1.2 7.3.1, KL_crf_tx)](#0x750-----crf-media-clock-talker--milan-v12-731-kl_crf_tx) -- Emits 500 PDU/s timestamped off the real audio-MMCM sample grid. All four identity words treat **reset 0 as AUTO**, deriving stream id and dest MAC from the MAAP block -- which is why the claimed MAAP count has to be `N_STREAMS+1`.
   - [0x768  -  AECP GET_DYNAMIC_INFO scan forensics (BDBG) -- 🔴 STRUCTURAL ZERO](#0x768-----aecp-get_dynamic_info-scan-forensics-bdbg-----structural-zero) -- All three words read a structural zero. They latched the verdicts of the `0x4B` batch scanner inside the AECP response builder; the AECP uCPU that replaced it implements no `GET_DYNAMIC_INFO` and no scanner -- `0x4B` gets the conformant `NOT_IMPLEMENTED` echo -- so there is no verdict to latch. The `0` here is the absence of a scanner, not a scan that found nothing.
   - [0x600  -  ADP advertiser  (IEEE 1722.1-2021 / Milan v1.2, FR-DISC-01..04)](#0x600-----adp-advertiser--ieee-17221-2021--milan-v12-fr-disc-0104) -- Entity identity in, advertise timing and `available_index` owned by hardware -- the protocol processor's now. Two things to know before writing anything here: `ADP_CTRL[0]` is ORed with `PP_CTRL[0]` at `0x920`, so either bit enables the entity; and five ADPDU fields (entity_capabilities, valid_time, association_id, controller_capabilities, interface_index) are **write-only scratch** -- the processor holds them as internal constants and the wire carries those, whatever you write. `ADP_STATUS` available_index is still the liveness read, and now the only one: the dormancy counters at `0x668`/`0x674` are structural zeros.
-  - [0x648  -  AECP/ACMP status + AAF talker  (IEEE 1722.1 / Milan v1.2)](#0x648-----aecpacmp-status--aaf-talker--ieee-17221--milan-v12) -- **Every AECP counter here is a structural zero because processor state is not wired into this legacy group.** The processor accepts and answers its declared inventory; diagnostics live in its side-port snapshot window. ACMP PDU counters are structural zeros too, but `ACMP_TALKER[1]` talker_active remains the processor's live declaring level.
+  - [0x648  -  AECP/ACMP status + AAF talker  (IEEE 1722.1 / Milan v1.2)](#0x648-----aecpacmp-status--aaf-talker--ieee-17221--milan-v12) -- AECP counters remain structural zeros, while `AECP_STAT0[16]` is the processor's live entity-lock level. Diagnostics live in the side-port snapshot window. ACMP PDU counters are structural zeros too, but `ACMP_TALKER[1]` talker_active remains the processor's live declaring level.
   - [0x680  -  lwSRP engine  (802.1Q MSRP/MVRP, Milan v1.2 §5.6, FR-SRP-\*)](#0x680-----lwsrp-engine--8021q-msrpmvrp-milan-v12-56-fr-srp-) -- The SRP endpoint, now the protocol processor's. The state words (domain, granted slope, over-limit, declaration and registration levels) are live and repointed; the MRPDU counts and the row-shortfall bit are structural zeros; the provisioning words the deleted applicant read (DMAC, TSpec, declare bypass) are write-only scratch. Read the honest note on the CBS slope ordering change -- the slope now arrives with the gate rather than one cycle ahead of it, which is equal at worst and conservative on the closing edge.
   - [0x6A4  -  ACMP listener SM  (Milan v1.2 §5.5 listener, FR-CONN-01)](#0x6a4-----acmp-listener-sm--milan-v12-55-listener-fr-conn-01) -- **`ACMPL_STATE` no longer tracks PROBING/SETTLED -- take `bound` as the truth.** The processor publishes a bind record, not a state machine, so the ladder fields, the bound talker id, the counters and the walker forensics are structural zeros; bound, active and the CRF-sink bit are real. The Milan Table 7-156 stream counters, MAAP status, pilot tone, playback rails and ts_delta in this group are untouched and still live.
   - [0x7A0  -  ACMP bind-restore  (saved-state fast-connect E1, Milan 5.5.3.5.2)](#0x7a0-----acmp-bind-restore--saved-state-fast-connect-e1-milan-55352) -- **Dead port.** Writes are accepted, the ack never asserts, and nothing is restored -- the ACMP context table it injected into is deleted. The `0xA5C35A3C` feature probe still passes, which is precisely why software must gate on `VERSION` major and not on the probe.
@@ -181,7 +182,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
 | `0x400` | 802.1Qav CBS (per-queue, stride `0x20`; `0x400`-`0x49F` at `N`=5) |
 | `0x500` | PTP hardware clock |
 | `0x600` | ADP identity (served by the protocol processor; five ADPDU fields are write-only scratch) |
-| `0x648` | AECP/ACMP status (**AECP words are structural zeros**) + AAF talker (flat stream-0 registers) |
+| `0x648` | AECP/ACMP status (**AECP counters are structural zeros; lock is live**) + AAF talker (flat stream-0 registers) |
 | `0x680` | SRP status (802.1Q MSRP/MVRP, Milan v1.2 §5.6) — repointed to the protocol processor; PDU counters are structural zeros |
 | `0x6A4` | ACMP listener **bind record** (the SM fields are structural zeros) + AVTP RX / MAAP / audio diagnostics |
 | `0x700` | RX destination-MAC TCAM filter |
@@ -860,16 +861,17 @@ zeros (see `ADP_DIAG` / `ADP_DIAG2` in the `0x648` group below).
 
 ### 0x648  -  AECP/ACMP status + AAF talker  `(IEEE 1722.1 / Milan v1.2)`
 
-The AECP and ACMP *counter* words of this group are now **structural zeros**;
-the AAF talker configuration and the one live ACMP level are not. Read the
-verdict column, not the register name.
+The AECP and ACMP *counter* words of this group are now **structural zeros**.
+The entity-lock level, AAF talker configuration, and one ACMP level are live.
+Read the verdict column, not the register name.
 
-* **Everything AECP here is still a structural zero because this legacy group
-  is not connected to the processor state.** The processor's AECP uCPU accepts
+* **The AECP lock level is live; its legacy counters and configuration field
+  remain structural zeros.** The processor's AECP uCPU accepts
   and answers its declared command inventory. `ACQUIRE_ENTITY` returns Milan
   Delta 7 `NOT_SUPPORTED` with no owner, and configuration operations are
-  served inside the processor. None of the lock, current-configuration, or
-  command and response count fields are exported into this CSR group.
+  served inside the processor. `AECP_STAT0[16]` publishes the authoritative
+  `LOCK_ENTITY` level used to gate local map writes. Current configuration and
+  the command and response count fields are not exported into this CSR group.
   Processor command, response, drop, locate-miss, last-status, last-length,
   image-valid, and image-fault diagnostics instead live in the **side-port
   snapshot window**, read through `KL_pp_shadow`'s host bridge. Do not read a
@@ -895,7 +897,7 @@ and [`../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
-| `0x648` | `AECP_STAT0` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was `[16]` entity locked and `[15:0]` AECP commands accepted. The processor serves these functions, but neither field is connected to this legacy word |
+| `0x648` | `AECP_STAT0` | RO | `0` | Mixed: `[16]` is the processor's live `LOCK_ENTITY` level. `[15:0]` is a 🔴 **STRUCTURAL ZERO** because the processor command count is not exported here |
 | `0x64C` | `AECP_STAT1` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was `[31:16]` AECP responses sent and `[15:0]` live current configuration index. The processor sends responses and stores configuration state, but neither field is connected here |
 | `0x650` | `ACMP_STAT` | RO | `0` | 🔴 **STRUCTURAL ZERO**. Was the ACMP responder's `[31:16]` responses sent / `[15:0]` commands accepted. ACMP itself is **alive** — the processor answers CONNECT_TX/PROBE_TX/GET_TX_STATE and runs the BIND_RX ladder — but it publishes a bind RECORD, not PDU counters, so these two fields have no source. Take `ACMPL_STATE[3]` bound (`0x6A4`) and `ACMP_TALKER[1]` (`0x66C`) as the truth instead |
 | `0x654` | `AAF_CTRL` | RW | `0x0002_0000` | `[0]` talker enable, `[1]` gate bypass; 1 streams whenever enabled. Reset is 0, so Milan v1.2 5.3.7.3 admission is in force unless software explicitly bypasses it. `[27:16]` is the SR VID, reset 2. Write `0x0002_0001` to enable with bypass clear. A bare `0x3` zeroes the VID. `0x0002_0003` enables the experimental bypass and is not a compliant boot setting. The resolved admission result is reported in `ACMP_TALKER 0x66C[3]`. |
@@ -1684,14 +1686,16 @@ DAC, because the legacy feed only ticks when an inbound AVB stream does.
 processor serves `GET_AUDIO_MAP` from the same stores, and successful
 `ADD_AUDIO_MAPPINGS` or `REMOVE_AUDIO_MAPPINGS` transactions update the live
 map after whole-command validation. The transaction excludes CSR writes until
-commit or abort, so the validation baseline cannot change underneath it.
+commit or abort, so the validation baseline cannot change underneath it. The
+CSR writer is also refused whenever `LOCK_ENTITY` is held. This protects both
+map RAMs and the authoritative protocol ownership stores from non-ATDECC edits.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x900` | `CHMAP_CTRL` | RW | `0` | `[0]` map arm. While 0 the default capture/render paths drive bit-identically; set 1 to select the CSR-programmed crossbars. It also gates the `CHMAP_WORD` write window (refusals counted in `CHMAP_STAT[23:16]`) |
 | `0x904` | `CHMAP_SEL` | RW | `0` | `[5:0]` map entry index, `[8]` side (0 = RMAP/render phys channel 0..9, 1 = CMAP/capture **stream-channel key** `port*8 + sc`, 0..`2*N_SLOTS_P-1` — per-channel since 0x0027). Selects the target of the next `CHMAP_WORD` write |
-| `0x908` | `CHMAP_WORD` | RW | - | `[15:0]` the §5 map word `{EN[15], SRC[14:12], rsvd[11:9], HALF[8], IDX_HI[7:4], IDX_LO[3:0]}`. Write commits through the shared map write port when `CHMAP_CTRL[0]` = 1; readback = last committed word. **Render side (RMAP)**: `SRC[12]` selects the source bank, 0 = AVB listener and 1 = **host playback ring**. `IDX` is `{stream[6:4], ch[2:0]}` for AVB or one linear playback channel for the host ring. `[8]` is unused. **Capture side (CMAP)**: composes the addressed channel's 13-bit entry `{EN, HALF, SRC[2:0], IDX_HI, IDX_LO}`; `HALF` selects the source pair's L or R half |
-| `0x90C` | `CHMAP_STAT` | RO | `0` | `[15:0]` map commits (currently CSR only, wraps), `[23:16]` CSR writes refused while disarmed (saturates) |
+| `0x908` | `CHMAP_WORD` | RW | - | `[15:0]` the §5 map word `{EN[15], SRC[14:12], rsvd[11:9], HALF[8], IDX_HI[7:4], IDX_LO[3:0]}`. Write commits through the shared map write port when `CHMAP_CTRL[0]` = 1 and `LOCK_ENTITY` is not held; otherwise it is refused. Readback is the last committed word. **Render side (RMAP)**: `SRC[12]` selects the source bank, 0 = AVB listener and 1 = **host playback ring**. `IDX` is `{stream[6:4], ch[2:0]}` for AVB or one linear playback channel for the host ring. `[8]` is unused. **Capture side (CMAP)**: composes the addressed channel's 13-bit entry `{EN, HALF, SRC[2:0], IDX_HI, IDX_LO}`; `HALF` selects the source pair's L or R half |
+| `0x90C` | `CHMAP_STAT` | RO | `0` | `[15:0]` map commits (currently CSR only, wraps), `[23:16]` CSR writes refused while disarmed or entity-locked (saturates) |
 | `0x910` | `CHMAP_SNAP` | W1S / RO | `0xC500_0000` | **W** `[0]` arm a readback of the entry named by `CHMAP_SEL` (ignored while busy). **R** `[0]` busy, `[1]` valid — the LAST snapshot carries fabric data, `[2]` timeout — the LAST snapshot ended without the fabric answering, `[3]` unsupported — the LAST arm was refused because this side has no readback port in this build, `[4]` armed — a snapshot has been armed since reset, `[9:8]` capability (`[8]` render port wired, `[9]` capture port wired **and** carrying the `{loop_fed, loop_mapped}` mask), `[22:16]` `{side, index}` latched at the last arm, `[31:24]` **constant `0xC5`** |
 | `0x914` | `CHMAP_LOOP` | RO | `0xDEAD_DEAD` | The map word **the RAM actually holds**. `[15:0]` raw fabric readback word — capture side `{1'b0, loop_fed[14], loop_mapped[13], entry[12:0]}` where the entry is the per-channel word `{en[12], half[11], src[10:8], idxh[7:4], idx[3:0]}` (one entry per stream channel since 0x0027). NOTE the two formats: the `CHMAP_WORD` you WRITE is `{EN[15], SRC[14:12], rsvd, HALF[8], IDXH, IDXL}`; the ENTRY you read BACK here re-packs those fields — e.g. word `0xB000` reads back as entry `0x1300`, and mistaking the packing for corruption cost a bench session. `loop_fed`/`loop_mapped`/`LOOP_SUSPECT` grade the LOOP source only, never general slot health, render side `{8'd0, entry[7:0]}`; `[16]` mapped, `[17]` fed, `[18]` **`LOOP_SUSPECT` = mapped & ~fed** (extracted from the raw word's canonical flag bits, stable here whatever the raw layout), `[19]` side, `[25:20]` index, `[26]` **VALID** (this word is a measurement), `[27]` **MASK_VALID** (`[18:16]` are a measurement — capture side only). **`0xDEADDEAD` = there is no measurement behind this word** |
 | `0x918`-`0x91C` | - | - | `0` | reserved to this feature (read 0, never shadow-aliased). **`0x920`-`0x930` are the protocol-processor window** — see the next section; `0x934`-`0x93C` remain reserved |

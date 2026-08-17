@@ -385,9 +385,9 @@ sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-eth
   `PP_DESC_BASE_P`, and the AECP engine's counters (commands, responses, drops,
   locate misses, last status/length, image-valid, image-fault) are read through
   the processor's side-port snapshot window (`PP_SPADDR`/`PP_SPDATA`), not from
-  `0x648`. The legacy AECP status word remains a structural zero because its
-  fields are not wired from the processor's exported dynamic-state signals
-  into that CSR group.
+  `0x648`. The legacy AECP counter and configuration fields remain structural
+  zeros, while `0x648[16]` carries the processor's live entity-lock level and
+  gates local mapping writes.
 - **No register was removed** when the legacy plane was deleted; the map is an
   ABI. What changed is meaning: words whose source is gone read documented
   **structural zeros**, a few provisioning words became **write-only scratch**

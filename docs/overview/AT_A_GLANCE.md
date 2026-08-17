@@ -205,12 +205,12 @@ word by word; do not infer liveness from a plausible value.
 The ring-DMA engines of the fully-FPGA build live in their **own**
 LiteX-generated CSR space, not in this window. Neither is the entity model here:
 `READ_DESCRIPTOR` is served out of DDR3, over a read-only master whose base is a
-compile-time parameter with no register behind it — the image has to be placed
+compile-time parameter with no register behind it -- the image has to be placed
 there by boot software, before either enable bit is set, and no code in this
-repository does that today. `0x648` stays a structural zero even so
-(`aecp_locked` and `current_config` are tied 0 — no ACQUIRE/LOCK, no
-`SET_CONFIGURATION`); the AECP engine's counters live in the processor's
-side-port snapshot window behind `PP_SPADDR`/`PP_SPDATA`, not at `0x648`.
+repository does that today. `0x648[16]` carries the processor's live
+entity-lock level, while `current_config` and the legacy counters remain
+structural zeros. The AECP engine's counters live in the processor's side-port
+snapshot window behind `PP_SPADDR`/`PP_SPDATA`, not at `0x648`.
 
 ---
 

@@ -11,7 +11,8 @@ multi-stream fabric and ALSA lane. Status: **AS BUILT**.
 > processor-to-root transaction. Therefore:
 >
 > * **AECP is the controller-facing programmer of both map RAMs.** The CSR
->   `0x900` window remains a local debug and override path;
+>   `0x900` window remains a local debug and override path. Its map writes are
+>   refused while `LOCK_ENTITY` is held, as required for a non-ATDECC path;
 > * **nothing seeds the RAMs.** `CMAP` resets all-zero and stays that way
 >   until AECP or software writes it. Nonvolatile replay remains open in
 >   issue #70.

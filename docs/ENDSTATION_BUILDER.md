@@ -590,8 +590,9 @@ model used by the descriptor image.
 The processor validates `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` as
 atomic transactions. The root commits the authoritative protocol stores and
 projects only backed clusters into the render and capture crossbars. The
-`0x900` window remains a local debug and override path. Reset replay from
-nonvolatile storage remains open in issue #70. The fabric contract is
+`0x900` window remains a local debug and override path, but its map writes are
+refused while `LOCK_ENTITY` is held. Reset replay from nonvolatile storage
+remains open in issue #70. The fabric contract is
 [`CHANNEL_MAP_64.md`](CHANNEL_MAP_64.md) section 7.
 
 ### D8 — role-named 8×8 port model: per-platform cluster pools, Pilot cluster, loopback lane
