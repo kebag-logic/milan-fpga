@@ -283,8 +283,8 @@ def merged_pr_heads(limit, base):
 
 
 # --- self-test ---------------------------------------------------------------
-# The cases below call contained() FOR REAL against this repository's own
-# history. An earlier cut had a table that re-implemented the predicate and
+# The cases below call contained() FOR REAL against controlled Git histories.
+# An earlier cut had a table that re-implemented the predicate and
 # never called it, so mutating the shipped code -- swapping the two signals,
 # hard-coding the count -- left every case printing ok. The advertised number
 # had no coverage at all, which is the "test that cannot fail" this repo's own
@@ -301,25 +301,13 @@ def selftest():
             print(f"       got {got!r}, expected {want!r}")
 
     rc, head = _git("rev-parse", "HEAD")
-    rc2, parent = _git("rev-parse", "HEAD~1")
-    if rc != 0 or rc2 != 0:
-        print("  FAIL selftest needs at least two commits of history")
+    if rc != 0:
+        print("  FAIL selftest needs a repository with one commit")
         return 1
 
     ok, ahead, note = contained(head, head)
     case("self-containment", (ok, ahead), (True, 0),
          "a commit is contained in itself")
-
-    #! the STRANDED verdict AND the count, against real history: HEAD is one
-    #! commit ahead of its parent. The count is what the output advertises and
-    #! it had no coverage until this case existed.
-    ok, ahead, note = contained(head, parent)
-    case("stranded-count", (ok, ahead), (False, 1),
-         "HEAD is 1 commit ahead of HEAD~1, and says so")
-
-    ok, ahead, note = contained(parent, head)
-    case("contained-backwards", (ok, ahead), (True, 0),
-         "...and the parent IS contained in HEAD")
 
     ok, ahead, note = contained("refs/heads/definitely-not-a-branch", head)
     case("missing-ref", (ok, ahead), (None, None),
@@ -363,6 +351,21 @@ def selftest():
             for i in range(3):
                 open(f"w{i}", "w").write(str(i))
                 _git("add", "-A"); _git("commit", "-qm", f"w{i}")
+
+            # These assertions used to rely on HEAD and HEAD~1 in the caller's
+            # repository.  At a merge result, second-parent commits make that
+            # range larger than one and the self-test falsely failed.  Keep the
+            # one-commit relationship inside the controlled linear fixture.
+            rc, tip = _git("rev-parse", "work")
+            rc2, parent = _git("rev-parse", "work~1")
+            ok, ahead, note = contained(tip, parent)
+            case("stranded-count", (rc, rc2, ok, ahead),
+                 (0, 0, False, 1),
+                 "a linear child is one commit ahead of its parent")
+
+            ok, ahead, note = contained(parent, tip)
+            case("contained-backwards", (ok, ahead), (True, 0),
+                 "...and the parent is contained in the child")
 
             rc, out = run(["--no-fetch", "--base", "base", "work"])
             case("e2e-stranded-rc", rc, RC_FINDING,
