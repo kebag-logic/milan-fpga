@@ -63,7 +63,6 @@ are used rather than reading ``git log`` output.
 
 import subprocess
 import sys
-from collections import Counter
 
 USAGE = __doc__.split("WHY THIS EXISTS")[0].strip()
 
@@ -91,6 +90,36 @@ def _verbatim_patch_id(commit):
     return (fields[0], None)
 
 
+def _commit_paths(commit):
+    """Return the literal paths one commit changed, with renames unfolded."""
+    rc, names = _git("diff-tree", "--root", "--no-commit-id", "--name-only",
+                     "--no-renames", "-z", "-r", commit)
+    if rc != 0:
+        return (None, f"diff-tree could not enumerate {commit}")
+    return ([name for name in names.split("\0") if name], None)
+
+
+def _same_patch_postimage(branch_commit, base_commit):
+    """Require candidate replays to produce the same touched-path trees."""
+    branch_paths, err = _commit_paths(branch_commit)
+    if err:
+        return (None, err)
+    base_paths, err = _commit_paths(base_commit)
+    if err:
+        return (None, err)
+    paths = list(dict.fromkeys(branch_paths + base_paths))
+    if not paths:
+        return (True, None)
+    rc, _ = _git("--literal-pathspecs", "diff", "--quiet", branch_commit,
+                 base_commit, "--", *paths)
+    if rc == 0:
+        return (True, None)
+    if rc == 1:
+        return (False, None)
+    return (None, f"git diff could not compare {branch_commit} with "
+                  f"{base_commit}")
+
+
 def _linear_patches_contained(branch, base):
     """Prove linear replay equivalence without ignoring whitespace."""
     rc, branch_out = _git("rev-list", "--no-merges", f"{base}..{branch}")
@@ -105,21 +134,29 @@ def _linear_patches_contained(branch, base):
     if not branch_commits or not base_commits:
         return (False, None)
 
-    base_ids = []
+    base_by_id = {}
     for commit in base_commits:
         patch_id, err = _verbatim_patch_id(commit)
         if err:
             return (None, err)
-        base_ids.append(patch_id)
+        base_by_id.setdefault(patch_id, []).append(commit)
 
-    available = Counter(base_ids)
     for commit in branch_commits:
         patch_id, err = _verbatim_patch_id(commit)
         if err:
             return (None, err)
-        if available[patch_id] == 0:
+        candidates = base_by_id.get(patch_id, [])
+        match = None
+        for candidate in candidates:
+            same, err = _same_patch_postimage(commit, candidate)
+            if err:
+                return (None, err)
+            if same:
+                match = candidate
+                break
+        if match is None:
             return (False, None)
-        available[patch_id] -= 1
+        candidates.remove(match)
     return (True, None)
 
 
@@ -268,8 +305,11 @@ def contained(branch, base):
     #! Rebase keeps one commit per change, so patch IDs still match.  Plain
     #! `git cherry` is not proof: its patch IDs ignore whitespace, which can
     #! equate different HDL or software content.  Measure every unique linear
-    #! commit with `git patch-id --verbatim` instead.  Merge commits remain
-    #! excluded because patch IDs omit their conflict-resolution content.
+    #! commit with `git patch-id --verbatim` instead, then require the candidate
+    #! commits' touched-path postimages to match exactly.  Even verbatim patch
+    #! IDs omit hunk line numbers, so the postimage check prevents the same edit
+    #! to a different repeated location from becoming a false pass.  Merge
+    #! commits remain excluded because patch IDs omit resolution content.
     rc, merge_count = _git("rev-list", "--min-parents=2", "--count",
                            f"{base}..{branch}")
     if rc != 0 or not merge_count.isdigit():
@@ -694,6 +734,40 @@ def selftest():
             case("whitespace-exact-rc", rc, RC_FINDING,
                  "verbatim patch IDs refuse different content")
             case("whitespace-exact-path", "spacing.py" in out, True,
+                 "...and the differing path is reported")
+
+            # Verbatim patch IDs still omit hunk line numbers.  The same edit
+            # to two repeated blocks therefore hashes alike, but the resulting
+            # files differ and must not be certified as a replay.
+            block = "a\nb\nc\nold\nd\ne\nf\n"
+            separator = "".join(f"separator-{i}\n" for i in range(10))
+            repeated = block + separator + block
+            _git("checkout", "-qb", "hunk-feature", "base")
+            open("repeated.txt", "w").write(repeated)
+            _git("add", "repeated.txt"); _git("commit", "-qm", "hunk seed")
+            _git("checkout", "-qb", "hunk-base", "HEAD~1")
+            open("repeated.txt", "w").write(repeated)
+            _git("add", "repeated.txt"); _git("commit", "-qm", "hunk seed")
+            _git("checkout", "-q", "hunk-feature")
+            open("repeated.txt", "w").write(repeated.replace("old", "new", 1))
+            _git("commit", "-qam", "first block")
+            rc, hunk_feature = _git("rev-parse", "HEAD")
+            _git("checkout", "-q", "hunk-base")
+            before, after = repeated.rsplit("old", 1)
+            open("repeated.txt", "w").write(before + "new" + after)
+            _git("commit", "-qam", "second block")
+            rc2, hunk_base = _git("rev-parse", "HEAD")
+            feature_id, feature_err = _verbatim_patch_id(hunk_feature)
+            base_id, base_err = _verbatim_patch_id(hunk_base)
+            case("hunk-position-fixture",
+                 (rc, rc2, feature_err, base_err, feature_id == base_id),
+                 (0, 0, None, None, True),
+                 "verbatim patch IDs omit the different hunk positions")
+            rc, out = run(["--no-fetch", "--base", "hunk-base",
+                           "hunk-feature"])
+            case("hunk-postimage-rc", rc, RC_FINDING,
+                 "different repeated locations cannot false-pass")
+            case("hunk-postimage-path", "repeated.txt" in out, True,
                  "...and the differing path is reported")
 
             # git cherry intentionally omits merge commits.  An equivalent
