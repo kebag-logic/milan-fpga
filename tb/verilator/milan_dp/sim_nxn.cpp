@@ -468,6 +468,12 @@ enum { RT_NULL = 0, RT_DMA = 1, RT_RENDER = 2, RT_RENDER_DMA = 3 };
 static unsigned tap_stream_en() {
     return dut->rootp->milan_datapath__DOT__aaf_stream_en_w;
 }
+static unsigned tap_stream_en_raw() {
+    return dut->rootp->milan_datapath__DOT__aaf_stream_en_raw_w;
+}
+static unsigned tap_amap_out_resv() {
+    return dut->rootp->milan_datapath__DOT__amap_edit_out_resv_r;
+}
 
 static void snap_and_wait() {
     axi_write(A_STRM_SNAP, 1);
@@ -599,9 +605,8 @@ static void inject_parked(const uint8_t* f, size_t len, int park_beat,
 // path, the response fished off the MAC TX trunk (subtype 0xFB; the only
 // 0xFB frames in this sim are our responses - nothing ever REGISTERs).
 // dst MAC = the station MAC, which this harness leaves at its reset 0.
-static std::vector<uint8_t> aecp_xact(uint16_t cmd, uint16_t sq,
-                                      const std::vector<uint8_t>& pl,
-                                      int cyc = 200000) {
+static std::vector<uint8_t> aecp_request(uint16_t cmd, uint16_t sq,
+                                         const std::vector<uint8_t>& pl) {
     const size_t flen = std::max<size_t>(60, 38 + pl.size());
     std::vector<uint8_t> f(flen, 0);
     const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
@@ -616,7 +621,9 @@ static std::vector<uint8_t> aecp_xact(uint16_t cmd, uint16_t sq,
     f[34]=(uint8_t)(sq >> 8); f[35]=(uint8_t)sq;
     f[36]=(uint8_t)((cmd >> 8) & 0x7F); f[37]=(uint8_t)cmd;
     for (size_t i = 0; i < pl.size(); i++) f[38+i] = pl[i];
-    inject(f.data(), f.size(), 40);
+    return f;
+}
+static std::vector<uint8_t> await_aecp(int cyc = 200000) {
     std::vector<uint8_t> cur, resp;
     cur.reserve(1514);                  // one Ethernet frame off the TX trunk
     dut->m_axis_mac_tx_tready = 1;
@@ -636,6 +643,13 @@ static std::vector<uint8_t> aecp_xact(uint16_t cmd, uint16_t sq,
         hi();
     }
     return resp;
+}
+static std::vector<uint8_t> aecp_xact(uint16_t cmd, uint16_t sq,
+                                      const std::vector<uint8_t>& pl,
+                                      int cyc = 200000) {
+    const std::vector<uint8_t> f = aecp_request(cmd, sq, pl);
+    inject(f.data(), f.size(), 40);
+    return await_aecp(cyc);
 }
 static long aecp_status(const std::vector<uint8_t>& b) {
     return b.size() > 16 ? (b[16] >> 3) & 0x1F : -1;
@@ -4012,6 +4026,95 @@ int main(int argc, char** argv) {
         // Stop every talker, then prove four independent writes.
         axi_write(A_AAF_CTRL, 0x00020002);
         for (int c = 0; c < 32; c++) step();
+
+        // Hold stream 0 stopped through the phase-1 recheck, then request a
+        // local bypass start while 63 legal duplicate records keep phase 5
+        // busy. The reservation must mask the raw 0-to-1 request until the
+        // atomic mapping transaction finishes. This is the non-protocol
+        // admission path that the processor scoreboard cannot serialize.
+        {
+            const int rsc = 7, rco = 7;
+            std::vector<uint8_t> pl = {
+                (uint8_t)(DT_SPO >> 8), (uint8_t)DT_SPO, 0x00, 0x00,
+                0x00, 0x3F, 0x00, 0x00 };
+            for (int i = 0; i < 63; ++i) {
+                const uint8_t row[8] = {0x00, 0x00, 0x00, (uint8_t)rsc,
+                                        0x00, (uint8_t)rco, 0x00, 0x00};
+                pl.insert(pl.end(), row, row + 8);
+            }
+            const uint16_t seq = sq++;
+            const auto req = aecp_request(CMD_ADD_AUDIO_MAPPINGS, seq, pl);
+            // The maximum-size command occupies 69 AXI-stream beats. Give the
+            // ingress enough cycles to accept it, but stop before the edit can
+            // finish so the reservation can be observed below.
+            inject(req.data(), req.size(), 80);
+            dut->m_axis_mac_tx_tready = 0;
+            bool reserved = false;
+            for (int c = 0; c < 200000; ++c) {
+                if (tap_amap_out_resv() & 1u) {
+                    reserved = true;
+                    break;
+                }
+                step();
+            }
+            ck("T66: output edit reserves stream 0 after phase-1 recheck",
+               reserved, 1);
+            // Sample immediately after the AXI write is accepted. Waiting for
+            // the B response can outlive a short phase-5 commit and would make
+            // this concurrency assertion vacuous.
+            dut->s_axi_awaddr = A_AAF_CTRL;
+            dut->s_axi_awvalid = 1;
+            dut->s_axi_wdata = 0x00020003;
+            dut->s_axi_wvalid = 1;
+            dut->s_axi_wstrb = 0xF;
+            dut->s_axi_bready = 0;
+            bool write_accepted = false;
+            for (int c = 0; c < 4096; ++c) {
+                dut->eval();
+                const bool accepted = dut->s_axi_awready
+                                   && dut->s_axi_wready;
+                step();
+                if (accepted) {
+                    write_accepted = true;
+                    break;
+                }
+            }
+            dut->s_axi_awvalid = 0;
+            dut->s_axi_wvalid = 0;
+            ck("T66: local bypass start write is accepted during reservation",
+               write_accepted, 1);
+            ck("T66: local bypass start reaches the raw stream request",
+               tap_stream_en_raw() & 1u, 1);
+            ck("T66: reservation remains live during the local start",
+               tap_amap_out_resv() & 1u, 1);
+            ck("T66: local start is masked until mapping write-back ends",
+               tap_stream_en() & 1u, 0);
+            dut->s_axi_bready = 1;
+            for (int c = 0; c < 4096; ++c) {
+                dut->eval();
+                if (dut->s_axi_bvalid) {
+                    step();
+                    break;
+                }
+                step();
+            }
+            dut->s_axi_bready = 0;
+            for (int c = 0; c < 200000 && (tap_amap_out_resv() & 1u); ++c)
+                step();
+            ck("T66: output reservation clears after mapping completion",
+               tap_amap_out_resv() & 1u, 0);
+            ck("T66: deferred local start becomes effective after mapping",
+               tap_stream_en() & 1u, 1);
+            const auto r = await_aecp();
+            ck("T66: reserved 63-record ADD answers SUCCESS",
+               (long)(aecp_status(r) == 0 && r.size() >= 550
+                      && ((r[34] << 8) | r[35]) == seq), 1);
+            axi_write(A_AAF_CTRL, 0x00020002);
+            ck("T66: reservation-race cleanup REMOVE succeeds",
+               dmap_cmd("REMOVE-reservation-race", CMD_REMOVE_AUDIO_MAPPINGS,
+                        1, &rsc, &rco), 0);
+        }
+
         const int scs[4] = {4, 5, 6, 7};
         const int cos[4] = {6, 7, 4, 8};
         long all_ok = 1, all_written = 1;

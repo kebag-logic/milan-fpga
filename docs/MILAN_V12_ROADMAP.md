@@ -443,8 +443,10 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
 5. **P3.2** notification triggers, folded into each command above as it lands.
 6. **P2.2/P2.3** `GET`/`SET_CONTROL` with the IDENTIFY indicator wired.
 7. **P2.4 complete 2026-08-17**: ADD/REMOVE_AUDIO_MAPPINGS with atomic
-   validation, live datapath projection, lock checks, and unsolicited updates.
-   Nonvolatile replay remains tracked by P3.1 and issue #70.
+   validation, live datapath projection, lock checks, unsolicited updates,
+   MAP_CFG versus STREAM_CFG scoreboard exclusion, and root output
+   reservations against local or SRP starts during write-back. Nonvolatile
+   replay remains tracked by P3.1 and issue #70.
 8. **P3.3** departing-controller monitor.
 9. **P3.1** persistence — largest, and the only one that needs a real flash
    backend rather than the blank-flash stub.

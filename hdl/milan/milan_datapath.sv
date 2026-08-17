@@ -1920,11 +1920,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!                     keeps the board safety rail meaningful (engine off
   //!                     => t>0 dark, so an armed-with-engine-off state
   //!                     cannot exist).
+  //! An output mapping transaction reserves every referenced AAF stream
+  //! after its successful phase-1 recheck. Raw 0-to-1 admission changes are
+  //! held until the complete map transaction finishes, so ACMP, SRP and the
+  //! local bypass cannot make a target stream live between validation and a
+  //! later phase-5 write. A stream already live is rejected before reserve.
+  logic [N_STREAMS-1:0] amap_edit_out_resv_r /* verilator public_flat_rd */;
+  wire [N_STREAMS-1:0] aaf_stream_en_raw_w /* verilator public_flat_rd */;
   wire [N_STREAMS-1:0] aaf_stream_en_w /* verilator public_flat_rd */;
-  assign aaf_stream_en_w[0] = aaf_gate;
+  assign aaf_stream_en_raw_w[0] = aaf_gate;
+  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;
   generate
     for (genvar gs = 1; gs < N_STREAMS; gs++) begin : g_aaf_stream_en
-      assign aaf_stream_en_w[gs] =
+      assign aaf_stream_en_raw_w[gs] =
           cfg_aaf_enable &
           (~cfg_maap_enable | maap_addr_valid) &
           (cfg_aaf_bypass |
@@ -3718,6 +3726,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic [N_STREAMS*8*13-1:0] amap_edit_oclaim_word_r;
   logic [N_STREAMS*8*13-1:0] amap_edit_oclaim_expect_r;
   logic [N_STREAMS*8*16-1:0] amap_edit_oclaim_cluster_r;
+  wire [N_STREAMS-1:0] amap_edit_out_claim_stream_w;
+  for (genvar ar = 0; ar < N_STREAMS; ar++) begin : g_amap_edit_resv
+    assign amap_edit_out_claim_stream_w[ar] =
+        |amap_edit_oclaim_v_r[ar*8 +: 8];
+  end
 
   wire [15:0] amap_edit_si_w = pp_amap_edit_record_w[63:48];
   wire [15:0] amap_edit_sc_w = pp_amap_edit_record_w[47:32];
@@ -3962,6 +3975,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       amap_edit_oclaim_word_r <= '0;
       amap_edit_oclaim_expect_r <= '0;
       amap_edit_oclaim_cluster_r <= '0;
+      amap_edit_out_resv_r <= '0;
       amap_in_store_r <= '0;
       amap_out_owner_v_r <= '0;
       amap_out_owner_r <= '0;
@@ -3998,8 +4012,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
             amap_edit_oclaim_word_r <= '0;
             amap_edit_oclaim_expect_r <= '0;
             amap_edit_oclaim_cluster_r <= '0;
+            amap_edit_out_resv_r <= '0;
           end
-          3'd2, 3'd3: amap_edit_txn_active_r <= 1'b0;
+          3'd1: begin
+            if (amap_edit_commit_ok_w
+                && (amap_edit_type_r == DESC_STREAM_PORT_OUT_C))
+              amap_edit_out_resv_r <= amap_edit_out_claim_stream_w;
+            else
+              amap_edit_out_resv_r <= '0;
+          end
+          3'd2, 3'd3: begin
+            amap_edit_txn_active_r <= 1'b0;
+            amap_edit_out_resv_r <= '0;
+          end
           3'd4: begin
             if (amap_edit_context_w && amap_edit_accept_w
                 && (pp_amap_edit_rec_w < amap_edit_count_r[7:0])) begin

@@ -72,7 +72,11 @@ The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 first write, updates the live map RAM, and reflects every successful command,
 including an idempotent ADD, to other registered controllers. Only a changed
 command marks persistence dirty. Mapping persistence remains blocked by B2
-and #70.
+and #70. The processor scoreboard holds MAP_CFG from dispatch through RX-slot
+retirement and excludes ACMP STREAM_CFG. After the phase-1 output recheck, the
+root also reserves every referenced AAF stream until phase 2, so SRP or local
+bypass changes cannot start an output between validation and write-back. The
+processor R19a and root T66 regressions drive both concurrency paths.
 
 This inventory describes command handling, not end-to-end effect. In
 particular, B12 records that START/STOP is unimplemented, so no AECP Stream

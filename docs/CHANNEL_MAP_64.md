@@ -640,6 +640,16 @@ has no deferred resource allocation and never asserts back-pressure, so every
 phase 5 record write and the phase 2 finish complete after that acceptance.
 An integration that cannot make the same guarantee must refuse phase 1.
 
+For an output transaction, the same phase-1 acceptance also latches a stream
+reservation for every claimed output key. The effective AAF enable is the raw
+ACMP, SRP, and local-bypass request masked by that reservation. A new start is
+therefore deferred through phase-5 write-back and becomes effective only after
+phase 2 clears the reservation. A stream that was already effective is refused
+by the phase-1 streaming check and is never stopped by this mechanism. The T66
+datapath regression holds 63 legal records in write-back, raises the local
+bypass during the reservation, and observes raw enable high while effective
+enable remains low until transaction completion.
+
 ### 7.1 Authority model
 
 The authoritative input mapping store covers every cluster key published by
