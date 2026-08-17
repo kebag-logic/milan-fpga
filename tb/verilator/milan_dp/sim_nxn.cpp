@@ -2946,6 +2946,44 @@ int main(int argc, char** argv) {
            armed() - armed_pre, 1);
         const unsigned long armed_bound = armed();
 
+        // ---- Milan 5.3.8.7: a STOPPED Stream Input DISCARDS ------------
+        // "A PAAD-AE having a started Stream Input shall process the
+        // incoming stream data ... A PAAD-AE having a stopped Stream Input
+        // shall DISCARD the Stream AVTPDUs it receives." Both halves are
+        // shalls. This is the END-TO-END grade of issue #78: the command
+        // arrives over the wire as AECP, and the verdict is read off the
+        // stream classifier, not off a register the same command wrote.
+        //
+        // PARSED vs MATCHED is the whole point. A stopped sink must still
+        // SEE the frame (it is still bound, its reservation stands) and must
+        // not CLASSIFY it - which is exactly "discard", and is why the check
+        // is a pair rather than "nothing happened".
+        {
+            std::vector<uint8_t> ti4(4, 0);
+            ti4[1] = 0x05;                       // STREAM_INPUT
+            ti4[2] = 0x00; ti4[3] = 0x00;        // index 0
+            const std::vector<uint8_t> rs =
+                aecp_xact(0x0023, 0x9101, ti4);  // STOP_STREAMING
+            ck("5.3.8.7 STOP_STREAMING answered SUCCESS", aecp_status(rs), 0);
+
+            unsigned long ms = matched(), ps = parsed();
+            inject(mkaaf(sid0, 0x21, 2, 0xC0), 120);
+            ck("5.3.8.7 stopped: the frame still REACHES the parser",
+               parsed() - ps, 1);
+            ck("5.3.8.7 stopped: ...and is NOT matched (discarded)",
+               matched() - ms, 0);
+
+            // ...and START_STREAMING puts it back, so the check above is a
+            // property of the state and not of a sink that simply died
+            const std::vector<uint8_t> rt =
+                aecp_xact(0x0022, 0x9102, ti4);  // START_STREAMING
+            ck("5.3.8.7 START_STREAMING answered SUCCESS", aecp_status(rt), 0);
+            ms = matched(); ps = parsed();
+            inject(mkaaf(sid0, 0x22, 2, 0xC0), 120);
+            ck("5.3.8.7 restarted: PARSED climbs", parsed() - ps, 1);
+            ck("5.3.8.7 restarted: MATCHED climbs again", matched() - ms, 1);
+        }
+
         // a route-flags-only CTRL write at idx 0 - the exact write that used
         // to detach the alias - must now leave it completely alone
         axi_write(A_STRM_SEL, 0x000);                 // dir=0 idx=0

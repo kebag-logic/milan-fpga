@@ -3728,7 +3728,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                      18'd0,
                      gsi_tkfail_w,            // REGISTERING_FAILED
                      2'b0,
-                     1'b0,                    // STREAMING_WAIT (bound = started)
+                     //! Milan Table 5.9 bit 28: "0 if the Stream Input is
+                     //! bound and started, 1 if the Stream Input is bound and
+                     //! stopped, undefined if the Stream Input is not bound."
+                     //! This was a hardcoded 0 justified as "bound = started",
+                     //! which was true only while stopped was unreachable;
+                     //! with §5.4.2.20 served it would report a stopped sink
+                     //! as started. It reads the SAME bit the admission gate
+                     //! above does, so the answer and the behaviour cannot
+                     //! disagree.
+                     gsi_bnd_w && !pp_aecp_strm_started_w[gsi_six_w],
                      gsi_bnd_w,               // SAVED_STATE (recommended)
                      gsi_bnd_w,               // FAST_CONNECT (= bound, T5.9)
                      1'b0};                   // CLASS_B
@@ -3868,6 +3877,23 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! k, sinks 0..N_STREAMS-1 the AAF sinks and the last one the CRF Media
   //! Clock Input when this shape declares it.
   assign acmpl_bound_v_w = pp_cd_acmp_bound_w;
+
+  //! Milan v1.2 §5.3.8.7: "A PAAD-AE having a started Stream Input shall
+  //! process the incoming stream data ... A PAAD-AE having a stopped Stream
+  //! Input shall DISCARD the Stream AVTPDUs it receives." Both halves are
+  //! shalls, and until START/STOP_STREAMING landed (issue #78) neither was
+  //! implemented — `pp_aecp_strm_started_w` was connected and read by nothing.
+  //!
+  //! The admission view is SEPARATE from `acmpl_bound_v_w` rather than folded
+  //! into it: bind level drives the CRF sink and the entry-0 alias below, and
+  //! stopping an AAF sink must not disturb either. Nor does it touch SRP —
+  //! a stopped Stream Input is still BOUND, so its reservation stands; the
+  //! clause discards the AVTPDUs, it does not withdraw the registration.
+  //! Routing it through the classification table means a stopped stream's
+  //! frames become FOREIGN at the parser, which is the same path an unbind
+  //! already takes, so the per-stream counters do not advance either.
+  wire [ACMP_SINKS_C-1:0] acmpl_admit_v_w = acmpl_bound_v_w
+                                            & pp_aecp_strm_started_w;
   assign acmpl_sid_v_w   = pp_cd_acmp_bound_sid_w;
   //! the scalar sink-0 shadows every legacy consumer here still reads
   assign acmpl_bound = acmpl_bound_v_w[0];
@@ -4182,12 +4208,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   KL_stream_table #(.N_LISTENERS_P(N_STREAMS)) stream_table (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .bound0_i (acmpl_bound), .sid0_i (acmpl_sid),
+    //! entry 0 is the ACMP ALIAS and it has its own port, so it needs the
+    //! started gate too - gating only the vector below left the one entry
+    //! the bench listener actually comes up on ungated, and a stopped sink 0
+    //! went on matching frames. `acmpl_bound` itself stays UNGATED where it
+    //! reports state (the CSR bound bit, `acmpl_active`): Milan 5.3.8.7
+    //! stops the DATA, it does not unbind the sink.
+    .bound0_i (acmpl_admit_v_w[0]), .sid0_i (acmpl_sid),
     //! task #32: every entry rides its own sink's bind level, so an
     //! UNBIND evicts the classification entry and the departed stream's
     //! frames become foreign at the parser (the AAF slice of the ACMP
     //! view - the CRF sink classifies in its own path)
-    .bound_v_i (acmpl_bound_v_w[N_STREAMS-1:0]),
+    .bound_v_i (acmpl_admit_v_w[N_STREAMS-1:0]),
     .sid_v_i   (acmpl_sid_v_w[64*N_STREAMS-1:0]),
     .wr_en_i (wing_tbl_we_r), .wr_idx_i (wing_idx_r),
     .wr_sid_i (wing_sid_r), .wr_valid_i (wing_en_r),
