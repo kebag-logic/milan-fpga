@@ -48,10 +48,12 @@ flowchart LR
     PR --> RV[In review<br/>multiple agents, CLEARED context]
     RV -->|findings| W
     W -->|fixed| RV
-    RV -->|2 positive:<br/>1 own + 1 EXTERNAL| M[merge to main-push]
-    M --> G[re-run the FULL bar<br/>on the merge result]
+    RV -->|2 positive:<br/>1 own + 1 EXTERNAL| G[validate candidate merge result<br/>with the FULL local bar]
     G -->|regression| W
-    G -->|clean| D[Done]
+    G -->|clean| M[merge to main-push]
+    M --> C[branch stops moving<br/>run containment]
+    C -->|finding| F[follow-up issue + PR]
+    C -->|clean| D[close issue manually<br/>Done]
 ```
 
 1. **Move the issue to *In progress*** on the project board before the first
@@ -60,8 +62,9 @@ flowchart LR
    built twice on 2026-08-16 because the issue was filed after the work
    started.
 2. **Cut the branch from the issue**: `gh issue develop <N> --base main-push`.
-   This links branch to issue on GitHub, so the PR closes the issue and the
-   board moves itself. A hand-named branch does neither.
+   This links the branch and issue on GitHub. Because `main-push` is not the
+   repository's default branch, merging its PR does not auto-close the issue.
+   Close the issue manually only after the post-merge containment check passes.
 3. **Do the work on that branch**, with the §3 verification bar met *on the
    branch* — a PR is not the place to discover the sweep is red.
 4. **Open the PR** against `main-push`, with the template below and the
@@ -87,13 +90,35 @@ flowchart LR
    validated, with the gate results. The findings, the mutation tables and the
    clause arguments belong in the review itself and in the commit messages —
    a PR thread that reprints them is a PR thread nobody reads to the end.
-6. **Merge back into `main-push`** only once the findings are answered. The
-   issue closes itself; move the card to *Done* if it does not.
-7. **Re-run the whole verification bar ON THE MERGE RESULT, every time.** A
-   merge is a change nobody wrote and nobody reviewed, and *"Merge made by the
-   'ort' strategy"* is not evidence of anything. Gate the merged tree exactly
-   as §3 gates a hand-written one — full Verilator sweep, both repos' suites,
-   behave, the lint ratchet, yosys — before the merge button, not after.
+6. **Merge back into `main-push`** only once the findings are answered, and
+   **not while a review round is in flight.** A round that has not reported is
+   a round outstanding; merging past it is merging unreviewed code with a
+   review thread attached.
+
+   Twice this went wrong, and the two cases are not the same shape - which is
+   the point. One merged with a round genuinely mid-flight; the other merged
+   having met the bar, while review that was still happening went on to find
+   three more blockers. The rule that covers both is that the merge waits for
+   review to be **finished**, not for a quota of positives to be reached:
+
+   | PR | merged | state at that moment | cost |
+   |---|---|---|---|
+   | #77 | 2026-08-16 18:10 | round 3 answered, a positive validation posted 32 min earlier - the stated bar was **met** | review did not stop there, and rounds 4 and 5 returned NEGATIVE afterwards (6 was positive): an ungraded refusal arm where mutating the code was silent, and a test that could not fail. Re-landed as #85 |
+   | #86 | 2026-08-17 07:54 | a round running, which then found a hole in its own fix | three commits stranded on the branch; re-landed as #89, tracked by #87 |
+
+   Both were recoverable and neither was noticed by anything except a reviewer
+   checking by hand. The failure is silent by construction: `gh pr view` says
+   `MERGED`, CI is green, and the branch still has commits ahead of the merge.
+   Nothing in the lane compares those two facts unless step 7 does.
+
+7. **Validate the candidate merge result, then prove containment.** A merge is
+   a change nobody wrote and nobody reviewed, and *"Merge made by the 'ort'
+   strategy"* is not evidence of anything. Before pressing merge, construct a
+   candidate from the latest `origin/main-push` and the reviewed PR head, then
+   gate that tree exactly as §3 gates a hand-written one: full Verilator sweep,
+   both repos' suites, behave, the lint ratchet, and Yosys. If the reviewed head
+   directly descends from the unchanged base, its tree is the candidate merge
+   tree; record both object IDs with the local gate results.
 
    This is not defensive box-ticking. On 2026-08-16 two lanes independently
    added the *same* six AECP settings-face pins to `KL_pp_shadow.sv` — one
@@ -104,7 +129,52 @@ flowchart LR
    split out, and restored an inventory row for an opcode the engine no longer
    decodes.
 
-   Two merge-specific traps worth naming, both paid for:
+   **After merge, check that it actually took the branch:**
+
+   ```bash
+   python3 scripts/check_merge_containment.py origin/<branch>
+   python3 scripts/check_merge_containment.py --merged-prs   # the last 20 PRs
+   ```
+
+   It exits non-zero and names the count when commits are left behind. Replayed
+   against the two merge points in step 6 it reports **3** stranded commits for
+   #77 and **4** for #86 - the latter is 3 as of that merge plus the one pushed
+   during the #89 re-land. Nobody was told either number at the time.
+
+   **Run it when the branch stops moving, not at the merge button.** Both
+   incidents were *contained* at the instant they merged; the commits that
+   ended up stranded were pushed afterwards as review activity continued. For
+   #86 a round was in flight. For #77 the stated bar had been met, but review
+   did not stop. A check run at merge time cannot see later pushes. The moment
+   that catches them is the one where the card moves to *Done*. Once
+   containment is clean, close the issue manually and move its project item to
+   *Done*.
+
+   `--no-fetch` disables Git ref refresh only. A `--merged-prs` sweep still
+   queries GitHub for the merged PR list and branch timeline evidence.
+
+   Its `--selftest` runs inside `scripts/run_all_suites.sh` next to
+   `suite_tally.py`'s, so the tool cannot rot into a green that means nothing
+   between merges. The check *itself* is still a thing a person runs: nothing
+   here can schedule a post-merge action, and CI does not run on `main-push`
+   at all (both workflows are `on: push: branches: [main]`). That gap is worth
+   closing separately. A `push: [main-push]` trigger would run the bar and the
+   containment self-test on the merge result. It would still need an explicit
+   `check_merge_containment.py --merged-prs` step to render a live containment
+   verdict.
+
+   **Do not hand-roll it by reading `git log` output.** The script uses
+   `git rev-list --count` and `git merge-base --is-ancestor` because one prints
+   a single integer and the other answers only through its exit status: neither
+   needs its prose parsed, so neither can be half-read or mis-scraped. #89's
+   description claimed a fast-forward that was not one, off a `git log A..B`
+   that came back empty in the author's terminal. A cause was proposed at the
+   time and a later attempt could not reproduce it in twelve variations, so it
+   stands unexplained - which is itself the argument. A check whose failure
+   mode nobody can characterise is not one to build on, whatever the cause
+   turns out to be.
+
+   Three merge-specific traps worth naming, all paid for:
 
    - **Push the submodule before the superproject.** A superproject pin to a
      processor commit that only exists on a feature branch dangles the moment
@@ -115,6 +185,20 @@ flowchart LR
      constant from one side and the microprogram's entry point from the other
      does not fail to elaborate — the µCPU executes ROM fill and answers a
      well-formed response carrying garbage.
+   - **The two long GitHub jobs are optional; their local gates are not.**
+     `verilator-suites` and `yosys-portability` are informational GitHub checks.
+     A PR may merge without waiting for them, including while GitHub reports
+     `MERGEABLE/UNSTABLE`. Before the PR is marked validated, run both equivalent
+     gates locally and record their results on the PR:
+
+     ```bash
+     suite_logs=$(mktemp -d)
+     scripts/run_all_suites.sh "$suite_logs"
+     syn/yosys/run.sh
+     ```
+
+     The optional status applies only to the remote jobs. The local Verilator
+     sweep and Yosys portability sweep are mandatory merge evidence.
 
 Two board rules that go with it:
 
