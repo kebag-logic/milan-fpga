@@ -147,8 +147,10 @@ flowchart LR
    between merges. The check *itself* is still a thing a person runs: nothing
    here can schedule a post-merge action, and CI does not run on `main-push`
    at all (both workflows are `on: push: branches: [main]`). That gap is worth
-   closing separately. A `push: [main-push]` trigger would run the bar on the
-   merge result and this check with it.
+   closing separately. A `push: [main-push]` trigger would run the bar and the
+   containment self-test on the merge result. It would still need an explicit
+   `check_merge_containment.py --merged-prs` step to render a live containment
+   verdict.
 
    **Do not hand-roll it by reading `git log` output.** The script uses
    `git rev-list --count` and `git merge-base --is-ancestor` because one prints

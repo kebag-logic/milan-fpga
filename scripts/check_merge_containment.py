@@ -102,9 +102,15 @@ def active_graft_error():
     return None
 
 
+def is_full_oid(ref):
+    """True when ``ref`` has a complete SHA-1 or SHA-256 spelling."""
+    return (len(ref) in (40, 64)
+            and all(c in "0123456789abcdefABCDEF" for c in ref))
+
+
 def exact_ref_syntax(ref):
     """True for a ref name or full object ID, never a revision expression."""
-    if len(ref) in (40, 64) and all(c in "0123456789abcdefABCDEF" for c in ref):
+    if is_full_oid(ref):
         rc, oid = _git("rev-parse", "--verify", "--quiet", ref + "^{commit}")
         return rc == 0 and oid.lower() == ref.lower()
     if ref.startswith("refs/"):
@@ -209,6 +215,8 @@ def refreshed_origin_ref(ref):
     prevent.  Full non-branch refs remain exact, and callers using
     ``--no-fetch`` do not call this helper.
     """
+    if is_full_oid(ref):
+        return ref
     if ref.startswith("refs/remotes/origin/"):
         return ref
     if ref.startswith("origin/"):
@@ -234,6 +242,8 @@ def fetched_branch_refs(ref):
     modes.  When both exist and differ, containment must be proven for both.
     The source labels are used only to make the two answers distinguishable.
     """
+    if is_full_oid(ref):
+        return [(ref, None)]
     if ref.startswith("refs/remotes/origin/"):
         name = ref[len("refs/remotes/origin/"):]
     elif ref.startswith("origin/"):
@@ -421,8 +431,52 @@ def contained(branch, base):
             if differing else None)
 
 
+def post_merge_ref_event_error(number, merged_at):
+    """Report a durable GitHub event that breaks branch-tip continuity."""
+    import json
+    if not isinstance(merged_at, str) or not merged_at:
+        return "GitHub returned no merge timestamp for the pull request"
+    try:
+        p = subprocess.run(
+            ["gh", "api", "--paginate", "--slurp",
+             f"repos/{{owner}}/{{repo}}/issues/{number}/timeline?per_page=100"],
+            capture_output=True, text=True)
+    except FileNotFoundError:
+        return "gh is not installed, so branch history events are unknown"
+    if p.returncode != 0:
+        return ("gh could not read pull-request timeline events: "
+                + (p.stderr or "").strip()[:200])
+    try:
+        pages = json.loads(p.stdout)
+        if not isinstance(pages, list):
+            raise ValueError("timeline response is not a page list")
+        events = []
+        for page in pages:
+            if not isinstance(page, list):
+                raise ValueError("timeline page is not an event list")
+            events.extend(page)
+    except (ValueError, TypeError) as exc:
+        return f"could not parse pull-request timeline events: {exc}"
+
+    continuity_events = {
+        "head_ref_deleted", "head_ref_restored", "head_ref_force_pushed"
+    }
+    for event in events:
+        if not isinstance(event, dict) or event.get("event") not in continuity_events:
+            continue
+        created_at = event.get("created_at")
+        if not isinstance(created_at, str) or not created_at:
+            return (f"GitHub returned an undated {event.get('event')} event "
+                    f"for PR #{number}")
+        if created_at >= merged_at:
+            return (f"GitHub records {event['event']} at {created_at}, on or "
+                    f"after the PR merged; the current same-name ref cannot "
+                    f"prove branch continuity")
+    return None
+
+
 def merged_pr_heads(limit, base):
-    """([(number, branch, head_oid, cross_repository)], error).
+    """([(number, branch, head_oid, cross_repository, ref_error)], error).
 
     Scoped to PRs that actually targeted ``base``.  Sweeping every merged PR
     asks about branches that were never meant to be in this integration
@@ -451,7 +505,8 @@ def merged_pr_heads(limit, base):
         p = subprocess.run(
             ["gh", "pr", "list", "--state", "merged", "--base", base_name,
              "--limit", str(limit),
-             "--json", "number,headRefName,headRefOid,isCrossRepository",
+             "--json",
+             "number,headRefName,headRefOid,isCrossRepository,mergedAt",
              "--search", "sort:updated-desc"],
             capture_output=True, text=True)
     except FileNotFoundError:
@@ -461,9 +516,13 @@ def merged_pr_heads(limit, base):
         return (None, "gh could not list merged PRs (authenticated?): "
                       + (p.stderr or "").strip()[:200])
     try:
-        return ([(d["number"], d["headRefName"], d["headRefOid"],
-                  d["isCrossRepository"])
-                 for d in json.loads(p.stdout)], None)
+        rows = []
+        for d in json.loads(p.stdout):
+            ref_error = (None if d["isCrossRepository"] else
+                         post_merge_ref_event_error(d["number"], d["mergedAt"]))
+            rows.append((d["number"], d["headRefName"], d["headRefOid"],
+                         d["isCrossRepository"], ref_error))
+        return (rows, None)
     except (ValueError, KeyError) as exc:
         return (None, f"could not parse gh output: {exc}")
 
@@ -649,11 +708,32 @@ def selftest():
                 case("fresh-local-ref-word", "STRANDED" in out, True,
                      "...and reports the work on the fetched tip")
 
+                # A full object ID is immutable evidence, not a branch name.
+                # Git permits a branch whose name is the same 40 hex digits;
+                # neither the branch nor base operand may be substituted with
+                # that ref after fetch.
+                rc, stranded_oid = _git(
+                    "rev-parse", "refs/remotes/origin/work")
+                _git("--git-dir", remote, "update-ref",
+                     f"refs/heads/{stranded_oid}", base_oid)
+                _git("--git-dir", remote, "update-ref",
+                     f"refs/heads/{base_oid}", stranded_oid)
+                rc2, out = run(["--base", "base", stranded_oid])
+                case("full-oid-branch-rc", (rc, rc2), (0, RC_FINDING),
+                     "a hex-named origin branch cannot replace an object ID")
+                case("full-oid-branch-word", "STRANDED" in out, True,
+                     "...and the immutable stranded object is measured")
+                rc, out = run(["--base", base_oid, "work"])
+                case("full-oid-base-rc", rc, RC_FINDING,
+                     "a hex-named origin branch cannot replace the base OID")
+                case("full-oid-base-word", "STRANDED" in out, True,
+                     "...and the immutable base object is measured")
+
                 # A merged PR's head OID is frozen at merge time.  The live
                 # branch tip is the only ref that can expose later pushes.
                 saved_merged_pr_heads = globals()["merged_pr_heads"]
                 globals()["merged_pr_heads"] = lambda _limit, _base: (
-                    [(86, "work", base_oid, False)], None)
+                    [(86, "work", base_oid, False, None)], None)
                 try:
                     rc, out = run(["--no-fetch", "--base", "base",
                                    "--merged-prs", "1"])
@@ -664,8 +744,45 @@ def selftest():
                 finally:
                     globals()["merged_pr_heads"] = saved_merged_pr_heads
 
+                _git("update-ref", "refs/remotes/origin/recreated-exact",
+                     base_oid)
+                continuity = continuous_merged_pr_tip(
+                    base_oid, "refs/remotes/origin/recreated-exact")
                 globals()["merged_pr_heads"] = lambda _limit, _base: (
-                    [(90, "work", base_oid, True)], None)
+                    [(92, "recreated-exact", base_oid, False,
+                      "GitHub records head_ref_deleted after merge")], None)
+                try:
+                    rc, out = run(["--no-fetch", "--base", "base",
+                                   "--merged-prs", "1"])
+                    case("merged-recreated-lineage", continuity, None,
+                         "lineage alone cannot see exact-head recreation")
+                    case("merged-recreated-event", rc, RC_FINDING,
+                         "a durable deletion event prevents false success")
+                    case("merged-recreated-word", "UNKNOWN" in out, True,
+                         "...and the lost ref identity is UNKNOWN")
+                finally:
+                    globals()["merged_pr_heads"] = saved_merged_pr_heads
+
+                saved_subprocess_run = subprocess.run
+
+                class TimelineResult:
+                    returncode = 0
+                    stderr = ""
+                    stdout = ('[[{"event":"head_ref_deleted",'
+                              '"created_at":"2026-08-17T12:00:00Z"}]]')
+
+                subprocess.run = lambda *a, **k: TimelineResult()
+                try:
+                    timeline_error = post_merge_ref_event_error(
+                        92, "2026-08-17T11:00:00Z")
+                    case("timeline-delete-parser",
+                         "head_ref_deleted" in (timeline_error or ""), True,
+                         "the GitHub timeline parser preserves deletion proof")
+                finally:
+                    subprocess.run = saved_subprocess_run
+
+                globals()["merged_pr_heads"] = lambda _limit, _base: (
+                    [(90, "work", base_oid, True, None)], None)
                 try:
                     rc, out = run(["--no-fetch", "--base", "base",
                                    "--merged-prs", "1"])
@@ -679,7 +796,7 @@ def selftest():
                 rc, work_tip = _git("rev-parse", "refs/remotes/origin/work")
                 _git("update-ref", "refs/remotes/origin/reused", base_oid)
                 globals()["merged_pr_heads"] = lambda _limit, _base: (
-                    [(91, "reused", work_tip, False)], None)
+                    [(91, "reused", work_tip, False, None)], None)
                 try:
                     rc2, out = run(["--no-fetch", "--base", "base",
                                     "--merged-prs", "1"])
@@ -1292,12 +1409,15 @@ def main(argv):
         #! A fork, force-push, deletion or branch-name reuse becomes UNKNOWN
         #! instead of certifying an unrelated origin ref.
         targets = []
-        for number, branch, head_oid, cross_repository in prs:
+        for (number, branch, head_oid, cross_repository,
+             ref_event_error) in prs:
             label = f"#{number} {branch}"
             live_ref = f"refs/remotes/origin/{branch}"
             if cross_repository:
                 pre_error = ("the merged head belongs to another repository; "
                              "origin cannot refresh or identify its live tip")
+            elif ref_event_error:
+                pre_error = ref_event_error
             else:
                 pre_error = continuous_merged_pr_tip(head_oid, live_ref)
             targets.append((label, live_ref, pre_error))
