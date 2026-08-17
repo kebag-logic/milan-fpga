@@ -4563,8 +4563,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! edge on the next start, and Table 5.6 makes that edge the counter-reset
   //! event - so a stop/start pair wiped every counter on a sink that never
   //! unbound.
-  assign avtprx_accept_p = avtprx_accept_p_w
-                           && !acmpl_stopped_v_w[avtprx_accept_idx_w];
+  //! selected without a variable bit-select: `avtprx_accept_idx_w` is four
+  //! bits and this vector is ACMP_SINKS_C wide, so indexing it directly is a
+  //! width truncation Verilator is right to flag.
+  logic avtprx_stopped_w;
+  always_comb begin : accept_stop_sel
+    avtprx_stopped_w = 1'b0;
+    for (int unsigned k = 0; k < ACMP_SINKS_C; k++) begin
+      if (32'(avtprx_accept_idx_w) == k) avtprx_stopped_w = acmpl_stopped_v_w[k];
+    end
+  end : accept_stop_sel
+
+  assign avtprx_accept_p = avtprx_accept_p_w && !avtprx_stopped_w;
 
   KL_avtp_rx_monitor_ctx #(
     .N_LISTENERS_P (N_STREAMS),
