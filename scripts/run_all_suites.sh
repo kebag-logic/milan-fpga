@@ -150,7 +150,8 @@ fi
 # run it. The CHECK itself is a post-merge act nobody can schedule from here,
 # but its self-test can be gated exactly like the tally's, so the tool cannot
 # rot into a green that means nothing between merges.
-if ! selftest_out=$(python3 "$ROOT/scripts/check_merge_containment.py" --selftest 2>&1); then
+if ! selftest_out=$(cd "$ROOT" && \
+        python3 "$ROOT/scripts/check_merge_containment.py" --selftest 2>&1); then
   echo "$selftest_out" >&2
   echo "ABORTING: scripts/check_merge_containment.py fails its own self-test," >&2
   echo "so its 'contained' verdicts cannot be trusted either." >&2

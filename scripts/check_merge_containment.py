@@ -74,7 +74,12 @@ RAW_DIFF_FLAGS = ("--no-ext-diff", "--no-textconv",
 
 def _git(*args):
     """Run git, returning (rc, stdout).  Never raises on a non-zero rc."""
-    p = subprocess.run(("git",) + args, capture_output=True, text=True)
+    #! Replacement objects rewrite the commit graph for every plumbing command.
+    #! A local refs/replace entry can otherwise make a stranded branch appear
+    #! to be an ancestor of the base.  Containment must measure stored commits,
+    #! not a caller-specific alternate history.
+    p = subprocess.run(("git", "--no-replace-objects") + args,
+                       capture_output=True, text=True)
     return p.returncode, p.stdout.rstrip("\n")
 
 
@@ -84,8 +89,9 @@ def _verbatim_patch_id(commit):
                      "--full-index", "--no-renames", commit)
     if rc != 0:
         return (None, f"git show could not read {commit}")
-    p = subprocess.run(("git", "patch-id", "--verbatim"), input=patch,
-                       capture_output=True, text=True)
+    p = subprocess.run(("git", "--no-replace-objects", "patch-id",
+                        "--verbatim"), input=patch, capture_output=True,
+                       text=True)
     fields = p.stdout.strip().split()
     if p.returncode != 0 or len(fields) != 2:
         return (None, f"git patch-id could not measure {commit}")
@@ -230,6 +236,19 @@ def fetched_branch_refs(ref):
     return [(ref, None)]
 
 
+def non_origin_remote_ref(ref):
+    """Name an unrefreshable remote-tracking ref, or return None."""
+    if ref.startswith("refs/remotes/origin/") or ref.startswith("origin/"):
+        return None
+    if ref.startswith("refs/remotes/"):
+        return ref
+    rc, full = _git("rev-parse", "--symbolic-full-name", "--verify", ref)
+    if (rc == 0 and full.startswith("refs/remotes/")
+            and not full.startswith("refs/remotes/origin/")):
+        return full
+    return None
+
+
 def contained(branch, base):
     """(is_contained, commits_ahead, note_or_error).
 
@@ -292,8 +311,11 @@ def contained(branch, base):
         #! unusual but valid path names exact.
         rc, names = _git("diff", *RAW_DIFF_FLAGS, "--name-only",
                          "--no-renames", "-z", mb, branch)
+        if rc != 0:
+            return (None, None,
+                    f"git diff could not enumerate paths changed by {branch}")
         paths = [n for n in names.split("\0") if n]
-        if rc == 0 and paths:
+        if paths:
             #! Names came from git, not from a pathspec language.  A real file
             #! beginning with `:(exclude)` must not turn itself into an exclude
             #! rule and make a missing change compare equal.
@@ -304,6 +326,9 @@ def contained(branch, base):
                         f"every path this branch touched is identical in "
                         f"{base} ({ahead} commit(s) not ancestors -- squash "
                         f"or rebase merge)")
+            if rc != 1:
+                return (None, None,
+                        f"git diff could not compare {branch} with {base}")
 
     #! Rebase keeps one commit per change, so patch IDs still match.  Plain
     #! `git cherry` is not proof: its patch IDs ignore whitespace, which can
@@ -339,6 +364,10 @@ def contained(branch, base):
     if mb_rc == 0 and mb:
         rc2, names = _git("diff", *RAW_DIFF_FLAGS, "--name-only",
                           "--no-renames", "-z", base, branch)
+        if rc2 != 0:
+            return (None, None,
+                    f"git diff could not enumerate paths differing between "
+                    f"{branch} and {base}")
         differing = [n for n in names.split("\0") if n][:6]
     return (False, ahead, ("paths differing: " + ", ".join(differing))
             if differing else None)
@@ -514,6 +543,11 @@ def selftest():
             case("e2e-duplicate-base", rc, RC_CANNOT_RUN,
                  "a repeated base option is refused")
 
+            rc, out = run(["--no-fetch", "--no-fetch", "--base", "base",
+                           "work"])
+            case("e2e-duplicate-no-fetch", rc, RC_CANNOT_RUN,
+                 "a repeated no-fetch option is refused")
+
             rc, out = run(["--no-fetch", "--merged-prs", "1", "work"])
             case("e2e-sweep-operand", rc, RC_CANNOT_RUN,
                  "a merged sweep cannot silently ignore a branch operand")
@@ -581,6 +615,23 @@ def selftest():
                      "local-ahead (local)" in out and "STRANDED" in out,
                      True, "...and the local tip is named in the finding")
 
+                # Normal mode refreshes origin only.  Accepting another
+                # remote-tracking namespace would give a stale local cache the
+                # authority of a fetch.  Reject both full and short spellings.
+                _git("update-ref", "refs/remotes/upstream/work", "base")
+                rc, out = run(["--base", "base",
+                               "refs/remotes/upstream/work"])
+                case("other-remote-full-rc", rc, RC_CANNOT_RUN,
+                     "an unrefreshed full remote ref is refused")
+                rc, out = run(["--base", "base", "upstream/work"])
+                case("other-remote-short-rc", rc, RC_CANNOT_RUN,
+                     "...and so is its short spelling")
+                _git("update-ref", "refs/remotes/upstream/base", "base")
+                rc, out = run(["--base", "refs/remotes/upstream/base",
+                               "work"])
+                case("other-remote-base-rc", rc, RC_CANNOT_RUN,
+                     "an unrefreshed base ref is refused too")
+
                 # After fetch --prune removes a deleted origin branch, a stale
                 # local tip must not stand in for work that may have existed on
                 # the remote.  Reproduce the incident shape in a separate repo:
@@ -647,6 +698,43 @@ def selftest():
                          "normal mode deepens before measuring containment")
                     os.chdir(td)
 
+            # A short name shared by a branch and tag is not a stable input.
+            # Git's normal precedence chooses the tag, which can hide a
+            # stranded branch.  The checker must refuse the ambiguous name.
+            _git("checkout", "-qb", "collision", "base")
+            open("collision-work", "w").write("stranded")
+            _git("add", "collision-work"); _git("commit", "-qm", "collision")
+            _git("tag", "collision", "base")
+            rc, out = run(["--no-fetch", "--base", "base", "collision"])
+            case("ambiguous-ref-rc", rc, RC_FINDING,
+                 "a tag and branch sharing one name cannot false-pass")
+            case("ambiguous-ref-word", "UNKNOWN" in out, True,
+                 "...and the ambiguity is reported as UNKNOWN")
+
+            # Replacement refs rewrite ancestry for ordinary Git plumbing.
+            # Make the base appear to descend from a stranded feature, then
+            # prove the checker ignores that caller-local alternate history.
+            _git("checkout", "-qb", "replace-feature", "base")
+            open("replace-work", "w").write("stranded")
+            _git("add", "replace-work"); _git("commit", "-qm", "replace work")
+            rc, replace_feature = _git("rev-parse", "HEAD")
+            _git("checkout", "-qb", "replace-base", "base")
+            open("replace-unrelated", "w").write("base")
+            _git("add", "replace-unrelated")
+            _git("commit", "-qm", "replace base")
+            rc2, replace_base = _git("rev-parse", "HEAD")
+            replace_rc, _ = _git("replace", "--graft", replace_base,
+                                  replace_feature)
+            rc, out = run(["--no-fetch", "--base", "replace-base",
+                           "replace-feature"])
+            case("replacement-ref-fixture", (rc2, replace_rc), (0, 0),
+                 "the fixture installs a replacement ancestry edge")
+            case("replacement-ref-rc", rc, RC_FINDING,
+                 "replacement ancestry cannot create containment")
+            case("replacement-ref-path", "replace-work" in out, True,
+                 "...and the raw stranded path is reported")
+            _git("replace", "-d", replace_base)
+
             # A multi-commit squash remains contained after unrelated work
             # advances the base, because only branch-touched paths matter.
             _git("checkout", "-qb", "squash-feature", "base")
@@ -666,6 +754,36 @@ def selftest():
             case("squash-path-equivalence",
                  "every path this branch touched" in out, True,
                  "...through the path-scoped content check")
+
+            # A failed proof-producing path enumeration is UNKNOWN, not a
+            # STRANDED verdict assembled from incomplete evidence.
+            saved_git = globals()["_git"]
+            globals()["_git"] = lambda *args: (
+                (128, "") if args and args[0] == "diff"
+                and "--name-only" in args else saved_git(*args))
+            try:
+                rc, out = run(["--no-fetch", "--base", "squash-base",
+                               "squash-feature"])
+                case("path-enumeration-error-rc", rc, RC_FINDING,
+                     "a failed path measurement exits non-zero")
+                case("path-enumeration-error-word", "UNKNOWN" in out, True,
+                     "...and is UNKNOWN rather than STRANDED")
+            finally:
+                globals()["_git"] = saved_git
+
+            saved_git = globals()["_git"]
+            globals()["_git"] = lambda *args: (
+                (128, "") if args and args[0] == "--literal-pathspecs"
+                and "--quiet" in args else saved_git(*args))
+            try:
+                rc, out = run(["--no-fetch", "--base", "squash-base",
+                               "squash-feature"])
+                case("path-comparison-error-rc", rc, RC_FINDING,
+                     "a failed path comparison exits non-zero")
+                case("path-comparison-error-word", "UNKNOWN" in out, True,
+                     "...and is UNKNOWN rather than STRANDED")
+            finally:
+                globals()["_git"] = saved_git
 
             # A copied destination is not equivalent to a rename because the
             # source path still exists.  Rename folding must not hide it.
@@ -927,7 +1045,7 @@ def main(argv):
             sys.stderr.write(f"unknown option: {a}\n{USAGE}\n")
             return RC_CANNOT_RUN
 
-    for flag in ("--selftest", "--base", "--merged-prs"):
+    for flag in ("--selftest", "--base", "--merged-prs", "--no-fetch"):
         if args.count(flag) > 1:
             sys.stderr.write(f"{flag} may be specified only once\n{USAGE}\n")
             return RC_CANNOT_RUN
@@ -963,6 +1081,17 @@ def main(argv):
             "incomplete\n")
         return RC_CANNOT_RUN
     if do_fetch:
+        refs_to_refresh = [base]
+        if "--merged-prs" not in args:
+            refs_to_refresh.extend(a for a in args if not a.startswith("-"))
+        for ref in refs_to_refresh:
+            stale_remote = non_origin_remote_ref(ref)
+            if stale_remote:
+                sys.stderr.write(
+                    f"cannot refresh {stale_remote}: normal mode fetches "
+                    f"origin only. Use an origin ref, or use --no-fetch only "
+                    f"when that other remote-tracking ref is known current.\n")
+                return RC_CANNOT_RUN
         #! Answering from a stale remote-tracking ref is how this tool once
         #! reported `contained` for a branch that had work stranded on it.
         fetch_args = ["fetch", "--prune", "--quiet"]
