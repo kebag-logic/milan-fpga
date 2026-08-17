@@ -233,7 +233,19 @@ def campaign_accounted_for(text):
     tally shapes this file reads perfectly well, and accepted ``0 pass, 0 fail``.
     """
     checks, failures, matched, _unparsed, skipped = scan(text)
-    if skipped:
+    #! `and not matched`, NOT `if skipped:`. A marker excuses a campaign only
+    #! when nothing else tallied. Otherwise a log carrying a marker anywhere
+    #! would pass regardless of what else it printed -- the same "a suite
+    #! declares its own way out" that is_nocount() takes `skipped` purely in
+    #! order to refuse.
+    #!
+    #! It does NOT catch a marker beside a REWORDED tally: that line matches no
+    #! shape, so `matched` is empty and the log is indistinguishable from a
+    #! plain skip. Nothing here can see it. Unreachable today because
+    #! require_tsn_gen() prints the marker and exits immediately, so a campaign
+    #! cannot both skip and report -- and pinned by a self-test case so that
+    #! stays a decision rather than a surprise.
+    if skipped and not matched:
         return ("declared a skip: " + skipped[0], True)
     if not matched:
         return ("printed no tally in any shape scripts/suite_tally.py reads",
@@ -352,6 +364,8 @@ def selftest():
     # above still passed while the real gate went from rc=1 to rc=0 on a
     # lone-marker log. So these run the whole tool over a temporary log dir and
     # assert the EXIT CODE, which is what CI actually consumes.
+    import contextlib
+    import io
     import tempfile
     for name, logs, want_rc, want_out, why in (
         ("e2e-lone-marker", {"a": "SUITE-SKIP: campaign (dep absent)\n"}, 1,
@@ -381,6 +395,13 @@ def selftest():
         ("e2e-nocount-says-which-cause-silence",
          {"a": "building...\n"}, 1, "printed no tally line at all",
          "a silent suite is told it printed nothing"),
+        #! the FAILURES half of the headline. Every other case expects
+        #! "failures: 0", so hard-coding that half survived them all -- and the
+        #! docstring claims both halves are protected.
+        ("e2e-failures-reach-the-headline",
+         {"a": "checks: 100   failures: 3\n"}, 0,
+         "checks: 100   in-suite failures: 3",
+         "the failure count is carried, not just the check count"),
         ("e2e-nocount-says-which-cause-zero",
          {"a": "== campaign: 0 pass, 0 fail ==\n"}, 1,
          "measured 0 checks and 0 failures",
@@ -440,6 +461,25 @@ def selftest():
          "== AAF campaign (tsn-gen driven): 0 pass, 0 fail, 0 known gaps ==\n",
          False, "neither is one that ran and measured nothing"),
         ("guard-silence", "building...\n", False, "nor silence"),
+        #! a marker excuses a campaign only when it is the WHOLE story. A
+        #! review found a bare `if skipped:` here, so a log carrying a marker
+        #! ANYWHERE passed regardless of what else it printed.
+        #!
+        #! THE LIMIT, pinned rather than hidden: a marker beside a REWORDED
+        #! tally still passes, because a reworded line is indistinguishable
+        #! from ordinary log chatter -- there is nothing for the parser to see.
+        #! Unreachable today (require_tsn_gen prints the marker and exits, so a
+        #! campaign cannot both skip and report), and the case is here so that
+        #! stops being an accident.
+        ("guard-skip-beside-a-reword-is-the-known-limit",
+         "SUITE-SKIP: half of it was skipped\n== c: 164 ok / 0 bad ==\n",
+         True, "a reworded line is invisible to the parser -- documented limit"),
+        ("guard-skip-does-not-launder-a-zero",
+         "SUITE-SKIP: half of it was skipped\n== c: 0 pass, 0 fail ==\n",
+         False, "...nor a tally that measured nothing"),
+        ("guard-skip-plus-real-tally-is-fine",
+         "SUITE-SKIP: one part skipped\n== c: 164 pass, 0 fail ==\n",
+         True, "...but a real tally beside a marker is still accounted for"),
     ):
         reason, got = campaign_accounted_for(text)
         ok = got == want_ok
@@ -448,6 +488,57 @@ def selftest():
         if not ok:
             bad += 1
             print(f"       expected accounted={want_ok}, got reason: {reason}")
+
+    # --- the guard's CLI, and --quiet ----------------------------------------
+    # campaign_accounted_for() is tested above as a FUNCTION. Its command-line
+    # wiring is the half the Makefile actually consumes, and a review disabled
+    # the guard two ways -- `if ok:` -> `if True:`, and `return 1` -> `return 0`
+    # -- with every case above still green. The second is the nastier: the
+    # alarm still PRINTS, so the suite log looks alarming and make passes.
+    #
+    # --quiet is here for the same reason: run_all_suites.sh:173 is the only
+    # production caller and passes it, and returning 0 early under --quiet
+    # survived everything.
+    for name, argv_extra, text, want_rc, want_out, why in (
+        ("cli-guard-accepts",
+         ["--campaign-guard"], "== c: 164 pass, 0 fail ==\n", 0, None,
+         "the guard's CLI passes a campaign that measured something"),
+        ("cli-guard-rejects",
+         ["--campaign-guard"], "== c: 164 ok / 0 bad ==\n", 1,
+         "CAMPAIGN UNACCOUNTED FOR",
+         "...and REJECTS one that did not, with a non-zero exit"),
+        ("cli-guard-rejects-zero",
+         ["--campaign-guard"], "== c: 0 pass, 0 fail ==\n", 1,
+         "measured nothing",
+         "...including one that ran and measured nothing"),
+    ):
+        with tempfile.TemporaryDirectory() as td:
+            log = Path(td, "campaign.out")
+            log.write_text(text)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf), \
+                    contextlib.redirect_stderr(io.StringIO()):
+                rc = main([sys.argv[0], *argv_extra, str(log)])
+        out = buf.getvalue()
+        ok = rc == want_rc and (want_out is None or want_out in out)
+        print(f"  {'ok  ' if ok else 'FAIL'} {name:<32} rc={rc}  -- {why}")
+        if not ok:
+            bad += 1
+            print(f"       expected rc={want_rc}"
+                  + (f" and {want_out!r} in the output" if want_out else ""))
+
+    with tempfile.TemporaryDirectory() as td:
+        Path(td, "a.log").write_text("building...\n")
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), \
+                contextlib.redirect_stderr(io.StringIO()):
+            rc = main([sys.argv[0], td, "--quiet"])
+    ok = rc == 1
+    print(f"  {'ok  ' if ok else 'FAIL'} {'quiet-still-gates':<32} rc={rc}  "
+          f"-- --quiet is the mode CI uses, and it still fails a silent suite")
+    if not ok:
+        bad += 1
+        print("       expected rc=1")
 
     print("selftest:", "PASS" if bad == 0 else f"{bad} FAILURE(S)")
     return 1 if bad else 0

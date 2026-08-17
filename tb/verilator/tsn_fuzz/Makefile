@@ -108,8 +108,14 @@ matrix-check:
 # failure, and with a plain redirect a timed-out campaign leaves nothing in the
 # suite log to read. The exit code travels in a sidecar because pipefail is not
 # portable to every /bin/sh.
+#
+# BOTH scratch files are removed first. tee's exit status is discarded (that is
+# the price of not having pipefail), so if it cannot open aaf.out the previous
+# run's log survives and the guard reads THAT -- a reworded summary would then
+# be waved through by a stale copy of the old one. Contrived, but the fix is a
+# filename.
 aaf: obj_aaf/Vaaf_cosim
-	@rm -f obj_aaf/aaf.rc; \
+	@rm -f obj_aaf/aaf.rc obj_aaf/aaf.out; \
 	 { $(PY) fuzz_aaf.py 2>&1; echo $$? > obj_aaf/aaf.rc; } | tee obj_aaf/aaf.out; \
 	 rc=$$(cat obj_aaf/aaf.rc); \
 	 if [ "$$rc" -ne 0 ]; then exit "$$rc"; fi; \
