@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: CERN-OHL-W-2.0
  *
  * P12 NxN integration harness: milan_datapath at N_STREAMS=4, CSR 0x800
- * window -> REAL engines end-to-end (NXN_ARCHITECTURE.md P12 gate):
+ * window -> REAL engines end-to-end (docs/fpga/FPGA_DESIGN.md section 2):
  *
  *   1. provision listener streams 1..2 THROUGH the window (SID/FMT staged,
  *      CTRL commit -> LCTX CFG words + stream-table entry + route field),
@@ -1125,8 +1125,8 @@ int main(int argc, char** argv) {
                 // present.
                 //
                 // ORDER MATTERS. This block must stay below every
-                // [AECP-MODEL] check that reads a field it writes — today
-                // that is GET_CLOCK_SOURCE and GET_CONTROL. Setting the clock
+                // [AECP-MODEL] check that reads a field it writes. Today that
+                // is GET_CLOCK_SOURCE alone. Setting the clock
                 // source arms the dynamic store's valid bit for THAT field,
                 // after which GET_CLOCK_SOURCE answers the overlay instead of
                 // the image, and a model check above would compare the
@@ -2558,17 +2558,16 @@ int main(int argc, char** argv) {
     //  the RX parser. That is the property that survived; the table window
     //  is not.
     //
-    //  SUBJECT GONE. There is no AECP on this device. KL_aecp_top and its
-    //  whole plane - packet validator, common parser, L0 state, timers,
-    //  accessor, AEM store and its generated descriptor ROM, the dynamic-map
-    //  mux, the response builder, the ingress decoder, KL_aem_patch and
-    //  KL_persist_journal - are deleted, and the processor's AECP engine is
-    //  the P4 uCPU, which has not landed at its top (aecp_txn_ready_i is
-    //  tied 0 there and TX lanes 0/1 are idle). No command is answered, so
-    //  GET/SET_STREAM_FORMAT, the STREAM_IS_RUNNING refusal keyed on the
-    //  bind level, and the 0x7B8 journal-ingest group have no responder.
-    //  JNL_STAT/JNL_SEQ and the 0x7A0 bind-restore ack are structural zeros.
-    //  USER decision, made knowingly - not a defect to work around here.
+    //  LEGACY SUBJECT GONE. KL_aecp_top and the repository-local validator,
+    //  parser, AEM store, response builder, patcher and persistence journal
+    //  are deleted. The protocol processor's AECP uCPU is now live and serves
+    //  its declared inventory, including GET_STREAM_FORMAT and GET_COUNTERS.
+    //  Those command paths are graded in the processor, pp_shadow and wire
+    //  sections of this harness. SET_STREAM_FORMAT remains unimplemented,
+    //  accepted Stream Input start state is discarded at KL_pp_shadow, and
+    //  the retired 0x7B8 journal group remains structural zero. The deleted
+    //  checks in this location therefore still have no equivalent old-local
+    //  state to inspect; the current behaviors are tested at their new owner.
     // ==================================================================
     // ======================================================================
     // item-5 (N x N, the AX 8x8 target): full-index routing sweep. The checks
@@ -3881,7 +3880,7 @@ int main(int argc, char** argv) {
     // ==================================================================
     //  [T66] THE DYNAMIC-MAP AECP OPCODES AFTER THE SUBSTITUTION
     //
-    //  WHAT THIS SECTION USED TO PROVE, AND WHY IT CANNOT ANY MORE. It was
+    //  WHAT THIS SECTION USED TO PROVE, AND HOW OWNERSHIP CHANGED. It was
     //  the t532 silicon pin (2026-08-09): runtime ADD/REMOVE_AUDIO_MAPPINGS
     //  reached the AECP store (GET_AUDIO_MAP tracked every edit) but landed
     //  in the fabric crossbar RAM erratically or not at all, so the wire
@@ -3889,28 +3888,21 @@ int main(int argc, char** argv) {
     //  the section ran with CHMAP_CTRL[0] = 0 on purpose because the AECP
     //  mirror was the canonical programmer.
     //
-    //  THAT PROGRAMMER IS DELETED. KL_aecp_engine decodes exactly two
-    //  opcodes - 0x0004 READ_DESCRIPTOR and 0x0026 IDENTIFY_NOTIFICATION -
-    //  and every other AEM opcode takes the NOT_IMPLEMENTED echo path;
-    //  milan_datapath ties the odmap write port off. So GET_AUDIO_MAP,
-    //  ADD_AUDIO_MAPPINGS and REMOVE_AUDIO_MAPPINGS are gone as CAPABILITY,
-    //  and a check that expects SUCCESS from them is grading a plane that no
-    //  longer exists. This is a REGRESSION AGAINST THE PRE-SUBSTITUTION
-    //  DEVICE, recorded here rather than quietly dropped.
+    //  The processor now serves GET_AUDIO_MAP from the root gather face for
+    //  both Stream Port directions. The ADD_AUDIO_MAPPINGS and
+    //  REMOVE_AUDIO_MAPPINGS writers remain unimplemented, and milan_datapath
+    //  ties their map-write ports off. This section therefore separates the
+    //  working read command from the two conformant refusal paths.
     //
     //  What is graded instead is the whole of what IS true, and every part
     //  of it is falsifiable:
-    //    (A) all three opcodes get a CONFORMANT NOT_IMPLEMENTED answer -
-    //        message_type + 1, status 1, control_data_length = 12 + the
-    //        command's own payload, the frame padded to 60 and the payload
-    //        echoed - decoded off the wire, never a counter. Silence or a
-    //        malformed echo fails. (READ_DESCRIPTOR is graded end to end,
-    //        against a real descriptor image, in tb/verilator/pp_shadow;
-    //        this leg backs no descriptor memory - see the [AECP] note in
-    //        the reset section.)
-    //    (B) they leave the crossbar RAM UNTOUCHED. A phantom write from a
+    //    (A) ADD and REMOVE get a conformant NOT_IMPLEMENTED answer, with
+    //        the command payload echoed and the response length intact.
+    //    (B) both writers leave the crossbar RAM UNTOUCHED. A phantom write
+    //        from a
     //        half-deleted mirror would be far worse than no write at all.
-    //    (C) the live-audio proof SURVIVES, driven through the CSR 0x900
+    //    (C) GET_AUDIO_MAP succeeds on the Stream Port Output store.
+    //    (D) the live-audio proof SURVIVES, driven through the CSR 0x900
     //        window - the only writer the crossbar has left. The property
     //        (remapping talker 0's wire pair onto the TONE cluster changes
     //        the emitted payload, L == R) is unchanged; only the programmer
@@ -3919,8 +3911,7 @@ int main(int argc, char** argv) {
     //        media_tick-paced crossbar - not the clk_audio-paced zero-fill
     //        path - is feeding the packetizer.
     // ==================================================================
-    printf("-- [T66] dynamic-map opcodes: NOT_IMPLEMENTED, and the CSR "
-           "window still maps --\n");
+    printf("-- [T66] GET_AUDIO_MAP served; writers refused; CSR maps --\n");
     {
         enum { CMD_GET_AUDIO_MAP = 43, CMD_ADD_AUDIO_MAPPINGS = 44,
                CMD_REMOVE_AUDIO_MAPPINGS = 45 };
@@ -3983,12 +3974,12 @@ int main(int argc, char** argv) {
         };
         // (The RING template helper that used to live here - the fabric word
         // an AECP ADD of cluster co had to produce - went with the ADD: there
-        // is no AECP writer left to check against it, and part (B) compares
+        // is no AECP mapping writer left to check against it, so part (B) compares
         // each key against WHAT IT WAS rather than against a template. The
         // capture-map word layout it encoded is {en[12], half[11], src[10:8],
         // idx[7:0]}, which the tone template 0x1400 below still uses.)
 
-        // ---- (A)+(B) the three opcodes answer, and change NOTHING -------
+        // ---- (A)+(B) the two writers answer, and change NOTHING ----------
         // The RAM words are read before and after, on the very keys the
         // commands name. A mirror that was half-deleted - still decoding the
         // rows but no longer reaching the store - would show up here as a

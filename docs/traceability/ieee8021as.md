@@ -1,14 +1,16 @@
 # Traceability — IEEE 802.1AS-2020 (gPTP) — hardware-assist scope
 
-Part of [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md). Clause numbers
-verified against the local standards PDFs (`$STANDARDS_DIR/802.1AS-2020.pdf`). Architecture split
-(normative: [`docs/ARCHITECTURE_HW_SW_SPLIT.md`](../ARCHITECTURE_HW_SW_SPLIT.md)): the **protocol** (BMCA,
+Clause numbers are verified against the local standards PDF
+`$STANDARDS_DIR/802.1AS-2020.pdf`. Current implementation coverage is in the
+[generated module matrix](MODULE_MATRIX.md), and the current hardware/software
+boundary is in the [architecture guide](../overview/ARCHITECTURE.md). The
+**protocol** (BMCA,
 Announce/Sync/Pdelay state machines, servo) runs in `ptp4l`/linuxptp on the
 softcore; the **fabric** provides the PTP hardware clock and event-message
 timestamping. RTL rows therefore cover the timestamping/clock clauses; the
 protocol rows are SW and verified on the wire (BENCH features at the
-ProfiShark taps). Milan gPTP deltas (priority1, pdelay rules) are in
-[`milan-v12.md`](milan-v12.md).
+ProfiShark taps). The current Milan verdict, including gPTP blockers, is in the
+[Milan v1.2 audit](../testing/MILAN_V12_AUDIT_2026-08-16.md).
 
 Modules: [`hdl/ieee8021as/ptp_timestamp/`](../../hdl/ieee8021as/ptp_timestamp) (`timestamp_counter`, `ptp_ts_core`,
 `ptp_ts_top`, `ptp_csr_sync`), `hdl/common/cdc_*`.

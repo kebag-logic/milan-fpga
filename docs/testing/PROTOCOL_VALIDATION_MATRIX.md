@@ -143,7 +143,7 @@ number that cannot be stale; new rows on this page do not add one.
 | A-6 | AECP SET/GET_STREAM_FORMAT (listener format adaptation, FR-STR-03) | 1722.1/Milan | **none** | **❌ NOT IMPLEMENTED** — both draw the generic `NOT_IMPLEMENTED` echo. The only writer of the RX monitor's format-compare reference is gone, so a listener still cannot be told to follow a talker's format; a well-formed refusal does not adapt a format | ❌ | none |
 | A-7 | ACMP  -  stream connection management | 1722.1 §8 | **HW** | **OWNED BY THE PROTOCOL PROCESSOR** — talker and listener both, republished as a class-D bind record the fabric consumes every clock. The DA gate IS the talker gate: `acmp_declaring_o` asserts only after a MAAP `ALLOC_DA` success | ✅ | `RTL` pp_shadow, milan_dp, maap; `SW` `tap_acmp` connect/disconnect |
 | A-8 | MVU  -  Milan vendor-unique (protocol_id 00-1B-C5-0A-C1-00) | Milan v1.2 | **none** | **❌ NOT IMPLEMENTED** — MVU rides AECP and is an unimplemented message type, so GET_MILAN_INFO, SET/GET_SYSTEM_UNIQUE_ID and SET/GET_MEDIA_CLOCK_REFERENCE_INFO all draw the generic `NOT_IMPLEMENTED` echo. A controller still cannot complete the Milan identity handshake: it receives a refusal instead of a timeout, and no `features_flags`, no `protocol_version`, no identity | ❌ | none |
-| A-9 | GET_COUNTERS / diagnostic counters | 1722.1/Milan | **none** | **❌ NOT IMPLEMENTED** — the command draws the generic `NOT_IMPLEMENTED` echo and returns no counter block. The Milan Table 5.4 **per-STREAM_OUTPUT** counters are gone with it: `KL_talker_diag_ctx` is no longer instantiated, because GET_COUNTERS and its Table 5.22 push were its only two consumers, and the processor's unsolicited TX lane has no producer, so that push is genuinely absent. The **STREAM_INPUT** counters at the `0x6B8` `A_STRMW_CNT` window are UNAFFECTED and still live | ❌ | none over AECP; the STREAM_INPUT tallies are still readable over CSR (`RTL` avtp_rxmon, csr) |
+| A-9 | GET_COUNTERS / diagnostic counters | 1722.1/Milan | **HW** | **IMPLEMENTED FOR SUPPORTED TARGETS.** Every declared Stream Output has a live five-counter bank and returns the compact Milan layout. Stream Input, AVB Interface and Clock Domain retain their served processor paths. The Table 5.22 unsolicited change producer remains open | ✅ solicited | `RTL` pp_top, milan_dp, tkdiag; pinned la_avdecc decoder |
 | A-10 | Entity identity (EUI-64 from MAC) | 1722.1 | SW→HW | driver writes CSR `0x600` once per boot; `entity_id` is handed to the protocol processor and goes out in the ADPDU. The AEM half of "ADP and AEM read the same wires" is no longer a shared-wire fact: the AEM side is whatever the descriptor image in DRAM says, and nothing in this repo writes that image | ✅ ADP half | `RTL` csr (`0x600`), pp_shadow; `SW` verify advertised id |
 
 > **§4 is fabric, not daemon — and the AECP quarter of it is one implemented
@@ -289,10 +289,9 @@ catalogued in
   Output's presentation offset is pinned at the Milan **2 ms default** — a
   DEFAULT, not a zero, because 0 ns would be a presentation time in the past and
   every listener would drop every frame as late; **(iii)** the Milan Table 5.4
-  **per-STREAM_OUTPUT** counters are gone entirely and the Table 5.22 unsolicited
-  push has no producer on the processor's unsolicited TX lane, while the
-  **STREAM_INPUT** counters at the `0x6B8` `A_STRMW_CNT` window are unaffected
-  and still live. Saved-state persistence is gone with the deleted journal:
+  **per-STREAM_OUTPUT** counters are live for solicited GET_COUNTERS reads, while
+  the Table 5.22 unsolicited push has no producer. STREAM_INPUT counters remain
+  live. Saved-state persistence is gone with the deleted journal:
   nothing restores a binding across a power cycle.
 - **Proven in the open toolchain, not yet exercised on a board:** the mcast hash
   filter and the fixed-125 MHz PHC reference  -  rows tagged 🟩 (`ELAB`).

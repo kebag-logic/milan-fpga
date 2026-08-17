@@ -205,6 +205,6 @@ streams:
     # Output advertising a Base format and then says "A PAAD-AE Base Talker
     # may advertise any Base Format that is reasonable for its
     # functionality", where 6.4 makes the family a SHALL for Stream Inputs.
-    # A talker cannot honour a wider claim either: it emits one width and
-    # SET_STREAM_FORMAT on a STREAM_OUTPUT answers NOT_SUPPORTED.
+    # A talker cannot honour a wider claim either: it emits one width, while
+    # SET_STREAM_FORMAT remains unimplemented and returns NOT_IMPLEMENTED.
     - { name: "Stream Out 0", channels: 8, map_mode: dynamic }

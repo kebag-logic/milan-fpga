@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # NxN AAF Milan Streams — Shared Engines + Per-Stream Context RAM
 
 Normative architecture for roadmap item 5 ([`docs/MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md),
@@ -21,19 +23,16 @@ is live; the 8x8 shape elaborates and sim-scales green (§6 item-5 note).
 > specified are **deleted RTL**; the sections are kept as the record of what the
 > shapes need, marked where the owner changed.
 >
-> **And the AECP half came back partial, not whole: this entity answers
-> READ_DESCRIPTOR, and answers every other AECP command with a conformant
-> NOT_IMPLEMENTED echo.** The responder is the processor's AECP uCPU, which has
+> **The AECP half is partial and actively served.** The processor's AECP uCPU
+> serves its declared command inventory, including READ_DESCRIPTOR and
+> GET_COUNTERS. Unsupported commands receive the conformant fallback. It has
 > landed; its descriptors come from a flat image in DRAM at a compile-time base,
-> not from the descriptor ROM this document's §3.5(a) compiles — and nothing in
-> this repository builds or loads that image yet, so a stock build answers
-> `BAD_ARGUMENTS` to every read (an unloaded image reports zero configurations,
-> checked before the locate). Of everything §1.5 and §3.6 describe
-> reaching a controller, only the descriptor read is implemented:
-> GET_COUNTERS with its Table 5.22 unsolicited push, SET/GET_STREAM_FORMAT,
-> SET_CLOCK_SOURCE and SET_MAX_TRANSIT_TIME are answered by the echo and do
-> nothing — an echo is not an implementation. The per-stream CSR window is
-> unaffected and remains the way software reads per-stream state. This is a
+> not from the deleted descriptor ROM. The end-station builder now generates
+> the flat image artifacts, and `aemi-load` verifies and loads the paired image
+> before enabling the entity. Solicited GET_COUNTERS is implemented for supported
+> targets, including every declared Stream Output. The Table 5.22 notification
+> scheduler remains separate and open. Commands outside the implemented inventory
+> still receive the fallback, which is not implementation evidence. This is a
 > stated capability boundary from an informed decision, not a regression and not
 > a temporary blip.
 
@@ -315,14 +314,12 @@ Justification of indexed over flat:
 - (d) legacy flat registers (0x648–0x764) stay wired to index 0 / the
   dedicated CRF engines, which IS the no-regression axiom for N=1.
 
-**The window is now the ONLY reader of per-stream state**, which is why it
-matters more than when it was written. `GET_COUNTERS` is not implemented — a
-controller that sends it gets a conformant `NOT_IMPLEMENTED` echo and no
-counters — so no firmware switch from the fixed `0x6B8` group to
-descriptor-keyed reads is pending: nothing off-box can obtain these counters at
-all, and software on the softcore reads them here. The STREAM_INPUT counters themselves are
-untouched by the substitution; the per-STREAM_OUTPUT Table 5.4 counters are not
-(§3.6). Note also that `A_STRMW_STATE`'s ACMP fields are thinner than this
+**The window is the local software reader of per-stream state**, while the
+processor's solicited `GET_COUNTERS` face is the controller-visible reader.
+Supported Stream Input banks are returned from the monitor contexts, and every
+declared Stream Output is returned from its `KL_talker_diag_ctx` bank. The Milan
+Table 5.22 unsolicited counter-change scheduler is separate and remains open.
+Note also that `A_STRMW_STATE`'s ACMP fields are thinner than this
 table implies: the processor publishes a **bind record**, not a ladder, so
 `bound` is the truth and the state/probing/status fields read structural zeros.
 
@@ -760,60 +757,55 @@ computed here — which also retired `max(N_STREAMS, 2)`, under which the CRF
 open on the CRF path is (c) alone — the Class A reservation, [M-CLK-2] —
 which is a different question from discoverability.
 
-### 3.6 AEM / AECP  *(READ_DESCRIPTOR only — every other command is an echo)*
+### 3.6 AEM / AECP
 
-**This entity answers `READ_DESCRIPTOR`, and answers every other AECP command
-with a conformant `NOT_IMPLEMENTED` echo.** The AECP/AEM engine this section
+**This entity serves the processor's declared command inventory, including
+`READ_DESCRIPTOR` and `GET_COUNTERS`.** The AECP/AEM engine this section
 extended — the descriptor ROM, the per-descriptor validation tables, the
 response builder — is deleted; the responder is the protocol processor's AECP
 uCPU. `READ_DESCRIPTOR` (0x0004) answers `SUCCESS` with `configuration_index`,
 the reserved field and the descriptor, `NO_SUCH_DESCRIPTOR` on a locate miss and
 `BAD_ARGUMENTS` on a bad configuration index, the error paths carrying the
 §7.4.5 `{descriptor_type, descriptor_index}` stub; `IDENTIFY_NOTIFICATION` sent
-as a command is `BAD_ARGUMENTS`. Everything else this section's shapes wanted —
-SET/GET_STREAM_FORMAT, GET_STREAM_INFO, `GET_COUNTERS` and its Milan Table 5.22
-unsolicited push, SET_CLOCK_SOURCE, SET_MAX_TRANSIT_TIME, ACQUIRE/LOCK_ENTITY,
-the audio-map get/add/remove trio, IDENTIFY — gets the echo, which is a
-well-formed answer and not a function. Milan Δ7 `ACQUIRE_ENTITY` is a **known
-gap**: it is not distinguished from that echo.
+as a command is `BAD_ARGUMENTS`. The implemented inventory includes solicited
+GET_COUNTERS, stream and clock getters, selected setters, Identify control,
+stream start and stop, unsolicited registration, GET_AUDIO_MAP, and Milan
+GET_MILAN_INFO. Commands outside that inventory still get the fallback. The
+current audit is the authority for the exact command list and remaining gaps.
 
 The descriptors themselves are no longer in fabric. The store fetches a flat
-image from DRAM at a compile-time base, and **nothing in this repository
-generates or loads it** — the generator is
-`protocol-processor/hdl/aecp/desc/gen_desc_image.py`, and no builder, script or
-boot step feeds it a shape or writes its output to memory. Until that chain
-exists, an 8x8 or 4x4 build enumerates as empty: every read a
-`BAD_ARGUMENTS`, the locate never reached.
+image from DRAM at a compile-time base. The end-station builder generates
+`aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the board-side `aemi-load`
+utility verifies and loads the paired image before enabling the entity.
 
 What survives, and what it costs the NxN shapes:
 
-* **The builder's overlay path is unchanged** — it still emits structurally
+* **The builder's overlay path is current** and emits structurally
   valid multi-port entity models (one STREAM_PORT per stream, per-port cluster
   blocks, §7.2.19-relative maps; builder D1/D2/D3), and the ADP source/sink
   counts still come honestly from it, because the read-only `0x618`/`0x61C`
   words the processor advertises from are generated in the same pass (§3.5(a)).
-  What it compiles into `aecp_aem_rom.svh` is now an **orphan**: that ROM was
-  the deleted fabric store's format, not the DRAM image the uCPU reads, so a
-  shape's descriptors reach a controller only once someone converts the model
-  and loads it.
-* **Per-STREAM_OUTPUT Milan Table 5.4 counters are gone entirely.**
-  `KL_talker_diag_ctx` is no longer instantiated: `GET_COUNTERS(STREAM_OUTPUT,
-  idx)` and the Table 5.22 push were its only two consumers. **The STREAM_INPUT
-  counters of §1.4/§1.5 are UNAFFECTED and still live** at the `0x6B8`
+  The same build produces the flat descriptor-image artifacts consumed by the
+  processor store, and `aemi-load` loads the paired image before entity enable.
+* **Per-STREAM_OUTPUT Milan Table 5.4 counters are live.**
+  `KL_talker_diag_ctx` is instantiated per declared AAF output and for CRF.
+  GET_COUNTERS serves every index with the compact five-counter layout. The
+  Table 5.22 unsolicited change producer remains open. **The STREAM_INPUT
+  counters of §1.4/§1.5 remain live** at the `0x6B8`
   `A_STRMW_CNT` window.
-* **Per-stream stream format can no longer be negotiated.** The
-  format-compare reference the RX monitor uses stays a build-time fact; a
-  controller that sends `SET_STREAM_FORMAT` or `GET_STREAM_FORMAT` gets the
-  `NOT_IMPLEMENTED` echo — an answer, not a format — so a listener shape still
-  has to be *elaborated* into the format it will accept.
+* **Per-stream stream format can be read but not negotiated.**
+  `GET_STREAM_FORMAT` is implemented. `SET_STREAM_FORMAT` remains unimplemented,
+  so the RX monitor still uses the elaborated format and a controller cannot
+  adapt it at runtime.
 * **Presentation-time offset is pinned at the Milan 2 ms DEFAULT** for every
   Stream Output, `SET_MAX_TRANSIT_TIME` being its only writer. A default, not a
   zero — 0 ns would be a presentation time in the past and every listener would
   drop every frame as late.
-* **The media clock source can never be SELECTED** (`SET_CLOCK_SOURCE` was the
-  only writer of the live `clock_source_index`), so `KL_mmcm_drp_servo` and the
-  `KL_media_nco` packet-grid servo are structurally off and `A_MCSRV_STAT`
-  (`0x8F8`) reads idle. `KL_crf_rx` still parses, counts and reports.
+* **The media clock source can never be selected by this root integration.**
+  The processor accepts and stores `SET_CLOCK_SOURCE`, but the wrapper does not
+  expose the selected value to `milan_datapath`. The media clock remains pinned
+  INTERNAL, the two servo paths remain off, and `KL_crf_rx` still measures the
+  CRF input without steering from it.
 * **Nothing persists across a power cycle.** The journal is deleted and the
   processor's NVM face is answered by a blank-flash responder, so a restore walk
   always completes with zero records.

@@ -278,7 +278,7 @@ now draws a well-formed `NOT_IMPLEMENTED` echo (except where noted); that is the
 | GET/SET_MAX_TRANSIT_TIME | paired | **NOT IMPLEMENTED** — every Stream Output holds the Milan **2 ms default** presentation offset. That is a DEFAULT, not a zero: 0 ns would be a presentation time in the past and every listener would drop every frame as late | — (was already a gap) | `item-10-max-transit-time` |
 | GET_AVB_INFO | getter | **NOT IMPLEMENTED** | es-4.13 | `item-10-avb-info` |
 | GET_AS_PATH | getter | **NOT IMPLEMENTED**; the `0x7DC` AS_PATH staging port accepts writes and discards them | es-4.14 | `item-10-as-path` |
-| GET_COUNTERS | getter | **NOT IMPLEMENTED**, and the Milan Table 5.4 **per-STREAM_OUTPUT** counters are gone with it — `KL_talker_diag_ctx` is no longer instantiated, because nothing could read it. The **STREAM_INPUT** counters at the `0x6B8` `A_STRMW_CNT` window are UNAFFECTED and still live | es-4.15, hive | `item-10-counters` |
+| GET_COUNTERS | getter | **IMPLEMENTED FOR SUPPORTED TARGETS**. Every declared STREAM_OUTPUT has a `KL_talker_diag_ctx` bank and returns the Milan Table 5.17 mask with STREAM_START, STREAM_STOP, MEDIA_RESET, TIMESTAMP_UNCERTAIN and FRAMES_TX in the compact layout. Missing indices return `NO_SUCH_DESCRIPTOR` with the fixed empty body. The Table 5.22 unsolicited change producer remains open | `pp_top`, `milan_dp`, `tkdiag`, pinned la_avdecc decoder | closed by issue 73 |
 | GET_AUDIO_MAP + ADD/REMOVE_AUDIO_MAPPINGS | getter + action | **NOT IMPLEMENTED**; the AEM dynamic-map write ports are tied off | matrix M-AECP-4 | `item-10-audio-maps` |
 | GET_DYNAMIC_INFO (0x4B) | getter | **NOT IMPLEMENTED**; the `0x768` BDBG scan-forensics words read structural zeros | CMD-22 | `item-10-dynamic-info` |
 | ACQUIRE_ENTITY | setter (acquire sem) | **NOT IMPLEMENTED**; `0x648` `aecp_locked` is tied 0 (no lock manager is wired). **KNOWN GAP — do not smooth this over:** Milan Δ7 wants `NOT_SUPPORTED` with `owner_id` = 0, and this build does **not** distinguish that from the generic `NOT_IMPLEMENTED` echo. The Δ7 microprogram exists in the ucode (`E_ACQ`); nothing dispatches to it, so opcode 0x0000 falls into the generic echo | aecp_l0_state, es-4.1 | `item-10-acquire` |
@@ -373,20 +373,17 @@ Two traps for anyone writing these fixtures:
 
 ## Prerequisites & running
 
-The offline host-sim lane this page was built on assumed a Milan AECP/ACMP model
-checked against the Verilator aecp suite — both the model's step files and that
-suite are deleted, along with ~33 BDD feature files. The `READ_DESCRIPTOR`
-paths, the echo contract, the `IDENTIFY_NOTIFICATION`-as-command rule and the
-two silent-refusal rules are **authorable again** — `ls tests/features/` is the
-authority on whether a feature covering them is in the tree, never prose here.
-Two things this page can state without a run: **no Verilator suite grades the
-AECP engine**, and **no result against this build is recorded anywhere in this
-corpus.** What can be run today:
+The processor owns the live AECP engine and its `pp_top` suite grades that RTL.
+The root `milan_dp` suite grades the integrated AECP wire path, including the
+Stream Output GET_COUNTERS bank. The BDD features grade the standards-facing
+contract and keep their served inventory synchronized with the RTL dispatch.
+What can be run today:
 
 ```bash
-cd tb/verilator/pp_shadow && make      # the protocol processor's own lane
-cd tb/verilator/milan_dp   && make      # the datapath integration, incl. the class-D face
-cd tests && behave                      # `ls tests/features/` is authoritative for what remains
+make -C protocol-processor/tb/pp_top run
+make -C tb/verilator/pp_shadow
+make -C tb/verilator/milan_dp
+cd tests && behave
 ```
 
 Judge every one of these by **exit code**, and read the harness's own

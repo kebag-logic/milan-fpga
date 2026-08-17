@@ -9,7 +9,7 @@
   Author      : Kebag Logic
 
   Date        : 2026-07-22
-  Description : NxN PCM routing policy (docs/NXN_ARCHITECTURE.md §1.3,
+  Description : NxN PCM routing policy (docs/fpga/FPGA_DESIGN.md section 2,
                 phase P3; flag rework per the ALSA driver design feedback,
                 the-private-test-repo fpga/docs/ALSA_DRIVER_DESIGN.md open
                 question 4). Sits between the shared AAF RX depacketizer

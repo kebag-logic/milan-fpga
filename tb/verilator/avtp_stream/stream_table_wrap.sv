@@ -4,7 +4,7 @@
  */
 
 //! Verilator harness wrapper: KL_stream_table (N=4) feeding avtp_stream_parser
-//! — the milan_datapath P1 pairing (docs/NXN_ARCHITECTURE.md §1.1): table
+//! The milan_datapath pairing (docs/fpga/FPGA_DESIGN.md section 2): table
 //! authority (ACMP entry-0 alias + CSR-window overrides) + tuser stream-index
 //! classification.
 

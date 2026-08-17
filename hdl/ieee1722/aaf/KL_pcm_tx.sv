@@ -86,8 +86,8 @@
                 it in a tiny Wishbone/AXI read shim. Control/status are flat
                 ports for the migen CSR glue (see docs / the integration diff).
 
-  Spec refs   : IEEE 1722-2016 clause 7 (AAF-PCM); docs/NXN_ARCHITECTURE.md
-                §1.3 (per-stream PCM ring); ARCHITECTURE_HW_SW_SPLIT (DMA PCM
+  Spec refs   : IEEE 1722-2016 clause 7 (AAF-PCM); docs/fpga/FPGA_DESIGN.md
+                section 2 (per-stream PCM ring); ARCHITECTURE_HW_SW_SPLIT (DMA PCM
                 ring); the RX mirror KL_aaf_rx_depacketizer.sv + _PCMRingNxN.
   Company     : Kebag Logic
   Project     : Milan AVB endstation

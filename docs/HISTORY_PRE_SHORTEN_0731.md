@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 <!-- docs-check: allow-dead-refs — this page is a dated ARCHIVE of commit
      messages. Many of the paths it names were deleted afterwards (the whole
      IEEE 1722.1 / SRP control-plane RTL and its testbenches went on
@@ -938,4 +940,3 @@ soc: --xlen is now honoured on the vexiiriscv path (it was hardcoded --xlen=64, 
 ## 105a97e7
 
 handover 07-31: WAIT FOR THE THREE RV32 SEEDS BEFORE ANY AREA WORK - x32/x32alt/x32ext are in flight and decide whether the u_bld round is needed at all; if one CLOSES the ALINX gets flashed (USER: it must run the latest) and section 5 is moot, if all three miss the differential profile in section 5 is the route and is already measured. Carries: the four commits that landed (0x0021 TSpec-matches-wire, peer (p)-primaries, class A only, --xlen honoured), the 734-not-805 correction and every area lever measured and CLOSED so none get re-proposed (L2 +7 slices, CBS engine dead at 2 instances, control sets cannot help while LUTs are the wall, bus unification ~520 LUT ceiling), the OOC CPU numbers that reopened RV32 (-1,896 LUT in-context, 76% of the gap), the u_bld profile with GET_AUDIO_MAP at 14 LUT against ~570 for its four siblings as the working exemplar of the fix inside the same file, the full ALINX flash recipe including the 1->2 RX-queue window shift that makes the FULL image set mandatory and the OpenSBI-embeds-the-FDT rule, the board access traps (id_rsa not ed25519, scp -O for dropbear, no pkill on busybox, and the FTDI stale-buffer trap that reversed three verdicts), and the method notes that cost the most today - in-context reports inflate block-dependently up to 1.66x, slice demand is not LUT/4, parse ^PROF not 'Slice LUTs' because vivado echoes the tcl source first, and verify a launch actually carries the flag you meant
-

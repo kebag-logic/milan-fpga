@@ -131,8 +131,8 @@
 
                 The stream to follow is selected by sid_i/en_i (CSR pair
                 today, the ACMP sink-1 SM once it exists - the remaining
-                CRF work is the sink-1 bind chain, see
-                docs/MILAN_COMPLIANCE_GAPS.md).
+                CRF integration gaps are recorded in
+                docs/testing/MILAN_V12_AUDIT_2026-08-16.md B3 and B4).
 
   Spec refs   : Milan v1.2 7.3.2-7.3.4, 5.3.8.10 Table 5.6, 5.4.2.25
                 Table 5.16; IEEE 1722-2016 Clause 10 (10.4.3 mr, 10.4.5 tu,

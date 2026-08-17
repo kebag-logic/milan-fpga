@@ -31,27 +31,23 @@
                 engine pops that queue INSIDE the processor now, so a second
                 consumer here would steal its commands.
 
-                What this entity answers today: sixteen AEM opcodes plus MVU
-                GET_MILAN_INFO — the discovery/enumeration set
-                (READ_DESCRIPTOR, ENTITY_AVAILABLE, GET_CONFIGURATION), the
-                stream and clock getters (GET_STREAM_FORMAT, GET_STREAM_INFO,
-                GET_SAMPLING_RATE, GET_CLOCK_SOURCE), the gPTP pair
-                (GET_AVB_INFO, GET_AS_PATH), GET_COUNTERS, GET_AUDIO_MAP,
-                LOCK_ENTITY, the unsolicited registration pair, and the two
-                deliberate refusals (ACQUIRE_ENTITY, IDENTIFY_NOTIFICATION as
-                a command). The AUTHORITY is
+                What this entity answers today includes discovery and
+                enumeration, solicited counters, selected stream, clock, and
+                configuration operations, Identify control, the unsolicited
+                registration pair, GET_AUDIO_MAP, and MVU
+                GET_MILAN_INFO. The AUTHORITY is
                 protocol-processor/hdl/aecp/KL_aecp_engine.sv's OP_*_C
                 constants, never this comment.
 
                 WHAT IS STILL OPEN, and is a compliance gap rather than a
-                design choice: the whole SET_* family, GET_NAME/GET_CONTROL,
+                design choice: SET_STREAM_FORMAT, SET_STREAM_INFO, name access,
                 the audio-mapping writers, GET_DYNAMIC_INFO, the
                 unsolicited-notification trigger set, the departing-controller
-                monitor and saved-state persistence. The ordered plan is
-                docs/MILAN_V12_ROADMAP.md. Because SET_CLOCK_SOURCE is among
-                them, the live clock_source_index is still pinned at 0 and
-                milan_datapath still publishes the CSR words those writers fed
-                as STRUCTURAL ZEROS rather than plausible idles.
+                monitor and saved-state persistence. The current verdict is in
+                docs/testing/MILAN_V12_AUDIT_2026-08-16.md. SET_CLOCK_SOURCE is accepted and
+                stored by the processor, and this wrapper exports the selected
+                value. The media plane does not consume it and therefore remains
+                pinned at clock_source_index 0.
 
                 RATE. protocol_processor_top eats a 1 byte/clk stream, which
                 at 100 MHz is 100 MB/s against gigabit's 125 MB/s: a byte
@@ -126,10 +122,10 @@
                 is a port list, and the point of it being a port list is that
                 the two files read as one contract.
 
-                ADDRESS ALLOCATION. The processor implements no MAAP by
-                design (its 01 section 3 puts allocation in the integrating
-                fabric) and publishes a per-source ALLOC/RELEASE face instead.
-                This fabric's allocator is KL_maap, which claims one BLOCK.
+                ADDRESS ALLOCATION. The processor contains KL_pp_maap, but
+                this integration holds it dark through cfg_maap_internal_i=0
+                and uses the per-source ALLOC/RELEASE face instead. This
+                fabric's selected allocator is KL_maap, which claims one BLOCK.
                 KL_pp_maap_shim.sv bridges the two models and
                 milan_datapath.sv wires it between them; the 10 maap pins here
                 are a pass-through so the shim can live outside this wrapper,
@@ -459,9 +455,11 @@ module KL_pp_shadow #(
     output logic [7:0]                 maap_defends_o,     //! DEFEND frames sent (saturating)
 
     //! ---- the AECP SETTINGS face (Milan §5.3.x) ------------------------
-    //! NOT the whole dynamic store: current_sampling_rate is held and served
-    //! over AECP but has no output on KL_aecp_dyn_state, so it is absent here
-    //! too. What IS below is republished 1:1 so the fabric can act on a
+    //! NOT the whole dynamic store. It holds eight fields and exposes five.
+    //! Absent because KL_aecp_dyn_state has no corresponding output:
+    //! current_sampling_rate, which AECP serves, and both current_format
+    //! fields, which no microprogram reads or writes yet. What IS below is
+    //! republished 1:1 so the fabric can act on a
     //! setting rather than be told about it. Every one reads its reset
     //! default until a controller writes it, so a datapath that leaves these
     //! unread behaves exactly as it did before the store existed — which is

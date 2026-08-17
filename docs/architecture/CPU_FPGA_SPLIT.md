@@ -24,15 +24,14 @@ ACMP (talker and listener) and SRP. MAAP stays in this fabric (`KL_maap` +
 design. This repository's own ADP advertiser, AECP/AEM engine, ACMP engines and
 lwSRP applicant are deleted.
 
-**AECP is the fabric's, and it draws a line the split has not had before.** The
-processor's AECP uCPU has landed: the device answers `READ_DESCRIPTOR` and
-answers every other AECP command with a conformant `NOT_IMPLEMENTED` echo, all
-of it in fabric, at the same per-frame determinism as ADP and ACMP. There is no
-software AECP responder and there should not be one — a controller's 250 ms
-retry is a deadline independent of CPU load. **An echo is not an
-implementation**, so ACQUIRE/LOCK_ENTITY, every SET/GET, `GET_COUNTERS` and the
-Milan Table 5.22 unsolicited push, IDENTIFY, and saved-state persistence are
-genuinely absent: nothing on this die restores a binding across a power cycle.
+**AECP is the fabric's.** The processor's AECP uCPU serves its declared command
+inventory, including `READ_DESCRIPTOR` and `GET_COUNTERS`, at the same
+per-frame determinism as ADP and ACMP. Unsupported commands receive a
+conformant fallback response. There is no software AECP responder and there
+should not be one because a controller's 250 ms retry deadline is independent
+of CPU load. The Milan Table 5.22 unsolicited counter-change producer,
+IDENTIFY, saved-state persistence and commands outside the served inventory
+remain open.
 
 **What is new is a third crossing, and it is the CPU's job.** The entity model
 is no longer a ROM in fabric — the descriptor store fetches it from **DDR3**
@@ -113,7 +112,7 @@ controller can retarget a channel: ADD/REMOVE_AUDIO_MAPPINGS draw the
 | Domain | FPGA fabric (runtime, per-frame) | CPU / Linux (boot-time, policy) |
 |---|---|---|
 | Discovery (ADP) | The processor's ADP engine: advertise/depart cadence, `available_index` | Writes entity ID/model/counts CSRs once at boot; either `ADP_CTRL.en` (`0x600`[0]) or `PP_CTRL[0]` (`0x920`) enables the entity — they are ORed |
-| **Enumeration (AECP/AEM)** | The processor's AECP uCPU: `READ_DESCRIPTOR` served from the DRAM image, a conformant `NOT_IMPLEMENTED` echo for every other command, `BAD_ARGUMENTS` for IDENTIFY_NOTIFICATION-as-command, silent refusal for a foreign `target_entity_id` or a response sent as input | **Owes the descriptor image**: write the model into DRAM at the compile-time base before enabling the entity. Nothing in this repository does it yet, so enumeration currently returns `BAD_ARGUMENTS` to every read (no image = zero configurations, checked before the locate). No software responder — and none wanted |
+| **Enumeration and control (AECP/AEM)** | The processor's AECP uCPU serves its declared command inventory. `READ_DESCRIPTOR` reads the DRAM image, GET_COUNTERS reads live counter banks, unsupported commands receive the conformant fallback, and invalid input follows the command-specific status rules | **Owes the descriptor image**: write the model into DRAM at the compile-time base before enabling the entity. No software responder is wanted |
 | Connection (ACMP) | The processor's talker + listener: CONNECT_TX/PROBE_TX/GET_TX_STATE, the BIND_RX ladder, published as a bind record on the class-D face | Nothing (controllers live off-box) |
 | Address allocation (MAAP) | `KL_maap` claims one block; `KL_pp_maap_shim` answers the processor's per-source `ALLOC_DA`. **The ALLOC success is the talker gate** | Nothing |
 | Reservation (SRP) | The processor's SRP: declarations, registrars, MRPDU emission; the granted slope and domain arrive as wires | Nothing required (the legacy provisioning words are write-only scratch now) |
@@ -125,8 +124,8 @@ controller can retarget a channel: ADD/REMOVE_AUDIO_MAPPINGS draw the
 | Traffic shaping | Per-queue CBS at line rate, idleSlope from the processor's granted slope | Sets static slopes via CSR |
 | Ingress filtering | TCAM + kernel shield, per-frame | Boot-time rule programming |
 | Audio source/sink | `KL_pcm_tx` reads the pb ring; capture engine writes the pcm ring | `aplay`/PipeWire produce and consume ring bytes |
-| Counters — STREAM_INPUT (Milan 5.3.8.10) | Counted, interval-coalesced, bind-edge reset — all in fabric | Read-only consumer through the `0x6B8` `A_STRMW_CNT` window (still live; `GET_COUNTERS` is not implemented, so the CSR is the only reader) |
-| Counters — STREAM_OUTPUT (Milan Table 5.4) | **Gone.** `KL_talker_diag_ctx` is not instantiated: GET_COUNTERS and the Table 5.22 push were its only readers | Nothing to read |
+| Counters, STREAM_INPUT (Milan 5.3.8.10) | Counted, interval-coalesced and bind-edge reset in fabric | Read through the CSR window and the processor GET_COUNTERS path |
+| Counters, STREAM_OUTPUT (Milan Table 5.4) | One `KL_talker_diag_ctx` bank per declared AAF output plus CRF, served through GET_COUNTERS | Solicited reads are complete; the Table 5.22 unsolicited producer remains open |
 | Channel mappings | The map store still drives the crossbar and still answers the `0x900` `CHMAP_*` debug window | No AECP path: ADD/REMOVE_AUDIO_MAPPINGS is answered `NOT_IMPLEMENTED`, so a controller cannot retarget a channel |
 | Persistence | **Nothing persists.** The journal is deleted and the processor's NVM face is answered by a blank-flash responder — a restore walk always completes with zero records | Nothing to replay |
 | The NIC itself | MAC, DMA lanes, RX steering | `kl-eth` driver, Linux networking stack |
@@ -155,7 +154,7 @@ flowchart LR
       CPU --- DMA
     end
     subgraph FAB["Milan fabric — the streaming machine"]
-      CTL["KL_pp_shadow → protocol processor<br/>ADP · ACMP · SRP · AECP<br/><b>READ_DESCRIPTOR + NOT_IMPLEMENTED echo</b>"]
+      CTL["KL_pp_shadow → protocol processor<br/>ADP · ACMP · SRP · AECP<br/><b>served command inventory</b>"]
       MAAP["KL_maap + KL_pp_maap_shim<br/>ALLOC_DA = the talker gate"]
       STR["Stream plane<br/>parser · depacketizer<br/>packetizer · crossbars"]
       TSN["TSN plane<br/>CBS shaper · TCAM filter<br/>PTP stamps · CRF rx/tx"]

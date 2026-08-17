@@ -16,46 +16,44 @@ no parameter, no fallback, no shadow arm. It owns ADP, ACMP (talker and
 listener) and SRP, and publishes a class-D wire face the fabric consumes every
 clock (bind record, talker declaration, SRP reservation/slope/domain). MAAP
 stays in `hdl/` (`KL_maap` + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv))
-because the processor implements none by design. This repository's own ADP
+because the shipping integration disables the processor's internal `KL_pp_maap`
+engine with `cfg_maap_internal_i = 0` and selects the fabric allocator. This repository's own ADP
 advertiser and parser, the whole AECP/AEM engine, both ACMP engines and the
 lwSRP applicant are **deleted** — the *ieee17221/aecp*, *ieee17221/acmp* and
 *ieee8021q/srp* directories no longer exist. `adp_tx_arbiter.sv` survives: it is a
 generic 2-in/1-out AXIS packet merge the data lane uses too.
 
-**The AECP surface that comes with it: this entity answers READ_DESCRIPTOR, and
-answers every other AECP command with a conformant NOT_IMPLEMENTED echo.** The
+**The AECP surface that comes with it serves the processor's declared command
+inventory, including READ_DESCRIPTOR and GET_COUNTERS.** The
 responder is the processor's AECP uCPU, inside the submodule and reached through
 the same wrapper. `READ_DESCRIPTOR` (0x0004) returns `SUCCESS` with
 `configuration_index`, the reserved field and the descriptor, `NO_SUCH_DESCRIPTOR`
 on a locate miss and `BAD_ARGUMENTS` on a bad configuration index — both error
 paths carrying the IEEE 1722.1 §7.4.5 4-byte `{descriptor_type,
-descriptor_index}` stub. Every other opcode and every other message type (AEM,
-ADDRESS_ACCESS, VENDOR_UNIQUE/MVU) gets an echo with the right `message_type`+1,
-length and `controller_data_length`; `IDENTIFY_NOTIFICATION` as a *command* is
+descriptor_index}` stub. Implemented operations use their command-specific
+behavior; unsupported opcodes and message types get the conformant fallback.
+`IDENTIFY_NOTIFICATION` as a *command* is
 `BAD_ARGUMENTS`; a command for another `target_entity_id`, and any AECP response
-arriving as input, are freed, counted and left unanswered. **Known gap:** Milan
-Δ7 `ACQUIRE_ENTITY` is not distinguished from the generic echo — the `E_ACQ`
-microprogram exists in the ucode, but nothing dispatches to it.
+arriving as input, are freed, counted and left unanswered. The exact implemented
+inventory and remaining mandatory gaps are recorded in the current Milan v1.2
+audit.
 
 **An echo is not an implementation**, and this tree carries the consequences in
-RTL: `SET_CLOCK_SOURCE`, `SET_MAX_TRANSIT_TIME`, `GET_COUNTERS` with the Milan
-Table 5.22 push, the audio-map setters, IDENTIFY (`o_identify` is tied 0, so the
-LED is structurally dark) and saved-state persistence are absent for real. A
+RTL. Commands outside the processor's implemented inventory still use the
+fallback. The Milan Table 5.22 unsolicited counter-change scheduler, audio-map
+mutation, dynamic information, name access, stream-format and stream-info
+setters, and saved-state persistence remain absent. A
 stated capability boundary from an informed decision, not a regression and not a
 temporary blip. §1.2 names what it costs module by module.
 
 **Where the descriptors come from.** `milan_datapath` exposes a read-only
 descriptor-memory master (`o_desc_mem_*` / `i_desc_mem_*`) that the SoC bridges
 to DRAM at the compile-time `PP_DESC_BASE_P` — no base register, no runtime
-relocation. Nothing in this repository generates or loads that image (the
-generator is `protocol-processor/hdl/aecp/desc/gen_desc_image.py`; the
-`aecp_aem_rom.svh` the builder still emits belongs to the *deleted* fabric
-store), so on a stock build the region fails its header magic and every
-`READ_DESCRIPTOR` answers `BAD_ARGUMENTS` — an invalid image reports zero
-configurations, and the argument check precedes the locate, so the locate is
-never reached. (`NO_SUCH_DESCRIPTOR` therefore means the opposite: the image
-loaded and that descriptor is genuinely absent from the model.) The store never
-hangs on it: a
+relocation. The end-station builder generates `aem_desc.bin`, `aem_desc.json`,
+and `aem_desc.map` from the selected configuration. The board-side `aemi-load`
+utility verifies and loads the paired image before entity enable. A missing or
+invalid image still answers `BAD_ARGUMENTS`; `NO_SUCH_DESCRIPTOR` means a valid
+image lacks the requested descriptor. The store never hangs on a failed read: a
 4096-cycle watchdog abandons a stalled burst and covers the request handshake.
 
 ## Contents
@@ -152,13 +150,13 @@ numbers reads the wrong mux.** The stagger is deliberate: an abandoned source
 starves every downstream mux on the same cycle, so equal windows would each
 inject their own close beat and put a runt on the wire per level.
 
-Three losses are functional rather than cosmetic — they sit behind the
-`NOT_IMPLEMENTED` echo, so the command is answered and nothing moves — and each
-has a module in the inventory below that is present but idle:
+Three losses are functional rather than cosmetic. Each has a module in the
+inventory below that is present but idle:
 
-1. **The CRF media clock can never be SELECTED.** AECP `SET_CLOCK_SOURCE` was
-   the only writer of the live CLOCK_DOMAIN `clock_source_index`; it is pinned
-   at 0, the INTERNAL media clock, for the life of the build. So
+1. **The CRF media clock can never be SELECTED.** AECP `SET_CLOCK_SOURCE` is
+   accepted and stored, and the wrapper exports the selected index to the root.
+   No media-plane consumer reads it, so the active selection stays pinned at
+   0, the INTERNAL media clock, for the life of the build. Therefore
    `KL_mmcm_drp_servo` and the `KL_media_nco` packet-grid servo are
    **structurally off** and `A_MCSRV_STAT` (`0x8F8`) reads its idle.
    `KL_crf_rx` still parses, counts and reports — it cannot steer.
@@ -166,10 +164,10 @@ has a module in the inventory below that is present but idle:
    Stream Output (`SET_MAX_TRANSIT_TIME` is gone). A default, not a zero: 0 ns
    would be a presentation time in the past and every listener would drop every
    frame as late.
-3. **Milan Table 5.4 per-STREAM_OUTPUT counters are gone.**
-   `KL_talker_diag_ctx` is **not instantiated** — the module survives in
-   `hdl/ieee1722/avtp/` with its own suite, but `GET_COUNTERS(STREAM_OUTPUT)`
-   and the Table 5.22 push were its only two consumers. The **STREAM_INPUT**
+3. **Milan Table 5.4 per-STREAM_OUTPUT counters are live.**
+   `KL_talker_diag_ctx` is instantiated for every declared AAF output and the
+   CRF output. GET_COUNTERS serves the compact five-counter layout. The
+   Table 5.22 unsolicited change producer remains open. The **STREAM_INPUT**
    counters at the `0x6B8` `A_STRMW_CNT` window are unaffected and still live.
 
 One structural note for anyone wiring a board script: the entity enable is now
@@ -261,7 +259,7 @@ this table whenever `hdl/` changes shape.
 | `KL_avtp_rx_monitor_ctx` | shared NxN STREAM_INPUT diagnostic-counter engine — **live**, feeding the `0x6B8` `A_STRMW_CNT` window |
 | `KL_media_clock_restart` | the AVTP `mr` (media clock restart) level this end station transmits |
 | `KL_stream_table` | NxN stream-table authority (classification, §1.1 of the NxN doc) |
-| `KL_talker_diag_ctx` | Milan v1.2 Table 5.4 per-Stream-Output counters — **present but NOT instantiated** by `milan_datapath`: GET_COUNTERS and the Table 5.22 push were its only readers, and both are gone. Its own suite (`tb/verilator/tkdiag`) still exercises the module |
+| `KL_talker_diag_ctx` | Milan v1.2 Table 5.4 per-Stream-Output counters, instantiated once per declared AAF output plus CRF when present. Solicited GET_COUNTERS serves its compact five-counter layout; the Table 5.22 notification scheduler remains open. Its own suite is `tb/verilator/tkdiag` |
 | `avtp_stream_parser` | AVTP stream-id + presentation-time extractor; carries the N-entry match table |
 
 ### `hdl/ieee1722/crf/`
@@ -277,7 +275,7 @@ this table whenever `hdl/` changes shape.
 
 | module | description |
 |---|---|
-| `KL_maap` | MAAP (IEEE 1722 Annex B) block claim: probe / defend / announce. Still this fabric's allocator — the processor implements no MAAP by design |
+| `KL_maap` | MAAP (IEEE 1722 Annex B) block claim: probe / defend / announce. This remains the shipping allocator while the processor's internal MAAP engine is disabled |
 
 ### `hdl/ieee17221/adp/`
 
@@ -326,7 +324,7 @@ this table whenever `hdl/` changes shape.
 | module | description |
 |---|---|
 | `KL_pp_maap_shim` | adapter between this fabric's BLOCK allocator (`KL_maap`) and the processor's per-source ALLOC/RELEASE face — the same block+uid law on both sides |
-| `KL_pp_shadow` | **this device's entire IEEE 1722.1 / SRP control plane**: the consumer-side wrapper around the pinned `protocol-processor` submodule (ADP, ACMP talker + listener, SRP, and the AECP uCPU that answers `READ_DESCRIPTOR` and echoes `NOT_IMPLEMENTED` at the rest), its classify-first control-frame tap, its blank-flash NVM responder, the side-port host bridge the AECP counters are read through, and the class-D face republished 1:1 |
+| `KL_pp_shadow` | **this device's entire IEEE 1722.1 / SRP control plane**: the consumer-side wrapper around the pinned `protocol-processor` submodule (ADP, ACMP talker + listener, SRP, and the live AECP uCPU), its classify-first control-frame tap, its blank-flash NVM responder, the root gather faces used by counters and audio-map reads, and the class-D face republished 1:1. The [current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md) owns the exact served-command inventory |
 | `milan_datapath` | the single clean HW/gateware boundary the LiteX SoC ([sw/litex/milan_soc.py](../../sw/litex/milan_soc.py)) instantiates — including the read-only descriptor-memory master (`o_desc_mem_*`) the AECP store fetches the entity model over |
 | `milan_top` | the Zynq variant (PS + MAC in line) |
 

@@ -14,24 +14,12 @@ repo's minimal headless renderer
 
 | Diagram | Shows | Editable source | Render(s) | Embedded in |
 |---|---|---|---|---|
-> 🔴 **`milan_system_map`'s raster renders are STALE as of 2026-08-13; its
-> generator and `.drawio` are CURRENT.** The generator was rewritten for the
-> control-plane substitution (the ATDECC container is one `KL_pp_shadow` block
-> plus the MAAP shim and a single `ctl_tx_mux`) and then corrected for the AECP
-> uCPU: the AECP panel no longer says "NOT PRESENT", and now states that
-> `READ_DESCRIPTOR` is served out of a DRAM image at a compile-time base, that
-> every other opcode and message type draws a conformant `NOT_IMPLEMENTED` echo,
-> that `IDENTIFY_NOTIFICATION`-as-command answers `BAD_ARGUMENTS`, and that Milan
-> Δ7 `ACQUIRE_ENTITY` is **not** distinguished from that echo. The `.drawio` was
-> re-emitted from it in the same pass. **One thing the map still does not draw:**
-> the read-only descriptor-memory master out of `milan_datapath`
-> (`o_desc_mem_*`/`i_desc_mem_*`) into DRAM — whoever next touches the generator
-> owes it that edge. The committed `.svg`/`.png`, meanwhile, still show the
-> deleted AECP/ACMP/ADP/lwSRP blocks: the minimal drawio renderer this repo used
-> was deleted with the AECP doc tree, and the drawio desktop CLI hangs headless
-> on this box (verified again in the same pass). **Read the `.drawio` for the
-> block structure and the AECP truth, and treat the raster renders as a dated
-> snapshot until someone re-exports them on a headed machine.**
+> **`milan_system_map` is obsolete as of 2026-08-16.** Its generator,
+> `.drawio`, and raster renders predate the current AECP served inventory,
+> descriptor-image supply chain, root dynamic-state boundaries, and counter
+> coverage. Do not use any of them as implementation evidence. The current
+> architecture and audit pages are authoritative until the complete map is
+> regenerated and reviewed as one artifact set.
 > `SYSTEM_DOMAIN_MAP` was regenerated in full — its generator writes SVG
 > directly, so its renders are current.
 
@@ -39,11 +27,11 @@ repo's minimal headless renderer
 | `rx_path_wall.svg` | Perf campaign: the RX receive path - where the CPU time goes, and the wall | `diag_rxpath.py` (uses `svglib.py`; run `python3 diag_rxpath.py rx_path_wall.svg`) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
 | `memory_hierarchy_levers.svg` | Perf campaign: the memory hierarchy and the three levers pulled on it | `diag_memhier.py` (same usage) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
 | `ddio_before_after.svg` | Perf campaign: the DDIO-analog experiment, before/after | `diag_ddio.py` (same usage) | the `.svg` itself | [`../findings/PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md) |
-| `audio_stream_path` | The end-to-end AAF path: talker + listener chains, CSR touchpoints, the 8 latency-tap chips | `audio_stream_path.gen.py` → `.drawio` | `.svg` / `.png` (rsvg-convert) | [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md) |
+| `audio_stream_path` | The end-to-end AAF path: talker + listener chains, CSR touchpoints, the 8 latency-tap chips | `audio_stream_path.gen.py` → `.drawio` | `.svg` / `.png` (rsvg-convert) | [historical audio-streaming design](../design/AUDIO_STREAMING.md) |
 | `timesync_chain` | The three-clock chain (network PHC / system / media) with CSR touchpoints | `timesync_chain.gen.py` → `.drawio` | `.svg` / `.png` (rsvg-convert) | [`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) |
-| `wd_i2s_philips` | Chronogram: the I2S Philips frame at the capture/render frontends — 64 fs, MSB-first, the 1-bit delay after every LRCK edge, the L/pair latch points | `wd_i2s_philips.json` (WaveDrom master; regenerate: `~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_i2s_philips.json`) | `.svg` / `.png` | [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md) §2.1 |
-| `wd_tdm8_frame` | Chronogram: the TDM8 slave frame — armed fsync 0→1 (pulse and 50%-duty), DATA_DELAY_P, MSB-first 32-bit slots, even-holds/odd-pushes pair events | `wd_tdm8_frame.json` (same regen pattern) | `.svg` / `.png` | [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md) §2.1 |
-| `wd_aaf_pacing` | Chronogram: AAF class-A pacing — 6-sample epochs at 48 kHz, presentation stamped at the first sample, emit at the bank swap, listener accept vs the presentation instant (ts_delta) | `wd_aaf_pacing.json` (same regen pattern) | `.svg` / `.png` | [`../design/AUDIO_STREAMING.md`](../design/AUDIO_STREAMING.md) §1 |
+| `wd_i2s_philips` | Chronogram: the I2S Philips frame at the capture/render frontends - 64 fs, MSB-first, the 1-bit delay after every LRCK edge, the L/pair latch points | `wd_i2s_philips.json` (WaveDrom master; regenerate: `~/litex-milan/venv/bin/python3 scripts/gen_wavedrom.py docs/diagrams/wd_i2s_philips.json`) | `.svg` / `.png` | [historical audio-streaming design](../design/AUDIO_STREAMING.md) §2.1 |
+| `wd_tdm8_frame` | Chronogram: the TDM8 slave frame - armed fsync 0→1 (pulse and 50%-duty), DATA_DELAY_P, MSB-first 32-bit slots, even-holds/odd-pushes pair events | `wd_tdm8_frame.json` (same regen pattern) | `.svg` / `.png` | [historical audio-streaming design](../design/AUDIO_STREAMING.md) §2.1 |
+| `wd_aaf_pacing` | Chronogram: AAF class-A pacing - 6-sample epochs at 48 kHz, presentation stamped at the first sample, emit at the bank swap, listener accept vs the presentation instant (ts_delta) | `wd_aaf_pacing.json` (same regen pattern) | `.svg` / `.png` | [historical audio-streaming design](../design/AUDIO_STREAMING.md) §1 |
 | `wd_gptp_pdelay` | Chronogram: gPTP peer delay (t1–t4, the meanLinkDelay annotation) + Sync/Follow_Up cadence with the PHC latch points (SOP latch, TLAST qualify, event messages only) | `wd_gptp_pdelay.json` (same regen pattern) | `.svg` / `.png` | [`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) §2.2 |
 | `wd_cbs_credit` | Chronogram: CBS credit evolution — idleSlope accrual, sendSlope drain, hiCredit/loCredit clamps, back-pressure accrual, the credit ≥ 0 transmit gate | `wd_cbs_credit.json` (same regen pattern) | `.svg` / `.png` | [`../fpga/PIPELINE_STAGES.md`](../fpga/PIPELINE_STAGES.md) TX stage T3 |
 | `wd_ring_pointers` | Chronogram: the RX ring DMA contract — bursts, wr_ptr commit-after-B, rd_ptr consumer walk, the counted whole-frame drop with pointers untouched | `wd_ring_pointers.json` (same regen pattern) | `.svg` / `.png` | [`../fpga/PIPELINE_STAGES.md`](../fpga/PIPELINE_STAGES.md) stage R5 |
@@ -53,7 +41,7 @@ repo's minimal headless renderer
 | `wd_linkguard_reset` | Chronogram: the link-guard episode — RUN → HOLD → SETTLE → RUN, and the **sequenced** release (`eth_rst_o` at settle/2, `guard_rst_o` at settle) that restarts both CDC pointer sets matched | `wd_linkguard_reset.json` (same regen pattern) | `.svg` / `.png` | [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) link-guard group |
 | `egress_queue_map` | **Derived from the RTL.** The egress queue map: the strict-priority ladder, which classes CBS may shape, the reset slopes/credits, the tagged (PCP-table) and untagged (reserved-DMAC) classification paths, and the gPTP-below-the-shaped-classes constraint | `egress_queue_map.gen.py` → `.drawio`; **parses** [`hdl/common/ethernet_packet_pkg.sv`](../../hdl/common/ethernet_packet_pkg.sv) (`NUMBER_OF_QUEUES`, `network_priority_t`, `priority_encode`, `IDLE_SLOPE_*`), [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) (`CBS_HI/LO/EN_RST`, `cls_tcq` reset) and [`hdl/ieee8021q/ts/traffic_class_map.sv`](../../hdl/ieee8021q/ts/traffic_class_map.sv) (`CTRL_DMAC_TBL`) | `.svg` / `.png` (rsvg-convert) | [`../reference/EGRESS_QUEUE_MAP.md`](../reference/EGRESS_QUEUE_MAP.md) |
 | `flash_layout` | **Derived from the SoC.** The QSPI flash map drawn to scale: every slot, its DRAM target, its manifest membership, the writable slots a reflash must never erase, and the map-consistency verdict | `flash_layout.gen.py` → `.drawio`; reads `FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED` from [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) through [`sw/dts/gen_mtd_partitions.py`](../../sw/dts/gen_mtd_partitions.py)'s `load_map()` — the same reader the kernel's `fixed-partitions` node comes from | `.svg` / `.png` (rsvg-convert) | [`../integration/QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md), [`../litex/LITEX_SOC.md`](../litex/LITEX_SOC.md) §2.6 |
-| `nxn_window_map` | **Derived from the configs + RTL.** The `0x800` window row map per shipping shape: listener `k` → row `k`, talker `t` → row `(L-1)+t`, with the old `max(L,T)` boundary marked — the geometry of a bug that shipped | `nxn_window_map.gen.py` → `.drawio`; reads `L`/`T` from every `configs/endstation_*.yaml` and **asserts** `SRP_CTX_ROWS_C = 2*N_STREAMS-1` ([`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv)) and `ctx_rows_required = L+T-1` + `SRP_CTX_IDX_BITS` ([`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py)) still hold | `.svg` / `.png` (rsvg-convert) | [`../NXN_ARCHITECTURE.md`](../NXN_ARCHITECTURE.md) §3.4.1 |
+| `nxn_window_map` | **Derived from the configs + RTL.** The `0x800` window row map per shipping shape: listener `k` → row `k`, talker `t` → row `(L-1)+t`, with the old `max(L,T)` boundary marked, the geometry of a bug that shipped | `nxn_window_map.gen.py` → `.drawio`; reads `L`/`T` from every `configs/endstation_*.yaml` and **asserts** `SRP_CTX_ROWS_C = 2*N_STREAMS-1` ([`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv)) and `ctx_rows_required = L+T-1` + `SRP_CTX_IDX_BITS` ([`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py)) still hold | `.svg` / `.png` (rsvg-convert) | [historical NxN architecture](../NXN_ARCHITECTURE.md) §3.4.1 |
 | `cdc_census` | **Derived from the RTL + the SoC.** Every clock-domain crossing in the design: which primitive implements it, which module owns it, and the two clock nets its own port map connects — plus the SoC-generated `sys ⇄ cd_milan` set | `cdc_census.gen.py` → `.drawio`; parses every `cdc_pulse`/`cdc_handshake`/`cdc_pair_fifo`/`ptp_csr_sync` instantiation under `hdl/` and every `_axis_dp_cdc`/`AXILiteClockDomainCrossing`/`MultiReg` call site in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py). **Refuses to emit** when a primitive's clock ports move rather than drawing a `?` | `.svg` / `.png` (rsvg-convert) | [`../overview/ARCHITECTURE.md`](../overview/ARCHITECTURE.md) §5 |
 
 `svglib.py` is the tiny shared SVG builder every `diag_*.py` script imports
@@ -92,7 +80,7 @@ rejected, it does not degrade gracefully. Two traps that have each cost a
 silently-broken diagram here:
 
 * **a trailing space after a `subgraph X["…"]` line** — shipped once, in
-  [`../SYSTEMS_ENGINEER_GUIDE.md`](../SYSTEMS_ENGINEER_GUIDE.md), where the
+  [historical systems-engineer guide](../SYSTEMS_ENGINEER_GUIDE.md), where the
   first diagram of a top-level entry-point document had never rendered;
 * **a `;` inside `sequenceDiagram` message text** — parsed as a statement
   separator; use a comma.
@@ -143,8 +131,9 @@ The chronograms need only `pip install wavedrom` in any virtualenv plus
   drawio renderer that produced its pages lived under the AECP RTL's doc
   directory. **Both were deleted on 2026-08-13** with the fabric engine they
   described. The AECP responder that answers today is the protocol processor's
-  uCPU — `READ_DESCRIPTOR` served from a DRAM descriptor image, a conformant
-  `NOT_IMPLEMENTED` echo for everything else — and its drawings live in the
+  uCPU. It handles 21 AEM opcodes plus Milan `GET_MILAN_INFO`, and returns a
+  conformant `NOT_IMPLEMENTED` echo for commands outside that inventory. Its
+  authoritative command table and architecture drawings live in the pinned
   submodule, not here. Nothing in the surviving pipeline depends on that
   renderer: the diagrams below render with `rsvg-convert`.
 

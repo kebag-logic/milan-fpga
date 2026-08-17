@@ -661,7 +661,7 @@ int main(int argc, char** argv) {
     //     check that passes for the wrong reason.
 
     // --- 9. Milan talker: the admission gate, and what now opens it -------
-    // docs/design/MILAN_TALKER_SM.md: with AAF_CTRL bypass=0 (Milan mode) the
+    // docs/overview/ARCHITECTURE.md: with AAF_CTRL bypass=0 (Milan mode) the
     // framer is gated. Before anything arms it: enable=1 yields NO AAF frames.
     // CSR A_ACMP_TALKER 0x66C witnesses {[0] probe_armed, [1] talker_active,
     // [3] the resolved gate}.
@@ -1164,11 +1164,10 @@ int main(int argc, char** argv) {
         }
 
         // ------------------------------------------------------------------
-        // [ASPATH] gh #64 J4: the published PathTrace store, integrated.
-        // The staging group is what lets GET_AS_PATH serve the real
-        // 1722.1-2021 7.4.41.2 path_sequence instead of the two-entry
-        // derivation. Here the datapath proves the ABI end to end - the
-        // response bytes themselves are the aecp suite's job.
+        // [ASPATH] gh #64 J4: local PathTrace staging and readback only.
+        // The root leaves the CSR path outputs disconnected, so this test does
+        // not prove GET_AS_PATH. The wire response remains the leaf-only
+        // grandmaster path. Here the datapath proves only the local ABI.
         // ------------------------------------------------------------------
         {
             printf("[ASPATH] published 802.1AS PathTrace store (0x7DC)\n");
@@ -1906,24 +1905,22 @@ int main(int argc, char** argv) {
     }
 
     // ---------------------------------------------------------------- //
-    // [SERVO] THE MEDIA-CLOCK SOURCE SELECTION IS GONE (2026-08-13).    //
+    // [SERVO] DYNAMIC MEDIA-CLOCK SELECTION IS NOT INTEGRATED.          //
     //                                                                  //
-    // This section used to drive an AECP SET_CLOCK_SOURCE(2) through    //
-    // the real RX path and require KL_mmcm_drp_servo to leave IDLE -    //
-    // the datapath wiring between the aecp TB (which pinned clk_src_o)  //
-    // and the mmcm_servo TB (which pinned the FSM). SET_CLOCK_SOURCE    //
-    // was the ONLY writer of the live CLOCK_DOMAIN clock_source_index   //
-    // and the whole AECP plane is deleted, so milan_datapath pins       //
-    // aecp_clk_src at 16'd0 - the INTERNAL media clock - for the life   //
-    // of the build. There is no command, no index and no selection to   //
-    // grade: the checks that drove one are deleted rather than left     //
-    // asserting a value nothing can change.                            //
+    // The protocol processor accepts and stores SET_CLOCK_SOURCE, and   //
+    // KL_pp_shadow exports the value to milan_datapath. No media-plane   //
+    // consumer reads it, so the root keeps CRF_CLK_SELECTED_C low and    //
+    // MEDIA_CLK_SRC_IDX_C at the INTERNAL source for this build. The    //
+    // old controller-effect check cannot be kept because no dynamic     //
+    // value reaches the media plane. The command path itself is tested  //
+    // in the processor and pp_shadow suites.                            //
     //                                                                  //
     // What is still assertable is the PIN itself and its one visible    //
     // consequence on the packet grid, plus the CSR boundary of the      //
     // servo's own knob register.                                       //
     // ---------------------------------------------------------------- //
-    printf("\n[SERVO] clock_source is pinned INTERNAL (no SET_CLOCK_SOURCE)\n");
+    printf("\n[SERVO] clock_source is pinned INTERNAL "
+           "(processor selection unconsumed)\n");
     {
         enum { A_CRF_CTRL = 0x738, A_CRF_SIDLO = 0x73C, A_CRF_SIDHI = 0x740,
                A_MCSRV_STAT = 0x8F8 };
@@ -2140,24 +2137,19 @@ int main(int argc, char** argv) {
         //   (1) the mr level KL_media_clock_restart grants the CRF Media    //
         //       Clock Output actually reaches the wire byte — KEPT;         //
         //   (2) a media clock SOURCE change drives it (4.4.4.3's primary    //
-        //       trigger, PICS Table F.16 CRF-3) — DELETED. The trigger was  //
-        //       an AECP SET_CLOCK_SOURCE on the wire and there is no AECP;  //
-        //       aecp_clk_src is pinned 0, so no source change can occur at  //
-        //       all and the case has no stimulus;                           //
+        //       trigger, PICS Table F.16 CRF-3) - OPEN AT INTEGRATION. The  //
+        //       processor accepts SET_CLOCK_SOURCE and KL_pp_shadow exports //
+        //       its stored value, but no media consumer reads it and the    //
+        //       root remains INTERNAL;                                      //
         //   (3) a RECEIVED mr toggle must NOT be echoed while the device is //
         //       on an internal clock (10.4.3: "only the mr bit from the     //
         //       stream being used by the Listener for recovering the media  //
         //       clock is valid") — DELETED, and this one is a FINDING, not  //
-        //       a tidy-up. The gate is mcr_restart_p_w's                    //
-        //       `aecp_clk_src == aem_crf_clksrc_w`, and with the AECP       //
-        //       response builder deleted aem_crf_clksrc_w has NO DRIVER, so //
-        //       the comparison is 0 == 0 = TRUE: the fabric behaves as if   //
-        //       the CRF source were selected on every build. The check would //
-        //       pass here only because the clause's 8-PDU hold outlasts the  //
-        //       two-PDU capture window — a pass for the wrong reason — so it //
-        //       is removed and reported instead. It comes back the moment    //
-        //       milan_datapath reads CRF_CLK_SELECTED_C, the named constant  //
-        //       it already declares for exactly this trap.                   //
+        //       covered here. The current root gate uses the explicit        //
+        //       CRF_CLK_SELECTED_C constant, so an incoming mr toggle cannot //
+        //       be selected while the build remains on its internal source.  //
+        //       The dedicated media-clock-restart suite pins the FSM law;     //
+        //       this integration case only checks the outgoing level.         //
         // ================================================================ //
         printf("  -- [H2] 10.4.3 mr: the level reaches the wire byte --\n");
         {
@@ -2209,12 +2201,10 @@ int main(int argc, char** argv) {
                 for (auto& f : cap) if (lvl_of(f) != lvl0) stable = 0;
                 ck("H2: the granted mr level reaches the wire byte, held", stable, 1);
             }
-            printf("  [GAP]  10.4.3 mr TRIGGERS are unreachable on this build: the "
-                   "source-change trigger needed AECP SET_CLOCK_SOURCE (deleted, "
-                   "aecp_clk_src pinned 0), and the received-toggle GATE is "
-                   "`aecp_clk_src == aem_crf_clksrc_w` with aem_crf_clksrc_w "
-                   "UNDRIVEN - 0 == 0 reads TRUE, so the gate this case exists to "
-                   "prove is stuck open. Fix: read CRF_CLK_SELECTED_C.\n");
+            printf("  [GAP]  10.4.3 source-change trigger cannot reach the "
+                   "media plane: SET_CLOCK_SOURCE is accepted and stored, but "
+                   "KL_pp_shadow exports the selection to an unconsumed root "
+                   "wire and CRF_CLK_SELECTED_C stays low.\n");
 
         }
 

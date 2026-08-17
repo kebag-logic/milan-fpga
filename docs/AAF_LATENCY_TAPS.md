@@ -121,9 +121,9 @@ interval.
 
 **That 500 µs is no longer settable (2026-08-13).** `SET_MAX_TRANSIT_TIME` and
 `SET_STREAM_INFO`'s `MSRP_ACC_LAT` sub-command were its only writers, and
-neither is implemented: this repository's AECP engine is deleted, and the
-protocol processor's AECP µCPU — which does answer `READ_DESCRIPTOR` — returns
-a conformant `NOT_IMPLEMENTED` echo to both, which writes nothing. Every Stream
+neither is implemented. The repository-local AECP engine is deleted, while the
+protocol processor's AECP uCPU serves its current command inventory and returns
+a conformant `NOT_IMPLEMENTED` echo to these two commands. Every Stream
 Output therefore holds the **Milan 2 ms default**, a default and not a zero.
 Nothing measured above moves: the taps report fabric transit, not policy. What
 changes is the comparison — the same ≈ 250 µs envelope now sits inside a 2 ms

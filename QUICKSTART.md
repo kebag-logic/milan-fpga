@@ -6,27 +6,31 @@ honest path from `git clone` to something green on your own machine.
 
 ```sh
 git clone https://github.com/kebag-logic/milan-fpga && cd milan-fpga
-git submodule update --init third_party/verilog-axis     # NOT optional — see §0
+git submodule update --init third_party/verilog-axis protocol-processor
 ```
 
-> **§0 — the one thing people get wrong.** [`third_party/verilog-axis`](third_party/verilog-axis) is a git
-> submodule (anonymous HTTPS, no account needed). Several testbenches and most of
-> the datapath will **not build without it**, and a GitHub *"Download ZIP"* does
-> not contain it.
+> **§0 -- the one thing people get wrong.** [`third_party/verilog-axis`](third_party/verilog-axis)
+> and [`protocol-processor`](protocol-processor) are git submodules. Both use
+> anonymous HTTPS, with no account needed. Several testbenches and most of the
+> datapath need both dependencies, and the builder gate imports descriptor and
+> ADP definitions from `protocol-processor`. A GitHub *"Download ZIP"* does not
+> contain either submodule.
 >
 > Already took a zip or a tarball? You do not have to start over — just drop the
-> dependency in by hand (verified to work: `milan_dp` builds and passes 98 checks
-> afterwards):
+> dependency in by hand. The same two repositories are what the pinned
+> submodules provide:
 >
 > ```sh
 > git clone https://github.com/alexforencich/verilog-axis third_party/verilog-axis
+> git clone https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git protocol-processor
 > ```
 >
-> The exact revision this repo pins is recorded in its git tree
-> (`git ls-tree HEAD third_party/verilog-axis`); `git checkout <that sha>` inside
-> [`third_party/verilog-axis`](third_party/verilog-axis) if you want to match it exactly.
+> The exact revisions this repo pins are recorded in its git tree. Use
+> `git ls-tree HEAD third_party/verilog-axis protocol-processor` to inspect
+> them, then check out the corresponding revision inside each dependency if
+> you want to match the repository exactly.
 >
-> The repo's *other* submodule, `external`, is **SSH-only and not needed** for
+> The `external` submodule is **SSH-only and not needed** for
 > anything on this page — leave it uninitialised.
 
 ---
@@ -105,8 +109,9 @@ ALL GATES PASS
 
 `docs_check.py` works **with or without git** — inside a git working tree it uses
 `git ls-files`, in an extracted tarball it falls back to a `.gitignore`-aware
-filesystem walk and prints which one it used. `test_builder.py` needs only Python
-and PyYAML; it writes its emissions under `sw/builder/out/` (gitignored).
+filesystem walk and prints which one it used. `test_builder.py` needs Python,
+PyYAML, and the initialized `protocol-processor` submodule; it writes its
+emissions under `sw/builder/out/` (gitignored).
 
 There is a fourth CI gate that is *not* pure Python — the RTL lint — because it
 needs the Verilator you install in §2.3:
@@ -145,7 +150,7 @@ Measured here, cold build on a desktop x86-64:
 | `tcam` | ternary CAM dest-MAC database | ~5 s |
 | `cbs` | 802.1Qav credit maths, 87 233 cycle checks vs a reference model | ~5 s |
 | `csr` | the AXI4-Lite register ABI — the executable form of [the register map](docs/reference/REGISTER_MAP.md); three executables | ~18 s |
-| `milan_dp` | whole-datapath integration: CPU reads `ID="MILN"`, frame in → frame out byte-exact (98 checks) | ~85 s |
+| `milan_dp` | whole-datapath integration: CPU reads `ID="MILN"`, frame in to frame out byte-exact, plus protocol and counter paths | rerun locally; the suite has grown beyond the original timing sample |
 
 Run everything (never hand-list suites — the glob is the contract):
 
@@ -226,9 +231,9 @@ needs a vendor licence:
 |---|---|---|
 | Run every self-checking RTL testbench | [§2.3](#23-the-verilator-testbenches) | verilator, gcc |
 | Prove the RTL is vendor-neutral, and map it to an ECP5 | [§3](#3-track-2--device-portability-still-no-vendor-tools) | yosys, sv2v |
-| Generate a whole end-station (AEM descriptors, SV headers, build plan) from a YAML declaration | `python3 sw/builder/endstation_builder.py configs/endstation_arty_4x4.yaml` · [`docs/ENDSTATION_BUILDER.md`](docs/ENDSTATION_BUILDER.md) — note the AEM descriptor ROM it emits (`aecp_aem_rom.svh`) is an **orphan** since 2026-08-13: it fed the deleted fabric AEM store, not the DRAM descriptor image the protocol processor's AECP µCPU reads, and nothing in this repo builds that image yet | python, pyyaml |
+| Generate and validate a whole end-station model, SV headers, and build plan from a YAML declaration | `python3 sw/builder/endstation_builder.py configs/endstation_arty_4x4.yaml`; [`docs/ENDSTATION_BUILDER.md`](docs/ENDSTATION_BUILDER.md). This ordinary command writes review artifacts under `sw/builder/out/`. A deployment ownership transfer with `--write-fragment` or `--write-rtl` also generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` in the sibling rootfs overlay, when that overlay is present; `aemi-load` verifies and loads the paired image before entity enable | python, pyyaml |
 | Read the register ABI and write driver code against it | [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md), asserted by the `csr` suite | nothing |
-| Check the spec↔module↔test coverage of every clause | [`docs/SPEC_TRACEABILITY.md`](docs/SPEC_TRACEABILITY.md), [`docs/traceability/MODULE_MATRIX.md`](docs/traceability/MODULE_MATRIX.md) | nothing |
+| Check the current compliance audit and module-to-test coverage | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md), [`docs/traceability/MODULE_MATRIX.md`](docs/traceability/MODULE_MATRIX.md) | nothing |
 | Simulate the softcore booting with the NIC attached (sim DUT) | [`sw/litex/milan_sim.py`](sw/litex/milan_sim.py) — **needs the LiteX stack + a JVM**, see [§6](#6-track-3--build-a-bitstream-vivado) | migen/litex, JDK |
 
 What you **cannot** do without proprietary tools: place & route (`.bit`
@@ -249,18 +254,18 @@ podman run --rm -it -v "$PWD":/work:z milan-fpga-dev bash   # interactive
 ```
 
 The repo is bind-mounted, not copied, so your edits are what gets tested. The
-default command initialises the submodule if it is missing, then runs the docs
+default command initialises the required submodules if they are missing, then runs the docs
 gate, the traceability gate, the builder gate and one Verilator suite. Docker
 works too — drop the `:z` if your setup has no SELinux.
 
 (There used to be a second, unrelated image, `Containerfile.dut-sim`, for the
 AECP DUT-simulation server. It was deleted on 2026-08-13 along with this
 repository's AECP engine and its simulation harness. AECP itself is not gone —
-the pinned `protocol-processor` submodule's AECP µCPU answers
-`READ_DESCRIPTOR` and returns a conformant `NOT_IMPLEMENTED` echo to every
-other AECP command — but nothing in this repo simulates that surface, and
-nothing here builds or loads the descriptor image the reads need, so a stock
-build answers `BAD_ARGUMENTS` to all of them.)
+the pinned `protocol-processor` submodule's AECP uCPU serves its declared
+command inventory, including `READ_DESCRIPTOR` and `GET_COUNTERS`. The
+processor `pp_top` suite and root `milan_dp` suite simulate that surface. A
+stock build still answers `BAD_ARGUMENTS` to descriptor reads until software
+loads the descriptor image.)
 
 ---
 
@@ -320,8 +325,9 @@ will not boot) → boot Linux → bring the network up → connect a stream.
    flash layout, `deploy.sh flash-images`, why the set must match.
 2. [`docs/limitations/TROUBLESHOOTING.md`](docs/limitations/TROUBLESHOOTING.md) —
    the field log: symptom → cause → fix, for boot, flash, link and stream faults.
-3. [`docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md`](docs/limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)
-   — read the **lethal gateware⇄driver pairings** table *before* flashing anything.
+3. [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md)
+   and [`docs/limitations/RECURRING_DEFECT_PATTERNS.md`](docs/limitations/RECURRING_DEFECT_PATTERNS.md)
+   for current limitations and integration hazards.
 4. [`docs/findings/BENCH_TOPOLOGY.md`](docs/findings/BENCH_TOPOLOGY.md) — how the
    reference lab is wired, which board runs which image. Host names, outlet
    numbers and addresses in there are specific to that lab; the *topology* is the
@@ -340,7 +346,7 @@ no media clock and no stream.
 
 | You are | Read |
 |---|---|
-| deciding whether to use this at all | [`docs/overview/AT_A_GLANCE.md`](docs/overview/AT_A_GLANCE.md) — the one-page picture |
+| deciding whether to use this at all | [`docs/overview/ARCHITECTURE.md`](docs/overview/ARCHITECTURE.md) and [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
 | integrating the datapath into your own SoC | [`docs/integration/INTEGRATION_GUIDE.md`](docs/integration/INTEGRATION_GUIDE.md) → [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md) |
 | going to write RTL | [`docs/overview/ARCHITECTURE.md`](docs/overview/ARCHITECTURE.md) §8 → [`docs/fpga/FPGA_DESIGN.md`](docs/fpga/FPGA_DESIGN.md) → [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | lost in the vocabulary | [`docs/GLOSSARY.md`](docs/GLOSSARY.md) |

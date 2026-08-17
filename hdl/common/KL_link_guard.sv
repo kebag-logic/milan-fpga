@@ -58,7 +58,7 @@
                 clock death (full FSM drill on silicon without touching
                 the cable).
 
-  Spec refs   : docs/MILAN_COMPLIANCE_GAPS.md 5 (GMII link-bounce CDC
+  Spec refs   : docs/fpga/FPGA_DESIGN.md section 3 (GMII link-bounce CDC
                 desync); milan_soc.py MilanNIC reinit note (2026-07-19)
   Company     : Kebag Logic
   Project     : Milan AVB endstation

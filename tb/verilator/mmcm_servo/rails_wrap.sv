@@ -26,7 +26,7 @@
                 notch softer (KI 2 / KP 3) for the model's +35% step-gain
                 rounding.
 
-  Spec refs   : docs/MILAN_COMPLIANCE_GAPS.md 2 (clock-recovery ACTUATOR)
+  Spec refs   : docs/testing/MILAN_V12_AUDIT_2026-08-16.md B3 (clock-recovery actuator)
   Company     : Kebag Logic
   Project     : Milan AVB endstation
 ------------------------------------------------------------------------------

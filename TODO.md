@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-16]
+
 # TODO — TSN on FPGA
 
 Work items to satisfy [`REQUIREMENTS.md`](REQUIREMENTS.md). Ordered by dependency:
@@ -630,7 +632,7 @@ Phase 2 PTP/PHC   Phase 3 CBS cfg  Phase 4 CLS   Phase 5 MAC   Phase 6 mcDMA
       `arty` keeps the filter. The analog loop THD+N record was measured
       THROUGH the filter and must be re-measured before it is quoted against
       an `ax7101` bitstream built after this date; see
-      [`docs/NXN_ARCHITECTURE.md`](docs/NXN_ARCHITECTURE.md) §6.2/§6.3.
+      [`docs/design/AREA_BUDGET.md`](docs/design/AREA_BUDGET.md).
 - [x] **L — tier-1 optional blocks, generalised from `LPF_P`** — 2026-07-27,
       six tier-1 optional blocks now have
       elaboration-time prune parameters (`MCSERVO_P`, `LTAP_P`, `MAAP_P`,
@@ -641,8 +643,8 @@ Phase 2 PTP/PHC   Phase 3 CBS cfg  Phase 4 CLS   Phase 5 MAC   Phase 6 mcDMA
       [`docs/design/AREA_BUDGET.md`](docs/design/AREA_BUDGET.md) for the
       measurement, the flatten-vs-hierarchical disagreement and the banked
       terms of spending each one). Still to be spent only after the ranked
-      logic levers in [`docs/NXN_ARCHITECTURE.md`](docs/NXN_ARCHITECTURE.md)
-      §6.2/§6.3, never as a first response to a placement failure.
+      logic levers in [`docs/design/AREA_BUDGET.md`](docs/design/AREA_BUDGET.md),
+      never as a first response to a placement failure.
 ## Phase 11 — rx → talker LOOPBACK lane (task #65, added 2026-08-03)
 
 The AEM declares 8 `Loopback S<s> ch <c>` AUDIO_CLUSTERs on every talker

@@ -126,8 +126,9 @@ this tree. The harness reads it from a path in the config and reports a clean
 `BLOCKED` when that path is absent, so the open tree stays runnable and
 self-testing for anyone.
 
-Only item **IDs** appear in this repo, which is what
-[`../docs/SPEC_TRACEABILITY.md`](../docs/SPEC_TRACEABILITY.md) already does.
+Only item **IDs** appear in this repo. The current compliance verdict and
+public evidence are in
+[`../docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md).
 
 ## Layout
 

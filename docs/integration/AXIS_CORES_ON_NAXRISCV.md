@@ -4,8 +4,7 @@
 > (re-framed 2026-07-27).** NaxRiscv is the **historical** soft core
 > ([`GLOSSARY.md`](../GLOSSARY.md)); the shipping builds run **VexiiRiscv**
 > ([`sw/litex/sweep.sh`](../../sw/litex/sweep.sh) passes `--cpu vexiiriscv`, and [`sw/builder`](../../sw/builder) defaults to it —
-> `milan_soc.py --cpu` still *defaults* to `naxriscv`, which is its own trap, see
-> [KNOWN_ISSUES §2](../limitations/KNOWN_ISSUES_AND_LIMITATIONS.md)). **The
+> `milan_soc.py --cpu` still *defaults* to `naxriscv`, which is its own trap. **The
 > three-plane method below does not change with the core**, and neither do the
 > `milan_soc.py` call sites or the §6.1 CDC table — both are read off the current
 > tree. The only core-specific material is §2's bus table, which now covers both.

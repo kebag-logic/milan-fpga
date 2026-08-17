@@ -33,8 +33,9 @@ and parser, the lwSRP applicant — was **deleted**. The control plane is the
 parameter, no fallback, no shadow arm. Firmware `VERSION` major stepped to 2.
 
 The device discovers over ADP, connects over ACMP and reserves over SRP. On AECP
-it **answers `READ_DESCRIPTOR`, and answers every other AECP command with a
-conformant `NOT_IMPLEMENTED` echo** — the processor's AECP uCPU has landed, so
+it serves the processor's declared command inventory, including
+`READ_DESCRIPTOR` and `GET_COUNTERS`. Unsupported commands receive a conformant
+fallback response. The processor's AECP uCPU has landed, so
 the earlier reading of this page, that the entity answered nothing on AECP, is
 **withdrawn**. Concretely:
 
@@ -138,15 +139,11 @@ well-formed refusal for every command that would change its state.
    0 ns would be a presentation time in the past and every listener would drop
    every frame as late. The streams still work; the offset is simply not
    tunable.
-3. **The Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are gone
-   entirely.** `KL_talker_diag_ctx` is no longer instantiated: its five counters
-   had exactly two consumers — `GET_COUNTERS(STREAM_OUTPUT, idx)` and the Table
-   5.22 unsolicited push — and neither is implemented, so keeping the engine
-   would have burned per-context counters into a build where nothing can read
-   them. A controller's `GET_COUNTERS` is answered, but the answer is the
-   `NOT_IMPLEMENTED` echo: no counter crosses the wire.
-   **The STREAM_INPUT counters at the `0x6B8` `A_STRMW_CNT` window are
-   UNAFFECTED and still live.**
+3. **The Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are live for
+   solicited reads.** `KL_talker_diag_ctx` is instantiated per declared AAF
+   output and for CRF. GET_COUNTERS serves all five counters. The Table 5.22
+   unsolicited change producer remains open. **The STREAM_INPUT counters at
+   the `0x6B8` `A_STRMW_CNT` window remain live too.**
 
 ### 0.2 A whole class of CSR words now reads a structural zero
 
@@ -184,14 +181,14 @@ the property that mattered.
 
 ## Contents
 
-- **[0. The capability boundary: the AECP surface, and the losses behind the echo](#0-the-capability-boundary-the-aecp-surface-and-the-losses-behind-the-echo)** — The largest single limitation on this page, stated first: the 1722.1/SRP control plane was replaced by the protocol processor, which owns ADP, ACMP and SRP, answers `READ_DESCRIPTOR` — so enumeration is reachable again, *but only once the descriptor image is in DRAM, which nothing in this repository builds or loads yet* — and answers every other AECP command with a conformant `NOT_IMPLEMENTED` echo that is protocol conformance, not coverage. The capability table separates the two, and keeps the `ACQUIRE_ENTITY` gap visible. §0.1 gives the three functional losses behind the echo — the CRF media clock can never be selected, the presentation-time offset is pinned at the Milan 2 ms default, and the Table 5.4 STREAM_OUTPUT counters are gone while the STREAM_INPUT ones are not. §0.2 is the structural-zero class, and why a zero counter no longer means an idle one.
-- **[1. Scope limitations (by design, current state)](#1-scope-limitations-by-design-current-state)** — What is deliberately absent or simply not built yet: one port, MTU pinned at 1500, no descriptor-image supply chain (so the entity model never reaches DRAM and a stock build enumerates nothing), no MDIO master anywhere in fabric (`MAC_STATUS` is software-published and reports its reset default until a driver writes it), and two media-clock servo knobs still gated on a bench answer. §1.1 inside is the open-blocker list: the AX42 MAC-TX wedge, whose *recovery* is explicitly NOT silicon-proven, the playback path that has never been flashed, and the 1-in-24 DRAM-ring read artifact — plus the fabric-listener blocker, now CLOSED.
-- **[2. Build & reproducibility gaps](#2-build--reproducibility-gaps)** — The ways a correct-looking build is wrong. Includes: CI runs every paper and RTL gate but nothing on hardware; the CPU default is not the shipped config and L2 is per board; omitting `--coherent-dma` builds a NIC that silently drops all RX; and the shipping `0x0014` build prunes the render low-pass, which quietly invalidates the analog loop record measured through it.
-- **[3. Timing & clocking constraints](#3-timing--clocking-constraints)** — Three constraints that survive any port: the CBS slope divide is the 100 MHz critical path (hence the multicycle, or the datapath's own 50 MHz domain), 112.5 MHz was built and reverted on reset fanout, and `--gtx-tx-invert` is mandatory on the AX7101 or 25–40 % of TX frames corrupt.
-- **[4. Operational hazards - lethal pairings (gateware ⇄ driver)](#4-operational-hazards---lethal-pairings-gateware--driver)** — Combinations that work individually and are fatal together, each with its guard: header-split page-size mismatch panics the kernel, RX-queue count is now per board and the wrong one shifts every DMA window under an unchanged DTB, and an armed `t > 0` talker with the lwSRP engine off blasts ~56 k frames/s unpaced because the reservation gate *is* the pacer.
-- **[5. Refuted performance levers (measured; do not rebuild without new evidence)](#5-refuted-performance-levers-measured-do-not-rebuild-without-new-evidence)** — Six levers built or modelled, measured on silicon, and rejected — TX reader prefetch, a second core, coalescing sweeps, 112.5 MHz, bigger L2/scratchpad/prefetch, and socket zero-copy RX. Read before proposing any of them again.
-- **[6. Performance: where the numbers actually live](#6-performance-where-the-numbers-actually-live)** — The precedence rule for the conflicting throughput figures scattered across the corpus: the ledger and the campaign record win, prose snapshots lose. Audio gets its own rule at the end, and it is the sharper one — every analog figure names the filter it was measured through, because the shipping build prunes that filter.
-- **[7. Legacy collateral that can mislead](#7-legacy-collateral-that-can-mislead)** — Files still in the tree that describe a system we no longer build: the xsim-era testbenches, an unused RGMII PHY experiment on a GMII board, and the Zynq variant whose `0x43C0_0000`/IRQ_F2P mechanics leak into other docs.
+- **[0. The capability boundary: the AECP surface, and the losses behind the echo](#0-the-capability-boundary-the-aecp-surface-and-the-losses-behind-the-echo)** -- The protocol processor owns ADP, ACMP, SRP and the served AECP inventory. The descriptor-image supply chain, Table 5.22 producer and ACQUIRE_ENTITY semantics remain visible gaps. Solicited Stream Output counters are live.
+- **[1. Scope limitations (by design, current state)](#1-scope-limitations-by-design-current-state)** -- What is deliberately absent or simply not built yet: one port, MTU pinned at 1500, no descriptor-image supply chain (so the entity model never reaches DRAM and a stock build enumerates nothing), no MDIO master anywhere in fabric (`MAC_STATUS` is software-published and reports its reset default until a driver writes it), and two media-clock servo knobs still gated on a bench answer. §1.1 inside is the open-blocker list: the AX42 MAC-TX wedge, whose *recovery* is explicitly NOT silicon-proven, the playback path that has never been flashed, and the 1-in-24 DRAM-ring read artifact -- plus the fabric-listener blocker, now CLOSED.
+- **[2. Build & reproducibility gaps](#2-build--reproducibility-gaps)** -- The ways a correct-looking build is wrong. Includes: CI runs every paper and RTL gate but nothing on hardware; the CPU default is not the shipped config and L2 is per board; omitting `--coherent-dma` builds a NIC that silently drops all RX; and the shipping `0x0014` build prunes the render low-pass, which quietly invalidates the analog loop record measured through it.
+- **[3. Timing & clocking constraints](#3-timing--clocking-constraints)** -- Three constraints that survive any port: the CBS slope divide is the 100 MHz critical path (hence the multicycle, or the datapath's own 50 MHz domain), 112.5 MHz was built and reverted on reset fanout, and `--gtx-tx-invert` is mandatory on the AX7101 or 25–40 % of TX frames corrupt.
+- **[4. Operational hazards - lethal pairings (gateware ⇄ driver)](#4-operational-hazards---lethal-pairings-gateware--driver)** -- Combinations that work individually and are fatal together, each with its guard: header-split page-size mismatch panics the kernel, RX-queue count is now per board and the wrong one shifts every DMA window under an unchanged DTB, and an armed `t > 0` talker with the lwSRP engine off blasts ~56 k frames/s unpaced because the reservation gate *is* the pacer.
+- **[5. Refuted performance levers (measured; do not rebuild without new evidence)](#5-refuted-performance-levers-measured-do-not-rebuild-without-new-evidence)** -- Six levers built or modelled, measured on silicon, and rejected -- TX reader prefetch, a second core, coalescing sweeps, 112.5 MHz, bigger L2/scratchpad/prefetch, and socket zero-copy RX. Read before proposing any of them again.
+- **[6. Performance: where the numbers actually live](#6-performance-where-the-numbers-actually-live)** -- The precedence rule for the conflicting throughput figures scattered across the corpus: the ledger and the campaign record win, prose snapshots lose. Audio gets its own rule at the end, and it is the sharper one -- every analog figure names the filter it was measured through, because the shipping build prunes that filter.
+- **[7. Legacy collateral that can mislead](#7-legacy-collateral-that-can-mislead)** -- Files still in the tree that describe a system we no longer build: the xsim-era testbenches, an unused RGMII PHY experiment on a GMII board, and the Zynq variant whose `0x43C0_0000`/IRQ_F2P mechanics leak into other docs.
 
 ## 1. Scope limitations (by design, current state)
 

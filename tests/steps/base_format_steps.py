@@ -136,7 +136,8 @@ def step_output_is_wire_truth(context):
         "Base Talker for no family - \"A PAAD-AE Base Talker may advertise "
         "any Base Format that is reasonable for its functionality\" - and a "
         "talker cannot correct a wider claim: it emits ONE width and "
-        "SET_STREAM_FORMAT on a STREAM_OUTPUT answers NOT_SUPPORTED, so a "
+        "SET_STREAM_FORMAT remains unimplemented and returns NOT_IMPLEMENTED, "
+        "so a "
         "listener handed a width the framer cannot produce discards every "
         "frame (silicon 2026-07-27: 296,294 of 296,294).")
 

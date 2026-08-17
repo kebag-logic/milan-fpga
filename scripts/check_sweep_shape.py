@@ -94,7 +94,7 @@ def config_shape(path):
     n_streams = max(len(s.get("listeners") or []), len(s.get("talkers") or []))
     c = (cfg.get("board") or {}).get("constraints") or {}
     # render_lpf is the milan_datapath LPF_P area lever
-    # (docs/NXN_ARCHITECTURE.md 6.2/6.3). Absent = filter PRESENT, which is
+    # (docs/design/AREA_BUDGET.md). Absent = filter PRESENT, which is
     # what every config said before 2026-07-27, so the default keeps old
     # configs byte-identical. It is gated here for the same reason
     # --eth-port and --rx-queues are: it changes the BITSTREAM, one board at

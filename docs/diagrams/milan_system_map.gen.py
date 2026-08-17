@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# [OBSOLETE + 2026-08-16]
 # docs/diagrams/milan_system_map.drawio — THE FULL SYSTEM MAP, v5.
 #   · hierarchical: blocks nested inside their owner containers
 #   · every address entry is its OWN cell (register-map rows)

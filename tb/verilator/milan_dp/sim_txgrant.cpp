@@ -370,11 +370,11 @@ int main(int argc, char** argv) {
     Win base = measure(1000000, "baseline");
     ck("baseline moves real CPU traffic", base.cpu > 500, 1);
 
-    // [3] put the CONTROL LANE to work. The old trigger was an AECP
-    //     REGISTER_UNSOLICITED_NOTIFICATION and its "answered on the control
-    //     lane" check; there is no AECP engine to answer it, so that check is
-    //     DELETED rather than left asserting against a dead responder. The
-    //     load is an ACMP poll, which the processor does answer.
+    // [3] put the CONTROL LANE to work. The old trigger was coupled to the
+    //     deleted repository-local AECP responder. The protocol processor now
+    //     serves REGISTER_UNSOLICITED_NOTIFICATION, with its command behavior
+    //     checked in the processor and pp_shadow suites. This throughput case
+    //     uses an ACMP poll as a simple deterministic control-lane load.
     long e0 = eg_ctl_frames;
     ctl_poll();
     brun(20000);

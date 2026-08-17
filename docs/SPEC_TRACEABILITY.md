@@ -94,13 +94,13 @@ and table numbers) name no repo object and stay plain text.
 
 ## Contents
 
-- **[The chain, and which file holds each link](#the-chain-and-which-file-holds-each-link)** — A flowchart from a standard clause to the status a row carries, and the point it exists to make: no single file holds the whole chain, which is why a row can read closed in one place and be unbacked in another.
-- **[Family files](#family-files)** — The five per-standard tables, their legend, and the warning that matters most on this page: the tallies are **pre-2026-08-13 figures** taken against a tree that still had a fabric AECP/AEM engine, and they overstate coverage — the re-grade is command by command, not family by family. Each family file's own glyph count is the only figure that cannot rot. The HTML comment keeps the earlier re-count history.
-- **[Why rows are N/A (taxonomy)](#why-rows-are-na-taxonomy)** — The defence of every ➖: four categories (wrong role, superseded by Milan, optional-so-only-the-refusal-is-owed, profile exclusion), the rows in each, and where the residual obligation is carried. Category 3 is the one that moved: with the uCPU landed, the owed refusal codes are emitted again — met by construction, not re-verified here — and that is the only place in the corpus where a `NOT_IMPLEMENTED` echo counts as coverage. A reviewer disputing an N/A is told to attack the category, not the row.
-- **[Module → family map](#module--family-map)** — The lookup that goes the other way: given a directory under `hdl/`, which family file's sections govern it. Re-pointed 2026-08-13 — four families that used to name four directories now name one module, and the AECP/AEM row names the submodule's engine rather than nothing.
-- **[tsn_gen (wire-test engine) — model inventory and gaps](#tsn_gen-wire-test-engine--model-inventory-and-gaps)** — Which YAML protocol models exist today versus the eight to author, ranked by value, plus what the surviving AECP yamls now measure against the uCPU (one real descriptor test that needs an image, 22 echo-shape tests) and the note that the repo-side aecp/acmp/adp/legacy fuzz campaigns are deleted with only the AAF one surviving. ACMP is still first, and is now *more* valuable: it is the only wire-level way to keep asserting a control plane that lives in a pinned submodule.
-- **[Top MISSING rows (attack-order preview)](#top-missing-rows-attack-order-preview)** — The open rows in attack order, headed by row 0, which still outranks everything under it: the AECP surface implements `READ_DESCRIPTOR` and **nothing in this repository builds the descriptor image it serves**, every other command is refused rather than implemented, and Milan Δ7 ACQUIRE_ENTITY has a microprogram nobody dispatches to. The three functional losses inside it are named — the CRF media clock can never be selected, the presentation offset is pinned at the Milan 2 ms default, and the Table 5.4 per-STREAM_OUTPUT counters are gone while the STREAM_INPUT ones are not. M-CLK-2 follows: CRF is in fabric yet still not a class A stream, and its reservation costs 7.17 % of the class-A budget to carry 0.45 % of it — a structural 16× over-provision because 2 ms / 125 µs = 16 intervals and `MaxIntervalFrames` cannot be fractional.
-- **[Review workflow](#review-workflow)** — The intended lifecycle of a row, ending in the rule that matters day to day: when a TB or module changes, the row citing it changes in the same commit.
+- **[The chain, and which file holds each link](#the-chain-and-which-file-holds-each-link)** -- A flowchart from a standard clause to the status a row carries, and the point it exists to make: no single file holds the whole chain, which is why a row can read closed in one place and be unbacked in another.
+- **[Family files](#family-files)** -- The five per-standard tables, their legend, and the warning that matters most on this page: the tallies are **pre-2026-08-13 figures** taken against a tree that still had a fabric AECP/AEM engine, and they overstate coverage -- the re-grade is command by command, not family by family. Each family file's own glyph count is the only figure that cannot rot. The HTML comment keeps the earlier re-count history.
+- **[Why rows are N/A (taxonomy)](#why-rows-are-na-taxonomy)** -- The defence of every ➖: four categories (wrong role, superseded by Milan, optional-so-only-the-refusal-is-owed, profile exclusion), the rows in each, and where the residual obligation is carried. Category 3 is the one that moved: with the uCPU landed, the owed refusal codes are emitted again -- met by construction, not re-verified here -- and that is the only place in the corpus where a `NOT_IMPLEMENTED` echo counts as coverage. A reviewer disputing an N/A is told to attack the category, not the row.
+- **[Module → family map](#module--family-map)** -- The lookup that goes the other way: given a directory under `hdl/`, which family file's sections govern it. Re-pointed 2026-08-13 -- four families that used to name four directories now name one module, and the AECP/AEM row names the submodule's engine rather than nothing.
+- **[tsn_gen (wire-test engine) -- model inventory and gaps](#tsn_gen-wire-test-engine----model-inventory-and-gaps)** -- Which YAML protocol models exist today versus the eight to author, ranked by value, plus what the surviving AECP yamls now measure against the uCPU (one real descriptor test that needs an image, 22 echo-shape tests) and the note that the repo-side aecp/acmp/adp/legacy fuzz campaigns are deleted with only the AAF one surviving. ACMP is still first, and is now *more* valuable: it is the only wire-level way to keep asserting a control plane that lives in a pinned submodule.
+- **[Top MISSING rows (attack-order preview)](#top-missing-rows-attack-order-preview)** -- The AECP surface serves the processor inventory, while the descriptor-image supply chain, Table 5.22 producer and Milan Delta 7 ACQUIRE_ENTITY semantics remain open. Solicited Stream Output counters are closed.
+- **[Review workflow](#review-workflow)** -- The intended lifecycle of a row, ending in the rule that matters day to day: when a TB or module changes, the row citing it changes in the same commit.
 
 ## The chain, and which file holds each link
 
@@ -283,7 +283,7 @@ substitution rather than an accident of it.
 | `hdl/ieee8021as/` + the PTP timestamp blocks (counter, ts core/top, csr_sync) | 802.1AS (AS-1..5) |
 | `hdl/common/` (tcam, rx_mac_filter, link_guard, ifg gasket, cdc) and `hdl/milan/milan_datapath.sv` | supporting rows inside each family (filtering, link qualification, integration) |
 
-## tsn_gen (wire-test engine) — model inventory and gaps
+## tsn_gen (wire-test engine) -- model inventory and gaps
 
 tsn_gen (the local tsn-gen checkout) generates, fuzzes and decodes wire frames from
 YAML protocol models (`protocols/`); packet_gen is the engine the matrix's
@@ -371,10 +371,10 @@ submodule rather than in this tree.
      `MSRP_ACC_LAT` are both unimplemented). A **DEFAULT, not a zero** — 0 ns would be a
      presentation time in the past and every listener would drop every frame as
      late;
-   - **the Milan Table 5.4 per-STREAM_OUTPUT counters are gone entirely** —
-     `KL_talker_diag_ctx` is no longer instantiated, because GET_COUNTERS and
-     its Table 5.22 push were its only two consumers and neither is implemented.
-     **The STREAM_INPUT
+   - **the Milan Table 5.4 per-STREAM_OUTPUT counters are live for solicited
+     reads**: `KL_talker_diag_ctx` is instantiated per declared output and
+     GET_COUNTERS serves the compact five-counter layout. The Table 5.22
+     unsolicited change producer remains open. **The STREAM_INPUT
      counters at the `0x6B8` `A_STRMW_CNT` window are UNAFFECTED and still
      live.**
 

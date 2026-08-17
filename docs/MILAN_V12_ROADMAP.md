@@ -4,7 +4,7 @@
 **Status 2026-08-16, VERSION `0x0002_004E`.** This is the ordered, clause-cited
 plan from where the device is to a device that passes the Milan
 end-station validation test plan. It supersedes the AECP sections of
-[`MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
+[historical `MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
 banner ("every AECP command except READ_DESCRIPTOR draws a NOT_IMPLEMENTED
 echo") expired three days after it was written.
 
@@ -31,7 +31,7 @@ leaves the clause open.
 - **[2. The non-command SHALLs](#2-the-non-command-shalls)** -- Persistence, notification, and controller-departure duties.
 - **[3. Tracked, but NOT compliance gaps](#3-tracked-but-not-compliance-gaps)** -- Recommended or optional work kept outside the mandatory count.
 - **[4. Two traps to carry into every round](#4-two-traps-to-carry-into-every-round)** -- Design constraints that repeatedly affect implementation choices.
-- **[5. Suggested order](#5-suggested-order)** -- Dependency-aware sequence for closing the remaining items.
+- **[5. Recorded order and remaining follow-ups](#5-recorded-order-and-remaining-follow-ups)** -- Completed state-store work and the ordered consumer, command, notification, and persistence follow-ups.
 - **[6. How each row gets proved](#6-how-each-row-gets-proved)** -- Required verification and acceptance evidence.
 
 ## 0. Where the device actually is
@@ -48,10 +48,11 @@ again.
 **not** include the unsolicited notification that Milan §5.4.5.2 and IEEE
 §7.4.7 require after a successful `SET_*`: no microprogram enqueues one, the
 only `NOTIFY_ENQ` in `gen_ucode.py` sits in an exemplar program, and
-`pp_pkg.sv` defines notification kinds for the deregistration and GET family
-only. Every `SET_*` row below therefore carries an open half, tracked as #69 —
-not as a per-row caveat, because it is the same missing mechanism in all of
-them. One more caveat worth naming here rather than burying: `0x0016`'s stored
+`pp_pkg.sv` defines notification kinds for the deregistration, `LOCK_ENTITY`,
+and GET families only, with none for any `SET_*`. Every `SET_*` row below
+therefore carries an open half tracked as #69 rather than a per-row caveat,
+because it is the same missing mechanism in all of them. One more caveat worth
+naming here rather than burying: `0x0016`'s stored
 clock source reaches `milan_datapath` and is read by nothing (audit B3).
 
 `0x0006` used to carry a second caveat — it stored an index that
@@ -140,17 +141,29 @@ happen (issue #78). The design and the two constraints that forced it are
 kept in §P2.1 below, because they still govern every command that has not
 landed yet.
 
-**What it does not yet do is reach its consumers.** Four of the five stored
-fields — current configuration, IDENTIFY, clock source and presentation-time
-offset — are published out to `milan_datapath` (`pp_aecp_*_w`) and read by
-nothing: the media clock still uses its compile-time select, so
-`SET_CLOCK_SOURCE` stores a value the servo does not act on. The fifth,
-**`current_sampling_rate`, is not published at all**: `KL_aecp_dyn_state` holds
-it and serves it over AECP but declares no output for it, so it stops at the
-store. Aligning the audio grid to it is #74's work. That is deliberate
-sequencing — the AECP side is complete and provable on its own, and each
-consumer is its own change — but it means a green suite here is **not** yet a
-claim that the device behaves differently on the bench.
+**What it does not yet do is reach its consumers.** The dynamic store holds
+eight fields. The fields served through AECP and those published to the fabric
+are different sets:
+
+| field | a microprogram reads or writes it | it has an output port |
+|---|---|---|
+| `current_configuration` | yes | yes |
+| `clock_source_index` | yes | yes |
+| IDENTIFY | yes | yes |
+| `current_sampling_rate` | yes | **no** |
+| presentation-time offset | **no** | yes |
+| started or stopped | **no** (withdrawn, #78) | yes, permanently zero |
+| `current_format`, Stream Inputs | **no** | **no** |
+| `current_format`, Stream Outputs | **no** | **no** |
+
+Five fields have an output, and all five are read by nothing downstream. The
+media clock still uses its compile-time select, so `SET_CLOCK_SOURCE` stores a
+value the servo does not act on. `current_sampling_rate` is the one field a
+controller can move that the fabric cannot see. Aligning the audio grid to it
+is #74's work. The two `current_format` rows are storage allocated ahead of
+`SET_STREAM_FORMAT`, and neither side can reach them today. This deliberate
+sequencing keeps the AECP side independently provable, but a green suite is
+**not** a claim that the device behaves differently on the bench.
 
 ---
 
@@ -291,11 +304,11 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 | `0x0022` | START_STREAMING | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output**; on a bound+stopped input → started | es-4.11, es-12.7 |
 | `0x0023` | STOP_STREAMING | 5.4.2.20 | mirror of the above | es-4.11, es-12.7 |
 
-> **`SET_CLOCK_SOURCE` is worth more than one row.** It is the **only** writer
-> of the live `clock_source_index`, which is why the CRF media clock can never
-> be selected today and why `KL_mmcm_drp_servo` and the `KL_media_nco` packet-
-> grid servo are structurally off. Landing it converts a dead actuator into a
-> live one and is the precondition for the P1.7 media-clock-lock finding.
+> **`SET_CLOCK_SOURCE` is worth more than one row.** Its dynamic-state store
+> and wrapper output have landed. The selected index now reaches the root, but
+> no media-plane consumer reads it. Replacing the INTERNAL selection constant
+> with that validated value is still required before `KL_mmcm_drp_servo` and
+> the `KL_media_nco` packet-grid servo can become live.
 
 ### P2.4 — dynamic audio mappings
 
@@ -413,16 +426,18 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
 
 ---
 
-## 5. Suggested order
+## 5. Recorded order and remaining follow-ups
 
-1. **P2.1** dynamic-state store — one piece of work, eleven commands unblocked.
-2. **P2.3** `SET_CLOCK_SOURCE` and `SET_SAMPLING_RATE` first of the SET family:
-   smallest, and `SET_CLOCK_SOURCE` lights up the media-clock servo.
+1. **P2.1** dynamic-state store: landed and serving the implemented setters.
+2. **P2.3 consumer follow-up**: validate and consume the exported clock-source
+   and sampling-rate state in the media plane. The clock-source command alone
+   does not light up the media-clock servo.
 3. **P2.2** `GET_NAME` + **P2.3** `SET_NAME` — one pair, one storage question
    (`name_index` fan-out), and five test items.
-4. **P2.3** `START`/`STOP_STREAMING`, `SET_CONFIGURATION`, `SET_STREAM_FORMAT`,
-   `SET_STREAM_INFO` — these need the bound/streaming interlocks, so they land
-   after the state store can express "bound" and "streaming".
+4. **P2.3** `START`/`STOP_STREAMING`, `SET_STREAM_FORMAT`, and
+   `SET_STREAM_INFO`: these still need the bound/streaming interlocks. The
+   already-landed `SET_CONFIGURATION` path now applies its running reduction
+   at dispatch.
 5. **P3.2** notification triggers, folded into each command above as it lands.
 6. **P2.2/P2.3** `GET`/`SET_CONTROL` with the IDENTIFY indicator wired.
 7. **P2.4** ADD/REMOVE_AUDIO_MAPPINGS.

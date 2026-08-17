@@ -1,7 +1,8 @@
 {
+  "_status": "[OBSOLETE + 2026-08-16] Retired pre-substitution model snapshot. Use configs/endstation_*.yaml and docs/ENDSTATION_BUILDER.md.",
   "_schema": "kebag-logic/milan-aem-entity",
   "_schema_version": "1.0.0",
-  "_description": "Single IEEE 1722.1-2021 AEM entity, AVnu Milan v1.2 profile. Byte-accurate mirror of the reference software entity in PipeWire module-avb (entity-model-milan-v12.h / aecp-vendor-unique-milan-v12.h). Drives BOTH the FPGA 4-level AEM memory (see ../aem-and-aecp.md) and a software entity. See ./README.md.",
+  "_description": "Historical IEEE 1722.1-2021 AEM model retained for provenance. It describes the retired fabric AEM design and is not the current descriptor-image authority.",
   "spec": {
     "aem": "IEEE 1722.1-2021",
     "profile": "AVnu Milan v1.2",
@@ -10,7 +11,7 @@
     "sources_of_truth": [
       "srcs/buildroot/dl/pipewire-upstream/git/src/modules/module-avb/entity-model-milan-v12.h",
       "srcs/buildroot/dl/pipewire-upstream/git/src/modules/module-avb/aecp-vendor-unique-milan-v12.h",
-      "milan-fpga/aem-and-aecp.md  (FPGA 4-level AEM memory + AECP state machines)"
+      "milan-fpga/aem-and-aecp.pdf  (obsolete fabric AEM design retained for provenance)"
     ],
     "field_class_legend": {
       "static": "compile-time constant; lives in factory read-only NVM / ROM. Never written by AECP.",

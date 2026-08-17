@@ -7,7 +7,7 @@ rationale — but are **not current state**. This file maps each to its **living
 Every inbound link across the doc set was repaired at move time; `scripts/docs_check.py`
 gates link integrity from here on.
 
-Orientation for current docs: [`docs/SYSTEMS_ENGINEER_GUIDE.md`](../docs/SYSTEMS_ENGINEER_GUIDE.md).
+Orientation for current docs: [`docs/README.md`](../docs/README.md).
 Full audit rationale: [`DOC_AUDIT.md`](DOC_AUDIT.md) (archived here 2026-07-27).
 
 ## Consolidations (merge groups)
@@ -44,7 +44,7 @@ dates with conflicting scoreboards. They consolidate to a small living set:
 | [`handovers/HANDOVER_0801.md`](handovers/HANDOVER_0801.md) | point-in-time handover from 2026-08-01 | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
 | [`handovers/HANDOVER_0802.md`](handovers/HANDOVER_0802.md) | point-in-time handover from 2026-08-02 | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
 | [`handovers/HANDOVER_0805.md`](handovers/HANDOVER_0805.md) | point-in-time handover from 2026-08-05 | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
-| [`DOC_AUDIT.md`](DOC_AUDIT.md) | completed plan — a self-declared "planning + drafting only" frozen record whose §2 archive move was executed 2026-07-25; the living ledger of what is archived is **this page** | [`docs/README.md`](../docs/README.md), [`docs/SYSTEMS_ENGINEER_GUIDE.md`](../docs/SYSTEMS_ENGINEER_GUIDE.md) |
+| [`DOC_AUDIT.md`](DOC_AUDIT.md) | completed planning and drafting record whose archive move was executed 2026-07-25; the living ledger of what is archived is **this page** | [`docs/README.md`](../docs/README.md) |
 
 Preserved evergreen nuggets (recorded so nothing is lost): the datapath-input TX-vs-CPU
 probe method (RX_FANOUT), the Forencich open-core catalog (OPEN_SOURCE_MIGRATION), the

@@ -338,22 +338,21 @@ kernel fails loudly instead of half-writing.
   verified) writes raw at any offset, so writing offset 0 by hand is fine here
   (it is the bitstream slot in the deployed layout, and was the kernel slot
   pre-v3).
-* **The AECP descriptor image is NOT part of this boot chain, and flashing does
-  not supply it.** Since 2026-08-13 the entity model is not a ROM in gateware:
+* **The AECP descriptor image is loaded on every boot rather than flashed into
+  its own slot.** Since 2026-08-13 the entity model is not a ROM in gateware:
   the protocol processor's descriptor store fetches it from **DRAM**, at a
   **compile-time** base (`PP_DESC_BASE_P`, derived by the SoC as the top 1 MiB
   of `main_ram` and reserved in the device tree — there is no base register to
   program). It has no flash slot and none of the four manifest images carries
   it, so **software must write it into DRAM on every boot, before enabling the
-  entity** (`PP_CTRL[0]` at `0x920`, ORed with `ADP_CTRL[0]` at `0x600`).
-  Nothing in this repository does that yet — no builder, script or boot step
-  produces the image or loads it, and the `aecp_aem_rom.svh` the end-station
-  builder still emits belongs to the deleted in-fabric store — so a board booted
-  from these images advertises, connects and streams while answering
-  `BAD_ARGUMENTS` to every `READ_DESCRIPTOR` — an unloaded image reports zero
-  configurations, and that check precedes the locate. That is expected on a stock
-  build, it never hangs (the store's watchdog abandons a stalled burst), and a
-  late load heals without a reset. Bench walk-through:
+  entity** (`PP_CTRL[0]` at `0x920`, ORed with `ADP_CTRL[0]` at `0x600`). The
+  end-station builder produces `aem_desc.bin`, `aem_desc.json`, and
+  `aem_desc.map`. The tracked rootfs packages the paired artifacts under
+  `/etc/milan-aem/`, and `aemi-load` verifies and writes the image before entity
+  enable. A custom boot path must provide the equivalent step. An unloaded or
+  corrupt image reports zero configurations, so every `READ_DESCRIPTOR` returns
+  `BAD_ARGUMENTS`; the store watchdog prevents a stalled bus from hanging the
+  command, and a late load heals without a reset. Bench walk-through:
   [../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md) §26.
 
 ---

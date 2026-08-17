@@ -291,11 +291,11 @@ def read_state(dut):
 def require_tsn_gen(report):
     """Skip cleanly (exit 0) when tsn-gen is not installed on this machine.
 
-    The ``SUITE-SKIP:`` line is the machine-readable half and is what keeps the
-    suite out of ``NOCOUNT`` in ``scripts/suite_tally.py``.  It deliberately
-    carries NO pass/fail numbers: a skip worded as "0 pass, 0 fail" matches the
-    campaign shape and would read as a campaign that ran and found nothing to
-    check, which is how a smaller total becomes invisible.  Zero is a
+    The ``SUITE-SKIP:`` line is the machine-readable declaration that lets
+    ``scripts/suite_tally.py`` report why the campaign total is smaller. It
+    deliberately carries NO pass/fail numbers: a skip worded as "0 pass, 0 fail"
+    matches the campaign shape and would read as a campaign that ran and found
+    nothing to check, which is how a smaller total becomes invisible.  Zero is a
     measurement; this is the absence of one, and the two must not look alike.
     """
     import tsn_model
@@ -305,5 +305,5 @@ def require_tsn_gen(report):
     print("        set TSN_GEN_ROOT / PACKET_GEN to enable the field campaign")
     print("SUITE-SKIP: AAF/AVTP field campaign (tsn-gen absent; set "
           "TSN_GEN_ROOT to enable)")
-    report.note("campaign skipped (tsn-gen absent) — not a failure")
+    report.note("campaign skipped (tsn-gen absent), not a failure")
     sys.exit(0)

@@ -142,9 +142,10 @@ def step_gate_requires_lwsrp(context):
 
 @then("the escape hatch is recorded as a Milan 5.3.7.3 conformance defect")
 def step_escape_hatch_recorded(context):
-    gaps = _read(os.path.join(_ROOT, "docs", "MILAN_COMPLIANCE_GAPS.md"))
+    gaps = _read(os.path.join(
+        _ROOT, "docs", "testing", "MILAN_V12_AUDIT_2026-08-16.md"))
     assert "AAF_CTRL[1]" in gaps and "5.3.7.3" in gaps, (
-        "the bypass must stay named in MILAN_COMPLIANCE_GAPS.md with its clause "
+        "the bypass must stay named in the current Milan audit with its clause "
         "for as long as it can be set")
 
 

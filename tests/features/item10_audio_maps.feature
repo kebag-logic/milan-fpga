@@ -11,12 +11,12 @@ Feature: the chmap64 render-crossbar binding contract
   contract (docs/CHMAP64_AEM_BINDING.md), and the crossbar it addresses -
   KL_chan_map_render and its capture twin KL_chan_map_capture - still ships.
 
-  WHAT LEFT. The AECP wire half of this feature is gone with
-  hdl/ieee17221/aecp/**: there is no GET_AUDIO_MAP, no ADD_/REMOVE_AUDIO_-
-  MAPPINGS and no AEM descriptor ROM in this repository any more, so the
-  scenarios that generated those frames with tsn_gen, patched their fields
-  and graded the returned AEM status were deleted rather than left asserting
-  against nothing. The model that projects a mapping into a crossbar word
+  WHAT LEFT. The repository-local AECP wire harness and AEM descriptor ROM are
+  gone. The protocol processor now serves READ_DESCRIPTOR from its main-memory
+  image and GET_AUDIO_MAP through the root gather face. ADD_AUDIO_MAPPINGS and
+  REMOVE_AUDIO_MAPPINGS remain unimplemented. Their current wire behavior is
+  tested in the processor and milan_dp harnesses. The offline model that
+  projects a mapping into a crossbar word
   moved to tests/steps/chmap_binding_steps.py and is driven DIRECTLY, so
   nothing below depends on the tsn_gen binary or skips without it.
 

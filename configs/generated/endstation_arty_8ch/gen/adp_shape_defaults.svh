@@ -64,7 +64,8 @@
   //! silently. One YAML section, one number (USER 2026-08-05).
   localparam int ADP_GPTP_DOMAIN_C   = 0;
 
-  //! STREAM_INPUT[0]'s declared (and, with no AECP to change it, its
+  //! STREAM_INPUT[0]'s declared (SET_STREAM_FORMAT is unimplemented,
+  //! so this is also its
   //! ONLY) stream_format - the value KL_avtp_rx_monitor_ctx accepts
   //! frames against. Was the AEM ROM's AEM_STRIN_FMT_C[0]; the ROM is
   //! gone and this is the same number from the same config.
