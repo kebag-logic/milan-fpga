@@ -3901,19 +3901,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! `bound & started` would silence every one of them.
   wire [ACMP_SINKS_C-1:0] acmpl_stopped_v_w = acmpl_bound_v_w
                                               & ~pp_aecp_strm_started_w;
-  //! KNOWN LIMIT, stated rather than smoothed over: this gate reaches the AAF
-  //! sinks (the classification table below, plus entry 0's alias). It does
-  //! NOT reach the CRF Media Clock Input at CRF_SNK_IDX_C, because that sink
-  //! has no entry in the classification table at all - `KL_crf_rx` takes
-  //! frames straight off the parser keyed on SUBTYPE. A config with
-  //! `crf_sink: true` advertises a STREAM_INPUT descriptor for it, so
-  //! STOP_STREAMING on that index is accepted, moves the record bit and is
-  //! reported by GET_STREAM_INFO's STREAMING_WAIT - while CRF PDUs keep
-  //! feeding the media clock. Read literally, Milan §5.3.8.7 says they
-  //! should stop; wiring that here would put a controller command in the
-  //! path of clock recovery for the whole device, which is a media-clocking
-  //! decision (§5.3.2 / the Milan Media Clocking spec) and not this issue's
-  //! to make. Filed rather than hidden.
+  //! Two consumers read this: the listener accept gate (the AAF sinks) and
+  //! `KL_crf_rx`'s frame strobe (the CRF Media Clock Input, which has no
+  //! classification-table entry of its own). Between them every Stream Input
+  //! the entity advertises is covered, which is what §5.4.2.19's "For each
+  //! Stream Input" and §5.3.8.7's discard rule together require.
   assign acmpl_sid_v_w   = pp_cd_acmp_bound_sid_w;
   //! the scalar sink-0 shadows every legacy consumer here still reads
   assign acmpl_bound = acmpl_bound_v_w[0];
@@ -4354,7 +4346,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .IVAL_CYC_P    (LDIAG_IVAL_CYC_P)
   ) crf_rx (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .frame_p_i   (avtprx_parse_p),
+    //! Milan §5.3.8.7 applies to EVERY Stream Input, and a config with
+    //! `crf_sink: true` advertises a STREAM_INPUT descriptor for this one -
+    //! so a controller can stop it, and "shall discard the Stream AVTPDUs it
+    //! receives" has to mean something here too. This sink has no entry in
+    //! the classification table (it keys on subtype, off the parser), so the
+    //! accept gate above cannot reach it and the predicate is applied
+    //! directly. It costs nothing in normal operation: the state is
+    //! `bound & ~started`, a bind lands started unless the BIND_RX asked for
+    //! STREAMING_WAIT, and an unbound CRF sink is outside the clause and
+    //! ungated - which is why this is not a controller command in the path
+    //! of clock recovery, only a controller command that was aimed at this
+    //! descriptor on purpose.
+    .frame_p_i   (avtprx_parse_p && !acmpl_stopped_v_w[CRF_SNK_IDX_C]),
     .subtype_i   (avtprx_subtype),
     .seq_i       (avtprx_seq),
     .sid_frame_i (avtprx_sid_frame),
