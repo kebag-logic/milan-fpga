@@ -64,8 +64,18 @@ matrix:
 	$(PY) ../../../docs/traceability/gen_module_matrix.py
 
 # fail if the committed matrix is stale (the no-drift contract)
+#
+# The echo is this suite's ONLY unconditional tally. gen_module_matrix.py
+# prints prose, not a count shape, so before this line the whole suite reported
+# nothing at all whenever the optional campaign skipped -- a NOCOUNT, and CI
+# could not go green on a machine without tsn-gen. ONE check is the honest
+# number: the contract asserted here is singular ("the committed matrix is not
+# stale"), and counting the 63 modules it inspects would inflate the sweep's
+# headline with work this suite did not do. It runs only when the check above
+# exits 0, so a stale matrix stays a failure with no tally, not a passing 1.
 matrix-check:
 	$(PY) ../../../docs/traceability/gen_module_matrix.py --check
+	@echo "traceability no-drift contract: 1 checks: 1 PASS, 0 FAIL"
 
 
 aaf: obj_aaf/Vaaf_cosim

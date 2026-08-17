@@ -35,6 +35,7 @@ they ever disagree:
 
 - **[How it works](#how-it-works)** — The YAML-to-RTL loop in one diagram, and the three-way split of ownership: tsn-gen is the field/constraint oracle, `wire.py` owns the actual bytes, `cosim_axis.h` owns the session — including the 4-byte control frame that requests a state dump, so campaigns observe state machines instead of guessing from replies.
 - **[Where the results go](#where-the-results-go)** — Each campaign writes its `TEST_RESULTS.md` into the folder of the RTL it validates, not a scratch dir, so a block's `doc/` shows its verification status in place. Table of the four paths. They are generated — do not hand-edit.
+- **[What this suite reports to the sweep](#what-this-suite-reports-to-the-sweep)** — The two lines `scripts/suite_tally.py` counts (the campaign's own total, and the traceability contract's one check), and the third that it deliberately does *not* count: `SUITE-SKIP:`, which says the optional campaign ran nothing. Why a skip must never be worded `0 pass, 0 fail`, and why one is the honest number for a contract that inspects 63 modules.
 - **[Why "state stability" is the real gate](#why-state-stability-is-the-real-gate)** — The argument for what this suite actually asserts: there is no software here to crash, so the test is that garbage does not *move state*. Each campaign's canary is named, including AAF's two-sided one — stay locked through malformed PDUs, but DO unlock during an accept drought, because a listener reporting MEDIA_LOCKED while accepting nothing is lying to the controller.
 - **[⚠ tsn-gen wire-layout caveat (measured 2026-07-25)](#-tsn-gen-wire-layout-caveat-measured-2026-07-25)** — The measured defect in the generator's own models: they omit the AVTPDU `sv`+`version` nibble, so a real READ_DESCRIPTOR decodes `control_data_length` 320 instead of 20. Explains the one-nibble shift `decode_pdu()` applies and why the models are used as an oracle but never as a frame builder.
 - **[Tracked gaps (visible, counted, non-failing)](#tracked-gaps-visible-counted-non-failing)** — Two defects this campaign found, each printed as `[GAP ]` rather than swept up: `LOCK_ENTITY` answering SUCCESS for any descriptor, and undersized frames bypassing the entity-id filter — with the honest impact assessment (the second is unreachable on a real link at Ethernet's 60-byte minimum).
@@ -80,6 +81,37 @@ exists:
 Each file records the verdict, the DUT, the exact RTL files under test, the
 per-section pass/fail/gap breakdown, every tracked gap, and the one-line
 reproduce command. They are generated — do not hand-edit.
+
+## What this suite reports to the sweep
+
+`scripts/suite_tally.py` turns per-suite logs into the sweep's headline check
+count. This suite emits **two** things it reads, and the distinction between
+them is the whole point:
+
+| line | when | counts |
+|---|---|---|
+| `== AAF/AVTP stream field campaign (tsn-gen driven): N pass, 0 fail, 0 known gaps ==` | tsn-gen present | **N** |
+| `traceability no-drift contract: 1 checks: 1 PASS, 0 FAIL` | always, if the matrix check passed | **1** |
+| `SUITE-SKIP: AAF/AVTP field campaign (tsn-gen absent; …)` | tsn-gen absent | **0**, and says so |
+
+So the suite reports `1` on a machine without tsn-gen and `N + 1` with it.
+
+**`SUITE-SKIP:` is not a tally and must never be given pass/fail numbers.** A
+skip worded as `0 pass, 0 fail` matches the campaign shape above, which would
+make a campaign that never ran indistinguishable from one that ran and found
+nothing to check — the sweep's total would read as complete while silently
+omitting this suite. That is the failure this marker exists to prevent, and
+`suite_tally.py`'s self-test pins it (`skip-adds-nothing`,
+`skip-prose-is-not-a-marker`).
+
+Before the marker existed the suite printed no count shape at all when the
+campaign skipped, so it was classed `NOCOUNT` and CI could not go green on a
+machine without the generator. `NOCOUNT` was the right verdict for a silent
+log; it was the wrong verdict for a log that had an explanation to give.
+
+The `1` is the traceability check, and one is the honest number: the contract
+it asserts is singular. It inspects 63 modules; counting 63 would inflate the
+sweep's headline with work this suite did not do.
 
 ## Why "state stability" is the real gate
 

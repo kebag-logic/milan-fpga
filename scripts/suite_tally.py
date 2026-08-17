@@ -40,6 +40,31 @@ Two detectors implement that:
 Both are accounting verdicts.  Neither changes whether a suite passed --
 ``run_all_suites.sh`` still gates that on the suite's exit status alone.
 
+THE THIRD STATE: SKIPPED
+------------------------
+A campaign whose *optional* dependency is absent has run nothing, and that is
+neither a measurement nor silence -- it is a **fourth** thing, and collapsing it
+into any of the other three loses information:
+
+* counting it as ``0 pass, 0 fail`` makes it look like a campaign that ran and
+  found nothing to check.  The suite total then reads as complete when it is
+  not, and the sweep goes quiet -- the exact false green this file exists to
+  prevent, arrived at from the other direction.
+* leaving it silent makes it a ``NOCOUNT``, which is loud and correct but
+  unactionable: CI cannot pass on a machine without the optional tool.
+
+So a suite may declare the skip explicitly, with a ``SUITE-SKIP:`` line.  That
+is not a tally and adds nothing to the total; it only says *why* the total is
+smaller, and it keeps the suite out of ``NOCOUNT``.  Every skip is listed in
+this tool's output, so a campaign that silently stopped running cannot hide
+behind a green sweep.
+
+The limit of this, stated honestly: a suite that prints ``SUITE-SKIP:`` and
+*then* runs checks whose summary matches no shape has those checks dropped
+without a ``NOCOUNT``.  ``UNPARSED`` still covers that when the summary looks
+tally-shaped.  The marker is deliberately an explicit, anchored token rather
+than prose so it cannot be tripped by a log merely mentioning a skip.
+
 THE SHAPES
 ----------
 Ordered, first match wins.  Order matters: ``N checks: P PASS, F FAIL`` must be
@@ -110,6 +135,12 @@ TALLY_SHAPED = re.compile(
     r"(?<![\w.])\d+\s+pass(ed)?\s*,", # "222 pass," -- tsn_fuzz's campaign form
     re.IGNORECASE,
 )
+# An explicit declaration that an optional campaign did not run.  Anchored and
+# all-caps on purpose: it must be something a suite states deliberately, never
+# something prose can trip.  "campaign skipped", "SKIP: ..." and friends appear
+# in ordinary log chatter and are NOT this.
+SKIP_DECLARED = re.compile(r"^\s*SUITE-SKIP:\s*(\S.*?)\s*$")
+
 # NOTE the limit of this net, honestly: it only catches vocabularies that
 # overlap the ones above. A suite inventing wording that shares NOTHING with
 # them slips past it -- and is then caught by the NOCOUNT detector instead,
@@ -119,12 +150,17 @@ TALLY_SHAPED = re.compile(
 
 
 def scan(text):
-    """Return (checks, failures, matched_lines, unparsed_lines) for one log."""
+    """Return (checks, failures, matched, unparsed, skipped) for one log."""
     checks = failures = 0
     matched = []
     unparsed = []
+    skipped = []
     for raw in text.splitlines():
         line = raw.rstrip()
+        sk = SKIP_DECLARED.match(line)
+        if sk:
+            skipped.append(sk.group(1))
+            continue
         for name, rx, cg, fg in SHAPES:
             m = rx.search(line)
             if m:
@@ -136,7 +172,7 @@ def scan(text):
         else:
             if TALLY_SHAPED.search(line):
                 unparsed.append(line.strip())
-    return checks, failures, matched, unparsed
+    return checks, failures, matched, unparsed, skipped
 
 
 # --- self-test ---------------------------------------------------------------
@@ -166,13 +202,27 @@ SELFTEST = [
                             "== KL_mac_rmon_events (no MAC checks) ==\n",  0, 0, False),
     # THE POINT OF THE GATE: a shape nobody taught it must be LOUD, never zero
     ("novel-shape",         "assertions=419 errors=0\ntotal 419 checks OK\n", 0, 0, True),
+    # A declared skip is not a tally: it must add NOTHING to the total. The
+    # regression this guards is a skip note worded as "0 pass, 0 fail", which
+    # the campaign shape WOULD match and which would read as a campaign that
+    # ran and checked nothing.
+    ("skip-adds-nothing",   "SUITE-SKIP: aaf campaign (tsn-gen absent)\n"
+                            "1 checks: 1 PASS, 0 FAIL\n",                1, 0, False),
+    # ...and a skip must not launder an unparseable tally sitting beside it
+    ("skip-does-not-hide-unparsed",
+                            "SUITE-SKIP: aaf campaign (tsn-gen absent)\n"
+                            "total 419 checks OK\n",                     0, 0, True),
+    # prose about skipping is NOT the marker -- the marker is deliberate
+    ("skip-prose-is-not-a-marker",
+                            "  ..... campaign skipped (tsn-gen absent)\n"
+                            "  SKIP: tsn-gen not found\n",               0, 0, False),
 ]
 
 
 def selftest():
     bad = 0
     for name, text, want_c, want_f, want_unparsed in SELFTEST:
-        c, f, matched, unparsed = scan(text)
+        c, f, matched, unparsed, _skipped = scan(text)
         got_unparsed = bool(unparsed)
         ok = (c == want_c and f == want_f and got_unparsed == want_unparsed)
         print(f"  {'ok  ' if ok else 'FAIL'} {name:<22} "
@@ -183,13 +233,24 @@ def selftest():
                   f"unparsed={want_unparsed}")
 
     # An empty log is a NOCOUNT, not a zero -- the whole reason this file exists.
-    c, f, matched, unparsed = scan("Verilating...\nbuild finished\n")
-    if matched:
+    c, f, matched, unparsed, skipped = scan("Verilating...\nbuild finished\n")
+    if matched or skipped:
         print("  FAIL nocount               a silent log produced a tally")
         bad += 1
     else:
         print("  ok   nocount               a silent log yields NO tally "
               "(-> NOCOUNT, not 0)")
+
+    # ...and a log that ONLY declares a skip is the third state: still no
+    # tally, but it explained itself, so it is SKIPPED rather than NOCOUNT.
+    c, f, matched, unparsed, skipped = scan(
+        "== AAF campaign ==\nSUITE-SKIP: aaf campaign (tsn-gen absent)\n")
+    if matched or c or not skipped:
+        print("  FAIL skipped               a skip-only log did not read as SKIPPED")
+        bad += 1
+    else:
+        print("  ok   skipped               a skip-only log is SKIPPED, "
+              "contributes 0, and is NOT a NOCOUNT")
 
     print("selftest:", "PASS" if bad == 0 else f"{bad} FAILURE(S)")
     return 1 if bad else 0
@@ -214,28 +275,46 @@ def main(argv):
     total_checks = total_fails = 0
     nocount = []
     unparsed_findings = []
+    skip_findings = []
     rows = []
 
     for log in logs:
         suite = log.stem
         text = log.read_text(errors="replace")
-        c, f, matched, unparsed = scan(text)
+        c, f, matched, unparsed, skipped = scan(text)
         total_checks += c
         total_fails += f
-        rows.append((suite, c, f, len(matched)))
-        if not matched:
+        rows.append((suite, c, f, len(matched), len(skipped)))
+        #! a declared skip keeps a suite out of NOCOUNT, and ONLY that: it adds
+        #! no checks, and it is reported below so a campaign that quietly
+        #! stopped running cannot hide behind a green sweep
+        if not matched and not skipped:
             nocount.append(suite)
         for line in unparsed:
             unparsed_findings.append((suite, line))
+        for reason in skipped:
+            skip_findings.append((suite, reason))
 
     if not quiet:
         print("suite                        checks   failures  tallies")
-        for suite, c, f, n in rows:
-            flag = "  <- NO COUNT" if n == 0 else ""
+        for suite, c, f, n, s in rows:
+            flag = "  <- NO COUNT" if (n == 0 and s == 0) else ""
+            if s:
+                flag += f"  <- {s} SKIPPED"
             print(f"{suite:<28} {c:>8} {f:>10} {n:>8}{flag}")
         print()
 
     print(f"checks: {total_checks}   in-suite failures: {total_fails}")
+
+    #! Printed ALWAYS, including --quiet, and above the accounting verdicts:
+    #! the total being smaller than usual is the thing a reader most needs
+    #! told, and it is not a failure so nothing else would say it.
+    if skip_findings:
+        print()
+        print(f"declared skips ({len(skip_findings)}) -- these ran NOTHING and "
+              f"contribute 0 to the total above:")
+        for suite, reason in skip_findings:
+            print(f"  SKIPPED  {suite}: {reason}")
 
     bad = False
     if nocount:
