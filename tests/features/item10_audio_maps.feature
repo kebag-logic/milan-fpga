@@ -107,10 +107,10 @@ Feature: the chmap64 render-crossbar binding contract
     And the fabric render crossbar has 0 enabled words
 
   @class:action @boundary @roadmap23
-  Scenario: the lifted mapping command limit is 68 complete records
-    When I ADD 68 copies of stream_channel 0 at cluster_offset 0
+  Scenario: the mapping command limit is 63 complete records
+    When I ADD 63 copies of stream_channel 0 at cluster_offset 0
     Then the audio-map model responds status 0
     And the fabric render crossbar has 1 enabled words
-    When I ADD 69 copies of stream_channel 1 at cluster_offset 1
+    When I ADD 64 copies of stream_channel 1 at cluster_offset 1
     Then the audio-map model responds status 7
     And the fabric render crossbar has 1 enabled words

@@ -590,15 +590,17 @@ reserved to this feature, 5 words used):
 [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) gains the `0x900` group row; `VERSION` minor bumps
 (additive change).
 
-> **ONE BIT, TWO JOBS — and losing the seeder made that visible.**
+> **ONE BIT, TWO JOBS, AND THE SHAPE SELECTS THE NORMAL PATH.**
 > `CHMAP_CTRL[0]` arms the write window *and* selects the crossbar in place
 > of the front-end pair stream (`cap_xbar_live` in `milan_datapath.sv`; the
-> DAC feed mux takes the same bit). While the AEM machinery existed the
-> routing decision was made by the *shape* — a dynamic-map build routed the
-> crossbar by construction over a seeded map — and this bit only mattered on
-> a static shape. Every build is the static case now, so the sequence is:
+> DAC feed mux takes the same bit). The generated shape selects the dynamic
+> crossbar for a dynamic port. Every shipped Stream Port Input is dynamic per
+> Milan v1.2 5.3.3.9, so its render crossbar is live independently of this
+> debug bit. Stream Port Outputs may be static or dynamic, but the builder
+> requires one uniform output mode because the capture selector is global.
+> For a static output image, using the CSR override follows this sequence:
 >
-> 1. write `CHMAP_CTRL[0] = 1` — **the crossbar goes live over an all-zero
+> 1. write `CHMAP_CTRL[0] = 1`: **the crossbar goes live over an all-zero
 >    map, i.e. silence, from this instant**;
 > 2. write the entries through `CHMAP_SEL` / `CHMAP_WORD`;
 > 3. audio appears as each entry commits (effect lands at the next media
@@ -622,6 +624,9 @@ reserved to this feature, 5 words used):
 > registered controller other than the requester, including an idempotent ADD.
 > Only a changed command marks the mapping state dirty. Nonvolatile replay
 > remains open in issue #70.
+> IEEE 1722.1-2021 9.2.2.6 limits a command's control_data_length to 524
+> octets, so the 20 + 8N mapping command body carries at most 63 records.
+> Milan v1.2 5.4.1 permits the corresponding response to exceed that limit.
 
 The AECP write path handles `ADD_AUDIO_MAPPINGS` and
 `REMOVE_AUDIO_MAPPINGS` (command values 44/45 and

@@ -182,6 +182,7 @@ streams:
   listeners:
     - name: "Stream 1"               # AAF STREAM_INPUT 0 (CRF appended after)
       channels: 8                    # 8 clusters; the Milan 6.4 family below
+      map_mode: dynamic              # Milan v1.2 5.3.3.9, no input AUDIO_MAP
       formats: ["0x0205022000806000"]
       # The CURRENT format ONLY, and it is deliberately NARROWER than
       # `channels`: 2ch-first is the deployed reset default (kernel-shield

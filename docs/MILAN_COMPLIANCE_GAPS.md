@@ -158,11 +158,11 @@ Two facts belong at the top of this section rather than buried in a row:
 | 5.3.3.x | the mandatory AEM descriptor set a PAAD-AE exposes (ENTITY … STRINGS), and the CLOCK_DOMAIN-over-CLOCK_SOURCEs media-clock model | **OPEN, but for a different reason than the rest of this table.** `READ_DESCRIPTOR` is implemented and will serve any descriptor in the image byte-for-byte. The *serving* mechanism is no longer the gap: the **image** is. The local descriptor ROM and its `include`-r are deleted. The model generator still runs but emits an artifact no RTL reads, and nothing converts it into the flat DRAM image the store fetches. Supply that image and this row closes without touching RTL. Until then every type answers `BAD_ARGUMENTS`: an unloaded image reports a configuration count of zero, and the `configuration_index` check precedes the locate, so a read never gets far enough to miss |
 | 5.3.6.x / 5.3.8.x / 5.3.13 | **saved state**: sampling rate, STREAM_INPUT current format, presentation-time offset, STREAM_OUTPUT current format, started/stopped state, output channel mappings, input channel mappings, clock source, the bound state, and the user-name list. Each "shall be saved in a non-volatile memory and restored after a power cycle" | **OPEN, all of them.** `KL_persist_journal` is deleted and the processor's NVM face is a BLANK-FLASH responder (reads `0xFF`, writes accepted and discarded, erase completes). A restore walk always finds blank flash and completes with zero records. **Nothing in this device persists anything across a power cycle.** The `0x7A0` bind-restore port accepts writes and never asserts its ack. `0x7B8`-`0x7C4` (journal) and `0x7C8`-`0x7D4` (AEM dynamic-state patch) accept writes and discard them |
 | 5.3.7.3 / 5.3.8.x | dynamic state a controller can read back at all (GET_STREAM_INFO, GET_STREAM_FORMAT, the streaming state) | **OPEN.** The state still moves in fabric: the bind, the talker declaration and the SRP registration are the processor's class-D face. Nothing publishes it to a controller |
-| 5.3.9.1 / 5.3.10.1 | dynamic channel mappings, incl. the listener-side SHALL ("shall support changing mappings from a Stream Input at any time, even when it is bound") | **IMPLEMENTED FOR LIVE STATE, PERSISTENCE OPEN.** GET_AUDIO_MAP, ADD_AUDIO_MAPPINGS, and REMOVE_AUDIO_MAPPINGS serve dynamic input and output ports. The root transaction face validates every row before commit, owns cross-port output-channel conflicts, updates the full generated model stores and backed crossbar projections, and rejects running-output changes while the feature flag is clear. Successful changes notify other registered controllers. Saved mappings do not survive power loss because the NVM backend remains the blank-flash stub tracked by #70 |
+| 5.3.9.1 / 5.3.10.1 | dynamic channel mappings, incl. the listener-side SHALL ("shall support changing mappings from a Stream Input at any time, even when it is bound") | **IMPLEMENTED FOR LIVE STATE, PERSISTENCE OPEN.** GET_AUDIO_MAP, ADD_AUDIO_MAPPINGS, and REMOVE_AUDIO_MAPPINGS serve dynamic input and output ports. Every generated Stream Port Input is dynamic; a static input config is rejected per 5.3.3.9. Output ports may be static or dynamic, but one image must use one output mode because the current capture crossbar selector is global. Commands are limited to 63 records by IEEE 1722.1-2021 9.2.2.6 (`control_data_length <= 524`); Milan 5.4.1 lifts that limit for responses only. The root transaction face validates every row before commit, owns cross-port output-channel conflicts, updates the full generated model stores and backed crossbar projections, and rejects running-output changes while the feature flag is clear. Successful changes notify other registered controllers. Saved mappings do not survive power loss because the NVM backend remains the blank-flash stub tracked by #70 |
 | 5.4.2.x | the AECP command set: READ_DESCRIPTOR, ACQUIRE_ENTITY, LOCK_ENTITY, SET/GET_CONFIGURATION, SET/GET_NAME, SET/GET_SAMPLING_RATE, SET/GET_STREAM_FORMAT, SET/GET_STREAM_INFO, SET/GET_CONTROL (IDENTIFY), SET/GET_CLOCK_SOURCE, SET/GET_MAX_TRANSIT_TIME, GET_AVB_INFO, GET_AS_PATH, GET_COUNTERS, GET_DYNAMIC_INFO, START/STOP_STREAMING, ENTITY_AVAILABLE, CONTROLLER_AVAILABLE, REGISTER/DEREGISTER_UNSOLICITED_NOTIFICATION | **PARTIAL.** The processor serves the inventory recorded in `tests/steps/aecp_engine_steps.py`; unsupported commands receive the conformant fallback. `ACQUIRE_ENTITY` still lacks the Milan Delta 7 `NOT_SUPPORTED` response with `owner_id` = 0. The Table 5.22 unsolicited producer, IDENTIFY and persistence remain open |
 | 5.4.2.25 + Tables 5.4 / 5.13-5.17 | GET_COUNTERS for AVB_INTERFACE, CLOCK_DOMAIN, STREAM_INPUT and STREAM_OUTPUT: "shall implement **and return**" | **PARTIAL FOR SOLICITED READS 2026-08-16.** Every declared Stream Output has a live five-counter bank and is served through GET_COUNTERS. AAF Stream Inputs are served, but the appended CRF Media Clock Input at descriptor index `N_STREAMS` has no root monitor context and returns an empty mask. The Table 5.22 unsolicited change producer is tracked separately |
 | 5.4.3.2 | the Milan Vendor Unique family: GET_MILAN_INFO, SET/GET_SYSTEM_UNIQUE_ID, SET/GET_MEDIA_CLOCK_REFERENCE_INFO | **OPEN.** MVU rides AECP, so it falls with it. In this section's own terms: *no MVU, not a Milan device*. A controller cannot complete the Milan identity handshake, and `features_flags` publishes nothing |
-| 5.4.5.2 + Table 5.22 | the unsolicited-notification push duty, on every listed trigger, to every OTHER registered controller | **PARTIAL.** The 16-controller registry and unsolicited lane are live. State-changing ADD_AUDIO_MAPPINGS and REMOVE_AUDIO_MAPPINGS now reflect the exact successful response body to every registered controller except the requester, with independent sequence IDs and no push for an idempotent ADD. The remaining command and asynchronous trigger set stays open under #69 |
+| 5.4.5.2 + Table 5.22 | the unsolicited-notification push duty, on every listed trigger, to every OTHER registered controller | **PARTIAL.** The 16-controller registry and unsolicited lane are live. Every successful ADD_AUDIO_MAPPINGS and REMOVE_AUDIO_MAPPINGS reflects the exact response body to every registered controller except the requester, with independent sequence IDs, including an idempotent ADD. Only a changed command marks persistence dirty. The remaining command and asynchronous trigger set stays open under #69 |
 | 5.4.5.3 | controller liveness: the random 30-60 s per-controller monitor, the CONTROLLER_AVAILABLE probe with its 9.3.6 retry, and auto-deregistration | **OPEN.** The device does receive and answer AECP commands now, so it *sees* controllers. What it does not have is any registry to record them in, any monitor to age them out, and any `CONTROLLER_AVAILABLE` transmitter to probe them with. That command answers `NOT_IMPLEMENTED` like the rest |
 | 5.5.1.4 / 5.5.2.6 | saved-state fast-connect (a listener re-binding on its own after power-up) | **OPEN**, and escalated: it is no longer a feature waiting to be written on top of a persistence plane, it is unimplementable until both an AEM settings path and a real NVM store exist |
 
@@ -445,7 +445,9 @@ instrument nobody has built, or credentials this project does not hold.
     - dynamic maps on STREAM_PORT_OUTPUT are codegen-rejected. Outputs keep
       the Milan-mandated static NOT_SUPPORTED.
 
-    - one ADD/REMOVE carries <= 60 mappings (an AECPDU fits 63 anyway).
+    - one ADD/REMOVE command carries at most 63 mappings. IEEE
+      1722.1-2021 9.2.2.6 caps command control_data_length at 524 octets,
+      and the Figure 7-71 body is 20 + 8N octets.
 
     - a mapping_stream_channel >= 8 is BAD_ARGUMENTS, because the render map
       word carries ch[2:0]. Every Milan 6.4 base format this entity declares
@@ -498,9 +500,8 @@ instrument nobody has built, or credentials this project does not hold.
 
     - [configs/endstation_arty_4x4.yaml](../configs/endstation_arty_4x4.yaml) (16 keys) and
       [configs/endstation_ax7101_8x8.yaml](../configs/endstation_ax7101_8x8.yaml) (64 keys) now carry
-      `map_mode: dynamic` on every listener. endstation_arty_current.yaml
-      stays static, so the TRACKED entity definition and golden stay
-      byte-identical and check_entity_shape is unmoved.
+      `map_mode: dynamic` on every listener. endstation_arty_current.yaml now
+      does the same, so every shipped Stream Port Input obeys Milan 5.3.3.9.
 
     - REMOVE_AUDIO_MAPPINGS now runs the SAME validate-then-commit walk
       as ADD. 7.4.46.1 is all-or-nothing in its own words: "If any of
@@ -553,14 +554,13 @@ instrument nobody has built, or credentials this project does not hold.
       a controller programs it. The persistence plane (KL_persist_journal) is
       where that belongs.
 
-    - (b) The talker side stays static (5.3.9.1 is explicitly OPTIONAL, and
-      5.3.3.9 lets a Stream Port Output keep Audio Maps). Its key space is
-      (stream_index, stream_channel) against a DIFFERENT RAM, the capture
-      mux, not a parameter change to this engine.
+    - (b) A Stream Port Output may be static or dynamic because 5.3.9.1 is
+      optional and 5.3.3.9 lets an output keep Audio Maps. The current
+      capture crossbar selects its map source globally, so the builder
+      rejects a mixed static/dynamic output image.
 
-    - (c) arty_current is still static. Flipping it is a one-line config
-      change plus a tracked-svh/golden regeneration, deliberately not done in
-      the same round as an ownership-contended file.
+    - (c) Closed 2026-08-17: arty_current is dynamic and its tracked shape
+      and descriptor artifacts were regenerated.
 
   - **A frame that LIES about its length is now refused outright
     (KL_aecp_packet_validator).** control_data_length had only ever been

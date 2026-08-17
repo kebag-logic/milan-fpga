@@ -136,10 +136,10 @@ class MilanAudioMapModel:
         port = self._port(di)
         if dt != DESC_STREAM_PORT_INPUT or port is None:
             return STATUS_NO_SUCH_DESCRIPTOR
-        # A 576-byte RX slot carries the 20-byte fixed AECP command body plus
-        # 68 eight-byte mapping records. Milan 5.4.1 explicitly lifts the
-        # ordinary 524-octet control_data_length ceiling for these commands.
-        if len(mappings) > 68:
+        # IEEE 1722.1-2021 9.2.2.6 limits a command's control_data_length to
+        # 524 octets. Figure 7-71 uses 20 + 8*N, so N is at most 63. Milan
+        # v1.2 5.4.1 lifts this limit for responses, not commands.
+        if len(mappings) > 63:
             return STATUS_BAD_ARGUMENTS
         if not mappings:
             return STATUS_SUCCESS                # empty edit, no change

@@ -35,7 +35,7 @@
   //! Dynamic AUDIO_MAP ownership, one bit per AAF Stream Port. A set
   //! bit means the descriptor carries no static AUDIO_MAP and the
   //! ADD/REMOVE/GET_AUDIO_MAP command family owns its live routing.
-  localparam logic [63:0] ADP_DMAP_IN_MASK_C  = 64'h0000000000000000;
+  localparam logic [63:0] ADP_DMAP_IN_MASK_C  = 64'h0000000000000001;
   localparam logic [63:0] ADP_DMAP_OUT_MASK_C = 64'h0000000000000000;
   //! Dynamic input geometry is the AEM model's port-relative page
   //! partition plus its global cluster-key projection. RPHYS entries
@@ -44,13 +44,13 @@
   localparam int ADP_DMAP_IN_KEYS_C    = 8;
   localparam int ADP_DMAP_IN_PAGE_C    = 8;
   localparam int ADP_DMAP_IN_NPORTS_C  = 1;
-  localparam int ADP_DMAP_IN_NSTRIN_C  = 1;
+  localparam int ADP_DMAP_IN_NSTRIN_C  = 2;
   localparam logic [6:0] ADP_DMAP_IN_PBASE_C [0:0] = '{7'd0};
   localparam logic [6:0] ADP_DMAP_IN_PCLS_C [0:0] = '{7'd8};
   localparam logic [6:0] ADP_DMAP_IN_PNMAPS_C [0:0] = '{7'd1};
   localparam logic [6:0] ADP_DMAP_IN_RPHYS_C [0:7] = '{7'h40, 7'h41, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00};
-  localparam logic  ADP_DMAP_IN_SAAF_C [0:0] = '{1'b1};
-  localparam logic [9:0] ADP_DMAP_IN_SCH_C [0:0] = '{10'd2};
+  localparam logic  ADP_DMAP_IN_SAAF_C [0:1] = '{1'b1, 1'b0};
+  localparam logic [9:0] ADP_DMAP_IN_SCH_C [0:1] = '{10'd2, 10'd0};
   //! Dynamic output geometry and capture-source words are copied
   //! from the AEM generator's ODMAP table. CSRC uses the fabric word
   //! {valid, half, src[2:0], idxh[3:0], idx[3:0]}.
