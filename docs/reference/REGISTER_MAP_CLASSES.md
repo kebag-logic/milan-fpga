@@ -108,12 +108,11 @@ assumption that AECP answers only one command.
    integration gaps and processor-local diagnostics mean ssh remains the only
    view for some facts. Dropping an *optional* group can therefore still remove
    the last observable face for a live mechanism.
-2. **The mapping law has been overtaken by events.** It said: one truth (the
-   AEM store == the crossbar), one edit path (AECP), with the raw window as a
-   bring-up bypass. There is no AEM store, and the AECP commands that would
-   edit a map are unimplemented, so the raw window is the edit path and the
-   read-only auditor (`0x910/0x914`) is the only readback. The law is not
-   violated — there is still exactly one truth, and it is now the RAM itself.
+2. **The mapping law has been overtaken by events.** The map RAMs are the live
+   truth. AECP ADD and REMOVE stage and atomically commit changes to those RAMs,
+   while the raw window remains a direct diagnostic edit path. `GET_AUDIO_MAP`
+   and the `0x910/0x914` auditor read the same live state. Saved-state
+   persistence remains absent.
 3. **A structural zero must stay a zero.** The temptation when a source
    disappears is to leave the last value latched, or to publish a plausible
    idle. Both make a dead word indistinguishable from a working one; the
