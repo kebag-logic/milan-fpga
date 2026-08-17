@@ -221,8 +221,7 @@ def refreshed_origin_ref(ref):
         return ref
     if ref.startswith("origin/"):
         return "refs/remotes/" + ref
-    explicit_local = ref.startswith("refs/heads/")
-    if explicit_local:
+    if ref.startswith("refs/heads/"):
         name = ref[len("refs/heads/"):]
     elif ref.startswith("refs/"):
         return ref
@@ -230,12 +229,35 @@ def refreshed_origin_ref(ref):
         name = ref
 
     remote_ref = "refs/remotes/origin/" + name
-    rc, _ = _git("rev-parse", "--verify", "--quiet",
-                 remote_ref + "^{commit}")
-    #! A plain branch name after a successful fetch denotes origin's branch.
-    #! Keep the fully qualified missing ref when origin has no such branch;
-    #! falling back to the plain spelling lets Git resolve a same-named tag.
-    return remote_ref if rc == 0 or not explicit_local else ref
+    #! Normal mode has just fetched origin, so an origin-qualified answer is
+    #! authoritative even when that ref is now missing.  Falling back to an
+    #! explicit but stale refs/heads base can certify work against a branch
+    #! that origin deleted.  Deliberate local-only checks use --no-fetch.
+    return remote_ref
+
+
+def offline_ref(ref):
+    """Resolve a local-only branch spelling without falling through to tags."""
+    if is_full_oid(ref) or ref.startswith("refs/"):
+        return (ref, None)
+    if ref.startswith("origin/"):
+        return ("refs/remotes/" + ref, None)
+
+    local_ref = "refs/heads/" + ref
+    remote_ref = "refs/remotes/" + ref
+    local_rc, _ = _git("rev-parse", "--verify", "--quiet",
+                       local_ref + "^{commit}")
+    remote_rc, _ = _git("rev-parse", "--verify", "--quiet",
+                        remote_ref + "^{commit}")
+    if local_rc == 0 and remote_rc == 0:
+        return (None, f"{ref!r} names both {local_ref} and {remote_ref}; "
+                f"name the full ref")
+    if remote_rc == 0:
+        return (remote_ref, None)
+    #! A short operand denotes a branch, never a tag.  Keep a missing local
+    #! branch fully qualified so a same-named tag cannot turn UNKNOWN into a
+    #! false contained result.
+    return (local_ref, None)
 
 
 def fetched_branch_refs(ref):
@@ -286,10 +308,21 @@ def fetched_branch_refs(ref):
 
 def non_origin_remote_ref(ref):
     """Name an unrefreshable remote-tracking ref, or return None."""
+    if is_full_oid(ref):
+        return None
     if ref.startswith("refs/remotes/origin/") or ref.startswith("origin/"):
         return None
     if ref.startswith("refs/remotes/"):
         return ref
+    #! Resolve the remote namespace directly before asking Git to resolve the
+    #! caller's shorthand.  When refs/heads/upstream/work and
+    #! refs/remotes/upstream/work both exist, symbolic-full-name rejects the
+    #! ambiguous spelling.  Treating that failure as "not a remote" lets the
+    #! normal path silently measure origin/upstream/work instead.
+    rc, _ = _git("rev-parse", "--verify", "--quiet",
+                 "refs/remotes/" + ref + "^{commit}")
+    if rc == 0:
+        return "refs/remotes/" + ref
     rc, full = _git("rev-parse", "--symbolic-full-name", "--verify", ref)
     if (rc == 0 and full.startswith("refs/remotes/")
             and not full.startswith("refs/remotes/origin/")):
@@ -508,13 +541,16 @@ def merged_pr_heads(limit, base):
         base_name = base[len("refs/heads/"):]
     else:
         base_name = base
+    #! gh cannot order by mergedAt.  Fetch a complete candidate set, refuse a
+    #! truncated result, then sort locally.  Limiting an updated-desc query
+    #! first lets a comment on an old PR displace the newest merge.
+    candidate_limit = max(limit + 1, 1001)
     try:
         p = subprocess.run(
             ["gh", "pr", "list", "--state", "merged", "--base", base_name,
-             "--limit", str(limit),
+             "--limit", str(candidate_limit),
              "--json",
-             "number,headRefName,headRefOid,isCrossRepository,mergedAt",
-             "--search", "sort:updated-desc"],
+             "number,headRefName,headRefOid,isCrossRepository,mergedAt"],
             capture_output=True, text=True)
     except FileNotFoundError:
         #! distinct from "stranded": a tool we cannot run is not a finding
@@ -523,14 +559,21 @@ def merged_pr_heads(limit, base):
         return (None, "gh could not list merged PRs (authenticated?): "
                       + (p.stderr or "").strip()[:200])
     try:
+        candidates = json.loads(p.stdout)
+        if not isinstance(candidates, list):
+            raise ValueError("gh output is not a pull-request list")
+        if len(candidates) == candidate_limit:
+            return (None, f"more than {candidate_limit - 1} merged PRs target "
+                    f"{base_name}; refusing a possibly truncated sweep")
+        candidates.sort(key=lambda d: d["mergedAt"], reverse=True)
         rows = []
-        for d in json.loads(p.stdout):
+        for d in candidates[:limit]:
             ref_error = (None if d["isCrossRepository"] else
                          post_merge_ref_event_error(d["number"], d["mergedAt"]))
             rows.append((d["number"], d["headRefName"], d["headRefOid"],
                          d["isCrossRepository"], ref_error))
         return (rows, None)
-    except (ValueError, KeyError) as exc:
+    except (ValueError, KeyError, TypeError) as exc:
         return (None, f"could not parse gh output: {exc}")
 
 
@@ -760,6 +803,21 @@ def selftest():
                      "a short tag cannot stand in for a missing branch")
                 case("deleted-tag-short-word", "UNKNOWN" in out, True,
                      "...and the fetched namespace remains authoritative")
+                _git("tag", "offline-tag-only", "base")
+                rc, out = run(["--no-fetch", "--base", "base",
+                               "offline-tag-only"])
+                case("offline-tag-branch-rc", rc, RC_FINDING,
+                     "an offline short branch cannot fall through to a tag")
+                case("offline-tag-branch-word", "UNKNOWN" in out, True,
+                     "...and the missing local branch remains UNKNOWN")
+                _git("tag", "offline-base-tag-only",
+                     "refs/remotes/origin/work")
+                rc, out = run(["--no-fetch", "--base",
+                               "offline-base-tag-only", "base"])
+                case("offline-tag-base-rc", rc, RC_FINDING,
+                     "an offline short base cannot fall through to a tag")
+                case("offline-tag-base-word", "UNKNOWN" in out, True,
+                     "...and the missing local base remains UNKNOWN")
                 _git("push", "-q", "origin", "base:refs/heads/deleted-base")
                 _git("tag", "deleted-base", "refs/remotes/origin/work")
                 _git("push", "-q", "origin", "--delete", "deleted-base")
@@ -768,6 +826,25 @@ def selftest():
                      "a tag cannot stand in for a deleted base branch")
                 case("deleted-tag-base-word", "UNKNOWN" in out, True,
                      "...and the missing fetched base is UNKNOWN")
+                _git("branch", "stale-base", "refs/remotes/origin/work")
+                rc, out = run(["--base", "refs/heads/stale-base",
+                               "origin/work"])
+                case("deleted-explicit-base-rc", rc, RC_FINDING,
+                     "a stale explicit local base cannot replace origin")
+                case("deleted-explicit-base-word", "UNKNOWN" in out, True,
+                     "...and normal mode keeps the missing origin base")
+
+                _git("remote", "add", "upstream", remote)
+                _git("update-ref", "refs/remotes/upstream/work",
+                     "refs/remotes/origin/work")
+                _git("branch", "upstream/work", "base")
+                rc, out = run(["--base", "base", "upstream/work"])
+                case("ambiguous-remote-normal-rc", rc, RC_CANNOT_RUN,
+                     "an ambiguous non-origin remote shorthand is refused")
+                rc, out = run(["--no-fetch", "--base", "base",
+                               "upstream/work"])
+                case("ambiguous-remote-offline-rc", rc, RC_CANNOT_RUN,
+                     "...and offline mode requires its full ref identity")
 
                 # A merged PR's head OID is frozen at merge time.  The live
                 # branch tip is the only ref that can expose later pushes.
@@ -818,6 +895,65 @@ def selftest():
                     case("timeline-delete-parser",
                          "head_ref_deleted" in (timeline_error or ""), True,
                          "the GitHub timeline parser preserves deletion proof")
+                finally:
+                    subprocess.run = saved_subprocess_run
+
+                class MergedListResult:
+                    returncode = 0
+                    stderr = ""
+
+                    def __init__(self, stdout):
+                        self.stdout = stdout
+
+                merged_list_calls = []
+                unsorted_prs = (
+                    '[{"number":1,"headRefName":"one",'
+                    '"headRefOid":"1111111111111111111111111111111111111111",'
+                    '"isCrossRepository":true,'
+                    '"mergedAt":"2026-01-01T00:00:00Z"},'
+                    '{"number":2,"headRefName":"two",'
+                    '"headRefOid":"2222222222222222222222222222222222222222",'
+                    '"isCrossRepository":true,'
+                    '"mergedAt":"2026-03-01T00:00:00Z"},'
+                    '{"number":3,"headRefName":"three",'
+                    '"headRefOid":"3333333333333333333333333333333333333333",'
+                    '"isCrossRepository":true,'
+                    '"mergedAt":"2026-02-01T00:00:00Z"}]')
+
+                def fake_merged_list(argv, **_kwargs):
+                    merged_list_calls.append(argv)
+                    return MergedListResult(unsorted_prs)
+
+                subprocess.run = fake_merged_list
+                try:
+                    ordered_prs, list_error = merged_pr_heads(2, "base")
+                    case("merged-list-order",
+                         (list_error, [row[0] for row in ordered_prs]),
+                         (None, [2, 3]),
+                         "the sweep selects PRs by merge time")
+                    call = merged_list_calls[0]
+                    case("merged-list-complete-query",
+                         ("--search" not in call,
+                          call[call.index("--limit") + 1]),
+                         (True, "1001"),
+                         "...after requesting a bounded complete candidate set")
+
+                    one_candidate = (
+                        '{"number":1,"headRefName":"one",'
+                        '"headRefOid":'
+                        '"1111111111111111111111111111111111111111",'
+                        '"isCrossRepository":true,'
+                        '"mergedAt":"2026-01-01T00:00:00Z"}')
+                    repeated = ",".join(
+                        one_candidate for _index in range(1001))
+                    subprocess.run = lambda *a, **k: MergedListResult(
+                        "[" + repeated + "]")
+                    truncated_prs, truncated_error = merged_pr_heads(2, "base")
+                    case("merged-list-truncation",
+                         (truncated_prs,
+                          "truncated" in (truncated_error or "")),
+                         (None, True),
+                         "...and possible candidate truncation is not a pass")
                 finally:
                     subprocess.run = saved_subprocess_run
 
@@ -960,9 +1096,9 @@ def selftest():
                          "normal mode deepens before measuring containment")
                     os.chdir(td)
 
-            # A short name shared by a branch and tag is not a stable input.
-            # Git's normal precedence chooses the tag, which can hide a
-            # stranded branch.  The checker must refuse the ambiguous name.
+            # A short branch name shared with a tag keeps its branch identity.
+            # Git's normal precedence chooses the tag, which can otherwise
+            # hide the stranded branch.
             _git("checkout", "-qb", "collision", "base")
             open("collision-work", "w").write("stranded")
             _git("add", "collision-work"); _git("commit", "-qm", "collision")
@@ -970,8 +1106,8 @@ def selftest():
             rc, out = run(["--no-fetch", "--base", "base", "collision"])
             case("ambiguous-ref-rc", rc, RC_FINDING,
                  "a tag and branch sharing one name cannot false-pass")
-            case("ambiguous-ref-word", "UNKNOWN" in out, True,
-                 "...and the ambiguity is reported as UNKNOWN")
+            case("ambiguous-ref-word", "STRANDED" in out, True,
+                 "...and the typed short name measures the branch")
 
             # Replacement refs rewrite ancestry for ordinary Git plumbing.
             # Make the base appear to descend from a stranded feature, then
@@ -1383,6 +1519,23 @@ def main(argv):
 
     do_fetch = "--no-fetch" not in args
     args = [a for a in args if a != "--no-fetch"]
+    if not do_fetch:
+        base, ref_error = offline_ref(base)
+        if ref_error:
+            sys.stderr.write(ref_error + "\n")
+            return RC_CANNOT_RUN
+        if "--merged-prs" not in args:
+            normalized = []
+            for arg in args:
+                if arg.startswith("-"):
+                    normalized.append(arg)
+                    continue
+                ref, ref_error = offline_ref(arg)
+                if ref_error:
+                    sys.stderr.write(ref_error + "\n")
+                    return RC_CANNOT_RUN
+                normalized.append(ref)
+            args = normalized
     rc, shallow = _git("rev-parse", "--is-shallow-repository")
     if rc != 0 or shallow not in ("true", "false"):
         sys.stderr.write(
