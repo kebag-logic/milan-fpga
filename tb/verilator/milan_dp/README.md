@@ -158,7 +158,11 @@ with recovery.
 transaction face to update the live root stores. The harness proves full-page
 ADD and readback, idempotent ADD, all-or-nothing refusal after a late invalid
 row, duplicate-safe REMOVE, cross-port output ownership, running-output
-refusal, and generated input-port geometry through the live crossbar RAM.
+refusal, and generated input-port geometry through the live crossbar RAM. It
+derives the AX7101 output cluster count from the generated descriptor, accepts
+and round-trips every published offset, preserves a clear fabric-source marker
+for unbacked clusters, rejects same-key and cross-port replacement, and refuses
+the first offset beyond the model.
 
 ## Check counts, before and after
 

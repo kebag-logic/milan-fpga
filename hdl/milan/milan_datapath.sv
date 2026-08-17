@@ -1191,8 +1191,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   ) chan_map_capture (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! PER-CHANNEL store (0x0027, USER "one cluster == one audio channel"):
-    //! the key space is N_STREAMS*8 channels. The reserved AECP leg would
-    //! pass a 13-bit word straight through. The current CSR window composes
+    //! the key space is N_STREAMS*8 channels. The live AECP transaction leg
+    //! passes a 13-bit word straight through. The CSR window composes
     //! {en=WORD[15], half=WORD[8], src=WORD[14:12],
     //! idxh=WORD[7:4], idx=WORD[3:0]} - WORD[8] was reserved.
     .map_wr_en_i   ((aecp_odmap_wr_p_w &&
@@ -1660,8 +1660,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! bit-identical (render/capture crossbars are muxed OUT of both the
   //! packetizer feed and the i2s_playback feed).
   wire        cfg_chmap_enable;
-  //! Reserved render-side AECP map-write leg. It is tied off in the current
-  //! integration; the CSR 0x900 window is the only map-RAM writer.
+  //! Render-side AECP map-write leg. Accepted input transactions project
+  //! backed model clusters here; the CSR 0x900 window shares the writer.
   wire        aecp_dmap_wr_p_w;
   wire [5:0]  aecp_dmap_wr_addr_w;
   wire [7:0]  aecp_dmap_wr_word_w;
@@ -3614,7 +3614,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! Resolve a vendor CSR write back into the addressed output port's AEM
   //! cluster coordinate. Transactional AECP writes already carry that
   //! coordinate and store it directly. The first exact CSRC match wins;
-  //! invalid source templates never become protocol-visible mappings.
+  //! disabled fabric templates cannot be inferred from a live CSR word.
   function automatic logic [16:0] amap_out_cluster(
       input logic [12:0] e, input logic [15:0] port_i);
     logic [16:0] r;
@@ -3680,7 +3680,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         port_cluster_ok_c = 1'b1;
     end
     if (amap_out_owner_v_q_r && (amap_out_owner_q_r == amapq_index_r)
-        && amap_out_ent_q_r[12] && port_cluster_ok_c) begin
+        && port_cluster_ok_c) begin
       amap_out_hit_w = 1'b1;
       amap_out_rec_w = {16'(32'(amap_walk_jq_r) / 8), // stream_index
                         16'(32'(amap_walk_jq_r) % 8), // stream_channel
@@ -3738,7 +3738,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [15:0] amap_edit_cc_w = pp_amap_edit_record_w[15:0];
 
   //! Convert one port-relative cluster into the exact capture-source word
-  //! generated beside the AEM descriptor geometry.
+  //! generated beside the AEM descriptor geometry. Every cluster inside the
+  //! published port geometry is a legal protocol mapping target. CSRC bit 12
+  //! remains the separate live-fabric enable, so a mapping can be stored and
+  //! read back even when this build does not elaborate its media source.
   function automatic logic [13:0] amap_edit_out_encode(
       input logic [15:0] off_i, input logic [15:0] port_i);
     logic [13:0] r;
@@ -3748,8 +3751,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         if ((port_i == 16'(p))
             && (32'(off_i) < 32'(ADP_DMAP_OUT_PCLS_C[p]))) begin
           for (int c = 0; c < ADP_DMAP_OUT_NSRC_C; c++) begin
-            if (c == (32'(ADP_DMAP_OUT_PCBASE_C[p]) + 32'(off_i))
-                && ADP_DMAP_OUT_CSRC_C[c][12])
+            if (c == (32'(ADP_DMAP_OUT_PCBASE_C[p]) + 32'(off_i)))
               r = {1'b1, ADP_DMAP_OUT_CSRC_C[c]};
           end
         end
@@ -3909,7 +3911,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                && (oclaim_c
                                ? ((obase_c == amap_edit_out_word_w)
                                   && (obase_cluster_c == amap_edit_co_w))
-                               : (!obase_c[12]
+                               : (!amap_edit_out_owner_v_w
                                   || (amap_edit_out_owner_v_w
                                       && (amap_edit_out_owner_w
                                           == pp_amap_edit_desc_index_w)
@@ -4064,9 +4066,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
               amap_edit_changed_r <= 1'b1;
             end else if (amap_edit_context_w && amap_edit_out_key_v_w
                          && amap_edit_oclaim_v_r[amap_edit_out_key_w]
-                         && (amap_edit_out_live_w
-                             != amap_edit_oclaim_word_r[
-                                  amap_edit_out_key_w*13 +: 13])) begin
+                         && ((amap_edit_out_live_w
+                              != amap_edit_oclaim_word_r[
+                                   amap_edit_out_key_w*13 +: 13])
+                             || (amap_edit_out_owner_v_w
+                                 != !amap_edit_remove_r)
+                             || (!amap_edit_remove_r
+                                 && ((amap_edit_out_owner_w
+                                      != amap_edit_index_r)
+                                     || (amap_edit_out_cluster_w
+                                         != amap_edit_oclaim_cluster_r[
+                                              amap_edit_out_key_w*16
+                                              +: 16]))))) begin
               amap_edit_owr_p_r <= 1'b1;
               amap_edit_owr_slot_r <= 6'(amap_edit_out_key_w);
               amap_edit_owr_word_r
@@ -5299,7 +5310,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pb_valid_i (ring_src_pv_w), .pb_slot_i (ring_src_slot_w),
     .pb_l_i (ring_src_l_w), .pb_r_i (ring_src_r_w),
     .tick_i (media_tick_p),
-    //! write mux with a reserved AECP leg and the current CSR 0x900 writer.
+    //! write mux with the live AECP transaction leg and CSR 0x900 writer.
     //! The map key is the GLOBAL cluster index and the model may declare
     //! MORE input clusters than this board renders (8x8 = 64 keys against
     //! CHMAP_PHYS_C = 10), so an out-of-range key must be DROPPED, not
@@ -5330,7 +5341,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                     : cfg_chmap_rphys_w[$clog2(CHMAP_PHYS_C)-1:0]),
     //! §5 16-bit word -> render 8-bit {en[7], src[6], idx[5:0]}. SRC[12] of
     //! the §5 word selects the source bank (0 = AVB listener {stream,ch},
-    //! 1 = host playback ring channel). The reserved AECP leg is tied off.
+    //! 1 = host playback ring channel). The AECP leg carries the already
+    //! projected store word.
     .map_wr_data_i (aecp_dmap_wr_p_w ? aecp_dmap_wr_word_w
                     : {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
                        cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]}),

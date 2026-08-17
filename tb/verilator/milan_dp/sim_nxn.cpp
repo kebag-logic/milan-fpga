@@ -3999,7 +3999,10 @@ int main(int argc, char** argv) {
                 return 0x1000u | ((co & 1) ? 0x0800u : 0)
                      | 0x0300u | (uint32_t(co) >> 1);
             if (co == 8) return 0x1400u;
-            return 0;
+            if (co < 17)
+                return (((co - 9) & 1) ? 0x0800u : 0)
+                     | 0x0500u | (uint32_t(co - 9) >> 1);
+            return 0u;
         };
         // Read the authoritative protocol map and find one exact row. This
         // complements RAM readback for mappings with no physical projection.
@@ -4026,6 +4029,66 @@ int main(int argc, char** argv) {
         // Stop every talker, then prove four independent writes.
         axi_write(A_AAF_CTRL, 0x00020002);
         for (int c = 0; c < 32; c++) step();
+
+        // Preload the disabled loopback template through the local CSR path.
+        // That path cannot infer protocol ownership from EN=0, so the later
+        // ADD has no CMAP word to change and must still commit its ownership
+        // sideband. This makes the state-only commit arm observable.
+        {
+            const int sc = 2, co = 9;
+            const uint32_t ctrl_before = axi_read(A_CHMAP_CTRL2);
+            axi_write(A_CHMAP_CTRL2, ctrl_before | 1u);
+            axi_write(A_CHMAP_SEL2, 0x100 | sc);
+            axi_write(A_CHMAP_WORD2, 0x5000);
+            axi_write(A_CHMAP_CTRL2, ctrl_before);
+            ck("T66: local disabled template reaches CMAP without ownership",
+               cap_ram(sc), out_word(co));
+            ck("T66: state-only ADD succeeds",
+               dmap_cmd("ADD-state-only", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &sc, &co), 0);
+            ck("T66: state-only ADD becomes protocol-visible",
+               map_has(DT_SPO, 0, 0, sc, co), 1);
+            ck("T66: state-only REMOVE succeeds",
+               dmap_cmd("REMOVE-state-only", CMD_REMOVE_AUDIO_MAPPINGS,
+                        1, &sc, &co), 0);
+            ck("T66: state-only REMOVE clears CMAP", cap_ram(sc), 0);
+        }
+
+        // Derive the legal output cluster range from the generated AEM model,
+        // then prove that every published cluster is accepted, stored, read
+        // back, and removable. The first offset outside that range is refused
+        // later by the all-or-nothing check.
+        {
+            const std::vector<uint8_t>* spo = desc_of(DT_SPO, 0);
+            const unsigned declared_clusters =
+                (spo && spo->size() >= 14) ? model_be16(*spo, 12) : 0;
+            ck("T66: generated output port declares clusters",
+               (long)declared_clusters, 17);
+            long accepted = 0, stored = 0, roundtripped = 0, removed = 0;
+            for (unsigned co = 0; co < declared_clusters; ++co) {
+                const int sc = 2;
+                const int ico = (int)co;
+                if (dmap_cmd("ADD-model-cluster", CMD_ADD_AUDIO_MAPPINGS,
+                             1, &sc, &ico) == 0)
+                    accepted++;
+                if (cap_ram(sc) == out_word(ico))
+                    stored++;
+                if (map_has(DT_SPO, 0, 0, sc, ico))
+                    roundtripped++;
+                if (dmap_cmd("REMOVE-model-cluster",
+                             CMD_REMOVE_AUDIO_MAPPINGS,
+                             1, &sc, &ico) == 0 && cap_ram(sc) == 0)
+                    removed++;
+            }
+            ck("T66: every generated output cluster ADD succeeds",
+               accepted, declared_clusters);
+            ck("T66: every generated output cluster has its CMAP template",
+               stored, declared_clusters);
+            ck("T66: every generated output cluster reads back",
+               roundtripped, declared_clusters);
+            ck("T66: every generated output cluster REMOVE succeeds",
+               removed, declared_clusters);
+        }
 
         // Hold stream 0 stopped through the phase-1 recheck, then request a
         // local bypass start while 63 legal duplicate records keep phase 5
@@ -4146,15 +4209,35 @@ int main(int argc, char** argv) {
             ck("T66: late invalid ADD made no partial write", cap_ram(3), 0);
         }
 
-        // The model declares loopback clusters 9..16, but this shipping
-        // shape does not elaborate that source pool. Its generated CSRC
-        // validity bit therefore refuses the mapping without a RAM write.
+        // The model declares loopback clusters 9..16 even when this shipping
+        // shape does not elaborate that source pool. The source-valid marker
+        // stays clear in CMAP but must not shrink the protocol mapping domain.
         {
             const int lsc = 2, lco = 9;
-            ck("T66: unbacked output cluster returns BAD_ARGUMENTS",
+            ck("T66: published loopback cluster ADD succeeds",
                dmap_cmd("ADD-unbacked", CMD_ADD_AUDIO_MAPPINGS,
-                        1, &lsc, &lco, 7), 7);
-            ck("T66: unbacked output cluster made no write", cap_ram(2), 0);
+                        1, &lsc, &lco), 0);
+            ck("T66: unbacked cluster keeps its disabled CMAP template",
+               cap_ram(2), out_word(lco));
+            ck("T66: published loopback cluster reads back",
+               map_has(DT_SPO, 0, 0, lsc, lco), 1);
+            ck("T66: idempotent unbacked cluster ADD succeeds",
+               dmap_cmd("ADD-unbacked-idempotent", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &lsc, &lco), 0);
+            const int other_co = 10;
+            ck("T66: another cluster cannot replace an unbacked owner",
+               dmap_cmd("ADD-unbacked-conflict", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &lsc, &other_co, 7), 7);
+            ck("T66: another port cannot claim an unbacked owner",
+               dmap_cmd("ADD-unbacked-cross-port", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &lsc, &lco, 7, 1), 7);
+            ck("T66: rejected unbacked claims preserve the exact mapping",
+               map_has(DT_SPO, 0, 0, lsc, lco), 1);
+            ck("T66: published loopback cluster REMOVE succeeds",
+               dmap_cmd("REMOVE-unbacked", CMD_REMOVE_AUDIO_MAPPINGS,
+                        1, &lsc, &lco), 0);
+            ck("T66: published loopback cluster REMOVE clears CMAP",
+               cap_ram(2), 0);
         }
 
         // REMOVE reaches the same RAM and clears exactly the named key.

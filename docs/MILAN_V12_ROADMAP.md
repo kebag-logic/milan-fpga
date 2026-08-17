@@ -38,21 +38,19 @@ leaves the clause open.
 
 ### 0.1 Served for real, today
 
-**Twenty-one** AEM opcodes plus one MVU command. The authority is
+**Twenty-three** AEM opcodes plus one MVU command. The authority is
 `protocol-processor/hdl/aecp/KL_aecp_engine.sv`'s `OP_*_C` constants, and
 `tests/steps/aecp_engine_steps.py`'s `SERVED` table is gated against that list
 by a behave step that parses the RTL — so this section cannot silently rot
 again.
 
 **"Served" here means the command's own request/response contract.** It does
-**not** include the unsolicited notification that Milan §5.4.5.2 and IEEE
-§7.4.7 require after a successful `SET_*`: no microprogram enqueues one, the
-only `NOTIFY_ENQ` in `gen_ucode.py` sits in an exemplar program, and
-`pp_pkg.sv` defines notification kinds for the deregistration, `LOCK_ENTITY`,
-and GET families only, with none for any `SET_*`. Every `SET_*` row below
-therefore carries an open half tracked as #69 rather than a per-row caveat,
-because it is the same missing mechanism in all of them. One more caveat worth
-naming here rather than burying: `0x0016`'s stored
+**not** imply that every served state change has its unsolicited notification.
+The audio mapping writers enqueue their required successful-change
+notifications, including an idempotent ADD. The ordinary `SET_*` programs do
+not yet enqueue all notifications required by Milan §5.4.5.2 and IEEE §7.4.7;
+that shared gap remains tracked as #69. One more caveat worth naming here
+rather than burying: `0x0016`'s stored
 clock source reaches `milan_datapath` and is read by nothing (audit B3).
 
 `0x0006` used to carry a second caveat — it stored an index that
@@ -89,6 +87,8 @@ underneath it.
 | `0x0028` | GET_AS_PATH | 5.4.2.24 | 0x0048 |
 | `0x0029` | GET_COUNTERS | 5.4.2.25 | 0x0049 |
 | `0x002B` | GET_AUDIO_MAP (both port directions) | 5.4.2.26 | 0x0048 |
+| `0x002C` | ADD_AUDIO_MAPPINGS | 5.4.2.27 | 0x004F |
+| `0x002D` | REMOVE_AUDIO_MAPPINGS | 5.4.2.28 | 0x004F |
 | MVU `0x0000` | GET_MILAN_INFO | 5.4.4.1 | 0x0043 |
 
 ### 0.1b What the read-side set cost, measured

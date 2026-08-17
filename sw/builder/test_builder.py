@@ -1644,7 +1644,7 @@ def test_dynamic_audio_map_overlay():
         #   - the identity must be the HOST pool, whose templates are the
         #     elaborated KL_pcm_tx ring: {valid, half, src=3 RING} = 13'h13xx
         #   - the loopback templates must still be EMITTED (the clusters
-        #     exist and a controller may map to them) but marked INVALID -
+        #     exist and a controller may map to them) but fabric-disabled,
         #     bit 12 clear, so 13'h05xx, never 13'h15xx
         # INIT carries {valid[5], cluster offset[4:0]}; host is offset 0
         # (physical is 0 wide), so every key must read 6'h20 + channel.
@@ -1659,8 +1659,8 @@ def test_dynamic_audio_map_overlay():
         print("  [gate 17d] ax7101_8x8 ALL streams dynamic: 8 output ports "
               "n_maps=0, zero AUDIO_MAPs, `AEM_ODYNMAP keys=64 slotb 0..28")
         print("  [gate 17e] lane OFF: power-on identity = HOST/RING "
-              "(13'h1300), loopback templates emitted but INVALID (13'h05xx) "
-              "- nothing advertised that this bitstream cannot produce")
+              "(13'h1300), loopback templates emitted fabric-disabled "
+              "(13'h05xx) and protocol-mappable; live CMAP enable stays clear")
 
         # and the OTHER direction: declaring the lane must hand the pool
         # back. ONE fact drives the argv and the map, so they cannot drift.

@@ -99,27 +99,29 @@ invalid image re-arms the header probe — so the ordering rule ("load, then
 enable") is a discipline, not a trap you cannot escape. Bench walk-through:
 [TROUBLESHOOTING §26](TROUBLESHOOTING.md).
 
-**An echo is not an implementation.** The commands below are genuinely absent;
-a `NOT_IMPLEMENTED` answer to one of them is protocol conformance, not coverage,
-and no AECP clause may be graded on it:
+**An echo is not an implementation.** This table separates the live command
+surface from the remaining gaps. A `NOT_IMPLEMENTED` answer is protocol
+conformance, not coverage, and no clause may be graded on an echo:
 
 | Capability | State |
 |---|---|
-| READ_DESCRIPTOR | **implemented, protocol processor** — but served out of a DRAM descriptor image that nothing in this repository builds or loads, so a stock build answers `BAD_ARGUMENTS` to all of it |
-| The §9.3.5 duty to answer an unimplemented command | **implemented, protocol processor** — the conformant `NOT_IMPLEMENTED` echo, plus `BAD_ARGUMENTS` for IDENTIFY_NOTIFICATION-as-command |
-| ACQUIRE_ENTITY / LOCK_ENTITY | **not implemented** — and ACQUIRE_ENTITY's Milan Δ7 `NOT_SUPPORTED` answer is not distinguished from the generic echo |
-| SET/GET_CONFIGURATION, SET/GET_NAME, SET/GET_SAMPLING_RATE | **not implemented** — echoed, never served |
-| SET/GET_STREAM_FORMAT, SET/GET_STREAM_INFO, SET/GET_MAX_TRANSIT_TIME | **not implemented** |
-| GET_AUDIO_MAP / ADD_AUDIO_MAPPINGS / REMOVE_AUDIO_MAPPINGS | **not implemented** |
-| GET_COUNTERS **and the Milan Table 5.22 unsolicited push** | **not implemented** |
-| GET_AVB_INFO / GET_AS_PATH / GET_MILAN_INFO | **not implemented** |
-| IDENTIFY | **not implemented** — the command is echoed and `o_identify` is tied 0, so the LED is structurally dark |
-| SET_CLOCK_SOURCE | **not implemented** — see §0.1 |
-| saved-state persistence | **not implemented** — nothing restores a binding across a power cycle |
+| READ_DESCRIPTOR | **implemented, protocol processor**: served from the validated DRAM descriptor image |
+| The §9.3.5 duty to answer an unimplemented command | **implemented, protocol processor**: conformant `NOT_IMPLEMENTED` fallback, plus `BAD_ARGUMENTS` for IDENTIFY_NOTIFICATION as a command |
+| ACQUIRE_ENTITY / LOCK_ENTITY | **implemented**: ACQUIRE_ENTITY returns Milan `NOT_SUPPORTED`; LOCK_ENTITY owns and times out the live lock |
+| SET/GET_CONFIGURATION and SET/GET_SAMPLING_RATE | **implemented**; persistence remains open |
+| SET/GET_NAME | **not implemented** |
+| GET_STREAM_FORMAT / GET_STREAM_INFO | **implemented** |
+| SET_STREAM_FORMAT / SET_STREAM_INFO / SET/GET_MAX_TRANSIT_TIME | **not implemented** |
+| GET_AUDIO_MAP / ADD_AUDIO_MAPPINGS / REMOVE_AUDIO_MAPPINGS | **implemented** for dynamic ports, including atomic validation, lock exclusion, live projection, and successful-change notification |
+| GET_COUNTERS | **implemented** for the available counter banks; Table 5.22 change notification coverage remains incomplete |
+| GET_AVB_INFO / GET_AS_PATH / GET_MILAN_INFO | **implemented** |
+| IDENTIFY | **implemented in protocol state**; the root-level external indication remains open |
+| SET_CLOCK_SOURCE | **implemented in protocol state**; the selected value does not yet drive the media clock plane |
+| saved-state persistence | **not implemented**: nothing restores mappings or bindings across a power cycle; issue #70 owns the backend and replay |
 
-A controller therefore sees this entity appear and answer connection management,
-finds nothing to enumerate until somebody loads its model into DRAM, and gets a
-well-formed refusal for every command that would change its state.
+A controller sees the entity, enumerates the loaded DRAM model, and can use the
+served control inventory above. Commands outside that inventory receive a
+well-formed command-specific refusal or the generic fallback.
 
 ### 0.1 Three functional losses that follow, each with its own consequence
 

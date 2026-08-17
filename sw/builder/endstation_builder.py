@@ -3740,8 +3740,9 @@ def rtl_capability_marks(cfg):
                            "x 48 b that cannot be LUTRAM). The power-on map "
                            "therefore does NOT point here: primary_segment "
                            "drops the pool and the talkers wake on the host "
-                           "pool instead, so nothing is advertised that this "
-                           "bitstream cannot produce") +
+                           "pool instead. The clusters remain published and "
+                           "protocol-mappable, while their CMAP fabric-enable "
+                           "marker stays clear") +
                           ". A mapped-but-never-fed slot is DISTINGUISHABLE "
                           "from a quiet one either way: CHMAP_LOOP 0x914 "
                           "[18] LOOP_SUSPECT = mapped & ~fed, so silence "

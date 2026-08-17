@@ -12,8 +12,8 @@
 # Simplifications this shape buys (all measured pains of the 8x8):
 #   - one stream per direction => a mapping can never name a foreign
 #     stream (the cross-stream BAD_ARGUMENTS class vanishes);
-#   - loopback clusters are backed => the unbacked-source BAD_ARGUMENTS
-#     class vanishes (TROUBLESHOOTING Section 23 rules 1 and 3);
+#   - loopback clusters are backed => mappings select live media instead of
+#     the protocol-visible, fabric-disabled behavior of lane-off shapes;
 #   - no secondary-network indices => every stream is cabled.
 
 schema: kebag-logic/milan-endstation-config

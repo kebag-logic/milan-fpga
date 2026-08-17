@@ -50,8 +50,10 @@ are silently refused: freed, counted, no reply. Milan Delta 7
 **An echo is not an implementation**, so read the echo as a duty discharged
 (IEEE 1722.1 §9.3.5: respond to what you do not implement), never as coverage.
 Genuinely absent behind it: `SET_STREAM_FORMAT`, `SET_STREAM_INFO`, name access,
-the audio-map writers, `GET_DYNAMIC_INFO`, the Milan Table 5.22 counter-change
-scheduler, root-level IDENTIFY indication, and saved-state persistence.
+`GET_DYNAMIC_INFO`, most Milan Table 5.22 change triggers, root-level IDENTIFY
+indication, and saved-state persistence. `ADD_AUDIO_MAPPINGS` and
+`REMOVE_AUDIO_MAPPINGS` are served through an atomic root transaction and emit
+their required successful-change notifications.
 `SET_CLOCK_SOURCE` is accepted by the processor and its dynamic selection is
 exported to the root, but no media-plane logic consumes it, so the media plane
 remains pinned to INTERNAL. Those

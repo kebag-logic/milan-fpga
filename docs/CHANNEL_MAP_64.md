@@ -705,15 +705,19 @@ template at `CSRC[PCBASE[port] + cluster_offset]`:
 
 ```
 CMAP[k] = {HALF=table(cluster).half,
-           EN=1, SRC=table(cluster).src, IDX_HI=table(cluster).idx_hi,
+           EN=table(cluster).valid, SRC=table(cluster).src,
+           IDX_HI=table(cluster).idx_hi,
            IDX_LO=table(cluster).idx_lo}
 ```
 
 `REMOVE` of the exact owner, cluster, stream index, and stream channel clears
-the key to zero. A source template whose valid bit is clear is refused with
-`BAD_ARGUMENTS`. Output GET uses one fixed subset because at most eight Stream
-Output channels can be mapped, independent of how many selectable clusters the
-port publishes.
+the key to zero. `PCBASE` plus `PCLS` defines the protocol-valid cluster range.
+The generated source template's valid bit only states whether that media bucket
+is elaborated in this build. A clear bit leaves CMAP disabled but does not make
+a published cluster invalid. The owner-valid, owner-port, and cluster sideband
+is therefore the mapping-presence authority used by GET and conflict checks.
+Output GET uses one fixed subset because at most eight Stream Output channels
+can be mapped, independent of how many selectable clusters the port publishes.
 
 **Timing:** the projector writes map words through the §5 arbitrated
 port as a short burst (`aem_busy` in `CHMAP_STAT`); fabric effect lands
