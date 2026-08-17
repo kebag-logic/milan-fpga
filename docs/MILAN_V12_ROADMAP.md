@@ -313,8 +313,8 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 | `0x0014` | SET_SAMPLING_RATE **— LANDED** | 5.4.2.13 | the rate/mapping-mismatch refusal is a **MAY**, not a SHALL | es-4.16, es-5.1 |
 | `0x0016` | SET_CLOCK_SOURCE **— LANDED** | 5.4.2.15 | — | es-4.9, es-5.1, es-10.1 |
 | `0x0018` | SET_CONTROL **— LANDED** | 5.4.2.17 | IDENTIFY only; values 0 and 255 | es-4.10 |
-| `0x0022` | START_STREAMING **— LANDED** | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output** (and on every other type); on a bound+stopped input → started | es-4.11, es-12.7 |
-| `0x0023` | STOP_STREAMING **— LANDED** | 5.4.2.20 | mirror of the above | es-4.11, es-12.7 |
+| `0x0022` | START_STREAMING **— LANDED** | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output** (and on every other type); on a bound+stopped input → started. **Residue:** the IEEE 7.5.2 unsolicited *response* for this opcode is not sent — the Table 5.22 GET_STREAM_INFO push on the state change is (issue #69) | es-4.11, es-12.7 |
+| `0x0023` | STOP_STREAMING **— LANDED** | 5.4.2.20 | mirror of the above, same residue | es-4.11, es-12.7 |
 
 > **`SET_CLOCK_SOURCE` is worth more than one row.** Its dynamic-state store
 > and wrapper output have landed. The selected index now reaches the root, but

@@ -3901,6 +3901,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! `bound & started` would silence every one of them.
   wire [ACMP_SINKS_C-1:0] acmpl_stopped_v_w = acmpl_bound_v_w
                                               & ~pp_aecp_strm_started_w;
+
+  //! ...and the CRF Media Clock Input's own bit, guarded by whether that sink
+  //! EXISTS. `CRF_SNK_IDX_C` falls back to 0 on a shape with `crf_sink:
+  //! false` (ACMP_SINKS_C == N_STREAMS), and reading index 0 there would let
+  //! a STOP_STREAMING aimed at AAF Stream Input 0 silence the media-clock
+  //! receiver - a controller command reaching into clock recovery, which is
+  //! precisely what gating this strobe is not supposed to do. Every tracked
+  //! config sets `crf_sink: true`, so no shipping shape takes the fallback;
+  //! the guard is here so that stays true of shapes nobody has built yet.
+  wire crf_snk_stopped_w = (ACMP_SINKS_C > N_STREAMS)
+                           && acmpl_stopped_v_w[CRF_SNK_IDX_C];
   //! Two consumers read this: the listener accept gate (the AAF sinks) and
   //! `KL_crf_rx`'s frame strobe (the CRF Media Clock Input, which has no
   //! classification-table entry of its own). Between them every Stream Input
@@ -4358,7 +4369,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! ungated - which is why this is not a controller command in the path
     //! of clock recovery, only a controller command that was aimed at this
     //! descriptor on purpose.
-    .frame_p_i   (avtprx_parse_p && !acmpl_stopped_v_w[CRF_SNK_IDX_C]),
+    .frame_p_i   (avtprx_parse_p && !crf_snk_stopped_w),
     .subtype_i   (avtprx_subtype),
     .seq_i       (avtprx_seq),
     .sid_frame_i (avtprx_sid_frame),
