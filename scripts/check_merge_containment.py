@@ -221,7 +221,8 @@ def refreshed_origin_ref(ref):
         return ref
     if ref.startswith("origin/"):
         return "refs/remotes/" + ref
-    if ref.startswith("refs/heads/"):
+    explicit_local = ref.startswith("refs/heads/")
+    if explicit_local:
         name = ref[len("refs/heads/"):]
     elif ref.startswith("refs/"):
         return ref
@@ -231,7 +232,10 @@ def refreshed_origin_ref(ref):
     remote_ref = "refs/remotes/origin/" + name
     rc, _ = _git("rev-parse", "--verify", "--quiet",
                  remote_ref + "^{commit}")
-    return remote_ref if rc == 0 else ref
+    #! A plain branch name after a successful fetch denotes origin's branch.
+    #! Keep the fully qualified missing ref when origin has no such branch;
+    #! falling back to the plain spelling lets Git resolve a same-named tag.
+    return remote_ref if rc == 0 or not explicit_local else ref
 
 
 def fetched_branch_refs(ref):
@@ -274,7 +278,10 @@ def fetched_branch_refs(ref):
         #! deliberately wants only the local ref can use --no-fetch with its
         #! full refs/heads/... name.
         return [(local_ref, "local"), (remote_ref, "origin")]
-    return [(ref, None)]
+    #! Fetch completed, so an absent branch stays absent.  Returning the
+    #! caller's short spelling here lets Git resolve a tag in its place and
+    #! certify a deleted remote branch as contained.
+    return [(remote_ref, "origin")]
 
 
 def non_origin_remote_ref(ref):
@@ -648,6 +655,15 @@ def selftest():
             case("e2e-stranded-word", "STRANDED" in out, True,
                  "...and says STRANDED")
 
+            rc, base_oid = _git("rev-parse", "base")
+            _git("checkout", "-qb", base_oid, "work")
+            rc2, out = run(["--no-fetch", "--base", "base"])
+            case("implicit-hex-branch-rc", (rc, rc2), (0, RC_FINDING),
+                 "the checked-out hex branch keeps its refs/heads identity")
+            case("implicit-hex-branch-word", "STRANDED" in out, True,
+                 "...rather than becoming its contained object-name twin")
+            _git("checkout", "-q", "refs/heads/work")
+
             rc, out = run(["--no-fetch", "--base", "work", "base"])
             case("e2e-contained-rc", rc, RC_OK,
                  "a contained branch exits 0")
@@ -728,6 +744,30 @@ def selftest():
                      "a hex-named origin branch cannot replace the base OID")
                 case("full-oid-base-word", "STRANDED" in out, True,
                      "...and the immutable base object is measured")
+
+                _git("push", "-q", "origin",
+                     "refs/remotes/origin/work:refs/heads/deleted-tag")
+                _git("tag", "origin/deleted-tag", "base")
+                _git("tag", "deleted-tag", "base")
+                _git("push", "-q", "origin", "--delete", "deleted-tag")
+                rc, out = run(["--base", "base", "origin/deleted-tag"])
+                case("deleted-tag-remote-rc", rc, RC_FINDING,
+                     "a tag cannot stand in for a deleted origin branch")
+                case("deleted-tag-remote-word", "UNKNOWN" in out, True,
+                     "...and the qualified missing branch is UNKNOWN")
+                rc, out = run(["--base", "base", "deleted-tag"])
+                case("deleted-tag-short-rc", rc, RC_FINDING,
+                     "a short tag cannot stand in for a missing branch")
+                case("deleted-tag-short-word", "UNKNOWN" in out, True,
+                     "...and the fetched namespace remains authoritative")
+                _git("push", "-q", "origin", "base:refs/heads/deleted-base")
+                _git("tag", "deleted-base", "refs/remotes/origin/work")
+                _git("push", "-q", "origin", "--delete", "deleted-base")
+                rc, out = run(["--base", "deleted-base", "origin/work"])
+                case("deleted-tag-base-rc", rc, RC_FINDING,
+                     "a tag cannot stand in for a deleted base branch")
+                case("deleted-tag-base-word", "UNKNOWN" in out, True,
+                     "...and the missing fetched base is UNKNOWN")
 
                 # A merged PR's head OID is frozen at merge time.  The live
                 # branch tip is the only ref that can expose later pushes.
@@ -1428,7 +1468,10 @@ def main(argv):
             if rc != 0 or not cur or cur == "HEAD":
                 sys.stderr.write(USAGE + "\n")
                 return RC_CANNOT_RUN
-            branches = [cur]
+            #! Git has already told us this is a branch.  Preserve that type:
+            #! a legal 40-hex branch name must not become an object ID merely
+            #! because the no-operand route removed its refs/heads/ namespace.
+            branches = ["refs/heads/" + cur]
         targets = []
         for branch in branches:
             refs = (fetched_branch_refs(branch) if do_fetch
