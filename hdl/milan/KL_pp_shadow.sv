@@ -310,6 +310,21 @@ module KL_pp_shadow #(
     input  wire  [63:0] amap_data_i,        //! the word (upper 32 zero unless RECORD)
     input  wire         amap_wait_i,        //! HOLD the beat (not a ready)
 
+    //! ---- ADD/REMOVE_AUDIO_MAPPINGS transaction face --------------------
+    //! Straight through to protocol_processor_top. The integrator validates
+    //! the full staged command before accepting any phase-5 write.
+    output logic        amap_edit_req_o,
+    output logic  [2:0] amap_edit_phase_o,
+    output logic        amap_edit_remove_o,
+    output logic [15:0] amap_edit_desc_type_o,
+    output logic [15:0] amap_edit_desc_index_o,
+    output logic [15:0] amap_edit_count_o,
+    output logic  [7:0] amap_edit_rec_o,
+    output logic [63:0] amap_edit_record_o,
+    output logic [63:0] amap_edit_value_o,
+    input  wire  [63:0] amap_edit_data_i,
+    input  wire         amap_edit_wait_i,
+
     //! ---- Milan-info gather face (06 SS6.2/SS6.10) ----
     //! Straight through to protocol_processor_top: GET_STREAM_INFO /
     //! GET_AVB_INFO / GET_AS_PATH ask one word at a time and milan_datapath
@@ -924,6 +939,17 @@ module KL_pp_shadow #(
       .amap_rec_o          (amap_rec_o),
       .amap_data_i         (amap_data_i),
       .amap_wait_i         (amap_wait_i),
+      .amap_edit_req_o     (amap_edit_req_o),
+      .amap_edit_phase_o   (amap_edit_phase_o),
+      .amap_edit_remove_o  (amap_edit_remove_o),
+      .amap_edit_desc_type_o(amap_edit_desc_type_o),
+      .amap_edit_desc_index_o(amap_edit_desc_index_o),
+      .amap_edit_count_o   (amap_edit_count_o),
+      .amap_edit_rec_o     (amap_edit_rec_o),
+      .amap_edit_record_o  (amap_edit_record_o),
+      .amap_edit_value_o   (amap_edit_value_o),
+      .amap_edit_data_i    (amap_edit_data_i),
+      .amap_edit_wait_i    (amap_edit_wait_i),
       .gsi_req_o           (gsi_req_o),
       .gsi_kind_o          (gsi_kind_o),
       .gsi_desc_type_o     (gsi_desc_type_o),

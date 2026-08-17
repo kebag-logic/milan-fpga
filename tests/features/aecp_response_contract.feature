@@ -77,8 +77,6 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
       | 17     | GET_NAME                          |
       | 34     | START_STREAMING                   |
       | 35     | STOP_STREAMING                    |
-      | 44     | ADD_AUDIO_MAPPINGS                |
-      | 45     | REMOVE_AUDIO_MAPPINGS             |
 
     Examples: opcodes with no command behind them at all
       | opcode | command                           |

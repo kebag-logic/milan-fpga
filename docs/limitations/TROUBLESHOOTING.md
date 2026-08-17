@@ -961,14 +961,10 @@ frames it never asked for is a switch-forwarding behaviour, not a fabric fault.
 
 ## Section 23: `ADD_AUDIO_MAPPINGS` answers `BAD_ARGUMENTS` - which of the four rules did the record break?
 
-> **THIS SYMPTOM CANNOT OCCUR since 2026-08-13.** `ADD_AUDIO_MAPPINGS` is not
-> implemented: the entity answers it with a conformant fallback, so a controller
-> gets a refusal that names the boundary, never the `BAD_ARGUMENTS` this section
-> is about. The section is kept because the four rules are properties of the
-> **fabric** (what the capture and render crossbars can physically route), not
-> of the deleted parser, and they are what any future mapping interface will
-> have to enforce. The cluster-offset map below is likewise still the fabric's
-> shape.
+> **CURRENT SINCE 2026-08-17.** `ADD_AUDIO_MAPPINGS` and
+> `REMOVE_AUDIO_MAPPINGS` run an atomic validate-then-commit transaction. A
+> `BAD_ARGUMENTS` response means no row was applied. The cluster-offset map
+> below describes the live fabric geometry used by that validation.
 
 **Symptom.** A controller (Hive / la_avdecc: *"One or more of the values in
 the fields of the frame were deemed to be bad by the AVDECC Entity"*) edits

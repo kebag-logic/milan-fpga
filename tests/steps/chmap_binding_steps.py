@@ -3,11 +3,10 @@
 """The chmap64 render-crossbar binding contract, offline.
 
 WHAT THIS IS, AND WHAT IT IS NOT.  This module carries the dynamic audio-map
-model that used to live in tests/steps/tsn_gen_steps.py. The repository-local
-AECP engine and those wire scenarios are gone. The protocol processor now
-serves READ_DESCRIPTOR and GET_AUDIO_MAP, while ADD_AUDIO_MAPPINGS and
-REMOVE_AUDIO_MAPPINGS remain unimplemented. Their wire behavior is tested in
-the processor and milan_dp harnesses, not in this offline model.
+model that used to live in tests/steps/tsn_gen_steps.py. The protocol processor
+serves READ_DESCRIPTOR, GET_AUDIO_MAP, ADD_AUDIO_MAPPINGS, and
+REMOVE_AUDIO_MAPPINGS. Their wire behavior and transactional live-RAM writes
+are tested in the processor and milan_dp harnesses, not in this offline model.
 
 What SURVIVES is the fabric half - the render crossbar KL_chan_map_render and
 its capture twin KL_chan_map_capture - and the WORD FORMAT a mapping projects
@@ -59,8 +58,8 @@ class MilanAudioMapModel:
     address.
 
       * ADD is all-or-nothing (5.4.2.27): any invalid record -> BAD_ARGUMENTS
-        and NOTHING is written; a repeated key within one command is the
-        mandated same-cluster-channel conflict -> BAD_ARGUMENTS.
+        and NOTHING is written; one key naming two different stream channels
+        in one command is the mandated conflict. Exact duplicates are safe.
       * REMOVE validates ALL first (7.4.46.1: "If any of the mappings in the
         command are invalid or not present then the command shall fail with a
         BAD_ARGUMENTS status and none of the mappings shall be removed").
@@ -137,19 +136,24 @@ class MilanAudioMapModel:
         port = self._port(di)
         if dt != DESC_STREAM_PORT_INPUT or port is None:
             return STATUS_NO_SUCH_DESCRIPTOR
-        if len(mappings) > 60:                   # one-AECPDU engine bound
+        # A 576-byte RX slot carries the 20-byte fixed AECP command body plus
+        # 68 eight-byte mapping records. Milan 5.4.1 explicitly lifts the
+        # ordinary 524-octet control_data_length ceiling for these commands.
+        if len(mappings) > 68:
             return STATUS_BAD_ARGUMENTS
         if not mappings:
             return STATUS_SUCCESS                # empty edit, no change
         base, _ = port
 
         if cmd == CMD_ADD_AUDIO_MAPPINGS:
-            claim = set()                        # intra-command same-key guard
+            claim = {}                           # key -> command-local row
             for si, sc, co, cc in mappings:      # validate pass
+                key = base + co
                 if (not self._shape_ok(port, si, sc, co, cc)
-                        or not self._ch_ok(si, sc) or base + co in claim):
+                        or not self._ch_ok(si, sc)
+                        or (key in claim and claim[key] != (si, sc))):
                     return STATUS_BAD_ARGUMENTS  # all-or-nothing
-                claim.add(base + co)
+                claim[key] = (si, sc)
             for si, sc, co, cc in mappings:      # commit pass (replace allowed)
                 self.store[base + co] = (si, sc)
                 self._project_add(si, sc, base + co)
@@ -216,6 +220,13 @@ def step_fresh_audiomap_ports(context, n, cl, page):
 def step_amap_add(context, sc, co):
     context.amap_status = context.amap.process_mappings(
         CMD_ADD_AUDIO_MAPPINGS, DESC_STREAM_PORT_INPUT, 0, [(0, sc, co, 0)])
+
+
+@when('I ADD {n:d} copies of stream_channel {sc:d} at cluster_offset {co:d}')
+def step_amap_add_copies(context, n, sc, co):
+    context.amap_status = context.amap.process_mappings(
+        CMD_ADD_AUDIO_MAPPINGS, DESC_STREAM_PORT_INPUT, 0,
+        [(0, sc, co, 0)] * n)
 
 
 @when('I REMOVE mapping stream_channel {sc:d} at cluster_offset {co:d}')

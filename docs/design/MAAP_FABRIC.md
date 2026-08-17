@@ -25,11 +25,11 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 
 ## Contents
 
-- **[Reference contract (byte-extracted from pipewire module-avb maap.c/h)](#reference-contract-byte-extracted-from-pipewire-module-avb-maapch)** — The wire bytes and the IDLE/PROBE/ANNOUNCE machine as the reference implementation actually behaves, including the deliberate quirk: the reference sets LENGTH = 28 where 1722 says `control_data_length` = 16, and we match the reference bytes. Also the rule that the address is only valid in ANNOUNCE.
-- **[Fabric integration](#fabric-integration)** — Where `KL_maap` attaches (RX monitor tap on subtype 0xFE; TX as the second leg of the ONE control-lane merge), the `MAAP_CTRL.en=0` soft-migration that keeps `cfg_aaf_dmac` behaviour bit-exact, and the CSR block reconciled to `REGISTER_MAP` — note there are no ADDR_LO/HI registers, the DMAC is the pool base plus the claimed offset in `0x6D0`.
-- **[The block ⇄ per-source bridge (KL_pp_maap_shim)](#the-block--per-source-bridge-kl_pp_maap_shim)** — How one block claim answers N per-source ALLOC_DA requests, why `s` gets `base + s`, why a refusal is a state and not an error, and why RELEASE frees nothing.
-- **[Open decisions](#open-decisions)** — Both are now SETTLED, and the load-bearing one settled itself structurally: AAF admission ANDs the DA because the declaration cannot exist without it.
-- **[Appendix: GET_DYNAMIC_INFO 0x4B contract](#appendix-get_dynamic_info-0x4b-contract)** - Unrelated to MAAP. Records the current IEEE 1722.1-2021 batch contract and points to the processor implementation.
+- **[Reference contract (byte-extracted from pipewire module-avb maap.c/h)](#reference-contract-byte-extracted-from-pipewire-module-avb-maapch)** -- The wire bytes and the IDLE/PROBE/ANNOUNCE machine as the reference implementation actually behaves, including the deliberate quirk: the reference sets LENGTH = 28 where 1722 says `control_data_length` = 16, and we match the reference bytes. Also the rule that the address is only valid in ANNOUNCE.
+- **[Fabric integration](#fabric-integration)** -- Where `KL_maap` attaches (RX monitor tap on subtype 0xFE; TX as the second leg of the ONE control-lane merge), the `MAAP_CTRL.en=0` soft-migration that keeps `cfg_aaf_dmac` behaviour bit-exact, and the CSR block reconciled to `REGISTER_MAP`; note there are no ADDR_LO/HI registers, the DMAC is the pool base plus the claimed offset in `0x6D0`.
+- **[The block ⇄ per-source bridge (KL_pp_maap_shim)](#the-block--per-source-bridge-kl_pp_maap_shim)** -- How one block claim answers N per-source ALLOC_DA requests, why `s` gets `base + s`, why a refusal is a state and not an error, and why RELEASE frees nothing.
+- **[Open decisions](#open-decisions)** -- Both are now SETTLED, and the load-bearing one settled itself structurally: AAF admission ANDs the DA because the declaration cannot exist without it.
+- **[Appendix: GET_DYNAMIC_INFO 0x4B contract](#appendix-get_dynamic_info-0x4b-contract)** -- Unrelated to MAAP. Records the current IEEE 1722.1-2021 batch contract and points to the processor implementation.
 
 ## Reference contract (byte-extracted from pipewire module-avb maap.c/h)
 

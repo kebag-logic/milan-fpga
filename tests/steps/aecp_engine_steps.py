@@ -163,6 +163,10 @@ SERVED = {
                  verdict=ST_SUCCESS, cdl=148),
     0x002B: dict(name="GET_AUDIO_MAP", clause="Milan 5.4.2.26",
                  verdict=ST_SUCCESS, cdl=None),   # 24 + 8 x mappings
+    0x002C: dict(name="ADD_AUDIO_MAPPINGS", clause="Milan 5.4.2.27",
+                 verdict=ST_SUCCESS, cdl=None),   # 20 + 8 x mappings
+    0x002D: dict(name="REMOVE_AUDIO_MAPPINGS", clause="Milan 5.4.2.28",
+                 verdict=ST_SUCCESS, cdl=None),   # 20 + 8 x mappings
     0x004B: dict(name="GET_DYNAMIC_INFO", clause="Milan 5.4.2.29",
                  verdict=ST_SUCCESS, cdl=None),   # 12 + packed records
 }

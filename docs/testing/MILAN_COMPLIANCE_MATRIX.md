@@ -1,4 +1,4 @@
-[OBSOLETE + 2026-08-16]
+[OBSOLETE + 2026-08-17]
 
 # Milan v1.2 compliance matrix — counters + notifications first
 

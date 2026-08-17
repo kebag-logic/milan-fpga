@@ -11,14 +11,13 @@ Feature: the chmap64 render-crossbar binding contract
   contract (docs/CHMAP64_AEM_BINDING.md), and the crossbar it addresses -
   KL_chan_map_render and its capture twin KL_chan_map_capture - still ships.
 
-  WHAT LEFT. The repository-local AECP wire harness and AEM descriptor ROM are
-  gone. The protocol processor now serves READ_DESCRIPTOR from its main-memory
-  image and GET_AUDIO_MAP through the root gather face. ADD_AUDIO_MAPPINGS and
-  REMOVE_AUDIO_MAPPINGS remain unimplemented. Their current wire behavior is
-  tested in the processor and milan_dp harnesses. The offline model that
-  projects a mapping into a crossbar word
-  moved to tests/steps/chmap_binding_steps.py and is driven DIRECTLY, so
-  nothing below depends on the tsn_gen binary or skips without it.
+  The protocol processor serves READ_DESCRIPTOR from its main-memory image and
+  GET_AUDIO_MAP through the root gather face. ADD_AUDIO_MAPPINGS and
+  REMOVE_AUDIO_MAPPINGS use a validate pass followed by a commit pass, then
+  write the live render or capture map RAM through the transaction face.
+  The processor and milan_dp harnesses grade the wire commands, all-or-nothing
+  refusal, notification, and live payload effect. The offline model here keeps
+  the crossbar projection independently executable without tsn_gen.
 
   WHAT STAYED, and why it is still a real check: the key-space law. Milan
   v1.2 5.3.3.9 - "The Stream Port Input of a Configuration shall not contain
@@ -106,3 +105,12 @@ Feature: the chmap64 render-crossbar binding contract
     When on input port 0 I REMOVE stream 1 channel 2 at cluster_offset 0
     Then the audio-map model responds status 0
     And the fabric render crossbar has 0 enabled words
+
+  @class:action @boundary @roadmap23
+  Scenario: the lifted mapping command limit is 68 complete records
+    When I ADD 68 copies of stream_channel 0 at cluster_offset 0
+    Then the audio-map model responds status 0
+    And the fabric render crossbar has 1 enabled words
+    When I ADD 69 copies of stream_channel 1 at cluster_offset 1
+    Then the audio-map model responds status 7
+    And the fabric render crossbar has 1 enabled words
