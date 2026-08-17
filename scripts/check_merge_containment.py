@@ -335,6 +335,12 @@ def non_origin_remote_ref(ref):
     """Name an unrefreshable remote-tracking ref, or return None."""
     if is_full_oid(ref):
         return None
+    #! These spellings explicitly select the namespace refreshed by the
+    #! origin fetch below.  A pathological configured remote named
+    #! origin/team may share its tracking path, but fetching origin overwrites
+    #! that path with origin's authoritative team/... branch before use.
+    if ref.startswith("refs/remotes/origin/") or ref.startswith("origin/"):
+        return None
     if ref.startswith("refs/"):
         if not ref.startswith("refs/remotes/"):
             return None
@@ -390,8 +396,9 @@ def contained(branch, base):
         #! resolved silently by git's own precedence -- the tag wins, and a
         #! stranded branch reads as contained. git says so on stderr, which
         #! _git discards, so ask explicitly instead of trusting the default.
-        hits = [k for k in ("refs/heads/", "refs/remotes/", "refs/tags/")
-                if _git("rev-parse", "--verify", "--quiet", k + ref)[0] == 0]
+        hits = ([] if is_full_oid(ref) or ref.startswith("refs/") else
+                [k for k in ("refs/heads/", "refs/remotes/", "refs/tags/")
+                 if _git("rev-parse", "--verify", "--quiet", k + ref)[0] == 0])
         if len(hits) > 1:
             return (None, None,
                     f"{ref!r} is ambiguous ({', '.join(h + ref for h in hits)})"
@@ -827,6 +834,24 @@ def selftest():
                      "a hex-named origin branch cannot replace the base OID")
                 case("full-oid-base-word", "STRANDED" in out, True,
                      "...and the immutable base object is measured")
+                _git("update-ref", "refs/heads/" + stranded_oid, base_oid)
+                _git("tag", stranded_oid, base_oid)
+                rc, out = run(["--no-fetch", "--base", base_oid,
+                               stranded_oid])
+                case("full-oid-local-collision-branch-rc", rc, RC_FINDING,
+                     "local branch and tag names cannot obscure a branch OID")
+                case("full-oid-local-collision-branch-word",
+                     "STRANDED" in out, True,
+                     "...and the immutable branch object remains measured")
+                _git("update-ref", "refs/heads/" + base_oid, stranded_oid)
+                _git("tag", base_oid, stranded_oid)
+                rc, out = run(["--no-fetch", "--base", base_oid,
+                               stranded_oid])
+                case("full-oid-local-collision-base-rc", rc, RC_FINDING,
+                     "local branch and tag names cannot obscure a base OID")
+                case("full-oid-local-collision-base-word",
+                     "STRANDED" in out, True,
+                     "...and the immutable base object remains measured")
 
                 _git("push", "-q", "origin",
                      "refs/remotes/origin/work:refs/heads/deleted-tag")
@@ -946,6 +971,16 @@ def selftest():
                                "corp/upstream/work"])
                 case("overlapping-remote-prefix-rc", rc, RC_CANNOT_RUN,
                      "overlapping configured remote prefixes are ambiguous")
+                _git("config", "remote.origin/team.url", remote)
+                _git("config", "remote.origin/team.fetch",
+                     "+refs/heads/*:refs/remotes/origin/team/*")
+                rc, out = run(["--base", "refs/remotes/origin/base",
+                               "refs/remotes/origin/work"])
+                case("explicit-origin-overlap-rc", rc, RC_FINDING,
+                     "an explicit origin ref stays refreshable despite a "
+                     "configured prefix collision")
+                case("explicit-origin-overlap-word", "STRANDED" in out, True,
+                     "...and the fetched origin branch is measured")
 
                 # A merged PR's head OID is frozen at merge time.  The live
                 # branch tip is the only ref that can expose later pushes.
