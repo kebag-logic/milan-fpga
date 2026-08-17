@@ -252,7 +252,7 @@ rule was earned).
 | Tool | Purpose |
 |---|---|
 | `/tmp/milan_controller.py` | Entity(iface) with discover (cdl=56!), read_descriptor, `_aecp`, ACMP helpers. The repo master: `milan-fpga/avdecc/milan_controller.py`. **Still useful**: the processor's AECP µCPU answers `READ_DESCRIPTOR` — but only against a descriptor image loaded in DRAM (§8), so on a stock board expect `BAD_ARGUMENTS` on every read — that status means "no image"; `NO_SUCH_DESCRIPTOR` would mean the image loaded and that descriptor is genuinely absent. |
-| `/tmp/dyninfo_probe.py <01\|02>` | GET_DYNAMIC_INFO (7.4.76) batch vs classic responses, byte-exact + BAD_ARGUMENTS case. **HISTORICAL as a PASS**: `0x4B` is not implemented on the current gateware — the µCPU returns a conformant `NOT_IMPLEMENTED` echo carrying no dynamic info, which the probe will read as a failure. The PASS below belongs to the pre-substitution silicon named with it. |
+| `/tmp/dyninfo_probe.py <01\|02>` | GET_DYNAMIC_INFO (7.4.76) batch versus classic responses, byte-exact plus BAD_ARGUMENTS case. **HISTORICAL as a PASS**: the named PASS belongs to pre-substitution silicon. The current protocol processor implements the Milan fixed-get subset, but this processor revision has not been rerun on the physical bench, so the old result is not credited to it. |
 | `/tmp/crf_inject.py [n]` | 500 Hz Milan CRF source (subtype4/type1/48k/ival96), sid = peer-host MAC + `0001`, synthetic exact-2ms timestamps (CRF_RATE reads ≈0). Provision the DUT: CRF_SIDLO/HI + CTRL en, watch 0x744-0x74C + lock. |
 | `/tmp/ctr.py` | STREAM_INPUT counters snapshot (LOCKED/UNLOCKED/RESET/UNCERT) — the media-health detector. |
 | runner scripts → see §7 | conformance suite runners. |

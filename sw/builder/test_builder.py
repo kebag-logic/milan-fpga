@@ -616,14 +616,14 @@ def test_current_shape_matches_gen_aem_store():
     assert [int(f, 16) for f in ovl["stream_outputs"][0]["formats"]] == g.OUT_FORMATS
     rate_hz = {0x0000BB80: 48000, 0x00017700: 96000, 0x0002EE00: 192000}
     assert [rate_hz[x] for x in g.RATES] == ovl["sampling_rates_hz"]
-    # port layout identical to the deployed ROM (1 port/stream: 8@0 map 0 /
-    # 8@8 map 1)
+    # Port layout identical to the builtin model. Milan v1.2 5.3.3.9 makes
+    # the input dynamic (no AUDIO_MAP); the one static output map is index 0.
     p_in, p_out = ovl["stream_ports"]["input"], ovl["stream_ports"]["output"]
     assert len(p_in) == 1 and len(p_out) == 1
     assert (p_in[0]["clusters"], p_in[0]["base_cluster"],
-            p_in[0]["maps"], p_in[0]["base_map"]) == (8, 0, 1, 0)
+            p_in[0]["maps"], p_in[0]["base_map"]) == (8, 0, 0, 0)
     assert (p_out[0]["clusters"], p_out[0]["base_cluster"],
-            p_out[0]["maps"], p_out[0]["base_map"]) == (8, 8, 1, 1)
+            p_out[0]["maps"], p_out[0]["base_map"]) == (8, 8, 1, 0)
     print(f"  [gate 3] arty_current overlay == gen_aem_store model "
           f"({len(ovl['descriptor_counts'])} descriptor types, formats, "
           f"rates, port layout)")
@@ -1370,25 +1370,11 @@ def _dynmap_candidate(cfg_path, td):
 def _check_tracked_dynmap(adp_path, rom_path, configs=None):
     """Gate 17's engine-presence check, asked of ANY tracked pair.
 
-    THE PROPERTY IS UNCHANGED: `AEM_DYNMAP is CONDITIONAL codegen.  The
-    dynamic-map engine constants are in a generated descriptor ROM IF AND
-    ONLY IF the config that ROM was generated from declares a dynamic
-    audio-map port - that is what `map_mode: dynamic` means (1722.1-2021
-    7.2.13 / Milan v1.2 5.4.2.27-28: a dynamically-mapped port carries no
-    AUDIO_MAP descriptor and advertises number_of_maps = 0).  A static shape
-    must not drag the engine into a gateware that has no use for it.
-
-    WHAT MOVED is the EXPECTATION.  It used to be the constant "absent" -
-    `assert "AEM_DYNMAP" not in open(TRACKED_SVH).read()` - which reads the
-    TRACKED artifact while ASSUMING which config owns it.  Harmless while
-    all three shipped configs are static, red the day a `map_mode: dynamic`
-    config legitimately owns the tracked pair, and red for a reason that has
-    nothing to do with conditional codegen.  This is gate 10's defect in the
-    other polarity, so it gets gate 10's fix: the owner is READ from the
-    shape include's `Source :` marker through ces.tracked_owner - the ONE
-    reader of that question in this repo - and the expectation is DERIVED
-    from what that config declares.  Two answers to "who owns the tracked
-    ROM" is exactly how this defect class propagates.
+    Milan v1.2 5.3.3.9 makes every Stream Port Input dynamic, so every valid
+    builder owner requires the generated `AEM_DYNMAP input engine. The owner
+    is still read from the shape include's `Source :` marker through
+    ces.tracked_owner, which prevents a ROM left behind by a different shape
+    from passing the tracked-artifact gate.
 
     The standard is SILENT on which config owns a build artifact; that part
     is build hygiene, not conformance.  What the standard fixes is the
@@ -1501,53 +1487,46 @@ def test_dynamic_audio_map_overlay():
     finally:
         os.unlink(p)
 
-    # R2 - BOTH directions of the iff, on CANDIDATE pairs in temp dirs.
-    # Nothing is installed: --write-rtl is never run and the tree keeps its
-    # owner.  A gate that only ever sees a static owner cannot tell "derived
-    # from the owner" from "hardcoded absent", which is the whole defect.
+    # R2: every Milan input is dynamic, so engine presence is now an
+    # unconditional model invariant. Candidate pairs are kept in temp dirs;
+    # nothing is installed and the tree retains its owner.
     p = _variant(CONFIGS["arty_current"], dyn)
     try:
         with tempfile.TemporaryDirectory() as td:
             dyn_adp, dyn_rom = _dynmap_candidate(p, td)
-            sub = os.path.join(td, "static")
+            sub = os.path.join(td, "current")
             os.makedirs(sub)
-            st_adp, st_rom = _dynmap_candidate(CONFIGS["arty_current"], sub)
+            cur_adp, cur_rom = _dynmap_candidate(CONFIGS["arty_current"], sub)
 
-            # (1) a DYNAMIC owner passes the SAME check with the expectation
-            #     FLIPPED to "present".  The old hardcoded negative REJECTED
-            #     exactly this - a correct tree, refused for a reason that is
-            #     not what the gate is about.
+            # A conformant owner passes with the required input engine.
             name, want = _check_tracked_dynmap(dyn_adp, dyn_rom, configs=[p])
             assert want is True, f"{name}: dynamic owner not seen as dynamic"
             assert "AEM_DYNMAP" in open(dyn_rom).read(), (
                 "SETUP: the dynamic candidate ROM has no engine to require")
-            print(f"  [gate 17] a tracked pair owned by a map_mode-dynamic "
-                  f"config passes the SAME check with the expectation "
-                  f"FLIPPED to `AEM_DYNMAP PRESENT - the gate follows the "
-                  f"owner instead of hardcoding absence")
+            print(f"  [gate 17] a Milan input owner requires "
+                  f"`AEM_DYNMAP PRESENT and the candidate pair carries it")
 
-            # (2) and it still BITES in both directions.  Both mutations are
-            #     the realistic failure - a ROM left over from the previous
-            #     owner while the shape include already moved.
+            # A stale/mutated ROM with the engine marker removed is rejected.
+            broken_rom = os.path.join(td, "broken.svh")
+            with open(broken_rom, "w") as f:
+                f.write(open(dyn_rom).read().replace("AEM_DYNMAP",
+                                                     "AEM_XYNMAP"))
             _expect_dynmap_rejected(
                 "owner declares a dynamic port, tracked ROM has no engine",
-                lambda: _check_tracked_dynmap(dyn_adp, st_rom, configs=[p]))
-            _expect_dynmap_rejected(
-                "owner declares NO dynamic port, tracked ROM carries the "
-                "engine",
-                lambda: _check_tracked_dynmap(st_adp, dyn_rom))
+                lambda: _check_tracked_dynmap(dyn_adp, broken_rom,
+                                              configs=[p]))
 
-            # (3) an owner that cannot be resolved must FAIL, not skip: with
+            # An owner that cannot be resolved must FAIL, not skip: with
             #     no owner there is no expectation to check against.
-            ghost = open(st_adp).read().replace(
+            ghost = open(cur_adp).read().replace(
                 "configs/endstation_arty_current.yaml",
                 "configs/endstation_ghost.yaml")
             assert ces.svh_source(ghost) == "configs/endstation_ghost.yaml"
-            with open(st_adp, "w") as f:
+            with open(cur_adp, "w") as f:
                 f.write(ghost)
             _expect_dynmap_rejected(
                 "shape include names a config that does not exist",
-                lambda: _check_tracked_dynmap(st_adp, st_rom))
+                lambda: _check_tracked_dynmap(cur_adp, cur_rom))
     finally:
         os.unlink(p)
 
@@ -1724,9 +1703,10 @@ def test_dynamic_audio_map_overlay():
         os.unlink(p)
 
     def dyn_page_static(c):
+        c["streams"]["listeners"][0]["map_mode"] = "static"
         c["streams"]["listeners"][0]["map_page"] = 4
     for label, mutate, needle in (
-            ("map_page without dynamic", dyn_page_static, "map_mode dynamic"),):
+            ("static listener", dyn_page_static, "forbidden"),):
         p = _variant(CONFIGS["arty_current"], mutate)
         try:
             try:
@@ -1753,8 +1733,24 @@ def test_dynamic_audio_map_overlay():
             raise AssertionError("split map_page: accepted")
     finally:
         os.unlink(p)
-    print("  [gate 17] reject paths: stray map_page and disagreeing "
-          "map_page across dynamic listeners raise ConfigError")
+    # The capture crossbar selects static/dynamic output mapping globally,
+    # so a mixed output image must be rejected instead of misrouting its
+    # static ports through an empty dynamic map.
+    def mixed_output_modes(c):
+        c["streams"]["talkers"][0]["map_mode"] = "dynamic"
+        c["streams"]["talkers"][1]["map_mode"] = "static"
+    p = _variant(CONFIGS["arty_4x4"], mixed_output_modes)
+    try:
+        try:
+            eb.load_config(p)
+        except eb.ConfigError as e:
+            assert "mixed static/dynamic" in str(e), f"mixed outputs: got {e}"
+        else:
+            raise AssertionError("mixed output map modes: accepted")
+    finally:
+        os.unlink(p)
+    print("  [gate 17] reject paths: static input, disagreeing input pages, "
+          "and mixed output map modes raise ConfigError")
 
 
 MILAN_CSR_SV = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
@@ -4136,9 +4132,11 @@ def test_d10_cluster_names():
     # same move: 87 octets was the 2013 length, 2021 Table 7-27 adds
     # aes3_data_type_reference and aes3_data_type for 90). That is the 6.2.2.8
     # obligation being discharged, not a D8-era regression - which is why the
-    # D8 conditional keys above stayed conditional and this key did not.
+    # D8 conditional keys above stayed conditional and this key did not),
+    # then -> 0x001BC5FC6D9248FB when Milan v1.2 5.3.3.9 made the final
+    # shipped input dynamic and removed its forbidden AUDIO_MAP.
     assert eb.load_config(CONFIGS["arty_current"])["model_id"]["hash"] == \
-        "0x001BC54079789FCA"
+        "0x001BC5FC6D9248FB"
     # arty_4x4's hash has now moved THREE times, correctly every time:
     # 0x001BC565E07E0DD6 -> 0x001BC5C42E0CEE8B when the per-board routing
     # gate forced tdm8 -> i2s_philips (no header existed), ->
@@ -4165,7 +4163,8 @@ def test_d10_cluster_names():
         "0x001BC59AB5D4ADE1"
     print("  [gate 24c] every cluster named for its ROLE; renaming leaves "
           "entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a "
-          "pool width moves it; the two pre-D8 shapes hash unchanged")
+          "pool width moves it; pre-D8 hashes stay explicitly pinned to "
+          "their current model")
 
 
 def test_d10_names_reach_the_rom():

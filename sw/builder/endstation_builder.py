@@ -1318,21 +1318,26 @@ def _streams(lst, ctx, direction, rate_hz=48000):
         clusters = s.get("clusters", ch)
         if not (isinstance(clusters, int) and 1 <= clusters <= 32):
             raise ConfigError(f"{sctx}: clusters {clusters} outside 1..32")
-        # map_mode (gaps item 8, generalized by roadmap 23): "dynamic"
-        # drops the port's static AUDIO_MAP (1722.1-2021 7.2.13
-        # number_of_maps=0). The processor serves GET_AUDIO_MAP from the root
-        # store, but ADD/REMOVE remain mandatory gaps and no AECP writer is
-        # connected. Milan v1.2 5.3.3.9 makes dynamic maps the SHALL for listeners
-        # ("The Stream Port Input of a Configuration shall not contain any
-        # AUDIO_MAP descriptor. Note: this means that a PAAD-AE implements
-        # dynamic mappings on all of its Stream Port Inputs"), so ANY
-        # subset of the listener ports may be dynamic. Talkers stay static in
-        # this configuration model. The current getter serves both directions;
-        # see docs/testing/MILAN_V12_AUDIT_2026-08-16.md for the open writers.
-        map_mode = s.get("map_mode", "static")
+        # Milan v1.2 5.3.3.9 requires every Stream Port Input to omit an
+        # AUDIO_MAP descriptor, which is the descriptor-model signal for a
+        # dynamically mapped input. This is an invariant, not an optional
+        # capability switch: accepting a static listener would generate an
+        # entity model a Milan PAAD-AE is forbidden to expose.
+        #
+        # Stream Port Outputs may be static or dynamic. The current media
+        # fabric selects its capture crossbar as one image-wide mode, so the
+        # load_config validation below requires all talkers to choose the
+        # same mode rather than silently misrouting a mixed image.
+        map_mode = s.get("map_mode",
+                         "dynamic" if direction == "listener" else "static")
         if map_mode not in ("static", "dynamic"):
             raise ConfigError(f"{sctx}: map_mode '{map_mode}' not "
                               "static|dynamic")
+        if direction == "listener" and map_mode != "dynamic":
+            raise ConfigError(
+                f"{sctx}: map_mode static is forbidden for a Stream Port "
+                "Input; Milan v1.2 5.3.3.9 requires dynamic mappings on "
+                "every Stream Port Input")
         # USER 08-01: talkers may be dynamic too. Milan 5.3.3.9 leaves
         # Stream Port Outputs free, and 5.4.2.26-28 make GET/ADD/REMOVE a
         # SHALL for "each Stream Port Output that has no Audio Map" - a
@@ -1446,12 +1451,12 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
         else:
             n = eff(s)
             pool = legacy_pool(dir_base, n, ph_render)
-        dyn = s.get("map_mode", "static") == "dynamic"
+        dyn = s.get("map_mode", "dynamic") == "dynamic"
         ports_in.append(dict(index=i, stream_index=i, clusters=n,
                              base_cluster=base,
                              maps=0 if dyn else 1,
                              base_map=0 if dyn else next_map,
-                             map_mode=s.get("map_mode", "static"),
+                             map_mode=s.get("map_mode", "dynamic"),
                              map_page=s.get("map_page"), pool=pool))
         if not dyn:
             next_map += 1
@@ -3533,6 +3538,19 @@ def load_config(path):
                          "listener", clocking["sampling_rate_hz"])
     talkers = _streams(_req(st, "talkers", "streams"), "streams.talkers",
                        "talker", clocking["sampling_rate_hz"])
+
+    # The capture crossbar currently has one image-wide static/dynamic
+    # selector. A mixed set of Stream Port Outputs would therefore switch a
+    # static port to the empty dynamic RAM whenever any sibling was dynamic.
+    # Milan permits either mode per output, but this implementation only
+    # supports a uniform output mode and must refuse an unsafe image.
+    output_map_modes = {s["map_mode"] for s in talkers}
+    if len(output_map_modes) > 1:
+        raise ConfigError(
+            "streams.talkers: mixed static/dynamic map_mode is unsupported; "
+            "the capture mapping fabric selects one mode for all Stream "
+            "Port Outputs, so declare every talker static or every talker "
+            "dynamic")
 
     # Milan 7.2.3 RULE (PDF-verified): "an AAF Media Listener with two or
     # more AAF Media Inputs shall implement a CRF Media Clock Output" (per
