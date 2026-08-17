@@ -809,7 +809,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x0002004E);
+       axi_read(A_VERSION), 0x0002004F);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
     //! These two writes used to sit inside the N-sink ACMP ctx2 section,
@@ -2962,26 +2962,61 @@ int main(int argc, char** argv) {
             std::vector<uint8_t> ti4(4, 0);
             ti4[1] = 0x05;                       // STREAM_INPUT
             ti4[2] = 0x00; ti4[3] = 0x00;        // index 0
+            // Milan Table 5.9 bit 28 STREAMING_WAIT = 0x00000008: "0 if the
+            // Stream Input is bound and started, 1 if the Stream Input is
+            // bound and stopped". The flags are the big-endian dword at
+            // r[42..45], so the bit lands in r[45]. This is the REPORTING
+            // half of 5.3.8.7 and it used to be a hardcoded 0.
+            std::vector<uint8_t> gsi = {0x00, 0x05, 0x00, 0x00};
+            std::vector<uint8_t> g = aecp_xact(0x000F, 0x9100, gsi);
+            ck("5.3.8.7 GET_STREAM_INFO answers before the stop",
+               aecp_status(g), 0);
+            ck("5.3.8.7 started: STREAMING_WAIT reads 0",
+               (long)(g.size() > 45 && (g[45] & 0x08) == 0), 1);
+
             const std::vector<uint8_t> rs =
                 aecp_xact(0x0023, 0x9101, ti4);  // STOP_STREAMING
             ck("5.3.8.7 STOP_STREAMING answered SUCCESS", aecp_status(rs), 0);
 
+            g = aecp_xact(0x000F, 0x9103, gsi);
+            ck("5.3.8.7 stopped: STREAMING_WAIT reads 1",
+               (long)(g.size() > 45 && (g[45] & 0x08) != 0), 1);
+            ck("5.3.8.7 stopped: ...and BOUND still reads 1 - the clause "
+               "stops the data, it does not unbind the sink",
+               (long)(g.size() > 42 && (g[42] & 0x04) != 0), 1);
+
             unsigned long ms = matched(), ps = parsed();
+            long pc = axi_read(A_PCMRX_CNT);
             inject(mkaaf(sid0, 0x21, 2, 0xC0), 120);
             ck("5.3.8.7 stopped: the frame still REACHES the parser",
                parsed() - ps, 1);
-            ck("5.3.8.7 stopped: ...and is NOT matched (discarded)",
-               matched() - ms, 0);
+            // ...and it must still be CLASSIFIED. The clause says a stopped
+            // input "shall discard the Stream AVTPDUs it RECEIVES", and
+            // Table 5.6 defines FRAMES_RX and friends on frames received on
+            // this Stream Input - so the sink goes on matching and counting.
+            // Discarding by evicting the classification entry instead would
+            // also forge a not-bound->bound edge on the next START, and
+            // Table 5.6 makes that edge the counter-RESET event.
+            ck("5.3.8.7 stopped: ...and is STILL matched (it is still bound)",
+               matched() - ms, 1);
+            // the discard itself: nothing reaches the depacketizer
+            ck("5.3.8.7 stopped: ...but the media path got NOTHING",
+               axi_read(A_PCMRX_CNT) - pc, 0);
 
             // ...and START_STREAMING puts it back, so the check above is a
             // property of the state and not of a sink that simply died
             const std::vector<uint8_t> rt =
                 aecp_xact(0x0022, 0x9102, ti4);  // START_STREAMING
             ck("5.3.8.7 START_STREAMING answered SUCCESS", aecp_status(rt), 0);
-            ms = matched(); ps = parsed();
+            ms = matched(); ps = parsed(); pc = axi_read(A_PCMRX_CNT);
             inject(mkaaf(sid0, 0x22, 2, 0xC0), 120);
             ck("5.3.8.7 restarted: PARSED climbs", parsed() - ps, 1);
             ck("5.3.8.7 restarted: MATCHED climbs again", matched() - ms, 1);
+            ck("5.3.8.7 restarted: ...and the media path receives again",
+               axi_read(A_PCMRX_CNT) - pc, 1);
+            g = aecp_xact(0x000F, 0x9104, gsi);
+            ck("5.3.8.7 restarted: STREAMING_WAIT reads 0 again",
+               (long)(g.size() > 45 && (g[45] & 0x08) == 0), 1);
         }
 
         // a route-flags-only CTRL write at idx 0 - the exact write that used

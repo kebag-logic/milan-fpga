@@ -3892,8 +3892,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! Routing it through the classification table means a stopped stream's
   //! frames become FOREIGN at the parser, which is the same path an unbind
   //! already takes, so the per-stream counters do not advance either.
-  wire [ACMP_SINKS_C-1:0] acmpl_admit_v_w = acmpl_bound_v_w
-                                            & pp_aecp_strm_started_w;
+  //! The sinks §5.3.8.7 says to DISCARD for: bound AND stopped. Stated as
+  //! the stop condition rather than as "bound and started" on purpose - the
+  //! clause calls the state "undefined when the Stream Input is not bound",
+  //! so an entry that is NOT ACMP-bound is outside its scope entirely and
+  //! must keep flowing. A classification entry provisioned through the
+  //! `0x800` override window has no binding behind it, and gating it on
+  //! `bound & started` would silence every one of them.
+  wire [ACMP_SINKS_C-1:0] acmpl_stopped_v_w = acmpl_bound_v_w
+                                              & ~pp_aecp_strm_started_w;
   //! KNOWN LIMIT, stated rather than smoothed over: this gate reaches the AAF
   //! sinks (the classification table below, plus entry 0's alias). It does
   //! NOT reach the CRF Media Clock Input at CRF_SNK_IDX_C, because that sink
@@ -4227,12 +4234,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! went on matching frames. `acmpl_bound` itself stays UNGATED where it
     //! reports state (the CSR bound bit, `acmpl_active`): Milan 5.3.8.7
     //! stops the DATA, it does not unbind the sink.
-    .bound0_i (acmpl_admit_v_w[0]), .sid0_i (acmpl_sid),
+    .bound0_i (acmpl_bound), .sid0_i (acmpl_sid),
     //! task #32: every entry rides its own sink's bind level, so an
     //! UNBIND evicts the classification entry and the departed stream's
     //! frames become foreign at the parser (the AAF slice of the ACMP
     //! view - the CRF sink classifies in its own path)
-    .bound_v_i (acmpl_admit_v_w[N_STREAMS-1:0]),
+    //! the PURE bind level, deliberately NOT the started gate. This port
+    //! feeds `bind_rise_o`/`bind_fall_o`, and Milan Table 5.6 resets the
+    //! Stream Input counters "each time the Stream Input changes its state
+    //! from not bound to bound" - a STOP_STREAMING is not that. Gating here
+    //! synthesised a fake unbind/rebind pair around every stop/start, which
+    //! wiped all ten counters and flushed the loopback queues on a sink that
+    //! never left its binding. The started gate is on ACCEPT instead, below.
+    .bound_v_i (acmpl_bound_v_w[N_STREAMS-1:0]),
     .sid_v_i   (acmpl_sid_v_w[64*N_STREAMS-1:0]),
     .wr_en_i (wing_tbl_we_r), .wr_idx_i (wing_idx_r),
     .wr_sid_i (wing_sid_r), .wr_valid_i (wing_en_r),
@@ -4533,7 +4547,20 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [3:0]  avtprx_accept_idx_w;
   wire        pcmrx_pdu_p_w, pcmrx_drop_p_w;
   wire [3:0]  pcmrx_pdu_idx_w, pcmrx_drop_idx_w;
-  assign avtprx_accept_p = avtprx_accept_p_w;
+  //! Milan v1.2 §5.3.8.7: "A PAAD-AE having a stopped Stream Input shall
+  //! DISCARD the Stream AVTPDUs it receives." The discard belongs HERE, on
+  //! the accept pulse that feeds the depacketizer, not on the classification
+  //! entry upstream - because the clause's own wording says a stopped input
+  //! RECEIVES. Table 5.6 defines FRAMES_RX, SEQ_NUM_MISMATCH, LATE/EARLY_
+  //! TIMESTAMP and the rest on frames "received on this Stream Input", so
+  //! they go on counting while the media path gets nothing;
+  //! `KL_avtp_rx_monitor_ctx` sits upstream of this gate for exactly that
+  //! reason. Gating the classifier instead ALSO forged a not-bound->bound
+  //! edge on the next start, and Table 5.6 makes that edge the counter-reset
+  //! event - so a stop/start pair wiped every counter on a sink that never
+  //! unbound.
+  assign avtprx_accept_p = avtprx_accept_p_w
+                           && !acmpl_stopped_v_w[avtprx_accept_idx_w];
 
   KL_avtp_rx_monitor_ctx #(
     .N_LISTENERS_P (N_STREAMS),
