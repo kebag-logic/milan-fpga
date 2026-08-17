@@ -2334,7 +2334,7 @@ def overlay_adp_block(cfg):
     }
 
 
-def emit_adp_shape_svh(cfg):
+def emit_adp_shape_svh(cfg, overlay=None):
     """The ADP shape as the SystemVerilog include milan_csr.sv and
     milan_datapath.sv compile (`include "gen/adp_shape_defaults.svh").
 
@@ -2366,6 +2366,56 @@ def emit_adp_shape_svh(cfg):
     guard (module-scope localparams - each including module needs its own
     copy) and no net decls."""
     sh = adp_shape(cfg)
+    if overlay is None:
+        overlay = emit_aem_overlay(cfg)
+    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+    import gen_aem_store as aem_store
+    din_any = any(s.get("map_mode", "static") == "dynamic"
+                  for s in cfg["listeners"])
+    dout_any = any(s.get("map_mode", "static") == "dynamic"
+                   for s in cfg["talkers"])
+    dm = {"EMIT": din_any}
+    if din_any:
+        dyn_in = [p for p in cfg["ports_in"]
+                  if p.get("map_mode", "static") == "dynamic"]
+        in_page = dyn_in[0]["map_page"]
+        in_streams = overlay["stream_inputs"]
+        dm.update(
+            KEYS=max(p["base_cluster"] + p["clusters"] for p in dyn_in),
+            PAGE=in_page,
+            PBASE=[p["base_cluster"] for p in cfg["ports_in"]],
+            PCLS=[p["clusters"] for p in cfg["ports_in"]],
+            PNMAPS=[(-(-p["clusters"] // in_page)
+                     if p.get("map_mode", "static") == "dynamic"
+                     else p["maps"]) for p in cfg["ports_in"]],
+            SAAF=[s.get("kind", "aaf") == "aaf" for s in in_streams],
+            SCH=[(((int(s["formats"][0], 16) >> 22) & 0x3FF)
+                  if s.get("kind", "aaf") == "aaf" else 0)
+                 for s in in_streams],
+        )
+    od = {"EMIT": dout_any}
+    if dout_any:
+        out_streams = overlay["stream_outputs"]
+        so_ch = [((int(s["formats"][0], 16) >> 22) & 0x3FF)
+                 for s in out_streams]
+        slotb, acc = [], 0
+        for channels in so_ch:
+            slotb.append(acc)
+            acc += (channels + 1) // 2
+        pcls, pcbase, sch, csrc = [], [], [], []
+        for j, p in enumerate(overlay["stream_ports"]["output"]):
+            pcls.append(p["clusters"])
+            pcbase.append(len(csrc))
+            stream = p.get("stream_index", j)
+            sch.append(so_ch[stream])
+            srcs = aem_store._out_cluster_sources(overlay, j, p)
+            if srcs is None:
+                srcs = [dict(src=3, idxh=0,
+                             idx=slotb[stream] + c // 2, half=c % 2,
+                             valid=slotb[stream] + c // 2 < 16)
+                        for c in range(p["clusters"])]
+            csrc.extend(srcs)
+        od.update(PCLS=pcls, PCBASE=pcbase, SCH=sch, CSRC=csrc)
     L, T = len(cfg["listeners"]), len(cfg["talkers"])
     crf_o = "yes" if cfg["clocking"]["crf_output"] else "no"
     crf_s = "yes" if cfg["clocking"]["crf_sink"] else "no"
@@ -2410,6 +2460,106 @@ def emit_adp_shape_svh(cfg):
     a("  //! + MEDIA_CLOCK_SINK only when a CRF STREAM_INPUT exists")
     a(f"  localparam logic [15:0] ADP_LISTENER_CAPS_C  = "
       f"16'h{sh['listener_capabilities']:04X};")
+    a("  //! Dynamic AUDIO_MAP ownership, one bit per AAF Stream Port. A set")
+    a("  //! bit means the descriptor carries no static AUDIO_MAP and the")
+    a("  //! ADD/REMOVE/GET_AUDIO_MAP command family owns its live routing.")
+    din_mask = sum((1 << i) for i, s in enumerate(cfg["listeners"])
+                   if s.get("map_mode", "static") == "dynamic")
+    dout_mask = sum((1 << i) for i, s in enumerate(cfg["talkers"])
+                    if s.get("map_mode", "static") == "dynamic")
+    a(f"  localparam logic [63:0] ADP_DMAP_IN_MASK_C  = "
+      f"64'h{din_mask:016X};")
+    a(f"  localparam logic [63:0] ADP_DMAP_OUT_MASK_C = "
+      f"64'h{dout_mask:016X};")
+    a("  //! Dynamic input geometry is the AEM model's port-relative page")
+    a("  //! partition plus its global cluster-key projection. RPHYS entries")
+    a("  //! are {valid, render_crossbar_key[5:0]}; non-physical clusters")
+    a("  //! remain protocol-visible mappings without aliasing a physical pin.")
+    if dm["EMIT"]:
+        in_keys = dm["KEYS"]
+        in_page = dm["PAGE"]
+        in_pbase = dm["PBASE"]
+        in_pcls = dm["PCLS"]
+        in_pnmaps = dm["PNMAPS"]
+        in_saaf = dm["SAAF"]
+        in_sch = dm["SCH"]
+    else:
+        in_ports = cfg["ports_in"]
+        in_keys = max((p["base_cluster"] + p["clusters"]
+                       for p in in_ports), default=1)
+        in_page = min(max((p["clusters"] for p in in_ports), default=1), 8)
+        in_pbase = [p["base_cluster"] for p in in_ports] or [0]
+        in_pcls = [p["clusters"] for p in in_ports] or [1]
+        in_pnmaps = [max(1, -(-p["clusters"] // in_page))
+                     for p in in_ports] or [1]
+        in_saaf = [True for _ in cfg["listeners"]] or [False]
+        in_sch = [((int(str(s["formats"][0]), 16) >> 22) & 0x3FF)
+                  for s in cfg["listeners"]] or [0]
+    in_rphys = [0] * max(1, in_keys)
+    for p in cfg["ports_in"]:
+        for pool in p.get("pool", []):
+            if pool["role"] != "physical":
+                continue
+            for n in range(pool["width"]):
+                key = p["base_cluster"] + pool["offset"] + n
+                phys = pool.get("first", 0) + n
+                if key < len(in_rphys) and phys < 64:
+                    in_rphys[key] = 0x40 | phys
+
+    def sv_array(name, kind, values, render=str):
+        vals = list(values) or [0]
+        body = ", ".join(render(v) for v in vals)
+        a(f"  localparam logic {kind} {name} [0:{len(vals)-1}] = "
+          f"'{{{body}}};")
+
+    a(f"  localparam int ADP_DMAP_IN_KEYS_C    = {max(1, in_keys)};")
+    a(f"  localparam int ADP_DMAP_IN_PAGE_C    = {in_page};")
+    a(f"  localparam int ADP_DMAP_IN_NPORTS_C  = {len(in_pbase)};")
+    a(f"  localparam int ADP_DMAP_IN_NSTRIN_C  = {len(in_sch)};")
+    sv_array("ADP_DMAP_IN_PBASE_C", "[6:0]", in_pbase,
+             lambda v: f"7'd{v}")
+    sv_array("ADP_DMAP_IN_PCLS_C", "[6:0]", in_pcls,
+             lambda v: f"7'd{v}")
+    sv_array("ADP_DMAP_IN_PNMAPS_C", "[6:0]", in_pnmaps,
+             lambda v: f"7'd{v}")
+    sv_array("ADP_DMAP_IN_RPHYS_C", "[6:0]", in_rphys,
+             lambda v: f"7'h{v:02X}")
+    sv_array("ADP_DMAP_IN_SAAF_C", "", in_saaf,
+             lambda v: "1'b1" if v else "1'b0")
+    sv_array("ADP_DMAP_IN_SCH_C", "[9:0]", in_sch,
+             lambda v: f"10'd{v}")
+
+    a("  //! Dynamic output geometry and capture-source words are copied")
+    a("  //! from the AEM generator's ODMAP table. CSRC uses the fabric word")
+    a("  //! {valid, half, src[2:0], idxh[3:0], idx[3:0]}.")
+    if od["EMIT"]:
+        out_pcls = od["PCLS"]
+        out_pcbase = od["PCBASE"]
+        out_sch = od["SCH"]
+        out_csrc = [((1 if s.get("valid", True) else 0) << 12)
+                    | ((s.get("half", 0) & 1) << 11)
+                    | ((s["src"] & 7) << 8)
+                    | ((s.get("idxh", 0) & 0xF) << 4)
+                    | (s.get("idx", 0) & 0xF)
+                    for s in od["CSRC"]]
+    else:
+        out_pcls = [p["clusters"] for p in cfg["ports_out"]] or [1]
+        out_pcbase, total = [], 0
+        for clusters in out_pcls:
+            out_pcbase.append(total)
+            total += clusters
+        out_sch = [s["channels"] for s in cfg["talkers"]] or [0]
+        out_csrc = [0] * max(1, total)
+    a(f"  localparam int ADP_DMAP_OUT_NPORTS_C = {len(out_pcls)};")
+    a(f"  localparam int ADP_DMAP_OUT_NSRC_C    = {len(out_csrc)};")
+    sv_array("ADP_DMAP_OUT_PCLS_C", "[6:0]", out_pcls,
+             lambda v: f"7'd{v}")
+    sv_array("ADP_DMAP_OUT_PCBASE_C", "[7:0]", out_pcbase,
+             lambda v: f"8'd{v}")
+    sv_array("ADP_DMAP_OUT_SCH_C", "[9:0]", out_sch,
+             lambda v: f"10'd{v}")
+    sv_array("ADP_DMAP_OUT_CSRC_C", "[12:0]", out_csrc,
+             lambda v: f"13'h{v:04X}")
     a("  //! THE WIRE CHANNEL CONSTANT (roadmap item 00): channels_per_frame")
     a("  //! the FRAMER emits, derived from the capture front-end this config")
     a("  //! elaborates - NOT from any declared format and NOT from `clusters`")
@@ -4469,7 +4619,7 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     lwsrp = emit_lwsrp_table(cfg)
     lwsrp_svh = emit_lwsrp_svh(cfg, lwsrp)
     csr_svh = emit_csr_defaults_svh(cfg)
-    adp_svh = emit_adp_shape_svh(cfg)
+    adp_svh = emit_adp_shape_svh(cfg, overlay)
     # The ROM consumer does not yet express every overlay the builder can
     # emit (a shape with no CRF sink has no AEM_CRF_FMTS_C table). That is a
     # real limit, not a reason to fail every OTHER artifact: record it and

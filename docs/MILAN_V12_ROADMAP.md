@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
-**Status 2026-08-16, VERSION `0x0002_004E`.** This is the ordered, clause-cited
+**Status 2026-08-17, VERSION `0x0002_004F`.** This is the ordered, clause-cited
 plan from where the device is to a device that passes the Milan
 end-station validation test plan. It supersedes the AECP sections of
 [historical `MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
@@ -317,12 +317,14 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 | `0x002C` | ADD_AUDIO_MAPPINGS | 5.4.2.27 | es-4.16, es-5.1, es-9.2, es-11.6, es-12.11 |
 | `0x002D` | REMOVE_AUDIO_MAPPINGS | 5.4.2.28 | as above |
 
-All-or-nothing `BAD_ARGUMENTS` (*"no mapping shall be added"*), the two
-same-channel conflict rules, REMOVE ignoring duplicates, and the
-running-output gate keyed on `TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING`. The µISA
-already carries `MAP_VALID` for the validation and `E_MAPV`/`E_MAPVF` as
-exemplar programs; the read side (`GET_AUDIO_MAP`) is already live off the
-integrator's map store, so the write path is the gap.
+**Live command path implemented 2026-08-17.** The processor stages the entire
+command and completes `MAP_VALID` validation before the root commits any row.
+It enforces all-or-nothing `BAD_ARGUMENTS`, duplicate REMOVE handling,
+cross-port output ownership, lock protection, and the running-output gate.
+The builder supplies exact input geometry, physical projections, and output
+source templates for each entity model. Changed commands notify every other
+registered controller; an idempotent ADD does not. Nonvolatile mapping replay
+remains open in issue #70.
 
 ### P2.5 — the packed getter
 
@@ -440,7 +442,9 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
    at dispatch.
 5. **P3.2** notification triggers, folded into each command above as it lands.
 6. **P2.2/P2.3** `GET`/`SET_CONTROL` with the IDENTIFY indicator wired.
-7. **P2.4** ADD/REMOVE_AUDIO_MAPPINGS.
+7. **P2.4 complete 2026-08-17**: ADD/REMOVE_AUDIO_MAPPINGS with atomic
+   validation, live datapath projection, lock checks, and unsolicited updates.
+   Nonvolatile replay remains tracked by P3.1 and issue #70.
 8. **P3.3** departing-controller monitor.
 9. **P3.1** persistence — largest, and the only one that needs a real flash
    backend rather than the blank-flash stub.

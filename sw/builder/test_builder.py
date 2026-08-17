@@ -1305,6 +1305,49 @@ def test_gen_aem_store_crf_output_overlay():
           "(CRF flags/formats in the right rows)")
 
 
+def test_dynamic_map_topology_reaches_shape_header():
+    """gate 16c - the RTL mapping face receives the AEM model topology."""
+    def scalar(s, name):
+        m = re.search(rf"{name}\s*=\s*(\d+)\s*;", s)
+        assert m, f"shape header has no {name}"
+        return int(m.group(1))
+
+    def array(s, name):
+        m = re.search(rf"{name}\s*\[[^]]+\]\s*=\s*'\{{([^}}]+)\}};", s)
+        assert m, f"shape header has no {name}"
+        out = []
+        for token in m.group(1).split(", "):
+            q = re.search(r"'([hdb])([0-9A-Fa-f]+)", token)
+            assert q, f"{name}: cannot parse {token}"
+            out.append(int(q.group(2), {"h": 16, "d": 10, "b": 2}[q.group(1)]))
+        return out
+
+    ax8 = eb.load_config(CONFIGS["ax7101_8x8"])
+    h8 = eb.emit_adp_shape_svh(ax8, eb.emit_aem_overlay(ax8))
+    assert scalar(h8, "ADP_DMAP_IN_KEYS_C") == 64
+    assert array(h8, "ADP_DMAP_IN_PBASE_C") == list(range(0, 64, 8))
+    assert array(h8, "ADP_DMAP_IN_PCLS_C") == [8] * 8
+    assert array(h8, "ADP_DMAP_IN_RPHYS_C") == [0] * 64
+    assert array(h8, "ADP_DMAP_OUT_PCLS_C") == [17] * 8
+    assert array(h8, "ADP_DMAP_OUT_PCBASE_C") == list(range(0, 136, 17))
+    c8 = array(h8, "ADP_DMAP_OUT_CSRC_C")
+    assert c8[:9] == [0x1300, 0x1B00, 0x1301, 0x1B01,
+                      0x1302, 0x1B02, 0x1303, 0x1B03, 0x1400]
+    assert c8[9:17] == [0x0500, 0x0D00, 0x0501, 0x0D01,
+                        0x0502, 0x0D02, 0x0503, 0x0D03]
+
+    ax1 = eb.load_config(CONFIGS["ax7101_1x1_tdm8"])
+    h1 = eb.emit_adp_shape_svh(ax1, eb.emit_aem_overlay(ax1))
+    assert scalar(h1, "ADP_DMAP_IN_KEYS_C") == 8
+    assert array(h1, "ADP_DMAP_IN_RPHYS_C") == [0] * 8
+    assert array(h1, "ADP_DMAP_OUT_PCLS_C") == [25]
+    c1 = array(h1, "ADP_DMAP_OUT_CSRC_C")
+    assert c1[0] == 0x1200 and c1[8] == 0x1300
+    assert c1[16] == 0x1400 and c1[17] == 0x1500 and c1[24] == 0x1D03
+    print("  [gate 16c] dynamic-map input keys, physical projections and "
+          "output CSRC tables match both AX7101 entity models")
+
+
 def _dynmap_candidate(cfg_path, td):
     """The tracked pair `--write-rtl <cfg>` WOULD install for cfg_path,
     written to td.  Same technique as gate 10's candidate pairs - the real
@@ -1549,11 +1592,10 @@ def test_dynamic_audio_map_overlay():
               "4 ports n_maps=0, no input AUDIO_MAP, svh keys=16 bases "
               "0/4/8/12, CRF sink flagged unmappable")
 
-        # gate 17c: the AEM refusal and the fabric write gate must agree on
-        # WHICH KEYS EXIST, or the model accepts a mapping the crossbar drops
-        # (or refuses one it would have taken). AEM_DMAP_PHYS_C is emitted by
-        # the codegen; CHMAP_PHYS_C is a milan_datapath localparam; this is
-        # the only thing tying the two together.
+        # gate 17c: the protocol store covers every model key, while only a
+        # generated physical projection may reach the render crossbar.
+        # AEM_DMAP_PHYS_C still fixes that crossbar's capacity; RPHYS decides
+        # which model keys, if any, address it.
         m = re.search(r"localparam int unsigned AEM_DMAP_PHYS_C\s*=\s*(\d+);",
                       svh)
         assert m, "svh emits no AEM_DMAP_PHYS_C"
@@ -1564,15 +1606,21 @@ def test_dynamic_audio_map_overlay():
             f"AEM_DMAP_PHYS_C {m.group(1)} != milan_datapath CHMAP_PHYS_C "
             f"{d.group(1)}: the AEM refusal and the render-map write gate "
             "would disagree about which cluster keys are reachable")
-        # and the write gate itself must be present on BOTH arms, full-width
+        # Both physical write arms remain full-width gated. The CSR arm must
+        # also require a generated projection instead of comparing the model
+        # key directly with the physical depth.
         assert re.search(r"32'\(aecp_dmap_wr_addr_w\)\s*<\s*CHMAP_PHYS_C", dp), \
             "milan_datapath: AEM arm of the render-map write is not gated"
-        assert re.search(r"32'\(cfg_chmap_wr_addr\)\s*<\s*CHMAP_PHYS_C", dp), \
-            "milan_datapath: CSR-debug arm of the render-map write is not gated"
+        assert "cfg_chmap_rphys_w[6]" in dp, \
+            "milan_datapath: CSR-debug arm ignores generated RPHYS validity"
+        assert re.search(
+            r"32'\(cfg_chmap_rphys_w\[5:0\]\)\s*<\s*CHMAP_PHYS_C", dp), \
+            "milan_datapath: projected CSR render key is not depth-gated"
+        assert "ADP_DMAP_IN_RPHYS_C[k]" in dp, \
+            "milan_datapath: generated input projection table is not consumed"
         print(f"  [gate 17c] AEM_DMAP_PHYS_C {m.group(1)} == milan_datapath "
-              f"CHMAP_PHYS_C {d.group(1)}, and BOTH render-map write arms "
-              "(AEM projector + CSR 0x900 debug port) carry the full-width "
-              "< CHMAP_PHYS_C gate")
+              f"CHMAP_PHYS_C {d.group(1)}; RPHYS validity and full-width "
+              "physical-depth gates protect both render-map write arms")
     finally:
         os.unlink(p)
 
@@ -4969,6 +5017,7 @@ if __name__ == "__main__":
                test_resource_verdicts, test_milan_723_crf_output_rule,
                test_crf_output_overlay_structure,
                test_gen_aem_store_crf_output_overlay,
+               test_dynamic_map_topology_reaches_shape_header,
                test_dynamic_audio_map_overlay,
                test_lwsrp_reset_words_match_rtl,
                test_lwsrp_class_constants_match_rtl,

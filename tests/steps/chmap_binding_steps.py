@@ -3,11 +3,10 @@
 """The chmap64 render-crossbar binding contract, offline.
 
 WHAT THIS IS, AND WHAT IT IS NOT.  This module carries the dynamic audio-map
-model that used to live in tests/steps/tsn_gen_steps.py. The repository-local
-AECP engine and those wire scenarios are gone. The protocol processor now
-serves READ_DESCRIPTOR and GET_AUDIO_MAP, while ADD_AUDIO_MAPPINGS and
-REMOVE_AUDIO_MAPPINGS remain unimplemented. Their wire behavior is tested in
-the processor and milan_dp harnesses, not in this offline model.
+model that used to live in tests/steps/tsn_gen_steps.py. The protocol processor
+serves READ_DESCRIPTOR, GET_AUDIO_MAP, ADD_AUDIO_MAPPINGS, and
+REMOVE_AUDIO_MAPPINGS. Their wire behavior and transactional live-RAM writes
+are tested in the processor and milan_dp harnesses, not in this offline model.
 
 What SURVIVES is the fabric half - the render crossbar KL_chan_map_render and
 its capture twin KL_chan_map_capture - and the WORD FORMAT a mapping projects

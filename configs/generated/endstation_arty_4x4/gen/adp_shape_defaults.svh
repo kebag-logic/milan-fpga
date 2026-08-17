@@ -32,6 +32,34 @@
   //! listener_capabilities (Table 6.5): IMPLEMENTED | AUDIO_SINK,
   //! + MEDIA_CLOCK_SINK only when a CRF STREAM_INPUT exists
   localparam logic [15:0] ADP_LISTENER_CAPS_C  = 16'h4801;
+  //! Dynamic AUDIO_MAP ownership, one bit per AAF Stream Port. A set
+  //! bit means the descriptor carries no static AUDIO_MAP and the
+  //! ADD/REMOVE/GET_AUDIO_MAP command family owns its live routing.
+  localparam logic [63:0] ADP_DMAP_IN_MASK_C  = 64'h000000000000000F;
+  localparam logic [63:0] ADP_DMAP_OUT_MASK_C = 64'h0000000000000000;
+  //! Dynamic input geometry is the AEM model's port-relative page
+  //! partition plus its global cluster-key projection. RPHYS entries
+  //! are {valid, render_crossbar_key[5:0]}; non-physical clusters
+  //! remain protocol-visible mappings without aliasing a physical pin.
+  localparam int ADP_DMAP_IN_KEYS_C    = 16;
+  localparam int ADP_DMAP_IN_PAGE_C    = 4;
+  localparam int ADP_DMAP_IN_NPORTS_C  = 4;
+  localparam int ADP_DMAP_IN_NSTRIN_C  = 5;
+  localparam logic [6:0] ADP_DMAP_IN_PBASE_C [0:3] = '{7'd0, 7'd4, 7'd8, 7'd12};
+  localparam logic [6:0] ADP_DMAP_IN_PCLS_C [0:3] = '{7'd4, 7'd4, 7'd4, 7'd4};
+  localparam logic [6:0] ADP_DMAP_IN_PNMAPS_C [0:3] = '{7'd1, 7'd1, 7'd1, 7'd1};
+  localparam logic [6:0] ADP_DMAP_IN_RPHYS_C [0:15] = '{7'h40, 7'h41, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00};
+  localparam logic  ADP_DMAP_IN_SAAF_C [0:4] = '{1'b1, 1'b1, 1'b1, 1'b1, 1'b0};
+  localparam logic [9:0] ADP_DMAP_IN_SCH_C [0:4] = '{10'd4, 10'd4, 10'd4, 10'd4, 10'd0};
+  //! Dynamic output geometry and capture-source words are copied
+  //! from the AEM generator's ODMAP table. CSRC uses the fabric word
+  //! {valid, half, src[2:0], idxh[3:0], idx[3:0]}.
+  localparam int ADP_DMAP_OUT_NPORTS_C = 4;
+  localparam int ADP_DMAP_OUT_NSRC_C    = 16;
+  localparam logic [6:0] ADP_DMAP_OUT_PCLS_C [0:3] = '{7'd4, 7'd4, 7'd4, 7'd4};
+  localparam logic [7:0] ADP_DMAP_OUT_PCBASE_C [0:3] = '{8'd0, 8'd4, 8'd8, 8'd12};
+  localparam logic [9:0] ADP_DMAP_OUT_SCH_C [0:3] = '{10'd4, 10'd4, 10'd4, 10'd4};
+  localparam logic [12:0] ADP_DMAP_OUT_CSRC_C [0:15] = '{13'h0000, 13'h0000, 13'h0000, 13'h0000, 13'h0000, 13'h0000, 13'h0000, 13'h0000, 13'h0000, 13'h0000, 13'h0000, 13'h0000, 13'h0000, 13'h0000, 13'h0000, 13'h0000};
   //! THE WIRE CHANNEL CONSTANT (roadmap item 00): channels_per_frame
   //! the FRAMER emits, derived from the capture front-end this config
   //! elaborates - NOT from any declared format and NOT from `clusters`

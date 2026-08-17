@@ -569,36 +569,30 @@ therefore still fails closed at the descriptor store with `BAD_ARGUMENTS`, and
 a late valid load heals without a reset. The remaining gap is strict
 advertisement gating and D4 hash enforcement, not the image supply chain.
 
-### D7 — dynamic-map store keyed by the TARGET (stream channel), not the source cluster
+### D7: direction-specific dynamic-map keys
 
-**Decision** (USER 2026-07-25). The dynamic audio-map store flips its key:
-per dynamic port, one entry **per stream channel** holding `{valid,
-source}` — replacing today's `key = cluster_offset` store.
+**Decision** (USER 2026-07-25, completed 2026-08-17). The two directions use
+the key protected by their respective uniqueness rule:
 
-**Why.** The invariant Milan 5.4.2.27/28 protects is *one source per stream
-channel* (no mixing). The cluster-keyed store enforces the converse — one
-target per source — which forbids legal **selection fan-out** (the Pilot
-cluster onto many channels). The target-keyed word is structurally the
-CHMAP map word (`{EN, SRC, IDX}` per slot,
-[`reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md) 0x900
-group): the AEM engine becomes the canonical projector into the fabric map.
-Per-port store instances keep `stream_index` implicit, exactly as D1 intends.
-The ADD/REMOVE contract (all-or-nothing validate-commit, unsolicited on
-change, lock rules) is unchanged and owed on every dynamic port.
+- A Stream Port Input store is keyed by its global cluster. Each entry holds
+  the Stream Input index and channel feeding that cluster.
+- A Stream Port Output store is keyed by Stream Output channel. Each entry
+  holds the selected cluster's generated capture-source word, port owner, and
+  exact cluster offset.
 
-**Status 2026-08-13: the projector this decision reshapes no longer exists.**
-The AEM engine, its dynamic-map store and the boot seeder are deleted. The
-processor's AECP uCPU serves `GET_AUDIO_MAP`, but the audio-map writers
-(`ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS`) are answered with the
-`NOT_IMPLEMENTED` fallback, which is a refusal, not a projector. So the
-`0x900` window is the only writer of the fabric map, and the decision below is
-an obligation on whoever implements those verbs rather than a migration of live
-RTL. The fabric-side contract is
-[`CHANNEL_MAP_64.md`](CHANNEL_MAP_64.md) §5/§7.
+This permits legal fan-out of one source to several output channels while
+preventing two mappings from claiming one output channel. It also prevents two
+different input sources from claiming one input cluster. The builder emits the
+input bases, counts, page partition, physical projection, output counts, and
+capture-source templates into `adp_shape_defaults.svh` from the same normalized
+model used by the descriptor image.
 
-Status: recorded 2026-07-25; today's RTL is input[0]-scoped and
-cluster-keyed (`` `AEM_DYNMAP ``) — the migration is the store flip,
-per-port instances, and the render/capture consumption follow-up.
+The processor validates `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` as
+atomic transactions. The root commits the authoritative protocol stores and
+projects only backed clusters into the render and capture crossbars. The
+`0x900` window remains a local debug and override path. Reset replay from
+nonvolatile storage remains open in issue #70. The fabric contract is
+[`CHANNEL_MAP_64.md`](CHANNEL_MAP_64.md) section 7.
 
 ### D8 — role-named 8×8 port model: per-platform cluster pools, Pilot cluster, loopback lane
 

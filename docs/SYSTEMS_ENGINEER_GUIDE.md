@@ -307,10 +307,12 @@ Each entry: the doc and **when to read it**. `→` marks the doc to start each s
   **structurally off in this build** — see §1. Documented in
   [`MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md) item 6 and the register map.
 - **[`docs/CHANNEL_MAP_64.md`](CHANNEL_MAP_64.md)** — the 64-in/64-out channel-map architecture: render crossbar + capture
-  mux over one shared MAP-RAM. The `0x900`-`0x97F` CSR window is now its **only** programming
-  path: the IEEE 1722.1 dynamic audio maps that used to drive it are not implemented, so
-  `ADD_`/`REMOVE_AUDIO_MAPPINGS` gets the `NOT_IMPLEMENTED` echo and no controller can retarget
-  a channel. Read for
+  mux over one shared MAP-RAM. Dynamic ports accept transactional
+  `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS`; validated commands update
+  the full model stores and project backed clusters into the live map RAMs.
+  The generated topology prevents host-only clusters from aliasing physical
+  slots. The `0x900`-`0x97F` CSR window remains a
+  local debug and override path. Nonvolatile replay remains open in issue #70. Read for
   AAF stream-channel → physical-I/O routing and the pair-slot widening.
 
 **MAAP (address allocation)**

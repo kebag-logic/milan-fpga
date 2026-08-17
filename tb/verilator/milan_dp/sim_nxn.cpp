@@ -808,8 +808,8 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x0021 (the TSpec describes the frame this build emits)",
-       axi_read(A_VERSION), 0x0002004E);
+    ck("VERSION exposes the atomic audio-map release",
+       axi_read(A_VERSION), 0x0002004F);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
     //! These two writes used to sit inside the N-sink ACMP ctx2 section,
@@ -2052,14 +2052,10 @@ int main(int argc, char** argv) {
     //  reads the same map RAM (1722.1-2021 7.4.44, Milan v1.2 5.4.2.26,
     //  the 0x001C global-cluster index law)
     // ======================================================================
-    //! TWO INDEPENDENT READERS of the render map RAM: mappings are
-    //! provisioned through the 0x900 CHMAP debug window, read back through
-    //! CHMAP_SNAP/CHMAP_LOOP (0x910/0x914 - the RAM's own readback port),
-    //! and then fetched over the wire with GET_AUDIO_MAP, whose answer
-    //! block walks a SEPARATE flat export of the same flops. The wire
-    //! records below are derived FROM the CHMAP_LOOP words, so a mux that
-    //! served anything but the RAM disagrees with a reader it shares
-    //! nothing with.
+    //! The protocol store covers the entity model's full input cluster space;
+    //! RMAP is only its generated physical projection. The 0x900 window
+    //! updates both. GET_AUDIO_MAP therefore returns host/virtual mappings,
+    //! while CHMAP_LOOP proves those keys do not alias a physical output.
     //!
     //! GEOMETRY ACROSS LEGS: this file elaborates under the 4x4 header
     //! (4 channels -> 4 clusters/port) and the 8x8 header (8 -> 8), while
@@ -2089,9 +2085,15 @@ int main(int argc, char** argv) {
         };
         const uint32_t e0 = loop_rd(0), e1 = loop_rd(1), e2 = loop_rd(2),
                        e3 = loop_rd(3);
+#ifdef AAF_PB_TB
+        ck("[AMAP] AX host cluster 0 does not alias RMAP", (long)e0, 0x00);
+        ck("[AMAP] AX host cluster 1 does not alias RMAP", (long)e1, 0x00);
+#else
         ck("[AMAP] LOOP reads cluster 0 = {en, avb 1.1}", (long)e0, 0x89);
         ck("[AMAP] LOOP reads cluster 1 = {en, RING 5}",  (long)e1, 0xC5);
-        ck("[AMAP] LOOP reads cluster 2 = {en, avb 0.3}", (long)e2, 0x83);
+#endif
+        ck("[AMAP] non-physical cluster 2 does not alias RMAP",
+           (long)e2, 0x00);
         ck("[AMAP] LOOP reads cluster 3 = unmapped",      (long)e3, 0x00);
 
         //! the model's own record, DERIVED from the LOOP word: an AVB entry
@@ -2130,8 +2132,8 @@ int main(int argc, char** argv) {
             ck("[AMAP] reserved zero",
                (long)(((unsigned)r[48] << 8) | r[49]), 0);
             uint8_t want0[8], want1[8];
-            rec_of(e0, 0, want0);
-            rec_of(e2, 2, want1);
+            rec_of(0x89, 0, want0);
+            rec_of(0x83, 2, want1);
             long bad = 0;
             for (int i = 0; i < 8; i++) {
                 if (r[50 + i] != want0[i]) bad++;
@@ -2164,18 +2166,18 @@ int main(int argc, char** argv) {
         //! the STREAM_PORT_OUTPUT gap is RETIRED: the capture-side map RAM
         //! answers through the same face, routed by descriptor_type. This
         //! leg's capture map is empty here, so the honest answer is SUCCESS
-        //! with the D8 role-pool page count (25 clusters -> 4 pages of 8)
-        //! and an EMPTY page - the full 7.4.44.2 fixed part, cdl 24.
+        //! with the one fixed output subset and an EMPTY page - the full
+        //! 7.4.44.2 fixed part, cdl 24.
         pl[1] = 0x0F; pl[3] = 0x00;
         const std::vector<uint8_t> ro = aecp_xact(0x002B, 0x4033, pl);
         ck("[AMAP] STREAM_PORT_OUTPUT is served now: SUCCESS(0)",
            aecp_status(ro), 0);
-        ck("[AMAP] ...number_of_maps 4 (role pools), empty page, cdl 24",
+        ck("[AMAP] ...number_of_maps 1, empty page, cdl 24",
            (long)(ro.size() >= 50
                   ? (long)(((((unsigned)ro[16] & 7) << 8) | ro[17]) << 16
                            | (((unsigned)ro[44] << 8) | ro[45]) << 8
                            | (((unsigned)ro[46] << 8) | ro[47]))
-                  : -1), (24 << 16) | (4 << 8) | 0);
+                  : -1), (24 << 16) | (1 << 8) | 0);
 
         // leave the map as this section found it: unmapped
         axi_write(A_CHMAP_CTRL, 0x1);
@@ -3878,45 +3880,22 @@ int main(int argc, char** argv) {
 
 #ifdef AAF_PB_TB
     // ==================================================================
-    //  [T66] THE DYNAMIC-MAP AECP OPCODES AFTER THE SUBSTITUTION
+    //  [T66] DYNAMIC AUDIO MAP COMMANDS THROUGH THE REAL CROSSBAR RAM
     //
-    //  WHAT THIS SECTION USED TO PROVE, AND HOW OWNERSHIP CHANGED. It was
-    //  the t532 silicon pin (2026-08-09): runtime ADD/REMOVE_AUDIO_MAPPINGS
-    //  reached the AECP store (GET_AUDIO_MAP tracked every edit) but landed
-    //  in the fabric crossbar RAM erratically or not at all, so the wire
-    //  kept framing the boot image. The fix was graded here RAM-side, and
-    //  the section ran with CHMAP_CTRL[0] = 0 on purpose because the AECP
-    //  mirror was the canonical programmer.
-    //
-    //  The processor now serves GET_AUDIO_MAP from the root gather face for
-    //  both Stream Port directions. The ADD_AUDIO_MAPPINGS and
-    //  REMOVE_AUDIO_MAPPINGS writers remain unimplemented, and milan_datapath
-    //  ties their map-write ports off. This section therefore separates the
-    //  working read command from the two conformant refusal paths.
-    //
-    //  What is graded instead is the whole of what IS true, and every part
-    //  of it is falsifiable:
-    //    (A) ADD and REMOVE get a conformant NOT_IMPLEMENTED answer, with
-    //        the command payload echoed and the response length intact.
-    //    (B) both writers leave the crossbar RAM UNTOUCHED. A phantom write
-    //        from a
-    //        half-deleted mirror would be far worse than no write at all.
-    //    (C) GET_AUDIO_MAP succeeds on the Stream Port Output store.
-    //    (D) the live-audio proof SURVIVES, driven through the CSR 0x900
-    //        window - the only writer the crossbar has left. The property
-    //        (remapping talker 0's wire pair onto the TONE cluster changes
-    //        the emitted payload, L == R) is unchanged; only the programmer
-    //        is. This also re-arms the crossbar for [T67], which measures
-    //        the MILAN_CLK media grid and can only do so while the
-    //        media_tick-paced crossbar - not the clk_audio-paced zero-fill
-    //        path - is feeding the packetizer.
+    //  The output is stopped before each accepted edit because this build
+    //  does not advertise TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING. Every
+    //  response is checked on the wire, and every state change is checked at
+    //  the RAM read port. A late invalid row proves the validation pass is
+    //  complete before the first write. The final ADD maps the live talker
+    //  pair to TONE and proves the new route in emitted AAF payload bytes.
     // ==================================================================
-    printf("-- [T66] GET_AUDIO_MAP served; writers refused; CSR maps --\n");
+    printf("-- [T66] dynamic-map ADD/REMOVE through crossbar RAM --\n");
     {
         enum { CMD_GET_AUDIO_MAP = 43, CMD_ADD_AUDIO_MAPPINGS = 44,
                CMD_REMOVE_AUDIO_MAPPINGS = 45 };
         enum { A_CHMAP_CTRL2 = 0x900, A_CHMAP_SEL2 = 0x904,
                A_CHMAP_WORD2 = 0x908 };
+        const uint16_t DT_SPI = 0x000E;      // STREAM_PORT_INPUT
         const uint16_t DT_SPO = 0x000F;      // STREAM_PORT_OUTPUT
         static uint16_t sq = 0x4100;
 
@@ -3934,15 +3913,30 @@ int main(int argc, char** argv) {
             if (((v >> 26) & 1) == 0) return 0xFFFFFFFFu;   // readback dead
             return v & 0x1FFF;
         };
-        // one ADD/REMOVE of n {si, sc, co} rows on output port 0, graded as a
-        // WIRE RESPONSE: the whole point is that the answer is well formed.
+        auto ren_ram = [&](int key) -> uint32_t {
+            axi_write(0x904, key);
+            axi_write(0x910, 1);
+            uint32_t sv = 0;
+            for (int g = 0; g < 64; g++) {
+                sv = axi_read(0x910);
+                if ((sv & 1) == 0) break;
+            }
+            uint32_t v = axi_read(0x914);
+            if (((v >> 26) & 1) == 0) return 0xFFFFFFFFu;
+            return v & 0xFF;
+        };
+        // One ADD/REMOVE of n {si, sc, co} rows on the selected port.
         auto dmap_cmd = [&](const char* tag, int cmd, int n,
-                            const int* sc, const int* co) -> long {
+                            const int* sc, const int* co,
+                            long want_status = 0, int port = 0,
+                            int stream = 0, int dtype = 0x000F) -> long {
             std::vector<uint8_t> pl = {
-                (uint8_t)(DT_SPO >> 8), (uint8_t)DT_SPO, 0x00, 0x00,
+                (uint8_t)(dtype >> 8), (uint8_t)dtype,
+                (uint8_t)(port >> 8), (uint8_t)port,
                 0x00, (uint8_t)n, 0x00, 0x00 };
             for (int i = 0; i < n; i++) {
-                uint8_t row[8] = {0,0, 0,(uint8_t)sc[i], 0,(uint8_t)co[i], 0,0};
+                uint8_t row[8] = {(uint8_t)(stream >> 8), (uint8_t)stream,
+                                  0,(uint8_t)sc[i], 0,(uint8_t)co[i], 0,0};
                 pl.insert(pl.end(), row, row + 8);
             }
             const uint16_t seq = sq++;
@@ -3952,8 +3946,8 @@ int main(int argc, char** argv) {
             ck(w, (long)(r.size() >= 38), 1);
             if (r.size() < 38) return -1;
             const size_t want = (38 + pl.size() < 60) ? 60 : 38 + pl.size();
-            snprintf(w, sizeof w, "T66 %s: status NOT_IMPLEMENTED(1)", tag);
-            ck(w, aecp_status(r), 1);
+            snprintf(w, sizeof w, "T66 %s: response status", tag);
+            ck(w, aecp_status(r), want_status);
             snprintf(w, sizeof w, "T66 %s: message_type = command + 1", tag);
             ck(w, r[15] & 0x0F, 1);
             snprintf(w, sizeof w, "T66 %s: cdl = 12 + the command's payload", tag);
@@ -3972,51 +3966,117 @@ int main(int argc, char** argv) {
             ck(w, bad, 0);
             return aecp_status(r);
         };
-        // (The RING template helper that used to live here - the fabric word
-        // an AECP ADD of cluster co had to produce - went with the ADD: there
-        // is no AECP mapping writer left to check against it, so part (B) compares
-        // each key against WHAT IT WAS rather than against a template. The
-        // capture-map word layout it encoded is {en[12], half[11], src[10:8],
-        // idx[7:0]}, which the tone template 0x1400 below still uses.)
+        auto out_word = [](int co) -> uint32_t {
+            if (co < 8)
+                return 0x1000u | ((co & 1) ? 0x0800u : 0)
+                     | 0x0300u | (uint32_t(co) >> 1);
+            if (co == 8) return 0x1400u;
+            return 0;
+        };
 
-        // ---- (A)+(B) the two writers answer, and change NOTHING ----------
-        // The RAM words are read before and after, on the very keys the
-        // commands name. A mirror that was half-deleted - still decoding the
-        // rows but no longer reaching the store - would show up here as a
-        // phantom write, which is strictly worse than the honest refusal.
+        // Stop every talker, then prove four independent writes.
+        axi_write(A_AAF_CTRL, 0x00020002);
+        for (int c = 0; c < 32; c++) step();
         const int scs[4] = {4, 5, 6, 7};
-        const int cos[4] = {6, 7, 4, 5};     // cross-swap: != anything mapped
-        uint32_t before[4];
-        for (int i = 0; i < 4; i++) before[i] = cap_ram(scs[i]);
-        long all_notimpl = 1, all_inert = 1;
+        const int cos[4] = {6, 7, 4, 8};
+        long all_ok = 1, all_written = 1;
         for (int i = 0; i < 4; i++) {
-            if (dmap_cmd("ADD", CMD_ADD_AUDIO_MAPPINGS, 1, &scs[i], &cos[i]) != 1)
-                all_notimpl = 0;
-            for (int c = 0; c < 3000; c++) step();   // SPACED, not a burst
-            if (cap_ram(scs[i]) != before[i]) all_inert = 0;
+            if (dmap_cmd("ADD", CMD_ADD_AUDIO_MAPPINGS, 1,
+                         &scs[i], &cos[i]) != 0) all_ok = 0;
+            if (cap_ram(scs[i]) != out_word(cos[i])) all_written = 0;
         }
-        ck("T66: 4 spaced ADD_AUDIO_MAPPINGS all NOT_IMPLEMENTED",
-           all_notimpl, 1);
-        ck("T66: and NONE of them touched the crossbar RAM (RAM-side read)",
-           all_inert, 1);
+        ck("T66: four ADD_AUDIO_MAPPINGS commands all succeeded", all_ok, 1);
+        ck("T66: all four ADD rows reached crossbar RAM", all_written, 1);
+
+        // Re-adding the same row is idempotent and preserves the RAM word.
+        {
+            const int isc = 5, ico = 7;
+            ck("T66: idempotent ADD answers SUCCESS",
+               dmap_cmd("ADD-idempotent", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &isc, &ico), 0);
+            ck("T66: idempotent ADD preserves the mapped word",
+               cap_ram(isc), out_word(ico));
+        }
+
+        // The first row is valid and the second is not encodable. Neither
+        // may be written when the command returns BAD_ARGUMENTS.
+        {
+            const int bsc[2] = {3, 2}, bco[2] = {3, 17};
+            ck("T66: late invalid ADD returns BAD_ARGUMENTS",
+               dmap_cmd("ADD-late-invalid", CMD_ADD_AUDIO_MAPPINGS,
+                        2, bsc, bco, 7), 7);
+            ck("T66: late invalid ADD made no partial write", cap_ram(3), 0);
+        }
+
+        // The model declares loopback clusters 9..16, but this shipping
+        // shape does not elaborate that source pool. Its generated CSRC
+        // validity bit therefore refuses the mapping without a RAM write.
+        {
+            const int lsc = 2, lco = 9;
+            ck("T66: unbacked output cluster returns BAD_ARGUMENTS",
+               dmap_cmd("ADD-unbacked", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &lsc, &lco, 7), 7);
+            ck("T66: unbacked output cluster made no write", cap_ram(2), 0);
+        }
+
+        // REMOVE reaches the same RAM and clears exactly the named key.
         {
             const int rsc = 4, rco = 6;
-            ck("T66: REMOVE_AUDIO_MAPPINGS is NOT_IMPLEMENTED too",
-               dmap_cmd("REMOVE", CMD_REMOVE_AUDIO_MAPPINGS, 1, &rsc, &rco), 1);
-            for (int c = 0; c < 3000; c++) step();
-            ck("T66: ...and key 4 is still what it was", cap_ram(4), before[0]);
+            ck("T66: REMOVE_AUDIO_MAPPINGS answers SUCCESS",
+               dmap_cmd("REMOVE", CMD_REMOVE_AUDIO_MAPPINGS,
+                        1, &rsc, &rco), 0);
+            ck("T66: REMOVE cleared the named crossbar key", cap_ram(4), 0);
         }
+
+        // Two Stream Port Outputs cannot both own one Stream Output channel.
+        // The second refusal must leave the first port's route unchanged.
+        {
+            const int csc = 0, cco = 0;
+            ck("T66: cross-port first ADD succeeds",
+               dmap_cmd("ADD-cross-first", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &csc, &cco, 0, 0, 1), 0);
+            ck("T66: cross-port second ADD returns BAD_ARGUMENTS",
+               dmap_cmd("ADD-cross-second", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &csc, &cco, 7, 1, 1), 7);
+            ck("T66: cross-port refusal preserves first route",
+               cap_ram(8), out_word(cco));
+            ck("T66: cross-port cleanup REMOVE succeeds",
+               dmap_cmd("REMOVE-cross", CMD_REMOVE_AUDIO_MAPPINGS,
+                        1, &csc, &cco, 0, 0, 1), 0);
+        }
+
+        // Re-enable the output. ADD and REMOVE are both rejected while the
+        // referenced Stream Output is running.
+        {
+            const int rsc = 4, rco = 6;
+            ck("T66: running-REMOVE setup ADD succeeds",
+               dmap_cmd("ADD-remove-running-setup", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &rsc, &rco), 0);
+            axi_write(A_AAF_CTRL, 0x00020003);
+            for (int c = 0; c < 32; c++) step();
+            ck("T66: running output REMOVE returns BAD_ARGUMENTS",
+               dmap_cmd("REMOVE-running", CMD_REMOVE_AUDIO_MAPPINGS,
+                        1, &rsc, &rco, 7), 7);
+            ck("T66: running output REMOVE preserves the route",
+               cap_ram(4), out_word(rco));
+            const int asc = 3, aco = 3;
+            ck("T66: running output edit returns BAD_ARGUMENTS",
+               dmap_cmd("ADD-running", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &asc, &aco, 7), 7);
+            ck("T66: running output ADD made no write", cap_ram(3), 0);
+            axi_write(A_AAF_CTRL, 0x00020002);
+            for (int c = 0; c < 32; c++) step();
+            ck("T66: idle cleanup REMOVE succeeds",
+               dmap_cmd("REMOVE-running-cleanup", CMD_REMOVE_AUDIO_MAPPINGS,
+                        1, &rsc, &rco), 0);
+        }
+
         {
             std::vector<uint8_t> pl = {
                 (uint8_t)(DT_SPO >> 8), (uint8_t)DT_SPO, 0x00, 0x00,
-                0x00, 0x00, 0x00, 0x00 };            // map_index 0
+                0x00, 0x00, 0x00, 0x00 };
             const uint16_t seq = sq++;
             auto r = aecp_xact(CMD_GET_AUDIO_MAP, seq, pl);
-            //! the OUTPUT side is SERVED now (the P5 landing): SUCCESS with
-            //! the full 7.4.44.2 fixed part off the capture-side store; the
-            //! record count reflects whatever this leg's earlier sections
-            //! left mapped, so the shape law - cdl = 24 + 8*count - is the
-            //! stable assertion, not a pinned count
             ck("T66: GET_AUDIO_MAP on the OUTPUT side answers SUCCESS",
                aecp_status(r), 0);
             ck("T66: ...as a well-formed 7.4.44.2 response",
@@ -4024,6 +4084,49 @@ int main(int argc, char** argv) {
                       && ((((unsigned)r[16] & 7) << 8) | r[17])
                          == (unsigned)(24 + 8 * (((unsigned)r[46] << 8) | r[47]))
                       && ((r[34] << 8) | r[35]) == seq), 1);
+            ck("T66: OUTPUT mapping has one fixed subset",
+               (long)(((unsigned)r[44] << 8) | r[45]), 1);
+        }
+
+        // Input mappings use the full generated model store. AX7101 input
+        // clusters are host-only, so even key 0 must not write physical
+        // RMAP, while port 7 cluster 7 proves global key 63 is addressable.
+        {
+            const int sc0 = 1, co0 = 0;
+            ck("T66: host input ADD on port 0 succeeds",
+               dmap_cmd("ADD-input-zero", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &sc0, &co0, 0, 0, 0, DT_SPI), 0);
+            ck("T66: host input mapping does not alias physical RMAP",
+               ren_ram(0), 0);
+
+            const int sch = 2, coh = 7;
+            ck("T66: input ADD reaches port 7 cluster 7",
+               dmap_cmd("ADD-input-high", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &sch, &coh, 0, 7, 0, DT_SPI), 0);
+            std::vector<uint8_t> pl = {
+                (uint8_t)(DT_SPI >> 8), (uint8_t)DT_SPI, 0x00, 0x07,
+                0x00, 0x00, 0x00, 0x00 };
+            const uint16_t seq = sq++;
+            auto r = aecp_xact(CMD_GET_AUDIO_MAP, seq, pl);
+            ck("T66: high input mapping reads back from model store",
+               (long)(aecp_status(r) == 0 && r.size() >= 58
+                      && (((unsigned)r[44] << 8) | r[45]) == 1
+                      && (((unsigned)r[46] << 8) | r[47]) == 1
+                      && r[50] == 0 && r[51] == 0
+                      && r[52] == 0 && r[53] == sch
+                      && r[54] == 0 && r[55] == coh
+                      && r[56] == 0 && r[57] == 0), 1);
+
+            const int bad = 8;
+            ck("T66: input cluster one past port 7 is rejected",
+               dmap_cmd("ADD-input-past", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &sch, &bad, 7, 7, 0, DT_SPI), 7);
+            ck("T66: high input cleanup REMOVE succeeds",
+               dmap_cmd("REMOVE-input-high", CMD_REMOVE_AUDIO_MAPPINGS,
+                        1, &sch, &coh, 0, 7, 0, DT_SPI), 0);
+            ck("T66: input zero cleanup REMOVE succeeds",
+               dmap_cmd("REMOVE-input-zero", CMD_REMOVE_AUDIO_MAPPINGS,
+                        1, &sc0, &co0, 0, 0, 0, DT_SPI), 0);
         }
 
         // ---- (B2) the Milan-mandatory set the demotion round landed ------
@@ -4111,6 +4214,7 @@ int main(int argc, char** argv) {
         // The RAM-side readback is still the oracle - the window is a
         // request, the RAM is the truth.
         {
+            axi_write(A_AAF_CTRL, 0x00020003);
             axi_write(A_CHMAP_CTRL2, 0x1);   // arm the fabric + the CSR port
             for (int k = 0; k < 2; k++) {
                 axi_write(A_CHMAP_SEL2, 0x100 | k);
