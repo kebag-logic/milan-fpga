@@ -155,7 +155,7 @@ Both settled.
 ## Appendix: GET_DYNAMIC_INFO 0x4B contract
 
 The processor implements `GET_DYNAMIC_INFO` in
-[`KL_aecp_engine.sv`](../../protocol-processor/hdl/aecp/KL_aecp_engine.sv).
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/15d870a494ce829eda92f9bc907740618629fcc0/hdl/aecp/KL_aecp_engine.sv).
 Each record is `{data_length[2], reserved[2], status[1], reserved[1],
 command_type[2], command_data[L]}`. The response `control_data_length` is 12
 plus the sum of retained record sizes.
@@ -173,5 +173,5 @@ without error, and processing continues with later records. The processor has
 no `IN_PROGRESS` response path. Milan `GET_STREAM_INFO` contributes its
 56-byte Milan message-specific body, not the 84-byte base IEEE body. The
 packet-level W8 tests in
-[`sim_main.cpp`](../../protocol-processor/tb/pp_top/sim_main.cpp) grade these
+[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/15d870a494ce829eda92f9bc907740618629fcc0/tb/pp_top/sim_main.cpp) grade these
 rules byte for byte.

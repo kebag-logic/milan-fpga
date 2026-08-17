@@ -107,11 +107,11 @@ Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](../../protocol-processor/hdl/aecp/KL_aecp_engine.sv),
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/15d870a494ce829eda92f9bc907740618629fcc0/hdl/aecp/KL_aecp_engine.sv),
 the packet-level W8 cases in
-[`sim_main.cpp`](../../protocol-processor/tb/pp_top/sim_main.cpp), and the
+[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/15d870a494ce829eda92f9bc907740618629fcc0/tb/pp_top/sim_main.cpp), and the
 current command table in
-[`06_aecp_engine.md`](../../protocol-processor/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/15d870a494ce829eda92f9bc907740618629fcc0/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 
