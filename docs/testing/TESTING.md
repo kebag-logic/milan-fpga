@@ -194,8 +194,11 @@ on state stability.
 
 Run `make` in that directory. A focused local run **skips cleanly** when
 tsn-gen is absent, so the harness remains buildable without the generator.
-That skip is not a full-sweep pass: it emits no campaign tally, and
-`scripts/suite_tally.py` correctly classifies the result as unknown. CI builds
+The skip is declared, not silent: the suite prints a `SUITE-SKIP:` line that
+`scripts/suite_tally.py` lists in its output, so a smaller total says why. The
+suite still reports the two traceability contracts it checks on every run, and
+those — not the marker — are what keep it out of `NOCOUNT`; a declared skip
+never excuses a suite from producing a count. CI builds
 the public `tsn-gen` revision pinned by `TSN_GEN_REV` in
 `.github/workflows/rtl.yml`, exports `TSN_GEN_ROOT`, and runs the 164-check AAF
 campaign. A missing, truncated, or malformed campaign tally therefore remains
@@ -248,6 +251,14 @@ folding it in as a zero. That is the same rule as *a structural zero is not a
 measurement*, applied to the instrument instead of the design. A new suite is
 therefore correct by default or loud, never silently uncounted.
 Run `python3 scripts/suite_tally.py --selftest` to see both verdicts fire.
+
+A third thing the tool reports but does **not** treat as a verdict: a
+`SUITE-SKIP:` line, by which a suite declares that an optional campaign ran
+nothing. It is listed so a reader can see why a total is smaller, and that is
+all — it adds no checks and does not clear `NOCOUNT`. Letting a marker clear it
+would make the verdict a suite's own to declare; measured on a real sweep,
+replacing one suite's log with a lone marker hid 72% of the checks behind a
+green run. A suite that must skip reports the checks it *did* run instead.
 
 Two more things the sweep now refuses to guess at:
 

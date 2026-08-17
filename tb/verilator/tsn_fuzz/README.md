@@ -85,33 +85,42 @@ reproduce command. They are generated — do not hand-edit.
 ## What this suite reports to the sweep
 
 `scripts/suite_tally.py` turns per-suite logs into the sweep's headline check
-count. This suite emits **two** things it reads, and the distinction between
-them is the whole point:
+count. This suite emits **three** lines it reads — two that count and one that
+deliberately does not:
 
 | line | when | counts |
 |---|---|---|
 | `== AAF/AVTP stream field campaign (tsn-gen driven): N pass, 0 fail, 0 known gaps ==` | tsn-gen present | **N** |
-| `traceability no-drift contract: 1 checks: 1 PASS, 0 FAIL` | always, if the matrix check passed | **1** |
-| `SUITE-SKIP: AAF/AVTP field campaign (tsn-gen absent; …)` | tsn-gen absent | **0**, and says so |
+| `traceability contracts (drift + ratchet): 2 checks: 2 PASS, 0 FAIL` | always, if the matrix check passed | **2** |
+| `SUITE-SKIP: AAF/AVTP field campaign (tsn-gen absent; …)` | tsn-gen absent | **0** |
 
-So the suite reports `1` on a machine without tsn-gen and `N + 1` with it.
+So the suite reports `2` on a machine without tsn-gen and `N + 2` with it.
 
-**`SUITE-SKIP:` is not a tally and must never be given pass/fail numbers.** A
-skip worded as `0 pass, 0 fail` matches the campaign shape above, which would
-make a campaign that never ran indistinguishable from one that ran and found
-nothing to check — the sweep's total would read as complete while silently
-omitting this suite. That is the failure this marker exists to prevent, and
-`suite_tally.py`'s self-test pins it (`skip-adds-nothing`,
-`skip-prose-is-not-a-marker`).
+**The `2` is what makes this suite countable at all.** Before it, the suite
+printed no count shape whatever when the campaign skipped, so it was classed
+`NOCOUNT` and the sweep failed on a machine without the generator. The
+traceability check runs on *every* invocation and was reporting nothing.
 
-Before the marker existed the suite printed no count shape at all when the
-campaign skipped, so it was classed `NOCOUNT` and CI could not go green on a
-machine without the generator. `NOCOUNT` was the right verdict for a silent
-log; it was the wrong verdict for a log that had an explanation to give.
+Two, because `gen_module_matrix.py --check` gates two independent contracts
+under one exit code: the 13 generated artifacts are not stale, and the
+untested-module ratchet has not slipped. Either can fail while the other holds.
+Not 63 — the ratchet *inspects* 63 modules to reach one verdict, and billing the
+headline 63 checks for two assertions would inflate it.
 
-The `1` is the traceability check, and one is the honest number: the contract
-it asserts is singular. It inspects 63 modules; counting 63 would inflate the
-sweep's headline with work this suite did not do.
+**`SUITE-SKIP:` is reporting, not a verdict.** It says why the total is smaller
+and nothing else. In particular it does **not** excuse this suite from
+producing a count: a log whose only content is the marker is still a `NOCOUNT`.
+That rule is not a detail — letting a marker suppress `NOCOUNT` makes the
+verdict a suite's own to declare, and measured on a real sweep it let 72% of
+the checks vanish behind a green run. The `2` above is how this suite skips
+honestly: by still reporting what it *did* run.
+
+It must also never be given pass/fail numbers. A skip worded `0 pass, 0 fail`
+matches the campaign shape in the table above and would read as a campaign that
+ran and checked nothing. `suite_tally.py`'s self-test pins all of it —
+`skip-adds-nothing`, `skip-line-is-not-a-hiding-place`,
+`skip-prose-is-not-a-marker`, `skip-marker-must-start-the-line`, and the
+`nocount-*` cases that exercise the classification itself.
 
 ## Why "state stability" is the real gate
 
