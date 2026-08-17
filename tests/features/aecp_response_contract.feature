@@ -185,6 +185,11 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
     Then the AECP response status is 11
     And the AECP response message_type is 1
     And the AECP response echoes command_type <opcode> with u clear
+    # IEEE Figure 7-59 gives command and response ONE shape - four bytes of
+    # {descriptor_type, descriptor_index}. Pin the NUMBER, not just internal
+    # consistency: a response that shortened its body and its cdl together
+    # stays self-consistent and is still the wrong frame on the wire.
+    And the AECP response control_data_length is 16
     And the AECP response control_data_length counts its own payload
     And the AECP response is well formed against its command
 
@@ -212,6 +217,7 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
     Then the AECP response status is 0
     And the AECP response message_type is 1
     And the AECP response echoes command_type <opcode> with u clear
+    And the AECP response control_data_length is 16
     And the AECP response control_data_length counts its own payload
     And the AECP response is well formed against its command
 
