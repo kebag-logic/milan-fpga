@@ -50,9 +50,9 @@ again.
 only `NOTIFY_ENQ` in `gen_ucode.py` sits in an exemplar program, and
 `pp_pkg.sv` defines notification kinds for the deregistration, `LOCK_ENTITY`,
 and GET families only, with none for any `SET_*`. Every `SET_*` row below
-therefore carries an open half tracked as #69.
-not as a per-row caveat, because it is the same missing mechanism in all of
-them. One more caveat worth naming here rather than burying: `0x0016`'s stored
+therefore carries an open half tracked as #69 rather than a per-row caveat,
+because it is the same missing mechanism in all of them. One more caveat worth
+naming here rather than burying: `0x0016`'s stored
 clock source reaches `milan_datapath` and is read by nothing (audit B3).
 
 `0x0006` used to carry a second caveat — it stored an index that
