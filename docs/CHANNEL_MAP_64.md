@@ -640,6 +640,16 @@ has no deferred resource allocation and never asserts back-pressure, so every
 phase 5 record write and the phase 2 finish complete after that acceptance.
 An integration that cannot make the same guarantee must refuse phase 1.
 
+For an output transaction, the same phase-1 acceptance also latches a stream
+reservation for every claimed output key. The effective AAF enable is the raw
+ACMP, SRP, and local-bypass request masked by that reservation. A new start is
+therefore deferred through phase-5 write-back and becomes effective only after
+phase 2 clears the reservation. A stream that was already effective is refused
+by the phase-1 streaming check and is never stopped by this mechanism. The T66
+datapath regression holds 63 legal records in write-back, raises the local
+bypass during the reservation, and observes raw enable high while effective
+enable remains low until transaction completion.
+
 ### 7.1 Authority model
 
 The authoritative input mapping store covers every cluster key published by
@@ -695,15 +705,19 @@ template at `CSRC[PCBASE[port] + cluster_offset]`:
 
 ```
 CMAP[k] = {HALF=table(cluster).half,
-           EN=1, SRC=table(cluster).src, IDX_HI=table(cluster).idx_hi,
+           EN=table(cluster).valid, SRC=table(cluster).src,
+           IDX_HI=table(cluster).idx_hi,
            IDX_LO=table(cluster).idx_lo}
 ```
 
 `REMOVE` of the exact owner, cluster, stream index, and stream channel clears
-the key to zero. A source template whose valid bit is clear is refused with
-`BAD_ARGUMENTS`. Output GET uses one fixed subset because at most eight Stream
-Output channels can be mapped, independent of how many selectable clusters the
-port publishes.
+the key to zero. `PCBASE` plus `PCLS` defines the protocol-valid cluster range.
+The generated source template's valid bit only states whether that media bucket
+is elaborated in this build. A clear bit leaves CMAP disabled but does not make
+a published cluster invalid. The owner-valid, owner-port, and cluster sideband
+is therefore the mapping-presence authority used by GET and conflict checks.
+Output GET uses one fixed subset because at most eight Stream Output channels
+can be mapped, independent of how many selectable clusters the port publishes.
 
 **Timing:** the projector writes map words through the §5 arbitrated
 port as a short burst (`aem_busy` in `CHMAP_STAT`); fabric effect lands

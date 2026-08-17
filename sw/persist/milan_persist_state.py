@@ -295,10 +295,10 @@ PERSIST_ITEMS = [
         scope="per-descriptor", descriptor="STREAM_PORT_OUTPUT", width_words=0,
         read="AECP GET_AUDIO_MAP(STREAM_PORT_OUTPUT, idx, page) walk",
         restore=None,
-        gap="the output dynamic-map store lived in "
-            "KL_aecp_response_builder, written only by "
-            "ADD/REMOVE_AUDIO_MAPPINGS, and is deleted with it. " +
-            PLANE_DELETED,
+        gap="the live output dynamic-map store and atomic ADD/REMOVE writer "
+            "are implemented, but no nonvolatile backend serializes or "
+            "restores ownership, cluster, and CMAP state; issue #70 owns "
+            "the backend and replay",
     ),
     dict(
         key="imap", clause="5.3.10.1", pdf_line=2171,
@@ -309,10 +309,10 @@ PERSIST_ITEMS = [
         scope="per-descriptor", descriptor="STREAM_PORT_INPUT", width_words=0,
         read="AECP GET_AUDIO_MAP(STREAM_PORT_INPUT, idx, page) walk",
         restore=None,
-        gap="the input dynamic-map store lived in "
-            "KL_aecp_response_builder, written only by "
-            "ADD/REMOVE_AUDIO_MAPPINGS, and is deleted with it. " +
-            PLANE_DELETED,
+        gap="the live input dynamic-map store and atomic ADD/REMOVE writer "
+            "are implemented, but no nonvolatile backend serializes or "
+            "restores the authoritative rows; issue #70 owns the backend "
+            "and replay",
     ),
     dict(
         key="names", clause="5.3.13", pdf_line=2255,

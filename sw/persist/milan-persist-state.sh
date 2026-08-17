@@ -88,12 +88,12 @@ MILAN_PERSIST_GAP_clock_src="the descriptor bytes were restorable via the E4 por
 MILAN_PERSIST_CLAUSE_omap="5.3.9.1"
 MILAN_PERSIST_RESTORE_omap="none"
 MILAN_PERSIST_TITLE_omap="STREAM_PORT_OUTPUT channel mappings"
-MILAN_PERSIST_GAP_omap="the output dynamic-map store lived in KL_aecp_response_builder, written only by ADD/REMOVE_AUDIO_MAPPINGS, and is deleted with it. 2026-08-12: the IEEE 1722.1 control plane is deleted, so this cannot be restored by any path. CSR 0x7B8-0x7C4 (E3 journal) and 0x7C8-0x7D4 (E4 AEM patch port) still accept writes and land nowhere; JNL_STAT/JNL_SEQ read structural zeros"
+MILAN_PERSIST_GAP_omap="the live output dynamic-map store and atomic ADD/REMOVE_AUDIO_MAPPINGS writer are implemented in the root datapath, but no nonvolatile backend serializes or restores their ownership, cluster, and CMAP state. Issue #70 owns the backend and replay"
 
 MILAN_PERSIST_CLAUSE_imap="5.3.10.1"
 MILAN_PERSIST_RESTORE_imap="none"
 MILAN_PERSIST_TITLE_imap="STREAM_PORT_INPUT channel mappings"
-MILAN_PERSIST_GAP_imap="the input dynamic-map store lived in KL_aecp_response_builder, written only by ADD/REMOVE_AUDIO_MAPPINGS, and is deleted with it. 2026-08-12: the IEEE 1722.1 control plane is deleted, so this cannot be restored by any path. CSR 0x7B8-0x7C4 (E3 journal) and 0x7C8-0x7D4 (E4 AEM patch port) still accept writes and land nowhere; JNL_STAT/JNL_SEQ read structural zeros"
+MILAN_PERSIST_GAP_imap="the live input dynamic-map store and atomic ADD/REMOVE_AUDIO_MAPPINGS writer are implemented in the root datapath, but no nonvolatile backend serializes or restores the authoritative mapping rows. Issue #70 owns the backend and replay"
 
 MILAN_PERSIST_CLAUSE_names="5.3.13"
 MILAN_PERSIST_RESTORE_names="none"

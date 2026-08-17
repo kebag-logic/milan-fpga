@@ -80,11 +80,12 @@ What the fabric no longer holds: the AEM descriptor ROM — the model moved to
 DRAM, and the store fetches it (`o_desc_mem_*` / `i_desc_mem_*` on
 `milan_datapath`, bridged to the DDR3 port by the SoC) — plus the
 unsolicited-push machinery, the persistence journal, the Milan Table 5.4
-per-STREAM_OUTPUT counters (`KL_talker_diag_ctx` is not instantiated), and the
-AECP write ports into the dynamic-mapping store. The crossbar keeps its
-elaborated configuration and its `0x900` `CHMAP_*` debug window, but no
-controller can retarget a channel: ADD/REMOVE_AUDIO_MAPPINGS draw the
-`NOT_IMPLEMENTED` echo.
+per-STREAM_OUTPUT counters (`KL_talker_diag_ctx` is not instantiated). The
+dynamic input and output mapping stores remain in the fabric, and the processor
+drives their transactional write face for `ADD_AUDIO_MAPPINGS` and
+`REMOVE_AUDIO_MAPPINGS`. The `0x900` `CHMAP_*` debug window remains available,
+but its local writers are blocked while another controller owns `LOCK_ENTITY`
+or an AECP mapping transaction is active.
 
 ## The three contracts between them
 
@@ -126,7 +127,7 @@ controller can retarget a channel: ADD/REMOVE_AUDIO_MAPPINGS draw the
 | Audio source/sink | `KL_pcm_tx` reads the pb ring; capture engine writes the pcm ring | `aplay`/PipeWire produce and consume ring bytes |
 | Counters, STREAM_INPUT (Milan 5.3.8.10) | Counted, interval-coalesced and bind-edge reset in fabric | Read through the CSR window and the processor GET_COUNTERS path |
 | Counters, STREAM_OUTPUT (Milan Table 5.4) | One `KL_talker_diag_ctx` bank per declared AAF output plus CRF, served through GET_COUNTERS | Solicited reads are complete; the Table 5.22 unsolicited producer remains open |
-| Channel mappings | The map store still drives the crossbar and still answers the `0x900` `CHMAP_*` debug window | No AECP path: ADD/REMOVE_AUDIO_MAPPINGS is answered `NOT_IMPLEMENTED`, so a controller cannot retarget a channel |
+| Channel mappings | The processor serves GET/ADD/REMOVE_AUDIO_MAPPINGS. The root validates the published geometry, commits atomically, projects live routes, and lock-gates the `0x900` debug writers | No runtime policy service is required |
 | Persistence | **Nothing persists.** The journal is deleted and the processor's NVM face is answered by a blank-flash responder — a restore walk always completes with zero records | Nothing to replay |
 | The NIC itself | MAC, DMA lanes, RX steering | `kl-eth` driver, Linux networking stack |
 

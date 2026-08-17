@@ -30,9 +30,9 @@ outside this build's declared scope.
 | All 50 `tb/verilator/*/Makefile` suites | PASS | Every suite returned zero. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
 | `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
 | `tb/verilator/pp_shadow` | 273 checks passed | The 2026-08-17 rerun passed with zero failures. Milan `ACQUIRE_ENTITY` is checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. The dynamic arty input also passed the GET_AUDIO_MAP body checks. |
-| `tests/` Behave suite | 15 features and 332 scenarios passed | 1,572 steps passed with no skipped scenarios or steps in the 2026-08-17 rerun. This is an offline behavior model, not an external compliance lab result. |
-| Pinned protocol processor suites | 14,025 checks passed | All 27 processor suites passed. The processor's `pp_top` suite contributes 994 passing checks, including GET_DYNAMIC_INFO batch coverage, the 63-record mapping command maximum, atomic rejection of 64 mapping records, and exclusion between a reserved mapping edit and an ACMP stream-state transaction. The processor's zero-tolerance RTL lint and documentation gates also passed. |
-| Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,263 and 3,957 checks, including every declared AAF and CRF Stream Output. The 8x8 integration also proves locked local mapping writes leave physical RAM and protocol ownership unchanged, then apply after unlock. |
+| `tests/` Behave suite | 15 features and 332 scenarios passed | 1,573 steps passed with no skipped scenarios or steps in the 2026-08-17 rerun. This is an offline behavior model, not an external compliance lab result. |
+| Pinned protocol processor suites | 14,027 checks passed | All 27 processor suites passed. The processor's `pp_top` suite contributes 996 passing checks, including GET_DYNAMIC_INFO batch coverage, the 63-record mapping command maximum, atomic rejection of 64 mapping records, and exclusion between a reserved mapping edit and an ACMP stream-state transaction. The processor's zero-tolerance RTL lint and documentation gates also passed. |
+| Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,263 and 4,311 checks, including every declared AAF and CRF Stream Output. The 8x8 integration also proves locked local mapping writes leave physical RAM and protocol ownership unchanged, then apply after unlock. |
 | Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
 | Pinned gPTP processor skeleton | 877 checks passed | 768 uCPU, 31 parser, and 78 engine checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
 | Root RTL lint | PASS under ratchet | The ratchet remains at 99 existing warnings. This is not a zero-warning result. |
@@ -81,7 +81,12 @@ data copied. A forbidden or malformed record rejects the complete command with
 The mapping pair validates the complete command before its first write, updates
 the live map RAM, and reflects every successful command, including an
 idempotent ADD, to other registered controllers. Only a changed command marks
-persistence dirty. Mapping persistence remains blocked by B2 and #70.
+persistence dirty. Mapping persistence remains blocked by B2 and #70. The
+processor scoreboard holds MAP_CFG from dispatch through RX-slot
+retirement and excludes ACMP STREAM_CFG. After the phase-1 output recheck, the
+root also reserves every referenced AAF stream until phase 2, so SRP or local
+bypass changes cannot start an output between validation and write-back. The
+processor R19a and root T66 regressions drive both concurrency paths.
 
 This inventory describes command handling, not end-to-end effect. In
 particular, B12 records that START/STOP is unimplemented, so no AECP Stream
@@ -107,11 +112,11 @@ Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/15d870a494ce829eda92f9bc907740618629fcc0/hdl/aecp/KL_aecp_engine.sv),
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/d52b2d7be0b241bcab53e13aa039d6023307882a/hdl/aecp/KL_aecp_engine.sv),
 the packet-level W8 cases in
-[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/15d870a494ce829eda92f9bc907740618629fcc0/tb/pp_top/sim_main.cpp), and the
+[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/d52b2d7be0b241bcab53e13aa039d6023307882a/tb/pp_top/sim_main.cpp), and the
 current command table in
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/15d870a494ce829eda92f9bc907740618629fcc0/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/d52b2d7be0b241bcab53e13aa039d6023307882a/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 

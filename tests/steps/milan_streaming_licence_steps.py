@@ -224,9 +224,9 @@ def step_read_tgt0_admission(context):
     src = _strip_comments(_read(_DATAPATH))
     m = re.search(r"g_aaf_stream_en(.*?)endgenerate", src, flags=re.S)
     assert m, "no g_aaf_stream_en branch in milan_datapath"
-    a = re.search(r"assign\s+aaf_stream_en_w\[gs\]\s*=\s*(.*?);",
+    a = re.search(r"assign\s+aaf_stream_en_raw_w\[gs\]\s*=\s*(.*?);",
                   m.group(1), flags=re.S)
-    assert a, "no aaf_stream_en_w[gs] arm in g_aaf_stream_en"
+    assert a, "no aaf_stream_en_raw_w[gs] arm in g_aaf_stream_en"
     context.expr = " ".join(a.group(1).split())
 
 
@@ -248,6 +248,12 @@ def step_tgt0_gate_unconditional(context):
     # escape here would admit unpaced streams out of reset.
     assert "cfg_lwsrp_enable" not in context.expr, (
         "t>0 must not mirror t0's ~cfg_lwsrp_enable escape: %s" % context.expr)
+
+
+@then("the effective t>0 admission is masked by output mapping reservations")
+def step_tgt0_mapping_reservation(context):
+    effective = _assign(_read(_DATAPATH), "aaf_stream_en_w")
+    assert effective == "aaf_stream_en_raw_w & ~amap_edit_out_resv_r", effective
 
 
 @when("I read the t>0 wire identity from KL_aaf_packetizer")

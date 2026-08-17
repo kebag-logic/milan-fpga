@@ -22,8 +22,8 @@
                 is no parameter, no fallback and no shadow arm: this module is
                 instantiated unconditionally and its TX rides the control lane.
 
-                THE AECP HOLE IS CLOSED ON THE READ SIDE (2026-08-16,
-                VERSION 0x004B). This banner said "answers NO AECP/AEM command
+                THE AECP COMMAND SURFACE IS ACTIVE (2026-08-17,
+                VERSION 0x004F). This banner said "answers NO AECP/AEM command
                 at all" from 2026-08-12 until the micro-coded uCPU landed
                 inside protocol_processor_top; that sentence is retired. The
                 EXTERNAL AECP pop face this wrapper exposes is still tied
@@ -34,16 +34,17 @@
                 What this entity answers today includes discovery and
                 enumeration, solicited counters, selected stream, clock, and
                 configuration operations, Identify control, the unsolicited
-                registration pair, GET_AUDIO_MAP, GET_DYNAMIC_INFO, and MVU
+                registration pair, GET/ADD/REMOVE_AUDIO_MAPPINGS,
+                GET_DYNAMIC_INFO, and MVU
                 GET_MILAN_INFO. The AUTHORITY is
                 protocol-processor/hdl/aecp/KL_aecp_engine.sv's OP_*_C
                 constants, never this comment.
 
                 WHAT IS STILL OPEN, and is a compliance gap rather than a
                 design choice: SET_STREAM_FORMAT, SET_STREAM_INFO, name access,
-                the audio-mapping writers, the
-                unsolicited-notification trigger set, the departing-controller
-                monitor and saved-state persistence. The current verdict is in
+                the incomplete unsolicited-notification
+                trigger set, the departing-controller monitor and saved-state
+                persistence. The current verdict is in
                 docs/testing/MILAN_V12_AUDIT_2026-08-16.md. SET_CLOCK_SOURCE is accepted and
                 stored by the processor, and this wrapper exports the selected
                 value. The media plane does not consume it and therefore remains
