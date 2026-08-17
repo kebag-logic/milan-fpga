@@ -280,8 +280,8 @@ implementation boundary.
 > **Most of this campaign was overtaken by the 2026-08-13 substitution**, and
 > the AECP half of it has since been partly discharged. The RTL that carried
 > these packages is deleted: the ADP, ACMP and SRP items are now the protocol
-> processor's to satisfy. The processor's AECP uCPU serves **twenty-one** AEM
-> opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x004E`, so some AECP rows
+> processor's to satisfy. The processor's AECP uCPU serves **twenty-three** AEM
+> opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x004F`, so some AECP rows
 > below are closed and some are not, and the per-clause status is **not** kept
 > here. [The current audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) records
 > the exact evidence and remaining gaps. This table is kept

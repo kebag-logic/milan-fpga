@@ -3913,13 +3913,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! precisely what gating this strobe is not supposed to do. Every tracked
   //! config sets `crf_sink: true`, so no shipping shape takes the fallback;
   //! the guard is here so that stays true of shapes nobody has built yet.
+  //! `acmpl_stopped_v_w` has TWO consumers: the listener accept gate (the AAF
+  //! sinks) and, through this wire, `KL_crf_rx`'s frame strobe (the CRF Media
+  //! Clock Input, which has no classification-table entry of its own).
+  //! Between them every Stream Input the entity advertises is covered, which
+  //! is what §5.4.2.19's "For each Stream Input" and §5.3.8.7's discard rule
+  //! together require.
   wire crf_snk_stopped_w = (ACMP_SINKS_C > N_STREAMS)
                            && acmpl_stopped_v_w[CRF_SNK_IDX_C];
-  //! One consumer reads this: the listener accept gate (the AAF sinks) and
-  //! `KL_crf_rx`'s frame strobe (the CRF Media Clock Input, which has no
-  //! classification-table entry of its own). Between them every Stream Input
-  //! the entity advertises is covered, which is what §5.4.2.19's "For each
-  //! Stream Input" and §5.3.8.7's discard rule together require.
+
   assign acmpl_sid_v_w   = pp_cd_acmp_bound_sid_w;
   //! the scalar sink-0 shadows every legacy consumer here still reads
   assign acmpl_bound = acmpl_bound_v_w[0];
