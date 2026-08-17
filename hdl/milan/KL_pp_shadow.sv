@@ -467,10 +467,15 @@ module KL_pp_shadow #(
     output logic [15:0]                aecp_cur_config_o,   //! ENTITY.current_configuration
     output logic  [7:0]                aecp_identify_o,     //! IDENTIFY, 0 or 255
     output logic [15:0]                aecp_clk_src_index_o,//! CLOCK_DOMAIN[0] clock source
-    //! Per sink, 1 = started. PERMANENTLY ZERO today and the port is kept
-    //! deliberately: START/STOP_STREAMING was built and withdrawn (see #78),
-    //! so no microprogram writes SEL_START. Do not read this as a lifecycle
-    //! until a writer exists — the ACMP binding record is the truth meanwhile.
+    //! Per sink, 1 = started (Milan §5.3.8.7). LIVE since issue #78 and
+    //! LOAD-BEARING: `milan_datapath` gates the listener accept pulse on it,
+    //! so a bound sink reading 0 here receives, matches and counts its
+    //! AVTPDUs and hands the media path nothing. Its source is the ACMP
+    //! BINDING RECORD, not the AECP dynamic-state store - the store's
+    //! selector 6 is retired, because the state is a property of the binding
+    //! ("undefined when the Stream Input is not bound") and only the record
+    //! has that lifecycle. The port name's `aecp_` prefix is historical: the
+    //! AECP commands MOVE the bit, the record OWNS it.
     output logic [N_STREAM_IN_P-1:0]   aecp_strm_started_o,
     output logic [31:0]                aecp_pt_offset_o,    //! presentation-time offset
     output logic                       aecp_dyn_dirty_o,    //! a persisted field moved

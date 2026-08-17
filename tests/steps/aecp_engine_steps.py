@@ -155,6 +155,17 @@ SERVED = {
                  verdict=ST_SUCCESS, cdl=17),     # one LINEAR_UINT8 value
     0x0019: dict(name="GET_CONTROL", clause="Milan 5.4.2.18",
                  verdict=ST_SUCCESS, cdl=17),
+    #! NOT MODELLED for these two, and deliberately: the RTL also answers
+    #! NO_SUCH_DESCRIPTOR for a STREAM_INPUT index the image does not hold,
+    #! ENTITY_LOCKED for a different controller under lock, and BAD_ARGUMENTS
+    #! below cdl 16. This model answers SUCCESS for a STREAM_INPUT at ANY
+    #! index and models neither refusal, because it carries no descriptor
+    #! image and no lock state. No scenario sweeps index or lock today, so
+    #! nothing is falsely green - but anyone adding such a sweep must teach
+    #! the model those arms first, or it will disagree with the gateware and
+    #! the RTL will be the one that looks wrong. pp_top W21o/W21x/W21q grade
+    #! all three on the real engine.
+    #!
     #! Milan narrows IEEE 7.4.35/7.4.36 to Stream Inputs, so the verdict the
     #! SWEEP sees is NOT_SUPPORTED: its payload is READ_DESCRIPTOR-shaped
     #! zeros, which puts descriptor_type 0x0000 (ENTITY) at @24, and anything

@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
-**Status 2026-08-16, VERSION `0x0002_004E`.** This is the ordered, clause-cited
+**Status 2026-08-16, VERSION `0x0002_004F`.** This is the ordered, clause-cited
 plan from where the device is to a device that passes the Milan
 end-station validation test plan. It supersedes the AECP sections of
 [historical `MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
@@ -138,8 +138,14 @@ the image. `START`/`STOP_STREAMING` also wrote it and were pulled back out, and 
 has now settled where they belong: started/stopped lives in the **ACMP binding
 record** and nowhere else. Milan §5.3.8.7 calls the state "undefined when the
 Stream Input is not bound", so it is a property of the binding, and only that
-record has the lifecycle — it is cleared on unbind, captured by the NVM shadow
-and restored through the boot preload. Selector 6 of the dynamic store is
+record has the lifecycle — it is cleared on unbind, and it is captured by the
+NVM shadow and restored through the boot preload. **The persistence PLUMBING is
+complete; the persistence SHALL is not.** §5.3.8.7's third sentence ("shall be
+saved in a non-volatile memory and restored after a power cycle") still waits on
+a real flash backend: `KL_pp_shadow` sets `NVM_BACKED_C = 1'b0` and answers a
+blank-flash stub, so nothing survives a power cycle on any shipping build. That
+gap is issue #70's, and it is named here so "captured and restored" is not read
+as "persisted". Selector 6 of the dynamic store is
 **retired, not reused**, and the two commands reach the record through a
 write-only request region that stores nothing, so a second copy cannot come
 back by accident. The design and the two constraints that forced it are
