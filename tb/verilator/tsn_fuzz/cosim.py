@@ -291,12 +291,19 @@ def read_state(dut):
 def require_tsn_gen(report):
     """Skip cleanly (exit 0) when tsn-gen is not installed on this machine.
 
-    The ``SUITE-SKIP:`` line is the machine-readable declaration that lets
-    ``scripts/suite_tally.py`` report why the campaign total is smaller. It
-    deliberately carries NO pass/fail numbers: a skip worded as "0 pass, 0 fail"
-    matches the campaign shape and would read as a campaign that ran and found
-    nothing to check, which is how a smaller total becomes invisible.  Zero is a
-    measurement; this is the absence of one, and the two must not look alike.
+    The ``SUITE-SKIP:`` line is the machine-readable half, and it is REPORTING
+    ONLY: ``scripts/suite_tally.py`` lists it so a reader can see why the
+    campaign total is smaller, and that is the whole of its effect.  It does
+    **not** keep this suite out of ``NOCOUNT`` -- the traceability contracts the
+    Makefile counts on every run do that.  Do not give the marker that power: a
+    suite that can declare its own way out of ``NOCOUNT`` can hide an entire
+    campaign behind a green sweep, which is measured in that file's docstring.
+
+    It deliberately carries NO pass/fail numbers either.  A skip worded as
+    "0 pass, 0 fail" matches the campaign shape and would read as a campaign
+    that ran and found nothing to check, which is how a smaller total becomes
+    invisible.  Zero is a measurement; this is the absence of one, and the two
+    must not look alike.
     """
     import tsn_model
     if tsn_model.available():

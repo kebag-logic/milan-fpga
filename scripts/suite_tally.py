@@ -23,16 +23,18 @@ assertions to a suite and watching the printed total not move.
 So the rule this file enforces is the sweep's own version of *a structural zero
 is not a measurement*:
 
-    **An unparseable or absent check count is an UNKNOWN, and an unknown must
-    never look like agreement.  It fails the sweep, loudly.**
+    **A check count that is absent, unparseable, or measures nothing is an
+    UNKNOWN, and an unknown must never look like agreement.  It fails the
+    sweep, loudly.**
 
 Two detectors implement that:
 
-* ``NOCOUNT``  -- a suite log from which no tally line could be read at all.
-  Silence is not zero.
+* ``NOCOUNT``  -- a suite that measured nothing: either no tally line could be
+  read at all, or the tallies sum to zero checks and zero failures.  Silence is
+  not zero, and neither is a reported zero.
 * ``UNPARSED`` -- a line that *looks* like a tally (a number next to the word
   "checks") but matches none of the known shapes.  This is the one that keeps a
-  **new** suite honest without anyone having to remember: invent a seventh
+  **new** suite honest without anyone having to remember: invent a sixth
   summary shape and the sweep stops, rather than quietly dropping your checks
   on the floor.  It fires even when the suite's *other* executables did parse,
   which is the case a per-log "did anything match?" test would miss.
@@ -185,8 +187,16 @@ def scan(text):
     return checks, failures, matched, unparsed, skipped
 
 
-def is_nocount(matched, skipped):
-    """Is this log an UNKNOWN? Yes when nothing tallied, whatever it declared.
+def is_nocount(checks, failures, matched, skipped):
+    """Is this log an UNKNOWN? Yes unless something was actually measured.
+
+    Two ways to measure nothing, and both are unknowns:
+
+    * no tally line at all -- silence;
+    * tallies that sum to **zero checks and zero failures**.  ``0 pass, 0 fail``
+      is a shape the parser accepts, so without this a suite could clear the
+      gate while reporting that it had checked nothing.  That is the file's own
+      motto turned on the instrument: a structural zero is not a measurement.
 
     ``skipped`` is taken and deliberately **ignored**.  The parameter is here so
     that the one place tempted to consult it says out loud that it does not:
@@ -194,8 +204,56 @@ def is_nocount(matched, skipped):
     found this decision sitting inline in ``main()`` where ``--selftest`` could
     not reach it, so breaking it was silent; it is a named function now for no
     other reason than that a self-test can call it.
+
+    ``matched`` is redundant today -- ``scan()`` only ever adds non-negative
+    captures, so an empty ``matched`` already implies zero and zero.  It is kept
+    because the two conditions are different *claims* (nothing was said / what
+    was said measured nothing) and a future shape with a signed or defaulted
+    capture would separate them again.  Do not simplify it away on the grounds
+    that it is dead; it is load-bearing documentation of the rule.
     """
-    return not matched
+    return (not matched) or (checks == 0 and failures == 0)
+
+
+def campaign_accounted_for(text):
+    """Did one campaign log account for itself? (reason, ok).
+
+    A campaign has exactly two honest outcomes: it measured something, or it
+    declared that it ran nothing.  Anything else -- a summary reworded past the
+    shapes, or a tally that adds up to zero -- means its checks silently leave
+    the headline.
+
+    This exists because the suite that owns the campaign also prints an
+    unconditional floor of its own, and that floor clears ``NOCOUNT`` for the
+    whole suite.  The floor is what makes the suite countable; it is also what
+    took away the backstop the campaign used to have.  So the campaign is
+    checked on its own, in its own log, against the SAME recognisers the sweep
+    uses -- a second hand-rolled matcher in a Makefile is how the two come to
+    disagree, and a first cut of this guard did exactly that: it rejected four
+    tally shapes this file reads perfectly well, and accepted ``0 pass, 0 fail``.
+    """
+    checks, failures, matched, _unparsed, skipped = scan(text)
+    #! `and not matched`, NOT `if skipped:`. A marker excuses a campaign only
+    #! when nothing else tallied. Otherwise a log carrying a marker anywhere
+    #! would pass regardless of what else it printed -- the same "a suite
+    #! declares its own way out" that is_nocount() takes `skipped` purely in
+    #! order to refuse.
+    #!
+    #! It does NOT catch a marker beside a REWORDED tally: that line matches no
+    #! shape, so `matched` is empty and the log is indistinguishable from a
+    #! plain skip. Nothing here can see it. Unreachable today because
+    #! require_tsn_gen() prints the marker and exits immediately, so a campaign
+    #! cannot both skip and report -- and pinned by a self-test case so that
+    #! stays a decision rather than a surprise.
+    if skipped and not matched:
+        return ("declared a skip: " + skipped[0], True)
+    if not matched:
+        return ("printed no tally in any shape scripts/suite_tally.py reads",
+                False)
+    if checks == 0 and failures == 0:
+        return (f"tallied {checks} checks and {failures} failures -- it ran, "
+                f"and measured nothing", False)
+    return (f"tallied {checks} checks, {failures} failures", True)
 
 
 # --- self-test ---------------------------------------------------------------
@@ -287,15 +345,200 @@ def selftest():
         ("nocount-cleared-by-a-real-tally",
          "SUITE-SKIP: aaf campaign (tsn-gen absent)\n1 checks: 1 PASS, 0 FAIL\n",
          False, "...but a real tally beside it does"),
+        ("nocount-all-zero-tally",
+         "campaign skipped: 0 pass, 0 fail (dependency absent)\n", True,
+         "a tally that measured NOTHING is an unknown, not agreement"),
     ):
         c, f, matched, unparsed, skipped = scan(text)
-        got = is_nocount(matched, skipped)
+        got = is_nocount(c, f, matched, skipped)
         ok = got == want_nocount
         print(f"  {'ok  ' if ok else 'FAIL'} {name:<32} "
               f"nocount={got}  -- {why}")
         if not ok:
             bad += 1
             print(f"       expected nocount={want_nocount}")
+
+    # --- END TO END, through main() ------------------------------------------
+    # The cases above test the parser and the decision. Neither reaches the CALL
+    # -- a review changed `if nc:` back to the rejected predicate and every case
+    # above still passed while the real gate went from rc=1 to rc=0 on a
+    # lone-marker log. So these run the whole tool over a temporary log dir and
+    # assert the EXIT CODE, which is what CI actually consumes.
+    import contextlib
+    import io
+    import tempfile
+    for name, logs, want_rc, want_out, why in (
+        ("e2e-lone-marker", {"a": "SUITE-SKIP: campaign (dep absent)\n"}, 1,
+         "SKIPPED  a: campaign (dep absent)",
+         "a suite whose only content is a marker still fails the sweep, and "
+         "the skip is LISTED"),
+        ("e2e-marker-plus-real-tally",
+         {"a": "SUITE-SKIP: campaign (dep absent)\n2 checks: 2 PASS, 0 FAIL\n"}, 0,
+         "checks: 2   in-suite failures: 0",
+         "...and passes once it reports what it DID run, at the right total"),
+        ("e2e-one-silent-suite-among-many",
+         {"a": "checks: 100   failures: 0\n", "b": "building...\n"}, 1,
+         "checks: 100   in-suite failures: 0",
+         "one silent suite fails the sweep even beside a healthy one"),
+        #! UNPARSED is NOCOUNT's co-equal detector and its wiring to the exit
+        #! code was the half nothing pinned: 419 checks could be dropped beside
+        #! a healthy tally with the self-test green.
+        ("e2e-unparsed-beside-a-real-tally",
+         {"a": "checks: 100   failures: 0\ntotal 419 checks OK\n"}, 1,
+         "UNPARSED a: total 419 checks OK",
+         "an unreadable tally fails the sweep even when another one parsed"),
+        ("e2e-empty-logdir", {}, 2, None,
+         "no logs at all is an unknown, not a zero-check pass"),
+        #! the two causes of NOCOUNT get DIFFERENT advice, and that is worth
+        #! pinning: telling someone whose suite printed "0 pass, 0 fail" to
+        #! "print one of the shapes" sends them to fix what they already did.
+        ("e2e-nocount-says-which-cause-silence",
+         {"a": "building...\n"}, 1, "printed no tally line at all",
+         "a silent suite is told it printed nothing"),
+        #! the FAILURES half of the headline. Every other case expects
+        #! "failures: 0", so hard-coding that half survived them all -- and the
+        #! docstring claims both halves are protected.
+        ("e2e-failures-reach-the-headline",
+         {"a": "checks: 100   failures: 3\n"}, 0,
+         "checks: 100   in-suite failures: 3",
+         "the failure count is carried, not just the check count"),
+        ("e2e-nocount-says-which-cause-zero",
+         {"a": "== campaign: 0 pass, 0 fail ==\n"}, 1,
+         "measured 0 checks and 0 failures",
+         "...and a zero-tallying one is told the opposite, not the same thing"),
+    ):
+        with tempfile.TemporaryDirectory() as td:
+            for stem, text in logs.items():
+                Path(td, stem + ".log").write_text(text)
+            import io
+            import contextlib
+            buf = io.StringIO()
+            #! NOT --quiet: the per-suite table has its own NO COUNT flag, and
+            #! it used to carry a private copy of the predicate that disagreed
+            #! with the verdict. Rendering it here is what keeps them one.
+            #! stderr too: e2e-empty-logdir writes a usage line there, and a
+            #! reader seeing an alarm above the OK list learns to ignore alarms
+            with contextlib.redirect_stdout(buf), \
+                    contextlib.redirect_stderr(io.StringIO()):
+                rc = main([sys.argv[0], td])
+        out = buf.getvalue()
+        ok = rc == want_rc
+        #! the table and the verdict must agree, always
+        if want_rc == 1 and logs and ("NOCOUNT" in out) != ("NO COUNT" in out):
+            ok = False
+            why += "  [table flag and verdict DISAGREE]"
+        #! ...and the OUTPUT itself is asserted, not just the exit code. The
+        #! headline numbers and the skip listing were both mutable in silence:
+        #! the listing is the declared marker's ONLY remaining purpose, so a
+        #! deleted listing makes the marker pointless without failing anything.
+        if want_out is not None and want_out not in out:
+            ok = False
+            why += f"  [expected {want_out!r} in the output]"
+        print(f"  {'ok  ' if ok else 'FAIL'} {name:<32} rc={rc}  -- {why}")
+        if not ok:
+            bad += 1
+            print(f"       expected rc={want_rc}")
+
+    # --- the CAMPAIGN GUARD --------------------------------------------------
+    # The guard protects 164 checks that nothing else protects, because the
+    # suite's own 2-check floor lifts it clear of NOCOUNT. A review pointed out
+    # the guard itself had no test: revert it and reword the summary, and both
+    # the self-test and the sweep stay green.
+    for name, text, want_ok, why in (
+        ("guard-real-tally",
+         "== AAF campaign (tsn-gen driven): 164 pass, 0 fail, 0 known gaps ==\n",
+         True, "a campaign that measured something is accounted for"),
+        ("guard-other-shapes",
+         "aaf: 164 checks, 0 failures\n", True,
+         "...in ANY shape the sweep reads, not just the campaign one"),
+        ("guard-declared-skip",
+         "SUITE-SKIP: AAF campaign (tsn-gen absent)\n", True,
+         "...and so is one that declared it ran nothing"),
+        ("guard-reworded-summary",
+         "== AAF campaign: 164 ok / 0 bad ==\n", False,
+         "a summary past every shape is NOT, though it looks fine to a human"),
+        ("guard-zero-tally",
+         "== AAF campaign (tsn-gen driven): 0 pass, 0 fail, 0 known gaps ==\n",
+         False, "neither is one that ran and measured nothing"),
+        ("guard-silence", "building...\n", False, "nor silence"),
+        #! a marker excuses a campaign only when it is the WHOLE story. A
+        #! review found a bare `if skipped:` here, so a log carrying a marker
+        #! ANYWHERE passed regardless of what else it printed.
+        #!
+        #! THE LIMIT, pinned rather than hidden: a marker beside a REWORDED
+        #! tally still passes, because a reworded line is indistinguishable
+        #! from ordinary log chatter -- there is nothing for the parser to see.
+        #! Unreachable today (require_tsn_gen prints the marker and exits, so a
+        #! campaign cannot both skip and report), and the case is here so that
+        #! stops being an accident.
+        ("guard-skip-beside-a-reword-is-the-known-limit",
+         "SUITE-SKIP: half of it was skipped\n== c: 164 ok / 0 bad ==\n",
+         True, "a reworded line is invisible to the parser -- documented limit"),
+        ("guard-skip-does-not-launder-a-zero",
+         "SUITE-SKIP: half of it was skipped\n== c: 0 pass, 0 fail ==\n",
+         False, "...nor a tally that measured nothing"),
+        ("guard-skip-plus-real-tally-is-fine",
+         "SUITE-SKIP: one part skipped\n== c: 164 pass, 0 fail ==\n",
+         True, "...but a real tally beside a marker is still accounted for"),
+    ):
+        reason, got = campaign_accounted_for(text)
+        ok = got == want_ok
+        print(f"  {'ok  ' if ok else 'FAIL'} {name:<32} "
+              f"accounted={got}  -- {why}")
+        if not ok:
+            bad += 1
+            print(f"       expected accounted={want_ok}, got reason: {reason}")
+
+    # --- the guard's CLI, and --quiet ----------------------------------------
+    # campaign_accounted_for() is tested above as a FUNCTION. Its command-line
+    # wiring is the half the Makefile actually consumes, and a review disabled
+    # the guard two ways -- `if ok:` -> `if True:`, and `return 1` -> `return 0`
+    # -- with every case above still green. The second is the nastier: the
+    # alarm still PRINTS, so the suite log looks alarming and make passes.
+    #
+    # --quiet is here for the same reason: run_all_suites.sh:173 is the only
+    # production caller and passes it, and returning 0 early under --quiet
+    # survived everything.
+    for name, argv_extra, text, want_rc, want_out, why in (
+        ("cli-guard-accepts",
+         ["--campaign-guard"], "== c: 164 pass, 0 fail ==\n", 0, None,
+         "the guard's CLI passes a campaign that measured something"),
+        ("cli-guard-rejects",
+         ["--campaign-guard"], "== c: 164 ok / 0 bad ==\n", 1,
+         "CAMPAIGN UNACCOUNTED FOR",
+         "...and REJECTS one that did not, with a non-zero exit"),
+        ("cli-guard-rejects-zero",
+         ["--campaign-guard"], "== c: 0 pass, 0 fail ==\n", 1,
+         "measured nothing",
+         "...including one that ran and measured nothing"),
+    ):
+        with tempfile.TemporaryDirectory() as td:
+            log = Path(td, "campaign.out")
+            log.write_text(text)
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf), \
+                    contextlib.redirect_stderr(io.StringIO()):
+                rc = main([sys.argv[0], *argv_extra, str(log)])
+        out = buf.getvalue()
+        ok = rc == want_rc and (want_out is None or want_out in out)
+        print(f"  {'ok  ' if ok else 'FAIL'} {name:<32} rc={rc}  -- {why}")
+        if not ok:
+            bad += 1
+            print(f"       expected rc={want_rc}"
+                  + (f" and {want_out!r} in the output" if want_out else ""))
+
+    with tempfile.TemporaryDirectory() as td:
+        Path(td, "a.log").write_text("building...\n")
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf), \
+                contextlib.redirect_stderr(io.StringIO()):
+            rc = main([sys.argv[0], td, "--quiet"])
+    ok = rc == 1
+    print(f"  {'ok  ' if ok else 'FAIL'} {'quiet-still-gates':<32} rc={rc}  "
+          f"-- --quiet is the mode CI uses, and it still fails a silent suite")
+    if not ok:
+        bad += 1
+        print("       expected rc=1")
 
     print("selftest:", "PASS" if bad == 0 else f"{bad} FAILURE(S)")
     return 1 if bad else 0
@@ -304,6 +547,21 @@ def selftest():
 def main(argv):
     if "--selftest" in argv[1:]:
         return selftest()
+    if "--campaign-guard" in argv[1:]:
+        #! One campaign log, checked against the same recognisers the sweep
+        #! uses. See campaign_accounted_for().
+        path = argv[argv.index("--campaign-guard") + 1]
+        reason, ok = campaign_accounted_for(
+            Path(path).read_text(errors="replace"))
+        if ok:
+            return 0
+        print(f"CAMPAIGN UNACCOUNTED FOR -- {reason}.")
+        print("  Its checks would leave the sweep's headline in silence: the")
+        print("  suite prints an unconditional floor of its own, so this does")
+        print("  NOT show up as a NOCOUNT. Print a tally in one of the shapes")
+        print("  in scripts/suite_tally.py, or a SUITE-SKIP: line saying why")
+        print("  the campaign ran nothing.")
+        return 1
     args = [a for a in argv[1:] if not a.startswith("-")]
     quiet = "--quiet" in argv[1:]
     if len(args) != 1:
@@ -319,6 +577,7 @@ def main(argv):
 
     total_checks = total_fails = 0
     nocount = []
+    zero_tally = set()
     unparsed_findings = []
     skip_findings = []
     rows = []
@@ -329,9 +588,12 @@ def main(argv):
         c, f, matched, unparsed, skipped = scan(text)
         total_checks += c
         total_fails += f
-        rows.append((suite, c, f, len(matched), len(skipped)))
-        if is_nocount(matched, skipped):
+        nc = is_nocount(c, f, matched, skipped)
+        rows.append((suite, c, f, len(matched), len(skipped), nc))
+        if nc:
             nocount.append(suite)
+            if matched:
+                zero_tally.add(suite)
         for line in unparsed:
             unparsed_findings.append((suite, line))
         for reason in skipped:
@@ -339,8 +601,11 @@ def main(argv):
 
     if not quiet:
         print("suite                        checks   failures  tallies")
-        for suite, c, f, n, s in rows:
-            flag = "  <- NO COUNT" if (n == 0 and s == 0) else ""
+        for suite, c, f, n, s, nc in rows:
+            #! ONE predicate, shared with the verdict below. This
+            #! line used to carry its own copy and they disagreed
+            #! on exactly the case this tool is about.
+            flag = "  <- NO COUNT" if nc else ""
             if s:
                 flag += f"  <- {s} SKIPPED"
             print(f"{suite:<28} {c:>8} {f:>10} {n:>8}{flag}")
@@ -362,12 +627,21 @@ def main(argv):
     if nocount:
         bad = True
         print()
-        print("ACCOUNTING FAILURE -- no check count could be read from "
+        print("ACCOUNTING FAILURE -- nothing was measured by "
               f"{len(nocount)} suite log(s):")
+        #! The two causes need different advice. Telling someone whose suite
+        #! printed "0 pass, 0 fail" to "print one of the shapes" sends them to
+        #! fix the thing they already did right.
         for suite in nocount:
-            print(f"  NOCOUNT  {suite}")
-        print("  A suite that reports no count is an UNKNOWN, not a zero. Make")
-        print("  it print one of the shapes in scripts/suite_tally.py.")
+            zero = suite in zero_tally
+            why = ("reported a tally, but it measured 0 checks and 0 failures"
+                   if zero else "printed no tally line at all")
+            print(f"  NOCOUNT  {suite}: {why}")
+        print("  A suite that measured nothing is an UNKNOWN, not agreement.")
+        print("  If it printed no tally: make it print one of the shapes in")
+        print("  scripts/suite_tally.py. If it tallied zero: make it assert")
+        print("  something, or say why it ran nothing with a SUITE-SKIP: line")
+        print("  AND still report the checks it did run.")
     if unparsed_findings:
         bad = True
         print()

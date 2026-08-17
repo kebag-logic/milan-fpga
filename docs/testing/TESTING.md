@@ -197,8 +197,16 @@ those — not the marker — are what keep it out of `NOCOUNT`; a declared skip
 never excuses a suite from producing a count. CI builds
 the public `tsn-gen` revision pinned by `TSN_GEN_REV` in
 `.github/workflows/rtl.yml`, exports `TSN_GEN_ROOT`, and runs the 164-check AAF
-campaign. A missing, truncated, or malformed campaign tally therefore remains
-fatal to the repository sweep.
+campaign.
+
+A missing, truncated or reworded campaign tally is still fatal, but it is worth
+saying *why*, because the reason changed. It used to be fatal by accident: the
+suite printed no shape the tally knew, fell to `NOCOUNT`, and stopped the sweep.
+Giving the suite an unconditional two-check floor removed that backstop — the
+floor clears `NOCOUNT` on its own, so a reworded campaign line would have
+dropped 164 checks from the headline with everything green. So the suite's
+`aaf` target now requires one of exactly two outcomes, a readable tally or a
+declared skip, and fails loudly on anything else.
 
 **No check total is quoted here on purpose.** The campaign ends by printing its
 own `N pass, M fail, K known gaps` line, and writes that same line into a
@@ -219,7 +227,7 @@ described a tree that no longer exists — twelve of the suites it graded have
 since been deleted — so quoting it would be quoting a measurement of a
 different design. Its check total was also an under-count: that total came from
 `grep -o 'checks: *[0-9]*'` and suites do not all print that string (the tree
-emits six summary shapes, and 28 of 57 suite logs matched none of them and
+emits five summary shapes, and 29 of 57 suite logs matched none of them and
 contributed a silent zero — shown by adding 66 assertions to a suite and
 watching the printed total not move). Rerun the sweep for both figures.
 
