@@ -96,7 +96,7 @@ flowchart LR
 
    | PR | merged | state at that moment | cost |
    |---|---|---|---|
-   | #77 | 2026-08-16 18:10 | round 3 of 6 running | rounds 4, 5 and 6 each returned NEGATIVE **after** the merge — an ungraded refusal arm where mutating the code was silent, and a test that could not fail. Re-landed as #85 |
+   | #77 | 2026-08-16 18:10 | round 3 of 6 running | rounds 4 and 5 returned NEGATIVE **after** the merge (round 6 was positive) - an ungraded refusal arm where mutating the code was silent, and a test that could not fail. Re-landed as #85 |
    | #86 | 2026-08-17 07:54 | a round running, which then found a hole in its own fix | three commits stranded on the branch; re-landed as #89, tracked by #87 |
 
    Both were recoverable and neither was noticed by anything except a reviewer
@@ -128,8 +128,9 @@ flowchart LR
    ```
 
    It exits non-zero and names the count when commits are left behind. Replayed
-   against the two merge points in step 6 it reports **4** and **3** stranded
-   commits respectively, which is what nobody was told at the time.
+   against the two merge points in step 6 it reports **3** stranded commits for
+   #77 and **4** for #86 - the latter is 3 as of that merge plus the one pushed
+   during the #89 re-land. Nobody was told either number at the time.
 
    It is a script rather than a line in this file because a check that depends
    on somebody remembering is not a check — the same reason
@@ -137,14 +138,15 @@ flowchart LR
    that a ref which cannot be resolved is an UNKNOWN and **fails**, never a
    quiet pass.
 
-   **Do not hand-roll it with `git log A..B`.** In this environment that
-   returns **empty** when it follows another git command in the same shell
-   invocation — the proxy hook swallows the output — so it reports "nothing
-   diverged" for a branch that has. That is exactly how #89's description came
-   to claim a fast-forward that was not one. The script uses
-   `git rev-list --count` and `git merge-base --is-ancestor`, both of which
-   answer through a bare number or an exit code, so a swallowed stream cannot
-   be mistaken for agreement.
+   **Do not hand-roll it by reading `git log` output.** The script uses
+   `git rev-list --count` and `git merge-base --is-ancestor` because one prints
+   a single integer and the other answers only through its exit status: neither
+   needs its prose parsed, so neither can be half-read or mis-scraped. #89's
+   description claimed a fast-forward that was not one, off a `git log A..B`
+   that came back empty in the author's terminal; the cause was never pinned
+   down and a later attempt could not reproduce it, which is itself the
+   argument — a check whose failure mode you cannot characterise is not one to
+   build on.
 
    Three merge-specific traps worth naming, all paid for:
 
