@@ -88,10 +88,25 @@ matrix-check:
 	@echo "traceability contracts (drift + ratchet): 2 checks: 2 PASS, 0 FAIL"
 
 
+# THE CAMPAIGN MUST ACCOUNT FOR ITSELF, and this check is here because giving
+# the suite an unconditional 2-check floor (see matrix-check) took away the
+# backstop it used to have. Before that floor, a campaign whose summary line was
+# reworded printed no shape suite_tally.py knew, the suite fell to NOCOUNT and
+# the sweep stopped. Now the floor clears NOCOUNT on its own, so the same
+# rewording would silently drop 164 checks from the headline with everything
+# green. UNPARSED still catches a reword that stays tally-shaped; it does not
+# catch "164 ok / 0 bad".
+#
+# So: exactly two outcomes are valid, a tally or a declared skip. Anything else
+# fails here, where it is loud, instead of vanishing into the total.
 aaf: obj_aaf/Vaaf_cosim
-	$(PY) fuzz_aaf.py
+	@$(PY) fuzz_aaf.py > obj_aaf/aaf.out 2>&1; rc=$$?; cat obj_aaf/aaf.out; \
+	 if [ $$rc -ne 0 ]; then exit $$rc; fi; \
+	 grep -qE '^(==.*: [0-9]+ pass, [0-9]+ fail|SUITE-SKIP:)' obj_aaf/aaf.out || { \
+	   echo "tsn_fuzz: the campaign printed NEITHER a tally suite_tally.py can"; \
+	   echo "  read NOR a declared skip. Its checks would be counted as zero"; \
+	   echo "  with the sweep still green. Restore one of the two shapes."; \
+	   exit 1; }
 
-# the original 14-command smoke driver that predates this campaign; run it
-# too so its expectations cannot drift from the RTL again
 clean:
 	rm -rf obj_aaf __pycache__

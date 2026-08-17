@@ -23,16 +23,18 @@ assertions to a suite and watching the printed total not move.
 So the rule this file enforces is the sweep's own version of *a structural zero
 is not a measurement*:
 
-    **An unparseable or absent check count is an UNKNOWN, and an unknown must
-    never look like agreement.  It fails the sweep, loudly.**
+    **A check count that is absent, unparseable, or measures nothing is an
+    UNKNOWN, and an unknown must never look like agreement.  It fails the
+    sweep, loudly.**
 
 Two detectors implement that:
 
-* ``NOCOUNT``  -- a suite log from which no tally line could be read at all.
-  Silence is not zero.
+* ``NOCOUNT``  -- a suite that measured nothing: either no tally line could be
+  read at all, or the tallies sum to zero checks and zero failures.  Silence is
+  not zero, and neither is a reported zero.
 * ``UNPARSED`` -- a line that *looks* like a tally (a number next to the word
   "checks") but matches none of the known shapes.  This is the one that keeps a
-  **new** suite honest without anyone having to remember: invent a seventh
+  **new** suite honest without anyone having to remember: invent a sixth
   summary shape and the sweep stops, rather than quietly dropping your checks
   on the floor.  It fires even when the suite's *other* executables did parse,
   which is the case a per-log "did anything match?" test would miss.
@@ -324,6 +326,14 @@ def selftest():
         ("e2e-one-silent-suite-among-many",
          {"a": "checks: 100   failures: 0\n", "b": "building...\n"}, 1,
          "one silent suite fails the sweep even beside a healthy one"),
+        #! UNPARSED is NOCOUNT's co-equal detector and its wiring to the exit
+        #! code was the half nothing pinned: 419 checks could be dropped beside
+        #! a healthy tally with the self-test green.
+        ("e2e-unparsed-beside-a-real-tally",
+         {"a": "checks: 100   failures: 0\ntotal 419 checks OK\n"}, 1,
+         "an unreadable tally fails the sweep even when another one parsed"),
+        ("e2e-empty-logdir", {}, 2,
+         "no logs at all is an unknown, not a zero-check pass"),
     ):
         with tempfile.TemporaryDirectory() as td:
             for stem, text in logs.items():
@@ -331,9 +341,17 @@ def selftest():
             import io
             import contextlib
             buf = io.StringIO()
+            #! NOT --quiet: the per-suite table has its own NO COUNT flag, and
+            #! it used to carry a private copy of the predicate that disagreed
+            #! with the verdict. Rendering it here is what keeps them one.
             with contextlib.redirect_stdout(buf):
-                rc = main([sys.argv[0], td, "--quiet"])
+                rc = main([sys.argv[0], td])
+        out = buf.getvalue()
         ok = rc == want_rc
+        #! the table and the verdict must agree, always
+        if want_rc == 1 and logs and ("NOCOUNT" in out) != ("NO COUNT" in out):
+            ok = False
+            why += "  [table flag and verdict DISAGREE]"
         print(f"  {'ok  ' if ok else 'FAIL'} {name:<32} rc={rc}  -- {why}")
         if not ok:
             bad += 1
@@ -361,6 +379,7 @@ def main(argv):
 
     total_checks = total_fails = 0
     nocount = []
+    zero_tally = set()
     unparsed_findings = []
     skip_findings = []
     rows = []
@@ -375,6 +394,8 @@ def main(argv):
         rows.append((suite, c, f, len(matched), len(skipped), nc))
         if nc:
             nocount.append(suite)
+            if matched:
+                zero_tally.add(suite)
         for line in unparsed:
             unparsed_findings.append((suite, line))
         for reason in skipped:
@@ -408,12 +429,21 @@ def main(argv):
     if nocount:
         bad = True
         print()
-        print("ACCOUNTING FAILURE -- no check count could be read from "
+        print("ACCOUNTING FAILURE -- nothing was measured by "
               f"{len(nocount)} suite log(s):")
+        #! The two causes need different advice. Telling someone whose suite
+        #! printed "0 pass, 0 fail" to "print one of the shapes" sends them to
+        #! fix the thing they already did right.
         for suite in nocount:
-            print(f"  NOCOUNT  {suite}")
-        print("  A suite that reports no count is an UNKNOWN, not a zero. Make")
-        print("  it print one of the shapes in scripts/suite_tally.py.")
+            zero = suite in zero_tally
+            why = ("reported a tally, but it measured 0 checks and 0 failures"
+                   if zero else "printed no tally line at all")
+            print(f"  NOCOUNT  {suite}: {why}")
+        print("  A suite that measured nothing is an UNKNOWN, not agreement.")
+        print("  If it printed no tally: make it print one of the shapes in")
+        print("  scripts/suite_tally.py. If it tallied zero: make it assert")
+        print("  something, or say why it ran nothing with a SUITE-SKIP: line")
+        print("  AND still report the checks it did run.")
     if unparsed_findings:
         bad = True
         print()

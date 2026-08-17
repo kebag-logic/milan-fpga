@@ -12,19 +12,21 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 > data plane and was not replaced. This is a real coverage loss on IEEE 1722.1
 > field fuzzing, not a reorganisation.
 
-Four co-simulation campaigns that drive the **real RTL** with spec-modelled
-1722.1 traffic, validate every field of every message, and prove the
-end-station's state machines are unmoved by malformed input.
+**One** co-simulation campaign that drives the **real RTL** with spec-modelled
+1722 traffic, validates every field of every message, and proves the
+end-station's state machines are unmoved by malformed input. (Four campaigns
+until 2026-08-13 — see the banner above for what went and why.)
 
 ```
-make            build the DUTs and run everything   (~3 min)
+make            build the DUT, run the campaign and the traceability check
 make aaf        AAF / AVTP stream: the listener ACCEPT VERDICT + lock stability
-make legacy     the original 14-command cosim smoke driver
+make matrix-check   the module<->spec<->test no-drift contract, run by `make`
 ```
 
 Current tally — **164 campaign checks + 2 traceability contracts**, 0 failures,
-2 tracked gaps, with `tsn-gen` installed. (The 3153 this line used to quote
-predates the 1722.1 campaign deletions above.) This is what `make`
+0 known gaps, with `tsn-gen` installed. (The 3153 checks and 2 tracked gaps
+this line used to quote both predate the 1722.1 campaign deletions above; the
+gaps belonged to the AECP campaigns that went with them.) This is what `make`
 prints; each campaign rewrites the same line into its `TEST_RESULTS.md` on
 every run, so the generated files are the fresher authority if this table and
 they ever disagree:
@@ -36,7 +38,7 @@ they ever disagree:
 ## Contents
 
 - **[How it works](#how-it-works)** -- The YAML-to-RTL loop in one diagram, and the three-way split of ownership: tsn-gen is the field/constraint oracle, `wire.py` owns the actual bytes, `cosim_axis.h` owns the session — including the 4-byte control frame that requests a state dump, so campaigns observe state machines instead of guessing from replies.
-- **[Where the results go](#where-the-results-go)** -- Each campaign writes its `TEST_RESULTS.md` into the folder of the RTL it validates, not a scratch dir, so a block's `doc/` shows its verification status in place. Table of the four paths. They are generated — do not hand-edit.
+- **[Where the results go](#where-the-results-go)** -- Each campaign writes its `TEST_RESULTS.md` into the folder of the RTL it validates, not a scratch dir, so a block's `doc/` shows its verification status in place. Table of the path. They are generated — do not hand-edit.
 - **[What this suite reports to the sweep](#what-this-suite-reports-to-the-sweep)** -- The two lines `scripts/suite_tally.py` counts (the campaign's own total, and the traceability check's two contracts), and the third it deliberately does *not*: `SUITE-SKIP:`, which says the optional campaign ran nothing. Why the marker is reporting rather than a verdict — it does not clear `NOCOUNT`, and letting it would hide a campaign behind a green sweep — and why the traceability check counts 2 and not 63.
 - **[Why "state stability" is the real gate](#why-state-stability-is-the-real-gate)** -- The argument for what this suite actually asserts: there is no software here to crash, so the test is that garbage does not *move state*. Each campaign's canary is named, including AAF's two-sided one — stay locked through malformed PDUs, but DO unlock during an accept drought, because a listener reporting MEDIA_LOCKED while accepting nothing is lying to the controller.
 - **[⚠ tsn-gen wire-layout caveat (measured 2026-07-25)](#-tsn-gen-wire-layout-caveat-measured-2026-07-25)** -- The measured defect in the generator's own models: they omit the AVTPDU `sv`+`version` nibble, so a real READ_DESCRIPTOR decodes `control_data_length` 320 instead of 20. Explains the one-nibble shift `decode_pdu()` applies and why the models are used as an oracle but never as a frame builder.

@@ -197,8 +197,16 @@ those — not the marker — are what keep it out of `NOCOUNT`; a declared skip
 never excuses a suite from producing a count. CI builds
 the public `tsn-gen` revision pinned by `TSN_GEN_REV` in
 `.github/workflows/rtl.yml`, exports `TSN_GEN_ROOT`, and runs the 164-check AAF
-campaign. A missing, truncated, or malformed campaign tally therefore remains
-fatal to the repository sweep.
+campaign.
+
+A missing, truncated or reworded campaign tally is still fatal, but it is worth
+saying *why*, because the reason changed. It used to be fatal by accident: the
+suite printed no shape the tally knew, fell to `NOCOUNT`, and stopped the sweep.
+Giving the suite an unconditional two-check floor removed that backstop — the
+floor clears `NOCOUNT` on its own, so a reworded campaign line would have
+dropped 164 checks from the headline with everything green. So the suite's
+`aaf` target now requires one of exactly two outcomes, a readable tally or a
+declared skip, and fails loudly on anything else.
 
 **No check total is quoted here on purpose.** The campaign ends by printing its
 own `N pass, M fail, K known gaps` line, and writes that same line into a
