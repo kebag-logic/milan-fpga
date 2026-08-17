@@ -1,4 +1,4 @@
-[OBSOLETE + 2026-08-16]
+[OBSOLETE + 2026-08-17]
 
 <!--
 SPDX-FileCopyrightText: 2026 Kebag Logic

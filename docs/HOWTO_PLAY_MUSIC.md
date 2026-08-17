@@ -130,10 +130,11 @@ Two cautions on those writes:
 * The window writes a *source word*, not a cluster index, so it is unaffected
   by the 0x0043 cluster renumbering. The protocol processor serves
   `GET_AUDIO_MAP` for both Stream Port directions from the live root mapping
-  stores. `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` still return the
-  conformant `NOT_IMPLEMENTED` echo, so the `0x900` window remains the only
-  programmer. Controllers can read mappings through `GET_AUDIO_MAP`; software
-  can use the `CHMAP_SNAP`/`CHMAP_LOOP` readback at `0x910`/`0x914`. The latter
+  stores. `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` atomically update
+  those stores and their crossbar projection. The `0x900` window remains the
+  direct diagnostic programmer. Controllers can read mappings through
+  `GET_AUDIO_MAP`; software can use the `CHMAP_SNAP`/`CHMAP_LOOP` readback at
+  `0x910`/`0x914`. The latter
   reports what the RAM actually holds, and its `LOOP_SUSPECT` bit separates a
   slot that is mapped but never fed from one that is working and quiet.
 

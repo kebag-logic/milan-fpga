@@ -602,21 +602,21 @@ static void inject_parked(const uint8_t* f, size_t len, int park_beat,
 static std::vector<uint8_t> aecp_xact(uint16_t cmd, uint16_t sq,
                                       const std::vector<uint8_t>& pl,
                                       int cyc = 200000) {
-    uint8_t f[80]; memset(f, 0, sizeof f);
+    const size_t flen = std::max<size_t>(60, 38 + pl.size());
+    std::vector<uint8_t> f(flen, 0);
     const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
-    memcpy(f+6, csrc, 6);
+    memcpy(f.data()+6, csrc, 6);
     f[12]=0x22; f[13]=0xF0; f[14]=0xFB; f[15]=0x00;      // AECP AEM_COMMAND
     uint16_t cdl = (uint16_t)(12 + pl.size());
     f[16]=(uint8_t)((cdl >> 8) & 0x7); f[17]=(uint8_t)cdl;
     const uint8_t teid[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
-    memcpy(f+18, teid, 8);                                // = A_ADP_EID
+    memcpy(f.data()+18, teid, 8);                         // = A_ADP_EID
     const uint8_t ceid[8] = {0x68,0x05,0xCA,0xFF,0xFE,0x95,0xB2,0xD1};
-    memcpy(f+26, ceid, 8);
+    memcpy(f.data()+26, ceid, 8);
     f[34]=(uint8_t)(sq >> 8); f[35]=(uint8_t)sq;
     f[36]=(uint8_t)((cmd >> 8) & 0x7F); f[37]=(uint8_t)cmd;
-    for (size_t i = 0; i < pl.size() && 38 + i < sizeof f; i++) f[38+i] = pl[i];
-    size_t flen = 38 + pl.size(); if (flen < 60) flen = 60;
-    inject(f, flen, 40);
+    for (size_t i = 0; i < pl.size(); i++) f[38+i] = pl[i];
+    inject(f.data(), f.size(), 40);
     std::vector<uint8_t> cur, resp;
     cur.reserve(1514);                  // one Ethernet frame off the TX trunk
     dut->m_axis_mac_tx_tready = 1;
@@ -1338,30 +1338,26 @@ int main(int argc, char** argv) {
     }
 
 #ifdef AAF_PB_TB
-    // ---- task #26 (0x002C): THE BOOT SEEDER IS GONE WITH THE AEM PLANE ----
-    //      REPOINTED 2026-08-13, and this is a CAPABILITY REGRESSION, named.
+    // ---- task #26: RESET STARTS FROM AN EMPTY DYNAMIC-MAP STORE ------------
     //      This check used to prove the AECP builder had walked the declared
     //      identity image into the capture map RAM during its post-reset IDLE
     //      cycles, so key 0 read the declared RING template 0x1300 with
     //      0x900[0] never written - the "in-circuit by construction" law.
-    //      That builder is deleted: milan_datapath.sv now reads
-    //      `assign aecp_odmap_wr_p_w = 1'b0; assign aecp_odmap_dyn_w = 1'b0;`
-    //      so there is no writer AND no seeder, the RAM stays empty forever,
-    //      and `cap_xbar_live_w = aecp_odmap_dyn_w | cfg_chmap_enable`
-    //      collapses to CHMAP_CTRL[0] alone.
+    //      The boot seeder remains absent, so the RAM starts empty. The AECP
+    //      transaction writer is now live and [T66] below proves that accepted
+    //      commands populate and clear it after reset.
     //
     //      The RTL treats this as its documented STATIC-shape arm rather than
     //      as breakage (milan_datapath.sv:1238-1252): with the crossbar
     //      bypassed the DECLARED front-end routing stays wired straight to the
     //      packetizer, so talkers do NOT wake streaming an empty map's
     //      silence - the pb/loopback sections below frame real audio through
-    //      that path. What is genuinely lost is runtime remapping without a
-    //      software arm; [T66] below grades what replaced it.
+    //      that path.
     //
     //      So the two checks become the two halves of the new structural
     //      truth, and neither is vacuous: the READ mux is still live (bit 26
-    //      valid) and the RAM is EMPTY. The day a seeder returns - in any
-    //      form - the second one fails and this block must be restored.
+    //      valid) and the RAM is EMPTY. The day a seeder returns, the second
+    //      one fails and this block must be restored.
     {
         axi_write(0x904, 0x100);             // capture side, key 0
         axi_write(0x910, 1);
@@ -2163,13 +2159,14 @@ int main(int argc, char** argv) {
         ck("[AMAP] first undeclared SPI returns NO_SUCH_DESCRIPTOR(2)",
            aecp_status(rn), 2);
 
-        //! the STREAM_PORT_OUTPUT gap is RETIRED: the capture-side map RAM
-        //! answers through the same face, routed by descriptor_type. This
-        //! leg's capture map is empty here, so the honest answer is SUCCESS
-        //! with the one fixed output subset and an EMPTY page - the full
-        //! 7.4.44.2 fixed part, cdl 24.
+        //! The capture-side map RAM answers through the same face, routed by
+        //! descriptor_type. Milan 5.4.2.26 requires NOT_SUPPORTED when the
+        //! output has static AUDIO_MAP descriptors. Only the AX7101 8x8 leg
+        //! declares dynamic output mappings and therefore returns one empty
+        //! runtime page here.
         pl[1] = 0x0F; pl[3] = 0x00;
         const std::vector<uint8_t> ro = aecp_xact(0x002B, 0x4033, pl);
+#ifdef AAF_PB_TB
         ck("[AMAP] STREAM_PORT_OUTPUT is served now: SUCCESS(0)",
            aecp_status(ro), 0);
         ck("[AMAP] ...number_of_maps 1, empty page, cdl 24",
@@ -2178,6 +2175,16 @@ int main(int argc, char** argv) {
                            | (((unsigned)ro[44] << 8) | ro[45]) << 8
                            | (((unsigned)ro[46] << 8) | ro[47]))
                   : -1), (24 << 16) | (1 << 8) | 0);
+#else
+        ck("[AMAP] static STREAM_PORT_OUTPUT returns NOT_SUPPORTED(11)",
+           aecp_status(ro), 11);
+        ck("[AMAP] static output reports no dynamic maps, cdl 24",
+           (long)(ro.size() >= 50
+                  ? (long)(((((unsigned)ro[16] & 7) << 8) | ro[17]) << 16
+                           | (((unsigned)ro[44] << 8) | ro[45]) << 8
+                           | (((unsigned)ro[46] << 8) | ro[47]))
+                  : -1), (24 << 16));
+#endif
 
         // leave the map as this section found it: unmapped
         axi_write(A_CHMAP_CTRL, 0x1);
@@ -3960,8 +3967,15 @@ int main(int argc, char** argv) {
             snprintf(w, sizeof w, "T66 %s: command_type echoed, u = 0", tag);
             ck(w, (long)((r[36] << 8) | r[37]), (long)cmd);
             long bad = 0;
-            for (size_t i = 0; i < pl.size(); i++)
-                if (38 + i >= r.size() || r[38 + i] != pl[i]) bad++;
+            for (size_t i = 0; i < pl.size(); i++) {
+                if (38 + i >= r.size() || r[38 + i] != pl[i]) {
+                    if (bad < 8)
+                        printf("  [i]    T66 %s echo mismatch @%zu: got %02X want %02X\n",
+                               tag, i, 38 + i < r.size() ? r[38 + i] : 0xFF,
+                               pl[i]);
+                    bad++;
+                }
+            }
             snprintf(w, sizeof w, "T66 %s: the command payload is ECHOED", tag);
             ck(w, bad, 0);
             return aecp_status(r);
@@ -4092,6 +4106,27 @@ int main(int argc, char** argv) {
         // clusters are host-only, so even key 0 must not write physical
         // RMAP, while port 7 cluster 7 proves global key 63 is addressable.
         {
+            // The generated 8x8 shape says one eight-cluster page per input
+            // port. Submit exactly that complete legal set in one command,
+            // then read the page back before removing it in one command.
+            const int full_sc[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+            const int full_co[8] = {0, 1, 2, 3, 4, 5, 6, 7};
+            ck("T66: generated full input page ADD succeeds atomically",
+               dmap_cmd("ADD-input-full-page", CMD_ADD_AUDIO_MAPPINGS,
+                        8, full_sc, full_co, 0, 6, 0, DT_SPI), 0);
+            std::vector<uint8_t> fpl = {
+                (uint8_t)(DT_SPI >> 8), (uint8_t)DT_SPI, 0x00, 0x06,
+                0x00, 0x00, 0x00, 0x00 };
+            const uint16_t fseq = sq++;
+            auto fr = aecp_xact(CMD_GET_AUDIO_MAP, fseq, fpl);
+            ck("T66: generated full input page reads back all eight rows",
+               (long)(aecp_status(fr) == 0 && fr.size() >= 114
+                      && (((unsigned)fr[44] << 8) | fr[45]) == 1
+                      && (((unsigned)fr[46] << 8) | fr[47]) == 8), 1);
+            ck("T66: generated full input page REMOVE succeeds atomically",
+               dmap_cmd("REMOVE-input-full-page", CMD_REMOVE_AUDIO_MAPPINGS,
+                        8, full_sc, full_co, 0, 6, 0, DT_SPI), 0);
+
             const int sc0 = 1, co0 = 0;
             ck("T66: host input ADD on port 0 succeeds",
                dmap_cmd("ADD-input-zero", CMD_ADD_AUDIO_MAPPINGS,

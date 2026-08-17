@@ -1210,8 +1210,8 @@ so the refusal is not a policy someone can forget to apply; it is the absence
 of a mechanism.
 
 **What remains open after the control-plane substitution.** Presentation-time
-offset changes and names remain outside the served inventory, and the mandatory
-audio-map writers remain unimplemented. The processor accepts and stores
+offset changes and names remain outside the served inventory. The mandatory
+audio-map writers now commit through the root transaction store. The processor accepts and stores
   `SET_CLOCK_SOURCE`, and the wrapper exports that selection to the root, but
   no media-plane consumer reads it. These are current command or integration gaps, not evidence that the
 processor has no dynamic state.
@@ -1680,10 +1680,11 @@ i2s_playback feed. Setting it to 1 also moves the DAC's **pace** onto the
 48 kHz media grid and masks the render LPF (`KL_i2s_feed_mux`; see the
 `0x8C8` group) - without that a host-ring playback can never advance the
 DAC, because the legacy feed only ticks when an inbound AVB stream does.
-**This window is now the only programmer of the map RAMs.** The current
-processor serves `GET_AUDIO_MAP` from those stores, but
-`ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` remain unimplemented. A
-controller can inspect the live map but cannot change it through AECP.
+**This window is the direct diagnostic programmer of the map RAMs.** The
+processor serves `GET_AUDIO_MAP` from the same stores, and successful
+`ADD_AUDIO_MAPPINGS` or `REMOVE_AUDIO_MAPPINGS` transactions update the live
+map after whole-command validation. The transaction excludes CSR writes until
+commit or abort, so the validation baseline cannot change underneath it.
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|

@@ -1,4 +1,4 @@
-[OBSOLETE + 2026-08-16]
+[OBSOLETE + 2026-08-17]
 
 # Traceability — Milan v1.2 (Consolidated, 2023-11-30) — profile deltas
 

@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-17]
+
 # Milan v1.2 implementation audit, 2026-08-16
 
 ## Contents

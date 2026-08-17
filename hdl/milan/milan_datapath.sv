@@ -1103,9 +1103,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [4:0]  cmap_slot_w;
   wire [23:0] cmap_l_w, cmap_r_w;
 
-  //! Reserved capture-side AECP map-write leg. The current processor serves
-  //! GET_AUDIO_MAP but does not implement ADD/REMOVE_AUDIO_MAPPINGS, so this
-  //! leg is tied off below and the CSR 0x900 window is the only writer.
+  //! Capture-side AECP map-write leg. The processor's atomic
+  //! ADD/REMOVE_AUDIO_MAPPINGS transaction server drives it after every row
+  //! has passed validation. The CSR 0x900 window remains a diagnostic writer.
   //! A slot past N_STREAMS*4 is refused, never wrapped.
   wire        aecp_odmap_wr_p_w;
   wire [5:0]  aecp_odmap_wr_slot_w;
@@ -3389,6 +3389,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! objects.
   localparam int AMAP_IN_PORTS_C = ADP_DMAP_IN_NPORTS_C;
   localparam int AMAP_IN_KEYS_C  = ADP_DMAP_IN_KEYS_C;
+  localparam int AMAP_IN_KEY_W_C = (AMAP_IN_KEYS_C <= 2)
+                                  ? 1 : $clog2(AMAP_IN_KEYS_C);
   localparam int AMAP_PAGE_C     = ADP_DMAP_IN_PAGE_C;
   localparam logic [15:0] DESC_STREAM_PORT_IN_C = 16'h000E;  //! Table 7-1
 
@@ -3422,6 +3424,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! cycle under the face's hold: per-cycle logic is ONE indexed read plus
   //! an increment, and a beat costs ten cycles against ms-scale commands.
   localparam int AMAP_OUT_KEYS_C = N_STREAMS * 8;
+  localparam int AMAP_OUT_KEY_W_C = (AMAP_OUT_KEYS_C <= 2)
+                                   ? 1 : $clog2(AMAP_OUT_KEYS_C);
   localparam int AMAP_WALK_W_C = (AMAP_OUT_KEYS_C <= 2)
                                 ? 1 : $clog2(AMAP_OUT_KEYS_C + 1);
   logic [AMAP_WALK_W_C-1:0] amap_walk_j_r;  //! stage-A slot cursor
@@ -3640,7 +3644,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
             : 13'd0;
     amap_out_owner_v_w = (amap_opage_ok_w
                            && (32'(amap_walk_j_r) < AMAP_OUT_KEYS_C))
-                          ? amap_out_owner_v_r[amap_walk_j_r] : 1'b0;
+                          ? amap_out_owner_v_r[
+                              amap_walk_j_r[AMAP_OUT_KEY_W_C-1:0]] : 1'b0;
     amap_out_owner_w = (amap_opage_ok_w
                         && (32'(amap_walk_j_r) < AMAP_OUT_KEYS_C))
                        ? amap_out_owner_r[32'(amap_walk_j_r) * 16 +: 16]
@@ -3743,7 +3748,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic        amap_edit_context_w, amap_edit_dynamic_w;
   logic        amap_edit_commit_ok_w;
   logic        amap_edit_accept_w, amap_edit_in_key_v_w, amap_edit_out_key_v_w;
-  logic  [5:0] amap_edit_in_key_w, amap_edit_out_key_w;
+  logic [AMAP_IN_KEY_W_C-1:0]  amap_edit_in_key_w;
+  logic [AMAP_OUT_KEY_W_C-1:0] amap_edit_out_key_w;
   logic  [7:0] amap_edit_in_word_w, amap_edit_in_live_w;
   logic [12:0] amap_edit_out_word_w, amap_edit_out_live_w;
   logic        amap_edit_out_owner_v_w;
@@ -3756,7 +3762,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     logic [7:0] ibase_c, iexpect_c;
     logic [12:0] obase_c, oexpect_c;
     logic [15:0] obase_cluster_c;
-    logic istream_ok_c, ostream_ok_c;
+    logic istream_ok_c, ostream_ok_c, ostreaming_c;
     logic iclaim_c, oclaim_c;
 
     pp_amap_edit_data_w = 64'd0;
@@ -3780,8 +3786,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     amap_edit_accept_w = 1'b0;
     amap_edit_in_key_v_w = 1'b0;
     amap_edit_out_key_v_w = 1'b0;
-    amap_edit_in_key_w = 6'd0;
-    amap_edit_out_key_w = 6'd0;
+    amap_edit_in_key_w = '0;
+    amap_edit_out_key_w = '0;
     amap_edit_in_word_w = {1'b1, 1'b0, amap_edit_si_w[2:0],
                            amap_edit_sc_w[2:0]};
     amap_edit_out_enc_w = amap_edit_out_encode(amap_edit_co_w,
@@ -3803,6 +3809,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     obase_cluster_c = 16'd0;
     istream_ok_c = 1'b0;
     ostream_ok_c = 1'b0;
+    ostreaming_c = 1'b0;
     iclaim_c = 1'b0;
     oclaim_c = 1'b0;
 
@@ -3821,6 +3828,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       if ((amap_edit_si_w == 16'(s))
           && (32'(amap_edit_sc_w) < 32'(ADP_DMAP_OUT_SCH_C[s])))
         ostream_ok_c = 1'b1;
+    end
+    for (int s = 0; s < N_STREAMS; s++) begin
+      if (amap_edit_si_w == 16'(s))
+        ostreaming_c = tkd_streaming_w[s];
     end
 
     if ((pp_amap_edit_desc_type_w == DESC_STREAM_PORT_IN_C)
@@ -3843,7 +3854,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       ikey_c = ipbase_c + 32'(amap_edit_co_w);
       if (ikey_c < AMAP_IN_KEYS_C) begin
         amap_edit_in_key_v_w = 1'b1;
-        amap_edit_in_key_w = 6'(ikey_c);
+        amap_edit_in_key_w = AMAP_IN_KEY_W_C'(ikey_c);
         amap_edit_in_live_w = amap_in_store_r[ikey_c*8 +: 8];
         iclaim_c = amap_edit_iclaim_v_r[ikey_c];
         ibase_c = iclaim_c ? amap_edit_iclaim_word_r[ikey_c*8 +: 8]
@@ -3868,7 +3879,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       okey_c = 32'(amap_edit_si_w) * 8 + 32'(amap_edit_sc_w);
       if (okey_c < N_STREAMS*8) begin
         amap_edit_out_key_v_w = 1'b1;
-        amap_edit_out_key_w = 6'(okey_c);
+        amap_edit_out_key_w = AMAP_OUT_KEY_W_C'(okey_c);
         amap_edit_out_live_w = cmap_flat_w[okey_c*13 +: 13];
         amap_edit_out_owner_v_w = amap_out_owner_v_r[okey_c];
         amap_edit_out_owner_w = amap_out_owner_r[okey_c*16 +: 16];
@@ -3881,7 +3892,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                           : amap_out_cluster_r[okey_c*16 +: 16];
         oexpect_c = amap_edit_oclaim_expect_r[okey_c*13 +: 13];
         if (!pp_amap_edit_remove_w)
-          amap_edit_accept_w = !tkd_streaming_w[amap_edit_si_w]
+          amap_edit_accept_w = !ostreaming_c
                                && (oclaim_c
                                ? ((obase_c == amap_edit_out_word_w)
                                   && (obase_cluster_c == amap_edit_co_w))
@@ -3893,7 +3904,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                           == amap_edit_co_w)
                                       && (obase_c == amap_edit_out_word_w))));
         else
-          amap_edit_accept_w = !tkd_streaming_w[amap_edit_si_w]
+          amap_edit_accept_w = !ostreaming_c
                                && (oclaim_c
                                ? ((obase_c == 13'd0)
                                   && (oexpect_c == amap_edit_out_word_w)
@@ -4032,7 +4043,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                              != amap_edit_oclaim_word_r[
                                   amap_edit_out_key_w*13 +: 13])) begin
               amap_edit_owr_p_r <= 1'b1;
-              amap_edit_owr_slot_r <= amap_edit_out_key_w;
+              amap_edit_owr_slot_r <= 6'(amap_edit_out_key_w);
               amap_edit_owr_word_r
                 <= amap_edit_oclaim_word_r[amap_edit_out_key_w*13 +: 13];
               amap_out_owner_v_r[amap_edit_out_key_w]
@@ -4052,7 +4063,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       if (!pp_amap_edit_req_w && !amap_edit_txn_active_r
           && cfg_chmap_wr_en && cfg_chmap_wr_side
           && (32'(cfg_chmap_wr_addr) < AMAP_OUT_KEYS_C)) begin
-        amap_out_owner_v_r[cfg_chmap_wr_addr]
+        amap_out_owner_v_r[
+          cfg_chmap_wr_addr[AMAP_OUT_KEY_W_C-1:0]]
           <= cfg_cmap_cluster_w[16];
         amap_out_owner_r[32'(cfg_chmap_wr_addr)*16 +: 16]
           <= 16'(32'(cfg_chmap_wr_addr) / 8);
@@ -4540,8 +4552,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     if (!axis_resetn) begin
       for (int t = 0; t < N_STREAMS; t++) tctx_chans_r[t] <= TCTX_CHANS_RST_C;
     end else if (tctx_w0_wr_w && tctx_wr_rdy_w) begin
-      tctx_chans_r[csr_tctx_wr_addr_w[6:4]] <=
-          aaf_chn_clamp(csr_tctx_wr_data_w[4:1]);
+      for (int t = 0; t < N_STREAMS; t++) begin
+        if (32'(csr_tctx_wr_addr_w[6:4]) == t)
+          tctx_chans_r[t] <= aaf_chn_clamp(csr_tctx_wr_data_w[4:1]);
+      end
     end
   end : tctx_chans_shadow
 
