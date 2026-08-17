@@ -63,6 +63,7 @@ are used rather than reading ``git log`` output.
 
 import subprocess
 import sys
+from collections import Counter
 
 USAGE = __doc__.split("WHY THIS EXISTS")[0].strip()
 
@@ -74,6 +75,52 @@ def _git(*args):
     """Run git, returning (rc, stdout).  Never raises on a non-zero rc."""
     p = subprocess.run(("git",) + args, capture_output=True, text=True)
     return p.returncode, p.stdout.rstrip("\n")
+
+
+def _verbatim_patch_id(commit):
+    """Return a whitespace-preserving patch ID for one commit."""
+    rc, patch = _git("show", "--format=medium", "--no-ext-diff", "--binary",
+                     "--full-index", "--no-renames", commit)
+    if rc != 0:
+        return (None, f"git show could not read {commit}")
+    p = subprocess.run(("git", "patch-id", "--verbatim"), input=patch,
+                       capture_output=True, text=True)
+    fields = p.stdout.strip().split()
+    if p.returncode != 0 or len(fields) != 2:
+        return (None, f"git patch-id could not measure {commit}")
+    return (fields[0], None)
+
+
+def _linear_patches_contained(branch, base):
+    """Prove linear replay equivalence without ignoring whitespace."""
+    rc, branch_out = _git("rev-list", "--no-merges", f"{base}..{branch}")
+    if rc != 0:
+        return (None, f"rev-list could not enumerate {branch}")
+    rc, base_out = _git("rev-list", "--no-merges", f"{branch}..{base}")
+    if rc != 0:
+        return (None, f"rev-list could not enumerate {base}")
+
+    branch_commits = branch_out.splitlines()
+    base_commits = base_out.splitlines()
+    if not branch_commits or not base_commits:
+        return (False, None)
+
+    base_ids = []
+    for commit in base_commits:
+        patch_id, err = _verbatim_patch_id(commit)
+        if err:
+            return (None, err)
+        base_ids.append(patch_id)
+
+    available = Counter(base_ids)
+    for commit in branch_commits:
+        patch_id, err = _verbatim_patch_id(commit)
+        if err:
+            return (None, err)
+        if available[patch_id] == 0:
+            return (False, None)
+        available[patch_id] -= 1
+    return (True, None)
 
 
 def refreshed_origin_ref(ref):
@@ -132,7 +179,14 @@ def fetched_branch_refs(ref):
     if remote_rc == 0:
         return [(remote_ref, "origin")]
     if local_rc == 0:
-        return [(local_ref, "local")]
+        #! A successful fetch with no origin ref cannot distinguish a genuinely
+        #! local-only branch from a branch deleted after later work was pushed.
+        #! Trusting the local tip can therefore certify the stale merge-time
+        #! commit while the deleted remote once held stranded work.  Report the
+        #! observable local tip and an UNKNOWN origin tip.  A caller who
+        #! deliberately wants only the local ref can use --no-fetch with its
+        #! full refs/heads/... name.
+        return [(local_ref, "local"), (remote_ref, "origin")]
     return [(ref, None)]
 
 
@@ -211,26 +265,24 @@ def contained(branch, base):
                         f"{base} ({ahead} commit(s) not ancestors -- squash "
                         f"or rebase merge)")
 
-    #! Rebase keeps one commit per change, so patch-ids still match.  `cherry`
-    #! omits merge commits, however.  Accepting its output for a history that
-    #! contains a merge can hide unique conflict-resolution content and turn
-    #! real stranded work into rc 0.  Use the patch-id fallback only when every
-    #! commit being assessed is linear.
+    #! Rebase keeps one commit per change, so patch IDs still match.  Plain
+    #! `git cherry` is not proof: its patch IDs ignore whitespace, which can
+    #! equate different HDL or software content.  Measure every unique linear
+    #! commit with `git patch-id --verbatim` instead.  Merge commits remain
+    #! excluded because patch IDs omit their conflict-resolution content.
     rc, merge_count = _git("rev-list", "--min-parents=2", "--count",
                            f"{base}..{branch}")
     if rc != 0 or not merge_count.isdigit():
         return (None, None,
                 f"could not determine whether {branch} contains merge commits")
     if int(merge_count) == 0:
-        rc, cherry = _git("cherry", base, branch)
-        if rc != 0:
-            return (None, None,
-                    f"git cherry could not compare {branch} with {base}")
-        if (rc == 0 and cherry
-                and all(l.startswith("-") for l in cherry.splitlines())):
+        equivalent, err = _linear_patches_contained(branch, base)
+        if equivalent is None:
+            return (None, None, err)
+        if equivalent:
             return (True, ahead,
-                    f"every commit has an equivalent in {base} ({ahead} not "
-                    f"ancestors -- rebase merge)")
+                    f"every commit has a whitespace-exact equivalent in "
+                    f"{base} ({ahead} not ancestors -- rebase merge)")
 
     #! NAME THE PATHS. "3 commits not in base" does not tell anyone whether
     #! this is real, and there is one case that reads STRANDED without being
@@ -486,6 +538,52 @@ def selftest():
                      "local-ahead (local)" in out and "STRANDED" in out,
                      True, "...and the local tip is named in the finding")
 
+                # After fetch --prune removes a deleted origin branch, a stale
+                # local tip must not stand in for work that may have existed on
+                # the remote.  Reproduce the incident shape in a separate repo:
+                # H was merged, S was pushed later, then origin/feature vanished
+                # while the checker's local feature remained at H.
+                with tempfile.TemporaryDirectory() as deleted_parent:
+                    checker = os.path.join(deleted_parent, "checker")
+                    deleted_remote = os.path.join(deleted_parent, "remote.git")
+                    writer = os.path.join(deleted_parent, "writer")
+                    os.mkdir(checker)
+                    os.chdir(checker)
+                    _git("init", "-q", "-b", "base")
+                    _git("config", "user.email", "s@s")
+                    _git("config", "user.name", "s")
+                    open("seed", "w").write("seed")
+                    _git("add", "seed"); _git("commit", "-qm", "seed")
+                    _git("checkout", "-qb", "feature")
+                    open("merged", "w").write("H")
+                    _git("add", "merged"); _git("commit", "-qm", "H")
+                    _git("checkout", "-q", "base")
+                    _git("merge", "-q", "--no-ff", "feature", "-m", "M")
+                    _git("init", "--bare", "-q", deleted_remote)
+                    _git("remote", "add", "origin", deleted_remote)
+                    _git("push", "-q", "origin", "base", "feature")
+                    _git("clone", "-q", deleted_remote, writer)
+                    os.chdir(writer)
+                    _git("config", "user.email", "s@s")
+                    _git("config", "user.name", "s")
+                    _git("checkout", "-q", "feature")
+                    open("stranded", "w").write("S")
+                    _git("add", "stranded"); _git("commit", "-qm", "S")
+                    rc, stranded_oid = _git("rev-parse", "HEAD")
+                    _git("push", "-q", "origin", "feature")
+                    _git("push", "-q", "origin",
+                         f"{stranded_oid}:refs/heads/evidence-S")
+                    _git("push", "-q", "origin", "--delete", "feature")
+                    os.chdir(checker)
+                    rc, out = run(["--base", "origin/base", "feature"])
+                    case("deleted-remote-rc", rc, RC_FINDING,
+                         "a deleted remote tip cannot fall back to stale local")
+                    case("deleted-remote-word", "UNKNOWN" in out, True,
+                         "...and the missing origin tip is UNKNOWN")
+                    case("deleted-remote-label", "feature (origin)" in out,
+                         True, "...while the missing source is named")
+                    os.chdir(td)
+
                 # An incomplete history cannot prove ancestry or patch
                 # equivalence.  Offline mode must refuse it, while normal mode
                 # deepens the clone before answering.
@@ -551,8 +649,8 @@ def selftest():
             case("literal-pathspec-name", rc, RC_FINDING,
                  "an exclude-shaped filename remains part of the comparison")
 
-            # Patch-id equivalence is valid for a linear rebased history even
-            # when the base later edits the same path.
+            # Verbatim patch-id equivalence is valid for a linear rebased
+            # history even when the base later edits the same path.
             _git("checkout", "-qb", "linear-feature", "base")
             open("linear", "w").write("landed\n")
             _git("add", "linear"); _git("commit", "-qm", "linear")
@@ -567,8 +665,36 @@ def selftest():
                            "linear-feature"])
             case("linear-patch-fallback", rc, RC_OK,
                  "patch equivalence handles a linear rebase")
-            case("linear-patch-word", "every commit has an equivalent" in out,
+            case("linear-patch-word",
+                 "every commit has a whitespace-exact equivalent" in out,
                  True, "...through the patch-id fallback")
+
+            # git cherry strips whitespace when it computes patch IDs.  These
+            # two values are different content and must never compare equal.
+            _git("checkout", "-qb", "whitespace-feature", "base")
+            open("spacing.py", "w").write('value = "old"\n')
+            _git("add", "spacing.py"); _git("commit", "-qm", "spacing seed")
+            _git("checkout", "-qb", "whitespace-base", "HEAD~1")
+            open("spacing.py", "w").write('value = "old"\n')
+            _git("add", "spacing.py"); _git("commit", "-qm", "spacing seed")
+            _git("checkout", "-q", "whitespace-feature")
+            open("spacing.py", "w").write('value = "a b"\n')
+            _git("commit", "-qam", "space is data")
+            _git("checkout", "-q", "whitespace-base")
+            open("spacing.py", "w").write('value = "ab"\n')
+            _git("commit", "-qam", "different content")
+            rc, cherry = _git("cherry", "whitespace-base",
+                              "whitespace-feature")
+            case("whitespace-fixture",
+                 rc == 0 and bool(cherry)
+                 and all(line.startswith("-") for line in cherry.splitlines()),
+                 True, "git cherry equates different whitespace content")
+            rc, out = run(["--no-fetch", "--base", "whitespace-base",
+                           "whitespace-feature"])
+            case("whitespace-exact-rc", rc, RC_FINDING,
+                 "verbatim patch IDs refuse different content")
+            case("whitespace-exact-path", "spacing.py" in out, True,
+                 "...and the differing path is reported")
 
             # git cherry intentionally omits merge commits.  An equivalent
             # normal commit must not hide unique merge-resolution content.
