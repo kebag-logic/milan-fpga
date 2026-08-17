@@ -219,7 +219,7 @@ described a tree that no longer exists — twelve of the suites it graded have
 since been deleted — so quoting it would be quoting a measurement of a
 different design. Its check total was also an under-count: that total came from
 `grep -o 'checks: *[0-9]*'` and suites do not all print that string (the tree
-emits six summary shapes, and 28 of 57 suite logs matched none of them and
+emits five summary shapes, and 28 of 57 suite logs matched none of them and
 contributed a silent zero — shown by adding 66 assertions to a suite and
 watching the printed total not move). Rerun the sweep for both figures.
 

@@ -22,7 +22,9 @@ make aaf        AAF / AVTP stream: the listener ACCEPT VERDICT + lock stability
 make legacy     the original 14-command cosim smoke driver
 ```
 
-Current tally — 3153 checks, 0 failures, 2 tracked gaps. This is what `make`
+Current tally — **164 campaign checks + 2 traceability contracts**, 0 failures,
+2 tracked gaps, with `tsn-gen` installed. (The 3153 this line used to quote
+predates the 1722.1 campaign deletions above.) This is what `make`
 prints; each campaign rewrites the same line into its `TEST_RESULTS.md` on
 every run, so the generated files are the fresher authority if this table and
 they ever disagree:
@@ -35,7 +37,7 @@ they ever disagree:
 
 - **[How it works](#how-it-works)** -- The YAML-to-RTL loop in one diagram, and the three-way split of ownership: tsn-gen is the field/constraint oracle, `wire.py` owns the actual bytes, `cosim_axis.h` owns the session — including the 4-byte control frame that requests a state dump, so campaigns observe state machines instead of guessing from replies.
 - **[Where the results go](#where-the-results-go)** -- Each campaign writes its `TEST_RESULTS.md` into the folder of the RTL it validates, not a scratch dir, so a block's `doc/` shows its verification status in place. Table of the four paths. They are generated — do not hand-edit.
-- **[What this suite reports to the sweep](#what-this-suite-reports-to-the-sweep)** -- The two lines `scripts/suite_tally.py` counts (the campaign's own total, and the traceability contracts' two checks), and the third that it deliberately does *not* count: `SUITE-SKIP:`, which says the optional campaign ran nothing. Why a skip must never be worded `0 pass, 0 fail`, and why two is the honest number for contracts that inspect 63 modules.
+- **[What this suite reports to the sweep](#what-this-suite-reports-to-the-sweep)** -- The two lines `scripts/suite_tally.py` counts (the campaign's own total, and the traceability check's two contracts), and the third it deliberately does *not*: `SUITE-SKIP:`, which says the optional campaign ran nothing. Why the marker is reporting rather than a verdict — it does not clear `NOCOUNT`, and letting it would hide a campaign behind a green sweep — and why the traceability check counts 2 and not 63.
 - **[Why "state stability" is the real gate](#why-state-stability-is-the-real-gate)** -- The argument for what this suite actually asserts: there is no software here to crash, so the test is that garbage does not *move state*. Each campaign's canary is named, including AAF's two-sided one — stay locked through malformed PDUs, but DO unlock during an accept drought, because a listener reporting MEDIA_LOCKED while accepting nothing is lying to the controller.
 - **[⚠ tsn-gen wire-layout caveat (measured 2026-07-25)](#-tsn-gen-wire-layout-caveat-measured-2026-07-25)** -- The measured defect in the generator's own models: they omit the AVTPDU `sv`+`version` nibble, so a real READ_DESCRIPTOR decodes `control_data_length` 320 instead of 20. Explains the one-nibble shift `decode_pdu()` applies and why the models are used as an oracle but never as a frame builder.
 - **[Tracked gaps (visible, counted, non-failing)](#tracked-gaps-visible-counted-non-failing)** -- Two defects this campaign found, each printed as `[GAP ]` rather than swept up: `LOCK_ENTITY` answering SUCCESS for any descriptor, and undersized frames bypassing the entity-id filter — with the honest impact assessment (the second is unreachable on a real link at Ethernet's 60-byte minimum).

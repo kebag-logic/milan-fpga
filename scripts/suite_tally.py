@@ -185,8 +185,16 @@ def scan(text):
     return checks, failures, matched, unparsed, skipped
 
 
-def is_nocount(matched, skipped):
-    """Is this log an UNKNOWN? Yes when nothing tallied, whatever it declared.
+def is_nocount(checks, failures, matched, skipped):
+    """Is this log an UNKNOWN? Yes unless something was actually measured.
+
+    Two ways to measure nothing, and both are unknowns:
+
+    * no tally line at all -- silence;
+    * tallies that sum to **zero checks and zero failures**.  ``0 pass, 0 fail``
+      is a shape the parser accepts, so without this a suite could clear the
+      gate while reporting that it had checked nothing.  That is the file's own
+      motto turned on the instrument: a structural zero is not a measurement.
 
     ``skipped`` is taken and deliberately **ignored**.  The parameter is here so
     that the one place tempted to consult it says out loud that it does not:
@@ -195,7 +203,7 @@ def is_nocount(matched, skipped):
     not reach it, so breaking it was silent; it is a named function now for no
     other reason than that a self-test can call it.
     """
-    return not matched
+    return (not matched) or (checks == 0 and failures == 0)
 
 
 # --- self-test ---------------------------------------------------------------
@@ -287,15 +295,49 @@ def selftest():
         ("nocount-cleared-by-a-real-tally",
          "SUITE-SKIP: aaf campaign (tsn-gen absent)\n1 checks: 1 PASS, 0 FAIL\n",
          False, "...but a real tally beside it does"),
+        ("nocount-all-zero-tally",
+         "campaign skipped: 0 pass, 0 fail (dependency absent)\n", True,
+         "a tally that measured NOTHING is an unknown, not agreement"),
     ):
         c, f, matched, unparsed, skipped = scan(text)
-        got = is_nocount(matched, skipped)
+        got = is_nocount(c, f, matched, skipped)
         ok = got == want_nocount
         print(f"  {'ok  ' if ok else 'FAIL'} {name:<32} "
               f"nocount={got}  -- {why}")
         if not ok:
             bad += 1
             print(f"       expected nocount={want_nocount}")
+
+    # --- END TO END, through main() ------------------------------------------
+    # The cases above test the parser and the decision. Neither reaches the CALL
+    # -- a review changed `if nc:` back to the rejected predicate and every case
+    # above still passed while the real gate went from rc=1 to rc=0 on a
+    # lone-marker log. So these run the whole tool over a temporary log dir and
+    # assert the EXIT CODE, which is what CI actually consumes.
+    import tempfile
+    for name, logs, want_rc, why in (
+        ("e2e-lone-marker", {"a": "SUITE-SKIP: campaign (dep absent)\n"}, 1,
+         "a suite whose only content is a marker still fails the sweep"),
+        ("e2e-marker-plus-real-tally",
+         {"a": "SUITE-SKIP: campaign (dep absent)\n2 checks: 2 PASS, 0 FAIL\n"}, 0,
+         "...and passes once it reports what it DID run"),
+        ("e2e-one-silent-suite-among-many",
+         {"a": "checks: 100   failures: 0\n", "b": "building...\n"}, 1,
+         "one silent suite fails the sweep even beside a healthy one"),
+    ):
+        with tempfile.TemporaryDirectory() as td:
+            for stem, text in logs.items():
+                Path(td, stem + ".log").write_text(text)
+            import io
+            import contextlib
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = main([sys.argv[0], td, "--quiet"])
+        ok = rc == want_rc
+        print(f"  {'ok  ' if ok else 'FAIL'} {name:<32} rc={rc}  -- {why}")
+        if not ok:
+            bad += 1
+            print(f"       expected rc={want_rc}")
 
     print("selftest:", "PASS" if bad == 0 else f"{bad} FAILURE(S)")
     return 1 if bad else 0
@@ -329,8 +371,9 @@ def main(argv):
         c, f, matched, unparsed, skipped = scan(text)
         total_checks += c
         total_fails += f
-        rows.append((suite, c, f, len(matched), len(skipped)))
-        if is_nocount(matched, skipped):
+        nc = is_nocount(c, f, matched, skipped)
+        rows.append((suite, c, f, len(matched), len(skipped), nc))
+        if nc:
             nocount.append(suite)
         for line in unparsed:
             unparsed_findings.append((suite, line))
@@ -339,8 +382,11 @@ def main(argv):
 
     if not quiet:
         print("suite                        checks   failures  tallies")
-        for suite, c, f, n, s in rows:
-            flag = "  <- NO COUNT" if (n == 0 and s == 0) else ""
+        for suite, c, f, n, s, nc in rows:
+            #! ONE predicate, shared with the verdict below. This
+            #! line used to carry its own copy and they disagreed
+            #! on exactly the case this tool is about.
+            flag = "  <- NO COUNT" if nc else ""
             if s:
                 flag += f"  <- {s} SKIPPED"
             print(f"{suite:<28} {c:>8} {f:>10} {n:>8}{flag}")
