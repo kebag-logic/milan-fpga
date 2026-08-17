@@ -61,6 +61,7 @@ for having actually produced an answer.  That is the whole reason those two
 are used rather than reading ``git log`` output.
 """
 
+import os
 import subprocess
 import sys
 
@@ -81,6 +82,36 @@ def _git(*args):
     p = subprocess.run(("git", "--no-replace-objects") + args,
                        capture_output=True, text=True)
     return p.returncode, p.stdout.rstrip("\n")
+
+
+def active_graft_error():
+    """Explain an active legacy graft file, or return None."""
+    rc, path = _git("rev-parse", "--git-path", "info/grafts")
+    if rc != 0 or not path:
+        return "could not locate Git's legacy graft file"
+    try:
+        with open(path, "rb") as grafts:
+            active = bool(grafts.read().strip())
+    except FileNotFoundError:
+        return None
+    except OSError as exc:
+        return f"could not inspect Git's legacy graft file: {exc}"
+    if active:
+        return (f"legacy Git grafts are active in {path}; remove the grafts "
+                f"before measuring stored commit ancestry")
+    return None
+
+
+def exact_ref_syntax(ref):
+    """True for a ref name or full object ID, never a revision expression."""
+    if len(ref) in (40, 64) and all(c in "0123456789abcdefABCDEF" for c in ref):
+        rc, oid = _git("rev-parse", "--verify", "--quiet", ref + "^{commit}")
+        return rc == 0 and oid.lower() == ref.lower()
+    if ref.startswith("refs/"):
+        return _git("check-ref-format", ref)[0] == 0
+    if ref in ("HEAD", "@"):
+        return False
+    return _git("check-ref-format", "--branch", ref)[0] == 0
 
 
 def _verbatim_patch_id(commit):
@@ -204,10 +235,10 @@ def fetched_branch_refs(ref):
     The source labels are used only to make the two answers distinguishable.
     """
     if ref.startswith("refs/remotes/origin/"):
-        return [(ref, "origin")]
-    if ref.startswith("origin/"):
-        return [("refs/remotes/" + ref, "origin")]
-    if ref.startswith("refs/heads/"):
+        name = ref[len("refs/remotes/origin/"):]
+    elif ref.startswith("origin/"):
+        name = ref[len("origin/"):]
+    elif ref.startswith("refs/heads/"):
         name = ref[len("refs/heads/"):]
     elif ref.startswith("refs/"):
         return [(ref, None)]
@@ -257,6 +288,10 @@ def contained(branch, base):
     by another route (squash, rebase).  None means the question could not be
     answered, which is a finding, never a pass.
     """
+    graft_error = active_graft_error()
+    if graft_error:
+        return (None, None, graft_error)
+
     for ref in (branch, base):
         rc, _ = _git("rev-parse", "--verify", "--quiet", ref + "^{commit}")
         if rc != 0:
@@ -315,6 +350,19 @@ def contained(branch, base):
             return (None, None,
                     f"git diff could not enumerate paths changed by {branch}")
         paths = [n for n in names.split("\0") if n]
+        if not paths:
+            rc, _ = _git("diff", *RAW_DIFF_FLAGS, "--quiet", mb, branch)
+            if rc == 0:
+                return (True, ahead,
+                        f"the branch has no net tree change ({ahead} "
+                        f"commit(s) not ancestors)")
+            if rc != 1:
+                return (None, None,
+                        f"git diff could not verify the empty path set for "
+                        f"{branch}")
+            return (None, None,
+                    f"git diff reported content for {branch} after path "
+                    f"enumeration reported none")
         if paths:
             #! Names came from git, not from a pathspec language.  A real file
             #! beginning with `:(exclude)` must not turn itself into an exclude
@@ -374,7 +422,7 @@ def contained(branch, base):
 
 
 def merged_pr_heads(limit, base):
-    """([(number, branch, head_oid)], error).
+    """([(number, branch, head_oid, cross_repository)], error).
 
     Scoped to PRs that actually targeted ``base``.  Sweeping every merged PR
     asks about branches that were never meant to be in this integration
@@ -382,11 +430,10 @@ def merged_pr_heads(limit, base):
     bury the one real finding.
 
     GitHub's head OID is the head that was merged, not the branch tip after the
-    merge.  It is retained only as evidence for diagnostics.  The sweep must
-    check the fetched branch ref instead: commits pushed after the merge are
-    precisely the stranded work this command exists to find.  A deleted branch
-    has no observable post-merge tip and is therefore UNKNOWN, never guessed
-    from the merge-time OID.
+    merge.  The sweep checks a same-repository live branch only when its
+    first-parent history still contains that OID.  That continuity proof keeps
+    a fork or a deleted and recreated same-name branch from standing in for the
+    merged branch.  A missing or discontinuous tip is UNKNOWN.
     """
     import json
     #! gh wants a branch NAME; `base` is a git ref and usually carries the
@@ -404,7 +451,7 @@ def merged_pr_heads(limit, base):
         p = subprocess.run(
             ["gh", "pr", "list", "--state", "merged", "--base", base_name,
              "--limit", str(limit),
-             "--json", "number,headRefName,headRefOid",
+             "--json", "number,headRefName,headRefOid,isCrossRepository",
              "--search", "sort:updated-desc"],
             capture_output=True, text=True)
     except FileNotFoundError:
@@ -414,10 +461,28 @@ def merged_pr_heads(limit, base):
         return (None, "gh could not list merged PRs (authenticated?): "
                       + (p.stderr or "").strip()[:200])
     try:
-        return ([(d["number"], d["headRefName"], d["headRefOid"])
+        return ([(d["number"], d["headRefName"], d["headRefOid"],
+                  d["isCrossRepository"])
                  for d in json.loads(p.stdout)], None)
     except (ValueError, KeyError) as exc:
         return (None, f"could not parse gh output: {exc}")
+
+
+def continuous_merged_pr_tip(head_oid, live_ref):
+    """Return an error unless ``live_ref`` continues the merged PR branch."""
+    if not (len(head_oid) in (40, 64)
+            and all(c in "0123456789abcdefABCDEF" for c in head_oid)):
+        return "GitHub returned an invalid merged head object ID"
+    rc, _ = _git("rev-parse", "--verify", "--quiet", live_ref + "^{commit}")
+    if rc != 0:
+        return f"the live branch ref is missing: {live_ref}"
+    rc, history = _git("rev-list", "--first-parent", live_ref)
+    if rc != 0:
+        return f"could not inspect first-parent continuity for {live_ref}"
+    if head_oid.lower() not in {oid.lower() for oid in history.splitlines()}:
+        return (f"{live_ref} is not a first-parent continuation of merged "
+                f"head {head_oid}; the branch may have been replaced")
+    return None
 
 
 # --- self-test ---------------------------------------------------------------
@@ -538,6 +603,13 @@ def selftest():
             case("e2e-unknown-flag", rc, RC_CANNOT_RUN,
                  "an unrecognised flag is refused, never read as a branch")
 
+            rc, out = run(["--no-fetch", "--base", "base", "work~1"])
+            case("e2e-revision-branch", rc, RC_CANNOT_RUN,
+                 "a revision expression cannot hide the branch tip")
+            rc, out = run(["--no-fetch", "--base", "work~1", "work"])
+            case("e2e-revision-base", rc, RC_CANNOT_RUN,
+                 "a revision expression cannot replace the exact base")
+
             rc, out = run(["--no-fetch", "--base", "base", "--base",
                            "work", "work"])
             case("e2e-duplicate-base", rc, RC_CANNOT_RUN,
@@ -581,7 +653,7 @@ def selftest():
                 # branch tip is the only ref that can expose later pushes.
                 saved_merged_pr_heads = globals()["merged_pr_heads"]
                 globals()["merged_pr_heads"] = lambda _limit, _base: (
-                    [(86, "work", base_oid)], None)
+                    [(86, "work", base_oid, False)], None)
                 try:
                     rc, out = run(["--no-fetch", "--base", "base",
                                    "--merged-prs", "1"])
@@ -589,6 +661,33 @@ def selftest():
                          "the merged sweep ignores the frozen head OID")
                     case("merged-live-tip-word", "STRANDED" in out, True,
                          "...and assesses origin/work instead")
+                finally:
+                    globals()["merged_pr_heads"] = saved_merged_pr_heads
+
+                globals()["merged_pr_heads"] = lambda _limit, _base: (
+                    [(90, "work", base_oid, True)], None)
+                try:
+                    rc, out = run(["--no-fetch", "--base", "base",
+                                   "--merged-prs", "1"])
+                    case("merged-fork-rc", rc, RC_FINDING,
+                         "a fork head cannot borrow origin's same-name ref")
+                    case("merged-fork-word", "UNKNOWN" in out, True,
+                         "...and the unrefreshable live tip is UNKNOWN")
+                finally:
+                    globals()["merged_pr_heads"] = saved_merged_pr_heads
+
+                rc, work_tip = _git("rev-parse", "refs/remotes/origin/work")
+                _git("update-ref", "refs/remotes/origin/reused", base_oid)
+                globals()["merged_pr_heads"] = lambda _limit, _base: (
+                    [(91, "reused", work_tip, False)], None)
+                try:
+                    rc2, out = run(["--no-fetch", "--base", "base",
+                                    "--merged-prs", "1"])
+                    case("merged-reused-rc", (rc, rc2),
+                         (0, RC_FINDING),
+                         "a recreated same-name branch cannot false-pass")
+                    case("merged-reused-word", "UNKNOWN" in out, True,
+                         "...and failed continuity is UNKNOWN")
                 finally:
                     globals()["merged_pr_heads"] = saved_merged_pr_heads
 
@@ -614,6 +713,12 @@ def selftest():
                 case("local-ahead-word",
                      "local-ahead (local)" in out and "STRANDED" in out,
                      True, "...and the local tip is named in the finding")
+                rc, out = run(["--base", "base", "origin/local-ahead"])
+                case("origin-spelling-local", rc, RC_FINDING,
+                     "origin/name still checks an unpushed local tip")
+                case("origin-spelling-label",
+                     "origin/local-ahead (local)" in out and "STRANDED" in out,
+                     True, "...and identifies the local source")
 
                 # Normal mode refreshes origin only.  Accepting another
                 # remote-tracking namespace would give a stale local cache the
@@ -735,6 +840,26 @@ def selftest():
                  "...and the raw stranded path is reported")
             _git("replace", "-d", replace_base)
 
+            # Legacy info/grafts rewrites ancestry even when replacement refs
+            # are disabled.  Refuse the repository rather than trusting an
+            # alternate commit graph that cannot be disabled per invocation.
+            graft_rc, graft_path = _git("rev-parse", "--git-path",
+                                        "info/grafts")
+            with open(graft_path, "w") as grafts:
+                grafts.write(f"{replace_base} {replace_feature}\n")
+            try:
+                rc, out = run(["--no-fetch", "--base", "replace-base",
+                               "replace-feature"])
+                case("legacy-graft-fixture", graft_rc, 0,
+                     "the fixture locates Git's active graft file")
+                case("legacy-graft-rc", rc, RC_CANNOT_RUN,
+                     "legacy graft ancestry is refused before a verdict")
+                ok, ahead, note = contained("replace-feature", "replace-base")
+                case("legacy-graft-direct", (ok, ahead), (None, None),
+                     "the containment predicate cannot trust grafts either")
+            finally:
+                os.remove(graft_path)
+
             # A multi-commit squash remains contained after unrelated work
             # advances the base, because only branch-touched paths matter.
             _git("checkout", "-qb", "squash-feature", "base")
@@ -754,6 +879,19 @@ def selftest():
             case("squash-path-equivalence",
                  "every path this branch touched" in out, True,
                  "...through the path-scoped content check")
+
+            _git("checkout", "-qb", "net-zero", "base")
+            open("temporary-change", "w").write("added then removed")
+            _git("add", "temporary-change")
+            _git("commit", "-qm", "add temporary path")
+            os.remove("temporary-change")
+            _git("add", "-A")
+            _git("commit", "-qm", "remove temporary path")
+            rc, out = run(["--no-fetch", "--base", "base", "net-zero"])
+            case("net-zero-history-rc", rc, RC_OK,
+                 "a branch with no net tree change is already contained")
+            case("net-zero-history-word", "no net tree change" in out, True,
+                 "...and the conservative proof is named")
 
             # A failed proof-producing path enumeration is UNKNOWN, not a
             # STRANDED verdict assembled from incomplete evidence.
@@ -1050,6 +1188,11 @@ def main(argv):
             sys.stderr.write(f"{flag} may be specified only once\n{USAGE}\n")
             return RC_CANNOT_RUN
 
+    graft_error = active_graft_error()
+    if graft_error:
+        sys.stderr.write(graft_error + "\n")
+        return RC_CANNOT_RUN
+
     if "--selftest" in args:
         if args != ["--selftest"]:
             sys.stderr.write(f"--selftest accepts no other arguments\n{USAGE}\n")
@@ -1067,6 +1210,19 @@ def main(argv):
             return RC_CANNOT_RUN
         base = args[i + 1]
         del args[i:i + 2]
+
+    if not exact_ref_syntax(base):
+        sys.stderr.write(
+            f"base must be an exact ref name or full object ID, not a "
+            f"revision expression: {base}\n")
+        return RC_CANNOT_RUN
+    if "--merged-prs" not in args:
+        for ref in (a for a in args if not a.startswith("-")):
+            if not exact_ref_syntax(ref):
+                sys.stderr.write(
+                    f"branch must be an exact ref name or full object ID, "
+                    f"not a revision expression: {ref}\n")
+                return RC_CANNOT_RUN
 
     do_fetch = "--no-fetch" not in args
     args = [a for a in args if a != "--no-fetch"]
@@ -1131,12 +1287,20 @@ def main(argv):
                 f"no merged PRs found targeting {base}. That is not a pass -- "
                 f"check the base name.\n")
             return RC_CANNOT_RUN
-        #! headRefOid is frozen at merge time and therefore cannot reveal work
-        #! pushed afterwards.  Always assess the fetched live branch tip.  A
-        #! deleted branch becomes UNKNOWN through contained(), which is safer
-        #! than certifying the old merge-time OID.
-        targets = [(f"#{n} {b}", f"refs/remotes/origin/{b}")
-                   for n, b, _oid in prs]
+        #! headRefOid is frozen at merge time and cannot reveal later pushes,
+        #! but it proves that a current same-name ref is still the same branch.
+        #! A fork, force-push, deletion or branch-name reuse becomes UNKNOWN
+        #! instead of certifying an unrelated origin ref.
+        targets = []
+        for number, branch, head_oid, cross_repository in prs:
+            label = f"#{number} {branch}"
+            live_ref = f"refs/remotes/origin/{branch}"
+            if cross_repository:
+                pre_error = ("the merged head belongs to another repository; "
+                             "origin cannot refresh or identify its live tip")
+            else:
+                pre_error = continuous_merged_pr_tip(head_oid, live_ref)
+            targets.append((label, live_ref, pre_error))
     else:
         branches = [a for a in args if not a.startswith("-")]
         if not branches:
@@ -1151,11 +1315,15 @@ def main(argv):
                     else [(branch, None)])
             for ref, source in refs:
                 label = (f"{branch} ({source})" if len(refs) > 1 else branch)
-                targets.append((label, ref))
+                targets.append((label, ref, None))
 
     stranded = 0
     unknown = 0
-    for label, ref in targets:
+    for label, ref, pre_error in targets:
+        if pre_error:
+            print(f"  UNKNOWN    {label}: {pre_error}")
+            unknown += 1
+            continue
         ok, ahead, note = contained(ref, base)
         if ok is None:
             print(f"  UNKNOWN    {label}: {note}")
