@@ -87,8 +87,24 @@ flowchart LR
    validated, with the gate results. The findings, the mutation tables and the
    clause arguments belong in the review itself and in the commit messages —
    a PR thread that reprints them is a PR thread nobody reads to the end.
-6. **Merge back into `main-push`** only once the findings are answered. The
-   issue closes itself; move the card to *Done* if it does not.
+6. **Merge back into `main-push`** only once the findings are answered, and
+   **not while a review round is in flight.** A round that has not reported is
+   a round outstanding; merging past it is merging unreviewed code with a
+   review thread attached.
+
+   This has happened twice, both times losing work rather than shipping a bug:
+
+   | PR | merged | state at that moment | cost |
+   |---|---|---|---|
+   | #77 | 2026-08-16 18:10 | round 3 of 6 running | rounds 4, 5 and 6 each returned NEGATIVE **after** the merge — an ungraded refusal arm where mutating the code was silent, and a test that could not fail. Re-landed as #85 |
+   | #86 | 2026-08-17 07:54 | a round running, which then found a hole in its own fix | three commits stranded on the branch; re-landed as #89, tracked by #87 |
+
+   Both were recoverable and neither was noticed by anything except a reviewer
+   checking by hand. The failure is silent by construction: `gh pr view` says
+   `MERGED`, CI is green, and the branch still has commits ahead of the merge.
+   Nothing in the lane compares those two facts unless step 7 does.
+
+   The issue closes itself; move the card to *Done* if it does not.
 7. **Re-run the whole verification bar ON THE MERGE RESULT, every time.** A
    merge is a change nobody wrote and nobody reviewed, and *"Merge made by the
    'ort' strategy"* is not evidence of anything. Gate the merged tree exactly
@@ -104,7 +120,33 @@ flowchart LR
    split out, and restored an inventory row for an opcode the engine no longer
    decodes.
 
-   Two merge-specific traps worth naming, both paid for:
+   **Then check the merge actually took the branch:**
+
+   ```bash
+   python3 scripts/check_merge_containment.py origin/<branch>
+   python3 scripts/check_merge_containment.py --merged-prs   # the last 20 PRs
+   ```
+
+   It exits non-zero and names the count when commits are left behind. Replayed
+   against the two merge points in step 6 it reports **4** and **3** stranded
+   commits respectively, which is what nobody was told at the time.
+
+   It is a script rather than a line in this file because a check that depends
+   on somebody remembering is not a check — the same reason
+   `scripts/suite_tally.py` exists. `--selftest` gates it, including the case
+   that a ref which cannot be resolved is an UNKNOWN and **fails**, never a
+   quiet pass.
+
+   **Do not hand-roll it with `git log A..B`.** In this environment that
+   returns **empty** when it follows another git command in the same shell
+   invocation — the proxy hook swallows the output — so it reports "nothing
+   diverged" for a branch that has. That is exactly how #89's description came
+   to claim a fast-forward that was not one. The script uses
+   `git rev-list --count` and `git merge-base --is-ancestor`, both of which
+   answer through a bare number or an exit code, so a swallowed stream cannot
+   be mistaken for agreement.
+
+   Three merge-specific traps worth naming, all paid for:
 
    - **Push the submodule before the superproject.** A superproject pin to a
      processor commit that only exists on a feature branch dangles the moment
@@ -115,6 +157,13 @@ flowchart LR
      constant from one side and the microprogram's entry point from the other
      does not fail to elaborate — the µCPU executes ROM fill and answers a
      well-formed response carrying garbage.
+   - **`MERGEABLE` is not `green`.** GitHub reports `MERGEABLE/UNSTABLE` while
+     checks are still running, and the two long jobs — `verilator-suites` and
+     `yosys-portability` — are the ones that would catch a real regression.
+     Merging on `UNSTABLE` means the local bar is the only bar that ran. That
+     is sometimes an acceptable trade with the sweep verified locally, but make
+     it a decision and say so on the PR, because if a job then comes back red
+     the fix lands on `main-push` instead of being caught before it.
 
 Two board rules that go with it:
 
