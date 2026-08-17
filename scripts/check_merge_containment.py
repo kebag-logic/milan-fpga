@@ -236,26 +236,40 @@ def refreshed_origin_ref(ref):
     return remote_ref
 
 
+def configured_remote_name(ref):
+    """Return the longest configured remote prefix in a shorthand ref."""
+    if "/" not in ref:
+        return (None, None)
+    rc, configured = _git("remote")
+    if rc != 0:
+        return (None, "could not identify configured remotes")
+    matches = [name for name in configured.splitlines()
+               if ref.startswith(name + "/")]
+    if len(matches) > 1:
+        matches.sort(key=len, reverse=True)
+        return (None, f"{ref!r} matches multiple configured remotes: "
+                + ", ".join(matches))
+    return (matches[0] if matches else None, None)
+
+
 def offline_ref(ref):
     """Resolve a local-only branch spelling without falling through to tags."""
     if is_full_oid(ref) or ref.startswith("refs/"):
         return (ref, None)
-    if ref.startswith("origin/"):
-        return ("refs/remotes/" + ref, None)
 
     local_ref = "refs/heads/" + ref
     remote_ref = "refs/remotes/" + ref
-    remote_name, separator, _branch_name = ref.partition("/")
-    if separator:
-        rc, configured = _git("remote")
-        if rc != 0:
-            return (None, "could not identify configured remotes for "
-                    f"{ref!r}")
-        if remote_name in configured.splitlines():
-            #! --no-fetch is the deliberate route for another remote.  Its
-            #! shorthand keeps that remote identity even when a slash-named
-            #! local branch also exists or the tracking ref is missing.
-            return (remote_ref, None)
+    remote_name, remote_error = configured_remote_name(ref)
+    if remote_error:
+        return (None, remote_error + f" for {ref!r}")
+    if remote_name:
+        #! --no-fetch is the deliberate route for another remote.  Its
+        #! shorthand keeps that remote identity even when a slash-named local
+        #! branch also exists or the tracking ref is missing.  Remote names
+        #! may themselves contain slashes, so match the full configured name.
+        return (remote_ref, None)
+    if ref.startswith("origin/"):
+        return (remote_ref, None)
     local_rc, _ = _git("rev-parse", "--verify", "--quiet",
                        local_ref + "^{commit}")
     remote_rc, _ = _git("rev-parse", "--verify", "--quiet",
@@ -321,21 +335,25 @@ def non_origin_remote_ref(ref):
     """Name an unrefreshable remote-tracking ref, or return None."""
     if is_full_oid(ref):
         return None
-    if ref.startswith("refs/remotes/origin/") or ref.startswith("origin/"):
+    if ref.startswith("refs/"):
+        if not ref.startswith("refs/remotes/"):
+            return None
+        shorthand = ref[len("refs/remotes/"):]
+    else:
+        shorthand = ref
+    remote_name, remote_error = configured_remote_name(shorthand)
+    if remote_error:
+        #! We cannot prove that a remote-like shorthand is refreshable by the
+        #! origin-only fetch, so refuse it instead of changing type.
+        return ref
+    if remote_name and remote_name != "origin":
+        return (ref if ref.startswith("refs/remotes/")
+                else "refs/remotes/" + ref)
+    if (ref.startswith("refs/remotes/origin/")
+            or ref.startswith("origin/")):
         return None
     if ref.startswith("refs/remotes/"):
         return ref
-    if ref.startswith("refs/"):
-        return None
-    remote_name, separator, _branch_name = ref.partition("/")
-    if separator:
-        rc, configured = _git("remote")
-        if rc != 0:
-            #! We cannot prove that a remote-like shorthand is refreshable by
-            #! the origin-only fetch, so refuse it instead of changing type.
-            return ref
-        if remote_name != "origin" and remote_name in configured.splitlines():
-            return "refs/remotes/" + ref
     #! Resolve the remote namespace directly before asking Git to resolve the
     #! caller's shorthand.  When refs/heads/upstream/work and
     #! refs/remotes/upstream/work both exist, symbolic-full-name rejects the
@@ -891,6 +909,43 @@ def selftest():
                      "offline mode keeps a missing remote base typed")
                 case("missing-remote-base-offline-word", "UNKNOWN" in out,
                      True, "...rather than using a slash-named local base")
+
+                _git("remote", "add", "corp/upstream", remote)
+                _git("update-ref", "refs/remotes/corp/upstream/work",
+                     "refs/remotes/origin/work")
+                _git("branch", "corp/upstream/work", "base")
+                _git("update-ref", "-d",
+                     "refs/remotes/corp/upstream/work")
+                _git("--git-dir", remote, "update-ref",
+                     "refs/heads/corp/upstream/work", "refs/heads/base")
+                rc, out = run(["--base", "base", "corp/upstream/work"])
+                case("slash-remote-normal-rc", rc, RC_CANNOT_RUN,
+                     "a slash-bearing configured remote stays non-origin")
+                rc, out = run(["--no-fetch", "--base", "base",
+                               "corp/upstream/work"])
+                case("slash-remote-offline-rc", rc, RC_FINDING,
+                     "offline slash-bearing remote shorthand stays typed")
+                case("slash-remote-offline-word", "UNKNOWN" in out, True,
+                     "...instead of using a same-spelled local branch")
+                rc, out = run(["--base", "corp/upstream/work", "base"])
+                case("slash-remote-base-rc", rc, RC_CANNOT_RUN,
+                     "a slash-bearing remote base is refused before fetch")
+                rc, out = run(["--no-fetch", "--base",
+                               "corp/upstream/work", "base"])
+                case("slash-remote-base-offline-rc", rc, RC_FINDING,
+                     "offline slash-bearing remote base stays typed")
+                case("slash-remote-base-offline-word", "UNKNOWN" in out, True,
+                     "...instead of using a same-spelled local base")
+                # git remote add rejects overlapping names, but a repository
+                # config can still contain them.  Such a ref has no unique
+                # remote provenance and must be refused.
+                _git("config", "remote.corp.url", remote)
+                _git("config", "remote.corp.fetch",
+                     "+refs/heads/*:refs/remotes/corp/*")
+                rc, out = run(["--no-fetch", "--base", "base",
+                               "corp/upstream/work"])
+                case("overlapping-remote-prefix-rc", rc, RC_CANNOT_RUN,
+                     "overlapping configured remote prefixes are ambiguous")
 
                 # A merged PR's head OID is frozen at merge time.  The live
                 # branch tip is the only ref that can expose later pushes.
