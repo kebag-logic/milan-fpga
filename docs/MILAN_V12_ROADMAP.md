@@ -89,6 +89,7 @@ underneath it.
 | `0x002B` | GET_AUDIO_MAP (both port directions) | 5.4.2.26 | 0x0048 |
 | `0x002C` | ADD_AUDIO_MAPPINGS | 5.4.2.27 | 0x004F |
 | `0x002D` | REMOVE_AUDIO_MAPPINGS | 5.4.2.28 | 0x004F |
+| `0x004B` | GET_DYNAMIC_INFO | 5.4.2.29 | **0x0050** |
 | MVU `0x0000` | GET_MILAN_INFO | 5.4.4.1 | 0x0043 |
 
 ### 0.1b What the read-side set cost, measured

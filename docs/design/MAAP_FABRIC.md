@@ -155,7 +155,7 @@ Both settled.
 ## Appendix: GET_DYNAMIC_INFO 0x4B contract
 
 The processor implements `GET_DYNAMIC_INFO` in
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/15d870a494ce829eda92f9bc907740618629fcc0/hdl/aecp/KL_aecp_engine.sv).
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/5126e3f3bb26abb7e17d3890bf0b2048a14b1b26/hdl/aecp/KL_aecp_engine.sv).
 Each record is `{data_length[2], reserved[2], status[1], reserved[1],
 command_type[2], command_data[L]}`. The response `control_data_length` is 12
 plus the sum of retained record sizes.
@@ -168,10 +168,18 @@ getter runs. A legal unimplemented getter returns record-level
 independently, so one record can report `NO_SUCH_DESCRIPTOR` while adjacent
 records succeed.
 
+The command-side `info_status` is the complete one-byte field and must be
+`SUCCESS`. Any nonzero bit rejects the complete list during the pre-scan.
+
+The command-side `control_data_length` limit remains 524. A command above that
+limit returns `BAD_ARGUMENTS` before record processing. The aggregate response
+length starts empty and advances only when a response record is retained, so a
+skipped record cannot expose unwritten response-buffer bytes.
+
 A record whose response would push `control_data_length` past 524 is omitted
 without error, and processing continues with later records. The processor has
 no `IN_PROGRESS` response path. Milan `GET_STREAM_INFO` contributes its
 56-byte Milan message-specific body, not the 84-byte base IEEE body. The
 packet-level W8 tests in
-[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/15d870a494ce829eda92f9bc907740618629fcc0/tb/pp_top/sim_main.cpp) grade these
+[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/5126e3f3bb26abb7e17d3890bf0b2048a14b1b26/tb/pp_top/sim_main.cpp) grade these
 rules byte for byte.
