@@ -162,6 +162,9 @@ def contained(branch, base):
     rc, _ = _git("merge-base", "--is-ancestor", branch, base)
     if rc == 0:
         return (True, 0, None)
+    if rc != 1:
+        return (None, None,
+                f"merge-base could not compare {branch} with {base}")
 
     rc, out = _git("rev-list", "--count", f"{base}..{branch}")
     if rc != 0:
@@ -184,6 +187,10 @@ def contained(branch, base):
     #! branch reads stranded again. A review demonstrated exactly that: five
     #! sequential squash merges, only the newest passing.
     mb_rc, mb = _git("merge-base", base, branch)
+    if mb_rc not in (0, 1):
+        return (None, None,
+                f"merge-base could not find a common history for "
+                f"{base} and {branch}")
     if mb_rc == 0 and mb:
         #! Disable rename folding so a move contributes both the deleted and
         #! added path.  Comparing only the destination can certify a base that
@@ -193,7 +200,11 @@ def contained(branch, base):
                          mb, branch)
         paths = [n for n in names.split("\0") if n]
         if rc == 0 and paths:
-            rc, _ = _git("diff", "--quiet", base, branch, "--", *paths)
+            #! Names came from git, not from a pathspec language.  A real file
+            #! beginning with `:(exclude)` must not turn itself into an exclude
+            #! rule and make a missing change compare equal.
+            rc, _ = _git("--literal-pathspecs", "diff", "--quiet",
+                         base, branch, "--", *paths)
             if rc == 0:
                 return (True, ahead,
                         f"every path this branch touched is identical in "
@@ -212,6 +223,9 @@ def contained(branch, base):
                 f"could not determine whether {branch} contains merge commits")
     if int(merge_count) == 0:
         rc, cherry = _git("cherry", base, branch)
+        if rc != 0:
+            return (None, None,
+                    f"git cherry could not compare {branch} with {base}")
         if (rc == 0 and cherry
                 and all(l.startswith("-") for l in cherry.splitlines())):
             return (True, ahead,
@@ -308,6 +322,17 @@ def selftest():
     ok, ahead, note = contained(head, head)
     case("self-containment", (ok, ahead), (True, 0),
          "a commit is contained in itself")
+
+    saved_git = globals()["_git"]
+    globals()["_git"] = lambda *args: (
+        (128, "") if args[:2] == ("merge-base", "--is-ancestor")
+        else saved_git(*args))
+    try:
+        ok, ahead, note = contained(head, head)
+        case("ancestor-plumbing-error", (ok, ahead), (None, None),
+             "a failed ancestry command is UNKNOWN, never not-ancestor")
+    finally:
+        globals()["_git"] = saved_git
 
     ok, ahead, note = contained("refs/heads/definitely-not-a-branch", head)
     case("missing-ref", (ok, ahead), (None, None),
@@ -461,6 +486,26 @@ def selftest():
                      "local-ahead (local)" in out and "STRANDED" in out,
                      True, "...and the local tip is named in the finding")
 
+                # An incomplete history cannot prove ancestry or patch
+                # equivalence.  Offline mode must refuse it, while normal mode
+                # deepens the clone before answering.
+                _git("--git-dir", remote, "symbolic-ref", "HEAD",
+                     "refs/heads/work")
+                with tempfile.TemporaryDirectory() as shallow_parent:
+                    shallow_repo = os.path.join(shallow_parent, "repo")
+                    _git("clone", "-q", "--depth", "1",
+                         "--no-single-branch", "file://" + remote,
+                         shallow_repo)
+                    os.chdir(shallow_repo)
+                    rc, out = run(["--no-fetch", "--base", "origin/base",
+                                   "origin/work"])
+                    case("shallow-offline-rc", rc, RC_CANNOT_RUN,
+                         "offline mode refuses incomplete history")
+                    rc, out = run(["--base", "origin/base", "origin/work"])
+                    case("shallow-deepened-rc", rc, RC_FINDING,
+                         "normal mode deepens before measuring containment")
+                    os.chdir(td)
+
             # A multi-commit squash remains contained after unrelated work
             # advances the base, because only branch-touched paths matter.
             _git("checkout", "-qb", "squash-feature", "base")
@@ -493,6 +538,18 @@ def selftest():
                            "rename-feature"])
             case("rename-source-remains", rc, RC_FINDING,
                  "a copied destination cannot hide a missing deletion")
+
+            # A filename is data, not a Git pathspec.  Without literal mode an
+            # exclude-shaped name removes itself from the comparison.
+            magic_name = ":(exclude)magic"
+            _git("checkout", "-qb", "pathspec-feature", "base")
+            open(magic_name, "w").write("stranded")
+            _git("--literal-pathspecs", "add", "--", magic_name)
+            _git("commit", "-qm", "pathspec")
+            rc, out = run(["--no-fetch", "--base", "base",
+                           "pathspec-feature"])
+            case("literal-pathspec-name", rc, RC_FINDING,
+                 "an exclude-shaped filename remains part of the comparison")
 
             # Patch-id equivalence is valid for a linear rebased history even
             # when the base later edits the same path.
@@ -591,10 +648,28 @@ def main(argv):
 
     do_fetch = "--no-fetch" not in args
     args = [a for a in args if a != "--no-fetch"]
+    rc, shallow = _git("rev-parse", "--is-shallow-repository")
+    if rc != 0 or shallow not in ("true", "false"):
+        sys.stderr.write(
+            "could not determine whether the repository history is complete\n")
+        return RC_CANNOT_RUN
+    if shallow == "true" and not do_fetch:
+        sys.stderr.write(
+            "--no-fetch cannot answer from a shallow repository: history is "
+            "incomplete\n")
+        return RC_CANNOT_RUN
     if do_fetch:
         #! Answering from a stale remote-tracking ref is how this tool once
         #! reported `contained` for a branch that had work stranded on it.
-        rc, _ = _git("fetch", "--prune", "--quiet", "origin")
+        fetch_args = ["fetch", "--prune", "--quiet"]
+        if shallow == "true":
+            fetch_args.append("--unshallow")
+        #! Do not trust a narrowed remote.origin.fetch configuration.  The
+        #! command accepts any origin branch and must refresh every branch it
+        #! may later resolve.
+        fetch_args.extend(("origin",
+                           "+refs/heads/*:refs/remotes/origin/*"))
+        rc, _ = _git(*fetch_args)
         if rc != 0:
             sys.stderr.write(
                 "could not fetch origin. Re-run with --no-fetch only if you "

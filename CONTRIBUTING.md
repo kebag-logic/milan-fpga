@@ -137,7 +137,7 @@ flowchart LR
    during the #89 re-land. Nobody was told either number at the time.
 
    **Run it when the branch stops moving, not at the merge button.** Both
-   incidents were *contained* at the instant they merged — the commits that
+   incidents were *contained* at the instant they merged; the commits that
    ended up stranded were pushed afterwards, by the review round that was still
    running. A check run at merge time cannot see them. The moment that catches
    it is the one where the card moves to *Done*.
@@ -147,7 +147,7 @@ flowchart LR
    between merges. The check *itself* is still a thing a person runs: nothing
    here can schedule a post-merge action, and CI does not run on `main-push`
    at all (both workflows are `on: push: branches: [main]`). That gap is worth
-   closing separately — a `push: [main-push]` trigger would run the bar on the
+   closing separately. A `push: [main-push]` trigger would run the bar on the
    merge result and this check with it.
 
    **Do not hand-roll it by reading `git log` output.** The script uses
