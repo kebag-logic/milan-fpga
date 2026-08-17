@@ -38,6 +38,20 @@ THREE WAYS TO GET THE WRONG ANSWER, ALL OF WHICH THIS HAS DONE
    Anything this tool cannot measure is an UNKNOWN and fails, the same rule
    ``scripts/suite_tally.py`` enforces on the sweep.
 
+THE ONE CASE IT STILL GETS WRONG, AND IN WHICH DIRECTION
+--------------------------------------------------------
+A branch squash-merged as **two or more** commits, whose paths were then edited
+again on the base, reads ``STRANDED`` although nothing is missing: the squash
+left no matching patch-id, and the later edit means the paths no longer agree,
+so neither equivalence test can prove the work landed.
+
+That is a false **alarm**, not a false pass -- the direction that costs a
+reader a minute rather than costing them a regression -- and the verdict names
+the differing paths so it can be settled by looking.  It cannot be fixed by
+comparing harder: once the base has moved on, "these changes were applied and
+then superseded" and "these changes were never applied" are the same tree.
+Deciding it needs the merge commit, which only the sweep has.
+
 WHY EXIT CODES AND BARE NUMBERS
 -------------------------------
 ``git rev-list --count`` prints one integer and ``git merge-base
@@ -128,7 +142,20 @@ def contained(branch, base):
                 f"every commit has an equivalent in {base} ({ahead} not "
                 f"ancestors -- rebase merge)")
 
-    return (False, ahead, None)
+    #! NAME THE PATHS. "3 commits not in base" does not tell anyone whether
+    #! this is real, and there is one case that reads STRANDED without being
+    #! so: a multi-commit squash whose paths were later edited on base. No
+    #! patch-id matches (the squash collapsed them) and the paths no longer
+    #! agree (the later edit), so neither arm above can prove it landed. That
+    #! is a false ALARM rather than a false pass -- the safe direction -- and
+    #! naming the paths is what lets a reader settle it in one look instead of
+    #! learning to ignore the check.
+    differing = []
+    if rc == 0 and mb:
+        rc2, names = _git("diff", "--name-only", base, branch)
+        differing = [n for n in names.splitlines() if n][:6]
+    return (False, ahead, ("paths differing: " + ", ".join(differing))
+            if differing else None)
 
 
 def merged_pr_heads(limit, base):
@@ -363,7 +390,8 @@ def main(argv):
         elif ok:
             print(f"  contained  {label}" + (f"  [{note}]" if note else ""))
         else:
-            print(f"  STRANDED   {label}: {ahead} commit(s) not in {base}")
+            print(f"  STRANDED   {label}: {ahead} commit(s) not in {base}"
+                  + (f"  [{note}]" if note else ""))
             stranded += 1
 
     if stranded:
