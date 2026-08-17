@@ -186,7 +186,8 @@ authority on what is served; a row here without a LANDED mark is open.
 
 Kept in full because the two constraints it is built around still govern every
 command below. Not a command. A small register file, reachable as a new µISA state-port
-region, holding exactly the fields Milan v1.2 declares settable:
+region, holding exactly the fields Milan v1.2 declares settable — with one
+field taken back out, because "settable" is not the same as "stored here":
 
 | Field | Owner descriptor | Count here | Clause |
 |---|---|---|---|
@@ -194,7 +195,7 @@ region, holding exactly the fields Milan v1.2 declares settable:
 | current_sampling_rate | AUDIO_UNIT | 1 | 5.3.5.1 |
 | current_format | STREAM_INPUT / STREAM_OUTPUT | 3 | 5.3.7.1 / 5.3.8.1 |
 | presentation-time offset | STREAM_OUTPUT | 1 | 5.3.7.6 |
-| started/stopped | STREAM_INPUT | 2 | 5.3.8.7 |
+| ~~started/stopped~~ **RETIRED (#78)** | STREAM_INPUT | 0 — it lives in the ACMP binding record | 5.3.8.7 |
 | clock_source_index | CLOCK_DOMAIN | 1 | 5.3.11.1 |
 | IDENTIFY value | CONTROL | 1 | 5.3.12 |
 

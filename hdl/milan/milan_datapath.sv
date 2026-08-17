@@ -3894,6 +3894,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! already takes, so the per-stream counters do not advance either.
   wire [ACMP_SINKS_C-1:0] acmpl_admit_v_w = acmpl_bound_v_w
                                             & pp_aecp_strm_started_w;
+  //! KNOWN LIMIT, stated rather than smoothed over: this gate reaches the AAF
+  //! sinks (the classification table below, plus entry 0's alias). It does
+  //! NOT reach the CRF Media Clock Input at CRF_SNK_IDX_C, because that sink
+  //! has no entry in the classification table at all - `KL_crf_rx` takes
+  //! frames straight off the parser keyed on SUBTYPE. A config with
+  //! `crf_sink: true` advertises a STREAM_INPUT descriptor for it, so
+  //! STOP_STREAMING on that index is accepted, moves the record bit and is
+  //! reported by GET_STREAM_INFO's STREAMING_WAIT - while CRF PDUs keep
+  //! feeding the media clock. Read literally, Milan §5.3.8.7 says they
+  //! should stop; wiring that here would put a controller command in the
+  //! path of clock recovery for the whole device, which is a media-clocking
+  //! decision (§5.3.2 / the Milan Media Clocking spec) and not this issue's
+  //! to make. Filed rather than hidden.
   assign acmpl_sid_v_w   = pp_cd_acmp_bound_sid_w;
   //! the scalar sink-0 shadows every legacy consumer here still reads
   assign acmpl_bound = acmpl_bound_v_w[0];
