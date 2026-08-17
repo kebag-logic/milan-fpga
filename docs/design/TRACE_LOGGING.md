@@ -129,10 +129,10 @@ its declared command inventory, but that changes nothing for this catalogue,
 because its counters do
 not appear where a poller would look: they live in the processor's **side-port
 snapshot window**, reached through `KL_pp_shadow`'s side-port host bridge, and
-**not** at parent CSR `0x648`, which stays a structural zero because processor
-lock and configuration state are not wired into that legacy group. A future
-AECP event has a real source to poll; it is simply not the address the old plane
-used.
+**not** in the counter fields at parent CSR `0x648`. The exception is
+`0x648[16]`, which now carries the processor's live entity-lock level so local
+map writes can obey the lock. A future AECP event has a real source to poll; it
+is simply not the address the old plane used.
 
 **An edge-triggered producer watching a structural zero emits nothing, ever** —
 which is a silence that looks exactly like a healthy quiet board, so the

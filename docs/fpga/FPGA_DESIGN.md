@@ -178,9 +178,10 @@ tag. Whichever bit that script uses, the descriptor image belongs in DRAM
 *first*: the enable that arrives before the image gives a discoverable,
 connectable entity whose every `READ_DESCRIPTOR` misses. The AECP engine's own
 counters (commands, responses, drops, locate misses, last status and length,
-image-valid, image-fault) are not at `0x648` — that word stays a structural zero
-because `aecp_locked` and `current_config` are tied off — but in the processor's
-side-port snapshot window behind `PP_SPADDR`/`PP_SPDATA`.
+  image-valid, image-fault) are not in the counter fields at `0x648`, but in the
+  processor's side-port snapshot window behind `PP_SPADDR`/`PP_SPDATA`.
+  `0x648[16]` is live and reports the processor's entity-lock level;
+  `current_config` and the legacy counters remain structural zeros.
 
 ## 2. Module inventory (from the RTL banners; refreshed 2026-08-13)
 

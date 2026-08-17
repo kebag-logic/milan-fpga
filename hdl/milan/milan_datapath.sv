@@ -1198,6 +1198,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .map_wr_en_i   ((aecp_odmap_wr_p_w &&
                      32'(aecp_odmap_wr_slot_w) < N_STREAMS*8) ||
                     (!aecp_odmap_wr_p_w && !amap_edit_txn_active_r
+                     && !aecp_locked
                      && cfg_chmap_wr_en &&
                      cfg_chmap_wr_side &&
                      32'(cfg_chmap_wr_addr) < N_STREAMS*8)),
@@ -1438,11 +1439,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [3:0]  adp_last_msg, adp_state;
   wire        adp_disc_seen_p;   //! any ENTITY_DISCOVER on the wire (counted in milan_csr)
 
-  //! AECP/AEM listener (KL_aecp_top) — response AXIS + status + ADP-discover.
+  //! Live processor LOCK_ENTITY level, in the same axis_clk domain as every
+  //! local mapping writer and the CSR status mux.
   wire                     aecp_locked;
-  //! the locking controller's Entity ID (valid while aecp_locked): feeds
-  //! the ACMP listener's BIND/UNBIND step-1 authorization check — same
-  //! axis_clk domain as the listener, no CDC
   wire [15:0]              aecp_current_config, aecp_cmd_count, aecp_resp_count;
   //! gh #59 departing-controller detection (Milan v1.2 §5.4.5.3), CSR 0x6F4
   //! A_CTLR_DIAG: {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12],
@@ -3055,7 +3054,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! Structural zero means "no connected source", not "an active engine is
   //! idle".
   assign aecp_bdbg0_w = 32'd0, aecp_bdbg1_w = 32'd0, aecp_bdbg2_w = 32'd0;
-  assign aecp_locked = 1'b0;   //! processor lock state has no source wired to this legacy CSR
+  //! Driven by KL_pp_shadow below. This is the processor's authoritative
+  //! LOCK_ENTITY level and gates every local, non-ATDECC map writer.
   assign aecp_current_config = 16'd0;  //! exported config state is not wired into this legacy CSR
   assign aecp_cmd_count = 16'd0;
   assign aecp_resp_count = 16'd0;
@@ -4061,6 +4061,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         endcase
       end
       if (!pp_amap_edit_req_w && !amap_edit_txn_active_r
+          && !aecp_locked
           && cfg_chmap_wr_en && cfg_chmap_wr_side
           && (32'(cfg_chmap_wr_addr) < AMAP_OUT_KEYS_C)) begin
         amap_out_owner_v_r[
@@ -4072,6 +4073,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
           <= cfg_cmap_cluster_w[15:0];
       end
       if (!pp_amap_edit_req_w && !amap_edit_txn_active_r
+          && !aecp_locked
           && cfg_chmap_wr_en && !cfg_chmap_wr_side
           && (32'(cfg_chmap_wr_addr) < AMAP_IN_KEYS_C)) begin
         amap_in_store_r[32'(cfg_chmap_wr_addr)*8 +: 8]
@@ -5293,6 +5295,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .map_wr_en_i   ((aecp_dmap_wr_p_w &&
                      32'(aecp_dmap_wr_addr_w) < CHMAP_PHYS_C) ||
                     (!aecp_dmap_wr_p_w && !amap_edit_txn_active_r
+                     && !aecp_locked
                      && cfg_chmap_wr_en &&
                      !cfg_chmap_wr_side &&
                      cfg_chmap_rphys_w[6]
@@ -6025,6 +6028,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .aecp_strm_started_o (pp_aecp_strm_started_w),
       .aecp_pt_offset_o    (pp_aecp_pt_offset_w),
       .aecp_dyn_dirty_o    (pp_aecp_dyn_dirty_w),
+      //! Same live lock level as the processor AECP engine. Milan 5.4.2.27
+      //! and 5.4.2.28 prohibit local map changes while it is asserted.
+      .aecp_lock_held_o    (aecp_locked),
       //! GET_COUNTERS: the processor asks, this file answers (see the
       //! Table 7-157 mux above)
       .ctr_req_o         (pp_ctr_req_w),

@@ -3987,6 +3987,27 @@ int main(int argc, char** argv) {
             if (co == 8) return 0x1400u;
             return 0;
         };
+        // Read the authoritative protocol map and find one exact row. This
+        // complements RAM readback for mappings with no physical projection.
+        auto map_has = [&](int dtype, int port, int stream,
+                           int sc, int co) -> long {
+            std::vector<uint8_t> pl = {
+                (uint8_t)(dtype >> 8), (uint8_t)dtype,
+                (uint8_t)(port >> 8), (uint8_t)port,
+                0x00, 0x00, 0x00, 0x00 };
+            auto r = aecp_xact(CMD_GET_AUDIO_MAP, sq++, pl);
+            if (aecp_status(r) != 0 || r.size() < 50) return 0;
+            const unsigned n = ((unsigned)r[46] << 8) | r[47];
+            if (r.size() < 50 + 8 * n) return 0;
+            for (unsigned i = 0; i < n; i++) {
+                const size_t o = 50 + 8 * i;
+                if ((((unsigned)r[o] << 8) | r[o + 1]) == (unsigned)stream
+                    && (((unsigned)r[o + 2] << 8) | r[o + 3]) == (unsigned)sc
+                    && (((unsigned)r[o + 4] << 8) | r[o + 5]) == (unsigned)co)
+                    return 1;
+            }
+            return 0;
+        };
 
         // Stop every talker, then prove four independent writes.
         axi_write(A_AAF_CTRL, 0x00020002);
@@ -4181,6 +4202,18 @@ int main(int argc, char** argv) {
                       && ((((unsigned)r[16] & 7) << 8) | r[17]) == 16
                       && r[38] == 0 && r[41] == 0), 1);
 
+            // Seed one physical output mapping and one host-only input
+            // mapping. The CSR debug writer is a non-ATDECC path, so Milan
+            // 5.4.2.27 and 5.4.2.28 require both to remain immutable while
+            // LOCK_ENTITY is held, including their protocol ownership rows.
+            const int lock_sc = 0, lock_co = 0;
+            ck("B2: lock test output mapping setup succeeds",
+               dmap_cmd("ADD-lock-output", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &lock_sc, &lock_co, 0, 0, 1, DT_SPO), 0);
+            ck("B2: lock test input mapping setup succeeds",
+               dmap_cmd("ADD-lock-input", CMD_ADD_AUDIO_MAPPINGS,
+                        1, &lock_sc, &lock_co, 0, 0, 0, DT_SPI), 0);
+
             // LOCK -> SUCCESS naming the taker; foreign LOCK -> ENTITY_LOCKED
             std::vector<uint8_t> lk(16, 0);
             seq = sq++;
@@ -4188,13 +4221,45 @@ int main(int argc, char** argv) {
             ck("B2: LOCK_ENTITY takes (SUCCESS)", aecp_status(r), 0);
             ck("B2: ...locked_id = the taker",
                (long)(r.size() >= 50 && r[42] == r[26] && r[49] == r[33]), 1);
-            // UNLOCK again so nothing later in the leg runs gated
+            ck("B2: legacy AECP_STAT0 exposes the live lock level",
+               (axi_read(0x648) >> 16) & 1, 1);
+
+            axi_write(A_CHMAP_CTRL2, 1);
+            const uint32_t refused_before = (axi_read(0x90C) >> 16) & 0xFF;
+            axi_write(A_CHMAP_SEL2, 0x100 | 8);
+            axi_write(A_CHMAP_WORD2, 0);
+            axi_write(A_CHMAP_SEL2, 0);
+            axi_write(A_CHMAP_WORD2, 0);
+            const uint32_t refused_after = (axi_read(0x90C) >> 16) & 0xFF;
+            ck("B2: locked CSR map writes are both refused",
+               refused_after - refused_before, 2);
+            ck("B2: locked CSR write preserves physical output RAM",
+               cap_ram(8), out_word(lock_co));
+            ck("B2: locked CSR write preserves output protocol ownership",
+               map_has(DT_SPO, 0, 1, lock_sc, lock_co), 1);
+            ck("B2: locked CSR write preserves input protocol ownership",
+               map_has(DT_SPI, 0, 0, lock_sc, lock_co), 1);
+
+            // UNLOCK and prove the same local writes become effective.
             std::vector<uint8_t> ul(16, 0); ul[3] = 0x01;
             seq = sq++;
             r = aecp_xact(0x0001, seq, ul);
             ck("B2: UNLOCK releases (SUCCESS, locked_id 0)",
                (long)(aecp_status(r) == 0 && r.size() >= 50
                       && r[42] == 0 && r[49] == 0), 1);
+            ck("B2: legacy AECP_STAT0 clears after unlock",
+               (axi_read(0x648) >> 16) & 1, 0);
+            axi_write(A_CHMAP_SEL2, 0x100 | 8);
+            axi_write(A_CHMAP_WORD2, 0);
+            axi_write(A_CHMAP_SEL2, 0);
+            axi_write(A_CHMAP_WORD2, 0);
+            ck("B2: unlocked CSR write clears physical output RAM",
+               cap_ram(8), 0);
+            ck("B2: unlocked CSR write clears output protocol ownership",
+               map_has(DT_SPO, 0, 1, lock_sc, lock_co), 0);
+            ck("B2: unlocked CSR write clears input protocol ownership",
+               map_has(DT_SPI, 0, 0, lock_sc, lock_co), 0);
+            axi_write(A_CHMAP_CTRL2, 0);
             // ACQUIRE: the Milan 5.4.2.1 refusal, command echoed
             std::vector<uint8_t> aq(16, 0);
             seq = sq++;

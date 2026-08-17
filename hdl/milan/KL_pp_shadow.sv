@@ -489,6 +489,7 @@ module KL_pp_shadow #(
     output logic [N_STREAM_IN_P-1:0]   aecp_strm_started_o,
     output logic [31:0]                aecp_pt_offset_o,    //! presentation-time offset
     output logic                       aecp_dyn_dirty_o,    //! a persisted field moved
+    output logic                       aecp_lock_held_o,    //! LOCK_ENTITY ownership is live
 
     //! ---- class-D SRP status levels (02 §6, F02.10) — THE FABRIC FACE ----
     //! Every one of these is a straight pass-through of the identically named
@@ -852,6 +853,7 @@ module KL_pp_shadow #(
       .aecp_strm_started_o (aecp_strm_started_o),
       .aecp_pt_offset_o    (aecp_pt_offset_o),
       .aecp_dyn_dirty_o    (aecp_dyn_dirty_o),
+      .aecp_lock_held_o    (aecp_lock_held_o),
 
       .entity_id_i         (entity_id_i),
       .entity_model_id_i   (entity_model_id_i),

@@ -1555,10 +1555,11 @@ module milan_csr #(
           A_CHMAP_CTRL: chmap_ctrl <= s_axi_wdata;
           A_CHMAP_SEL:  chmap_sel  <= s_axi_wdata;
           //! §6: the map word commits through the shared write port only while
-          //! the override is armed (CTRL[0]); a disarmed write is refused and
-          //! counted, never touching the map (AEM stays the sole programmer).
+          //! the override is armed (CTRL[0]) and LOCK_ENTITY is not held.
+          //! Milan 5.4.2.27 and 5.4.2.28 forbid this non-ATDECC writer while
+          //! locked. Every refused write is counted and leaves the map intact.
           A_CHMAP_WORD: begin
-            if (chmap_ctrl[0]) begin
+            if (chmap_ctrl[0] && !i_aecp_locked) begin
               chmap_word    <= s_axi_wdata;
               chmap_wr_p    <= 1'b1;
               chmap_commits <= chmap_commits + 16'd1;
