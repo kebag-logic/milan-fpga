@@ -2967,6 +2967,10 @@ int main(int argc, char** argv) {
             // bound and stopped". The flags are the big-endian dword at
             // r[42..45], so the bit lands in r[45]. This is the REPORTING
             // half of 5.3.8.7 and it used to be a hardcoded 0.
+            axi_write(A_STRM_SEL, 0x000);
+            snap_and_wait();
+            const long frx_before = axi_read(A_SW_CNT0 + 9*4);
+
             std::vector<uint8_t> gsi = {0x00, 0x05, 0x00, 0x00};
             std::vector<uint8_t> g = aecp_xact(0x000F, 0x9100, gsi);
             ck("5.3.8.7 GET_STREAM_INFO answers before the stop",
@@ -3017,6 +3021,23 @@ int main(int argc, char** argv) {
             g = aecp_xact(0x000F, 0x9104, gsi);
             ck("5.3.8.7 restarted: STREAMING_WAIT reads 0 again",
                (long)(g.size() > 45 && (g[45] & 0x08) == 0), 1);
+
+            // Milan Table 5.6: the counters reset "each time the Stream
+            // Input changes its state from NOT BOUND to BOUND". A stop/start
+            // pair is not that, and the sink above never unbound - so its
+            // history has to survive the round trip. The first cut of this
+            // change gated the CLASSIFICATION table instead, which made
+            // KL_stream_table emit a bind_fall/bind_rise pair and wiped all
+            // ten counters (plus a spurious MEDIA_UNLOCKED) on a binding
+            // that never moved. This row is what would have caught it.
+            axi_write(A_STRM_SEL, 0x000);
+            snap_and_wait();
+            const long frx_after = axi_read(A_SW_CNT0 + 9*4);
+            ck("5.3.8.7 Table 5.6: FRAMES_RX SURVIVED the stop/start pair",
+               (long)(frx_after >= frx_before), 1);
+            ck("5.3.8.7 Table 5.6: ...and counted the frame arriving while "
+               "STOPPED (the clause says a stopped input RECEIVES)",
+               (long)(frx_after > frx_before), 1);
         }
 
         // a route-flags-only CTRL write at idx 0 - the exact write that used
