@@ -48,10 +48,12 @@ flowchart LR
     PR --> RV[In review<br/>multiple agents, CLEARED context]
     RV -->|findings| W
     W -->|fixed| RV
-    RV -->|2 positive:<br/>1 own + 1 EXTERNAL| M[merge to main-push]
-    M --> G[re-run the FULL bar<br/>on the merge result]
+    RV -->|2 positive:<br/>1 own + 1 EXTERNAL| G[validate candidate merge result<br/>with the FULL local bar]
     G -->|regression| W
-    G -->|clean| D[Done]
+    G -->|clean| M[merge to main-push]
+    M --> C[branch stops moving<br/>run containment]
+    C -->|finding| F[follow-up issue + PR]
+    C -->|clean| D[close issue manually<br/>Done]
 ```
 
 1. **Move the issue to *In progress*** on the project board before the first
@@ -60,8 +62,9 @@ flowchart LR
    built twice on 2026-08-16 because the issue was filed after the work
    started.
 2. **Cut the branch from the issue**: `gh issue develop <N> --base main-push`.
-   This links branch to issue on GitHub, so the PR closes the issue and the
-   board moves itself. A hand-named branch does neither.
+   This links the branch and issue on GitHub. Because `main-push` is not the
+   repository's default branch, merging its PR does not auto-close the issue.
+   Close the issue manually only after the post-merge containment check passes.
 3. **Do the work on that branch**, with the §3 verification bar met *on the
    branch* — a PR is not the place to discover the sweep is red.
 4. **Open the PR** against `main-push`, with the template below and the
@@ -108,12 +111,14 @@ flowchart LR
    `MERGED`, CI is green, and the branch still has commits ahead of the merge.
    Nothing in the lane compares those two facts unless step 7 does.
 
-   The issue closes itself; move the card to *Done* if it does not.
-7. **Re-run the whole verification bar ON THE MERGE RESULT, every time.** A
-   merge is a change nobody wrote and nobody reviewed, and *"Merge made by the
-   'ort' strategy"* is not evidence of anything. Gate the merged tree exactly
-   as §3 gates a hand-written one — full Verilator sweep, both repos' suites,
-   behave, the lint ratchet, yosys — before the merge button, not after.
+7. **Validate the candidate merge result, then prove containment.** A merge is
+   a change nobody wrote and nobody reviewed, and *"Merge made by the 'ort'
+   strategy"* is not evidence of anything. Before pressing merge, construct a
+   candidate from the latest `origin/main-push` and the reviewed PR head, then
+   gate that tree exactly as §3 gates a hand-written one: full Verilator sweep,
+   both repos' suites, behave, the lint ratchet, and Yosys. If the reviewed head
+   directly descends from the unchanged base, its tree is the candidate merge
+   tree; record both object IDs with the local gate results.
 
    This is not defensive box-ticking. On 2026-08-16 two lanes independently
    added the *same* six AECP settings-face pins to `KL_pp_shadow.sv` — one
@@ -124,7 +129,7 @@ flowchart LR
    split out, and restored an inventory row for an opcode the engine no longer
    decodes.
 
-   **Then check the merge actually took the branch:**
+   **After merge, check that it actually took the branch:**
 
    ```bash
    python3 scripts/check_merge_containment.py origin/<branch>
@@ -138,9 +143,15 @@ flowchart LR
 
    **Run it when the branch stops moving, not at the merge button.** Both
    incidents were *contained* at the instant they merged; the commits that
-   ended up stranded were pushed afterwards, by the review round that was still
-   running. A check run at merge time cannot see them. The moment that catches
-   it is the one where the card moves to *Done*.
+   ended up stranded were pushed afterwards as review activity continued. For
+   #86 a round was in flight. For #77 the stated bar had been met, but review
+   did not stop. A check run at merge time cannot see later pushes. The moment
+   that catches them is the one where the card moves to *Done*. Once
+   containment is clean, close the issue manually and move its project item to
+   *Done*.
+
+   `--no-fetch` disables Git ref refresh only. A `--merged-prs` sweep still
+   queries GitHub for the merged PR list and branch timeline evidence.
 
    Its `--selftest` runs inside `scripts/run_all_suites.sh` next to
    `suite_tally.py`'s, so the tool cannot rot into a green that means nothing

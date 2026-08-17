@@ -4,21 +4,21 @@
     python3 scripts/check_merge_containment.py [--base <ref>] <branch>...
     python3 scripts/check_merge_containment.py --merged-prs [N]
     python3 scripts/check_merge_containment.py --selftest
-    python3 scripts/check_merge_containment.py --no-fetch ...   (offline)
+    python3 scripts/check_merge_containment.py --no-fetch ...   (skip Git fetch)
 
 WHY THIS EXISTS
 ---------------
-A pull request merged while a review round is still running leaves the work
-that round produced behind: the merge takes the commit the branch had at the
-time, and everything pushed after it stays on the branch.  Nothing reports
-this.  ``gh pr view`` says ``MERGED``, CI is green, the issue closes itself and
-the board moves to Done, while commits sit unmerged on a branch nobody is
-looking at any more.
+A pull request merged before review activity stops can leave later work
+behind: the merge takes the commit the branch had at the time, and everything
+pushed after it stays on the branch.  Nothing reports this.  ``gh pr view``
+says ``MERGED`` and CI is green, while the issue and board can be closed
+manually even though commits remain on a branch nobody is watching.
 
-It has happened twice here: **#77** (merged mid-review; two of the rounds that
-followed returned blocking defects, re-landed as #85) and **#86** (three
-commits stranded, tracked as #87, re-landed as #89).  Both were found by a
-reviewer checking by hand, which is why this is a command.
+It has happened twice here: **#77** (merged after a positive round, while
+later review still produced two blocking rounds; re-landed as #85) and **#86**
+(merged with a round running; three commits stranded, tracked as #87 and
+re-landed as #89).  Both were found by a reviewer checking by hand, which is
+why this is a command.
 
 THREE WAYS TO GET THE WRONG ANSWER, ALL OF WHICH THIS HAS DONE
 --------------------------------------------------------------
@@ -245,6 +245,17 @@ def offline_ref(ref):
 
     local_ref = "refs/heads/" + ref
     remote_ref = "refs/remotes/" + ref
+    remote_name, separator, _branch_name = ref.partition("/")
+    if separator:
+        rc, configured = _git("remote")
+        if rc != 0:
+            return (None, "could not identify configured remotes for "
+                    f"{ref!r}")
+        if remote_name in configured.splitlines():
+            #! --no-fetch is the deliberate route for another remote.  Its
+            #! shorthand keeps that remote identity even when a slash-named
+            #! local branch also exists or the tracking ref is missing.
+            return (remote_ref, None)
     local_rc, _ = _git("rev-parse", "--verify", "--quiet",
                        local_ref + "^{commit}")
     remote_rc, _ = _git("rev-parse", "--verify", "--quiet",
@@ -314,6 +325,17 @@ def non_origin_remote_ref(ref):
         return None
     if ref.startswith("refs/remotes/"):
         return ref
+    if ref.startswith("refs/"):
+        return None
+    remote_name, separator, _branch_name = ref.partition("/")
+    if separator:
+        rc, configured = _git("remote")
+        if rc != 0:
+            #! We cannot prove that a remote-like shorthand is refreshable by
+            #! the origin-only fetch, so refuse it instead of changing type.
+            return ref
+        if remote_name != "origin" and remote_name in configured.splitlines():
+            return "refs/remotes/" + ref
     #! Resolve the remote namespace directly before asking Git to resolve the
     #! caller's shorthand.  When refs/heads/upstream/work and
     #! refs/remotes/upstream/work both exist, symbolic-full-name rejects the
@@ -843,8 +865,32 @@ def selftest():
                      "an ambiguous non-origin remote shorthand is refused")
                 rc, out = run(["--no-fetch", "--base", "base",
                                "upstream/work"])
-                case("ambiguous-remote-offline-rc", rc, RC_CANNOT_RUN,
-                     "...and offline mode requires its full ref identity")
+                case("ambiguous-remote-offline-rc", rc, RC_FINDING,
+                     "...and offline mode keeps the remote shorthand typed")
+                case("ambiguous-remote-offline-word", "STRANDED" in out, True,
+                     "...so a same-spelled local branch cannot replace it")
+                _git("update-ref", "-d", "refs/remotes/upstream/work")
+                _git("--git-dir", remote, "update-ref",
+                     "refs/heads/upstream/work", "refs/heads/base")
+                rc, out = run(["--base", "base", "upstream/work"])
+                case("missing-remote-tracking-rc", rc, RC_CANNOT_RUN,
+                     "a configured remote shorthand stays non-origin even "
+                     "when its tracking ref is missing")
+                rc, out = run(["--no-fetch", "--base", "base",
+                               "upstream/work"])
+                case("missing-remote-offline-rc", rc, RC_FINDING,
+                     "offline remote shorthand keeps its missing identity")
+                case("missing-remote-offline-word", "UNKNOWN" in out, True,
+                     "...instead of falling back to a slash-named branch")
+                rc, out = run(["--base", "upstream/work", "base"])
+                case("missing-remote-base-rc", rc, RC_CANNOT_RUN,
+                     "a missing configured remote base is refused before fetch")
+                rc, out = run(["--no-fetch", "--base", "upstream/work",
+                               "base"])
+                case("missing-remote-base-offline-rc", rc, RC_FINDING,
+                     "offline mode keeps a missing remote base typed")
+                case("missing-remote-base-offline-word", "UNKNOWN" in out,
+                     True, "...rather than using a slash-named local base")
 
                 # A merged PR's head OID is frozen at merge time.  The live
                 # branch tip is the only ref that can expose later pushes.
