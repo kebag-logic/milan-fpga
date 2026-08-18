@@ -38,7 +38,7 @@ leaves the clause open.
 
 ### 0.1 Served for real, today
 
-**Twenty-one** AEM opcodes plus one MVU command. The authority is
+**Twenty-three** AEM opcodes plus one MVU command. The authority is
 `protocol-processor/hdl/aecp/KL_aecp_engine.sv`'s `OP_*_C` constants, and
 `tests/steps/aecp_engine_steps.py`'s `SERVED` table is gated against that list
 by a behave step that parses the RTL — so this section cannot silently rot
@@ -82,6 +82,8 @@ underneath it.
 | `0x0017` | GET_CLOCK_SOURCE | 5.4.2.16 | **0x004B** |
 | `0x0018` | SET_CONTROL (IDENTIFY) | 5.4.2.17 | **0x004C** |
 | `0x0019` | GET_CONTROL (IDENTIFY) | 5.4.2.18 | **0x004C** |
+| `0x0022` | START_STREAMING | 5.4.2.19 | 0x004F |
+| `0x0023` | STOP_STREAMING | 5.4.2.20 | 0x004F |
 | `0x0024` | REGISTER_UNSOLICITED_NOTIFICATION | 5.4.2.21 | 0x0045 |
 | `0x0025` | DEREGISTER_UNSOLICITED_NOTIFICATION | 5.4.2.22 | 0x0045 |
 | `0x0026` | IDENTIFY_NOTIFICATION as a command → `BAD_ARGUMENTS` | IEEE 7.4.39.2 | 0x0042 |
@@ -153,7 +155,7 @@ kept in §P2.1 below, because they still govern every command that has not
 landed yet.
 
 **What it does not yet do is reach its consumers.** The dynamic store holds
-eight fields. The fields served through AECP and those published to the fabric
+seven fields (selector 6, started/stopped, is retired - see below). The fields served through AECP and those published to the fabric
 are different sets:
 
 | field | a microprogram reads or writes it | it has an output port |
@@ -163,11 +165,14 @@ are different sets:
 | IDENTIFY | yes | yes |
 | `current_sampling_rate` | yes | **no** |
 | presentation-time offset | **no** | yes |
-| started or stopped | **no** (withdrawn, #78) | yes, permanently zero |
 | `current_format`, Stream Inputs | **no** | **no** |
 | `current_format`, Stream Outputs | **no** | **no** |
 
-Five fields have an output, and all five are read by nothing downstream. The
+Four fields have an output, and all four are read by nothing downstream. (A
+fifth, started/stopped, USED to sit here with an output nothing read. It is
+no longer in this store: issue #78 retired selector 6 and moved the state to
+the ACMP binding record, where `milan_datapath` gates the listener accept
+pulse on it - so that one is now both sourced and consumed.) The
 media clock still uses its compile-time select, so `SET_CLOCK_SOURCE` stores a
 value the servo does not act on. `current_sampling_rate` is the one field a
 controller can move that the fabric cannot see. Aligning the audio grid to it

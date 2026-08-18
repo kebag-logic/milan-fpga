@@ -69,20 +69,27 @@ The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `GET_COUNTERS`, `GET_AUDIO_MAP`, the unsolicited registration pair, and Milan
 `GET_MILAN_INFO`.
 
-This inventory describes command handling, not end-to-end effect. In
-particular, B12 records that START/STOP is unimplemented, so no AECP Stream
-Input started state reaches the root wrapper or controls the media plane.
+This inventory describes command handling, not end-to-end effect. As audited on
+2026-08-16, B12 recorded that START/STOP was unimplemented, so no AECP Stream
+Input started state reached the root wrapper or controlled the media plane.
+
+> **SUPERSEDED 2026-08-18 (issue #78, VERSION `0x004F`).** `START_STREAMING`
+> (0x0022) and `STOP_STREAMING` (0x0023) are served, and the started state now
+> does control the media plane: a stopped Stream Input's frames are dropped at
+> the listener accept pulse while it goes on receiving, matching and counting.
+> The paragraph below is the 08-16 record of the withdrawal; see B12 for the
+> resolution and for the one shall of Section 5.3.8.7 that remains open.
 
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
 
-`START_STREAMING` and `STOP_STREAMING` (Milan 5.4.2.19 / 5.4.2.20) belong in
-this list and are called out here because an earlier revision of this document
-placed them in the list above. They were implemented and then **withdrawn**
-before merge: started/stopped already has a home in the ACMP binding record,
-which clears on unbind and is persisted, and a second copy in the AECP dynamic
-store would be neither. The work is preserved on branch
-`78-start-stop-streaming` pending that decision.
+`START_STREAMING` and `STOP_STREAMING` (Milan 5.4.2.19 / 5.4.2.20) belonged in
+this list at the time of the audit, and were called out here because an earlier
+revision of this document placed them in the list above. They had been
+implemented and then **withdrawn** before merge: started/stopped already had a
+home in the ACMP binding record, which clears on unbind and is persisted, and a
+second copy in the AECP dynamic store would be neither. That decision was
+settled in favour of the record — see the SUPERSEDED note above.
 
 - `SET_STREAM_FORMAT`
 - `SET_STREAM_INFO`
