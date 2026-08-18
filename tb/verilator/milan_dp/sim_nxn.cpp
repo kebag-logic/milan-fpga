@@ -822,8 +822,8 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x0051 exposes GET_DYNAMIC_INFO batching",
-       axi_read(A_VERSION), 0x00020051);
+    ck("VERSION 0x0052 carries the start/stop commit handshake",
+       axi_read(A_VERSION), 0x00020052);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
     //! These two writes used to sit inside the N-sink ACMP ctx2 section,
