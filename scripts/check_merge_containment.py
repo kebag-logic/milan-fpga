@@ -749,6 +749,15 @@ def selftest():
             case("e2e-stranded-word", "STRANDED" in out, True,
                  "...and says STRANDED")
 
+            #! Exercise main() without --base. origin/dev contains work while
+            #! the retired name stops at base, so changing the production
+            #! default path back to that name makes this case fail.
+            _git("update-ref", "refs/remotes/origin/dev", "work")
+            _git("update-ref", "refs/remotes/origin/main-push", "base")
+            rc, out = run(["--no-fetch", "work"])
+            case("default-base-e2e", rc, RC_OK,
+                 "the implicit CLI base is origin/dev")
+
             rc, base_oid = _git("rev-parse", "base")
             _git("checkout", "-qb", base_oid, "work")
             rc2, out = run(["--no-fetch", "--base", "base"])
