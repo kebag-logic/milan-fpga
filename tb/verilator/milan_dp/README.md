@@ -119,7 +119,7 @@ build `MCSRV_STAT` read `0x21`.
 
 "No AECP" is dead as a premise. The protocol processor carries an AECP µCPU
 (`KL_aecp_ucpu` + `KL_aecp_desc_store` + `KL_aecp_engine`, driven from
-`ucode.hex`) and handles 21 AEM opcodes plus Milan `GET_MILAN_INFO`. The served
+`ucode.hex`) and handles 25 AEM opcodes plus Milan `GET_MILAN_INFO`. The served
 set includes descriptor reads, lock and configuration operations, read-side
 stream and clock commands, sampling-rate and clock-source setters, Identify,
 registration, counters, AVB information, AS path, and both audio-map
@@ -129,7 +129,7 @@ receive a conformant `NOT_IMPLEMENTED` echo with the command payload and length
 preserved and the frame padded to the 60-octet minimum. The exact inventory is
 gated by [`aecp_engine_steps.py`](../../../tests/steps/aecp_engine_steps.py) and
 the pinned processor's
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/301073b4f8a98b8c1b92421171abb1d3391baa47/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/2cdf0a1e0161de68e585cc78a05dd94f6204d651/docs/architecture/06_aecp_engine.md).
 
 **This suite backs no descriptor memory, on purpose and on record.**
 `milan_datapath` exposes nine ports for the AEM image the store fetches
@@ -153,12 +153,16 @@ octet for octet, the locate miss, the bad configuration index, the
 with recovery.
 
 `sim_nxn.cpp`'s `[T66]` covers the other side of the same coin.
-`GET_AUDIO_MAP` now succeeds on the Stream Port Output store, while
-`ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` remain a capability regression
-against the pre-substitution device and answer `NOT_IMPLEMENTED`. Each writer
-response is decoded, and the crossbar RAM is read back on the named keys to
-prove **nothing moved**. A phantom write from a half-deleted mirror would be far
-worse than an honest refusal.
+`GET_AUDIO_MAP` succeeds on both Stream Port directions, and
+`ADD_AUDIO_MAPPINGS` plus `REMOVE_AUDIO_MAPPINGS` use the processor's two-pass
+transaction face to update the live root stores. The harness proves full-page
+ADD and readback, idempotent ADD, all-or-nothing refusal after a late invalid
+row, duplicate-safe REMOVE, cross-port output ownership, running-output
+refusal, and generated input-port geometry through the live crossbar RAM. It
+derives the AX7101 output cluster count from the generated descriptor, accepts
+and round-trips every published offset, preserves a clear fabric-source marker
+for unbacked clusters, rejects same-key and cross-port replacement, and refuses
+the first offset beyond the model.
 
 ## Check counts, before and after
 
@@ -171,7 +175,7 @@ so *no* leg ran). **Every number below is measured**, all nine legs, on the same
 |---|---|---|---|
 | `obj_dir` (`sim_main`) | 273 checks / 75 fail | **244 / 0** | the `in0_fmt` acceptance path is graded again, byte-exact |
 | `obj_nxn` (`sim_nxn`) | 378 / — (did not compile) | **145 / 0** | + the `[AECP]` no-memory degrade checks |
-| `obj_nxn8` (`sim_nxn`) | 512 / — | **245 / 0** | + `[T66]`'s decoded `NOT_IMPLEMENTED` echoes and RAM-inertness reads |
+| `obj_nxn8` (`sim_nxn`) | 512 / not available | superseded | `[T66]` now grades atomic audio-map mutation; use the current run summary below |
 | `obj_nxn4c` (`sim_nxn`) | 378 / — | **145 / 0** | |
 | `obj_nolpf` (`sim_main`) | 273 / 75 | **244 / 0** | identical to `obj_dir`, as the pruned-LPF claim requires |
 | `obj_prune` (`sim_prune`) | 31 / 0 | **31 / 0** | unchanged, untouched |

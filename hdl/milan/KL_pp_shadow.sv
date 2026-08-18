@@ -22,8 +22,8 @@
                 is no parameter, no fallback and no shadow arm: this module is
                 instantiated unconditionally and its TX rides the control lane.
 
-                THE AECP HOLE IS CLOSED ON THE READ SIDE (2026-08-16,
-                VERSION 0x004B). This banner said "answers NO AECP/AEM command
+                THE AECP COMMAND SURFACE IS ACTIVE (2026-08-17,
+                VERSION 0x004F). This banner said "answers NO AECP/AEM command
                 at all" from 2026-08-12 until the micro-coded uCPU landed
                 inside protocol_processor_top; that sentence is retired. The
                 EXTERNAL AECP pop face this wrapper exposes is still tied
@@ -34,16 +34,16 @@
                 What this entity answers today includes discovery and
                 enumeration, solicited counters, selected stream, clock, and
                 configuration operations, Identify control, the unsolicited
-                registration pair, GET_AUDIO_MAP, and MVU
+                registration pair, GET/ADD/REMOVE_AUDIO_MAPPINGS, and MVU
                 GET_MILAN_INFO. The AUTHORITY is
                 protocol-processor/hdl/aecp/KL_aecp_engine.sv's OP_*_C
                 constants, never this comment.
 
                 WHAT IS STILL OPEN, and is a compliance gap rather than a
                 design choice: SET_STREAM_FORMAT, SET_STREAM_INFO, name access,
-                the audio-mapping writers, GET_DYNAMIC_INFO, the
-                unsolicited-notification trigger set, the departing-controller
-                monitor and saved-state persistence. The current verdict is in
+                GET_DYNAMIC_INFO, the incomplete unsolicited-notification
+                trigger set, the departing-controller monitor and saved-state
+                persistence. The current verdict is in
                 docs/testing/MILAN_V12_AUDIT_2026-08-16.md. SET_CLOCK_SOURCE is accepted and
                 stored by the processor, and this wrapper exports the selected
                 value. The media plane does not consume it and therefore remains
@@ -310,6 +310,21 @@ module KL_pp_shadow #(
     input  wire  [63:0] amap_data_i,        //! the word (upper 32 zero unless RECORD)
     input  wire         amap_wait_i,        //! HOLD the beat (not a ready)
 
+    //! ---- ADD/REMOVE_AUDIO_MAPPINGS transaction face --------------------
+    //! Straight through to protocol_processor_top. The integrator validates
+    //! the full staged command before accepting any phase-5 write.
+    output logic        amap_edit_req_o,
+    output logic  [2:0] amap_edit_phase_o,
+    output logic        amap_edit_remove_o,
+    output logic [15:0] amap_edit_desc_type_o,
+    output logic [15:0] amap_edit_desc_index_o,
+    output logic [15:0] amap_edit_count_o,
+    output logic  [7:0] amap_edit_rec_o,
+    output logic [63:0] amap_edit_record_o,
+    output logic [63:0] amap_edit_value_o,
+    input  wire  [63:0] amap_edit_data_i,
+    input  wire         amap_edit_wait_i,
+
     //! ---- Milan-info gather face (06 SS6.2/SS6.10) ----
     //! Straight through to protocol_processor_top: GET_STREAM_INFO /
     //! GET_AVB_INFO / GET_AS_PATH ask one word at a time and milan_datapath
@@ -479,6 +494,7 @@ module KL_pp_shadow #(
     output logic [N_STREAM_IN_P-1:0]   aecp_strm_started_o,
     output logic [31:0]                aecp_pt_offset_o,    //! presentation-time offset
     output logic                       aecp_dyn_dirty_o,    //! a persisted field moved
+    output logic                       aecp_lock_held_o,    //! LOCK_ENTITY ownership is live
 
     //! ---- class-D SRP status levels (02 §6, F02.10) — THE FABRIC FACE ----
     //! Every one of these is a straight pass-through of the identically named
@@ -842,6 +858,7 @@ module KL_pp_shadow #(
       .aecp_strm_started_o (aecp_strm_started_o),
       .aecp_pt_offset_o    (aecp_pt_offset_o),
       .aecp_dyn_dirty_o    (aecp_dyn_dirty_o),
+      .aecp_lock_held_o    (aecp_lock_held_o),
 
       .entity_id_i         (entity_id_i),
       .entity_model_id_i   (entity_model_id_i),
@@ -929,6 +946,17 @@ module KL_pp_shadow #(
       .amap_rec_o          (amap_rec_o),
       .amap_data_i         (amap_data_i),
       .amap_wait_i         (amap_wait_i),
+      .amap_edit_req_o     (amap_edit_req_o),
+      .amap_edit_phase_o   (amap_edit_phase_o),
+      .amap_edit_remove_o  (amap_edit_remove_o),
+      .amap_edit_desc_type_o(amap_edit_desc_type_o),
+      .amap_edit_desc_index_o(amap_edit_desc_index_o),
+      .amap_edit_count_o   (amap_edit_count_o),
+      .amap_edit_rec_o     (amap_edit_rec_o),
+      .amap_edit_record_o  (amap_edit_record_o),
+      .amap_edit_value_o   (amap_edit_value_o),
+      .amap_edit_data_i    (amap_edit_data_i),
+      .amap_edit_wait_i    (amap_edit_wait_i),
       .gsi_req_o           (gsi_req_o),
       .gsi_kind_o          (gsi_kind_o),
       .gsi_desc_type_o     (gsi_desc_type_o),

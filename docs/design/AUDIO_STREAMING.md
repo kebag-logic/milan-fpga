@@ -1,4 +1,4 @@
-[OBSOLETE + 2026-08-16]
+[OBSOLETE + 2026-08-17]
 
 <!--
 SPDX-FileCopyrightText: 2026 Kebag Logic
@@ -210,28 +210,19 @@ media tick the engine walks the enabled slots low-to-high and injects
 one pair per slot with a settle gap — six ticks fill one PDU per talker
 (module header).
 
-**The CSR `0x900` window is now the only programmer of that map RAM**
-([`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) "0x900 — channel-map
-fabric"). The AEM audio-map command set (`GET_AUDIO_MAP` /
-`ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS`) is **not implemented** — the
-µCPU answers each of them with the conformant `NOT_IMPLEMENTED` echo, which
-programs nothing — so the two-writer arbitration this page used to describe
-(AEM canonical, CSR subordinate) has one writer left. Two consequences follow,
-and both are observable:
+The CSR `0x900` window and the AEM audio-map command set share the map RAM
+through one arbiter. `GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`, and
+`REMOVE_AUDIO_MAPPINGS` are implemented. The command path owns the
+authoritative per-port mapping store and projects backed output rows into this
+RAM. The CSR is a local maintenance path and is refused while `LOCK_ENTITY` is
+held by a controller.
 
-* **The VERSION `0x002C` shape rule collapsed to its static leg.** The
-  dynamic-map writers *and the boot identity seeder* lived in the deleted
-  engine and nothing on the processor side replaced them, so `aecp_odmap_dyn`
-  is a structural 0 on every build and the lane
-  select is `CHMAP_CTRL[0]` alone. At reset that is 0, and the front-end pair
-  stream drives the packetizer **bit-identically** to the pre-crossbar
-  wiring — the shipping default is unchanged.
-* **Arming the crossbar over an unprogrammed RAM is now silence.** `CMAP`
-  resets all-zero and nothing seeds it any more, so `CHMAP_CTRL[0] = 1`
-  before writing entries emits digital silence on every channel — every slot
-  still *pulses* (§4 of [`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md): unmapped
-  owes the wire silence inside a frame that still goes out), so the stream
-  keeps flowing and the audio is gone. Program first, then arm.
+An accepted output edit reserves every referenced AAF stream after its phase-1
+streaming recheck. A raw 0-to-1 enable arriving from ACMP, SRP, or the local
+bypass remains masked until phase 2 completes or the transaction aborts. An
+output already streaming is rejected at phase 1. This closes the interval in
+which a local or protocol start could previously occur between validation and
+the phase-5 RAM writes.
 
 The host-playback wholesale override (`pb_enable`) outranks the lane mux
 either way — an active ALSA session claims the pair source exactly as the
@@ -547,17 +538,15 @@ side is the render crossbar of §3.6 (any stream-channel to any of 10
 physical outputs) plus the per-stream DMA rings that PipeWire composes
 in software.
 
-**The CSR `0x900` window is the only programmer of both map RAMs.** The
-IEEE 1722.1 dynamic audio-map commands — `GET_AUDIO_MAP` /
-`ADD_AUDIO_MAPPINGS` / `REMOVE_AUDIO_MAPPINGS` (command_type 43/44/45) — are
-**not implemented**; each draws the µCPU's conformant `NOT_IMPLEMENTED` echo,
-which is a well-formed answer and nothing more. So there is no way for a
-controller to change this device's channel map, and no live readback of it
-either: `READ_DESCRIPTOR` hands out whatever AUDIO_MAP descriptors the loaded
-descriptor image contains — an authored statement, not a read of the map RAMs
-the CSR window writes, and on a stock build there is no image loaded at all.
-Agreement between the two would prove nothing even when there is one.
-The bench window is not an override any more, it is the interface.
+The IEEE 1722.1 dynamic audio-map commands `GET_AUDIO_MAP`,
+`ADD_AUDIO_MAPPINGS`, and `REMOVE_AUDIO_MAPPINGS` (command types 43, 44, and
+45) are implemented. ADD and REMOVE stage the complete command, validate every
+record, recheck output streaming state at commit, and then update the
+authoritative mapping store plus any physical RAM projection atomically.
+`GET_AUDIO_MAP` reads that authoritative store. The CSR `0x900` window remains
+a local maintenance interface under the same arbitration and entity-lock
+rules. See the command and ownership contract in
+[`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) section 7.
 
 Deep doc: [`CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) — the normative 64×64
 architecture, both map-word formats, the pair-slot widening, and the

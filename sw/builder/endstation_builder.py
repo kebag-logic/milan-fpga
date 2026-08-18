@@ -1318,21 +1318,26 @@ def _streams(lst, ctx, direction, rate_hz=48000):
         clusters = s.get("clusters", ch)
         if not (isinstance(clusters, int) and 1 <= clusters <= 32):
             raise ConfigError(f"{sctx}: clusters {clusters} outside 1..32")
-        # map_mode (gaps item 8, generalized by roadmap 23): "dynamic"
-        # drops the port's static AUDIO_MAP (1722.1-2021 7.2.13
-        # number_of_maps=0). The processor serves GET_AUDIO_MAP from the root
-        # store, but ADD/REMOVE remain mandatory gaps and no AECP writer is
-        # connected. Milan v1.2 5.3.3.9 makes dynamic maps the SHALL for listeners
-        # ("The Stream Port Input of a Configuration shall not contain any
-        # AUDIO_MAP descriptor. Note: this means that a PAAD-AE implements
-        # dynamic mappings on all of its Stream Port Inputs"), so ANY
-        # subset of the listener ports may be dynamic. Talkers stay static in
-        # this configuration model. The current getter serves both directions;
-        # see docs/testing/MILAN_V12_AUDIT_2026-08-16.md for the open writers.
-        map_mode = s.get("map_mode", "static")
+        # Milan v1.2 5.3.3.9 requires every Stream Port Input to omit an
+        # AUDIO_MAP descriptor, which is the descriptor-model signal for a
+        # dynamically mapped input. This is an invariant, not an optional
+        # capability switch: accepting a static listener would generate an
+        # entity model a Milan PAAD-AE is forbidden to expose.
+        #
+        # Stream Port Outputs may be static or dynamic. The current media
+        # fabric selects its capture crossbar as one image-wide mode, so the
+        # load_config validation below requires all talkers to choose the
+        # same mode rather than silently misrouting a mixed image.
+        map_mode = s.get("map_mode",
+                         "dynamic" if direction == "listener" else "static")
         if map_mode not in ("static", "dynamic"):
             raise ConfigError(f"{sctx}: map_mode '{map_mode}' not "
                               "static|dynamic")
+        if direction == "listener" and map_mode != "dynamic":
+            raise ConfigError(
+                f"{sctx}: map_mode static is forbidden for a Stream Port "
+                "Input; Milan v1.2 5.3.3.9 requires dynamic mappings on "
+                "every Stream Port Input")
         # USER 08-01: talkers may be dynamic too. Milan 5.3.3.9 leaves
         # Stream Port Outputs free, and 5.4.2.26-28 make GET/ADD/REMOVE a
         # SHALL for "each Stream Port Output that has no Audio Map" - a
@@ -1446,12 +1451,12 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
         else:
             n = eff(s)
             pool = legacy_pool(dir_base, n, ph_render)
-        dyn = s.get("map_mode", "static") == "dynamic"
+        dyn = s.get("map_mode", "dynamic") == "dynamic"
         ports_in.append(dict(index=i, stream_index=i, clusters=n,
                              base_cluster=base,
                              maps=0 if dyn else 1,
                              base_map=0 if dyn else next_map,
-                             map_mode=s.get("map_mode", "static"),
+                             map_mode=s.get("map_mode", "dynamic"),
                              map_page=s.get("map_page"), pool=pool))
         if not dyn:
             next_map += 1
@@ -2334,7 +2339,7 @@ def overlay_adp_block(cfg):
     }
 
 
-def emit_adp_shape_svh(cfg):
+def emit_adp_shape_svh(cfg, overlay=None):
     """The ADP shape as the SystemVerilog include milan_csr.sv and
     milan_datapath.sv compile (`include "gen/adp_shape_defaults.svh").
 
@@ -2366,6 +2371,56 @@ def emit_adp_shape_svh(cfg):
     guard (module-scope localparams - each including module needs its own
     copy) and no net decls."""
     sh = adp_shape(cfg)
+    if overlay is None:
+        overlay = emit_aem_overlay(cfg)
+    sys.path.insert(0, os.path.join(ROOT, "avdecc"))
+    import gen_aem_store as aem_store
+    din_any = any(s.get("map_mode", "static") == "dynamic"
+                  for s in cfg["listeners"])
+    dout_any = any(s.get("map_mode", "static") == "dynamic"
+                   for s in cfg["talkers"])
+    dm = {"EMIT": din_any}
+    if din_any:
+        dyn_in = [p for p in cfg["ports_in"]
+                  if p.get("map_mode", "static") == "dynamic"]
+        in_page = dyn_in[0]["map_page"]
+        in_streams = overlay["stream_inputs"]
+        dm.update(
+            KEYS=max(p["base_cluster"] + p["clusters"] for p in dyn_in),
+            PAGE=in_page,
+            PBASE=[p["base_cluster"] for p in cfg["ports_in"]],
+            PCLS=[p["clusters"] for p in cfg["ports_in"]],
+            PNMAPS=[(-(-p["clusters"] // in_page)
+                     if p.get("map_mode", "static") == "dynamic"
+                     else p["maps"]) for p in cfg["ports_in"]],
+            SAAF=[s.get("kind", "aaf") == "aaf" for s in in_streams],
+            SCH=[(((int(s["formats"][0], 16) >> 22) & 0x3FF)
+                  if s.get("kind", "aaf") == "aaf" else 0)
+                 for s in in_streams],
+        )
+    od = {"EMIT": dout_any}
+    if dout_any:
+        out_streams = overlay["stream_outputs"]
+        so_ch = [((int(s["formats"][0], 16) >> 22) & 0x3FF)
+                 for s in out_streams]
+        slotb, acc = [], 0
+        for channels in so_ch:
+            slotb.append(acc)
+            acc += (channels + 1) // 2
+        pcls, pcbase, sch, csrc = [], [], [], []
+        for j, p in enumerate(overlay["stream_ports"]["output"]):
+            pcls.append(p["clusters"])
+            pcbase.append(len(csrc))
+            stream = p.get("stream_index", j)
+            sch.append(so_ch[stream])
+            srcs = aem_store._out_cluster_sources(overlay, j, p)
+            if srcs is None:
+                srcs = [dict(src=3, idxh=0,
+                             idx=slotb[stream] + c // 2, half=c % 2,
+                             valid=slotb[stream] + c // 2 < 16)
+                        for c in range(p["clusters"])]
+            csrc.extend(srcs)
+        od.update(PCLS=pcls, PCBASE=pcbase, SCH=sch, CSRC=csrc)
     L, T = len(cfg["listeners"]), len(cfg["talkers"])
     crf_o = "yes" if cfg["clocking"]["crf_output"] else "no"
     crf_s = "yes" if cfg["clocking"]["crf_sink"] else "no"
@@ -2410,6 +2465,106 @@ def emit_adp_shape_svh(cfg):
     a("  //! + MEDIA_CLOCK_SINK only when a CRF STREAM_INPUT exists")
     a(f"  localparam logic [15:0] ADP_LISTENER_CAPS_C  = "
       f"16'h{sh['listener_capabilities']:04X};")
+    a("  //! Dynamic AUDIO_MAP ownership, one bit per AAF Stream Port. A set")
+    a("  //! bit means the descriptor carries no static AUDIO_MAP and the")
+    a("  //! ADD/REMOVE/GET_AUDIO_MAP command family owns its live routing.")
+    din_mask = sum((1 << i) for i, s in enumerate(cfg["listeners"])
+                   if s.get("map_mode", "static") == "dynamic")
+    dout_mask = sum((1 << i) for i, s in enumerate(cfg["talkers"])
+                    if s.get("map_mode", "static") == "dynamic")
+    a(f"  localparam logic [63:0] ADP_DMAP_IN_MASK_C  = "
+      f"64'h{din_mask:016X};")
+    a(f"  localparam logic [63:0] ADP_DMAP_OUT_MASK_C = "
+      f"64'h{dout_mask:016X};")
+    a("  //! Dynamic input geometry is the AEM model's port-relative page")
+    a("  //! partition plus its global cluster-key projection. RPHYS entries")
+    a("  //! are {valid, render_crossbar_key[5:0]}; non-physical clusters")
+    a("  //! remain protocol-visible mappings without aliasing a physical pin.")
+    if dm["EMIT"]:
+        in_keys = dm["KEYS"]
+        in_page = dm["PAGE"]
+        in_pbase = dm["PBASE"]
+        in_pcls = dm["PCLS"]
+        in_pnmaps = dm["PNMAPS"]
+        in_saaf = dm["SAAF"]
+        in_sch = dm["SCH"]
+    else:
+        in_ports = cfg["ports_in"]
+        in_keys = max((p["base_cluster"] + p["clusters"]
+                       for p in in_ports), default=1)
+        in_page = min(max((p["clusters"] for p in in_ports), default=1), 8)
+        in_pbase = [p["base_cluster"] for p in in_ports] or [0]
+        in_pcls = [p["clusters"] for p in in_ports] or [1]
+        in_pnmaps = [max(1, -(-p["clusters"] // in_page))
+                     for p in in_ports] or [1]
+        in_saaf = [True for _ in cfg["listeners"]] or [False]
+        in_sch = [((int(str(s["formats"][0]), 16) >> 22) & 0x3FF)
+                  for s in cfg["listeners"]] or [0]
+    in_rphys = [0] * max(1, in_keys)
+    for p in cfg["ports_in"]:
+        for pool in p.get("pool", []):
+            if pool["role"] != "physical":
+                continue
+            for n in range(pool["width"]):
+                key = p["base_cluster"] + pool["offset"] + n
+                phys = pool.get("first", 0) + n
+                if key < len(in_rphys) and phys < 64:
+                    in_rphys[key] = 0x40 | phys
+
+    def sv_array(name, kind, values, render=str):
+        vals = list(values) or [0]
+        body = ", ".join(render(v) for v in vals)
+        a(f"  localparam logic {kind} {name} [0:{len(vals)-1}] = "
+          f"'{{{body}}};")
+
+    a(f"  localparam int ADP_DMAP_IN_KEYS_C    = {max(1, in_keys)};")
+    a(f"  localparam int ADP_DMAP_IN_PAGE_C    = {in_page};")
+    a(f"  localparam int ADP_DMAP_IN_NPORTS_C  = {len(in_pbase)};")
+    a(f"  localparam int ADP_DMAP_IN_NSTRIN_C  = {len(in_sch)};")
+    sv_array("ADP_DMAP_IN_PBASE_C", "[6:0]", in_pbase,
+             lambda v: f"7'd{v}")
+    sv_array("ADP_DMAP_IN_PCLS_C", "[6:0]", in_pcls,
+             lambda v: f"7'd{v}")
+    sv_array("ADP_DMAP_IN_PNMAPS_C", "[6:0]", in_pnmaps,
+             lambda v: f"7'd{v}")
+    sv_array("ADP_DMAP_IN_RPHYS_C", "[6:0]", in_rphys,
+             lambda v: f"7'h{v:02X}")
+    sv_array("ADP_DMAP_IN_SAAF_C", "", in_saaf,
+             lambda v: "1'b1" if v else "1'b0")
+    sv_array("ADP_DMAP_IN_SCH_C", "[9:0]", in_sch,
+             lambda v: f"10'd{v}")
+
+    a("  //! Dynamic output geometry and capture-source words are copied")
+    a("  //! from the AEM generator's ODMAP table. CSRC uses the fabric word")
+    a("  //! {valid, half, src[2:0], idxh[3:0], idx[3:0]}.")
+    if od["EMIT"]:
+        out_pcls = od["PCLS"]
+        out_pcbase = od["PCBASE"]
+        out_sch = od["SCH"]
+        out_csrc = [((1 if s.get("valid", True) else 0) << 12)
+                    | ((s.get("half", 0) & 1) << 11)
+                    | ((s["src"] & 7) << 8)
+                    | ((s.get("idxh", 0) & 0xF) << 4)
+                    | (s.get("idx", 0) & 0xF)
+                    for s in od["CSRC"]]
+    else:
+        out_pcls = [p["clusters"] for p in cfg["ports_out"]] or [1]
+        out_pcbase, total = [], 0
+        for clusters in out_pcls:
+            out_pcbase.append(total)
+            total += clusters
+        out_sch = [s["channels"] for s in cfg["talkers"]] or [0]
+        out_csrc = [0] * max(1, total)
+    a(f"  localparam int ADP_DMAP_OUT_NPORTS_C = {len(out_pcls)};")
+    a(f"  localparam int ADP_DMAP_OUT_NSRC_C    = {len(out_csrc)};")
+    sv_array("ADP_DMAP_OUT_PCLS_C", "[6:0]", out_pcls,
+             lambda v: f"7'd{v}")
+    sv_array("ADP_DMAP_OUT_PCBASE_C", "[7:0]", out_pcbase,
+             lambda v: f"8'd{v}")
+    sv_array("ADP_DMAP_OUT_SCH_C", "[9:0]", out_sch,
+             lambda v: f"10'd{v}")
+    sv_array("ADP_DMAP_OUT_CSRC_C", "[12:0]", out_csrc,
+             lambda v: f"13'h{v:04X}")
     a("  //! THE WIRE CHANNEL CONSTANT (roadmap item 00): channels_per_frame")
     a("  //! the FRAMER emits, derived from the capture front-end this config")
     a("  //! elaborates - NOT from any declared format and NOT from `clusters`")
@@ -3384,6 +3539,19 @@ def load_config(path):
     talkers = _streams(_req(st, "talkers", "streams"), "streams.talkers",
                        "talker", clocking["sampling_rate_hz"])
 
+    # The capture crossbar currently has one image-wide static/dynamic
+    # selector. A mixed set of Stream Port Outputs would therefore switch a
+    # static port to the empty dynamic RAM whenever any sibling was dynamic.
+    # Milan permits either mode per output, but this implementation only
+    # supports a uniform output mode and must refuse an unsafe image.
+    output_map_modes = {s["map_mode"] for s in talkers}
+    if len(output_map_modes) > 1:
+        raise ConfigError(
+            "streams.talkers: mixed static/dynamic map_mode is unsupported; "
+            "the capture mapping fabric selects one mode for all Stream "
+            "Port Outputs, so declare every talker static or every talker "
+            "dynamic")
+
     # Milan 7.2.3 RULE (PDF-verified): "an AAF Media Listener with two or
     # more AAF Media Inputs shall implement a CRF Media Clock Output" (per
     # supported clock domain; we model one). The builder ENFORCES it: shapes
@@ -3572,8 +3740,9 @@ def rtl_capability_marks(cfg):
                            "x 48 b that cannot be LUTRAM). The power-on map "
                            "therefore does NOT point here: primary_segment "
                            "drops the pool and the talkers wake on the host "
-                           "pool instead, so nothing is advertised that this "
-                           "bitstream cannot produce") +
+                           "pool instead. The clusters remain published and "
+                           "protocol-mappable, while their CMAP fabric-enable "
+                           "marker stays clear") +
                           ". A mapped-but-never-fed slot is DISTINGUISHABLE "
                           "from a quiet one either way: CHMAP_LOOP 0x914 "
                           "[18] LOOP_SUSPECT = mapped & ~fed, so silence "
@@ -4469,7 +4638,7 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     lwsrp = emit_lwsrp_table(cfg)
     lwsrp_svh = emit_lwsrp_svh(cfg, lwsrp)
     csr_svh = emit_csr_defaults_svh(cfg)
-    adp_svh = emit_adp_shape_svh(cfg)
+    adp_svh = emit_adp_shape_svh(cfg, overlay)
     # The ROM consumer does not yet express every overlay the builder can
     # emit (a shape with no CRF sink has no AEM_CRF_FMTS_C table). That is a
     # real limit, not a reason to fail every OTHER artifact: record it and

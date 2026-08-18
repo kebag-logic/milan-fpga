@@ -616,14 +616,14 @@ def test_current_shape_matches_gen_aem_store():
     assert [int(f, 16) for f in ovl["stream_outputs"][0]["formats"]] == g.OUT_FORMATS
     rate_hz = {0x0000BB80: 48000, 0x00017700: 96000, 0x0002EE00: 192000}
     assert [rate_hz[x] for x in g.RATES] == ovl["sampling_rates_hz"]
-    # port layout identical to the deployed ROM (1 port/stream: 8@0 map 0 /
-    # 8@8 map 1)
+    # Port layout identical to the builtin model. Milan v1.2 5.3.3.9 makes
+    # the input dynamic (no AUDIO_MAP); the one static output map is index 0.
     p_in, p_out = ovl["stream_ports"]["input"], ovl["stream_ports"]["output"]
     assert len(p_in) == 1 and len(p_out) == 1
     assert (p_in[0]["clusters"], p_in[0]["base_cluster"],
-            p_in[0]["maps"], p_in[0]["base_map"]) == (8, 0, 1, 0)
+            p_in[0]["maps"], p_in[0]["base_map"]) == (8, 0, 0, 0)
     assert (p_out[0]["clusters"], p_out[0]["base_cluster"],
-            p_out[0]["maps"], p_out[0]["base_map"]) == (8, 8, 1, 1)
+            p_out[0]["maps"], p_out[0]["base_map"]) == (8, 8, 1, 0)
     print(f"  [gate 3] arty_current overlay == gen_aem_store model "
           f"({len(ovl['descriptor_counts'])} descriptor types, formats, "
           f"rates, port layout)")
@@ -1305,6 +1305,49 @@ def test_gen_aem_store_crf_output_overlay():
           "(CRF flags/formats in the right rows)")
 
 
+def test_dynamic_map_topology_reaches_shape_header():
+    """gate 16c - the RTL mapping face receives the AEM model topology."""
+    def scalar(s, name):
+        m = re.search(rf"{name}\s*=\s*(\d+)\s*;", s)
+        assert m, f"shape header has no {name}"
+        return int(m.group(1))
+
+    def array(s, name):
+        m = re.search(rf"{name}\s*\[[^]]+\]\s*=\s*'\{{([^}}]+)\}};", s)
+        assert m, f"shape header has no {name}"
+        out = []
+        for token in m.group(1).split(", "):
+            q = re.search(r"'([hdb])([0-9A-Fa-f]+)", token)
+            assert q, f"{name}: cannot parse {token}"
+            out.append(int(q.group(2), {"h": 16, "d": 10, "b": 2}[q.group(1)]))
+        return out
+
+    ax8 = eb.load_config(CONFIGS["ax7101_8x8"])
+    h8 = eb.emit_adp_shape_svh(ax8, eb.emit_aem_overlay(ax8))
+    assert scalar(h8, "ADP_DMAP_IN_KEYS_C") == 64
+    assert array(h8, "ADP_DMAP_IN_PBASE_C") == list(range(0, 64, 8))
+    assert array(h8, "ADP_DMAP_IN_PCLS_C") == [8] * 8
+    assert array(h8, "ADP_DMAP_IN_RPHYS_C") == [0] * 64
+    assert array(h8, "ADP_DMAP_OUT_PCLS_C") == [17] * 8
+    assert array(h8, "ADP_DMAP_OUT_PCBASE_C") == list(range(0, 136, 17))
+    c8 = array(h8, "ADP_DMAP_OUT_CSRC_C")
+    assert c8[:9] == [0x1300, 0x1B00, 0x1301, 0x1B01,
+                      0x1302, 0x1B02, 0x1303, 0x1B03, 0x1400]
+    assert c8[9:17] == [0x0500, 0x0D00, 0x0501, 0x0D01,
+                        0x0502, 0x0D02, 0x0503, 0x0D03]
+
+    ax1 = eb.load_config(CONFIGS["ax7101_1x1_tdm8"])
+    h1 = eb.emit_adp_shape_svh(ax1, eb.emit_aem_overlay(ax1))
+    assert scalar(h1, "ADP_DMAP_IN_KEYS_C") == 8
+    assert array(h1, "ADP_DMAP_IN_RPHYS_C") == [0] * 8
+    assert array(h1, "ADP_DMAP_OUT_PCLS_C") == [25]
+    c1 = array(h1, "ADP_DMAP_OUT_CSRC_C")
+    assert c1[0] == 0x1200 and c1[8] == 0x1300
+    assert c1[16] == 0x1400 and c1[17] == 0x1500 and c1[24] == 0x1D03
+    print("  [gate 16c] dynamic-map input keys, physical projections and "
+          "output CSRC tables match both AX7101 entity models")
+
+
 def _dynmap_candidate(cfg_path, td):
     """The tracked pair `--write-rtl <cfg>` WOULD install for cfg_path,
     written to td.  Same technique as gate 10's candidate pairs - the real
@@ -1327,25 +1370,11 @@ def _dynmap_candidate(cfg_path, td):
 def _check_tracked_dynmap(adp_path, rom_path, configs=None):
     """Gate 17's engine-presence check, asked of ANY tracked pair.
 
-    THE PROPERTY IS UNCHANGED: `AEM_DYNMAP is CONDITIONAL codegen.  The
-    dynamic-map engine constants are in a generated descriptor ROM IF AND
-    ONLY IF the config that ROM was generated from declares a dynamic
-    audio-map port - that is what `map_mode: dynamic` means (1722.1-2021
-    7.2.13 / Milan v1.2 5.4.2.27-28: a dynamically-mapped port carries no
-    AUDIO_MAP descriptor and advertises number_of_maps = 0).  A static shape
-    must not drag the engine into a gateware that has no use for it.
-
-    WHAT MOVED is the EXPECTATION.  It used to be the constant "absent" -
-    `assert "AEM_DYNMAP" not in open(TRACKED_SVH).read()` - which reads the
-    TRACKED artifact while ASSUMING which config owns it.  Harmless while
-    all three shipped configs are static, red the day a `map_mode: dynamic`
-    config legitimately owns the tracked pair, and red for a reason that has
-    nothing to do with conditional codegen.  This is gate 10's defect in the
-    other polarity, so it gets gate 10's fix: the owner is READ from the
-    shape include's `Source :` marker through ces.tracked_owner - the ONE
-    reader of that question in this repo - and the expectation is DERIVED
-    from what that config declares.  Two answers to "who owns the tracked
-    ROM" is exactly how this defect class propagates.
+    Milan v1.2 5.3.3.9 makes every Stream Port Input dynamic, so every valid
+    builder owner requires the generated `AEM_DYNMAP input engine. The owner
+    is still read from the shape include's `Source :` marker through
+    ces.tracked_owner, which prevents a ROM left behind by a different shape
+    from passing the tracked-artifact gate.
 
     The standard is SILENT on which config owns a build artifact; that part
     is build hygiene, not conformance.  What the standard fixes is the
@@ -1458,53 +1487,46 @@ def test_dynamic_audio_map_overlay():
     finally:
         os.unlink(p)
 
-    # R2 - BOTH directions of the iff, on CANDIDATE pairs in temp dirs.
-    # Nothing is installed: --write-rtl is never run and the tree keeps its
-    # owner.  A gate that only ever sees a static owner cannot tell "derived
-    # from the owner" from "hardcoded absent", which is the whole defect.
+    # R2: every Milan input is dynamic, so engine presence is now an
+    # unconditional model invariant. Candidate pairs are kept in temp dirs;
+    # nothing is installed and the tree retains its owner.
     p = _variant(CONFIGS["arty_current"], dyn)
     try:
         with tempfile.TemporaryDirectory() as td:
             dyn_adp, dyn_rom = _dynmap_candidate(p, td)
-            sub = os.path.join(td, "static")
+            sub = os.path.join(td, "current")
             os.makedirs(sub)
-            st_adp, st_rom = _dynmap_candidate(CONFIGS["arty_current"], sub)
+            cur_adp, cur_rom = _dynmap_candidate(CONFIGS["arty_current"], sub)
 
-            # (1) a DYNAMIC owner passes the SAME check with the expectation
-            #     FLIPPED to "present".  The old hardcoded negative REJECTED
-            #     exactly this - a correct tree, refused for a reason that is
-            #     not what the gate is about.
+            # A conformant owner passes with the required input engine.
             name, want = _check_tracked_dynmap(dyn_adp, dyn_rom, configs=[p])
             assert want is True, f"{name}: dynamic owner not seen as dynamic"
             assert "AEM_DYNMAP" in open(dyn_rom).read(), (
                 "SETUP: the dynamic candidate ROM has no engine to require")
-            print(f"  [gate 17] a tracked pair owned by a map_mode-dynamic "
-                  f"config passes the SAME check with the expectation "
-                  f"FLIPPED to `AEM_DYNMAP PRESENT - the gate follows the "
-                  f"owner instead of hardcoding absence")
+            print(f"  [gate 17] a Milan input owner requires "
+                  f"`AEM_DYNMAP PRESENT and the candidate pair carries it")
 
-            # (2) and it still BITES in both directions.  Both mutations are
-            #     the realistic failure - a ROM left over from the previous
-            #     owner while the shape include already moved.
+            # A stale/mutated ROM with the engine marker removed is rejected.
+            broken_rom = os.path.join(td, "broken.svh")
+            with open(broken_rom, "w") as f:
+                f.write(open(dyn_rom).read().replace("AEM_DYNMAP",
+                                                     "AEM_XYNMAP"))
             _expect_dynmap_rejected(
                 "owner declares a dynamic port, tracked ROM has no engine",
-                lambda: _check_tracked_dynmap(dyn_adp, st_rom, configs=[p]))
-            _expect_dynmap_rejected(
-                "owner declares NO dynamic port, tracked ROM carries the "
-                "engine",
-                lambda: _check_tracked_dynmap(st_adp, dyn_rom))
+                lambda: _check_tracked_dynmap(dyn_adp, broken_rom,
+                                              configs=[p]))
 
-            # (3) an owner that cannot be resolved must FAIL, not skip: with
+            # An owner that cannot be resolved must FAIL, not skip: with
             #     no owner there is no expectation to check against.
-            ghost = open(st_adp).read().replace(
+            ghost = open(cur_adp).read().replace(
                 "configs/endstation_arty_current.yaml",
                 "configs/endstation_ghost.yaml")
             assert ces.svh_source(ghost) == "configs/endstation_ghost.yaml"
-            with open(st_adp, "w") as f:
+            with open(cur_adp, "w") as f:
                 f.write(ghost)
             _expect_dynmap_rejected(
                 "shape include names a config that does not exist",
-                lambda: _check_tracked_dynmap(st_adp, st_rom))
+                lambda: _check_tracked_dynmap(cur_adp, cur_rom))
     finally:
         os.unlink(p)
 
@@ -1549,11 +1571,10 @@ def test_dynamic_audio_map_overlay():
               "4 ports n_maps=0, no input AUDIO_MAP, svh keys=16 bases "
               "0/4/8/12, CRF sink flagged unmappable")
 
-        # gate 17c: the AEM refusal and the fabric write gate must agree on
-        # WHICH KEYS EXIST, or the model accepts a mapping the crossbar drops
-        # (or refuses one it would have taken). AEM_DMAP_PHYS_C is emitted by
-        # the codegen; CHMAP_PHYS_C is a milan_datapath localparam; this is
-        # the only thing tying the two together.
+        # gate 17c: the protocol store covers every model key, while only a
+        # generated physical projection may reach the render crossbar.
+        # AEM_DMAP_PHYS_C still fixes that crossbar's capacity; RPHYS decides
+        # which model keys, if any, address it.
         m = re.search(r"localparam int unsigned AEM_DMAP_PHYS_C\s*=\s*(\d+);",
                       svh)
         assert m, "svh emits no AEM_DMAP_PHYS_C"
@@ -1564,15 +1585,21 @@ def test_dynamic_audio_map_overlay():
             f"AEM_DMAP_PHYS_C {m.group(1)} != milan_datapath CHMAP_PHYS_C "
             f"{d.group(1)}: the AEM refusal and the render-map write gate "
             "would disagree about which cluster keys are reachable")
-        # and the write gate itself must be present on BOTH arms, full-width
+        # Both physical write arms remain full-width gated. The CSR arm must
+        # also require a generated projection instead of comparing the model
+        # key directly with the physical depth.
         assert re.search(r"32'\(aecp_dmap_wr_addr_w\)\s*<\s*CHMAP_PHYS_C", dp), \
             "milan_datapath: AEM arm of the render-map write is not gated"
-        assert re.search(r"32'\(cfg_chmap_wr_addr\)\s*<\s*CHMAP_PHYS_C", dp), \
-            "milan_datapath: CSR-debug arm of the render-map write is not gated"
+        assert "cfg_chmap_rphys_w[6]" in dp, \
+            "milan_datapath: CSR-debug arm ignores generated RPHYS validity"
+        assert re.search(
+            r"32'\(cfg_chmap_rphys_w\[5:0\]\)\s*<\s*CHMAP_PHYS_C", dp), \
+            "milan_datapath: projected CSR render key is not depth-gated"
+        assert "ADP_DMAP_IN_RPHYS_C[k]" in dp, \
+            "milan_datapath: generated input projection table is not consumed"
         print(f"  [gate 17c] AEM_DMAP_PHYS_C {m.group(1)} == milan_datapath "
-              f"CHMAP_PHYS_C {d.group(1)}, and BOTH render-map write arms "
-              "(AEM projector + CSR 0x900 debug port) carry the full-width "
-              "< CHMAP_PHYS_C gate")
+              f"CHMAP_PHYS_C {d.group(1)}; RPHYS validity and full-width "
+              "physical-depth gates protect both render-map write arms")
     finally:
         os.unlink(p)
 
@@ -1617,7 +1644,7 @@ def test_dynamic_audio_map_overlay():
         #   - the identity must be the HOST pool, whose templates are the
         #     elaborated KL_pcm_tx ring: {valid, half, src=3 RING} = 13'h13xx
         #   - the loopback templates must still be EMITTED (the clusters
-        #     exist and a controller may map to them) but marked INVALID -
+        #     exist and a controller may map to them) but fabric-disabled,
         #     bit 12 clear, so 13'h05xx, never 13'h15xx
         # INIT carries {valid[5], cluster offset[4:0]}; host is offset 0
         # (physical is 0 wide), so every key must read 6'h20 + channel.
@@ -1632,8 +1659,8 @@ def test_dynamic_audio_map_overlay():
         print("  [gate 17d] ax7101_8x8 ALL streams dynamic: 8 output ports "
               "n_maps=0, zero AUDIO_MAPs, `AEM_ODYNMAP keys=64 slotb 0..28")
         print("  [gate 17e] lane OFF: power-on identity = HOST/RING "
-              "(13'h1300), loopback templates emitted but INVALID (13'h05xx) "
-              "- nothing advertised that this bitstream cannot produce")
+              "(13'h1300), loopback templates emitted fabric-disabled "
+              "(13'h05xx) and protocol-mappable; live CMAP enable stays clear")
 
         # and the OTHER direction: declaring the lane must hand the pool
         # back. ONE fact drives the argv and the map, so they cannot drift.
@@ -1676,9 +1703,10 @@ def test_dynamic_audio_map_overlay():
         os.unlink(p)
 
     def dyn_page_static(c):
+        c["streams"]["listeners"][0]["map_mode"] = "static"
         c["streams"]["listeners"][0]["map_page"] = 4
     for label, mutate, needle in (
-            ("map_page without dynamic", dyn_page_static, "map_mode dynamic"),):
+            ("static listener", dyn_page_static, "forbidden"),):
         p = _variant(CONFIGS["arty_current"], mutate)
         try:
             try:
@@ -1705,8 +1733,24 @@ def test_dynamic_audio_map_overlay():
             raise AssertionError("split map_page: accepted")
     finally:
         os.unlink(p)
-    print("  [gate 17] reject paths: stray map_page and disagreeing "
-          "map_page across dynamic listeners raise ConfigError")
+    # The capture crossbar selects static/dynamic output mapping globally,
+    # so a mixed output image must be rejected instead of misrouting its
+    # static ports through an empty dynamic map.
+    def mixed_output_modes(c):
+        c["streams"]["talkers"][0]["map_mode"] = "dynamic"
+        c["streams"]["talkers"][1]["map_mode"] = "static"
+    p = _variant(CONFIGS["arty_4x4"], mixed_output_modes)
+    try:
+        try:
+            eb.load_config(p)
+        except eb.ConfigError as e:
+            assert "mixed static/dynamic" in str(e), f"mixed outputs: got {e}"
+        else:
+            raise AssertionError("mixed output map modes: accepted")
+    finally:
+        os.unlink(p)
+    print("  [gate 17] reject paths: static input, disagreeing input pages, "
+          "and mixed output map modes raise ConfigError")
 
 
 MILAN_CSR_SV = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
@@ -4088,9 +4132,11 @@ def test_d10_cluster_names():
     # same move: 87 octets was the 2013 length, 2021 Table 7-27 adds
     # aes3_data_type_reference and aes3_data_type for 90). That is the 6.2.2.8
     # obligation being discharged, not a D8-era regression - which is why the
-    # D8 conditional keys above stayed conditional and this key did not.
+    # D8 conditional keys above stayed conditional and this key did not),
+    # then -> 0x001BC5FC6D9248FB when Milan v1.2 5.3.3.9 made the final
+    # shipped input dynamic and removed its forbidden AUDIO_MAP.
     assert eb.load_config(CONFIGS["arty_current"])["model_id"]["hash"] == \
-        "0x001BC54079789FCA"
+        "0x001BC5FC6D9248FB"
     # arty_4x4's hash has now moved THREE times, correctly every time:
     # 0x001BC565E07E0DD6 -> 0x001BC5C42E0CEE8B when the per-board routing
     # gate forced tdm8 -> i2s_philips (no header existed), ->
@@ -4117,7 +4163,8 @@ def test_d10_cluster_names():
         "0x001BC59AB5D4ADE1"
     print("  [gate 24c] every cluster named for its ROLE; renaming leaves "
           "entity_model_id frozen (1722.1 6.2.2.8 exclusion list) while a "
-          "pool width moves it; the two pre-D8 shapes hash unchanged")
+          "pool width moves it; pre-D8 hashes stay explicitly pinned to "
+          "their current model")
 
 
 def test_d10_names_reach_the_rom():
@@ -4969,6 +5016,7 @@ if __name__ == "__main__":
                test_resource_verdicts, test_milan_723_crf_output_rule,
                test_crf_output_overlay_structure,
                test_gen_aem_store_crf_output_overlay,
+               test_dynamic_map_topology_reaches_shape_header,
                test_dynamic_audio_map_overlay,
                test_lwsrp_reset_words_match_rtl,
                test_lwsrp_class_constants_match_rtl,

@@ -1,4 +1,4 @@
-[OBSOLETE + 2026-08-16]
+[OBSOLETE + 2026-08-17]
 
 # Item-10 — PDU getter/setter verification (the plan, and what the AECP half can and cannot run)
 

@@ -72,6 +72,7 @@ Feature: Milan v1.2 5.3.7.3 - the licence to stream is CONDITIONAL
     # escape would admit unpaced PROBE_TX-only streams straight out of reset
     # (the ~56 kframe/s blast that takes the peer board off the network).
     And the t>0 admission requires the lwSRP stream gate unconditionally
+    And the effective t>0 admission is masked by output mapping reservations
     # (2) IDENTITY. The packetizer read dmac/VID/unique_id for t>0 from that
     # same never-written window, so an armed talker framed to dmac all-zeros
     # on VID 0 with stream_id {station_mac, uid 0} - colliding with t0 and

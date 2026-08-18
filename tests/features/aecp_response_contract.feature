@@ -75,8 +75,6 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
       | 14     | SET_STREAM_INFO                   |
       | 16     | SET_NAME                          |
       | 17     | GET_NAME                          |
-      | 44     | ADD_AUDIO_MAPPINGS                |
-      | 45     | REMOVE_AUDIO_MAPPINGS             |
       | 75     | GET_DYNAMIC_INFO                  |
 
     Examples: opcodes with no command behind them at all

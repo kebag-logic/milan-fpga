@@ -851,10 +851,13 @@ def builtin_spec():
                  loc_type=STREAM_INPUT, loc_index=0),
             dict(name="CRF Clock", cs_type=0x0002, raw_type="crf",
                  loc_type=STREAM_INPUT, loc_index=1)],
-        ports_in=[dict(clusters=8, base_cluster=0, maps=1, base_map=0)],
-        ports_out=[dict(clusters=8, base_cluster=8, maps=1, base_map=1)],
-        audio_maps=[[[0, ch, ch, 0] for ch in range(8)],
-                    [[0, ch, ch, 0] for ch in range(8)]],
+        # Milan v1.2 5.3.3.9: every Stream Port Input is dynamic and carries
+        # no AUDIO_MAP descriptor. The output remains the compatibility
+        # model's one static map, densely renumbered to descriptor index 0.
+        ports_in=[dict(clusters=8, base_cluster=0, maps=0, base_map=0,
+                       map_mode="dynamic", map_page=8)],
+        ports_out=[dict(clusters=8, base_cluster=8, maps=1, base_map=0)],
+        audio_maps=[[[0, ch, ch, 0] for ch in range(8)]],
         # D10 role names for the DEPLOYED arty shape, and the reason this
         # list is written out rather than computed: this spec is the
         # pre-builder model, and endstation_arty_current.yaml must reproduce

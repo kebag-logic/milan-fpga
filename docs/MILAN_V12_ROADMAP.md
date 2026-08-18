@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
-**Status 2026-08-16, VERSION `0x0002_004F`.** This is the ordered, clause-cited
+**Status 2026-08-18, VERSION `0x0002_0050`.** This is the ordered, clause-cited
 plan from where the device is to a device that passes the Milan
 end-station validation test plan. It supersedes the AECP sections of
 [historical `MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
@@ -45,14 +45,12 @@ by a behave step that parses the RTL — so this section cannot silently rot
 again.
 
 **"Served" here means the command's own request/response contract.** It does
-**not** include the unsolicited notification that Milan §5.4.5.2 and IEEE
-§7.4.7 require after a successful `SET_*`: no microprogram enqueues one, the
-only `NOTIFY_ENQ` in `gen_ucode.py` sits in an exemplar program, and
-`pp_pkg.sv` defines notification kinds for the deregistration, `LOCK_ENTITY`,
-and GET families only, with none for any `SET_*`. Every `SET_*` row below
-therefore carries an open half tracked as #69 rather than a per-row caveat,
-because it is the same missing mechanism in all of them. One more caveat worth
-naming here rather than burying: `0x0016`'s stored
+**not** imply that every served state change has its unsolicited notification.
+The audio mapping writers enqueue their required successful-change
+notifications, including an idempotent ADD. The ordinary `SET_*` programs do
+not yet enqueue all notifications required by Milan §5.4.5.2 and IEEE §7.4.7;
+that shared gap remains tracked as #69. One more caveat worth naming here
+rather than burying: `0x0016`'s stored
 clock source reaches `milan_datapath` and is read by nothing (audit B3).
 
 `0x0006` used to carry a second caveat — it stored an index that
@@ -91,6 +89,8 @@ underneath it.
 | `0x0028` | GET_AS_PATH | 5.4.2.24 | 0x0048 |
 | `0x0029` | GET_COUNTERS | 5.4.2.25 | 0x0049 |
 | `0x002B` | GET_AUDIO_MAP (both port directions) | 5.4.2.26 | 0x0048 |
+| `0x002C` | ADD_AUDIO_MAPPINGS | 5.4.2.27 | 0x0050 |
+| `0x002D` | REMOVE_AUDIO_MAPPINGS | 5.4.2.28 | 0x0050 |
 | MVU `0x0000` | GET_MILAN_INFO | 5.4.4.1 | 0x0043 |
 
 ### 0.1b What the read-side set cost, measured
@@ -133,11 +133,11 @@ absence was why the whole `SET_*` family answered the `NOT_IMPLEMENTED` echo:
 every value the device served came from the read-only descriptor image or a
 live fabric face, and neither can hold a *setting*.
 
-`KL_aecp_dyn_state.sv` is that store, and it is landed, tested and load-bearing
-— `SET_SAMPLING_RATE`, `SET_CLOCK_SOURCE`, `SET_CONTROL` and
+`KL_aecp_dyn_state.sv` is that store, and it is landed, tested and load-bearing.
+`SET_SAMPLING_RATE`, `SET_CLOCK_SOURCE`, `SET_CONTROL` and
 `SET_CONFIGURATION` all write it, and their getters read it in preference to
-the image. `START`/`STOP_STREAMING` also wrote it and were pulled back out, and issue #78
-has now settled where they belong: started/stopped lives in the **ACMP binding
+the image. Issue #78 settled the separate streaming-state ownership:
+started/stopped lives in the **ACMP binding
 record** and nowhere else. Milan §5.3.8.7 calls the state "undefined when the
 Stream Input is not bound", so it is a property of the binding, and only that
 record has the lifecycle — it is cleared on unbind, and it is captured by the
@@ -334,12 +334,14 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 | `0x002C` | ADD_AUDIO_MAPPINGS | 5.4.2.27 | es-4.16, es-5.1, es-9.2, es-11.6, es-12.11 |
 | `0x002D` | REMOVE_AUDIO_MAPPINGS | 5.4.2.28 | as above |
 
-All-or-nothing `BAD_ARGUMENTS` (*"no mapping shall be added"*), the two
-same-channel conflict rules, REMOVE ignoring duplicates, and the
-running-output gate keyed on `TALKER_DYNAMIC_MAPPINGS_WHILE_RUNNING`. The µISA
-already carries `MAP_VALID` for the validation and `E_MAPV`/`E_MAPVF` as
-exemplar programs; the read side (`GET_AUDIO_MAP`) is already live off the
-integrator's map store, so the write path is the gap.
+**Live command path implemented 2026-08-17.** The processor stages the entire
+command and completes `MAP_VALID` validation before the root commits any row.
+It enforces all-or-nothing `BAD_ARGUMENTS`, duplicate REMOVE handling,
+cross-port output ownership, lock protection, and the running-output gate.
+The builder supplies exact input geometry, physical projections, and output
+source templates for each entity model. Every successful command notifies every
+other registered controller, including an idempotent ADD; only changed commands
+mark mapping state dirty. Nonvolatile mapping replay remains open in issue #70.
 
 ### P2.5 — the packed getter
 
@@ -459,7 +461,11 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
    every stream.
 5. **P3.2** notification triggers, folded into each command above as it lands.
 6. **P2.2/P2.3** `GET`/`SET_CONTROL` with the IDENTIFY indicator wired.
-7. **P2.4** ADD/REMOVE_AUDIO_MAPPINGS.
+7. **P2.4 complete 2026-08-17**: ADD/REMOVE_AUDIO_MAPPINGS with atomic
+   validation, live datapath projection, lock checks, unsolicited updates,
+   MAP_CFG versus STREAM_CFG scoreboard exclusion, and root output
+   reservations against local or SRP starts during write-back. Nonvolatile
+   replay remains tracked by P3.1 and issue #70.
 8. **P3.3** departing-controller monitor.
 9. **P3.1** persistence — largest, and the only one that needs a real flash
    backend rather than the blank-flash stub.

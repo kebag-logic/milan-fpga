@@ -1103,15 +1103,20 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [4:0]  cmap_slot_w;
   wire [23:0] cmap_l_w, cmap_r_w;
 
-  //! Reserved capture-side AECP map-write leg. The current processor serves
-  //! GET_AUDIO_MAP but does not implement ADD/REMOVE_AUDIO_MAPPINGS, so this
-  //! leg is tied off below and the CSR 0x900 window is the only writer.
+  //! Capture-side AECP map-write leg. The processor's atomic
+  //! ADD/REMOVE_AUDIO_MAPPINGS transaction server drives it after every row
+  //! has passed validation. The CSR 0x900 window remains a diagnostic writer.
   //! A slot past N_STREAMS*4 is refused, never wrapped.
   wire        aecp_odmap_wr_p_w;
   wire [5:0]  aecp_odmap_wr_slot_w;
   wire [12:0] aecp_odmap_wr_word_w;
-  //! Reserved dynamic-map ownership flags. Both are tied low in the current
-  //! integration because no AECP map writer or boot seeder is connected.
+  logic       amap_edit_owr_p_r;
+  logic [5:0] amap_edit_owr_slot_r;
+  logic [12:0] amap_edit_owr_word_r;
+  logic       amap_edit_txn_active_r;
+  //! task #26 shape truth from the AECP builder (the one module that
+  //! compiles the generated ROM): 1 = this build carries the dynamic-map
+  //! writers + boot seeder for that side. Elaboration constants.
   wire        aecp_dmap_dyn_w;
   wire        aecp_odmap_dyn_w;
 
@@ -1168,6 +1173,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [15:0] lb_skip_cnt_w /* verilator public_flat_rd */;
 
   wire [N_STREAMS*8*13-1:0] cmap_flat_w;   //! GET_AUDIO_MAP OUTPUT walk
+  logic [N_STREAMS*8-1:0] amap_out_owner_v_r;
+  logic [N_STREAMS*8*16-1:0] amap_out_owner_r;
+  logic [N_STREAMS*8*16-1:0] amap_out_cluster_r;
 
   KL_chan_map_capture #(
     .N_SLOTS_P (N_STREAMS*4),
@@ -1183,13 +1191,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   ) chan_map_capture (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     //! PER-CHANNEL store (0x0027, USER "one cluster == one audio channel"):
-    //! the key space is N_STREAMS*8 channels. The reserved AECP leg would
-    //! pass a 13-bit word straight through. The current CSR window composes
+    //! the key space is N_STREAMS*8 channels. The live AECP transaction leg
+    //! passes a 13-bit word straight through. The CSR window composes
     //! {en=WORD[15], half=WORD[8], src=WORD[14:12],
     //! idxh=WORD[7:4], idx=WORD[3:0]} - WORD[8] was reserved.
     .map_wr_en_i   ((aecp_odmap_wr_p_w &&
                      32'(aecp_odmap_wr_slot_w) < N_STREAMS*8) ||
-                    (!aecp_odmap_wr_p_w && cfg_chmap_wr_en &&
+                    (!aecp_odmap_wr_p_w && !amap_edit_txn_active_r
+                     && !aecp_locked
+                     && cfg_chmap_wr_en &&
                      cfg_chmap_wr_side &&
                      32'(cfg_chmap_wr_addr) < N_STREAMS*8)),
     .map_wr_addr_i (aecp_odmap_wr_p_w
@@ -1429,11 +1439,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [3:0]  adp_last_msg, adp_state;
   wire        adp_disc_seen_p;   //! any ENTITY_DISCOVER on the wire (counted in milan_csr)
 
-  //! AECP/AEM listener (KL_aecp_top) — response AXIS + status + ADP-discover.
+  //! Live processor LOCK_ENTITY level, in the same axis_clk domain as every
+  //! local mapping writer and the CSR status mux.
   wire                     aecp_locked;
-  //! the locking controller's Entity ID (valid while aecp_locked): feeds
-  //! the ACMP listener's BIND/UNBIND step-1 authorization check — same
-  //! axis_clk domain as the listener, no CDC
   wire [15:0]              aecp_current_config, aecp_cmd_count, aecp_resp_count;
   //! gh #59 departing-controller detection (Milan v1.2 §5.4.5.3), CSR 0x6F4
   //! A_CTLR_DIAG: {evictions[31:24], CONTROLLER_AVAILABLE replies seen[23:12],
@@ -1652,15 +1660,26 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! bit-identical (render/capture crossbars are muxed OUT of both the
   //! packetizer feed and the i2s_playback feed).
   wire        cfg_chmap_enable;
-  //! Reserved render-side AECP map-write leg. It is tied off in the current
-  //! integration; the CSR 0x900 window is the only map-RAM writer.
+  //! Render-side AECP map-write leg. Accepted input transactions project
+  //! backed model clusters here; the CSR 0x900 window shares the writer.
   wire        aecp_dmap_wr_p_w;
   wire [5:0]  aecp_dmap_wr_addr_w;
   wire [7:0]  aecp_dmap_wr_word_w;
+  logic       amap_edit_iwr_p_r;
+  logic [5:0] amap_edit_iwr_addr_r;
+  logic [7:0] amap_edit_iwr_word_r;
   wire        cfg_chmap_wr_en;
   wire        cfg_chmap_wr_side;
   wire [5:0]  cfg_chmap_wr_addr;
   wire [15:0] cfg_chmap_wr_data;
+  logic [6:0] cfg_chmap_rphys_w;
+  always_comb begin : cfg_chmap_rphys
+    cfg_chmap_rphys_w = 7'd0;
+    for (int k = 0; k < ADP_DMAP_IN_KEYS_C; k++) begin
+      if (cfg_chmap_wr_addr == 6'(k))
+        cfg_chmap_rphys_w = ADP_DMAP_IN_RPHYS_C[k];
+    end
+  end : cfg_chmap_rphys
   //! chmap map-RAM READBACK (CSR 0x910/0x914). Both RAM read ports were tied
   //! off here, so the ONLY view software had of the channel map was
   //! CHMAP_WORD 0x908 - which is milan_csr's own shadow of what software last
@@ -1901,11 +1920,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!                     keeps the board safety rail meaningful (engine off
   //!                     => t>0 dark, so an armed-with-engine-off state
   //!                     cannot exist).
+  //! An output mapping transaction reserves every referenced AAF stream
+  //! after its successful phase-1 recheck. Raw 0-to-1 admission changes are
+  //! held until the complete map transaction finishes, so ACMP, SRP and the
+  //! local bypass cannot make a target stream live between validation and a
+  //! later phase-5 write. A stream already live is rejected before reserve.
+  logic [N_STREAMS-1:0] amap_edit_out_resv_r /* verilator public_flat_rd */;
+  wire [N_STREAMS-1:0] aaf_stream_en_raw_w /* verilator public_flat_rd */;
   wire [N_STREAMS-1:0] aaf_stream_en_w /* verilator public_flat_rd */;
-  assign aaf_stream_en_w[0] = aaf_gate;
+  assign aaf_stream_en_raw_w[0] = aaf_gate;
+  assign aaf_stream_en_w = aaf_stream_en_raw_w & ~amap_edit_out_resv_r;
   generate
     for (genvar gs = 1; gs < N_STREAMS; gs++) begin : g_aaf_stream_en
-      assign aaf_stream_en_w[gs] =
+      assign aaf_stream_en_raw_w[gs] =
           cfg_aaf_enable &
           (~cfg_maap_enable | maap_addr_valid) &
           (cfg_aaf_bypass |
@@ -2858,6 +2885,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire  [7:0] pp_amap_rec_w;
   logic [63:0] pp_amap_data_w;
   wire        pp_amap_wait_w;
+  //! ADD/REMOVE_AUDIO_MAPPINGS transaction face
+  wire        pp_amap_edit_req_w;
+  wire  [2:0] pp_amap_edit_phase_w;
+  wire        pp_amap_edit_remove_w;
+  wire [15:0] pp_amap_edit_desc_type_w, pp_amap_edit_desc_index_w;
+  wire [15:0] pp_amap_edit_count_w;
+  wire  [7:0] pp_amap_edit_rec_w;
+  wire [63:0] pp_amap_edit_record_w, pp_amap_edit_value_w;
+  logic [63:0] pp_amap_edit_data_w;
+  wire        pp_amap_edit_wait_w;
   // Milan-info gather face (GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH)
   wire        pp_gsi_req_w;
   wire  [1:0] pp_gsi_kind_w;
@@ -3025,7 +3062,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! Structural zero means "no connected source", not "an active engine is
   //! idle".
   assign aecp_bdbg0_w = 32'd0, aecp_bdbg1_w = 32'd0, aecp_bdbg2_w = 32'd0;
-  assign aecp_locked = 1'b0;   //! processor lock state has no source wired to this legacy CSR
+  //! Driven by KL_pp_shadow below. This is the processor's authoritative
+  //! LOCK_ENTITY level and gates every local, non-ATDECC map writer.
   assign aecp_current_config = 16'd0;  //! exported config state is not wired into this legacy CSR
   assign aecp_cmd_count = 16'd0;
   assign aecp_resp_count = 16'd0;
@@ -3050,16 +3088,18 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!  its banner at the top of this file. The CRF Media Clock Input engine
   //!  still parses, counts and reports; what it can no longer do is STEER the
   //!  audio MMCM or the packet-grid NCO.)
-  //! Reserved AEM descriptor-map write ports. ADD/REMOVE_AUDIO_MAPPINGS are
-  //! not implemented by the current processor, so these legs remain tied off.
-  assign aecp_dmap_wr_p_w = 1'b0;
-  assign aecp_dmap_wr_addr_w = 6'd0;
-  assign aecp_dmap_wr_word_w = 8'd0;
-  assign aecp_dmap_dyn_w = 1'b0;
-  assign aecp_odmap_wr_p_w = 1'b0;
-  assign aecp_odmap_wr_slot_w = 6'd0;
-  assign aecp_odmap_wr_word_w = 13'd0;
-  assign aecp_odmap_dyn_w = 1'b0;
+  //! The AEM descriptor-map write ports are driven by the transactional
+  //! ADD/REMOVE_AUDIO_MAPPINGS block beside GET_AUDIO_MAP below. Dynamic map
+  //! ownership is generated from the same YAML that emits number_of_maps=0,
+  //! so a static output never enables an empty crossbar by accident.
+  assign aecp_dmap_wr_p_w    = amap_edit_iwr_p_r;
+  assign aecp_dmap_wr_addr_w = amap_edit_iwr_addr_r;
+  assign aecp_dmap_wr_word_w = amap_edit_iwr_word_r;
+  assign aecp_dmap_dyn_w     = |ADP_DMAP_IN_MASK_C;
+  assign aecp_odmap_wr_p_w    = amap_edit_owr_p_r;
+  assign aecp_odmap_wr_slot_w = amap_edit_owr_slot_r;
+  assign aecp_odmap_wr_word_w = amap_edit_owr_word_r;
+  assign aecp_odmap_dyn_w     = |ADP_DMAP_OUT_MASK_C;
   // ------------------------------------------------------------------------
   //  GET_COUNTERS (1722.1-2021 7.4.42, Milan v1.2 5.4.2.25 / Table 5.16)
   // ------------------------------------------------------------------------
@@ -3344,33 +3384,27 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! constants, because it CANNOT come from anywhere else - the µISA has no
   //! subtract (a store-read base_cluster could never produce port-relative
   //! offsets) and the gather face carries no µCPU operands. The constants
-  //! DERIVE from what this build already elaborates: one STREAM_PORT_INPUT
-  //! per AAF listener (the builder's one-port-per-stream law, so the port
-  //! count is N_STREAMS) with a uniform cluster block whose width is the
-  //! listener stream format's channels_per_frame (ADP_STRIN0_FMT_C[31:22]
-  //! out of the SAME generated shape header the descriptor image derives
-  //! from). Every shipped DYNAMIC-map config's cluster pool equals its
-  //! channel count, so the derivation is exact where GET_AUDIO_MAP is the
-  //! mapping authority; the one static legacy shape (endstation_arty_current:
-  //! 8 declared clusters over a 2-channel format, its map served by a static
-  //! AUDIO_MAP descriptor) narrows to its first 2 clusters here - a RECORDED
-  //! limitation, and a config that breaks the equality on a dynamic port
-  //! must extend the generated header rather than let two authorities
-  //! drift. The page constant is the builder's own default law
-  //! (min(clusters, 8), Milan 5.4.2.26 only bounds a subset's SIZE at 176
-  //! and demands the partition be fixed).
+  //! The generated entity definition carries the exact STREAM_PORT_INPUT
+  //! geometry used by the AEM image. The live protocol store therefore has
+  //! one entry for every declared input cluster, including host or virtual
+  //! clusters that do not project onto the render crossbar. A generated
+  //! RPHYS entry controls that projection and prevents a non-physical global
+  //! cluster key from aliasing one of the ten physical render slots.
   //! EXISTENCE is not decided here at all: the processor locates the
   //! STREAM_PORT_INPUT descriptor in the image first, so an index the image
   //! lacks answers NO_SUCH_DESCRIPTOR whatever these constants claim, and
   //! this face's own guard only ever ADDS refusals (empty pages), never
   //! objects.
-  localparam int AMAP_IN_PORTS_C = N_STREAMS;
-  localparam int AMAP_FMT_CH_C   = int'(ADP_STRIN0_FMT_C[31:22]);
-  localparam int AMAP_IN_CLUS_C  = (AMAP_FMT_CH_C < 1) ? 1 : AMAP_FMT_CH_C;
-  localparam int AMAP_PAGE_C     = (AMAP_IN_CLUS_C < 8) ? AMAP_IN_CLUS_C : 8;
-  localparam int AMAP_NMAPS_C    = (AMAP_IN_CLUS_C + AMAP_PAGE_C - 1)
-                                   / AMAP_PAGE_C;
+  localparam int AMAP_IN_PORTS_C = ADP_DMAP_IN_NPORTS_C;
+  localparam int AMAP_IN_KEYS_C  = ADP_DMAP_IN_KEYS_C;
+  localparam int AMAP_IN_KEY_W_C = (AMAP_IN_KEYS_C <= 2)
+                                  ? 1 : $clog2(AMAP_IN_KEYS_C);
+  localparam int AMAP_PAGE_C     = ADP_DMAP_IN_PAGE_C;
   localparam logic [15:0] DESC_STREAM_PORT_IN_C = 16'h000E;  //! Table 7-1
+
+  //! Protocol-visible input mapping image. The render map RAM is a physical
+  //! projection of this store, not the model itself.
+  logic [AMAP_IN_KEYS_C*8-1:0] amap_in_store_r;
 
   //! WHICH OBJECT WE ARE ALLOWED TO ANSWER FOR - the counters-face rule
   //! restated: a port or page this fabric has no context for answers an
@@ -3397,11 +3431,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! in front changed nothing about the scan's own depth). One slot per
   //! cycle under the face's hold: per-cycle logic is ONE indexed read plus
   //! an increment, and a beat costs ten cycles against ms-scale commands.
-  logic [3:0]  amap_walk_j_r;      //! stage-A slot cursor, 0..8
-  logic [3:0]  amap_walk_jq_r;     //! stage-B cursor (one behind)
+  localparam int AMAP_OUT_KEYS_C = N_STREAMS * 8;
+  localparam int AMAP_OUT_KEY_W_C = (AMAP_OUT_KEYS_C <= 2)
+                                   ? 1 : $clog2(AMAP_OUT_KEYS_C);
+  localparam int AMAP_WALK_W_C = (AMAP_OUT_KEYS_C <= 2)
+                                ? 1 : $clog2(AMAP_OUT_KEYS_C + 1);
+  logic [AMAP_WALK_W_C-1:0] amap_walk_j_r;  //! stage-A slot cursor
+  logic [AMAP_WALK_W_C-1:0] amap_walk_jq_r; //! stage-B cursor (one behind)
   logic        amap_stageb_v_r;    //! stage B holds a valid entry
   logic [7:0]  amap_in_ent_q_r;    //! stage-A registered render-map entry
   logic [12:0] amap_out_ent_q_r;   //! stage-A registered capture-map entry
+  logic        amap_out_owner_v_q_r;
+  logic [15:0] amap_out_owner_q_r;
+  logic [15:0] amap_out_cluster_q_r;
   logic        amap_done_r;
   logic [7:0]  amap_seen_r;
   logic [15:0] amap_cnt_r;
@@ -3410,8 +3452,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     if (!axis_resetn) begin
       amapq_type_r <= 16'd0; amapq_index_r <= 16'd0; amapq_map_r <= 16'd0;
       amapq_sel_r  <= 2'd0;  amapq_rec_r   <= 8'd0;
-      amap_walk_j_r <= 4'd0; amap_walk_jq_r <= 4'd0; amap_done_r <= 1'b0;
+      amap_walk_j_r <= '0; amap_walk_jq_r <= '0; amap_done_r <= 1'b0;
       amap_stageb_v_r <= 1'b0; amap_in_ent_q_r <= 8'd0; amap_out_ent_q_r <= 13'd0;
+      amap_out_owner_v_q_r <= 1'b0; amap_out_owner_q_r <= 16'd0;
+      amap_out_cluster_q_r <= 16'd0;
       amap_seen_r <= 8'd0; amap_cnt_r <= 16'd0; amap_rec_r2 <= 64'd0;
       amap_data_r <= 64'd0;
     end else begin
@@ -3422,8 +3466,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       amapq_rec_r   <= pp_amap_rec_w;
       if (!amap_sel_match_w) begin
         //! a fresh beat restarts the walk against the newly latched selector
-        amap_walk_j_r <= 4'd0;
-        amap_walk_jq_r <= 4'd0;
+        amap_walk_j_r <= '0;
+        amap_walk_jq_r <= '0;
         amap_stageb_v_r <= 1'b0;
         amap_done_r   <= 1'b0;
         amap_seen_r   <= 8'd0;
@@ -3438,6 +3482,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         //! grows to nine cycles; the per-cycle depth halves.
         amap_in_ent_q_r  <= amap_in_ent_w;
         amap_out_ent_q_r <= amap_out_ent_w;
+        amap_out_owner_v_q_r <= amap_out_owner_v_w;
+        amap_out_owner_q_r <= amap_out_owner_w;
+        amap_out_cluster_q_r <= amap_out_cluster_w;
         amap_walk_jq_r   <= amap_walk_j_r;
         amap_stageb_v_r  <= 1'b1;
         if (amap_stageb_v_r && amap_slot_hit_w) begin
@@ -3445,9 +3492,15 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
           amap_seen_r <= amap_seen_r + 8'd1;
           amap_cnt_r  <= amap_cnt_r + 16'd1;
         end
-        if (amap_stageb_v_r && (amap_walk_jq_r == 4'd7)) amap_done_r <= 1'b1;
-        if (amap_walk_j_r != 4'd8)
-          amap_walk_j_r <= amap_walk_j_r + 4'd1;
+        if (amap_stageb_v_r
+            && (((!amap_spo_w)
+                 && (32'(amap_walk_jq_r) == AMAP_PAGE_C - 1))
+                || (amap_spo_w
+                    && (32'(amap_walk_jq_r) == AMAP_OUT_KEYS_C - 1))))
+          amap_done_r <= 1'b1;
+        if (((!amap_spo_w) && (32'(amap_walk_j_r) < AMAP_PAGE_C))
+            || (amap_spo_w && (32'(amap_walk_j_r) < AMAP_OUT_KEYS_C)))
+          amap_walk_j_r <= amap_walk_j_r + AMAP_WALK_W_C'(1);
       end else begin
         amap_data_r <= amap_ans_raw_w;
       end
@@ -3460,14 +3513,30 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     else amap_srv_r <= amap_done_r && amap_sel_match_w;
   end
 
+  logic [6:0] amap_in_pbase_w, amap_in_pcls_w, amap_in_nmaps_w;
+  always_comb begin : amap_in_port_shape
+    amap_in_pbase_w = 7'd0;
+    amap_in_pcls_w = 7'd0;
+    amap_in_nmaps_w = 7'd0;
+    for (int p = 0; p < AMAP_IN_PORTS_C; p++) begin
+      if (amapq_index_r == 16'(p)) begin
+        amap_in_pbase_w = ADP_DMAP_IN_PBASE_C[p];
+        amap_in_pcls_w = ADP_DMAP_IN_PCLS_C[p];
+        amap_in_nmaps_w = ADP_DMAP_IN_PNMAPS_C[p];
+      end
+    end
+  end : amap_in_port_shape
+
   wire amap_spi_w = (amapq_type_r == DESC_STREAM_PORT_IN_C)
-                 && (32'(amapq_index_r) < AMAP_IN_PORTS_C);
+                 && (32'(amapq_index_r) < AMAP_IN_PORTS_C)
+                 && (amapq_index_r < 16'd64)
+                 && ADP_DMAP_IN_MASK_C[amapq_index_r[5:0]];
   wire amap_page_ok_w = amap_spi_w
-                     && (32'(amapq_map_r) < AMAP_NMAPS_C);
+                     && (32'(amapq_map_r) < 32'(amap_in_nmaps_w));
 
   //! the page walk, combinational over the flat map export: page P covers
-  //! port-relative offsets [P*PAGE, min((P+1)*PAGE, clusters)); global
-  //! g = index*clusters + offset (uniform blocks, so base = index*clusters).
+  //! port-relative offsets [P*PAGE, min((P+1)*PAGE, clusters)); the generated
+  //! base translates that offset into the model's global cluster key.
   //! At most PAGE (<= 8) candidate slots, so the popcount and the k-th
   //! select are a handful of LUTs, and the answer never holds the beat.
   //! per-slot terms of the SEQUENTIAL walk: slot j of the queried page,
@@ -3480,12 +3549,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     int unsigned off_c, g_c;
     off_c = (amap_page_ok_w ? 32'(amapq_map_r) : 32'd0)
             * AMAP_PAGE_C + 32'(amap_walk_j_r);
-    g_c   = 32'(amapq_index_r[3:0]) * AMAP_IN_CLUS_C + off_c;
-    //! a slot outside the page, the port or the rendered RAM reads as
+    g_c   = 32'(amap_in_pbase_w) + off_c;
+    //! A slot outside the page, port or protocol store reads as
     //! UNMAPPED - its en bit is 0, so stage B cannot count or match it
     amap_in_ent_w = (amap_page_ok_w && (32'(amap_walk_j_r) < AMAP_PAGE_C)
-                     && (off_c < AMAP_IN_CLUS_C)
-                     && (g_c < CHMAP_PHYS_C)) ? rmap_flat_w[g_c*8 +: 8] : 8'd0;
+                     && (off_c < 32'(amap_in_pcls_w))
+                     && (g_c < AMAP_IN_KEYS_C))
+                    ? amap_in_store_r[g_c*8 +: 8] : 8'd0;
   end : amap_page_slot
 
   //! stage B: hit + record formatting from the REGISTERED entry and the
@@ -3510,11 +3580,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   always_comb begin : amap_answer
     unique case (amapq_sel_r)
       2'd0:    amap_ans_raw_w = {48'd0,
-                                 amap_spi_w ? 16'(AMAP_NMAPS_C)
+                                 amap_spi_w ? {9'd0, amap_in_nmaps_w}
                                : amap_spo_w ? 16'(AMAP_OUT_NMAPS_C)
                                             : 16'd0};
       2'd1:    amap_ans_raw_w = {32'd0,
-                                 amap_spi_w ? 16'(AMAP_NMAPS_C)
+                                 amap_spi_w ? {9'd0, amap_in_nmaps_w}
                                : amap_spo_w ? 16'(AMAP_OUT_NMAPS_C) : 16'd0,
                                  (amap_page_ok_w || amap_opage_ok_w)
                                    ? amap_cnt_r : 16'd0};
@@ -3525,58 +3595,43 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   end : amap_answer
   //! ---- the OUTPUT half of the same answer (Milan 5.4.2.26's second
   //! sentence: "for each Stream Port Output of the currently set
-  //! Configuration"). The capture-side map RAM is STREAM-CHANNEL indexed
-  //! (entry t*8+c names the SOURCE feeding stream t channel c), the inverse
-  //! orientation of the render side, so the record's cluster_offset is
-  //! DERIVED from the entry's source class through the D8 role-pool bases
-  //! the builder's role_pool() fixes: physical (the TDM8 capture width, 8),
-  //! host (8), pilot (1), loopback - offsets 0 / 8 / 16 / 17, 25 clusters,
-  //! 4 pages of the same min(...,8) page law. The pilot-at-16 base is the
-  //! 0x0043 cluster renumbering, cross-checked against the builder. EXACT
-  //! for both shipping role-pools shapes, whose pools all derive from the
-  //! same TDM8 platform declaration; a config that changes the platform
-  //! pools must extend the generated shape header rather than let two
-  //! authorities drift - the input block's rule, restated. Legacy static-
-  //! map shapes narrow exactly as the input side records.
-  localparam int AMAP_OPHYS_W_C  = 8;
-  localparam int AMAP_OHOST_W_C  = 8;
-  localparam int AMAP_OPILOT_B_C = AMAP_OPHYS_W_C + AMAP_OHOST_W_C;   // 16
-  localparam int AMAP_OLB_B_C    = AMAP_OPILOT_B_C + 1;               // 17
-  localparam int AMAP_OUT_CLUS_C = AMAP_OLB_B_C + 8;                  // 25
-  //! the OUTPUT pool pages by ITS OWN min(clusters, 8) law - the input
-  //! side's page constant follows the input format's channel count and has
-  //! no business sizing a 25-cluster pool
-  localparam int AMAP_OPAGE_C     = (AMAP_OUT_CLUS_C < 8) ? AMAP_OUT_CLUS_C : 8;
-  localparam int AMAP_OUT_NMAPS_C = (AMAP_OUT_CLUS_C + AMAP_OPAGE_C - 1)
-                                    / AMAP_OPAGE_C;
+  //! Configuration"). The capture-side RAM is STREAM-channel indexed while
+  //! the command names a port-relative cluster. The generated CSRC table is
+  //! the exact bridge between those coordinate systems and is emitted from
+  //! the same role pools as the descriptor image. Output mappings need one
+  //! fixed subset because a Stream Output has at most eight audio channels.
+  localparam int AMAP_OUT_PORTS_C = ADP_DMAP_OUT_NPORTS_C;
+  localparam int AMAP_OUT_NMAPS_C = 1;
   localparam logic [15:0] DESC_STREAM_PORT_OUT_C = 16'h000F;
 
   wire amap_spo_w = (amapq_type_r == DESC_STREAM_PORT_OUT_C)
-                 && (32'(amapq_index_r) < N_STREAMS);
+                 && (32'(amapq_index_r) < AMAP_OUT_PORTS_C)
+                 && (amapq_index_r < 16'd64)
+                 && ADP_DMAP_OUT_MASK_C[amapq_index_r[5:0]];
   wire amap_opage_ok_w = amap_spo_w
-                      && (32'(amapq_map_r) < AMAP_OUT_NMAPS_C);
+                      && (amapq_map_r == 16'd0);
 
-  //! entry {en[12], half[11], src[10:8], idxh[7:4], idx[3:0]} -> the AEM
-  //! cluster its source names (KL_chan_map_capture's resolver, re-read as
-  //! coordinates). An entry naming no pool (SRC_ZERO, unknown codes) maps
-  //! nowhere and emits no record.
-  function automatic logic [16:0] amap_out_cluster(input logic [12:0] e);
+  //! Resolve a vendor CSR write back into the addressed output port's AEM
+  //! cluster coordinate. Transactional AECP writes already carry that
+  //! coordinate and store it directly. The first exact CSRC match wins;
+  //! disabled fabric templates cannot be inferred from a live CSR word.
+  function automatic logic [16:0] amap_out_cluster(
+      input logic [12:0] e, input logic [15:0] port_i);
     logic [16:0] r;
-    logic [31:0] ch;
     begin
-      r = 17'd0;                                  // [16] = valid
-      ch = {28'd0, e[3:0]} * 2 + {31'd0, e[11]};  // pair*2 + half
-      unique case (e[10:8])
-        3'd1: r = {1'b1, 16'({31'd0, e[11]})};                  // I2S
-        3'd2: r = {1'b1, 16'(ch)};                              // TDM
-        3'd3: r = {1'b1, 16'(32'(AMAP_OPHYS_W_C) + ch)};        // RING
-        3'd4: r = {1'b1, 16'(AMAP_OPILOT_B_C)};                 // TONE
-        3'd5: r = {1'b1, 16'(32'(AMAP_OLB_B_C)                  // LOOP
-                   + ({28'd0, e[7:4]} * 32'(LB_CH_C/2)
-                      + {28'd0, e[3:0]}) * 2 + {31'd0, e[11]})};
-        default: r = 17'd0;
-      endcase
-      if (!e[12]) r = 17'd0;
+      r = 17'd0;
+      for (int p = 0; p < AMAP_OUT_PORTS_C; p++) begin
+        if (port_i == 16'(p)) begin
+          for (int c = 0; c < ADP_DMAP_OUT_NSRC_C; c++) begin
+            if (!r[16]
+                && (c >= 32'(ADP_DMAP_OUT_PCBASE_C[p]))
+                && (c < (32'(ADP_DMAP_OUT_PCBASE_C[p])
+                         + 32'(ADP_DMAP_OUT_PCLS_C[p])))
+                && e[12] && (ADP_DMAP_OUT_CSRC_C[c] == e))
+              r = {1'b1, 16'(c - 32'(ADP_DMAP_OUT_PCBASE_C[p]))};
+          end
+        end
+      end
       amap_out_cluster = r;
     end
   endfunction
@@ -3587,11 +3642,26 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! per-slot terms of the OUTPUT walk, same sequential form
   //! stage A, output side: the 13-bit indexed read only
   logic [12:0] amap_out_ent_w;
+  logic        amap_out_owner_v_w;
+  logic [15:0] amap_out_owner_w;
+  logic [15:0] amap_out_cluster_w;
   always_comb begin : amap_out_slot
     amap_out_ent_w = (amap_opage_ok_w
-             && (32'(amapq_index_r[3:0]) * 8 + 32'(amap_walk_j_r) < N_STREAMS * 8))
-            ? cmap_flat_w[(32'(amapq_index_r[3:0]) * 8 + 32'(amap_walk_j_r)) * 13 +: 13]
+             && (32'(amap_walk_j_r) < AMAP_OUT_KEYS_C))
+            ? cmap_flat_w[32'(amap_walk_j_r) * 13 +: 13]
             : 13'd0;
+    amap_out_owner_v_w = (amap_opage_ok_w
+                           && (32'(amap_walk_j_r) < AMAP_OUT_KEYS_C))
+                          ? amap_out_owner_v_r[
+                              amap_walk_j_r[AMAP_OUT_KEY_W_C-1:0]] : 1'b0;
+    amap_out_owner_w = (amap_opage_ok_w
+                        && (32'(amap_walk_j_r) < AMAP_OUT_KEYS_C))
+                       ? amap_out_owner_r[32'(amap_walk_j_r) * 16 +: 16]
+                       : 16'd0;
+    amap_out_cluster_w = (amap_opage_ok_w
+                          && (32'(amap_walk_j_r) < AMAP_OUT_KEYS_C))
+                         ? amap_out_cluster_r[32'(amap_walk_j_r) * 16 +: 16]
+                         : 16'd0;
   end : amap_out_slot
 
   //! stage B, output side: resolver + page range + record, off the
@@ -3599,19 +3669,22 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic        amap_out_hit_w;
   logic [63:0] amap_out_rec_w;
   always_comb begin : amap_out_fmt
-    logic [16:0] cl_c;
-    int unsigned base_c;
+    logic port_cluster_ok_c;
     amap_out_hit_w = 1'b0;
     amap_out_rec_w = 64'd0;
-    base_c = amap_opage_ok_w ? 32'(amapq_map_r) * AMAP_OPAGE_C : 0;
-    cl_c = amap_out_cluster(amap_out_ent_q_r);
-    if (cl_c[16] && (32'(cl_c[15:0]) >= base_c)
-        && (32'(cl_c[15:0]) < base_c + AMAP_OPAGE_C)
-        && (32'(cl_c[15:0]) < AMAP_OUT_CLUS_C)) begin
+    port_cluster_ok_c = 1'b0;
+    for (int p = 0; p < AMAP_OUT_PORTS_C; p++) begin
+      if ((amapq_index_r == 16'(p))
+          && (32'(amap_out_cluster_q_r)
+              < 32'(ADP_DMAP_OUT_PCLS_C[p])))
+        port_cluster_ok_c = 1'b1;
+    end
+    if (amap_out_owner_v_q_r && (amap_out_owner_q_r == amapq_index_r)
+        && port_cluster_ok_c) begin
       amap_out_hit_w = 1'b1;
-      amap_out_rec_w = {16'(amapq_index_r),      // stream_index
-                        16'(32'(amap_walk_jq_r)),// stream_channel
-                        cl_c[15:0],              // cluster_offset
+      amap_out_rec_w = {16'(32'(amap_walk_jq_r) / 8), // stream_index
+                        16'(32'(amap_walk_jq_r) % 8), // stream_channel
+                        amap_out_cluster_q_r,    // cluster_offset
                         16'd0};                  // cluster_channel
     end
   end : amap_out_fmt
@@ -3624,6 +3697,427 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! HOLD, not a ready - combinational flops again, never held
   assign pp_amap_data_w = amap_data_r;
   assign pp_amap_wait_w = pp_amap_req_w && !(amap_srv_r && amap_sel_match_w);  //! live-match: see the counters face
+
+  //! ======================================================================
+  //! ADD/REMOVE_AUDIO_MAPPINGS transaction server
+  //! ======================================================================
+  //! Every record is checked against the live map and the command-local
+  //! claims before any phase-5 write is possible. The claim vectors model
+  //! the command's final value at each routing key. They catch two records
+  //! that assign one key differently and also make duplicate REMOVE records
+  //! idempotent without treating an unrelated absent mapping as present.
+  //!
+  //! The CSR debug writer is held out while amap_edit_txn_active_r is set.
+  //! This freezes the live baseline between the validation and commit passes,
+  //! so a host write cannot create a time-of-check/time-of-use partial edit.
+  //! Phase 1 rechecks that baseline and reserves the complete commit. This
+  //! root never asserts wait, so phases 5 and 2 complete without a timeout
+  //! point between live writes.
+  logic        amap_edit_seen_r;
+  logic  [2:0] amap_edit_seen_phase_r;
+  logic  [7:0] amap_edit_seen_rec_r;
+  logic        amap_edit_remove_r;
+  logic [15:0] amap_edit_type_r, amap_edit_index_r, amap_edit_count_r;
+  logic        amap_edit_changed_r;
+  logic [AMAP_IN_KEYS_C-1:0] amap_edit_iclaim_v_r;
+  logic [AMAP_IN_KEYS_C*8-1:0] amap_edit_iclaim_word_r;
+  logic [AMAP_IN_KEYS_C*8-1:0] amap_edit_iclaim_expect_r;
+  logic [N_STREAMS*8-1:0] amap_edit_oclaim_v_r;
+  logic [N_STREAMS*8*13-1:0] amap_edit_oclaim_word_r;
+  logic [N_STREAMS*8*13-1:0] amap_edit_oclaim_expect_r;
+  logic [N_STREAMS*8*16-1:0] amap_edit_oclaim_cluster_r;
+  wire [N_STREAMS-1:0] amap_edit_out_claim_stream_w;
+  for (genvar ar = 0; ar < N_STREAMS; ar++) begin : g_amap_edit_resv
+    assign amap_edit_out_claim_stream_w[ar] =
+        |amap_edit_oclaim_v_r[ar*8 +: 8];
+  end
+
+  wire [15:0] amap_edit_si_w = pp_amap_edit_record_w[63:48];
+  wire [15:0] amap_edit_sc_w = pp_amap_edit_record_w[47:32];
+  wire [15:0] amap_edit_co_w = pp_amap_edit_record_w[31:16];
+  wire [15:0] amap_edit_cc_w = pp_amap_edit_record_w[15:0];
+
+  //! Convert one port-relative cluster into the exact capture-source word
+  //! generated beside the AEM descriptor geometry. Every cluster inside the
+  //! published port geometry is a legal protocol mapping target. CSRC bit 12
+  //! remains the separate live-fabric enable, so a mapping can be stored and
+  //! read back even when this build does not elaborate its media source.
+  function automatic logic [13:0] amap_edit_out_encode(
+      input logic [15:0] off_i, input logic [15:0] port_i);
+    logic [13:0] r;
+    begin
+      r = 14'd0;
+      for (int p = 0; p < AMAP_OUT_PORTS_C; p++) begin
+        if ((port_i == 16'(p))
+            && (32'(off_i) < 32'(ADP_DMAP_OUT_PCLS_C[p]))) begin
+          for (int c = 0; c < ADP_DMAP_OUT_NSRC_C; c++) begin
+            if (c == (32'(ADP_DMAP_OUT_PCBASE_C[p]) + 32'(off_i)))
+              r = {1'b1, ADP_DMAP_OUT_CSRC_C[c]};
+          end
+        end
+      end
+      amap_edit_out_encode = r;
+    end
+  endfunction
+
+  logic        amap_edit_context_w, amap_edit_dynamic_w;
+  logic        amap_edit_commit_ok_w;
+  logic        amap_edit_accept_w, amap_edit_in_key_v_w, amap_edit_out_key_v_w;
+  logic [AMAP_IN_KEY_W_C-1:0]  amap_edit_in_key_w;
+  logic [AMAP_OUT_KEY_W_C-1:0] amap_edit_out_key_w;
+  logic  [7:0] amap_edit_in_word_w, amap_edit_in_live_w;
+  logic [12:0] amap_edit_out_word_w, amap_edit_out_live_w;
+  logic        amap_edit_out_owner_v_w;
+  logic [15:0] amap_edit_out_owner_w;
+  logic [15:0] amap_edit_out_cluster_w;
+  logic [13:0] amap_edit_out_enc_w;
+
+  always_comb begin : amap_edit_validate
+    int unsigned ikey_c, okey_c, ipbase_c, ipcls_c;
+    logic [7:0] ibase_c, iexpect_c;
+    logic [12:0] obase_c, oexpect_c;
+    logic [15:0] obase_cluster_c;
+    logic istream_ok_c, ostream_ok_c, ostreaming_c;
+    logic iclaim_c, oclaim_c;
+
+    pp_amap_edit_data_w = 64'd0;
+    amap_edit_dynamic_w = 1'b0;
+    amap_edit_context_w = amap_edit_txn_active_r
+                          && (pp_amap_edit_remove_w == amap_edit_remove_r)
+                          && (pp_amap_edit_desc_type_w == amap_edit_type_r)
+                          && (pp_amap_edit_desc_index_w == amap_edit_index_r)
+                          && (pp_amap_edit_count_w == amap_edit_count_r);
+    amap_edit_commit_ok_w = amap_edit_context_w;
+    if (pp_amap_edit_desc_type_w == DESC_STREAM_PORT_OUT_C) begin
+      amap_edit_commit_ok_w = amap_edit_context_w
+                              && (32'(pp_amap_edit_desc_index_w)
+                                  < AMAP_OUT_PORTS_C);
+      for (int k = 0; k < N_STREAMS*8; k++) begin
+        if (amap_edit_oclaim_v_r[k]
+            && tkd_streaming_w[k/8])
+          amap_edit_commit_ok_w = 1'b0;
+      end
+    end
+    amap_edit_accept_w = 1'b0;
+    amap_edit_in_key_v_w = 1'b0;
+    amap_edit_out_key_v_w = 1'b0;
+    amap_edit_in_key_w = '0;
+    amap_edit_out_key_w = '0;
+    amap_edit_in_word_w = {1'b1, 1'b0, amap_edit_si_w[2:0],
+                           amap_edit_sc_w[2:0]};
+    amap_edit_out_enc_w = amap_edit_out_encode(amap_edit_co_w,
+                                                pp_amap_edit_desc_index_w);
+    amap_edit_out_word_w = amap_edit_out_enc_w[12:0];
+    amap_edit_in_live_w = 8'd0;
+    amap_edit_out_live_w = 13'd0;
+    amap_edit_out_owner_v_w = 1'b0;
+    amap_edit_out_owner_w = 16'd0;
+    amap_edit_out_cluster_w = 16'd0;
+    ikey_c = 0;
+    okey_c = 0;
+    ipbase_c = 0;
+    ipcls_c = 0;
+    ibase_c = 8'd0;
+    iexpect_c = 8'd0;
+    obase_c = 13'd0;
+    oexpect_c = 13'd0;
+    obase_cluster_c = 16'd0;
+    istream_ok_c = 1'b0;
+    ostream_ok_c = 1'b0;
+    ostreaming_c = 1'b0;
+    iclaim_c = 1'b0;
+    oclaim_c = 1'b0;
+
+    for (int p = 0; p < AMAP_IN_PORTS_C; p++) begin
+      if (pp_amap_edit_desc_index_w == 16'(p)) begin
+        ipbase_c = 32'(ADP_DMAP_IN_PBASE_C[p]);
+        ipcls_c = 32'(ADP_DMAP_IN_PCLS_C[p]);
+      end
+    end
+    for (int s = 0; s < ADP_DMAP_IN_NSTRIN_C; s++) begin
+      if ((amap_edit_si_w == 16'(s)) && ADP_DMAP_IN_SAAF_C[s]
+          && (32'(amap_edit_sc_w) < 32'(ADP_DMAP_IN_SCH_C[s])))
+        istream_ok_c = 1'b1;
+    end
+    for (int s = 0; s < AMAP_OUT_PORTS_C; s++) begin
+      if ((amap_edit_si_w == 16'(s))
+          && (32'(amap_edit_sc_w) < 32'(ADP_DMAP_OUT_SCH_C[s])))
+        ostream_ok_c = 1'b1;
+    end
+    for (int s = 0; s < N_STREAMS; s++) begin
+      if (amap_edit_si_w == 16'(s))
+        ostreaming_c = tkd_streaming_w[s];
+    end
+
+    if ((pp_amap_edit_desc_type_w == DESC_STREAM_PORT_IN_C)
+        && (32'(pp_amap_edit_desc_index_w) < AMAP_IN_PORTS_C)
+        && (pp_amap_edit_desc_index_w < 16'd64)) begin
+      amap_edit_dynamic_w =
+          ADP_DMAP_IN_MASK_C[pp_amap_edit_desc_index_w[5:0]];
+    end else if ((pp_amap_edit_desc_type_w == DESC_STREAM_PORT_OUT_C)
+                 && (32'(pp_amap_edit_desc_index_w) < AMAP_OUT_PORTS_C)
+                 && (pp_amap_edit_desc_index_w < 16'd64)) begin
+      amap_edit_dynamic_w =
+          ADP_DMAP_OUT_MASK_C[pp_amap_edit_desc_index_w[5:0]];
+    end
+
+    if ((pp_amap_edit_desc_type_w == DESC_STREAM_PORT_IN_C)
+        && amap_edit_dynamic_w && (amap_edit_cc_w == 16'd0)
+        && (32'(amap_edit_co_w) < ipcls_c)
+        && istream_ok_c
+        && (amap_edit_si_w < 16'd8) && (amap_edit_sc_w < 16'd8)) begin
+      ikey_c = ipbase_c + 32'(amap_edit_co_w);
+      if (ikey_c < AMAP_IN_KEYS_C) begin
+        amap_edit_in_key_v_w = 1'b1;
+        amap_edit_in_key_w = AMAP_IN_KEY_W_C'(ikey_c);
+        amap_edit_in_live_w = amap_in_store_r[ikey_c*8 +: 8];
+        iclaim_c = amap_edit_iclaim_v_r[ikey_c];
+        ibase_c = iclaim_c ? amap_edit_iclaim_word_r[ikey_c*8 +: 8]
+                           : amap_in_store_r[ikey_c*8 +: 8];
+        iexpect_c = amap_edit_iclaim_expect_r[ikey_c*8 +: 8];
+        if (!pp_amap_edit_remove_w)
+          amap_edit_accept_w = iclaim_c
+                               ? (ibase_c == amap_edit_in_word_w)
+                               : (!ibase_c[7]
+                                  || (ibase_c == amap_edit_in_word_w));
+        else
+          amap_edit_accept_w = iclaim_c
+                               ? ((ibase_c == 8'd0)
+                                  && (iexpect_c == amap_edit_in_word_w))
+                               : (ibase_c == amap_edit_in_word_w);
+      end
+    end else if ((pp_amap_edit_desc_type_w == DESC_STREAM_PORT_OUT_C)
+                 && amap_edit_dynamic_w && amap_edit_out_enc_w[13]
+                 && (amap_edit_cc_w == 16'd0)
+                 && (32'(amap_edit_si_w) < N_STREAMS)
+                 && (amap_edit_sc_w < 16'd8) && ostream_ok_c) begin
+      okey_c = 32'(amap_edit_si_w) * 8 + 32'(amap_edit_sc_w);
+      if (okey_c < N_STREAMS*8) begin
+        amap_edit_out_key_v_w = 1'b1;
+        amap_edit_out_key_w = AMAP_OUT_KEY_W_C'(okey_c);
+        amap_edit_out_live_w = cmap_flat_w[okey_c*13 +: 13];
+        amap_edit_out_owner_v_w = amap_out_owner_v_r[okey_c];
+        amap_edit_out_owner_w = amap_out_owner_r[okey_c*16 +: 16];
+        amap_edit_out_cluster_w = amap_out_cluster_r[okey_c*16 +: 16];
+        oclaim_c = amap_edit_oclaim_v_r[okey_c];
+        obase_c = oclaim_c ? amap_edit_oclaim_word_r[okey_c*13 +: 13]
+                           : cmap_flat_w[okey_c*13 +: 13];
+        obase_cluster_c = oclaim_c
+                          ? amap_edit_oclaim_cluster_r[okey_c*16 +: 16]
+                          : amap_out_cluster_r[okey_c*16 +: 16];
+        oexpect_c = amap_edit_oclaim_expect_r[okey_c*13 +: 13];
+        if (!pp_amap_edit_remove_w)
+          amap_edit_accept_w = !ostreaming_c
+                               && (oclaim_c
+                               ? ((obase_c == amap_edit_out_word_w)
+                                  && (obase_cluster_c == amap_edit_co_w))
+                               : (!amap_edit_out_owner_v_w
+                                  || (amap_edit_out_owner_v_w
+                                      && (amap_edit_out_owner_w
+                                          == pp_amap_edit_desc_index_w)
+                                      && (amap_edit_out_cluster_w
+                                          == amap_edit_co_w)
+                                      && (obase_c == amap_edit_out_word_w))));
+        else
+          amap_edit_accept_w = !ostreaming_c
+                               && (oclaim_c
+                               ? ((obase_c == 13'd0)
+                                  && (oexpect_c == amap_edit_out_word_w)
+                                  && (obase_cluster_c == amap_edit_co_w))
+                               : (amap_edit_out_owner_v_w
+                                  && (amap_edit_out_owner_w
+                                      == pp_amap_edit_desc_index_w)
+                                  && (amap_edit_out_cluster_w
+                                      == amap_edit_co_w)
+                                  && (obase_c == amap_edit_out_word_w)));
+      end
+    end
+
+    unique case (pp_amap_edit_phase_w)
+      3'd0: pp_amap_edit_data_w[0] = amap_edit_dynamic_w;
+      3'd1: pp_amap_edit_data_w[0] = amap_edit_commit_ok_w;
+      3'd2: pp_amap_edit_data_w[0] = amap_edit_context_w
+                                            && amap_edit_changed_r;
+      3'd3: pp_amap_edit_data_w[0] = 1'b1;
+      3'd4: pp_amap_edit_data_w[0] = amap_edit_context_w
+                                            && (pp_amap_edit_rec_w
+                                                < amap_edit_count_r[7:0])
+                                            && amap_edit_accept_w;
+      3'd5: pp_amap_edit_data_w[0] = amap_edit_context_w;
+      default: pp_amap_edit_data_w = 64'd0;
+    endcase
+  end : amap_edit_validate
+
+  assign pp_amap_edit_wait_w = 1'b0;
+
+  wire [12:0] cfg_cmap_entry_w = {cfg_chmap_wr_data[15],
+                                   cfg_chmap_wr_data[8],
+                                   cfg_chmap_wr_data[14:12],
+                                   cfg_chmap_wr_data[7:4],
+                                   cfg_chmap_wr_data[3:0]};
+  wire [15:0] cfg_cmap_port_w = 16'(32'(cfg_chmap_wr_addr) / 8);
+  wire [16:0] cfg_cmap_cluster_w = amap_out_cluster(cfg_cmap_entry_w,
+                                                    cfg_cmap_port_w);
+
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : amap_edit_commit
+    if (!axis_resetn) begin
+      amap_edit_seen_r <= 1'b0;
+      amap_edit_seen_phase_r <= 3'd0;
+      amap_edit_seen_rec_r <= 8'd0;
+      amap_edit_txn_active_r <= 1'b0;
+      amap_edit_remove_r <= 1'b0;
+      amap_edit_type_r <= 16'd0;
+      amap_edit_index_r <= 16'd0;
+      amap_edit_count_r <= 16'd0;
+      amap_edit_changed_r <= 1'b0;
+      amap_edit_iclaim_v_r <= '0;
+      amap_edit_iclaim_word_r <= '0;
+      amap_edit_iclaim_expect_r <= '0;
+      amap_edit_oclaim_v_r <= '0;
+      amap_edit_oclaim_word_r <= '0;
+      amap_edit_oclaim_expect_r <= '0;
+      amap_edit_oclaim_cluster_r <= '0;
+      amap_edit_out_resv_r <= '0;
+      amap_in_store_r <= '0;
+      amap_out_owner_v_r <= '0;
+      amap_out_owner_r <= '0;
+      amap_out_cluster_r <= '0;
+      amap_edit_iwr_p_r <= 1'b0;
+      amap_edit_iwr_addr_r <= 6'd0;
+      amap_edit_iwr_word_r <= 8'd0;
+      amap_edit_owr_p_r <= 1'b0;
+      amap_edit_owr_slot_r <= 6'd0;
+      amap_edit_owr_word_r <= 13'd0;
+    end else begin
+      amap_edit_iwr_p_r <= 1'b0;
+      amap_edit_owr_p_r <= 1'b0;
+      if (!pp_amap_edit_req_w) begin
+        amap_edit_seen_r <= 1'b0;
+      end else if (!amap_edit_seen_r
+                   || (amap_edit_seen_phase_r != pp_amap_edit_phase_w)
+                   || (amap_edit_seen_rec_r != pp_amap_edit_rec_w)) begin
+        amap_edit_seen_r <= 1'b1;
+        amap_edit_seen_phase_r <= pp_amap_edit_phase_w;
+        amap_edit_seen_rec_r <= pp_amap_edit_rec_w;
+        unique case (pp_amap_edit_phase_w)
+          3'd0: begin
+            amap_edit_txn_active_r <= amap_edit_dynamic_w;
+            amap_edit_remove_r <= pp_amap_edit_remove_w;
+            amap_edit_type_r <= pp_amap_edit_desc_type_w;
+            amap_edit_index_r <= pp_amap_edit_desc_index_w;
+            amap_edit_count_r <= pp_amap_edit_count_w;
+            amap_edit_changed_r <= 1'b0;
+            amap_edit_iclaim_v_r <= '0;
+            amap_edit_iclaim_word_r <= '0;
+            amap_edit_iclaim_expect_r <= '0;
+            amap_edit_oclaim_v_r <= '0;
+            amap_edit_oclaim_word_r <= '0;
+            amap_edit_oclaim_expect_r <= '0;
+            amap_edit_oclaim_cluster_r <= '0;
+            amap_edit_out_resv_r <= '0;
+          end
+          3'd1: begin
+            if (amap_edit_commit_ok_w
+                && (amap_edit_type_r == DESC_STREAM_PORT_OUT_C))
+              amap_edit_out_resv_r <= amap_edit_out_claim_stream_w;
+            else
+              amap_edit_out_resv_r <= '0;
+          end
+          3'd2, 3'd3: begin
+            amap_edit_txn_active_r <= 1'b0;
+            amap_edit_out_resv_r <= '0;
+          end
+          3'd4: begin
+            if (amap_edit_context_w && amap_edit_accept_w
+                && (pp_amap_edit_rec_w < amap_edit_count_r[7:0])) begin
+              if (amap_edit_in_key_v_w
+                  && !amap_edit_iclaim_v_r[amap_edit_in_key_w]) begin
+                amap_edit_iclaim_v_r[amap_edit_in_key_w] <= 1'b1;
+                amap_edit_iclaim_expect_r[amap_edit_in_key_w*8 +: 8]
+                  <= amap_edit_in_word_w;
+                amap_edit_iclaim_word_r[amap_edit_in_key_w*8 +: 8]
+                  <= amap_edit_remove_r ? 8'd0 : amap_edit_in_word_w;
+              end else if (amap_edit_out_key_v_w
+                           && !amap_edit_oclaim_v_r[amap_edit_out_key_w]) begin
+                amap_edit_oclaim_v_r[amap_edit_out_key_w] <= 1'b1;
+                amap_edit_oclaim_expect_r[amap_edit_out_key_w*13 +: 13]
+                  <= amap_edit_out_word_w;
+                amap_edit_oclaim_word_r[amap_edit_out_key_w*13 +: 13]
+                  <= amap_edit_remove_r ? 13'd0 : amap_edit_out_word_w;
+                amap_edit_oclaim_cluster_r[
+                  amap_edit_out_key_w*16 +: 16] <= amap_edit_co_w;
+              end
+            end
+          end
+          3'd5: begin
+            if (amap_edit_context_w && amap_edit_in_key_v_w
+                && amap_edit_iclaim_v_r[amap_edit_in_key_w]
+                && (amap_edit_in_live_w
+                    != amap_edit_iclaim_word_r[amap_edit_in_key_w*8 +: 8])) begin
+              amap_in_store_r[amap_edit_in_key_w*8 +: 8]
+                <= amap_edit_iclaim_word_r[amap_edit_in_key_w*8 +: 8];
+              if (ADP_DMAP_IN_RPHYS_C[amap_edit_in_key_w][6]) begin
+                amap_edit_iwr_p_r <= 1'b1;
+                amap_edit_iwr_addr_r
+                  <= ADP_DMAP_IN_RPHYS_C[amap_edit_in_key_w][5:0];
+                amap_edit_iwr_word_r
+                  <= amap_edit_iclaim_word_r[amap_edit_in_key_w*8 +: 8];
+              end
+              amap_edit_changed_r <= 1'b1;
+            end else if (amap_edit_context_w && amap_edit_out_key_v_w
+                         && amap_edit_oclaim_v_r[amap_edit_out_key_w]
+                         && ((amap_edit_out_live_w
+                              != amap_edit_oclaim_word_r[
+                                   amap_edit_out_key_w*13 +: 13])
+                             || (amap_edit_out_owner_v_w
+                                 != !amap_edit_remove_r)
+                             || (!amap_edit_remove_r
+                                 && ((amap_edit_out_owner_w
+                                      != amap_edit_index_r)
+                                     || (amap_edit_out_cluster_w
+                                         != amap_edit_oclaim_cluster_r[
+                                              amap_edit_out_key_w*16
+                                              +: 16]))))) begin
+              amap_edit_owr_p_r <= 1'b1;
+              amap_edit_owr_slot_r <= 6'(amap_edit_out_key_w);
+              amap_edit_owr_word_r
+                <= amap_edit_oclaim_word_r[amap_edit_out_key_w*13 +: 13];
+              amap_out_owner_v_r[amap_edit_out_key_w]
+                <= !amap_edit_remove_r;
+              amap_out_owner_r[amap_edit_out_key_w*16 +: 16]
+                <= amap_edit_remove_r ? 16'd0 : amap_edit_index_r;
+              amap_out_cluster_r[amap_edit_out_key_w*16 +: 16]
+                <= amap_edit_remove_r ? 16'd0
+                                      : amap_edit_oclaim_cluster_r[
+                                          amap_edit_out_key_w*16 +: 16];
+              amap_edit_changed_r <= 1'b1;
+            end
+          end
+          default: ;
+        endcase
+      end
+      if (!pp_amap_edit_req_w && !amap_edit_txn_active_r
+          && !aecp_locked
+          && cfg_chmap_wr_en && cfg_chmap_wr_side
+          && (32'(cfg_chmap_wr_addr) < AMAP_OUT_KEYS_C)) begin
+        amap_out_owner_v_r[
+          cfg_chmap_wr_addr[AMAP_OUT_KEY_W_C-1:0]]
+          <= cfg_cmap_cluster_w[16];
+        amap_out_owner_r[32'(cfg_chmap_wr_addr)*16 +: 16]
+          <= 16'(32'(cfg_chmap_wr_addr) / 8);
+        amap_out_cluster_r[32'(cfg_chmap_wr_addr)*16 +: 16]
+          <= cfg_cmap_cluster_w[15:0];
+      end
+      if (!pp_amap_edit_req_w && !amap_edit_txn_active_r
+          && !aecp_locked
+          && cfg_chmap_wr_en && !cfg_chmap_wr_side
+          && (32'(cfg_chmap_wr_addr) < AMAP_IN_KEYS_C)) begin
+        amap_in_store_r[32'(cfg_chmap_wr_addr)*8 +: 8]
+          <= {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
+              cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]};
+      end
+    end
+  end : amap_edit_commit
 
   //! ==== the Milan-info answer block (06 SS6.2/SS6.10) ====================
   //! GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH, one word at a time; the
@@ -4150,8 +4644,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     if (!axis_resetn) begin
       for (int t = 0; t < N_STREAMS; t++) tctx_chans_r[t] <= TCTX_CHANS_RST_C;
     end else if (tctx_w0_wr_w && tctx_wr_rdy_w) begin
-      tctx_chans_r[csr_tctx_wr_addr_w[6:4]] <=
-          aaf_chn_clamp(csr_tctx_wr_data_w[4:1]);
+      for (int t = 0; t < N_STREAMS; t++) begin
+        if (32'(csr_tctx_wr_addr_w[6:4]) == t)
+          tctx_chans_r[t] <= aaf_chn_clamp(csr_tctx_wr_data_w[4:1]);
+      end
     end
   end : tctx_chans_shadow
 
@@ -4915,7 +5411,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .pb_valid_i (ring_src_pv_w), .pb_slot_i (ring_src_slot_w),
     .pb_l_i (ring_src_l_w), .pb_r_i (ring_src_r_w),
     .tick_i (media_tick_p),
-    //! write mux with a reserved AECP leg and the current CSR 0x900 writer.
+    //! write mux with the live AECP transaction leg and CSR 0x900 writer.
     //! The map key is the GLOBAL cluster index and the model may declare
     //! MORE input clusters than this board renders (8x8 = 64 keys against
     //! CHMAP_PHYS_C = 10), so an out-of-range key must be DROPPED, not
@@ -4935,15 +5431,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! future depth of 64 would turn the guard into "refuse everything".
     .map_wr_en_i   ((aecp_dmap_wr_p_w &&
                      32'(aecp_dmap_wr_addr_w) < CHMAP_PHYS_C) ||
-                    (!aecp_dmap_wr_p_w && cfg_chmap_wr_en &&
+                    (!aecp_dmap_wr_p_w && !amap_edit_txn_active_r
+                     && !aecp_locked
+                     && cfg_chmap_wr_en &&
                      !cfg_chmap_wr_side &&
-                     32'(cfg_chmap_wr_addr) < CHMAP_PHYS_C)),
+                     cfg_chmap_rphys_w[6]
+                     && (32'(cfg_chmap_rphys_w[5:0]) < CHMAP_PHYS_C))),
     .map_wr_addr_i (aecp_dmap_wr_p_w
                     ? aecp_dmap_wr_addr_w[$clog2(CHMAP_PHYS_C)-1:0]
-                    : cfg_chmap_wr_addr[$clog2(CHMAP_PHYS_C)-1:0]),
+                    : cfg_chmap_rphys_w[$clog2(CHMAP_PHYS_C)-1:0]),
     //! §5 16-bit word -> render 8-bit {en[7], src[6], idx[5:0]}. SRC[12] of
     //! the §5 word selects the source bank (0 = AVB listener {stream,ch},
-    //! 1 = host playback ring channel). The reserved AECP leg is tied off.
+    //! 1 = host playback ring channel). The AECP leg carries the already
+    //! projected store word.
     .map_wr_data_i (aecp_dmap_wr_p_w ? aecp_dmap_wr_word_w
                     : {cfg_chmap_wr_data[15], cfg_chmap_wr_data[12],
                        cfg_chmap_wr_data[6:4], cfg_chmap_wr_data[2:0]}),
@@ -5672,6 +6172,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .aecp_strm_started_o (pp_aecp_strm_started_w),
       .aecp_pt_offset_o    (pp_aecp_pt_offset_w),
       .aecp_dyn_dirty_o    (pp_aecp_dyn_dirty_w),
+      //! Same live lock level as the processor AECP engine. Milan 5.4.2.27
+      //! and 5.4.2.28 prohibit local map changes while it is asserted.
+      .aecp_lock_held_o    (aecp_locked),
       //! GET_COUNTERS: the processor asks, this file answers (see the
       //! Table 7-157 mux above)
       .ctr_req_o         (pp_ctr_req_w),
@@ -5690,6 +6193,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .amap_rec_o        (pp_amap_rec_w),
       .amap_data_i       (pp_amap_data_w),
       .amap_wait_i       (pp_amap_wait_w),
+      .amap_edit_req_o   (pp_amap_edit_req_w),
+      .amap_edit_phase_o (pp_amap_edit_phase_w),
+      .amap_edit_remove_o(pp_amap_edit_remove_w),
+      .amap_edit_desc_type_o(pp_amap_edit_desc_type_w),
+      .amap_edit_desc_index_o(pp_amap_edit_desc_index_w),
+      .amap_edit_count_o (pp_amap_edit_count_w),
+      .amap_edit_rec_o   (pp_amap_edit_rec_w),
+      .amap_edit_record_o(pp_amap_edit_record_w),
+      .amap_edit_value_o (pp_amap_edit_value_w),
+      .amap_edit_data_i  (pp_amap_edit_data_w),
+      .amap_edit_wait_i  (pp_amap_edit_wait_w),
       //! the Milan-info face: GET_STREAM_INFO / GET_AVB_INFO / GET_AS_PATH
       //! answered from the gsi_answer block above
       .gsi_req_o         (pp_gsi_req_w),

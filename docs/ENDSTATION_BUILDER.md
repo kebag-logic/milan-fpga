@@ -262,7 +262,7 @@ index first; it states which behavior can be relied on today.
 | **D4** | `entity_model_id` = deterministic hash of the model-shaping fields only, or a pin for flashed silicon | 1722.1 6.2.2.8 (incl. its exclusion list) | **implemented** — determinism, shape-sensitivity and the pin are gated (gate 8) |
 | **D5** | the config is the single source of truth; flow flags stay in `sweep.sh`; `audio_interface.kind` selects the ser/des family | engineering + 1722.1 7.2.7/7.2.14/7.2.3 | **implemented** for `i2s_philips` and `tdmN`; `aes3`/`spdif` ser/des exists, its SoC plumbing is *planned*; the JACK / EXTERNAL_PORT model is *planned* |
 | **D6** | AEM store uses a DRAM descriptor tree loaded from a builder-emitted, verified image pair | engineering (area: ~80 RAMB36 vs ~36 free) | **implemented in the tracked flow**: the processor fetches the whole model from DRAM at a compile-time base; the builder emits the image, manifest, and map; `aemi-load` verifies and loads the pair before entity enable. See D6 below |
-| **D7** | dynamic-map store keyed by the **target** stream channel, not the source cluster | Milan 5.4.2.27/28 (one source per stream channel) | **not implemented** — today's RTL is input[0]-scoped and cluster-keyed |
+| **D7** | dynamic-map store keyed by the **target** stream channel, not the source cluster | Milan 5.4.2.27/28 (one source per stream channel) | **implemented**: generated input geometry and output ownership sideband feed atomic ADD/REMOVE transactions and live projections |
 | **D8** | role-named 8×8 port model: per-platform cluster pools, a Pilot cluster, a stream-loopback lane | 1722.1 7.2.19 (port-relative offsets) | **model implemented** (2026-07-28) — `role-pools` policy emits per-platform pools, gates 24a/24b + `sim_pools`; the loopback **fabric lane** is still pending and marked *planned* |
 | **D10** | every AUDIO_CLUSTER is named for its ROLE, not `"Input"`/`"Output"` | 1722.1 7.2.16; 6.2.2.8 (object_name excluded from model structure) | **implemented** (2026-07-28) — gates 24c/24d; `entity_model_id` provably unmoved |
 
@@ -569,36 +569,31 @@ therefore still fails closed at the descriptor store with `BAD_ARGUMENTS`, and
 a late valid load heals without a reset. The remaining gap is strict
 advertisement gating and D4 hash enforcement, not the image supply chain.
 
-### D7 — dynamic-map store keyed by the TARGET (stream channel), not the source cluster
+### D7: direction-specific dynamic-map keys
 
-**Decision** (USER 2026-07-25). The dynamic audio-map store flips its key:
-per dynamic port, one entry **per stream channel** holding `{valid,
-source}` — replacing today's `key = cluster_offset` store.
+**Decision** (USER 2026-07-25, completed 2026-08-17). The two directions use
+the key protected by their respective uniqueness rule:
 
-**Why.** The invariant Milan 5.4.2.27/28 protects is *one source per stream
-channel* (no mixing). The cluster-keyed store enforces the converse — one
-target per source — which forbids legal **selection fan-out** (the Pilot
-cluster onto many channels). The target-keyed word is structurally the
-CHMAP map word (`{EN, SRC, IDX}` per slot,
-[`reference/REGISTER_MAP.md`](reference/REGISTER_MAP.md) 0x900
-group): the AEM engine becomes the canonical projector into the fabric map.
-Per-port store instances keep `stream_index` implicit, exactly as D1 intends.
-The ADD/REMOVE contract (all-or-nothing validate-commit, unsolicited on
-change, lock rules) is unchanged and owed on every dynamic port.
+- A Stream Port Input store is keyed by its global cluster. Each entry holds
+  the Stream Input index and channel feeding that cluster.
+- A Stream Port Output store is keyed by Stream Output channel. Each entry
+  holds the selected cluster's generated capture-source word, port owner, and
+  exact cluster offset.
 
-**Status 2026-08-13: the projector this decision reshapes no longer exists.**
-The AEM engine, its dynamic-map store and the boot seeder are deleted. The
-processor's AECP uCPU serves `GET_AUDIO_MAP`, but the audio-map writers
-(`ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS`) are answered with the
-`NOT_IMPLEMENTED` fallback, which is a refusal, not a projector. So the
-`0x900` window is the only writer of the fabric map, and the decision below is
-an obligation on whoever implements those verbs rather than a migration of live
-RTL. The fabric-side contract is
-[`CHANNEL_MAP_64.md`](CHANNEL_MAP_64.md) §5/§7.
+This permits legal fan-out of one source to several output channels while
+preventing two mappings from claiming one output channel. It also prevents two
+different input sources from claiming one input cluster. The builder emits the
+input bases, counts, page partition, physical projection, output counts, and
+capture-source templates into `adp_shape_defaults.svh` from the same normalized
+model used by the descriptor image.
 
-Status: recorded 2026-07-25; today's RTL is input[0]-scoped and
-cluster-keyed (`` `AEM_DYNMAP ``) — the migration is the store flip,
-per-port instances, and the render/capture consumption follow-up.
+The processor validates `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS` as
+atomic transactions. The root commits the authoritative protocol stores and
+projects only backed clusters into the render and capture crossbars. The
+`0x900` window remains a local debug and override path, but its map writes are
+refused while `LOCK_ENTITY` is held. Reset replay from nonvolatile storage
+remains open in issue #70. The fabric contract is
+[`CHANNEL_MAP_64.md`](CHANNEL_MAP_64.md) section 7.
 
 ### D8 — role-named 8×8 port model: per-platform cluster pools, Pilot cluster, loopback lane
 

@@ -131,9 +131,10 @@ Three losses are functional, not paperwork, and each is where a bench meets it:
    real changes: GM change, name-affecting config). The processor's ADP engine
    reads those wires, so what is advertised cannot diverge from what was
    provisioned. Status readback: 0x644 (live available_index, still published by
-   the processor); 0x648/0x64C carried the AECP lock and cmd/resp counters and
-   now read **structural zeros** — with the one exception that ACMP
-   `talker_active` is live, being the processor's `acmp_declaring_o`.
+   the processor); 0x648[16] carries the live entity-lock level, while the
+   legacy AECP cmd/resp counters and current-configuration field read
+   **structural zeros**. ACMP `talker_active` is also live as the processor's
+   `acmp_declaring_o`.
 2. **DMA rings + timestamp window** — the data plane crossing; all media and
    host traffic, with per-frame HW timestamps landing in descriptors.
 2b. **The descriptor-memory master** — `milan_datapath`'s

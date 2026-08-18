@@ -53,7 +53,7 @@ Terms → [glossary](docs/GLOSSARY.md).
 
 ### Current control-plane boundary
 
-Firmware VERSION `0x0002_004F` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
+Firmware VERSION `0x0002_0050` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
 `protocol-processor` as its only IEEE 1722.1 and SRP control plane. MAAP remains
 in this repository. There is no legacy fallback.
 
@@ -72,6 +72,7 @@ The current AECP implementation answers these operations with real behavior:
 - `REGISTER_UNSOLICITED_NOTIFICATION` and its deregistration pair
 - `GET_COUNTERS` for Stream Input, Stream Output, AVB Interface, and Clock Domain
 - `GET_AUDIO_MAP` for both stream-port directions
+- `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS`
 - Milan Vendor Unique `GET_MILAN_INFO`
 
 Unknown and unimplemented operations still receive the correctly sized IEEE
@@ -89,7 +90,7 @@ serving it, and a late valid image heals without a reset.
 
 This is still not a full Milan v1.2 implementation. Mandatory operations still
 missing include the stream-format setter, stream-info setter, name access,
-audio-map mutation, and dynamic-info reads.
+and dynamic-info reads.
 The processor accepts and stores clock-source and sampling-rate changes. The
 clock-source selection now reaches the media plane's wrapper but nothing there
 reads it yet, and the sampling rate is stored and readable over AECP without
@@ -201,7 +202,7 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 | Traceability no-drift gate | `python3 docs/traceability/gen_module_matrix.py --check` | python3 |
 | End-station builder gates | `python3 sw/builder/test_builder.py` | python3 + pyyaml |
 | Device portability | `cd syn/yosys && make && make ecp5` | yosys + sv2v |
-| **BDD conformance suite** (15 features / 322 scenarios / 1526 steps, no skips in the 2026-08-16 audit) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
+| **BDD conformance suite** (15 features / 339 scenarios / 1,626 steps, no skips in the 2026-08-18 run) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
 
 `ls tb/verilator/` is the authoritative suite list. Full map: [docs/testing/TESTING.md](docs/testing/TESTING.md).
 
@@ -280,8 +281,8 @@ implementation boundary.
 > **Most of this campaign was overtaken by the 2026-08-13 substitution**, and
 > the AECP half of it has since been partly discharged. The RTL that carried
 > these packages is deleted: the ADP, ACMP and SRP items are now the protocol
-> processor's to satisfy. The processor's AECP uCPU serves **twenty-three** AEM
-> opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x004F`, so some AECP rows
+> processor's to satisfy. The processor's AECP uCPU serves **twenty-five** AEM
+> opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x0050`, so some AECP rows
 > below are closed and some are not, and the per-clause status is **not** kept
 > here. [The current audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) records
 > the exact evidence and remaining gaps. This table is kept

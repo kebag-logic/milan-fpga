@@ -64,7 +64,7 @@ processor `pp_top` suite and root `milan_dp` suite cover the RTL and integrated
 wire path. The Milan Table 5.22 unsolicited counter-change producer and
 commands outside the served inventory remain explicit gaps.
 
-**15 features / 322 scenarios / 1526 steps**, all passing, counted by running
+**15 features / 339 scenarios / 1,626 steps**, all passing, counted by running
 the suite on 2026-08-16 (the run's own tally is authoritative -- prose counts
 go stale). It is the **conformance suite**, and it is a CI gate (the
 `bdd-conformance` job in `.github/workflows/rtl.yml`).
@@ -112,7 +112,7 @@ python3 tb/tools/torture_campaign.py --checklist # what a human must do at the b
 
 **Run everything (offline, no DUT, no simulator — finishes in under a second):**
 ```bash
-cd tests && behave -f plain          # 15 features / 322 scenarios (2026-08-16)
+cd tests && behave -f plain          # 15 features / 339 scenarios (2026-08-18)
 ```
 `behave` is not installed system-wide here; any virtualenv with it will do
 (CI does `python3 -m pip install behave`).

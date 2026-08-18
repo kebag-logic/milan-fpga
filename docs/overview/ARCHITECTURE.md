@@ -50,8 +50,10 @@ are silently refused: freed, counted, no reply. Milan Delta 7
 **An echo is not an implementation**, so read the echo as a duty discharged
 (IEEE 1722.1 §9.3.5: respond to what you do not implement), never as coverage.
 Genuinely absent behind it: `SET_STREAM_FORMAT`, `SET_STREAM_INFO`, name access,
-the audio-map writers, `GET_DYNAMIC_INFO`, the Milan Table 5.22 counter-change
-scheduler, root-level IDENTIFY indication, and saved-state persistence.
+`GET_DYNAMIC_INFO`, most Milan Table 5.22 change triggers, root-level IDENTIFY
+indication, and saved-state persistence. `ADD_AUDIO_MAPPINGS` and
+`REMOVE_AUDIO_MAPPINGS` are served through an atomic root transaction and emit
+their required successful-change notifications.
 `SET_CLOCK_SOURCE` is accepted by the processor and its dynamic selection is
 exported to the root, but no media-plane logic consumes it, so the media plane
 remains pinned to INTERNAL. Those
@@ -325,13 +327,12 @@ what software wrote, and writing them changes nothing observable). Which is
 which, word by word, is
 [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md) — read it before
 believing a plausible-looking idle value. `0x648` is one of them despite the
-uCPU having landed: `aecp_locked` is tied 0 because there is no ACQUIRE/LOCK and
-the lock manager is unwired, and `current_config` is tied 0 because there is no
-`SET_CONFIGURATION`. The AECP engine's own telemetry — command, response and
-drop counts, locate misses, last status, last length, image-valid and
-image-fault — is **not** there; it lives in the protocol processor's side-port
-snapshot window, reached through `KL_pp_shadow`'s side-port host bridge
-(`PP_SPADDR`/`PP_SPDATA`).
+uCPU having landed: `[16]` now carries the processor's live entity-lock level,
+while `current_config` and the legacy counters remain structural zeros. The
+AECP engine's own telemetry, including command, response and drop counts,
+locate misses, last status, last length, image-valid and image-fault, is
+**not** there; it lives in the protocol processor's side-port snapshot window,
+reached through `KL_pp_shadow`'s side-port host bridge (`PP_SPADDR`/`PP_SPDATA`).
 
 ## 5. Clock domains & CDC
 
