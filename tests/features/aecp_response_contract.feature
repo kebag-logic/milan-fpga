@@ -75,8 +75,6 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
       | 14     | SET_STREAM_INFO                   |
       | 16     | SET_NAME                          |
       | 17     | GET_NAME                          |
-      | 34     | START_STREAMING                   |
-      | 35     | STOP_STREAMING                    |
 
     Examples: opcodes with no command behind them at all
       | opcode | command                           |
@@ -164,6 +162,66 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
     And the AECP response carries the command payload verbatim
     And the AECP response control_data_length counts its own payload
     And the AECP response is well formed against its command
+
+  # ------------------------------- START/STOP_STREAMING, the wrong target ---
+  # Milan 5.4.2.19/5.4.2.20 implement these per Stream INPUT and require
+  # "NOT_SUPPORTED shall be returned" for a Stream Output. 5.3.7.3 says why:
+  # the specification "excludes the possibility for a Stream Output to be
+  # stopped". IEEE Figure 7-59 gives command and response ONE shape, four
+  # bytes of {descriptor_type, descriptor_index}, so the refusal is cdl 16 -
+  # the same length as the success - and only NOT_IMPLEMENTED may answer at
+  # the command's own size.
+  #
+  # The SUCCESS path is not modelled here on purpose: it moves state in the
+  # ACMP binding record, which this offline model does not carry. It is
+  # graded on the real RTL in the protocol processor's pp_top (W21) and end
+  # to end, over the wire, in tb/verilator/milan_dp.
+  @class:negative @cmd:START_STREAMING
+  Scenario Outline: START/STOP_STREAMING on a target that is not a Stream Input
+    When the controller sends AEM opcode <opcode> naming descriptor type <dtype> to the AECP engine
+    Then the AECP response status is 11
+    And the AECP response message_type is 1
+    And the AECP response echoes command_type <opcode> with u clear
+    # IEEE Figure 7-59 gives command and response ONE shape - four bytes of
+    # {descriptor_type, descriptor_index}. Pin the NUMBER, not just internal
+    # consistency: a response that shortened its body and its cdl together
+    # stays self-consistent and is still the wrong frame on the wire.
+    And the AECP response control_data_length is 16
+    And the AECP response control_data_length counts its own payload
+    And the AECP response is well formed against its command
+
+    Examples: Milan 5.4.2.19/5.4.2.20 - a Stream Output is refused by name
+      | opcode | dtype | target        |
+      | 34     | 6     | STREAM_OUTPUT |
+      | 35     | 6     | STREAM_OUTPUT |
+
+    # ...and so is every other type. That is what keeps a locate on
+    # {ENTITY, 0} - a descriptor that EXISTS - out of the write path.
+    Examples: every other descriptor type takes the same refusal
+      | opcode | dtype | target        |
+      | 34     | 0     | ENTITY        |
+      | 35     | 0     | ENTITY        |
+      | 34     | 26    | CONTROL       |
+      | 35     | 26    | CONTROL       |
+
+  # The other half of the partition. Without these rows the outline above
+  # holds for a model that answers NOT_SUPPORTED to EVERY target - which is
+  # what this model did until the type rule was written into it, and the
+  # refusal rows all passed for the wrong reason.
+  @class:positive @cmd:START_STREAMING
+  Scenario Outline: START/STOP_STREAMING on a Stream Input is served
+    When the controller sends AEM opcode <opcode> naming descriptor type 5 to the AECP engine
+    Then the AECP response status is 0
+    And the AECP response message_type is 1
+    And the AECP response echoes command_type <opcode> with u clear
+    And the AECP response control_data_length is 16
+    And the AECP response control_data_length counts its own payload
+    And the AECP response is well formed against its command
+
+    Examples: Milan 5.4.2.19/5.4.2.20 - "for each Stream Input"
+      | opcode | command         |
+      | 34     | START_STREAMING |
+      | 35     | STOP_STREAMING  |
 
   # ------------------------------------ never silence, never malformed ---
   @class:negative
