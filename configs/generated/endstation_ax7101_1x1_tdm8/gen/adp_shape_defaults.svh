@@ -25,6 +25,10 @@
   //! listener_stream_sinks = STREAM_INPUT descriptors = the ACMP
   //! listener_unique_id range (AAF sinks, then the CRF sink)
   localparam int ADP_LISTENER_SINK_C = 2;
+  //! Writable SET_NAME/GET_NAME entries in this exact AEM model.
+  //! This sizes the processor overlay from the generated descriptor
+  //! shape, so a larger model cannot compile with a smaller cache.
+  localparam int AEM_NAME_ENTRIES_C = 47;
   //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |
   //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT
   //! exists to back it

@@ -50,6 +50,7 @@
 #include <cstdint>
 #include <cstring>
 #include <cstdlib>
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <map>
@@ -207,6 +208,11 @@ static const int DESC_GAP_EVERY = 4;    // beats between one-clock bubbles
 static std::vector<uint8_t> desc_img;   // the AEMI image, byte for byte
 // what the wire MUST carry, keyed (type << 16) | index - see aemi_load()
 static std::map<uint32_t, std::vector<uint8_t> > desc_want;
+struct NameWant {
+    uint16_t type, index, name_index;
+    std::vector<uint8_t> bytes;
+};
+static std::vector<NameWant> name_want;
 
 // Boot the processor with the image matching this elaborated entity shape.
 // The descriptor store validates and caches its index at startup, just like
@@ -311,6 +317,7 @@ static bool aemi_load(const char* cfg, std::string* why) {
 
     desc_img.clear();
     desc_want.clear();
+    name_want.clear();
 
     // The builder writes into <outdir>/<config-stem>/; no --write-rtl and no
     // --write-fragment, so it touches nothing tracked.
@@ -367,9 +374,82 @@ static bool aemi_load(const char* cfg, std::string* why) {
         desc_want[((uint32_t)ty << 16) | ((uint32_t)ix & 0xFFFFu)] = d;
         p = q1;
     }
+
+    // Independently walk the packed index rows to recover the descriptor to
+    // name-table mapping the RTL consumes. The expectation bytes come from
+    // the JSON descriptor fields, not from the table being graded.
+    const auto be16 = [](const std::vector<uint8_t>& v, size_t at) {
+        return (uint16_t)(((uint16_t)v[at] << 8) | v[at + 1]);
+    };
+    const auto be32 = [](const std::vector<uint8_t>& v, size_t at) {
+        return ((uint32_t)v[at] << 24) | ((uint32_t)v[at + 1] << 16)
+             | ((uint32_t)v[at + 2] << 8) | v[at + 3];
+    };
+    if (desc_img.size() < 32) {
+        *why = "the generated image has no complete header";
+        return false;
+    }
+    const uint16_t nent = be16(desc_img, 8);
+    const uint16_t nname = be16(desc_img, 10);
+    const uint32_t ioff = be32(desc_img, 12);
+    const uint32_t noff = be32(desc_img, 16);
+    std::map<uint32_t, uint16_t> run_first;
+    std::vector<bool> used(nname, false);
+    for (uint16_t row = 0; row < nent; ++row) {
+        const size_t at = ioff + 16u * row;
+        if (at + 16 > desc_img.size()) {
+            *why = "the generated image has a truncated index map";
+            return false;
+        }
+        const uint16_t cfg_i = be16(desc_img, at);
+        const uint16_t type = be16(desc_img, at + 2);
+        const uint16_t count = be16(desc_img, at + 4);
+        const uint16_t nbase = be16(desc_img, at + 12);
+        const uint32_t run_key = ((uint32_t)cfg_i << 16) | type;
+        const uint16_t first = run_first[run_key];
+        run_first[run_key] = (uint16_t)(first + count);
+        if (nbase == 0xFFFFu) continue;
+        for (uint16_t rel = 0; rel < count; ++rel) {
+            const uint16_t ix = (uint16_t)(first + rel);
+            const uint32_t key = ((uint32_t)type << 16) | ix;
+            std::map<uint32_t, std::vector<uint8_t> >::const_iterator di =
+                desc_want.find(key);
+            if (cfg_i != 0 || di == desc_want.end()) {
+                *why = "a named index row has no matching descriptor";
+                return false;
+            }
+            const unsigned semantic_count = (type == 0x0000) ? 2u : 1u;
+            for (unsigned ni = 0; ni < semantic_count; ++ni) {
+                const uint32_t slot = (uint32_t)nbase + rel + ni;
+                const size_t field = (type == 0x0000)
+                                   ? (ni == 0 ? 48u : 180u) : 4u;
+                if (slot >= nname || field + 64 > di->second.size()
+                    || noff + 64u * (slot + 1) > desc_img.size()) {
+                    *why = "a named descriptor points outside its image";
+                    return false;
+                }
+                std::vector<uint8_t> bytes(di->second.begin() + field,
+                                           di->second.begin() + field + 64);
+                if (!std::equal(bytes.begin(), bytes.end(),
+                                desc_img.begin() + noff + 64u * slot)) {
+                    *why = "the packed name table differs from its descriptor";
+                    return false;
+                }
+                name_want.push_back(
+                    {(uint16_t)type, ix, (uint16_t)ni, bytes});
+                used[slot] = true;
+            }
+        }
+    }
+    for (uint16_t slot = 0; slot < nname; ++slot) {
+        if (!used[slot]) {
+            *why = "the packed name table contains an unreferenced entry";
+            return false;
+        }
+    }
     remove(bin); remove(js); remove(log);
-    if (desc_img.empty() || desc_want.empty()) {
-        *why = "the generator produced an empty image or document";
+    if (desc_img.empty() || desc_want.empty() || name_want.empty()) {
+        *why = "the generator produced an empty image, document or name table";
         return false;
     }
     return true;
@@ -822,8 +902,8 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x0052 carries the start/stop commit handshake",
-       axi_read(A_VERSION), 0x00020052);
+    ck("VERSION 0x0053 exposes coherent name access",
+       axi_read(A_VERSION), 0x00020053);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
     //! These two writes used to sit inside the N-sink ACMP ctx2 section,
@@ -1071,6 +1151,101 @@ int main(int argc, char** argv) {
                 //! above having proved nothing at all - the vacuity check
                 ck("[AECP-MODEL] the generated model is not empty",
                    (long)(rows >= 8), 1);
+
+                // ---- GET_NAME for every semantic name in the model -------
+                // The expected 64 bytes come from each descriptor's inline
+                // field. The packed index rows supplied only the mapping, so
+                // a table and descriptor that disagree cannot agree with the
+                // same expectation by construction.
+                long names_ok = 0;
+                for (std::vector<NameWant>::const_iterator it = name_want.begin();
+                     it != name_want.end(); ++it) {
+                    std::vector<uint8_t> pl(8, 0);
+                    pl[0] = (uint8_t)(it->type >> 8); pl[1] = (uint8_t)it->type;
+                    pl[2] = (uint8_t)(it->index >> 8); pl[3] = (uint8_t)it->index;
+                    pl[4] = (uint8_t)(it->name_index >> 8);
+                    pl[5] = (uint8_t)it->name_index;
+                    const std::vector<uint8_t> r = aecp_xact(0x0011, sq, pl);
+                    char t[128];
+                    snprintf(t, sizeof t,
+                             "[AECP-MODEL] GET_NAME %#06x/%u name %u",
+                             it->type, it->index, it->name_index);
+                    char w[176];
+                    snprintf(w, sizeof w, "%s: ANSWERED at the fixed length", t);
+                    ck(w, (long)r.size(), 110);
+                    if (r.size() >= 110) {
+                        snprintf(w, sizeof w, "%s: status SUCCESS(0)", t);
+                        ck(w, aecp_status(r), 0);
+                        snprintf(w, sizeof w, "%s: cdl 84", t);
+                        ck(w, (((unsigned)r[16] & 7) << 8) | r[17], 84);
+                        snprintf(w, sizeof w, "%s: selector echoed", t);
+                        ck(w, (long)(std::equal(pl.begin(), pl.end(),
+                                               r.begin() + 38)), 1);
+                        snprintf(w, sizeof w,
+                                 "%s: bytes equal READ_DESCRIPTOR", t);
+                        ck(w, (long)(std::equal(it->bytes.begin(), it->bytes.end(),
+                                               r.begin() + 46)), 1);
+                        names_ok++;
+                    }
+                    sq++;
+                }
+                ck("[AECP-MODEL] GET_NAME walked every generated name",
+                   names_ok, (long)name_want.size());
+                printf("  [i]    model-driven GET_NAME: %ld of the "
+                       "generator's %ld names served\n", names_ok,
+                       (long)name_want.size());
+
+                // ---- SET_NAME, then GET_NAME and READ_DESCRIPTOR ----------
+                // Use AUDIO_CLUSTER[0], a non-ENTITY name at the unaligned
+                // descriptor offset 4 that originally exposed this defect.
+                std::vector<NameWant>::const_iterator set_it = name_want.end();
+                for (std::vector<NameWant>::const_iterator it = name_want.begin();
+                     it != name_want.end(); ++it) {
+                    if (it->type == 0x0014 && it->index == 0
+                        && it->name_index == 0) { set_it = it; break; }
+                }
+                ck("[AECP-MODEL] model has AUDIO_CLUSTER[0] name 0 to set",
+                   (long)(set_it != name_want.end()), 1);
+                if (set_it != name_want.end()) {
+                    std::vector<uint8_t> changed(64);
+                    for (unsigned i = 0; i < changed.size(); ++i)
+                        changed[i] = (uint8_t)('A' + (i % 26));
+                    std::vector<uint8_t> pl(72, 0);
+                    pl[0] = 0x00; pl[1] = 0x14;
+                    pl[2] = 0x00; pl[3] = 0x00;
+                    std::copy(changed.begin(), changed.end(), pl.begin() + 8);
+                    const uint16_t set_sq = sq++;
+                    const std::vector<uint8_t> sr =
+                        aecp_xact(0x0010, set_sq, pl);
+                    ck("[AECP-MODEL] SET_NAME is SUCCESS(0)",
+                       sr.size() >= 110 ? aecp_status(sr) : -1, 0);
+                    ck("[AECP-MODEL] SET_NAME response cdl is 84",
+                       sr.size() >= 110
+                           ? ((((unsigned)sr[16] & 7) << 8) | sr[17]) : -1,
+                       84);
+                    ck("[AECP-MODEL] SET_NAME returns the current new name",
+                       (long)(sr.size() >= 110
+                              && std::equal(changed.begin(), changed.end(),
+                                            sr.begin() + 46)), 1);
+
+                    std::vector<uint8_t> gp(pl.begin(), pl.begin() + 8);
+                    const std::vector<uint8_t> gr = aecp_xact(0x0011, sq++, gp);
+                    ck("[AECP-MODEL] GET_NAME after SET_NAME is SUCCESS(0)",
+                       gr.size() >= 110 ? aecp_status(gr) : -1, 0);
+                    ck("[AECP-MODEL] GET_NAME returns the written 64 bytes",
+                       (long)(gr.size() >= 110
+                              && std::equal(changed.begin(), changed.end(),
+                                            gr.begin() + 46)), 1);
+
+                    std::vector<uint8_t>& changed_desc =
+                        desc_want[(0x0014u << 16) | 0u];
+                    std::copy(changed.begin(), changed.end(),
+                              changed_desc.begin() + 4);
+                    ck("[AECP-MODEL] READ_DESCRIPTOR after SET_NAME stays "
+                       "coherent", (long)(grade_read_desc(
+                           "[AECP-MODEL] changed AUDIO_CLUSTER,0",
+                           0x0014, 0, sq++) > 0), 1);
+                }
 
                 // ---- GET_CONFIGURATION vs ENTITY.current_configuration ----
                 const std::vector<uint8_t>* ent = desc_of(0x0000, 0);

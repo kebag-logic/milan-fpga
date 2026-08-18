@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "facts": {
-    "gateware_version": "0x0002_0052",
+    "gateware_version": "0x0002_0053",
     "served_aem_operations": [
       "ACQUIRE_ENTITY",
       "LOCK_ENTITY",
@@ -22,6 +22,8 @@
       "DEREGISTER_UNSOLICITED_NOTIFICATION",
       "IDENTIFY_NOTIFICATION",
       "GET_STREAM_INFO",
+      "SET_NAME",
+      "GET_NAME",
       "GET_AVB_INFO",
       "GET_AS_PATH",
       "GET_COUNTERS",
@@ -35,9 +37,7 @@
     ],
     "missing_mandatory_aem_operations": [
       "SET_STREAM_FORMAT",
-      "SET_STREAM_INFO",
-      "SET_NAME",
-      "GET_NAME"
+      "SET_STREAM_INFO"
     ]
   },
   "fact_documents": {
@@ -64,7 +64,7 @@
     {
       "id": "gateware.current-version",
       "status": "implemented",
-      "value": "0x0002_0052",
+      "value": "0x0002_0053",
       "summary": "Current gateware and processor integration version.",
       "documents": [
         "README.md",

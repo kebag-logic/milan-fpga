@@ -98,6 +98,7 @@ ST_NOT_SUPPORTED = 11
 
 OP_ACQUIRE_ENTITY = 0x0000
 OP_READ_DESCRIPTOR = 0x0004
+OP_SET_NAME = 0x0010
 OP_IDENTIFY_NOTIFICATION = 0x0026
 OP_GET_DYNAMIC_INFO = 0x004B
 OP_START_STREAMING = 0x0022
@@ -144,6 +145,10 @@ SERVED = {
                  verdict=ST_SUCCESS, cdl=24),
     0x000F: dict(name="GET_STREAM_INFO", clause="Milan 5.4.2.10",
                  verdict=ST_SUCCESS, cdl=68),     # the Milan 80-byte form
+    0x0010: dict(name="SET_NAME", clause="Milan 5.4.2.11",
+                 verdict=ST_SUCCESS, cdl=84),
+    0x0011: dict(name="GET_NAME", clause="Milan 5.4.2.12",
+                 verdict=ST_SUCCESS, cdl=84),
     0x0015: dict(name="GET_SAMPLING_RATE", clause="Milan 5.4.2.14",
                  verdict=ST_SUCCESS, cdl=20),
     0x0014: dict(name="SET_SAMPLING_RATE", clause="Milan 5.4.2.13",
@@ -930,12 +935,19 @@ def step_send_response_as_input(context, kind):
 
 @when('the controller sweeps AEM opcodes {lo:d} to {hi:d} plus {extra:d}')
 def step_sweep(context, lo, hi, extra):
-    """One READ_DESCRIPTOR-shaped command per opcode, so a single payload
-    exercises all three dispatch arms and the partition is exact."""
+    """One valid command per opcode across the complete dispatch partition.
+
+    The generic eight-byte selector is valid for every served row except
+    SET_NAME, whose command includes the complete 64-byte replacement name.
+    """
     context.aecp_sweep = []
     for op in list(range(lo, hi + 1)) + [extra]:
-        cmd = build_get_dynamic_info() if op == OP_GET_DYNAMIC_INFO \
-            else build_aem_command(op)
+        if op == OP_GET_DYNAMIC_INFO:
+            cmd = build_get_dynamic_info()
+        elif op == OP_SET_NAME:
+            cmd = build_aem_command(op, bytes(72))
+        else:
+            cmd = build_aem_command(op)
         context.aecp_sweep.append((op, cmd, context.aecp.deliver(cmd)))
 
 

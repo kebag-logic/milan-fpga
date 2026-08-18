@@ -73,8 +73,6 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
       | opcode | command                           |
       | 8      | SET_STREAM_FORMAT                 |
       | 14     | SET_STREAM_INFO                   |
-      | 16     | SET_NAME                          |
-      | 17     | GET_NAME                          |
 
     Examples: opcodes with no command behind them at all
       | opcode | command                           |

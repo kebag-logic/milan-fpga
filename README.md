@@ -53,7 +53,7 @@ Terms → [glossary](docs/GLOSSARY.md).
 
 ### Current control-plane boundary
 
-Firmware VERSION `0x0002_0051` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
+Firmware VERSION `0x0002_0053` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
 `protocol-processor` as its only IEEE 1722.1 and SRP control plane. MAAP remains
 in this repository. There is no legacy fallback.
 
@@ -63,7 +63,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0052` |
+| `gateware.current-version` | `implemented` | `0x0002_0053` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `missing` | - |
@@ -83,6 +83,7 @@ The current AECP implementation answers these operations with real behavior:
 - `ENTITY_AVAILABLE` and `GET_CONFIGURATION`
 - `SET_CONFIGURATION`
 - `GET_STREAM_FORMAT`
+- `SET_NAME` and `GET_NAME` for every generated named descriptor
 - `SET_SAMPLING_RATE` and `GET_SAMPLING_RATE`
 - `SET_CLOCK_SOURCE` and `GET_CLOCK_SOURCE`
 - `SET_CONTROL` and `GET_CONTROL` for Identify
@@ -119,8 +120,6 @@ are missing:
 <!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
 - `SET_STREAM_FORMAT`
 - `SET_STREAM_INFO`
-- `SET_NAME`
-- `GET_NAME`
 <!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
 
 The processor accepts and stores clock-source and sampling-rate changes. The
@@ -319,7 +318,7 @@ implementation boundary.
 > the AECP half of it has since been partly discharged. The RTL that carried
 > these packages is deleted: the ADP, ACMP and SRP items are now the protocol
 > processor's to satisfy. The processor's AECP uCPU serves **twenty-six** AEM
-> opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x0051`, so some AECP rows
+> opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x0053`, so some AECP rows
 > below are closed and some are not, and the per-clause status is **not** kept
 > here. [The current audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) records
 > the exact evidence and remaining gaps. This table is kept

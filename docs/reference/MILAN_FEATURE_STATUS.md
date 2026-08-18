@@ -21,7 +21,7 @@ served on the wire while still having a known behavioral defect.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0052` |
+| `gateware.current-version` | `implemented` | `0x0002_0053` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `missing` | - |
@@ -58,6 +58,8 @@ Served AEM operations:
 - `DEREGISTER_UNSOLICITED_NOTIFICATION`
 - `IDENTIFY_NOTIFICATION`
 - `GET_STREAM_INFO`
+- `SET_NAME`
+- `GET_NAME`
 - `GET_AVB_INFO`
 - `GET_AS_PATH`
 - `GET_COUNTERS`
@@ -78,8 +80,6 @@ Missing mandatory AEM operations:
 <!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
 - `SET_STREAM_FORMAT`
 - `SET_STREAM_INFO`
-- `SET_NAME`
-- `GET_NAME`
 <!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
 
 The JSON `facts` object owns the exact served AEM list, served MVU list,

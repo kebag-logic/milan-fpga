@@ -39,7 +39,7 @@ docs: [`docs/SPEC_TRACEABILITY.md`](../SPEC_TRACEABILITY.md) (the 204-row matrix
 >   the [current Milan v1.2 audit](MILAN_V12_AUDIT_2026-08-16.md). Commands outside that inventory
 >   still draw the conformant fallback and serve no function. The Milan Table
 >   5.22 counter-change scheduler, persistence, stream-format and stream-info
->   setters, and name access remain open. Live audio-map mutation and
+>   setters remain open. Name access, live audio-map mutation, and
 >   `GET_DYNAMIC_INFO` are in the implemented inventory. A fallback response is
 >   not coverage.
 > * **The descriptor image is not supplied by this repository.** The processor's

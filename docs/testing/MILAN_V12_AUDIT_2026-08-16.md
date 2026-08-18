@@ -29,7 +29,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0052` |
+| `gateware.current-version` | `implemented` | `0x0002_0053` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `missing` | - |
@@ -87,7 +87,7 @@ existing checkout at the pinned commit for an offline rerun.
 <!-- milan-feature-fact:served_aem_operations:start -->
 The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `ACQUIRE_ENTITY`, `LOCK_ENTITY`, `ENTITY_AVAILABLE`, `SET_CONFIGURATION`, `GET_CONFIGURATION`,
-`GET_STREAM_FORMAT`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
+`GET_STREAM_FORMAT`, `SET_NAME`, `GET_NAME`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
 `SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
 `GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `GET_STREAM_INFO`,
 `IDENTIFY_NOTIFICATION`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
@@ -120,7 +120,7 @@ bypass changes cannot start an output between validation and write-back. The
 processor R19a and root T66 regressions drive both concurrency paths.
 
 This inventory describes command handling and its integrated media effects at
-VERSION `0x0052`. `START_STREAMING` and `STOP_STREAMING` are served from the
+VERSION `0x0053`. `START_STREAMING` and `STOP_STREAMING` are served from the
 ACMP binding record and complete at it. A stopped Stream Input - AAF and CRF
 alike - continues observing and counting received traffic while discarding its
 media contribution (B12).
@@ -131,7 +131,6 @@ or otherwise lacks the required behavior:
 <!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
 - `SET_STREAM_FORMAT`
 - `SET_STREAM_INFO`
-- `SET_NAME` and `GET_NAME`
 <!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
 
 Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
@@ -139,11 +138,11 @@ Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/98a5b749c1ba569008d7132a11fffa3ae4a39d95/hdl/aecp/KL_aecp_engine.sv),
-the packet-level W8 cases in
-[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/98a5b749c1ba569008d7132a11fffa3ae4a39d95/tb/pp_top/sim_main.cpp), and the
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/34be66d3dbd467776b49e89eb34a1332510d5bb9/hdl/aecp/KL_aecp_engine.sv),
+the packet-level command cases in
+[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/34be66d3dbd467776b49e89eb34a1332510d5bb9/tb/pp_top/sim_main.cpp), and the
 current command table in
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/98a5b749c1ba569008d7132a11fffa3ae4a39d95/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/34be66d3dbd467776b49e89eb34a1332510d5bb9/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 
@@ -309,7 +308,7 @@ media gate in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
    ROM, which allowed false-green integration runs.
 2. The root processor integration now grades Milan `ACQUIRE_ENTITY` instead of
    printing a stale unconditional gap.
-3. The repository README now describes the current VERSION `0x0002_0051`
+3. The repository README now describes the current VERSION `0x0002_0053`
    control-plane surface and the remaining blockers.
 4. First-line-obsolete documents are no longer current authorities. Current
    entry points route compliance verdicts to this audit and the generated

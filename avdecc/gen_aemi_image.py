@@ -236,23 +236,109 @@ def model_to_document(M, ident):
     replacement supply chain simply did not carry the step forward; a default
     here would let the next caller drop it just as quietly.
 
-    Names are left to the descriptors' own inline `object_name` fields, so no
-    name table is emitted (`name_index` unset means "unnamed" to the packer).
-    The store's name table is an optimisation for models that share strings;
-    this one does not.
+    `M["NAMED"]` is the authority for the semantic names that SET_NAME and
+    GET_NAME expose. The image format stores those names in one flat table,
+    and its index rows carry the first entry for each descriptor run. This
+    join derives that table from the same inline bytes READ_DESCRIPTOR serves,
+    so all three command paths start coherent and the packer can enforce that
+    they remain structurally addressable.
     """
     rom = apply_identity(M, ident)
+    directory = {(int(typ), int(idx)): (int(base), int(length))
+                 for typ, idx, base, length in M["directory"]}
+    if len(directory) != len(M["directory"]):
+        raise image.ImageError("descriptor directory contains duplicate keys")
+
+    named = {}
+    for typ, idx, semantic, addr in M["NAMED"]:
+        key = (int(typ), int(idx))
+        semantic = int(semantic)
+        addr = int(addr)
+        if key not in directory:
+            raise image.ImageError(
+                f"name for type 0x{key[0]:04X} index {key[1]} has no "
+                "descriptor")
+        slots = named.setdefault(key, {})
+        if semantic in slots:
+            raise image.ImageError(
+                f"duplicate name for type 0x{key[0]:04X} index {key[1]} "
+                f"semantic index {semantic}")
+        slots[semantic] = addr
+
+    def text_from_name(raw, who):
+        if len(raw) != image.NAME_BYTES:
+            raise image.ImageError(
+                f"{who} is {len(raw)} bytes, expected {image.NAME_BYTES}")
+        head, separator, tail = raw.partition(b"\x00")
+        if separator and any(tail):
+            raise image.ImageError(
+                f"{who} has nonzero bytes after its first NUL")
+        try:
+            text = (head if separator else raw).decode("utf-8")
+        except UnicodeDecodeError as exc:
+            raise image.ImageError(f"{who} is not valid UTF-8: {exc}") from exc
+        if image.name_bytes(text) != raw:
+            raise image.ImageError(
+                f"{who} cannot be represented exactly by the image format")
+        return text
+
+    names = []
+    first_name = {}
+    per_type = {}
+    for typ, idx in directory:
+        per_type.setdefault(typ, []).append(idx)
+    for typ, indices in sorted(per_type.items()):
+        indices.sort()
+        present = [(typ, idx) in named for idx in indices]
+        if any(present) and not all(present):
+            raise image.ImageError(
+                f"type 0x{typ:04X} mixes named and unnamed descriptors")
+        for idx in indices:
+            key = (typ, idx)
+            if key not in named:
+                continue
+            slots = named[key]
+            expected = [0, 1] if typ == aem.ENTITY else [0]
+            if sorted(slots) != expected:
+                raise image.ImageError(
+                    f"type 0x{typ:04X} index {idx} has semantic name "
+                    f"indices {sorted(slots)}, expected {expected}")
+            base, length = directory[key]
+            expected_addr = {0: base + (48 if typ == aem.ENTITY else 4)}
+            if typ == aem.ENTITY:
+                expected_addr[1] = base + 180
+            first_name[key] = len(names)
+            for semantic in expected:
+                addr = slots[semantic]
+                if addr != expected_addr[semantic]:
+                    raise image.ImageError(
+                        f"type 0x{typ:04X} index {idx} semantic name "
+                        f"{semantic} points to ROM 0x{addr:04X}, expected "
+                        f"0x{expected_addr[semantic]:04X}")
+                if addr < base or addr + image.NAME_BYTES > base + length:
+                    raise image.ImageError(
+                        f"type 0x{typ:04X} index {idx} semantic name "
+                        f"{semantic} is outside its descriptor")
+                names.append(text_from_name(
+                    rom[addr:addr + image.NAME_BYTES],
+                    f"type 0x{typ:04X} index {idx} semantic name {semantic}"))
+
     descriptors = []
     for typ, idx, base, length in M["directory"]:
-        descriptors.append({
+        desc = {
             "configuration": 0,
             "type": int(typ),
             "index": int(idx),
             "bytes": rom[base:base + length].hex(),
-        })
+        }
+        key = (int(typ), int(idx))
+        if key in first_name:
+            desc["name_index"] = first_name[key]
+        descriptors.append(desc)
     return {
         "format": "kl-aem-image",
         "version": image.LAYOUT_VERSION,
+        "names": names,
         "descriptors": descriptors,
     }
 
