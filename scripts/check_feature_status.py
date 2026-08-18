@@ -11,6 +11,7 @@ first runs positive and negative fixtures, then checks the working tree.
 """
 
 import argparse
+import ast
 import json
 import re
 import sys
@@ -29,6 +30,10 @@ ROW_RE = re.compile(
     r"^\|\s*`(?P<feature>[^`]+)`\s*\|\s*`(?P<status>[^`]+)`\s*\|"
     r"\s*`?(?P<value>[^|`]*?)`?\s*\|\s*$"
 )
+HEADER_RE = re.compile(
+    r"^\|\s*Feature ID\s*\|\s*Status\s*\|\s*Canonical value\s*\|\s*$"
+)
+FENCE_RE = re.compile(r"^\s*(```|~~~)")
 ARCHIVE_PARTS = {"historical_now_obsolete", "archive", "archived", "archives"}
 VERSION_SOURCE = REPO / "hdl/common/csr/milan_csr.sv"
 COMMAND_SOURCE = REPO / "tests/steps/aecp_engine_steps.py"
@@ -103,7 +108,7 @@ def load_ledger_text(text, source="ledger"):
         by_id[feature_id] = feature
 
         status = feature.get("status")
-        if status not in ALLOWED_STATUSES:
+        if not isinstance(status, str) or status not in ALLOWED_STATUSES:
             findings.append(
                 f"{source}: feature '{feature_id}' has unknown status {status!r}")
         summary = feature.get("summary")
@@ -143,26 +148,54 @@ def check_source_facts(ledger, version_text, command_text,
                        command_source="aecp_engine_steps.py"):
     """Tie version and served-command facts to their source declarations."""
     findings = []
-    match = re.search(
+    version_code = re.sub(r"/\*.*?\*/", "", version_text, flags=re.DOTALL)
+    version_code = re.sub(r"//[^\n]*", "", version_code)
+    matches = re.findall(
         r"parameter\s+logic\s*\[31:0\]\s+VERSION\s*=\s*32'h"
-        r"([0-9A-Fa-f]{4})_([0-9A-Fa-f]{4})", version_text)
-    if match is None:
+        r"([0-9A-Fa-f]{4})_([0-9A-Fa-f]{4})", version_code)
+    if len(matches) != 1:
         findings.append(f"{version_source}: cannot locate VERSION parameter")
     else:
-        actual = f"0x{match.group(1).upper()}_{match.group(2).upper()}"
+        actual = f"0x{matches[0][0].upper()}_{matches[0][1].upper()}"
         expected = ledger["facts"]["gateware_version"]
         if actual != expected:
             findings.append(
                 f"gateware version conflict: ledger={expected}; "
                 f"{version_source}={actual}")
 
-    start = command_text.find("SERVED = {")
-    end = command_text.find("\n}\n\n#! the engine", start)
-    if start < 0 or end < 0:
+    try:
+        tree = ast.parse(command_text, filename=command_source)
+    except SyntaxError as exc:
+        findings.append(f"{command_source}: cannot parse source: {exc.msg}")
+        tree = None
+    served_nodes = [] if tree is None else [
+        node.value for node in tree.body
+        if isinstance(node, (ast.Assign, ast.AnnAssign)) and any(
+            isinstance(target, ast.Name) and target.id == "SERVED"
+            for target in (node.targets if isinstance(node, ast.Assign)
+                           else [node.target]))
+    ]
+    if len(served_nodes) != 1 or not isinstance(served_nodes[0], ast.Dict):
         findings.append(f"{command_source}: cannot locate SERVED table")
     else:
-        actual = re.findall(r'dict\(name="([A-Z0-9_]+)"',
-                            command_text[start:end])
+        actual = []
+        malformed = False
+        for entry in served_nodes[0].values:
+            if not (isinstance(entry, ast.Call) and
+                    isinstance(entry.func, ast.Name) and
+                    entry.func.id == "dict"):
+                malformed = True
+                continue
+            name_values = [keyword.value for keyword in entry.keywords
+                           if keyword.arg == "name"]
+            if (len(name_values) != 1 or
+                    not isinstance(name_values[0], ast.Constant) or
+                    not isinstance(name_values[0].value, str)):
+                malformed = True
+                continue
+            actual.append(name_values[0].value)
+        if malformed:
+            findings.append(f"{command_source}: SERVED has a malformed entry")
         expected = ledger["facts"]["served_aem_operations"]
         missing = sorted(set(expected) - set(actual))
         extra = sorted(set(actual) - set(expected))
@@ -188,10 +221,22 @@ def parse_document(text, relpath):
     """Return ``(claims, findings)`` from marked status blocks."""
     claims = []
     findings = []
-    inside = False
+    inside = in_comment = in_fence = False
     block_line = 0
     for lineno, line in enumerate(text.splitlines(), 1):
         stripped = line.strip()
+        if FENCE_RE.match(line):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        if in_comment:
+            if "-->" in line:
+                in_comment = False
+            continue
+        if "<!--" in line and "-->" not in line:
+            in_comment = True
+            continue
         if stripped == BLOCK_START:
             if inside:
                 findings.append(f"{relpath}:{lineno}: nested feature-status block")
@@ -203,9 +248,17 @@ def parse_document(text, relpath):
                 findings.append(f"{relpath}:{lineno}: unmatched feature-status end")
             inside = False
             continue
-        if not inside or not stripped.startswith("|"):
+        if not stripped.startswith("|"):
             continue
-        if "Feature ID" in stripped or re.fullmatch(r"[|:\- ]+", stripped):
+        if not inside:
+            unmarked = ROW_RE.fullmatch(stripped)
+            if (HEADER_RE.fullmatch(stripped) or
+                    (unmarked and unmarked.group("status") in ALLOWED_STATUSES)):
+                findings.append(
+                    f"{relpath}:{lineno}: feature-status row is outside a "
+                    "marked block")
+            continue
+        if HEADER_RE.fullmatch(stripped) or re.fullmatch(r"[|:\- ]+", stripped):
             continue
         match = ROW_RE.fullmatch(stripped)
         if not match:
@@ -329,12 +382,46 @@ def run_self_test():
     cases.append(("unknown status", any(
         "unknown status" in item for item in status_findings)))
 
+    non_string_status = json.loads(json.dumps(base))
+    non_string_status["features"][0]["status"] = []
+    _, non_string_findings = load_ledger_text(
+        json.dumps(non_string_status), "fixture")
+    cases.append(("non-string status", any(
+        "unknown status" in item for item in non_string_findings)))
+
     unknown_row = row.replace("aem.read-descriptor", "aem.unknown")
     unknown_findings = check_claims(
         ledger, {"one.md": unknown_row, "two.md": row})
     cases.append(("unknown reference", any(
         "unknown feature identifier 'aem.unknown'" in item
         for item in unknown_findings)))
+
+    header_value_row = row.replace(
+        "| `aem.read-descriptor` | `implemented` | - |",
+        "| `aem.unknown` | `implemented` | Feature ID |")
+    header_value_findings = check_claims(
+        ledger, {"one.md": header_value_row, "two.md": row})
+    cases.append(("header text in value", any(
+        "unknown feature identifier 'aem.unknown'" in item
+        for item in header_value_findings)))
+
+    fenced = f"```markdown\n{row}```\n"
+    fenced_findings = check_claims(
+        ledger, {"one.md": row, "two.md": fenced})
+    cases.append(("fenced claim ignored", any(
+        "not marked in two.md" in item for item in fenced_findings)))
+
+    fenced_example = row + "\n~~~markdown\n" + unknown_row + "~~~\n"
+    fenced_example_findings = check_claims(
+        ledger, {"one.md": fenced_example, "two.md": row})
+    cases.append(("fenced example ignored", not any(
+        "aem.unknown" in item for item in fenced_example_findings)))
+
+    unmarked_findings = check_claims(
+        ledger, {"one.md": row, "two.md": row.replace(
+            f"{BLOCK_START}\n", "").replace(f"{BLOCK_END}\n", "")})
+    cases.append(("unmarked claim rejected", any(
+        "outside a marked block" in item for item in unmarked_findings)))
 
     obsolete = "[OBSOLETE + 2026-08-18]\n" + conflict
     cases.append(("obsolete banner", not is_active_document_text(obsolete,
@@ -343,8 +430,7 @@ def run_self_test():
         conflict, "historical_now_obsolete/old.md")))
 
     version_text = "parameter logic [31:0] VERSION = 32'h0002_0051;"
-    command_text = ('SERVED = {\n0: dict(name="READ_DESCRIPTOR")\n}\n\n'
-                    '#! the engine')
+    command_text = 'SERVED = {0: dict(name="READ_DESCRIPTOR")}\n'
     cases.append(("source facts", not check_source_facts(
         ledger, version_text, command_text)))
     cases.append(("source version drift", any(
@@ -354,6 +440,10 @@ def run_self_test():
         "served AEM inventory conflict" in item for item in check_source_facts(
             ledger, version_text,
             command_text.replace("READ_DESCRIPTOR", "SET_NAME")))))
+    cases.append(("commented source ignored", not check_source_facts(
+        ledger,
+        "// parameter logic [31:0] VERSION = 32'h0002_0052;\n" + version_text,
+        '# SERVED = {0: dict(name="SET_NAME")}\n' + command_text)))
 
     for name, passed in cases:
         print(f"  {'PASS' if passed else 'FAIL'}  {name}")

@@ -91,8 +91,10 @@ by `hdl/milan/KL_pp_shadow.sv` and instantiated unconditionally. The
 processor owns **ADP, ACMP, SRP — and now AECP**: its AECP uCPU has landed and
 the entity is reachable on AECP.
 
-**What that engine does, exactly.** The authoritative served set is the
-`OP_*_C` table in `protocol-processor/hdl/aecp/KL_aecp_engine.sv`. It includes
+**What that engine does, exactly.** The processor's concrete operation decode is
+the `OP_*_C` table in `protocol-processor/hdl/aecp/KL_aecp_engine.sv`. The
+canonical documented inventory is the Milan feature status ledger, whose check
+also matches the compliant bench's served-operation table. The engine includes
 `READ_DESCRIPTOR`, `ACQUIRE_ENTITY`, `LOCK_ENTITY`, entity and configuration
 operations, stream and clock getters, sampling-rate operations,
 `SET_CLOCK_SOURCE`, Identify control, `GET_STREAM_INFO`,
@@ -113,6 +115,21 @@ the paired image and manifest and runs `aemi-load` to verify and load them at
 `PP_DESC_BASE_P` before entity enable. A custom integration that omits that step
 still fails closed with `BAD_ARGUMENTS`. The Table 5.22 counter-change producer,
 the departing-controller monitor, and saved-state persistence remain open.
+
+These repeated claims are checked against the
+[Milan feature status ledger](MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `aem.acquire-entity-refusal` | `not-supported` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+| `notifications.controller-liveness` | `missing` | - |
+<!-- milan-feature-status:end -->
 
 | Requirement group | Verdict | Where it lives now |
 |---|---|---|

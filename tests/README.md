@@ -64,6 +64,18 @@ processor `pp_top` suite and root `milan_dp` suite cover the RTL and integrated
 wire path. The Milan Table 5.22 unsolicited counter-change producer and
 commands outside the served inventory remain explicit gaps.
 
+These repeated claims are checked against the
+[Milan feature status ledger](../docs/reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `aem.acquire-entity-refusal` | `not-supported` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+<!-- milan-feature-status:end -->
+
 **15 features / 338 scenarios / 1,615 steps**, all passing, counted by running
 the suite on 2026-08-18 (the run's own tally is authoritative -- prose counts
 go stale). It is the **conformance suite**, and it is a CI gate (the

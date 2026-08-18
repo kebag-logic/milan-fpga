@@ -105,9 +105,10 @@ Three functional losses have no register of their own and are recorded here so
 they are not discovered by surprise:
 
 1. **The CRF media clock can never be SELECTED at the root.** The processor
-   accepts and stores AECP `SET_CLOCK_SOURCE`, but `KL_pp_shadow.sv` does not
-   export that dynamic clock-source output to the media plane. The root is
-   therefore pinned at index 0, the INTERNAL media clock, for the life of the build.
+   accepts and stores AECP `SET_CLOCK_SOURCE`. `KL_pp_shadow.sv` exports the
+   dynamic clock-source output to the root, but no media-plane logic consumes
+   it. The root is therefore pinned at index 0, the INTERNAL media clock, for the
+   life of the build.
    `KL_mmcm_drp_servo` and the `KL_media_nco` packet-grid servo are therefore
    **structurally off** and `A_MCSRV_STAT` `0x8F8` reads its idle. The CRF Media
    Clock Input engine still parses, counts and reports at `0x738`; what it can no
