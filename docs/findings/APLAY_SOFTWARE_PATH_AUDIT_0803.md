@@ -872,7 +872,7 @@ Stated explicitly so the gaps are not mistaken for clean results.
   residual error. A separate and much smaller media-clock effect remains,
   10.65 ppm between two free-running crystals, which is a lock gap rather
   than an arithmetic one. See
-  [`MEDIA_CLOCK_LOCK_0810.md`](MEDIA_CLOCK_LOCK_0810.md).
+  [the obsolete historical media-clock finding](MEDIA_CLOCK_LOCK_0810.md).
 * **Only 8ch/48k/S32_BE** was exercised, only stream 0, only the playback
   direction, only `hw:` (never `plughw:`), and only with `/tmp/music.raw` as
   the source. Capture, multi-stream playback, and format variation are

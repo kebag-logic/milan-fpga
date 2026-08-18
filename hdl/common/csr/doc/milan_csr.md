@@ -13,6 +13,15 @@ docs/reference/REGISTER_MAP.md.
 - **ABI**: [docs/reference/REGISTER_MAP.md](../../../../docs/reference/REGISTER_MAP.md)
 - **Verification**: [tb/verilator/csr](../../../../tb/verilator/csr) — self-checking; the harness prints its own live check count on every run (deliberately not quoted here, it grows with every CSR round)
 
+The current version is checked against the
+[Milan feature status ledger](../../../../docs/reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `gateware.current-version` | `implemented` | `0x0002_0051` |
+<!-- milan-feature-status:end -->
+
 ## Contents
 
 - **[Diagram](#diagram)** — No schematic is checked in; the section says how to produce one and points at the architecture page for system context. Skip unless you are regenerating.
@@ -50,7 +59,7 @@ consumer using those strobes (`REQ-CSR-03`).
 | ADDR_WIDTH   | int           | 16             | Byte-address width of the AXI-Lite window (16 => 64 KB) |
 | N_LISTENERS_P | int          | 1              | listener stream contexts addressable by the 0x800 window (`A_STRM_SEL` dir=0) |
 | N_TALKERS_P  | int           | 1              | talker stream contexts (`A_STRM_SEL` dir=1) |
-| VERSION      | logic [31:0]  | 32'h0001_0015  | Value returned by the read-only VERSION register. **Do not quote this literal** — it moves with every CSR contract change; the RTL parameter's own comment is the per-version changelog and [REGISTER_MAP.md](../../../../docs/reference/REGISTER_MAP.md) `0x004` is the ABI statement of the same number |
+| VERSION      | logic [31:0]  | 32'h0002_0051  | Value returned by the read-only VERSION register. The RTL parameter comment is the per-version changelog, and [REGISTER_MAP.md](../../../../docs/reference/REGISTER_MAP.md) `0x004` is the ABI statement of the same number. |
 
 ## Generated includes
 

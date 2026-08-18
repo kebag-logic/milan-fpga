@@ -615,6 +615,18 @@ reserved to this feature, 5 words used):
 
 ## 7. AEM binding -- IEEE 1722.1 dynamic audio maps (Milan es-4.16)
 
+The notification, persistence, and clock-consumption boundaries on this page
+are checked against the
+[Milan feature status ledger](reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `crf.media-clock-consumption` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+<!-- milan-feature-status:end -->
+
 > **STATUS 2026-08-17: GETTER AND TRANSACTIONAL WRITERS ARE BUILT.** The
 > protocol processor serves `GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`, and
 > `REMOVE_AUDIO_MAPPINGS`. It stages a full command, validates every row,
@@ -789,10 +801,10 @@ and the `CHMAP_PHYS_C` blend layout — all three enumerated in the
 
 ## 9. Clocking and slip policy (phase 1, normative)
 
-- All AAF streams and both physical directions share the
-  **gPTP-disciplined media clock** (the coherent chain: audio MMCM +
-  CRF/MMCM-DRP servo, silicon-proven). There is **no per-stream SRC in
-  phase 1**.
+- All AAF streams and both physical directions currently share the fixed
+  internal audio MMCM clock. The root pins the CRF selection to INTERNAL, so
+  the exported AECP clock-source selection does not enable the MMCM-DRP or NCO
+  servos. There is **no per-stream SRC in phase 1**.
 - The latch arrays (§3 `cur_sample`, §4 `cur_pair`) implement
   **latest-sample semantics**: at each media tick every consumer reads
   the newest value ≤ 1 sample old. Bounded inter-stream phase skew is

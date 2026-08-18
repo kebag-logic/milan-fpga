@@ -38,6 +38,15 @@ it down is that the two steps people skip — cutting the branch **from the
 issue**, and reviewing with **cleared context** — are the two that keep the
 board honest and stop a reviewer from rubber-stamping their own reasoning.
 
+The long-gate policy is machine-checked against the
+[Milan feature status ledger](docs/reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `verification.long-gate-policy` | `implemented` | `local-required, remote-optional` |
+<!-- milan-feature-status:end -->
+
 ```mermaid
 flowchart LR
     B[Backlog] -->|scope settled,<br/>no open decision| R[Ready]

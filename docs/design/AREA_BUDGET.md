@@ -9,6 +9,16 @@ This page deliberately **excludes the CPU**. The soft CPU and its caches are a
 vendored component with their own configuration surface; everything below is
 logic this project owns and can therefore choose not to build.
 
+The current command-surface claim is checked against the
+[Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+<!-- milan-feature-status:end -->
+
 > **THE DIE CHANGED SHAPE ON 2026-08-13 — a whole plane left, and the
 > protocol processor arrived.** This repository's ADP advertiser, ACMP talker
 > and listener, AECP/AEM engine, persistence journal and lwSRP applicant were
@@ -305,9 +315,12 @@ it defaults to PRESENT.
 
 **`MCSERVO_P = 0` — media-clock servo.**
 *Buys* 814 LUT / 789 FF / 1 DSP (yosys estimate).
-*Costs* the ability to discipline the audio MMCM to a clock the fabric
-recovers. `A_MCSRV_STAT 0x8F8` becomes a **structural** zero, the DRP and
-phase-shift ports never move, and the MMCM is never reset by the datapath.
+*Costs* the dormant servo hardware needed to discipline the audio MMCM after
+the root clock-source consumer is restored. The current unpruned shipping
+integration also leaves the servo disabled because it pins the selection to
+INTERNAL. With the block pruned, `A_MCSRV_STAT 0x8F8` becomes a **structural**
+zero, the DRP and phase-shift ports never move, and the MMCM is never reset by
+the datapath.
 *Legal when* the media clock is internal: the builder gate refuses it unless
 `clocking.media_clock_sources` is exactly `[internal]`.
 *Forces re-measurement of* every CRF / input-stream lock result — servo

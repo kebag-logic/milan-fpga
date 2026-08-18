@@ -17,6 +17,15 @@
 
 ## The device at a glance
 
+The descriptor-read behavior described below is checked against the
+[Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+<!-- milan-feature-status:end -->
+
 ![QSPI flash map](../diagrams/flash_layout.svg)
 
 *What is at which offset, how much of the device each slot actually costs, and

@@ -1,3 +1,5 @@
+[OBSOLETE + 2026-08-18]
+
 # Media clock lock: the periodic one sample slip (2026-08-10)
 
 > **UPDATE 2026-08-10 (later the same day). Two things below are wrong, and

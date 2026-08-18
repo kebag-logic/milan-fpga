@@ -119,6 +119,16 @@ window, pacing interval) are protocol-structural: they do not shrink with a
 faster clock, only with a smaller `samples_per_frame` or a shorter class
 interval.
 
+The current command boundary is checked against the
+[Milan feature status ledger](reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+<!-- milan-feature-status:end -->
+
 **That 500 µs is no longer settable (2026-08-13).** `SET_MAX_TRANSIT_TIME` and
 `SET_STREAM_INFO`'s `MSRP_ACC_LAT` sub-command were its only writers, and
 neither is implemented. The repository-local AECP engine is deleted, while the

@@ -57,8 +57,26 @@ Firmware VERSION `0x0002_0051` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
 `protocol-processor` as its only IEEE 1722.1 and SRP control plane. MAAP remains
 in this repository. There is no legacy fallback.
 
+Machine-checked status rows are defined by the
+[Milan feature status ledger](docs/reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `gateware.current-version` | `implemented` | `0x0002_0051` |
+| `aem.served-command-set` | `implemented` | - |
+| `aem.acquire-entity-refusal` | `not-supported` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `stream-input.start-stop` | `partial` | - |
+| `stream-input.stopped-crf-observation` | `missing` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+<!-- milan-feature-status:end -->
+
 The current AECP implementation answers these operations with real behavior:
 
+<!-- milan-feature-fact:served_aem_operations:start -->
 - `READ_DESCRIPTOR`
 - `ACQUIRE_ENTITY` with Milan's required `NOT_SUPPORTED` result
 - `LOCK_ENTITY`
@@ -68,15 +86,20 @@ The current AECP implementation answers these operations with real behavior:
 - `SET_SAMPLING_RATE` and `GET_SAMPLING_RATE`
 - `SET_CLOCK_SOURCE` and `GET_CLOCK_SOURCE`
 - `SET_CONTROL` and `GET_CONTROL` for Identify
-- `START_STREAMING` and `STOP_STREAMING` for Stream Input
+- `START_STREAMING` and `STOP_STREAMING` for Stream Input, with the known
+  response-boundary and stopped-CRF defects tracked by issue #97
 - `GET_STREAM_INFO`, `GET_AVB_INFO`, and leaf-only `GET_AS_PATH`
-- `REGISTER_UNSOLICITED_NOTIFICATION` and its deregistration pair
+- `REGISTER_UNSOLICITED_NOTIFICATION` and `DEREGISTER_UNSOLICITED_NOTIFICATION`
 - `IDENTIFY_NOTIFICATION` commands with the required `BAD_ARGUMENTS` result
 - `GET_COUNTERS` for Stream Input, Stream Output, AVB Interface, and Clock Domain
 - `GET_AUDIO_MAP` for both stream-port directions
 - `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS`
 - `GET_DYNAMIC_INFO` for the IEEE fixed-getter whitelist
+<!-- milan-feature-fact:served_aem_operations:end -->
+
+<!-- milan-feature-fact:served_mvu_operations:start -->
 - Milan Vendor Unique `GET_MILAN_INFO`
+<!-- milan-feature-fact:served_mvu_operations:end -->
 
 Unknown and unimplemented operations still receive the correctly sized IEEE
 1722.1 echo. Commands for another entity and incoming AECP responses are
@@ -90,8 +113,16 @@ utility loads and verifies the paired image before the entity is enabled. The
 store validates its `AEMI` header, version, checksum, and configuration before
 serving it, and a late valid image heals without a reset.
 
-This is still not a full Milan v1.2 implementation. Mandatory operations still
-missing include the stream-format setter, stream-info setter, and name access.
+This is still not a full Milan v1.2 implementation. These mandatory operations
+are missing:
+
+<!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
+- `SET_STREAM_FORMAT`
+- `SET_STREAM_INFO`
+- `SET_NAME`
+- `GET_NAME`
+<!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
+
 The processor accepts and stores clock-source and sampling-rate changes. The
 clock-source selection now reaches the media plane's wrapper but nothing there
 reads it yet, and the sampling rate is stored and readable over AECP without
@@ -104,6 +135,9 @@ The integration also reports no nonvolatile backend, so required state does not
 survive a power cycle. Solicited Stream Output counters are now served; their
 rate-limited unsolicited notification path remains a separate task. These are
 compliance blockers, not documentation-only limitations.
+The Stream Input START/STOP path is partial until issue #97 makes command
+success follow the binding-record commit and keeps stopped CRF traffic visible
+to observation counters while suppressing only timing consumption.
 `GET_AS_PATH` reports only the grandmaster identity. The PathTrace staging tail
 is disconnected from the root processor interface, so multi-bridge topology is
 reported incompletely.
@@ -369,4 +403,4 @@ ends derive from gPTP) plus making the Bresenham remainder a register the
 servo drives, which gives 0.01 ppm per LSB for a register and an adder.
 
 Full evidence, the ruled-out list and the oscillator table:
-[`docs/findings/MEDIA_CLOCK_LOCK_0810.md`](docs/findings/MEDIA_CLOCK_LOCK_0810.md).
+[obsolete historical media-clock finding](docs/findings/MEDIA_CLOCK_LOCK_0810.md).

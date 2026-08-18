@@ -62,6 +62,28 @@ are stated capability boundaries. What they cost functionally is §3.2; what the
 affected CSR words read is
 [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md).
 
+Machine-checked status rows are defined by the
+[Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `aem.acquire-entity-refusal` | `not-supported` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `stream-input.start-stop` | `partial` | - |
+| `stream-input.stopped-crf-observation` | `missing` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+| `notifications.controller-liveness` | `missing` | - |
+<!-- milan-feature-status:end -->
+
+The START/STOP command path and AAF media gate exist, but issue #97 keeps the
+feature partial. Command success can precede the binding-record commit, and a
+stopped CRF input currently loses receive observation together with timing
+consumption.
+
 **The entity model is no longer a fabric ROM — it lives in DDR3.** The
 processor's descriptor store fetches it over a read-only master at a
 **compile-time base**: there is no base register and software cannot relocate it

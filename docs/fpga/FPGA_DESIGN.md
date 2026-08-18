@@ -46,6 +46,19 @@ remain absent. Live audio-map mutation is implemented. A
 stated capability boundary from an informed decision, not a regression and not a
 temporary blip. §1.2 names what it costs module by module.
 
+These repeated claims are checked against the
+[Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+<!-- milan-feature-status:end -->
+
 **Where the descriptors come from.** `milan_datapath` exposes a read-only
 descriptor-memory master (`o_desc_mem_*` / `i_desc_mem_*`) that the SoC bridges
 to DRAM at the compile-time `PP_DESC_BASE_P` — no base register, no runtime

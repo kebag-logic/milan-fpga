@@ -91,8 +91,10 @@ by `hdl/milan/KL_pp_shadow.sv` and instantiated unconditionally. The
 processor owns **ADP, ACMP, SRP — and now AECP**: its AECP uCPU has landed and
 the entity is reachable on AECP.
 
-**What that engine does, exactly.** The authoritative served set is the
-`OP_*_C` table in `protocol-processor/hdl/aecp/KL_aecp_engine.sv`. It includes
+**What that engine does, exactly.** The processor's concrete operation decode is
+the `OP_*_C` table in `protocol-processor/hdl/aecp/KL_aecp_engine.sv`. The
+canonical documented inventory is the Milan feature status ledger, whose check
+also matches the compliant bench's served-operation table. The engine includes
 `READ_DESCRIPTOR`, `ACQUIRE_ENTITY`, `LOCK_ENTITY`, entity and configuration
 operations, stream and clock getters, sampling-rate operations,
 `SET_CLOCK_SOURCE`, Identify control, `GET_STREAM_INFO`,
@@ -114,6 +116,21 @@ the paired image and manifest and runs `aemi-load` to verify and load them at
 still fails closed with `BAD_ARGUMENTS`. The Table 5.22 counter-change producer,
 the departing-controller monitor, and saved-state persistence remain open.
 
+These repeated claims are checked against the
+[Milan feature status ledger](MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `aem.acquire-entity-refusal` | `not-supported` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+| `notifications.controller-liveness` | `missing` | - |
+<!-- milan-feature-status:end -->
+
 | Requirement group | Verdict | Where it lives now |
 |---|---|---|
 | **FR-DISC-01..05** (ADP) | **OWNED BY THE PROTOCOL PROCESSOR** | `KL_adp_engine`. Advertisement content is the entity model via `adp_shape_defaults.svh`; `available_index` is published to the CSR plane. The historic `ADP_CTRL.en` still enables the entity (ORed with `PP_CTRL[0]`), but the ADPDU *content* CSR words are write-only scratch that reach nothing |
@@ -126,8 +143,8 @@ the departing-controller monitor, and saved-state persistence remain open.
 | **FR-CONN-03/04** (fast-connect, nonvolatile connection state) | **NOT MET** | The persistence journal and the bind-restore port are structural zeros: writes are accepted, nothing is restored, **no binding survives a power cycle**. Milan v1.2 5.3.8.2 wants saved state; this build does not have it and says so structurally |
 | **FR-MAAP-01** | **MET, in this fabric** | `KL_maap` remains the shipping allocator. The processor also contains `KL_pp_maap`, but this integration disables it with `cfg_maap_internal_i = 0` and reaches the selected fabric engine through `KL_pp_maap_shim`. The talker cannot declare without an `ALLOC_DA` success, so the DA gate *is* the talker gate |
 | **FR-SRP-01/02/03** | **OWNED BY THE PROTOCOL PROCESSOR** | Its SRP engine registers/deregisters and admits; the granted slope, adopted domain and admission bit drive the CBS mux and the AAF gate exactly as before. The slope/gate *ordering* changed shape and not safety — see [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md) |
-| **FR-CLK-01/02/04/05** (gPTP, PHC, CRF source/recovery, HW timestamps) | **MET** | Untouched by the substitution |
-| **FR-CLK-03** (media clock MUST be selectable among Internal / input-stream / CRF) | **NOT MET AT THE ROOT INTEGRATION** | The processor accepts and stores `SET_CLOCK_SOURCE`, and `KL_pp_shadow.sv` exports `aecp_clk_src_index_o` to the root. The media plane does not consume that selection, so `CRF_CLK_SELECTED_C` remains zero (INTERNAL) and the MMCM-DRP and packet-grid NCO servos stay idle. `KL_crf_rx` still parses, counts and reports, but cannot steer the media clock |
+| **FR-CLK-01/02/05** (gPTP, PHC, HW timestamps) | **MET** | Untouched by the substitution |
+| **FR-CLK-03/04** (select and recover the media clock from Internal / input-stream / CRF sources) | **NOT MET AT THE ROOT INTEGRATION** | The processor accepts and stores `SET_CLOCK_SOURCE`, and `KL_pp_shadow.sv` exports `aecp_clk_src_index_o` to the root. The media plane does not consume that selection, so `CRF_CLK_SELECTED_C` remains zero (INTERNAL) and the MMCM-DRP and packet-grid NCO servos stay idle. `KL_crf_rx` still parses, counts and reports, but cannot steer the media clock |
 | **FR-STR-01/02/04/05** (AAF encapsulation, de-encapsulation, listener counters, parameterisation) | **MET** | The media plane is intact |
 | **FR-STR-03/03a/03b** (listener format adaptation via SET_STREAM_FORMAT) | **NOT MET** | `SET_STREAM_FORMAT` is unimplemented — it is answered with the `NOT_IMPLEMENTED` echo, which adapts nothing. The listener's format is what the build elaborated; the *wire-truth* rule still governs de-interleaving, so a format-mismatched PDU is still counted `UNSUPPORTED_FORMAT` rather than mis-rendered — but the entity cannot adapt on connection |
 | **FR-QOS-01..03** | **MET** | Classifier + CBS untouched; the Σ idleSlope ceiling is enforced by the processor's admission now |

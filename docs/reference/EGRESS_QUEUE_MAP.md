@@ -544,6 +544,15 @@ rebuild, reflash, and re-pin against the new `csr.csv`.
 
 ## Where the fabric bypasses all of this
 
+The notification claim in this section is checked against the
+[Milan feature status ledger](MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `notifications.change-events` | `partial` | - |
+<!-- milan-feature-status:end -->
+
 Only frames the **CPU** sends (`s_axis_tx_*` into `milan_datapath`) traverse the
 classifier, the per-queue FIFOs and the CBS arbiter. The fabric engines inject
 **after** the shaper, through the `adp_tx_arbiter` chain and the control-lane
@@ -558,9 +567,9 @@ IFG gasket:
   stream**: the processor's AECP uCPU serves the current command inventory and
   emits a conformant `NOT_IMPLEMENTED` echo for commands outside it, driving the
   processor's solicited TX lane, so AECP frames do leave this device on the
-  control lane. What the device never emits is an **unsolicited** AECP frame —
-  the processor's unsolicited lane has no producer, so the Milan Table 5.22 push
-  contributes no traffic to any queue.
+  control lane. The unsolicited lane emits the implemented audio-mapping change
+  notifications. General command-change responses and the Milan Table 5.22
+  counter-change producer remain open, so notification coverage is partial.
 
 So the q4/q3/q1 assignments bite for **CPU-originated** traffic today: a
 software AVDECC controller or a software MSRP stack lands on q1, gPTP from the

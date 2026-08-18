@@ -23,6 +23,25 @@ Approved specification dated 2023-11-30 from the local standards archive.
 The target is the non-redundant PAAD profile. Milan chapter 8 redundancy is
 outside this build's declared scope.
 
+Machine-checked status rows are defined by the
+[Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `gateware.current-version` | `implemented` | `0x0002_0051` |
+| `aem.served-command-set` | `implemented` | - |
+| `aem.acquire-entity-refusal` | `not-supported` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `stream-input.start-stop` | `partial` | - |
+| `stream-input.stopped-crf-observation` | `missing` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+| `notifications.controller-liveness` | `missing` | - |
+| `verification.long-gate-policy` | `implemented` | `local-required, remote-optional` |
+<!-- milan-feature-status:end -->
+
 ## Current verification record
 
 | Gate | Result | Interpretation |
@@ -38,13 +57,17 @@ outside this build's declared scope.
 | Root RTL lint | PASS under ratchet | The ratchet remains at 99 existing warnings. This is not a zero-warning result. |
 | Module matrix | PASS | 63 modules, 0 untested under the current matrix rules. |
 | End-station builder gates | PASS | The AEM image, identity, shape, and base-format generation gates passed. |
-| Documentation gate | PASS | It covered 204 Markdown files with zero findings after the final edits. |
+| Documentation gate | PASS | It covered 205 Markdown files with zero findings after the final edits. |
 | `tsn-gen` field campaign | 164 checks passed | The AAF/AVTP field campaign reported 164 pass, 0 fail, and 0 known gaps with parser tests disabled. The result came from a working tree of the public generator, not solely from the `TSN_GEN_REV` commit pinned by `.github/workflows/rtl.yml`. CI exercises that pin, but this campaign count is a measured floor rather than a pin-reproducible result. |
 | Vivado build and timing closure | NOT RUN | Vivado 2026.1 is not installed in this environment. |
 | Current physical Milan interoperability bench | NOT RUN | The external bench repository contains valuable dated evidence, but its present worktree is active and its last recorded audio result used a mismatched peer format. |
 
 The official controller decoder result is reproducible from the tracked DUT
 capture without relying on the audit prose. Run:
+
+The full local Verilator and Yosys portability sweeps are required validation
+evidence. Their long remote copies are optional and need not delay review after
+the local equivalents pass.
 
 ```console
 scripts/verify_la_avdecc_counters.sh
@@ -61,6 +84,7 @@ existing checkout at the pinned commit for an offline rerun.
 
 ### B1. The mandatory AECP command set is incomplete
 
+<!-- milan-feature-fact:served_aem_operations:start -->
 The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `ACQUIRE_ENTITY`, `LOCK_ENTITY`, `ENTITY_AVAILABLE`, `SET_CONFIGURATION`, `GET_CONFIGURATION`,
 `GET_STREAM_FORMAT`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
@@ -68,8 +92,14 @@ The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `GET_STREAM_INFO`,
 `IDENTIFY_NOTIFICATION`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
 `GET_COUNTERS`, `GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`,
-`REMOVE_AUDIO_MAPPINGS`, `GET_DYNAMIC_INFO`, the unsolicited registration
-pair, and Milan `GET_MILAN_INFO`.
+`REMOVE_AUDIO_MAPPINGS`, `GET_DYNAMIC_INFO`,
+`REGISTER_UNSOLICITED_NOTIFICATION`, and
+`DEREGISTER_UNSOLICITED_NOTIFICATION`.
+<!-- milan-feature-fact:served_aem_operations:end -->
+
+<!-- milan-feature-fact:served_mvu_operations:start -->
+The served Milan Vendor Unique inventory is `GET_MILAN_INFO`.
+<!-- milan-feature-fact:served_mvu_operations:end -->
 
 `GET_DYNAMIC_INFO` implements the IEEE 1722.1-2021 section 7.4.76 fixed-getter
 whitelist with a full pre-scan, independent record statuses, silent overflow
@@ -91,15 +121,18 @@ processor R19a and root T66 regressions drive both concurrency paths.
 
 This inventory describes command handling and its integrated media effects at
 VERSION `0x0051`. `START_STREAMING` and `STOP_STREAMING` are served from the
-ACMP binding record, and a stopped Stream Input continues observing and counting
-received traffic while discarding its media contribution.
+ACMP binding record. A stopped AAF Stream Input continues observing and counting
+received traffic while discarding its media contribution. The CRF exception is
+the issue #97 defect recorded in B12.
 
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
 
+<!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
 - `SET_STREAM_FORMAT`
 - `SET_STREAM_INFO`
 - `SET_NAME` and `GET_NAME`
+<!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
 
 Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 `NOT_IMPLEMENTED` response is transport-safe, but it is not implementation of
@@ -243,14 +276,21 @@ peer-format-matched audio run, long-duration gPTP run, or external lab run
 was produced in this audit. Automated simulation cannot establish electrical,
 clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
 
-### B12. Stream Input START/STOP behavior is implemented; persistence is open
+### B12. Stream Input START/STOP behavior is partial; persistence is open
 
 The ACMP binding record is the single source of truth for the Stream Input
 started state. `START_STREAMING` and `STOP_STREAMING` update that record, and
 the AECP dynamic store's selector 6 is retired. A started Stream Input processes
-its AVTPDUs; a stopped one continues receiving, classifying, and counting them
-while discarding their media contribution. The datapath suite also proves a
-STOP/START pair does not forge a binding edge or reset the Stream Input counters.
+its AVTPDUs. A stopped AAF input continues receiving, classifying, and counting
+them while discarding their media contribution. The datapath suite also proves
+a STOP/START pair does not forge a binding edge or reset the Stream Input
+counters.
+
+Two correctness defects keep this behavior partial under issue #97. The AECP
+response can report `SUCCESS` after holder acceptance but before the record
+walker commits the state. The CRF stopped predicate is also applied at the CRF
+receive frame strobe, so stopped CRF traffic is hidden from observation and
+counters instead of being observed while only timing consumption is suppressed.
 
 Milan Section 5.3.8.7 also requires this state to be saved in nonvolatile memory
 and restored after a power cycle. The record projects and restores the bit, but

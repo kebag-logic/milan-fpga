@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "facts": {
+    "gateware_version": "0x0002_0051",
+    "served_aem_operations": [
+      "ACQUIRE_ENTITY",
+      "LOCK_ENTITY",
+      "ENTITY_AVAILABLE",
+      "READ_DESCRIPTOR",
+      "SET_CONFIGURATION",
+      "GET_CONFIGURATION",
+      "GET_STREAM_FORMAT",
+      "SET_SAMPLING_RATE",
+      "GET_SAMPLING_RATE",
+      "SET_CLOCK_SOURCE",
+      "GET_CLOCK_SOURCE",
+      "SET_CONTROL",
+      "GET_CONTROL",
+      "START_STREAMING",
+      "STOP_STREAMING",
+      "REGISTER_UNSOLICITED_NOTIFICATION",
+      "DEREGISTER_UNSOLICITED_NOTIFICATION",
+      "IDENTIFY_NOTIFICATION",
+      "GET_STREAM_INFO",
+      "GET_AVB_INFO",
+      "GET_AS_PATH",
+      "GET_COUNTERS",
+      "GET_AUDIO_MAP",
+      "ADD_AUDIO_MAPPINGS",
+      "REMOVE_AUDIO_MAPPINGS",
+      "GET_DYNAMIC_INFO"
+    ],
+    "served_mvu_operations": [
+      "GET_MILAN_INFO"
+    ],
+    "missing_mandatory_aem_operations": [
+      "SET_STREAM_FORMAT",
+      "SET_STREAM_INFO",
+      "SET_NAME",
+      "GET_NAME"
+    ]
+  },
+  "fact_documents": {
+    "served_aem_operations": [
+      "README.md",
+      "docs/MILAN_V12_ROADMAP.md",
+      "docs/reference/MILAN_FEATURE_STATUS.md",
+      "docs/testing/MILAN_V12_AUDIT_2026-08-16.md"
+    ],
+    "served_mvu_operations": [
+      "README.md",
+      "docs/MILAN_V12_ROADMAP.md",
+      "docs/reference/MILAN_FEATURE_STATUS.md",
+      "docs/testing/MILAN_V12_AUDIT_2026-08-16.md"
+    ],
+    "missing_mandatory_aem_operations": [
+      "README.md",
+      "docs/MILAN_V12_ROADMAP.md",
+      "docs/reference/MILAN_FEATURE_STATUS.md",
+      "docs/testing/MILAN_V12_AUDIT_2026-08-16.md"
+    ]
+  },
+  "features": [
+    {
+      "id": "gateware.current-version",
+      "status": "implemented",
+      "value": "0x0002_0051",
+      "summary": "Current gateware and processor integration version.",
+      "documents": [
+        "README.md",
+        "docs/MILAN_V12_ROADMAP.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/reference/REGISTER_MAP.md",
+        "docs/reference/REGISTER_MAP_CLASSES.md",
+        "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+        "hdl/common/csr/doc/milan_csr.md"
+      ]
+    },
+    {
+      "id": "aem.served-command-set",
+      "status": "implemented",
+      "summary": "The ledger facts list is the canonical served AEM command inventory.",
+      "documents": [
+        "QUICKSTART.md",
+        "README.md",
+        "docs/AAF_LATENCY_TAPS.md",
+        "docs/GLOSSARY.md",
+        "docs/HOWTO_PLAY_MUSIC.md",
+        "docs/MILAN_V12_ROADMAP.md",
+        "docs/design/AREA_BUDGET.md",
+        "docs/design/TIME_SYNC.md",
+        "docs/diagrams/README.md",
+        "docs/fpga/DATAPLANE_WALKTHROUGH.md",
+        "docs/fpga/FPGA_DESIGN.md",
+        "docs/integration/INTEGRATION_GUIDE.md",
+        "docs/integration/QSPI_FLASHBOOT.md",
+        "docs/limitations/RECURRING_DEFECT_PATTERNS.md",
+        "docs/limitations/TROUBLESHOOTING.md",
+        "docs/overview/ARCHITECTURE.md",
+        "docs/overview/FULL_FPGA_SOLUTION.md",
+        "docs/reference/FR_NFR.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/reference/REGISTER_MAP.md",
+        "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+        "docs/testing/TESTING.md",
+        "sw/builder/README-parameters.md",
+        "tests/README.md"
+      ]
+    },
+    {
+      "id": "aem.acquire-entity-refusal",
+      "status": "not-supported",
+      "summary": "ACQUIRE_ENTITY is deliberately refused with NOT_SUPPORTED and a zero owner.",
+      "documents": [
+        "README.md",
+        "docs/MILAN_V12_ROADMAP.md",
+        "docs/overview/ARCHITECTURE.md",
+        "docs/overview/FULL_FPGA_SOLUTION.md",
+        "docs/reference/FR_NFR.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/reference/REGISTER_MAP.md",
+        "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+        "docs/testing/TESTING.md",
+        "tests/README.md"
+      ]
+    },
+    {
+      "id": "aem.mandatory-missing-set",
+      "status": "missing",
+      "summary": "The ledger facts list is the canonical mandatory AEM command gap set.",
+      "documents": [
+        "README.md",
+        "docs/AAF_LATENCY_TAPS.md",
+        "docs/ENDSTATION_BUILDER.md",
+        "docs/HOWTO_PLAY_MUSIC.md",
+        "docs/MILAN_V12_ROADMAP.md",
+        "docs/fpga/FPGA_DESIGN.md",
+        "docs/integration/INTEGRATION_GUIDE.md",
+        "docs/limitations/RECURRING_DEFECT_PATTERNS.md",
+        "docs/limitations/TROUBLESHOOTING.md",
+        "docs/overview/ARCHITECTURE.md",
+        "docs/overview/FULL_FPGA_SOLUTION.md",
+        "docs/reference/FR_NFR.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/reference/REGISTER_MAP.md",
+        "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+        "docs/testing/TESTING.md",
+        "tests/README.md"
+      ]
+    },
+    {
+      "id": "stream-input.start-stop",
+      "status": "partial",
+      "summary": "The commands and media gate exist, but issue 97 tracks response-before-commit and stopped CRF defects.",
+      "documents": [
+        "README.md",
+        "docs/MILAN_V12_ROADMAP.md",
+        "docs/overview/ARCHITECTURE.md",
+        "docs/overview/FULL_FPGA_SOLUTION.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/reference/REGISTER_MAP.md",
+        "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+        "docs/testing/TESTING.md"
+      ]
+    },
+    {
+      "id": "stream-input.stopped-crf-observation",
+      "status": "missing",
+      "summary": "Stopped CRF traffic is hidden from observation and counters before the media-consumption boundary.",
+      "documents": [
+        "README.md",
+        "docs/MILAN_V12_ROADMAP.md",
+        "docs/overview/ARCHITECTURE.md",
+        "docs/overview/FULL_FPGA_SOLUTION.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/reference/REGISTER_MAP.md",
+        "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+        "docs/testing/TESTING.md"
+      ]
+    },
+    {
+      "id": "crf.media-clock-consumption",
+      "status": "missing",
+      "summary": "The dynamic clock selection reaches the root wrapper but does not select or steer the media clock.",
+      "documents": [
+        "README.md",
+        "docs/CHANNEL_MAP_64.md",
+        "docs/MILAN_V12_ROADMAP.md",
+        "docs/design/GM_LOSS_RECOVERY.md",
+        "docs/design/TIME_SYNC.md",
+        "docs/design/AREA_BUDGET.md",
+        "docs/fpga/DATAPLANE_WALKTHROUGH.md",
+        "docs/fpga/FPGA_DESIGN.md",
+        "docs/overview/ARCHITECTURE.md",
+        "docs/overview/FULL_FPGA_SOLUTION.md",
+        "docs/reference/FR_NFR.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/reference/REGISTER_MAP.md",
+        "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+        "docs/testing/TESTING.md",
+        "hdl/ieee1722/aaf/doc/KL_i2s_playback/KL_i2s_playback.md",
+        "hdl/ieee1722/aaf/README-parameters.md"
+      ]
+    },
+    {
+      "id": "state.nonvolatile-persistence",
+      "status": "missing",
+      "summary": "The shipping integration has a blank stub and no nonvolatile backend.",
+      "documents": [
+        "README.md",
+        "docs/CHANNEL_MAP_64.md",
+        "docs/HOWTO_PLAY_MUSIC.md",
+        "docs/MILAN_V12_ROADMAP.md",
+        "docs/fpga/FPGA_DESIGN.md",
+        "docs/integration/INTEGRATION_GUIDE.md",
+        "docs/limitations/TROUBLESHOOTING.md",
+        "docs/overview/ARCHITECTURE.md",
+        "docs/overview/FULL_FPGA_SOLUTION.md",
+        "docs/reference/FR_NFR.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/reference/REGISTER_MAP.md",
+        "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+        "docs/testing/TESTING.md",
+        "sw/builder/README-parameters.md"
+      ]
+    },
+    {
+      "id": "notifications.change-events",
+      "status": "partial",
+      "summary": "Registration and some change events exist, but the general command and counter notification duties remain open.",
+      "documents": [
+        "README.md",
+        "docs/CHANNEL_MAP_64.md",
+        "docs/MILAN_V12_ROADMAP.md",
+        "docs/design/GM_LOSS_RECOVERY.md",
+        "docs/design/TIME_SYNC.md",
+        "docs/diagrams/README.md",
+        "docs/fpga/FPGA_DESIGN.md",
+        "docs/integration/INTEGRATION_GUIDE.md",
+        "docs/overview/ARCHITECTURE.md",
+        "docs/overview/FULL_FPGA_SOLUTION.md",
+        "docs/reference/EGRESS_QUEUE_MAP.md",
+        "docs/reference/FR_NFR.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/reference/REGISTER_MAP.md",
+        "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+        "docs/testing/TESTING.md",
+        "hdl/ieee1722/avtp/doc/KL_avtp_rx_monitor/KL_avtp_rx_monitor.md",
+        "tests/README.md"
+      ]
+    },
+    {
+      "id": "notifications.controller-liveness",
+      "status": "missing",
+      "summary": "The required CONTROLLER_AVAILABLE liveness monitor is absent.",
+      "documents": [
+        "docs/MILAN_V12_ROADMAP.md",
+        "docs/overview/ARCHITECTURE.md",
+        "docs/overview/FULL_FPGA_SOLUTION.md",
+        "docs/reference/FR_NFR.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/testing/MILAN_V12_AUDIT_2026-08-16.md"
+      ]
+    },
+    {
+      "id": "verification.long-gate-policy",
+      "status": "implemented",
+      "value": "local-required, remote-optional",
+      "summary": "Local Verilator and Yosys sweeps are mandatory; their long remote copies are optional.",
+      "documents": [
+        "CONTRIBUTING.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+        "docs/testing/TESTING.md"
+      ]
+    }
+  ]
+}
