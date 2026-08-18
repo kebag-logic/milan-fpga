@@ -124,7 +124,7 @@ These repeated claims are checked against the
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
@@ -146,7 +146,7 @@ These repeated claims are checked against the
 | **FR-CLK-01/02/05** (gPTP, PHC, HW timestamps) | **MET** | Untouched by the substitution |
 | **FR-CLK-03/04** (select and recover the media clock from Internal / input-stream / CRF sources) | **NOT MET AT THE ROOT INTEGRATION** | The processor accepts and stores `SET_CLOCK_SOURCE`, and `KL_pp_shadow.sv` exports `aecp_clk_src_index_o` to the root. The media plane does not consume that selection, so `CRF_CLK_SELECTED_C` remains zero (INTERNAL) and the MMCM-DRP and packet-grid NCO servos stay idle. `KL_crf_rx` still parses, counts and reports, but cannot steer the media clock |
 | **FR-STR-01/02/04/05** (AAF encapsulation, de-encapsulation, listener counters, parameterisation) | **MET** | The media plane is intact |
-| **FR-STR-03/03a/03b** (listener format adaptation via SET_STREAM_FORMAT) | **NOT MET** | `SET_STREAM_FORMAT` is unimplemented — it is answered with the `NOT_IMPLEMENTED` echo, which adapts nothing. The listener's format is what the build elaborated; the *wire-truth* rule still governs de-interleaving, so a format-mismatched PDU is still counted `UNSUPPORTED_FORMAT` rather than mis-rendered — but the entity cannot adapt on connection |
+| **FR-STR-03/03a/03b** (listener format adaptation via SET_STREAM_FORMAT) | **MET AT THE CONTROL PLANE (0x0053); wire reshape deferred** | `SET_STREAM_FORMAT` is served for both stream directions with the Milan 5.4.2.7 refusals and a per-row format verdict; a stored setting becomes the served current format and drives STREAM_INPUT 0's acceptance filter. The *wire-truth* rule still governs de-interleaving, so render adaptation follows channels_per_frame off the wire; what remains deferred is the framers re-shaping from a stored format, recorded in the audit with the SET_CONFIGURATION precedent |
 | **FR-QOS-01..03** | **MET** | Classifier + CBS untouched; the Σ idleSlope ceiling is enforced by the processor's admission now |
 | **FR-MGT-01** (IDENTIFY) | **IMPLEMENTED IN THE PROCESSOR, UNCONSUMED AT ROOT** | Identify `SET_CONTROL` and `GET_CONTROL` are served by the processor, and `KL_pp_shadow.sv` exports `aecp_identify_o` to the root wire `pp_aecp_identify_w`. Nothing consumes the wire and the root ties `o_identify` low. The controller-visible state exists while the physical Identify output remains dark. An inbound `IDENTIFY_NOTIFICATION` command is separately refused with `BAD_ARGUMENTS` as required by Section 7.4.39.2 |
 | **FR-MGT-02** (names settable and persisted) | **PARTLY MET** | `SET_NAME` and `GET_NAME` are served for every generated semantic name, and SET is coherent with READ_DESCRIPTOR. The writable names are volatile because nonvolatile restoration remains open |

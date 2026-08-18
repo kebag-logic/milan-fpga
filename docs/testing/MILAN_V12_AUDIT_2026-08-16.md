@@ -29,12 +29,14 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0053` |
+| `gateware.current-version` | `implemented` | `0x0002_0054` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 | `stream-input.start-stop` | `implemented` | - |
 | `stream-input.stopped-crf-observation` | `implemented` | - |
+| `stream-format.set` | `implemented` | - |
+| `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
@@ -49,8 +51,8 @@ Machine-checked status rows are defined by the
 | All 50 `tb/verilator/*/Makefile` suites | PASS | Every suite returned zero. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
 | `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
 | `tb/verilator/pp_shadow` | 273 checks passed | The 2026-08-17 rerun passed with zero failures. Milan `ACQUIRE_ENTITY` is checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. The dynamic arty input also passed the GET_AUDIO_MAP body checks. |
-| `tests/` Behave suite | 15 features and 338 scenarios passed | 1,615 steps passed with no skipped scenarios or steps in the 2026-08-18 rerun. This is an offline behavior model, not an external compliance lab result. |
-| Pinned protocol processor suites | 14,267 checks passed | All 27 processor suites passed. The processor's `pp_top` suite contributes 1,106 passing checks, including the START/STOP completion boundary read with no post-response delay, the exact 38 through 45 byte foreign-target AECP regression, the configuration overlay's fallback-versus-overlay evidence, GET_DYNAMIC_INFO batch coverage, record-level handling of the complete command-side status byte, getter-length drift detection, and cdl 525 command rejection. It also covers the 63-record mapping command maximum, atomic rejection of 64 mapping records, and exclusion between a reserved mapping edit and an ACMP stream-state transaction. The processor's zero-tolerance RTL lint and documentation gates also passed. |
+| `tests/` Behave suite | 15 features and 334 scenarios passed | 1,571 steps passed with no skipped scenarios or steps in the 2026-08-18 rerun (the unimplemented-echo outline is retired: since 0x0002_0054 no mandatory command falls through to it). This is an offline behavior model, not an external compliance lab result. |
+| Pinned protocol processor suites | 14,507 checks passed | All 27 processor suites passed. The processor's `pp_top` suite contributes 1,180 passing checks, including the START/STOP completion boundary read with no post-response delay, the exact 38 through 45 byte foreign-target AECP regression, the configuration overlay's fallback-versus-overlay evidence, GET_DYNAMIC_INFO batch coverage, record-level handling of the complete command-side status byte, getter-length drift detection, cdl 525 command rejection, and the stream-setter families: SET_STREAM_FORMAT's per-descriptor running refusal against a really bound sink and really streaming output, the one-gather format verdict in both refusal directions, SET_STREAM_INFO's 2021-only length rule with the 2013-size negative pinned, and the per-row settings publication graded beside every echo, plus the name-access family (the generated name table walked byte-exact, SET/GET/READ_DESCRIPTOR coherence, and the lock refusal carrying the current name). It also covers the 63-record mapping command maximum, atomic rejection of 64 mapping records, and exclusion between a reserved mapping edit and an ACMP stream-state transaction. The processor's zero-tolerance RTL lint and documentation gates also passed. |
 | Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,278 and 4,326 checks, including every declared AAF and CRF Stream Output. The 8x8 integration also proves locked local mapping writes leave physical RAM and protocol ownership unchanged, then apply after unlock. |
 | Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
 | Pinned gPTP processor skeleton | 877 checks passed | 768 uCPU, 31 parser, and 78 engine checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
@@ -87,9 +89,11 @@ existing checkout at the pinned commit for an offline rerun.
 <!-- milan-feature-fact:served_aem_operations:start -->
 The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `ACQUIRE_ENTITY`, `LOCK_ENTITY`, `ENTITY_AVAILABLE`, `SET_CONFIGURATION`, `GET_CONFIGURATION`,
-`GET_STREAM_FORMAT`, `SET_NAME`, `GET_NAME`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
+`SET_STREAM_FORMAT`, `GET_STREAM_FORMAT`, `SET_NAME`, `GET_NAME`,
+`SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
 `SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
-`GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `GET_STREAM_INFO`,
+`GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `SET_STREAM_INFO`,
+`GET_STREAM_INFO`,
 `IDENTIFY_NOTIFICATION`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
 `GET_COUNTERS`, `GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`,
 `REMOVE_AUDIO_MAPPINGS`, `GET_DYNAMIC_INFO`,
@@ -125,12 +129,25 @@ ACMP binding record and complete at it. A stopped Stream Input - AAF and CRF
 alike - continues observing and counting received traffic while discarding its
 media contribution (B12).
 
+`SET_STREAM_FORMAT` and `SET_STREAM_INFO` are served with their Milan 5.4.2.7
+and 5.4.2.9 refusals: the per-descriptor `STREAM_IS_RUNNING` route (a bound
+Stream Input or a streaming Stream Output), whole-command `NOT_SUPPORTED` on
+any sub-flag beside MSRP_ACC_LAT_VALID, `BAD_ARGUMENTS` on a bit-31 offset,
+and one integrator verdict on the proposed format that admits the addressed
+row's declared base: the 48 kHz channel family for inputs, the row's own
+declared shape for outputs and the advertised CRF format per direction for
+the CRF rows, refusing any format that orphans a mapping-referenced channel. The set offset feeds the transit entries the
+AAF and CRF framers stamp, and the set format is served as current and drives
+Stream Input 0's acceptance filter. The wire framers do not yet re-shape from
+a stored format; that deferral follows the `SET_CONFIGURATION` pattern and is
+recorded with B3's media-plane scope.
+
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
 
 <!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
-- `SET_STREAM_FORMAT`
-- `SET_STREAM_INFO`
+None. Every operation Milan v1.2 mandates for this profile is served since
+VERSION 0x0002_0054 (the stream setters at 0x0053, name access at 0x0054).
 <!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
 
 Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
@@ -138,11 +155,11 @@ Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/34be66d3dbd467776b49e89eb34a1332510d5bb9/hdl/aecp/KL_aecp_engine.sv),
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/a25b5cc9794b8e7f70f738548f4d674e9669b469/hdl/aecp/KL_aecp_engine.sv),
 the packet-level command cases in
-[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/34be66d3dbd467776b49e89eb34a1332510d5bb9/tb/pp_top/sim_main.cpp), and the
+[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/a25b5cc9794b8e7f70f738548f4d674e9669b469/tb/pp_top/sim_main.cpp), and the
 current command table in
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/34be66d3dbd467776b49e89eb34a1332510d5bb9/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/a25b5cc9794b8e7f70f738548f4d674e9669b469/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 

@@ -16,7 +16,7 @@ The current command examples are checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 Each pattern gives: what it looked like, **why it survived** (the interesting

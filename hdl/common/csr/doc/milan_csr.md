@@ -19,7 +19,7 @@ The current version is checked against the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0053` |
+| `gateware.current-version` | `implemented` | `0x0002_0054` |
 <!-- milan-feature-status:end -->
 
 ## Contents

@@ -64,16 +64,12 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
     And the AECP response is well formed against its command
     And the AECP engine counted a command and a response
 
-    # Every row below is an OPEN Milan v1.2 compliance gap: the clause makes
-    # the command a SHALL and this engine answers the NOT_IMPLEMENTED echo.
-    # When one lands, DELETE its row and add it to the SERVED inventory in
-    # tests/steps/aecp_engine_steps.py - never leave it here passing for the
-    # wrong reason, which is how this table went stale the last time.
-    Examples: Milan SHALL commands this processor has not implemented yet
-      | opcode | command                           |
-      | 8      | SET_STREAM_FORMAT                 |
-      | 14     | SET_STREAM_INFO                   |
-
+    # The Milan-SHALL examples table that used to sit here is RETIRED, not
+    # merely emptied: with the stream setters (0x0053) and name access
+    # (0x0054) served, no mandatory command falls through to this echo any
+    # more. The rule the table enforced stands - a newly discovered
+    # mandatory gap gets a row HERE and comes out of the SERVED inventory
+    # in tests/steps/aecp_engine_steps.py, never the other way around.
     Examples: opcodes with no command behind them at all
       | opcode | command                           |
       | 104    | the last of the 0x0000-0x0068 span|

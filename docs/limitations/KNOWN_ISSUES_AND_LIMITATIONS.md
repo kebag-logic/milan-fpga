@@ -111,7 +111,8 @@ conformance, not coverage, and no clause may be graded on an echo:
 | SET/GET_CONFIGURATION and SET/GET_SAMPLING_RATE | **implemented**; persistence remains open |
 | SET/GET_NAME | implemented for all generated semantic names; values are not restored after reboot |
 | GET_STREAM_FORMAT / GET_STREAM_INFO | **implemented** |
-| SET_STREAM_FORMAT / SET_STREAM_INFO / SET/GET_MAX_TRANSIT_TIME | **not implemented** |
+| SET_STREAM_FORMAT / SET_STREAM_INFO | **implemented** (0x0053): the per-row format verdict and the ACC_LAT presentation offset; the framers do not yet re-shape from a stored format |
+| SET/GET_MAX_TRANSIT_TIME | **not implemented** |
 | GET_AUDIO_MAP / ADD_AUDIO_MAPPINGS / REMOVE_AUDIO_MAPPINGS | **implemented** for dynamic ports, including atomic validation, lock exclusion, live projection, and successful-change notification |
 | GET_COUNTERS | **implemented** for the available counter banks; Table 5.22 change notification coverage remains incomplete |
 | GET_AVB_INFO / GET_AS_PATH / GET_MILAN_INFO | **implemented** |

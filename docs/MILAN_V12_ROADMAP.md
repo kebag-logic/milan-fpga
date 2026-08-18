@@ -28,12 +28,14 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0053` |
+| `gateware.current-version` | `implemented` | `0x0002_0054` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 | `stream-input.start-stop` | `implemented` | - |
 | `stream-input.stopped-crf-observation` | `implemented` | - |
+| `stream-format.set` | `implemented` | - |
+| `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
@@ -43,8 +45,8 @@ Machine-checked status rows are defined by the
 The exact mandatory command gap is also machine-checked:
 
 <!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
-- `SET_STREAM_FORMAT`
-- `SET_STREAM_INFO`
+None. Every operation Milan v1.2 mandates for this profile is served since
+0x0002_0054 (the stream setters at 0x0053, name access at 0x0054).
 <!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
 
 ---
@@ -97,7 +99,9 @@ underneath it.
 | `0x0004` | `READ_DESCRIPTOR` | 5.4.2.4 | 0x0040 |
 | `0x0006` | `SET_CONFIGURATION` | 5.4.2.5 | **0x004D** |
 | `0x0007` | `GET_CONFIGURATION` | 5.4.2.6 | **0x004B** |
+| `0x0008` | `SET_STREAM_FORMAT` | 5.4.2.7 | **0x0053** (#67) |
 | `0x0009` | `GET_STREAM_FORMAT` | 5.4.2.8 | **0x004B** |
+| `0x000E` | `SET_STREAM_INFO` (MSRP_ACC_LAT_VALID) | 5.4.2.9 | **0x0053** (#67) |
 | `0x000F` | `GET_STREAM_INFO` (Milan 80-byte form) | 5.4.2.10 | 0x0047 |
 | `0x0010` | `SET_NAME` | 5.4.2.11 | **0x0053** |
 | `0x0011` | `GET_NAME` | 5.4.2.12 | **0x0053** |
@@ -332,9 +336,9 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 | Opcode | Command | Clause | The Milan-specific refusal | Blocks |
 |---|---|---|---|---|
 | `0x0006` | SET_CONFIGURATION **— LANDED** | 5.4.2.5 | `STREAM_IS_RUNNING` (12) if **any** Stream Input is bound or **any** Stream Output is streaming | es-4.3, es-5.1, es-12.1, es-12.2 |
-| `0x0008` | SET_STREAM_FORMAT | 5.4.2.7 | `STREAM_IS_RUNNING` on a **bound** input or streaming output; `BAD_ARGUMENTS` if any existing mapping references a channel absent from the new format | es-4.4, es-5.1, es-9.x, es-10.x, es-12.1, es-12.2 |
-| `0x000E` | SET_STREAM_INFO | 5.4.2.9 | `NOT_SUPPORTED` on **any** Stream Input; `MSRP_ACC_LAT_VALID` sets the presentation offset, range `0x0`–`0x7FFFFFFF` ns, outside → `BAD_ARGUMENTS`; any unsupported sub-flag → refuse the **whole** command `NOT_SUPPORTED` | es-4.5, es-5.1, es-10.2, es-12.1 |
-| `0x0010` | SET_NAME **LANDED** | 5.4.2.11 | accepts named descriptors in active and non-active configurations; lock refusal returns the current name | compliant name-access tests |
+| `0x0008` | SET_STREAM_FORMAT **-- LANDED 0x0053** | 5.4.2.7 | `STREAM_IS_RUNNING` on a **bound** input or streaming output; `BAD_ARGUMENTS` if any existing mapping references a channel absent from the new format | es-4.4, es-5.1, es-9.x, es-10.x, es-12.1, es-12.2 |
+| `0x000E` | SET_STREAM_INFO **-- LANDED 0x0053** | 5.4.2.9 | `NOT_SUPPORTED` on **any** Stream Input; `MSRP_ACC_LAT_VALID` sets the presentation offset, range `0x0`–`0x7FFFFFFF` ns, outside → `BAD_ARGUMENTS`; any unsupported sub-flag → refuse the **whole** command `NOT_SUPPORTED` | es-4.5, es-5.1, es-10.2, es-12.1 |
+| `0x0010` | SET_NAME **-- LANDED 0x0054** | 5.4.2.11 | accepts named descriptors in active and non-active configurations; a lock refusal returns the current name | compliant name-access tests |
 | `0x0014` | SET_SAMPLING_RATE **— LANDED** | 5.4.2.13 | the rate/mapping-mismatch refusal is a **MAY**, not a SHALL | es-4.16, es-5.1 |
 | `0x0016` | SET_CLOCK_SOURCE **— LANDED** | 5.4.2.15 | — | es-4.9, es-5.1, es-10.1 |
 | `0x0018` | SET_CONTROL **— LANDED** | 5.4.2.17 | IDENTIFY only; values 0 and 255 | es-4.10 |

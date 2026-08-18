@@ -53,7 +53,7 @@ These repeated claims are checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |

@@ -63,12 +63,14 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0053` |
+| `gateware.current-version` | `implemented` | `0x0002_0054` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 | `stream-input.start-stop` | `implemented` | - |
 | `stream-input.stopped-crf-observation` | `implemented` | - |
+| `stream-format.set` | `implemented` | - |
+| `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
@@ -82,6 +84,9 @@ The current AECP implementation answers these operations with real behavior:
 - `LOCK_ENTITY`
 - `ENTITY_AVAILABLE` and `GET_CONFIGURATION`
 - `SET_CONFIGURATION`
+- `SET_STREAM_FORMAT` for both stream directions, with the running, supported-family
+  and mapping-survival refusals, the value consumed by the served current format
+  and the Stream Input acceptance filter (issue #67)
 - `GET_STREAM_FORMAT`
 - `SET_NAME` and `GET_NAME` for every generated named descriptor
 - `SET_SAMPLING_RATE` and `GET_SAMPLING_RATE`
@@ -89,6 +94,8 @@ The current AECP implementation answers these operations with real behavior:
 - `SET_CONTROL` and `GET_CONTROL` for Identify
 - `START_STREAMING` and `STOP_STREAMING` for Stream Input, completing at the
   binding-record commit, with stopped-CRF observation preserved (issue #97)
+- `SET_STREAM_INFO` with Milan's one sub-command (MSRP_ACC_LAT_VALID), setting
+  the presentation-time offset the AAF and CRF framers stamp (issue #67)
 - `GET_STREAM_INFO`, `GET_AVB_INFO`, and leaf-only `GET_AS_PATH`
 - `REGISTER_UNSOLICITED_NOTIFICATION` and `DEREGISTER_UNSOLICITED_NOTIFICATION`
 - `IDENTIFY_NOTIFICATION` commands with the required `BAD_ARGUMENTS` result
@@ -118,8 +125,8 @@ This is still not a full Milan v1.2 implementation. These mandatory operations
 are missing:
 
 <!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
-- `SET_STREAM_FORMAT`
-- `SET_STREAM_INFO`
+None. Every operation Milan v1.2 mandates for this profile is served since
+0x0002_0054 (the stream setters at 0x0053, name access at 0x0054).
 <!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
 
 The processor accepts and stores clock-source and sampling-rate changes. The
@@ -317,7 +324,7 @@ implementation boundary.
 > **Most of this campaign was overtaken by the 2026-08-13 substitution**, and
 > the AECP half of it has since been partly discharged. The RTL that carried
 > these packages is deleted: the ADP, ACMP and SRP items are now the protocol
-> processor's to satisfy. The processor's AECP uCPU serves **twenty-six** AEM
+> processor's to satisfy. The processor's AECP uCPU serves **thirty** AEM
 > opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x0053`, so some AECP rows
 > below are closed and some are not, and the per-clause status is **not** kept
 > here. [The current audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) records

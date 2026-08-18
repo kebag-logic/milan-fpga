@@ -744,7 +744,7 @@ inline descriptor bytes coherent so GET_NAME and READ_DESCRIPTOR agree.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 **The DEPLOYED shape's ROM did change**, deliberately: the tracked AEM
@@ -869,7 +869,7 @@ the field itself.
 | 19 | `streams.listeners[].buffer_length_ns` | STREAM_INPUT `buffer_length` (ns, MAC ingress buffer) | 1722.1 7.2.6 (Table 7-8) | AEM |
 | 20 | `streams.listeners[].clusters` | input AUDIO_CLUSTERs (mono MBLA) + STREAM_PORT_INPUT `number_of_clusters`/`base_cluster` + identity AUDIO_MAP (D1/D2) | 1722.1 7.2.13, 7.2.16, 7.2.19 | AEM |
 | 21 | `streams.talkers[].channels` | STREAM_OUTPUT `current_format` = framer wire truth (D3) | 1722.1 7.2.6, 7.4.10.2; Milan 5.3.7.1; 1722 7.3.3 | AEM, SoC |
-| 22 | `streams.talkers[].formats` | STREAM_OUTPUT `formats` list. Optional, defaults to the Base format for row 21's `channels` at `clocking.sampling_rate_hz`. **No family completion**: Milan 6.3 is the whole of a Base Talker's obligation and ends "may advertise any Base Format that is reasonable for its functionality"; 6.4's SHALL is Stream Inputs only. A talker cannot honour a wider claim because it emits one width, while `SET_STREAM_FORMAT` remains unimplemented and returns the conformant `NOT_IMPLEMENTED` fallback | 1722.1 7.2.6; Milan 6.3 | AEM |
+| 22 | `streams.talkers[].formats` | STREAM_OUTPUT `formats` list. Optional, defaults to the Base format for row 21's `channels` at `clocking.sampling_rate_hz`. **No family completion**: Milan 6.3 is the whole of a Base Talker's obligation and ends "may advertise any Base Format that is reasonable for its functionality"; 6.4's SHALL is Stream Inputs only. A talker cannot honour a wider claim because it emits one width, and `SET_STREAM_FORMAT` (served since 0x0053) admits only the talker's own declared shape for outputs | 1722.1 7.2.6; Milan 6.3 | AEM |
 | 23 | `streams.talkers[].clusters` | output AUDIO_CLUSTERs + STREAM_PORT_OUTPUT bases + AUDIO_MAP (D1/D3) | 1722.1 7.2.13, 7.2.16, 7.2.19; Milan 5.3.9.1 | AEM |
 | 24 | `len(listeners)` / `len(talkers)` | CONFIGURATION `descriptor_counts`; ADPDU `talker_stream_sources` / `listener_stream_sinks` (honest counts) | 1722.1 7.2.2, 6.2.2.10, 6.2.2.12 | AEM, prov |
 | 25 | stream count (NxN shapes) | per-stream ACMP/MAAP/monitor contexts + per-stream SRP attribute instances (capacity is an implementation decision, stated in PICS). Since 2026-08-13 the ACMP and SRP halves are the protocol processor's arrays, sized from `adp_shape_defaults.svh` as `ACMP_SINKS_C` / `ACMP_SRC_C`; MAAP and the monitors stay this fabric's | Q 35.2.7 | SoC |

@@ -1044,7 +1044,7 @@ The control-plane diagnoses below are checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 <!-- milan-feature-status:end -->
 

@@ -56,6 +56,9 @@
 #include <map>
 #include <unistd.h>
 #include <cstdio>
+#ifdef DIVERGENT_TB
+#include "divergent_expect.h"   // generated: the two per-row declared bases
+#endif
 
 // Stream count the C++ side walks. Paired with the RTL -GN_STREAMS by the
 // Makefile: the default obj_nxn build is N=4; the obj_nxn8 build passes
@@ -902,8 +905,8 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x0053 exposes coherent name access",
-       axi_read(A_VERSION), 0x00020053);
+    ck("VERSION 0x0054 carries the setters, their consumption and names",
+       axi_read(A_VERSION), 0x00020054);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
     //! These two writes used to sit inside the N-sink ACMP ctx2 section,
@@ -2761,8 +2764,8 @@ int main(int argc, char** argv) {
     //  are deleted. The protocol processor's AECP uCPU is now live and serves
     //  its declared inventory, including GET_STREAM_FORMAT and GET_COUNTERS.
     //  Those command paths are graded in the processor, pp_shadow and wire
-    //  sections of this harness. SET_STREAM_FORMAT remains unimplemented,
-    //  accepted Stream Input start state is discarded at KL_pp_shadow, and
+    //  sections of this harness. SET_STREAM_FORMAT is served since 0x0053
+    //  (the #67 block below grades it end to end), and
     //  the retired 0x7B8 journal group remains structural zero. The deleted
     //  checks in this location therefore still have no equivalent old-local
     //  state to inspect; the current behaviors are tested at their new owner.
@@ -3372,6 +3375,253 @@ int main(int argc, char** argv) {
             const std::vector<uint8_t> rr = aecp_xact(0x0022, 0x9115, ti);
             ck("CRF 5.3.8.7 cleanup: START answered SUCCESS",
                aecp_status(rr), 0);
+        }
+
+        // ==== issue #67: the stream setters, END TO END through the REAL
+        // integrator - the verdict face (supported family + the mapping
+        // sweep over the live AEM dynamic-map store), the settings fold
+        // GET_STREAM_FORMAT / GET_STREAM_INFO read, and the CRF rows'
+        // own family. Every refusal is graded against the value it must
+        // not have moved.
+        {
+            auto be64_at = [](const std::vector<uint8_t>& f, size_t o) {
+                uint64_t v = 0;
+                for (int i = 0; i < 8; i++) v = (v << 8) | f[o + i];
+                return v;
+            };
+            auto cdl_of = [](const std::vector<uint8_t>& f) {
+                return f.size() > 17 ? (long)(((f[16] & 7) << 8) | f[17])
+                                     : -1L;
+            };
+            auto lat_of = [](const std::vector<uint8_t>& f) {
+                return (f.size() > 65)
+                       ? ((unsigned long)f[62] << 24) | ((unsigned long)f[63] << 16)
+                         | ((unsigned long)f[64] << 8) | f[65]
+                       : 0xFFFFFFFFul;
+            };
+            auto sf_pl = [](uint16_t ty, uint16_t ix, uint64_t fmt) {
+                std::vector<uint8_t> p(12, 0);
+                p[0] = (uint8_t)(ty >> 8); p[1] = (uint8_t)ty;
+                p[2] = (uint8_t)(ix >> 8); p[3] = (uint8_t)ix;
+                for (int i = 0; i < 8; i++)
+                    p[4 + i] = (uint8_t)(fmt >> (8 * (7 - i)));
+                return p;
+            };
+            auto si_pl = [](uint16_t ty, uint16_t ix, uint32_t fl,
+                            uint32_t lat) {
+                // 1722.1-2021 Figure 7-40: the complete 84-byte payload
+                // (cdl 96) - Milan v1.2 refuses the 2013 60-byte shape
+                std::vector<uint8_t> p(84, 0);
+                p[0] = (uint8_t)(ty >> 8); p[1] = (uint8_t)ty;
+                p[2] = (uint8_t)(ix >> 8); p[3] = (uint8_t)ix;
+                for (int i = 0; i < 4; i++)
+                    p[4 + i] = (uint8_t)(fl >> (8 * (3 - i)));
+                for (int i = 0; i < 4; i++)
+                    p[24 + i] = (uint8_t)(lat >> (8 * (3 - i)));
+                return p;
+            };
+            auto ti4 = [](uint16_t ty, uint16_t ix) {
+                std::vector<uint8_t> p(4, 0);
+                p[0] = (uint8_t)(ty >> 8); p[1] = (uint8_t)ty;
+                p[2] = (uint8_t)(ix >> 8); p[3] = (uint8_t)ix;
+                return p;
+            };
+            uint16_t sq2 = 0x9200;
+            const uint16_t hi_in = NSTREAMS_TB - 1;
+
+            // the idle input the success arm needs, ASSERTED not assumed
+            std::vector<uint8_t> g2 =
+                aecp_xact(0x000F, sq2++, ti4(0x0005, hi_in));
+            ck("#67 pre: the high Stream Input is NOT bound",
+               (long)(g2.size() > 42 && (g2[42] & 0x04) == 0), 1);
+
+            std::vector<uint8_t> r2 = aecp_xact(0x0009, sq2++,
+                                                ti4(0x0005, hi_in));
+            ck("#67 GET_STREAM_FORMAT SUCCESS at cdl 24",
+               (long)(aecp_status(r2) == 0 && cdl_of(r2) == 24), 1);
+            const uint64_t fmt_base = be64_at(r2, 42);
+            const uint64_t fmt_2ch =
+                (fmt_base & ~(0x3FFull << 22)) | (2ull << 22);
+            // the leg's DECLARED channel count: the 4x4 legs declare a 4ch
+            // base, the 8x8 leg 8ch - reading the format octet at [47:38]
+            // instead of channels at [31:22] returns 8 on EVERY leg, so
+            // this compare is what makes the decode coordinate falsifiable
+            ck("#67 the generated base declares the leg's channel count",
+               (unsigned long)((fmt_base >> 22) & 0x3FF),
+               (NSTREAMS_TB == 8) ? 8ul : 4ul);
+
+            r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_2ch));
+            ck("#67 SET_STREAM_FORMAT to the 2ch family member SUCCEEDS",
+               aecp_status(r2), 0);
+            ck("#67 ...echoing the format now in force",
+               (long)(r2.size() >= 50 && be64_at(r2, 42) == fmt_2ch), 1);
+            r2 = aecp_xact(0x0009, sq2++, ti4(0x0005, hi_in));
+            ck("#67 GET_STREAM_FORMAT serves the SETTING through the fold",
+               (long)(be64_at(r2, 42) == fmt_2ch), 1);
+
+            r2 = aecp_xact(0x0008, sq2++,
+                           sf_pl(0x0005, hi_in, 0x0305022000806000ull));
+            ck("#67 an off-family base is BAD_ARGUMENTS", aecp_status(r2), 7);
+            ck("#67 ...carrying the CURRENT format, not the refused one",
+               (long)(be64_at(r2, 42) == fmt_2ch), 1);
+
+            // the Milan 5.4.2.7 mapping-survival SHALL, against a REAL
+            // dynamic mapping through ADD_AUDIO_MAPPINGS and the rolling
+            // sweep that feeds the verdict. stream_channel 2 is used
+            // because the record-validation bound is the GENERATED wire
+            // shape (ADP_DMAP_IN_SCH_C - 4 on the arty legs), not the
+            // declared 8ch base; channel 2 is addable on every nxn leg and
+            // a ONE-channel family member orphans it on every leg.
+            {
+                const uint64_t fmt_1ch =
+                    (fmt_base & ~(0x3FFull << 22)) | (1ull << 22);
+                std::vector<uint8_t> ap(16, 0);
+                ap[0] = 0x00; ap[1] = 0x0E;          // STREAM_PORT_INPUT 0
+                ap[5] = 0x01;                        // one mapping
+                ap[8] = (uint8_t)(hi_in >> 8); ap[9] = (uint8_t)hi_in;
+                ap[10] = 0x00; ap[11] = 0x02;        // stream_channel 2
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_base));
+                ck("#67 baseline: the base format is in force",
+                   aecp_status(r2), 0);
+                std::vector<uint8_t> ra = aecp_xact(0x002C, sq2++, ap);
+                ck("#67 ADD_AUDIO_MAPPINGS(channel 2 of the high input) "
+                   "SUCCEEDS", aecp_status(ra), 0);
+                for (int i = 0; i < 200; i++) step();   // a sweep refresh
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_1ch));
+                ck("#67 a 1ch format that orphans channel 2 is "
+                   "BAD_ARGUMENTS", aecp_status(r2), 7);
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_2ch));
+                ck("#67 2ch still orphans channel 2 (needs 3)",
+                   aecp_status(r2), 7);
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_base));
+                ck("#67 the 8ch base still satisfies the mapping",
+                   aecp_status(r2), 0);
+                ra = aecp_xact(0x002D, sq2++, ap);
+                ck("#67 REMOVE_AUDIO_MAPPINGS SUCCEEDS", aecp_status(ra), 0);
+                for (int i = 0; i < 200; i++) step();
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_1ch));
+                ck("#67 ...and the 1ch format is accepted once the mapping "
+                   "is gone", aecp_status(r2), 0);
+                // the OTHER order of the same invariant: with the current
+                // format at 1ch, an ADD referencing channel 2 must refuse
+                // even though the wire shape could carry it - IEEE 7.4.45.2
+                // bounds the record by the format currently set
+                ra = aecp_xact(0x002C, sq2++, ap);
+                ck("#67 ADD of channel 2 refuses under the 1ch setting",
+                   aecp_status(ra), 7);
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_base));
+                ck("#67 restore: the base format is back", aecp_status(r2), 0);
+                ra = aecp_xact(0x002C, sq2++, ap);
+                ck("#67 ...and the same ADD succeeds under the base again",
+                   aecp_status(ra), 0);
+                ra = aecp_xact(0x002D, sq2++, ap);
+                ck("#67 cleanup: the probe mapping is removed",
+                   aecp_status(ra), 0);
+            }
+
+            // a BOUND input refuses STREAM_IS_RUNNING (sink 0 is bound here)
+            g2 = aecp_xact(0x000F, sq2++, ti4(0x0005, 0));
+            ck("#67 pre: Stream Input 0 IS bound",
+               (long)(g2.size() > 42 && (g2[42] & 0x04) != 0), 1);
+            r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, 0, fmt_2ch));
+            ck("#67 a bound Stream Input refuses STREAM_IS_RUNNING",
+               aecp_status(r2), 12);
+
+            // the CRF OUTPUT row admits exactly the advertised CRF format
+            r2 = aecp_xact(0x0009, sq2++, ti4(0x0006, NSTREAMS_TB));
+            const uint64_t crf_fmt = be64_at(r2, 42);
+            ck("#67 the CRF output's current format is the CRF family",
+               (unsigned long)(crf_fmt >> 56), 0x04);
+            r2 = aecp_xact(0x0008, sq2++,
+                           sf_pl(0x0006, NSTREAMS_TB, fmt_base));
+            ck("#67 an AAF base on the CRF output is BAD_ARGUMENTS",
+               aecp_status(r2), 7);
+            ck("#67 ...carrying the CRF format as current",
+               (long)(be64_at(r2, 42) == crf_fmt), 1);
+            r2 = aecp_xact(0x0008, sq2++,
+                           sf_pl(0x0006, NSTREAMS_TB, crf_fmt));
+            ck("#67 the advertised CRF format itself is accepted",
+               aecp_status(r2), 0);
+
+#ifdef DIVERGENT_TB
+            // ==== the DIVERGENT shape only: input row 1 declares the
+            // 96 kHz base while row 0 keeps 48 kHz, SAME channel count -
+            // the one elaboration that can tell a per-row verdict base and
+            // reset GET from a row-0 lookup. The generated expectations
+            // come from the header the leg elaborates, not from this file.
+            {
+                g2 = aecp_xact(0x000F, sq2++, ti4(0x0005, 1));
+                ck("#67dv pre: input row 1 is NOT bound",
+                   (long)(g2.size() > 42 && (g2[42] & 0x04) == 0), 1);
+                r2 = aecp_xact(0x0009, sq2++, ti4(0x0005, 1));
+                ck("#67dv row 1's reset GET serves ITS OWN declared base",
+                   (long)(be64_at(r2, 42) == (uint64_t)DV_ROW1_FMT), 1);
+                ck("#67dv ...which differs from row 0's (the discriminator)",
+                   (long)((uint64_t)DV_ROW1_FMT != (uint64_t)DV_ROW0_FMT), 1);
+                r2 = aecp_xact(0x0009, sq2++, ti4(0x0005, 0));
+                ck("#67dv row 0's reset GET serves row 0's base",
+                   (long)(be64_at(r2, 42) == (uint64_t)DV_ROW0_FMT), 1);
+                // row 1 accepts its OWN family's 2ch member...
+                const uint64_t dv_2ch =
+                    ((uint64_t)DV_ROW1_FMT & ~(0x3FFull << 22)) | (2ull << 22);
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, 1, dv_2ch));
+                ck("#67dv row 1 accepts its own 96 kHz family member",
+                   aecp_status(r2), 0);
+                // ...and REFUSES row 0's base: a verdict reading row 0
+                // would accept this and nothing else would notice
+                r2 = aecp_xact(0x0008, sq2++,
+                               sf_pl(0x0005, 1, (uint64_t)DV_ROW0_FMT));
+                ck("#67dv row 1 REFUSES the row-0-only base",
+                   aecp_status(r2), 7);
+                ck("#67dv ...and the refusal carries row 1's CURRENT format",
+                   (long)(be64_at(r2, 42) == dv_2ch), 1);
+                r2 = aecp_xact(0x0008, sq2++,
+                               sf_pl(0x0005, 1, (uint64_t)DV_ROW1_FMT));
+                ck("#67dv restore: row 1's declared base is accepted back",
+                   aecp_status(r2), 0);
+            }
+#endif
+
+            // SET_STREAM_INFO(ACC_LAT): the offset the framers stamp
+            r2 = aecp_xact(0x000E, sq2++,
+                           si_pl(0x0006, 0, 0x20000000u, 750000));
+            ck("#67 SET_STREAM_INFO(ACC_LAT) SUCCESS at cdl 96",
+               (long)(aecp_status(r2) == 0 && cdl_of(r2) == 96), 1);
+            g2 = aecp_xact(0x000F, sq2++, ti4(0x0006, 0));
+            ck("#67 GET_STREAM_INFO reads the folded transit entry",
+               lat_of(g2), 750000ul);
+            r2 = aecp_xact(0x000E, sq2++,
+                           si_pl(0x0005, 0, 0x20000000u, 640000));
+            ck("#67 SET_STREAM_INFO on a Stream Input is NOT_SUPPORTED",
+               aecp_status(r2), 11);
+            r2 = aecp_xact(0x000E, sq2++,
+                           si_pl(0x0006, 0, 0x20000008u, 640000));
+            ck("#67 an extra sub-flag refuses the WHOLE command",
+               aecp_status(r2), 11);
+            r2 = aecp_xact(0x000E, sq2++,
+                           si_pl(0x0006, 0, 0x20000000u, 0x80000001u));
+            ck("#67 a bit-31 offset is BAD_ARGUMENTS", aecp_status(r2), 7);
+            {
+                // the 2013-complete 48-byte shape IS the truncated case
+                // under the 2021 reference - the review ruling, pinned
+                std::vector<uint8_t> shortp(48, 0);
+                shortp[1] = 0x06; shortp[4] = 0x20;
+                r2 = aecp_xact(0x000E, sq2++, shortp);
+                ck("#67 the 2013-length SET_STREAM_INFO refuses at cdl 96",
+                   (long)(aecp_status(r2) == 7 && cdl_of(r2) == 96), 1);
+            }
+            g2 = aecp_xact(0x000F, sq2++, ti4(0x0006, 0));
+            ck("#67 no refusal moved the stored offset", lat_of(g2),
+               750000ul);
+            // the CRF output's transit entry takes the same command; writing
+            // the default value proves the row without moving any timing
+            r2 = aecp_xact(0x000E, sq2++,
+                           si_pl(0x0006, NSTREAMS_TB, 0x20000000u, 2000000));
+            ck("#67 the CRF output's offset row takes SET_STREAM_INFO",
+               aecp_status(r2), 0);
+            g2 = aecp_xact(0x000F, sq2++, ti4(0x0006, NSTREAMS_TB));
+            ck("#67 ...and its GET reads the value the CRF talker stamps",
+               lat_of(g2), 2000000ul);
         }
 
         // a route-flags-only CTRL write at idx 0 - the exact write that used
