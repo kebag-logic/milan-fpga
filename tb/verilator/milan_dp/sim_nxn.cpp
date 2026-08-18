@@ -2586,8 +2586,8 @@ int main(int argc, char** argv) {
     //  are deleted. The protocol processor's AECP uCPU is now live and serves
     //  its declared inventory, including GET_STREAM_FORMAT and GET_COUNTERS.
     //  Those command paths are graded in the processor, pp_shadow and wire
-    //  sections of this harness. SET_STREAM_FORMAT remains unimplemented,
-    //  accepted Stream Input start state is discarded at KL_pp_shadow, and
+    //  sections of this harness. SET_STREAM_FORMAT is served since 0x0053
+    //  (the #67 block below grades it end to end), and
     //  the retired 0x7B8 journal group remains structural zero. The deleted
     //  checks in this location therefore still have no equivalent old-local
     //  state to inspect; the current behaviors are tested at their new owner.

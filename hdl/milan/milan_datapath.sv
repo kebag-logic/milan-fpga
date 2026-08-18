@@ -4171,17 +4171,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!    the registered failure CODE but not the bridge id; MSRP_FAILURE_
   //!    VALID still follows the FAILED registration so a controller sees
   //!    the failure, with the code carried and the bridge honestly zero.
-  //!  - stream_format is the one generated AAF format both directions
-  //!    elaborate (ADP_STRIN0_FMT_C; TALKER_WIRE_CHANS_C equals its
-  //!    channels_per_frame by the same generated pass) - with no
-  //!    SET_STREAM_FORMAT there is nothing else it could be.
+  //!  - stream_format at reset is the addressed ROW's generated declared
+  //!    format (ADP_STRIN_FMT_C / ADP_STROUT_FMT_C - the config accepts
+  //!    independent per-row format lists, so row 0's fact must never
+  //!    answer for row k), and a SET_STREAM_FORMAT setting overlays it
+  //!    through the processor's published rows.
   //!  - a source's declared DA is the block-allocator law the maap shim
   //!    already applies (blk_addr + source), valid while a claim is held.
   //!  - propagation_delay reads 0: the gPTP plane does not surface pDelay.
   //!  - GET_AS_PATH answers count 1 = {grandmaster} (0 with no GM): the
   //!    pathSequence a leaf directly under its GM sees; bridges between
   //!    would lengthen the true TLV this fabric never receives.
-  localparam logic [63:0] GSI_FMT_C = ADP_STRIN0_FMT_C;
 
   //! CLAMPED index widths - a 1-sink shape's 2-bit vectors must never be
   //! part-selected with a wider index (the lint ratchet's own catch)
@@ -4314,8 +4314,23 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   localparam logic [63:0] SFMT_VAR_MASK_C = (64'h3FF << 22) | (64'h1 << 52);
   wire [63:0] sfv_prop_w  = pp_gsi_prop_fmt_w;
   wire [9:0]  sfv_ch_w    = sfv_prop_w[31:22];
+  //! the addressed ROW's declared first format, per direction: the config
+  //! accepts independent per-row format lists, so row k's verdict base and
+  //! the current format its GET serves at reset are row k's OWN generated
+  //! fact, never row 0's. Out-of-range rows read zero and fail closed.
+  logic [63:0] sfv_decl_in_w, sfv_decl_out_w;
+  always_comb begin : sfv_decl_rows
+    sfv_decl_in_w  = 64'd0;
+    sfv_decl_out_w = 64'd0;
+    for (int r = 0; r < ADP_STRIN_NFMT_C; r++)
+      if (gsiq_index_r == 16'(r)) sfv_decl_in_w = ADP_STRIN_FMT_C[r];
+    for (int r = 0; r < ADP_STROUT_NFMT_C; r++)
+      if (gsiq_index_r == 16'(r)) sfv_decl_out_w = ADP_STROUT_FMT_C[r];
+  end
+  wire [63:0] sfv_decl_w = gsi_in_w ? sfv_decl_in_w
+                         : gsi_out_w ? sfv_decl_out_w : 64'd0;
   wire sfv_base_ok_w = ((sfv_prop_w & ~SFMT_VAR_MASK_C)
-                        == (ADP_STRIN0_FMT_C & ~SFMT_VAR_MASK_C))
+                        == (sfv_decl_w & ~SFMT_VAR_MASK_C))
                        && !sfv_prop_w[52];
   wire sfv_fam_ch_w  = (sfv_ch_w == 10'd1) || (sfv_ch_w == 10'd2)
                     || (sfv_ch_w == 10'd4) || (sfv_ch_w == 10'd6)
@@ -4327,11 +4342,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       sfv_crf_row_w ? (sfv_prop_w == (gsi_out_w ? ADP_CRF_OUT_FMT_C
                                                 : ADP_CRF_FMT_C))
     : gsi_in_w      ? (sfv_base_ok_w && sfv_fam_ch_w)
-    //! talker truth: the framer emits exactly the generated WIRE channel
-    //! count, so an output admits only that shape until talker adaptation
-    //! exists - the declared 8ch base on a 4-wire talker is not emittable
+    //! talker truth, per row: an output admits exactly the format its own
+    //! descriptor declares (base AND channel count) until talker adaptation
+    //! exists - the framer emits the declared wire shape and nothing else
     : gsi_out_w     ? (sfv_base_ok_w
-                       && (32'(sfv_ch_w) == TALKER_WIRE_CHANS_C))
+                       && (sfv_ch_w == sfv_decl_w[31:22]))
                     : 1'b0;
   //! SURVIVES: the per-stream channels-required reductions below, judged
   //! against the proposal's channel count. The CRF rows carry no audio
@@ -4415,12 +4430,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                       ? (sfv_crf_row_w ? ADP_CRF_FMT_C
                          : pp_aecp_fmt_in_v_w[gsi_six_w]
                            ? pp_aecp_fmt_in_w[64*gsi_six_w +: 64]
-                           : GSI_FMT_C)
+                           : sfv_decl_in_w)
                   : gsi_out_w
                       ? (sfv_crf_row_w ? ADP_CRF_OUT_FMT_C
                          : pp_aecp_fmt_out_v_w[gsi_oix_w]
                            ? pp_aecp_fmt_out_w[64*gsi_oix_w +: 64]
-                           : GSI_FMT_C)
+                           : sfv_decl_out_w)
                       : 64'd0;
           4'd2: gsi_ans_raw_w = gsi_in_w  ? gsi_sid_w
                               : gsi_decl_w ? gsi_osid_w : 64'd0;

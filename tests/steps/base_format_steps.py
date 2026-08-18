@@ -135,9 +135,9 @@ def step_output_is_wire_truth(context):
         f"{context.cfg_name}: " + "; ".join(bad) + ". Milan v1.2 6.3 asks a "
         "Base Talker for no family - \"A PAAD-AE Base Talker may advertise "
         "any Base Format that is reasonable for its functionality\" - and a "
-        "talker cannot correct a wider claim: it emits ONE width and "
-        "SET_STREAM_FORMAT remains unimplemented and returns NOT_IMPLEMENTED, "
-        "so a "
+        "talker cannot correct a wider claim: it emits ONE width, and "
+        "SET_STREAM_FORMAT (served since 0x0053) admits only that declared "
+        "shape for outputs, so a "
         "listener handed a width the framer cannot produce discards every "
         "frame (silicon 2026-07-27: 296,294 of 296,294).")
 

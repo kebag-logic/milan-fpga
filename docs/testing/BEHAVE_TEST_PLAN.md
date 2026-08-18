@@ -341,7 +341,7 @@ exists and passes; the behave scenarios above are the *wire* half:
 >   answered at all, M-AECP-11 to use "a well-formed AECP command went
 >   unanswered" as a liveness witness. Neither is a claim about the command's
 >   function, and neither has been run against this build.
-> * **CMD-7 stays void** because `SET_STREAM_INFO` remains unimplemented.
+> * **CMD-7 is served since 0x0053** (`SET_STREAM_INFO`'s Milan sub-command); the offline sweep grades its refusal shape at cdl 96 and the deep behavior is graded by the processor's pp_top W24/W25 and milan_dp's #67 block rather than a dedicated feature here.
 >   **M-CNT-4 is runnable** because solicited `GET_COUNTERS` now serves every
 >   declared Stream Output. **M-AECP-12 remains split**: the processor implements
 >   Identify control, but the root wrapper discards its dynamic Identify output
@@ -360,7 +360,7 @@ exists and passes; the behave scenarios above are the *wire* half:
 |--------|--------|----------------|-------------------------------|
 | AVTP-3 | 4.4.3.4 | `robustness.feature` `@rtl-defect` | a v1 PDU is (currently) parsed as v0 — assert present behavior, flip on fix |
 | AVTP-5 | 4.4.4.3 | `aaf_listener.feature` `@rtl-defect` | talker `mr` toggle never ticks MEDIA_RESET (pairs M-CNT-4) |
-| CMD-7 | 7.4.15/16 | ~~`aecp_stream_info.feature`~~ | **STILL VOID** — `SET_STREAM_INFO` serves no function. It now draws the generic `NOT_IMPLEMENTED` echo, which is not the clause's flag-by-flag refusal and grades nothing about 7.4.15/16 |
+| CMD-7 | 7.4.15/16 | ~~`aecp_stream_info.feature`~~ | **SERVED (0x0053), graded elsewhere** — the engine implements Milan 5.4.2.9's sub-command with the clause's flag-by-flag refusals; the offline model grades the sweep shape (BAD_ARGUMENTS at cdl 96) and the function is graded on the real engine (pp_top W24/W25, milan_dp #67) |
 | CMD-14 | 7.4.39 | `aecp_identify_cadence.feature` (cadence half) / new `aecp_identify_notification.feature` | **SPLIT** — the cadence half is **still void** (`IDENTIFY` needs `SET_CONTROL`, which is absent, and `o_identify` is tied 0: the LED is structurally dark). **Newly assertable:** `IDENTIFY_NOTIFICATION` (0x0026) arriving as a *command* is answered `BAD_ARGUMENTS` per §7.4.39.2, which beats §9.3.5.3.3. No result against this build is recorded |
 | AECP-8 | 9.4 | `aecp_address_access.feature` | **RUNNABLE AGAIN, as a response-contract check only** — an ADDRESS_ACCESS command draws a conformant `NOT_IMPLEMENTED` echo (right `message_type`+1, length, `controller_data_length`), which is IEEE 1722.1 §9.3.5's duty to respond. **ADDRESS_ACCESS itself is NOT IMPLEMENTED**; do not mark 9.4 covered on the strength of the echo. No result against this build is recorded |
 | MRP-7 | 10.7.10 | `srp.feature` | explicit PeriodicTransmission enable/disable vector |

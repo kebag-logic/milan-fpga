@@ -51,7 +51,7 @@ Machine-checked status rows are defined by the
 | All 50 `tb/verilator/*/Makefile` suites | PASS | Every suite returned zero. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
 | `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
 | `tb/verilator/pp_shadow` | 273 checks passed | The 2026-08-17 rerun passed with zero failures. Milan `ACQUIRE_ENTITY` is checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. The dynamic arty input also passed the GET_AUDIO_MAP body checks. |
-| `tests/` Behave suite | 15 features and 338 scenarios passed | 1,615 steps passed with no skipped scenarios or steps in the 2026-08-18 rerun. This is an offline behavior model, not an external compliance lab result. |
+| `tests/` Behave suite | 15 features and 336 scenarios passed | 1,593 steps passed with no skipped scenarios or steps in the 2026-08-18 rerun (the unimplemented-echo outline lost its two setter rows when the commands landed). This is an offline behavior model, not an external compliance lab result. |
 | Pinned protocol processor suites | 14,353 checks passed | All 27 processor suites passed. The processor's `pp_top` suite contributes 1,143 passing checks, including the START/STOP completion boundary read with no post-response delay, the exact 38 through 45 byte foreign-target AECP regression, the configuration overlay's fallback-versus-overlay evidence, GET_DYNAMIC_INFO batch coverage, record-level handling of the complete command-side status byte, getter-length drift detection, cdl 525 command rejection, and the stream-setter families: SET_STREAM_FORMAT's per-descriptor running refusal against a really bound sink and really streaming output, the one-gather format verdict in both refusal directions, SET_STREAM_INFO's 2021-only length rule with the 2013-size negative pinned, and the per-row settings publication graded beside every echo. It also covers the 63-record mapping command maximum, atomic rejection of 64 mapping records, and exclusion between a reserved mapping edit and an ACMP stream-state transaction. The processor's zero-tolerance RTL lint and documentation gates also passed. |
 | Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,278 and 4,326 checks, including every declared AAF and CRF Stream Output. The 8x8 integration also proves locked local mapping writes leave physical RAM and protocol ownership unchanged, then apply after unlock. |
 | Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
@@ -132,10 +132,10 @@ media contribution (B12).
 and 5.4.2.9 refusals: the per-descriptor `STREAM_IS_RUNNING` route (a bound
 Stream Input or a streaming Stream Output), whole-command `NOT_SUPPORTED` on
 any sub-flag beside MSRP_ACC_LAT_VALID, `BAD_ARGUMENTS` on a bit-31 offset,
-and one integrator verdict on the proposed format that admits the supported
-48 kHz channel family for inputs, the generated wire shape for outputs and
-the advertised CRF format for the CRF rows, refusing any format that orphans
-a mapping-referenced channel. The set offset feeds the transit entries the
+and one integrator verdict on the proposed format that admits the addressed
+row's declared base: the 48 kHz channel family for inputs, the row's own
+declared shape for outputs and the advertised CRF format per direction for
+the CRF rows, refusing any format that orphans a mapping-referenced channel. The set offset feeds the transit entries the
 AAF and CRF framers stamp, and the set format is served as current and drives
 Stream Input 0's acceptance filter. The wire framers do not yet re-shape from
 a stored format; that deferral follows the `SET_CONFIGURATION` pattern and is
