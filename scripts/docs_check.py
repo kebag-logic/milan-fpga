@@ -348,7 +348,7 @@ def check_md(path, relpath, resolve, tracked_set):
     allow_dead = bool(ALLOW_DEAD_MARK.search(text))
     filedir = Path(relpath).parent
 
-    in_fence = in_comment = False
+    in_fence = in_comment = h_in_comment = False
     for lineno, line in enumerate(lines, 1):
         if FENCE_RE.match(line):
             in_fence = not in_fence
@@ -366,19 +366,27 @@ def check_md(path, relpath, resolve, tracked_set):
 
         if in_fence:
             continue
-        if "<!--" in line and "-->" not in line:
-            in_comment = True
-            continue
-        if in_comment:
-            if "-->" in line:
-                in_comment = False
-            continue
 
         # --- writing hygiene (living pages only; see the rules above) ---
+        # Runs BEFORE the whole-line comment skip below, because only the
+        # comment SPAN is exempt: visible text sharing a line with a comment
+        # opener or closer is still prose and still checked. The hygiene
+        # rules keep their own span tracker (h_in_comment) so exempting a
+        # span here cannot change what the reference rules below see.
         if not (historical or obsolete):
-            # single-line HTML comments are exempt like multi-line ones,
-            # so a page can quote a forbidden phrase inline when needed
-            hmasked = re.sub(r"<!--.*?-->", "", line)
+            hvis = line
+            if h_in_comment:
+                if "-->" in hvis:
+                    hvis = hvis.split("-->", 1)[1]
+                    h_in_comment = False
+                else:
+                    hvis = ""
+            if not h_in_comment:
+                hvis = re.sub(r"<!--.*?-->", "", hvis)
+                if "<!--" in hvis:
+                    hvis = hvis.split("<!--", 1)[0]
+                    h_in_comment = True
+            hmasked = hvis
             for allow in HYGIENE_ALLOW:
                 hmasked = hmasked.replace(allow, "#" * len(allow))
             hm = PROCESS_RE.search(hmasked)
@@ -402,6 +410,15 @@ def check_md(path, relpath, resolve, tracked_set):
                     f"{relpath}:{lineno}: un-anchored section pointer "
                     f"'{hm.group(0).strip()}…' — link the heading anchor "
                     f"instead")
+
+        # --- whole-line comment skip for the REFERENCE rules below ---
+        if "<!--" in line and "-->" not in line:
+            in_comment = True
+            continue
+        if in_comment:
+            if "-->" in line:
+                in_comment = False
+            continue
 
         # --- link integrity (target, then line anchor) ---
         for lk in LINK_RE.finditer(line):
