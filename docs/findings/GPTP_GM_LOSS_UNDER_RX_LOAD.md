@@ -27,8 +27,8 @@ independent re-election of a *third-party* device as grandmaster.
 
 ## 1. The report, and what it turned out to be
 
-USER: *"when the device receive packet, the gPTP GM changed for no reason."*
-Recorded as open defect **D7** (*"as soon as the DS20 receives packets the gPTP
+The reported defect: receiving bulk traffic made the gPTP grandmaster change
+for no apparent reason. Recorded as open defect **D7** (*"as soon as the DS20 receives packets the gPTP
 is discarded"*), **not reproduced** on a 25 s sample.
 
 It reproduces on demand. **Trigger: a saturating unicast RX flood aimed at the
@@ -94,8 +94,9 @@ board). The effect is bounded exactly by the 60 s load window in both runs and
 every sample carries a wall clock, so it is not a coincidence of an
 unrelated event.
 
-**Recovery is automatic** (USER rule D9 — never force the GM to stabilise a
-measurement). 41 s after the flood ended the whole segment was back on
+**Recovery is automatic** (bench rule D9: the GM is never forced to stabilise a
+measurement, because a pinned grandmaster masks exactly the election behaviour
+this defect class lives in). 41 s after the flood ended the whole segment was back on
 `020000.fffe.000001` with no operator action, on both E2 and E5. Note however
 that the Arty then takes a further ~60 s to close its offset (measured
 677 ms → 160 ms → 0), because its `ptp4l` is `clientOnly` with no
@@ -220,7 +221,8 @@ acceptance procedure after the reflash rather than assuming.
 2. **ALINX `rx_dropped` = 117,223 of 145,126 (81 %)** at rest, static across
    idle periods — pre-existing, not load-correlated, and not explained here.
 3. **Bench config, already recorded:** ALINX `priority1 238` forces the BMCA
-   (D9 — USER: use 248); Arty `ptp4l` is `clientOnly` with no
-   `step_threshold` (D8). Neither was changed by this lane, and neither
+   (D9 records 248 as the correct value: 238 outranks the segment's GM and pins
+   the election); Arty `ptp4l` is `clientOnly` with no
+   `step_threshold` (D8). Neither was touched by this lane, and neither
    affects the result above: the GM change in E2 was a genuine automatic
    re-election *away from* the forced winner and back again.

@@ -259,4 +259,5 @@ After every flash, the mandatory first validation step is
    pairing probe, ghost-peer ARP check, TX gate, RX cells. A build that
    passes 1-2 but regresses the TX gate is NOT ship-cleared (see the
    cbsf_epo TX "regression", now RESOLVED as a phantom baseline — a gate
-   number is only valid with its full cell recipe; details in HANDOVER).
+   number is only valid with its full cell recipe -- the timing-claims rule in
+   [CONTRIBUTING.md](../../CONTRIBUTING.md)).

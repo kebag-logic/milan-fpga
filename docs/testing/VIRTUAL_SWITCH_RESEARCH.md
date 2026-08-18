@@ -10,7 +10,7 @@ and are marked where they must still be independently sourced. Companion docs:
 [`VIRTUAL_E2E_HOWTO.md`](VIRTUAL_E2E_HOWTO.md). The retired requirement IDs
 are historical evidence, not current compliance authority.
 
-**User directive:** the Ethernet wire attaches directly to a RAW socket; find a
+**Requirement:** the Ethernet wire attaches directly to a RAW socket; find a
 good real-time virtual switch (P4, kernel, or pure userspace) that could satisfy
 AVB compliance, to refine for testing later.
 

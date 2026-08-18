@@ -296,7 +296,7 @@ clear, the persisted ones do not (see P3.1).
 | `0x0019` | GET_CONTROL **— LANDED** | 5.4.2.18 | cdl 17: type, index, one `CONTROL_LINEAR_UINT8` value (0 or 255) | es-4.10 |
 
 Both of these look like one-afternoon reads and are not. Measured 2026-08-16
-while scoping this round:
+while scoping P2.2:
 
 **`GET_NAME` has no name table to read.** The store's name-table overlay
 exists and is writable, but `avdecc/gen_aemi_image.py:239-241` deliberately

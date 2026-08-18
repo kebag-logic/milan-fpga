@@ -188,8 +188,8 @@ lint_off -rule PINMISSING -file "*milan_datapath.sv" -match "*missing pin: 'rst_
 
 `-match` is the point, not decoration. A bare `-file "*milan_datapath.sv"`
 would also silence a real missing pin in the one file most likely to grow one:
-that file instantiates `KL_pp_shadow`, and the nine `desc_mem_*` ports arrived
-on that instantiation this round. Pinning each waiver to the two port *names* of
+that file instantiates `KL_pp_shadow`, and the nine `desc_mem_*` ports are the
+newest pins on that instantiation. Pinning each waiver to the two port *names* of
 the vestigial interface pair means a missing `desc_mem_req_ready` — or any other
 omitted pin, in any file including these four — still stops the build.
 **Verified**: an instantiation omitting `desc_mem_req_ready` raises `PINMISSING`

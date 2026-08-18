@@ -43,8 +43,9 @@ both are maintained with the RTL and win over this page.
 - **[7. New instrumentation you did not have](#7-new-instrumentation-you-did-not-have)** -- Three read-only probe groups in one table. The important one is `APRB` at `0x8B4`: every other RX counter lives *downstream* of the stream-table match, so a listener accepting nothing read zero everywhere with no way to separate parse failure from match failure -- which is why Section 1 took so long.
 - **[8. Landed but not reachable from software yet](#8-landed-but-not-reachable-from-software-yet)** -- Three things in the tree that you cannot use yet, stated so nobody hunts for a missing register: the persistence journal (CSR group specified, not wired), the CTF fault trace (its target partition has never been booted), and AES3 (no shipping board config selects it).
 - **[9. Build, CI and the builder](#9-build-ci-and-the-builder)** -- Four gate changes. Verilator is pinned and built from source for a measured reason -- 5.020 cannot build four suites and 5.032 reads back zeros on six `aecp` checks. The builder now writes the `0x680` reset words into a header `` `include ``-d by `milan_csr.sv`, so config and register resets cannot drift, and the tie-off check went from informational to failing.
-- **[10. Requirements closed this round](#10-requirements-closed-this-round)** -- The eight `REQ-*` ids that closed, and where their normative text and status live.
+- **[10. Requirements closed in 0x0013](#10-requirements-closed-in-0x0013)** -- The eight `REQ-*` ids that closed, and where their normative text and status live.
 - **[Upgrade checklist](#upgrade-checklist)** -- Six ordered steps for the actual upgrade, including the one people skip: run the host-plane smoke test *first*, because a build with perfect fabric paths can still ship with a dead host plane.
+- **[Change log](#change-log)** -- What this release changed and the 0x0014 supersession, each with its engineering reason.
 
 ## The short version
 
@@ -190,7 +191,7 @@ q2 is **software**-originated control traffic.
 
 Also new here: `REQ-CLS-05` (DEI sideband), `REQ-CLS-06` (back-to-back
 line-rate parsing) and `REQ-CLS-07` (reserved-DMAC validation on the gPTP fast
-path, `CLS_CTRL[1]`, still reset 0) all closed this round.
+path, `CLS_CTRL[1]`, still reset 0) all closed in 0x0013.
 
 ## 4. lwSRP NxN — every `t>0` talker row had been refused
 
@@ -333,7 +334,7 @@ Stated plainly so nobody goes looking for a register that is not there:
   defect (Section 5) turned into a check -- it was informational precisely because three
   of its four warnings were expected, which is why the fourth went unread.
 
-## 10. Requirements closed this round
+## 10. Requirements closed in 0x0013
 
 `REQ-CLS-05` (DEI sideband) · `REQ-CLS-06` (back-to-back line-rate parsing) ·
 `REQ-CLS-07` (reserved-DMAC validation) · `REQ-CLS-10` (untagged control
@@ -367,3 +368,10 @@ the normative text is
    ([`../reference/EGRESS_QUEUE_MAP.md`](../reference/EGRESS_QUEUE_MAP.md)).
 6. **Stop relying on the stage-before-commit workaround** only once you have
    confirmed `VERSION ≥ 0x000F` on the board itself.
+
+## Change log
+
+| Date | Change | Rationale |
+|---|---|---|
+| 2026-07-26 | Release 0x0013 documented: the listener fix, the 802.1Q queue order, DMAC-keyed control classification, lwSRP row sizing, RMON | Each change is CSR-observable on a reflashed board, and this page is the upgrade contract from 0x000B |
+| 2026-07-27 | Banner added: superseded in part by 0x0014, which drops to five queues | The six-queue map missed placement by 282 slices on the xc7a100t; the spare queue carried no traffic, so dropping it recovers fit with every class keeping its rank and shaping |

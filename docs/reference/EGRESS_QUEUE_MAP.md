@@ -534,7 +534,7 @@ never backlogged and its NAPI never competes with a 1500 B burst.
 
 **Per-board `rx_queues`.** The correct value is now **2 on both boards**: with
 `rx_queues = 1` there is no steer block at all and PTP shares q0 with bulk, so
-the directive is simply not implemented on that build. The Arty config already
+PTP steering is simply not implemented on that build. The Arty config already
 carries 2. The AX7101 8x8 config ships **1** because that is the layout its
 *flashed* boot chain maps — flipping it moves every DMA window from `dma-ts`
 onward by `0x74`, which the builder refuses against a pinned `boot_chain_pin`

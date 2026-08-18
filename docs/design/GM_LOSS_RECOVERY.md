@@ -47,7 +47,7 @@ misread as defects:
 2. **The return of the real GM is itself a step event.** The board's
    self-mastered epoch and the switch's epoch differ by however long the
    two clocks have diverged — measured **18–36 s** on one occurrence and
-   **59.6 s** on another. The handover is therefore not a smooth
+   **59.6 s** on another. The hand-off is therefore not a smooth
    re-slave: it is a phase cliff the whole media stack must survive.
 
 ## 2. The ptp4l layer — step vs slew, and the one-step budget
@@ -172,7 +172,7 @@ The as-built mechanism (`0x002A` + `0x002B`):
 3. **SRP is untouched by design**: Listener Ready is a pure function of
    settled-state + a matching Talker Advertise (Milan 5.3.8.5 — no lock
    term; the 5.5.3.3 event list has no lock event), so reservations and
-   licences ride through the handover. The talker keeps streaming
+   licences ride through the hand-off. The talker keeps streaming
    (5.3.7.3), stamping tu per Section 4.
 
 ## 7. The recovery timeline, end to end (as built)

@@ -216,7 +216,7 @@ legacy mslot mode crawled until a full FPGA reload (a `page_pool_release_retry`
 - (a) a pop-vs-BD-emission leak in the JIT-crossing or famine-disc path;
 - (b) ring-disable only clears slot/CQ state from the FSM IDLE state  -  a
   non-IDLE wedge (e.g. PGSWAP waiting on a famine-drained posted FIFO)
-  survives `RING_EN=0` and poisons the next session, which would ALSO defeat
+  survives `RING_EN=0` and poisons the next run, which would ALSO defeat
   the driver's resync (storm).
 
 **However**: the entire storm dataset was captured while the measurement peer
@@ -228,8 +228,8 @@ checker.
 
 **Measurement-validity note:** overnight the dev VM lost the Intel NIC
 passthrough (enp6s0 → gone; the new enp7s0 is an isolated segment). The board's
-ARP for the peer IP resolved to the OUTER machine (an Intel-OUI MAC, not the real peer NIC), where a
-previous session's http server and tcp_blast listeners still answered  -  a ghost
+ARP for the peer IP resolved to the OUTER machine (an Intel-OUI MAC, not the real peer NIC), where an
+earlier run's http server and tcp_blast listeners still answered  -  a ghost
 peer over a degraded bridge.
 
 Every throughput number from this night's silicon

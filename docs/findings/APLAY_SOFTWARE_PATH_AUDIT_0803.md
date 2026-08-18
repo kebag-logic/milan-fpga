@@ -52,7 +52,7 @@ exist on rv32 (only the `time64` variant), and `arch/riscv/util/header.c`
 trips `-Werror` on a const discard. Both are in `run-audit.sh build-perf`.
 
 **Nothing was reflashed for this work.** The kernel was not rebuilt and no
-kernel fragment was changed. That was checked first precisely because a
+kernel fragment was touched. That was checked first precisely because a
 reflash costs a bench round — and it turned out the only thing missing was
 userspace.
 

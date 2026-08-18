@@ -1,6 +1,6 @@
 # Virtual end-to-end tier — boot the real image against the real fabric, per commit
 
-Status: **PROPOSED 2026-07-28 (USER: "add it to the roadmap")** - originally
+Status: **PROPOSED 2026-07-28** - originally
 roadmap item 13 in the [historical compliance-gap plan](../MILAN_COMPLIANCE_GAPS.md).
 The [current Milan v1.2 audit](MILAN_V12_AUDIT_2026-08-16.md) is the authority
 for present compliance status.

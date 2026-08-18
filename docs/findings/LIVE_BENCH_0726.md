@@ -1,9 +1,10 @@
 # Live bench campaign — 2026-07-26
 
 Read-only health and function sweep of both boards plus the controller host,
-run after the round that closed the fabric-listener blocker. **Nothing here was
-reflashed**: both boards carry pre-round gateware, so this is a regression and
-health baseline for what *is* deployed, not a test of this round's RTL.
+run after the 0x000F–0x0013 landings that closed the fabric-listener blocker.
+**Nothing here was reflashed**: both boards carry earlier gateware, so this is a
+regression and health baseline for what *is* deployed, not a test of the
+freshly landed RTL.
 
 Roles (see [`BENCH_TOPOLOGY.md`](BENCH_TOPOLOGY.md) for the map):
 
@@ -213,7 +214,7 @@ localise any real inflation to the wire rather than the counter.
   100 Mb/s correctly (`[2:1] = 01`). That is exactly the `REQ-MAC-03` gap: the
   CSR now derives `is_1g` from the real speed, but [`sw/litex`](../../sw/litex) still ties the
   link/speed inputs to constants and nothing populates the driver's view. The
-  fix for the CSR half landed this round; the SoC-glue half did not.
+  fix for the CSR half landed in the 0x000F–0x0013 set; the SoC-glue half did not.
 
 ## Observed and explained, not a fault
 
@@ -235,7 +236,7 @@ exercised above.
 
 ## What this campaign could NOT test
 
-Everything this round built, because **neither board has been reflashed**: the
+Everything the 0x000F–0x0013 landings built, because **neither board has been reflashed**: the
 listener fix (`0x000F`), the lwSRP row sizing and per-stream TSpec (`0x0010`),
 the six-queue egress map (`0x0011`), DMAC-based control classification
 (`0x0012`), the playback chain, the persistence journal and the CTF trace. All

@@ -1,20 +1,22 @@
-# BENCH TOPOLOGY & WHERE-IS-WHAT — the context-reset handover
+# BENCH TOPOLOGY & WHERE-IS-WHAT
 
 Written 2026-07-20 (post history-rewrite), **refreshed 2026-08-02: the bench
-changed fundamentally — the ARTY IS RETIRED (USER 07-31 "forget the Arty");
-the ALINX AX7101 is the SOLE DUT** (8 talkers × 8 listeners × 8 channels,
+changed fundamentally -- the ARTY IS RETIRED (2026-07-31: not built or tested
+since; its USB-powered rail browns out under sustained network load, and one
+supported target keeps every bench result reproducible); the ALINX AX7101 is
+the SOLE DUT** (8 talkers × 8 listeners × 8 channels,
 RV32 VexiiRiscv, QSPI-boot), with a Milan-validated peer as the reference
 device. Sections
 below carry banners where the two-board era is kept as history. The
 single-DUT bench values (hosts, tap interface, outlets, serials) are now
 inline in this doc; anything not inline is in the private test repo's bench
-notes. This is the single document a fresh session needs to operate the
+notes. This is the single document a newcomer needs to operate the
 bench. Live campaign state is tracked in the GitHub issues and in this
-document; the dated handovers are **local working notes and are no longer
-tracked** — they name bench hosts and local paths, so the public tree keeps
-only the archived pre-2026-08-11 set under
-[`historical_now_obsolete/handovers/`](../../historical_now_obsolete/handovers/).
-Do not cite a handover as the current source of anything; the
+document; the dated bench notes are **local working files and are no longer
+tracked** -- they name bench hosts and local paths, so the public tree keeps
+only an archived pre-2026-08-11 set (reachable from
+[the archive index](../../historical_now_obsolete/README.md)).
+Do not cite a dated bench note as the current source of anything; the
 remaining compliance work is in the
 [current Milan v1.2 audit](../testing/MILAN_V12_AUDIT_2026-08-16.md). Naming rule: the conformance suite is
 called **the bench suite** everywhere (commits, docs, comments) — never
@@ -22,17 +24,18 @@ any other name; its material is private (see Section 7).
 
 ## Contents
 
-- **[0. The map](#0-the-map)** — Answers "where do I plug the analyzer": tap1 is inline on the ALINX link (the only DUT link left) and the tap host is the **only** place wire truth exists — the controller host sits on a pruned switch port. The caveat that follows the picture is the useful bit — a tap sees one *link*, so traffic the switch drops crosses neither tap.
-- **[1. Machines](#1-machines)** — Role and reach for every host, now with the concrete names inline (<peer-host> / <capture-host> / <power-controller>), plus the facts that change what you can do: the dev box never gets an address on the AVB subnet, the switch has no IP or UI management at all, pw0's port is pruned, and capture records carry a 28-byte header so every `ether[]` offset shifts by +28.
-- **[2. Boards (DUTs)](#2-boards-duts)** — The sole DUT (AX7101: serial/JTAG/ssh access, RV32, 8×8×8ch) and the reference-peer wiring with the PRIMARIES-ONLY binding rule; the two-board table and the Arty analog loop are kept below it as banner-marked history.
-- **[3. Consoles from the dev box](#3-consoles-from-the-dev-box)** — The serial↔FIFO daemon you must **recreate after a context reset**, and its three traps: output racing the read window, `dmesg -n 1` to unbury the console, and a foreground pipe wedging the shell.
-- **[4. Repositories & artifacts](#4-repositories--artifacts)** — Which of the five trees holds what — gateware, bench/private, LiteX venv and build dirs, buildroot output, standards PDFs. Standing warning: both repos diverge from their GitHub origins, so any push needs `--force`.
-- **[5. Build → flash → verify pipeline](#5-build--flash--verify-pipeline)** — The commands, copy-ready: 3-seed sweep, the per-board flash invocation with its environment, and the WNS ≥ 0 gate. Also the chronic non-error to ignore (`write_cfgmem SPI_BUSWIDTH` on ARTY) and the regression set required before any commit.
-- **[6. Peer-host wire tooling (all sudo, iface enp6s0)](#6-peer-host-wire-tooling-all-sudo-iface-enp6s0)** — The probe scripts and what each one proves, the capture filters with the three multicast groups, and the full THD+N chain from tap capture or ring dump to a number.
-- **[7. The bench conformance suite (PRIVATE — never in git, never pushed)](#7-the-bench-conformance-suite-private--never-in-git-never-pushed)** — The privacy rules, in force: `/private/` is never `git add`ed and only one name for the suite ever appears in committed text (a script enforces the deny-list). The score to beat is 63/63 scenarios per board.
-- **[8. Board runtime (what runs where)](#8-board-runtime-what-runs-where)** — Power-on to streaming: boot order, everything `S50milan` provisions, the four daemons, and a CSR quick map. Two rules are buried here and cost real time — the `0x654` write must bit-preserve VID 2 or the switch floods the stream as best-effort, and a new plain-RW CSR missing from `is_plain_rw()` makes reads lie.
-- **[9. State at handover (2026-07-21 morning - campaign closed)](#9-state-at-handover-2026-07-21-morning---campaign-closed)** — A dated snapshot of what was in each board's flash and what was open that morning. Read as provenance, not current state — it flags its own −73.4 dB figure as later superseded.
-- **[10. Standing rules (violating any of these has burned us)](#10-standing-rules-violating-any-of-these-has-burned-us)** — Seven rules, each written after it was broken. Includes the one people get wrong at cleanup time: kill builds by output-dir match, because killing the Python parent leaves the Vivado child running.
+- **[0. The map](#0-the-map)** -- Answers "where do I plug the analyzer": tap1 is inline on the ALINX link (the only DUT link left) and the tap host is the **only** place wire truth exists -- the controller host sits on a pruned switch port. The caveat that follows the picture is the useful bit -- a tap sees one *link*, so traffic the switch drops crosses neither tap.
+- **[1. Machines](#1-machines)** -- Role and reach for every host, now with the concrete names inline (<peer-host> / <capture-host> / <power-controller>), plus the facts that change what you can do: the dev box never gets an address on the AVB subnet, the switch has no IP or UI management at all, pw0's port is pruned, and capture records carry a 28-byte header so every `ether[]` offset shifts by +28.
+- **[2. Boards (DUTs)](#2-boards-duts)** -- The sole DUT (AX7101: serial/JTAG/ssh access, RV32, 8×8×8ch) and the reference-peer wiring with the PRIMARIES-ONLY binding rule; the two-board table and the Arty analog loop are kept below it as banner-marked history.
+- **[3. Consoles from the dev box](#3-consoles-from-the-dev-box)** -- The serial↔FIFO daemon you must **recreate whenever it is gone** (it dies with the shell that started it), and its three traps: output racing the read window, `dmesg -n 1` to unbury the console, and a foreground pipe wedging the shell.
+- **[4. Repositories & artifacts](#4-repositories--artifacts)** -- Which of the five trees holds what -- gateware, bench/private, LiteX venv and build dirs, buildroot output, standards PDFs. Standing warning: both repos diverge from their GitHub origins, so any push needs `--force`.
+- **[5. Build → flash → verify pipeline](#5-build--flash--verify-pipeline)** -- The commands, copy-ready: 3-seed sweep, the per-board flash invocation with its environment, and the WNS ≥ 0 gate. Also the chronic non-error to ignore (`write_cfgmem SPI_BUSWIDTH` on ARTY) and the regression set required before any commit.
+- **[6. Peer-host wire tooling (all sudo, iface enp6s0)](#6-peer-host-wire-tooling-all-sudo-iface-enp6s0)** -- The probe scripts and what each one proves, the capture filters with the three multicast groups, and the full THD+N chain from tap capture or ring dump to a number.
+- **[7. The bench conformance suite (PRIVATE — never in git, never pushed)](#7-the-bench-conformance-suite-private--never-in-git-never-pushed)** -- The privacy rules, in force: `/private/` is never `git add`ed and only one name for the suite ever appears in committed text (a script enforces the deny-list). The score to beat is 63/63 scenarios per board.
+- **[8. Board runtime (what runs where)](#8-board-runtime-what-runs-where)** -- Power-on to streaming: boot order, everything `S50milan` provisions, the four daemons, and a CSR quick map. Two rules are buried here and cost real time -- the `0x654` write must bit-preserve VID 2 or the switch floods the stream as best-effort, and a new plain-RW CSR missing from `is_plain_rw()` makes reads lie.
+- **[9. Dated bench snapshot (2026-07-21 morning - campaign closed)](#9-dated-bench-snapshot-2026-07-21-morning---campaign-closed)** -- A dated snapshot of what was in each board's flash and what was open that morning. Read as provenance, not current state -- it flags its own −73.4 dB figure as later superseded.
+- **[10. Standing rules (violating any of these has burned us)](#10-standing-rules-violating-any-of-these-has-burned-us)** -- Seven rules, each written after it was broken. Includes the one people get wrong at cleanup time: kill builds by output-dir match, because killing the Python parent leaves the Vivado child running.
+- **[Change log](#change-log)** -- Dated bench-affecting decisions with the engineering reason for each.
 
 ## 0. The map
 
@@ -152,8 +155,8 @@ flowchart LR
 
 ## 3. Consoles from the dev box
 
-A tiny daemon per board bridges serial↔FIFO+log (session-scratchpad
-based — after a context reset, RECREATE it):
+A tiny daemon per board bridges serial↔FIFO+log (scratchpad-based, not a
+service -- it dies with the shell that started it; RECREATE it when gone):
 
 ```sh
 S=<scratchpad>           # this session's scratchpad dir
@@ -175,7 +178,7 @@ foreground pipe wedges the shell (write ctrl-C to the FIFO).
 | Path | What |
 |---|---|
 | `~/prjs-avb-on-fpga/milan-fpga` | THE gateware repo. `hdl/` RTL uses a standards-clause layout: the old local acmp and aecp trees are deleted, while ieee1722/{avtp,aaf,crf,maap}, ieee8021q/{ts,filtering}, ieee8021as/ptp_timestamp, the milan tops including `KL_pp_shadow`, and common/{csr,eth_event_counter,cdc} remain. `tb/verilator/*` contains milan_dp, pp_shadow, pcmlpf and the other live suites. AECP now lives in the pinned processor uCPU and serves the inventory in the [current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md). [`syn/yosys/run.sh`](../../syn/yosys/run.sh) is the device-portability gate. [`sw/litex/`](../../sw/litex) holds milan_soc.py, **sweep.sh**, **build.sh** including the `flash` verb, and deploy.sh. `avdecc/` holds the declarative AEM model and controller support; the builder packs the processor's main-memory descriptor image. Author `hackerman-kl`, one-line commits, no trailers. |
-| `~/the-private-test-repo` | Bench/test repo. `fpga/` (kl-eth driver, buildroot br2-external incl. the **rootfs overlay** = S50milan, linkmon.sh, gptp2csr.sh, stream_phc_sync.sh, gptp.cfg, S65/S66), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `fpga/dts+boot/` (dtb + opensbi per board), `private/` (**untracked, git-ignored**: the bench conformance suite + its reference run -- see Section 7). Commits: author `hackerman-kl` (USER 2026-07-22, both repos), one line, no trailers. |
+| `~/the-private-test-repo` | Bench/test repo. `fpga/` (kl-eth driver, buildroot br2-external incl. the **rootfs overlay** = S50milan, linkmon.sh, gptp2csr.sh, stream_phc_sync.sh, gptp.cfg, S65/S66), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `fpga/dts+boot/` (dtb + opensbi per board), `private/` (**untracked, git-ignored**: the bench conformance suite + its reference run -- see Section 7). Commits: author `hackerman-kl` (both repos), one line, no trailers. |
 | `~/litex-milan` | LiteX + venv (`~/litex-milan/venv` — PATH needed for build/flash python). **`work/`** = all Vivado build dirs (`build_<board>_<seed>_<tag>/`). |
 | `~/br-milan-output` | Buildroot out-tree. Rebuild rootfs: `cd ~/br-milan-output && make O=$PWD && xz -9 --check=crc32 -c images/rootfs.cpio > /tmp/scratch/rootfs.cpio.xz`. Kernel `images/Image` (xz it for flashing). |
 | the private pre-rewrite backups (off-repo) | Pre-history-rewrite bundles + the private-material tar. KEEP PRIVATE. |
@@ -192,8 +195,9 @@ rewrite). Push ONLY when the user asks — needs `--force`.
 never launch a build without it (an unpinned hash seed forks the VexiiRiscv
 netlist and the A/B comparison dies). The fit recipe that currently gets
 closest is `synth_design -directive AlternateRoutability` +
-`place_design -directive ExtraNetDelay_high`; the full fit ledger lives in
-[`historical_now_obsolete/handovers/HANDOVER_0802.md`](../../historical_now_obsolete/handovers/HANDOVER_0802.md).
+`place_design -directive ExtraNetDelay_high`; the full fit ledger is preserved
+in the archived pre-2026-08-11 dated bench notes (reachable from
+[the archive index](../../historical_now_obsolete/README.md)).
 Flash with the full image set
 (`KERNEL`/`DTB`/`OPENSBI`/`ROOTFS`) — **OpenSBI embeds the FDT**, so a DTB
 change means an OpenSBI rebuild, and a queue-count change shifts the DMA
@@ -386,7 +390,7 @@ ENT_NAME · 0x72C LPF_CTRL (default 1) · 0x730/0x734 AS_PATH parent ·
 New plain-RW CSRs MUST be added to `is_plain_rw()` in milan_csr.sv or
 reads lie (shadow).
 
-## 9. State at handover (2026-07-21 morning - campaign closed)
+## 9. Dated bench snapshot (2026-07-21 morning - campaign closed)
 
 - **ARTY QSPI = `eppo_milanfinal41` (+0.078) + rootfs #8**: 0x4B
   byte-exact PASS, bench suite 63/63, sink-1 chain proven, CRF rx proven.
@@ -442,3 +446,10 @@ reads lie (shadow).
 9. After every boot/flash: check the RX-shield posture (`eth0` flags
    `0x1203`, not `0x1303`) before trusting any timing or audio measurement —
    a leaked promisc silently re-opens the RX flood (Section 8).
+
+## Change log
+
+| Date | Change | Rationale |
+|---|---|---|
+| 2026-07-31 | The Arty target retired; the AX7101 became the sole DUT | The Arty's USB-powered rail browns out under sustained network load, so campaign results on it were unreproducible; one supported target keeps the verification bar meaningful |
+| 2026-08-02 | Bench values inlined; the dated bench notes left the tree | The notes name bench hosts and local paths, which must never reach the public tree; the pre-2026-08-11 set is preserved in the archive |

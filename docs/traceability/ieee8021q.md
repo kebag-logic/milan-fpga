@@ -28,8 +28,9 @@ on the page:
   deletion did not touch them. Rows Q-1..Q-8, Q-13, Q-14 are unaffected.
 - **Reservation is the protocol processor's.** The lwSRP applicant, registrar,
   TA-registrar, walker, context table, timers and bandwidth gate are deleted — no
-  parameter, no fallback (USER: *"the lwSRP shall be removed as well. Only use the
-  uCPU code"*). MRP-1..MRP-8 and SRP-1..SRP-10 are now **🔵 PROCESSOR**: the
+  parameter, no fallback: a build-time fallback would keep a second SRP
+  implementation alive, and the substitution's parity argument holds only with
+  exactly one owner of the wire law. MRP-1..MRP-8 and SRP-1..SRP-10 are now **🔵 PROCESSOR**: the
   submodule owns the wire law, this fabric consumes the result off the class-D face
   (`srp_sr_admitted_o` as the per-source stream gate, `srp_sum_slope_bps_o` as the
   class-A queue's idleSlope, the adopted {priority, VID} pair as every C-TAG this

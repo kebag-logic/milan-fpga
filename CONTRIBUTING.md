@@ -79,7 +79,7 @@ flowchart LR
 4. **Open the PR** against `dev`, with the template below and the
    self-test results as a **comment** (a comment is evidence, not approval).
 5. **Review with multiple agents, each with CLEARED context.** Not forks of
-   the authoring session: agents that have never seen the reasoning that
+   the author's session: agents that have never seen the reasoning that
    produced the diff. An agent that helped write a change will re-derive the
    same blind spot when asked to check it. Give each one a different lens —
    clause conformance, wire format and response sizing, test adequacy and

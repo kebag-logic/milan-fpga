@@ -981,7 +981,7 @@ parser fault. All four were reproduced side by side on the flashed 8×8
 | # | rule (output ports) | the physical reason |
 |---|---|---|
 | 1 | `mapping_stream_index` must be the addressed port's OWN stream | the capture fabric routes port *j*'s clusters into stream *j* — there is no cross-stream path |
-| 2 | ~~half/parity match~~ **RETIRED 2026-08-06** (USER: half-swap mux ordered and landed) | the capture slot word grew per-channel half-select bits; any cluster half now routes onto any channel parity, the commit derives the swap, and only builds BEFORE the 0x0025-era RTL still refuse a crossed route |
+| 2 | ~~half/parity match~~ **RETIRED 2026-08-06** (the half-swap mux landed) | the capture slot word grew per-channel half-select bits; any cluster half now routes onto any channel parity, the commit derives the swap, and only builds BEFORE the 0x0025-era RTL still refuse a crossed route |
 | 3 | the cluster's source must be **fabric-backed** (`valid` in `AEM_ODMAP_CSRC_C`) | the 8×8 build's 8 loopback clusters per output port declare sources nothing drives — accepting one would have `GET_AUDIO_MAP` report a route that carries silence |
 | 4 | `mapping_cluster_channel` must be 0 | every cluster this model emits is MONO — the L and R of a pair are two adjacent clusters, not two channels of one |
 
