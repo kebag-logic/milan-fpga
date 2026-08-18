@@ -532,15 +532,15 @@ precisely what once held `asCapable` false — late RX stamps, not a switch faul
 exchange is ~64–90 B at 8–16 frames/s, so the dedicated queue is essentially
 never backlogged and its NAPI never competes with a 1500 B burst.
 
-**Per-board `rx_queues`.** The correct value is now **2 on both boards**: with
-`rx_queues = 1` there is no steer block at all and PTP shares q0 with bulk, so
-PTP steering is simply not implemented on that build. The Arty config already
-carries 2. The AX7101 8x8 config ships **1** because that is the layout its
-*flashed* boot chain maps — flipping it moves every DMA window from `dma-ts`
-onward by `0x74`, which the builder refuses against a pinned `boot_chain_pin`
-(gate 19c). **Raising the AX to 2 is a reflash-gated change**: bump
-`rx_queues`, move `boot_chain_pin.dma-ts`/`pcm-dma` to the 2-queue addresses,
-rebuild, reflash, and re-pin against the new `csr.csv`.
+**Per-board `rx_queues`.** Both boards ship **2**: with `rx_queues = 1`
+there is no steer block at all and PTP shares q0 with bulk, so PTP steering
+is simply not implemented on such a build -- the D7 grandmaster-loss class.
+The Arty carried 2 first; the AX7101 8x8 config was raised 1 -> 2 on
+2026-07-28 (861f411e) with `boot_chain_pin.dma-ts`/`pcm-dma` moved to the
+2-queue addresses, because flipping it moves every DMA window from `dma-ts`
+onward by `0x74` and builder gate 19c refuses the change against a stale
+`boot_chain_pin`. Any future queue-count change repeats that recipe: bump
+`rx_queues`, re-pin, rebuild, reflash against the new `csr.csv`.
 
 ## Where the fabric bypasses all of this
 
