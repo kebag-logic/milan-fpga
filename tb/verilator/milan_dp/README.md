@@ -88,11 +88,12 @@ lane, and the LiteX CSR boundary itself.
 the monitor's first acceptance term is `subtype == fmt[63:56]`, so against a
 zero format a *perfectly conformant* AAF PDU on the bound `stream_id` was
 counted `UNSUPPORTED_FORMAT` and never reached the depacketizer or the PCM ring.
-Stream 0 accepted nothing. `milan_datapath.sv` now reads
-`assign aecp_in0_fmt = ADP_STRIN0_FMT_C` — the entity model's *declared*
-`STREAM_INPUT[0]` format out of the generated shape header, exactly as
-`aecp_pres_offset` carries `PRES_DFLT_C` rather than a zero. Only the *setter*
-was ever AECP's; the declaration never was.
+Stream 0 accepted nothing. `milan_datapath.sv` now folds the setting over the
+declaration: `aecp_in0_fmt` reads the processor's published SET_STREAM_FORMAT
+row 0 when a controller has set one and the generated `ADP_STRIN0_FMT_C`
+otherwise, exactly as `aecp_pres_offset` folds set offsets over `PRES_DFLT_C`
+rather than a zero. The declaration is the default; the setter owns the rest
+(issue #67).
 
 `sim_main.cpp` grades the acceptance path again end to end and byte-exact:
 untagged and C-tagged conformant PDUs reach the PCM ring with their 48 payload
@@ -133,7 +134,7 @@ receive a conformant `NOT_IMPLEMENTED` echo with the command payload and length
 preserved and the frame padded to the 60-octet minimum. The exact inventory is
 gated by [`aecp_engine_steps.py`](../../../tests/steps/aecp_engine_steps.py) and
 the pinned processor's
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/98a5b749c1ba569008d7132a11fffa3ae4a39d95/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/8446cab031dc25367fa4288bdf783099d78f5ae8/docs/architecture/06_aecp_engine.md).
 
 **This suite backs no descriptor memory, on purpose and on record.**
 `milan_datapath` exposes nine ports for the AEM image the store fetches
