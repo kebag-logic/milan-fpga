@@ -9,7 +9,7 @@ git clone https://github.com/kebag-logic/milan-fpga && cd milan-fpga
 git submodule update --init third_party/verilog-axis protocol-processor
 ```
 
-> **§0 -- the one thing people get wrong.** [`third_party/verilog-axis`](third_party/verilog-axis)
+> **Section 0 -- the one thing people get wrong.** [`third_party/verilog-axis`](third_party/verilog-axis)
 > and [`protocol-processor`](protocol-processor) are git submodules. Both use
 > anonymous HTTPS, with no account needed. Several testbenches and most of the
 > datapath need both dependencies, and the builder gate imports descriptor and
@@ -80,13 +80,13 @@ Verified working versions: verilator 5.050, yosys 0.66, python 3.14.6, gcc 16.1.
 > one, build it from source — that is exactly what CI does, pinned. The small
 > self-contained suites (`tcam`, `cbs`, `csr`) work on older versions; it is the
 > datapath harnesses that do not. Details and the measured table:
-> [docs/testing/TESTING.md](docs/testing/TESTING.md) §7.
+> [docs/testing/TESTING.md](docs/testing/TESTING.md) Section 7.
 Verilator **≥ 5.050** is the real requirement (that is the CI pin; see the note above).
 
 On other distributions install the same seven things — the package *names* differ
 and are deliberately not guessed here. If you would rather not think about it at
 all, [`Containerfile.dev`](Containerfile.dev) is the exact, reproducible recipe
-(see [§5](#5-one-command-the-container)).
+(see [Section 5](#5-one-command-the-container)).
 
 ### 2.2 The three repo gates — pure Python, seconds
 
@@ -114,7 +114,7 @@ PyYAML, and the initialized `protocol-processor` submodule; it writes its
 emissions under `sw/builder/out/` (gitignored).
 
 There is a fourth CI gate that is *not* pure Python — the RTL lint — because it
-needs the Verilator you install in §2.3:
+needs the Verilator you install in Section 2.3:
 
 ```sh
 python3 scripts/lint_rtl.py --check   # every module in hdl/, ~10 s, exit 0 = PASS
@@ -123,7 +123,7 @@ python3 scripts/lint_rtl.py --check   # every module in hdl/, ~10 s, exit 0 = PA
 It fails on a **new** Verilator `--lint-only` violation; the existing 150 are
 grandfathered by a per-directory ratchet in
 [`scripts/lint.budget`](scripts/lint.budget) and printed in full on every run.
-Details and the Verible comparison: [`docs/testing/TESTING.md`](docs/testing/TESTING.md) §4b.
+Details and the Verible comparison: [`docs/testing/TESTING.md`](docs/testing/TESTING.md) Section 4b.
 
 ### 2.3 The Verilator testbenches
 
@@ -163,7 +163,7 @@ The test taxonomy across all layers: [`docs/testing/TESTING.md`](docs/testing/TE
 
 ### 2.4 If a testbench cannot find a module
 
-This exact shape means §0 — the submodule is not checked out (verified by
+This exact shape means Section 0 -- the submodule is not checked out (verified by
 deleting it and re-running [`tb/verilator/milan_dp`](tb/verilator/milan_dp)):
 
 ```
@@ -229,12 +229,12 @@ needs a vendor licence:
 
 | You can | How | Needs |
 |---|---|---|
-| Run every self-checking RTL testbench | [§2.3](#23-the-verilator-testbenches) | verilator, gcc |
-| Prove the RTL is vendor-neutral, and map it to an ECP5 | [§3](#3-track-2--device-portability-still-no-vendor-tools) | yosys, sv2v |
+| Run every self-checking RTL testbench | [Section 2.3](#23-the-verilator-testbenches) | verilator, gcc |
+| Prove the RTL is vendor-neutral, and map it to an ECP5 | [Section 3](#3-track-2--device-portability-still-no-vendor-tools) | yosys, sv2v |
 | Generate and validate a whole end-station model, SV headers, and build plan from a YAML declaration | `python3 sw/builder/endstation_builder.py configs/endstation_arty_4x4.yaml`; [`docs/ENDSTATION_BUILDER.md`](docs/ENDSTATION_BUILDER.md). This ordinary command writes review artifacts under `sw/builder/out/`. A deployment ownership transfer with `--write-fragment` or `--write-rtl` also generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map` in the sibling rootfs overlay, when that overlay is present; `aemi-load` verifies and loads the paired image before entity enable | python, pyyaml |
 | Read the register ABI and write driver code against it | [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md), asserted by the `csr` suite | nothing |
 | Check the current compliance audit and module-to-test coverage | [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md), [`docs/traceability/MODULE_MATRIX.md`](docs/traceability/MODULE_MATRIX.md) | nothing |
-| Simulate the softcore booting with the NIC attached (sim DUT) | [`sw/litex/milan_sim.py`](sw/litex/milan_sim.py) — **needs the LiteX stack + a JVM**, see [§6](#6-track-3--build-a-bitstream-vivado) | migen/litex, JDK |
+| Simulate the softcore booting with the NIC attached (sim DUT) | [`sw/litex/milan_sim.py`](sw/litex/milan_sim.py) -- **needs the LiteX stack + a JVM**, see [Section 6](#6-track-3--build-a-bitstream-vivado) | migen/litex, JDK |
 
 What you **cannot** do without proprietary tools: place & route (`.bit`
 generation) is Vivado-only. There is no open bitstream flow for Artix-7 in this
@@ -309,7 +309,7 @@ cd sw/litex && ./build.sh ax7101          # or: ./build.sh arty
 
 Read before you build: [`docs/integration/BUILDING.md`](docs/integration/BUILDING.md)
 (named configs, the parallel-launch discipline, the timing/utilisation gates) and
-[`docs/litex/LITEX_SOC.md`](docs/litex/LITEX_SOC.md) §4 (the mandatory non-obvious
+[`docs/litex/LITEX_SOC.md`](docs/litex/LITEX_SOC.md) Section 4 (the mandatory non-obvious
 flags and *why* each is mandatory).
 
 Porting to a board that is not an AX7101 or an Arty:
@@ -327,7 +327,7 @@ as the worked example.
 > which date — read them as an engineering record, not as a recipe that will
 > reproduce identically on your desk.
 
-The order is: build (§6) → flash a **matched image set** (a gateware-only load
+The order is: build (Section 6) → flash a **matched image set** (a gateware-only load
 will not boot) → boot Linux → bring the network up → connect a stream.
 
 1. [`docs/integration/QSPI_FLASHBOOT.md`](docs/integration/QSPI_FLASHBOOT.md) —
@@ -357,6 +357,6 @@ no media clock and no stream.
 |---|---|
 | deciding whether to use this at all | [`docs/overview/ARCHITECTURE.md`](docs/overview/ARCHITECTURE.md) and [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
 | integrating the datapath into your own SoC | [`docs/integration/INTEGRATION_GUIDE.md`](docs/integration/INTEGRATION_GUIDE.md) → [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md) |
-| going to write RTL | [`docs/overview/ARCHITECTURE.md`](docs/overview/ARCHITECTURE.md) §8 → [`docs/fpga/FPGA_DESIGN.md`](docs/fpga/FPGA_DESIGN.md) → [`CONTRIBUTING.md`](CONTRIBUTING.md) |
+| going to write RTL | [`docs/overview/ARCHITECTURE.md`](docs/overview/ARCHITECTURE.md) Section 8 → [`docs/fpga/FPGA_DESIGN.md`](docs/fpga/FPGA_DESIGN.md) → [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | lost in the vocabulary | [`docs/GLOSSARY.md`](docs/GLOSSARY.md) |
 | looking for the full doc index | [`docs/README.md`](docs/README.md) |

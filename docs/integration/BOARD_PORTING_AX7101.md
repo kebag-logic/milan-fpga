@@ -56,7 +56,7 @@ re-derived if the board revision changes:
 > errors** on silicon  -  reading a 4-bit-DDR stream off an 8-bit-SDR bus corrupts every
 > byte. The Alinx vendor top (`SRC/15_ethernet_test/.../ethernet_test.v`) is explicit:
 > `input [7:0] e_rxd`, separate `e_rxdv`/`e_rxer`, `assign e_gtxc=e_rxc`. Full story in
-> [`docs/limitations/TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md) §17 + [`sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md`](../../sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md).
+> [`docs/limitations/TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md) Section 17 + [`sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md`](../../sw/litex/evidence/hw_ma3_dma_datapath_100mhz.md).
 
 The **GMII (8-bit)** wiring per port is therefore: `rx_data[0:7]`, `tx_data[0:7]`,
 `rx_dv = e_rxdv`, `rx_er = e_rxer`, `tx_en = e_txen`, clocks `rx = e_rxc` /
@@ -69,17 +69,17 @@ this board).
 - **[`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex/platforms/alinx_ax7101.py)**  -  replaced the placeholder pins (borrowed
   from the AX7203) with the real AX7101 pinout: exact part `xc7a100t-fgg484-2`, clock
   R4/T4, reset T6, UART AB15/AA15, LEDs, `eth`/`eth_clocks` 0+1 (e1/e2 — **GMII**,
-  8-bit SDR per the §2 correction; the platform file's own comments say so at each
+  8-bit SDR per the Section 2 correction; the platform file's own comments say so at each
   pad group), the full `ddram` group, and the SPIx4/CONFIGRATE bitstream settings
   from the Alinx XDC. Both ports also carry `mdc`/`mdio` (e1 = J17/L16,
   e2 = AB21/AB22), added 2026-07-22 once the pins were read out of the schematic —
-  see §5.
+  see Section 5.
 - **[`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)**  -  added **512 MB DDR3 (LiteDRAM)**: `_CRG` now generates
   the DDR3 PHY clocks (`sys4x`, `sys4x_dqs`, `idelay` + IDELAYCTRL); `MilanSoC` adds
   `s7ddrphy.A7DDRPHY` + `add_sdram(module=MT41J256M16, l2_cache_size=8192)` behind a new
   `--with-dram` flag (included in `--full`). With DRAM, main RAM is the DDR3 at
   `0x4000_0000` (not integrated SRAM)  -  this is what makes the SoC **Linux-capable**
-  (migration §A.3). This closes the last big platform gap.
+  (migration Section A.3). This closes the last big platform gap.
 
 ## 4. Verification (open toolchain, no Vivado)
 
@@ -88,7 +88,7 @@ gateware** (exit 0):
 - `A7DDRPHY` + `sdram (LiteDRAMCore)` instantiated; `main_ram` = DDR3 @ `0x4000_0000`;
   the LiteDRAM software (`sdram.c`, DDR3 training) compiled into the BIOS.
 - **284 `ddram` constraint lines** in the generated `.xdc` (the real DDR3 pinout).
-- `milan_datapath` (the NIC) + the LiteEth MAC/PHY present (e1 is **GMII** — `LiteEthPHYGMII`, per the §3 correction).
+- `milan_datapath` (the NIC) + the LiteEth MAC/PHY present (e1 is **GMII** -- `LiteEthPHYGMII`, per the Section 3 correction).
 - The device tree regenerates from this build's `csr.json` (see [`sw/dts`](../../sw/dts),
   `fpga-ps-tools`).
 
@@ -104,7 +104,7 @@ gateware** (exit 0):
   MDIO master anywhere in the design — so `MAC_STATUS` is software-published from the
   `milan_mac_link_status` CSR and reports its reset default until a driver writes it.
   Until then the
-  data path runs on the PHY power-on straps. Migration §A.7.
+  data path runs on the PHY power-on straps. Migration Section A.7.
 - **Artix-7 bitstream**  -  `--full --build` needs Vivado with Artix-7 device
   support (the original dev host had only Spartan-7 installed). This gate has since
   been cleared: bitstreams were built and run on the board — see the `hw_*` logs in
@@ -114,5 +114,5 @@ gateware** (exit 0):
   `0x3631093` = xc7a100t ✅; **console** = CP2102N (`10c4:ea60`), currently showing the
   Alinx factory demo (`Hello ALINX AX7101` @ 9600). Identify by `/dev/serial/by-id/`
   (the `ttyUSBn` numbers flip on re-plug). Program with [`sw/litex/deploy.sh`](../../sw/litex/deploy.sh), then
-  M-A1…M-A5 (see [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) §9). Since completed on silicon — the boot
+  M-A1…M-A5 (see [`FULL_FPGA_SOLUTION.md`](../overview/FULL_FPGA_SOLUTION.md) Section 9). Since completed on silicon -- the boot
   banners and memtest logs are in [`sw/litex/evidence/`](../../sw/litex/evidence).

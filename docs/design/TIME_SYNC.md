@@ -284,7 +284,7 @@ the far end, or our own servo when roles are reversed) tracks whatever
 cadence we actually produce. The requirement then relaxes to three weaker
 ones: stay inside the nominal-rate tolerance a conformant listener must
 capture (±100 ppm class), timestamp honestly (AVTP timestamps and the CRF
-grid describe the *real* cadence in gPTP time — §3.2's "the wire carries
+grid describe the *real* cadence in gPTP time -- Section 3.2's "the wire carries
 the actual audio-MMCM rate"), and stay internally consistent (bclk,
 packetizer pacing and timestamping all derive from the one physical
 clock).

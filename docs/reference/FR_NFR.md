@@ -14,7 +14,7 @@ one softcore).
   **deleted** (2026-08-13); AECP now lives in the pinned `protocol-processor`
   submodule's AECP uCPU. The current served-command inventory and root
   integration boundaries are recorded in the implementation-status ledger in
-  §2.0.
+  Section 2.0.
 
 Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement has a
 **priority** (M=MUST, S=SHOULD, C=MAY), a **source**, and a **verification method**
@@ -24,10 +24,10 @@ Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement ha
 
 ## Contents
 
-- **[1. Scope, actors, and the baseline system](#1-scope-actors-and-the-baseline-system)** -- What "the baseline endpoint" concretely means, plus the `P_CH`/`P_SI`/`P_SO`/`P_SR`/`P_CORES`/`P_PORTS` parameter table every later requirement is written against. States the asymmetry that drives §2.7: the talker is fixed stereo, the listener is format-adaptive.
-- **[2. Functional Requirements (FR)](#2-functional-requirements-fr)** -- Opens with **[§2.0, the implementation-status ledger](#20-implementation-status-after-the-protocol-processor-substitution-2026-08-13)**: which groups the protocol processor owns, which AECP commands it serves, which dynamic outputs the root integration does not yet consume, and which mandatory requirements remain open. Read it before any row, and read a refusal as a refusal. Then eleven subsections of MUST/SHOULD rows with priority and verification method, covering ADP through AECP/MVU, ACMP, MAAP/SRP, clocking, streaming, QoS, and then the two software contracts most requirement docs omit, the Linux driver's NAPI/XDP/PTP/ethtool surface (FR-DRV-\*) and the device-tree binding (FR-DT-\*).
-- **[3. Non-Functional Requirements (NFR)](#3-non-functional-requirements-nfr)** -- The budgets and bounds: line rate, 8000 pkt/s per stream, ≤ 1 µs gPTP sync, ≤ 60 % LUT at baseline. Scale-out (§3.4) is flagged in the page as *the* key architectural NFR -- both SMP and AMP must be buildable, and adding cores must not change the ABI.
-- **[4. Scalability architecture](#4-scalability-architecture)** -- How the three growth axes are actually meant to work: the JSON entity model as the scale-up knob, the control/media/time plane split as the basis for scale-out, an SMP-vs-AMP comparison with a worked 3-core diagram, and the sizing formula §4.5 admits is not yet populated.
+- **[1. Scope, actors, and the baseline system](#1-scope-actors-and-the-baseline-system)** -- What "the baseline endpoint" concretely means, plus the `P_CH`/`P_SI`/`P_SO`/`P_SR`/`P_CORES`/`P_PORTS` parameter table every later requirement is written against. States the asymmetry that drives Section 2.7: the talker is fixed stereo, the listener is format-adaptive.
+- **[2. Functional Requirements (FR)](#2-functional-requirements-fr)** -- Opens with **[Section 2.0, the implementation-status ledger](#20-implementation-status-after-the-protocol-processor-substitution-2026-08-13)**: which groups the protocol processor owns, which AECP commands it serves, which dynamic outputs the root integration does not yet consume, and which mandatory requirements remain open. Read it before any row, and read a refusal as a refusal. Then eleven subsections of MUST/SHOULD rows with priority and verification method, covering ADP through AECP/MVU, ACMP, MAAP/SRP, clocking, streaming, QoS, and then the two software contracts most requirement docs omit, the Linux driver's NAPI/XDP/PTP/ethtool surface (FR-DRV-\*) and the device-tree binding (FR-DT-\*).
+- **[3. Non-Functional Requirements (NFR)](#3-non-functional-requirements-nfr)** -- The budgets and bounds: line rate, 8000 pkt/s per stream, ≤ 1 µs gPTP sync, ≤ 60 % LUT at baseline. Scale-out (Section 3.4) is flagged in the page as *the* key architectural NFR -- both SMP and AMP must be buildable, and adding cores must not change the ABI.
+- **[4. Scalability architecture](#4-scalability-architecture)** -- How the three growth axes are actually meant to work: the JSON entity model as the scale-up knob, the control/media/time plane split as the basis for scale-out, an SMP-vs-AMP comparison with a worked 3-core diagram, and the sizing formula Section 4.5 admits is not yet populated.
 - **[5. Steps to comply with Milan v1.2 (procedure)](#5-steps-to-comply-with-milan-v12-procedure)** -- The ordered twelve-step path from bare platform to conformance run, each step citing the FRs it discharges. Ends with the explicit out-of-scope list -- redundancy, rates beyond 192 kHz, AEM authentication.
 - **[6. Traceability (summary)](#6-traceability-summary)** -- One compact table joining each functional area to its Milan clause, its entity-model artifact, and its plan milestone -- the index to use when you need "which requirement covers this".
 - **[7. Verification approach](#7-verification-approach)** -- Which evidence class answers which kind of requirement: Verilator harnesses for leaf blocks, controller/`ptp4l`/`tc` tooling for interop, YAML models for PDU byte-exactness, and repetition at full profile for the scale claims.
@@ -58,7 +58,7 @@ media-clock stream:
 - **Talker:** 1 AAF source, **fixed stereo (2 ch)**  -  "stereo" is a talker property.
 - **Listener:** 1 AAF sink, **format-adaptive**  -  advertises the Milan Base Audio
   Formats (1/2/4/8 ch @48 kHz) and adapts `current_format` to the connected talker
-  via `SET_STREAM_FORMAT` (Milan v1.2 §5.4), rendering the mapped stereo subset.
+  via `SET_STREAM_FORMAT` (Milan v1.2 Section 5.4), rendering the mapped stereo subset.
 
 ### 1.2 Scaling parameters (referenced throughout)
 | Param | Meaning | Baseline | Scale-up target | Scale-out lever |
@@ -148,7 +148,7 @@ These repeated claims are checked against the
 | **FR-STR-01/02/04/05** (AAF encapsulation, de-encapsulation, listener counters, parameterisation) | **MET** | The media plane is intact |
 | **FR-STR-03/03a/03b** (listener format adaptation via SET_STREAM_FORMAT) | **NOT MET** | `SET_STREAM_FORMAT` is unimplemented — it is answered with the `NOT_IMPLEMENTED` echo, which adapts nothing. The listener's format is what the build elaborated; the *wire-truth* rule still governs de-interleaving, so a format-mismatched PDU is still counted `UNSUPPORTED_FORMAT` rather than mis-rendered — but the entity cannot adapt on connection |
 | **FR-QOS-01..03** | **MET** | Classifier + CBS untouched; the Σ idleSlope ceiling is enforced by the processor's admission now |
-| **FR-MGT-01** (IDENTIFY) | **IMPLEMENTED IN THE PROCESSOR, UNCONSUMED AT ROOT** | Identify `SET_CONTROL` and `GET_CONTROL` are served by the processor, and `KL_pp_shadow.sv` exports `aecp_identify_o` to the root wire `pp_aecp_identify_w`. Nothing consumes the wire and the root ties `o_identify` low. The controller-visible state exists while the physical Identify output remains dark. An inbound `IDENTIFY_NOTIFICATION` command is separately refused with `BAD_ARGUMENTS` as required by §7.4.39.2 |
+| **FR-MGT-01** (IDENTIFY) | **IMPLEMENTED IN THE PROCESSOR, UNCONSUMED AT ROOT** | Identify `SET_CONTROL` and `GET_CONTROL` are served by the processor, and `KL_pp_shadow.sv` exports `aecp_identify_o` to the root wire `pp_aecp_identify_w`. Nothing consumes the wire and the root ties `o_identify` low. The controller-visible state exists while the physical Identify output remains dark. An inbound `IDENTIFY_NOTIFICATION` command is separately refused with `BAD_ARGUMENTS` as required by Section 7.4.39.2 |
 | **FR-MGT-02** (names settable and persisted) | **NOT IMPLEMENTED** | `SET_NAME` is unimplemented (answered, then nothing changes) and there is no persistence |
 | **FR-DRV-\*, FR-DT-\*** | unchanged | Driver and device-tree surfaces are unaffected; the CSR ABI kept every register |
 | **NFR-\*** | unchanged in kind | The budgets and bounds still apply. Two are worth re-reading against the new plane: **NFR-LAT-01** (the presentation-time bound is now the Milan **2 ms default and is not configurable**, since `SET_MAX_TRANSIT_TIME` is unimplemented — a default, not a zero) and **NFR-SCUP-04** (the AEM memory it sizes has moved out of the gateware into main memory) |
@@ -159,7 +159,7 @@ inventory, including READ_DESCRIPTOR and GET_COUNTERS.** The tracked builder
 and board flow supply the descriptor image. Unsupported commands receive the
 conformant fallback, and the current audit lists the remaining mandatory gaps.
 
-### 2.1 Discovery  -  ADP  *(1722.1-2021 §6; Milan v1.2 §5.2)*
+### 2.1 Discovery  -  ADP  *(1722.1-2021 Section 6; Milan v1.2 Section 5.2)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
 | FR-DISC-01 | The entity MUST advertise `ENTITY_AVAILABLE` ADPDUs and re-advertise within `valid_time`, incrementing `available_index` on every state change. | M | T |
@@ -168,7 +168,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-DISC-04 | Advertised fields (`entity_id`, `entity_model_id`, capabilities, talker/listener counts, `gptp_grandmaster_id`, `identify_control_index`, `interface_index`) MUST equal the ENTITY descriptor in the entity model. | M | T,I |
 | FR-DISC-05 | `entity_id` MUST be an EUI-64 derived from the AVB_INTERFACE MAC and be stable across reboots. | M | A |
 
-### 2.2 Enumeration & control  -  AECP/AEM  *(1722.1-2021 §7,§9; Milan v1.2 §5.3–5.4)*
+### 2.2 Enumeration & control  -  AECP/AEM  *(1722.1-2021 Sections 7 and 9; Milan v1.2 Section 5.3–5.4)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
 | FR-ENUM-01 | The entity MUST serve every descriptor in the model via `READ_DESCRIPTOR`, byte-matching the JSON entity model. | M | T |
@@ -180,14 +180,14 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-CTRL-05 | `GET_DYNAMIC_INFO` (fast enumeration) MUST be supported per Milan v1.2 5.4.2.29. | M | T |
 | FR-CTRL-06 | AECP MUST validate `control_data_length`, `message_type=AEM_COMMAND`, and target `entity_id`; malformed/unsupported commands MUST return the correct AECP status (`NOT_IMPLEMENTED`, `BAD_ARGUMENTS`, `ENTITY_LOCKED`, …). | M | T |
 
-### 2.3 Milan Vendor Unique  -  MVU  *(Milan v1.2 §5.4.3)*
+### 2.3 Milan Vendor Unique  -  MVU  *(Milan v1.2 Section 5.4.3)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
 | FR-MVU-01 | The entity MUST implement the MVU protocol (`protocol_id 00-1B-C5-0A-C1-00`) and answer `GET_MILAN_INFO` with `protocol_version`, `features_flags`, `certification_version`. | M | T |
 | FR-MVU-02 | `GET/SET_SYSTEM_UNIQUE_ID` and `GET/SET_MEDIA_CLOCK_REFERENCE_INFO` MUST be supported. | M | T |
 | FR-MVU-03 | `features_flags.MILAN_REDUNDANCY` MUST report 0 (redundancy out of scope). | M | I |
 
-### 2.4 Connection management  -  ACMP  *(1722.1-2021 §8; Milan v1.2 §5.5)*
+### 2.4 Connection management  -  ACMP  *(1722.1-2021 Section 8; Milan v1.2 Section 5.5)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
 | FR-CONN-01 | The entity MUST support `CONNECT_TX/RX`, `DISCONNECT_TX/RX`, `GET_TX/RX_STATE` as talker and listener. | M | T |
@@ -195,7 +195,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-CONN-03 | ACMP MUST implement the Milan **fast-connect** / state-restore behavior (re-establish saved connections on power-up/link-up). | M | T |
 | FR-CONN-04 | Connection state MUST persist (nonvolatile) across reboot for fast-connect. | S | T |
 
-### 2.5 Addressing & reservation  -  MAAP, SRP  *(1722 Annex B; 802.1Qat/Qak; Milan §5.6)*
+### 2.5 Addressing & reservation  -  MAAP, SRP  *(1722 Annex B; 802.1Qat/Qak; Milan Section 5.6)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
 | FR-MAAP-01 | The talker MUST allocate stream destination multicast MACs via MAAP (PROBE/DEFEND/ANNOUNCE) and defend them. | M | T |
@@ -203,7 +203,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-SRP-02 | The entity MUST register the stream VLAN via MVRP. | M | T |
 | FR-SRP-03 | On reservation grant the CBS shaper MUST be configured to the reserved idleSlope; on failure the stream MUST NOT transmit. | M | T |
 
-### 2.6 Time & media clock  -  gPTP, CRF  *(802.1AS; 1722-2016 §10; Milan §5.7)*
+### 2.6 Time & media clock  -  gPTP, CRF  *(802.1AS; 1722-2016 Section 10; Milan Section 5.7)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
 | FR-CLK-01 | The entity MUST run 802.1AS gPTP as a time-aware endpoint (Class A), sync to the grandmaster, and report GM changes. | M | T |
@@ -212,7 +212,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-CLK-04 | As a media-clock talker the entity MUST source a CRF stream; as a follower it MUST recover media clock from CRF or the input stream. | M | T |
 | FR-CLK-05 | HW ingress/egress timestamps MUST be captured at the GMII SFD and exposed to the driver for `SO_TIMESTAMPING`. | M | T |
 
-### 2.7 Streaming  -  AVTP AAF talker/listener  *(1722-2016 §7; Milan §6)*
+### 2.7 Streaming  -  AVTP AAF talker/listener  *(1722-2016 Section 7; Milan Section 6)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
 | FR-STR-01 | The talker MUST encapsulate `P_CH`-channel AAF PCM (48 kHz, 32-bit, 6 samples/frame, Class A) with a valid AVTP presentation time = capture time + offset. | M | T |
@@ -221,7 +221,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-STR-03a | The **talker** sources a **fixed** format (this device: stereo/2 ch); "stereo" is a talker property only. A talker with multiple producible formats MAY list them, but the transmitted format is fixed per connection. | M | I,T |
 | FR-STR-03b | When adapting to a talker with more channels than the device renders, the listener MUST render the mapped subset (AUDIO_MAP) and MUST still lock/validate the full advertised format. | M | T |
 | FR-STR-04 | The listener MUST maintain the STREAM_INPUT counters (MEDIA_LOCKED/UNLOCKED, LATE/EARLY_TIMESTAMP, SEQ_NUM_MISMATCH, UNSUPPORTED_FORMAT, …) and recover from stream faults (MEDIA_RESET) per Milan. | M | T |
-| FR-STR-05 | Baseline: `P_SI=1`, `P_SO=1`, talker `P_CH=2`, listener advertises the base set; the design MUST be parameterized so `P_CH`, `P_SI`, `P_SO`, `P_SR` scale without protocol changes (see §4). | M | I,A |
+| FR-STR-05 | Baseline: `P_SI=1`, `P_SO=1`, talker `P_CH=2`, listener advertises the base set; the design MUST be parameterized so `P_CH`, `P_SI`, `P_SO`, `P_SR` scale without protocol changes (see Section 4). | M | I,A |
 
 ### 2.8 QoS datapath  -  802.1Q / 802.1Qav  *(already in HW)*
 | ID | Requirement | Pri | Ver |
@@ -230,7 +230,7 @@ conformant fallback, and the current audit lists the remaining mandatory gaps.
 | FR-QOS-02 | The CBS (802.1Qav) MUST shape SR queues to their idleSlope with hi/lo credit; non-SR traffic MUST use strict priority (unshaped). | M | T |
 | FR-QOS-03 | Σ idleSlope of shaped queues MUST NOT exceed 75 % of port rate. | M | A,T |
 
-### 2.9 Management  *(Milan §5.3.3.10)*
+### 2.9 Management  *(Milan Section 5.3.3.10)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
 | FR-MGT-01 | The IDENTIFY CONTROL MUST put the device into identification mode while its value ≠ 0. | M | T |
@@ -264,8 +264,8 @@ The `kl,dma-ether` node describes the HW to the driver. Binding schema:
 |----|-------------|-----|-----|
 | FR-DT-01 | The node MUST set `compatible = "kl,dma-ether-0.9"` (matches the driver `of_match` + the CSR `VERSION`); the DT `reg` MUST cover the **CSR window** (64 KB) and the **DMA register blocks**, each with `reg-names`. The CSR *base* is host-specific and the requirement is on the window, not on a literal: **`0x9000_0000` on the shipping softcore build** (`MILAN_CSR_BASE` in [`sw/builder/endstation_builder.py`](../../sw/builder/endstation_builder.py); the AXI-Lite slave must sit in the CPU IO region at or above `0x8000_0000`), `0x43C0_0000` on the retired Zynq PS build. Both are recorded in the binding, [`sw/dts/bindings/kl,dma-ether.yaml`](../../sw/dts/bindings/kl,dma-ether.yaml). | M | I,T |
 | FR-DT-02 | `interrupts` (or `interrupts-extended`) MUST list the four sources (tx-dma, rx-dma, ts-dma, csr) against the SoC interrupt controller (`&plic` on the RISC-V SoC, `&intc`/`IRQ_F2P` on Zynq), with `interrupt-names`. | M | I,T |
-| FR-DT-03 | Queue counts MUST be declared: `kl,txq-cnt`/`kl,rxq-cnt` (= `CAP.num_queues`), and **`kl,shaped-queues`** MUST list which queues are CBS-shaped (a bitmap/phandle-list)  -  reset **`<>`** (empty: `CBS_EN_RST = 0b00000`, every queue powers up unshaped), consistent with `REGISTER_MAP` §0x400 and the five-queue map in [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md). | M | I,T |
-| FR-DT-04 | PHY MUST be described: a child `mdio` bus with the PHY node, `phy-handle`, a `phy-mode` matching how the board actually wires the PHY, and `phy-reset-gpios` (`REQ-MAC-06`). The shipping builder derives the string from `board.constraints.phy` — **`"gmii"`** on the AX7101 (8-bit SDR, the §2 correction in [BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md)) and `"mii"` on the Arty; `"rgmii-id"` appears only in the retired [`sw/dts`](../../sw/dts) artifacts and is wrong for both boards. | M | I,T |
+| FR-DT-03 | Queue counts MUST be declared: `kl,txq-cnt`/`kl,rxq-cnt` (= `CAP.num_queues`), and **`kl,shaped-queues`** MUST list which queues are CBS-shaped (a bitmap/phandle-list)  -  reset **`<>`** (empty: `CBS_EN_RST = 0b00000`, every queue powers up unshaped), consistent with `REGISTER_MAP` Section 0x400 and the five-queue map in [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md). | M | I,T |
+| FR-DT-04 | PHY MUST be described: a child `mdio` bus with the PHY node, `phy-handle`, a `phy-mode` matching how the board actually wires the PHY, and `phy-reset-gpios` (`REQ-MAC-06`). The shipping builder derives the string from `board.constraints.phy` -- **`"gmii"`** on the AX7101 (8-bit SDR, the Section 2 correction in [BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md)) and `"mii"` on the Arty; `"rgmii-id"` appears only in the retired [`sw/dts`](../../sw/dts) artifacts and is wrong for both boards. | M | I,T |
 | FR-DT-05 | `local-mac-address`/`mac-address` MUST be honoured (else derive from a stable source); the driver seeds the AVDECC `entity_id` (EUI-64) from it (`FR-DISC-05`). | M | T |
 | FR-DT-06 | PTP MUST be discoverable: a `ptp` sub-node or `kl,ptp` props so the driver registers the PHC on the `0x500` CSRs (fixed-125 MHz clock ref, `FR-CLK-02`). | S | I |
 | FR-DT-07 | Optional `clocks`/`clock-names` for `axis`/`gtx`/`ptp`; the node MUST bind with them absent (driver falls back to the fixed rates). | S | T |
@@ -297,12 +297,12 @@ The `kl,dma-ether` node describes the HW to the driver. Binding schema:
 | NFR-SCUP-01 | The entity model, driver, and datapath MUST be parameterized by `P_CH`, `P_SI`, `P_SO`, `P_SR` so a larger endpoint (e.g. 8-ch, 48/96/192 kHz  -  the full entity model) is a configuration change, not a redesign. | M | A,I |
 | NFR-SCUP-02 | Increasing `P_CH`/`P_SR` MUST only linearly increase bandwidth, buffer, and DSP; the control plane (ADP/AECP/ACMP) MUST be unaffected. | M | A |
 | NFR-SCUP-03 | FPGA resource use MUST stay within the `xc7a100t` budget at the largest supported single-node profile (document the profile that first exceeds it). | S | A |
-| NFR-SCUP-04 | The AEM memory (HW 4-level) MUST size from the JSON model at build time so more descriptors need no RTL edit. **Re-pointed 2026-08-13: there is no AEM memory in this gateware** — the processor's uCPU serves descriptors out of a flat image in main memory at a compile-time base, so "sizing" becomes "generating and loading the image", and **that build step does not exist here** (§2.0). The requirement stands, against the new subject. | S | I |
+| NFR-SCUP-04 | The AEM memory (HW 4-level) MUST size from the JSON model at build time so more descriptors need no RTL edit. **Re-pointed 2026-08-13: there is no AEM memory in this gateware** -- the processor's uCPU serves descriptors out of a flat image in main memory at a compile-time base, so "sizing" becomes "generating and loading the image", and **that build step does not exist here** (Section 2.0). The requirement stands, against the new subject. | S | I |
 
 ### 3.4 Scale-**out** (more than one softcore)  *(the key architectural NFR)*
 | ID | Requirement | Pri | Ver |
 |----|-------------|-----|-----|
-| NFR-SCOUT-01 | The architecture MUST support `P_CORES ≥ 2` RISC-V softcores. Two models MUST both be buildable: **(a) SMP** (NaxRiscv coherent multi-core, one Linux image) and **(b) AMP** (independent cores by plane, see §4.3). | M | A,D |
+| NFR-SCOUT-01 | The architecture MUST support `P_CORES ≥ 2` RISC-V softcores. Two models MUST both be buildable: **(a) SMP** (NaxRiscv coherent multi-core, one Linux image) and **(b) AMP** (independent cores by plane, see Section 4.3). | M | A,D |
 | NFR-SCOUT-02 | Work MUST partition across cores along the **control / media / time** planes with well-defined interfaces, so adding a core adds capacity without reworking protocol logic. | M | A |
 | NFR-SCOUT-03 | Inter-core communication MUST use a defined shared-memory + mailbox/IPI mechanism with bounded latency; the real-time media plane MUST NOT block on the control plane. | M | A,T |
 | NFR-SCOUT-04 | Shared HW resources (PHC, MAC, CSR, DMA queues) MUST be safely arbitrated across cores (single owner or lock-free per-core queues); the PHC MUST present a single coherent time to all cores. | M | A,T |
@@ -403,7 +403,7 @@ cites the FRs it satisfies and the milestone in
 11. **Conformance**  -  run the internal Milan conformance plan (bench suite) + `srcs/the-private-test-repo`
     (`avdecc_l2.py`, `ptp4l`, `tc cbs`) and the `tsn-gen` AECP PDU checks. *(all Ver=T)*
 12. **Scale**  -  re-run with the full entity model (8-ch, 48/96/192k) and with
-    `P_CORES ≥ 2` (SMP then AMP) to prove §3.3/§3.4. *(NFR-SCUP/SCOUT)*
+    `P_CORES ≥ 2` (SMP then AMP) to prove Sections 3.3/3.4. *(NFR-SCUP/SCOUT)*
 
 > Milan features intentionally **out of scope for now** (documented, not required
 > here): seamless network **redundancy** (single interface), sample rates beyond
@@ -415,16 +415,16 @@ cites the FRs it satisfies and the milestone in
 
 | Area | FR/NFR | Milan v1.2 | Entity model | Plan milestone |
 |------|--------|-----------|--------------|----------------|
-| Discovery | FR-DISC-\* | §5.2 | `adp`, ENTITY | M-B2 — processor (§2.0) |
-| Enum/Control | FR-ENUM/CTRL | §5.3–5.4 | full descriptor tree | M-B3, processor AECP uCPU plus builder-generated image and `aemi-load`; the served inventory and mandatory gaps are listed in §2.0 |
-| MVU | FR-MVU-\* | §5.4.3 | `milan_mvu` | M-B3 — **NOT IMPLEMENTED**, no `protocol_id` recognised (§2.0) |
-| Connection | FR-CONN-\* | §5.5 | STREAM_\*, CBS CSR | M-B4 — processor; fast-connect/persistence **NOT MET** |
-| MAAP/SRP | FR-MAAP/SRP | §5.6 | STREAM_\*, classifier/CBS | M-B5 — MAAP in fabric, SRP on the processor |
-| Time/clock | FR-CLK-\* | §5.7 | CLOCK_DOMAIN/SOURCE, CRF | M-A5, M-B4 |
-| Streaming | FR-STR-\* | §6 | STREAM_INPUT/OUTPUT | (D5) |
+| Discovery | FR-DISC-\* | Section 5.2 | `adp`, ENTITY | M-B2 -- processor (Section 2.0) |
+| Enum/Control | FR-ENUM/CTRL | Section 5.3–5.4 | full descriptor tree | M-B3, processor AECP uCPU plus builder-generated image and `aemi-load`; the served inventory and mandatory gaps are listed in Section 2.0 |
+| MVU | FR-MVU-\* | Section 5.4.3 | `milan_mvu` | M-B3 -- **NOT IMPLEMENTED**, no `protocol_id` recognised (Section 2.0) |
+| Connection | FR-CONN-\* | Section 5.5 | STREAM_\*, CBS CSR | M-B4 -- processor; fast-connect/persistence **NOT MET** |
+| MAAP/SRP | FR-MAAP/SRP | Section 5.6 | STREAM_\*, classifier/CBS | M-B5 -- MAAP in fabric, SRP on the processor |
+| Time/clock | FR-CLK-\* | Section 5.7 | CLOCK_DOMAIN/SOURCE, CRF | M-A5, M-B4 |
+| Streaming | FR-STR-\* | Section 6 | STREAM_INPUT/OUTPUT | (D5) |
 | QoS | FR-QOS-\* | 802.1Q/Qav |  -  (HW) | M-A5 |
-| Scale-up | NFR-SCUP-\* |  -  | small ↔ full JSON | §A/§B params |
-| Scale-out | NFR-SCOUT-\* |  -  | replicated entity | §4 (SMP/AMP) |
+| Scale-up | NFR-SCUP-\* |  -  | small ↔ full JSON | Section A/Section B params |
+| Scale-out | NFR-SCOUT-\* |  -  | replicated entity | Section 4 (SMP/AMP) |
 
 ## 7. Verification approach
 - **HW leaf blocks:** Verilator self-checking harnesses (CBS, classifier, PTP,
@@ -441,7 +441,7 @@ cites the FRs it satisfies and the milestone in
   the rest measure the echo's header discipline, which is the conformance floor
   and not command coverage. The AAF campaign survives unchanged.
 - **Conformance:** the internal Milan conformance plan (bench suite). Expect
-  the AECP/AEM clause rows to fail, and record them as failing — §2.0 is the
+  the AECP/AEM clause rows to fail, and record them as failing -- Section 2.0 is the
   reason, not an excuse to re-grade them. **A conformant refusal is not a pass**:
   a row asking what a command DOES is not answered by the fact that it replies.
 - **Scale:** repeat the suite at the full profile and at `P_CORES=2..N` (SMP, AMP).

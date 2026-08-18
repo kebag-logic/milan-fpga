@@ -29,7 +29,7 @@ responder is the processor's AECP uCPU, inside the submodule and reached through
 the same wrapper. `READ_DESCRIPTOR` (0x0004) returns `SUCCESS` with
 `configuration_index`, the reserved field and the descriptor, `NO_SUCH_DESCRIPTOR`
 on a locate miss and `BAD_ARGUMENTS` on a bad configuration index — both error
-paths carrying the IEEE 1722.1 §7.4.5 4-byte `{descriptor_type,
+paths carrying the IEEE 1722.1 Section 7.4.5 4-byte `{descriptor_type,
 descriptor_index}` stub. Implemented operations use their command-specific
 behavior; unsupported opcodes and message types get the conformant fallback.
 `IDENTIFY_NOTIFICATION` as a *command* is
@@ -44,7 +44,7 @@ fallback. The Milan Table 5.22 unsolicited counter-change scheduler, name
 access, stream-format and stream-info setters, and saved-state persistence
 remain absent. Live audio-map mutation is implemented. A
 stated capability boundary from an informed decision, not a regression and not a
-temporary blip. §1.2 names what it costs module by module.
+temporary blip. Section 1.2 names what it costs module by module.
 
 These repeated claims are checked against the
 [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
@@ -71,12 +71,12 @@ image lacks the requested descriptor. The store never hangs on a failed read: a
 
 ## Contents
 
-- **[0. Global conventions](#0-global-conventions)** — The four rules every module obeys: 64-bit big-endian AXIS (wire order *is* memory order, so the CPU never byte-swaps), AXI4-Lite CSR decoded in 0x100 groups, house style, no vendor primitives. Also flags one relic — the `AXIS_TDEST_WIDTH 2` define is dead outside the legacy xsim TBs.
-- **[1. Top level - two wrappers, one datapath](#1-top-level---two-wrappers-one-datapath)** — What each wrapper adds around the same datapath, and the TX/RX/TS pipeline drawn out. The sentence that changes how you read every other page: only CPU-originated frames traverse the classifier, the queues and the CBS — the fabric engines inject *after* the shaper and the RX media path taps *before* the dest-MAC filter. §1.1 adds the audio chain as composed on main, both new stages defaulting to bypass; §1.2 is the four-mux TX arbiter cascade and the three functional losses the AECP boundary costs.
-- **[2. Module inventory (from the RTL banners; refreshed 2026-08-13)](#2-module-inventory-from-the-rtl-banners-refreshed-2026-08-13)** — Every module in `hdl/`, one row each, grouped by directory, with descriptions lifted from the RTL banners. It states no total on purpose: the live count belongs to the generated matrix, and `ls hdl/` is the authority.
-- **[3. Clock domains & CDC (complete inventory)](#3-clock-domains--cdc-complete-inventory)** — Which of the four domains each block lives in, and the complete crossing list — all plain-FF or handshake, no vendor macros. Explains why the timestamp metadata FIFOs are deliberately same-clock: the crossing already happened upstream in `ptp_ts_core`.
-- **[4. What is \*not\* in hdl/ (and where it lives instead)](#4-what-is-not-in-hdl-and-where-it-lives-instead)** — Four things you will hunt for in the RTL tree and not find. Mainly the ring-DMA engines, which are Migen inside `milan_soc.py` rather than SystemVerilog, and the MAC, which is external by design.
-- **[5. Per-module doc regeneration](#5-per-module-doc-regeneration)** — How the `hdl/**/doc/*.md` pages are produced, which three are hand-written exceptions, and the current list of modules with no page at all. Tie-break rule if a page lags: the RTL wins.
+- **[0. Global conventions](#0-global-conventions)** -- The four rules every module obeys: 64-bit big-endian AXIS (wire order *is* memory order, so the CPU never byte-swaps), AXI4-Lite CSR decoded in 0x100 groups, house style, no vendor primitives. Also flags one relic -- the `AXIS_TDEST_WIDTH 2` define is dead outside the legacy xsim TBs.
+- **[1. Top level - two wrappers, one datapath](#1-top-level---two-wrappers-one-datapath)** -- What each wrapper adds around the same datapath, and the TX/RX/TS pipeline drawn out. The sentence that changes how you read every other page: only CPU-originated frames traverse the classifier, the queues and the CBS -- the fabric engines inject *after* the shaper and the RX media path taps *before* the dest-MAC filter. Section 1.1 adds the audio chain as composed on main, both new stages defaulting to bypass; Section 1.2 is the four-mux TX arbiter cascade and the three functional losses the AECP boundary costs.
+- **[2. Module inventory (from the RTL banners; refreshed 2026-08-13)](#2-module-inventory-from-the-rtl-banners-refreshed-2026-08-13)** -- Every module in `hdl/`, one row each, grouped by directory, with descriptions lifted from the RTL banners. It states no total on purpose: the live count belongs to the generated matrix, and `ls hdl/` is the authority.
+- **[3. Clock domains & CDC (complete inventory)](#3-clock-domains--cdc-complete-inventory)** -- Which of the four domains each block lives in, and the complete crossing list -- all plain-FF or handshake, no vendor macros. Explains why the timestamp metadata FIFOs are deliberately same-clock: the crossing already happened upstream in `ptp_ts_core`.
+- **[4. What is \*not\* in hdl/ (and where it lives instead)](#4-what-is-not-in-hdl-and-where-it-lives-instead)** -- Four things you will hunt for in the RTL tree and not find. Mainly the ring-DMA engines, which are Migen inside `milan_soc.py` rather than SystemVerilog, and the MAC, which is external by design.
+- **[5. Per-module doc regeneration](#5-per-module-doc-regeneration)** -- How the `hdl/**/doc/*.md` pages are produced, which three are hand-written exceptions, and the current list of modules with no page at all. Tie-break rule if a page lags: the RTL wins.
 
 ## 0. Global conventions
 
@@ -91,7 +91,7 @@ image lacks the requested descriptor. The store never hangs on a failed read: a
 * **Style:** SystemVerilog, `` `default_nettype none ``, TerosHDL `//!`
   comments on every generic/port/signal, named `always_*` processes.
 * **No vendor primitives** - see
-  [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §2 for
+  [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) Section 2 for
   the audited inventory of the few vendor-*attributes* that remain.
 
 ## 1. Top level - two wrappers, one datapath
@@ -242,7 +242,7 @@ this table whenever `hdl/` changes shape.
 
 | module | description |
 |---|---|
-| `KL_aaf_capture_i2s` | physical-interface audio capture front-end (NXN §2.1 / P4): the I2S/CDC half |
+| `KL_aaf_capture_i2s` | physical-interface audio capture front-end (NXN Section 2.1 / P4): the I2S/CDC half |
 | `KL_aaf_latency_chain` / `KL_aaf_latency_taps` | per-stage TX/RX latency tap chains (item-11) feeding the `LTAP` CSR group at `0x870` |
 | `KL_aaf_packetizer` | shared NxN AAF talker packetizer |
 | `KL_aaf_rx_depacketizer` | AAF RX payload extractor for the bound listener sink |
@@ -272,7 +272,7 @@ this table whenever `hdl/` changes shape.
 | `KL_avtp_rx_monitor` | single-sink STREAM_INPUT diagnostic-counter engine |
 | `KL_avtp_rx_monitor_ctx` | shared NxN STREAM_INPUT diagnostic-counter engine — **live**, feeding the `0x6B8` `A_STRMW_CNT` window |
 | `KL_media_clock_restart` | the AVTP `mr` (media clock restart) level this end station transmits |
-| `KL_stream_table` | NxN stream-table authority (classification, §1.1 of the NxN doc) |
+| `KL_stream_table` | NxN stream-table authority (classification, Section 1.1 of the NxN doc) |
 | `KL_talker_diag_ctx` | Milan v1.2 Table 5.4 per-Stream-Output counters, instantiated once per declared AAF output plus CRF when present. Solicited GET_COUNTERS serves its compact five-counter layout; the Table 5.22 notification scheduler remains open. Its own suite is `tb/verilator/tkdiag` |
 | `avtp_stream_parser` | AVTP stream-id + presentation-time extractor; carries the N-entry match table |
 
@@ -280,7 +280,7 @@ this table whenever `hdl/` changes shape.
 
 | module | description |
 |---|---|
-| `KL_crf_rx` | Milan CRF Media Clock Input engine (measurement half) — still parses, counts and reports; it just cannot steer anything (§1.2) |
+| `KL_crf_rx` | Milan CRF Media Clock Input engine (measurement half) -- still parses, counts and reports; it just cannot steer anything (Section 1.2) |
 | `KL_crf_tx` | Milan CRF Media Clock Output engine (talker half), on the data lane |
 | `KL_media_nco` | the steerable media-clock sample grid — **structurally off**: its packet-grid servo had no source but a selected CRF clock |
 | `KL_mmcm_drp_servo` | the audio-MMCM recovery ACTUATOR — **structurally off** for the same reason; `A_MCSRV_STAT` (`0x8F8`) reads its idle |
@@ -295,7 +295,7 @@ this table whenever `hdl/` changes shape.
 
 | module | description |
 |---|---|
-| `adp_tx_arbiter` | two-input AXIS **packet** arbiter. The name is historical: it is generic, and the four-mux TX cascade of §1.2 is four instances of it |
+| `adp_tx_arbiter` | two-input AXIS **packet** arbiter. The name is historical: it is generic, and the four-mux TX cascade of Section 1.2 is four instances of it |
 
 > The former *ieee17221/aecp*, *ieee17221/acmp* and *ieee8021q/srp* directories
 > no longer exist. The AECP/AEM engine, both ACMP engines, the ADP advertiser
@@ -353,7 +353,7 @@ style: `//!` port docs); this table is the index, not the spec.
 
 | Domain | Contents |
 |---|---|
-| `axis_clk` (100 MHz `cd_milan` in the deployed LiteX build; ~50 MHz only when split via `--milan-clk-freq`) | all of §2 except the PHC |
+| `axis_clk` (100 MHz `cd_milan` in the deployed LiteX build; ~50 MHz only when split via `--milan-clk-freq`) | all of Section 2 except the PHC |
 | `gtx_clk` (125 MHz) | `timestamp_counter` (PHC), MAC-side timestamp capture |
 | MAC RX recovered clock | inside the external MAC only |
 | host clocks (PS7 / LiteX `sys`, `sys4x`, `idelay`) | outside the datapath |
@@ -364,7 +364,7 @@ Crossings - all in-fabric, all `(* ASYNC_REG *)` plain-FF or handshake based
 value), the 2-FF `i_mac_speed` sync in the wrappers. Timestamp metadata
 FIFOs are same-clock (`axis_clk`) on purpose - the crossing happens in
 `ptp_ts_core`/`ptp_csr_sync`, not in the FIFOs. Constraint requirements per
-toolchain: [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §4.5.
+toolchain: [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) Section 4.5.
 
 ## 4. What is *not* in `hdl/` (and where it lives instead)
 

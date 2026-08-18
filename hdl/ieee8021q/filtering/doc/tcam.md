@@ -3,7 +3,7 @@
 **Module:** [`hdl/ieee8021q/filtering/tcam.sv`](../tcam.sv)
 **Verification:** [`tb/verilator/tcam/`](../../../../tb/verilator/tcam) — 19 self-checks, PASS
 **Relates to:** `REQ-MAC-02` (RX MAC filtering), `MC_HASH_*` CSR, the AVDECC/gPTP
-control-frame tap (`OPEN`/migration §B.1).
+control-frame tap (`OPEN`/migration Section B.1).
 
 ## Contents
 

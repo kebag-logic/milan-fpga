@@ -94,12 +94,12 @@ the report is careful never to call them that:
   **Verdict on trustworthiness:** the median cadence and the xrun count are
   unaffected, so the timeline is sound for *attributing* stalls. The tail
   statistics measured *under* perf are inflated by roughly one millisecond
-  at p99 and should not be quoted as the system's own tail — §4 quotes the
+  at p99 and should not be quoted as the system's own tail -- Section 4 quotes the
   perf-free runs for that.
 * `perf record` also lengthens the enclosing script: `c1`'s `/proc/stat`
   window is 279.6 s for a 127.1 s run (perf spends the difference writing
   and folding its 5.8 MB capture), so **`c1`'s per-thread percentages are
-  diluted and are not used** — §6 quotes `a4` and `b1`.
+  diluted and are not used** -- Section 6 quotes `a4` and `b1`.
 
 ## 2. The instrument
 
@@ -188,7 +188,7 @@ Three further results contradict what was previously written down:
    `a2` runs at the stock PREEMPT_RT `ktimers/0` priority of FIFO 1 — below
    `napi` (50) — and **survives the full file** with a single 2.1 ms xrun.
    The period count alone is what separates `a1` from `a2`. Raising
-   `ktimers/0` is still worth doing (it takes xruns from 1 to 0, and §6
+   `ktimers/0` is still worth doing (it takes xruns from 1 to 0, and Section 6
    shows it cuts late wakeups from 56 to 1), but it is a *refinement*, not
    the fix.
 2. **Stopping PipeWire is not required for survival.** `a4` keeps the whole
@@ -257,7 +257,7 @@ the accompanying message is `pcm_dbg`, so with `CONFIG_SND_DEBUG` off it
 never reaches `dmesg` — which is why this failure has always looked like it
 had no kernel-side evidence at all.
 
-That reading makes both deaths the **same** phenomenon as §4, not a separate
+That reading makes both deaths the **same** phenomenon as Section 4, not a separate
 one. The writer blocks only when the ring is nearly full, and it needs
 `avail_min` = one period of consumption to make progress:
 
@@ -269,7 +269,7 @@ one. The writer blocks only when the ring is nearly full, and it needs
 For the timeout to expire, the writer must go 100 ms without a wakeup that
 leaves it enough room — i.e. `snd_pcm_period_elapsed()` (which is what wakes
 `runtime->tsleep`) must be starved for longer than 100 ms. The measured
-stall distribution has a 60–67 ms maximum per 120 s window (§4), so a >100 ms
+stall distribution has a 60–67 ms maximum per 120 s window (Section 4), so a >100 ms
 excursion is simply the tail of the same distribution, and the large `twake`
 at 2 periods is what turns such an excursion into a fatal one instead of a
 recoverable one.
@@ -285,7 +285,7 @@ because the one thing that *would* still indicate a stalled consumer is
 
 **The hunt ran (`matrix-followup.txt` pass `f`) and did not catch a death** —
 `f1` survived its 150 s window to EOF with zero aplay xruns, which is the
-coin-flip result §3 predicts. So the stalled-consumer hypothesis is **still
+coin-flip result Section 3 predicts. So the stalled-consumer hypothesis is **still
 untested**, not refuted. What the run *does* establish is the healthy
 baseline it was meant to be compared against: across the sampled window
 `hw_ptr` advanced **strictly monotonically at 47 730 frames/s** against a
@@ -306,7 +306,7 @@ they came from:
   knowing before concluding a board has crashed: *ping fast + ssh dead* is a
   scheduling symptom here, not a hang.
 
-§7's recommendations are written so that none of them depends on the
+Section 7's recommendations are written so that none of them depends on the
 unanswered question.
 
 ## 4. The mechanism: wake lateness vs tolerance, not CPU
@@ -398,10 +398,10 @@ Two consequences follow, and the second one is the important one:
 * **Tolerance can never exceed 85.3 ms — the ring itself — no matter how
   many periods.** As period → 0, tolerance → `buffer`. So **no geometry
   change can absorb an excursion longer than the ring.** If the fatal
-  `-EIO` events (§3) really are driven by >85 ms excursions, period count
+  `-EIO` events (Section 3) really are driven by >85 ms excursions, period count
   cannot fix them; only removing the excursions or deepening the ring can.
   That is a structural statement about this ring, not a tuning opinion, and
-  it is what re-opens the ring-depth question in §7.
+  it is what re-opens the ring-depth question in Section 7.
 
 Two honest caveats on this table:
 
@@ -412,7 +412,7 @@ Two honest caveats on this table:
   **start-up transient**, before the ring first reached full. It is not
   evidence about steady state.
 * The 120 s windows here caught max latenesses of 56 ms; the fatal `a1`/`a6`
-  events imply excursions beyond 100 ms (§3) that no probe window happened
+  events imply excursions beyond 100 ms (Section 3) that no probe window happened
   to contain. The distribution's tail is therefore **bounded below, not
   characterised** — a longer soak would be needed to state it.
 
@@ -542,7 +542,7 @@ no CPU term in it. Eliminating **all** copy cost — the full 21.3 points that
 `copy_duty` + `read_duty` come to — would not buy one microsecond of
 tolerance.
 
-The direct evidence that the writer is not the bottleneck is already in §4:
+The direct evidence that the writer is not the bottleneck is already in Section 4:
 `writei` p50 is **1.15 ms against a 10.67 ms period**, so the writer finishes
 its work in ~11% of the time it has, with 9× headroom. It is not late
 because it is slow; it is late because it is not *scheduled*. And the fatal
@@ -550,7 +550,7 @@ geometry is the **cheaper** one.
 
 What `-Z`/`-Y` *can* do is second-order and worth measuring: by handing
 ~20 points of hart back, they reduce contention, which should reduce the
-**frequency and size of the lateness excursions** that §4 shows are the real
+**frequency and size of the lateness excursions** that Section 4 shows are the real
 killer. That is a change to the *input* distribution, not to the tolerance
 budget. The queued pass records max lateness and `late >2×` counts for
 exactly this reason. If those tails shrink materially, zero-copy becomes a
@@ -564,7 +564,7 @@ own comment records an "mf52 WC-read anomaly" that made byte-granular access
 through this mapping untrustworthy — which is precisely why the kernel copy
 path bounces through a stack buffer and uses aligned 64-bit stores. This
 audit measured **timing only**; audio correctness under `-M`/`-Z` is
-untested (§8).
+untested (Section 8).
 
 ## 6. Where the hart actually goes
 
@@ -650,14 +650,14 @@ hold a 10.67 ms audio deadline.
 
 This is measured, not styled: it is why `sleep`, `awk`, `pmc` and `devmem`
 appear as *top-ten CPU consumers* in a profile of an audio workload. It also
-explains the shape seen in §4 — rare, large excursions rather than a broad
+explains the shape seen in Section 4 -- rare, large excursions rather than a broad
 slowdown — because a fork storm is bursty.
 
 Two notes on reading this table honestly:
 
 * **`dropbear` 11.5% is my own contamination**, not a property of the
   system: I polled progress over ssh during this run. It independently
-  reproduces the ~9.6% ssh cost measured in §1 by a different method, which
+  reproduces the ~9.6% ssh cost measured in Section 1 by a different method, which
   is a useful confirmation, but a clean run would show ~0 there. Excluding
   it and renormalising: player 27.0%, shell loops 35.3%, network 15.6%,
   `ktimers/0` 12.0%.
@@ -731,7 +731,7 @@ sleeping between periods**, so this table is "how the hart is shared", not
 Consistent with all of this, `c1`'s worst clean off-CPU interval (25.1 ms)
 is far inside the 74.7 ms tolerance, and `c1` took **zero** xruns. **The
 fatal >100 ms class of excursion was not captured in any probe window** —
-see §4's second caveat.
+see Section 4's second caveat.
 
 ## 7. Verdict and shipping recommendation
 
@@ -744,7 +744,7 @@ with **zero xruns** at 8ch/48k on a 1-hart 100 MHz core at 0% idle.
 versus lateness excursions repeatedly measured at 50–56 ms and, in the fatal
 cases, above 100 ms.** It is *not* CPU-bound (the fatal
 geometry uses 10 points less CPU than the surviving one), *not* copy-bound
-(§5), and not ring-depth-bound in the sense usually meant: the ring is
+(Section 5), and not ring-depth-bound in the sense usually meant: the ring is
 already 85.3 ms and the *whole* of it is never the margin — the period size
 is subtracted from it.
 
@@ -806,7 +806,7 @@ Recommendations, in the order they are worth doing:
    available and it is not an audio change at all.** `gptp2csr.sh`,
    `stream_phc_sync.sh` and `linkmon.sh` plus the `pmc`/`awk`/`devmem`/
    `sleep`/`cat`/`date` they fork every iteration measure **31.2% of the
-   hart** (§6) — more than the audio player. On a 100 MHz softcore a
+   hart** (Section 6) -- more than the audio player. On a 100 MHz softcore a
    fork+exec costs milliseconds, so a polling loop written as "run four
    external commands per tick" is structurally expensive. Cheapest fixes, in
    order: lengthen the poll interval; replace `$(cat …)`/`$(date)` with
@@ -819,7 +819,7 @@ Recommendations, in the order they are worth doing:
 6. **Ring depth: not first, but no longer dismissable.** The earlier
    position — "85.3 ms already exceeds every observed stall, so depth is
    second-order" — is only half right. It is correct that (1) is free and
-   fixes the *measured* 50–56 ms excursions. But §4's ceiling shows
+   fixes the *measured* 50–56 ms excursions. But Section 4's ceiling shows
    **tolerance can never exceed the ring**, so if the fatal `-EIO` events
    are driven by excursions beyond ~85 ms, **no geometry change can reach
    them** and depth becomes the only structural lever besides removing the
@@ -833,13 +833,13 @@ Recommendations, in the order they are worth doing:
    confuse it with the AVB listener path where presentation time governs.
    **Do (1) and (4) first and re-measure the excursion tail** — if the tail
    drops below 85 ms once the shell loops stop forking, depth is moot.
-7. **`aplay -M` is not the answer** (§5). Keep the `.copy` path.
+7. **`aplay -M` is not the answer** (Section 5). Keep the `.copy` path.
 
 **Hedge on the open item:** recommendation (1) attacks the fatal mechanism
 from both sides at once, which is why it holds regardless of how the `f`-pass
-comes out. More periods raises the drain margin (§4) *and* shrinks `twake`,
+comes out. More periods raises the drain margin (Section 4) *and* shrinks `twake`,
 so the 100 ms `wait_for_avail` window needs only 10.7 ms of consumption
-instead of 42.7 ms (§3). If the `f`-pass nevertheless shows `hw_ptr`
+instead of 42.7 ms (Section 3). If the `f`-pass nevertheless shows `hw_ptr`
 flatlining while the state stays `RUNNING`, that would be a *second,
 independent* defect — a stalled consumer rather than a late writer — needing
 its own fabric or driver fix, and the ring-depth question in (6) would
@@ -853,7 +853,7 @@ Stated explicitly so the gaps are not mistaken for clean results.
 * **Audio correctness was never checked.** This is a timing and ring-health
   instrument. Nothing here verifies that the samples reaching the peer are
   right, and that matters most for `-M`/`-Z`, which write through the WC
-  mapping from userspace (§5). No listener-side capture, no THD+N, no
+  mapping from userspace (Section 5). No listener-side capture, no THD+N, no
   channel-identity check was run.
 * **True wakeup→run scheduling latency is not measurable on this kernel**
   (no `SCHEDSTATS`, no tracepoints). Only end-to-end wake intervals and

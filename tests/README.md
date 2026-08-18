@@ -85,7 +85,7 @@ go stale). It is the **conformance suite**, and it is a CI gate (the
 |---|---|---|
 | `wire_truth_avtp.feature` | 37 | `@torture`; hand-built AVTP **and MSRP/MVRP** byte vectors through `tb/tools/avtp_wire_truth.py` |
 | `counters_contract_milan.feature` | 86 | `@torture` + L1; the Milan Table 5.6 counter table, its mask arithmetic and update laws, the CRF sink's per-era obligations in `KL_crf_rx`, and the documented `A_STRMW_CNT0..9` window |
-| `aecp_read_descriptor.feature` | 28 | the READ_DESCRIPTOR answer — the SUCCESS shape (28 + N), the NO_SUCH_DESCRIPTOR locate miss, the BAD_ARGUMENTS bad-configuration index, and the IEEE §7.4.5 four-octet {type, index} stub on **both** failure paths |
+| `aecp_read_descriptor.feature` | 28 | the READ_DESCRIPTOR answer -- the SUCCESS shape (28 + N), the NO_SUCH_DESCRIPTOR locate miss, the BAD_ARGUMENTS bad-configuration index, and the IEEE Section 7.4.5 four-octet {type, index} stub on **both** failure paths |
 | `aecp_response_contract.feature` | 19 | the served-inventory and fallback contract, IDENTIFY_NOTIFICATION → `BAD_ARGUMENTS`, Milan Delta 7 ACQUIRE_ENTITY refusal, and the two silent refusals asserted as **no frame at all** |
 | `torture_campaign_plan.feature` | 27 | `@torture`; audits `tb/tools/torture_campaign.py`'s own plan, assertion contract and cross-participant invariants |
 | `milan_8021q_conformance.feature` | 22 | the 5-queue architecture, the PCP→TC→queue map, the CBS algorithm and its idleSlope/hiCredit/loCredit budgets, and listener VID/format filtering |
@@ -167,7 +167,7 @@ python3 scripts/lint_rtl.py --pragmas # just the `lint_off` well-formedness gate
 It sweeps every module under `hdl/` and ratchets per directory against
 `scripts/lint.budget`; a normal run only ever LOWERS a budget entry. Run it
 for the live census rather than quoting a count here.
-See [`../docs/testing/TESTING.md`](../docs/testing/TESTING.md) §4b.
+See [`../docs/testing/TESTING.md`](../docs/testing/TESTING.md) Section 4b.
 
 ---
 

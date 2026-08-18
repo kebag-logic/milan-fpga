@@ -315,7 +315,7 @@ quote `min`/`last` and say plainly when `max` is contaminated, rather than
 quoting a number you cannot defend. For the structural-zero class, the check is
 documentary before it is empirical: look the word up in
 [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md), which carries
-the class per word, and read [TROUBLESHOOTING §24](TROUBLESHOOTING.md) for the
+the class per word, and read [TROUBLESHOOTING Section 24](TROUBLESHOOTING.md) for the
 diagnosis order. **Never infer a word's class from its group name.**
 
 **The reusable shape.** When a subsystem is removed but its ABI is kept, decide

@@ -18,7 +18,7 @@ Do not cite a handover as the current source of anything; the
 remaining compliance work is in the
 [current Milan v1.2 audit](../testing/MILAN_V12_AUDIT_2026-08-16.md). Naming rule: the conformance suite is
 called **the bench suite** everywhere (commits, docs, comments) — never
-any other name; its material is private (see §7).
+any other name; its material is private (see Section 7).
 
 ## Contents
 
@@ -126,7 +126,7 @@ column no longer describes live bench state:**
 → peer talker → AX listener): all-digital, so it is an *identity* test, not
 just a counter test. Under the promisc-era RX starvation it measured −68 dB
 *gating-limited* (see
-[DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md) §1); with the RX shield in
+[DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md) Section 1); with the RX shield in
 place the gating is gone.
 
 **HISTORICAL (Arty analog loop, retired with the board):** ALINX tone (S50
@@ -175,7 +175,7 @@ foreground pipe wedges the shell (write ctrl-C to the FIFO).
 | Path | What |
 |---|---|
 | `~/prjs-avb-on-fpga/milan-fpga` | THE gateware repo. `hdl/` RTL uses a standards-clause layout: the old local acmp and aecp trees are deleted, while ieee1722/{avtp,aaf,crf,maap}, ieee8021q/{ts,filtering}, ieee8021as/ptp_timestamp, the milan tops including `KL_pp_shadow`, and common/{csr,eth_event_counter,cdc} remain. `tb/verilator/*` contains milan_dp, pp_shadow, pcmlpf and the other live suites. AECP now lives in the pinned processor uCPU and serves the inventory in the [current audit](../testing/MILAN_V12_AUDIT_2026-08-16.md). [`syn/yosys/run.sh`](../../syn/yosys/run.sh) is the device-portability gate. [`sw/litex/`](../../sw/litex) holds milan_soc.py, **sweep.sh**, **build.sh** including the `flash` verb, and deploy.sh. `avdecc/` holds the declarative AEM model and controller support; the builder packs the processor's main-memory descriptor image. Author `hackerman-kl`, one-line commits, no trailers. |
-| `~/the-private-test-repo` | Bench/test repo. `fpga/` (kl-eth driver, buildroot br2-external incl. the **rootfs overlay** = S50milan, linkmon.sh, gptp2csr.sh, stream_phc_sync.sh, gptp.cfg, S65/S66), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `fpga/dts+boot/` (dtb + opensbi per board), `private/` (**untracked, git-ignored**: the bench conformance suite + its reference run — see §7). Commits: author `hackerman-kl` (USER 2026-07-22, both repos), one line, no trailers. |
+| `~/the-private-test-repo` | Bench/test repo. `fpga/` (kl-eth driver, buildroot br2-external incl. the **rootfs overlay** = S50milan, linkmon.sh, gptp2csr.sh, stream_phc_sync.sh, gptp.cfg, S65/S66), `fpga/tests/` (tone_thdn.py, pcm_ring_dump.c, silicon_battery.py), `fpga/dts+boot/` (dtb + opensbi per board), `private/` (**untracked, git-ignored**: the bench conformance suite + its reference run -- see Section 7). Commits: author `hackerman-kl` (USER 2026-07-22, both repos), one line, no trailers. |
 | `~/litex-milan` | LiteX + venv (`~/litex-milan/venv` — PATH needed for build/flash python). **`work/`** = all Vivado build dirs (`build_<board>_<seed>_<tag>/`). |
 | `~/br-milan-output` | Buildroot out-tree. Rebuild rootfs: `cd ~/br-milan-output && make O=$PWD && xz -9 --check=crc32 -c images/rootfs.cpio > /tmp/scratch/rootfs.cpio.xz`. Kernel `images/Image` (xz it for flashing). |
 | the private pre-rewrite backups (off-repo) | Pre-history-rewrite bundles + the private-material tar. KEEP PRIVATE. |
@@ -209,7 +209,7 @@ cd ~/prjs-avb-on-fpga/milan-fpga && ./sw/litex/sweep.sh ax7101 <tag>
 # AX7101 (current): AX_FTDI=210512180081 ./sw/litex/build.sh flash ax7101:<builddir>
 # then cold-cycle: ssh <power-controller> 'powerstrip off 0; sleep 6; powerstrip on 0'
 # verify: devmem 0x90000004 reads the expected VERSION, and
-#         cat /sys/class/net/eth0/flags == 0x1203 (RX-shield posture, §8)
+#         cat /sys/class/net/eth0/flags == 0x1203 (RX-shield posture, Section 8)
 
 # HISTORICAL — ARTY (retired 07-31; QSPI boot: bitstream + images):
 PATH="$HOME/litex-milan/venv/bin:$PATH" PYTHON="$HOME/litex-milan/venv/bin/python3" \
@@ -246,16 +246,16 @@ layout there: 28-byte header (BPF offsets shift +28 — `ether[40:2] == 0x88f7`
 selects PTP), record byte[8] = 3 for the board side, 2 for the switch side.
 And when you measure a cadence, **a frame COUNT is not a CADENCE** — compute
 the inter-departure distribution (median/p95/max), not frames-per-window
-(see [DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md) §1 for the day this
+(see [DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md) Section 1 for the day this
 rule was earned).
 
 | Tool | Purpose |
 |---|---|
-| `/tmp/milan_controller.py` | Entity(iface) with discover (cdl=56!), read_descriptor, `_aecp`, ACMP helpers. The repo master: `milan-fpga/avdecc/milan_controller.py`. **Still useful**: the processor's AECP µCPU answers `READ_DESCRIPTOR` — but only against a descriptor image loaded in DRAM (§8), so on a stock board expect `BAD_ARGUMENTS` on every read — that status means "no image"; `NO_SUCH_DESCRIPTOR` would mean the image loaded and that descriptor is genuinely absent. |
+| `/tmp/milan_controller.py` | Entity(iface) with discover (cdl=56!), read_descriptor, `_aecp`, ACMP helpers. The repo master: `milan-fpga/avdecc/milan_controller.py`. **Still useful**: the processor's AECP µCPU answers `READ_DESCRIPTOR` -- but only against a descriptor image loaded in DRAM (Section 8), so on a stock board expect `BAD_ARGUMENTS` on every read -- that status means "no image"; `NO_SUCH_DESCRIPTOR` would mean the image loaded and that descriptor is genuinely absent. |
 | `/tmp/dyninfo_probe.py <01\|02>` | GET_DYNAMIC_INFO (7.4.76) batch versus classic responses, byte-exact plus BAD_ARGUMENTS case. **HISTORICAL as a PASS**: the named PASS belongs to pre-substitution silicon. The current protocol processor implements the Milan fixed-get subset, but this processor revision has not been rerun on the physical bench, so the old result is not credited to it. |
 | `/tmp/crf_inject.py [n]` | 500 Hz Milan CRF source (subtype4/type1/48k/ival96), sid = peer-host MAC + `0001`, synthetic exact-2ms timestamps (CRF_RATE reads ≈0). Provision the DUT: CRF_SIDLO/HI + CTRL en, watch 0x744-0x74C + lock. |
 | `/tmp/ctr.py` | STREAM_INPUT counters snapshot (LOCKED/UNLOCKED/RESET/UNCERT) — the media-health detector. |
-| runner scripts → see §7 | conformance suite runners. |
+| runner scripts → see Section 7 | conformance suite runners. |
 | capture | `tcpdump -i enp6s0 ether proto 0x22f0` (AVTP/AVDECC). AECP is unicast; ADP/ACMP multicast 91:E0:F0:01:00:00; MAAP 91:E0:F0:00:FF:00. |
 
 THD+N: capture the stream at a tap (`pcap2s32.py` in /tmp/scratch
@@ -301,7 +301,7 @@ segfaults) → scp via the peer host → `tone_thdn.py --chans 2 --f0 1000`.
   built with different defines than the library links cleanly and then
   SIGSEGVs at run time. On a segfault suspect the defines first, and take them
   from the installed cmake config rather than guessing.
-  How to run all of this: [../testing/TESTING.md](../testing/TESTING.md) §6c.
+  How to run all of this: [../testing/TESTING.md](../testing/TESTING.md) Section 6c.
 - Score to beat: **63/63 scenarios per board** (bench suite; ship pair
   ARTY `asl_milanfinal53e` (VERSION 0x000A) + ALINX `AX39`; the suite grew past
   the earlier 43/43 on asl_mf35 + eppo_AX21).
@@ -345,7 +345,7 @@ steers after 5 consecutive dead polls — earlier versions caused the
 ~100 s media-unlock cycle).
 
 **RX-shield posture (2026-08-02, after
-[DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md) §1):** S50milan no longer
+[DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md) Section 1):** S50milan no longer
 sets promisc when the driver carries the shield (it reads
 `/sys/module/kl_eth/version` for a `rxsh` prefix — busybox has **no
 `modinfo`**). The shielded driver programs MC_HASH from the kernel multicast
@@ -421,7 +421,7 @@ reads lie (shadow).
 ## 10. Standing rules (violating any of these has burned us)
 
 1. The reserved bench host is untouchable; the dev box never joins the bench subnet.
-2. AX QSPI-boot works since 2026-07-21 (see §2: bitstream@0 + images) — this
+2. AX QSPI-boot works since 2026-07-21 (see Section 2: bitstream@0 + images) -- this
    supersedes the old "AX QSPI never receives a bitstream / always JTAG-reload"
    rule; JTAG-reload remains the belt until the mode-pin self-config `--reset`
    test is confirmed. Every openFPGALoader call carries the right `--ftdi-serial`.
@@ -432,7 +432,7 @@ reads lie (shadow).
    output-dir match (killing python parents leaves vivado children).
 5. New HDL is SystemVerilog in the house style; CBS shaper is never
    removed; measure-don't-assume (HW counter before any conclusion).
-6. Bench-suite naming + `/private/` rules of §7. Neither the suite's
+6. Bench-suite naming + `/private/` rules of Section 7. Neither the suite's
    former external name nor any conformance-program name appears in
    committed text ([`scripts/docs_check.py`](../../scripts/docs_check.py) enforces the deny-list).
 7. The 0x654 write preserves VID 2; new RW CSRs go into is_plain_rw;
@@ -441,4 +441,4 @@ reads lie (shadow).
    an (s) secondary bind on this one-network bench is always wrong.
 9. After every boot/flash: check the RX-shield posture (`eth0` flags
    `0x1203`, not `0x1303`) before trusting any timing or audio measurement —
-   a leaked promisc silently re-opens the RX flood (§8).
+   a leaked promisc silently re-opens the RX flood (Section 8).

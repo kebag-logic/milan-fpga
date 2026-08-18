@@ -17,13 +17,13 @@ independent re-election of a *third-party* device as grandmaster.
 
 ## Contents
 
-- **[1. The report, and what it turned out to be](#1-the-report-and-what-it-turned-out-to-be)** — Filed as "the GM loses the election under egress load"; measured as nothing of the kind. The symptom decomposes into our own transmitter going silent, and the peers' takeover is the CONFORMANT half of the story.
-- **[2. Root cause](#2-root-cause)** — `rx_queues: 1` means no steer block exists, so gPTP shares the bulk RX ring with the flood; ptp4l starves, our Announce stops, and a conformant BMCA (802.1AS 10.3) deposes a silent claimant. Not egress, not CBS — do not chase those.
-- **[3. The evidence, five runs, with a negative control and a same-board A/B](#3-the-evidence-five-runs-with-a-negative-control-and-a-same-board-ab)** — Reproduced 2/2 under a 950M UDP flood, absent 2/2 without it, and the same board with 2 queues rides the identical flood out — the A/B that pins the queue count as the variable.
-- **[4. Hardware acceptance procedure](#4-hardware-acceptance-procedure)** — The exact iperf3/ptp4l/pmc commands, the registers to read before and after, and what a PASS looks like on the reflashed 2-queue build.
-- **[5. What the fix is, and what it is not](#5-what-the-fix-is-and-what-it-is-not)** — `rx_queues: 2` with the boot chain re-pinned (+0x74 on every window from dma-ts). It is reflash-gated by design; no runtime poke exists, and priority tweaks that "help" are the forced-win anti-pattern the GM-recovery directive forbids.
-- **[6. Tests added](#6-tests-added)** — The builder gates that refuse a queue flip under a pinned boot chain, and the bench step that runs the flood against the new build (8.3 ladder item 8).
-- **[7. Defects found outside this lane's scope — NOT fixed here](#7-defects-found-outside-this-lanes-scope--not-fixed-here)** — Recorded per methodology §5 for their own lanes, with the evidence that made each real.
+- **[1. The report, and what it turned out to be](#1-the-report-and-what-it-turned-out-to-be)** -- Filed as "the GM loses the election under egress load"; measured as nothing of the kind. The symptom decomposes into our own transmitter going silent, and the peers' takeover is the CONFORMANT half of the story.
+- **[2. Root cause](#2-root-cause)** -- `rx_queues: 1` means no steer block exists, so gPTP shares the bulk RX ring with the flood; ptp4l starves, our Announce stops, and a conformant BMCA (802.1AS 10.3) deposes a silent claimant. Not egress, not CBS -- do not chase those.
+- **[3. The evidence, five runs, with a negative control and a same-board A/B](#3-the-evidence-five-runs-with-a-negative-control-and-a-same-board-ab)** -- Reproduced 2/2 under a 950M UDP flood, absent 2/2 without it, and the same board with 2 queues rides the identical flood out -- the A/B that pins the queue count as the variable.
+- **[4. Hardware acceptance procedure](#4-hardware-acceptance-procedure)** -- The exact iperf3/ptp4l/pmc commands, the registers to read before and after, and what a PASS looks like on the reflashed 2-queue build.
+- **[5. What the fix is, and what it is not](#5-what-the-fix-is-and-what-it-is-not)** -- `rx_queues: 2` with the boot chain re-pinned (+0x74 on every window from dma-ts). It is reflash-gated by design; no runtime poke exists, and priority tweaks that "help" are the forced-win anti-pattern the GM-recovery directive forbids.
+- **[6. Tests added](#6-tests-added)** -- The builder gates that refuse a queue flip under a pinned boot chain, and the bench step that runs the flood against the new build (8.3 ladder item 8).
+- **[7. Defects found outside this lane's scope — NOT fixed here](#7-defects-found-outside-this-lanes-scope--not-fixed-here)** -- Recorded per methodology Section 5 for their own lanes, with the evidence that made each real.
 
 ## 1. The report, and what it turned out to be
 

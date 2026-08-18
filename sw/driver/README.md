@@ -7,10 +7,10 @@ tree node and drives the Milan NIC over its CSR/DMA ABI
 
 ## Contents
 
-- **[DT match & resources](#dt-match--resources)** — What the driver requires from the device tree: the compatible string, the four named `reg` windows and four interrupts, and the queue/PTP properties. The `csr` base differs per platform while everything else does not.
-- **[Feature surface → CSR (see docs/reference/FR_NFR.md §2.10 FR-DRV-\*)](#feature-surface--csr-see-docsreferencefr_nfrmd-210-fr-drv-)** — The mapping table: each Linux feature, the `ndo_`/subsystem hook that implements it, and the hardware register behind it. Use it to answer "what does this ethtool call actually touch?".
-- **[CBS offload policy](#cbs-offload-policy)** — The two rules `ndo_setup_tc` enforces: offload only for queues listed in `kl,shaped-queues`, and Σ idleSlope of those queues ≤ 75 % of the port rate — everything else is strict priority in hardware.
-- **[Caveat — the dma-\* reg window has a different layout (LiteX build)](#caveat--the-dma--reg-window-has-a-different-layout-litex-build)** — Three ways to program the DMA window wrong. The registers are native-endian (never `ioread32be`), but the 64-bit `base` is **MS word at the lower address**, so a native `iowrite64` writes the halves backwards; and the sub-page ranges need `devm_ioremap`, not the exclusive variant.
+- **[DT match & resources](#dt-match--resources)** -- What the driver requires from the device tree: the compatible string, the four named `reg` windows and four interrupts, and the queue/PTP properties. The `csr` base differs per platform while everything else does not.
+- **[Feature surface → CSR (see docs/reference/FR_NFR.md Section 2.10 FR-DRV-\*)](#feature-surface--csr-see-docsreferencefr_nfrmd-section-210-fr-drv-)** -- The mapping table: each Linux feature, the `ndo_`/subsystem hook that implements it, and the hardware register behind it. Use it to answer "what does this ethtool call actually touch?".
+- **[CBS offload policy](#cbs-offload-policy)** -- The two rules `ndo_setup_tc` enforces: offload only for queues listed in `kl,shaped-queues`, and Σ idleSlope of those queues ≤ 75 % of the port rate -- everything else is strict priority in hardware.
+- **[Caveat — the dma-\* reg window has a different layout (LiteX build)](#caveat--the-dma--reg-window-has-a-different-layout-litex-build)** -- Three ways to program the DMA window wrong. The registers are native-endian (never `ioread32be`), but the 64-bit `base` is **MS word at the lower address**, so a native `iowrite64` writes the halves backwards; and the sub-page ranges need `devm_ioremap`, not the exclusive variant.
 
 ## DT match & resources
 - `of_match`: `compatible = "kl,dma-ether-0.9"` (FR-DT-01).
@@ -19,7 +19,7 @@ tree node and drives the Milan NIC over its CSR/DMA ABI
 - `kl,txq-cnt`/`kl,rxq-cnt`, `kl,shaped-queues` (`<0 1>`), `phy-handle`, `phy-mode`,
   `local-mac-address`, `kl,ptp*`.
 
-## Feature surface → CSR (see [`docs/reference/FR_NFR.md`](../../docs/reference/FR_NFR.md) §2.10 `FR-DRV-*`)
+## Feature surface → CSR (see [`docs/reference/FR_NFR.md`](../../docs/reference/FR_NFR.md) Section 2.10 `FR-DRV-*`)
 | Linux feature | Hook | HW / CSR |
 |---------------|------|----------|
 | NAPI RX/TX, N queues | `netif_napi_add`, `netif_set_real_num_*_queues` | DMA rings + `IRQ_STATUS` |
@@ -35,7 +35,7 @@ tree node and drives the Milan NIC over its CSR/DMA ABI
 `ndo_setup_tc(CBS)` only accepts offload for queues listed in `kl,shaped-queues`
 (reset `<0 1>`); Σ idleSlope of the shaped queues must stay ≤ 75 % of the port rate
 (the HW forces every other queue to strict priority — `credit_based_shaper.sv`,
-`REGISTER_MAP` §0x400).
+`REGISTER_MAP` Section 0x400).
 
 ## Caveat — the `dma-*` reg window has a different layout (LiteX build)
 Both `csr` (`0x9000_0000`) and `dma-*` (`0xf000_0000` family) are **native-endian** 32-bit

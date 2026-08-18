@@ -1,7 +1,7 @@
 # Header-split zero-copy RX  -  design + silicon history (2026-07-10/11)
 
 **Goal** (headroom lever R-3, now in [`PERFORMANCE_GOAL.md`](../findings/PERFORMANCE_GOAL.md)
-§"Gigabit headroom"): payload lands at **offset 0 of order-0 4 KB
+Section "Gigabit headroom"): payload lands at **offset 0 of order-0 4 KB
 pages** so `tcp_zerocopy_receive`'s `can_map_frag()` accepts every full frag  - 
 measured enabler: batched PTE moves 1.22 µs/page vs 26.3 µs copy (21.5×). Target
 ~700–870 Mbit socket TCP at 100 MHz.
@@ -59,7 +59,7 @@ flowchart LR
 ```
 
 `PGSZ` is the elaborated `hs_page_bytes`: 4096 as originally designed, 16384 in
-the records keeper (§build_hsq10). The bit positions above are the same ones the
+the records keeper (Section build_hsq10). The bit positions above are the same ones the
 BD table below states normatively.
 
 - **Payload**: driver posts order-0 4 KB pages (same RING_POST FIFO). An aggregate
@@ -204,7 +204,7 @@ fraction: 1.7 %  -  matches the drift model, not a bug. Fixes, in order of value
 3. Accept the copy path: header-split still delivers the **aligned** copy
    (payload at page offset 0 ⇒ dst/src co-aligned ⇒ the fast 64 B-unrolled
    loop, 2–3× the misaligned baseline). This is the near-term win; the
-   [PERF_ON_MILAN.md](../findings/PERF_ON_MILAN.md) §6.4 falsifiable prediction (hs-mode profile shows the
+   [PERF_ON_MILAN.md](../findings/PERF_ON_MILAN.md) Section 6.4 falsifiable prediction (hs-mode profile shows the
    fast loop) is still PENDING a valid-peer re-run.
 
 **Open on silicon  -  multi-page pairing storm (UNDER SUSPICION, DATA TAINTED):**
@@ -256,7 +256,7 @@ pairing-lost**; legacy mode via the same driver 280 Mbit clean. Sim never caught
 because DriverModel *reimplements* the contract  -  the bugs lived in the C control flow.
 
 **Zero-copy measured on the working path: 86.5 % zero-copied** (recv_zc, 12 s). This
-REFUTES §silicon-1's drift analysis (kept above as a record): `tcp_zerocopy_receive`
+REFUTES Section silicon-1's drift analysis (kept above as a record): `tcp_zerocopy_receive`
 maps ANY full order-0/offset-0/4096 frag  -  the *stream* offset needs no page alignment
 (partial tails + headers arrive via `recv_skip_hint` copies). The ghost-era 1.7 % was the
 degenerate 1-seg regime (1448 B never fills a page), not drift.
@@ -273,7 +273,7 @@ Corrected model:
 **However zc throughput (90 Mbit) < aligned-copy (138) at 100 MHz**  -  mapbench's
 flip(44.9 µs/page) > copy(25 µs) verdict holds; zerocopy is not the fast path on this core.
 
-**Aligned-copy prediction CONFIRMED on silicon** (PERF_ON_MILAN §6.4): the hs-mode profile
+**Aligned-copy prediction CONFIRMED on silicon** (PERF_ON_MILAN Section 6.4): the hs-mode profile
 shows the copy at `fallback_scalar_usercopy+0x3c/+0x40` (the 64 B-unrolled aligned loop)
 at only ~4 % of the hart; the misaligned +0xa8..+0xcc cluster is gone. At 130–138 Mbit
 both harts are ~63 % in `default_idle_call`  -  **hs single-flow is latency/serialization-

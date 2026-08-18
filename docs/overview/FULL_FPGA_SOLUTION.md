@@ -14,9 +14,9 @@ an **Alinx AX7101 (Xilinx Artix-7 xc7a100t)**  -  built with an **open toolchain
 > retirement note in the [diagram catalog](../diagrams/README.md).
 
 It is written for two audiences:
-- **High-level** (§1–§3): what the system is, the protocol stack, the block diagram,
+- **High-level** (Sections 1–3): what the system is, the protocol stack, the block diagram,
   and current status  -  enough to reason about the solution and plan work.
-- **Medium-level** (§4–§8): module-by-module wiring, the CSR/DMA/IRQ ABI, the exact
+- **Medium-level** (Sections 4–8): module-by-module wiring, the CSR/DMA/IRQ ABI, the exact
   build/run commands, how each boundary is attached, and how to add the next piece.
 
 **Read this before the rest of the page (2026-08-13).** The IEEE 1722.1 / SRP
@@ -36,7 +36,7 @@ fallback. The responder is the processor's AECP uCPU, which has
 landed. `READ_DESCRIPTOR` (0x0004) returns `SUCCESS` with `configuration_index`,
 the reserved field and the descriptor, `NO_SUCH_DESCRIPTOR` on a locate miss and
 `BAD_ARGUMENTS` on a bad configuration index, with the error paths carrying the
-IEEE 1722.1 §7.4.5 4-byte `{descriptor_type, descriptor_index}` stub. The device
+IEEE 1722.1 Section 7.4.5 4-byte `{descriptor_type, descriptor_index}` stub. The device
 DISCOVERS over ADP, CONNECTS over ACMP, RESERVES over SRP, and enumerates the
 builder-generated descriptor image loaded by the tracked board flow.
 The served inventory also includes configuration, stream, clock, sampling-rate,
@@ -44,7 +44,7 @@ Identify, counter, audio-map, unsolicited-registration, and Milan information
 operations. Unsupported commands receive a conformant fallback response. A
 command addressed to another `target_entity_id`, or an AECP response arriving
 as input, is silently refused. `IDENTIFY_NOTIFICATION` (0x0026) as a command is
-`BAD_ARGUMENTS` (§7.4.39.2). Milan Delta 7 `ACQUIRE_ENTITY` returns
+`BAD_ARGUMENTS` (Section 7.4.39.2). Milan Delta 7 `ACQUIRE_ENTITY` returns
 `NOT_SUPPORTED` with no owner and is graded on the root wire.
 
 **An echo is not an implementation.** Operations outside the current processor
@@ -95,7 +95,7 @@ Companion documents:
 - [Current Milan v1.2 audit](../testing/MILAN_V12_AUDIT_2026-08-16.md), the
   verified behavior, current blockers, and validation evidence.
 - [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md)  -  the deep, step-
-  numbered migration plan (§A.x parts are referenced throughout here).
+  numbered migration plan (Section A.x parts are referenced throughout here).
 - [`ARCHITECTURE.md`](ARCHITECTURE.md)  -  the datapath/control-plane internals.
 - [`AXIS_CORES_ON_NAXRISCV.md`](../integration/AXIS_CORES_ON_NAXRISCV.md)  -  how AXI-Stream cores
   attach to the CPU (the pattern the Milan NIC follows).
@@ -106,7 +106,7 @@ Companion documents:
 ## Contents
 
 - **[1. What the full-FPGA solution is (high level)](#1-what-the-full-fpga-solution-is-high-level)** -- One ASCII block plus the four claims it makes: single-hart VexiiRiscv is what ships (NaxRiscv stays the CLI *default*), the datapath contains no vendor primitives, three boundaries are separately swappable, and only the final bitstream needs Vivado.
-- **[2. The protocol stack (high level)](#2-the-protocol-stack-high-level)** -- Plane by plane, the answer to "is this in fabric or in software?": media, control, reservation, timing, shaping and L2. Only the gPTP daemon is software; AECP/AEM is in fabric but partial, with a served inventory and explicit mandatory gaps that §2.1 prices in bench terms.
+- **[2. The protocol stack (high level)](#2-the-protocol-stack-high-level)** -- Plane by plane, the answer to "is this in fabric or in software?": media, control, reservation, timing, shaping and L2. Only the gPTP daemon is software; AECP/AEM is in fabric but partial, with a served inventory and explicit mandatory gaps that Section 2.1 prices in bench terms.
 - **[3. Status at a glance](#3-status-at-a-glance)** -- A layer-by-layer state table where every complete claim names the log or harness that backs it, including the milestone evidence files (`hw_*_MILN*.log`, the DDR3-800 memtest, and the M-A3 write-up). The AECP rows separate the implemented enumeration supply chain from partial mandatory control coverage.
 - **[4. Repository map (medium level)](#4-repository-map-medium-level)** -- The annotated tree: which spec clause each `hdl/` directory mirrors, and where the SoC, the builder, the harnesses and the portability check live.
 - **[5. The three datapath boundaries (medium level)](#5-the-three-datapath-boundaries-medium-level)** -- CSR, DMA and MAC taken one at a time, plus the event path. Worth reading for two facts: only the CSR *base* is host-specific (the offsets are the ABI), and the M-A2 log's `VERSION` word is stale by design -- only the `"MILN"` ID is the stable part of that check.
@@ -124,7 +124,7 @@ Companion documents:
         │        │  pbus (AXI-Lite)        │ DMA bus         │ PLIC                 │
         │        ▼                         ▼                 ▲                      │
         │   ┌─────────┐   ┌──────────────────────────┐   ┌──────┐                  │
-        │   │milan_csr│◄──┤   milan_datapath  (§A.9)  │──►│ IRQs │                  │
+        │   │milan_csr│◄──┤   milan_datapath  (Section A.9)  │──►│ IRQs │                  │
         │   │ 0x000.. │   │  classify→CBS→PTP→ADParb  │   └──────┘                  │
         │   └─────────┘   │  PTP-RX→dest-MAC filter   │                            │
         │      ▲          └────┬────────────────┬─────┘                            │
@@ -132,7 +132,7 @@ Companion documents:
         │      │          ┌────▼─────┐      ┌────▼───────────────┐                 │
         │   CPU bus       │ MilanDMA │      │ MilanMAC           │                 │
         │                 │ tx/rx/ts │      │ LiteEthMACCore     │─► GMII  ─► PHY  │
-        │                 │ §A.6     │      │ + gmii    PHY §A.7 │                 │
+        │                 │ Section A.6     │      │ + gmii    PHY Section A.7 │                 │
         │                 └────┬─────┘      └────────────────────┘                 │
         │                      ▼ memory (LiteDRAM on board / integrated RAM in sim) │
         └──────────────────────────────────────────────────────────────────────────┘
@@ -143,28 +143,28 @@ Companion documents:
   `--l2-bytes 32768`). Boots the LiteX BIOS → OpenSBI → Linux. (The dual-hart SMP
   `--cpu-count 2` config is a superseded perf-lineage variant. The historical NaxRiscv
   RV64GC core is retained as a pure-NIC/FPU option and remains the CLI default —
-  see [docs/litex/LITEX_SOC.md](../litex/LITEX_SOC.md) §2.5.)
-- **The whole TSN datapath is in fabric**  -  `milan_datapath` (the §A.9 PS-less
+  see [docs/litex/LITEX_SOC.md](../litex/LITEX_SOC.md) Section 2.5.)
+- **The whole TSN datapath is in fabric**  -  `milan_datapath` (the Section A.9 PS-less
   wrapper) owns classification, the credit-based shaper, PTP timestamping, the
   dest-MAC TCAM filter, MAAP, the AAF/CRF stream engines, and `KL_pp_shadow` —
   the protocol processor that IS the 1722.1/SRP control plane. It is completely
   vendor-neutral (Verilator- and Yosys-verified; no Xilinx primitives inside).
 - **Three clean boundaries** hang off the datapath: the **CSR** control plane
   (to the CPU), the **DMA** boundary (to memory), and the **MAC** boundary (to the
-  1G MAC + GMII PHY — the AX7101 board is GMII, not RGMII; see §9). Each is a separate, swappable block.
+  1G MAC + GMII PHY -- the AX7101 board is GMII, not RGMII; see Section 9). Each is a separate, swappable block.
 - **Open toolchain end-to-end** except the final Artix bitstream: LiteX generates
   the SoC, Verilator runs the RTL + boots the softcore, Yosys proves device
   portability. Only `--build` (Vivado place-&-route for xc7a100t) needs the vendor
   tool  -  and that step now runs (Vivado has Artix-7 device support installed; the
-  board boots Linux and passes traffic on silicon  -  see §9).
+  board boots Linux and passes traffic on silicon  -  see Section 9).
 
 ## 2. The protocol stack (high level)
 
 | Plane | Protocols | Where |
 |-------|-----------|-------|
-| **Media transport** | AVTP (IEEE 1722) AAF / CRF, 48/96/192 kHz | **in fabric** (AAF packetizer/depacketizer + CRF TX/RX, [`hdl/ieee1722/`](../../hdl/ieee1722), silicon-validated). The media-clock servos are present but structurally off — §2.1 |
+| **Media transport** | AVTP (IEEE 1722) AAF / CRF, 48/96/192 kHz | **in fabric** (AAF packetizer/depacketizer + CRF TX/RX, [`hdl/ieee1722/`](../../hdl/ieee1722), silicon-validated). The media-clock servos are present but structurally off -- Section 2.1 |
 | **Discovery + connection** | ADP, ACMP (talker and listener)  -  IEEE 1722.1-2021 + Milan v1.2 | **in fabric**, in the protocol processor ([`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) → the pinned `protocol-processor` submodule) |
-| **Enumeration + control** | AECP / AEM, MVU | **in fabric, PARTIAL**. The processor's AECP uCPU serves the inventory listed in the current audit, including packed dynamic information and live audio-map mutation. The builder and tracked board flow generate, verify, and load the descriptor image. Mandatory setters, name access, Table 5.22, and saved-state persistence remain open. See §2.1 |
+| **Enumeration + control** | AECP / AEM, MVU | **in fabric, PARTIAL**. The processor's AECP uCPU serves the inventory listed in the current audit, including packed dynamic information and live audio-map mutation. The builder and tracked board flow generate, verify, and load the descriptor image. Mandatory setters, name access, Table 5.22, and saved-state persistence remain open. See Section 2.1 |
 | **Address allocation** | MAAP (1722 Annex B) | **in fabric** (`KL_maap`, bridged to the processor's per-source ALLOC/RELEASE face by `hdl/milan/KL_pp_maap_shim.sv`) |
 | **Reservation** | SRP / MSRP / MVRP (802.1Q) | **in fabric**, in the protocol processor (the class-D SRP face drives the CBS slope and the talker gate) + HW TCAM filter |
 | **Timing** | gPTP / 802.1AS, PTP hardware clock | HW PHC + timestamping, SW `ptp4l` |
@@ -218,12 +218,12 @@ wedging the responder.
 | Layer | State | Evidence |
 |-------|-------|----------|
 | TSN datapath RTL (classify/CBS/PTP/filter) | ✅ complete + verified | all Verilator harnesses green + the Yosys tops (`ls tb/verilator/` and the `tops` list in [`syn/yosys/run.sh`](../../syn/yosys/run.sh) are the authoritative counts) |
-| `milan_datapath` §A.9 PS-less wrapper | ✅ complete + verified | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) (11 checks); Yosys |
+| `milan_datapath` Section A.9 PS-less wrapper | ✅ complete + verified | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) (11 checks); Yosys |
 | VexiiRiscv SoC (CPU + CSR + IRQ) | ✅ boots Linux **on silicon** (RV64IMA/sv39; NaxRiscv also boots in sim) | `deploy.sh`; [`sw/litex/evidence/naxriscv_sim_boot.log`](../../sw/litex/evidence/naxriscv_sim_boot.log) |
 | **CPU reads NIC ID="MILN" (M-A2)** | ✅ **on silicon** (25 MHz + 100 MHz) | `sw/litex/evidence/hw_*_MILN*.log` |
 | **DDR3-800 memtest (M-A1)** | ✅ **on silicon** (100 MHz via datapath CDC) | `evidence/hw_ddr3_800_cdc_100mhz.log` |
-| §A.6 DMA (AXIS↔memory, simple-mode CSRs) | ✅ DMA-TX + AXIS-CDC verified on silicon (M-A3 half) | `evidence/hw_ma3_dma_datapath_100mhz.md` |
-| §A.7 MAC + PHY (LiteEth **GMII**  -  AX7101 is GMII, not RGMII) | ✅ **on silicon**  -  correct frames both directions (M-A3) | `milan_soc.py --all-blocks`; TROUBLESHOOTING §17; [`kl-eth-tx-debug.md`](../findings/kl-eth-tx-debug.md) |
+| Section A.6 DMA (AXIS↔memory, simple-mode CSRs) | ✅ DMA-TX + AXIS-CDC verified on silicon (M-A3 half) | `evidence/hw_ma3_dma_datapath_100mhz.md` |
+| Section A.7 MAC + PHY (LiteEth **GMII**  -  AX7101 is GMII, not RGMII) | ✅ **on silicon**  -  correct frames both directions (M-A3) | `milan_soc.py --all-blocks`; TROUBLESHOOTING Section 17; [`kl-eth-tx-debug.md`](../findings/kl-eth-tx-debug.md) |
 | **Full SoC (`--all-blocks`: NIC+DMA+MAC+DDR3 @100 MHz)** | ✅ boots Linux on silicon | `deploy.sh` |
 | Control plane (ADP + ACMP + SRP) in fabric | ✅ in fabric, unconditional | [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) over the pinned `protocol-processor` submodule; harness [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) |
 | MAAP | ✅ in fabric, silicon-validated | [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap) + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv); the ALLOC_DA success **is** the talker DA gate |
@@ -240,7 +240,7 @@ wedging the responder.
 ```
 protocol-processor/          the pinned control-plane submodule (ADP · ACMP · SRP)
 hdl/                         vendor-neutral RTL (Verilator + Yosys verified), spec-aligned tree
-  milan/                     milan_datapath.sv (§A.9 PS-less wrapper - the fabric NIC)
+  milan/                     milan_datapath.sv (Section A.9 PS-less wrapper - the fabric NIC)
                              + milan_top.sv (Zynq variant, PS + MAC in-line)
                              + KL_pp_shadow.sv (the protocol-processor wrapper = the
                              whole 1722.1/SRP control plane, instantiated
@@ -308,7 +308,7 @@ good.
   because neither `0x0015` nor `0x0016` has been built yet. Only the `"MILN"` ID
   is the stable part of this check.
 
-### 5.2 Data  -  `MilanDMA` (§A.6, `--with-dma`)
+### 5.2 Data  -  `MilanDMA` (Section A.6, `--with-dma`)
 - Three LiteX simple-mode DMA engines, each its own Wishbone master:
   - **TX** `WishboneDMAReader`: memory → `s_axis_tx` (frames to send)
   - **RX** `WishboneDMAWriter`: `m_axis_rx` → memory (received frames)
@@ -319,9 +319,9 @@ good.
   driver's DMA model is unchanged. (Scatter-gather / multi-queue = Option 6b, later.)
 - On the board these target LiteDRAM; in sim/elaboration they target integrated RAM.
 
-### 5.3 MAC  -  `MilanMAC` (§A.7, `--with-mac`)
+### 5.3 MAC  -  `MilanMAC` (Section A.7, `--with-mac`)
 - **LiteEthPHYGMII** (the AX7101 board is GMII, 8-bit SDR — the earlier `s7rgmii`
-  RGMII path was a mis-strap and is retired; see §9)
+  RGMII path was a mis-strap and is retired; see Section 9)
   + **LiteEthMACCore** (preamble/CRC/padding, PHY-width conversion) at 64-bit.
 - A thin stream↔AXIS adapter connects the MAC core's `sink`/`source` to the
   datapath's `m_axis_mac_tx_*` / `s_axis_mac_rx_*`. The Milan datapath does *all*
@@ -355,7 +355,7 @@ cd syn/yosys && ./run.sh                       # every device-portability top (l
 ./sw/litex/milan_soc.py --full                 # NIC + DMA + MAC + PHY, RV64
 ./sw/litex/milan_soc.py --full --xlen 32       # RV32 fallback (tighter fabric/timing)
 
-# --- the Artix-7 bitstream (needs Vivado with Artix-7 device support  -  see §9) ---
+# --- the Artix-7 bitstream (needs Vivado with Artix-7 device support  -  see Section 9) ---
 ./sw/litex/milan_soc.py --full --build         # place & route -> .bit
 ./sw/litex/milan_soc.py --full --build --load  # + program the board
 
@@ -378,8 +378,8 @@ sw/dts/milan_dt.py gen sw/dts/ir/milan-dt.litex.json >> milan.dts   # kl,dma-eth
 | a new CSR register | add it in [`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv) (write-case + read-mux + reset), extend [`tb/verilator/csr`](../../tb/verilator/csr), document in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) (the harness asserts they agree) |
 | a new datapath stage | insert into `milan_datapath.sv` between the existing AXIS hops; add a `tb/verilator/*` harness; add it to [`syn/yosys/run.sh`](../../syn/yosys/run.sh) |
 | a new AXIS core on the CPU | follow the 3-plane pattern in [`AXIS_CORES_ON_NAXRISCV.md`](../integration/AXIS_CORES_ON_NAXRISCV.md) |
-| the LiteDRAM controller | add a `ddram` pad group to `platforms/alinx_ax7101.py` (needs the AX7101 DDR3 pinout) + `A7DDRPHY`/`MT41J256M16` in `_CRG`/`MilanSoC` (migration §A.3) |
-| link/speed status (MDIO) | drive `i_i_mac_speed`/`i_i_link_up` from the LiteEth PHY status / a fabric MDIO master (§A.7 refine) |
+| the LiteDRAM controller | add a `ddram` pad group to `platforms/alinx_ax7101.py` (needs the AX7101 DDR3 pinout) + `A7DDRPHY`/`MT41J256M16` in `_CRG`/`MilanSoC` (migration Section A.3) |
+| link/speed status (MDIO) | drive `i_i_mac_speed`/`i_i_link_up` from the LiteEth PHY status / a fabric MDIO master (Section A.7 refine) |
 | scatter-gather DMA | replace `MilanDMA`'s simple-mode engines with a descriptor-ring DMA (Option 6b) + rework the driver rings |
 | ADP / ACMP / AECP / SRP behaviour | change the pinned `protocol-processor` submodule and bump its pin — **not** `hdl/`; then re-run [`tb/verilator/pp_shadow`](../../tb/verilator/pp_shadow) and the `milan_dp` integration harness. The fabric side of the seam is [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) (a port list by design: it adds no logic and no interpretation on the class-D path) |
 | MAAP behaviour | [`hdl/ieee1722/maap/`](../../hdl/ieee1722/maap) + [`hdl/milan/KL_pp_maap_shim.sv`](../../hdl/milan/KL_pp_maap_shim.sv) + [`tb/verilator/maap`](../../tb/verilator/maap). Remember the coupling: `acmp_declaring_o` asserts only after an `ALLOC_DA` success, so MAAP **is** the talker gate |
@@ -430,17 +430,17 @@ board boots Linux on VexiiRiscv, passes traffic both directions (`iperf3`), and 
 802.1Qav CBS. Step 7 (the AVDECC/SRP control stack + media datapath) landed in fabric,
 and was then **substituted**: the plane it describes was deleted on 2026-08-13 and the
 protocol processor took ADP/ACMP/SRP, and AECP with them (see the preamble and
-§2.1). Kept here as the historical order, each item marked with its result.
+Section 2.1). Kept here as the historical order, each item marked with its result.
 
 1. **Artix-7 Vivado device support**  -  ✅ **DONE.** Vivado has Artix-7 device data
    installed; `--full --build` places & routes to a real `.bit` (see the
    `vivado-zynq7000-not-installed` memory note).
 2. **LiteDRAM**  -  ✅ **DONE.** The `ddram` pads + `A7DDRPHY` + `MT41J256M16` are in
-   (migration §A.3); BIOS DRAM memtest passes on the board (**M-A1**, DDR3-800 @100 MHz).
+   (migration Section A.3); BIOS DRAM memtest passes on the board (**M-A1**, DDR3-800 @100 MHz).
 3. **Board bring-up of the CSR path**  -  ✅ **DONE.** The M-A2 `mem_read` returns `MILN`
    on hardware.
 4. **Data path on the wire (M-A3)**  -  ✅ **DONE.** The AX7101 is **GMII (8-bit), not
-   RGMII**  -  the original RGMII interface gave 100 % preamble errors (TROUBLESHOOTING §17).
+   RGMII**  -  the original RGMII interface gave 100 % preamble errors (TROUBLESHOOTING Section 17).
    On `LiteEthPHYGMII` (+ `last_be`/coherent-DMA/endianness fixes) the FPGA exchanges
    correct frames both directions with the i210 through the ProfiTap taps.
 5. **Linux boot (M-A4)**  -  ✅ **DONE.** OpenSBI + kernel + Buildroot boot with the

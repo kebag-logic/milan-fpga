@@ -134,7 +134,7 @@ It has three cooperating pieces plus a host boot-list, all opt-in behind
 |-------|-------|------|
 | **flash core** | [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), [`sw/litex/platforms/alinx_ax7101.py`](../../sw/litex/platforms/alinx_ax7101.py) | memory-maps the on-board flash; emits the `MILAN_FLASHBOOT_*` layout constants |
 | **BIOS method** | [`sw/litex/patches/0001-milan-linux-flashboot.patch`](../../sw/litex/patches/0001-milan-linux-flashboot.patch) | `linux_flashboot` copies images flash→DRAM, boots (or pre-loads then defers to serialboot) |
-| **flashing** | `sw/litex/deploy.sh flash-images` | wraps each image as a LiteX FBI and writes it at the compiled-in offset; refuses a `$DTB` whose `kl,dma-ether` windows mismatch the build’s `csr.csv` ([check_dtb_csr.py](../../sw/litex/check_dtb_csr.py), [TROUBLESHOOTING §20](../limitations/TROUBLESHOOTING.md)) |
+| **flashing** | `sw/litex/deploy.sh flash-images` | wraps each image as a LiteX FBI and writes it at the compiled-in offset; refuses a `$DTB` whose `kl,dma-ether` windows mismatch the build’s `csr.csv` ([check_dtb_csr.py](../../sw/litex/check_dtb_csr.py), [TROUBLESHOOTING Section 20](../limitations/TROUBLESHOOTING.md)) |
 | **host boot-list** | `the-private-test-repo/fpga/boot/boot_flashkernel.json` | serial upload of only the *non*-flashed images (partial mode) |
 
 ---
@@ -362,7 +362,7 @@ kernel fails loudly instead of half-writing.
   corrupt image reports zero configurations, so every `READ_DESCRIPTOR` returns
   `BAD_ARGUMENTS`; the store watchdog prevents a stalled bus from hanging the
   command, and a late load heals without a reset. Bench walk-through:
-  [../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md) §26.
+  [../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md) Section 26.
 
 ---
 

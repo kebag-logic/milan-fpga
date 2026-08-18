@@ -190,7 +190,7 @@ have run.
 | BIOS build fails at `crcfbigen` | system python ran the BIOS build | same as above |
 | Sim hangs before `litex>` prompt | stale/partial build dir | remove `sw/litex/build_milan_sim/`, cold rebuild |
 | Boot reaches BIOS but dump is wrong | CSR window moved | check banner `milan_csr` base == `0x9000_0000` |
-| QEMU RV32 boots nothing | missing `-bios` / stock-machine mismatch | use `opensbi_ax_vexii_rv32.bin`; a custom QEMU machine model may be required (see §3 lane 2) |
+| QEMU RV32 boots nothing | missing `-bios` / stock-machine mismatch | use `opensbi_ax_vexii_rv32.bin`; a custom QEMU machine model may be required (see Section 3 lane 2) |
 | `env-check` FAIL on RV32 artifacts | `~/br-milan-rv32` absent | restore/rebuild the RV32 buildroot output tree |
 | Threaded Verilator run shows drift | determinism gate violated | run single-threaded for evidence; treat drift as a bug |
 

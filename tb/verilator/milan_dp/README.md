@@ -2,7 +2,7 @@
 # milan_dp — the `milan_datapath` integration suite
 
 `make` builds **nine elaborations** of `hdl/milan/milan_datapath.sv` (the PS-less
-§A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
+Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
 against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
 never on grepping the log — a compile error prints no `FAIL` line at all.
 
@@ -124,7 +124,7 @@ set includes descriptor reads, lock and configuration operations, read-side
 stream and clock commands, sampling-rate and clock-source setters, Identify,
 registration, counters, AVB information, AS path, and both audio-map
 directions. `IDENTIFY_NOTIFICATION` sent as a command returns `BAD_ARGUMENTS`
-(IEEE §7.4.39.2 beats §9.3.5.3.3). Commands outside the implemented inventory
+(IEEE Section 7.4.39.2 beats Section 9.3.5.3.3). Commands outside the implemented inventory
 receive a conformant `NOT_IMPLEMENTED` echo with the command payload and length
 preserved and the frame padded to the 60-octet minimum. The exact inventory is
 gated by [`aecp_engine_steps.py`](../../../tests/steps/aecp_engine_steps.py) and
@@ -143,7 +143,7 @@ is stated. The `[AECP]` checks in `sim_nxn.cpp` grade that path: an answer
 arrives, it is an `AEM_RESPONSE`, its status is `BAD_ARGUMENTS` (an unvalidated
 image reports `configurations_count = 0`, and the µprogram range-checks the
 configuration index *before* it locates, so this is not
-`NO_SUCH_DESCRIPTOR`), it carries the §7.4.5 stub at `cdl = 20`, and it is
+`NO_SUCH_DESCRIPTOR`), it carries the Section 7.4.5 stub at `cdl = 20`, and it is
 padded to 60.
 
 **The SERVED path lives in `tb/verilator/pp_shadow`**, which backs those ports

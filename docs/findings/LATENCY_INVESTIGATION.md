@@ -1,6 +1,6 @@
 # Latency & memory investigation  -  why single-port TCP caps at 30 Mbit/s (2026-07-05)
 
-> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for the campaign numbers and the close-out scoreboard see [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical. §2.1 absorbs the [`SINGLE_PORT_PERF.md` (archived)](../../historical_now_obsolete/findings/SINGLE_PORT_PERF.md) prequel (merged 2026-07-25).
+> ⚠️ **Point-in-time snapshot (2026-07-05).** Superseded  -  for the campaign numbers and the close-out scoreboard see [`PERFORMANCE_GOAL.md`](PERFORMANCE_GOAL.md) + [`../CHANGELOG.md`](../../CHANGELOG.md). Numbers and "next steps" below are historical. Section 2.1 absorbs the [`SINGLE_PORT_PERF.md` (archived)](../../historical_now_obsolete/findings/SINGLE_PORT_PERF.md) prequel (merged 2026-07-25).
 
 **Platform:** AX7101 (XC7A100T-2), VexiiRiscv RV64IMA @100 MHz, sv39, 32 KB L2, DDR3-800
 (MT41J256M16, 1:4), Milan datapath @50 MHz · **Link:** 1000BASE-T to an Intel i210 peer
@@ -25,18 +25,18 @@ in cycle-accurate sim; nothing is estimated unless labelled "model".
 
 ## Contents
 
-- **[TL;DR](#tldr)** — Five questions answered with the measurement that answered them, plus the elimination flowchart for the whole page. The headline: not CPU-bound, not a silicon gate — a 1424 ns random miss, half of it sv39 page-table walk.
-- **[1. The contradiction that drove everything](#1-the-contradiction-that-drove-everything)** — The `vmstat` line that started it: 30 Mbit/s at **94 % idle**. Compute bottlenecks pin a core at 100 %, so the core is waiting, and the rest of the page is finding out for what.
-- **[2. What it is NOT (each ruled out by measurement)](#2-what-it-is-not-each-ruled-out-by-measurement)** — Four suspects killed: coalescing, per-flow window, the clock, a delivery gate. Includes the retraction worth reading — a claimed "1.7× slow clock" that was a corrupted serial-console marker, not a clock. §2.1 folds in the prequel: a second core cannot widen a serialised latency path (NaxRiscv's higher IPC got 2.3×; more cores got nothing).
-- **[3. The two regimes  -  flood localises the ceiling](#3-the-two-regimes-----flood-localises-the-ceiling)** — 171,942 frames/s at the MAC, 14,355 delivered, 260,076 HW-dropped. The "only 10 % gets through" is a 14× overload, not a drop policy — and it pins the CPU at 100 %, which is what proves there is no silicon gate.
-- **[4. Root cause  -  memory latency (the 14k-pps ceiling)](#4-root-cause-----memory-latency-the-14k-pps-ceiling)** — `membench`: a random miss costs 1424 ns and is **unchanged under DMA flood**, which separates latency from bandwidth contention. §4.1's hugepage A/B then splits it in half — 713 ns TLB walk, 716 ns DRAM+CPU floor — so hugepages alone buy 2× on the TLB half.
-- **[5. The poll-CSR cost (why backing off the poll helps +32 %)](#5-the-poll-csr-cost-why-backing-off-the-poll-helps-32-)** — The `rx-usecs-low` sweep, 5 µs → 4 ms: throughput *collapses* to 5.1 Mbit/s when you poll faster and recovers to 37.0 when you poll less, with the knee on the wrong side of the 200 µs default. Each empty poll costs ~6 µs of MMIO stall; `rx-usecs-low=2000` was the free win.
-- **[6. Levers to reduce latency  -  ranked, tied to the measurement each attacks](#6-levers-to-reduce-latency-----ranked-tied-to-the-measurement-each-attacks)** — Eight levers, each named against the number it attacks and its effort. Also the negative result: a faster DDR3 speed grade does **not** move the 716 ns floor, because first-word latency is roughly constant across grades.
-- **[7. Pointer-writeback (implemented + sim-verified)](#7-pointer-writeback-implemented--sim-verified)** — `RingDMAWriter` shadows `{dropped, wr_ptr}` into coherent memory so the driver polls from cache instead of MMIO. Costs +5.8 cycles/frame (+2.4 %) in sim, and honestly scoped: it recovers the ~36 Mbit/s plateau, it does not beat it.
-- **[8. The floorplanning finding  -  the 112.5 MHz build, and why it was REVERTED](#8-the-floorplanning-finding-----the-1125-mhz-build-and-why-it-was-reverted)** — The 100 MHz critical path is `sys_rst`: fanout ~3900, 8.86 ns of pure route, **zero logic levels**. Three separate ways to replicate it all failed against a `DONT_TOUCH`, so the real fix is a false/multicycle path, not `--floorplan`. §8.1 has the reversal: 112.5 MHz gave +25 % single-flow but −12 % flood pps and +40 % worse miss latency — the wrong trade for a switch.
-- **[9. The TI reference (ti_eth.pdf, AM5726 GMAC_SW)  -  validation & blueprint](#9-the-ti-reference-ti_ethpdf-am5726-gmac_sw-----validation--blueprint)** — A shipping 3-port gigabit switch that dodges every bottleneck above by design: descriptors in on-chip BD RAM (no DRAM, no TLB), paced RX interrupts instead of polling, and wire-rate ALE forwarding that keeps the CPU out of the path entirely.
-- **[10. What changed this session](#10-what-changed-this-session)** — Historical: the file-by-file diff of the 2026-07-05 session, including the two new sim/model scripts and the `ethtool -C` knobs that made the sweep in §5 possible.
-- **[11. Status & next steps](#11-status--next-steps)** — Historical next-steps list — superseded by the campaign scoreboard linked in the banner at the top. Useful for the ranking it leaves behind: hugepages first, then the RX interrupt, then hardware forwarding — which makes §4 and §5 irrelevant to forwarded traffic.
+- **[TL;DR](#tldr)** -- Five questions answered with the measurement that answered them, plus the elimination flowchart for the whole page. The headline: not CPU-bound, not a silicon gate -- a 1424 ns random miss, half of it sv39 page-table walk.
+- **[1. The contradiction that drove everything](#1-the-contradiction-that-drove-everything)** -- The `vmstat` line that started it: 30 Mbit/s at **94 % idle**. Compute bottlenecks pin a core at 100 %, so the core is waiting, and the rest of the page is finding out for what.
+- **[2. What it is NOT (each ruled out by measurement)](#2-what-it-is-not-each-ruled-out-by-measurement)** -- Four suspects killed: coalescing, per-flow window, the clock, a delivery gate. Includes the retraction worth reading -- a claimed "1.7× slow clock" that was a corrupted serial-console marker, not a clock. Section 2.1 folds in the prequel: a second core cannot widen a serialised latency path (NaxRiscv's higher IPC got 2.3×; more cores got nothing).
+- **[3. The two regimes  -  flood localises the ceiling](#3-the-two-regimes-----flood-localises-the-ceiling)** -- 171,942 frames/s at the MAC, 14,355 delivered, 260,076 HW-dropped. The "only 10 % gets through" is a 14× overload, not a drop policy -- and it pins the CPU at 100 %, which is what proves there is no silicon gate.
+- **[4. Root cause  -  memory latency (the 14k-pps ceiling)](#4-root-cause-----memory-latency-the-14k-pps-ceiling)** -- `membench`: a random miss costs 1424 ns and is **unchanged under DMA flood**, which separates latency from bandwidth contention. Section 4.1's hugepage A/B then splits it in half -- 713 ns TLB walk, 716 ns DRAM+CPU floor -- so hugepages alone buy 2× on the TLB half.
+- **[5. The poll-CSR cost (why backing off the poll helps +32 %)](#5-the-poll-csr-cost-why-backing-off-the-poll-helps-32-)** -- The `rx-usecs-low` sweep, 5 µs → 4 ms: throughput *collapses* to 5.1 Mbit/s when you poll faster and recovers to 37.0 when you poll less, with the knee on the wrong side of the 200 µs default. Each empty poll costs ~6 µs of MMIO stall; `rx-usecs-low=2000` was the free win.
+- **[6. Levers to reduce latency  -  ranked, tied to the measurement each attacks](#6-levers-to-reduce-latency-----ranked-tied-to-the-measurement-each-attacks)** -- Eight levers, each named against the number it attacks and its effort. Also the negative result: a faster DDR3 speed grade does **not** move the 716 ns floor, because first-word latency is roughly constant across grades.
+- **[7. Pointer-writeback (implemented + sim-verified)](#7-pointer-writeback-implemented--sim-verified)** -- `RingDMAWriter` shadows `{dropped, wr_ptr}` into coherent memory so the driver polls from cache instead of MMIO. Costs +5.8 cycles/frame (+2.4 %) in sim, and honestly scoped: it recovers the ~36 Mbit/s plateau, it does not beat it.
+- **[8. The floorplanning finding  -  the 112.5 MHz build, and why it was REVERTED](#8-the-floorplanning-finding-----the-1125-mhz-build-and-why-it-was-reverted)** -- The 100 MHz critical path is `sys_rst`: fanout ~3900, 8.86 ns of pure route, **zero logic levels**. Three separate ways to replicate it all failed against a `DONT_TOUCH`, so the real fix is a false/multicycle path, not `--floorplan`. Section 8.1 has the reversal: 112.5 MHz gave +25 % single-flow but −12 % flood pps and +40 % worse miss latency -- the wrong trade for a switch.
+- **[9. The TI reference (ti_eth.pdf, AM5726 GMAC_SW)  -  validation & blueprint](#9-the-ti-reference-ti_ethpdf-am5726-gmac_sw-----validation--blueprint)** -- A shipping 3-port gigabit switch that dodges every bottleneck above by design: descriptors in on-chip BD RAM (no DRAM, no TLB), paced RX interrupts instead of polling, and wire-rate ALE forwarding that keeps the CPU out of the path entirely.
+- **[10. What changed this session](#10-what-changed-this-session)** -- Historical: the file-by-file diff of the 2026-07-05 session, including the two new sim/model scripts and the `ethtool -C` knobs that made the sweep in Section 5 possible.
+- **[11. Status & next steps](#11-status--next-steps)** -- Historical next-steps list -- superseded by the campaign scoreboard linked in the banner at the top. Useful for the ranking it leaves behind: hugepages first, then the RX interrupt, then hardware forwarding -- which makes Section 4 and Section 5 irrelevant to forwarded traffic.
 
 ## TL;DR
 
@@ -49,7 +49,7 @@ in cycle-accurate sim; nothing is estimated unless labelled "model".
 | Cheapest win in hand? | `ethtool -C eth0 rx-usecs-low 2000` → **+32 % RX** (28→37), no rebuild. Live on the board now. |
 
 *Which candidate causes were eliminated by which measurement, and what
-survived?* The chain below is the spine of §1–§4; the sections expand each box.
+survived?* The chain below is the spine of Sections 1–4; the sections expand each box.
 
 ```mermaid
 flowchart TB
@@ -90,7 +90,7 @@ and is that wait a protocol effect or a hardware gate?*
 
 **Not coalescing / poll cadence.** `ethtool -C rx-usecs` (active poll period) swept 5 µs→1 ms:
 flat at ~30 Mbit/s. *(Caveat found later: this knob only sets the `rx>0` re-arm; the idle
-re-arm dominated  -  see §5.)*
+re-arm dominated  -  see Section 5.)*
 
 **Not per-flow window.** `iperf3 -P 4` did **not** aggregate  -  RX/TX fell to ~20 Mbit/s
 (poll contention) while the CPU stayed **95 % idle**. A shared serialisation, not a window.
@@ -102,7 +102,7 @@ limit. The clean passive test overturned it: board uptime advanced **31.83 s ove
 31.83 s (ratio 1.000)**, and `sleep 10` self-timed at **10.26 s**  -  clocksource *and*
 clockevent are correct. **Lesson: a marker that can be corrupted is not a measurement.**
 
-**Not a silicon delivery gate.** See §3  -  the flood proves the CPU *does* saturate.
+**Not a silicon delivery gate.** See Section 3  -  the flood proves the CPU *does* saturate.
 
 ### 2.1 Prequel  -  a second core won't help a single flow (folded from [`SINGLE_PORT_PERF.md`](../../historical_now_obsolete/findings/SINGLE_PORT_PERF.md), 2026-07-25)
 
@@ -225,7 +225,7 @@ Polling *faster* **collapses** throughput (empty-poll CSR stalls contend with th
 polling *less* recovers +32 %. **Model** (`poll_cost_model.py`, fit to this sweep): the
 CSR-free single-flow ceiling `Tmax ≈ 36 Mbit/s`, per-empty-poll cost ≈ 6 µs. So removing
 the CSR cost recovers the plateau at low latency but does **not** exceed ~37 (that ceiling
-is §4's per-frame cost). **Live mitigation applied:** `rx-usecs-low=2000` on the board.
+is Section 4's per-frame cost). **Live mitigation applied:** `rx-usecs-low=2000` on the board.
 
 ## 6. Levers to reduce latency  -  ranked, tied to the measurement each attacks
 
@@ -234,15 +234,15 @@ is §4's per-frame cost). **Live mitigation applied:** `rx-usecs-low=2000` on th
 | **Hardware L2 forwarding (ALE/TCAM)** | keeps CPU out of the switched path entirely | large (RTL) | [`hdl/ieee8021q/filtering/tcam.sv`](../../hdl/ieee8021q/filtering/tcam.sv) exists; the switch answer |
 | **RX completion interrupt + pacing** | RX delivery latency (unlocks 3k→14k headroom) | medium | IRQ 13 wired, unused  -  proposed |
 | **Hugepage the ring/buffers** | TLB half (713 ns → ~0) | low (SW/DT) | proven 2× in `membench`; proposed |
-| **Pointer-writeback** | per-poll MMIO CSR stall | done (RTL+sim) | §7 |
+| **Pointer-writeback** | per-poll MMIO CSR stall | done (RTL+sim) | Section 7 |
 | **On-chip BRAM descriptors** (TI BD-RAM) | both halves, for metadata | medium | proposed |
 | **Zero-copy RX** (CPPI-style) | the per-frame copy (35 µs/1500 B) | large | proposed |
 | **Non-blocking D-cache + MSHRs** | overlaps the serial misses | medium (cfg) | proposed |
-| **Floorplan + clock bump** | ns-per-cycle on the DRAM+CPU floor | medium | built+tested, **reverted** (§8): +25 % single-flow but −12 % flood / +40 % miss latency |
+| **Floorplan + clock bump** | ns-per-cycle on the DRAM+CPU floor | medium | built+tested, **reverted** (Section 8): +25 % single-flow but −12 % flood / +40 % miss latency |
 
 Note: a **faster DDR3 speed grade does NOT help** the 716 ns floor  -  first-word latency
 (tRP+tRCD+CL ≈ 40 ns) is ~constant across grades; a faster grade only raises *bandwidth*
-(which helps the §4 contention).
+(which helps the Section 4 contention).
 
 ## 7. Pointer-writeback (implemented + sim-verified)
 
@@ -254,7 +254,7 @@ instead of an MMIO CSR. Verified in migen sim (`test_ring_writeback.py`):
   writeback costs **+5.8 cyc/frame (+2.4 %)**; the shadow value matches the CSRs exactly.
 - The 6-test `test_ring_dma.py` regression still passes (writeback off when `status`=0).
 
-**Honest scope:** the model (§5) says this recovers the ~36 Mbit/s plateau at low latency
+**Honest scope:** the model (Section 5) says this recovers the ~36 Mbit/s plateau at low latency
 but does not beat it for a single flow. Its real value is aggregate/many-flow pps and
 removing the latency↔throughput tradeoff  -  so it should ride the *next* switch bitstream,
 not a standalone spin.
@@ -304,7 +304,7 @@ a multiple of 200; the only clean integer step above 100 MHz is VCO 1800 → 112
 ### 8.1 The 112.5 MHz silicon result  -  a divergent-bottleneck trade-off, so REVERTED
 
 Loaded and measured on the board. The +12.5 % clock helped one bottleneck and hurt the other
- -  **because the single flow and the flood/membench are bound by different things** (§3–§4):
+ -  **because the single flow and the flood/membench are bound by different things** (Sections 3–4):
 
 | Workload | Bound by | @112.5 MHz vs 100 |
 |----------|----------|-------------------|
@@ -316,7 +316,7 @@ So a faster clock is the **right lever for a single compute-bound socket flow** 
 **wrong lever for the switch**, which needs low **DRAM latency** and high **aggregate pps**  - 
 exactly the two things DDR3-900 made worse. **Decision: reverted to 100 MHz / DDR3-800.** The
 +25 % single-flow number is real, but the switch role never runs that workload (forwarding is
-in fabric, §9), and the −12 % flood ceiling + 40 % worse miss latency are the numbers that
+in fabric, Section 9), and the −12 % flood ceiling + 40 % worse miss latency are the numbers that
 matter. The `--floorplan` flag remains in `milan_soc.py` but, as above, does **not** actually
 replicate the reset; the productive reset fix is a multicycle/false-path constraint.
 
@@ -326,12 +326,12 @@ The AM57x 3-port gigabit switch is exactly this project's target, and it dodges 
 latency above by design:
 
 - **CPPI descriptors in dedicated 8 KB on-chip BD RAM**  -  not DRAM. Descriptor access is
-  ~10 ns SRAM with no TLB → sidesteps *both* halves of §4 for the hot metadata path. Our
+  ~10 ns SRAM with no TLB → sidesteps *both* halves of Section 4 for the hot metadata path. Our
   pointer-writeback is step 1; on-chip BRAM descriptors are the full pattern.
 - **RX/TX interrupts with programmable pacing** (RX_PULSE / RX_THRESH_PULSE)  -  not polling.
-  Validates §6's RX-interrupt lever.
+  Validates Section 6's RX-interrupt lever.
 - **ALE wire-rate L2 forwarding**  -  the CPU is never in the switched path. This is the
-  architectural answer: forwarded AVB traffic never pays §4/§5 at all.
+  architectural answer: forwarded AVB traffic never pays Sections 4/5 at all.
 - AVB (802.1Qav CBS) + 1588 (CPTS) in the fabric  -  matches our CBS + PTP work.
 
 ## 10. What changed this session
@@ -343,15 +343,15 @@ latency above by design:
 | [`sw/litex/poll_cost_model.py`](../../sw/litex/poll_cost_model.py) | NEW  -  CSR-poll cost model fit to the silicon sweep |
 | `fpga/kl-eth/kl-eth.c` (the-private-test-repo) | `ethtool -C` `rx-usecs` (active) + `rx-usecs-low` (idle) NAPI-poll-period knobs |
 | board (live) | `rx-usecs-low=2000` (+32 % RX); new `.ko` hot-loaded (not yet in initrd) |
-| build | `build_vexii_fp{,2,3}`  -  `--floorplan` + `--sys-clk-freq 112.5e6`: all 3 closed +0.043 ns, DDR3-900 on silicon, then **reverted to 100 MHz** (§8.1) |
+| build | `build_vexii_fp{,2,3}`  -  `--floorplan` + `--sys-clk-freq 112.5e6`: all 3 closed +0.043 ns, DDR3-900 on silicon, then **reverted to 100 MHz** (Section 8.1) |
 
 ## 11. Status & next steps
 
 - **Done + reverted:** the 112.5 MHz build (`build_vexii_fp{,2,3}`) was built, loaded, and
-  measured on silicon (§8.1)  -  +25 % single-flow but −12 % flood pps and +40 % worse miss
+  measured on silicon (Section 8.1)  -  +25 % single-flow but −12 % flood pps and +40 % worse miss
   latency, so the board runs **100 MHz / DDR3-800**. Reset replication proved impossible
   (DONT_TOUCH); the real reset fix is a multicycle/false-path constraint, not `--floorplan`.
 - **Software win banked:** `rx-usecs-low=2000` (needs an initrd rebuild to persist).
 - **Highest-value next levers:** hugepage the ring/buffers (proven 2× on the TLB half),
   then the RX interrupt (unlocks the 3k→14k headroom), then hardware forwarding for the
-  switch (makes §4/§5 irrelevant to forwarded traffic).
+  switch (makes Sections 4/5 irrelevant to forwarded traffic).

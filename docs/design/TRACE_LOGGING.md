@@ -15,10 +15,10 @@ runtime), buffered in DRAM, and written to the `/user` jffs2 partition **only
 when something has gone wrong**, as rotating independent `xz` segments.
 
 > **Historical roadmap origin:** [historical `TODO.md`](../../TODO.md) Phase 10
-> row **H4**. Current implementation status is recorded in §1. It used to
+> row **H4**. Current implementation status is recorded in Section 1. It used to
 > compose with the saved-state / fast-connect design page, which owned the
 > `/user` partition itself; that page was **deleted on 2026-08-13 along with
-> the persistence RTL it described** (see the status note in §1). The
+> the persistence RTL it described** (see the status note in Section 1). The
 > partition map survives where it always really lived — `FLASHBOOT_LAYOUT` /
 > `FLASHBOOT_RESERVED` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)
 > — and this document owns what goes in it.
@@ -27,19 +27,19 @@ when something has gone wrong**, as rotating independent `xz` segments.
 
 ## Contents
 
-- **[1. Status ledger — proven vs designed-only](#1-status-ledger--proven-vs-designed-only)** — Read this first, as the page says: a row per piece with its evidence gate. The honest bottom line is here — nothing claims fault logging works on a board, because no board has ever booted with an mtd node.
-- **[2. What is worth tracing](#2-what-is-worth-tracing)** — The event catalogue derived backwards from real faults: for each past bug, which registers read in which order would have ended the investigation on day one. Also the two members riding every record — `sev` (WARN+ is what arms a flush) and `src` — and why the producer is edge-triggered rather than a sampler. **[§2.1](#21-events-whose-source-rtl-was-deleted-2026-08-13) is the errata**: which events can no longer fire at all, and which fire with some fields pinned to a structural zero, after the 2026-08-13 control-plane substitution.
-- **[3. The trace ABI](#3-the-trace-abi)** — One YAML generates both the decode metadata and the producer C, both checked in so the gate runs without barectf. Two traps worth knowing: event ids are assigned by *sorted event name*, so adding an event renumbers its successors, and the metadata must therefore travel with the segments — a reader using current metadata on an archived trace gets confidently wrong answers, not slightly wrong ones. Also why the clock is monotonic µs and never the PHC.
-- **[4. Where it lives](#4-where-it-lives)** — The CSR-to-flash pipeline in one diagram, and the inversion it is built on: flash is the scarce resource, DRAM is not, so a 4 MiB overwrite-oldest ring holds about an hour of history and flash is written rarely. Names the three conditions that must all hold before a flush, and requires that a refused flush record *why* it was refused.
-- **[5. The flash write budget, and the lifetime it implies](#5-the-flash-write-budget-and-the-lifetime-it-implies)** — The arithmetic that justifies the whole design, in one table: continuous text logging is not a conservative choice, it is a **59-day** choice, and a rate limiter alone still wears the part out in about eighteen months. That is why there is a token bucket as well as an interval.
-- **[6. Rotation and eviction](#6-rotation-and-eviction)** — Evict oldest first, with exactly one pinned segment, and the rejected alternative: stopping when full guarantees silence precisely when the box has been up long enough to hit the interesting bug. Every eviction emits a record so "not in the log" is never ambiguous.
-- **[7. Compression](#7-compression)** — The pinned xz chain and the measurements that chose it: the ratio cliff is the match finder, not the preset number, and a dictionary bigger than the segment is dead weight — `preset 6e` at dict 256 KiB produced byte-identical output to `xz -9e` at twice the speed and 1/68 the memory. §7.3 labels the softcore cost as an estimate and says which trace field will replace it.
-- **[8. Torn writes](#8-torn-writes)** — The folklore that a truncated xz file is lost, measured and refuted: recovery is proportional with no cliff, and a truncated trace decodes to a byte-identical *prefix* — less data, never different data. What is genuinely lost is verification, and that is stated rather than designed around.
-- **[9. What survives a power cut](#9-what-survives-a-power-cut)** — The plain answer: only what was already flushed; a fault still in RAM when the rail drops is gone. Explains why that is an accepted trade (the alternative is the 59-day design) and the two ways to shorten the window on the bench.
-- **[10. Reading a trace](#10-reading-a-trace)** — The commands, and a worked output line where `bound=1` with `ctrl=0` *is* the accept blocker in one line — no board, no controller, no three days of narrowing. Also why the stdlib reader is driven by the shipped metadata rather than its own copy of the layout.
-- **[11. Scope boundary](#11-scope-boundary)** — The file-by-file split between what lives in this repo (contract, producer, host tooling) and what lives in the private test repo (anything needing a filesystem, init system or board). Check here before looking for a poller or a writer that is not in this tree.
-- **[12. Bench recipe for the half that needs a board](#12-bench-recipe-for-the-half-that-needs-a-board)** — Gates T0-T6, each falsifiable on its own so a failure localises. T1 is the step nothing in this tree has ever executed; T4 provokes the accept-blocker signature deliberately with two `devmem` writes in the wrong order; T5 is ten wall-power cuts proving §8 on real flash.
-- **[13. Open items](#13-open-items)** — What is knowingly unfinished, including one with teeth: `deploy.sh` still computes the rootfs ceiling from the next image offset and does not read the reserved slots, so an oversized rootfs would be accepted and would overwrite the `journal`/`user` partitions.
+- **[1. Status ledger — proven vs designed-only](#1-status-ledger--proven-vs-designed-only)** -- Read this first, as the page says: a row per piece with its evidence gate. The honest bottom line is here -- nothing claims fault logging works on a board, because no board has ever booted with an mtd node.
+- **[2. What is worth tracing](#2-what-is-worth-tracing)** -- The event catalogue derived backwards from real faults: for each past bug, which registers read in which order would have ended the investigation on day one. Also the two members riding every record -- `sev` (WARN+ is what arms a flush) and `src` -- and why the producer is edge-triggered rather than a sampler. **[Section 2.1](#21-events-whose-source-rtl-was-deleted-2026-08-13) is the errata**: which events can no longer fire at all, and which fire with some fields pinned to a structural zero, after the 2026-08-13 control-plane substitution.
+- **[3. The trace ABI](#3-the-trace-abi)** -- One YAML generates both the decode metadata and the producer C, both checked in so the gate runs without barectf. Two traps worth knowing: event ids are assigned by *sorted event name*, so adding an event renumbers its successors, and the metadata must therefore travel with the segments -- a reader using current metadata on an archived trace gets confidently wrong answers, not slightly wrong ones. Also why the clock is monotonic µs and never the PHC.
+- **[4. Where it lives](#4-where-it-lives)** -- The CSR-to-flash pipeline in one diagram, and the inversion it is built on: flash is the scarce resource, DRAM is not, so a 4 MiB overwrite-oldest ring holds about an hour of history and flash is written rarely. Names the three conditions that must all hold before a flush, and requires that a refused flush record *why* it was refused.
+- **[5. The flash write budget, and the lifetime it implies](#5-the-flash-write-budget-and-the-lifetime-it-implies)** -- The arithmetic that justifies the whole design, in one table: continuous text logging is not a conservative choice, it is a **59-day** choice, and a rate limiter alone still wears the part out in about eighteen months. That is why there is a token bucket as well as an interval.
+- **[6. Rotation and eviction](#6-rotation-and-eviction)** -- Evict oldest first, with exactly one pinned segment, and the rejected alternative: stopping when full guarantees silence precisely when the box has been up long enough to hit the interesting bug. Every eviction emits a record so "not in the log" is never ambiguous.
+- **[7. Compression](#7-compression)** -- The pinned xz chain and the measurements that chose it: the ratio cliff is the match finder, not the preset number, and a dictionary bigger than the segment is dead weight -- `preset 6e` at dict 256 KiB produced byte-identical output to `xz -9e` at twice the speed and 1/68 the memory. Section 7.3 labels the softcore cost as an estimate and says which trace field will replace it.
+- **[8. Torn writes](#8-torn-writes)** -- The folklore that a truncated xz file is lost, measured and refuted: recovery is proportional with no cliff, and a truncated trace decodes to a byte-identical *prefix* -- less data, never different data. What is genuinely lost is verification, and that is stated rather than designed around.
+- **[9. What survives a power cut](#9-what-survives-a-power-cut)** -- The plain answer: only what was already flushed; a fault still in RAM when the rail drops is gone. Explains why that is an accepted trade (the alternative is the 59-day design) and the two ways to shorten the window on the bench.
+- **[10. Reading a trace](#10-reading-a-trace)** -- The commands, and a worked output line where `bound=1` with `ctrl=0` *is* the accept blocker in one line -- no board, no controller, no three days of narrowing. Also why the stdlib reader is driven by the shipped metadata rather than its own copy of the layout.
+- **[11. Scope boundary](#11-scope-boundary)** -- The file-by-file split between what lives in this repo (contract, producer, host tooling) and what lives in the private test repo (anything needing a filesystem, init system or board). Check here before looking for a poller or a writer that is not in this tree.
+- **[12. Bench recipe for the half that needs a board](#12-bench-recipe-for-the-half-that-needs-a-board)** -- Gates T0-T6, each falsifiable on its own so a failure localises. T1 is the step nothing in this tree has ever executed; T4 provokes the accept-blocker signature deliberately with two `devmem` writes in the wrong order; T5 is ten wall-power cuts proving Section 8 on real flash.
+- **[13. Open items](#13-open-items)** -- What is knowingly unfinished, including one with teeth: `deploy.sh` still computes the rootfs ceiling from the next image offset and does not read the reserved slots, so an oversized rootfs would be accepted and would overwrite the `journal`/`user` partitions.
 
 ## 1. Status ledger — proven vs designed-only
 
@@ -57,10 +57,10 @@ Read this first.
 | Rotation / eviction policy | **exercised** | gate 12 |
 | `journal` + `user` flash slots in the SoC map | **in `FLASHBOOT_LAYOUT`, gated** | gate 1 |
 | `fixed-partitions` DT node | **generated + `dtc`-checked** | gate 1 |
-| Linux **binding** an mtd driver to LiteSPI | **NOT ESTABLISHED** | no board has been booted with an mtd node; §12 gate T1 |
+| Linux **binding** an mtd driver to LiteSPI | **NOT ESTABLISHED** | no board has been booted with an mtd node; Section 12 gate T1 |
 | `/user` mounted, jffs2 | **designed only** | its design page was deleted 2026-08-13; the slot itself is in `FLASHBOOT_RESERVED` and gate 1 |
-| The board daemon (poller + compressor + writer) | **private test repo** | §11 |
-| Compressor cost on the softcore | **ESTIMATED, not measured** | §7.3 — the `trace_flush.ms` field exists to replace the estimate |
+| The board daemon (poller + compressor + writer) | **private test repo** | Section 11 |
+| Compressor cost on the softcore | **ESTIMATED, not measured** | Section 7.3 -- the `trace_flush.ms` field exists to replace the estimate |
 
 Nothing below claims "fault logging works on a board". What is delivered is the
 **contract** (an ABI, a container format, a flash map), the **producer**, the
@@ -86,13 +86,13 @@ investigation on day one?**
 | Event | Registers | The fault it answers |
 |---|---|---|
 | `boot` | `0x000` ID, `0x004` VERSION | *which gateware wrote the rest of this trace.* Every other field's meaning depends on `VERSION`; a trace without it is undecodable evidence |
-| `heartbeat` | — | the box is alive and the tracer is running. Also **mandatory**: it bounds the 32-bit record timestamp (§3.2) |
+| `heartbeat` | -- | the box is alive and the tracer is running. Also **mandatory**: it bounds the 32-bit record timestamp (Section 3.2) |
 | `link` | `LINKG_STAT 0x774`, `LINK_CTRL 0x71C` | the link-guard `eth_rst` deadlock; the MAC-TX wedge on a link bounce. `state`/`rx_alive`/`tx_alive`/`eth_rst` in one record is the guard's whole FSM |
 | `mac_reset` | `RST_EPOCH 0x720` | **the shadow-lie canary.** [Pattern 8](../limitations/RECURRING_DEFECT_PATTERNS.md) — a CSR that reads its pre-reset value is indistinguishable from a configured one *unless you know a reset happened*. This event is what makes every later register value in the trace interpretable |
-| `acmp_listener` | `0x6A4`, `0x6A8/0x6AC`, `0x6B4` | the fast-connect ladder, as a transition list instead of a hand-poll. **PARTLY DEAD (2026-08-13)** — see §2.1 |
-| `srp` | `0x694/0x698/0x69C` | reservation state, and `[11]` **attribute-row shortfall** — documented as the *only* software-visible symptom of a refused reservation row. **PARTLY DEAD (2026-08-13)** — see §2.1 |
+| `acmp_listener` | `0x6A4`, `0x6A8/0x6AC`, `0x6B4` | the fast-connect ladder, as a transition list instead of a hand-poll. **PARTLY DEAD (2026-08-13)** -- see Section 2.1 |
+| `srp` | `0x694/0x698/0x69C` | reservation state, and `[11]` **attribute-row shortfall** -- documented as the *only* software-visible symptom of a refused reservation row. **PARTLY DEAD (2026-08-13)** -- see Section 2.1 |
 | `srp_refusal` | (requester side) | an admission refusal as an event, distinct from a status word that happens to read badly |
-| `stream_ctx` | `0x800` window: `0x810` CTRL, `0x814/0x818` SID | **the fabric-listener accept blocker.** [§21](../limitations/TROUBLESHOOTING.md) is one word: `A_STRMW_CTRL` reads `0` while the bind record says bound. That comparison needs both halves in one record |
+| `stream_ctx` | `0x800` window: `0x810` CTRL, `0x814/0x818` SID | **the fabric-listener accept blocker.** [Section 21](../limitations/TROUBLESHOOTING.md) is one word: `A_STRMW_CTRL` reads `0` while the bind record says bound. That comparison needs both halves in one record |
 | `stream_ctx_write` | the writes themselves | ordering is load-bearing (*stage SID before CTRL*), and an ordering defect is invisible unless the **writes** are traced, not only the resulting state |
 | `parser_probe` | `APRB 0x8B4-0x8C4` | the only listener-side view **upstream** of the stream-table match. `parsed` climbing with `matched` static is the exact signature; `wire_sid` is what you diff against the bind record |
 | `avtp_rx` | `0x6B8/0x6BC/0x6C0/0x6C4/0x6EC` | accept rate, format rejects, sequence gaps, ring drops, stream-sync error |
@@ -101,7 +101,7 @@ investigation on day one?**
 | `journal` | `JNL_STAT 0x7C0`, `JNL_SEQ 0x7C4` | the saved-state verdict taxonomy was exactly this enum. **CANNOT FIRE (2026-08-13)**: `KL_persist_journal` is deleted, the ingest port accepts writes and discards them, and both words read STRUCTURAL ZEROS — an edge-triggered poller sees no edge, ever |
 | `maap` | `0x6D0/0x6D4` | a DMAC collision is the documented cause of lwSRP failure code 5 |
 | `mediaclk` | `0x8F8`, `0x6D8`, `0x6E0` | "pumping" was a media-clock rate error; the trim/fill pair is the signal |
-| `ptp` | GM id, `pdelay 0x6E4`, PHC | `asCapable` never true was a multi-day fault. The PHC value is **payload**, so a clock step is data (§3.2) |
+| `ptp` | GM id, `pdelay 0x6E4`, PHC | `asCapable` never true was a multi-day fault. The PHC value is **payload**, so a clock step is data (Section 3.2) |
 | `csr_access` | any | the generic audit hatch. Deliberately not the default: a trace of raw addresses is a hex dump, not evidence |
 | `trace_flush` / `trace_drop` / `trace_evict` | — | the tracer describing itself. Without these, "the evidence is not in `/user/log`" is ambiguous between never-written, dropped and evicted |
 | `daemon` | — | which producer started, stopped or failed |
@@ -110,7 +110,7 @@ investigation on day one?**
 Two members ride on **every** record, in the CTF event common context, 2 bytes:
 
 * **`sev`** — `DEBUG`/`INFO`/`NOTICE`/`WARN`/`ERROR`/`FATAL`. Not decoration: a
-  record at `WARN` or above is what **arms a flush to flash** (§4.2).
+  record at `WARN` or above is what **arms a flush to flash** (Section 4.2).
 * **`src`** — `FABRIC`/`JOURNALD`/`LINKMON`/`PROVISION`/`AUDIO`/`KERNEL`/
   `TRACE`/`TEST`. Several producers share one ring through the same CSR plane;
   *who saw this* is half of every postmortem.
@@ -150,7 +150,7 @@ affected events are named here rather than left to be discovered.
 | `avtp_rx`, `parser_probe`, `ltap`, `ring`, `link`, `mac_reset`, `ptp`, `boot`, the tracer's own events | **everything** | — |
 
 Two things NOT to do with that table. Do not delete the dead events from the
-ABI: event ids are assigned by sorted name (§3.1), so removing one renumbers
+ABI: event ids are assigned by sorted name (Section 3.1), so removing one renumbers
 its successors and mis-decodes every archived trace. And do not repoint a dead
 field at a plausible neighbour — a zero that means "no engine" must not be
 made to look like a zero that means "engine idle".
@@ -160,7 +160,7 @@ made to look like a zero that means "engine idle".
 from `sw/trace/milan_trace.yaml` and byte-checked against it (round-trip gate
 15), so the marking belongs in that YAML's comment blocks — a `sw/trace`
 change, not a docs change. Until it lands, **this section is the errata for
-that page** and is listed in §13.
+that page** and is listed in Section 13.
 
 ---
 
@@ -249,7 +249,7 @@ flowchart TD
 **Flash is the scarce resource; DRAM is not.** The `/user` partition is 2 MiB of
 NOR with 64 KiB erase blocks and finite erase cycles. DRAM is **512 MB** on the
 AX7101 and **256 MB** on the Arty. The naive design — append every log line to a
-file on flash — inverts that and destroys the part (§5).
+file on flash -- inverts that and destroys the part (Section 5).
 
 So: every record lands in DRAM. The recommended ring is **4 MiB = 1024 packets**
 (0.8 % of the AX7101's DRAM, 1.6 % of the Arty's). At the measured **20.9 raw
@@ -269,7 +269,7 @@ A flush is due when **all three** hold:
    caller asked explicitly — shutdown, a bench request);
 2. at least `flush_min_interval_us` (default **60 s**) has passed;
 3. the **flash-wear token bucket** has at least one worst-case segment's worth
-   of tokens (§5).
+   of tokens (Section 5).
 
 When a flush is refused, `milan_trace_flush_hold()` says which of the three
 refused it, and that reason belongs in the trace. A fault log that stops writing
@@ -290,7 +290,7 @@ next boot deletes.
 When the ring holds more than one segment (after a burst the flush could not
 keep up with), the daemon **drains oldest-first** into successive segments. That
 keeps exactly one ordering policy in the system: the ring empties in order, and
-`/user/log` rotation (§6) decides what survives.
+`/user/log` rotation (Section 6) decides what survives.
 
 ---
 
@@ -429,9 +429,9 @@ what the encoder itself needs, measured rather than quoted.
   check the BIOS's vendored `xz_embedded` already implements, matching what the
   kernel slot already does.
 * **One block.** `--block-size` costs 7-15 % of the ratio (measured: 0.2660 →
-  0.2849 at 128 KiB, → 0.3072 at 16 KiB) and buys nothing for truncation (§8).
+  0.2849 at 128 KiB, → 0.3072 at 16 KiB) and buys nothing for truncation (Section 8).
   The honest cost is that **none of a truncated segment is check-verified**;
-  jffs2's own per-node CRCs and the reader's structural validation (§8.2) carry
+  jffs2's own per-node CRCs and the reader's structural validation (Section 8.2) carry
   that instead.
 
 Result on the full corpus: **1 839 104 → 387 028 bytes, ratio 0.2104 (4.75×),
@@ -486,7 +486,7 @@ index, not about the data.
 
 What is genuinely lost with a single block is **verification**: the block's
 CRC-32 never arrives, so none of the recovered bytes is check-confirmed. That is
-an accepted, stated trade — see §7.2.
+an accepted, stated trade -- see Section 7.2.
 
 ### 8.2 A truncated trace decodes to a PREFIX, and says so
 
@@ -517,11 +517,11 @@ quietly, because an erased tail is a normal end, not corruption.
   **gone**;
 * the `/user/log` segments already renamed into place survive, subject to jffs2
   doing its job;
-* the segment in flight is torn, and yields the prefix measured in §8;
+* the segment in flight is torn, and yields the prefix measured in Section 8;
 * a `*.partial` file may be left behind; the next boot deletes it.
 
 This is a deliberate trade, not an oversight. The alternative — write every
-record straight to flash so nothing is ever lost — is the 59-day design in §5.2.
+record straight to flash so nothing is ever lost -- is the 59-day design in Section 5.2.
 The mitigation is that the flush trigger is **severity**, not a timer: the first
 `WARN` produced by a developing fault flushes the ring, so the *history leading
 up to* the fault is on flash long before the fault becomes fatal.
@@ -530,7 +530,7 @@ Two ways to shorten the window when it matters:
 
 * `milan_trace_flush_request()` before a deliberate reboot or a risky operation;
 * lower `flush_min_interval_us` for a bench session and accept the wear (the
-  budget in §5.3 still holds the ceiling).
+  budget in Section 5.3 still holds the ceiling).
 
 ---
 
@@ -593,11 +593,11 @@ init system or a board:
 
 * the **CSR poller** that turns register reads into events (the register groups
   are in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md); the edge rule is in
-  §2);
-* the **compressor + writer**: liblzma with the §7.1 filter chain,
+  Section 2);
+* the **compressor + writer**: liblzma with the Section 7.1 filter chain,
   write → `fsync` → `rename` into `/user/log`, then
   `milan_trace_flush_wrote(compressed_size)`;
-* the **rotation cron / on-write hook** applying §6;
+* the **rotation cron / on-write hook** applying Section 6;
 * the **init script** ordering: mount `/user` → delete stale `*.partial` →
   start the tracer → *then* `S50milan`/`S51`;
 * rootfs budget for `liblzma` (~180 KiB stripped, against the ~0.775 MiB of
@@ -623,7 +623,7 @@ python3 sw/trace/test_trace_roundtrip.py        # ALL GATES PASS
 
 Then rebuild the gateware and **read `deploy.sh flash-images`' printed size vs
 budget line for `rootfs` before writing anything** — the rootfs slot is now
-6.375 MiB, not 8.5, and `deploy.sh` does not yet know that (see §13).
+6.375 MiB, not 8.5, and `deploy.sh` does not yet know that (see Section 13).
 
 ### T1 — the partitions appear
 
@@ -654,11 +654,11 @@ python3 sw/trace/trace_segment.py verify /user/log
 
 **Pass:** at least one `seg-*.ctf.xz` plus `metadata`, and `verify` reports
 packets and events with no note. **Record the `trace_flush.ms` value** — that is
-the measurement that replaces the §7.3 estimate.
+the measurement that replaces the Section 7.3 estimate.
 
 ### T4 — a real fault lands in the trace
 
-With a talker advertising, provoke the §21 signature by hand (the standing
+With a talker advertising, provoke the Section 21 signature by hand (the standing
 workaround writes, in the wrong order on purpose):
 
 ```sh
@@ -679,12 +679,12 @@ devmem 0x90000810 32 0x0          # CTRL first  -> arms the override with en=0
    prefix of the torn one.
 
 **Pass:** no boot loses a previously complete segment, and no decode raises.
-This is the gate that proves §8 on real flash rather than on a truncated file.
+This is the gate that proves Section 8 on real flash rather than on a truncated file.
 
 ### T6 — the wear budget on real flash
 
 Leave a board faulting continuously for 24 h. **Pass:** total bytes written to
-`/user/log` ≤ 12 MiB (§5.2), and the trace contains `trace_flush` records with
+`/user/log` ≤ 12 MiB (Section 5.2), and the trace contains `trace_flush` records with
 `verdict = RATELIMIT` or a `trace_drop` with `reason = BUDGET` showing the
 limiter doing its job rather than the daemon silently going quiet.
 
@@ -722,18 +722,18 @@ limiter doing its job rather than the daemon silently going quiet.
 * **The generated event catalogue still lists events that cannot fire.**
   [`../reference/TRACE_EVENTS.md`](../reference/TRACE_EVENTS.md) is generated
   from `sw/trace/milan_trace.yaml` and gated byte-for-byte against it, so the
-  2026-08-13 marks in §2.1 cannot be written into the page by hand — they have
+  2026-08-13 marks in Section 2.1 cannot be written into the page by hand -- they have
   to go into the YAML's per-event comment blocks and be regenerated. That is a
-  `sw/trace` change and is deliberately not made here; until it lands, §2.1 is
+  `sw/trace` change and is deliberately not made here; until it lands, Section 2.1 is
   the errata a reader needs beside that catalogue. Also worth doing in the same
   pass: the poller in the private test repo currently reads groups that are now
   structural zeros every cycle, which costs nothing but produces no records —
   dropping them from the poll set is the honest follow-up.
-* **`ctrl=0` in the §10 worked line is no longer the whole story.** That line
+* **`ctrl=0` in the Section 10 worked line is no longer the whole story.** That line
   reads the accept blocker off `A_STRMW_CTRL` versus `bound`, and both halves
   are still live — but `ACMPL_STATE`'s state field beside them is now a
   structural zero, so a triage habit of "check the ladder first" reads a dead
-  word. `bound` is the truth (§2.1).
+  word. `bound` is the truth (Section 2.1).
 * **Segment 0 pinning is per-boot, not per-fault.** It pins the *first* segment,
   which after a clean boot is the boot record plus early steady state. Pinning
   the first segment that carries an `ERROR` would be strictly better and is a

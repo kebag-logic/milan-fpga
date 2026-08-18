@@ -51,7 +51,7 @@ activates the venv for you; the manual path must do it by hand.
 | host cores | 128 | `nproc` |
 | Verilator | **5.050** (2026-07-01, rev `v5.050`) | `verilator --version` |
 | LiteX venv | `~/litex-milan/venv`, Python **3.14.6** | `~/litex-milan/venv/bin/python --version` |
-| system python3 | 3.14.6 — **lacks `migen`/`litex`** (see §1) | `python3 -c "import migen"` fails |
+| system python3 | 3.14.6 -- **lacks `migen`/`litex`** (see Section 1) | `python3 -c "import migen"` fails |
 | LiteX source tree | `~/litex-milan/litex` (sim backend: `litex/build/sim/verilator.py`, core Makefile `litex/build/sim/core/Makefile`) | path exists |
 | LiteX git sha1 | `a1e1c36` (printed by the booted BIOS) | BIOS banner |
 | JDK | OpenJDK **17.0.20** (2026-07-21) at `/usr/lib/jvm/java-17-openjdk` | `$JAVA_HOME/bin/java -version` |
@@ -61,7 +61,7 @@ activates the venv for you; the manual path must do it by hand.
 
 Verilator 5.050 supports `--threads N` and `--threads-dpi <mode>`; the
 multithreading policy that uses them is
-[`../testing/VIRTUAL_E2E_QEMU.md`](../testing/VIRTUAL_E2E_QEMU.md) §5.
+[`../testing/VIRTUAL_E2E_QEMU.md`](../testing/VIRTUAL_E2E_QEMU.md) Section 5.
 
 JDK/sbt only matter when the softcore netlist must be **re**generated. The
 cache above is populated, so the M-A2 boot does not shell out to sbt — but
@@ -71,7 +71,7 @@ failure mode when the cache misses is a confusing sbt error deep in the build.
 ## 3. RISC-V targets: RV32 primary, RV64 secondary
 
 **RV32 is the default focus** for the whole virtual tier: the board shape is
-fixed at RV32 VexiiRiscv for area (HANDOVER_0801 §1), and the sim SoC's
+fixed at RV32 VexiiRiscv for area (HANDOVER_0801 Section 1), and the sim SoC's
 `--xlen` has always defaulted to 32. RV64 stays *supported*, behind an explicit
 `--xlen=64`, and is not the primary path.
 
@@ -85,13 +85,13 @@ fixed at RV32 VexiiRiscv for area (HANDOVER_0801 §1), and the sim SoC's
 | kernel | `~/br-milan-rv32/images/Image` — **7,383,080 B** |
 | kernel (compressed) | `~/br-milan-rv32/images/Image.xz` — **2,409,444 B** |
 | rootfs | `rootfs.cpio` 29,784,064 B · `rootfs.cpio.gz` 12,815,843 B · `rootfs.cpio.xz` **7,715,920 B** · `rootfs.tar` 31,293,440 B |
-| firmware (OpenSBI RV32) | **PRESENT in `milan-tests-avb`** — `opensbi_ax_vexii_rv32.bin`, see §6 |
+| firmware (OpenSBI RV32) | **PRESENT in `milan-tests-avb`** -- `opensbi_ax_vexii_rv32.bin`, see Section 6 |
 
-The two `.xz` sizes are the flash-slot-verified pair from HANDOVER_0801 §3
+The two `.xz` sizes are the flash-slot-verified pair from HANDOVER_0801 Section 3
 (`Image.xz` into a 3 MiB slot; `rootfs.cpio.xz` into a 7,733,248 B slot, 17 KB
 slack). They are named here so a virtual run and a flash run demonstrably use
 the *same* bytes — the generated-versus-flashed artifact seam that
-[`../testing/VIRTUAL_E2E_PLAN.md`](../testing/VIRTUAL_E2E_PLAN.md) §1 lists as
+[`../testing/VIRTUAL_E2E_PLAN.md`](../testing/VIRTUAL_E2E_PLAN.md) Section 1 lists as
 an escape class.
 
 ### RV64 — secondary, kept behind `--xlen=64`
@@ -165,7 +165,7 @@ cross-run object cache to invalidate.
   Verilator `--exe` C++ harnesses over UNIX sockets, not DPI. `--threads-dpi`
   therefore has nothing to act on today; it becomes relevant only if T3's bridge
   introduces DPI imports. See the policy in
-  [`../testing/VIRTUAL_E2E_QEMU.md`](../testing/VIRTUAL_E2E_QEMU.md) §5.
+  [`../testing/VIRTUAL_E2E_QEMU.md`](../testing/VIRTUAL_E2E_QEMU.md) Section 5.
 
 ## 7. Reproducing this inventory
 

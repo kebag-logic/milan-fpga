@@ -8,7 +8,7 @@ This is deliverable #2 of the AAF-latency-breakdown directive: a picture of
 **where in the TX and RX pipeline each latency point is measured**, mapped to
 the exact RTL trigger and the CSR that reports it. The measurement engine is
 [`hdl/ieee1722/aaf/KL_aaf_latency_taps.sv`](../hdl/ieee1722/aaf/KL_aaf_latency_taps.sv); the register block is
-[`REGISTER_MAP.md`](reference/REGISTER_MAP.md) §0x870; the per-sample DDR3 history is
+[`REGISTER_MAP.md`](reference/REGISTER_MAP.md) Section 0x870; the per-sample DDR3 history is
 [`LATENCY_HISTORY_RING.md`](LATENCY_HISTORY_RING.md).
 
 All deltas are in **`axis_clk` cycles** — divide by the datapath clock
@@ -46,7 +46,7 @@ flowchart LR
   instead — published by the protocol processor's class-D face since the lwSRP
   engine was deleted (2026-08-13). See
   [`reference/EGRESS_QUEUE_MAP.md`](reference/EGRESS_QUEUE_MAP.md#where-the-fabric-bypasses-all-of-this)
-  and [`fpga/DATAPLANE_WALKTHROUGH.md`](fpga/DATAPLANE_WALKTHROUGH.md) §0. Under
+  and [`fpga/DATAPLANE_WALKTHROUGH.md`](fpga/DATAPLANE_WALKTHROUGH.md) Section 0. Under
   mixed traffic this shared boundary may catch a nearer non-AAF edge, which is
   why the envelope (min/max) matters more than a single sample here.
 * The existing `ptp_ts_top` **TX hardware timestamp** stamps the actual wire
@@ -146,7 +146,7 @@ and cannot be tuned back down from a controller.
 `MAC_RX` armed the chain on every ingress frame, but `avtprx_accept_p` never
 pulsed, so every token aborted at the D0 guard. That was the fabric-listener
 accept blocker, and it was **not** a tap defect — it was entry-0 provisioning
-([`limitations/TROUBLESHOOTING.md`](limitations/TROUBLESHOOTING.md) §21). With
+([`limitations/TROUBLESHOOTING.md`](limitations/TROUBLESHOOTING.md) Section 21). With
 the listener accepting (~9.6 k frames/s sustained, `AVTPRX_ERR = 0`), the chain
 reads:
 
@@ -167,8 +167,8 @@ staging workaround**, not through the fixed provisioning path.
 
 The companion instrument for diagnosing a non-accepting listener is the `0x8B4`
 parser-probe group (the pre-match view — see
-[`REGISTER_MAP.md`](reference/REGISTER_MAP.md) §0x8B4); the ordered walk is in
-[`fpga/DATAPLANE_WALKTHROUGH.md`](fpga/DATAPLANE_WALKTHROUGH.md) §3.
+[`REGISTER_MAP.md`](reference/REGISTER_MAP.md) Section 0x8B4); the ordered walk is in
+[`fpga/DATAPLANE_WALKTHROUGH.md`](fpga/DATAPLANE_WALKTHROUGH.md) Section 3.
 
 Note for whoever measures the RX chain next: since `VERSION 0x0001_000C` the
 chain consumes **same-cycle** stage pulses as 0-cycle hops, so **RX D2

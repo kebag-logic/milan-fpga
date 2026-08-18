@@ -45,7 +45,7 @@ outputs are stale.
 
 **Tool:** the TerosHDL documenter (VS Code extension).
 **Masters:** the `//!` documentation comments the house style requires on every
-generic, port and signal (see [`../CONTRIBUTING.md`](../CONTRIBUTING.md) §1).
+generic, port and signal (see [`../CONTRIBUTING.md`](../CONTRIBUTING.md) Section 1).
 
 How to generate a page: open the module's `.sv` in VS Code with the TerosHDL
 extension installed, run its **"Save documentation"** action, and save the

@@ -111,7 +111,7 @@ down to one or two.*
 flowchart TB
     S(["something is wrong"]) --> W{"how far did you get<br/>before it broke?"}
     W -->|"a controller discovers and connects,<br/>but every READ_DESCRIPTOR comes<br/>back BAD_ARGUMENTS"| AE["Section 26<br/>the descriptor image was never<br/>loaded into DRAM"]
-    W -->|"a command is answered<br/>NOT_IMPLEMENTED, or IDENTIFY_NOTIFICATION<br/>is answered BAD_ARGUMENTS"| AB["NOT A FAULT<br/>the AECP capability boundary<br/>KNOWN_ISSUES §0"]
+    W -->|"a command is answered<br/>NOT_IMPLEMENTED, or IDENTIFY_NOTIFICATION<br/>is answered BAD_ARGUMENTS"| AB["NOT A FAULT<br/>the AECP capability boundary<br/>KNOWN_ISSUES Section 0"]
     W -->|"a counter reads 0 forever, or a<br/>register accepts a write and<br/>changes nothing on the wire"| SZ["Section 24<br/>structural zeros and<br/>write-only scratch"]
 
     W -->|"the SoC build never produced<br/>a bitstream"| B["Sections 1-6<br/>toolchain env + LiteX/SoC build"]
@@ -139,7 +139,7 @@ to argue with than a bug.
 
 ## Section index
 
-| § | The symptom you would search for | Root cause |
+| Section | The symptom you would search for | Root cause |
 |---|---|---|
 | [1](#section-1-import-litex-resolves-to-a-namespace-package) | `cannot import name 'get_data_mod' from 'litex'`, `litex.__file__` is `None` | the working directory is the litex-repos parent, whose `litex/` **subdirectory** shadows the installed package |
 | [2](#section-2-naxriscv-generation-needs-java_home) | the build dies in "NaxRiscv netlist generation" / `sbt` will not launch | the core is generated from SpinalHDL (Scala) and needs a JDK on `PATH`/`JAVA_HOME` |
@@ -484,7 +484,7 @@ Background: the cross-boundary attribution trap this exposed (the cones showed
 up as `milan_csr` LUTs in hierarchical utilization because the `cbs_idle`
 source registers live there) is a standing area-report trap — OOC-synth a
 module standalone before believing its hierarchical LUT count (the same rule
-carried as build gate 2 in [`../integration/BUILDING.md`](../integration/BUILDING.md) §5).
+carried as build gate 2 in [`../integration/BUILDING.md`](../integration/BUILDING.md) Section 5).
 
 ## Section 16: clean 100 MHz  -  run the dense datapath in its own clock domain
 
@@ -521,7 +521,7 @@ clock  -  the MT41J256M16 part is rated 1600, i.e. the CPU was the limit, not th
 (**Update, current VexiiRiscv core:** the ~102 MHz cap was NaxRiscv-specific  -  a VexiiRiscv
 build closed and ran **112.5 MHz / DDR3-900** on silicon, memtest OK. It was nonetheless
 reverted to 100 MHz / DDR3-800 because the higher clock *worsened* memory latency and the
-UDP-flood pps ceiling  -  see [`LATENCY_INVESTIGATION.md`](../findings/LATENCY_INVESTIGATION.md) §8.)
+UDP-flood pps ceiling  -  see [`LATENCY_INVESTIGATION.md`](../findings/LATENCY_INVESTIGATION.md) Section 8.)
 
 The S7PLL also rejects intermediate frequencies (115 MHz → `No PLL config found`,
 since `sys4x=4·sys` plus the 50/200 MHz clocks force no valid VCO between 100 and 125).
@@ -721,7 +721,7 @@ out of any binary, so the image that actually boots is the image that gets check
 
 > **ROOT CAUSE FOUND 2026-07-26 — reproduced in simulation, fixed in RTL, and
 > the mechanism then confirmed on silicon by causation** (see the confirmation
-> block below and [`../findings/STRESS_0726.md`](../findings/STRESS_0726.md) §D).
+> block below and [`../findings/STRESS_0726.md`](../findings/STRESS_0726.md) Section D).
 > The verdict does not die in the *parse*; it dies in the
 > stream **table** that tells the parser what to match. Two RTL layers combined:
 >
@@ -881,7 +881,7 @@ existed when this was written is *downstream* of the match (`AVTPRX_*` only coun
 frames), which is exactly why the fault was invisible from software. The parser's own
 frame/match counters turned out to exist in RTL and be left **unconnected** in
 `milan_datapath`; they are now wired out, with the wire-side stream_id beside them, as the
-**`0x8B4` parser-probe group** ([register map](../reference/REGISTER_MAP.md) §0x8B4):
+**`0x8B4` parser-probe group** ([register map](../reference/REGISTER_MAP.md) Section 0x8B4):
 
 ```sh
 # on the board, after binding the listener
@@ -911,7 +911,7 @@ daemon for the duration.
 
 **Re-test recipe (do this on the next flash, before anything else).**
 
-1. Bind the board listener to the peer talker (one controller `CONNECT_RX`, §6 of the
+1. Bind the board listener to the peer talker (one controller `CONNECT_RX`, Section 6 of the
    [PipeWire peer guide](../integration/PIPEWIRE_AVB_PEER.md)).
 2. Read `AVTPRX_FRX` twice, a second apart. Non-zero and climbing = blocker gone.
 3. If still 0, read the `0x8B4` probe group above - that is what it is for, and its three
@@ -1023,10 +1023,10 @@ outcomes, not one:
   it says the source was deleted. A word in this class that read a *plausible*
   value instead would be a defect, because a plausible idle is indistinguishable
   from a working engine with nothing to report (the standing
-  `STATS_CAP` rule; see [RECURRING_DEFECT_PATTERNS §8](RECURRING_DEFECT_PATTERNS.md)).
+  `STATS_CAP` rule; see [RECURRING_DEFECT_PATTERNS Section 8](RECURRING_DEFECT_PATTERNS.md)).
 * **WRITE-ONLY SCRATCH.** The word still stores what software writes and reads
   it back faithfully, and **the value no longer reaches the wire**. Writing it
-  changes nothing observable. This is [RECURRING_DEFECT_PATTERNS §1](RECURRING_DEFECT_PATTERNS.md),
+  changes nothing observable. This is [RECURRING_DEFECT_PATTERNS Section 1](RECURRING_DEFECT_PATTERNS.md),
   decorative ABI, arrived at by deletion rather than by never being wired — and
   it is the more dangerous of the two, because the readback agrees with you.
 * **STILL LIVE, REPOINTED.** The word is real and its source is now the
@@ -1156,7 +1156,7 @@ locate is never reached. Hence:
   model — a modelling question, not a provisioning one.
 
 Both are clean refusals and neither hangs. Both also carry the IEEE 1722.1
-§7.4.5 4-byte `{descriptor_type, descriptor_index}` stub, so a controller that
+Section 7.4.5 4-byte `{descriptor_type, descriptor_index}` stub, so a controller that
 prints the payload shows you which read it was.
 
 **Cause.** The entity model is no longer a ROM in fabric. It is a **descriptor

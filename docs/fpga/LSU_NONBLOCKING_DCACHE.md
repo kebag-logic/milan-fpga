@@ -11,15 +11,15 @@ source we actually build  -  `pythondata-cpu-vexiiriscv/.../ext/VexiiRiscv/src/m
 
 ## Contents
 
-- **[0. Why this exists](#0-why-this-exists)** — The one-paragraph framing: the RX wall is serial cold-miss latency at ~1424 ns each, and the question is whether those can overlap. Names the culprit — LiteX's "linux" variant ships `lsuL1RefillCount = 1`, which makes a cache its own author calls non-blocking behave as a blocking one.
-- **[1. The LSU and its L1 D-cache at a glance](#1-the-lsu-and-its-l1-d-cache-at-a-glance)** — The geometry table with a source citation per row (4 ways × 64 sets × 64 B = 16 KB). The fact that makes the whole lever attractive: refill slots are flip-flop state machines, not RAM, so 1 → 8 costs **0 BRAM**.
-- **[2. The load pipeline and what "miss" means](#2-the-load-pipeline-and-what-miss-means)** — What a miss actually does here, which is not stall: it allocates a slot and raises a REDO so the load replays from its own PC until the line lands. The flowchart isolates the single genuinely blocking condition — every slot busy — which at `refillCount=1` is reached by the *second* miss.
-- **[3. The refill engine  -  the "8 refills"](#3-the-refill-engine-----the-8-refills)** — Slot fields and the five-stage lifecycle, line-cited. Then the one Scala line that decides blocking vs non-blocking, and the four hazards the engine has to cover — including the `ackTimer` that stops two harts live-locking on the same line.
-- **[4. The L1↔L2 bus: where the parallelism is spent](#4-the-l1l2-bus-where-the-parallelism-is-spent)** — Why the slot index *is* the bus tag, with a sequence diagram of three responses returning out of order and finding their slots. The consequence: at `refillCount=1` a split-transaction bus is being used as a blocking one.
-- **[5. The honest part: how MLP actually arises on an \*in-order\* core](#5-the-honest-part-how-mlp-actually-arises-on-an-in-order-core)** — The section that predicts the result before it was measured. Because a demand miss replays in program order, a dependent load chain keeps ~1 miss in flight no matter how many slots exist — the slots are capacity, and only three things actually fill them.
-- **[6. Timeline picture](#6-timeline-picture)** — The two cases side by side as ASCII: `N × 1424 ns` serialized against one latency plus bus throughput. The fastest way to see what the prefetcher is buying.
-- **[7. What we built and MEASURED on silicon (2026-07-08)](#7-what-we-built-and-measured-on-silicon-2026-07-08)** — Five builds, then the single-variable comparisons that make them mean something. Headline: refill=8 *alone* does nothing (238→229, within noise) exactly as §5 predicted; the prefetcher is the single-flow lever (+34 %); L2 size is the aggregate one; combined they break the ~280 ceiling at 298. Read the ship-shape note — this peak config is not what production ships. Ends with `perf` showing RX is CPU-bound, 51 % of it the payload copy, and a `MSG_TRUNC` ceiling test at 481.
-- **[8. Reproduce / re-tune](#8-reproduce--re-tune)** — The full build command plus the ground-truth check that the knob actually landed in the netlist — grep `refill_slots_N_` in the generated Verilog, not the argument echo. Also the `--scala-args=--flag=value` single-token form argparse forces on you.
+- **[0. Why this exists](#0-why-this-exists)** -- The one-paragraph framing: the RX wall is serial cold-miss latency at ~1424 ns each, and the question is whether those can overlap. Names the culprit -- LiteX's "linux" variant ships `lsuL1RefillCount = 1`, which makes a cache its own author calls non-blocking behave as a blocking one.
+- **[1. The LSU and its L1 D-cache at a glance](#1-the-lsu-and-its-l1-d-cache-at-a-glance)** -- The geometry table with a source citation per row (4 ways × 64 sets × 64 B = 16 KB). The fact that makes the whole lever attractive: refill slots are flip-flop state machines, not RAM, so 1 → 8 costs **0 BRAM**.
+- **[2. The load pipeline and what "miss" means](#2-the-load-pipeline-and-what-miss-means)** -- What a miss actually does here, which is not stall: it allocates a slot and raises a REDO so the load replays from its own PC until the line lands. The flowchart isolates the single genuinely blocking condition -- every slot busy -- which at `refillCount=1` is reached by the *second* miss.
+- **[3. The refill engine  -  the "8 refills"](#3-the-refill-engine-----the-8-refills)** -- Slot fields and the five-stage lifecycle, line-cited. Then the one Scala line that decides blocking vs non-blocking, and the four hazards the engine has to cover -- including the `ackTimer` that stops two harts live-locking on the same line.
+- **[4. The L1↔L2 bus: where the parallelism is spent](#4-the-l1l2-bus-where-the-parallelism-is-spent)** -- Why the slot index *is* the bus tag, with a sequence diagram of three responses returning out of order and finding their slots. The consequence: at `refillCount=1` a split-transaction bus is being used as a blocking one.
+- **[5. The honest part: how MLP actually arises on an \*in-order\* core](#5-the-honest-part-how-mlp-actually-arises-on-an-in-order-core)** -- The section that predicts the result before it was measured. Because a demand miss replays in program order, a dependent load chain keeps ~1 miss in flight no matter how many slots exist -- the slots are capacity, and only three things actually fill them.
+- **[6. Timeline picture](#6-timeline-picture)** -- The two cases side by side as ASCII: `N × 1424 ns` serialized against one latency plus bus throughput. The fastest way to see what the prefetcher is buying.
+- **[7. What we built and MEASURED on silicon (2026-07-08)](#7-what-we-built-and-measured-on-silicon-2026-07-08)** -- Five builds, then the single-variable comparisons that make them mean something. Headline: refill=8 *alone* does nothing (238→229, within noise) exactly as Section 5 predicted; the prefetcher is the single-flow lever (+34 %); L2 size is the aggregate one; combined they break the ~280 ceiling at 298. Read the ship-shape note -- this peak config is not what production ships. Ends with `perf` showing RX is CPU-bound, 51 % of it the payload copy, and a `MSG_TRUNC` ceiling test at 481.
+- **[8. Reproduce / re-tune](#8-reproduce--re-tune)** -- The full build command plus the ground-truth check that the knob actually landed in the netlist -- grep `refill_slots_N_` in the generated Verilog, not the argument echo. Also the `--scala-args=--flag=value` single-token form argparse forces on you.
 
 ## 0. Why this exists
 
@@ -55,7 +55,7 @@ Geometry we build (`core.py:262` + `Param.scala` defaults, line size `LsuL1Plugi
 | coherency | on | SMP + `--with-dma` |
 
 The refill and writeback slots are **flip-flop/LUT state machines, not RAM**  -  this is why
-growing refill 1→8 costs **0 BRAM** (§7). That is the entire point: it buys memory-level
+growing refill 1→8 costs **0 BRAM** (Section 7). That is the entire point: it buys memory-level
 parallelism out of the FF/LUT budget (32 %/77 % used) while leaving BRAM for the AVDECC logic.
 
 ---
@@ -87,7 +87,7 @@ The miss (a) **allocates a refill slot** to fetch the 64 B line in the backgroun
 raises a lightweight **REDO**  -  the load is re-executed from its own PC a few cycles later.
 It keeps REDO-ing (cheaply) until the line has landed, then hits. **In-order order is
 preserved**  -  a later instruction never commits ahead of the missing load. Hold this fact; it
-governs §5.
+governs Section 5.
 
 The whole "blocking vs non-blocking" question is one branch in this picture  - 
 **on a miss, what is it that stalls: the machine, or just this load?**
@@ -235,7 +235,7 @@ blocking one.
 
 ## 5. The honest part: how MLP actually arises on an *in-order* core
 
-Because a demand miss **REDO-replays in program order** (§2), a *single* stream of dependent
+Because a demand miss **REDO-replays in program order** (Section 2), a *single* stream of dependent
 demand loads keeps only **~1 miss in flight per hart**  -  the missing load spins on REDO until
 its line lands; later loads cannot overtake it. So `refillCount=8` does **not**, by itself,
 magically parallelize a dependent load chain. The 8 slots are *capacity for parallelism*; three
@@ -258,7 +258,7 @@ things actually **fill** them:
 **Consequence for the campaign.** `build_mlp1` enables `refillCount=8` **alone** (no prefetcher)
  -  a clean isolation of "slots without a filler." Expect a *modest* RX gain from it (store-buffer
 decoupling + hit-under-miss). The **large** win is expected from `refill=8 + rpt` together (a
-follow-on `mlp2` build); this doc's §3-4 machinery is the prerequisite that makes the prefetcher
+follow-on `mlp2` build); this doc's Section 3-4 machinery is the prerequisite that makes the prefetcher
 effective. Either way we **measure**, not assume  -  the point of building mlp1 first is to know
 how much each half contributes.
 
@@ -300,7 +300,7 @@ pointer-chase L2 cliff. Splits verified by steer counters.
 **Read the levers by the clean single-variable comparisons:**
 
 - **refill=8 *alone* does nothing** (mlp1 vs m1, same 32 KB L2): single 206→198, −P2 238→229  -  no
-  gain, within noise. **Exactly as §5 predicted:** on an in-order core the demand miss REDO-replays
+  gain, within noise. **Exactly as Section 5 predicted:** on an in-order core the demand miss REDO-replays
   one-at-a-time, so 8 empty slots with no filler = the blocking case. The slots cost **0 BRAM**
   (mlp1 == m1 at 102.5 tiles) and close timing (+0.118)  -  but capacity for MLP isn't MLP.
 - **Adding the RPT prefetcher is a large single-flow win** (mlp2 vs mlp1, same 32 KB L2): **single
@@ -318,7 +318,7 @@ pointer-chase L2 cliff. Splits verified by steer counters.
 naïve mlp2-vs-l2x2 −P2 compare, 246 < 280, is *confounded*: it changes L2 size **and** adds rpt.
 Isolated, rpt helps −P2 too.) **`build_mlp3` (refill+rpt+64 KB L2) MEASURED the combination and it
 is the best config**: −P2 **298** (mean of 281–310, split-verified `steer0=71523 steer1=79149`,
-**§V canary=0**)  -  the **first break above the ~280 ceiling**, +6 % over l2x2, +21 % over mlp2 at
+**validation-checklist canary=0**)  -  the **first break above the ~280 ceiling**, +6 % over l2x2, +21 % over mlp2 at
 32 KB. Also best-yet **TX−P4 431**. So the two levers *do* compound: the 64 KB L2 gives both harts
 the capacity to prefetch without evicting each other. Cost: 112.5 tiles (83 %, +8 vs mlp2). Single
 dipped to 259 (the 64 KB L2's slightly higher hit latency); −P2 still shows **drops (3.6k/6.4k)**

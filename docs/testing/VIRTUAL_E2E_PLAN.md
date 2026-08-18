@@ -4,7 +4,7 @@ Status: **PROPOSED 2026-07-28 (USER: "add it to the roadmap")** - originally
 roadmap item 13 in the [historical compliance-gap plan](../MILAN_COMPLIANCE_GAPS.md).
 The [current Milan v1.2 audit](MILAN_V12_AUDIT_2026-08-16.md) is the authority
 for present compliance status.
-Nothing below exists yet except the scaffolding named in §3; this page is the
+Nothing below exists yet except the scaffolding named in Section 3; this page is the
 plan, its acceptance criteria, and the honest boundary of what it can never
 replace.
 
@@ -32,7 +32,7 @@ trip each:
 | `CRFT_CTRL` was provisioned `0x1` (the untagged-flood posture) after the class-A bit existed | `S50milan` |
 
 The pattern is the one
-[`methodology.md`](methodology.md) §1 already names (escapes 4 and 6: absent
+[`methodology.md`](methodology.md) Section 1 already names (escapes 4 and 6: absent
 platform backing, generated-versus-flashed artifacts): **the seam between the
 fabric and the software that provisions it is tested by nothing**. L0-L3 test
 modules and models; L5 tests silicon hours later. Every defect above is a
@@ -81,7 +81,7 @@ container discipline to reuse.
 **B. Renode with a verilated `milan_datapath` — the multi-machine end game.**
 First-class LiteX/RISC-V platform support, co-simulation of exactly one
 verilated peripheral (our whole custom fabric is a single AXI-Lite + AXIS
-block), **deterministic virtual time** (the answer to §5's daemon-timer
+block), **deterministic virtual time** (the answer to Section 5's daemon-timer
 problem), and multi-machine simulations wired into one virtual network — a
 two-board bench plus a TAP into the host, so a real controller stack
 enumerates a virtual board and the L4 oracle stays independent. The cost is
@@ -94,7 +94,7 @@ lags the VexiiRiscv the boards actually run.
 
 ## 4. Phases V0-V3, each with its oracle and its negative control
 
-Per [`methodology.md`](methodology.md) §4: every phase names its oracle, and
+Per [`methodology.md`](methodology.md) Section 4: every phase names its oracle, and
 R2 demands each new check be shown able to fail — the negative controls below
 are **real defects from the 2026-07-28 session, replayed**, not invented
 mutations.
@@ -126,7 +126,7 @@ daemon-timescale scenarios to V2.
 A new rung between L3 and L5 — call it **VL5: the wire, on virtual
 hardware** — observing the same things L5 observes (frames on a wire, a
 booted software stack, flashed-artifact agreement) with the same preference
-for an independent oracle, minus everything §2 lists. The normative levels
+for an independent oracle, minus everything Section 2 lists. The normative levels
 table in [`methodology.md`](methodology.md) gains the row **when V1 lands and
 its negative control has been shown to bite**, not before: a tier that exists
 only as a plan must not appear in the table a lane cites when declaring its

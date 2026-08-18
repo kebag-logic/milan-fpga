@@ -50,8 +50,8 @@ the same thing
 [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#where-the-fabric-bypasses-all-of-this)
 says from the queue's side.
 
-So this page walks both egress lanes. §1 is the fabric talker (where your audio
-actually comes from); §2 is the CPU lane (where the queue map applies).
+So this page walks both egress lanes. Section 1 is the fabric talker (where your audio
+actually comes from); Section 2 is the CPU lane (where the queue map applies).
 
 ---
 
@@ -74,7 +74,7 @@ flowchart LR
     CAP --> XBAR["KL_chan_map_capture<br/>(capture crossbar)"]
     XBAR --> PKT["KL_aaf_packetizer<br/>(per-talker TCTX)"]
     PKT --> AMUX["aaf_final_mux<br/>adp_tx_arbiter"]
-    CPU["CPU lane §2<br/>(shaped)"] --> AMUX
+    CPU["CPU lane Section 2<br/>(shaped)"] --> AMUX
     CTRL["protocol processor: ADP · ACMP · AECP · SRP<br/>MAAP → ctl_ifg"] --> TMUX
     AMUX --> TMUX["adp_tx_mux<br/>adp_tx_arbiter"]
     TMUX --> MAC["MilanMAC → GMII → PHY"]
@@ -94,7 +94,7 @@ flowchart LR
 > **The `LTAP_TX_D2` reading, corrected.** `D2` spans hop 3's last beat to hop
 > 8's egress, i.e. hops 5–8 — the arbiter chain and the MAC boundary. It does
 > **not** span a CBS slot, because a fabric-talker frame never enters the
-> shaper (§0). [../AAF_LATENCY_TAPS.md](../AAF_LATENCY_TAPS.md) attributes the
+> shaper (Section 0). [../AAF_LATENCY_TAPS.md](../AAF_LATENCY_TAPS.md) attributes the
 > measured `D2` maximum to a shaper slot; that attribution cannot be right for
 > this lane, whatever the measurement itself shows.
 
@@ -127,7 +127,7 @@ All three classifier/queue/shaper blocks are children of one wrapper,
 | 2 | **enqueue** | `traffic_queues` | `axis_demux` fans the frame out by `tdest` into one of five `axis_fifo`s. A FIFO drains only while the shaper grants it | `CAP.num_queues` `0x008` reads 5 |
 | 3 | **shape** | `traffic_shaping_core` → five `credit_based_shaper` instances | per-queue 802.1Qav credit accounting decides which backlogged queue is *eligible*; a plain grant mux (not a second arbiter) selects among the eligible ones, highest index first. **Every queue powers up unshaped**, so at reset this is pure strict priority | `0x400 + q*0x20` for `q ∈ [0,5)` → `0x400`–`0x49F`; `CBS_CTRL[0]` at `+0x0C` per queue |
 | 4 | **timestamp** | `ptp_ts_top` | parses the frame; if it is a gPTP **event** message, captures the egress-SFD timestamp and emits a `{direction, seq_id, timestamp}` record on the separate TS AXIS stream | PTP group `0x500`; the TS records land in DRAM through the TS DMA |
-| 5–7 | **merge + MAC** | as §1 hops 5–8 | the shaped stream is the *data* port of `aaf_final_mux` and then of `adp_tx_mux` | `STAT_TX_FIFO_GOOD_FRAME` `0x21C` |
+| 5–7 | **merge + MAC** | as Section 1 hops 5–8 | the shaped stream is the *data* port of `aaf_final_mux` and then of `adp_tx_mux` | `STAT_TX_FIFO_GOOD_FRAME` `0x21C` |
 
 The full queue table, the reset slopes, the reserved-DMAC rows and the argument
 for gPTP sitting at q3 are all in
@@ -187,7 +187,7 @@ hop that failed. Walk them in this order:
 bound listener that accepts nothing used to read zero everywhere with no way to
 tell parse failure from match failure. That gap is what made the entry-0
 provisioning defect take so long to corner — see
-[../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md) §21.
+[../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md) Section 21.
 
 ## 4. What is *not* on either path
 
@@ -195,10 +195,10 @@ Worth stating so nobody looks for them in the wrong place:
 
 * **The protocol processor's ADP, ACMP, AECP, and SRP traffic plus MAAP** never
   touches the classifier or a queue. It enters through the control merge in
-  §1 hop 6. CRF joins AAF on the separate data-side merge. Their ingress is
+  Section 1 hop 6. CRF joins AAF on the separate data-side merge. Their ingress is
   handled by taps from the RX stream.
 * **The channel-map render crossbar** (`KL_chan_map_render`) sits on the
-  playback side of §3 hop 7b, not on the capture side of §1 hop 2. They are two
+  playback side of Section 3 hop 7b, not on the capture side of Section 1 hop 2. They are two
   different crossbars with two different map RAMs —
   [../CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md) has both.
 * **The media-clock servo** (`KL_mmcm_drp_servo`) is not in the frame path.

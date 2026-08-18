@@ -1,6 +1,6 @@
 # Entity: KL_aaf_rx_depacketizer
 - **File:** `hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv`
-- **Spec:** IEEE 1722-2016 AAF (§7 / Table 18 layouts); Milan v1.2 base audio formats
+- **Spec:** IEEE 1722-2016 AAF (Section 7 / Table 18 layouts); Milan v1.2 base audio formats
 
 AAF RX payload extractor — the media half of the Milan listener (`ARCHITECTURE_HW_SW_SPLIT` "DMA PCM ring from Linux first"). Taps the RX AXI-Stream without ever backpressuring the datapath, buffers every frame through a drop-capable frame FIFO, and emits ONLY the AAF sample payload (bytes O+24 .. O+24+data_len−1, wire byte order = S32BE interleaved PCM as PipeWire consumes it) as one AXIS frame per PDU toward the DRAM PCM ring writer.
 

@@ -93,13 +93,13 @@ any disagreement.
 
 | Field | Type / values | Default | Notes |
 |-------|---------------|---------|-------|
-| `srp.sr_class` | `A` | `A` | Milan v1.2 §5.6 defines class A only for a Milan end station; class B is rejected. |
+| `srp.sr_class` | `A` | `A` | Milan v1.2 Section 5.6 defines class A only for a Milan end station; class B is rejected. |
 | `srp.vid` | int 1..4094 | `2` | The SR VID. `0` is rejected — a stream on VID 0 floods **unshaped**. |
 | `srp.stream_dmac_base` | MAC-48 hex | `0x91E0F000FE01` | Must be multicast (MAAP range). Stream `t` declares `base + t` (the MAAP-base+uid rule). |
 | `srp.class_queue` | int, `< num_queues` | `4` | `LWSRP_CTRL[4:2]`, the class-A queue the granted slope muxes into (reset PCP3→TC3→q4 — q4 is the top of the 802.1Q-ordered 5-queue egress map). |
 | `srp.enable_at_reset` / `talker_declare_at_reset` | bool | `false` | `LWSRP_CTRL[0]` / `[1]`. |
 | `srp.accumulated_latency_ns` | uint32 | `0` | `LWSRP_LATENCY` (0x6A0). |
-| `srp.bandwidth_limit_pct` | int 1..100 | `75` | Milan §5.6 / 802.1Q §34.3.1. Gate 18b checks the `KL_lwsrp_bw_gate` 750e6/75e6 ceiling literals against it. |
+| `srp.bandwidth_limit_pct` | int 1..100 | `75` | Milan Section 5.6 / 802.1Q Section 34.3.1. Gate 18b checks the `KL_lwsrp_bw_gate` 750e6/75e6 ceiling literals against it. |
 | `srp.timers_ms.{join,leave,leaveall}` | int ms | `200/600/10000` | 802.1Q Table 10-7. |
 | `srp.tspec.policy` | `pinned` \| `derived` | `pinned` | `pinned` keeps `max_frame_bytes` verbatim (the deployed 0x690 reset). `derived` computes MaxFrameSize per talker from its AAF format. |
 | `srp.tspec.max_frame_bytes` | uint16 | `224` | `pinned` only. |
@@ -127,7 +127,7 @@ talker the derived MaxFrameSize is 72, so the deployed reservation
 over-reserves ~2.3×. It stays pinned because changing it needs a reflash.
 
 Σ-slope over `bandwidth_limit_pct` of the port rate is a **ConfigError**
-citing 802.1Q §34.3.1 — `KL_lwsrp_bw_gate` would refuse the excess streams
+citing 802.1Q Section 34.3.1 -- `KL_lwsrp_bw_gate` would refuse the excess streams
 anyway, and finding that out at config-load beats finding it out on silicon.
 
 **Attribute-context capacity (a real NxN shortfall this emitter surfaced).**
@@ -295,9 +295,9 @@ without an audio port). Every port owns
   1-to-1 rule), and
 - exactly ONE `AUDIO_MAP` (`base_map`; static input ports first, then
   output ports, numbered contiguously) whose rows carry cluster offsets
-  RELATIVE to the port's `base_cluster` (IEEE 1722.1-2021 §7.2.19) —
+  RELATIVE to the port's `base_cluster` (IEEE 1722.1-2021 Section 7.2.19) --
   UNLESS the port is `map_mode: dynamic`: it then carries NO map,
-  advertises `number_of_maps=0`/`base_map=0` (§7.2.13) and its mappings
+  advertises `number_of_maps=0`/`base_map=0` (Section 7.2.13) and its mappings
   are read through `GET_AUDIO_MAP`. They are currently writable only through
   the CSR `0x900` window; the required AECP ADD and REMOVE writers remain an
   open compliance gap.

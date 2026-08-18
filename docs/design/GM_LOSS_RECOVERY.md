@@ -100,7 +100,7 @@ ptp4l ──UDS/pmc──> milan-statd ──devmem──> ADP_GMLO/HI 0x624/0x6
 is restarted by hand** — statd's UDS conversation dies with the old
 instance and the CSR pair goes stale (it kept reporting the switch while
 ptp4l had self-claimed). The lease design makes this fail SAFE for
-timestamps (§4: tu returns to 1 when the lease lapses) but fail STALE
+timestamps (Section 4: tu returns to 1 when the lease lapses) but fail STALE
 for identity readouts. Restarting statd re-acquires. The rootfs rebuild
 (task #7) owns making the boot chain resilient to this.
 
@@ -173,7 +173,7 @@ The as-built mechanism (`0x002A` + `0x002B`):
    settled-state + a matching Talker Advertise (Milan 5.3.8.5 — no lock
    term; the 5.5.3.3 event list has no lock event), so reservations and
    licences ride through the handover. The talker keeps streaming
-   (5.3.7.3), stamping tu per §4.
+   (5.3.7.3), stamping tu per Section 4.
 
 ## 7. The recovery timeline, end to end (as built)
 
@@ -191,7 +191,7 @@ T+X+~50s statd: 3 clean polls -> tu=0 lease -> peers lock on our frames
 ```
 
 Everything after `T+X` is seconds. The only minutes-scale path left is
-the slew trap in §2, and that dies with the DLL.
+the slew trap in Section 2, and that dies with the DLL.
 
 ## 8. Traps on record (all hit live, all in memory)
 

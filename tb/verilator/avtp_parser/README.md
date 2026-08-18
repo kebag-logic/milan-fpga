@@ -8,7 +8,7 @@ decides whether an inbound AVTP frame is *ours*.
 one shape, accept-biased). This suite owns the **verdict** and, above all, its
 **reject leg**: every negative here is asserted against the counter/latch
 signature the `0x8B4` **APRB** probe group publishes to software
-([`REGISTER_MAP.md` §0x8B4](../../../docs/reference/REGISTER_MAP.md)), so a
+([`REGISTER_MAP.md` Section 0x8B4](../../../docs/reference/REGISTER_MAP.md)), so a
 silicon read of those five words maps back to a named case in `sim_parser.cpp`
 / `sim_tbl.cpp`.
 

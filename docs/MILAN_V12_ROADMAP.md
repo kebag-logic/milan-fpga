@@ -74,13 +74,13 @@ the processor RTL.
 **not** imply that every served state change has its unsolicited notification.
 The audio mapping writers enqueue their required successful-change
 notifications, including an idempotent ADD. The ordinary `SET_*` programs do
-not yet enqueue all notifications required by Milan §5.4.5.2 and IEEE §7.4.7;
+not yet enqueue all notifications required by Milan Section 5.4.5.2 and IEEE Section 7.4.7;
 that shared gap remains tracked as #69. One more caveat worth naming here
 rather than burying: `0x0016`'s stored
 clock source reaches `milan_datapath` and is read by nothing (audit B3).
 
 `0x0006` used to carry a second caveat — it stored an index that
-`READ_DESCRIPTOR(ENTITY)` did not reflect, so §7.4.8.2's equivalence broke on a
+`READ_DESCRIPTOR(ENTITY)` did not reflect, so Section 7.4.8.2's equivalence broke on a
 multi-configuration image. That is closed: `E_RDESCENT` overlays the ENTITY
 descriptor's last field with the same dynamic value `GET_CONFIGURATION` reads,
 and `protocol-processor/tb/pp_top` W18c3/W18h grade the two commands **against
@@ -169,11 +169,11 @@ live fabric face, and neither can hold a *setting*.
 `SET_CONFIGURATION` all write it, and their getters read it in preference to
 the image. Issue #78 settled the separate streaming-state ownership:
 started/stopped lives in the **ACMP binding
-record** and nowhere else. Milan §5.3.8.7 calls the state "undefined when the
+record** and nowhere else. Milan Section 5.3.8.7 calls the state "undefined when the
 Stream Input is not bound", so it is a property of the binding, and only that
 record has the lifecycle — it is cleared on unbind, and it is captured by the
 NVM shadow and restored through the boot preload. **The persistence PLUMBING is
-complete; the persistence SHALL is not.** §5.3.8.7's third sentence ("shall be
+complete; the persistence SHALL is not.** Section 5.3.8.7's third sentence ("shall be
 saved in a non-volatile memory and restored after a power cycle") still waits on
 a real flash backend: `KL_pp_shadow` sets `NVM_BACKED_C = 1'b0` and answers a
 blank-flash stub, so nothing survives a power cycle on any shipping build. That
@@ -182,7 +182,7 @@ as "persisted". Selector 6 of the dynamic store is
 **retired, not reused**, and the two commands reach the record through a
 write-only request region that stores nothing, so a second copy cannot come
 back by accident. The design and the two constraints that forced it are
-kept in §P2.1 below, because they still govern every command that has not
+kept in Section P2.1 below, because they still govern every command that has not
 landed yet.
 
 **What it does not yet do is reach its consumers.** The dynamic store holds
@@ -284,7 +284,7 @@ problem already:
 
 *Acceptance*: a new `protocol-processor/tb/dyn_state` suite proving
 overlay-beats-image per field and per descriptor index; the five 0x004B GETs
-re-graded in `protocol-processor/tb/pp_top` §W through both arms (unwritten → image, written →
+re-graded in `protocol-processor/tb/pp_top` Section W through both arms (unwritten → image, written →
 overlay); and reset behaviour — the volatile fields (lock, registry, IDENTIFY)
 clear, the persisted ones do not (see P3.1).
 
@@ -311,9 +311,9 @@ the names live inline at descriptor offset 4. Two consequences:
    needs either a byte-offset `COPY_BUF` (a µCPU change) or the name table.
 2. **The name table has to grow.** `KL_aecp_desc_store.sv:153`
    `NAME_ENTRIES_P = 16`, and the store *refuses an image* whose `n_names`
-   exceeds it (`:460`). Milan §5.3.13's settable-name list on the 1x1 shipping
+   exceeds it (`:460`). Milan Section 5.3.13's settable-name list on the 1x1 shipping
    shape comes to about 29 entries — ENTITY contributes two
-   (`entity_name` index 0, `group_name` index 1, IEEE §7.4.18.1) and the 16
+   (`entity_name` index 0, `group_name` index 1, IEEE Section 7.4.18.1) and the 16
    AUDIO_CLUSTERs contribute 16. Sixteen entries is 1 KB of on-chip RAM;
    thirty-two is 2 KB, **on a die already at 67 % BRAM**.
 
@@ -322,7 +322,7 @@ inline-with-a-µISA-change, or name-table-with-more-BRAM. Take it to the area
 budget before writing either.
 
 **`GET_CONTROL` cannot honestly read the image.** The IDENTIFY value is
-dynamic state: Milan §5.3.12 makes it 0 or 255 with 0 the reset default, and
+dynamic state: Milan Section 5.3.12 makes it 0 or 255 with 0 the reset default, and
 `SET_CONTROL` is its writer. The image's copy sits at CONTROL offset 108
 (`avdecc/gen_aem_store.py:1351`), which is lane byte 4 — mid-lane, so the same
 extraction limit applies — and it would in any case go stale the moment
@@ -437,7 +437,7 @@ es-6.2, es-12.4, es-12.5, es-12.6, es-12.7.
 
 Per registered controller: a **random 30–60 s** monitor timer, reset by any
 valid AECP command from that controller; on expiry a `CONTROLLER_AVAILABLE`
-(`0x0003`) command with **one** retry per IEEE §9.3.6; any reply at all — *"no
+(`0x0003`) command with **one** retry per IEEE Section 9.3.6; any reply at all -- *"no
 matter the value of the status code"* — re-arms; silence removes the entry and
 sends a targeted unsolicited `DEREGISTER_UNSOLICITED_NOTIFICATION`.
 
@@ -458,7 +458,7 @@ Do not schedule these as SHALLs and do not let a grader count them.
 | MVU `0x0003`/`0x0004` SET/GET_MEDIA_CLOCK_REFERENCE_INFO | 5.4.4.4/.5 | **RECOMMENDED**, same construction |
 | IDENTIFY_NOTIFICATION as a transmitted unsolicited response | 5.4.5.4 | **SHOULD** — *"it should implement the Identification Notification"* |
 | `ACQUIRE_ENTITY` answering specifically `NOT_SUPPORTED` | 5.4.2.1 | the SHALL is only *"shall not reply SUCCESS"*; the code choice is a SHOULD (we do answer `NOT_SUPPORTED`) |
-| Redundancy (§8, R-PAAD) | 8.x | out of scope: this is a single-AVB_INTERFACE PAAD, so es-11.x is Not Applicable |
+| Redundancy (Section 8, R-PAAD) | 8.x | out of scope: this is a single-AVB_INTERFACE PAAD, so es-11.x is Not Applicable |
 
 ---
 
@@ -474,7 +474,7 @@ specification"*). A reference peer built from 1722.1 alone will decode our
 talker counters wrong. `STREAM_INPUT`, `AVB_INTERFACE` and `CLOCK_DOMAIN` do
 **not** diverge.
 
-**Only `NOT_IMPLEMENTED` may answer at command length.** IEEE §9.3.5.3.3 wants
+**Only `NOT_IMPLEMENTED` may answer at command length.** IEEE Section 9.3.5.3.3 wants
 "a correctly sized response", and the reference stack reads that as the
 reflected command *for `NOT_IMPLEMENTED` only* — la_avdecc's
 `checkResponsePayload` sizes every other status against the **response** form.
@@ -496,7 +496,7 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
    bound/streaming interlocks. The already-landed `SET_CONFIGURATION` path now
    applies its running reduction at dispatch, and `START`/`STOP_STREAMING`
    landed with issue #78 — their interlock turned out to be the binding
-   record's own (§5.3.8.7's "undefined when not bound"), not a reduction over
+   record's own (Section 5.3.8.7's "undefined when not bound"), not a reduction over
    every stream.
 5. **P3.2** notification triggers, folded into each command above as it lands.
 6. **P2.2/P2.3** `GET`/`SET_CONTROL` with the IDENTIFY indicator wired.
@@ -519,7 +519,7 @@ The ladder, cheapest first. A row is not done until it has all four.
 | Layer | Where | What it proves |
 |---|---|---|
 | microprogram | `protocol-processor/tb/ucpu` | the program runs, branches and sets status |
-| wire truth | `protocol-processor/tb/pp_top` §W and siblings | the response is byte-exact against a payload the bench builds from the IEEE figure |
+| wire truth | `protocol-processor/tb/pp_top` Section W and siblings | the response is byte-exact against a payload the bench builds from the IEEE figure |
 | against the model | `tb/verilator/milan_dp` `sim_nxn.cpp` `[AECP-MODEL]` | the answer matches the **generated entity model**, for every descriptor the generator emitted, with a negative oracle for every absent one |
 | the inventory | `tests/features/aecp_response_contract.feature` | the opcode partition, gated against the engine RTL's own `OP_*_C` constants so the suite cannot go stale |
 

@@ -226,7 +226,7 @@ starting over.
 
 ### `FAILED` vs `BLOCKED` — and why they are separate
 
-Contract: [`../docs/testing/TESTING.md`](../docs/testing/TESTING.md) §6b. The
+Contract: [`../docs/testing/TESTING.md`](../docs/testing/TESTING.md) Section 6b. The
 field names and POST shape here follow that section rather than inventing their
 own.
 

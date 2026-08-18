@@ -27,7 +27,7 @@ current protocol-level verdict is the
 > [`tests/steps/aecp_engine_steps.py`](../../tests/steps/aecp_engine_steps.py),
 > including `READ_DESCRIPTOR` and `GET_COUNTERS`. Unsupported commands receive
 > a conformant `NOT_IMPLEMENTED` response. `IDENTIFY_NOTIFICATION` (0x0026)
-> arriving as a command receives `BAD_ARGUMENTS` per IEEE 1722.1 §7.4.39.2. A
+> arriving as a command receives `BAD_ARGUMENTS` per IEEE 1722.1 Section 7.4.39.2. A
 > command for another entity and an AECP response arriving as input are silently
 > refused, freed and counted.
 >
@@ -83,7 +83,7 @@ CRF observation gaps that keep START/STOP partial.
 ## Contents
 
 - **[Which layer do I run?](#which-layer-do-i-run)** -- Start here: a flowchart keyed on *what you changed*, answering "what is the cheapest thing that would catch me being wrong". The point it makes is the one-way door at the bottom: timing, PHY and switch interop cannot be simulated here, so exhaust the free layers first.
-- **[0. Prerequisites](#0-prerequisites)** -- What each layer needs before it will run, including the two that bite: the Verilator floor of 5.050 (see §7 for why) and the `verilog-axis` submodule that five suites elaborate.
+- **[0. Prerequisites](#0-prerequisites)** -- What each layer needs before it will run, including the two that bite: the Verilator floor of 5.050 (see Section 7 for why) and the `verilog-axis` submodule that five suites elaborate.
 - **[1. Verilator RTL harnesses - tb/verilator/ (the live regression)](#1-verilator-rtl-harnesses---tbverilator-the-live-regression)** -- The main regression layer: the one-line sweep, the generated module↔spec↔test coverage map with its ⚪ untested list, the tsn_fuzz field-validation campaign (AAF only since 2026-08-13), and the per-suite table -- reconciled against the tree on 2026-08-13, when it **shrank** by the thirteen suites deleted with the control-plane RTL, with the standing reminder that `ls tb/verilator/` is the authority, not the table.
 - **[2. Migen DMA-engine sims - sw/litex/test_\*.py](#2-migen-dma-engine-sims---swlitextest_py)** -- The ring/BD engine sims, and the niche they fill: this layer is invisible to the RTL harnesses and too slow to sweep in the SoC sim.
 - **[3. SoC-level simulation - sw/litex/milan_sim.py](#3-soc-level-simulation---swlitexmilan_simpy)** -- Booting the real BIOS on the softcore over Verilator to prove the CPU⇄CSR path end to end -- the M-A2 `"MILN"` read, in simulation, before any board exists.
@@ -105,16 +105,16 @@ counts here (see the warning above); the tree is authoritative for those.
 ```mermaid
 flowchart TB
     Q{"What did I change?"}
-    Q -->|"RTL inside one module"| V["§1 Verilator harness for that suite<br/>cd tb/verilator/&lt;suite&gt; && make"]
-    Q -->|"RTL crossing the LiteX boundary"| DP["§1 milan_dp<br/>drives the whole milan_datapath wrapper"]
-    Q -->|"a wire format or a PDU field"| FZ["§1.0 tsn_fuzz<br/>spec-modelled frames against the real RTL"]
-    Q -->|"a CSR address or bit"| CSRT["§1 csr suite + the register map"]
-    Q -->|"a DMA engine / ring contract"| MG["§2 Migen DMA sims<br/>sw/litex/test_*.py"]
-    Q -->|"SoC wiring / a new peripheral"| SOC["§3 SoC-level sim<br/>sw/litex/milan_sim.py"]
-    Q -->|"anything vendor-primitive-shaped"| YS["§4 yosys portability check<br/>syn/yosys/run.sh"]
+    Q -->|"RTL inside one module"| V["Section 1 Verilator harness for that suite<br/>cd tb/verilator/&lt;suite&gt; && make"]
+    Q -->|"RTL crossing the LiteX boundary"| DP["Section 1 milan_dp<br/>drives the whole milan_datapath wrapper"]
+    Q -->|"a wire format or a PDU field"| FZ["Section 1.0 tsn_fuzz<br/>spec-modelled frames against the real RTL"]
+    Q -->|"a CSR address or bit"| CSRT["Section 1 csr suite + the register map"]
+    Q -->|"a DMA engine / ring contract"| MG["Section 2 Migen DMA sims<br/>sw/litex/test_*.py"]
+    Q -->|"SoC wiring / a new peripheral"| SOC["Section 3 SoC-level sim<br/>sw/litex/milan_sim.py"]
+    Q -->|"anything vendor-primitive-shaped"| YS["Section 4 yosys portability check<br/>syn/yosys/run.sh"]
     Q -->|"a protocol state machine"| BDD["BDD conformance suite<br/>cd tests && behave -f plain"]
     Q -->|"a build parameter or a config"| BLD["builder gates<br/>sw/builder/test_builder.py"]
-    Q -->|"timing, the PHY, or the switch"| SIL["§6 on-silicon validation<br/>the only layer that can prove it"]
+    Q -->|"timing, the PHY, or the switch"| SIL["Section 6 on-silicon validation<br/>the only layer that can prove it"]
 
     V --> MTX["coverage: docs/traceability<br/>module ↔ spec ↔ test matrix"]
     DP --> MTX
@@ -135,7 +135,7 @@ switch interop cannot be simulated here — everything above is free and fast,
 and silicon time is neither, so exhaust the cheap layers first. The coverage
 map that says whether a module has any of these at all is
 [`docs/traceability/MODULE_MATRIX.md`](../traceability/MODULE_MATRIX.md), and it
-is generated (§0.1).
+is generated (Section 0.1).
 
 ## 0. Prerequisites
 
@@ -143,7 +143,7 @@ is generated (§0.1).
 |---|---|
 | Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor`. Five suites elaborate Forencich cores; `pp_shadow`, `milan_dp` and `hostplane` elaborate the processor through `milan_datapath`. No vendor tools are required |
 | Yosys portability | `yosys` + [`sv2v`](https://github.com/zachjs/sv2v) on `PATH` + the same submodule |
-| Migen DMA sims / SoC sim | a LiteX Python environment ([../litex/LITEX_SOC.md](../litex/LITEX_SOC.md) §7) |
+| Migen DMA sims / SoC sim | a LiteX Python environment ([../litex/LITEX_SOC.md](../litex/LITEX_SOC.md) Section 7) |
 | Legacy utests/itests | Vivado (xsim); [`tb/avtp_packet_gen_sv`](../../tb/avtp_packet_gen_sv) needs Modelsim/Questa |
 
 ## 1. Verilator RTL harnesses - `tb/verilator/` (the live regression)
@@ -335,9 +335,9 @@ verdicts and for check counts.
 | [`tb/verilator/link_guard`](../../tb/verilator/link_guard) | — |
 | [`tb/verilator/maap`](../../tb/verilator/maap) | `KL_maap`, which remains the shipping allocator while the processor's internal MAAP engine is disabled |
 | [`tb/verilator/mac_rmon`](../../tb/verilator/mac_rmon) | the revived RMON event derivation + STATS_CAP |
-| [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. See §7 — the servo that would steer it is structurally off in every build |
+| [`tb/verilator/media_nco`](../../tb/verilator/media_nco) | `KL_media_nco`, the steerable media sample grid. See Section 7 -- the servo that would steer it is structurally off in every build |
 | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) | the whole `milan_datapath` wrapper at legacy, N=4 and N=8; carries the entry-0 blocker guard (TRAP-1). Elaborates the processor with the wrapper, so it needs the `protocol-processor` submodule |
-| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Same §7 caveat: the block is graded, the build never enables it |
+| [`tb/verilator/mmcm_servo`](../../tb/verilator/mmcm_servo) | `KL_mmcm_drp_servo` as a block. Same Section 7 caveat: the block is graded, the build never enables it |
 | [`tb/verilator/mmcm_servo_autorepair`](../../tb/verilator/mmcm_servo_autorepair) | — |
 | [`tb/verilator/pair_fill`](../../tb/verilator/pair_fill) | `KL_pair_blend` + `KL_pair_zero_fill` |
 | [`tb/verilator/pcm_playback`](../../tb/verilator/pcm_playback) | host ring → `KL_pcm_tx` → render crossbar → feed mux → DAC pin, bit-exact plus the negatives |
@@ -356,7 +356,7 @@ verdicts and for check counts.
 | [`tb/verilator/tdm`](../../tb/verilator/tdm) | — |
 | [`tb/verilator/tdm_render`](../../tb/verilator/tdm_render) | — |
 | [`tb/verilator/tkdiag`](../../tb/verilator/tkdiag) | `KL_talker_diag_ctx` grades the Milan Table 5.4 per-STREAM_OUTPUT counter arithmetic, including the nonvacuous MEDIA_RESET reset-on-start path. `milan_datapath` instantiates one context for every AAF output and the CRF output; `milan_dp` grades that integration and its AECP response path |
-| [`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) | the field-validation campaign — **AAF only** since 2026-08-13 (§1.0); standalone `make` skips without tsn-gen, CI installs the pinned generator, and the full sweep rejects an uncounted skip |
+| [`tb/verilator/tsn_fuzz`](../../tb/verilator/tsn_fuzz) | the field-validation campaign -- **AAF only** since 2026-08-13 (Section 1.0); standalone `make` skips without tsn-gen, CI installs the pinned generator, and the full sweep rejects an uncounted skip |
 
 The standing rule is that every round grows this table. 2026-08-13 is the one
 round that shrank it, by deliberate deletion of the RTL underneath — recorded
@@ -407,7 +407,7 @@ make ecp5     # Lattice ECP5 mapping
 ```
 
 Proves synthesizability off-Xilinx, not behaviour (layer 1 does that) and
-not timing. See [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §5.
+not timing. See [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) Section 5.
 `run.sh` also prints two trailing structural reports: the tied-off-input
 inventory ([`scripts/check_tied_inputs.sh`](../../scripts/check_tied_inputs.sh), the RMON class) and the
 observer-purity check ([`syn/yosys/check_tap_purity.sh`](../../syn/yosys/check_tap_purity.sh) — taps/telemetry must
@@ -440,7 +440,7 @@ has since been paid down to 150 — see below.)
 
 916 of Verible's 1004 are pure style, the biggest single rule being 356
 `parameter-name-style` — whose default pattern rejects essentially every
-parameter in the tree, because [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md) §1
+parameter in the tree, because [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md) Section 1
 mandates the `_C`/`_P` suffix convention Verible does not expect. Disable
 every rule that fights the house style and **three** rules survive, worth
 **15** findings (`undersized-binary-literal` 9, `posix-eof` 4,
@@ -479,7 +479,7 @@ second, correct thing (a 2-FF reset bridge into the audio domain), and
 one of
 them is **printed in full on every gated run**: a ratchet that hides what it
 grandfathers is a silent cap, and this project already paid for that once
-(`check_tied_inputs.sh`, §4).
+(`check_tied_inputs.sh`, Section 4).
 
 Waivers are tables in the script, each naming the reason *and where the reason
 is recorded* — `TIMESCALEMOD` (a lint-only artifact: two of 95 files carry a
@@ -751,10 +751,10 @@ host-only.
   stays honest), the traceability no-drift gate and the end-station builder
   gates; [`.github/workflows/rtl.yml`](../../.github/workflows/rtl.yml) runs the
   whole Verilator sweep via [`scripts/run_all_suites.sh`](../../scripts/run_all_suites.sh), the ratcheted RTL lint
-  (§4b) and the Yosys portability sweep. The RTL jobs initialize both
+  (Section 4b) and the Yosys portability sweep. The RTL jobs initialize both
   `verilog-axis` and `protocol-processor`. The docs workflow also initializes
   `protocol-processor` before running the builder gate. Local commands:
-  [`../../QUICKSTART.md`](../../QUICKSTART.md) §2.
+  [`../../QUICKSTART.md`](../../QUICKSTART.md) Section 2.
 * **The Verilator version matters, and distro packages are not enough.**
   Measured 2026-07-26 by running the suites under each version in a container:
 
@@ -762,7 +762,7 @@ host-only.
   |---|---|---|
   | 5.020 | Ubuntu 24.04 | **cannot build** `hostplane`/`milan_dp`/`tsn_fuzz` and the (since-deleted) `aecp` — `BLKLOOPINIT: Delayed assignment to array inside for loops`, on legal SystemVerilog that Yosys synthesises fine |
   | 5.032 | Debian trixie, Ubuntu 25.04 | builds, but **6 of 490 `aecp` checks** read back `0` (AS_PATH / AVB_INFO CDL, `UNSUPPORTED_FORMAT`, `FRAMES_RX`) — a testbench/C++ ABI sensitivity, not a known RTL fault. **Moot since 2026-08-13**: the suite it was measured on is deleted, so this row can no longer be reproduced. Kept because the sensitivity is a property of the tool, and the next suite it bites will look exactly like this |
-  | 5.050 | Arch, and the CI pin | the reference. The 55/55-green figure this row used to quote was the 2026-07-26 sweep of a tree that no longer exists (§1.1) — rerun the sweep |
+  | 5.050 | Arch, and the CI pin | the reference. The 55/55-green figure this row used to quote was the 2026-07-26 sweep of a tree that no longer exists (Section 1.1) -- rerun the sweep |
 
   CI therefore **builds Verilator from source at a pinned tag** (`VERILATOR_VERSION`
   in the workflow) and caches it, rather than trusting `apt`. The RTL was
@@ -772,7 +772,7 @@ host-only.
   is why.
 * `milan_top` (Zynq variant) is not coverable by the open flows (PS7 + the
   external verilog-ethernet MAC); its TSN content is covered via
-  `milan_dp`. It is out of the §4b lint sweep for the same reason — it cannot
+  `milan_dp`. It is out of the Section 4b lint sweep for the same reason -- it cannot
   even *elaborate* without the `external/` submodule (an SSH remote CI cannot
   fetch) and the Xilinx `milan_dma` core. Linted against a checked-out
   `external/` it reported **116 `PINMISSING`** — 91 on its `milan_csr`
