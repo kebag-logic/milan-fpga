@@ -119,7 +119,7 @@ build `MCSRV_STAT` read `0x21`.
 
 "No AECP" is dead as a premise. The protocol processor carries an AECP µCPU
 (`KL_aecp_ucpu` + `KL_aecp_desc_store` + `KL_aecp_engine`, driven from
-`ucode.hex`) and handles 24 AEM opcodes plus Milan `GET_MILAN_INFO`. The served
+`ucode.hex`) and handles 26 AEM opcodes plus Milan `GET_MILAN_INFO`. The served
 set includes descriptor reads, lock and configuration operations, read-side
 stream and clock commands, sampling-rate and clock-source setters, Identify,
 registration, counters, AVB information, AS path, and both audio-map
@@ -175,7 +175,7 @@ so *no* leg ran). **Every number below is measured**, all nine legs, on the same
 |---|---|---|---|
 | `obj_dir` (`sim_main`) | 273 checks / 75 fail | **244 / 0** | the `in0_fmt` acceptance path is graded again, byte-exact |
 | `obj_nxn` (`sim_nxn`) | 378 / — (did not compile) | **145 / 0** | + the `[AECP]` no-memory degrade checks |
-| `obj_nxn8` (`sim_nxn`) | 512 / not counted | superseded | `[T66]` now grades atomic audio-map mutation; use the current run summary below |
+| `obj_nxn8` (`sim_nxn`) | 512 / not available | superseded | `[T66]` now grades atomic audio-map mutation; use the current run summary below |
 | `obj_nxn4c` (`sim_nxn`) | 378 / — | **145 / 0** | |
 | `obj_nolpf` (`sim_main`) | 273 / 75 | **244 / 0** | identical to `obj_dir`, as the pruned-LPF claim requires |
 | `obj_prune` (`sim_prune`) | 31 / 0 | **31 / 0** | unchanged, untouched |

@@ -203,7 +203,7 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 | Traceability no-drift gate | `python3 docs/traceability/gen_module_matrix.py --check` | python3 |
 | End-station builder gates | `python3 sw/builder/test_builder.py` | python3 + pyyaml |
 | Device portability | `cd syn/yosys && make && make ecp5` | yosys + sv2v |
-| **BDD conformance suite** (15 features / 332 scenarios / 1,573 steps, no skips in the 2026-08-17 run) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
+| **BDD conformance suite** (15 features / 338 scenarios / 1,615 steps, no skips in the 2026-08-18 run) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
 
 `ls tb/verilator/` is the authoritative suite list. Full map: [docs/testing/TESTING.md](docs/testing/TESTING.md).
 
@@ -283,7 +283,7 @@ implementation boundary.
 > the AECP half of it has since been partly discharged. The RTL that carried
 > these packages is deleted: the ADP, ACMP and SRP items are now the protocol
 > processor's to satisfy. The processor's AECP uCPU serves **twenty-six** AEM
-> opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x0050`, so some AECP rows
+> opcodes plus MVU `GET_MILAN_INFO` as of VERSION `0x0051`, so some AECP rows
 > below are closed and some are not, and the per-clause status is **not** kept
 > here. [The current audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) records
 > the exact evidence and remaining gaps. This table is kept

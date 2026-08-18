@@ -89,9 +89,9 @@ underneath it.
 | `0x0028` | GET_AS_PATH | 5.4.2.24 | 0x0048 |
 | `0x0029` | GET_COUNTERS | 5.4.2.25 | 0x0049 |
 | `0x002B` | GET_AUDIO_MAP (both port directions) | 5.4.2.26 | 0x0048 |
-| `0x002C` | ADD_AUDIO_MAPPINGS | 5.4.2.27 | 0x004F |
-| `0x002D` | REMOVE_AUDIO_MAPPINGS | 5.4.2.28 | 0x004F |
-| `0x004B` | GET_DYNAMIC_INFO | 5.4.2.29 | **0x0050** |
+| `0x002C` | ADD_AUDIO_MAPPINGS | 5.4.2.27 | 0x0050 |
+| `0x002D` | REMOVE_AUDIO_MAPPINGS | 5.4.2.28 | 0x0050 |
+| `0x004B` | GET_DYNAMIC_INFO | 5.4.2.29 | **0x0051** |
 | MVU `0x0000` | GET_MILAN_INFO | 5.4.4.1 | 0x0043 |
 
 ### 0.1b What the read-side set cost, measured
@@ -134,11 +134,11 @@ absence was why the whole `SET_*` family answered the `NOT_IMPLEMENTED` echo:
 every value the device served came from the read-only descriptor image or a
 live fabric face, and neither can hold a *setting*.
 
-`KL_aecp_dyn_state.sv` is that store, and it is landed, tested and load-bearing
-— `SET_SAMPLING_RATE`, `SET_CLOCK_SOURCE`, `SET_CONTROL` and
+`KL_aecp_dyn_state.sv` is that store, and it is landed, tested and load-bearing.
+`SET_SAMPLING_RATE`, `SET_CLOCK_SOURCE`, `SET_CONTROL` and
 `SET_CONFIGURATION` all write it, and their getters read it in preference to
-the image. `START`/`STOP_STREAMING` also wrote it and were pulled back out, and issue #78
-has now settled where they belong: started/stopped lives in the **ACMP binding
+the image. Issue #78 settled the separate streaming-state ownership:
+started/stopped lives in the **ACMP binding
 record** and nowhere else. Milan §5.3.8.7 calls the state "undefined when the
 Stream Input is not bound", so it is a property of the binding, and only that
 record has the lifecycle — it is cleared on unbind, and it is captured by the
