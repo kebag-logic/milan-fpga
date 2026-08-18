@@ -142,18 +142,22 @@ SERVED = {
                  verdict=ST_SUCCESS, cdl=16),
     #! The two setters answer the SWEEP's 8-byte READ_DESCRIPTOR-shaped
     #! command with BAD_ARGUMENTS at their response's own length: both are
-    #! value-carrying commands whose floor (cdl 24 / cdl 60) the sweep's
-    #! cdl-20 shape never reaches, and a refusal has to be the size of the
-    #! response it refuses. The rich payload-keyed behavior (per-descriptor
-    #! STREAM_IS_RUNNING, the format verdict, the exact-flag rule, the
-    #! bit-31 range) moves state this model does not carry; pp_top W23/W24/
-    #! W25 and milan_dp own it on the real engine.
+    #! value-carrying commands whose floor the sweep's cdl-20 shape never
+    #! reaches, and a refusal has to be the size of the response it refuses.
+    #! SET_STREAM_INFO's shape is 1722.1-2021 Figure 7-40 - Milan v1.2
+    #! references the 2021 edition, so its complete body is 84 payload bytes
+    #! and the refusal answers at cdl 96 (the 2013 60-byte shape is itself a
+    #! truncated command on the real engine; pp_top W24g pins that). The
+    #! rich payload-keyed behavior (per-descriptor STREAM_IS_RUNNING, the
+    #! format verdict, the exact-flag rule, the bit-31 range) moves state
+    #! this model does not carry; pp_top W23/W24/W25 and milan_dp own it on
+    #! the real engine.
     0x0008: dict(name="SET_STREAM_FORMAT", clause="Milan 5.4.2.7",
                  verdict=ST_BAD_ARGUMENTS, cdl=24),
     0x0009: dict(name="GET_STREAM_FORMAT", clause="Milan 5.4.2.8",
                  verdict=ST_SUCCESS, cdl=24),
     0x000E: dict(name="SET_STREAM_INFO", clause="Milan 5.4.2.9",
-                 verdict=ST_BAD_ARGUMENTS, cdl=60),
+                 verdict=ST_BAD_ARGUMENTS, cdl=96),
     0x000F: dict(name="GET_STREAM_INFO", clause="Milan 5.4.2.10",
                  verdict=ST_SUCCESS, cdl=68),     # the Milan 80-byte form
     0x0015: dict(name="GET_SAMPLING_RATE", clause="Milan 5.4.2.14",

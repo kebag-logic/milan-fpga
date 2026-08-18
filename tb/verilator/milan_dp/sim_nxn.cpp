@@ -822,7 +822,7 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x0052 carries the start/stop commit handshake",
+    ck("VERSION 0x0053 carries the stream setters and their consumption",
        axi_read(A_VERSION), 0x00020053);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
@@ -3263,9 +3263,14 @@ int main(int argc, char** argv) {
                (long)(aecp_status(r2) == 0 && cdl_of(r2) == 24), 1);
             const uint64_t fmt_base = be64_at(r2, 42);
             const uint64_t fmt_2ch =
-                (fmt_base & ~(0x3FFull << 38)) | (2ull << 38);
-            ck("#67 the generated base is an 8ch AAF qword",
-               (unsigned long)((fmt_base >> 38) & 0x3FF), 8);
+                (fmt_base & ~(0x3FFull << 22)) | (2ull << 22);
+            // the leg's DECLARED channel count: the 4x4 legs declare a 4ch
+            // base, the 8x8 leg 8ch - reading the format octet at [47:38]
+            // instead of channels at [31:22] returns 8 on EVERY leg, so
+            // this compare is what makes the decode coordinate falsifiable
+            ck("#67 the generated base declares the leg's channel count",
+               (unsigned long)((fmt_base >> 22) & 0x3FF),
+               (NSTREAMS_TB == 8) ? 8ul : 4ul);
 
             r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_2ch));
             ck("#67 SET_STREAM_FORMAT to the 2ch family member SUCCEEDS",
@@ -3291,7 +3296,7 @@ int main(int argc, char** argv) {
             // a ONE-channel family member orphans it on every leg.
             {
                 const uint64_t fmt_1ch =
-                    (fmt_base & ~(0x3FFull << 38)) | (1ull << 38);
+                    (fmt_base & ~(0x3FFull << 22)) | (1ull << 22);
                 std::vector<uint8_t> ap(16, 0);
                 ap[0] = 0x00; ap[1] = 0x0E;          // STREAM_PORT_INPUT 0
                 ap[5] = 0x01;                        // one mapping

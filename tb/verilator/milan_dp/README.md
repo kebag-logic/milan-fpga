@@ -120,7 +120,7 @@ build `MCSRV_STAT` read `0x21`.
 
 "No AECP" is dead as a premise. The protocol processor carries an AECP µCPU
 (`KL_aecp_ucpu` + `KL_aecp_desc_store` + `KL_aecp_engine`, driven from
-`ucode.hex`) and handles 26 AEM opcodes plus Milan `GET_MILAN_INFO`. The served
+`ucode.hex`) and handles 28 AEM opcodes plus Milan `GET_MILAN_INFO`. The served
 set includes descriptor reads, lock and configuration operations, read-side
 stream and clock commands, sampling-rate and clock-source setters, the stream
 setters (`SET_STREAM_FORMAT` both directions and `SET_STREAM_INFO`'s

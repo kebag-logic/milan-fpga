@@ -3865,7 +3865,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
           && (32'(amap_edit_sc_w) < 32'(ADP_DMAP_IN_SCH_C[s]))
           && ((s >= ACMP_SINKS_C) || !pp_aecp_fmt_in_v_w[s]
               || (32'(amap_edit_sc_w)
-                  < 32'(pp_aecp_fmt_in_w[64*s + 38 +: 10]))))
+                  < 32'(pp_aecp_fmt_in_w[64*s + 22 +: 10]))))
         istream_ok_c = 1'b1;
     end
     for (int s = 0; s < AMAP_OUT_PORTS_C; s++) begin
@@ -3873,7 +3873,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
           && (32'(amap_edit_sc_w) < 32'(ADP_DMAP_OUT_SCH_C[s]))
           && ((s >= ACMP_SRC_C) || !pp_aecp_fmt_out_v_w[s]
               || (32'(amap_edit_sc_w)
-                  < 32'(pp_aecp_fmt_out_w[64*s + 38 +: 10]))))
+                  < 32'(pp_aecp_fmt_out_w[64*s + 22 +: 10]))))
         ostream_ok_c = 1'b1;
     end
     for (int s = 0; s < N_STREAMS; s++) begin
@@ -4297,7 +4297,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! advertise the generated base (`ADP_STRIN0_FMT_C`) plus Milan §6.2's
   //! 48 kHz channel family {1,2,4,6,8} through the ut-bit entry, so a
   //! proposal is supported when it equals the base outside the
-  //! channels_per_frame field (qword [47:38]) with the ut bit CLEAR (a SET
+  //! channels_per_frame field (qword [31:22]) with the ut bit CLEAR (a SET
   //! names one concrete format, never a family string) and its channel
   //! count is a family member. Inputs take the whole family - the RX
   //! monitor already adapts to any wire count 1..8 under the declared base.
@@ -4306,10 +4306,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! adaptation exists. The CRF rows admit exactly the advertised CRF
   //! format (`ADP_CRF_FMT_C`) - §5.3.3.4 keeps the AAF and CRF families
   //! disjoint per stream.
-  localparam logic [63:0] SFMT_VAR_MASK_C = (64'h3FF << 38) | (64'h1 << 52);
-  localparam logic [9:0]  SFMT_BASE_CH_C  = ADP_STRIN0_FMT_C[47:38];
+  //! channels_per_frame lives at qword [31:22] (the builder's aaf_pcm32
+  //! encoder is the gate-proven authority; the generated 2/4/8ch constants
+  //! differ ONLY there). The first cut read [47:38] - the format octet plus
+  //! bit_depth - which froze the family compare shut and the channel counts
+  //! at a constant 8; the review's mutation run is what caught it.
+  localparam logic [63:0] SFMT_VAR_MASK_C = (64'h3FF << 22) | (64'h1 << 52);
   wire [63:0] sfv_prop_w  = pp_gsi_prop_fmt_w;
-  wire [9:0]  sfv_ch_w    = sfv_prop_w[47:38];
+  wire [9:0]  sfv_ch_w    = sfv_prop_w[31:22];
   wire sfv_base_ok_w = ((sfv_prop_w & ~SFMT_VAR_MASK_C)
                         == (ADP_STRIN0_FMT_C & ~SFMT_VAR_MASK_C))
                        && !sfv_prop_w[52];
@@ -4320,9 +4324,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                         && (ACMP_SINKS_C > N_STREAMS))
                     || (gsi_out_w && (32'(gsiq_index_r) == CRF_TUID_C));
   wire sfv_supported_w =
-      sfv_crf_row_w ? (sfv_prop_w == ADP_CRF_FMT_C)
+      sfv_crf_row_w ? (sfv_prop_w == (gsi_out_w ? ADP_CRF_OUT_FMT_C
+                                                : ADP_CRF_FMT_C))
     : gsi_in_w      ? (sfv_base_ok_w && sfv_fam_ch_w)
-    : gsi_out_w     ? (sfv_base_ok_w && (sfv_ch_w == SFMT_BASE_CH_C))
+    //! talker truth: the framer emits exactly the generated WIRE channel
+    //! count, so an output admits only that shape until talker adaptation
+    //! exists - the declared 8ch base on a 4-wire talker is not emittable
+    : gsi_out_w     ? (sfv_base_ok_w
+                       && (32'(sfv_ch_w) == TALKER_WIRE_CHANS_C))
                     : 1'b0;
   //! SURVIVES: the per-stream channels-required reductions below, judged
   //! against the proposal's channel count. The CRF rows carry no audio
@@ -4408,7 +4417,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                            ? pp_aecp_fmt_in_w[64*gsi_six_w +: 64]
                            : GSI_FMT_C)
                   : gsi_out_w
-                      ? (sfv_crf_row_w ? ADP_CRF_FMT_C
+                      ? (sfv_crf_row_w ? ADP_CRF_OUT_FMT_C
                          : pp_aecp_fmt_out_v_w[gsi_oix_w]
                            ? pp_aecp_fmt_out_w[64*gsi_oix_w +: 64]
                            : GSI_FMT_C)

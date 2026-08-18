@@ -2622,16 +2622,27 @@ def emit_adp_shape_svh(cfg, overlay=None):
     a("  //! the format verdict admits. Was the AEM ROM's AEM_STRIN_FMT_C[0];")
     a("  //! the ROM is gone and this is the same number from the same config.")
     a(f"  localparam logic [63:0] ADP_STRIN0_FMT_C = 64'h{f0:016X};")
-    #! the CRF Media Clock stream format, for the same reason: the format
+    #! the CRF Media Clock stream formats, for the same reason: the format
     #! verdict must admit exactly what the CRF descriptors advertise, and
-    #! clocking.crf_format is the same config fact the descriptor path reads.
-    cf0 = int(str((cfg.get("clocking") or {}).get(
-        "crf_format", "0x041060010000BB80")), 16)
-    a("  //! the CRF Media Clock stream format the entity advertises: the")
-    a("  //! ONE format SET_STREAM_FORMAT may name for the CRF rows, and the")
-    a("  //! current format their GET serves. Same config fact as the image's")
-    a("  //! CRF_FORMATS entry.")
-    a(f"  localparam logic [63:0] ADP_CRF_FMT_C = 64'h{cf0:016X};")
+    #! clocking.crf_format / clocking.crf_output.format are the same config
+    #! facts the descriptor path reads - PER DIRECTION, because a config may
+    #! declare the sink and output differently. The shared default is
+    #! CRF_FORMAT_DEFAULT, referenced rather than restated (derive, never
+    #! mirror).
+    clk_c = cfg.get("clocking") or {}
+    cf0 = int(str(clk_c.get("crf_format", CRF_FORMAT_DEFAULT)), 16)
+    #! crf_output may be a bare boolean in older configs; only a mapping
+    #! can carry a format, and anything else takes the shared default
+    co_c = clk_c.get("crf_output")
+    if not isinstance(co_c, dict):
+        co_c = {}
+    co0 = int(str(co_c.get("format", CRF_FORMAT_DEFAULT)), 16)
+    a("  //! the CRF Media Clock stream formats the entity advertises, per")
+    a("  //! direction: the ONE format SET_STREAM_FORMAT may name for each")
+    a("  //! CRF row, and the current format its GET serves. Same config")
+    a("  //! facts as the image's CRF format entries.")
+    a(f"  localparam logic [63:0] ADP_CRF_FMT_C     = 64'h{cf0:016X};")
+    a(f"  localparam logic [63:0] ADP_CRF_OUT_FMT_C = 64'h{co0:016X};")
     a("")
     return "\n".join(ln)
 
