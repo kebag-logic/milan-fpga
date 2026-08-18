@@ -193,6 +193,17 @@ module KL_crf_rx #(
   input  wire         en_i,
   input  wire [63:0]  sid_i,
 
+  //! Milan v1.2 5.3.8.7 stopped state for this Stream Input (bound and not
+  //! started). OBSERVATION IS NOT GATED by it: a stopped sink still matches,
+  //! validates and counts every Table 5.6 event, because 5.3.8.10 defines
+  //! the counters on AVTPDUs "received on this Stream Input" and the
+  //! clause's verb is discard, not ignore. What stops is CONSUMPTION: the
+  //! settle/lock machinery treats the stream as silent (locked_o falls
+  //! through the ordinary 100 ms timeout and stays down) and the 10.4.3
+  //! restart echo (mr_toggle_p_o) never pulses, so stopped timing data can
+  //! neither reach clock recovery nor restart an outgoing stream.
+  input  wire         stop_i,
+
   //! measurement outputs (CSR)
   output logic signed [31:0] delta_o,     //! crf_ts - ptp_now @ last PDU
   output logic signed [31:0] rate_o,      //! ns error per 256-PDU window
@@ -308,6 +319,9 @@ module KL_crf_rx #(
   logic        en_q;                              //! bind-edge detect
 
   wire w_acc = w_hit && w_fmt_ok;
+  //! the CONSUMED accept: only a started sink's accepts feed the lock
+  //! machinery; every counter and measurement above stays on w_acc
+  wire w_acc_run_w = w_acc && !stop_i;
 
   //! the CRF phase error, computed ONCE: delta_o publishes it and the
   //! Table 5.6 late/early verdicts read the same expression
@@ -401,7 +415,10 @@ module KL_crf_rx #(
       //! reason the wipe below states: the previous era's mr level may not be
       //! scored against the new binding, and that includes not restarting an
       //! outgoing stream over it.
-      mr_toggle_p_o <= w_ev_mr_w & ~w_bind_rise_w;
+      //! ...and a STOPPED sink's toggle is counted but never echoed: the
+      //! restart of an outgoing stream is a media effect, and 5.3.8.7's
+      //! discard rule ends this frame's influence at the counters.
+      mr_toggle_p_o <= w_ev_mr_w & ~w_bind_rise_w & ~stop_i;
       //! Table 5.6 interval commit: +1 per flagged counter at the tick,
       //! then the flags restart clean. An event landing in the tick cycle
       //! itself is harvested INTO the closing interval (the
@@ -461,8 +478,9 @@ module KL_crf_rx #(
         rate_pend_r <= 1'b0;
       end
 
-      //! lock timeout: 100 ms without an accepted PDU
-      if (w_acc) begin
+      //! lock timeout: 100 ms without a CONSUMED accepted PDU - a stopped
+      //! sink is silent to the lock machinery however much it observes
+      if (w_acc_run_w) begin
         tout_r <= '0;
       end else if (tout_r == TOUT_CYC_C[$clog2(TOUT_CYC_C+1)-1:0]) begin
         if (locked_o) begin
@@ -471,12 +489,19 @@ module KL_crf_rx #(
           dirty_p_o      <= 1'b1;
         end
         settle_r <= '0;
-        have_seq_r <= 1'b0;
-        hfill_r  <= '0;
-        //! the mr LEVEL belongs to the stream that went silent: re-seed, so
-        //! a resuming (or brand new) talker's first PDU is never scored as
-        //! THIS stream's toggle
-        mr_seeded_r <= 1'b0;
+        //! the silence reset SPLITS on the stopped state. Stopped, the
+        //! frames may still be arriving and being counted, so the sequence
+        //! cursor, the ring fill and the mr reference stay live - resetting
+        //! them would fake a SEQ_NUM_MISMATCH and a MEDIA_RESET on restart.
+        //! Started, this is true silence and the full reset applies: the mr
+        //! LEVEL belongs to the stream that went silent, so a resuming (or
+        //! brand new) talker's first PDU is never scored as THIS stream's
+        //! toggle.
+        if (!stop_i) begin
+          have_seq_r <= 1'b0;
+          hfill_r  <= '0;
+          mr_seeded_r <= 1'b0;
+        end
       end else begin
         tout_r <= tout_r + 1'b1;
       end
@@ -492,6 +517,10 @@ module KL_crf_rx #(
           //! settle run per-PDU
           if (have_seq_r && (seq_i != exp_seq_r)) begin
             settle_r  <= '0;
+          end else if (stop_i) begin
+            //! a stopped sink's accepts advance nothing toward lock; the
+            //! settle run resumes from wherever the timeout left it once
+            //! the sink is started again
           end else if (settle_r != 3'(SETTLE_C - 1)) begin
             settle_r <= settle_r + 3'd1;
           end else if (!locked_o) begin

@@ -4857,19 +4857,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .IVAL_CYC_P    (LDIAG_IVAL_CYC_P)
   ) crf_rx (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    //! Milan §5.3.8.7 applies to EVERY Stream Input, and a config with
-    //! `crf_sink: true` advertises a STREAM_INPUT descriptor for this one -
-    //! so a controller can stop it, and "shall discard the Stream AVTPDUs it
-    //! receives" has to mean something here too. This sink has no entry in
-    //! the classification table (it keys on subtype, off the parser), so the
-    //! accept gate above cannot reach it and the predicate is applied
-    //! directly. It costs nothing in normal operation: the state is
-    //! `bound & ~started`, a bind lands started unless the BIND_RX asked for
-    //! STREAMING_WAIT, and an unbound CRF sink is outside the clause and
-    //! ungated - which is why this is not a controller command in the path
-    //! of clock recovery, only a controller command that was aimed at this
-    //! descriptor on purpose.
-    .frame_p_i   (avtprx_parse_p && !crf_snk_stopped_w),
+    //! the RAW parse strobe, deliberately UNGATED by the stopped state:
+    //! Milan 5.3.8.7's verb is discard, not ignore, and 5.3.8.10 defines
+    //! Table 5.6 counters on AVTPDUs "received on this Stream Input" - so a
+    //! stopped, bound CRF sink keeps matching, validating and counting.
+    .frame_p_i   (avtprx_parse_p),
     .subtype_i   (avtprx_subtype),
     .seq_i       (avtprx_seq),
     .sid_frame_i (avtprx_sid_frame),
@@ -4891,6 +4883,17 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! ACMP sink-1 bind wins; the CSR pair stays the manual bench lever
     .en_i        (cfg_crf_en | acmpl1_bound),
     .sid_i       (acmpl1_bound ? acmpl1_sid : cfg_crf_sid),
+    //! Milan 5.3.8.7 STOP for this descriptor gates CONSUMPTION inside the
+    //! module (lock machinery + the 10.4.3 restart echo), never observation.
+    //! This sink has no classification-table entry (it keys on subtype, off
+    //! the parser), so the listener accept gate above cannot reach it and
+    //! the predicate arrives on its own port. It costs nothing in normal
+    //! operation: the state is `bound & ~started`, a bind lands started
+    //! unless the BIND_RX asked for STREAMING_WAIT, and an unbound CRF sink
+    //! is outside the clause and ungated - a controller command aimed at
+    //! this descriptor on purpose, not a command in the path of clock
+    //! recovery.
+    .stop_i      (crf_snk_stopped_w),
     .delta_o     (crf_delta_w),
     .rate_o      (crf_rate_w),
     .pdu_count_o (crf_pducnt_w),
