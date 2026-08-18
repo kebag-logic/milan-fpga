@@ -58,6 +58,28 @@ current protocol-level verdict is the
 > `ACQUIRE_ENTITY` is graded for `NOT_SUPPORTED`, a zero `owner_id`, and the
 > command-specific response length.
 
+Machine-checked status rows are defined by the
+[Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `aem.acquire-entity-refusal` | `not-supported` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `stream-input.start-stop` | `partial` | - |
+| `stream-input.stopped-crf-observation` | `missing` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+| `verification.long-gate-policy` | `implemented` | `local-required, remote-optional` |
+<!-- milan-feature-status:end -->
+
+The local full Verilator and Yosys portability sweeps are mandatory validation
+evidence. Their long GitHub copies are optional and do not block review when
+the local equivalents pass. Issue #97 owns the response-boundary and stopped
+CRF observation gaps that keep START/STOP partial.
+
 ## Contents
 
 - **[Which layer do I run?](#which-layer-do-i-run)** -- Start here: a flowchart keyed on *what you changed*, answering "what is the cheapest thing that would catch me being wrong". The point it makes is the one-way door at the bottom: timing, PHY and switch interop cannot be simulated here, so exhaust the free layers first.

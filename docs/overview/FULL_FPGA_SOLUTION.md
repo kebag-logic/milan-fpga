@@ -55,6 +55,28 @@ restores a binding across a power cycle. This is a stated capability boundary fr
 informed decision, not a regression and not a blip. Everywhere below where this
 page says "AVDECC in fabric", read it against these two paragraphs.
 
+Machine-checked status rows are defined by the
+[Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `aem.acquire-entity-refusal` | `not-supported` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `stream-input.start-stop` | `partial` | - |
+| `stream-input.stopped-crf-observation` | `missing` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+| `notifications.controller-liveness` | `missing` | - |
+<!-- milan-feature-status:end -->
+
+The START/STOP command path and AAF media gate exist, but issue #97 keeps the
+feature partial. Command success can precede the binding-record commit, and a
+stopped CRF input currently loses receive observation together with timing
+consumption.
+
 **The entity model lives in DDR3, not in a fabric ROM.** The processor's
 descriptor store fetches the model over a read-only master
 whose base is a **compile-time** parameter (`PP_DESC_BASE_P`, derived by the SoC

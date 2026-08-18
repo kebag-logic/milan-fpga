@@ -33,6 +33,23 @@ producer, root-level IDENTIFY indication, saved-state persistence and commands
 outside the served inventory. Milan Delta 7 `ACQUIRE_ENTITY` receives the
 command-specific `NOT_SUPPORTED` response with a zero owner.
 
+Machine-checked status rows are defined by the
+[Milan feature status ledger](MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `gateware.current-version` | `implemented` | `0x0002_0051` |
+| `aem.served-command-set` | `implemented` | - |
+| `aem.acquire-entity-refusal` | `not-supported` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `stream-input.start-stop` | `partial` | - |
+| `stream-input.stopped-crf-observation` | `missing` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+<!-- milan-feature-status:end -->
+
 **The AEM descriptor tree is no longer a fabric ROM and has no CSR here.** The
 processor's descriptor store fetches it from main memory over a **read-only
 master** — `milan_datapath`'s `o_desc_mem_*`/`i_desc_mem_*`, bridged to DRAM by
@@ -104,7 +121,9 @@ they are not discovered by surprise:
    and GET_COUNTERS serves the compact five-counter layout. The Table 5.22
    unsolicited change producer remains open. Supported regular STREAM_INPUT
    banks remain live; the CRF Media Clock Input's complete Table 5.16 bank is
-   not connected to the current solicited gather face.
+   not connected to the current solicited gather face. Issue #97 also tracks
+   the stopped-state gate that currently hides CRF receives from observation
+   before the media-consumption boundary.
 
 Memory-mapped control/status registers for the Milan TSN NIC. This is the
 **stable ABI** shared by the HDL ([`hdl/common/csr/milan_csr.sv`](../../hdl/common/csr/milan_csr.sv)), the Linux driver
@@ -236,6 +255,11 @@ The ring-DMA engines of the fully-FPGA build have their **own** CSR space
 (LiteX-generated, e.g. the `0xf000_2800`/`0xf000_3000` regions) - see the
 "DMA registers" section further down; those are not part of this 64 KB
 window.
+
+The VERSION row below is a chronological landing record, not the canonical
+current feature verdict. Issue #97 supersedes the `0x004F` note's claim that
+every stopped Stream Input remains observable. Use the machine-checked rows at
+the top of this page for current support status.
 
 ### 0x000  -  Identification / IRQ
 

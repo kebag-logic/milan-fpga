@@ -57,6 +57,23 @@ Firmware VERSION `0x0002_0051` uses `hdl/milan/KL_pp_shadow.sv` and the pinned
 `protocol-processor` as its only IEEE 1722.1 and SRP control plane. MAAP remains
 in this repository. There is no legacy fallback.
 
+Machine-checked status rows are defined by the
+[Milan feature status ledger](docs/reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `gateware.current-version` | `implemented` | `0x0002_0051` |
+| `aem.served-command-set` | `implemented` | - |
+| `aem.acquire-entity-refusal` | `not-supported` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `stream-input.start-stop` | `partial` | - |
+| `stream-input.stopped-crf-observation` | `missing` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+<!-- milan-feature-status:end -->
+
 The current AECP implementation answers these operations with real behavior:
 
 - `READ_DESCRIPTOR`
@@ -68,7 +85,8 @@ The current AECP implementation answers these operations with real behavior:
 - `SET_SAMPLING_RATE` and `GET_SAMPLING_RATE`
 - `SET_CLOCK_SOURCE` and `GET_CLOCK_SOURCE`
 - `SET_CONTROL` and `GET_CONTROL` for Identify
-- `START_STREAMING` and `STOP_STREAMING` for Stream Input
+- `START_STREAMING` and `STOP_STREAMING` for Stream Input, with the known
+  response-boundary and stopped-CRF defects tracked by issue #97
 - `GET_STREAM_INFO`, `GET_AVB_INFO`, and leaf-only `GET_AS_PATH`
 - `REGISTER_UNSOLICITED_NOTIFICATION` and its deregistration pair
 - `IDENTIFY_NOTIFICATION` commands with the required `BAD_ARGUMENTS` result
@@ -104,6 +122,9 @@ The integration also reports no nonvolatile backend, so required state does not
 survive a power cycle. Solicited Stream Output counters are now served; their
 rate-limited unsolicited notification path remains a separate task. These are
 compliance blockers, not documentation-only limitations.
+The Stream Input START/STOP path is partial until issue #97 makes command
+success follow the binding-record commit and keeps stopped CRF traffic visible
+to observation counters while suppressing only timing consumption.
 `GET_AS_PATH` reports only the grandmaster identity. The PathTrace staging tail
 is disconnected from the root processor interface, so multi-bridge topology is
 reported incompletely.

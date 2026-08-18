@@ -22,6 +22,24 @@ counted as a compliance gap. And **an echo is not an implementation** — a
 conformant `NOT_IMPLEMENTED` answer is correct protocol behaviour and still
 leaves the clause open.
 
+Machine-checked status rows are defined by the
+[Milan feature status ledger](reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `gateware.current-version` | `implemented` | `0x0002_0051` |
+| `aem.served-command-set` | `implemented` | - |
+| `aem.acquire-entity-refusal` | `not-supported` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `stream-input.start-stop` | `partial` | - |
+| `stream-input.stopped-crf-observation` | `missing` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+| `notifications.controller-liveness` | `missing` | - |
+<!-- milan-feature-status:end -->
+
 ---
 
 ## Contents
@@ -80,8 +98,8 @@ underneath it.
 | `0x0017` | GET_CLOCK_SOURCE | 5.4.2.16 | **0x004B** |
 | `0x0018` | SET_CONTROL (IDENTIFY) | 5.4.2.17 | **0x004C** |
 | `0x0019` | GET_CONTROL (IDENTIFY) | 5.4.2.18 | **0x004C** |
-| `0x0022` | START_STREAMING | 5.4.2.19 | 0x004F |
-| `0x0023` | STOP_STREAMING | 5.4.2.20 | 0x004F |
+| `0x0022` | START_STREAMING | 5.4.2.19 | 0x004F, partial (#97) |
+| `0x0023` | STOP_STREAMING | 5.4.2.20 | 0x004F, partial (#97) |
 | `0x0024` | REGISTER_UNSOLICITED_NOTIFICATION | 5.4.2.21 | 0x0045 |
 | `0x0025` | DEREGISTER_UNSOLICITED_NOTIFICATION | 5.4.2.22 | 0x0045 |
 | `0x0026` | IDENTIFY_NOTIFICATION as a command → `BAD_ARGUMENTS` | IEEE 7.4.39.2 | 0x0042 |
@@ -193,6 +211,11 @@ Five rows in the tables below carry a **LANDED** mark: they have shipped since
 this section was written, and they stay in place because their clause notes and
 "Blocks" lists are the record of what shipping them bought. Section 0.1 is the
 authority on what is served; a row here without a LANDED mark is open.
+
+The START/STOP dispatch and media gate landed at `0x004F`, but their compliance
+status is partial. Issue #97 tracks the response that can precede the binding
+record commit and the CRF stopped-state gate that hides received traffic from
+observation rather than suppressing only timing consumption.
 
 ### P2.1 — the dynamic-state store — **LANDED at `0x004C`**
 
@@ -319,8 +342,8 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 | `0x0014` | SET_SAMPLING_RATE **— LANDED** | 5.4.2.13 | the rate/mapping-mismatch refusal is a **MAY**, not a SHALL | es-4.16, es-5.1 |
 | `0x0016` | SET_CLOCK_SOURCE **— LANDED** | 5.4.2.15 | — | es-4.9, es-5.1, es-10.1 |
 | `0x0018` | SET_CONTROL **— LANDED** | 5.4.2.17 | IDENTIFY only; values 0 and 255 | es-4.10 |
-| `0x0022` | START_STREAMING **— LANDED** | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output** (and on every other type); on a bound+stopped input → started. **Residue:** the IEEE 7.5.2 unsolicited *response* for this opcode is not sent — the Table 5.22 GET_STREAM_INFO push on the state change is (issue #69) | es-4.11, es-12.7 |
-| `0x0023` | STOP_STREAMING **— LANDED** | 5.4.2.20 | mirror of the above, same residue | es-4.11, es-12.7 |
+| `0x0022` | START_STREAMING **LANDED, PARTIAL #97** | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output** (and on every other type); on a bound+stopped input, request started. Commit-boundary correctness and unsolicited responses remain open under issues #97 and #69. | es-4.11, es-12.7 |
+| `0x0023` | STOP_STREAMING **LANDED, PARTIAL #97** | 5.4.2.20 | Mirror of the above. Stopped CRF observation also remains open under issue #97. | es-4.11, es-12.7 |
 
 > **`SET_CLOCK_SOURCE` is worth more than one row.** Its dynamic-state store
 > and wrapper output have landed. The selected index now reaches the root, but

@@ -1,9 +1,9 @@
 # Documentation index
 
 This index contains the current entry points for the Milan TSN FPGA network
-interface. Pages whose first line is `[OBSOLETE + 2026-08-16]` are historical
-evidence, not current authorities. A current page may cite one only when the
-link is explicitly identified as historical evidence.
+interface. Pages whose first line matches `[OBSOLETE + YYYY-MM-DD]` are
+historical evidence, not current authorities. A current page may cite one only
+when the link is explicitly identified as historical evidence.
 
 The implementation is not yet fully Milan v1.2 compliant. The current audit
 records verified behavior and the remaining mandatory gaps:
@@ -18,6 +18,7 @@ records verified behavior and the remaining mandatory gaps:
 | Run a boardless check | [Quickstart](../QUICKSTART.md) |
 | Assess Milan v1.2 status | [Current Milan v1.2 audit](testing/MILAN_V12_AUDIT_2026-08-16.md) |
 | Find a requirement | [FR/NFR register](reference/FR_NFR.md) |
+| Check canonical feature status | [Milan feature status ledger](reference/MILAN_FEATURE_STATUS.md) |
 | Find a CSR | [Register map](reference/REGISTER_MAP.md) |
 | Run verification | [Testing guide](testing/TESTING.md) |
 | Build and deploy | [Building](integration/BUILDING.md) and [QSPI flash boot](integration/QSPI_FLASHBOOT.md) |
