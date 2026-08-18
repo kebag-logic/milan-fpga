@@ -28,12 +28,14 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0052` |
+| `gateware.current-version` | `implemented` | `0x0002_0053` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `missing` | - |
 | `stream-input.start-stop` | `implemented` | - |
 | `stream-input.stopped-crf-observation` | `implemented` | - |
+| `stream-format.set` | `implemented` | - |
+| `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
@@ -43,8 +45,6 @@ Machine-checked status rows are defined by the
 The exact mandatory command gap is also machine-checked:
 
 <!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
-- `SET_STREAM_FORMAT`
-- `SET_STREAM_INFO`
 - `SET_NAME`
 - `GET_NAME`
 <!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
@@ -99,7 +99,9 @@ underneath it.
 | `0x0004` | `READ_DESCRIPTOR` | 5.4.2.4 | 0x0040 |
 | `0x0006` | `SET_CONFIGURATION` | 5.4.2.5 | **0x004D** |
 | `0x0007` | `GET_CONFIGURATION` | 5.4.2.6 | **0x004B** |
+| `0x0008` | `SET_STREAM_FORMAT` | 5.4.2.7 | **0x0053** (#67) |
 | `0x0009` | `GET_STREAM_FORMAT` | 5.4.2.8 | **0x004B** |
+| `0x000E` | `SET_STREAM_INFO` (MSRP_ACC_LAT_VALID) | 5.4.2.9 | **0x0053** (#67) |
 | `0x000F` | `GET_STREAM_INFO` (Milan 80-byte form) | 5.4.2.10 | 0x0047 |
 | `0x0014` | `SET_SAMPLING_RATE` | 5.4.2.13 | **0x004C** |
 | `0x0015` | `GET_SAMPLING_RATE` | 5.4.2.14 | **0x004B** |

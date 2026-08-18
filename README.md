@@ -63,12 +63,14 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0052` |
+| `gateware.current-version` | `implemented` | `0x0002_0053` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `missing` | - |
 | `stream-input.start-stop` | `implemented` | - |
 | `stream-input.stopped-crf-observation` | `implemented` | - |
+| `stream-format.set` | `implemented` | - |
+| `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
@@ -82,12 +84,17 @@ The current AECP implementation answers these operations with real behavior:
 - `LOCK_ENTITY`
 - `ENTITY_AVAILABLE` and `GET_CONFIGURATION`
 - `SET_CONFIGURATION`
+- `SET_STREAM_FORMAT` for both stream directions, with the running, supported-family
+  and mapping-survival refusals, the value consumed by the served current format
+  and the Stream Input acceptance filter (issue #67)
 - `GET_STREAM_FORMAT`
 - `SET_SAMPLING_RATE` and `GET_SAMPLING_RATE`
 - `SET_CLOCK_SOURCE` and `GET_CLOCK_SOURCE`
 - `SET_CONTROL` and `GET_CONTROL` for Identify
 - `START_STREAMING` and `STOP_STREAMING` for Stream Input, completing at the
   binding-record commit, with stopped-CRF observation preserved (issue #97)
+- `SET_STREAM_INFO` with Milan's one sub-command (MSRP_ACC_LAT_VALID), setting
+  the presentation-time offset the AAF and CRF framers stamp (issue #67)
 - `GET_STREAM_INFO`, `GET_AVB_INFO`, and leaf-only `GET_AS_PATH`
 - `REGISTER_UNSOLICITED_NOTIFICATION` and `DEREGISTER_UNSOLICITED_NOTIFICATION`
 - `IDENTIFY_NOTIFICATION` commands with the required `BAD_ARGUMENTS` result
@@ -117,8 +124,6 @@ This is still not a full Milan v1.2 implementation. These mandatory operations
 are missing:
 
 <!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
-- `SET_STREAM_FORMAT`
-- `SET_STREAM_INFO`
 - `SET_NAME`
 - `GET_NAME`
 <!-- milan-feature-fact:missing_mandatory_aem_operations:end -->

@@ -29,12 +29,14 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0052` |
+| `gateware.current-version` | `implemented` | `0x0002_0053` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `missing` | - |
 | `stream-input.start-stop` | `implemented` | - |
 | `stream-input.stopped-crf-observation` | `implemented` | - |
+| `stream-format.set` | `implemented` | - |
+| `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
@@ -87,9 +89,10 @@ existing checkout at the pinned commit for an offline rerun.
 <!-- milan-feature-fact:served_aem_operations:start -->
 The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `ACQUIRE_ENTITY`, `LOCK_ENTITY`, `ENTITY_AVAILABLE`, `SET_CONFIGURATION`, `GET_CONFIGURATION`,
-`GET_STREAM_FORMAT`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
+`SET_STREAM_FORMAT`, `GET_STREAM_FORMAT`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
 `SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
-`GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `GET_STREAM_INFO`,
+`GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `SET_STREAM_INFO`,
+`GET_STREAM_INFO`,
 `IDENTIFY_NOTIFICATION`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
 `GET_COUNTERS`, `GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`,
 `REMOVE_AUDIO_MAPPINGS`, `GET_DYNAMIC_INFO`,
@@ -120,17 +123,28 @@ bypass changes cannot start an output between validation and write-back. The
 processor R19a and root T66 regressions drive both concurrency paths.
 
 This inventory describes command handling and its integrated media effects at
-VERSION `0x0052`. `START_STREAMING` and `STOP_STREAMING` are served from the
+VERSION `0x0053`. `START_STREAMING` and `STOP_STREAMING` are served from the
 ACMP binding record and complete at it. A stopped Stream Input - AAF and CRF
 alike - continues observing and counting received traffic while discarding its
 media contribution (B12).
+
+`SET_STREAM_FORMAT` and `SET_STREAM_INFO` are served with their Milan 5.4.2.7
+and 5.4.2.9 refusals: the per-descriptor `STREAM_IS_RUNNING` route (a bound
+Stream Input or a streaming Stream Output), whole-command `NOT_SUPPORTED` on
+any sub-flag beside MSRP_ACC_LAT_VALID, `BAD_ARGUMENTS` on a bit-31 offset,
+and one integrator verdict on the proposed format that admits the supported
+48 kHz channel family for inputs, the generated wire shape for outputs and
+the advertised CRF format for the CRF rows, refusing any format that orphans
+a mapping-referenced channel. The set offset feeds the transit entries the
+AAF and CRF framers stamp, and the set format is served as current and drives
+Stream Input 0's acceptance filter. The wire framers do not yet re-shape from
+a stored format; that deferral follows the `SET_CONFIGURATION` pattern and is
+recorded with B3's media-plane scope.
 
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
 
 <!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
-- `SET_STREAM_FORMAT`
-- `SET_STREAM_INFO`
 - `SET_NAME` and `GET_NAME`
 <!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
 

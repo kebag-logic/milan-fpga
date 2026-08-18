@@ -2616,12 +2616,22 @@ def emit_adp_shape_svh(cfg, overlay=None):
     #! which is exactly what the deleted register file reset to.
     fmts0 = ((cfg.get("listeners") or [{}])[0].get("formats") or ["0x0"])
     f0 = int(str(fmts0[0]), 16)
-    a("  //! STREAM_INPUT[0]'s declared (SET_STREAM_FORMAT is unimplemented,")
-    a("  //! so this is also its")
-    a("  //! ONLY) stream_format - the value KL_avtp_rx_monitor_ctx accepts")
-    a("  //! frames against. Was the AEM ROM's AEM_STRIN_FMT_C[0]; the ROM is")
-    a("  //! gone and this is the same number from the same config.")
+    a("  //! STREAM_INPUT[0]'s declared DEFAULT stream_format - the value")
+    a("  //! KL_avtp_rx_monitor_ctx accepts frames against until a controller")
+    a("  //! SET_STREAM_FORMATs the stream, and the base whose 48 kHz family")
+    a("  //! the format verdict admits. Was the AEM ROM's AEM_STRIN_FMT_C[0];")
+    a("  //! the ROM is gone and this is the same number from the same config.")
     a(f"  localparam logic [63:0] ADP_STRIN0_FMT_C = 64'h{f0:016X};")
+    #! the CRF Media Clock stream format, for the same reason: the format
+    #! verdict must admit exactly what the CRF descriptors advertise, and
+    #! clocking.crf_format is the same config fact the descriptor path reads.
+    cf0 = int(str((cfg.get("clocking") or {}).get(
+        "crf_format", "0x041060010000BB80")), 16)
+    a("  //! the CRF Media Clock stream format the entity advertises: the")
+    a("  //! ONE format SET_STREAM_FORMAT may name for the CRF rows, and the")
+    a("  //! current format their GET serves. Same config fact as the image's")
+    a("  //! CRF_FORMATS entry.")
+    a(f"  localparam logic [63:0] ADP_CRF_FMT_C = 64'h{cf0:016X};")
     a("")
     return "\n".join(ln)
 

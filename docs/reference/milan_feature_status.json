@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "facts": {
-    "gateware_version": "0x0002_0052",
+    "gateware_version": "0x0002_0053",
     "served_aem_operations": [
       "ACQUIRE_ENTITY",
       "LOCK_ENTITY",
@@ -9,6 +9,7 @@
       "READ_DESCRIPTOR",
       "SET_CONFIGURATION",
       "GET_CONFIGURATION",
+      "SET_STREAM_FORMAT",
       "GET_STREAM_FORMAT",
       "SET_SAMPLING_RATE",
       "GET_SAMPLING_RATE",
@@ -21,6 +22,7 @@
       "REGISTER_UNSOLICITED_NOTIFICATION",
       "DEREGISTER_UNSOLICITED_NOTIFICATION",
       "IDENTIFY_NOTIFICATION",
+      "SET_STREAM_INFO",
       "GET_STREAM_INFO",
       "GET_AVB_INFO",
       "GET_AS_PATH",
@@ -34,8 +36,6 @@
       "GET_MILAN_INFO"
     ],
     "missing_mandatory_aem_operations": [
-      "SET_STREAM_FORMAT",
-      "SET_STREAM_INFO",
       "SET_NAME",
       "GET_NAME"
     ]
@@ -64,7 +64,7 @@
     {
       "id": "gateware.current-version",
       "status": "implemented",
-      "value": "0x0002_0052",
+      "value": "0x0002_0053",
       "summary": "Current gateware and processor integration version.",
       "documents": [
         "README.md",
@@ -167,6 +167,36 @@
       "id": "stream-input.stopped-crf-observation",
       "status": "implemented",
       "summary": "A stopped, bound CRF Stream Input observes and counts received CRF traffic; timing consumption and the restart echo gate on started.",
+      "documents": [
+        "README.md",
+        "docs/MILAN_V12_ROADMAP.md",
+        "docs/overview/ARCHITECTURE.md",
+        "docs/overview/FULL_FPGA_SOLUTION.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/reference/REGISTER_MAP.md",
+        "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+        "docs/testing/TESTING.md"
+      ]
+    },
+    {
+      "id": "stream-format.set",
+      "status": "implemented",
+      "summary": "SET_STREAM_FORMAT stores, publishes and serves the format for both stream directions with the Milan 5.4.2.7 refusals; the wire framers do not re-shape from it yet.",
+      "documents": [
+        "README.md",
+        "docs/MILAN_V12_ROADMAP.md",
+        "docs/overview/ARCHITECTURE.md",
+        "docs/overview/FULL_FPGA_SOLUTION.md",
+        "docs/reference/MILAN_FEATURE_STATUS.md",
+        "docs/reference/REGISTER_MAP.md",
+        "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
+        "docs/testing/TESTING.md"
+      ]
+    },
+    {
+      "id": "stream-info.set-acc-lat",
+      "status": "implemented",
+      "summary": "SET_STREAM_INFO(MSRP_ACC_LAT_VALID) sets the presentation-time offset the AAF and CRF framers stamp; GET_STREAM_INFO reads the same folded entry.",
       "documents": [
         "README.md",
         "docs/MILAN_V12_ROADMAP.md",

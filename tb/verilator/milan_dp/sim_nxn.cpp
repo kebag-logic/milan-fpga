@@ -823,7 +823,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0052 carries the start/stop commit handshake",
-       axi_read(A_VERSION), 0x00020052);
+       axi_read(A_VERSION), 0x00020053);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
     //! These two writes used to sit inside the N-sink ACMP ctx2 section,
@@ -3197,6 +3197,180 @@ int main(int argc, char** argv) {
             const std::vector<uint8_t> rr = aecp_xact(0x0022, 0x9115, ti);
             ck("CRF 5.3.8.7 cleanup: START answered SUCCESS",
                aecp_status(rr), 0);
+        }
+
+        // ==== issue #67: the stream setters, END TO END through the REAL
+        // integrator - the verdict face (supported family + the mapping
+        // sweep over the live AEM dynamic-map store), the settings fold
+        // GET_STREAM_FORMAT / GET_STREAM_INFO read, and the CRF rows'
+        // own family. Every refusal is graded against the value it must
+        // not have moved.
+        {
+            auto be64_at = [](const std::vector<uint8_t>& f, size_t o) {
+                uint64_t v = 0;
+                for (int i = 0; i < 8; i++) v = (v << 8) | f[o + i];
+                return v;
+            };
+            auto cdl_of = [](const std::vector<uint8_t>& f) {
+                return f.size() > 17 ? (long)(((f[16] & 7) << 8) | f[17])
+                                     : -1L;
+            };
+            auto lat_of = [](const std::vector<uint8_t>& f) {
+                return (f.size() > 65)
+                       ? ((unsigned long)f[62] << 24) | ((unsigned long)f[63] << 16)
+                         | ((unsigned long)f[64] << 8) | f[65]
+                       : 0xFFFFFFFFul;
+            };
+            auto sf_pl = [](uint16_t ty, uint16_t ix, uint64_t fmt) {
+                std::vector<uint8_t> p(12, 0);
+                p[0] = (uint8_t)(ty >> 8); p[1] = (uint8_t)ty;
+                p[2] = (uint8_t)(ix >> 8); p[3] = (uint8_t)ix;
+                for (int i = 0; i < 8; i++)
+                    p[4 + i] = (uint8_t)(fmt >> (8 * (7 - i)));
+                return p;
+            };
+            auto si_pl = [](uint16_t ty, uint16_t ix, uint32_t fl,
+                            uint32_t lat) {
+                std::vector<uint8_t> p(48, 0);
+                p[0] = (uint8_t)(ty >> 8); p[1] = (uint8_t)ty;
+                p[2] = (uint8_t)(ix >> 8); p[3] = (uint8_t)ix;
+                for (int i = 0; i < 4; i++)
+                    p[4 + i] = (uint8_t)(fl >> (8 * (3 - i)));
+                for (int i = 0; i < 4; i++)
+                    p[24 + i] = (uint8_t)(lat >> (8 * (3 - i)));
+                return p;
+            };
+            auto ti4 = [](uint16_t ty, uint16_t ix) {
+                std::vector<uint8_t> p(4, 0);
+                p[0] = (uint8_t)(ty >> 8); p[1] = (uint8_t)ty;
+                p[2] = (uint8_t)(ix >> 8); p[3] = (uint8_t)ix;
+                return p;
+            };
+            uint16_t sq2 = 0x9200;
+            const uint16_t hi_in = NSTREAMS_TB - 1;
+
+            // the idle input the success arm needs, ASSERTED not assumed
+            std::vector<uint8_t> g2 =
+                aecp_xact(0x000F, sq2++, ti4(0x0005, hi_in));
+            ck("#67 pre: the high Stream Input is NOT bound",
+               (long)(g2.size() > 42 && (g2[42] & 0x04) == 0), 1);
+
+            std::vector<uint8_t> r2 = aecp_xact(0x0009, sq2++,
+                                                ti4(0x0005, hi_in));
+            ck("#67 GET_STREAM_FORMAT SUCCESS at cdl 24",
+               (long)(aecp_status(r2) == 0 && cdl_of(r2) == 24), 1);
+            const uint64_t fmt_base = be64_at(r2, 42);
+            const uint64_t fmt_2ch =
+                (fmt_base & ~(0x3FFull << 38)) | (2ull << 38);
+            ck("#67 the generated base is an 8ch AAF qword",
+               (unsigned long)((fmt_base >> 38) & 0x3FF), 8);
+
+            r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_2ch));
+            ck("#67 SET_STREAM_FORMAT to the 2ch family member SUCCEEDS",
+               aecp_status(r2), 0);
+            ck("#67 ...echoing the format now in force",
+               (long)(r2.size() >= 50 && be64_at(r2, 42) == fmt_2ch), 1);
+            r2 = aecp_xact(0x0009, sq2++, ti4(0x0005, hi_in));
+            ck("#67 GET_STREAM_FORMAT serves the SETTING through the fold",
+               (long)(be64_at(r2, 42) == fmt_2ch), 1);
+
+            r2 = aecp_xact(0x0008, sq2++,
+                           sf_pl(0x0005, hi_in, 0x0305022000806000ull));
+            ck("#67 an off-family base is BAD_ARGUMENTS", aecp_status(r2), 7);
+            ck("#67 ...carrying the CURRENT format, not the refused one",
+               (long)(be64_at(r2, 42) == fmt_2ch), 1);
+
+            // the Milan 5.4.2.7 mapping-survival SHALL, against a REAL
+            // dynamic mapping through ADD_AUDIO_MAPPINGS and the rolling
+            // sweep that feeds the verdict
+            {
+                std::vector<uint8_t> ap(16, 0);
+                ap[0] = 0x00; ap[1] = 0x0E;          // STREAM_PORT_INPUT 0
+                ap[5] = 0x01;                        // one mapping
+                ap[8] = (uint8_t)(hi_in >> 8); ap[9] = (uint8_t)hi_in;
+                ap[10] = 0x00; ap[11] = 0x04;        // stream_channel 4
+                std::vector<uint8_t> ra = aecp_xact(0x002C, sq2++, ap);
+                ck("#67 ADD_AUDIO_MAPPINGS(channel 4 of the high input) "
+                   "SUCCEEDS", aecp_status(ra), 0);
+                for (int i = 0; i < 200; i++) step();   // a sweep refresh
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_2ch));
+                ck("#67 a 2ch format that orphans channel 4 is "
+                   "BAD_ARGUMENTS", aecp_status(r2), 7);
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_base));
+                ck("#67 the 8ch base still satisfies the mapping",
+                   aecp_status(r2), 0);
+                ra = aecp_xact(0x002D, sq2++, ap);
+                ck("#67 REMOVE_AUDIO_MAPPINGS SUCCEEDS", aecp_status(ra), 0);
+                for (int i = 0; i < 200; i++) step();
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_2ch));
+                ck("#67 ...and the 2ch format is accepted once the mapping "
+                   "is gone", aecp_status(r2), 0);
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_base));
+                ck("#67 restore: the base format is back", aecp_status(r2), 0);
+            }
+
+            // a BOUND input refuses STREAM_IS_RUNNING (sink 0 is bound here)
+            g2 = aecp_xact(0x000F, sq2++, ti4(0x0005, 0));
+            ck("#67 pre: Stream Input 0 IS bound",
+               (long)(g2.size() > 42 && (g2[42] & 0x04) != 0), 1);
+            r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, 0, fmt_2ch));
+            ck("#67 a bound Stream Input refuses STREAM_IS_RUNNING",
+               aecp_status(r2), 12);
+
+            // the CRF OUTPUT row admits exactly the advertised CRF format
+            r2 = aecp_xact(0x0009, sq2++, ti4(0x0006, NSTREAMS_TB));
+            const uint64_t crf_fmt = be64_at(r2, 42);
+            ck("#67 the CRF output's current format is the CRF family",
+               (unsigned long)(crf_fmt >> 56), 0x04);
+            r2 = aecp_xact(0x0008, sq2++,
+                           sf_pl(0x0006, NSTREAMS_TB, fmt_base));
+            ck("#67 an AAF base on the CRF output is BAD_ARGUMENTS",
+               aecp_status(r2), 7);
+            ck("#67 ...carrying the CRF format as current",
+               (long)(be64_at(r2, 42) == crf_fmt), 1);
+            r2 = aecp_xact(0x0008, sq2++,
+                           sf_pl(0x0006, NSTREAMS_TB, crf_fmt));
+            ck("#67 the advertised CRF format itself is accepted",
+               aecp_status(r2), 0);
+
+            // SET_STREAM_INFO(ACC_LAT): the offset the framers stamp
+            r2 = aecp_xact(0x000E, sq2++,
+                           si_pl(0x0006, 0, 0x20000000u, 750000));
+            ck("#67 SET_STREAM_INFO(ACC_LAT) SUCCESS at cdl 60",
+               (long)(aecp_status(r2) == 0 && cdl_of(r2) == 60), 1);
+            g2 = aecp_xact(0x000F, sq2++, ti4(0x0006, 0));
+            ck("#67 GET_STREAM_INFO reads the folded transit entry",
+               lat_of(g2), 750000ul);
+            r2 = aecp_xact(0x000E, sq2++,
+                           si_pl(0x0005, 0, 0x20000000u, 640000));
+            ck("#67 SET_STREAM_INFO on a Stream Input is NOT_SUPPORTED",
+               aecp_status(r2), 11);
+            r2 = aecp_xact(0x000E, sq2++,
+                           si_pl(0x0006, 0, 0x20000008u, 640000));
+            ck("#67 an extra sub-flag refuses the WHOLE command",
+               aecp_status(r2), 11);
+            r2 = aecp_xact(0x000E, sq2++,
+                           si_pl(0x0006, 0, 0x20000000u, 0x80000001u));
+            ck("#67 a bit-31 offset is BAD_ARGUMENTS", aecp_status(r2), 7);
+            {
+                std::vector<uint8_t> shortp(40, 0);
+                shortp[1] = 0x06; shortp[4] = 0x20;
+                r2 = aecp_xact(0x000E, sq2++, shortp);
+                ck("#67 a truncated SET_STREAM_INFO refuses at cdl 60",
+                   (long)(aecp_status(r2) == 7 && cdl_of(r2) == 60), 1);
+            }
+            g2 = aecp_xact(0x000F, sq2++, ti4(0x0006, 0));
+            ck("#67 no refusal moved the stored offset", lat_of(g2),
+               750000ul);
+            // the CRF output's transit entry takes the same command; writing
+            // the default value proves the row without moving any timing
+            r2 = aecp_xact(0x000E, sq2++,
+                           si_pl(0x0006, NSTREAMS_TB, 0x20000000u, 2000000));
+            ck("#67 the CRF output's offset row takes SET_STREAM_INFO",
+               aecp_status(r2), 0);
+            g2 = aecp_xact(0x000F, sq2++, ti4(0x0006, NSTREAMS_TB));
+            ck("#67 ...and its GET reads the value the CRF talker stamps",
+               lat_of(g2), 2000000ul);
         }
 
         // a route-flags-only CTRL write at idx 0 - the exact write that used

@@ -92,9 +92,14 @@
   //! silently. One YAML section, one number (USER 2026-08-05).
   localparam int ADP_GPTP_DOMAIN_C   = 0;
 
-  //! STREAM_INPUT[0]'s declared (SET_STREAM_FORMAT is unimplemented,
-  //! so this is also its
-  //! ONLY) stream_format - the value KL_avtp_rx_monitor_ctx accepts
-  //! frames against. Was the AEM ROM's AEM_STRIN_FMT_C[0]; the ROM is
-  //! gone and this is the same number from the same config.
+  //! STREAM_INPUT[0]'s declared DEFAULT stream_format - the value
+  //! KL_avtp_rx_monitor_ctx accepts frames against until a controller
+  //! SET_STREAM_FORMATs the stream, and the base whose 48 kHz family
+  //! the format verdict admits. Was the AEM ROM's AEM_STRIN_FMT_C[0];
+  //! the ROM is gone and this is the same number from the same config.
   localparam logic [63:0] ADP_STRIN0_FMT_C = 64'h0205022001006000;
+  //! the CRF Media Clock stream format the entity advertises: the
+  //! ONE format SET_STREAM_FORMAT may name for the CRF rows, and the
+  //! current format their GET serves. Same config fact as the image's
+  //! CRF_FORMATS entry.
+  localparam logic [63:0] ADP_CRF_FMT_C = 64'h041060010000BB80;

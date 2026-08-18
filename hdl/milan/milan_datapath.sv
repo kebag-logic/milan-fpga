@@ -1509,7 +1509,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! register file (SET/GET_MAX_TRANSIT_TIME / SET_STREAM_INFO ACC_LAT):
   //! entry k = talker k's transit offset; the CRF Media Clock Output's
   //! entry sits at CRF_TUID_C. Unbacked entries read the 2 ms default.
-  wire [16*32-1:0]         aecp_pres_offset;
+  logic [16*32-1:0]        aecp_pres_offset;
   //! SRP CSR bits (0x680). THE ENGINE THEY USED TO ENABLE IS DELETED and the
   //! processor's SRP engine has no enable - it runs whenever the entity does.
   //! What survives is their SECOND job, which is the one the fabric reads:
@@ -2901,6 +2901,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [15:0] pp_gsi_desc_type_w, pp_gsi_desc_index_w;
   wire  [3:0] pp_gsi_sel_w;
   wire  [7:0] pp_gsi_ord_w;
+  wire [63:0] pp_gsi_prop_fmt_w;
   logic [63:0] pp_gsi_data_w;
   wire        pp_gsi_wait_w;
   //! CRF PDU strobe from the tx counter delta; deferred one cycle when an
@@ -3071,19 +3072,36 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   assign aemp_stat_w = 32'd0;  //! no AEM patch ingest
   //! STREAM_INPUT[0]'s stream_format. NOT ZERO: KL_avtp_rx_monitor_ctx
   //! accepts frames against this value, so 0 rejects every conformant AAF
-  //! PDU and stream 0 accepts NOTHING. It was the AEM ROM's
-  //! AEM_STRIN_FMT_C[0]; the ROM is deleted, so the same number now comes
-  //! from the same config through the entity-shape header. SET_STREAM_FORMAT
-  //! remains unimplemented, so the declared format is also the only one this
-  //! build will ever have.
-  assign aecp_in0_fmt = ADP_STRIN0_FMT_C;
-  //! per-STREAM_OUTPUT presentation offset. SET_MAX_TRANSIT_TIME /
-  //! SET_STREAM_INFO(ACC_LAT) was the only writer, so every entry now holds
-  //! the Milan v1.2 default the deleted register file booted with. This is a
-  //! DEFAULT, not a zero: 0 ns would be a presentation time in the past and
-  //! every listener would drop every frame as late.
+  //! PDU and stream 0 accepts NOTHING. The DEFAULT is the AEM ROM's old
+  //! AEM_STRIN_FMT_C[0], regenerated from the same config through the
+  //! entity-shape header - and since issue #67 a controller's
+  //! SET_STREAM_FORMAT overrides it through the processor's published
+  //! settings row: the acceptance filter follows the format the controller
+  //! set, which is the command's whole purpose (the verdict face already
+  //! refused anything this build cannot serve). Row 0 only, matching the
+  //! one monitor context this signal feeds.
+  assign aecp_in0_fmt = pp_aecp_fmt_in_v_w[0]
+                        ? pp_aecp_fmt_in_w[63:0] : ADP_STRIN0_FMT_C;
+  //! per-STREAM_OUTPUT presentation offset. SET_STREAM_INFO(ACC_LAT) is a
+  //! WRITER AGAIN (issue #67): entry k folds the processor's published
+  //! SEL_PTOFF row k when a controller has set it, and holds the Milan v1.2
+  //! default otherwise. The default is a DEFAULT, not a zero: 0 ns would be
+  //! a presentation time in the past and every listener would drop every
+  //! frame as late. The CRF Media Clock Output consumes ITS OWN row through
+  //! its transit entry (talker_unique_id CRF_TUID_C = N_STREAMS), so a
+  //! controller can move the CRF presentation offset by the same command.
+  //! This fold is the ONE derivation point: GET_STREAM_INFO's latency word
+  //! serves these same entries below, so the wire the talker stamps and the
+  //! answer a controller reads cannot disagree.
   localparam logic [31:0] PRES_DFLT_C = 32'd2_000_000;   //! 2 ms
-  assign aecp_pres_offset = {16{PRES_DFLT_C}};
+  always_comb begin : pres_offset_fold
+    for (int k = 0; k < ACMP_SRC_C; k++)
+      aecp_pres_offset[32*k +: 32] = pp_aecp_pt_offset_v_w[k]
+                                     ? pp_aecp_pt_offset_w[32*k +: 32]
+                                     : PRES_DFLT_C;
+    for (int k = ACMP_SRC_C; k < 16; k++)
+      aecp_pres_offset[32*k +: 32] = PRES_DFLT_C;
+  end
   //! (the media clock source is a constant now - see CRF_CLK_SELECTED_C and
   //!  its banner at the top of this file. The CRF Media Clock Input engine
   //!  still parses, counts and reports; what it can no longer do is STEER the
@@ -4254,20 +4272,145 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [47:0] gsi_odmac_w = maap_addr + 48'(gsi_ix_w);
   wire [63:0] gsi_osid_w  = pp_src_sid_w[64*gsi_oix_w +: 64];
 
+  //! ---- the SET_STREAM_FORMAT verdict (kind 0 selector 15, issue #67) ----
+  //! The processor presents the PROPOSED format on `pp_gsi_prop_fmt_w` and
+  //! asks this fabric to judge it: bit 0 = a format this build can serve for
+  //! the addressed stream, bit 1 = every channel an existing audio mapping
+  //! references still exists in it (Milan §5.4.2.7's SHALL). Anything less
+  //! than 3 refuses BAD_ARGUMENTS processor-side.
+  //!
+  //! SUPPORTED is a family decode, not a list walk: the descriptors
+  //! advertise the generated base (`ADP_STRIN0_FMT_C`) plus Milan §6.2's
+  //! 48 kHz channel family {1,2,4,6,8} through the ut-bit entry, so a
+  //! proposal is supported when it equals the base outside the
+  //! channels_per_frame field (qword [47:38]) with the ut bit CLEAR (a SET
+  //! names one concrete format, never a family string) and its channel
+  //! count is a family member. Inputs take the whole family - the RX
+  //! monitor already adapts to any wire count 1..8 under the declared base.
+  //! An OUTPUT is talker truth: the framer emits exactly the generated wire
+  //! shape, so only the base's own channel count is accepted until talker
+  //! adaptation exists. The CRF rows admit exactly the advertised CRF
+  //! format (`ADP_CRF_FMT_C`) - §5.3.3.4 keeps the AAF and CRF families
+  //! disjoint per stream.
+  localparam logic [63:0] SFMT_VAR_MASK_C = (64'h3FF << 38) | (64'h1 << 52);
+  localparam logic [9:0]  SFMT_BASE_CH_C  = ADP_STRIN0_FMT_C[47:38];
+  wire [63:0] sfv_prop_w  = pp_gsi_prop_fmt_w;
+  wire [9:0]  sfv_ch_w    = sfv_prop_w[47:38];
+  wire sfv_base_ok_w = ((sfv_prop_w & ~SFMT_VAR_MASK_C)
+                        == (ADP_STRIN0_FMT_C & ~SFMT_VAR_MASK_C))
+                       && !sfv_prop_w[52];
+  wire sfv_fam_ch_w  = (sfv_ch_w == 10'd1) || (sfv_ch_w == 10'd2)
+                    || (sfv_ch_w == 10'd4) || (sfv_ch_w == 10'd6)
+                    || (sfv_ch_w == 10'd8);
+  wire sfv_crf_row_w = (gsi_in_w  && (32'(gsiq_index_r) == CRF_SNK_IDX_C)
+                        && (ACMP_SINKS_C > N_STREAMS))
+                    || (gsi_out_w && (32'(gsiq_index_r) == CRF_TUID_C));
+  wire sfv_supported_w =
+      sfv_crf_row_w ? (sfv_prop_w == ADP_CRF_FMT_C)
+    : gsi_in_w      ? (sfv_base_ok_w && sfv_fam_ch_w)
+    : gsi_out_w     ? (sfv_base_ok_w && (sfv_ch_w == SFMT_BASE_CH_C))
+                    : 1'b0;
+  //! SURVIVES: the per-stream channels-required reductions below, judged
+  //! against the proposal's channel count. The CRF rows carry no audio
+  //! mappings, so they survive by construction.
+  wire [3:0] sfv_need_w = sfv_crf_row_w ? 4'd0
+                        : gsi_in_w  ? sfv_need_in_r[gsi_six_w]
+                        : gsi_out_w ? sfv_need_out_w[4*gsi_oix_w +: 4]
+                                    : 4'd0;
+  wire sfv_survives_w = 32'(sfv_need_w) <= 32'(sfv_ch_w);
+  wire [63:0] sfv_verdict_w = {62'd0, sfv_survives_w, sfv_supported_w};
+
+  //! ---- channels-required reductions feeding the verdict ------------------
+  //! INPUT side: the render map is keyed by global cluster and its 8-bit
+  //! entries carry {en, src, stream[2:0], channel[2:0]}, so the per-stream
+  //! maximum needs a scan. One ROLLING key per cycle into per-stream
+  //! accumulators, published at each wrap: a full sweep is
+  //! ADP_DMAP_IN_KEYS_C cycles, far under any command's lifetime, and map
+  //! edits cannot race the verdict - the engine runs one AECP command at a
+  //! time, and the vendor-CSR chmap path is bring-up-only (state is set
+  //! over ATDECC). One shared read mux instead of per-stream trees: the
+  //! amap page walk's timing verdict priced parallel indexed reads out.
+  localparam int SFV_KEYS_C = ADP_DMAP_IN_KEYS_C;
+  localparam int SFV_KW_C = (SFV_KEYS_C <= 2) ? 1 : $clog2(SFV_KEYS_C);
+  logic [SFV_KW_C-1:0] sfv_cur_r;
+  logic [3:0] sfv_acc_r     [N_STREAMS];
+  logic [3:0] sfv_need_in_r [N_STREAMS];
+  logic [3:0] sfv_nxt_w     [N_STREAMS];
+  wire  [7:0] sfv_ent_w = amap_in_store_r[32'(sfv_cur_r)*8 +: 8];
+  wire  [3:0] sfv_ent_need_w = {1'b0, sfv_ent_w[2:0]} + 4'd1;
+  always_comb begin : sfv_in_next
+    for (int s = 0; s < N_STREAMS; s++) begin
+      sfv_nxt_w[s] = sfv_acc_r[s];
+      if (sfv_ent_w[7] && !sfv_ent_w[6] && (32'(sfv_ent_w[5:3]) == s)
+          && (sfv_ent_need_w > sfv_acc_r[s]))
+        sfv_nxt_w[s] = sfv_ent_need_w;
+    end
+  end
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : sfv_in_sweep
+    if (!axis_resetn) begin
+      sfv_cur_r <= '0;
+      for (int s = 0; s < N_STREAMS; s++) begin
+        sfv_acc_r[s]     <= 4'd0;
+        sfv_need_in_r[s] <= 4'd0;
+      end
+    end else if (32'(sfv_cur_r) == SFV_KEYS_C - 1) begin
+      sfv_cur_r <= '0;
+      for (int s = 0; s < N_STREAMS; s++) begin
+        sfv_need_in_r[s] <= sfv_nxt_w[s];
+        sfv_acc_r[s]     <= 4'd0;
+      end
+    end else begin
+      sfv_cur_r <= sfv_cur_r + SFV_KW_C'(1);
+      for (int s = 0; s < N_STREAMS; s++)
+        sfv_acc_r[s] <= sfv_nxt_w[s];
+    end
+  end
+  //! OUTPUT side: the capture map is ALREADY stream-channel keyed
+  //! (key = stream*8 + channel), so the requirement is a per-stream
+  //! priority over eight enable bits - combinational, no sweep. The CRF
+  //! row's nibble stays zero: no audio mapping can reference it.
+  logic [ACMP_SRC_C*4-1:0] sfv_need_out_w;
+  always_comb begin : sfv_out_need
+    sfv_need_out_w = '0;
+    for (int s = 0; s < N_STREAMS; s++)
+      for (int c = 0; c < 8; c++)
+        if (cmap_flat_w[(s*8 + c)*13 + 12])
+          sfv_need_out_w[4*s +: 4] = 4'(c + 1);
+  end
+
   always_comb begin : gsi_answer
     gsi_ans_raw_w = 64'd0;
     unique case (gsiq_kind_r)
       2'd0: begin                            // ---- GET_STREAM_INFO ----
         unique case (gsiq_sel_r)
           4'd0: gsi_ans_raw_w = {32'd0, gsi_flags_w};
-          4'd1: gsi_ans_raw_w = (gsi_in_w || gsi_out_w) ? GSI_FMT_C : 64'd0;
+          //! the CURRENT format: a valid settings row IS the current format
+          //! (SET_STREAM_FORMAT stored it); until then the generated base -
+          //! and the CRF rows report the CRF format, never the AAF base
+          4'd1: gsi_ans_raw_w =
+                    gsi_in_w
+                      ? (sfv_crf_row_w ? ADP_CRF_FMT_C
+                         : pp_aecp_fmt_in_v_w[gsi_six_w]
+                           ? pp_aecp_fmt_in_w[64*gsi_six_w +: 64]
+                           : GSI_FMT_C)
+                  : gsi_out_w
+                      ? (sfv_crf_row_w ? ADP_CRF_FMT_C
+                         : pp_aecp_fmt_out_v_w[gsi_oix_w]
+                           ? pp_aecp_fmt_out_w[64*gsi_oix_w +: 64]
+                           : GSI_FMT_C)
+                      : 64'd0;
           4'd2: gsi_ans_raw_w = gsi_in_w  ? gsi_sid_w
                               : gsi_decl_w ? gsi_osid_w : 64'd0;
+          //! an output's accumulated latency reads the SAME folded transit
+          //! entry the framer stamps (SET_STREAM_INFO's landing point), so
+          //! the answer and the wire cannot disagree
           4'd3: gsi_ans_raw_w = gsi_in_w
                               ? {32'd0, gsi_reging_w
                                  ? pp_cd_srp_acc_latency_w[32*gsi_six_w +: 32]
                                  : 32'd0}
-                              : {32'd0, gsi_out_w ? PRES_DFLT_C : 32'd0};
+                              : {32'd0, gsi_out_w
+                                 ? aecp_pres_offset[32*gsi_oix_w +: 32]
+                                 : 32'd0};
           4'd4: gsi_ans_raw_w = gsi_setl_w
                               ? {pp_cd_acmp_bound_dmac_w[48*gsi_six_w +: 48],
                                  gsi_tkfail_w
@@ -4297,6 +4440,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                                      : gsi_setl_w ? 3'd3 : 3'd1), 5'd0}
                                  : 8'd0,
                                  24'd0};
+          //! SET_STREAM_FORMAT's verdict on the proposed format (issue #67)
+          4'd15: gsi_ans_raw_w = sfv_verdict_w;
           default: gsi_ans_raw_w = 64'd0;
         endcase
       end
@@ -6126,7 +6271,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! wider than N_STREAMS — a bare N_STREAMS-wide array would have truncated
   //! the started vector and silently dropped the top sinks' state.
   logic [ACMP_SINKS_C-1:0]  pp_aecp_strm_started_w;
-  logic [31:0]              pp_aecp_pt_offset_w;
+  //! the per-row settings faces (issue #67): value beside valid bit, sized
+  //! at the processor's ACMP shape so the CRF rows ride along (the CRF
+  //! output's offset row IS its transit entry's source below). A value
+  //! whose valid bit is clear is a reset zero - every consumer here FOLDS.
+  logic [ACMP_SRC_C*32-1:0]   pp_aecp_pt_offset_w;
+  logic [ACMP_SRC_C-1:0]      pp_aecp_pt_offset_v_w;
+  logic [ACMP_SINKS_C*64-1:0] pp_aecp_fmt_in_w;
+  logic [ACMP_SINKS_C-1:0]    pp_aecp_fmt_in_v_w;
+  logic [ACMP_SRC_C*64-1:0]   pp_aecp_fmt_out_w;
+  logic [ACMP_SRC_C-1:0]      pp_aecp_fmt_out_v_w;
   logic                     pp_aecp_dyn_dirty_w;
 
   KL_pp_shadow #(
@@ -6181,6 +6335,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .aecp_clk_src_index_o(pp_aecp_clk_src_index_w),
       .aecp_strm_started_o (pp_aecp_strm_started_w),
       .aecp_pt_offset_o    (pp_aecp_pt_offset_w),
+      .aecp_pt_offset_v_o  (pp_aecp_pt_offset_v_w),
+      .aecp_fmt_in_o       (pp_aecp_fmt_in_w),
+      .aecp_fmt_in_v_o     (pp_aecp_fmt_in_v_w),
+      .aecp_fmt_out_o      (pp_aecp_fmt_out_w),
+      .aecp_fmt_out_v_o    (pp_aecp_fmt_out_v_w),
       .aecp_dyn_dirty_o    (pp_aecp_dyn_dirty_w),
       //! Same live lock level as the processor AECP engine. Milan 5.4.2.27
       //! and 5.4.2.28 prohibit local map changes while it is asserted.
@@ -6222,6 +6381,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .gsi_desc_index_o  (pp_gsi_desc_index_w),
       .gsi_sel_o         (pp_gsi_sel_w),
       .gsi_ord_o         (pp_gsi_ord_w),
+      .gsi_prop_fmt_o    (pp_gsi_prop_fmt_w),
       .gsi_data_i        (pp_gsi_data_w),
       .gsi_wait_i        (pp_gsi_wait_w),
       .gsi_avb_chg_i     (clkv_as_cap_w != gsi_ascap_q_r),
