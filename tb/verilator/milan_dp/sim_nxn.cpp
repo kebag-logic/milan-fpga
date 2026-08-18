@@ -3063,6 +3063,142 @@ int main(int argc, char** argv) {
                (long)(frx_after > frx_before), 1);
         }
 
+        // ---- Milan 5.3.8.7 on the CRF Media Clock Input (issue #97) ----
+        // The CRF sink has no classification-table entry (KL_crf_rx keys on
+        // subtype off the parser), so the stopped predicate rides its own
+        // port into the engine. The split under test: a stopped sink
+        // OBSERVES - Table 5.16 claims all ten counters for this Stream
+        // Input - and CONSUMES nothing, so it can never LOCK however many
+        // valid CRF PDUs arrive. Lock is the media-facing qualifier: while
+        // it is low, stopped timing data cannot reach clock recovery.
+        //
+        // The bind uses a DELIBERATELY DISTINCT talker_unique_id (0x00F0 vs
+        // listener uid N): this is the shape that exposed the validator's
+        // response-uid defect (ACMP responses keyed on talker_unique_id @36
+        // instead of listener_unique_id @38 - silently consumed here, and a
+        // small distinct tuid would have walked the WRONG sink's record).
+        // tb/rx_validator F27 pins the law at the unit level; this block is
+        // its end-to-end witness, so keep the uids distinct.
+        {
+            enum { A_CRF_CTRL_L = 0x738, A_CRF_STATUS_L = 0x74C };
+            const int CRF_LUID = NSTREAMS_TB;    // ACMP sink N = CRF input
+            const uint8_t csid[8] = {0x06,0x00,0x00,0x00,0x00,0x06,0x00,0xF0};
+            const uint8_t ctk[8]  = {0x06,0x00,0x00,0x00,0x00,0x06,0x00,0xF0};
+            const uint8_t cdm[6]  = {0x91,0xE0,0xF0,0x00,0x2A,0x33};
+            // BIND_RX carrying STREAMING_WAIT (0x0008): the bind itself
+            // lands the sink BOUND and STOPPED (IEEE 7.4.35's premise,
+            // reported per Milan Table 5.9 bit 28)
+            {
+                uint8_t f[72]; memset(f, 0, sizeof f);
+                const uint8_t mc[6] = {0x91,0xE0,0xF0,0x01,0x00,0x00};
+                memcpy(f, mc, 6);
+                const uint8_t csrc[6] = {0x68,0x05,0xCA,0x95,0xB2,0xD1};
+                memcpy(f+6, csrc, 6);
+                f[12]=0x22; f[13]=0xF0; f[14]=0xFC; f[15]=0x06; // CONNECT_RX
+                f[16]=0x00; f[17]=44;
+                memcpy(f+18, csid, 8);
+                for (int i = 26; i < 34; i++) f[i] = (uint8_t)i;
+                memcpy(f+34, ctk, 8);
+                const uint8_t us[8] = {0x02,0x00,0x00,0xFF,0xFE,0x00,0x00,0x01};
+                memcpy(f+42, us, 8);
+                f[50]=0x00; f[51]=0xF0;                 // talker_unique_id
+                f[52]=0x00; f[53]=(uint8_t)CRF_LUID;    // the CRF sink
+                memcpy(f+54, cdm, 6);
+                f[62]=0x77; f[63]=0x33;
+                f[64]=0x00; f[65]=0x08;                 // STREAMING_WAIT
+                inject(f, 70, 3000);
+            }
+
+            // the record is BOUND at the CONNECT_RX; its wire identity
+            // (sid/dmac) latches at the A15 SETTLE that follows the probe
+            // ladder - answer every probe until GET_STREAM_INFO serves a
+            // nonzero stream_id, exactly as a real talker would keep
+            // answering the two-probe cadence
+            std::vector<uint8_t> gci = {0x00, 0x05,
+                (uint8_t)(CRF_LUID >> 8), (uint8_t)(CRF_LUID & 0xFF)};
+            std::vector<uint8_t> g;
+            bool crf_settled = false;
+            for (int tries = 0; tries < 10 && !crf_settled; tries++) {
+                if (probe_seen_luid[CRF_LUID]) {
+                    answer_probe(CRF_LUID, csid, cdm, ctk, 0x00F0);
+                    probe_seen_luid[CRF_LUID] = false;
+                } else {
+                    for (int c = 0; c < 2500; c++) step();
+                }
+                g = aecp_xact(0x000F, (uint16_t)(0x9120 + tries), gci);
+                crf_settled = g.size() > 61 &&
+                    (g[54]|g[55]|g[56]|g[57]|g[58]|g[59]|g[60]|g[61]) != 0;
+            }
+            ck("CRF 5.3.8.7 the tuid!=luid bind SETTLES (the validator's "
+               "response-uid law end to end)", crf_settled ? 1 : 0, 1);
+
+            g = aecp_xact(0x000F, 0x9110, gci);
+            ck("CRF 5.3.8.7 wait-bind: GET_STREAM_INFO SUCCESS",
+               aecp_status(g), 0);
+            ck("CRF 5.3.8.7 wait-bind: BOUND reads 1",
+               (long)(g.size() > 42 && (g[42] & 0x04) != 0), 1);
+            ck("CRF 5.3.8.7 wait-bind: STREAMING_WAIT reads 1",
+               (long)(g.size() > 45 && (g[45] & 0x08) != 0), 1);
+
+            // valid CRF PDUs at the bound sid: OBSERVED and counted while
+            // stopped - and NEVER consumed, so the sink must not lock
+            uint64_t cts = 5000000000ULL; uint8_t cseq = 0;
+            uint8_t cf[64];
+            auto send_crf = [&]() {
+                memset(cf, 0, sizeof cf);
+                memcpy(cf, cdm, 6);
+                const uint8_t src[6] = {0x02,0x00,0x00,0x00,0x00,0x02};
+                memcpy(cf+6, src, 6);
+                cf[12]=0x22; cf[13]=0xF0;
+                cf[14]=0x04; cf[15]=0x80; cf[16]=cseq; cf[17]=0x01;
+                memcpy(cf+18, csid, 8);
+                cf[28]=0xBB; cf[29]=0x80;               // pull0 | 48000
+                cf[31]=0x08;                            // crf_data_length 8
+                cf[32]=0x00; cf[33]=0x60;               // interval 96
+                for (int i = 0; i < 8; i++)
+                    cf[34+i] = (uint8_t)(cts >> (8*(7-i)));
+                inject(cf, 64, 400);
+                cseq++; cts += 2001000ULL;
+            };
+            const long pdu0 = (long)(axi_read(A_CRF_STATUS_L) >> 16);
+            for (int k = 0; k < 10; k++) send_crf();
+            ck("CRF 5.3.8.7 stopped: FRAMES_RX advanced by 10",
+               (long)(axi_read(A_CRF_STATUS_L) >> 16) - pdu0, 10);
+            ck("CRF 5.3.8.7 stopped: fmt/seq stayed clean",
+               (long)(axi_read(A_CRF_STATUS_L) & 0xFFFF), 0);
+            ck("CRF 5.3.8.7 stopped: ten valid PDUs did NOT lock the sink",
+               (long)(axi_read(A_CRF_CTRL_L) >> 31), 0);
+
+            // START_STREAMING: consumption resumes; the SAME cadence locks
+            std::vector<uint8_t> ti = gci;
+            const std::vector<uint8_t> rs = aecp_xact(0x0022, 0x9111, ti);
+            ck("CRF 5.3.8.7 START_STREAMING answered SUCCESS",
+               aecp_status(rs), 0);
+            g = aecp_xact(0x000F, 0x9112, gci);
+            ck("CRF 5.3.8.7 started: STREAMING_WAIT reads 0 immediately",
+               (long)(g.size() > 45 && (g[45] & 0x08) == 0), 1);
+            for (int k = 0; k < 9; k++) send_crf();
+            ck("CRF 5.3.8.7 started: the same cadence now LOCKS",
+               (long)(axi_read(A_CRF_CTRL_L) >> 31), 1);
+
+            // STOP again: counters continue - stop/start is not a bind
+            // edge and resets nothing (Table 5.6's reset is bound-only)
+            const long pdu1 = (long)(axi_read(A_CRF_STATUS_L) >> 16);
+            const std::vector<uint8_t> rp = aecp_xact(0x0023, 0x9113, ti);
+            ck("CRF 5.3.8.7 STOP_STREAMING answered SUCCESS",
+               aecp_status(rp), 0);
+            for (int k = 0; k < 3; k++) send_crf();
+            ck("CRF 5.3.8.7 re-stopped: counters CONTINUED across the pair",
+               (long)(axi_read(A_CRF_STATUS_L) >> 16) - pdu1, 3);
+            g = aecp_xact(0x000F, 0x9114, gci);
+            ck("CRF 5.3.8.7 re-stopped: still BOUND (stop is not unbind)",
+               (long)(g.size() > 42 && (g[42] & 0x04) != 0), 1);
+            // leave the sink started for whatever follows
+            const std::vector<uint8_t> rr = aecp_xact(0x0022, 0x9115, ti);
+            ck("CRF 5.3.8.7 cleanup: START answered SUCCESS",
+               aecp_status(rr), 0);
+        }
+
         // a route-flags-only CTRL write at idx 0 - the exact write that used
         // to detach the alias - must now leave it completely alone
         axi_write(A_STRM_SEL, 0x000);                 // dir=0 idx=0
