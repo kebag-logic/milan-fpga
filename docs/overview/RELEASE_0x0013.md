@@ -6,11 +6,11 @@
 > not six — and `0x0014` is now BUILT, PLACED, TIMING-MET AND FLASHED**
 > (3 seeds, best WNS +0.147 ns, 99.65 % slice occupancy, running on the AX7101;
 > [`../findings/FLASH_0x0014_0727.md`](../findings/FLASH_0x0014_0727.md)).
-> The six-queue map of §2 did not fit the AX7101 — three Vivado seeds
+> The six-queue map of Section 2 did not fit the AX7101 -- three Vivado seeds
 > failed placement 282 slices short with LUTs at 99.84 % of capacity — so the
 > spare queue was dropped and the map was compactly renumbered: **q4** CBS SR
 > class A · **q3** CBS SR class B · **q2** gPTP · **q1** control · **q0** best
-> effort. Everything §2 says about *why* the order changed still holds; the
+> effort. Everything Section 2 says about *why* the order changed still holds; the
 > indices, `CAP.num_queues` (5), the CBS window (`0x400`–`0x49F`), the
 > `CLS_TC_QUEUE_MAP` reset (`0x004898C0`) and the `LWSRP_CTRL` reset (`0x10`,
 > queue 4) do not. Current values are in
@@ -33,31 +33,32 @@ both are maintained with the RTL and win over this page.
 
 ## Contents
 
-- **[The short version](#the-short-version)** — A six-row "if you… then…" router. Find your situation, jump to the one section that concerns you, and note the line under it: everything in §§1–7 is gateware and reaches no board without a reflash.
-- **[1. The listener blocker is fixed — and your board is probably still on the workaround](#1-the-listener-blocker-is-fixed--and-your-board-is-probably-still-on-the-workaround)** — The two layers that only bite together — a globally shared staging pair, and an arm latch that clears only on reset. Read the proof paragraph carefully: silicon proves the *bug* (by causation on a pre-fix board), the *fix* is proven by two Verilator regressions, so the stage-before-commit workaround stays load-bearing until you confirm `VERSION ≥ 0x000F` on the board itself.
-- **[2. Six egress queues, in 802.1Q order — a breaking ABI change](#2-six-egress-queues-in-8021q-order--a-breaking-abi-change)** — Partly superseded, and the section says which part: the convention (higher index = higher priority) is permanent, but every index and reset word here is one version stale — `0x0014` dropped the spare queue and renumbered. Still current: any code writing `CLS_TC_QUEUE_MAP` must be rewritten, and every queue powers up unshaped on purpose.
-- **[3. Control traffic is classified by destination MAC — and it ships ON](#3-control-traffic-is-classified-by-destination-mac--and-it-ships-on)** — Why a documented queue row was dead on the wire for months: MAAP/MSRP/MVRP and the 1722.1 trio are untagged and carry no PCP, so a PCP-keyed table could never route them. Now keyed on reserved DMAC. `CLS_CTRL` reads `0x5` at reset, and clearing bit 2 restores the old wire behaviour bit-for-bit — a clean bisect lever.
-- **[4. lwSRP NxN — every t>0 talker row had been refused](#4-lwsrp-nxn--every-t0-talker-row-had-been-refused)** — An off-by-a-table-size: rows sized `max(L,T)` while the window maps talker *t* to row `(L−1)+t`, so every talker above t=0 sat past the end and had its admission gate pinned shut. The observable improvement is that an out-of-range row now reads `0xDEAD` instead of silently aliasing row 0's reservation.
-- **[5. RMON counts again — and now tells you when it does not](#5-rmon-counts-again--and-now-tells-you-when-it-does-not)** — `i_mac_events` was tied to 0 at both SoC wiring sites, so the whole STAT window read zero for months while every testbench passed. The durable half is `STATS_CAP` (`0x204`): a per-lane mask saying whose zero is a measurement. Also the counter views now saturate rather than truncate — a real 51,523 mismatch was 79 % of the way to a roll that would have counted *down*.
-- **[6. The playback chain reaches the line-out](#6-the-playback-chain-reaches-the-line-out)** — The ALSA playback ring previously had no route to the DAC at all. The crossbar gained a host-ring source and the feed mux now picks the DAC's source *and its pace*, so a playback ring reaches the line-out with no inbound stream. Additive: `CHMAP_CTRL[0] = 0` is bit- and cycle-identical to before.
-- **[7. New instrumentation you did not have](#7-new-instrumentation-you-did-not-have)** — Three read-only probe groups in one table. The important one is `APRB` at `0x8B4`: every other RX counter lives *downstream* of the stream-table match, so a listener accepting nothing read zero everywhere with no way to separate parse failure from match failure — which is why §1 took so long.
-- **[8. Landed but not reachable from software yet](#8-landed-but-not-reachable-from-software-yet)** — Three things in the tree that you cannot use yet, stated so nobody hunts for a missing register: the persistence journal (CSR group specified, not wired), the CTF fault trace (its target partition has never been booted), and AES3 (no shipping board config selects it).
-- **[9. Build, CI and the builder](#9-build-ci-and-the-builder)** — Four gate changes. Verilator is pinned and built from source for a measured reason — 5.020 cannot build four suites and 5.032 reads back zeros on six `aecp` checks. The builder now writes the `0x680` reset words into a header `` `include ``-d by `milan_csr.sv`, so config and register resets cannot drift, and the tie-off check went from informational to failing.
-- **[10. Requirements closed this round](#10-requirements-closed-this-round)** — The eight `REQ-*` ids that closed, and where their normative text and status live.
-- **[Upgrade checklist](#upgrade-checklist)** — Six ordered steps for the actual upgrade, including the one people skip: run the host-plane smoke test *first*, because a build with perfect fabric paths can still ship with a dead host plane.
+- **[The short version](#the-short-version)** -- A six-row "if you… then…" router. Find your situation, jump to the one section that concerns you, and note the line under it: everything in Sections 1–7 is gateware and reaches no board without a reflash.
+- **[1. The listener blocker is fixed — and your board is probably still on the workaround](#1-the-listener-blocker-is-fixed--and-your-board-is-probably-still-on-the-workaround)** -- The two layers that only bite together -- a globally shared staging pair, and an arm latch that clears only on reset. Read the proof paragraph carefully: silicon proves the *bug* (by causation on a pre-fix board), the *fix* is proven by two Verilator regressions, so the stage-before-commit workaround stays load-bearing until you confirm `VERSION ≥ 0x000F` on the board itself.
+- **[2. Six egress queues, in 802.1Q order — a breaking ABI change](#2-six-egress-queues-in-8021q-order--a-breaking-abi-change)** -- Partly superseded, and the section says which part: the convention (higher index = higher priority) is permanent, but every index and reset word here is one version stale -- `0x0014` dropped the spare queue and renumbered. Still current: any code writing `CLS_TC_QUEUE_MAP` must be rewritten, and every queue powers up unshaped on purpose.
+- **[3. Control traffic is classified by destination MAC — and it ships ON](#3-control-traffic-is-classified-by-destination-mac--and-it-ships-on)** -- Why a documented queue row was dead on the wire for months: MAAP/MSRP/MVRP and the 1722.1 trio are untagged and carry no PCP, so a PCP-keyed table could never route them. Now keyed on reserved DMAC. `CLS_CTRL` reads `0x5` at reset, and clearing bit 2 restores the old wire behaviour bit-for-bit -- a clean bisect lever.
+- **[4. lwSRP NxN — every t>0 talker row had been refused](#4-lwsrp-nxn--every-t0-talker-row-had-been-refused)** -- An off-by-a-table-size: rows sized `max(L,T)` while the window maps talker *t* to row `(L−1)+t`, so every talker above t=0 sat past the end and had its admission gate pinned shut. The observable improvement is that an out-of-range row now reads `0xDEAD` instead of silently aliasing row 0's reservation.
+- **[5. RMON counts again — and now tells you when it does not](#5-rmon-counts-again--and-now-tells-you-when-it-does-not)** -- `i_mac_events` was tied to 0 at both SoC wiring sites, so the whole STAT window read zero for months while every testbench passed. The durable half is `STATS_CAP` (`0x204`): a per-lane mask saying whose zero is a measurement. Also the counter views now saturate rather than truncate -- a real 51,523 mismatch was 79 % of the way to a roll that would have counted *down*.
+- **[6. The playback chain reaches the line-out](#6-the-playback-chain-reaches-the-line-out)** -- The ALSA playback ring previously had no route to the DAC at all. The crossbar gained a host-ring source and the feed mux now picks the DAC's source *and its pace*, so a playback ring reaches the line-out with no inbound stream. Additive: `CHMAP_CTRL[0] = 0` is bit- and cycle-identical to before.
+- **[7. New instrumentation you did not have](#7-new-instrumentation-you-did-not-have)** -- Three read-only probe groups in one table. The important one is `APRB` at `0x8B4`: every other RX counter lives *downstream* of the stream-table match, so a listener accepting nothing read zero everywhere with no way to separate parse failure from match failure -- which is why Section 1 took so long.
+- **[8. Landed but not reachable from software yet](#8-landed-but-not-reachable-from-software-yet)** -- Three things in the tree that you cannot use yet, stated so nobody hunts for a missing register: the persistence journal (CSR group specified, not wired), the CTF fault trace (its target partition has never been booted), and AES3 (no shipping board config selects it).
+- **[9. Build, CI and the builder](#9-build-ci-and-the-builder)** -- Four gate changes. Verilator is pinned and built from source for a measured reason -- 5.020 cannot build four suites and 5.032 reads back zeros on six `aecp` checks. The builder now writes the `0x680` reset words into a header `` `include ``-d by `milan_csr.sv`, so config and register resets cannot drift, and the tie-off check went from informational to failing.
+- **[10. Requirements closed in 0x0013](#10-requirements-closed-in-0x0013)** -- The eight `REQ-*` ids that closed, and where their normative text and status live.
+- **[Upgrade checklist](#upgrade-checklist)** -- Six ordered steps for the actual upgrade, including the one people skip: run the host-plane smoke test *first*, because a build with perfect fabric paths can still ship with a dead host plane.
+- **[Change log](#change-log)** -- What this release changed and the 0x0014 supersession, each with its engineering reason.
 
 ## The short version
 
 | If you… | then… |
 |---|---|
-| have a board on `0x000B` and it listens fine today | you are running the **workaround**, not a fix. See §1. |
-| have software that reads `CAP.num_queues` or writes `CLS_TC_QUEUE_MAP` | **it will break.** The queue count and the field packing both changed. See §2. |
-| have software that trusts a zero in the `0x210`–`0x230` STAT window | read the new `STATS_CAP` (`0x204`) first. See §5. |
-| run more than one talker with lwSRP enabled | every `t>0` talker row was being refused. See §4. |
-| want audio out of the line-out from an ALSA playback ring | that path did not exist before `0x000E`. See §6. |
-| just want your CI green | the sweep, the yosys check and the conformance suite are all gates now. See §9. |
+| have a board on `0x000B` and it listens fine today | you are running the **workaround**, not a fix. See Section 1. |
+| have software that reads `CAP.num_queues` or writes `CLS_TC_QUEUE_MAP` | **it will break.** The queue count and the field packing both changed. See Section 2. |
+| have software that trusts a zero in the `0x210`–`0x230` STAT window | read the new `STATS_CAP` (`0x204`) first. See Section 5. |
+| run more than one talker with lwSRP enabled | every `t>0` talker row was being refused. See Section 4. |
+| want audio out of the line-out from an ALSA playback ring | that path did not exist before `0x000E`. See Section 6. |
+| just want your CI green | the sweep, the yosys check and the conformance suite are all gates now. See Section 9. |
 
-**Everything in §§1–7 is gateware.** None of it reaches a board without a
+**Everything in Sections 1–7 is gateware.** None of it reaches a board without a
 rebuild and a reflash.
 
 ---
@@ -87,7 +88,7 @@ to the ACMP record at runtime.
 **How well it is proven, precisely.** The *mechanism* is confirmed on silicon by
 **causation** — the trap was triggered deliberately on the deployed board, the
 listener went deaf, and re-staging recovered it
-([`../findings/STRESS_0726.md`](../findings/STRESS_0726.md) §D). That board was
+([Section D of `../findings/STRESS_0726.md`](../findings/STRESS_0726.md#d--the-entry-0-blocker-triggered-on-purpose)). That board was
 still carrying the pre-fix `0x000B`, so what silicon proves is the *bug*, not
 the *fix*. The fix is proven by two Verilator regressions with negative legs:
 [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) `sim_nxn.cpp` TRAP-1 (N=4 and N=8, through the real CSR
@@ -103,7 +104,7 @@ reset).
   and an `en=0` eviction now hands entry 0 back to ACMP instead of detaching it.
 
 Full symptom→cause walk, with the register reads:
-[`../limitations/TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md) §21.
+[Section 21 of `../limitations/TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26).
 
 ## 2. Six egress queues, in 802.1Q order — a breaking ABI change
 
@@ -190,7 +191,7 @@ q2 is **software**-originated control traffic.
 
 Also new here: `REQ-CLS-05` (DEI sideband), `REQ-CLS-06` (back-to-back
 line-rate parsing) and `REQ-CLS-07` (reserved-DMAC validation on the gPTP fast
-path, `CLS_CTRL[1]`, still reset 0) all closed this round.
+path, `CLS_CTRL[1]`, still reset 0) all closed in 0x0013.
 
 ## 4. lwSRP NxN — every `t>0` talker row had been refused
 
@@ -212,7 +213,7 @@ Rows are now sized **`L+T−1`**. Consequences you can observe:
 * the CRF media clock output became a bindable ACMP talker source at
   `talker_unique_id = N_STREAMS`.
 
-Historical detail: [historical NxN architecture](../NXN_ARCHITECTURE.md) §3.4.1.
+Historical detail: [Section 3.4.1 of the historical NxN architecture](../NXN_ARCHITECTURE.md#341-attribute-row-map-and-sizing--shipped-2026-07-26).
 
 ## 5. RMON counts again — and now tells you when it does not
 
@@ -278,8 +279,8 @@ Three probe groups landed, all read-only, all cheap:
 `APRB` matters more than its size suggests: **every other RX counter in the
 datapath lives downstream of the stream-table match**, so a bound listener that
 accepts nothing read zero everywhere with no way to tell parse failure from
-match failure. That is precisely why §1 took so long. The ordered fault-finding
-walk is in [`../fpga/DATAPLANE_WALKTHROUGH.md`](../fpga/DATAPLANE_WALKTHROUGH.md) §3.
+match failure. That is precisely why Section 1 took so long. The ordered fault-finding
+walk is in [Section 3 of `../fpga/DATAPLANE_WALKTHROUGH.md`](../fpga/DATAPLANE_WALKTHROUGH.md#3-ingress-a-frame-off-the-wire-becomes-pcm).
 
 ## 8. Landed but not reachable from software yet
 
@@ -318,7 +319,7 @@ Stated plainly so nobody goes looking for a register that is not there:
   builds but reads back zeros on six `aecp` checks. The RTL was deliberately not
   contorted to satisfy 5.020 — the construct it rejects is legal and synthesises.
   The measured table is in
-  [`../testing/TESTING.md`](../testing/TESTING.md) §7.
+  [Section 7 of `../testing/TESTING.md`](../testing/TESTING.md#7-known-gaps-kept-honest).
 * **The builder emits more, and `milan_csr` now consumes it.**
   `endstation_builder.py` gained the lwSRP reservation-table emitter
   (`lwsrp_table.json` / `.svh`) and the DT/driver-shape emitter
@@ -330,10 +331,10 @@ Stated plainly so nobody goes looking for a register that is not there:
 * **The tie-off allowlist is a gate.** [`scripts/check_tied_inputs.sh`](../../scripts/check_tied_inputs.sh) used to be
   informational; since 2026-07-26 it **fails** the yosys run on a
   never-overridden tie with no justified-tie entry. That is the RMON class of
-  defect (§5) turned into a check — it was informational precisely because three
+  defect (Section 5) turned into a check -- it was informational precisely because three
   of its four warnings were expected, which is why the fourth went unread.
 
-## 10. Requirements closed this round
+## 10. Requirements closed in 0x0013
 
 `REQ-CLS-05` (DEI sideband) · `REQ-CLS-06` (back-to-back line-rate parsing) ·
 `REQ-CLS-07` (reserved-DMAC validation) · `REQ-CLS-10` (untagged control
@@ -349,7 +350,7 @@ the normative text is
 
 ## Upgrade checklist
 
-1. **Rebuild and reflash.** Everything in §§1–7 is gateware. A gateware-only
+1. **Rebuild and reflash.** Everything in Sections 1–7 is gateware. A gateware-only
    load will not boot — flash a matched image set
    ([`../integration/QSPI_FLASHBOOT.md`](../integration/QSPI_FLASHBOOT.md)).
 2. **Run [`scripts/hostplane_smoke.sh`](../../scripts/hostplane_smoke.sh) on the board shell first**, before any
@@ -358,8 +359,8 @@ the normative text is
 3. **Read back `VERSION` (`0x004`), `CAP` (`0x008`), `CLS_CTRL` (`0x300`) and
    `STATS_CAP` (`0x204`).** Expect `0x0001_0013`, `num_queues` = 6,
    `CLS_CTRL` = `0x5` — or, on a `0x0014` build, `0x0001_0014` and
-   `num_queues` = **5** (§2 banner).
-4. **Re-derive every `CLS_TC_QUEUE_MAP` write** against 3-bit packing (§2).
+   `num_queues` = **5** (Section 2 banner).
+4. **Re-derive every `CLS_TC_QUEUE_MAP` write** against 3-bit packing (Section 2).
 5. **Check `rx_queues` for your board.** The AX7101 8×8 config ships **1**
    because that is the layout its flashed boot chain maps; raising it to 2 moves
    every DMA window from `dma-ts` onward and is a reflash-gated change the
@@ -367,3 +368,10 @@ the normative text is
    ([`../reference/EGRESS_QUEUE_MAP.md`](../reference/EGRESS_QUEUE_MAP.md)).
 6. **Stop relying on the stage-before-commit workaround** only once you have
    confirmed `VERSION ≥ 0x000F` on the board itself.
+
+## Change log
+
+| Date | Change | Rationale |
+|---|---|---|
+| 2026-07-26 | Release 0x0013 documented: the listener fix, the 802.1Q queue order, DMAC-keyed control classification, lwSRP row sizing, RMON | Each change is CSR-observable on a reflashed board, and this page is the upgrade contract from 0x000B |
+| 2026-07-27 | Banner added: superseded in part by 0x0014, which drops to five queues | The six-queue map missed placement by 282 slices on the xc7a100t; 0x0014 recovers fit with a bundle of area levers plus dropping the traffic-less spare queue, every class keeping its rank and shaping |

@@ -41,7 +41,7 @@ Effects are `before → after` Mbit/s. "build" = gateware config passed to [`sw/
 |--:|---|---|---|---|
 | 1 | HW RSC receive coalescing | cut per-frame RX CPU | `e1b7f5f` (kl-eth `rsc250`) | **RX single 43 → 209** |
 | 2 | HW header-gen TSO | TX offload | `151032d`,`559b402` (kl-eth) | **TX 143 → 186** |
-| 3 | RX fan-out (2 queues, 2 harts) | parallel RX | `01a484c` (kl-eth) + `rxfan` build | **RX −P2 223 → 238** — **RETIRED 2026-07-26**: `RxSteer` is now a gPTP-vs-rest splitter per the USER's 2-ingress-queue directive, not a TCP 4-tuple flow hash, so this lever no longer exists. Bulk RX is single-NAPI again; see [EGRESS_QUEUE_MAP.md](docs/reference/EGRESS_QUEUE_MAP.md) for the trade |
+| 3 | RX fan-out (2 queues, 2 harts) | parallel RX | `01a484c` (kl-eth) + `rxfan` build | **RX −P2 223 → 238** -- **RETIRED 2026-07-26**: `RxSteer` is now a gPTP-vs-rest splitter (two ingress queues so PTP event frames never wait behind bulk RX -- the D7 grandmaster-loss class), not a TCP 4-tuple flow hash, so this lever no longer exists. Bulk RX is single-NAPI again; see [EGRESS_QUEUE_MAP.md](docs/reference/EGRESS_QUEUE_MAP.md) for the trade |
 | 4 | CBS-default shaping bug fix | remove spurious throttle | `34cc2bc` (hdl/csr `CBS_EN_RST=0`) | unblocked TX shaping |
 | 5 | RX overload-wedge fixes | stop RX collapse under load | `09e3a09`,`2c44757` (rsc RTL) + `12265b5` (kl-eth) | RX stable, `canary=0` under storm |
 | 6 | TX peer-coalescing + softirq NAPI | TX aggregate | `44e785c` (T1, operating point) | **TX −P4 → 452** |
@@ -51,7 +51,7 @@ Effects are `before → after` Mbit/s. "build" = gateware config passed to [`sw/
 | 10 | **RPT + 64 KB L2 (combined)** | RX aggregate | `build_mlp3` (refill+rpt+64K); mech doc `c286108` | **RX −P2 298 (best, +6 % vs l2x2)**; **TX unaffected** (l2x2 vs mlp3 overlap: −P4 ~410, −P2 peak ~530) |
 | 11 | `perf` profiling (cross-built) | *find* the RX wall | `04c8144`; perf in defconfig `b8e2fb6` | **RX −P2 = 51 % `copy_to_user`** (recv payload copy, cold-DRAM-read bound) — interconnect hypothesis refuted |
 | 12 | `MSG_TRUNC` ceiling test | bound >500 feasibility | `2ddf5e4` (`tools_recv_trunc.c`) | **RX without the copy: single 427, −P2 481** (96 % of goal) |
-| 13 | **L2→DRAM depth** (`downPendingMax` 4→8) | stop 2 harts serializing at the L2's DRAM port | `--l2-down-pending=8 --l2-general-slots=16` (patch [`sw/litex/patches/0002-vexiiriscv-l2-depth-args.patch`](sw/litex/patches/0002-vexiiriscv-l2-depth-args.patch)); `build_l2deep` | **RX −P2 296→316 (+7 %)**, single 233→274, §V clean, 0 BRAM, WNS +0.259 — **the keeper config** |
+| 13 | **L2→DRAM depth** (`downPendingMax` 4→8) | stop 2 harts serializing at the L2's DRAM port | `--l2-down-pending=8 --l2-general-slots=16` (patch [`sw/litex/patches/0002-vexiiriscv-l2-depth-args.patch`](sw/litex/patches/0002-vexiiriscv-l2-depth-args.patch)); `build_l2deep` | **RX −P2 296→316 (+7 %)**, single 233→274, validation checklist clean, 0 BRAM, WNS +0.259 -- **the keeper config** |
 | 14 | **Header-split zero-copy RX** — campaign close (2026-07-10/11) | remove the socket `recv()` copy tax | `build_hsq8`/`build_hsq10` (16 KB pages) + kl-eth `hsplit11/12` | **TX 513 → 582–646; RX with-copy 368–407 → 381 steady / 374 soak; RX no-copy 585–594 (`MSG_TRUNC`, hs geometry) — both directions crossed 500** (reconciled scoreboard: [`docs/findings/PERFORMANCE_GOAL.md`](docs/findings/PERFORMANCE_GOAL.md)) |
 
 ### DDIO / zero-copy RX levers (measured 2026-07-09, toward the 481 ceiling)

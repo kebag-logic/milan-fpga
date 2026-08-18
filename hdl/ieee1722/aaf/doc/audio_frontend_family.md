@@ -49,7 +49,7 @@ consecutive pair slots; `channels_per_frame` even 2..8 per stream).
 | member | status | slots/pairs | notes |
 |--------|--------|-------------|-------|
 | `KL_aaf_capture_i2s` | RTL, silicon-proven | pair 0 only | stereo I2S master for the Pmod I2S2 (CS5343), pilot-tone override |
-| `KL_tdm_capture` | RTL (this round) | `SLOTS_P/2` pairs (TDM8/16/32) | TDM slave: pulse or 50%-duty fsync (edge-armed), data delay 0/1, 32/24/16-bclk words, MSB first; `tdm_mclk_o` = clk_audio/2 convenience MCLK |
+| `KL_tdm_capture` | RTL | `SLOTS_P/2` pairs (TDM8/16/32) | TDM slave: pulse or 50%-duty fsync (edge-armed), data delay 0/1, 32/24/16-bclk words, MSB first; `tdm_mclk_o` = clk_audio/2 convenience MCLK |
 | `KL_aes3_rx` | RTL (2026-07-26), TB-proven | pair 0 only | the biphase-mark RECEIVER for BOTH transports: AES3-2009 professional (`CONSUMER_P=0`) and S/PDIF / IEC 60958-3 consumer (`CONSUMER_P=1`). One core, one line format; `CONSUMER_P` changes only how the channel-status block is read back. `tb/verilator/aes3` |
 | `KL_aes3_tx` | RTL (2026-07-26), TB-proven | pair 0 only | the matching biphase-mark ENCODER: X/Y/Z preambles, 192-frame channel-status block, P-parity, V from the caller, underrun census. `tb/verilator/aes3` |
 

@@ -15,21 +15,21 @@ is visible from the port list:
 
 * **`KL_pp_shadow` is instantiated unconditionally** — there is no parameter,
   no fallback and no shadow arm, and it brings the `protocol-processor`
-  submodule into your source list (§3). It owns ADP, ACMP (talker and listener)
+  submodule into your source list (Section 3). It owns ADP, ACMP (talker and listener)
   and SRP; MAAP stays in `hdl/` and is bridged to it by `KL_pp_maap_shim.sv`.
 * **On AECP this entity serves the processor's implemented command inventory.**
   The processor's AECP uCPU has landed; this repository's own engine is deleted.
   The inventory includes solicited `GET_COUNTERS` for supported descriptor banks.
   `READ_DESCRIPTOR` returns
   `SUCCESS` with the descriptor, or `NO_SUCH_DESCRIPTOR` / `BAD_ARGUMENTS` with
-  the IEEE 1722.1 §7.4.5 4-byte stub; an `IDENTIFY_NOTIFICATION` sent as a
+  the IEEE 1722.1 Section 7.4.5 4-byte stub; an `IDENTIFY_NOTIFICATION` sent as a
   command answers `BAD_ARGUMENTS`; a command aimed at another
   `target_entity_id`, and any AECP response arriving as input, are refused
   silently by design. Unsupported operations receive the conformant fallback,
   which is not command coverage. The Milan Table 5.22 counter-change scheduler,
   remaining mandatory commands, and saved-state persistence across a power cycle
   are genuinely absent. Plan around that boundary if your product needs
-  AECP — and see §1.6, because the descriptor half comes with an integration
+  AECP -- and see Section 1.6, because the descriptor half comes with an integration
   obligation you inherit.
 
 These integration-boundary claims are checked against the
@@ -58,7 +58,7 @@ CPU  ── AXI4-Lite slave (s_axi_*, 16-bit offset) ─────► control 
 DMA  ── s_axis_tx_* (DRAM→) / m_axis_rx_* (→DRAM) / m_axis_ts_* (→DRAM)
 MAC  ── m_axis_mac_tx_* (→MAC) / s_axis_mac_rx_* (MAC→) + o_mac_* cfg / i_mac_* status
 MEM  ── o_desc_mem_* / i_desc_mem_* (read-only master → your main memory:
-        the AECP descriptor image lives there, §1.6)
+        the AECP descriptor image lives there, Section 1.6)
 IRQ  ── o_irq_csr (milan_csr aggregate; DMA-done IRQs come from your DMA engine)
 ```
 
@@ -94,7 +94,7 @@ Byte order on AXIS is big-endian (wire order = memory order; see
 
 | Port | Dir | Description |
 |---|---|---|
-| `axis_clk` | in | system clock (~100 MHz proven; see [PORTING_GUIDE.md](PORTING_GUIDE.md) §3) - runs the entire datapath and the CSR bus |
+| `axis_clk` | in | system clock (~100 MHz proven; see [Section 3 of PORTING_GUIDE.md](PORTING_GUIDE.md#3-clocking-and-reset-requirements-vendor-independent-contract)) - runs the entire datapath and the CSR bus |
 | `axis_resetn` | in | synchronous, active-low, `axis_clk` domain |
 | `gtx_clk` | in | 125 MHz PTP/MAC-RX timestamp domain |
 | `gtx_resetn` | in | synchronous, active-low, `gtx_clk` domain |
@@ -230,15 +230,15 @@ Wire only clocks + reset + the AXI4-Lite CSR port; tie every AXIS input to
 zero and every `*_tready` input to 0, tie `i_mac_speed=2'b10`,
 `i_link_up=1`, `i_full_duplex=1`, `i_mac_events=0`, and tie
 `i_desc_mem_req_ready=0` / `i_desc_mem_rsp_*=0` (the descriptor store's watchdog
-handles that cleanly — §1.6).
+handles that cleanly -- Section 1.6).
 
 This elaborates, meets timing, and gives you a live CPU⇄CSR path: read
 offset `0x0`, expect `"MILN"`. This exact stub-everything pattern is what
 `add_milan_datapath()` does before the DMA/MAC are attached, and it is how
 both the SoC sim and first silicon were validated.
 
-Then attach the MAC (§1.4), then the DMA (§1.3) - in that order, each step
-separately testable. The descriptor-image master (§1.6) is a fourth step, and
+Then attach the MAC (Section 1.4), then the DMA (Section 1.3) - in that order, each step
+separately testable. The descriptor-image master (Section 1.6) is a fourth step, and
 the only one with a software half: bridging it makes `READ_DESCRIPTOR` capable
 of succeeding, and **loading an image at the base** is what makes it actually
 succeed.
@@ -275,7 +275,7 @@ that answers nothing, which looks exactly like a build from before the uCPU
 landed — so a missing `UCODE_HEX_P` fails as silence, not as an error.
 `PP_DESC_BASE_P` has no default worth inheriting either: the LiteX helper
 **raises** rather than falling back, because the submodule's placeholder base is
-not guaranteed to be memory on your SoC (§1.6).
+not guaranteed to be memory on your SoC (Section 1.6).
 
 Do **not** add [`hdl/milan/milan_top.sv`](../../hdl/milan/milan_top.sv) or [`hdl/milan/milan_dma_wrapper.v`](../../hdl/milan/milan_dma_wrapper.v)
 to a non-Zynq build - they are the Zynq variant and drag in the
@@ -296,7 +296,7 @@ no throughput.
 
 See `add_milan_datapath()` and `_axis_dp_cdc()` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)
 for the working pattern, plus the CBS multicycle constraint described in
-[PORTING_GUIDE.md](PORTING_GUIDE.md) §4.5.
+[Section 4.5 of PORTING_GUIDE.md](PORTING_GUIDE.md#45-timing-constraints-translate-dont-skip).
 
 ## 5. Software contract
 
@@ -318,7 +318,7 @@ for the working pattern, plus the CBS multicycle constraint described in
 | RTL boundary sanity | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) drives this exact module: CSR ID read, classifier program, TX/RX byte-exact | [../testing/TESTING.md](../testing/TESTING.md) |
 | Your SoC in sim | LiteX users: `milan_sim.py` boots the BIOS and reads `"MILN"` over the real CPU bus | [../testing/SIMULATION.md](../testing/SIMULATION.md) |
 | First silicon | CSR ID read at your base address (M-A2), then MAC loopback, then DMA rings | [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md) shows the worked sequence |
-| Enumeration | write a descriptor image at your derived base, then `READ_DESCRIPTOR` the ENTITY descriptor from a controller. `BAD_ARGUMENTS` everywhere means the image is missing or corrupt (or the master is not bridged), not that AECP is broken; `NO_SUCH_DESCRIPTOR` means the opposite — the image loaded and that descriptor is genuinely absent from the model | §1.6; [../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md) §26 |
+| Enumeration | write a descriptor image at your derived base, then `READ_DESCRIPTOR` the ENTITY descriptor from a controller. `BAD_ARGUMENTS` everywhere means the image is missing or corrupt (or the master is not bridged), not that AECP is broken; `NO_SUCH_DESCRIPTOR` means the opposite -- the image loaded and that descriptor is genuinely absent from the model | Section 1.6; [Section 26 of ../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram) |
 
 ---
 

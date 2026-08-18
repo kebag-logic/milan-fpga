@@ -38,7 +38,7 @@ the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
 - **[3. The media clock](#3-the-media-clock)** -- How a shared nanosecond timeline is intended to become a 48 kHz sample edge, the inactive PI servo design, and the missing root selection that keeps the shipping clock INTERNAL. The section also records the master-role error budget and measured historical loop behavior.
 - **[4. Time-related CSRs -- quick table](#4-time-related-csrs----quick-table)** -- Lists every time and media-clock register from the PHC controls through CRF measurements, latency taps, and the inactive servo status.
 - **[4a. Centered-FIFO regulation goal (USER 2026-08-07): +/- 125 us](#4a-centered-fifo-regulation-goal-user-2026-08-07---125-us)** -- The standing regulation target: the DAC elasticity FIFO stays centered and its wander holds within one class-A frame period (+/-6 pairs), earned by clock quality rather than buffer depth
-- **[4b. Grandmaster loss and recovery](#4b-grandmaster-loss-and-recovery)** -- Pointer to [GM_LOSS_RECOVERY.md](GM_LOSS_RECOVERY.md), the transient story: what a GM handover costs at each layer and why it is now one MEDIA_RESET click + ~100 ms with the lock held
+- **[4b. Grandmaster loss and recovery](#4b-grandmaster-loss-and-recovery)** -- Pointer to [GM_LOSS_RECOVERY.md](GM_LOSS_RECOVERY.md), the transient story: what a GM hand-off costs at each layer and why it is now one MEDIA_RESET click + ~100 ms with the lock held
 - **[5. Status (2026-07-25)](#5-status-2026-07-25)** -- Claim-by-claim, each with its evidence: peer delay 600 µs on software stamps → 1.3 µs on hardware, CRF board-to-board locked at +6.7 ppm, -83.9 dB loop THD+N at the converter floor. Then the honest half by row id -- no per-unit latency calibration exists, the BMCA recreation is blocked by a switch that outranks every Milan-legal value, and `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` are mapped but their fabric wires unconsumed. The doc-drift bullet this section used to carry is closed.
 
 ## 1. Concept -- the three clocks
@@ -284,7 +284,7 @@ the far end, or our own servo when roles are reversed) tracks whatever
 cadence we actually produce. The requirement then relaxes to three weaker
 ones: stay inside the nominal-rate tolerance a conformant listener must
 capture (±100 ppm class), timestamp honestly (AVTP timestamps and the CRF
-grid describe the *real* cadence in gPTP time — §3.2's "the wire carries
+grid describe the *real* cadence in gPTP time -- Section 3.2's "the wire carries
 the actual audio-MMCM rate"), and stay internally consistent (bclk,
 packetizer pacing and timestamping all derive from the one physical
 clock).
@@ -548,7 +548,7 @@ presentation-wait budget is a separate knob - see Section 3.6.)
 The transient story - what happens when the GM disappears, changes or
 returns, layer by layer with the 08-06/08-07 bench measurements - lives
 in its own document: [`GM_LOSS_RECOVERY.md`](GM_LOSS_RECOVERY.md).
-Headline: as of 0x002A/0x002B a GM handover costs one MEDIA_RESET click
+Headline: as of 0x002A/0x002B a GM hand-off costs one MEDIA_RESET click
 and ~100 ms with the lock HELD; the remaining minutes-scale trap is
 ptp4l's slew-after-first-step, cured operationally by one restart and
 structurally by the task-#22 DLL.

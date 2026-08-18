@@ -26,7 +26,7 @@ remainder was a `localparam`. It was exact against the board crystal and
 structurally unable to follow anything else. Two consequences:
 
 - a talker whose grid cannot be steered cannot be a media clock **sink**,
-  which Milan v1.2 §7.2.2 makes mandatory ("For each supported clock domain,
+  which Milan v1.2 Section 7.2.2 makes mandatory ("For each supported clock domain,
   an AAF Media Talker shall implement a CRF Media Clock Input");
 - a listener whose grid cannot be steered drains someone else's stream on its
   own crystal, and slips one sample per beat period. Bench 2026-08-10: one

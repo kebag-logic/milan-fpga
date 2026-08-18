@@ -12,7 +12,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 - **[This design (datapath, DMA, driver)](#this-design-datapath-dma-driver)** -- Names for our own blocks and their contracts: commit-after-B (software can never see a partial frame), whole-frame drop (mid-frame corruption is impossible by construction), and what a telemetry "stall" actually counts.
 - **[Linux networking / performance](#linux-networking--performance)** -- Host-side terms needed to read the throughput write-ups: GRO/GSO versus their hardware twins, the three skb checksum states, and which of `rx_missed_errors` / `InCsumErrors` / `RcvbufErrors` blames the NIC versus the CPU.
 - **[CPU / cache / memory (the >500 RX campaign)](#cpu--cache--memory-the-500-rx-campaign)** -- The cache vocabulary the RX campaign runs on, and its two verdicts inline: the RPT stride prefetcher is the lever that bought +34 %, software prefetch is a no-op on this core. Also `copy_to_user` at 51 % of RX CPU and the 481 ceiling measured with the copy removed.
-- **[Project shorthand](#project-shorthand)** -- The decoder ring for local jargon in commits and filenames: bitstream lineages (`mfNN`/`AXNN`, `hsqN`, `ringN`, `mlpN`), the M-A milestones, `§A.x`, which tap is on which link, and why `e1` vs `e2` must match the physical cable.
+- **[Project shorthand](#project-shorthand)** -- The decoder ring for local jargon in commits and filenames: bitstream lineages (`mfNN`/`AXNN`, `hsqN`, `ringN`, `mlpN`), the M-A milestones, `Section A.x`, which tap is on which link, and why `e1` vs `e2` must match the physical cable.
 
 ## AVB / TSN / Milan
 
@@ -122,7 +122,7 @@ The current AECP entry is checked against the
 
 | Term | Meaning |
 |------|---------|
-| **milan_datapath** | The §A.9 SystemVerilog wrapper: classifier → CBS queues → PTP timestamping → the four-mux arbiter cascade, both directions, plus the stream engines, MAAP and the protocol processor ([`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv)). |
+| **milan_datapath** | The Section A.9 SystemVerilog wrapper: classifier → CBS queues → PTP timestamping → the four-mux arbiter cascade, both directions, plus the stream engines, MAAP and the protocol processor ([`hdl/milan/milan_datapath.sv`](../hdl/milan/milan_datapath.sv)). |
 | **`ctl_tx` / `aaf_final` / `crf_dp` / `adp_tx`** | The four TX arbiter muxes, in that LSB-first order in `A_TXARB_DIAG` (`0x784`); bits 7:4 are a structural zero. The cascade was eight muxes before 2026-08-13, so **anything decoding `0x784` by the old numbers reads the wrong mux**. `ctl_tx` merges the protocol processor's packed TX with MAAP; `adp_tx` is the MAC boundary and its name, like `adp_tx_arbiter`'s, is historical — the module is a generic 2-in/1-out AXIS packet merge. |
 | **MilanMAC / MilanDMA** | The LiteX glue wrapping LiteEth (+ PacketFIFO, IOB constraints) / the three DMA engines (`milan_soc.py`). |
 | **MILN** | The CSR ID magic (`0x4D494C4E`) proving the CPU⇄NIC path. |
@@ -184,7 +184,8 @@ The current AECP entry is checked against the
 |------|---------|
 | **m1 / l2x2 / mlp1 / mlp2 / mlp3** | The >500-campaign bitstream lineage: m1 (32 KB L2, blocking D\$) → l2x2 (+64 KB L2) → mlp1 (+refill=8) → mlp2 (+RPT, 32 KB) → **mlp3** (+RPT +64 KB = best RX). See [`findings/PERFORMANCE_GOAL.md`](findings/PERFORMANCE_GOAL.md). |
 | **M-A1 … M-A6** | The hardware bring-up milestones: A1 boot, A2 CPU reads MILN, A3 DMA/datapath on silicon, A4 …, A5 Linux driver bring-up, A6 descriptor rings/IRQ (largely superseded by the ring DMA engines). |
-| **§A.x** | Section numbers of the migration plan in [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md) (e.g. §A.6 DMA, §A.7 MAC/PHY, §A.9 datapath wrapper). |
+| **Section A.x** | Section numbers of the migration plan in [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md) (e.g. Section A.6 DMA, Section A.7 MAC/PHY, Section A.9 datapath wrapper). Commit messages and older pages write the A.x with a leading section sign. |
+| **Section V** | The post-flash [silicon validation checklist](testing/RUNNING_TESTS.md#6-silicon-validation-checklist); archived campaign pages abbreviate it as a V behind a section sign. |
 | **FR-… / NFR-…** | Functional / non-functional requirement IDs ([`FR_NFR.md`](reference/FR_NFR.md), [`../REQUIREMENTS.md`](../REQUIREMENTS.md))  -  e.g. FR-DRV-* driver features, NFR-LAT-01 latency. |
 | **Option 6b** | The descriptor/scatter-gather multi-queue DMA upgrade path (deferred; rings cover today's needs). |
 | **Track 1 (de-Xilinx)** | The vendor-independence workstream (vendored `verilog-axis`, XPM removal, Yosys/ECP5 checks). |

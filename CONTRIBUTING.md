@@ -74,12 +74,12 @@ flowchart LR
    This links the branch and issue on GitHub. Because `dev` is not the
    repository's default branch, merging its PR does not auto-close the issue.
    Close the issue manually only after the post-merge containment check passes.
-3. **Do the work on that branch**, with the §3 verification bar met *on the
+3. **Do the work on that branch**, with the Section 3 verification bar met *on the
    branch* — a PR is not the place to discover the sweep is red.
 4. **Open the PR** against `dev`, with the template below and the
    self-test results as a **comment** (a comment is evidence, not approval).
 5. **Review with multiple agents, each with CLEARED context.** Not forks of
-   the authoring session: agents that have never seen the reasoning that
+   the author's session: agents that have never seen the reasoning that
    produced the diff. An agent that helped write a change will re-derive the
    same blind spot when asked to check it. Give each one a different lens —
    clause conformance, wire format and response sizing, test adequacy and
@@ -130,7 +130,7 @@ flowchart LR
    a change nobody wrote and nobody reviewed, and *"Merge made by the 'ort'
    strategy"* is not evidence of anything. Before pressing merge, construct a
    candidate from the latest `origin/dev` and the reviewed PR head, then
-   gate that tree exactly as §3 gates a hand-written one: full Verilator sweep,
+   gate that tree exactly as Section 3 gates a hand-written one: full Verilator sweep,
    both repos' suites, behave, the lint ratchet, and Yosys. If the reviewed head
    directly descends from the unchanged base, its tree is the candidate merge
    tree; record both object IDs with the local gate results.

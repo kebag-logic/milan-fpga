@@ -37,7 +37,7 @@ order, each one checkable before the next:
    join (`XDG_RUNTIME_DIR=/run/user/<uid>`). A missing core surfaces as the
    confusing error "can't connect: Host is down".
 3. **The AVB daemon.** `pipewire-avb -v`, from a build whose binary and
-   `libpipewire` **versions match** (see §4). It needs raw-socket privilege
+   `libpipewire` **versions match** (see Section 4). It needs raw-socket privilege
    (run as root, or grant `CAP_NET_RAW`); it still joins the user's core via
    the runtime dir.
 
@@ -78,14 +78,14 @@ rows):**
    incident).
 3. Addressing + reservation are automatic in fabric: MAAP claims the DMAC
    (`eff_aaf_dmac`), lwSRP declares the stream and gates bandwidth. See
-   [dataplane walkthrough](../fpga/DATAPLANE_WALKTHROUGH.md) §1 for the
+   [Section 1 of the dataplane walkthrough](../fpga/DATAPLANE_WALKTHROUGH.md#1-egress-a-captured-sample-becomes-an-aaf-frame-the-fabric-talker) for the
    full talker chain.
 
 **Connecting the listener — three paths:**
 
 - **An ATDECC controller** (Hive or la_avdecc from any allowed host) sends
   `CONNECT_RX` binding the peer's listener sink to the board talker — the
-  peer itself can play that role (§6).
+  peer itself can play that role (Section 6).
 - **Milan fast-connect** (board-as-listener direction): the saved-state
   restore binds with no controller at all.
 - **The peer's own ACMP** (PipeWire-initiated): supported by `module-avb`,
@@ -109,8 +109,8 @@ The digital-path acceptance for the pilot is on the
 | `can't connect: Host is down` at module load | no PipeWire core socket in the runtime dir the daemon was pointed at | launch with `XDG_RUNTIME_DIR` of a session with a live core |
 | `SIOCGIFINDEX <iface> failed: No such device` | `ifname` in the conf names another machine's interface | set this host's interface |
 | `Failed to connect PTP management socket` loop | ptp4l not running, or `ptp.management-socket` points at a path ptp4l no longer binds | start gPTP first; make the conf path match `ss -xl` truth |
-| Daemon healthy but no bind from the peer | nobody commanded the listener - the peer never fast-connects to a talker it has no saved state for | send one `CONNECT_RX_COMMAND` from any host on the AVB LAN (§5) |
-| Registry tools (`pw-dump`, `pw-cli ls`, `pw-link`) hang or return an empty list against the AVB core | the daemon's own core has no session manager; also its metadata global has a broken protocol marshal that aborts full-registry clients | don't manage the AVB core with registry tools; the AVB/Milan plane needs none of them (§5) |
+| Daemon healthy but no bind from the peer | nobody commanded the listener - the peer never fast-connects to a talker it has no saved state for | send one `CONNECT_RX_COMMAND` from any host on the AVB LAN (Section 5) |
+| Registry tools (`pw-dump`, `pw-cli ls`, `pw-link`) hang or return an empty list against the AVB core | the daemon's own core has no session manager; also its metadata global has a broken protocol marshal that aborts full-registry clients | don't manage the AVB core with registry tools; the AVB/Milan plane needs none of them (Section 5) |
 
 ## 5. The bind, as it actually ran (2026-07-25, late)
 
@@ -152,7 +152,7 @@ Two long-standing beliefs died that night:
 
 The peer host has a third role beyond listener and talker: **controller**.
 Nothing in the fabric needs it — Milan fast-connect and the board-side
-one-shot of §5 both work — but a controller on the AVB LAN is what makes
+one-shot of Section 5 both work -- but a controller on the AVB LAN is what makes
 *board ↔ board* binds scriptable, and it exercises the same ACMP surface a
 real deployment would use.
 
@@ -180,7 +180,7 @@ Notes that cost time to rediscover:
   every talker uid `0..N-1` with `dmac = MAAP base + uid`, so binding a
   listener to uid *j* is the honest per-stream path — that is how the
   64-slot channel-map walk arms one stream at a time
-  ([`../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) §12).
+  ([Section 12 of `../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md#12-silicon-validation-the-first-crossbar-walk-2026-07-25)).
 - **`SUCCESS` is a control-plane verdict only.** ACMP success means the
   binding was accepted; it says nothing about frames being accepted by the
   listener datapath. Confirm on the listener with `AVTPRX_STAT`/`FRX` and

@@ -29,15 +29,15 @@ build/boot recipe stays in [`sw/README.md`](../../sw/README.md) and
 |---|---|---|
 | `milan_soc.py` | **The SoC.** CRG, CPU (VexiiRiscv/NaxRiscv), DDR3, LiteEth MAC, Milan datapath attach, ring-DMA engines, IRQs, QSPI flash-boot layout, CLI | everyone |
 | `platforms/alinx_ax7101.py` | The board: pins (clk200, UART, GMII "e1" + RGMII "e2" RTL8211E PHYs, DDR3 2×MT41J256M16 = 512 MB, N25Q128 QSPI, LEDs), `xc7a100t-fgg484-2`, openFPGALoader programming | board porters |
-| `deploy.sh` | Turnkey `build / load / flash / flash-images / console` for the AX7101; **encodes the known-good flag set** (§4) | everyone |
+| `deploy.sh` | Turnkey `build / load / flash / flash-images / console` for the AX7101; **encodes the known-good flag set** (Section 4) | everyone |
 | `milan_sim.py` | Verilator **SoC-level sim**: boots the LiteX BIOS on a softcore with the real `milan_datapath` at `0x9000_0000`, proves the CPU⇄CSR path (reads ID `"MILN"`, milestone M-A2) | everyone |
-| `patches/` | LiteX-ecosystem patches + `apply.sh` (§6) | everyone |
+| `patches/` | LiteX-ecosystem patches + `apply.sh` (Section 6) | everyone |
 | `test_ring_dma.py` (+ `test_ring_bd.py`, `test_ring_tx.py`, `test_ring_writeback.py`, `test_rx_steer.py`, `test_tx_bd.py`) | **Migen behavioral sims** of the DMA engines (self-checking, print `ALL PASS`); `test_ring_dma.py` is the base harness the others import | DMA developers |
 | `test_pb_bus_err.py`, `test_pp_mem_bridge.py` | **Migen bus-fault sims** of the non-DMA masters: the AAF playback fetch must not latch a failed read, and the protocol processor's two main-memory bridges must not wedge on an access that is never acked | SoC developers |
 | `tools_*.c` (8 files) | On-target microbenchmarks compiled for the board (`lat_mem_rd`, `mapbench`, `recv_ring`, `recv_spin`, `recv_trunc`, `recv_zc`, `tcp_blast`, `wakebench`) - the instruments behind the perf findings | perf work |
 | `phase0_measure.sh` | On-board telemetry/iperf sweep script (busybox `devmem`); CSR addresses are build-specific - regenerate before reuse | perf work |
 | `poll_cost_model.py` | Analytical model projecting RX pps from measured sweeps | perf work |
-| `evidence/` | Captured proof logs (sim + on-silicon `hw_*` logs, the M-A3 write-up). `hw_naxriscv_reads_MILN.log` records the **known-good LiteX commit `a1e1c36`** (§7) | reviewers |
+| `evidence/` | Captured proof logs (sim + on-silicon `hw_*` logs, the M-A3 write-up). `hw_naxriscv_reads_MILN.log` records the **known-good LiteX commit `a1e1c36`** (Section 7) | reviewers |
 | `milan_rgmii.py` | **Legacy, unused.** An RX-clock-inverted Series-7 RGMII PHY variant from before the board was confirmed GMII-wired; nothing imports it. Kept for reference only | - |
 
 ---
@@ -61,7 +61,7 @@ which is why NaxRiscv and VexiiRiscv builds need no address changes.
 
 Everything at or above `0x8000_0000` is the CPUs' uncached IO region — the
 constraint that forced the Milan CSR window off the Zynq's `0x43C0_0000`
-(§2.2, and [../integration/AXIS_CORES_ON_NAXRISCV.md](../integration/AXIS_CORES_ON_NAXRISCV.md) §2).
+(Section 2.2, and [Section 2 of ../integration/AXIS_CORES_ON_NAXRISCV.md](../integration/AXIS_CORES_ON_NAXRISCV.md#2-what-naxriscv-exposes-in-litex)).
 
 **The skeleton.** One picture of what is instantiated and which clock domain it
 sits in — the subsections below then take each block in turn:
@@ -77,11 +77,11 @@ flowchart LR
     end
 
     subgraph SYS["sys domain — 100 MHz, --sys-clk-freq"]
-        MACSYS["MilanMAC §2.4, cd_macsys<br/>LiteEthMACCore<br/>+ store-and-forward PacketFIFO"]
-        DMA["MilanDMA §2.3<br/>RingDMAReader TX · RingDMAWriter RX / RX1<br/>WishboneDMAWriter TS + PCM"]
+        MACSYS["MilanMAC Section 2.4, cd_macsys<br/>LiteEthMACCore<br/>+ store-and-forward PacketFIFO"]
+        DMA["MilanDMA Section 2.3<br/>RingDMAReader TX · RingDMAWriter RX / RX1<br/>WishboneDMAWriter TS + PCM"]
         BUS["SoC bus + dma_bus<br/>coherent AXI, 64-bit"]
         CPU["VexiiRiscv or NaxRiscv<br/>+ L2 + LiteDRAM / A7DDRPHY"]
-        QSPI["LiteSPI flash §2.6"]
+        QSPI["LiteSPI flash Section 2.6"]
         EV["EventManager · 4 level sources<br/>self.irq.add — ONE PLIC line"]
     end
 
@@ -126,7 +126,7 @@ The CSR window is an AXI4-Lite slave at `MILAN_CSR_BASE = 0x9000_0000`
 
 It also emits the CBS slope **multicycle constraint** on Xilinx parts - a
 porting-relevant detail explained in
-[../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §4.5.
+[Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#45-timing-constraints-translate-dont-skip).
 
 Interrupts: an `EventManager` with four level sources (`tx`/`rx`/`ts`/`csr`)
 folded into one PLIC line - matching the driver's four `interrupt-names`
@@ -142,7 +142,7 @@ The engines:
 - TS a `WishboneDMAWriter`.
 
 Masters attach to the CPU's **coherent** `dma_bus` when present - which is
-why `--coherent-dma` is mandatory (§4). An optional second RX queue
+why `--coherent-dma` is mandatory (Section 4). An optional second RX queue
 (`--rx-queues 2`) adds an `RxSteer` classifier — since 2026-07-26 that is a
 **dedicated gPTP lane** (q1 = DMAC `01-80-C2-00-00-0E` + EtherType `0x88F7`,
 q0 = everything else), not the TCP-flow load-balancer it used to be. Each queue
@@ -163,9 +163,9 @@ and the [findings log](../findings/README.md).
 store-and-forward `PacketFIFO` + a thin stream↔AXIS adapter.
 
 The AX7101's RTL8211E port is wired **GMII** (not RGMII - see
-[../integration/BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md) §3),
+[Section 3 of ../integration/BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md#3-what-changed)),
 and the TX clock is forwarded **inverted** (`--gtx-tx-invert`, via the LiteEth
-patch, §6) because edge-aligned launch off IOB-packed FFs was hold-marginal at
+patch, Section 6) because edge-aligned launch off IOB-packed FFs was hold-marginal at
 the PHY (25-40 % corrupt frames without it).
 
 The Milan datapath keeps all packet intelligence; the MAC does L1/framing
@@ -249,14 +249,14 @@ identification for the AX7101.
 Vivado is currently the **only P&R backend wired up for this board** (the
 platform is instantiated with `toolchain="vivado"`). Elaboration-only runs
 need no vendor tools, and re-targeting to another board/toolchain is Route A
-in [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §6.1.
+in [Section 6.1 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#61-route-a---stay-on-litex-swap-the-board-least-work).
 
 ## 4. The flags that are not optional
 
 | Flag | Why it is required |
 |---|---|
 | `--coherent-dma` | **NOT implied by `--all-blocks`.** Without it the DMA masters bypass the CPU's snooping `dma_bus`: RX buffers are never CPU-visible (all-zero skbs, every frame dropped) and TX reads stale data (garbage dst MAC). Hardware-confirmed 2026-07-04 |
-| `--gtx-tx-invert` | AX7101/RTL8211E GMII: edge-aligned TX launch is hold-marginal → 25-40 % corrupt frames; inverted (mid-bit) sampling → 0. Needs the LiteEth patch (§6) |
+| `--gtx-tx-invert` | AX7101/RTL8211E GMII: edge-aligned TX launch is hold-marginal → 25-40 % corrupt frames; inverted (mid-bit) sampling → 0. Needs the LiteEth patch (Section 6) |
 | `--milan-clk-freq 100e6` | Puts the datapath in its own `cd_milan` domain; the ship shape closes timing at 100e6 (SUPERSEDED perf-lineage builds used 50e6 to lift the dense CBS/TCAM/PTP logic off the sys budget, where the CBS block is the critical path) |
 | `--all-blocks` | NIC+DMA+MAC+DDR3 in one build; implies `--with-spiflash` |
 

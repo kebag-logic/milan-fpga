@@ -1,6 +1,6 @@
 # Entity: KL_avtp_rx_monitor
 - **File:** `hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv`
-- **Spec:** IEEE 1722.1-2021 Table 7-156, Milan v1.2 §5.4.5.3 / Table 5.16
+- **Spec:** IEEE 1722.1-2021 Table 7-156, Milan v1.2 Section 5.4.5.3 / Table 5.16
 
 Milan STREAM_INPUT diagnostic-counter engine for the bound listener sink. Consumes the per-frame pulse bundle from `avtp_stream_parser` (which already matched the bound stream_id) and maintains the counters AECP `GET_COUNTERS` serves. The root does not connect its dirty pulse to an unsolicited counter-change producer. The counting contract is byte-extracted from the pipewire module-avb reference (`stream.c handle_aaf_packet` + `cmd-get-counters.c`): first-valid-PDU lock, 8-PDU seq-settle window, mismatch/interrupt at `lost >= 2`, 100 ms silence unlock, per-PDU format compare (a mismatched PDU counts only UNSUPPORTED_FORMAT), reset on the not-bound → bound edge. MEDIA_RESET counts the received `mr` bit's TOGGLES (IEEE 1722-2016 4.4.4.3; Milan Table 5.6 "the 'mr' bit was toggled in any of the received Stream Data AVTPDUs"), and LATE / EARLY the presentation-time compare. `pdu_accept_p_o` pulses for every FRAMES_RX-counted PDU, the commit verdict consumed by `KL_aaf_rx_depacketizer`.
 

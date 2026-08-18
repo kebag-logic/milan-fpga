@@ -33,6 +33,12 @@ Checks, over every ``*.md`` file in the tree:
    paths, bench subnet, MAC-derived interface names, USB-serial paths) must
    not appear; also swept over ``docs/**`` diagram sources (``.gen.py``,
    ``.drawio``, ``.svg``).
+6. **Writing hygiene** (living pages only, fences and HTML comments exempt) —
+   no process/meta narration (handover/round/session-of-authoring language),
+   no decisions attributed to a person or quoted conversation, no section
+   sign in prose, and no un-anchored ``X.md Section N`` pointers. The archive
+   and in-place-obsolete pages (first line ``[OBSOLETE + date]``, the regex
+   lifted from ``check_archive.py``) are records of their time and exempt.
 
 Exit 0 = clean; exit 1 = findings, one per line as ``path:line: message``.
 """
@@ -46,6 +52,12 @@ from collections import Counter
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+
+# The in-place-obsolete predicate is OWNED by check_archive.py (its rule 4
+# routes links to such pages); this gate lifts the same regex rather than
+# re-deriving it, so the two gates can never disagree on what "obsolete" is.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from check_archive import OBSOLETE_HEADER_RE
 
 # Exact substrings that are legitimate despite containing a denied stem:
 # spec field names, schema/repo identifiers, third-party project names.
@@ -73,6 +85,39 @@ _LAB_TOKENS = tuple("".join(chr(c) for c in cs) for cs in (
     (67, 69, 82, 84), (65, 84, 76), (85, 78, 72), (73, 79, 76),
 ))
 DENY_CS = re.compile("|".join(r"\b%s\b" % t for t in _LAB_TOKENS))
+
+# --------------------------------------------------------------------------
+# Writing-hygiene rules (issue #94). Living documentation describes the
+# SYSTEM; how a page was produced is not information about the system, and a
+# decision is justified by a clause, a measurement or a defect - never by who
+# asked for it. These rules run only on LIVING pages (not the archive, not
+# in-place-obsolete pages - both are records of what was written at the time)
+# and only outside code fences and HTML comments, so a page may still QUOTE
+# the forbidden text when explaining a rule.
+
+#: process/meta narration: the page talks about its own authoring process.
+PROCESS_RE = re.compile(
+    r"handover|context reset|context window|\bthis round\b|\blast round\b"
+    r"|picking up|continuing from|(previous|next|authoring|last) session",
+    re.IGNORECASE)
+
+#: attribution: a decision credited to a person or a quoted conversation.
+ATTRIB_RE = re.compile(
+    r"USER:|USER RULE|USER STANDING|USER rule|USER['’]s"
+    r"|[Uu]ser (asks|asked|wants|requested|said|directive|rule|standing)"
+    r"|[Aa]s requested|per the (user|USER|directive)|forget the")
+
+#: the section sign; prose writes the word "Section" (or "Sections").
+SECTION_SIGN_RE = re.compile(r"§")
+
+#: `X.md Section 7` (or the sign) with nothing to follow: an un-anchored
+#: section pointer. An anchored link is validated by this gate and by
+#: gen_toc --verify-anchors; a trailing "Section 7" is validated by nothing.
+BARE_SECTION_PTR_RE = re.compile(r"\.md[`)]?,? +(Section|§) *[0-9A-Za-z]")
+
+#: exact substrings that legitimately contain a stem the rules above match,
+#: masked before matching (same mechanism as ALLOW for the deny-list).
+HYGIENE_ALLOW = ()
 
 # Documents removed from the tree that must never be referenced again.
 # The 2026-07-20 privacy scrub untracked these three; the live state they used
@@ -299,10 +344,11 @@ def check_md(path, relpath, resolve, tracked_set):
     lines = text.splitlines()
     generated = bool(GENERATED_MARK.search(text[:400]))
     historical = relpath.startswith("historical_now_obsolete/")
+    obsolete = bool(lines and OBSOLETE_HEADER_RE.fullmatch(lines[0]))
     allow_dead = bool(ALLOW_DEAD_MARK.search(text))
     filedir = Path(relpath).parent
 
-    in_fence = in_comment = False
+    in_fence = in_comment = h_in_comment = False
     for lineno, line in enumerate(lines, 1):
         if FENCE_RE.match(line):
             in_fence = not in_fence
@@ -320,6 +366,52 @@ def check_md(path, relpath, resolve, tracked_set):
 
         if in_fence:
             continue
+
+        # --- writing hygiene (living pages only; see the rules above) ---
+        # Runs BEFORE the whole-line comment skip below, because only the
+        # comment SPAN is exempt: visible text sharing a line with a comment
+        # opener or closer is still prose and still checked. The hygiene
+        # rules keep their own span tracker (h_in_comment) so exempting a
+        # span here cannot change what the reference rules below see.
+        if not (historical or obsolete):
+            hvis = line
+            if h_in_comment:
+                if "-->" in hvis:
+                    hvis = hvis.split("-->", 1)[1]
+                    h_in_comment = False
+                else:
+                    hvis = ""
+            if not h_in_comment:
+                hvis = re.sub(r"<!--.*?-->", "", hvis)
+                if "<!--" in hvis:
+                    hvis = hvis.split("<!--", 1)[0]
+                    h_in_comment = True
+            hmasked = hvis
+            for allow in HYGIENE_ALLOW:
+                hmasked = hmasked.replace(allow, "#" * len(allow))
+            hm = PROCESS_RE.search(hmasked)
+            if hm:
+                findings.append(
+                    f"{relpath}:{lineno}: process/meta language "
+                    f"'{hm.group(0)}' — describe the system, not how the "
+                    f"page was produced")
+            hm = ATTRIB_RE.search(hmasked)
+            if hm:
+                findings.append(
+                    f"{relpath}:{lineno}: attribution '{hm.group(0)}' — "
+                    f"state the clause, measurement or defect, not who asked")
+            if SECTION_SIGN_RE.search(hmasked):
+                findings.append(
+                    f"{relpath}:{lineno}: section sign — write the word "
+                    f"'Section'")
+            hm = BARE_SECTION_PTR_RE.search(hmasked)
+            if hm:
+                findings.append(
+                    f"{relpath}:{lineno}: un-anchored section pointer "
+                    f"'{hm.group(0).strip()}…' — link the heading anchor "
+                    f"instead")
+
+        # --- whole-line comment skip for the REFERENCE rules below ---
         if "<!--" in line and "-->" not in line:
             in_comment = True
             continue

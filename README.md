@@ -23,7 +23,7 @@ Four doors, three links each. Every other doc hangs off one of these.
 | | You are… | Start | Then | Then |
 |---|---|---|---|---|
 | 🔌 | **Integrator** — putting this datapath in *your* SoC or on *your* board | [integration/INTEGRATION_GUIDE.md](docs/integration/INTEGRATION_GUIDE.md) — the `milan_datapath` boundary as a port-by-port contract | [reference/REGISTER_MAP.md](docs/reference/REGISTER_MAP.md) — the AXI4-Lite ABI your driver programs | [integration/PORTING_GUIDE.md](docs/integration/PORTING_GUIDE.md) — off-Xilinx, off-Vivado, per-vendor translation |
-| 🛠 | **RTL developer** — changing or adding fabric | [overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md) §8 "where to change things" | [fpga/FPGA_DESIGN.md](docs/fpga/FPGA_DESIGN.md) — every module in `hdl/` and the harness that verifies it | [CONTRIBUTING.md](CONTRIBUTING.md) — house style; a DUT change ships its testbench in the same commit |
+| 🛠 | **RTL developer** -- changing or adding fabric | [Section 8 of overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md#8-where-to-change-things-maintainability) "where to change things" | [fpga/FPGA_DESIGN.md](docs/fpga/FPGA_DESIGN.md) -- every module in `hdl/` and the harness that verifies it | [CONTRIBUTING.md](CONTRIBUTING.md) -- house style; a DUT change ships its testbench in the same commit |
 | 🔧 | **Bench operator** — building, flashing, bringing a board up | [integration/BUILDING.md](docs/integration/BUILDING.md) — `build.sh` configs and the gates a build must pass | [integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) — flash a **matched** image set, boot Linux | [limitations/TROUBLESHOOTING.md](docs/limitations/TROUBLESHOOTING.md) — symptom → cause → fix, from the field |
 | 📖 | **Curious reader / evaluator**, deciding if this is worth your time | [overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md) | [the current Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) | [reference/FR_NFR.md](docs/reference/FR_NFR.md) |
 
@@ -164,7 +164,7 @@ Verilator must be **≥ 5.050** — that is the CI pin, and CI builds it from so
 at that tag rather than trusting a distro package, because 5.020 (Ubuntu 24.04)
 cannot build four of the suites and 5.032 (Debian trixie) reads back zeros on six
 `aecp` checks. The measured table is in
-[docs/testing/TESTING.md](docs/testing/TESTING.md) §7. The protocol processor is
+[Section 7 of docs/testing/TESTING.md](docs/testing/TESTING.md#7-known-gaps-kept-honest). The protocol processor is
 required by every datapath-level harness and is fetched over anonymous HTTPS.
 The remaining submodules are not needed for this tier and may stay
 uninitialised: `external`, `gptp-processor`, and `third_party/buildroot`.
@@ -189,7 +189,7 @@ submodule content, so the datapath testbenches will not build from a zip.
 | `riscv64-elf-gcc` + binutils + newlib | `pacman -S riscv64-elf-gcc riscv64-elf-binutils riscv64-elf-newlib` | BIOS + firmware | ✅ to build gateware |
 | `jdk17` + `sbt` | `pacman -S jdk17-openjdk sbt` | generate the VexiiRiscv/NaxRiscv core (SpinalHDL, in Scala) | ✅ to build gateware |
 | `meson ninja cmake dtc` | `pacman -S meson ninja cmake dtc` | build tooling + device tree | ✅ to build gateware |
-| Python 3 + the **LiteX venv** | `litex_setup.py` — see [QUICKSTART.md](QUICKSTART.md) §6 | SoC elaboration (LiteX/Migen, installed from git) | ✅ to build gateware |
+| Python 3 + the **LiteX venv** | `litex_setup.py` -- see [Section 6 of QUICKSTART.md](QUICKSTART.md#6-track-3--build-a-bitstream-vivado) | SoC elaboration (LiteX/Migen, installed from git) | ✅ to build gateware |
 | **Vivado 2026.1** with Artix-7 | Xilinx installer | place & route → `.bit` | ⬦ **proprietary**; only to build a bitstream |
 | `openFPGALoader` | `pacman -S openfpgaloader` | flash the board over JTAG | ⬦ only to flash hardware |
 
