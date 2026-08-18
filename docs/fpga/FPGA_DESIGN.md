@@ -40,9 +40,9 @@ audit.
 
 **An echo is not an implementation**, and this tree carries the consequences in
 RTL. Commands outside the processor's implemented inventory still use the
-fallback. The Milan Table 5.22 unsolicited counter-change scheduler, audio-map
-mutation, dynamic information, name access, stream-format and stream-info
-setters, and saved-state persistence remain absent. A
+fallback. The Milan Table 5.22 unsolicited counter-change scheduler, name
+access, stream-format and stream-info setters, and saved-state persistence
+remain absent. Live audio-map mutation is implemented. A
 stated capability boundary from an informed decision, not a regression and not a
 temporary blip. §1.2 names what it costs module by module.
 

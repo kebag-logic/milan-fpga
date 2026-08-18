@@ -25,11 +25,11 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 
 ## Contents
 
-- **[Reference contract (byte-extracted from pipewire module-avb maap.c/h)](#reference-contract-byte-extracted-from-pipewire-module-avb-maapch)** — The wire bytes and the IDLE/PROBE/ANNOUNCE machine as the reference implementation actually behaves, including the deliberate quirk: the reference sets LENGTH = 28 where 1722 says `control_data_length` = 16, and we match the reference bytes. Also the rule that the address is only valid in ANNOUNCE.
-- **[Fabric integration](#fabric-integration)** — Where `KL_maap` attaches (RX monitor tap on subtype 0xFE; TX as the second leg of the ONE control-lane merge), the `MAAP_CTRL.en=0` soft-migration that keeps `cfg_aaf_dmac` behaviour bit-exact, and the CSR block reconciled to `REGISTER_MAP` — note there are no ADDR_LO/HI registers, the DMAC is the pool base plus the claimed offset in `0x6D0`.
-- **[The block ⇄ per-source bridge (KL_pp_maap_shim)](#the-block--per-source-bridge-kl_pp_maap_shim)** — How one block claim answers N per-source ALLOC_DA requests, why `s` gets `base + s`, why a refusal is a state and not an error, and why RELEASE frees nothing.
-- **[Open decisions](#open-decisions)** — Both are now SETTLED, and the load-bearing one settled itself structurally: AAF admission ANDs the DA because the declaration cannot exist without it.
-- **[Appendix: GET_DYNAMIC_INFO 0x4B contract (task #19 tail, pinned 07-17)](#appendix-get_dynamic_info-0x4b-contract-task-19-tail-pinned-07-17)** — Unrelated to MAAP, and still **unimplemented**: the engine that served it is deleted, the processor's AECP µCPU answers AECP but did not reimplement `0x4B`, so a controller gets a `NOT_IMPLEMENTED` echo and no dynamic info. Kept as the byte-extracted contract.
+- **[Reference contract (byte-extracted from pipewire module-avb maap.c/h)](#reference-contract-byte-extracted-from-pipewire-module-avb-maapch)** -- The wire bytes and the IDLE/PROBE/ANNOUNCE machine as the reference implementation actually behaves, including the deliberate quirk: the reference sets LENGTH = 28 where 1722 says `control_data_length` = 16, and we match the reference bytes. Also the rule that the address is only valid in ANNOUNCE.
+- **[Fabric integration](#fabric-integration)** -- Where `KL_maap` attaches (RX monitor tap on subtype 0xFE; TX as the second leg of the ONE control-lane merge), the `MAAP_CTRL.en=0` soft-migration that keeps `cfg_aaf_dmac` behaviour bit-exact, and the CSR block reconciled to `REGISTER_MAP`; note there are no ADDR_LO/HI registers, the DMAC is the pool base plus the claimed offset in `0x6D0`.
+- **[The block ⇄ per-source bridge (KL_pp_maap_shim)](#the-block--per-source-bridge-kl_pp_maap_shim)** -- How one block claim answers N per-source ALLOC_DA requests, why `s` gets `base + s`, why a refusal is a state and not an error, and why RELEASE frees nothing.
+- **[Open decisions](#open-decisions)** -- Both are now SETTLED, and the load-bearing one settled itself structurally: AAF admission ANDs the DA because the declaration cannot exist without it.
+- **[Appendix: GET_DYNAMIC_INFO 0x4B contract](#appendix-get_dynamic_info-0x4b-contract)** -- Unrelated to MAAP. Records the current IEEE 1722.1-2021 batch contract and points to the processor implementation.
 
 ## Reference contract (byte-extracted from pipewire module-avb maap.c/h)
 
@@ -152,38 +152,43 @@ Both settled.
 
 ---
 
-## Appendix: GET_DYNAMIC_INFO 0x4B contract (task #19 tail, pinned 07-17)
+## Appendix: GET_DYNAMIC_INFO 0x4B contract
 
-> **NOT IMPLEMENTED — and this is a real loss, not a formality.** The batch
-> engine that served this lived in the AECP response builder, and the whole
-> `hdl/ieee17221/aecp/**` tree is deleted. The processor's AECP uCPU now serves
-> its declared command inventory, but `0x4B` remains one of the mandatory
-> commands that returns a conformant `NOT_IMPLEMENTED` response. A controller
-> sending it gets a well-formed response
-> carrying no dynamic info, which is a correct answer to a question this entity
-> cannot answer. The byte-extracted contract below is kept because it is
-> reference truth that cost real work to establish, not because anything
-> implements it.
+The processor implements `GET_DYNAMIC_INFO` in
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/91f3b7c132a0074f6d630a438d90604c230d380d/hdl/aecp/KL_aecp_engine.sv).
+Each record is `{data_length[2], reserved[2], status[1], reserved[1],
+command_type[2], command_data[L]}`. The response `control_data_length` is 12
+plus the sum of retained record sizes.
 
-Reference `cmd-get-dynamic-info.c`: response = echo hdr + payload
-`config_index(2)+reserved(2)` then ONE record per descriptor that carries
-mutable state, in descriptor-list order. Records (BE):
+IEEE 1722.1-2021 section 7.4.76 permits exactly thirteen fixed-size getters.
+The engine pre-scans the complete request before processing any record. A
+forbidden command type, truncated header, record overrun, or oversized command
+returns outer `BAD_ARGUMENTS` and no getter runs. A legal unimplemented getter
+returns record-level
+`NOT_SUPPORTED` and copies its command data. Implemented getters run
+independently, so one record can report `NO_SUCH_DESCRIPTOR` while adjacent
+records succeed.
 
-| Descriptor | Record after `type(2)+index(2)` | Size |
-|---|---|---|
-| ENTITY | current_configuration(2)+rsvd(2) | 8 |
-| AUDIO_UNIT | current_sampling_rate(4) | 8 |
-| STREAM_INPUT ×2 | stream_id(8)+stream_format(8)+stream_info_flags(4)+acmp_connection_count(2)+flags_ex(1)+pbsta(1) | 28 |
-| STREAM_OUTPUT | same 28-B stream record | 28 |
-| CLOCK_DOMAIN | clock_source_index(2)+rsvd(2) | 8 |
+The command-side `info_status` is the complete one-byte field and must be
+`SUCCESS`. Any nonzero bit returns `BAD_ARGUMENTS` for that record without
+suppressing parseable neighbours. The field is not a record delimiter, and
+IEEE 1722.1-2021 section 7.4.76.1 requires independent record handling.
 
-Our fixed entity ⇒ FIXED response: 4 + 8 + 8 + 28×3 + 8 = 112 B payload
-(+12 AECP hdr = CDL 124).
+The command-side `control_data_length` limit remains 524. A command above that
+limit returns `BAD_ARGUMENTS` before record processing. The aggregate response
+length starts empty and advances only when a response record is retained, so a
+skipped record cannot expose unwritten response-buffer bytes.
 
-The implementation note is worth keeping for whoever adds `0x4B` to the
-processor's AECP µCPU — the µCPU has landed, it simply has no handler for this
-opcode: the records interleave const-sourced (headers,
-stream_id, flags) and store-sourced (formats, sampling rate) fields, so a
-segment-based emitter needs ~9 segments rather than the four the builder
-started with — a mechanical widening that touches the emit core, and one that
-was worth landing as an isolated commit before the `0x4B` branch itself.
+A record whose response would push `control_data_length` past 524 is omitted
+without error, and processing continues with later records. The processor has
+no `IN_PROGRESS` response path. Milan `GET_STREAM_INFO` contributes its
+56-byte Milan message-specific body, not the 84-byte base IEEE body. The
+engine also checks each getter's actual response cursor against the selected
+fixed response length before appending the record. A mismatch voids the
+aggregate with `ENTITY_MISBEHAVING` instead of shifting later records or
+exposing stale response memory. Four-byte descriptor copies write no second
+word beyond their declared response.
+
+The packet-level W8 tests in
+[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/91f3b7c132a0074f6d630a438d90604c230d380d/tb/pp_top/sim_main.cpp) grade these
+rules byte for byte.

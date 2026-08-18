@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
-**Status 2026-08-18, VERSION `0x0002_0050`.** This is the ordered, clause-cited
+**Status 2026-08-18, VERSION `0x0002_0051`.** This is the ordered, clause-cited
 plan from where the device is to a device that passes the Milan
 end-station validation test plan. It supersedes the AECP sections of
 [historical `MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
@@ -38,7 +38,7 @@ leaves the clause open.
 
 ### 0.1 Served for real, today
 
-**Twenty-three** AEM opcodes plus one MVU command. The authority is
+**Twenty-six** AEM opcodes plus one MVU command. The authority is
 `protocol-processor/hdl/aecp/KL_aecp_engine.sv`'s `OP_*_C` constants, and
 `tests/steps/aecp_engine_steps.py`'s `SERVED` table is gated against that list
 by a behave step that parses the RTL — so this section cannot silently rot
@@ -91,6 +91,7 @@ underneath it.
 | `0x002B` | GET_AUDIO_MAP (both port directions) | 5.4.2.26 | 0x0048 |
 | `0x002C` | ADD_AUDIO_MAPPINGS | 5.4.2.27 | 0x0050 |
 | `0x002D` | REMOVE_AUDIO_MAPPINGS | 5.4.2.28 | 0x0050 |
+| `0x004B` | GET_DYNAMIC_INFO | 5.4.2.29 | **0x0051** |
 | MVU `0x0000` | GET_MILAN_INFO | 5.4.4.1 | 0x0043 |
 
 ### 0.1b What the read-side set cost, measured
@@ -343,18 +344,21 @@ source templates for each entity model. Every successful command notifies every
 other registered controller, including an idempotent ADD; only changed commands
 mark mapping state dirty. Nonvolatile mapping replay remains open in issue #70.
 
-### P2.5 — the packed getter
+### P2.5 - the packed getter, completed 2026-08-17
 
 | Opcode | Command | Clause | Blocks |
 |---|---|---|---|
-| `0x004B` | GET_DYNAMIC_INFO | 5.4.2.29 | *nothing in test plan v1.9* |
+| `0x004B` | GET_DYNAMIC_INFO | 5.4.2.29 | implemented; nothing in test plan v1.9 |
 
-A SHALL that the v1.9 test plan never sends. It is therefore last: real
-compliance debt, zero risk to a compliance run. Note IEEE §7.4.76's hard rule — if
-any packed sub-command could ever return `IN_PROGRESS`, the entity **shall not
-support GET_DYNAMIC_INFO at all**; this engine's policy is never to answer
-`IN_PROGRESS`, so the rule is satisfiable. The µISA has `ITER_OPEN` /
-`ITER_NEXT` / `APPEND` and `E_OVF`'s skip-on-overflow for it already.
+A SHALL that the v1.9 test plan never sends. The processor now implements IEEE
+section 7.4.76 with a complete whitelist pre-scan, independent record statuses,
+silent overflow omission with continued iteration, and no `IN_PROGRESS` path.
+The response cap is 524 bytes. Milan `GET_STREAM_INFO` records use the 56-byte
+Milan body, and legal unimplemented getters return record-level
+`NOT_SUPPORTED` with their command data copied. A non-SUCCESS command-side
+record status is contained as record-level `BAD_ARGUMENTS`. The engine checks
+the actual getter cursor against the selected fixed response length before
+appending each implemented result.
 
 ---
 
@@ -469,7 +473,7 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
 8. **P3.3** departing-controller monitor.
 9. **P3.1** persistence — largest, and the only one that needs a real flash
    backend rather than the blank-flash stub.
-10. **P2.5** GET_DYNAMIC_INFO.
+10. **P2.5** GET_DYNAMIC_INFO. Completed 2026-08-17.
 
 ---
 

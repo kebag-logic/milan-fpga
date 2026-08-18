@@ -1044,10 +1044,12 @@ the class for each word and this one deliberately does not duplicate it.
    whether you needed the capability, not whether the register is broken.
 2. **Is what you are actually looking for the AECP boundary?** `GET_COUNTERS`,
    Identify control, selected stream, clock and configuration operations,
-   `GET_AUDIO_MAP`, registration, and Milan info are served. Name access,
-   `SET_STREAM_FORMAT`, `SET_STREAM_INFO`, the audio-map writers, and
-   `GET_DYNAMIC_INFO` remain mandatory gaps. Nothing persists a binding across
-   a power cycle. Check the exact inventory and persistence verdict in the
+   `GET_AUDIO_MAP`, live `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS`,
+   registration, and Milan info are served. Name access,
+   `SET_STREAM_FORMAT`, `SET_STREAM_INFO`, and saved-state persistence remain
+   mandatory gaps. `GET_DYNAMIC_INFO` is served with the
+   fixed-getter whitelist and per-record status rules. Nothing persists a
+   binding across a power cycle. Check the exact inventory and persistence verdict in the
    [current audit, blockers B1 and B2](../testing/MILAN_V12_AUDIT_2026-08-16.md).
    If the symptom is instead "the controller cannot read a **descriptor**",
    that is a different animal and it is diagnosable:

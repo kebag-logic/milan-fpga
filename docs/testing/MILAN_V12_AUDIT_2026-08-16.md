@@ -30,8 +30,8 @@ outside this build's declared scope.
 | All 50 `tb/verilator/*/Makefile` suites | PASS | Every suite returned zero. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
 | `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
 | `tb/verilator/pp_shadow` | 273 checks passed | The 2026-08-17 rerun passed with zero failures. Milan `ACQUIRE_ENTITY` is checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. The dynamic arty input also passed the GET_AUDIO_MAP body checks. |
-| `tests/` Behave suite | 15 features and 339 scenarios passed | 1,626 steps passed with no skipped scenarios or steps in the 2026-08-18 rerun. This is an offline behavior model, not an external compliance lab result. |
-| Pinned protocol processor suites | 14,168 checks passed | All 27 processor suites passed in the 2026-08-18 rerun. The processor's `pp_top` suite contributes 1,072 passing checks, including the 63-record command maximum, atomic rejection of 64 records, and exclusion between a reserved mapping edit and an ACMP stream-state transaction. The processor's zero-tolerance RTL lint and documentation gates also passed. |
+| `tests/` Behave suite | 15 features and 338 scenarios passed | 1,615 steps passed with no skipped scenarios or steps in the 2026-08-18 rerun. This is an offline behavior model, not an external compliance lab result. |
+| Pinned protocol processor suites | 14,193 checks passed | All 27 processor suites passed. The processor's `pp_top` suite contributes 1,094 passing checks, including GET_DYNAMIC_INFO batch coverage, record-level handling of the complete command-side status byte, getter-length drift detection, and cdl 525 command rejection. It also covers the 63-record mapping command maximum, atomic rejection of 64 mapping records, and exclusion between a reserved mapping edit and an ACMP stream-state transaction. The processor's zero-tolerance RTL lint and documentation gates also passed. |
 | Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,278 and 4,326 checks, including every declared AAF and CRF Stream Output. The 8x8 integration also proves locked local mapping writes leave physical RAM and protocol ownership unchanged, then apply after unlock. |
 | Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
 | Pinned gPTP processor skeleton | 877 checks passed | 768 uCPU, 31 parser, and 78 engine checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
@@ -65,21 +65,32 @@ The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `ACQUIRE_ENTITY`, `LOCK_ENTITY`, `ENTITY_AVAILABLE`, `SET_CONFIGURATION`, `GET_CONFIGURATION`,
 `GET_STREAM_FORMAT`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
 `SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
-`GET_CONTROL`, `GET_STREAM_INFO`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
+`GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `GET_STREAM_INFO`,
+`IDENTIFY_NOTIFICATION`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
 `GET_COUNTERS`, `GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`,
-`REMOVE_AUDIO_MAPPINGS`, the unsolicited registration pair, and Milan
-`GET_MILAN_INFO`. The mapping pair validates the complete command before its
-first write, updates the live map RAM, and reflects every successful command,
-including an idempotent ADD, to other registered controllers. Only a changed
-command marks persistence dirty. Mapping persistence remains blocked by B2
-and #70. The processor scoreboard holds MAP_CFG from dispatch through RX-slot
+`REMOVE_AUDIO_MAPPINGS`, `GET_DYNAMIC_INFO`, the unsolicited registration
+pair, and Milan `GET_MILAN_INFO`.
+
+`GET_DYNAMIC_INFO` implements the IEEE 1722.1-2021 section 7.4.76 fixed-getter
+whitelist with a full pre-scan, independent record statuses, silent overflow
+omission, continued processing after an omission, and Milan's 56-byte
+`GET_STREAM_INFO` record body. Legal getters that are not implemented as
+standalone commands receive record-level `NOT_SUPPORTED` with their command
+data copied. A forbidden or malformed record rejects the complete command with
+`BAD_ARGUMENTS` before any getter is processed.
+
+The mapping pair validates the complete command before its first write, updates
+the live map RAM, and reflects every successful command, including an
+idempotent ADD, to other registered controllers. Only a changed command marks
+persistence dirty. Mapping persistence remains blocked by B2 and #70. The
+processor scoreboard holds MAP_CFG from dispatch through RX-slot
 retirement and excludes ACMP STREAM_CFG. After the phase-1 output recheck, the
 root also reserves every referenced AAF stream until phase 2, so SRP or local
 bypass changes cannot start an output between validation and write-back. The
 processor R19a and root T66 regressions drive both concurrency paths.
 
 This inventory describes command handling and its integrated media effects at
-VERSION `0x0050`. `START_STREAMING` and `STOP_STREAMING` are served from the
+VERSION `0x0051`. `START_STREAMING` and `STOP_STREAMING` are served from the
 ACMP binding record, and a stopped Stream Input continues observing and counting
 received traffic while discarding its media contribution.
 
@@ -89,16 +100,17 @@ or otherwise lacks the required behavior:
 - `SET_STREAM_FORMAT`
 - `SET_STREAM_INFO`
 - `SET_NAME` and `GET_NAME`
-- `GET_DYNAMIC_INFO`
 
 Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 `NOT_IMPLEMENTED` response is transport-safe, but it is not implementation of
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/2cdf0a1e0161de68e585cc78a05dd94f6204d651/hdl/aecp/KL_aecp_engine.sv) and
-the current command table in
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/2cdf0a1e0161de68e585cc78a05dd94f6204d651/docs/architecture/06_aecp_engine.md).
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/91f3b7c132a0074f6d630a438d90604c230d380d/hdl/aecp/KL_aecp_engine.sv),
+the packet-level W8 cases in
+[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/91f3b7c132a0074f6d630a438d90604c230d380d/tb/pp_top/sim_main.cpp), and the
+current command table in
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/91f3b7c132a0074f6d630a438d90604c230d380d/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 
@@ -255,7 +267,7 @@ media gate in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
    ROM, which allowed false-green integration runs.
 2. The root processor integration now grades Milan `ACQUIRE_ENTITY` instead of
    printing a stale unconditional gap.
-3. The repository README now describes the current VERSION `0x0002_0050`
+3. The repository README now describes the current VERSION `0x0002_0051`
    control-plane surface and the remaining blockers.
 4. First-line-obsolete documents are no longer current authorities. Current
    entry points route compliance verdicts to this audit and the generated

@@ -119,7 +119,7 @@ build `MCSRV_STAT` read `0x21`.
 
 "No AECP" is dead as a premise. The protocol processor carries an AECP µCPU
 (`KL_aecp_ucpu` + `KL_aecp_desc_store` + `KL_aecp_engine`, driven from
-`ucode.hex`) and handles 25 AEM opcodes plus Milan `GET_MILAN_INFO`. The served
+`ucode.hex`) and handles 26 AEM opcodes plus Milan `GET_MILAN_INFO`. The served
 set includes descriptor reads, lock and configuration operations, read-side
 stream and clock commands, sampling-rate and clock-source setters, Identify,
 registration, counters, AVB information, AS path, and both audio-map
@@ -129,7 +129,7 @@ receive a conformant `NOT_IMPLEMENTED` echo with the command payload and length
 preserved and the frame padded to the 60-octet minimum. The exact inventory is
 gated by [`aecp_engine_steps.py`](../../../tests/steps/aecp_engine_steps.py) and
 the pinned processor's
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/2cdf0a1e0161de68e585cc78a05dd94f6204d651/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/91f3b7c132a0074f6d630a438d90604c230d380d/docs/architecture/06_aecp_engine.md).
 
 **This suite backs no descriptor memory, on purpose and on record.**
 `milan_datapath` exposes nine ports for the AEM image the store fetches

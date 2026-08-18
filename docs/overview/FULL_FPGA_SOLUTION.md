@@ -49,8 +49,8 @@ as input, is silently refused. `IDENTIFY_NOTIFICATION` (0x0026) as a command is
 
 **An echo is not an implementation.** Operations outside the current processor
 inventory still use the fallback. The stream-format and stream-info setters,
-name access, audio-map mutation, dynamic information, the Milan Table 5.22
-counter-change scheduler, and saved-state persistence remain open. Nothing here
+name access, the Milan Table 5.22 counter-change scheduler, and saved-state
+persistence remain open. Live audio-map mutation is implemented. Nothing here
 restores a binding across a power cycle. This is a stated capability boundary from an
 informed decision, not a regression and not a blip. Everywhere below where this
 page says "AVDECC in fabric", read it against these two paragraphs.
@@ -142,7 +142,7 @@ Companion documents:
 |-------|-----------|-------|
 | **Media transport** | AVTP (IEEE 1722) AAF / CRF, 48/96/192 kHz | **in fabric** (AAF packetizer/depacketizer + CRF TX/RX, [`hdl/ieee1722/`](../../hdl/ieee1722), silicon-validated). The media-clock servos are present but structurally off — §2.1 |
 | **Discovery + connection** | ADP, ACMP (talker and listener)  -  IEEE 1722.1-2021 + Milan v1.2 | **in fabric**, in the protocol processor ([`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) → the pinned `protocol-processor` submodule) |
-| **Enumeration + control** | AECP / AEM, MVU | **in fabric, PARTIAL**. The processor's AECP uCPU serves the inventory listed in the current audit. The builder and tracked board flow generate, verify, and load the descriptor image. Mandatory setters, name access, audio-map writers, dynamic information, Table 5.22, and persistence remain open. See §2.1 |
+| **Enumeration + control** | AECP / AEM, MVU | **in fabric, PARTIAL**. The processor's AECP uCPU serves the inventory listed in the current audit, including packed dynamic information and live audio-map mutation. The builder and tracked board flow generate, verify, and load the descriptor image. Mandatory setters, name access, Table 5.22, and saved-state persistence remain open. See §2.1 |
 | **Address allocation** | MAAP (1722 Annex B) | **in fabric** (`KL_maap`, bridged to the processor's per-source ALLOC/RELEASE face by `hdl/milan/KL_pp_maap_shim.sv`) |
 | **Reservation** | SRP / MSRP / MVRP (802.1Q) | **in fabric**, in the protocol processor (the class-D SRP face drives the CBS slope and the talker gate) + HW TCAM filter |
 | **Timing** | gPTP / 802.1AS, PTP hardware clock | HW PHC + timestamping, SW `ptp4l` |

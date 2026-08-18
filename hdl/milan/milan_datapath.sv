@@ -27,14 +27,14 @@
 //! serves the protocol processor's implemented AECP inventory. That includes
 //! READ_DESCRIPTOR, solicited GET_COUNTERS, selected getters and setters,
 //! Identify control, the unsolicited registration pair,
-//! GET_AUDIO_MAP, and Milan GET_MILAN_INFO. Unsupported operations receive the
+//! GET_AUDIO_MAP, GET_DYNAMIC_INFO, and Milan GET_MILAN_INFO. Unsupported operations receive the
 //! conformant NOT_IMPLEMENTED fallback. IDENTIFY_NOTIFICATION sent as a command
 //! is BAD_ARGUMENTS.
 //! AN ECHO IS NOT AN IMPLEMENTATION. The missing mandatory surface includes
-//! SET_STREAM_FORMAT, SET_STREAM_INFO, name access, audio-map mutation, and
-//! GET_DYNAMIC_INFO. The Table 5.22 counter-change scheduler and saved-state
-//! persistence are also absent. SET_CLOCK_SOURCE is accepted by the processor,
-//! and its dynamic value reaches this wrapper, but the media plane does not
+//! SET_STREAM_FORMAT, SET_STREAM_INFO, name access, and the Table 5.22
+//! counter-change scheduler. Live audio-map mutation is implemented, but
+//! saved-state persistence is absent. SET_CLOCK_SOURCE is accepted by the
+//! processor, and its dynamic value reaches this wrapper, but the media plane does not
 //! consume it. The media clock remains pinned INTERNAL through
 //! CRF_CLK_SELECTED_C. If the descriptor image was never
 //! loaded at PP_DESC_BASE_P the

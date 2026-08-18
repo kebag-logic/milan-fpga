@@ -34,14 +34,15 @@
                 What this entity answers today includes discovery and
                 enumeration, solicited counters, selected stream, clock, and
                 configuration operations, Identify control, the unsolicited
-                registration pair, GET/ADD/REMOVE_AUDIO_MAPPINGS, and MVU
+                registration pair, GET/ADD/REMOVE_AUDIO_MAPPINGS,
+                GET_DYNAMIC_INFO, and MVU
                 GET_MILAN_INFO. The AUTHORITY is
                 protocol-processor/hdl/aecp/KL_aecp_engine.sv's OP_*_C
                 constants, never this comment.
 
                 WHAT IS STILL OPEN, and is a compliance gap rather than a
                 design choice: SET_STREAM_FORMAT, SET_STREAM_INFO, name access,
-                GET_DYNAMIC_INFO, the incomplete unsolicited-notification
+                the incomplete unsolicited-notification
                 trigger set, the departing-controller monitor and saved-state
                 persistence. The current verdict is in
                 docs/testing/MILAN_V12_AUDIT_2026-08-16.md. SET_CLOCK_SOURCE is accepted and

@@ -92,8 +92,8 @@ assumption that AECP answers only one command.
 | `0x8B4–0x8C4` | APRB (RX stream-parser probe) | **debug** | live | The pre-match listener view — a scope instrument. Feature-gated (`datapath_probes`) |
 | `0x8C8–0x8D0` | PBK (playback-chain probe) | **debug** | live | Same class, same gate |
 | `0x8F8` | MCSRV_STAT (media-clock servo) | **optional** | **reads its IDLE** | Not a structural zero and not a live servo either: the servo is built, but its only selector input is pinned at 0, so it can never leave idle. `REGISTER_MAP` already records that this window has a dead-read carve-out — a reader cannot distinguish "no servo built" from "servo idle" here and must not try |
-| `0x900–0x908` | Raw chmap WRITE window | **needed** (was *debug*) | live | **RECLASSIFIED.** The processor serves GET_AUDIO_MAP, but the audio-map writers remain unimplemented. This window is therefore the only programmer of both map RAMs, and `CHMAP_CTRL[0]` is also the crossbar arm. A production image without it cannot change a channel map |
-| `0x90C` | CHMAP_STAT | **optional** | **split** | `csr_refused` is live and still means something (override disarmed). `aem_commits` and `aem_busy` are **STRUCTURAL ZEROS** — there is no projector |
+| `0x900–0x908` | Raw chmap WRITE window | **needed** (was *debug*) | live | **RECLASSIFIED.** This is the direct diagnostic programmer of both map RAMs, and `CHMAP_CTRL[0]` is also the local crossbar arm. The processor separately serves GET, ADD, and REMOVE_AUDIO_MAPPINGS against the same live stores. Saved-state restoration remains absent |
+| `0x90C` | CHMAP_STAT | **optional** | live | Reports committed CSR writes and CSR writes refused while the local override is disarmed or entity-locked. It does not tally AECP mapping changes |
 | `0x910/0x914` | CHMAP_SNAP / CHMAP_LOOP (readback + LOOP_SUSPECT) | **optional** | live | Was "the auditor that catches store-vs-hardware divergence". There is no store to diverge from; it is now the **only** way to read the map back, and `LOOP_SUSPECT` (mapped & ~fed) is unchanged |
 | `0x920–0x930` | PP_CTRL / PP_STAT / PP_SPADDR / PP_SPDATA / PP_DIAG | **needed** | live, **unconditional** | The protocol-processor window. `milan_csr`'s `PP_PLANE_P` parameter is **gone**, so the window is always decoded and `PP_STAT` always carries its `0x5B` tag. `PP_CTRL[0]` is ORed with `ADP_CTRL.en`. **`PP_SPADDR`/`PP_SPDATA` are how the AECP engine's own tallies are read** — command, response, drop, locate-miss, last status, last length, image-valid, image-fault all live in the processor's side-port snapshot window, not at `0x648`; the side port is the host bridge to them |
 | latency-tap CSRs | AAF per-stage TX/RX taps | **debug** | live | Pure instrumentation (`latency_taps` feature) |
@@ -108,12 +108,11 @@ assumption that AECP answers only one command.
    integration gaps and processor-local diagnostics mean ssh remains the only
    view for some facts. Dropping an *optional* group can therefore still remove
    the last observable face for a live mechanism.
-2. **The mapping law has been overtaken by events.** It said: one truth (the
-   AEM store == the crossbar), one edit path (AECP), with the raw window as a
-   bring-up bypass. There is no AEM store, and the AECP commands that would
-   edit a map are unimplemented, so the raw window is the edit path and the
-   read-only auditor (`0x910/0x914`) is the only readback. The law is not
-   violated — there is still exactly one truth, and it is now the RAM itself.
+2. **The mapping law has been overtaken by events.** The map RAMs are the live
+   truth. AECP ADD and REMOVE stage and atomically commit changes to those RAMs,
+   while the raw window remains a direct diagnostic edit path. `GET_AUDIO_MAP`
+   and the `0x910/0x914` auditor read the same live state. Saved-state
+   persistence remains absent.
 3. **A structural zero must stay a zero.** The temptation when a source
    disappears is to leave the last value latched, or to publish a plausible
    idle. Both make a dead word indistinguishable from a working one; the
