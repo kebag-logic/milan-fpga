@@ -361,10 +361,11 @@ the normative text is
    `CLS_CTRL` = `0x5` — or, on a `0x0014` build, `0x0001_0014` and
    `num_queues` = **5** (Section 2 banner).
 4. **Re-derive every `CLS_TC_QUEUE_MAP` write** against 3-bit packing (Section 2).
-5. **Check `rx_queues` for your board.** The AX7101 8×8 config ships **1**
-   because that is the layout its flashed boot chain maps; raising it to 2 moves
-   every DMA window from `dma-ts` onward and is a reflash-gated change the
-   builder refuses against a pinned `boot_chain_pin`
+5. **Check `rx_queues` for your board.** At this release the AX7101 8×8
+   config shipped **1**; it was raised to **2** on 2026-07-28 (861f411e) with
+   the boot chain re-pinned, because raising it moves every DMA window from
+   `dma-ts` onward and is a reflash-gated change the builder refuses against
+   a stale `boot_chain_pin`
    ([`../reference/EGRESS_QUEUE_MAP.md`](../reference/EGRESS_QUEUE_MAP.md)).
 6. **Stop relying on the stage-before-commit workaround** only once you have
    confirmed `VERSION ≥ 0x000F` on the board itself.

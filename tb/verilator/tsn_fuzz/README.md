@@ -42,7 +42,7 @@ they ever disagree:
 - **[What this suite reports to the sweep](#what-this-suite-reports-to-the-sweep)** -- The two lines `scripts/suite_tally.py` counts (the campaign's own total, and the traceability check's two contracts), and the third it deliberately does *not*: `SUITE-SKIP:`, which says the optional campaign ran nothing. Why the marker is reporting rather than a verdict — it does not clear `NOCOUNT`, and letting it would hide a campaign behind a green sweep — and why the traceability check counts 2 and not 63.
 - **[Why "state stability" is the real gate](#why-state-stability-is-the-real-gate)** -- The argument for what this suite actually asserts: there is no software here to crash, so the test is that garbage does not *move state*. Each campaign's canary is named, including AAF's two-sided one — stay locked through malformed PDUs, but DO unlock during an accept drought, because a listener reporting MEDIA_LOCKED while accepting nothing is lying to the controller.
 - **[⚠ tsn-gen wire-layout caveat (measured 2026-07-25)](#-tsn-gen-wire-layout-caveat-measured-2026-07-25)** -- The measured defect in the generator's own models: they omit the AVTPDU `sv`+`version` nibble, so a real READ_DESCRIPTOR decodes `control_data_length` 320 instead of 20. Explains the one-nibble shift `decode_pdu()` applies and why the models are used as an oracle but never as a frame builder.
-- **[Tracked gaps (visible, counted, non-failing)](#tracked-gaps-visible-counted-non-failing)** -- Two defects this campaign found, each printed as `[GAP ]` rather than swept up: `LOCK_ENTITY` answering SUCCESS for any descriptor, and undersized frames bypassing the entity-id filter — with the honest impact assessment (the second is unreachable on a real link at Ethernet's 60-byte minimum).
+- **[Historical AECP findings](#historical-aecp-findings)** -- Preserves the open legacy LOCK_ENTITY finding and records issue #48 as resolved by the current processor regression over exact 38 through 45 byte foreign-target commands.
 - **[Adding a campaign](#adding-a-campaign)** -- Four steps for a new PDU family, and the rule that keeps the campaigns from ossifying: assert invariants, not the entity model — the DUT decides which descriptors exist, the campaign decides the answer is well-formed and state-stable.
 
 ## How it works
@@ -164,28 +164,29 @@ handing it to `packet_gen --decode`; with that correction tsn-gen decodes
 real frames exactly and serves as a genuine independent decoder (the ADP
 campaign cross-checked 12 fields this way, before it was deleted).
 
-## Tracked gaps (visible, counted, non-failing)
+## Historical AECP findings
 
-Printed as `[GAP ]` and listed in each campaign's summary.
+The AECP campaign was deleted on 2026-08-13 with the legacy RTL it fuzzed.
+The surviving AAF campaign reports **0 known gaps**, so these findings are not
+measured by `tsn_fuzz`.
 
-> **Both belonged to the AECP campaign, which was deleted on 2026-08-13 with
-> the RTL it fuzzed.** The surviving AAF campaign reports **0 known gaps**, so
-> nothing below is currently being re-measured. They are kept because the
-> defects were real and were never fixed — deleting the record along with the
-> campaign would have quietly retired two findings rather than resolving them.
-> The second is tracked as #48.
+### Open legacy finding
 
-1. **`LOCK_ENTITY` ignores `descriptor_type`/`descriptor_index`** and answers
-   SUCCESS for any value; Section 7.4.2 scopes LOCK to the ENTITY descriptor, so a
-   foreign descriptor should draw `NO_SUCH_DESCRIPTOR`. Sibling
-   `ACQUIRE_ENTITY` answers `NOT_SUPPORTED` and is unaffected. Low impact —
-   every real controller sends `ENTITY/0`.
-2. **Undersized frames bypass the entity-id filter.** AECP frames ≤ 44 bytes
-   addressed to a *foreign* `target_entity_id` are answered anyway (and echo
-   *our* id); ≥ 45 bytes filter correctly. **Unreachable on a real link** —
-   Ethernet's 60-byte minimum means a MAC never delivers such a frame, and
-   the padded (real-wire) case is asserted to be silent. Latent robustness
-   gap, not a live exposure.
+**`LOCK_ENTITY` ignores `descriptor_type`/`descriptor_index`** and answers
+SUCCESS for any value. Section 7.4.2 scopes LOCK to the ENTITY descriptor, so
+a foreign descriptor should draw `NO_SUCH_DESCRIPTOR`. Sibling
+`ACQUIRE_ENTITY` answers `NOT_SUPPORTED` and is unaffected. This has low
+impact because real controllers send `ENTITY/0`.
+
+### Resolved finding: issue #48
+
+The deleted legacy parser answered unpadded AECP frames below 45 bytes even
+when they carried a foreign `target_entity_id`. Ethernet padding hid the bug
+on a real link. The current protocol processor captures the complete common
+header before dispatch and applies the entity filter before any short-command
+response path. Its `tb/pp_top` A7b regression sends exact 38 through 45 byte
+READ_DESCRIPTOR commands to a foreign target and requires silence for every
+length.
 
 ## Adding a campaign
 

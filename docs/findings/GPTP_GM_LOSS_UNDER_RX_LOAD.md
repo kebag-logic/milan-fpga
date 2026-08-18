@@ -46,11 +46,14 @@ from the network's point of view the grandmaster simply vanished.
 
 ## 2. Root cause
 
-[`configs/endstation_ax7101_8x8.yaml`](../../configs/endstation_ax7101_8x8.yaml) ships **`rx_queues: 1`**, and its own
-comment already says what that means:
+At the time of this session,
+[`configs/endstation_ax7101_8x8.yaml`](../../configs/endstation_ax7101_8x8.yaml) shipped **`rx_queues: 1`**, and its
+then-current comment said what that meant:
 
 > *"with 1 there is no steer block at all, so gPTP shares the bulk ring"* --
-> the two-queue PTP separation is simply not implemented on that build.
+> the two-queue PTP separation was simply not implemented on that build.
+> (Historical quote, pre-861f411e; the config was raised to `rx_queues: 2`
+> the same day and its comment now records the raise.)
 
 With one ring there is one NAPI context and one softcore. A line-rate RX flood
 consumes it entirely; userspace never runs; `ptp4l` transmits nothing. Observed
@@ -140,8 +143,8 @@ sh /tmp/scripts/gptp_probe.sh POST
 
 **Expected values.**
 
-* **Today (`rx_queues: 1`, the defect):** across a ~180 s window containing the
-  flood, ALINX `tx_Announce` delta ≈ **116** against ~183 due, `tx_Sync` ≈
+* **On the defect build (`rx_queues: 1`, as flashed for this session):**
+  across a ~180 s window containing the flood, ALINX `tx_Announce` delta ≈ **116** against ~183 due, `tx_Sync` ≈
   **917** against ~1468 due; the peer's `gmIdentity` moves to
   `3cc0c6.fffe.fe0210` with `grandmasterPriority1 246`; the Arty's
   `0x90000624/0x90000628` shows `0xFEFE0210 / 0x3CC0C6FF`.
@@ -168,12 +171,13 @@ setting the bypass.
 
 ## 5. What the fix is, and what it is not
 
-The fix is `rx_queues: 2` on `endstation_ax7101_8x8.yaml` — **reflash-gated**.
-The config comment already documents the cost: raising it moves
-`boot_chain_pin.dma-ts` and `pcm-dma` by `0x74`, and builder gate 19c refuses
-the change until the pin is re-derived against the new `csr.csv`. That is a
-build-and-flash round, which this lane did not take (no Vivado build, no
-flash).
+The fix is `rx_queues: 2` on `endstation_ax7101_8x8.yaml` -- **reflash-gated**,
+and it SHIPPED: commit 861f411e (2026-07-28) raised the config to 2 with
+`boot_chain_pin.dma-ts` and `pcm-dma` re-pinned to the 2-queue addresses
+(every window from `dma-ts` onward moves by `0x74`, and builder gate 19c
+refuses the change until the pin is re-derived against the new `csr.csv`).
+The measurement lane itself took no build-and-flash round; the config raise
+followed it the same day.
 
 **It is not a CBS/egress problem.** The arithmetic never supported egress
 starvation (2-channel AAF at 8000 fps is ~5.8 Mb/s; eight streams is a small
