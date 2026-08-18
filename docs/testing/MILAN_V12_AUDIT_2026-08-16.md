@@ -78,20 +78,27 @@ root also reserves every referenced AAF stream until phase 2, so SRP or local
 bypass changes cannot start an output between validation and write-back. The
 processor R19a and root T66 regressions drive both concurrency paths.
 
-This inventory describes command handling, not end-to-end effect. In
-particular, B12 records that START/STOP is unimplemented, so no AECP Stream
-Input started state reaches the root wrapper or controls the media plane.
+This inventory describes command handling, not end-to-end effect. As audited on
+2026-08-16, B12 recorded that START/STOP was unimplemented, so no AECP Stream
+Input started state reached the root wrapper or controlled the media plane.
+
+> **SUPERSEDED 2026-08-18 (issue #78, VERSION `0x004F`).** `START_STREAMING`
+> (0x0022) and `STOP_STREAMING` (0x0023) are served, and the started state now
+> does control the media plane: a stopped Stream Input's frames are dropped at
+> the listener accept pulse while it goes on receiving, matching and counting.
+> The paragraph below is the 08-16 record of the withdrawal; see B12 for the
+> resolution and for the one shall of Section 5.3.8.7 that remains open.
 
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
 
-`START_STREAMING` and `STOP_STREAMING` (Milan 5.4.2.19 / 5.4.2.20) belong in
-this list and are called out here because an earlier revision of this document
-placed them in the list above. They were implemented and then **withdrawn**
-before merge: started/stopped already has a home in the ACMP binding record,
-which clears on unbind and is persisted, and a second copy in the AECP dynamic
-store would be neither. The work is preserved on branch
-`78-start-stop-streaming` pending that decision.
+`START_STREAMING` and `STOP_STREAMING` (Milan 5.4.2.19 / 5.4.2.20) belonged in
+this list at the time of the audit, and were called out here because an earlier
+revision of this document placed them in the list above. They had been
+implemented and then **withdrawn** before merge: started/stopped already had a
+home in the ACMP binding record, which clears on unbind and is persisted, and a
+second copy in the AECP dynamic store would be neither. That decision was
+settled in favour of the record — see the SUPERSEDED note above.
 
 - `SET_STREAM_FORMAT`
 - `SET_STREAM_INFO`
@@ -245,6 +252,32 @@ The processor currently returns the conformant unimplemented fallback for
 before merge because the authoritative started state must be reconciled with
 the existing ACMP binding record. No per-input started state controls the media
 plane, so Milan section 5.3.8.7 remains open.
+
+> **RESOLVED 2026-08-17 (issue #78), for two of the clause's three shalls.**
+> The reconciliation went the way this finding assumed: the ACMP binding
+> record is the single source of truth, and the AECP dynamic store's selector
+> 6 is retired rather than reused. The two BEHAVIOURAL shalls are implemented
+> and graded — a started Stream Input processes its AVTPDUs and a stopped one
+> **discards** them, proven end to end in `tb/verilator/milan_dp`.
+>
+> The discard sits on the listener ACCEPT pulse, not on the classification
+> entry, and the distinction is the clause's own: a stopped input "shall
+> discard the Stream AVTPDUs it **receives**", so it still receives, still
+> classifies and still counts. Gating the classifier instead also forged a
+> not-bound→bound edge on the next START, and Milan Table 5.6 makes that edge
+> the counter-RESET event — a stop/start pair wiped all ten counters on a sink
+> that never unbound. The suite now grades FRAMES_RX across the pair.
+>
+> The THIRD shall — "saved in a non-volatile memory and restored after a power
+> cycle" — is untouched by this round. The record projects and restores the
+> bit, but `KL_pp_shadow` sets `NVM_BACKED_C = 1'b0` behind a blank-flash
+> stub, so nothing survives a power cycle (issue #70). The record layout
+> version moved to `0x02` so a binding saved by firmware that never wrote the
+> bit is refused rather than fast-connected into silence.
+>
+> The audit's own words for what was missing, "no per-input started state
+> controls the media plane", were exact: the vector existed and was connected,
+> and nothing read it.
 
 Evidence: the command inventory and withdrawal note in the pinned processor,
 the exported `aecp_strm_started_o` value received on an unconsumed root wire,

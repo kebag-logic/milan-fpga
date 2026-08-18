@@ -99,6 +99,13 @@ ST_NOT_SUPPORTED = 11
 OP_ACQUIRE_ENTITY = 0x0000
 OP_READ_DESCRIPTOR = 0x0004
 OP_IDENTIFY_NOTIFICATION = 0x0026
+OP_START_STREAMING = 0x0022
+OP_STOP_STREAMING = 0x0023
+#! 1722.1-2021 Table 7-1. Milan 5.4.2.19/.20 serve these two per Stream
+#! INPUT and require NOT_SUPPORTED for a Stream Output; every other type
+#! takes the same refusal, which is what keeps a locate on a descriptor that
+#! EXISTS (ENTITY[0] does) away from the started/stopped write.
+DT_STREAM_INPUT = 0x0005
 
 # ---- THE SERVED-OPCODE INVENTORY -------------------------------------------
 # The one place this suite records which AECP opcodes the protocol processor
@@ -148,6 +155,27 @@ SERVED = {
                  verdict=ST_SUCCESS, cdl=17),     # one LINEAR_UINT8 value
     0x0019: dict(name="GET_CONTROL", clause="Milan 5.4.2.18",
                  verdict=ST_SUCCESS, cdl=17),
+    #! NOT MODELLED for these two, and deliberately: the RTL also answers
+    #! NO_SUCH_DESCRIPTOR for a STREAM_INPUT index the image does not hold,
+    #! ENTITY_LOCKED for a different controller under lock, and BAD_ARGUMENTS
+    #! below cdl 16. This model answers SUCCESS for a STREAM_INPUT at ANY
+    #! index and models neither refusal, because it carries no descriptor
+    #! image and no lock state. No scenario sweeps index or lock today, so
+    #! nothing is falsely green - but anyone adding such a sweep must teach
+    #! the model those arms first, or it will disagree with the gateware and
+    #! the RTL will be the one that looks wrong. pp_top W21o/W21x/W21q grade
+    #! all three on the real engine.
+    #!
+    #! Milan narrows IEEE 7.4.35/7.4.36 to Stream Inputs, so the verdict the
+    #! SWEEP sees is NOT_SUPPORTED: its payload is READ_DESCRIPTOR-shaped
+    #! zeros, which puts descriptor_type 0x0000 (ENTITY) at @24, and anything
+    #! that is not a STREAM_INPUT takes the refusal arm. A bound Stream Input
+    #! answers SUCCESS at the same cdl - Figure 7-59 gives command and
+    #! response one shape - and pp_top's W21 grades that byte-exactly.
+    0x0022: dict(name="START_STREAMING", clause="Milan 5.4.2.19",
+                 verdict=ST_NOT_SUPPORTED, cdl=16),
+    0x0023: dict(name="STOP_STREAMING", clause="Milan 5.4.2.20",
+                 verdict=ST_NOT_SUPPORTED, cdl=16),
     0x0024: dict(name="REGISTER_UNSOLICITED_NOTIFICATION",
                  clause="Milan 5.4.2.21", verdict=ST_SUCCESS, cdl=16),
     0x0025: dict(name="DEREGISTER_UNSOLICITED_NOTIFICATION",
@@ -473,6 +501,24 @@ class AecpEngineModel:
             #! GET_AVB_INFO's mapping list, GET_AS_PATH's path, an audio-map
             #! page) whose length this model has no business predicting.
             row = SERVED[self.opcode_served]
+            #! START/STOP_STREAMING are the one served pair whose verdict is
+            #! keyed on the PAYLOAD, so the inventory's single verdict cannot
+            #! be the whole answer: Milan 5.4.2.19/.20 serve a Stream Input
+            #! and refuse every other target with NOT_SUPPORTED. Without this
+            #! the model answered NOT_SUPPORTED for a STREAM_INPUT too, and a
+            #! scenario sweeping descriptor types passed on every row - the
+            #! expected value was a constant, so the check could not fail.
+            #! The SUCCESS arm's payload is not modelled (it moves state in
+            #! the ACMP binding record); pp_top W21 and milan_dp own that.
+            #!
+            #! `cfg_ix` is the @24 WORD, named for READ_DESCRIPTOR's meaning
+            #! of it - which is exactly the register the engine compares
+            #! (`cfg_ix_r != DT_STREAM_INPUT_C`), so the model and the RTL
+            #! read the same field of the same command.
+            if self.opcode_served in (OP_START_STREAMING, OP_STOP_STREAMING):
+                verdict = (ST_SUCCESS if cfg_ix == DT_STREAM_INPUT
+                           else ST_NOT_SUPPORTED)
+                return verdict, 16
             return row["verdict"], (12 if row["cdl"] is None else row["cdl"])
         return self._read_descriptor(buf, cfg_ix, desc_ty, desc_ix)
 
@@ -770,6 +816,21 @@ def step_read_descriptor_short(context, cdl):
 @when('the controller sends AEM opcode {opcode:d} to the AECP engine')
 def step_send_aem(context, opcode):
     _send(context, build_aem_command(opcode))
+
+
+@when('the controller sends AEM opcode {opcode:d} naming descriptor type '
+      '{dtype:d} to the AECP engine')
+def step_send_aem_dtype(context, opcode, dtype):
+    """IEEE Figure 7-59's four bytes: {descriptor_type, descriptor_index}.
+
+    START/STOP_STREAMING carry the descriptor type at @24, not at @28 like
+    the READ_DESCRIPTOR shape, so the payload is built here rather than
+    reusing `build_aem_command`'s eight-byte default - which would put the
+    type in the wrong field and make every row pass for the wrong reason
+    (a zero at @24 is ENTITY, which is refused too).
+    """
+    payload = bytes((dtype >> 8, dtype & 0xFF, 0x00, 0x00))
+    _send(context, build_command(MT_AEM_COMMAND, opcode, payload))
 
 
 @when('the controller sends ACQUIRE_ENTITY to the AECP engine')
