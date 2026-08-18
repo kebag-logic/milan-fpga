@@ -3231,7 +3231,9 @@ int main(int argc, char** argv) {
             };
             auto si_pl = [](uint16_t ty, uint16_t ix, uint32_t fl,
                             uint32_t lat) {
-                std::vector<uint8_t> p(48, 0);
+                // 1722.1-2021 Figure 7-40: the complete 84-byte payload
+                // (cdl 96) - Milan v1.2 refuses the 2013 60-byte shape
+                std::vector<uint8_t> p(84, 0);
                 p[0] = (uint8_t)(ty >> 8); p[1] = (uint8_t)ty;
                 p[2] = (uint8_t)(ix >> 8); p[3] = (uint8_t)ix;
                 for (int i = 0; i < 4; i++)
@@ -3361,8 +3363,8 @@ int main(int argc, char** argv) {
             // SET_STREAM_INFO(ACC_LAT): the offset the framers stamp
             r2 = aecp_xact(0x000E, sq2++,
                            si_pl(0x0006, 0, 0x20000000u, 750000));
-            ck("#67 SET_STREAM_INFO(ACC_LAT) SUCCESS at cdl 60",
-               (long)(aecp_status(r2) == 0 && cdl_of(r2) == 60), 1);
+            ck("#67 SET_STREAM_INFO(ACC_LAT) SUCCESS at cdl 96",
+               (long)(aecp_status(r2) == 0 && cdl_of(r2) == 96), 1);
             g2 = aecp_xact(0x000F, sq2++, ti4(0x0006, 0));
             ck("#67 GET_STREAM_INFO reads the folded transit entry",
                lat_of(g2), 750000ul);
@@ -3378,11 +3380,13 @@ int main(int argc, char** argv) {
                            si_pl(0x0006, 0, 0x20000000u, 0x80000001u));
             ck("#67 a bit-31 offset is BAD_ARGUMENTS", aecp_status(r2), 7);
             {
-                std::vector<uint8_t> shortp(40, 0);
+                // the 2013-complete 48-byte shape IS the truncated case
+                // under the 2021 reference - the review ruling, pinned
+                std::vector<uint8_t> shortp(48, 0);
                 shortp[1] = 0x06; shortp[4] = 0x20;
                 r2 = aecp_xact(0x000E, sq2++, shortp);
-                ck("#67 a truncated SET_STREAM_INFO refuses at cdl 60",
-                   (long)(aecp_status(r2) == 7 && cdl_of(r2) == 60), 1);
+                ck("#67 the 2013-length SET_STREAM_INFO refuses at cdl 96",
+                   (long)(aecp_status(r2) == 7 && cdl_of(r2) == 96), 1);
             }
             g2 = aecp_xact(0x000F, sq2++, ti4(0x0006, 0));
             ck("#67 no refusal moved the stored offset", lat_of(g2),
