@@ -3728,7 +3728,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
                      18'd0,
                      gsi_tkfail_w,            // REGISTERING_FAILED
                      2'b0,
-                     1'b0,                    // STREAMING_WAIT (bound = started)
+                     //! Milan Table 5.9 bit 28: "0 if the Stream Input is
+                     //! bound and started, 1 if the Stream Input is bound and
+                     //! stopped, undefined if the Stream Input is not bound."
+                     //! This was a hardcoded 0 justified as "bound = started",
+                     //! which was true only while stopped was unreachable;
+                     //! with §5.4.2.20 served it would report a stopped sink
+                     //! as started. It reads the SAME bit the admission gate
+                     //! above does, so the answer and the behaviour cannot
+                     //! disagree.
+                     gsi_bnd_w && !pp_aecp_strm_started_w[gsi_six_w],
                      gsi_bnd_w,               // SAVED_STATE (recommended)
                      gsi_bnd_w,               // FAST_CONNECT (= bound, T5.9)
                      1'b0};                   // CLASS_B
@@ -3868,6 +3877,51 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! k, sinks 0..N_STREAMS-1 the AAF sinks and the last one the CRF Media
   //! Clock Input when this shape declares it.
   assign acmpl_bound_v_w = pp_cd_acmp_bound_w;
+
+  //! Milan v1.2 §5.3.8.7: "A PAAD-AE having a started Stream Input shall
+  //! process the incoming stream data ... A PAAD-AE having a stopped Stream
+  //! Input shall DISCARD the Stream AVTPDUs it receives." Both halves are
+  //! shalls, and until START/STOP_STREAMING landed (issue #78) neither was
+  //! implemented — `pp_aecp_strm_started_w` was connected and read by nothing.
+  //!
+  //! The admission view is SEPARATE from `acmpl_bound_v_w` rather than folded
+  //! into it: bind level drives the CRF sink and the entry-0 alias below, and
+  //! stopping an AAF sink must not disturb either. Nor does it touch SRP —
+  //! a stopped Stream Input is still BOUND, so its reservation stands; the
+  //! clause discards the AVTPDUs, it does not withdraw the registration.
+  //! It is NOT routed through the classification table. That was the first
+  //! cut and it was wrong: the table's bind level feeds the bind edges, and
+  //! Milan Table 5.6 makes a not-bound->bound edge the counter RESET event,
+  //! so a stop/start pair wiped all ten counters on a sink that never
+  //! unbound. The discard is on the accept pulse instead - see the comment
+  //! at `avtprx_accept_p` below, which is the authority on this.
+  //! The sinks §5.3.8.7 says to DISCARD for: bound AND stopped. Stated as
+  //! the stop condition rather than as "bound and started" on purpose - the
+  //! clause calls the state "undefined when the Stream Input is not bound",
+  //! so an entry that is NOT ACMP-bound is outside its scope entirely and
+  //! must keep flowing. A classification entry provisioned through the
+  //! `0x800` override window has no binding behind it, and gating it on
+  //! `bound & started` would silence every one of them.
+  wire [ACMP_SINKS_C-1:0] acmpl_stopped_v_w = acmpl_bound_v_w
+                                              & ~pp_aecp_strm_started_w;
+
+  //! ...and the CRF Media Clock Input's own bit, guarded by whether that sink
+  //! EXISTS. `CRF_SNK_IDX_C` falls back to 0 on a shape with `crf_sink:
+  //! false` (ACMP_SINKS_C == N_STREAMS), and reading index 0 there would let
+  //! a STOP_STREAMING aimed at AAF Stream Input 0 silence the media-clock
+  //! receiver - a controller command reaching into clock recovery, which is
+  //! precisely what gating this strobe is not supposed to do. Every tracked
+  //! config sets `crf_sink: true`, so no shipping shape takes the fallback;
+  //! the guard is here so that stays true of shapes nobody has built yet.
+  //! `acmpl_stopped_v_w` has TWO consumers: the listener accept gate (the AAF
+  //! sinks) and, through this wire, `KL_crf_rx`'s frame strobe (the CRF Media
+  //! Clock Input, which has no classification-table entry of its own).
+  //! Between them every Stream Input the entity advertises is covered, which
+  //! is what §5.4.2.19's "For each Stream Input" and §5.3.8.7's discard rule
+  //! together require.
+  wire crf_snk_stopped_w = (ACMP_SINKS_C > N_STREAMS)
+                           && acmpl_stopped_v_w[CRF_SNK_IDX_C];
+
   assign acmpl_sid_v_w   = pp_cd_acmp_bound_sid_w;
   //! the scalar sink-0 shadows every legacy consumer here still reads
   assign acmpl_bound = acmpl_bound_v_w[0];
@@ -4182,11 +4236,23 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   KL_stream_table #(.N_LISTENERS_P(N_STREAMS)) stream_table (
     .clk_i (axis_clk), .rst_n (axis_resetn),
+    //! entry 0 is the ACMP alias and it gets the PURE bind level, exactly
+    //! like the vector below and for the same reason: this port feeds the
+    //! bind edges that Table 5.6 resets counters on. The started gate is on
+    //! the accept pulse further down.
     .bound0_i (acmpl_bound), .sid0_i (acmpl_sid),
-    //! task #32: every entry rides its own sink's bind level, so an
-    //! UNBIND evicts the classification entry and the departed stream's
-    //! frames become foreign at the parser (the AAF slice of the ACMP
-    //! view - the CRF sink classifies in its own path)
+    //! task #32: every entry rides its own sink's bind level, so an UNBIND
+    //! evicts the classification entry and the departed stream's frames
+    //! become foreign at the parser (the AAF slice of the ACMP view - the
+    //! CRF sink classifies in its own path).
+    //!
+    //! It is the PURE bind level and deliberately NOT the started gate: this
+    //! port feeds `bind_rise_o`/`bind_fall_o`, and Milan Table 5.6 resets the
+    //! Stream Input counters "each time the Stream Input changes its state
+    //! from not bound to bound" - a STOP_STREAMING is not that. Gating here
+    //! synthesised a fake unbind/rebind pair around every stop/start, which
+    //! wiped all ten counters and flushed the loopback queues on a sink that
+    //! never left its binding. The started gate is on ACCEPT instead, below.
     .bound_v_i (acmpl_bound_v_w[N_STREAMS-1:0]),
     .sid_v_i   (acmpl_sid_v_w[64*N_STREAMS-1:0]),
     .wr_en_i (wing_tbl_we_r), .wr_idx_i (wing_idx_r),
@@ -4295,7 +4361,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .IVAL_CYC_P    (LDIAG_IVAL_CYC_P)
   ) crf_rx (
     .clk_i (axis_clk), .rst_n (axis_resetn),
-    .frame_p_i   (avtprx_parse_p),
+    //! Milan §5.3.8.7 applies to EVERY Stream Input, and a config with
+    //! `crf_sink: true` advertises a STREAM_INPUT descriptor for this one -
+    //! so a controller can stop it, and "shall discard the Stream AVTPDUs it
+    //! receives" has to mean something here too. This sink has no entry in
+    //! the classification table (it keys on subtype, off the parser), so the
+    //! accept gate above cannot reach it and the predicate is applied
+    //! directly. It costs nothing in normal operation: the state is
+    //! `bound & ~started`, a bind lands started unless the BIND_RX asked for
+    //! STREAMING_WAIT, and an unbound CRF sink is outside the clause and
+    //! ungated - which is why this is not a controller command in the path
+    //! of clock recovery, only a controller command that was aimed at this
+    //! descriptor on purpose.
+    .frame_p_i   (avtprx_parse_p && !crf_snk_stopped_w),
     .subtype_i   (avtprx_subtype),
     .seq_i       (avtprx_seq),
     .sid_frame_i (avtprx_sid_frame),
@@ -4488,7 +4566,30 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [3:0]  avtprx_accept_idx_w;
   wire        pcmrx_pdu_p_w, pcmrx_drop_p_w;
   wire [3:0]  pcmrx_pdu_idx_w, pcmrx_drop_idx_w;
-  assign avtprx_accept_p = avtprx_accept_p_w;
+  //! Milan v1.2 §5.3.8.7: "A PAAD-AE having a stopped Stream Input shall
+  //! DISCARD the Stream AVTPDUs it receives." The discard belongs HERE, on
+  //! the accept pulse that feeds the depacketizer, not on the classification
+  //! entry upstream - because the clause's own wording says a stopped input
+  //! RECEIVES. Table 5.6 defines FRAMES_RX, SEQ_NUM_MISMATCH, LATE/EARLY_
+  //! TIMESTAMP and the rest on frames "received on this Stream Input", so
+  //! they go on counting while the media path gets nothing;
+  //! `KL_avtp_rx_monitor_ctx` sits upstream of this gate for exactly that
+  //! reason. Gating the classifier instead ALSO forged a not-bound->bound
+  //! edge on the next start, and Table 5.6 makes that edge the counter-reset
+  //! event - so a stop/start pair wiped every counter on a sink that never
+  //! unbound.
+  //! selected without a variable bit-select: `avtprx_accept_idx_w` is four
+  //! bits and this vector is ACMP_SINKS_C wide, so indexing it directly is a
+  //! width truncation Verilator is right to flag.
+  logic avtprx_stopped_w;
+  always_comb begin : accept_stop_sel
+    avtprx_stopped_w = 1'b0;
+    for (int unsigned k = 0; k < ACMP_SINKS_C; k++) begin
+      if (32'(avtprx_accept_idx_w) == k) avtprx_stopped_w = acmpl_stopped_v_w[k];
+    end
+  end : accept_stop_sel
+
+  assign avtprx_accept_p = avtprx_accept_p_w && !avtprx_stopped_w;
 
   KL_avtp_rx_monitor_ctx #(
     .N_LISTENERS_P (N_STREAMS),
@@ -5548,13 +5649,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .clk_i             (axis_clk),
       .rst_n             (axis_resetn),
       //! ---- the AECP settings face (Milan §5.3.x) ----------------------
-      //! What a controller has SET. Landed as observable state ahead of its
-      //! consumers ON PURPOSE: every one of these reads its reset default
-      //! until a controller writes it, so wiring them changes no behaviour
-      //! today and gives the media clock, the listener gate and the talker
-      //! offset a settled place to read from when each is converted.
+      //! What a controller has SET. Most of these landed as observable state
+      //! ahead of their consumers ON PURPOSE: they read a reset default until
+      //! a controller writes them, so wiring them changed no behaviour and
+      //! gave the media clock, the listener gate and the talker offset a
+      //! settled place to read from when each is converted.
       //!
-      //! NOT YET CONSUMED, and it is worth being plain about which:
+      //! `aecp_strm_started_o` is NO LONGER one of them. It is LOAD-BEARING
+      //! since issue #78 and has three consumers in this file: the listener
+      //! accept gate, the CRF frame strobe, and GET_STREAM_INFO's Table 5.9
+      //! bit 28. A stopped sink really does stop feeding the media path, so
+      //! do not read this block as "wiring these is inert".
+      //!
+      //! STILL NOT CONSUMED, and it is worth being plain about which:
       //! `pp_aecp_clk_src_index_w` is the value SET_CLOCK_SOURCE writes, but
       //! the media-clock select is still the compile-time constant this file
       //! has always used — converting it is a media-clock change, not an

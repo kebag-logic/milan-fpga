@@ -238,6 +238,32 @@ before merge because the authoritative started state must be reconciled with
 the existing ACMP binding record. No per-input started state controls the media
 plane, so Milan section 5.3.8.7 remains open.
 
+> **RESOLVED 2026-08-17 (issue #78), for two of the clause's three shalls.**
+> The reconciliation went the way this finding assumed: the ACMP binding
+> record is the single source of truth, and the AECP dynamic store's selector
+> 6 is retired rather than reused. The two BEHAVIOURAL shalls are implemented
+> and graded — a started Stream Input processes its AVTPDUs and a stopped one
+> **discards** them, proven end to end in `tb/verilator/milan_dp`.
+>
+> The discard sits on the listener ACCEPT pulse, not on the classification
+> entry, and the distinction is the clause's own: a stopped input "shall
+> discard the Stream AVTPDUs it **receives**", so it still receives, still
+> classifies and still counts. Gating the classifier instead also forged a
+> not-bound→bound edge on the next START, and Milan Table 5.6 makes that edge
+> the counter-RESET event — a stop/start pair wiped all ten counters on a sink
+> that never unbound. The suite now grades FRAMES_RX across the pair.
+>
+> The THIRD shall — "saved in a non-volatile memory and restored after a power
+> cycle" — is untouched by this round. The record projects and restores the
+> bit, but `KL_pp_shadow` sets `NVM_BACKED_C = 1'b0` behind a blank-flash
+> stub, so nothing survives a power cycle (issue #70). The record layout
+> version moved to `0x02` so a binding saved by firmware that never wrote the
+> bit is refused rather than fast-connected into silence.
+>
+> The audit's own words for what was missing, "no per-input started state
+> controls the media plane", were exact: the vector existed and was connected,
+> and nothing read it.
+
 Evidence: the command inventory and withdrawal note in the pinned processor,
 the exported `aecp_strm_started_o` value received on an unconsumed root wire,
 and the absence of a corresponding media-plane gate in
