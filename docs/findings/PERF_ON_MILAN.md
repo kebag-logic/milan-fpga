@@ -27,10 +27,10 @@ conclusion was checked.*
   core; 250 Hz × 2 harts × 12 s ≈ 3 000 samples/hart, plenty for a >5 % signal).
 - **No kallsyms** (`CONFIG_KALLSYMS` is off to fit the kernel in the QSPI slot), so
   every kernel sample prints as `[k] 0xffffffff8....`  -  a raw address. Symbolization
-  happens **offline on the host** (§3).
+  happens **offline on the host** (Section 3).
 - **No call graphs worth trusting**: `-g` needs frame pointers (userland is built
   `-O2` without them; kernel likewise)  -  use flat profiles and read *loops* out of
-  address clusters instead (§4).
+  address clusters instead (Section 4).
 - Console discipline: `dmesg -n 1` first (printk floods the 115200 UART otherwise);
   perf writes its data file to `/tmp`, reports are generated on the board
   (`perf report --stdio`) and only the text is pulled over the console.

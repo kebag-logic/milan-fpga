@@ -37,7 +37,7 @@ about, and one of them explains why the listener blocker took so long to find.
 The whole campaign on one page — *what was attacked, how hard, and did anything
 actually break?*
 
-| § | what it attacked | the stressor | outcome |
+| Section | what it attacked | the stressor | outcome |
 |---|---|---|---|
 | **A** | stream stop/start | 20 stop→start cycles, then 50 `en` toggles with **no settle time** | all 20 recovered, accepting afterwards, `RST_EPOCH` unchanged |
 | **B** | illegal / adversarial CSR access | out-of-range `SEL`, unmapped reads, a write to read-only `VERSION`, a snapshot read racing the busy flag, 30 mid-read `SEL` switches | no hang, CSR plane responsive, still accepting |

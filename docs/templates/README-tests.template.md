@@ -31,7 +31,7 @@ Milan v1.2 — list the ones this module implements>`
 
 | Clause | Behavior | Test (existing / tsn_gen / MISSING) | Why |
 |--------|----------|--------------------------------------|-----|
-| `<spec §x.y.z>` | `<observable normative behavior>` | `<existing: tb/...  |  tsn_gen: recipe  |  MISSING>` | `<why this verifies the clause / why the gap matters>` |
+| `<spec Section x.y.z>` | `<observable normative behavior>` | `<existing: tb/...  |  tsn_gen: recipe  |  MISSING>` | `<why this verifies the clause / why the gap matters>` |
 
 ## Non-normative / robustness tests
 

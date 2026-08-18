@@ -16,7 +16,7 @@ The project has **two host variants around one datapath**:
   performance campaigns happen. ([../litex/LITEX_SOC.md](../litex/LITEX_SOC.md))
 * **Zynq-7020 PS (legacy variant):** `milan_top` + Vivado block design
   (`bd/milan-dma.tcl`: PS7 + AXI-DMA + interconnect), RGMII MAC in fabric.
-  Kept working, but not the main line. (§9)
+  Kept working, but not the main line. (Section 9)
 
 **The control plane is the protocol processor, and only that (2026-08-13).**
 [`hdl/milan/KL_pp_shadow.sv`](../../hdl/milan/KL_pp_shadow.sv) wraps the pinned
@@ -35,20 +35,20 @@ responder is the processor's AECP uCPU, which has
 landed — the device is reachable on AECP, not silent. `READ_DESCRIPTOR`
 (0x0004) returns `SUCCESS` carrying `configuration_index`, the reserved field
 and the descriptor; `NO_SUCH_DESCRIPTOR` on a locate miss; `BAD_ARGUMENTS` on a
-bad configuration index — both error paths carrying the IEEE 1722.1 §7.4.5
+bad configuration index -- both error paths carrying the IEEE 1722.1 Section 7.4.5
 4-byte `{descriptor_type, descriptor_index}` stub. **Controller enumeration is
 reachable once the builder-generated descriptor image is loaded into DRAM.**
 The tracked board flow verifies and loads the paired image with `aemi-load`
 before entity enable. Unsupported operations get the conformant fallback with
 the correct message type, length, and `controller_data_length`: never silence,
 never malformed. `IDENTIFY_NOTIFICATION` (0x0026) arriving as a *command* is
-`BAD_ARGUMENTS` — §7.4.39.2's opcode-specific rule beats §9.3.5.3.3. A command
+`BAD_ARGUMENTS` -- Section 7.4.39.2's opcode-specific rule beats Section 9.3.5.3.3. A command
 whose `target_entity_id` is not ours, and any AECP *response* arriving as input,
 are silently refused: freed, counted, no reply. Milan Delta 7
 `ACQUIRE_ENTITY` returns `NOT_SUPPORTED` with a zero owner.
 
 **An echo is not an implementation**, so read the echo as a duty discharged
-(IEEE 1722.1 §9.3.5: respond to what you do not implement), never as coverage.
+(IEEE 1722.1 Section 9.3.5: respond to what you do not implement), never as coverage.
 Genuinely absent behind it: `SET_STREAM_FORMAT`, `SET_STREAM_INFO`, name access,
 most Milan Table 5.22 change triggers, root-level IDENTIFY indication, and
 saved-state persistence. `GET_DYNAMIC_INFO` is served by the processor batch
@@ -58,7 +58,7 @@ their required successful-change notifications.
 `SET_CLOCK_SOURCE` is accepted by the processor and its dynamic selection is
 exported to the root, but no media-plane logic consumes it, so the media plane
 remains pinned to INTERNAL. Those
-are stated capability boundaries. What they cost functionally is §3.2; what the
+are stated capability boundaries. What they cost functionally is Section 3.2; what the
 affected CSR words read is
 [../reference/REGISTER_MAP.md](../reference/REGISTER_MAP.md).
 
@@ -92,7 +92,7 @@ enabled. The end-station builder emits `aem_desc.bin`, `aem_desc.json`, and
 `aem_desc.map`; the tracked board flow packages the paired artifacts and runs
 `aemi-load` before entity enable. A custom integration that omits this step
 answers `BAD_ARGUMENTS` to every read because the argument check runs before the
-locate and an invalid image reports zero configurations. §4 has the detail and
+locate and an invalid image reports zero configurations. Section 4 has the detail and
 the symptom.
 
 ---
@@ -101,7 +101,7 @@ the symptom.
 
 - **[1. Repository layout](#1-repository-layout)** -- Annotated directory tree, one line per directory saying what it holds. Fastest way to learn that `hdl/` mirrors the standards clauses (`ieee1722/`, `ieee17221/`, `ieee8021as/`, `ieee8021q/`) rather than the block hierarchy.
 - **[2. System block diagram (fully-FPGA softcore)](#2-system-block-diagram-fully-fpga-softcore)** -- The whole SoC in one ASCII drawing: CPU and DMA engines above, `milan_datapath` below, TX/RX/TS lanes across. Says which SoC shape actually ships (1-hart, 32 KB L2) versus the superseded 2-hart perf peak, and names the five consumers of that one boundary.
-- **[3. Datapath](#3-datapath)** -- Frame flow in both directions, and the two structural facts everything else follows from: the fabric engines inject *downstream* of the shaper (never touching classifier or queue), and the media copy is tapped *upstream* of the TCAM filter so the fabric keeps consuming AVTP while the CPU stays shielded from the multicast flood. §3.1 is the TX arbiter cascade after it collapsed 8 muxes → 4, and §3.2 the three functional losses the AECP boundary costs.
+- **[3. Datapath](#3-datapath)** -- Frame flow in both directions, and the two structural facts everything else follows from: the fabric engines inject *downstream* of the shaper (never touching classifier or queue), and the media copy is tapped *upstream* of the TCAM filter so the fabric keeps consuming AVTP while the CPU stays shielded from the multicast flood. Section 3.1 is the TX arbiter cascade after it collapsed 8 muxes → 4, and Section 3.2 the three functional losses the AECP boundary costs.
 - **[4. Control plane (milan_csr)](#4-control-plane-milan_csr)** -- One AXI4-Lite window, sorted by direction: `o_*` configuration out, `i_*` status back, single-cycle command strobes, one IRQ line. Carries the boot ordering that bites: the descriptor image must be in DRAM at its compile-time base before the entity is enabled, and the enable is now *either* `PP_CTRL[0]` or the historic `ADP_CTRL.en`. Also the boundary that trips people up: the ring-DMA engines live in a separate LiteX CSR space at `0xf000_xxxx`.
 - **[5. Clock domains & CDC](#5-clock-domains--cdc)** -- The domain table plus the generated crossing census, and the two things to read off it: every `sys ⇄ cd_milan` crossing comes from `add_milan_datapath()` (a hand-rolled extra is a bug), and the census is a *lower* bound. A bare assignment between clocked processes is invisible to it and to simulation alike.
 - **[6. HDL ↔ software mapping](#6-hdl--software-mapping)** -- One row per concern joining a CSR group to the driver entry point and the device-tree property that binds them, so you can trace a feature end to end without opening three repos.
@@ -135,7 +135,7 @@ milan-fpga/
 │  ├─ ieee1722/              aaf/ (AAF packetize/depacketize, I2S/TDM capture+render,
 │  │                         PCM ring/LPF/route) · avtp/ (parsers, stream table, RX
 │  │                         monitor) · crf/ (CRF RX/TX + the MMCM-DRP and media-NCO
-│  │                         servos, both structurally off — §3.2) · maap/
+│  │                         servos, both structurally off -- Section 3.2) · maap/
 │  ├─ ieee17221/             adp/ — `adp_tx_arbiter.sv` ONLY, a generic 2-in/1-out
 │  │                         AXIS merge the data lane uses too. The advertiser, the
 │  │                         ADP parser, the whole AECP/AEM engine and both ACMP
@@ -162,7 +162,7 @@ milan-fpga/
 ```
 
 > Per-module detail for the `hdl/` tree:
-> [../fpga/FPGA_DESIGN.md](../fpga/FPGA_DESIGN.md) §2.
+> [Section 2 of ../fpga/FPGA_DESIGN.md](../fpga/FPGA_DESIGN.md#2-module-inventory-from-the-rtl-banners-refreshed-2026-08-13).
 
 ## 2. System block diagram (fully-FPGA softcore)
 
@@ -399,8 +399,8 @@ Crossings: `sys ⇄ cd_milan` at the boundary (AXI-Lite async-FIFO CDC, AXIS
 stream CDCs, IRQ 2-FF - all generated by `add_milan_datapath()`);
 `axis_clk ⇄ gtx_clk` inside the datapath (`ptp_csr_sync` for CSR↔PHC,
 `cdc_pulse`/`cdc_handshake` in `ptp_ts_core`). Full inventory:
-[../fpga/FPGA_DESIGN.md](../fpga/FPGA_DESIGN.md) §3; constraint rules when
-porting: [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) §4.5.
+[Section 3 of ../fpga/FPGA_DESIGN.md](../fpga/FPGA_DESIGN.md#3-clock-domains--cdc-complete-inventory); constraint rules when
+porting: [Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#45-timing-constraints-translate-dont-skip).
 
 ## 6. HDL ↔ software mapping
 

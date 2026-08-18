@@ -170,7 +170,7 @@ estimates, both anchored on real Vivado reports:
 
 * **Vivado-to-Vivado.** The shipping 8×8 bitstream (4-queue map) placed at
   **15 839 / 15 850 slices** — 99.93 %, 11 slices spare
-  ([historical NxN architecture](../NXN_ARCHITECTURE.md) §6.2). The 6-queue build needed
+  ([Section 6.2 of the historical NxN architecture](../NXN_ARCHITECTURE.md#62-lever-3-priced-is-removing-the-render-lpf-worth-it-2026-07-26)). The 6-queue build needed
   `15850 − 11673 + 11955` = **16 132** slices. That is **+293 slices for +2
   queues ≈ 147 slices per queue**, so dropping one gives back **≈ 147** — barely
   half the 282 needed. (Caveat: the 6-queue round also added the DMAC control
@@ -186,7 +186,7 @@ required**, and the estimate anchored on real Vivado numbers sits at the
 place.**
 
 **Both follow-on levers have since been spent (2026-07-27,
-[historical NxN architecture](../NXN_ARCHITECTURE.md) §6.3), so the 5-queue map no
+[Section 6.3 of the historical NxN architecture](../NXN_ARCHITECTURE.md#63-area-round-2026-07-27-logic-levers-measured-no-vivado)), so the 5-queue map no
 longer stands alone.** `LPF_P = 0` (**428 LUT / 756 FF ≈ 109 slices**, the
 shipping 8×8 place report's own row) is now declared in
 `board.constraints.render_lpf` of the `ax7101` config and rides `sweep.sh`
@@ -211,7 +211,7 @@ Stated plainly, because the numbers above are easy to over-read:
   for the 5-queue map. The slice figures are converted from yosys cell counts
   or inferred from two earlier Vivado reports. **A 55-minute build is the only
   thing that settles whether this places.** `LPF_P = 0` and the four logic
-  levers of §6.3 are already in the shipping argv, so that build is the one to
+  levers of Section 6.3 are already in the shipping argv, so that build is the one to
   run — there is no second lever left to hold back for a retry.
 * **The two Vivado reports being differenced are not the same design.** The
   shipping 8×8 place report is a 4-queue build; the failing report is a
@@ -379,7 +379,7 @@ and its `calc_hi_credit`/`calc_lo_credit` companions
 
 Σ = 725 Mb/s = **72.5 %** of the port rate, under the 75 % `REQ-CBS-03`
 ceiling, and the shaped pair alone is 600 Mb/s = 60 %, comfortably inside the
-802.1Q-2018 §34.3.1 ceiling that actually constrains SR classes. Every class
+802.1Q-2018 Section 34.3.1 ceiling that actually constrains SR classes. Every class
 keeps the share it had at six queues; the spare's 2.5 % is **left
 unallocated**, because `REQ-CBS-03` is a ceiling rather than a target and
 handing it to best effort would change a live class's provisioning for no
@@ -403,15 +403,15 @@ read that as a bug and "fix" it. It is not a bug, and it is not a preference —
 it is a correctness requirement:
 
 * **802.1Q credit-based shaping assumes the shaped queues are the top of the
-  strict-priority order.** The credit accounting in 802.1Q-2018 §8.6.8.2 bounds
+  strict-priority order.** The credit accounting in 802.1Q-2018 Section 8.6.8.2 bounds
   the class-A latency by reasoning about how long a shaped queue can be kept
   from transmitting: at most one maximum-length frame from a lower-priority
   queue, plus the queues above it that the standard *knows about*. A strict-
   priority queue placed **above** the shaped classes can preempt a class-A frame
   whose credit is already earned, for an amount of time the credit model does
   not account for. The shaper still runs, but the guarantee it computes is no
-  longer the guarantee the network gets. In the USER's words: *"CBS is not
-  working with something with higher priority."*
+  longer the guarantee the network gets. In short: a CBS guarantee does not
+  survive an unshaped higher-priority queue sitting above the shaped classes.
 * **gPTP does not need to be on top, because it is not timed by when it
   leaves.** Every event message is hardware-timestamped at the **egress SFD**
   in `ptp_ts_top`, downstream of this arbiter. A queueing delay therefore
@@ -447,11 +447,11 @@ it is the property this whole ordering argument rests on. It is gated in
 
 | Check | Clause | Result |
 |-------|--------|--------|
-| **Bandwidth availability.** Σ idleSlope over the SR classes, and over every queue, at both link rates | §34.3.1 / `REQ-CBS-03` | SR A+B = **600 Mb/s = 60 %** of 1 Gb/s; all five = **725 Mb/s = 72.5 %** at 1 G and 72.5 % at 100 M. Class A's slope must also exceed class B's. Read out of `ethernet_packet_pkg` **and** out of the `0x400` CSR window, so the package and the registers cannot drift apart. |
-| **The shaped class and best effort share the port.** q4 shaped and permanently backlogged, q0 unshaped and permanently backlogged | §8.6.8.2 | q4 outranks q0 absolutely, so only the credit gate can stop it — and it does: **11.97 / 22.91 / 47.04 %** of the port at idleSlope 100 / 200 / 450 Mb/s, q0 taking the rest. Neither queue is ever starved, and the split is monotone in idleSlope. (Pre-debt-law these read 13.70 / 30.11 / 90.82 % — the `REQ-CBS-07` over-delivery.) |
+| **Bandwidth availability.** Σ idleSlope over the SR classes, and over every queue, at both link rates | Section 34.3.1 / `REQ-CBS-03` | SR A+B = **600 Mb/s = 60 %** of 1 Gb/s; all five = **725 Mb/s = 72.5 %** at 1 G and 72.5 % at 100 M. Class A's slope must also exceed class B's. Read out of `ethernet_packet_pkg` **and** out of the `0x400` CSR window, so the package and the registers cannot drift apart. |
+| **The shaped class and best effort share the port.** q4 shaped and permanently backlogged, q0 unshaped and permanently backlogged | Section 8.6.8.2 | q4 outranks q0 absolutely, so only the credit gate can stop it -- and it does: **11.97 / 22.91 / 47.04 %** of the port at idleSlope 100 / 200 / 450 Mb/s, q0 taking the rest. Neither queue is ever starved, and the split is monotone in idleSlope. (Pre-debt-law these read 13.70 / 30.11 / 90.82 % -- the `REQ-CBS-07` over-delivery.) |
 | **Non-vacuity.** Same stimulus with CBS switched off | — | q4 takes **100.00 %**. So the split above *is* the shaper, not the arbiter and not the harness. |
-| **gPTP is not starved by a saturating class A** | §8.6.8.2 | 52.96 % of the port under the debt law (the shaped class no longer over-consumes), worst gap 3.07 µs — see above. |
-| **Admission.** A reservation whose slope would break the ceiling is refused | §34.3.1 | Was `KL_lwsrp_bw_gate`, which carried the 750e6 / 75e6 limits in RTL and tore down an over-budget TSpec on a live reservation — **that block and its suite are deleted (2026-08-13)**; admission is now the protocol processor's `KL_srp_admission`, which walks its sources and latches the grant, the granted slope and the running Σ together at round end. The config side is unchanged: builder gate 18d rejects an over-subscribed class-A request before a bitstream exists. |
+| **gPTP is not starved by a saturating class A** | Section 8.6.8.2 | 52.96 % of the port under the debt law (the shaped class no longer over-consumes), worst gap 3.07 µs -- see above. |
+| **Admission.** A reservation whose slope would break the ceiling is refused | Section 34.3.1 | Was `KL_lwsrp_bw_gate`, which carried the 750e6 / 75e6 limits in RTL and tore down an over-budget TSpec on a live reservation -- **that block and its suite are deleted (2026-08-13)**; admission is now the protocol processor's `KL_srp_admission`, which walks its sources and latches the grant, the granted slope and the running Σ together at round end. The config side is unchanged: builder gate 18d rejects an over-subscribed class-A request before a bitstream exists. |
 
 **The reservation is honoured and wire-time paced** (`REQ-CBS-07` closed, the
 gh #63 I5 debt law): each CBS carries a per-queue Q16 wire-time debt — bytes
@@ -534,7 +534,7 @@ never backlogged and its NAPI never competes with a 1500 B burst.
 
 **Per-board `rx_queues`.** The correct value is now **2 on both boards**: with
 `rx_queues = 1` there is no steer block at all and PTP shares q0 with bulk, so
-the directive is simply not implemented on that build. The Arty config already
+PTP steering is simply not implemented on that build. The Arty config already
 carries 2. The AX7101 8x8 config ships **1** because that is the layout its
 *flashed* boot chain maps — flipping it moves every DMA window from `dma-ts`
 onward by `0x74`, which the builder refuses against a pinned `boot_chain_pin`

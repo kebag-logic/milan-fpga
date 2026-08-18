@@ -17,7 +17,7 @@ multi-stream fabric and ALSA lane. Status: **AS BUILT**.
 >   until AECP or software writes it. Nonvolatile replay remains open in
 >   issue #70.
 >
-> §7 records the implemented validation and projection contract.
+> Section 7 records the implemented validation and projection contract.
 
 Companion docs: [`docs/overview/FULL_FPGA_SOLUTION.md`](overview/FULL_FPGA_SOLUTION.md)
 (current system integration), [`docs/ENDSTATION_BUILDER.md`](ENDSTATION_BUILDER.md) (D1: one
@@ -45,9 +45,9 @@ the-private-test-repo `fpga/docs/ALSA_DRIVER_DESIGN.md` (driver side).
 
 | # | Fact | Where verified |
 |---|------|----------------|
-| G1 | Depacketizer PCM output is a 64-bit AXIS master, one frame per AAF PDU, payload in **wire byte order = S32BE interleaved PCM**, always full 8-byte beats, with `m_axis_tuser[3:0]` = stream index `s` riding each buffered frame | [`hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv`](../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv) (header + ports 89–99; "wire byte order = S32BE interleaved PCM", "NXN §1.2: {tuser=s} rides each buffered frame") |
+| G1 | Depacketizer PCM output is a 64-bit AXIS master, one frame per AAF PDU, payload in **wire byte order = S32BE interleaved PCM**, always full 8-byte beats, with `m_axis_tuser[3:0]` = stream index `s` riding each buffered frame | [`hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv`](../hdl/ieee1722/aaf/KL_aaf_rx_depacketizer.sv) (header + ports 89–99; "wire byte order = S32BE interleaved PCM", "NXN Section 1.2: {tuser=s} rides each buffered frame") |
 | G2 | Packetizer input is the pair stream `{pair_valid_i, pair_slot_i[4:0], pair_l_i[23:0], pair_r_i[23:0]}`; the pair-slot space is partitioned by a **prefix sum of chans/2** (`pbase_w[t+1] = pbase_w[t] + chans_r[t][3:1]`, `logic [5:0] pbase_w`). Talker `t` owns pair slots `[pbase(t), pbase(t)+chans/2)` | [`hdl/ieee1722/aaf/KL_aaf_packetizer.sv`](../hdl/ieee1722/aaf/KL_aaf_packetizer.sv) input port and `pair_base` block |
-| G3 | **`pair_slot_i` is 5 bits and addresses all 32 pair slots required by 8 streams with 8 channels each.** The internal ownership compare zero-extends it against `pbase_w[5:0]` (§4.3) | `KL_aaf_packetizer.sv` (`input wire [4:0] pair_slot_i`) and the `[5:0]` prefix sum |
+| G3 | **`pair_slot_i` is 5 bits and addresses all 32 pair slots required by 8 streams with 8 channels each.** The internal ownership compare zero-extends it against `pbase_w[5:0]` (Section 4.3) | `KL_aaf_packetizer.sv` (`input wire [4:0] pair_slot_i`) and the `[5:0]` prefix sum |
 | G4 | The capture family shares the five-bit pair-stream contract across `KL_tdm_capture`, `KL_aaf_capture_i2s`, `KL_pcm_tx`, `cdc_pair_fifo`, the capture map, and `KL_aaf_packetizer` | module headers and the current root wiring |
 | G5 | The I2S render path already keeps a latest-sample discipline: `KL_i2s_playback` re-strides the AXIS tap by the **wire-truth** channel count (`wire_chans_i`, "0 until first accept -> 2"), repeats the last pair on underrun, and its physical render is 2-channel (stream ch0/ch1, extras virtual) | [`hdl/ieee1722/aaf/KL_i2s_playback.sv`](../hdl/ieee1722/aaf/KL_i2s_playback.sv) header + walker |
 | G6 | `milan_csr` plain-RW readback is a **512-word shadow BRAM covering 0x000–0x7FF only**: `shadow_ram[0:511]`, write gate `wr_fire && !(|wr_addr[ADDR_WIDTH-1:11])`, word address `wr_addr[10:2]` / `rd_addr[10:2]` (milan_csr.sv ~1173–1201). A 0x900 address has bit 11 set → it can never be shadow-served (it would alias word 0x100) | [`hdl/common/csr/milan_csr.sv`](../hdl/common/csr/milan_csr.sv) `shadow_mem` block |
@@ -95,7 +95,7 @@ convention — this is where each one is fixed, at the 8×8 shape
 | TX pair slots | **32** (8 talkers × 4 pairs) | `KL_chan_map_capture` `N_SLOTS_P = N_STREAMS*4` |
 | TDM capture pair sources | **4** | `N_TDM_P = 8` → `N_TDM_PAIRS_C = N_TDM_P/2` |
 | ALSA ring pair sources | **16** | `N_RING_P = 16` |
-| Map entry width in the RAMs | **8 bits** each side | `map_wr_data_i [7:0]` on both map modules (§5) |
+| Map entry width in the RAMs | **8 bits** each side | `map_wr_data_i [7:0]` on both map modules (Section 5) |
 
 ## 2. ALSA topology + per-stream ring ABI (decided; unchanged ABI)
 
@@ -167,13 +167,13 @@ monitor context, the G5 rule generalized per stream): half-beat position
 
 **Output:** on each media tick (the 48 kHz audio-MMCM grid), for each
 physical output channel `p ∈ 0..9`, the xbar reads its map word
-(§5) and emits `MAP.EN ? cur_sample[MAP.IDX_HI][MAP.IDX_LO] : 24'd0`
+(Section 5) and emits `MAP.EN ? cur_sample[MAP.IDX_HI][MAP.IDX_LO] : 24'd0`
 toward the physical serializers:
 
 | Physical channel | Sink |
 |---|---|
 | 0, 1 | I2S-out L/R (`KL_i2s_playback` serializer path, CS4344) |
-| 2..9 | TDM8-out lane 0, slots 0..7 (`KL_tdm_render`, §8) |
+| 2..9 | TDM8-out lane 0, slots 0..7 (`KL_tdm_render`, Section 8) |
 | 10..15 | reserved (map entries exist, read 0 / no sink) |
 
 **Semantics (normative):**
@@ -187,7 +187,7 @@ toward the physical serializers:
   Worst-case remap latency = one sample period.
 - The xbar never backpressures the AXIS tap (G1's tap discipline) and
   adds no per-stream FIFOs: the latch array IS the rate decoupling
-  (§9).
+  (Section 9).
 
 The existing 2-channel playback walker inside `KL_i2s_playback` is
 subsumed: phase-1 integration feeds the I2S serializer's pair CDC from
@@ -197,7 +197,7 @@ underrun/overrun rails and prefill semantics are kept at the CDC).
 ## 4. CAPTURE mux contract (`KL_chmap_capture`, phase-1 name)
 
 *Built as `KL_chan_map_capture.sv`.* The question here is the mirror of
-§3: **what can feed talker pair slot `k`, and what happens to a slot that
+Section 3: **what can feed talker pair slot `k`, and what happens to a slot that
 is not enabled?**
 
 ```mermaid
@@ -245,7 +245,7 @@ Stream Output to be streaming AVTP packets for as long as it declares
 Talker Advertise and sees a Listener Ready — with no STREAMING_WAIT to
 fall back on. So an unmapped channel owes the wire silence, inside a
 frame that still goes out. `KL_pair_zero_fill` guarantees exactly this
-for the front-end path, but §4 muxes it out whenever the crossbar is
+for the front-end path, but Section 4 muxes it out whenever the crossbar is
 armed, so nothing else was covering it.
 
 ### 4.1 Model
@@ -263,7 +263,7 @@ rings, up to 4 pairs per talker stream, `KL_pcm_tx` — G4), `TONE`
 
 **State:** per-source latest-pair latch registers (`cur_pair[src]`),
 written on each source `pair_valid` pulse — the same latest-sample
-discipline as §3, so arbitrary fan-out (many slots selecting one source
+discipline as Section 3, so arbitrary fan-out (many slots selecting one source
 pair) costs nothing.
 
 **Output pacing:** on each media tick the mux walks all 32 pair slots
@@ -307,7 +307,7 @@ side, for the 8×8 shape:
 | 6 | 24–27 | 6 | 12, 13 |
 | 7 | 28–31 | 7 | 14, 15 |
 
-The `C` = 8 column is the one the §12.1 walk recipe means by "slots
+The `C` = 8 column is the one the Section 12.1 walk recipe means by "slots
 `4j..4j+3`". Note that a *non*-uniform `chans` configuration invalidates
 the closed form and only the prefix sum holds — which is why the map is
 programmed per slot and never per stream.
@@ -324,7 +324,7 @@ programmed per slot and never per stream.
 store holds one entry per **stream channel** (`2*N_SLOTS_P` entries);
 every Stream Output channel independently selects any source pair and
 either half of it. The walk still drains pair slots (the packetizer
-contract is pair-granular, §4.3) but resolves L and R through two
+contract is pair-granular, Section 4.3) but resolves L and R through two
 independent entries.
 
 The pair-granular store this section used to specify forced two vendor
@@ -372,7 +372,7 @@ CHANNEL.
 
 | RAM | Entries | Entry index |
 |-----|---------|-------------|
-| `RMAP` (render) | 16 × 16 b | physical output channel `p` (0..15; 10 used, §3) |
+| `RMAP` (render) | 16 × 16 b | physical output channel `p` (0..15; 10 used, Section 3) |
 | `CMAP` (capture) | `2*N_SLOTS_P` × 13 b | **stream channel key** `port*8 + sc` (pair slot `k` walks entries `2k`/`2k+1`) |
 
 **RENDER word format (unchanged, normative):**
@@ -393,7 +393,7 @@ CHANNEL.
 [12]    EN      channel mapped; 0 = this stream channel emits silence
 [11]    HALF    which half of the source pair feeds this channel:
                 0 = L (first/even), 1 = R (second/odd). Any channel may
-                take either half of any pair - the §4.2 freedom.
+                take either half of any pair - the Section 4.2 freedom.
 [10:8]  SRC     0 = ZERO, 1 = I2S_IN, 2 = TDM8_IN, 3 = PCM_TX (host
                 ring), 4 = TONE (mono - both halves carry the pilot),
                 5 = LOOP (rx->talker, task #65); 6-7 reserved
@@ -432,7 +432,7 @@ recipe needs to know why the recipe no longer applies:
   seeder lived in the AEM store and is deleted: **`CMAP` now resets all-zero
   and stays there until software writes it.** The power-on map is not the
   identity image any more, it is *nothing* — which is why the front-end path
-  (not the crossbar) is what the packetizer sees at reset (§6).
+  (not the crossbar) is what the packetizer sees at reset (Section 6).
 - **`GET_AUDIO_MAP` agreeing with the capture-map RAM proves the served view,
   not an independent projector**: the getter reads the same live RAM that the
   CSR path writes. A key shift could therefore move both views together and
@@ -445,7 +445,7 @@ encoding. A successful `ADD_AUDIO_MAPPINGS` transaction writes the addressed
 channel's encoded source and `REMOVE` clears it. The `0x900` window can write
 the same entry format as a local override. Readback adds
 `{loop_fed, loop_mapped}` above the
-entry (15 bits, §6). Hex stays bench-readable: `0x1B01` = EN | R half |
+entry (15 bits, Section 6). Hex stays bench-readable: `0x1B01` = EN | R half |
 PCM_TX | pair 1. Illegal encodings (reserved SRC, out-of-range index for the
 elaborated shape) behave as `EN = 0` — never a lockup, RTL-enforced.
 
@@ -491,7 +491,7 @@ Worked examples, hex as typed at the bench:
 | `0x9002` | render | `0xC2` | EN, playback ring, linear `pbch` 2 = pair slot 1 LEFT |
 | `0x9000` | capture | `0x1100` | EN, `I2S_IN` L, pair 0 onto THIS channel — the legacy wiring, one channel at a time |
 | `0x9100` | capture | `0x1900` | EN, `I2S_IN` R, pair 0 — the same source's other half |
-| `0xC000` | capture | `0x1400` | EN, `TONE` — the §12 pilot, mono so `HALF` is moot |
+| `0xC000` | capture | `0x1400` | EN, `TONE` -- the Section 12 pilot, mono so `HALF` is moot |
 | `0xB000` | capture | `0x1300` | EN, host ring pair 0, L half |
 | `0x8000` | capture | `0x1000` | EN, `ZERO` — a channel that pulses digital silence |
 
@@ -537,7 +537,7 @@ same rule `KL_chan_map_render` and `KL_i2s_playback` apply.
 
 so the word is `0xD000 | (half << 8) | (s << 4) | p`. An entry naming a
 stream or a pair this build does not keep renders **silence** and still
-pulses its slot (the §4 "two ways to be silent" rule); `EN = 0` remains
+pulses its slot (the Section 4 "two ways to be silent" rule); `EN = 0` remains
 absence.
 
 **Why this source exists.** It is the only per-channel-**distinct**,
@@ -582,7 +582,7 @@ reserved to this feature, 5 words used):
 |--------|------|-----|-------|--------|
 | `0x900` | `CHMAP_CTRL` | RW | `0` | `[0]` csr_write_en — arms the `CHMAP_WORD` write window; while 0, `CHMAP_WORD` writes are ignored. **It is also the crossbar routing arm** (see the note below). Readback live |
 | `0x904` | `CHMAP_SEL` | RW | `0` | `[5:0]` entry index, `[8]` side (0 = RMAP/render, 1 = CMAP/capture). Out-of-range entries read 0, writes ignored (the 0x800-window out-of-range rule) |
-| `0x908` | `CHMAP_WORD` | RW | — | `[15:0]` the §5 map word of the selected entry. Write: commits through the shared write port (requires `CHMAP_CTRL[0]`; refused while an AEM burst holds the port). Read: **as built, this is `milan_csr`'s own SHADOW of the last word software wrote — not the RAM.** The "entry's CURRENT word" this row originally specified is served by `CHMAP_LOOP` `0x914` instead (VERSION `0x0017`), as a new register rather than a semantic change to `0x908`, so the existing ABI is untouched |
+| `0x908` | `CHMAP_WORD` | RW | -- | `[15:0]` the Section 5 map word of the selected entry. Write: commits through the shared write port (requires `CHMAP_CTRL[0]`; refused while an AEM burst holds the port). Read: **as built, this is `milan_csr`'s own SHADOW of the last word software wrote -- not the RAM.** The "entry's CURRENT word" this row originally specified is served by `CHMAP_LOOP` `0x914` instead (VERSION `0x0017`), as a new register rather than a semantic change to `0x908`, so the existing ABI is untouched |
 | `0x90C` | `CHMAP_STAT` | RO | `0` | `[15:0]` committed CSR override writes (wraps); `[23:16]` CSR writes refused while disarmed (saturates). AEM transaction state is internal and is not counted in this CSR register |
 | `0x910` | `CHMAP_SNAP` | W1S / RO | `0xC500_0000` | **LANDED, VERSION `0x0017`.** W `[0]` arm a readback of the entry named by `CHMAP_SEL`; R busy/valid/timeout/unsupported/armed + the `CHMAP_RDBK_P` capability in `[9:8]` + the latched `{side,index}` + a constant `0xC5` tag. Full fields in [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) |
 | `0x914` | `CHMAP_LOOP` | RO | `0xDEAD_DEAD` | **LANDED, VERSION `0x0017`.** The word the map RAM *actually holds* — the "shadow readback" this section always promised, finally served from the RAM read port rather than from `0x908`'s copy of what software wrote. `[18]` `LOOP_SUSPECT` = mapped & ~fed. Un-armed reads `0xDEADDEAD`, never `0` (`0` is a legal map entry) |
@@ -731,9 +731,9 @@ is therefore the mapping-presence authority used by GET and conflict checks.
 Output GET uses one fixed subset because at most eight Stream Output channels
 can be mapped, independent of how many selectable clusters the port publishes.
 
-**Timing:** the projector writes map words through the §5 arbitrated
+**Timing:** the projector writes map words through the Section 5 arbitrated
 port as a short burst (`aem_busy` in `CHMAP_STAT`); fabric effect lands
-at the next media tick (§3/§4 tick sampling). The AECP response is sent
+at the next media tick (Sections 3/4 tick sampling). The AECP response is sent
 after the burst commits (the store and the projection never diverge
 observably).
 
@@ -805,7 +805,7 @@ and the `CHMAP_PHYS_C` blend layout — all three enumerated in the
   internal audio MMCM clock. The root pins the CRF selection to INTERNAL, so
   the exported AECP clock-source selection does not enable the MMCM-DRP or NCO
   servos. There is **no per-stream SRC in phase 1**.
-- The latch arrays (§3 `cur_sample`, §4 `cur_pair`) implement
+- The latch arrays (Section 3 `cur_sample`, Section 4 `cur_pair`) implement
   **latest-sample semantics**: at each media tick every consumer reads
   the newest value ≤ 1 sample old. Bounded inter-stream phase skew is
   absorbed; a stalled/unbound source simply holds its last value
@@ -828,7 +828,7 @@ and the `CHMAP_PHYS_C` blend layout — all three enumerated in the
   wipe so no stale samples replay on a rebind. See the
   `KL_chan_map_capture` LOOP QUEUE banner and [`tb/verilator/milan_dp`](../tb/verilator/milan_dp)
   [T68].
-- Remap effect point = media tick (§3/§4): switching sources produces
+- Remap effect point = media tick (Sections 3/4): switching sources produces
   at worst one sample-step discontinuity; no ramping in phase 1.
 
 ## 10. Phase-2 appendix: fabric 64-ch composed device
@@ -839,12 +839,12 @@ composer that presents one contiguous 64-ch ALSA view (single ring)
 built from all 8 streams. It reuses THIS map infrastructure unchanged
 in kind:
 
-- The §5 word format already carries what composition needs
+- The Section 5 word format already carries what composition needs
   (`SRC/IDX_HI/IDX_LO`); phase 2 only *widens the entry spaces* (RMAP
   grows past 16 entries to cover composed-device channels; CMAP's
   capture side gains `SRC = AVTP_RX` for stream→stream bridging).
 - The 0x910–0x97C reserved window hosts the composed-device controls.
-- The pair-granularity restriction (§4.2) is dropped (per-channel
+- The pair-granularity restriction (Section 4.2) is dropped (per-channel
   capture staging).
 
 Nothing in phase 1 may assume the map RAM is consulted only by the two
@@ -852,13 +852,13 @@ phase-1 engines.
 
 ## 11. Integration checklist (order matters)
 
-1. **Pair-slot widening (§4.3)** — `[3:0]` → `[4:0]` through
+1. **Pair-slot widening (Section 4.3)** -- `[3:0]` → `[4:0]` through
    `KL_aaf_packetizer` / `KL_aaf_capture_i2s` / `KL_tdm_capture`
    (CDC 52→53 b) / `KL_pcm_tx`; N=1 golden byte-compare TBs must stay
    green untouched.
 2. **Capture mux in** — insert `KL_chmap_capture` between the
    front-ends and the packetizer; front-ends drop to local pair
-   numbering; CMAP reset value reproduces today's wiring (§5). TB:
+   numbering; CMAP reset value reproduces today's wiring (Section 5). TB:
    tick-paced walk, fan-out, disabled-slot silence, slot-structural
    alignment under drops.
 3. **Render xbar in** — `KL_chmap_render` on a depacketizer AXIS
@@ -870,13 +870,13 @@ phase-1 engines.
    **`rd_in_window` 0x900–0x97F term (G7 — the dead-read trap)**; NOT
    in `is_plain_rw` (G6). [`REGISTER_MAP.md`](reference/REGISTER_MAP.md) group row + VERSION minor
    bump. TB: csr harness window rows incl. the ≥0x800 read gate.
-5. **TDM8 render lane merge** (§8) — parallel lane lands
+5. **TDM8 render lane merge** (Section 8) -- parallel lane lands
    independently; until merged, RMAP entries 2..9 are writable but
-   sink-less (harmless by §3 semantics).
+   sink-less (harmless by Section 3 semantics).
 6. **AEM projector** -- commit path from the AECP audio-map verbs to the
    arbitrated map write port; cluster↔physical ROM emitted by the builder;
-   GET_AUDIO_MAP from the dynamic store (§7.1); the surviving vendor rules
-   (§7.3). **Implemented 2026-08-17.** The processor stages and validates the
+   GET_AUDIO_MAP from the dynamic store (Section 7.1); the surviving vendor rules
+   (Section 7.3). **Implemented 2026-08-17.** The processor stages and validates the
    complete command, while the root transaction server enforces live ownership
    and commits the render or capture updates atomically. The `pp_top` and root
    8x8 regressions grade both sides of the interface.
@@ -953,9 +953,9 @@ per-stream arming the walk was missing.
 1. Stage talker context *j* through the `0x800` window (`SID`, `DMAC` =
    MAAP base + j, `CTRL`), **with the lwSRP engine on** - engine-off window
    writes are dropped, and the arm truth is a snapped
-   `A_STRMW_STATE 0x82C[3]` ([TROUBLESHOOTING §22](limitations/TROUBLESHOOTING.md)).
+   `A_STRMW_STATE 0x82C[3]` ([TROUBLESHOOTING Section 22](limitations/TROUBLESHOOTING.md)).
 2. Bind the listener to talker uid *j* with one controller `CONNECT_RX`
-   ([PipeWire peer guide](integration/PIPEWIRE_AVB_PEER.md) §6). The probe
+   ([Section 6 of the PipeWire peer guide](integration/PIPEWIRE_AVB_PEER.md#6-the-peer-as-an-atdecc-controller-2026-07-26)). The probe
    response carries `dmac = base + j`; capture that line - it is the
    per-stream evidence.
 3. Walk slots `4j..4j+3` through the `0x900` window: all-on, pair-bit0,
@@ -966,7 +966,7 @@ per-stream arming the walk was missing.
 **Still missing: a listener window wider than one pair.** A single 2-channel
 ring shows pair 0 of the bound stream only, so pairs 1-3 of each stream stay
 covered by the crossbar + packetizer frame-placement TB proof rather than by
-direct observation (the honest scope statement of §12 still stands). Closing
+direct observation (the honest scope statement of Section 12 still stands). Closing
 it needs the NxN ring engine or an 8-channel ALSA capture on a refreshed
 listener image.
 

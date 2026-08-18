@@ -121,7 +121,7 @@ version register to prove it rather than assuming.
 
 Before a lane reports done:
 
-1. **Every check it adds names its level and its oracle** (§2), and cites the
+1. **Every check it adds names its level and its oracle** (Section 2), and cites the
    clause it derives from (R3).
 2. **Coverage at L0 that matches the property's shape** (R4) — nominal, boundary
    and negative cases, with the negative case demonstrated to fail (R2).

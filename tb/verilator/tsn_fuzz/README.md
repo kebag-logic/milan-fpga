@@ -176,7 +176,7 @@ Printed as `[GAP ]` and listed in each campaign's summary.
 > The second is tracked as #48.
 
 1. **`LOCK_ENTITY` ignores `descriptor_type`/`descriptor_index`** and answers
-   SUCCESS for any value; §7.4.2 scopes LOCK to the ENTITY descriptor, so a
+   SUCCESS for any value; Section 7.4.2 scopes LOCK to the ENTITY descriptor, so a
    foreign descriptor should draw `NO_SUCH_DESCRIPTOR`. Sibling
    `ACQUIRE_ENTITY` answers `NOT_SUPPORTED` and is unaffected. Low impact —
    every real controller sends `ENTITY/0`.

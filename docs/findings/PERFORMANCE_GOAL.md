@@ -99,7 +99,7 @@ close-meta (CQ_FILL). Driver: lost-edge IRQ race closed (PLIC edge + re-enable r
 rode the 5 ms idle poll; p90 5.5 ms stalls measured, re-check after enable_irq).
 
 **Silicon: no-copy ceiling (MSG_TRUNC −P2) 458 → 925 Mbit (~93% of line rate, 2×);
-coalesce ratio 10.6 → 22.8 segs/agg; TX −P4 513 (no regression); §V storm 5 rounds mixed
+coalesce ratio 10.6 → 22.8 segs/agg; TX −P4 513 (no regression); Section V storm 5 rounds mixed
 3-flow 620–668 Mbit aggregate, drops delta 0, canary 0.**
 
 **⚠ Transient vs steady (measure-don't-assume, applied to ourselves AGAIN)**: every
@@ -119,7 +119,9 @@ Honest R2 @100 MHz ledger: steady RX ~390–410, transient-drain proof ≥520, c
 
 **R3 (112.5 MHz sys on the R2 keeper) + R3b (112.5 + `--lsu-rpt-block-ahead-max=8`)  - 
 both building.** Needed for >500 steady: +25 % over 400  -  clock gives ~+8–12 %, rpt-8
-attacks the copy's cold-read rate (cpu1 is pure copy). Expected: R3 ~430–450, R3b TBD.
+attacks the copy's cold-read rate (cpu1 is pure copy). Expected: R3 ~430–450.
+Outcome: R3b measured FLAT -- rpt-ahead-8 returned no gain (the headroom
+chapter, R-4), and the campaign closed on header-split instead.
 
 **North star for the performance campaign on the fully-FPGA Milan NIC** (Alinx AX7101,
 dual VexiiRiscv RV64IMA @100 MHz, 64-bit datapath, MTU 1500 everywhere).
@@ -221,7 +223,7 @@ runs clean (192/145/112/142/196 Mbit, canary 0, drops 4792). Full record:
 [`historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md`](../../historical_now_obsolete/findings/RX_OVERLOAD_WEDGE.md).
 
 
-⁵ **RX memory levers, MEASURED 2026-07-08** ([`historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md`](../../historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md) + [`docs/fpga/LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md)). Chain: −P2 was 238 (2-hart fan-out). (a) **64 KB L2** (`build_l2x2`) → −P2 278–280 (+17 %, L2 *capacity* lever, single flat). (b) **Non-blocking D$ alone** (`build_mlp1`, `lsuL1RefillCount=8`, 0 BRAM) → **no gain** (229≈238): on the in-order core the demand miss REDO-replays, so 8 refill slots sit empty without a filler. (c) **RPT hardware prefetcher** (`build_mlp2`, `--lsu-hardware-prefetch=rpt`, +2 BRAM tiles) *fills* the slots by stride-prefetching the payload copy → **single-flow RX 207→277 (+34 %)**, −P2 +7 %. (d) **Combination** (`build_mlp3`, refill+rpt+64 KB L2) → **−P2 298 (best, §V canary=0, split-verified)** + best TX−P4 431  -  the two levers compound (capacity + latency-hiding). RPT=single/latency, L2=aggregate/capacity. The 2-hart aggregate remains a *shared-resource* wall (~1.2× single); >500 needs more queues/harts or fewer memory touches, not more cache.
+⁵ **RX memory levers, MEASURED 2026-07-08** ([`historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md`](../../historical_now_obsolete/findings/RX_MEMORY_HIERARCHY_PLAN.md) + [`docs/fpga/LSU_NONBLOCKING_DCACHE.md`](../fpga/LSU_NONBLOCKING_DCACHE.md)). Chain: −P2 was 238 (2-hart fan-out). (a) **64 KB L2** (`build_l2x2`) → −P2 278–280 (+17 %, L2 *capacity* lever, single flat). (b) **Non-blocking D$ alone** (`build_mlp1`, `lsuL1RefillCount=8`, 0 BRAM) → **no gain** (229≈238): on the in-order core the demand miss REDO-replays, so 8 refill slots sit empty without a filler. (c) **RPT hardware prefetcher** (`build_mlp2`, `--lsu-hardware-prefetch=rpt`, +2 BRAM tiles) *fills* the slots by stride-prefetching the payload copy → **single-flow RX 207→277 (+34 %)**, −P2 +7 %. (d) **Combination** (`build_mlp3`, refill+rpt+64 KB L2) → **−P2 298 (best, Section V canary=0, split-verified)** + best TX−P4 431  -  the two levers compound (capacity + latency-hiding). RPT=single/latency, L2=aggregate/capacity. The 2-hart aggregate remains a *shared-resource* wall (~1.2× single); >500 needs more queues/harts or fewer memory touches, not more cache.
 
 **Status vs goal (>500):** **TX ✅ done (−P2 525–536). RX = 316  -  and RX > 500 is a HARD GOAL:
 the campaign does not close without it** (goal reasserted 2026-07-09 evening).
@@ -250,7 +252,7 @@ copy-tax ≈ 165 (481−316). 500 requires ceiling ≈ 550+ *and* copy-tax ≤ ~
 |---|---|---|---|---|
 | **R1  -  warm copy** (days, sw + existing bitstreams) | **`build_ddio` (exists) + SMALL receive queue** (`tcp_rmem`/`SO_RCVBUF` ≈ 24–48 KB/flow) + low `rx-usecs` (small BDP needs small RTT; threaded=0). The DDIO flat result was measured at **default rmem = 1–3 MB Recv-Q**  -  residency was impossible *by configuration*. Cap the queue so in-flight payload **fits the 64 KB L2**, and allocate-on-DMA-write finally lands warm for a copy that runs at L2 speed (~5 µs/page vs 25). Sub-options: 96 KB L2 rebuild (new justification: residency headroom, not capacity), completion-IRQ NAPI (T2, re-entered: cuts RTT → smaller BDP → tighter cap without throttling). | DDIO was never measured with a bounded residency window | perf copy-share < 25 %; **RX −P2 ≥ 380** | 316 → 380–450 |
 | **R2  -  raise the ceiling: RSC multi-slot** (RTL + driver, sim-first vs `test_ring_bd.py`) | Kill **park (58–66 % of aggregate closes)**  -  the single aggregate slot forces early closes whenever flows interleave. 2–4 slots/queue + longer `rsc_tout` ⇒ aggregates 2–3× larger ⇒ fewer skbs/GRO merges/BD reaps per byte  -  this **raises the 481 no-copy ceiling itself** (and cuts with-copy cost the same way). Buffers are DRAM-side (`KL_RSC_BUFSZ` is a driver alloc)  -  0 BRAM. | park% is a measured counter (`rsc_close park=…`), not a hypothesis | park < 10 %; **MSG_TRUNC −P2 ≥ 550**; TCP −P2 ≥ 450 with R1 | ceiling 481 → ~550+; TCP → 450–520 |
-| **R3  -  clock 112.5 MHz** (1 build, final mile) | +4–8 % measured system-wide. The earlier "stay at 100" was a *convenience* call  -  its blocker (QSPI CRC) is already fixed (1×-SPI, `a80c955`; reader-Buffer `d35f666` closes timing) | it was deprioritized, never refuted | WNS ≥ 0, QSPI boot clean, §V; **RX −P2 ≥ 500** | ×1.04–1.08 ⇒ crossing margin |
+| **R3  -  clock 112.5 MHz** (1 build, final mile) | +4–8 % measured system-wide. The earlier "stay at 100" was a *convenience* call  -  its blocker (QSPI CRC) is already fixed (1×-SPI, `a80c955`; reader-Buffer `d35f666` closes timing) | it was deprioritized, never refuted | WNS ≥ 0, QSPI boot clean, Section V; **RX −P2 ≥ 500** | ×1.04–1.08 ⇒ crossing margin |
 
 Fallbacks if a gate fails: R1-miss → 96 KB-L2 residency rebuild, then RX-scoped `allocateOnMiss`
 (only the RX writer's Puts, not all DMA); R2-miss → per-flow aggregate hashing instead of slots;
@@ -661,7 +663,7 @@ landed instead was the **aligned-copy** win predicted in the app profile below.)
   once misaligned, always misaligned.
 - **Consequence: header-split fixes the copy tax twice**  -  (a) zerocopy for full 4 K
   frags, and (b) even the *copied* fallback becomes aligned (payload at page offset 0)
-  ⇒ ~2–3× faster copies before any mmap. The 0.64 cy/B "raw copy" figure in §2 is a
+  ⇒ ~2–3× faster copies before any mmap. The 0.64 cy/B "raw copy" figure in Section 2 is a
   *misaligned* figure; the aligned budget is ~0.25–0.3 cy/B.
 - Keeper-side partial trick (rx offset +2 to align doff=5 payloads) helps only
   timestamp-less flows (doff=8 → 68%8=4)  -  not pursued; hsplit is the clean fix.

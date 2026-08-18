@@ -109,4 +109,4 @@ MILAN_TRACE(link, MILAN_TRACE_SEV_WARN, MILAN_TRACE_SRC_LINKMON,
 The board daemon: the CSR poller, the liblzma compressor, the `/user/log`
 writer and the init-script ordering all live in the private test repo. The
 boundary and a bench recipe for that half are
-[`TRACE_LOGGING.md`](../../docs/design/TRACE_LOGGING.md) §11-§12.
+[Sections 11-12 of `TRACE_LOGGING.md`](../../docs/design/TRACE_LOGGING.md#11-scope-boundary).

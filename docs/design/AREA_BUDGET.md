@@ -64,15 +64,16 @@ The current command-surface claim is checked against the
 
 ## Contents
 
-- **[The budget](#the-budget)** — The four-way split of the device: 61,959 of 63,400 LUTs used, of which the datapath is 35,113 and the CPU 16,799. Also the fact that governs every other decision on this page — FFs are only 42 %, so **the design is LUT-bound** and trading LUTs for FFs is a win.
-- **[The datapath, by block](#the-datapath-by-block)** — The leaderboard: every leaf block over 400 LUTs with its FF and BRAM cost. `KL_aecp_response_builder` at 5,300 LUTs is the single biggest thing this project owns.
-- **[What is actually optional](#what-is-actually-optional)** — Three tiers, and tier 1 is now **implemented**: six blocks behind elaboration-time prune parameters worth a measured **4,515 LUT / 4,750 FF** (yosys estimate), each defaulting to PRESENT. Contains the per-block banked-lever entries — what each costs, what it buys, what re-measurement it forces — plus the estimator result that pulling all six takes the 8x8 shape out of the OVER band, and the section you should read before quoting any of it: which of the two measurement methods to trust when they disagree.
-- **[The 9,993 LUTs outside the datapath](#the-9993-luts-outside-the-datapath)** — A sixth of the device is SoC glue — DMA writers, RX steering, CSR bridges, the MAC — and it has had **no area review at all**, despite being comparable to the whole tier-1 + tier-2 opportunity.
-- **[The memory cascade: DDR3 for FIFOs, BRAM as register file](#the-memory-cascade-ddr3-for-fifos-bram-as-register-file)** — 44 BRAM tiles are free, which reorders the work: spend them turning LUT logic into memory lookups (`milan_csr`, `u_bld`) before freeing any. Names the one FIFO that must **not** move to DDR3 — the egress queues, because a late return mid-frame is a wire underrun, not a retry.
-- **[Rules for adding a prune parameter](#rules-for-adding-a-prune-parameter)** — Five rules for the next `*_P`: default PRESENT, elaboration-time not runtime, tie outputs inert, state what re-measurement it forces, and make the builder refuse configs that want the pruned feature. How the six that exist satisfy each one is under 'The five rules, as implemented'.
-- **[What was rejected, and the numbers that killed it](#what-was-rejected-and-the-numbers-that-killed-it)** — Five roads not taken, each with the figure that closed it: pricing a prune with `-flatten` (it read a deleted 1,691-flop block as −0 FF), `chparam` to set the ship shape (it cannot re-elaborate sv2v's interface names), a runtime capability bit per block (it would owe a `VERSION` bump), and two estimator designs — one of which double-booked a pruned block at −262 LUT.
-- **[VERSION was deliberately NOT bumped](#version-was-deliberately-not-bumped)** — Why *this round* did not move `VERSION` (it was `0x0001_0014` then; a later, unrelated round took it to `0x0015`): at the default settings this round is a pure no-op parametrisation, and a bump announces *CSR-observable behaviour changed on a board that actually runs*. A build that pulls a lever changes plenty — that is declared by the config that pulled it, not by the version word.
-- **[Honest limits](#honest-limits)** — What these numbers are not. They are **yosys** synthesis, not Vivado placement; the one block with both figures shows yosys running ~2x high on LUTs; the six levers together are worth 10 % less than summing them one at a time; no pruned bitstream has been built; and the servo prune has no software-visible contrast at all at internal clock.
+- **[The budget](#the-budget)** -- The four-way split of the device: 61,959 of 63,400 LUTs used, of which the datapath is 35,113 and the CPU 16,799. Also the fact that governs every other decision on this page -- FFs are only 42 %, so **the design is LUT-bound** and trading LUTs for FFs is a win.
+- **[The datapath, by block](#the-datapath-by-block)** -- The leaderboard: every leaf block over 400 LUTs with its FF and BRAM cost. `KL_aecp_response_builder` at 5,300 LUTs is the single biggest thing this project owns.
+- **[What is actually optional](#what-is-actually-optional)** -- Three tiers, and tier 1 is now **implemented**: six blocks behind elaboration-time prune parameters worth a measured **4,515 LUT / 4,750 FF** (yosys estimate), each defaulting to PRESENT. Contains the per-block banked-lever entries -- what each costs, what it buys, what re-measurement it forces -- plus the estimator result that pulling all six takes the 8x8 shape out of the OVER band, and the section you should read before quoting any of it: which of the two measurement methods to trust when they disagree.
+- **[The 9,993 LUTs outside the datapath](#the-9993-luts-outside-the-datapath)** -- A sixth of the device is SoC glue -- DMA writers, RX steering, CSR bridges, the MAC -- and it has had **no area review at all**, despite being comparable to the whole tier-1 + tier-2 opportunity.
+- **[The memory cascade: DDR3 for FIFOs, BRAM as register file](#the-memory-cascade-ddr3-for-fifos-bram-as-register-file)** -- 44 BRAM tiles are free, which reorders the work: spend them turning LUT logic into memory lookups (`milan_csr`, `u_bld`) before freeing any. Names the one FIFO that must **not** move to DDR3 -- the egress queues, because a late return mid-frame is a wire underrun, not a retry.
+- **[Rules for adding a prune parameter](#rules-for-adding-a-prune-parameter)** -- Five rules for the next `*_P`: default PRESENT, elaboration-time not runtime, tie outputs inert, state what re-measurement it forces, and make the builder refuse configs that want the pruned feature. How the six that exist satisfy each one is under 'The five rules, as implemented'.
+- **[What was rejected, and the numbers that killed it](#what-was-rejected-and-the-numbers-that-killed-it)** -- Five roads not taken, each with the figure that closed it: pricing a prune with `-flatten` (it read a deleted 1,691-flop block as −0 FF), `chparam` to set the ship shape (it cannot re-elaborate sv2v's interface names), a runtime capability bit per block (it would owe a `VERSION` bump), and two estimator designs -- one of which double-booked a pruned block at −262 LUT.
+- **[VERSION was deliberately NOT bumped](#version-was-deliberately-not-bumped)** -- Why this lane did not move `VERSION` (it was `0x0001_0014` then; later, unrelated changes took it to `0x0015`): at the default settings the prune parametrisation is a pure no-op, and a bump announces *CSR-observable behaviour changed on a board that actually runs*. A build that pulls a lever changes plenty -- that is declared by the config that pulled it, not by the version word.
+- **[Honest limits](#honest-limits)** -- What these numbers are not. They are **yosys** synthesis, not Vivado placement; the one block with both figures shows yosys running ~2x high on LUTs; the six levers together are worth 10 % less than summing them one at a time; no pruned bitstream has been built; and the servo prune has no software-visible contrast at all at internal clock.
+- **[Change log](#change-log)** -- The dated decisions this page records, each with its engineering reason.
 
 ## The budget
 
@@ -128,7 +129,7 @@ Three lessons with mechanisms attached:
    wrong one. The NxN fabric is shape-dominated, not front-end-dominated, so
    the 63,644 post-prune figure transfers to the true shape.
 
-New tier-1 lever landed this round: **`CBS_QUEUES_MASK_P`** (derived, not
+New tier-1 lever landed with this lane: **`CBS_QUEUES_MASK_P`** (derived, not
 declared — the builder computes it from `srp.class_queue`; the SR A/B queues
 keep their `credit_based_shaper` instance, q0–q2 are strict-priority only,
 which is bit-identical to the `cbs_shaped_i = 0` state every non-SR queue has
@@ -615,7 +616,7 @@ is what belongs in DRAM.
   the patched defaults are recorded per configuration.
 * **A runtime capability bit per block** (a `STATS_CAP` for the optional
   blocks). Attractive, and it would let software distinguish "absent" from
-  "idle" at `0x8F8` and `0x870`. Rejected for this round because it is a **CSR
+  "idle" at `0x8F8` and `0x870`. Rejected here because it is a **CSR
   contract change** and would owe a `VERSION` bump at default settings, which
   this lane deliberately does not spend (see below). The declaration lives in
   the build config and in `build_plan.md` instead. It is the obvious follow-up.
@@ -645,7 +646,7 @@ is what belongs in DRAM.
 
 ## `VERSION` was deliberately NOT bumped
 
-`milan_csr` `VERSION` stayed `0x0001_0014` **for this round**. (It has since moved
+`milan_csr` `VERSION` stayed `0x0001_0014` **for this lane**. (It has since moved
 to `0x0001_0015` for an unrelated change — the ADP shape registers becoming
 read-only — and to `0x0001_0016` for another, the AVTP `tu` bit becoming driven;
 neither affects the reasoning below.) At the
@@ -690,3 +691,10 @@ byte-identical refactor.)
   measured a small-shape build.
 * The CPU is excluded by scope, not because it is optimal. It is 26.5 % of the
   device and has its own configuration surface.
+
+## Change log
+
+| Date | Change | Rationale |
+|---|---|---|
+| 2026-07-26–28 | Six prune parameters (`*_P`) landed; `VERSION` held at `0x0001_0014` | At the default settings the parametrisation is build-identical, and a version bump announces CSR-observable change on a running board; a pulled lever is declared by the config that pulled it |
+| 2026-08-13 | The 1722.1 control plane left the fabric for the protocol processor; affected rows marked REMOVED | The substitution is the architecture of record; the page keeps its 2026-07-27 measurements as a dated record rather than inventing replacement numbers |

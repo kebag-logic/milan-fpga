@@ -17,18 +17,18 @@ independent re-election of a *third-party* device as grandmaster.
 
 ## Contents
 
-- **[1. The report, and what it turned out to be](#1-the-report-and-what-it-turned-out-to-be)** — Filed as "the GM loses the election under egress load"; measured as nothing of the kind. The symptom decomposes into our own transmitter going silent, and the peers' takeover is the CONFORMANT half of the story.
-- **[2. Root cause](#2-root-cause)** — `rx_queues: 1` means no steer block exists, so gPTP shares the bulk RX ring with the flood; ptp4l starves, our Announce stops, and a conformant BMCA (802.1AS 10.3) deposes a silent claimant. Not egress, not CBS — do not chase those.
-- **[3. The evidence, five runs, with a negative control and a same-board A/B](#3-the-evidence-five-runs-with-a-negative-control-and-a-same-board-ab)** — Reproduced 2/2 under a 950M UDP flood, absent 2/2 without it, and the same board with 2 queues rides the identical flood out — the A/B that pins the queue count as the variable.
-- **[4. Hardware acceptance procedure](#4-hardware-acceptance-procedure)** — The exact iperf3/ptp4l/pmc commands, the registers to read before and after, and what a PASS looks like on the reflashed 2-queue build.
-- **[5. What the fix is, and what it is not](#5-what-the-fix-is-and-what-it-is-not)** — `rx_queues: 2` with the boot chain re-pinned (+0x74 on every window from dma-ts). It is reflash-gated by design; no runtime poke exists, and priority tweaks that "help" are the forced-win anti-pattern the GM-recovery directive forbids.
-- **[6. Tests added](#6-tests-added)** — The builder gates that refuse a queue flip under a pinned boot chain, and the bench step that runs the flood against the new build (8.3 ladder item 8).
-- **[7. Defects found outside this lane's scope — NOT fixed here](#7-defects-found-outside-this-lanes-scope--not-fixed-here)** — Recorded per methodology §5 for their own lanes, with the evidence that made each real.
+- **[1. The report, and what it turned out to be](#1-the-report-and-what-it-turned-out-to-be)** -- Filed as "the GM loses the election under egress load"; measured as nothing of the kind. The symptom decomposes into our own transmitter going silent, and the peers' takeover is the CONFORMANT half of the story.
+- **[2. Root cause](#2-root-cause)** -- `rx_queues: 1` means no steer block exists, so gPTP shares the bulk RX ring with the flood; ptp4l starves, our Announce stops, and a conformant BMCA (802.1AS 10.3) deposes a silent claimant. Not egress, not CBS -- do not chase those.
+- **[3. The evidence, five runs, with a negative control and a same-board A/B](#3-the-evidence-five-runs-with-a-negative-control-and-a-same-board-ab)** -- Reproduced 2/2 under a 950M UDP flood, absent 2/2 without it, and the same board with 2 queues rides the identical flood out -- the A/B that pins the queue count as the variable.
+- **[4. Hardware acceptance procedure](#4-hardware-acceptance-procedure)** -- The exact iperf3/ptp4l/pmc commands, the registers to read before and after, and what a PASS looks like on the reflashed 2-queue build.
+- **[5. What the fix is, and what it is not](#5-what-the-fix-is-and-what-it-is-not)** -- `rx_queues: 2` with the boot chain re-pinned (+0x74 on every window from dma-ts). It is reflash-gated by design; no runtime poke exists, and priority tweaks that "help" are the forced-win anti-pattern the GM-recovery directive forbids.
+- **[6. Tests added](#6-tests-added)** -- The builder gates that refuse a queue flip under a pinned boot chain, and the bench step that runs the flood against the new build (8.3 ladder item 8).
+- **[7. Defects found outside this lane's scope — NOT fixed here](#7-defects-found-outside-this-lanes-scope--not-fixed-here)** -- Recorded per methodology Section 5 for their own lanes, with the evidence that made each real.
 
 ## 1. The report, and what it turned out to be
 
-USER: *"when the device receive packet, the gPTP GM changed for no reason."*
-Recorded as open defect **D7** (*"as soon as the DS20 receives packets the gPTP
+The reported defect: receiving bulk traffic made the gPTP grandmaster change
+for no apparent reason. Recorded as open defect **D7** (*"as soon as the DS20 receives packets the gPTP
 is discarded"*), **not reproduced** on a 25 s sample.
 
 It reproduces on demand. **Trigger: a saturating unicast RX flood aimed at the
@@ -49,8 +49,8 @@ from the network's point of view the grandmaster simply vanished.
 [`configs/endstation_ax7101_8x8.yaml`](../../configs/endstation_ax7101_8x8.yaml) ships **`rx_queues: 1`**, and its own
 comment already says what that means:
 
-> *"with 1 there is no steer block at all, so gPTP shares the bulk ring and the
-> USER's 2-ingress-queue directive is simply not implemented on this build."*
+> *"with 1 there is no steer block at all, so gPTP shares the bulk ring"* --
+> the two-queue PTP separation is simply not implemented on that build.
 
 With one ring there is one NAPI context and one softcore. A line-rate RX flood
 consumes it entirely; userspace never runs; `ptp4l` transmits nothing. Observed
@@ -94,8 +94,9 @@ board). The effect is bounded exactly by the 60 s load window in both runs and
 every sample carries a wall clock, so it is not a coincidence of an
 unrelated event.
 
-**Recovery is automatic** (USER rule D9 — never force the GM to stabilise a
-measurement). 41 s after the flood ended the whole segment was back on
+**Recovery is automatic** (bench rule D9: the GM is never forced to stabilise a
+measurement, because a pinned grandmaster masks exactly the election behaviour
+this defect class lives in). 41 s after the flood ended the whole segment was back on
 `020000.fffe.000001` with no operator action, on both E2 and E5. Note however
 that the Arty then takes a further ~60 s to close its offset (measured
 677 ms → 160 ms → 0), because its `ptp4l` is `clientOnly` with no
@@ -220,7 +221,8 @@ acceptance procedure after the reflash rather than assuming.
 2. **ALINX `rx_dropped` = 117,223 of 145,126 (81 %)** at rest, static across
    idle periods — pre-existing, not load-correlated, and not explained here.
 3. **Bench config, already recorded:** ALINX `priority1 238` forces the BMCA
-   (D9 — USER: use 248); Arty `ptp4l` is `clientOnly` with no
-   `step_threshold` (D8). Neither was changed by this lane, and neither
+   (D9: the bench value for this device is 248, which can never outrank the
+   otherwise-elected peers; at 238 it pins the election); Arty `ptp4l` is `clientOnly` with no
+   `step_threshold` (D8). Neither was touched by this lane, and neither
    affects the result above: the GM change in E2 was a genuine automatic
    re-election *away from* the forced winner and back again.
