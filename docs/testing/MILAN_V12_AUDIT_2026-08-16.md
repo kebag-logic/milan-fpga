@@ -30,9 +30,9 @@ outside this build's declared scope.
 | All 50 `tb/verilator/*/Makefile` suites | PASS | Every suite returned zero. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
 | `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
 | `tb/verilator/pp_shadow` | 273 checks passed | The 2026-08-17 rerun passed with zero failures. Milan `ACQUIRE_ENTITY` is checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. The dynamic arty input also passed the GET_AUDIO_MAP body checks. |
-| `tests/` Behave suite | 15 features and 333 scenarios passed | 1,584 steps passed with no skipped scenarios or steps in the 2026-08-17 rerun. This is an offline behavior model, not an external compliance lab result. |
-| Pinned protocol processor suites | 14,010 checks passed | All 27 processor suites passed in the 2026-08-17 rerun. The processor's `pp_top` suite contributes 982 passing checks, including the 63-record command maximum, atomic rejection of 64 records, and exclusion between a reserved mapping edit and an ACMP stream-state transaction. The processor's zero-tolerance RTL lint and documentation gates also passed. |
-| Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,263 and 4,311 checks, including every declared AAF and CRF Stream Output. The 8x8 integration also proves locked local mapping writes leave physical RAM and protocol ownership unchanged, then apply after unlock. |
+| `tests/` Behave suite | 15 features and 339 scenarios passed | 1,626 steps passed with no skipped scenarios or steps in the 2026-08-18 rerun. This is an offline behavior model, not an external compliance lab result. |
+| Pinned protocol processor suites | 14,168 checks passed | All 27 processor suites passed in the 2026-08-18 rerun. The processor's `pp_top` suite contributes 1,072 passing checks, including the 63-record command maximum, atomic rejection of 64 records, and exclusion between a reserved mapping edit and an ACMP stream-state transaction. The processor's zero-tolerance RTL lint and documentation gates also passed. |
+| Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,278 and 4,326 checks, including every declared AAF and CRF Stream Output. The 8x8 integration also proves locked local mapping writes leave physical RAM and protocol ownership unchanged, then apply after unlock. |
 | Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
 | Pinned gPTP processor skeleton | 877 checks passed | 768 uCPU, 31 parser, and 78 engine checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
 | Root RTL lint | PASS under ratchet | The ratchet remains at 99 existing warnings. This is not a zero-warning result. |
@@ -78,27 +78,13 @@ root also reserves every referenced AAF stream until phase 2, so SRP or local
 bypass changes cannot start an output between validation and write-back. The
 processor R19a and root T66 regressions drive both concurrency paths.
 
-This inventory describes command handling, not end-to-end effect. As audited on
-2026-08-16, B12 recorded that START/STOP was unimplemented, so no AECP Stream
-Input started state reached the root wrapper or controlled the media plane.
-
-> **SUPERSEDED 2026-08-18 (issue #78, VERSION `0x004F`).** `START_STREAMING`
-> (0x0022) and `STOP_STREAMING` (0x0023) are served, and the started state now
-> does control the media plane: a stopped Stream Input's frames are dropped at
-> the listener accept pulse while it goes on receiving, matching and counting.
-> The paragraph below is the 08-16 record of the withdrawal; see B12 for the
-> resolution and for the one shall of Section 5.3.8.7 that remains open.
+This inventory describes command handling and its integrated media effects at
+VERSION `0x0050`. `START_STREAMING` and `STOP_STREAMING` are served from the
+ACMP binding record, and a stopped Stream Input continues observing and counting
+received traffic while discarding its media contribution.
 
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
-
-`START_STREAMING` and `STOP_STREAMING` (Milan 5.4.2.19 / 5.4.2.20) belonged in
-this list at the time of the audit, and were called out here because an earlier
-revision of this document placed them in the list above. They had been
-implemented and then **withdrawn** before merge: started/stopped already had a
-home in the ACMP binding record, which clears on unbind and is persisted, and a
-second copy in the AECP dynamic store would be neither. That decision was
-settled in favour of the record — see the SUPERSEDED note above.
 
 - `SET_STREAM_FORMAT`
 - `SET_STREAM_INFO`
@@ -110,9 +96,9 @@ Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 a mandatory command.
 
 Implementation evidence:
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/848801d31ae8415cfc965fdd7429dba930eb27de/hdl/aecp/KL_aecp_engine.sv) and
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/2cdf0a1e0161de68e585cc78a05dd94f6204d651/hdl/aecp/KL_aecp_engine.sv) and
 the current command table in
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/848801d31ae8415cfc965fdd7429dba930eb27de/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/2cdf0a1e0161de68e585cc78a05dd94f6204d651/docs/architecture/06_aecp_engine.md).
 
 ### B2. Required state is not persistent
 
@@ -245,44 +231,22 @@ peer-format-matched audio run, long-duration gPTP run, or external lab run
 was produced in this audit. Automated simulation cannot establish electrical,
 clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
 
-### B12. Stream Input START/STOP behavior is absent
+### B12. Stream Input START/STOP behavior is implemented; persistence is open
 
-The processor currently returns the conformant unimplemented fallback for
-`START_STREAMING` and `STOP_STREAMING`. The commands were built and withdrawn
-before merge because the authoritative started state must be reconciled with
-the existing ACMP binding record. No per-input started state controls the media
-plane, so Milan section 5.3.8.7 remains open.
+The ACMP binding record is the single source of truth for the Stream Input
+started state. `START_STREAMING` and `STOP_STREAMING` update that record, and
+the AECP dynamic store's selector 6 is retired. A started Stream Input processes
+its AVTPDUs; a stopped one continues receiving, classifying, and counting them
+while discarding their media contribution. The datapath suite also proves a
+STOP/START pair does not forge a binding edge or reset the Stream Input counters.
 
-> **RESOLVED 2026-08-17 (issue #78), for two of the clause's three shalls.**
-> The reconciliation went the way this finding assumed: the ACMP binding
-> record is the single source of truth, and the AECP dynamic store's selector
-> 6 is retired rather than reused. The two BEHAVIOURAL shalls are implemented
-> and graded — a started Stream Input processes its AVTPDUs and a stopped one
-> **discards** them, proven end to end in `tb/verilator/milan_dp`.
->
-> The discard sits on the listener ACCEPT pulse, not on the classification
-> entry, and the distinction is the clause's own: a stopped input "shall
-> discard the Stream AVTPDUs it **receives**", so it still receives, still
-> classifies and still counts. Gating the classifier instead also forged a
-> not-bound→bound edge on the next START, and Milan Table 5.6 makes that edge
-> the counter-RESET event — a stop/start pair wiped all ten counters on a sink
-> that never unbound. The suite now grades FRAMES_RX across the pair.
->
-> The THIRD shall — "saved in a non-volatile memory and restored after a power
-> cycle" — is untouched by this round. The record projects and restores the
-> bit, but `KL_pp_shadow` sets `NVM_BACKED_C = 1'b0` behind a blank-flash
-> stub, so nothing survives a power cycle (issue #70). The record layout
-> version moved to `0x02` so a binding saved by firmware that never wrote the
-> bit is refused rather than fast-connected into silence.
->
-> The audit's own words for what was missing, "no per-input started state
-> controls the media plane", were exact: the vector existed and was connected,
-> and nothing read it.
+Milan Section 5.3.8.7 also requires this state to be saved in nonvolatile memory
+and restored after a power cycle. The record projects and restores the bit, but
+`KL_pp_shadow` sets `NVM_BACKED_C = 1'b0` behind a blank-flash stub, so no
+shipping build persists it. Issue #70 owns that remaining requirement.
 
-Evidence: the command inventory and withdrawal note in the pinned processor,
-the exported `aecp_strm_started_o` value received on an unconsumed root wire,
-and the absence of a corresponding media-plane gate in
-[`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
+Evidence: the command inventory in the pinned processor and the integrated
+media gate in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
 
 ## Corrections made by this audit
 
