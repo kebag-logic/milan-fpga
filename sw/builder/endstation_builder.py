@@ -2607,8 +2607,9 @@ def emit_adp_shape_svh(cfg, overlay=None):
     #! deleted. The constant is not the processor's dynamic store to own:
     #! KL_avtp_rx_monitor_ctx compares every
     #! arriving AVTPDU's subtype/format against it (fmt0_i), so it decides
-    #! whether stream 0 can accept a frame AT ALL. SET_STREAM_FORMAT remains
-    #! unimplemented, so it is a fixed entity-model fact and belongs here.
+    #! whether stream 0 can accept a frame AT ALL. It is the DEFAULT the
+    #! fabric folds a stored SET_STREAM_FORMAT setting over (issue #67), so
+    #! the fixed entity-model fact still belongs here.
     #! Tying it to zero (the first cut of the plane deletion) made the compare
     #! fail for every conformant AAF PDU: stream 0 accepted nothing, on every
     #! build.  Same class as the presentation-time default, same fix.

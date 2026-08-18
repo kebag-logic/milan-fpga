@@ -30,7 +30,7 @@ def main():
         os.path.join(ROOT, "configs/endstation_arty_4x4.yaml"))
     row0 = str((cfg["listeners"][0].get("formats") or ["0x0"])[0])
     div = f"0x{eb.aaf_pcm32(4, 96000):016X}"
-    assert div.lower() != row0.lower(), "the divergent base must differ"
+    assert int(div, 16) != int(row0, 16), "the divergent base must differ"
     cfg["listeners"][1]["formats"] = [div] \
         + list(cfg["listeners"][1].get("formats") or [])[1:]
     svh = eb.emit_adp_shape_svh(cfg, eb.emit_aem_overlay(cfg))
