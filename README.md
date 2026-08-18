@@ -90,8 +90,7 @@ store validates its `AEMI` header, version, checksum, and configuration before
 serving it, and a late valid image heals without a reset.
 
 This is still not a full Milan v1.2 implementation. Mandatory operations still
-missing include the stream-format setter, stream-info setter, name access,
-and stream start and stop control.
+missing include the stream-format setter, stream-info setter, and name access.
 The processor accepts and stores clock-source and sampling-rate changes. The
 clock-source selection now reaches the media plane's wrapper but nothing there
 reads it yet, and the sampling rate is stored and readable over AECP without
