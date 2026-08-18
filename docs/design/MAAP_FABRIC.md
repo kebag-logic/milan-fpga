@@ -155,7 +155,7 @@ Both settled.
 ## Appendix: GET_DYNAMIC_INFO 0x4B contract
 
 The processor implements `GET_DYNAMIC_INFO` in
-[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/07aa250cfc705aefe0b5debc26e324a56e69d1b6/hdl/aecp/KL_aecp_engine.sv).
+[`KL_aecp_engine.sv`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/98a5b749c1ba569008d7132a11fffa3ae4a39d95/hdl/aecp/KL_aecp_engine.sv).
 Each record is `{data_length[2], reserved[2], status[1], reserved[1],
 command_type[2], command_data[L]}`. The response `control_data_length` is 12
 plus the sum of retained record sizes.
@@ -190,5 +190,5 @@ exposing stale response memory. Four-byte descriptor copies write no second
 word beyond their declared response.
 
 The packet-level W8 tests in
-[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/07aa250cfc705aefe0b5debc26e324a56e69d1b6/tb/pp_top/sim_main.cpp) grade these
+[`sim_main.cpp`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/98a5b749c1ba569008d7132a11fffa3ae4a39d95/tb/pp_top/sim_main.cpp) grade these
 rules byte for byte.

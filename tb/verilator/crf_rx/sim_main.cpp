@@ -105,6 +105,9 @@ struct Model {
     // mr reference for the current binding era: seeded, not counted, by
     // the era's first accepted PDU
     bool     prev_mr = false, mr_seeded = false;
+    // Milan 5.3.8.7 stopped state (issue #97): observation continues,
+    // consumption stops - only the settle/lock arms below read it
+    bool     stop = false;
 
     // Table 5.6 interval machinery, cycle-exact mirror of iv_tick_gen +
     // the engine's commit/fold: iv_tick is REGISTERED (pulses the cycle
@@ -140,6 +143,8 @@ struct Model {
             settle = 0;                  // discontinuity breaks the settle run
             // STREAM_INTERRUPTED: "the loss of several AVTPDUs", per-event
             if ((uint8_t)(seq - exp_seq) >= 2) cnt_i++;
+        } else if (stop) {
+            // a stopped sink's accepts advance nothing toward lock
         } else if (settle != 7) {
             settle++;
         } else if (!locked) {
@@ -161,10 +166,16 @@ struct Model {
     void bad_pdu() {                     // format-invalid, matched stream
         settle = 0;                      // the UF count commits via cycle()
     }
-    void timeout() {                     // 100 ms without an accepted PDU
+    void timeout() {                     // 100 ms without a CONSUMED PDU
         if (locked) { locked = false; cnt_u++; }
-        settle = 0; have_seq = false; hfill = 0;
-        mr_seeded = false;               // the mr level died with the stream
+        settle = 0;
+        // stopped, the frames may still be arriving and counted: the
+        // sequence cursor, ring fill and mr reference stay live (a reset
+        // here would fake SEQ_NUM_MISMATCH and MEDIA_RESET on restart)
+        if (!stop) {
+            have_seq = false; hfill = 0;
+            mr_seeded = false;           // the mr level died with the stream
+        }
     }
     // Milan v1.2 5.3.8.10, the sentence closing Table 5.6: "The PAAD-AE
     // shall reset all of these counters to zero each time the Stream Input
@@ -273,7 +284,7 @@ static void compare(long no) {
 // The Table 5.6 events (FRX always, SM on a discontinuity) are computed
 // from the replica's PRE-update state — exactly what the RTL sees in
 // have_seq_r/exp_seq_r at the pulse edge.
-static void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp) {
+static void feed_good(uint64_t ts, uint8_t seq, uint64_t ptp) {
     dut->ptp_now_i = ptp;
     drive_fields(ts, seq);
     g_ev_frx = true;
@@ -285,6 +296,9 @@ static void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp) {
     pulse();
     for (int i = 0; i < SETTLE_TICKS_C; i++) tick();
     m.good_pdu(ts, seq, ptp, g_mr);
+}
+static void good_pdu(uint64_t ts, uint8_t seq, uint64_t ptp) {
+    feed_good(ts, seq, ptp);
     compare(++g_pdu_no);
 }
 
@@ -1188,6 +1202,78 @@ int main(int argc, char** argv) {
            dut->fmt_err_o, 256);
         ck("[G1-b3] the 0x74C fmt[7:0] slice truncates to 0 (documented)",
            (long)(uint8_t)dut->fmt_err_o, 0);
+    }
+
+    //-----------------------------------------------------------------------
+    // [STOP] Milan v1.2 5.3.8.7 + 5.3.8.10 (issue #97): a stopped, bound
+    // sink OBSERVES - matches, validates and counts every Table 5.6 event,
+    // with the per-PDU replica compare pinning all thirteen outputs - and
+    // CONSUMES nothing: no settle/lock progress, no 10.4.3 restart echo,
+    // and the lock machinery times out exactly as if the wire were silent.
+    // Mutation anchor: re-gate frame_p_i on the stopped state (the pre-#97
+    // wiring) and every stopped-counter compare below goes red.
+    //-----------------------------------------------------------------------
+    printf("\n[STOP] stopped sink: observation ungated, consumption gated\n");
+    {
+        // precondition: a started, locked sink on a clean cadence
+        for (int i = 0; i < 10; i++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        ck("[ST-a0] precondition: locked while started", dut->locked_o, 1);
+
+        // (a) STOP. Accepted PDUs keep counting - the compare inside each
+        // good_pdu pins counters, delta and rate against the replica - and
+        // the lock HOLDS until the ordinary timeout, because nothing here
+        // has silenced the consumption clock yet for 100 ms.
+        dut->stop_i = 1; m.stop = true;
+        for (int i = 0; i < 4; i++) tick();
+        for (int i = 0; i < 6; i++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        ck("[ST-a1] the lock holds before the timeout expires",
+           dut->locked_o, 1);
+
+        // (b) a toggle while stopped: counted (MEDIA_RESET), never echoed
+        g_mrtog_cnt = 0;
+        g_mr = !g_mr;
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        ck("[ST-b1] the stopped toggle never reaches mr_toggle_p_o",
+           g_mrtog_cnt, 0);
+        for (int i = 0; i < IVAL_CYC_C + 2; i++) tick();
+        ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+
+        // (c) the lock falls at the ordinary 100 ms timeout even though
+        // matching frames keep arriving and keep being counted the whole
+        // way through (11 bursts x ~2100 cycles > TOUT_CYC_C)
+        for (int burst = 0; burst < 11; burst++) {
+            ts += 2000200; ptp += 2000000;
+            feed_good(ts, seq++, ptp);
+            for (int i = 0; i < 2100; i++) tick();
+        }
+        m.timeout();              // stop=true: observation state survives
+        ck("[ST-c1] the lock timed out under live, observed traffic",
+           dut->locked_o, 0);
+        ck("[ST-c2] ...scored as one ordinary unlock",
+           dut->cnt_unlocked_o, m.cnt_u);
+        ck("[ST-c3] no phantom STREAM_INTERRUPTED: the cursor survived",
+           dut->cnt_intr_o, m.cnt_i);
+
+        // (d) START again: consumption resumes, the settle run re-earns
+        // the lock, and every counter CONTINUES - stop/start is not a bind
+        // edge and resets nothing (Table 5.6's reset is bound-edge only)
+        dut->stop_i = 0; m.stop = false;
+        for (int i = 0; i < 4; i++) tick();
+        ck("[ST-d0] restart is not a bind edge: FRAMES_RX kept its value",
+           dut->pdu_count_o, (long long)m.pdu);
+        for (int i = 0; i < 9; i++) {
+            ts += 2000200; ptp += 2000000; good_pdu(ts, seq++, ptp);
+        }
+        ck("[ST-d1] the started sink re-earns the lock through settle",
+           dut->locked_o, 1);
+        ck("[ST-d2] relock scored one MEDIA_LOCKED event",
+           dut->cnt_locked_o, m.cnt_l);
+        ck("[ST-d3] no phantom restart echo on START: the mr reference "
+           "survived the stopped era", g_mrtog_cnt, 0);
     }
 
     printf("======================================================================\n");
