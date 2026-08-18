@@ -69,6 +69,7 @@ USAGE = __doc__.split("WHY THIS EXISTS")[0].strip()
 
 #! rc 0 contained · rc 1 something is stranded or unknown · rc 2 cannot run
 RC_OK, RC_FINDING, RC_CANNOT_RUN = 0, 1, 2
+DEFAULT_BASE = "origin/dev"
 RAW_DIFF_FLAGS = ("--no-ext-diff", "--no-textconv",
                   "--ignore-submodules=none")
 
@@ -578,7 +579,7 @@ def merged_pr_heads(limit, base):
     """
     import json
     #! gh wants a branch NAME; `base` is a git ref and usually carries the
-    #! remote. Passing "origin/main-push" here silently matched nothing, so the
+    #! remote. Passing "origin/dev" here silently matched nothing, so the
     #! sweep printed an empty list and exited 0 -- a pass by vacancy.
     if base.startswith("refs/remotes/origin/"):
         base_name = base[len("refs/remotes/origin/"):]
@@ -658,6 +659,9 @@ def selftest():
         if not ok:
             bad += 1
             print(f"       got {got!r}, expected {want!r}")
+
+    case("default-development-base", DEFAULT_BASE, "origin/dev",
+         "the retired development branch name cannot return silently")
 
     rc, head = _git("rev-parse", "HEAD")
     if rc != 0:
@@ -1628,7 +1632,7 @@ def main(argv):
             return RC_CANNOT_RUN
         return selftest()
 
-    base = "origin/main-push"
+    base = DEFAULT_BASE
     if "--base" in args:
         i = args.index("--base")
         if i + 1 >= len(args) or args[i + 1].startswith("-"):
