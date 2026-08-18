@@ -3852,14 +3852,28 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         ipcls_c = 32'(ADP_DMAP_IN_PCLS_C[p]);
       end
     end
+    //! TWO bounds per record since issue #67, and the record needs both:
+    //! the GENERATED wire shape (a channel the fabric cannot carry is
+    //! never mappable, whatever a format claims) AND the stream's CURRENT
+    //! format through the settings fold - IEEE §7.4.45.2 bounds
+    //! mapping_stream_channel by "the stream format currently set", and
+    //! without this term a SET_STREAM_FORMAT to 2ch followed by an ADD of
+    //! channel 3 would reach exactly the orphaned state the verdict's
+    //! survives bit exists to refuse in the other order.
     for (int s = 0; s < ADP_DMAP_IN_NSTRIN_C; s++) begin
       if ((amap_edit_si_w == 16'(s)) && ADP_DMAP_IN_SAAF_C[s]
-          && (32'(amap_edit_sc_w) < 32'(ADP_DMAP_IN_SCH_C[s])))
+          && (32'(amap_edit_sc_w) < 32'(ADP_DMAP_IN_SCH_C[s]))
+          && ((s >= ACMP_SINKS_C) || !pp_aecp_fmt_in_v_w[s]
+              || (32'(amap_edit_sc_w)
+                  < 32'(pp_aecp_fmt_in_w[64*s + 38 +: 10]))))
         istream_ok_c = 1'b1;
     end
     for (int s = 0; s < AMAP_OUT_PORTS_C; s++) begin
       if ((amap_edit_si_w == 16'(s))
-          && (32'(amap_edit_sc_w) < 32'(ADP_DMAP_OUT_SCH_C[s])))
+          && (32'(amap_edit_sc_w) < 32'(ADP_DMAP_OUT_SCH_C[s]))
+          && ((s >= ACMP_SRC_C) || !pp_aecp_fmt_out_v_w[s]
+              || (32'(amap_edit_sc_w)
+                  < 32'(pp_aecp_fmt_out_w[64*s + 38 +: 10]))))
         ostream_ok_c = 1'b1;
     end
     for (int s = 0; s < N_STREAMS; s++) begin

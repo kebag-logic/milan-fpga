@@ -121,7 +121,11 @@ build `MCSRV_STAT` read `0x21`.
 (`KL_aecp_ucpu` + `KL_aecp_desc_store` + `KL_aecp_engine`, driven from
 `ucode.hex`) and handles 26 AEM opcodes plus Milan `GET_MILAN_INFO`. The served
 set includes descriptor reads, lock and configuration operations, read-side
-stream and clock commands, sampling-rate and clock-source setters, Identify,
+stream and clock commands, sampling-rate and clock-source setters, the stream
+setters (`SET_STREAM_FORMAT` both directions and `SET_STREAM_INFO`'s
+MSRP_ACC_LAT_VALID sub-command, with this fabric answering the format verdict
+and consuming the published settings - the `#67` block in `sim_nxn.cpp` grades
+the whole loop), Identify,
 registration, counters, AVB information, AS path, and both audio-map
 directions. `IDENTIFY_NOTIFICATION` sent as a command returns `BAD_ARGUMENTS`
 (IEEE Section 7.4.39.2 beats Section 9.3.5.3.3). Commands outside the implemented inventory

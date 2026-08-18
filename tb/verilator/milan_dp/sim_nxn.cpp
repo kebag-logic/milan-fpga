@@ -3282,31 +3282,56 @@ int main(int argc, char** argv) {
 
             // the Milan 5.4.2.7 mapping-survival SHALL, against a REAL
             // dynamic mapping through ADD_AUDIO_MAPPINGS and the rolling
-            // sweep that feeds the verdict
+            // sweep that feeds the verdict. stream_channel 2 is used
+            // because the record-validation bound is the GENERATED wire
+            // shape (ADP_DMAP_IN_SCH_C - 4 on the arty legs), not the
+            // declared 8ch base; channel 2 is addable on every nxn leg and
+            // a ONE-channel family member orphans it on every leg.
             {
+                const uint64_t fmt_1ch =
+                    (fmt_base & ~(0x3FFull << 38)) | (1ull << 38);
                 std::vector<uint8_t> ap(16, 0);
                 ap[0] = 0x00; ap[1] = 0x0E;          // STREAM_PORT_INPUT 0
                 ap[5] = 0x01;                        // one mapping
                 ap[8] = (uint8_t)(hi_in >> 8); ap[9] = (uint8_t)hi_in;
-                ap[10] = 0x00; ap[11] = 0x04;        // stream_channel 4
+                ap[10] = 0x00; ap[11] = 0x02;        // stream_channel 2
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_base));
+                ck("#67 baseline: the base format is in force",
+                   aecp_status(r2), 0);
                 std::vector<uint8_t> ra = aecp_xact(0x002C, sq2++, ap);
-                ck("#67 ADD_AUDIO_MAPPINGS(channel 4 of the high input) "
+                ck("#67 ADD_AUDIO_MAPPINGS(channel 2 of the high input) "
                    "SUCCEEDS", aecp_status(ra), 0);
                 for (int i = 0; i < 200; i++) step();   // a sweep refresh
-                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_2ch));
-                ck("#67 a 2ch format that orphans channel 4 is "
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_1ch));
+                ck("#67 a 1ch format that orphans channel 2 is "
                    "BAD_ARGUMENTS", aecp_status(r2), 7);
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_2ch));
+                ck("#67 2ch still orphans channel 2 (needs 3)",
+                   aecp_status(r2), 7);
                 r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_base));
                 ck("#67 the 8ch base still satisfies the mapping",
                    aecp_status(r2), 0);
                 ra = aecp_xact(0x002D, sq2++, ap);
                 ck("#67 REMOVE_AUDIO_MAPPINGS SUCCEEDS", aecp_status(ra), 0);
                 for (int i = 0; i < 200; i++) step();
-                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_2ch));
-                ck("#67 ...and the 2ch format is accepted once the mapping "
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_1ch));
+                ck("#67 ...and the 1ch format is accepted once the mapping "
                    "is gone", aecp_status(r2), 0);
+                // the OTHER order of the same invariant: with the current
+                // format at 1ch, an ADD referencing channel 2 must refuse
+                // even though the wire shape could carry it - IEEE 7.4.45.2
+                // bounds the record by the format currently set
+                ra = aecp_xact(0x002C, sq2++, ap);
+                ck("#67 ADD of channel 2 refuses under the 1ch setting",
+                   aecp_status(ra), 7);
                 r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, hi_in, fmt_base));
                 ck("#67 restore: the base format is back", aecp_status(r2), 0);
+                ra = aecp_xact(0x002C, sq2++, ap);
+                ck("#67 ...and the same ADD succeeds under the base again",
+                   aecp_status(ra), 0);
+                ra = aecp_xact(0x002D, sq2++, ap);
+                ck("#67 cleanup: the probe mapping is removed",
+                   aecp_status(ra), 0);
             }
 
             // a BOUND input refuses STREAM_IS_RUNNING (sink 0 is bound here)
