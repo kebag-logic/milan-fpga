@@ -355,7 +355,10 @@ section 7.4.76 with a complete whitelist pre-scan, independent record statuses,
 silent overflow omission with continued iteration, and no `IN_PROGRESS` path.
 The response cap is 524 bytes. Milan `GET_STREAM_INFO` records use the 56-byte
 Milan body, and legal unimplemented getters return record-level
-`NOT_SUPPORTED` with their command data copied.
+`NOT_SUPPORTED` with their command data copied. A non-SUCCESS command-side
+record status is contained as record-level `BAD_ARGUMENTS`. The engine checks
+the actual getter cursor against the selected fixed response length before
+appending each implemented result.
 
 ---
 
