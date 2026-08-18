@@ -6,10 +6,10 @@ lane-per-worktree, every change grows the test suite, and nothing merges on
 
 ## Contents
 
-- **[1. HDL house style (Cemal Dogan / Oguz Kahraman school)](#1-hdl-house-style-cemal-dogan--oguz-kahraman-school)** — The naming, reset and banner conventions a new `.sv` file must follow, ending in the CDC rule that cost us the 07-24 link-guard deadlock: clock-liveness observers must be `reset_less`.
-- **[2. Workflow](#2-workflow)** — The issue-to-merge lane: an issue moves to *In progress*, a branch is cut **from the issue**, the work lands on it, a PR opens, review runs as **multiple agents with cleared context**, and only then does it merge back to `main-push`. Plus one lane = one worktree, one-line commits, and two traps with history: `cp -r` (never symlink) `third_party/` into a worktree, and rebuild `LAYOUTS` merges semantically rather than by marker-union.
-- **[3. Verification bar](#3-verification-bar)** — What a change owes before it merges: a self-checking Verilator harness under `tb/verilator/<name>/`, a ratcheted `scripts/lint_rtl.py --check` that fails on any new lint violation, a justification for every `lint_off`, a matrix row that only turns ✅ with a runnable test, and timing claims quoted with the full cell recipe rather than a bare WNS.
-- **[4. Bench discipline (the expensive lessons)](#4-bench-discipline-the-expensive-lessons)** — Four rules paid for on hardware: ≥ 8 min AX boot probes, never resume a frozen PCM ring, dump a QSPI slot before overwriting it, and regenerate the DTB from `csr.csv` on any gateware block-set change.
+- **[1. HDL house style (Cemal Dogan / Oguz Kahraman school)](#1-hdl-house-style-cemal-dogan--oguz-kahraman-school)** -- The naming, reset and banner conventions a new `.sv` file must follow, ending in the CDC rule that cost us the 07-24 link-guard deadlock: clock-liveness observers must be `reset_less`.
+- **[2. Workflow](#2-workflow)** -- The issue-to-merge lane: an issue moves to *In progress*, a branch is cut **from the issue**, the work lands on it, a PR opens, review runs as **multiple agents with cleared context**, and only then does it merge back to `dev`. Plus one lane = one worktree, one-line commits, and two traps with history: `cp -r` (never symlink) `third_party/` into a worktree, and rebuild `LAYOUTS` merges semantically rather than by marker-union.
+- **[3. Verification bar](#3-verification-bar)** -- What a change owes before it merges: a self-checking Verilator harness under `tb/verilator/<name>/`, a ratcheted `scripts/lint_rtl.py --check` that fails on any new lint violation, a justification for every `lint_off`, a matrix row that only turns ✅ with a runnable test, and timing claims quoted with the full cell recipe rather than a bare WNS.
+- **[4. Bench discipline (the expensive lessons)](#4-bench-discipline-the-expensive-lessons)** -- Four rules paid for on hardware: ≥ 8 min AX boot probes, never resume a frozen PCM ring, dump a QSPI slot before overwriting it, and regenerate the DTB from `csr.csv` on any gateware block-set change.
 
 ## 1. HDL house style (Cemal Dogan / Oguz Kahraman school)
 
@@ -50,7 +50,7 @@ flowchart LR
     W -->|fixed| RV
     RV -->|2 positive:<br/>1 own + 1 EXTERNAL| G[validate candidate merge result<br/>with the FULL local bar]
     G -->|regression| W
-    G -->|clean| M[merge to main-push]
+    G -->|clean| M[merge to dev]
     M --> C[branch stops moving<br/>run containment]
     C -->|finding| F[follow-up issue + PR]
     C -->|clean| D[close issue manually<br/>Done]
@@ -61,13 +61,13 @@ flowchart LR
    how two lanes collide — which has happened: the dynamic-state store was
    built twice on 2026-08-16 because the issue was filed after the work
    started.
-2. **Cut the branch from the issue**: `gh issue develop <N> --base main-push`.
-   This links the branch and issue on GitHub. Because `main-push` is not the
+2. **Cut the branch from the issue**: `gh issue develop <N> --base dev`.
+   This links the branch and issue on GitHub. Because `dev` is not the
    repository's default branch, merging its PR does not auto-close the issue.
    Close the issue manually only after the post-merge containment check passes.
 3. **Do the work on that branch**, with the §3 verification bar met *on the
    branch* — a PR is not the place to discover the sweep is red.
-4. **Open the PR** against `main-push`, with the template below and the
+4. **Open the PR** against `dev`, with the template below and the
    self-test results as a **comment** (a comment is evidence, not approval).
 5. **Review with multiple agents, each with CLEARED context.** Not forks of
    the authoring session: agents that have never seen the reasoning that
@@ -90,7 +90,11 @@ flowchart LR
    validated, with the gate results. The findings, the mutation tables and the
    clause arguments belong in the review itself and in the commit messages —
    a PR thread that reprints them is a PR thread nobody reads to the end.
-6. **Merge back into `main-push`** only once the findings are answered, and
+
+   **Prefix every PR message with the role.** Start every PR body and comment
+   with `[A]` when writing as the PR author, or `[R]` when writing as a
+   reviewer. The prefix states which responsibility the message represents.
+6. **Merge back into `dev`** only once the findings are answered, and
    **not while a review round is in flight.** A round that has not reported is
    a round outstanding; merging past it is merging unreviewed code with a
    review thread attached.
@@ -114,7 +118,7 @@ flowchart LR
 7. **Validate the candidate merge result, then prove containment.** A merge is
    a change nobody wrote and nobody reviewed, and *"Merge made by the 'ort'
    strategy"* is not evidence of anything. Before pressing merge, construct a
-   candidate from the latest `origin/main-push` and the reviewed PR head, then
+   candidate from the latest `origin/dev` and the reviewed PR head, then
    gate that tree exactly as §3 gates a hand-written one: full Verilator sweep,
    both repos' suites, behave, the lint ratchet, and Yosys. If the reviewed head
    directly descends from the unchanged base, its tree is the candidate merge
@@ -156,9 +160,9 @@ flowchart LR
    Its `--selftest` runs inside `scripts/run_all_suites.sh` next to
    `suite_tally.py`'s, so the tool cannot rot into a green that means nothing
    between merges. The check *itself* is still a thing a person runs: nothing
-   here can schedule a post-merge action, and CI does not run on `main-push`
+   here can schedule a post-merge action, and CI does not run on `dev`
    at all (both workflows are `on: push: branches: [main]`). That gap is worth
-   closing separately. A `push: [main-push]` trigger would run the bar and the
+   closing separately. A `push: [dev]` trigger would run the bar and the
    containment self-test on the merge result. It would still need an explicit
    `check_merge_containment.py --merged-prs` step to render a live containment
    verdict.

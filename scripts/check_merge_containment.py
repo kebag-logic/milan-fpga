@@ -69,6 +69,7 @@ USAGE = __doc__.split("WHY THIS EXISTS")[0].strip()
 
 #! rc 0 contained · rc 1 something is stranded or unknown · rc 2 cannot run
 RC_OK, RC_FINDING, RC_CANNOT_RUN = 0, 1, 2
+DEFAULT_BASE = "origin/dev"
 RAW_DIFF_FLAGS = ("--no-ext-diff", "--no-textconv",
                   "--ignore-submodules=none")
 
@@ -578,7 +579,7 @@ def merged_pr_heads(limit, base):
     """
     import json
     #! gh wants a branch NAME; `base` is a git ref and usually carries the
-    #! remote. Passing "origin/main-push" here silently matched nothing, so the
+    #! remote. Passing "origin/dev" here silently matched nothing, so the
     #! sweep printed an empty list and exited 0 -- a pass by vacancy.
     if base.startswith("refs/remotes/origin/"):
         base_name = base[len("refs/remotes/origin/"):]
@@ -658,6 +659,9 @@ def selftest():
         if not ok:
             bad += 1
             print(f"       got {got!r}, expected {want!r}")
+
+    case("default-development-base", DEFAULT_BASE, "origin/dev",
+         "the retired development branch name cannot return silently")
 
     rc, head = _git("rev-parse", "HEAD")
     if rc != 0:
@@ -744,6 +748,15 @@ def selftest():
                  "...and prints the real count, not a placeholder")
             case("e2e-stranded-word", "STRANDED" in out, True,
                  "...and says STRANDED")
+
+            #! Exercise main() without --base. origin/dev contains work while
+            #! the retired name stops at base, so changing the production
+            #! default path back to that name makes this case fail.
+            _git("update-ref", "refs/remotes/origin/dev", "work")
+            _git("update-ref", "refs/remotes/origin/main-push", "base")
+            rc, out = run(["--no-fetch", "work"])
+            case("default-base-e2e", rc, RC_OK,
+                 "the implicit CLI base is origin/dev")
 
             rc, base_oid = _git("rev-parse", "base")
             _git("checkout", "-qb", base_oid, "work")
@@ -1628,7 +1641,7 @@ def main(argv):
             return RC_CANNOT_RUN
         return selftest()
 
-    base = "origin/main-push"
+    base = DEFAULT_BASE
     if "--base" in args:
         i = args.index("--base")
         if i + 1 >= len(args) or args[i + 1].startswith("-"):
