@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # milan_dp — the `milan_datapath` integration suite
 
-`make` builds **nine elaborations** of `hdl/milan/milan_datapath.sv` (the PS-less
+`make` builds **ten elaborations** of `hdl/milan/milan_datapath.sv` (the PS-less
 Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
 against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
 never on grepping the log — a compile error prints no `FAIL` line at all.
@@ -10,6 +10,7 @@ never on grepping the log — a compile error prints no `FAIL` line at all.
 |---|---|---|---|
 | `obj_dir` | `sim_main.cpp` | `endstation_arty_current`, N=1 | the legacy section list: CSR, TX/RX, PTP, CLKV, CRF, RMON, link guard |
 | `obj_nxn` | `sim_nxn.cpp` | `endstation_arty_4x4`, N=4 | the 0x800 window → real engines, per-stream routing, TRAP-1 |
+| `obj_nxndv` | `sim_nxn.cpp` | arty_4x4 with a GENERATED divergent header (input row 1 declares the 96 kHz base) | the per-row format facts: every tracked config is row-uniform, so only this leg can prove the verdict base and reset GET answer are the ADDRESSED row's and not row 0's -- same channel count on both rows, so the base is the one discriminator. `gen_divergent_shape.py` emits the header and the bench expectations at build time, like `ltn_rom.hex` |
 | `obj_nxn8` | `sim_nxn.cpp` | `endstation_ax7101_8x8`, N=8 | the AX 8×8 target + the playback ring + the loopback lane |
 | `obj_nxn4c` | `sim_nxn.cpp` | `endstation_arty_4x4`, N=4, 4 wire channels | the shipping Arty shape (framer width ≠ shadow reset) |
 | `obj_nolpf` | `sim_main.cpp` | `endstation_arty_current`, `LPF_P=0` | the spent area lever: no digital acceptance surface may move |
@@ -58,7 +59,7 @@ arithmetic rather than a defect:
    `MILAN_CLK_FREQ_HZ`), so its Annex B claim walk — 3 probes × ~500 ms plus
    announce — is ~1.5·10⁸ cycles away. *Measured: still PROBING after
    40,000,000 cycles.* Waiting would add ~25 minutes **per elaboration** to a
-   nine-leg suite.
+   ten-leg suite.
 3. **A MAAP-granted destination address for talkers `t > 0`**, which is the same
    arithmetic as (2) seen from the framer: a source that never reaches
    `acmp_declaring_o` never gets a DMAC. `cfg_aaf_bypass` (AAF_CTRL[1]) is the
@@ -88,11 +89,12 @@ lane, and the LiteX CSR boundary itself.
 the monitor's first acceptance term is `subtype == fmt[63:56]`, so against a
 zero format a *perfectly conformant* AAF PDU on the bound `stream_id` was
 counted `UNSUPPORTED_FORMAT` and never reached the depacketizer or the PCM ring.
-Stream 0 accepted nothing. `milan_datapath.sv` now reads
-`assign aecp_in0_fmt = ADP_STRIN0_FMT_C` — the entity model's *declared*
-`STREAM_INPUT[0]` format out of the generated shape header, exactly as
-`aecp_pres_offset` carries `PRES_DFLT_C` rather than a zero. Only the *setter*
-was ever AECP's; the declaration never was.
+Stream 0 accepted nothing. `milan_datapath.sv` now folds the setting over the
+declaration: `aecp_in0_fmt` reads the processor's published SET_STREAM_FORMAT
+row 0 when a controller has set one and the generated `ADP_STRIN0_FMT_C`
+otherwise, exactly as `aecp_pres_offset` folds set offsets over `PRES_DFLT_C`
+rather than a zero. The declaration is the default; the setter owns the rest
+(issue #67).
 
 `sim_main.cpp` grades the acceptance path again end to end and byte-exact:
 untagged and C-tagged conformant PDUs reach the PCM ring with their 48 payload
@@ -119,9 +121,13 @@ build `MCSRV_STAT` read `0x21`.
 
 "No AECP" is dead as a premise. The protocol processor carries an AECP µCPU
 (`KL_aecp_ucpu` + `KL_aecp_desc_store` + `KL_aecp_engine`, driven from
-`ucode.hex`) and handles 26 AEM opcodes plus Milan `GET_MILAN_INFO`. The served
+`ucode.hex`) and handles 28 AEM opcodes plus Milan `GET_MILAN_INFO`. The served
 set includes descriptor reads, lock and configuration operations, read-side
-stream and clock commands, sampling-rate and clock-source setters, Identify,
+stream and clock commands, sampling-rate and clock-source setters, the stream
+setters (`SET_STREAM_FORMAT` both directions and `SET_STREAM_INFO`'s
+MSRP_ACC_LAT_VALID sub-command, with this fabric answering the format verdict
+and consuming the published settings - the `#67` block in `sim_nxn.cpp` grades
+the whole loop), Identify,
 registration, counters, AVB information, AS path, and both audio-map
 directions. `IDENTIFY_NOTIFICATION` sent as a command returns `BAD_ARGUMENTS`
 (IEEE Section 7.4.39.2 beats Section 9.3.5.3.3). Commands outside the implemented inventory
@@ -129,7 +135,7 @@ receive a conformant `NOT_IMPLEMENTED` echo with the command payload and length
 preserved and the frame padded to the 60-octet minimum. The exact inventory is
 gated by [`aecp_engine_steps.py`](../../../tests/steps/aecp_engine_steps.py) and
 the pinned processor's
-[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/98a5b749c1ba569008d7132a11fffa3ae4a39d95/docs/architecture/06_aecp_engine.md).
+[`06_aecp_engine.md`](https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan/blob/8446cab031dc25367fa4288bdf783099d78f5ae8/docs/architecture/06_aecp_engine.md).
 
 **This suite backs no descriptor memory, on purpose and on record.**
 `milan_datapath` exposes nine ports for the AEM image the store fetches

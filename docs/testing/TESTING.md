@@ -69,6 +69,8 @@ Machine-checked status rows are defined by the
 | `aem.mandatory-missing-set` | `missing` | - |
 | `stream-input.start-stop` | `implemented` | - |
 | `stream-input.stopped-crf-observation` | `implemented` | - |
+| `stream-format.set` | `implemented` | - |
+| `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |

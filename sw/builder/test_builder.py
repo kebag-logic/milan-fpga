@@ -4853,6 +4853,70 @@ def _oracle_cover(fmts):
     return cover
 
 
+def test_per_row_format_facts_are_per_row():
+    """Gate 30: the emitted per-row format facts carry EACH row's own
+    declaration, and the CRF output constant reads the NORMALIZED
+    crf_output_format key.
+
+    The defect class this refuses (found by review on the issue #67 root
+    round): the shape header carried ONE input format fact, so the fabric's
+    format verdict judged every row against row 0 and every reset GET served
+    row 0's format - and the CRF output constant silently took the default
+    because the emitter read the raw-YAML mapping shape where load_config
+    hands it a boolean plus crf_output_format. Every tracked config is
+    uniform, so only a DIVERGENT synthetic config can make either defect
+    visible; this gate builds one in memory and demands the divergence
+    reaches the header verbatim.
+    """
+    import re
+
+    def qarray(s, name):
+        m = re.search(rf"{name}\s*\[[^]]+\]\s*=\s*'\{{([^}}]+)\}};", s)
+        assert m, f"shape header has no {name}"
+        return [int(t.strip().split("'h")[1], 16)
+                for t in m.group(1).split(",")]
+
+    def qscalar(s, name):
+        m = re.search(rf"{name}\s*=\s*64'h([0-9A-Fa-f]+);", s)
+        assert m, f"shape header has no {name}"
+        return int(m.group(1), 16)
+
+    fmt_2ch = "0x0205022000806000"
+    fmt_4ch = "0x0205022001006000"
+    crf_div = "0x041060020000BB80"
+
+    cfg = eb.load_config(CONFIGS["ax7101_8x8"])
+    cfg["listeners"][3]["formats"] = [fmt_2ch] \
+        + list(cfg["listeners"][3].get("formats") or [])[1:]
+    cfg["talkers"][2]["formats"] = [fmt_4ch] \
+        + list(cfg["talkers"][2].get("formats") or [])[1:]
+    cfg["clocking"]["crf_output_format"] = crf_div
+    svh = eb.emit_adp_shape_svh(cfg, eb.emit_aem_overlay(cfg))
+
+    in_rows = qarray(svh, "ADP_STRIN_FMT_C")
+    out_rows = qarray(svh, "ADP_STROUT_FMT_C")
+    assert in_rows[3] == int(fmt_2ch, 16), \
+        "input row 3's declared format did not reach its own row"
+    assert in_rows[0] == qscalar(svh, "ADP_STRIN0_FMT_C"), \
+        "input row 0 must restate the scalar fact"
+    assert in_rows[0] != in_rows[3], \
+        "the divergence collapsed: row 3 reads row 0's fact"
+    assert out_rows[2] == int(fmt_4ch, 16), \
+        "talker row 2's declared format did not reach its own row"
+    assert out_rows[0] != out_rows[2], \
+        "the divergence collapsed on the output side"
+    assert qscalar(svh, "ADP_CRF_OUT_FMT_C") == int(crf_div, 16), \
+        "ADP_CRF_OUT_FMT_C ignored the normalized crf_output_format"
+    assert qscalar(svh, "ADP_CRF_FMT_C") != int(crf_div, 16), \
+        "the sink constant must not follow the output's divergence"
+
+    # the uniform shipping config keeps every row equal to the scalar
+    u = eb.load_config(CONFIGS["ax7101_1x1_tdm8"])
+    usvh = eb.emit_adp_shape_svh(u, eb.emit_aem_overlay(u))
+    urows = qarray(usvh, "ADP_STRIN_FMT_C")
+    assert urows == [qscalar(usvh, "ADP_STRIN0_FMT_C")] * len(urows)
+
+
 def test_milan_base_formats_are_rate_complete():
     """Gate 29: every Stream Input that advertises a Base format advertises
     the WHOLE rate family, the CRF streams carry the CRF format and nothing
@@ -4877,11 +4941,12 @@ def test_milan_base_formats_are_rate_complete():
     Section 6.  So this gate holds Stream Inputs to the family and Stream
     Outputs to wire truth, and the asymmetry in the shipped configs is that
     clause difference rather than an oversight.  (The talker half is also
-    load-bearing the other way: SET_STREAM_FORMAT on our STREAM_OUTPUT
-    answers NOT_SUPPORTED - FR-STR-03 makes adaptivity a LISTENER
-    requirement - so a talker format the framer cannot emit is a declaration
-    nothing can correct, which is the 2026-07-27 defect that cost 296,294
-    discarded frames out of 296,294.)
+    load-bearing the other way: SET_STREAM_FORMAT on our STREAM_OUTPUT is
+    served since 0x0053 but admits only the row's own declared shape -
+    FR-STR-03 makes adaptivity a LISTENER requirement - so a talker format
+    the framer cannot emit is a declaration nothing can correct, which is
+    the 2026-07-27 defect that cost 296,294 discarded frames out of
+    296,294.)
 
     Milan v1.2 5.3.3.4 keeps the CRF streams out of it: "If a Stream
     Input/Output supports the Avnu Pro Audio CRF Media Clock Stream Format, it
@@ -5043,7 +5108,8 @@ if __name__ == "__main__":
                test_gptp_domain_is_one_source,
                test_pp_window_is_reserved,
                test_image_identity_is_baked,
-               test_milan_base_formats_are_rate_complete):
+               test_milan_base_formats_are_rate_complete,
+               test_per_row_format_facts_are_per_row):
         print(f"{fn.__name__}:")
         fn()
     print("ALL GATES PASS")

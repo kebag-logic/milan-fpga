@@ -49,6 +49,12 @@ SHAPE_4x4_F = $(CFG_DIR)/endstation_arty_4x4/gen/adp_shape_defaults.svh
 SHAPE_8x8_F = $(CFG_DIR)/endstation_ax7101_8x8/gen/adp_shape_defaults.svh
 SHAPE_AX1_F = $(CFG_DIR)/endstation_ax7101_1x1_tdm8/gen/adp_shape_defaults.svh
 GEN_ALL     = $(GEN_CSR) $(SHAPE_DEF) $(SHAPE_4x4_F) $(SHAPE_8x8_F) $(SHAPE_AX1_F)
+# the DIVERGENT-shape leg's generated header + bench expectations: every
+# tracked config declares the same first format on every row, so only a
+# generated divergent header can prove the per-row verdict base and reset
+# GET answer are the ADDRESSED row's and not row 0's (review, issue #67)
+SHAPE_DV    = +incdir+gen_divergent
+SHAPE_DV_F  = gen_divergent/gen/adp_shape_defaults.svh
 
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
@@ -178,9 +184,16 @@ ltn_rom.hex: $(PP_DIR)/acmp/rom/gen_ltn_rom.py
 ucode.hex: $(PP_DIR)/aecp/ucode/gen_ucode.py
 	python3 $< -o $@
 
-run: ltn_rom.hex ucode.hex $(GEN_ALL)
+$(SHAPE_DV_F): gen_divergent_shape.py $(SHAPE_4x4_F) ../../../sw/builder/endstation_builder.py
+	python3 gen_divergent_shape.py
+
+run: ltn_rom.hex ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
+# the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
+# 96 kHz base - same channel count as row 0, so the ONLY discriminator is
+# the base, which is precisely what a row-0 lookup regression would miss
+	$(VERILATOR) $(SHAPE_DV) $(VFLAGS) --Mdir obj_nxndv -GN_STREAMS=4 -CFLAGS "-DNSTREAMS_TB=4 -DDIVERGENT_TB=1 -I$(CURDIR)/gen_divergent" $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxndv
 # obj_nxn8 also elaborates AAF_PLAYBACK_P=1 (the task #31 cfg_ax8x8 ship
 # flip) and runs the host-ring -> RING-bucket -> talker-wire section
 # (-DAAF_PB_TB): the ALSA playback direction proven INSIDE the datapath.
@@ -254,6 +267,8 @@ run: ltn_rom.hex ucode.hex $(GEN_ALL)
 	@echo "======================================================================"
 	./obj_dir/Vmilan_dp_sim
 	./obj_nxn/Vmilan_dp_nxn
+	@echo "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----"
+	./obj_nxndv/Vmilan_dp_nxndv
 	./obj_nxn8/Vmilan_dp_nxn8
 	@echo "---- the shipping Arty shape: 4 streams x 4 wire channels ----"
 	./obj_nxn4c/Vmilan_dp_nxn4c
@@ -284,4 +299,4 @@ print-pp-srcs:
 	@echo $(PP_SRCS)
 
 clean:
-	rm -rf ltn_rom.hex ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_txg obj_ax1x1 obj_aclk
+	rm -rf ltn_rom.hex ucode.hex obj_dir obj_nxn obj_nxn8 obj_nxn4c obj_nolpf obj_prune obj_txg obj_ax1x1 obj_aclk obj_nxndv gen_divergent

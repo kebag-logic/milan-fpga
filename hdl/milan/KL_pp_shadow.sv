@@ -337,6 +337,10 @@ module KL_pp_shadow #(
     output logic [15:0] gsi_desc_index_o,   //! addressed descriptor_index
     output logic  [3:0] gsi_sel_o,          //! word selector within the kind
     output logic  [7:0] gsi_ord_o,          //! array ordinal (ASP path, AVB maps)
+    //! the PROPOSED stream format while a SET_STREAM_FORMAT is in flight;
+    //! kind 0 selector 15 asks the integrator to judge it (bit 0 supported,
+    //! bit 1 every mapping-referenced channel survives, Milan §5.4.2.7)
+    output logic [63:0] gsi_prop_fmt_o,
     input  wire  [63:0] gsi_data_i,         //! the word
     input  wire         gsi_wait_i,         //! HOLD the beat (not a ready)
     input  wire         gsi_avb_chg_i,      //! integrator-side AVB-info word changed
@@ -493,7 +497,15 @@ module KL_pp_shadow #(
     //! has that lifecycle. The port name's `aecp_` prefix is historical: the
     //! AECP commands MOVE the bit, the record OWNS it.
     output logic [N_STREAM_IN_P-1:0]   aecp_strm_started_o,
-    output logic [31:0]                aecp_pt_offset_o,    //! presentation-time offset
+    //! per-row settings, value beside its valid bit (offsets at [32k +: 32],
+    //! formats at [64k +: 64]). A value whose valid bit is clear is a reset
+    //! zero, not a setting - consumers fold, never read bare.
+    output logic [N_STREAM_OUT_P*32-1:0] aecp_pt_offset_o,
+    output logic [N_STREAM_OUT_P-1:0]    aecp_pt_offset_v_o,
+    output logic [N_STREAM_IN_P*64-1:0]  aecp_fmt_in_o,
+    output logic [N_STREAM_IN_P-1:0]     aecp_fmt_in_v_o,
+    output logic [N_STREAM_OUT_P*64-1:0] aecp_fmt_out_o,
+    output logic [N_STREAM_OUT_P-1:0]    aecp_fmt_out_v_o,
     output logic                       aecp_dyn_dirty_o,    //! a persisted field moved
     output logic                       aecp_lock_held_o,    //! LOCK_ENTITY ownership is live
 
@@ -858,6 +870,11 @@ module KL_pp_shadow #(
       .aecp_clk_src_index_o(aecp_clk_src_index_o),
       .aecp_strm_started_o (aecp_strm_started_o),
       .aecp_pt_offset_o    (aecp_pt_offset_o),
+      .aecp_pt_offset_v_o  (aecp_pt_offset_v_o),
+      .aecp_fmt_in_o       (aecp_fmt_in_o),
+      .aecp_fmt_in_v_o     (aecp_fmt_in_v_o),
+      .aecp_fmt_out_o      (aecp_fmt_out_o),
+      .aecp_fmt_out_v_o    (aecp_fmt_out_v_o),
       .aecp_dyn_dirty_o    (aecp_dyn_dirty_o),
       .aecp_lock_held_o    (aecp_lock_held_o),
 
@@ -964,6 +981,7 @@ module KL_pp_shadow #(
       .gsi_desc_index_o    (gsi_desc_index_o),
       .gsi_sel_o           (gsi_sel_o),
       .gsi_ord_o           (gsi_ord_o),
+      .gsi_prop_fmt_o      (gsi_prop_fmt_o),
       .gsi_data_i          (gsi_data_i),
       .gsi_wait_i          (gsi_wait_i),
       .gsi_avb_chg_i       (gsi_avb_chg_i),

@@ -27,8 +27,9 @@
 # Base Format that is reasonable for its functionality".  There is no
 # all-channel-counts rule and no cross-Stream-Output rate rule anywhere in
 # Section 6, and a talker could not honour a wider claim in any case: it emits
-# one width, while SET_STREAM_FORMAT remains unimplemented and returns
-# NOT_IMPLEMENTED (FR-STR-03 makes format adaptivity a LISTENER requirement).
+# one width, and SET_STREAM_FORMAT (served since 0x0053) admits only the
+# talker's own declared shape for outputs (FR-STR-03 makes format adaptivity
+# a LISTENER requirement).
 #
 # LEVEL / ORACLE (docs/testing/methodology.md):
 #   LEVEL 3 - conformance to the standard.  ORACLE: THE CLAUSE.  The five

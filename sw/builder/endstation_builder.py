@@ -1224,8 +1224,9 @@ def base_format_complete(fmts):
     is reasonable for its functionality" - with no all-channel-counts rule and
     no cross-Stream-Output rate rule anywhere in Section 6.  Completing a
     Stream Output would also be a claim nothing can walk back: the framer
-    emits ONE width (framer_wire_channels), while SET_STREAM_FORMAT remains
-    unimplemented and returns NOT_IMPLEMENTED. FR-STR-03 makes adaptivity a
+    emits ONE width (framer_wire_channels), and SET_STREAM_FORMAT (served
+    since 0x0053) admits only that declared shape for outputs - the verdict
+    reads these same per-row facts. FR-STR-03 makes adaptivity a
     listener requirement, and a listener handed a width the talker cannot
     produce discards every frame (silicon 2026-07-27: 296,294 of 296,294).
 
@@ -2606,8 +2607,9 @@ def emit_adp_shape_svh(cfg, overlay=None):
     #! deleted. The constant is not the processor's dynamic store to own:
     #! KL_avtp_rx_monitor_ctx compares every
     #! arriving AVTPDU's subtype/format against it (fmt0_i), so it decides
-    #! whether stream 0 can accept a frame AT ALL. SET_STREAM_FORMAT remains
-    #! unimplemented, so it is a fixed entity-model fact and belongs here.
+    #! whether stream 0 can accept a frame AT ALL. It is the DEFAULT the
+    #! fabric folds a stored SET_STREAM_FORMAT setting over (issue #67), so
+    #! the fixed entity-model fact still belongs here.
     #! Tying it to zero (the first cut of the plane deletion) made the compare
     #! fail for every conformant AAF PDU: stream 0 accepted nothing, on every
     #! build.  Same class as the presentation-time default, same fix.
@@ -2616,12 +2618,56 @@ def emit_adp_shape_svh(cfg, overlay=None):
     #! which is exactly what the deleted register file reset to.
     fmts0 = ((cfg.get("listeners") or [{}])[0].get("formats") or ["0x0"])
     f0 = int(str(fmts0[0]), 16)
-    a("  //! STREAM_INPUT[0]'s declared (SET_STREAM_FORMAT is unimplemented,")
-    a("  //! so this is also its")
-    a("  //! ONLY) stream_format - the value KL_avtp_rx_monitor_ctx accepts")
-    a("  //! frames against. Was the AEM ROM's AEM_STRIN_FMT_C[0]; the ROM is")
-    a("  //! gone and this is the same number from the same config.")
+    a("  //! STREAM_INPUT[0]'s declared DEFAULT stream_format - the value")
+    a("  //! KL_avtp_rx_monitor_ctx accepts frames against until a controller")
+    a("  //! SET_STREAM_FORMATs the stream, and the base whose 48 kHz family")
+    a("  //! the format verdict admits. Was the AEM ROM's AEM_STRIN_FMT_C[0];")
+    a("  //! the ROM is gone and this is the same number from the same config.")
     a(f"  localparam logic [63:0] ADP_STRIN0_FMT_C = 64'h{f0:016X};")
+    #! ...and EVERY row's declared first format, per direction, because the
+    #! config accepts independent listeners[].formats / talkers[].formats:
+    #! row k's verdict base and the current format its GET serves at reset
+    #! are row k's OWN declaration, never row 0's. A row without a declared
+    #! format inherits row 0's input fact, the one AAF family the fabric
+    #! elaborates either way.
+    in_f0 = [int(str((s.get("formats") or [None])[0] or f"0x{f0:016X}"), 16)
+             for s in (cfg.get("listeners") or [{}])]
+    out_f0 = [int(str((t.get("formats") or [None])[0] or f"0x{f0:016X}"), 16)
+              for t in (cfg.get("talkers") or [{}])]
+    a("  //! per-row DECLARED first formats, both directions: row k's format")
+    a("  //! verdict base, and the current format its GET serves until a")
+    a("  //! controller sets one. Input row 0 restates ADP_STRIN0_FMT_C; the")
+    a("  //! scalar stays for its acceptance-filter consumer.")
+    a(f"  localparam int ADP_STRIN_NFMT_C  = {len(in_f0)};")
+    a(f"  localparam int ADP_STROUT_NFMT_C = {len(out_f0)};")
+    sv_array("ADP_STRIN_FMT_C", "[63:0]", in_f0,
+             lambda v: f"64'h{v:016X}")
+    sv_array("ADP_STROUT_FMT_C", "[63:0]", out_f0,
+             lambda v: f"64'h{v:016X}")
+    #! the CRF Media Clock stream formats, for the same reason: the format
+    #! verdict must admit exactly what the CRF descriptors advertise, and
+    #! clocking.crf_format / clocking.crf_output.format are the same config
+    #! facts the descriptor path reads - PER DIRECTION, because a config may
+    #! declare the sink and output differently. The shared default is
+    #! CRF_FORMAT_DEFAULT, referenced rather than restated (derive, never
+    #! mirror).
+    clk_c = cfg.get("clocking") or {}
+    cf0 = int(str(clk_c.get("crf_format", CRF_FORMAT_DEFAULT)), 16)
+    #! this emitter receives load_config's NORMALIZED clocking, where
+    #! crf_output is a boolean and the format rides crf_output_format; the
+    #! raw-YAML mapping form is taken second so the emitter also works on an
+    #! unnormalized dict, and the shared default closes the chain
+    co_raw = clk_c.get("crf_output")
+    co0 = int(str(
+        clk_c.get("crf_output_format")
+        or (co_raw.get("format") if isinstance(co_raw, dict) else None)
+        or CRF_FORMAT_DEFAULT), 16)
+    a("  //! the CRF Media Clock stream formats the entity advertises, per")
+    a("  //! direction: the ONE format SET_STREAM_FORMAT may name for each")
+    a("  //! CRF row, and the current format its GET serves. Same config")
+    a("  //! facts as the image's CRF format entries.")
+    a(f"  localparam logic [63:0] ADP_CRF_FMT_C     = 64'h{cf0:016X};")
+    a(f"  localparam logic [63:0] ADP_CRF_OUT_FMT_C = 64'h{co0:016X};")
     a("")
     return "\n".join(ln)
 

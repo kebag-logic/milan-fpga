@@ -71,8 +71,6 @@ Feature: the AECP answer contract - served commands, fallback, and two silent ca
     # wrong reason, which is how this table went stale the last time.
     Examples: Milan SHALL commands this processor has not implemented yet
       | opcode | command                           |
-      | 8      | SET_STREAM_FORMAT                 |
-      | 14     | SET_STREAM_INFO                   |
       | 16     | SET_NAME                          |
       | 17     | GET_NAME                          |
 
