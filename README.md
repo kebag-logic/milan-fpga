@@ -63,12 +63,12 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0051` |
+| `gateware.current-version` | `implemented` | `0x0002_0052` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `missing` | - |
-| `stream-input.start-stop` | `partial` | - |
-| `stream-input.stopped-crf-observation` | `missing` | - |
+| `stream-input.start-stop` | `implemented` | - |
+| `stream-input.stopped-crf-observation` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
@@ -86,8 +86,8 @@ The current AECP implementation answers these operations with real behavior:
 - `SET_SAMPLING_RATE` and `GET_SAMPLING_RATE`
 - `SET_CLOCK_SOURCE` and `GET_CLOCK_SOURCE`
 - `SET_CONTROL` and `GET_CONTROL` for Identify
-- `START_STREAMING` and `STOP_STREAMING` for Stream Input, with the known
-  response-boundary and stopped-CRF defects tracked by issue #97
+- `START_STREAMING` and `STOP_STREAMING` for Stream Input, completing at the
+  binding-record commit, with stopped-CRF observation preserved (issue #97)
 - `GET_STREAM_INFO`, `GET_AVB_INFO`, and leaf-only `GET_AS_PATH`
 - `REGISTER_UNSOLICITED_NOTIFICATION` and `DEREGISTER_UNSOLICITED_NOTIFICATION`
 - `IDENTIFY_NOTIFICATION` commands with the required `BAD_ARGUMENTS` result
@@ -135,9 +135,11 @@ The integration also reports no nonvolatile backend, so required state does not
 survive a power cycle. Solicited Stream Output counters are now served; their
 rate-limited unsolicited notification path remains a separate task. These are
 compliance blockers, not documentation-only limitations.
-The Stream Input START/STOP path is partial until issue #97 makes command
-success follow the binding-record commit and keeps stopped CRF traffic visible
-to observation counters while suppressing only timing consumption.
+The Stream Input START/STOP path completes at the binding record (issue #97):
+command success follows the record commit or the confirmed no-op, and a
+stopped CRF sink keeps observing and counting while only timing consumption
+and the restart echo gate. The 7.5.2 unsolicited response stays with issue
+#69 and persistence with issue #70.
 `GET_AS_PATH` reports only the grandmaster identity. The PathTrace staging tail
 is disconnected from the root processor interface, so multi-bridge topology is
 reported incompletely.

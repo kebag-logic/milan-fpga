@@ -21,12 +21,12 @@ served on the wire while still having a known behavioral defect.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0051` |
+| `gateware.current-version` | `implemented` | `0x0002_0052` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `missing` | - |
-| `stream-input.start-stop` | `partial` | - |
-| `stream-input.stopped-crf-observation` | `missing` | - |
+| `stream-input.start-stop` | `implemented` | - |
+| `stream-input.stopped-crf-observation` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |

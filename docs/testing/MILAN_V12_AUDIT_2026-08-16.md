@@ -29,12 +29,12 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0051` |
+| `gateware.current-version` | `implemented` | `0x0002_0052` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `missing` | - |
-| `stream-input.start-stop` | `partial` | - |
-| `stream-input.stopped-crf-observation` | `missing` | - |
+| `stream-input.start-stop` | `implemented` | - |
+| `stream-input.stopped-crf-observation` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
@@ -120,10 +120,10 @@ bypass changes cannot start an output between validation and write-back. The
 processor R19a and root T66 regressions drive both concurrency paths.
 
 This inventory describes command handling and its integrated media effects at
-VERSION `0x0051`. `START_STREAMING` and `STOP_STREAMING` are served from the
-ACMP binding record. A stopped AAF Stream Input continues observing and counting
-received traffic while discarding its media contribution. The CRF exception is
-the issue #97 defect recorded in B12.
+VERSION `0x0052`. `START_STREAMING` and `STOP_STREAMING` are served from the
+ACMP binding record and complete at it. A stopped Stream Input - AAF and CRF
+alike - continues observing and counting received traffic while discarding its
+media contribution (B12).
 
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
@@ -276,7 +276,7 @@ peer-format-matched audio run, long-duration gPTP run, or external lab run
 was produced in this audit. Automated simulation cannot establish electrical,
 clock-recovery, timing-closure, switch-interaction, or long-duration behavior.
 
-### B12. Stream Input START/STOP behavior is partial; persistence is open
+### B12. Stream Input START/STOP completes at the record; persistence is open
 
 The ACMP binding record is the single source of truth for the Stream Input
 started state. `START_STREAMING` and `STOP_STREAMING` update that record, and
@@ -286,11 +286,13 @@ them while discarding their media contribution. The datapath suite also proves
 a STOP/START pair does not forge a binding edge or reset the Stream Input
 counters.
 
-Two correctness defects keep this behavior partial under issue #97. The AECP
-response can report `SUCCESS` after holder acceptance but before the record
-walker commits the state. The CRF stopped predicate is also applied at the CRF
-receive frame strobe, so stopped CRF traffic is hidden from observation and
-counters instead of being observed while only timing consumption is suppressed.
+Issue #97 closed this behavior's two correctness defects at `0x0052`. The AECP
+response now completes only after the record walker commits the state or
+confirms the required no-op - a request the walker cannot start answers
+`ENTITY_MISBEHAVING` inside a bounded window with no record side effect - and
+the CRF stopped predicate moved off the receive frame strobe onto the
+engine's own stop port, so stopped CRF traffic is observed and counted while
+only timing consumption and the restart echo are suppressed.
 
 Milan Section 5.3.8.7 also requires this state to be saved in nonvolatile memory
 and restored after a power cycle. The record projects and restores the bit, but

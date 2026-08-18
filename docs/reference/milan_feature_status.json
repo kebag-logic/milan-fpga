@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "facts": {
-    "gateware_version": "0x0002_0051",
+    "gateware_version": "0x0002_0052",
     "served_aem_operations": [
       "ACQUIRE_ENTITY",
       "LOCK_ENTITY",
@@ -64,7 +64,7 @@
     {
       "id": "gateware.current-version",
       "status": "implemented",
-      "value": "0x0002_0051",
+      "value": "0x0002_0052",
       "summary": "Current gateware and processor integration version.",
       "documents": [
         "README.md",
@@ -150,8 +150,8 @@
     },
     {
       "id": "stream-input.start-stop",
-      "status": "partial",
-      "summary": "The commands and media gate exist, but issue 97 tracks response-before-commit and stopped CRF defects.",
+      "status": "implemented",
+      "summary": "SUCCESS follows the binding-record commit or confirmed no-op; issue 69 owns the unsolicited response and issue 70 the persistence.",
       "documents": [
         "README.md",
         "docs/MILAN_V12_ROADMAP.md",
@@ -165,8 +165,8 @@
     },
     {
       "id": "stream-input.stopped-crf-observation",
-      "status": "missing",
-      "summary": "Stopped CRF traffic is hidden from observation and counters before the media-consumption boundary.",
+      "status": "implemented",
+      "summary": "A stopped, bound CRF Stream Input observes and counts received CRF traffic; timing consumption and the restart echo gate on started.",
       "documents": [
         "README.md",
         "docs/MILAN_V12_ROADMAP.md",

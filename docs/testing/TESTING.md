@@ -67,8 +67,8 @@ Machine-checked status rows are defined by the
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `missing` | - |
-| `stream-input.start-stop` | `partial` | - |
-| `stream-input.stopped-crf-observation` | `missing` | - |
+| `stream-input.start-stop` | `implemented` | - |
+| `stream-input.stopped-crf-observation` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
