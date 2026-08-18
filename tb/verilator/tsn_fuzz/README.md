@@ -164,28 +164,29 @@ handing it to `packet_gen --decode`; with that correction tsn-gen decodes
 real frames exactly and serves as a genuine independent decoder (the ADP
 campaign cross-checked 12 fields this way, before it was deleted).
 
-## Tracked gaps (visible, counted, non-failing)
+## Historical AECP findings
 
-Printed as `[GAP ]` and listed in each campaign's summary.
+The AECP campaign was deleted on 2026-08-13 with the legacy RTL it fuzzed.
+The surviving AAF campaign reports **0 known gaps**, so these findings are not
+measured by `tsn_fuzz`.
 
-> **Both belonged to the AECP campaign, which was deleted on 2026-08-13 with
-> the RTL it fuzzed.** The surviving AAF campaign reports **0 known gaps**, so
-> nothing below is currently being re-measured. They are kept because the
-> defects were real and were never fixed — deleting the record along with the
-> campaign would have quietly retired two findings rather than resolving them.
-> The second is tracked as #48.
+### Open legacy finding
 
-1. **`LOCK_ENTITY` ignores `descriptor_type`/`descriptor_index`** and answers
-   SUCCESS for any value; Section 7.4.2 scopes LOCK to the ENTITY descriptor, so a
-   foreign descriptor should draw `NO_SUCH_DESCRIPTOR`. Sibling
-   `ACQUIRE_ENTITY` answers `NOT_SUPPORTED` and is unaffected. Low impact —
-   every real controller sends `ENTITY/0`.
-2. **Undersized frames bypass the entity-id filter.** AECP frames ≤ 44 bytes
-   addressed to a *foreign* `target_entity_id` are answered anyway (and echo
-   *our* id); ≥ 45 bytes filter correctly. **Unreachable on a real link** —
-   Ethernet's 60-byte minimum means a MAC never delivers such a frame, and
-   the padded (real-wire) case is asserted to be silent. Latent robustness
-   gap, not a live exposure.
+**`LOCK_ENTITY` ignores `descriptor_type`/`descriptor_index`** and answers
+SUCCESS for any value. Section 7.4.2 scopes LOCK to the ENTITY descriptor, so
+a foreign descriptor should draw `NO_SUCH_DESCRIPTOR`. Sibling
+`ACQUIRE_ENTITY` answers `NOT_SUPPORTED` and is unaffected. This has low
+impact because real controllers send `ENTITY/0`.
+
+### Resolved finding: issue #48
+
+The deleted legacy parser answered unpadded AECP frames below 45 bytes even
+when they carried a foreign `target_entity_id`. Ethernet padding hid the bug
+on a real link. The current protocol processor captures the complete common
+header before dispatch and applies the entity filter before any short-command
+response path. Its `tb/pp_top` A7b regression sends exact 38 through 45 byte
+READ_DESCRIPTOR commands to a foreign target and requires silence for every
+length.
 
 ## Adding a campaign
 
