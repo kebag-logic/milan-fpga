@@ -103,8 +103,8 @@ underneath it.
 | `0x0009` | `GET_STREAM_FORMAT` | 5.4.2.8 | **0x004B** |
 | `0x000E` | `SET_STREAM_INFO` (MSRP_ACC_LAT_VALID) | 5.4.2.9 | **0x0053** (#67) |
 | `0x000F` | `GET_STREAM_INFO` (Milan 80-byte form) | 5.4.2.10 | 0x0047 |
-| `0x0010` | `SET_NAME` | 5.4.2.11 | **0x0053** |
-| `0x0011` | `GET_NAME` | 5.4.2.12 | **0x0053** |
+| `0x0010` | `SET_NAME` | 5.4.2.11 | **0x0054** |
+| `0x0011` | `GET_NAME` | 5.4.2.12 | **0x0054** |
 | `0x0014` | `SET_SAMPLING_RATE` | 5.4.2.13 | **0x004C** |
 | `0x0015` | `GET_SAMPLING_RATE` | 5.4.2.14 | **0x004B** |
 | `0x0016` | `SET_CLOCK_SOURCE` | 5.4.2.15 | **0x004C** |
@@ -300,7 +300,7 @@ clear, the persisted ones do not (see P3.1).
 | `0x0011` | GET_NAME **LANDED** | 5.4.2.12 | cdl 84: type, index, name_index, configuration_index, 64-byte name | compliant name-access tests |
 | `0x0019` | GET_CONTROL **— LANDED** | 5.4.2.18 | cdl 17: type, index, one `CONTROL_LINEAR_UINT8` value (0 or 255) | es-4.10 |
 
-`GET_NAME` and `SET_NAME` landed at 0x0053. The builder emits one exact 64-byte
+`GET_NAME` and `SET_NAME` landed at 0x0054. The builder emits one exact 64-byte
 table entry for every semantic name and supplies the capacity as generated
 shape data. ENTITY uses name indices 0 and 1; every other named descriptor
 uses index 0. The descriptor store loads large tables in bounded bursts, keeps
@@ -478,14 +478,14 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
 2. **P2.3 consumer follow-up**: validate and consume the exported clock-source
    and sampling-rate state in the media plane. The clock-source command alone
    does not light up the media-clock servo.
-3. **P2.2/P2.3 name access**: landed at 0x0053. Nonvolatile restoration stays
+3. **P2.2/P2.3 name access**: landed at 0x0054. Nonvolatile restoration stays
    in the persistence follow-up.
-4. **P2.3** `SET_STREAM_FORMAT` and `SET_STREAM_INFO`: these still need the
-   bound/streaming interlocks. The already-landed `SET_CONFIGURATION` path now
-   applies its running reduction at dispatch, and `START`/`STOP_STREAMING`
-   landed with issue #78 — their interlock turned out to be the binding
-   record's own (Section 5.3.8.7's "undefined when not bound"), not a reduction over
-   every stream.
+4. **P2.3** `SET_STREAM_FORMAT` and `SET_STREAM_INFO`: landed at 0x0053 WITH
+   their bound/streaming interlocks -- the per-descriptor STREAM_IS_RUNNING
+   route at dispatch, beside `SET_CONFIGURATION`'s reduction form.
+   `START`/`STOP_STREAMING` landed with issue #78 -- their interlock turned
+   out to be the binding record's own (Section 5.3.8.7's "undefined when not
+   bound"), not a reduction over every stream.
 5. **P3.2** notification triggers, folded into each command above as it lands.
 6. **P2.2/P2.3** `GET`/`SET_CONTROL` with the IDENTIFY indicator wired.
 7. **P2.4 complete 2026-08-17**: ADD/REMOVE_AUDIO_MAPPINGS with atomic

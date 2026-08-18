@@ -30,8 +30,10 @@
 //! GET_AUDIO_MAP, GET_DYNAMIC_INFO, and Milan GET_MILAN_INFO. Unsupported operations receive the
 //! conformant NOT_IMPLEMENTED fallback. IDENTIFY_NOTIFICATION sent as a command
 //! is BAD_ARGUMENTS.
-//! AN ECHO IS NOT AN IMPLEMENTATION. The missing mandatory surface includes
-//! SET_STREAM_FORMAT, SET_STREAM_INFO, and the Table 5.22
+//! AN ECHO IS NOT AN IMPLEMENTATION - and since 0x0002_0054 no MANDATORY
+//! command answers the echo: the stream setters landed at 0x0053 and name
+//! access at 0x0054. The remaining gap surface is behavioral, not a
+//! command: the Table 5.22
 //! counter-change scheduler. Live audio-map mutation is implemented, but
 //! saved-state persistence is absent. SET_CLOCK_SOURCE is accepted by the
 //! processor, and its dynamic value reaches this wrapper, but the media plane does not
