@@ -30,8 +30,10 @@
 //! GET_AUDIO_MAP, GET_DYNAMIC_INFO, and Milan GET_MILAN_INFO. Unsupported operations receive the
 //! conformant NOT_IMPLEMENTED fallback. IDENTIFY_NOTIFICATION sent as a command
 //! is BAD_ARGUMENTS.
-//! AN ECHO IS NOT AN IMPLEMENTATION. The missing mandatory surface includes
-//! SET_STREAM_FORMAT, SET_STREAM_INFO, name access, and the Table 5.22
+//! AN ECHO IS NOT AN IMPLEMENTATION - and since 0x0002_0054 no MANDATORY
+//! command answers the echo: the stream setters landed at 0x0053 and name
+//! access at 0x0054. The remaining gap surface is behavioral, not a
+//! command: the Table 5.22
 //! counter-change scheduler. Live audio-map mutation is implemented, but
 //! saved-state persistence is absent. SET_CLOCK_SOURCE is accepted by the
 //! processor, and its dynamic value reaches this wrapper, but the media plane does not
@@ -284,7 +286,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   parameter logic [31:0] PP_DESC_BASE_P  = 32'h2000_0000,
   parameter int PP_DESC_LINE_BYTES_P     = 576,
   parameter int PP_DESC_IDX_ENTRIES_P    = 32,
-  parameter int PP_DESC_NAME_ENTRIES_P   = 16,
   parameter int PP_DESC_MEM_TMO_CYC_P    = 4096,
   //! ---- AECP response buffer (protocol-processor 03 §7) -------------------
   //! Base of the response buffer's own main-memory region - a SECOND window,
@@ -6341,7 +6342,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .DESC_BASE_P         (PP_DESC_BASE_P),
       .DESC_LINE_BYTES_P   (PP_DESC_LINE_BYTES_P),
       .DESC_IDX_ENTRIES_P  (PP_DESC_IDX_ENTRIES_P),
-      .DESC_NAME_ENTRIES_P (PP_DESC_NAME_ENTRIES_P),
+      //! Generated beside the descriptor image from the same AEM model.
+      //! Large configured models therefore cannot inherit a small default.
+      .DESC_NAME_ENTRIES_P (AEM_NAME_ENTRIES_C),
       .DESC_MEM_TMO_CYC_P  (PP_DESC_MEM_TMO_CYC_P),
       .RESP_BASE_P         (PP_RESP_BASE_P)
     ) pp_shadow (

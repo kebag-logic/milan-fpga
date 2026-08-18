@@ -21,10 +21,10 @@ served on the wire while still having a known behavioral defect.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0053` |
+| `gateware.current-version` | `implemented` | `0x0002_0054` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 | `stream-input.start-stop` | `implemented` | - |
 | `stream-input.stopped-crf-observation` | `implemented` | - |
 | `stream-format.set` | `implemented` | - |
@@ -62,6 +62,8 @@ Served AEM operations:
 - `IDENTIFY_NOTIFICATION`
 - `SET_STREAM_INFO`
 - `GET_STREAM_INFO`
+- `SET_NAME`
+- `GET_NAME`
 - `GET_AVB_INFO`
 - `GET_AS_PATH`
 - `GET_COUNTERS`
@@ -80,8 +82,8 @@ Served Milan Vendor Unique operations:
 Missing mandatory AEM operations:
 
 <!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
-- `SET_NAME`
-- `GET_NAME`
+None. Every operation Milan v1.2 mandates for this profile is served since
+0x0002_0054 (the stream setters at 0x0053, name access at 0x0054).
 <!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
 
 The JSON `facts` object owns the exact served AEM list, served MVU list,

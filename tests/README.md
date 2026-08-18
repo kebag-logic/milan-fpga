@@ -72,7 +72,7 @@ These repeated claims are checked against the
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 | `notifications.change-events` | `partial` | - |
 <!-- milan-feature-status:end -->
 

@@ -109,7 +109,7 @@ conformance, not coverage, and no clause may be graded on an echo:
 | The §9.3.5 duty to answer an unimplemented command | **implemented, protocol processor**: conformant `NOT_IMPLEMENTED` fallback, plus `BAD_ARGUMENTS` for IDENTIFY_NOTIFICATION as a command |
 | ACQUIRE_ENTITY / LOCK_ENTITY | **implemented**: ACQUIRE_ENTITY returns Milan `NOT_SUPPORTED`; LOCK_ENTITY owns and times out the live lock |
 | SET/GET_CONFIGURATION and SET/GET_SAMPLING_RATE | **implemented**; persistence remains open |
-| SET/GET_NAME | **not implemented** |
+| SET/GET_NAME | implemented for all generated semantic names; values are not restored after reboot |
 | GET_STREAM_FORMAT / GET_STREAM_INFO | **implemented** |
 | SET_STREAM_FORMAT / SET_STREAM_INFO | **implemented** (0x0053): the per-row format verdict and the ACC_LAT presentation offset; the framers do not yet re-shape from a stored format |
 | SET/GET_MAX_TRANSIT_TIME | **not implemented** |

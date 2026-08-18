@@ -271,7 +271,7 @@ now draws a well-formed `NOT_IMPLEMENTED` echo (except where noted); that is the
 | GET/SET_CONFIGURATION | paired | **NOT IMPLEMENTED** | es-4.3, aecp_l0_state | `item-10-configuration` |
 | GET/SET_STREAM_FORMAT | paired | **NOT IMPLEMENTED** — and with it the FR-STR-03 listener format adaptation | es-4.4 | `item-10-stream-format` |
 | GET/SET_STREAM_INFO | paired | **NOT IMPLEMENTED** | es-4.6/4.5 | `item-10-stream-info` |
-| GET/SET_NAME | paired | **NOT IMPLEMENTED** | es-4.7 | `item-10-name` |
+| GET/SET_NAME | paired | **IMPLEMENTED** with fixed cdl 84 bodies and READ_DESCRIPTOR coherence | compliant name-access tests | generated named descriptors |
 | GET/SET_SAMPLING_RATE | paired | **NOT IMPLEMENTED** | es-4.8 | `item-10-sampling-rate` |
 | GET/SET_CLOCK_SOURCE | paired | **NOT IMPLEMENTED — and this one has teeth.** `SET_CLOCK_SOURCE` was the only writer of the live CLOCK_DOMAIN `clock_source_index`, now pinned at 0 (INTERNAL) for the life of the build: **the CRF media clock can never be selected** | es-4.9, aecp_milan_v12_tsn_gen | `item-10-clock-source` |
 | GET/SET_CONTROL (IDENTIFY) | paired | **NOT IMPLEMENTED** — `o_identify` is tied 0, so the LED is structurally dark | es-4.10 | `item-10-control` |

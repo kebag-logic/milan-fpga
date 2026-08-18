@@ -736,13 +736,15 @@ all three shipped configs hash to exactly what they hashed before
 (`arty_current` `0x001BC5AB73EC9D1D`, `arty_4x4` `0x001BC565E07E0DD6`).
 `cstr()` pads every name to a fixed 64 bytes, so no descriptor length,
 offset or directory entry moves either, only the name bytes. The exclusion also
-means a future `SET_NAME` implementation can update the field without moving
-`entity_model_id`. Runtime `SET_NAME` is not implemented in this build.
+means runtime `SET_NAME` can update the field without moving
+`entity_model_id`. The generated image also contains an exact 64-byte name
+table entry for each semantic name. The processor keeps that table and the
+inline descriptor bytes coherent so GET_NAME and READ_DESCRIPTOR agree.
 
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 **The DEPLOYED shape's ROM did change**, deliberately: the tracked AEM

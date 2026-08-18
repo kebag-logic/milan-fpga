@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # Milan v1.2 — the road to full compliance
 
-**Status 2026-08-18, VERSION `0x0002_0051`.** This is the ordered, clause-cited
+**Status 2026-08-18, VERSION `0x0002_0053`.** This is the ordered, clause-cited
 plan from where the device is to a device that passes the Milan
 end-station validation test plan. It supersedes the AECP sections of
 [historical `MILAN_COMPLIANCE_GAPS.md`](MILAN_COMPLIANCE_GAPS.md), whose 2026-08-13 status
@@ -28,10 +28,10 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0053` |
+| `gateware.current-version` | `implemented` | `0x0002_0054` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 | `stream-input.start-stop` | `implemented` | - |
 | `stream-input.stopped-crf-observation` | `implemented` | - |
 | `stream-format.set` | `implemented` | - |
@@ -45,8 +45,8 @@ Machine-checked status rows are defined by the
 The exact mandatory command gap is also machine-checked:
 
 <!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
-- `SET_NAME`
-- `GET_NAME`
+None. Every operation Milan v1.2 mandates for this profile is served since
+0x0002_0054 (the stream setters at 0x0053, name access at 0x0054).
 <!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
 
 ---
@@ -103,6 +103,8 @@ underneath it.
 | `0x0009` | `GET_STREAM_FORMAT` | 5.4.2.8 | **0x004B** |
 | `0x000E` | `SET_STREAM_INFO` (MSRP_ACC_LAT_VALID) | 5.4.2.9 | **0x0053** (#67) |
 | `0x000F` | `GET_STREAM_INFO` (Milan 80-byte form) | 5.4.2.10 | 0x0047 |
+| `0x0010` | `SET_NAME` | 5.4.2.11 | **0x0054** |
+| `0x0011` | `GET_NAME` | 5.4.2.12 | **0x0054** |
 | `0x0014` | `SET_SAMPLING_RATE` | 5.4.2.13 | **0x004C** |
 | `0x0015` | `GET_SAMPLING_RATE` | 5.4.2.14 | **0x004B** |
 | `0x0016` | `SET_CLOCK_SOURCE` | 5.4.2.15 | **0x004C** |
@@ -291,38 +293,21 @@ re-graded in `protocol-processor/tb/pp_top` Section W through both arms (unwritt
 overlay); and reset behaviour — the volatile fields (lock, registry, IDENTIFY)
 clear, the persisted ones do not (see P3.1).
 
-### P2.2 — the GET half that P2.1 unblocks
+### P2.2: name access and the GET half that P2.1 unblocks
 
 | Opcode | Command | Clause | Response | Blocks |
 |---|---|---|---|---|
-| `0x0011` | GET_NAME | 5.4.2.12 | cdl 84: type, index, name_index, configuration_index, 64-byte name | es-4.7, es-4.18, es-5.1, es-6.1, es-6.2 |
+| `0x0011` | GET_NAME **LANDED** | 5.4.2.12 | cdl 84: type, index, name_index, configuration_index, 64-byte name | compliant name-access tests |
 | `0x0019` | GET_CONTROL **— LANDED** | 5.4.2.18 | cdl 17: type, index, one `CONTROL_LINEAR_UINT8` value (0 or 255) | es-4.10 |
 
-Both of these look like one-afternoon reads and are not. Measured 2026-08-16
-while scoping P2.2:
-
-**`GET_NAME` has no name table to read.** The store's name-table overlay
-exists and is writable, but `avdecc/gen_aemi_image.py:239-241` deliberately
-emits **no** name table — *"Names are left to the descriptors' own inline
-`object_name` fields, so no name table is emitted (`name_index` unset means
-'unnamed' to the packer)."* So every descriptor's `nbase` reads `0xFFFF` and
-the names live inline at descriptor offset 4. Two consequences:
-
-1. **Offset 4 is not lane-aligned**, and the µISA has no shift. `COPY_BUF`
-   starts at the 8-byte lane the address falls in, so it cannot lift a 64-byte
-   field that begins 4 bytes into lane 0. Serving names from the inline field
-   needs either a byte-offset `COPY_BUF` (a µCPU change) or the name table.
-2. **The name table has to grow.** `KL_aecp_desc_store.sv:153`
-   `NAME_ENTRIES_P = 16`, and the store *refuses an image* whose `n_names`
-   exceeds it (`:460`). Milan Section 5.3.13's settable-name list on the 1x1 shipping
-   shape comes to about 29 entries — ENTITY contributes two
-   (`entity_name` index 0, `group_name` index 1, IEEE Section 7.4.18.1) and the 16
-   AUDIO_CLUSTERs contribute 16. Sixteen entries is 1 KB of on-chip RAM;
-   thirty-two is 2 KB, **on a die already at 67 % BRAM**.
-
-So P2.2's real first question is a sizing decision, not a microprogram:
-inline-with-a-µISA-change, or name-table-with-more-BRAM. Take it to the area
-budget before writing either.
+`GET_NAME` and `SET_NAME` landed at 0x0054. The builder emits one exact 64-byte
+table entry for every semantic name and supplies the capacity as generated
+shape data. ENTITY uses name indices 0 and 1; every other named descriptor
+uses index 0. The descriptor store loads large tables in bounded bursts, keeps
+the writable table coherent with the inline descriptor field, and supports
+generated shapes through 1024 names. A successful SET is immediately visible
+through GET and READ_DESCRIPTOR. Lock and argument failures return the current
+full name body at cdl 84. Reboot persistence remains tracked separately.
 
 **`GET_CONTROL` cannot honestly read the image.** The IDENTIFY value is
 dynamic state: Milan Section 5.3.12 makes it 0 or 255 with 0 the reset default, and
@@ -353,7 +338,7 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 | `0x0006` | SET_CONFIGURATION **— LANDED** | 5.4.2.5 | `STREAM_IS_RUNNING` (12) if **any** Stream Input is bound or **any** Stream Output is streaming | es-4.3, es-5.1, es-12.1, es-12.2 |
 | `0x0008` | SET_STREAM_FORMAT **-- LANDED 0x0053** | 5.4.2.7 | `STREAM_IS_RUNNING` on a **bound** input or streaming output; `BAD_ARGUMENTS` if any existing mapping references a channel absent from the new format | es-4.4, es-5.1, es-9.x, es-10.x, es-12.1, es-12.2 |
 | `0x000E` | SET_STREAM_INFO **-- LANDED 0x0053** | 5.4.2.9 | `NOT_SUPPORTED` on **any** Stream Input; `MSRP_ACC_LAT_VALID` sets the presentation offset, range `0x0`–`0x7FFFFFFF` ns, outside → `BAD_ARGUMENTS`; any unsupported sub-flag → refuse the **whole** command `NOT_SUPPORTED` | es-4.5, es-5.1, es-10.2, es-12.1 |
-| `0x0010` | SET_NAME | 5.4.2.11 | must accept names of **non-active** configurations too (es-4.7) | es-4.7, es-4.18, es-5.1, es-6.1, es-6.2 |
+| `0x0010` | SET_NAME **-- LANDED 0x0054** | 5.4.2.11 | accepts named descriptors in active and non-active configurations; a lock refusal returns the current name | compliant name-access tests |
 | `0x0014` | SET_SAMPLING_RATE **— LANDED** | 5.4.2.13 | the rate/mapping-mismatch refusal is a **MAY**, not a SHALL | es-4.16, es-5.1 |
 | `0x0016` | SET_CLOCK_SOURCE **— LANDED** | 5.4.2.15 | — | es-4.9, es-5.1, es-10.1 |
 | `0x0018` | SET_CONTROL **— LANDED** | 5.4.2.17 | IDENTIFY only; values 0 and 255 | es-4.10 |
@@ -493,14 +478,14 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
 2. **P2.3 consumer follow-up**: validate and consume the exported clock-source
    and sampling-rate state in the media plane. The clock-source command alone
    does not light up the media-clock servo.
-3. **P2.2** `GET_NAME` + **P2.3** `SET_NAME` — one pair, one storage question
-   (`name_index` fan-out), and five test items.
-4. **P2.3** `SET_STREAM_FORMAT` and `SET_STREAM_INFO`: these still need the
-   bound/streaming interlocks. The already-landed `SET_CONFIGURATION` path now
-   applies its running reduction at dispatch, and `START`/`STOP_STREAMING`
-   landed with issue #78 — their interlock turned out to be the binding
-   record's own (Section 5.3.8.7's "undefined when not bound"), not a reduction over
-   every stream.
+3. **P2.2/P2.3 name access**: landed at 0x0054. Nonvolatile restoration stays
+   in the persistence follow-up.
+4. **P2.3** `SET_STREAM_FORMAT` and `SET_STREAM_INFO`: landed at 0x0053 WITH
+   their bound/streaming interlocks -- the per-descriptor STREAM_IS_RUNNING
+   route at dispatch, beside `SET_CONFIGURATION`'s reduction form.
+   `START`/`STOP_STREAMING` landed with issue #78 -- their interlock turned
+   out to be the binding record's own (Section 5.3.8.7's "undefined when not
+   bound"), not a reduction over every stream.
 5. **P3.2** notification triggers, folded into each command above as it lands.
 6. **P2.2/P2.3** `GET`/`SET_CONTROL` with the IDENTIFY indicator wired.
 7. **P2.4 complete 2026-08-17**: ADD/REMOVE_AUDIO_MAPPINGS with atomic

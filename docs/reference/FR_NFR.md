@@ -124,7 +124,7 @@ These repeated claims are checked against the
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
@@ -149,7 +149,7 @@ These repeated claims are checked against the
 | **FR-STR-03/03a/03b** (listener format adaptation via SET_STREAM_FORMAT) | **MET AT THE CONTROL PLANE (0x0053); wire reshape deferred** | `SET_STREAM_FORMAT` is served for both stream directions with the Milan 5.4.2.7 refusals and a per-row format verdict; a stored setting becomes the served current format and drives STREAM_INPUT 0's acceptance filter. The *wire-truth* rule still governs de-interleaving, so render adaptation follows channels_per_frame off the wire; what remains deferred is the framers re-shaping from a stored format, recorded in the audit with the SET_CONFIGURATION precedent |
 | **FR-QOS-01..03** | **MET** | Classifier + CBS untouched; the Σ idleSlope ceiling is enforced by the processor's admission now |
 | **FR-MGT-01** (IDENTIFY) | **IMPLEMENTED IN THE PROCESSOR, UNCONSUMED AT ROOT** | Identify `SET_CONTROL` and `GET_CONTROL` are served by the processor, and `KL_pp_shadow.sv` exports `aecp_identify_o` to the root wire `pp_aecp_identify_w`. Nothing consumes the wire and the root ties `o_identify` low. The controller-visible state exists while the physical Identify output remains dark. An inbound `IDENTIFY_NOTIFICATION` command is separately refused with `BAD_ARGUMENTS` as required by Section 7.4.39.2 |
-| **FR-MGT-02** (names settable and persisted) | **NOT IMPLEMENTED** | `SET_NAME` is unimplemented (answered, then nothing changes) and there is no persistence |
+| **FR-MGT-02** (names settable and persisted) | **PARTLY MET** | `SET_NAME` and `GET_NAME` are served for every generated semantic name, and SET is coherent with READ_DESCRIPTOR. The writable names are volatile because nonvolatile restoration remains open |
 | **FR-DRV-\*, FR-DT-\*** | unchanged | Driver and device-tree surfaces are unaffected; the CSR ABI kept every register |
 | **NFR-\*** | unchanged in kind | The budgets and bounds still apply. Two are worth re-reading against the new plane: **NFR-LAT-01** (the presentation-time bound is now the Milan **2 ms default and is not configurable**, since `SET_MAX_TRANSIT_TIME` is unimplemented — a default, not a zero) and **NFR-SCUP-04** (the AEM memory it sizes has moved out of the gateware into main memory) |
 

@@ -184,7 +184,7 @@ module KL_pp_shadow #(
     parameter logic [31:0] DESC_BASE_P         = 32'h2000_0000,
     parameter int unsigned DESC_LINE_BYTES_P   = 576,
     parameter int unsigned DESC_IDX_ENTRIES_P  = 32,
-    parameter int unsigned DESC_NAME_ENTRIES_P = 16,
+    parameter int unsigned DESC_NAME_ENTRIES_P = 32,
     parameter int unsigned DESC_MEM_TMO_CYC_P  = 4096,
     //! ---- AECP response buffer, also in the integrator's main memory ------
     //! The response an AECP command builds (up to 16 + DESC_LINE_BYTES_P = 592

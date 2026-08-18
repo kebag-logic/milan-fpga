@@ -126,7 +126,7 @@ The current command boundary is checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 **That 500 µs is no longer settable (2026-08-13).** `SET_MAX_TRANSIT_TIME` and

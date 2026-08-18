@@ -4794,6 +4794,87 @@ def test_image_identity_is_baked():
               f"clock_identity - all equal to what ADP advertises (Table 7-2)")
 
 
+def test_image_name_table_matches_descriptors():
+    """Gate 28b: name commands and READ_DESCRIPTOR share one initial truth.
+
+    The packed image index rows are the hardware's only mapping from a
+    descriptor to its writable name-table entries. Read that mapping and the
+    table back out of the finished image, then compare every entry with the
+    corresponding 64 bytes in the packed descriptor. This catches an omitted,
+    shifted, non-contiguous or stale name independently of the join's document.
+    """
+    NAME_NONE = 0xFFFF
+    named_types = {
+        0x0000, 0x0001, 0x0002, 0x0005, 0x0006, 0x0009, 0x000A,
+        0x0014, 0x001A, 0x0024,
+    }
+    for name, path in CONFIGS.items():
+        cfg = eb.load_config(path)
+        overlay = eb.emit_aem_overlay(cfg)
+        blob = eb._entity_model_image(cfg, overlay)["aem_desc.bin"]
+        n_entries, n_names = struct.unpack_from(">HH", blob, 8)
+        index_off, names_off = struct.unpack_from(">II", blob, 12)
+
+        first = {}
+        next_index = {}
+        for row in range(n_entries):
+            at = index_off + 16 * row
+            cfg_i, typ, count, elem_len = struct.unpack_from(">HHHH", blob, at)
+            elem_off, name_base, stride = struct.unpack_from(">IHH", blob,
+                                                               at + 8)
+            key = (cfg_i, typ)
+            run_first = next_index.get(key, 0)
+            for rel in range(count):
+                first[(cfg_i, typ, run_first + rel)] = (
+                    NAME_NONE if name_base == NAME_NONE else name_base + rel,
+                    elem_off + rel * stride, elem_len)
+            next_index[key] = run_first + count
+
+        used = set()
+        for (cfg_i, typ, idx), packed in sorted(first.items()):
+            name_base, elem_off, elem_len = packed
+            desc = blob[elem_off:elem_off + elem_len]
+            if typ not in named_types:
+                assert name_base == NAME_NONE, (
+                    f"{name}: unnamed type 0x{typ:04X} index {idx} maps to "
+                    f"name-table entry {name_base}")
+                continue
+            assert name_base != NAME_NONE, (
+                f"{name}: named type 0x{typ:04X} index {idx} has no table")
+            semantic = ((0, 48), (1, 180)) if typ == 0x0000 else ((0, 4),)
+            for name_index, field_off in semantic:
+                slot = name_base + name_index
+                assert slot < n_names, (
+                    f"{name}: type 0x{typ:04X} index {idx} name {name_index} "
+                    f"maps past the {n_names}-entry table")
+                table = blob[names_off + 64 * slot:names_off + 64 * (slot + 1)]
+                inline = desc[field_off:field_off + 64]
+                assert len(table) == len(inline) == 64
+                assert table == inline, (
+                    f"{name}: type 0x{typ:04X} index {idx} name {name_index} "
+                    f"table entry {slot} differs from READ_DESCRIPTOR bytes")
+                used.add(slot)
+        assert used == set(range(n_names)), (
+            f"{name}: name table has unreferenced entries "
+            f"{sorted(set(range(n_names)) - used)}")
+        print(f"  [gate 28b] {name}: all {n_names} writable names map "
+              "byte-exactly to their READ_DESCRIPTOR fields")
+
+        svh = eb.emit_adp_shape_svh(cfg, overlay)
+        declared = re.search(r"AEM_NAME_ENTRIES_C\s*=\s*(\d+)", svh)
+        assert declared and int(declared.group(1)) == n_names, (
+            f"{name}: generated RTL sizes {declared.group(1) if declared else 'no'} "
+            f"name entries for an image containing {n_names}")
+
+        if name == "arty_current":
+            assert n_names == 29, (
+                f"shipping model has {n_names} names, expected 29")
+            rtl = "hdl/milan/KL_pp_shadow.sv"
+            src = open(os.path.join(ROOT, rtl), encoding="utf-8").read()
+            assert re.search(r"DESC_NAME_ENTRIES_P\s*=\s*32", src), (
+                f"{rtl}: standalone default cannot fit the shipping model")
+
+
 # ------------------------------------------- Milan Base Stream Formats (29) --
 #: Milan v1.2 Table 6.2 "Summary of Base Audio Stream Formats", TRANSCRIBED
 #: from the specification (printed p. 111) instead of computed.  This gate is
@@ -5108,6 +5189,7 @@ if __name__ == "__main__":
                test_gptp_domain_is_one_source,
                test_pp_window_is_reserved,
                test_image_identity_is_baked,
+               test_image_name_table_matches_descriptors,
                test_milan_base_formats_are_rate_complete,
                test_per_row_format_facts_are_per_row):
         print(f"{fn.__name__}:")

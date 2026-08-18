@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "facts": {
-    "gateware_version": "0x0002_0053",
+    "gateware_version": "0x0002_0054",
     "served_aem_operations": [
       "ACQUIRE_ENTITY",
       "LOCK_ENTITY",
@@ -24,6 +24,8 @@
       "IDENTIFY_NOTIFICATION",
       "SET_STREAM_INFO",
       "GET_STREAM_INFO",
+      "SET_NAME",
+      "GET_NAME",
       "GET_AVB_INFO",
       "GET_AS_PATH",
       "GET_COUNTERS",
@@ -35,10 +37,7 @@
     "served_mvu_operations": [
       "GET_MILAN_INFO"
     ],
-    "missing_mandatory_aem_operations": [
-      "SET_NAME",
-      "GET_NAME"
-    ]
+    "missing_mandatory_aem_operations": []
   },
   "fact_documents": {
     "served_aem_operations": [
@@ -64,7 +63,7 @@
     {
       "id": "gateware.current-version",
       "status": "implemented",
-      "value": "0x0002_0053",
+      "value": "0x0002_0054",
       "summary": "Current gateware and processor integration version.",
       "documents": [
         "README.md",
@@ -126,8 +125,8 @@
     },
     {
       "id": "aem.mandatory-missing-set",
-      "status": "missing",
-      "summary": "The ledger facts list is the canonical mandatory AEM command gap set.",
+      "status": "implemented",
+      "summary": "The mandatory AEM gap set is empty since 0x0002_0054: the stream setters landed at 0x0053 and name access at 0x0054.",
       "documents": [
         "README.md",
         "docs/AAF_LATENCY_TAPS.md",

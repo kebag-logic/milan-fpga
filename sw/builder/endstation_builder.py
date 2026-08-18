@@ -2374,8 +2374,28 @@ def emit_adp_shape_svh(cfg, overlay=None):
     sh = adp_shape(cfg)
     if overlay is None:
         overlay = emit_aem_overlay(cfg)
+    # The semantic name table covers the descriptor types named by
+    # gen_aem_store.build_model(). ENTITY contributes two entries while each
+    # other instance contributes one. Derive the capacity from the overlay's
+    # own descriptor counts instead of serializing the whole AEM model here:
+    # builder-only fixtures may deliberately omit media features that the
+    # shipping image serializer requires, but they still need an honest shape
+    # header and must not fail for an unrelated serializer constraint.
     sys.path.insert(0, os.path.join(ROOT, "avdecc"))
     import gen_aem_store as aem_store
+    named_types = (
+        "ENTITY", "CONFIGURATION", "AUDIO_UNIT", "STREAM_INPUT",
+        "STREAM_OUTPUT", "AVB_INTERFACE", "CLOCK_SOURCE", "CLOCK_DOMAIN",
+        "CONTROL", "AUDIO_CLUSTER",
+    )
+    descriptor_counts = overlay["descriptor_counts"]
+    missing_name_counts = [name for name in named_types
+                           if name not in descriptor_counts]
+    if missing_name_counts:
+        raise ConfigError("AEM overlay lacks descriptor counts for named "
+                          f"types: {', '.join(missing_name_counts)}")
+    aem_name_entries = 1 + sum(int(descriptor_counts[name])
+                               for name in named_types)
     din_any = any(s.get("map_mode", "static") == "dynamic"
                   for s in cfg["listeners"])
     dout_any = any(s.get("map_mode", "static") == "dynamic"
@@ -2457,6 +2477,10 @@ def emit_adp_shape_svh(cfg, overlay=None):
     a("  //! listener_stream_sinks = STREAM_INPUT descriptors = the ACMP")
     a("  //! listener_unique_id range (AAF sinks, then the CRF sink)")
     a(f"  localparam int ADP_LISTENER_SINK_C = {sh['listener_stream_sinks']};")
+    a("  //! Writable SET_NAME/GET_NAME entries in this exact AEM model.")
+    a("  //! This sizes the processor overlay from the generated descriptor")
+    a("  //! shape, so a larger model cannot compile with a smaller cache.")
+    a(f"  localparam int AEM_NAME_ENTRIES_C = {aem_name_entries};")
     a("  //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |")
     a("  //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT")
     a("  //! exists to back it")

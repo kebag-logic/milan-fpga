@@ -49,7 +49,7 @@ are silently refused: freed, counted, no reply. Milan Delta 7
 
 **An echo is not an implementation**, so read the echo as a duty discharged
 (IEEE 1722.1 Section 9.3.5: respond to what you do not implement), never as coverage.
-Genuinely absent behind it: `SET_STREAM_FORMAT`, `SET_STREAM_INFO`, name access,
+Genuinely absent behind it: `SET_STREAM_FORMAT`, `SET_STREAM_INFO`,
 most Milan Table 5.22 change triggers, root-level IDENTIFY indication, and
 saved-state persistence. `GET_DYNAMIC_INFO` is served by the processor batch
 scanner. `ADD_AUDIO_MAPPINGS` and
@@ -70,7 +70,7 @@ Machine-checked status rows are defined by the
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
-| `aem.mandatory-missing-set` | `missing` | - |
+| `aem.mandatory-missing-set` | `implemented` | - |
 | `stream-input.start-stop` | `implemented` | - |
 | `stream-input.stopped-crf-observation` | `implemented` | - |
 | `stream-format.set` | `implemented` | - |
