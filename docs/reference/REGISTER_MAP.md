@@ -742,7 +742,7 @@ The measurement half of the CRF clock-recovery loop: `KL_crf_rx` validates
 every PDU of the followed CRF stream against the Milan 7.3.2 profile
 constants and produces the servo's phase/frequency inputs; the MMCM-DRP
 actuator status lives at `0x8F8`. Loop semantics + RTL citations:
-[Sections 3.3-3.4. of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#33-crf-in--kl_crf_rx-the-measurement-half)
+[Sections 3.3-3.4 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#33-crf-in--kl_crf_rx-the-measurement-half)
 
 The followed stream normally comes from the CRF sink bind (ACMP listener
 sink 1 — the bind wins); the SID pair here is the manual lever, and the

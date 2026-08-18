@@ -49,8 +49,8 @@ from the network's point of view the grandmaster simply vanished.
 [`configs/endstation_ax7101_8x8.yaml`](../../configs/endstation_ax7101_8x8.yaml) ships **`rx_queues: 1`**, and its own
 comment already says what that means:
 
-> *"with 1 there is no steer block at all, so gPTP shares the bulk ring and the
-> USER's 2-ingress-queue directive is simply not implemented on this build."*
+> *"with 1 there is no steer block at all, so gPTP shares the bulk ring"* --
+> the two-queue PTP separation is simply not implemented on that build.
 
 With one ring there is one NAPI context and one softcore. A line-rate RX flood
 consumes it entirely; userspace never runs; `ptp4l` transmits nothing. Observed
@@ -221,8 +221,8 @@ acceptance procedure after the reflash rather than assuming.
 2. **ALINX `rx_dropped` = 117,223 of 145,126 (81 %)** at rest, static across
    idle periods — pre-existing, not load-correlated, and not explained here.
 3. **Bench config, already recorded:** ALINX `priority1 238` forces the BMCA
-   (D9 records 248 as the correct value: 238 outranks the segment's GM and pins
-   the election); Arty `ptp4l` is `clientOnly` with no
+   (D9: the bench value for this device is 248, which can never outrank the
+   otherwise-elected peers; at 238 it pins the election); Arty `ptp4l` is `clientOnly` with no
    `step_threshold` (D8). Neither was touched by this lane, and neither
    affects the result above: the GM change in E2 was a genuine automatic
    re-election *away from* the forced winner and back again.

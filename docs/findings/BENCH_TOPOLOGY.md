@@ -27,7 +27,7 @@ any other name; its material is private (see Section 7).
 - **[0. The map](#0-the-map)** -- Answers "where do I plug the analyzer": tap1 is inline on the ALINX link (the only DUT link left) and the tap host is the **only** place wire truth exists -- the controller host sits on a pruned switch port. The caveat that follows the picture is the useful bit -- a tap sees one *link*, so traffic the switch drops crosses neither tap.
 - **[1. Machines](#1-machines)** -- Role and reach for every host, now with the concrete names inline (<peer-host> / <capture-host> / <power-controller>), plus the facts that change what you can do: the dev box never gets an address on the AVB subnet, the switch has no IP or UI management at all, pw0's port is pruned, and capture records carry a 28-byte header so every `ether[]` offset shifts by +28.
 - **[2. Boards (DUTs)](#2-boards-duts)** -- The sole DUT (AX7101: serial/JTAG/ssh access, RV32, 8×8×8ch) and the reference-peer wiring with the PRIMARIES-ONLY binding rule; the two-board table and the Arty analog loop are kept below it as banner-marked history.
-- **[3. Consoles from the dev box](#3-consoles-from-the-dev-box)** -- The serial↔FIFO daemon you must **recreate whenever it is gone** (it dies with the shell that started it), and its three traps: output racing the read window, `dmesg -n 1` to unbury the console, and a foreground pipe wedging the shell.
+- **[3. Consoles from the dev box](#3-consoles-from-the-dev-box)** -- The serial↔FIFO daemon you must **recreate whenever it is gone** (it is not a service, and its scratch-space FIFOs do not persist), and its three traps: output racing the read window, `dmesg -n 1` to unbury the console, and a foreground pipe wedging the shell.
 - **[4. Repositories & artifacts](#4-repositories--artifacts)** -- Which of the five trees holds what -- gateware, bench/private, LiteX venv and build dirs, buildroot output, standards PDFs. Standing warning: both repos diverge from their GitHub origins, so any push needs `--force`.
 - **[5. Build → flash → verify pipeline](#5-build--flash--verify-pipeline)** -- The commands, copy-ready: 3-seed sweep, the per-board flash invocation with its environment, and the WNS ≥ 0 gate. Also the chronic non-error to ignore (`write_cfgmem SPI_BUSWIDTH` on ARTY) and the regression set required before any commit.
 - **[6. Peer-host wire tooling (all sudo, iface enp6s0)](#6-peer-host-wire-tooling-all-sudo-iface-enp6s0)** -- The probe scripts and what each one proves, the capture filters with the three multicast groups, and the full THD+N chain from tap capture or ring dump to a number.
@@ -156,7 +156,8 @@ flowchart LR
 ## 3. Consoles from the dev box
 
 A tiny daemon per board bridges serial↔FIFO+log (scratchpad-based, not a
-service -- it dies with the shell that started it; RECREATE it when gone):
+service -- its FIFOs and log live in scratch space that does not persist;
+RECREATE it when gone):
 
 ```sh
 S=<scratchpad>           # this session's scratchpad dir
@@ -186,7 +187,7 @@ foreground pipe wedges the shell (write ctrl-C to the FIFO).
 | `~/refs/AX7101` | Board reference repo (schematic, flash + PHY datasheets). Read-only. |
 
 **Both repos DIVERGE from their GitHub origins** (2026-07-20 history
-rewrite). Push ONLY when the user asks — needs `--force`.
+rewrite). Push ONLY on explicit request -- needs `--force`.
 
 ## 5. Build → flash → verify pipeline
 
@@ -196,7 +197,7 @@ never launch a build without it (an unpinned hash seed forks the VexiiRiscv
 netlist and the A/B comparison dies). The fit recipe that currently gets
 closest is `synth_design -directive AlternateRoutability` +
 `place_design -directive ExtraNetDelay_high`; the full fit ledger is preserved
-in the archived pre-2026-08-11 dated bench notes (reachable from
+in the archived 2026-08-02 dated bench note (reachable from
 [the archive index](../../historical_now_obsolete/README.md)).
 Flash with the full image set
 (`KERNEL`/`DTB`/`OPENSBI`/`ROOTFS`) — **OpenSBI embeds the FDT**, so a DTB
@@ -452,4 +453,5 @@ reads lie (shadow).
 | Date | Change | Rationale |
 |---|---|---|
 | 2026-07-31 | The Arty target retired; the AX7101 became the sole DUT | The Arty's USB-powered rail browns out under sustained network load, so campaign results on it were unreproducible; one supported target keeps the verification bar meaningful |
-| 2026-08-02 | Bench values inlined; the dated bench notes left the tree | The notes name bench hosts and local paths, which must never reach the public tree; the pre-2026-08-11 set is preserved in the archive |
+| 2026-08-02 | Bench values inlined into this page | The single-DUT bench made the inline values stable enough to publish, and one document must be enough to operate the bench |
+| 2026-08-11 | The dated bench notes left the tree | The notes name bench hosts and local paths, which must never reach the public tree; the pre-2026-08-11 set is preserved in the archive |

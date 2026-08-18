@@ -103,9 +103,9 @@ PROCESS_RE = re.compile(
 
 #: attribution: a decision credited to a person or a quoted conversation.
 ATTRIB_RE = re.compile(
-    r"USER:|USER RULE|USER STANDING|USER rule"
-    r"|[Uu]ser (asked|wants|requested|said|directive|rule|standing)"
-    r"|as requested|per the (user|directive)|forget the")
+    r"USER:|USER RULE|USER STANDING|USER rule|USER['’]s"
+    r"|[Uu]ser (asks|asked|wants|requested|said|directive|rule|standing)"
+    r"|[Aa]s requested|per the (user|USER|directive)|forget the")
 
 #: the section sign; prose writes the word "Section" (or "Sections").
 SECTION_SIGN_RE = re.compile(r"§")
@@ -376,7 +376,9 @@ def check_md(path, relpath, resolve, tracked_set):
 
         # --- writing hygiene (living pages only; see the rules above) ---
         if not (historical or obsolete):
-            hmasked = line
+            # single-line HTML comments are exempt like multi-line ones,
+            # so a page can quote a forbidden phrase inline when needed
+            hmasked = re.sub(r"<!--.*?-->", "", line)
             for allow in HYGIENE_ALLOW:
                 hmasked = hmasked.replace(allow, "#" * len(allow))
             hm = PROCESS_RE.search(hmasked)

@@ -184,7 +184,7 @@ The current AECP entry is checked against the
 |------|---------|
 | **m1 / l2x2 / mlp1 / mlp2 / mlp3** | The >500-campaign bitstream lineage: m1 (32 KB L2, blocking D\$) → l2x2 (+64 KB L2) → mlp1 (+refill=8) → mlp2 (+RPT, 32 KB) → **mlp3** (+RPT +64 KB = best RX). See [`findings/PERFORMANCE_GOAL.md`](findings/PERFORMANCE_GOAL.md). |
 | **M-A1 … M-A6** | The hardware bring-up milestones: A1 boot, A2 CPU reads MILN, A3 DMA/datapath on silicon, A4 …, A5 Linux driver bring-up, A6 descriptor rings/IRQ (largely superseded by the ring DMA engines). |
-| **Section A.x** | Section numbers of the migration plan in [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md) (e.g. Section A.6 DMA, Section A.7 MAC/PHY, Section A.9 datapath wrapper). Commit messages and archived pages write the A.x with a leading section sign. |
+| **Section A.x** | Section numbers of the migration plan in [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md) (e.g. Section A.6 DMA, Section A.7 MAC/PHY, Section A.9 datapath wrapper). Commit messages and older pages write the A.x with a leading section sign. |
 | **Section V** | The post-flash [silicon validation checklist](testing/RUNNING_TESTS.md#6-silicon-validation-checklist); archived campaign pages abbreviate it as a V behind a section sign. |
 | **FR-… / NFR-…** | Functional / non-functional requirement IDs ([`FR_NFR.md`](reference/FR_NFR.md), [`../REQUIREMENTS.md`](../REQUIREMENTS.md))  -  e.g. FR-DRV-* driver features, NFR-LAT-01 latency. |
 | **Option 6b** | The descriptor/scatter-gather multi-queue DMA upgrade path (deferred; rings cover today's needs). |

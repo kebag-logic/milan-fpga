@@ -71,8 +71,9 @@ failure mode when the cache misses is a confusing sbt error deep in the build.
 ## 3. RISC-V targets: RV32 primary, RV64 secondary
 
 **RV32 is the default focus** for the whole virtual tier: the board shape is
-fixed at RV32 VexiiRiscv for area (the RV64 shape does not fit the xc7a100t;
-decision recorded 2026-08-01), and the sim SoC's
+fixed at RV32 VexiiRiscv for area (the 2026-07-31 fit campaign failed placement
+on the RV64 sweep shapes; the archived dated notes, reachable from
+[the archive index](../../historical_now_obsolete/README.md), preserve the record), and the sim SoC's
 `--xlen` has always defaulted to 32. RV64 stays *supported*, behind an explicit
 `--xlen=64`, and is not the primary path.
 
@@ -88,7 +89,9 @@ decision recorded 2026-08-01), and the sim SoC's
 | rootfs | `rootfs.cpio` 29,784,064 B · `rootfs.cpio.gz` 12,815,843 B · `rootfs.cpio.xz` **7,715,920 B** · `rootfs.tar` 31,293,440 B |
 | firmware (OpenSBI RV32) | **PRESENT in `milan-tests-avb`** -- `opensbi_ax_vexii_rv32.bin`, see Section 6 |
 
-The two `.xz` sizes are the flash-slot-verified pair, recorded 2026-08-01
+The two `.xz` sizes are the flash-slot-verified pair from the archived
+2026-08-01 dated note (reachable from
+[the archive index](../../historical_now_obsolete/README.md))
 (`Image.xz` into a 3 MiB slot; `rootfs.cpio.xz` into a 7,733,248 B slot, 17 KB
 slack). They are named here so a virtual run and a flash run demonstrably use
 the *same* bytes — the generated-versus-flashed artifact seam that

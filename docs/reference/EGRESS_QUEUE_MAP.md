@@ -410,8 +410,8 @@ it is a correctness requirement:
   priority queue placed **above** the shaped classes can preempt a class-A frame
   whose credit is already earned, for an amount of time the credit model does
   not account for. The shaper still runs, but the guarantee it computes is no
-  longer the guarantee the network gets. In the USER's words: *"CBS is not
-  working with something with higher priority."*
+  longer the guarantee the network gets. In short: a CBS guarantee does not
+  survive an unshaped higher-priority queue sitting above the shaped classes.
 * **gPTP does not need to be on top, because it is not timed by when it
   leaves.** Every event message is hardware-timestamped at the **egress SFD**
   in `ptp_ts_top`, downstream of this arbiter. A queueing delay therefore

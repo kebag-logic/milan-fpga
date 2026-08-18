@@ -696,5 +696,5 @@ byte-identical refactor.)
 
 | Date | Change | Rationale |
 |---|---|---|
-| 2026-07-27 | Six prune parameters (`*_P`) landed; `VERSION` held at `0x0001_0014` | At the default settings the parametrisation is build-identical, and a version bump announces CSR-observable change on a running board; a pulled lever is declared by the config that pulled it |
+| 2026-07-26–28 | Six prune parameters (`*_P`) landed; `VERSION` held at `0x0001_0014` | At the default settings the parametrisation is build-identical, and a version bump announces CSR-observable change on a running board; a pulled lever is declared by the config that pulled it |
 | 2026-08-13 | The 1722.1 control plane left the fabric for the protocol processor; affected rows marked REMOVED | The substitution is the architecture of record; the page keeps its 2026-07-27 measurements as a dated record rather than inventing replacement numbers |

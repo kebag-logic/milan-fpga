@@ -374,4 +374,4 @@ the normative text is
 | Date | Change | Rationale |
 |---|---|---|
 | 2026-07-26 | Release 0x0013 documented: the listener fix, the 802.1Q queue order, DMAC-keyed control classification, lwSRP row sizing, RMON | Each change is CSR-observable on a reflashed board, and this page is the upgrade contract from 0x000B |
-| 2026-07-27 | Banner added: superseded in part by 0x0014, which drops to five queues | The six-queue map missed placement by 282 slices on the xc7a100t; the spare queue carried no traffic, so dropping it recovers fit with every class keeping its rank and shaping |
+| 2026-07-27 | Banner added: superseded in part by 0x0014, which drops to five queues | The six-queue map missed placement by 282 slices on the xc7a100t; 0x0014 recovers fit with a bundle of area levers plus dropping the traffic-less spare queue, every class keeping its rank and shaping |

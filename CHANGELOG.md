@@ -41,7 +41,7 @@ Effects are `before → after` Mbit/s. "build" = gateware config passed to [`sw/
 |--:|---|---|---|---|
 | 1 | HW RSC receive coalescing | cut per-frame RX CPU | `e1b7f5f` (kl-eth `rsc250`) | **RX single 43 → 209** |
 | 2 | HW header-gen TSO | TX offload | `151032d`,`559b402` (kl-eth) | **TX 143 → 186** |
-| 3 | RX fan-out (2 queues, 2 harts) | parallel RX | `01a484c` (kl-eth) + `rxfan` build | **RX −P2 223 → 238** — **RETIRED 2026-07-26**: `RxSteer` is now a gPTP-vs-rest splitter per the USER's 2-ingress-queue directive, not a TCP 4-tuple flow hash, so this lever no longer exists. Bulk RX is single-NAPI again; see [EGRESS_QUEUE_MAP.md](docs/reference/EGRESS_QUEUE_MAP.md) for the trade |
+| 3 | RX fan-out (2 queues, 2 harts) | parallel RX | `01a484c` (kl-eth) + `rxfan` build | **RX −P2 223 → 238** -- **RETIRED 2026-07-26**: `RxSteer` is now a gPTP-vs-rest splitter (two ingress queues so PTP event frames never wait behind bulk RX -- the D7 grandmaster-loss class), not a TCP 4-tuple flow hash, so this lever no longer exists. Bulk RX is single-NAPI again; see [EGRESS_QUEUE_MAP.md](docs/reference/EGRESS_QUEUE_MAP.md) for the trade |
 | 4 | CBS-default shaping bug fix | remove spurious throttle | `34cc2bc` (hdl/csr `CBS_EN_RST=0`) | unblocked TX shaping |
 | 5 | RX overload-wedge fixes | stop RX collapse under load | `09e3a09`,`2c44757` (rsc RTL) + `12265b5` (kl-eth) | RX stable, `canary=0` under storm |
 | 6 | TX peer-coalescing + softirq NAPI | TX aggregate | `44e785c` (T1, operating point) | **TX −P4 → 452** |

@@ -20,8 +20,8 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 > bridges the two models and [`hdl/milan/milan_datapath.sv`](../../hdl/milan/milan_datapath.sv)
 > wires it between them. So this engine is the active MAAP engine in this
 > repository's own RTL, and the talker half of
-> the processor's ACMP is dead by construction without it -- see Section Fabric
-> integration.
+> the processor's ACMP is dead by construction without it -- see [Fabric
+> integration](#fabric-integration).
 
 ## Contents
 
