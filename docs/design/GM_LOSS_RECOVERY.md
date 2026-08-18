@@ -7,6 +7,18 @@ session**, not estimated. Companion to
 this document covers the *transient*: what happens, layer by layer, when
 the grandmaster disappears, changes, or comes back.
 
+Current integration note: the measurements below predate the control-plane
+replacement. The current root keeps media-clock selection INTERNAL, and the
+general Table 5.22 notification producer is still missing. Mapping-change
+notifications are the implemented exception.
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `crf.media-clock-consumption` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+<!-- milan-feature-status:end -->
+
 ## Contents
 
 - **[1. What "GM lost" actually is on the wire](#1-what-gm-lost-actually-is-on-the-wire)** — Loss is inferred from announce silence; a deferring device still self-claims when alone, and the real GM's return is a measured 18-60 s phase cliff, not a smooth re-slave
@@ -124,11 +136,10 @@ working on both ends.
 - **Counters**: `GPTP_GM_CHANGED` increments on the AVB_INTERFACE
   (measured: 6 changes across the churn night). LINK_UP/DOWN share the
   edge machinery.
-- **Unsolicited pushes** (Table 5.22, the 0x0024/0x0028 event law): a GM
-  change arms the AVB_INTERFACE GET_COUNTERS push and the GET_AS_PATH
-  push to every registered controller — rate-limited to 1/s/descriptor,
-  and since 0x0028 only EVENTS arm pushes, so the GM change is visible
-  as exactly one burst, not a standing wave.
+- **Unsolicited pushes** (Table 5.22, the 0x0024/0x0028 event law): the
+  VERSION `0x002B` implementation armed AVB_INTERFACE `GET_COUNTERS` and
+  `GET_AS_PATH` pushes. That producer was deleted during the control-plane
+  replacement and has not been restored in the current root.
 
 ## 6. The media layer — where the minutes used to go
 

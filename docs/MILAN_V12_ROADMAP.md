@@ -40,6 +40,15 @@ Machine-checked status rows are defined by the
 | `notifications.controller-liveness` | `missing` | - |
 <!-- milan-feature-status:end -->
 
+The exact mandatory command gap is also machine-checked:
+
+<!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
+- `SET_STREAM_FORMAT`
+- `SET_STREAM_INFO`
+- `SET_NAME`
+- `GET_NAME`
+<!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
+
 ---
 
 ## Contents
@@ -56,11 +65,10 @@ Machine-checked status rows are defined by the
 
 ### 0.1 Served for real, today
 
-**Twenty-six** AEM opcodes plus one MVU command. The authority is
-`protocol-processor/hdl/aecp/KL_aecp_engine.sv`'s `OP_*_C` constants, and
-`tests/steps/aecp_engine_steps.py`'s `SERVED` table is gated against that list
-by a behave step that parses the RTL — so this section cannot silently rot
-again.
+**Twenty-six** AEM opcodes plus one MVU command. The processor's `OP_*_C`
+constants are the concrete decode. The feature ledger owns the canonical
+documented inventory, and the compliant bench gates its `SERVED` table against
+the processor RTL.
 
 **"Served" here means the command's own request/response contract.** It does
 **not** imply that every served state change has its unsolicited notification.
@@ -82,35 +90,39 @@ one-configuration image cannot exercise a real active-configuration switch, so
 the command stores and reports an index without any descriptor set changing
 underneath it.
 
+<!-- milan-feature-fact:served_aem_operations:start -->
 | Opcode | Command | Milan clause | Landed |
 |---|---|---|---|
-| `0x0000` | ACQUIRE_ENTITY (refused `NOT_SUPPORTED`) | 5.4.2.1 | 0x0044 |
-| `0x0001` | LOCK_ENTITY | 5.4.2.2 | 0x0046 |
-| `0x0002` | ENTITY_AVAILABLE | 5.4.2.3 | **0x004B** |
-| `0x0004` | READ_DESCRIPTOR | 5.4.2.4 | 0x0040 |
-| `0x0006` | SET_CONFIGURATION | 5.4.2.5 | **0x004D** |
-| `0x0007` | GET_CONFIGURATION | 5.4.2.6 | **0x004B** |
-| `0x0009` | GET_STREAM_FORMAT | 5.4.2.8 | **0x004B** |
-| `0x000F` | GET_STREAM_INFO (Milan 80-byte form) | 5.4.2.10 | 0x0047 |
-| `0x0014` | SET_SAMPLING_RATE | 5.4.2.13 | **0x004C** |
-| `0x0015` | GET_SAMPLING_RATE | 5.4.2.14 | **0x004B** |
-| `0x0016` | SET_CLOCK_SOURCE | 5.4.2.15 | **0x004C** |
-| `0x0017` | GET_CLOCK_SOURCE | 5.4.2.16 | **0x004B** |
-| `0x0018` | SET_CONTROL (IDENTIFY) | 5.4.2.17 | **0x004C** |
-| `0x0019` | GET_CONTROL (IDENTIFY) | 5.4.2.18 | **0x004C** |
-| `0x0022` | START_STREAMING | 5.4.2.19 | 0x004F, partial (#97) |
-| `0x0023` | STOP_STREAMING | 5.4.2.20 | 0x004F, partial (#97) |
-| `0x0024` | REGISTER_UNSOLICITED_NOTIFICATION | 5.4.2.21 | 0x0045 |
-| `0x0025` | DEREGISTER_UNSOLICITED_NOTIFICATION | 5.4.2.22 | 0x0045 |
-| `0x0026` | IDENTIFY_NOTIFICATION as a command → `BAD_ARGUMENTS` | IEEE 7.4.39.2 | 0x0042 |
-| `0x0027` | GET_AVB_INFO | 5.4.2.23 | 0x0048 |
-| `0x0028` | GET_AS_PATH | 5.4.2.24 | 0x0048 |
-| `0x0029` | GET_COUNTERS | 5.4.2.25 | 0x0049 |
-| `0x002B` | GET_AUDIO_MAP (both port directions) | 5.4.2.26 | 0x0048 |
-| `0x002C` | ADD_AUDIO_MAPPINGS | 5.4.2.27 | 0x0050 |
-| `0x002D` | REMOVE_AUDIO_MAPPINGS | 5.4.2.28 | 0x0050 |
-| `0x004B` | GET_DYNAMIC_INFO | 5.4.2.29 | **0x0051** |
-| MVU `0x0000` | GET_MILAN_INFO | 5.4.4.1 | 0x0043 |
+| `0x0000` | `ACQUIRE_ENTITY` (refused `NOT_SUPPORTED`) | 5.4.2.1 | 0x0044 |
+| `0x0001` | `LOCK_ENTITY` | 5.4.2.2 | 0x0046 |
+| `0x0002` | `ENTITY_AVAILABLE` | 5.4.2.3 | **0x004B** |
+| `0x0004` | `READ_DESCRIPTOR` | 5.4.2.4 | 0x0040 |
+| `0x0006` | `SET_CONFIGURATION` | 5.4.2.5 | **0x004D** |
+| `0x0007` | `GET_CONFIGURATION` | 5.4.2.6 | **0x004B** |
+| `0x0009` | `GET_STREAM_FORMAT` | 5.4.2.8 | **0x004B** |
+| `0x000F` | `GET_STREAM_INFO` (Milan 80-byte form) | 5.4.2.10 | 0x0047 |
+| `0x0014` | `SET_SAMPLING_RATE` | 5.4.2.13 | **0x004C** |
+| `0x0015` | `GET_SAMPLING_RATE` | 5.4.2.14 | **0x004B** |
+| `0x0016` | `SET_CLOCK_SOURCE` | 5.4.2.15 | **0x004C** |
+| `0x0017` | `GET_CLOCK_SOURCE` | 5.4.2.16 | **0x004B** |
+| `0x0018` | `SET_CONTROL` (IDENTIFY) | 5.4.2.17 | **0x004C** |
+| `0x0019` | `GET_CONTROL` (IDENTIFY) | 5.4.2.18 | **0x004C** |
+| `0x0022` | `START_STREAMING` | 5.4.2.19 | 0x004F, partial (#97) |
+| `0x0023` | `STOP_STREAMING` | 5.4.2.20 | 0x004F, partial (#97) |
+| `0x0024` | `REGISTER_UNSOLICITED_NOTIFICATION` | 5.4.2.21 | 0x0045 |
+| `0x0025` | `DEREGISTER_UNSOLICITED_NOTIFICATION` | 5.4.2.22 | 0x0045 |
+| `0x0026` | `IDENTIFY_NOTIFICATION` as a command → `BAD_ARGUMENTS` | IEEE 7.4.39.2 | 0x0042 |
+| `0x0027` | `GET_AVB_INFO` | 5.4.2.23 | 0x0048 |
+| `0x0028` | `GET_AS_PATH` | 5.4.2.24 | 0x0048 |
+| `0x0029` | `GET_COUNTERS` | 5.4.2.25 | 0x0049 |
+| `0x002B` | `GET_AUDIO_MAP` (both port directions) | 5.4.2.26 | 0x0048 |
+| `0x002C` | `ADD_AUDIO_MAPPINGS` | 5.4.2.27 | 0x0050 |
+| `0x002D` | `REMOVE_AUDIO_MAPPINGS` | 5.4.2.28 | 0x0050 |
+| `0x004B` | `GET_DYNAMIC_INFO` | 5.4.2.29 | **0x0051** |
+<!-- milan-feature-fact:served_aem_operations:end -->
+<!-- milan-feature-fact:served_mvu_operations:start -->
+| MVU `0x0000` | `GET_MILAN_INFO` | 5.4.4.1 | 0x0043 |
+<!-- milan-feature-fact:served_mvu_operations:end -->
 
 ### 0.1b What the read-side set cost, measured
 

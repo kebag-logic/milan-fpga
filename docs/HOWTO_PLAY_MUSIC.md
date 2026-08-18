@@ -140,6 +140,17 @@ Two cautions on those writes:
 
 ## If it is silent
 
+The controller-facing diagnoses are checked against the
+[Milan feature status ledger](reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+<!-- milan-feature-status:end -->
+
 | symptom | first thing to check |
 |---|---|
 | dies ~20 s with `write error: I/O error` | you bypassed `play-milan`; the ktimers/scheduling block is missing |

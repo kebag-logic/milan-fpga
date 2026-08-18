@@ -127,6 +127,16 @@ The chronograms need only `pip install wavedrom` in any virtualenv plus
 
 ## Elsewhere in the repo
 
+The command and notification descriptions in this section are checked against
+the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `notifications.change-events` | `partial` | - |
+<!-- milan-feature-status:end -->
+
 - The ATDECC subsystem's own multi-page deep-dive (pages 1-9) and the minimal
   drawio renderer that produced its pages lived under the AECP RTL's doc
   directory. **Both were deleted on 2026-08-13** with the fabric engine they
@@ -139,8 +149,8 @@ The chronograms need only `pip install wavedrom` in any virtualenv plus
 
 - Two catalog entries were retired in the same pass: `atdecc_control_plane` (the
   fabric ADP/AECP/ACMP/MAAP control plane) and `unsol_slots` (the Milan Table
-  5.22 unsolicited-notification slots). Both drew engines that no longer exist,
-  and the Table 5.22 push is genuinely absent from this device, so there is no
-  unsolicited lane to draw. The control plane is now the protocol processor,
-  AECP included — see the status block at the top of
+  5.22 unsolicited-notification slots). Both drew engines that no longer exist.
+  The general Table 5.22 producer remains absent, while audio-mapping changes
+  now use the processor's unsolicited lane. The control plane is now the
+  protocol processor, AECP included. See the status block at the top of
   [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md).

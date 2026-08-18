@@ -16,6 +16,15 @@ each; deeper treatment is linked where a dedicated doc exists.
 
 ## AVB / TSN / Milan
 
+The current AECP entry is checked against the
+[Milan feature status ledger](reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+<!-- milan-feature-status:end -->
+
 | Term | Meaning |
 |------|---------|
 | **AVB** | Audio Video Bridging  -  the IEEE 802.1 suite (gPTP + SRP + CBS + AVTP) for synchronized, bounded-latency media over Ethernet. |
@@ -24,7 +33,7 @@ each; deeper treatment is linked where a dedicated doc exists.
 | **AVTP** | Audio Video Transport Protocol (IEEE 1722)  -  the L2 media transport; carries streams with presentation timestamps. |
 | **AVDECC** | Device discovery, enumeration, and control under IEEE 1722.1; comprises ADP, AECP, and ACMP. Here ADP and ACMP are integrated, while AECP is partial. See the AECP row and the current Milan v1.2 audit. |
 | **ADP** | AVDECC Discovery Protocol  -  entity advertise/depart. Implemented by the **protocol processor** ([`hdl/milan/KL_pp_shadow.sv`](../hdl/milan/KL_pp_shadow.sv)); the fabric `adp_advertiser` module it replaced was deleted 2026-08-13. |
-| **AECP** | AVDECC Enumeration and Control Protocol for AEM command and response traffic. The protocol processor serves the current inventory recorded in `tests/steps/aecp_engine_steps.py`, including descriptor reads, solicited counters, selected getters and setters, Identify control, unsolicited registration, audio-map reads, and Milan information. Unsupported commands receive the conformant fallback. Remaining blockers are listed in the [current Milan v1.2 audit](testing/MILAN_V12_AUDIT_2026-08-16.md); a fallback response is not implementation evidence. |
+| **AECP** | AVDECC Enumeration and Control Protocol for AEM command and response traffic. The protocol processor serves the current inventory recorded in the [Milan feature status ledger](reference/MILAN_FEATURE_STATUS.md), including descriptor reads, solicited counters, selected getters and setters, Identify control, unsolicited registration, audio-map reads, and Milan information. Unsupported commands receive the conformant fallback. Remaining blockers are listed in the [current Milan v1.2 audit](testing/MILAN_V12_AUDIT_2026-08-16.md); a fallback response is not implementation evidence. |
 | **ACMP** | AVDECC Connection Management Protocol  -  stream connect/disconnect handshakes. Implemented by the **protocol processor**, which publishes a settled **bind record** rather than a state ladder — `bound` is the truth, `ACMPL_STATE` is a structural zero. |
 | **AEM** | AVDECC Entity Model, the descriptor tree describing an entity. The AECP uCPU serves `READ_DESCRIPTOR` from a flat descriptor image in DRAM. The end-station builder generates the image artifacts, and the board-side `aemi-load` utility loads and verifies the paired image before enabling the entity. |
 | **Descriptor image** | The flat memory image used by the AECP descriptor store: header, index map, descriptors, and name table. It sits in DRAM at the compile-time `PP_DESC_BASE_P` and must be loaded before the entity is enabled. The builder emits `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; `aemi-load` verifies and loads the paired image. |

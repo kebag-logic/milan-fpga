@@ -76,6 +76,7 @@ Machine-checked status rows are defined by the
 
 The current AECP implementation answers these operations with real behavior:
 
+<!-- milan-feature-fact:served_aem_operations:start -->
 - `READ_DESCRIPTOR`
 - `ACQUIRE_ENTITY` with Milan's required `NOT_SUPPORTED` result
 - `LOCK_ENTITY`
@@ -88,13 +89,17 @@ The current AECP implementation answers these operations with real behavior:
 - `START_STREAMING` and `STOP_STREAMING` for Stream Input, with the known
   response-boundary and stopped-CRF defects tracked by issue #97
 - `GET_STREAM_INFO`, `GET_AVB_INFO`, and leaf-only `GET_AS_PATH`
-- `REGISTER_UNSOLICITED_NOTIFICATION` and its deregistration pair
+- `REGISTER_UNSOLICITED_NOTIFICATION` and `DEREGISTER_UNSOLICITED_NOTIFICATION`
 - `IDENTIFY_NOTIFICATION` commands with the required `BAD_ARGUMENTS` result
 - `GET_COUNTERS` for Stream Input, Stream Output, AVB Interface, and Clock Domain
 - `GET_AUDIO_MAP` for both stream-port directions
 - `ADD_AUDIO_MAPPINGS` and `REMOVE_AUDIO_MAPPINGS`
 - `GET_DYNAMIC_INFO` for the IEEE fixed-getter whitelist
+<!-- milan-feature-fact:served_aem_operations:end -->
+
+<!-- milan-feature-fact:served_mvu_operations:start -->
 - Milan Vendor Unique `GET_MILAN_INFO`
+<!-- milan-feature-fact:served_mvu_operations:end -->
 
 Unknown and unimplemented operations still receive the correctly sized IEEE
 1722.1 echo. Commands for another entity and incoming AECP responses are
@@ -108,8 +113,16 @@ utility loads and verifies the paired image before the entity is enabled. The
 store validates its `AEMI` header, version, checksum, and configuration before
 serving it, and a late valid image heals without a reset.
 
-This is still not a full Milan v1.2 implementation. Mandatory operations still
-missing include the stream-format setter, stream-info setter, and name access.
+This is still not a full Milan v1.2 implementation. These mandatory operations
+are missing:
+
+<!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
+- `SET_STREAM_FORMAT`
+- `SET_STREAM_INFO`
+- `SET_NAME`
+- `GET_NAME`
+<!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
+
 The processor accepts and stores clock-source and sampling-rate changes. The
 clock-source selection now reaches the media plane's wrapper but nothing there
 reads it yet, and the sampling rate is stored and readable over AECP without
@@ -390,4 +403,4 @@ ends derive from gPTP) plus making the Bresenham remainder a register the
 servo drives, which gives 0.01 ppm per LSB for a register and an adder.
 
 Full evidence, the ruled-out list and the oscillator table:
-[`docs/findings/MEDIA_CLOCK_LOCK_0810.md`](docs/findings/MEDIA_CLOCK_LOCK_0810.md).
+[obsolete historical media-clock finding](docs/findings/MEDIA_CLOCK_LOCK_0810.md).

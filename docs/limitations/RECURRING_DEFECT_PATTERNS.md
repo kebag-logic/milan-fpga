@@ -9,6 +9,16 @@ findable.
 Read this before an RTL review, before a flash, and before believing a green
 test run.
 
+The current command examples are checked against the
+[Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+<!-- milan-feature-status:end -->
+
 Each pattern gives: what it looked like, **why it survived** (the interesting
 part), and a check that would have caught it earlier.
 

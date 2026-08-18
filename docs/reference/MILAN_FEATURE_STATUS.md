@@ -34,6 +34,54 @@ served on the wire while still having a known behavioral defect.
 | `verification.long-gate-policy` | `implemented` | `local-required, remote-optional` |
 <!-- milan-feature-status:end -->
 
+## Exact command inventories
+
+Served AEM operations:
+
+<!-- milan-feature-fact:served_aem_operations:start -->
+- `ACQUIRE_ENTITY`
+- `LOCK_ENTITY`
+- `ENTITY_AVAILABLE`
+- `READ_DESCRIPTOR`
+- `SET_CONFIGURATION`
+- `GET_CONFIGURATION`
+- `GET_STREAM_FORMAT`
+- `SET_SAMPLING_RATE`
+- `GET_SAMPLING_RATE`
+- `SET_CLOCK_SOURCE`
+- `GET_CLOCK_SOURCE`
+- `SET_CONTROL`
+- `GET_CONTROL`
+- `START_STREAMING`
+- `STOP_STREAMING`
+- `REGISTER_UNSOLICITED_NOTIFICATION`
+- `DEREGISTER_UNSOLICITED_NOTIFICATION`
+- `IDENTIFY_NOTIFICATION`
+- `GET_STREAM_INFO`
+- `GET_AVB_INFO`
+- `GET_AS_PATH`
+- `GET_COUNTERS`
+- `GET_AUDIO_MAP`
+- `ADD_AUDIO_MAPPINGS`
+- `REMOVE_AUDIO_MAPPINGS`
+- `GET_DYNAMIC_INFO`
+<!-- milan-feature-fact:served_aem_operations:end -->
+
+Served Milan Vendor Unique operations:
+
+<!-- milan-feature-fact:served_mvu_operations:start -->
+- `GET_MILAN_INFO`
+<!-- milan-feature-fact:served_mvu_operations:end -->
+
+Missing mandatory AEM operations:
+
+<!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
+- `SET_STREAM_FORMAT`
+- `SET_STREAM_INFO`
+- `SET_NAME`
+- `GET_NAME`
+<!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
+
 The JSON `facts` object owns the exact served AEM list, served MVU list,
 mandatory missing AEM list, and current gateware version. A new repeated claim
 gets a stable identifier here and in the JSON before another active page uses

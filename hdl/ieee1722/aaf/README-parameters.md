@@ -39,10 +39,19 @@ TDM/AES3/SPDIF ser/des families sibling selections of this module.
 
 ## Config-driven ports (not parameters, still schema-owned)
 
+The runtime clock-consumption claim is checked against the
+[Milan feature status ledger](../../../docs/reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `crf.media-clock-consumption` | `missing` | - |
+<!-- milan-feature-status:end -->
+
 | Port | Config-schema origin | Notes |
 |------|----------------------|-------|
 | `clk_audio_i` | `clocking.audio_pll_hz` (24_576_000) | Clean MMCM audio clock; MCLK = /2, SCLK = /8, LRCK = /512 → fs = `audio_pll_hz` / 512. Any other fs (item 6 DRP servo) retunes this clock, not the module. |
-| `servo_en_i` | `clocking.media_clock_sources` selection (runtime `aecp_clk_src != 0`) | USER rule hook: exact recovery only for bound-stream clock sources; no NCO actuator remains (future MMCM-DRP servo). |
+| `servo_en_i` | root constant `CRF_CLK_SELECTED_C = 0` | Disabled in the shipping integration. The AECP clock-source selection reaches the root but is not consumed, so no MMCM-DRP or NCO actuator is enabled. |
 | `wire_chans_i` | wire truth (runtime, from `KL_avtp_rx_monitor`) | NOT config: channels/frame of the last accepted PDU drives the 1-to-1 render mapping regardless of declared formats. |
 
 ## Cross-parameter / cross-module pairings (STRICT)

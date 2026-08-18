@@ -57,6 +57,16 @@ actually comes from); §2 is the CPU lane (where the queue map applies).
 
 ## 1. Egress: a captured sample becomes an AAF frame (the fabric talker)
 
+The dynamic-map and media-clock claims are checked against the
+[Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+<!-- milan-feature-status:end -->
+
 ```mermaid
 flowchart LR
     ADC["line-in / I2S / TDM"] --> CAP["KL_aaf_capture_i2s<br/>or KL_tdm_capture"]
@@ -73,7 +83,7 @@ flowchart LR
 | # | hop | instance in `milan_datapath.sv` | what happens | read it at |
 |---|---|---|---|---|
 | 1 | **capture** | `aaf_capture` (`KL_aaf_capture_i2s`) or `tdm_capture` (`KL_tdm_capture`) | the I2S/TDM front end recovers L/R sample pairs and hands them over as a `pair_valid` + slot + 24-bit L/R bus. Which one is built is an elaboration choice, not a runtime one | `LTAP_TX_EPOCH` `0x874` samples the gPTP ns at this edge |
-| 2 | **channel map** | `KL_chan_map_capture` | the capture crossbar picks, per wire slot, which physical pair, host-ring pair, tone source, loopback source, or zero feeds it. The map resets empty; `CHMAP_CTRL` selects the CSR-programmed crossbar, and with the enable clear the front-end pair drives the packetizer bit-identically | `CHMAP_CTRL` `0x900` is the only map writer. `GET_AUDIO_MAP` reads the live stores, while the two AECP map writers remain unimplemented. See [../CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md) |
+| 2 | **channel map** | `KL_chan_map_capture` | the capture crossbar picks, per wire slot, which physical pair, host-ring pair, tone source, loopback source, or zero feeds it. The map resets empty; `CHMAP_CTRL` selects the CSR-programmed crossbar, and with the enable clear the front-end pair drives the packetizer bit-identically | `CHMAP_CTRL` `0x900` is the direct diagnostic writer. `GET_AUDIO_MAP` reads the live stores, and `ADD_AUDIO_MAPPINGS` plus `REMOVE_AUDIO_MAPPINGS` update them through the processor's transactional path. See [../CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md) |
 | 3 | **packetize** | `aaf_packetizer` (`KL_aaf_packetizer`) | accumulates a PDU's worth of pairs, then emits one AAF frame: VLAN tag from `AAF_CTRL[27:16]`, destination from `AAF_DMLO`/`AAF_DMHI`, source = the station MAC, `avtp_timestamp` = the PHC now plus the presentation offset AECP holds. Per-talker state lives in the TCTX rows the `0x800` window writes | `AAF_FRAMES` `0x660`, `AAF_PAIRS` `0x664`; `LTAP_TX_D0/D1` `0x87C`/`0x884` bracket the accumulate + serialize |
 | 4 | **admission** | `aaf_stream_en_w` inside the packetizer | a stream emits when the common AAF enable and MAAP term are true and its processor-owned ACMP talker and SRP bandwidth state grant admission. `AAF_CTRL[1]` is the documented debug bypass | `PP_STAT` `0x924`, `AAF_CTRL` `0x678`, and the processor class-D diagnostics |
 | 5 | **merge with the shaped lane** | `aaf_final_mux` (`adp_tx_arbiter`) | the packetizer output is the *low-rate* port of a two-input merger whose other port is the shaped CPU datapath. **This is the bypass**: no queue, no credit | — |
@@ -191,6 +201,7 @@ Worth stating so nobody looks for them in the wrong place:
   playback side of §3 hop 7b, not on the capture side of §1 hop 2. They are two
   different crossbars with two different map RAMs —
   [../CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md) has both.
-* **The media-clock servo** (`KL_mmcm_drp_servo`) is not in the frame path at
-  all: it steers the audio MMCM from the CRF/AVTP timestamp error, so it
-  changes *when* samples are clocked, never which bytes move.
+* **The media-clock servo** (`KL_mmcm_drp_servo`) is not in the frame path.
+  The current root pins its selection to INTERNAL, so it does not steer the
+  audio MMCM from CRF/AVTP timestamp error. Restoring clock-source consumption
+  would change *when* samples are clocked, never which bytes move.

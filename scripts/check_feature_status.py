@@ -34,6 +34,20 @@ HEADER_RE = re.compile(
     r"^\|\s*Feature ID\s*\|\s*Status\s*\|\s*Canonical value\s*\|\s*$"
 )
 FENCE_RE = re.compile(r"^\s*(```|~~~)")
+FACT_START_RE = re.compile(
+    r"^<!-- milan-feature-fact:(?P<fact>[a-z0-9_]+):start -->$"
+)
+FACT_END_RE = re.compile(
+    r"^<!-- milan-feature-fact:(?P<fact>[a-z0-9_]+):end -->$"
+)
+FACT_TOKEN_RE = re.compile(r"`([A-Z][A-Z0-9_]*)`")
+FACT_NON_OPERATION_TOKENS = {
+    "BAD_ARGUMENTS",
+    "NOT_IMPLEMENTED",
+    "NOT_SUPPORTED",
+    "NO_SUCH_DESCRIPTOR",
+    "SUCCESS",
+}
 ARCHIVE_PARTS = {"historical_now_obsolete", "archive", "archived", "archives"}
 VERSION_SOURCE = REPO / "hdl/common/csr/milan_csr.sv"
 COMMAND_SOURCE = REPO / "tests/steps/aecp_engine_steps.py"
@@ -126,6 +140,31 @@ def load_ledger_text(text, source="ledger"):
 
     if findings:
         return None, findings
+
+    fact_documents = data.get("fact_documents")
+    if not isinstance(fact_documents, dict):
+        findings.append(f"{source}: fact_documents must be an object")
+    else:
+        list_facts = {
+            name for name, value in facts.items() if isinstance(value, list)
+        }
+        for name, documents in fact_documents.items():
+            if name not in list_facts:
+                findings.append(
+                    f"{source}: fact_documents has unknown list fact '{name}'")
+                continue
+            if not isinstance(documents, list) or not documents or not all(
+                    isinstance(document, str) and document.endswith(".md")
+                    for document in documents):
+                findings.append(
+                    f"{source}: fact_documents.{name} needs a Markdown "
+                    "document list")
+            elif len(documents) != len(set(documents)):
+                findings.append(
+                    f"{source}: fact_documents.{name} repeats a document")
+    if findings:
+        return None, findings
+
     version_feature = by_id.get("gateware.current-version")
     if (version_feature is not None and
             version_feature.get("value") != facts["gateware_version"]):
@@ -271,15 +310,85 @@ def parse_document(text, relpath):
     return claims, findings
 
 
+def parse_fact_blocks(text, relpath):
+    """Return machine-readable operation inventories from one document."""
+    blocks = {}
+    findings = []
+    active_fact = None
+    active_line = 0
+    tokens = []
+    in_comment = in_fence = False
+
+    for lineno, line in enumerate(text.splitlines(), 1):
+        stripped = line.strip()
+        if FENCE_RE.match(line):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+        if in_comment:
+            if "-->" in line:
+                in_comment = False
+            continue
+        if "<!--" in line and "-->" not in line:
+            in_comment = True
+            continue
+
+        start = FACT_START_RE.fullmatch(stripped)
+        if start:
+            fact = start.group("fact")
+            if active_fact is not None:
+                findings.append(
+                    f"{relpath}:{lineno}: nested feature-fact block")
+            active_fact = fact
+            active_line = lineno
+            tokens = []
+            continue
+
+        end = FACT_END_RE.fullmatch(stripped)
+        if end:
+            fact = end.group("fact")
+            if active_fact is None:
+                findings.append(
+                    f"{relpath}:{lineno}: unmatched feature-fact end")
+            elif fact != active_fact:
+                findings.append(
+                    f"{relpath}:{lineno}: feature-fact end '{fact}' does not "
+                    f"match '{active_fact}'")
+            elif fact in blocks:
+                findings.append(
+                    f"{relpath}:{lineno}: duplicate feature-fact '{fact}'")
+            else:
+                blocks[fact] = (tokens, active_line)
+            active_fact = None
+            tokens = []
+            continue
+
+        if active_fact is not None:
+            tokens.extend(
+                token for token in FACT_TOKEN_RE.findall(line)
+                if token not in FACT_NON_OPERATION_TOKENS)
+
+    if active_fact is not None:
+        findings.append(
+            f"{relpath}:{active_line}: unclosed feature-fact '{active_fact}'")
+    return blocks, findings
+
+
 def check_claims(ledger, documents):
     """Check active ``documents`` mapping against a parsed ledger."""
     findings = []
     occurrences = defaultdict(list)
     per_file_ids = defaultdict(set)
+    fact_occurrences = defaultdict(dict)
 
     for relpath, text in sorted(documents.items()):
         claims, parse_findings = parse_document(text, relpath)
         findings.extend(parse_findings)
+        fact_blocks, fact_findings = parse_fact_blocks(text, relpath)
+        findings.extend(fact_findings)
+        for fact, block in fact_blocks.items():
+            fact_occurrences[fact][relpath] = block
         for feature_id, status, value, lineno in claims:
             if feature_id in per_file_ids[relpath]:
                 findings.append(
@@ -320,6 +429,36 @@ def check_claims(ledger, documents):
             elif feature_id not in per_file_ids[relpath]:
                 findings.append(
                     f"feature '{feature_id}' is not marked in {relpath}")
+
+    fact_documents = ledger["fact_documents"]
+    for fact, claims in sorted(fact_occurrences.items()):
+        if fact not in fact_documents:
+            files = ", ".join(sorted(claims))
+            findings.append(f"unknown feature fact '{fact}' in {files}")
+            continue
+        expected_documents = set(fact_documents[fact])
+        for relpath, (tokens, lineno) in sorted(claims.items()):
+            if relpath not in expected_documents:
+                findings.append(
+                    f"feature fact '{fact}' is not registered for {relpath}")
+            duplicates = sorted({token for token in tokens
+                                 if tokens.count(token) > 1})
+            missing = sorted(set(ledger["facts"][fact]) - set(tokens))
+            extra = sorted(set(tokens) - set(ledger["facts"][fact]))
+            if duplicates or missing or extra:
+                findings.append(
+                    f"feature fact conflict '{fact}' in {relpath}:{lineno}: "
+                    f"missing={missing}; extra={extra}; "
+                    f"duplicates={duplicates}")
+    for fact, expected_documents in sorted(fact_documents.items()):
+        for relpath in expected_documents:
+            if relpath not in documents:
+                findings.append(
+                    f"feature fact '{fact}' requires missing or inactive "
+                    f"{relpath}")
+            elif relpath not in fact_occurrences[fact]:
+                findings.append(
+                    f"feature fact '{fact}' is not marked in {relpath}")
     return sorted(set(findings))
 
 
@@ -346,6 +485,9 @@ def run_self_test():
             "served_mvu_operations": ["GET_MILAN_INFO"],
             "missing_mandatory_aem_operations": ["SET_NAME"]
         },
+        "fact_documents": {
+            "served_aem_operations": ["one.md", "two.md"]
+        },
         "features": [{
             "id": "aem.read-descriptor",
             "status": "implemented",
@@ -353,10 +495,15 @@ def run_self_test():
             "documents": ["one.md", "two.md"]
         }]
     }
+    fact_row = (
+        "<!-- milan-feature-fact:served_aem_operations:start -->\n"
+        "- `READ_DESCRIPTOR`\n"
+        "<!-- milan-feature-fact:served_aem_operations:end -->\n"
+    )
     row = (f"{BLOCK_START}\n| Feature ID | Status | Canonical value |\n"
            "|---|---|---|\n"
            "| `aem.read-descriptor` | `implemented` | - |\n"
-           f"{BLOCK_END}\n")
+           f"{BLOCK_END}\n{fact_row}")
 
     ledger, findings = load_ledger_text(json.dumps(base), "fixture")
     cases = []
@@ -422,6 +569,19 @@ def run_self_test():
             f"{BLOCK_START}\n", "").replace(f"{BLOCK_END}\n", "")})
     cases.append(("unmarked claim rejected", any(
         "outside a marked block" in item for item in unmarked_findings)))
+
+    fact_drift = row.replace("`READ_DESCRIPTOR`", "`SET_NAME`")
+    fact_drift_findings = check_claims(
+        ledger, {"one.md": row, "two.md": fact_drift})
+    cases.append(("operation inventory drift", any(
+        "feature fact conflict 'served_aem_operations'" in item and
+        "two.md" in item for item in fact_drift_findings)))
+
+    missing_fact_findings = check_claims(
+        ledger, {"one.md": row, "two.md": row.replace(fact_row, "")})
+    cases.append(("missing operation inventory", any(
+        "feature fact 'served_aem_operations' is not marked in two.md" in item
+        for item in missing_fact_findings)))
 
     obsolete = "[OBSOLETE + 2026-08-18]\n" + conflict
     cases.append(("obsolete banner", not is_active_document_text(obsolete,

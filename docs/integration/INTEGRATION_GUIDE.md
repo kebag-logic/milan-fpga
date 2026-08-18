@@ -32,6 +32,18 @@ is visible from the port list:
   AECP — and see §1.6, because the descriptor half comes with an integration
   obligation you inherit.
 
+These integration-boundary claims are checked against the
+[Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `aem.mandatory-missing-set` | `missing` | - |
+| `state.nonvolatile-persistence` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+<!-- milan-feature-status:end -->
+
 This guide is the contract you integrate against. The two in-repo reference
 integrations of exactly this boundary:
 

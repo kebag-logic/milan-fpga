@@ -6,11 +6,22 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 # Time synchronization — gPTP, the PHC, and the media clock
 
 How time works in this system, top to bottom: what 802.1AS (gPTP) gives us,
-where hardware timestamps are made and how they reach `ptp4l`, and how the
-gPTP-disciplined clock becomes the 48 kHz media clock that the DACs and ADCs
-actually run on. Register offsets follow
+where hardware timestamps are made and how they reach `ptp4l`, and how media
+clock recovery is designed. The current root does not consume the exported
+clock-source selection, so its audio clock remains INTERNAL. Register offsets follow
 [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) (the CSR ABI
 authority); status claims carry their in-repo evidence. Written 2026-07-25.
+
+Current command, clock-consumption, and notification claims are checked against
+the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+| `crf.media-clock-consumption` | `missing` | - |
+| `notifications.change-events` | `partial` | - |
+<!-- milan-feature-status:end -->
 
 ![The time-sync clock chain](../diagrams/timesync_chain.png)
 
@@ -22,15 +33,15 @@ authority); status claims carry their in-repo evidence. Written 2026-07-25.
 
 ## Contents
 
-- **[1. Concept — the three clocks](#1-concept--the-three-clocks)** — Why there are three and not one: the PHC that gPTP disciplines, a `CLOCK_REALTIME` nothing in the media path depends on, and a *physical* audio clock that cannot be written like a counter — only steered. Ends with the whole chain in one sentence.
-- **[2. Mechanism — the hardware timestamp path](#2-mechanism--the-hardware-timestamp-path)** — Five subsections from the fractional-ns phase accumulator to the who-runs-where table. The load-bearing idea is *qualify at TLAST* — the original core decided the record on a CDC handshake and raced the beat rate in both directions. Also the record's always-1 marker sentinel, why `tlast` is deliberately withheld from the DMA writer, and the tap-measured latency constants whose absence kept `asCapable` permanently false.
-- **[3. The media clock](#3-the-media-clock)** — How a shared nanosecond timeline becomes a 48 kHz sample edge: an integer-only MMCM chain (fractional-N jitter measurably collapsed converter THD+N to -4.5 dB), the CRF talker and the measuring receiver, and a PI servo whose real actuator is a 16.9 ps fine phase step — with `CRF_DELTA` deliberately excluded from the loop because it carries an arbitrary phase constant. Closes on the media-lock rule: an internal source locks on the first PDU, an external one has to earn it. New in §3.1.1: the master-role error budget — why "exactly 24.576 MHz" only binds the slave role, and the real numbers (synthesis -0.66 ppm on the TDM-master plan under a +-50 ppm oscillator, all absorbed by listeners tracking our honest timestamps).
-- **[4. Time-related CSRs — quick table](#4-time-related-csrs--quick-table)** — Every time-related offset in one place, `CAP[9]` through `MCSRV_CTRL` and the `dma-ts` ring. Every row is now ABI-blessed in the register map, so the `(*)` "live in RTL, undocumented" marker this table used to carry is retired.
-- **[4a. Centered-FIFO regulation goal (USER 2026-08-07): +/- 125 us](#4a-centered-fifo-regulation-goal-user-2026-08-07---125-us)** — The standing regulation target: the DAC elasticity FIFO stays centered and its wander holds within one class-A frame period (+/-6 pairs), earned by clock quality rather than buffer depth
-- **[4b. Grandmaster loss and recovery](#4b-grandmaster-loss-and-recovery)** — Pointer to [GM_LOSS_RECOVERY.md](GM_LOSS_RECOVERY.md), the transient story: what a GM handover costs at each layer and why it is now one MEDIA_RESET click + ~100 ms with the lock held
-- **[5. Status (2026-07-25)](#5-status-2026-07-25)** — Claim-by-claim, each with its evidence: peer delay 600 µs on software stamps → 1.3 µs on hardware, CRF board-to-board locked at +6.7 ppm, -83.9 dB loop THD+N at the converter floor. Then the honest half by row id — no per-unit latency calibration exists, the BMCA recreation is blocked by a switch that outranks every Milan-legal value, and `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` are mapped but their fabric wires unconsumed. The doc-drift bullet this section used to carry is closed.
+- **[1. Concept -- the three clocks](#1-concept----the-three-clocks)** -- Distinguishes the gPTP-disciplined PHC, Linux `CLOCK_REALTIME`, and the physical audio clock, then records that the shipping audio source remains INTERNAL.
+- **[2. Mechanism -- the hardware timestamp path](#2-mechanism----the-hardware-timestamp-path)** -- Follows the fractional-nanosecond counter, RX and TX timestamp points, CDC transport, DMA records, and latency corrections from the MAC boundary to software.
+- **[3. The media clock](#3-the-media-clock)** -- How a shared nanosecond timeline is intended to become a 48 kHz sample edge, the inactive PI servo design, and the missing root selection that keeps the shipping clock INTERNAL. The section also records the master-role error budget and measured historical loop behavior.
+- **[4. Time-related CSRs -- quick table](#4-time-related-csrs----quick-table)** -- Lists every time and media-clock register from the PHC controls through CRF measurements, latency taps, and the inactive servo status.
+- **[4a. Centered-FIFO regulation goal (USER 2026-08-07): +/- 125 us](#4a-centered-fifo-regulation-goal-user-2026-08-07---125-us)** -- The standing regulation target: the DAC elasticity FIFO stays centered and its wander holds within one class-A frame period (+/-6 pairs), earned by clock quality rather than buffer depth
+- **[4b. Grandmaster loss and recovery](#4b-grandmaster-loss-and-recovery)** -- Pointer to [GM_LOSS_RECOVERY.md](GM_LOSS_RECOVERY.md), the transient story: what a GM handover costs at each layer and why it is now one MEDIA_RESET click + ~100 ms with the lock held
+- **[5. Status (2026-07-25)](#5-status-2026-07-25)** -- Claim-by-claim, each with its evidence: peer delay 600 µs on software stamps → 1.3 µs on hardware, CRF board-to-board locked at +6.7 ppm, -83.9 dB loop THD+N at the converter floor. Then the honest half by row id -- no per-unit latency calibration exists, the BMCA recreation is blocked by a switch that outranks every Milan-legal value, and `PTP_INGRESS_LAT`/`PTP_EGRESS_LAT` are mapped but their fabric wires unconsumed. The doc-drift bullet this section used to carry is closed.
 
-## 1. Concept — the three clocks
+## 1. Concept -- the three clocks
 
 gPTP gives every device on the AVB segment one shared nanosecond timeline.
 One node is elected grandmaster (GM); everyone else measures its link delay to
@@ -51,18 +62,18 @@ Three clocks exist on each board, chained in one direction:
    network time ([current architecture](../overview/ARCHITECTURE.md)).
    `ptp4l` disciplines it and `phc2sys` mirrors it to
    CLOCK_REALTIME*). Nothing in the media path depends on it.
-3. **The media clock** — the 24.576 MHz audio MMCM output, divided to the
+3. **The media clock:** the 24.576 MHz audio MMCM output, divided to the
    48 kHz sample grid that the I2S/TDM front-ends run on. It is a *physical*
    clock (a DAC cannot consume "nanoseconds"), so it cannot be written like
-   the PHC — it is *steered*: the CRF stream carries the talker's media clock
-   as gPTP timestamps, and the MMCM-DRP servo trims our MMCM until the local
-   rate matches (section 3).
+   the PHC. The recovery hardware can steer it from CRF timestamps, but the
+   shipping root pins the source to INTERNAL and leaves both servo actuators
+   disabled (section 3).
 
-The chain, in one sentence: gPTP disciplines the PHC; the PHC timestamps
-frames and dates every AVTP/CRF timestamp; CRF plus the servo turn that shared
-timeline into an actual audio clock edge.
+The current chain, in one sentence: gPTP disciplines the PHC and timestamps
+frames, while the audio MMCM remains an independent internal clock. Consuming
+the exported clock-source selection is required before CRF can steer it.
 
-## 2. Mechanism — the hardware timestamp path
+## 2. Mechanism -- the hardware timestamp path
 
 ### 2.1 The PHC counter and its CSR group (0x500)
 
@@ -469,7 +480,7 @@ in blocks instead of biasing — measured on silicon, and drawn out in
 the case for driving `TIMESTAMP_UNCERTAIN` from servo convergence state is
 made.
 
-## 4. Time-related CSRs — quick table
+## 4. Time-related CSRs -- quick table
 
 Every row here now has a row in
 [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) — the map is the

@@ -84,6 +84,7 @@ existing checkout at the pinned commit for an offline rerun.
 
 ### B1. The mandatory AECP command set is incomplete
 
+<!-- milan-feature-fact:served_aem_operations:start -->
 The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `ACQUIRE_ENTITY`, `LOCK_ENTITY`, `ENTITY_AVAILABLE`, `SET_CONFIGURATION`, `GET_CONFIGURATION`,
 `GET_STREAM_FORMAT`, `SET_SAMPLING_RATE`, `GET_SAMPLING_RATE`,
@@ -91,8 +92,14 @@ The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `GET_STREAM_INFO`,
 `IDENTIFY_NOTIFICATION`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
 `GET_COUNTERS`, `GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`,
-`REMOVE_AUDIO_MAPPINGS`, `GET_DYNAMIC_INFO`, the unsolicited registration
-pair, and Milan `GET_MILAN_INFO`.
+`REMOVE_AUDIO_MAPPINGS`, `GET_DYNAMIC_INFO`,
+`REGISTER_UNSOLICITED_NOTIFICATION`, and
+`DEREGISTER_UNSOLICITED_NOTIFICATION`.
+<!-- milan-feature-fact:served_aem_operations:end -->
+
+<!-- milan-feature-fact:served_mvu_operations:start -->
+The served Milan Vendor Unique inventory is `GET_MILAN_INFO`.
+<!-- milan-feature-fact:served_mvu_operations:end -->
 
 `GET_DYNAMIC_INFO` implements the IEEE 1722.1-2021 section 7.4.76 fixed-getter
 whitelist with a full pre-scan, independent record statuses, silent overflow
@@ -121,9 +128,11 @@ the issue #97 defect recorded in B12.
 The following mandatory surface still falls through to an unimplemented echo
 or otherwise lacks the required behavior:
 
+<!-- milan-feature-fact:missing_mandatory_aem_operations:start -->
 - `SET_STREAM_FORMAT`
 - `SET_STREAM_INFO`
 - `SET_NAME` and `GET_NAME`
+<!-- milan-feature-fact:missing_mandatory_aem_operations:end -->
 
 Milan v1.2 section 5.4.2 requires these profile behaviors. A correctly formed
 `NOT_IMPLEMENTED` response is transport-safe, but it is not implementation of

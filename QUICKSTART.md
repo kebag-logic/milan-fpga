@@ -267,6 +267,15 @@ processor `pp_top` suite and root `milan_dp` suite simulate that surface. A
 stock build still answers `BAD_ARGUMENTS` to descriptor reads until software
 loads the descriptor image.)
 
+The current command-surface claim above is checked against the
+[Milan feature status ledger](docs/reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `aem.served-command-set` | `implemented` | - |
+<!-- milan-feature-status:end -->
+
 ---
 
 ## 6. Track 3 — build a bitstream (Vivado)

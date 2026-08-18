@@ -40,6 +40,26 @@
       "GET_NAME"
     ]
   },
+  "fact_documents": {
+    "served_aem_operations": [
+      "README.md",
+      "docs/MILAN_V12_ROADMAP.md",
+      "docs/reference/MILAN_FEATURE_STATUS.md",
+      "docs/testing/MILAN_V12_AUDIT_2026-08-16.md"
+    ],
+    "served_mvu_operations": [
+      "README.md",
+      "docs/MILAN_V12_ROADMAP.md",
+      "docs/reference/MILAN_FEATURE_STATUS.md",
+      "docs/testing/MILAN_V12_AUDIT_2026-08-16.md"
+    ],
+    "missing_mandatory_aem_operations": [
+      "README.md",
+      "docs/MILAN_V12_ROADMAP.md",
+      "docs/reference/MILAN_FEATURE_STATUS.md",
+      "docs/testing/MILAN_V12_AUDIT_2026-08-16.md"
+    ]
+  },
   "features": [
     {
       "id": "gateware.current-version",
@@ -61,9 +81,21 @@
       "status": "implemented",
       "summary": "The ledger facts list is the canonical served AEM command inventory.",
       "documents": [
+        "QUICKSTART.md",
         "README.md",
+        "docs/AAF_LATENCY_TAPS.md",
+        "docs/GLOSSARY.md",
+        "docs/HOWTO_PLAY_MUSIC.md",
         "docs/MILAN_V12_ROADMAP.md",
+        "docs/design/AREA_BUDGET.md",
+        "docs/design/TIME_SYNC.md",
+        "docs/diagrams/README.md",
+        "docs/fpga/DATAPLANE_WALKTHROUGH.md",
         "docs/fpga/FPGA_DESIGN.md",
+        "docs/integration/INTEGRATION_GUIDE.md",
+        "docs/integration/QSPI_FLASHBOOT.md",
+        "docs/limitations/RECURRING_DEFECT_PATTERNS.md",
+        "docs/limitations/TROUBLESHOOTING.md",
         "docs/overview/ARCHITECTURE.md",
         "docs/overview/FULL_FPGA_SOLUTION.md",
         "docs/reference/FR_NFR.md",
@@ -71,6 +103,7 @@
         "docs/reference/REGISTER_MAP.md",
         "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
         "docs/testing/TESTING.md",
+        "sw/builder/README-parameters.md",
         "tests/README.md"
       ]
     },
@@ -97,9 +130,14 @@
       "summary": "The ledger facts list is the canonical mandatory AEM command gap set.",
       "documents": [
         "README.md",
+        "docs/AAF_LATENCY_TAPS.md",
         "docs/ENDSTATION_BUILDER.md",
+        "docs/HOWTO_PLAY_MUSIC.md",
         "docs/MILAN_V12_ROADMAP.md",
         "docs/fpga/FPGA_DESIGN.md",
+        "docs/integration/INTEGRATION_GUIDE.md",
+        "docs/limitations/RECURRING_DEFECT_PATTERNS.md",
+        "docs/limitations/TROUBLESHOOTING.md",
         "docs/overview/ARCHITECTURE.md",
         "docs/overview/FULL_FPGA_SOLUTION.md",
         "docs/reference/FR_NFR.md",
@@ -146,7 +184,12 @@
       "summary": "The dynamic clock selection reaches the root wrapper but does not select or steer the media clock.",
       "documents": [
         "README.md",
+        "docs/CHANNEL_MAP_64.md",
         "docs/MILAN_V12_ROADMAP.md",
+        "docs/design/GM_LOSS_RECOVERY.md",
+        "docs/design/TIME_SYNC.md",
+        "docs/design/AREA_BUDGET.md",
+        "docs/fpga/DATAPLANE_WALKTHROUGH.md",
         "docs/fpga/FPGA_DESIGN.md",
         "docs/overview/ARCHITECTURE.md",
         "docs/overview/FULL_FPGA_SOLUTION.md",
@@ -154,7 +197,9 @@
         "docs/reference/MILAN_FEATURE_STATUS.md",
         "docs/reference/REGISTER_MAP.md",
         "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
-        "docs/testing/TESTING.md"
+        "docs/testing/TESTING.md",
+        "hdl/ieee1722/aaf/doc/KL_i2s_playback/KL_i2s_playback.md",
+        "hdl/ieee1722/aaf/README-parameters.md"
       ]
     },
     {
@@ -163,15 +208,20 @@
       "summary": "The shipping integration has a blank stub and no nonvolatile backend.",
       "documents": [
         "README.md",
+        "docs/CHANNEL_MAP_64.md",
+        "docs/HOWTO_PLAY_MUSIC.md",
         "docs/MILAN_V12_ROADMAP.md",
         "docs/fpga/FPGA_DESIGN.md",
+        "docs/integration/INTEGRATION_GUIDE.md",
+        "docs/limitations/TROUBLESHOOTING.md",
         "docs/overview/ARCHITECTURE.md",
         "docs/overview/FULL_FPGA_SOLUTION.md",
         "docs/reference/FR_NFR.md",
         "docs/reference/MILAN_FEATURE_STATUS.md",
         "docs/reference/REGISTER_MAP.md",
         "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
-        "docs/testing/TESTING.md"
+        "docs/testing/TESTING.md",
+        "sw/builder/README-parameters.md"
       ]
     },
     {
@@ -180,8 +230,13 @@
       "summary": "Registration and some change events exist, but the general command and counter notification duties remain open.",
       "documents": [
         "README.md",
+        "docs/CHANNEL_MAP_64.md",
         "docs/MILAN_V12_ROADMAP.md",
+        "docs/design/GM_LOSS_RECOVERY.md",
+        "docs/design/TIME_SYNC.md",
+        "docs/diagrams/README.md",
         "docs/fpga/FPGA_DESIGN.md",
+        "docs/integration/INTEGRATION_GUIDE.md",
         "docs/overview/ARCHITECTURE.md",
         "docs/overview/FULL_FPGA_SOLUTION.md",
         "docs/reference/EGRESS_QUEUE_MAP.md",
@@ -190,6 +245,7 @@
         "docs/reference/REGISTER_MAP.md",
         "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
         "docs/testing/TESTING.md",
+        "hdl/ieee1722/avtp/doc/KL_avtp_rx_monitor/KL_avtp_rx_monitor.md",
         "tests/README.md"
       ]
     },
