@@ -91,9 +91,11 @@ flowchart LR
    clause arguments belong in the review itself and in the commit messages —
    a PR thread that reprints them is a PR thread nobody reads to the end.
 
-   **Prefix every PR message with the role.** Start every PR body and comment
-   with `[A]` when writing as the PR author, or `[R]` when writing as a
-   reviewer. The prefix states which responsibility the message represents.
+   **Prefix every PR message with the role.** Session 0 starts every PR body
+   and comment with `[A0]` when authoring, or `[R0]` when reviewing. Every other
+   session replaces `0` with its assigned session number and keeps that number
+   when its role changes. The prefix states which responsibility and session
+   the message represents.
 6. **Merge back into `dev`** only once the findings are answered, and
    **not while a review round is in flight.** A round that has not reported is
    a round outstanding; merging past it is merging unreviewed code with a
