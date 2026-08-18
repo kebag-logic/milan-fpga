@@ -1,7 +1,7 @@
 <!-- SPDX-License-Identifier: CERN-OHL-W-2.0 -->
 # milan_dp — the `milan_datapath` integration suite
 
-`make` builds **nine elaborations** of `hdl/milan/milan_datapath.sv` (the PS-less
+`make` builds **ten elaborations** of `hdl/milan/milan_datapath.sv` (the PS-less
 Section A.9 wrapper the LiteX SoC instantiates) and runs a self-checking harness
 against each. `make` exits non-zero if any leg fails; **gate on the exit code**,
 never on grepping the log — a compile error prints no `FAIL` line at all.
@@ -10,6 +10,7 @@ never on grepping the log — a compile error prints no `FAIL` line at all.
 |---|---|---|---|
 | `obj_dir` | `sim_main.cpp` | `endstation_arty_current`, N=1 | the legacy section list: CSR, TX/RX, PTP, CLKV, CRF, RMON, link guard |
 | `obj_nxn` | `sim_nxn.cpp` | `endstation_arty_4x4`, N=4 | the 0x800 window → real engines, per-stream routing, TRAP-1 |
+| `obj_nxndv` | `sim_nxn.cpp` | arty_4x4 with a GENERATED divergent header (input row 1 declares the 96 kHz base) | the per-row format facts: every tracked config is row-uniform, so only this leg can prove the verdict base and reset GET answer are the ADDRESSED row's and not row 0's -- same channel count on both rows, so the base is the one discriminator. `gen_divergent_shape.py` emits the header and the bench expectations at build time, like `ltn_rom.hex` |
 | `obj_nxn8` | `sim_nxn.cpp` | `endstation_ax7101_8x8`, N=8 | the AX 8×8 target + the playback ring + the loopback lane |
 | `obj_nxn4c` | `sim_nxn.cpp` | `endstation_arty_4x4`, N=4, 4 wire channels | the shipping Arty shape (framer width ≠ shadow reset) |
 | `obj_nolpf` | `sim_main.cpp` | `endstation_arty_current`, `LPF_P=0` | the spent area lever: no digital acceptance surface may move |
@@ -58,7 +59,7 @@ arithmetic rather than a defect:
    `MILAN_CLK_FREQ_HZ`), so its Annex B claim walk — 3 probes × ~500 ms plus
    announce — is ~1.5·10⁸ cycles away. *Measured: still PROBING after
    40,000,000 cycles.* Waiting would add ~25 minutes **per elaboration** to a
-   nine-leg suite.
+   ten-leg suite.
 3. **A MAAP-granted destination address for talkers `t > 0`**, which is the same
    arithmetic as (2) seen from the framer: a source that never reaches
    `acmp_declaring_o` never gets a DMAC. `cfg_aaf_bypass` (AAF_CTRL[1]) is the

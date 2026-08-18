@@ -4941,11 +4941,12 @@ def test_milan_base_formats_are_rate_complete():
     Section 6.  So this gate holds Stream Inputs to the family and Stream
     Outputs to wire truth, and the asymmetry in the shipped configs is that
     clause difference rather than an oversight.  (The talker half is also
-    load-bearing the other way: SET_STREAM_FORMAT on our STREAM_OUTPUT
-    answers NOT_SUPPORTED - FR-STR-03 makes adaptivity a LISTENER
-    requirement - so a talker format the framer cannot emit is a declaration
-    nothing can correct, which is the 2026-07-27 defect that cost 296,294
-    discarded frames out of 296,294.)
+    load-bearing the other way: SET_STREAM_FORMAT on our STREAM_OUTPUT is
+    served since 0x0053 but admits only the row's own declared shape -
+    FR-STR-03 makes adaptivity a LISTENER requirement - so a talker format
+    the framer cannot emit is a declaration nothing can correct, which is
+    the 2026-07-27 defect that cost 296,294 discarded frames out of
+    296,294.)
 
     Milan v1.2 5.3.3.4 keeps the CRF streams out of it: "If a Stream
     Input/Output supports the Avnu Pro Audio CRF Media Clock Stream Format, it

@@ -55,6 +55,9 @@
 #include <map>
 #include <unistd.h>
 #include <cstdio>
+#ifdef DIVERGENT_TB
+#include "divergent_expect.h"   // generated: the two per-row declared bases
+#endif
 
 // Stream count the C++ side walks. Paired with the RTL -GN_STREAMS by the
 // Makefile: the default obj_nxn build is N=4; the obj_nxn8 build passes
@@ -3364,6 +3367,45 @@ int main(int argc, char** argv) {
                            sf_pl(0x0006, NSTREAMS_TB, crf_fmt));
             ck("#67 the advertised CRF format itself is accepted",
                aecp_status(r2), 0);
+
+#ifdef DIVERGENT_TB
+            // ==== the DIVERGENT shape only: input row 1 declares the
+            // 96 kHz base while row 0 keeps 48 kHz, SAME channel count -
+            // the one elaboration that can tell a per-row verdict base and
+            // reset GET from a row-0 lookup. The generated expectations
+            // come from the header the leg elaborates, not from this file.
+            {
+                g2 = aecp_xact(0x000F, sq2++, ti4(0x0005, 1));
+                ck("#67dv pre: input row 1 is NOT bound",
+                   (long)(g2.size() > 42 && (g2[42] & 0x04) == 0), 1);
+                r2 = aecp_xact(0x0009, sq2++, ti4(0x0005, 1));
+                ck("#67dv row 1's reset GET serves ITS OWN declared base",
+                   (long)(be64_at(r2, 42) == (uint64_t)DV_ROW1_FMT), 1);
+                ck("#67dv ...which differs from row 0's (the discriminator)",
+                   (long)((uint64_t)DV_ROW1_FMT != (uint64_t)DV_ROW0_FMT), 1);
+                r2 = aecp_xact(0x0009, sq2++, ti4(0x0005, 0));
+                ck("#67dv row 0's reset GET serves row 0's base",
+                   (long)(be64_at(r2, 42) == (uint64_t)DV_ROW0_FMT), 1);
+                // row 1 accepts its OWN family's 2ch member...
+                const uint64_t dv_2ch =
+                    ((uint64_t)DV_ROW1_FMT & ~(0x3FFull << 22)) | (2ull << 22);
+                r2 = aecp_xact(0x0008, sq2++, sf_pl(0x0005, 1, dv_2ch));
+                ck("#67dv row 1 accepts its own 96 kHz family member",
+                   aecp_status(r2), 0);
+                // ...and REFUSES row 0's base: a verdict reading row 0
+                // would accept this and nothing else would notice
+                r2 = aecp_xact(0x0008, sq2++,
+                               sf_pl(0x0005, 1, (uint64_t)DV_ROW0_FMT));
+                ck("#67dv row 1 REFUSES the row-0-only base",
+                   aecp_status(r2), 7);
+                ck("#67dv ...and the refusal carries row 1's CURRENT format",
+                   (long)(be64_at(r2, 42) == dv_2ch), 1);
+                r2 = aecp_xact(0x0008, sq2++,
+                               sf_pl(0x0005, 1, (uint64_t)DV_ROW1_FMT));
+                ck("#67dv restore: row 1's declared base is accepted back",
+                   aecp_status(r2), 0);
+            }
+#endif
 
             // SET_STREAM_INFO(ACC_LAT): the offset the framers stamp
             r2 = aecp_xact(0x000E, sq2++,
