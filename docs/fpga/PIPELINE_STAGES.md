@@ -82,7 +82,8 @@ Knobs and traps:
   register of the block): 1 forces everything to queue 0 (bypass).
 - The steer counters at 0xf000308c / 0xf0003090 misreport under dual-active
   load. Trust them only as single-active deltas.
-- Per-board `rx_queues` differs, and raising it is reflash-gated — see
+- Both shipped configs carry `rx_queues: 2` (the 8x8 since 2026-07-28), and
+  changing the count is reflash-gated -- see
   [../reference/EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md).
 
 ### Stage R3: RSC aggregation (RingDMAWriter slots)
