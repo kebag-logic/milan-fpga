@@ -362,7 +362,7 @@ kernel fails loudly instead of half-writing.
   corrupt image reports zero configurations, so every `READ_DESCRIPTOR` returns
   `BAD_ARGUMENTS`; the store watchdog prevents a stalled bus from hanging the
   command, and a late load heals without a reset. Bench walk-through:
-  [../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md) Section 26.
+  [Section 26 of ../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram).
 
 ---
 

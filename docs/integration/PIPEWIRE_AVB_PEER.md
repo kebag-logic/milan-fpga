@@ -78,7 +78,7 @@ rows):**
    incident).
 3. Addressing + reservation are automatic in fabric: MAAP claims the DMAC
    (`eff_aaf_dmac`), lwSRP declares the stream and gates bandwidth. See
-   [dataplane walkthrough](../fpga/DATAPLANE_WALKTHROUGH.md) Section 1 for the
+   [Section 1 of the dataplane walkthrough](../fpga/DATAPLANE_WALKTHROUGH.md#1-egress-a-captured-sample-becomes-an-aaf-frame-the-fabric-talker) for the
    full talker chain.
 
 **Connecting the listener — three paths:**
@@ -180,7 +180,7 @@ Notes that cost time to rediscover:
   every talker uid `0..N-1` with `dmac = MAAP base + uid`, so binding a
   listener to uid *j* is the honest per-stream path — that is how the
   64-slot channel-map walk arms one stream at a time
-  ([`../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) Section 12).
+  ([Section 12 of `../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md#12-silicon-validation-the-first-crossbar-walk-2026-07-25)).
 - **`SUCCESS` is a control-plane verdict only.** ACMP success means the
   binding was accepted; it says nothing about frames being accepted by the
   listener datapath. Confirm on the listener with `AVTPRX_STAT`/`FRX` and

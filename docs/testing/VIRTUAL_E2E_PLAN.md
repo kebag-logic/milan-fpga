@@ -32,7 +32,7 @@ trip each:
 | `CRFT_CTRL` was provisioned `0x1` (the untagged-flood posture) after the class-A bit existed | `S50milan` |
 
 The pattern is the one
-[`methodology.md`](methodology.md) Section 1 already names (escapes 4 and 6: absent
+[Section 1 of `methodology.md`](methodology.md#1-why-this-exists--nine-escapes-sorted-by-cause) already names (escapes 4 and 6: absent
 platform backing, generated-versus-flashed artifacts): **the seam between the
 fabric and the software that provisions it is tested by nothing**. L0-L3 test
 modules and models; L5 tests silicon hours later. Every defect above is a
@@ -94,7 +94,7 @@ lags the VexiiRiscv the boards actually run.
 
 ## 4. Phases V0-V3, each with its oracle and its negative control
 
-Per [`methodology.md`](methodology.md) Section 4: every phase names its oracle, and
+Per [Section 4 of `methodology.md`](methodology.md#4-what-a-lane-owes): every phase names its oracle, and
 R2 demands each new check be shown able to fail — the negative controls below
 are **real defects from the 2026-07-28 session, replayed**, not invented
 mutations.

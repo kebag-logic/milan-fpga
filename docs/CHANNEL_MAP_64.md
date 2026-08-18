@@ -955,7 +955,7 @@ per-stream arming the walk was missing.
    writes are dropped, and the arm truth is a snapped
    `A_STRMW_STATE 0x82C[3]` ([TROUBLESHOOTING Section 22](limitations/TROUBLESHOOTING.md)).
 2. Bind the listener to talker uid *j* with one controller `CONNECT_RX`
-   ([PipeWire peer guide](integration/PIPEWIRE_AVB_PEER.md) Section 6). The probe
+   ([Section 6 of the PipeWire peer guide](integration/PIPEWIRE_AVB_PEER.md#6-the-peer-as-an-atdecc-controller-2026-07-26)). The probe
    response carries `dmac = base + j`; capture that line - it is the
    per-stream evidence.
 3. Walk slots `4j..4j+3` through the `0x900` window: all-on, pair-bit0,

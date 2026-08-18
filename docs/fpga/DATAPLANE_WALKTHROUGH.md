@@ -187,7 +187,7 @@ hop that failed. Walk them in this order:
 bound listener that accepts nothing used to read zero everywhere with no way to
 tell parse failure from match failure. That gap is what made the entry-0
 provisioning defect take so long to corner — see
-[../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md) Section 21.
+[Section 21 of ../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26).
 
 ## 4. What is *not* on either path
 

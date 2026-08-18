@@ -143,7 +143,7 @@ is generated (Section 0.1).
 |---|---|
 | Verilator harnesses | `verilator >= 5.050`, a C++17 compiler, and `git submodule update --init third_party/verilog-axis protocol-processor`. Five suites elaborate Forencich cores; `pp_shadow`, `milan_dp` and `hostplane` elaborate the processor through `milan_datapath`. No vendor tools are required |
 | Yosys portability | `yosys` + [`sv2v`](https://github.com/zachjs/sv2v) on `PATH` + the same submodule |
-| Migen DMA sims / SoC sim | a LiteX Python environment ([../litex/LITEX_SOC.md](../litex/LITEX_SOC.md) Section 7) |
+| Migen DMA sims / SoC sim | a LiteX Python environment ([Section 7 of ../litex/LITEX_SOC.md](../litex/LITEX_SOC.md#7-reproducibility---versions)) |
 | Legacy utests/itests | Vivado (xsim); [`tb/avtp_packet_gen_sv`](../../tb/avtp_packet_gen_sv) needs Modelsim/Questa |
 
 ## 1. Verilator RTL harnesses - `tb/verilator/` (the live regression)
@@ -407,7 +407,7 @@ make ecp5     # Lattice ECP5 mapping
 ```
 
 Proves synthesizability off-Xilinx, not behaviour (layer 1 does that) and
-not timing. See [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) Section 5.
+not timing. See [Section 5 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#5-proving-it-the-open-toolchain-portability-check).
 `run.sh` also prints two trailing structural reports: the tied-off-input
 inventory ([`scripts/check_tied_inputs.sh`](../../scripts/check_tied_inputs.sh), the RMON class) and the
 observer-purity check ([`syn/yosys/check_tap_purity.sh`](../../syn/yosys/check_tap_purity.sh) — taps/telemetry must
@@ -440,7 +440,7 @@ has since been paid down to 150 — see below.)
 
 916 of Verible's 1004 are pure style, the biggest single rule being 356
 `parameter-name-style` — whose default pattern rejects essentially every
-parameter in the tree, because [`../../CONTRIBUTING.md`](../../CONTRIBUTING.md) Section 1
+parameter in the tree, because [Section 1 of `../../CONTRIBUTING.md`](../../CONTRIBUTING.md#1-hdl-house-style-cemal-dogan--oguz-kahraman-school)
 mandates the `_C`/`_P` suffix convention Verible does not expect. Disable
 every rule that fights the house style and **three** rules survive, worth
 **15** findings (`undersized-binary-literal` 9, `posix-eof` 4,
@@ -754,7 +754,7 @@ host-only.
   (Section 4b) and the Yosys portability sweep. The RTL jobs initialize both
   `verilog-axis` and `protocol-processor`. The docs workflow also initializes
   `protocol-processor` before running the builder gate. Local commands:
-  [`../../QUICKSTART.md`](../../QUICKSTART.md) Section 2.
+  [Section 2 of `../../QUICKSTART.md`](../../QUICKSTART.md#2-track-1--simulate-no-fpga-no-vendor-tools).
 * **The Verilator version matters, and distro packages are not enough.**
   Measured 2026-07-26 by running the suites under each version in a container:
 

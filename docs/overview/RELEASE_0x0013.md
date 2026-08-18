@@ -88,7 +88,7 @@ to the ACMP record at runtime.
 **How well it is proven, precisely.** The *mechanism* is confirmed on silicon by
 **causation** — the trap was triggered deliberately on the deployed board, the
 listener went deaf, and re-staging recovered it
-([`../findings/STRESS_0726.md`](../findings/STRESS_0726.md) Section D). That board was
+([Section D of `../findings/STRESS_0726.md`](../findings/STRESS_0726.md#d--the-entry-0-blocker-triggered-on-purpose)). That board was
 still carrying the pre-fix `0x000B`, so what silicon proves is the *bug*, not
 the *fix*. The fix is proven by two Verilator regressions with negative legs:
 [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) `sim_nxn.cpp` TRAP-1 (N=4 and N=8, through the real CSR
@@ -104,7 +104,7 @@ reset).
   and an `en=0` eviction now hands entry 0 back to ACMP instead of detaching it.
 
 Full symptom→cause walk, with the register reads:
-[`../limitations/TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md) Section 21.
+[Section 21 of `../limitations/TROUBLESHOOTING.md`](../limitations/TROUBLESHOOTING.md#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26).
 
 ## 2. Six egress queues, in 802.1Q order — a breaking ABI change
 
@@ -213,7 +213,7 @@ Rows are now sized **`L+T−1`**. Consequences you can observe:
 * the CRF media clock output became a bindable ACMP talker source at
   `talker_unique_id = N_STREAMS`.
 
-Historical detail: [historical NxN architecture](../NXN_ARCHITECTURE.md) Section 3.4.1.
+Historical detail: [Section 3.4.1 of the historical NxN architecture](../NXN_ARCHITECTURE.md#341-attribute-row-map-and-sizing--shipped-2026-07-26).
 
 ## 5. RMON counts again — and now tells you when it does not
 
@@ -280,7 +280,7 @@ Three probe groups landed, all read-only, all cheap:
 datapath lives downstream of the stream-table match**, so a bound listener that
 accepts nothing read zero everywhere with no way to tell parse failure from
 match failure. That is precisely why Section 1 took so long. The ordered fault-finding
-walk is in [`../fpga/DATAPLANE_WALKTHROUGH.md`](../fpga/DATAPLANE_WALKTHROUGH.md) Section 3.
+walk is in [Section 3 of `../fpga/DATAPLANE_WALKTHROUGH.md`](../fpga/DATAPLANE_WALKTHROUGH.md#3-ingress-a-frame-off-the-wire-becomes-pcm).
 
 ## 8. Landed but not reachable from software yet
 
@@ -319,7 +319,7 @@ Stated plainly so nobody goes looking for a register that is not there:
   builds but reads back zeros on six `aecp` checks. The RTL was deliberately not
   contorted to satisfy 5.020 — the construct it rejects is legal and synthesises.
   The measured table is in
-  [`../testing/TESTING.md`](../testing/TESTING.md) Section 7.
+  [Section 7 of `../testing/TESTING.md`](../testing/TESTING.md#7-known-gaps-kept-honest).
 * **The builder emits more, and `milan_csr` now consumes it.**
   `endstation_builder.py` gained the lwSRP reservation-table emitter
   (`lwsrp_table.json` / `.svh`) and the DT/driver-shape emitter

@@ -170,7 +170,7 @@ estimates, both anchored on real Vivado reports:
 
 * **Vivado-to-Vivado.** The shipping 8×8 bitstream (4-queue map) placed at
   **15 839 / 15 850 slices** — 99.93 %, 11 slices spare
-  ([historical NxN architecture](../NXN_ARCHITECTURE.md) Section 6.2). The 6-queue build needed
+  ([Section 6.2 of the historical NxN architecture](../NXN_ARCHITECTURE.md#62-lever-3-priced-is-removing-the-render-lpf-worth-it-2026-07-26)). The 6-queue build needed
   `15850 − 11673 + 11955` = **16 132** slices. That is **+293 slices for +2
   queues ≈ 147 slices per queue**, so dropping one gives back **≈ 147** — barely
   half the 282 needed. (Caveat: the 6-queue round also added the DMAC control
@@ -186,7 +186,7 @@ required**, and the estimate anchored on real Vivado numbers sits at the
 place.**
 
 **Both follow-on levers have since been spent (2026-07-27,
-[historical NxN architecture](../NXN_ARCHITECTURE.md) Section 6.3), so the 5-queue map no
+[Section 6.3 of the historical NxN architecture](../NXN_ARCHITECTURE.md#63-area-round-2026-07-27-logic-levers-measured-no-vivado)), so the 5-queue map no
 longer stands alone.** `LPF_P = 0` (**428 LUT / 756 FF ≈ 109 slices**, the
 shipping 8×8 place report's own row) is now declared in
 `board.constraints.render_lpf` of the `ax7101` config and rides `sweep.sh`

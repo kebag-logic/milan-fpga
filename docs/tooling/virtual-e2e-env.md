@@ -61,7 +61,7 @@ activates the venv for you; the manual path must do it by hand.
 
 Verilator 5.050 supports `--threads N` and `--threads-dpi <mode>`; the
 multithreading policy that uses them is
-[`../testing/VIRTUAL_E2E_QEMU.md`](../testing/VIRTUAL_E2E_QEMU.md) Section 5.
+[Section 5 of `../testing/VIRTUAL_E2E_QEMU.md`](../testing/VIRTUAL_E2E_QEMU.md#5-refinement-for-easily-changeable--runnable--provable).
 
 JDK/sbt only matter when the softcore netlist must be **re**generated. The
 cache above is populated, so the M-A2 boot does not shell out to sbt — but
@@ -92,7 +92,7 @@ The two `.xz` sizes are the flash-slot-verified pair, recorded 2026-08-01
 (`Image.xz` into a 3 MiB slot; `rootfs.cpio.xz` into a 7,733,248 B slot, 17 KB
 slack). They are named here so a virtual run and a flash run demonstrably use
 the *same* bytes — the generated-versus-flashed artifact seam that
-[`../testing/VIRTUAL_E2E_PLAN.md`](../testing/VIRTUAL_E2E_PLAN.md) Section 1 lists as
+[Section 1 of `../testing/VIRTUAL_E2E_PLAN.md`](../testing/VIRTUAL_E2E_PLAN.md#1-the-escape-class-this-tier-targets) lists as
 an escape class.
 
 ### RV64 — secondary, kept behind `--xlen=64`
@@ -166,7 +166,7 @@ cross-run object cache to invalidate.
   Verilator `--exe` C++ harnesses over UNIX sockets, not DPI. `--threads-dpi`
   therefore has nothing to act on today; it becomes relevant only if T3's bridge
   introduces DPI imports. See the policy in
-  [`../testing/VIRTUAL_E2E_QEMU.md`](../testing/VIRTUAL_E2E_QEMU.md) Section 5.
+  [Section 5 of `../testing/VIRTUAL_E2E_QEMU.md`](../testing/VIRTUAL_E2E_QEMU.md#5-refinement-for-easily-changeable--runnable--provable).
 
 ## 7. Reproducing this inventory
 

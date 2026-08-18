@@ -94,7 +94,7 @@ Byte order on AXIS is big-endian (wire order = memory order; see
 
 | Port | Dir | Description |
 |---|---|---|
-| `axis_clk` | in | system clock (~100 MHz proven; see [PORTING_GUIDE.md](PORTING_GUIDE.md) Section 3) - runs the entire datapath and the CSR bus |
+| `axis_clk` | in | system clock (~100 MHz proven; see [Section 3 of PORTING_GUIDE.md](PORTING_GUIDE.md#3-clocking-and-reset-requirements-vendor-independent-contract)) - runs the entire datapath and the CSR bus |
 | `axis_resetn` | in | synchronous, active-low, `axis_clk` domain |
 | `gtx_clk` | in | 125 MHz PTP/MAC-RX timestamp domain |
 | `gtx_resetn` | in | synchronous, active-low, `gtx_clk` domain |
@@ -296,7 +296,7 @@ no throughput.
 
 See `add_milan_datapath()` and `_axis_dp_cdc()` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py)
 for the working pattern, plus the CBS multicycle constraint described in
-[PORTING_GUIDE.md](PORTING_GUIDE.md) Section 4.5.
+[Section 4.5 of PORTING_GUIDE.md](PORTING_GUIDE.md#45-timing-constraints-translate-dont-skip).
 
 ## 5. Software contract
 
@@ -318,7 +318,7 @@ for the working pattern, plus the CBS multicycle constraint described in
 | RTL boundary sanity | [`tb/verilator/milan_dp`](../../tb/verilator/milan_dp) drives this exact module: CSR ID read, classifier program, TX/RX byte-exact | [../testing/TESTING.md](../testing/TESTING.md) |
 | Your SoC in sim | LiteX users: `milan_sim.py` boots the BIOS and reads `"MILN"` over the real CPU bus | [../testing/SIMULATION.md](../testing/SIMULATION.md) |
 | First silicon | CSR ID read at your base address (M-A2), then MAC loopback, then DMA rings | [BOARD_PORTING_AX7101.md](BOARD_PORTING_AX7101.md) shows the worked sequence |
-| Enumeration | write a descriptor image at your derived base, then `READ_DESCRIPTOR` the ENTITY descriptor from a controller. `BAD_ARGUMENTS` everywhere means the image is missing or corrupt (or the master is not bridged), not that AECP is broken; `NO_SUCH_DESCRIPTOR` means the opposite -- the image loaded and that descriptor is genuinely absent from the model | Section 1.6; [../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md) Section 26 |
+| Enumeration | write a descriptor image at your derived base, then `READ_DESCRIPTOR` the ENTITY descriptor from a controller. `BAD_ARGUMENTS` everywhere means the image is missing or corrupt (or the master is not bridged), not that AECP is broken; `NO_SUCH_DESCRIPTOR` means the opposite -- the image loaded and that descriptor is genuinely absent from the model | Section 1.6; [Section 26 of ../limitations/TROUBLESHOOTING.md](../limitations/TROUBLESHOOTING.md#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram) |
 
 ---
 

@@ -349,7 +349,7 @@ and verification artifacts.
   code). Supersedes the stale `tb/utests/.../tb_credit_based_shaper.sv`.
 * **REQ-VER-02 (SHOULD)** A harness for **multi-queue arbitration**
   (`traffic_shaping_core`) — one-hot grant, hold-until-`tlast`, eligibility,
-  priority, passthrough. *(approach proven; see TODO)*
+  priority, passthrough. *(implemented: [`tb/verilator/shaper_core`](tb/verilator/shaper_core) is that harness)*
 * **REQ-VER-03 (SHOULD)** A **classifier** harness (PCP→TC table, VLAN offsets,
   default priority, back-to-back frames).
 * **REQ-VER-04 (SHOULD)** A **CSR/register-map** testbench (reset values, W1C,

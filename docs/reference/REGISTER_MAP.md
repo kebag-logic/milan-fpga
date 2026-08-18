@@ -184,7 +184,7 @@ MAC/*` in [`REQUIREMENTS.md`](../../REQUIREMENTS.md).
   - [0x8B4  -  RX stream-parser probe  (APRB, avtp_stream_parser + milan_datapath)](#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath) -- The only listener-side view **upstream** of the stream-table match, which is why a bound listener that accepts nothing used to be undiagnosable -- every other counter reads 0 in unison and none can say why. Ends with a three-row table that turns `PARSED`/`MATCHED` into a verdict.
   - [0x8C8  -  Playback chain probe  (PBK, roadmap item-7: KL_pcm_tx -> KL_chan_map_render -> KL_i2s_feed_mux -> KL_i2s_playback)](#0x8c8-----playback-chain-probe--pbk-roadmap-item-7-kl_pcm_tx---kl_chan_map_render---kl_i2s_feed_mux---kl_i2s_playback) -- Three words that answer the first question about a silent line-out: did any frame reach the DAC, and if not where did it stop. Exists because the playback engine's own registers are migen CSRs on the LiteX build and appear nowhere in this map. The four-row table separates "map never programmed" from "host is starving the ring".
   - [0x8F8  -  MMCM-DRP media-clock servo  (Milan v1.2 7.3.4, KL_mmcm_drp_servo)](#0x8f8-----mmcm-drp-media-clock-servo--milan-v12-734-kl_mmcm_drp_servo) -- **Structurally off, and reading its idle.** The processor accepts and stores `SET_CLOCK_SOURCE`, and the wrapper exports that selection to the root, but no media-plane consumer reads it. The CRF sink at `0x738` still measures; nothing can steer from it.
-  - [0x900  -  channel-map fabric  (docs/CHANNEL_MAP_64.md Section 6, KL_chan_map_render / KL_chan_map_capture)](#0x900-----channel-map-fabric--docschannel_map_64md-section-6-kl_chan_map_render--kl_chan_map_capture) -- Bench write port into the 64×64 render/capture map RAMs, disarmed at reset so the deployed audio path stays bit-identical. Arming it also moves the DAC's *pace* onto the 48 kHz media grid -- without that a host-ring playback can never advance the DAC, because the legacy feed only ticks when an inbound stream does. Also holds the `0x910`/`0x914` **map-RAM readback**: what the RAM actually contains, not `0x908`'s shadow of what software last wrote, with `LOOP_SUSPECT` = *mapped but never fed* -- the one bit that separates a slot that is working and quiet from a slot that was never connected, since both emit `24'd0`. Its un-armed state is `0xDEADDEAD`, never `0`.
+  - [0x900  -  channel-map fabric  (Section 6 of docs/CHANNEL_MAP_64.md, KL_chan_map_render / KL_chan_map_capture)](#0x900-----channel-map-fabric--section-6-of-docschannel_map_64md-kl_chan_map_render--kl_chan_map_capture) -- Bench write port into the 64×64 render/capture map RAMs, disarmed at reset so the deployed audio path stays bit-identical. Arming it also moves the DAC's *pace* onto the 48 kHz media grid -- without that a host-ring playback can never advance the DAC, because the legacy feed only ticks when an inbound stream does. Also holds the `0x910`/`0x914` **map-RAM readback**: what the RAM actually contains, not `0x908`'s shadow of what software last wrote, with `LOOP_SUSPECT` = *mapped but never fed* -- the one bit that separates a slot that is working and quiet from a slot that was never connected, since both emit `24'd0`. Its un-armed state is `0xDEADDEAD`, never `0`.
   - [0x920  -  protocol-processor control plane  (KL_pp_shadow, VERSION major 2)](#0x920-----protocol-processor-control-plane--kl_pp_shadow-version-major-2) -- The control plane's own window, now unconditionally decoded: `milan_csr`'s `PP_PLANE_P` parameter is gone. `PP_STAT`'s constant `0x5B` tag is the register to read first -- a `0` there means the gateware predates the group and can never mean "present and idle". The side port is POSTED and one access is outstanding at a time: a request offered while busy is refused, not queued, so software can never read one address's answer believing it asked for another. `PP_DIAG` carries the only frame accounting the control plane still publishes, including the ingress FIFO drop count.
 - **[DMA registers (fully-FPGA build only  -  separate CSR space)](#dma-registers-fully-fpga-build-only-----separate-csr-space)** -- A different window with different rules: LiteX CSR space, addresses from the build's own `csr.csv`, seven words per ring engine. Two traps documented at length -- `base`/`length` are **byte** quantities, and the multi-word ordering is *word* order, not byte order, so a native 64-bit write to `base` swaps the halves and silently corrupts the DMA address.
 - **[Notes](#notes)** -- Three bus-level rules that apply everywhere: self-clearing strobes read back 0, 64-bit reads are not atomic (use the snapshot latch for TOD), and how the map is versioned.
@@ -458,8 +458,8 @@ rows of [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md) as PCP assignments.
 **gPTP fast path.** EtherType `0x88F7` short-circuits the tables and always
 lands on `GPTP_CLASS` = **q2**, i.e. *below* the CBS-shaped q4/q3. That is
 deliberate and is a correctness requirement, not a preference — see
-[EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md) Section "Why gPTP sits below the shaped
-classes". With `CLS_CTRL[1]` set the fast path also demands the reserved DMAC
+[the "Why gPTP sits below the shaped classes" section of EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md#why-gptp-sits-below-the-shaped-classes).
+With `CLS_CTRL[1]` set the fast path also demands the reserved DMAC
 (`REQ-CLS-07`).
 
 **Control fast path (`REQ-CLS-10`, `CLS_CTRL[2]`, reset 1).** An **untagged**
@@ -726,7 +726,7 @@ Q8.24-ns rate controls consumed by `timestamp_counter`.
 
 Software-published overlay words: the softcore daemons write board identity
 and live gPTP topology here so the fabric ADP/AEM engines answer with wire
-truth ([`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) Section 2.5).
+truth ([Section 2.5 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#25-who-runs-where)).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
@@ -742,7 +742,7 @@ The measurement half of the CRF clock-recovery loop: `KL_crf_rx` validates
 every PDU of the followed CRF stream against the Milan 7.3.2 profile
 constants and produces the servo's phase/frequency inputs; the MMCM-DRP
 actuator status lives at `0x8F8`. Loop semantics + RTL citations:
-[`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) Section 3.3-3.4.
+[Sections 3.3-3.4. of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#33-crf-in--kl_crf_rx-the-measurement-half)
 
 The followed stream normally comes from the CRF sink bind (ACMP listener
 sink 1 — the bind wins); the SID pair here is the manual lever, and the
@@ -787,7 +787,7 @@ sample grid: every 96th `/512` sample event latches the live PHC value, so
 the wire carries the actual audio-clock rate as the PHC sees it. A PDU that
 would collide with a busy serializer is skipped whole — timestamps stay
 truthful, only the cadence stretches
-([`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) Section 3.2).
+([Section 3.2 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#32-crf-out--kl_crf_tx-the-media-clock-talker)).
 
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
@@ -1072,7 +1072,7 @@ live** — they are the AVTP RX monitor's, not the control plane's.
 | `0x6E0` | `I2SPB_TRIM` | RO | media-clock recovery servo: `[31:16]` signed NCO trim (LSB ≈ 15.3 ppm; fill-level servo steers playback rate to the talker), `[15:0]` FIFO fill (pairs). Rail events count MEDIA_RESET |
 | `0x6E4` | `GPTP_PDELAY` | RW | reset `0`: measured gPTP neighbor propagation delay in ns, written by the softcore gPTP daemon. The current processor gather face does not consume this CSR and returns zero in `GET_AVB_INFO`; see audit B8 |
 | `0x6E8` | `ACMPL_DBG` | RO | 🔴 **STRUCTURAL ZERO**. Was the listener walker forensics — CLASSIFY entries, ACMP-subtype classifies, the flag bundle at the last ACMP classify, ACMP-base + listener-command hits. The walker is deleted. The protocol processor's own RX accounting (control frames in, FIFO drops, frames out) is at `PP_DIAG` `0x930` |
-| `0x6EC` | `AVTPRX_TSD` | RO | signed ts_delta = `avtp_timestamp - ptp_now` (ns) at the last accepted STREAM_INPUT[0] PDU -- the stream-sync error signal (LATE counts when delta < 0, EARLY beyond offset + margin; [`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) Section 3.6) |
+| `0x6EC` | `AVTPRX_TSD` | RO | signed ts_delta = `avtp_timestamp - ptp_now` (ns) at the last accepted STREAM_INPUT[0] PDU -- the stream-sync error signal (LATE counts when delta < 0, EARLY beyond offset + margin; [Section 3.6 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#36-aaf-presentation-time-against-the-phc)) |
 | `0x6F0` | `I2SPB_DBG` | RO | DAC-serial forensics: the exact 32 serial bits of the last LEFT half-frame as sent at the DAC pin (CDC-latched) |
 | `0x6F4` | `CTLR_DIAG` | RO | departing-controller detection (Milan v1.2 Section 5.4.5.3): `[31:24]` controllers deregistered because they went silent, `[23:12]` CONTROLLER_AVAILABLE replies seen, `[11:0]` CONTROLLER_AVAILABLE probes sent (retries included). All three wrap; the 8-bit eviction field wraps at 256, the two 12-bit fields at 4096 |
 | `0x6F8` | — | — | **reserved**, free. Claim it here before wiring it |
@@ -1425,7 +1425,7 @@ reservation row live (a granted per-stream reservation implies a ready
 listener); `A_ACMP_LOBS[0]` overrides every stream. Note the sample-source
 reality: the PHYSICAL I2S capture front-end emits slot 0 only — an armed
 t>0 emits frames when the chmap capture crossbar
-([`../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md) Sections 4/5) feeds its pair
+([Sections 4/5 of `../CHANNEL_MAP_64.md`](../CHANNEL_MAP_64.md#4-capture-mux-contract-kl_chmap_capture-phase-1-name)) feeds its pair
 slots (any source, TONE included).
 
 **AAF talker-row provisioning is FABRIC-OWNED (2026-07-30).** The lwSRP
@@ -1681,7 +1681,7 @@ fabric counts fine — the `0x8F8` dead-read trap).
 > build plan distinguishes the first; the third is now the shipping case.
 
 The CRF clock-recovery ACTUATOR (status word + control knobs; loop
-semantics in [`../design/TIME_SYNC.md`](../design/TIME_SYNC.md) Section 3.4).
+semantics in [Section 3.4 of `../design/TIME_SYNC.md`](../design/TIME_SYNC.md#34-the-mmcm-drp-servo--kl_mmcm_drp_servo-mcsrv-0x8f80x8fc)).
 Parked at the map TAIL (after the 0x800-0x85C window) on purpose: parallel
 feature lanes are extending the 0x700 group, so a tail slot cannot collide
 on merge; `0x8FC` next to it holds the servo control knobs.
@@ -1691,7 +1691,7 @@ on merge; `0x8FC` next to it holds the servo control knobs.
 | `0x8F8` | `MCSRV_STAT` | RO | `0` | `[2:0]` state (0 IDLE, 1 VERIFY, 2 REPAIR, 3 ACQUIRE, 4 LOCKED, 5 HOLDOVER, 6 FAULT), `[3]` DRP config verified, `[4]` DRP config mismatch (read-verify failed; repaired only when `MCSRV_CTRL[1]` is set), `[5]` MMCM LOCKED (synced), `[6]` fine-PS actuator busy, `[7]` PSDONE-watchdog fault (sticky), `[8]` DRP relock-timeout fault, `[15:9]` reserved 0, `[31:16]` **signed** applied frequency trim in 1/16 ppm units (e.g. `+0x06E9` = +110.6 ppm). The servo engages only at `clock_source == 2` (CRF descriptor); in every other mode this word reads state IDLE with trim 0 and the servo generates **zero** DRP/PS activity |
 | `0x8FC` | `MCSRV_CTRL` | RW | `0` | `[0]` ps_invert: flips the servo fine-PS direction mapping (bench sign knob - 2026-07-23 mf51 silicon stepped opposite the UG472 reading and rails went 25x worse under the servo; settle the polarity on silicon via this bit, then bake the winner as the RTL default); `[1]` auto_repair: 1 = allow the DRP divider repair path (a `[4]` mismatch triggers the full reset-sequenced read-modify-write reprogram), default 0 = verify-only (bench-gated). NOTE both 0x8F8/0x8FC needed the rd_in_window >=0x800 carve-out - 0x8F8 read 0 on every build before 2026-07-23 |
 
-### 0x900  -  channel-map fabric  `([docs/CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md) Section 6, KL_chan_map_render / KL_chan_map_capture)`
+### 0x900  -  channel-map fabric  `([Section 6 of docs/CHANNEL_MAP_64.md](../CHANNEL_MAP_64.md#6-csr-window-0x900-0x97f-debug-and-override), KL_chan_map_render / KL_chan_map_capture)`
 
 Debug write port + bypass arm for the 64x64 render/capture map RAMs. Same
 dedicated-arm carve-out as MCSRV (NOT in `is_plain_rw` - a 0x900 shadow write
@@ -1938,7 +1938,7 @@ wrap the ring end  -  software splits its memcpy, hardware splits its bursts (al
 > **⚠ `base`/`length` are BYTE quantities, not words** (simple-mode: hardware-confirmed
 > `length=8` transmits ONE 8-byte word; `offset` counts words). The ring pointers/masks
 > are byte quantities too, always 8-aligned. (Descriptor rings / multi-queue remain the
-> later Option 6b upgrade  -  see [`FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md) Section A.6.)
+> later Option 6b upgrade  -  see [Section A.6 of `FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md#a6-----dma-axis--memory-replaces-ps-s4--assembled-elaborates).)
 
 > **Cache-coherent DMA (no manual flushes).** Built with `milan_soc.py --coherent-dma`,
 > the DMA masters attach to VexiiRiscv's (formerly NaxRiscv's) cache-snooping `dma_bus`, so

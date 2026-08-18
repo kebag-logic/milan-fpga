@@ -119,7 +119,9 @@ Honest R2 @100 MHz ledger: steady RX ~390–410, transient-drain proof ≥520, c
 
 **R3 (112.5 MHz sys on the R2 keeper) + R3b (112.5 + `--lsu-rpt-block-ahead-max=8`)  - 
 both building.** Needed for >500 steady: +25 % over 400  -  clock gives ~+8–12 %, rpt-8
-attacks the copy's cold-read rate (cpu1 is pure copy). Expected: R3 ~430–450, R3b TBD.
+attacks the copy's cold-read rate (cpu1 is pure copy). Expected: R3 ~430–450.
+Outcome: R3b measured FLAT -- rpt-ahead-8 returned no gain (the headroom
+chapter, R-4), and the campaign closed on header-split instead.
 
 **North star for the performance campaign on the fully-FPGA Milan NIC** (Alinx AX7101,
 dual VexiiRiscv RV64IMA @100 MHz, 64-bit datapath, MTU 1500 everywhere).

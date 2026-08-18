@@ -204,8 +204,8 @@ fraction: 1.7 %  -  matches the drift model, not a bug. Fixes, in order of value
 3. Accept the copy path: header-split still delivers the **aligned** copy
    (payload at page offset 0 ⇒ dst/src co-aligned ⇒ the fast 64 B-unrolled
    loop, 2–3× the misaligned baseline). This is the near-term win; the
-   [PERF_ON_MILAN.md](../findings/PERF_ON_MILAN.md) Section 6.4 falsifiable prediction (hs-mode profile shows the
-   fast loop) is still PENDING a valid-peer re-run.
+   falsifiable prediction in [Section 6 of PERF_ON_MILAN.md](../findings/PERF_ON_MILAN.md#6-drawing-the-conclusions-each-with-its-check)
+   (hs-mode profile shows the fast loop) is still PENDING a valid-peer re-run.
 
 **Open on silicon  -  multi-page pairing storm (UNDER SUSPICION, DATA TAINTED):**
 at TCP ramp (first multi-seg/multi-page aggregates), pairing-lost warns fired

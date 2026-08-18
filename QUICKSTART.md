@@ -80,7 +80,7 @@ Verified working versions: verilator 5.050, yosys 0.66, python 3.14.6, gcc 16.1.
 > one, build it from source — that is exactly what CI does, pinned. The small
 > self-contained suites (`tcam`, `cbs`, `csr`) work on older versions; it is the
 > datapath harnesses that do not. Details and the measured table:
-> [docs/testing/TESTING.md](docs/testing/TESTING.md) Section 7.
+> [Section 7 of docs/testing/TESTING.md](docs/testing/TESTING.md#7-known-gaps-kept-honest).
 Verilator **≥ 5.050** is the real requirement (that is the CI pin; see the note above).
 
 On other distributions install the same seven things — the package *names* differ
@@ -123,7 +123,7 @@ python3 scripts/lint_rtl.py --check   # every module in hdl/, ~10 s, exit 0 = PA
 It fails on a **new** Verilator `--lint-only` violation; the existing 150 are
 grandfathered by a per-directory ratchet in
 [`scripts/lint.budget`](scripts/lint.budget) and printed in full on every run.
-Details and the Verible comparison: [`docs/testing/TESTING.md`](docs/testing/TESTING.md) Section 4b.
+Details and the Verible comparison: [Section 4b of `docs/testing/TESTING.md`](docs/testing/TESTING.md#4b-rtl-lint---scriptslint_rtlpy-the-ratcheted-gate).
 
 ### 2.3 The Verilator testbenches
 
@@ -309,7 +309,7 @@ cd sw/litex && ./build.sh ax7101          # or: ./build.sh arty
 
 Read before you build: [`docs/integration/BUILDING.md`](docs/integration/BUILDING.md)
 (named configs, the parallel-launch discipline, the timing/utilisation gates) and
-[`docs/litex/LITEX_SOC.md`](docs/litex/LITEX_SOC.md) Section 4 (the mandatory non-obvious
+[Section 4 of `docs/litex/LITEX_SOC.md`](docs/litex/LITEX_SOC.md#4-the-flags-that-are-not-optional) (the mandatory non-obvious
 flags and *why* each is mandatory).
 
 Porting to a board that is not an AX7101 or an Arty:
@@ -357,6 +357,6 @@ no media clock and no stream.
 |---|---|
 | deciding whether to use this at all | [`docs/overview/ARCHITECTURE.md`](docs/overview/ARCHITECTURE.md) and [`docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) |
 | integrating the datapath into your own SoC | [`docs/integration/INTEGRATION_GUIDE.md`](docs/integration/INTEGRATION_GUIDE.md) → [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md) |
-| going to write RTL | [`docs/overview/ARCHITECTURE.md`](docs/overview/ARCHITECTURE.md) Section 8 → [`docs/fpga/FPGA_DESIGN.md`](docs/fpga/FPGA_DESIGN.md) → [`CONTRIBUTING.md`](CONTRIBUTING.md) |
+| going to write RTL | [Section 8 of `docs/overview/ARCHITECTURE.md`](docs/overview/ARCHITECTURE.md#8-where-to-change-things-maintainability) → [`docs/fpga/FPGA_DESIGN.md`](docs/fpga/FPGA_DESIGN.md) → [`CONTRIBUTING.md`](CONTRIBUTING.md) |
 | lost in the vocabulary | [`docs/GLOSSARY.md`](docs/GLOSSARY.md) |
 | looking for the full doc index | [`docs/README.md`](docs/README.md) |

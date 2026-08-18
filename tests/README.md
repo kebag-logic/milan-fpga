@@ -167,7 +167,7 @@ python3 scripts/lint_rtl.py --pragmas # just the `lint_off` well-formedness gate
 It sweeps every module under `hdl/` and ratchets per directory against
 `scripts/lint.budget`; a normal run only ever LOWERS a budget entry. Run it
 for the live census rather than quoting a count here.
-See [`../docs/testing/TESTING.md`](../docs/testing/TESTING.md) Section 4b.
+See [Section 4b of `../docs/testing/TESTING.md`](../docs/testing/TESTING.md#4b-rtl-lint---scriptslint_rtlpy-the-ratcheted-gate).
 
 ---
 

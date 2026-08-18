@@ -484,7 +484,7 @@ Background: the cross-boundary attribution trap this exposed (the cones showed
 up as `milan_csr` LUTs in hierarchical utilization because the `cbs_idle`
 source registers live there) is a standing area-report trap — OOC-synth a
 module standalone before believing its hierarchical LUT count (the same rule
-carried as build gate 2 in [`../integration/BUILDING.md`](../integration/BUILDING.md) Section 5).
+carried as build gate 2 in [Section 5 of `../integration/BUILDING.md`](../integration/BUILDING.md#5-gates-before-a-build-is-good)).
 
 ## Section 16: clean 100 MHz  -  run the dense datapath in its own clock domain
 
@@ -521,7 +521,7 @@ clock  -  the MT41J256M16 part is rated 1600, i.e. the CPU was the limit, not th
 (**Update, current VexiiRiscv core:** the ~102 MHz cap was NaxRiscv-specific  -  a VexiiRiscv
 build closed and ran **112.5 MHz / DDR3-900** on silicon, memtest OK. It was nonetheless
 reverted to 100 MHz / DDR3-800 because the higher clock *worsened* memory latency and the
-UDP-flood pps ceiling  -  see [`LATENCY_INVESTIGATION.md`](../findings/LATENCY_INVESTIGATION.md) Section 8.)
+UDP-flood pps ceiling  -  see [Section 8 of `LATENCY_INVESTIGATION.md`](../findings/LATENCY_INVESTIGATION.md#8-the-floorplanning-finding-----the-1125-mhz-build-and-why-it-was-reverted).)
 
 The S7PLL also rejects intermediate frequencies (115 MHz → `No PLL config found`,
 since `sys4x=4·sys` plus the 50/200 MHz clocks force no valid VCO between 100 and 125).
@@ -721,7 +721,7 @@ out of any binary, so the image that actually boots is the image that gets check
 
 > **ROOT CAUSE FOUND 2026-07-26 — reproduced in simulation, fixed in RTL, and
 > the mechanism then confirmed on silicon by causation** (see the confirmation
-> block below and [`../findings/STRESS_0726.md`](../findings/STRESS_0726.md) Section D).
+> block below and [Section D of `../findings/STRESS_0726.md`](../findings/STRESS_0726.md#d--the-entry-0-blocker-triggered-on-purpose)).
 > The verdict does not die in the *parse*; it dies in the
 > stream **table** that tells the parser what to match. Two RTL layers combined:
 >
@@ -881,7 +881,7 @@ existed when this was written is *downstream* of the match (`AVTPRX_*` only coun
 frames), which is exactly why the fault was invisible from software. The parser's own
 frame/match counters turned out to exist in RTL and be left **unconnected** in
 `milan_datapath`; they are now wired out, with the wire-side stream_id beside them, as the
-**`0x8B4` parser-probe group** ([register map](../reference/REGISTER_MAP.md) Section 0x8B4):
+**`0x8B4` parser-probe group** ([Section 0x8B4 of the register map](../reference/REGISTER_MAP.md#0x8b4-----rx-stream-parser-probe--aprb-avtp_stream_parser--milan_datapath)):
 
 ```sh
 # on the board, after binding the listener

@@ -129,7 +129,7 @@ column no longer describes live bench state:**
 → peer talker → AX listener): all-digital, so it is an *identity* test, not
 just a counter test. Under the promisc-era RX starvation it measured −68 dB
 *gating-limited* (see
-[DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md) Section 1); with the RX shield in
+[Section 1 of DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md#1-promisc-voids-the-shield)); with the RX shield in
 place the gating is gone.
 
 **HISTORICAL (Arty analog loop, retired with the board):** ALINX tone (S50
@@ -250,7 +250,7 @@ layout there: 28-byte header (BPF offsets shift +28 — `ether[40:2] == 0x88f7`
 selects PTP), record byte[8] = 3 for the board side, 2 for the switch side.
 And when you measure a cadence, **a frame COUNT is not a CADENCE** — compute
 the inter-departure distribution (median/p95/max), not frames-per-window
-(see [DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md) Section 1 for the day this
+(see [Section 1 of DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md#1-promisc-voids-the-shield) for the day this
 rule was earned).
 
 | Tool | Purpose |
@@ -305,7 +305,7 @@ segfaults) → scp via the peer host → `tone_thdn.py --chans 2 --f0 1000`.
   built with different defines than the library links cleanly and then
   SIGSEGVs at run time. On a segfault suspect the defines first, and take them
   from the installed cmake config rather than guessing.
-  How to run all of this: [../testing/TESTING.md](../testing/TESTING.md) Section 6c.
+  How to run all of this: [Section 6c of ../testing/TESTING.md](../testing/TESTING.md#6c-controller-side-validation----la_avdecc-and-hive).
 - Score to beat: **63/63 scenarios per board** (bench suite; ship pair
   ARTY `asl_milanfinal53e` (VERSION 0x000A) + ALINX `AX39`; the suite grew past
   the earlier 43/43 on asl_mf35 + eppo_AX21).
@@ -349,7 +349,7 @@ steers after 5 consecutive dead polls — earlier versions caused the
 ~100 s media-unlock cycle).
 
 **RX-shield posture (2026-08-02, after
-[DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md) Section 1):** S50milan no longer
+[Section 1 of DEFECT_CLASSES_0802.md](DEFECT_CLASSES_0802.md#1-promisc-voids-the-shield)):** S50milan no longer
 sets promisc when the driver carries the shield (it reads
 `/sys/module/kl_eth/version` for a `rxsh` prefix — busybox has **no
 `modinfo`**). The shielded driver programs MC_HASH from the kernel multicast

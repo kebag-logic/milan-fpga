@@ -143,7 +143,7 @@ Companion documents:
   `--l2-bytes 32768`). Boots the LiteX BIOS → OpenSBI → Linux. (The dual-hart SMP
   `--cpu-count 2` config is a superseded perf-lineage variant. The historical NaxRiscv
   RV64GC core is retained as a pure-NIC/FPU option and remains the CLI default —
-  see [docs/litex/LITEX_SOC.md](../litex/LITEX_SOC.md) Section 2.5.)
+  see [Section 2.5 of docs/litex/LITEX_SOC.md](../litex/LITEX_SOC.md#25-cpu-vexiiriscv-and-naxriscv---read-this-before-building).)
 - **The whole TSN datapath is in fabric**  -  `milan_datapath` (the Section A.9 PS-less
   wrapper) owns classification, the credit-based shaper, PTP timestamping, the
   dest-MAC TCAM filter, MAAP, the AAF/CRF stream engines, and `KL_pp_shadow` —

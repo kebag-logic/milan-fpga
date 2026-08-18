@@ -61,7 +61,7 @@ which is why NaxRiscv and VexiiRiscv builds need no address changes.
 
 Everything at or above `0x8000_0000` is the CPUs' uncached IO region — the
 constraint that forced the Milan CSR window off the Zynq's `0x43C0_0000`
-(Section 2.2, and [../integration/AXIS_CORES_ON_NAXRISCV.md](../integration/AXIS_CORES_ON_NAXRISCV.md) Section 2).
+(Section 2.2, and [Section 2 of ../integration/AXIS_CORES_ON_NAXRISCV.md](../integration/AXIS_CORES_ON_NAXRISCV.md#2-what-naxriscv-exposes-in-litex)).
 
 **The skeleton.** One picture of what is instantiated and which clock domain it
 sits in — the subsections below then take each block in turn:
@@ -126,7 +126,7 @@ The CSR window is an AXI4-Lite slave at `MILAN_CSR_BASE = 0x9000_0000`
 
 It also emits the CBS slope **multicycle constraint** on Xilinx parts - a
 porting-relevant detail explained in
-[../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) Section 4.5.
+[Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#45-timing-constraints-translate-dont-skip).
 
 Interrupts: an `EventManager` with four level sources (`tx`/`rx`/`ts`/`csr`)
 folded into one PLIC line - matching the driver's four `interrupt-names`
@@ -163,7 +163,7 @@ and the [findings log](../findings/README.md).
 store-and-forward `PacketFIFO` + a thin stream↔AXIS adapter.
 
 The AX7101's RTL8211E port is wired **GMII** (not RGMII - see
-[../integration/BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md) Section 3),
+[Section 3 of ../integration/BOARD_PORTING_AX7101.md](../integration/BOARD_PORTING_AX7101.md#3-what-changed)),
 and the TX clock is forwarded **inverted** (`--gtx-tx-invert`, via the LiteEth
 patch, Section 6) because edge-aligned launch off IOB-packed FFs was hold-marginal at
 the PHY (25-40 % corrupt frames without it).
@@ -249,7 +249,7 @@ identification for the AX7101.
 Vivado is currently the **only P&R backend wired up for this board** (the
 platform is instantiated with `toolchain="vivado"`). Elaboration-only runs
 need no vendor tools, and re-targeting to another board/toolchain is Route A
-in [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) Section 6.1.
+in [Section 6.1 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#61-route-a---stay-on-litex-swap-the-board-least-work).
 
 ## 4. The flags that are not optional
 

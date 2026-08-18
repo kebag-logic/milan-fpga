@@ -91,7 +91,7 @@ image lacks the requested descriptor. The store never hangs on a failed read: a
 * **Style:** SystemVerilog, `` `default_nettype none ``, TerosHDL `//!`
   comments on every generic/port/signal, named `always_*` processes.
 * **No vendor primitives** - see
-  [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) Section 2 for
+  [Section 2 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#2-what-is-and-is-not-xilinx-specific-in-the-rtl---the-full-inventory) for
   the audited inventory of the few vendor-*attributes* that remain.
 
 ## 1. Top level - two wrappers, one datapath
@@ -364,7 +364,7 @@ Crossings - all in-fabric, all `(* ASYNC_REG *)` plain-FF or handshake based
 value), the 2-FF `i_mac_speed` sync in the wrappers. Timestamp metadata
 FIFOs are same-clock (`axis_clk`) on purpose - the crossing happens in
 `ptp_ts_core`/`ptp_csr_sync`, not in the FIFOs. Constraint requirements per
-toolchain: [../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md) Section 4.5.
+toolchain: [Section 4.5 of ../integration/PORTING_GUIDE.md](../integration/PORTING_GUIDE.md#45-timing-constraints-translate-dont-skip).
 
 ## 4. What is *not* in `hdl/` (and where it lives instead)
 

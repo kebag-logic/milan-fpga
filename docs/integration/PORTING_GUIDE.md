@@ -140,7 +140,7 @@ Options, in order of least work:
 3. **Any vendor MAC** that can present 64-bit AXI-Stream (or a width you
    adapt) with `tkeep`/`tlast`, plus the config/status sideband
    (`o_mac_*`/`i_mac_*`, RMON event pulses) - the exact contract is in
-   [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md) Section 3.
+   [Section 3 of INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md#3-source-files-and-includes).
 
 ### 4.4 The host CPU/DMA
 - **LiteX** (recommended): the whole Zynq-PS role - RISC-V CPU, DDR
