@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Fetch the RTL submodules
-        run: git submodule update --init third_party/verilog-axis protocol-processor
+        run: git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 
       - name: Cache the pinned Verilator build
         id: cache-verilator
