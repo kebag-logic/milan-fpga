@@ -66,6 +66,9 @@ Outputs (into OUTDIR/<config-stem>/):
                       before it programs 0x604/0x608/0x60C/0x610. Also
                       written into the buildroot rootfs overlay (see
                       ROOTFS_OVERLAY_ETC) by --write-rtl/--write-fragment.
+  gptp_ucode.hex   - when board.features.fabric_gptp is true, the fabric
+                      engine ROM with station MAC, priority1 and fabric clock
+                      derived from this same config.
 Plus (repo-level, single-sourced so nothing can drift):
   configs/generated/sweep_opts_<board>.sh - shell fragment (OPTS/L2/RXQ)
                       sourced by sw/litex/sweep.sh; the inline tables there
@@ -165,6 +168,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 
 try:
@@ -2840,16 +2844,19 @@ def load_features(raw):
     """Normalize `board.features`.
 
     Datapath tier-1 blocks retain their historical PRESENT default. The Linux
-    host sound-card surface is a product option and defaults ABSENT.
+    host sound-card surface and fabric gPTP plane are product options and
+    default ABSENT; #120 opts the shipping config into the latter explicitly.
     """
     raw = raw or {}
     if not isinstance(raw, dict):
         raise ConfigError("board.features: must be a mapping of "
-                          f"{sorted((*OPTIONAL_BLOCKS, 'sound_card'))} -> bool")
-    unknown = sorted(set(raw) - set(OPTIONAL_BLOCKS) - {"sound_card"})
+                          f"{sorted((*OPTIONAL_BLOCKS, 'sound_card', 'fabric_gptp'))} "
+                          "-> bool")
+    product_options = {"sound_card", "fabric_gptp"}
+    unknown = sorted(set(raw) - set(OPTIONAL_BLOCKS) - product_options)
     if unknown:
         raise ConfigError(f"board.features: unknown block(s) {unknown} "
-                          f"(known: {sorted((*OPTIONAL_BLOCKS, 'sound_card'))})")
+                          f"(known: {sorted((*OPTIONAL_BLOCKS, *product_options))})")
     out = {}
     for k in OPTIONAL_BLOCKS:
         v = raw.get(k, True)
@@ -2862,6 +2869,11 @@ def load_features(raw):
         raise ConfigError("board.features.sound_card must be a boolean; "
                           "false = host capture/playback rings absent")
     out["sound_card"] = v
+    v = raw.get("fabric_gptp", False)
+    if not isinstance(v, bool):
+        raise ConfigError("board.features.fabric_gptp must be a boolean; "
+                          "false = option-gated fabric time-sync plane absent")
+    out["fabric_gptp"] = v
     return out
 
 
@@ -3710,6 +3722,11 @@ def load_config(path):
     # platform - a prune is only wrong RELATIVE to what the rest asked for.
     features = validate_features(load_features(brd.get("features")),
                                  cons, clocking, interface, srp, platform)
+    if features["fabric_gptp"] and gptp is None:
+        raise ConfigError(
+            "board.features.fabric_gptp requires a gptp: section so the "
+            "microcode station identity and priority cannot fall back to "
+            "generator defaults")
 
     out = dict(
         source=os.path.relpath(path, ROOT),
@@ -4031,6 +4048,8 @@ def emit_design_opts(cfg):
     # one fact, so an AEM can never advertise a lane the bitstream lacks.
     if cfg["interface"].get("cluster_fabric", {}).get("loopback_lane"):
         argv += ["--loopback-lane"]
+    if cfg["features"]["fabric_gptp"]:
+        argv += ["--fabric-gptp"]
     if cfg["features"]["sound_card"]:
         argv += ["--sound-card"]
     # the KL_pcm_tx host rings behind the `host` pool. Emitted from the SAME
@@ -4588,6 +4607,11 @@ def emit_features_line(cfg):
     does not contain - the point of the whole exercise is that an absent block
     is never silent."""
     ln = ["## Optional blocks (docs/design/AREA_BUDGET.md tier 1)", "",
+          ("- Fabric gPTP plane: **PRESENT** (`--fabric-gptp`; "
+           "`GPTP_PLANE_EN_P=1`)."
+           if cfg["features"]["fabric_gptp"] else
+           "- Fabric gPTP plane: **ABSENT (RTL default)**. The software gPTP "
+           "bring-up path remains selectable until #116."),
           ("- Linux sound-card surface: **PRESENT** (`--sound-card`; PCM "
            "capture/playback rings and their LiteX CSR banks)."
            if cfg["features"]["sound_card"] else
@@ -4815,6 +4839,24 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     with open(p_ovl, "w") as f:
         json.dump(overlay, f, indent=1)
         f.write("\n")
+    p_gptp_ucode = None
+    if cfg["features"]["fabric_gptp"]:
+        # Gateware ROM, not a software-daemon config: it must carry the same
+        # station identity and clock posture as the AEM generated above.
+        # Generate it here, once per config, so a three-directive Vivado sweep
+        # reads one stable image rather than three jobs racing on a shared
+        # relative gptp_ucode.hex in their run directories.
+        p_gptp_ucode = os.path.join(d, "gptp_ucode.hex")
+        generator = os.path.join(
+            ROOT, "gptp-processor", "hdl", "ucode", "gen_gptp_ucode.py")
+        mac = _mac48(cfg["platform"]["mac_address"],
+                     "platform.mac_address")
+        subprocess.run(
+            [sys.executable, generator, "-o", p_gptp_ucode,
+             "--mac", f"0x{mac:012x}",
+             "--p1", str(cfg["gptp"]["priority1"]),
+             "--clk-hz", str(cfg["constraints"]["milan_clk_hz"])],
+            check=True, capture_output=True, text=True)
     p_plan = os.path.join(d, "build_plan.md")
     with open(p_plan, "w") as f:
         f.write(plan)
@@ -4945,6 +4987,8 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
                  cfg_adp_shape_svh=p_cfg_adp,
                  platform_shape=p_shape, dt_overlay=p_dtsi,
                  sweep_opts=p_sweep, entity_conf=p_ent)
+    if p_gptp_ucode is not None:
+        paths["gptp_ucode"] = p_gptp_ucode
     # only when it was actually written: the reader of this dict prints
     # "wrote <path>", and the flashed image's identity is not a place to be
     # imprecise about whether a file moved

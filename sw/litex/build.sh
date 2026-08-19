@@ -135,7 +135,7 @@ cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart. Linux
           --gtx-tx-invert --timing-opt --floorplan --eth-port e1 \
           --no-i2s-playback --no-render-lpf --audio-interface tdm8 \
           --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 \
-          --loopback-lane \
+          --loopback-lane --fabric-gptp \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_1x1_tdm8 \
           --synth-directive AreaOptimized_high --opt-directive ExploreArea \
           --l2-bytes 0 \

@@ -79,12 +79,15 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   parameter bit [NUM_QUEUES-1:0] CBS_QUEUES_MASK_P = '1,
   //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
-  //! the fabric gPTP plane (issue #110/#114): elaboration-time option,
-  //! DEFAULT OFF -- the shipped shape is unchanged until #116 flips it
-  //! behind #120's baremetal buy-back. ON splices KL_gptp_shadow onto
-  //! the control TX (gasket-free, like CRF) and hands it the PHC's
-  //! adjfine/adjtime; settime stays with the CSR face.
+  //! the fabric gPTP plane (issue #110/#114): elaboration-time option.
+  //! The RTL default remains OFF until #116; #120's shipping SoC opts in
+  //! explicitly after buying the area back with bare metal. ON splices
+  //! KL_gptp_shadow onto the control TX (gasket-free, like CRF) and hands it
+  //! the PHC's adjfine/adjtime; settime stays with the CSR face.
   parameter bit GPTP_PLANE_EN_P = 1'b0,
+  //! Absolute in SoC builds, relative in self-contained Verilator benches.
+  //! The image bakes in the config's station MAC, priority1 and fabric clock.
+  parameter string GPTP_UCODE_HEX_P = "gptp_ucode.hex",
   //! NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2): AAF stream contexts
   //! per shared engine (listener sinks = talker sources = N_STREAMS). The
   //! N = 1 default is today's shape, bit-compatible (no-regression axiom).
@@ -6088,7 +6091,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
     KL_gptp_shadow #(
         .TDATA_WIDTH_P (TDATA_WIDTH),
-        .CLK_HZ_P      (MILAN_CLK_FREQ_HZ)
+        .CLK_HZ_P      (MILAN_CLK_FREQ_HZ),
+        .UCODE_HEX_P   (GPTP_UCODE_HEX_P)
     ) u_gptp_shadow (
         .clk_i           (axis_clk),
         .rst_n           (axis_resetn),

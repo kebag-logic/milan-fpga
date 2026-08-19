@@ -539,6 +539,7 @@ def test_baremetal_profile_contract():
     assert cfg["constraints"]["l2_bytes"] == 0
     assert cfg["constraints"]["flashboot"] == "baremetal"
     assert cfg["soc"]["scala_args"] == []
+    assert cfg["features"]["fabric_gptp"] is True
     assert cfg["features"]["sound_card"] is False
     assert r["platform"]["pcm"] is None
     assert all(group["role"] != "host"
@@ -546,10 +547,36 @@ def test_baremetal_profile_contract():
                for port in direction for group in port["pool"])
     assert argv["--software-profile"] == ["baremetal"]
     assert argv["--xlen"] == [32.0] and argv["--l2-bytes"] == [0.0]
+    assert "--fabric-gptp" in argv
+    assert "gptp_ucode" in r["paths"]
+    base_ucode = open(r["paths"]["gptp_ucode"], "rb").read()
+    assert len(base_ucode.splitlines()) == 1024
+    assert "Fabric gPTP plane: **PRESENT**" in r["plan"]
     for absent in ("--sound-card", "--aaf-playback", "--scala-args"):
         assert absent not in argv, f"bare-metal argv unexpectedly carries {absent}"
-    print("  [gate 1b] shipping AX: VexiiRiscv RV32I, one hart, L2=0, "
-          "bare-metal flash, no Scala cache args, PCM ring or host clusters")
+    print("  [gate 1b] shipping AX: fabric gPTP option on with config-derived "
+          "1024-word ROM; VexiiRiscv RV32I, one hart, L2=0, bare-metal "
+          "flash, no Scala cache args, PCM ring or host clusters")
+
+    ucode_mutations = (
+        ("station MAC", lambda c: c["platform"].__setitem__(
+            "mac_address", "02:00:00:00:00:03")),
+        ("priority1", lambda c: c["gptp"].__setitem__("priority1", 247)),
+        ("fabric clock", lambda c: c["board"]["constraints"].__setitem__(
+            "milan_clk_hz", 80_000_000)),
+    )
+    with tempfile.TemporaryDirectory() as td:
+        for label, mutate in ucode_mutations:
+            path = _variant(CONFIGS["ax7101_1x1_tdm8"], mutate)
+            try:
+                changed = eb.build(path, td)
+                image = open(changed["paths"]["gptp_ucode"], "rb").read()
+                assert image != base_ucode, \
+                    f"{label}: mutation did not reach gptp_ucode.hex"
+            finally:
+                os.unlink(path)
+    print("  [gate 1b] gPTP ROM changes with each YAML-owned input: station "
+          "MAC, priority1 and fabric clock")
 
     def set_soc(key, value):
         return lambda c: c.setdefault("soc", {}).__setitem__(key, value)
@@ -565,6 +592,7 @@ def test_baremetal_profile_contract():
             "flashboot", "full")),
         ("bare-metal flash under Linux", lambda c: c["soc"].__setitem__(
             "software_profile", "linux")),
+        ("fabric gPTP without clock attributes", lambda c: c.pop("gptp", None)),
     )
     for label, mutate in cases:
         path = _variant(CONFIGS["ax7101_1x1_tdm8"], mutate)

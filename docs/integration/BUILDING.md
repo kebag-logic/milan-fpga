@@ -106,10 +106,13 @@ xc7a100t**fgg484-2**, 1 GbE (RTL8211E strapped GMII), 512 MB DDR3
 (MT41J256M16), 16 MB N25Q128 QSPI. This is the shipping 1x1 TDM8 profile:
 one RV32I VexiiRiscv hart at 100 MHz in machine mode, no MMU, Linux, L1/L2 or
 LiteX SDRAM cache, and no Linux sound-card rings. The physical/fabric audio
-datapath, NIC DMA and protocol processor remain. It uses two RX queues,
-header-split 16K pages, `--strip-probes`, the raw-AEM bare-metal flash manifest,
-`--gtx-tx-invert`, `--timing-opt --floorplan`, and a three-directive placement
-sweep. See [BAREMETAL_FIRMWARE.md](BAREMETAL_FIRMWARE.md).
+datapath, NIC DMA and protocol processor remain. The configuration explicitly
+enables the #114 fabric gPTP plane with `--fabric-gptp`; the builder creates its
+ROM from the same YAML station MAC, priority1 and 100 MHz fabric clock. It uses
+two RX queues, header-split 16K pages, `--strip-probes`, the raw-AEM bare-metal
+flash manifest, `--gtx-tx-invert`, `--timing-opt --floorplan`, and a
+three-directive placement sweep. See
+[BAREMETAL_FIRMWARE.md](BAREMETAL_FIRMWARE.md).
 
 ### `ax8x8`  -  AX7101 Linux bring-up, 8-stream (64-channel) shape
 

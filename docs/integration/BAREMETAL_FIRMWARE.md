@@ -2,7 +2,9 @@
 
 The shipping AX7101 profile uses one RV32I VexiiRiscv hart in machine mode,
 with no supervisor mode, MMU, Linux, FPU, L1 cache, L2 cache or LiteX SDRAM
-cache. Linux remains a supported bring-up profile for the Arty and AX7101
+cache. It explicitly enables the fabric gPTP plane bought by #114; the RTL
+parameter still defaults off so other configurations do not change shape by
+accident. Linux remains a supported bring-up profile for the Arty and AX7101
 8x8 configurations.
 
 The capability rows on this page are checked against the
@@ -29,6 +31,9 @@ these statements hold:
   selected under the Linux profile.
 - The Vexii netlist ISA is RV32I plus `zicsr` and `zifencei`. Machine mode is
   the only privilege level and the CPU has no MMU.
+- `board.features.fabric_gptp` is true and a `gptp:` section is present. The
+  builder emits `--fabric-gptp` and generates `gptp_ucode.hex` from that same
+  configuration's station MAC, priority1 and 100 MHz Milan clock.
 
 Build through the checked configuration entry point:
 
@@ -65,6 +70,20 @@ and DRAM destination as generated constants. At boot it performs this order:
 
 A missing or corrupt image leaves the entity disabled. The UART status line
 then reports `AEM=disabled`; it is not treated as a quiet healthy boot.
+
+## Fabric gPTP option
+
+`board.features.fabric_gptp` defaults to `false`; the shipping AX7101 YAML
+sets it to `true`. An option-on build elaborates `KL_gptp_shadow` with
+`GPTP_PLANE_EN_P=1` and passes an absolute path to the builder-generated
+microcode image. A missing `gptp:` section is rejected instead of silently
+using the generator's example identity or clock defaults.
+
+This #120 integration does not change the RTL default or the CSR compatibility
+surface. The #116 flip still owns the default-on transition and retirement of
+the remaining software-era CSR/readback behavior. The bare-metal firmware
+sets the PHC epoch explicitly; after that, the fabric plane owns adjfine and
+adjtime in an option-on build.
 
 ## UART commands
 
@@ -109,6 +128,13 @@ protocol-processor checks still run.
 Before a bitstream is accepted, run the builder tests, Verilator suites,
 behavior tests, Yosys portability sweep, clean-tree documentation gates and
 the three place-directive AX7101 sweep required by
-[`CONTRIBUTING.md`](../../CONTRIBUTING.md). Record the winning placed resource
-and timing values in the ticket/PR; an elaboration estimate is not a placement
-measurement.
+[`CONTRIBUTING.md`](../../CONTRIBUTING.md). The placed-resource and timing
+record below is the shipping option-on measurement; an elaboration estimate
+is not accepted as a substitute.
+
+### Placed-and-routed shipping record
+
+The final table is populated from the winning AX7101
+`ExtraPostPlacementOpt` / `AltSpreadLogic_high` / `ExtraTimingOpt` sweep before
+the change is merged. It records Slice LUTs, Slice registers, BRAM, DSP, slices,
+WNS and TNS together with the winning directive and build tag.

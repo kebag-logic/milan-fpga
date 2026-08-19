@@ -497,7 +497,7 @@ class MilanNIC(LiteXModule):
                  desc_base=None, resp_base=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
-                 audio_if_i2s_pair=False, sound_card=False,
+                 audio_if_i2s_pair=False, gptp_plane=False, sound_card=False,
                  aaf_playback=False, aaf_pb_streams=1,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
@@ -531,6 +531,7 @@ class MilanNIC(LiteXModule):
                            talker_wire_chans=talker_wire_chans,
                            audio_if_master=audio_if_master,
                            audio_if_i2s_pair=audio_if_i2s_pair,
+                           gptp_plane=gptp_plane,
                            sound_card=sound_card,
                            aaf_playback=aaf_playback, aaf_pb_streams=aaf_pb_streams,
                            loopback_lane=loopback_lane,
@@ -733,6 +734,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
                        talker_wire_chans=2, audio_if_master=False,
                        audio_if_i2s_pair=False,
+                       gptp_plane=False,
                        sound_card=False, aaf_playback=False, aaf_pb_streams=1,
                        loopback_lane=False,
                        render_lpf=True,
@@ -857,6 +859,15 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     dp_params = dict(p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
                      p_N_STREAMS=int(num_streams),
                      p_AUDIO_IF_SLOTS_P=int(audio_if_slots))
+    if gptp_plane:
+        # #120 option-on shipping build. The builder generates this image from
+        # the SAME end-station YAML as the AEM: station MAC, gPTP priority1 and
+        # Milan clock are therefore facts of one config, not parallel CLI
+        # literals. Pass an absolute path because Vivado's run directory is
+        # not the repository and a relative $readmemh silently yields zero ROM.
+        dp_params["p_GPTP_PLANE_EN_P"] = 1
+        dp_params["p_GPTP_UCODE_HEX_P"] = _builder_out(
+            entity_gen_dir, "gptp_ucode.hex")
     if sound_card:
         dp_params["p_SOUND_CARD_P"] = 1
     # THE ACMP TRANSITION ROM IS NOT OPTIONAL. protocol_processor_top - which
@@ -5639,6 +5650,7 @@ class MilanSoC(SoCCore):
                  loopback_lane=False,
                  bus_standard="wishbone",
                  software_profile="linux",
+                 gptp_plane=False,
                  render_lpf=True, optional_blocks=None,
                  cbs_queues_mask=None, entity_gen_dir=None, **kwargs):
         # ---- RISC-V core(s). Two cores are supported, selected by
@@ -6111,6 +6123,7 @@ class MilanSoC(SoCCore):
                                   # never assigns them)
                                   audio_if_i2s_pair=(self.tdm_pads is not None
                                                      and _dma_i2s is not None),
+                                  gptp_plane=bool(gptp_plane),
                                   sound_card=bool(sound_card),
                                   aaf_playback=aaf_pb,
                                   aaf_pb_streams=int(aaf_pb_streams),
@@ -6696,6 +6709,11 @@ def main():
                     help="elaborate the Linux ALSA host surface: listener PCM capture "
                          "ring/CSR bank and, with --aaf-playback, host playback rings. "
                          "Default absent; AAF/TDM/I2S/render/loopback fabric remains.")
+    ap.add_argument("--fabric-gptp", action="store_true",
+                    help="enable the option-gated #114 fabric gPTP plane. The RTL "
+                         "default remains off until #116; the #120 shipping profile "
+                         "opts in explicitly and uses the end-station builder's "
+                         "MAC/priority/clock-specific gptp_ucode.hex.")
     ap.add_argument("--no-render-lpf", action="store_true",
                     help="AREA LEVER (banked, docs/design/AREA_BUDGET.md): prune "
                          "KL_pcm_lpf, the 2nd-order Butterworth on the DAC render tap. "
@@ -6930,6 +6948,8 @@ def main():
             ap.error("--software-profile baremetal uses --flashboot baremetal (or none)")
     elif args.flashboot == "baremetal":
         ap.error("--flashboot baremetal requires --software-profile baremetal")
+    if args.fabric_gptp and args.no_milan:
+        ap.error("--fabric-gptp requires the Milan datapath")
 
     # ---- L1 BINDING REFUSAL: the board must ROUTE the front-end it is asked
     #      for. BEFORE the platform is built, so an unbackable request is a
@@ -7005,6 +7025,7 @@ def main():
                    num_streams=args.num_streams,
                    pcm_ring=args.pcm_ring,
                    sound_card=args.sound_card,
+                   gptp_plane=args.fabric_gptp,
                    aaf_playback=args.aaf_playback,
                    aaf_pb_streams=args.aaf_playback_streams,
                    loopback_lane=args.loopback_lane,

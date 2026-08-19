@@ -32,6 +32,7 @@ entity:
 board:
   target: ax7101
   features:
+    fabric_gptp: true   # #114 plane, explicitly option-on for #120 shipping
     sound_card: false    # shipping bare-metal fabric has no ALSA host rings
     i2s_playback: false   # the AX routes NO audio pads (_connectors = [])
     latency_taps: true    # item-11 telemetry: at 1x1 the taps fit with room
