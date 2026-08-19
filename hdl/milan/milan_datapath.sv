@@ -1432,7 +1432,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        evt_tx_ts_ready;
 
   wire        cfg_adp_enable;
-  wire [63:0] cfg_adp_entity_id, cfg_adp_entity_model_id, cfg_adp_gptp_gm;
+  wire [63:0] cfg_adp_entity_id, cfg_adp_entity_model_id;
+  //! the grandmaster identity every fabric consumer reads (the PP's
+  //! ADPDU/GET_AVB_INFO/AS_PATH face, the Milan-info answers, the
+  //! recentre latch): CSR-published by the software chain today, the
+  //! gPTP plane's OWN verdict when the option is on. The CSR readback
+  //! words and the tu bit follow with #116's flip (a VERSION story).
+  wire [63:0] cfg_adp_gptp_gm_csr;
+  wire [63:0] gptp_pub_gm_w;
+  wire [63:0] cfg_adp_gptp_gm = (GPTP_PLANE_EN_P != 1'b0)
+                              ? gptp_pub_gm_w : cfg_adp_gptp_gm_csr;
   wire [15:0] cfg_adp_talker_sources, cfg_adp_talker_caps;
   wire [15:0] cfg_adp_listener_sinks, cfg_adp_listener_caps;
   wire [7:0]  cfg_adp_gptp_domain;
@@ -2325,7 +2334,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_adp_listener_sinks (cfg_adp_listener_sinks),
     .o_adp_listener_caps  (cfg_adp_listener_caps),
     .o_adp_controller_caps(),
-    .o_adp_gptp_gm        (cfg_adp_gptp_gm),
+    .o_adp_gptp_gm        (cfg_adp_gptp_gm_csr),
     .o_gptp_pdelay_ns     (),
     .o_adp_gptp_domain    (cfg_adp_gptp_domain),
     .o_adp_current_config (cfg_adp_current_config),
@@ -6056,7 +6065,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [TDATA_WIDTH-1:0]   ctlg3_tdata;
   wire [TDATA_WIDTH/8-1:0] ctlg3_tkeep;
   wire                     ctlg3_tvalid, ctlg3_tlast, ctlg3_tready;
-  wire [63:0] gptp_pub_gm_w, gptp_pub_parent_w, gptp_pub_annq_w;
+  wire [63:0] gptp_pub_parent_w, gptp_pub_annq_w;
   wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w, gptp_pub_offset_w;
   wire [15:0] gptp_tap_drop_w, gptp_rx_drop_w, gptp_ev_drop_w;
 
