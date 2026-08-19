@@ -96,8 +96,9 @@ across (REQ-CSR-03).
 
 On the fully-FPGA LiteX SoCs the PHC clock (`gtx_clk`) is tied to the
 datapath clock ([`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py), the
-`i_gtx_clk = ClockSignal(milan_cd)` instantiation) — 50 MHz Arty, 100 MHz
-AX7101 — and `PTP_INCR` carries the matching ns-per-tick. Since the t532
+`i_gtx_clk = ClockSignal(milan_cd)` instantiation) — 50 MHz on the Arty and
+shipping bare-metal AX7101, 100 MHz on the AX7101 Linux bring-up shape — and
+`PTP_INCR` carries the matching ns-per-tick. Since the t532
 wire-scale audit its RESET value is DERIVED from the instantiator's
 `MILAN_CLK_FREQ_HZ` (Q8.24 of the true clock period: 10.0 ns at 100 MHz,
 20.0 ns at 50 MHz; the standalone milan_csr default keeps the historic

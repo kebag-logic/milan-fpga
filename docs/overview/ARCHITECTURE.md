@@ -382,9 +382,10 @@ reached through `KL_pp_shadow`'s side-port host bridge (`PP_SPADDR`/`PP_SPDATA`)
 
 | Domain | Freq | Covers |
 |--------|------|--------|
-| `sys` | 100 MHz | CPU, DDR3, DMA engines, MAC core (softcore build) |
-| `cd_milan` (= `axis_clk`) | 100 MHz in the deployed build; ~50 MHz only when split via `--milan-clk-freq` | the whole `milan_datapath`, incl. the CSR block |
-| `gtx_clk` | 125 MHz | PTP timestamp counter + MAC-side capture (tied to `axis_clk` on the softcore build; separate on Zynq) |
+| `sys` | 100 MHz | DDR3, DMA engines, MAC core and the LiteX side of Vexii's CDC |
+| `cpu_clk` | 50 MHz in the shipping bare-metal AX build; `sys` otherwise | Vexii core; `--with-cpu-clk` supplies the supported asynchronous boundary in the shipping profile |
+| `cd_milan` (= `axis_clk`) | 50 MHz in the shipping AX and Arty builds; 100 MHz in the AX Linux bring-up build | the whole `milan_datapath`, incl. the CSR block |
+| `gtx_clk` | same as `cd_milan` on the softcore build; separate 125 MHz on Zynq | PTP timestamp counter + MAC-side capture |
 | PHY RX clock | 125 MHz | inside the MAC only |
 
 *Where are the seams — every one of them, and which two clocks does each join?*

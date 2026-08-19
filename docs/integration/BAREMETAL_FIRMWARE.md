@@ -137,7 +137,45 @@ is not accepted as a substitute.
 
 ### Placed-and-routed shipping record
 
-The final table is populated from the winning AX7101
-`ExtraPostPlacementOpt` / `AltSpreadLogic_high` / `ExtraTimingOpt` sweep before
-the change is merged. It records Slice LUTs, Slice registers, BRAM, DSP, slices,
-WNS and TNS together with the winning directive and build tag.
+The measured cell is commit `1e80a106`, configuration
+`configs/endstation_ax7101_1x1_tdm8.yaml`, part `xc7a100t-fgg484-2`, Vivado
+2026.1 and sweep tag `i120gptp50`. It uses 32 threads, no explicit placer seed
+(the Vivado default), `AreaOptimized_high` synthesis, `ExploreArea`
+optimization, `AggressiveExplore` physical optimization and routing, and the
+three place directives below. The 100 MHz system/audio clocks and the 50 MHz
+Milan/cacheless-CPU clock are asynchronous by construction.
+
+| Place directive | Slice LUTs | Slice registers | BRAM tiles | DSP | Slices | WNS (ns) | TNS (ns) | WHS (ns) | Result |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---|
+| `ExtraPostPlacementOpt` | 54,305 | 57,938 | 100 | 15 | 15,849 | +0.033 | 0.000 | +0.049 | timing met; bitstream |
+| `AltSpreadLogic_high` | 54,299 | 57,939 | 100 | 15 | 15,850 | -0.029 | -0.289 | +0.013 | setup failed; bitstream |
+| `ExtraTimingOpt` | 54,284 | 57,939 | 100 | 15 | 15,850 | -0.051 | -0.220 | +0.047 | setup failed; bitstream |
+
+`ExtraPostPlacementOpt` is the shipping winner. Its bitstream is
+`build_ax7101_eppo_i120gptp50/gateware/alinx_ax7101.bit`; the signed-off report
+has zero setup and hold failing endpoints. The placed design occupies 15,849
+of 15,850 slices, so the directive is part of the reproducible cell and is not
+interchangeable with the two failing alternatives.
+
+The first option-on experiment kept both the system and Milan planes at
+100 MHz. It emitted bitstreams but did not meet setup timing:
+
+| Place directive | WNS (ns) | TNS (ns) | WHS (ns) |
+|---|---:|---:|---:|
+| `AltSpreadLogic_high` | -3.933 | -11,973.169 | +0.036 |
+| `ExtraTimingOpt` | -3.897 | -9,278.585 | +0.057 |
+| `ExtraPostPlacementOpt` | -3.762 | -12,239.650 | +0.020 |
+
+That result is why the cacheless CPU and 64-bit Milan plane run at 50 MHz;
+3.2 Gb/s still exceeds the 1 Gb/s wire rate while the LiteX system and audio
+recipe remain at 100 MHz.
+
+Post-synthesis resource accounting also proves the intended buy-back. The
+#114 Linux, plane-off baseline used 59,497 LUT, 63,092 registers, 126 BRAM
+tiles and 15 DSP. The fabric gPTP plane in this build accounts for 3,364 LUT,
+2,939 registers, 4.5 BRAM tiles and 4 DSP. Adding that plane to the old
+baseline would require 62,861 LUT, 66,031 registers, 130.5 BRAM tiles and 19
+DSP; the new option-on bare-metal build instead uses 57,111 LUT, 58,043
+registers, 100 BRAM tiles and 15 DSP. The downgrade therefore funds the plane
+and still frees 5,750 LUT, 7,988 registers, 30.5 BRAM tiles and 4 DSP relative
+to that old-plus-plane comparison.
