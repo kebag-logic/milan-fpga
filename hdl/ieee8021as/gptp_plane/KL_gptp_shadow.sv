@@ -37,7 +37,13 @@
 //
 //                A control frame offered while the FIFO cannot take it is
 //                LOST and counted, never hidden (the tap cannot
-//                backpressure the NIC).
+//                backpressure the NIC). The same is true of the SHED RULE
+//                (issue #122): the side FIFO is shallower than the frame
+//                FIFO, so a frame arriving when the ring is already spoken
+//                for is dropped WHOLE at its first beat rather than allowed
+//                to lap a still-live stamp -- see the occupancy block below
+//                for why that count has two terms and why the pointer
+//                difference must be taken at pointer width.
 //---------------------------------------------------------------------------//
 `default_nettype none
 
@@ -125,6 +131,11 @@ module KL_gptp_shadow #(
 
   typedef enum logic [1:0] {FW_HEAD0, FW_HEAD1, FW_BODY, FW_SKIP} fw_state_e;
   fw_state_e fw_S;
+  //! this frame is being SHED whole (issue #122): the ingress-ts ring was
+  //! full at its sof, so no beat may enter the FIFO -- otherwise its commit
+  //! would lap the ring over a still-live arrival stamp. Set at FW_HEAD0,
+  //! read at FW_HEAD1 (where the EtherType verdict for the count lands).
+  logic shed_r;
 
   logic                     fw_valid_w, fw_last_w, fw_user_w;
   logic [TDATA_WIDTH_P-1:0] fw_data_w;
@@ -134,6 +145,14 @@ module KL_gptp_shadow #(
   logic accept_w;
   assign accept_w = (etype_w == ET_GPTP_C);
 
+  //! the shed guard's verdict and the frame FIFO's bad-frame strobe are
+  //! DECLARED HERE, above their first use in the always_comb below. Verilator
+  //! accepts a later declaration; Vivado's front-end does not (VRFC 10-3380
+  //! rejects the whole module), so a file that only ever sees Verilator can
+  //! regress the xsim benches silently. Their drivers live with the ring.
+  logic full_w;
+  logic ff_bad_w;
+
   always_comb begin
     fw_valid_w = 1'b0;
     fw_data_w  = rx_tdata_i;
@@ -142,14 +161,19 @@ module KL_gptp_shadow #(
     fw_user_w  = 1'b0;
     unique case (fw_S)
       FW_HEAD0: begin
-        // beat 0 always enters -- the verdict needs beat 1; a frame
-        // ending here is a runt, marked bad and dropped atomically
-        fw_valid_w = beat_w;
+        // beat 0 normally enters -- the verdict needs beat 1; a frame
+        // ending here is a runt, marked bad and dropped atomically. But when
+        // the ingress-ts ring is FULL at sof (issue #122), the WHOLE frame is
+        // shed before it enters the FIFO: suppress beat 0 too, so its commit
+        // (ff_good_w) can never lap the ring over a still-live arrival stamp.
+        fw_valid_w = beat_w & ~full_w;
         fw_user_w  = rx_tlast_i;
       end
       FW_HEAD1: begin
-        fw_valid_w = beat_w;
-        if (!accept_w) begin
+        // a shed frame keeps beat 1 out of the FIFO as well, so the shed is
+        // atomic at frame granularity: nothing ever entered.
+        fw_valid_w = beat_w & ~shed_r;
+        if (!accept_w & ~shed_r) begin
           fw_last_w = 1'b1;
           fw_user_w = 1'b1;                  // reject: reclaimed atomically
         end
@@ -166,14 +190,21 @@ module KL_gptp_shadow #(
     if (!rst_n) begin
       fw_S     <= FW_HEAD0;
       ts_arr_r <= 64'd0;
+      shed_r   <= 1'b0;
     end else if (beat_w) begin
       unique case (fw_S)
         FW_HEAD0: begin
           ts_arr_r <= phc_ns_i;
+          // shed the WHOLE frame when the ts ring is full at sof (issue
+          // #122). A one-beat runt at full stays uncounted -- no EtherType
+          // verdict lands, matching today's bad-frame reclaim.
+          shed_r   <= full_w & ~rx_tlast_i;
           fw_S     <= rx_tlast_i ? FW_HEAD0 : FW_HEAD1;
         end
+        // a shed frame routes to FW_SKIP regardless of EtherType (it never
+        // entered the FIFO); accept_w still steers a normal frame.
         FW_HEAD1: fw_S <= rx_tlast_i ? FW_HEAD0
-                                     : (accept_w ? FW_BODY : FW_SKIP);
+                                     : ((shed_r | ~accept_w) ? FW_SKIP : FW_BODY);
         FW_BODY:  if (rx_tlast_i) fw_S <= FW_HEAD0;
         default:  if (rx_tlast_i) fw_S <= FW_HEAD0;
       endcase
@@ -187,8 +218,15 @@ module KL_gptp_shadow #(
   //! mode change.
   logic ff_ovf_w;
   logic drop_evt_w;
+  //! a SHED gPTP frame (issue #122): the ring was full at its sof, so it
+  //! never entered the FIFO and ff_ovf_w never fires for it. Count it in the
+  //! tap-drop diagnostic ONLY once the EtherType verdict lands (beat 1 =
+  //! FW_HEAD1) and ONLY when it is 0x88F7 -- counting non-gPTP sheds would
+  //! poison the diagnostic.
+  logic shed_gptp_w;
+  assign shed_gptp_w = beat_w & (fw_S == FW_HEAD1) & shed_r & accept_w;
   assign drop_evt_w = (fw_valid_w & ~fw_ready_w & (fw_S != FW_SKIP))
-                    | ff_ovf_w;
+                    | ff_ovf_w | shed_gptp_w;
   logic [15:0] tap_drop_r;
   always_ff @(posedge clk_i) begin
     if (!rst_n)           tap_drop_r <= 16'd0;
@@ -237,7 +275,7 @@ module KL_gptp_shadow #(
     .m_axis_tdest       (),
     .m_axis_tuser       (),
     .status_overflow    (ff_ovf_w),
-    .status_bad_frame   (),
+    .status_bad_frame   (ff_bad_w),
     .status_good_frame  (ff_good_w),
     .status_depth       (),
     .status_depth_commit(),
@@ -250,24 +288,85 @@ module KL_gptp_shadow #(
   // ======================================================================= //
   localparam int unsigned TSD_C = 1 << TS_FIFO_LOG2_P;
   logic [63:0] tsf_r [0:TSD_C-1];
-  logic [TS_FIFO_LOG2_P-1:0] tsf_wp_r, tsf_rp_r;
+  //! one extra pointer bit so (wp - rp) is a wrap-safe occupancy rather than
+  //! an ambiguous full/empty compare
+  logic [TS_FIFO_LOG2_P:0] tsf_wp_r, tsf_rp_r;
   logic tsf_pop_w;
+
+  // ----------------------------------------------------------------------- //
+  //  THE SHED GUARD'S OCCUPANCY (issue #122), in two terms                   //
+  //                                                                          //
+  //  The ring is PUSHED on ff_good_w -- the frame FIFO's commit -- which LAGS //
+  //  the tap sof by the FIFO's write latency, so the ring pointers alone      //
+  //  under-count: frames already taken at the tap but not yet committed are   //
+  //  invisible, the guard sheds too late, and the ring still laps (measured:  //
+  //  38 frames into a 32-entry ring on the burst below).                      //
+  //                                                                          //
+  //  Counting instead at the TAP and releasing on POP is what a first cut     //
+  //  did, and it LEAKS: a frame the FIFO itself discards (oversize, or full)  //
+  //  never commits, so it never pushes and never pops. One slot leaks per     //
+  //  discarded frame and after TSD_C of them the guard wedges shut and the    //
+  //  plane goes PERMANENTLY DEAF -- worse than the lap it was fixing, and     //
+  //  invisible to the whole sweep (measured: 40 oversize frames, then         //
+  //  nothing was ever accepted again).                                        //
+  //                                                                          //
+  //  So the second term counts frames that have ENTERED the frame FIFO and    //
+  //  are not yet RESOLVED by it. A frame resolves exactly once -- good (a     //
+  //  future push), bad, or overflow (no push) -- so this can neither leak nor //
+  //  underflow, whatever the FIFO does with the frame. It counts non-gPTP     //
+  //  frames too, which only makes the guard slightly conservative: they       //
+  //  resolve within a couple of cycles and never push.                        //
+  //                                                                          //
+  //  sum = entries the ring holds + pushes it may still be owed, so shedding  //
+  //  a new frame at TSD_C means the ring is never asked to hold a 33rd.       //
+  // ----------------------------------------------------------------------- //
+  logic fifo_enter_w, fifo_resolve_w;
+  //! a frame's FIRST beat being written IS the frame entering the FIFO
+  assign fifo_enter_w   = fw_valid_w & fw_ready_w & (fw_S == FW_HEAD0);
+  assign fifo_resolve_w = ff_good_w | ff_bad_w | ff_ovf_w;
+  //! BOUND: an enter is blocked once occ reaches TSD_C, and unres_r <= occ,
+  //! so unres_r never exceeds TSD_C -- one bit wider than the ring index is
+  //! all it needs. The saturations below are then unreachable by
+  //! construction and kept only as belt-and-braces on a wedge that would
+  //! cost the plane every frame.
+  logic [TS_FIFO_LOG2_P:0] unres_r;
+  //! THE SUBTRACTION MUST HAPPEN AT POINTER WIDTH. `N'(a - b)` sets the
+  //! CONTEXT size of the whole expression, so casting the difference straight
+  //! to the sum's width evaluates a - b at that width and the wrap-safe extra
+  //! pointer bit is thrown away: every wrap then reads ~2^N - (rp - wp), the
+  //! guard latches full and the plane sheds frames it has room for. Take the
+  //! difference in its own N+1-bit net FIRST, then widen.
+  logic [TS_FIFO_LOG2_P:0]   ring_occ_w;
+  logic [TS_FIFO_LOG2_P+1:0] occ_w;
+  assign ring_occ_w = tsf_wp_r - tsf_rp_r;
+  assign occ_w  = {1'b0, ring_occ_w} + {1'b0, unres_r};
+  assign full_w = (occ_w >= (TS_FIFO_LOG2_P+2)'(TSD_C));
 
   always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       tsf_wp_r <= '0;
       tsf_rp_r <= '0;
+      unres_r  <= '0;
     end else begin
       if (ff_good_w) begin
-        tsf_r[tsf_wp_r] <= ts_arr_r;
-        tsf_wp_r        <= tsf_wp_r + 1'b1;
+        tsf_r[tsf_wp_r[TS_FIFO_LOG2_P-1:0]] <= ts_arr_r;
+        tsf_wp_r                            <= tsf_wp_r + 1'b1;
       end
-      if (tsf_pop_w) tsf_rp_r <= tsf_rp_r + 1'b1;
+      //! the empty test makes a pop-without-push STRUCTURALLY unable to drive
+      //! rp past wp. It cannot fire today (a pop trails its push by cycles),
+      //! but with a pointer-difference compare that ordering is the only
+      //! thing standing between a stray pop and a permanently shedding guard
+      if (tsf_pop_w & (tsf_wp_r != tsf_rp_r)) tsf_rp_r <= tsf_rp_r + 1'b1;
+      if (fifo_enter_w & ~fifo_resolve_w) begin
+        if (~&unres_r) unres_r <= unres_r + 1'b1;
+      end else if (~fifo_enter_w & fifo_resolve_w) begin
+        if (|unres_r)  unres_r <= unres_r - 1'b1;
+      end
     end
   end
 
   logic [63:0] rx_ts_w;
-  assign rx_ts_w = tsf_r[tsf_rp_r];
+  assign rx_ts_w = tsf_r[tsf_rp_r[TS_FIFO_LOG2_P-1:0]];
   assign dbg_rx_ts_o = rx_ts_w;
   assign dbg_tspush_v_o = ff_good_w;
   assign dbg_tspush_o   = ts_arr_r;

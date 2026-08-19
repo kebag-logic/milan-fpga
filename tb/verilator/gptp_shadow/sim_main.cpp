@@ -88,11 +88,19 @@ static std::vector<uint8_t> cur;
 static bool in_tx = false;
 static bool tx_first = true;
 
+//! issue #122: capture the ingress-ts ring push/pop stamps during a burst
+static std::vector<uint64_t> g_pushed, g_popped;
+static bool g_ts_capture = false;
+
 static uint64_t phc() { return dut->phc_ns_o; }
 
 static void tick() {
   dut->clk_i = 0; dut->eval();
   dut->clk_i = 1; dut->eval();
+  if (g_ts_capture) {
+    if (dut->dbg_tspush_v_o) g_pushed.push_back(dut->dbg_tspush_o);
+    if (dut->dbg_tspop_v_o)  g_popped.push_back(dut->dbg_rx_ts_o);
+  }
   if (dut->dbg_txts_v_o) last_txts_seq = dut->dbg_txts_seq_o;
   if (dut->tx_tvalid_o && dut->tx_tready_i) {
     if (tx_first) {
@@ -362,6 +370,190 @@ int main(int argc, char **argv) {
     sync_pair(0x400, 3000 + (uint64_t)D_NOM, nullptr);
     expect("the plane survives the burst",
            near((int32_t)dut->pub_offset_o, 3000, 200), 1);
+  }
+
+  // ---- 8: issue #122 -- a back-to-back 0x88F7 burst must NOT lap the ring.
+  // [R0]'s repro: 40 two-beat 0x88F7 frames arrive far faster (2 beats each)
+  // than the 1 B/clk serializer drains (16 clk each), so committed-but-
+  // unserialized frames exceed the 32-entry ts ring. The shed guard drops
+  // whole frames at sof when the ring is full, so no live stamp is ever
+  // lapped: the popped stamps are exactly the pushed stamps in FIFO order,
+  // and pops + gPTP sheds account for all 40. On the unguarded RTL the ring
+  // laps and the popped stamps diverge from the pushed ones (the mutation).
+  {
+    g_pushed.clear(); g_popped.clear();
+    uint16_t drop0 = dut->dbg_tap_drop_o;
+    g_ts_capture = true;
+    for (int k = 0; k < 40; k++) {
+      std::vector<uint8_t> f(16, 0);
+      // DA 01:80:C2:00:00:0E, SA 00:80:E1:11:22:33
+      const uint8_t da[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};
+      const uint8_t sa[6] = {0x00,0x80,0xE1,0x11,0x22,0x33};
+      for (int i = 0; i < 6; i++) { f[i] = da[i]; f[6 + i] = sa[i]; }
+      f[12] = 0x88; f[13] = 0xF7;             // EtherType (accepted by the tap)
+      f[14] = 0x10; f[15] = 0x02;             // sv/version/message_type, ptp ver
+      send_wide(f);                            // 2 wide beats, back-to-back
+    }
+    run(40000);                                // drain the whole burst
+    g_ts_capture = false;
+    uint16_t sheds = (uint16_t)(dut->dbg_tap_drop_o - drop0);
+
+    // the FIFO/subsequence law: every popped stamp is the pushed stamp at the
+    // same position -- no entry was lapped over a still-live one.
+    bool law = (g_popped.size() == g_pushed.size()) && !g_popped.empty();
+    for (size_t i = 0; law && i < g_popped.size(); i++)
+      if (g_popped[i] != g_pushed[i]) law = false;
+    expect("ts-ring burst: popped stamps are the pushed stamps, in order", law, 1);
+    // the pushed stamps must be strictly increasing (each frame's own arrival
+    // phc): proves they are real per-frame stamps, not a stuck value.
+    bool mono = g_pushed.size() > 1;
+    for (size_t i = 1; mono && i < g_pushed.size(); i++)
+      if (g_pushed[i] <= g_pushed[i - 1]) mono = false;
+    expect("ts-ring burst: pushed stamps strictly increasing (real arrivals)",
+           mono, 1);
+    // accounting: every one of the 40 frames either serialized (a pop) or was
+    // shed at the tap; the ring never silently swallowed one.
+    expect("ts-ring burst: pops + gPTP sheds == 40",
+           (int)g_popped.size() + (int)sheds, 40);
+    // the guard must actually engage on this burst (else the law is vacuous).
+    expect("ts-ring burst: the guard shed at least one frame", sheds > 0, 1);
+  }
+
+  // ---- 9: issue #122 -- the guard must not LEAK. A gPTP frame accepted at
+  // the tap but then dropped INSIDE the frame FIFO (oversize, or FIFO-full)
+  // never commits, so it never pushes and never pops. An occupancy counted at
+  // the tap and released only on pop leaks one slot per such frame and, after
+  // 32, wedges the guard into shedding EVERYTHING -- a permanently deaf
+  // plane, which is worse than the lap this ticket fixes. Drive 40 oversize
+  // gPTP frames (> the 2 KB frame FIFO, so the FIFO drops each one) and then
+  // require a normal frame to still reach the engine.
+  {
+    for (int k = 0; k < 40; k++) {
+      Frame f = ptp(0x0, (uint16_t)(0x7300 + k), 0, 0x0208, 10);
+      f.ts(0);
+      while (f.b.size() < 3000) f.u8(0xAA);   // oversize: dropped in the FIFO
+      send_wide(f.b);
+      run(400);
+    }
+    run(20000);
+    g_pushed.clear();
+    g_ts_capture = true;
+    Frame g = ptp(0x2, 0x7400, 0, 0, 20);     // a normal, well-spaced frame
+    send_wide(g.b);
+    run(4000);
+    g_ts_capture = false;
+    expect("no leak: the plane still accepts after 40 FIFO-dropped frames",
+           g_pushed.size() >= 1, 1);
+  }
+
+  // ---- 10: issue #122 -- the SHED path must not leak either, and the guard
+  // must not drift burst over burst. A shed frame never enters the frame
+  // FIFO, so counting it as an entry would leak one slot per shed and wedge
+  // the guard shut after 32 -- the same permanent deafness as phase 9, by a
+  // different route, and phase 8 alone cannot see it because a single burst
+  // sheds only a handful. Repeat the burst and require the per-burst shed
+  // count NOT to grow: a leak makes every repetition shed strictly more,
+  // ending in all-shed.
+  {
+    long sheds[4];
+    for (int rep = 0; rep < 4; rep++) {
+      uint16_t d0 = dut->dbg_tap_drop_o;
+      g_pushed.clear(); g_popped.clear();
+      g_ts_capture = true;
+      for (int k = 0; k < 40; k++) {
+        std::vector<uint8_t> f(16, 0);
+        const uint8_t da[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};
+        const uint8_t sa[6] = {0x00,0x80,0xE1,0x11,0x22,0x33};
+        for (int i = 0; i < 6; i++) { f[i] = da[i]; f[6 + i] = sa[i]; }
+        f[12] = 0x88; f[13] = 0xF7;
+        f[14] = 0x10; f[15] = 0x02;
+        send_wide(f);
+      }
+      run(40000);
+      g_ts_capture = false;
+      sheds[rep] = (long)(uint16_t)(dut->dbg_tap_drop_o - d0);
+      // the per-burst law still holds on every repetition. !empty() is NOT
+      // decoration: without it a plane that sheds EVERYTHING satisfies every
+      // check in this phase vacuously (0 == 0 pops, 0 + 40 == 40, and a flat
+      // shed count) -- the phase added to catch a wedge would be blind to the
+      // wedge. Phase 8 carries the same guard for the same reason.
+      bool law = (g_popped.size() == g_pushed.size()) && !g_popped.empty();
+      for (size_t i = 0; law && i < g_popped.size(); i++)
+        if (g_popped[i] != g_pushed[i]) law = false;
+      expect("repeat burst: no lap on this repetition", law, 1);
+      expect("repeat burst: pops + sheds == 40",
+             (int)g_popped.size() + (int)sheds[rep], 40);
+    }
+    // EQUALITY, not <=: on correct RTL every repetition sheds exactly the
+    // same count, so an exact compare is deterministic. A <= endpoint compare
+    // passes or fails on pointer PHASE for the occupancy bugs this is meant to
+    // lock out -- one measured pattern was [19,3,13,3], where 3 <= 19 sails
+    // through the very regression it exists to catch.
+    for (int rep = 1; rep < 4; rep++)
+      expect("repeat burst: shed count identical across repetitions",
+             sheds[rep] == sheds[0], 1);
+  }
+
+  //! build a minimal classifiable 0x88F7 (or foreign-ethertype) frame
+  auto tapframe = [](size_t len, bool gptp) {
+    std::vector<uint8_t> f(len, 0);
+    const uint8_t da[6] = {0x01, 0x80, 0xC2, 0x00, 0x00, 0x0E};
+    const uint8_t sa[6] = {0x00, 0x80, 0xE1, 0x11, 0x22, 0x33};
+    for (int i = 0; i < 6; i++) { f[i] = da[i]; f[6 + i] = sa[i]; }
+    f[12] = gptp ? 0x88 : 0x22;
+    f[13] = gptp ? 0xF7 : 0xF0;
+    f[14] = 0x10; f[15] = 0x02;
+    return f;
+  };
+
+  // ---- 11: issue #122 -- the shed must stay ATOMIC for frames LONGER than
+  // two beats. A shed frame is held out of the FIFO by routing FW_HEAD1 to
+  // FW_SKIP; lose that route and beats 2..N of a shed frame enter as a
+  // HEADLESS partial frame, commit as good, and push a ghost stamp with no
+  // matching entry count -- the sum under-counts and the ring laps again,
+  // which is precisely the defect this ticket fixes. Phases 8 and 10 cannot
+  // see it: their frames are two beats, so a shed frame never leaves
+  // FW_HEAD1. The size must also stay small enough that the 2 KB frame FIFO
+  // does NOT saturate, or its own overflow drop masks the ghost push. 24 and
+  // 56 bytes sit in that window (a real Pdelay_Req is 68).
+  for (int fb = 0; fb < 2; fb++) {
+    const size_t flen = (fb == 0) ? 24 : 56;
+    const int    nfr  = 60;
+    uint16_t d0 = dut->dbg_tap_drop_o;
+    g_pushed.clear(); g_popped.clear();
+    g_ts_capture = true;
+    for (int k = 0; k < nfr; k++) send_wide(tapframe(flen, true));
+    run(120000);
+    g_ts_capture = false;
+    long sheds = (long)(uint16_t)(dut->dbg_tap_drop_o - d0);
+    bool law = (g_popped.size() == g_pushed.size()) && !g_popped.empty();
+    for (size_t i = 0; law && i < g_popped.size(); i++)
+      if (g_popped[i] != g_pushed[i]) law = false;
+    expect("long-frame shed stays atomic: popped == pushed, in order", law, 1);
+    expect("long-frame shed stays atomic: pops + sheds == 60",
+           (int)g_popped.size() + (int)sheds, nfr);
+  }
+
+  // ---- 12: the shed diagnostic counts gPTP sheds ONLY. The guard sheds at
+  // beat 0, BEFORE the EtherType verdict lands at beat 1, so on a busy link
+  // most shed frames are not gPTP at all -- counting those would poison
+  // dbg_tap_drop_o, which is what a silicon reader uses to size the loss.
+  // Saturate the ring with short gPTP frames while interleaving AVTP ones:
+  // the accounting law below holds only if the count is EtherType-gated.
+  {
+    const int npair = 60;
+    uint16_t d0 = dut->dbg_tap_drop_o;
+    g_pushed.clear(); g_popped.clear();
+    g_ts_capture = true;
+    for (int k = 0; k < npair; k++) {
+      send_wide(tapframe(24, true));
+      send_wide(tapframe(24, false));       // foreign ethertype, also shed-able
+    }
+    run(120000);
+    g_ts_capture = false;
+    long sheds = (long)(uint16_t)(dut->dbg_tap_drop_o - d0);
+    expect("mixed traffic: pops + gPTP sheds == the 60 gPTP frames sent",
+           (int)g_popped.size() + (int)sheds, npair);
   }
 
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);

@@ -63,7 +63,35 @@ The plane has four seams:
   exactly once per DELIVERED frame, so drops can never desync stamps
   from frames -- and popped at the byte stream's sof. The constant
   MAC-to-tap pipeline offset belongs to the ingress-latency correction;
-  #117 measures it on silicon.
+  #117 measures it on silicon. The side FIFO is 32 deep, smaller than
+  the frame FIFO, so a back-to-back burst could commit more frames than
+  it holds; the **shed rule** (issue #122) keeps it from lapping a
+  still-live stamp: at a frame's first tap beat, if the ring is already
+  spoken for, the WHOLE frame is shed before it enters the frame FIFO,
+  and the shed is counted in `dbg_tap_drop_o` only once its EtherType
+  verdict confirms 0x88F7.
+
+  "Spoken for" is two terms, and both are load-bearing. The ring's own
+  occupancy (write minus read pointer) is exact but **lags**: the push
+  happens on the frame FIFO's commit, so frames already taken at the tap
+  are invisible and the guard would shed too late (measured: 38 frames
+  into a 32-entry ring). Counting at the tap and releasing on pop closes
+  that gap but **leaks**: a frame the FIFO itself discards -- oversize,
+  or arriving full -- never commits, so it never pushes and never pops,
+  and after 32 such frames the guard wedges shut and the plane goes
+  permanently deaf. So the second term counts frames that have entered
+  the frame FIFO and are not yet **resolved** by it. A frame resolves
+  exactly once, as good (a future push), bad, or overflow (no push), so
+  the count can neither leak nor underflow whatever the FIFO does with
+  it. The sum is the entries the ring holds plus the pushes it may still
+  be owed, so shedding at 32 means it is never asked to hold a 33rd.
+  Take the pointer difference in its own width before widening it to the
+  sum: casting `wp - rp` straight to the wider type evaluates the
+  subtraction at that width and throws the wrap-safe bit away, which
+  reads a wrapped ring as almost-full and sheds frames there was room
+  for. A frame that is a single beat and arrives while the ring is full
+  is shed without being counted -- its EtherType verdict never lands, so
+  it is indistinguishable from the runts the tap already reclaims.
 - **Egress**: the control lane does not traverse `ptp_ts_top`'s TX
   stamper (only the shaped data path does), so `KL_gptp_txstamp`
   observes the TRUE MAC boundary: armed by the plane's lane sof, it
