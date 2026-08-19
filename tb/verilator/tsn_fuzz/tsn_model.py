@@ -205,14 +205,49 @@ def decode_pdu(yaml_dir, interface, pdu_bytes):
     return {}
 
 
+def decode_ptp(yaml_dir, interface, pdu_bytes):
+    """packet_gen's independent dissection of an 802.1AS PDU — NO shift.
+
+    The missing-nibble caveat above is a 1722.1 defect only: the 8021as_*
+    models declare the FULL common header from transport_specific down, so
+    the model layout and the wire layout agree bit-for-bit (measured
+    2026-08-19: a wire.py Sync decodes exactly — seq, flags, identity).
+    `pdu_bytes` starts at the header byte holding transportSpecific.
+    """
+    if not pdu_bytes:
+        return {}
+    cmd = [PACKET_GEN, "--yaml-dir", yaml_dir, "--interface", interface,
+           "--decode", "--hex", bytes(pdu_bytes).hex()]
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=30)
+    except (OSError, subprocess.SubprocessError):
+        return {}
+    for line in res.stdout.splitlines():
+        line = line.strip()
+        if not line.startswith("{"):
+            continue
+        try:
+            d = json.loads(line)
+        except ValueError:
+            continue
+        if "fields" in d:
+            return d["fields"]
+        for lyr in d.get("layers", []):
+            if lyr.get("fields"):
+                return lyr["fields"]
+    return {}
+
+
 # ------------------------------------------------------------------ catalogue
 AECP_DIR = os.path.join(TSN_GEN_ROOT, "protocols", "application", "1722_1", "aecp")
 ADP_DIR = os.path.join(TSN_GEN_ROOT, "protocols", "application", "1722_1", "adp")
 AVTP_DIR = os.path.join(TSN_GEN_ROOT, "protocols", "data_link", "1722")
+PTP_DIR = os.path.join(TSN_GEN_ROOT, "protocols", "data_link", "ptp")
 ACMP_DIR = os.path.join(REPO_PROTOCOLS, "acmp")
 
 
 def load(kind, yaml_name, interface=None):
-    """Load a model by family: 'aecp' | 'adp' | 'avtp' | 'acmp'."""
-    d = {"aecp": AECP_DIR, "adp": ADP_DIR, "avtp": AVTP_DIR, "acmp": ACMP_DIR}[kind]
+    """Load a model by family: 'aecp' | 'adp' | 'avtp' | 'ptp' | 'acmp'."""
+    d = {"aecp": AECP_DIR, "adp": ADP_DIR, "avtp": AVTP_DIR, "ptp": PTP_DIR,
+         "acmp": ACMP_DIR}[kind]
     return Message(os.path.join(d, yaml_name), interface, yaml_dir=d)

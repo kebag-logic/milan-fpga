@@ -288,7 +288,7 @@ def read_state(dut):
     return parse_state(dut.xact(ctrl(CTRL_STATE)))
 
 
-def require_tsn_gen(report):
+def require_tsn_gen(report, name="AAF/AVTP field campaign"):
     """Skip cleanly (exit 0) when tsn-gen is not installed on this machine.
 
     The ``SUITE-SKIP:`` line is the machine-readable half, and it is REPORTING
@@ -310,7 +310,6 @@ def require_tsn_gen(report):
         return True
     print("  SKIP: tsn-gen not found at %s" % tsn_model.PACKET_GEN)
     print("        set TSN_GEN_ROOT / PACKET_GEN to enable the field campaign")
-    print("SUITE-SKIP: AAF/AVTP field campaign (tsn-gen absent; set "
-          "TSN_GEN_ROOT to enable)")
+    print("SUITE-SKIP: %s (tsn-gen absent; set TSN_GEN_ROOT to enable)" % name)
     report.note("campaign skipped (tsn-gen absent), not a failure")
     sys.exit(0)

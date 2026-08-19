@@ -1,0 +1,914 @@
+#!/usr/bin/env python3
+# SPDX-FileCopyrightText: 2026 Kebag Logic
+# SPDX-License-Identifier: CERN-OHL-W-2.0
+"""
+gPTP / 802.1AS field campaign against the fabric plane slice.
+
+The DUT is the WHOLE slice the datapath splice instantiates — KL_gptp_shadow
+(tap + engine + lane), the real timestamp_counter it steers, KL_gptp_txstamp
+as the MAC boundary — at the bench's 2 MHz scaling. gPTP is a timer-driven
+plane, so the campaign grades BOTH directions:
+
+    our TX      every spec-constrained field of the plane's own Pdelay_Req,
+                Announce, Sync and Follow_Up, graded against the tsn-gen
+                8021as_* models (which pin the 802.1AS-2011 wire values and
+                the Milan v1.2 Table 4.1 cadence bytes)
+    peer RX     per-field illegal probes: what the parser must DROP
+                (EtherType, transportSpecific, versionPTP, truncation) drops
+                and counts; what 11.4.1 says a receiver must IGNORE
+                (reserved fields) is accepted unchanged; what the µcode owns
+                (BTCA compare, source matching, the Milan 4.2.6.2.5 cease
+                rule) moves state ONLY the way the clause says
+
+The state-stability canary is two-sided, like AAF's lock: asCapable must
+SURVIVE every malformed storm while genuine exchanges continue, and must
+FALL when the exchanges stop (a plane still reporting asCapable through a
+response drought is lying to every AVB consumer above it) — then climb
+again when they resume.
+
+Run: python3 fuzz_ptp.py [--rounds N] [--seed S]
+"""
+import argparse
+import random
+import sys
+
+import cosim
+import tsn_model
+import wire
+
+# state_dump() word order — must match cosim_ptp.cpp (APPEND ONLY)
+(S_FLAGS, S_GM_HI, S_GM_LO, S_PAR_HI, S_PAR_LO, S_PDELAY, S_OFFSET,
+ S_TAPDROP, S_RXDROP, S_PHC_HI, S_PHC_LO, S_TXCNT, S_TXTSSEQ, S_TXTSCNT,
+ S_PDEXP) = range(15)
+
+FL_PRESENT, FL_AMGM, FL_ASCAP, FL_SYNCOK = 1, 2, 4, 8
+
+#: bench identities (mirror cosim_ptp.cpp / tb/verilator/gptp_shadow)
+OUR_CID = wire.GPTP_OUR_CID
+PEER_CID = wire.GPTP_PEER_CID
+PEER2_CID = wire.GPTP_PEER2_CID
+GMID = 0x00AACCFFFE010203
+D_NOM = 600
+
+#: one CTRL_TICK block = 10,000 cycles = 5 ms of bench time (2 MHz);
+#: the engine's second — the pdelay/announce interval — is 2,000,000 cycles
+MS = 2000
+SECOND = 1000 * MS
+
+MODELS = [
+    ("sync",     "8021as_sync.yaml"),
+    ("follow_up", "8021as_follow_up.yaml"),
+    ("pdelay_req", "8021as_pdelay_req.yaml"),
+    ("pdelay_resp", "8021as_pdelay_resp.yaml"),
+    ("pdelay_resp_fu", "8021as_pdelay_resp_follow_up.yaml"),
+    ("announce", "8021as_announce.yaml"),
+]
+
+BUILD = {
+    "sync": wire.ptp_sync,
+    "follow_up": wire.ptp_follow_up,
+    "pdelay_req": wire.ptp_pdelay_req,
+    "pdelay_resp": wire.ptp_pdelay_resp,
+    "pdelay_resp_fu": wire.ptp_pdelay_resp_fu,
+    "announce": wire.ptp_announce,
+}
+
+PTP_TYPE = {
+    "sync": wire.PTP_SYNC, "follow_up": wire.PTP_FOLLOW_UP,
+    "pdelay_req": wire.PTP_PDELAY_REQ, "pdelay_resp": wire.PTP_PDELAY_RESP,
+    "pdelay_resp_fu": wire.PTP_PDELAY_RESP_FU, "announce": wire.PTP_ANNOUNCE,
+}
+
+#: header fields every builder accepts by the model's own name
+HDR_FIELDS = ("transport_specific", "reserved0", "version_ptp",
+              "message_length", "domain_number", "reserved1", "flags",
+              "correction_field", "reserved2", "source_clock_identity",
+              "source_port_number", "sequence_id", "control",
+              "log_message_interval")
+
+
+def extract_fields(model, frame):
+    """Walk the model's field list over the frame's PDU bits (from byte 14).
+
+    The 8021as_* models declare the FULL layout in wire order, so the walk
+    IS the decode — the cross-decode section proves the premise every run.
+    """
+    pdu = bytes(frame[14:])
+    nbits = len(pdu) * 8
+    val = int.from_bytes(pdu, "big")
+    out, pos = {}, 0
+    for name, bits, _con in model.fields:
+        if pos + bits > nbits:
+            break
+        out[name] = (val >> (nbits - pos - bits)) & ((1 << bits) - 1)
+        pos += bits
+    return out
+
+
+class Campaign:
+    def __init__(self, dut, rep, seed):
+        self.dut = dut
+        self.rep = rep
+        self.seed = seed
+        self.seq = {}                     # per-type injected sequence ids
+        self.txq = []                     # every frame the plane transmitted
+        self.scan = 0                     # wait_tx cursor into txq
+        self.master = None                # (gm_identity, p1) we must refresh
+
+    # ------------------------------------------------------------- transport
+    def op(self, payload):
+        """One command; reply = ([tx frames...], state) — state is LAST."""
+        frames = self.dut.xact_all(payload)
+        if not frames:
+            return [], None
+        st = cosim.parse_state(frames[-1])
+        tx = frames[:-1] if st else frames
+        self.txq.extend(tx)
+        return tx, (st or None)
+
+    def state(self):
+        _, st = self.op(cosim.ctrl(cosim.CTRL_STATE))
+        return st
+
+    def send(self, frame):
+        """Inject one wire frame; returns the post-settle state."""
+        _, st = self.op(frame)
+        return st
+
+    def tick(self, blocks):
+        """Buy the plane time: blocks × 10,000 cycles."""
+        st = None
+        while blocks > 0:
+            n = min(blocks, 200)
+            _, st = self.op(cosim.ctrl(cosim.CTRL_TICK, n))
+            blocks -= n
+        return st
+
+    def responder(self, on):
+        _, st = self.op(cosim.ctrl(cosim.CTRL_EVENT, 1 if on else 0))
+        return st
+
+    def reset(self):
+        self.txq = []
+        self.scan = 0
+        _, st = self.op(cosim.ctrl(cosim.CTRL_RESET))
+        return st
+
+    # ------------------------------------------------------------- utilities
+    def nseq(self, kind):
+        self.seq[kind] = (self.seq.get(kind, 0) + 1) & 0xFFFF
+        return self.seq[kind]
+
+    def refresh_master(self):
+        """Keep the adopted master alive across long waits (3 s receipt)."""
+        if self.master:
+            gm, p1 = self.master
+            self.send(wire.ptp_announce(sequence_id=self.nseq("announce"),
+                                        gm_identity=gm, gm_priority1=p1))
+
+    def wait_tx(self, mtype, budget, refresh=False):
+        """The next plane TX frame of `mtype` within `budget` cycles."""
+        spent = 0
+        while True:
+            while self.scan < len(self.txq):
+                f = self.txq[self.scan]
+                self.scan += 1
+                if len(f) > 14 and (f[14] & 0xF) == mtype:
+                    return f
+            if spent >= budget:
+                return None
+            self.tick(150)                # 1.5 M cycles
+            spent += 150 * 10000
+            if refresh:
+                self.refresh_master()
+
+    def drain_tx(self):
+        self.scan = len(self.txq)
+
+    def tx_of_type(self, mtype, since=0):
+        return [f for f in self.txq[since:]
+                if len(f) > 14 and (f[14] & 0xF) == mtype]
+
+    @staticmethod
+    def gm_of(st):
+        return (st[S_GM_HI] << 32) | st[S_GM_LO]
+
+    @staticmethod
+    def parent_of(st):
+        return (st[S_PAR_HI] << 32) | st[S_PAR_LO]
+
+    @staticmethod
+    def phc_of(st):
+        return (st[S_PHC_HI] << 32) | st[S_PHC_LO]
+
+    def stable(self, label, before, after, mask=FL_PRESENT | FL_ASCAP):
+        """The stability canary: flags/GM/parent unmoved by a probe."""
+        self.rep.eq("%s: flags stable" % label,
+                    after[S_FLAGS] & mask, before[S_FLAGS] & mask)
+        self.rep.eq("%s: GM unmoved" % label,
+                    self.gm_of(after), self.gm_of(before))
+        self.rep.eq("%s: parent unmoved" % label,
+                    self.parent_of(after), self.parent_of(before))
+
+    def eq_or_gap(self, label, got, exp, issue):
+        """Conformant → a passing check; nonconformant → a TRACKED gap.
+
+        The gap fires only on the mismatch, so the day the donor closes the
+        issue the check turns green on its own and the gap count drops — the
+        campaign ratchets the defect out rather than pinning a magic number.
+        Every gap names its FPGA-gPTP issue, per the suite's gap contract.
+        """
+        if got == exp:
+            return self.rep.ck("%s (conformant)" % label, True)
+        self.rep.gap("%s" % label,
+                     "FPGA-gPTP #%d: got=%s exp=%s" % (issue, got, exp))
+        return False
+
+    def grade_tx(self, model, frame, label, skip=(), gaps=None):
+        """Every spec-constrained model field of OUR frame holds.
+
+        `gaps={field: issue}` routes a known transmit-nonconformance to a
+        tracked gap instead of a failure (see eq_or_gap).
+        """
+        gaps = gaps or {}
+        got = extract_fields(model, frame)
+        for name, _bits, con in model.fields:
+            if name in skip or name not in got or not con:
+                continue
+            if "value" in con:
+                if name in gaps:
+                    self.eq_or_gap("%s.%s" % (label, name), got[name],
+                                   int(con["value"]), gaps[name])
+                else:
+                    self.rep.eq("%s.%s" % (label, name), got[name],
+                                int(con["value"]))
+            elif "range" in con:
+                lo, hi = int(con["range"][0]), int(con["range"][1])
+                self.rep.ck("%s.%s in [%d,%d]" % (label, name, lo, hi),
+                            lo <= got[name] <= hi, "got=%d" % got[name])
+            elif "values" in con:
+                self.rep.ck("%s.%s legal" % (label, name),
+                            got[name] in [int(v) for v in con["values"]],
+                            "got=%d" % got[name])
+        return got
+
+    def become_gm(self, budget=10 * SECOND):
+        """Wait out the announce-receipt timeout: back to a clean GM baseline.
+
+        A GM with no better master heard is the campaign's re-establishable
+        baseline for the BTCA rejection probes — each defect probe adopts a
+        bad master, and letting it expire returns the plane to GM=us so the
+        next probe starts from known state.
+        """
+        st = self.state()
+        spent = 0
+        while not (st[S_FLAGS] & FL_AMGM) and spent < budget:
+            st = self.tick(100)
+            spent += 100 * 10000
+        return st
+
+    # ------------------------------------------------------------ 1 models
+    def inventory(self):
+        self.rep.section("802.1AS model inventory (tsn-gen)")
+        loaded = {}
+        for kind, yml in MODELS:
+            try:
+                m = tsn_model.load("ptp", yml)
+                loaded[kind] = m
+                self.rep.ck("model %-16s loads" % kind, True,
+                            "%d fields" % len(m.fields))
+            except (OSError, ValueError, KeyError) as exc:
+                self.rep.ck("model %-16s loads" % kind, False, str(exc))
+        try:
+            loaded["announce_pt1"] = tsn_model.load(
+                "ptp", "8021as_announce.yaml",
+                "as_announce::AS_ANNOUNCE::AS_ANNOUNCE_PT1_IF")
+            self.rep.ck("model announce+path-trace loads", True,
+                        "%d fields" % len(loaded["announce_pt1"].fields))
+        except (OSError, ValueError, KeyError) as exc:
+            self.rep.ck("model announce+path-trace loads", False, str(exc))
+        try:
+            loaded["eth"] = tsn_model.load("ptp", "8021as_eth_header.yaml")
+            self.rep.ck("model eth header loads", True)
+        except (OSError, ValueError, KeyError) as exc:
+            self.rep.ck("model eth header loads", False, str(exc))
+        return loaded
+
+    # ------------------------------------------- 2 wire <-> model agreement
+    def cross_decode(self, models):
+        """wire.py bytes vs packet_gen's independent dissection, NO shift.
+
+        This is the measured premise the whole campaign stands on: the
+        8021as_* models declare the full header (unlike the 1722.1 models
+        and their missing nibble), so the model layout IS the wire layout.
+        """
+        self.rep.section("independent decode: wire.py vs packet_gen (no shift)")
+        good = {
+            "sync": wire.ptp_sync(sequence_id=0x1234),
+            "follow_up": wire.ptp_follow_up(sequence_id=0x1234,
+                                            origin_ns=1_000_000_123),
+            "pdelay_req": wire.ptp_pdelay_req(sequence_id=0x2345),
+            "pdelay_resp": wire.ptp_pdelay_resp(
+                sequence_id=0x2345, t2_ns=5_000_000_000),
+            "pdelay_resp_fu": wire.ptp_pdelay_resp_fu(
+                sequence_id=0x2345, t3_ns=5_000_001_000),
+            "announce": wire.ptp_announce(sequence_id=0x77, gm_identity=GMID,
+                                          gm_priority1=100, path_trace=[]),
+        }
+        for kind, frame in good.items():
+            m = models.get(kind)
+            if m is None:
+                continue
+            dec = tsn_model.decode_ptp(m.yaml_dir, m.interface, frame[14:])
+            if not self.rep.ck("%s: packet_gen decoded" % kind, bool(dec)):
+                continue
+            walked = extract_fields(m, frame)
+            mism = [n for n in walked
+                    if n in dec and int(dec[n]) != walked[n]]
+            self.rep.ck("%s: every field agrees (walker == packet_gen)" % kind,
+                        not mism,
+                        ", ".join("%s %d!=%d" % (n, walked[n], int(dec[n]))
+                                  for n in mism[:4]))
+            msg = wire.PtpMsg(frame)
+            self.rep.eq("%s: sequence_id agrees three ways" % kind,
+                        (int(dec.get("sequence_id", -1)), msg.sequence_id),
+                        (walked["sequence_id"], walked["sequence_id"]))
+
+    # --------------------------------------------------------- 3 boot TX
+    def boot(self, models):
+        self.rep.section("boot: the first Pdelay_Req, graded field by field")
+        st0 = self.state()
+        self.rep.eq("fresh plane: not asCapable", st0[S_FLAGS] & FL_ASCAP, 0)
+        self.rep.eq("fresh plane: no drops", (st0[S_TAPDROP], st0[S_RXDROP]),
+                    (0, 0))
+        req = self.wait_tx(wire.PTP_PDELAY_REQ, 8 * SECOND)
+        if not self.rep.ck("boot Pdelay_Req transmitted", req is not None):
+            return
+        self.rep.eq("boot req frame length", len(req), 68)
+        m = wire.PtpMsg(req)
+        eth = models.get("eth")
+        if eth is not None:
+            con = dict((n, c) for n, _b, c in eth.fields)
+            self.rep.eq("boot req DA (11.3.3)",
+                        m.dst.hex(), "%012x" % int(con["dst_mac"]["value"]))
+            self.rep.eq("boot req EtherType", m.ethertype,
+                        int(con["ethertype"]["value"]))
+        self.grade_tx(models["pdelay_req"], req, "tx_pdreq")
+        self.rep.eq("boot req source identity", m.source_clock_identity,
+                    OUR_CID)
+        # Milan: no Announce, no Sync before asCapable
+        self.rep.eq("no Announce before asCapable",
+                    len(self.tx_of_type(wire.PTP_ANNOUNCE)), 0)
+        self.rep.eq("no Sync before asCapable",
+                    len(self.tx_of_type(wire.PTP_SYNC)), 0)
+
+    # ------------------------------------------------------------- 4 climb
+    def climb(self, label="climb"):
+        self.rep.section("%s: exchanges up, asCapable within the ladder"
+                         % label)
+        self.responder(True)
+        st = self.state()
+        spent = 0
+        while not (st[S_FLAGS] & FL_ASCAP) and spent < 16 * SECOND:
+            st = self.tick(200)
+            spent += 200 * 10000
+        self.rep.ck("%s: asCapable rose" % label,
+                    st[S_FLAGS] & FL_ASCAP, "flags=%x" % st[S_FLAGS])
+        pd, exp = st[S_PDELAY], st[S_PDEXP]
+        self.rep.ck("%s: pdelay matches the responder's records" % label,
+                    abs((pd & 0xFFFFFFFF) - exp) <= 32,
+                    "pdelay=%d expect=%d" % (pd, exp))
+        return st
+
+    # ------------------------------------------------------------ 5 GM TX
+    def gm_tx(self, models):
+        self.rep.section("as grandmaster: Announce / Sync / Follow_Up conform")
+        # the plane self-declares grandmaster only after the announce-receipt
+        # timeout elapses with no better master heard (802.1AS BMCA + Milan
+        # Table 4.2) — not the instant asCapable rises
+        st = self.become_gm()
+        self.rep.ck("plane self-declares grandmaster after the receipt timeout",
+                    st[S_FLAGS] & FL_AMGM, "flags=%x" % st[S_FLAGS])
+        self.rep.eq("as GM the published identity is ours",
+                    self.gm_of(st), OUR_CID)
+        self.drain_tx()
+        ann = self.wait_tx(wire.PTP_ANNOUNCE, 4 * SECOND)
+        if self.rep.ck("Announce transmitted", ann is not None):
+            am = wire.PtpMsg(ann)
+            pt1 = am.message_length == 76 and "announce_pt1" in models
+            self.grade_tx(models["announce_pt1" if pt1 else "announce"],
+                          ann, "tx_announce")
+            self.rep.eq("tx_announce grandmaster is us", am.gm_identity,
+                        OUR_CID)
+            self.rep.eq("tx_announce stepsRemoved", am.steps_removed, 0)
+            self.rep.ck("tx_announce carries the path trace TLV (10.5.3.3)",
+                        am.message_length == 76 and
+                        am._be(78, 2) == 0x0008 and am._be(82, 8) == OUR_CID,
+                        "ml=%d" % am.message_length)
+        sync = self.wait_tx(wire.PTP_SYNC, 2 * SECOND)
+        if self.rep.ck("Sync transmitted", sync is not None):
+            sm = wire.PtpMsg(sync)
+            # control 0x0 (Table 11-7) and a zero reserved body (Table 11-8):
+            # both are transmit-only nonconformances tracked in the donor repo
+            self.grade_tx(models["sync"], sync, "tx_sync",
+                          gaps={"control": 9, "origin_timestamp": 10})
+            self.rep.eq("tx_sync source identity", sm.source_clock_identity,
+                        OUR_CID)
+            fu = self.wait_tx(wire.PTP_FOLLOW_UP, SECOND)
+            if self.rep.ck("Follow_Up pairs the Sync", fu is not None):
+                fm = wire.PtpMsg(fu)
+                self.rep.eq("tx_fu sequence pairs its sync",
+                            fm.sequence_id, sm.sequence_id)
+                # control 0x2 (Table 11-7) is the same TX-control gap
+                self.grade_tx(models["follow_up"], fu, "tx_fu",
+                              skip=("precise_origin_seconds",
+                                    "precise_origin_ns"),
+                              gaps={"control": 9})
+                st2 = self.state()
+                self.rep.ck("tx_fu origin is live fabric time",
+                            0 < fm.ts_total_ns <= self.phc_of(st2),
+                            "origin=%d phc=%d"
+                            % (fm.ts_total_ns, self.phc_of(st2)))
+
+    # ---------------------------------------------------- 6 parser gates
+    def parser_gates(self, models):
+        self.rep.section("parser gates: what must drop, drops; "
+                         "what 11.4.1 ignores, passes")
+        good = {
+            "sync": lambda **kw: wire.ptp_sync(
+                sequence_id=self.nseq("sync"), **kw),
+            "follow_up": lambda **kw: wire.ptp_follow_up(
+                sequence_id=self.nseq("fu"), **kw),
+            "pdelay_req": lambda **kw: wire.ptp_pdelay_req(
+                sequence_id=self.nseq("pdreq"),
+                source_clock_identity=PEER2_CID, src=wire.GPTP_PEER2_MAC,
+                **kw),
+            "announce": lambda **kw: wire.ptp_announce(
+                sequence_id=self.nseq("announce"), gm_identity=GMID,
+                gm_priority1=254, **kw),
+        }
+        # parser-owned rejects: per model, every illegal transport/version
+        for kind, build in good.items():
+            m = models[kind]
+            for field in ("transport_specific", "version_ptp"):
+                for v in m.illegal(field)[:3]:
+                    before = self.state()
+                    after = self.send(build(**{field: v}))
+                    self.rep.eq("%s %s=%d: dropped and counted"
+                                % (kind, field, v),
+                                after[S_RXDROP], before[S_RXDROP] + 1)
+                    self.stable("%s %s=%d" % (kind, field, v), before, after)
+        # unknown message types with a full header: dropped, counted
+        for mt in (0x1, 0x4, 0x5, 0x6, 0x7, 0x9, 0xD, 0xE, 0xF):
+            before = self.state()
+            after = self.send(wire.ptp_frame(mt, bytes(20),
+                                             sequence_id=self.nseq("x")))
+            self.rep.eq("unknown message type 0x%X: dropped and counted" % mt,
+                        after[S_RXDROP], before[S_RXDROP] + 1)
+            self.stable("unknown type 0x%X" % mt, before, after)
+        # classify negatives: never enter, never cost a drop
+        for label, frame in (
+                ("AVTP ethertype", wire.ptp_sync(sequence_id=1,
+                                                 ethertype=0x22F0)),
+                ("C-VLAN tagged gPTP",
+                 wire.GPTP_MCAST_MAC + wire.GPTP_PEER_MAC +
+                 b"\x81\x00\x00\x02" + wire.ptp_sync(sequence_id=2)[12:]),
+                ("6-byte runt", b"\x01\x02\x03\x04\x05\x06")):
+            before = self.state()
+            after = self.send(frame)
+            self.rep.eq("%s: invisible (no drop, no count)" % label,
+                        (after[S_RXDROP], after[S_TAPDROP]),
+                        (before[S_RXDROP], before[S_TAPDROP]))
+            self.stable(label, before, after)
+        # a 15-byte 0x88F7 runt IS classified, then parser-dropped
+        before = self.state()
+        after = self.send(wire.ptp_sync(sequence_id=3)[:15])
+        self.rep.eq("15-byte gPTP runt: parser drop counted",
+                    after[S_RXDROP], before[S_RXDROP] + 1)
+        # truncation at the per-type minimum boundary (parser min_len map)
+        for kind, min_frame in (("sync", 58), ("follow_up", 58),
+                                ("announce", 78), ("pdelay_req", 48)):
+            f = good[kind]()
+            before = self.state()
+            after = self.send(f[:min_frame - 1])
+            self.rep.eq("%s cut to %d B: dropped and counted"
+                        % (kind, min_frame - 1),
+                        after[S_RXDROP], before[S_RXDROP] + 1)
+            self.stable("%s truncated" % kind, before, after)
+        # reserved fields: garbage is IGNORED, not dropped (11.4.1)
+        before = self.state()
+        after = self.send(good["pdelay_req"](reserved0=0xF, reserved1=0xAA,
+                                             reserved2=0xDEADBEEF))
+        self.rep.eq("garbage reserved fields: NOT dropped (11.4.1)",
+                    after[S_RXDROP], before[S_RXDROP])
+        resp = self.wait_tx(wire.PTP_PDELAY_RESP, SECOND)
+        self.rep.ck("garbage reserved fields: request still answered",
+                    resp is not None)
+
+    # ------------------------------------------- 7 the responder role
+    def responder_correct(self, models):
+        self.rep.section("pdelay responder: Resp + Resp_Follow_Up conform")
+        self.drain_tx()
+        seq = 0x4321
+        before = self.state()
+        self.send(wire.ptp_pdelay_req(sequence_id=seq,
+                                      source_clock_identity=PEER2_CID,
+                                      source_port_number=2,
+                                      src=wire.GPTP_PEER2_MAC))
+        resp = self.wait_tx(wire.PTP_PDELAY_RESP, SECOND)
+        if self.rep.ck("Pdelay_Resp answers the request", resp is not None):
+            rm = wire.PtpMsg(resp)
+            self.grade_tx(models["pdelay_resp"], resp, "tx_pdresp",
+                          skip=("request_receipt_seconds",
+                                "request_receipt_ns",
+                                "requesting_clock_identity",
+                                "requesting_port_number"))
+            self.rep.eq("tx_pdresp echoes the sequence", rm.sequence_id, seq)
+            self.rep.eq("tx_pdresp requestingPortIdentity",
+                        (rm.requesting_clock_identity,
+                         rm.requesting_port_number), (PEER2_CID, 2))
+            self.rep.eq("tx_pdresp source identity is ours",
+                        rm.source_clock_identity, OUR_CID)
+            after = self.state()
+            t2 = rm.ts_total_ns
+            self.rep.ck("tx_pdresp t2 is live fabric time",
+                        self.phc_of(before) <= t2 <= self.phc_of(after),
+                        "t2=%d window=[%d,%d]" % (t2, self.phc_of(before),
+                                                  self.phc_of(after)))
+            rfu = self.wait_tx(wire.PTP_PDELAY_RESP_FU, SECOND)
+            if self.rep.ck("Pdelay_Resp_Follow_Up pairs it",
+                           rfu is not None):
+                fm = wire.PtpMsg(rfu)
+                self.grade_tx(models["pdelay_resp_fu"], rfu, "tx_pdrfu",
+                              skip=("response_origin_seconds",
+                                    "response_origin_ns",
+                                    "requesting_clock_identity",
+                                    "requesting_port_number"))
+                self.rep.eq("tx_pdrfu echoes the sequence",
+                            fm.sequence_id, seq)
+                self.rep.eq("tx_pdrfu requestingPortIdentity",
+                            (fm.requesting_clock_identity,
+                             fm.requesting_port_number), (PEER2_CID, 2))
+                self.rep.ck("t3 after t2, same clock",
+                            fm.ts_total_ns >= t2,
+                            "t2=%d t3=%d" % (t2, fm.ts_total_ns))
+        # a request the parser must refuse draws NO response
+        self.drain_tx()
+        self.send(wire.ptp_pdelay_req(sequence_id=0x4399, version_ptp=3,
+                                      source_clock_identity=PEER2_CID,
+                                      src=wire.GPTP_PEER2_MAC))
+        self.tick(20)
+        bad = [f for f in self.tx_of_type(wire.PTP_PDELAY_RESP)
+               if wire.PtpMsg(f).sequence_id == 0x4399]
+        self.rep.eq("a version-3 request draws no response", len(bad), 0)
+
+        # a Pdelay_Resp_Follow_Up matching NO outstanding exchange must be
+        # ignored (11.2.15.3): requestingPortIdentity is qualified, but the
+        # sequenceId is not, so one stale frame poisons the delay and drops
+        # asCapable — tracked as #8. Destructive, so re-climb after it.
+        before = self.state()
+        after = self.send(wire.ptp_pdelay_resp_fu(
+            sequence_id=0xEEEE, t3_ns=1000,
+            requesting_clock_identity=OUR_CID,
+            source_clock_identity=PEER_CID))
+        moved = (after[S_PDELAY] != before[S_PDELAY] or
+                 (after[S_FLAGS] & FL_ASCAP) != (before[S_FLAGS] & FL_ASCAP))
+        self.eq_or_gap("stale Pdelay_Resp_Follow_Up ignored (11.2.15.3)",
+                       moved, False, 8)
+        if not self.state()[S_FLAGS] & FL_ASCAP:
+            self.climb("re-climb after the respFU poison probe")
+
+    # ----------------------------------------------------------- 8 BTCA
+    def btca(self):
+        self.rep.section("BTCA under fuzz: only a legal better vector moves "
+                         "the grandmaster")
+        # positive control: a clean better external master is adopted
+        st = self.become_gm()
+        self.rep.ck("baseline: plane is grandmaster", st[S_FLAGS] & FL_AMGM,
+                    "flags=%x" % st[S_FLAGS])
+        after = self.send(wire.ptp_announce(
+            sequence_id=self.nseq("announce"), gm_identity=GMID,
+            gm_priority1=100))
+        self.tick(2)
+        after = self.state()
+        self.rep.eq("clean better master is adopted", self.gm_of(after), GMID)
+        self.rep.eq("adopting master: no longer grandmaster",
+                    after[S_FLAGS] & FL_AMGM, 0)
+        self.rep.eq("parent follows the master port", self.parent_of(after),
+                    PEER_CID)
+
+        # Each rejection probe runs against the GM baseline: it becomes GM
+        # (a re-establishable known state), then injects a vector that is
+        # BETTER on merit (priority1 1 < our 248) but must be rejected for a
+        # SEPARATE reason. If the plane stays GM the rule holds; if the
+        # vector is adopted the missing check is a tracked gap.
+        def reject_probe(label, issue, drop, **kw):
+            self.become_gm()
+            kw.setdefault("gm_identity", 0x2222)
+            kw.setdefault("source_clock_identity", PEER2_CID)
+            kw.setdefault("src", wire.GPTP_PEER2_MAC)
+            f = wire.ptp_announce(sequence_id=self.nseq("announce"),
+                                  gm_priority1=1, **kw)
+            before = self.state()
+            after = self.send(f)
+            held = self.gm_of(after) == OUR_CID
+            if issue is None:
+                self.rep.ck("%s: rejected, plane stays GM" % label, held,
+                            "gm=%x" % self.gm_of(after))
+            else:
+                self.eq_or_gap("%s: rejected, plane stays GM" % label,
+                               self.gm_of(after), OUR_CID, issue)
+            if drop is not None:
+                self.rep.eq("%s: drop counted" % label,
+                            after[S_RXDROP], before[S_RXDROP] + 1)
+
+        # parser-owned rejects: these work today (bad_r drops them)
+        reject_probe("better vector, version 1", None, drop=1, version_ptp=1)
+        reject_probe("better vector, transportSpecific 0", None, drop=1,
+                     transport_specific=0)
+        # qualifyAnnounce / domain rejects: tracked gaps
+        reject_probe("better vector, domain 5 (8.1: single domain 0)",
+                     6, drop=None, domain_number=5)
+        reject_probe("better vector, own sourcePortIdentity (10.3.10.2.1a)",
+                     7, drop=None, source_clock_identity=OUR_CID,
+                     src=wire.GPTP_PEER2_MAC)
+        reject_probe("better vector, stepsRemoved 255 (10.3.10.2.1b)",
+                     7, drop=None, steps_removed=255)
+        # 10.3.10.2.1c: our identity anywhere in the path trace disqualifies
+        self.become_gm()
+        after = self.send(wire.ptp_announce(
+            sequence_id=self.nseq("announce"), gm_identity=0x3333,
+            gm_priority1=1, source_clock_identity=PEER2_CID,
+            src=wire.GPTP_PEER2_MAC, path_trace=[0x3333, OUR_CID]))
+        self.eq_or_gap("better vector, our id in the path trace "
+                       "(10.3.10.2.1c): rejected", self.gm_of(after),
+                       OUR_CID, 7)
+
+        # truncated-at-75 better announce (parser min is 78): parser-dropped
+        self.become_gm()
+        before = self.state()
+        f = wire.ptp_announce(sequence_id=self.nseq("announce"),
+                              gm_identity=0x2222, gm_priority1=1,
+                              source_clock_identity=PEER2_CID,
+                              src=wire.GPTP_PEER2_MAC, path_trace=[])
+        after = self.send(f[:75])
+        self.rep.eq("truncated better announce: plane stays GM",
+                    self.gm_of(after), OUR_CID)
+        self.rep.eq("truncated better announce: drop counted",
+                    after[S_RXDROP], before[S_RXDROP] + 1)
+
+        # a legal deep path trace is capped at 8 published hops but adopts
+        self.become_gm()
+        after = self.send(wire.ptp_announce(
+            sequence_id=self.nseq("announce"), gm_identity=0x4444,
+            gm_priority1=50, source_clock_identity=PEER2_CID,
+            src=wire.GPTP_PEER2_MAC, steps_removed=11,
+            path_trace=[0x5000 + i for i in range(12)]))
+        self.rep.eq("12-hop legal better vector still adopts (cap publishes 8)",
+                    self.gm_of(after), 0x4444)
+        # leave a clean GM baseline: let the adopted vectors expire so the
+        # servo section starts from known state (0x4444 p50 would otherwise
+        # outrank the GMID p100 the next section adopts)
+        self.become_gm()
+
+    # ------------------------------------------------------- 9 sync pairs
+    def sync_pairs(self):
+        self.rep.section("sync consumption: clean pairs move the servo, "
+                         "malformed ones cannot")
+
+        def pair(delta, domain=0, fu_seq=None, fu_src=PEER_CID,
+                 sync_flags=0x0208):
+            sq = self.nseq("sync")
+            st = self.state()
+            at = self.phc_of(st)
+            self.send(wire.ptp_sync(sequence_id=sq, flags=sync_flags,
+                                    domain_number=domain))
+            self.send(wire.ptp_follow_up(
+                sequence_id=sq if fu_seq is None else fu_seq,
+                origin_ns=at - delta - D_NOM, domain_number=domain,
+                source_clock_identity=fu_src))
+            return self.tick(2)
+
+        # adopt GMID and settle a clean baseline before the servo probes
+        self.master = (GMID, 100)
+        self.refresh_master()
+        self.tick(2)
+        st = pair(1000)
+        off = st[S_OFFSET] - (1 << 32) if st[S_OFFSET] >> 31 else st[S_OFFSET]
+        self.rep.ck("clean pair: offset lands near +1000",
+                    abs(off - 1000) <= 300, "offset=%d" % off)
+        self.rep.ck("clean pair: sync verdict up", st[S_FLAGS] & FL_SYNCOK,
+                    "flags=%x" % st[S_FLAGS])
+        # these two the servo correctly ignores (pairing rules work today)
+        for label, kw in (
+                ("Follow_Up with a foreign sequence",
+                 dict(delta=40000, fu_seq=0xEEEE)),
+                ("Follow_Up from a foreign source",
+                 dict(delta=40000, fu_src=PEER2_CID))):
+            self.refresh_master()
+            before = self.state()
+            b_off = before[S_OFFSET]
+            after = pair(**kw)
+            self.rep.eq("%s: offset unmoved" % label, after[S_OFFSET], b_off)
+            self.stable(label, before, after)
+        # a domain-5 pair MUST be ignored (8.1) but the servo consumes it —
+        # the same missing domain qualification as the BTCA side (#6)
+        self.refresh_master()
+        before = self.state()
+        after = pair(delta=40000, domain=5)
+        self.eq_or_gap("pair in domain 5: offset unmoved",
+                       after[S_OFFSET], before[S_OFFSET], 6)
+        # the servo recovers on the next clean pair
+        self.refresh_master()
+        st = pair(1000)
+        off = st[S_OFFSET] - (1 << 32) if st[S_OFFSET] >> 31 else st[S_OFFSET]
+        self.rep.ck("recovery pair: offset back near +1000",
+                    abs(off - 1000) <= 300, "offset=%d" % off)
+
+    # ---------------------------------------------------------- 10 cease
+    def cease(self):
+        self.rep.section("Milan 4.2.6.2.5: multiple responders cease "
+                         "Pdelay_Req; duplicates do not")
+        self.responder(False)
+
+        def answer(req, cids):
+            m = wire.PtpMsg(req)
+            st = self.state()
+            t2 = self.phc_of(st) + 5_000_000
+            for i, cid in enumerate(cids):
+                self.send(wire.ptp_pdelay_resp(
+                    sequence_id=m.sequence_id, t2_ns=t2,
+                    requesting_clock_identity=OUR_CID,
+                    source_clock_identity=cid,
+                    src=wire.GPTP_PEER2_MAC if i else wire.GPTP_PEER_MAC))
+                self.send(wire.ptp_pdelay_resp_fu(
+                    sequence_id=m.sequence_id, t3_ns=t2 + 200,
+                    requesting_clock_identity=OUR_CID,
+                    source_clock_identity=cid,
+                    src=wire.GPTP_PEER2_MAC if i else wire.GPTP_PEER_MAC))
+
+        def serve(blocks, cids):
+            """Answer EVERY Pdelay_Req over `blocks`, in fine steps.
+
+            The cease streak (4.2.6.2.5) needs CONSECUTIVE multi-answered
+            intervals, so no request may go unanswered — wait_tx can skip a
+            whole interval between its 150-block ticks, which resets the
+            streak. Stepping finely and answering each request keeps it.
+            """
+            seen, done = 0, 0
+            while done < blocks:
+                n = min(20, blocks - done)
+                self.tick(n)
+                done += n
+                while self.scan < len(self.txq):
+                    f = self.txq[self.scan]
+                    self.scan += 1
+                    if len(f) > 14 and (f[14] & 0xF) == wire.PTP_PDELAY_REQ:
+                        answer(f, cids)
+                        seen += 1
+            return seen
+
+        # multi-identity intervals: answer every request with TWO identities;
+        # requests must stop within a handful of intervals
+        self.drain_tx()
+        seen = serve(10 * 200, (PEER_CID, PEER2_CID))
+        self.rep.ck("multi-identity intervals were answered", seen >= 3,
+                    "answered=%d" % seen)
+        self.drain_tx()
+        mark = len(self.txq)
+        self.tick(2 * 200)                        # two quiet intervals
+        quiet = len(self.tx_of_type(wire.PTP_PDELAY_REQ, mark))
+        self.rep.eq("multiple responders: requests CEASE (4.2.6.2.5)",
+                    quiet, 0)
+        resumed = self.wait_tx(wire.PTP_PDELAY_REQ, 8 * SECOND)
+        self.rep.ck("requests resume after the cease timer",
+                    resumed is not None)
+        # duplicates from ONE identity are not a storm: many single-identity
+        # intervals must NOT cease the requests
+        self.drain_tx()
+        kept = serve(6 * 200, (PEER_CID, PEER_CID))
+        self.rep.ck("duplicate responses never cease the requests",
+                    kept >= 4, "kept=%d" % kept)
+        self.responder(True)
+
+    # --------------------------------------------------------- 11 storms
+    def storms(self, models, rounds):
+        # climb FIRST (it opens its own section) so the storm checks below
+        # are attributed to the storm section, not the re-climb
+        st0 = self.state()
+        if not (st0[S_FLAGS] & FL_ASCAP):
+            self.climb("re-climb before the storm")
+        self.rep.section("constrained-random storms + the asCapable canary")
+        st0 = self.state()
+        rnd = random.Random(self.seed ^ 0x8021A5)
+        sent = 0
+        st = st0
+        for idx, (kind, _yml) in enumerate(MODELS):
+            m = models.get(kind)
+            if m is None:
+                continue
+            sets = m.random(rounds, self.seed + idx)
+            self.rep.ck("%s: tsn-gen produced random field sets" % kind,
+                        len(sets) > 0, "%d sets" % len(sets))
+            for fs in sets:
+                kw = {}
+                for name in HDR_FIELDS:
+                    if name in fs:
+                        kw[name] = int(fs[name])
+                kw.pop("message_length", None)     # length follows the body
+                # pdelay answers carry a FOREIGN requestingPortIdentity so
+                # the qualification that DOES work filters them: the
+                # multi-responder cease is §10 and the stale-seq poison is
+                # the #8 gap probe, both proven separately — the storm is
+                # about field robustness, not those two known paths
+                if kind in ("pdelay_resp", "pdelay_resp_fu"):
+                    kw["source_clock_identity"] = PEER2_CID
+                    kw["requesting_clock_identity"] = 0xBADBADBADBADBAD0
+                    kw["sequence_id"] = 0xEE00 + (sent & 0xFF)
+                build = BUILD[kind]
+                if kind == "announce":
+                    kw.setdefault("sequence_id", self.nseq("announce"))
+                    frame = build(gm_identity=int(fs.get("gm_identity", 0)),
+                                  gm_priority1=254, **kw)
+                else:
+                    kw.setdefault("sequence_id", self.nseq(kind))
+                    frame = build(**kw)
+                if rnd.random() < 0.2:
+                    cut = rnd.randrange(1, len(frame))
+                    frame = frame[:cut]
+                st = self.send(frame)
+                sent += 1
+                if st is None:
+                    break
+            self.rep.ck("%s storm: DUT answered every frame" % kind,
+                        st is not None, "%d frames" % len(sets))
+        end = self.state()
+        self.rep.ck("STATE STABLE: asCapable survived the storms",
+                    end[S_FLAGS] & FL_ASCAP, "flags=%x" % end[S_FLAGS])
+        self.rep.ck("storm drops counted monotonically",
+                    end[S_RXDROP] >= st0[S_RXDROP], "rx_drop=%d" % end[S_RXDROP])
+        self.rep.note("storm: %d frames, rx_drop %d -> %d"
+                      % (sent, st0[S_RXDROP], end[S_RXDROP]))
+        # liveness: the plane still adopts and still serves sync
+        self.refresh_master()
+        self.tick(2)
+        st = self.state()
+        self.rep.eq("STATE STABLE: still adopts the master after the storms",
+                    self.gm_of(st), GMID)
+
+    # -------------------------------------------------------- 12 drought
+    def drought(self):
+        self.rep.section("the two-sided canary: asCapable falls in a "
+                         "response drought, then climbs again")
+        self.responder(False)
+        st = self.state()
+        spent = 0
+        while (st[S_FLAGS] & FL_ASCAP) and spent < 14 * SECOND:
+            st = self.tick(200)
+            spent += 200 * 10000
+        self.rep.eq("drought: asCapable FELL (no asCapable lie)",
+                    st[S_FLAGS] & FL_ASCAP, 0)
+        st = self.climb("recovery")
+        self.rep.ck("recovery: the plane is whole after the campaign",
+                    st[S_FLAGS] & (FL_PRESENT | FL_ASCAP), "")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dut", default="obj_ptp/Vptp_cosim")
+    ap.add_argument("--rounds", type=int, default=32)
+    ap.add_argument("--seed", type=int, default=20260819)
+    args = ap.parse_args()
+
+    rep = cosim.Report(
+        "gPTP/802.1AS field campaign (tsn-gen driven)",
+        dut="KL_gptp_shadow + timestamp_counter + KL_gptp_txstamp "
+            "(the fabric slice, gptp-processor engine)",
+        rtl_files=["hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+                   "hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv",
+                   "hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv",
+                   "gptp-processor/hdl/top/KL_gptp_engine.sv",
+                   "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv",
+                   "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv"],
+        results_dir="../../../hdl/ieee8021as/gptp_plane/doc",
+        reproduce="cd tb/verilator/tsn_fuzz && make ptp")
+    cosim.require_tsn_gen(rep, "gPTP/802.1AS field campaign")
+    with cosim.Dut(args.dut) as dut:
+        c = Campaign(dut, rep, args.seed)
+        models = c.inventory()
+        c.cross_decode(models)
+        c.boot(models)
+        c.climb()
+        c.gm_tx(models)
+        c.parser_gates(models)
+        c.responder_correct(models)
+        c.btca()
+        c.sync_pairs()
+        c.cease()
+        c.storms(models, args.rounds)
+        c.drought()
+    return rep.done()
+
+
+if __name__ == "__main__":
+    sys.exit(main())
