@@ -419,6 +419,33 @@ int main(int argc, char **argv) {
     expect("ts-ring burst: the guard shed at least one frame", sheds > 0, 1);
   }
 
+  // ---- 9: issue #122 -- the guard must not LEAK. A gPTP frame accepted at
+  // the tap but then dropped INSIDE the frame FIFO (oversize, or FIFO-full)
+  // never commits, so it never pushes and never pops. An occupancy counted at
+  // the tap and released only on pop leaks one slot per such frame and, after
+  // 32, wedges the guard into shedding EVERYTHING -- a permanently deaf
+  // plane, which is worse than the lap this ticket fixes. Drive 40 oversize
+  // gPTP frames (> the 2 KB frame FIFO, so the FIFO drops each one) and then
+  // require a normal frame to still reach the engine.
+  {
+    for (int k = 0; k < 40; k++) {
+      Frame f = ptp(0x0, (uint16_t)(0x7300 + k), 0, 0x0208, 10);
+      f.ts(0);
+      while (f.b.size() < 3000) f.u8(0xAA);   // oversize: dropped in the FIFO
+      send_wide(f.b);
+      run(400);
+    }
+    run(20000);
+    g_pushed.clear();
+    g_ts_capture = true;
+    Frame g = ptp(0x2, 0x7400, 0, 0, 20);     // a normal, well-spaced frame
+    send_wide(g.b);
+    run(4000);
+    g_ts_capture = false;
+    expect("no leak: the plane still accepts after 40 FIFO-dropped frames",
+           g_pushed.size() >= 1, 1);
+  }
+
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
   delete dut;
   return fails ? 1 : 0;

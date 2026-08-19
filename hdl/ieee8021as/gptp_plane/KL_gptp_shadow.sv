@@ -261,7 +261,7 @@ module KL_gptp_shadow #(
     .m_axis_tdest       (),
     .m_axis_tuser       (),
     .status_overflow    (ff_ovf_w),
-    .status_bad_frame   (),
+    .status_bad_frame   (ff_bad_w),
     .status_good_frame  (ff_good_w),
     .status_depth       (),
     .status_depth_commit(),
@@ -274,43 +274,73 @@ module KL_gptp_shadow #(
   // ======================================================================= //
   localparam int unsigned TSD_C = 1 << TS_FIFO_LOG2_P;
   logic [63:0] tsf_r [0:TSD_C-1];
-  logic [TS_FIFO_LOG2_P-1:0] tsf_wp_r, tsf_rp_r;
+  //! one extra pointer bit so (wp - rp) is a wrap-safe occupancy rather than
+  //! an ambiguous full/empty compare
+  logic [TS_FIFO_LOG2_P:0] tsf_wp_r, tsf_rp_r;
   logic tsf_pop_w;
 
-  //! PENDING occupancy for the shed guard (issue #122). The ring is PUSHED on
-  //! ff_good_w -- the frame FIFO's good-frame commit, which LAGS the tap sof
-  //! by the FIFO's commit latency. Deriving "full" from tsf_wp_r - tsf_rp_r
-  //! therefore UNDER-counts the frames already accepted at the tap but not yet
-  //! committed, and the guard sheds too late. `pend_r` counts a frame the
-  //! instant the tap ACCEPTS it (beat 1, EtherType 0x88F7, not shed) and
-  //! releases it on pop, so it is the true count of frames destined for the
-  //! 32-entry ring; the guard sheds a new frame at sof when pend_r == TSD_C,
-  //! so the ring is never asked to hold a 33rd and never laps.
-  logic tap_accept_w;
-  assign tap_accept_w = beat_w & (fw_S == FW_HEAD1) & accept_w & ~shed_r;
-  logic [TS_FIFO_LOG2_P:0] pend_r;
+  // ----------------------------------------------------------------------- //
+  //  THE SHED GUARD'S OCCUPANCY (issue #122), in two terms                   //
+  //                                                                          //
+  //  The ring is PUSHED on ff_good_w -- the frame FIFO's commit -- which LAGS //
+  //  the tap sof by the FIFO's write latency, so the ring pointers alone      //
+  //  under-count: frames already taken at the tap but not yet committed are   //
+  //  invisible, the guard sheds too late, and the ring still laps (measured:  //
+  //  38 frames into a 32-entry ring on the burst below).                      //
+  //                                                                          //
+  //  Counting instead at the TAP and releasing on POP is what a first cut     //
+  //  did, and it LEAKS: a frame the FIFO itself discards (oversize, or full)  //
+  //  never commits, so it never pushes and never pops. One slot leaks per     //
+  //  discarded frame and after TSD_C of them the guard wedges shut and the    //
+  //  plane goes PERMANENTLY DEAF -- worse than the lap it was fixing, and     //
+  //  invisible to the whole sweep (measured: 40 oversize frames, then         //
+  //  nothing was ever accepted again).                                        //
+  //                                                                          //
+  //  So the second term counts frames that have ENTERED the frame FIFO and    //
+  //  are not yet RESOLVED by it. A frame resolves exactly once -- good (a     //
+  //  future push), bad, or overflow (no push) -- so this can neither leak nor //
+  //  underflow, whatever the FIFO does with the frame. It counts non-gPTP     //
+  //  frames too, which only makes the guard slightly conservative: they       //
+  //  resolve within a couple of cycles and never push.                        //
+  //                                                                          //
+  //  sum = entries the ring holds + pushes it may still be owed, so shedding  //
+  //  a new frame at TSD_C means the ring is never asked to hold a 33rd.       //
+  // ----------------------------------------------------------------------- //
+  logic ff_bad_w;
+  logic fifo_enter_w, fifo_resolve_w;
+  //! a frame's FIRST beat being written IS the frame entering the FIFO
+  assign fifo_enter_w   = fw_valid_w & fw_ready_w & (fw_S == FW_HEAD0);
+  assign fifo_resolve_w = ff_good_w | ff_bad_w | ff_ovf_w;
+  //! bounded by the frame FIFO's own capacity in frames (2 KB / 16 B = 128)
+  logic [7:0] unres_r;
+  //! 9 bits holds the widest sum: ring occupancy (<= TSD_C) + unres_r (<= 255)
+  logic [8:0] occ_w;
   logic full_w;
-  assign full_w = (pend_r == (TS_FIFO_LOG2_P+1)'(TSD_C));
+  assign occ_w  = 9'(tsf_wp_r - tsf_rp_r) + 9'(unres_r);
+  assign full_w = (occ_w >= 9'(TSD_C));
 
   always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       tsf_wp_r <= '0;
       tsf_rp_r <= '0;
-      pend_r   <= '0;
+      unres_r  <= '0;
     end else begin
       if (ff_good_w) begin
-        tsf_r[tsf_wp_r] <= ts_arr_r;
-        tsf_wp_r        <= tsf_wp_r + 1'b1;
+        tsf_r[tsf_wp_r[TS_FIFO_LOG2_P-1:0]] <= ts_arr_r;
+        tsf_wp_r                            <= tsf_wp_r + 1'b1;
       end
       if (tsf_pop_w) tsf_rp_r <= tsf_rp_r + 1'b1;
-      // pending = tap-accepted minus popped (a shed frame is never accepted)
-      if (tap_accept_w & ~tsf_pop_w)      pend_r <= pend_r + 1'b1;
-      else if (~tap_accept_w & tsf_pop_w) pend_r <= pend_r - 1'b1;
+      // entered-but-unresolved; saturating both ways as belt-and-braces
+      if (fifo_enter_w & ~fifo_resolve_w) begin
+        if (unres_r != 8'hFF) unres_r <= unres_r + 8'd1;
+      end else if (~fifo_enter_w & fifo_resolve_w) begin
+        if (unres_r != 8'd0)  unres_r <= unres_r - 8'd1;
+      end
     end
   end
 
   logic [63:0] rx_ts_w;
-  assign rx_ts_w = tsf_r[tsf_rp_r];
+  assign rx_ts_w = tsf_r[tsf_rp_r[TS_FIFO_LOG2_P-1:0]];
   assign dbg_rx_ts_o = rx_ts_w;
   assign dbg_tspush_v_o = ff_good_w;
   assign dbg_tspush_o   = ts_arr_r;

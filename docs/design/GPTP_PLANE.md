@@ -66,14 +66,25 @@ The plane has four seams:
   #117 measures it on silicon. The side FIFO is 32 deep, smaller than
   the frame FIFO, so a back-to-back burst could commit more frames than
   it holds; the **shed rule** (issue #122) keeps it from lapping a
-  still-live stamp: at a frame's first tap beat, if the pending count
-  (frames accepted at the tap but not yet popped) is already 32, the
-  WHOLE frame is shed before it enters the frame FIFO, and the shed is
-  counted in `dbg_tap_drop_o` only once its EtherType verdict confirms
-  0x88F7. Pending is counted at the tap, not from the ring's write
-  pointer, because the commit pulse lags the tap by the frame FIFO's
-  latency -- a ring-pointer occupancy would under-count the in-flight
-  frames and shed too late.
+  still-live stamp: at a frame's first tap beat, if the ring is already
+  spoken for, the WHOLE frame is shed before it enters the frame FIFO,
+  and the shed is counted in `dbg_tap_drop_o` only once its EtherType
+  verdict confirms 0x88F7.
+
+  "Spoken for" is two terms, and both are load-bearing. The ring's own
+  occupancy (write minus read pointer) is exact but **lags**: the push
+  happens on the frame FIFO's commit, so frames already taken at the tap
+  are invisible and the guard would shed too late (measured: 38 frames
+  into a 32-entry ring). Counting at the tap and releasing on pop closes
+  that gap but **leaks**: a frame the FIFO itself discards -- oversize,
+  or arriving full -- never commits, so it never pushes and never pops,
+  and after 32 such frames the guard wedges shut and the plane goes
+  permanently deaf. So the second term counts frames that have entered
+  the frame FIFO and are not yet **resolved** by it. A frame resolves
+  exactly once, as good (a future push), bad, or overflow (no push), so
+  the count can neither leak nor underflow whatever the FIFO does with
+  it. The sum is the entries the ring holds plus the pushes it may still
+  be owed, so shedding at 32 means it is never asked to hold a 33rd.
 - **Egress**: the control lane does not traverse `ptp_ts_top`'s TX
   stamper (only the shaped data path does), so `KL_gptp_txstamp`
   observes the TRUE MAC boundary: armed by the plane's lane sof, it
