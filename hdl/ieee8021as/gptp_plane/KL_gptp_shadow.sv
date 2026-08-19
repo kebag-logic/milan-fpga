@@ -80,7 +80,12 @@ module KL_gptp_shadow #(
     input  wire [63:0] txts_ns_i,
     input  wire [15:0] txts_seq_i,
 
-    //! one plane frame entered the merge chain (arms the boundary stamper)
+    //! pulses at the FIRST accepted beat of each plane frame entering the
+    //! merge chain -- the boundary stamper's take decision samples at a
+    //! frame's beat 0, and the gasketed merges can pass that beat through
+    //! combinationally in the same cycle, so an eof-timed arm would lose
+    //! the race (an sof-timed arm covers both the same-cycle and the
+    //! queued case)
     output logic tx_sent_o,
 
     //! the publish bank -- the retired software contract
@@ -96,7 +101,11 @@ module KL_gptp_shadow #(
     output logic [15:0] dbg_tap_drop_o,   //! frames lost at the tap FIFO
     output logic [15:0] dbg_rx_drop_o,    //! frames the parser refused
     output logic [15:0] dbg_ev_drop_o,    //! events lost at the queue
-    output logic        dbg_busy_o
+    output logic        dbg_busy_o,
+    output wire  [63:0] dbg_rx_ts_o,      //! the ts entry feeding the engine
+    output wire         dbg_tspush_v_o,   //! bench probes: side-FIFO push
+    output wire  [63:0] dbg_tspush_o,
+    output wire         dbg_tspop_v_o     //! side-FIFO pop (engine sof)
 );
 
   localparam int unsigned KEEP_W_C = TDATA_WIDTH_P / 8;
@@ -171,9 +180,15 @@ module KL_gptp_shadow #(
     end
   end
 
-  //! counted, never hidden
+  //! counted, never hidden. DROP_WHEN_FULL keeps s_ready HIGH and drops
+  //! whole frames INSIDE the FIFO, so a ready-based counter never fires:
+  //! status_overflow is the real drop strobe (one per lost frame); the
+  //! ready term stays as a belt-and-braces alarm for any backpressure
+  //! mode change.
+  logic ff_ovf_w;
   logic drop_evt_w;
-  assign drop_evt_w = fw_valid_w & ~fw_ready_w & (fw_S != FW_SKIP);
+  assign drop_evt_w = (fw_valid_w & ~fw_ready_w & (fw_S != FW_SKIP))
+                    | ff_ovf_w;
   logic [15:0] tap_drop_r;
   always_ff @(posedge clk_i or negedge rst_n) begin
     if (!rst_n)           tap_drop_r <= 16'd0;
@@ -221,7 +236,7 @@ module KL_gptp_shadow #(
     .m_axis_tid         (),
     .m_axis_tdest       (),
     .m_axis_tuser       (),
-    .status_overflow    (),
+    .status_overflow    (ff_ovf_w),
     .status_bad_frame   (),
     .status_good_frame  (ff_good_w),
     .status_depth       (),
@@ -253,6 +268,10 @@ module KL_gptp_shadow #(
 
   logic [63:0] rx_ts_w;
   assign rx_ts_w = tsf_r[tsf_rp_r];
+  assign dbg_rx_ts_o = rx_ts_w;
+  assign dbg_tspush_v_o = ff_good_w;
+  assign dbg_tspush_o   = ts_arr_r;
+  assign dbg_tspop_v_o  = tsf_pop_w;
 
   // ======================================================================= //
   //  Byte serializer: 1 B/clk into the engine, sof pops the ts entry       //
@@ -359,8 +378,8 @@ module KL_gptp_shadow #(
   );
 
   //! adjfine is a level at the counter: latch the engine's pulse
-  //! (sync reset, matching the counter it feeds)
-  always_ff @(posedge clk_i) begin : adj_latch
+  //! (async reset, the file's one convention -- SYNCASYNCNET clean)
+  always_ff @(posedge clk_i or negedge rst_n) begin : adj_latch
     if (!rst_n)        phc_adj_o <= '0;
     else if (adj_we_w) phc_adj_o <= $signed(adj_val_w);
   end
@@ -470,9 +489,13 @@ module KL_gptp_shadow #(
   assign tx_tvalid_o = txf_out_valid_w;
   assign tx_tlast_o  = txf_out_last_w;
 
-  //! one pulse per frame that fully entered the merge chain: arms the
-  //! boundary stamper for exactly our frames
-  assign tx_sent_o = txf_out_valid_w & tx_tready_i & txf_out_last_w;
+  //! sof tracking on the lane output: the arm fires with beat 0
+  logic txo_sof_r;
+  always_ff @(posedge clk_i or negedge rst_n) begin
+    if (!rst_n)                              txo_sof_r <= 1'b1;
+    else if (txf_out_valid_w && tx_tready_i) txo_sof_r <= txf_out_last_w;
+  end
+  assign tx_sent_o = txf_out_valid_w & tx_tready_i & txo_sof_r;
 
   logic unused_w;
   assign unused_w = eng_tx_sof_w;
