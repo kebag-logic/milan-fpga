@@ -29,12 +29,38 @@ again when they resume.
 Run: python3 fuzz_ptp.py [--rounds N] [--seed S]
 """
 import argparse
+import os
 import random
 import sys
 
 import cosim
 import tsn_model
 import wire
+
+
+def require_ptp_models(rep):
+    """Skip cleanly when tsn-gen is present but lacks the 802.1AS models.
+
+    The `protocols/data_link/ptp/8021as_*.yaml` models are a newer tsn-gen
+    addition; a pinned rev (the CI one) can have `packet_gen` and the 1722.1
+    models but not these. tsn_model.available() is TRUE there, so
+    require_tsn_gen passes -- but every gPTP model load would fail and the
+    campaign would crash on the first `models[...]` lookup. This is the same
+    honest skip as require_tsn_gen: report why the total is smaller and exit 0,
+    with NO pass/fail numbers (a "0 pass, 0 fail" would read as a campaign that
+    ran and checked nothing). The AAF campaign, whose models ARE in every rev,
+    is unaffected.
+    """
+    probe = os.path.join(tsn_model.PTP_DIR, "8021as_sync.yaml")
+    if os.path.isfile(probe):
+        return True
+    print("  SKIP: tsn-gen has no 802.1AS models at %s" % tsn_model.PTP_DIR)
+    print("        this rev predates protocols/data_link/ptp/ -- update the "
+          "TSN_GEN pin to enable the gPTP field campaign")
+    print("SUITE-SKIP: gPTP/802.1AS field campaign (tsn-gen lacks the 802.1AS "
+          "models)")
+    rep.note("campaign skipped (tsn-gen 802.1AS models absent), not a failure")
+    sys.exit(0)
 
 # state_dump() word order — must match cosim_ptp.cpp (APPEND ONLY)
 (S_FLAGS, S_GM_HI, S_GM_LO, S_PAR_HI, S_PAR_LO, S_PDELAY, S_OFFSET,
@@ -904,6 +930,7 @@ def main():
         results_dir="../../../hdl/ieee8021as/gptp_plane/doc",
         reproduce="cd tb/verilator/tsn_fuzz && make ptp")
     cosim.require_tsn_gen(rep, "gPTP/802.1AS field campaign")
+    require_ptp_models(rep)
     with cosim.Dut(args.dut) as dut:
         c = Campaign(dut, rep, args.seed)
         models = c.inventory()
