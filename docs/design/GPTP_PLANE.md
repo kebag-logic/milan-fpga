@@ -63,7 +63,17 @@ The plane has four seams:
   exactly once per DELIVERED frame, so drops can never desync stamps
   from frames -- and popped at the byte stream's sof. The constant
   MAC-to-tap pipeline offset belongs to the ingress-latency correction;
-  #117 measures it on silicon.
+  #117 measures it on silicon. The side FIFO is 32 deep, smaller than
+  the frame FIFO, so a back-to-back burst could commit more frames than
+  it holds; the **shed rule** (issue #122) keeps it from lapping a
+  still-live stamp: at a frame's first tap beat, if the pending count
+  (frames accepted at the tap but not yet popped) is already 32, the
+  WHOLE frame is shed before it enters the frame FIFO, and the shed is
+  counted in `dbg_tap_drop_o` only once its EtherType verdict confirms
+  0x88F7. Pending is counted at the tap, not from the ring's write
+  pointer, because the commit pulse lags the tap by the frame FIFO's
+  latency -- a ring-pointer occupancy would under-count the in-flight
+  frames and shed too late.
 - **Egress**: the control lane does not traverse `ptp_ts_top`'s TX
   stamper (only the shaped data path does), so `KL_gptp_txstamp`
   observes the TRUE MAC boundary: armed by the plane's lane sof, it

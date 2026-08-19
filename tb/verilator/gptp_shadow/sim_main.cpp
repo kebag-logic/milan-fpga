@@ -88,11 +88,19 @@ static std::vector<uint8_t> cur;
 static bool in_tx = false;
 static bool tx_first = true;
 
+//! issue #122: capture the ingress-ts ring push/pop stamps during a burst
+static std::vector<uint64_t> g_pushed, g_popped;
+static bool g_ts_capture = false;
+
 static uint64_t phc() { return dut->phc_ns_o; }
 
 static void tick() {
   dut->clk_i = 0; dut->eval();
   dut->clk_i = 1; dut->eval();
+  if (g_ts_capture) {
+    if (dut->dbg_tspush_v_o) g_pushed.push_back(dut->dbg_tspush_o);
+    if (dut->dbg_tspop_v_o)  g_popped.push_back(dut->dbg_rx_ts_o);
+  }
   if (dut->dbg_txts_v_o) last_txts_seq = dut->dbg_txts_seq_o;
   if (dut->tx_tvalid_o && dut->tx_tready_i) {
     if (tx_first) {
@@ -362,6 +370,53 @@ int main(int argc, char **argv) {
     sync_pair(0x400, 3000 + (uint64_t)D_NOM, nullptr);
     expect("the plane survives the burst",
            near((int32_t)dut->pub_offset_o, 3000, 200), 1);
+  }
+
+  // ---- 8: issue #122 -- a back-to-back 0x88F7 burst must NOT lap the ring.
+  // [R0]'s repro: 40 two-beat 0x88F7 frames arrive far faster (2 beats each)
+  // than the 1 B/clk serializer drains (16 clk each), so committed-but-
+  // unserialized frames exceed the 32-entry ts ring. The shed guard drops
+  // whole frames at sof when the ring is full, so no live stamp is ever
+  // lapped: the popped stamps are exactly the pushed stamps in FIFO order,
+  // and pops + gPTP sheds account for all 40. On the unguarded RTL the ring
+  // laps and the popped stamps diverge from the pushed ones (the mutation).
+  {
+    g_pushed.clear(); g_popped.clear();
+    uint16_t drop0 = dut->dbg_tap_drop_o;
+    g_ts_capture = true;
+    for (int k = 0; k < 40; k++) {
+      std::vector<uint8_t> f(16, 0);
+      // DA 01:80:C2:00:00:0E, SA 00:80:E1:11:22:33
+      const uint8_t da[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};
+      const uint8_t sa[6] = {0x00,0x80,0xE1,0x11,0x22,0x33};
+      for (int i = 0; i < 6; i++) { f[i] = da[i]; f[6 + i] = sa[i]; }
+      f[12] = 0x88; f[13] = 0xF7;             // EtherType (accepted by the tap)
+      f[14] = 0x10; f[15] = 0x02;             // sv/version/message_type, ptp ver
+      send_wide(f);                            // 2 wide beats, back-to-back
+    }
+    run(40000);                                // drain the whole burst
+    g_ts_capture = false;
+    uint16_t sheds = (uint16_t)(dut->dbg_tap_drop_o - drop0);
+
+    // the FIFO/subsequence law: every popped stamp is the pushed stamp at the
+    // same position -- no entry was lapped over a still-live one.
+    bool law = (g_popped.size() == g_pushed.size()) && !g_popped.empty();
+    for (size_t i = 0; law && i < g_popped.size(); i++)
+      if (g_popped[i] != g_pushed[i]) law = false;
+    expect("ts-ring burst: popped stamps are the pushed stamps, in order", law, 1);
+    // the pushed stamps must be strictly increasing (each frame's own arrival
+    // phc): proves they are real per-frame stamps, not a stuck value.
+    bool mono = g_pushed.size() > 1;
+    for (size_t i = 1; mono && i < g_pushed.size(); i++)
+      if (g_pushed[i] <= g_pushed[i - 1]) mono = false;
+    expect("ts-ring burst: pushed stamps strictly increasing (real arrivals)",
+           mono, 1);
+    // accounting: every one of the 40 frames either serialized (a pop) or was
+    // shed at the tap; the ring never silently swallowed one.
+    expect("ts-ring burst: pops + gPTP sheds == 40",
+           (int)g_popped.size() + (int)sheds, 40);
+    // the guard must actually engage on this burst (else the law is vacuous).
+    expect("ts-ring burst: the guard shed at least one frame", sheds > 0, 1);
   }
 
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);

@@ -125,6 +125,11 @@ module KL_gptp_shadow #(
 
   typedef enum logic [1:0] {FW_HEAD0, FW_HEAD1, FW_BODY, FW_SKIP} fw_state_e;
   fw_state_e fw_S;
+  //! this frame is being SHED whole (issue #122): the ingress-ts ring was
+  //! full at its sof, so no beat may enter the FIFO -- otherwise its commit
+  //! would lap the ring over a still-live arrival stamp. Set at FW_HEAD0,
+  //! read at FW_HEAD1 (where the EtherType verdict for the count lands).
+  logic shed_r;
 
   logic                     fw_valid_w, fw_last_w, fw_user_w;
   logic [TDATA_WIDTH_P-1:0] fw_data_w;
@@ -142,14 +147,19 @@ module KL_gptp_shadow #(
     fw_user_w  = 1'b0;
     unique case (fw_S)
       FW_HEAD0: begin
-        // beat 0 always enters -- the verdict needs beat 1; a frame
-        // ending here is a runt, marked bad and dropped atomically
-        fw_valid_w = beat_w;
+        // beat 0 normally enters -- the verdict needs beat 1; a frame
+        // ending here is a runt, marked bad and dropped atomically. But when
+        // the ingress-ts ring is FULL at sof (issue #122), the WHOLE frame is
+        // shed before it enters the FIFO: suppress beat 0 too, so its commit
+        // (ff_good_w) can never lap the ring over a still-live arrival stamp.
+        fw_valid_w = beat_w & ~full_w;
         fw_user_w  = rx_tlast_i;
       end
       FW_HEAD1: begin
-        fw_valid_w = beat_w;
-        if (!accept_w) begin
+        // a shed frame keeps beat 1 out of the FIFO as well, so the shed is
+        // atomic at frame granularity: nothing ever entered.
+        fw_valid_w = beat_w & ~shed_r;
+        if (!accept_w & ~shed_r) begin
           fw_last_w = 1'b1;
           fw_user_w = 1'b1;                  // reject: reclaimed atomically
         end
@@ -166,14 +176,21 @@ module KL_gptp_shadow #(
     if (!rst_n) begin
       fw_S     <= FW_HEAD0;
       ts_arr_r <= 64'd0;
+      shed_r   <= 1'b0;
     end else if (beat_w) begin
       unique case (fw_S)
         FW_HEAD0: begin
           ts_arr_r <= phc_ns_i;
+          // shed the WHOLE frame when the ts ring is full at sof (issue
+          // #122). A one-beat runt at full stays uncounted -- no EtherType
+          // verdict lands, matching today's bad-frame reclaim.
+          shed_r   <= full_w & ~rx_tlast_i;
           fw_S     <= rx_tlast_i ? FW_HEAD0 : FW_HEAD1;
         end
+        // a shed frame routes to FW_SKIP regardless of EtherType (it never
+        // entered the FIFO); accept_w still steers a normal frame.
         FW_HEAD1: fw_S <= rx_tlast_i ? FW_HEAD0
-                                     : (accept_w ? FW_BODY : FW_SKIP);
+                                     : ((shed_r | ~accept_w) ? FW_SKIP : FW_BODY);
         FW_BODY:  if (rx_tlast_i) fw_S <= FW_HEAD0;
         default:  if (rx_tlast_i) fw_S <= FW_HEAD0;
       endcase
@@ -187,8 +204,15 @@ module KL_gptp_shadow #(
   //! mode change.
   logic ff_ovf_w;
   logic drop_evt_w;
+  //! a SHED gPTP frame (issue #122): the ring was full at its sof, so it
+  //! never entered the FIFO and ff_ovf_w never fires for it. Count it in the
+  //! tap-drop diagnostic ONLY once the EtherType verdict lands (beat 1 =
+  //! FW_HEAD1) and ONLY when it is 0x88F7 -- counting non-gPTP sheds would
+  //! poison the diagnostic.
+  logic shed_gptp_w;
+  assign shed_gptp_w = beat_w & (fw_S == FW_HEAD1) & shed_r & accept_w;
   assign drop_evt_w = (fw_valid_w & ~fw_ready_w & (fw_S != FW_SKIP))
-                    | ff_ovf_w;
+                    | ff_ovf_w | shed_gptp_w;
   logic [15:0] tap_drop_r;
   always_ff @(posedge clk_i) begin
     if (!rst_n)           tap_drop_r <= 16'd0;
@@ -253,16 +277,35 @@ module KL_gptp_shadow #(
   logic [TS_FIFO_LOG2_P-1:0] tsf_wp_r, tsf_rp_r;
   logic tsf_pop_w;
 
+  //! PENDING occupancy for the shed guard (issue #122). The ring is PUSHED on
+  //! ff_good_w -- the frame FIFO's good-frame commit, which LAGS the tap sof
+  //! by the FIFO's commit latency. Deriving "full" from tsf_wp_r - tsf_rp_r
+  //! therefore UNDER-counts the frames already accepted at the tap but not yet
+  //! committed, and the guard sheds too late. `pend_r` counts a frame the
+  //! instant the tap ACCEPTS it (beat 1, EtherType 0x88F7, not shed) and
+  //! releases it on pop, so it is the true count of frames destined for the
+  //! 32-entry ring; the guard sheds a new frame at sof when pend_r == TSD_C,
+  //! so the ring is never asked to hold a 33rd and never laps.
+  logic tap_accept_w;
+  assign tap_accept_w = beat_w & (fw_S == FW_HEAD1) & accept_w & ~shed_r;
+  logic [TS_FIFO_LOG2_P:0] pend_r;
+  logic full_w;
+  assign full_w = (pend_r == (TS_FIFO_LOG2_P+1)'(TSD_C));
+
   always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       tsf_wp_r <= '0;
       tsf_rp_r <= '0;
+      pend_r   <= '0;
     end else begin
       if (ff_good_w) begin
         tsf_r[tsf_wp_r] <= ts_arr_r;
         tsf_wp_r        <= tsf_wp_r + 1'b1;
       end
       if (tsf_pop_w) tsf_rp_r <= tsf_rp_r + 1'b1;
+      // pending = tap-accepted minus popped (a shed frame is never accepted)
+      if (tap_accept_w & ~tsf_pop_w)      pend_r <= pend_r + 1'b1;
+      else if (~tap_accept_w & tsf_pop_w) pend_r <= pend_r - 1'b1;
     end
   end
 
