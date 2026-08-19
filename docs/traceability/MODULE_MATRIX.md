@@ -21,7 +21,7 @@ test is possible and is reproduced verbatim below.
 
 Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB's design · 🔬 in the tsn_fuzz field campaign · 📦 package · 🗄️ archived by a stated decision · ⚪ not compiled by any TB.
 
-**Totals:** 63 modules · 61 with a dedicated TB · 0 exercised-only · 31 field-fuzzed · 1 archived · **0 not in any TB**
+**Totals:** 65 modules · 61 with a dedicated TB · 0 exercised-only · 31 field-fuzzed · 1 archived · **2 not in any TB**
 
 ## Coverage by spec family
 
@@ -30,22 +30,27 @@ Legend: ✅ dedicated Verilator TB · ➰ exercised transitively in a broader TB
 ```mermaid
 xychart-beta
     title "Modules per spec family: dedicated testbenches vs total"
-    x-axis ["milan", "ieee1722", "ieee17221", "ieee8021as", "ieee8021q", "common"]
+    x-axis ["ieee8021as", "milan", "ieee1722", "ieee17221", "ieee8021q", "common"]
     y-axis "modules" 0 --> 36
-    bar [4, 35, 1, 5, 8, 10]
-    bar [3, 34, 1, 5, 8, 10]
+    bar [7, 4, 35, 1, 8, 10]
+    bar [5, 3, 34, 1, 8, 10]
 ```
 
 The solid bar is the modules carrying a dedicated Verilator testbench; the pale sliver above it is the shortfall against the family total. Exact numbers, including the archived and fuzzed columns the chart cannot show:
 
 | family | modules | ✅ dedicated TB | ➰ exercised only | 🔬 field-fuzzed | 🗄️ archived | ⚪ untested |
 |---|---|---|---|---|---|---|
+| IEEE 802.1AS | 7 | 5 | 0 | 0 | 0 | 2 |
 | Milan integration | 4 | 3 | 0 | 0 | 1 | 0 |
 | IEEE 1722 (AVTP) | 35 | 34 | 0 | 30 | 0 | 0 |
 | IEEE 1722.1 (ATDECC) | 1 | 1 | 0 | 0 | 0 | 0 |
-| IEEE 802.1AS | 5 | 5 | 0 | 0 | 0 | 0 |
 | IEEE 802.1Q | 8 | 8 | 0 | 0 | 0 | 0 |
 | Common / integration | 10 | 10 | 0 | 0 | 0 | 0 |
+
+## ⚪ Untested modules (the backlog)
+
+* `KL_gptp_shadow` — `hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv`
+* `KL_gptp_txstamp` — `hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv`
 
 ## 🗄️ Archived modules (no open-flow test is possible)
 
@@ -126,6 +131,8 @@ _gPTP timestamping / pdelay / sync_
 
 | module | file | test | clauses |
 |---|---|---|---|
+| ⚪ `KL_gptp_shadow` | `ieee8021as/gptp_plane/KL_gptp_shadow.sv` | — | — |
+| ⚪ `KL_gptp_txstamp` | `ieee8021as/gptp_plane/KL_gptp_txstamp.sv` | — | — |
 | ✅ `KL_ptp_clock_validity` | `ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv` | `clkvalid` · `hostplane` · `milan_dp` | 1.00, 1.2, 4.3.5.2, 4.4.2.3 |
 | ✅ `ptp_csr_sync` | `ieee8021as/ptp_timestamp/ptp_csr_sync.sv` | `hostplane` · `milan_dp` · `ptp_sync` · `ptp_ts` | — |
 | ✅ `ptp_ts_core` | `ieee8021as/ptp_timestamp/ptp_ts_core.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |
