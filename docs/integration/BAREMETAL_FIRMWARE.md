@@ -17,6 +17,15 @@ The capability rows on this page are checked against the
 | `host.sound-card-option` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
+## Contents
+
+- **[Build contract](#build-contract)** — The checked shipping shape, its cacheless one-hart RV32I invariants, the 50 MHz Milan/CPU clock boundary and the configuration-owned gPTP ROM.
+- **[Boot and AEM image](#boot-and-aem-image)** — The raw QSPI descriptor-image slot and the identity, copy and CRC checks that must pass before the protocol processor and ADP are enabled.
+- **[Fabric gPTP option](#fabric-gptp-option)** — How the shipping YAML opts into the fabric plane without changing the RTL default or taking #116's software-retirement work.
+- **[UART commands](#uart-commands)** — The status, TAI set/get and explicit UTC conversion commands, followed by the non-disruptive host smoke invocation.
+- **[Optional Linux sound-card surface](#optional-linux-sound-card-surface)** — What the shipping build removes with `sound_card: false`, what audio fabric remains, and how retained Linux bring-up builds opt back in.
+- **[Verification gates](#verification-gates)** — The mandatory local bar, complete three-directive Vivado cell, timing-clean winner and measured resource buy-back that fund the fabric gPTP plane.
+
 ## Build contract
 
 The authoritative product shape is
