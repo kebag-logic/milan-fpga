@@ -139,6 +139,14 @@ module KL_gptp_shadow #(
   logic accept_w;
   assign accept_w = (etype_w == ET_GPTP_C);
 
+  //! the shed guard's verdict and the frame FIFO's bad-frame strobe are
+  //! DECLARED HERE, above their first use in the always_comb below. Verilator
+  //! accepts a later declaration; Vivado's front-end does not (VRFC 10-3380
+  //! rejects the whole module), so a file that only ever sees Verilator can
+  //! regress the xsim benches silently. Their drivers live with the ring.
+  logic full_w;
+  logic ff_bad_w;
+
   always_comb begin
     fw_valid_w = 1'b0;
     fw_data_w  = rx_tdata_i;
@@ -306,18 +314,27 @@ module KL_gptp_shadow #(
   //  sum = entries the ring holds + pushes it may still be owed, so shedding  //
   //  a new frame at TSD_C means the ring is never asked to hold a 33rd.       //
   // ----------------------------------------------------------------------- //
-  logic ff_bad_w;
   logic fifo_enter_w, fifo_resolve_w;
   //! a frame's FIRST beat being written IS the frame entering the FIFO
   assign fifo_enter_w   = fw_valid_w & fw_ready_w & (fw_S == FW_HEAD0);
   assign fifo_resolve_w = ff_good_w | ff_bad_w | ff_ovf_w;
-  //! bounded by the frame FIFO's own capacity in frames (2 KB / 16 B = 128)
-  logic [7:0] unres_r;
-  //! 9 bits holds the widest sum: ring occupancy (<= TSD_C) + unres_r (<= 255)
-  logic [8:0] occ_w;
-  logic full_w;
-  assign occ_w  = 9'(tsf_wp_r - tsf_rp_r) + 9'(unres_r);
-  assign full_w = (occ_w >= 9'(TSD_C));
+  //! BOUND: an enter is blocked once occ reaches TSD_C, and unres_r <= occ,
+  //! so unres_r never exceeds TSD_C -- one bit wider than the ring index is
+  //! all it needs. The saturations below are then unreachable by
+  //! construction and kept only as belt-and-braces on a wedge that would
+  //! cost the plane every frame.
+  logic [TS_FIFO_LOG2_P:0] unres_r;
+  //! THE SUBTRACTION MUST HAPPEN AT POINTER WIDTH. `N'(a - b)` sets the
+  //! CONTEXT size of the whole expression, so casting the difference straight
+  //! to the sum's width evaluates a - b at that width and the wrap-safe extra
+  //! pointer bit is thrown away: every wrap then reads ~2^N - (rp - wp), the
+  //! guard latches full and the plane sheds frames it has room for. Take the
+  //! difference in its own N+1-bit net FIRST, then widen.
+  logic [TS_FIFO_LOG2_P:0]   ring_occ_w;
+  logic [TS_FIFO_LOG2_P+1:0] occ_w;
+  assign ring_occ_w = tsf_wp_r - tsf_rp_r;
+  assign occ_w  = {1'b0, ring_occ_w} + {1'b0, unres_r};
+  assign full_w = (occ_w >= (TS_FIFO_LOG2_P+2)'(TSD_C));
 
   always_ff @(posedge clk_i) begin
     if (!rst_n) begin
@@ -329,12 +346,15 @@ module KL_gptp_shadow #(
         tsf_r[tsf_wp_r[TS_FIFO_LOG2_P-1:0]] <= ts_arr_r;
         tsf_wp_r                            <= tsf_wp_r + 1'b1;
       end
-      if (tsf_pop_w) tsf_rp_r <= tsf_rp_r + 1'b1;
-      // entered-but-unresolved; saturating both ways as belt-and-braces
+      //! the empty test makes a pop-without-push STRUCTURALLY unable to drive
+      //! rp past wp. It cannot fire today (a pop trails its push by cycles),
+      //! but with a pointer-difference compare that ordering is the only
+      //! thing standing between a stray pop and a permanently shedding guard
+      if (tsf_pop_w & (tsf_wp_r != tsf_rp_r)) tsf_rp_r <= tsf_rp_r + 1'b1;
       if (fifo_enter_w & ~fifo_resolve_w) begin
-        if (unres_r != 8'hFF) unres_r <= unres_r + 8'd1;
+        if (~&unres_r) unres_r <= unres_r + 1'b1;
       end else if (~fifo_enter_w & fifo_resolve_w) begin
-        if (unres_r != 8'd0)  unres_r <= unres_r - 8'd1;
+        if (|unres_r)  unres_r <= unres_r - 1'b1;
       end
     end
   end

@@ -85,6 +85,13 @@ The plane has four seams:
   the count can neither leak nor underflow whatever the FIFO does with
   it. The sum is the entries the ring holds plus the pushes it may still
   be owed, so shedding at 32 means it is never asked to hold a 33rd.
+  Take the pointer difference in its own width before widening it to the
+  sum: casting `wp - rp` straight to the wider type evaluates the
+  subtraction at that width and throws the wrap-safe bit away, which
+  reads a wrapped ring as almost-full and sheds frames there was room
+  for. A frame that is a single beat and arrives while the ring is full
+  is shed without being counted -- its EtherType verdict never lands, so
+  it is indistinguishable from the runts the tap already reclaims.
 - **Egress**: the control lane does not traverse `ptp_ts_top`'s TX
   stamper (only the shaped data path does), so `KL_gptp_txstamp`
   observes the TRUE MAC boundary: armed by the plane's lane sof, it

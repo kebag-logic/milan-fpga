@@ -446,6 +446,44 @@ int main(int argc, char **argv) {
            g_pushed.size() >= 1, 1);
   }
 
+  // ---- 10: issue #122 -- the SHED path must not leak either, and the guard
+  // must not drift burst over burst. A shed frame never enters the frame
+  // FIFO, so counting it as an entry would leak one slot per shed and wedge
+  // the guard shut after 32 -- the same permanent deafness as phase 9, by a
+  // different route, and phase 8 alone cannot see it because a single burst
+  // sheds only a handful. Repeat the burst and require the per-burst shed
+  // count NOT to grow: a leak makes every repetition shed strictly more,
+  // ending in all-shed.
+  {
+    long sheds[4];
+    for (int rep = 0; rep < 4; rep++) {
+      uint16_t d0 = dut->dbg_tap_drop_o;
+      g_pushed.clear(); g_popped.clear();
+      g_ts_capture = true;
+      for (int k = 0; k < 40; k++) {
+        std::vector<uint8_t> f(16, 0);
+        const uint8_t da[6] = {0x01,0x80,0xC2,0x00,0x00,0x0E};
+        const uint8_t sa[6] = {0x00,0x80,0xE1,0x11,0x22,0x33};
+        for (int i = 0; i < 6; i++) { f[i] = da[i]; f[6 + i] = sa[i]; }
+        f[12] = 0x88; f[13] = 0xF7;
+        f[14] = 0x10; f[15] = 0x02;
+        send_wide(f);
+      }
+      run(40000);
+      g_ts_capture = false;
+      sheds[rep] = (long)(uint16_t)(dut->dbg_tap_drop_o - d0);
+      // the per-burst law still holds on every repetition
+      bool law = (g_popped.size() == g_pushed.size());
+      for (size_t i = 0; law && i < g_popped.size(); i++)
+        if (g_popped[i] != g_pushed[i]) law = false;
+      expect("repeat burst: no lap on this repetition", law, 1);
+      expect("repeat burst: pops + sheds == 40",
+             (int)g_popped.size() + (int)sheds[rep], 40);
+    }
+    expect("repeat burst: shed count does not grow (no shed-path leak)",
+           sheds[3] <= sheds[0], 1);
+  }
+
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
   delete dut;
   return fails ? 1 : 0;
