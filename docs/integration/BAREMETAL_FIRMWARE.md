@@ -100,7 +100,10 @@ This #120 integration does not change the RTL default or the CSR compatibility
 surface. The #116 flip still owns the default-on transition and retirement of
 the remaining software-era CSR/readback behavior. The bare-metal firmware
 exposes explicit UART commands for setting the PHC epoch; the fabric plane
-owns adjfine and adjtime in an option-on build.
+owns adjfine and adjtime in an option-on build. When an external grandmaster
+is selected, that plane steps and disciplines the PHC; a free-running or
+grandmaster board uses `milan_settime` or `milan_utc` to establish its TAI
+epoch.
 
 ## UART commands
 
