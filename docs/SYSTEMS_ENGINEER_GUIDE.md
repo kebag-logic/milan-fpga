@@ -133,10 +133,11 @@ audio end-station (talker + listener) on the wire.
 
 | Board | SoC | Role |
 |---|---|---|
-| **ALINX AX7101** (xc7a100t) | VexiiRiscv **1-hart** + `--l2-bytes 32768`, DDR3-800 512 MB, GMII MAC @100 MHz datapath | Full end-station. QSPI self-boot. |
+| **ALINX AX7101** (xc7a100t) | VexiiRiscv **1-hart RV32I**, bare-metal machine mode, `--l2-bytes 0`; CPU + Milan plane at 50 MHz, 100 MHz system/audio fabric; DDR3-800 512 MB, GMII MAC | Shipping full end-station. QSPI self-boot; Linux remains a separate bring-up shape. |
 | **ARTY** (`asl_milanfinal53e`, VERSION 0x000A) | small VexiiRiscv end-station, MII | Small end-station; flash-boot full images. |
 
-> **The single most important framing fact**: the ship CPU is **1-hart**. Much of the
+> **The single most important framing fact**: the ship CPU is a **1-hart,
+> cacheless bare-metal RV32I**, not the Linux performance profile. Much of the
 > 2026-07 perf campaign (RX ~223-381 Mbit, TX 582-646 Mbit) was measured on a **2-hart +
 > L2-64K** config that is now a **superseded perf-lineage variant**. Any doc presenting
 > "dual-hart / 2-core / L2-64K" as the ship or published shape is stale — read those numbers as

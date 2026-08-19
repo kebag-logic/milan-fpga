@@ -17,9 +17,18 @@ record) carry the engine's internals and measured cost.
 
 ## The shape
 
-`GPTP_PLANE_EN_P` (milan_datapath parameter, DEFAULT OFF -- the shipped
-shape is bit-identical until #116 flips it behind #120's baremetal
-buy-back) elaborates `KL_gptp_shadow` with four seams:
+`GPTP_PLANE_EN_P` (milan_datapath parameter, DEFAULT OFF) elaborates
+`KL_gptp_shadow` with four seams. #120's shipping AX7101 configuration opts in
+explicitly after its bare-metal and sound-card area buy-back; other builds
+remain bit-identical until they make the same product choice. #116 still owns
+the default flip and CSR compatibility transition.
+
+The option also carries `GPTP_UCODE_HEX_P`. In a shipping SoC build this is an
+absolute path to the builder's per-config 1,024-word image, generated from the
+same YAML station MAC, priority1 and Milan clock as the rest of the station.
+Self-contained benches retain the relative `gptp_ucode.hex` default.
+
+The plane has four seams:
 
 1. **RX**: the same `rx_axis_to_dma` tap every plane uses -- input
    only, a beat is real when `tvalid && tready` (the gh #65 rule). The
@@ -86,8 +95,10 @@ why it carries no VERSION bump.
 | `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping 1x1 ENTITY shape (the leg's own -G set, 2 MHz clock -- not the obj_ax1x1 argv); the boot Pdelay_Req reaches the real MAC boundary; NO Announce without asCapable |
 | `tb/verilator/milan_dp` default legs | the whole datapath | the [GPTP-OPT] tripwire: with the option OFF, CSR adjfine and adjtime still reach `timestamp_counter` through the eff muxes (a polarity swap goes red) |
 
-The area verdict for option-ON is RED at the current shipping shape
-(measured: the baseline alone synthesizes at 93.84% and fails default
-placement); it resolves through #120's baremetal downgrade and
-sound-card removal, where the verdict re-runs against the downgraded
-SoC.
+The option-ON verdict from #114's old Linux/sound-card shape was RED: the
+baseline alone synthesized at 93.84% LUT and failed default placement. #120
+re-runs the required three-directive AX7101 sweep with one cacheless RV32I
+bare-metal hart and the sound-card surface absent. The final placed resource
+and timing record lives in
+[BAREMETAL_FIRMWARE.md](../integration/BAREMETAL_FIRMWARE.md), not in the
+builder's pre-Vivado estimate.

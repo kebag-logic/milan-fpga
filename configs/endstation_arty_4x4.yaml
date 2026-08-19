@@ -60,6 +60,8 @@ entity:
 
 board:
   target: arty
+  features:
+    sound_card: true
   constraints:
     sys_clk_hz: 83333000
     milan_clk_hz: 50000000

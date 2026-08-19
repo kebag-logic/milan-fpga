@@ -21,9 +21,11 @@
 #   8. response bridge completed        (same rails, AECP response path)
 #
 # busybox-safe: plain sh, no pgrep -c, values surfaced as NAME=value echoes.
-# Overrides: IFACE, MILAN_CSR_BASE, DMA_TS_OFF_REG, PPMEM_BASE, RX_WAIT,
-# TS_WAIT. PPMEM_BASE=none declares a build with no protocol processor and
-# prints a SKIPPED line instead of checks 6-8.
+# Overrides: MILAN_PROFILE=linux|baremetal. Bare-metal runs from a host and
+# requires MILAN_UART; Linux runs on the board and accepts IFACE,
+# MILAN_CSR_BASE, DMA_TS_OFF_REG, PPMEM_BASE, RX_WAIT, TS_WAIT and
+# SOUND_CARD=0|1. PPMEM_BASE=none declares a build with no protocol processor
+# and prints a SKIPPED line instead of checks 6-8.
 # DT-rot caution (TROUBLESHOOTING section 20): DMA_TS_OFF_REG must match the
 # FLASHED build's csr.csv - a wrong-but-writable address reads back happily.
 # This script pokes physical addresses directly (devmem), NOT the DT windows,
@@ -32,7 +34,23 @@
 # was 0xf00030a4, which csr.csv names milan_dma_rx1_wr_ptr, so check 2 graded
 # the RX ring and passed on boards whose ts records never left the fabric.
 
+PROFILE="${MILAN_PROFILE:-linux}"
+if [ "$PROFILE" = baremetal ]; then
+    if [ -z "${MILAN_UART:-}" ]; then
+        echo "HOSTPLANE SMOKE: FAIL (MILAN_UART is required for MILAN_PROFILE=baremetal)" >&2
+        exit 2
+    fi
+    SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+    exec python3 "$SCRIPT_DIR/baremetal_uart_smoke.py" --port "$MILAN_UART" \
+        --baud "${MILAN_UART_BAUD:-115200}" --timeout "${MILAN_UART_TIMEOUT:-5}"
+fi
+if [ "$PROFILE" != linux ]; then
+    echo "HOSTPLANE SMOKE: FAIL (MILAN_PROFILE must be linux or baremetal)" >&2
+    exit 2
+fi
+
 IFACE="${IFACE:-eth0}"
+SOUND_CARD="${SOUND_CARD:-1}"
 BASE="${MILAN_CSR_BASE:-0x90000000}"
 # csr.csv csr_register,milan_dma_ts_offset,0xf0003118 (build_ax7101_asl_dfigate).
 TS_OFF_REG="${DMA_TS_OFF_REG:-0xf0003118}"
@@ -236,18 +254,22 @@ else
     fi
 fi
 
-# ---- 5. ALSA card module -----------------------------------------------------
-SND=$(grep -c '^snd_kl' /proc/modules 2>/dev/null)
-echo "SND_KL_MODULES=$SND"
-if [ -n "$SND" ] && [ "$SND" -gt 0 ]; then
-    verdict "alsa-module" 0 "($SND snd_kl_* module(s))"
+# ---- 5. ALSA card module (optional build surface) ---------------------------
+if [ "$SOUND_CARD" -eq 0 ]; then
+    echo "CHECK alsa-module: SKIPPED (SOUND_CARD=0 - build omits Linux PCM rings)"
 else
-    CARDS=$(cat /proc/asound/cards 2>/dev/null | grep -c '\[')
-    echo "ASOUND_CARDS=$CARDS"
-    if [ -n "$CARDS" ] && [ "$CARDS" -gt 0 ]; then
-        verdict "alsa-module" 0 "(built-in: $CARDS card(s) in /proc/asound/cards)"
+    SND=$(grep -c '^snd_kl' /proc/modules 2>/dev/null)
+    echo "SND_KL_MODULES=$SND"
+    if [ -n "$SND" ] && [ "$SND" -gt 0 ]; then
+        verdict "alsa-module" 0 "($SND snd_kl_* module(s))"
     else
-        verdict "alsa-module" 1 "(no snd_kl_* module, no ALSA card)"
+        CARDS=$(cat /proc/asound/cards 2>/dev/null | grep -c '\[')
+        echo "ASOUND_CARDS=$CARDS"
+        if [ -n "$CARDS" ] && [ "$CARDS" -gt 0 ]; then
+            verdict "alsa-module" 0 "(built-in: $CARDS card(s) in /proc/asound/cards)"
+        else
+            verdict "alsa-module" 1 "(no snd_kl_* module, no ALSA card)"
+        fi
     fi
 fi
 

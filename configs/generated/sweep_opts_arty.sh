@@ -2,8 +2,9 @@
 # FULL bitstream-shaping OPTS/L2/RXQ for arty, from
 # configs/endstation_arty_4x4.yaml (the last-built config of this board OWNS the
 # fragment, exactly like the tracked gen svh). Since 2026-07-28 the
-# OPTS carry EVERY design flag - num-streams, audio-interface,
-# talker-wire-chans, the tier-1 --no-* prunes - not just the board
+# OPTS carry EVERY design flag - CPU profile, flash mode, caches,
+# num-streams, audio-interface and the tier-1 --no-* prunes - not
+# just the board
 # constraints: a flag that reaches the build plan but not this
 # fragment builds a bitstream the plan lies about (that is how three
 # seeds fitted a 2-channel I2S datapath that every document called
@@ -11,7 +12,7 @@
 # tables are the fallback, and scripts/check_sweep_shape.py refuses
 # a launch whose effective flags disagree with SWEEP_CFG. Regenerate:
 #   python3 sw/builder/endstation_builder.py <cfg.yaml>
-OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --cbs-queues-mask 0x10"
+OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --cbs-queues-mask 0x10 --sound-card --cpu vexiiriscv --software-profile linux --xlen 32 --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt --l2-bytes 16384 --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 --scala-args=--l2-general-slots=8 --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 --cpu-count 1"
 NS=4
 L2=16384
 RXQ=2

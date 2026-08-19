@@ -48,6 +48,8 @@ VFLAGS_COMMON = --cc --exe --build -j 0 \
 #   --num-streams 8        -> N_STREAMS=8
 #   --milan-clk-freq 100e6 -> MILAN_CLK_FREQ_HZ=100000000
 #   (no --audio-interface) -> AUDIO_IF_SLOTS_P=0   (i2s_philips default)
+#   --sound-card           -> SOUND_CARD_P=1       (this Linux bring-up shape
+#                             retains the host PCM surface)
 #   --aaf-playback         -> AAF_PLAYBACK_P=1     (task #31 ship flip: the
 #                             KL_pcm_tx generate is LIVE in silicon; the pb
 #                             ports idle at 0 in these lanes - playback
@@ -56,12 +58,12 @@ VFLAGS_COMMON = --cc --exe --build -j 0 \
 #   (never set by the SoC) -> PB_PREFILL_C=0       (silicon default kept -
 #                             milan_dp shrinks it to 2; we do NOT)
 G_AX8X8 = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0 \
-          -GAAF_PLAYBACK_P=1
+          -GSOUND_CARD_P=1 -GAAF_PLAYBACK_P=1
 
 # ---- cfg-sweep smoke shapes (case e) ---------------------------------------
-G_SMALL = -GN_STREAMS=1 -GMILAN_CLK_FREQ_HZ=50000000  -GAUDIO_IF_SLOTS_P=0
-G_N4    = -GN_STREAMS=4 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0
-G_TDM8  = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=8
+G_SMALL = -GN_STREAMS=1 -GMILAN_CLK_FREQ_HZ=50000000  -GAUDIO_IF_SLOTS_P=0 -GSOUND_CARD_P=1
+G_N4    = -GN_STREAMS=4 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0 -GSOUND_CARD_P=1
+G_TDM8  = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=8 -GSOUND_CARD_P=1
 # ---- item-4 TDM32 MASTER (case e, 2026-07-28): the shape the AX7101
 #      8x8 argv now emits - `--audio-interface tdm32
 #      --audio-interface-master --talker-wire-chans 8`. This is the L1
@@ -74,7 +76,7 @@ G_TDM8  = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=8
 #      98304000 = 2 x (32 slots x 32 bclk x 48000 fs) = 2 x 49.152 MHz.
 G_TDM32M = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=32 \
            -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_CLK_HZ_P=98304000 -GTALKER_WIRE_CHANS_P=8 \
-           -GAAF_PLAYBACK_P=1
+           -GSOUND_CARD_P=1 -GAAF_PLAYBACK_P=1
 
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts

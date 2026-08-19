@@ -247,11 +247,7 @@ FLOW_FLAGS = {"--build": 0, "--vivado-max-threads": 1,
               # where the build READS its generated entity from is sweep
               # mechanics (the 2026-07-28 concurrent-sweep change), not a
               # property of the end-station definition
-              "--entity-gen-dir": 1,
-              # CPU words are the sweep BASE's (the 08-05 rv64-drift fix put
-              # --xlen 32 there; configs describe the END-STATION, not the
-              # core) - flow, not design
-              "--xlen": 1}
+              "--entity-gen-dir": 1}
 
 # Flashed silicon identity. Moved ...0001 -> ...0002 on 2026-08-13 with the
 # descriptor byte layout (1722.1-2013 -> -2021; see AEM_LAYOUT_REV). 6.2.2.8
@@ -531,6 +527,98 @@ def test_all_configs_build():
               f"({os.path.relpath(os.path.dirname(r['paths']['soc_params']), ROOT)}/)")
 
 
+def test_baremetal_profile_contract():
+    """Gate 1b: the shipping AX build is the cacheless, headless profile,
+    and each incompatible Linux/cached CPU combination is refused before a
+    LiteX command can be emitted."""
+    r = eb.build(CONFIGS["ax7101_1x1_tdm8"], OUT)
+    cfg, argv = r["cfg"], _canon(r["argv"])
+    assert cfg["soc"]["software_profile"] == "baremetal"
+    assert cfg["soc"]["cpu"] == "vexiiriscv"
+    assert cfg["soc"]["xlen"] == 32 and cfg["soc"]["cpu_count"] == 1
+    assert cfg["constraints"]["l2_bytes"] == 0
+    assert cfg["constraints"]["flashboot"] == "baremetal"
+    assert cfg["constraints"]["sys_clk_hz"] == 100_000_000
+    assert cfg["constraints"]["milan_clk_hz"] == 50_000_000
+    assert cfg["soc"]["scala_args"] == []
+    assert cfg["features"]["fabric_gptp"] is True
+    assert cfg["features"]["sound_card"] is False
+    assert r["platform"]["pcm"] is None
+    assert all(group["role"] != "host"
+               for direction in r["overlay"]["stream_ports"].values()
+               for port in direction for group in port["pool"])
+    assert argv["--software-profile"] == ["baremetal"]
+    assert argv["--xlen"] == [32.0] and argv["--l2-bytes"] == [0.0]
+    assert argv["--milan-clk-freq"] == [50_000_000.0]
+    assert "--fabric-gptp" in argv
+    assert "gptp_ucode" in r["paths"]
+    base_ucode = open(r["paths"]["gptp_ucode"], "rb").read()
+    assert len(base_ucode.splitlines()) == 1024
+    assert "Fabric gPTP plane: **PRESENT**" in r["plan"]
+    soc_source = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
+    assert '_vex_args.with_cpu_clk = bool(' in soc_source
+    assert 'self.cpu.cpu_clk.eq(ClockSignal("milan"))' in soc_source
+    deploy_source = open(os.path.join(ROOT, "sw/litex/deploy.sh")).read()
+    assert "--milan-clk-freq 50e6" in deploy_source
+    assert "--fabric-gptp" in deploy_source
+    for absent in ("--sound-card", "--aaf-playback", "--scala-args"):
+        assert absent not in argv, f"bare-metal argv unexpectedly carries {absent}"
+    print("  [gate 1b] shipping AX: fabric gPTP option on with config-derived "
+          "1024-word ROM; VexiiRiscv RV32I at 50 MHz through its supported "
+          "decoupled clock, one hart, L2=0, bare-metal flash, no Scala cache "
+          "args, PCM ring or host clusters; deploy keeps the plane option on")
+
+    ucode_mutations = (
+        ("station MAC", lambda c: c["platform"].__setitem__(
+            "mac_address", "02:00:00:00:00:03")),
+        ("priority1", lambda c: c["gptp"].__setitem__("priority1", 247)),
+        ("fabric clock", lambda c: c["board"]["constraints"].__setitem__(
+            "milan_clk_hz", 80_000_000)),
+    )
+    with tempfile.TemporaryDirectory() as td:
+        for label, mutate in ucode_mutations:
+            path = _variant(CONFIGS["ax7101_1x1_tdm8"], mutate)
+            try:
+                changed = eb.build(path, td)
+                image = open(changed["paths"]["gptp_ucode"], "rb").read()
+                assert image != base_ucode, \
+                    f"{label}: mutation did not reach gptp_ucode.hex"
+            finally:
+                os.unlink(path)
+    print("  [gate 1b] gPTP ROM changes with each YAML-owned input: station "
+          "MAC, priority1 and fabric clock")
+
+    def set_soc(key, value):
+        return lambda c: c.setdefault("soc", {}).__setitem__(key, value)
+
+    cases = (
+        ("RV64", set_soc("xlen", 64)),
+        ("two harts", set_soc("cpu_count", 2)),
+        ("NaxRiscv", set_soc("cpu", "naxriscv")),
+        ("L2 cache", lambda c: c["board"]["constraints"].__setitem__(
+            "l2_bytes", 8192)),
+        ("Scala cache arg", set_soc("scala_args", ["--lsu-l1-ways=2"])),
+        ("Linux flash manifest", lambda c: c["board"]["constraints"].__setitem__(
+            "flashboot", "full")),
+        ("bare-metal flash under Linux", lambda c: c["soc"].__setitem__(
+            "software_profile", "linux")),
+        ("fabric gPTP without clock attributes", lambda c: c.pop("gptp", None)),
+    )
+    for label, mutate in cases:
+        path = _variant(CONFIGS["ax7101_1x1_tdm8"], mutate)
+        try:
+            try:
+                eb.load_config(path)
+            except eb.ConfigError:
+                pass
+            else:
+                raise AssertionError(f"{label}: incompatible profile was accepted")
+        finally:
+            os.unlink(path)
+    print(f"  [gate 1b] {len(cases)}/{len(cases)} incompatible CPU/cache/flash "
+          "profiles rejected before SoC generation")
+
+
 def test_current_shape_matches_sweep_flags():
     # The shipping Arty shape is the 4x4 tdm8-master since 2026-07-28 (the
     # 8.3b flash decision); sweep.sh's arty table says so, and this gate
@@ -796,7 +884,7 @@ def test_both_policies_valid():
         # an i2s interface implies a DAC: the mutated variant must not carry
         # the AX's 2026-07-28 i2s_playback/render_lpf area prunes, which
         # validate_features rightly refuses next to a declared DAC
-        c["board"].pop("features", None)
+        c["board"]["features"] = {"sound_card": True}
         set_policy(c, "cap-at-interface")
     p = _variant(CONFIGS["ax7101_8x8"], to_i2s)
     try:
@@ -1338,12 +1426,14 @@ def test_dynamic_map_topology_reaches_shape_header():
 
     ax1 = eb.load_config(CONFIGS["ax7101_1x1_tdm8"])
     h1 = eb.emit_adp_shape_svh(ax1, eb.emit_aem_overlay(ax1))
-    assert scalar(h1, "ADP_DMAP_IN_KEYS_C") == 8
-    assert array(h1, "ADP_DMAP_IN_RPHYS_C") == [0] * 8
-    assert array(h1, "ADP_DMAP_OUT_PCLS_C") == [25]
+    assert scalar(h1, "ADP_DMAP_IN_KEYS_C") == 1
+    assert array(h1, "ADP_DMAP_IN_PCLS_C") == [0]
+    assert array(h1, "ADP_DMAP_IN_PNMAPS_C") == [0]
+    assert array(h1, "ADP_DMAP_IN_RPHYS_C") == [0]
+    assert array(h1, "ADP_DMAP_OUT_PCLS_C") == [17]
     c1 = array(h1, "ADP_DMAP_OUT_CSRC_C")
-    assert c1[0] == 0x1200 and c1[8] == 0x1300
-    assert c1[16] == 0x1400 and c1[17] == 0x1500 and c1[24] == 0x1D03
+    assert c1[0] == 0x1200 and c1[8] == 0x1400
+    assert c1[9] == 0x1500 and c1[16] == 0x1D03
     print("  [gate 16c] dynamic-map input keys, physical projections and "
           "output CSRC tables match both AX7101 entity models")
 
@@ -2230,9 +2320,6 @@ def test_platform_dt_and_driver_shape():
         dt, sh = r["dt_overlay"], r["platform"]
         for needle in ('compatible = "kl,dma-ether-0.9", "kl,dma-ether";',
                        'reg-names = "csr", "dma-tx", "dma-rx", "dma-ts", "phy";',
-                       'compatible = "kl,milan-pcm-0.9", "kl,milan-pcm";',
-                       'reg-names = "pcm-dma", "milan-csr";',
-                       "memory-region = <&pcmring>;", "no-map;",
                        "dma-coherent;", "kl,ptp;"):
             assert needle in dt, f"{name}: device tree lacks {needle!r}"
         # kl,rsc-clk-mhz is the ONLY of_property_read_u32 kl-eth makes; omit
@@ -2243,15 +2330,26 @@ def test_platform_dt_and_driver_shape():
         assert f'phy-mode = "{sh["phy_mode"]}"' in dt
         assert "local-mac-address = [" + \
             " ".join(sh["mac_address"].split(":")) + "]" in dt
-        # the no-map region must hold every capture stream's ring
         n_l = len(r["cfg"]["listeners"])
-        assert int(sh["pcm"]["ring_stride"], 16) * n_l <= \
-            int(sh["pcm"]["ring_bytes"], 16)
-        assert f"kl,capture-streams = <{n_l}>" in dt
-        print(f"  [gate 19b] {name}: DT node complete (5 reg windows, "
+        if r["cfg"]["features"]["sound_card"]:
+            for needle in (
+                    'compatible = "kl,milan-pcm-0.9", "kl,milan-pcm";',
+                    'reg-names = "pcm-dma", "milan-csr";',
+                    "memory-region = <&pcmring>;", "no-map;"):
+                assert needle in dt, f"{name}: device tree lacks {needle!r}"
+            # the no-map region must hold every capture stream's ring
+            assert int(sh["pcm"]["ring_stride"], 16) * n_l <= \
+                int(sh["pcm"]["ring_bytes"], 16)
+            assert f"kl,capture-streams = <{n_l}>" in dt
+            surface = f"{n_l}-stream {sh['pcm']['ring_bytes']} no-map ring"
+        else:
+            assert sh["pcm"] is None and "pcm-dma" not in sh["windows"]
+            assert 'compatible = "kl,milan-pcm' not in dt
+            assert "pcmring" not in dt and "kl,capture-streams" not in dt
+            surface = "sound-card node/ring absent"
+        print(f"  [gate 19b] {name}: DT node complete (5 NIC reg windows, "
               f"kl,rsc-clk-mhz {sh['rsc_clk_mhz']}, phy-mode "
-              f"{sh['phy_mode']}, {n_l}-stream {sh['pcm']['ring_bytes']} "
-              "no-map ring)")
+              f"{sh['phy_mode']}, {surface})")
     # ---- cross-check against real artifacts when they are on disk --------
     checked = 0
     for csv, cfg_name in ((CSR_CSV_2Q, "arty_current"),
@@ -4560,21 +4658,24 @@ def test_pp_window_is_reserved():
             f"publishes 0x{base:08X}+0x{size:X}. The gateware compiles one of "
             "those and the kernel honours the other")
 
-        # (2) and it is nobody else's memory. The PCM ring is named because
-        # that is the region the 8x8 shape landed inside; the pairwise sweep
-        # holds for whatever region is added next.
-        ring = int(shape["pcm"]["ring_phys"], 16)
-        ring_bytes = int(shape["pcm"]["ring_bytes"], 16)
-        assert any((g["base"], g["size"]) == (ring, ring_bytes)
-                   for g in regions), (
-            f"{name}: the PCM ring 0x{ring:08X}+0x{ring_bytes:X} is not among "
-            "the reserved regions, so 'clear of the other reservations' would "
-            "be a claim about an empty set")
-        assert end <= ring or ring + ring_bytes <= base, (
-            f"{name}: the processor window 0x{base:08X}+0x{size:X} OVERLAPS "
-            f"the PCM ring 0x{ring:08X}+0x{ring_bytes:X}. The response buffer "
-            "writes into captured audio and no counter on either side reports "
-            "it")
+        # (2) and it is nobody else's memory. The PCM ring is named when the
+        # Linux sound-card option exists; the bare-metal profile has no such
+        # reservation. The pairwise sweep holds for whatever region is added
+        # next in either shape.
+        if shape["pcm"] is not None:
+            ring = int(shape["pcm"]["ring_phys"], 16)
+            ring_bytes = int(shape["pcm"]["ring_bytes"], 16)
+            assert any((g["base"], g["size"]) == (ring, ring_bytes)
+                       for g in regions), (
+                f"{name}: the PCM ring 0x{ring:08X}+0x{ring_bytes:X} is not "
+                "among the reserved regions")
+            assert end <= ring or ring + ring_bytes <= base, (
+                f"{name}: the processor window 0x{base:08X}+0x{size:X} "
+                f"OVERLAPS the PCM ring 0x{ring:08X}+0x{ring_bytes:X}")
+            ring_desc = f"clear of PCM 0x{ring:08X}+0x{ring_bytes:X}"
+        else:
+            assert all(not g["name"].startswith("pcmring") for g in regions)
+            ring_desc = "PCM reservation absent"
         for x in range(len(regions)):
             for y in range(x + 1, len(regions)):
                 a_, b_ = regions[x], regions[y]
@@ -4585,8 +4686,7 @@ def test_pp_window_is_reserved():
                     f"0x{b_['base']:08X}+0x{b_['size']:X} overlap")
         print(f"  [gate 27] {name}: window 0x{base:08X}+0x{size:X} reserved "
               f"no-map as {cov['name']!r}, byte-identical to "
-              f"platform_shape.json's pp_mem, clear of the PCM ring "
-              f"0x{ring:08X}+0x{ring_bytes:X} and of "
+              f"platform_shape.json's pp_mem, {ring_desc}, clear of "
               f"{len(regions) - 1} other reserved region(s)")
 
     # THE OTHER HALF of "cannot drift": the SoC must READ that published
@@ -5152,7 +5252,8 @@ def test_milan_base_formats_are_rate_complete():
 
 
 if __name__ == "__main__":
-    for fn in (test_all_configs_build, test_current_shape_matches_sweep_flags,
+    for fn in (test_all_configs_build, test_baremetal_profile_contract,
+               test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
                test_capability_marks, test_bad_configs_rejected,
                test_port_layout_invariants, test_both_policies_valid,

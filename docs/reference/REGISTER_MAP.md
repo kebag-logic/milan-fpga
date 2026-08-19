@@ -556,7 +556,8 @@ Write semantics:
 * The HW clamps credit down immediately if a write lowers hiCredit below the
   current credit, so shrinking a burst allowance takes effect at once.
 * An `CBS_IDLE_SLOPE` write takes effect within two slope-engine passes, at
-  most 200 datapath cycles = 2 us at 100 MHz
+  most 200 datapath cycles = 4 us in the shipping 50 MHz profile (2 us in the
+  100 MHz AX Linux bring-up profile)
   (`credit_based_shaper.sv slope_engine`, sequential divider since 2026-07-11);
   hiCredit/loCredit/shaped-enable act on the next cycle.
 * The driver must keep Σ idleSlope of the *shaped* queues ≤ 75 % of the port
@@ -581,7 +582,7 @@ together  -  e.g. `tc mqprio` + `tc cbs offload`.
 | Offset | Name | Acc | Reset | Description |
 |--------|------|-----|-------|-------------|
 | `0x500` | `PTP_CTRL` | RW | `0x1` | `[0]` counter enable |
-| `0x504` | `PTP_INCR` | RW | derived | nominal increment per tick, **Q8.24** ns: `[31:24]` integer ns, `[23:0]` fractional ns. Reset value = the true PHC clock period, derived from `MILAN_CLK_FREQ_HZ_P` (0x0A000000 = 10.0 ns at the shipping 100 MHz milan domain; the standalone-default 125 MHz gives the historic 0x08000000) |
+| `0x504` | `PTP_INCR` | RW | derived | nominal increment per tick, **Q8.24** ns: `[31:24]` integer ns, `[23:0]` fractional ns. Reset value = the true PHC clock period, derived from `MILAN_CLK_FREQ_HZ_P` (`0x14000000` = 20.0 ns in the shipping 50 MHz Milan domain; `0x0A000000` = 10.0 ns in the 100 MHz AX Linux bring-up shape; the standalone-default 125 MHz gives the historic `0x08000000`) |
 | `0x508` | `PTP_ADJ` | RW | `0` | signed Q8.24-ns adjfine addend added to `PTP_INCR` each tick (rate discipline) |
 | `0x510` | `PTP_TOD_WR_LO` | RW | `0` | settime target `[31:0]` (ns) |
 | `0x514` | `PTP_TOD_WR_HI` | RW | `0` | settime target `[63:32]` |
@@ -1548,7 +1549,8 @@ strobes, no provisioning), SNAP latches zeros and completes. `A_STRM_SEL` /
 > trigger and CSR). Per-sample DDR3 history: [`../LATENCY_HISTORY_RING.md`](../LATENCY_HISTORY_RING.md).
 
 Per-stage TX/RX AAF pipeline latency, measured in **axis_clk cycles** (divide
-by the datapath clock - 50 MHz Arty / 100 MHz AX7101 - for seconds). Two
+by the datapath clock - 50 MHz Arty and shipping AX7101 / 100 MHz AX7101
+Linux bring-up - for seconds). Two
 independent chains each latch a free-running cycle count at the documented
 pipeline points and expose the inter-stage deltas (last / min / max,
 saturating 16-bit) plus the gPTP epoch of the measured reference frame:
@@ -2011,6 +2013,13 @@ wrap the ring end  -  software splits its memcpy, hardware splits its bursts (al
   changes bump major and the driver's `of` compatible string.
 
 ### PCM ring (LiteX CSR bank, `0xf0003120`)
+
+This bank exists only when the SoC is built with the optional `sound_card`
+feature (`milan_soc.py --sound-card`). The shipping bare-metal profile omits
+the bank, its DRAM/BRAM ring master, and the device-tree/ALSA host surface;
+AAF capture, TDM/I2S, render, and loopback fabric remain available. Software
+must discover the host-audio feature from the build description rather than
+assuming this address is present.
 
 The AAF RX payload lands in a wrapping DRAM ring driven by a
 `WishboneDMAWriter` in loop mode (same recipe as the TS record ring):

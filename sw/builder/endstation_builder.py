@@ -66,6 +66,9 @@ Outputs (into OUTDIR/<config-stem>/):
                       before it programs 0x604/0x608/0x60C/0x610. Also
                       written into the buildroot rootfs overlay (see
                       ROOTFS_OVERLAY_ETC) by --write-rtl/--write-fragment.
+  gptp_ucode.hex   - when board.features.fabric_gptp is true, the fabric
+                      engine ROM with station MAC, priority1 and fabric clock
+                      derived from this same config.
 Plus (repo-level, single-sourced so nothing can drift):
   configs/generated/sweep_opts_<board>.sh - shell fragment (OPTS/L2/RXQ)
                       sourced by sw/litex/sweep.sh; the inline tables there
@@ -165,6 +168,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 
 try:
@@ -297,6 +301,8 @@ AES3_BLOCK_FRAMES = 192           #: AES3-2009 4.3 channel-status block
 SOC_DEFAULTS = dict(
     cpu="vexiiriscv",
     cpu_count=1,
+    software_profile="linux",
+    xlen=32,
     all_blocks=True,
     coherent_dma=True,
     timing_opt=True,
@@ -1273,6 +1279,12 @@ def _pow2(v, ctx):
     return v
 
 
+def _pow2_or_zero(v, ctx):
+    if v == 0:
+        return 0
+    return _pow2(v, ctx)
+
+
 def _streams(lst, ctx, direction, rate_hz=48000):
     if not isinstance(lst, list) or not lst:
         raise ConfigError(f"{ctx}: needs at least one {direction} stream")
@@ -1431,6 +1443,15 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
                 segs.append(dict(role=role, offset=off, width=width,
                                  first=0 if role != "loopback" else port_index))
                 off += width
+        # A listener with neither a physical render endpoint nor a Linux
+        # host ring is deliberately headless.  Its STREAM_PORT_INPUT still
+        # exists (and remains dynamically mapped per Milan 5.3.3.9), but it
+        # truthfully owns zero local AUDIO_CLUSTER descriptors.  The receive
+        # stream can still feed fabric-only consumers such as the loopback
+        # lane.  Output ports may never be empty: a talker needs a source.
+        if not segs and direction == "input" and ph_render == 0 \
+                and int(pools.get("host", 0)) == 0:
+            return []
         if not segs:
             raise ConfigError(
                 f"cluster_mapping.policy role-pools: STREAM_PORT_"
@@ -1481,7 +1502,7 @@ def cluster_layout(listeners, talkers, policy, iface_channels,
                 f"map_page (one RTL partition constant); got "
                 f"{sorted(explicit)}")
         page = explicit.pop() if explicit \
-            else min(max(p["clusters"] for p in dynp), 8)
+            else max(1, min(max(p["clusters"] for p in dynp), 8))
         if not 1 <= page <= 11:
             raise ConfigError(f"map_page {page} outside 1..11 (RTL "
                               "GET_AUDIO_MAP scratch bound)")
@@ -1575,7 +1596,7 @@ def primary_segment(port, direction):
     for role in PRIMARY_ROLE_ORDER[direction]:
         if role in by_role:
             return by_role[role]
-    return port["pool"][0]
+    return port["pool"][0] if port["pool"] else None
 
 
 def cluster_names(cfg, port, direction):
@@ -2775,7 +2796,7 @@ def emit_interface_params(cfg):
 
 
 # ------------------------------------------------------- platform / DT ------
-def dma_window_map(dma_base, rx_queues):
+def dma_window_map(dma_base, rx_queues, sound_card=True):
     """The driver-visible DMA window map for `rx_queues`, in LiteX
     submodule-registration order (sw/litex/milan_soc.py MilanDMA.__init__).
     Returns an ORDERED dict name -> (base, size, in_dt). The 2-queue build
@@ -2798,7 +2819,8 @@ def dma_window_map(dma_base, rx_queues):
         add("dma-rx1", DMA_RX1_BLOCK_BYTES, False)
     add("dma-ts", DMA_TS_BYTES, True)
     add("hs-pgsz-cap", DMA_HS_CAP_BYTES, False)
-    add("pcm-dma", DMA_PCM_BYTES, False)      # its own DT node, not the NIC's
+    if sound_card:
+        add("pcm-dma", DMA_PCM_BYTES, False)  # its own DT node, not the NIC's
     return m
 
 
@@ -2819,15 +2841,22 @@ def _mac48(v, ctx):
 
 
 def load_features(raw):
-    """Normalize `board.features`. Missing block or missing key = PRESENT."""
+    """Normalize `board.features`.
+
+    Datapath tier-1 blocks retain their historical PRESENT default. The Linux
+    host sound-card surface and fabric gPTP plane are product options and
+    default ABSENT; #120 opts the shipping config into the latter explicitly.
+    """
     raw = raw or {}
     if not isinstance(raw, dict):
         raise ConfigError("board.features: must be a mapping of "
-                          f"{sorted(OPTIONAL_BLOCKS)} -> bool")
-    unknown = sorted(set(raw) - set(OPTIONAL_BLOCKS))
+                          f"{sorted((*OPTIONAL_BLOCKS, 'sound_card', 'fabric_gptp'))} "
+                          "-> bool")
+    product_options = {"sound_card", "fabric_gptp"}
+    unknown = sorted(set(raw) - set(OPTIONAL_BLOCKS) - product_options)
     if unknown:
         raise ConfigError(f"board.features: unknown block(s) {unknown} "
-                          f"(known: {sorted(OPTIONAL_BLOCKS)})")
+                          f"(known: {sorted((*OPTIONAL_BLOCKS, *product_options))})")
     out = {}
     for k in OPTIONAL_BLOCKS:
         v = raw.get(k, True)
@@ -2835,6 +2864,16 @@ def load_features(raw):
             raise ConfigError(f"board.features.{k} must be a boolean (got "
                               f"{v!r}); true = PRESENT (the default)")
         out[k] = v
+    v = raw.get("sound_card", False)
+    if not isinstance(v, bool):
+        raise ConfigError("board.features.sound_card must be a boolean; "
+                          "false = host capture/playback rings absent")
+    out["sound_card"] = v
+    v = raw.get("fabric_gptp", False)
+    if not isinstance(v, bool):
+        raise ConfigError("board.features.fabric_gptp must be a boolean; "
+                          "false = option-gated fabric time-sync plane absent")
+    out["fabric_gptp"] = v
     return out
 
 
@@ -2908,10 +2947,17 @@ def validate_features(feat, cons, clocking, interface, srp, platform):
             "KL_pcm_lpf's only consumer is KL_i2s_playback, so this build "
             "would synthesise a render filter with nothing behind it. Set "
             "render_lpf: false as well, or keep i2s_playback.")
+    host_width = int(interface.get("cluster_pools", {}).get("host", 0))
+    playback = interface.get("cluster_fabric", {}).get("playback_rings")
+    if not feat["sound_card"] and (host_width or playback):
+        raise ConfigError(
+            "board.features.sound_card is false, but the entity declares "
+            f"host clusters ({host_width}) and/or playback_rings ({playback}). "
+            "Remove those Linux host surfaces or set sound_card: true.")
     return feat
 
 
-def load_platform(raw, cons, target, listeners):
+def load_platform(raw, cons, target, listeners, sound_card=True):
     """Validate + normalize the `platform:` section and DERIVE the DMA window
     map from board.constraints.rx_queues. Raises ConfigError when the derived
     map contradicts `boot_chain_pin` - the flashed boot chain's map, which is
@@ -2980,7 +3026,8 @@ def load_platform(raw, cons, target, listeners):
     if not 10 <= p["rsc_clk_mhz"] <= 250:
         raise ConfigError(f"platform: kl,rsc-clk-mhz {p['rsc_clk_mhz']} "
                           "outside the driver's 10..250 accept window")
-    p["windows"] = dma_window_map(p["dma_bank_base"], cons["rx_queues"])
+    p["windows"] = dma_window_map(p["dma_bank_base"], cons["rx_queues"],
+                                  sound_card=sound_card)
     p["rx_queues"] = cons["rx_queues"]
 
     # CSR-rot guard: the flashed boot chain fixes its own window map. A pin
@@ -3015,6 +3062,7 @@ def emit_platform_shape(cfg):
     (they MOVE with rx_queues - the biggest un-modelled coupling)."""
     p, c = cfg["platform"], cfg["constraints"]
     w = p["windows"]
+    sound_card = cfg["features"]["sound_card"]
     return {
         "_schema": PLATFORM_SCHEMA_ID,
         "_schema_version": PLATFORM_SCHEMA_VERSION,
@@ -3045,13 +3093,15 @@ def emit_platform_shape(cfg):
                                    if "dma-rx1" in w else None),
             "MILAN_HS_PGSZ_CAP_PHYS": f"0x{w['hs-pgsz-cap']['base']:08X}",
         },
-        "pcm": dict(base=f"0x{w['pcm-dma']['base']:08X}",
-                    size=f"0x{w['pcm-dma']['size']:X}",
-                    capture_streams=len(cfg["listeners"]),
-                    playback_streams=0,
-                    ring_phys=f"0x{p['pcm_ring_phys']:08X}",
-                    ring_bytes=f"0x{p['pcm_ring_bytes']:X}",
-                    ring_stride=f"0x{p['pcm_ring_stride']:X}"),
+        "pcm": (dict(base=f"0x{w['pcm-dma']['base']:08X}",
+                     size=f"0x{w['pcm-dma']['size']:X}",
+                     capture_streams=len(cfg["listeners"]),
+                     playback_streams=(cfg["interface"].get(
+                         "cluster_fabric", {}).get("playback_rings") or 0),
+                     ring_phys=f"0x{p['pcm_ring_phys']:08X}",
+                     ring_bytes=f"0x{p['pcm_ring_bytes']:X}",
+                     ring_stride=f"0x{p['pcm_ring_stride']:X}")
+                if sound_card else None),
         # The window sw/litex/milan_soc.py compiles into the gateware as
         # PP_DESC_BASE_P / PP_RESP_BASE_P. Published here so the SoC READS it
         # rather than deriving it a second way - the device tree above reserves
@@ -3092,11 +3142,12 @@ def emit_dt_overlay(cfg):
     a("\t\t#size-cells    = <1>;")
     a("\t\tranges;")
     a("")
-    a(f"\t\tpcmring: pcmring@{p['pcm_ring_phys']:x} {{")
-    a(f"\t\t\treg = <0x{p['pcm_ring_phys']:x} 0x{p['pcm_ring_bytes']:x}>;")
-    a("\t\t\tno-map;")
-    a("\t\t};")
-    a("")
+    if cfg["features"]["sound_card"]:
+        a(f"\t\tpcmring: pcmring@{p['pcm_ring_phys']:x} {{")
+        a(f"\t\t\treg = <0x{p['pcm_ring_phys']:x} 0x{p['pcm_ring_bytes']:x}>;")
+        a("\t\t\tno-map;")
+        a("\t\t};")
+        a("")
     # The protocol processor's descriptor store READS the entity model from
     # here and its AECP response buffer WRITES here, both at bases compiled
     # into the bitstream. Unreserved, this is ordinary kernel RAM and those
@@ -3137,18 +3188,20 @@ def emit_dt_overlay(cfg):
     a('\t\tstatus = "okay";')
     a("\t};")
     a("")
-    a(f"\tmilan_pcm: audio@{w['pcm-dma']['base']:x} {{")
-    a('\t\tcompatible = "kl,milan-pcm-0.9", "kl,milan-pcm";')
-    a(f"\t\treg = <0x{w['pcm-dma']['base']:x} "
-      f"0x{w['pcm-dma']['size']:x}>,")
-    a(f"\t\t      <0x{p['csr_base']:x} 0x1000>;")
-    a('\t\treg-names = "pcm-dma", "milan-csr";')
-    a("\t\tmemory-region = <&pcmring>;")
-    a(f"\t\tkl,capture-streams = <{len(cfg['listeners'])}>;")
-    a("\t\tkl,playback-streams = <0>;")
-    a(f"\t\tkl,ring-stride = <0x{p['pcm_ring_stride']:x}>;")
-    a('\t\tstatus = "okay";')
-    a("\t};")
+    if cfg["features"]["sound_card"]:
+        a(f"\tmilan_pcm: audio@{w['pcm-dma']['base']:x} {{")
+        a('\t\tcompatible = "kl,milan-pcm-0.9", "kl,milan-pcm";')
+        a(f"\t\treg = <0x{w['pcm-dma']['base']:x} "
+          f"0x{w['pcm-dma']['size']:x}>,")
+        a(f"\t\t      <0x{p['csr_base']:x} 0x1000>;")
+        a('\t\treg-names = "pcm-dma", "milan-csr";')
+        a("\t\tmemory-region = <&pcmring>;")
+        a(f"\t\tkl,capture-streams = <{len(cfg['listeners'])}>;")
+        pbr = cfg["interface"].get("cluster_fabric", {}).get("playback_rings") or 0
+        a(f"\t\tkl,playback-streams = <{pbr}>;")
+        a(f"\t\tkl,ring-stride = <0x{p['pcm_ring_stride']:x}>;")
+        a('\t\tstatus = "okay";')
+        a("\t};")
     a("};")
     a("")
     return "\n".join(ln)
@@ -3297,8 +3350,8 @@ def load_config(path):
     cons = dict(
         sys_clk_hz=int(c.get("sys_clk_hz", binfo["sys_clk_hz_default"])),
         milan_clk_hz=int(_req(c, "milan_clk_hz", "board.constraints")),
-        l2_bytes=_pow2(_req(c, "l2_bytes", "board.constraints"),
-                       "board.constraints.l2_bytes"),
+        l2_bytes=_pow2_or_zero(_req(c, "l2_bytes", "board.constraints"),
+                               "board.constraints.l2_bytes"),
         phy=_req(c, "phy", "board.constraints"),
         gtx_tx_invert=bool(c.get("gtx_tx_invert", False)),
         floorplan=bool(c.get("floorplan", False)),
@@ -3324,8 +3377,9 @@ def load_config(path):
                           f"{target} ({binfo['phy']})")
     if cons["gtx_tx_invert"] and not binfo["gmii_knobs"]:
         raise ConfigError(f"gtx_tx_invert is a GMII knob; {target} is {binfo['phy']}")
-    if cons["flashboot"] not in ("none", "kernel", "full"):
-        raise ConfigError(f"flashboot '{cons['flashboot']}' not none|kernel|full")
+    if cons["flashboot"] not in ("none", "baremetal", "kernel", "full"):
+        raise ConfigError(
+            f"flashboot '{cons['flashboot']}' not none|baremetal|kernel|full")
     if not 1 <= cons["rx_queues"] <= 2:
         raise ConfigError(f"rx_queues {cons['rx_queues']} outside 1..2")
     # shaper queue count = ethernet_packet_pkg::NUMBER_OF_QUEUES; the CBS
@@ -3637,6 +3691,20 @@ def load_config(path):
     soc = dict(SOC_DEFAULTS, **(cfg.get("soc") or {}))
     if soc["cpu"] not in ("vexiiriscv", "naxriscv"):
         raise ConfigError(f"soc.cpu '{soc['cpu']}' unknown")
+    if soc["software_profile"] not in ("baremetal", "linux"):
+        raise ConfigError("soc.software_profile must be baremetal or linux")
+    if int(soc["xlen"]) not in (32, 64):
+        raise ConfigError("soc.xlen must be 32 or 64")
+    soc["xlen"] = int(soc["xlen"])
+    if soc["software_profile"] == "baremetal":
+        if soc["cpu"] != "vexiiriscv" or soc["xlen"] != 32 or soc["cpu_count"] != 1:
+            raise ConfigError("baremetal SoC requires VexiiRiscv RV32 and one hart")
+        if cons["l2_bytes"] != 0 or soc["scala_args"]:
+            raise ConfigError("baremetal SoC requires l2_bytes: 0 and no cache/prefetch scala_args")
+        if cons["flashboot"] not in ("baremetal", "none"):
+            raise ConfigError("baremetal SoC requires flashboot: baremetal (or none)")
+    elif cons["flashboot"] == "baremetal":
+        raise ConfigError("flashboot: baremetal requires soc.software_profile: baremetal")
 
     # the framer's emitted width, for the TSpec derivation (802.1Q
     # 35.2.2.8.4 a): the frame the talker WILL PRODUCE). Computed on a shim
@@ -3645,13 +3713,20 @@ def load_config(path):
                                         board_target=target))
     srp = load_srp(cfg.get("srp"), listeners, talkers, clocking, cons,
                    BOARDS[target], wire_channels=wire_ch)
-    platform = load_platform(cfg.get("platform"), cons, target, listeners)
+    sound_card = bool((brd.get("features") or {}).get("sound_card", False))
+    platform = load_platform(cfg.get("platform"), cons, target, listeners,
+                             sound_card=sound_card)
 
     # optional-block prunes (docs/design/AREA_BUDGET.md tier 1). Loaded last
     # because the gate cross-checks against clocking / interface / srp /
     # platform - a prune is only wrong RELATIVE to what the rest asked for.
     features = validate_features(load_features(brd.get("features")),
                                  cons, clocking, interface, srp, platform)
+    if features["fabric_gptp"] and gptp is None:
+        raise ConfigError(
+            "board.features.fabric_gptp requires a gptp: section so the "
+            "microcode station identity and priority cannot fall back to "
+            "generator defaults")
 
     out = dict(
         source=os.path.relpath(path, ROOT),
@@ -3973,6 +4048,10 @@ def emit_design_opts(cfg):
     # one fact, so an AEM can never advertise a lane the bitstream lacks.
     if cfg["interface"].get("cluster_fabric", {}).get("loopback_lane"):
         argv += ["--loopback-lane"]
+    if cfg["features"]["fabric_gptp"]:
+        argv += ["--fabric-gptp"]
+    if cfg["features"]["sound_card"]:
+        argv += ["--sound-card"]
     # the KL_pcm_tx host rings behind the `host` pool. Emitted from the SAME
     # fabric declaration the AEM host clusters come from - caught 2026-08-05
     # by check_dtb_csr at FLASH time: the fragment carried no playback flag,
@@ -3997,6 +4076,8 @@ def emit_soc_argv(cfg):
     c, soc = cfg["constraints"], cfg["soc"]
     argv = list(emit_design_opts(cfg))
     argv += ["--cpu", soc["cpu"]]
+    argv += ["--software-profile", soc["software_profile"]]
+    argv += ["--xlen", str(soc["xlen"])]
     if soc["all_blocks"]:
         argv += ["--all-blocks"]
     if soc["coherent_dma"]:
@@ -4018,18 +4099,19 @@ def emit_soc_argv(cfg):
 
 # ------------------------------------------------------------ sweep opts ----
 def emit_sweep_opts(cfg):
-    """Shell fragment sourced by sw/litex/sweep.sh: the per-board design
-    OPTS/L2, single-sourced from the end-station config. The inline case
+    """Shell fragment sourced by sw/litex/sweep.sh: the complete per-board
+    SoC argv, single-sourced from the end-station config. The inline case
     tables in sweep.sh are the FALLBACK only; the builder test gate asserts
-    fragment == fallback byte-for-byte on the OPTS/L2 values."""
-    opts = " ".join(emit_design_opts(cfg))
+    fragment == fallback byte-for-byte."""
+    opts = " ".join(emit_soc_argv(cfg))
     return (
         "# GENERATED by sw/builder/endstation_builder.py - DO NOT EDIT.\n"
         f"# FULL bitstream-shaping OPTS/L2/RXQ for {cfg['board_target']}, from\n"
         f"# {cfg['source']} (the last-built config of this board OWNS the\n"
         "# fragment, exactly like the tracked gen svh). Since 2026-07-28 the\n"
-        "# OPTS carry EVERY design flag - num-streams, audio-interface,\n"
-        "# talker-wire-chans, the tier-1 --no-* prunes - not just the board\n"
+        "# OPTS carry EVERY design flag - CPU profile, flash mode, caches,\n"
+        "# num-streams, audio-interface and the tier-1 --no-* prunes - not\n"
+        "# just the board\n"
         "# constraints: a flag that reaches the build plan but not this\n"
         "# fragment builds a bitstream the plan lies about (that is how three\n"
         "# seeds fitted a 2-channel I2S datapath that every document called\n"
@@ -4231,6 +4313,8 @@ def emit_aem_overlay(cfg):
             return [[p["stream_index"], ch, ch, 0]
                     for ch in range(p["clusters"])]
         g = primary_segment(p, direction)
+        if g is None:
+            return []
         n = min(channels, g["width"])
         return [[p["stream_index"], ch, g["offset"] + ch, 0]
                 for ch in range(n)]
@@ -4241,7 +4325,7 @@ def emit_aem_overlay(cfg):
             continue
         audio_maps.append(dict(
             index=p["base_map"], direction="input", port_index=p["index"],
-            primary_role=primary_segment(p, "input")["role"],
+            primary_role=(primary_segment(p, "input") or {}).get("role"),
             mappings=rows(p, "input", L[p["stream_index"]]["channels"])))
     for p in P_out:
         if p.get("map_mode", "static") == "dynamic":
@@ -4278,7 +4362,7 @@ def emit_aem_overlay(cfg):
         # the port's role pool (D8), port-relative like 7.2.19 offsets
         q["pool"] = [{"role": g["role"], "offset": g["offset"],
                       "width": g["width"]} for g in p["pool"]]
-        q["primary_role"] = primary_segment(p, direction)["role"]
+        q["primary_role"] = (primary_segment(p, direction) or {}).get("role")
         return q
     P_in_pub = [port_public(p, "input") for p in P_in]
     P_out_pub = [port_public(p, "output") for p in P_out]
@@ -4522,7 +4606,18 @@ def emit_features_line(cfg):
     a reader of any plan can see which optional blocks this bitstream does and
     does not contain - the point of the whole exercise is that an absent block
     is never silent."""
-    ln = ["## Optional blocks (docs/design/AREA_BUDGET.md tier 1)", ""]
+    ln = ["## Optional blocks (docs/design/AREA_BUDGET.md tier 1)", "",
+          ("- Fabric gPTP plane: **PRESENT** (`--fabric-gptp`; "
+           "`GPTP_PLANE_EN_P=1`)."
+           if cfg["features"]["fabric_gptp"] else
+           "- Fabric gPTP plane: **ABSENT (RTL default)**. The software gPTP "
+           "bring-up path remains selectable until #116."),
+          ("- Linux sound-card surface: **PRESENT** (`--sound-card`; PCM "
+           "capture/playback rings and their LiteX CSR banks)."
+           if cfg["features"]["sound_card"] else
+           "- Linux sound-card surface: **ABSENT (default)**. PCM host rings, "
+           "their CSR banks and AVTP-RX-to-ring route are not elaborated; "
+           "AAF/TDM/I2S/render/crossbar fabric remains."), ""]
     pruned = [k for k in OPTIONAL_BLOCKS if not cfg["features"][k]]
     if not pruned:
         ln.append("- ALL PRESENT (the default). This gateware contains every "
@@ -4617,8 +4712,10 @@ def emit_build_plan(cfg, argv, overlay, marks, est, lwsrp, shape):
     a("|------|--------|----------|--------------|-----------------|-------------------------|------------|")
 
     def _pool(p, direction):
-        return (" + ".join(f"{g['role']} x{g['width']}" for g in p["pool"]),
-                primary_segment(p, direction)["role"])
+        primary = primary_segment(p, direction)
+        pool = " + ".join(f"{g['role']} x{g['width']}" for g in p["pool"])
+        return (pool or "none (headless)",
+                primary["role"] if primary is not None else "none")
     for p in cfg["ports_in"]:
         pool, prim = _pool(p, "input")
         a(f"| STREAM_PORT_INPUT {p['index']} | STREAM_INPUT {p['stream_index']}"
@@ -4742,6 +4839,24 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     with open(p_ovl, "w") as f:
         json.dump(overlay, f, indent=1)
         f.write("\n")
+    p_gptp_ucode = None
+    if cfg["features"]["fabric_gptp"]:
+        # Gateware ROM, not a software-daemon config: it must carry the same
+        # station identity and clock posture as the AEM generated above.
+        # Generate it here, once per config, so a three-directive Vivado sweep
+        # reads one stable image rather than three jobs racing on a shared
+        # relative gptp_ucode.hex in their run directories.
+        p_gptp_ucode = os.path.join(d, "gptp_ucode.hex")
+        generator = os.path.join(
+            ROOT, "gptp-processor", "hdl", "ucode", "gen_gptp_ucode.py")
+        mac = _mac48(cfg["platform"]["mac_address"],
+                     "platform.mac_address")
+        subprocess.run(
+            [sys.executable, generator, "-o", p_gptp_ucode,
+             "--mac", f"0x{mac:012x}",
+             "--p1", str(cfg["gptp"]["priority1"]),
+             "--clk-hz", str(cfg["constraints"]["milan_clk_hz"])],
+            check=True, capture_output=True, text=True)
     p_plan = os.path.join(d, "build_plan.md")
     with open(p_plan, "w") as f:
         f.write(plan)
@@ -4872,6 +4987,8 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
                  cfg_adp_shape_svh=p_cfg_adp,
                  platform_shape=p_shape, dt_overlay=p_dtsi,
                  sweep_opts=p_sweep, entity_conf=p_ent)
+    if p_gptp_ucode is not None:
+        paths["gptp_ucode"] = p_gptp_ucode
     # only when it was actually written: the reader of this dict prints
     # "wrote <path>", and the flashed image's identity is not a place to be
     # imprecise about whether a file moved

@@ -133,8 +133,8 @@ def parse_sweep(path=SWEEP):
 
 
 def design_opts_expected(cfg_path):
-    """The FULL bitstream-shaping flag list this config implies, from the
-    builder's own emission (sw/builder/endstation_builder.emit_design_opts).
+    """The complete SoC flag list this config implies, from the builder's
+    own emission (sw/builder/endstation_builder.emit_soc_argv).
 
     Imported, not re-derived: interface_is_placeholder / framer_wire_channels
     / the tier-1 prune resolution are real logic, and a second copy here is
@@ -143,7 +143,7 @@ def design_opts_expected(cfg_path):
     sys.path.insert(0, os.path.join(ROOT, "sw/builder"))
     import endstation_builder as eb
     p = cfg_path if os.path.isabs(cfg_path) else os.path.join(ROOT, cfg_path)
-    return eb.emit_design_opts(eb.load_config(p))
+    return eb.emit_soc_argv(eb.load_config(p))
 
 
 def parse_flags(tokens):
@@ -185,7 +185,7 @@ def compare(board, cfg_path, ns, rxq, l2, where, opts=""):
     # fragment, so three seeds fitted a default-I2S 2-channel datapath that
     # every artifact called tdm32 8-channel - because the fragment carried a
     # hand-picked SUBSET of the design flags and this gate compared the same
-    # subset. Now: effective OPTS must equal the builder's emit_design_opts
+    # subset. Now: effective OPTS must equal the builder's emit_soc_argv
     # flag-for-flag (parsed, so ordering cannot hide a value swap; the
     # --num-streams sweep.sh may append is part of the expectation already).
     if opts:
@@ -196,7 +196,7 @@ def compare(board, cfg_path, ns, rxq, l2, where, opts=""):
                 bad.append(
                     f"design flag {k}: effective "
                     f"{got.get(k, '(absent)')} != config-implied "
-                    f"{want.get(k, '(absent)')} (emit_design_opts of "
+                    f"{want.get(k, '(absent)')} (emit_soc_argv of "
                     f"{os.path.basename(cfg_path)})")
     if bad:
         print(f"SHAPE DRIFT [{where}] {board} vs {cfg_path}:", file=sys.stderr)

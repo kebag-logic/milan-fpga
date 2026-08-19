@@ -75,6 +75,8 @@ Machine-checked status rows are defined by the
 | `stream-input.stopped-crf-observation` | `implemented` | - |
 | `stream-format.set` | `implemented` | - |
 | `stream-info.set-acc-lat` | `implemented` | - |
+| `soc.baremetal-profile` | `implemented` | - |
+| `host.sound-card-option` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
@@ -102,7 +104,7 @@ the symptom.
 ## Contents
 
 - **[1. Repository layout](#1-repository-layout)** -- Annotated directory tree, one line per directory saying what it holds. Fastest way to learn that `hdl/` mirrors the standards clauses (`ieee1722/`, `ieee17221/`, `ieee8021as/`, `ieee8021q/`) rather than the block hierarchy.
-- **[2. System block diagram (fully-FPGA softcore)](#2-system-block-diagram-fully-fpga-softcore)** -- The whole SoC in one ASCII drawing: CPU and DMA engines above, `milan_datapath` below, TX/RX/TS lanes across. Says which SoC shape actually ships (1-hart, 32 KB L2) versus the superseded 2-hart perf peak, and names the five consumers of that one boundary.
+- **[2. System block diagram (fully-FPGA softcore)](#2-system-block-diagram-fully-fpga-softcore)** -- The whole SoC in one ASCII drawing: CPU and DMA engines above, `milan_datapath` below, TX/RX/TS lanes across. Says which cacheless RV32I shape ships versus the retained Linux bring-up profiles, and names the consumers of that one boundary.
 - **[3. Datapath](#3-datapath)** -- Frame flow in both directions, and the two structural facts everything else follows from: the fabric engines inject *downstream* of the shaper (never touching classifier or queue), and the media copy is tapped *upstream* of the TCAM filter so the fabric keeps consuming AVTP while the CPU stays shielded from the multicast flood. Section 3.1 is the TX arbiter cascade after it collapsed 8 muxes → 4, and Section 3.2 the three functional losses the AECP boundary costs.
 - **[4. Control plane (milan_csr)](#4-control-plane-milan_csr)** -- One AXI4-Lite window, sorted by direction: `o_*` configuration out, `i_*` status back, single-cycle command strobes, one IRQ line. Carries the boot ordering that bites: the descriptor image must be in DRAM at its compile-time base before the entity is enabled, and the enable is now *either* `PP_CTRL[0]` or the historic `ADP_CTRL.en`. Also the boundary that trips people up: the ring-DMA engines live in a separate LiteX CSR space at `0xf000_xxxx`.
 - **[5. Clock domains & CDC](#5-clock-domains--cdc)** -- The domain table plus the generated crossing census, and the two things to read off it: every `sys ⇄ cd_milan` crossing comes from `add_milan_datapath()` (a hand-rolled extra is a bug), and the census is a *lower* bound. A bare assignment between clocked processes is invisible to it and to simulation alike.
@@ -171,8 +173,8 @@ milan-fpga/
 ```
    ┌─────────────────────────── Artix-7 fabric (LiteX SoC) ───────────────────────────┐
    │                                                                                   │
-   │  VexiiRiscv ×1 (ship; NaxRiscv hist.)  L2  DDR3 ctrl (LiteDRAM)  QSPI  UART  PLIC │
-   │        │ CPU bus                        │ dma_bus (coherent)                      │
+   │  RV32I Vexii ×1 (ship; no MMU/cache)  DDR3 ctrl (LiteDRAM)  QSPI  UART  PLIC     │
+   │        │ CPU bus                       │ direct dma_bus                           │
    │        ├────────────────┬───────────────┴───────────────┐                         │
    │   AXI-Lite CSR      LiteX CSRs                  ring-DMA engines                  │
    │   @0x9000_0000     (0xf000_xxxx:                 RingDMAReader (TX, AXI bursts)   │
@@ -192,10 +194,25 @@ milan-fpga/
                                                                         RTL8211E PHY (GMII)
 ```
 
-The ship SoC on the AX7101 is a **1-hart VexiiRiscv + `--l2-bytes 32768`**
-(32 KB L2), as drawn (`sw/litex/build.sh cfg_ax7101`); the 2-hart / 64 KB-L2
-SMP shape is the superseded performance-campaign peak (kept for the perf
-lineage), not the deployed config.
+The shipping AX7101 SoC is one RV32I VexiiRiscv hart in machine mode with no
+supervisor mode, MMU, Linux, L1/L2 cache or LiteX SDRAM cache
+(`sw/litex/build.sh cfg_ax7101`). Its instruction/data masters and the Milan
+DMA clients share the cacheless address-decoded fabric. Cached Linux profiles
+remain buildable for the Arty and AX7101 8x8 bring-up configurations.
+
+That shipping YAML explicitly enables the #114 fabric gPTP plane. Its
+per-config microcode image is generated from the same station MAC, priority1
+and Milan clock as the rest of the end-station definition, and reaches the RTL
+through an absolute path. `GPTP_PLANE_EN_P` remains default-off for every
+configuration that does not make that product choice; #116 owns the eventual
+default flip and CSR compatibility cleanup.
+
+The Linux sound-card surface is independently optional and defaults off. With
+it off, the PCM DMA master/CSR window, reserved ring, device-tree PCM node,
+playback rings and host-role AEM clusters are absent. That does not remove the
+AVTP parser/depacketizer, physical audio capture, AAF talker, channel maps,
+loopback sources or render datapath. See
+[../integration/BAREMETAL_FIRMWARE.md](../integration/BAREMETAL_FIRMWARE.md).
 
 The same `milan_datapath` is what the Zynq variant, the Verilator harnesses
 ([`tb/verilator/milan_dp`](../../tb/verilator/milan_dp)), the SoC sim (`milan_sim.py`) and the Yosys
@@ -269,7 +286,9 @@ These are not CSR cosmetics. They are behavior a bench will notice:
   consuming the AVTP stream while the TCAM shields the CPU from the multicast
   flood: `avtp_stream_parser` (told what to match by `KL_stream_table`) →
   `KL_avtp_rx_monitor_ctx` (the accept verdict) → `KL_aaf_rx_depacketizer` →
-  `KL_pcm_route` → the DRAM PCM ring and/or the DAC render path.
+`KL_pcm_route` → the optional Linux DRAM PCM ring and/or the fabric render
+path. A sound-card-off build ties the omitted DMA route ready and preserves
+the render route.
 
 **Timestamp metadata:** `ptp_ts_top` emits `{direction, seq_id, timestamp}`
 records on a separate AXIS stream → TS DMA → DRAM, for the driver to
@@ -363,9 +382,10 @@ reached through `KL_pp_shadow`'s side-port host bridge (`PP_SPADDR`/`PP_SPDATA`)
 
 | Domain | Freq | Covers |
 |--------|------|--------|
-| `sys` | 100 MHz | CPU, DDR3, DMA engines, MAC core (softcore build) |
-| `cd_milan` (= `axis_clk`) | 100 MHz in the deployed build; ~50 MHz only when split via `--milan-clk-freq` | the whole `milan_datapath`, incl. the CSR block |
-| `gtx_clk` | 125 MHz | PTP timestamp counter + MAC-side capture (tied to `axis_clk` on the softcore build; separate on Zynq) |
+| `sys` | 100 MHz | DDR3, DMA engines, MAC core and the LiteX side of Vexii's CDC |
+| `cpu_clk` | 50 MHz in the shipping bare-metal AX build; `sys` otherwise | Vexii core; `--with-cpu-clk` supplies the supported asynchronous boundary in the shipping profile |
+| `cd_milan` (= `axis_clk`) | 50 MHz in the shipping AX and Arty builds; 100 MHz in the AX Linux bring-up build | the whole `milan_datapath`, incl. the CSR block |
+| `gtx_clk` | same as `cd_milan` on the softcore build; separate 125 MHz on Zynq | PTP timestamp counter + MAC-side capture |
 | PHY RX clock | 125 MHz | inside the MAC only |
 
 *Where are the seams — every one of them, and which two clocks does each join?*

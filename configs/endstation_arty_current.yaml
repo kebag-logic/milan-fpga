@@ -71,6 +71,8 @@ entity:
 
 board:
   target: arty                       # arty | ax7101
+  features:
+    sound_card: true                 # Linux bring-up board retains ALSA rings
   constraints:                       # physical facts -> milan_soc.py argv
     sys_clk_hz: 83333000             # 83.333e6: the DDR3-666 window
     milan_clk_hz: 50000000           # dense datapath in its own 50 MHz domain

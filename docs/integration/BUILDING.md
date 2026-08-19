@@ -7,6 +7,16 @@ configuration, and the per-board load/console facts you need after a build
 lands. Test layers around a build: [../testing/RUNNING_TESTS.md](../testing/RUNNING_TESTS.md). Live lab
 state: [../findings/BENCH_TOPOLOGY.md](../findings/BENCH_TOPOLOGY.md).*
 
+The shipping software-profile claims are checked against the
+[Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
+
+<!-- milan-feature-status:start -->
+| Feature ID | Status | Canonical value |
+|---|---|---|
+| `soc.baremetal-profile` | `implemented` | - |
+| `host.sound-card-option` | `implemented` | - |
+<!-- milan-feature-status:end -->
+
 ## Contents
 
 - **[0. The pipeline, and where it can refuse you](#0-the-pipeline-and-where-it-can-refuse-you)** -- What runs between `build.sh` and a shippable bitstream, and the asymmetry that is the whole point: **only the shape gate is automatic**. Timing, area and the silicon checklist are all read by hand, so a build can pass timing and area and still not be ship-cleared.
@@ -76,7 +86,7 @@ cd sw/litex
 | `TAG=fold2 ./build.sh arty` | output dir `work/build_arty_fold2` (default TAG = mmddHHMM) |
 | `./build.sh arty -- --sys-clk-freq 90e6` | append/override milan_soc.py arguments |
 | `./build.sh ... --dry-run` | print the exact launch commands, start nothing |
-| `./build.sh flash <config>[:<builddir>]` | flash the newest matching build (or the named one) to QSPI: bitstream @0, then the Linux image set  -  see section 4 |
+| `./build.sh flash <config>[:<builddir>]` | flash the newest matching build (or the named one) to QSPI: bitstream @0, then that build's manifest images - see section 4 |
 
 Outputs land in `~/litex-milan/work/build_<config>[_<directive>]_<TAG>/`
 with a `*.launch.log` next to each. Builds run detached; check progress with
@@ -93,18 +103,25 @@ them override).
 ### `ax7101`  -  Alinx AX7101, the perf/ship platform
 
 xc7a100t**fgg484-2**, 1 GbE (RTL8211E strapped GMII), 512 MB DDR3
-(MT41J256M16), 16 MB N25Q128 QSPI. Shape: 1x VexiiRiscv @100 MHz + `--l2-bytes
-32768` (L2-32K; the 2x/L2-64K SMP shape is the SUPERSEDED perf-lineage variant),
-datapath in its own 100 MHz domain, 2 RX queues, header-split 16K pages (STRICT
-driver pairing, kl-eth `hs_pgsz=16384`), `--strip-probes` (ship diet), QSPI
-flashboot (hands-free Linux boot), `--gtx-tx-invert`, `--timing-opt --floorplan`,
-place directive ExtraPostPlacementOpt (the measured density winner, ~83 pct
-slices at identical RTL).
+(MT41J256M16), 16 MB N25Q128 QSPI. This is the shipping 1x1 TDM8 profile:
+one RV32I VexiiRiscv hart at 50 MHz in machine mode, no MMU, Linux, L1/L2 or
+LiteX SDRAM cache, and no Linux sound-card rings. The CPU and 64-bit Milan
+plane share the 50 MHz domain through Vexii's supported decoupled-clock
+boundary; the LiteX system and audio clock recipe stays at 100 MHz. The
+physical/fabric audio datapath, NIC DMA and protocol processor remain. The
+configuration explicitly enables the #114 fabric gPTP plane with
+`--fabric-gptp`; the builder creates its ROM from the same YAML station MAC,
+priority1 and 50 MHz fabric clock. It uses
+two RX queues, header-split 16K pages, `--strip-probes`, the raw-AEM bare-metal
+flash manifest, `--gtx-tx-invert`, `--timing-opt --floorplan`, and a
+three-directive placement sweep. See
+[BAREMETAL_FIRMWARE.md](BAREMETAL_FIRMWARE.md).
 
-### `ax8x8`  -  AX7101, the 8-stream (64-channel) shape
+### `ax8x8`  -  AX7101 Linux bring-up, 8-stream (64-channel) shape
 
-Same board and CPU shape as `ax7101` (1x VexiiRiscv, GMII, QSPI flashboot,
-`--strip-probes`, 16K header-split pages) with `--num-streams 8`,
+Same board, but deliberately retains the Linux bring-up flow, cached Vexii
+CPU, ALSA sound-card rings and full Linux flash manifest. It uses
+`--num-streams 8`,
 `--rx-queues 1` (drops the RX1 DMA RSC/TCP-coalescing engine  -  pure
 Linux-throughput logic the audio path never touches  -  which removed the
 sys_clk critical path AND freed ~3 pct LUT), `--l2-bytes 16384`, place
@@ -229,22 +246,25 @@ cables by serial and consoles by `/dev/serial/by-id/` path:
 | AX7101 | `openFPGALoader --ftdi-serial <ax-ftdi-serial> -c ft232 <bit>` | CP2102N adapter (by-id path appears when attached to the VM), 115200; tmux session `milan_qspi_boot` |
 | Arty A7-100 | `openFPGALoader --ftdi-serial <arty-ftdi-serial> -c digilent <bit>` | same FT2232, channel B: `/dev/serial/by-id/<board-usb-serial>` (`-if01-port0`), 115200; tmux session `arty_console` |
 
-Flash layout (v3 `--flashboot full` manifest, BOTH boards  -  `board_facts`
-in `build.sh`, details in [QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md)): QSPI holds the bitstream at
-offset 0 (dedicated 4 MiB slot) plus the Linux images at the
-`flashboot_layout.json` offsets (kernel 4 MiB, opensbi 7, dtb 7.38, rootfs
-7.5), so a power-cycle boots gateware + Linux hands-free. Flash with
+Every profile keeps the bitstream at QSPI offset 0 in a dedicated 4 MiB slot.
+The Linux `full` manifest then carries kernel/OpenSBI/DTB/rootfs. The shipping
+AX bare-metal manifest instead carries only raw `aem_desc.bin` at 4 MiB in a
+64 KiB slot; firmware itself is linked into ROM. Always read the build's
+`flashboot_layout.json`; details are in
+[QSPI_FLASHBOOT.md](QSPI_FLASHBOOT.md). Flash with
 `./build.sh flash <config>[:<builddir>]`  -  bitstream write is verified,
 then the image set goes through `deploy.sh flash-images` (per-image slot
-budget checks + `--verify`). The historical trap note ("flash holds NO
-bitstream / never `openFPGALoader -f`  -  it clobbers the kernel at offset
-0") described the OLD kernel-at-offset-0 layout and died with the
-manifest-full port. JTAG load (table above) still runs a build from SRAM
-without touching flash; after a JTAG load you can also boot over serial
-(`litex_term --kernel ...`) or use the BIOS interactively.
-After every flash, the mandatory first validation step is
-[`scripts/hostplane_smoke.sh`](../../scripts/hostplane_smoke.sh) on the board shell (host-plane liveness in
-~60 s  -  see [../testing/TESTING.md](../testing/TESTING.md) section 6).
+budget checks + `--verify`). JTAG load still runs a build from SRAM without
+touching flash.
+
+After a Linux flash, run [`scripts/hostplane_smoke.sh`](../../scripts/hostplane_smoke.sh)
+on the board shell. A Linux build with sound-card surfaces intentionally off
+uses `SOUND_CARD=0`. After a bare-metal flash, run from the UART host:
+
+```console
+MILAN_PROFILE=baremetal MILAN_UART=/dev/serial/by-id/<adapter> \
+  scripts/hostplane_smoke.sh
+```
 
 ## 5. Gates before a build is "good"
 

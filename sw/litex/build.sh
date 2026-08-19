@@ -36,9 +36,10 @@ REPO_ROOT="$(cd "$SOC_DIR/../.." && pwd)"
 # the environment or in sw/litex/boards.local.sh (gitignored; template =
 # boards.local.sh.example). policy = what this board's QSPI holds:
 #   both boards "boot" (USER 2026-07-20: "to flash use qspi"): bitstream at
-#   offset 0 (dedicated 4 MiB slot in the "full" manifest) + Linux images at
-#   the flashboot_layout.json offsets (kernel 4 MiB, opensbi 7, dtb 7.38,
-#   rootfs 7.5; 3.6 MiB bit + 8.2 MiB rootfs fit the 16 MB N25Q128 with room).
+#   offset 0 in a dedicated 4 MiB slot, followed by the profile-selected
+#   images from flashboot_layout.json. The shipping AX shape stores its raw
+#   AEM image at 4 MiB; Linux bring-up shapes retain the kernel/OpenSBI/DTB/
+#   rootfs layout.
 #   The historical "AX bitstream = kernel-clobber trap" note described the OLD
 #   kernel-at-offset-0 layout and died with the manifest-"full" port.
 [ -f "$SOC_DIR/boards.local.sh" ] && . "$SOC_DIR/boards.local.sh"
@@ -92,7 +93,7 @@ if [ "${1:-}" = "flash" ]; then
                 echo "== flash [$c] IMAGES (v3 layout offsets) =="
                 SERIAL="$serial" CABLE="$cable" FPGA_PART="$part" \
                     LAYOUT="$dir/flashboot_layout.json" "$SOC_DIR/deploy.sh" flash-images
-                echo "   done. Power-cycle to boot gateware + Linux from QSPI."
+                echo "   done. Power-cycle to boot gateware + its paired firmware images from QSPI."
                 ;;
             images)
                 echo "== flash [$c] IMAGES -> QSPI (layout offsets; bitstream stays JTAG-SRAM) =="
@@ -117,11 +118,9 @@ if [ "${1:-}" = "flash" ]; then
 fi
 
 # ---- named configurations -----------------------------------------------------
-cfg_ax7101() {   # bench/compliance shape (USER 2026-07-21: 1 hart + L2 32K - the
-                 # 83% utilization from the CRF/sink-1/forensics growth broke
-                 # every 100 MHz seed; one VexiiRiscv hart back = ~8k LUTs =
-                 # the AX21-era placement freedom. The 2-hart/L2-64K perf
-                 # variant is the previous revision of this function.)
+cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart. Linux
+                 # and the prior cached VexiiRiscv configurations remain in
+                 # cfg_ax8x8/cfg_arty as explicit bring-up profiles.
     # BODY = the tdm8 internal-COMPLIANCE/ship set (byte-matched to the t529 sweep Command;
     # the nic-perf RV64 revision below had leaked back in as the bare body,
     # so an extras-less `--sweep ax7101` built prefetch-rpt/l2-16K/no-tdm8 -
@@ -130,16 +129,16 @@ cfg_ax7101() {   # bench/compliance shape (USER 2026-07-21: 1 hart + L2 32K - th
     #   --l2-bytes 16384 --scala-args=--lsu-l1-refill-count=8
     #   --scala-args=--lsu-hardware-prefetch=rpt
     #   --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16
-    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --all-blocks \
-          --coherent-dma --milan-clk-freq 100e6 --with-spiflash --flashboot full \
+    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 \
+          --software-profile baremetal --all-blocks --coherent-dma \
+          --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal \
           --gtx-tx-invert --timing-opt --floorplan --eth-port e1 \
           --no-i2s-playback --no-render-lpf --audio-interface tdm8 \
           --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 \
-          --loopback-lane --aaf-playback --aaf-playback-streams 1 \
+          --loopback-lane --fabric-gptp \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_1x1_tdm8 \
           --synth-directive AreaOptimized_high --opt-directive ExploreArea \
-          --l2-bytes 32768 --scala-args=--lsu-l1-refill-count=2 \
-          --scala-args=--l2-down-pending=4 --scala-args=--l2-general-slots=8 \
+          --l2-bytes 0 \
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --place-directive ExtraPostPlacementOpt"
 }
@@ -159,7 +158,8 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
                  # a dedicated sweep read port in the then-current ACMP listener
                  # context (deleted 2026-08-13 with the legacy plane). Result
                  # 2026-07-24: WNS +0.080, LUT 85.15%, TNS 0 (all seeds close).
-    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --all-blocks --coherent-dma \
+    echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --software-profile linux \
+          --all-blocks --coherent-dma --sound-card \
           --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
           --timing-opt --floorplan --l2-bytes 16384 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
@@ -198,7 +198,8 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
     # Flash = bitstream@0 + the full-manifest Linux images (QSPI self-boot on
     # both boards; the old kernel-at-0 / JTAG-SRAM-only layout died with the
     # manifest-full port - see board_facts above + docs/integration/QSPI_FLASHBOOT.md).
-    echo "--board arty --cpu vexiiriscv --cpu-count 2 --all-blocks --coherent-dma \
+    echo "--board arty --cpu vexiiriscv --cpu-count 2 --software-profile linux \
+          --all-blocks --coherent-dma --sound-card \
           --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot full \
           --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 65536 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \

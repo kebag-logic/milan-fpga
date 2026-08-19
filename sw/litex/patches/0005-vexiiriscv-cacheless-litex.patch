@@ -1,0 +1,76 @@
+--- a/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/src/main/scala/vexiiriscv/soc/litex/Soc.scala
++++ b/pythondata_cpu_vexiiriscv/verilog/ext/VexiiRiscv/src/main/scala/vexiiriscv/soc/litex/Soc.scala
+@@ -134,7 +134,8 @@
+       assert(v.length == 4, "--memory-region need 4 parameters")
+       val r = new LitexMemoryRegion(SizeMapping(BigInt(v(0)), BigInt(v(1))), v(2), v(3))
+       regions += r
+-      assert(!(r.onMemory && !r.isCachable), s"Region $r isn't supported by VexiiRiscv, data cache will always cache memory")
++      assert(!(vexiiParam.lsuL1Enable && r.onMemory && !r.isCachable),
++        s"Region $r isn't supported by cached VexiiRiscv, data cache will always cache memory")
+     }
+   }
+ 
+@@ -430,6 +431,30 @@
+       hardFork(fiber.logic.phy.setName(spec.name))
+     }
+ 
++    // Cacheless RV32 bare-metal shape. With no LSU L1 the instruction and
++    // data masters are ordinary TileLink clients, so route both through one
++    // address-decoded fabric to LiteDRAM and the LiteX peripheral bridge.
++    // DMA joins that same non-coherent fabric directly; with no cache there
++    // is no stale CPU copy to snoop and no Hub/L2 is required.
++    val unified = !vexiiParam.lsuL1Enable generate new Area {
++      val mBus = Node()
++      mBus.forceDataWidth(mainDataWidth)
++
++      for (vexii <- vexiis) {
++        mBus << List(vexii.iBus, vexii.dBus)
++      }
++      if(c.debugSysBus) mBus << debugSysBus.filter.down
++      for (video <- video) mBus << video.ctrl.dma
++      if(dmaFilter != null) mBus << dmaFilter.down
++      if(withDma) {
++        (mBus << dma.filter.down).setDownConnection(a = StreamPipe.FULL)
++      }
++
++      if(withMem) mem.toAxi4.up << mBus
++      ioBus.setUpConnection(a = StreamPipe.HALF, d = StreamPipe.NONE)
++      ioBus << mBus
++    }
++
+     // Implement the main interconnect of the SoC when VexiiRiscv has a data cache (io and cached accesses are on independent busses)
+     val splited = vexiiParam.lsuL1Enable generate new Area{
+       val mBus = Node()
+@@ -515,8 +540,10 @@
+       val debug = out(Delay(debugIn, 2))
+       debugIn := 0
+ 
+-      println("DBUS => ")
+-      println(MemoryConnection.getMemoryTransfers(vexiis(0).lsuL1Bus).mkString("\n"))
++      if(vexiiParam.lsuL1Enable) {
++        println("DBUS => ")
++        println(MemoryConnection.getMemoryTransfers(vexiis(0).lsuL1Bus).mkString("\n"))
++      }
+       println("PBUS => ")
+       println(MemoryConnection.getMemoryTransfers(vexiis(0).dBus).mkString("\n"))
+       println("IBUS => ")
+@@ -573,7 +600,8 @@
+     opt[Unit]("reduced-io") action { (v, c) => reducedIo = true }
+   }.parse(args, ()).nonEmpty)
+ 
+-  vexiiParam.lsuL1Coherency = cpuCount > 1 || withDma
++  vexiiParam.lsuL1Coherency = vexiiParam.lsuL1Enable &&
++    (cpuCount > 1 || withDma)
+ 
+   val spinalConfig = SpinalConfig(inlineRom = true, targetDirectory = netlistDirectory)
+   spinalConfig.addTransformationPhase(new MultiPortWritesSymplifier)
+@@ -608,7 +636,8 @@
+ 
+   }.parse(args, ()).nonEmpty)
+ 
+-  vexiiParam.lsuL1Coherency = socConfig.cpuCount > 1 || socConfig.withDma
++  vexiiParam.lsuL1Coherency = vexiiParam.lsuL1Enable &&
++    (socConfig.cpuCount > 1 || socConfig.withDma)
+ 
+   val isaMap = withISA.map(s => s"'$s'").mkString("{", ", ", "}")
+ 
