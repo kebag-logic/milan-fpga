@@ -14,5 +14,5 @@ hand-edit. Part of the IEEE 802.1AS family; rolled up in
 | ✅ `ptp_csr_sync` | `ptp_csr_sync.sv` | `hostplane` · `milan_dp` · `ptp_sync` · `ptp_ts` | — |
 | ✅ `ptp_ts_core` | `ptp_ts_core.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |
 | ✅ `ptp_ts_top` | `ptp_ts_top.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |
-| ✅ `timestamp_counter` | `timestamp_counter.sv` | `gptp_plane` · `hostplane` · `milan_dp` · `ptp` · `ptp_ts` | — |
+| ✅ `timestamp_counter` | `timestamp_counter.sv` | `gptp_plane` · `gptp_shadow` · `hostplane` · `milan_dp` · `ptp` · `ptp_ts` | — |
 

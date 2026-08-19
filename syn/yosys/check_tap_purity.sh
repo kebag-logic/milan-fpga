@@ -53,6 +53,12 @@ READER_FILES=(
     # rx_axis as a monitor tap and owns its own TX lane, so it must never
     # appear on the drive side of an observed stream net.
     "$R/hdl/milan/KL_pp_shadow.sv"
+    # The gPTP plane's two observers (#114): the shadow taps rx_axis_to_dma
+    # and owns its own TX lane; the boundary stamper watches tx_axis_to_mac
+    # and must never drive it. Listing them is what makes GPTP_PLANE.md's
+    # "check_tap_purity holds" claim NON-vacuous.
+    "$R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv"
+    "$R/hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv"
 )
 
 STREAM_TERM='t(valid|ready|data|keep|last|user)'

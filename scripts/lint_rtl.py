@@ -357,30 +357,35 @@ def hdl_files(exts=(".sv",)):
 
 
 def submodule_sources():
-    """The protocol-processor submodule's RTL, as SOURCES only.
+    """The RTL of the protocol-processor and gptp-processor submodules, as SOURCES only.
 
-    `hdl/milan/KL_pp_shadow.sv` instantiates `protocol_processor_top`, which
-    lives in the submodule and therefore is not in `hdl_files()`. Without it
-    every sweep reported a hard MODMISSING for that top - an %Error-rated code,
-    so it also MASKED whatever findings sat behind it in that file.
+    `hdl/milan/KL_pp_shadow.sv` instantiates `protocol_processor_top` and
+    `hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv` instantiates
+    `KL_gptp_engine`; both live in submodules and therefore are not in
+    `hdl_files()`. Without them every sweep reported a hard MODMISSING for
+    those tops - an %Error-rated code, so it also MASKED whatever findings
+    sat behind it in those files.
 
     These are appended as sources and NEVER added to the lint task list: the
     submodule is linted by its own gate at its own ratchet, and re-linting it
     here would import another repository's debt into this one's budget.
     Packages first, for the same compilation-unit reason as above.
     """
-    root = os.path.join(ROOT, "protocol-processor", "hdl")
-    if not os.path.isdir(root):
-        return []                     # submodule not initialised: not our gate
-    pkg, mod = [], []
-    for base, dirs, files in os.walk(root):
-        dirs[:] = [d for d in dirs if d not in ("doc", "rom")]
-        for f in sorted(files):
-            if not f.endswith(".sv"):
-                continue
-            rel = os.path.relpath(os.path.join(base, f), ROOT)
-            (pkg if f.endswith("_pkg.sv") else mod).append(rel)
-    return sorted(pkg) + sorted(mod)
+    out = []
+    for sub in ("protocol-processor", "gptp-processor"):
+        root = os.path.join(ROOT, sub, "hdl")
+        if not os.path.isdir(root):
+            continue                  # submodule not initialised: not our gate
+        pkg, mod = [], []
+        for base, dirs, files in os.walk(root):
+            dirs[:] = [d for d in dirs if d not in ("doc", "rom", "ucode")]
+            for f in sorted(files):
+                if not f.endswith(".sv"):
+                    continue
+                rel = os.path.relpath(os.path.join(base, f), ROOT)
+                (pkg if f.endswith("_pkg.sv") else mod).append(rel)
+        out += sorted(pkg) + sorted(mod)
+    return out
 
 
 def include_dirs():
@@ -510,12 +515,13 @@ def lint_one(mod, incdirs, sources, verilator):
                     src = m2.group(1).strip()
                     break
             v = Violation(code, path, line, col, msg, src)
-            # Findings inside the protocol-processor submodule are NOT this
-            # tree's debt: it is linted by its own gate at its own ratchet, and
-            # counting it here would move this budget every time that pin
-            # advances. Its sources are on the command line only so our tops
-            # can find `protocol_processor_top` (see submodule_sources).
-            if v.path.startswith("protocol-processor/"):
+            # Findings inside a submodule are NOT this tree's debt: each is
+            # linted by its own gate at its own ratchet, and counting it here
+            # would move this budget every time that pin advances. Their
+            # sources are on the command line only so our tops can find
+            # `protocol_processor_top`/`KL_gptp_engine` (see
+            # submodule_sources).
+            if v.path.startswith(("protocol-processor/", "gptp-processor/")):
                 continue
             if code in ELAB_BLOCKERS:
                 hard.append("%s (linting %s)" % (v, mod))

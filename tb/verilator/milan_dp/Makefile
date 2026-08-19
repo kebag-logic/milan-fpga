@@ -108,7 +108,16 @@ PP_SRCS = $(PP_DIR)/common/pp_pkg.sv $(PP_DIR)/srp/srp_pkg.sv \
        $(PP_DIR)/top/KL_mrp_strip.sv $(PP_DIR)/top/protocol_processor_top.sv \
        $(RTL_DIR)/milan/KL_pp_shadow.sv $(RTL_DIR)/milan/KL_pp_maap_shim.sv
 
-SRCS = $(PP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv \
+# the gPTP plane (issue #114): parsed by every leg (the instantiation
+# must resolve), elaborated only where -GGPTP_PLANE_EN_P=1
+GPTP_DIR = ../../../gptp-processor/hdl
+GPTP_SRCS = $(GPTP_DIR)/ucpu/gptp_ucpu_pkg.sv $(GPTP_DIR)/ucpu/KL_gptp_ucpu.sv \
+       $(GPTP_DIR)/wire/KL_gptp_rx_parser.sv $(GPTP_DIR)/wire/KL_gptp_tx_slot.sv \
+       $(GPTP_DIR)/common/KL_gptp_timer.sv $(GPTP_DIR)/top/KL_gptp_engine.sv \
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txstamp.sv
+
+SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv \
        $(AXIS_DIR)/axis_fifo.v $(AXIS_DIR)/axis_demux.v $(AXIS_DIR)/axis_arb_mux.v \
        $(AXIS_DIR)/arbiter.v $(AXIS_DIR)/priority_encoder.v \
        $(Q)/traffic_class_map.sv $(Q)/traffic_classifier.sv $(Q)/credit_based_shaper.sv \
@@ -184,10 +193,15 @@ ltn_rom.hex: $(PP_DIR)/acmp/rom/gen_ltn_rom.py
 ucode.hex: $(PP_DIR)/aecp/ucode/gen_ucode.py
 	python3 $< -o $@
 
+# ...and the gPTP plane's, generated for the leg's 2 MHz sim clock so the
+# boot cadence fires within a runnable window (same relative-$readmemh).
+gptp_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py
+	python3 $< --clk-hz 2000000 --cease-ms 3000 -o $@
+
 $(SHAPE_DV_F): gen_divergent_shape.py $(SHAPE_4x4_F) ../../../sw/builder/endstation_builder.py
 	python3 gen_divergent_shape.py
 
-run: ltn_rom.hex ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
+run: ltn_rom.hex ucode.hex gptp_ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	$(VERILATOR) $(SHAPE_1x1) $(VFLAGS) $(SRCS) $(CPP) -o Vmilan_dp_sim
 	$(VERILATOR) $(SHAPE_4x4) $(VFLAGS) --Mdir obj_nxn -GN_STREAMS=4 $(SRCS) sim_nxn.cpp -o Vmilan_dp_nxn
 # the divergent-shape leg: arty_4x4's entity with input row 1 declaring the
@@ -265,7 +279,11 @@ run: ltn_rom.hex ucode.hex $(GEN_ALL) $(SHAPE_DV_F)
 	  -GLOOPBACK_P=1 -GAAF_PLAYBACK_P=1 -GI2SPB_P=$(AX_I2SPB) -GLPF_P=0 \
 	  $(SRCS) sim_aclk.cpp -o Vmilan_dp_aclk
 	@echo "======================================================================"
+	$(VERILATOR) $(SHAPE_AX1x1) $(VFLAGS) --Mdir obj_gptp \
+	  -GGPTP_PLANE_EN_P=1 -GMILAN_CLK_FREQ_HZ=2000000 \
+	  $(SRCS) sim_gptp.cpp -o Vmilan_dp_gptp
 	./obj_dir/Vmilan_dp_sim
+	./obj_gptp/Vmilan_dp_gptp
 	./obj_nxn/Vmilan_dp_nxn
 	@echo "---- the DIVERGENT shape: input row 1 declares the 96 kHz base ----"
 	./obj_nxndv/Vmilan_dp_nxndv

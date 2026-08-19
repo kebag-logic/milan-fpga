@@ -54,6 +54,12 @@ fi
 if [ -f "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" ]; then
   python3 "$R/protocol-processor/hdl/aecp/ucode/gen_ucode.py" -o ucode.hex >/dev/null 2>&1 || true
 fi
+# ...and the gPTP engine's microcode image (the KL_gptp_shadow top), same
+# contract again. The clock arguments only shape timer constants, not the
+# structure yosys sees; the shipping generation lives in the bench Makefiles.
+if [ -f "$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py" ]; then
+  python3 "$R/gptp-processor/hdl/ucode/gen_gptp_ucode.py" -o gptp_ucode.hex >/dev/null 2>&1 || true
+fi
 
 # top | source files (interface modules go through their flat wrapper)
 tops=(
@@ -63,6 +69,8 @@ tops=(
   "adp_tx_arbiter|$D/adp_tx_arbiter.sv"
   "rx_mac_filter|$F/tcam.sv $F/rx_mac_filter.sv $C/tx_ifg_gasket.sv"
   "milan_csr|$R/hdl/common/csr/milan_csr.sv"
+  "KL_gptp_txstamp|$R/hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv"
+  "KL_gptp_shadow|$R/gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv $R/gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv $R/gptp-processor/hdl/wire/KL_gptp_rx_parser.sv $R/gptp-processor/hdl/wire/KL_gptp_tx_slot.sv $R/gptp-processor/hdl/common/KL_gptp_timer.sv $R/gptp-processor/hdl/top/KL_gptp_engine.sv $R/third_party/verilog-axis/rtl/axis_fifo.v $R/hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv"
   "KL_avtp_rx_monitor|$R/hdl/ieee1722/avtp/KL_avtp_rx_monitor.sv"
   "KL_stream_table|$R/hdl/ieee1722/avtp/KL_stream_table.sv"
   "avtp_stream_parser|$C/ethernet_packet_pkg.sv $R/hdl/ieee1722/avtp/avtp_subtype_pkg.sv $R/hdl/ieee1722/avtp/avtp_stream_parser.sv"

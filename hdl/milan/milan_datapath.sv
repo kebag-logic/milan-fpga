@@ -79,6 +79,12 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   parameter bit [NUM_QUEUES-1:0] CBS_QUEUES_MASK_P = '1,
   //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
+  //! the fabric gPTP plane (issue #110/#114): elaboration-time option,
+  //! DEFAULT OFF -- the shipped shape is unchanged until #116 flips it
+  //! behind #120's baremetal buy-back. ON splices KL_gptp_shadow onto
+  //! the control TX (gasket-free, like CRF) and hands it the PHC's
+  //! adjfine/adjtime; settime stays with the CSR face.
+  parameter bit GPTP_PLANE_EN_P = 1'b0,
   //! NxN dataplane width (docs/fpga/FPGA_DESIGN.md section 2): AAF stream contexts
   //! per shared engine (listener sinks = talker sources = N_STREAMS). The
   //! N = 1 default is today's shape, bit-compatible (no-regression axiom).
@@ -1426,7 +1432,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        evt_tx_ts_ready;
 
   wire        cfg_adp_enable;
-  wire [63:0] cfg_adp_entity_id, cfg_adp_entity_model_id, cfg_adp_gptp_gm;
+  wire [63:0] cfg_adp_entity_id, cfg_adp_entity_model_id;
+  //! the grandmaster identity every fabric consumer reads (the PP's
+  //! ADPDU/GET_AVB_INFO/AS_PATH face, the Milan-info answers, the
+  //! recentre latch): CSR-published by the software chain today, the
+  //! gPTP plane's OWN verdict when the option is on. The CSR readback
+  //! words and the tu bit follow with #116's flip (a VERSION story).
+  wire [63:0] cfg_adp_gptp_gm_csr;
+  wire [63:0] gptp_pub_gm_w;
+  wire [63:0] cfg_adp_gptp_gm = (GPTP_PLANE_EN_P != 1'b0)
+                              ? gptp_pub_gm_w : cfg_adp_gptp_gm_csr;
   wire [15:0] cfg_adp_talker_sources, cfg_adp_talker_caps;
   wire [15:0] cfg_adp_listener_sinks, cfg_adp_listener_caps;
   wire [7:0]  cfg_adp_gptp_domain;
@@ -2319,7 +2334,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_adp_listener_sinks (cfg_adp_listener_sinks),
     .o_adp_listener_caps  (cfg_adp_listener_caps),
     .o_adp_controller_caps(),
-    .o_adp_gptp_gm        (cfg_adp_gptp_gm),
+    .o_adp_gptp_gm        (cfg_adp_gptp_gm_csr),
     .o_gptp_pdelay_ns     (),
     .o_adp_gptp_domain    (cfg_adp_gptp_domain),
     .o_adp_current_config (cfg_adp_current_config),
@@ -2671,6 +2686,19 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   // advertiser's comment settled the truth. The redesigned core picks header
   // bytes explicitly, so ETH_TYPE is the natural wire value (no pre-swapped
   // F788 constant).
+  //! PHC knob ownership: the plane owns adjfine/adjtime when enabled
+  //! (constant-folds to the CSR face when the option is off); settime
+  //! (tod_wr/cmd_load) always stays with software -- boot sets the epoch.
+  wire signed [31:0] gptp_adj_w;
+  wire               gptp_step_we_w;
+  wire        [63:0] gptp_step_w;
+  wire [31:0] eff_ptp_adj_w    = (GPTP_PLANE_EN_P != 1'b0)
+                               ? unsigned'(gptp_adj_w)   : cfg_ptp_adj;
+  wire [63:0] eff_ptp_offset_w = (GPTP_PLANE_EN_P != 1'b0)
+                               ? gptp_step_w             : cfg_ptp_offset;
+  wire        eff_ptp_adjust_w = (GPTP_PLANE_EN_P != 1'b0)
+                               ? gptp_step_we_w          : cfg_ptp_cmd_adjust;
+
   ptp_ts_top #(
     .TDATA_WIDTH(TDATA_WIDTH),
     .BIG_ENDIAN(0),
@@ -2683,11 +2711,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
     .i_ptp_enable      (cfg_ptp_enable),
     .i_ptp_incr        (cfg_ptp_incr),
-    .i_ptp_adj         (cfg_ptp_adj),
+    .i_ptp_adj         (eff_ptp_adj_w),
     .i_ptp_tod_wr      (cfg_ptp_tod_wr),
-    .i_ptp_offset      (cfg_ptp_offset),
+    .i_ptp_offset      (eff_ptp_offset_w),
     .i_ptp_cmd_load    (cfg_ptp_cmd_load),
-    .i_ptp_cmd_adjust  (cfg_ptp_cmd_adjust),
+    .i_ptp_cmd_adjust  (eff_ptp_adjust_w),
     .i_ptp_cmd_snapshot(cfg_ptp_cmd_snapshot),
     //! REQ-PTP-06: the 0x540/0x544 correction registers reach the capture
     //! point instead of stopping at a wire declaration (reset 0 = no change).
@@ -5925,10 +5953,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! stagger only the true origin fires; its injected tlast propagates down as
   //! an accepted beat and clears every downstream counter normally.
   wire [7:0] txarb_locked_w, txarb_abort_w, txarb_stall_w;
-  //! the four supervised lanes; 7:4 are the structural zero above
-  assign txarb_locked_w[7:4] = 4'd0;
-  assign txarb_abort_w [7:4] = 4'd0;
-  assign txarb_stall_w [7:4] = 4'd0;
+  //! lanes 0..3 as documented above; lane 4 = the gPTP plane's merge
+  //! (a structural zero while GPTP_PLANE_EN_P is off); 7:5 structural
+  assign txarb_locked_w[7:5] = 3'd0;
+  assign txarb_abort_w [7:5] = 3'd0;
+  assign txarb_stall_w [7:5] = 3'd0;
 
   //! THE control merge: the protocol processor's packed TX (s_data - ADP,
   //! ACMP and SRP, internally arbitrated) + the fabric KL_maap
@@ -6023,6 +6052,128 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .m_tvalid(ctlg2_tvalid), .m_tlast (ctlg2_tlast), .m_tready(ctlg2_tready)
   );
 
+  // ==========================================================================
+  //  the fabric gPTP plane (issue #114, elaboration option, default OFF)
+  // ==========================================================================
+  //! Joins the control lane AFTER the min-IFG gasket (the CRF rationale:
+  //! a time-critical frame must not queue 512 cycles per control burst)
+  //! through its own staggered merge (ctl 2^15 -> this 2^16 -> boundary
+  //! 2^17). The egress stamper observes the TRUE MAC boundary; ingress
+  //! rides the same rx_axis_to_dma tap every plane uses (input only,
+  //! tvalid && tready qualified). Of the publish bank, the GM identity
+  //! feeds the fabric consumers when the option is on (see the
+  //! cfg_adp_gptp_gm mux); the remaining words and the CSR readback
+  //! follow with #116's flip.
+  wire [TDATA_WIDTH-1:0]   ctlg3_tdata;
+  wire [TDATA_WIDTH/8-1:0] ctlg3_tkeep;
+  wire                     ctlg3_tvalid, ctlg3_tlast, ctlg3_tready;
+  wire [63:0] gptp_pub_parent_w, gptp_pub_annq_w;
+  wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w, gptp_pub_offset_w;
+  wire [15:0] gptp_tap_drop_w, gptp_rx_drop_w, gptp_ev_drop_w;
+
+  generate if (GPTP_PLANE_EN_P) begin : g_gptp_plane
+    wire [TDATA_WIDTH-1:0]   gtx_tdata_w;
+    wire [TDATA_WIDTH/8-1:0] gtx_tkeep_w;
+    wire                     gtx_tvalid_w, gtx_tlast_w, gtx_tready_w;
+    wire                     gtx_sent_w;
+    wire                     gts_valid_w;
+    wire [63:0]              gts_ns_w;
+    wire [15:0]              gts_seq_w;
+
+    KL_gptp_shadow #(
+        .TDATA_WIDTH_P (TDATA_WIDTH),
+        .CLK_HZ_P      (MILAN_CLK_FREQ_HZ)
+    ) u_gptp_shadow (
+        .clk_i           (axis_clk),
+        .rst_n           (axis_resetn),
+        .rx_tdata_i      (rx_axis_to_dma.tdata),
+        .rx_tkeep_i      (rx_axis_to_dma.tkeep),
+        .rx_tvalid_i     (rx_axis_to_dma.tvalid),
+        .rx_tready_i     (rx_axis_to_dma.tready),
+        .rx_tlast_i      (rx_axis_to_dma.tlast),
+        .phc_ns_i        (ptp_now_w),
+        .phc_adj_o       (gptp_adj_w),
+        .phc_step_we_o   (gptp_step_we_w),
+        .phc_step_o      (gptp_step_w),
+        .tx_tdata_o      (gtx_tdata_w),
+        .tx_tkeep_o      (gtx_tkeep_w),
+        .tx_tvalid_o     (gtx_tvalid_w),
+        .tx_tlast_o      (gtx_tlast_w),
+        .tx_tready_i     (gtx_tready_w),
+        .txts_valid_i    (gts_valid_w),
+        .txts_ns_i       (gts_ns_w),
+        .txts_seq_i      (gts_seq_w),
+        .tx_sent_o       (gtx_sent_w),
+        .pub_gm_id_o     (gptp_pub_gm_w),
+        .pub_parent_id_o (gptp_pub_parent_w),
+        .pub_flags_o     (gptp_pub_flags_w),
+        .pub_pdelay_ns_o (gptp_pub_pdelay_w),
+        .pub_offset_o    (gptp_pub_offset_w),
+        .pub_annq_o      (gptp_pub_annq_w),
+        .pub_commit_o    (),
+        .dbg_tap_drop_o  (gptp_tap_drop_w),
+        .dbg_rx_drop_o   (gptp_rx_drop_w),
+        .dbg_ev_drop_o   (gptp_ev_drop_w),
+        .dbg_busy_o      (),
+        .dbg_rx_ts_o     (),
+        .dbg_tspush_v_o  (),
+        .dbg_tspush_o    (),
+        .dbg_tspop_v_o   ()
+    );
+
+    adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH), .TO_LOG2_P(16)) gptp_ctl_mux (
+      .clk_i (axis_clk), .rst_n (axis_resetn),
+      .s_data_tdata (ctlg2_tdata),  .s_data_tkeep (ctlg2_tkeep),
+      .s_data_tvalid(ctlg2_tvalid), .s_data_tlast (ctlg2_tlast),
+      .s_data_tready(ctlg2_tready),
+      .s_adp_tdata (gtx_tdata_w),  .s_adp_tkeep (gtx_tkeep_w),
+      .s_adp_tvalid(gtx_tvalid_w), .s_adp_tlast (gtx_tlast_w),
+      .s_adp_tready(gtx_tready_w),
+      .m_tdata (ctlg3_tdata), .m_tkeep (ctlg3_tkeep),
+      .m_tvalid(ctlg3_tvalid), .m_tlast (ctlg3_tlast),
+      .m_tready(ctlg3_tready),
+      .diag_locked_o(txarb_locked_w[4]),
+      .abort_evt_o (txarb_abort_w[4]), .stall_evt_o (txarb_stall_w[4])
+    );
+
+    KL_gptp_txstamp #(.TDATA_WIDTH_P (TDATA_WIDTH)) u_gptp_txstamp (
+        .clk_i      (axis_clk),
+        .rst_n      (axis_resetn),
+        .tx_tdata_i (tx_axis_to_mac.tdata),
+        .tx_tvalid_i(tx_axis_to_mac.tvalid),
+        .tx_tready_i(tx_axis_to_mac.tready),
+        .tx_tlast_i (tx_axis_to_mac.tlast),
+        .phc_ns_i   (ptp_now_w),
+        .armed_i    (gtx_sent_w),
+        .ts_valid_o (gts_valid_w),
+        .ts_ns_o    (gts_ns_w),
+        .ts_seq_o   (gts_seq_w)
+    );
+  end else begin : g_gptp_off
+    //! option off: the control lane passes straight through, the PHC
+    //! knobs constant-fold to the CSR face, the publish words read zero
+    assign txarb_locked_w[4] = 1'b0;
+    assign txarb_abort_w [4] = 1'b0;
+    assign txarb_stall_w [4] = 1'b0;
+    assign ctlg3_tdata  = ctlg2_tdata;
+    assign ctlg3_tkeep  = ctlg2_tkeep;
+    assign ctlg3_tvalid = ctlg2_tvalid;
+    assign ctlg3_tlast  = ctlg2_tlast;
+    assign ctlg2_tready = ctlg3_tready;
+    assign gptp_adj_w = '0;
+    assign gptp_step_we_w = 1'b0;
+    assign gptp_step_w = '0;
+    assign gptp_pub_gm_w = '0;
+    assign gptp_pub_parent_w = '0;
+    assign gptp_pub_annq_w = '0;
+    assign gptp_pub_flags_w = '0;
+    assign gptp_pub_pdelay_w = '0;
+    assign gptp_pub_offset_w = '0;
+    assign gptp_tap_drop_w = '0;
+    assign gptp_rx_drop_w = '0;
+    assign gptp_ev_drop_w = '0;
+  end endgenerate
+
   adp_tx_arbiter #(.DATA_WIDTH(TDATA_WIDTH)) adp_tx_mux (
     .clk_i (axis_clk),
     .rst_n (axis_resetn),
@@ -6031,11 +6182,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .s_data_tvalid(dpcrf_tvalid),
     .s_data_tlast (dpcrf_tlast),
     .s_data_tready(dpcrf_tready),
-    .s_adp_tdata (ctlg2_tdata),
-    .s_adp_tkeep (ctlg2_tkeep),
-    .s_adp_tvalid(ctlg2_tvalid),
-    .s_adp_tlast (ctlg2_tlast),
-    .s_adp_tready(ctlg2_tready),
+    .s_adp_tdata (ctlg3_tdata),
+    .s_adp_tkeep (ctlg3_tkeep),
+    .s_adp_tvalid(ctlg3_tvalid),
+    .s_adp_tlast (ctlg3_tlast),
+    .s_adp_tready(ctlg3_tready),
     .m_tdata (tx_axis_to_mac.tdata),
     .m_tkeep (tx_axis_to_mac.tkeep),
     .m_tvalid(tx_axis_to_mac.tvalid),

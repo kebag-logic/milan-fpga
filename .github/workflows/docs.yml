@@ -19,7 +19,10 @@ jobs:
       - name: Traceability matrix no-drift gate
         run: python3 docs/traceability/gen_module_matrix.py --check
       - name: Fetch the processor image tools
-        run: git submodule update --init protocol-processor
+        # gptp-processor rides along for the SoC source-list gate: since it
+        # polices submodule-rooted entries, the files must exist to be judged
+        # present rather than STALE.
+        run: git submodule update --init protocol-processor gptp-processor
       - name: End-station builder gates
         run: |
           python3 -m pip install --quiet pyyaml
