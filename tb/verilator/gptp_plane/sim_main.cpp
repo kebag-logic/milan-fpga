@@ -337,7 +337,8 @@ int main(int argc, char **argv) {
            wait_flags(FL_AMGM, FL_AMGM, 10000000ull), 1);
     tx_seen = txf.size();
     std::vector<uint8_t> sy = wait_tx(0x0, 800000);
-    if (!sy.empty()) {
+    expect("sync long enough to parse", sy.size() >= 58, 1);
+    if (sy.size() >= 58) {
       uint64_t origin = fld48(sy, 48) * 1000000000ull + fld32(sy, 54);
       uint64_t now = phc();
       int64_t d = (int64_t)(now - origin);
