@@ -131,7 +131,7 @@ cfg_ax7101() {   # shipping bare-metal shape: one cacheless RV32I hart. Linux
     #   --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16
     echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 \
           --software-profile baremetal --all-blocks --coherent-dma \
-          --milan-clk-freq 100e6 --with-spiflash --flashboot baremetal \
+          --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal \
           --gtx-tx-invert --timing-opt --floorplan --eth-port e1 \
           --no-i2s-playback --no-render-lpf --audio-interface tdm8 \
           --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 \

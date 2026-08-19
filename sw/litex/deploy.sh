@@ -57,7 +57,7 @@ FPGA_PART="${FPGA_PART:-xc7a100tfgg484}"
 # RTL8211E — measured 25-40 % corrupt frames edge-aligned vs 0 % with mid-bit sampling.
 # Direct DMA remains enabled, but no cache-coherency hub is elaborated because
 # the CPU itself is cacheless.
-MILAN_OPTS="--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile baremetal --all-blocks --coherent-dma --milan-clk-freq 100e6 --with-spiflash --flashboot baremetal --gtx-tx-invert --timing-opt --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --entity-gen-dir $HERE/../../configs/generated/endstation_ax7101_1x1_tdm8 --l2-bytes 0 --rx-queues 2 --strip-probes --hs-page-bytes 16384"
+MILAN_OPTS="--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile baremetal --all-blocks --coherent-dma --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal --gtx-tx-invert --timing-opt --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --fabric-gptp --entity-gen-dir $HERE/../../configs/generated/endstation_ax7101_1x1_tdm8 --l2-bytes 0 --rx-queues 2 --strip-probes --hs-page-bytes 16384"
 do_build()  { echo "[deploy] build  (Vivado P&R -> .bit)"; "$HERE/milan_soc.py" $MILAN_OPTS --build --uart-baudrate "$BAUD"; }
 do_load()   { echo "[deploy] load   (JTAG -> SRAM, volatile)"; "$HERE/milan_soc.py" $MILAN_OPTS --load --uart-baudrate "$BAUD"; }
 do_flash()  {

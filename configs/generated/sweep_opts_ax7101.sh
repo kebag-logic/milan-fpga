@@ -12,7 +12,7 @@
 # tables are the fallback, and scripts/check_sweep_shape.py refuses
 # a launch whose effective flags disagree with SWEEP_CFG. Regenerate:
 #   python3 sw/builder/endstation_builder.py <cfg.yaml>
-OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --fabric-gptp --cpu vexiiriscv --software-profile baremetal --xlen 32 --all-blocks --coherent-dma --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 --cpu-count 1"
+OPTS="--board ax7101 --milan-clk-freq 50e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --fabric-gptp --cpu vexiiriscv --software-profile baremetal --xlen 32 --all-blocks --coherent-dma --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 --cpu-count 1"
 NS=1
 L2=0
 RXQ=2

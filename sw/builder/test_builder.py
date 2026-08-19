@@ -538,6 +538,8 @@ def test_baremetal_profile_contract():
     assert cfg["soc"]["xlen"] == 32 and cfg["soc"]["cpu_count"] == 1
     assert cfg["constraints"]["l2_bytes"] == 0
     assert cfg["constraints"]["flashboot"] == "baremetal"
+    assert cfg["constraints"]["sys_clk_hz"] == 100_000_000
+    assert cfg["constraints"]["milan_clk_hz"] == 50_000_000
     assert cfg["soc"]["scala_args"] == []
     assert cfg["features"]["fabric_gptp"] is True
     assert cfg["features"]["sound_card"] is False
@@ -547,16 +549,24 @@ def test_baremetal_profile_contract():
                for port in direction for group in port["pool"])
     assert argv["--software-profile"] == ["baremetal"]
     assert argv["--xlen"] == [32.0] and argv["--l2-bytes"] == [0.0]
+    assert argv["--milan-clk-freq"] == [50_000_000.0]
     assert "--fabric-gptp" in argv
     assert "gptp_ucode" in r["paths"]
     base_ucode = open(r["paths"]["gptp_ucode"], "rb").read()
     assert len(base_ucode.splitlines()) == 1024
     assert "Fabric gPTP plane: **PRESENT**" in r["plan"]
+    soc_source = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
+    assert '_vex_args.with_cpu_clk = bool(' in soc_source
+    assert 'self.cpu.cpu_clk.eq(ClockSignal("milan"))' in soc_source
+    deploy_source = open(os.path.join(ROOT, "sw/litex/deploy.sh")).read()
+    assert "--milan-clk-freq 50e6" in deploy_source
+    assert "--fabric-gptp" in deploy_source
     for absent in ("--sound-card", "--aaf-playback", "--scala-args"):
         assert absent not in argv, f"bare-metal argv unexpectedly carries {absent}"
     print("  [gate 1b] shipping AX: fabric gPTP option on with config-derived "
-          "1024-word ROM; VexiiRiscv RV32I, one hart, L2=0, bare-metal "
-          "flash, no Scala cache args, PCM ring or host clusters")
+          "1024-word ROM; VexiiRiscv RV32I at 50 MHz through its supported "
+          "decoupled clock, one hart, L2=0, bare-metal flash, no Scala cache "
+          "args, PCM ring or host clusters; deploy keeps the plane option on")
 
     ucode_mutations = (
         ("station MAC", lambda c: c["platform"].__setitem__(

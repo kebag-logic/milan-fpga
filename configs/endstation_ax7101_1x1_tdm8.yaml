@@ -43,7 +43,8 @@ board:
                           # them for area; this shape has the headroom
   constraints:
     sys_clk_hz: 100000000
-    milan_clk_hz: 100000000
+    milan_clk_hz: 50000000   # 64-bit plane still carries 3.2 Gb/s; the
+                              # option-on fabric and cacheless CPU close here
     l2_bytes: 0      # cacheless RV32I bare-metal core; no L1/L2/MMU
     phy: gmii-1g
     gtx_tx_invert: true

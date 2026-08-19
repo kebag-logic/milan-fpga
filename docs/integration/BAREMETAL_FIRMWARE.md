@@ -31,9 +31,12 @@ these statements hold:
   selected under the Linux profile.
 - The Vexii netlist ISA is RV32I plus `zicsr` and `zifencei`. Machine mode is
   the only privilege level and the CPU has no MMU.
+- The cacheless CPU side and the 64-bit Milan plane run at 50 MHz. Vexii's
+  supported decoupled-clock boundary crosses CPU traffic back into the 100 MHz
+  LiteX system fabric; the system/audio clock recipe therefore stays unchanged.
 - `board.features.fabric_gptp` is true and a `gptp:` section is present. The
   builder emits `--fabric-gptp` and generates `gptp_ucode.hex` from that same
-  configuration's station MAC, priority1 and 100 MHz Milan clock.
+  configuration's station MAC, priority1 and 50 MHz Milan clock.
 
 Build through the checked configuration entry point:
 

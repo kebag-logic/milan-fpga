@@ -5677,6 +5677,14 @@ class MilanSoC(SoCCore):
                                      else "linux")
             _vex_args.cpu_count   = cpu_count
             _vex_args.with_dma    = coherent_dma          # coherent AXI dma_bus
+            # The cacheless core trades latency for gates: its direct fetch/data
+            # TileLink paths are intentionally longer than the Linux cache hits.
+            # On the shipping bare-metal build, clock the CPU side with the
+            # already-present 50 MHz Milan domain; Vexii inserts its supported
+            # CPU/LiteX CDC when --with-cpu-clk is selected.  The sys fabric and
+            # audio reference stay at their silicon-proven 100 MHz recipe.
+            _vex_args.with_cpu_clk = bool(
+                software_profile == "baremetal" and milan_clk_freq)
             _vex_args.l2_bytes    = int(l2_bytes) if l2_bytes else 0
             vexii_extra = " ".join(extra_scala_args) if extra_scala_args else ""
             # --xlen is a REAL knob on this path, not a NaxRiscv-only one. It used to be
@@ -5794,6 +5802,10 @@ class MilanSoC(SoCCore):
         self.crg = _CRG(platform, sys_clk_freq, with_dram=with_dram, with_eth=with_mac,
                         milan_clk_freq=milan_clk_freq, board=board,
                         audio_tdm_hz=audio_tdm_hz)
+        if hasattr(self.cpu, "cpu_clk"):
+            # with_cpu_clk makes this an explicit asynchronous CPU boundary;
+            # the generated Vexii wrapper retains litex_clk/reset on cd_sys.
+            self.comb += self.cpu.cpu_clk.eq(ClockSignal("milan"))
 
         # ---- DDR3 (LiteDRAM, A7DDRPHY)  -  migration §A.3. AX7101 = MT41J256M16
         # (512 MB, 2x16); Arty A7-100 = MT41K128M16 (256 MB, 1x16). ----
