@@ -44,7 +44,8 @@ PREFIXES = ("KL_", "avtp_", "adp_", "acmp_", "aaf_", "traffic_", "ptp_",
 
 #: `X #(...) inst (` or `X inst (` at an indent (module instantiation shape)
 INST_RE = re.compile(r"^\s{2,}([A-Za-z_]\w*)\s+(?:#\s*\(|\w+\s*\()", re.M)
-SRC_RE = re.compile(r'"(hdl/[^"]*/([A-Za-z_]\w*)\.sv)"')
+SRC_RE = re.compile(
+    r'"((?:(?:protocol|gptp)-processor/)?hdl/[^"]*/([A-Za-z_]\w*)\.sv)"')
 
 
 def instantiated():

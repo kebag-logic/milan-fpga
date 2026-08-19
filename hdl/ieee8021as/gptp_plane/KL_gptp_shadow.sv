@@ -378,7 +378,6 @@ module KL_gptp_shadow #(
   );
 
   //! adjfine is a level at the counter: latch the engine's pulse
-  //! (async reset, the file's one convention -- SYNCASYNCNET clean)
   always_ff @(posedge clk_i) begin : adj_latch
     if (!rst_n)        phc_adj_o <= '0;
     else if (adj_we_w) phc_adj_o <= $signed(adj_val_w);

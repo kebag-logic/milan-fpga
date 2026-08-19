@@ -83,7 +83,7 @@ why it carries no VERSION bump.
 | gptp-processor `tb/verilator/*` | byte, model counter | the 802.1AS state machines, servo math, 33 mutations |
 | `tb/verilator/gptp_plane` | byte, REAL counter | the engine steers the parent's `timestamp_counter` closed-loop; the phc_ns_i observing check |
 | `tb/verilator/gptp_shadow` | WIDE, real counter + boundary stamper | the fabric slice with no harness timestamps at all; classify/transport/gearbox/stamper; 5 mutations |
-| `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping shape; the boot Pdelay_Req reaches the real MAC boundary; NO Announce without asCapable |
+| `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping 1x1 ENTITY shape (the leg's own -G set, 2 MHz clock -- not the obj_ax1x1 argv); the boot Pdelay_Req reaches the real MAC boundary; NO Announce without asCapable |
 | `tb/verilator/milan_dp` default legs | the whole datapath | the [GPTP-OPT] tripwire: with the option OFF, CSR adjfine and adjtime still reach `timestamp_counter` through the eff muxes (a polarity swap goes red) |
 
 The area verdict for option-ON is RED at the current shipping shape
