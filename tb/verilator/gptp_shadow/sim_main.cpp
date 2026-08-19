@@ -472,16 +472,26 @@ int main(int argc, char **argv) {
       run(40000);
       g_ts_capture = false;
       sheds[rep] = (long)(uint16_t)(dut->dbg_tap_drop_o - d0);
-      // the per-burst law still holds on every repetition
-      bool law = (g_popped.size() == g_pushed.size());
+      // the per-burst law still holds on every repetition. !empty() is NOT
+      // decoration: without it a plane that sheds EVERYTHING satisfies every
+      // check in this phase vacuously (0 == 0 pops, 0 + 40 == 40, and a flat
+      // shed count) -- the phase added to catch a wedge would be blind to the
+      // wedge. Phase 8 carries the same guard for the same reason.
+      bool law = (g_popped.size() == g_pushed.size()) && !g_popped.empty();
       for (size_t i = 0; law && i < g_popped.size(); i++)
         if (g_popped[i] != g_pushed[i]) law = false;
       expect("repeat burst: no lap on this repetition", law, 1);
       expect("repeat burst: pops + sheds == 40",
              (int)g_popped.size() + (int)sheds[rep], 40);
     }
-    expect("repeat burst: shed count does not grow (no shed-path leak)",
-           sheds[3] <= sheds[0], 1);
+    // EQUALITY, not <=: on correct RTL every repetition sheds exactly the
+    // same count, so an exact compare is deterministic. A <= endpoint compare
+    // passes or fails on pointer PHASE for the occupancy bugs this is meant to
+    // lock out -- one measured pattern was [19,3,13,3], where 3 <= 19 sails
+    // through the very regression it exists to catch.
+    for (int rep = 1; rep < 4; rep++)
+      expect("repeat burst: shed count identical across repetitions",
+             sheds[rep] == sheds[0], 1);
   }
 
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
