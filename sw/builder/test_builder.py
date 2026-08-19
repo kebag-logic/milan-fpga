@@ -577,22 +577,51 @@ def test_baremetal_profile_contract():
     with open(csr_path, encoding="utf-8") as fh:
         csr_source = fh.read()
 
+    def braced_block(source, anchor):
+        assert anchor in source, f"firmware boot guard missing: {anchor}"
+        brace = source.index("{", source.index(anchor))
+        depth = 0
+        for pos in range(brace, len(source)):
+            if source[pos] == "{":
+                depth += 1
+            elif source[pos] == "}":
+                depth -= 1
+                if depth == 0:
+                    return source[brace + 1:pos]
+        raise AssertionError(f"firmware boot guard is not closed: {anchor}")
+
     def assert_boot_contract(firmware, docs, csr):
         init_start = firmware.index("static void milan_init(void)")
         init_end = firmware.index("define_init_func(milan_init)", init_start)
         init_source = firmware[init_start:init_end]
+        guard = "if (aem_loaded) {"
         events = (
             "configure_fabric();",
             "aem_loaded = load_aem_image();",
-            "milan_write(MILAN_PP_CTRL",
-            "milan_write(MILAN_ADP_CTRL",
+            guard,
         )
+        for event in events:
+            assert event in init_source, f"firmware boot event missing: {event}"
         positions = [init_source.index(event) for event in events]
         assert positions == sorted(positions), \
-            "firmware no longer configures, verifies AEM, then enables PP/ADP"
+            "firmware no longer configures, verifies AEM, then checks its verdict"
+        enable_block = braced_block(init_source, guard)
+        pp_enable = "milan_write(MILAN_PP_CTRL"
+        adp_enable = "milan_write(MILAN_ADP_CTRL"
+        assert enable_block.count(pp_enable) == 1 and \
+               enable_block.count(adp_enable) == 1, \
+            "AEM-success guard must contain exactly one PP and one ADP enable"
+        assert enable_block.index(pp_enable) < enable_block.index(adp_enable), \
+            "AEM-success guard must enable PP before ADP"
+        assert init_source.count(pp_enable) == 1 and \
+               init_source.count(adp_enable) == 1, \
+            "PP/ADP enables must exist only inside the AEM-success guard"
         assert "milan_write(MILAN_PTP_CTRL" not in init_source, \
             "firmware incorrectly gates the independently running PHC on AEM"
-        assert "ptp_ctrl <= 32'h1;" in csr, \
+        ptp_reset = re.search(
+            r"\bptp_ctrl\s*<=\s*32'h([0-9A-Fa-f_]+)\s*;", csr)
+        assert ptp_reset and \
+               int(ptp_reset.group(1).replace("_", ""), 16) == 1, \
             "bare-metal PHC contract requires the documented enabled reset"
 
         words = " ".join(docs.split())
@@ -615,22 +644,60 @@ def test_baremetal_profile_contract():
 
     assert_boot_contract(firmware_source, docs_source, csr_source)
 
+    def replace_once(source, old, new, label):
+        changed = source.replace(old, new, 1)
+        assert changed != source, f"{label} mutation did not apply"
+        return changed
+
+    def assert_rejected(label, firmware, docs, csr):
+        try:
+            assert_boot_contract(firmware, docs, csr)
+        except (AssertionError, ValueError):
+            return
+        raise AssertionError(f"{label} mutation passed the boot-contract gate")
+
     old_claim = (
         "Enable the protocol processor and then the ADP entity only after the\n"
         "   identity check and AEM verification succeed.")
     old_order = (
         "Enable the PTP clock, protocol processor and ADP entity only after the\n"
         "   identity check and AEM verification succeed.")
-    mutated_docs = docs_source.replace(old_claim, old_order, 1)
-    assert mutated_docs != docs_source, "boot-order mutation did not apply"
-    try:
-        assert_boot_contract(firmware_source, mutated_docs, csr_source)
-    except AssertionError:
-        pass
-    else:
-        raise AssertionError("old AEM-gated PTP documentation passed the gate")
+    mutations = (
+        ("old AEM-gated PTP documentation", firmware_source,
+         replace_once(docs_source, old_claim, old_order, "old ordering"),
+         csr_source),
+        ("unconditional entity enable",
+         replace_once(firmware_source, "if (aem_loaded) {", "if (1) {",
+                      "unconditional guard"), docs_source, csr_source),
+        ("inverted entity enable",
+         replace_once(firmware_source, "if (aem_loaded) {",
+                      "if (!aem_loaded) {", "inverted guard"),
+         docs_source, csr_source),
+        ("pre-AEM PTP enable",
+         replace_once(
+             firmware_source,
+             "\tconfigure_fabric();\n\taem_loaded = load_aem_image();",
+             "\tconfigure_fabric();\n"
+             "\tmilan_write(MILAN_PTP_CTRL, milan_read(MILAN_PTP_CTRL) | 1u);\n"
+             "\taem_loaded = load_aem_image();", "PTP write"),
+         docs_source, csr_source),
+        ("ADP before PP",
+         replace_once(
+             firmware_source,
+             "\t\tmilan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 1u);\n"
+             "\t\tmilan_write(MILAN_ADP_CTRL, milan_read(MILAN_ADP_CTRL) | 1u);",
+             "\t\tmilan_write(MILAN_ADP_CTRL, milan_read(MILAN_ADP_CTRL) | 1u);\n"
+             "\t\tmilan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 1u);",
+             "enable ordering"), docs_source, csr_source),
+        ("disabled PHC reset", firmware_source, docs_source,
+         replace_once(csr_source, "ptp_ctrl <= 32'h1;",
+                      "ptp_ctrl <= 32'h0;", "PHC reset")),
+    )
+    for label, firmware, docs, csr in mutations:
+        assert_rejected(label, firmware, docs, csr)
     print("  [gate 1b] boot contract: PHC/gPTP independent from reset; "
-          "AEM verification gates PP then ADP; old ordering claim rejected")
+          "AEM verification gates PP then ADP; "
+          f"{len(mutations)}/{len(mutations)} mutations rejected")
 
     print("  [gate 1b] shipping AX: fabric gPTP option on with config-derived "
           "1024-word ROM; VexiiRiscv RV32I at 50 MHz through its supported "
