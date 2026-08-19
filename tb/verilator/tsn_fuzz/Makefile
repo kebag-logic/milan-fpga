@@ -37,6 +37,28 @@ VCOMMON = --cc --exe --build -j 0 \
 # against THIS repository's RTL is gone because THIS repository no longer has
 # any 1722.1 RTL to fuzz.
 
+# ---- gPTP fabric slice (wrapper lives with the gptp_shadow TB) -------------
+# The same slice the datapath splice instantiates: KL_gptp_shadow (tap +
+# engine + lane) + the real timestamp_counter + KL_gptp_txstamp as the MAC
+# boundary. Bench scaling (2 MHz, cease resume 3 s) so the campaign's timer
+# waits stay affordable.
+GPTP_DIR  = ../../../gptp-processor
+PTP_SRCS = ../gptp_shadow/gptp_shadow_wrap.sv \
+           $(RTL)/ieee8021as/ptp_timestamp/timestamp_counter.sv \
+           $(RTL)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
+           $(RTL)/ieee8021as/gptp_plane/KL_gptp_txstamp.sv \
+           $(TP)/verilog-axis/rtl/axis_fifo.v \
+           $(GPTP_DIR)/hdl/ucpu/gptp_ucpu_pkg.sv \
+           $(GPTP_DIR)/hdl/ucpu/KL_gptp_ucpu.sv \
+           $(GPTP_DIR)/hdl/wire/KL_gptp_rx_parser.sv \
+           $(GPTP_DIR)/hdl/wire/KL_gptp_tx_slot.sv \
+           $(GPTP_DIR)/hdl/common/KL_gptp_timer.sv \
+           $(GPTP_DIR)/hdl/top/KL_gptp_engine.sv
+PTP_FLAGS = --top-module gptp_shadow_wrap \
+            -Wno-TIMESCALEMOD -Wno-GENUNNAMED -Wno-PROCASSINIT -Wno-SELRANGE \
+            -Wno-PINCONNECTEMPTY \
+            -GUCODE_HEX_P='"gptp_ucode.hex"' -GCLK_HZ_P=2000000 --Mdir obj_ptp
+
 # ---- AVTP/AAF receive stack (wrapper lives with the avtp_rxmon TB) ---------
 AAF_SRCS = $(RTL)/common/ethernet_packet_pkg.sv \
            $(RTL)/ieee1722/avtp/avtp_subtype_pkg.sv \
@@ -48,16 +70,22 @@ AAF_SRCS = $(RTL)/common/ethernet_packet_pkg.sv \
 AAF_FLAGS = --top-module avtp_rxmon_wrap -GCLK_FREQ_HZ_P=10000 \
             +incdir+$(RTL)/common +incdir+$(RTL)/ieee1722/avtp --Mdir obj_aaf
 
-.PHONY: all build run aaf matrix matrix-check clean
+.PHONY: all build run aaf ptp matrix matrix-check clean
 
 all: run
 
-build: obj_aaf/Vaaf_cosim
+build: obj_aaf/Vaaf_cosim obj_ptp/Vptp_cosim
 
 obj_aaf/Vaaf_cosim: cosim_aaf.cpp cosim_axis.h $(AAF_SRCS)
 	$(VERILATOR) $(VCOMMON) $(AAF_FLAGS) $(AAF_SRCS) cosim_aaf.cpp -o Vaaf_cosim
 
-run: build aaf matrix-check
+gptp_ucode.hex: $(GPTP_DIR)/hdl/ucode/gen_gptp_ucode.py
+	python3 $< --clk-hz 2000000 --cease-ms 3000 -o $@
+
+obj_ptp/Vptp_cosim: cosim_ptp.cpp cosim_axis.h $(PTP_SRCS) gptp_ucode.hex
+	$(VERILATOR) $(VCOMMON) $(PTP_FLAGS) $(PTP_SRCS) cosim_ptp.cpp -o Vptp_cosim
+
+run: build aaf ptp matrix-check
 	@echo "== tsn_fuzz: all campaigns passed =="
 
 # regenerate the module<->spec<->test traceability matrix from the tree
@@ -121,5 +149,13 @@ aaf: obj_aaf/Vaaf_cosim
 	 if [ "$$rc" -ne 0 ]; then exit "$$rc"; fi; \
 	 $(PY) ../../../scripts/suite_tally.py --campaign-guard obj_aaf/aaf.out
 
+# same tee/rc/guard discipline as aaf — see the block comment above it
+ptp: obj_ptp/Vptp_cosim
+	@rm -f obj_ptp/ptp.rc obj_ptp/ptp.out; \
+	 { $(PY) fuzz_ptp.py 2>&1; echo $$? > obj_ptp/ptp.rc; } | tee obj_ptp/ptp.out; \
+	 rc=$$(cat obj_ptp/ptp.rc); \
+	 if [ "$$rc" -ne 0 ]; then exit "$$rc"; fi; \
+	 $(PY) ../../../scripts/suite_tally.py --campaign-guard obj_ptp/ptp.out
+
 clean:
-	rm -rf obj_aaf __pycache__
+	rm -rf obj_aaf obj_ptp gptp_ucode.hex __pycache__

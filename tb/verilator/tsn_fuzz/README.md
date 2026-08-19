@@ -12,28 +12,46 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 > data plane and was not replaced. This is a real coverage loss on IEEE 1722.1
 > field fuzzing, not a reorganisation.
 
-**One** co-simulation campaign that drives the **real RTL** with spec-modelled
-1722 traffic, validates every field of every message, and proves the
-end-station's state machines are unmoved by malformed input. (Four campaigns
-until 2026-08-13 — see the banner above for what went and why.)
+**Two** co-simulation campaigns that drive the **real RTL** with spec-modelled
+traffic, validate every field of every message, and prove the end-station's
+state machines are unmoved by malformed input. AAF fuzzes the 1722 data plane;
+`ptp` (added 2026-08-19 for issue #117) fuzzes the 802.1AS **gPTP fabric
+plane** — the slice `KL_gptp_shadow` + the real `timestamp_counter` +
+`KL_gptp_txstamp`, driving the `gptp-processor` engine both ways. (Four
+1722.1 campaigns ran until 2026-08-13 — see the banner above for what went
+and why.)
 
 ```
-make            build the DUT, run the campaign and the traceability check
+make            build the DUTs, run both campaigns and the traceability check
 make aaf        AAF / AVTP stream: the listener ACCEPT VERDICT + lock stability
+make ptp        gPTP / 802.1AS: TX conformance, parser drops, BTCA, servo,
+                the cease rule, and the asCapable canary
 make matrix-check   the module<->spec<->test no-drift contract, run by `make`
 ```
 
-Current tally — **164 campaign checks + 2 traceability contracts**, 0 failures,
-0 known gaps, with `tsn-gen` installed. (The 3153 checks and 2 tracked gaps
-this line used to quote both predate the 1722.1 campaign deletions above; the
-gaps belonged to the AECP campaigns that went with them.) This is what `make`
-prints; each campaign rewrites the same line into its `TEST_RESULTS.md` on
+The `ptp` campaign closes the coverage half the 2026-08-13 deletion opened:
+`tsn-gen`'s 802.1AS models (`8021as_*.yaml`) carry the full header (unlike the
+1722.1 models and their missing nibble — the campaign cross-decodes to prove
+it every run), so they serve as both the field oracle and an independent
+decoder. It grades the plane's OWN transmissions field-by-field, drives
+per-field illegal probes at the parser, and asserts a two-sided asCapable
+canary: it must survive every malformed storm and fall in a response drought.
+It carries **9 tracked gaps** naming FPGA-gPTP issues #6–#10 (receive-path
+domain/qualifyAnnounce/Resp_Follow_Up qualification, and two TX-only field
+nonconformances). A gap fires only on the mismatch, so each turns green on its
+own when the donor closes the issue.
+
+Current tally — **164 AAF checks + ~354 gPTP checks + 2 traceability
+contracts**, 0 failures, 9 known gaps, with `tsn-gen` installed. This is what
+`make` prints; each campaign rewrites the same line into its `TEST_RESULTS.md`
+on
 every run, so the generated files are the fresher authority if this table and
 they ever disagree:
 
 | campaign | checks | what it drives |
 |---|---:|---|
 | `fuzz_aaf.py`  | 164 | parser → rx-monitor → depacketizer — the **accept verdict** (wire `stream_id` vs bound, graded on the parser's own pre-match counters = the `0x8B4` APRB sources), per-field verdicts, lock survival |
+| `fuzz_ptp.py`  | ~354 | the gPTP fabric slice — TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models, parser drop/ignore gates, BTCA rejection under fuzz, servo pairing, the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **9 gaps** track FPGA-gPTP #6–#10 |
 
 ## Contents
 
@@ -81,6 +99,7 @@ exists:
 | campaign | results file |
 |---|---|
 | `make aaf`  | [`hdl/ieee1722/avtp/doc/TEST_RESULTS.md`](../../../hdl/ieee1722/avtp/doc/TEST_RESULTS.md) (pointer in `hdl/ieee1722/aaf/doc/`) |
+| `make ptp`  | [`hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md`](../../../hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md) |
 
 Each file records the verdict, the DUT, the exact RTL files under test, the
 per-section pass/fail/gap breakdown, every tracked gap, and the one-line
@@ -89,16 +108,23 @@ reproduce command. They are generated — do not hand-edit.
 ## What this suite reports to the sweep
 
 `scripts/suite_tally.py` turns per-suite logs into the sweep's headline check
-count. This suite emits **three** lines it reads — two that count and one that
-deliberately does not:
+count. This suite emits the campaign lines it reads — those that count and the
+skip markers that deliberately do not:
 
 | line | when | counts |
 |---|---|---|
 | `== AAF/AVTP stream field campaign (tsn-gen driven): N pass, 0 fail, 0 known gaps ==` | tsn-gen present | **N** |
+| `== gPTP/802.1AS field campaign (tsn-gen driven): M pass, 0 fail, 9 known gaps ==` | tsn-gen present | **M** |
 | `traceability contracts (drift + ratchet): 2 checks: 2 PASS, 0 FAIL` | always, if the matrix check passed | **2** |
 | `SUITE-SKIP: AAF/AVTP field campaign (tsn-gen absent; …)` | tsn-gen absent | **0** |
+| `SUITE-SKIP: gPTP/802.1AS field campaign (tsn-gen absent; …)` | tsn-gen absent | **0** |
 
-So the suite reports `2` on a machine without tsn-gen and `N + 2` with it.
+So the suite reports `2` on a machine without tsn-gen and `N + M + 2` with it.
+Each campaign is guarded independently: `suite_tally.py --campaign-guard` runs
+against each campaign's own log, so neither can drop its checks behind a
+reworded summary. (The gPTP campaign's `known gaps` count is nonzero and
+tracked — see the campaign table above; the guard counts pass/fail, and a gap
+is neither.)
 
 **The `2` is what makes this suite countable at all.** Before it, the suite
 printed no count shape whatever when the campaign skipped, so it was classed
@@ -130,8 +156,9 @@ ran and checked nothing. `suite_tally.py`'s self-test pins all of it —
 
 Fuzzing an entity to see if it crashes is a weak test — this RTL has no
 software to crash. What matters is that **garbage does not move state**. So
-every campaign interleaves storms with a *canary*. Only AAF's remains; the
-AECP, ACMP and ADP canaries went with their campaigns on 2026-08-13:
+every campaign interleaves storms with a *canary*. Two remain — AAF's lock
+and gPTP's asCapable; the AECP, ACMP and ADP canaries went with their
+campaigns on 2026-08-13:
 
 * AAF requires the stream to **stay locked** through every malformed PDU —
   an unlock is an audible dropout and a Milan compliance failure — and,
@@ -144,6 +171,18 @@ AECP, ACMP and ADP canaries went with their campaigns on 2026-08-13:
   the 64-bit `stream_id`, the byte-reversal, the `SID_LO`/`SID_HI`
   transposition, per-byte corruption, the C-VLAN-tagged path both ways, and
   a seeded random `stream_id` population against an exact model.
+
+* gPTP requires **asCapable** to survive every malformed 802.1AS storm —
+  the plane transmitting Announce/Sync on a false asCapable is the gPTP
+  equivalent of the MEDIA_LOCKED lie — and, inversely, to **fall** in a
+  sustained Pdelay response drought and climb again when exchanges resume.
+  Because the plane is timer-driven, the campaign also grades its OWN
+  transmissions (the publish bank and the plane's Pdelay_Req/Announce/Sync/
+  Follow_Up), not just what it accepts. The nine tracked gaps are the
+  places a malformed frame DOES move state today (a foreign-domain vector,
+  an unqualified Announce, a stale Pdelay_Resp_Follow_Up) — each with a
+  dedicated probe and an FPGA-gPTP issue, so the canary stays honest about
+  what it cannot yet promise.
 
 ## ⚠ tsn-gen wire-layout caveat (measured 2026-07-25)
 
