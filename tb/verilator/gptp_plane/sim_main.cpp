@@ -190,6 +190,15 @@ static bool wait_flags(uint32_t mask, uint32_t want, uint64_t max_ticks) {
   return false;
 }
 
+static uint64_t fld48(const std::vector<uint8_t> &f, size_t o) {
+  uint64_t v = 0; for (int i = 0; i < 6; i++) v = (v << 8) | f[o + i];
+  return v;
+}
+static uint32_t fld32(const std::vector<uint8_t> &f, size_t o) {
+  return ((uint32_t)f[o] << 24) | ((uint32_t)f[o + 1] << 16) |
+         ((uint32_t)f[o + 2] << 8) | f[o + 3];
+}
+
 static size_t tx_seen = 0;
 static std::vector<uint8_t> wait_tx(int mtype, uint64_t max_cycles) {
   for (uint64_t n = 0; n < max_cycles; n++) {
@@ -315,6 +324,26 @@ int main(int argc, char **argv) {
            rate_err > -100 && rate_err < 100, 1);
     expect("sync-ok held through lock",
            dut->pub_flags_o & FL_SYNCOK, FL_SYNCOK);
+  }
+
+  // ---- 5: as master, the Sync origin carries the REAL counter -----------
+  // announce silence rides out the receipt timeout (pdelay keeps
+  // asCapable alive), the plane becomes grandmaster, and its Sync's
+  // originTimestamp must be the live timestamp_counter value -- the
+  // phc_ns_i observing check PR #113's review filed as its blind spot
+  // (the submodule's v6 gather consumer makes it observable)
+  {
+    expect("quiet ride to grandmaster",
+           wait_flags(FL_AMGM, FL_AMGM, 10000000ull), 1);
+    tx_seen = txf.size();
+    std::vector<uint8_t> sy = wait_tx(0x0, 800000);
+    expect("sync long enough to parse", sy.size() >= 58, 1);
+    if (sy.size() >= 58) {
+      uint64_t origin = fld48(sy, 48) * 1000000000ull + fld32(sy, 54);
+      uint64_t now = phc();
+      int64_t d = (int64_t)(now - origin);
+      expect("origin is the real counter", d >= 0 && d < 300000, 1);
+    }
   }
 
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
