@@ -152,6 +152,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! front-end while pb_enable_i is set. 0 (default) prunes the whole block so
   //! the datapath is byte-identical to the pre-item-7 shape.
   parameter int AAF_PLAYBACK_P = 0,
+  //! Linux ALSA host surface. Zero structurally removes the listener PCM-ring
+  //! route; AAF receive, render, TDM/I2S and the channel crossbars remain.
+  parameter int SOUND_CARD_P = 0,
   //! task #31 START-SMALL lever: how many host playback RINGS KL_pcm_tx
   //! serves (1..N_STREAMS). The full-N shape measured 2216 LUT / 2389 FF
   //! OOC at 8x8x8 - unpayable at WNS +0.014 - while the USER target (host
@@ -5446,7 +5449,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire                   rend_pcm_tlast_w;
   wire [3:0]             route_render_sel_w;
 
-  KL_pcm_route #(.N_LISTENERS_P(N_STREAMS)) pcm_route (
+  KL_pcm_route #(
+    .N_LISTENERS_P (N_STREAMS),
+    .DMA_ENABLE_P  (SOUND_CARD_P)
+  ) pcm_route (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .s_tdata_i (dpkt_pcm_tdata_w), .s_tvalid_i (dpkt_pcm_tvalid_w),
     .s_tlast_i (dpkt_pcm_tlast_w), .s_tuser_i (dpkt_pcm_tuser_w),

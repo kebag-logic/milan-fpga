@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: (GPL-2.0 OR MIT)
 #
-# Configurable single-core RISC-V SoC that BOOTS Linux with the Milan TSN NIC and
-# its driver  -  the fully-FPGA target from docs/integration/FULLY_FPGA_RISCV_MIGRATION.md. One
-# NaxRiscv core (MMU, Linux-capable) + clock/reset + UART + integrated RAM, with the
-# Milan datapath as a memory-mapped peripheral (CSR @ 0x9000_0000 + IRQs), and  - 
-# with --full  -  the AXIS<->memory DMA (§A.6) and the 1G MAC + RGMII PHY (§A.7).
+# Configurable RISC-V SoC with the Milan TSN NIC. The shipping profile is a
+# cacheless RV32 VexiiRiscv running the Milan bare-metal control firmware; the
+# Linux/MMU path remains available as the bring-up profile described in
+# docs/integration/FULLY_FPGA_RISCV_MIGRATION.md.
 #
 #   ./milan_soc.py                         # NIC (CSR only); elaborate + export gateware
 #   ./milan_soc.py --full                  # FULL FPGA solution: NIC + DMA + MAC + PHY
 #   ./milan_soc.py --with-dma / --with-mac # attach just one boundary
 #   ./milan_soc.py --no-milan              # bare SoC (bring-up smoke; self-contained)
-#   ./milan_soc.py --xlen 32               # RV32 + sv32 MMU (default RV64GC + sv39)
+#   ./milan_soc.py --software-profile baremetal --cpu vexiiriscv --xlen 32 \
+#       --with-spiflash --flashboot baremetal
 #   ./milan_soc.py --full --build          # + run Vivado P&R -> bitstream (needs Artix-7)
 #   ./milan_soc.py --full --build --load   # + program the board
 #
@@ -27,6 +27,7 @@ import sys
 import subprocess
 import json
 import argparse
+import binascii
 
 from migen import ClockDomain, ClockDomainsRenamer, ClockSignal, ResetSignal, Instance, Signal, Mux, If, Cat, C, Array, FSM, NextValue, NextState, Memory
 from migen.genlib.cdc import MultiReg
@@ -81,8 +82,11 @@ MILAN_PCM_BRAM_SIZE = 0x0000_8000  # 32 KB, power of two
 AUDIO_IF_WORD_BITS = 32
 AUDIO_IF_FS_HZ     = 48000
 
-# ---- QSPI flash boot ("gain time"  -  skip the ~4-min serial image upload) -------------------------
+# ---- QSPI flash boot ------------------------------------------------------------------------------
 # The AX7101 flash is a Micron N25Q128 = 16 MB (confirmed from the Alinx repo datasheet).
+# The shipping bare-metal layout stores the bitstream plus the raw AEM descriptor
+# image. The Linux bring-up layouts below retain the historical compressed image
+# manifests and skip the ~4-minute serial image upload.
 # The Linux boot images total ~23 MB (14 MB kernel Image + 8.7 MB rootfs.cpio.gz + 0.26 MB
 # OpenSBI + 3 KB dtb), so they do NOT all fit in 16 MB at once. Two supported layouts:
 #
@@ -136,9 +140,16 @@ FLASHBOOT_LAYOUT = {
 }
 FLASHBOOT_MANIFESTS = {
     "none":   [],
+    "baremetal": ["aem"],                             # firmware lives in ROM; copy the entity model
     "kernel": ["kernel"],                              # partial: pre-load kernel, serial rest
     "full":   ["opensbi", "dtb", "kernel", "rootfs"],  # zero-upload (needs a slim kernel)
 }
+
+# Bare-metal reuses the first Linux-image erase block for the only mutable
+# boot artifact it needs: the generated protocol-processor entity model. The
+# manifests are mutually exclusive, so this aliases the kernel slot without
+# consuming any of the journal/user persistence area.
+FLASHBOOT_AEM = {"offset": 0x40_0000, "addr": 0x0, "size": 0x01_0000}
 
 # Writable slots. NOT boot images: the BIOS never copies them, deploy.sh never
 # writes them, and `build.sh flash` / `deploy.sh flash-images` MUST NOT erase
@@ -157,15 +168,9 @@ FLASHBOOT_MANIFESTS = {
 #            state, and /user/log - the rotating xz CTF fault log
 #            (docs/design/TRACE_LOGGING.md).
 #
-# OPEN ITEM (deliberately not fixed here - deploy.sh is not this change's file):
-# deploy.sh derives each image's ceiling from the NEXT image offset in
-# flashboot_layout.json, and the reserved slots are exported under a separate
-# "reserved" key that it does not read.  So its printed rootfs budget is still
-# 16 MiB - 0x78_0000 and an oversized rootfs would be accepted and would
-# overwrite `journal`/`user`.  The one-line fix is for do_flash_images() to
-# prefer an image's own `budget` field (now exported below) over the
-# next-offset computation.  Until then the rootfs `size` above is the number to
-# check by hand.
+# deploy.sh treats every image budget and every reserved-slot boundary as a
+# hard ceiling before writing. That protects these writable ranges from an
+# oversized Linux rootfs and bounds the bare-metal AEM write to its 64 KiB slot.
 FLASH_SIZE        = 0x100_0000   # 16 MiB (N25Q128A13 / S25FL128S)
 FLASH_ERASE_BLOCK = 0x1_0000     # 64 KiB - the unit of erase, and of slot alignment
 FLASHBOOT_RESERVED = {
@@ -492,7 +497,8 @@ class MilanNIC(LiteXModule):
                  desc_base=None, resp_base=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
-                 audio_if_i2s_pair=False, aaf_playback=False, aaf_pb_streams=1,
+                 audio_if_i2s_pair=False, sound_card=False,
+                 aaf_playback=False, aaf_pb_streams=1,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
                  cbs_queues_mask=None, entity_gen_dir=None):
@@ -525,6 +531,7 @@ class MilanNIC(LiteXModule):
                            talker_wire_chans=talker_wire_chans,
                            audio_if_master=audio_if_master,
                            audio_if_i2s_pair=audio_if_i2s_pair,
+                           sound_card=sound_card,
                            aaf_playback=aaf_playback, aaf_pb_streams=aaf_pb_streams,
                            loopback_lane=loopback_lane,
                            render_lpf=render_lpf, optional_blocks=optional_blocks,
@@ -726,7 +733,8 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
                        talker_wire_chans=2, audio_if_master=False,
                        audio_if_i2s_pair=False,
-                       aaf_playback=False, aaf_pb_streams=1, loopback_lane=False,
+                       sound_card=False, aaf_playback=False, aaf_pb_streams=1,
+                       loopback_lane=False,
                        render_lpf=True,
                        optional_blocks=None, cbs_queues_mask=None,
                        entity_gen_dir=None):
@@ -849,6 +857,8 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     dp_params = dict(p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
                      p_N_STREAMS=int(num_streams),
                      p_AUDIO_IF_SLOTS_P=int(audio_if_slots))
+    if sound_card:
+        dp_params["p_SOUND_CARD_P"] = 1
     # THE ACMP TRANSITION ROM IS NOT OPTIONAL. protocol_processor_top - which
     # milan_datapath now instantiates unconditionally through KL_pp_shadow -
     # $readmemh's its listener transition ROM by the RELATIVE name
@@ -4484,7 +4494,7 @@ class MilanDMA(LiteXModule):
     upgrade  -  see docs/integration/FULLY_FPGA_RISCV_MIGRATION.md §A.6 + the protocol/test matrix."""
     def __init__(self, soc, data_width=64, milan_cd="sys", rx_queues=1, hs_page_bytes=4096,
                  legacy_ring=True, rx_fifo_beats=2048, num_streams=1, pcm_ring="dram",
-                 aaf_playback=False, rx_rsc=True, talker_wire_chans=2,
+                 sound_card=False, aaf_playback=False, rx_rsc=True, talker_wire_chans=2,
                  aaf_pb_streams=1):
         # rx_fifo_beats: store-and-forward ingress FIFO depth per RX queue (BRAM:
         # 2048 beats = 16KB = 4 RAMB36). Sized in the byte-ring era; in BD/hs
@@ -4500,9 +4510,11 @@ class MilanDMA(LiteXModule):
         def mk_bus():
             return wishbone.Interface(data_width=data_width, adr_width=adr_w, addressing="word")
 
-        # Attach the DMA masters to the CPU's **coherent** DMA port when it exists
-        # (NaxRiscv --with-coherent-dma exposes soc.dma_bus, which snoops the CPU caches);
-        # otherwise fall back to the plain SoC bus. Without the coherent port, NaxRiscv
+        # Attach the DMA masters to the CPU's dedicated DMA port when it exists.
+        # NaxRiscv --with-coherent-dma exposes a snooping port; the cacheless
+        # bare-metal Vexii profile exposes the same attachment without coherence
+        # hardware because there are no CPU caches. Otherwise use the plain SoC bus.
+        # Without the coherent port, a cached NaxRiscv
         # reaches DRAM via a direct LiteDRAM memory bus while these masters go through the
         # wishbone L2  -  a different path, so CPU writes and DMA reads are NOT coherent
         # (hardware-confirmed: the DMA transmits stale DRAM). Coherent DMA closes that gap
@@ -4590,7 +4602,7 @@ class MilanDMA(LiteXModule):
         # axiom); num_streams > 1 swaps in the per-stream ring writer keyed by
         # the datapath's m_axis_pcm_tuser: stream s lands at base + s*stride
         # (stream 0 at the base; stride only engages for s > 0).
-        if pcm_ring == "bram":
+        if sound_card and pcm_ring == "bram":
             # On-chip BRAM ring: NO DMA master (not a DMA) and NO DRAM arbitration
             # => sink.ready is constant 1, so mf52 SHED + I6 cannot occur. The read
             # port is an uncached SoCRegion at MILAN_PCM_BRAM_BASE; the pcm CSR block
@@ -4601,10 +4613,10 @@ class MilanDMA(LiteXModule):
             soc.bus.add_slave("milan_pcm_bram", self.pcm.bus,
                               region=SoCRegion(origin=MILAN_PCM_BRAM_BASE,
                                                size=MILAN_PCM_BRAM_SIZE, cached=False))
-        elif num_streams > 1:
+        elif sound_card and num_streams > 1:
             self.pcm = _PCMRingNxN(mk_bus(), n_streams=num_streams)
             dma_bus.add_master("milan_dma_pcm", master=self.pcm.writer.bus)
-        else:
+        elif sound_card:
             self.pcm = WishboneDMAWriter(mk_bus(), endianness="big", with_csr=True)
             dma_bus.add_master("milan_dma_pcm", master=self.pcm.bus)
 
@@ -4624,7 +4636,9 @@ class MilanDMA(LiteXModule):
         # the wishbone writer sustains ~23/24 of the PCM rate under DRAM
         # contention and the real-time datapath side sheds on full. 1 KB of
         # FIFO absorbs the CPU's bursty copy stalls outright.
-        pcm_dp = _axis_dp_cdc(self, "dma_pcm_cdc", Lp, milan_cd, to_datapath=False, depth=128)
+        pcm_dp = (_axis_dp_cdc(self, "dma_pcm_cdc", Lp, milan_cd,
+                               to_datapath=False, depth=128)
+                  if sound_card else None)
         # exposed for MilanDebug's TX datapath-input probe: tx_dp.dp is the milan-domain
         # endpoint feeding the datapath (traffic_controller s_axis). tx_dp.dp.ready IS
         # the traffic_controller's backpressure  -  the direct "is the datapath the TX
@@ -4654,14 +4668,18 @@ class MilanDMA(LiteXModule):
             # DRAM, perfect, always at base+0). Untied, the writer runs
             # offset 0..length-1 and wraps = a true linear record ring.
             ts_dp.sys.ready.eq(self.ts.sink.ready),
+        ]
+        if sound_card:
             # PCM: datapath PCM endpoint (sys side) -> ring writer.sink.
             # tlast is NOT forwarded - same reason as the TS ring above: the
             # LiteX ctrl FSM restarts offset on sink.last, and PCM leaves the
             # datapath as one AXIS frame per AAF PDU.
-            self.pcm.sink.valid.eq(pcm_dp.sys.valid), self.pcm.sink.data.eq(pcm_dp.sys.data),
-            pcm_dp.sys.ready.eq(self.pcm.sink.ready),
-        ]
-        if num_streams > 1:
+            self.comb += [
+                self.pcm.sink.valid.eq(pcm_dp.sys.valid),
+                self.pcm.sink.data.eq(pcm_dp.sys.data),
+                pcm_dp.sys.ready.eq(self.pcm.sink.ready),
+            ]
+        if sound_card and num_streams > 1:
             # per-stream ring key: the tuser stream index rides the CDC lane
             self.comb += self.pcm.sink.user.eq(pcm_dp.sys.user)
         if rx_queues >= 2:
@@ -4732,7 +4750,7 @@ class MilanDMA(LiteXModule):
         # group. All gated on --aaf-playback: off => none of this exists, so the
         # default build is byte-identical.
         pb_ports = {}
-        if aaf_playback:
+        if sound_card and aaf_playback:
             shift = int(math.log2(nb))
             ns    = int(num_streams)
             wch   = int(talker_wire_chans)
@@ -4878,6 +4896,20 @@ class MilanDMA(LiteXModule):
                 o_pb_overrun_o          = pb_ov_dp,
                 o_pb_playing_o          = pb_pl_dp,
             )
+        pcm_ports = dict(
+            o_m_axis_pcm_tdata=Signal(64), o_m_axis_pcm_tkeep=Signal(8),
+            o_m_axis_pcm_tvalid=Signal(), o_m_axis_pcm_tlast=Signal(),
+            o_m_axis_pcm_tuser=Signal(4), i_m_axis_pcm_tready=1,
+        )
+        if sound_card:
+            pcm_ports = dict(
+                o_m_axis_pcm_tdata=pcm_dp.dp.data,
+                o_m_axis_pcm_tkeep=pcm_dp.dp.keep,
+                o_m_axis_pcm_tvalid=pcm_dp.dp.valid,
+                o_m_axis_pcm_tlast=pcm_dp.dp.last,
+                i_m_axis_pcm_tready=pcm_dp.dp.ready,
+                o_m_axis_pcm_tuser=(pcm_dp.dp.user if num_streams > 1 else Signal(4)),
+            )
         self.dp_ports = dict(
             # TX: reader.source (mem data) -> datapath s_axis_tx
             i_s_axis_tx_tdata  = tx_dp.dp.data,  i_s_axis_tx_tkeep = tx_dp.dp.keep,
@@ -4897,13 +4929,10 @@ class MilanDMA(LiteXModule):
             i_i2s_sdout_i = self.i2s_pads[3] if self.i2s_pads else 0,
             o_m_axis_ts_tdata  = ts_dp.dp.data,  o_m_axis_ts_tvalid = ts_dp.dp.valid,
             o_m_axis_ts_tlast  = ts_dp.dp.last,  i_m_axis_ts_tready = ts_dp.dp.ready,
-            # PCM: datapath m_axis_pcm -> PCM ring writer.sink. tuser = stream
-            # index (NXN §1.3 P12: ring base + s*stride key); at N=1 the tag
-            # is constant 0 and lands in an unconnected sink (flat ring).
-            o_m_axis_pcm_tdata  = pcm_dp.dp.data,  o_m_axis_pcm_tkeep = pcm_dp.dp.keep,
-            o_m_axis_pcm_tvalid = pcm_dp.dp.valid,
-            o_m_axis_pcm_tlast  = pcm_dp.dp.last,  i_m_axis_pcm_tready = pcm_dp.dp.ready,
-            o_m_axis_pcm_tuser  = (pcm_dp.dp.user if num_streams > 1 else Signal(4)),
+            # PCM: the optional host-facing capture ring. With sound_card=0
+            # all outputs terminate here and ready is tied high; the media
+            # render/loopback paths remain inside milan_datapath.
+            **pcm_ports,
             # item-7 ALSA playback ports (empty dict unless --aaf-playback)
             **pb_ports,
         )
@@ -5605,16 +5634,19 @@ class MilanSoC(SoCCore):
                  rx_fifo_beats=2048, board="ax7101", eth_phy_index=0,
                  num_streams=1, audio_if_slots=0, talker_wire_chans=2,
                  audio_if_master=False,
-                 pcm_ring="dram", aaf_playback=False, aaf_pb_streams=1,
+                 pcm_ring="dram", sound_card=False, aaf_playback=False,
+                 aaf_pb_streams=1,
                  loopback_lane=False,
                  bus_standard="wishbone",
+                 software_profile="linux",
                  render_lpf=True, optional_blocks=None,
                  cbs_queues_mask=None, entity_gen_dir=None, **kwargs):
-        # ---- RISC-V core(s), MMU, Linux-capable. Two cores are supported, selected by
+        # ---- RISC-V core(s). Two cores are supported, selected by
         #      `cpu`: NaxRiscv (out-of-order, high IPC, ~100 MHz on this -2 Artix) or
         #      VexiiRiscv (in-order, higher fmax + smaller  -  the AVB-switch direction,
-        #      see AVB_SWITCH_DIRECTION.md "CPU budget"). BOTH expose a coherent AXI
-        #      `dma_bus` (soc.dma_bus) that the Milan DMA masters attach to identically
+        #      see AVB_SWITCH_DIRECTION.md "CPU budget"). Both expose an AXI
+        #      `dma_bus` (soc.dma_bus) that the Milan DMA masters attach to identically;
+        #      it is coherent only for cache-bearing CPU profiles
         #      (MilanDMA reads getattr(soc, "dma_bus", soc.bus)), and BOTH map csr @
         #      0xf000_0000 / clint @ 0xf001_0000 / plic @ 0xf0c0_0000  -  so the datapath
         #      and the ring DMA port over with no address changes.
@@ -5629,7 +5661,8 @@ class MilanSoC(SoCCore):
             # highest-fmax Linux core (matches our no-C/no-FPU kernel); the --xlen in
             # vexii-args picks RV32 (sv32 MMU) or RV64 (sv39). The VexiiRiscv "linux"
             # variant itself defaults to RV32, so the width MUST be stated explicitly.
-            _vex_args.cpu_variant = "linux"
+            _vex_args.cpu_variant = ("baremetal" if software_profile == "baremetal"
+                                     else "linux")
             _vex_args.cpu_count   = cpu_count
             _vex_args.with_dma    = coherent_dma          # coherent AXI dma_bus
             _vex_args.l2_bytes    = int(l2_bytes) if l2_bytes else 0
@@ -5647,7 +5680,7 @@ class MilanSoC(SoCCore):
             _vex_args.update_repo = "no"
             VexiiRiscv.args_read(_vex_args)
             kwargs["cpu_type"]    = "vexiiriscv"
-            kwargs["cpu_variant"] = "linux"
+            kwargs["cpu_variant"] = _vex_args.cpu_variant
             kwargs["cpu_count"]   = cpu_count
         else:
             # Populate NaxRiscv's class config exactly as the CLI path does: fill a parser
@@ -5711,8 +5744,11 @@ class MilanSoC(SoCCore):
         # wrong core over the BIOS banner and the ident CSR that bench operators read.
         _cpu_human = {"vexiiriscv": "VexiiRiscv", "naxriscv": "NaxRiscv"}[cpu]
         SoCCore.__init__(self, platform, sys_clk_freq,
-                         ident=f"Milan TSN SoC - {_cpu_human} RV{xlen} {cpu_count}-core",
+                         ident=(f"Milan TSN SoC - {_cpu_human} RV{xlen} "
+                                f"{cpu_count}-core {software_profile}"),
                          **kwargs)
+        if software_profile == "baremetal":
+            self.add_config("BIOS_NO_BOOT")
 
         # item-4 TDM MASTER: the front-end generates the bus, so it needs a
         # clock at 2 x bclk = 2 x SLOTS x 32 x 48 kHz. Only a master build asks
@@ -5761,19 +5797,20 @@ class MilanSoC(SoCCore):
             self.add_sdram("sdram",
                 phy    = self.ddrphy,
                 module = dram_module(sys_clk_freq, "1:4"),
-                l2_cache_size = 8192)
+                # The bare-metal profile is cacheless end to end: no Vexii
+                # L1/L2 and no LiteX bus-side SDRAM cache hidden underneath.
+                l2_cache_size = (0 if software_profile == "baremetal" else 8192))
 
-        # ---- QSPI config flash (memory-mapped) + Linux flash-boot manifest ----
+        # ---- QSPI config flash (memory-mapped) + selected boot manifest ----
         # Maps the on-board N25Q128 (16 MB) into the CPU address space so the BIOS can
-        # copy boot images straight from flash into DRAM (~10 MB/s quad) instead of the
-        # ~4-min 1.5 Mbaud serial upload. `flashboot` selects which images live in flash
-        # (see FLASHBOOT_MANIFESTS); the emitted MILAN_FLASHBOOT_* constants drive the
-        # `linux_flashboot` BIOS method (sw/litex/patches/0001-milan-linux-flashboot.patch).
+        # copy artifacts straight from flash. `flashboot` selects which images live in
+        # flash (see FLASHBOOT_MANIFESTS). Linux profiles drive the patched BIOS boot
+        # method; bare-metal firmware reads the raw AEM image from its reserved slot.
         if with_spiflash:
             from litespi.modules import N25Q128A13, S25FL128S
             from litespi.opcodes import SpiNorFlashOpCodes as SpiCodes
             # Arty A7-100: S25FL128S (16 MB, same geometry class as the N25Q128).
-            # Same Alinx flashboot model: the flash holds the LINUX IMAGES with
+            # Same Alinx Linux-bring-up flashboot model: the flash holds Linux images with
             # the kernel at offset 0 (FLASHBOOT_LAYOUT transfers verbatim: slim
             # kernel + rootfs.cpio.xz + opensbi + dtb = 14 MB of 16), which is
             # MUTUALLY EXCLUSIVE with a bitstream in flash - flashing images
@@ -5820,7 +5857,9 @@ class MilanSoC(SoCCore):
             milan_cd = "milan" if milan_clk_freq else "sys"
             # item-7: playback needs the DMA (the PCM-ring read master lives in
             # MilanDMA); silently no-op it without --with-dma/--full.
-            aaf_pb = bool(aaf_playback) and with_dma
+            aaf_pb = bool(aaf_playback) and bool(sound_card) and with_dma
+            if aaf_playback and not sound_card:
+                raise ValueError("--aaf-playback requires --sound-card")
             if aaf_playback and not with_dma:
                 print("[milan] --aaf-playback ignored without --with-dma/--full")
             if with_dma:
@@ -5830,7 +5869,8 @@ class MilanSoC(SoCCore):
                                           legacy_ring=legacy_ring,
                                           rx_fifo_beats=rx_fifo_beats,
                                           num_streams=int(num_streams),
-                                          pcm_ring=pcm_ring, aaf_playback=aaf_pb,
+                                          pcm_ring=pcm_ring, sound_card=bool(sound_card),
+                                          aaf_playback=aaf_pb,
                                           talker_wire_chans=int(talker_wire_chans),
                                           aaf_pb_streams=int(aaf_pb_streams))
                 dp_ports.update(self.milan_dma.dp_ports)
@@ -6010,8 +6050,7 @@ class MilanSoC(SoCCore):
             _shape = _platform_shape(entity_gen_dir)
             _desc_base  = int(_shape["pp_mem"]["phys"], 16)
             _PP_WINDOW  = int(_shape["pp_mem"]["bytes"], 16)
-            _ring_phys  = int(_shape["pcm"]["ring_phys"], 16)
-            _ring_bytes = int(_shape["pcm"]["ring_bytes"], 16)
+            _pcm_shape  = _shape.get("pcm")
             # Refuse rather than build a bitstream that writes where it must
             # not. Both failures are invisible on silicon: one corrupts kernel
             # memory, the other corrupts captured audio.
@@ -6021,12 +6060,15 @@ class MilanSoC(SoCCore):
                     f"the protocol processor's window "
                     f"0x{_desc_base:08x}+0x{_PP_WINDOW:x} is not inside "
                     f"main_ram 0x{_ram.origin:08x}+0x{_ram.size:x}")
-            if (_desc_base + _PP_WINDOW) > _ring_phys and (
-                    _ring_phys + _ring_bytes) > _desc_base:
-                raise RuntimeError(
-                    f"the protocol processor's window "
-                    f"0x{_desc_base:08x}+0x{_PP_WINDOW:x} overlaps the PCM "
-                    f"ring 0x{_ring_phys:08x}+0x{_ring_bytes:x}")
+            if _pcm_shape is not None:
+                _ring_phys  = int(_pcm_shape["ring_phys"], 16)
+                _ring_bytes = int(_pcm_shape["ring_bytes"], 16)
+                if (_desc_base + _PP_WINDOW) > _ring_phys and (
+                        _ring_phys + _ring_bytes) > _desc_base:
+                    raise RuntimeError(
+                        f"the protocol processor's window "
+                        f"0x{_desc_base:08x}+0x{_PP_WINDOW:x} overlaps the PCM "
+                        f"ring 0x{_ring_phys:08x}+0x{_ring_bytes:x}")
             # ...AND WHERE THE AECP RESPONSE BUFFER LIVES. Same reserved window,
             # same derivation from the SoC's own map, one extra rule: this
             # region is WRITTEN by the processor, so it must not overlap the
@@ -6069,6 +6111,7 @@ class MilanSoC(SoCCore):
                                   # never assigns them)
                                   audio_if_i2s_pair=(self.tdm_pads is not None
                                                      and _dma_i2s is not None),
+                                  sound_card=bool(sound_card),
                                   aaf_playback=aaf_pb,
                                   aaf_pb_streams=int(aaf_pb_streams),
                                   loopback_lane=bool(loopback_lane),
@@ -6451,15 +6494,16 @@ class MilanSoC(SoCCore):
                              "\n  ".join(problems))
 
         images = FLASHBOOT_MANIFESTS[manifest_name]
-        self._flashboot_layout = {"manifest": manifest_name, "entry": FLASHBOOT_ENTRY,
+        self._flashboot_layout = {"manifest": manifest_name,
+                                  "entry": (None if manifest_name == "baremetal"
+                                            else FLASHBOOT_ENTRY),
                                   "complete": images == FLASHBOOT_MANIFESTS["full"],
                                   "flash_size": FLASH_SIZE,
                                   "erase_block": FLASH_ERASE_BLOCK,
                                   "images": [],
-                                  # deploy.sh does not read this key; it is here
-                                  # so the writable slots are visible to anything
-                                  # that consumes the layout json (see the OPEN
-                                  # ITEM note at FLASHBOOT_RESERVED).
+                                  # deploy.sh includes these boundaries in its
+                                  # per-image write ceilings, so a manifest can
+                                  # never overwrite persistent state.
                                   "reserved": [
                                       {"name": n, "offset": e["offset"],
                                        "size": e["size"]}
@@ -6481,16 +6525,20 @@ class MilanSoC(SoCCore):
             {"name": "bitstream", "offset": eb["offset"], "addr": eb["addr"],
              "budget": eb["size"]})
         for name in images:
-            e = FLASHBOOT_LAYOUT[name]
+            e = FLASHBOOT_AEM if name == "aem" else FLASHBOOT_LAYOUT[name]
             self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_OFFSET", e["offset"])
             self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_ADDR",   e["addr"])
             self.add_constant(f"MILAN_FLASHBOOT_{name.upper()}_SIZE",   e["size"])
             self._flashboot_layout["images"].append(
                 {"name": name, "offset": e["offset"], "addr": e["addr"],
                  "budget": e["size"]})
-        self.add_constant("MILAN_FLASHBOOT_ENTRY", FLASHBOOT_ENTRY)
-        if self._flashboot_layout["complete"]:
-            self.add_constant("MILAN_FLASHBOOT_COMPLETE")  # zero-upload full boot
+        if manifest_name != "baremetal":
+            # This symbol compiles and registers the patched Linux boot method.
+            # Bare-metal consumes only its raw AEM slot in the init hook and
+            # must not retain any OpenSBI/kernel boot-chain code.
+            self.add_constant("MILAN_FLASHBOOT_ENTRY", FLASHBOOT_ENTRY)
+            if self._flashboot_layout["complete"]:
+                self.add_constant("MILAN_FLASHBOOT_COMPLETE")  # zero-upload full boot
 
 
 # Build --------------------------------------------------------------------------------------------
@@ -6573,12 +6621,17 @@ def build_desc_image(entity_gen_dir):
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Milan single-core RISC-V Linux SoC")
+    ap = argparse.ArgumentParser(description="Milan RISC-V fabric-control SoC")
     ap.add_argument("--xlen", default=64, type=int, choices=[32, 64],
                     help="CPU register width, honoured by BOTH --cpu choices "
-                         "(64 = RV64/sv39 default; 32 = RV32/sv32)")
+                         "(Linux default: RV64/sv39; baremetal requires RV32 without an MMU)")
     ap.add_argument("--cpu-count",    default=1, type=int, help="number of cores (this config: 1)")
     ap.add_argument("--cpu",          default="naxriscv", choices=["naxriscv","vexiiriscv"], help="soft CPU (vexiiriscv = higher fmax, smaller  -  AVB-switch direction)")
+    ap.add_argument("--software-profile", default="linux",
+                    choices=("baremetal", "linux"),
+                    help="shipping firmware shape: baremetal uses the cacheless RV32I "
+                         "M-mode Vexii core and the Milan UART/CSR firmware; linux keeps "
+                         "the legacy MMU/OpenSBI/buildroot bring-up flow")
     ap.add_argument("--with-fpu",     action="store_true", help="hardware FP unit (rv64imafd / lp64d)")
     ap.add_argument("--scala-args",   action="append", default=[], help="extra NaxRiscv scala args, e.g. alu-count=1,decode-count=1 (append)")
     ap.add_argument("--sys-clk-freq", default=100e6, type=float)
@@ -6639,6 +6692,10 @@ def main():
                          "constant 1, so no beat can ever be shed (kills mf52 SHED + I6 at "
                          "root). CPU mmaps MILAN_PCM_BRAM_BASE (0x9010_0000); the pcm CSR ABI "
                          "is unchanged. ~8 RAMB36.")
+    ap.add_argument("--sound-card", action="store_true",
+                    help="elaborate the Linux ALSA host surface: listener PCM capture "
+                         "ring/CSR bank and, with --aaf-playback, host playback rings. "
+                         "Default absent; AAF/TDM/I2S/render/loopback fabric remains.")
     ap.add_argument("--no-render-lpf", action="store_true",
                     help="AREA LEVER (banked, docs/design/AREA_BUDGET.md): prune "
                          "KL_pcm_lpf, the 2nd-order Butterworth on the DAC render tap. "
@@ -6785,7 +6842,8 @@ def main():
     ap.add_argument("--with-dram", action="store_true",
                     help="512 MB DDR3 via LiteDRAM (A7DDRPHY + MT41J256M16)  -  needed for Linux (§A.3)")
     ap.add_argument("--coherent-dma", action="store_true",
-                    help="cache-coherent DMA (NaxRiscv snooping dma_bus; needed for correct DMA content without manual cache flushes)")
+                    help="request a dedicated DMA port (cache-coherent for NaxRiscv; "
+                         "direct and coherence-free for the cacheless bare-metal Vexii core)")
     ap.add_argument("--bus-standard", default="wishbone", choices=["wishbone", "axi-lite"],
                     help="main SoC bus standard. 'axi-lite' makes the control path AXI end "
                          "to end and deletes the two round-trip bridges LiteX inserts when "
@@ -6794,10 +6852,12 @@ def main():
                          "AXILite2CSR over Wishbone2CSR). Carries no DRAM or DMA traffic.")
     ap.add_argument("--with-spiflash", action="store_true",
                     help="memory-map the on-board N25Q128 QSPI flash (16 MB) so the BIOS can "
-                         "flash-boot Linux images instead of the ~4-min serial upload (§QSPI). "
+                         "load the bare-metal AEM image or flash-boot Linux bring-up images. "
                          "Included by --all-blocks.")
-    ap.add_argument("--flashboot", default="kernel", choices=["none", "kernel", "full"],
-                    help="which boot images live in flash (needs --with-spiflash): 'kernel' "
+    ap.add_argument("--flashboot", default="kernel",
+                    choices=["none", "baremetal", "kernel", "full"],
+                    help="which artifacts live in flash (needs --with-spiflash or --all-blocks): "
+                         "'baremetal' stores the raw AEM image beside the bitstream; 'kernel' "
                          "(default) pre-loads the 14 MB kernel from flash and serial-uploads "
                          "the rest (~60%% faster); 'full' flash-boots everything with zero "
                          "upload (only fits with a slimmed <6.5 MB kernel  -  see "
@@ -6858,6 +6918,18 @@ def main():
                          "is set via --sys-clk-freq. See docs/findings/LATENCY_INVESTIGATION.md §8.")
     builder_args(ap)
     args = ap.parse_args()
+
+    if args.software_profile == "baremetal":
+        if args.cpu != "vexiiriscv" or args.xlen != 32 or args.cpu_count != 1:
+            ap.error("--software-profile baremetal requires --cpu vexiiriscv "
+                     "--xlen 32 --cpu-count 1")
+        if args.with_fpu or args.l2_bytes or args.scala_args:
+            ap.error("--software-profile baremetal requires no FPU, --l2-bytes 0, "
+                     "and no --scala-args overrides")
+        if args.flashboot not in ("none", "baremetal"):
+            ap.error("--software-profile baremetal uses --flashboot baremetal (or none)")
+    elif args.flashboot == "baremetal":
+        ap.error("--flashboot baremetal requires --software-profile baremetal")
 
     # ---- L1 BINDING REFUSAL: the board must ROUTE the front-end it is asked
     #      for. BEFORE the platform is built, so an unbackable request is a
@@ -6932,6 +7004,7 @@ def main():
                    milan_clk_freq=args.milan_clk_freq, l2_bytes=args.l2_bytes,
                    num_streams=args.num_streams,
                    pcm_ring=args.pcm_ring,
+                   sound_card=args.sound_card,
                    aaf_playback=args.aaf_playback,
                    aaf_pb_streams=args.aaf_playback_streams,
                    loopback_lane=args.loopback_lane,
@@ -6959,6 +7032,7 @@ def main():
                    eth_phy_index=(1 if args.eth_port == "e2" else 0),
                    hs_page_bytes=args.hs_page_bytes,
                    with_fpu=args.with_fpu, extra_scala_args=args.scala_args,
+                   software_profile=args.software_profile,
                    coherent_dma=args.coherent_dma,
                    rgmii_tx_delay=args.rgmii_tx_delay,
                    rgmii_rx_delay=args.rgmii_rx_delay,
@@ -6987,6 +7061,10 @@ def main():
         soc.platform.add_platform_command("set_multicycle_path 2 -setup -through [get_nets sys_rst]")
         soc.platform.add_platform_command("set_multicycle_path 1 -hold  -through [get_nets sys_rst]")
     builder = Builder(soc, **builder_argdict(args))
+    if args.software_profile == "baremetal":
+        fw_dir = os.path.join(REPO_ROOT, "sw", "firmware", "milan_baremetal")
+        builder.add_software_package("libmilan_baremetal", fw_dir)
+        builder.add_software_library("libmilan_baremetal", always_link=True)
     # Aggressive timing closure (opt-in): enables the post-place phys_opt pass
     # (off by default in LiteX) and steps place/route/phys-opt up to their
     # timing-focused directives  -  enough to close the marginal CBS setup path at
@@ -7028,6 +7106,39 @@ def main():
     if getattr(soc, "_pp_windows", None):
         _desc_blob, _desc_report, _desc_overlay = build_desc_image(
             args.entity_gen_dir)
+    if args.software_profile == "baremetal":
+        if _desc_blob is None:
+            raise RuntimeError("baremetal firmware requires the protocol-processor entity image")
+        if len(_desc_blob) > FLASHBOOT_AEM["size"]:
+            raise RuntimeError(
+                f"entity image is {len(_desc_blob)} bytes, larger than the "
+                f"{FLASHBOOT_AEM['size']}-byte baremetal flash slot")
+        soc.add_constant("MILAN_AEM_FLASH_OFFSET", FLASHBOOT_AEM["offset"])
+        soc.add_constant("MILAN_AEM_IMAGE_BYTES", len(_desc_blob))
+        soc.add_constant("MILAN_AEM_IMAGE_CRC32",
+                         binascii.crc32(_desc_blob) & 0xFFFF_FFFF)
+        soc.add_constant("MILAN_AEM_DESC_BASE", soc._pp_windows["desc_base"])
+        with open(_desc_overlay, encoding="utf-8") as fh:
+            _baremetal_ovl = json.load(fh)
+        _eid = int(_baremetal_ovl["adp"]["entity_id"], 16)
+        _mid = int(_baremetal_ovl["entity"]["entity_model_id"], 16)
+        _mac = bytes.fromhex(_baremetal_ovl["adp"]["mac_address"].replace(":", ""))
+        _aaf_talkers = sum(s.get("kind", "aaf") == "aaf"
+                           for s in _baremetal_ovl["stream_outputs"])
+        with open(_builder_out(args.entity_gen_dir, "lwsrp_table.json"),
+                  encoding="utf-8") as fh:
+            _baremetal_srp = json.load(fh)
+        soc.add_constant("MILAN_ENTITY_ID_LO", _eid & 0xFFFF_FFFF)
+        soc.add_constant("MILAN_ENTITY_ID_HI", _eid >> 32)
+        soc.add_constant("MILAN_MODEL_ID_LO", _mid & 0xFFFF_FFFF)
+        soc.add_constant("MILAN_MODEL_ID_HI", _mid >> 32)
+        soc.add_constant("MILAN_STATION_MAC_LO", int.from_bytes(_mac[:4], "little"))
+        soc.add_constant("MILAN_STATION_MAC_HI", int.from_bytes(_mac[4:], "little"))
+        soc.add_constant("MILAN_N_TALKERS", _aaf_talkers)
+        soc.add_constant("MILAN_SR_VID",
+                         int(_baremetal_srp["reset_words"]["LWSRP_VID"], 16))
+        soc.add_constant("MILAN_LWSRP_CTRL_RESET",
+                         int(_baremetal_srp["reset_words"]["LWSRP_CTRL"], 16))
     builder.build(run=args.build, **build_kwargs)  # run=False => elaborate + export gateware, no Vivado
     # Ship the entity model WITH the gateware that reads it, and record the
     # base it was compiled for. Bitstream and image are one deliverable: a

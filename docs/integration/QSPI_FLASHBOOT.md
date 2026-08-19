@@ -3,13 +3,14 @@
 ## Contents
 
 - **[The device at a glance](#the-device-at-a-glance)** — The to-scale flash map, generated from the same `load_map()` that emits the kernel's `fixed-partitions` node — so map, device tree and picture cannot drift apart. The generator also re-runs the overlap/alignment check and prints the verdict *onto* the drawing, which is how a broken map becomes visible before flash time.
-- **[Layout "full" — THE DEPLOYED TRUTH (2026-07-24, silicon-verified end-to-end)](#layout-full--the-deployed-truth-2026-07-24-silicon-verified-end-to-end)** — Start here. The current slot table, plus two traps that have each bitten twice: the `dtb` slot is a **decoy** — the kernel boots on the FDT embedded in OpenSBI — and LiteX CSR addresses shift whenever the gateware block set changes, so a stale DTB produces symptoms as oblique as a ptp4l tx-timestamp timeout. Ends with real boot timing: ~7 min cold to network-up, so probe windows need ≥ 8 min.
+- **[Layout "baremetal" - shipping AX7101](#layout-baremetal---shipping-ax7101)** - Firmware is in ROM and the only manifest image is raw `aem_desc.bin` in a 64 KiB slot at 4 MiB.
+- **[Layout "full" — LINUX BRING-UP TRUTH (2026-07-24, silicon-verified end-to-end)](#layout-full--linux-bring-up-truth-2026-07-24-silicon-verified-end-to-end)** — The retained Linux slot table, plus two traps that have each bitten twice: the `dtb` slot is a **decoy** — the kernel boots on the FDT embedded in OpenSBI — and LiteX CSR addresses shift whenever the gateware block set changes, so a stale DTB produces symptoms as oblique as a ptp4l tx-timestamp timeout. Ends with real boot timing: ~7 min cold to network-up, so probe windows need ≥ 8 min.
 - **[Layout v3 — SUPERSEDED HISTORY (2026-07-12; offsets no longer deployed)](#layout-v3--superseded-history-2026-07-12-offsets-no-longer-deployed)** — Historical: these offsets are not what ships. Kept for the reasoning that is still true — why the kernel is flashed as `Image.xz` (there is no non-EFI self-extracting kernel on RISC-V), the xz stream rule the vendored decoder imposes, and the four cooperating pieces the whole feature is built from.
 - **[The hard constraint: 16 MB flash vs 23 MB of images](#the-hard-constraint-16-mb-flash-vs-23-mb-of-images)** — Why there are two manifests at all: 16 MB of device against ~23 MB of un-slimmed images. Bannered — the arithmetic is permanent but the kernel-at-offset-0 arrangement it argued for is pre-v3 and has not shipped since 2026-07-12. The slot map inside is now read off `FLASHBOOT_LAYOUT` and starts with the bitstream, matching the deployed table above.
 - **[How the boot works](#how-the-boot-works)** — The boot-method priority chain and what full vs partial each do. The reassuring part: every copy is CRC-checked from the FBI header, so an empty or half-written flash falls through to serialboot rather than bricking the boot.
 - **[Usage](#usage)** — The four commands in order — apply the BIOS patch (re-run after every LiteX upgrade), build, flash, then the fast iteration loop that JTAG-loads gateware while the kernel stays in flash.
 - **[Getting to zero-upload](#getting-to-zero-upload)** — The three steps that get a boot to upload nothing, and the size targets they have to hit. `flash-images` refuses an oversized image, so an un-slimmed kernel fails loudly instead of half-writing the layout.
-- **[Caveats](#caveats)** — Seven, and the first is the expensive one: `--coherent-dma` is mandatory and *not* implied by `--all-blocks` — without it RX skbs arrive all-zero and TX sends stale data the peer silently filters. The rest cover FBI endianness, flash addressing, one bullet struck through (the board *does* hold its bitstream in flash and config-boots from it, so JTAG `load` is a speed choice rather than a requirement), and the newest one: the AECP descriptor image has no flash slot at all — it lives in DRAM and has to be written there every boot.
+- **[Caveats](#caveats)** — Linux DMA coherency, FBI endianness, flash addressing and the profile-specific AEM path. Bare-metal has a raw AEM slot; Linux still loads the paired image from its rootfs on every boot.
 - **[Validated](#validated)** — What was actually checked at the time, including the negative: the slot check correctly *rejects* a 14 MB kernel against the 8.5 MiB slot.
 - **[2026-07-06: zero-upload ACHIEVED  -  the sizes that made "full" fit](#2026-07-06-zero-upload-achieved-----the-sizes-that-made-full-fit)** — Frozen record of the two rounds of slimming, with the before/after per lever. The kernel-config gotcha worth stealing: without `CONFIG_EXPERT=y` the VT/INPUT disables **silently fail**.
 - **[Planned: boot-chain compression (BIOS-LZ4 kernel)  -  bitstream stays JTAG](#planned-boot-chain-compression-bios-lz4-kernel-----bitstream-stays-jtag)** — A proposal, not shipped. Argues the decompressor belongs in the LiteX BIOS rather than OpenSBI, prices the gain at ~3.4 MiB of freed flash, and records the decision that the bitstream stays JTAG-loaded even though the freed space would fit it.
@@ -24,6 +25,7 @@ The descriptor-read behavior described below is checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
+| `soc.baremetal-profile` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ![QSPI flash map](../diagrams/flash_layout.svg)
@@ -45,7 +47,33 @@ The generator also re-runs the map consistency check (overlap / erase-block
 alignment / past-the-device) and prints the verdict on the drawing, so a broken
 map is visible in the picture rather than only at flash time.
 
-## Layout "full" — THE DEPLOYED TRUTH (2026-07-24, silicon-verified end-to-end)
+## Layout "baremetal" - shipping AX7101
+
+The shipping AX7101 build uses `--software-profile baremetal --flashboot
+baremetal`. Firmware is linked into the FPGA ROM, so there is no kernel,
+OpenSBI, DTB or rootfs boot image.
+
+| slot | offset | budget | format | notes |
+|---|---:|---:|---|---|
+| bitstream | `0x00_0000` | 4 MiB | raw FPGA configuration | Written with `openFPGALoader -f --verify`; configuration logic reads it at power-on. |
+| AEM | `0x40_0000` | 64 KiB | raw `aem_desc.bin` | Begins with `AEMI`; never FBI-wrapped. Firmware copies it into paired DRAM and verifies the generated length and CRC32 before enabling ADP/processor. |
+
+The AEM slot deliberately aliases the Linux kernel offset because manifests
+are mutually exclusive. The journal and user ranges remain reserved. Always
+flash the AEM from the same build as the bitstream: its entity/model identity,
+length, CRC and destination are compiled into that firmware.
+
+```console
+sw/litex/build.sh ax7101
+sw/litex/build.sh flash ax7101:<builddir>
+```
+
+`deploy.sh flash-images` reads `flashboot_layout.json`, selects
+`<builddir>/aem_desc.bin` by default, checks the 64 KiB budget, writes it raw
+and verifies the flash write. See [BAREMETAL_FIRMWARE.md](BAREMETAL_FIRMWARE.md)
+for boot ordering and UART validation.
+
+## Layout "full" — LINUX BRING-UP TRUTH (2026-07-24, silicon-verified end-to-end)
 
 The layout of record is the `--flashboot full` manifest baked into the
 gateware BIOS (`flashboot_layout.json` in every build dir — ALWAYS read the
@@ -148,7 +176,7 @@ It has three cooperating pieces plus a host boot-list, all opt-in behind
 > flash — is the **pre-v3** layout and has not been deployed since 2026-07-12.
 > What ships puts the **bitstream at `0x00_0000` with a 4 MiB budget and the
 > kernel at `0x40_0000`**; that is what
-> [Layout "full"](#layout-full--the-deployed-truth-2026-07-24-silicon-verified-end-to-end)
+> [Layout "full"](#layout-full--linux-bring-up-truth-2026-07-24-silicon-verified-end-to-end)
 > above describes, what `FLASHBOOT_LAYOUT` in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py) contains,
 > and what a build's own `flashboot_layout.json` exports (re-verified against a
 > build dir while flashing, 2026-07-27). Two things below are stale rather than
@@ -196,7 +224,7 @@ So **not everything fits at once**. Two manifests (`--flashboot`):
 
 The map below is read straight out of `FLASHBOOT_LAYOUT` + `FLASHBOOT_RESERVED`
 in [`sw/litex/milan_soc.py`](../../sw/litex/milan_soc.py). It is the same map the
-[deployed-truth table](#layout-full--the-deployed-truth-2026-07-24-silicon-verified-end-to-end)
+[Linux bring-up table](#layout-full--linux-bring-up-truth-2026-07-24-silicon-verified-end-to-end)
 above renders slot by slot, and the same one the SVG at the top of this page is
 generated from:
 
@@ -228,6 +256,12 @@ the `rootfs` budget in particular has already moved once (v4, 2026-07-26).
 ---
 
 ## How the boot works
+
+For `baremetal`, the LiteX BIOS itself is the application. Its Milan init hook
+loads and CRC-checks the raw AEM slot, programs fabric policy, and enables the
+entity only on success. It does not invoke `linux_flashboot` or serialboot.
+
+The Linux `kernel` and `full` manifests retain the boot-method sequence below.
 
 `define_boot_method(milan_flash, …, priority −10)` runs **before** serialboot (priority 0),
 which stays as the fallback. The BIOS boot sequence tries methods in ascending priority:
@@ -269,6 +303,15 @@ Re-run it after any `pip install -U litex` (an upgrade resets the BIOS sources).
 the `MILAN_FLASHBOOT_*` constants are inert and the build still works (serial boot only).
 
 ### Build a flash-boot bitstream
+
+Shipping bare-metal:
+
+```sh
+sw/litex/build.sh ax7101
+LAYOUT=<build>/flashboot_layout.json sw/litex/deploy.sh flash-images
+```
+
+The following commands describe the retained Linux bring-up flow:
 
 ```sh
 sw/litex/deploy.sh build            # --all-blocks already implies --with-spiflash --flashboot kernel
@@ -347,14 +390,16 @@ kernel fails loudly instead of half-writing.
   verified) writes raw at any offset, so writing offset 0 by hand is fine here
   (it is the bitstream slot in the deployed layout, and was the kernel slot
   pre-v3).
-* **The AECP descriptor image is loaded on every boot rather than flashed into
-  its own slot.** Since 2026-08-13 the entity model is not a ROM in gateware:
+* **The AEM path is profile-specific.** Since 2026-08-13 the entity model is
+  not a ROM in gateware:
   the protocol processor's descriptor store fetches it from **DRAM**, at a
   **compile-time** base (`PP_DESC_BASE_P`, derived by the SoC as the top 1 MiB
   of `main_ram` and reserved in the device tree — there is no base register to
-  program). It has no flash slot and none of the four manifest images carries
-  it, so **software must write it into DRAM on every boot, before enabling the
-  entity** (`PP_CTRL[0]` at `0x920`, ORed with `ADP_CTRL[0]` at `0x600`). The
+  program). Under Linux it has no flash slot and software must write the paired
+  rootfs image into DRAM on every boot before enabling the entity. Under the
+  shipping bare-metal manifest, raw `aem_desc.bin` occupies the 64 KiB slot at
+  `0x40_0000`; firmware copies and CRC-checks it before enabling
+  `PP_CTRL[0]` and `ADP_CTRL[0]`. The
   end-station builder produces `aem_desc.bin`, `aem_desc.json`, and
   `aem_desc.map`. The tracked rootfs packages the paired artifacts under
   `/etc/milan-aem/`, and `aemi-load` verifies and writes the image before entity
@@ -373,6 +418,9 @@ kernel fails loudly instead of half-writing.
   (`kernel`: kernel-only, no `COMPLETE`; `full`: all four + `COMPLETE`).
 * The patched BIOS compiles; `linux_flashboot` and `milan_flash_boot_method` link into the
   boot-method section.
+* The RV32I bare-metal BIOS compiles and the generated `baremetal` layout
+  contains only bitstream plus the 64 KiB raw AEM slot. The deployment path
+  leaves the `AEMI` bytes unframed.
 * `deploy.sh flash-images` wraps the real 14 MB `Image` into a 14 MB+8 B FBI, passes the
   slot check for the kernel manifest, and issues the correct `openFPGALoader` write; it
   correctly **rejects** the 14 MB kernel against the 8.5 MiB `full` slot.

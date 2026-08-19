@@ -62,6 +62,9 @@
 #ifndef AIF_I2S_PAIR_TB
 #define AIF_I2S_PAIR_TB 0       // milan_datapath AUDIO_IF_I2S_PAIR_P default
 #endif
+#ifndef SOUND_CARD_TB
+#define SOUND_CARD_TB 1          // historical legs exercise the Linux PCM ring
+#endif
 
 //! Is the TONE_CTRL pilot override wired into the CAPTURE FRONT END on this
 //! build? It is an I2S-bench feature and lives in KL_aaf_capture_i2s alone:
@@ -1456,9 +1459,11 @@ int main(int argc, char** argv) {
             long ring_bad = 0;
             for (size_t i = 0; i < pcm.size() && i < 48; i++)
                 if (pcm[i] != (uint8_t)(0x30 + i)) ring_bad++;
-            ck("...carrying the PDU's 48 payload octets", (long)pcm.size(), 48);
-            ck("...byte-exact against the injected payload", ring_bad, 0);
-            ck("...and the ring packet closed (tlast)", pcm_last ? 1 : 0, 1);
+            ck("...host PCM payload follows the sound-card shape",
+               (long)pcm.size(), SOUND_CARD_TB ? 48 : 0);
+            ck("...present host payload is byte-exact", ring_bad, 0);
+            ck("...host ring tlast follows the sound-card shape",
+               pcm_last ? 1 : 0, SOUND_CARD_TB ? 1 : 0);
         }
         //! the MEDIA_LOCKED level is a consequence of acceptance
         ck("...and MEDIA_LOCKED asserts (0x6B8)",
@@ -1483,8 +1488,10 @@ int main(int argc, char** argv) {
             long ring_bad = 0;
             for (size_t i = 0; i < pcm.size() && i < 48; i++)
                 if (pcm[i] != (uint8_t)(0x30 + i)) ring_bad++;
-            ck("tagged: the realigned payload reached the ring, byte-exact",
-               (long)(pcm.size() == 48 && ring_bad == 0), 1);
+            ck("tagged: host payload follows the sound-card shape",
+               (long)(SOUND_CARD_TB
+                      ? (pcm.size() == 48 && ring_bad == 0)
+                      : pcm.empty()), 1);
         }
         // ---- RX parser probe (APRB 0x8B4-0x8C4) --------------------------
         // The pre-match view: every counter above only exists once a frame

@@ -28,7 +28,7 @@
   //! Writable SET_NAME/GET_NAME entries in this exact AEM model.
   //! This sizes the processor overlay from the generated descriptor
   //! shape, so a larger model cannot compile with a smaller cache.
-  localparam int AEM_NAME_ENTRIES_C = 47;
+  localparam int AEM_NAME_ENTRIES_C = 31;
   //! talker_capabilities (1722.1-2021 Table 6.4): IMPLEMENTED |
   //! AUDIO_SOURCE, + MEDIA_CLOCK_SOURCE only when a CRF STREAM_OUTPUT
   //! exists to back it
@@ -45,25 +45,25 @@
   //! partition plus its global cluster-key projection. RPHYS entries
   //! are {valid, render_crossbar_key[5:0]}; non-physical clusters
   //! remain protocol-visible mappings without aliasing a physical pin.
-  localparam int ADP_DMAP_IN_KEYS_C    = 8;
-  localparam int ADP_DMAP_IN_PAGE_C    = 8;
+  localparam int ADP_DMAP_IN_KEYS_C    = 1;
+  localparam int ADP_DMAP_IN_PAGE_C    = 1;
   localparam int ADP_DMAP_IN_NPORTS_C  = 1;
   localparam int ADP_DMAP_IN_NSTRIN_C  = 2;
   localparam logic [6:0] ADP_DMAP_IN_PBASE_C [0:0] = '{7'd0};
-  localparam logic [6:0] ADP_DMAP_IN_PCLS_C [0:0] = '{7'd8};
-  localparam logic [6:0] ADP_DMAP_IN_PNMAPS_C [0:0] = '{7'd1};
-  localparam logic [6:0] ADP_DMAP_IN_RPHYS_C [0:7] = '{7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00, 7'h00};
+  localparam logic [6:0] ADP_DMAP_IN_PCLS_C [0:0] = '{7'd0};
+  localparam logic [6:0] ADP_DMAP_IN_PNMAPS_C [0:0] = '{7'd0};
+  localparam logic [6:0] ADP_DMAP_IN_RPHYS_C [0:0] = '{7'h00};
   localparam logic  ADP_DMAP_IN_SAAF_C [0:1] = '{1'b1, 1'b0};
   localparam logic [9:0] ADP_DMAP_IN_SCH_C [0:1] = '{10'd8, 10'd0};
   //! Dynamic output geometry and capture-source words are copied
   //! from the AEM generator's ODMAP table. CSRC uses the fabric word
   //! {valid, half, src[2:0], idxh[3:0], idx[3:0]}.
   localparam int ADP_DMAP_OUT_NPORTS_C = 1;
-  localparam int ADP_DMAP_OUT_NSRC_C    = 25;
-  localparam logic [6:0] ADP_DMAP_OUT_PCLS_C [0:0] = '{7'd25};
+  localparam int ADP_DMAP_OUT_NSRC_C    = 17;
+  localparam logic [6:0] ADP_DMAP_OUT_PCLS_C [0:0] = '{7'd17};
   localparam logic [7:0] ADP_DMAP_OUT_PCBASE_C [0:0] = '{8'd0};
   localparam logic [9:0] ADP_DMAP_OUT_SCH_C [0:0] = '{10'd8};
-  localparam logic [12:0] ADP_DMAP_OUT_CSRC_C [0:24] = '{13'h1200, 13'h1A00, 13'h1201, 13'h1A01, 13'h1202, 13'h1A02, 13'h1203, 13'h1A03, 13'h1300, 13'h1B00, 13'h1301, 13'h1B01, 13'h1302, 13'h1B02, 13'h1303, 13'h1B03, 13'h1400, 13'h1500, 13'h1D00, 13'h1501, 13'h1D01, 13'h1502, 13'h1D02, 13'h1503, 13'h1D03};
+  localparam logic [12:0] ADP_DMAP_OUT_CSRC_C [0:16] = '{13'h1200, 13'h1A00, 13'h1201, 13'h1A01, 13'h1202, 13'h1A02, 13'h1203, 13'h1A03, 13'h1400, 13'h1500, 13'h1D00, 13'h1501, 13'h1D01, 13'h1502, 13'h1D02, 13'h1503, 13'h1D03};
   //! THE WIRE CHANNEL CONSTANT (roadmap item 00): channels_per_frame
   //! the FRAMER emits, derived from the capture front-end this config
   //! elaborates - NOT from any declared format and NOT from `clusters`

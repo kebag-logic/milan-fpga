@@ -1,0 +1,44 @@
+--- a/litex/soc/cores/cpu/vexiiriscv/core.py
++++ b/litex/soc/cores/cpu/vexiiriscv/core.py
+@@ -28,7 +28,7 @@
+ 
+ # Variants -----------------------------------------------------------------------------------------
+ 
+-CPU_VARIANTS = ["standard", "cached", "linux", "debian"]
++CPU_VARIANTS = ["baremetal", "standard", "cached", "linux", "debian"]
+ 
+ # VexiiRiscv -----------------------------------------------------------------------------------------
+ 
+@@ -248,11 +248,17 @@
+ 
+         if with_user_isa:
+             isa_map.update(args.isa)
+-        isa_map.update(["m", "zihpm", "zicntr"])
+-        vexii_args += " --with-mul --with-div --allow-bypass-from=0"
+-        vexii_args += " --fetch-l1 --fetch-l1-ways=2"
+-        vexii_args += " --lsu-l1 --lsu-l1-ways=2  --with-lsu-bypass"
+-        vexii_args += " --relaxed-branch"
++        if args.cpu_variant == "baremetal":
++            # Smallest LiteX-usable Vexii: RV32I + the ParamSimple baseline
++            # Zicsr/Zifencei, M-mode only, no MMU, caches, predictor, mul/div,
++            # or performance counters. Compiler-RT supplies integer helpers.
++            pass
++        else:
++            isa_map.update(["m", "zihpm", "zicntr"])
++            vexii_args += " --with-mul --with-div --allow-bypass-from=0"
++            vexii_args += " --fetch-l1 --fetch-l1-ways=2"
++            vexii_args += " --lsu-l1 --lsu-l1-ways=2  --with-lsu-bypass"
++            vexii_args += " --relaxed-branch"
+ 
+         if args.cpu_variant in ["linux", "debian"]:
+             VexiiRiscv.with_opensbi = True
+@@ -568,7 +574,8 @@
+         # Define ISA.
+         soc.add_config("CPU_COUNT", VexiiRiscv.soc_args.cpu_count)
+         soc.add_config("CPU_ISA", VexiiRiscv.get_arch())
+-        soc.add_config("CPU_MMU", {32 : "sv32", 64 : "sv39"}[VexiiRiscv.xlen])
++        if VexiiRiscv.with_supervisor:
++            soc.add_config("CPU_MMU", {32 : "sv32", 64 : "sv39"}[VexiiRiscv.xlen])
+ 
+         if VexiiRiscv.soc_args.with_aplic:
+             soc.bus.add_region("aplic_m",  SoCRegion(origin=soc.mem_map.get("aplic_m"),  size=0x20_0000, cached=False,  linker=True))

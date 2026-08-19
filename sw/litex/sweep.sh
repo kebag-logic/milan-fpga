@@ -37,8 +37,8 @@ R="$(cd "$(dirname "$(realpath "$0")")/../.." && pwd)"
 # OPTS/L2/RXQ/NS == the end-station config named in CFG below.
 # ========================================================================
 case "$BOARD" in
-  arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --cbs-queues-mask 0x10"; L2=16384; RXQ=2;;  # L2 16K since 2026-07-29 (USER; uniform with the AX). 4x4 tdm8-MASTER is the shipping Arty shape since 2026-07-28 (the 8.3b decision: TDM8 physical capture + the I2S Pmod blended as pair slot 0); arty_current (1x1 i2s) remains for build.sh recipes and history
-  ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --aaf-playback --aaf-playback-streams 1"; L2=32768; RXQ=2;;  # USER 2026-08-06: L2 32K (boot decompress + service headroom). USER 2026-08-05: the SHIPPING AX shape is 1x1x8 TDM8 (endstation_ax7101_1x1_tdm8.yaml) - one 8ch talker + one 8ch listener with the loopback lane BACKED (4 pair holds; the 8x8 refused it at +2303 LUT), latency taps + datapath probes back on (1x1 headroom). The inline table states the shipping design IN FULL because it is the fallback when the fragment is missing - the 2026-07-28 lesson (three seeds built a default-I2S 2ch datapath while every artifact said tdm32 8ch) applies to every shape change. The 8x8 NxN shape remains one SWEEP_CFG=configs/endstation_ax7101_8x8.yaml away; its flags live in that config, not here. RXQ 2 = the D7 gPTP-starvation fix; eth-port e1 = the cabled port (USER 2026-07-27).
+  arty)   OPTS="--board arty --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --num-streams 4 --audio-interface tdm8 --audio-interface-master --talker-wire-chans 4 --cbs-queues-mask 0x10 --sound-card --cpu vexiiriscv --software-profile linux --xlen 32 --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt --l2-bytes 16384 --scala-args=--lsu-l1-refill-count=2 --scala-args=--l2-down-pending=4 --scala-args=--l2-general-slots=8 --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 --cpu-count 1"; L2=16384; RXQ=2;;  # Linux bring-up board: the sound-card surface and established RV32 cache profile stay available until #116.
+  ax7101) OPTS="--board ax7101 --milan-clk-freq 100e6 --gtx-tx-invert --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --cpu vexiiriscv --software-profile baremetal --xlen 32 --all-blocks --coherent-dma --with-spiflash --flashboot baremetal --timing-opt --l2-bytes 0 --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 --cpu-count 1"; L2=0; RXQ=2;;  # Shipping AX shape: cacheless RV32 bare-metal, no Linux sound-card rings; fabric AAF/TDM/crossbar and the backed loopback lane stay present.
   *) echo "unknown board $BOARD" >&2; exit 2;;
 esac
 # NS = NxN dataplane width (--num-streams / milan_datapath N_STREAMS). It is a
@@ -114,21 +114,13 @@ grep -q "$(basename "$CFG")" "$CFG_GEN/gen/adp_shape_defaults.svh" || {
 # synthesis; the 07-24 note that rejected AreaOptimized was about timing at
 # the old margin (pre multicycle-reset, pre CBS-mask). The 3-seed WNS pick
 # stays the timing guard.
-# --xlen 32 + the RV32-tuned scala args ARE THE PROVEN CPU (launch_x32f1.sh,
-# silicon 0x0022): sweep.sh's BASE kept the RV64-era args (xlen default 64,
-# refill 8, rpt prefetch, 8/16 queues) after the rv32 campaigns moved to a
-# hand launcher - every sweep build since generated an RV64 CPU under the
-# RV32 boot chain and died SILENTLY at the BIOS->OpenSBI jump (Liftoff,
-# then nothing; memtest green). One evening of shape-bisect artifacts,
-# 2026-08-05. The CPU words belong to the BASE, not to a side script.
-BASE="python3 $R/sw/litex/milan_soc.py $OPTS --cpu vexiiriscv --xlen 32 \
- --entity-gen-dir $CFG_GEN \
+# OPTS is the builder-emitted COMPLETE SoC shape, including the CPU software
+# profile. Keeping the CPU/flash/cache words there is what lets the shipping
+# AX profile be cacheless bare-metal while the Arty Linux bring-up profile
+# remains selectable without a second hand-maintained BASE.
+BASE="python3 $R/sw/litex/milan_soc.py $OPTS --entity-gen-dir $CFG_GEN \
  --synth-directive AreaOptimized_high --opt-directive ExploreArea \
- --all-blocks --coherent-dma --with-spiflash --flashboot full --timing-opt \
- --l2-bytes ${L2} --scala-args=--lsu-l1-refill-count=2 \
- --scala-args=--l2-down-pending=4 \
- --scala-args=--l2-general-slots=8 --uart-baudrate 115200 --rx-queues ${RXQ} \
- --strip-probes --hs-page-bytes 16384 --cpu-count 1 --vivado-max-threads 32 --build"
+ --vivado-max-threads 32 --build"
 cd "$W"
 rm -rf build_${BOARD}_{asl,eto,eppo}_${TAG}
 launch() {

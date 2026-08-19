@@ -65,7 +65,10 @@
 `default_nettype none
 
 module KL_pcm_route #(
-  parameter int unsigned N_LISTENERS_P = 1   //! listener streams
+  parameter int unsigned N_LISTENERS_P = 1,  //! listener streams
+  //! Host-facing PCM-ring surface. Zero removes every DMA-ring transfer while
+  //! leaving the render selection and depacketizer consumption live.
+  parameter int unsigned DMA_ENABLE_P = 1
 )(
   input  wire         clk_i,           //! Global clock
   input  wire         rst_n,           //! Active-low synchronous reset
@@ -138,7 +141,8 @@ module KL_pcm_route #(
     for (int s = 0; s < N_LISTENERS_P; s++)
       if (32'(s_tuser_i) == s) cur_route_w = route_r[s];
   end : route_lookup
-  wire       to_ring_w   = cur_route_w[ROUTE_DMA_B_C];
+  wire       to_ring_w   = (DMA_ENABLE_P != 0)
+                           && cur_route_w[ROUTE_DMA_B_C];
   wire       is_render_w = render_active_o && (s_tuser_i == render_sel_o);
 
   //! ring output: only DMA-flagged frames pass; everything else is

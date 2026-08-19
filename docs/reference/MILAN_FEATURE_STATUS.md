@@ -33,6 +33,8 @@ served on the wire while still having a known behavioral defect.
 | `state.nonvolatile-persistence` | `missing` | - |
 | `notifications.change-events` | `partial` | - |
 | `notifications.controller-liveness` | `missing` | - |
+| `soc.baremetal-profile` | `implemented` | - |
+| `host.sound-card-option` | `implemented` | - |
 | `verification.long-gate-policy` | `implemented` | `local-required, remote-optional` |
 <!-- milan-feature-status:end -->
 

@@ -4,10 +4,9 @@
 # Software-defined Milan End-Station config (USER 2026-08-05).
 # Shape: AX7101 1x1x8 TDM8 - ONE 8-channel AAF listener stream + ONE
 # 8-channel AAF talker stream, the 7.1 channel order [FL FR FC LFE RL RR
-# SL SR] named through `channel_names` (a PARAMETER, not a hardcode), an
-# 8-channel host (shared-memory) lane per direction, and the 8-channel
-# TDM8 loopback lane FABRIC-BACKED - at this shape the +2303-LUT bucket
-# that priced the lane out of the 8x8 shrinks to 4 pair holds and fits.
+# SL SR] named through `channel_names` (a PARAMETER, not a hardcode), physical
+# TDM8 capture, and the 8-channel TDM8 loopback lane. Linux host clusters,
+# PCM rings and playback are absent in the shipping bare-metal profile.
 #
 # Simplifications this shape buys (all measured pains of the 8x8):
 #   - one stream per direction => a mapping can never name a foreign
@@ -33,6 +32,7 @@ entity:
 board:
   target: ax7101
   features:
+    sound_card: false    # shipping bare-metal fabric has no ALSA host rings
     i2s_playback: false   # the AX routes NO audio pads (_connectors = [])
     latency_taps: true    # item-11 telemetry: at 1x1 the taps fit with room
                           # to spare, and the 0.44% stress-late residue wants
@@ -43,11 +43,11 @@ board:
   constraints:
     sys_clk_hz: 100000000
     milan_clk_hz: 100000000
-    l2_bytes: 32768  # USER 2026-08-06: 32K L2 (boot decompress + service headroom)
+    l2_bytes: 0      # cacheless RV32I bare-metal core; no L1/L2/MMU
     phy: gmii-1g
     gtx_tx_invert: true
     floorplan: true
-    flashboot: full
+    flashboot: baremetal
     uart_baudrate: 115200
     rx_queues: 2
     hs_page_bytes: 16384
@@ -71,12 +71,16 @@ platform:
   csr_base: 0x90000000
   mac_address: "02:00:00:00:00:01"   # board 1
   interrupt: 3
-  pcm_ring_phys: 0x7f800000          # ONE capture stream x 1 MiB at the top
-  pcm_ring_bytes: 0x100000           # of the AX7101's 1 GiB main_ram
-  pcm_ring_stride: 0x100000
+  pcm_ring_phys: 0x7f800000          # sound_card=false emits no PCM region;
+  pcm_ring_bytes: 0x100000           # this boundary anchors the 1 MiB PP
+  pcm_ring_stride: 0x100000          # window immediately below 0x7f800000
   boot_chain_pin:                    # re-verify against the BUILD's csr.csv
     dma-ts: 0xf0003100               # at flash time (8.2 checklist) - the
-    pcm-dma: 0xf0003120              # 5ce9a13 CSR-rot class, gate 19c
+
+soc:
+  software_profile: baremetal
+  xlen: 32
+  scala_args: []
 
 gptp:
   # ONE source (USER 2026-08-05): these values generate BOTH the
@@ -145,31 +149,20 @@ audio_interface:
                                      #      KL_tdm_render_master sibling; the
                                      #      capture side got one, render did
                                      #      not.
-                                     #  (2) the render map is keyed by GLOBAL
-                                     #      cluster index and gated at
-                                     #      AEM_DMAP_PHYS_C = 10
-                                     #      (KL_aecp_response_builder.sv:1533).
-                                     #      8 physical + 8 host = 16 clusters
-                                     #      would return BAD_ARGUMENTS for
-                                     #      keys 10..15 - six host clusters
-                                     #      become unmappable. A REGRESSION,
-                                     #      not a gap.
-                                     #  (3) CHMAP_PHYS_C = 10 bakes the blend
+                                     #  (2) CHMAP_PHYS_C = 10 bakes the blend
                                      #      layout (2 I2S + 8 TDM) into the
                                      #      fabric, so phys 0/1 render into a
                                      #      DAC this shape prunes.
   channel_names: [FL, FR, FC, LFE, RL, RR, SL, SR]
                                      # USER 2026-08-05: the 7.1 order, as a
-                                     # PARAMETER. Names the host clusters
-                                     # verbatim and prefixes the loopback
-                                     # ones; 1722.1-2021 6.2.2.8 excludes
+                                     # PARAMETER. Names the physical clusters
+                                     # verbatim and prefixes loopback clusters;
+                                     # 1722.1-2021 6.2.2.8 excludes
                                      # object_name from the model shape, so
                                      # renaming never moves entity_model_id.
   cluster_mapping:
     policy: role-pools
     pools:
-      host: 8                        # the ALSA/PipeWire lane: 8ch shared-
-                                     # memory ring per direction
       pilot: true                    # one KL_tone_gen Pilot cluster on the
                                      # talker port - the standing tone-based
                                      # identity/THD+N test source
@@ -182,13 +175,12 @@ audio_interface:
                                      # +2303 LUT and was refused; this shape
                                      # affords it, and the loopback clusters
                                      # above stop being model-only)
-      playback_rings: 1              # one 8-channel host ring (KL_pcm_tx)
 
 streams:
   listeners:
-    # map_mode dynamic (Milan v1.2 5.3.3.9 shall). One port, 8 mono
-    # clusters host + 0 physical; GET_AUDIO_MAP pages the port as one
-    # fixed partition.
+    # map_mode dynamic (Milan v1.2 5.3.3.9 shall). There is no physical
+    # render or Linux host lane, so the Stream Port Input truthfully has zero
+    # clusters and no AUDIO_MAP descriptor; the runtime map page remains one.
     # No `formats` list: the builder states the current format as the Milan
     # 6.2 Base format for `channels` at clocking.sampling_rate_hz
     # (0x0205022002006000 = AAF PCM32 48 kHz 8ch) and DERIVES 6.4's family
@@ -205,6 +197,6 @@ streams:
     # Output advertising a Base format and then says "A PAAD-AE Base Talker
     # may advertise any Base Format that is reasonable for its
     # functionality", where 6.4 makes the family a SHALL for Stream Inputs.
-    # A talker cannot honour a wider claim either: it emits one width, while
-    # SET_STREAM_FORMAT remains unimplemented and returns NOT_IMPLEMENTED.
+    # A talker cannot honour a wider claim either: the implemented
+    # SET_STREAM_FORMAT state path does not re-shape the fixed-width framer.
     - { name: "Stream Out 0", channels: 8, map_mode: dynamic }

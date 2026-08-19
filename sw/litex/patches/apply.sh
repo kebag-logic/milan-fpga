@@ -7,6 +7,9 @@
 #   0002-liteeth-gmii-tx-clk-invert.patch -> liteeth (GMII gtx_clk 180° option; fixes the
 #                                            marginal RTL8211E TX setup/hold — used by
 #                                            milan_soc.py --gtx-tx-invert)
+#   0004-vexiiriscv-baremetal-variant.patch -> litex (RV32I, M-mode-only CPU variant)
+#   0005-vexiiriscv-cacheless-litex.patch -> pythondata-cpu-vexiiriscv (connect the
+#                                            cacheless iBus/dBus and direct DMA path)
 #
 # Each tree is discovered from the active Python environment (no hardcoded paths), so this
 # works against a venv, a system install, or a git checkout. Idempotent: re-running is a
@@ -53,3 +56,5 @@ else
     echo "[patches] bios/xz removed"
 fi
 apply_one litex   0003-milan-flashboot-xz-kernel.patch
+apply_one litex   0004-vexiiriscv-baremetal-variant.patch
+apply_one pythondata_cpu_vexiiriscv 0005-vexiiriscv-cacheless-litex.patch

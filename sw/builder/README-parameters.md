@@ -26,12 +26,15 @@ The dynamic-map command and persistence claims are checked against the
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
+| `soc.baremetal-profile` | `implemented` | - |
+| `host.sound-card-option` | `implemented` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
 <!-- milan-feature-status:end -->
 
 ## Contents
 
 - **[Pipeline](#pipeline)** -- One diagram: one YAML config in, and every artifact it fans out to -- SoC argv, AEM overlay, lwSRP table, platform shape, the DT fragment and the sweep-opts shell fragment. Start here to see which generated file you actually care about.
+- **[SoC software profile (`soc:`)](#soc-software-profile-soc)** -- Selects Linux bring-up or the shipping cacheless RV32I bare-metal contract; invalid CPU, cache and flash combinations are refused before SoC generation.
 - **[lwSRP reservation table (srp:, CSR 0x680)](#lwsrp-reservation-table-srp-csr-0x680)** -- Every `srp:` knob with its default chosen so a config *without* the section emits the deployed gateware bit-for-bit. Two things worth the read: the TSpec derivation showing `MaxFrameSize + 42` is exactly the wire slot (so the deployed pinned 224 over-reserves ~2.3× for a stereo talker), and the attribute-context shortfall this emitter surfaced -- an 8×8 shape needs 15 lwSRP rows and gets 8.
 - **[Platform shape (platform:) -- device tree + driver-visible layout](#platform-shape-platform----device-tree--driver-visible-layout)** -- Explains how RX queues determine the DMA window map, how the generated device tree and driver ABI stay paired, and how the boot-chain pin rejects address drift.
 - **[Optional blocks (board.features:) -- the tier-1 prune parameters](#optional-blocks-boardfeatures----the-tier-1-prune-parameters)** -- Lists the six elaboration-time prune controls, their inert values, and the configuration checks that prevent a requested capability from disappearing silently.
@@ -76,6 +79,24 @@ id of a model that no longer existed. Gate 25 asserts that no identity CSR in
 the shipped `S50milan` is written from a literal and that the shipped fragment
 is byte-for-byte what the builder emits for the config `sweep.sh` builds that
 board from.
+
+## SoC software profile (`soc:`)
+
+| Field | Values | Default | Bare-metal contract |
+|---|---|---|---|
+| `soc.software_profile` | `linux` \| `baremetal` | `linux` | Selects the firmware/CPU contract. |
+| `soc.cpu` | `vexiiriscv` \| `naxriscv` | `vexiiriscv` | Must be `vexiiriscv`. |
+| `soc.xlen` | `32` \| `64` | `32` | Must be `32`. |
+| `soc.cpu_count` | positive int | `1` | Must be `1`. |
+| `soc.scala_args` | Vexii argument list | proven Linux cache arguments | Must be empty. |
+| `board.constraints.l2_bytes` | zero or power of two | board/config value | Must be zero. |
+| `board.constraints.flashboot` | `none` \| `baremetal` \| `kernel` \| `full` | board/config value | Must be `baremetal` or `none`. |
+
+The bare-metal selection emits `--software-profile baremetal --xlen 32
+--l2-bytes 0`. LiteX then selects the RV32I machine-mode Vexii variant and
+removes its bus-side SDRAM cache. Linux configurations retain the existing
+cached/MMU-capable bring-up flow. The full firmware and UART contract is in
+[`docs/integration/BAREMETAL_FIRMWARE.md`](../../docs/integration/BAREMETAL_FIRMWARE.md).
 
 ## lwSRP reservation table (`srp:`, CSR 0x680)
 
@@ -153,11 +174,13 @@ DMA window map is a pure **function of `board.constraints.rx_queues`**:
 +0x098  dma-rx1 (q1)  RingDMAWriter         rx_queues≥2 0x68  ┘ shift
    …    dma-ts        WishboneDMAWriter                 0x1C
    …    hs-pgsz-cap   CSRStatus                         0x04
-   …    pcm-dma       PCM ring (flat or NxN)            0x1C
+   …    pcm-dma       PCM ring (sound_card=true only)   0x1C
 ```
 
-1 queue → `dma-ts 0xf000308c`, `hs-pgsz-cap 0xf00030a8`,
-`pcm-dma 0xf00030ac`. 2 queues → `0xf0003100 / 0xf000311c / 0xf0003120`.
+1 queue gives `dma-ts 0xf000308c`, `hs-pgsz-cap 0xf00030a8`, and, when the
+sound card is enabled, `pcm-dma 0xf00030ac`. Two queues give
+`0xf0003100 / 0xf000311c / 0xf0003120` respectively. With the sound card off,
+the PCM block consumes no CSR address and no PCM window appears in the DT.
 Both are byte-verified against the real LiteX `csr.csv` of the shipping
 builds and against the deployed `.dts` files by gate 19b (which SKIPs when
 those trees are absent).
@@ -167,7 +190,7 @@ those trees are absent).
 | `platform.csr_base` | address | `0x90000000` | The AXI-Lite Milan CSR window. Rejected below `0x80000000` (an MMIO peripheral must live in the CPU IO region). |
 | `platform.mac_address` | MAC-48 | **required** | Must be unicast and non-zero. Two boards on one AVB switch must not share it. |
 | `platform.interrupt` | int 0..31 | `3` | The PLIC line (`constant,milan_interrupt` in `csr.csv`). |
-| `platform.pcm_ring_phys` / `_bytes` / `_stride` | address / pow2 / pow2 | `0x4ff00000` / `0x100000` / `0x100000` | The `no-map` reserved region `snd-kl-milan` DMAs into. `stride × capture streams > bytes` is a ConfigError (it would DMA past the region — an NxN shape must grow it). |
+| `platform.pcm_ring_phys` / `_bytes` / `_stride` | address / pow2 / pow2 | `0x4ff00000` / `0x100000` / `0x100000` | With `sound_card: true`, the `no-map` region `snd-kl-milan` DMAs into. With it false, no PCM reservation is emitted; `pcm_ring_phys` still anchors the adjacent protocol-processor window below it. `stride × capture streams > bytes` is a ConfigError. |
 | `platform.dma_coherent` | bool | `true` | Emits `dma-coherent;`. |
 | `platform.boot_chain_pin` | map `window → address` | absent | **The CSR-rot guard.** The flashed DTB/opensbi/`kl-eth` address these windows *by address*; if `rx_queues` would move a pinned one, the build is REFUSED. |
 
@@ -191,17 +214,25 @@ DT does not carry — `MILAN_EV_PHYS`, `MILAN_PHY_CSR_PHYS`,
 `rx_queues`; that is the largest remaining un-modelled coupling and the
 reason the table exists.
 
-## Optional blocks (`board.features:`) -- the tier-1 prune parameters
+## Optional blocks (`board.features:`) -- sound card and tier-1 prunes
 
-[`docs/design/AREA_BUDGET.md`](../../docs/design/AREA_BUDGET.md) tier 1: six
+`sound_card` controls the Linux host audio surface and defaults to `false`.
+The remaining keys are the [`docs/design/AREA_BUDGET.md`](../../docs/design/AREA_BUDGET.md)
+tier-1 datapath blocks; they default to `true`.
+
+When `sound_card` is false, the builder rejects host role-pools and playback
+rings, and emits no `--sound-card`, PCM DMA window, PCM device-tree node or
+reserved ring. Physical capture/render, AAF, CRF and loopback fabric remain.
+
+The tier-1 set contains six
 `milan_datapath` blocks that a given deployment may not be able to use, each
 behind an **elaboration-time** parameter so synthesis drops the instance. The
-whole section is **optional**, and every key **defaults to `true` = PRESENT** —
-a config that says nothing emits exactly today's argv and today's gateware.
+whole section is optional.
 
 ```yaml
 board:
   features:                    # optional; omit the block to keep everything
+    sound_card: false          # default: no Linux PCM DMA/DT/AEM host surface
     media_clock_servo: true
     latency_taps: true
     maap: true

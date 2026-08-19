@@ -2012,6 +2012,13 @@ wrap the ring end  -  software splits its memcpy, hardware splits its bursts (al
 
 ### PCM ring (LiteX CSR bank, `0xf0003120`)
 
+This bank exists only when the SoC is built with the optional `sound_card`
+feature (`milan_soc.py --sound-card`). The shipping bare-metal profile omits
+the bank, its DRAM/BRAM ring master, and the device-tree/ALSA host surface;
+AAF capture, TDM/I2S, render, and loopback fabric remain available. Software
+must discover the host-audio feature from the build description rather than
+assuming this address is present.
+
 The AAF RX payload lands in a wrapping DRAM ring driven by a
 `WishboneDMAWriter` in loop mode (same recipe as the TS record ring):
 `milan_dma_pcm_base/length/enable/loop` configure it, `milan_dma_pcm_offset`
