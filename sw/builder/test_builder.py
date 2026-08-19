@@ -2942,7 +2942,8 @@ def test_optional_block_prune_accounting():
     ESTIMATE."""
     def m(c):
         _prune(c, media_clock_servo=False, latency_taps=False, maap=False,
-               i2s_playback=False, rx_mac_filter=False, render_lpf=False)
+               i2s_playback=False, rx_mac_filter=False, render_lpf=False,
+               sound_card=False)
         c["clocking"].update(media_clock_sources=["internal"],
                              default_source="internal", crf_sink=False)
         c["board"]["constraints"].update(strip_probes=True)

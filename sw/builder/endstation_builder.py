@@ -468,6 +468,11 @@ OPTIONAL_BLOCKS = {
     "datapath_probes":   ("--no-datapath-probes", "DPROBES_P",
                           "the APRB + PBK probe groups (0x8B4-0x8D0) - "
                           "closed-finding diagnostics"),
+    "sound_card":        ("--no-sound-card", "SNDCARD_P",
+                          "the host-facing PCM capture-ring output surface "
+                          "(m_axis_pcm) the SoC ring binds to feed the Linux "
+                          "ALSA driver (issue #120); the AAF/TDM/I2S datapath "
+                          "and the DAC render leg are separate and stay"),
 }
 
 #: Where the RX destination-address decision is taken. `hardware` (the
@@ -752,6 +757,22 @@ RESOURCE_COSTS = {
                               "LUT / 756 FF - the FF figures agree exactly, "
                               "the LUT figure is yosys running ~2x high",
                               "measured (yosys hierarchical ESTIMATE)"),
+    # issue #120: this PR banks ONLY the datapath output surface the
+    # SNDCARD_P gate removes (KL_pcm_route's DMA leg + the m_axis_pcm port).
+    # Measured tiny: KL_pcm_route OOC is ~4 LUT / 2 FF total (2026-08-19),
+    # so the DMA-leg share is an upper bound of that. The BULK of the sound
+    # card is the SoC-layer ring (KL_pcm_ring_bram + the DMA writer + the
+    # host CSR bank), which this datapath-only lever does not remove; that
+    # figure is banked when the SoC ring removal lands (the #120 follow-up).
+    # Deliberately NOT overstated here -- the build must not be charged for
+    # fabric its own argv still instantiates (the render-lpf lesson above).
+    "prune_sound_card": _cost(-4, -2, 0, 0,
+                              "yosys OOC KL_pcm_route ~4 LUT / 2 FF (upper "
+                              "bound of the DMA leg; ESTIMATE 2026-08-19). "
+                              "The SoC ring is the bulk and is banked with "
+                              "the follow-up that removes it",
+                              "measured (yosys OOC ESTIMATE, datapath "
+                              "surface only)"),
 }
 
 
@@ -799,7 +820,8 @@ def resource_instances(cfg, overlay):
         # feature is pruned, so a default config's row list ends exactly
         # where it did before.
         (f"prune_{name}", 0 if block_present(cfg, name) else 1)
-        for name in ("media_clock_servo", "latency_taps", "render_lpf")
+        for name in ("media_clock_servo", "latency_taps", "render_lpf",
+                     "sound_card")
     ]
 
 
@@ -4514,6 +4536,11 @@ FEATURE_REMEASURE = {
         "the APRB pre-match view (parsed/matched/last-sid) and PBK chain "
         "evidence - the 0x8B4-0x8D0 words read 0, so bench recipes that "
         "read them see the LTAP-style absent-block zero, not a measurement",
+    "sound_card":
+        "any host capture over the PCM ring (arecord / PipeWire) - with the "
+        "m_axis_pcm output tied off there is no ring for the ALSA driver to "
+        "read; the AAF listener, the DAC render leg and their audio "
+        "measurements are on a separate path and are unaffected (issue #120)",
 }
 
 

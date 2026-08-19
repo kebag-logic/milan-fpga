@@ -268,6 +268,20 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! diagnostics whose counters/latches die with the parameter; the CSR
   //! range reads 0 on a pruned build (the LTAP precedent).
   parameter int DPROBES_P = 1,
+  //! Host-facing PCM capture-ring surface (the "sound card": issue #120).
+  //! The m_axis_pcm output port is the datapath's contribution to the ring
+  //! the SoC layer binds to feed the board's Linux ALSA driver. With every
+  //! control plane and time sync in fabric, a baremetal (no-Linux) shape has
+  //! no ALSA consumer, so this becomes an elaboration option. 0 prunes the
+  //! output surface: the port is tied inert (its documented ring-disabled
+  //! value -- exactly what a build with no ring writer bound produces), the
+  //! KL_pcm_route DMA leg feeding it goes dead and is optimised away, and the
+  //! audio DATAPATH (the render leg, the LPF/I2S DAC, the crossbar) is
+  //! untouched -- render backpressure is left on m_axis_pcm_tready, which the
+  //! SoC still drives. Defaults 1 = PRESENT (the no-regression axiom); the
+  //! SoC-side ring removal and the default-removed flip follow with the
+  //! baremetal shipping shape.
+  parameter int SNDCARD_P = 1,
   //! Protocol-processor timer compression for SIMULATION only (the
   //! CLKV_QTICK_CYC_P precedent). Defaults are REAL time and are what silicon
   //! builds use: at 100 MHz, 100 clk = 1 us and 1000 us = 1 ms. A harness
@@ -5397,7 +5411,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! NXN §1.1 tuser tag: the shared monitor's per-stream accept index
     .pdu_accept_idx_i (avtprx_accept_idx_w),
     .m_axis_tdata (dpkt_pcm_tdata_w),
-    .m_axis_tkeep (m_axis_pcm_tkeep),
+    .m_axis_tkeep (snd_pcm_tkeep_w),
     .m_axis_tvalid(dpkt_pcm_tvalid_w),
     .m_axis_tlast (dpkt_pcm_tlast_w),
     .m_axis_tuser (dpkt_pcm_tuser_w),
@@ -5454,13 +5468,39 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     //! P12: route field <- the window CTRL[2:1] commit (glue above)
     .route_wr_en_i (wing_route_we_r), .route_wr_idx_i (wing_idx_r),
     .route_wr_val_i (wing_route_r),
-    .m_axis_tdata (m_axis_pcm_tdata), .m_axis_tvalid (m_axis_pcm_tvalid),
-    .m_axis_tlast (m_axis_pcm_tlast), .m_axis_tuser (m_axis_pcm_tuser),
+    .m_axis_tdata (snd_pcm_tdata_w), .m_axis_tvalid (snd_pcm_tvalid_w),
+    .m_axis_tlast (snd_pcm_tlast_w), .m_axis_tuser (snd_pcm_tuser_w),
     .m_axis_tready (m_axis_pcm_tready),
     .render_tvalid_o (rend_pcm_tvalid_w), .render_tdata_o (rend_pcm_tdata_w),
     .render_tlast_o (rend_pcm_tlast_w),
     .render_sel_o (route_render_sel_w), .render_active_o ()
   );
+
+  //! Sound-card output gate (issue #120, SNDCARD_P). The host-facing PCM
+  //! capture-ring surface: KL_pcm_route's DMA leg (tdata/tvalid/tlast/tuser)
+  //! and the depacketizer's tkeep. SNDCARD_P = 0 ties every m_axis_pcm output
+  //! to the exact value a build with no ring writer bound presents (tvalid 0,
+  //! data/keep/user 0) and leaves the DMA-leg drivers feeding dead nets, so
+  //! synthesis prunes them. The RENDER leg and m_axis_pcm_tready are NOT here:
+  //! the DAC/LPF path keeps its backpressure and is bit-identical either way.
+  wire [TDATA_WIDTH-1:0]   snd_pcm_tdata_w;
+  wire [TDATA_WIDTH/8-1:0] snd_pcm_tkeep_w;
+  wire                     snd_pcm_tvalid_w;
+  wire                     snd_pcm_tlast_w;
+  wire [3:0]               snd_pcm_tuser_w;
+  generate if (SNDCARD_P != 0) begin : g_sndcard
+    assign m_axis_pcm_tdata  = snd_pcm_tdata_w;
+    assign m_axis_pcm_tkeep  = snd_pcm_tkeep_w;
+    assign m_axis_pcm_tvalid = snd_pcm_tvalid_w;
+    assign m_axis_pcm_tlast  = snd_pcm_tlast_w;
+    assign m_axis_pcm_tuser  = snd_pcm_tuser_w;
+  end else begin : g_no_sndcard
+    assign m_axis_pcm_tdata  = {TDATA_WIDTH{1'b0}};
+    assign m_axis_pcm_tkeep  = {(TDATA_WIDTH/8){1'b0}};
+    assign m_axis_pcm_tvalid = 1'b0;
+    assign m_axis_pcm_tlast  = 1'b0;
+    assign m_axis_pcm_tuser  = 4'd0;
+  end endgenerate
 
   // ==========================================================================
   //  I2S playback (Pmod I2S2 DAC) — zero-CPU audible listener: taps the

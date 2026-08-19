@@ -5,7 +5,7 @@
  * PRUNED-SHAPE harness: milan_datapath elaborated with EVERY tier-1
  * optional block dropped (docs/design/AREA_BUDGET.md):
  *
- *   MCSERVO_P=0  LTAP_P=0  MAAP_P=0  I2SPB_P=0  RXFILT_P=0  LPF_P=0
+ *   MCSERVO_P=0  LTAP_P=0  MAAP_P=0  I2SPB_P=0  RXFILT_P=0  LPF_P=0  SNDCARD_P=0
  *
  * WHY THIS FILE EXISTS: a prune that was never elaborated is not a prune.
  * The default suite (sim_main / sim_nxn) proves the PRESENT shape is
@@ -116,7 +116,9 @@ static void do_reset() {
 //! single-cycle DEN strobe, so accumulate instead.
 static unsigned g_mmcm_seen = 0;     //! bit0 drp_en, 1 drp_we, 2 ps_en, 3 rst, 4 addr|di
 static unsigned g_dac_seen  = 0;     //! bit0 mclk, 1 sclk, 2 lrck, 3 sdin
+static unsigned g_pcm_seen  = 0;     //! SNDCARD_P=0: the gated host-ring output
 static void sample_pins() {
+    if (dut->m_axis_pcm_tvalid) g_pcm_seen |= 1u;
     if (dut->o_mmcm_drp_en)    g_mmcm_seen |= 1u << 0;
     if (dut->o_mmcm_drp_we)    g_mmcm_seen |= 1u << 1;
     if (dut->o_mmcm_ps_en)     g_mmcm_seen |= 1u << 2;
@@ -307,6 +309,37 @@ int main(int argc, char** argv) {
     ck("I2SPB_STAT STILL 0 after traffic", axi_read(A_I2SPB_STAT), 0);
     ck("no MMCM pin ever moved", g_mmcm_seen, 0);
     ck("no DAC pin ever moved",  g_dac_seen,  0);
+
+    // ---- sound card (SNDCARD_P=0) --------------------------------------
+    // The host-facing PCM capture-ring OUTPUT surface. The PRESENT contrast
+    // lives in sim_main, which binds the sink through the ACMP ladder and
+    // proves the same AAF PDU makes m_axis_pcm carry the payload byte-for-byte
+    // (0x6C4 advances, ring AXIS decoded). Here -- the minimal harness, no
+    // bind -- an AAF PDU is driven into the RX path and reaches the raw RX DMA
+    // (so the stimulus is real, not a dead harness), while the gated
+    // m_axis_pcm output stays at its documented inert value with tready held
+    // high: tvalid never asserts. This is the same structural-inert shape as
+    // the LTAP / MCSRV / DAC checks above; the else-branch tie is what a build
+    // with no ring writer bound presents.
+    {
+        g_pcm_seen = 0;
+        dut->m_axis_pcm_tready = 1;
+        static uint8_t af[120]; memset(af, 0, sizeof af);
+        const uint8_t dmac[6] = {0x91,0xE0,0xF0,0x00,0x2A,0x02}; memcpy(af, dmac, 6);
+        const uint8_t src[6]  = {0x02,0x00,0x00,0x00,0x00,0x02}; memcpy(af+6, src, 6);
+        af[12]=0x22; af[13]=0xF0; af[14]=0x02; af[15]=0x81; af[16]=0x05;
+        const uint8_t sid[8] = {0x02,0x00,0x00,0x00,0x00,0x02,0x00,0x00};
+        memcpy(af+18, sid, 8);
+        af[26]=0xAA; af[27]=0xBB; af[28]=0xCC; af[29]=0xDD;
+        af[30]=0x02; af[31]=(uint8_t)(0x05<<4); af[32]=2; af[33]=32;
+        af[34]=0x00; af[35]=0x30;
+        for (int i = 0; i < 48; i++) af[38+i] = (uint8_t)(0x30+i);
+        long fr = 0; inject_rx(af, 86, &fr);
+        ck("SNDCARD_P=0: an AAF PDU reaches the datapath (raw RX DMA)",
+           fr >= 1 ? 1 : 0, 1);
+        ck("SNDCARD_P=0: host PCM ring output INERT (tvalid never asserted)",
+           g_pcm_seen, 0);
+    }
 
     // ---------------------------------------------------------------- 8 ----
     // What must STILL work: the prunes touch none of the mandatory path.

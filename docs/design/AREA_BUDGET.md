@@ -199,6 +199,7 @@ enforces that on all three shipped configs.
 | RX address filter | `RXFILT_P` | `--no-rx-mac-filter` | `rx_mac_filter` | the port is promiscuous, or filtering is done in software |
 | PCM low-pass | `LPF_P` | `--no-render-lpf` | `render_lpf` | render path only, and every digital acceptance measurement is taken upstream of it |
 | datapath probe groups | `DPROBES_P` | `--no-datapath-probes` | `datapath_probes` | the APRB (0x8B4–0x8C4) and PBK (0x8C8–0x8D0) groups are closed-finding diagnostics (fabric-listener blocker + item-7 chain, both TB-pinned since); the range reads 0 on a pruned build — the LTAP precedent (added 2026-07-29 to unlock AreaOptimized_medium on the AX, whose AreaOptimized_high timing was congestion-systemic) |
+| sound card | `SNDCARD_P` | `--no-sound-card` | `sound_card` | there is no Linux ALSA consumer for the host PCM capture ring (issue #120: the baremetal shape). This lever gates only the datapath `m_axis_pcm` OUTPUT surface (KL_pcm_route's DMA leg); the AAF/TDM/I2S datapath and the DAC render leg are separate and stay. The BULK of the sound card is the SoC-layer ring (`KL_pcm_ring_bram` + the DMA writer + the host CSR bank), removed and re-measured in the SoC-side follow-up — the figure below is the datapath surface only (added 2026-08-19) |
 
 #### What each one is worth — MEASURED, and every figure a yosys ESTIMATE
 

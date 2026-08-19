@@ -170,7 +170,7 @@ all: run
 # Every one defaults to 1 = PRESENT, so the two builds above are untouched;
 # this third build is the only place the 0 side is elaborated - and a prune
 # that was never elaborated is not a prune.
-PRUNE_G = -GMCSERVO_P=0 -GLTAP_P=0 -GMAAP_P=0 -GI2SPB_P=0 -GRXFILT_P=0 -GLPF_P=0
+PRUNE_G = -GMCSERVO_P=0 -GLTAP_P=0 -GMAAP_P=0 -GI2SPB_P=0 -GRXFILT_P=0 -GLPF_P=0 -GSNDCARD_P=0
 
 # THE SHIPPING ALINX SHAPE, stated ONCE. sim_main.cpp runs three different
 # elaborations now, so the geometry it asserts against can no longer be a

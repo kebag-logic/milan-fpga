@@ -685,6 +685,7 @@ MILAN_OPTIONAL_BLOCKS = {
     "rx_mac_filter":     "RXFILT_P",    # rx_mac_filter + tcam
     "render_lpf":        "LPF_P",       # KL_pcm_lpf (banked lever, lane S)
     "datapath_probes":   "DPROBES_P",   # APRB + PBK probe groups (0x8B4-0x8D0)
+    "sound_card":        "SNDCARD_P",   # host PCM capture-ring output (m_axis_pcm)
 }
 
 
@@ -6713,6 +6714,15 @@ def main():
                          "when the port is meant to be PROMISCUOUS or filtering is done "
                          "in software. The TCAM_* CSR window still accepts writes and "
                          "nothing reads them. Default off => filter PRESENT.")
+    ap.add_argument("--no-sound-card", action="store_true",
+                    help="AREA LEVER (issue #120): prune the host-facing PCM "
+                         "capture-ring OUTPUT surface. SNDCARD_P=0 ties the "
+                         "datapath m_axis_pcm port inert (its no-ring-bound "
+                         "value), so KL_pcm_route's DMA leg is optimised away; "
+                         "the AAF/TDM/I2S datapath and the DAC render leg are "
+                         "SEPARATE and untouched. With no Linux there is no ALSA "
+                         "consumer for the ring. Default off => sound card "
+                         "PRESENT.")
     # NOTE: there is no --with-pp-plane any more. The protocol processor was a
     # shadow plane behind PP_PLANE_P for exactly one round; scenario B
     # SUBSTITUTED it for the legacy 1722.1/SRP plane, which is deleted, so
