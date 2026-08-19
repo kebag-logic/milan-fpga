@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "facts": {
-    "gateware_version": "0x0002_0054",
+    "gateware_version": "0x0002_0055",
     "served_aem_operations": [
       "ACQUIRE_ENTITY",
       "LOCK_ENTITY",
@@ -63,7 +63,7 @@
     {
       "id": "gateware.current-version",
       "status": "implemented",
-      "value": "0x0002_0054",
+      "value": "0x0002_0055",
       "summary": "Current gateware and processor integration version.",
       "documents": [
         "README.md",
@@ -150,7 +150,7 @@
     {
       "id": "stream-input.start-stop",
       "status": "implemented",
-      "summary": "SUCCESS follows the binding-record commit or confirmed no-op; issue 69 owns the unsolicited response and issue 70 the persistence.",
+      "summary": "SUCCESS follows the binding-record commit or confirmed no-op; state changes notify other registered controllers and issue 70 owns persistence.",
       "documents": [
         "README.md",
         "docs/MILAN_V12_ROADMAP.md",
@@ -255,8 +255,8 @@
     },
     {
       "id": "notifications.change-events",
-      "status": "partial",
-      "summary": "Registration and some change events exist, but the general command and counter notification duties remain open.",
+      "status": "implemented",
+      "summary": "Implemented state-changing commands and observed asynchronous sources notify registered controllers with requester exclusion, no-op suppression, and per-descriptor counter limiting.",
       "documents": [
         "README.md",
         "docs/CHANNEL_MAP_64.md",
@@ -280,8 +280,8 @@
     },
     {
       "id": "notifications.controller-liveness",
-      "status": "missing",
-      "summary": "The required CONTROLLER_AVAILABLE liveness monitor is absent.",
+      "status": "implemented",
+      "summary": "Each registered controller has a randomized availability monitor, one exact retry, any-status rearm, and targeted removal after silence.",
       "documents": [
         "docs/MILAN_V12_ROADMAP.md",
         "docs/overview/ARCHITECTURE.md",

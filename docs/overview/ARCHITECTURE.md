@@ -49,12 +49,12 @@ are silently refused: freed, counted, no reply. Milan Delta 7
 
 **An echo is not an implementation**, so read the echo as a duty discharged
 (IEEE 1722.1 Section 9.3.5: respond to what you do not implement), never as coverage.
-Genuinely absent behind it: `SET_STREAM_FORMAT`, `SET_STREAM_INFO`,
-most Milan Table 5.22 change triggers, root-level IDENTIFY indication, and
-saved-state persistence. `GET_DYNAMIC_INFO` is served by the processor batch
-scanner. `ADD_AUDIO_MAPPINGS` and
-`REMOVE_AUDIO_MAPPINGS` are served through an atomic root transaction and emit
-their required successful-change notifications.
+Genuinely absent behind it: root-level IDENTIFY indication and saved-state
+persistence. `GET_DYNAMIC_INFO` is served by the processor batch scanner.
+Implemented state-changing commands, including `ADD_AUDIO_MAPPINGS` and
+`REMOVE_AUDIO_MAPPINGS`, emit their required successful-change notifications
+to every registered controller except the requester. Observed asynchronous
+changes use the same Table 5.22 scheduler.
 `SET_CLOCK_SOURCE` is accepted by the processor and its dynamic selection is
 exported to the root, but no media-plane logic consumes it, so the media plane
 remains pinned to INTERNAL. Those
@@ -77,8 +77,8 @@ Machine-checked status rows are defined by the
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
-| `notifications.controller-liveness` | `missing` | - |
+| `notifications.change-events` | `implemented` | - |
+| `notifications.controller-liveness` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 The START/STOP command path and AAF media gate exist, but issue #97 keeps the
@@ -256,7 +256,7 @@ These are not CSR cosmetics. They are behavior a bench will notice:
    late.
 3. **Milan Table 5.4 per-STREAM_OUTPUT diagnostic counters are live.**
    `KL_talker_diag_ctx` is instantiated per declared output and served through
-   GET_COUNTERS. The Table 5.22 unsolicited change producer remains open.
+   GET_COUNTERS. Dirty pulses feed the rate-limited Table 5.22 scheduler.
    **The STREAM_INPUT counters at the `0x6B8` `A_STRMW_CNT`
    window are unaffected and still live** — they reach software through a CSR,
    not through AECP.

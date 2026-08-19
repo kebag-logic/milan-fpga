@@ -68,7 +68,7 @@ assumption that AECP answers only one command.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0054` |
+| `gateware.current-version` | `implemented` | `0x0002_0055` |
 <!-- milan-feature-status:end -->
 
 | Region | Group | Class | 2026-08-13 truth | Rationale |
@@ -87,7 +87,7 @@ assumption that AECP answers only one command.
 | `0x6B8` | RX-monitor CSR mirror | **optional local face** | live | AAF STREAM_INPUT counters remain readable locally and through GET_COUNTERS. The declared CRF input is excluded from that gather face. STREAM_OUTPUT counters use their own `KL_talker_diag_ctx` banks and are served through the same AECP command |
 | `0x6CC–0x6D4` | MAAP | **needed** | live | Address acquisition is production function, `KL_maap` survives, and the processor's talker cannot declare without an ALLOC_DA success through it — this group is now load-bearing for connectivity, not just for addressing |
 | `0x6E8` | ACMPL_DBG (walker forensics) | **debug** | **STRUCTURAL ZERO** | Classify-stage byte forensics of a walker that is deleted |
-| `0x730/0x734` | AS_PATH | **needed → dead end** | staging **STRUCTURAL ZERO** | The processor serves GET_AS_PATH, but this legacy CSR staging pair is not connected to that response. `0x7DC` staging accepts writes and discards them. The Table 5.22 unsolicited producer remains open |
+| `0x730/0x734` | AS_PATH | **needed → dead end** | staging **STRUCTURAL ZERO** | The processor serves GET_AS_PATH and observed path changes feed its Table 5.22 scheduler. This legacy CSR staging pair is not connected to that response. `0x7DC` staging accepts writes and discards them |
 | `0x738–0x750` | CRF group (sink + talker enable) | **needed** | live, with root integration losses | Media-clock configuration; Milan 7.3.3 class-A output. `KL_crf_rx` still parses and maintains counters. The processor accepts and stores `SET_CLOCK_SOURCE`, and the wrapper exports that dynamic selection to the root, but the media plane does not consume it and remains pinned at 0 (INTERNAL). The CRF input counter outputs are also not connected to the solicited gather face |
 | `0x778–0x780` | CLKV (tu sync lease) | **needed** | live | The tu policy is a conformance mechanism (IEEE 1722 AAF-10), not instrumentation; statd renews the lease |
 | `0x784` | TXARB_DIAG | **debug** | **RENUMBERED** | The cascade collapsed from eight muxes to four. New lanes, LSB first: 0 `ctl_tx` (processor + MAAP), 1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx` (MAC boundary). Bits `[7:4]` are a structural zero. **Anything decoding this word by the old numbering reads the wrong mux** |

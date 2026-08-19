@@ -63,7 +63,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0054` |
+| `gateware.current-version` | `implemented` | `0x0002_0055` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -73,7 +73,7 @@ Machine-checked status rows are defined by the
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 The current AECP implementation answers these operations with real behavior:
@@ -138,14 +138,15 @@ Identify control is stored but the root indication remains tied low.
 `GPTP_PDELAY`, and the writable AAF admission bypass remains a deployment
 hazard.
 The integration also reports no nonvolatile backend, so required state does not
-survive a power cycle. Solicited Stream Output counters are now served; their
-rate-limited unsolicited notification path remains a separate task. These are
-compliance blockers, not documentation-only limitations.
+survive a power cycle. Solicited Stream Output counters are served and their
+changes enter the per-descriptor, rate-limited unsolicited notification path.
+Persistence remains a compliance blocker, not a documentation-only limitation.
 The Stream Input START/STOP path completes at the binding record (issue #97):
 command success follows the record commit or the confirmed no-op, and a
 stopped CRF sink keeps observing and counting while only timing consumption
-and the restart echo gate. The 7.5.2 unsolicited response stays with issue
-#69 and persistence with issue #70.
+and the restart echo gate. State-changing START and STOP commands now send the
+7.5.2 unsolicited response to every registered controller except the requester.
+Persistence stays with issue #70.
 `GET_AS_PATH` reports only the grandmaster identity. The PathTrace staging tail
 is disconnected from the root processor interface, so multi-bridge topology is
 reported incompletely.
@@ -245,7 +246,7 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 | Traceability no-drift gate | `python3 docs/traceability/gen_module_matrix.py --check` | python3 |
 | End-station builder gates | `python3 sw/builder/test_builder.py` | python3 + pyyaml |
 | Device portability | `cd syn/yosys && make && make ecp5` | yosys + sv2v |
-| **BDD conformance suite** (15 features / 338 scenarios / 1,615 steps, no skips in the 2026-08-18 run) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
+| **BDD conformance suite** (15 features / 334 scenarios / 1,571 steps, no skips in the 2026-08-19 run) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
 
 `ls tb/verilator/` is the authoritative suite list. Full map: [docs/testing/TESTING.md](docs/testing/TESTING.md).
 

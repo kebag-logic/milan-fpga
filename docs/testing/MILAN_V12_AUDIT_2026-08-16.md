@@ -29,7 +29,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0054` |
+| `gateware.current-version` | `implemented` | `0x0002_0055` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -39,8 +39,8 @@ Machine-checked status rows are defined by the
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
-| `notifications.controller-liveness` | `missing` | - |
+| `notifications.change-events` | `implemented` | - |
+| `notifications.controller-liveness` | `implemented` | - |
 | `verification.long-gate-policy` | `implemented` | `local-required, remote-optional` |
 <!-- milan-feature-status:end -->
 
@@ -48,11 +48,11 @@ Machine-checked status rows are defined by the
 
 | Gate | Result | Interpretation |
 |---|---:|---|
-| All 50 `tb/verilator/*/Makefile` suites | PASS | Every suite returned zero. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
+| All 51 `tb/verilator/*/Makefile` suites | 2,117,848 checks passed | Every suite returned zero with complete check accounting and no in-suite failures. Some suites still print explicit gap messages, so exit status alone is not a compliance verdict. |
 | `tb/verilator/hostplane` after ROM fix | PASS | Both `ltn_rom.hex` and `ucode.hex` were generated before simulation. No missing `$readmem` image warning remained. |
 | `tb/verilator/pp_shadow` | 273 checks passed | The 2026-08-17 rerun passed with zero failures. Milan `ACQUIRE_ENTITY` is checked on the wire for `NOT_SUPPORTED`, a zero owner, correct length, and correct addressing. The dynamic arty input also passed the GET_AUDIO_MAP body checks. |
 | `tests/` Behave suite | 15 features and 334 scenarios passed | 1,571 steps passed with no skipped scenarios or steps in the 2026-08-18 rerun (the unimplemented-echo outline is retired: since 0x0002_0054 no mandatory command falls through to it). This is an offline behavior model, not an external compliance lab result. |
-| Pinned protocol processor suites | 14,507 checks passed | All 27 processor suites passed. The processor's `pp_top` suite contributes 1,180 passing checks, including the START/STOP completion boundary read with no post-response delay, the exact 38 through 45 byte foreign-target AECP regression, the configuration overlay's fallback-versus-overlay evidence, GET_DYNAMIC_INFO batch coverage, record-level handling of the complete command-side status byte, getter-length drift detection, cdl 525 command rejection, and the stream-setter families: SET_STREAM_FORMAT's per-descriptor running refusal against a really bound sink and really streaming output, the one-gather format verdict in both refusal directions, SET_STREAM_INFO's 2021-only length rule with the 2013-size negative pinned, and the per-row settings publication graded beside every echo, plus the name-access family (the generated name table walked byte-exact, SET/GET/READ_DESCRIPTOR coherence, and the lock refusal carrying the current name). It also covers the 63-record mapping command maximum, atomic rejection of 64 mapping records, and exclusion between a reserved mapping edit and an ACMP stream-state transaction. The processor's zero-tolerance RTL lint and documentation gates also passed. |
+| Pinned protocol processor suites | 14,645 checks passed | All 30 processor suites passed. The processor's `pp_top` suite contributes 1,228 passing checks, including EOF-aligned cancellation at the registered arbiter boundary, whole-queue removal of a canceled non-head originator handle before physical slot reuse, cancellation during CONTROLLER_AVAILABLE construction with writer unlock and five-slot conservation, queued-probe delay beyond two response budgets without a premature timeout, stale-handle drain after cancellation, rejection of folded-MAC collisions and wrong-target responses, the START/STOP completion boundary read with no post-response delay, the exact 38 through 45 byte foreign-target AECP regression, the configuration overlay's fallback-versus-overlay evidence, GET_DYNAMIC_INFO batch coverage, record-level handling of the complete command-side status byte, getter-length drift detection, cdl 525 command rejection, and the stream-setter families: SET_STREAM_FORMAT's per-descriptor running refusal against a really bound sink and really streaming output, the one-gather format verdict in both refusal directions, SET_STREAM_INFO's 2021-only length rule with the 2013-size negative pinned, and the per-row settings publication graded beside every echo, plus the name-access family (the generated name table walked byte-exact, SET/GET/READ_DESCRIPTOR coherence, and the lock refusal carrying the current name). The focused suites also cover withdrawn registered requests, lossless simultaneous TX-slot release, parked originator cancellation concurrent with another entry's response, pre-start withdrawal before serializer acceptance, serializer-acceptance collisions, TIME_LIMITED row cancellation before reuse, the 63-record mapping command maximum, atomic rejection of 64 mapping records, and exclusion between a reserved mapping edit and an ACMP stream-state transaction. The processor's zero-tolerance RTL lint, Yosys portability, and documentation gates also passed. |
 | Stream Output counter suites | PASS | The diagnostic context passed 83 checks, the AAF NxN harness passed 42 checks, and the CRF transmitter passed 127 checks. Matching 4x4 and 8x8 entity integrations passed 1,278 and 4,326 checks, including every declared AAF and CRF Stream Output. The 8x8 integration also proves locked local mapping writes leave physical RAM and protocol ownership unchanged, then apply after unlock. |
 | Official controller decoder | PASS | An actual 174-byte DUT response was decoded by [LA_avdecc v4.3.1 commit `2fd57534`](https://github.com/L-Acoustics/avdecc/tree/2fd57534ec7b32c66d9ada2c833e2c12dd5b95ea) through `protocol::aemPayload::deserializeGetCountersResponse`. It returned descriptor type `0x0006`, descriptor index `0`, valid mask `0x0000001F`, and five counter quadlets. |
 | Pinned gPTP processor skeleton | 877 checks passed | 768 uCPU, 31 parser, and 78 engine checks passed. Its own README states that the normative 802.1AS state machines are not implemented, and this submodule is not integrated by the root RTL. |
@@ -194,14 +194,13 @@ media plane has not adopted.
 This blocks the media-clock behavior required by Milan sections 5.3.5, 5.3.11,
 and 7.2.2.
 
-### B4. Counter coverage and notification duty are incomplete
+### B4. CRF Stream Input counter coverage is incomplete
 
 Solicited `GET_COUNTERS` now serves every declared Stream Output with the five
 mandatory Milan Table 5.17 counters in the compact quadlet layout. Counter
-updates also produce a per-descriptor dirty pulse. The processor notification
-block does not yet connect those pulses to the rate-limited `GET_COUNTERS`
-notification scheduler, so the full Milan Table 5.22 asynchronous behavior is
-not closed.
+updates also produce a per-descriptor dirty pulse. The root now arbitrates
+those pulses without starvation and the processor limits `GET_COUNTERS`
+notifications to one emission per served descriptor per second.
 
 The declared CRF Media Clock Input is a separate mandatory gap. The root gather
 face serves AAF Stream Input indices below `N_STREAMS`, but the appended CRF
@@ -209,22 +208,11 @@ Stream Input at index `N_STREAMS` returns an empty mask. Its Table 5.16 counter
 outputs and dirty source are unconnected. This leaves the CRF Stream Input
 requirements in Milan sections 5.3.8.10 and 5.4.2.25 open.
 
-This also blocks Milan section 5.4.5.2. Solicited reads serve AAF Stream Input,
-Stream Output, AVB Interface, and Clock Domain counters. The CRF Stream Input
-and the Table 5.22 notification path remain open under section 5.4.2.25.
+Solicited reads and rate-limited notifications serve AAF Stream Input, Stream
+Output, AVB Interface, and Clock Domain counters. The CRF Stream Input remains
+open under section 5.4.2.25.
 
-### B5. Registered-controller liveness monitoring is absent
-
-The processor stores unsolicited-notification registrations and applies the
-time-limited expiry policy, but it does not originate the random 30 to 60 s
-`CONTROLLER_AVAILABLE` monitor required by Milan section 5.4.5.3. It therefore
-cannot retry the probe once, re-arm the monitor on any response status, or
-remove a silent controller and send the targeted deregistration notification.
-
-This is a mandatory controller-liveness gap, separate from the Table 5.22
-counter-change notification producer in B4.
-
-### B6. Multi-bridge AS_PATH reporting is incomplete
+### B5. Multi-bridge AS_PATH reporting is incomplete
 
 The root gather face serves `GET_AS_PATH` as a zero-entry response when no
 grandmaster is known, or as a one-entry response containing only the
@@ -336,9 +324,9 @@ media gate in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
    CRF PDU. `TIMESTAMP_UNCERTAIN` therefore counts transmitted wire state, not
    a later live clock verdict.
 7. Every served Stream Output counter update, including a healthy `FRAMES_TX`
-   interval, asserts the raw per-descriptor dirty source. Rate limiting and
-   notification coalescing remain the scheduler work identified in B4. The CRF
-   Stream Input counter and dirty connections remain open.
+   interval, asserts the raw per-descriptor dirty source. The root round-robin
+   arbiter and processor limiter deliver the served descriptor notifications.
+   The CRF Stream Input counter and dirty connections remain open.
 8. The integration proof now boots each simulation with its matching entity
    image, checks every declared output, rejects the first undeclared output
    with a full empty response body, and exercises real AAF and CRF enable
@@ -346,6 +334,9 @@ media gate in [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
    reset behavior, and 32-bit wrap.
 9. The CI checkout uses anonymous HTTPS for both required submodules, and all
    jobs that consume the processor initialize it explicitly.
+10. Registered controllers now receive randomized availability probes. One
+    exact retry follows at 250 ms; any matching response status re-arms the
+    monitor, and silence removes the row and sends targeted deregistration.
 
 ## Release rule
 

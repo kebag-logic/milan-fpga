@@ -624,7 +624,7 @@ are checked against the
 |---|---|---|
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 > **STATUS 2026-08-17: GETTER AND TRANSACTIONAL WRITERS ARE BUILT.** The

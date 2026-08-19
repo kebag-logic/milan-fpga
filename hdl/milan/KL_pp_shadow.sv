@@ -41,10 +41,10 @@
                 constants, never this comment.
 
                 WHAT IS STILL OPEN, and is a compliance gap rather than a
-                design choice: SET_STREAM_FORMAT, SET_STREAM_INFO, name access,
-                the incomplete unsolicited-notification
-                trigger set, the departing-controller monitor and saved-state
-                persistence. The current verdict is in
+                design choice: saved-state persistence and physical Identify
+                indication. The command-driven notification set, observed
+                Table 5.22 triggers, per-descriptor counter limiter, and
+                departing-controller monitor are active. The current verdict is in
                 docs/testing/MILAN_V12_AUDIT_2026-08-16.md. SET_CLOCK_SOURCE is accepted and
                 stored by the processor, and this wrapper exports the selected
                 value. The media plane does not consume it and therefore remains
@@ -291,6 +291,11 @@ module KL_pp_shadow #(
     output logic  [5:0] ctr_word_o,         //! 0..31 = block quadlet, 32 = mask
     input  wire  [31:0] ctr_data_i,         //! that quadlet, 1722.1 value order
     input  wire         ctr_wait_i,         //! HOLD the beat (not a ready)
+    //! Counter mutation trigger for Milan Table 5.22. The descriptor tuple
+    //! names the same object served by the read face above.
+    input  wire         ctr_change_i,
+    input  wire  [15:0] ctr_change_desc_type_i,
+    input  wire  [15:0] ctr_change_desc_index_i,
 
     //! ---- GET_AUDIO_MAP read face (1722.1-2021 7.4.44, Milan v1.2 5.4.2.26) ----
     //! Straight through to protocol_processor_top, names and directions
@@ -955,6 +960,9 @@ module KL_pp_shadow #(
       .ctr_word_o          (ctr_word_o),
       .ctr_data_i          (ctr_data_i),
       .ctr_wait_i          (ctr_wait_i),
+      .ctr_change_i        (ctr_change_i),
+      .ctr_change_desc_type_i(ctr_change_desc_type_i),
+      .ctr_change_desc_index_i(ctr_change_desc_index_i),
 
       .amap_req_o          (amap_req_o),
       .amap_desc_type_o    (amap_desc_type_o),

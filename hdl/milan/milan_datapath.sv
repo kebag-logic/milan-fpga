@@ -32,9 +32,9 @@
 //! is BAD_ARGUMENTS.
 //! AN ECHO IS NOT AN IMPLEMENTATION - and since 0x0002_0054 no MANDATORY
 //! command answers the echo: the stream setters landed at 0x0053 and name
-//! access at 0x0054. The remaining gap surface is behavioral, not a
-//! command: the Table 5.22
-//! counter-change scheduler. Live audio-map mutation is implemented, but
+//! access at 0x0054. Version 0x0055 adds the Table 5.22 state-change and
+//! per-descriptor counter notification scheduler plus registered-controller
+//! availability monitoring. Live audio-map mutation is implemented, but
 //! saved-state persistence is absent. SET_CLOCK_SOURCE is accepted by the
 //! processor, and its dynamic value reaches this wrapper, but the media plane does not
 //! consume it. The media clock remains pinned INTERNAL through
@@ -1740,6 +1740,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [31:0] avtprx_seqmm_c, avtprx_tu_c, avtprx_unsupp_c, avtprx_frx_c;
   wire        avtprx_locked;
   //! per-context Table 5.22 counter-change pulses (gh #60 F2)
+  wire [N_STREAMS-1:0] avtprx_dirty_p_w;
   wire        avtprx_accept_p;
   wire [31:0] avtprx_ts, avtprx_last_ts, avtprx_last_tsd;
   wire [15:0] pcmrx_pdus, pcmrx_drops;
@@ -1837,7 +1838,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  is tu = 1 (no software lease): unknown clock == not valid.
   //  docs/findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md
   // ==========================================================================
-  wire        clkv_tu_w;
+wire        clkv_tu_w /* verilator public_flat_rd */;
   //! the leased IEEE 802.1AS-2020 10.2.5.1 asCapable claim (gh #64 J3),
   //! sourced beside the tu verdict because it obeys the SAME lease: when the
   //! daemon stops renewing, both fall together and the entity answers
@@ -3037,8 +3038,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .rd_mreset_o (tkdiag_cnt_w[2*32 +: 32]),
     .rd_tu_o     (tkdiag_cnt_w[3*32 +: 32]),
     .rd_ftx_o    (tkdiag_cnt_w[4*32 +: 32]),
-    //! The processor notification trigger face is tracked by issue #69.
-    //! Keep the per-descriptor source visible and tested here until it lands.
+    //! Per-descriptor source for the Table 5.22 event arbiter below.
     .dirty_p_o   (tkd_dirty_p_w)
   );
 
@@ -4646,7 +4646,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  parser on the same RX tap, matched to the BOUND stream_id the protocol
   //  processor publishes. Its counters reach local software through the 0x6B8
   //  A_STRMW_CNT CSR window and supported controller targets through solicited
-  //  GET_COUNTERS. The Table 5.22 notification scheduler remains open.
+  //  GET_COUNTERS. Their dirty pulses feed the Table 5.22 descriptor arbiter.
   // ==========================================================================
   //! NXN §1.1 (P1): stream-table classification authority. Entry 0 aliases
   //! the processor's ACMP bound record combinationally; entries
@@ -5343,8 +5343,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .cnt_ts_valid_o     (avtprx_tv_c),
     .cnt_ts_not_valid_o (avtprx_tnv_c),
     .media_locked_o (avtprx_locked),
-    //! per-sink Table 5.22 counter-change pulse: no push registry, no reader
-    .dirty_p_o      (),
+    //! Per-sink source for the Table 5.22 event arbiter below.
+    .dirty_p_o      (avtprx_dirty_p_w),
     .pdu_accept_p_o   (avtprx_accept_p_w),
     .pdu_accept_idx_o (avtprx_accept_idx_w),
     .last_ts_o      (avtprx_last_ts),
@@ -6322,6 +6322,101 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   logic [ACMP_SRC_C-1:0]      pp_aecp_fmt_out_v_w;
   logic                     pp_aecp_dyn_dirty_w;
 
+  //! Lossless round-robin descriptor arbiter for the processor's scalar
+  //! counter-change trigger. Each source bit remains pending until selected,
+  //! so simultaneous changes are delivered without a continuously changing
+  //! low descriptor index starving a higher one.
+  localparam int unsigned PP_CTR_EVT_N_C = N_STREAMS + ACMP_SRC_C + 2;
+  localparam int unsigned PP_CTR_RR_W_C = (PP_CTR_EVT_N_C > 1)
+                                         ? $clog2(PP_CTR_EVT_N_C) : 1;
+  logic [N_STREAMS-1:0] pp_ctr_sin_pend_r, pp_ctr_sin_pend_n;
+  logic [ACMP_SRC_C-1:0] pp_ctr_sout_pend_r, pp_ctr_sout_pend_n;
+  logic pp_ctr_avb_pend_r, pp_ctr_avb_pend_n;
+  logic pp_ctr_ckd_pend_r, pp_ctr_ckd_pend_n;
+  logic [PP_CTR_RR_W_C-1:0] pp_ctr_rr_r;
+  logic [PP_CTR_EVT_N_C-1:0] pp_ctr_all_pend_w;
+  logic pp_ctr_evt_valid_w /* verilator public_flat_rd */;
+  logic [15:0] pp_ctr_evt_type_w /* verilator public_flat_rd */;
+  logic [15:0] pp_ctr_evt_index_w /* verilator public_flat_rd */;
+  wire pp_ctr_avb_dirty_w = (eff_link_w != ctr_link_q_r)
+                           || pp_gm_change_p_w;
+  wire pp_ctr_ckd_dirty_w = ((~clkv_tu_w) != ctr_mclk_q_r);
+
+  assign pp_ctr_all_pend_w = {pp_ctr_ckd_pend_r, pp_ctr_avb_pend_r,
+                              pp_ctr_sout_pend_r, pp_ctr_sin_pend_r};
+
+  always_comb begin : pp_ctr_event_pick
+    int unsigned pick;
+    pp_ctr_evt_valid_w = 1'b0;
+    pp_ctr_evt_type_w  = 16'd0;
+    pp_ctr_evt_index_w = 16'd0;
+    for (int unsigned off = 0; off < PP_CTR_EVT_N_C; off++) begin
+      pick = 32'(pp_ctr_rr_r) + off;
+      if (pick >= PP_CTR_EVT_N_C) pick = pick - PP_CTR_EVT_N_C;
+      if (!pp_ctr_evt_valid_w && pp_ctr_all_pend_w[pick]) begin
+        pp_ctr_evt_valid_w = 1'b1;
+        if (pick < N_STREAMS) begin
+          pp_ctr_evt_type_w  = DESC_STREAM_INPUT_C;
+          pp_ctr_evt_index_w = 16'(pick);
+        end else if (pick < (N_STREAMS + ACMP_SRC_C)) begin
+          pp_ctr_evt_type_w  = DESC_STREAM_OUTPUT_C;
+          pp_ctr_evt_index_w = 16'(pick - N_STREAMS);
+        end else if (pick == (N_STREAMS + ACMP_SRC_C)) begin
+          pp_ctr_evt_type_w  = DESC_AVB_INTERFACE_C;
+        end else begin
+          pp_ctr_evt_type_w  = DESC_CLOCK_DOMAIN_C;
+        end
+      end
+    end
+  end
+
+  always_comb begin : pp_ctr_event_next
+    pp_ctr_sin_pend_n  = pp_ctr_sin_pend_r  | avtprx_dirty_p_w;
+    pp_ctr_sout_pend_n = pp_ctr_sout_pend_r | tkd_dirty_p_w;
+    pp_ctr_avb_pend_n  = pp_ctr_avb_pend_r  | pp_ctr_avb_dirty_w;
+    pp_ctr_ckd_pend_n  = pp_ctr_ckd_pend_r  | pp_ctr_ckd_dirty_w;
+    for (int unsigned s = 0; s < N_STREAMS; s++) begin
+      if (pp_ctr_evt_valid_w
+          && (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)
+          && (pp_ctr_evt_index_w == 16'(s))) pp_ctr_sin_pend_n[s] = 1'b0;
+    end
+    for (int unsigned s = 0; s < ACMP_SRC_C; s++) begin
+      if (pp_ctr_evt_valid_w
+          && (pp_ctr_evt_type_w == DESC_STREAM_OUTPUT_C)
+          && (pp_ctr_evt_index_w == 16'(s))) pp_ctr_sout_pend_n[s] = 1'b0;
+    end
+    if (pp_ctr_evt_valid_w && (pp_ctr_evt_type_w == DESC_AVB_INTERFACE_C))
+      pp_ctr_avb_pend_n = 1'b0;
+    if (pp_ctr_evt_valid_w && (pp_ctr_evt_type_w == DESC_CLOCK_DOMAIN_C))
+      pp_ctr_ckd_pend_n = 1'b0;
+  end
+
+  always_ff @(posedge axis_clk or negedge axis_resetn) begin : pp_ctr_event_queue
+    if (!axis_resetn) begin
+      pp_ctr_sin_pend_r  <= '0;
+      pp_ctr_sout_pend_r <= '0;
+      pp_ctr_avb_pend_r  <= 1'b0;
+      pp_ctr_ckd_pend_r  <= 1'b0;
+      pp_ctr_rr_r        <= '0;
+    end else begin
+      pp_ctr_sin_pend_r  <= pp_ctr_sin_pend_n;
+      pp_ctr_sout_pend_r <= pp_ctr_sout_pend_n;
+      pp_ctr_avb_pend_r  <= pp_ctr_avb_pend_n;
+      pp_ctr_ckd_pend_r  <= pp_ctr_ckd_pend_n;
+      if (pp_ctr_evt_valid_w) begin
+        if (pp_ctr_evt_type_w == DESC_CLOCK_DOMAIN_C)
+          pp_ctr_rr_r <= '0;
+        else if (pp_ctr_evt_type_w == DESC_STREAM_INPUT_C)
+          pp_ctr_rr_r <= PP_CTR_RR_W_C'(32'(pp_ctr_evt_index_w) + 1);
+        else if (pp_ctr_evt_type_w == DESC_STREAM_OUTPUT_C)
+          pp_ctr_rr_r <= PP_CTR_RR_W_C'(N_STREAMS
+                                        + 32'(pp_ctr_evt_index_w) + 1);
+        else
+          pp_ctr_rr_r <= PP_CTR_RR_W_C'(N_STREAMS + ACMP_SRC_C + 1);
+      end
+    end
+  end
+
   KL_pp_shadow #(
       .TDATA_WIDTH_P  (TDATA_WIDTH),
       .CLK_HZ_P       (MILAN_CLK_FREQ_HZ),
@@ -6393,6 +6488,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       .ctr_word_o        (pp_ctr_word_w),
       .ctr_data_i        (pp_ctr_data_w),
       .ctr_wait_i        (pp_ctr_wait_w),
+      .ctr_change_i      (pp_ctr_evt_valid_w),
+      .ctr_change_desc_type_i(pp_ctr_evt_type_w),
+      .ctr_change_desc_index_i(pp_ctr_evt_index_w),
       //! GET_AUDIO_MAP: the processor asks, this file answers from the
       //! render map RAM (see the 7.4.44 answer block above)
       .amap_req_o        (pp_amap_req_w),

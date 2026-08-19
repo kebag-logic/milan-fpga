@@ -87,6 +87,7 @@ PP_SRCS = $(PP_DIR)/common/pp_pkg.sv $(PP_DIR)/srp/srp_pkg.sv \
        $(PP_DIR)/packet_engine/KL_pp_normalizer.sv \
        $(PP_DIR)/packet_engine/KL_pp_dispatch.sv \
        $(PP_DIR)/packet_engine/KL_pp_tx_slots.sv \
+       $(PP_DIR)/packet_engine/KL_pp_release_merge.sv \
        $(PP_DIR)/packet_engine/KL_pp_tx_arbiter.sv \
        $(PP_DIR)/packet_engine/KL_pp_scoreboard.sv \
        $(PP_DIR)/packet_engine/KL_pp_event_router.sv \
@@ -105,6 +106,7 @@ PP_SRCS = $(PP_DIR)/common/pp_pkg.sv $(PP_DIR)/srp/srp_pkg.sv \
        $(PP_DIR)/aecp/ucpu_pkg.sv $(PP_DIR)/aecp/KL_aecp_ucpu.sv \
        $(PP_DIR)/aecp/KL_aecp_desc_store.sv $(PP_DIR)/aecp/KL_aecp_dyn_state.sv $(PP_DIR)/aecp/KL_aecp_resp_buf.sv \
        $(PP_DIR)/aecp/KL_aecp_engine.sv $(PP_DIR)/aecp/KL_aecp_notify.sv \
+       $(PP_DIR)/aecp/KL_aecp_ca_originator.sv \
        $(PP_DIR)/top/KL_mrp_strip.sv $(PP_DIR)/top/protocol_processor_top.sv \
        $(RTL_DIR)/milan/KL_pp_shadow.sv $(RTL_DIR)/milan/KL_pp_maap_shim.sv
 

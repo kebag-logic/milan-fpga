@@ -8,15 +8,15 @@ this document covers the *transient*: what happens, layer by layer, when
 the grandmaster disappears, changes, or comes back.
 
 Current integration note: the measurements below predate the control-plane
-replacement. The current root keeps media-clock selection INTERNAL, and the
-general Table 5.22 notification producer is still missing. Mapping-change
-notifications are the implemented exception.
+replacement. The current root keeps media-clock selection INTERNAL. The
+Table 5.22 producer now sends the observed GM and AVB changes through the
+registered-controller notification scheduler.
 
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
 | `crf.media-clock-consumption` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ## Contents

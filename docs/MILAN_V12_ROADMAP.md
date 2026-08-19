@@ -28,7 +28,7 @@ Machine-checked status rows are defined by the
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0054` |
+| `gateware.current-version` | `implemented` | `0x0002_0055` |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -38,8 +38,8 @@ Machine-checked status rows are defined by the
 | `stream-info.set-acc-lat` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
 | `state.nonvolatile-persistence` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
-| `notifications.controller-liveness` | `missing` | - |
+| `notifications.change-events` | `implemented` | - |
+| `notifications.controller-liveness` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 The exact mandatory command gap is also machine-checked:
@@ -70,13 +70,12 @@ constants are the concrete decode. The feature ledger owns the canonical
 documented inventory, and the compliant bench gates its `SERVED` table against
 the processor RTL.
 
-**"Served" here means the command's own request/response contract.** It does
-**not** imply that every served state change has its unsolicited notification.
-The audio mapping writers enqueue their required successful-change
-notifications, including an idempotent ADD. The ordinary `SET_*` programs do
-not yet enqueue all notifications required by Milan Section 5.4.5.2 and IEEE Section 7.4.7;
-that shared gap remains tracked as #69. One more caveat worth naming here
-rather than burying: `0x0016`'s stored
+**"Served" here means the command's own request/response contract.** Since
+0x0055, successful state-changing commands enqueue their command-specific
+unsolicited response for every registered controller except the requester.
+Successful no-op setters stay silent. Observed asynchronous changes use the
+same Table 5.22 scheduler. One remaining caveat worth naming here rather than
+burying: `0x0016`'s stored
 clock source reaches `milan_datapath` and is read by nothing (audit B3).
 
 `0x0006` used to carry a second caveat — it stored an index that
@@ -342,7 +341,7 @@ by non-ATDECC means."* The µISA already has `CHECK_LOCK` for exactly this.
 | `0x0014` | SET_SAMPLING_RATE **— LANDED** | 5.4.2.13 | the rate/mapping-mismatch refusal is a **MAY**, not a SHALL | es-4.16, es-5.1 |
 | `0x0016` | SET_CLOCK_SOURCE **— LANDED** | 5.4.2.15 | — | es-4.9, es-5.1, es-10.1 |
 | `0x0018` | SET_CONTROL **— LANDED** | 5.4.2.17 | IDENTIFY only; values 0 and 255 | es-4.10 |
-| `0x0022` | START_STREAMING **-- LANDED** | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output** (and on every other type); on a bound+stopped input, request started. Success follows the record commit (0x0052, #97); the 7.5.2 unsolicited response remains issue #69's. | es-4.11, es-12.7 |
+| `0x0022` | START_STREAMING **-- LANDED** | 5.4.2.19 | `NOT_SUPPORTED` on a Stream **Output** (and on every other type); on a bound+stopped input, request started. Success follows the record commit (0x0052, #97), and a state-changing success sends the opcode-specific unsolicited response. | es-4.11, es-12.7 |
 | `0x0023` | STOP_STREAMING **-- LANDED** | 5.4.2.20 | Mirror of the above. A stopped CRF sink now observes and counts; only timing consumption and the restart echo gate (0x0052, #97). | es-4.11, es-12.7 |
 
 > **`SET_CLOCK_SOURCE` is worth more than one row.** Its dynamic-state store
@@ -409,30 +408,27 @@ controller list (both *"cleared by a power cycle"*), and the IDENTIFY value
 
 ### P3.2 — unsolicited notification triggers (Milan 5.4.5.2 + Table 5.22)
 
-The registry, the fan-out and the sequence-per-controller are landed. What is
-open is the **trigger set**: every successful state-changing command must push
-to every registered controller *except the requester* (es-6.2 is an inverted
-gate — notifying the requester **fails**), plus the asynchronous triggers of
-Table 5.22: GET_STREAM_INFO field changes, GET_AVB_INFO changes, GET_AS_PATH
-changes, GET_COUNTERS (rate-limited to **≤1 per descriptor per second**), the
-LOCK auto-unlock, and auto-DEREGISTER.
-
-Most of P2.3 lands its own trigger, so this is best done command-by-command
-rather than as one round. Blocks es-4.4, es-4.7, es-4.16, es-4.18, es-6.1,
-es-6.2, es-12.4, es-12.5, es-12.6, es-12.7.
+**LANDED 2026-08-18.** Successful state-changing commands queue their
+opcode-specific response for every registered controller except the requester.
+Successful no-op setters do not queue. The observed GET_STREAM_INFO,
+GET_AVB_INFO, and GET_AS_PATH changes enter the same scheduler. Counter changes
+are coalesced per served descriptor and emission selection is separated by at
+least one second. LOCK expiry and automatic deregistration retain their prior
+targeting rules. The compliant tests cover two-controller exclusion,
+independent sequence IDs, no-op suppression, byte-identical stream-info
+content, and the counter interval.
 
 ### P3.3 — departing-controller detection (Milan 5.4.5.3)
 
-Per registered controller: a **random 30–60 s** monitor timer, reset by any
-valid AECP command from that controller; on expiry a `CONTROLLER_AVAILABLE`
-(`0x0003`) command with **one** retry per IEEE Section 9.3.6; any reply at all -- *"no
-matter the value of the status code"* — re-arms; silence removes the entry and
-sends a targeted unsolicited `DEREGISTER_UNSOLICITED_NOTIFICATION`.
-
-This is the only place the device must **originate** an AECP command. The
-processor has `KL_pp_originator` (already used for the ACMP retry path) and a
-timer service, so the machinery exists. Blocks es-6.4, which measures the first
-probe at **27–66 s** and the retry within **250 ms**.
+**LANDED 2026-08-18.** Each registered controller has an independent random
+30 to 60 second monitor that is reset by any valid AECP command from its
+registered tuple. Expiry originates `CONTROLLER_AVAILABLE` (`0x0003`) through
+the shared inflight tracker. It performs exactly one retry after 250 ms. Any
+matching response status re-arms the monitor; silence removes the row and sends
+targeted unsolicited `DEREGISTER_UNSOLICITED_NOTIFICATION`. A valid command
+that arrives while a probe is active cancels the old probe and starts a fresh
+interval. `CONTROLLER_AVAILABLE` is a transmit-only entity contract and is not
+listed as a served command.
 
 ---
 
@@ -486,14 +482,17 @@ So a `NOT_SUPPORTED` refusal must carry the full response body. This cost the
    `START`/`STOP_STREAMING` landed with issue #78 -- their interlock turned
    out to be the binding record's own (Section 5.3.8.7's "undefined when not
    bound"), not a reduction over every stream.
-5. **P3.2** notification triggers, folded into each command above as it lands.
+5. **P3.2 complete 2026-08-18**: command and observed asynchronous
+   notification triggers, requester exclusion, no-op suppression, and counter
+   limiting.
 6. **P2.2/P2.3** `GET`/`SET_CONTROL` with the IDENTIFY indicator wired.
 7. **P2.4 complete 2026-08-17**: ADD/REMOVE_AUDIO_MAPPINGS with atomic
    validation, live datapath projection, lock checks, unsolicited updates,
    MAP_CFG versus STREAM_CFG scoreboard exclusion, and root output
    reservations against local or SRP starts during write-back. Nonvolatile
    replay remains tracked by P3.1 and issue #70.
-8. **P3.3** departing-controller monitor.
+8. **P3.3 complete 2026-08-18**: departing-controller monitor with one retry,
+   any-status rearm, cancellation by a valid command, and targeted removal.
 9. **P3.1** persistence — largest, and the only one that needs a real flash
    backend rather than the blank-flash stub.
 10. **P2.5** GET_DYNAMIC_INFO. Completed 2026-08-17.

@@ -20,7 +20,7 @@ the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
 |---|---|---|
 | `aem.served-command-set` | `implemented` | - |
 | `crf.media-clock-consumption` | `missing` | - |
-| `notifications.change-events` | `partial` | - |
+| `notifications.change-events` | `implemented` | - |
 <!-- milan-feature-status:end -->
 
 ![The time-sync clock chain](../diagrams/timesync_chain.png)
@@ -361,7 +361,7 @@ interval/type increments `fmt_err`) and produces the two servo inputs:
   Solicited `GET_COUNTERS` serves the supported CLOCK_DOMAIN bank through the
   processor counter face. The selected source remains structurally INTERNAL in
   this integration, so the served lock pair cannot follow a CRF selection.
-  The Milan Table 5.22 unsolicited counter-change scheduler also remains open.
+  Clock-domain lock changes feed the rate-limited Milan Table 5.22 scheduler.
 
 The followed stream comes from the CRF sink bind (ACMP listener sink 1 —
 the bind wins) with the CSR pair 0x738/0x73C/0x740 as the manual bench

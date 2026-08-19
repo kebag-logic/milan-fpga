@@ -74,7 +74,7 @@ and `aem_desc.map` files in the sibling rootfs overlay when it is present.
 | [Testing guide](testing/TESTING.md) | Verification layers and exact commands |
 | [Running tests](testing/RUNNING_TESTS.md) | Layered execution runbook |
 | [Simulation](testing/SIMULATION.md) | RTL and SoC simulation boundaries |
-| [BDD suite](../tests/README.md) | 15 features, 338 scenarios, and 1,615 steps in the 2026-08-18 run |
+| [BDD suite](../tests/README.md) | 15 features, 334 scenarios, and 1,571 steps in the 2026-08-19 run |
 | [Verilator suites](../tb/verilator/README.md) | RTL harness inventory |
 | [Generated module matrix](traceability/MODULE_MATRIX.md) | Module to specification to test roll-up |
 | [Current Milan v1.2 audit](testing/MILAN_V12_AUDIT_2026-08-16.md) | Exact results, limitations, and mandatory gaps |

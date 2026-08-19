@@ -32,6 +32,7 @@ read_verilog -sv \
   $PP/packet_engine/KL_pp_normalizer.sv \
   $PP/packet_engine/KL_pp_dispatch.sv \
   $PP/packet_engine/KL_pp_tx_slots.sv \
+  $PP/packet_engine/KL_pp_release_merge.sv \
   $PP/packet_engine/KL_pp_tx_arbiter.sv \
   $PP/packet_engine/KL_pp_scoreboard.sv \
   $PP/packet_engine/KL_pp_event_router.sv \

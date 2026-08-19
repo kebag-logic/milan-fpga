@@ -469,9 +469,25 @@ static void lo() { dut->axis_clk = 0; dut->gtx_clk = 0; dut->clk_audio_i = 0;
                    rmem_edge(); dmem_edge(); }
 static void hi() { dut->axis_clk = 1; dut->gtx_clk = 1; dut->clk_audio_i = 1; dut->eval(); }
 static unsigned long tkd_dirty_seen = 0;
+static unsigned long pp_ctr_evt_sin_seen = 0;
+static unsigned long pp_ctr_evt_sout_seen = 0;
+static bool pp_ctr_evt_avb_seen = false;
+static bool pp_ctr_evt_ckd_seen = false;
 static void step() {
     lo(); hi();
     tkd_dirty_seen |= dut->rootp->milan_datapath__DOT__tkd_dirty_p_w;
+    if (dut->rootp->milan_datapath__DOT__pp_ctr_evt_valid_w) {
+        const unsigned ty = dut->rootp->milan_datapath__DOT__pp_ctr_evt_type_w;
+        const unsigned ix = dut->rootp->milan_datapath__DOT__pp_ctr_evt_index_w;
+        if (ty == 0x0005 && ix < sizeof(unsigned long) * 8)
+            pp_ctr_evt_sin_seen |= 1ul << ix;
+        else if (ty == 0x0006 && ix < sizeof(unsigned long) * 8)
+            pp_ctr_evt_sout_seen |= 1ul << ix;
+        else if (ty == 0x0009 && ix == 0)
+            pp_ctr_evt_avb_seen = true;
+        else if (ty == 0x0024 && ix == 0)
+            pp_ctr_evt_ckd_seen = true;
+    }
 }
 
 // ---- AXI4-Lite BFM (same protocol as the milan_dp legacy harness) ----
@@ -905,8 +921,8 @@ int main(int argc, char** argv) {
     for (int i = 0; i < 8; i++) step();
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
-    ck("VERSION 0x0054 carries the setters, their consumption and names",
-       axi_read(A_VERSION), 0x00020054);
+    ck("VERSION 0x0055 carries notification and monitor completion",
+       axi_read(A_VERSION), 0x00020055);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
     //! These two writes used to sit inside the N-sink ACMP ctx2 section,
@@ -1826,6 +1842,8 @@ int main(int argc, char** argv) {
         const std::vector<uint8_t> r = aecp_xact(0x0029, 0x4020, pl);
         ck("[CTRS] GET_COUNTERS(STREAM_INPUT,1) was ANSWERED",
            (long)(r.size() >= 174), 1);
+        ck("[CTRS] real input counter changes reached the descriptor arbiter",
+           pp_ctr_evt_sin_seen & 0x6ul, 0x6ul);
         if (r.size() >= 174) {
             ck("[CTRS] status SUCCESS(0), not NOT_IMPLEMENTED", aecp_status(r), 0);
             ck("[CTRS] cdl = 12 + 136", (((unsigned)r[16] & 7) << 8) | r[17], 148);
@@ -1951,13 +1969,20 @@ int main(int argc, char** argv) {
             }
 
             tkd_dirty_seen = 0;
+            pp_ctr_evt_sout_seen = 0;
             axi_write(A_AAF_CTRL, 0x00020003);
             axi_write(A_AAF_CTRL, 0x00020002);
             axi_write(A_CRFT_CTRL, 1);
             axi_write(A_CRFT_CTRL, 0);
+            //! The integrator face is intentionally scalar. Give the
+            //! lossless round-robin queue one bounded sweep to serialize the
+            //! simultaneous descriptor pulses before grading delivery.
+            for (int i = 0; i < 2 * NSTREAMS_TB + 4; i++) step();
             const unsigned long all_dirty = (1ul << (NSTREAMS_TB + 1)) - 1ul;
             ck("[CTRS-OUT] every output asserted its raw dirty bit",
                tkd_dirty_seen & all_dirty, all_dirty);
+            ck("[CTRS-OUT] simultaneous output changes all reached the arbiter",
+               pp_ctr_evt_sout_seen & all_dirty, all_dirty);
             long isolated = 1;
             for (int out = 0; out <= NSTREAMS_TB; out++) {
                 const auto rr = sout((uint16_t)(0x4060 + out),
@@ -2129,6 +2154,7 @@ int main(int argc, char** argv) {
             //! changes (a first publication is a discovery, not a change) -
             //! so publish A, then move to B, and expect exactly the B edge
             const uint32_t gm0 = ctr_of(0x0009, 0, 5);
+            pp_ctr_evt_avb_seen = false;
             //! the GM pair is COMMIT-ON-HI (milan_csr: "LO stages, HI
             //! commits both halves in one cycle") - a LO write alone changes
             //! NOTHING, which is the atomicity a torn 64-bit id would
@@ -2149,6 +2175,8 @@ int main(int argc, char** argv) {
             const uint32_t gm1 = ctr_of(0x0009, 0, 5);
             ck("[CTRS2] GPTP_GM_CHANGED counted the A-to-B move",
                (long)(gm1 - gm0 >= 1), 1);
+            ck("[CTRS2] the AVB counter change reached the descriptor arbiter",
+               pp_ctr_evt_avb_seen, 1);
 
             // -- the clock-domain family, by delta --------------------------
             //! the GM commits above are gPTP DISCONTINUITIES to the clock
@@ -2159,6 +2187,7 @@ int main(int argc, char** argv) {
             for (int i = 0; i < 15000; i++) step();
             const uint32_t lk0 = ctr_of(0x0024, 0, 0);
             const uint32_t ul0 = ctr_of(0x0024, 0, 1);
+            pp_ctr_evt_ckd_seen = false;
             ck("[CTRS2] CLOCK_DOMAIN mask = 0x3 (LOCKED, UNLOCKED)",
                (long)ctr_of(0x0024, 0, 32), 0x3);
             //! lock = the CLKV lease (0x778: [0] SYNC_OK, [15:4] lease in
@@ -2177,6 +2206,8 @@ int main(int argc, char** argv) {
             const uint32_t ul1 = ctr_of(0x0024, 0, 1);
             ck("[CTRS2] the discontinuity UNLOCKED the domain (+1)",
                (long)(ul1 - ul0 >= 1), 1);
+            ck("[CTRS2] clock counter changes reached the descriptor arbiter",
+               pp_ctr_evt_ckd_seen, 1);
             //! 5.3.11.2's invariant across whatever the two writes left
             const uint32_t lkf = ctr_of(0x0024, 0, 0);
             const uint32_t ulf = ctr_of(0x0024, 0, 1);
