@@ -538,9 +538,43 @@ int main(int argc, char** argv) {
     // with the wrong pair by driving LE lanes).
     {
         printf("[PTP-TS] gPTP RX -> metadata record\n");
-        enum { A_PTP_CTRL = 0x500, A_PTP_INCR = 0x504 };
+        enum { A_PTP_CTRL = 0x500, A_PTP_INCR = 0x504, A_PTP_ADJ = 0x508,
+               A_PTP_OFLO = 0x518, A_PTP_OFHI = 0x51C, A_PTP_CMD2 = 0x520,
+               A_PTP_TRLO = 0x530, A_PTP_TRHI = 0x534 };
         axi_write(A_PTP_INCR, 20u << 24);       // 20 ns/tick Q8.24
         axi_write(A_PTP_CTRL, 1);
+
+        // [GPTP-OPT] the CSR keeps the PHC knobs while the plane option
+        // is OFF: a polarity-swapped eff_* mux (the plane's zeros taking
+        // the wires) would leave adjfine and adjtime silently dead on
+        // silicon -- this block is that regression's tripwire.
+        {
+            printf("[GPTP-OPT] CSR adjfine/adjtime own the counter with the option off\n");
+            auto snap = [&]() -> uint64_t {
+                axi_write(A_PTP_CMD2, 0x4);
+                for (int i = 0; i < 6; i++) step();
+                return ((uint64_t)axi_read(A_PTP_TRHI) << 32)
+                     | axi_read(A_PTP_TRLO);
+            };
+            uint64_t t0 = snap();
+            for (int i = 0; i < 1000; i++) step();
+            uint64_t d_base = snap() - t0;      // ~1000 ticks at 20 ns
+            axi_write(A_PTP_ADJ, 10u << 24);    // adjfine: +10 ns/tick
+            uint64_t t2 = snap();
+            for (int i = 0; i < 1000; i++) step();
+            uint64_t d_adj = snap() - t2;       // ~1000 ticks at 30 ns
+            // the adjusted window must run ~1.5x the base one
+            ck("[GPTP-OPT] adjfine owns the rate",
+               (d_adj > d_base + (d_base >> 2)) && (d_adj < 2 * d_base), 1);
+            uint64_t t4 = snap();
+            axi_write(A_PTP_OFLO, 100000);      // adjtime: one +100 us hop
+            axi_write(A_PTP_OFHI, 0);
+            axi_write(A_PTP_CMD2, 0x2);
+            uint64_t t5 = snap();
+            ck("[GPTP-OPT] adjtime hops the counter",
+               (t5 - t4 > 100000) && (t5 - t4 < 103000), 1);
+            axi_write(A_PTP_ADJ, 0);            // rate restored for the rest
+        }
         uint8_t g[68]; memset(g, 0, sizeof g);
         const uint8_t gh[14] = {0x01,0x80,0xC2,0,0,0x0E, 2,0,0,0,0,2, 0x88,0xF7};
         memcpy(g, gh, 14);

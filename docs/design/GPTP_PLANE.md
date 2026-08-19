@@ -4,9 +4,9 @@
 The time-sync plane of epic #110: the `gptp-processor` submodule's
 micro-coded 802.1AS engine spliced into the datapath as fabric, on the
 way to retiring `ptp4l`/`phc2sys`/the `milan-statd` mirror chain. This
-page is the integration architecture of record for round 3b (#114);
-the donor repo's own `README.md` and `docs/RESOURCE_VALIDATION.md`
-carry the engine's internals and measured cost.
+page is the integration architecture of record for #114; the donor
+repo's own pages under `gptp-processor/docs/` (the resource-validation
+record) carry the engine's internals and measured cost.
 
 ## Contents
 
@@ -32,6 +32,12 @@ buy-back) elaborates `KL_gptp_shadow` with four seams:
    rationale: time-critical frames must not queue 512 cycles per
    control burst) through its own staggered merge -- ctl 2^15, this
    merge 2^16, the MAC boundary 2^17; arbiter diagnostics lane 4.
+   HONEST BOUND: bypassing the gasket means a plane frame can reach
+   the MAC back-to-back behind another frame -- the exact class the
+   512-cycle gasket exists for (the MilanMAC cut-through eater). The
+   plane's own exchange pairs are self-spaced by the 1 B/clk gearbox,
+   and #117's silicon rounds own the wire answer before #116 flips
+   the option on.
 3. **PHC**: the plane owns `timestamp_counter`'s adjfine (a
    pulse-to-level latch lives in the shadow) and adjtime when enabled;
    settime stays with the CSR face -- boot sets the epoch. Off, both
@@ -67,8 +73,8 @@ buy-back) elaborates `KL_gptp_shadow` with four seams:
 The CSR readback words (`ADP_GM` 0x624/8, `GPTP_PDELAY` 0x6E4, the
 0x730 AS_PATH group), the `tu` bit's CLKV lease, and the rootfs
 daemons. The #116 flip re-points them at the plane and carries the
-VERSION story; nothing on this round changes CSR-visible behavior,
-which is why no VERSION bump rides here.
+VERSION story; the splice changes no CSR-visible behavior, which is
+why it carries no VERSION bump.
 
 ## Verification map
 
@@ -78,6 +84,7 @@ which is why no VERSION bump rides here.
 | `tb/verilator/gptp_plane` | byte, REAL counter | the engine steers the parent's `timestamp_counter` closed-loop; the phc_ns_i observing check |
 | `tb/verilator/gptp_shadow` | WIDE, real counter + boundary stamper | the fabric slice with no harness timestamps at all; classify/transport/gearbox/stamper; 5 mutations |
 | `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping shape; the boot Pdelay_Req reaches the real MAC boundary; NO Announce without asCapable |
+| `tb/verilator/milan_dp` default legs | the whole datapath | the [GPTP-OPT] tripwire: with the option OFF, CSR adjfine and adjtime still reach `timestamp_counter` through the eff muxes (a polarity swap goes red) |
 
 The area verdict for option-ON is RED at the current shipping shape
 (measured: the baseline alone synthesizes at 93.84% and fails default

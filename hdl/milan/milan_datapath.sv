@@ -6060,8 +6060,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! through its own staggered merge (ctl 2^15 -> this 2^16 -> boundary
   //! 2^17). The egress stamper observes the TRUE MAC boundary; ingress
   //! rides the same rx_axis_to_dma tap every plane uses (input only,
-  //! tvalid && tready qualified). The publish bank feeds milan_csr's
-  //! gPTP words when the option is on.
+  //! tvalid && tready qualified). Of the publish bank, the GM identity
+  //! feeds the fabric consumers when the option is on (see the
+  //! cfg_adp_gptp_gm mux); the remaining words and the CSR readback
+  //! follow with #116's flip.
   wire [TDATA_WIDTH-1:0]   ctlg3_tdata;
   wire [TDATA_WIDTH/8-1:0] ctlg3_tkeep;
   wire                     ctlg3_tvalid, ctlg3_tlast, ctlg3_tready;
