@@ -79,9 +79,10 @@ module gptp_plane_wrap #(
   logic [63:0] step_val_w;
 
   //! adjfine is a level at the counter: latch the engine's pulse
+  //! (sync reset, matching the counter it feeds)
   logic signed [31:0] adj_r;
-  always_ff @(posedge clk_i or negedge rst_n) begin : adj_latch
-    if (!rst_n)       adj_r <= '0;
+  always_ff @(posedge clk_i) begin : adj_latch
+    if (!rst_n)        adj_r <= '0;
     else if (adj_we_w) adj_r <= $signed(adj_val_w);
   end
 

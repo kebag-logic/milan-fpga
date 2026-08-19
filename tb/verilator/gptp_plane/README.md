@@ -21,6 +21,13 @@ What it proves:
 | 3 | a better announce is adopted; the publish bank carries the GM identity and role flags |
 | 4 | closed loop vs a +100 ppm master 1 ms ahead in counter time: ONE adjtime re-base near +1 ms (the correction negates the offset), the latched adjfine level lands at the +100 ppm ideal (13,421 Q8.24 units, within 15%), the measured offset locks under 150 ns, and the REAL counter's advance tracks the master's within 100 ns over the last four sync intervals |
 
+Known blind spot, on purpose: `phc_ns_i` (the engine's live-clock
+snapshot input) is dispatch metadata in the current µcode -- no handler
+consumes it yet -- so a mis-wire of that one input is invisible to these
+checks. The loop closes through the ingress/egress timestamps. Its first
+functional consumer is a donor-side µcode revision; the splice round
+carries the observing check.
+
 Timescale note: the bench clock is 2 MHz while the counter keeps its
 8.0 ns/tick shape, so counter time runs 62.5x slower than the bench
 timer's millisecond. That is deliberate and self-consistent -- the
