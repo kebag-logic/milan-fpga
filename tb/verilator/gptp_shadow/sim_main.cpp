@@ -494,6 +494,68 @@ int main(int argc, char **argv) {
              sheds[rep] == sheds[0], 1);
   }
 
+  //! build a minimal classifiable 0x88F7 (or foreign-ethertype) frame
+  auto tapframe = [](size_t len, bool gptp) {
+    std::vector<uint8_t> f(len, 0);
+    const uint8_t da[6] = {0x01, 0x80, 0xC2, 0x00, 0x00, 0x0E};
+    const uint8_t sa[6] = {0x00, 0x80, 0xE1, 0x11, 0x22, 0x33};
+    for (int i = 0; i < 6; i++) { f[i] = da[i]; f[6 + i] = sa[i]; }
+    f[12] = gptp ? 0x88 : 0x22;
+    f[13] = gptp ? 0xF7 : 0xF0;
+    f[14] = 0x10; f[15] = 0x02;
+    return f;
+  };
+
+  // ---- 11: issue #122 -- the shed must stay ATOMIC for frames LONGER than
+  // two beats. A shed frame is held out of the FIFO by routing FW_HEAD1 to
+  // FW_SKIP; lose that route and beats 2..N of a shed frame enter as a
+  // HEADLESS partial frame, commit as good, and push a ghost stamp with no
+  // matching entry count -- the sum under-counts and the ring laps again,
+  // which is precisely the defect this ticket fixes. Phases 8 and 10 cannot
+  // see it: their frames are two beats, so a shed frame never leaves
+  // FW_HEAD1. The size must also stay small enough that the 2 KB frame FIFO
+  // does NOT saturate, or its own overflow drop masks the ghost push. 24 and
+  // 56 bytes sit in that window (a real Pdelay_Req is 68).
+  for (int fb = 0; fb < 2; fb++) {
+    const size_t flen = (fb == 0) ? 24 : 56;
+    const int    nfr  = 60;
+    uint16_t d0 = dut->dbg_tap_drop_o;
+    g_pushed.clear(); g_popped.clear();
+    g_ts_capture = true;
+    for (int k = 0; k < nfr; k++) send_wide(tapframe(flen, true));
+    run(120000);
+    g_ts_capture = false;
+    long sheds = (long)(uint16_t)(dut->dbg_tap_drop_o - d0);
+    bool law = (g_popped.size() == g_pushed.size()) && !g_popped.empty();
+    for (size_t i = 0; law && i < g_popped.size(); i++)
+      if (g_popped[i] != g_pushed[i]) law = false;
+    expect("long-frame shed stays atomic: popped == pushed, in order", law, 1);
+    expect("long-frame shed stays atomic: pops + sheds == 60",
+           (int)g_popped.size() + (int)sheds, nfr);
+  }
+
+  // ---- 12: the shed diagnostic counts gPTP sheds ONLY. The guard sheds at
+  // beat 0, BEFORE the EtherType verdict lands at beat 1, so on a busy link
+  // most shed frames are not gPTP at all -- counting those would poison
+  // dbg_tap_drop_o, which is what a silicon reader uses to size the loss.
+  // Saturate the ring with short gPTP frames while interleaving AVTP ones:
+  // the accounting law below holds only if the count is EtherType-gated.
+  {
+    const int npair = 60;
+    uint16_t d0 = dut->dbg_tap_drop_o;
+    g_pushed.clear(); g_popped.clear();
+    g_ts_capture = true;
+    for (int k = 0; k < npair; k++) {
+      send_wide(tapframe(24, true));
+      send_wide(tapframe(24, false));       // foreign ethertype, also shed-able
+    }
+    run(120000);
+    g_ts_capture = false;
+    long sheds = (long)(uint16_t)(dut->dbg_tap_drop_o - d0);
+    expect("mixed traffic: pops + gPTP sheds == the 60 gPTP frames sent",
+           (int)g_popped.size() + (int)sheds, npair);
+  }
+
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
   delete dut;
   return fails ? 1 : 0;

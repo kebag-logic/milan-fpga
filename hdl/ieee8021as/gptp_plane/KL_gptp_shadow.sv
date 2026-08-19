@@ -37,7 +37,13 @@
 //
 //                A control frame offered while the FIFO cannot take it is
 //                LOST and counted, never hidden (the tap cannot
-//                backpressure the NIC).
+//                backpressure the NIC). The same is true of the SHED RULE
+//                (issue #122): the side FIFO is shallower than the frame
+//                FIFO, so a frame arriving when the ring is already spoken
+//                for is dropped WHOLE at its first beat rather than allowed
+//                to lap a still-live stamp -- see the occupancy block below
+//                for why that count has two terms and why the pointer
+//                difference must be taken at pointer width.
 //---------------------------------------------------------------------------//
 `default_nettype none
 
