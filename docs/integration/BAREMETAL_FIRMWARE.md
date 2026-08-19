@@ -70,18 +70,23 @@ builder-generated protocol-processor entity image:
 
 `deploy.sh flash-images` writes the AEM image raw. It must not receive a
 LiteX FBI header. At build time the firmware receives the image length, CRC32
-and DRAM destination as generated constants. At boot it performs this order:
+and DRAM destination as generated constants. The PHC is enabled by the CSR
+reset and the option-on fabric gPTP plane starts independently of the AVDECC
+AEM image. Firmware therefore does not gate either one on AEM verification.
+It performs this order:
 
-1. Keep ADP and the protocol processor disabled.
+1. Keep ADP and the protocol processor disabled while the PHC and fabric gPTP
+   plane remain active.
 2. Program the generated entity ID, model ID, station MAC, SR VID, stream
    counts, lwSRP policy, MAAP count and CRF/AAF controls.
 3. Copy the raw AEM image from QSPI to the protocol processor's paired DRAM
    window and verify its CRC32.
-4. Enable the PTP clock, protocol processor and ADP entity only after the
+4. Enable the protocol processor and then the ADP entity only after the
    identity check and AEM verification succeed.
 
-A missing or corrupt image leaves the entity disabled. The UART status line
-then reports `AEM=disabled`; it is not treated as a quiet healthy boot.
+A missing or corrupt image leaves the AVDECC entity disabled while the PHC and
+fabric gPTP plane continue independently. The UART status line then reports
+`AEM=disabled`; it is not treated as a quiet healthy boot.
 
 ## Fabric gPTP option
 
@@ -94,8 +99,8 @@ using the generator's example identity or clock defaults.
 This #120 integration does not change the RTL default or the CSR compatibility
 surface. The #116 flip still owns the default-on transition and retirement of
 the remaining software-era CSR/readback behavior. The bare-metal firmware
-sets the PHC epoch explicitly; after that, the fabric plane owns adjfine and
-adjtime in an option-on build.
+exposes explicit UART commands for setting the PHC epoch; the fabric plane
+owns adjfine and adjtime in an option-on build.
 
 ## UART commands
 

@@ -180,8 +180,8 @@ static void milan_init(void)
 		printf("Milan baremetal: CSR identity mismatch; fabric remains disabled.\n");
 		return;
 	}
+	/* PHC and fabric gPTP are live from reset, independent of the AEM gate. */
 	configure_fabric();
-	milan_write(MILAN_PTP_CTRL, milan_read(MILAN_PTP_CTRL) | 1u);
 	aem_loaded = load_aem_image();
 	if (aem_loaded) {
 		milan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 1u);

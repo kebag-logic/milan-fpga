@@ -564,6 +564,74 @@ def test_baremetal_profile_contract():
     assert "--fabric-gptp" in deploy_source
     for absent in ("--sound-card", "--aaf-playback", "--scala-args"):
         assert absent not in argv, f"bare-metal argv unexpectedly carries {absent}"
+
+    firmware_path = os.path.join(
+        ROOT, "sw/firmware/milan_baremetal/milan_baremetal.c")
+    docs_path = os.path.join(
+        ROOT, "docs/integration/BAREMETAL_FIRMWARE.md")
+    csr_path = os.path.join(ROOT, "hdl/common/csr/milan_csr.sv")
+    with open(firmware_path, encoding="utf-8") as fh:
+        firmware_source = fh.read()
+    with open(docs_path, encoding="utf-8") as fh:
+        docs_source = fh.read()
+    with open(csr_path, encoding="utf-8") as fh:
+        csr_source = fh.read()
+
+    def assert_boot_contract(firmware, docs, csr):
+        init_start = firmware.index("static void milan_init(void)")
+        init_end = firmware.index("define_init_func(milan_init)", init_start)
+        init_source = firmware[init_start:init_end]
+        events = (
+            "configure_fabric();",
+            "aem_loaded = load_aem_image();",
+            "milan_write(MILAN_PP_CTRL",
+            "milan_write(MILAN_ADP_CTRL",
+        )
+        positions = [init_source.index(event) for event in events]
+        assert positions == sorted(positions), \
+            "firmware no longer configures, verifies AEM, then enables PP/ADP"
+        assert "milan_write(MILAN_PTP_CTRL" not in init_source, \
+            "firmware incorrectly gates the independently running PHC on AEM"
+        assert "ptp_ctrl <= 32'h1;" in csr, \
+            "bare-metal PHC contract requires the documented enabled reset"
+
+        words = " ".join(docs.split())
+        required = (
+            "The PHC is enabled by the CSR reset and the option-on fabric "
+            "gPTP plane starts independently of the AVDECC AEM image.",
+            "Firmware therefore does not gate either one on AEM verification.",
+            "Enable the protocol processor and then the ADP entity only after "
+            "the identity check and AEM verification succeed.",
+            "A missing or corrupt image leaves the AVDECC entity disabled "
+            "while the PHC and fabric gPTP plane continue independently.",
+        )
+        for claim in required:
+            assert claim in words, f"bare-metal boot contract lost: {claim}"
+        assert "Enable the PTP clock, protocol processor and ADP entity only " \
+               "after" not in words, \
+            "documentation restored the false AEM-gated PTP ordering"
+        assert "firmware sets the PHC epoch explicitly" not in words, \
+            "documentation claims an automatic epoch write firmware does not make"
+
+    assert_boot_contract(firmware_source, docs_source, csr_source)
+
+    old_claim = (
+        "Enable the protocol processor and then the ADP entity only after the\n"
+        "   identity check and AEM verification succeed.")
+    old_order = (
+        "Enable the PTP clock, protocol processor and ADP entity only after the\n"
+        "   identity check and AEM verification succeed.")
+    mutated_docs = docs_source.replace(old_claim, old_order, 1)
+    assert mutated_docs != docs_source, "boot-order mutation did not apply"
+    try:
+        assert_boot_contract(firmware_source, mutated_docs, csr_source)
+    except AssertionError:
+        pass
+    else:
+        raise AssertionError("old AEM-gated PTP documentation passed the gate")
+    print("  [gate 1b] boot contract: PHC/gPTP independent from reset; "
+          "AEM verification gates PP then ADP; old ordering claim rejected")
+
     print("  [gate 1b] shipping AX: fabric gPTP option on with config-derived "
           "1024-word ROM; VexiiRiscv RV32I at 50 MHz through its supported "
           "decoupled clock, one hart, L2=0, bare-metal flash, no Scala cache "
