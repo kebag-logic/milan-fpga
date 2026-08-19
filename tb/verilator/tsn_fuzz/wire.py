@@ -276,7 +276,7 @@ def aaf_pdu(stream_id=0x0200000000010000, sequence_num=0, avtp_timestamp=0,
 # FRAME offsets: Ethernet header 0..13, PTP common header 14..47 — the
 # same map KL_gptp_rx_parser.sv walks.
 ETHERTYPE_GPTP = 0x88F7
-GPTP_MCAST_MAC = bytes.fromhex("0180c200000e")   # 802.1AS-2011 11.3.3
+GPTP_MCAST_MAC = bytes.fromhex("0180c200000e")   # 802.1AS-2011 11.3.4 / Table 11-1
 #: bench identities (mirror tb/verilator/gptp_shadow/sim_main.cpp and the
 #: engine ucode default --mac 0x02A1B2C3D4E5)
 GPTP_OUR_CID = 0x02A1B2FFFEC3D4E5
@@ -466,7 +466,7 @@ class PtpMsg:
     time_source = property(lambda s: s.raw[77] if len(s.raw) > 77 else -1)
     # follow-up information TLV
     fu_tlv_type = property(lambda s: s._be(58, 2))
-    fu_csro = property(lambda s: s._be(64, 4))
+    fu_csro = property(lambda s: s._be(68, 4))
     #: the PDU as an independent decoder wants it (from the header byte)
     pdu = property(lambda s: s.raw[14:])
 
@@ -550,12 +550,15 @@ def _selftest():
         print("  [FAIL] Sync shape: len=%d ml=%d" % (len(s), PtpMsg(s).message_length))
         ok = False
 
-    fu = ptp_follow_up(sequence_id=7, origin_ns=1_000_000_123)
+    fu = ptp_follow_up(sequence_id=7, origin_ns=1_000_000_123,
+                       cumulative_scaled_rate_offset=0x0BADF00D)
     fm = PtpMsg(fu)
     if len(fu) != 90 or fm.message_length != 76 or fm.fu_tlv_type != 0x0003 \
-            or fm.ts_seconds != 1 or fm.ts_ns != 123:
-        print("  [FAIL] Follow_Up shape: len=%d ml=%d tlv=%04x ts=%d.%d"
-              % (len(fu), fm.message_length, fm.fu_tlv_type, fm.ts_seconds, fm.ts_ns))
+            or fm.ts_seconds != 1 or fm.ts_ns != 123 \
+            or fm.fu_csro != 0x0BADF00D:
+        print("  [FAIL] Follow_Up shape: len=%d ml=%d tlv=%04x ts=%d.%d csro=%08x"
+              % (len(fu), fm.message_length, fm.fu_tlv_type, fm.ts_seconds,
+                 fm.ts_ns, fm.fu_csro))
         ok = False
 
     r = ptp_pdelay_resp(sequence_id=9, t2_ns=5_000_000_000,

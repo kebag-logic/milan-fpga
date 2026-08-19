@@ -349,7 +349,7 @@ class Campaign:
         eth = models.get("eth")
         if eth is not None:
             con = dict((n, c) for n, _b, c in eth.fields)
-            self.rep.eq("boot req DA (11.3.3)",
+            self.rep.eq("boot req DA (11.3.4 / Table 11-1)",
                         m.dst.hex(), "%012x" % int(con["dst_mac"]["value"]))
             self.rep.eq("boot req EtherType", m.ethertype,
                         int(con["ethertype"]["value"]))
