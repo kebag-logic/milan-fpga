@@ -869,8 +869,19 @@ class Campaign:
         self.rep.eq("drought: asCapable FELL (no asCapable lie)",
                     st[S_FLAGS] & FL_ASCAP, 0)
         st = self.climb("recovery")
-        self.rep.ck("recovery: the plane is whole after the campaign",
-                    st[S_FLAGS] & (FL_PRESENT | FL_ASCAP), "")
+        # assert asCapable SPECIFICALLY: FL_PRESENT|FL_ASCAP is truthy on
+        # FL_PRESENT alone and could never fail (the vacuous-guard lesson)
+        self.rep.eq("recovery: asCapable is whole again after the campaign",
+                    st[S_FLAGS] & FL_ASCAP, FL_ASCAP)
+        # a positive control for the tap-drop counter, which every other
+        # probe only ever asserts UNMOVED: a >2 KB gPTP frame overflows the
+        # tap FIFO and must be counted, so a stuck-at-0 dbg_tap_drop_o fails
+        before = self.state()
+        storm = wire.ptp_sync(sequence_id=0x7EEE) + bytes(3000)
+        after = self.send(storm)
+        self.rep.ck("tap-drop counter has a positive control (oversize drop)",
+                    after[S_TAPDROP] > before[S_TAPDROP],
+                    "tap_drop %d -> %d" % (before[S_TAPDROP], after[S_TAPDROP]))
 
 
 def main():
