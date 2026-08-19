@@ -69,7 +69,7 @@ module KL_gptp_txstamp #(
   logic        is_gptp_r, take_r;
   logic [63:0] ts_r;
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       armed_r    <= 4'd0;
       bcnt_r     <= 3'd0;

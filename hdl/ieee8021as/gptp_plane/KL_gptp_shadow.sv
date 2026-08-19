@@ -162,7 +162,7 @@ module KL_gptp_shadow #(
   //! the arrival stamp for the frame currently entering the tap
   logic [63:0] ts_arr_r;
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       fw_S     <= FW_HEAD0;
       ts_arr_r <= 64'd0;
@@ -190,7 +190,7 @@ module KL_gptp_shadow #(
   assign drop_evt_w = (fw_valid_w & ~fw_ready_w & (fw_S != FW_SKIP))
                     | ff_ovf_w;
   logic [15:0] tap_drop_r;
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n)           tap_drop_r <= 16'd0;
     else if (drop_evt_w)  tap_drop_r <= tap_drop_r + 16'd1;
   end
@@ -253,7 +253,7 @@ module KL_gptp_shadow #(
   logic [TS_FIFO_LOG2_P-1:0] tsf_wp_r, tsf_rp_r;
   logic tsf_pop_w;
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       tsf_wp_r <= '0;
       tsf_rp_r <= '0;
@@ -300,7 +300,7 @@ module KL_gptp_shadow #(
 
   assign tsf_pop_w = eng_rx_valid_w & eng_rx_sof_w;
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       ser_busy_r <= 1'b0;
       ser_idx_r  <= 3'd0;
@@ -379,7 +379,7 @@ module KL_gptp_shadow #(
 
   //! adjfine is a level at the counter: latch the engine's pulse
   //! (async reset, the file's one convention -- SYNCASYNCNET clean)
-  always_ff @(posedge clk_i or negedge rst_n) begin : adj_latch
+  always_ff @(posedge clk_i) begin : adj_latch
     if (!rst_n)        phc_adj_o <= '0;
     else if (adj_we_w) phc_adj_o <= $signed(adj_val_w);
   end
@@ -414,7 +414,7 @@ module KL_gptp_shadow #(
   assign gbo_keep_w  = st_keep_r;
   assign gbo_last_w  = st_last_r;
 
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n) begin
       gb_data_r  <= '0;
       gb_keep_r  <= '0;
@@ -491,7 +491,7 @@ module KL_gptp_shadow #(
 
   //! sof tracking on the lane output: the arm fires with beat 0
   logic txo_sof_r;
-  always_ff @(posedge clk_i or negedge rst_n) begin
+  always_ff @(posedge clk_i) begin
     if (!rst_n)                              txo_sof_r <= 1'b1;
     else if (txf_out_valid_w && tx_tready_i) txo_sof_r <= txf_out_last_w;
   end

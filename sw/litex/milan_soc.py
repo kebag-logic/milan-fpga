@@ -592,6 +592,16 @@ _MILAN_DATAPATH_SOURCES = [
     # the two consumer-side wrappers that bind it into this datapath: the
     # shadow/substitution wrapper and the block-vs-per-source MAAP adapter.
     "hdl/milan/KL_pp_shadow.sv", "hdl/milan/KL_pp_maap_shim.sv",
+    # the gPTP plane (#114): milan_datapath instantiates KL_gptp_shadow and
+    # KL_gptp_txstamp under GPTP_PLANE_EN_P (default OFF), so Vivado must see
+    # the wrappers and the gptp-processor engine they wrap. Order mirrors the
+    # authoritative GPTP_SRCS in tb/verilator/milan_dp/Makefile: the package
+    # first, its importers after.
+    "gptp-processor/hdl/ucpu/gptp_ucpu_pkg.sv", "gptp-processor/hdl/ucpu/KL_gptp_ucpu.sv",
+    "gptp-processor/hdl/wire/KL_gptp_rx_parser.sv", "gptp-processor/hdl/wire/KL_gptp_tx_slot.sv",
+    "gptp-processor/hdl/common/KL_gptp_timer.sv", "gptp-processor/hdl/top/KL_gptp_engine.sv",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv",
+    "hdl/ieee8021as/gptp_plane/KL_gptp_txstamp.sv",
     "hdl/common/ethernet_packet_pkg.sv", "hdl/common/axi_stream_if.sv",
     "third_party/verilog-axis/rtl/axis_fifo.v", "third_party/verilog-axis/rtl/axis_demux.v",
     "third_party/verilog-axis/rtl/axis_arb_mux.v", "third_party/verilog-axis/rtl/arbiter.v",
