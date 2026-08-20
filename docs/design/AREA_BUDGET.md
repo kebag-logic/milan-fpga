@@ -289,7 +289,12 @@ lever in a flattened netlist.
 
 1. **Default PRESENT** — every parameter defaults to 1. `test_builder` gate 23a
    asserts all three shipped configs carry every block, emit no `--no-*` flag,
-   and count no prune row in the resource estimate.
+   and count no prune row in the resource estimate. Gate 23f proves the other
+   direction BEHAVIOURALLY, wherever LiteX is installed: it elaborates the
+   shipping AX command line once per block and reads the parameters that reach
+   `Instance("milan_datapath", ...)`, so a `--no-*` flag dropped, renamed or
+   inverted anywhere between argparse and the RTL fails there rather than
+   shipping as a bitstream that still carries the block it declares pruned.
 2. **Elaboration-time** — each is a `generate if (…) … else …`, so synthesis
    drops the instance. Where a runtime enable already exists the two **compose**:
    the parameter decides whether the logic is *built*, the CSR bit decides

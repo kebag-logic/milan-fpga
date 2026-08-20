@@ -192,6 +192,11 @@ Gates (gaps item 4, generator round):
       576-octet line buffer (1722.1-2021 Table 7-8: 138 + 8*N + 2*R).
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
+
+Gate 23f additionally ELABORATES milan_soc.py, so it needs an interpreter that
+can import migen + litex + litex_boards.  It finds the venv sweep.sh uses by
+itself; point MILAN_LITEX_PYTHON at another one to override, and expect a
+printed SKIP where LiteX is not installed at all (CI).
 """
 
 import ast
@@ -204,6 +209,7 @@ import struct
 import subprocess
 import sys
 import tempfile
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
@@ -3485,6 +3491,381 @@ def test_optional_block_consumption_gate_bites():
           "disconnected --no-* handoffs rejected by block name")
 
 
+# =============================================================== gate 23f ====
+#  THE BEHAVIOURAL PRUNE PROOF (issue #130, the half gate 23d cannot reach).
+#
+#  Gate 23d is a SPELLING proof. It parses main() and asserts that every
+#  `--no-<block>` argparse value is handed to the MilanSoC(...) call, which
+#  closes the defect that shipped - a block declared in OPTIONAL_BLOCKS, in
+#  argparse, in the RTL and in AREA_BUDGET, and threaded nowhere - and nothing
+#  further. THREE MORE HOPS stand between that call and the parameter the RTL
+#  reads, and every one of them is the same defect class:
+#
+#      main()               -> MilanSoC(optional_blocks=..., render_lpf=...)
+#      MilanSoC.__init__    -> MilanNIC(optional_blocks=..., render_lpf=...)
+#      MilanNIC.__init__    -> add_milan_datapath(optional_blocks=...)
+#      add_milan_datapath   -> dp_params[f"p_{param}"] = 0
+#                           -> Instance("milan_datapath", **dp_params)
+#
+#  A value that reaches the constructor and is then dropped, renamed or
+#  inverted on any of those hops is INVISIBLE to gate 23d, and its symptom is
+#  the #130 symptom exactly: the config declares the prune, the build plan
+#  tabulates it, the resource estimate books the saving, and the bitstream
+#  ships WITH the block. That is measured, not feared - deleting
+#  `optional_blocks=optional_blocks` at EITHER forwarding hop, deleting
+#  `render_lpf=bool(render_lpf)`, turning `if not blocks[k]:` into
+#  `if False:`, or turning `blocks[k] = blocks[k] and bool(v)` into `= True`
+#  each leaves every OTHER gate in this file green (measured 2026-08-20, the
+#  whole suite run once per mutant).
+#
+#  So this gate does what #130 asked for in as many words: "build a config
+#  with the block pruned and assert p_<PARAM>=0 appears in the emitted
+#  Instance parameters". It runs the REAL argv the end-station builder emits
+#  for a shipping config through the REAL milan_soc.py main(), once per block,
+#  and READS THE PARAMETERS THAT REACH Instance("milan_datapath", ...).
+#  Nothing is re-implemented and nothing is pattern-matched: `Instance` itself
+#  is the observation point, so what is graded is what the elaboration would
+#  hand Vivado. Vivado never runs - the spy raises the moment the Instance is
+#  constructed, about 0.7 s after the process starts.
+#
+#  BOTH POLARITIES, because the table has both. The seven OPTIONAL_BLOCKS rows
+#  default PRESENT and pass their parameter ONLY when pruned (a default build
+#  emits a byte-identical top .v, the AAF_PLAYBACK_P discipline). `sound_card`
+#  is the mirror image - the RTL default is SOUND_CARD_P=0 and p_SOUND_CARD_P
+#  is passed only when the block is PRESENT - so it is graded upside down
+#  rather than assumed to follow the others.
+#
+#  IT NEEDS LiteX, and CI has none (gate 23e's note says so in as many words).
+#  On a bare container this SKIPS with a message and gate 23d remains the
+#  CI-side guard; on the bench it runs against the interpreter sweep.sh itself
+#  puts on PATH, READ OUT OF sweep.sh rather than restated here, or against
+#  $MILAN_LITEX_PYTHON.
+
+#: The child program. It runs under the LiteX interpreter, execs milan_soc.py's
+#: SOURCE (optionally mutated) as a module whose __file__ is the real path - so
+#: REPO_ROOT, the platforms/ search path and every generated-image lookup
+#: resolve exactly as they do in a build - patches that module's own `Instance`
+#: to a spy, and calls main(). The result goes to a FILE, never to stdout:
+#: add_milan_datapath spawns the ACMP/AECP image generators as SUBPROCESSES and
+#: their output reaches fd 1 whatever this process redirects.
+_INSTANCE_PROBE = r'''
+import contextlib, io, json, logging, os, sys, types
+
+spec = json.load(open(sys.argv[1], encoding="utf-8"))
+soc_path = spec["soc_path"]
+source = open(soc_path, encoding="utf-8").read()
+for old, new, want in spec["mutations"]:
+    got = source.count(old)
+    if got != want:
+        raise SystemExit("mutation %r matched %d times, want %d"
+                         % (old, got, want))
+    source = source.replace(old, new)
+
+logging.disable(logging.CRITICAL)
+sys.path.insert(0, os.path.dirname(soc_path))
+
+
+class _Reached(Exception):
+    """Carries the parameters Instance("milan_datapath", ...) was given."""
+
+    def __init__(self, params):
+        Exception.__init__(self)
+        self.params = params
+
+
+mod = types.ModuleType("milan_soc_probe")
+mod.__file__ = soc_path
+sys.modules[mod.__name__] = mod
+exec(compile(source, soc_path, "exec"), mod.__dict__)
+_real_instance = mod.Instance
+
+
+def _spy(*args, **kwargs):
+    if args and args[0] == "milan_datapath":
+        raise _Reached({k: v for k, v in kwargs.items() if k.startswith("p_")})
+    return _real_instance(*args, **kwargs)
+
+
+mod.Instance = _spy
+sys.argv = ["milan_soc.py"] + spec["argv"]
+sink = io.StringIO()
+try:
+    with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
+        mod.main()
+    out = {"error": 'no Instance("milan_datapath") was constructed'}
+except _Reached as reached:
+    out = {"params": reached.params}
+except BaseException as exc:            # reported to the gate, not raised
+    out = {"error": "%s: %s" % (type(exc).__name__, exc)}
+
+with open(spec["result"], "w", encoding="utf-8") as fh:
+    json.dump(out, fh)
+'''
+
+#: sw/litex, the directory every real build runs milan_soc.py from.  NOT the
+#: LiteX repo parent: `import litex` from there resolves to the checkout
+#: directory as a namespace package and the import fails.
+SOC_DIR = os.path.join(ROOT, "sw/litex")
+
+#: The config whose argv drives gate 23f. The shipping AX shape: 8x8, TDM32
+#: master, sound card, AAF playback - the build with the most to lose from a
+#: prune that does not prune.
+BEHAVIOURAL_CFG = "ax7101_8x8"
+
+
+def _litex_python():
+    """An interpreter that can import migen + litex + litex_boards, or None.
+
+    Search order: $MILAN_LITEX_PYTHON (a path), this interpreter, then the
+    venv sweep.sh puts on PATH for every real build - READ OUT OF sweep.sh,
+    never restated here, because a second spelling of the build interpreter
+    is a second thing that has to stay true.
+    """
+    cands = [os.environ.get("MILAN_LITEX_PYTHON"), sys.executable]
+    m = re.search(r'export PATH="?\$HOME/([^/"\s:]+)/venv/bin',
+                  open(SWEEP).read())
+    if m:
+        cands.append(os.path.join(os.path.expanduser("~"), m.group(1),
+                                  "venv", "bin", "python3"))
+    for cand in cands:
+        if not cand or not os.path.exists(cand):
+            continue
+        if subprocess.run([cand, "-c", "import migen, litex, litex_boards"],
+                          cwd=SOC_DIR, capture_output=True).returncode == 0:
+            return cand
+    return None
+
+
+def _instance_params(python, runs, mutations=()):
+    """{label: {"params": ...} or {"error": ...}} for each (label, argv) run.
+
+    ONE CHILD PROCESS PER RUN, deliberately. migen/LiteX accumulate enough
+    per-elaboration state that a second SoC built in the same interpreter
+    costs ~40 percent more than the first and a sixteenth costs seven times
+    as much (measured: 0.88 s -> 6.28 s, and clearing the tracebacks and
+    collecting does not touch it). A fresh process is flat at ~0.7 s.
+
+    PYTHONHASHSEED is pinned for the same reason the sweep staggers its
+    launches: the CPU wrapper builds its argument string from a SET, so an
+    unpinned hash seed spells those arguments differently in every process,
+    misses the pinned core's netlist cache, and pays an 8 s sbt run EACH TIME.
+    """
+    env = dict(os.environ, PYTHONHASHSEED="0")
+    out = {}
+    with tempfile.TemporaryDirectory() as tmp:
+        for label, argv in runs:
+            spec = os.path.join(tmp, "spec.json")
+            result = os.path.join(tmp, "result.json")
+            if os.path.exists(result):
+                os.unlink(result)
+            with open(spec, "w") as fh:
+                json.dump({"soc_path": os.path.join(SOC_DIR, "milan_soc.py"),
+                           "result": result, "argv": argv,
+                           "mutations": [list(m) for m in mutations]}, fh)
+            proc = subprocess.run([python, "-", spec], input=_INSTANCE_PROBE,
+                                  text=True, cwd=SOC_DIR, env=env,
+                                  capture_output=True)
+            assert os.path.exists(result), (
+                f"{label}: the milan_soc.py probe wrote no result "
+                f"(rc={proc.returncode})\n{proc.stdout[-2000:]}"
+                f"\n{proc.stderr[-2000:]}")
+            with open(result) as fh:
+                out[label] = json.load(fh)
+    return out
+
+
+def _prune_contract(got, rows):
+    """Every prune-contract violation in one probe result set, as text.
+
+    ONE grader, shared by the gate and by its negative controls, so a mutation
+    is proved to turn THE GATE red rather than some weaker restatement of it.
+    `rows` are the OPTIONAL_BLOCKS names to grade; "sound_card" is graded
+    whenever its own pair of runs is present.
+    """
+    bad = []
+
+    def params(label):
+        row = got.get(label) or {"error": "case not run"}
+        if "params" not in row:
+            bad.append(f"{label}: {row['error']}")
+            return None
+        return row["params"]
+
+    base = params("present") if rows else None
+    for name in rows:
+        flag, param, _why = eb.OPTIONAL_BLOCKS[name]
+        key = f"p_{param}"
+        pruned = params(name)
+        if base is not None and key in base:
+            bad.append(f"{name}: a build that prunes NOTHING already passes "
+                       f"{key}={base[key]!r} - the default Instance is no "
+                       "longer the shipping one")
+        if base is None or pruned is None:
+            continue
+        if pruned.get(key) != 0:
+            bad.append(
+                f"{name}: `{flag}` reached argparse but "
+                f'Instance("milan_datapath") got {key}='
+                f"{pruned.get(key, '<absent>')!r}, want 0 - the config "
+                "declares the prune, the plan tabulates it, the estimate "
+                "books it, and the bitstream ships WITH the block (#130)")
+        rest = {k: v for k, v in pruned.items() if k != key}
+        if rest != base:
+            bad.append(f"{name}: `{flag}` changed Instance parameters other "
+                       f"than {key}: "
+                       f"{sorted(set(rest) ^ set(base)) or 'a value'}")
+    if "sound_card_present" in got or "sound_card" in got:
+        on, off = params("sound_card_present"), params("sound_card")
+        if on is not None and on.get("p_SOUND_CARD_P") != 1:
+            bad.append(
+                "sound_card: a build WITH --sound-card got p_SOUND_CARD_P="
+                f"{on.get('p_SOUND_CARD_P', '<absent>')!r}, want 1 - the RTL "
+                "default is 0, so this is the row whose parameter is passed "
+                "when the block is PRESENT")
+        if off is not None and "p_SOUND_CARD_P" in off:
+            bad.append("sound_card: a build WITHOUT --sound-card still passes "
+                       f"p_SOUND_CARD_P={off['p_SOUND_CARD_P']!r}")
+        if on is not None and off is not None:
+            rest = {k: v for k, v in on.items() if k != "p_SOUND_CARD_P"}
+            if rest != off:
+                bad.append("sound_card: dropping --sound-card changed "
+                           f"{sorted(set(rest) ^ set(off)) or 'a value'}")
+    return bad
+
+
+def _behavioural_runs():
+    """(config, gen dir, [(label, argv)]) for the full 23f case set.
+
+    The baseline is the config's OWN emitted argv with the prune flags taken
+    out, so every case differs from a real shipping command line by exactly
+    the token under test.
+    """
+    cfg = eb.load_config(CONFIGS[BEHAVIOURAL_CFG])
+    eb.build(CONFIGS[BEHAVIOURAL_CFG], OUT)     # what --entity-gen-dir reads
+    gen = os.path.join(ROOT, "configs/generated", cfg["name"])
+    assert os.path.isdir(gen), \
+        f"{gen}: this config has no generated include dir"
+    flags = {f for f, _p, _w in eb.OPTIONAL_BLOCKS.values()}
+    present = [a for a in eb.emit_soc_argv(cfg) if a not in flags] + \
+        ["--entity-gen-dir", gen]
+    runs = [("present", present)]
+    runs += [(name, present + [flag])
+             for name, (flag, _p, _w) in eb.OPTIONAL_BLOCKS.items()]
+    # sound_card's pair drops --aaf-playback as well: milan_soc REFUSES
+    # `--aaf-playback` without `--sound-card` (playback with no card is not a
+    # shape), so the honest present/absent pair for this row is the one that
+    # differs in --sound-card ALONE.
+    sc_on = [a for a in present if a != "--aaf-playback"]
+    runs += [("sound_card_present", sc_on),
+             ("sound_card", [a for a in sc_on if a != "--sound-card"])]
+    return cfg, gen, runs
+
+
+def test_optional_blocks_reach_the_instance():
+    """gate 23f - THE BEHAVIOURAL PRUNE PROOF (issue #130).
+
+    Every OPTIONAL_BLOCKS row plus the inverted `sound_card` row, both
+    directions, graded on the parameters that actually reach
+    Instance("milan_datapath", ...) in a real elaboration of the shipping AX
+    config. A prune must land as `p_<PARAM>=0` AND MUST CHANGE NOTHING ELSE -
+    a flag that prunes the wrong block is the same silent lie as a flag that
+    prunes nothing."""
+    python = _litex_python()
+    if python is None:
+        print("  [gate 23f] SKIP behavioural prune proof: no interpreter here "
+              "can import migen + litex + litex_boards (point "
+              "MILAN_LITEX_PYTHON at one). Gate 23d holds the argv -> "
+              "MilanSoC half structurally, and CI runs no LiteX")
+        return
+    cfg, _gen, runs = _behavioural_runs()
+    t0 = time.time()
+    got = _instance_params(python, runs)
+    bad = _prune_contract(got, list(eb.OPTIONAL_BLOCKS))
+    assert not bad, "gate 23f:\n  " + "\n  ".join(bad)
+    base = got["present"]["params"]
+    print(f"  [gate 23f] {len(runs)} real milan_soc.py elaborations of "
+          f"{cfg['name']} in {time.time() - t0:.0f} s: each of the "
+          f"{len(eb.OPTIONAL_BLOCKS)} --no-* flags lands as p_<PARAM>=0 in "
+          f'the Instance("milan_datapath") parameters and moves NOTHING '
+          f"else, a "
+          f"build that prunes nothing passes none of them ({len(base)} "
+          f"parameters, byte-identical top .v), and the inverted row lands "
+          f"the other way up: p_SOUND_CARD_P=1 with --sound-card, absent "
+          f"without it")
+
+
+def test_optional_block_instance_gate_bites():
+    """Gate 23f negative controls - the hops a spelling gate cannot see.
+
+    Each row deletes, renames or inverts ONE link of the argv -> Instance
+    chain in milan_soc.py's source and re-runs the gate's OWN grader over the
+    same real elaborations, so what is proved is that THE GATE goes red, not
+    that some weaker restatement of it does.
+
+    Seven of the nine leave every OTHER gate in this file green (measured
+    2026-08-20, running the whole suite against each mutant), which is the
+    whole reason this gate exists. The two that do NOT are gate 23d's own:
+    the dropped `not args.no_maap` handoff is exactly what 23d was written
+    for, and the renamed parameter trips its `p_<PARAM>=0` grep. They are
+    kept here so the two gates' division of labour is stated rather than
+    assumed - and so a later relaxation of 23d cannot quietly reopen them."""
+    python = _litex_python()
+    if python is None:
+        print("  [gate 23f mutation] SKIP: no LiteX interpreter (see 23f)")
+        return
+    _cfg, _gen, runs = _behavioural_runs()
+    cases = {label: argv for label, argv in runs}
+    # (why it is the #130 class, the source edit, which rows it must redden)
+    controls = [
+        ("main() drops ONE --no-* handoff",
+         [("not args.no_maap", "True", 1)], ["maap"]),
+        ("MilanSoC never forwards optional_blocks to MilanNIC",
+         [("optional_blocks=optional_blocks,\n                              "
+           "    cbs_queues_mask=cbs_queues_mask,",
+           "cbs_queues_mask=cbs_queues_mask,", 1)], ["latency_taps"]),
+        ("MilanSoC never forwards render_lpf to MilanNIC",
+         [("render_lpf=bool(render_lpf),\n", "", 1)], ["render_lpf"]),
+        ("MilanNIC never forwards optional_blocks to add_milan_datapath",
+         [("render_lpf=render_lpf, optional_blocks=optional_blocks,",
+           "render_lpf=render_lpf,", 1)], ["maap"]),
+        ("the pruned keyword is dropped inside add_milan_datapath",
+         [("blocks[k] = blocks[k] and bool(v)", "blocks[k] = True", 1)],
+         ["media_clock_servo"]),
+        ("no parameter is ever emitted for a pruned block",
+         [("        if not blocks[k]:", "        if False:", 1)],
+         ["i2s_playback"]),
+        ("the emitted parameter is renamed on its way to the Instance",
+         [('dp_params[f"p_{param}"] = 0', 'dp_params[f"p_{param}_X"] = 0', 1)],
+         ["rx_mac_filter"]),
+        ("the prune predicate is INVERTED",
+         [("        if not blocks[k]:", "        if blocks[k]:", 1)],
+         ["datapath_probes"]),
+        ("the inverted row's own predicate is inverted",
+         [('    if sound_card:\n        dp_params["p_SOUND_CARD_P"] = 1',
+           '    if not sound_card:\n        dp_params["p_SOUND_CARD_P"] = 1',
+           1)], []),
+    ]
+    t0 = time.time()
+    for why, mutations, rows in controls:
+        labels = (["present"] + rows) if rows else \
+            ["sound_card_present", "sound_card"]
+        got = _instance_params(python, [(lbl, cases[lbl]) for lbl in labels],
+                               mutations)
+        bad = _prune_contract(got, rows)
+        assert bad, (f"gate 23f accepted a milan_soc.py in which {why} "
+                     f"({mutations[0][0]!r} -> {mutations[0][1]!r})")
+        want = rows[0] if rows else "sound_card"
+        assert any(line.startswith(f"{want}:") for line in bad), \
+            f"{why}: gate 23f went red for the wrong row: {bad}"
+    print(f"  [gate 23f mutation] {len(controls)}/{len(controls)} broken "
+          f"links of the argv -> Instance chain rejected in "
+          f"{time.time() - t0:.0f} s: a dropped CLI handoff, two dropped "
+          "constructor keywords, a dropped keyword inside "
+          "add_milan_datapath, a suppressed parameter, a renamed parameter "
+          "and both polarities inverted - seven of the nine invisible to "
+          "every other gate in this file, the other two gate 23d's")
+
+
 # ======================================================== gates 24c / 24d ====
 #  PER-BOARD AUDIO FRONT-END ROUTING - the L1 binding, one board at a time.
 #
@@ -5379,6 +5760,8 @@ if __name__ == "__main__":
                test_optional_block_prune_accounting,
                test_optional_block_names_reach_the_rtl,
                test_optional_block_consumption_gate_bites,
+               test_optional_blocks_reach_the_instance,
+               test_optional_block_instance_gate_bites,
                test_tdm_master_binding_reaches_the_pins,
                test_tdm_master_binding_gate_bites,
                test_front_end_routing_per_board,
