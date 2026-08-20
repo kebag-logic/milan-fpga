@@ -170,7 +170,7 @@ module KL_ptp_clock_validity #(
 
   //! --- verdict -----------------------------------------------------------
   output wire        ts_uncertain_o,  //! AVTP tu bit for EVERY talker (1 = uncertain)
-  output wire        as_capable_o,    //! lease-backed asCapable (GET_AVB_INFO flags[0])
+  output wire        as_capable_o,    //! active-owner asCapable (GET_AVB_INFO flags[0])
   output wire [31:0] stat_o,          //! CLKV_STAT 0x77C
   output wire [31:0] tu_ivals_o       //! CLKV_TUCNT 0x780 (Milan Table 5.4 counter)
 );
@@ -242,9 +242,9 @@ module KL_ptp_clock_validity #(
   logic                 disc_p_w;
   logic                 hold_w;
 
-  //! gm_r resets to 0 and gm_id_i resets to 0, so the first daemon publish
-  //! of a real grandmaster id IS a change and does arm the holdover. That is
-  //! correct: before it we did not know who the grandmaster was.
+  //! gm_r resets to 0 and gm_id_i resets to 0, so the active owner's first
+  //! publication of a real grandmaster id IS a change and arms the holdover.
+  //! That is correct: before it we did not know who the grandmaster was.
   assign disc_p_w = phc_load_p_i | phc_adj_p_i |
                     ((!FABRIC_GPTP_P) & sw_disc_p_i) | (gm_id_i != gm_r);
   assign hold_w   = (hold_r != '0);
@@ -294,8 +294,9 @@ module KL_ptp_clock_validity #(
 
   assign tu_ivals_o = tu_ivals_r;
 
-  //! the lease-backed asCapable verdict, for the GET_AVB_INFO flags byte
-  //! (1722.1-2021 7.4.40.2 flags[0]) and its Table 5.22 push signature
+  //! the active-owner asCapable verdict, for the GET_AVB_INFO flags byte
+  //! (1722.1-2021 7.4.40.2 flags[0]) and its Table 5.22 push signature. The
+  //! compatibility owner is leased; the fabric owner publishes it directly.
   assign as_capable_o = as_cap_w;
 
   //! CLKV_STAT: [0] tu now, [1] effective sync claim, [2] no live SOFTWARE

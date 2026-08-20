@@ -1865,14 +1865,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //  Milan v1.2 5.3.7.3 forbids stopping a Stream Output, so this is NOT a
   //  stream gate: the standard's lever for "my clock may be wrong" is the tu
   //  bit (Milan 4.3.5.2 -> IEEE 1722-2016 4.4.4.7, Annex B.1.1). Reset state
-  //  is tu = 1 (no software lease): unknown clock == not valid.
+  //  is tu = 1 (no valid active-owner claim): unknown clock == not valid.
   //  docs/findings/REF_LISTENER_TIMESTAMP_SWEEP_0727.md
   // ==========================================================================
   wire        clkv_tu_w;
-  //! the leased IEEE 802.1AS-2020 10.2.5.1 asCapable claim (gh #64 J3),
-  //! sourced beside the tu verdict because it obeys the SAME lease: when the
-  //! daemon stops renewing, both fall together and the entity answers
-  //! GET_AVB_INFO honestly instead of repeating a dead claim.
+  //! the IEEE 802.1AS-2020 10.2.5.1 asCapable claim (gh #64 J3), sourced
+  //! beside the tu verdict from the active owner. The compatibility owner is
+  //! lease-backed, so daemon expiry drops both claims; the default fabric
+  //! owner supplies both from its commit-latched publication bank.
   wire        clkv_as_cap_w;
   wire [31:0] clkv_stat_w, clkv_tucnt_w;
   KL_ptp_clock_validity #(

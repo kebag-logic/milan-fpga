@@ -948,8 +948,10 @@ def _gptp_runs():
     """(runs, gen dirs) for GPTP_PLANE_CASES, off each config's REAL argv.
 
     The baseline is the end-station builder's own emitted argv with the gptp
-    token removed, so every case differs from a real shipping command line by
-    exactly the token under test.
+    token removed, plus the flow flags every shipping invocation carries.
+    Including `--build` matters: a handoff conditioned on a flow flag can
+    elaborate the right plane in a dry probe and ship the wrong one. The spy
+    stops at Instance("milan_datapath"), before Vivado or the output path runs.
     """
     runs, gens = [], {}
     for label, key, flag, _want in GPTP_PLANE_CASES:
@@ -963,8 +965,13 @@ def _gptp_runs():
                                     if a not in ("--fabric-gptp",
                                                  "--no-fabric-gptp")])
         cfg, gen, base = gens[key]
+        flow = ["--synth-directive", "AreaOptimized_high",
+                "--opt-directive", "ExploreArea",
+                "--place-directive", "ExtraPostPlacementOpt",
+                "--vivado-max-threads", "32", "--build",
+                "--output-dir", os.path.join(OUT, "gptp_probe", key)]
         runs.append((label, base + ([flag] if flag else []) +
-                     ["--entity-gen-dir", gen]))
+                     ["--entity-gen-dir", gen] + flow))
     return runs, gens
 
 
@@ -1078,6 +1085,10 @@ GPTP_CHAIN_MUTATIONS = [
      [('args.fabric_gptp = (args.software_profile == "baremetal"',
        'args.fabric_gptp = (args.software_profile == "linux"', 1)],
      ["baremetal default"]),
+    ("the shipping --build path overrides the parsed owner",
+     [("gptp_plane=args.fabric_gptp",
+       "gptp_plane=args.fabric_gptp and not args.build", 1)],
+     ["baremetal default", "baremetal explicit"]),
 ]
 
 
@@ -1120,10 +1131,11 @@ def test_gptp_plane_instance_gate_bites():
             assert token in row["stderr"], \
                 f"{label}: the refusal never names {token!r}: {row['stderr']}"
     print(f"  [gate 1e mutation] {len(GPTP_CHAIN_MUTATIONS)} broken links of "
-          "the argv -> Instance chain rejected (a literal handoff, two tied "
-          "forwards, a dropped keyword, an inverted and a renamed parameter, "
-          "and a default that stops following the profile), plus both "
-          "refusals graded on the operator-visible message")
+          "the shipping argv -> Instance chain rejected (a literal handoff, "
+          "two tied forwards, a dropped keyword, an inverted and a renamed "
+          "parameter, a default that stops following the profile, and a "
+          "--build-only override), plus both refusals graded on the "
+          "operator-visible message")
 
 
 def test_current_shape_matches_sweep_flags():
