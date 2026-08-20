@@ -7,6 +7,10 @@
 #   make build      build only
 #   make aaf        run the AAF campaign (the only one left)
 #   make matrix-check   the module<->spec<->test no-drift contract
+#
+# Each campaign target also gates the freshness of the TEST_RESULTS.md it
+# writes: the committed copy must match a fresh run, timestamp aside. See the
+# FRESH block below.
 #   make clean
 #
 # Each campaign is a Python driver talking to a Verilator server built from
@@ -20,6 +24,36 @@ VERILATOR ?= verilator
 RTL        = ../../../hdl
 TP         = ../../../third_party
 PY        ?= python3
+
+# THE COMMITTED EVIDENCE FILE MUST SAY WHAT THE CAMPAIGN PRODUCES. Each
+# campaign writes a TEST_RESULTS.md into the folder of the RTL it validates,
+# and until this gate existed nothing compared the committed copy against a
+# fresh run. On 2026-08-19 the gPTP artifact came to claim 355 pass while a
+# fresh run at the CI-pinned tsn-gen rev produced 353, and every gate in the
+# repository stayed green: the tsn-gen field oracle had unpinned two model
+# fields for good spec reasons, grade_tx() skips a field with no constraint,
+# and so two checks stopped being graded. Nothing went red because nothing
+# failed - the file simply went on asserting a number that had stopped being
+# true, which is the worst shape for a document a reader trusts to answer
+# "is this block verified".
+#
+# It is the same contract matrix-check enforces below for MODULE_MATRIX.md,
+# and it is deliberately built the same way. Two differences are forced by
+# what this artifact is:
+#
+#   * it carries a generation timestamp, so the comparison is on SUBSTANCE
+#     with the stamp normalised away on both sides - a byte comparison would
+#     be red on every run for a reason that means nothing, and the AAF
+#     artifact was in exactly that state the day this was written;
+#   * the campaigns SKIP without tsn-gen, so there is no fresh result to
+#     compare. That is reported as a SUITE-SKIP naming the reason, never as a
+#     pass. The suite stays countable there through matrix-check's floor of 2,
+#     not through this gate pretending it checked something.
+#
+# It runs inside each campaign target rather than as a target of its own, so
+# the campaign cannot be run without it, and it is chained with && after the
+# campaign guard so neither check can swallow the other's failure.
+FRESH = ../../../scripts/check_results_fresh.py
 
 VCOMMON = --cc --exe --build -j 0 \
           -Wall -Wno-fatal -Wno-DECLFILENAME -Wno-UNUSEDSIGNAL -Wno-WIDTHEXPAND \
@@ -154,7 +188,10 @@ aaf: obj_aaf/Vaaf_cosim
 	 { $(PY) fuzz_aaf.py 2>&1; echo $$? > obj_aaf/aaf.rc; } | tee obj_aaf/aaf.out; \
 	 rc=$$(cat obj_aaf/aaf.rc); \
 	 if [ "$$rc" -ne 0 ]; then exit "$$rc"; fi; \
-	 $(PY) ../../../scripts/suite_tally.py --campaign-guard obj_aaf/aaf.out
+	 $(PY) ../../../scripts/suite_tally.py --campaign-guard obj_aaf/aaf.out && \
+	 $(PY) $(FRESH) --log obj_aaf/aaf.out \
+	     --artifact $(RTL)/ieee1722/avtp/doc/TEST_RESULTS.md \
+	     --label hdl/ieee1722/avtp/doc/TEST_RESULTS.md
 
 # same tee/rc/guard discipline as aaf — see the block comment above it
 ptp: obj_ptp/Vptp_cosim
@@ -162,7 +199,10 @@ ptp: obj_ptp/Vptp_cosim
 	 { $(PY) fuzz_ptp.py 2>&1; echo $$? > obj_ptp/ptp.rc; } | tee obj_ptp/ptp.out; \
 	 rc=$$(cat obj_ptp/ptp.rc); \
 	 if [ "$$rc" -ne 0 ]; then exit "$$rc"; fi; \
-	 $(PY) ../../../scripts/suite_tally.py --campaign-guard obj_ptp/ptp.out
+	 $(PY) ../../../scripts/suite_tally.py --campaign-guard obj_ptp/ptp.out && \
+	 $(PY) $(FRESH) --log obj_ptp/ptp.out \
+	     --artifact $(RTL)/ieee8021as/gptp_plane/doc/TEST_RESULTS.md \
+	     --label hdl/ieee8021as/gptp_plane/doc/TEST_RESULTS.md
 
 clean:
 	rm -rf obj_aaf obj_ptp gptp_ucode.hex __pycache__

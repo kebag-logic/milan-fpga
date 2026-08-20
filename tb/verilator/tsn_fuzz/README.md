@@ -51,13 +51,13 @@ they ever disagree:
 | campaign | checks | what it drives |
 |---|---:|---|
 | `fuzz_aaf.py`  | 164 | parser → rx-monitor → depacketizer — the **accept verdict** (wire `stream_id` vs bound, graded on the parser's own pre-match counters = the `0x8B4` APRB sources), per-field verdicts, lock survival |
-| `fuzz_ptp.py`  | ~354 | the gPTP fabric slice — TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models, parser drop/ignore gates, BTCA rejection under fuzz, servo pairing, the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **9 gaps** track FPGA-gPTP #6–#10 |
+| `fuzz_ptp.py`  | ~353 | the gPTP fabric slice: TX conformance of the plane's own Pdelay_Req/Announce/Sync/Follow_Up against the 802.1AS models, parser drop/ignore gates, BTCA rejection under fuzz, servo pairing, the Milan 4.2.6.2.5 cease rule, and the two-sided asCapable canary; **9 gaps** track FPGA-gPTP #6–#10 |
 
 ## Contents
 
 - **[How it works](#how-it-works)** -- The YAML-to-RTL loop in one diagram, and the three-way split of ownership: tsn-gen is the field/constraint oracle, `wire.py` owns the actual bytes, `cosim_axis.h` owns the session — including the 4-byte control frame that requests a state dump, so campaigns observe state machines instead of guessing from replies.
-- **[Where the results go](#where-the-results-go)** -- Each campaign writes its `TEST_RESULTS.md` into the folder of the RTL it validates, not a scratch dir, so a block's `doc/` shows its verification status in place. Table of the path. They are generated — do not hand-edit.
-- **[What this suite reports to the sweep](#what-this-suite-reports-to-the-sweep)** -- The two lines `scripts/suite_tally.py` counts (the campaign's own total, and the traceability check's two contracts), and the third it deliberately does *not*: `SUITE-SKIP:`, which says the optional campaign ran nothing. Why the marker is reporting rather than a verdict — it does not clear `NOCOUNT`, and letting it would hide a campaign behind a green sweep — and why the traceability check counts 2 and not 63.
+- **[Where the results go](#where-the-results-go)** -- Each campaign writes its `TEST_RESULTS.md` into the folder of the RTL it validates, not a scratch dir, so a block's `doc/` shows its verification status in place. Table of the path. They are generated, so do not hand-edit them, and the committed copy is gated against a fresh run by `scripts/check_results_fresh.py`: the account of the 355-vs-353 drift that gate was written for, and why it normalises the generation timestamp away.
+- **[What this suite reports to the sweep](#what-this-suite-reports-to-the-sweep)** -- The lines `scripts/suite_tally.py` counts (each campaign's own total, the traceability check's two contracts, and one freshness check per generated artifact), and the one it deliberately does *not*: `SUITE-SKIP:`, which says the optional campaign ran nothing. Why the marker is reporting rather than a verdict, it does not clear `NOCOUNT` and letting it would hide a campaign behind a green sweep, why the traceability check counts 2 and not 63, and why freshness bills 1 and bills nothing at all on a skip.
 - **[Why "state stability" is the real gate](#why-state-stability-is-the-real-gate)** -- The argument for what this suite actually asserts: there is no software here to crash, so the test is that garbage does not *move state*. Each campaign's canary is named, including AAF's two-sided one — stay locked through malformed PDUs, but DO unlock during an accept drought, because a listener reporting MEDIA_LOCKED while accepting nothing is lying to the controller.
 - **[⚠ tsn-gen wire-layout caveat (measured 2026-07-25)](#-tsn-gen-wire-layout-caveat-measured-2026-07-25)** -- The measured defect in the generator's own models: they omit the AVTPDU `sv`+`version` nibble, so a real READ_DESCRIPTOR decodes `control_data_length` 320 instead of 20. Explains the one-nibble shift `decode_pdu()` applies and why the models are used as an oracle but never as a frame builder.
 - **[Historical AECP findings](#historical-aecp-findings)** -- Preserves the open legacy LOCK_ENTITY finding and records issue #48 as resolved by the current processor regression over exact 38 through 45 byte foreign-target commands.
@@ -105,6 +105,25 @@ Each file records the verdict, the DUT, the exact RTL files under test, the
 per-section pass/fail/gap breakdown, every tracked gap, and the one-line
 reproduce command. They are generated — do not hand-edit.
 
+**And the committed copy is gated against a fresh run.**
+`scripts/check_results_fresh.py` runs at the end of each campaign target and
+fails the suite when what is committed is not what the campaign produces. It
+exists because that drifted silently: the gPTP file claimed `355 pass, 0 fail`
+while a fresh run at the CI-pinned tsn-gen rev produced `353 pass, 0 fail`, and
+no gate anywhere went red. Nothing had broken. The tsn-gen field oracle had
+unpinned `correction_field` on Pdelay_Req and `steps_removed` on Announce, both
+for good spec reasons, and `grade_tx()` skips a field carrying no constraint -
+so two checks stopped being graded and the file went on asserting the old
+number. Zero failures is exactly the shape in which this kind of drift hides,
+which is why the gate compares the whole substance and not just the verdict.
+
+The comparison normalises the generation timestamp away on both sides. Without
+that it would be red on every run for no reason at all: these files are
+rewritten in place by any sweep, so `git status` shows them modified whenever
+the clock has moved. The standing rule for that stays what it was - commit them
+when the counts move, revert them when only the timestamp did - and the gate
+now enforces the first half of it.
+
 ## What this suite reports to the sweep
 
 `scripts/suite_tally.py` turns per-suite logs into the sweep's headline check
@@ -116,15 +135,35 @@ skip markers that deliberately do not:
 | `== AAF/AVTP stream field campaign (tsn-gen driven): N pass, 0 fail, 0 known gaps ==` | tsn-gen present | **N** |
 | `== gPTP/802.1AS field campaign (tsn-gen driven): M pass, 0 fail, 9 known gaps ==` | tsn-gen present | **M** |
 | `traceability contracts (drift + ratchet): 2 checks: 2 PASS, 0 FAIL` | always, if the matrix check passed | **2** |
+| `campaign artifact freshness (<artifact>): 1 checks: 1 PASS, 0 FAIL` | tsn-gen present, once per campaign | **1** each |
 | `SUITE-SKIP: AAF/AVTP field campaign (tsn-gen absent; …)` | tsn-gen absent | **0** |
 | `SUITE-SKIP: gPTP/802.1AS field campaign (tsn-gen absent; …)` | tsn-gen absent | **0** |
+| `SUITE-SKIP: <artifact> freshness not checked (…)` | tsn-gen absent, or no git metadata | **0** |
 
-So the suite reports `2` on a machine without tsn-gen and `N + M + 2` with it.
+So the suite reports `2` on a machine without tsn-gen and `N + M + 4` with it.
 Each campaign is guarded independently: `suite_tally.py --campaign-guard` runs
 against each campaign's own log, so neither can drop its checks behind a
 reworded summary. (The gPTP campaign's `known gaps` count is nonzero and
 tracked — see the campaign table above; the guard counts pass/fail, and a gap
 is neither.)
+
+**The freshness lines are one check each, and only one.**
+`check_results_fresh.py` asserts that the committed `TEST_RESULTS.md` equals
+what the run that just finished produced, with the generation timestamp
+normalised away on both sides, and only on the headline that carries it. Two
+further assertions guard that comparison rather than standing beside it: the
+artifact's headline tally must equal the tally in the log being judged, so a
+leftover file from an earlier run cannot vouch for a committed copy, and the
+artifact's own section rows must add up to its headline, so a file that
+contradicts itself is refused instead of compared. Neither can hold while the
+comparison is meaningful, and both refuse outright rather than returning a
+verdict. Understating is the safe direction, so the line bills 1.
+
+**And it never bills anything on a skip.** The campaigns need tsn-gen, so
+without it there is no fresh result to compare and the gate says exactly that.
+A `1 PASS` there would vouch for the committed copy on the strength of having
+checked nothing - which is the failure this gate exists to prevent, repeated in
+its own reporting.
 
 **The `2` is what makes this suite countable at all.** Before it, the suite
 printed no count shape whatever when the campaign skipped, so it was classed

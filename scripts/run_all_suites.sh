@@ -158,6 +158,28 @@ if ! selftest_out=$(cd "$ROOT" && \
   exit 2
 fi
 
+# Third gate of the same family: check_results_fresh.py decides whether a
+# committed TEST_RESULTS.md still says what its campaign produces. It runs
+# inside the tsn_fuzz suite, where tsn-gen is, but its self-test belongs here
+# with the others - twelve of its seventeen arms assert a REFUSAL rather than a
+# pass (a stale copy, a leftover file, a silent log, a skipped campaign, a
+# sections table that does not add up, a stamp stripped off the wrong line), and
+# every one of them is a place a careless version would return a green it did
+# not earn. A gate that lost those arms would go on passing without saying
+# anything.
+#
+# Both numbers are derived, not typed: seventeen is the tally the tool prints on
+# every run, and twelve is how many of its arms expect a verdict other than OK.
+# A reader who doubts this line can settle it in nine seconds:
+#   python3 scripts/check_results_fresh.py --self-test
+if ! selftest_out=$(cd "$ROOT" && \
+        python3 "$ROOT/scripts/check_results_fresh.py" --self-test 2>&1); then
+  echo "$selftest_out" >&2
+  echo "ABORTING: scripts/check_results_fresh.py fails its own self-test, so" >&2
+  echo "its 'fresh' verdicts on generated evidence cannot be trusted." >&2
+  exit 2
+fi
+
 mkdir -p "$OUT"
 rm -f "$OUT"/*.log            # a stale log from a previous sweep is not evidence
 
