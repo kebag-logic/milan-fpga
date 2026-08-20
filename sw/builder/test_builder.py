@@ -575,6 +575,18 @@ def test_baremetal_profile_contract():
         docs_source = fh.read()
     with open(csr_path, encoding="utf-8") as fh:
         csr_source = fh.read()
+    # Every closure rule below reads ONE file and calls it the firmware. That
+    # is only true while the firmware IS one translation unit, so read that
+    # off the Makefile rather than assume it: a second object file is a second
+    # place a CSR store could live, and none of these rules would see it.
+    with open(os.path.join(os.path.dirname(firmware_path), "Makefile"),
+              encoding="utf-8") as fh:
+        objects = re.search(r"(?m)^OBJECTS\s*=\s*(.*)$", fh.read())
+    assert objects and objects.group(1).split() == \
+        [os.path.basename(firmware_path)[:-2] + ".o"], \
+        "the bare-metal firmware must stay ONE translation unit, or the CSR " \
+        "store closure this gate proves covers only part of the image; " \
+        f"Makefile builds {objects and objects.group(1).split()}"
 
     def braced_span(source, guard, label):
         assert guard, f"firmware boot guard missing: {label}"
@@ -626,6 +638,65 @@ def test_baremetal_profile_contract():
             i = stop
         return "".join(out)
 
+    #: Every preprocessor conditional directive, one physical line each.
+    cpp_directive_re = re.compile(
+        r"(?m)^[ \t]*#[ \t]*(if|ifdef|ifndef|elif|else|endif)\b")
+
+    def cpp_arms(code):
+        """`(directives, arm_path)` for `code`'s preprocessor conditionals.
+
+        This gate reads TEXT; the compiler compiles a TRANSLATION UNIT, so two
+        offsets are only in the same code when the preprocessor keeps or drops
+        them TOGETHER. `arm_path(pos)` is the tuple of (group, arm) pairs
+        enclosing `pos`, and it is that predicate."""
+        directives = list(cpp_directive_re.finditer(code))
+        stack, groups, marks = [], 0, []
+        for directive in directives:
+            kind = directive.group(1)
+            if kind in ("if", "ifdef", "ifndef"):
+                groups += 1
+                stack.append([groups, 0])
+            elif kind in ("elif", "else"):
+                assert stack, "firmware has an #elif/#else outside any #if"
+                stack[-1][1] += 1
+            else:
+                assert stack, "firmware has an #endif outside any #if"
+                stack.pop()
+            marks.append((directive.end(), tuple(tuple(f) for f in stack)))
+        assert not stack, "firmware leaves a preprocessor conditional open"
+
+        def arm_path(pos):
+            path = ()
+            for at, value in marks:
+                if at > pos:
+                    break
+                path = value
+            return path
+
+        return directives, arm_path
+
+    def assert_preprocessor_visible(code, load_span):
+        """No boot code may be selected by a directive this gate cannot read.
+
+        Every rule below reads one arm of a conditional while the compiler may
+        take the other, so conditionals are refused everywhere the boot
+        contract reasons. The ONE exception is the QSPI-slot group inside
+        load_aem_image(), which is not refused but CLASSIFIED: the verifier's
+        return rule pins every non-zero return to the arm the CRC guard is in,
+        so neither arm can hand back a pass the CRC never earned."""
+        directives, _ = cpp_arms(code)
+        for directive in directives:
+            assert load_span[0] <= directive.start() < load_span[1], \
+                "firmware must not select boot code with the preprocessor " \
+                f"(#{directive.group(1)} outside load_aem_image()): this " \
+                "gate would read one arm while the compiler takes the other"
+        continued = re.search(
+            r"(?m)^[ \t]*#[ \t]*define\b[^\n]*\\[ \t]*$", code)
+        assert not continued, \
+            "firmware must not continue a #define across lines: this gate " \
+            "reads a macro body one physical line at a time, so a " \
+            "continuation hides the rest of the body from every rule below"
+
     def constant_value(text):
         """`text` as a 32-bit constant, or None when this gate cannot read it.
 
@@ -649,6 +720,105 @@ def test_baremetal_profile_contract():
     #: of which offsets are registers and which register each offset is.
     csr_address_re = re.compile(
         r"\b(A_[A-Z0-9_]+)\s*=\s*(?:[0-9]+)?'[hH]([0-9A-Fa-f_]+)")
+    #: ... but a NAME is not a register. The decode table below says which
+    #: address a name carries; only the write decode says which REGISTER an
+    #: address reaches, and that is the fact the whole census rests on.
+    case_token_re = re.compile(r"\bcase[xz]?\b|\bendcase\b")
+    case_label_re = re.compile(
+        r"(?m)^[ \t]*((?:A_[A-Z0-9_]+)(?:[ \t]*,[ \t]*A_[A-Z0-9_]+)*)[ \t]*:")
+    sv_literal_re = re.compile(
+        r"\A\s*(?:[0-9]+[ \t]*)?'[sS]?[hdboHDBO][0-9A-Fa-f_xzXZ?]+\s*\Z|"
+        r"\A\s*[0-9][0-9_]*\s*\Z")
+
+    def csr_write_decode(csr, signal):
+        """`(labels, other)` for `signal` in the CSR RTL.
+
+        `labels` is one entry per assignment reached from a `case (wr_addr)`
+        arm -- the label list that arm carries -- and `other` is the right-hand
+        side of every assignment reached any other way. A register the bus can
+        write is exactly the arms in `labels`, so this is what makes the
+        address model a CHECKED fact rather than an assumption."""
+        tokens = [(t.start(), t.group()) for t in case_token_re.finditer(csr)]
+        assign_re = re.compile(
+            rf"\b{re.escape(signal)}\b\s*(?:\[[^\]]*\])?\s*<=\s*([^;]*);")
+
+        def depth_at(pos, start):
+            depth = 0
+            for at, token in tokens:
+                if at < start or at >= pos:
+                    continue
+                depth += -1 if token == "endcase" else 1
+            return depth
+
+        arms = []
+        for case in re.finditer(r"\bcase\b\s*\(\s*wr_addr\s*\)", csr):
+            stop, depth = len(csr), 1
+            for at, token in tokens:
+                if at <= case.start():
+                    continue
+                depth += -1 if token == "endcase" else 1
+                if not depth:
+                    stop = at
+                    break
+            assert stop < len(csr), "a CSR write-decode case is never closed"
+            labels = [(m.start(), [n.strip() for n in m.group(1).split(",")])
+                      for m in case_label_re.finditer(csr, case.end(), stop)
+                      if depth_at(m.start(), case.end()) == 0]
+            arms.append((case.end(), stop, labels))
+
+        governed, other = [], []
+        for write in assign_re.finditer(csr):
+            for start, stop, labels in arms:
+                if not start <= write.start() < stop:
+                    continue
+                before = [names for at, names in labels if at < write.start()]
+                assert before, \
+                    f"{signal} is written inside a CSR write decode " \
+                    "under no case label at all, so no address reaches it"
+                governed.append(before[-1])
+                break
+            else:
+                other.append(write.group(1))
+        return governed, other
+
+    def assert_decode_is_one_to_one(csr, model):
+        """The RTL writes each entity-enable register from exactly ONE address.
+
+        The name-to-address table alone does not say this: a SECOND decode arm
+        gives the same register a second address, and every census keyed on the
+        first address then looks straight past a write through the second."""
+        assert re.search(
+            r"\bwire\s*\[\s*ADDR_WIDTH\s*-\s*1\s*:\s*0\s*\]\s*wr_addr\s*=\s*"
+            r"s_axi_awaddr\s*;", csr), \
+            "the CSR write address must be the full-width write address " \
+            "unmodified, or two firmware addresses reach one decode arm"
+        for wild in re.finditer(r"\bcase[xz]\b\s*\(\s*wr_addr\s*\)", csr):
+            raise AssertionError(
+                f"the CSR write decode must not be a {wild.group(0)}: a "
+                "wildcard arm answers to addresses no name in the table "
+                "carries, so the firmware census cannot enumerate them")
+        for signal, rtl_name, port in (("adp_ctrl", "A_ADP_CTRL",
+                                        "o_adp_enable"),
+                                       ("pp_ctrl_r", "A_PP_CTRL",
+                                        "o_pp_enable")):
+            governed, other = csr_write_decode(csr, signal)
+            assert governed == [[rtl_name]], \
+                f"the RTL must write {signal} from exactly one CSR address, " \
+                f"{rtl_name} (CSR 0x{model.rtl_address(rtl_name):03x}), " \
+                "or the register answers to an address the firmware " \
+                f"census does not watch; write decode reaches it {governed}"
+            for rhs in other:
+                assert sv_literal_re.match(rhs), \
+                    f"the RTL writes {signal} outside the CSR write decode " \
+                    f"with {rhs.strip()!r}: only a literal reset value may " \
+                    "reach it there, or bus data has a second route in"
+            drive = list(re.finditer(
+                rf"\bassign\s+{port}\s*=\s*{re.escape(signal)}\s*"
+                rf"\[\s*0\s*\]\s*;", csr))
+            assert len(drive) == 1, \
+                f"{port} must be driven exactly once, by {signal}[0], or " \
+                "the bit this gate censuses is not the bit that advertises"
+
     #: Whitespace-tolerant: `milan_write (` is the same call to the compiler,
     #: so it has to be the same call to the census.
     write_call_re = re.compile(r"\bmilan_write\s*\(")
@@ -815,13 +985,29 @@ def test_baremetal_profile_contract():
             load_source)
 
     def assert_csr_store_closure(code):
-        """milan_write() is the ONLY store into a CSR.
+        """milan_write() is the ONLY store into a CSR, in the text this reads.
 
         Every rule below the census reads milan_write() call sites, so a
         second way to reach a control register is a way to advertise the
-        entity unexamined. Pin the three ingredients of a CSR store -- the
-        base, the address helper and the primitive's own name -- and refuse
-        anything this gate cannot classify."""
+        entity unexamined. This pins the three ingredients of a CSR store --
+        the base, the address helper and the primitive's own name -- so a
+        store spelled any other way is refused rather than left unexamined.
+
+        What it does NOT prove, stated so no later round mistakes its scope
+        for the whole property:
+
+        * It is a reader of ONE preprocessed-once translation unit's text, not
+          of the compiler's. It reads the file as written; the arm-selection
+          and macro-body traps that gave that reading its teeth are refused
+          outright by assert_preprocessor_visible(), not modelled here.
+        * It reasons about SPELLING, not values. A store through a pointer
+          held in a variable, an inline-asm store, or a write from another
+          translation unit is outside what any of these regexes can see; the
+          firmware is one file with no asm stores and no such pointer today,
+          and rules 1 to 3 are what keep it that way.
+        * It says nothing about REACHABILITY. That a store exists in the guard
+          is proved here; that control reaches it only through the guard is
+          proved by the label/goto/switch refusal in assert_boot_contract()."""
         reg_def = re.search(
             r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*\(\s*"
             r"unsigned\s+int\s+(?P<offset>\w+)\s*\)\s*\{", code)
@@ -896,6 +1082,16 @@ def test_baremetal_profile_contract():
         # enable, and a printf() from reading as a call.
         firmware = blanked(firmware)
         model = CsrModel(firmware, csr)
+        # The name-to-address table is only half the address model; the write
+        # decode is the other half, and it is what says each entity-enable
+        # register answers to ONE address.
+        assert_decode_is_one_to_one(csr, model)
+        load_start = firmware.index("static int load_aem_image(void)")
+        load_end = firmware.index("static void milan_init(void)", load_start)
+        load_source = firmware[load_start:load_end]
+        # Before any textual rule: prove the text this gate reads is the text
+        # the compiler compiles.
+        assert_preprocessor_visible(firmware, (load_start, load_end))
         init_start = firmware.index("static void milan_init(void)")
         init_end = firmware.index("define_init_func(milan_init)", init_start)
         init_source = firmware[init_start:init_end]
@@ -910,6 +1106,47 @@ def test_baremetal_profile_contract():
         positions = [configure.start(), load.start(), guard.start()]
         assert positions == sorted(positions), \
             "firmware no longer configures, verifies AEM, then checks its verdict"
+        # Textual containment is not REACHABILITY. Every positional rule below
+        # proves an enable sits between the guard's braces; none of them proves
+        # control gets there only by taking the guard. A label reached by a
+        # goto, or a case falling into the block, does both at once -- so the
+        # constructs that make one possible are refused outright.
+        for keyword in ("goto", "switch", "case", "default"):
+            assert not re.search(rf"\b{keyword}\b", init_source), \
+                f"milan_init() must not contain '{keyword}': control that " \
+                "enters the AEM-success guard by any path other than the " \
+                "guard's own condition advertises an unverified entity"
+        stray_label = re.search(
+            r"(?m)^[ \t]*([A-Za-z_]\w*)[ \t]*:(?!:)", init_source)
+        assert not stray_label, \
+            f"milan_init() must not contain the label " \
+            f"'{stray_label.group(1)}': control that enters the AEM-success " \
+            "guard by any path other than the guard's own condition " \
+            "advertises an unverified entity"
+        # ... and each step of the boot path is a statement of milan_init()
+        # itself. A step nested under some OTHER condition is a step a
+        # compile-time constant can delete from the boot path entirely,
+        # without the preprocessor and without changing a line this gate reads.
+        init_body = init_source.index("{")
+
+        def unconditional(match, what):
+            head = max(init_source.rfind(char, init_body, match.start())
+                       for char in ";{}")
+            assert head >= 0 and \
+                not init_source[head + 1:match.start()].strip(), \
+                f"{what} must be a statement of milan_init() itself, not " \
+                "the body of another condition: a condition this gate " \
+                "cannot evaluate can drop it from the boot path"
+            depth = (init_source.count("{", init_body, match.start()) -
+                     init_source.count("}", init_body, match.start()))
+            assert depth == 1, \
+                f"{what} must sit at the top level of milan_init(), not " \
+                f"{depth - 1} block(s) deep: a condition this gate cannot " \
+                "evaluate can drop it from the boot path"
+
+        unconditional(configure, "the fabric configuration step")
+        unconditional(load, "the AEM verifier call")
+        unconditional(guard, "the AEM-success guard")
         # Read/modify/write, increment and compound-assignment spellings all
         # override the verifier's verdict; pin the variable, not one spelling.
         verdict_write = re.compile(
@@ -920,6 +1157,17 @@ def test_baremetal_profile_contract():
         assert len(assignments) == 1 and re.fullmatch(
             r"\s*load_aem_image\s*\(\s*\)\s*", assignments[0].group(1) or ""), \
             "aem_loaded must contain only the image verifier's verdict"
+        # ... and pinning the ASSIGNMENT only pins the spellings that name the
+        # variable. A pointer to it writes the verdict with no `aem_loaded =`
+        # anywhere, so the address of the verdict may not be taken at all --
+        # which, for a file-scope static in a single translation unit, is the
+        # only way to build such a pointer.
+        for use in re.finditer(r"(?<!&)&(?!&)\s*aem_loaded\b", firmware):
+            lead = firmware[:use.start()].rstrip()
+            assert lead and (lead[-1].isalnum() or lead[-1] in "_)]"), \
+                "the address of aem_loaded must not be taken: a pointer " \
+                "to the verdict (or a memset through one) overwrites it " \
+                "without any assignment this gate can see"
         # Every rule from here on reads milan_write() call sites, so first
         # prove there is no OTHER way to store into a control register.
         assert_csr_store_closure(firmware)
@@ -943,6 +1191,28 @@ def test_baremetal_profile_contract():
         adp_enable = model.enable_write(enable_block, model.adp)
         assert pp_enable["start"] < adp_enable["start"], \
             "AEM-success guard must enable PP before ADP"
+        # ... and the guarded block holds those two enables and their printf
+        # and NOTHING else, so there is nothing else inside it for control to
+        # be steered at, and nothing inside it this gate has not classified.
+        residue = list(enable_block)
+
+        def blank_out(start, stop):
+            for pos in range(start, stop):
+                if residue[pos] != "\n":
+                    residue[pos] = " "
+
+        for record in (pp_enable, adp_enable):
+            blank_out(record["start"], record["stop"])
+        for call in re.finditer(r"\bprintf\s*\(", enable_block):
+            depth, pos = 1, call.end()
+            while pos < len(enable_block) and depth:
+                depth += {"(": 1, ")": -1}.get(enable_block[pos], 0)
+                pos += 1
+            blank_out(call.start(), pos)
+        left = re.sub(r"\s+", " ", "".join(residue).strip(" \t\n;")).strip()
+        assert not left, \
+            "the AEM-success guard must hold the two enables and their " \
+            f"printf and nothing else, found {left[:60]!r}"
         # Entity-enable is PP_CTRL[0] OR ADP_CTRL[0], so the census runs over
         # the WHOLE firmware: configure_fabric() and every command handler
         # included, not just milan_init()'s own text. It is keyed on the two
@@ -979,20 +1249,43 @@ def test_baremetal_profile_contract():
         assert reset_value == 1, \
             "bare-metal PHC contract requires the documented enabled reset"
 
-        load_start = firmware.index("static int load_aem_image(void)")
-        load_end = firmware.index("static void milan_init(void)", load_start)
-        load_source = firmware[load_start:load_end]
         crc_guard = crc_mismatch_guard(load_source)
-        crc_block = braced_block(
+        crc_body, crc_close = braced_span(
             load_source, crc_guard, "CRC mismatch refusal")
         computed = crc_guard.group("lhs") or crc_guard.group("rhs")
         assert re.search(rf"\b{re.escape(computed)}\s*=\s*crc32\s*\(",
                          load_source), \
             "AEM verifier must compare the CRC it computed over the image"
-        success_returns = list(re.finditer(r"\breturn\s+1\s*;", load_source))
-        assert "return 0;" in crc_block and len(success_returns) == 1 and \
-               success_returns[0].start() > crc_guard.start(), \
-            "AEM verifier may succeed only after refusing a CRC mismatch"
+        # The verdict is whatever this function HANDS BACK, and `if
+        # (aem_loaded)` is true for every non-zero value, not just for 1. So
+        # classify every return and place it, rather than counting one literal:
+        # a warm-boot fast path spelled `return 2;` is ordinary firmware drift
+        # and it hands the guard a pass the CRC never earned.
+        _load_directives, load_arm = cpp_arms(load_source)
+        crc_arm = load_arm(crc_guard.start())
+        refusals, successes = [], []
+        for ret in re.finditer(r"\breturn\b([^;]*);", load_source):
+            expr = re.sub(r"\s+", " ", ret.group(1)).strip()
+            if constant_value(ret.group(1)) == 0:
+                refusals.append((ret, expr))
+                continue
+            successes.append((ret, expr))
+            # After the refusal BLOCK, not merely after the `if`: a non-zero
+            # return inside the refusal is the refusal accepting the mismatch.
+            # And in the CRC guard's own preprocessor arm, or it is code the
+            # compiler reaches without ever compiling the comparison.
+            assert ret.start() >= crc_close and \
+                load_arm(ret.start())[:len(crc_arm)] == crc_arm, \
+                "AEM verifier may succeed only after refusing a CRC " \
+                f"mismatch, but 'return {expr};' hands back a non-zero " \
+                "verdict the CRC comparison never gated"
+        assert successes, \
+            "AEM verifier never returns a non-zero verdict, so the " \
+            "AEM-success guard this gate checks can never be taken"
+        assert any(crc_body <= ret.start() < crc_close
+                   for ret, _ in refusals), \
+            "AEM verifier may succeed only after refusing a CRC mismatch: " \
+            "the mismatch block returns no zero verdict"
 
         words = " ".join(docs.split())
         required = (
@@ -1030,38 +1323,53 @@ def test_baremetal_profile_contract():
             return
         raise AssertionError(f"{label} mutation passed the boot-contract gate")
 
+    #: Every position below is found in the BLANKED text -- a `}` inside a
+    #: comment is not a brace and a milan_write() inside a printf() is not a
+    #: call -- and every mutation then splices the RAW text at those same
+    #: offsets, which blanked() preserves exactly. Reading positions off the
+    #: raw text instead made a comment in the guard fail the SUITE with a
+    #: message blaming the firmware for a defect in this construction.
+    firmware_code = blanked(firmware_source)
     source_model = CsrModel(firmware_source, csr_source)
-    init_start = firmware_source.index("static void milan_init(void)")
-    init_end = firmware_source.index("define_init_func(milan_init)", init_start)
+    init_start = firmware_code.index("static void milan_init(void)")
+    init_end = firmware_code.index("define_init_func(milan_init)", init_start)
     source_init = firmware_source[init_start:init_end]
+    init_code = firmware_code[init_start:init_end]
     source_guard = re.search(
-        r"\bif\s*\(\s*aem_loaded\s*\)\s*\{", source_init)
-    source_enable_block = braced_block(
-        source_init, source_guard, "if (aem_loaded)")
+        r"\bif\s*\(\s*aem_loaded\s*\)\s*\{", init_code)
+    guard_statement = source_init[source_guard.start():source_guard.end()]
+    guard_body, guard_close = braced_span(
+        init_code, source_guard, "if (aem_loaded)")
+    source_enable_block = source_init[guard_body:guard_close]
+    source_enable_code = init_code[guard_body:guard_close]
     source_pp_enable = source_model.enable_write(
-        source_enable_block, source_model.pp)
+        source_enable_code, source_model.pp)
     source_adp_enable = source_model.enable_write(
-        source_enable_block, source_model.adp)
+        source_enable_code, source_model.adp)
     source_load = re.search(
         r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;",
-        firmware_source)
+        firmware_code)
     assert source_load
-    source_load_start = firmware_source.index("static int load_aem_image(void)")
-    source_load_end = firmware_source.index(
+    load_statement = firmware_source[source_load.start():source_load.end()]
+    source_load_start = firmware_code.index("static int load_aem_image(void)")
+    source_load_end = firmware_code.index(
         "static void milan_init(void)", source_load_start)
     source_load_function = firmware_source[source_load_start:source_load_end]
-    source_crc_guard = crc_mismatch_guard(source_load_function)
-    source_crc_block = braced_block(
-        source_load_function, source_crc_guard, "CRC mismatch refusal")
+    source_load_code = firmware_code[source_load_start:source_load_end]
+    source_crc_guard = crc_mismatch_guard(source_load_code)
+    crc_body, crc_close = braced_span(
+        source_load_code, source_crc_guard, "CRC mismatch refusal")
+    source_crc_block = source_load_function[crc_body:crc_close]
     source_reset, _reset_value = ptp_reset_assignment(csr_source)
     source_reset_statement = source_reset.group(0)
     source_fabric = re.search(
         r"static\s+void\s+configure_fabric\s*\(\s*void\s*\)\s*\{",
-        firmware_source)
-    source_fabric_body = braced_block(
-        firmware_source, source_fabric, "configure_fabric()")
+        firmware_code)
+    fabric_body_at, fabric_body_to = braced_span(
+        firmware_code, source_fabric, "configure_fabric()")
+    source_fabric_body = firmware_source[fabric_body_at:fabric_body_to]
     source_configure = re.search(
-        r"\bconfigure_fabric\s*\(\s*\)\s*;", source_init)
+        r"\bconfigure_fabric\s*\(\s*\)\s*;", init_code)
     assert source_configure
     source_boot_path = (source_init[:source_configure.start()] +
                         source_fabric_body +
@@ -1134,8 +1442,9 @@ def test_baremetal_profile_contract():
         if value in source_model.decoded and
         value not in (source_model.pp, source_model.adp, source_model.phc) and
         not source_model.writes(firmware_source, value))
-    spare_define = re.search(rf"(?m)^#define\s+{spare_name}\s+\S+[ \t]*$",
-                             firmware_source).group(0)
+    spare_at = re.search(rf"(?m)^#define\s+{spare_name}\s+\S+[ \t]*$",
+                         firmware_code)
+    spare_define = firmware_source[spare_at.start():spare_at.end()]
     repointed_register = replace_once(
         enabled_before_aem(
             f"milan_write({spare_name}, milan_read({spare_name}) | 1u);"),
@@ -1157,6 +1466,15 @@ def test_baremetal_profile_contract():
         "static void print_tod(",
         "static void (*const milan_poke)(unsigned int, uint32_t) ="
         " milan_write;\n\nstatic void print_tod(", "milan_write alias pointer")
+    #: The register named by a HELPER rather than by a constant: real C that
+    #: compiles, and an operand no static reader can place by address.
+    indirect_helper_enable = replace_once(
+        enabled_before_aem(
+            "milan_write(indirect_reg(), milan_read(indirect_reg()) | 1u);"),
+        "static void configure_fabric(void)",
+        "static unsigned int indirect_reg(void)\n{\n"
+        f"\treturn {adp_name};\n}}\n\nstatic void configure_fabric(void)",
+        "indirect register helper")
     reg_store_enable = enabled_before_aem(
         f"*milan_reg({adp_name}) = milan_read({adp_name}) | 1u;")
     raw_store_enable = enabled_before_aem(
@@ -1178,10 +1496,8 @@ def test_baremetal_profile_contract():
         "Enable the PTP clock, protocol processor",
         old_claim.group(0), count=1)
 
-    unconditional_guard = source_guard.group(0).replace("aem_loaded", "1", 1)
-    inverted_guard = source_guard.group(0).replace(
-        "aem_loaded", "!aem_loaded", 1)
-    load_statement = source_load.group(0)
+    unconditional_guard = guard_statement.replace("aem_loaded", "1", 1)
+    inverted_guard = guard_statement.replace("aem_loaded", "!aem_loaded", 1)
     pp_enable_text = source_enable_block[
         source_pp_enable["start"]:source_pp_enable["stop"]]
     adp_enable_text = source_enable_block[
@@ -1203,6 +1519,139 @@ def test_baremetal_profile_contract():
     bad_load_function = replace_once(
         source_load_function, source_crc_block, bad_crc_block,
         "CRC verifier block")
+
+    # ---- the four axes R1 opened: the preprocessor the gate never saw, the
+    # difference between sitting inside the guard and being REACHED through
+    # it, a verdict and a verifier pinned by spelling, and an address model
+    # asserted against the RTL's name table but never against its decode.
+    # Every one of these compiles clean and every one used to pass.
+    configure_statement = source_init[
+        source_configure.start():source_configure.end()]
+    crc_guard_statement = source_load_function[
+        source_crc_guard.start():source_crc_guard.end()]
+
+    def defined(source, name, value, label):
+        return replace_once(
+            source, "static int aem_loaded;",
+            f"#define {name} {value}\n\nstatic int aem_loaded;", label)
+
+    #: A decoded register the firmware never writes: a READ of it is inert to
+    #: every census rule, so the mutations below carry the jump, not a write.
+    probe = spare_name
+    preprocessor_guard = defined(
+        replace_once(
+            firmware_source, guard_statement,
+            "#ifdef MILAN_DEV_ALWAYS_ADVERTISE\n\tif (1) {\n#else\n\t" +
+            guard_statement + "\n#endif", "preprocessor-selected guard"),
+        "MILAN_DEV_ALWAYS_ADVERTISE", "1", "dev-advertise flag")
+    preprocessor_clear = replace_once(
+        firmware_source, source_adp_clear + ";",
+        "#ifdef MILAN_CLEAR_ENTITY_ON_BOOT\n\t" + source_adp_clear +
+        ";\n#endif", "pre-AEM clear behind a build flag")
+    dead_configure = defined(
+        replace_once(firmware_source, configure_statement,
+                     "if (MILAN_FABRIC_PRECONFIGURED == 0)\n\t\t" +
+                     configure_statement, "compile-time-dead boot step"),
+        "MILAN_FABRIC_PRECONFIGURED", "1", "preconfigured-fabric flag")
+    goto_into_guard = replace_once(
+        replace_once(
+            firmware_source, load_statement,
+            f"if (milan_read({probe}) & 2u)\n\t\tgoto entity_up;\n\t"
+            + load_statement, "jump past the AEM verifier"),
+        guard_statement, guard_statement + "\nentity_up:",
+        "label inside the AEM-success guard")
+    case_into_guard = replace_once(
+        firmware_source, source_init,
+        source_init[:source_guard.start()] +
+        f"switch (milan_read({probe}) & 2u) {{\n\tcase 2:\n\t" +
+        source_init[source_guard.start():guard_close + 1] +
+        "\n\tdefault:\n\t\tbreak;\n\t}" + source_init[guard_close + 1:],
+        "case label falling into the AEM-success guard")
+    macro_enable = replace_once(
+        replace_once(
+            firmware_source, source_enable_block,
+            "\n#define MILAN_ENTITY_UP() \\\n\t\tdo { \\\n"
+            f"\t\t\t{pp_enable_text}; \\\n\t\t\t{adp_enable_text}; \\\n"
+            "\t\t} while (0)\n\t\tMILAN_ENTITY_UP();\n\t",
+            "continuation-line macro body"),
+        "\tprint_tod(gettime_ns());\n}",
+        "\tMILAN_ENTITY_UP();\n\tprint_tod(gettime_ns());\n}",
+        "macro enable reached from a UART handler")
+    verdict_pointer = replace_once(
+        replace_once(firmware_source, load_statement,
+                     load_statement +
+                     "\n\tverdict = &aem_loaded;\n\t*verdict = 1;",
+                     "verdict written through a pointer"),
+        "static int aem_loaded;",
+        "static int aem_loaded;\nstatic int *verdict;", "verdict pointer")
+    status_return = replace_once(
+        firmware_source, crc_guard_statement,
+        f"if (milan_read({probe}) & 2u)\n\t\treturn 2;\n\t"
+        + crc_guard_statement, "verifier fast path returning a status code")
+    #: A SECOND decode arm gives adp_ctrl a second address. The name table
+    #: still maps one name to one address, so only the decode says otherwise.
+    mirror_address = next(a for a in range(source_model.adp, 0x10000, 4)
+                          if a not in source_model.decoded)
+    adp_constant = re.search(
+        r"\bA_ADP_CTRL\s*=\s*(?:[0-9]+)?'[hH][0-9A-Fa-f_]+",
+        csr_source).group(0)
+    adp_arm = re.search(
+        r"(?m)^([ \t]*)A_ADP_CTRL\s*:\s*adp_ctrl\s*<=[^;]*;", csr_source)
+    mirrored_csr = replace_once(
+        replace_once(csr_source, adp_constant,
+                     f"A_ADP_MIRROR = 'h{mirror_address:X}, {adp_constant}",
+                     "second ADP_CTRL decode constant"),
+        adp_arm.group(0),
+        adp_arm.group(0) + "\n" + adp_arm.group(1) +
+        "A_ADP_MIRROR: adp_ctrl <= s_axi_wdata;", "second ADP_CTRL decode arm")
+    mirrored_enable = defined(
+        replace_once(
+            firmware_source, source_adp_clear + ";",
+            "milan_write(MILAN_ADP_MIRROR, milan_read(MILAN_ADP_MIRROR) | 1u);"
+            "\n\t" + source_adp_clear + ";",
+            "pre-AEM enable through the mirrored address"),
+        "MILAN_ADP_MIRROR", f"0x{mirror_address:03x}u", "ADP mirror address")
+    # ... and the other half of each new rule, so the rule cannot rot into a
+    # rule that only ever looks at the one shape it was written against.
+    _load_directives, source_load_arm = cpp_arms(source_load_code)
+    source_crc_arm = source_load_arm(source_crc_guard.start())
+    source_returns = list(re.finditer(r"\breturn\b([^;]*);", source_load_code))
+
+    def returned(match, verdict, label):
+        return replace_once(
+            firmware_source, source_load_function,
+            source_load_function[:match.start()] + f"return {verdict};" +
+            source_load_function[match.end():], label)
+
+    #: The OTHER arm of the one preprocessor group this gate tolerates: a
+    #: success handed back from the no-QSPI path, which every rule that reads
+    #: the file as one flat sequence of statements accepts.
+    other_arm_success = returned(
+        next(m for m in source_returns if constant_value(m.group(1)) == 0 and
+             source_load_arm(m.start())[:len(source_crc_arm)] !=
+             source_crc_arm),
+        1, "success returned from the other preprocessor arm")
+    #: ... and the CRC comparison itself moved into an arm of its own, so the
+    #: success return is no longer in the same code as the comparison.
+    crc_guard_block = source_load_function[
+        source_crc_guard.start():crc_close + 1]
+    optional_crc = replace_once(
+        firmware_source, crc_guard_block,
+        "#ifndef MILAN_SKIP_CRC\n\t" + crc_guard_block + "\n#endif",
+        "CRC comparison behind a build flag")
+    #: A verifier that can never say yes would leave the guarded block dead
+    #: and every rule about it vacuously true.
+    vacuous_verifier = returned(
+        [m for m in source_returns if constant_value(m.group(1)) != 0][-1],
+        0, "verifier with no success return")
+    #: A statement in the guarded block that is neither enable nor printf:
+    #: something for control to be steered at, and something unclassified.
+    extra_in_guard = replace_once(
+        firmware_source, source_enable_block,
+        source_enable_block[:source_adp_enable["stop"] + 1] +
+        "\n\t\tcdelay(64);" +
+        source_enable_block[source_adp_enable["stop"] + 1:],
+        "extra statement inside the AEM-success guard")
 
     def condensed(text):
         return re.sub(r"\s+", "", text)
@@ -1230,11 +1679,11 @@ def test_baremetal_profile_contract():
          replace_once(docs_source, old_claim.group(0), old_order, "old ordering"),
          csr_source, "bare-metal boot contract lost"),
         ("unconditional entity enable",
-         replace_once(firmware_source, source_guard.group(0), unconditional_guard,
+         replace_once(firmware_source, guard_statement, unconditional_guard,
                       "unconditional guard"), docs_source, csr_source,
          "firmware must configure, load AEM, then guard entity enable"),
         ("inverted entity enable",
-         replace_once(firmware_source, source_guard.group(0), inverted_guard,
+         replace_once(firmware_source, guard_statement, inverted_guard,
                       "inverted guard"),
          docs_source, csr_source,
          "firmware must configure, load AEM, then guard entity enable"),
@@ -1282,11 +1731,7 @@ def test_baremetal_profile_contract():
         # name it cannot resolve or a store it cannot see is a way to
         # advertise the entity unexamined. Each escape carries its own mutant.
         ("entity enabled through an indirect helper",
-         replace_once(
-             firmware_source, source_adp_clear,
-             "milan_write(indirect_reg, milan_read(indirect_reg) | 1u);"
-             + source_adp_clear, "indirect enable"),
-         docs_source, csr_source,
+         indirect_helper_enable, docs_source, csr_source,
          "milan_write() must name a register the RTL decodes"),
         # A SECOND #define for 0x600/0x920/0x500 is a different token for the
         # same register: the bus cannot tell them apart, so neither may the
@@ -1359,6 +1804,60 @@ def test_baremetal_profile_contract():
          replace_once(csr_source, source_reset_statement,
                       "ptp_ctrl <= 32'h0;", "PHC reset"),
          "bare-metal PHC contract requires the documented enabled reset"),
+        # ---- the preprocessor: this gate reads one arm, the compiler takes
+        # the other, and the arm it reads is the safe one by construction.
+        ("AEM guard selected by a build flag", preprocessor_guard,
+         docs_source, csr_source,
+         "firmware must not select boot code with the preprocessor"),
+        ("pre-AEM clear behind a build flag", preprocessor_clear,
+         docs_source, csr_source,
+         "firmware must not select boot code with the preprocessor"),
+        ("entity enable hidden in a continuation-line macro body",
+         macro_enable, docs_source, csr_source,
+         "firmware must not continue a #define across lines"),
+        # ... and the same defect without the preprocessor: a compile-time
+        # constant condition deletes a boot step from the image while every
+        # line this gate reads stays exactly where it was.
+        ("fabric configuration made dead by a compile-time constant",
+         dead_configure, docs_source, csr_source,
+         "the fabric configuration step must be a statement of milan_init() "
+         "itself"),
+        # ---- reachability: sitting between the guard's braces is not the
+        # same as being reached only by taking the guard.
+        ("entity enabled by a goto into the AEM-success guard",
+         goto_into_guard, docs_source, csr_source,
+         "milan_init() must not contain 'goto'"),
+        ("entity enabled by a case falling into the AEM-success guard",
+         case_into_guard, docs_source, csr_source,
+         "milan_init() must not contain 'switch'"),
+        # ---- the verdict and the verifier, pinned by data flow rather than
+        # by the spelling `aem_loaded =` and the literal `return 1;`.
+        ("AEM verdict overwritten through a pointer", verdict_pointer,
+         docs_source, csr_source,
+         "the address of aem_loaded must not be taken"),
+        ("AEM verifier returning a non-boolean status before the CRC gate",
+         status_return, docs_source, csr_source,
+         "'return 2;' hands back a non-zero verdict the CRC comparison "
+         "never gated"),
+        # ---- and the address model, checked against the RTL's DECODE rather
+        # than assumed from its name table.
+        ("ADP_CTRL given a second decode address", mirrored_enable,
+         docs_source, mirrored_csr,
+         "the RTL must write adp_ctrl from exactly one CSR address"),
+        # ---- the other half of each new rule.
+        ("AEM verifier succeeding from the no-QSPI preprocessor arm",
+         other_arm_success, docs_source, csr_source,
+         "AEM verifier may succeed only after refusing a CRC mismatch"),
+        ("CRC comparison itself put behind a build flag", optional_crc,
+         docs_source, csr_source,
+         "AEM verifier may succeed only after refusing a CRC mismatch"),
+        ("AEM verifier that can never succeed", vacuous_verifier,
+         docs_source, csr_source,
+         "AEM verifier never returns a non-zero verdict"),
+        ("extra statement inside the AEM-success guard", extra_in_guard,
+         docs_source, csr_source,
+         "the AEM-success guard must hold the two enables and their printf "
+         "and nothing else"),
     )
     for label, firmware, docs, csr, because in mutations:
         assert_rejected(label, firmware, docs, csr, because)
@@ -1372,6 +1871,21 @@ def test_baremetal_profile_contract():
           "safety property they break; "
           f"{len(reset_spellings)}/{len(reset_spellings)} equivalent reset "
           "spellings accepted")
+    print("  [gate 1b] ... and the text this reads is the code that runs: one "
+          "translation unit per the Makefile, no preprocessor conditional and "
+          "no continued #define outside the QSPI-slot group whose BOTH arms "
+          "the verifier's return rule classifies, no label/goto/switch in "
+          "milan_init() and the three boot steps unconditional at its top "
+          "level, the guarded block holding the two enables and their printf "
+          "and nothing else, no pointer to the verdict, every non-zero return "
+          "of the verifier placed after the CRC refusal, and each enable "
+          f"register written from exactly ONE decode arm ({adp_label} and "
+          f"{pp_label}) driving its enable port from bit 0")
+    print("  [gate 1b] NOT proved here: the values the build's -D set and the "
+          "generated headers supply (image bytes, CRC, entity ids - gate 28 "
+          "owns those), that crc32() is a CRC, and anything about a second "
+          "translation unit or an interrupt vector, both of which the two "
+          "checks above refuse rather than model")
 
     print("  [gate 1b] shipping AX: fabric gPTP option on with config-derived "
           "1024-word ROM; VexiiRiscv RV32I at 50 MHz through its supported "
