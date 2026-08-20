@@ -3686,8 +3686,13 @@ def test_optional_block_names_reach_the_rtl():
           "`p_<PARAM> = 0` under `if not blocks[k]` == a milan_datapath "
           "`parameter int X = 1` guarding a generate WITH an else arm == the "
           "AREA_BUDGET tier-1 table row (the p_AAF_PLAYBACK silent-no-op "
-          "class, closed on the source chain; what elaboration hands "
-          "Instance() is gate 23f, task #144)")
+          "class, closed for the SPELLING of these statements. A statement "
+          "that rebinds or overrides a carrier without touching them - "
+          "reassigning optional_blocks, overriding a fold, deleting a "
+          "dp_params key - is invisible here by construction, because each "
+          "hop is checked in isolation and _reads() is a name-appearance "
+          "test. That family and what elaboration hands Instance() are both "
+          "gate 23f, task #144)")
 
     # gate 23e (task #65): the loopback lane rides the SAME decorative-ABI
     # risk but the OPPOSITE polarity - it is an ADD, default OFF, so it is
