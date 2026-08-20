@@ -8,6 +8,7 @@
 #   console = Silicon Labs CP2102N (10c4:ea60)
 #
 #   deploy.sh [all|build|load|flash|flash-images|console]     (default: all)
+#   deploy.sh build --dry-run                                (print, do not build)
 #     BAUD=115200   console baud (our SoC default; the factory demo is 9600)
 #     BIT=<path>    bitstream for `flash` (default: newest gateware/alinx_ax7101.bit)
 #     LAYOUT=<path> flashboot_layout.json for `flash-images` (default: newest build's)
@@ -28,6 +29,17 @@ set -euo pipefail
 
 HERE="$(cd "$(dirname "$(realpath "$0")")" && pwd)"
 STEP="${1:-all}"
+DRY=0
+if [ "${2:-}" = "--dry-run" ]; then
+    [ "$STEP" = build ] || {
+        echo "deploy: --dry-run is supported only with the build step" >&2
+        exit 2
+    }
+    DRY=1
+elif [ "$#" -gt 1 ]; then
+    echo "usage: $0 [all|build|load|flash|flash-images|console] [--dry-run for build]" >&2
+    exit 2
+fi
 BAUD="${BAUD:-115200}"
 CABLE="${CABLE:-ft232}"       # FT232H JTAG on the AX7101
 # TWO FTDI cables live on this bus since the Arty arrived (2026-07-11): always
@@ -58,8 +70,28 @@ FPGA_PART="${FPGA_PART:-xc7a100tfgg484}"
 # Direct DMA remains enabled, but no cache-coherency hub is elaborated because
 # the CPU itself is cacheless.
 MILAN_OPTS="--board ax7101 --cpu vexiiriscv --cpu-count 1 --xlen 32 --software-profile baremetal --all-blocks --coherent-dma --milan-clk-freq 50e6 --with-spiflash --flashboot baremetal --gtx-tx-invert --timing-opt --floorplan --eth-port e1 --no-i2s-playback --no-render-lpf --audio-interface tdm8 --audio-interface-master --talker-wire-chans 8 --cbs-queues-mask 0x10 --loopback-lane --fabric-gptp --entity-gen-dir $HERE/../../configs/generated/endstation_ax7101_1x1_tdm8 --l2-bytes 0 --rx-queues 2 --strip-probes --hs-page-bytes 16384"
-do_build()  { echo "[deploy] build  (Vivado P&R -> .bit)"; "$HERE/milan_soc.py" $MILAN_OPTS --build --uart-baudrate "$BAUD"; }
-do_load()   { echo "[deploy] load   (JTAG -> SRAM, volatile)"; "$HERE/milan_soc.py" $MILAN_OPTS --load --uart-baudrate "$BAUD"; }
+run_milan_soc() {
+    local label="$1"; shift
+    # MILAN_OPTS is a trusted, fixed launcher recipe. Deliberate word splitting
+    # preserves the historical command while making dry-run and execution share
+    # the exact same final argv.
+    set -- "$HERE/milan_soc.py" $MILAN_OPTS "$@"
+    if [ "$DRY" = 1 ]; then
+        printf "DRY [%s]\n  " "$label"
+        printf "%q " "$@"
+        printf "\n"
+    else
+        "$@"
+    fi
+}
+do_build() {
+    echo "[deploy] build  (Vivado P&R -> .bit)"
+    run_milan_soc "deploy build" --build --uart-baudrate "$BAUD"
+}
+do_load() {
+    echo "[deploy] load   (JTAG -> SRAM, volatile)"
+    run_milan_soc "deploy load" --load --uart-baudrate "$BAUD"
+}
 do_flash()  {
     [ -n "$BIT" ] && [ -f "$BIT" ] || { echo "[deploy] flash: no bitstream (set BIT=<path/to/alinx_ax7101.bit>)"; exit 2; }
     # The build's layout owns the bitstream budget. Fall back to the current

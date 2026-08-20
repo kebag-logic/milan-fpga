@@ -78,8 +78,8 @@ BUILD_CFGS = {
 # --entity-gen-dir is NOT in here: it names a config, and which config a
 # recipe builds is exactly the fact this gate exists to pin (see
 # _entity_gen_dir_agrees). --load is not either: no recipe or build-launcher
-# line parsed by this script carries it. deploy.sh:62 deliberately has a
-# separate JTAG-load entry point, but a set that gate 1e must run has no
+# line parsed by this script carries it. deploy.sh deliberately has a separate
+# JTAG-load entry point, but a set that gate 1e must run has no
 # business naming a flag that programs a board.
 FLOW_FLAGS = {
     "--synth-directive", "--opt-directive", "--place-directive",

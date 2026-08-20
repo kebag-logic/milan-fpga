@@ -1028,17 +1028,6 @@ GPTP_SWEEP_CASES = [
 ]
 
 
-def _deploy_build_argv():
-    """The argv executed by deploy.sh's do_build(), with shell vars resolved."""
-    path = os.path.join(SOC_DIR, "deploy.sh")
-    source = open(path).read()
-    matches = re.findall(r'^MILAN_OPTS="([^"\n]*)"$', source, re.M)
-    assert len(matches) == 1, \
-        f"{path}: expected one literal MILAN_OPTS assignment, got {len(matches)}"
-    opts = matches[0].replace("${HERE}", SOC_DIR).replace("$HERE", SOC_DIR)
-    return shlex.split(opts) + ["--build", "--uart-baudrate", "115200"]
-
-
 def _dry_run_soc_argv(script, args):
     """Every milan_soc.py argv printed by a launcher's real dry-run path.
 
@@ -1064,6 +1053,14 @@ def _dry_run_soc_argv(script, args):
         f"{os.path.basename(script)} {' '.join(args)} printed no "
         f"milan_soc.py argv\n{proc.stdout[-2000:]}")
     return rows
+
+
+def _deploy_launcher_runs(path=None):
+    """The turnkey build command, expanded by deploy.sh's real dry-run path."""
+    path = path or os.path.join(SOC_DIR, "deploy.sh")
+    rows = _dry_run_soc_argv(path, ["build", "--dry-run"])
+    assert len(rows) == 1, f"deploy.sh build emitted {len(rows)} commands, want 1"
+    return [(GPTP_DEPLOY_CASE[0], rows[0])]
 
 
 def _build_launcher_runs(path=BUILD):
@@ -1153,7 +1150,7 @@ def _gptp_runs(out_dir):
                      ["--entity-gen-dir", gen] + tail))
     runs.extend(_build_launcher_runs())
     runs.extend(_sweep_launcher_runs())
-    runs.append((GPTP_DEPLOY_CASE[0], _deploy_build_argv()))
+    runs.extend(_deploy_launcher_runs())
     return runs, gens
 
 
@@ -1355,6 +1352,15 @@ def test_gptp_plane_instance_gate_bites():
              "  cmd=\"${cmd/--fabric-gptp/--no-fabric-gptp}\"\n"
              "  cmd=\"${cmd/--flashboot baremetal/--flashboot full}\"",
              "sweep.sh late owner flip"),
+            (os.path.join(SOC_DIR, "deploy.sh"), _deploy_launcher_runs,
+             'run_milan_soc "deploy build" --build --uart-baudrate "$BAUD"',
+             'local opts="$MILAN_OPTS"\n'
+             '    opts="${opts/--software-profile baremetal/--software-profile linux}"\n'
+             '    opts="${opts/--fabric-gptp/--no-fabric-gptp}"\n'
+             '    opts="${opts/--flashboot baremetal/--flashboot full}"\n'
+             '    MILAN_OPTS="$opts" run_milan_soc "deploy build" --build '
+             '--uart-baudrate "$BAUD"',
+             "deploy.sh late owner flip"),
         ]
         for path, reader, old, new, why in launcher_mutations:
             source = open(path).read()
@@ -1399,12 +1405,13 @@ def test_gptp_plane_instance_gate_bites():
                 assert token in row["stderr"], \
                     f"{label}: the refusal never names {token!r}: " \
                     f"{row['stderr']}"
-    print(f"  [gate 1e mutation] {len(GPTP_CHAIN_MUTATIONS) + 2} broken links of "
+    print(f"  [gate 1e mutation] {len(GPTP_CHAIN_MUTATIONS) + 3} broken links of "
           "the SHIPPING argv -> Instance chain rejected (a literal handoff, "
           "two tied forwards, a dropped keyword, an inverted and a renamed "
           "parameter, a default that stops following the profile, two "
           "overrides keyed on --build, a deploy/no-output-dir override, and "
-          "late owner flips in the actual build.sh and sweep.sh launch lines), "
+          "late owner flips in the actual build.sh, sweep.sh and deploy.sh "
+          "launch lines), "
           "plus both refusals graded on the operator-visible message")
 
 
