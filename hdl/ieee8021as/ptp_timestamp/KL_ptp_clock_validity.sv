@@ -36,12 +36,15 @@
                 Milan v1.2 Annex B.1.1 (on a grandmaster change tu shall
                 be 1 for at least 0.25 s).
 
-                THE THREE TERMS, and where each one's evidence lives:
+                THE THREE TERMS, and where each owner's evidence lives:
 
-                  * SOFTWARE LEASE (sw_*). Whether the PHC is actually
-                    disciplined to the domain is a servo fact: it lives
-                    in ptp4l's offset/frequency state and NOTHING in
-                    fabric can observe it. That is not merely a wiring
+                  * SYNC HEALTH (sw_* / fabric_sync_ok_i). In compatibility
+                    mode the PHC is disciplined by ptp4l, so its health is a
+                    daemon servo fact that the datapath cannot infer. In
+                    fabric mode the on-chip gPTP engine owns that servo and
+                    publishes its selected-and-synchronised verdict directly
+                    through fabric_sync_ok_i; the software lease is inert.
+                    The compatibility-mode boundary is not merely a wiring
                     gap, it is information-theoretic - see
                     docs/design/PRESENTATION_TIME_WRAP.md: avtp_timestamp
                     is the LOW 32 BITS of an unsigned nanosecond count,
@@ -54,8 +57,8 @@
                     which is precisely the square wave measured on
                     2026-07-27. No listener-side heuristic, and no
                     fabric-side observation of our own wire, can recover
-                    the truth; only the talker's own servo knows. So
-                    software publishes it -
+                    the truth; only the active servo knows. Compatibility
+                    software therefore publishes its verdict -
                     the established gptp2csr.sh pattern (GM id 0x624/8,
                     pdelay 0x6E4, AS_PATH 0x730/4) - and it publishes it
                     as a LEASE, not a flag: every CLKV_CTRL write
@@ -64,9 +67,9 @@
                     exactly the defect above (the Arty was synchronised
                     once, then drifted 60 h away while still asserting
                     health). Reset state is sync_ok=0 / lease=0, i.e.
-                    UNKNOWN == NOT VALID: a build nobody teaches to
-                    publish sync state emits tu=1 forever, which is the
-                    honest answer, not the convenient one.
+                    UNKNOWN == NOT VALID: a compatibility build nobody
+                    teaches to publish sync state emits tu=1 forever, which
+                    is the honest answer, not the convenient one.
 
                   * FABRIC-OBSERVED PHC STEPS (phc_load_p_i /
                     phc_adj_p_i). A settime or adjtime IS a discontinuity
@@ -75,11 +78,11 @@
                     here, as the PTP_CMD strobes. No software help
                     needed, no software trust required.
 
-                  * GRANDMASTER CHANGE (gm_id_i). The daemon already
-                    publishes gptp_grandmaster_id into ADP_GM_LO/HI for
-                    the advertiser; a change in that value is a change
-                    of grandmaster. Detecting it here gets Milan Annex
-                    B.1.1 for free, with no new software contract.
+                  * GRANDMASTER CHANGE (gm_id_i). The active owner publishes
+                    gptp_grandmaster_id into ADP_GM_LO/HI for the advertiser;
+                    a change in that value is a change of grandmaster.
+                    Detecting it here gets Milan Annex B.1.1 for free, with
+                    no additional owner contract.
 
                 The last two arm a holdover of HOLD_QTICK_P quarter-
                 seconds (default 2 -> 0.25..0.5 s against a free-running
@@ -95,20 +98,21 @@
                 the second half of the decorative-ABI fix
                 (docs/limitations/RECURRING_DEFECT_PATTERNS.md 1).
 
-                asCAPABLE RIDES THE SAME LEASE (gh #64 J3). 802.1AS-2020
+                asCAPABLE FOLLOWS THE ACTIVE OWNER (gh #64 J3). 802.1AS-2020
                 10.2.5.1: "A Boolean that is TRUE if and only if it is
                 determined that this PTP Instance and the PTP Instance at
                 the other end of the link attached to this PTP Port can
                 interoperate with each other via the IEEE 802.1AS
                 protocol" - and the clause adds that the determination is
-                MEDIUM-DEPENDENT, i.e. it is the pdelay-exchange verdict
-                ptp4l computes and NOTHING in fabric can observe
-                (the same information boundary as the sync claim above).
-                The old consumer proxied it as |pdelay CSR|, which is
+                MEDIUM-DEPENDENT. In compatibility mode it is the
+                pdelay-exchange verdict ptp4l computes and the datapath
+                cannot infer; in fabric mode the on-chip engine publishes its
+                own exchange verdict through fabric_as_cap_i. The old
+                compatibility consumer proxied it as |pdelay CSR|, which is
                 stale-true forever once the daemon dies and flag-flaps
                 when a starved pmc read maps "no answer" to pdelay 0.
-                So the daemon publishes its asCapable verdict as
-                CLKV_CTRL[2] on the SAME write that renews the lease, and
+                So the compatibility daemon publishes its asCapable verdict
+                as CLKV_CTRL[2] on the SAME write that renews the lease, and
                 as_cap_r obeys the lease law sync_ok_r obeys: latched
                 only with a live lease, CLEARED when the lease lapses -
                 daemon death answers asCapable=0 by construction, and
