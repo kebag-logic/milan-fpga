@@ -59,7 +59,7 @@ flowchart LR
 
 | step | what it checks | automatic? |
 |---|---|---|
-| **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | the composed command line equals `configs/endstation_<shape>.yaml` — `--num-streams`, `--rx-queues`, `--l2-bytes`, and `build.sh`'s `cfg_*` recipes | **yes** — refuses *before* anything launches |
+| **shape gate** ([`scripts/check_sweep_shape.py`](../../scripts/check_sweep_shape.py)) | compares the composed command line with `configs/endstation_<shape>.yaml`, while re-verifying the explicitly pinned legacy divergences tracked in #155 | **sweep: yes** — refuses before launch; **build.sh: CI/manual static gate**, not invoked by that launcher |
 | **WNS ≥ 0** | Design Timing Summary row of `<outdir>/gateware/*_timing.rpt`. On the AX7101 keep margin: QSPI flashboot corrupted below +0.03 at 112.5 MHz | no — read it |
 | **utilization** | `*_utilization_place.rpt` Slice LUTs / Slice / Block RAM Tile vs the area scoreboard. OOC-synth a module before believing its hierarchical line | no — read it |
 | **silicon checklist** | boot, `ID=MILN`, driver pairing probe, ghost-peer ARP, TX gate, RX cells | no — run it on the board |
@@ -122,21 +122,22 @@ three-directive placement sweep. See
 Same board, but deliberately retains the Linux bring-up flow, cached Vexii
 CPU, ALSA sound-card rings and full Linux flash manifest. It uses
 `--num-streams 8`,
-`--rx-queues 1` (drops the RX1 DMA RSC/TCP-coalescing engine  -  pure
-Linux-throughput logic the audio path never touches  -  which removed the
-sys_clk critical path AND freed ~3 pct LUT), `--l2-bytes 16384`, place
-directive AltSpreadLogic_high. Closed 2026-07-24: WNS +0.080, LUT 85.15 pct,
-TNS 0, all seeds close (measured record in the `cfg_ax8x8` comment in
-`build.sh`).
+`--rx-queues 2`: the former one-queue area lever starved the shared gPTP/bulk
+ring under a 950 Mb/s flood, so the second queue is now non-negotiable. It
+also uses `--l2-bytes 16384` and place directive AltSpreadLogic_high. The
+history and current timing record are kept in the `cfg_ax8x8` comment in
+`build.sh`.
 
 Both Linux recipes (`cfg_ax8x8` and `cfg_arty`) state `--no-fabric-gptp`: the
 PHC takes exactly one owner and these rootfs images still start `ptp4l`. They
 also state `--entity-gen-dir`, which supplies the descriptor image, the
 reserved `ppmem` window and (on a fabric build) the gPTP ROM; `milan_soc.py`
 refuses to launch without it, so until it was added neither recipe could be
-launched at all. `scripts/check_sweep_shape.py` compares each recipe against
-the end-station config named in its `ENTITY_CFG_<name>` variable flag for
-flag, so neither statement can drift back out.
+launched at all. `scripts/check_sweep_shape.py` verifies those facts for every
+named recipe and compares all other design flags against the corresponding
+end-station config. Ten pre-existing disagreements remain explicitly pinned
+to their exact pairs under #155/#157; the static gate fails if a pin moves,
+but `build.sh` does not itself invoke that comparison.
 
 Both also state `--xlen 64`, which is the value the absent flag already
 selected rather than a change of CPU. It disagrees with both configs, which
@@ -225,11 +226,13 @@ exists so they cannot be forgotten:
 
 ### 3.1 The shape gate (`scripts/check_sweep_shape.py`)
 
-[`sw/litex/sweep.sh`](../../sw/litex/sweep.sh) refuses to launch unless the command line it composed
-equals the end-station config it claims to build. It checks `--num-streams`,
-`--rx-queues` and `--l2-bytes` against `configs/endstation_<shape>.yaml`, and
-`build.sh`'s `cfg_*` recipes against the same configs. Exit non-zero = no
-Vivado runs.
+[`sw/litex/sweep.sh`](../../sw/litex/sweep.sh) refuses to launch unless the
+command line it composed agrees with the end-station config it claims to
+build. The same script also has a static CI/review mode that compares every
+named `build.sh` `cfg_*` recipe against its config. That static branch records
+the ten unresolved #155 pairs as exact pins rather than calling them equal;
+run it explicitly before a `build.sh` launch. Exit non-zero from the sweep's
+runtime gate means no Vivado run starts.
 
 Why it exists: this class of bug is only visible on silicon and has now bitten
 three times.

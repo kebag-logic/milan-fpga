@@ -53,8 +53,8 @@ BUILD = os.path.join(ROOT, "sw/litex/build.sh")
 # build.sh's named recipes are the OTHER path to a flashed bitstream (the
 # deployed ax8x8 gateware came from `build.sh ax8x8`), so they get the same
 # treatment: cfg function -> the end-station config it claims to build.
-# cfg_ax7101 has no counterpart (there is no 1x1 ax7101 config) and is skipped.
 BUILD_CFGS = {
+    "ax7101": "configs/endstation_ax7101_1x1_tdm8.yaml",
     "ax8x8": "configs/endstation_ax7101_8x8.yaml",
     "arty":  "configs/endstation_arty_current.yaml",
 }
@@ -539,6 +539,8 @@ def main():
         # could not see a flag it did not name. Each mutation deletes ONE
         # token from a COPY of build.sh and the gate must report it.
         build_mutations = [
+            ("--loopback-lane deleted from cfg_ax7101",
+             "--loopback-lane --fabric-gptp", "--fabric-gptp"),
             ("--no-fabric-gptp deleted from cfg_ax8x8 (the #116 escape)",
              "--aaf-playback --no-fabric-gptp", "--aaf-playback"),
             ("--entity-gen-dir deleted from cfg_arty (recipe cannot launch)",

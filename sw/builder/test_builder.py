@@ -1014,6 +1014,23 @@ GPTP_PLANE_CASES = [
     ("linux explicit",     "ax7101_8x8",      "--no-fabric-gptp",   0),
 ]
 
+# The turnkey bench/shipping launcher is a distinct supported entry point.
+# Unlike build.sh/sweep.sh it deliberately supplies no --output-dir and no
+# Vivado directives, so rebuilding only emit_soc_argv plus one common flow
+# tail does not exercise this argv shape.
+GPTP_DEPLOY_CASE = ("deploy build", 1)
+
+
+def _deploy_build_argv():
+    """The argv executed by deploy.sh's do_build(), with shell vars resolved."""
+    path = os.path.join(SOC_DIR, "deploy.sh")
+    source = open(path).read()
+    matches = re.findall(r'^MILAN_OPTS="([^"\n]*)"$', source, re.M)
+    assert len(matches) == 1, \
+        f"{path}: expected one literal MILAN_OPTS assignment, got {len(matches)}"
+    opts = matches[0].replace("${HERE}", SOC_DIR).replace("$HERE", SOC_DIR)
+    return shlex.split(opts) + ["--build", "--uart-baudrate", "115200"]
+
 
 def _flow_tail(out_dir):
     """The FLOW tail a real launcher appends after the shape flags.
@@ -1056,12 +1073,13 @@ def _flow_tail(out_dir):
 
 
 def _gptp_runs(out_dir):
-    """(runs, gen dirs) for GPTP_PLANE_CASES, off each config's REAL argv.
+    """(runs, gen dirs) for profile variants plus the real deploy.sh argv.
 
-    The baseline is the end-station builder's own emitted argv with the gptp
-    token removed, PLUS the flow tail every launcher appends, so every case
-    differs from a real shipping command line by exactly the token under test.
-    Including `--build` is the point: a handoff conditioned on a flow flag can
+    The profile baselines are the end-station builder's own emitted argv with
+    the gptp token removed, PLUS the complete build.sh/sweep.sh flow tail. The
+    separate deploy case is parsed from deploy.sh and intentionally carries
+    `--build` without an output directory or Vivado directives. Including
+    both real launcher shapes matters: a handoff conditioned on a flow flag can
     elaborate the right plane in a dry probe and ship the wrong one. The spy
     stops at Instance("milan_datapath"), before Vivado or the output path runs.
     """
@@ -1080,6 +1098,7 @@ def _gptp_runs(out_dir):
         cfg, gen, base = gens[key]
         runs.append((label, base + ([flag] if flag else []) +
                      ["--entity-gen-dir", gen] + tail))
+    runs.append((GPTP_DEPLOY_CASE[0], _deploy_build_argv()))
     return runs, gens
 
 
@@ -1092,7 +1111,10 @@ def _gptp_plane_contract(got):
     """
     bad = []
     seen = {}
-    for label, _key, _flag, want in GPTP_PLANE_CASES:
+    expected = [(label, want)
+                for label, _key, _flag, want in GPTP_PLANE_CASES]
+    expected.append(GPTP_DEPLOY_CASE)
+    for label, want in expected:
         row = got.get(label)
         if row is None:
             continue
@@ -1224,6 +1246,10 @@ GPTP_CHAIN_MUTATIONS = [
        "    args.fabric_gptp = args.fabric_gptp and not args.build\n\n"
        "    # ---- L1 BINDING REFUSAL", 1)],
      ["baremetal default", "baremetal explicit"]),
+    ("the deploy path without --output-dir overrides the parsed owner",
+     [("gptp_plane=args.fabric_gptp",
+       "gptp_plane=args.fabric_gptp and args.output_dir is not None", 1)],
+     ["deploy build"]),
 ]
 
 
@@ -1271,8 +1297,8 @@ def test_gptp_plane_instance_gate_bites():
     print(f"  [gate 1e mutation] {len(GPTP_CHAIN_MUTATIONS)} broken links of "
           "the SHIPPING argv -> Instance chain rejected (a literal handoff, "
           "two tied forwards, a dropped keyword, an inverted and a renamed "
-          "parameter, a default that stops following the profile, and two "
-          "overrides keyed on --build that only the launcher tail can see), "
+          "parameter, a default that stops following the profile, two "
+          "overrides keyed on --build, and a deploy/no-output-dir override), "
           "plus both refusals graded on the operator-visible message")
 
 

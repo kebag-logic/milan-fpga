@@ -51,7 +51,7 @@ boot sequence below.
 - **[What rev 3 costs, named](#what-rev-3-costs-named)** -- The remaining losses include unavailable media-clock selection, the pinned presentation offset and the missing Table 5.22 producer. Solicited Stream Output counters are live.
 - **[Boundary contracts (the only crossings)](#boundary-contracts-the-only-crossings)** -- The interfaces that are allowed to cross: the 0x600 identity CSRs, the DMA rings + timestamp window, the read-only descriptor-memory master into DRAM, the PHC, the DMA audio ring, and the mailbox -- now telemetry-and-override, explicitly not a liveness gate.
 - **[Rationale anchors (paid-for evidence)](#rationale-anchors-paid-for-evidence)** -- Why the split is believed rather than asserted: la_avdecc enumerated the rev-2 entity with the CPU idle (evidence that must now be re-taken against the uCPU and its DDR3 image), one hardware counter fed both ADP and AEM so wire truth could not diverge, and the TX-ceiling work showed the CPU is the scarce resource.
-- **[Open decisions (flagged, not blocking)](#open-decisions-flagged-not-blocking)** -- Three things deliberately left unsettled: how far the AECP uCPU is taken past READ_DESCRIPTOR, gPTP staying on the softcore (linuxptp, revisit only if servo jitter blocks), and whether audio ever arrives from a native I2S/TDM input instead of the DMA ring.
+- **[Open decisions (flagged, not blocking)](#open-decisions-flagged-not-blocking)** -- Three things deliberately left unsettled: how far the AECP uCPU is taken past READ_DESCRIPTOR, gPTP fabric silicon signoff plus sibling-rootfs service retirement, and whether audio ever arrives from a native I2S/TDM input instead of the DMA ring.
 
 ## The dividing principle
 

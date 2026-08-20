@@ -360,8 +360,8 @@ cd syn/yosys && ./run.sh                       # every device-portability top (l
 ./sw/litex/milan_soc.py --full --xlen 32 --entity-gen-dir configs/generated/<config>
 
 # --- the Artix-7 bitstream (needs Vivado with Artix-7 device support  -  see Section 9) ---
-./sw/litex/milan_soc.py --full --build         # place & route -> .bit
-./sw/litex/milan_soc.py --full --build --load  # + program the board
+./sw/litex/milan_soc.py --full --build --entity-gen-dir configs/generated/<config>         # place & route -> .bit
+./sw/litex/milan_soc.py --full --build --load --entity-gen-dir configs/generated/<config>  # + program the board
 
 # --- Linux (needs the board / a bitstream) ---
 litex_json2dts_linux build/csr.json > milan.dts
