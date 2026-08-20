@@ -70,7 +70,7 @@ AAF_SRCS = $(RTL)/common/ethernet_packet_pkg.sv \
 AAF_FLAGS = --top-module avtp_rxmon_wrap -GCLK_FREQ_HZ_P=10000 \
             +incdir+$(RTL)/common +incdir+$(RTL)/ieee1722/avtp --Mdir obj_aaf
 
-.PHONY: all build run aaf ptp matrix matrix-check clean
+.PHONY: all build run graderself aaf ptp matrix matrix-check clean
 
 all: run
 
@@ -85,8 +85,15 @@ gptp_ucode.hex: $(GPTP_DIR)/hdl/ucode/gen_gptp_ucode.py
 obj_ptp/Vptp_cosim: cosim_ptp.cpp cosim_axis.h $(PTP_SRCS) gptp_ucode.hex
 	$(VERILATOR) $(VCOMMON) $(PTP_FLAGS) $(PTP_SRCS) cosim_ptp.cpp -o Vptp_cosim
 
-run: build aaf ptp matrix-check
+run: graderself build aaf ptp matrix-check
 	@echo "== tsn_fuzz: all campaigns passed =="
+
+# The field grader's own self-test. Deliberately FIRST and deliberately free of
+# Verilator and tsn-gen: it guards a defect the campaigns cannot see, because a
+# constraint kind grade_tx does not know produces no check to fail. It therefore
+# has to run even where the campaigns skip.
+graderself:
+	@$(PY) test_grade_tx.py
 
 # regenerate the module<->spec<->test traceability matrix from the tree
 matrix:
