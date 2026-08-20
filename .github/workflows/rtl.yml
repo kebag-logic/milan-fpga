@@ -5,6 +5,12 @@ on:
     branches: [main]
   pull_request:
 
+# A newer commit makes an older run irrelevant. Free its four hosted runners
+# immediately instead of making the useful run queue behind stale evidence.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   # Pinned to the version the harnesses are developed and gated against.
   # Distro Verilator is NOT usable here - see docs/testing/TESTING.md §7:
@@ -22,9 +28,14 @@ env:
 jobs:
   # The full Verilator suite sweep needs verilog-axis and protocol-processor.
   # Both use anonymous HTTPS so a fork can fetch them too.
-  verilator-suites:
+  verilator-shards:
+    name: Verilator shard ${{ matrix.shard }}/4
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3]
     steps:
       - uses: actions/checkout@v4
       - name: Fetch the RTL submodules
@@ -113,15 +124,63 @@ jobs:
           test -x "$RUNNER_TEMP/tsn-gen/build/traffic-gen/packet_gen"
           echo "TSN_GEN_ROOT=$RUNNER_TEMP/tsn-gen" >> "$GITHUB_ENV"
 
-      - name: Run every suite
-        run: scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs"
+      - name: Run this suite shard
+        run: scripts/run_all_suites.sh "$RUNNER_TEMP/suite-logs" --shard "${{ matrix.shard }}/4"
 
-      - name: Upload suite logs on failure
-        if: failure()
+      # Always upload: the final required check proves that the four artifacts
+      # are an exhaustive, disjoint copy of the serial suite inventory.
+      - name: Upload this shard's suite logs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: suite-logs
+          name: suite-logs-${{ matrix.shard }}
           path: ${{ runner.temp }}/suite-logs
+          if-no-files-found: error
+          retention-days: 3
+
+  # Preserve the public required-check name while moving the expensive work to
+  # four isolated workers. This job fails if any worker failed OR if their logs
+  # omit, duplicate, or invent a suite relative to tb/verilator/.
+  verilator-suites:
+    name: verilator-suites
+    # Still aggregate ordinary worker failures, but let concurrency cancellation
+    # stop the obsolete run instead of keeping it alive for this bookkeeping.
+    if: ${{ !cancelled() }}
+    needs: verilator-shards
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download every shard's logs
+        id: download-logs
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          pattern: suite-logs-*
+          path: ${{ runner.temp }}/all-suite-logs
+
+      - name: Prove exhaustive ownership and tally every log
+        if: always()
+        run: |
+          shopt -s nullglob
+          roots=("$RUNNER_TEMP"/all-suite-logs/suite-logs-*)
+          if [ "${#roots[@]}" -eq 0 ]; then
+            mkdir -p "$RUNNER_TEMP/all-suite-logs/none"
+            roots=("$RUNNER_TEMP/all-suite-logs/none")
+          fi
+          python3 scripts/suite_tally.py "${roots[@]}" --quiet \
+            --expect-suite-root tb/verilator
+
+      - name: Require every shard worker to pass
+        if: always()
+        env:
+          SHARD_RESULT: ${{ needs.verilator-shards.result }}
+        run: |
+          if [ "$SHARD_RESULT" != success ]; then
+            echo "one or more Verilator shard workers ended: $SHARD_RESULT" >&2
+            exit 1
+          fi
 
   # BDD conformance suite (Gherkin, tests/features). Offline by default - the
   # Python models in tests/steps mirror the RTL, so it needs no DUT binary and

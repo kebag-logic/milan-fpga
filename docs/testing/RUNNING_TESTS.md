@@ -190,8 +190,19 @@ cd tb/verilator/adp_tx && make     # builds + runs; self-checking, prints PASS/c
 > the mandatory commands and root dynamic-state connections that remain open.
 
 No Xilinx dependencies (the RTL is XPM-free). Run the affected module's harness after
-touching its SV; run the full [tb/verilator/](../../tb/verilator) sweep before a release-ish commit (`for d in tb/verilator/*/;
-do make -C "$d" || break; done`).
+touching its SV; run the full [tb/verilator/](../../tb/verilator) sweep before a
+release-ish commit:
+
+```sh
+suite_logs=$(mktemp -d)
+scripts/run_all_suites.sh "$suite_logs"
+```
+
+The no-option form is the complete serial local gate. GitHub schedules the
+same inventory as four isolated `--shard INDEX/4` workers and then rejects any
+missing, duplicate, or unexpected log in the aggregate `verilator-suites`
+check. To inspect that deterministic assignment without compiling, use
+`scripts/run_all_suites.sh --shard 0/4 --list`.
 
 ## 4. Yosys device-portability check (syn/yosys)
 
