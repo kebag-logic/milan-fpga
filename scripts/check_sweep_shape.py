@@ -14,10 +14,17 @@ invisible until silicon:
   * 2026-07-26 (this gate): sweep.sh passed NO `--num-streams` AT ALL, so
     `sweep.sh ax7101` built the DEFAULT 1x1 datapath while the config, the docs
     and the build directories all called it 8x8.
+  * 2026-08-20 (#116): the fabric gPTP plane became the product default, every
+    Linux config gained an explicit `--no-fabric-gptp`, `sweep.sh` was updated
+    and `build.sh` was not.  `build.sh cfg_ax8x8` and `cfg_arty` then died at
+    `ap.error` BEFORE elaboration, and this gate did not see it: the build.sh
+    branch compared four hand-picked keys while the sweep.sh branch had
+    already been widened to flag-for-flag equality.  Both branches compare
+    every design flag now.
 
-Same shape both times: a build knob that lives in the declarative end-station
-config, is NOT carried by the script that builds, and silently defaults.  This
-gate makes the divergence a HARD FAILURE instead.
+Same shape all three times: a build knob that lives in the declarative
+end-station config, is NOT carried by the script that builds, and silently
+defaults.  This gate makes the divergence a HARD FAILURE instead.
 
 Two modes:
 
@@ -52,12 +59,73 @@ BUILD_CFGS = {
     "arty":  "configs/endstation_arty_current.yaml",
 }
 
+# FLOW flags, not SHAPE flags: Vivado directives and per-run paths that
+# emit_soc_argv deliberately does not emit (its own docstring says so, and the
+# sweep multiplies the place directive by three). They are build.sh's business
+# alone, so the flag-for-flag comparison below ignores them. --entity-gen-dir
+# is NOT in here: it names a config, and which config a recipe builds is
+# exactly the fact this gate exists to pin (see _entity_gen_dir_agrees).
+FLOW_FLAGS = {
+    "--synth-directive", "--opt-directive", "--place-directive",
+    "--vivado-max-threads", "--output-dir", "--build", "--load",
+}
+
 # PINNED DIVERGENCES - live disagreements that are DELIBERATE (or at least
 # known and evidenced) and must not move silently. The gate fails if the pinned
 # pair stops holding, which is the point: the exception is visible and dated
 # instead of being an untracked gap.
 #   (source, board/cfg, key): (source_value, config_value, reason)
 PINNED = {
+    # ---- build.sh <-> config, PRE-EXISTING at dev 10c7bf6c (measured
+    #      2026-08-20 by running this widened gate against a dev worktree:
+    #      the same ten pairs, flag for flag). The build.sh branch of this
+    #      gate compared four keys until 2026-08-20; widening it to the
+    #      flag-for-flag equality the sweep.sh branch already used surfaced
+    #      these. NONE of them is resolved and none is claimed to be
+    #      deliberate - they are pinned to their EXACT pair so the widening
+    #      cannot be read as a blessing and so no side may move without this
+    #      gate reporting it. Resolving them is issue #155; delete the entry
+    #      as each closes. Two are not cosmetic: --xlen is absent from both
+    #      recipes, so build.sh builds RV64 where both configs declare 32.
+    ("build.sh", "arty", "--xlen"): (
+        "(absent)", "32",
+        "#155: recipe omits --xlen, so RV64; endstation_arty_current.yaml "
+        "declares xlen 32"),
+    ("build.sh", "arty", "--cpu-count"): (
+        "2", "1", "#155: recipe builds two harts, the config declares one"),
+    ("build.sh", "arty", "--cbs-queues-mask"): (
+        "(absent)", "0x10",
+        "#155: recipe leaves every queue with a CBS instance; the config "
+        "derives the class-A-only mask"),
+    ("build.sh", "arty", "--scala-args"): (
+        "--l2-down-pending=8 --l2-general-slots=16 "
+        "--lsu-hardware-prefetch=rpt --lsu-l1-refill-count=8",
+        "--l2-down-pending=4 --l2-general-slots=8 --lsu-l1-refill-count=2",
+        "#155: two different CPU cache profiles"),
+    ("build.sh", "ax8x8", "--xlen"): (
+        "(absent)", "32",
+        "#155: recipe omits --xlen, so RV64; endstation_ax7101_8x8.yaml "
+        "declares xlen 32"),
+    ("build.sh", "ax8x8", "--cbs-queues-mask"): (
+        "0x18", "0x10",
+        "#155: recipe shapes class A AND class B; the config derives class "
+        "A alone (the 2026-07-31 area lever)"),
+    ("build.sh", "ax8x8", "--eth-port"): (
+        "(absent)", "e1",
+        "#155: recipe relies on the argparse default, which is e1 today; "
+        "the config states it"),
+    ("build.sh", "ax8x8", "--no-datapath-probes"): (
+        "(absent)", True,
+        "#155: an AREA_BUDGET tier-1 prune the config declares and the "
+        "recipe does not spend"),
+    ("build.sh", "ax8x8", "--aaf-playback-streams"): (
+        "(absent)", "1",
+        "#155: recipe relies on the argparse default, which is 1 today; the "
+        "config states it"),
+    ("build.sh", "ax8x8", "--scala-args"): (
+        "--lsu-hardware-prefetch=rpt --lsu-l1-refill-count=8",
+        "--l2-down-pending=4 --l2-general-slots=8 --lsu-l1-refill-count=2",
+        "#155: two different CPU cache profiles"),
     # (empty) - the ax8x8 l2_bytes divergence was RESOLVED 2026-07-26 by
     # correcting configs/endstation_ax7101_8x8.yaml from 32768 to 16384.
     # The USER 32K authorisation belongs to the 1x1 bench shape
@@ -244,9 +312,74 @@ def parse_build_sh(path=BUILD):
     return out
 
 
+def design_flags(flags):
+    """A parsed flag dict with the FLOW flags dropped and --scala-args joined.
+
+    The scala arguments arrive as `--scala-args=<one>` tokens, so a plain
+    parse spells each of them as its own flag and one differing cache knob
+    reads as four unrelated divergences. Joined into a single sorted string
+    they read as what they are: one CPU cache profile, compared whole.
+    """
+    d, scala = {}, []
+    for k, v in flags.items():
+        if k in FLOW_FLAGS:
+            continue
+        if k.startswith("--scala-args="):
+            scala.append(k[len("--scala-args="):])
+            continue
+        d[k] = v
+    if scala:
+        d["--scala-args"] = " ".join(sorted(scala))
+    return d
+
+
+def _entity_gen_dir_agrees(name, cfg_path, flags):
+    """build.sh must hand milan_soc.py the generated dir of the SAME config
+    this gate compares the recipe against.
+
+    Not decoration: --entity-gen-dir supplies the descriptor image, the
+    platform shape (the reserved `ppmem` window compiled into the gateware)
+    and, on a fabric build, the gPTP microcode ROM. A recipe that omits it
+    cannot launch at all - measured 2026-08-20, `build.sh ax8x8` and
+    `build.sh arty` both died at `this build needs its end-station config`
+    before elaboration - and a recipe that names ANOTHER config builds one
+    shape's gateware around another shape's descriptors. The literal is a
+    path, so it cannot be derived from BUILD_CFGS in shell; it is pinned here
+    instead.
+    """
+    want = os.path.splitext(os.path.basename(cfg_path))[0]
+    got = flags.get("--entity-gen-dir")
+    msg = None
+    if got is True or not got:
+        msg = (f"cfg_{name}: no --entity-gen-dir. milan_soc.py refuses to "
+               f"launch without it, so this recipe cannot be run at all; it "
+               f"must name configs/generated/{want}")
+    elif os.path.basename(str(got).rstrip("/")) != want:
+        msg = (f"cfg_{name}: --entity-gen-dir names "
+               f"{os.path.basename(str(got).rstrip('/'))!r} but this recipe "
+               f"is graded against {os.path.basename(cfg_path)} - the "
+               f"gateware and the descriptors would be different shapes")
+    if msg is None:
+        return []
+    print("SHAPE DRIFT: " + msg, file=sys.stderr)
+    return [msg]
+
+
 def check_build_sh(path=BUILD):
-    """build.sh recipe vs the end-station config it builds. Divergences listed
-    in PINNED are accepted (and re-verified); anything else is drift."""
+    """build.sh recipe vs the end-station config it builds, FLAG FOR FLAG.
+
+    Until 2026-08-20 this branch compared exactly four keys - num_streams,
+    rx_queues, l2_bytes, render_lpf - while the sweep.sh branch above had
+    already been widened to full equality against emit_soc_argv. That is the
+    same "hand-picked SUBSET of the design flags" failure this file's header
+    comment was written to end, and it let a real one through: #116 made
+    `--fabric-gptp` the default, every Linux config gained an explicit
+    `--no-fabric-gptp`, and cfg_ax8x8 / cfg_arty said nothing, so both aborted
+    with `ap.error` before elaboration and no gate noticed.
+
+    Divergences listed in PINNED are accepted AND RE-VERIFIED against their
+    recorded pair; anything else is drift.
+    """
     recipes = parse_build_sh(path)
     bad = []
     for name, cfg_path in sorted(BUILD_CFGS.items()):
@@ -254,33 +387,38 @@ def check_build_sh(path=BUILD):
             bad.append(f"build.sh has no cfg_{name}")
             continue
         f = recipes[name]
-        _b, c_ns, c_rxq, c_l2, c_lpf = config_shape(cfg_path)
-        got = {"num_streams": int(f.get("--num-streams", 1)),
-               "rx_queues":   int(f["--rx-queues"]),
-               "l2_bytes":    int(f["--l2-bytes"]),
-               "render_lpf":  "--no-render-lpf" not in f}
-        want = {"num_streams": c_ns, "rx_queues": c_rxq, "l2_bytes": c_l2,
-                "render_lpf": c_lpf}
-        for k in sorted(got):
+        local = _entity_gen_dir_agrees(name, cfg_path, f)
+        got = design_flags(f)
+        want = design_flags(parse_flags(design_opts_expected(cfg_path)))
+        got.pop("--entity-gen-dir", None)      # checked above, by basename
+        n_ok = n_pin = 0
+        for k in sorted(set(got) | set(want)):
             pin = PINNED.get(("build.sh", name, k))
+            g, w = got.get(k, "(absent)"), want.get(k, "(absent)")
             if pin is not None:
-                if (got[k], want[k]) != pin[:2]:
+                n_pin += 1
+                if (g, w) != tuple(pin[:2]):
                     msg = (f"cfg_{name}: PINNED divergence on {k} no longer "
-                           f"holds (build.sh {got[k]} / config {want[k]}, "
-                           f"pinned {pin[0]} / {pin[1]}) - revisit the pin")
+                           f"holds (build.sh {g!r} / config {w!r}, pinned "
+                           f"{pin[0]!r} / {pin[1]!r}) - revisit the pin")
                     print("SHAPE DRIFT: " + msg, file=sys.stderr)
-                    bad.append(msg)
+                    local.append(msg)
                 else:
                     print(f"  [sweep-shape] build.sh cfg_{name}: {k} "
-                          f"{got[k]} != config {want[k]} - PINNED, known")
-            elif got[k] != want[k]:
-                msg = (f"cfg_{name}: {k} {got[k]} != "
-                       f"{os.path.basename(cfg_path)} {want[k]}")
+                          f"{g!r} != config {w!r} - PINNED, known")
+            elif g != w:
+                msg = (f"cfg_{name}: design flag {k}: build.sh {g!r} != "
+                       f"config-implied {w!r} (emit_soc_argv of "
+                       f"{os.path.basename(cfg_path)})")
                 print("SHAPE DRIFT: " + msg, file=sys.stderr)
-                bad.append(msg)
+                local.append(msg)
             else:
-                print(f"  [sweep-shape] build.sh cfg_{name}: {k} {got[k]} "
-                      f"== {os.path.basename(cfg_path)}")
+                n_ok += 1
+        if not local:
+            print(f"  [sweep-shape] build.sh cfg_{name}: {n_ok} design flags "
+                  f"agree with {os.path.basename(cfg_path)} flag for flag "
+                  f"({n_pin} PINNED), and --entity-gen-dir names it")
+        bad += local
     return bad
 
 
@@ -367,6 +505,41 @@ def main():
             return 2
         print(f"  [self-test] OK: {len(bad_mut)} drift(s) reported for the "
               "mutated sweep.sh")
+
+        # Negative control for the OTHER branch, and for the exact escape
+        # that widened it: build.sh had no gptp flag at all while every
+        # Linux config emits `--no-fabric-gptp`, and the four-key comparison
+        # could not see a flag it did not name. Each mutation deletes ONE
+        # token from a COPY of build.sh and the gate must report it.
+        build_mutations = [
+            ("--no-fabric-gptp deleted from cfg_ax8x8 (the #116 escape)",
+             "--aaf-playback --no-fabric-gptp", "--aaf-playback"),
+            ("--entity-gen-dir deleted from cfg_arty (recipe cannot launch)",
+             "--entity-gen-dir "
+             "$SOC_DIR/../../configs/generated/endstation_arty_current", ""),
+            ("cfg_ax8x8's --entity-gen-dir repointed at another config",
+             "configs/generated/endstation_ax7101_8x8",
+             "configs/generated/endstation_ax7101_1x1_tdm8"),
+        ]
+        btxt = open(BUILD).read()
+        for why, old, new in build_mutations:
+            if btxt.count(old) != 1:
+                print(f"self-test: {old!r} matched {btxt.count(old)} times "
+                      "in build.sh, want 1", file=sys.stderr)
+                return 2
+            with tempfile.NamedTemporaryFile("w", suffix=".sh",
+                                             delete=False) as f:
+                f.write(btxt.replace(old, new))
+                tmp = f.name
+            try:
+                print(f"  [self-test] {why} - expecting REJECT:")
+                bad_mut = check_build_sh(tmp)
+            finally:
+                os.unlink(tmp)
+            if not bad_mut:
+                print(f"self-test FAILED: {why} was accepted", file=sys.stderr)
+                return 2
+            print(f"  [self-test] OK: {len(bad_mut)} drift(s) reported")
     return 0
 
 

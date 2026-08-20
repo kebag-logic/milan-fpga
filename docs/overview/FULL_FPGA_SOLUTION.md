@@ -354,8 +354,10 @@ cd syn/yosys && ./run.sh                       # every device-portability top (l
 ./sw/litex/milan_sim.py --xlen 32              # build + boot; mem_read 0x90000000 => MILN
 
 # --- the full FPGA SoC (elaborate + export gateware; no vendor tools) ---
-./sw/litex/milan_soc.py --full                 # NIC + DMA + MAC + PHY, RV64
-./sw/litex/milan_soc.py --full --xlen 32       # RV32 fallback (tighter fabric/timing)
+# every datapath elaboration needs its end-station config: --entity-gen-dir
+# supplies the descriptor image, the reserved ppmem window and the gPTP ROM
+./sw/litex/milan_soc.py --full --entity-gen-dir configs/generated/<config>
+./sw/litex/milan_soc.py --full --xlen 32 --entity-gen-dir configs/generated/<config>
 
 # --- the Artix-7 bitstream (needs Vivado with Artix-7 device support  -  see Section 9) ---
 ./sw/litex/milan_soc.py --full --build         # place & route -> .bit

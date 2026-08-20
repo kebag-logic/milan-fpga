@@ -82,6 +82,14 @@ cd litex
 ./milan_soc.py --no-fabric-gptp --build --load  # + program the board
 ```
 
+Every line that elaborates the Milan datapath also needs
+`--entity-gen-dir configs/generated/<config>`: the descriptor image, the
+reserved `ppmem` window and (on a fabric gPTP build) the microcode ROM all
+come from one end-station config, and `milan_soc.py` refuses to launch
+without it. `build.sh` and `sweep.sh` pass it for every named config. The
+gPTP plane itself needs no flag: it follows `--software-profile`, on for
+`baremetal` and off for `linux`.
+
 ## Boot Linux (needs the board / a bitstream)
 
 ```sh

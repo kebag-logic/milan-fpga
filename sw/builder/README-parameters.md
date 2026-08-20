@@ -231,11 +231,25 @@ reserved ring. Physical capture/render, AAF, CRF and loopback fabric remain.
 When `fabric_gptp` is true, the builder requires a `gptp:` section, emits
 `--fabric-gptp`, and writes `gptp_ucode.hex` into the per-config output. The
 ROM's station MAC, priority1 and clock come from the same YAML as the AEM and
-SoC arguments and omits the legacy ptp4l config artifact. Until the sibling
-rootfs retires ptp4l, a Linux profile with `fabric_gptp: true` is refused: two
-PHC owners are never a valid build. The shipping bare-metal AX7101 config
-states the default explicitly; the AX7101 8x8 and Arty Linux profiles state
-`false` and remain the software A/B arm.
+SoC arguments and omits the legacy ptp4l config artifact. The shipping
+bare-metal AX7101 config states the default explicitly; the AX7101 8x8 and
+Arty Linux profiles state `false` and remain the software A/B arm.
+
+The PHC takes exactly one owner, so BOTH ends of that are refused:
+
+- `fabric_gptp: true` with `soc.software_profile: linux` is TWO owners, until
+  the sibling rootfs retires ptp4l.
+- `fabric_gptp: false` with `soc.software_profile: baremetal` is ZERO. That
+  image carries no ptp4l, no phc2sys and no gPTP daemon of any kind
+  (`sw/firmware/milan_baremetal` enables the counter and sets the clock once),
+  so the clock free-runs and `CLKV_STAT` never clears `tu`.
+
+`milan_soc.py` refuses the same two pairs. Its `--fabric-gptp` /
+`--no-fabric-gptp` option has no fixed default and follows
+`--software-profile` instead, so both refusals can only fire on an explicit
+flag and the command line stays runnable with its own defaults. This key
+keeps a fixed `true` default because a config is a durable declaration: a
+Linux profile has to state the exception rather than inherit it.
 
 The tier-1 set contains six
 `milan_datapath` blocks that a given deployment may not be able to use, each

@@ -94,7 +94,11 @@ Since VERSION `0x0002_0055`, the fabric plane is the RTL/builder default and its
 publication bank owns the legacy GM/parent/pdelay read addresses plus
 `tu`/asCapable. The bare-metal firmware sets the PHC epoch explicitly; after
 that, the fabric plane owns adjfine and adjtime. `--no-fabric-gptp` is retained
-only for software-plane bring-up comparison.
+only for software-plane bring-up comparison, and it is refused on THIS profile:
+the bare-metal image carries no BMCA, no servo and no gPTP daemon, so turning
+the fabric engine off leaves the PHC with no owner at all. `milan_soc.py`
+defaults the option from `--software-profile` for the same reason, so a
+bare-metal command line that says nothing about gPTP builds the fabric plane.
 
 ## UART commands
 

@@ -159,16 +159,27 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
                  # context (deleted 2026-08-13 with the legacy plane). Result
                  # 2026-07-24: WNS +0.080, LUT 85.15%, TNS 0 (all seeds close).
     echo "--board ax7101 --cpu vexiiriscv --cpu-count 1 --software-profile linux \
-          --all-blocks --coherent-dma --sound-card --no-fabric-gptp \
+          --all-blocks --coherent-dma --sound-card \
           --milan-clk-freq 100e6 --with-spiflash --flashboot full --gtx-tx-invert \
           --timing-opt --floorplan --l2-bytes 16384 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --num-streams 8 --audio-interface tdm32 --audio-interface-master \
           --talker-wire-chans 8 --no-latency-taps --no-i2s-playback \
-          --aaf-playback \
+          --aaf-playback --no-fabric-gptp \
+          --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_8x8 \
           --no-render-lpf --cbs-queues-mask 0x18 --synth-directive AreaOptimized_high \
           --opt-directive ExploreArea --place-directive AltSpreadLogic_high"
+                 # --no-fabric-gptp: this profile is Linux, its rootfs still
+                 # starts ptp4l, and the PHC takes exactly ONE owner. Stated
+                 # rather than left to the default so the recipe and
+                 # configs/endstation_ax7101_8x8.yaml carry the same fact;
+                 # check_sweep_shape.py compares the two flag for flag.
+                 # --entity-gen-dir: the descriptor image, the platform shape
+                 # and (on a fabric build) the gPTP ROM all come from the
+                 # config named in ENTITY_CFG_ax8x8 below. Without it
+                 # milan_soc.py refuses the launch, so this recipe could not
+                 # be run at all.
                  # --aaf-playback (task #31, 2026-08-02) = KL_pcm_tx host
                  # playback ring -> the chmap capture RING bucket: the ALSA
                  # playback direction (snd-kl-milan pb-dma window; DT
@@ -199,12 +210,17 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
     # both boards; the old kernel-at-0 / JTAG-SRAM-only layout died with the
     # manifest-full port - see board_facts above + docs/integration/QSPI_FLASHBOOT.md).
     echo "--board arty --cpu vexiiriscv --cpu-count 2 --software-profile linux \
-          --all-blocks --coherent-dma --sound-card --no-fabric-gptp \
+          --all-blocks --coherent-dma --sound-card \
           --sys-clk-freq 83.333e6 --milan-clk-freq 50e6 --with-spiflash --flashboot full \
           --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 65536 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
           --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16 \
-          --rx-queues 2 --hs-page-bytes 16384"
+          --rx-queues 2 --hs-page-bytes 16384 --no-fabric-gptp \
+          --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_arty_current"
+                 # --no-fabric-gptp / --entity-gen-dir: same two reasons as
+                 # cfg_ax8x8 above. Linux profile, one PHC owner, and the
+                 # config named in ENTITY_CFG_arty supplies the descriptor
+                 # image and platform shape this build cannot start without.
 }
 
 SWEEP_DIRECTIVES="ExtraPostPlacementOpt AltSpreadLogic_high ExtraTimingOpt"

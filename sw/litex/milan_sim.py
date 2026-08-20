@@ -109,8 +109,14 @@ class MilanSimSoC(SimSoC):
         desc_base, resp_base = _pp_windows_for_sim(ram.origin, ram.size,
                                                    entity_gen_dir)
         irq_csr = Signal()
+        # gptp_plane is STATED, not inherited: add_milan_datapath raises
+        # without it, exactly as it does for the two bases, because a default
+        # can only mask a caller that stopped passing the value. This sim
+        # elaborates the product shape, so the fabric plane is on and reads
+        # the same config's gptp_ucode.hex.
         add_milan_datapath(self, self.platform, axil, irq_csr,
                            desc_base=desc_base, resp_base=resp_base,
+                           gptp_plane=True,
                            entity_gen_dir=entity_gen_dir)
 
         # Fast, deterministic boot to the prompt (this sim exists to read one register).

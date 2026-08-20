@@ -20,12 +20,30 @@ record) carry the engine's internals and measured cost.
 ## The shape
 
 `GPTP_PLANE_EN_P` (milan_datapath parameter, DEFAULT ON) elaborates
-`KL_gptp_shadow` with four seams. The end-station builder's omitted feature is
-on; the direct LiteX CLI resolves an omitted owner from the software profile:
-bare-metal selects fabric and Linux selects the retained software comparison
-arm. Named Linux recipes still state `--no-fabric-gptp` so their ownership is
-visible at the call site. An explicit Linux plus fabric-gPTP request is rejected
-because two PHC owners are not a valid image.
+`KL_gptp_shadow` with four seams. Both entry points always pass the chosen
+value into RTL, and each refuses a request that would leave the PHC with two
+owners or none. `--no-fabric-gptp` (or `board.features.fabric_gptp: false`) is
+the retained software comparison arm.
+
+The two entry points reach that value differently, deliberately:
+
+- `milan_soc.py --fabric-gptp` / `--no-fabric-gptp` has NO fixed default. It
+  follows `--software-profile`: on for `baremetal` (whose firmware runs no
+  gPTP protocol at all, so the fabric engine is the only candidate owner),
+  off for `linux` (whose rootfs still starts `ptp4l`). A command line must be
+  runnable with its own defaults, and a fixed default made `./milan_soc.py`
+  with no arguments a hard `ap.error`. Named Linux recipes still state
+  `--no-fabric-gptp` so their ownership is visible at the call site.
+- `board.features.fabric_gptp` defaults to `true` on every profile, so a
+  Linux end-station config has to STATE the exception. A YAML config is a
+  durable declaration rather than a transient command, and a silent legacy
+  plane is the wrong thing for it to inherit.
+
+Both then refuse both failure modes: Linux plus fabric is two PHC owners, and
+`baremetal` plus `--no-fabric-gptp` (or `fabric_gptp: false`) is zero. The
+bare-metal image carries no BMCA, no servo and no daemon, so a zero-owner
+build is not a weaker shape but an unsynchronisable one: the clock free-runs
+and `CLKV_STAT` never clears `tu`.
 
 The option also carries `GPTP_UCODE_HEX_P`. In a shipping SoC build this is an
 absolute path to the builder's per-config 1,024-word image, generated from the

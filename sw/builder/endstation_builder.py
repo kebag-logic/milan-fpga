@@ -3729,6 +3729,12 @@ def load_config(path):
             "board.features.fabric_gptp requires a gptp: section so the "
             "microcode station identity and priority cannot fall back to "
             "generator defaults")
+    # PHC OWNERSHIP, BOTH WAYS. The clock takes exactly one owner, so the
+    # two-owner refusal below needs its mirror: a profile that carries no
+    # gPTP software AND no fabric engine has ZERO owners, which is not a
+    # weaker shape but an unsynchronisable one. It builds a handoff whose
+    # gptp.cfg names a daemon the image does not contain, and on the wire the
+    # clock free-runs and tu never clears.
     if features["fabric_gptp"] and soc["software_profile"] == "linux":
         raise ConfigError(
             "board.features.fabric_gptp: true is incompatible with "
@@ -3736,6 +3742,16 @@ def load_config(path):
             "ptp4l: the fabric engine and software daemon would both own "
             "the PHC. Select the explicit software comparison with "
             "fabric_gptp: false, or use the baremetal fabric profile.")
+    if not features["fabric_gptp"] and soc["software_profile"] == "baremetal":
+        raise ConfigError(
+            "board.features.fabric_gptp: false leaves "
+            "soc.software_profile: baremetal with NO PHC owner: that image "
+            "carries no ptp4l, no phc2sys and no gPTP daemon of any kind "
+            "(sw/firmware/milan_baremetal enables the counter and sets the "
+            "clock once), and this config elaborates no fabric engine "
+            "either, so the clock free-runs and CLKV_STAT never clears tu. "
+            "Select fabric_gptp: true, or soc.software_profile: linux for "
+            "the explicit software comparison.")
 
     out = dict(
         source=os.path.relpath(path, ROOT),

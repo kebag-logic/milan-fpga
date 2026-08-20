@@ -11,7 +11,10 @@
 #   ./milan_soc.py --with-dma / --with-mac # attach just one boundary
 #   ./milan_soc.py --no-milan              # bare SoC (bring-up smoke; self-contained)
 #   ./milan_soc.py --software-profile baremetal --cpu vexiiriscv --xlen 32 \
-#       --with-spiflash --flashboot baremetal
+#       --with-spiflash --flashboot baremetal \
+#       --entity-gen-dir configs/generated/<config>
+#     (baremetal defaults the fabric gPTP plane ON, and that plane reads the
+#      end-station builder's gptp_ucode.hex, so it needs its config)
 #   ./milan_soc.py --full --build          # + run Vivado P&R -> bitstream (needs Artix-7)
 #   ./milan_soc.py --full --build --load   # + program the board
 #
@@ -497,7 +500,7 @@ class MilanNIC(LiteXModule):
                  desc_base=None, resp_base=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
-                 audio_if_i2s_pair=False, gptp_plane=True, sound_card=False,
+                 audio_if_i2s_pair=False, gptp_plane=None, sound_card=False,
                  aaf_playback=False, aaf_pb_streams=1,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
@@ -734,7 +737,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
                        talker_wire_chans=2, audio_if_master=False,
                        audio_if_i2s_pair=False,
-                       gptp_plane=True,
+                       gptp_plane=None,
                        sound_card=False, aaf_playback=False, aaf_pb_streams=1,
                        loopback_lane=False,
                        render_lpf=True,
@@ -856,6 +859,21 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     # and not one more declaration.
     # milan-fpga/ root - used by the source list AND the processor ROM path
     base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # milan-fpga/
+    # WHICH PLANE OWNS THE PHC IS NOT OPTIONAL, and it RAISES rather than
+    # defaulting, for the same reason desc_base does below: a default here can
+    # only ever mask a caller that stopped forwarding the value, and the two
+    # failure modes are silent in opposite directions - a default of 1 ships a
+    # gPTP engine a legacy build did not ask for, a default of 0 ships the
+    # bare-metal product with NO time source. Both elaborate cleanly and
+    # neither prints anything. Every caller states it: main() from the parsed
+    # --fabric-gptp, milan_sim.py from its own line.
+    if gptp_plane is None:
+        raise RuntimeError(
+            "add_milan_datapath needs gptp_plane=: which plane owns the PHC "
+            "is a per-build fact (milan_soc.main() resolves it from "
+            "--fabric-gptp and --software-profile), and inheriting it from a "
+            "default is how a carrier stops being forwarded without anything "
+            "noticing. Pass gptp_plane=True or gptp_plane=False.")
     dp_params = dict(p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
                      p_N_STREAMS=int(num_streams),
                      p_AUDIO_IF_SLOTS_P=int(audio_if_slots),
@@ -5652,7 +5670,7 @@ class MilanSoC(SoCCore):
                  loopback_lane=False,
                  bus_standard="wishbone",
                  software_profile="linux",
-                 gptp_plane=True,
+                 gptp_plane=None,
                  render_lpf=True, optional_blocks=None,
                  cbs_queues_mask=None, entity_gen_dir=None, **kwargs):
         # ---- RISC-V core(s). Two cores are supported, selected by
@@ -6137,7 +6155,10 @@ class MilanSoC(SoCCore):
                                   # never assigns them)
                                   audio_if_i2s_pair=(self.tdm_pads is not None
                                                      and _dma_i2s is not None),
-                                  gptp_plane=bool(gptp_plane),
+                                  # NOT bool()-normalised here: add_milan_datapath
+                                  # RAISES on None, and bool(None) would turn a
+                                  # dropped forward into a silent legacy build.
+                                  gptp_plane=gptp_plane,
                                   sound_card=bool(sound_card),
                                   aaf_playback=aaf_pb,
                                   aaf_pb_streams=int(aaf_pb_streams),
@@ -6723,19 +6744,25 @@ def main():
                     help="elaborate the Linux ALSA host surface: listener PCM capture "
                          "ring/CSR bank and, with --aaf-playback, host playback rings. "
                          "Default absent; AAF/TDM/I2S/render/loopback fabric remains.")
+    # WHO OWNS THE PHC. Exactly one plane may discipline the clock, and which
+    # planes EXIST is a property of --software-profile, so this option has no
+    # fixed default: it FOLLOWS THE PROFILE (see the resolution below). A
+    # fixed True default made `./milan_soc.py` with no arguments at all a hard
+    # ap.error - the entry point could not be run with its own defaults, and
+    # build.sh cfg_ax8x8 / cfg_arty aborted before elaboration.
     gptp_group = ap.add_mutually_exclusive_group()
     gptp_group.add_argument("--fabric-gptp", dest="fabric_gptp",
                             action="store_true",
-                            help="use the fabric gPTP plane (product default) and "
-                                 "the builder's MAC/priority/clock-specific ROM")
+                            help="use the fabric gPTP plane (the baremetal "
+                                 "profile's default) and the builder's "
+                                 "MAC/priority/clock-specific ROM")
     gptp_group.add_argument("--no-fabric-gptp", dest="fabric_gptp",
                             action="store_false",
                             help="retain the legacy ptp4l/statd publication path "
-                                 "for bring-up comparison")
-    # Keep an omitted owner coherent with the selected software image. The
-    # bare-metal product gets the fabric default; the still-live Linux rootfs
-    # gets the explicit comparison owner unless the caller asks (and is then
-    # refused) for an unsafe two-owner image.
+                                 "for bring-up comparison (the linux profile's "
+                                 "default)")
+    # Omission follows the software profile; explicit ownership mismatches
+    # are refused after parsing below.
     ap.set_defaults(fabric_gptp=None)
     ap.add_argument("--no-render-lpf", action="store_true",
                     help="AREA LEVER (banked, docs/design/AREA_BUDGET.md): prune "
@@ -6960,9 +6987,6 @@ def main():
     builder_args(ap)
     args = ap.parse_args()
 
-    if args.fabric_gptp is None:
-        args.fabric_gptp = args.software_profile == "baremetal"
-
     if args.software_profile == "baremetal":
         if args.cpu != "vexiiriscv" or args.xlen != 32 or args.cpu_count != 1:
             ap.error("--software-profile baremetal requires --cpu vexiiriscv "
@@ -6974,13 +6998,45 @@ def main():
             ap.error("--software-profile baremetal uses --flashboot baremetal (or none)")
     elif args.flashboot == "baremetal":
         ap.error("--flashboot baremetal requires --software-profile baremetal")
+    # ---- PHC OWNERSHIP: EXACTLY ONE. The clock has to be disciplined by one
+    #      plane, and the profile decides which planes are even present, so
+    #      the fabric option DEFAULTS TO THE PROFILE instead of to a fixed
+    #      value:
+    #
+    #        baremetal -> fabric ON. The bare-metal firmware runs no gPTP
+    #                     protocol at all (sw/firmware/milan_baremetal: the
+    #                     counter is enabled and the clock set once), so the
+    #                     fabric engine is the ONLY candidate owner.
+    #        linux     -> fabric OFF. The rootfs still starts ptp4l, which is
+    #                     the owner until the sibling rootfs retirement lands
+    #                     (docs/design/GPTP_PLANE.md).
+    #
+    #      Both refusals below can therefore only fire on an EXPLICIT flag,
+    #      which is what keeps `./milan_soc.py` with no arguments, build.sh
+    #      cfg_ax8x8 and build.sh cfg_arty runnable. Every tracked config and
+    #      both sweep.sh legs still state the flag explicitly, so no argv the
+    #      builder emits depends on this default.
+    #
+    #      `--no-milan` elaborates no datapath, so it has no PHC to own and
+    #      neither refusal applies to it.
+    gptp_explicit = args.fabric_gptp is not None
+    if not gptp_explicit:
+        args.fabric_gptp = (args.software_profile == "baremetal"
+                            and not args.no_milan)
+    if args.fabric_gptp and args.no_milan:
+        ap.error("--fabric-gptp requires the Milan datapath")
     if args.fabric_gptp and args.software_profile == "linux":
         ap.error("--fabric-gptp is incompatible with --software-profile linux "
                  "while the rootfs still starts ptp4l: the fabric engine and "
                  "software daemon would both own the PHC; use "
                  "--no-fabric-gptp or the baremetal profile")
-    if args.fabric_gptp and args.no_milan:
-        ap.error("--fabric-gptp requires the Milan datapath")
+    if (not args.fabric_gptp and args.software_profile == "baremetal"
+            and not args.no_milan):
+        ap.error("--no-fabric-gptp leaves --software-profile baremetal with NO "
+                 "PHC owner: the bare-metal firmware carries no BMCA, no servo "
+                 "and no gPTP daemon, so the clock would free-run and "
+                 "CLKV_STAT would never clear tu; drop --no-fabric-gptp or "
+                 "select --software-profile linux")
 
     # ---- L1 BINDING REFUSAL: the board must ROUTE the front-end it is asked
     #      for. BEFORE the platform is built, so an unbackable request is a

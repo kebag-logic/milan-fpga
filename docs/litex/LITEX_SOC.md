@@ -234,7 +234,13 @@ hand-check only.
 cd sw/litex
 # ship shape: 1-hart VexiiRiscv + L2-32K, datapath @ 100 MHz
 ./milan_soc.py --all-blocks --coherent-dma --milan-clk-freq 100e6 \
-               --gtx-tx-invert --timing-opt --cpu vexiiriscv --l2-bytes 32768
+               --gtx-tx-invert --timing-opt --cpu vexiiriscv --l2-bytes 32768 \
+               --entity-gen-dir ../../configs/generated/<config>
+               # --entity-gen-dir is NOT optional: the descriptor image, the
+               # reserved ppmem window and the gPTP ROM all come from one
+               # end-station config and milan_soc.py refuses to launch
+               # without it. The gPTP plane itself needs no flag; it follows
+               # --software-profile (on for baremetal, off for linux).
                # add --build to run Vivado P&R; without it, elaboration +
                # gateware/Verilog export runs with NO vendor tools
                # (SUPERSEDED perf-lineage: --cpu-count 2 for dual-hart SMP / L2-64K)

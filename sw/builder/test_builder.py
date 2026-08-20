@@ -656,29 +656,55 @@ def test_gptp_product_default_and_legacy_option():
         assert "RTL default" not in lr["plan"]
         assert "until #116" not in lr["plan"]
 
-    conflict = _variant(
-        CONFIGS["ax7101_8x8"], lambda c: _prune(c, fabric_gptp=True))
-    try:
+    # BOTH refusals, because the PHC takes EXACTLY one owner and a missing
+    # mirror is as buildable as a missing guard. Two owners: Linux ptp4l plus
+    # the fabric engine. ZERO owners: the bare-metal image, which carries no
+    # gPTP software at all, with the fabric engine elaborated out.
+    owners = (
+        ("two", "ax7101_8x8", dict(fabric_gptp=True),
+         ("software_profile: linux", "both own the PHC")),
+        ("zero", "ax7101_1x1_tdm8", dict(fabric_gptp=False),
+         ("software_profile: baremetal", "NO PHC owner")),
+    )
+    for label, base, feats, wanted in owners:
+        path = _variant(CONFIGS[base], lambda c, f=feats: _prune(c, **f))
         try:
-            eb.load_config(conflict)
-        except eb.ConfigError as e:
-            msg = str(e)
-            assert "software_profile: linux" in msg
-            assert "both own the PHC" in msg
-        else:
-            raise AssertionError("Linux ptp4l plus fabric gPTP was accepted")
-    finally:
-        os.unlink(conflict)
+            try:
+                eb.load_config(path)
+            except eb.ConfigError as e:
+                msg = str(e)
+                for want in wanted:
+                    assert want in msg, \
+                        f"{label}-owner refusal does not name {want!r}: {msg}"
+            else:
+                raise AssertionError(
+                    f"a {label}-PHC-owner config was accepted")
+        finally:
+            os.unlink(path)
 
+    # The milan_soc.py half. WHAT IS PINNED HERE IS SPELLING ONLY - that the
+    # two refusals and the profile-following default exist in the source at
+    # all. That the parsed value REACHES p_GPTP_PLANE_EN_P is gate 1e's, by
+    # elaboration, because no amount of grepping can prove it (measured: two
+    # different severances of the argv -> Instance chain left this gate, and
+    # every other gate in this file, green).
     soc_source = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
     assert "p_GPTP_PLANE_EN_P=int(bool(gptp_plane))" in soc_source
-    assert 'ap.set_defaults(fabric_gptp=None)' in soc_source
-    assert ('args.fabric_gptp = args.software_profile == "baremetal"'
-            in soc_source)
+    assert 'ap.set_defaults(fabric_gptp=None)' in soc_source, (
+        "milan_soc.py must default --fabric-gptp to None so the profile can "
+        "resolve it; a FIXED default makes one profile's bare invocation a "
+        "hard ap.error (`./milan_soc.py` with no arguments, build.sh "
+        "cfg_ax8x8 and build.sh cfg_arty all exited 2 under `True`)")
     assert '"--no-fabric-gptp"' in soc_source
+    assert ('args.fabric_gptp = (args.software_profile == "baremetal"'
+            in soc_source), \
+        "milan_soc.py no longer resolves --fabric-gptp from the profile"
     assert ('args.fabric_gptp and args.software_profile == "linux"'
             in soc_source)
     assert "would both own the PHC" in soc_source
+    assert ('not args.fabric_gptp and args.software_profile == "baremetal"'
+            in soc_source), \
+        "milan_soc.py has no zero-PHC-owner refusal"
 
     # Execute the two retained Linux recipe functions, not merely a source
     # substring: their emitted argv is what build.sh passes to milan_soc.py.
@@ -705,9 +731,10 @@ def test_gptp_product_default_and_legacy_option():
         if line.startswith("./milan_soc.py"):
             assert "--no-fabric-gptp" in line
     print("  [gate 1c] fabric gPTP is the omission/default on the bare-metal "
-          "product and emits its ROM; direct Linux omission resolves to the "
-          "software owner, every retained Linux recipe is explicitly "
-          "--no-fabric-gptp, and a two-owner request is rejected")
+          "product and emits its ROM; the Linux comparison is explicit "
+          "--no-fabric-gptp, retains ptp4l config; the default FOLLOWS the "
+          "software profile, and both a two-owner (Linux+fabric) and a "
+          "zero-owner (baremetal+no-fabric) request are rejected")
 
 
 def test_gptp_rootfs_handoff_preserves_software_config():
@@ -729,6 +756,374 @@ def test_gptp_rootfs_handoff_preserves_software_config():
         assert not os.path.exists(os.path.join(out, "gptp.cfg"))
     print("  [gate 1d] fabric ownership handoff preserves the sibling "
           "software-plane gptp config byte-for-byte")
+
+
+# =============================================================== gate 1e ====
+#  THE PHC-OWNERSHIP BEHAVIOURAL PROOF (issue #116).
+#
+#  Gate 1c is a SPELLING proof: it greps milan_soc.py for the flag, the
+#  refusals and the p_GPTP_PLANE_EN_P assignment. FOUR HOPS stand between the
+#  parsed value and the parameter the RTL reads, all of them inside that one
+#  file:
+#
+#      main()              -> MilanSoC(gptp_plane=args.fabric_gptp)
+#      MilanSoC.__init__   -> MilanNIC(gptp_plane=gptp_plane)
+#      MilanNIC.__init__   -> add_milan_datapath(gptp_plane=gptp_plane)
+#      add_milan_datapath  -> dp_params["p_GPTP_PLANE_EN_P"] = int(bool(...))
+#                          -> Instance("milan_datapath", **dp_params)
+#
+#  The three Python-level defaults on that chain are None, not True or False,
+#  and add_milan_datapath RAISES on None. A default there could only ever mask
+#  a caller that stopped forwarding, and it would do so SILENTLY in whichever
+#  direction it was written.
+#
+#  A value dropped or tied on any of them is INVISIBLE to a text gate, and
+#  that is measured, not feared: on 2026-08-20 the reviewer of PR #135 cut the
+#  chain at TWO independent hops and this whole file still printed ALL GATES
+#  PASS, as did check_soc_sources.py and check_sweep_shape.py. With the plane
+#  silently off, add_milan_datapath also drops p_GPTP_UCODE_HEX_P, so the
+#  build stays internally consistent and nothing complains. On the bare-metal
+#  shipping profile there is no ptp4l to fall back on, so the product of that
+#  silence is a BITSTREAM WITH NO TIME SOURCE and no build-time signal.
+#
+#  This is the same defect class as the tier-1 prune flags (#130) and the
+#  boot-gate work (#143), so it is closed the same way rather than a third
+#  way: `Instance` is patched IN THE EXECUTED MODULE'S NAMESPACE and the live
+#  p_* keyword arguments are read out of a REAL milan_soc.py main(). Nothing
+#  is re-implemented and nothing is pattern-matched - what is graded is what
+#  the elaboration would hand Vivado. Vivado never runs; the spy raises the
+#  moment the Instance is constructed, about 0.9 s after the process starts.
+#
+#  BOTH PROFILES AND BOTH POLARITIES, and the DEFAULT as well as the flag:
+#  since #116 the option follows --software-profile, so "baremetal with no
+#  gptp argument" and "baremetal --fabric-gptp" must reach the Instance
+#  IDENTICALLY, and likewise for the two linux cases. That pair equality is
+#  what makes a default that silently stopped following the profile fail here.
+#
+#  IT NEEDS LiteX, and CI has none (gate 23e says so in as many words). On a
+#  bare container this SKIPS with a message and gate 1c remains the CI-side
+#  guard; on the bench it runs against the interpreter sweep.sh itself puts on
+#  PATH, READ OUT OF sweep.sh rather than restated here, or against
+#  $MILAN_LITEX_PYTHON.
+
+#: The child program. It runs under the LiteX interpreter, execs
+#: milan_soc.py's SOURCE (optionally mutated) as a module whose __file__ is
+#: the real path - so REPO_ROOT, the platforms/ search path and every
+#: generated-image lookup resolve exactly as they do in a build - patches that
+#: module's own `Instance` to a spy, and calls main(). The result goes to a
+#: FILE, never to stdout: add_milan_datapath spawns the ACMP/AECP image
+#: generators as SUBPROCESSES and their output reaches fd 1 whatever this
+#: process redirects.
+_GPTP_INSTANCE_PROBE = r'''
+import contextlib, io, json, logging, os, sys, types
+
+spec = json.load(open(sys.argv[1], encoding="utf-8"))
+soc_path = spec["soc_path"]
+source = open(soc_path, encoding="utf-8").read()
+for old, new, want in spec["mutations"]:
+    got = source.count(old)
+    if got != want:
+        raise SystemExit("mutation %r matched %d times, want %d"
+                         % (old, got, want))
+    source = source.replace(old, new)
+
+logging.disable(logging.CRITICAL)
+sys.path.insert(0, os.path.dirname(soc_path))
+
+
+class _Reached(Exception):
+    """Carries the parameters Instance("milan_datapath", ...) was given."""
+
+    def __init__(self, params):
+        Exception.__init__(self)
+        self.params = params
+
+
+mod = types.ModuleType("milan_soc_gptp_probe")
+mod.__file__ = soc_path
+sys.modules[mod.__name__] = mod
+exec(compile(source, soc_path, "exec"), mod.__dict__)
+_real_instance = mod.Instance
+
+
+def _spy(*args, **kwargs):
+    if args and args[0] == "milan_datapath":
+        raise _Reached({k: v for k, v in kwargs.items() if k.startswith("p_")})
+    return _real_instance(*args, **kwargs)
+
+
+mod.Instance = _spy
+sys.argv = ["milan_soc.py"] + spec["argv"]
+sink = io.StringIO()
+try:
+    with contextlib.redirect_stdout(sink), contextlib.redirect_stderr(sink):
+        mod.main()
+    out = {"error": 'no Instance("milan_datapath") was constructed'}
+except _Reached as reached:
+    out = {"params": reached.params}
+except SystemExit as exc:
+    out = {"exit": exc.code, "stderr": sink.getvalue()[-2000:]}
+except BaseException as exc:            # reported to the gate, not raised
+    out = {"error": "%s: %s" % (type(exc).__name__, exc)}
+
+with open(spec["result"], "w", encoding="utf-8") as fh:
+    json.dump(out, fh)
+'''
+
+#: sw/litex, the directory every real build runs milan_soc.py from.  NOT the
+#: LiteX repo parent: `import litex` from there resolves to the checkout
+#: directory as a namespace package and the import fails.
+SOC_DIR = os.path.join(ROOT, "sw/litex")
+
+
+def _litex_python():
+    """An interpreter that can import migen + litex + litex_boards, or None.
+
+    Search order: $MILAN_LITEX_PYTHON (a path), this interpreter, then the
+    venv sweep.sh puts on PATH for every real build - READ OUT OF sweep.sh,
+    never restated here, because a second spelling of the build interpreter
+    is a second thing that has to stay true.
+    """
+    cands = [os.environ.get("MILAN_LITEX_PYTHON"), sys.executable]
+    m = re.search(r'export PATH="?\$HOME/([^/"\s:]+)/venv/bin',
+                  open(SWEEP).read())
+    if m:
+        cands.append(os.path.join(os.path.expanduser("~"), m.group(1),
+                                  "venv", "bin", "python3"))
+    for cand in cands:
+        if not cand or not os.path.exists(cand):
+            continue
+        if subprocess.run([cand, "-c", "import migen, litex, litex_boards"],
+                          cwd=SOC_DIR, capture_output=True).returncode == 0:
+            return cand
+    return None
+
+
+def _gptp_instance_params(python, runs, mutations=()):
+    """{label: {"params"|"exit"|"error": ...}} for each (label, argv) run.
+
+    ONE CHILD PROCESS PER RUN, deliberately: migen/LiteX accumulate enough
+    per-elaboration state that repeated SoCs in one interpreter cost several
+    times the first, and a fresh process is flat at ~0.9 s. PYTHONHASHSEED is
+    pinned because the CPU wrapper builds its argument string from a SET, and
+    an unpinned seed misses the pinned core's netlist cache.
+    """
+    env = dict(os.environ, PYTHONHASHSEED="0")
+    out = {}
+    with tempfile.TemporaryDirectory() as tmp:
+        for label, argv in runs:
+            spec = os.path.join(tmp, "spec.json")
+            result = os.path.join(tmp, "result.json")
+            if os.path.exists(result):
+                os.unlink(result)
+            with open(spec, "w") as fh:
+                json.dump({"soc_path": os.path.join(SOC_DIR, "milan_soc.py"),
+                           "result": result, "argv": argv,
+                           "mutations": [list(m) for m in mutations]}, fh)
+            proc = subprocess.run([python, "-", spec],
+                                  input=_GPTP_INSTANCE_PROBE, text=True,
+                                  cwd=SOC_DIR, env=env, capture_output=True)
+            assert os.path.exists(result), (
+                f"{label}: the milan_soc.py probe wrote no result "
+                f"(rc={proc.returncode})\n{proc.stdout[-2000:]}"
+                f"\n{proc.stderr[-2000:]}")
+            with open(result) as fh:
+                out[label] = json.load(fh)
+    return out
+
+
+#: gate 1e's cases: (label, config key, extra argv, expected plane state).
+#: `None` for the flag means PASS NO GPTP ARGUMENT AT ALL, i.e. exercise the
+#: profile-following default. The baremetal config is the shipping AX shape;
+#: the linux one is the 8x8 comparison build.
+GPTP_PLANE_CASES = [
+    ("baremetal default",  "ax7101_1x1_tdm8", None,                 1),
+    ("baremetal explicit", "ax7101_1x1_tdm8", "--fabric-gptp",      1),
+    ("linux default",      "ax7101_8x8",      None,                 0),
+    ("linux explicit",     "ax7101_8x8",      "--no-fabric-gptp",   0),
+]
+
+
+def _gptp_runs():
+    """(runs, gen dirs) for GPTP_PLANE_CASES, off each config's REAL argv.
+
+    The baseline is the end-station builder's own emitted argv with the gptp
+    token removed, so every case differs from a real shipping command line by
+    exactly the token under test.
+    """
+    runs, gens = [], {}
+    for label, key, flag, _want in GPTP_PLANE_CASES:
+        if key not in gens:
+            eb.build(CONFIGS[key], OUT)          # what --entity-gen-dir reads
+            cfg = eb.load_config(CONFIGS[key])
+            gen = os.path.join(ROOT, "configs/generated", cfg["name"])
+            assert os.path.isdir(gen), \
+                f"{gen}: this config has no generated include dir"
+            gens[key] = (cfg, gen, [a for a in eb.emit_soc_argv(cfg)
+                                    if a not in ("--fabric-gptp",
+                                                 "--no-fabric-gptp")])
+        cfg, gen, base = gens[key]
+        runs.append((label, base + ([flag] if flag else []) +
+                     ["--entity-gen-dir", gen]))
+    return runs, gens
+
+
+def _gptp_plane_contract(got):
+    """Every PHC-ownership violation in one probe result set, as text.
+
+    ONE grader, shared by the gate and by its negative controls, so a
+    severance is proved to turn THE GATE red rather than some weaker
+    restatement of it.
+    """
+    bad = []
+    seen = {}
+    for label, _key, _flag, want in GPTP_PLANE_CASES:
+        row = got.get(label)
+        if row is None:
+            continue
+        if "params" not in row:
+            why = row.get("error") or (row.get("stderr") or "").strip()
+            bad.append(f"{label}: this argv never reached "
+                       f'Instance("milan_datapath") at all: '
+                       f"{why.splitlines()[-1] if why else row}")
+            continue
+        p = row["params"]
+        seen[label] = p
+        en = p.get("p_GPTP_PLANE_EN_P", "<absent>")
+        if en != want:
+            bad.append(
+                f"{label}: the argv asked for the fabric plane "
+                f"{'ON' if want else 'OFF'} but "
+                f'Instance("milan_datapath") got p_GPTP_PLANE_EN_P={en!r} - '
+                "the flag is decorative and the bitstream ships the other "
+                "plane state (with no ptp4l behind it on baremetal, that is "
+                "a bitstream with no time source)")
+        has_rom = "p_GPTP_UCODE_HEX_P" in p
+        if has_rom != bool(want):
+            bad.append(
+                f"{label}: p_GPTP_UCODE_HEX_P is "
+                f"{'present' if has_rom else 'absent'} while the plane is "
+                f"{'ON' if want else 'OFF'} - the engine and its microcode "
+                "ROM must be elaborated together")
+        if want and has_rom and not os.path.isabs(p["p_GPTP_UCODE_HEX_P"]):
+            bad.append(f"{label}: p_GPTP_UCODE_HEX_P is not absolute; Vivado "
+                       "resolves $readmemh against ITS run directory and a "
+                       "relative name silently yields a zero ROM")
+    # The DEFAULT must reach the Instance exactly as the explicit flag does.
+    for a, b in (("baremetal default", "baremetal explicit"),
+                 ("linux default", "linux explicit")):
+        if a in seen and b in seen and seen[a] != seen[b]:
+            diff = sorted(k for k in set(seen[a]) | set(seen[b])
+                          if seen[a].get(k) != seen[b].get(k))
+            bad.append(f"{a}: omitting the flag reaches a DIFFERENT Instance "
+                       f"than {b}: {diff} - the profile-following default no "
+                       "longer resolves to the same plane state")
+    return bad
+
+
+def test_gptp_plane_reaches_the_instance():
+    """Gate 1e - the argv -> Instance("milan_datapath") proof for #116.
+
+    Both profiles, both polarities, flag and default, graded on the
+    parameters that actually reach the Instance in a real elaboration."""
+    python = _litex_python()
+    if python is None:
+        print("  [gate 1e] SKIP PHC-ownership behavioural proof: no "
+              "interpreter here can import migen + litex + litex_boards "
+              "(point MILAN_LITEX_PYTHON at one). Gate 1c holds the spelling "
+              "half structurally, and CI runs no LiteX")
+        return
+    runs, _gens = _gptp_runs()
+    got = _gptp_instance_params(python, runs)
+    bad = _gptp_plane_contract(got)
+    assert not bad, "gate 1e:\n  " + "\n  ".join(bad)
+    print(f"  [gate 1e] {len(runs)} real milan_soc.py elaborations: "
+          "--fabric-gptp lands as p_GPTP_PLANE_EN_P=1 with an absolute "
+          "p_GPTP_UCODE_HEX_P, --no-fabric-gptp lands as 0 with no ROM, and "
+          "on BOTH profiles omitting the flag reaches a byte-identical "
+          "Instance to stating it (the profile-following default)")
+
+
+#: gate 1e negative controls: (why, source mutation, labels that must redden).
+#: Each row severs ONE link of the argv -> Instance chain. The first two are
+#: the exact cuts the PR #135 reviewer made on 2026-08-20, both of which left
+#: this entire file, check_soc_sources.py and check_sweep_shape.py green.
+GPTP_CHAIN_MUTATIONS = [
+    ("main() hands MilanSoC a literal instead of the parsed flag",
+     [("gptp_plane=args.fabric_gptp", "gptp_plane=False", 1)],
+     ["baremetal default", "baremetal explicit"]),
+    # The two forwards differ only by indentation, so each anchor carries the
+    # preceding newline: without it the 27-space string is a substring of the
+    # 34-space one and the probe's own count check rejects the mutation.
+    ("MilanSoC ties the plane off on its way to MilanNIC",
+     [("\n" + " " * 34 + "gptp_plane=gptp_plane,\n",
+       "\n" + " " * 34 + "gptp_plane=False,\n", 1)],
+     ["baremetal default", "baremetal explicit"]),
+    ("MilanNIC never forwards gptp_plane to add_milan_datapath",
+     [("\n" + " " * 27 + "gptp_plane=gptp_plane,\n", "\n", 1)],
+     ["baremetal explicit", "linux default"]),
+    ("the emitted parameter stops reading the carrier",
+     [("p_GPTP_PLANE_EN_P=int(bool(gptp_plane))",
+       "p_GPTP_PLANE_EN_P=int(True)", 1)],
+     ["linux default", "linux explicit"]),
+    ("the emitted parameter is INVERTED",
+     [("p_GPTP_PLANE_EN_P=int(bool(gptp_plane))",
+       "p_GPTP_PLANE_EN_P=int(not gptp_plane)", 1)],
+     ["baremetal default", "baremetal explicit"]),
+    ("the parameter is renamed on its way to the Instance",
+     [("p_GPTP_PLANE_EN_P=int(bool(gptp_plane))",
+       "p_GPTP_PLANE_EN_P_X=int(bool(gptp_plane))", 1)],
+     ["baremetal default", "linux default"]),
+    ("the default stops following the software profile",
+     [('args.fabric_gptp = (args.software_profile == "baremetal"',
+       'args.fabric_gptp = (args.software_profile == "linux"', 1)],
+     ["baremetal default"]),
+]
+
+
+def test_gptp_plane_instance_gate_bites():
+    """Gate 1e negative controls - the hops a spelling gate cannot see.
+
+    Each row cuts ONE link of the argv -> Instance chain in milan_soc.py's
+    source and re-runs the gate's OWN grader over the same real elaborations,
+    so what is proved is that THE GATE goes red, not that some weaker
+    restatement of it does."""
+    python = _litex_python()
+    if python is None:
+        print("  [gate 1e mutation] SKIP: no LiteX interpreter (see 1e)")
+        return
+    runs, _gens = _gptp_runs()
+    cases = dict(runs)
+    for why, mutations, labels in GPTP_CHAIN_MUTATIONS:
+        got = _gptp_instance_params(python,
+                                    [(lbl, cases[lbl]) for lbl in labels],
+                                    mutations)
+        bad = _gptp_plane_contract(got)
+        assert bad, (f"gate 1e accepted a milan_soc.py in which {why} "
+                     f"({mutations[0][0]!r} -> {mutations[0][1]!r})")
+    # And the two REFUSALS: a two-owner and a zero-owner argv must exit 2
+    # naming the profile, not elaborate. Read off the real stderr, so the
+    # message an operator sees is the thing that is graded.
+    refusals = _gptp_instance_params(python, [
+        ("two owners", [a for a in cases["linux explicit"]
+                        if a != "--no-fabric-gptp"] + ["--fabric-gptp"]),
+        ("zero owners", [a for a in cases["baremetal explicit"]
+                         if a != "--fabric-gptp"] + ["--no-fabric-gptp"]),
+    ])
+    wanted = {"two owners": ("--software-profile linux", "own the PHC"),
+              "zero owners": ("--software-profile baremetal", "NO PHC owner")}
+    for label, want in wanted.items():
+        row = refusals[label]
+        assert row.get("exit") == 2, \
+            f"{label}: milan_soc.py did not refuse ({row})"
+        for token in want:
+            assert token in row["stderr"], \
+                f"{label}: the refusal never names {token!r}: {row['stderr']}"
+    print(f"  [gate 1e mutation] {len(GPTP_CHAIN_MUTATIONS)} broken links of "
+          "the argv -> Instance chain rejected (a literal handoff, two tied "
+          "forwards, a dropped keyword, an inverted and a renamed parameter, "
+          "and a default that stops following the profile), plus both "
+          "refusals graded on the operator-visible message")
 
 
 def test_current_shape_matches_sweep_flags():
@@ -5862,6 +6257,8 @@ if __name__ == "__main__":
     for fn in (test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
                test_gptp_rootfs_handoff_preserves_software_config,
+               test_gptp_plane_reaches_the_instance,
+               test_gptp_plane_instance_gate_bites,
                test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
                test_capability_marks, test_bad_configs_rejected,

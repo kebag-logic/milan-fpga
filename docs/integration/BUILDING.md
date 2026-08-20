@@ -129,6 +129,14 @@ directive AltSpreadLogic_high. Closed 2026-07-24: WNS +0.080, LUT 85.15 pct,
 TNS 0, all seeds close (measured record in the `cfg_ax8x8` comment in
 `build.sh`).
 
+Both Linux recipes (`cfg_ax8x8` and `cfg_arty`) state `--no-fabric-gptp`: the
+PHC takes exactly one owner and these rootfs images still start `ptp4l`. They
+also state `--entity-gen-dir`, which supplies the descriptor image, the
+reserved `ppmem` window and (on a fabric build) the gPTP ROM; `milan_soc.py`
+refuses to launch without it. `scripts/check_sweep_shape.py` compares each
+recipe against the end-station config named in its `ENTITY_CFG_<name>`
+variable flag for flag, so neither statement can drift back out.
+
 #### Choosing the Ethernet port (`--eth-port`)
 
 The AX7101 has **two** Ethernet ports, `e1` and `e2`, and a bitstream is built
