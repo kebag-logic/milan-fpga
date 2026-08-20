@@ -1048,9 +1048,14 @@ def test_baremetal_profile_contract():
           and macro-body traps that gave that reading its teeth are refused
           outright by assert_preprocessor_visible(), not modelled here.
         * It reasons about SPELLING, not values. A store through a pointer
-          held in a variable or an inline-asm store is outside what any of
-          these regexes can see; the firmware has neither today, and rules 1
-          to 3 are what keep it that way.
+          held in a variable is outside what any of these regexes can see;
+          the firmware has none today and rules 1 to 3 are what keep it that
+          way.
+        * An inline-asm store has NO spelling for these rules to match: no
+          milan_write, no milan_reg, no MILAN_CSR_BASE, no cast, just a
+          literal address in a template. Rules 1 to 3 cannot keep that out
+          and this docstring used to concede it with nothing behind the
+          concession; assert_asm_set_is_closed() is what refuses it now.
         * A store from a SECOND translation unit is outside them entirely.
           Nothing here reads a second file, so rules 1 to 3 cannot be what
           keeps one out; assert_single_translation_unit() refuses one, and
@@ -1117,9 +1122,11 @@ def test_baremetal_profile_contract():
                 "function pointer to it stores to a CSR outside the census"
         # 4. No pasted or aliased spelling of the primitive: a name this gate
         #    cannot read is a store it cannot classify, so fail closed.
-        assert "##" not in code, \
-            "firmware must not paste tokens: a pasted call name builds a CSR " \
-            "store this gate cannot read"
+        assert "##" not in code and "%:" not in code and "??" not in code, \
+            "firmware must not paste tokens, and must not spell one with a " \
+            "digraph or a trigraph: a pasted call name builds a CSR store " \
+            "this gate cannot read, and an alternate spelling of `#` builds " \
+            "a directive it cannot read either"
         for name, body in re.findall(
                 r"(?m)^[ \t]*#[ \t]*define[ \t]+(\w+)(?:\([^)\n]*\))?[ \t]*"
                 r"([^\r\n]*)$", code):
@@ -1131,14 +1138,57 @@ def test_baremetal_profile_contract():
     #: these. Pinned as a SET rather than derived, because there is nothing
     #: here to derive it from: the whole point is that a twelfth include is
     #: text this gate does not read, whatever the file is called.
-    firmware_includes = (
+    #: Nine are THIRD PARTY: newlib's four and LiteX's five. Their contents
+    #: are not this repository's text, so pinning their names and trusting
+    #: their bodies is one claim ...
+    firmware_includes_third_party = (
         "<stdint.h>", "<errno.h>", "<stdio.h>", "<stdlib.h>",
-        "<generated/mem.h>", "<generated/soc.h>", "<hw/common.h>",
-        "<libbase/crc.h>", "<system.h>", '"command.h"', '"init.h"')
-    include_re = re.compile(
-        r"(?m)^[ \t]*#[ \t]*include[ \t]*(<[^>\n]*>|\"[^\"\n]*\")")
+        "<hw/common.h>", "<libbase/crc.h>", "<system.h>",
+        '"command.h"', '"init.h"')
+    #: ... and two are written by THIS REPOSITORY'S OWN BUILDER, so their
+    #: contents are this repository's text one generator away. Pinning those
+    #: names is the weaker half of the claim and it should not be stated as
+    #: though it were the same one. Their VALUES are gate 28's.
+    firmware_includes_generated = ("<generated/mem.h>", "<generated/soc.h>")
+    firmware_includes = (firmware_includes_third_party +
+                         firmware_includes_generated)
+    #: Every preprocessing directive this gate has a rule for. Anything else
+    #: is REFUSED rather than ignored: an #undef can retire a register
+    #: constant the address model read, and #pragma, #line, #include_next and
+    #: #import are outside every rule here.
+    firmware_directives = ("include", "define", "if", "ifdef", "ifndef",
+                           "elif", "else", "endif")
+    directive_re = re.compile(r"(?m)^[ \t]*#[ \t]*([A-Za-z_]\w*)?")
+    include_operand_re = re.compile(
+        r"\A[ \t]*(<[^>\n]*>|\"[^\"\n]*\")[ \t]*\Z")
 
-    def assert_include_set_is_closed(code, source):
+    def line_spliced(text):
+        """`text` with backslash-newline splices joined, LENGTH PRESERVED so
+        every offset still indexes the original. C and make both continue a
+        line this way, so both read it through here."""
+        return re.sub(r"\\\n", "  ", text)
+
+    def spliced(text):
+        """`text` after translation phases 1 and 2, LENGTH PRESERVED so every
+        offset still indexes the original: digraphs translated and
+        backslash-newline splices joined, each substitution exactly as wide as
+        what it replaces.
+
+        `%:include`, `??=include` and `#\\`-newline-`include` are all
+        `#include` to the compiler, so they are all `#include` here.
+        Enumerating include SPELLINGS is how a regex ends up narrower than
+        the preprocessor; doing the translations the standard specifies and
+        then reading directives is how it stops being narrower.
+
+        `??=` fires only under a strict `-std=cNN`, and LiteX compiles with
+        `-std=gnu99` today, so it does not bite the shipping build. It is
+        translated anyway: a gate that is correct only because of a flag it
+        never reads is correct by luck."""
+        return line_spliced(
+            text.replace("??=", "#  ").replace("??/", "  \\")
+                .replace("%:%:", "##  ").replace("%:", "# "))
+
+    def assert_directive_set_is_closed(code, source):
         """The text this gate reads is the WHOLE translation unit.
 
         assert_single_translation_unit() proves the image is built from one
@@ -1149,36 +1199,96 @@ def test_baremetal_profile_contract():
         in a file no rule here ever opens: rules 1 to 3 of
         assert_csr_store_closure() are all defeated by text it never sees.
 
-        So the include SET is pinned, not the file extension. A header
-        carrying CSR stores is the same escape as a `.c`, and an
-        angle-bracket include resolves through -I exactly as a quoted one
-        does, so refusing only `#include "...c"` would leave both open.
+        So the DIRECTIVE SET is pinned, after phases 1 and 2, rather than a
+        list of include spellings. Every directive must be one this gate has
+        a rule for, and every #include operand must be a literal header name
+        in the pinned set. That covers a macro-expanded operand (C11
+        6.10.2p4, and the #define carrying the path passes every other rule
+        because its body names no CSR primitive), a spliced directive and a
+        digraph in one assertion instead of one per spelling.
+
+        The include SET is pinned, not the file extension: a header carrying
+        CSR stores is the same escape as a `.c`, and an angle-bracket include
+        resolves through -I exactly as a quoted one does.
 
         `code` is the blanked text, so a #include inside a comment is not an
-        include; `source` is the raw text the paths are read back from, since
-        blanking empties a quoted path but preserves its offsets.
+        include; `source` is where the operand is read back from, since
+        blanking empties a quoted path but preserves its offsets, and both
+        translations above preserve them too.
 
-        COST: a twelfth include, even `<string.h>`, is RED until it is added
-        above. That is the tripwire and not a defect: whoever adds one has to
-        decide, here, whether the new text can store into a CSR."""
-        allowed = set(firmware_includes)
-        found = [source[m.start(1):m.end(1)] for m in include_re.finditer(code)]
-        unknown = [name for name in found if name not in allowed]
-        assert not unknown, \
-            "the firmware's include set is pinned, and " \
-            f"{', '.join(unknown)} is not in it: every rule in this gate " \
-            "reads ONE file, so an include it does not know about is text in " \
-            "the translation unit that no rule reads. A #include of a .c " \
-            "keeps the object count at one, so the single-translation-unit " \
-            "check is satisfied honestly while the closure reads the wrong " \
-            "file"
+        COST: a twelfth include even `<string.h>`, and any `#pragma`,
+        `#line`, `#error` or `#undef`, are RED until added here. That is the
+        tripwire and not a defect: whoever adds one has to decide, in this
+        gate, whether the new text can store into a CSR."""
+        text, raw = spliced(code), spliced(source)
+        for directive in directive_re.finditer(text):
+            kind = directive.group(1)
+            assert kind in firmware_directives, \
+                "the firmware's preprocessing directives are pinned, and " \
+                f"'#{kind or ''}' is not one of them: a directive this gate " \
+                "has no rule for is text in the translation unit that no " \
+                "rule reads"
+            if kind != "include":
+                continue
+            stop = text.find("\n", directive.end())
+            stop = len(text) if stop < 0 else stop
+            operand = include_operand_re.match(text[directive.end():stop])
+            assert operand, \
+                "a #include operand must be a literal header name this gate " \
+                "can read, not a macro: a macro-expanded operand names a " \
+                f"file no rule here opens, got " \
+                f"{raw[directive.end():stop].strip()!r}"
+            name = raw[directive.end() + operand.start(1):
+                       directive.end() + operand.end(1)]
+            assert name in firmware_includes, \
+                "the firmware's include set is pinned, and " \
+                f"{name} is not in it: every rule in this gate reads ONE " \
+                "file, so an include it does not know about is text in the " \
+                "translation unit that no rule reads. A #include of a .c " \
+                "keeps the object count at one, so the " \
+                "single-translation-unit check is satisfied honestly while " \
+                "the closure reads the wrong file"
 
-    #: One assignment to OBJECTS in any of make's assignment flavours. The
-    #: cumulative ones are the point: reading `OBJECTS =` and stopping reports
-    #: a translation-unit count the build does not have.
+    #: The firmware's inline asm, pinned the way the include set is. An asm
+    #: store carries NO textual signature any other rule here matches: no
+    #: milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a literal
+    #: address in an asm template reaches a control register past all of
+    #: them. The firmware already uses asm for its fences, so this is
+    #: idiomatic here rather than exotic.
+    firmware_asm = (
+        '__asm__ volatile("fence iorw, iorw" ::: "memory")',
+        '__asm__ volatile("fence rw, rw" ::: "memory")')
+    asm_re = re.compile(r"\b(?:__asm__|__asm|asm)\b")
+
+    def assert_asm_set_is_closed(code, source):
+        """Inline asm is pinned to the two fences the firmware ships.
+
+        COST: a third asm statement is RED until it is added above, which is
+        the point. Whoever adds one has to decide, in this gate, whether its
+        template can store into a control register."""
+        found = []
+        for use in asm_re.finditer(code):
+            stop = code.find(";", use.start())
+            assert stop >= 0, "an inline-asm statement is never closed"
+            found.append(" ".join(source[use.start():stop].split()))
+        assert found == list(firmware_asm), \
+            "the firmware's inline asm is pinned: an asm template carries no " \
+            "milan_write, no milan_reg, no MILAN_CSR_BASE and no cast, so a " \
+            "literal address in one stores to a control register past every " \
+            f"rule in the CSR store closure; found {found}"
+
+    #: Make's assignment modifiers, as a repeatable group rather than a list
+    #: of the ones someone thought of: `export` alone was enough to slip a
+    #: narrower version of this.
+    assign_prefix = r"(?:(?:override|export|unexport|private)[ \t]+)*"
+    assign_operators = r"=|:=|::=|\+=|\?=|!="
+    assign_operator = r"(" + assign_operators + r")"
+    #: One assignment to OBJECTS in any of those flavours. The cumulative ones
+    #: are the point: reading `OBJECTS =` and stopping reports a
+    #: translation-unit count the build does not have.
     objects_assign_re = re.compile(
-        r"(?m)^[ \t]*(?:override[ \t]+)?OBJECTS[ \t]*"
-        r"(=|:=|::=|\+=|\?=|!=)[ \t]*(.*)$")
+        r"(?m)^[ \t]*" + assign_prefix + r"OBJECTS[ \t]*" + assign_operator +
+        r"[ \t]*(.*)$")
     objects_token_re = re.compile(r"[A-Za-z0-9_.+/-]+")
 
     def makefile_objects(makefile):
@@ -1252,27 +1362,48 @@ def test_baremetal_profile_contract():
         "include ../include/generated/variables.mak",
         "include $(SOC_DIRECTORY)/software/common.mak",
         "-include $(OBJECTS:.o=.d)")
-    #: Any variable assignment, in any of make's flavours.
+    #: Any variable assignment, in any of make's flavours, behind any run of
+    #: its modifier keywords. `export` alone was enough to slip a narrower
+    #: version of this, so the modifiers are a repeatable group rather than a
+    #: list of the ones someone thought of.
+    assign_body = (r"([A-Za-z_][A-Za-z0-9_]*)[ \t]*(?:" +
+                   assign_operators + r")[ \t]*")
     makefile_assign_re = re.compile(
-        r"(?m)^[ \t]*(?:override[ \t]+)?([A-Za-z_][A-Za-z0-9_]*)[ \t]*"
-        r"(?:=|:=|::=|\+=|\?=|!=)[ \t]*(.*)$")
+        r"(?m)^[ \t]*" + assign_prefix + assign_body + r"(.*)$")
+    #: ... and the same assignment written after a target, which make applies
+    #: to that target AND inherits down its whole prerequisite chain.
+    target_assign_re = re.compile(r"\A[ \t]*" + assign_prefix + assign_body +
+                                  r"(.*)\Z")
     #: Preprocessor flags that hand the compiler a whole file with no
     #: `#include` line anywhere for the pinned include set to see.
     injecting_flag_re = re.compile(r"(?<![\w-])-(?:include|imacros)\b")
-    #: Variables that decide WHICH TEXT the one recipe compiles, as opposed to
-    #: how it is compiled. `compile` is the recipe the producing rule is
-    #: pinned to; VPATH decides which file the rule's `%.c` resolves to.
-    text_deciding_vars = ("compile", "VPATH")
+    #: A variable reference, for deriving which names decide the compiled text.
+    make_var_re = re.compile(r"[$][({]([A-Za-z_][A-Za-z0-9_]*)[)}]")
+    #: The names this Makefile may assign at all. Pinned as a SET for the
+    #: same reason the include set is: asking "which variables are dangerous"
+    #: is unbounded and needs someone to be clever, while asking "which
+    #: variables does this Makefile set" is bounded and needs nobody to be.
+    #: MAKEFLAGS, SHELL, .SHELLFLAGS and every other name that changes what
+    #: make itself does fall out of this without being listed.
+    makefile_assigns = ("CFLAGS", "OBJECTS")
 
     def make_rules(makefile):
-        """Every explicit/pattern rule as `(targets, prerequisites, recipe)`.
+        """`(rules, assignments)` for `makefile`.
 
-        Continuations are joined and comments dropped first, so a rule reads
-        the way make reads it and not the way the file happens to be wrapped.
-        A line whose colon lives inside an expansion is not a rule, and a
-        directive is not a rule however it is punctuated."""
+        A rule is `(targets, prerequisites, recipe)`. Continuations are joined
+        and comments dropped first, so a rule reads the way make reads it and
+        not the way the file happens to be wrapped. A line whose colon lives
+        inside an expansion is not a rule, and a directive is not a rule
+        however it is punctuated.
+
+        `assignments` carries BOTH global and target-specific ones, because
+        make does not distinguish them where it matters here: an
+        `all: CFLAGS += -include x.c` reaches the compile of every
+        prerequisite of `all`, which is the one object."""
         text = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
         masked, rules, current, at = unexpanded(text), [], None, 0
+        assignments = [(m.group(1), m.group(2))
+                       for m in makefile_assign_re.finditer(text)]
         for body in text.split("\n"):
             start, at = at, at + len(body) + 1
             if body.startswith("\t"):
@@ -1288,10 +1419,14 @@ def test_baremetal_profile_contract():
             colon = re.search(r"::?(?!=)", head)
             if not colon or "=" in head[:colon.start()]:
                 continue
-            current = (body[:colon.start()].split(),
-                       body[colon.end():].split(), [])
+            after = body[colon.end():]
+            specific = target_assign_re.match(after)
+            if specific:
+                assignments.append((specific.group(1), specific.group(2)))
+                continue
+            current = (body[:colon.start()].split(), after.split(), [])
             rules.append(current)
-        return rules
+        return rules, assignments
 
     def assert_single_translation_unit(makefile, expected):
         """The firmware image is built from exactly the one `.c` this reads.
@@ -1320,31 +1455,75 @@ def test_baremetal_profile_contract():
           while a variable can move the file out from under it: a
           `CFLAGS += -include milan_bringup.c` hands the compiler a whole
           source with no `#include` line for the pinned include set to catch,
-          leaves the object count at one and the rule untouched. A `vpath` or
-          a redefined `compile` does the same thing by another door.
+          leaves the object count at one and the rule untouched. So the names
+          that decide the compiled text are DERIVED from the producing rule
+          rather than listed. Listing them is what missed
+          `LIBMILAN_BAREMETAL_DIRECTORY`, the rule's own prerequisite
+          variable, which points `%.c` at a different file entirely; the
+          derivation yields it without anyone having to think of it.
 
         SCOPE: this reads the firmware's own Makefile. The two LiteX-supplied
         fragments and the compiler's own `.d` fragment are trusted BY NAME
         (see makefile_includes), and so is the toolchain's link line. One
-        FILE, as opposed to one object, is assert_include_set_is_closed()."""
+        FILE, as opposed to one object, is
+        assert_directive_set_is_closed()."""
         includes = makefile_include_re.findall(makefile)
         assert [" ".join(line.split()) for line in includes] == \
             list(makefile_includes), \
             "the Makefile's include set is pinned: a fragment this gate does " \
             "not read can assign OBJECTS, add a prerequisite or override the " \
             f"rule that builds the one object; found {includes}"
-        joined = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
-        for name, value in makefile_assign_re.findall(joined):
+        rules, assignments = make_rules(makefile)
+        # ... knowing WHICH object is archived is not knowing what that object
+        # is built FROM. Exactly one rule may be able to produce it, and it
+        # must be the pattern rule compiling one `.c`. This runs before the
+        # assignment scan because the scan DERIVES its variable names from it.
+        producers = [rule for rule in rules
+                     if any(target == expected or
+                            ("%" in target and re.fullmatch(
+                                re.escape(target).replace("%", ".*"), expected))
+                            for target in rule[0])]
+        assert len(producers) == 1, \
+            f"exactly one rule may build {expected}, or an explicit rule " \
+            "overrides the pattern rule and decides what goes into the one " \
+            "object while OBJECTS and the archive recipe stay untouched; " \
+            f"found {[rule[0] for rule in producers]}"
+        targets, prerequisites, recipe = producers[0]
+        assert targets == ["%.o"] and len(prerequisites) == 1 and \
+            prerequisites[0].endswith("/%.c") and recipe == ["$(compile)"], \
+            f"{expected} must be built by the pattern rule from ONE `.c` " \
+            "with $(compile), or the object this gate calls one translation " \
+            f"unit is linked from several; found {targets}: " \
+            f"{prerequisites} / {recipe}"
+        assert expected[:-2] + ".c" == os.path.basename(firmware_path), \
+            f"the pattern rule builds {expected}, which is not the firmware " \
+            "file this gate reads"
+        # Every variable the producing rule NAMES decides which text gets
+        # compiled, so setting any of them here moves the file. VPATH joins
+        # them because make consults it whatever the rule says.
+        deciding = set(make_var_re.findall(
+            " ".join(targets + prerequisites + recipe))) | {"VPATH"}
+        for name, value in assignments:
+            # The DERIVED reason first, because it is the specific one: it
+            # says why this particular name moves the compiled text.
+            assert name not in deciding, \
+                f"this Makefile must not set {name}: it decides WHICH text " \
+                f"the rule that builds {expected} compiles, so setting it " \
+                "here moves the file this gate calls the firmware"
+            assert name in makefile_assigns, \
+                f"this Makefile may only assign {list(makefile_assigns)}, " \
+                f"not {name}: a name this gate has no rule for can change " \
+                "which text gets compiled, or change what make itself does, " \
+                "and asking which names are dangerous is a question with no " \
+                "end to it"
             assert not injecting_flag_re.search(value), \
                 f"{name} must not inject a file into the translation unit: " \
                 "-include/-imacros hand the compiler a whole source with no " \
                 "#include line, so the pinned include set never sees it and " \
                 f"the object count never moves; found {value.strip()!r}"
-            assert name not in text_deciding_vars, \
-                f"this Makefile must not set {name}: it decides WHICH text " \
-                "the one recipe compiles, so setting it here moves the file " \
-                "this gate calls the firmware"
-        assert not re.search(r"(?m)^[ \t]*vpath\b", joined), \
+        assert not re.search(
+            r"(?m)^[ \t]*vpath\b",
+            re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))), \
             "this Makefile must not set a vpath: it decides which file the " \
             "pattern rule's %.c resolves to, so it moves the file this gate " \
             "calls the firmware"
@@ -1366,29 +1545,6 @@ def test_baremetal_profile_contract():
             "the library recipe must archive exactly $(OBJECTS), or an " \
             "object the OBJECTS list never named reaches the image and the " \
             f"CSR store closure covers only part of it; found {archive}"
-        # ... and knowing WHICH object is archived is not knowing what that
-        # object is built FROM. Exactly one rule may be able to produce it,
-        # and it must be the pattern rule compiling one `.c`.
-        producers = [rule for rule in make_rules(makefile)
-                     if any(target == expected or
-                            ("%" in target and re.fullmatch(
-                                re.escape(target).replace("%", ".*"), expected))
-                            for target in rule[0])]
-        assert len(producers) == 1, \
-            f"exactly one rule may build {expected}, or an explicit rule " \
-            "overrides the pattern rule and decides what goes into the one " \
-            "object while OBJECTS and the archive recipe stay untouched; " \
-            f"found {[rule[0] for rule in producers]}"
-        targets, prerequisites, recipe = producers[0]
-        assert targets == ["%.o"] and len(prerequisites) == 1 and \
-            prerequisites[0].endswith("/%.c") and recipe == ["$(compile)"], \
-            f"{expected} must be built by the pattern rule from ONE `.c` " \
-            "with $(compile), or the object this gate calls one translation " \
-            f"unit is linked from several; found {targets}: " \
-            f"{prerequisites} / {recipe}"
-        assert expected[:-2] + ".c" == os.path.basename(firmware_path), \
-            f"the pattern rule builds {expected}, which is not the firmware " \
-            "file this gate reads"
 
     def assert_boot_contract(firmware, docs, csr, makefile=None):
         # The whole closure below reads ONE file. Prove that is the whole
@@ -1401,8 +1557,10 @@ def test_baremetal_profile_contract():
         # enable, and a printf() from reading as a call.
         source, firmware = firmware, blanked(firmware)
         # ... and one OBJECT is not one FILE. Pin what else joins the
-        # translation unit before any rule below calls this text the firmware.
-        assert_include_set_is_closed(firmware, source)
+        # translation unit, and the one store mechanism with no textual
+        # signature, before any rule below calls this text the firmware.
+        assert_directive_set_is_closed(firmware, source)
+        assert_asm_set_is_closed(firmware, source)
         model = CsrModel(firmware, csr)
         # The name-to-address table is only half the address model; the write
         # decode is the other half, and it is what says each entity-enable
@@ -1905,11 +2063,25 @@ def test_baremetal_profile_contract():
         source_init[source_guard.start():guard_close + 1] +
         "\n\tdefault:\n\t\tbreak;\n\t}" + source_init[guard_close + 1:],
         "case label falling into the AEM-success guard")
+    def one_physical_line(text):
+        """A census record as ONE physical line.
+
+        Splicing a record into a continuation macro assumes exactly that, and
+        the record is whatever the firmware's own line breaks made it. A
+        legitimate multi-line enable -- which this gate accepts, and which is
+        one of the brittleness cases -- would otherwise leave its first line
+        without the trailing backslash and build a mutant that does not
+        compile: `expected ';' before ')'`. Same class as the mutant that
+        once called an undeclared helper: a mutation must be real firmware,
+        or it proves nothing about a rule."""
+        return " ".join(text.split())
+
     macro_enable = replace_once(
         replace_once(
             firmware_source, source_enable_block,
             "\n#define MILAN_ENTITY_UP() \\\n\t\tdo { \\\n"
-            f"\t\t\t{pp_enable_text}; \\\n\t\t\t{adp_enable_text}; \\\n"
+            f"\t\t\t{one_physical_line(pp_enable_text)}; \\\n"
+            f"\t\t\t{one_physical_line(adp_enable_text)}; \\\n"
             "\t\t} while (0)\n\t\tMILAN_ENTITY_UP();\n\t",
             "continuation-line macro body"),
         "\tprint_tod(gettime_ns());\n}",
@@ -2000,7 +2172,11 @@ def test_baremetal_profile_contract():
     #: that does not is the tolerant-reader/literal-mutator defect one layer
     #: up from where round three found it, and it fails the SUITE with a
     #: message blaming a mutation for a file this gate reads correctly.
-    source_objects_assigns = list(objects_assign_re.finditer(makefile_source))
+    #: Read through the same splice the parser reads through, or a value
+    #: continued onto the next line is anchored as the single character `\`.
+    spliced_makefile = line_spliced(makefile_source)
+    source_objects_assigns = list(
+        objects_assign_re.finditer(spliced_makefile))
     assert source_objects_assigns, \
         "the Makefile no longer assigns OBJECTS in a form makefile_objects() " \
         "parses, so the mutations below would test nothing"
@@ -2008,8 +2184,8 @@ def test_baremetal_profile_contract():
     #: ... and the VALUE's extent stops where the parser's comment strip
     #: stops, so a trailing comment cannot swallow a spliced continuation.
     objects_value_at, objects_value_to = source_objects_line.span(2)
-    _objects_hash = makefile_source.find("#", objects_value_at,
-                                         objects_value_to)
+    _objects_hash = spliced_makefile.find("#", objects_value_at,
+                                          objects_value_to)
     if _objects_hash >= 0:
         objects_value_to = _objects_hash
     second_object = "milan_bringup.o"
@@ -2022,7 +2198,8 @@ def test_baremetal_profile_contract():
         return (makefile_source[:objects_value_at] + text +
                 makefile_source[objects_value_to:])
 
-    live_objects = makefile_source[objects_value_at:objects_value_to].strip()
+    live_objects = " ".join(
+        spliced_makefile[objects_value_at:objects_value_to].split())
     listed_objects = objects_valued(f"{live_objects} {second_object}")
     appended_objects = (makefile_source[:source_objects_line.end()] +
                         f"\nOBJECTS += {second_object}" +
@@ -2041,15 +2218,48 @@ def test_baremetal_profile_contract():
     # FILE, and one archive entry is not one SOURCE. All three of these leave
     # the OBJECTS list at exactly one object, so the check above is SATISFIED
     # rather than evaded, and all three used to pass the complete suite.
-    source_includes = list(include_re.finditer(firmware_code))
+    source_includes = [d for d in directive_re.finditer(firmware_code)
+                       if d.group(1) == "include"]
     assert source_includes, \
         "include-set mutation lost the firmware's #include lines"
+    #: End of the LAST include's line, so a spliced directive lands after a
+    #: whole one rather than inside its operand.
+    last_include_end = firmware_code.index("\n", source_includes[-1].end())
+
+    def after_includes(line):
+        return (firmware_source[:last_include_end] + "\n" + line +
+                firmware_source[last_include_end:])
+
     #: A `.c` pulled into the one translation unit by the preprocessor: the
     #: object count never moves and every closure rule reads the wrong file.
-    included_source = (
-        firmware_source[:source_includes[-1].end()] +
-        f'\n#include "{second_object[:-2]}.c"' +
-        firmware_source[source_includes[-1].end():])
+    included_source = after_includes(f'#include "{second_object[:-2]}.c"')
+    #: ... and the same file reached by spellings an include REGEX misses but
+    #: the preprocessor does not: a macro operand, a spliced directive and
+    #: the `%:` digraph.
+    macro_included_source = after_includes(
+        f'#define MILAN_EXTRA_SRC "{second_object[:-2]}.c"\n'
+        "#include MILAN_EXTRA_SRC")
+    spliced_included_source = after_includes(
+        f'#\\\ninclude "{second_object[:-2]}.c"')
+    digraph_included_source = after_includes(
+        f'%:include "{second_object[:-2]}.c"')
+    #: ... and the trigraph, which fires only under a strict -std=cNN. LiteX
+    #: compiles with -std=gnu99, so this one does not bite the shipping
+    #: build; it is refused anyway, because a gate that is correct only
+    #: because of a flag it never reads is correct by luck.
+    trigraph_included_source = after_includes(
+        f'??=include "{second_object[:-2]}.c"')
+    #: A directive this gate has no rule for at all.
+    undefined_constant = after_includes(f"#undef {adp_name}")
+    #: An inline-asm store: no milan_write, no milan_reg, no MILAN_CSR_BASE
+    #: and no cast, so every rule in the CSR store closure has nothing to
+    #: match. The address is a literal for exactly that reason.
+    asm_store_enable = replace_once(
+        firmware_source, source_adp_clear + ";",
+        '__asm__ volatile("li t0, 0xf0000600\\n"\n'
+        '\t                 "li t1, 1\\n"\n'
+        '\t                 "sw t1, 0(t0)\\n" ::: "t0", "t1", "memory");\n\t'
+        + source_adp_clear + ";", "inline-asm store to ADP_CTRL")
     #: An explicit rule for the one object overrides the pattern rule and
     #: decides what goes INTO it, with OBJECTS and the archive untouched.
     linked_objects = (
@@ -2069,6 +2279,15 @@ def test_baremetal_profile_contract():
         return (makefile_source[:source_objects_line.end()] + "\n" + line +
                 makefile_source[source_objects_line.end():])
 
+    #: The producing rule's own prerequisite, read off the live Makefile so
+    #: the mutation names whatever variable it actually uses.
+    source_producer_prereq = next(
+        rule[1][0] for rule in make_rules(makefile_source)[0]
+        if rule[0] == ["%.o"])
+    assert make_var_re.findall(source_producer_prereq), \
+        "text-deciding mutation found no variable in the producing rule's " \
+        f"prerequisite: {source_producer_prereq}"
+
     #: Pinning the RULE is not enough while a variable can move the file out
     #: from under it. None of these three touches OBJECTS, the archive, the
     #: producing rule or the firmware's #include set.
@@ -2077,6 +2296,21 @@ def test_baremetal_profile_contract():
     recompiled_objects = after_objects(
         f"compile = $(CC) $(CFLAGS) -c -o $@ $< {second_object[:-2]}.c")
     vpath_objects = after_objects(f"vpath %.c ../{second_object[:-2]}")
+    #: ... and the same injection behind make's other modifier keywords, and
+    #: written against a target so make inherits it down the prerequisite
+    #: chain. An assignment regex narrower than make is the same defect as an
+    #: include regex narrower than the preprocessor.
+    exported_injection = after_objects(
+        f"export CFLAGS += -include {second_object[:-2]}.c")
+    target_injection = after_objects(
+        f"all: CFLAGS += -include {second_object[:-2]}.c")
+    #: The producing rule's OWN prerequisite variable, which is the one name
+    #: a hand-written list of text-deciding variables did not have.
+    shadowed_source_dir = after_objects(
+        f"{make_var_re.findall(source_producer_prereq)[0]} = ./shadow")
+    #: ... and a name that changes what MAKE does rather than what the rule
+    #: names, which no derivation from the rule can reach.
+    unpinned_assignment = after_objects("MAKEFLAGS += -e")
 
     def raised_bit0(statement, label):
         """`statement` with bit 0 of its literal SET, rebuilt at the literal's
@@ -2158,20 +2392,29 @@ def test_baremetal_profile_contract():
     #: well: a tolerant reader beside a literal mutator fails the SUITE on a
     #: file the gate understands, with a message blaming a "mutation".
     objects_spellings = tuple(
-        f"OBJECTS {operator} {firmware_object}{trailer}"
+        f"{prefix}OBJECTS {operator} {firmware_object}{trailer}"
+        for prefix in ("", "override ", "export ")
         for operator in ("=", ":=", "::=", "?=")
-        for trailer in ("", "\t# the one translation unit"))
-    live_objects_line = makefile_source[source_objects_line.start():
-                                        source_objects_line.end()]
+        for trailer in ("", "\t# the one translation unit")
+    ) + (
+        # ... and the two shapes that used to fail the SUITE from the
+        # scaffolding rather than the parser: a value continued onto the next
+        # line, and a reassignment whose last word is the one that counts.
+        f"OBJECTS = \\\n\t{firmware_object}",
+        f"OBJECTS = placeholder.o\nOBJECTS = {firmware_object}",
+    )
+    #: Respell EVERY OBJECTS assignment, not just the last, so "equivalent"
+    #: is true by construction. Substituting only the last one is NOT
+    #: equivalent when an earlier assignment exists: `?=` after a definition
+    #: is ignored and make would build the earlier list, so the gate would be
+    #: right to refuse it and the suite would be wrong to call it a spelling.
+    objects_span = (source_objects_assigns[0].start(),
+                    source_objects_assigns[-1].end())
     for spelling in objects_spellings:
-        if condensed(spelling) == condensed(live_objects_line):
-            equivalent_makefile = makefile_source
-        else:
-            equivalent_makefile = replace_once(
-                makefile_source, live_objects_line, spelling,
-                f"object list spelling {spelling}")
-        assert_boot_contract(firmware_source, docs_source, csr_source,
-                             equivalent_makefile)
+        assert_boot_contract(
+            firmware_source, docs_source, csr_source,
+            makefile_source[:objects_span[0]] + spelling +
+            makefile_source[objects_span[1]:])
 
     mutations = (
         ("old AEM-gated PTP documentation", firmware_source,
@@ -2379,6 +2622,28 @@ def test_baremetal_profile_contract():
         # closure reads text that is not the whole translation unit.
         ("second source pulled in by #include of a .c", included_source,
          docs_source, csr_source, "the firmware's include set is pinned"),
+        # ... and the same file reached by spellings an include regex misses
+        # while the preprocessor does not. Pinning the DIRECTIVE set after
+        # phases 1 and 2 answers all of these at once.
+        ("second source pulled in by a macro include operand",
+         macro_included_source, docs_source, csr_source,
+         "a #include operand must be a literal header name"),
+        ("second source pulled in by a spliced #include directive",
+         spliced_included_source, docs_source, csr_source,
+         "the firmware's include set is pinned"),
+        ("second source pulled in by a %: digraph include",
+         digraph_included_source, docs_source, csr_source,
+         "the firmware's include set is pinned"),
+        ("second source pulled in by a ??= trigraph include",
+         trigraph_included_source, docs_source, csr_source,
+         "the firmware's include set is pinned"),
+        ("a preprocessing directive this gate has no rule for",
+         undefined_constant, docs_source, csr_source,
+         "the firmware's preprocessing directives are pinned"),
+        # ---- and the store mechanism with no textual signature at all.
+        ("entity enabled by an inline-asm store to the CSR address",
+         asm_store_enable, docs_source, csr_source,
+         "the firmware's inline asm is pinned"),
         ("one object linked from two sources by an explicit rule",
          firmware_source, docs_source, csr_source,
          f"exactly one rule may build {firmware_object}", linked_objects),
@@ -2395,6 +2660,23 @@ def test_baremetal_profile_contract():
         ("vpath moving which file the pattern rule compiles", firmware_source,
          docs_source, csr_source, "this Makefile must not set a vpath",
          vpath_objects),
+        # ... behind make's other modifier keywords, and target-specific.
+        ("second source injected by an exported assignment", firmware_source,
+         docs_source, csr_source,
+         "must not inject a file into the translation unit", exported_injection),
+        ("second source injected by a target-specific assignment",
+         firmware_source, docs_source, csr_source,
+         "must not inject a file into the translation unit", target_injection),
+        # ... and the producing rule's own prerequisite variable, pointed at
+        # a different tree entirely.
+        ("the compiled source directory moved out from under the rule",
+         firmware_source, docs_source, csr_source,
+         "this Makefile must not set "
+         f"{make_var_re.findall(source_producer_prereq)[0]}",
+         shadowed_source_dir),
+        ("a Makefile variable this gate has no rule for", firmware_source,
+         docs_source, csr_source, "this Makefile may only assign",
+         unpinned_assignment),
         # ---- and the reset values: the census governs who may SET bit 0,
         # and says nothing about the value bit 0 holds before the first write.
         ("ADP_CTRL reset value advertising the entity", firmware_source,
@@ -2421,13 +2703,16 @@ def test_baremetal_profile_contract():
           f"spellings and {len(objects_spellings)}/{len(objects_spellings)} "
           "equivalent object-list spellings accepted")
     print("  [gate 1b] ... and the text this reads is the WHOLE translation "
-          "unit: one FILE, by an include set pinned in the firmware so a "
-          "#include of a .c cannot join it unread, and one OBJECT, by an "
-          "OBJECTS list read cumulatively across every make assignment "
-          "flavour, archived as exactly $(OBJECTS), produced by the one "
-          "pattern rule compiling one .c with $(compile), with the Makefile's "
-          "own include set pinned and no variable able to move the file the "
-          "recipe compiles (no -include/-imacros, no compile/VPATH/vpath)")
+          "unit: one FILE, by the firmware's DIRECTIVE set pinned after "
+          "translation phases 1 and 2, so a macro operand, a spliced "
+          "directive and a %: digraph are all the #include they are to the "
+          "compiler; one OBJECT, by an OBJECTS list read cumulatively across "
+          "every make assignment flavour and archived as exactly $(OBJECTS); "
+          "one SOURCE, by the one pattern rule compiling one .c with "
+          "$(compile), the Makefile's own include set pinned, and no "
+          "assignment able to move the compiled text, over names DERIVED "
+          "from that rule rather than listed; and one STORE MECHANISM, by "
+          "the inline-asm set pinned to the two fences the firmware ships")
     print("  [gate 1b] ... no preprocessor "
           "conditional and no continued #define outside the QSPI-slot group "
           "whose BOTH arms the verifier's return rule classifies, no "
@@ -2445,16 +2730,25 @@ def test_baremetal_profile_contract():
           "multi-line #define anywhere in the file, any #ifdef outside "
           "load_aem_image() including one in a UART handler, any extra "
           "statement inside the guarded block, a twelfth #include even of "
-          "<string.h>, a fourth Makefile include, any recipe for the one "
-          "object other than the pattern rule's $(compile), and a legitimate "
-          "-include config.h in CFLAGS")
+          "<string.h>, any #pragma/#line/#error/#undef, a third inline-asm "
+          "statement, a fourth Makefile include, any recipe for the one "
+          "object other than the pattern rule's $(compile), a legitimate "
+          "-include config.h in CFLAGS, and any new Makefile variable at "
+          "all, even an unused DEPFILES = $(patsubst ...)")
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
-          "owns those), that crc32() is a CRC, the CONTENTS of the eleven "
-          "pinned headers and the three pinned Makefile fragments (their "
-          "names are pinned, their text is trusted), and anything about an "
+          "owns those), that crc32() is a CRC, and anything about an "
           "interrupt vector, which is REFUSED by the no-label check rather "
           "than modelled")
+    print("  [gate 1b] TRUSTED, not proved, and the two halves are NOT the "
+          f"same claim: the contents of the "
+          f"{len(firmware_includes_third_party)} third-party headers "
+          "(newlib's and LiteX's) and the two LiteX Makefile fragments are "
+          "not this repository's text; the contents of "
+          f"{', '.join(firmware_includes_generated)} and the compiler's own "
+          ".d fragment ARE this repository's text one generator away. All of "
+          "their NAMES are pinned so nothing new joins unseen, which is a "
+          "smaller claim than reading them")
     print("  [gate 1b] OPEN, no refusal reaches them, tracked as issue #153: "
           "the rule tying the comparison to a real CRC is an EXISTENCE test, "
           "so a constant assigned to the compared local in the compiled arm, "
