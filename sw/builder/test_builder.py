@@ -1973,6 +1973,15 @@ def test_baremetal_profile_contract():
         # added, removed or reworded is refused without naming a single
         # flag. This is strictly smaller than the three scans it replaces
         # and it has no list to fall behind.
+        #
+        # LIMIT, measured and tracked on #162: this reads what make PRINTS,
+        # which is already expanded. A name the Makefile references and
+        # nothing defines expands to nothing, so
+        # `CFLAGS += $(MILAN_EXTRA_CFLAGS)` leaves these two lines identical
+        # while the environment decides what the compiler is really given.
+        # Reading the Makefile's TEXT used to catch that and reading make's
+        # RESULT does not, which is the same trade the compiled census makes
+        # against the text rules.
         expected_recipes = [
             f"{make_sentinels['CC']} -c {make_sentinels['CFLAGS']} "
             f"-I{make_sentinels['BIOS_DIRECTORY']} "
@@ -3745,7 +3754,9 @@ def test_baremetal_profile_contract():
           "store sets are compared as ORDERED lists, so moving code with "
           "nothing added or removed is refused), renaming the verdict "
           "aem_loaded, and a read-only #define accessor that wraps "
-          "milan_read(). Also ##, %: and ?? anywhere in the file. And two "
+          "milan_read() (remedy: add the name to the firmware's #define "
+          "table so constant_value() can resolve it). Also ##, %: and ?? "
+          "anywhere in the file. And two "
           "ordinary refactors one step outside the accepted set: FACTORING "
           "the CSR accessors (a milan_set(offset, bits) helper is refused, "
           "because the census places writes by RESOLVED address and an "
@@ -3753,7 +3764,8 @@ def test_baremetal_profile_contract():
           "named constant. Under the recipe-set pin, any change to the two "
           "commands make runs is refused too, a benign AR += v or CC += "
           "-Wall included: that is the price of a rule with no list of "
-          "spellings to fall behind")
+          "spellings to fall behind. Remedy for that one: add the changed "
+          "command to expected_recipes and a mutation entry beside it")
     print("  [gate 1b] ... and what the make plan DID give back, which "
           "survives this round: every Makefile variable and rule shape the "
           "old parser pinned, so an unrelated DEPFILES = $(patsubst ...) is "
@@ -3769,6 +3781,27 @@ def test_baremetal_profile_contract():
           "`((milan_adp_blk)0x90000600u)->ctrl = 1u;` is a durable pre-AEM "
           "entity advertise and this gate passes it. Not a regression, it "
           "passes at every commit in this lane; tracked on #153 and #162")
+    print("  [gate 1b] ... and a second blind spot, same cause one step over: "
+          "the recipe pin reads what make PRINTS, which is already expanded, "
+          "so a name this Makefile references and nothing defines expands to "
+          "nothing and the pinned commands come out identical. "
+          "`CFLAGS += $(MILAN_EXTRA_CFLAGS)` passes here while "
+          "MILAN_EXTRA_CFLAGS='-include ../shadow.h' in the environment adds "
+          "the include to the real compile, and the hostile double-run "
+          "perturbs three fixed names so it cannot see a deferral to a "
+          "fourth. An instrument that reads a RESULT cannot see what an "
+          "undefined name would have contributed, which is the same reason "
+          "the compiled census never replaced the text rules. Fix is "
+          "derivable and tracked on #162: probe $(origin NAME) and refuse "
+          "'undefined', scoped to names reaching the pinned recipes, since "
+          "the accepted tags: case references an undefined $(CTAGS) too")
+    print("  [gate 1b] ... and outside what ANY recipe pin can reach: export "
+          "CPATH and COMPILER_PATH, which GCC reads from the environment; "
+          "SHELL, which changes what executes the printed command; "
+          ".EXPORT_ALL_VARIABLES; and $(shell ...), which runs at parse time "
+          "during this gate's own plan run, before a recipe is printed. "
+          "Recorded rather than ruled against, because no pin over printed "
+          "commands can see them")
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
           "owns those), that crc32() is a CRC, and anything about an "

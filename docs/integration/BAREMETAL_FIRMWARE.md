@@ -133,6 +133,48 @@ Tracked on #153 and #162; #153's `entity_advertise()` choke point is the
 answer, because the blind spot exists only because there is an exempted
 function with an interior nobody reads.
 
+**And a second blind spot, on the Makefile side, from the same cause one step
+over.** The recipe pin reads what `make -Bn` PRINTS, which is text make has
+already expanded. A name this Makefile references but nothing defines expands
+to nothing, so the pinned commands come out byte-identical and the environment
+decides what the compiler actually gets:
+
+```make
+CFLAGS += $(MILAN_EXTRA_CFLAGS)
+```
+
+```
+$ make -Bn                                            # what the gate sees
+... -c __BASE_CFLAGS__ -I__BIOS__ <src>/milan_baremetal.c -o milan_baremetal.o
+$ MILAN_EXTRA_CFLAGS='-include ../shadow.h' make -Bn  # what a real build runs
+... -c __BASE_CFLAGS__ -I__BIOS__ -include ../shadow.h <src>/... -o ...
+```
+
+The gate's hostile double-run does not see it either: it perturbs three fixed
+names, and an assignment that defers to a fourth is invisible to it.
+`CFLAGS += $(EXTRA_CFLAGS)` is an ordinary idiom, not a contrivance.
+
+The class is worth stating because it is the same mechanism that stopped the
+compiled census from replacing the text rules: **an instrument that reads a
+RESULT cannot see what an undefined name would have contributed.** Reading the
+Makefile's own TEXT saw `$(MILAN_EXTRA_CFLAGS)` and refused it; reading make's
+result sees an empty expansion and has nothing to refuse.
+
+The fix is derivable and is tracked rather than implemented here: probe
+`$(origin NAME)` for every name the Makefile references and refuse
+`undefined`. Measured against this Makefile, every real name is `file` or
+`default` and the escape is the only `undefined`, with one caveat for whoever
+implements it: the accepted `tags:` case references `$(CTAGS)`, which is also
+`undefined`, so the check has to be scoped to names that reach the pinned
+recipes. See #162.
+
+**Outside what any recipe pin can reach at all**, and recorded here rather
+than turned into rules, because no pin over printed commands can see them:
+`export CPATH` and `export COMPILER_PATH`, which GCC itself reads from the
+environment; `SHELL := ...`, which changes what executes the printed command;
+`.EXPORT_ALL_VARIABLES:`; and `$(shell ...)`, which runs at parse time, during
+the gate's own plan run, before any recipe is printed.
+
 Read the constraints below as what they are: they bound the spellings they
 recognise, and they cost real edits to do it.
 
@@ -152,7 +194,7 @@ The rest are refusals, and each one costs a legitimate edit:
 | No `#pragma`, `#line`, `#error`, `#undef` or `#include_next` | the gate has no rule for them, so it refuses rather than ignores |
 | The `#include` set is exactly the eleven headers listed in the gate | a twelfth include is text in the translation unit no rule reads |
 | No new file in `sw/firmware/milan_baremetal/` | a quoted include resolves against this directory first, so a file here can shadow a pinned header |
-| `CFLAGS` gains only `-I$(BIOS_DIRECTORY)` | `-I`, `-iquote`, `-isystem` and `-include` decide which file a pinned name resolves to |
+| `CFLAGS` gains only `-I$(BIOS_DIRECTORY)` | held now by the recipe pin rather than by a flag rule: the compile command is pinned whole, so any added flag changes it |
 | The Makefile's `include` set is exactly its three lines | `make` can only plan fragments that exist |
 | `OBJECTS` may not use `?=` | `make` treats an environment variable as defined, so `?=` lets the environment choose the object list |
 | No label, `goto`, `switch`, `case` or `default` in `milan_init()` | containment inside the guard is not the same as being reached through it |
@@ -165,9 +207,9 @@ The rest are refusals, and each one costs a legitimate edit:
 | REORDERING existing functions, with nothing added or removed | the cast and store sets are compared as ordered lists |
 | A read-only `#define` accessor wrapping `milan_read()` | it hides a CSR primitive from the operand census; the macro contains no store |
 | `##`, `%:` or `??` anywhere in the file | token pasting and the alternate spellings of `#` |
-| FACTORING the CSR accessors, e.g. a `milan_set(offset, bits)` read-modify-write helper | the census places writes by RESOLVED address, and an `offset` parameter has none |
-| Hoisting the enable mask to a named constant | the OR mask must be a value the gate can evaluate, so `\| MILAN_ENTITY_ENABLE` is not recognised as the enable write |
-| ANY change to the two commands `make` runs, a benign `AR += v` or `CC += -Wall` included | the recipe set is pinned rather than scanned for dangerous flag spellings, and the price of having no list is that benign changes are refused too |
+| FACTORING the CSR accessors, e.g. a `milan_set(offset, bits)` read-modify-write helper | the census places writes by RESOLVED address, and an `offset` parameter has none. **Remedy:** keep the call sites naming a register constant, or teach `CsrModel.address()` to follow the parameter, which is a data-flow change and belongs with #153 |
+| Hoisting the enable mask to a named constant | the OR mask must be a value the gate can evaluate, so `\| MILAN_ENTITY_ENABLE` is not recognised as the enable write. **Remedy:** leave the mask a literal, or add the name to the firmware's `#define` table so `constant_value()` can resolve it |
+| ANY change to the two commands `make` runs, a benign `AR += v` or `CC += -Wall` included | the recipe set is pinned rather than scanned for dangerous flag spellings, and the price of having no list is that benign changes are refused too. **Remedy:** add the changed command to `expected_recipes` in the gate and a mutation-table entry beside it |
 
 Adding any of these is a one-line change in the gate plus a mutation-table
 entry, not a redesign. What the gate does **not** prove is recorded beside
