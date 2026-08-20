@@ -3724,17 +3724,18 @@ def load_config(path):
     # platform - a prune is only wrong RELATIVE to what the rest asked for.
     features = validate_features(load_features(brd.get("features")),
                                  cons, clocking, interface, srp, platform)
-    if features["fabric_gptp"] and gptp is None:
-        raise ConfigError(
-            "board.features.fabric_gptp requires a gptp: section so the "
-            "microcode station identity and priority cannot fall back to "
-            "generator defaults")
-    # PHC OWNERSHIP, BOTH WAYS. The clock takes exactly one owner, so the
-    # two-owner refusal below needs its mirror: a profile that carries no
+    # PHC OWNERSHIP, BOTH WAYS, AND FIRST. The clock takes exactly one owner,
+    # so the two-owner refusal needs its mirror: a profile that carries no
     # gPTP software AND no fabric engine has ZERO owners, which is not a
     # weaker shape but an unsynchronisable one. It builds a handoff whose
     # gptp.cfg names a daemon the image does not contain, and on the wire the
     # clock free-runs and tu never clears.
+    #
+    # ORDER MATTERS. The `gptp:` requirement below is a consequence of having
+    # chosen the fabric plane; ownership is the choice itself. Asked first, it
+    # sent a Linux config that had simply omitted `fabric_gptp` off to write a
+    # `gptp:` section it must not have (three of the five tracked configs are
+    # Linux with no such section), which is the wrong fix stated confidently.
     if features["fabric_gptp"] and soc["software_profile"] == "linux":
         raise ConfigError(
             "board.features.fabric_gptp: true is incompatible with "
@@ -3752,6 +3753,11 @@ def load_config(path):
             "either, so the clock free-runs and CLKV_STAT never clears tu. "
             "Select fabric_gptp: true, or soc.software_profile: linux for "
             "the explicit software comparison.")
+    if features["fabric_gptp"] and gptp is None:
+        raise ConfigError(
+            "board.features.fabric_gptp requires a gptp: section so the "
+            "microcode station identity and priority cannot fall back to "
+            "generator defaults")
 
     out = dict(
         source=os.path.relpath(path, ROOT),

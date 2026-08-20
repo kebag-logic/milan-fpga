@@ -59,15 +59,30 @@ BUILD_CFGS = {
     "arty":  "configs/endstation_arty_current.yaml",
 }
 
-# FLOW flags, not SHAPE flags: Vivado directives and per-run paths that
-# emit_soc_argv deliberately does not emit (its own docstring says so, and the
-# sweep multiplies the place directive by three). They are build.sh's business
-# alone, so the flag-for-flag comparison below ignores them. --entity-gen-dir
-# is NOT in here: it names a config, and which config a recipe builds is
-# exactly the fact this gate exists to pin (see _entity_gen_dir_agrees).
+# FLOW flags, not SHAPE flags: the tail a launcher appends after the shape
+# flags. Vivado directives and per-run paths that emit_soc_argv deliberately
+# does not emit (its own docstring says so, and the sweep multiplies the place
+# directive by three). They are the launcher's business alone, so the
+# flag-for-flag comparison below ignores them.
+#
+# THIS SET IS ALSO THE BLIND SPOT IT CREATES, so it has a second consumer.
+# What a gate excludes from a comparison is exactly what separates a
+# reconstructed argv from the line that really runs, and `sweep.sh:121-123`
+# and `build.sh:290` both end in `--vivado-max-threads 32 --build`. A late
+# `gptp_plane = args.fabric_gptp and not args.build` in milan_soc.py was
+# therefore invisible to an argv built from emit_soc_argv alone (measured
+# 2026-08-20). sw/builder/test_builder.py gate 1e now RUNS every member of
+# this set, and asserts its own tail equals it, so adding a flag here without
+# exercising it there fails.
+#
+# --entity-gen-dir is NOT in here: it names a config, and which config a
+# recipe builds is exactly the fact this gate exists to pin (see
+# _entity_gen_dir_agrees). --load is not either: no recipe and no launcher
+# line carries it, and a set that gate 1e must run has no business naming the
+# flag that programs a board.
 FLOW_FLAGS = {
     "--synth-directive", "--opt-directive", "--place-directive",
-    "--vivado-max-threads", "--output-dir", "--build", "--load",
+    "--vivado-max-threads", "--output-dir", "--build",
 }
 
 # PINNED DIVERGENCES - live disagreements that are DELIBERATE (or at least
@@ -85,14 +100,24 @@ PINNED = {
     #      deliberate - they are pinned to their EXACT pair so the widening
     #      cannot be read as a blessing and so no side may move without this
     #      gate reporting it. Resolving them is issue #155; delete the entry
-    #      as each closes. Two are not cosmetic: --xlen is absent from both
-    #      recipes, so build.sh builds RV64 where both configs declare 32.
+    #      as each closes.
+    #
+    #      THE --xlen AND --cpu-count PAIRS ARE NOT IN THAT CLASS and carry
+    #      their own ticket, #157. Both recipes could not RUN at dev (no
+    #      --entity-gen-dir, #156), so the CPU they select goes live with the
+    #      #116 merge rather than having shipped for months. #116 made the
+    #      recipes STATE the RV64 the absent flag already selected, which
+    #      moves no elaborated SoC, and left the choice of winner to #157
+    #      because it costs a CPU change on an arm that cannot be measured
+    #      today.
     ("build.sh", "arty", "--xlen"): (
-        "(absent)", "32",
-        "#155: recipe omits --xlen, so RV64; endstation_arty_current.yaml "
-        "declares xlen 32"),
+        "64", "32",
+        "#157: recipe states the RV64 its absent --xlen already selected; "
+        "endstation_arty_current.yaml and sweep.sh's arty leg both say 32"),
     ("build.sh", "arty", "--cpu-count"): (
-        "2", "1", "#155: recipe builds two harts, the config declares one"),
+        "2", "1",
+        "#157: recipe builds two harts; the config and sweep.sh's arty leg "
+        "both say one"),
     ("build.sh", "arty", "--cbs-queues-mask"): (
         "(absent)", "0x10",
         "#155: recipe leaves every queue with a CBS instance; the config "
@@ -103,9 +128,11 @@ PINNED = {
         "--l2-down-pending=4 --l2-general-slots=8 --lsu-l1-refill-count=2",
         "#155: two different CPU cache profiles"),
     ("build.sh", "ax8x8", "--xlen"): (
-        "(absent)", "32",
-        "#155: recipe omits --xlen, so RV64; endstation_ax7101_8x8.yaml "
-        "declares xlen 32"),
+        "64", "32",
+        "#157: recipe states the RV64 its absent --xlen already selected; "
+        "endstation_ax7101_8x8.yaml declares 32. This recipe agrees with its "
+        "config on --cpu-count, which reads as an omission rather than a "
+        "decision"),
     ("build.sh", "ax8x8", "--cbs-queues-mask"): (
         "0x18", "0x10",
         "#155: recipe shapes class A AND class B; the config derives class "

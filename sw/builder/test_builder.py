@@ -192,6 +192,11 @@ Gates (gaps item 4, generator round):
       576-octet line buffer (1722.1-2021 Table 7-8: 138 + 8*N + 2*R).
 
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
+
+A gate that cannot run on this host SKIPS, and the final verdict NAMES every
+skip: `ALL GATES PASS (2 SKIPPED: gate 11, gate 19b csr.csv)`. Set
+MILAN_GATES_STRICT=1 to make any skip fatal, which is what a host that can
+run LiteX and holds the sibling repos should do.
 """
 
 import ast
@@ -218,6 +223,11 @@ import endstation_builder as eb  # noqa: E402
 #: (gate 10).  Imported rather than re-implemented: a second answer to that
 #: question is how gate 10 came to assume a config in the first place.
 import check_entity_shape as ces  # noqa: E402
+#: The owner of FLOW_FLAGS (gate 1e). Imported rather than restated: that set
+#: is what the build.sh shape comparison cannot see, so gate 1e has to RUN
+#: every member of it, and a second spelling of the list is a second thing
+#: that has to stay true.
+import check_sweep_shape as css  # noqa: E402
 
 CONFIGS = {
     "arty_current": os.path.join(ROOT, "configs/endstation_arty_current.yaml"),
@@ -229,6 +239,38 @@ CONFIGS = {
 }
 OUT = os.path.join(HERE, "out")
 SWEEP = os.path.join(ROOT, "sw/litex/sweep.sh")
+
+#: Gates that did NOT run, recorded by gate_skip() as they skip.
+#:
+#: THE EXIT CODE IS THE GATE. A gate that prints SKIP and returns used to let
+#: the run finish with a bare `ALL GATES PASS` and rc 0, and that verdict is
+#: what a reader, a PR comment and a CI badge consume: the prose was honest
+#: and the verdict was not. It is not hypothetical - on a bare container the
+#: LiteX gates are exactly the ones that cannot run, and gate 1e is the only
+#: thing standing between a `--fabric-gptp` flag and a bitstream with no time
+#: source, so its skip falls precisely where the proof is absent.
+#:
+#: Skips are NOT fatal by default. CI has no migen and no litex (the only pip
+#: installs in .github/workflows are pyyaml and behave), so a fatal default
+#: would paint CI permanently red without proving anything, and giving CI a
+#: LiteX is issue #154's, not this file's. What this list buys is that the
+#: verdict line CANNOT look clean while something did not run, and that a
+#: machine which CAN run the skipped gate is able to refuse to stop.
+SKIPPED = []
+
+#: Set to 1 to make ANY skip fatal (the run exits non-zero and names them).
+#: For the bench, for a release run, and for any host that can run LiteX.
+STRICT_ENV = "MILAN_GATES_STRICT"
+
+
+def gate_skip(gate, why):
+    """Record and announce a gate that could not run.
+
+    ONE place, so the printed reason and the verdict line cannot disagree,
+    and so a new skip is one call rather than one more silent `return`.
+    """
+    SKIPPED.append(gate)
+    print(f"  [{gate}] SKIP: {why}")
 #: The TRACKED entity definition - now ONE file, the shape include a gateware
 #: `include-s.  Path comes from the builder that writes it, so there is one
 #: spelling of it.  Its old partner hdl/ieee17221/aecp/gen/aecp_aem_rom.svh is
@@ -682,6 +724,33 @@ def test_gptp_product_default_and_legacy_option():
         finally:
             os.unlink(path)
 
+    # ORDER of the two fabric refusals, which decides which fix a reader is
+    # sent to. Three of the five tracked configs are Linux with no `gptp:`
+    # section, so a Linux config that merely OMITS `fabric_gptp` trips both
+    # rules at once. The `gptp:` requirement is a consequence of having chosen
+    # the fabric plane; ownership is the choice. Asked in the wrong order the
+    # builder told the reader to write a `gptp:` section that config must not
+    # have. Both directions are pinned: ownership first when both apply, and
+    # the section rule still first when it is the only one that does (gate 1b
+    # covers that arm on the bare-metal config).
+    order = _variant(CONFIGS["arty_current"],
+                     lambda c: c["board"]["features"].pop("fabric_gptp", None))
+    try:
+        assert "gptp" not in yaml.safe_load(open(CONFIGS["arty_current"])), \
+            "this ordering case needs a config with NO gptp: section"
+        try:
+            eb.load_config(order)
+        except eb.ConfigError as e:
+            assert "both own the PHC" in str(e), (
+                "a Linux config that omits fabric_gptp must be told about PHC "
+                "ownership first; it was told to add a gptp: section it must "
+                f"not have: {e}")
+        else:
+            raise AssertionError("a Linux config with the fabric default and "
+                                 "no gptp: section was accepted")
+    finally:
+        os.unlink(order)
+
     # The milan_soc.py half. WHAT IS PINNED HERE IS SPELLING ONLY - that the
     # two refusals and the profile-following default exist in the source at
     # all. That the parsed value REACHES p_GPTP_PLANE_EN_P is gate 1e's, by
@@ -733,8 +802,10 @@ def test_gptp_product_default_and_legacy_option():
     print("  [gate 1c] fabric gPTP is the omission/default on the bare-metal "
           "product and emits its ROM; the Linux comparison is explicit "
           "--no-fabric-gptp, retains ptp4l config; the default FOLLOWS the "
-          "software profile, and both a two-owner (Linux+fabric) and a "
-          "zero-owner (baremetal+no-fabric) request are rejected")
+          "software profile, both a two-owner (Linux+fabric) and a "
+          "zero-owner (baremetal+no-fabric) request are rejected, and a "
+          "Linux config that omits the key is sent to the ownership fix "
+          "rather than to a gptp: section it must not have")
 
 
 def test_gptp_rootfs_handoff_preserves_software_config():
@@ -944,16 +1015,58 @@ GPTP_PLANE_CASES = [
 ]
 
 
-def _gptp_runs():
+def _flow_tail(out_dir):
+    """The FLOW tail a real launcher appends after the shape flags.
+
+    THE WHOLE POINT OF THIS FUNCTION IS THAT THE GATE RUNS IT. An argv
+    rebuilt from `emit_soc_argv` alone is not the line that ships: every real
+    launch ends in the Vivado directives, the thread cap, an output directory
+    and `--build` (`sw/litex/sweep.sh:121-123`, `sw/litex/build.sh:290`).
+    Those are precisely the flags check_sweep_shape excludes from its
+    comparison, so they are precisely where a build differs from anything a
+    comparison can see, and a late
+
+        gptp_plane = args.fabric_gptp and not args.build
+
+    after every guard in milan_soc.py left this gate green while the real
+    `sweep.sh ax7101` line reached Instance with the plane OFF and no ROM
+    (measured 2026-08-20). That is the #130 / #143 decorative-flag class one
+    level up, inside the gate written to close it.
+
+    Values are the ones the shipping launchers actually pass. `--build` is
+    safe here and is not merely tolerated: the Instance is constructed inside
+    MilanSoC.__init__, and `args.build` is not read until
+    `builder.build(run=args.build)` hundreds of lines later, so the spy raises
+    first. The gate PROVES that rather than asserting it, by handing over an
+    empty directory and requiring it to still be empty afterwards.
+    """
+    tail = ["--synth-directive", "AreaOptimized_high",
+            "--opt-directive", "ExploreArea",
+            "--place-directive", "AltSpreadLogic_high",
+            "--vivado-max-threads", "32",
+            "--output-dir", out_dir,
+            "--build"]
+    named = {t for t in tail if t.startswith("--")}
+    assert named == css.FLOW_FLAGS, (
+        "gate 1e's flow tail and check_sweep_shape.FLOW_FLAGS have diverged "
+        f"({sorted(named ^ css.FLOW_FLAGS)}). That set is what the build.sh "
+        "comparison cannot see, so every member of it has to be RUN here or "
+        "the exclusion is a blind spot again")
+    return tail
+
+
+def _gptp_runs(out_dir):
     """(runs, gen dirs) for GPTP_PLANE_CASES, off each config's REAL argv.
 
     The baseline is the end-station builder's own emitted argv with the gptp
-    token removed, plus the flow flags every shipping invocation carries.
-    Including `--build` matters: a handoff conditioned on a flow flag can
+    token removed, PLUS the flow tail every launcher appends, so every case
+    differs from a real shipping command line by exactly the token under test.
+    Including `--build` is the point: a handoff conditioned on a flow flag can
     elaborate the right plane in a dry probe and ship the wrong one. The spy
     stops at Instance("milan_datapath"), before Vivado or the output path runs.
     """
     runs, gens = [], {}
+    tail = _flow_tail(out_dir)
     for label, key, flag, _want in GPTP_PLANE_CASES:
         if key not in gens:
             eb.build(CONFIGS[key], OUT)          # what --entity-gen-dir reads
@@ -965,13 +1078,8 @@ def _gptp_runs():
                                     if a not in ("--fabric-gptp",
                                                  "--no-fabric-gptp")])
         cfg, gen, base = gens[key]
-        flow = ["--synth-directive", "AreaOptimized_high",
-                "--opt-directive", "ExploreArea",
-                "--place-directive", "ExtraPostPlacementOpt",
-                "--vivado-max-threads", "32", "--build",
-                "--output-dir", os.path.join(OUT, "gptp_probe", key)]
         runs.append((label, base + ([flag] if flag else []) +
-                     ["--entity-gen-dir", gen] + flow))
+                     ["--entity-gen-dir", gen] + tail))
     return runs, gens
 
 
@@ -1035,20 +1143,33 @@ def test_gptp_plane_reaches_the_instance():
     parameters that actually reach the Instance in a real elaboration."""
     python = _litex_python()
     if python is None:
-        print("  [gate 1e] SKIP PHC-ownership behavioural proof: no "
-              "interpreter here can import migen + litex + litex_boards "
-              "(point MILAN_LITEX_PYTHON at one). Gate 1c holds the spelling "
-              "half structurally, and CI runs no LiteX")
+        gate_skip("gate 1e",
+                  "PHC-ownership behavioural proof: no interpreter here "
+                  "can import migen + litex + litex_boards (point "
+                  "MILAN_LITEX_PYTHON at one). Gate 1c holds the spelling "
+                  "half structurally, and CI runs no LiteX")
         return
-    runs, _gens = _gptp_runs()
-    got = _gptp_instance_params(python, runs)
-    bad = _gptp_plane_contract(got)
-    assert not bad, "gate 1e:\n  " + "\n  ".join(bad)
-    print(f"  [gate 1e] {len(runs)} real milan_soc.py elaborations: "
-          "--fabric-gptp lands as p_GPTP_PLANE_EN_P=1 with an absolute "
-          "p_GPTP_UCODE_HEX_P, --no-fabric-gptp lands as 0 with no ROM, and "
-          "on BOTH profiles omitting the flag reaches a byte-identical "
-          "Instance to stating it (the profile-following default)")
+    with tempfile.TemporaryDirectory(prefix="milan_gate1e_") as out_dir:
+        runs, _gens = _gptp_runs(out_dir)
+        got = _gptp_instance_params(python, runs)
+        bad = _gptp_plane_contract(got)
+        assert not bad, "gate 1e:\n  " + "\n  ".join(bad)
+        # `--build` was passed on every run. If the spy ever stopped raising
+        # at the Instance, LiteX would have written its gateware and software
+        # trees in here and Vivado would have been invoked. Still empty is the
+        # proof that these runs stop where they claim to.
+        left = os.listdir(out_dir)
+        assert not left, (
+            f"gate 1e ran with --build and the output directory is not empty "
+            f"({left}) - the Instance spy no longer stops the elaboration, so "
+            "these runs are not the cheap read-back they are documented to be")
+    print(f"  [gate 1e] {len(runs)} real milan_soc.py elaborations, each "
+          f"carrying the full launcher tail ({len(css.FLOW_FLAGS)} flow flags "
+          "including --build): --fabric-gptp lands as p_GPTP_PLANE_EN_P=1 "
+          "with an absolute p_GPTP_UCODE_HEX_P, --no-fabric-gptp lands as 0 "
+          "with no ROM, on BOTH profiles omitting the flag reaches a "
+          "byte-identical Instance to stating it, and the --build output "
+          "directory is still empty")
 
 
 #: gate 1e negative controls: (why, source mutation, labels that must redden).
@@ -1085,9 +1206,23 @@ GPTP_CHAIN_MUTATIONS = [
      [('args.fabric_gptp = (args.software_profile == "baremetal"',
        'args.fabric_gptp = (args.software_profile == "linux"', 1)],
      ["baremetal default"]),
+    # THE TWO ROWS THIS GATE WAS RE-CUT FOR (PR #135, 2026-08-20). BOTH key
+    # the plane off a FLOW flag rather than a shape flag, and both are
+    # invisible to an argv rebuilt from emit_soc_argv, because emit_soc_argv
+    # never emits --build while the real sweep.sh and build.sh lines always
+    # do. The gate catches them only because _flow_tail is part of every case.
+    # They are kept as a PAIR because the placement differs: one overrides at
+    # the handoff, the other AFTER every guard has already agreed, and a
+    # future refactor could reopen either alone.
     ("the shipping --build path overrides the parsed owner",
      [("gptp_plane=args.fabric_gptp",
        "gptp_plane=args.fabric_gptp and not args.build", 1)],
+     ["baremetal default", "baremetal explicit"]),
+    ("a late override keys the plane off a FLOW flag, after every guard",
+     [('select --software-profile linux")\n\n    # ---- L1 BINDING REFUSAL',
+       'select --software-profile linux")\n\n'
+       "    args.fabric_gptp = args.fabric_gptp and not args.build\n\n"
+       "    # ---- L1 BINDING REFUSAL", 1)],
      ["baremetal default", "baremetal explicit"]),
 ]
 
@@ -1101,41 +1236,44 @@ def test_gptp_plane_instance_gate_bites():
     restatement of it does."""
     python = _litex_python()
     if python is None:
-        print("  [gate 1e mutation] SKIP: no LiteX interpreter (see 1e)")
+        gate_skip("gate 1e mutation", "no LiteX interpreter (see 1e)")
         return
-    runs, _gens = _gptp_runs()
-    cases = dict(runs)
-    for why, mutations, labels in GPTP_CHAIN_MUTATIONS:
-        got = _gptp_instance_params(python,
-                                    [(lbl, cases[lbl]) for lbl in labels],
-                                    mutations)
-        bad = _gptp_plane_contract(got)
-        assert bad, (f"gate 1e accepted a milan_soc.py in which {why} "
-                     f"({mutations[0][0]!r} -> {mutations[0][1]!r})")
-    # And the two REFUSALS: a two-owner and a zero-owner argv must exit 2
-    # naming the profile, not elaborate. Read off the real stderr, so the
-    # message an operator sees is the thing that is graded.
-    refusals = _gptp_instance_params(python, [
-        ("two owners", [a for a in cases["linux explicit"]
-                        if a != "--no-fabric-gptp"] + ["--fabric-gptp"]),
-        ("zero owners", [a for a in cases["baremetal explicit"]
-                         if a != "--fabric-gptp"] + ["--no-fabric-gptp"]),
-    ])
-    wanted = {"two owners": ("--software-profile linux", "own the PHC"),
-              "zero owners": ("--software-profile baremetal", "NO PHC owner")}
-    for label, want in wanted.items():
-        row = refusals[label]
-        assert row.get("exit") == 2, \
-            f"{label}: milan_soc.py did not refuse ({row})"
-        for token in want:
-            assert token in row["stderr"], \
-                f"{label}: the refusal never names {token!r}: {row['stderr']}"
+    with tempfile.TemporaryDirectory(prefix="milan_gate1e_") as out_dir:
+        runs, _gens = _gptp_runs(out_dir)
+        cases = dict(runs)
+        for why, mutations, labels in GPTP_CHAIN_MUTATIONS:
+            got = _gptp_instance_params(python,
+                                        [(lbl, cases[lbl]) for lbl in labels],
+                                        mutations)
+            bad = _gptp_plane_contract(got)
+            assert bad, (f"gate 1e accepted a milan_soc.py in which {why} "
+                         f"({mutations[0][0]!r} -> {mutations[0][1]!r})")
+        # And the two REFUSALS: a two-owner and a zero-owner argv must exit 2
+        # naming the profile, not elaborate. Read off the real stderr, so the
+        # message an operator sees is the thing that is graded.
+        refusals = _gptp_instance_params(python, [
+            ("two owners", [a for a in cases["linux explicit"]
+                            if a != "--no-fabric-gptp"] + ["--fabric-gptp"]),
+            ("zero owners", [a for a in cases["baremetal explicit"]
+                             if a != "--fabric-gptp"] + ["--no-fabric-gptp"]),
+        ])
+        wanted = {"two owners": ("--software-profile linux", "own the PHC"),
+                  "zero owners": ("--software-profile baremetal",
+                                  "NO PHC owner")}
+        for label, want in wanted.items():
+            row = refusals[label]
+            assert row.get("exit") == 2, \
+                f"{label}: milan_soc.py did not refuse ({row})"
+            for token in want:
+                assert token in row["stderr"], \
+                    f"{label}: the refusal never names {token!r}: " \
+                    f"{row['stderr']}"
     print(f"  [gate 1e mutation] {len(GPTP_CHAIN_MUTATIONS)} broken links of "
-          "the shipping argv -> Instance chain rejected (a literal handoff, "
+          "the SHIPPING argv -> Instance chain rejected (a literal handoff, "
           "two tied forwards, a dropped keyword, an inverted and a renamed "
-          "parameter, a default that stops following the profile, and a "
-          "--build-only override), plus both refusals graded on the "
-          "operator-visible message")
+          "parameter, a default that stops following the profile, and two "
+          "overrides keyed on --build that only the launcher tail can see), "
+          "plus both refusals graded on the operator-visible message")
 
 
 def test_current_shape_matches_sweep_flags():
@@ -1647,8 +1785,8 @@ def _real_totals(path):
 
 def test_resource_calibration():
     if not os.path.exists(REAL_RPT):
-        print(f"  [gate 11] SKIP: real report not on disk ({REAL_RPT}) - "
-              "calibration gate needs the mf48 build tree")
+        gate_skip("gate 11", f"real report not on disk ({REAL_RPT}) - "
+                  "calibration gate needs the mf48 build tree")
         return
     real = _real_totals(REAL_RPT)
     est = eb.build(CONFIGS["arty_current"], OUT)["resource_estimate"]
@@ -2894,7 +3032,8 @@ def test_platform_dt_and_driver_shape():
         print(f"  [gate 19b] {cfg_name}: {len(pairs)} window bases "
               f"BYTE-MATCH the real LiteX csr.csv ({os.path.basename(os.path.dirname(csv))})")
     if not checked:
-        print("  [gate 19b] SKIP csr.csv cross-check: no build tree on disk")
+        gate_skip("gate 19b csr.csv",
+                  "cross-check needs a LiteX build tree on disk")
     checked = 0
     for cfg_name, board in (("arty_current", "arty"), ("ax7101_8x8", "ax7101")):
         dts = DEPLOYED_DTS[board]
@@ -2937,8 +3076,8 @@ def test_platform_dt_and_driver_shape():
               f"base + kl,rsc-clk-mhz + the station MAC MATCH the deployed "
               f"{os.path.basename(dts)}")
     if not checked:
-        print("  [gate 19b] SKIP deployed-.dts cross-check: sibling repo "
-              "milan-tests-avb not on disk")
+        gate_skip("gate 19b deployed-.dts",
+                  "cross-check needs the sibling repo milan-tests-avb")
 
 
 def test_platform_rejects():
@@ -5371,8 +5510,8 @@ def test_entity_identity_is_derived_not_mirrored():
          builds (sweep_config(), READ from sweep.sh - never restated here, the
          gate-9 rule). A stale file cannot survive."""
     if not os.path.exists(S50MILAN):
-        print("  [gate 25] SKIP identity-derivation cross-check: sibling repo "
-              "milan-tests-avb not on disk")
+        gate_skip("gate 25", "identity-derivation cross-check needs the "
+                  "sibling repo milan-tests-avb")
         return
     code = _sh_code(S50MILAN)
     seen = set()
@@ -6314,4 +6453,17 @@ if __name__ == "__main__":
                test_per_row_format_facts_are_per_row):
         print(f"{fn.__name__}:")
         fn()
-    print("ALL GATES PASS")
+    # THE VERDICT NAMES WHAT DID NOT RUN. A bare `ALL GATES PASS` after a
+    # gate skipped is a false green: the SKIP line is thousands of lines up
+    # the scroll and the exit code says nothing. The substring is preserved
+    # so existing consumers that grep for it still match; what changes is
+    # that a human cannot read a clean verdict without reading the count.
+    if SKIPPED:
+        print(f"ALL GATES PASS ({len(SKIPPED)} SKIPPED: "
+              f"{', '.join(SKIPPED)})")
+    else:
+        print("ALL GATES PASS")
+    if SKIPPED and os.environ.get(STRICT_ENV):
+        sys.exit(f"{STRICT_ENV}=1: refusing a green verdict with "
+                 f"{len(SKIPPED)} gate(s) that did not run: "
+                 f"{', '.join(SKIPPED)}")

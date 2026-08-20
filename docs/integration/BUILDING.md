@@ -133,9 +133,17 @@ Both Linux recipes (`cfg_ax8x8` and `cfg_arty`) state `--no-fabric-gptp`: the
 PHC takes exactly one owner and these rootfs images still start `ptp4l`. They
 also state `--entity-gen-dir`, which supplies the descriptor image, the
 reserved `ppmem` window and (on a fabric build) the gPTP ROM; `milan_soc.py`
-refuses to launch without it. `scripts/check_sweep_shape.py` compares each
-recipe against the end-station config named in its `ENTITY_CFG_<name>`
-variable flag for flag, so neither statement can drift back out.
+refuses to launch without it, so until it was added neither recipe could be
+launched at all. `scripts/check_sweep_shape.py` compares each recipe against
+the end-station config named in its `ENTITY_CFG_<name>` variable flag for
+flag, so neither statement can drift back out.
+
+Both also state `--xlen 64`, which is the value the absent flag already
+selected rather than a change of CPU. It disagrees with both configs, which
+declare `xlen: 32`, and on the Arty the recipe's `--cpu-count 2` disagrees
+with the config and with `sweep.sh`'s arty leg. Which side is authoritative
+is open (issue #157) and must not be guessed; the pair is pinned in the shape
+gate meanwhile.
 
 #### Choosing the Ethernet port (`--eth-port`)
 

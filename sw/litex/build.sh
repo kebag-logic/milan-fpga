@@ -166,7 +166,7 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
           --uart-baudrate 115200 --rx-queues 2 --strip-probes --hs-page-bytes 16384 \
           --num-streams 8 --audio-interface tdm32 --audio-interface-master \
           --talker-wire-chans 8 --no-latency-taps --no-i2s-playback \
-          --aaf-playback --no-fabric-gptp \
+          --aaf-playback --no-fabric-gptp --xlen 64 \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_ax7101_8x8 \
           --no-render-lpf --cbs-queues-mask 0x18 --synth-directive AreaOptimized_high \
           --opt-directive ExploreArea --place-directive AltSpreadLogic_high"
@@ -180,6 +180,14 @@ cfg_ax8x8() {    # 8-stream (64ch) shape. History: the 07-24 close used
                  # config named in ENTITY_CFG_ax8x8 below. Without it
                  # milan_soc.py refuses the launch, so this recipe could not
                  # be run at all.
+                 # --xlen 64 STATES WHAT THIS RECIPE ALREADY BUILDS. The flag
+                 # was absent and milan_soc.py defaults it to 64, so nothing
+                 # about the elaborated SoC moves; what moves is that the
+                 # value is now readable here, beside a config that declares
+                 # xlen 32. WHICH SIDE IS RIGHT IS NOT DECIDED HERE and must
+                 # not be guessed: see issue #157. Until it closes, the pair
+                 # is pinned in scripts/check_sweep_shape.py so neither end
+                 # can move quietly.
                  # --aaf-playback (task #31, 2026-08-02) = KL_pcm_tx host
                  # playback ring -> the chmap capture RING bucket: the ALSA
                  # playback direction (snd-kl-milan pb-dma window; DT
@@ -215,12 +223,17 @@ cfg_arty() {     # Arty A7-100 small endstation: MII 100M, QSPI flashboot (probe
           --uart-baudrate 115200 --timing-opt --strip-probes --l2-bytes 65536 \
           --scala-args=--lsu-l1-refill-count=8 --scala-args=--lsu-hardware-prefetch=rpt \
           --scala-args=--l2-down-pending=8 --scala-args=--l2-general-slots=16 \
-          --rx-queues 2 --hs-page-bytes 16384 --no-fabric-gptp \
+          --rx-queues 2 --hs-page-bytes 16384 --no-fabric-gptp --xlen 64 \
           --entity-gen-dir $SOC_DIR/../../configs/generated/endstation_arty_current"
-                 # --no-fabric-gptp / --entity-gen-dir: same two reasons as
-                 # cfg_ax8x8 above. Linux profile, one PHC owner, and the
-                 # config named in ENTITY_CFG_arty supplies the descriptor
-                 # image and platform shape this build cannot start without.
+                 # --no-fabric-gptp / --entity-gen-dir / --xlen 64: same three
+                 # reasons as cfg_ax8x8 above. Linux profile, one PHC owner,
+                 # the config named in ENTITY_CFG_arty supplies the descriptor
+                 # image and platform shape this build cannot start without,
+                 # and the RV64 the absent --xlen already selected is now
+                 # written down rather than inherited. This recipe also states
+                 # --cpu-count 2 where the config declares 1, and sweep.sh's
+                 # arty leg states RV32 with one hart. Three artifacts, two
+                 # answers: issue #157.
 }
 
 SWEEP_DIRECTIVES="ExtraPostPlacementOpt AltSpreadLogic_high ExtraTimingOpt"
