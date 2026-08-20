@@ -194,6 +194,7 @@ Gates (gaps item 4, generator round):
 Run: python3 sw/builder/test_builder.py   (or pytest sw/builder/test_builder.py)
 """
 
+import ast
 import copy
 import json
 import os
@@ -3276,6 +3277,61 @@ def _ax7101_taken_pins(plat, exclude_sub):
     return taken
 
 
+def _is_not_arg(node, dest):
+    """True only for the source expression `not args.<dest>`."""
+    return isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not) and \
+        isinstance(node.operand, ast.Attribute) and \
+        node.operand.attr == dest and \
+        isinstance(node.operand.value, ast.Name) and \
+        node.operand.value.id == "args"
+
+
+def _optional_block_cli_consumption(soc):
+    """Map every OPTIONAL_BLOCKS row to its consumption route in main().
+
+    Parsing the call rather than searching for each spelling matters: a dead
+    reference in a comment or helper must not prove that argparse's value
+    reaches the MilanSoC instance. Most blocks ride `optional_blocks`; the
+    older render_lpf ABI is intentionally a dedicated constructor keyword.
+    """
+    tree = ast.parse(soc, filename="sw/litex/milan_soc.py")
+    mains = [n for n in tree.body
+             if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+             and n.name == "main"]
+    assert len(mains) == 1, \
+        f"milan_soc.py: expected one main(), found {len(mains)}"
+    calls = [n for n in ast.walk(mains[0])
+             if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
+             and n.func.id == "MilanSoC"]
+    assert len(calls) == 1, \
+        f"milan_soc.py main(): expected one MilanSoC call, found {len(calls)}"
+    kwargs = {kw.arg: kw.value for kw in calls[0].keywords
+              if kw.arg is not None}
+    block_dict = kwargs.get("optional_blocks")
+    assert isinstance(block_dict, ast.Dict), \
+        "milan_soc.py main(): MilanSoC has no literal optional_blocks dict"
+    entries = {}
+    for key, value in zip(block_dict.keys, block_dict.values):
+        assert isinstance(key, ast.Constant) and isinstance(key.value, str), \
+            "milan_soc.py main(): optional_blocks keys must be string literals"
+        entries[key.value] = value
+
+    routes = {}
+    for name, (flag, _param, _why) in eb.OPTIONAL_BLOCKS.items():
+        dest = flag.removeprefix("--").replace("-", "_")
+        if _is_not_arg(entries.get(name), dest):
+            routes[name] = "optional_blocks"
+        elif _is_not_arg(kwargs.get(name), dest):
+            routes[name] = f"{name} keyword"
+        else:
+            raise AssertionError(
+                f"{name}: milan_soc.py main() does not consume `{flag}` as "
+                f"`not args.{dest}` in the MilanSoC optional_blocks dict or "
+                f"a dedicated `{name}=` keyword; the missing key defaults "
+                "to PRESENT and the prune flag becomes a silent no-op")
+    return routes
+
+
 def test_optional_block_names_reach_the_rtl():
     """gate 23d - the DECORATIVE-ABI gate, and the reason it exists is on the
     record: `milan_soc.py` passed `p_AAF_PLAYBACK` for weeks while the SV
@@ -3286,9 +3342,12 @@ def test_optional_block_names_reach_the_rtl():
       builder OPTIONAL_BLOCKS  <->  milan_soc.py MILAN_OPTIONAL_BLOCKS + argparse
                                <->  milan_datapath.sv `parameter int <NAME> = 1`
 
-    A rename or a typo in any one of them fails here in milliseconds."""
+    It also proves that main() CONSUMES every argparse value in the MilanSoC
+    call. A rename, typo or decorative --no-* flag fails here in milliseconds.
+    """
     soc = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
     rtl = open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read()
+    routes = _optional_block_cli_consumption(soc)
     # 1. the SoC's own keyword -> parameter map, parsed from the literal
     soc_map = dict(re.findall(r'^\s*"([a-z0-9_]+)":\s*"([A-Z0-9_]+)",',
                               soc[soc.index("MILAN_OPTIONAL_BLOCKS = {"):
@@ -3327,7 +3386,7 @@ def test_optional_block_names_reach_the_rtl():
         assert f'dp_params[f"p_{{param}}"] = 0' in soc or \
                re.search(r'dp_params\[f?"p_\{?param\}?"\]\s*=\s*0', soc), \
             "milan_soc.py must emit p_<PARAM>=0 only when pruning"
-    # 6. and the DOC that authorises all of this names the same six, with the
+    # 6. and the DOC that authorises all of this names the same blocks, with the
     #    same parameter and the same flag. A prune table that drifts from the
     #    RTL is how a banked lever becomes folklore.
     doc = open(os.path.join(ROOT, "docs/design/AREA_BUDGET.md")).read()
@@ -3342,8 +3401,12 @@ def test_optional_block_names_reach_the_rtl():
         lut = -eb.RESOURCE_COSTS[f"prune_{k}"]["lut"]
         assert re.search(r"\| %s \|" % lut, doc) or f"{lut}" in doc, \
             f"AREA_BUDGET.md does not carry the banked {lut} LUT for {k}"
+    direct = sorted(k for k, route in routes.items()
+                    if route != "optional_blocks")
     print(f"  [gate 23d] {len(eb.OPTIONAL_BLOCKS)} optional blocks: builder "
-          "key == milan_soc.py map == a real --no-* store_true == a "
+          "key == milan_soc.py map == a real --no-* store_true CONSUMED by "
+          f"main() ({len(routes) - len(direct)} through optional_blocks, "
+          f"dedicated {direct}) == a "
           "milan_datapath `parameter int X = 1` guarding a generate WITH an "
           "else arm == the AREA_BUDGET tier-1 table row (the "
           "p_AAF_PLAYBACK silent-no-op class, closed)")
@@ -3382,6 +3445,44 @@ def test_optional_block_names_reach_the_rtl():
           "p_LOOPBACK_P == `parameter int LOOPBACK_P = 0` == the strobe gate "
           "== the connected lb_tvalid_i == the config declaration that "
           "primary_segment reads (same silent-no-op class, opposite polarity)")
+
+
+def test_optional_block_consumption_gate_bites():
+    """Gate 23d negative controls: disconnect every current CLI handoff.
+
+    Replacing the live predicate with True models the exact failure from #130:
+    argparse still accepts the flag, but main() always tells MilanSoC that the
+    block is present. Every row must turn the focused consumption check red.
+    """
+    soc = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
+    rejected = []
+    for name, (flag, _param, _why) in eb.OPTIONAL_BLOCKS.items():
+        dest = flag.removeprefix("--").replace("-", "_")
+        patterns = (
+            r'(^\s*"%s"\s*:\s*)not\s+args\.%s\b'
+            % (re.escape(name), re.escape(dest)),
+            r'(^\s*%s\s*=\s*)not\s+args\.%s\b'
+            % (re.escape(name), re.escape(dest)),
+        )
+        bad, changed = soc, 0
+        for pattern in patterns:
+            bad, n = re.subn(pattern, r"\g<1>True", bad, count=1,
+                             flags=re.M)
+            changed += n
+        assert changed == 1, (
+            f"{name}: negative control found {changed} live handoffs, want 1")
+        try:
+            _optional_block_cli_consumption(bad)
+        except AssertionError as exc:
+            assert name in str(exc), \
+                f"{name}: mutation failed for the wrong reason: {exc}"
+            rejected.append(name)
+        else:
+            raise AssertionError(
+                f"{name}: gate 23d accepted a decorative `{flag}` whose "
+                "main() handoff was replaced with True")
+    print(f"  [gate 23d mutation] {len(rejected)}/{len(eb.OPTIONAL_BLOCKS)} "
+          "disconnected --no-* handoffs rejected by block name")
 
 
 # ======================================================== gates 24c / 24d ====
@@ -5277,6 +5378,7 @@ if __name__ == "__main__":
                test_optional_block_gates_bite,
                test_optional_block_prune_accounting,
                test_optional_block_names_reach_the_rtl,
+               test_optional_block_consumption_gate_bites,
                test_tdm_master_binding_reaches_the_pins,
                test_tdm_master_binding_gate_bites,
                test_front_end_routing_per_board,
