@@ -46,13 +46,14 @@ the gptp2csr fallback there, then use #117 to prove a booted default build reads
 
 ## Contents
 
+- **[Current default at 0x0002_0055](#current-default-at-0x0002_0055)** — The fabric engine owns BMCA, pdelay, PHC discipline and the committed publication bank; the sibling-rootfs retirement and #117 silicon observation remain explicit blockers
 - **[1. What "GM lost" actually is on the wire](#1-what-gm-lost-actually-is-on-the-wire)** — Loss is inferred from announce silence; a deferring device still self-claims when alone, and the real GM's return is a measured 18-60 s phase cliff, not a smooth re-slave
-- **[2. The historical ptp4l comparison](#2-the-ptp4l-layer--step-vs-slew-and-the-one-step-budget)** — option-off step/slew measurements
-- **[3. The historical publication chain](#3-the-publication-layer--how-the-fabric-learns-about-it)** — the retired UDS/statd/CSR lease baseline
-- **[4. The honesty layer — tu](#4-the-honesty-layer--tu-the-timestamp-uncertain-bit)** — common fabric holdover, with owner selected at elaboration
+- **[2. The ptp4l layer — step vs slew, and the one-step budget](#2-the-ptp4l-layer--step-vs-slew-and-the-one-step-budget)** — option-off step/slew measurements
+- **[3. The publication layer — how the fabric learns about it](#3-the-publication-layer--how-the-fabric-learns-about-it)** — the retired UDS/statd/CSR lease baseline
+- **[4. The honesty layer — tu, the timestamp-uncertain bit](#4-the-honesty-layer--tu-the-timestamp-uncertain-bit)** — common fabric holdover, with owner selected at elaboration
 - **[5. The announcement layer — ADP, counters, pushes](#5-the-announcement-layer--adp-counters-pushes)** — The out-of-cycle ADPDU, GPTP_GM_CHANGED, and the single event-law push burst a GM change produces
 - **[6. The media layer — where the minutes used to go](#6-the-media-layer--where-the-minutes-used-to-go)** — The root-caused 2-minute walk, and the as-built cure: the 0x002A recenter snap plus the 0x002B free-wheeling lock, with SRP untouched by design
-- **[7. The recovery timeline, end to end (as built)](#7-the-recovery-timeline-end-to-end-as-built)** — The full T+0 to T+50s sequence; everything after the GM returns is seconds
+- **[7. The recovery timeline, end to end (fabric default)](#7-the-recovery-timeline-end-to-end-fabric-default)** — Announce timeout clears sync and asserts `tu`; reacquisition steps or slews the PHC, then clears `tu` after the common holdover without a daemon lease
 - **[8. Traps on record (all hit live, all in memory)](#8-traps-on-record-all-hit-live-all-in-memory)** — The five ways this mechanism burned us on the bench and the cure for each
 
 ## 1. What "GM lost" actually is on the wire
