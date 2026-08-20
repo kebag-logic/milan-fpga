@@ -22,6 +22,7 @@
 VERILATOR ?= verilator
 RTL_DIR    = ../../../hdl
 PP_DIR     = ../../../protocol-processor/hdl
+GPTP_DIR   = ../../../gptp-processor/hdl
 AXIS_DIR   = ../../../third_party/verilog-axis/rtl
 TOP        = milan_datapath
 
@@ -61,8 +62,8 @@ G_AX8X8 = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0 \
           -GSOUND_CARD_P=1 -GAAF_PLAYBACK_P=1
 
 # ---- cfg-sweep smoke shapes (case e) ---------------------------------------
-G_SMALL = -GN_STREAMS=1 -GMILAN_CLK_FREQ_HZ=50000000  -GAUDIO_IF_SLOTS_P=0 -GSOUND_CARD_P=1
-G_N4    = -GN_STREAMS=4 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0 -GSOUND_CARD_P=1
+G_SMALL = -GN_STREAMS=1 -GMILAN_CLK_FREQ_HZ=50000000  -GAUDIO_IF_SLOTS_P=0 -GSOUND_CARD_P=1 -GGPTP_PLANE_EN_P=0
+G_N4    = -GN_STREAMS=4 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0 -GSOUND_CARD_P=1 -GGPTP_PLANE_EN_P=0
 G_TDM8  = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=8 -GSOUND_CARD_P=1
 # ---- item-4 TDM32 MASTER (case e, 2026-07-28): the shape the AX7101
 #      8x8 argv now emits - `--audio-interface tdm32
@@ -90,7 +91,16 @@ P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
 # instantiates KL_pp_shadow unconditionally), so its sources come from the
 # ONE list that is proven to elaborate rather than a second copy here.
 PP_SRCS := $(shell $(MAKE) -s -C ../milan_dp print-pp-srcs)
-SRCS = $(PP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv \
+# The product RTL default is now fabric gPTP. Parse the complete plane for
+# every shape, elaborate it on the AX7101 legs, and explicitly keep the two
+# Arty Linux comparison legs on their config-selected software path above.
+GPTP_SRCS = $(GPTP_DIR)/ucpu/gptp_ucpu_pkg.sv $(GPTP_DIR)/ucpu/KL_gptp_ucpu.sv \
+       $(GPTP_DIR)/wire/KL_gptp_rx_parser.sv $(GPTP_DIR)/wire/KL_gptp_tx_slot.sv \
+       $(GPTP_DIR)/common/KL_gptp_timer.sv $(GPTP_DIR)/top/KL_gptp_engine.sv \
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
+       $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txstamp.sv
+
+SRCS = $(PP_SRCS) $(GPTP_SRCS) $(C)/ethernet_packet_pkg.sv $(C)/axi_stream_if.sv \
        $(AXIS_DIR)/axis_fifo.v $(AXIS_DIR)/axis_demux.v $(AXIS_DIR)/axis_arb_mux.v \
        $(AXIS_DIR)/arbiter.v $(AXIS_DIR)/priority_encoder.v \
        $(Q)/traffic_class_map.sv $(Q)/traffic_classifier.sv $(Q)/credit_based_shaper.sv \
@@ -156,10 +166,10 @@ build:
 		-CFLAGS "-DNSTREAMS_TB=4 -DMILAN_CLK_TB=100000000 -DSHAPE_NAME=\\\"mid-4x-100MHz\\\"" \
 		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_n4
 	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS_COMMON) --Mdir obj_tdm8 $(G_TDM8) \
-		-CFLAGS "-DNSTREAMS_TB=8 -DMILAN_CLK_TB=100000000 -DTDM_SHAPE_TB=1 -DSHAPE_NAME=\\\"tdm8-8x-100MHz\\\"" \
+		-CFLAGS "-DNSTREAMS_TB=8 -DMILAN_CLK_TB=100000000 -DTDM_SHAPE_TB=1 -DFABRIC_GPTP_TB=1 -DSHAPE_NAME=\\\"tdm8-8x-100MHz\\\"" \
 		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_tdm8
 	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS_COMMON) --Mdir obj_tdm32m $(G_TDM32M) \
-		-CFLAGS "-DNSTREAMS_TB=8 -DMILAN_CLK_TB=100000000 -DTDM_SHAPE_TB=1 -DSHAPE_NAME=\\\"tdm32master-8x-100MHz\\\"" \
+		-CFLAGS "-DNSTREAMS_TB=8 -DMILAN_CLK_TB=100000000 -DTDM_SHAPE_TB=1 -DFABRIC_GPTP_TB=1 -DSHAPE_NAME=\\\"tdm32master-8x-100MHz\\\"" \
 		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_tdm32m
 
 # ---- NEGATIVE SHAPES: the elaboration guards must FIRE --------------------
@@ -202,7 +212,10 @@ ltn_rom.hex: $(PP_DIR)/acmp/rom/gen_ltn_rom.py
 ucode.hex: $(PP_DIR)/aecp/ucode/gen_ucode.py
 	python3 $< -o $@
 
-run: ltn_rom.hex ucode.hex banner build guards
+gptp_ucode.hex: $(GPTP_DIR)/ucode/gen_gptp_ucode.py
+	python3 $< --clk-hz 100000000 -o $@
+
+run: ltn_rom.hex ucode.hex gptp_ucode.hex banner build guards
 	@rc=0; \
 	./obj_ax8x8/Vhostplane_ax8x8        || rc=1; \
 	./obj_small/Vhostplane_smoke_small  || rc=1; \
@@ -212,5 +225,5 @@ run: ltn_rom.hex ucode.hex banner build guards
 	exit $$rc
 
 clean:
-	rm -f ltn_rom.hex ucode.hex
+	rm -f ltn_rom.hex ucode.hex gptp_ucode.hex
 	rm -rf obj_ax8x8 obj_small obj_n4 obj_tdm8 obj_tdm32m

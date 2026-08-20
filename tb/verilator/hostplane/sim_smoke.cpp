@@ -223,7 +223,13 @@ int main(int argc, char** argv) {
     // many bridges an Announce traversed - so if either group ever became
     // shape-dependent, these two lines are where it would show.
     axi_write(A_CLKV_CTRL, 0x00000FF5);        // SYNC_OK | AS_CAPABLE | lease
-    ck("J3 asCapable leased at this shape", (axi_read(A_CLKV_STAT) >> 16) & 1, 1);
+#ifdef FABRIC_GPTP_TB
+    // #116: the fabric publication bank owns live health in product shapes.
+    // Retained software writes remain ABI-safe but cannot forge asCapable.
+    ck("J3 fabric owner rejects software asCapable", (axi_read(A_CLKV_STAT) >> 16) & 1, 0);
+#else
+    ck("J3 software asCapable leased at this shape", (axi_read(A_CLKV_STAT) >> 16) & 1, 1);
+#endif
     axi_write(A_ASP_LO, 0xFFFE0210); axi_write(A_ASP_HI, 0x3CC0C6FF);
     axi_write(A_ASP_CMD, 0x80000100);          // commit -> slot 1
     axi_write(A_ASP_CMD, 0x40000002);          // publish GM + 1 bridge
