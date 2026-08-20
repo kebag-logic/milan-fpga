@@ -1154,9 +1154,13 @@ def test_baremetal_profile_contract():
         for name, body in re.findall(
                 r"(?m)^[ \t]*#[ \t]*define[ \t]+(\w+)(?:\([^)\n]*\))?[ \t]*"
                 r"([^\r\n]*)$", code):
-            assert not re.search(r"\bmilan_(?:reg|read|write)\b", body), \
-                f"#define {name} aliases a CSR primitive: every CSR store " \
-                "must be spelled milan_write() so the census can see it"
+            hidden = re.search(r"\bmilan_(?:reg|read|write)\b", body)
+            assert not hidden, \
+                f"#define {name} hides {hidden.group(0)}() inside a macro " \
+                "body: every call to a CSR primitive must be spelled out so " \
+                "the operand census can read which register it names. A " \
+                "read-only accessor macro contains no store and is refused " \
+                "for this reason, not for storing"
         # 5. ... and the cast set and the store set, restored: they catch
         #    address formation the compiled census cannot see because no
         #    window immediate is ever printed.
@@ -1583,6 +1587,14 @@ def test_baremetal_profile_contract():
             "address; refusing rather than censusing against a guess"
         reg_name = helper.group(1)
         compiler = census_compiler()
+        if compiler and not census_used.get("target"):
+            # GENUINELY stand down. The previous revision printed
+            # "STOOD DOWN" and then ran the census anyway: `-S` does not
+            # assemble, so a host compiler emits most of the firmware fine
+            # and returned a real x86 verdict while the printed line said
+            # the text rules were carrying it alone. A stand-down message
+            # that is false is worse than no stand-down.
+            return
         assert compiler, \
             "the compiled census needs a C compiler and found none of " \
             f"{list(census_compilers)}: this gate cannot bound CSR stores " \
@@ -1598,18 +1610,8 @@ def test_baremetal_profile_contract():
                  "-o", assembly, f"-I{root}", source],
                 capture_output=True, text=True)
             if built.returncode != 0:
-                # A compiler that is not the target cannot build the
-                # firmware's RISC-V asm, and that is a fact about the
-                # MACHINE, not about the firmware. Refusing here would make
-                # the gate red on any runner without a cross toolchain,
-                # which is exactly what it did on ubuntu-latest. So the
-                # census stands down, LOUDLY and by name in the verdict,
-                # and the text rules above carry the property on their own.
-                assert census_used.get("target"), \
-                    f"the compiled census stood down on the {label}: " \
-                    f"{compiler} is not the RV32 target and cannot build " \
-                    "it. The cast, store and asm sets above still answer, " \
-                    "and this is recorded in the printed verdict"
+                # Reached only when the compiler IS the RV32 target, since a
+                # non-target one returned above without compiling anything.
                 raise AssertionError(
                     f"the compiled census could not build the {label} with "
                     f"{compiler}, which IS the RV32 target: a source this "
@@ -1958,9 +1960,32 @@ def test_baremetal_profile_contract():
             "make must not link anything into the one object: a partial " \
             "link merges translation units the CSR store closure never " \
             f"reads; make runs {linkers}"
-        # ... and the flags, because a flag can move the compiled text as
-        # surely as a rule can: -include injects a whole source, -I/-iquote
-        # decide which file a pinned include name resolves to.
+        # ... and the FLAGS, read off the whole recipe line rather than out
+        # of CFLAGS. A flag moves the compiled text as surely as a rule
+        # does, and it does not have to arrive through CFLAGS to do it:
+        # `CC += -include ../shadow.h` puts a second file into the one
+        # translation unit with no `.c` in the plan, no `.o`, and no CFLAGS
+        # token, because LiteX defines `compile` as `$(CC) -c $(CFLAGS) ...`.
+        # Reading the LINE closes CC, AR and every other tool variable in one
+        # rule instead of one name at a time.
+        injected = [(line, token) for line in recipes
+                    for token in line.split()
+                    if re.fullmatch(r"-(?:include|imacros)", token) or
+                    token.startswith(("-include", "-imacros"))]
+        assert not injected, \
+            "no command make runs may inject a file into the translation " \
+            "unit: -include/-imacros hand the compiler a whole source with " \
+            "no #include line for the pinned set to catch and no .c in the " \
+            f"plan for this gate to count; make runs {injected[:2]}"
+        searched = [(line, token) for line in recipes
+                    for token in line.split()
+                    if re.match(r"-(?:I|iquote|isystem|idirafter)", token) and
+                    token != f"-I{make_sentinels['BIOS_DIRECTORY']}"]
+        assert not searched, \
+            "no command make runs may add an include search path beyond the " \
+            "one this Makefile has always had: a search path decides which " \
+            "file a pinned include name resolves to, so it puts this " \
+            f"repository's text behind that name; make runs {searched[:2]}"
         added = [token for token in variables.get("CFLAGS", "").split()
                  if token not in make_sentinels.values()]
         assert added == [f"-I{make_sentinels['BIOS_DIRECTORY']}"], \
@@ -2043,7 +2068,14 @@ def test_baremetal_profile_contract():
         guard = re.search(
             r"\bif\s*\(\s*aem_loaded\s*\)\s*\{", init_source)
         assert configure and load and guard, \
-            "firmware must configure, load AEM, then guard entity enable"
+            "firmware must configure, load AEM, then guard entity enable. " \
+            "NOTE, because this message has misdiagnosed a rename before: " \
+            "this gate finds the verdict by the literal identifier " \
+            "'aem_loaded' and the guard by 'if (aem_loaded)'. If those three " \
+            "steps are all present and you renamed the verdict, the boot " \
+            "order is fine and it is this gate that cannot follow the " \
+            f"rename; found configure={bool(configure)} load={bool(load)} " \
+            f"guard={bool(guard)}"
         positions = [configure.start(), load.start(), guard.start()]
         assert positions == sorted(positions), \
             "firmware no longer configures, verifies AEM, then checks its verdict"
@@ -2404,15 +2436,28 @@ def test_baremetal_profile_contract():
             firmware_source, "static int aem_loaded;",
             f"#define {name} 0x{address:03x}u\n\nstatic int aem_loaded;",
             f"{name} alias define")
-        return replace_once(with_define, source_fabric_body,
-                            "\n\t" + statement + source_fabric_body,
+        return replace_once(with_define, fabric_tail,
+                            fabric_tail + "\n\t" + statement,
                             f"{name} alias write")
 
+    #: The END of configure_fabric()'s body: after the firmware's own pre-AEM
+    #: clears and before load_aem_image() runs.
+    #:
+    #: Splicing at the HEAD of the body, which is what these used to do, put
+    #: the mutant's enable two statements ahead of
+    #: `milan_write(ADP_CTRL, ... & ~1u)`, so the firmware cleared the bit
+    #: again and the mutant firmware did not actually advertise before AEM
+    #: verification. The rule still bit, on the syntax, but the LABEL claimed
+    #: a defect the mutant did not contain. Same class as the mutants that
+    #: once stored to 0xf000_0600: address right, ordering wrong.
+    fabric_tail = source_fabric_body.rstrip()
+
     def enabled_before_aem(statement):
-        """`statement` spliced into configure_fabric(), i.e. onto the boot
-        path BEFORE the AEM image has been verified."""
-        return replace_once(firmware_source, source_fabric_body,
-                            "\n\t" + statement + source_fabric_body,
+        """`statement` spliced at the END of configure_fabric(), i.e. onto
+        the boot path after the pre-AEM clears and before the AEM image has
+        been verified, so the bit is still set when the verifier runs."""
+        return replace_once(firmware_source, fabric_tail,
+                            fabric_tail + "\n\t" + statement,
                             "pre-AEM entity enable")
 
     alias_adp_enable = aliased(
@@ -2761,8 +2806,11 @@ def test_baremetal_profile_contract():
     #: ADP_CTRL at all, so they reddened on an address-blind rule while
     #: demonstrating no entity enable whatsoever.
     def stored_before_aem(statement, label):
-        return replace_once(firmware_source, source_adp_clear + ";",
-                            statement + "\n\t" + source_adp_clear + ";", label)
+        """Spliced at the END of configure_fabric(), for the same reason
+        enabled_before_aem() is: ahead of the clears the firmware would undo
+        the mutant's own store before the AEM decision."""
+        return replace_once(firmware_source, fabric_tail,
+                            fabric_tail + "\n\t" + statement, label)
 
     adp_window_address = csr_base + source_model.adp
     raw_address = f"0x{adp_window_address:08x}u"
@@ -2987,6 +3035,21 @@ def test_baremetal_profile_contract():
         f"-o {second_object}\n\t$(AR) crs $@ $(OBJECTS)\n"
         f"\tar q $@ {second_object}",
         "second object archived by a literal ar")
+    #: ---- a second file injected through a TOOL variable. LiteX defines
+    #: `compile` as `$(CC) -c $(CFLAGS) ...`, so a flag on CC reaches the
+    #: shipping compile. It contributes no `.c` to the plan, no `.o`, and no
+    #: CFLAGS token, which is why reading the flags out of CFLAGS missed it
+    #: and reading the whole recipe LINE catches it.
+    tool_variable_injection = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\n"
+        "CC += -include $(LIBMILAN_BAREMETAL_DIRECTORY)/../shadow.h",
+        "second file injected through CC")
+    tool_variable_search_path = replace_once(
+        makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+        "CFLAGS += -I$(BIOS_DIRECTORY)\nCC += -iquote ../shadow",
+        "search path added through CC")
+
     #: ---- and MAKEFLAGS += -e, RESTORED as a mutant. Round nine retired it
     #: on a false measurement; it does let the environment override OBJECTS
     #: and CFLAGS in the same run. It is pinned on the hostile double-run,
@@ -3067,6 +3130,124 @@ def test_baremetal_profile_contract():
             firmware_source, docs_source, csr_source,
             makefile_source[:objects_span_at] + spelling +
             makefile_source[objects_span_to:])
+
+    #: ---- ACCEPTED cases, executable at last -----------------------------
+    #:
+    #: 83 rejections and, until now, not one executable statement of what a
+    #: LEGITIMATE firmware edit looks like. That is the gap this lane kept
+    #: falling into: three separate rounds shipped a false RED that failed
+    #: the SUITE from the mutation scaffolding, and review found every one
+    #: of them, because the suite had nothing to catch them with. A refusal
+    #: instrument whose entire cost is measured in legitimate edits needs
+    #: its legitimate edits to be a measurement, not a memory.
+    #:
+    #: Each entry is a real edit to the shipping firmware that must stay
+    #: GREEN. Derived from the firmware's own text wherever a name or a
+    #: statement is involved, so a rename upstream does not silently turn an
+    #: accepted case into a no-op.
+    accepted_pp_clear = source_pp_clear
+    accepted_adp_clear = source_adp_clear
+    accepted_cases = {
+        "unrelated | 2u write to an already-decoded register":
+            replace_once(firmware_source, accepted_adp_clear + ";",
+                         accepted_adp_clear + ";\n\tmilan_write("
+                         f"{adp_name}, milan_read({adp_name}) | 2u);",
+                         "unrelated bit write"),
+        "wider pre-AEM clear (& ~3u)":
+            replace_once(firmware_source, accepted_adp_clear,
+                         f"milan_write({adp_name}, milan_read({adp_name})"
+                         " & ~3u)", "wider clear"),
+        "comment between the two enables":
+            replace_once(firmware_source, adp_enable_text,
+                         "/* ADP last: never advertise before the PP is up. */"
+                         "\n\t\t" + adp_enable_text, "comment in the guard"),
+        "Allman braces on the AEM-success guard":
+            replace_once(firmware_source, guard_statement,
+                         guard_statement.replace("{", "\n\t{"),
+                         "Allman guard"),
+        "literal-zero pre-AEM clear":
+            replace_once(firmware_source, accepted_adp_clear,
+                         f"milan_write({adp_name}, 0u)", "literal zero clear"),
+        "& ~(1u << 0) pre-AEM clear":
+            replace_once(firmware_source, accepted_adp_clear,
+                         f"milan_write({adp_name}, milan_read({adp_name})"
+                         " & ~(1u << 0))", "shifted mask clear"),
+        "& 0xfffffffeu pre-AEM clear":
+            replace_once(firmware_source, accepted_adp_clear,
+                         f"milan_write({adp_name}, milan_read({adp_name})"
+                         " & 0xfffffffeu)", "explicit mask clear"),
+        "multi-line enable in the guarded block":
+            replace_once(firmware_source, adp_enable_text,
+                         f"milan_write({adp_name},\n\t\t\t    "
+                         f"milan_read({adp_name}) | 1u)", "wrapped enable"),
+        "hex 0x1u enable mask":
+            replace_once(firmware_source, adp_enable_text,
+                         f"milan_write({adp_name}, milan_read({adp_name})"
+                         " | 0x1u)", "hex enable mask"),
+        "a printf naming milan_write":
+            replace_once(firmware_source, accepted_adp_clear + ";",
+                         accepted_adp_clear + ";\n\tprintf(\"milan_write()"
+                         " clears done.\\n\");", "printf naming the helper"),
+        "a commented-out enable":
+            replace_once(firmware_source, accepted_adp_clear + ";",
+                         accepted_adp_clear + ";\n\t/* "
+                         + adp_enable_text + "; */", "commented-out enable"),
+        "a second printf inside the guarded block":
+            replace_once(firmware_source, adp_enable_text + ";",
+                         adp_enable_text + ";\n\t\tprintf(\"entity up\\n\");",
+                         "second printf in the guard"),
+        "the pre-AEM clears relocated into milan_init()":
+            replace_once(
+                replace_once(firmware_source,
+                             accepted_adp_clear + ";\n\t"
+                             + accepted_pp_clear + ";\n", "",
+                             "clears lifted out of configure_fabric()"),
+                configure_statement,
+                accepted_adp_clear + ";\n\t" + accepted_pp_clear + ";\n\t"
+                + configure_statement, "clears relocated into milan_init()"),
+    }
+    for label, accepted in accepted_cases.items():
+        assert accepted != firmware_source, \
+            f"accepted case {label!r} did not change the firmware, so it " \
+            "measures nothing"
+        try:
+            assert_boot_contract(accepted, docs_source, csr_source)
+        except (AssertionError, ValueError) as exc:
+            raise AssertionError(
+                f"a LEGITIMATE firmware edit is refused: {label}. This gate "
+                "is a refusal instrument and its whole cost is measured in "
+                "edits like this one, so a new rule that reddens it is a "
+                f"regression until the cost is disclosed. Gate said: {exc}"
+            ) from exc
+    #: ... and the Makefile edits the cost list calls GREEN, measured too.
+    accepted_makefiles = {
+        "an unrelated DEPFILES variable":
+            replace_once(makefile_source, "OBJECTS = " + firmware_object,
+                         "DEPFILES = $(patsubst %.o,%.d,$(OBJECTS))\n"
+                         "OBJECTS = " + firmware_object, "DEPFILES"),
+        # A DELIBERATE green, recorded here so it is a measurement and not
+        # an omission. `cc2ee861` refused this through the assignable-name
+        # allowlist; that allowlist was a blunt instrument and `AR += v`
+        # injects nothing, adds no search path, no source and no object. It
+        # only makes the archiver verbose.
+        "a verbose flag on the archiver (AR += v)":
+            replace_once(makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+                         "CFLAGS += -I$(BIOS_DIRECTORY)\nAR += v",
+                         "verbose archiver"),
+        "an extra phony target":
+            replace_once(makefile_source, ".PHONY: all clean",
+                         ".PHONY: all clean tags\n\ntags:\n\t$(CTAGS) *.c",
+                         "extra phony target"),
+    }
+    for label, accepted in accepted_makefiles.items():
+        assert accepted != makefile_source, f"{label} changed nothing"
+        try:
+            assert_boot_contract(firmware_source, docs_source, csr_source,
+                                 accepted)
+        except (AssertionError, ValueError) as exc:
+            raise AssertionError(
+                f"a LEGITIMATE Makefile edit is refused: {label}; "
+                f"gate said: {exc}") from exc
 
     mutations = (
         ("old AEM-gated PTP documentation", firmware_source,
@@ -3304,20 +3485,16 @@ def test_baremetal_profile_contract():
          reordered_cast_store, docs_source, csr_source, "the firmware's casts to a pointer are pinned"),
         ("entity enabled through a pointer held in a local",
          local_pointer_store, docs_source, csr_source, "the firmware's casts to a pointer are pinned"),
-        ("entity enabled by a helper storing through its parameter",
+        # NOT an entity enable, and the label no longer says it is: the
+        # store goes to a private static. It is the cost demonstration for
+        # the pointer-store set, which refuses a new store BECAUSE it cannot
+        # tell where the pointer points, and that is the property it pins.
+        ("a new store through a pointer whose target this gate cannot read",
          helper_pointer_store, docs_source, csr_source,
          "the firmware's stores through a pointer are pinned"),
         # ---- the four shapes no recognizer in this file ever saw. Each is
         # an ordinary embedded idiom and each passed the complete suite at
         # cc2ee861; only the compiled census sees them.
-        ("entity enabled through a typedef'd pointer and an access macro",
-         typedef_macro_store, docs_source, csr_source, CENSUS_PIN),
-        ("entity enabled through a struct overlay and an -> store",
-         overlay_member_store, docs_source, csr_source, CENSUS_PIN),
-        ("entity enabled through a typedef'd pointer and a subscript store",
-         typedef_subscript_store, docs_source, csr_source, CENSUS_PIN),
-        ("entity enabled through a qualifier-after-star cast",
-         qualified_cast_store, docs_source, csr_source, CENSUS_PIN),
         # ---- and RESOLUTION: a pinned NAME is not a pinned FILE.
         ("pinned include shadowed by a file beside the firmware",
          firmware_source, docs_source, csr_source,
@@ -3325,13 +3502,20 @@ def test_baremetal_profile_contract():
          shadowed_quoted_include),
         ("pinned include shadowed by an added -I search path",
          firmware_source, docs_source, csr_source,
-         "may add only its one include path to CFLAGS", shadowed_search_path),
+         "may add an include search path beyond the one", shadowed_search_path),
         ("object list the environment can override", firmware_source,
          docs_source, csr_source,
          "lets the ENVIRONMENT decide what gets compiled", environment_objects),
+        ("second file injected through the CC tool variable", firmware_source,
+         docs_source, csr_source,
+         "may inject a file into the translation unit", tool_variable_injection),
+        ("search path added through the CC tool variable", firmware_source,
+         docs_source, csr_source,
+         "may add an include search path beyond the one",
+         tool_variable_search_path),
         ("pinned include shadowed by an -iquote search path",
          firmware_source, docs_source, csr_source,
-         "may add only its one include path to CFLAGS",
+         "may add an include search path beyond the one",
          quoted_search_path),
         ("one object linked from two sources by an explicit rule",
          firmware_source, docs_source, csr_source,
@@ -3388,7 +3572,10 @@ def test_baremetal_profile_contract():
          "the firmware's casts to a pointer are pinned"),
         ("entity enabled through a CSR base held in a variable",
          paged_base_store, docs_source, csr_source,
-         "only milan_reg() may form a CSR address"),
+         # Pinned on rule 1's own words, not the prefix the census shares,
+         # because the whole point of this entry is WHICH instrument
+         # catches it.
+         "but a CSR pointer cast is used outside it"),
         ("entity enabled by a lui-based inline-asm store", lui_asm_store,
          docs_source, csr_source, "the firmware's inline asm is pinned"),
         ("one object linked from two sources by literally named tools",
@@ -3406,6 +3593,23 @@ def test_baremetal_profile_contract():
          firmware_source, docs_source, consistent_reset_enabled,
          "the RTL must reset adp_ctrl with bit 0 CLEAR"),
     )
+    #: The four shapes ONLY the compiled census catches. They are in the
+    #: table when the census is live and named as skipped when it is not,
+    #: because a machine without a cross compiler cannot answer them at all
+    #: and pretending otherwise is what the last round's false stand-down
+    #: message did.
+    census_only_mutations = (
+        ("entity enabled through a typedef'd pointer and an access macro",
+         typedef_macro_store, docs_source, csr_source, CENSUS_PIN),
+        ("entity enabled through a struct overlay and an -> store",
+         overlay_member_store, docs_source, csr_source, CENSUS_PIN),
+        ("entity enabled through a typedef'd pointer and a subscript store",
+         typedef_subscript_store, docs_source, csr_source, CENSUS_PIN),
+        ("entity enabled through a qualifier-after-star cast",
+         qualified_cast_store, docs_source, csr_source, CENSUS_PIN),
+    )
+    if census_used.get("target"):
+        mutations += census_only_mutations
     #: `MAKEFLAGS += -e` only lets the environment override on a make that
     #: re-reads MAKEFLAGS mid-parse. Include the entry where it bites and
     #: say so where it does not, rather than ship a mutant whose verdict
@@ -3432,9 +3636,19 @@ def test_baremetal_profile_contract():
            "(the MAKEFLAGS += -e entry is SKIPPED on this machine: its make "
            "does not honour -e from inside a makefile, so the construct "
            "does nothing to detect here) ") +
+          ("" if census_used.get("target") else
+           f"({len(census_only_mutations)} entries are SKIPPED on this "
+           "machine: they are the shapes ONLY the compiled census catches, "
+           "and it stood down for want of an RV32 compiler, so nothing here "
+           "can answer them) ") +
           f"{len(reset_spellings)}/{len(reset_spellings)} equivalent reset "
           f"spellings and {len(objects_spellings)}/{len(objects_spellings)} "
-          "equivalent object-list spellings accepted")
+          "equivalent object-list spellings accepted; and "
+          f"{len(accepted_cases)}/{len(accepted_cases)} legitimate firmware "
+          f"edits and {len(accepted_makefiles)}/{len(accepted_makefiles)} "
+          "legitimate Makefile edits accepted, which until this round were "
+          "prose in a PR body and are now the only executable statement this "
+          "gate has of what a legitimate edit IS")
     print("  [gate 1b] ... and the text this reads is the text that runs, by "
           "TEXT RULES and by TOOLS together, because each has been measured "
           "to miss what the other holds. The text rules bound address "
@@ -3489,13 +3703,27 @@ def test_baremetal_profile_contract():
           "token including -Os and -DFOO, an RTL reset hoisted to a named "
           "constant, an RTL enable port or write address respelled, and a "
           "renamed boot-path function, which names the property instead of "
-          "raising a bare ValueError")
+          "raising a bare ValueError. Three more, measured and previously "
+          "undisclosed: REORDERING two existing functions (the cast and "
+          "store sets are compared as ORDERED lists, so moving code with "
+          "nothing added or removed is refused), renaming the verdict "
+          "aem_loaded, and a read-only #define accessor that wraps "
+          "milan_read(). Also ##, %: and ?? anywhere in the file")
     print("  [gate 1b] ... and what the make plan DID give back, which "
           "survives this round: every Makefile variable and rule shape the "
           "old parser pinned, so an unrelated DEPFILES = $(patsubst ...) is "
           "GREEN. Two refusals stay retired: a vpath cannot move this "
           "build's compiled file because vpath is consulted only for a "
           "prerequisite that does not exist and this one always does")
+    print("  [gate 1b] NOT PROVED, and this is the honest headline: the two "
+          "instruments have a SHARED blind spot. The cast set recognises "
+          "only a cast whose text carries a *, the store set only an lhs "
+          "that starts with * or is name[...], and the census exempts "
+          f"{reg_helper_name}() by name and matches printed literals. So a "
+          "cast with no * plus an -> or subscript store is outside BOTH: "
+          "`((milan_adp_blk)0x90000600u)->ctrl = 1u;` is a durable pre-AEM "
+          "entity advertise and this gate passes it. Not a regression, it "
+          "passes at every commit in this lane; tracked on #153 and #162")
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
           "owns those), that crc32() is a CRC, and anything about an "

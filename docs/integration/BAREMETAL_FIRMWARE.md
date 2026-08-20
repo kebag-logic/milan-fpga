@@ -105,14 +105,32 @@ One constraint is answered by a tool rather than by reading text:
   lines that happen to name the expected tool.
 
 A second tool check runs alongside the text rules, and it is an **addition**
-rather than a replacement. The gate compiles the firmware and requires that no
-function except `milan_reg()` materialises an address inside the Milan CSR
-window, which catches typedef'd pointer types, register-access macros, struct
-overlays and `->` stores that no text rule recognises. It does **not** cover
-everything: it exempts `milan_reg()` by name, it cannot see an address built
-at run time from a variable, and it matches one inline-asm spelling. So the
-text rules below still carry the property, and the constraints they impose are
-real:
+rather than a replacement. Where an RV32 cross compiler is available, the gate
+compiles the firmware and requires that no function except `milan_reg()`
+materialises an address inside the Milan CSR window; where one is not, it
+stands down and says so in its printed verdict.
+
+**What this gate does not prove.** The two instruments have a shared blind
+spot and it is not closed. The cast set only recognises a cast whose text
+contains a `*`, and the store set only recognises a left-hand side that starts
+with `*` or is `name[...]`; the census exempts `milan_reg()` by name and
+matches printed integer literals. So a cast with no `*` combined with a `->`
+or subscript store is outside **both**, and this walks through today:
+
+```c
+typedef struct { volatile uint32_t ctrl; } *milan_adp_blk;
+...
+((milan_adp_blk)0x90000600u)->ctrl = 1u;      /* ADP_CTRL[0], pre-AEM */
+```
+
+That is a durable pre-AEM entity advertise and the gate reports `ALL GATES
+PASS`. It is not a regression: it passes at every commit in this lane's range.
+Tracked on #153 and #162; #153's `entity_advertise()` choke point is the
+answer, because the blind spot exists only because there is an exempted
+function with an interior nobody reads.
+
+Read the constraints below as what they are: they bound the spellings they
+recognise, and they cost real edits to do it.
 
 - **Any CSR store must go through `milan_write()`.** Only `milan_reg()` may
   use `MILAN_CSR_BASE` or a `(volatile uint32_t *)` cast. The set of pointer
@@ -139,6 +157,10 @@ The rest are refusals, and each one costs a legitimate edit:
 | The RTL reset for `adp_ctrl`/`pp_ctrl_r` must be a literal with bit 0 clear | a named constant is not a value the gate can evaluate |
 | `o_adp_enable`/`o_pp_enable` must be `assign <port> = <reg>[0];` | the gate censuses that exact bit |
 | Renaming `load_aem_image`, `milan_init` or `configure_fabric` | the gate finds them by literal identifier; the refusal names the property and the anchor to update |
+| Renaming the verdict `aem_loaded` | same, and the message says so rather than reporting a boot-order defect |
+| REORDERING existing functions, with nothing added or removed | the cast and store sets are compared as ordered lists |
+| A read-only `#define` accessor wrapping `milan_read()` | it hides a CSR primitive from the operand census; the macro contains no store |
+| `##`, `%:` or `??` anywhere in the file | token pasting and the alternate spellings of `#` |
 
 Adding any of these is a one-line change in the gate plus a mutation-table
 entry, not a redesign. What the gate does **not** prove is recorded beside
