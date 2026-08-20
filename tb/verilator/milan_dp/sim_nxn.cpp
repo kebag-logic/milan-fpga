@@ -906,7 +906,7 @@ int main(int argc, char** argv) {
 
     ck("ID == 'MILN'", axi_read(A_ID), 0x4D494C4E);
     ck("VERSION 0x0054 carries the setters, their consumption and names",
-       axi_read(A_VERSION), 0x00020054);
+       axi_read(A_VERSION), 0x00020055);
 
     //! ENTITY IDENTITY, PROVISIONED ONCE AND EARLY (moved here 2026-08-13).
     //! These two writes used to sit inside the N-sink ACMP ctx2 section,

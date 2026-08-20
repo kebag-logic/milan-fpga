@@ -27,6 +27,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <cstdlib>
+#include <cstring>
 
 static VKL_ptp_clock_validity* dut;
 static long checks = 0, fails = 0;
@@ -84,6 +85,7 @@ static long wait_tu(int want, long limit) {
 int main(int argc, char** argv) {
     Verilated::commandArgs(argc, argv);
     if (argc > 1) qtick = atol(argv[1]);
+    const bool fabric = argc > 2 && strcmp(argv[2], "fabric") == 0;
     const bool full = (qtick <= 1000);   //! interval-counter checks only in the fast shape
 
     dut = new VKL_ptp_clock_validity;
@@ -91,6 +93,7 @@ int main(int argc, char** argv) {
     dut->sw_wr_p_i = 0; dut->sw_sync_ok_i = 0; dut->sw_disc_p_i = 0;
     dut->sw_as_cap_i = 0;
     dut->sw_wdog_q_i = 0;
+    dut->fabric_sync_ok_i = 0; dut->fabric_as_cap_i = 0;
     dut->phc_load_p_i = 0; dut->phc_adj_p_i = 0;
     dut->gm_id_i = 0;
     tick(4);
@@ -98,6 +101,47 @@ int main(int argc, char** argv) {
     tick(2);
 
     printf("== KL_ptp_clock_validity (QTICK_CYC_P=%ld) ==\n", qtick);
+
+    if (fabric) {
+        printf("-- fabric publication bank owns validity (#116) --\n");
+        ck("reset: fabric has not synchronised, tu = 1",
+           dut->ts_uncertain_o, 1);
+        ck("reset: no software lease is reported", (dut->stat_o >> 2) & 1, 0);
+
+        // A stale daemon or a manual CSR poke cannot manufacture health.
+        clkv_write(true, 8, false, true);
+        ck("software sync lease ignored", (dut->stat_o >> 1) & 1, 0);
+        ck("software asCapable ignored", dut->as_capable_o, 0);
+        ck("software lease count hidden", (dut->stat_o >> 4) & 0xFFF, 0);
+
+        // The engine publishes a selected GM and its two health levels. The
+        // GM edge arms Annex B holdover; after that minimum, tu clears from
+        // the fabric bank with no CLKV refresh.
+        dut->gm_id_i = 0x1122334455667788ull;
+        dut->fabric_sync_ok_i = 1;
+        dut->fabric_as_cap_i = 1;
+        tick(2);
+        ck("GM adoption arms holdover", dut->ts_uncertain_o, 1);
+        long cleared = wait_tu(0, qtick * 8);
+        ck_range("fabric sync clears tu after holdover (cycles)",
+                 cleared, qtick, qtick * 4);
+        ck("fabric sync is the STAT claim", (dut->stat_o >> 1) & 1, 1);
+        ck("fabric asCapable is live", dut->as_capable_o, 1);
+        ck("fabric asCapable is STAT[16]", (dut->stat_o >> 16) & 1, 1);
+        tick(qtick * 10);
+        ck("no daemon lease expiry in fabric mode", dut->ts_uncertain_o, 0);
+
+        dut->fabric_sync_ok_i = 0;
+        dut->fabric_as_cap_i = 0;
+        tick();
+        ck("fabric sync loss asserts tu immediately", dut->ts_uncertain_o, 1);
+        ck("fabric asCapable loss is immediate", dut->as_capable_o, 0);
+
+        printf("%ld checks: %ld PASS, %ld FAIL\n",
+               checks, checks - fails, fails);
+        delete dut;
+        return fails ? 1 : 0;
+    }
 
     // -----------------------------------------------------------------
     // 1. FAIL-SAFE DEFAULT. This is the whole defect in one check: with

@@ -6,11 +6,16 @@ SPDX-License-Identifier: CERN-OHL-W-2.0
 # Time synchronization — gPTP, the PHC, and the media clock
 
 How time works in this system, top to bottom: what 802.1AS (gPTP) gives us,
-where hardware timestamps are made and how they reach `ptp4l`, and how media
-clock recovery is designed. The current root does not consume the exported
+where hardware timestamps are made and how the default fabric engine consumes
+them, and how media clock recovery is designed. The current root does not consume the exported
 clock-source selection, so its audio clock remains INTERNAL. Register offsets follow
 [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) (the CSR ABI
 authority); status claims carry their in-repo evidence. Written 2026-07-25.
+
+Update at VERSION `0x0002_0055` (2026-08-20): `KL_gptp_shadow` now owns BMCA,
+pdelay, servo and publication by default. The linuxptp path described in the
+historical measurements below is retained only by explicit
+`--no-fabric-gptp`; see [GPTP_PLANE.md](GPTP_PLANE.md) for the current seams.
 
 Current command, clock-consumption, and notification claims are checked against
 the [Milan feature status ledger](../reference/MILAN_FEATURE_STATUS.md):
@@ -57,11 +62,10 @@ Three clocks exist on each board, chained in one direction:
    ([`hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv`](../../hdl/ieee8021as/ptp_timestamp/timestamp_counter.sv)). This is the clock
    gPTP disciplines and the clock every hardware timestamp is drawn from.
    When the board is GM, the PHC free-runs and everyone else follows it.
-2. **The system clock** — Linux `CLOCK_REALTIME` on the softcore. `phc2sys`
-   copies the PHC into it so userland timestamps and timers agree with
-   network time ([current architecture](../overview/ARCHITECTURE.md)).
-   `ptp4l` disciplines it and `phc2sys` mirrors it to
-   CLOCK_REALTIME*). Nothing in the media path depends on it.
+2. **The system clock** — Linux `CLOCK_REALTIME` in retained Linux profiles.
+   Option-off builds may mirror the PHC into it with `phc2sys`; the shipping
+   bare-metal product has no system-clock consumer. Nothing in the media path
+   depends on it.
 3. **The media clock:** the 24.576 MHz audio MMCM output, divided to the
    48 kHz sample grid that the I2S/TDM front-ends run on. It is a *physical*
    clock (a DAC cannot consume "nanoseconds"), so it cannot be written like
@@ -224,26 +228,27 @@ entirely in the `ptp4l` config.
 
 ### 2.5 Who runs where
 
-The split follows the current architecture
+The default split since VERSION `0x0002_0055` follows the current architecture
 ([`../overview/ARCHITECTURE.md`](../overview/ARCHITECTURE.md);
 [`../traceability/ieee8021as.md`](../traceability/ieee8021as.md) header):
-**protocol in software, time in fabric.**
+**protocol and time actuation in fabric; software observes or provides the
+explicit comparison plane.**
 
 | Agent | Where | Job |
 |-------|-------|-----|
 | `timestamp_counter` + `ptp_csr_sync` | fabric | the PHC: rate/offset/absolute set, snapshot reads |
 | `ptp_ts_top` / `ptp_ts_core` | fabric | per-frame event-message timestamps, both directions |
+| `KL_gptp_shadow` + `gptp-processor` | fabric (default) | BMCA, Announce/Sync/Pdelay, PHC servo and the committed GM/parent/pdelay/sync/asCapable publication bank |
 | dma-ts ring + kl-eth | fabric + driver | records to DRAM; `/dev/ptp0` clock ops; `SO_TIMESTAMPING` |
-| `ptp4l` | softcore | BMCA, Announce/Sync/Pdelay state machines, the clock servo |
-| `phc2sys` | softcore | PHC -> `CLOCK_REALTIME` |
-| `gptp2csr.sh` | softcore daemon | publishes gPTP state into fabric CSRs: GM id 0x624/0x628 (the LOCAL clock id when we are GM), measured pdelay 0x6E4, AS_PATH parent bridge 0x730/0x734 from `PARENT_DATA_SET` — so ADP answers with wire truth (the AEM half of that
+| `ptp4l` + `phc2sys` | softcore, explicit option-off | comparison BMCA/servo and PHC -> `CLOCK_REALTIME` mirror |
+| `gptp2csr.sh` | softcore daemon, explicit option-off | publishes gPTP state into fabric CSRs: GM id 0x624/0x628 (the LOCAL clock id when we are GM), measured pdelay 0x6E4, AS_PATH parent bridge 0x730/0x734 from `PARENT_DATA_SET` — so ADP answers with wire truth (the AEM half of that
 sentence is retired: the entity model is now a static descriptor image in DRAM
 and no daemon writes into it) ([`../findings/BENCH_TOPOLOGY.md`](../findings/BENCH_TOPOLOGY.md) section 8) — **and since 2026-07-28 leases the AVTP `tu` sync claim into `CLKV_CTRL` 0x778**, because whether the PHC is disciplined is a servo fact no fabric signal can observe. It is a *lease*, renewed every loop and expiring by itself, so a claim cannot outlive the daemon that made it. Until this existed both boards emitted `tu = 1` on every AAF and CRF frame from boot while genuinely synchronised — see [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md) `0x778` |
 | `stream_phc_sync.sh` | softcore daemon | media/PHC watchdog; dormant while `ptp4l` holds SLAVE or MASTER |
 
-The fabric never builds a PTP message (row AS-10 marks that N/A for RTL);
-`ptp4l` never sees a raw timestamp race — the fabric guarantees exact
-pairing by construction.
+In the default arm the fabric builds and consumes the PTP messages itself. In
+the comparison arm `ptp4l` still never sees a raw timestamp race — the DMA
+metadata path guarantees exact pairing by construction.
 
 ## 3. The media clock
 

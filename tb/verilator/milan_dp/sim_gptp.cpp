@@ -31,19 +31,84 @@ static void expect(const char *what, uint64_t got, uint64_t exp) {
   }
 }
 
+static void tick(Vmilan_datapath *dut) {
+  dut->axis_clk = 0; dut->gtx_clk = 0; dut->eval();
+  dut->axis_clk = 1; dut->gtx_clk = 1; dut->eval();
+}
+
+static void axi_write(Vmilan_datapath *dut, uint16_t addr, uint32_t data) {
+  dut->s_axi_awaddr = addr; dut->s_axi_awvalid = 1;
+  dut->s_axi_wdata = data; dut->s_axi_wstrb = 0xF; dut->s_axi_wvalid = 1;
+  dut->s_axi_bready = 1;
+  for (int n = 0; n < 2048; n++) {
+    dut->axis_clk = 0; dut->gtx_clk = 0; dut->eval();
+    bool accepted = dut->s_axi_awready && dut->s_axi_wready;
+    dut->axis_clk = 1; dut->gtx_clk = 1; dut->eval();
+    if (accepted) break;
+  }
+  dut->s_axi_awvalid = 0; dut->s_axi_wvalid = 0;
+  for (int n = 0; n < 2048; n++) {
+    dut->axis_clk = 0; dut->gtx_clk = 0; dut->eval();
+    bool valid = dut->s_axi_bvalid;
+    dut->axis_clk = 1; dut->gtx_clk = 1; dut->eval();
+    if (valid) break;
+  }
+  dut->s_axi_bready = 0;
+}
+
+static uint32_t axi_read(Vmilan_datapath *dut, uint16_t addr) {
+  dut->s_axi_araddr = addr; dut->s_axi_arvalid = 1; dut->s_axi_rready = 1;
+  for (int n = 0; n < 2048; n++) {
+    dut->axis_clk = 0; dut->gtx_clk = 0; dut->eval();
+    bool accepted = dut->s_axi_arready;
+    dut->axis_clk = 1; dut->gtx_clk = 1; dut->eval();
+    if (accepted) break;
+  }
+  dut->s_axi_arvalid = 0;
+  uint32_t data = 0;
+  for (int n = 0; n < 2048; n++) {
+    dut->axis_clk = 0; dut->gtx_clk = 0; dut->eval();
+    bool valid = dut->s_axi_rvalid;
+    if (valid) data = dut->s_axi_rdata;
+    dut->axis_clk = 1; dut->gtx_clk = 1; dut->eval();
+    if (valid) break;
+  }
+  dut->s_axi_rready = 0;
+  return data;
+}
+
 int main(int argc, char **argv) {
   Verilated::commandArgs(argc, argv);
   Vmilan_datapath *dut = new Vmilan_datapath;
 
   dut->axis_resetn = 0;
   dut->gtx_resetn = 0;
+  dut->s_axi_awvalid = dut->s_axi_wvalid = dut->s_axi_arvalid = 0;
+  dut->s_axi_bready = dut->s_axi_rready = 0;
   dut->m_axis_mac_tx_tready = 1;
-  for (int i = 0; i < 16; i++) {
-    dut->axis_clk = 0; dut->gtx_clk = 0; dut->eval();
-    dut->axis_clk = 1; dut->gtx_clk = 1; dut->eval();
-  }
+  for (int i = 0; i < 16; i++) tick(dut);
   dut->axis_resetn = 1;
   dut->gtx_resetn = 1;
+
+  // The option is omitted from this elaboration: these are assertions about
+  // the RTL default.  Before any peer answers, the engine's committed bank is
+  // zero. Writes to the old software mirror remain accepted for ABI safety but
+  // cannot change any live read or manufacture a healthy CLKV claim.
+  expect("default-on VERSION", axi_read(dut, 0x004), 0x00020055);
+  axi_write(dut, 0x624, 0x55667788); axi_write(dut, 0x628, 0x11223344);
+  axi_write(dut, 0x6E4, 1234);
+  axi_write(dut, 0x730, 0xDDEEFF00); axi_write(dut, 0x734, 0x99AABBCC);
+  axi_write(dut, 0x778, 0x00000085); // sync + asCapable + live SW lease
+  expect("fabric GM low overrides SW", axi_read(dut, 0x624), 0);
+  expect("fabric GM high overrides SW", axi_read(dut, 0x628), 0);
+  expect("fabric pdelay overrides SW", axi_read(dut, 0x6E4), 0);
+  expect("fabric parent low overrides SW", axi_read(dut, 0x730), 0);
+  expect("fabric parent high overrides SW", axi_read(dut, 0x734), 0);
+  uint32_t clkv = axi_read(dut, 0x77C);
+  expect("software lease cannot clear tu", clkv & 1, 1);
+  expect("software sync claim hidden", (clkv >> 1) & 1, 0);
+  expect("software lease fields hidden", (clkv >> 2) & 0x3FFF, 0);
+  expect("software asCapable hidden", (clkv >> 16) & 1, 0);
 
   // scan the MAC boundary for the plane's boot Pdelay_Req: an 0x88F7
   // frame whose transportSpecific|msgType byte is 0x12
@@ -52,8 +117,7 @@ int main(int argc, char **argv) {
   int beat = 0;
   std::vector<uint8_t> frame;
   for (uint64_t n = 0; n < 12000000ull; n++) {
-    dut->axis_clk = 0; dut->gtx_clk = 0; dut->eval();
-    dut->axis_clk = 1; dut->gtx_clk = 1; dut->eval();
+    tick(dut);
     if (dut->m_axis_mac_tx_tvalid && dut->m_axis_mac_tx_tready) {
       uint64_t d = dut->m_axis_mac_tx_tdata;
       for (int i = 0; i < 8; i++)

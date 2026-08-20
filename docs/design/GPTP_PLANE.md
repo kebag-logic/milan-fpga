@@ -2,9 +2,11 @@
 # The fabric gPTP plane
 
 The time-sync plane of epic #110: the `gptp-processor` submodule's
-micro-coded 802.1AS engine spliced into the datapath as fabric, on the
-way to retiring `ptp4l`/`phc2sys`/the `milan-statd` mirror chain. This
-page is the integration architecture of record for #114; the donor
+micro-coded 802.1AS engine spliced into the datapath as fabric. Since
+VERSION `0x0002_0055`, this is the product-default owner of gPTP and the
+legacy `ptp4l`/`phc2sys`/`milan-statd` publication chain is available only in
+an explicit option-off bring-up build. This page is the integration
+architecture of record for #114/#116; the donor
 repo's own pages under `gptp-processor/docs/` (the resource-validation
 record) carry the engine's internals and measured cost.
 
@@ -12,16 +14,17 @@ record) carry the engine's internals and measured cost.
 
 - **[The shape](#the-shape)** -- one option, four seams
 - **[Timestamps](#timestamps)** -- where stamps are born and how they travel
-- **[What stays software until #116](#what-stays-software-until-116)** -- the flip boundary
+- **[The compatibility boundary](#the-compatibility-boundary)** -- the explicit software arm
 - **[Verification map](#verification-map)** -- which bench proves what
 
 ## The shape
 
-`GPTP_PLANE_EN_P` (milan_datapath parameter, DEFAULT OFF) elaborates
-`KL_gptp_shadow` with four seams. #120's shipping AX7101 configuration opts in
-explicitly after its bare-metal and sound-card area buy-back; other builds
-remain bit-identical until they make the same product choice. #116 still owns
-the default flip and CSR compatibility transition.
+`GPTP_PLANE_EN_P` (milan_datapath parameter, DEFAULT ON) elaborates
+`KL_gptp_shadow` with four seams. The end-station builder and LiteX CLI have the
+same default and always pass the chosen value into RTL. `--no-fabric-gptp` (or
+`board.features.fabric_gptp: false`) is the retained software comparison arm;
+the three existing Arty Linux bring-up profiles state that exception explicitly
+because they do not yet carry the engine's `gptp:` microcode facts.
 
 The option also carries `GPTP_UCODE_HEX_P`. In a shipping SoC build this is an
 absolute path to the builder's per-config 1,024-word image, generated from the
@@ -54,7 +57,11 @@ The plane has four seams:
 4. **Publish**: the grandmaster identity every fabric consumer reads
    (the protocol processor's ADPDU/GET_AVB_INFO/AS_PATH face, the
    Milan-info answers, the recentre latch) follows the plane's publish
-   bank when the option is on.
+   bank when the option is on. The same committed bank live-overrides the
+   legacy CSR addresses for GM (`0x624/0x628`), parent clockIdentity
+   (`0x730/0x734`) and propagation delay (`0x6E4`). `GET_AVB_INFO` and
+   `GET_AS_PATH` consume those same effective values, so CSR, ADP and AECP
+   cannot disagree.
 
 ## Timestamps
 
@@ -105,13 +112,22 @@ The plane has four seams:
   bench found the single-register race this retires; the donor's
   engine v3 record carries the story.
 
-## What stays software until #116
+## The compatibility boundary
 
-The CSR readback words (`ADP_GM` 0x624/8, `GPTP_PDELAY` 0x6E4, the
-0x730 AS_PATH group), the `tu` bit's CLKV lease, and the rootfs
-daemons. The #116 flip re-points them at the plane and carries the
-VERSION story; the splice changes no CSR-visible behavior, which is
-why it carries no VERSION bump.
+At VERSION `0x0002_0055`, the fabric option re-points the CSR publication words
+and the `tu`/`asCapable` verdict. CLKV writes remain accepted so the register ABI
+does not shrink, but they cannot manufacture health in a fabric build: STAT's
+software lease fields read zero and the engine's `sync_ok`/`asCapable` flags are
+the live source. Annex B discontinuity holdover and the TIMESTAMP_UNCERTAIN
+observation counter remain in `KL_ptp_clock_validity` for both owners.
+
+The option-off arm keeps the prior shadows, CLKV lease, CSR PTP adjustment path
+and generated `gptp.cfg` byte-compatible for comparison. Rootfs package/service
+retirement is deliberately not claimed by this repository: those definitions
+live in the sibling `milan-tests-avb` Buildroot tree. They must remove linuxptp,
+the `phc2sys` init path, `milan-statd`, and the `gptp2csr.sh` fallback before the
+Linux image can be called fabric-default. Issue #117 must then prove the default
+on a booted board (`tu=0` while synchronised) before #116 closes.
 
 ## Verification map
 
@@ -120,8 +136,9 @@ why it carries no VERSION bump.
 | gptp-processor `tb/verilator/*` | byte, model counter | the 802.1AS state machines, servo math, 33 mutations |
 | `tb/verilator/gptp_plane` | byte, REAL counter | the engine steers the parent's `timestamp_counter` closed-loop; the phc_ns_i observing check |
 | `tb/verilator/gptp_shadow` | WIDE, real counter + boundary stamper | the fabric slice with no harness timestamps at all; classify/transport/gearbox/stamper; 5 mutations |
-| `tb/verilator/milan_dp` obj_gptp | the whole datapath | option-ON elaborates at the shipping 1x1 ENTITY shape (the leg's own -G set, 2 MHz clock -- not the obj_ax1x1 argv); the boot Pdelay_Req reaches the real MAC boundary; NO Announce without asCapable |
-| `tb/verilator/milan_dp` default legs | the whole datapath | the [GPTP-OPT] tripwire: with the option OFF, CSR adjfine and adjtime still reach `timestamp_counter` through the eff muxes (a polarity swap goes red) |
+| `tb/verilator/clkvalid` fabric leg | validity bank | software leases cannot clear `tu`; fabric sync clears it after Annex B holdover and cannot expire like a daemon lease |
+| `tb/verilator/milan_dp` obj_gptp | the whole datapath | the omitted option elaborates the default-ON shipping 1x1 shape; old GM/parent/pdelay/CLKV writes cannot override the fabric bank; boot Pdelay_Req reaches the MAC; no Announce without asCapable |
+| `tb/verilator/milan_dp` explicit-off legs | the whole datapath | the [GPTP-OPT] tripwire: CSR adjfine and adjtime still reach `timestamp_counter` through the effective muxes (a polarity swap goes red) |
 
 The option-ON verdict from #114's old Linux/sound-card shape was RED: the
 baseline alone synthesized at 93.84% LUT and failed default placement. #120

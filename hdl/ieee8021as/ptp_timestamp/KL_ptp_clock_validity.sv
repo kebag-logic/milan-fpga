@@ -137,7 +137,12 @@ module KL_ptp_clock_validity #(
   //! discontinuity holdover in quarter-ticks. 2 => 0.25..0.5 s against the
   //! free-running prescaler, so Milan v1.2 Annex B.1.1's 0.25 s minimum
   //! holds whatever the phase of the event.
-  parameter int unsigned HOLD_QTICK_P = 2
+  parameter int unsigned HOLD_QTICK_P = 2,
+  //! Default 0 preserves the standalone/legacy CLKV lease contract.  The
+  //! product datapath passes its gPTP elaboration option here; at 1, the
+  //! engine's published sync/asCapable levels own the verdict and software
+  //! writes cannot manufacture clock health.
+  parameter bit FABRIC_GPTP_P = 1'b0
 ) (
   input  wire        clk_i,           //! datapath clock
   input  wire        rst_n,           //! active-low synchronous reset
@@ -149,6 +154,10 @@ module KL_ptp_clock_validity #(
   input  wire        sw_as_cap_i,     //! CLKV_CTRL[2] as written: daemon's 802.1AS-2020
                                       //! 10.2.5.1 asCapable verdict (leased, like [0])
   input  wire [11:0] sw_wdog_q_i,     //! CLKV_CTRL[15:4] lease, quarter-ticks (0 = never trust)
+
+  //! --- fabric gPTP publication bank ------------------------------------
+  input  wire        fabric_sync_ok_i,//! engine has selected and synchronised to a GM
+  input  wire        fabric_as_cap_i, //! engine's 802.1AS asCapable verdict
 
   //! --- discontinuities this fabric can see for itself -------------------
   input  wire        phc_load_p_i,    //! PTP_CMD[0] settime applied (a step)
@@ -188,6 +197,9 @@ module KL_ptp_clock_validity #(
   logic        as_cap_r;
   logic [11:0] lease_r;
   logic        no_lease_r;
+
+  wire sync_ok_w = FABRIC_GPTP_P ? fabric_sync_ok_i : sync_ok_r;
+  wire as_cap_w  = FABRIC_GPTP_P ? fabric_as_cap_i  : as_cap_r;
 
   always_ff @(posedge clk_i) begin : p_lease
     if (!rst_n) begin
@@ -229,7 +241,8 @@ module KL_ptp_clock_validity #(
   //! gm_r resets to 0 and gm_id_i resets to 0, so the first daemon publish
   //! of a real grandmaster id IS a change and does arm the holdover. That is
   //! correct: before it we did not know who the grandmaster was.
-  assign disc_p_w = phc_load_p_i | phc_adj_p_i | sw_disc_p_i | (gm_id_i != gm_r);
+  assign disc_p_w = phc_load_p_i | phc_adj_p_i |
+                    ((!FABRIC_GPTP_P) & sw_disc_p_i) | (gm_id_i != gm_r);
   assign hold_w   = (hold_r != '0);
 
   always_ff @(posedge clk_i) begin : p_hold
@@ -247,7 +260,7 @@ module KL_ptp_clock_validity #(
   //  The verdict. NOT a stream gate: Milan v1.2 5.3.7.3 forbids stopping
   //  a Stream Output, so the only honest lever is this bit.
   // --------------------------------------------------------------------
-  assign ts_uncertain_o = (~sync_ok_r) | hold_w;
+  assign ts_uncertain_o = (~sync_ok_w) | hold_w;
 
   // --------------------------------------------------------------------
   //  Milan Table 5.4 TIMESTAMP_UNCERTAIN: one increment per one-second
@@ -279,13 +292,16 @@ module KL_ptp_clock_validity #(
 
   //! the lease-backed asCapable verdict, for the GET_AVB_INFO flags byte
   //! (1722.1-2021 7.4.40.2 flags[0]) and its Table 5.22 push signature
-  assign as_capable_o = as_cap_r;
+  assign as_capable_o = as_cap_w;
 
-  //! CLKV_STAT: [0] tu now, [1] lease-backed sync claim, [2] no live lease,
-  //! [3] inside a discontinuity holdover, [15:4] lease remaining (quarter-
-  //! seconds), [16] lease-backed asCapable claim (J3). Read this before
-  //! believing a TUCNT of 0.
-  assign stat_o = {15'd0, as_cap_r, lease_r, hold_w, no_lease_r, sync_ok_r,
+  //! CLKV_STAT: [0] tu now, [1] effective sync claim, [2] no live SOFTWARE
+  //! lease (legacy arm only), [3] discontinuity holdover, [15:4] legacy lease
+  //! remaining, [16] effective asCapable.  In fabric mode the lease fields are
+  //! structural zero: the engine bank is the source, not a daemon deadman.
+  assign stat_o = FABRIC_GPTP_P
+                ? {15'd0, as_cap_w, 12'd0, hold_w, 1'b0, sync_ok_w,
+                   ts_uncertain_o}
+                : {15'd0, as_cap_w, lease_r, hold_w, no_lease_r, sync_ok_w,
                    ts_uncertain_o};
 
 endmodule

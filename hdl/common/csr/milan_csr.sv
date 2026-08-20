@@ -107,7 +107,11 @@ module milan_csr #(
   //! (125 MHz -> 0x08000000); milan_datapath overrides with its own
   //! MILAN_CLK_FREQ_HZ so the two can never disagree.
   parameter int unsigned MILAN_CLK_FREQ_HZ_P = 125_000_000,
-  parameter logic [31:0] VERSION = 32'h0002_0054 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor; the ENTITY firmware_version renders major.minor.rev). VERSIONING POLICY (USER 2026-08-11): MAJOR = entire redesign of blocks; MINOR = compliance fixes - FLAT and continuous across majors, because the register-map changelog and every >= feature gate key on it; REV (patch, entity.firmware_rev in the config) = bug-fix respins that change no CSR ABI. 0x0002 MAJOR = THE SCENARIO-B ERA OPENS: the protocol-processor architecture of record (v2.0, the protocol-processor submodule) replaces this 1722.1/SRP plane by direct substitution at parity; the minor carries on unbroken. 0x0054 = GENERATED NAMES ARE LIVE AND COHERENT. SET_NAME and GET_NAME serve every semantic name in the generated AEM model. ENTITY supports indices 0 and 1, while every other named descriptor supports index 0. Responses use the full fixed cdl 84 body on success and refusal, a locked SET returns the current name, and SET, GET, and READ_DESCRIPTOR observe one writable overlay. Generated shape data sizes the table and the store loads large tables in bounded bursts. Persistence remains issue 70; unsolicited delivery remains issue 69, with change triggers exported. NO new CSRs. Prior: 0x0053 = THE STREAM SETTERS LAND, AND THE FABRIC CONSUMES THEM. Issue 67's remainder: SET_STREAM_FORMAT (both stream directions) and SET_STREAM_INFO (Milan 5.4.2.9's one sub-command: a Stream Output with exactly MSRP_ACC_LAT_VALID) are served by the processor with every clause refusal - per-descriptor STREAM_IS_RUNNING at dispatch (a bound input or a streaming output, 5.4.2.7/5.4.2.9), whole-command NOT_SUPPORTED on any other sub-flag, BAD_ARGUMENTS on a bit-31 offset, and one integrator gather that judges the PROPOSED format against the ADDRESSED ROW's declared base (the 48 kHz family for inputs, the row's own declared shape for outputs, the advertised CRF format for the CRF rows) AND every mapping-referenced channel surviving (Milan 5.4.2.7's SHALL), with refusals carrying the CURRENT format. The fabric CONSUMES the settings: a set presentation offset folds into the per-STREAM_OUTPUT transit entries the AAF and CRF framers stamp (entry k is row k, the CRF output included), GET_STREAM_INFO's latency word reads the same folded entry, the served current format is the setting when one exists, and STREAM_INPUT 0's RX acceptance follows the set format. The verdict's mapping reduction sweeps the render map one key per cycle and reads the stream-channel-keyed capture map combinationally; the CRF rows admit exactly the advertised CRF format and report it as current. SAME MINOR, WIRE-FACING: responses that answered NOT_IMPLEMENTED now execute, so both sim pins and the compliance inventory move together.
+  //! When set, the gPTP publication bank owns the legacy GM/parent/pdelay
+  //! read addresses. Default 0 keeps standalone CSR users on the software ABI;
+  //! milan_datapath passes its product elaboration option explicitly.
+  parameter bit GPTP_PLANE_EN_P = 1'b0,
+  parameter logic [31:0] VERSION = 32'h0002_0055 //! Value returned by the read-only VERSION register ([31:16] major, [15:0] minor; the ENTITY firmware_version renders major.minor.rev). VERSIONING POLICY (USER 2026-08-11): MAJOR = entire redesign of blocks; MINOR = compliance fixes - FLAT and continuous across majors, because the register-map changelog and every >= feature gate key on it; REV (patch, entity.firmware_rev in the config) = bug-fix respins that change no CSR ABI. 0x0002 MAJOR = THE SCENARIO-B ERA OPENS: the protocol-processor architecture of record (v2.0, the protocol-processor submodule) replaces this 1722.1/SRP plane by direct substitution at parity; the minor carries on unbroken. 0x0055 = FABRIC GPTP IS THE DEFAULT OWNER. The engine publication bank drives GM, parent, pdelay, tu and asCapable; CLKV software leases cannot manufacture health in the product shape. The explicit option-off build preserves the legacy software ABI for bring-up comparison. Prior: 0x0054 = GENERATED NAMES ARE LIVE AND COHERENT. SET_NAME and GET_NAME serve every semantic name in the generated AEM model. ENTITY supports indices 0 and 1, while every other named descriptor supports index 0. Responses use the full fixed cdl 84 body on success and refusal, a locked SET returns the current name, and SET, GET, and READ_DESCRIPTOR observe one writable overlay. Generated shape data sizes the table and the store loads large tables in bounded bursts. Persistence remains issue 70; unsolicited delivery remains issue 69, with change triggers exported. NO new CSRs. Prior: 0x0053 = THE STREAM SETTERS LAND, AND THE FABRIC CONSUMES THEM. Issue 67's remainder: SET_STREAM_FORMAT (both stream directions) and SET_STREAM_INFO (Milan 5.4.2.9's one sub-command: a Stream Output with exactly MSRP_ACC_LAT_VALID) are served by the processor with every clause refusal - per-descriptor STREAM_IS_RUNNING at dispatch (a bound input or a streaming output, 5.4.2.7/5.4.2.9), whole-command NOT_SUPPORTED on any other sub-flag, BAD_ARGUMENTS on a bit-31 offset, and one integrator gather that judges the PROPOSED format against the ADDRESSED ROW's declared base (the 48 kHz family for inputs, the row's own declared shape for outputs, the advertised CRF format for the CRF rows) AND every mapping-referenced channel surviving (Milan 5.4.2.7's SHALL), with refusals carrying the CURRENT format. The fabric CONSUMES the settings: a set presentation offset folds into the per-STREAM_OUTPUT transit entries the AAF and CRF framers stamp (entry k is row k, the CRF output included), GET_STREAM_INFO's latency word reads the same folded entry, the served current format is the setting when one exists, and STREAM_INPUT 0's RX acceptance follows the set format. The verdict's mapping reduction sweeps the render map one key per cycle and reads the stream-channel-keyed capture map combinationally; the CRF rows admit exactly the advertised CRF format and report it as current. SAME MINOR, WIRE-FACING: responses that answered NOT_IMPLEMENTED now execute, so both sim pins and the compliance inventory move together.
 
 )(
   input  wire                    aclk,           //! AXI-Lite clock (aclk / axis_clk domain)
@@ -200,6 +204,9 @@ module milan_csr #(
   output wire [31:0]             o_adp_controller_caps, //! controller_capabilities (ADP_CCAPS)
   output wire [63:0]             o_adp_gptp_gm,       //! gptp_grandmaster_id {ADP_GM_HI, ADP_GM_LO}
   output wire [31:0]             o_gptp_pdelay_ns,    //! measured propagation delay ns (GPTP_PDELAY)
+  input  wire [63:0]             i_gptp_gm_id,        //! fabric publication bank GM (live read when enabled)
+  input  wire [63:0]             i_gptp_parent_id,    //! fabric publication bank parent clockIdentity
+  input  wire [31:0]             i_gptp_pdelay_ns,    //! fabric publication bank neighbor delay
   input  wire [31:0]             i_acmpl_dbg,         //! listener walker forensics (RO 0x6E8)
   input  wire [31:0]             i_avtprx_tsd,        //! last accepted ts_delta (RO 0x6EC)
   input  wire [31:0]             i_i2spb_dbg,         //! DAC serial forensics (RO 0x6F0)
@@ -2112,6 +2119,30 @@ module milan_csr #(
       A_PTP_TRLO:   live_mux = ptp_tod_rd[31:0];
       A_PTP_TRHI:   live_mux = ptp_tod_rd[63:32];
       A_ADP_STATUS: live_mux = i_adp_available_index;       // RO available_index
+      //! #116: these addresses retain their writable legacy shadows for the
+      //! explicit software option, but the product shape reads the engine's
+      //! committed publication bank.  A write therefore cannot forge the GM,
+      //! parent or pdelay that the fabric and protocol answers consume.
+      A_ADP_GMLO: begin
+        if (GPTP_PLANE_EN_P) live_mux = i_gptp_gm_id[31:0];
+        else                 live_hit = 1'b0;
+      end
+      A_ADP_GMHI: begin
+        if (GPTP_PLANE_EN_P) live_mux = i_gptp_gm_id[63:32];
+        else                 live_hit = 1'b0;
+      end
+      A_GPTP_PDELAY: begin
+        if (GPTP_PLANE_EN_P) live_mux = i_gptp_pdelay_ns;
+        else                 live_hit = 1'b0;
+      end
+      A_AS2_LO: begin
+        if (GPTP_PLANE_EN_P) live_mux = i_gptp_parent_id[31:0];
+        else                 live_hit = 1'b0;
+      end
+      A_AS2_HI: begin
+        if (GPTP_PLANE_EN_P) live_mux = i_gptp_parent_id[63:32];
+        else                 live_hit = 1'b0;
+      end
       A_ADP_DIAG:   live_mux = {14'd0, i_adp_depart_src, i_adp_rearm_cnt, i_adp_depart_cnt};
       //! ADP liveness in ONE read (VERSION 0x001D): sent_cnt moving = the
       //! advertiser is emitting, state[0] = the available_r that 0x668 could

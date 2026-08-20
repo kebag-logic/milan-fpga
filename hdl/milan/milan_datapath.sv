@@ -80,11 +80,11 @@ module milan_datapath import ethernet_packet_pkg::*; #(
   //! axis_clk frequency (AX7101 100 MHz, Arty 50 MHz) — AECP lock-timer divider.
   parameter int MILAN_CLK_FREQ_HZ = 100_000_000,
   //! the fabric gPTP plane (issue #110/#114): elaboration-time option.
-  //! The RTL default remains OFF until #116; #120's shipping SoC opts in
-  //! explicitly after buying the area back with bare metal. ON splices
+  //! Fabric owns gPTP in the product shape; the 0 side remains an explicit
+  //! bring-up comparison build until the legacy software plane is removed. ON splices
   //! KL_gptp_shadow onto the control TX (gasket-free, like CRF) and hands it
   //! the PHC's adjfine/adjtime; settime stays with the CSR face.
-  parameter bit GPTP_PLANE_EN_P = 1'b0,
+  parameter bit GPTP_PLANE_EN_P = 1'b1,
   //! Absolute in SoC builds, relative in self-contained Verilator benches.
   //! The image bakes in the config's station MAC, priority1 and fabric clock.
   parameter string GPTP_UCODE_HEX_P = "gptp_ucode.hex",
@@ -1439,15 +1439,28 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
 
   wire        cfg_adp_enable;
   wire [63:0] cfg_adp_entity_id, cfg_adp_entity_model_id;
-  //! the grandmaster identity every fabric consumer reads (the PP's
-  //! ADPDU/GET_AVB_INFO/AS_PATH face, the Milan-info answers, the
-  //! recentre latch): CSR-published by the software chain today, the
-  //! gPTP plane's OWN verdict when the option is on. The CSR readback
-  //! words and the tu bit follow with #116's flip (a VERSION story).
+  //! The gPTP engine's publication bank.  These declarations live beside the
+  //! consumers rather than the late generate block so clock-validity, CSR and
+  //! protocol answers all select the same compile-time owner.
   wire [63:0] cfg_adp_gptp_gm_csr;
-  wire [63:0] gptp_pub_gm_w;
+  wire [63:0] cfg_as_parent_csr;
+  wire [31:0] cfg_gptp_pdelay_csr;
+  logic [63:0] gptp_pub_gm_w, gptp_pub_parent_w, gptp_pub_annq_w;
+  logic [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w, gptp_pub_offset_w;
+  wire  [63:0] gptp_raw_gm_w, gptp_raw_parent_w, gptp_raw_annq_w;
+  wire  [31:0] gptp_raw_flags_w, gptp_raw_pdelay_w, gptp_raw_offset_w;
+  wire         gptp_raw_commit_w;
+  wire signed [31:0] gptp_adj_w;
+  wire               gptp_step_we_w;
+  wire        [63:0] gptp_step_w;
+  //! One owner for every consumer and the CSR live-read face.  The 0 side is
+  //! the retained software bring-up option; it is not the product default.
   wire [63:0] cfg_adp_gptp_gm = (GPTP_PLANE_EN_P != 1'b0)
                               ? gptp_pub_gm_w : cfg_adp_gptp_gm_csr;
+  wire [63:0] cfg_as_parent = (GPTP_PLANE_EN_P != 1'b0)
+                            ? gptp_pub_parent_w : cfg_as_parent_csr;
+  wire [31:0] cfg_gptp_pdelay = (GPTP_PLANE_EN_P != 1'b0)
+                              ? gptp_pub_pdelay_w : cfg_gptp_pdelay_csr;
   wire [15:0] cfg_adp_talker_sources, cfg_adp_talker_caps;
   wire [15:0] cfg_adp_listener_sinks, cfg_adp_listener_caps;
   wire [7:0]  cfg_adp_gptp_domain;
@@ -1866,7 +1879,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        clkv_as_cap_w;
   wire [31:0] clkv_stat_w, clkv_tucnt_w;
   KL_ptp_clock_validity #(
-    .QTICK_CYC_P (CLKV_QTICK_CYC_P)
+    .QTICK_CYC_P  (CLKV_QTICK_CYC_P),
+    .FABRIC_GPTP_P(GPTP_PLANE_EN_P)
   ) ptp_clock_validity (
     .clk_i (axis_clk), .rst_n (axis_resetn),
     .sw_wr_p_i    (cfg_clkv_wr_p),
@@ -1874,13 +1888,14 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .sw_disc_p_i  (cfg_clkv_disc_p),
     .sw_as_cap_i  (cfg_clkv_as_cap),
     .sw_wdog_q_i  (cfg_clkv_wdog_q),
-    //! a settime / adjtime IS a gPTP time discontinuity (4.4.4.7), and it is
-    //! the ONE piece of clock truth this fabric can see without being told
+    //! A settime / adjtime IS a gPTP time discontinuity (4.4.4.7). In the
+    //! default shape adjtime comes from the engine, not CLKV software.
     .phc_load_p_i (cfg_ptp_cmd_load),
-    .phc_adj_p_i  (cfg_ptp_cmd_adjust),
-    //! the daemon already publishes gptp_grandmaster_id for the advertiser;
-    //! a change in it is a change of grandmaster (Milan Annex B.1.1)
+    .phc_adj_p_i  ((GPTP_PLANE_EN_P != 1'b0)
+                   ? gptp_step_we_w : cfg_ptp_cmd_adjust),
     .gm_id_i      (cfg_adp_gptp_gm),
+    .fabric_sync_ok_i(gptp_pub_flags_w[3]),
+    .fabric_as_cap_i (gptp_pub_flags_w[2]),
     .ts_uncertain_o (clkv_tu_w),
     .as_capable_o   (clkv_as_cap_w),
     .stat_o         (clkv_stat_w),
@@ -2246,6 +2261,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .N_LISTENERS_P(N_STREAMS),
     .N_TALKERS_P(N_STREAMS),
     .SRP_LSN0_ROW_P(SRP_LSN0_ROW_C),
+    .GPTP_PLANE_EN_P(GPTP_PLANE_EN_P),
     //! PHC scale truth (t532 wire-scale audit): the PTP_INCR reset value is
     //! derived from THIS clock declaration, so a free-run PHC ticks true ns
     //! on every shape without waiting for software
@@ -2341,7 +2357,10 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .o_adp_listener_caps  (cfg_adp_listener_caps),
     .o_adp_controller_caps(),
     .o_adp_gptp_gm        (cfg_adp_gptp_gm_csr),
-    .o_gptp_pdelay_ns     (),
+    .o_gptp_pdelay_ns     (cfg_gptp_pdelay_csr),
+    .i_gptp_gm_id         (gptp_pub_gm_w),
+    .i_gptp_parent_id     (gptp_pub_parent_w),
+    .i_gptp_pdelay_ns     (gptp_pub_pdelay_w),
     .o_adp_gptp_domain    (cfg_adp_gptp_domain),
     .o_adp_current_config (cfg_adp_current_config),
     .o_adp_identify_index (cfg_adp_identify_index),
@@ -2582,7 +2601,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .i_mac_reinit       (linkg_reinit_w),
     .o_linkg_dis        (cfg_linkg_dis),
     .o_linkg_freeze     (cfg_linkg_freeze),
-    .o_as_parent_ckid   (),
+    .o_as_parent_ckid   (cfg_as_parent_csr),
     .o_asp_path         (),
     .o_asp_count        (),
     .o_asp_gen          (),
@@ -2695,9 +2714,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! PHC knob ownership: the plane owns adjfine/adjtime when enabled
   //! (constant-folds to the CSR face when the option is off); settime
   //! (tod_wr/cmd_load) always stays with software -- boot sets the epoch.
-  wire signed [31:0] gptp_adj_w;
-  wire               gptp_step_we_w;
-  wire        [63:0] gptp_step_w;
   wire [31:0] eff_ptp_adj_w    = (GPTP_PLANE_EN_P != 1'b0)
                                ? unsigned'(gptp_adj_w)   : cfg_ptp_adj;
   wire [63:0] eff_ptp_offset_w = (GPTP_PLANE_EN_P != 1'b0)
@@ -4521,7 +4537,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       2'd1: begin                            // ---- GET_AVB_INFO ----
         unique case (gsiq_sel_r)
           4'd0: gsi_ans_raw_w = cfg_adp_gptp_gm;
-          4'd1: gsi_ans_raw_w = {32'd0,      // propagation_delay: unmeasured
+          4'd1: gsi_ans_raw_w = {cfg_gptp_pdelay,
                                  cfg_adp_gptp_domain,
                                  {3'd0, 1'b1, !eff_link_w, 1'b1, 1'b1,
                                   clkv_as_cap_w},
@@ -4536,9 +4552,16 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
       end
       default: begin                         // ---- GET_AS_PATH ----
         unique case (gsiq_sel_r)
-          4'd0: gsi_ans_raw_w = {63'd0, |cfg_adp_gptp_gm};
+          4'd0: gsi_ans_raw_w = (|cfg_adp_gptp_gm)
+                              ? (((|cfg_as_parent) &&
+                                  (cfg_as_parent != cfg_adp_gptp_gm))
+                                 ? 64'd2 : 64'd1)
+                              : 64'd0;
           4'd8: gsi_ans_raw_w = ((gsiq_ord_r == 8'd0) && (|cfg_adp_gptp_gm))
-                              ? cfg_adp_gptp_gm : 64'd0;
+                              ? cfg_adp_gptp_gm
+                              : ((gsiq_ord_r == 8'd1) && (|cfg_as_parent) &&
+                                 (cfg_as_parent != cfg_adp_gptp_gm))
+                              ? cfg_as_parent : 64'd0;
           default: gsi_ans_raw_w = 64'd0;
         endcase
       end
@@ -6062,23 +6085,42 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   );
 
   // ==========================================================================
-  //  the fabric gPTP plane (issue #114, elaboration option, default OFF)
+  //  the fabric gPTP plane (issue #114, product default ON since #116)
   // ==========================================================================
   //! Joins the control lane AFTER the min-IFG gasket (the CRF rationale:
   //! a time-critical frame must not queue 512 cycles per control burst)
   //! through its own staggered merge (ctl 2^15 -> this 2^16 -> boundary
   //! 2^17). The egress stamper observes the TRUE MAC boundary; ingress
   //! rides the same rx_axis_to_dma tap every plane uses (input only,
-  //! tvalid && tready qualified). Of the publish bank, the GM identity
-  //! feeds the fabric consumers when the option is on (see the
-  //! cfg_adp_gptp_gm mux); the remaining words and the CSR readback
-  //! follow with #116's flip.
+  //! tvalid && tready qualified). The publication bank directly owns the GM,
+  //! parent, pdelay, tu/asCapable, CSR and protocol-answer faces. The option
+  //! off arm selects the retained software publication path.
   wire [TDATA_WIDTH-1:0]   ctlg3_tdata;
   wire [TDATA_WIDTH/8-1:0] ctlg3_tkeep;
   wire                     ctlg3_tvalid, ctlg3_tlast, ctlg3_tready;
-  wire [63:0] gptp_pub_parent_w, gptp_pub_annq_w;
-  wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w, gptp_pub_offset_w;
   wire [15:0] gptp_tap_drop_w, gptp_rx_drop_w, gptp_ev_drop_w;
+
+  //! The engine updates the individual raw words while its uCPU handles an
+  //! event, then pulses COMMIT.  Hold the externally visible bank until that
+  //! boundary so a CSR/AECP read cannot observe a new GM with old flags (the
+  //! same torn-publication class the retired LO-stage/HI-commit mirror avoided).
+  always_ff @(posedge axis_clk) begin : gptp_publication_commit
+    if (!axis_resetn) begin
+      gptp_pub_gm_w     <= '0;
+      gptp_pub_parent_w <= '0;
+      gptp_pub_annq_w   <= '0;
+      gptp_pub_flags_w  <= '0;
+      gptp_pub_pdelay_w <= '0;
+      gptp_pub_offset_w <= '0;
+    end else if (gptp_raw_commit_w) begin
+      gptp_pub_gm_w     <= gptp_raw_gm_w;
+      gptp_pub_parent_w <= gptp_raw_parent_w;
+      gptp_pub_annq_w   <= gptp_raw_annq_w;
+      gptp_pub_flags_w  <= gptp_raw_flags_w;
+      gptp_pub_pdelay_w <= gptp_raw_pdelay_w;
+      gptp_pub_offset_w <= gptp_raw_offset_w;
+    end
+  end
 
   generate if (GPTP_PLANE_EN_P) begin : g_gptp_plane
     wire [TDATA_WIDTH-1:0]   gtx_tdata_w;
@@ -6114,13 +6156,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         .txts_ns_i       (gts_ns_w),
         .txts_seq_i      (gts_seq_w),
         .tx_sent_o       (gtx_sent_w),
-        .pub_gm_id_o     (gptp_pub_gm_w),
-        .pub_parent_id_o (gptp_pub_parent_w),
-        .pub_flags_o     (gptp_pub_flags_w),
-        .pub_pdelay_ns_o (gptp_pub_pdelay_w),
-        .pub_offset_o    (gptp_pub_offset_w),
-        .pub_annq_o      (gptp_pub_annq_w),
-        .pub_commit_o    (),
+        .pub_gm_id_o     (gptp_raw_gm_w),
+        .pub_parent_id_o (gptp_raw_parent_w),
+        .pub_flags_o     (gptp_raw_flags_w),
+        .pub_pdelay_ns_o (gptp_raw_pdelay_w),
+        .pub_offset_o    (gptp_raw_offset_w),
+        .pub_annq_o      (gptp_raw_annq_w),
+        .pub_commit_o    (gptp_raw_commit_w),
         .dbg_tap_drop_o  (gptp_tap_drop_w),
         .dbg_rx_drop_o   (gptp_rx_drop_w),
         .dbg_ev_drop_o   (gptp_ev_drop_w),
@@ -6173,12 +6215,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     assign gptp_adj_w = '0;
     assign gptp_step_we_w = 1'b0;
     assign gptp_step_w = '0;
-    assign gptp_pub_gm_w = '0;
-    assign gptp_pub_parent_w = '0;
-    assign gptp_pub_annq_w = '0;
-    assign gptp_pub_flags_w = '0;
-    assign gptp_pub_pdelay_w = '0;
-    assign gptp_pub_offset_w = '0;
+    assign gptp_raw_gm_w = '0;
+    assign gptp_raw_parent_w = '0;
+    assign gptp_raw_annq_w = '0;
+    assign gptp_raw_flags_w = '0;
+    assign gptp_raw_pdelay_w = '0;
+    assign gptp_raw_offset_w = '0;
+    assign gptp_raw_commit_w = 1'b0;
     assign gptp_tap_drop_w = '0;
     assign gptp_rx_drop_w = '0;
     assign gptp_ev_drop_w = '0;

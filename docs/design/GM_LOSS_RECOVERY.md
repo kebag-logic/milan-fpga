@@ -1,16 +1,41 @@
 # Grandmaster loss and recovery — the complete mechanism
 
-Status: as built at VERSION `0x002B` (2026-08-07), with every number below
-**measured on the AX7101 bench during the 08-06/08-07 root-causing
-session**, not estimated. Companion to
+Status: fabric-default desk architecture at VERSION `0x0002_0055`
+(2026-08-20); booted-board acceptance remains issue #117. The detailed
+linuxptp timings below are the **measured option-off comparison baseline** from
+the AX7101 08-06/08-07 root-causing session, not estimates. Companion to
 [`TIME_SYNC.md`](TIME_SYNC.md) (the steady-state clock architecture);
 this document covers the *transient*: what happens, layer by layer, when
 the grandmaster disappears, changes, or comes back.
 
-Current integration note: the measurements below predate the control-plane
-replacement. The current root keeps media-clock selection INTERNAL, and the
-general Table 5.22 notification producer is still missing. Mapping-change
-notifications are the implemented exception.
+The current root keeps media-clock selection INTERNAL, and the general Table
+5.22 notification producer is still missing. Mapping-change notifications are
+the implemented exception.
+
+## Current default at 0x0002_0055
+
+The host publication loop is no longer in the product path:
+
+```text
+0x88F7 wire <-> KL_gptp_shadow -> PHC adjfine/adjtime
+                              -> committed {GM,parent,pdelay,flags} bank
+                              -> CSR + AVB_INFO/AS_PATH + tu/asCapable
+```
+
+Announce receipt timeout, BMCA, pdelay and servo decisions happen in the pinned
+`gptp-processor` engine. A GM change or PHC step still arms
+`KL_ptp_clock_validity`'s 0.25 s minimum Annex B holdover. Outside holdover,
+`tu` is simply the inverse of the engine's published sync flag; `asCapable`
+comes from the adjacent engine flag. CLKV software writes remain ABI-compatible
+but have no authority and their lease fields read zero. Thus a daemon crash,
+UDS reconnection or polling interval cannot make identity stale or expire a
+healthy fabric claim.
+
+`--no-fabric-gptp` retains the measured linuxptp/statd chain described below as
+an A/B oracle. The sibling `milan-tests-avb` Buildroot services have not yet
+been retired in this repository's WIP: remove ptp4l, phc2sys, milan-statd and
+the gptp2csr fallback there, then use #117 to prove a booted default build reads
+`tu=0` while synchronised. Until both happen, #116 remains open.
 
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
@@ -22,9 +47,9 @@ notifications are the implemented exception.
 ## Contents
 
 - **[1. What "GM lost" actually is on the wire](#1-what-gm-lost-actually-is-on-the-wire)** — Loss is inferred from announce silence; a deferring device still self-claims when alone, and the real GM's return is a measured 18-60 s phase cliff, not a smooth re-slave
-- **[2. The ptp4l layer — step vs slew, and the one-step budget](#2-the-ptp4l-layer--step-vs-slew-and-the-one-step-budget)** — A fresh instance steps the cliff in seconds; a running one slews at ~26k ppm (40 min for 60 s) — the restart-once operational rule and the DLL that retires it
-- **[3. The publication layer — how the fabric learns about it](#3-the-publication-layer--how-the-fabric-learns-about-it)** — The ptp4l -> statd -> CSR lease chain with its atomic GM-pair commit, and the measured fail-stale mode when ptp4l is restarted by hand
-- **[4. The honesty layer — tu, the timestamp-uncertain bit](#4-the-honesty-layer--tu-the-timestamp-uncertain-bit)** — Fabric holdover plus the software lease: tu=1 marks the labels untrustworthy through the transient, and peers refusing them is both ends conforming
+- **[2. The historical ptp4l comparison](#2-the-ptp4l-layer--step-vs-slew-and-the-one-step-budget)** — option-off step/slew measurements
+- **[3. The historical publication chain](#3-the-publication-layer--how-the-fabric-learns-about-it)** — the retired UDS/statd/CSR lease baseline
+- **[4. The honesty layer — tu](#4-the-honesty-layer--tu-the-timestamp-uncertain-bit)** — common fabric holdover, with owner selected at elaboration
 - **[5. The announcement layer — ADP, counters, pushes](#5-the-announcement-layer--adp-counters-pushes)** — The out-of-cycle ADPDU, GPTP_GM_CHANGED, and the single event-law push burst a GM change produces
 - **[6. The media layer — where the minutes used to go](#6-the-media-layer--where-the-minutes-used-to-go)** — The root-caused 2-minute walk, and the as-built cure: the 0x002A recenter snap plus the 0x002B free-wheeling lock, with SRP untouched by design
 - **[7. The recovery timeline, end to end (as built)](#7-the-recovery-timeline-end-to-end-as-built)** — The full T+0 to T+50s sequence; everything after the GM returns is seconds
@@ -51,6 +76,9 @@ misread as defects:
    re-slave: it is a phase cliff the whole media stack must survive.
 
 ## 2. The ptp4l layer — step vs slew, and the one-step budget
+
+**Historical option-off comparison.** None of this restart policy is part of
+the default fabric plane; it remains useful as the measured A/B oracle.
 
 When the real GM reappears: `new foreign master` → BMCA `selected best
 master clock` → `MASTER → UNCALIBRATED → SLAVE`, typically ~2 s.
@@ -79,6 +107,9 @@ fabric's presentation timebase atomically — every downstream layer sees
 the cliff in the same cycle.
 
 ## 3. The publication layer — how the fabric learns about it
+
+**Historical option-off comparison.** At 0x0055 the engine bank replaces this
+entire chain in the default build.
 
 The fabric does not parse Announce. It learns the GM identity from the
 **software lease chain**:
@@ -113,7 +144,9 @@ AAF). Two independent mechanisms drive it:
 1. **Fabric holdover** (`KL_ptp_clock_validity`): a GM-identity change
    or PHC step arms `tu = 1` for 0.25–0.5 s **with no software
    involvement** (Milan Annex B.1.1). This covers the cliff itself.
-2. **The software lease** (`CLKV_CTRL 0x778`): statd (reference:
+2. **The selected owner**: the default fabric arm uses the engine's live sync
+   flag and has no lease; the explicit software arm uses `CLKV_CTRL 0x778`.
+   In that legacy arm statd (reference:
    `gptp2csr.sh`) grants the `tu = 0` claim only while ptp4l reports
    SLAVE with |offset| < 1 µs for **3 consecutive polls**, and the claim
    auto-expires (lease ≥ 8 s, sized to 2 measured loop iterations + 4 s)
@@ -175,23 +208,19 @@ The as-built mechanism (`0x002A` + `0x002B`):
    licences ride through the hand-off. The talker keeps streaming
    (5.3.7.3), stamping tu per Section 4.
 
-## 7. The recovery timeline, end to end (as built)
+## 7. The recovery timeline, end to end (fabric default)
 
 ```
-T+0      switch announces stop
-T+~3s    announce timeout -> board self-claims GM (BMCA, correct)
-         fabric: tu holdover arms; lease will lapse within <= ~24s -> tu=1
-         ADPDU with own GM id; GPTP_GM_CHANGED++; one push burst
-T+X      real GM returns -> foreign master seen
-T+X+2s   BMCA selects it -> UNCALIBRATED -> SLAVE
-T+X+2s   PHC STEPS the cliff (fresh servo; restart ptp4l if it slews)
-         media: recenter pulse -> fill=MID, MEDIA_RESET, lock HELD
-T+X+~30s ptp4l at ns offset
-T+X+~50s statd: 3 clean polls -> tu=0 lease -> peers lock on our frames
+T+0      selected master's Announce stops
+T+timeout engine announce-receipt timeout -> BMCA runs; sync flag clears
+          tu=1 immediately; published GM/parent change atomically
+T+X       real GM returns -> engine selects it and servo reacquires
+T+X+step  engine applies PHC step; Annex B holdover keeps tu=1 >=0.25 s
+T+lock    engine publishes sync_ok; after holdover tu=0 with no daemon lease
 ```
 
-Everything after `T+X` is seconds. The only minutes-scale path left is
-the slew trap in Section 2, and that dies with the DLL.
+Desk tests prove the ownership and holdover sequence. Exact timeout/lock bounds
+and the final `tu=0` board observation are #117 evidence, not a desk claim.
 
 ## 8. Traps on record (all hit live, all in memory)
 

@@ -109,8 +109,8 @@ LiteX SDRAM cache, and no Linux sound-card rings. The CPU and 64-bit Milan
 plane share the 50 MHz domain through Vexii's supported decoupled-clock
 boundary; the LiteX system and audio clock recipe stays at 100 MHz. The
 physical/fabric audio datapath, NIC DMA and protocol processor remain. The
-configuration explicitly enables the #114 fabric gPTP plane with
-`--fabric-gptp`; the builder creates its ROM from the same YAML station MAC,
+configuration uses the default-on #114 fabric gPTP plane (and records
+`--fabric-gptp` explicitly in the generated command); the builder creates its ROM from the same YAML station MAC,
 priority1 and 50 MHz fabric clock. It uses
 two RX queues, header-split 16K pages, `--strip-probes`, the raw-AEM bare-metal
 flash manifest, `--gtx-tx-invert`, `--timing-opt --floorplan`, and a

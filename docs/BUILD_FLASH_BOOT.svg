@@ -3,7 +3,7 @@
 <rect width="2002" height="698" fill="#FAFAFA"/>
 <text x="40" y="56" font-size="30" font-weight="bold" fill="#263238">Build → Flash → Boot → Verify — the AX7101 pipeline</text>
 <text x="40" y="88" font-size="15" fill="#546E7A">One flow, four stages. Each stage lists the real commands (bold) and the load-bearing rules. Details: docs/integration/BUILDING · LITEX_SOC · QSPI_FLASHBOOT · findings/BENCH_TOPOLOGY.</text>
-<text x="40" y="112" font-size="15" fill="#546E7A">The one rule that costs a session if missed: build with --with-spiflash --flashboot full and flash the MATCHED image set together.</text>
+<text x="40" y="112" font-size="15" fill="#546E7A">The one rule that costs a session if missed: build with --with-spiflash --flashboot baremetal and flash the MATCHED bitstream + AEM image together.</text>
 <rect x="40" y="150" width="440" height="332" rx="10" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
 <rect x="40" y="150" width="440" height="56" rx="10" fill="#2E7D32" stroke="#2E7D32"/>
 <rect x="40" y="194" width="440" height="12" fill="#2E7D32"/>
@@ -14,14 +14,14 @@
 <text x="58" y="275" font-size="13" fill="#37474F">mandatory: --coherent-dma</text>
 <text x="58" y="312" font-size="13" fill="#37474F">--gtx-tx-invert --all-blocks</text>
 <rect x="52" y="329" width="416" height="30" rx="5" fill="#263238"/>
-<text x="61" y="349" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">--with-spiflash --flashboot full</text>
+<text x="61" y="349" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">--with-spiflash --flashboot baremetal</text>
 <text x="58" y="386" font-size="13" fill="#37474F">  → pins BITSTREAM COMPRESS</text>
 <text x="58" y="423" font-size="13" fill="#37474F">3×32-thread seed sweep</text>
 <text x="58" y="460" font-size="13" fill="#37474F">GATE: WNS ≥ 0</text>
 <rect x="40" y="504" width="440" height="64" rx="8" fill="#ffffff" stroke="#2E7D32" stroke-width="1.6" stroke-dasharray="5 3"/>
 <text x="54" y="524" font-size="11.5" font-weight="bold" fill="#2E7D32">OUTPUT</text>
-<text x="54" y="542" font-size="12.5" fill="#212121">compressed .bit ~1.74 MiB (60% off 3.65)</text>
-<text x="54" y="559" font-size="12.5" fill="#212121">+ kernel · dtb · rootfs · opensbi</text>
+<text x="54" y="542" font-size="12.5" fill="#212121">compressed .bit + ROM firmware</text>
+<text x="54" y="559" font-size="12.5" fill="#212121">+ generated AEM image</text>
 <line x1="486" y1="316" x2="526" y2="316" stroke="#455A64" stroke-width="3.5" marker-end="url(#fa)"/>
 <rect x="534" y="150" width="440" height="332" rx="10" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
 <rect x="534" y="150" width="440" height="56" rx="10" fill="#EF6C00" stroke="#EF6C00"/>
@@ -40,7 +40,7 @@
 <rect x="534" y="504" width="440" height="64" rx="8" fill="#ffffff" stroke="#EF6C00" stroke-width="1.6" stroke-dasharray="5 3"/>
 <text x="548" y="524" font-size="11.5" font-weight="bold" fill="#EF6C00">OUTPUT</text>
 <text x="548" y="542" font-size="12.5" fill="#212121">persistent QSPI image:</text>
-<text x="548" y="559" font-size="12.5" fill="#212121">bitstream@0 · kernel · dtb · rootfs</text>
+<text x="548" y="559" font-size="12.5" fill="#212121">bitstream@0 · AEM image@0x400000</text>
 <line x1="980" y1="316" x2="1020" y2="316" stroke="#455A64" stroke-width="3.5" marker-end="url(#fa)"/>
 <rect x="1028" y="150" width="440" height="332" rx="10" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
 <rect x="1028" y="150" width="440" height="56" rx="10" fill="#1565C0" stroke="#1565C0"/>
@@ -50,15 +50,15 @@
 <rect x="1040" y="218" width="416" height="30" rx="5" fill="#263238"/>
 <text x="1049" y="238" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">power on / power-cycle</text>
 <text x="1046" y="275" font-size="13" fill="#37474F">FPGA config-boots from QSPI</text>
-<text x="1046" y="312" font-size="13" fill="#37474F">LiteX BIOS → DDR3 init</text>
-<text x="1046" y="349" font-size="13" fill="#37474F">linux_flashboot QSPI→DRAM</text>
-<text x="1046" y="386" font-size="13" fill="#37474F">OpenSBI (M-mode) → Linux</text>
-<text x="1046" y="423" font-size="13" fill="#37474F">S50milan provisions CSRs</text>
-<text x="1046" y="460" font-size="13" fill="#37474F">ptp4l · phc2sys · linkmon up</text>
+<text x="1046" y="312" font-size="13" fill="#37474F">ROM firmware starts in M-mode</text>
+<text x="1046" y="349" font-size="13" fill="#37474F">AEM QSPI→DDR + CRC/identity</text>
+<text x="1046" y="386" font-size="13" fill="#37474F">program station CSRs + PHC epoch</text>
+<text x="1046" y="423" font-size="13" fill="#37474F">enable processor + ADP</text>
+<text x="1046" y="460" font-size="13" fill="#37474F">fabric gPTP starts — no daemons</text>
 <rect x="1028" y="504" width="440" height="64" rx="8" fill="#ffffff" stroke="#1565C0" stroke-width="1.6" stroke-dasharray="5 3"/>
 <text x="1042" y="524" font-size="11.5" font-weight="bold" fill="#1565C0">OUTPUT</text>
-<text x="1042" y="542" font-size="12.5" fill="#212121">buildroot Linux on VexiiRiscv,</text>
-<text x="1042" y="559" font-size="12.5" fill="#212121">Milan NIC live</text>
+<text x="1042" y="542" font-size="12.5" fill="#212121">cacheless RV32I control firmware,</text>
+<text x="1042" y="559" font-size="12.5" fill="#212121">fabric Milan end station live</text>
 <line x1="1474" y1="316" x2="1514" y2="316" stroke="#455A64" stroke-width="3.5" marker-end="url(#fa)"/>
 <rect x="1522" y="150" width="440" height="332" rx="10" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
 <rect x="1522" y="150" width="440" height="56" rx="10" fill="#6A1B9A" stroke="#6A1B9A"/>
@@ -68,10 +68,10 @@
 <rect x="1534" y="218" width="416" height="30" rx="5" fill="#263238"/>
 <text x="1543" y="238" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">devmem 0x90000000 == &#x27;MILN&#x27;</text>
 <text x="1540" y="275" font-size="13" fill="#37474F">  (M-A2 first-silicon smoke)</text>
-<text x="1540" y="312" font-size="13" fill="#37474F">link up · GM / talker / listener</text>
+<text x="1540" y="312" font-size="13" fill="#37474F">link up · fabric GM/talker/listener</text>
 <rect x="1534" y="329" width="416" height="30" rx="5" fill="#263238"/>
-<text x="1543" y="349" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">COMPLIANCE 63/63</text>
-<text x="1540" y="386" font-size="13" fill="#37474F">behave · TB · audio E2E</text>
+<text x="1543" y="349" font-size="12.5" font-family="Menlo,Consolas,monospace" fill="#B9F6CA">CLKV tu=0 while synced (#117)</text>
+<text x="1540" y="386" font-size="13" fill="#37474F">desk gates · silicon battery · audio</text>
 <text x="1540" y="423" font-size="13" fill="#37474F">REGISTER_MAP.md = the ABI</text>
 <text x="1540" y="460" font-size="13" fill="#37474F">BENCH_TOPOLOGY.md = the rig</text>
 <rect x="1522" y="504" width="440" height="64" rx="8" fill="#ffffff" stroke="#6A1B9A" stroke-width="1.6" stroke-dasharray="5 3"/>

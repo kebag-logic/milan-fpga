@@ -21,7 +21,8 @@ served on the wire while still having a known behavioral defect.
 <!-- milan-feature-status:start -->
 | Feature ID | Status | Canonical value |
 |---|---|---|
-| `gateware.current-version` | `implemented` | `0x0002_0054` |
+| `gateware.current-version` | `implemented` | `0x0002_0055` |
+| `gptp.fabric-default` | `partial` | - |
 | `aem.served-command-set` | `implemented` | - |
 | `aem.acquire-entity-refusal` | `not-supported` | - |
 | `aem.mandatory-missing-set` | `implemented` | - |
@@ -37,6 +38,14 @@ served on the wire while still having a known behavioral defect.
 | `host.sound-card-option` | `implemented` | - |
 | `verification.long-gate-policy` | `implemented` | `local-required, remote-optional` |
 <!-- milan-feature-status:end -->
+
+`gptp.fabric-default` is deliberately `partial`: VERSION `0x0002_0055` makes
+the fabric plane the RTL/builder/LiteX default, live-drives the legacy
+GM/parent/pdelay CSR words and owns `tu`/asCapable. The shipping AX profile is
+bare metal and starts no Linux time daemons. The Linux service definitions,
+however, live in the sibling `milan-tests-avb` Buildroot tree and are outside
+this change; issue #117 also still owes the booted-board `tu=0` observation.
+Neither acceptance item is inferred from desk simulation.
 
 ## Exact command inventories
 

@@ -2,7 +2,11 @@
 
 # Architecture — what runs on the softcore, what does not
 
-Status: **rev 3, 2026-08-13** (USER DIRECTIVE: *"remove the old code AECP/ACMP/ADP
+Status: **rev 4 addendum, 2026-08-20**. This superseded document is retained
+because issue #116 names its ownership table: gPTP is now fabric-default at
+VERSION `0x0002_0055`; the explicit option-off Arty profiles are comparison
+builds, not the product split. The rev-3 baseline began with the USER DIRECTIVE:
+*"remove the old code AECP/ACMP/ADP
 the lwSRP shall be removed as well. Only use the uCPU code"*). Rev 2's verdict
 stands — everything per-frame goes FPGA — but the fabric that implements the
 IEEE 1722.1 / SRP control plane is no longer this repository's own engines: it
@@ -65,8 +69,9 @@ Concretely, a function goes to the FPGA fabric when it needs any of:
   (the 0x600 CSR group feeds ADP and AEM from the same wires).
 
 A function goes to the softcore when it is:
-- a state machine with policy or configuration input where deadlines are
-  soft (gPTP BMCA/servo — OS timers, config files);
+- a state machine with policy or configuration input where deadlines are soft.
+  gPTP is the deliberate exception since rev 4: BMCA, pdelay and PHC discipline
+  run in the micro-coded fabric engine so host load cannot break port timing;
 - sample *production* (filling a PCM ring at millisecond cadence — the
   per-frame 125 us work is NOT this);
 - provisioning that runs once per boot (identity programming) and ops.
@@ -91,11 +96,11 @@ the framer, the reservation gate and connection liveness are fabric work.
 | **ACMP** (CONNECT_TX / PROBE_TX / GET_TX_STATE, the BIND_RX ladder) | fabric | rev 3 | the processor's talker + listener pair; the result is republished as a **bind record** on the class-D face, which is what every consumer in `milan_datapath` reads. `ACMPL_STATE` no longer tracks PROBING/SETTLED — take `bound` as the truth |
 | **The talker DA gate** | fabric | rev 3 | `acmp_declaring_o` asserts only after a MAAP `ALLOC_DA` success through `KL_pp_maap_shim`, so AAF admission is still "a destination address exists AND the source is declaring" |
 | kl-eth driver (rings, NAPI, ethtool, CSR) | softcore | silicon | Linux 6.x, kl,dma-ether |
-| kl-eth PHC (`/dev/ptpN`) + SO_TIMESTAMPING | softcore | silicon | exposes the fabric counter/timestamps to linuxptp; HW-ts green zero-overrides |
-| gPTP protocol (BMCA, servo, pdelay) | softcore | present, silicon-validated | linuxptp ptp4l + phc2sys in the rootfs; the PHC is real. The media-clock MMCM-DRP servo was silicon-proven at −83.9 dB, but rev 3 leaves it **structurally off** — see the losses below |
+| kl-eth PHC (`/dev/ptpN`) + SO_TIMESTAMPING | softcore | comparison build only | exposes the same fabric counter/timestamps to Linux; it does not own discipline in the product shape |
+| gPTP protocol (BMCA, servo, pdelay) | **fabric** | default since 0x0055; silicon acceptance open in #117 | `KL_gptp_shadow` wraps the pinned engine; it owns adjfine/adjtime, wire exchanges, GM/parent/pdelay publication and the `tu`/asCapable verdict. `--no-fabric-gptp` retains linuxptp for comparison |
 | Media clock **source selection** | **neither** | **NOT IMPLEMENTED** | `SET_CLOCK_SOURCE` was the only writer of the live CLOCK_DOMAIN `clock_source_index`; pinned at 0 = the INTERNAL media clock for the life of the build |
 | Saved-state / fast-connect persistence | **neither** | **NOT IMPLEMENTED** | the journal is deleted; the processor's NVM face is answered by a blank-flash responder, so a restore walk always completes with zero records. Milan v1.2 5.3.8.2 wants saved state; this build does not have it and says so structurally |
-| gPTP → entity bridge (GM id/domain into CSR 0x624/0x628 on change) | softcore | present | `gptp2csr.sh` daemon publishes GM id/domain (0x624/0x628) on change; fabric already has gm_change → re-advertise + index bump + AS_PATH/AVB_INFO truth |
+| gPTP → entity bridge | **fabric** | default since 0x0055 | the engine publication bank live-drives GM (`0x624/0x628`), parent (`0x730/0x734`), pdelay (`0x6E4`), AVB_INFO/AS_PATH and CLKV. The old UDS/pmc → statd → devmem chain exists only in the explicit software option |
 | **SRP** (MSRP Talker Advertise TX, Listener Ready RX, MVRP VLAN registration, ≤75 % SR-class bandwidth gate) | **fabric** | rev 3 | the protocol processor's, consumed as **wires**: `srp_active_o` + `srp_granted_slope_bps_o` drive the CBS idleSlope and gate TX (FR-SRP-03). The 11-module `lwSRP` engine is deleted; at `0x680` the domain word, granted slope and over-limit bit are repointed and live, while the MRPDU counters read structural zeros. Ordering note: the processor asserts activity and slope in the SAME cycle where `KL_lwsrp_bw_gate` staged them — at worst equal on the opening edge, briefly conservative on the closing one; neither edge lets a stream transmit against an un-budgeted slope |
 | MAAP (multicast MAC allocation) | **fabric** | silicon | `KL_maap` probe/defend/announce (CSR 0x6CC-0x6D4), now also serving the processor's per-source ALLOC/RELEASE face through [`hdl/milan/KL_pp_maap_shim.sv`](../hdl/milan/KL_pp_maap_shim.sv) out of the same block claim |
 | **AAF framer** (AVTP talker payloads) | **fabric** | silicon | PCM via a DMA audio ring -> fabric packetizer stamps presentation time from the PTP counter -> class-A CBS queue; zero per-frame CPU; RTL + harness, silicon-validated |
@@ -142,8 +147,9 @@ Three losses are functional, not paperwork, and each is where a bench meets it:
    fabric-initiated, at a compile-time base. Software's whole share of this
    crossing is placing the image there before enabling the entity; there is no
    handshake and no register to point it somewhere else.
-3. **PHC clock ops** (next) — the fabric counter exposed as `/dev/ptpN`;
-   ptp4l disciplines it, phc2sys mirrors it to CLOCK_REALTIME.
+3. **PHC clock ops** — the engine disciplines the fabric counter directly.
+   `/dev/ptpN` remains an observation/bring-up interface; the product does not
+   need `phc2sys` because system `CLOCK_REALTIME` is not a media-plane source.
 4. **DMA audio ring** (next, with the AAF framer) — the PCM crossing: SW
    fills samples at millisecond cadence; the fabric framer consumes, stamps
    presentation time (PTP counter + offset), packetizes, and feeds class A.
@@ -168,8 +174,8 @@ Three losses are functional, not paperwork, and each is where a bench meets it:
   is the scarce resource; anything periodic or per-frame that can leave the
   CPU, should. That is also why the remaining AECP gaps are not being filled in
   software.
-- gPTP's BMCA/servo is policy with OS timers and config — the reference
-  practice (linuxptp) stays; only timestamps and the clock itself are HW.
+- gPTP moved to fabric because its exchange deadlines and PHC actuation must
+  survive host load. The option-off linuxptp result remains the A/B oracle.
 
 ## Open decisions (flagged, not blocking)
 
@@ -178,8 +184,9 @@ Three losses are functional, not paperwork, and each is where a bench meets it:
   that inventory are upstream work in the submodule. The Table 5.22 producer
   and Milan Delta 7 ACQUIRE_ENTITY semantics remain open; do not plan around a
   date.
-- **gPTP in fabric**: explicitly NOT now — linuxptp on the softcore is the
-  plan (task: Arty+Milan pair), with fabric timestamps + INCR/ADJ discipline
-  hooks. Revisit only if servo jitter proves blocking.
+- **gPTP silicon signoff**: the default-on desk path is implemented; issue #117
+  still owns booted-board sync, `tu=0`, timestamp and GM-loss evidence. The
+  sibling Buildroot tree must also remove ptp4l/phc2sys/statd services before
+  any Linux image is described as fabric-default.
 - **Audio source**: DMA PCM ring from Linux first; a native I2S/TDM codec
   input to the fabric is the later fully-FPGA option.

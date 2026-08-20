@@ -620,6 +620,45 @@ def test_baremetal_profile_contract():
           "profiles rejected before SoC generation")
 
 
+def test_gptp_product_default_and_legacy_option():
+    """Gate 1c: fabric is the omission/default and software is explicit.
+
+    This grades both the emitted SoC argument and the artifact handoff.  A
+    fabric build must carry the uCPU image but no ptp4l config; the retained
+    comparison build must do exactly the inverse and pass an explicit 0 to the
+    RTL rather than inheriting milan_datapath's product default.
+    """
+    with tempfile.TemporaryDirectory() as td:
+        r = eb.build(CONFIGS["ax7101_8x8"], td)
+        assert r["cfg"]["features"]["fabric_gptp"] is True
+        assert "--fabric-gptp" in r["argv"]
+        assert "--no-fabric-gptp" not in r["argv"]
+        assert "gptp_ucode" in r["paths"]
+        assert not os.path.exists(os.path.join(
+            os.path.dirname(r["paths"]["entity_conf"]), "gptp.cfg"))
+
+        legacy = _variant(CONFIGS["ax7101_8x8"],
+                          lambda c: _prune(c, fabric_gptp=False))
+        try:
+            lr = eb.build(legacy, td)
+        finally:
+            os.unlink(legacy)
+        assert lr["cfg"]["features"]["fabric_gptp"] is False
+        assert "--no-fabric-gptp" in lr["argv"]
+        assert "--fabric-gptp" not in lr["argv"]
+        assert "gptp_ucode" not in lr["paths"]
+        assert os.path.exists(os.path.join(
+            os.path.dirname(lr["paths"]["entity_conf"]), "gptp.cfg"))
+
+    soc_source = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
+    assert "p_GPTP_PLANE_EN_P=int(bool(gptp_plane))" in soc_source
+    assert 'ap.set_defaults(fabric_gptp=True)' in soc_source
+    assert '"--no-fabric-gptp"' in soc_source
+    print("  [gate 1c] fabric gPTP is the omission/default, emits its ROM and "
+          "no ptp4l config; explicit false emits --no-fabric-gptp and keeps "
+          "the software config with no fabric ROM")
+
+
 def test_current_shape_matches_sweep_flags():
     # The shipping Arty shape is the 4x4 tdm8-master since 2026-07-28 (the
     # 8.3b flash decision); sweep.sh's arty table says so, and this gate
@@ -5744,6 +5783,7 @@ def test_milan_base_formats_are_rate_complete():
 
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_baremetal_profile_contract,
+               test_gptp_product_default_and_legacy_option,
                test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
                test_capability_marks, test_bad_configs_rejected,

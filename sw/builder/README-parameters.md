@@ -217,8 +217,9 @@ reason the table exists.
 
 ## Optional blocks (`board.features:`) -- product options and tier-1 prunes
 
-`sound_card` controls the Linux host audio surface and `fabric_gptp` controls
-the #114 time-sync plane. Both product options default to `false`. The
+`sound_card` controls the Linux host audio surface and defaults to `false`.
+`fabric_gptp` controls the #114 time-sync plane and defaults to `true` since
+#116; `false` is the explicit legacy software bring-up comparison. The
 remaining keys are the
 [`docs/design/AREA_BUDGET.md`](../../docs/design/AREA_BUDGET.md) tier-1
 datapath blocks; they default to `true`.
@@ -230,8 +231,9 @@ reserved ring. Physical capture/render, AAF, CRF and loopback fabric remain.
 When `fabric_gptp` is true, the builder requires a `gptp:` section, emits
 `--fabric-gptp`, and writes `gptp_ucode.hex` into the per-config output. The
 ROM's station MAC, priority1 and clock come from the same YAML as the AEM and
-SoC arguments. The shipping AX7101 config opts in explicitly; the RTL default
-stays off until #116 changes the product default.
+SoC arguments and omits the legacy ptp4l config artifact. The shipping AX7101
+config states the default explicitly; existing Arty Linux profiles state
+`false` because they have no fabric microcode facts and remain the A/B arm.
 
 The tier-1 set contains six
 `milan_datapath` blocks that a given deployment may not be able to use, each
@@ -242,7 +244,7 @@ whole section is optional.
 board:
   features:                    # optional; omit the block to keep everything
     sound_card: false          # default: no Linux PCM DMA/DT/AEM host surface
-    fabric_gptp: false         # default: fabric 802.1AS engine absent
+    fabric_gptp: true          # default; false retains ptp4l/statd comparison
     media_clock_servo: true
     latency_taps: true
     maap: true

@@ -110,7 +110,8 @@ class MilanSimSoC(SimSoC):
                                                    entity_gen_dir)
         irq_csr = Signal()
         add_milan_datapath(self, self.platform, axil, irq_csr,
-                           desc_base=desc_base, resp_base=resp_base)
+                           desc_base=desc_base, resp_base=resp_base,
+                           entity_gen_dir=entity_gen_dir)
 
         # Fast, deterministic boot to the prompt (this sim exists to read one register).
         self.add_config("BIOS_NO_DELAYS")     # no countdowns

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "facts": {
-    "gateware_version": "0x0002_0054",
+    "gateware_version": "0x0002_0055",
     "served_aem_operations": [
       "ACQUIRE_ENTITY",
       "LOCK_ENTITY",
@@ -63,7 +63,7 @@
     {
       "id": "gateware.current-version",
       "status": "implemented",
-      "value": "0x0002_0054",
+      "value": "0x0002_0055",
       "summary": "Current gateware and processor integration version.",
       "documents": [
         "README.md",
@@ -73,6 +73,14 @@
         "docs/reference/REGISTER_MAP_CLASSES.md",
         "docs/testing/MILAN_V12_AUDIT_2026-08-16.md",
         "hdl/common/csr/doc/milan_csr.md"
+      ]
+    },
+    {
+      "id": "gptp.fabric-default",
+      "status": "partial",
+      "summary": "RTL, builder and the shipping bare-metal profile default to the fabric engine; sibling-rootfs service retirement and issue 117 booted-board acceptance remain open.",
+      "documents": [
+        "docs/reference/MILAN_FEATURE_STATUS.md"
       ]
     },
     {

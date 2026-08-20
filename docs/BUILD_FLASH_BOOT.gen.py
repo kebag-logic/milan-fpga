@@ -17,11 +17,11 @@ STAGES = [
    ("sw/litex/build.sh ax7101", 1),
    ("mandatory: --coherent-dma", 0),
    ("--gtx-tx-invert --all-blocks", 0),
-   ("--with-spiflash --flashboot full", 1),
+   ("--with-spiflash --flashboot baremetal", 1),
    ("  → pins BITSTREAM COMPRESS", 0),
    ("3×32-thread seed sweep", 0),
    ("GATE: WNS ≥ 0", 0),
- ], "compressed .bit ~1.74 MiB (60% off 3.65)\n+ kernel · dtb · rootfs · opensbi"),
+ ], "compressed .bit + ROM firmware\n+ generated AEM image"),
  ("2 · FLASH", "JTAG → QSPI (16 MB)", ORANGE, [
    ("deploy.sh flash  (bitstream @0)", 1),
    ("deploy.sh flash-images", 1),
@@ -30,22 +30,22 @@ STAGES = [
    ("openFPGALoader -c ft232", 0),
    ("RULE: flash the WHOLE set —", 0),
    ("a gateware-only load won't boot", 0),
- ], "persistent QSPI image:\nbitstream@0 · kernel · dtb · rootfs"),
+ ], "persistent QSPI image:\nbitstream@0 · AEM image@0x400000"),
  ("3 · BOOT", "on target · self-configures", BLUE, [
    ("power on / power-cycle", 1),
    ("FPGA config-boots from QSPI", 0),
-   ("LiteX BIOS → DDR3 init", 0),
-   ("linux_flashboot QSPI→DRAM", 0),
-   ("OpenSBI (M-mode) → Linux", 0),
-   ("S50milan provisions CSRs", 0),
-   ("ptp4l · phc2sys · linkmon up", 0),
- ], "buildroot Linux on VexiiRiscv,\nMilan NIC live"),
+   ("ROM firmware starts in M-mode", 0),
+   ("AEM QSPI→DDR + CRC/identity", 0),
+   ("program station CSRs + PHC epoch", 0),
+   ("enable processor + ADP", 0),
+   ("fabric gPTP starts — no daemons", 0),
+ ], "cacheless RV32I control firmware,\nfabric Milan end station live"),
  ("4 · VERIFY", "on the bench", PURPLE, [
    ("devmem 0x90000000 == 'MILN'", 1),
    ("  (M-A2 first-silicon smoke)", 0),
-   ("link up · GM / talker / listener", 0),
-   ("COMPLIANCE 63/63", 1),
-   ("behave · TB · audio E2E", 0),
+   ("link up · fabric GM/talker/listener", 0),
+   ("CLKV tu=0 while synced (#117)", 1),
+   ("desk gates · silicon battery · audio", 0),
    ("REGISTER_MAP.md = the ABI", 0),
    ("BENCH_TOPOLOGY.md = the rig", 0),
  ], "a validated Milan end-station"),
@@ -68,7 +68,7 @@ def svg():
     o.append('<rect width="%d" height="%d" fill="#FAFAFA"/>'%(W,H))
     o.append('<text x="%d" y="56" font-size="30" font-weight="bold" fill="#263238">Build → Flash → Boot → Verify — the AX7101 pipeline</text>'%X0)
     o.append('<text x="%d" y="88" font-size="15" fill="#546E7A">One flow, four stages. Each stage lists the real commands (bold) and the load-bearing rules. Details: docs/integration/BUILDING · LITEX_SOC · QSPI_FLASHBOOT · findings/BENCH_TOPOLOGY.</text>'%X0)
-    o.append('<text x="%d" y="112" font-size="15" fill="#546E7A">The one rule that costs a session if missed: build with --with-spiflash --flashboot full and flash the MATCHED image set together.</text>'%X0)
+    o.append('<text x="%d" y="112" font-size="15" fill="#546E7A">The one rule that costs a session if missed: build with --with-spiflash --flashboot baremetal and flash the MATCHED bitstream + AEM image together.</text>'%X0)
     for i,(name,tool,(fill,stroke),lines,out) in enumerate(STAGES):
         x=col_x(i)
         o.append('<rect x="%d" y="%d" width="%d" height="%d" rx="10" fill="%s" stroke="%s" stroke-width="2"/>'%(x,Y0,CW,box_h,fill,stroke))

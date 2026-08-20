@@ -295,12 +295,15 @@ It was the talker end that was missing.
 **That drive now exists** —
 [`hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv`](../../hdl/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv)
 feeds `tu` to every talker, and this page's argument is exactly why its
-`SYNC_OK` term is a **software lease** (`CLKV_CTRL` `0x778`) rather than
-anything derived on the wire: past one lap there is nothing on the wire to
-derive it from. See [`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md),
-the `0x778` group. This page deliberately does not duplicate that design; what
-belongs here is only the reason — the wrap, not a policy preference, is what
-makes talker-side declaration the only option.
+`SYNC_OK` term must come from the clock owner rather than a modular timestamp
+comparison: past one lap there is nothing in an AAF timestamp from which to
+derive it. Since VERSION `0x0002_0055`, the default owner is the fabric gPTP
+engine's servo verdict; the explicit option-off build retains the software
+lease (`CLKV_CTRL` `0x778`). See
+[`../reference/REGISTER_MAP.md`](../reference/REGISTER_MAP.md), the `0x778`
+group. This page deliberately does not duplicate that design; what belongs
+here is only the reason — the wrap, not a policy preference, is what makes a
+talker-side owner declaration necessary.
 
 ## Reproducing the arithmetic
 

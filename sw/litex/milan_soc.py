@@ -497,7 +497,7 @@ class MilanNIC(LiteXModule):
                  desc_base=None, resp_base=None,
                  rx1_irq=None, milan_clk_hz=100_000_000, num_streams=1,
                  audio_if_slots=0, talker_wire_chans=2, audio_if_master=False,
-                 audio_if_i2s_pair=False, gptp_plane=False, sound_card=False,
+                 audio_if_i2s_pair=False, gptp_plane=True, sound_card=False,
                  aaf_playback=False, aaf_pb_streams=1,
                  loopback_lane=False,
                  render_lpf=True, optional_blocks=None,
@@ -601,7 +601,7 @@ _MILAN_DATAPATH_SOURCES = [
     # shadow/substitution wrapper and the block-vs-per-source MAAP adapter.
     "hdl/milan/KL_pp_shadow.sv", "hdl/milan/KL_pp_maap_shim.sv",
     # the gPTP plane (#114): milan_datapath instantiates KL_gptp_shadow and
-    # KL_gptp_txstamp under GPTP_PLANE_EN_P (default OFF), so Vivado must see
+    # KL_gptp_txstamp under GPTP_PLANE_EN_P (product default ON), so Vivado must see
     # the wrappers and the gptp-processor engine they wrap. Order mirrors the
     # authoritative GPTP_SRCS in tb/verilator/milan_dp/Makefile: the package
     # first, its importers after.
@@ -734,7 +734,7 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
                        milan_clk_hz=100_000_000, num_streams=1, audio_if_slots=0,
                        talker_wire_chans=2, audio_if_master=False,
                        audio_if_i2s_pair=False,
-                       gptp_plane=False,
+                       gptp_plane=True,
                        sound_card=False, aaf_playback=False, aaf_pb_streams=1,
                        loopback_lane=False,
                        render_lpf=True,
@@ -858,14 +858,16 @@ def add_milan_datapath(host, platform, axil, o_irq_csr, extra_ports=None, milan_
     base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # milan-fpga/
     dp_params = dict(p_MILAN_CLK_FREQ_HZ=int(milan_clk_hz),
                      p_N_STREAMS=int(num_streams),
-                     p_AUDIO_IF_SLOTS_P=int(audio_if_slots))
+                     p_AUDIO_IF_SLOTS_P=int(audio_if_slots),
+                     # Always pass the option: an explicit legacy build must
+                     # override milan_datapath's product-default 1.
+                     p_GPTP_PLANE_EN_P=int(bool(gptp_plane)))
     if gptp_plane:
-        # #120 option-on shipping build. The builder generates this image from
+        # #116 product-default fabric build. The builder generates this image from
         # the SAME end-station YAML as the AEM: station MAC, gPTP priority1 and
         # Milan clock are therefore facts of one config, not parallel CLI
         # literals. Pass an absolute path because Vivado's run directory is
         # not the repository and a relative $readmemh silently yields zero ROM.
-        dp_params["p_GPTP_PLANE_EN_P"] = 1
         dp_params["p_GPTP_UCODE_HEX_P"] = _builder_out(
             entity_gen_dir, "gptp_ucode.hex")
     if sound_card:
@@ -5650,7 +5652,7 @@ class MilanSoC(SoCCore):
                  loopback_lane=False,
                  bus_standard="wishbone",
                  software_profile="linux",
-                 gptp_plane=False,
+                 gptp_plane=True,
                  render_lpf=True, optional_blocks=None,
                  cbs_queues_mask=None, entity_gen_dir=None, **kwargs):
         # ---- RISC-V core(s). Two cores are supported, selected by
@@ -6721,11 +6723,16 @@ def main():
                     help="elaborate the Linux ALSA host surface: listener PCM capture "
                          "ring/CSR bank and, with --aaf-playback, host playback rings. "
                          "Default absent; AAF/TDM/I2S/render/loopback fabric remains.")
-    ap.add_argument("--fabric-gptp", action="store_true",
-                    help="enable the option-gated #114 fabric gPTP plane. The RTL "
-                         "default remains off until #116; the #120 shipping profile "
-                         "opts in explicitly and uses the end-station builder's "
-                         "MAC/priority/clock-specific gptp_ucode.hex.")
+    gptp_group = ap.add_mutually_exclusive_group()
+    gptp_group.add_argument("--fabric-gptp", dest="fabric_gptp",
+                            action="store_true",
+                            help="use the fabric gPTP plane (product default) and "
+                                 "the builder's MAC/priority/clock-specific ROM")
+    gptp_group.add_argument("--no-fabric-gptp", dest="fabric_gptp",
+                            action="store_false",
+                            help="retain the legacy ptp4l/statd publication path "
+                                 "for bring-up comparison")
+    ap.set_defaults(fabric_gptp=True)
     ap.add_argument("--no-render-lpf", action="store_true",
                     help="AREA LEVER (banked, docs/design/AREA_BUDGET.md): prune "
                          "KL_pcm_lpf, the 2nd-order Butterworth on the DAC render tap. "

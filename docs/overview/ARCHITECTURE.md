@@ -200,12 +200,12 @@ supervisor mode, MMU, Linux, L1/L2 cache or LiteX SDRAM cache
 DMA clients share the cacheless address-decoded fabric. Cached Linux profiles
 remain buildable for the Arty and AX7101 8x8 bring-up configurations.
 
-That shipping YAML explicitly enables the #114 fabric gPTP plane. Its
+The #114 fabric gPTP plane is the product default since #116; the shipping YAML
+also states that choice explicitly. Its
 per-config microcode image is generated from the same station MAC, priority1
 and Milan clock as the rest of the end-station definition, and reaches the RTL
-through an absolute path. `GPTP_PLANE_EN_P` remains default-off for every
-configuration that does not make that product choice; #116 owns the eventual
-default flip and CSR compatibility cleanup.
+through an absolute path. Explicit `--no-fabric-gptp` Arty/Linux profiles keep
+the prior software plane as a bring-up comparison.
 
 The Linux sound-card surface is independently optional and defaults off. With
 it off, the PCM DMA master/CSR window, reserved ring, device-tree PCM node,

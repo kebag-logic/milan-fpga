@@ -2844,8 +2844,9 @@ def load_features(raw):
     """Normalize `board.features`.
 
     Datapath tier-1 blocks retain their historical PRESENT default. The Linux
-    host sound-card surface and fabric gPTP plane are product options and
-    default ABSENT; #120 opts the shipping config into the latter explicitly.
+    host sound-card surface defaults absent; the fabric gPTP plane is the
+    product default since #116, with an explicit false value retaining the
+    software bring-up comparison build.
     """
     raw = raw or {}
     if not isinstance(raw, dict):
@@ -2869,10 +2870,11 @@ def load_features(raw):
         raise ConfigError("board.features.sound_card must be a boolean; "
                           "false = host capture/playback rings absent")
     out["sound_card"] = v
-    v = raw.get("fabric_gptp", False)
+    v = raw.get("fabric_gptp", True)
     if not isinstance(v, bool):
         raise ConfigError("board.features.fabric_gptp must be a boolean; "
-                          "false = option-gated fabric time-sync plane absent")
+                          "true = fabric time-sync plane (the default), false "
+                          "= legacy software bring-up path")
     out["fabric_gptp"] = v
     return out
 
@@ -4050,6 +4052,8 @@ def emit_design_opts(cfg):
         argv += ["--loopback-lane"]
     if cfg["features"]["fabric_gptp"]:
         argv += ["--fabric-gptp"]
+    else:
+        argv += ["--no-fabric-gptp"]
     if cfg["features"]["sound_card"]:
         argv += ["--sound-card"]
     # the KL_pcm_tx host rings behind the `host` pool. Emitted from the SAME
@@ -4915,21 +4919,32 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
     p_ent = os.path.join(d, ENTITY_CONF_NAME)
     with open(p_ent, "w") as f:
         f.write(entity_conf)
-    if cfg.get("gptp") is not None:
+    # The ptp4l file belongs only to the explicit software comparison arm.
+    # Fabric builds still consume the same gptp: facts for their uCPU image,
+    # but must not leave a daemon configuration in the image handoff.
+    gptp_cfg = None
+    p_out_gptp = os.path.join(d, "gptp.cfg")
+    if (cfg.get("gptp") is not None and
+            not cfg["features"]["fabric_gptp"]):
         gptp_cfg = emit_gptp_cfg(cfg)
-        with open(os.path.join(d, "gptp.cfg"), "w") as f:
+        with open(p_out_gptp, "w") as f:
             f.write(gptp_cfg)
+    elif os.path.exists(p_out_gptp):
+        os.unlink(p_out_gptp)
     p_ent_overlay = entity_conf_overlay_path(cfg["board_target"])
     if write_fragment:
         if p_ent_overlay:
             with open(p_ent_overlay, "w") as f:
                 f.write(entity_conf)
-            if cfg.get("gptp") is not None:
-                p_gp = os.path.join(os.path.dirname(p_ent_overlay),
-                                    f"gptp.{cfg['board_target']}.cfg")
+            p_gp = os.path.join(os.path.dirname(p_ent_overlay),
+                                f"gptp.{cfg['board_target']}.cfg")
+            if gptp_cfg is not None:
                 with open(p_gp, "w") as f:
                     f.write(gptp_cfg)
                 print(f"  wrote {p_gp}")
+            elif os.path.exists(p_gp):
+                os.unlink(p_gp)
+                print(f"  removed stale software-plane config {p_gp}")
             # THE DESCRIPTOR IMAGE, into the same rootfs the identity ships in.
             # /etc/init.d/S50milan loads it into the reserved `ppmem` window
             # before enabling ADP, because the processor serves READ_DESCRIPTOR
