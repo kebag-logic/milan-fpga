@@ -9,7 +9,7 @@
 - **Authoritative references** — Requirements/specification clauses and docs.
 - **Reproduction** — Copy-pasteable checkout/dependency/environment commands.
 - **Validation** — Exact reviewer commands and expected result.
-- **Definition of Done** — The merge bar from `CONTRIBUTING.md`.
+- **Definition of Done** — The merge bar from [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Status
 
@@ -62,6 +62,6 @@ Expected result / pass criteria:
 - [ ] External review is positive
 - [ ] Blocking and major findings are fixed and re-reviewed
 - [ ] No review round remains in flight
-- [ ] Candidate merge result is validated per `CONTRIBUTING.md`
+- [ ] Candidate merge result is validated per [CONTRIBUTING.md](../CONTRIBUTING.md)
 - [ ] Documentation is updated where needed
 - [ ] Post-merge containment will be checked before the Issue moves to Done
