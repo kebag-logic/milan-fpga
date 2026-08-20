@@ -1252,6 +1252,17 @@ def test_baremetal_profile_contract():
         "include ../include/generated/variables.mak",
         "include $(SOC_DIRECTORY)/software/common.mak",
         "-include $(OBJECTS:.o=.d)")
+    #: Any variable assignment, in any of make's flavours.
+    makefile_assign_re = re.compile(
+        r"(?m)^[ \t]*(?:override[ \t]+)?([A-Za-z_][A-Za-z0-9_]*)[ \t]*"
+        r"(?:=|:=|::=|\+=|\?=|!=)[ \t]*(.*)$")
+    #: Preprocessor flags that hand the compiler a whole file with no
+    #: `#include` line anywhere for the pinned include set to see.
+    injecting_flag_re = re.compile(r"(?<![\w-])-(?:include|imacros)\b")
+    #: Variables that decide WHICH TEXT the one recipe compiles, as opposed to
+    #: how it is compiled. `compile` is the recipe the producing rule is
+    #: pinned to; VPATH decides which file the rule's `%.c` resolves to.
+    text_deciding_vars = ("compile", "VPATH")
 
     def make_rules(makefile):
         """Every explicit/pattern rule as `(targets, prerequisites, recipe)`.
@@ -1305,6 +1316,12 @@ def test_baremetal_profile_contract():
           exactly as they are. So the producing rule is pinned too.
         * WHICH TEXT this Makefile is. A fourth `include` line is new text in
           this file, so the include set is pinned rather than trusted.
+        * WHICH TEXT THE RECIPE COMPILES. Pinning the rule is not enough
+          while a variable can move the file out from under it: a
+          `CFLAGS += -include milan_bringup.c` hands the compiler a whole
+          source with no `#include` line for the pinned include set to catch,
+          leaves the object count at one and the rule untouched. A `vpath` or
+          a redefined `compile` does the same thing by another door.
 
         SCOPE: this reads the firmware's own Makefile. The two LiteX-supplied
         fragments and the compiler's own `.d` fragment are trusted BY NAME
@@ -1316,6 +1333,21 @@ def test_baremetal_profile_contract():
             "the Makefile's include set is pinned: a fragment this gate does " \
             "not read can assign OBJECTS, add a prerequisite or override the " \
             f"rule that builds the one object; found {includes}"
+        joined = re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))
+        for name, value in makefile_assign_re.findall(joined):
+            assert not injecting_flag_re.search(value), \
+                f"{name} must not inject a file into the translation unit: " \
+                "-include/-imacros hand the compiler a whole source with no " \
+                "#include line, so the pinned include set never sees it and " \
+                f"the object count never moves; found {value.strip()!r}"
+            assert name not in text_deciding_vars, \
+                f"this Makefile must not set {name}: it decides WHICH text " \
+                "the one recipe compiles, so setting it here moves the file " \
+                "this gate calls the firmware"
+        assert not re.search(r"(?m)^[ \t]*vpath\b", joined), \
+            "this Makefile must not set a vpath: it decides which file the " \
+            "pattern rule's %.c resolves to, so it moves the file this gate " \
+            "calls the firmware"
         objects = makefile_objects(makefile)
         assert objects is not None, \
             "the bare-metal firmware must stay ONE translation unit, and " \
@@ -2033,6 +2065,19 @@ def test_baremetal_profile_contract():
         "\n-include extra.mk" +
         makefile_source[source_objects_line.end():])
 
+    def after_objects(line):
+        return (makefile_source[:source_objects_line.end()] + "\n" + line +
+                makefile_source[source_objects_line.end():])
+
+    #: Pinning the RULE is not enough while a variable can move the file out
+    #: from under it. None of these three touches OBJECTS, the archive, the
+    #: producing rule or the firmware's #include set.
+    injected_source = after_objects(
+        f"CFLAGS += -include {second_object[:-2]}.c")
+    recompiled_objects = after_objects(
+        f"compile = $(CC) $(CFLAGS) -c -o $@ $< {second_object[:-2]}.c")
+    vpath_objects = after_objects(f"vpath %.c ../{second_object[:-2]}")
+
     def raised_bit0(statement, label):
         """`statement` with bit 0 of its literal SET, rebuilt at the literal's
         own width and base: the RTL's own spelling of its reset value with the
@@ -2340,6 +2385,16 @@ def test_baremetal_profile_contract():
         ("objects added by a Makefile fragment this gate does not read",
          firmware_source, docs_source, csr_source,
          "the Makefile's include set is pinned", fragment_objects),
+        # ... and pinning the rule is not pinning what the rule compiles.
+        ("second source injected by a -include compiler flag",
+         firmware_source, docs_source, csr_source,
+         "must not inject a file into the translation unit", injected_source),
+        ("compile recipe redefined to take a second source", firmware_source,
+         docs_source, csr_source, "this Makefile must not set compile",
+         recompiled_objects),
+        ("vpath moving which file the pattern rule compiles", firmware_source,
+         docs_source, csr_source, "this Makefile must not set a vpath",
+         vpath_objects),
         # ---- and the reset values: the census governs who may SET bit 0,
         # and says nothing about the value bit 0 holds before the first write.
         ("ADP_CTRL reset value advertising the entity", firmware_source,
@@ -2370,8 +2425,9 @@ def test_baremetal_profile_contract():
           "#include of a .c cannot join it unread, and one OBJECT, by an "
           "OBJECTS list read cumulatively across every make assignment "
           "flavour, archived as exactly $(OBJECTS), produced by the one "
-          "pattern rule compiling one .c with $(compile), and a Makefile "
-          "include set pinned so no fragment edits any of that out of sight")
+          "pattern rule compiling one .c with $(compile), with the Makefile's "
+          "own include set pinned and no variable able to move the file the "
+          "recipe compiles (no -include/-imacros, no compile/VPATH/vpath)")
     print("  [gate 1b] ... no preprocessor "
           "conditional and no continued #define outside the QSPI-slot group "
           "whose BOTH arms the verifier's return rule classifies, no "
@@ -2389,8 +2445,9 @@ def test_baremetal_profile_contract():
           "multi-line #define anywhere in the file, any #ifdef outside "
           "load_aem_image() including one in a UART handler, any extra "
           "statement inside the guarded block, a twelfth #include even of "
-          "<string.h>, a fourth Makefile include, and any recipe for the one "
-          "object other than the pattern rule's $(compile)")
+          "<string.h>, a fourth Makefile include, any recipe for the one "
+          "object other than the pattern rule's $(compile), and a legitimate "
+          "-include config.h in CFLAGS")
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
           "owns those), that crc32() is a CRC, the CONTENTS of the eleven "
