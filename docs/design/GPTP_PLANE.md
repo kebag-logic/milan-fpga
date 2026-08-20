@@ -22,9 +22,10 @@ record) carry the engine's internals and measured cost.
 `GPTP_PLANE_EN_P` (milan_datapath parameter, DEFAULT ON) elaborates
 `KL_gptp_shadow` with four seams. The end-station builder and LiteX CLI have the
 same default and always pass the chosen value into RTL. `--no-fabric-gptp` (or
-`board.features.fabric_gptp: false`) is the retained software comparison arm;
-the three existing Arty Linux bring-up profiles state that exception explicitly
-because they do not yet carry the engine's `gptp:` microcode facts.
+`board.features.fabric_gptp: false`) is the retained software comparison arm.
+Every Linux profile must state that exception while its rootfs still starts
+ptp4l; the builder and direct LiteX CLI reject Linux plus fabric gPTP because
+two PHC owners are not a valid image.
 
 The option also carries `GPTP_UCODE_HEX_P`. In a shipping SoC build this is an
 absolute path to the builder's per-config 1,024-word image, generated from the
@@ -61,7 +62,9 @@ The plane has four seams:
    legacy CSR addresses for GM (`0x624/0x628`), parent clockIdentity
    (`0x730/0x734`) and propagation delay (`0x6E4`). `GET_AVB_INFO` and
    `GET_AS_PATH` consume those same effective values, so CSR, ADP and AECP
-   cannot disagree.
+   cannot disagree. The shadow latches all six publication words on the
+   donor's commit pulse, and CSR reads snapshot each 64-bit identity across
+   both halves in either order.
 
 ## Timestamps
 
@@ -121,8 +124,10 @@ software lease fields read zero and the engine's `sync_ok`/`asCapable` flags are
 the live source. Annex B discontinuity holdover and the TIMESTAMP_UNCERTAIN
 observation counter remain in `KL_ptp_clock_validity` for both owners.
 
-The option-off arm keeps the prior shadows, CLKV lease, CSR PTP adjustment path
-and generated `gptp.cfg` byte-compatible for comparison. Rootfs package/service
+The option-off arm keeps the prior register/config shadows, CLKV lease, CSR PTP
+adjustment path and generated `gptp.cfg` byte-compatible for comparison. Its
+solicited response bytes intentionally now carry the selected pdelay and the
+bounded `[GM,parent]` path instead of hardcoded zero/GM-only answers. Rootfs package/service
 retirement is deliberately not claimed by this repository: those definitions
 live in the sibling `milan-tests-avb` Buildroot tree. They must remove linuxptp,
 the `phc2sys` init path, `milan-statd`, and the `gptp2csr.sh` fallback before the

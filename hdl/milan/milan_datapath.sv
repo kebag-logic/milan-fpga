@@ -1445,11 +1445,8 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [63:0] cfg_adp_gptp_gm_csr;
   wire [63:0] cfg_as_parent_csr;
   wire [31:0] cfg_gptp_pdelay_csr;
-  logic [63:0] gptp_pub_gm_w, gptp_pub_parent_w, gptp_pub_annq_w;
-  logic [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w, gptp_pub_offset_w;
-  wire  [63:0] gptp_raw_gm_w, gptp_raw_parent_w, gptp_raw_annq_w;
-  wire  [31:0] gptp_raw_flags_w, gptp_raw_pdelay_w, gptp_raw_offset_w;
-  wire         gptp_raw_commit_w;
+  wire [63:0] gptp_pub_gm_w, gptp_pub_parent_w, gptp_pub_annq_w;
+  wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w, gptp_pub_offset_w;
   wire signed [31:0] gptp_adj_w;
   wire               gptp_step_we_w;
   wire        [63:0] gptp_step_w;
@@ -1987,8 +1984,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire        cfg_lpf_enable;
   wire        cfg_crf_en;
   wire [63:0] cfg_crf_sid;
-  //! gh #64 J4 local PathTrace staging (CSR 0x7DC group). Its outputs remain
-  //! disconnected below and GET_AS_PATH serves only cfg_adp_gptp_gm.
+  //! gh #64 J4 local PathTrace staging (CSR 0x7DC group). Its full tail still
+  //! remains disconnected below; GET_AS_PATH uses the effective GM plus the
+  //! effective parent as a bounded two-entry fallback.
   wire [63:0] pcm_lpf_tdata;
   wire        pcm_lpf_tvalid;
   wire        pcm_lpf_active;
@@ -4229,10 +4227,11 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //!    through the processor's published rows.
   //!  - a source's declared DA is the block-allocator law the maap shim
   //!    already applies (blk_addr + source), valid while a claim is held.
-  //!  - propagation_delay reads 0: the gPTP plane does not surface pDelay.
-  //!  - GET_AS_PATH answers count 1 = {grandmaster} (0 with no GM): the
-  //!    pathSequence a leaf directly under its GM sees; bridges between
-  //!    would lengthen the true TLV this fabric never receives.
+  //!  - propagation_delay is the selected owner's measured pDelay: the
+  //!    committed engine bank by default, the CSR shadow option-off.
+  //!  - GET_AS_PATH answers 0 with no GM, {GM} with no distinct parent, or
+  //!    {GM,parent}. This restores the bounded fallback while the full
+  //!    PathTrace staging tail remains disconnected.
 
   //! CLAMPED index widths - a 1-sink shape's 2-bit vectors must never be
   //! part-selected with a wider index (the lint ratchet's own catch)
@@ -6100,28 +6099,6 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire                     ctlg3_tvalid, ctlg3_tlast, ctlg3_tready;
   wire [15:0] gptp_tap_drop_w, gptp_rx_drop_w, gptp_ev_drop_w;
 
-  //! The engine updates the individual raw words while its uCPU handles an
-  //! event, then pulses COMMIT.  Hold the externally visible bank until that
-  //! boundary so a CSR/AECP read cannot observe a new GM with old flags (the
-  //! same torn-publication class the retired LO-stage/HI-commit mirror avoided).
-  always_ff @(posedge axis_clk) begin : gptp_publication_commit
-    if (!axis_resetn) begin
-      gptp_pub_gm_w     <= '0;
-      gptp_pub_parent_w <= '0;
-      gptp_pub_annq_w   <= '0;
-      gptp_pub_flags_w  <= '0;
-      gptp_pub_pdelay_w <= '0;
-      gptp_pub_offset_w <= '0;
-    end else if (gptp_raw_commit_w) begin
-      gptp_pub_gm_w     <= gptp_raw_gm_w;
-      gptp_pub_parent_w <= gptp_raw_parent_w;
-      gptp_pub_annq_w   <= gptp_raw_annq_w;
-      gptp_pub_flags_w  <= gptp_raw_flags_w;
-      gptp_pub_pdelay_w <= gptp_raw_pdelay_w;
-      gptp_pub_offset_w <= gptp_raw_offset_w;
-    end
-  end
-
   generate if (GPTP_PLANE_EN_P) begin : g_gptp_plane
     wire [TDATA_WIDTH-1:0]   gtx_tdata_w;
     wire [TDATA_WIDTH/8-1:0] gtx_tkeep_w;
@@ -6156,13 +6133,13 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         .txts_ns_i       (gts_ns_w),
         .txts_seq_i      (gts_seq_w),
         .tx_sent_o       (gtx_sent_w),
-        .pub_gm_id_o     (gptp_raw_gm_w),
-        .pub_parent_id_o (gptp_raw_parent_w),
-        .pub_flags_o     (gptp_raw_flags_w),
-        .pub_pdelay_ns_o (gptp_raw_pdelay_w),
-        .pub_offset_o    (gptp_raw_offset_w),
-        .pub_annq_o      (gptp_raw_annq_w),
-        .pub_commit_o    (gptp_raw_commit_w),
+        .pub_gm_id_o     (gptp_pub_gm_w),
+        .pub_parent_id_o (gptp_pub_parent_w),
+        .pub_flags_o     (gptp_pub_flags_w),
+        .pub_pdelay_ns_o (gptp_pub_pdelay_w),
+        .pub_offset_o    (gptp_pub_offset_w),
+        .pub_annq_o      (gptp_pub_annq_w),
+        .pub_commit_o    (),
         .dbg_tap_drop_o  (gptp_tap_drop_w),
         .dbg_rx_drop_o   (gptp_rx_drop_w),
         .dbg_ev_drop_o   (gptp_ev_drop_w),
@@ -6215,13 +6192,12 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     assign gptp_adj_w = '0;
     assign gptp_step_we_w = 1'b0;
     assign gptp_step_w = '0;
-    assign gptp_raw_gm_w = '0;
-    assign gptp_raw_parent_w = '0;
-    assign gptp_raw_annq_w = '0;
-    assign gptp_raw_flags_w = '0;
-    assign gptp_raw_pdelay_w = '0;
-    assign gptp_raw_offset_w = '0;
-    assign gptp_raw_commit_w = 1'b0;
+    assign gptp_pub_gm_w = '0;
+    assign gptp_pub_parent_w = '0;
+    assign gptp_pub_annq_w = '0;
+    assign gptp_pub_flags_w = '0;
+    assign gptp_pub_pdelay_w = '0;
+    assign gptp_pub_offset_w = '0;
     assign gptp_tap_drop_w = '0;
     assign gptp_rx_drop_w = '0;
     assign gptp_ev_drop_w = '0;

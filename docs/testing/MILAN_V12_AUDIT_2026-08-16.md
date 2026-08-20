@@ -94,7 +94,7 @@ The pinned processor currently dispatches or serves `READ_DESCRIPTOR`,
 `SET_CLOCK_SOURCE`, `GET_CLOCK_SOURCE`, Identify `SET_CONTROL` and
 `GET_CONTROL`, `START_STREAMING`, `STOP_STREAMING`, `SET_STREAM_INFO`,
 `GET_STREAM_INFO`,
-`IDENTIFY_NOTIFICATION`, `GET_AVB_INFO`, leaf-only `GET_AS_PATH`,
+`IDENTIFY_NOTIFICATION`, `GET_AVB_INFO`, bounded `[GM,parent]` `GET_AS_PATH`,
 `GET_COUNTERS`, `GET_AUDIO_MAP`, `ADD_AUDIO_MAPPINGS`,
 `REMOVE_AUDIO_MAPPINGS`, `GET_DYNAMIC_INFO`,
 `REGISTER_UNSOLICITED_NOTIFICATION`, and
@@ -224,17 +224,19 @@ remove a silent controller and send the targeted deregistration notification.
 This is a mandatory controller-liveness gap, separate from the Table 5.22
 counter-change notification producer in B4.
 
-### B6. Multi-bridge AS_PATH reporting is incomplete
+### B6. Multi-bridge AS_PATH reporting remains incomplete
 
-The root gather face serves `GET_AS_PATH` as a zero-entry response when no
-grandmaster is known, or as a one-entry response containing only the
-grandmaster identity. The CSR PathTrace staging group stores and reads back a
-tail, but the root leaves its path, count, and generation outputs disconnected.
-The processor therefore never receives the traversed bridge identities.
+The root gather face serves `GET_AS_PATH` as zero entries when no grandmaster
+is known, one entry for a GM without a distinct parent, or the ordered
+two-entry fallback `[GM,parent]`. The CSR PathTrace staging group stores and
+reads back a longer tail, but the root leaves its path, count, and generation
+outputs disconnected. The processor therefore never receives identities past
+the one parent fallback.
 
-This leaf-only behavior is useful but incomplete. A topology with one or more
-bridges is reported without those bridges, so the mandatory IEEE 1722.1 path
-semantics used by Milan are not closed.
+This bounded behavior is useful but incomplete. A topology with two or more
+bridges is truncated, and parent-only changes do not yet originate the
+required unsolicited push, so the mandatory IEEE 1722.1 path semantics used
+by Milan are not closed.
 
 Evidence: the disconnected `o_asp_path`, `o_asp_count`, and `o_asp_gen` ports
 and the `GET_AS_PATH` gather selection in
@@ -251,14 +253,14 @@ output is tied low, so no board indication can follow the control.
 Evidence: the `o_identify` assignment in
 [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv).
 
-### B8. GET_AVB_INFO omits the measured propagation delay
+### B8. GET_AVB_INFO solicited pdelay is closed; notification remains open
 
-Software can publish the measured neighbor propagation delay through
-`GPTP_PDELAY` at `0x6E4`, but the processor gather face does not consume that
-CSR. `GET_AVB_INFO` always returns zero for `propagation_delay`, even when the
-stored measurement is nonzero. This leaves the network-interface state
-required by Milan section 5.3.6.1 and the mandatory section 5.4.2.23 response
-incomplete.
+`GET_AVB_INFO` now returns the measured neighbor propagation delay from the
+selected owner: the committed engine bank in the default build or
+`GPTP_PDELAY` at `0x6E4` in the explicit software comparison. Exact nonzero
+wire bytes are graded in the datapath suite. This closes the solicited field,
+but a pdelay-only change still does not originate the Table 5.22 unsolicited
+notification, so the broader change-notification requirement remains open.
 
 Evidence: the `GET_AVB_INFO` gather selection in
 [`milan_datapath.sv`](../../hdl/milan/milan_datapath.sv) and the `GPTP_PDELAY`

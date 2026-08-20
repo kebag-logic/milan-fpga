@@ -48,6 +48,8 @@ module gptp_shadow_wrap #(
     output wire [31:0] pub_flags_o,
     output wire [31:0] pub_pdelay_ns_o,
     output wire [31:0] pub_offset_o,
+    output wire [63:0] pub_annq_o,
+    output wire        pub_commit_o,
 
     //! diagnostics
     output wire [15:0] dbg_tap_drop_o,
@@ -119,8 +121,8 @@ module gptp_shadow_wrap #(
       .pub_flags_o     (pub_flags_o),
       .pub_pdelay_ns_o (pub_pdelay_ns_o),
       .pub_offset_o    (pub_offset_o),
-      .pub_annq_o      (),
-      .pub_commit_o    (),
+      .pub_annq_o      (pub_annq_o),
+      .pub_commit_o    (pub_commit_o),
       .dbg_tap_drop_o  (dbg_tap_drop_o),
       .dbg_rx_drop_o   (dbg_rx_drop_o),
       .dbg_ev_drop_o   (),

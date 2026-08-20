@@ -1203,8 +1203,8 @@ int main(int argc, char** argv) {
         // ------------------------------------------------------------------
         // [ASPATH] gh #64 J4: local PathTrace staging and readback only.
         // The root leaves the CSR path outputs disconnected, so this test does
-        // not prove GET_AS_PATH. The wire response remains the leaf-only
-        // grandmaster path. Here the datapath proves only the local ABI.
+        // not prove GET_AS_PATH. The wire response uses the bounded GM/parent
+        // fallback graded in sim_nxn; here the datapath proves only this ABI.
         // ------------------------------------------------------------------
         {
             printf("[ASPATH] published 802.1AS PathTrace store (0x7DC)\n");

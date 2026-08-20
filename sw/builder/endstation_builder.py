@@ -3729,6 +3729,13 @@ def load_config(path):
             "board.features.fabric_gptp requires a gptp: section so the "
             "microcode station identity and priority cannot fall back to "
             "generator defaults")
+    if features["fabric_gptp"] and soc["software_profile"] == "linux":
+        raise ConfigError(
+            "board.features.fabric_gptp: true is incompatible with "
+            "soc.software_profile: linux while the rootfs still starts "
+            "ptp4l: the fabric engine and software daemon would both own "
+            "the PHC. Select the explicit software comparison with "
+            "fabric_gptp: false, or use the baremetal fabric profile.")
 
     out = dict(
         source=os.path.relpath(path, ROOT),
@@ -4614,8 +4621,8 @@ def emit_features_line(cfg):
           ("- Fabric gPTP plane: **PRESENT** (`--fabric-gptp`; "
            "`GPTP_PLANE_EN_P=1`)."
            if cfg["features"]["fabric_gptp"] else
-           "- Fabric gPTP plane: **ABSENT (RTL default)**. The software gPTP "
-           "bring-up path remains selectable until #116."),
+           "- Fabric gPTP plane: **ABSENT (explicit `--no-fabric-gptp`)**. "
+           "The legacy software gPTP comparison path is selected."),
           ("- Linux sound-card surface: **PRESENT** (`--sound-card`; PCM "
            "capture/playback rings and their LiteX CSR banks)."
            if cfg["features"]["sound_card"] else
@@ -4942,9 +4949,12 @@ def build(config_path, outdir=None, write_rtl=False, write_fragment=None):
                 with open(p_gp, "w") as f:
                     f.write(gptp_cfg)
                 print(f"  wrote {p_gp}")
-            elif os.path.exists(p_gp):
-                os.unlink(p_gp)
-                print(f"  removed stale software-plane config {p_gp}")
+            # A fabric handoff deliberately leaves the sibling rootfs file
+            # alone. S50milan still consumes it for the explicit software
+            # comparison image; deleting that tracked input belongs to the
+            # separate rootfs-retirement change, not to this FPGA ownership
+            # transfer. The disposable output-local gptp.cfg above is still
+            # removed for a fabric build.
             # THE DESCRIPTOR IMAGE, into the same rootfs the identity ships in.
             # /etc/init.d/S50milan loads it into the reserved `ppmem` window
             # before enabling ADP, because the processor serves READ_DESCRIPTOR

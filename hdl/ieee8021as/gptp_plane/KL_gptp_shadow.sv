@@ -15,8 +15,9 @@
 //                timestamp_counter's knobs (the adjfine pulse latches to a
 //                level here; adjtime passes through), and the publish bank
 //                (GM identity, parent identity, asCapable/sync flags, peer
-//                delay, offset) leaves as wires -- the words milan-statd
-//                mirrors today.
+//                delay, offset) is latched here as one six-word bank on the
+//                engine commit pulse before leaving the wrapper -- the words
+//                milan-statd mirrors today.
 //
 //                INGRESS TIMESTAMP TRANSPORT (the part a register latch
 //                gets wrong): the arrival timestamp is latched at each
@@ -433,6 +434,9 @@ module KL_gptp_shadow #(
   logic [7:0] eng_tx_data_w;
   logic       adj_we_w;
   logic [31:0] adj_val_w;
+  logic [63:0] pub_gm_raw_w, pub_parent_raw_w, pub_annq_raw_w;
+  logic [31:0] pub_flags_raw_w, pub_pdelay_raw_w, pub_offset_raw_w;
+  logic        pub_commit_raw_w;
 
   KL_gptp_engine #(
       .UCODE_HEX_P (UCODE_HEX_P),
@@ -459,13 +463,13 @@ module KL_gptp_shadow #(
       .phc_addend_o       (adj_val_w),
       .phc_step_we_o      (phc_step_we_o),
       .phc_step_o         (phc_step_o),
-      .pub_gm_id_o        (pub_gm_id_o),
-      .pub_parent_id_o    (pub_parent_id_o),
-      .pub_flags_o        (pub_flags_o),
-      .pub_pdelay_ns_o    (pub_pdelay_ns_o),
-      .pub_offset_o       (pub_offset_o),
-      .pub_annq_o         (pub_annq_o),
-      .pub_commit_o       (pub_commit_o),
+      .pub_gm_id_o        (pub_gm_raw_w),
+      .pub_parent_id_o    (pub_parent_raw_w),
+      .pub_flags_o        (pub_flags_raw_w),
+      .pub_pdelay_ns_o    (pub_pdelay_raw_w),
+      .pub_offset_o       (pub_offset_raw_w),
+      .pub_annq_o         (pub_annq_raw_w),
+      .pub_commit_o       (pub_commit_raw_w),
       .eff_nvm_stb_o      (),
       .eff_nvm_mark_o     (),
       .eff_notify_stb_o   (),
@@ -475,6 +479,34 @@ module KL_gptp_shadow #(
       .dbg_busy_o         (dbg_busy_o),
       .dbg_status_o       ()
   );
+
+  //! The donor updates individual publication words while handling an event
+  //! and ends the transaction with pub_commit_raw_w. Consumers must never see
+  //! a new GM paired with old flags, parent, or timing data, so the wrapper
+  //! publishes the complete six-word bank only at that boundary. Keep this
+  //! latch here: every integrator of KL_gptp_shadow then receives the same
+  //! atomic contract rather than having to reproduce it at each root.
+  always_ff @(posedge clk_i) begin : publication_commit
+    if (!rst_n) begin
+      pub_gm_id_o     <= '0;
+      pub_parent_id_o <= '0;
+      pub_flags_o     <= '0;
+      pub_pdelay_ns_o <= '0;
+      pub_offset_o    <= '0;
+      pub_annq_o      <= '0;
+      pub_commit_o    <= 1'b0;
+    end else begin
+      pub_commit_o <= pub_commit_raw_w;
+      if (pub_commit_raw_w) begin
+        pub_gm_id_o     <= pub_gm_raw_w;
+        pub_parent_id_o <= pub_parent_raw_w;
+        pub_flags_o     <= pub_flags_raw_w;
+        pub_pdelay_ns_o <= pub_pdelay_raw_w;
+        pub_offset_o    <= pub_offset_raw_w;
+        pub_annq_o      <= pub_annq_raw_w;
+      end
+    end
+  end : publication_commit
 
   //! adjfine is a level at the counter: latch the engine's pulse
   always_ff @(posedge clk_i) begin : adj_latch

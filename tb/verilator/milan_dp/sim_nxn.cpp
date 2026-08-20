@@ -706,7 +706,9 @@ static std::vector<uint8_t> aecp_request(uint16_t cmd, uint16_t sq,
     for (size_t i = 0; i < pl.size(); i++) f[38+i] = pl[i];
     return f;
 }
-static std::vector<uint8_t> await_aecp(int cyc = 200000) {
+static std::vector<uint8_t> await_aecp(int cyc = 200000,
+                                       int expect_sq = -1,
+                                       int expect_cmd = -1) {
     std::vector<uint8_t> cur, resp;
     cur.reserve(1514);                  // one Ethernet frame off the TX trunk
     dut->m_axis_mac_tx_tready = 1;
@@ -717,9 +719,19 @@ static std::vector<uint8_t> await_aecp(int cyc = 200000) {
                 if ((dut->m_axis_mac_tx_tkeep >> l) & 1)
                     cur.push_back((dut->m_axis_mac_tx_tdata >> (8*l)) & 0xFF);
             if (dut->m_axis_mac_tx_tlast) {
-                if (cur.size() > 17 && cur[12] == 0x22 && cur[13] == 0xF0 &&
-                    cur[14] == 0xFB)
-                    resp = std::move(cur);      // hand over, do not copy
+                if (cur.size() > 37 && cur[12] == 0x22 && cur[13] == 0xF0 &&
+                    cur[14] == 0xFB) {
+                    const int got_sq = ((unsigned)cur[34] << 8) | cur[35];
+                    const int got_cmd = (((unsigned)cur[36] & 0x7F) << 8) |
+                                        cur[37];
+                    //! A GM change may queue an unsolicited notification
+                    //! immediately before a solicited response. Transactions
+                    //! must grade their own sequence/command, while the
+                    //! notification tests below retain the unfiltered default.
+                    if ((expect_sq < 0 || got_sq == expect_sq) &&
+                        (expect_cmd < 0 || got_cmd == expect_cmd))
+                        resp = std::move(cur);  // hand over, do not copy
+                }
                 cur.clear();
             }
         }
@@ -732,7 +744,7 @@ static std::vector<uint8_t> aecp_xact(uint16_t cmd, uint16_t sq,
                                       int cyc = 200000) {
     const std::vector<uint8_t> f = aecp_request(cmd, sq, pl);
     inject(f.data(), f.size(), 40);
-    return await_aecp(cyc);
+    return await_aecp(cyc, sq, cmd);
 }
 static long aecp_status(const std::vector<uint8_t>& b) {
     return b.size() > 16 ? (b[16] >> 3) & 0x1F : -1;
@@ -5119,28 +5131,80 @@ int main(int argc, char** argv) {
                (long)(r.size() >= 62 && (r[42] & 0x80) != 0
                       && r[46] == 0x02 && r[47] == 0x05), 1);
 
-            // GET_AVB_INFO: gm + domain + flags + the one class-A mapping
+            // GET_AVB_INFO: the software comparison's selected CSR pdelay
+            // must reach the exact four wire bytes, not the old hard zero.
+            axi_write(0x6E4, 0x01020304u);
             std::vector<uint8_t> ga = {0x00, 0x09, 0x00, 0x00};
             seq = sq++;
             r = aecp_xact(0x0027, seq, ga);
             ck("B2: GET_AVB_INFO answers SUCCESS with one msrp mapping",
-               (long)(aecp_status(r) == 0
+               (long)(r.size() >= 59 && aecp_status(r) == 0
                       && ((((unsigned)r[16] & 7) << 8) | r[17]) == 36
                       && (((unsigned)r[56] << 8) | r[57]) == 1
                       && r[58] == 0x06), 1);
             ck("B2: ...the grandmaster is the committed CSR pair",
                (long)(r.size() >= 50
-                      && r[42] == 0x00 && r[43] == 0x1B && r[44] == 0xC5), 1);
+                      && r[42] == 0x00 && r[43] == 0x1B && r[44] == 0xC5
+                      && r[45] == 0x00 && r[46] == 0x00 && r[47] == 0xC0
+                      && r[48] == 0xFF && r[49] == 0xEF), 1);
+            ck("B2: ...propagation_delay is the selected CSR value",
+               (long)(r.size() >= 54
+                      && r[50] == 0x01 && r[51] == 0x02
+                      && r[52] == 0x03 && r[53] == 0x04), 1);
 
             // GET_AS_PATH: count 1 = {gm} - the leaf's honest path
             std::vector<uint8_t> gp = {0x00, 0x00, 0x00, 0x00};
             seq = sq++;
             r = aecp_xact(0x0028, seq, gp);
             ck("B2: GET_AS_PATH answers count 1 with the grandmaster",
-               (long)(aecp_status(r) == 0
+               (long)(r.size() >= 50 && aecp_status(r) == 0
                       && ((((unsigned)r[16] & 7) << 8) | r[17]) == 24
                       && (((unsigned)r[40] << 8) | r[41]) == 1
-                      && r[42] == 0x00 && r[43] == 0x1B && r[44] == 0xC5), 1);
+                      && r[42] == 0x00 && r[43] == 0x1B && r[44] == 0xC5
+                      && r[45] == 0x00 && r[46] == 0x00 && r[47] == 0xC0
+                      && r[48] == 0xFF && r[49] == 0xEF), 1);
+
+            // The retained parent pair is also commit-on-HI. A distinct
+            // parent extends the path in [GM,parent] order and grows cdl by
+            // exactly one qword.
+            axi_write(0x730, 0xFE0210AAu);
+            axi_write(0x734, 0x3CC0C6FFu);
+            seq = sq++;
+            r = aecp_xact(0x0028, seq, gp);
+            ck("B2: GET_AS_PATH emits ordered [GM,parent]",
+               (long)(aecp_status(r) == 0 && r.size() >= 58
+                      && ((((unsigned)r[16] & 7) << 8) | r[17]) == 32
+                      && (((unsigned)r[40] << 8) | r[41]) == 2
+                      && r[42] == 0x00 && r[43] == 0x1B && r[44] == 0xC5
+                      && r[45] == 0x00 && r[46] == 0x00 && r[47] == 0xC0
+                      && r[48] == 0xFF && r[49] == 0xEF
+                      && r[50] == 0x3C && r[51] == 0xC0 && r[52] == 0xC6
+                      && r[53] == 0xFF && r[54] == 0xFE && r[55] == 0x02
+                      && r[56] == 0x10 && r[57] == 0xAA), 1);
+
+            // Parent equal to GM is deduplicated, and a parent without a GM
+            // is never emitted as a rootless path.
+            axi_write(0x730, 0x00C0FFEFu);
+            axi_write(0x734, 0x001BC500u);
+            seq = sq++;
+            r = aecp_xact(0x0028, seq, gp);
+            ck("B2: GET_AS_PATH deduplicates parent equal to GM",
+               (long)(r.size() >= 42 && aecp_status(r) == 0
+                      && ((((unsigned)r[16] & 7) << 8) | r[17]) == 24
+                      && (((unsigned)r[40] << 8) | r[41]) == 1), 1);
+            axi_write(0x624, 0x00000000u);
+            axi_write(0x628, 0x00000000u);
+            seq = sq++;
+            r = aecp_xact(0x0028, seq, gp);
+            ck("B2: GET_AS_PATH with unknown GM answers SUCCESS",
+               (long)(r.size() >= 42 && aecp_status(r) == 0), 1);
+            ck("B2: GET_AS_PATH with unknown GM has cdl 16",
+               (long)((((unsigned)r[16] & 7) << 8) | r[17]), 16);
+            ck("B2: GET_AS_PATH suppresses a parent when GM is unknown",
+               (long)(r.size() >= 42
+                      && (((unsigned)r[40] << 8) | r[41]) == 0), 1);
+            axi_write(0x624, 0x00C0FFEFu);
+            axi_write(0x628, 0x001BC500u);
 
             // DEREGISTER: leave the registry clean for the rest of the leg
             seq = sq++;

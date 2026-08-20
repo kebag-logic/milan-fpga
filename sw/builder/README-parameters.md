@@ -231,9 +231,11 @@ reserved ring. Physical capture/render, AAF, CRF and loopback fabric remain.
 When `fabric_gptp` is true, the builder requires a `gptp:` section, emits
 `--fabric-gptp`, and writes `gptp_ucode.hex` into the per-config output. The
 ROM's station MAC, priority1 and clock come from the same YAML as the AEM and
-SoC arguments and omits the legacy ptp4l config artifact. The shipping AX7101
-config states the default explicitly; existing Arty Linux profiles state
-`false` because they have no fabric microcode facts and remain the A/B arm.
+SoC arguments and omits the legacy ptp4l config artifact. Until the sibling
+rootfs retires ptp4l, a Linux profile with `fabric_gptp: true` is refused: two
+PHC owners are never a valid build. The shipping bare-metal AX7101 config
+states the default explicitly; the AX7101 8x8 and Arty Linux profiles state
+`false` and remain the software A/B arm.
 
 The tier-1 set contains six
 `milan_datapath` blocks that a given deployment may not be able to use, each

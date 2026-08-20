@@ -6967,6 +6967,11 @@ def main():
             ap.error("--software-profile baremetal uses --flashboot baremetal (or none)")
     elif args.flashboot == "baremetal":
         ap.error("--flashboot baremetal requires --software-profile baremetal")
+    if args.fabric_gptp and args.software_profile == "linux":
+        ap.error("--fabric-gptp is incompatible with --software-profile linux "
+                 "while the rootfs still starts ptp4l: the fabric engine and "
+                 "software daemon would both own the PHC; use "
+                 "--no-fabric-gptp or the baremetal profile")
     if args.fabric_gptp and args.no_milan:
         ap.error("--fabric-gptp requires the Milan datapath")
 

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: CERN-OHL-W-2.0
 #
 # Verilator verification of milan_csr.sv (AXI4-Lite TSN CSR block).
-# Three executables:
+# Four executables:
 #   sim_main.cpp -> Vmilan_csr        : legacy map regression at the N=1
 #     silicon shape + the P11 0x800 window index-0 hard aliases and the
 #     out-of-range rule (lane-K engine inputs at their datapath ties).
@@ -19,7 +19,9 @@
 #     engines - KL_lwsrp_top (N_CTX_P=3) row provisioning through the
 #     window, KL_acmp_lstn_ctx (N=2) fast-connect bind read back via the
 #     window (csr_win_live.sv wrapper).
-#   make        - build and run all three self-checking harnesses
+#   sim_gptp.cpp -> obj_gptp/Vcsr_gptp: fabric-owned GM/parent/pdelay live
+#     reads, including atomic LO/HI snapshots in both read orders.
+#   make        - build and run all four self-checking harnesses
 #   make clean  - remove build artifacts
 
 VERILATOR ?= verilator
@@ -99,12 +101,16 @@ obj_win/Vcsr_win: $(SRCS) $(GEN_CSR) $(SHAPE_4x4_F) sim_win.cpp
 	  -GN_LISTENERS_P=4 -GN_TALKERS_P=4 -GCHMAP_RDBK_P=3 \
 	  $(SRCS) sim_win.cpp -o Vcsr_win
 
+obj_gptp/Vcsr_gptp: $(SRCS) $(GEN_CSR) $(SHAPE_8x8_F) sim_gptp.cpp
+	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS) --Mdir obj_gptp --top-module $(TOP) \
+	  -GGPTP_PLANE_EN_P=1 $(SRCS) sim_gptp.cpp -o Vcsr_gptp
 
-run: obj_dir/Vcsr_sim obj_100m/Vcsr_sim100 obj_win/Vcsr_win
+run: obj_dir/Vcsr_sim obj_100m/Vcsr_sim100 obj_win/Vcsr_win obj_gptp/Vcsr_gptp
 	@echo "======================================================================"
 	./obj_dir/Vcsr_sim
 	./obj_100m/Vcsr_sim100
 	./obj_win/Vcsr_win
+	./obj_gptp/Vcsr_gptp
 
 clean:
-	rm -rf obj_dir obj_100m obj_win
+	rm -rf obj_dir obj_100m obj_win obj_gptp

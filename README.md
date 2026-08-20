@@ -96,7 +96,7 @@ The current AECP implementation answers these operations with real behavior:
   binding-record commit, with stopped-CRF observation preserved (issue #97)
 - `SET_STREAM_INFO` with Milan's one sub-command (MSRP_ACC_LAT_VALID), setting
   the presentation-time offset the AAF and CRF framers stamp (issue #67)
-- `GET_STREAM_INFO`, `GET_AVB_INFO`, and leaf-only `GET_AS_PATH`
+- `GET_STREAM_INFO`, `GET_AVB_INFO`, and bounded `GET_AS_PATH` (`[GM,parent]`)
 - `REGISTER_UNSOLICITED_NOTIFICATION` and `DEREGISTER_UNSOLICITED_NOTIFICATION`
 - `IDENTIFY_NOTIFICATION` commands with the required `BAD_ARGUMENTS` result
 - `GET_COUNTERS` for Stream Input, Stream Output, AVB Interface, and Clock Domain
@@ -134,9 +134,9 @@ clock-source selection now reaches the media plane's wrapper but nothing there
 reads it yet, and the sampling rate is stored and readable over AECP without
 being republished to the fabric at all.
 Identify control is stored but the root indication remains tied low.
-`GET_AVB_INFO` returns zero propagation delay instead of the value published at
-`GPTP_PDELAY`, and the writable AAF admission bypass remains a deployment
-hazard.
+`GET_AVB_INFO` returns the selected gPTP owner's measured propagation delay;
+its propagation-delay-only unsolicited-change trigger is still missing. The
+writable AAF admission bypass remains a deployment hazard.
 The integration also reports no nonvolatile backend, so required state does not
 survive a power cycle. Solicited Stream Output counters are now served; their
 rate-limited unsolicited notification path remains a separate task. These are
@@ -146,9 +146,10 @@ command success follows the record commit or the confirmed no-op, and a
 stopped CRF sink keeps observing and counting while only timing consumption
 and the restart echo gate. The 7.5.2 unsolicited response stays with issue
 #69 and persistence with issue #70.
-`GET_AS_PATH` reports only the grandmaster identity. The PathTrace staging tail
-is disconnected from the root processor interface, so multi-bridge topology is
-reported incompletely.
+`GET_AS_PATH` reports the bounded `[grandmaster,parent]` fallback. The full
+PathTrace staging tail remains disconnected from the root processor interface,
+so paths with more than one traversed bridge are still reported incompletely,
+and parent-only changes do not yet originate the required unsolicited push.
 
 The dated evidence and exact gate results are recorded in
 [the 2026-08-16 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md). The register

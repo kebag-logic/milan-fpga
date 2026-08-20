@@ -49,8 +49,10 @@ VFLAGS_COMMON = --cc --exe --build -j 0 \
 #   --num-streams 8        -> N_STREAMS=8
 #   --milan-clk-freq 100e6 -> MILAN_CLK_FREQ_HZ=100000000
 #   (no --audio-interface) -> AUDIO_IF_SLOTS_P=0   (i2s_philips default)
-#   --sound-card           -> SOUND_CARD_P=1       (this Linux bring-up shape
+#   --sound-card           -> SOUND_CARD_P=1       (this Linux comparison shape
 #                             retains the host PCM surface)
+#   --no-fabric-gptp       -> GPTP_PLANE_EN_P=0    (the Linux rootfs still
+#                             starts ptp4l; one PHC owner)
 #   --aaf-playback         -> AAF_PLAYBACK_P=1     (task #31 ship flip: the
 #                             KL_pcm_tx generate is LIVE in silicon; the pb
 #                             ports idle at 0 in these lanes - playback
@@ -59,7 +61,7 @@ VFLAGS_COMMON = --cc --exe --build -j 0 \
 #   (never set by the SoC) -> PB_PREFILL_C=0       (silicon default kept -
 #                             milan_dp shrinks it to 2; we do NOT)
 G_AX8X8 = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=0 \
-          -GSOUND_CARD_P=1 -GAAF_PLAYBACK_P=1
+          -GSOUND_CARD_P=1 -GAAF_PLAYBACK_P=1 -GGPTP_PLANE_EN_P=0
 
 # ---- cfg-sweep smoke shapes (case e) ---------------------------------------
 G_SMALL = -GN_STREAMS=1 -GMILAN_CLK_FREQ_HZ=50000000  -GAUDIO_IF_SLOTS_P=0 -GSOUND_CARD_P=1 -GGPTP_PLANE_EN_P=0
@@ -77,7 +79,7 @@ G_TDM8  = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=8 -GSOU
 #      98304000 = 2 x (32 slots x 32 bclk x 48000 fs) = 2 x 49.152 MHz.
 G_TDM32M = -GN_STREAMS=8 -GMILAN_CLK_FREQ_HZ=100000000 -GAUDIO_IF_SLOTS_P=32 \
            -GAUDIO_IF_MASTER_P=1 -GAUDIO_IF_CLK_HZ_P=98304000 -GTALKER_WIRE_CHANS_P=8 \
-           -GSOUND_CARD_P=1 -GAAF_PLAYBACK_P=1
+           -GSOUND_CARD_P=1 -GAAF_PLAYBACK_P=1 -GGPTP_PLANE_EN_P=0
 
 C  = $(RTL_DIR)/common
 Q  = $(RTL_DIR)/ieee8021q/ts
@@ -92,8 +94,8 @@ P  = $(RTL_DIR)/ieee8021as/ptp_timestamp
 # ONE list that is proven to elaborate rather than a second copy here.
 PP_SRCS := $(shell $(MAKE) -s -C ../milan_dp print-pp-srcs)
 # The product RTL default is now fabric gPTP. Parse the complete plane for
-# every shape, elaborate it on the AX7101 legs, and explicitly keep the two
-# Arty Linux comparison legs on their config-selected software path above.
+# every shape, elaborate it on the dedicated bare-metal TDM8 leg, and keep
+# every exact Linux config shape on its explicit software comparison path.
 GPTP_SRCS = $(GPTP_DIR)/ucpu/gptp_ucpu_pkg.sv $(GPTP_DIR)/ucpu/KL_gptp_ucpu.sv \
        $(GPTP_DIR)/wire/KL_gptp_rx_parser.sv $(GPTP_DIR)/wire/KL_gptp_tx_slot.sv \
        $(GPTP_DIR)/common/KL_gptp_timer.sv $(GPTP_DIR)/top/KL_gptp_engine.sv \
@@ -169,7 +171,7 @@ build:
 		-CFLAGS "-DNSTREAMS_TB=8 -DMILAN_CLK_TB=100000000 -DTDM_SHAPE_TB=1 -DFABRIC_GPTP_TB=1 -DSHAPE_NAME=\\\"tdm8-8x-100MHz\\\"" \
 		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_tdm8
 	$(VERILATOR) $(SHAPE_8x8) $(VFLAGS_COMMON) --Mdir obj_tdm32m $(G_TDM32M) \
-		-CFLAGS "-DNSTREAMS_TB=8 -DMILAN_CLK_TB=100000000 -DTDM_SHAPE_TB=1 -DFABRIC_GPTP_TB=1 -DSHAPE_NAME=\\\"tdm32master-8x-100MHz\\\"" \
+		-CFLAGS "-DNSTREAMS_TB=8 -DMILAN_CLK_TB=100000000 -DTDM_SHAPE_TB=1 -DSHAPE_NAME=\\\"tdm32master-8x-100MHz\\\"" \
 		$(SRCS) sim_smoke.cpp -o Vhostplane_smoke_tdm32m
 
 # ---- NEGATIVE SHAPES: the elaboration guards must FIRE --------------------

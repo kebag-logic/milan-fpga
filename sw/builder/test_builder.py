@@ -628,35 +628,80 @@ def test_gptp_product_default_and_legacy_option():
     comparison build must do exactly the inverse and pass an explicit 0 to the
     RTL rather than inheriting milan_datapath's product default.
     """
-    with tempfile.TemporaryDirectory() as td:
-        r = eb.build(CONFIGS["ax7101_8x8"], td)
-        assert r["cfg"]["features"]["fabric_gptp"] is True
-        assert "--fabric-gptp" in r["argv"]
-        assert "--no-fabric-gptp" not in r["argv"]
-        assert "gptp_ucode" in r["paths"]
-        assert not os.path.exists(os.path.join(
-            os.path.dirname(r["paths"]["entity_conf"]), "gptp.cfg"))
+    default_cfg = _variant(
+        CONFIGS["ax7101_1x1_tdm8"],
+        lambda c: c["board"]["features"].pop("fabric_gptp", None))
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            r = eb.build(default_cfg, td)
+            assert r["cfg"]["features"]["fabric_gptp"] is True
+            assert "--fabric-gptp" in r["argv"]
+            assert "--no-fabric-gptp" not in r["argv"]
+            assert "gptp_ucode" in r["paths"]
+            assert not os.path.exists(os.path.join(
+                os.path.dirname(r["paths"]["entity_conf"]), "gptp.cfg"))
+    finally:
+        os.unlink(default_cfg)
 
-        legacy = _variant(CONFIGS["ax7101_8x8"],
-                          lambda c: _prune(c, fabric_gptp=False))
-        try:
-            lr = eb.build(legacy, td)
-        finally:
-            os.unlink(legacy)
+    with tempfile.TemporaryDirectory() as td:
+        lr = eb.build(CONFIGS["ax7101_8x8"], td)
         assert lr["cfg"]["features"]["fabric_gptp"] is False
         assert "--no-fabric-gptp" in lr["argv"]
         assert "--fabric-gptp" not in lr["argv"]
         assert "gptp_ucode" not in lr["paths"]
         assert os.path.exists(os.path.join(
             os.path.dirname(lr["paths"]["entity_conf"]), "gptp.cfg"))
+        assert ("Fabric gPTP plane: **ABSENT (explicit "
+                "`--no-fabric-gptp`)**" in lr["plan"])
+        assert "RTL default" not in lr["plan"]
+        assert "until #116" not in lr["plan"]
+
+    conflict = _variant(
+        CONFIGS["ax7101_8x8"], lambda c: _prune(c, fabric_gptp=True))
+    try:
+        try:
+            eb.load_config(conflict)
+        except eb.ConfigError as e:
+            msg = str(e)
+            assert "software_profile: linux" in msg
+            assert "both own the PHC" in msg
+        else:
+            raise AssertionError("Linux ptp4l plus fabric gPTP was accepted")
+    finally:
+        os.unlink(conflict)
 
     soc_source = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
     assert "p_GPTP_PLANE_EN_P=int(bool(gptp_plane))" in soc_source
     assert 'ap.set_defaults(fabric_gptp=True)' in soc_source
     assert '"--no-fabric-gptp"' in soc_source
-    print("  [gate 1c] fabric gPTP is the omission/default, emits its ROM and "
-          "no ptp4l config; explicit false emits --no-fabric-gptp and keeps "
-          "the software config with no fabric ROM")
+    assert ('args.fabric_gptp and args.software_profile == "linux"'
+            in soc_source)
+    assert "would both own the PHC" in soc_source
+    print("  [gate 1c] fabric gPTP is the omission/default on the bare-metal "
+          "product and emits its ROM; the Linux comparison is explicit "
+          "--no-fabric-gptp, retains ptp4l config, and a two-owner "
+          "Linux+fabric request is rejected")
+
+
+def test_gptp_rootfs_handoff_preserves_software_config():
+    """Gate 1d: a fabric handoff cannot delete the sibling ptp4l input."""
+    with tempfile.TemporaryDirectory() as td, \
+            tempfile.TemporaryDirectory() as out:
+        sentinel = b"tracked software-plane configuration\n"
+        rootfs_cfg = os.path.join(td, "gptp.ax7101.cfg")
+        with open(rootfs_cfg, "wb") as f:
+            f.write(sentinel)
+        old_rootfs = eb.ROOTFS_OVERLAY_ETC
+        eb.ROOTFS_OVERLAY_ETC = td
+        try:
+            eb.build(CONFIGS["ax7101_1x1_tdm8"], out,
+                     write_fragment=True)
+        finally:
+            eb.ROOTFS_OVERLAY_ETC = old_rootfs
+        assert open(rootfs_cfg, "rb").read() == sentinel
+        assert not os.path.exists(os.path.join(out, "gptp.cfg"))
+    print("  [gate 1d] fabric ownership handoff preserves the sibling "
+          "software-plane gptp config byte-for-byte")
 
 
 def test_current_shape_matches_sweep_flags():
@@ -924,7 +969,8 @@ def test_both_policies_valid():
         # an i2s interface implies a DAC: the mutated variant must not carry
         # the AX's 2026-07-28 i2s_playback/render_lpf area prunes, which
         # validate_features rightly refuses next to a declared DAC
-        c["board"]["features"] = {"sound_card": True}
+        c["board"]["features"] = {"sound_card": True,
+                                    "fabric_gptp": False}
         set_policy(c, "cap-at-interface")
     p = _variant(CONFIGS["ax7101_8x8"], to_i2s)
     try:
@@ -5784,6 +5830,7 @@ def test_milan_base_formats_are_rate_complete():
 if __name__ == "__main__":
     for fn in (test_all_configs_build, test_baremetal_profile_contract,
                test_gptp_product_default_and_legacy_option,
+               test_gptp_rootfs_handoff_preserves_software_config,
                test_current_shape_matches_sweep_flags,
                test_current_shape_matches_gen_aem_store,
                test_capability_marks, test_bad_configs_rejected,

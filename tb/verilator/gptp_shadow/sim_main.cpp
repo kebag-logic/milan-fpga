@@ -92,11 +92,42 @@ static bool tx_first = true;
 static std::vector<uint64_t> g_pushed, g_popped;
 static bool g_ts_capture = false;
 
+//! Publication atomicity monitor: the complete outward bank may change only
+//! on the wrapper's commit pulse. This makes deleting the commit latch a
+//! failing mutation instead of relying on final values alone.
+static bool pub_watch = false;
+static uint64_t last_pub_gm, last_pub_parent, last_pub_annq;
+static uint32_t last_pub_flags, last_pub_pdelay, last_pub_offset;
+static unsigned pub_commits, pub_changes, pub_unguarded_changes;
+
 static uint64_t phc() { return dut->phc_ns_o; }
 
 static void tick() {
   dut->clk_i = 0; dut->eval();
   dut->clk_i = 1; dut->eval();
+  if (dut->rst_n) {
+    if (!pub_watch) {
+      pub_watch = true;
+    } else {
+      const bool changed = dut->pub_gm_id_o != last_pub_gm
+                        || dut->pub_parent_id_o != last_pub_parent
+                        || dut->pub_flags_o != last_pub_flags
+                        || dut->pub_pdelay_ns_o != last_pub_pdelay
+                        || dut->pub_offset_o != last_pub_offset
+                        || dut->pub_annq_o != last_pub_annq;
+      if (changed) {
+        pub_changes++;
+        if (!dut->pub_commit_o) pub_unguarded_changes++;
+      }
+    }
+    if (dut->pub_commit_o) pub_commits++;
+    last_pub_gm = dut->pub_gm_id_o;
+    last_pub_parent = dut->pub_parent_id_o;
+    last_pub_flags = dut->pub_flags_o;
+    last_pub_pdelay = dut->pub_pdelay_ns_o;
+    last_pub_offset = dut->pub_offset_o;
+    last_pub_annq = dut->pub_annq_o;
+  }
   if (g_ts_capture) {
     if (dut->dbg_tspush_v_o) g_pushed.push_back(dut->dbg_tspush_o);
     if (dut->dbg_tspop_v_o)  g_popped.push_back(dut->dbg_rx_ts_o);
@@ -294,6 +325,7 @@ int main(int argc, char **argv) {
   announce(10, 100, GMID);
   expect("adopted", dut->pub_flags_o & 3, FL_PRESENT);
   expect("pub gm id", dut->pub_gm_id_o, GMID);
+  expect("pub parent id", dut->pub_parent_id_o, PEER_CID);
   {
     // offset = tap_stamp - (origin + pd): origin is written so the true
     // offset is ~+1000 ns; the tap stamps within a couple of beats
@@ -555,6 +587,11 @@ int main(int argc, char **argv) {
     expect("mixed traffic: pops + gPTP sheds == the 60 gPTP frames sent",
            (int)g_popped.size() + (int)sheds, npair);
   }
+
+  expect("publication bank changed under stimulus", pub_changes > 0, 1);
+  expect("publication commit pulse observed", pub_commits > 0, 1);
+  expect("every publication change was commit-qualified",
+         pub_unguarded_changes, 0);
 
   printf("%d checks: %d PASS, %d FAIL\n", checks, checks - fails, fails);
   delete dut;
