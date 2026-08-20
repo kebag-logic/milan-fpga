@@ -97,23 +97,34 @@ so it can. They apply to `sw/firmware/milan_baremetal/milan_baremetal.c` and
 time; if the two ever disagree, the gate is authoritative and this section is
 the defect.
 
-Two of the constraints are answered by tools rather than by reading text, and
-neither costs anything to edit around:
+One constraint is answered by a tool rather than by reading text:
 
-- **Any CSR store must go through `milan_write()`.** The gate compiles the
-  firmware and requires that no function except `milan_reg()` forms an
-  address inside the Milan CSR window. Casts, typedefs, register-access
-  macros, struct overlays, member and subscript stores and inline assembly
-  are all allowed shapes; what is refused is reaching a control register
-  outside the one helper.
 - **The Makefile must build one object from one source.** The gate asks
   `make -Bn` what it would do rather than parsing the file, so every make
-  assignment flavour is covered.
+  assignment flavour is covered, and it reads the whole plan rather than the
+  lines that happen to name the expected tool.
+
+A second tool check runs alongside the text rules, and it is an **addition**
+rather than a replacement. The gate compiles the firmware and requires that no
+function except `milan_reg()` materialises an address inside the Milan CSR
+window, which catches typedef'd pointer types, register-access macros, struct
+overlays and `->` stores that no text rule recognises. It does **not** cover
+everything: it exempts `milan_reg()` by name, it cannot see an address built
+at run time from a variable, and it matches one inline-asm spelling. So the
+text rules below still carry the property, and the constraints they impose are
+real:
+
+- **Any CSR store must go through `milan_write()`.** Only `milan_reg()` may
+  use `MILAN_CSR_BASE` or a `(volatile uint32_t *)` cast. The set of pointer
+  casts, the set of pointer stores and the set of inline-asm statements in the
+  file are each pinned, so a fifth cast, a fifth store or a third `asm` is
+  refused until it is added to the gate.
 
 The rest are refusals, and each one costs a legitimate edit:
 
 | Constraint | Why the gate needs it |
 |---|---|
+| A fifth pointer cast, a fifth pointer store or a third `asm` statement | the compiled census does not cover all three, so the sets are what bound address formation |
 | No multi-line `#define` anywhere in the file | the gate reads macro bodies one physical line at a time |
 | No `#ifdef`/`#if` outside `load_aem_image()` | the gate would read one arm while the compiler takes the other |
 | No `#pragma`, `#line`, `#error`, `#undef` or `#include_next` | the gate has no rule for them, so it refuses rather than ignores |
