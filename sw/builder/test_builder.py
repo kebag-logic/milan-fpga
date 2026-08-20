@@ -3286,6 +3286,79 @@ def _is_not_arg(node, dest):
         node.operand.value.id == "args"
 
 
+def _soc_tree(soc):
+    """The milan_soc.py module AST, from source text or an AST already had."""
+    return soc if isinstance(soc, ast.Module) else \
+        ast.parse(soc, filename="sw/litex/milan_soc.py")
+
+
+def _declared_params(func):
+    """The parameter names a `def` declares EXPLICITLY, by name.
+
+    `*args` and `**kwargs` are excluded ON PURPOSE, and that exclusion is the
+    whole point. `MilanSoC.__init__` ends in `**kwargs` and forwards it
+    verbatim to LiteX `SoCCore.__init__`, which does NOT raise on a keyword it
+    does not know: it logs one warning and carries on. So a prune handed over
+    as a top-level `maap=not args.no_maap` would be accepted by argparse,
+    accepted by the constructor, mentioned once in a wall of build log, and
+    shipped as a bitstream with KL_maap still in it. That is p_AAF_PLAYBACK
+    again, so a keyword `**kwargs` would swallow MUST fail closed here.
+    """
+    a = func.args
+    return {p.arg for p in (*a.posonlyargs, *a.args, *a.kwonlyargs)}
+
+
+def _reads(node, name):
+    """True when the expression still READS the local `name` somewhere inside.
+
+    Deliberately a dependency question, not a spelling one: `render_lpf`,
+    `bool(render_lpf)` and `bool(render_lpf) and x` all pass, `True` does not.
+    """
+    return node is not None and any(
+        isinstance(n, ast.Name) and n.id == name for n in ast.walk(node))
+
+
+def _sole(nodes, what):
+    """The one node there must be, or a failure that says what was missing."""
+    assert len(nodes) == 1, \
+        f"milan_soc.py: expected exactly one {what}, found {len(nodes)}"
+    return nodes[0]
+
+
+def _blocks_key(node, key):
+    """`blocks[<key>]`, where key is a string literal or a variable name."""
+    if not (isinstance(node, ast.Subscript)
+            and isinstance(node.value, ast.Name)
+            and node.value.id == "blocks"):
+        return False
+    idx = node.slice
+    return (isinstance(idx, ast.Constant) and idx.value == key) or \
+           (isinstance(idx, ast.Name) and idx.id == key)
+
+
+def _class_of(tree, name):
+    return _sole([n for n in tree.body
+                  if isinstance(n, ast.ClassDef) and n.name == name],
+                 f"class {name}")
+
+
+def _def_of(scope, name):
+    return _sole([n for n in scope.body
+                  if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+                  and n.name == name], f"def {name}()")
+
+
+def _sole_call(scope, callee, where):
+    """The keywords of the SINGLE `callee(...)` call inside `scope`."""
+    call = _sole([n for n in ast.walk(scope)
+                  if isinstance(n, ast.Call) and isinstance(n.func, ast.Name)
+                  and n.func.id == callee], f"{callee}(...) call in {where}")
+    assert not any(kw.arg is None for kw in call.keywords), (
+        f"milan_soc.py {where}: {callee}(...) splats `**` - the prune chain "
+        "has to be readable in the source, not assembled at run time")
+    return {kw.arg: kw.value for kw in call.keywords}
+
+
 def _optional_block_cli_consumption(soc):
     """Map every OPTIONAL_BLOCKS row to its consumption route in main().
 
@@ -3293,8 +3366,13 @@ def _optional_block_cli_consumption(soc):
     reference in a comment or helper must not prove that argparse's value
     reaches the MilanSoC instance. Most blocks ride `optional_blocks`; the
     older render_lpf ABI is intentionally a dedicated constructor keyword.
+
+    A dedicated keyword only counts when `MilanSoC.__init__` DECLARES it (see
+    `_declared_params`). Without that test the escape hatch proves nothing:
+    move any row out of the dict onto its own keyword and the gate would print
+    the block as consumed while the build warns once and ships it unpruned.
     """
-    tree = ast.parse(soc, filename="sw/litex/milan_soc.py")
+    tree = _soc_tree(soc)
     mains = [n for n in tree.body
              if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
              and n.name == "main"]
@@ -3305,8 +3383,10 @@ def _optional_block_cli_consumption(soc):
              and n.func.id == "MilanSoC"]
     assert len(calls) == 1, \
         f"milan_soc.py main(): expected one MilanSoC call, found {len(calls)}"
-    kwargs = {kw.arg: kw.value for kw in calls[0].keywords
-              if kw.arg is not None}
+    assert not any(kw.arg is None for kw in calls[0].keywords), \
+        "milan_soc.py main(): the MilanSoC call splats `**` - every prune " \
+        "handoff has to be readable in the source"
+    kwargs = {kw.arg: kw.value for kw in calls[0].keywords}
     block_dict = kwargs.get("optional_blocks")
     assert isinstance(block_dict, ast.Dict), \
         "milan_soc.py main(): MilanSoC has no literal optional_blocks dict"
@@ -3315,6 +3395,14 @@ def _optional_block_cli_consumption(soc):
         assert isinstance(key, ast.Constant) and isinstance(key.value, str), \
             "milan_soc.py main(): optional_blocks keys must be string literals"
         entries[key.value] = value
+    # the receiving end of every handoff below. `optional_blocks` itself is a
+    # keyword like any other: renamed away, `**kwargs` eats the whole dict.
+    declared = _declared_params(_def_of(_class_of(tree, "MilanSoC"),
+                                        "__init__"))
+    assert "optional_blocks" in declared, (
+        "MilanSoC.__init__ declares no `optional_blocks` parameter, so the "
+        "whole tier-1 dict is swallowed by its `**kwargs` and forwarded to "
+        "LiteX SoCCore, which warns once and ignores it")
 
     routes = {}
     for name, (flag, _param, _why) in eb.OPTIONAL_BLOCKS.items():
@@ -3322,6 +3410,14 @@ def _optional_block_cli_consumption(soc):
         if _is_not_arg(entries.get(name), dest):
             routes[name] = "optional_blocks"
         elif _is_not_arg(kwargs.get(name), dest):
+            assert name in declared, (
+                f"{name}: main() hands `{flag}` to MilanSoC as a dedicated "
+                f"`{name}=` keyword, but MilanSoC.__init__ declares no "
+                f"`{name}` parameter - its trailing `**kwargs` swallows the "
+                "value and forwards it to LiteX SoCCore, which logs ONE "
+                "warning, ignores it, and builds a bitstream with the block "
+                f"still in it. Put `{name}` in the optional_blocks dict, or "
+                "declare the parameter")
             routes[name] = f"{name} keyword"
         else:
             raise AssertionError(
@@ -3329,6 +3425,182 @@ def _optional_block_cli_consumption(soc):
                 f"`not args.{dest}` in the MilanSoC optional_blocks dict or "
                 f"a dedicated `{name}=` keyword; the missing key defaults "
                 "to PRESENT and the prune flag becomes a silent no-op")
+
+    # every --no-* flag main() DECLARES must be one main() also READS, and it
+    # must stay an off-by-default store_true. `default=True` on a --no-* flag
+    # inverts the lever in silence (an UNFLAGGED build takes the pruned path),
+    # and a flag nothing reads is decorative ABI wearing a CLI hat.
+    read = {n.attr for n in ast.walk(mains[0]) if isinstance(n, ast.Attribute)
+            and isinstance(n.value, ast.Name) and n.value.id == "args"}
+    for call in ast.walk(mains[0]):
+        if not (isinstance(call, ast.Call)
+                and isinstance(call.func, ast.Attribute)
+                and call.func.attr == "add_argument"
+                and call.args and isinstance(call.args[0], ast.Constant)
+                and str(call.args[0].value).startswith("--no-")):
+            continue
+        flag = call.args[0].value
+        opts = {kw.arg: kw.value for kw in call.keywords if kw.arg}
+        named = opts.get("dest")
+        dest = named.value if isinstance(named, ast.Constant) else \
+            flag.removeprefix("--").replace("-", "_")
+        act = opts.get("action")
+        assert isinstance(act, ast.Constant) and act.value == "store_true", (
+            f"{flag}: a --no-* flag must be a plain store_true, not "
+            f"{ast.unparse(act) if act is not None else 'a positional store'}")
+        dflt = opts.get("default")
+        assert dflt is None or (isinstance(dflt, ast.Constant)
+                                and (dflt.value is False
+                                     or dflt.value is None)), (
+            f"{flag}: `default={ast.unparse(dflt)}` inverts the flag - an "
+            "UNFLAGGED build would take the pruned path and ship the block "
+            "missing, which is the silent no-op with its sign flipped")
+        assert dest in read, (
+            f"{flag}: main() declares it and never reads `args.{dest}`, so it "
+            "is decorative - the argv records the intent and the gateware "
+            "never hears about it (the #130 shape, one hop earlier)")
+    return routes
+
+
+def _optional_block_prune_chain(soc):
+    """Trace every tier-1 prune from argparse to `p_<PARAM> = 0`, statically.
+
+    Gate 23d used to stop at the FIRST hop, `main()` -> `MilanSoC(...)`. Three
+    more hops sit between that call and the parameter the RTL reads, and all
+    of them live in this one file:
+
+        main()             -> MilanSoC(optional_blocks=..., render_lpf=...)
+        MilanSoC.__init__  -> MilanNIC(optional_blocks=..., render_lpf=...)
+        MilanNIC.__init__  -> add_milan_datapath(optional_blocks=...)
+        add_milan_datapath -> dp_params[f"p_{param}"] = 0
+
+    A value dropped, tied or inverted on any of them is invisible to a
+    spelling check, and its symptom is the #130 symptom exactly: the config
+    declares the prune, the plan tabulates it, the estimate books the saving,
+    and the bitstream ships the block. The emit guard is worse than a no-op if
+    inverted, because then an UNFLAGGED build prunes all seven and the
+    shipping bitstream quietly loses MAAP, the media-clock servo and the RX
+    MAC filter.
+
+    Task #144 (gate 23f) proves the same chain BEHAVIOURALLY, by elaborating
+    main() and spying on `Instance("milan_datapath", ...)`; that gate needs
+    migen + LiteX, so it SKIPS in CI. This one is text and AST only, which is
+    why it is the half that runs on the pyyaml-only docs job. The last link,
+    `dp_params` -> the parameters `Instance` is actually handed, is #144's:
+    no amount of reading can prove what elaboration does with the dict.
+    """
+    tree = _soc_tree(soc)
+    routes = _optional_block_cli_consumption(tree)
+    dedicated = sorted(k for k, r in routes.items() if r != "optional_blocks")
+    dict_routed = sorted(k for k, r in routes.items()
+                         if r == "optional_blocks")
+    soc_init = _def_of(_class_of(tree, "MilanSoC"), "__init__")
+    nic_init = _def_of(_class_of(tree, "MilanNIC"), "__init__")
+    dp_def = _sole([n for n in tree.body
+                    if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+                    and n.name == "add_milan_datapath"],
+                   "def add_milan_datapath()")
+
+    # hops 2 and 3: the carriers are FORWARDED, and each still READS the
+    # parameter it arrived in. Deleting `optional_blocks=optional_blocks`
+    # here defaults it to None one call further down, which un-prunes every
+    # dict-routed block; tying `render_lpf=True` does the same to the banked
+    # 428 LUT lever. Both are one deleted line and neither raises.
+    carriers = {"optional_blocks": dict_routed}
+    carriers.update({name: [name] for name in dedicated})
+    for src, callee, dst, where in (
+            (soc_init, "MilanNIC", nic_init, "MilanSoC.__init__"),
+            (nic_init, "add_milan_datapath", dp_def, "MilanNIC.__init__")):
+        passed = _sole_call(src, callee, where)
+        for carrier, carried in carriers.items():
+            assert carrier in _declared_params(src), (
+                f"{where} declares no `{carrier}` parameter, so the prune "
+                f"never arrives at all for: {', '.join(carried)}")
+            assert carrier in _declared_params(dst), (
+                f"{callee} declares no `{carrier}` parameter, so {where} "
+                f"cannot hand the prune on for: {', '.join(carried)}")
+            got = passed.get(carrier)
+            saw = f"`{carrier}={ast.unparse(got)}`" if got is not None else \
+                f"no `{carrier}=` keyword at all"
+            assert _reads(got, carrier), (
+                f"{where}: the {callee}(...) call passes {saw}, which no "
+                f"longer reads its own `{carrier}` parameter - the prune is "
+                f"dropped one hop short of the RTL for: {', '.join(carried)}")
+
+    # hop 4a: the map starts ALL PRESENT (AREA_BUDGET rule 1, at the source)
+    seed = _sole([n for n in ast.walk(dp_def) if isinstance(n, ast.Assign)
+                  and isinstance(n.targets[0], ast.Name)
+                  and n.targets[0].id == "blocks"], "`blocks = ...` seed")
+    assert (isinstance(seed.value, ast.Call)
+            and _reads(seed.value, "MILAN_OPTIONAL_BLOCKS")
+            and any(isinstance(a, ast.Constant) and a.value is True
+                    for a in seed.value.args)), (
+        f"add_milan_datapath: `{ast.unparse(seed)}` does not seed every block "
+        "PRESENT from MILAN_OPTIONAL_BLOCKS - anything else prunes on an "
+        f"UNFLAGGED build: {', '.join(sorted(routes))}")
+
+    # hop 4b: each dedicated keyword folds its OWN parameter into the map
+    for name in dedicated:
+        fold = _sole([n for n in ast.walk(dp_def) if isinstance(n, ast.Assign)
+                      and _blocks_key(n.targets[0], name)],
+                     f'`blocks["{name}"] = ...`')
+        assert _reads(fold.value, name), (
+            f"{name}: add_milan_datapath sets `{ast.unparse(fold)}`, which "
+            f"never reads its `{name}` parameter - the dedicated keyword is "
+            "inert and the block ships PRESENT whatever the CLI asked for")
+
+    # hop 4c: the dict fold still reads the caller's value
+    fold = _sole([n for n in ast.walk(dp_def) if isinstance(n, ast.For)
+                  and _reads(n.iter, "optional_blocks")],
+                 "`for ... in optional_blocks` fold")
+    assert (isinstance(fold.target, ast.Tuple) and len(fold.target.elts) == 2
+            and all(isinstance(e, ast.Name) for e in fold.target.elts)), \
+        "add_milan_datapath: the optional_blocks fold is not `for k, v in ...`"
+    kvar, vvar = (e.id for e in fold.target.elts)
+    row = _sole([n for n in ast.walk(fold) if isinstance(n, ast.Assign)
+                 and _blocks_key(n.targets[0], kvar)],
+                f"`blocks[{kvar}] = ...` inside the optional_blocks fold")
+    assert _reads(row.value, vvar), (
+        f"add_milan_datapath: `{ast.unparse(row)}` no longer reads the "
+        "caller's value, so EVERY dict-routed prune is a no-op: "
+        f"{', '.join(dict_routed)}")
+
+    # hop 4d: the emit guard, and above all its POLARITY. One `not` decides
+    # the sign of the whole tier-1 table for every block at once.
+    emit = _sole([n for n in ast.walk(dp_def) if isinstance(n, ast.For)
+                  and _reads(n.iter, "MILAN_OPTIONAL_BLOCKS")],
+                 "`for k, param in MILAN_OPTIONAL_BLOCKS.items()` emit loop")
+    assert (isinstance(emit.target, ast.Tuple) and len(emit.target.elts) == 2
+            and all(isinstance(e, ast.Name) for e in emit.target.elts)), \
+        "add_milan_datapath: the emit loop is not `for k, param in ...`"
+    kvar, pvar = (e.id for e in emit.target.elts)
+    guard = _sole([n for n in emit.body if isinstance(n, ast.If)],
+                  "`if ...:` inside the emit loop")
+    assert (isinstance(guard.test, ast.UnaryOp)
+            and isinstance(guard.test.op, ast.Not)
+            and _blocks_key(guard.test.operand, kvar)), (
+        "add_milan_datapath emits the prune parameter under "
+        f"`if {ast.unparse(guard.test)}:` and not `if not blocks[{kvar}]:` - "
+        "this single line carries the polarity of the whole tier-1 table, and "
+        "inverted it makes an UNFLAGGED build prune every one of them: "
+        f"{', '.join(sorted(routes))}")
+    assert not guard.orelse, (
+        "add_milan_datapath: the emit guard grew an else arm - a block is "
+        "either pruned or absent from dp_params, never both: "
+        f"{', '.join(sorted(routes))}")
+    out = _sole([n for n in guard.body if isinstance(n, ast.Assign)],
+                "the p_<PARAM> assignment inside the emit guard")
+    assert (isinstance(out.targets[0], ast.Subscript)
+            and isinstance(out.targets[0].value, ast.Name)
+            and out.targets[0].value.id == "dp_params"
+            and _reads(out.targets[0].slice, pvar)), (
+        f"add_milan_datapath: `{ast.unparse(out)}` does not key dp_params on "
+        f"the loop's own `{pvar}` - a prune that names a parameter the RTL "
+        "does not have IS the p_AAF_PLAYBACK defect: "
+        f"{', '.join(sorted(routes))}")
+    assert isinstance(out.value, ast.Constant) and out.value.value == 0, (
+        f"add_milan_datapath: `{ast.unparse(out)}` - only 0 prunes, any other "
+        "value leaves the generate arm elaborated (AREA_BUDGET rule 1)")
     return routes
 
 
@@ -3342,12 +3614,14 @@ def test_optional_block_names_reach_the_rtl():
       builder OPTIONAL_BLOCKS  <->  milan_soc.py MILAN_OPTIONAL_BLOCKS + argparse
                                <->  milan_datapath.sv `parameter int <NAME> = 1`
 
-    It also proves that main() CONSUMES every argparse value in the MilanSoC
-    call. A rename, typo or decorative --no-* flag fails here in milliseconds.
+    It also traces every argparse value through the four source hops that end
+    at `dp_params[f"p_{param}"] = 0` (see `_optional_block_prune_chain`). A
+    rename, typo, decorative --no-* flag, dropped forward or inverted guard
+    fails here in milliseconds, on a box with no LiteX and no migen.
     """
     soc = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
     rtl = open(os.path.join(ROOT, "hdl/milan/milan_datapath.sv")).read()
-    routes = _optional_block_cli_consumption(soc)
+    routes = _optional_block_prune_chain(soc)
     # 1. the SoC's own keyword -> parameter map, parsed from the literal
     soc_map = dict(re.findall(r'^\s*"([a-z0-9_]+)":\s*"([A-Z0-9_]+)",',
                               soc[soc.index("MILAN_OPTIONAL_BLOCKS = {"):
@@ -3404,12 +3678,16 @@ def test_optional_block_names_reach_the_rtl():
     direct = sorted(k for k, route in routes.items()
                     if route != "optional_blocks")
     print(f"  [gate 23d] {len(eb.OPTIONAL_BLOCKS)} optional blocks: builder "
-          "key == milan_soc.py map == a real --no-* store_true CONSUMED by "
-          f"main() ({len(routes) - len(direct)} through optional_blocks, "
-          f"dedicated {direct}) == a "
-          "milan_datapath `parameter int X = 1` guarding a generate WITH an "
-          "else arm == the AREA_BUDGET tier-1 table row (the "
-          "p_AAF_PLAYBACK silent-no-op class, closed)")
+          "key == milan_soc.py map == a real off-by-default --no-* store_true "
+          f"main() READS == consumed by main() ({len(routes) - len(direct)} "
+          f"through optional_blocks, dedicated {direct}, each a NAMED "
+          "MilanSoC.__init__ parameter, none swallowed by **kwargs) == "
+          "forwarded through MilanNIC and add_milan_datapath == emitted as "
+          "`p_<PARAM> = 0` under `if not blocks[k]` == a milan_datapath "
+          "`parameter int X = 1` guarding a generate WITH an else arm == the "
+          "AREA_BUDGET tier-1 table row (the p_AAF_PLAYBACK silent-no-op "
+          "class, closed on the source chain; what elaboration hands "
+          "Instance() is gate 23f, task #144)")
 
     # gate 23e (task #65): the loopback lane rides the SAME decorative-ABI
     # risk but the OPPOSITE polarity - it is an ADD, default OFF, so it is
@@ -3447,12 +3725,35 @@ def test_optional_block_names_reach_the_rtl():
           "primary_segment reads (same silent-no-op class, opposite polarity)")
 
 
-def test_optional_block_consumption_gate_bites():
-    """Gate 23d negative controls: disconnect every current CLI handoff.
+def _chain_control(label, soc, pattern, repl, expect, flags=0):
+    """Cut one link of the prune chain in the source and require gate 23d red.
 
-    Replacing the live predicate with True models the exact failure from #130:
+    The mutation must match EXACTLY ONE site (a reformat that moves it has to
+    fail loudly here rather than quietly stop testing anything), and the
+    failure must name the thing that actually breaks - a red for an unrelated
+    reason proves nothing about the link that was cut.
+    """
+    bad, n = re.subn(pattern, repl, soc, flags=flags)
+    assert n == 1, f"{label}: negative control matched {n} sites, want 1"
+    try:
+        _optional_block_prune_chain(bad)
+    except AssertionError as exc:
+        assert expect in str(exc), \
+            f"{label}: went red for the wrong reason: {exc}"
+    else:
+        raise AssertionError(
+            f"{label}: gate 23d accepted it, and a real build would ship the "
+            "block it claims to have pruned")
+
+
+def test_optional_block_consumption_gate_bites():
+    """Gate 23d negative controls: cut every link of the prune chain.
+
+    Replacing a live predicate with True models the exact failure from #130:
     argparse still accepts the flag, but main() always tells MilanSoC that the
-    block is present. Every row must turn the focused consumption check red.
+    block is present. Every row must turn the focused check red, and the rows
+    below it cut the same chain further downstream, where the value is
+    forwarded, folded and finally emitted as `p_<PARAM> = 0`.
     """
     soc = open(os.path.join(ROOT, "sw/litex/milan_soc.py")).read()
     rejected = []
@@ -3483,6 +3784,90 @@ def test_optional_block_consumption_gate_bites():
                 "main() handoff was replaced with True")
     print(f"  [gate 23d mutation] {len(rejected)}/{len(eb.OPTIONAL_BLOCKS)} "
           "disconnected --no-* handoffs rejected by block name")
+
+    # ---- the BLOCKER control: a keyword `**kwargs` would swallow -----------
+    # Move a row out of optional_blocks and onto its own top-level keyword.
+    # argparse accepts it, MilanSoC.__init__ accepts it (it ends in
+    # `**kwargs`), LiteX SoCCore logs one yellow warning and ignores it, the
+    # build exits 0 - and the bitstream still contains the block. Before the
+    # declaration test this printed the block inside `dedicated [...]` and
+    # called the silent-no-op class closed.
+    declared = _declared_params(
+        _def_of(_class_of(_soc_tree(soc), "MilanSoC"), "__init__"))
+    anchor = re.compile(r"^([ \t]*)optional_blocks=\{", re.M)
+    swallowed = []
+    for name, (flag, _param, _why) in eb.OPTIONAL_BLOCKS.items():
+        if name in declared:
+            continue         # a real parameter: the dedicated route is honest
+        dest = flag.removeprefix("--").replace("-", "_")
+        bad, n = re.subn(r'^[ \t]*"%s"[ \t]*:[ \t]*not[ \t]+args\.%s[ \t]*,'
+                         r'[ \t]*\n' % (re.escape(name), re.escape(dest)),
+                         "", soc, flags=re.M)
+        assert n == 1, f"{name}: found {n} optional_blocks rows, want 1"
+        site = anchor.search(bad)
+        assert site, "milan_soc.py main(): no `optional_blocks={` to anchor to"
+        bad = (bad[:site.start()] + f"{site.group(1)}{name}=not args.{dest},\n"
+               + bad[site.start():])
+        try:
+            _optional_block_prune_chain(bad)
+        except AssertionError as exc:
+            assert name in str(exc) and "kwargs" in str(exc), \
+                f"{name}: swallowed-keyword control red for the wrong " \
+                f"reason: {exc}"
+            swallowed.append(name)
+        else:
+            raise AssertionError(
+                f"{name}: gate 23d called the prune proven while it rode a "
+                f"`{name}=` keyword MilanSoC.__init__ never declares - the "
+                "p_AAF_PLAYBACK failure reproduced inside the check written "
+                "to close it")
+    assert swallowed, "no dict-routed block left to run the control against"
+    print(f"  [gate 23d mutation] {len(swallowed)}/{len(swallowed)} dedicated "
+          "keywords MilanSoC.__init__ never declares rejected by block name "
+          "(LiteX warns and ignores; the bitstream ships unpruned)")
+
+    # ---- one cut link per row, from main() down to dp_params --------------
+    # Every one of these was green across the WHOLE suite while gate 23d
+    # stopped at the MilanSoC call, and each one is a total no-op on a real
+    # build. The last three are worse: they prune on an UNFLAGGED build.
+    links = (
+        ("hop 2 drops optional_blocks (MilanSoC -> MilanNIC)",
+         r"render_lpf=bool\(render_lpf\),\s*\n\s*"
+         r"optional_blocks=optional_blocks,",
+         "render_lpf=bool(render_lpf),", "maap"),
+        ("hop 3 drops optional_blocks (MilanNIC -> add_milan_datapath)",
+         r"render_lpf=render_lpf, optional_blocks=optional_blocks,",
+         "render_lpf=render_lpf,", "maap"),
+        ("hop 2 ties render_lpf=True",
+         r"render_lpf=bool\(render_lpf\),", "render_lpf=True,", "render_lpf"),
+        ("the optional_blocks fold stops reading the caller's value",
+         r"blocks\[k\] = blocks\[k\] and bool\(v\)", "blocks[k] = True",
+         "maap"),
+        ("the render_lpf fold stops reading its parameter",
+         r'blocks\["render_lpf"\] = bool\(render_lpf\)',
+         'blocks["render_lpf"] = True', "render_lpf"),
+        ("a decorative --no-widget nothing reads",
+         r'( *)ap\.add_argument\("--no-maap",',
+         '\\1ap.add_argument("--no-widget", action="store_true",\n'
+         '\\1                help="a flag the gateware never hears about")\n'
+         '\\1ap.add_argument("--no-maap",', "--no-widget"),
+        ("default=True inverts --no-maap (DEFAULT build prunes maap)",
+         r'ap\.add_argument\("--no-maap", action="store_true",',
+         'ap.add_argument("--no-maap", action="store_true", default=True,',
+         "--no-maap"),
+        ("the block map seeds False (DEFAULT build prunes all seven)",
+         r"blocks = dict\.fromkeys\(MILAN_OPTIONAL_BLOCKS, True\)",
+         "blocks = dict.fromkeys(MILAN_OPTIONAL_BLOCKS, False)", "maap"),
+        ("the emit guard is inverted (DEFAULT build prunes all seven)",
+         r"if not blocks\[k\]:", "if blocks[k]:", "maap"),
+        ("the emit guard is dead (no build ever prunes)",
+         r"if not blocks\[k\]:", "if False:", "maap"),
+    )
+    for label, pattern, repl, expect in links:
+        _chain_control(label, soc, pattern, repl, expect, flags=re.M)
+    print(f"  [gate 23d chain] {len(links)}/{len(links)} cut links between "
+          "main() and `dp_params[f\"p_{param}\"] = 0` rejected, the three "
+          "that would prune an UNFLAGGED build included")
 
 
 # ======================================================== gates 24c / 24d ====
