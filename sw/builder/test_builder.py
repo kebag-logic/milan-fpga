@@ -576,9 +576,9 @@ def test_baremetal_profile_contract():
     with open(csr_path, encoding="utf-8") as fh:
         csr_source = fh.read()
 
-    def braced_block(source, anchor):
-        assert anchor in source, f"firmware boot guard missing: {anchor}"
-        brace = source.index("{", source.index(anchor))
+    def braced_block(source, guard, label):
+        assert guard, f"firmware boot guard missing: {label}"
+        brace = source.index("{", guard.start(), guard.end())
         depth = 0
         for pos in range(brace, len(source)):
             if source[pos] == "{":
@@ -587,41 +587,95 @@ def test_baremetal_profile_contract():
                 depth -= 1
                 if depth == 0:
                     return source[brace + 1:pos]
-        raise AssertionError(f"firmware boot guard is not closed: {anchor}")
+        raise AssertionError(f"firmware boot guard is not closed: {label}")
+
+    def enable_write(block, register):
+        register_re = re.escape(register)
+        pattern = re.compile(
+            rf"milan_write\(\s*{register_re}\s*,\s*"
+            rf"milan_read\(\s*{register_re}\s*\)\s*\|\s*"
+            r"(?P<mask>(?:0[xX][0-9A-Fa-f]+|[0-9]+)[uUlL]*)\s*\)\s*;")
+        matches = list(pattern.finditer(block))
+        assert len(matches) == 1, \
+            f"{register} must have exactly one read/OR enable write"
+        mask_literal = re.sub(r"[uUlL]+$", "", matches[0].group("mask"))
+        mask_base = 16 if mask_literal.lower().startswith("0x") else 10
+        assert int(mask_literal, mask_base) & 1, \
+            f"{register} enable write must assert bit 0"
+        return matches[0]
+
+    reset_pattern = re.compile(
+        r"\bptp_ctrl\s*<=\s*"
+        r"(?P<literal>(?:(?:[0-9]+)\s*)?'[hHdDbB]\s*[0-9A-Fa-f_]+|"
+        r"[0-9][0-9_]*)\s*;")
+
+    def ptp_reset_assignment(csr):
+        match = reset_pattern.search(csr)
+        assert match, "bare-metal PHC contract requires a literal reset value"
+        literal = re.sub(r"\s|_", "", match.group("literal"))
+        if "'" in literal:
+            _width, encoded = literal.split("'", 1)
+            base = {"h": 16, "d": 10, "b": 2}[encoded[0].lower()]
+            digits = encoded[1:]
+        else:
+            base, digits = 10, literal
+        try:
+            value = int(digits, base)
+        except ValueError as exc:
+            raise AssertionError(
+                f"unsupported ptp_ctrl reset literal: {literal}") from exc
+        return match, value
 
     def assert_boot_contract(firmware, docs, csr):
         init_start = firmware.index("static void milan_init(void)")
         init_end = firmware.index("define_init_func(milan_init)", init_start)
         init_source = firmware[init_start:init_end]
-        guard = "if (aem_loaded) {"
-        events = (
-            "configure_fabric();",
-            "aem_loaded = load_aem_image();",
-            guard,
-        )
-        for event in events:
-            assert event in init_source, f"firmware boot event missing: {event}"
-        positions = [init_source.index(event) for event in events]
+        configure = re.search(r"\bconfigure_fabric\s*\(\s*\)\s*;", init_source)
+        load = re.search(
+            r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;",
+            init_source)
+        guard = re.search(
+            r"\bif\s*\(\s*aem_loaded\s*\)\s*\{", init_source)
+        assert configure and load and guard, \
+            "firmware must configure, load AEM, then guard entity enable"
+        positions = [configure.start(), load.start(), guard.start()]
         assert positions == sorted(positions), \
             "firmware no longer configures, verifies AEM, then checks its verdict"
-        enable_block = braced_block(init_source, guard)
-        pp_enable = "milan_write(MILAN_PP_CTRL"
-        adp_enable = "milan_write(MILAN_ADP_CTRL"
-        assert enable_block.count(pp_enable) == 1 and \
-               enable_block.count(adp_enable) == 1, \
+        assignments = re.findall(r"\baem_loaded\s*=\s*([^;]+);", init_source)
+        assert len(assignments) == 1 and re.fullmatch(
+            r"load_aem_image\s*\(\s*\)", assignments[0]), \
+            "aem_loaded must contain only the image verifier's verdict"
+        enable_block = braced_block(init_source, guard, "if (aem_loaded)")
+        pp_call = re.compile(r"milan_write\(\s*MILAN_PP_CTRL\b")
+        adp_call = re.compile(r"milan_write\(\s*MILAN_ADP_CTRL\b")
+        assert len(pp_call.findall(enable_block)) == 1 and \
+               len(adp_call.findall(enable_block)) == 1, \
             "AEM-success guard must contain exactly one PP and one ADP enable"
-        assert enable_block.index(pp_enable) < enable_block.index(adp_enable), \
+        pp_enable = enable_write(enable_block, "MILAN_PP_CTRL")
+        adp_enable = enable_write(enable_block, "MILAN_ADP_CTRL")
+        assert pp_enable.start() < adp_enable.start(), \
             "AEM-success guard must enable PP before ADP"
-        assert init_source.count(pp_enable) == 1 and \
-               init_source.count(adp_enable) == 1, \
+        assert len(pp_call.findall(init_source)) == 1 and \
+               len(adp_call.findall(init_source)) == 1, \
             "PP/ADP enables must exist only inside the AEM-success guard"
-        assert "milan_write(MILAN_PTP_CTRL" not in init_source, \
-            "firmware incorrectly gates the independently running PHC on AEM"
-        ptp_reset = re.search(
-            r"\bptp_ctrl\s*<=\s*32'h([0-9A-Fa-f_]+)\s*;", csr)
-        assert ptp_reset and \
-               int(ptp_reset.group(1).replace("_", ""), 16) == 1, \
+        assert not re.search(r"milan_write\(\s*MILAN_PTP_CTRL\b", init_source), \
+            "firmware must not write the reset-enabled PHC during initialization"
+        _ptp_reset, reset_value = ptp_reset_assignment(csr)
+        assert reset_value == 1, \
             "bare-metal PHC contract requires the documented enabled reset"
+
+        load_start = firmware.index("static int load_aem_image(void)")
+        load_end = firmware.index("static void milan_init(void)", load_start)
+        load_source = firmware[load_start:load_end]
+        crc_guard = re.search(
+            r"\bif\s*\(\s*got\s*!=\s*MILAN_AEM_IMAGE_CRC32\s*\)\s*\{",
+            load_source)
+        crc_block = braced_block(
+            load_source, crc_guard, "CRC mismatch refusal")
+        success_returns = list(re.finditer(r"\breturn\s+1\s*;", load_source))
+        assert "return 0;" in crc_block and len(success_returns) == 1 and \
+               success_returns[0].start() > crc_guard.start(), \
+            "AEM verifier may succeed only after refusing a CRC mismatch"
 
         words = " ".join(docs.split())
         required = (
@@ -655,48 +709,119 @@ def test_baremetal_profile_contract():
             return
         raise AssertionError(f"{label} mutation passed the boot-contract gate")
 
-    old_claim = (
-        "Enable the protocol processor and then the ADP entity only after the\n"
-        "   identity check and AEM verification succeed.")
-    old_order = (
-        "Enable the PTP clock, protocol processor and ADP entity only after the\n"
-        "   identity check and AEM verification succeed.")
+    init_start = firmware_source.index("static void milan_init(void)")
+    init_end = firmware_source.index("define_init_func(milan_init)", init_start)
+    source_init = firmware_source[init_start:init_end]
+    source_guard = re.search(
+        r"\bif\s*\(\s*aem_loaded\s*\)\s*\{", source_init)
+    source_enable_block = braced_block(
+        source_init, source_guard, "if (aem_loaded)")
+    source_pp_enable = enable_write(source_enable_block, "MILAN_PP_CTRL")
+    source_adp_enable = enable_write(source_enable_block, "MILAN_ADP_CTRL")
+    source_load = re.search(
+        r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;",
+        firmware_source)
+    assert source_load
+    source_load_start = firmware_source.index("static int load_aem_image(void)")
+    source_load_end = firmware_source.index(
+        "static void milan_init(void)", source_load_start)
+    source_load_function = firmware_source[source_load_start:source_load_end]
+    source_crc_guard = re.search(
+        r"\bif\s*\(\s*got\s*!=\s*MILAN_AEM_IMAGE_CRC32\s*\)\s*\{",
+        source_load_function)
+    source_crc_block = braced_block(
+        source_load_function, source_crc_guard, "CRC mismatch refusal")
+    source_reset, _reset_value = ptp_reset_assignment(csr_source)
+    source_reset_statement = source_reset.group(0)
+
+    old_claim = re.search(
+        r"Enable\s+the\s+protocol\s+processor\s+and\s+then\s+the\s+ADP\s+"
+        r"entity\s+only\s+after\s+the\s+identity\s+check\s+and\s+AEM\s+"
+        r"verification\s+succeed\.", docs_source)
+    assert old_claim, "boot-order documentation mutation did not find its claim"
+    old_order = re.sub(
+        r"Enable\s+the\s+protocol\s+processor",
+        "Enable the PTP clock, protocol processor",
+        old_claim.group(0), count=1)
+
+    unconditional_guard = source_guard.group(0).replace("aem_loaded", "1", 1)
+    inverted_guard = source_guard.group(0).replace(
+        "aem_loaded", "!aem_loaded", 1)
+    load_statement = source_load.group(0)
+    swapped_enable_block = (
+        source_enable_block[:source_pp_enable.start()] +
+        source_adp_enable.group(0) +
+        source_enable_block[source_pp_enable.end():source_adp_enable.start()] +
+        source_pp_enable.group(0) +
+        source_enable_block[source_adp_enable.end():])
+    bad_pp_block = (
+        source_enable_block[:source_pp_enable.start("mask")] + "2u" +
+        source_enable_block[source_pp_enable.end("mask"):])
+    bad_adp_statement = (
+        "milan_write(MILAN_ADP_CTRL, "
+        "milan_read(MILAN_ADP_CTRL) & ~1u);")
+    bad_adp_block = (
+        source_enable_block[:source_adp_enable.start()] + bad_adp_statement +
+        source_enable_block[source_adp_enable.end():])
+    bad_crc_block = replace_once(
+        source_crc_block, "return 0;", "return 1;", "CRC refusal")
+    bad_load_function = replace_once(
+        source_load_function, source_crc_block, bad_crc_block,
+        "CRC verifier block")
+
+    reset_spellings = ("32'h0000_0001", "32'd1", "32'b1", "1")
+    for spelling in reset_spellings:
+        equivalent_csr = replace_once(
+            csr_source, source_reset_statement,
+            f"ptp_ctrl <= {spelling};", f"reset spelling {spelling}")
+        assert_boot_contract(firmware_source, docs_source, equivalent_csr)
+
     mutations = (
         ("old AEM-gated PTP documentation", firmware_source,
-         replace_once(docs_source, old_claim, old_order, "old ordering"),
+         replace_once(docs_source, old_claim.group(0), old_order, "old ordering"),
          csr_source),
         ("unconditional entity enable",
-         replace_once(firmware_source, "if (aem_loaded) {", "if (1) {",
+         replace_once(firmware_source, source_guard.group(0), unconditional_guard,
                       "unconditional guard"), docs_source, csr_source),
         ("inverted entity enable",
-         replace_once(firmware_source, "if (aem_loaded) {",
-                      "if (!aem_loaded) {", "inverted guard"),
+         replace_once(firmware_source, source_guard.group(0), inverted_guard,
+                      "inverted guard"),
          docs_source, csr_source),
-        ("pre-AEM PTP enable",
+        ("software PTP enable write",
          replace_once(
-             firmware_source,
-             "\tconfigure_fabric();\n\taem_loaded = load_aem_image();",
-             "\tconfigure_fabric();\n"
-             "\tmilan_write(MILAN_PTP_CTRL, milan_read(MILAN_PTP_CTRL) | 1u);\n"
-             "\taem_loaded = load_aem_image();", "PTP write"),
+             firmware_source, load_statement,
+             "milan_write(MILAN_PTP_CTRL, "
+             "milan_read(MILAN_PTP_CTRL) | 1u);\n\t" + load_statement,
+             "PTP write"),
          docs_source, csr_source),
         ("ADP before PP",
          replace_once(
-             firmware_source,
-             "\t\tmilan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 1u);\n"
-             "\t\tmilan_write(MILAN_ADP_CTRL, milan_read(MILAN_ADP_CTRL) | 1u);",
-             "\t\tmilan_write(MILAN_ADP_CTRL, milan_read(MILAN_ADP_CTRL) | 1u);\n"
-             "\t\tmilan_write(MILAN_PP_CTRL, milan_read(MILAN_PP_CTRL) | 1u);",
+             firmware_source, source_enable_block, swapped_enable_block,
              "enable ordering"), docs_source, csr_source),
+        ("PP bit 0 not asserted",
+         replace_once(firmware_source, source_enable_block, bad_pp_block,
+                      "PP enable mask"), docs_source, csr_source),
+        ("ADP bit 0 cleared",
+         replace_once(firmware_source, source_enable_block, bad_adp_block,
+                      "ADP enable operation"), docs_source, csr_source),
+        ("CRC failure accepted",
+         replace_once(firmware_source, source_load_function, bad_load_function,
+                      "AEM verifier"), docs_source, csr_source),
+        ("AEM verdict overridden",
+         replace_once(firmware_source, load_statement,
+                      load_statement + "\n\taem_loaded = 1;",
+                      "AEM verdict override"), docs_source, csr_source),
         ("disabled PHC reset", firmware_source, docs_source,
-         replace_once(csr_source, "ptp_ctrl <= 32'h1;",
+         replace_once(csr_source, source_reset_statement,
                       "ptp_ctrl <= 32'h0;", "PHC reset")),
     )
     for label, firmware, docs, csr in mutations:
         assert_rejected(label, firmware, docs, csr)
-    print("  [gate 1b] boot contract: PHC/gPTP independent from reset; "
-          "AEM verification gates PP then ADP; "
-          f"{len(mutations)}/{len(mutations)} mutations rejected")
+    print("  [gate 1b] boot contract: PHC/gPTP live from reset and independent "
+          "of AEM; verified AEM gates PP[0] then ADP[0]; "
+          f"{len(mutations)}/{len(mutations)} mutations rejected; "
+          f"{len(reset_spellings)}/{len(reset_spellings)} equivalent reset "
+          "spellings accepted")
 
     print("  [gate 1b] shipping AX: fabric gPTP option on with config-derived "
           "1024-word ROM; VexiiRiscv RV32I at 50 MHz through its supported "
