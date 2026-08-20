@@ -276,6 +276,26 @@ class Campaign:
                 self.rep.ck("%s.%s legal" % (label, name),
                             got[name] in [int(v) for v in con["values"]],
                             "got=%d" % got[name])
+            elif "mask" in con:
+                # A mask names the DEFINED bits; the spec claim is that no bit
+                # outside that set is set. tsn_model already reads masks this
+                # way for probe generation (legal/illegal), so grade to match.
+                m = int(con["mask"][0])
+                undef = got[name] & ~m
+                self.rep.ck("%s.%s within defined bits" % (label, name),
+                            undef == 0,
+                            "got=0x%X undefined=0x%X mask=0x%X"
+                            % (got[name], undef, m))
+            else:
+                # FAIL CLOSED. A constraint kind this grader does not know must
+                # never pass in silence: that is exactly how an Announce `mask:`
+                # pin left the campaign once already, with the tally unmoved and
+                # nothing red to notice. Anyone adding a kind has to teach the
+                # grader what it asserts before the suite will go green again.
+                self.rep.ck("%s.%s constraint is gradeable" % (label, name),
+                            False,
+                            "ungradeable constraint kind %s -- teach grade_tx"
+                            % sorted(con))
         return got
 
     def become_gm(self, budget=10 * SECOND):
