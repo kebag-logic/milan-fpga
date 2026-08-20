@@ -100,7 +100,7 @@ DENY_CS = re.compile("|".join(r"\b%s\b" % t for t in _LAB_TOKENS))
 #: rule fires on their subject matter, not on meta-commentary about the page.
 #: Say "executor" (the role AGENTS.md section 3 defines) rather than
 #: "authoring session". Do NOT add the phrase to HYGIENE_ALLOW to silence it:
-#: that mask is global, so it would retire this rule across all 212 pages.
+#: that mask is global, so it would retire this rule on every living page.
 PROCESS_RE = re.compile(
     r"handover|context reset|context window|\bthis round\b|\blast round\b"
     r"|picking up|continuing from|(previous|next|authoring|last) session",
@@ -399,7 +399,9 @@ def check_md(path, relpath, resolve, tracked_set):
                 findings.append(
                     f"{relpath}:{lineno}: process/meta language "
                     f"'{hm.group(0)}' — describe the system, not how the "
-                    f"page was produced")
+                    f"page was produced (if this page is ABOUT the agent "
+                    f"workflow, see the note at PROCESS_RE in "
+                    f"scripts/docs_check.py)")
             hm = ATTRIB_RE.search(hmasked)
             if hm:
                 findings.append(
