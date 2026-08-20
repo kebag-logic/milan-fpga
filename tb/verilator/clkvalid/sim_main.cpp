@@ -266,7 +266,10 @@ int main(int argc, char** argv) {
     clkv_write(true, 4000);              //! a long lease so only the step matters
     ck("long lease: tu clear before the step", dut->ts_uncertain_o, 0);
 
-    dut->phc_load_p_i = 1; tick(); dut->phc_load_p_i = 0; tick();
+    dut->phc_load_p_i = 1; dut->eval();
+    ck("settime pulse raises tu before the sampling edge",
+       dut->ts_uncertain_o, 1);
+    tick(); dut->phc_load_p_i = 0; tick();
     ck("settime (PTP_CMD[0]): tu asserts", dut->ts_uncertain_o, 1);
     ck("STAT[3] holdover active", (dut->stat_o >> 3) & 1, 1);
     ck("STAT[1] sync_ok survives the step", (dut->stat_o >> 1) & 1, 1);
@@ -276,7 +279,13 @@ int main(int argc, char** argv) {
              held, qtick, qtick * 2 + 4);
     ck("after the holdover: tu clears again", dut->ts_uncertain_o, 0);
 
-    dut->phc_adj_p_i = 1; tick(); dut->phc_adj_p_i = 0; tick();
+    dut->phc_adj_p_i = 1; dut->eval();
+    // AAF/CRF latch tu in always_ff on this same edge. This pre-edge value is
+    // therefore the value their launch registers sample; checking only after
+    // tick() would see hold_r's NBA update and miss a one-cycle false clear.
+    ck("adjtime pulse raises tu before the sampling edge",
+       dut->ts_uncertain_o, 1);
+    tick(); dut->phc_adj_p_i = 0; tick();
     ck("adjtime (PTP_CMD[1]): tu asserts", dut->ts_uncertain_o, 1);
     wait_tu(0, qtick * 8);
     ck("adjtime holdover ends", dut->ts_uncertain_o, 0);
@@ -286,7 +295,10 @@ int main(int argc, char** argv) {
     //    gptp_grandmaster_id the daemon already publishes for ADP.
     // -----------------------------------------------------------------
     printf("-- grandmaster change (Milan v1.2 Annex B.1.1) --\n");
-    dut->gm_id_i = 0x020000FFFE000001ULL; tick(2);
+    dut->gm_id_i = 0x020000FFFE000001ULL; dut->eval();
+    ck("GM change raises tu before the sampling edge",
+       dut->ts_uncertain_o, 1);
+    tick(2);
     ck("new GM id: tu asserts", dut->ts_uncertain_o, 1);
     held = wait_tu(0, qtick * 8);
     ck_range("GM-change holdover >= 0.25 s", held, qtick, qtick * 2 + 4);

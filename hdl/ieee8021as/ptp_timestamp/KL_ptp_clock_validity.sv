@@ -264,7 +264,11 @@ module KL_ptp_clock_validity #(
   //  The verdict. NOT a stream gate: Milan v1.2 5.3.7.3 forbids stopping
   //  a Stream Output, so the only honest lever is this bit.
   // --------------------------------------------------------------------
-  assign ts_uncertain_o = (~sync_ok_w) | hold_w;
+  //! disc_p_w is included directly, not only through hold_r. The PHC applies
+  //! an adjtime/load on the same edge that p_hold arms hold_r, and AAF/CRF
+  //! latch tu on their launch edge. Omitting the live pulse lets a frame on
+  //! that edge capture tu=0 even though its timestamp crosses the step.
+  assign ts_uncertain_o = (~sync_ok_w) | hold_w | disc_p_w;
 
   // --------------------------------------------------------------------
   //  Milan Table 5.4 TIMESTAMP_UNCERTAIN: one increment per one-second
