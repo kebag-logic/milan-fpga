@@ -578,6 +578,8 @@ def test_baremetal_profile_contract():
     with open(os.path.join(os.path.dirname(firmware_path), "Makefile"),
               encoding="utf-8") as fh:
         makefile_source = fh.read()
+    firmware_listing = tuple(sorted(
+        os.listdir(os.path.dirname(firmware_path))))
     firmware_object = os.path.basename(firmware_path)[:-2] + ".o"
 
     def braced_span(source, guard, label):
@@ -1031,7 +1033,7 @@ def test_baremetal_profile_contract():
             r"MILAN_AEM_IMAGE_CRC32\s*!=\s*(?P<rhs>\w+))\s*\)\s*\{",
             load_source)
 
-    def assert_csr_store_closure(code):
+    def assert_csr_store_closure(code, source):
         """milan_write() is the ONLY store into a CSR, in the text this reads.
 
         Every rule below the census reads milan_write() call sites, so a
@@ -1048,9 +1050,12 @@ def test_baremetal_profile_contract():
           and macro-body traps that gave that reading its teeth are refused
           outright by assert_preprocessor_visible(), not modelled here.
         * It reasons about SPELLING, not values. A store through a pointer
-          held in a variable is outside what any of these regexes can see;
-          the firmware has none today and rules 1 to 3 are what keep it that
-          way.
+          held in a variable is outside what any of these regexes can TRACE.
+          Rules 1 to 3 do not keep it out and this bullet used to say they
+          did, which was false: `volatile uint32_t *adp = (void *)0x...;
+          *adp = 1u;` passed all three. Rule 5 refuses it instead, by pinning
+          the SET of casts and the SET of stores rather than by tracing where
+          any pointer points.
         * An inline-asm store has NO spelling for these rules to match: no
           milan_write, no milan_reg, no MILAN_CSR_BASE, no cast, just a
           literal address in a template. Rules 1 to 3 cannot keep that out
@@ -1133,6 +1138,97 @@ def test_baremetal_profile_contract():
             assert not re.search(r"\bmilan_(?:reg|read|write)\b", body), \
                 f"#define {name} aliases a CSR primitive: every CSR store " \
                 "must be spelled milan_write() so the census can see it"
+        # 5. ... and every STORE THROUGH A POINTER in the file is one of the
+        #    four the firmware ships. Rules 1 to 4 name the ingredients a CSR
+        #    store is USUALLY built from; this one names the stores.
+        assert_store_set_is_closed(code, source)
+
+    #: Every store THROUGH A POINTER the firmware ships, pinned as a SET.
+    #:
+    #: Rule 1 above refuses ONE cast spelling, `(volatile uint32_t *)`, and
+    #: that is a denylist with a single entry: `volatile unsigned int *`,
+    #: `uint32_t volatile *` and a `(void *)` into a local are the same store
+    #: to the compiler and none of them matches it. It is the same failure
+    #: mode as an include regex narrower than the preprocessor, in the oldest
+    #: rule here. So the stores are pinned rather than the casts: a store is
+    #: found by what it IS, a dereference or a subscript on the left of an
+    #: assignment, and the cast that formed the pointer does not matter.
+    firmware_pointer_stores = (
+        "*milan_reg(offset) = value",
+        "*value = (uint64_t)parsed",
+        "*value = seconds * 1000000000ull + nanoseconds",
+        "dst[i] = src[i]",
+    )
+    #: ... and every cast to a POINTER, pinned the same way and for a reason
+    #: the store set alone does not cover. A store can be spelled `*p = v`,
+    #: `p[i] = v`, `p->m = v`, `(*p)++` or a memcpy, and enumerating THOSE is
+    #: the trap this whole round is about. A cast is where an address BECOMES
+    #: a pointer, so pinning the casts bounds address formation whatever the
+    #: store looks like: every one of those spellings still needs a cast (or
+    #: MILAN_CSR_BASE, or milan_reg(), both already pinned) to name a control
+    #: register in the first place.
+    firmware_pointer_casts = (
+        "(volatile uint32_t *)",
+        "(const volatile uint8_t *)",
+        "(volatile uint8_t *)",
+        "(const unsigned char *)",
+    )
+    pointer_cast_re = re.compile(
+        r"\([ \t]*[A-Za-z_][A-Za-z0-9_ \t]*\*(?:[ \t]*\*)*[ \t]*\)")
+    #: An assignment operator, simple or compound, and never a comparison.
+    assign_op_re = re.compile(
+        r"(?<![=!<>+\-*/%&|^])(?:[-+*/%&|^]|<<|>>)?=(?!=)")
+    subscript_lhs_re = re.compile(r"\A\w+[ \t]*\[[^\]]*\]\Z")
+
+    def pointer_stores(code):
+        """`(start, stop)` for every store through a pointer in `code`.
+
+        The left-hand side is taken back to the statement's start. A
+        DECLARATION with an initialiser is not a store, because its `*` is a
+        pointer declarator and its text names a type first; an assignment
+        inside a call's argument list is skipped for the same reason its
+        parentheses do not balance."""
+        found = []
+        for op in assign_op_re.finditer(code):
+            start = max(code.rfind(char, 0, op.start()) for char in ";{}") + 1
+            lhs = code[start:op.start()]
+            # A `for (i = 0; ...)` head leaves an unmatched `)` behind; step
+            # the statement's start past it so the loop BODY's store is seen
+            # and reported as itself rather than with the loop head attached.
+            while lhs.count("(") < lhs.count(")"):
+                cut = lhs.index(")") + 1
+                start, lhs = start + cut, lhs[cut:]
+            if lhs.count("(") > lhs.count(")"):
+                continue
+            text = lhs.strip()
+            if not (text.startswith("*") or subscript_lhs_re.match(text)):
+                continue
+            stop = code.find(";", op.end())
+            found.append((start, len(code) if stop < 0 else stop))
+        return found
+
+    def assert_store_set_is_closed(code, source):
+        """The firmware's stores through a pointer are pinned to the four it
+        ships, so a CSR store cannot be built from a cast this gate never
+        thought to name.
+
+        COST: a fifth pointer store is RED until it is added above. That is
+        the tripwire: whoever adds one has to decide, in this gate, whether
+        its target can be a control register."""
+        casts = [" ".join(m.group(0).split())
+                 for m in pointer_cast_re.finditer(code)]
+        assert casts == list(firmware_pointer_casts), \
+            "the firmware's casts to a pointer are pinned: a cast is where " \
+            "an address becomes a pointer, so naming ONE cast spelling " \
+            "leaves `volatile unsigned int *`, `uint32_t volatile *` and " \
+            f"`(void *)` free to name a control register; found {casts}"
+        found = [" ".join(source[at:to].split())
+                 for at, to in pointer_stores(code)]
+        assert found == list(firmware_pointer_stores), \
+            "the firmware's stores through a pointer are pinned: a store is " \
+            "a store whatever cast formed the pointer, and naming one cast " \
+            "spelling leaves `volatile unsigned int *`, `uint32_t volatile " \
+            f"*` and a (void *) into a local all reaching a CSR; found {found}"
 
     #: The firmware's translation unit is milan_baremetal.c plus exactly
     #: these. Pinned as a SET rather than derived, because there is nothing
@@ -1152,6 +1248,43 @@ def test_baremetal_profile_contract():
     firmware_includes_generated = ("<generated/mem.h>", "<generated/soc.h>")
     firmware_includes = (firmware_includes_third_party +
                          firmware_includes_generated)
+    #: ... and a pinned NAME is not a pinned FILE. `"command.h"` and
+    #: `"init.h"` are QUOTED includes, and C resolves those against the
+    #: including file's own directory FIRST, so a command.h dropped in beside
+    #: milan_baremetal.c wins over LiteX's and the text behind that pinned
+    #: name becomes this repository's, with no name changing anywhere. `-I`
+    #: does the same for the angle-bracket names. So RESOLUTION is pinned as
+    #: well as the names: the firmware's directory holds exactly these files,
+    #: and CFLAGS carries exactly this one search path.
+    firmware_directory = ("Makefile", "milan_baremetal.c")
+    firmware_include_paths = ("$(BIOS_DIRECTORY)",)
+    include_flag_re = re.compile(r"(?<![\w-])-I[ \t]*(\S+)")
+    #: ... and `-I` is not the only flag that adds a search path. `-iquote`,
+    #: `-isystem` and `-idirafter` all do, and I found those two by attacking
+    #: my own `-I` rule after writing it: enumerating the flags is the same
+    #: denylist trap one level down. So the TOKENS this Makefile may add to
+    #: CFLAGS are pinned instead, and every search-path flag, every
+    #: injecting flag and everything else falls out without being named.
+    firmware_cflags = ("-I$(BIOS_DIRECTORY)",)
+
+    def assert_include_resolution_is_pinned(listing):
+        """No file beside the firmware may answer to a pinned include name.
+
+        This is the axis that matters, and it is NOT who wrote the file: it
+        is whether this repository can decide which file a pinned name
+        resolves to. Splitting third party from generated was a real
+        correction and it is kept below, but on its own it says nothing about
+        a name whose FILE this repository can supply.
+
+        COST: any new file in the firmware's directory is RED, a README
+        included. That is the tripwire: the directory is two files and has
+        been for its whole life."""
+        assert sorted(listing) == sorted(firmware_directory), \
+            "the firmware's directory is pinned to " \
+            f"{sorted(firmware_directory)}: a quoted include resolves " \
+            "against this directory FIRST, so a file dropped in here answers " \
+            "to a pinned include name and puts this repository's text behind " \
+            f"it with no name changing anywhere; found {sorted(listing)}"
     #: Every preprocessing directive this gate has a rule for. Anything else
     #: is REFUSED rather than ignored: an #undef can retire a register
     #: constant the address model read, and #pragma, #line, #include_next and
@@ -1521,6 +1654,29 @@ def test_baremetal_profile_contract():
                 "-include/-imacros hand the compiler a whole source with no " \
                 "#include line, so the pinned include set never sees it and " \
                 f"the object count never moves; found {value.strip()!r}"
+            # ... and a search path is not an injection but it decides which
+            # FILE a pinned angle-bracket name resolves to, which is the same
+            # escape reached through resolution rather than through text.
+            for path in include_flag_re.findall(value):
+                assert path in firmware_include_paths, \
+                    f"{name} must not add the search path {path!r}: -I " \
+                    "decides which file a pinned include name resolves to, " \
+                    "so it puts this repository's text behind that name " \
+                    "without the name changing"
+            # ... and the general form of that, so `-iquote` and `-isystem`
+            # do not need to be named to be refused.
+            if name == "CFLAGS":
+                # A self-reference is how `:=` spells an append. It adds no
+                # flag, so it is not a new token.
+                unknown = [t for t in value.split()
+                           if t not in firmware_cflags and
+                           t not in (f"$({name})", f"${{{name}}}")]
+                assert not unknown, \
+                    f"this Makefile may only add {list(firmware_cflags)} to " \
+                    f"CFLAGS, not {unknown}: a flag this gate has no rule " \
+                    "for can add a search path (-iquote, -isystem, " \
+                    "-idirafter), inject a file, or change what the one " \
+                    "recipe compiles"
         assert not re.search(
             r"(?m)^[ \t]*vpath\b",
             re.sub(r"(?m)#[^\n]*", "", re.sub(r"\\\n", " ", makefile))), \
@@ -1546,7 +1702,8 @@ def test_baremetal_profile_contract():
             "object the OBJECTS list never named reaches the image and the " \
             f"CSR store closure covers only part of it; found {archive}"
 
-    def assert_boot_contract(firmware, docs, csr, makefile=None):
+    def assert_boot_contract(firmware, docs, csr, makefile=None,
+                             listing=None):
         # The whole closure below reads ONE file. Prove that is the whole
         # firmware before reading a line of it.
         assert_single_translation_unit(
@@ -1560,6 +1717,8 @@ def test_baremetal_profile_contract():
         # translation unit, and the one store mechanism with no textual
         # signature, before any rule below calls this text the firmware.
         assert_directive_set_is_closed(firmware, source)
+        assert_include_resolution_is_pinned(
+            firmware_listing if listing is None else listing)
         assert_asm_set_is_closed(firmware, source)
         model = CsrModel(firmware, csr)
         # The name-to-address table is only half the address model; the write
@@ -1650,7 +1809,7 @@ def test_baremetal_profile_contract():
                 "without any assignment this gate can see"
         # Every rule from here on reads milan_write() call sites, so first
         # prove there is no OTHER way to store into a control register.
-        assert_csr_store_closure(firmware)
+        assert_csr_store_closure(firmware, source)
         # The census places a write by the ADDRESS its operand reaches, so an
         # operand this gate cannot resolve to a decoded register is an
         # unclassifiable store: refuse it rather than leave it unexamined.
@@ -1808,9 +1967,10 @@ def test_baremetal_profile_contract():
         assert changed != source, f"{label} mutation did not apply"
         return changed
 
-    def assert_rejected(label, firmware, docs, csr, because, makefile=None):
+    def assert_rejected(label, firmware, docs, csr, because,
+                        makefile=None, listing=None):
         try:
-            assert_boot_contract(firmware, docs, csr, makefile)
+            assert_boot_contract(firmware, docs, csr, makefile, listing)
         except (AssertionError, ValueError) as exc:
             # A mutation rejected on an incidental anchor mismatch proves
             # nothing about the safety property, so pin the reason too.
@@ -2254,6 +2414,36 @@ def test_baremetal_profile_contract():
     #: An inline-asm store: no milan_write, no milan_reg, no MILAN_CSR_BASE
     #: and no cast, so every rule in the CSR store closure has nothing to
     #: match. The address is a literal for exactly that reason.
+    #: ---- the cast spellings rule 1 never named. Each is the same store to
+    #: the compiler as the one spelling rule 1 does name, and each used to
+    #: pass with the store closure otherwise intact.
+    def stored_before_aem(statement, label):
+        return replace_once(firmware_source, source_adp_clear + ";",
+                            statement + "\n\t" + source_adp_clear + ";", label)
+
+    raw_address = f"0x{0xf0000000 + source_model.adp:08x}u"
+    widened_cast_store = stored_before_aem(
+        f"*(volatile unsigned int *){raw_address} = 1u;",
+        "store through a widened cast")
+    reordered_cast_store = stored_before_aem(
+        f"*(uint32_t volatile *){raw_address} = 1u;",
+        "store through a reordered cast")
+    #: ... and the shape the closure docstring used to concede outright: a
+    #: pointer held in a local, formed by a cast that names no type at all.
+    local_pointer_store = stored_before_aem(
+        f"volatile uint32_t *adp = (void *){raw_address};\n\t*adp = 1u;",
+        "store through a pointer held in a local")
+    #: ... and a store that adds NO cast at all, so it is the STORE set and
+    #: not the cast set that has to catch it: a helper storing through its
+    #: own parameter. Where that parameter POINTS is exactly what this gate
+    #: cannot read, which is why a new store is refused rather than traced.
+    helper_pointer_store = replace_once(
+        stored_before_aem("milan_poke(&milan_shadow);",
+                          "store through a helper's parameter"),
+        "static void configure_fabric(void)",
+        "static uint32_t milan_shadow;\n\n"
+        "static void milan_poke(volatile uint32_t *reg)\n{\n\t*reg = 1u;\n}"
+        "\n\nstatic void configure_fabric(void)", "pointer-store helper")
     asm_store_enable = replace_once(
         firmware_source, source_adp_clear + ";",
         '__asm__ volatile("li t0, 0xf0000600\\n"\n'
@@ -2311,6 +2501,15 @@ def test_baremetal_profile_contract():
     #: ... and a name that changes what MAKE does rather than what the rule
     #: names, which no derivation from the rule can reach.
     unpinned_assignment = after_objects("MAKEFLAGS += -e")
+    #: ---- and RESOLUTION: a pinned name whose FILE this repository supplies.
+    #: Neither of these changes a name anywhere. The first is a listing, the
+    #: second a search path, and both put this repository's text behind an
+    #: include the gate believes it has pinned.
+    shadowed_quoted_include = firmware_listing + ("command.h",)
+    shadowed_search_path = after_objects("CFLAGS += -Ishadow")
+    #: ... and the search-path flag that is not spelled -I, which is how the
+    #: -I rule turned out to be a denylist the moment it was written.
+    quoted_search_path = after_objects("CFLAGS += -iquote shadow")
 
     def raised_bit0(statement, label):
         """`statement` with bit 0 of its literal SET, rebuilt at the literal's
@@ -2644,6 +2843,33 @@ def test_baremetal_profile_contract():
         ("entity enabled by an inline-asm store to the CSR address",
          asm_store_enable, docs_source, csr_source,
          "the firmware's inline asm is pinned"),
+        # ---- the cast spellings rule 1 never named. Naming ONE cast is a
+        # denylist of one; pinning the STORES is the set.
+        ("entity enabled through a widened pointer cast",
+         widened_cast_store, docs_source, csr_source,
+         "the firmware's casts to a pointer are pinned"),
+        ("entity enabled through a reordered pointer cast",
+         reordered_cast_store, docs_source, csr_source,
+         "the firmware's casts to a pointer are pinned"),
+        ("entity enabled through a pointer held in a local",
+         local_pointer_store, docs_source, csr_source,
+         "the firmware's casts to a pointer are pinned"),
+        # ... and one that adds no cast, so the STORE set has to catch it.
+        ("entity enabled by a helper storing through its parameter",
+         helper_pointer_store, docs_source, csr_source,
+         "the firmware's stores through a pointer are pinned"),
+        # ---- and RESOLUTION: a pinned NAME is not a pinned FILE.
+        ("pinned include shadowed by a file beside the firmware",
+         firmware_source, docs_source, csr_source,
+         "the firmware's directory is pinned to", None,
+         shadowed_quoted_include),
+        ("pinned include shadowed by an added -I search path",
+         firmware_source, docs_source, csr_source,
+         "must not add the search path", shadowed_search_path),
+        ("pinned include shadowed by an -iquote search path",
+         firmware_source, docs_source, csr_source,
+         "may only add ['-I$(BIOS_DIRECTORY)'] to CFLAGS",
+         quoted_search_path),
         ("one object linked from two sources by an explicit rule",
          firmware_source, docs_source, csr_source,
          f"exactly one rule may build {firmware_object}", linked_objects),
@@ -2711,8 +2937,12 @@ def test_baremetal_profile_contract():
           "one SOURCE, by the one pattern rule compiling one .c with "
           "$(compile), the Makefile's own include set pinned, and no "
           "assignment able to move the compiled text, over names DERIVED "
-          "from that rule rather than listed; and one STORE MECHANISM, by "
-          "the inline-asm set pinned to the two fences the firmware ships")
+          "from that rule rather than listed; one RESOLUTION for each pinned "
+          "include name, by the firmware's directory listing and the CFLAGS "
+          "token set, since a pinned NAME is not a pinned FILE; and one set "
+          "of STORE MECHANISMS, by the inline-asm set, the pointer-cast set "
+          "and the pointer-store set, so a store is refused whatever cast "
+          "formed it and whatever the assignment is spelled like")
     print("  [gate 1b] ... no preprocessor "
           "conditional and no continued #define outside the QSPI-slot group "
           "whose BOTH arms the verifier's return rule classifies, no "
@@ -2732,23 +2962,32 @@ def test_baremetal_profile_contract():
           "statement inside the guarded block, a twelfth #include even of "
           "<string.h>, any #pragma/#line/#error/#undef, a third inline-asm "
           "statement, a fourth Makefile include, any recipe for the one "
-          "object other than the pattern rule's $(compile), a legitimate "
-          "-include config.h in CFLAGS, and any new Makefile variable at "
-          "all, even an unused DEPFILES = $(patsubst ...)")
+          "object other than the pattern rule's $(compile), any new Makefile "
+          "variable at all even an unused DEPFILES = $(patsubst ...), any "
+          "new CFLAGS token at all including -Os and -DFOO as well as "
+          "-include and -iquote, a fifth store through a pointer, a fifth "
+          "cast to a pointer, and any new file in the firmware's directory "
+          "including a README")
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
           "owns those), that crc32() is a CRC, and anything about an "
           "interrupt vector, which is REFUSED by the no-label check rather "
           "than modelled")
-    print("  [gate 1b] TRUSTED, not proved, and the two halves are NOT the "
-          f"same claim: the contents of the "
-          f"{len(firmware_includes_third_party)} third-party headers "
-          "(newlib's and LiteX's) and the two LiteX Makefile fragments are "
-          "not this repository's text; the contents of "
-          f"{', '.join(firmware_includes_generated)} and the compiler's own "
-          ".d fragment ARE this repository's text one generator away. All of "
-          "their NAMES are pinned so nothing new joins unseen, which is a "
-          "smaller claim than reading them")
+    print("  [gate 1b] TRUSTED, not proved, and the axis that matters is NOT "
+          "who wrote the file, it is whether this repository can decide "
+          "which file a pinned name RESOLVES to. Resolution is pinned for "
+          "all "
+          f"{len(firmware_includes)}: the firmware's directory holds exactly "
+          f"{list(firmware_directory)} so no quoted name can be shadowed "
+          "beside it, and CFLAGS may add only "
+          f"{list(firmware_cflags)} so no search path can be prepended. What "
+          "is still trusted is the CONTENT behind each resolved name: "
+          f"{len(firmware_includes_third_party)} third-party headers and the "
+          "two LiteX Makefile fragments are not this repository's text at "
+          f"all, while {', '.join(firmware_includes_generated)} and the "
+          "compiler's .d fragment are written by this repository's own "
+          "builder. The pinned claim is that no new NAME and no new "
+          "RESOLUTION joins unseen, which is smaller than reading them")
     print("  [gate 1b] OPEN, no refusal reaches them, tracked as issue #153: "
           "the rule tying the comparison to a real CRC is an EXISTENCE test, "
           "so a constant assigned to the compared local in the compiled arm, "
