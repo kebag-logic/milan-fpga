@@ -101,8 +101,12 @@ One constraint is answered by a tool rather than by reading text:
 
 - **The Makefile must build one object from one source.** The gate asks
   `make -Bn` what it would do rather than parsing the file, so every make
-  assignment flavour is covered, and it reads the whole plan rather than the
-  lines that happen to name the expected tool.
+  assignment flavour is covered, and it pins the SET of commands make would
+  run rather than scanning them for dangerous flags. That is why an injection
+  spelled `-Wp,-include,hdr`, `@response.file` or `-iwithprefixbefore` is
+  refused without any of them being named, and it is also why a benign
+  `AR += v` is refused: the rule has no list, so it has nothing to fall
+  behind and no way to make an exception.
 
 A second tool check runs alongside the text rules, and it is an **addition**
 rather than a replacement. Where an RV32 cross compiler is available, the gate
@@ -161,6 +165,9 @@ The rest are refusals, and each one costs a legitimate edit:
 | REORDERING existing functions, with nothing added or removed | the cast and store sets are compared as ordered lists |
 | A read-only `#define` accessor wrapping `milan_read()` | it hides a CSR primitive from the operand census; the macro contains no store |
 | `##`, `%:` or `??` anywhere in the file | token pasting and the alternate spellings of `#` |
+| FACTORING the CSR accessors, e.g. a `milan_set(offset, bits)` read-modify-write helper | the census places writes by RESOLVED address, and an `offset` parameter has none |
+| Hoisting the enable mask to a named constant | the OR mask must be a value the gate can evaluate, so `\| MILAN_ENTITY_ENABLE` is not recognised as the enable write |
+| ANY change to the two commands `make` runs, a benign `AR += v` or `CC += -Wall` included | the recipe set is pinned rather than scanned for dangerous flag spellings, and the price of having no list is that benign changes are refused too |
 
 Adding any of these is a one-line change in the gate plus a mutation-table
 entry, not a redesign. What the gate does **not** prove is recorded beside

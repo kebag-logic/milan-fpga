@@ -1018,7 +1018,14 @@ def test_baremetal_profile_contract():
             ored = [w for w in self.writes(block, address)
                     if w["kind"] == "or"]
             assert len(ored) == 1, \
-                f"{label} must have exactly one read/OR enable write"
+                f"{label} must have exactly one read/OR enable write, and " \
+                f"there are {len(ored)}. NOTE, because this message has " \
+                "described the wrong thing before: the OR mask must be a " \
+                "value this gate can EVALUATE, so a named constant " \
+                "(`| MILAN_ENTITY_ENABLE`) does not count as the enable " \
+                "write even though it is the same bit to the hardware. " \
+                "Hoisting the mask to a #define is refused for that reason, " \
+                "not because the enable is missing or duplicated"
             assert ored[0]["sets"], \
                 f"{label} enable write must assert bit 0"
             return ored[0]
@@ -1950,49 +1957,37 @@ def test_baremetal_profile_contract():
             "make must build and archive exactly the one object, and its " \
             "whole plan names another: an object the OBJECTS list never " \
             f"named reaches the image; make touches {objects}"
-        # ... and no plan line may LINK, whatever it is spelled, because a
-        # partial link merges translation units into the one object without
-        # adding either a source or an object to the plan's own names.
-        linkers = [line for line in recipes
-                   if re.search(r"(?<![\w-])-r(?![\w-])", line) or
-                   re.search(r"(?<![\w/])ld(?![\w])", line)]
-        assert not linkers, \
-            "make must not link anything into the one object: a partial " \
-            "link merges translation units the CSR store closure never " \
-            f"reads; make runs {linkers}"
-        # ... and the FLAGS, read off the whole recipe line rather than out
-        # of CFLAGS. A flag moves the compiled text as surely as a rule
-        # does, and it does not have to arrive through CFLAGS to do it:
-        # `CC += -include ../shadow.h` puts a second file into the one
-        # translation unit with no `.c` in the plan, no `.o`, and no CFLAGS
-        # token, because LiteX defines `compile` as `$(CC) -c $(CFLAGS) ...`.
-        # Reading the LINE closes CC, AR and every other tool variable in one
-        # rule instead of one name at a time.
-        injected = [(line, token) for line in recipes
-                    for token in line.split()
-                    if re.fullmatch(r"-(?:include|imacros)", token) or
-                    token.startswith(("-include", "-imacros"))]
-        assert not injected, \
-            "no command make runs may inject a file into the translation " \
-            "unit: -include/-imacros hand the compiler a whole source with " \
-            "no #include line for the pinned set to catch and no .c in the " \
-            f"plan for this gate to count; make runs {injected[:2]}"
-        searched = [(line, token) for line in recipes
-                    for token in line.split()
-                    if re.match(r"-(?:I|iquote|isystem|idirafter)", token) and
-                    token != f"-I{make_sentinels['BIOS_DIRECTORY']}"]
-        assert not searched, \
-            "no command make runs may add an include search path beyond the " \
-            "one this Makefile has always had: a search path decides which " \
-            "file a pinned include name resolves to, so it puts this " \
-            f"repository's text behind that name; make runs {searched[:2]}"
-        added = [token for token in variables.get("CFLAGS", "").split()
-                 if token not in make_sentinels.values()]
-        assert added == [f"-I{make_sentinels['BIOS_DIRECTORY']}"], \
-            "this Makefile may add only its one include path to CFLAGS: a " \
-            "flag this gate has no rule for can inject a source (-include, " \
-            "-imacros) or decide which file a pinned include name resolves " \
-            f"to (-I, -iquote, -isystem, -idirafter); make expands {added}"
+        # ---- and the RECIPE SET, which is what actually bounds this.
+        #
+        # Three scans used to live here: one for link steps, one for
+        # injecting flags and one for search-path flags, each a list of the
+        # spellings someone had thought of. That is the same shape as the
+        # name allowlist before it, the disassembly regex before that and
+        # the flag regex after: `-Wp,-include,hdr`, `@response.file` and
+        # `-iprefix`/`-iwithprefixbefore` all walked past it, and every one
+        # of them put a whole second file into the one translation unit.
+        #
+        # So the recipe set is PINNED instead. make tells us the two
+        # commands it would run; they are fully determined by the stub
+        # environment's sentinels and the one source path, so anything
+        # added, removed or reworded is refused without naming a single
+        # flag. This is strictly smaller than the three scans it replaces
+        # and it has no list to fall behind.
+        expected_recipes = [
+            f"{make_sentinels['CC']} -c {make_sentinels['CFLAGS']} "
+            f"-I{make_sentinels['BIOS_DIRECTORY']} "
+            f"{os.path.join(variables.get('LIBDIR', ''), stem + '.c')} "
+            f"-o {expected}",
+            f"{make_sentinels['AR']} crs lib{stem}.a {expected}",
+        ]
+        assert recipes == expected_recipes, \
+            "the commands make would run are pinned, and this Makefile " \
+            "changes them: one compile of the one source with the one added " \
+            "include path, and one archive of the one object. Anything else " \
+            "can inject a file into the translation unit, move which file is " \
+            "compiled, or link a second one in, whatever flag spelling " \
+            f"carries it.\n  expected: {expected_recipes}\n  make runs: " \
+            f"{recipes}"
         assert variables.get("VPATH") == "undefined", \
             "this Makefile must not set VPATH: it decides which file the " \
             "pattern rule's %.c resolves to, so it moves the file this gate " \
@@ -3050,6 +3045,26 @@ def test_baremetal_profile_contract():
         "CFLAGS += -I$(BIOS_DIRECTORY)\nCC += -iquote ../shadow",
         "search path added through CC")
 
+    #: ---- three injection spellings no scan here ever named. They are in
+    #: the table not because the rule enumerates them (it does not) but
+    #: because they are the measured proof that it does not have to: each
+    #: changes the pinned compile command and is refused by the SET, and
+    #: adding a fourth spelling would need no change to the rule at all.
+    def tool_flag(line, label):
+        return replace_once(makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
+                            "CFLAGS += -I$(BIOS_DIRECTORY)\n" + line, label)
+
+    preprocessor_passthrough = tool_flag(
+        "CC += -Wp,-include,$(LIBMILAN_BAREMETAL_DIRECTORY)/../shadow.h",
+        "injection through the preprocessor pass-through")
+    response_file_injection = tool_flag(
+        "CC += @$(LIBMILAN_BAREMETAL_DIRECTORY)/../shadow.rsp",
+        "injection through a response file")
+    prefixed_search_path = tool_flag(
+        "CC += -iprefix $(LIBMILAN_BAREMETAL_DIRECTORY)/../ "
+        "-iwithprefixbefore shadow",
+        "search path through the prefix chain")
+
     #: ---- and MAKEFLAGS += -e, RESTORED as a mutant. Round nine retired it
     #: on a false measurement; it does let the environment override OBJECTS
     #: and CFLAGS in the same run. It is pinned on the hostile double-run,
@@ -3145,6 +3160,19 @@ def test_baremetal_profile_contract():
     #: GREEN. Derived from the firmware's own text wherever a name or a
     #: statement is involved, so a rename upstream does not silently turn an
     #: accepted case into a no-op.
+    #: SCOPE, so a green loop is not read as general false-RED coverage.
+    #: All 13 sit in ONE region: the enable/clear/guard block and comment
+    #: blanking. They are the 13 that were prose in the PR body precisely
+    #: BECAUSE they had already been measured GREEN, so the set stops
+    #: exactly where the refusal starts. Nothing here touches the cast set,
+    #: the store set, the asm set, the directive set, the include set, the
+    #: recipe-set pin or the compiled census, which is where the remaining
+    #: refusals live. Two ordinary refactors one call-depth out are RED and
+    #: disclosed as costs rather than accepted: a milan_set() helper and a
+    #: named enable mask. A new refusal in an uncovered region can still
+    #: pass this loop untouched; measured, by adding a function-like-macro
+    #: ban and watching the suite stay green. If cases are added, the cheap
+    #: ones are one per refusal FAMILY, not more variants of the mask.
     accepted_pp_clear = source_pp_clear
     accepted_adp_clear = source_adp_clear
     accepted_cases = {
@@ -3225,15 +3253,12 @@ def test_baremetal_profile_contract():
             replace_once(makefile_source, "OBJECTS = " + firmware_object,
                          "DEPFILES = $(patsubst %.o,%.d,$(OBJECTS))\n"
                          "OBJECTS = " + firmware_object, "DEPFILES"),
-        # A DELIBERATE green, recorded here so it is a measurement and not
-        # an omission. `cc2ee861` refused this through the assignable-name
-        # allowlist; that allowlist was a blunt instrument and `AR += v`
-        # injects nothing, adds no search path, no source and no object. It
-        # only makes the archiver verbose.
-        "a verbose flag on the archiver (AR += v)":
-            replace_once(makefile_source, "CFLAGS += -I$(BIOS_DIRECTORY)",
-                         "CFLAGS += -I$(BIOS_DIRECTORY)\nAR += v",
-                         "verbose archiver"),
+        # `AR += v` was an accepted case while the flag scans were here. It
+        # is RED under the recipe-set pin, and that is a DELIBERATE decision
+        # rather than a discovery: the pin is what refuses every injection
+        # spelling nobody has thought of, and the price of having no list is
+        # that a benign change to a pinned command is refused too. It is
+        # disclosed as a cost instead of accepted here. Same for `CC += -Wall`.
         "an extra phony target":
             replace_once(makefile_source, ".PHONY: all clean",
                          ".PHONY: all clean tags\n\ntags:\n\t$(CTAGS) *.c",
@@ -3502,20 +3527,29 @@ def test_baremetal_profile_contract():
          shadowed_quoted_include),
         ("pinned include shadowed by an added -I search path",
          firmware_source, docs_source, csr_source,
-         "may add an include search path beyond the one", shadowed_search_path),
+         "the commands make would run are pinned", shadowed_search_path),
         ("object list the environment can override", firmware_source,
          docs_source, csr_source,
          "lets the ENVIRONMENT decide what gets compiled", environment_objects),
+        ("second file injected through -Wp, the preprocessor pass-through",
+         firmware_source, docs_source, csr_source,
+         "the commands make would run are pinned", preprocessor_passthrough),
+        ("second file injected through a response file", firmware_source,
+         docs_source, csr_source,
+         "the commands make would run are pinned", response_file_injection),
+        ("search path added through the -iprefix chain", firmware_source,
+         docs_source, csr_source,
+         "the commands make would run are pinned", prefixed_search_path),
         ("second file injected through the CC tool variable", firmware_source,
          docs_source, csr_source,
-         "may inject a file into the translation unit", tool_variable_injection),
+         "the commands make would run are pinned", tool_variable_injection),
         ("search path added through the CC tool variable", firmware_source,
          docs_source, csr_source,
-         "may add an include search path beyond the one",
+         "the commands make would run are pinned",
          tool_variable_search_path),
         ("pinned include shadowed by an -iquote search path",
          firmware_source, docs_source, csr_source,
-         "may add an include search path beyond the one",
+         "the commands make would run are pinned",
          quoted_search_path),
         ("one object linked from two sources by an explicit rule",
          firmware_source, docs_source, csr_source,
@@ -3639,8 +3673,11 @@ def test_baremetal_profile_contract():
           ("" if census_used.get("target") else
            f"({len(census_only_mutations)} entries are SKIPPED on this "
            "machine: they are the shapes ONLY the compiled census catches, "
-           "and it stood down for want of an RV32 compiler, so nothing here "
-           "can answer them) ") +
+           "and it stood down for want of an RV32 compiler. To be precise, "
+           "the census did not run for ANYTHING on this machine, the "
+           "shipping firmware and every other mutant and accepted case "
+           "included, so its whole contribution is absent and not just "
+           "these four) ") +
           f"{len(reset_spellings)}/{len(reset_spellings)} equivalent reset "
           f"spellings and {len(objects_spellings)}/{len(objects_spellings)} "
           "equivalent object-list spellings accepted; and "
@@ -3708,7 +3745,15 @@ def test_baremetal_profile_contract():
           "store sets are compared as ORDERED lists, so moving code with "
           "nothing added or removed is refused), renaming the verdict "
           "aem_loaded, and a read-only #define accessor that wraps "
-          "milan_read(). Also ##, %: and ?? anywhere in the file")
+          "milan_read(). Also ##, %: and ?? anywhere in the file. And two "
+          "ordinary refactors one step outside the accepted set: FACTORING "
+          "the CSR accessors (a milan_set(offset, bits) helper is refused, "
+          "because the census places writes by RESOLVED address and an "
+          "`offset` parameter has none), and hoisting the enable mask to a "
+          "named constant. Under the recipe-set pin, any change to the two "
+          "commands make runs is refused too, a benign AR += v or CC += "
+          "-Wall included: that is the price of a rule with no list of "
+          "spellings to fall behind")
     print("  [gate 1b] ... and what the make plan DID give back, which "
           "survives this round: every Makefile variable and rule shape the "
           "old parser pinned, so an unrelated DEPFILES = $(patsubst ...) is "
