@@ -2276,6 +2276,26 @@ def test_baremetal_profile_contract():
         assert changed != source, f"{label} mutation did not apply"
         return changed
 
+    def make_honours_makeflags_e():
+        """Whether THIS make lets `MAKEFLAGS += -e` inside a makefile hand
+        the environment an override.
+
+        Measured, not assumed, and it differs by version: GNU make 4.4.1
+        honours it and the runner's make does not. A mutant whose detection
+        depends on the machine is not evidence, so the entry below is
+        included only where the construct actually does something, and the
+        skip is printed rather than silent."""
+        with tempfile.TemporaryDirectory(prefix="milan-mf-") as probe:
+            with open(os.path.join(probe, "Makefile"), "w") as fh:
+                fh.write("MAKEFLAGS += -e\nOBJECTS = good.o\n"
+                         "all:\n\t@echo $(OBJECTS)\n")
+            environ = dict(os.environ)
+            environ.pop("MAKEFLAGS", None)
+            environ["OBJECTS"] = "evil.o"
+            got = subprocess.run(["make", "-s", "all"], cwd=probe, env=environ,
+                                 capture_output=True, text=True)
+        return got.stdout.strip() == "evil.o"
+
     def assert_rejected(label, firmware, docs, csr, because,
                         makefile=None, listing=None):
         try:
@@ -3377,9 +3397,6 @@ def test_baremetal_profile_contract():
         ("second object archived by a literally named ar", firmware_source,
          docs_source, csr_source,
          "make must compile exactly one source", literal_tool_archive),
-        ("MAKEFLAGS += -e letting the environment choose", firmware_source,
-         docs_source, csr_source,
-         "lets the ENVIRONMENT decide what gets compiled", env_override_flags),
         ("ADP_CTRL reset written blocking with the enable bit set",
          firmware_source, docs_source, blocking_reset_enabled,
          "the RTL must reset adp_ctrl with bit 0 CLEAR"),
@@ -3389,6 +3406,18 @@ def test_baremetal_profile_contract():
          firmware_source, docs_source, consistent_reset_enabled,
          "the RTL must reset adp_ctrl with bit 0 CLEAR"),
     )
+    #: `MAKEFLAGS += -e` only lets the environment override on a make that
+    #: re-reads MAKEFLAGS mid-parse. Include the entry where it bites and
+    #: say so where it does not, rather than ship a mutant whose verdict
+    #: depends on the runner.
+    makeflags_e_bites = make_honours_makeflags_e()
+    if makeflags_e_bites:
+        mutations += (
+            ("MAKEFLAGS += -e letting the environment choose", firmware_source,
+             docs_source, csr_source,
+             "lets the ENVIRONMENT decide what gets compiled",
+             env_override_flags),
+        )
     for mutation in mutations:
         assert_rejected(*mutation)
     print("  [gate 1b] boot contract: PHC/gPTP live from reset and independent "
@@ -3398,7 +3427,11 @@ def test_baremetal_profile_contract():
           "a second #define is the same register, with milan_write() closed as "
           "the only store into a CSR; "
           f"{len(mutations)}/{len(mutations)} mutations rejected on the "
-          "safety property they break; "
+          "safety property they break; " +
+          ("" if makeflags_e_bites else
+           "(the MAKEFLAGS += -e entry is SKIPPED on this machine: its make "
+           "does not honour -e from inside a makefile, so the construct "
+           "does nothing to detect here) ") +
           f"{len(reset_spellings)}/{len(reset_spellings)} equivalent reset "
           f"spellings and {len(objects_spellings)}/{len(objects_spellings)} "
           "equivalent object-list spellings accepted")
