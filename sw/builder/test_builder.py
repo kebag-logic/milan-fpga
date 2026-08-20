@@ -593,67 +593,195 @@ def test_baremetal_profile_contract():
         body, close = braced_span(source, guard, label)
         return source[body:close]
 
-    int_literal = r"(?:0[xX][0-9A-Fa-f]+|[0-9]+)[uUlL]*"
+    def blanked(source):
+        """`source` with the BODIES of comments and string/char literals
+        replaced by spaces, so every textual rule below reads code only --
+        and every offset still indexes the original text unchanged."""
+        out, i, n = list(source), 0, len(source)
 
-    def literal_value(text):
-        digits = re.sub(r"[uUlL]+$", "", text.strip())
-        if not re.fullmatch(r"0[xX][0-9A-Fa-f]+|[0-9]+", digits):
-            return None
-        return int(digits, 16 if digits.lower().startswith("0x") else 10)
+        def erase(start, stop):
+            for k in range(start, stop):
+                if out[k] != "\n":
+                    out[k] = " "
 
-    def register_writes(source, register):
-        """Every milan_write() to `register` in `source`, as (start, stop,
-        sets, clears) records describing what each one does to bit 0. A VALUE
-        expression this gate cannot read is counted as SETTING bit 0, so an
-        unreadable value can never be an unnoticed entity enable. The REGISTER
-        operand is matched literally and is NOT fail-closed here -- the caller
-        enforces separately that every milan_write() names a MILAN_ constant,
-        which is what makes this census exhaustive."""
-        register_re = re.escape(register)
-        opener = re.compile(rf"milan_write\(\s*{register_re}\s*,")
-        read_or = re.compile(
-            rf"\A\s*milan_read\(\s*{register_re}\s*\)\s*\|\s*"
-            rf"({int_literal})\s*\Z")
-        read_clear = re.compile(
-            rf"\A\s*milan_read\(\s*{register_re}\s*\)\s*&\s*~\s*"
-            rf"({int_literal})\s*\Z")
-        found = []
-        for call in opener.finditer(source):
-            depth, pos = 1, call.end()
-            while pos < len(source) and depth:
-                depth += {"(": 1, ")": -1}.get(source[pos], 0)
-                pos += 1
-            assert depth == 0, f"{register} write is never closed"
-            value = source[call.end():pos - 1]
-            ored, cleared = read_or.match(value), read_clear.match(value)
-            constant = literal_value(value)
-            if ored:
-                sets = bool(literal_value(ored.group(1)) & 1)
-            elif cleared:
-                sets = False
-            elif constant is not None:
-                sets = bool(constant & 1)
+        while i < n:
+            pair = source[i:i + 2]
+            if pair == "/*":
+                stop = source.find("*/", i + 2)
+                stop = n if stop < 0 else stop + 2
+                erase(i, stop)
+            elif pair == "//":
+                stop = source.find("\n", i)
+                stop = n if stop < 0 else stop
+                erase(i, stop)
+            elif source[i] in "\"'":
+                quote, stop = source[i], i + 1
+                while stop < n and source[stop] != quote:
+                    stop += 2 if source[stop] == "\\" else 1
+                stop = min(stop + 1, n)
+                erase(i + 1, stop - 1)
             else:
-                sets = True
-            clears = bool(cleared and literal_value(cleared.group(1)) & 1) or \
-                (constant is not None and not constant & 1)
-            found.append((call.start(), pos, sets, clears))
-        return found
+                i += 1
+                continue
+            i = stop
+        return "".join(out)
 
-    def enable_write(block, register):
-        register_re = re.escape(register)
-        pattern = re.compile(
-            rf"milan_write\(\s*{register_re}\s*,\s*"
-            rf"milan_read\(\s*{register_re}\s*\)\s*\|\s*"
-            r"(?P<mask>(?:0[xX][0-9A-Fa-f]+|[0-9]+)[uUlL]*)\s*\)\s*;")
-        matches = list(pattern.finditer(block))
-        assert len(matches) == 1, \
-            f"{register} must have exactly one read/OR enable write"
-        mask_literal = re.sub(r"[uUlL]+$", "", matches[0].group("mask"))
-        mask_base = 16 if mask_literal.lower().startswith("0x") else 10
-        assert int(mask_literal, mask_base) & 1, \
-            f"{register} enable write must assert bit 0"
-        return matches[0]
+    def constant_value(text):
+        """`text` as a 32-bit constant, or None when this gate cannot read it.
+
+        Integer literals, parentheses and the bitwise/shift/additive operators
+        only: `| 1u` and `| (1u << 0)` are the SAME enable to the hardware, so
+        they must be the same enable here. Anything carrying an identifier
+        stays unreadable, and every caller fails closed on that."""
+        expr = re.sub(r"\b(0[xX][0-9A-Fa-f]+|[0-9]+)[uUlL]+", r"\1",
+                      text.strip())
+        if not expr or not re.fullmatch(r"[0-9A-Fa-fxX()~|&^<>+\-\s]*", expr):
+            return None
+        if re.search(r"[A-Za-z_]", re.sub(r"0[xX][0-9A-Fa-f]+", "", expr)):
+            return None
+        try:
+            value = eval(expr, {"__builtins__": {}}, {})  # noqa: S307
+        except Exception:                                 # noqa: BLE001
+            return None
+        return value & 0xFFFFFFFF if type(value) is int else None
+
+    #: The RTL's own decode table -- `A_NAME = 'hNNN` -- is the ONE statement
+    #: of which offsets are registers and which register each offset is.
+    csr_address_re = re.compile(
+        r"\b(A_[A-Z0-9_]+)\s*=\s*(?:[0-9]+)?'[hH]([0-9A-Fa-f_]+)")
+    #: Whitespace-tolerant: `milan_write (` is the same call to the compiler,
+    #: so it has to be the same call to the census.
+    write_call_re = re.compile(r"\bmilan_write\s*\(")
+    write_def_re = re.compile(
+        r"\bstatic\s+inline\s+void\s+milan_write\s*\(\s*unsigned\s+int\s+"
+        r"(?P<offset>\w+)\s*,\s*uint32_t\s+(?P<value>\w+)\s*\)\s*\{")
+
+    class CsrModel:
+        """The firmware's #define table resolved against the register
+        addresses the RTL actually decodes.
+
+        The bus reasons over ADDRESSES, so this model does too. Two #defines
+        for 0x600 are ONE register here; a #define repointed at 0x920 IS
+        PP_CTRL however it is spelled; and a constant that is not a decoded
+        register address is not a register operand at all. Every rule built
+        on this keys on the address, never on the token."""
+
+        def __init__(self, firmware, csr):
+            code = blanked(firmware)
+            self.decoded = {}
+            for name, digits in csr_address_re.findall(csr):
+                self.decoded.setdefault(int(digits.replace("_", ""), 16), name)
+            assert self.decoded, "the RTL no longer declares a CSR decode table"
+            self.defines = {}
+            for name, text in re.findall(
+                    r"(?m)^[ \t]*#[ \t]*define[ \t]+(MILAN_[A-Za-z0-9_]+)[ \t]+"
+                    r"([^\r\n]*?)[ \t]*$", code):
+                value = constant_value(text)
+                if value is not None:
+                    self.defines.setdefault(name, value)
+            self.phc = self.rtl_address("A_PTP_CTRL")
+            self.pp = self.rtl_address("A_PP_CTRL")
+            self.adp = self.rtl_address("A_ADP_CTRL")
+
+        def rtl_address(self, rtl_name):
+            for address, name in self.decoded.items():
+                if name == rtl_name:
+                    return address
+            raise AssertionError(f"the RTL no longer decodes {rtl_name}")
+
+        def label(self, address):
+            return f"{self.decoded[address][2:]} (CSR 0x{address:03x})"
+
+        def address(self, operand):
+            """The CSR address `operand` reaches, or None when this gate
+            cannot prove it reaches one -- a value constant, a local, a macro
+            argument, an arithmetic expression on a variable."""
+            text = operand.strip()
+            value = self.defines.get(text)
+            if value is None:
+                value = constant_value(text)
+            return value if value in self.decoded else None
+
+        def calls(self, source):
+            """Every milan_write() CALL in `source` as a record, the
+            primitive's own definition excluded. Offsets index `source`."""
+            code = blanked(source)
+            skip = [(d.start(), d.end()) for d in write_def_re.finditer(code)]
+            found = []
+            for call in write_call_re.finditer(code):
+                if any(a <= call.start() < b for a, b in skip):
+                    continue
+                depth, pos = 1, call.end()
+                while pos < len(code) and depth:
+                    depth += {"(": 1, ")": -1}.get(code[pos], 0)
+                    pos += 1
+                assert depth == 0, "a milan_write() call is never closed"
+                args, at = code[call.end():pos - 1], call.end()
+                depth, comma = 0, -1
+                for offset, char in enumerate(args):
+                    depth += {"(": 1, ")": -1}.get(char, 0)
+                    if char == "," and not depth:
+                        comma = offset
+                        break
+                assert comma >= 0, \
+                    "a milan_write() call carries no register operand"
+                found.append({"start": call.start(), "stop": pos,
+                              "operand": args[:comma],
+                              "value": args[comma + 1:],
+                              "value_at": at + comma + 1})
+                # `stop` deliberately ends at the closing paren, not the
+                # statement's semicolon, so a record can be lifted out and
+                # dropped back in as an expression.
+            return found
+
+        def writes(self, source, address):
+            """Every milan_write() in `source` that reaches `address`, each
+            with what it does to bit 0. A VALUE this gate cannot read counts
+            as SETTING bit 0, so an unreadable value can never be an
+            unnoticed entity enable."""
+            found = []
+            for record in self.calls(source):
+                if self.address(record["operand"]) != address:
+                    continue
+                found.append(self.effect(record, address))
+            return found
+
+        def effect(self, record, address):
+            text = record["value"]
+            read = re.match(
+                r"\A\s*\bmilan_read\s*\(\s*([^()]*?)\s*\)\s*([|&])\s*"
+                r"(.*?)\s*\Z", text, re.S)
+            mask = constant_value(read.group(3)) if read else None
+            if read and mask is not None and \
+                    self.address(read.group(1)) == address:
+                # OR can only set bit 0; AND (with or without ~) can only
+                # clear it, and clears it exactly when the mask omits it.
+                ored = read.group(2) == "|"
+                record.update(
+                    kind="or" if ored else "and",
+                    sets=ored and bool(mask & 1),
+                    clears=(not ored) and not mask & 1,
+                    mask_at=record["value_at"] + read.start(3),
+                    mask_to=record["value_at"] + read.end(3))
+                return record
+            constant = constant_value(text)
+            if constant is not None:
+                record.update(kind="constant", sets=bool(constant & 1),
+                              clears=not constant & 1)
+                return record
+            record.update(kind="opaque", sets=True, clears=False)
+            return record
+
+        def enable_write(self, block, address):
+            """The single read/OR enable of bit 0 at `address` in `block`."""
+            label = self.label(address)
+            ored = [w for w in self.writes(block, address)
+                    if w["kind"] == "or"]
+            assert len(ored) == 1, \
+                f"{label} must have exactly one read/OR enable write"
+            assert ored[0]["sets"], \
+                f"{label} enable write must assert bit 0"
+            return ored[0]
 
     reset_pattern = re.compile(
         r"\bptp_ctrl\s*<=\s*"
@@ -677,7 +805,97 @@ def test_baremetal_profile_contract():
                 f"unsupported ptp_ctrl reset literal: {literal}") from exc
         return match, value
 
+    def crc_mismatch_guard(load_source):
+        """The `if` that refuses a CRC mismatch, found by the comparison it
+        makes rather than by the name of the local it compares -- renaming a
+        local is not a boot-contract change."""
+        return re.search(
+            r"\bif\s*\(\s*(?:(?P<lhs>\w+)\s*!=\s*MILAN_AEM_IMAGE_CRC32|"
+            r"MILAN_AEM_IMAGE_CRC32\s*!=\s*(?P<rhs>\w+))\s*\)\s*\{",
+            load_source)
+
+    def assert_csr_store_closure(code):
+        """milan_write() is the ONLY store into a CSR.
+
+        Every rule below the census reads milan_write() call sites, so a
+        second way to reach a control register is a way to advertise the
+        entity unexamined. Pin the three ingredients of a CSR store -- the
+        base, the address helper and the primitive's own name -- and refuse
+        anything this gate cannot classify."""
+        reg_def = re.search(
+            r"\bstatic\s+inline\s+volatile\s+uint32_t\s*\*\s*milan_reg\s*\(\s*"
+            r"unsigned\s+int\s+(?P<offset>\w+)\s*\)\s*\{", code)
+        assert reg_def, \
+            "firmware must define the milan_reg() CSR address helper"
+        reg_span = braced_span(code, reg_def, "milan_reg()")
+        read_def = re.search(
+            r"\bstatic\s+inline\s+uint32_t\s+milan_read\s*\(\s*unsigned\s+int"
+            r"\s+\w+\s*\)\s*\{", code)
+        assert read_def, "firmware must define the milan_read() CSR helper"
+        read_span = braced_span(code, read_def, "milan_read()")
+        write_defs = list(write_def_re.finditer(code))
+        assert len(write_defs) == 1, \
+            "firmware must define the milan_write() CSR store primitive " \
+            "exactly once, with the signature this gate parses"
+        write_def = write_defs[0]
+        write_span = braced_span(code, write_def, "milan_write()")
+        write_body = code[write_span[0]:write_span[1]]
+        # The census reads a call as "this value reaches this offset", so the
+        # primitive must actually be that: one store, of the value it was
+        # handed, at the offset it was handed.
+        assert re.match(
+            rf"\A\s*\*\s*milan_reg\s*\(\s*{write_def.group('offset')}\s*\)"
+            rf"\s*=\s*{write_def.group('value')}\s*;", write_body) and \
+            len(re.findall(r"(?<![=!<>+\-*/%&|^])=(?!=)", write_body)) == 1, \
+            "milan_write() must store exactly the value it is passed at the " \
+            "offset it is passed, or the bit-0 census reads the wrong register"
+
+        def within(span, pos):
+            return span[0] <= pos < span[1]
+
+        # 1. Only milan_reg() may FORM a CSR address, by base or by cast, so
+        #    no other code can fabricate a pointer into the register file.
+        for pattern, what in (
+                (r"\bMILAN_CSR_BASE\b", "the CSR base"),
+                (r"\(\s*volatile\s+uint32_t\s*\*\s*\)", "a CSR pointer cast")):
+            for use in re.finditer(pattern, code):
+                assert within(reg_span, use.start()), \
+                    f"only milan_reg() may form a CSR address, but {what} is " \
+                    "used outside it: a raw store there reaches a control " \
+                    "register without passing the bit-0 census"
+        # 2. ... and only milan_read()/milan_write() may call it, so the one
+        #    dereference-store through it stays the one inside milan_write().
+        for use in re.finditer(r"\bmilan_reg\s*\(", code):
+            assert within(reg_span, use.start()) or \
+                within(read_span, use.start()) or \
+                within(write_span, use.start()) or \
+                within((reg_def.start(), reg_def.end()), use.start()), \
+                "milan_reg() may be called only by milan_read()/milan_write(): " \
+                "a store through it bypasses the bit-0 census"
+        # 3. milan_write is CALLED, never used as a value: taking its address
+        #    hands a function pointer a CSR store the census cannot see.
+        for use in re.finditer(r"\bmilan_write\b", code):
+            assert re.match(r"\s*\(", code[use.end():]), \
+                "milan_write must always be called, never used as a value: a " \
+                "function pointer to it stores to a CSR outside the census"
+        # 4. No pasted or aliased spelling of the primitive: a name this gate
+        #    cannot read is a store it cannot classify, so fail closed.
+        assert "##" not in code, \
+            "firmware must not paste tokens: a pasted call name builds a CSR " \
+            "store this gate cannot read"
+        for name, body in re.findall(
+                r"(?m)^[ \t]*#[ \t]*define[ \t]+(\w+)(?:\([^)\n]*\))?[ \t]*"
+                r"([^\r\n]*)$", code):
+            assert not re.search(r"\bmilan_(?:reg|read|write)\b", body), \
+                f"#define {name} aliases a CSR primitive: every CSR store " \
+                "must be spelled milan_write() so the census can see it"
+
     def assert_boot_contract(firmware, docs, csr):
+        # Comments and string literals are not code: blanking their bodies
+        # (offsets preserved) keeps a commented-out enable from reading as an
+        # enable, and a printf() from reading as a call.
+        firmware = blanked(firmware)
+        model = CsrModel(firmware, csr)
         init_start = firmware.index("static void milan_init(void)")
         init_end = firmware.index("define_init_func(milan_init)", init_start)
         init_source = firmware[init_start:init_end]
@@ -702,45 +920,42 @@ def test_baremetal_profile_contract():
         assert len(assignments) == 1 and re.fullmatch(
             r"\s*load_aem_image\s*\(\s*\)\s*", assignments[0].group(1) or ""), \
             "aem_loaded must contain only the image verifier's verdict"
+        # Every rule from here on reads milan_write() call sites, so first
+        # prove there is no OTHER way to store into a control register.
+        assert_csr_store_closure(firmware)
+        # The census places a write by the ADDRESS its operand reaches, so an
+        # operand this gate cannot resolve to a decoded register is an
+        # unclassifiable store: refuse it rather than leave it unexamined.
+        # This also keeps pure VALUE constants (MILAN_PTP_LOAD and friends)
+        # out of the register position -- they name no register.
+        for record in model.calls(firmware):
+            assert model.address(record["operand"]) is not None, \
+                "milan_write() must name a register the RTL decodes so the " \
+                "bit-0 census can place it by ADDRESS, got " \
+                f"{record['operand'].strip()!r}"
         guard_body, guard_close = braced_span(
             init_source, guard, "if (aem_loaded)")
         enable_block = init_source[guard_body:guard_close]
-        pp_call = re.compile(r"milan_write\(\s*MILAN_PP_CTRL\b")
-        adp_call = re.compile(r"milan_write\(\s*MILAN_ADP_CTRL\b")
-        assert len(pp_call.findall(enable_block)) == 1 and \
-               len(adp_call.findall(enable_block)) == 1, \
+        assert len(model.writes(enable_block, model.pp)) == 1 and \
+               len(model.writes(enable_block, model.adp)) == 1, \
             "AEM-success guard must contain exactly one PP and one ADP enable"
-        pp_enable = enable_write(enable_block, "MILAN_PP_CTRL")
-        adp_enable = enable_write(enable_block, "MILAN_ADP_CTRL")
-        assert pp_enable.start() < adp_enable.start(), \
+        pp_enable = model.enable_write(enable_block, model.pp)
+        adp_enable = model.enable_write(enable_block, model.adp)
+        assert pp_enable["start"] < adp_enable["start"], \
             "AEM-success guard must enable PP before ADP"
-        # The census below matches the register OPERAND literally, so any
-        # indirection walks past it: a helper taking the register as an
-        # argument, a macro, an address in a local, a #define alias or a raw
-        # 0x600 all hide an entity enable from it. Require every write to name
-        # a MILAN_ register constant, which every live call site already does,
-        # so indirection is refused outright instead of silently unexamined.
-        known_registers = set(re.findall(
-            r"(?m)^#define\s+(MILAN_[A-Z0-9_]+)\s+0[xX][0-9a-fA-F]+[uU]?\s*$",
-            firmware))
-        assert known_registers, "no MILAN_ register constants found"
-        for call in re.finditer(r"(?<!void )milan_write\(\s*([^,]*?)\s*,",
-                                firmware):
-            operand = call.group(1).strip()
-            assert operand in known_registers, \
-                "milan_write() must name a MILAN_ register constant so the " \
-                f"bit-0 census can see it, got {operand!r}"
         # Entity-enable is PP_CTRL[0] OR ADP_CTRL[0], so the census runs over
         # the WHOLE firmware: configure_fabric() and every command handler
-        # included, not just milan_init()'s own text.
-        for register in ("MILAN_PP_CTRL", "MILAN_ADP_CTRL"):
-            enabling = [start for start, _stop, sets, _clears
-                        in register_writes(firmware, register) if sets]
+        # included, not just milan_init()'s own text. It is keyed on the two
+        # ADDRESSES the RTL decodes, so a second #define for either one is the
+        # same register here, exactly as it is on the bus.
+        for address in (model.pp, model.adp):
+            enabling = [w["start"] for w in model.writes(firmware, address)
+                        if w["sets"]]
             assert len(enabling) == 1 and \
                 init_start + guard_body <= enabling[0] < \
                 init_start + guard_close, \
-                f"{register} bit 0 may be set only inside the AEM-success " \
-                f"guard, found {len(enabling)} enabling write(s)"
+                f"{model.label(address)} bit 0 may be set only inside the " \
+                f"AEM-success guard, found {len(enabling)} enabling write(s)"
         # ... and the pre-AEM clear must survive, or a warm reboot advertises
         # a stale entity. Inline configure_fabric() so its writes are ordered
         # against the AEM verifier wherever the clears are actually spelled.
@@ -752,14 +967,14 @@ def test_baremetal_profile_contract():
         boot_load = re.search(
             r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;", boot_path)
         assert boot_load, "the AEM verifier left the boot path"
-        for register in ("MILAN_PP_CTRL", "MILAN_ADP_CTRL"):
-            assert any(clears and start < boot_load.start()
-                       for start, _stop, _sets, clears
-                       in register_writes(boot_path, register)), \
-                f"{register} bit 0 must be cleared before the AEM image is " \
-                "verified"
-        assert not re.search(r"milan_write\(\s*MILAN_PTP_CTRL\b", firmware), \
-            "firmware must not write the reset-enabled PHC"
+        for address in (model.pp, model.adp):
+            assert any(w["clears"] and w["start"] < boot_load.start()
+                       for w in model.writes(boot_path, address)), \
+                f"{model.label(address)} bit 0 must be cleared before the " \
+                "AEM image is verified"
+        assert not model.writes(firmware, model.phc), \
+            "firmware must not write the reset-enabled PHC " \
+            f"({model.label(model.phc)})"
         _ptp_reset, reset_value = ptp_reset_assignment(csr)
         assert reset_value == 1, \
             "bare-metal PHC contract requires the documented enabled reset"
@@ -767,11 +982,13 @@ def test_baremetal_profile_contract():
         load_start = firmware.index("static int load_aem_image(void)")
         load_end = firmware.index("static void milan_init(void)", load_start)
         load_source = firmware[load_start:load_end]
-        crc_guard = re.search(
-            r"\bif\s*\(\s*got\s*!=\s*MILAN_AEM_IMAGE_CRC32\s*\)\s*\{",
-            load_source)
+        crc_guard = crc_mismatch_guard(load_source)
         crc_block = braced_block(
             load_source, crc_guard, "CRC mismatch refusal")
+        computed = crc_guard.group("lhs") or crc_guard.group("rhs")
+        assert re.search(rf"\b{re.escape(computed)}\s*=\s*crc32\s*\(",
+                         load_source), \
+            "AEM verifier must compare the CRC it computed over the image"
         success_returns = list(re.finditer(r"\breturn\s+1\s*;", load_source))
         assert "return 0;" in crc_block and len(success_returns) == 1 and \
                success_returns[0].start() > crc_guard.start(), \
@@ -813,6 +1030,7 @@ def test_baremetal_profile_contract():
             return
         raise AssertionError(f"{label} mutation passed the boot-contract gate")
 
+    source_model = CsrModel(firmware_source, csr_source)
     init_start = firmware_source.index("static void milan_init(void)")
     init_end = firmware_source.index("define_init_func(milan_init)", init_start)
     source_init = firmware_source[init_start:init_end]
@@ -820,8 +1038,10 @@ def test_baremetal_profile_contract():
         r"\bif\s*\(\s*aem_loaded\s*\)\s*\{", source_init)
     source_enable_block = braced_block(
         source_init, source_guard, "if (aem_loaded)")
-    source_pp_enable = enable_write(source_enable_block, "MILAN_PP_CTRL")
-    source_adp_enable = enable_write(source_enable_block, "MILAN_ADP_CTRL")
+    source_pp_enable = source_model.enable_write(
+        source_enable_block, source_model.pp)
+    source_adp_enable = source_model.enable_write(
+        source_enable_block, source_model.adp)
     source_load = re.search(
         r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;",
         firmware_source)
@@ -830,9 +1050,7 @@ def test_baremetal_profile_contract():
     source_load_end = firmware_source.index(
         "static void milan_init(void)", source_load_start)
     source_load_function = firmware_source[source_load_start:source_load_end]
-    source_crc_guard = re.search(
-        r"\bif\s*\(\s*got\s*!=\s*MILAN_AEM_IMAGE_CRC32\s*\)\s*\{",
-        source_load_function)
+    source_crc_guard = crc_mismatch_guard(source_load_function)
     source_crc_block = braced_block(
         source_load_function, source_crc_guard, "CRC mismatch refusal")
     source_reset, _reset_value = ptp_reset_assignment(csr_source)
@@ -849,31 +1067,106 @@ def test_baremetal_profile_contract():
                         source_fabric_body +
                         source_init[source_configure.end():])
 
-    def pre_aem_clear(register):
+    def pre_aem_clear(address):
         """The bit-0 clear the pre-AEM entity disable rests on, found by what
         it does rather than by where or how it is spelled."""
-        found = [source_boot_path[start:stop]
-                 for start, stop, _sets, clears
-                 in register_writes(source_boot_path, register) if clears]
-        assert found, f"{register} pre-AEM clear mutation lost its write"
-        assert firmware_source.count(found[0]) == 1, \
-            f"{register} pre-AEM clear is not a unique statement"
-        return found[0]
+        label = source_model.label(address)
+        found = [w for w in source_model.writes(source_boot_path, address)
+                 if w["clears"]]
+        assert found, f"{label} pre-AEM clear mutation lost its write"
+        text = source_boot_path[found[0]["start"]:found[0]["stop"]]
+        assert firmware_source.count(text) == 1, \
+            f"{label} pre-AEM clear is not a unique statement"
+        return found[0], text
 
-    def forced_enable(clear_write):
-        """The same write, turned into the enable the AEM gate must forbid."""
-        enabling = re.sub(r"&\s*~\s*", "| ", clear_write, count=1)
-        if enabling == clear_write:            # a plain-literal clear
-            enabling = re.sub(rf",\s*{int_literal}\s*\)\Z", ", 1u)",
-                              clear_write, count=1)
-        assert enabling != clear_write, \
+    def forced_enable(clear, text):
+        """The same write, turned into the enable the AEM gate must forbid --
+        rebuilt from the census record rather than edited as text, so ANY
+        clear spelling (`& ~1u`, `& ~(1u << 0)`, `& 0xfffffffeu`, a literal
+        zero) still yields its enable."""
+        operand = clear["operand"].strip()
+        enabling = f"milan_write({operand}, milan_read({operand}) | 1u)"
+        assert enabling != text, \
             "pre-AEM clear mutation could not derive its enable"
         return enabling
 
-    source_pp_clear = pre_aem_clear("MILAN_PP_CTRL")
-    source_adp_clear = pre_aem_clear("MILAN_ADP_CTRL")
-    early_pp_enable = forced_enable(source_pp_clear)
-    early_adp_enable = forced_enable(source_adp_clear)
+    source_pp_record, source_pp_clear = pre_aem_clear(source_model.pp)
+    source_adp_record, source_adp_clear = pre_aem_clear(source_model.adp)
+    early_pp_enable = forced_enable(source_pp_record, source_pp_clear)
+    early_adp_enable = forced_enable(source_adp_record, source_adp_clear)
+    #: The firmware's own spelling of ADP_CTRL, taken from the address the RTL
+    #: decodes so the mutations below never hard-code a name either.
+    adp_name = next(name for name, value in sorted(source_model.defines.items())
+                    if value == source_model.adp)
+
+    def aliased(name, address, statement):
+        """The firmware plus a SECOND #define for `address` and a write
+        through it in configure_fabric(): ordinary C that compiles clean and
+        that the bus cannot tell from a write through the original name."""
+        with_define = replace_once(
+            firmware_source, "static int aem_loaded;",
+            f"#define {name} 0x{address:03x}u\n\nstatic int aem_loaded;",
+            f"{name} alias define")
+        return replace_once(with_define, source_fabric_body,
+                            "\n\t" + statement + source_fabric_body,
+                            f"{name} alias write")
+
+    def enabled_before_aem(statement):
+        """`statement` spliced into configure_fabric(), i.e. onto the boot
+        path BEFORE the AEM image has been verified."""
+        return replace_once(firmware_source, source_fabric_body,
+                            "\n\t" + statement + source_fabric_body,
+                            "pre-AEM entity enable")
+
+    alias_adp_enable = aliased(
+        "MILAN_ENTITY_CTRL", source_model.adp,
+        "milan_write(MILAN_ENTITY_CTRL, milan_read(MILAN_ENTITY_CTRL) | 1u);")
+    alias_pp_enable = aliased(
+        "MILAN_PROC_CTRL", source_model.pp,
+        "milan_write(MILAN_PROC_CTRL, milan_read(MILAN_PROC_CTRL) | 1u);")
+    alias_phc_write = aliased(
+        "MILAN_PHC_CTRL", source_model.phc,
+        "milan_write(MILAN_PHC_CTRL, 0u);")
+    #: An EXISTING name repointed at PP_CTRL: a register constant the operand
+    #: rule already trusts, now naming a different register.
+    spare_name = next(
+        name for name, value in sorted(source_model.defines.items())
+        if value in source_model.decoded and
+        value not in (source_model.pp, source_model.adp, source_model.phc) and
+        not source_model.writes(firmware_source, value))
+    spare_define = re.search(rf"(?m)^#define\s+{spare_name}\s+\S+[ \t]*$",
+                             firmware_source).group(0)
+    repointed_register = replace_once(
+        enabled_before_aem(
+            f"milan_write({spare_name}, milan_read({spare_name}) | 1u);"),
+        spare_define,
+        re.sub(r"\S+[ \t]*$", f"0x{source_model.pp:03x}u", spare_define),
+        f"{spare_name} repointed at PP_CTRL")
+    #: A pure VALUE constant in the register position.
+    value_constant = next(
+        name for name, value in sorted(source_model.defines.items())
+        if value not in source_model.decoded)
+    value_operand_write = enabled_before_aem(
+        f"milan_write({value_constant}, 1u);")
+    spaced_call_enable = enabled_before_aem(
+        re.sub(r"milan_write\(", "milan_write (", early_adp_enable, count=1)
+        + ";")
+    pointer_call_enable = replace_once(
+        enabled_before_aem(
+            f"milan_poke({adp_name}, milan_read({adp_name}) | 1u);"),
+        "static void print_tod(",
+        "static void (*const milan_poke)(unsigned int, uint32_t) ="
+        " milan_write;\n\nstatic void print_tod(", "milan_write alias pointer")
+    reg_store_enable = enabled_before_aem(
+        f"*milan_reg({adp_name}) = milan_read({adp_name}) | 1u;")
+    raw_store_enable = enabled_before_aem(
+        f"*(volatile uint32_t *)(MILAN_CSR_BASE + {adp_name}) = 1u;")
+    pasted_call_enable = replace_once(
+        enabled_before_aem(
+            f"MILAN_FN(write)({adp_name}, milan_read({adp_name}) | 1u);"),
+        "static int aem_loaded;",
+        "#define MILAN_FN(op) milan_ ## op\n\nstatic int aem_loaded;",
+        "pasted call name")
 
     old_claim = re.search(
         r"Enable\s+the\s+protocol\s+processor\s+and\s+then\s+the\s+ADP\s+"
@@ -889,21 +1182,22 @@ def test_baremetal_profile_contract():
     inverted_guard = source_guard.group(0).replace(
         "aem_loaded", "!aem_loaded", 1)
     load_statement = source_load.group(0)
+    pp_enable_text = source_enable_block[
+        source_pp_enable["start"]:source_pp_enable["stop"]]
+    adp_enable_text = source_enable_block[
+        source_adp_enable["start"]:source_adp_enable["stop"]]
     swapped_enable_block = (
-        source_enable_block[:source_pp_enable.start()] +
-        source_adp_enable.group(0) +
-        source_enable_block[source_pp_enable.end():source_adp_enable.start()] +
-        source_pp_enable.group(0) +
-        source_enable_block[source_adp_enable.end():])
+        source_enable_block[:source_pp_enable["start"]] + adp_enable_text +
+        source_enable_block[source_pp_enable["stop"]:
+                            source_adp_enable["start"]] + pp_enable_text +
+        source_enable_block[source_adp_enable["stop"]:])
     bad_pp_block = (
-        source_enable_block[:source_pp_enable.start("mask")] + "2u" +
-        source_enable_block[source_pp_enable.end("mask"):])
-    bad_adp_statement = (
-        "milan_write(MILAN_ADP_CTRL, "
-        "milan_read(MILAN_ADP_CTRL) & ~1u);")
+        source_enable_block[:source_pp_enable["mask_at"]] + "2u" +
+        source_enable_block[source_pp_enable["mask_to"]:])
     bad_adp_block = (
-        source_enable_block[:source_adp_enable.start()] + bad_adp_statement +
-        source_enable_block[source_adp_enable.end():])
+        source_enable_block[:source_adp_enable["start"]] +
+        f"milan_write({adp_name}, milan_read({adp_name}) & ~1u)" +
+        source_enable_block[source_adp_enable["stop"]:])
     bad_crc_block = replace_once(
         source_crc_block, "return 0;", "return 1;", "CRC refusal")
     bad_load_function = replace_once(
@@ -912,6 +1206,9 @@ def test_baremetal_profile_contract():
 
     def condensed(text):
         return re.sub(r"\s+", "", text)
+
+    pp_label = source_model.label(source_model.pp)
+    adp_label = source_model.label(source_model.adp)
 
     reset_spellings = ("32'h0000_0001", "32'd1", "32'b1", "1")
     for spelling in reset_spellings:
@@ -966,42 +1263,79 @@ def test_baremetal_profile_contract():
         ("PP bit 0 not asserted",
          replace_once(firmware_source, source_enable_block, bad_pp_block,
                       "PP enable mask"), docs_source, csr_source,
-         "MILAN_PP_CTRL enable write must assert bit 0"),
+         f"{pp_label} enable write must assert bit 0"),
         ("ADP bit 0 cleared",
          replace_once(firmware_source, source_enable_block, bad_adp_block,
                       "ADP enable operation"), docs_source, csr_source,
-         "MILAN_ADP_CTRL must have exactly one read/OR enable write"),
+         f"{adp_label} must have exactly one read/OR enable write"),
         # An entity advertised BEFORE the image is verified: the enable moves
         # into step 1, one call outside milan_init()'s own text.
         ("PP enabled before AEM verification",
          replace_once(firmware_source, source_pp_clear, early_pp_enable,
                       "early PP enable"), docs_source, csr_source,
-         "MILAN_PP_CTRL bit 0 may be set only inside the AEM-success guard"),
+         f"{pp_label} bit 0 may be set only inside the AEM-success guard"),
         ("ADP enabled before AEM verification",
          replace_once(firmware_source, source_adp_clear, early_adp_enable,
                       "early ADP enable"), docs_source, csr_source,
-         "MILAN_ADP_CTRL bit 0 may be set only inside the AEM-success guard"),
-        # Indirection hides an enable from a census keyed on the register
-        # token: a helper taking the register as an argument reads as an
-        # ordinary call. The operand rule is what makes the census exhaustive,
-        # so it carries its own mutant.
+         f"{adp_label} bit 0 may be set only inside the AEM-success guard"),
+        # ---- indirection: the census reads milan_write() call sites, so a
+        # name it cannot resolve or a store it cannot see is a way to
+        # advertise the entity unexamined. Each escape carries its own mutant.
         ("entity enabled through an indirect helper",
          replace_once(
              firmware_source, source_adp_clear,
              "milan_write(indirect_reg, milan_read(indirect_reg) | 1u);"
              + source_adp_clear, "indirect enable"),
          docs_source, csr_source,
-         "milan_write() must name a MILAN_ register constant"),
+         "milan_write() must name a register the RTL decodes"),
+        # A SECOND #define for 0x600/0x920/0x500 is a different token for the
+        # same register: the bus cannot tell them apart, so neither may the
+        # census.
+        ("ADP enabled through an address alias", alias_adp_enable,
+         docs_source, csr_source,
+         f"{adp_label} bit 0 may be set only inside the AEM-success guard"),
+        ("PP enabled through an address alias", alias_pp_enable,
+         docs_source, csr_source,
+         f"{pp_label} bit 0 may be set only inside the AEM-success guard"),
+        ("PHC written through an address alias", alias_phc_write,
+         docs_source, csr_source,
+         "firmware must not write the reset-enabled PHC"),
+        # ... and an EXISTING register name repointed at PP_CTRL is an
+        # operand the rule already trusts, now naming a different register.
+        ("entity enabled through a repointed register name",
+         repointed_register, docs_source, csr_source,
+         f"{pp_label} bit 0 may be set only inside the AEM-success guard"),
+        # A pure VALUE constant is not a register operand at all.
+        ("milan_write() given a value constant as its register",
+         value_operand_write, docs_source, csr_source,
+         "milan_write() must name a register the RTL decodes"),
+        # ---- the call itself: one space, one function pointer, one paste or
+        # one raw store and a text-matched rule walks straight past it.
+        ("entity enabled with a space before the call paren",
+         spaced_call_enable, docs_source, csr_source,
+         f"{adp_label} bit 0 may be set only inside the AEM-success guard"),
+        ("entity enabled through a function pointer", pointer_call_enable,
+         docs_source, csr_source,
+         "milan_write must always be called, never used as a value"),
+        ("entity enabled by storing through milan_reg()", reg_store_enable,
+         docs_source, csr_source,
+         "milan_reg() may be called only by milan_read()/milan_write()"),
+        ("entity enabled through a raw CSR pointer", raw_store_enable,
+         docs_source, csr_source,
+         "only milan_reg() may form a CSR address"),
+        ("entity enabled through a pasted call name", pasted_call_enable,
+         docs_source, csr_source,
+         "firmware must not paste tokens"),
         # Without the pre-AEM clear a warm reboot advertises a stale entity
         # while the image is still unverified.
         ("PP pre-AEM clear removed",
          replace_once(firmware_source, source_pp_clear, "",
                       "PP pre-AEM clear"), docs_source, csr_source,
-         "MILAN_PP_CTRL bit 0 must be cleared before the AEM image"),
+         f"{pp_label} bit 0 must be cleared before the AEM image"),
         ("ADP pre-AEM clear removed",
          replace_once(firmware_source, source_adp_clear, "",
                       "ADP pre-AEM clear"), docs_source, csr_source,
-         "MILAN_ADP_CTRL bit 0 must be cleared before the AEM image"),
+         f"{adp_label} bit 0 must be cleared before the AEM image"),
         ("CRC failure accepted",
          replace_once(firmware_source, source_load_function, bad_load_function,
                       "AEM verifier"), docs_source, csr_source,
@@ -1029,8 +1363,11 @@ def test_baremetal_profile_contract():
     for label, firmware, docs, csr, because in mutations:
         assert_rejected(label, firmware, docs, csr, because)
     print("  [gate 1b] boot contract: PHC/gPTP live from reset and independent "
-          "of AEM; verified AEM gates PP[0] then ADP[0] across the WHOLE "
-          "firmware, not just milan_init(); "
+          "of AEM; verified AEM gates "
+          f"{pp_label}[0] then {adp_label}[0] across the WHOLE firmware, not "
+          "just milan_init(), censused by ADDRESS off the RTL decode table so "
+          "a second #define is the same register, with milan_write() closed as "
+          "the only store into a CSR; "
           f"{len(mutations)}/{len(mutations)} mutations rejected on the "
           "safety property they break; "
           f"{len(reset_spellings)}/{len(reset_spellings)} equivalent reset "
