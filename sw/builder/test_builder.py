@@ -576,7 +576,7 @@ def test_baremetal_profile_contract():
     with open(csr_path, encoding="utf-8") as fh:
         csr_source = fh.read()
 
-    def braced_block(source, guard, label):
+    def braced_span(source, guard, label):
         assert guard, f"firmware boot guard missing: {label}"
         brace = source.index("{", guard.start(), guard.end())
         depth = 0
@@ -586,8 +586,56 @@ def test_baremetal_profile_contract():
             elif source[pos] == "}":
                 depth -= 1
                 if depth == 0:
-                    return source[brace + 1:pos]
+                    return brace + 1, pos
         raise AssertionError(f"firmware boot guard is not closed: {label}")
+
+    def braced_block(source, guard, label):
+        body, close = braced_span(source, guard, label)
+        return source[body:close]
+
+    int_literal = r"(?:0[xX][0-9A-Fa-f]+|[0-9]+)[uUlL]*"
+
+    def literal_value(text):
+        digits = re.sub(r"[uUlL]+$", "", text.strip())
+        if not re.fullmatch(r"0[xX][0-9A-Fa-f]+|[0-9]+", digits):
+            return None
+        return int(digits, 16 if digits.lower().startswith("0x") else 10)
+
+    def register_writes(source, register):
+        """Every milan_write() to `register` in `source`, as (start, stop,
+        sets, clears) records describing what each one does to bit 0. A value
+        expression this gate cannot read is counted as SETTING bit 0, so an
+        unreadable write can never be an unnoticed entity enable."""
+        register_re = re.escape(register)
+        opener = re.compile(rf"milan_write\(\s*{register_re}\s*,")
+        read_or = re.compile(
+            rf"\A\s*milan_read\(\s*{register_re}\s*\)\s*\|\s*"
+            rf"({int_literal})\s*\Z")
+        read_clear = re.compile(
+            rf"\A\s*milan_read\(\s*{register_re}\s*\)\s*&\s*~\s*"
+            rf"({int_literal})\s*\Z")
+        found = []
+        for call in opener.finditer(source):
+            depth, pos = 1, call.end()
+            while pos < len(source) and depth:
+                depth += {"(": 1, ")": -1}.get(source[pos], 0)
+                pos += 1
+            assert depth == 0, f"{register} write is never closed"
+            value = source[call.end():pos - 1]
+            ored, cleared = read_or.match(value), read_clear.match(value)
+            constant = literal_value(value)
+            if ored:
+                sets = bool(literal_value(ored.group(1)) & 1)
+            elif cleared:
+                sets = False
+            elif constant is not None:
+                sets = bool(constant & 1)
+            else:
+                sets = True
+            clears = bool(cleared and literal_value(cleared.group(1)) & 1) or \
+                (constant is not None and not constant & 1)
+            found.append((call.start(), pos, sets, clears))
+        return found
 
     def enable_write(block, register):
         register_re = re.escape(register)
@@ -641,11 +689,19 @@ def test_baremetal_profile_contract():
         positions = [configure.start(), load.start(), guard.start()]
         assert positions == sorted(positions), \
             "firmware no longer configures, verifies AEM, then checks its verdict"
-        assignments = re.findall(r"\baem_loaded\s*=\s*([^;]+);", init_source)
+        # Read/modify/write, increment and compound-assignment spellings all
+        # override the verifier's verdict; pin the variable, not one spelling.
+        verdict_write = re.compile(
+            r"(?:\+\+|--)\s*aem_loaded\b|"
+            r"\baem_loaded\b\s*(?:\+\+|--|(?:[-+*/%|&^]|<<|>>)?=(?!=))"
+            r"\s*([^;]*)")
+        assignments = list(verdict_write.finditer(firmware))
         assert len(assignments) == 1 and re.fullmatch(
-            r"load_aem_image\s*\(\s*\)", assignments[0]), \
+            r"\s*load_aem_image\s*\(\s*\)\s*", assignments[0].group(1) or ""), \
             "aem_loaded must contain only the image verifier's verdict"
-        enable_block = braced_block(init_source, guard, "if (aem_loaded)")
+        guard_body, guard_close = braced_span(
+            init_source, guard, "if (aem_loaded)")
+        enable_block = init_source[guard_body:guard_close]
         pp_call = re.compile(r"milan_write\(\s*MILAN_PP_CTRL\b")
         adp_call = re.compile(r"milan_write\(\s*MILAN_ADP_CTRL\b")
         assert len(pp_call.findall(enable_block)) == 1 and \
@@ -655,11 +711,36 @@ def test_baremetal_profile_contract():
         adp_enable = enable_write(enable_block, "MILAN_ADP_CTRL")
         assert pp_enable.start() < adp_enable.start(), \
             "AEM-success guard must enable PP before ADP"
-        assert len(pp_call.findall(init_source)) == 1 and \
-               len(adp_call.findall(init_source)) == 1, \
-            "PP/ADP enables must exist only inside the AEM-success guard"
-        assert not re.search(r"milan_write\(\s*MILAN_PTP_CTRL\b", init_source), \
-            "firmware must not write the reset-enabled PHC during initialization"
+        # Entity-enable is PP_CTRL[0] OR ADP_CTRL[0], so the census runs over
+        # the WHOLE firmware: configure_fabric() and every command handler
+        # included, not just milan_init()'s own text.
+        for register in ("MILAN_PP_CTRL", "MILAN_ADP_CTRL"):
+            enabling = [start for start, _stop, sets, _clears
+                        in register_writes(firmware, register) if sets]
+            assert len(enabling) == 1 and \
+                init_start + guard_body <= enabling[0] < \
+                init_start + guard_close, \
+                f"{register} bit 0 may be set only inside the AEM-success " \
+                f"guard, found {len(enabling)} enabling write(s)"
+        # ... and the pre-AEM clear must survive, or a warm reboot advertises
+        # a stale entity. Inline configure_fabric() so its writes are ordered
+        # against the AEM verifier wherever the clears are actually spelled.
+        fabric = re.search(
+            r"static\s+void\s+configure_fabric\s*\(\s*void\s*\)\s*\{", firmware)
+        fabric_body = braced_block(firmware, fabric, "configure_fabric()")
+        boot_path = (init_source[:configure.start()] + fabric_body +
+                     init_source[configure.end():])
+        boot_load = re.search(
+            r"\baem_loaded\s*=\s*load_aem_image\s*\(\s*\)\s*;", boot_path)
+        assert boot_load, "the AEM verifier left the boot path"
+        for register in ("MILAN_PP_CTRL", "MILAN_ADP_CTRL"):
+            assert any(clears and start < boot_load.start()
+                       for start, _stop, _sets, clears
+                       in register_writes(boot_path, register)), \
+                f"{register} bit 0 must be cleared before the AEM image is " \
+                "verified"
+        assert not re.search(r"milan_write\(\s*MILAN_PTP_CTRL\b", firmware), \
+            "firmware must not write the reset-enabled PHC"
         _ptp_reset, reset_value = ptp_reset_assignment(csr)
         assert reset_value == 1, \
             "bare-metal PHC contract requires the documented enabled reset"
@@ -702,10 +783,14 @@ def test_baremetal_profile_contract():
         assert changed != source, f"{label} mutation did not apply"
         return changed
 
-    def assert_rejected(label, firmware, docs, csr):
+    def assert_rejected(label, firmware, docs, csr, because):
         try:
             assert_boot_contract(firmware, docs, csr)
-        except (AssertionError, ValueError):
+        except (AssertionError, ValueError) as exc:
+            # A mutation rejected on an incidental anchor mismatch proves
+            # nothing about the safety property, so pin the reason too.
+            assert because in str(exc), \
+                f"{label} mutation was rejected for the wrong reason: {exc}"
             return
         raise AssertionError(f"{label} mutation passed the boot-contract gate")
 
@@ -733,6 +818,43 @@ def test_baremetal_profile_contract():
         source_load_function, source_crc_guard, "CRC mismatch refusal")
     source_reset, _reset_value = ptp_reset_assignment(csr_source)
     source_reset_statement = source_reset.group(0)
+    source_fabric = re.search(
+        r"static\s+void\s+configure_fabric\s*\(\s*void\s*\)\s*\{",
+        firmware_source)
+    source_fabric_body = braced_block(
+        firmware_source, source_fabric, "configure_fabric()")
+    source_configure = re.search(
+        r"\bconfigure_fabric\s*\(\s*\)\s*;", source_init)
+    assert source_configure
+    source_boot_path = (source_init[:source_configure.start()] +
+                        source_fabric_body +
+                        source_init[source_configure.end():])
+
+    def pre_aem_clear(register):
+        """The bit-0 clear the pre-AEM entity disable rests on, found by what
+        it does rather than by where or how it is spelled."""
+        found = [source_boot_path[start:stop]
+                 for start, stop, _sets, clears
+                 in register_writes(source_boot_path, register) if clears]
+        assert found, f"{register} pre-AEM clear mutation lost its write"
+        assert firmware_source.count(found[0]) == 1, \
+            f"{register} pre-AEM clear is not a unique statement"
+        return found[0]
+
+    def forced_enable(clear_write):
+        """The same write, turned into the enable the AEM gate must forbid."""
+        enabling = re.sub(r"&\s*~\s*", "| ", clear_write, count=1)
+        if enabling == clear_write:            # a plain-literal clear
+            enabling = re.sub(rf",\s*{int_literal}\s*\)\Z", ", 1u)",
+                              clear_write, count=1)
+        assert enabling != clear_write, \
+            "pre-AEM clear mutation could not derive its enable"
+        return enabling
+
+    source_pp_clear = pre_aem_clear("MILAN_PP_CTRL")
+    source_adp_clear = pre_aem_clear("MILAN_ADP_CTRL")
+    early_pp_enable = forced_enable(source_pp_clear)
+    early_adp_enable = forced_enable(source_adp_clear)
 
     old_claim = re.search(
         r"Enable\s+the\s+protocol\s+processor\s+and\s+then\s+the\s+ADP\s+"
@@ -769,57 +891,118 @@ def test_baremetal_profile_contract():
         source_load_function, source_crc_block, bad_crc_block,
         "CRC verifier block")
 
+    def condensed(text):
+        return re.sub(r"\s+", "", text)
+
     reset_spellings = ("32'h0000_0001", "32'd1", "32'b1", "1")
     for spelling in reset_spellings:
-        equivalent_csr = replace_once(
-            csr_source, source_reset_statement,
-            f"ptp_ctrl <= {spelling};", f"reset spelling {spelling}")
+        statement = f"ptp_ctrl <= {spelling};"
+        if condensed(statement) == condensed(source_reset_statement):
+            # The RTL is already spelled this way: accepted by construction,
+            # since the live reset just passed the contract above. Demanding
+            # a substitution here would fail the suite on a spelling the
+            # parser reads correctly.
+            equivalent_csr = csr_source
+        else:
+            equivalent_csr = replace_once(
+                csr_source, source_reset_statement, statement,
+                f"reset spelling {spelling}")
         assert_boot_contract(firmware_source, docs_source, equivalent_csr)
 
     mutations = (
         ("old AEM-gated PTP documentation", firmware_source,
          replace_once(docs_source, old_claim.group(0), old_order, "old ordering"),
-         csr_source),
+         csr_source, "bare-metal boot contract lost"),
         ("unconditional entity enable",
          replace_once(firmware_source, source_guard.group(0), unconditional_guard,
-                      "unconditional guard"), docs_source, csr_source),
+                      "unconditional guard"), docs_source, csr_source,
+         "firmware must configure, load AEM, then guard entity enable"),
         ("inverted entity enable",
          replace_once(firmware_source, source_guard.group(0), inverted_guard,
                       "inverted guard"),
-         docs_source, csr_source),
+         docs_source, csr_source,
+         "firmware must configure, load AEM, then guard entity enable"),
         ("software PTP enable write",
          replace_once(
              firmware_source, load_statement,
              "milan_write(MILAN_PTP_CTRL, "
              "milan_read(MILAN_PTP_CTRL) | 1u);\n\t" + load_statement,
              "PTP write"),
-         docs_source, csr_source),
+         docs_source, csr_source,
+         "firmware must not write the reset-enabled PHC"),
+        # The PHC write the docs forbid, hidden one call deep in the step-1
+        # helper instead of in milan_init()'s own text.
+        ("PHC disabled during fabric configuration",
+         replace_once(
+             firmware_source, source_fabric_body,
+             "\n\tmilan_write(MILAN_PTP_CTRL, 0u);" + source_fabric_body,
+             "fabric PHC write"),
+         docs_source, csr_source,
+         "firmware must not write the reset-enabled PHC"),
         ("ADP before PP",
          replace_once(
              firmware_source, source_enable_block, swapped_enable_block,
-             "enable ordering"), docs_source, csr_source),
+             "enable ordering"), docs_source, csr_source,
+         "AEM-success guard must enable PP before ADP"),
         ("PP bit 0 not asserted",
          replace_once(firmware_source, source_enable_block, bad_pp_block,
-                      "PP enable mask"), docs_source, csr_source),
+                      "PP enable mask"), docs_source, csr_source,
+         "MILAN_PP_CTRL enable write must assert bit 0"),
         ("ADP bit 0 cleared",
          replace_once(firmware_source, source_enable_block, bad_adp_block,
-                      "ADP enable operation"), docs_source, csr_source),
+                      "ADP enable operation"), docs_source, csr_source,
+         "MILAN_ADP_CTRL must have exactly one read/OR enable write"),
+        # An entity advertised BEFORE the image is verified: the enable moves
+        # into step 1, one call outside milan_init()'s own text.
+        ("PP enabled before AEM verification",
+         replace_once(firmware_source, source_pp_clear, early_pp_enable,
+                      "early PP enable"), docs_source, csr_source,
+         "MILAN_PP_CTRL bit 0 may be set only inside the AEM-success guard"),
+        ("ADP enabled before AEM verification",
+         replace_once(firmware_source, source_adp_clear, early_adp_enable,
+                      "early ADP enable"), docs_source, csr_source,
+         "MILAN_ADP_CTRL bit 0 may be set only inside the AEM-success guard"),
+        # Without the pre-AEM clear a warm reboot advertises a stale entity
+        # while the image is still unverified.
+        ("PP pre-AEM clear removed",
+         replace_once(firmware_source, source_pp_clear, "",
+                      "PP pre-AEM clear"), docs_source, csr_source,
+         "MILAN_PP_CTRL bit 0 must be cleared before the AEM image"),
+        ("ADP pre-AEM clear removed",
+         replace_once(firmware_source, source_adp_clear, "",
+                      "ADP pre-AEM clear"), docs_source, csr_source,
+         "MILAN_ADP_CTRL bit 0 must be cleared before the AEM image"),
         ("CRC failure accepted",
          replace_once(firmware_source, source_load_function, bad_load_function,
-                      "AEM verifier"), docs_source, csr_source),
+                      "AEM verifier"), docs_source, csr_source,
+         "AEM verifier may succeed only after refusing a CRC mismatch"),
         ("AEM verdict overridden",
          replace_once(firmware_source, load_statement,
                       load_statement + "\n\taem_loaded = 1;",
-                      "AEM verdict override"), docs_source, csr_source),
+                      "AEM verdict override"), docs_source, csr_source,
+         "aem_loaded must contain only the image verifier's verdict"),
+        ("AEM verdict forced by compound assignment",
+         replace_once(firmware_source, load_statement,
+                      load_statement + "\n\taem_loaded |= 1;",
+                      "AEM verdict OR"), docs_source, csr_source,
+         "aem_loaded must contain only the image verifier's verdict"),
+        ("AEM verdict incremented",
+         replace_once(firmware_source, load_statement,
+                      load_statement + "\n\taem_loaded++;",
+                      "AEM verdict increment"), docs_source, csr_source,
+         "aem_loaded must contain only the image verifier's verdict"),
         ("disabled PHC reset", firmware_source, docs_source,
          replace_once(csr_source, source_reset_statement,
-                      "ptp_ctrl <= 32'h0;", "PHC reset")),
+                      "ptp_ctrl <= 32'h0;", "PHC reset"),
+         "bare-metal PHC contract requires the documented enabled reset"),
     )
-    for label, firmware, docs, csr in mutations:
-        assert_rejected(label, firmware, docs, csr)
+    for label, firmware, docs, csr, because in mutations:
+        assert_rejected(label, firmware, docs, csr, because)
     print("  [gate 1b] boot contract: PHC/gPTP live from reset and independent "
-          "of AEM; verified AEM gates PP[0] then ADP[0]; "
-          f"{len(mutations)}/{len(mutations)} mutations rejected; "
+          "of AEM; verified AEM gates PP[0] then ADP[0] across the WHOLE "
+          "firmware, not just milan_init(); "
+          f"{len(mutations)}/{len(mutations)} mutations rejected on the "
+          "safety property they break; "
           f"{len(reset_spellings)}/{len(reset_spellings)} equivalent reset "
           "spellings accepted")
 
