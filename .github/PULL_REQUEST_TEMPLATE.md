@@ -1,34 +1,67 @@
+<!-- Start the visible PR body with your role/session prefix, for example [A1]. -->
+[A<n>]
+
 ## Contents
 
-- **[Status](#status)** — One line, filled by the author: green/WIP/blocked, the test tally, and the branch → `main` pair. It is the first thing a reviewer reads, so it carries the numbers.
-- **[Description](#description)** — What changed and why. A table or bullet list of the touched pieces beats prose here.
-- **[How to get into the same state](#how-to-get-into-the-same-state)** — A copy-pasteable block that reproduces the branch *and* its environment — checkout, deps, env vars — so the reviewer is not guessing at setup.
-- **[How to validate](#how-to-validate)** — The exact command a reviewer runs, plus the expected output and pass criteria. Self-test results go in a PR comment, not here.
-- **[Definition of Done](#definition-of-done)** — The checkbox list this PR is judged against. Unchecked boxes are the honest answer, not a formality.
+- **Status** — Green/WIP/blocked, test tally, and `branch` -> `dev`.
+- **Linked Issue / roles** — Public task, executor, and independent reviewers.
+- **Description** — What changed and why.
+- **Authoritative references** — Requirements/specification clauses and docs.
+- **Reproduction** — Copy-pasteable checkout/dependency/environment commands.
+- **Validation** — Exact reviewer commands and expected result.
+- **Definition of Done** — The merge bar from `CONTRIBUTING.md`.
 
 ## Status
 
-<!-- One line: 🟢 Green / 🟡 WIP / 🔴 Blocked — with the test tally and `branch` → `main`. -->
+<!-- Example: GREEN — 42/42 suites pass — issue-157-foo -> dev -->
+
+## Linked Issue / roles
+
+Closes/relates to: #
+
+Executor: `[A<n>]`
+Internal cleared-context reviewer: `[R<n>]`
+External reviewer: `[R<n>]`
 
 ## Description
 
-<!-- What this PR does and why. A short table or bullet list of what changed helps. -->
+<!-- What changed and why? Prefer a short table or bullets for touched pieces. -->
+
+## Authoritative references
+
+<!-- Requirements, IEEE/Milan clauses, architecture docs, interface contracts. -->
+
+- 
 
 ## How to get into the same state
 
-```bash
-# Exact commands to reproduce this branch + environment (clone/checkout, deps, env vars).
+```sh
+# Exact commands to reproduce this branch and environment.
 ```
 
 ## How to validate
 
-```bash
+```sh
 # Exact command(s) a reviewer runs to check it.
 ```
 
-<!-- Expected output / pass criteria. -->
+Expected result / pass criteria:
+
+## Known limitations / out of scope
+
+- 
 
 ## Definition of Done
 
-- [ ] <!-- criterion -->
-- [ ] <!-- criterion -->
+- [ ] Linked Issue acceptance criteria are satisfied
+- [ ] New or changed behavior has self-checking tests
+- [ ] Required local verification bar passes
+- [ ] Self-test evidence is posted in a PR comment
+- [ ] No undocumented requirement or interface change remains
+- [ ] Internal cleared-context review is positive
+- [ ] External review is positive
+- [ ] Blocking and major findings are fixed and re-reviewed
+- [ ] No review round remains in flight
+- [ ] Candidate merge result is validated per `CONTRIBUTING.md`
+- [ ] Documentation is updated where needed
+- [ ] Post-merge containment will be checked before the Issue moves to Done

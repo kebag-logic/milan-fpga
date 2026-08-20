@@ -1,0 +1,157 @@
+name: Engineering task
+description: Public implementation and cross-review task for Milan FPGA work
+title: "[TASK] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for substantive engineering work. Keep it self-contained
+        enough that an executor and a cleared-context reviewer can reconstruct
+        the task from public state alone.
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective / problem
+      description: What externally observable problem must be solved or outcome delivered?
+      placeholder: Describe the problem or required outcome without prescribing an implementation unnecessarily.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence / motivation
+      description: Measurements, failing tests, traces, prior Issue/PR, or other evidence.
+      placeholder: |
+        Observed:
+        Expected:
+        Evidence:
+    validations:
+      required: true
+
+  - type: textarea
+    id: references
+    attributes:
+      label: Authoritative references
+      description: Requirements, IEEE/Milan clauses, architecture docs, and interface contracts.
+      placeholder: |
+        - REQ-...
+        - IEEE 1722.1-2021 §...
+        - Milan v1.2 §...
+        - docs/...
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context entry points
+      description: Smallest useful reading set for the executor and cold reviewer.
+      placeholder: |
+        Read first:
+        - docs/README.md
+        - path/to/interface.md
+        - path/to/relevant_module.sv
+        - path/to/relevant_test/
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      placeholder: |
+        In scope:
+        - ...
+
+        Out of scope:
+        - ...
+    validations:
+      required: true
+
+  - type: input
+    id: executor
+    attributes:
+      label: Executor
+      description: Set before moving the task to In progress; use the public agent/session identity.
+      placeholder: "Unassigned | Agent A [A1] | Agent B [A2]"
+
+  - type: input
+    id: reviewer
+    attributes:
+      label: Independent reviewer
+      description: Set before implementation; must not be the authoring session.
+      placeholder: "Unassigned | Agent A [R1] | Agent B [R2]"
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Testable conditions. Do not rewrite these during implementation merely to obtain a pass.
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: validation
+    attributes:
+      label: Validation
+      description: Exact commands/gates, expected result, and required evidence.
+      placeholder: |
+        Commands:
+        ```sh
+        ...
+        ```
+
+        Expected result:
+        ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies / lane conflicts
+      description: Related tasks, branches, interfaces, or active work that may collide.
+      placeholder: |
+        Depends on:
+        - #...
+
+        May conflict with:
+        - #... / <branch> / <interface>
+
+  - type: dropdown
+    id: decision
+    attributes:
+      label: Open design/specification decision?
+      options:
+        - "No — scope is settled and may become Ready"
+        - "Yes — keep in Backlog until resolved"
+    validations:
+      required: true
+
+  - type: textarea
+    id: decision_detail
+    attributes:
+      label: Decision details (if applicable)
+      description: List options, evidence, owner, and recommendation. An agent must not choose silently.
+      placeholder: |
+        Decision owner:
+        Options:
+        1. ...
+        2. ...
+
+        Evidence/recommendation:
+        ...
+
+  - type: textarea
+    id: discovered
+    attributes:
+      label: Discovered from
+      description: Issue, PR, audit, test, or review that led to this task.
+      placeholder: "#... / PR #... / test ... / audit ..."
