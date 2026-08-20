@@ -96,6 +96,11 @@ DENY_CS = re.compile("|".join(r"\b%s\b" % t for t in _LAB_TOKENS))
 # the forbidden text when explaining a rule.
 
 #: process/meta narration: the page talks about its own authoring process.
+#: Note for AGENTS.md and anything else whose SUBJECT is the workflow: this
+#: rule fires on their subject matter, not on meta-commentary about the page.
+#: Say "executor" (the role AGENTS.md section 3 defines) rather than
+#: "authoring session". Do NOT add the phrase to HYGIENE_ALLOW to silence it:
+#: that mask is global, so it would retire this rule across all 212 pages.
 PROCESS_RE = re.compile(
     r"handover|context reset|context window|\bthis round\b|\blast round\b"
     r"|picking up|continuing from|(previous|next|authoring|last) session",

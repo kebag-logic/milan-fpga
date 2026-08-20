@@ -16,7 +16,7 @@ This file tells AI agents how to work efficiently in that system. It supplements
 - **[5. Executor procedure](#5-executor-procedure)** — The steps before the first edit, what to do during implementation, and the two public comments an executor owes.
 - **[6. Reviewer procedure](#6-reviewer-procedure)** — Reviewing from public state alone, the lenses to cover, and the severity classification every finding carries.
 - **[7. Completion and merge](#7-completion-and-merge)** — The full bar a task must clear, and the rule that an agent does not merge without explicit maintainer authorization.
-- **[8. Non-negotiable rules](#8-non-negotiable-rules)** — The short list that overrides convenience, including one agent per branch and never weakening a test to obtain a pass.
+- **[8. Non-negotiable rules](#8-non-negotiable-rules)** — The short list that overrides convenience, including never letting two agents edit one branch concurrently, and never weakening a test to obtain a pass.
 
 ## 1. Repository model
 
