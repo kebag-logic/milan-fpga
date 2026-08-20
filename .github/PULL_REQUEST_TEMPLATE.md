@@ -3,13 +3,14 @@
 
 ## Contents
 
-- **Status** — Green/WIP/blocked, test tally, and `branch` -> `dev`.
-- **Linked Issue / roles** — Public task, executor, and independent reviewers.
-- **Description** — What changed and why.
-- **Authoritative references** — Requirements/specification clauses and docs.
-- **Reproduction** — Copy-pasteable checkout/dependency/environment commands.
-- **Validation** — Exact reviewer commands and expected result.
-- **Definition of Done** — The merge bar from `CONTRIBUTING.md`.
+- **[Status](#status)** — Green/WIP/blocked, test tally, and `branch` -> `dev`.
+- **[Linked Issue / roles](#linked-issue--roles)** — Public task, executor, and independent reviewers.
+- **[Description](#description)** — What changed and why.
+- **[Authoritative references](#authoritative-references)** — Requirements/specification clauses and docs.
+- **[How to get into the same state](#how-to-get-into-the-same-state)** — Copy-pasteable checkout/dependency/environment commands.
+- **[How to validate](#how-to-validate)** — Exact reviewer commands and expected result.
+- **[Known limitations / out of scope](#known-limitations--out-of-scope)** — What this deliberately does not do, and why.
+- **[Definition of Done](#definition-of-done)** — The merge bar from [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## Status
 
@@ -62,6 +63,6 @@ Expected result / pass criteria:
 - [ ] External review is positive
 - [ ] Blocking and major findings are fixed and re-reviewed
 - [ ] No review round remains in flight
-- [ ] Candidate merge result is validated per `CONTRIBUTING.md`
+- [ ] Candidate merge result is validated per [CONTRIBUTING.md](../CONTRIBUTING.md)
 - [ ] Documentation is updated where needed
 - [ ] Post-merge containment will be checked before the Issue moves to Done

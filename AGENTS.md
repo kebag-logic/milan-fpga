@@ -5,7 +5,18 @@ public Kanban, branches and worktrees as isolated implementation lanes, pull
 requests as review objects, and repository documentation as durable knowledge.
 
 This file tells AI agents how to work efficiently in that system. It supplements
-`CONTRIBUTING.md`; when the two differ, `CONTRIBUTING.md` is authoritative.
+[CONTRIBUTING.md](CONTRIBUTING.md); when the two differ, [CONTRIBUTING.md](CONTRIBUTING.md) is authoritative.
+
+## Contents
+
+- **[1. Repository model](#1-repository-model)** — What each GitHub and repository artifact is for, and the rule that project state must be public rather than living in a session.
+- **[2. Authority and efficient context loading](#2-authority-and-efficient-context-loading)** — The order to read things in, why not to read the whole repository, and what to do when the Issue and a requirement disagree.
+- **[3. Agent identities and roles](#3-agent-identities-and-roles)** — Session prefixes, the executor/reviewer split, and the requirement that an executor never approves its own work.
+- **[4. Public task contract](#4-public-task-contract)** — What an Issue must contain before work starts, why settled scope rather than size decides readiness, and that new findings become new Issues.
+- **[5. Executor procedure](#5-executor-procedure)** — The steps before the first edit, what to do during implementation, and the two public comments an executor owes.
+- **[6. Reviewer procedure](#6-reviewer-procedure)** — Reviewing from public state alone, the lenses to cover, and the severity classification every finding carries.
+- **[7. Completion and merge](#7-completion-and-merge)** — The full bar a task must clear, and the rule that an agent does not merge without explicit maintainer authorization.
+- **[8. Non-negotiable rules](#8-non-negotiable-rules)** — The short list that overrides convenience, including never letting two agents edit one branch concurrently, and never weakening a test to obtain a pass.
 
 ## 1. Repository model
 
@@ -24,9 +35,9 @@ Publish conclusions, evidence, decisions, blockers, and review findings instead.
 
 Before changing anything, load context in this order:
 
-1. `CONTRIBUTING.md` for workflow, style, verification, and merge rules.
-2. `docs/README.md` for the map of authoritative documentation.
-3. `REQUIREMENTS.md` and every specification clause linked by the Issue.
+1. [CONTRIBUTING.md](CONTRIBUTING.md) for workflow, style, verification, and merge rules.
+2. [docs/README.md](docs/README.md) for the map of authoritative documentation.
+3. [REQUIREMENTS.md](REQUIREMENTS.md) and every specification clause linked by the Issue.
 4. The active Issue for scope, acceptance criteria, dependencies, and decisions.
 5. Relevant architecture/interface documents, code, and executable tests.
 6. Historical/obsolete material only when the Issue explicitly asks for history.
@@ -46,7 +57,7 @@ GitHub and the repository alone.
 
 ## 3. Agent identities and roles
 
-Follow the session prefixes defined in `CONTRIBUTING.md`:
+Follow the session prefixes defined in [CONTRIBUTING.md](CONTRIBUTING.md):
 
 - `[A<n>]` — author/executor activity from session `n`.
 - `[R<n>]` — reviewer activity from session `n`.
@@ -57,12 +68,12 @@ reviewer** before implementation starts. Roles should rotate across tasks:
 - Agent A implements -> Agent B reviews.
 - Agent B implements -> Agent A reviews.
 
-The authoring session never approves its own work.
+An executor never approves its own work.
 
-`CONTRIBUTING.md` currently requires two positive reviews, including one external
+[CONTRIBUTING.md](CONTRIBUTING.md) currently requires two positive reviews, including one external
 to the implementation lane. With two AI systems, use a separate cleared-context
 review session for the lane's internal review and the other AI system for the
-external review. The authoring session itself does not count as either positive.
+external review. An executor's own verdict does not count as either positive.
 
 ## 4. Public task contract
 
@@ -120,7 +131,7 @@ During implementation:
 - update authoritative documentation when behavior or architecture changes;
 - make material assumptions public in the Issue or PR;
 - follow the HDL, CDC, commit, worktree, and verification rules in
-  `CONTRIBUTING.md`.
+  [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Before handing off to review, post reproducible evidence:
 
@@ -221,7 +232,7 @@ A task is complete only when:
 - all acceptance criteria are met;
 - required tests and local verification gates pass;
 - no undocumented requirement/interface change remains;
-- the full review bar in `CONTRIBUTING.md` is met;
+- the full review bar in [CONTRIBUTING.md](CONTRIBUTING.md) is met;
 - blocking and major findings are fixed and re-reviewed;
 - no review round remains in flight;
 - the candidate merge result is validated;
@@ -242,5 +253,5 @@ unless a maintainer explicitly authorizes that merge.
 - Never treat generated prose or an agent summary as more authoritative than the
   linked requirement and executable evidence.
 - Never publish private chain-of-thought; publish concise conclusions and evidence.
-- Keep commits one-line with no trailers, as required by `CONTRIBUTING.md`.
+- Keep commits one-line with no trailers, as required by [CONTRIBUTING.md](CONTRIBUTING.md).
 - Follow candidate-merge validation and post-merge containment exactly.
