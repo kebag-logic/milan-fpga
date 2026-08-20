@@ -150,11 +150,14 @@ is neither.)
 **The freshness lines are one check each, and only one.**
 `check_results_fresh.py` asserts that the committed `TEST_RESULTS.md` equals
 what the run that just finished produced, with the generation timestamp
-normalised away on both sides. It also cross-checks that the artifact on disk
-carries the same tally as the log it is judged against, but that is a
-precondition for the comparison rather than an independent contract - it
-cannot hold while the comparison fails, because a leftover file is refused
-outright. Understating is the safe direction, so it bills 1.
+normalised away on both sides, and only on the headline that carries it. Two
+further assertions guard that comparison rather than standing beside it: the
+artifact's headline tally must equal the tally in the log being judged, so a
+leftover file from an earlier run cannot vouch for a committed copy, and the
+artifact's own section rows must add up to its headline, so a file that
+contradicts itself is refused instead of compared. Neither can hold while the
+comparison is meaningful, and both refuse outright rather than returning a
+verdict. Understating is the safe direction, so the line bills 1.
 
 **And it never bills anything on a skip.** The campaigns need tsn-gen, so
 without it there is no fresh result to compare and the gate says exactly that.

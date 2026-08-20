@@ -75,6 +75,10 @@ LOG_TALLY_RE = re.compile(
     r"^==.*?:\s*(\d+)\s+pass,\s*(\d+)\s+fail,\s*(\d+)\s+known gaps\s*==\s*$",
     re.M)
 
+#: One row of the `## Sections` table: a name then pass, fail and gap counts.
+SECTION_ROW_RE = re.compile(
+    r"^\|.*?\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*$")
+
 #: The suite-wide marker a campaign prints when its optional dependency is
 #: absent. Same token `scripts/suite_tally.py` reads, on purpose: one spelling
 #: of "this did not run" for the whole suite.
@@ -84,8 +88,40 @@ OK, STALE, SKIP, UNVERIFIABLE = "OK", "STALE", "SKIP", "UNVERIFIABLE"
 
 
 def strip_stamp(text):
-    """Drop the generation timestamp, keep every other byte."""
-    return "\n".join(STAMP_RE.sub("", line) for line in text.splitlines())
+    """Drop the generation timestamp from the headline, keep every other byte.
+
+    Scoped to the headline deliberately. The stamp is a property of ONE line -
+    the report writer appends it to the verdict and nowhere else - so a
+    normaliser willing to strip a trailing stamp from any line is broader than
+    the thing it is modelling, and every byte it is willing to discard is a
+    byte this gate would stop comparing. A section row that happened to end in
+    that shape would be silently equalised.
+    """
+    out = []
+    for line in text.splitlines():
+        if ART_TALLY_RE.match(line):
+            line = STAMP_RE.sub("", line)
+        out.append(line)
+    return "\n".join(out)
+
+
+def section_sums(text):
+    """Column totals of the `## Sections` table, or None when there is none.
+
+    Scoped to that one table by heading, not by row shape, so another table
+    with three numeric columns cannot be swept into the total.
+    """
+    rows, inside = [], False
+    for line in text.splitlines():
+        if line.startswith("## "):
+            inside = line.strip() == "## Sections"
+            continue
+        if not inside:
+            continue
+        m = SECTION_ROW_RE.match(line)
+        if m:
+            rows.append(tuple(int(g) for g in m.groups()))
+    return tuple(sum(c) for c in zip(*rows)) if rows else None
 
 
 def _tally(regex, text, multiline=False):
@@ -117,13 +153,23 @@ def verdict(log, fresh, committed, label="artifact"):
     `committed` is None when the artifact is not committed at all.
     """
     skip = SKIP_RE.search(log or "")
-    if skip:
+    lt = log_tally(log or "")
+    # A TALLY OUTRANKS A SKIP MARKER, and the order here is the whole content
+    # of that rule. Read the other way round - marker first, whole log searched
+    # - a log carrying a real tally AND a stray SUITE-SKIP line exits 0 while
+    # printing "the campaign did not run", which is a false statement about
+    # what happened from a gate whose entire job is not making false statements
+    # about what happened. It is unreachable today, because both emitters
+    # sys.exit(0) before a tally can be printed, but "unreachable" is a fact
+    # about today's callers and not a property of this function. The tally is
+    # positive evidence of a run; the marker is an explanation for its absence.
+    # So the marker is only believed when there is an absence to explain.
+    if skip and lt is None:
         return SKIP, [
             "SUITE-SKIP: %s freshness not checked (%s)" % (label, skip.group(1)),
             "  the campaign did not run, so there is no fresh result to compare;",
             "  this is NOT a statement that the committed copy is current."]
 
-    lt = log_tally(log or "")
     if lt is None:
         return UNVERIFIABLE, [
             "CANNOT VERIFY %s: the campaign log carries neither a tally nor a"
@@ -150,6 +196,26 @@ def verdict(log, fresh, committed, label="artifact"):
             "  run being judged reported %d pass, %d fail, %d known gaps." % lt,
             "  The file on disk is not this run's output - it is a leftover, and",
             "  comparing the committed copy against it would prove nothing."]
+
+    # THE ARTIFACT MUST ALSO AGREE WITH ITSELF. Tying the headline to the log
+    # proves the file came from this run; it says nothing about whether the
+    # rest of the file describes that run. The sections table is the part a
+    # reader actually reads - the headline says whether to worry, the table
+    # says where - and a file whose columns do not add up to its own verdict is
+    # not a record of anything, however fresh. Both real artifacts sum exactly
+    # today (353 over 15 rows, 164 over 8), so this is a live invariant and not
+    # an aspiration. A campaign with no sections table simply has nothing to
+    # check here.
+    ss = section_sums(fresh)
+    if ss is not None and ss != at:
+        return UNVERIFIABLE, [
+            "CANNOT VERIFY %s: its headline says %d pass, %d fail, %d known"
+            % ((label,) + at),
+            "  gaps, but its own section rows add up to %d pass, %d fail, %d"
+            % ss,
+            "  known gaps. The file disagrees with itself, so neither number is",
+            "  evidence and comparing it against the committed copy would only",
+            "  decide which of the two inconsistent files is on disk."]
 
     if committed is None:
         return STALE, [
@@ -235,49 +301,85 @@ def check(log_path, artifact_path, label):
 # --------------------------------------------------------------- self-test
 #
 # A checker that cannot fail is not a gate. Each case below is one way the
-# real thing has to behave, and three of them are ways a careless version
-# would report a green it did not earn.
-ART = ("<!--\nSPDX-FileCopyrightText: 2026 Kebag Logic\n-->\n"
-       "# gPTP/802.1AS field campaign (tsn-gen driven)\n\n"
-       # The headline below reproduces the report writer's own punctuation
-       # verbatim, U+2014 and U+00B7 included. That is deliberate: a fixture
-       # that tidied them would stop exercising the real parse, and the stamp
-       # stripper keys on that middle dot.
-       "**PASS** — 353 pass, 0 fail, 9 known gaps  ·  %s\n\n"
-       "| boot: the first Pdelay_Req | %d | 0 | 0 |\n")
+# real thing has to behave, and several are ways a careless version would
+# report a green it did not earn.
+#
+# The arms are also the gate's own mutation coverage, so each property gets one
+# that names it. Three exist because a review mutation-tested this file and
+# found the stamp normaliser was the one property nothing pinned: un-anchoring
+# STAMP_RE changed no arm's verdict. `stamp shape off the headline` and `stamp
+# not at end of line` close that, one per way the normaliser can be made too
+# permissive.
+
+
+def art(stamp, boot=23, total=353, gaps=9, tail=""):
+    """A fixture artifact whose section rows always add up to its headline.
+
+    Coherence is built in rather than typed out, because the gate now asserts
+    it: a fixture that did not add up would fail every arm for a reason none of
+    them is about.
+    """
+    return ("<!--\nSPDX-FileCopyrightText: 2026 Kebag Logic\n-->\n"
+            "# gPTP/802.1AS field campaign (tsn-gen driven)\n\n"
+            # The headline reproduces the report writer's own punctuation
+            # verbatim, U+2014 and U+00B7 included. That is deliberate: a
+            # fixture that tidied them would stop exercising the real parse,
+            # and the stamp stripper keys on that middle dot.
+            "**PASS** — %d pass, 0 fail, %d known gaps  ·  %s\n\n"
+            "## Sections\n\n"
+            "| section | pass | fail | gaps |\n"
+            "|---|---:|---:|---:|\n"
+            "| boot: the first Pdelay_Req | %d | 0 | 0 |\n"
+            "| everything else | %d | 0 | %d |\n%s"
+            % (total, gaps, stamp, boot, total - boot, gaps, tail))
+
+
 LOG = "== gPTP/802.1AS field campaign (tsn-gen driven): %s ==\n"
 RAN = LOG % "353 pass, 0 fail, 9 known gaps"
+T1, T2 = "2026-08-20 09:41", "2026-08-19 21:09"
 
 SELFTEST = [
-    ("identical", RAN, ART % ("2026-08-20 08:56", 23),
-     ART % ("2026-08-20 08:56", 23), OK),
+    ("identical", RAN, art(T1), art(T1), OK),
     # THE reason this gate is not a byte comparison.
-    ("timestamp moved only", RAN, ART % ("2026-08-20 09:41", 23),
-     ART % ("2026-08-19 21:09", 23), OK),
+    ("timestamp moved only", RAN, art(T1), art(T2), OK),
     # A section row moved while the headline did not: the counts alone are not
     # the artifact, so the whole substance is compared.
-    ("section row differs", RAN, ART % ("2026-08-20 08:56", 23),
-     ART % ("2026-08-19 21:09", 24), STALE),
+    ("section row differs", RAN, art(T1, boot=23), art(T2, boot=24), STALE),
     # The defect this gate was written for.
-    ("headline count differs", RAN,
-     ART % ("2026-08-20 08:56", 23),
-     (ART % ("2026-08-19 21:09", 24)).replace("353 pass", "355 pass"), STALE),
-    ("never committed", RAN, ART % ("2026-08-20 08:56", 23), None, STALE),
+    ("headline count differs", RAN, art(T1, boot=23, total=353),
+     art(T2, boot=24, total=355), STALE),
+    ("never committed", RAN, art(T1), None, STALE),
     # tsn-gen absent: honest skip, never a pass.
     ("campaign skipped", "SUITE-SKIP: gPTP campaign (tsn-gen absent)\n",
-     None, ART % ("2026-08-19 21:09", 24), SKIP),
+     None, art(T2), SKIP),
+    # ...but a skip marker never outranks evidence that the campaign DID run.
+    # Without the log_tally guard this returns SKIP and exits 0 while printing
+    # "the campaign did not run", over a log that plainly says it did.
+    ("stray skip beside a tally",
+     RAN + "SUITE-SKIP: some unrelated leg (dep absent)\n",
+     art(T1), art(T1), OK),
+    # The stamp is a property of ONE line. A normaliser that strips a trailing
+    # stamp from any line would equalise this pair and call it fresh.
+    ("stamp shape off the headline", RAN,
+     art(T1, tail="Regenerated  ·  2026-08-20 09:41\n"),
+     art(T2, tail="Regenerated  ·  2026-08-19 21:09\n"), STALE),
+    # ...and it is a TRAILING stamp. Un-anchor STAMP_RE and the stamp below is
+    # stripped out of the middle of the headline, equalising a real difference.
+    ("stamp not at end of line", RAN,
+     art(T1).replace("  ·  %s\n" % T1, "  ·  %s  (rerun)\n" % T1),
+     art(T2).replace("  ·  %s\n" % T2, "  ·  %s  (rerun)\n" % T2), STALE),
     # Silence is not evidence of a run.
     ("log says nothing", "== gPTP campaign ==\nsome noise\n",
-     ART % ("2026-08-20 08:56", 23), ART % ("2026-08-20 08:56", 23),
-     UNVERIFIABLE),
+     art(T1), art(T1), UNVERIFIABLE),
     # A leftover file that happens to match the committed copy must NOT be
-    # allowed to certify it.
-    ("artifact is a leftover", RAN,
-     (ART % ("2026-08-19 21:09", 24)).replace("353 pass", "355 pass"),
-     (ART % ("2026-08-19 21:09", 24)).replace("353 pass", "355 pass"),
-     UNVERIFIABLE),
-    ("campaign wrote nothing", RAN, None, ART % ("2026-08-19 21:09", 24),
-     UNVERIFIABLE),
+    # allowed to vouch for it.
+    ("artifact is a leftover", RAN, art(T2, boot=24, total=355),
+     art(T2, boot=24, total=355), UNVERIFIABLE),
+    # An artifact that contradicts itself is not a record, however fresh.
+    ("sections do not sum", RAN,
+     art(T1).replace("| everything else | 330 |", "| everything else | 331 |"),
+     art(T2), UNVERIFIABLE),
+    ("campaign wrote nothing", RAN, None, art(T2), UNVERIFIABLE),
     ("artifact has no headline", RAN, "# a report with no tally\n",
      "# a report with no tally\n", UNVERIFIABLE),
 ]
