@@ -603,9 +603,12 @@ def test_baremetal_profile_contract():
 
     def register_writes(source, register):
         """Every milan_write() to `register` in `source`, as (start, stop,
-        sets, clears) records describing what each one does to bit 0. A value
+        sets, clears) records describing what each one does to bit 0. A VALUE
         expression this gate cannot read is counted as SETTING bit 0, so an
-        unreadable write can never be an unnoticed entity enable."""
+        unreadable value can never be an unnoticed entity enable. The REGISTER
+        operand is matched literally and is NOT fail-closed here -- the caller
+        enforces separately that every milan_write() names a MILAN_ constant,
+        which is what makes this census exhaustive."""
         register_re = re.escape(register)
         opener = re.compile(rf"milan_write\(\s*{register_re}\s*,")
         read_or = re.compile(
@@ -711,6 +714,22 @@ def test_baremetal_profile_contract():
         adp_enable = enable_write(enable_block, "MILAN_ADP_CTRL")
         assert pp_enable.start() < adp_enable.start(), \
             "AEM-success guard must enable PP before ADP"
+        # The census below matches the register OPERAND literally, so any
+        # indirection walks past it: a helper taking the register as an
+        # argument, a macro, an address in a local, a #define alias or a raw
+        # 0x600 all hide an entity enable from it. Require every write to name
+        # a MILAN_ register constant, which every live call site already does,
+        # so indirection is refused outright instead of silently unexamined.
+        known_registers = set(re.findall(
+            r"(?m)^#define\s+(MILAN_[A-Z0-9_]+)\s+0[xX][0-9a-fA-F]+[uU]?\s*$",
+            firmware))
+        assert known_registers, "no MILAN_ register constants found"
+        for call in re.finditer(r"(?<!void )milan_write\(\s*([^,]*?)\s*,",
+                                firmware):
+            operand = call.group(1).strip()
+            assert operand in known_registers, \
+                "milan_write() must name a MILAN_ register constant so the " \
+                f"bit-0 census can see it, got {operand!r}"
         # Entity-enable is PP_CTRL[0] OR ADP_CTRL[0], so the census runs over
         # the WHOLE firmware: configure_fabric() and every command handler
         # included, not just milan_init()'s own text.
@@ -962,6 +981,17 @@ def test_baremetal_profile_contract():
          replace_once(firmware_source, source_adp_clear, early_adp_enable,
                       "early ADP enable"), docs_source, csr_source,
          "MILAN_ADP_CTRL bit 0 may be set only inside the AEM-success guard"),
+        # Indirection hides an enable from a census keyed on the register
+        # token: a helper taking the register as an argument reads as an
+        # ordinary call. The operand rule is what makes the census exhaustive,
+        # so it carries its own mutant.
+        ("entity enabled through an indirect helper",
+         replace_once(
+             firmware_source, source_adp_clear,
+             "milan_write(indirect_reg, milan_read(indirect_reg) | 1u);"
+             + source_adp_clear, "indirect enable"),
+         docs_source, csr_source,
+         "milan_write() must name a MILAN_ register constant"),
         # Without the pre-AEM clear a warm reboot advertises a stale entity
         # while the image is still unverified.
         ("PP pre-AEM clear removed",
