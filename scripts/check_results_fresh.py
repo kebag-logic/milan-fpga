@@ -109,7 +109,21 @@ def section_sums(text):
     """Column totals of the `## Sections` table, or None when there is none.
 
     Scoped to that one table by heading, not by row shape, so another table
-    with three numeric columns cannot be swept into the total.
+    with three numeric columns cannot be swept into the total. All three
+    columns are summed, not just pass: a gap that appeared in a section without
+    appearing in the headline is the same class of drift as a lost check.
+
+    THE EXACT HEADING MATCH IS LOAD-BEARING, and it is the whole of this
+    function's reachability. Remove `## Sections`, empty it, lower-case it or
+    move the rows out from under it, and this returns None and the caller
+    checks nothing at all - silently, because None is also the honest answer
+    for a campaign that has no sections table to check. That is a real cliff
+    and it is deliberately not guarded, because it cannot be walked off from
+    here: `fresh` is always the campaign's own output, and `_write_results()`
+    in tb/verilator/tsn_fuzz/cosim.py emits that literal heading whenever it
+    emits any sections at all. The day a report writer stops emitting it, this
+    check stops existing and nothing will say so - so if you are changing that
+    writer, this is the sentence you needed to read.
     """
     rows, inside = [], False
     for line in text.splitlines():
@@ -379,6 +393,30 @@ SELFTEST = [
     ("sections do not sum", RAN,
      art(T1).replace("| everything else | 330 |", "| everything else | 331 |"),
      art(T2), UNVERIFIABLE),
+    # ...and "sum" means all three columns. A gap present in a section but
+    # missing from the headline is the same class of drift as a lost check, so
+    # comparing the pass column alone would wave this through. Both sides carry
+    # the fault, so a pass-only comparison reaches a clean OK.
+    ("only the gap column disagrees", RAN,
+     art(T1).replace("| everything else | 330 | 0 | 9 |",
+                     "| everything else | 330 | 0 | 8 |"),
+     art(T1).replace("| everything else | 330 | 0 | 9 |",
+                     "| everything else | 330 | 0 | 8 |"), UNVERIFIABLE),
+    # THE SCOPING IS THE PROPERTY, so it gets arms of its own. Rows under a
+    # different heading are not section rows: drop the heading scoping, or
+    # match the heading by prefix instead of exactly, and the row below is
+    # summed into the total and a coherent artifact is called incoherent.
+    ("rows under a lookalike heading", RAN,
+     art(T1, tail="\n## Sections (historical, superseded)\n\n"
+                  "| an older shape | 7 | 0 | 0 |\n"),
+     art(T2, tail="\n## Sections (historical, superseded)\n\n"
+                  "| an older shape | 7 | 0 | 0 |\n"), OK),
+    # ...and a section row has exactly the four columns the table declares.
+    # Un-anchor SECTION_ROW_RE and this five-column line matches on its first
+    # three numbers, inflating the total from inside the right block.
+    ("wider row inside the block", RAN,
+     art(T1, tail="| five columns | 5 | 0 | 0 | 0 |\n"),
+     art(T2, tail="| five columns | 5 | 0 | 0 | 0 |\n"), OK),
     ("campaign wrote nothing", RAN, None, art(T2), UNVERIFIABLE),
     ("artifact has no headline", RAN, "# a report with no tally\n",
      "# a report with no tally\n", UNVERIFIABLE),
