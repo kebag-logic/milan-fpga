@@ -17,7 +17,7 @@ env:
   VERILATOR_VERSION: v5.050
   # The tsn_fuzz suite is a required field campaign. Pin its packet generator
   # so suite accounting never degrades to an uncounted local-only skip.
-  TSN_GEN_REV: 07534e64218ebbf486cc651d75727369f0ed3c83
+  TSN_GEN_REV: fde652067d3618f47fba2c2e8eb05f6c9f6fa97f
 
 jobs:
   # The full Verilator suite sweep needs verilog-axis and protocol-processor.
