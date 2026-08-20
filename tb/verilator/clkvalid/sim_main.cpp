@@ -94,6 +94,7 @@ int main(int argc, char** argv) {
     dut->sw_as_cap_i = 0;
     dut->sw_wdog_q_i = 0;
     dut->fabric_sync_ok_i = 0; dut->fabric_as_cap_i = 0;
+    dut->fabric_disc_p_i = 0;
     dut->phc_load_p_i = 0; dut->phc_adj_p_i = 0;
     dut->gm_id_i = 0;
     tick(4);
@@ -130,6 +131,23 @@ int main(int argc, char** argv) {
         ck("fabric asCapable is STAT[16]", (dut->stat_o >> 16) & 1, 1);
         tick(qtick * 10);
         ck("no daemon lease expiry in fabric mode", dut->ts_uncertain_o, 0);
+
+        // The publication bank warns in the cycle BEFORE its registered GM
+        // and health fields change.  Talkers sample tu on that same edge, so
+        // the warning must be part of the combinational verdict rather than
+        // waiting one cycle for hold_r.
+        dut->fabric_disc_p_i = 1;
+        dut->eval();
+        ck("pre-commit fabric discontinuity asserts tu same-cycle",
+           dut->ts_uncertain_o, 1);
+        tick();
+        dut->fabric_disc_p_i = 0;
+        dut->eval();
+        ck("fabric discontinuity arms Annex B holdover",
+           dut->ts_uncertain_o, 1);
+        long disc_cleared = wait_tu(0, qtick * 8);
+        ck_range("fabric discontinuity holdover clears (cycles)",
+                 disc_cleared, qtick, qtick * 4);
 
         dut->fabric_sync_ok_i = 0;
         dut->fabric_as_cap_i = 0;

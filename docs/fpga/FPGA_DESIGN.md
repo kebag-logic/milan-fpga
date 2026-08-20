@@ -72,7 +72,7 @@ image lacks the requested descriptor. The store never hangs on a failed read: a
 ## Contents
 
 - **[0. Global conventions](#0-global-conventions)** -- The four rules every module obeys: 64-bit big-endian AXIS (wire order *is* memory order, so the CPU never byte-swaps), AXI4-Lite CSR decoded in 0x100 groups, house style, no vendor primitives. Also flags one relic -- the `AXIS_TDEST_WIDTH 2` define is dead outside the legacy xsim TBs.
-- **[1. Top level - two wrappers, one datapath](#1-top-level---two-wrappers-one-datapath)** -- What each wrapper adds around the same datapath, and the TX/RX/TS pipeline drawn out. The sentence that changes how you read every other page: only CPU-originated frames traverse the classifier, the queues and the CBS -- the fabric engines inject *after* the shaper and the RX media path taps *before* the dest-MAC filter. Section 1.1 adds the audio chain as composed on main, both new stages defaulting to bypass; Section 1.2 is the four-mux TX arbiter cascade and the three functional losses the AECP boundary costs.
+- **[1. Top level - two wrappers, one datapath](#1-top-level---two-wrappers-one-datapath)** -- What each wrapper adds around the same datapath, and the TX/RX/TS pipeline drawn out. Only CPU-originated frames traverse the classifier, queues and CBS; fabric engines inject after the shaper. Section 1.2 records the four retained core muxes plus default fabric-gPTP lane 4.
 - **[2. Module inventory (from the RTL banners; refreshed 2026-08-13)](#2-module-inventory-from-the-rtl-banners-refreshed-2026-08-13)** -- Every module in `hdl/`, one row each, grouped by directory, with descriptions lifted from the RTL banners. It states no total on purpose: the live count belongs to the generated matrix, and `ls hdl/` is the authority.
 - **[3. Clock domains & CDC (complete inventory)](#3-clock-domains--cdc-complete-inventory)** -- Which of the four domains each block lives in, and the complete crossing list -- all plain-FF or handshake, no vendor macros. Explains why the timestamp metadata FIFOs are deliberately same-clock: the crossing already happened upstream in `ptp_ts_core`.
 - **[4. What is \*not\* in hdl/ (and where it lives instead)](#4-what-is-not-in-hdl-and-where-it-lives-instead)** -- Four things you will hunt for in the RTL tree and not find. Mainly the ring-DMA engines, which are Migen inside `milan_soc.py` rather than SystemVerilog, and the MAC, which is external by design.
@@ -146,7 +146,8 @@ control sources (AECP responses, ACMP talker answers, ADP advertisements, lwSRP
 MRPDUs, ACMP listener probes) each needed a merge step. The protocol processor
 emits ONE byte stream for every protocol it owns and arbitrates internally, so
 four of those merges lost their second source and went with the planes that fed
-them. `A_TXARB_DIAG` (`0x784`) now supervises **four**, LSB first:
+them. The default fabric-gPTP plane then adds one downstream injection merge.
+`A_TXARB_DIAG` (`0x784`) now supervises **five** lanes, LSB first:
 
 | lane | mux | merges | watchdog |
 |---|---|---|---|
@@ -154,9 +155,10 @@ them. `A_TXARB_DIAG` (`0x784`) now supervises **four**, LSB first:
 | 1 | `aaf_final` | shaped CPU traffic + the AAF talkers | 2^16 |
 | 2 | `crf_dp` | that + `KL_crf_tx` (data lane — gasket-free, where a class-A stream belongs) | 2^16 |
 | 3 | `adp_tx` | the MAC boundary: data lane + the gasketed control lane | 2^17 |
+| 4 | `gptp_ctl` | MAC-bound trunk + fabric gPTP messages | 2^16 |
 
-Bits 7:4 read a **structural zero** — there is no fifth-to-eighth arbiter, as
-opposed to four that happen never to have locked. The old numbering was 0
+Lane 4 reads a **structural zero** only when fabric gPTP is explicitly off;
+bits 7:5 are structural zero in every build. The old numbering was 0
 `aecp_acmp`, 1 `ctl_tx`, 2 `srp_ctl`, 3 `lstn_ctl`, 4 `maap_ctl`, 5
 `aaf_final`, 6 `crf_dp`, 7 `adp_tx`; **anything decoding `0x784` by those
 numbers reads the wrong mux.** The stagger is deliberate: an abandoned source
@@ -295,7 +297,7 @@ this table whenever `hdl/` changes shape.
 
 | module | description |
 |---|---|
-| `adp_tx_arbiter` | two-input AXIS **packet** arbiter. The name is historical: it is generic, and the four-mux TX cascade of Section 1.2 is four instances of it |
+| `adp_tx_arbiter` | two-input AXIS **packet** arbiter. The name is historical: it is generic. Four retained core instances form the media/protocol cascade and the default fabric-gPTP plane adds a fifth instance at lane 4 |
 
 > The former *ieee17221/aecp*, *ieee17221/acmp* and *ieee8021q/srp* directories
 > no longer exist. The AECP/AEM engine, both ACMP engines, the ADP advertiser

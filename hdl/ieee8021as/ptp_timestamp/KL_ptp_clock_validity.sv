@@ -162,6 +162,7 @@ module KL_ptp_clock_validity #(
   //! --- fabric gPTP publication bank ------------------------------------
   input  wire        fabric_sync_ok_i,//! engine has selected and synchronised to a GM
   input  wire        fabric_as_cap_i, //! engine's 802.1AS asCapable verdict
+  input  wire        fabric_disc_p_i, //! pre-commit GM/sync discontinuity pulse
 
   //! --- discontinuities this fabric can see for itself -------------------
   input  wire        phc_load_p_i,    //! PTP_CMD[0] settime applied (a step)
@@ -246,7 +247,8 @@ module KL_ptp_clock_validity #(
   //! publication of a real grandmaster id IS a change and arms the holdover.
   //! That is correct: before it we did not know who the grandmaster was.
   assign disc_p_w = phc_load_p_i | phc_adj_p_i |
-                    ((!FABRIC_GPTP_P) & sw_disc_p_i) | (gm_id_i != gm_r);
+                    ((!FABRIC_GPTP_P) & sw_disc_p_i) |
+                    (FABRIC_GPTP_P & fabric_disc_p_i) | (gm_id_i != gm_r);
   assign hold_w   = (hold_r != '0);
 
   always_ff @(posedge clk_i) begin : p_hold
@@ -265,9 +267,9 @@ module KL_ptp_clock_validity #(
   //  a Stream Output, so the only honest lever is this bit.
   // --------------------------------------------------------------------
   //! disc_p_w is included directly, not only through hold_r. The PHC applies
-  //! an adjtime/load on the same edge that p_hold arms hold_r, and AAF/CRF
-  //! latch tu on their launch edge. Omitting the live pulse lets a frame on
-  //! that edge capture tu=0 even though its timestamp crosses the step.
+  //! an adjtime/load and the fabric publication wrapper commits a new GM on
+  //! the same edge that p_hold arms hold_r; AAF/CRF latch tu on their launch
+  //! edge. Omitting the live pulse lets a frame on either edge capture tu=0.
   assign ts_uncertain_o = (~sync_ok_w) | hold_w | disc_p_w;
 
   // --------------------------------------------------------------------

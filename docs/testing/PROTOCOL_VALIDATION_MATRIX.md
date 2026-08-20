@@ -64,7 +64,7 @@ Read with:
 - **[Legend](#legend)** — Read this first or the rows are unreadable: the six status glyphs — including the ❌ that now means "a conformant refusal and no function", not silence — and the six test kinds (`RTL`/`SYN`/`SIM`/`ELAB`/`BOARD`/`SW`) that say what level of evidence a row actually has. Ends with the standing caveat on the parenthetical check counts — they are historical snapshots, and the harness's own printout is the only figure that cannot rot.
 - **[1. L1 / L2  -  Ethernet, filtering, stats](#1-l1--l2-----ethernet-filtering-stats)** — Six rows from the MAC to RMON, each naming its module and CSR group, followed by the note on why L2-1 says GMII: the RGMII PHY it used to name cost four rebuilds and one preamble error per frame before it was retired.
 - **[2. Shaping / QoS  -  802.1Qav CBS](#2-shaping--qos-----8021qav-cbs)** — Five CBS rows with the harness check-counts behind them (87 k on the shaper against fixed-point *and* ideal models). Includes a deliberately empty row: 802.1Qbv time-aware shaping, kept only to record that it is out of scope.
-- **[3. Timing  -  gPTP / 802.1AS + PHC](#3-timing-----gptp--8021as--phc)** — The PHC, its clock-domain crossing, hardware timestamping and the 125 MHz reference — all hardware. The one software row, T-5, is the `ptp4l` daemon: locked on silicon through the reference switch, carrying the page's only two bench-blocked riders (AS-4 latency calibration, AS-6 DUT-wins-BMCA).
+- **[3. Timing  -  gPTP / 802.1AS + PHC](#3-timing-----gptp--8021as--phc)** — The PHC, clock-domain crossing, timestamp paths and default fabric gPTP owner. Processor and parent RTL evidence is green; T-5 keeps #117's physical acceptance distinct from the historical option-off `ptp4l` evidence.
 - **[4. Discovery / control  -  AVDECC (IEEE 1722.1-2021 + Milan v1.2)](#4-discovery--control-----avdecc-ieee-17221-2021--milan-v12)** — Ten rows, A-1 to A-10, and the shortest summary of the page after 2026-08-13: **ADP, ACMP, SRP and AECP all moved to the protocol processor, whose AECP uCPU answers `READ_DESCRIPTOR` and refuses everything else conformantly.** A-5 is a split verdict; A-6, A-8 and A-9 carry a ❌ because their functions are absent. The `SW` entries name the controller-side test, not an implementation.
 - **[5. Reservation + address allocation](#5-reservation--address-allocation)** — Three rows: MAAP (still this fabric's `KL_maap`), MSRP/MVRP and the 75 % admission bound (both now the protocol processor's SRP face), with the note that the admission grant is not just a number: it gates TX and paces the talker. Ends on the one open clause, SR class B provisioned but never declared, and on the honest slope-ordering change the substitution brought.
 - **[6. Media transport  -  AVTP (IEEE 1722)](#6-media-transport-----avtp-ieee-1722)** — Four rows for AAF, CRF and the NxN talker/listener pair, plus the one explicit exclusion on the page: media redundancy, out of scope by decision, not by omission. The row worth reading is M-2, the only split verdict in the table — the CRF engine and its servo are silicon-proven, while the CRF *stream* is still not carried under a reservation.
@@ -127,9 +127,9 @@ number that cannot be stale; new rows on this page do not add one.
 |---|--------------------|-----|-------|-----------|--------|--------------------|
 | T-1 | PTP hardware clock (adjfine/adjtime/settime/gettime) | 1588/802.1AS | HW | `timestamp_counter` (CSR `0x500`) | ✅ | `RTL` ptp (201 k, vs 128-bit accumulator) |
 | T-2 | CSR↔PHC clock-domain crossing |  -  | HW | `ptp_csr_sync`, `cdc_pulse/handshake` | ✅ | `RTL` ptp_sync, cdc (16); `SYN` |
-| T-3 | TX/RX hardware timestamping + metadata stream | 802.1AS | HW | `ptp_ts_top`, `ptp_ts_core` | ✅ | `RTL` ptp, milan_dp (TS AXIS path) |
-| T-4 | PHC on a fixed 125 MHz reference (REQ-PTP-07) | Milan | HW | `_CRG` gtx clock (§A.4) | 🟩 | `ELAB`; `BOARD` `ethtool -T eth0` PHC present |
-| T-5 | gPTP daemon lock (BMCA, sync/pdelay) | 802.1AS | SW | `ptp4l`/linuxptp on the softcore, over the fabric PHC | ✅ on silicon · 🟡 AS-4/AS-6 | `BOARD` `asCapable` + full sync through the reference AVB switch, pdelay both ways, offset rms 2-4 ns, HW timestamps with zero config overrides  -  [`GPTP_RXPAD_ROOTCAUSE.md`](../findings/GPTP_RXPAD_ROOTCAUSE.md), [`TIME_SYNC.md` §5](../design/TIME_SYNC.md#5-status-2026-07-25). Open: **AS-4** per-unit ingress/egress latency calibration, **AS-6** DUT-wins-BMCA (switch outranks every Milan-legal value) |
+| T-3 | Selected-owner TX/RX hardware timestamps | 802.1AS | HW | default: `KL_gptp_shadow` + `KL_gptp_txstamp`; option-off metadata: `ptp_ts_top`, `ptp_ts_core` | ✅ RTL | `gptp_shadow`, `gptp_plane`, `ptp_ts`, and `milan_dp` integration legs |
+| T-4 | PHC on a speed-independent clock with derived Q8.24 increment (REQ-PTP-07) | Milan | HW | `_CRG` Milan/datapath clock + `timestamp_counter` | 🟩 | `ELAB` at 50/100 MHz; `RTL` real-value clock-validity/PHC shapes; historical `BOARD` PHC presence |
+| T-5 | gPTP endpoint lock (BTCA, Sync/Pdelay, servo, publication) | 802.1AS | HW default / SW option-off | default `KL_gptp_shadow` + pinned `gptp-processor`; option-off `ptp4l` | ✅ processor + parent RTL · 🟡 #117 physical acceptance | 965 processor checks plus parent gPTP-plane/publication suites; historical option-off board lock remains the A/B oracle. Open: sibling-rootfs service retirement in #116; per-unit/reference-plane latency and default two-board wire/cadence/GM-switch evidence in #117 |
 
 ## 4. Discovery / control  -  AVDECC (IEEE 1722.1-2021 + Milan v1.2)
 
@@ -309,10 +309,11 @@ ledger for the AECP boundary — every Milan v1.2 clause that lost its
 implementation — is [`MILAN_COMPLIANCE_GAPS.md`](../MILAN_COMPLIANCE_GAPS.md).
 
 **One decode trap this page cannot leave implicit.** The TX arbiter cascade
-collapsed from EIGHT muxes to FOUR when the planes that fed four control merges
-were deleted. `A_TXARB_DIAG` at `0x784` now reads, LSB first: **0 = `ctl_tx`
+lost four control merges when their planes were deleted, then gained the
+default fabric-gPTP injection merge. `A_TXARB_DIAG` at `0x784` now reads, LSB first: **0 = `ctl_tx`
 (protocol processor + MAAP → the control lane), 1 = `aaf_final`, 2 = `crf_dp`,
-3 = `adp_tx` (the MAC boundary mux); bits 7:4 read a structural zero.** It was
+3 = `adp_tx` (the MAC boundary mux), 4 = `gptp_ctl`; bits 7:5 read structural
+zero.** Lane 4 is zero only in the option-off build. It was
 0 aecp_acmp, 1 ctl_tx, 2 srp_ctl, 3 lstn_ctl, 4 maap_ctl, 5 aaf_final,
 6 crf_dp, 7 adp_tx. Anything decoding `0x784` by the old numbers now reads the
 WRONG mux.

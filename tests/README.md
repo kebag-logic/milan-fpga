@@ -76,7 +76,7 @@ These repeated claims are checked against the
 | `notifications.change-events` | `partial` | - |
 <!-- milan-feature-status:end -->
 
-**15 features / 338 scenarios / 1,615 steps**, all passing, counted by running
+**15 features / 334 scenarios / 1,571 steps**, all passing, counted by running
 the suite on 2026-08-18 (the run's own tally is authoritative -- prose counts
 go stale). It is the **conformance suite**, and it is a CI gate (the
 `bdd-conformance` job in `.github/workflows/rtl.yml`).
@@ -124,7 +124,7 @@ python3 tb/tools/torture_campaign.py --checklist # what a human must do at the b
 
 **Run everything (offline, no DUT, no simulator — finishes in under a second):**
 ```bash
-cd tests && behave -f plain          # 15 features / 338 scenarios (2026-08-18)
+cd tests && behave -f plain          # 15 features / 334 scenarios (2026-08-20)
 ```
 `behave` is not installed system-wide here; any virtualenv with it will do
 (CI does `python3 -m pip install behave`).

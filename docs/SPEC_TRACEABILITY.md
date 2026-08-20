@@ -430,8 +430,9 @@ submodule rather than in this tree.
    class-D SRP face rather than against a `KL_lwsrp_ctx` attribute row, and the
    interlock that made "tagged but undeclared" unreachable has to be re-derived
    from `srp_active_o`. Sub-gap 2's control-lane list also changed shape: the TX
-   arbiter cascade collapsed from eight muxes to four, and lane 0 of
-   `A_TXARB_DIAG` (`0x784`) is now `ctl_tx` = protocol processor + MAAP.
+   legacy arbiter cascade collapsed from eight muxes to four, and default
+   fabric gPTP subsequently added lane 4. Lane 0 of `A_TXARB_DIAG` (`0x784`)
+   is `ctl_tx` = protocol processor + MAAP; lane 4 is `gptp_ctl`.
    Nothing about the *clause* moved.
 
    **Two corrections this round.**

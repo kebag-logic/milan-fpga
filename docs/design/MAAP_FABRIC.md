@@ -61,15 +61,17 @@ on the established monitor-tap + low-rate-TX recipe (house style, TerosHDL).
 
 - RX: tap `rx_axis_to_dma` (subtype 0xFE @ ether 0x22F0), aligned-lane
   parse (fields land in beats 1..4).
-- **TX: the second leg of the ONE control-lane merge.** The TX arbiter
-  cascade collapsed from eight muxes to four when the planes that fed the
-  other merges were deleted; what is left on the control lane is
+- **TX: the second leg of the protocol control-lane merge.** Four legacy
+  control merges disappeared when their planes were deleted; default fabric
+  gPTP now joins the resulting trunk in a separate downstream merge. MAAP's
+  merge is
   `ctl_tx_mux`, whose two sources are the protocol processor's packed TX
   (ADP + ACMP + SRP, internally arbitrated) and **MAAP's
   probe/defend/announce**. The selected processor pin also contains
   `KL_pp_maap`, but this integration ties `cfg_maap_internal_i` low and
   selects the fabric `KL_maap` leg through `KL_pp_maap_shim`. Lane 0 of
-  `A_TXARB_DIAG 0x784` supervises that merge — **anything decoding `0x784` by
+  `A_TXARB_DIAG 0x784` lane 0; lane 4 supervises the fabric-gPTP merge.
+  **Anything decoding `0x784` by
   the old eight-lane numbering now reads the wrong mux.**
 - Randomness: LFSR seeded from station MAC; interval jitter from the same.
 - Outputs: `maap_addr[47:0]`, `maap_valid` (ANNOUNCE state) → the datapath's

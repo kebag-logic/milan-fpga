@@ -9,7 +9,7 @@
 - **[5. Priority / phasing](#5-priority--phasing)** -- Two sentences: the CSR plane was the critical path that unblocked everything else; current compliance blockers live in the [Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) and open GitHub issues.
 - **[6. Out of scope (future work)](#6-out-of-scope-future-work)** -- The explicit not-doing list, 802.1Qbv/TAS, Qci PSFP, one-step PTP, UDP/IPv4 transport, 802.1ad, and frame preemption, so their absence reads as a decision rather than an oversight.
 - **[7. Traceability](#7-traceability)** -- Where the per-gap detail went: each requirement traces to a clause and a Section 3 gap ID, while current implementation coverage is in the [generated module matrix](docs/traceability/MODULE_MATRIX.md).
-- **[8. Acceptance (end-to-end)](#8-acceptance-end-to-end)** -- The five-part definition of done for the whole interface, from driver bind through `ptp4l` lock, `tc … cbs offload`, `ethtool -S` and green harnesses in CI.
+- **[8. Acceptance (end-to-end)](#8-acceptance-end-to-end)** -- The five-part definition of done for the whole interface, from driver bind through fabric-engine two-board clock acceptance, the option-off `ptp4l` oracle, `tc … cbs offload`, `ethtool -S` and green harnesses in CI.
 - **[9. Original brief (preserved)](#9-original-brief-preserved)** -- The verbatim starting brief and its status snapshot, kept so the scope creep is visible, with a delivered-so-far list appended at the end.
 
 ## 1. Goal and scope
@@ -29,17 +29,18 @@ IEEE 802 standards and is driven by a Linux network driver:
 
 * **IEEE 802.1Q** traffic classification and queuing (PCP → traffic class).
 * **IEEE 802.1Qav** credit-based shaper (CBS) for the SR classes.
-* **IEEE 802.1AS / IEEE 1588** gPTP hardware timestamping (**timestamp + a
-  disciplinable clock**; transport/BMCA stay in software).
+* **IEEE 802.1AS / IEEE 1588** gPTP endpoint (**timestamp + a disciplinable
+  clock + fabric-default transport/BMCA/servo**). The retained software path
+  is an explicit option-off comparison build, not the product owner.
 * **IEEE 802.3** MAC configuration and management so the block also behaves like
   a traditional MAC (station address, filters, speed/duplex, statistics),
   configurable over a **memory-mapped** register interface (and/or MDIO).
 
 Software deliverables (sibling repos under `../`):
 
-* A **Linux driver** (`../kl-linux-drivers`) implementing PTP/PHC + hardware
-  timestamping, the traffic classifier config, the CBS config, and **N** hardware
-  queues (as many as the HDL exposes).
+* A **Linux driver** (`../kl-linux-drivers`) exposing PTP/PHC observation and
+  option-off hardware timestamping, the traffic classifier config, the CBS
+  config, and **N** hardware queues (as many as the HDL exposes).
 * A **device-tree generator** integrated into `../fpga-ps-tools`, reusing the
   Xilinx `device-tree-xlnx` (dtg) and overlaying the TSN driver node.
 
@@ -137,30 +138,40 @@ and verification artifacts.
 
 ### 4.B gPTP / IEEE 1588 hardware clock (PHC)
 
-* **REQ-PTP-01 (MUST)** The timestamp counter MUST become a **register-controlled
-  accumulator**: a SW-writable nominal increment with **fractional-ns** bits
-  (phase accumulator) so frequency can be tuned. *(1588 Section 11.2; Linux `adjfine`)*
-  — *Accept:* writing ±ppm changes the measured rate accordingly.
+* **REQ-PTP-01 (MUST)** The timestamp counter MUST be a **controlled
+  accumulator**: a CSR-writable nominal increment plus a selected-owner
+  signed addend with **fractional-ns** bits (phase accumulator) so frequency
+  can be tuned. The default fabric gPTP servo owns the addend; the retained
+  option-off Linux profile owns it through `adjfine`. *(1588 Section 11.2;
+  Linux `adjfine`)* — *Accept:* both builds prove that their selected owner can
+  apply ±ppm and change the measured rate accordingly; the inactive owner
+  cannot affect it.
 * **REQ-PTP-02 (MUST)** The clock MUST support **offset add/subtract (adjtime)**
-  and **absolute set (settime)** via a load register + apply strobe. *(1588
-  Section 7.2.1; Linux `adjtime`/`settime64`)* -- *Accept:* PHC_SET then gettime returns
-  the set value + elapsed.
-* **REQ-PTP-03 (MUST)** The clock MUST support **snapshot-on-read (gettime)** —
-  a read strobe latches the 64-bit TOD (ideally paired with the ARM global-timer
-  for `gettimex64`). *(Linux `gettimex64`)* — *Accept:* two reads differ by the
-  elapsed interval within jitter.
-* **REQ-PTP-04 (MUST)** TX egress timestamp completion MUST be signalled to
-  software (IRQ + status) and each metadata record MUST carry an unambiguous
-  TX-to-skb key (messageType + seq_id, ideally a HW cookie). *(1588 two-step;
-  Linux `skb_tstamp_tx`)* — *Accept:* driver matches every TX event frame to its
-  timestamp with no aliasing under 2 in-flight event messages.
+  and **absolute set (settime)** via a load register + apply strobe. The default
+  fabric gPTP engine owns adjtime; the option-off Linux profile owns adjtime
+  through the CSR. Absolute settime remains CSR-owned in both builds. *(1588
+  Section 7.2.1; Linux `adjtime`/`settime64`)* -- *Accept:* each selected owner
+  applies a signed offset in its build, and CSR settime followed by gettime
+  returns the set value plus elapsed time in both builds.
+* **REQ-PTP-03 (MUST)** The clock MUST support CSR **snapshot-on-read
+  (gettime)** in both owner builds — a read strobe latches the 64-bit TOD
+  (ideally paired with the host timer for `gettimex64`). *(Linux
+  `gettimex64`)* — *Accept:* two snapshots differ by the elapsed interval
+  within jitter.
+* **REQ-PTP-04 (MUST)** TX egress timestamp completion MUST reach its active
+  owner. The default fabric engine receives a sequence-matched timestamp from
+  `KL_gptp_txstamp`; the option-off path signals software (IRQ + status) and
+  carries an unambiguous `{messageType, seq_id}` key for `skb_tstamp_tx`.
+  — *Accept:* neither owner aliases two in-flight event messages.
 * **REQ-PTP-05 (SHOULD)** Only **event** PTP messages (Sync, Delay_Req,
   Pdelay_Req/Resp) SHOULD be timestamped; general messages SHOULD NOT consume
   the metadata FIFO. Parse `messageType[3:0]` (+ optional domain). *(1588 Section 7.3.4)*
 * **REQ-PTP-06 (SHOULD)** The PHC SHOULD provide SW-programmable per-port
   **ingress/egress latency correction** registers; the capture point SHOULD be
-  characterized against the GMII SFD. *(802.1AS Sections 8.4/11.3.2)* -- the current
-  AXIS-SOP capture has fixed, uncorrected asymmetric latency.
+  characterized against the GMII SFD. *(802.1AS Sections 8.4/11.3.2)* --
+  `0x540`/`0x544` now reach `ptp_ts_top` and correct option-off metadata
+  (`RX - ingress`, `TX + egress`). Per-unit calibration and the default
+  fabric-plane reference-point campaign remain open in #117.
 * **REQ-PTP-07 (SHOULD)** The PHC counter SHOULD be clocked from a **fixed
   125 MHz** free-running clock (not the speed-switched `gtx_clk`) so the ns rate
   is correct at 10/100/1000, or make the increment link-speed/`adjfine` driven.
@@ -311,9 +322,11 @@ and verification artifacts.
   `netif_set_real_num_tx/rx_queues`) mapped to the HW queues/shaper instances;
   requires multi-channel DMA (e.g. `axi_mcdma`) or a documented single-queue
   reduction. *(802.1Q TC-to-queue)*
-* **REQ-DRV-04 (MUST)** Register a **PHC** (`ptp_clock_register` /
-  `ptp_clock_info`: `adjfine/adjtime/gettime64/settime64/enable`) against the CSR
-  PTP registers. *(1588; Linux PTP)*
+* **REQ-DRV-04 (MUST)** In the retained Linux/option-off profile, register a
+  **PHC** (`ptp_clock_register` / `ptp_clock_info`:
+  `adjfine/adjtime/gettime64/settime64/enable`) against the CSR PTP registers.
+  The default bare-metal/fabric-gPTP profile has no Linux PHC driver and routes
+  adjfine/adjtime from the fabric engine instead. *(1588; Linux PTP)*
 * **REQ-DRV-05 (MUST)** Implement **hardware timestamping**: `ndo_eth_ioctl`
   (`SIOCSHWTSTAMP`/`SIOCGHWTSTAMP`), consume the ts-metadata S2MM stream,
   `skb_hwtstamps` on RX and `skb_tstamp_tx` on TX. *(Linux timestamping)*
@@ -354,8 +367,10 @@ and verification artifacts.
   default priority, back-to-back frames).
 * **REQ-VER-04 (SHOULD)** A **CSR/register-map** testbench (reset values, W1C,
   RO/RW masks, CDC apply-strobe) checked against [`docs/reference/REGISTER_MAP.md`](docs/reference/REGISTER_MAP.md).
-* **REQ-VER-05 (SHOULD)** Driver bring-up validation: `ethtool -T`, `phc2sys`/
-  `ptp4l` lock, `tc qdisc … cbs offload`, `ethtool -S`.
+* **REQ-VER-05 (SHOULD)** Product bring-up validation: fabric-engine GM,
+  asCapable, pdelay, cadence and servo evidence (#117), plus `ethtool -T`,
+  `tc qdisc … cbs offload`, and `ethtool -S`. The option-off A/B oracle also
+  runs `ptp4l`/`phc2sys` lock.
 
 ## 5. Priority / phasing
 
@@ -382,8 +397,9 @@ as historical evidence only.
 ## 8. Acceptance (end-to-end)
 
 The interface is "done" when: (a) the driver binds via the generated DT and
-brings the link up through phylib; (b) `ethtool -T` advertises the PHC and
-`ptp4l`/`phc2sys` discipline the clock; (c) `tc qdisc … cbs offload 1` programs
+brings the link up through phylib; (b) the default fabric engine disciplines
+the PHC and completes #117's two-board wire acceptance, while the explicit
+option-off build still passes `ptp4l`/`phc2sys`; (c) `tc qdisc … cbs offload 1` programs
 the HW shaper and SR streams meet their reservation while BE uses the remainder;
 (d) `ethtool -S` returns HW counters; (e) the CBS and CSR harnesses pass in CI.
 

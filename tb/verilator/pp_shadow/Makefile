@@ -71,6 +71,9 @@ MAAP_D = -DMAAP_MS_CYCLES=100
 # Waivers for VENDORED and PINNED code live in waivers.vlt, scoped to the one
 # rule and the one file that earn them. That is different in kind from a global
 # -Wno-X, which would silence the same finding in RTL we wrote.
+# This is the control-processor substitution harness, so it states the retained
+# gPTP-off comparison shape explicitly. The default-on gPTP lane and its lane-4
+# diagnostics are exercised by milan_dp/sim_gptp.cpp.
 VFLAGS = --cc --exe --build -j 0 \
          --top-module $(TOP) \
          +incdir+$(RTL_DIR)/common +incdir+$(RTL_DIR)/common/csr +incdir+$(RTL_DIR)/common/eth_event_counter \
@@ -78,6 +81,7 @@ VFLAGS = --cc --exe --build -j 0 \
          +incdir+$(RTL_DIR)/ieee8021as/ptp_timestamp +incdir+$(AXIS_DIR) \
          -Wall waivers.vlt \
          -GPB_PREFILL_C=2 -GCLKV_QTICK_CYC_P=4096 -GLDIAG_IVAL_CYC_P=256 \
+         -GGPTP_PLANE_EN_P=0 \
          $(TIM_G) $(MAAP_G) \
          -CFLAGS "-std=c++17 -O2 $(TIM_D) $(MAAP_D)"
 

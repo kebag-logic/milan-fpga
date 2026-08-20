@@ -6,27 +6,29 @@ honest path from `git clone` to something green on your own machine.
 
 ```sh
 git clone https://github.com/kebag-logic/milan-fpga && cd milan-fpga
-git submodule update --init third_party/verilog-axis protocol-processor
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 ```
 
-> **Section 0 -- the one thing people get wrong.** [`third_party/verilog-axis`](third_party/verilog-axis)
-> and [`protocol-processor`](protocol-processor) are git submodules. Both use
+> **Section 0 -- the one thing people get wrong.** [`third_party/verilog-axis`](third_party/verilog-axis),
+> [`protocol-processor`](protocol-processor), and [`gptp-processor`](gptp-processor)
+> are git submodules. All three use
 > anonymous HTTPS, with no account needed. Several testbenches and most of the
-> datapath need both dependencies, and the builder gate imports descriptor and
+> datapath need these dependencies, and the builder gate imports descriptor and
 > ADP definitions from `protocol-processor`. A GitHub *"Download ZIP"* does not
-> contain either submodule.
+> contain their contents.
 >
 > Already took a zip or a tarball? You do not have to start over — just drop the
-> dependency in by hand. The same two repositories are what the pinned
+> dependency in by hand. The same three repositories are what the pinned
 > submodules provide:
 >
 > ```sh
 > git clone https://github.com/alexforencich/verilog-axis third_party/verilog-axis
 > git clone https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan.git protocol-processor
+> git clone https://github.com/Mister-M-alt/FPGA-gPTP.git gptp-processor
 > ```
 >
 > The exact revisions this repo pins are recorded in its git tree. Use
-> `git ls-tree HEAD third_party/verilog-axis protocol-processor` to inspect
+> `git ls-tree HEAD third_party/verilog-axis protocol-processor gptp-processor` to inspect
 > them, then check out the corresponding revision inside each dependency if
 > you want to match the repository exactly.
 >
@@ -171,7 +173,8 @@ deleting it and re-running [`tb/verilator/milan_dp`](tb/verilator/milan_dp)):
 %Error: Cannot find file containing module: '../../../third_party/verilog-axis/rtl/axis_demux.v'
 ```
 
-Fix: `git submodule update --init third_party/verilog-axis`, then `make clean`
+Fix: initialize the dependency named by the error (for the full datapath:
+`git submodule update --init third_party/verilog-axis protocol-processor gptp-processor`), then `make clean`
 in the suite before rebuilding.
 
 ---

@@ -26,6 +26,7 @@
 #include <unistd.h>
 #include <verilated.h>
 #include "Vmilan_datapath.h"
+#include "Vmilan_datapath___024root.h"
 
 static const uint64_t PEER_CID = 0x0080E1FFFE112233ull;
 static const uint64_t GMID = 0x00AACCFFFE010203ull;
@@ -483,6 +484,68 @@ int main(int argc, char **argv) {
   expect("software sync claim hidden", (clkv >> 1) & 1, 0);
   expect("software lease fields hidden", (clkv >> 2) & 0x3FFF, 0);
   expect("software asCapable hidden", (clkv >> 16) & 1, 0);
+
+  // A_TXARB_DIAG is a public ABI, not a comment about implementation names.
+  // Exercise the real default-only gptp_ctl_mux and prove its three verdicts
+  // reach lane 4.  The counter preloads below shorten a 2^16 watchdog wait;
+  // adp_tx/sim_super is the behavioral source-abandonment oracle, while this
+  // white-box stimulus proves the parent integration's bit mapping.
+  dut->m_axis_mac_tx_tready = 0;
+  bool gptp_presented = false;
+  for (uint64_t n = 0; n < 12000000ull && !gptp_presented; n++) {
+    tick(dut);
+    gptp_presented = dut->m_axis_mac_tx_tvalid
+        && ((dut->m_axis_mac_tx_tdata & 0x0000FFFFFFFFFFFFull)
+            == 0x00000E0000C28001ull);
+  }
+  expect("gPTP SOF presented at MAC", gptp_presented, 1);
+  dut->m_axis_mac_tx_tready = 1;
+  tick(dut);                         // accept beat 0 and acquire lane-4 lock
+  dut->m_axis_mac_tx_tready = 0;
+  uint32_t txdiag = axi_read(dut, 0x784);
+  expect("TXARB_DIAG presence tag", txdiag >> 24, 0xA7);
+  expect("gPTP merge lock is lane 4", (txdiag >> 4) & 1, 1);
+  expect("TXARB lanes 7:5 structural zero", txdiag & 0x00E0E0E0u, 0);
+
+  // The byte-to-wide gPTP gearbox may take several clocks to assemble beat 1.
+  // Expiring the watchdog in that inter-beat gap is correctly an abandoned-
+  // source verdict, not a downstream stall. Wait until the real held source is
+  // presenting its next beat while the MAC still refuses it, then shorten only
+  // the watchdog interval.
+  auto *root = dut->rootp;
+  for (int n = 0; n < 64 &&
+       !root->milan_datapath__DOT__g_gptp_plane__DOT__gptp_ctl_mux__DOT__src_tvalid_w;
+       n++) tick(dut);
+  expect("stalled gPTP source remains valid",
+         root->milan_datapath__DOT__g_gptp_plane__DOT__gptp_ctl_mux__DOT__src_tvalid_w,
+         1);
+  root->milan_datapath__DOT__g_gptp_plane__DOT__gptp_ctl_mux__DOT__to_cnt_r
+      = 1u << 16;
+  tick(dut);                         // held-valid refusal -> stall pulse
+  tick(dut);                         // CSR sticky samples the pulse
+  txdiag = axi_read(dut, 0x784);
+  expect("gPTP merge stall sticky is lane 4", (txdiag >> 20) & 1, 1);
+  expect("TXARB reserved lanes stay zero after stall",
+         txdiag & 0x00E0E0E0u, 0);
+
+  dut->m_axis_mac_tx_tready = 1;
+  run(dut, 128);                     // drain the real Pdelay frame
+  while (dut->m_axis_mac_tx_tvalid) tick(dut);
+  root->milan_datapath__DOT__g_gptp_plane__DOT__gptp_ctl_mux__DOT__locked_r = 1;
+  root->milan_datapath__DOT__g_gptp_plane__DOT__gptp_ctl_mux__DOT__sel_r = 1;
+  root->milan_datapath__DOT__g_gptp_plane__DOT__gptp_ctl_mux__DOT__flush_r = 0;
+  root->milan_datapath__DOT__g_gptp_plane__DOT__gptp_ctl_mux__DOT__to_cnt_r
+      = 1u << 16;
+  dut->eval();
+  expect("abort preload selects an absent gPTP source",
+         root->milan_datapath__DOT__g_gptp_plane__DOT__gptp_ctl_mux__DOT__src_tvalid_w,
+         0);
+  tick(dut);                         // selected gPTP source absent -> abort
+  tick(dut);                         // injected close accepted + CSR samples
+  txdiag = axi_read(dut, 0x784);
+  expect("gPTP merge abort sticky is lane 4", (txdiag >> 12) & 1, 1);
+  expect("TXARB reserved lanes stay zero after abort",
+         txdiag & 0x00E0E0E0u, 0);
 
   // scan the MAC boundary for the plane's boot Pdelay_Req: an 0x88F7
   // frame whose transportSpecific|msgType byte is 0x12

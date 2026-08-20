@@ -2,9 +2,9 @@
 <rect width="1760" height="832" fill="#FAFAFA"/>
 <defs><marker id="arr" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#455A64"/></marker><marker id="arrc" markerWidth="12" markerHeight="12" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#8D6E63"/></marker></defs>
 <text x="40" y="44" font-size="26" font-weight="bold" fill="#263238">milan-fpga time sync - the three clocks and how they chain</text>
-<text x="40" y="70" font-size="12.5" fill="#546E7A">network PHC (gPTP)  -&gt;  system clock (phc2sys)   -   PHC + CRF  -&gt;  media clock (MMCM-DRP servo)   -   CSR offsets per docs/reference/REGISTER_MAP.md   -   arrows = time/timestamp flow, not audio samples</text>
-<text x="40" y="104" font-size="13" font-weight="700" fill="#1565C0">NETWORK TIME - gPTP (802.1AS, domain 0)</text>
-<text x="40" y="278" font-size="13" font-weight="700" fill="#B26A00">THE HUB - PTP hardware clock (PHC) and its software consumers</text>
+<text x="40" y="70" font-size="12.5" fill="#546E7A">fabric gPTP  -&gt;  network PHC  -&gt;  optional system clock   -   PHC + CRF  -&gt;  media clock (MMCM-DRP servo)   -   CSR offsets per docs/reference/REGISTER_MAP.md   -   arrows = time/timestamp flow, not audio samples</text>
+<text x="40" y="104" font-size="13" font-weight="700" fill="#1565C0">NETWORK TIME - fabric-default gPTP (802.1AS, domain 0)</text>
+<text x="40" y="278" font-size="13" font-weight="700" fill="#B26A00">THE HUB - PTP hardware clock (PHC) and optional software consumers</text>
 <text x="40" y="433" font-size="13" font-weight="700" fill="#EF6C00">AVTP TIMESTAMP CONSUMERS (presentation time against the PHC)</text>
 <text x="40" y="566" font-size="13" font-weight="700" fill="#2E7D32">MEDIA CLOCK - CRF + MMCM-DRP servo (Milan v1.2 clause 7.3)</text>
 <text x="40" y="584" font-size="11" font-weight="400" fill="#555555">coherent chain: capture, CRF grid and (via the servo) the listener playback clock follow one audio-MMCM lineage - loop -83.9 dB (2026-07-23, converter floor)</text>
@@ -17,25 +17,25 @@
 <text x="280.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">RGMII/GMII</text>
 <text x="280.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">LiteEth or MilanMAC</text>
 <rect x="390" y="116" width="250" height="84" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
-<text x="515.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">ptp_ts_top TX+RX taps</text>
-<text x="515.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">latch PHC @SOP, qualify @TLAST</text>
-<text x="515.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">0x88F7 EVENT msgs only</text>
+<text x="515.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">fabric gPTP RX/TX seams</text>
+<text x="515.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">KL_gptp_shadow RX @ accepted SOF</text>
+<text x="515.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">KL_gptp_txstamp @ MAC boundary</text>
 <rect x="675" y="116" width="200" height="84" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
-<text x="775.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">dma-ts record ring</text>
-<text x="775.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">16 B {ns, seq/type/dir}</text>
-<text x="775.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">LiteX CSR (build/csr.csv)</text>
-<rect x="910" y="116" width="190" height="84" rx="9" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
-<text x="1005.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">kl-eth driver</text>
-<text x="1005.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">/dev/ptp0 + SO_TIMESTAMPING</text>
-<text x="1005.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">matches {msgType, seq}</text>
-<rect x="1135" y="116" width="180" height="84" rx="9" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
-<text x="1225.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">ptp4l</text>
-<text x="1225.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">BMCA + servo (softcore)</text>
-<text x="1225.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">ingressLatency 3511/1490 ns</text>
+<text x="775.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">gptp-processor</text>
+<text x="775.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">BTCA + Pdelay + Sync/FU</text>
+<text x="775.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">PHC servo, fabric default</text>
+<rect x="910" y="116" width="190" height="84" rx="9" fill="#E3F2FD" stroke="#1565C0" stroke-width="2"/>
+<text x="1005.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">atomic publication bank</text>
+<text x="1005.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">GM + parent + pdelay</text>
+<text x="1005.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">sync/asCapable + tu warning</text>
+<rect x="1135" y="116" width="180" height="84" rx="9" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="1225.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">option-off comparison</text>
+<text x="1225.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">ptp_ts_top -&gt; DMA -&gt; kl-eth</text>
+<text x="1225.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">ptp4l BMCA + servo</text>
 <rect x="1350" y="116" width="370" height="84" rx="9" fill="#ECEFF1" stroke="#455A64" stroke-width="2" stroke-dasharray="7 5"/>
-<text x="1535.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">silicon record (2026-07-13)</text>
-<text x="1535.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">peer delay 600 us (SW) -&gt; 1.3 us (HW)</text>
-<text x="1535.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">slave lock rms 2-4 ns through the AVB switch</text>
+<text x="1535.0" y="140" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">acceptance boundary</text>
+<text x="1535.0" y="158" font-size="11" fill="#37474F" text-anchor="middle">processor + parent RTL evidence passes</text>
+<text x="1535.0" y="173" font-size="11" fill="#37474F" text-anchor="middle">#116 rootfs retirement; #117 two-board wire proof</text>
 <rect x="40" y="290" width="330" height="96" rx="9" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
 <text x="205.0" y="314" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">PHC - timestamp_counter</text>
 <text x="205.0" y="332" font-size="11" fill="#37474F" text-anchor="middle">Q8.24 ns accumulator, datapath clock</text>
@@ -48,10 +48,10 @@
 <text x="707.5" y="314" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">system clock</text>
 <text x="707.5" y="332" font-size="11" fill="#37474F" text-anchor="middle">Linux CLOCK_REALTIME</text>
 <text x="707.5" y="347" font-size="11" fill="#37474F" text-anchor="middle">(timers, userland)</text>
-<rect x="1190" y="290" width="330" height="96" rx="9" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2"/>
-<text x="1355.0" y="314" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">gptp2csr.sh</text>
-<text x="1355.0" y="332" font-size="11" fill="#37474F" text-anchor="middle">publishes GM 0x624/0x628 - pdelay 0x6E4</text>
-<text x="1355.0" y="347" font-size="11" fill="#37474F" text-anchor="middle">AS_PATH parent 0x730/0x734 (ADP/AEM truth)</text>
+<rect x="1190" y="290" width="330" height="96" rx="9" fill="#F3E5F5" stroke="#6A1B9A" stroke-width="2" stroke-dasharray="7 5"/>
+<text x="1355.0" y="314" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">gptp2csr.sh (option off)</text>
+<text x="1355.0" y="332" font-size="11" fill="#37474F" text-anchor="middle">software shadows GM 0x624/0x628 - pdelay 0x6E4</text>
+<text x="1355.0" y="347" font-size="11" fill="#37474F" text-anchor="middle">AS_PATH parent 0x730/0x734 + CLKV lease</text>
 <rect x="40" y="445" width="300" height="76" rx="9" fill="#FFF3E0" stroke="#EF6C00" stroke-width="2"/>
 <text x="190.0" y="469" font-size="14" font-weight="bold" fill="#212121" text-anchor="middle">AAF packetizer</text>
 <text x="190.0" y="487" font-size="11" fill="#37474F" text-anchor="middle">avtp_timestamp = ptp_now + PTO</text>
@@ -99,16 +99,21 @@
 <path d="M355,145 L390,145" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
 <path d="M390,175 L355,175" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
 <path d="M640,158 L675,158" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
+<text x="657.5" y="152.0" font-size="10.5" fill="#5D4037" text-anchor="middle">frame + timestamp</text>
 <path d="M875,158 L910,158" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
-<path d="M1100,158 L1135,158" fill="none" stroke="#455A64" stroke-width="1.8" marker-end="url(#arr)"/>
+<text x="892.5" y="152.0" font-size="10.5" fill="#5D4037" text-anchor="middle">commit</text>
+<path d="M775,200 L775,246 L205,246 L205,290" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
+<text x="490.0" y="240.0" font-size="10.5" fill="#5D4037" text-anchor="middle">adjfine / adjtime (default fabric owner)</text>
 <path d="M1225,200 L1225,246 L205,246 L205,290" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
-<text x="715.0" y="240.0" font-size="10.5" fill="#5D4037" text-anchor="middle">adjfine / adjtime / settime - CSR 0x500 group (via kl-eth)</text>
+<text x="715.0" y="240.0" font-size="10.5" fill="#5D4037" text-anchor="middle">option off: adjfine / adjtime / settime via kl-eth</text>
 <path d="M100,290 L100,224 L515,224 L515,200" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
 <text x="307.5" y="218.0" font-size="10.5" fill="#5D4037" text-anchor="middle">ptp_now (64-bit ns)</text>
 <path d="M370,338 L410,338" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
 <path d="M580,338 L615,338" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
 <path d="M1280,200 L1280,290" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
-<text x="1286.0" y="241.0" font-size="10.5" fill="#5D4037" text-anchor="start">PMC PARENT_DATA_SET</text>
+<text x="1286.0" y="241.0" font-size="10.5" fill="#5D4037" text-anchor="start">option off: PMC data</text>
+<path d="M1355,290 L1355,250 L1005,250 L1005,200" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
+<text x="1180.0" y="244.0" font-size="10.5" fill="#5D4037" text-anchor="middle">option-off selected publication</text>
 <path d="M190,386 L190,445" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
 <text x="196.0" y="411.5" font-size="10.5" fill="#5D4037" text-anchor="start">ptp_now + PTO</text>
 <path d="M330,386 L330,415 L530,415 L530,445" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
@@ -126,5 +131,5 @@
 <text x="465.0" y="712.0" font-size="10.5" fill="#5D4037" text-anchor="middle">clk_audio 24.576 MHz - own /512 + /96 event grid</text>
 <path d="M1575,692 L1575,744 L60,744 L60,692" fill="none" stroke="#8D6E63" stroke-width="1.8" marker-end="url(#arrc)" stroke-dasharray="6 4"/>
 <text x="817.5" y="738.0" font-size="10.5" fill="#5D4037" text-anchor="middle">fine-PS step rate = ppm trim - DRP verify/repair (auto_repair 0x8FC[1])</text>
-<text x="40" y="814" font-size="11" fill="#78909C">sources: hdl/ieee8021as/ptp_timestamp - hdl/ieee1722/crf - hdl/milan/milan_datapath.sv - sw/litex/milan_soc.py   -   regenerate: python3 docs/diagrams/timesync_chain.gen.py docs/diagrams/timesync_chain</text>
+<text x="40" y="814" font-size="11" fill="#78909C">sources: hdl/ieee8021as/gptp_plane - gptp-processor - hdl/ieee8021as/ptp_timestamp - hdl/ieee1722/crf - hdl/milan/milan_datapath.sv   -   regenerate: python3 docs/diagrams/timesync_chain.gen.py docs/diagrams/timesync_chain</text>
 </svg>

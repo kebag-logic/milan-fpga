@@ -10,6 +10,6 @@ hand-edit. Part of the IEEE 802.1AS family; rolled up in
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_gptp_shadow` | `KL_gptp_shadow.sv` | `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | — |
-| ✅ `KL_gptp_txstamp` | `KL_gptp_txstamp.sv` | `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | — |
+| ✅ `KL_gptp_shadow` | `KL_gptp_shadow.sv` | `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | 10.2, 10.3, 11.3, 8.4.3 |
+| ✅ `KL_gptp_txstamp` | `KL_gptp_txstamp.sv` | `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | 11.3, 8.4.3 |
 

@@ -30,7 +30,7 @@ Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement ha
 - **[4. Scalability architecture](#4-scalability-architecture)** -- How the three growth axes are actually meant to work: the JSON entity model as the scale-up knob, the control/media/time plane split as the basis for scale-out, an SMP-vs-AMP comparison with a worked 3-core diagram, and the sizing formula Section 4.5 admits is not yet populated.
 - **[5. Steps to comply with Milan v1.2 (procedure)](#5-steps-to-comply-with-milan-v12-procedure)** -- The ordered twelve-step path from bare platform to conformance run, each step citing the FRs it discharges. Ends with the explicit out-of-scope list -- redundancy, rates beyond 192 kHz, AEM authentication.
 - **[6. Traceability (summary)](#6-traceability-summary)** -- One compact table joining each functional area to its Milan clause, its entity-model artifact, and its plan milestone -- the index to use when you need "which requirement covers this".
-- **[7. Verification approach](#7-verification-approach)** -- Which evidence class answers which kind of requirement: Verilator harnesses for leaf blocks, controller/`ptp4l`/`tc` tooling for interop, YAML models for PDU byte-exactness, and repetition at full profile for the scale claims.
+- **[7. Verification approach](#7-verification-approach)** -- Which evidence class answers which kind of requirement: Verilator harnesses for leaf blocks and the fabric gPTP integration, controller/`tc` tooling plus the option-off `ptp4l` oracle for interop, YAML models for PDU byte-exactness, and repetition at full profile for the scale claims.
 
 ## 1. Scope, actors, and the baseline system
 
@@ -38,17 +38,16 @@ Requirement keywords per RFC 2119 (**MUST / SHOULD / MAY**). Each requirement ha
 One entity, one network port, on **one softcore**:
 
 ```
-   Controller (Hive / avdecc_l2.py)                Media (PipeWire / UAC2)
-            │  1722.1 AVDECC (L2)                          │ audio
+   Controller (Hive / avdecc_l2.py)                 Physical TDM/I2S audio
+            │  1722.1 AVDECC (L2)                          │
             ▼                                              ▼
    ┌───────────────────────── AX7101 (xc7a100t) ────────────────────────┐
-   │  VexiiRiscv core0 + Linux                                          │
-   │   • PipeWire module-avb: ADP/AECP/ACMP/MAAP + AVDECC entity        │
-   │   • OpenAvnu mrpd: MSRP/MVRP   • linuxptp: gPTP (802.1AS)          │
-   │   • kl-eth driver: PHC, HW timestamps, CBS offload                 │
+   │  Cacheless RV32I core0 + bare-metal firmware                       │
+   │   • AEM image verification, identity, PHC epoch and status         │
+   │   • no Linux, PHC daemon or host sound-card surface                │
    ├───────────────────────────────────────────────────────────────────┤
-   │  FPGA datapath (HW): GMII MAC ─ 802.1Q classifier ─ 802.1Qav CBS   │
-   │                       ─ PTP timestamp ─ (AVTP talker/listener)     │
+   │  FPGA datapath: protocol processor (ADP/AECP/ACMP/SRP) + MAAP     │
+   │    fabric gPTP/BMCA/servo ─ PHC ─ classifier/CBS ─ AAF/CRF media  │
    └───────────────────────────────────────────────────────────────────┘
                                    │ GMII 1 GbE
                                    ▼  AVB/TSN network (bridge)
@@ -143,7 +142,7 @@ These repeated claims are checked against the
 | **FR-CONN-03/04** (fast-connect, nonvolatile connection state) | **NOT MET** | The persistence journal and the bind-restore port are structural zeros: writes are accepted, nothing is restored, **no binding survives a power cycle**. Milan v1.2 5.3.8.2 wants saved state; this build does not have it and says so structurally |
 | **FR-MAAP-01** | **MET, in this fabric** | `KL_maap` remains the shipping allocator. The processor also contains `KL_pp_maap`, but this integration disables it with `cfg_maap_internal_i = 0` and reaches the selected fabric engine through `KL_pp_maap_shim`. The talker cannot declare without an `ALLOC_DA` success, so the DA gate *is* the talker gate |
 | **FR-SRP-01/02/03** | **OWNED BY THE PROTOCOL PROCESSOR** | Its SRP engine registers/deregisters and admits; the granted slope, adopted domain and admission bit drive the CBS mux and the AAF gate exactly as before. The slope/gate *ordering* changed shape and not safety — see [EGRESS_QUEUE_MAP.md](EGRESS_QUEUE_MAP.md) |
-| **FR-CLK-01/02/05** (gPTP, PHC, HW timestamps) | **MET** | Untouched by the substitution |
+| **FR-CLK-01/02/05** (gPTP, PHC, HW timestamps) | **IMPLEMENTED; PRODUCT ACCEPTANCE OPEN** | VERSION `0x0002_0055` makes `KL_gptp_shadow` + the pinned processor the default owner of BTCA, Announce/Sync/Pdelay, servo, timestamps and atomic publication. Parent and processor RTL suites pass; #116 owns the default flip and rootfs retirement, while #117 owns the two-board wire/latency campaign. `ptp4l` is option-off only |
 | **FR-CLK-03/04** (select and recover the media clock from Internal / input-stream / CRF sources) | **NOT MET AT THE ROOT INTEGRATION** | The processor accepts and stores `SET_CLOCK_SOURCE`, and `KL_pp_shadow.sv` exports `aecp_clk_src_index_o` to the root. The media plane does not consume that selection, so `CRF_CLK_SELECTED_C` remains zero (INTERNAL) and the MMCM-DRP and packet-grid NCO servos stay idle. `KL_crf_rx` still parses, counts and reports, but cannot steer the media clock |
 | **FR-STR-01/02/04/05** (AAF encapsulation, de-encapsulation, listener counters, parameterisation) | **MET** | The media plane is intact |
 | **FR-STR-03/03a/03b** (listener format adaptation via SET_STREAM_FORMAT) | **MET AT THE CONTROL PLANE (0x0053); wire reshape deferred** | `SET_STREAM_FORMAT` is served for both stream directions with the Milan 5.4.2.7 refusals and a per-row format verdict; a stored setting becomes the served current format and drives STREAM_INPUT 0's acceptance filter. The *wire-truth* rule still governs de-interleaving, so render adaptation follows channels_per_frame off the wire; what remains deferred is the framers re-shaping from a stored format, recorded in the audit with the SET_CONFIGURATION precedent |
@@ -316,9 +315,9 @@ The `kl,dma-ether` node describes the HW to the driver. Binding schema:
 | NFR-RES-01 | Baseline (1 core, stereo 48 k) MUST fit `xc7a100t` with headroom (target ≤ 60 % LUT) to leave room for scale-out. | M | A |
 | NFR-REL-01 | A stream fault (link flap, GM change, talker loss) MUST auto-recover without a reboot; counters MUST record the event. | M | T |
 | NFR-REL-02 | Watchdog/keepalive MUST detect a hung media core (AMP) and restart it without dropping the control plane. | S | T |
-| NFR-OBS-01 | The system MUST expose observability: `ethtool -S`, `ethtool -T`, `ptp4l` metrics, AVDECC counters, and per-core load. | S | D |
+| NFR-OBS-01 | The system MUST expose observability: `ethtool -S`, `ethtool -T`, fabric gPTP publication/drop/servo metrics, AVDECC counters, and per-core load. Option-off builds additionally expose `ptp4l` metrics. | S | D |
 | NFR-MAINT-01 | The entity model MUST be single-source (JSON) and shared HW/SW/test; divergence MUST be caught in CI. | M | I |
-| NFR-PORT-01 | The control/media software (PipeWire module-avb, mrpd, linuxptp) MUST build for RV64 Linux; RV32 fallback MUST remain possible. | S | A |
+| NFR-PORT-01 | Retained host audio/application services, the kl-eth driver, and option-off linuxptp tooling MUST build for RV64 Linux; RV32 fallback MUST remain possible. Protocol, reservation, media framing and default gPTP ownership are fabric functions. | S | A |
 | NFR-SEC-01 | Milan v1.2 does not mandate AEM authentication; the entity MUST advertise `AEM_AUTHENTICATION` = not-required and behave safely when unauthenticated. | M | I |
 
 ---
@@ -337,24 +336,26 @@ The `kl,dma-ether` node describes the HW to the driver. Binding schema:
 ### 4.2 Plane partitioning (the basis for scale-out)
 | Plane | Functions | Real-time? | Baseline core | Scales to |
 |-------|-----------|-----------|---------------|-----------|
-| **Control** | ADP, AECP/AEM+MVU, ACMP, MAAP, MSRP/MVRP, driver mgmt | soft (ms) | core0 (Linux) | 1 core (rarely the bottleneck) |
-| **Media** | AVTP talker/listener, sample transport, presentation-time, media-clock | hard (µs) | core0 (Linux RT thread) | **1 core per K streams** (AMP cores) |
-| **Time** | gPTP servo, PHC discipline, CRF gen/recover | hard (µs) | core0 + HW PHC | HW-assisted; 1 core |
+| **Control** | ADP, AECP/AEM+MVU, ACMP, MAAP, MSRP/MVRP | bounded protocol deadlines | fabric protocol processor + MAAP | replicate endpoint/processor per port |
+| **Media** | AVTP talker/listener, presentation-time, CRF generation/reception | hard (µs) | fabric AAF/CRF engines; core0 supplies/consumes ring audio | fabric stream parameters scale with the generated entity |
+| **Time** | gPTP BTCA/servo/PHC discipline | hard (µs) | fabric `KL_gptp_shadow` + processor; option-off core0 oracle | one engine per coherent PHC/domain |
 
 ### 4.3 SMP vs AMP (both required by NFR-SCOUT-01)
-- **SMP**  -  NaxRiscv coherent multi-core, one Linux image, LiteX SMP config. Media
-  threads pinned to cores, `isolcpus`/`SCHED_FIFO` for determinism. *Easiest scale-up
-  of stream/channel count; good for `P_CORES` 2–4.*
-- **AMP**  -  core0 runs Linux + the whole control/time plane; cores 1..N run a
-  bare-metal/RTOS **media engine** (AVTP encode/decode, DMA to the audio interface),
-  no OS jitter. Control↔media via a shared-memory ring + IPI mailbox
-  (NFR-SCOUT-03). *Best determinism; each media core adds a fixed stream budget.*
+- **SMP**  -  a retained scale-out option: coherent multi-core Linux for host
+  applications, while protocol, time and wire-media ownership remains in
+  fabric. Threads may be pinned with `isolcpus`/`SCHED_FIFO` for determinism.
+- **AMP**  -  fabric still owns the control/time/wire-media planes; core0 runs
+  management/provisioning and cores 1..N may run bare-metal/RTOS audio
+  producers or consumers. Host↔fabric media uses shared-memory rings + an IPI
+  mailbox (NFR-SCOUT-03). *Best determinism; each media core adds a fixed host
+  application budget rather than a second protocol owner.*
 
 ```
   AMP scale-out (P_CORES = 3, P_PORTS = 1):
-    core0  Linux: ADP/AECP/ACMP/MAAP/MSRP + gPTP servo + driver   (control+time)
-    core1  bare-metal media engine: AVTP talker/listener  stream set A
-    core2  bare-metal media engine: AVTP talker/listener  stream set B
+    FPGA   protocol + gPTP + AVTP/CRF engines                     (wire owners)
+    core0  Linux: driver + host audio/application services         (management)
+    core1  optional bare-metal audio producer/consumer             (stream set A)
+    core2  optional bare-metal audio producer/consumer             (stream set B)
       │ shared-mem rings + IPI                     │ per-core DMA queues
       └──────────────► single coherent PHC ◄───────┘  (NFR-SCOUT-04)
                        single MAC / CBS / classifier (HW, arbitrated)
@@ -381,8 +382,10 @@ cites the FRs it satisfies and the milestone in
 
 1. **Platform up**  -  RISC-V Linux on the AX7101 with the HW datapath (MAC/CBS/
    classifier/PHC) and the driver (PHC, HW timestamps, CBS offload). *(M-A5)*
-2. **gPTP (802.1AS)**  -  run `linuxptp` as a time-aware endpoint on a fixed 125 MHz
-   PHC; verify ≤ 1 µs sync. *(FR-CLK-01/02, NFR-TIME-01)*
+2. **gPTP (802.1AS)**  -  run the default fabric plane as a time-aware endpoint;
+   verify ≤ 1 µs sync, correct reference-plane latency, cadence and recovery in
+   #117. Retain `linuxptp` only as the explicit option-off A/B oracle.
+   *(FR-CLK-01/02, NFR-TIME-01)*
 3. **Entity model**  -  select an `endstation_*.yaml` configuration. The
    builder generates `aem_desc.bin`, `aem_desc.json`, and `aem_desc.map`; the
    tracked board flow packages the pair and runs `aemi-load` at
@@ -401,7 +404,7 @@ cites the FRs it satisfies and the milestone in
 10. **Fault behavior**  -  stream-interruption/redundancy-off recovery, counters,
     IDENTIFY. *(FR-STR-04, NFR-REL-01, FR-MGT-01)*
 11. **Conformance**  -  run the internal Milan conformance plan (bench suite) + `srcs/the-private-test-repo`
-    (`avdecc_l2.py`, `ptp4l`, `tc cbs`) and the `tsn-gen` AECP PDU checks. *(all Ver=T)*
+    (`avdecc_l2.py`, fabric-gPTP probes, option-off `ptp4l`, `tc cbs`) and the `tsn-gen` AECP PDU checks. *(all Ver=T)*
 12. **Scale**  -  re-run with the full entity model (8-ch, 48/96/192k) and with
     `P_CORES ≥ 2` (SMP then AMP) to prove Sections 3.3/3.4. *(NFR-SCUP/SCOUT)*
 
@@ -435,7 +438,8 @@ cites the FRs it satisfies and the milestone in
 - **Integration/interop:** Hive + `srcs/the-private-test-repo/controller/avdecc_l2.py`
   (ADP and ACMP; on AECP, GET_COUNTERS serves the declared counter banks and
   the tracked flow loads the descriptor image before entity enable),
-  `ptp4l`/`phc2sys`, `tc qdisc … cbs offload`.
+  fabric-gPTP two-board probes (#117), option-off `ptp4l`/`phc2sys`, and
+  `tc qdisc … cbs offload`.
 - **PDU byte-exactness:** the AECP PDU model campaigns have a responder again.
   `aecp_read_descriptor` is a real byte-exact test **once an image is in DRAM**;
   the rest measure the echo's header discipline, which is the conformance floor

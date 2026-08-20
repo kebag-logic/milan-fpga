@@ -67,8 +67,8 @@ The plane has four seams:
    the MAC back-to-back behind another frame -- the exact class the
    512-cycle gasket exists for (the MilanMAC cut-through eater). The
    plane's own exchange pairs are self-spaced by the 1 B/clk gearbox,
-   and #117's silicon rounds own the wire answer before #116 flips
-   the option on.
+   and #117's silicon rounds own the wire answer before #116 closes and the
+   product release accepts the default-on plane.
 3. **PHC**: the plane owns `timestamp_counter`'s adjfine (a
    pulse-to-level latch lives in the shadow) and adjtime when enabled;
    settime stays with the CSR face -- boot sets the epoch. Off, both

@@ -46,7 +46,7 @@ the gptp2csr fallback there, then use #117 to prove a booted default build reads
 
 ## Contents
 
-- **[Current default at 0x0002_0055](#current-default-at-0x0002_0055)** — The fabric engine owns BMCA, pdelay, PHC discipline and the committed publication bank; the sibling-rootfs retirement and #117 silicon observation remain explicit blockers
+- **[Current default at 0x0002_0055](#current-default-at-0x0002_0055)** — The fabric engine owns BMCA, pdelay, PHC discipline and the committed publication bank; #116's sibling-rootfs retirement and #117's silicon observation remain explicit blockers
 - **[1. What "GM lost" actually is on the wire](#1-what-gm-lost-actually-is-on-the-wire)** — Loss is inferred from announce silence; a deferring device still self-claims when alone, and the real GM's return is a measured 18-60 s phase cliff, not a smooth re-slave
 - **[2. The ptp4l layer — step vs slew, and the one-step budget](#2-the-ptp4l-layer--step-vs-slew-and-the-one-step-budget)** — option-off step/slew measurements
 - **[3. The publication layer — how the fabric learns about it](#3-the-publication-layer--how-the-fabric-learns-about-it)** — the retired UDS/statd/CSR lease baseline

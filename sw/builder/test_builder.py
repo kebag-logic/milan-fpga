@@ -239,6 +239,7 @@ CONFIGS = {
 }
 OUT = os.path.join(HERE, "out")
 SWEEP = os.path.join(ROOT, "sw/litex/sweep.sh")
+BUILD = os.path.join(ROOT, "sw/litex/build.sh")
 
 #: Gates that did NOT run, recorded by gate_skip() as they skip.
 #:
@@ -1019,6 +1020,12 @@ GPTP_PLANE_CASES = [
 # Vivado directives, so rebuilding only emit_soc_argv plus one common flow
 # tail does not exercise this argv shape.
 GPTP_DEPLOY_CASE = ("deploy build", 1)
+GPTP_BUILD_CASE = ("build.sh ax7101", 1)
+GPTP_SWEEP_CASES = [
+    ("sweep.sh ax7101 asl", 1),
+    ("sweep.sh ax7101 eto", 1),
+    ("sweep.sh ax7101 eppo", 1),
+]
 
 
 def _deploy_build_argv():
@@ -1032,13 +1039,57 @@ def _deploy_build_argv():
     return shlex.split(opts) + ["--build", "--uart-baudrate", "115200"]
 
 
+def _dry_run_soc_argv(script, args):
+    """Every milan_soc.py argv printed by a launcher's real dry-run path.
+
+    The shell, not this test, expands the recipe, the flow tail and their
+    final ordering.  That distinction is load-bearing: a token appended at
+    the actual launch line must appear here even when the cfg_* recipe parser
+    and emit_soc_argv still agree.
+    """
+    env = dict(os.environ, PYTHONHASHSEED="0")
+    proc = subprocess.run(["bash", script] + list(args), cwd=SOC_DIR, env=env,
+                          text=True, capture_output=True)
+    assert proc.returncode == 0, (
+        f"{os.path.basename(script)} {' '.join(args)} dry-run failed "
+        f"(rc={proc.returncode})\n{proc.stdout[-2000:]}\n{proc.stderr[-2000:]}")
+    rows = []
+    for line in proc.stdout.splitlines():
+        tokens = shlex.split(line.strip())
+        for i, token in enumerate(tokens):
+            if os.path.basename(token) == "milan_soc.py":
+                rows.append(tokens[i + 1:])
+                break
+    assert rows, (
+        f"{os.path.basename(script)} {' '.join(args)} printed no "
+        f"milan_soc.py argv\n{proc.stdout[-2000:]}")
+    return rows
+
+
+def _build_launcher_runs(path=BUILD):
+    """The one shipping build.sh command, expanded by build.sh itself."""
+    rows = _dry_run_soc_argv(path, ["ax7101", "--dry-run"])
+    assert len(rows) == 1, f"build.sh ax7101 emitted {len(rows)} commands, want 1"
+    return [(GPTP_BUILD_CASE[0], rows[0])]
+
+
+def _sweep_launcher_runs(path=SWEEP):
+    """All three shipping sweep commands, expanded by sweep.sh itself."""
+    rows = _dry_run_soc_argv(path, ["ax7101", "gate1e", "--dry-run"])
+    assert len(rows) == len(GPTP_SWEEP_CASES), (
+        f"sweep.sh ax7101 emitted {len(rows)} commands, "
+        f"want {len(GPTP_SWEEP_CASES)}")
+    return [(case[0], argv)
+            for case, argv in zip(GPTP_SWEEP_CASES, rows)]
+
+
 def _flow_tail(out_dir):
-    """The FLOW tail a real launcher appends after the shape flags.
+    """A complete FLOW tail used by the profile/default carrier probes.
 
     THE WHOLE POINT OF THIS FUNCTION IS THAT THE GATE RUNS IT. An argv
     rebuilt from `emit_soc_argv` alone is not the line that ships: every real
     launch ends in the Vivado directives, the thread cap, an output directory
-    and `--build` (`sw/litex/sweep.sh:121-123`, `sw/litex/build.sh:290`).
+    and `--build` (`sw/litex/sweep.sh:127-131`, `sw/litex/build.sh:303`).
     Those are precisely the flags check_sweep_shape excludes from its
     comparison, so they are precisely where a build differs from anything a
     comparison can see, and a late
@@ -1050,8 +1101,10 @@ def _flow_tail(out_dir):
     (measured 2026-08-20). That is the #130 / #143 decorative-flag class one
     level up, inside the gate written to close it.
 
-    Values are the ones the shipping launchers actually pass. `--build` is
-    safe here and is not merely tolerated: the Instance is constructed inside
+    The real build.sh and sweep.sh commands are consumed separately through
+    their dry-run paths below; this synthetic tail exists to exercise every
+    member of check_sweep_shape.FLOW_FLAGS on both profile polarities.
+    `--build` is safe here and is not merely tolerated: the Instance is constructed inside
     MilanSoC.__init__, and `args.build` is not read until
     `builder.build(run=args.build)` hundreds of lines later, so the spy raises
     first. The gate PROVES that rather than asserting it, by handing over an
@@ -1073,15 +1126,15 @@ def _flow_tail(out_dir):
 
 
 def _gptp_runs(out_dir):
-    """(runs, gen dirs) for profile variants plus the real deploy.sh argv.
+    """Profile probes plus the actual build, sweep and deploy launcher argv.
 
     The profile baselines are the end-station builder's own emitted argv with
     the gptp token removed, PLUS the complete build.sh/sweep.sh flow tail. The
-    separate deploy case is parsed from deploy.sh and intentionally carries
-    `--build` without an output directory or Vivado directives. Including
-    both real launcher shapes matters: a handoff conditioned on a flow flag can
-    elaborate the right plane in a dry probe and ship the wrong one. The spy
-    stops at Instance("milan_datapath"), before Vivado or the output path runs.
+    actual build.sh and sweep.sh cases are expanded by the scripts' own
+    dry-run paths, not reconstructed here.  The deploy case is parsed from
+    deploy.sh and intentionally carries `--build` without an output directory
+    or Vivado directives.  The spy stops at Instance("milan_datapath"), before
+    Vivado or the output path runs.
     """
     runs, gens = [], {}
     tail = _flow_tail(out_dir)
@@ -1098,6 +1151,8 @@ def _gptp_runs(out_dir):
         cfg, gen, base = gens[key]
         runs.append((label, base + ([flag] if flag else []) +
                      ["--entity-gen-dir", gen] + tail))
+    runs.extend(_build_launcher_runs())
+    runs.extend(_sweep_launcher_runs())
     runs.append((GPTP_DEPLOY_CASE[0], _deploy_build_argv()))
     return runs, gens
 
@@ -1113,6 +1168,8 @@ def _gptp_plane_contract(got):
     seen = {}
     expected = [(label, want)
                 for label, _key, _flag, want in GPTP_PLANE_CASES]
+    expected.append(GPTP_BUILD_CASE)
+    expected.extend(GPTP_SWEEP_CASES)
     expected.append(GPTP_DEPLOY_CASE)
     for label, want in expected:
         row = got.get(label)
@@ -1185,9 +1242,10 @@ def test_gptp_plane_reaches_the_instance():
             f"gate 1e ran with --build and the output directory is not empty "
             f"({left}) - the Instance spy no longer stops the elaboration, so "
             "these runs are not the cheap read-back they are documented to be")
-    print(f"  [gate 1e] {len(runs)} real milan_soc.py elaborations, each "
-          f"carrying the full launcher tail ({len(css.FLOW_FLAGS)} flow flags "
-          "including --build): --fabric-gptp lands as p_GPTP_PLANE_EN_P=1 "
+    print(f"  [gate 1e] {len(runs)} real milan_soc.py elaborations: both "
+          "profile/default polarities with every flow flag, the actual "
+          "shipping build.sh command, all three actual sweep.sh commands, "
+          "and deploy.sh build. --fabric-gptp lands as p_GPTP_PLANE_EN_P=1 "
           "with an absolute p_GPTP_UCODE_HEX_P, --no-fabric-gptp lands as 0 "
           "with no ROM, on BOTH profiles omitting the flag reaches a "
           "byte-identical Instance to stating it, and the --build output "
@@ -1274,6 +1332,53 @@ def test_gptp_plane_instance_gate_bites():
             bad = _gptp_plane_contract(got)
             assert bad, (f"gate 1e accepted a milan_soc.py in which {why} "
                          f"({mutations[0][0]!r} -> {mutations[0][1]!r})")
+
+        # A launcher can append a token AFTER its cfg_* recipe, beyond the
+        # source parsed by check_sweep_shape.  Execute mutated copies in the
+        # real sw/litex directory so their path resolution is unchanged, then
+        # require this gate's own grader to turn red on the emitted argv.
+        launcher_mutations = [
+            (BUILD, _build_launcher_runs,
+             "--build --output-dir $out\"\n    if [ \"$DRY\" = 1 ]; then",
+             "--build --output-dir $out\"\n"
+             "    cmd=\"${cmd/--software-profile baremetal/--software-profile linux}\"\n"
+             "    cmd=\"${cmd/--fabric-gptp/--no-fabric-gptp}\"\n"
+             "    cmd=\"${cmd/--flashboot baremetal/--flashboot full}\"\n"
+             "    if [ \"$DRY\" = 1 ]; then",
+             "build.sh late owner flip"),
+            (SWEEP, _sweep_launcher_runs,
+             "local cmd=\"$BASE --place-directive $2 --output-dir "
+             "$W/build_${BOARD}_${1}_${TAG}\"",
+             "local cmd=\"$BASE --place-directive $2 --output-dir "
+             "$W/build_${BOARD}_${1}_${TAG}\"\n"
+             "  cmd=\"${cmd/--software-profile baremetal/--software-profile linux}\"\n"
+             "  cmd=\"${cmd/--fabric-gptp/--no-fabric-gptp}\"\n"
+             "  cmd=\"${cmd/--flashboot baremetal/--flashboot full}\"",
+             "sweep.sh late owner flip"),
+        ]
+        for path, reader, old, new, why in launcher_mutations:
+            source = open(path).read()
+            assert source.count(old) == 1, (
+                f"{why}: mutation anchor matched {source.count(old)} times")
+            with tempfile.NamedTemporaryFile(
+                    "w", dir=SOC_DIR, prefix=".gate1e_", suffix=".sh",
+                    delete=False) as fh:
+                fh.write(source.replace(old, new))
+                mutated = fh.name
+            os.chmod(mutated, 0o755)
+            try:
+                got = _gptp_instance_params(python, reader(mutated))
+                for label, row in got.items():
+                    assert "params" in row, (
+                        f"{why}: {label} did not elaborate the mutated "
+                        f"datapath ({row})")
+                    assert row["params"].get("p_GPTP_PLANE_EN_P") == 0, (
+                        f"{why}: {label} did not reach the opposite, valid "
+                        f"owner at Instance(milan_datapath): {row}")
+                bad = _gptp_plane_contract(got)
+                assert bad, f"gate 1e accepted {why}"
+            finally:
+                os.unlink(mutated)
         # And the two REFUSALS: a two-owner and a zero-owner argv must exit 2
         # naming the profile, not elaborate. Read off the real stderr, so the
         # message an operator sees is the thing that is graded.
@@ -1294,11 +1399,12 @@ def test_gptp_plane_instance_gate_bites():
                 assert token in row["stderr"], \
                     f"{label}: the refusal never names {token!r}: " \
                     f"{row['stderr']}"
-    print(f"  [gate 1e mutation] {len(GPTP_CHAIN_MUTATIONS)} broken links of "
+    print(f"  [gate 1e mutation] {len(GPTP_CHAIN_MUTATIONS) + 2} broken links of "
           "the SHIPPING argv -> Instance chain rejected (a literal handoff, "
           "two tied forwards, a dropped keyword, an inverted and a renamed "
           "parameter, a default that stops following the profile, two "
-          "overrides keyed on --build, and a deploy/no-output-dir override), "
+          "overrides keyed on --build, a deploy/no-output-dir override, and "
+          "late owner flips in the actual build.sh and sweep.sh launch lines), "
           "plus both refusals graded on the operator-visible message")
 
 

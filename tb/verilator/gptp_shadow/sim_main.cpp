@@ -36,6 +36,8 @@ static const uint64_t OUR_CID = 0x02A1B2FFFEC3D4E5ull;
 static const uint64_t PEER_CID = 0x0080E1FFFE112233ull;
 static const uint32_t OUR_CQ = 0xF8FE436A;
 static const uint64_t GMID = 0x00AACCFFFE010203ull;
+static const uint64_t GMID2 = 0x00AACCFFFE010204ull;
+static const uint64_t PEER2_CID = 0x0080E1FFFE112244ull;
 
 static const uint32_t FL_PRESENT = 1, FL_AMGM = 2, FL_ASCAP = 4,
                       FL_SYNCOK = 8;
@@ -356,6 +358,20 @@ int main(int argc, char **argv) {
     expect("closed loop locked",
            near((int32_t)dut->pub_offset_o, 0, 300), 1);
   }
+
+  // The outward publication bank is registered. A better Announce moves its
+  // GM/flags on the same edge on which AAF and CRF are allowed to launch.
+  // The shadow's pre-commit pulse must therefore make tu visible before both
+  // consumer-equivalent launch registers sample that edge.
+  run_svc(512);
+  expect("healthy bank clears tu before GM switch", dut->ts_uncertain_o, 0);
+  const uint16_t disc_before = dut->disc_launch_count_o;
+  announce(0x2F0, 90, GMID2, PEER2_CID);
+  expect("better Announce selects the new GM", dut->pub_gm_id_o, GMID2);
+  expect("registered bank emitted a pre-commit discontinuity",
+         dut->disc_launch_count_o > disc_before, 1);
+  expect("AAF same-edge launch samples tu=1", dut->aaf_launch_tu_o, 1);
+  expect("CRF same-edge launch samples tu=1", dut->crf_launch_tu_o, 1);
 
   // ---- 5: classify negatives ---------------------------------------------
   {

@@ -62,11 +62,12 @@ MEM  ── o_desc_mem_* / i_desc_mem_* (read-only master → your main memory:
 IRQ  ── o_irq_csr (milan_csr aggregate; DMA-done IRQs come from your DMA engine)
 ```
 
-Internal TX order: DMA → classifier/queues/CBS → PTP-TX timestamp → a
-four-mux arbiter cascade → MAC. LSB-first in `A_TXARB_DIAG` (`0x784`) the muxes
+Internal TX order: DMA → classifier/queues/CBS → PTP-TX timestamp → the
+arbiter cascade → MAC. LSB-first in `A_TXARB_DIAG` (`0x784`) the default muxes
 are 0 `ctl_tx` (the protocol processor's packed TX + MAAP → the control lane),
-1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx` (the MAC boundary); bits 7:4 read a
-structural zero. Internal RX order: MAC → PTP-RX timestamp → TCAM dest-MAC
+1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx` (the MAC boundary), and 4 `gptp_ctl`
+(fabric gPTP injection). Lane 4 is zero with fabric gPTP off; bits 7:5 are
+always structural zero. Internal RX order: MAC → PTP-RX timestamp → TCAM dest-MAC
 filter → DMA, with the control plane and the AVTP media path as pure monitor
 taps that never drive the stream back.
 
@@ -156,7 +157,7 @@ design history is in [../findings/RX_RING_DMA.md (archived)](../../historical_no
 
 | Port(s) | Dir | Semantics |
 |---|---|---|
-| `m_axis_mac_tx_*` | out | TX frames to the MAC: shaped CPU traffic, the AAF/CRF streams and the control lane, merged by the four-mux cascade above |
+| `m_axis_mac_tx_*` | out | TX frames to the MAC: shaped CPU traffic, AAF/CRF streams, the protocol/MAAP control lane and default fabric-gPTP traffic, merged by lanes 0–4 above |
 | `s_axis_mac_rx_*` | in | RX frames from the MAC (CRC-stripped, good frames). The protocol processor and the AVTP media path tap this stream internally; you drive it exactly as before |
 | `o_mac_tx_en, o_mac_rx_en, o_mac_promisc, o_mac_allmulti, o_mac_is_1g` | out | MAC enables/config, driven from CSR group 0x100 |
 | `o_mac_ifg[7:0]` | out | inter-frame gap config |

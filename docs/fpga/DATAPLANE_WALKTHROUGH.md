@@ -87,9 +87,10 @@ flowchart LR
 | 3 | **packetize** | `aaf_packetizer` (`KL_aaf_packetizer`) | accumulates a PDU's worth of pairs, then emits one AAF frame: VLAN tag from `AAF_CTRL[27:16]`, destination from `AAF_DMLO`/`AAF_DMHI`, source = the station MAC, `avtp_timestamp` = the PHC now plus the presentation offset AECP holds. Per-talker state lives in the TCTX rows the `0x800` window writes | `AAF_FRAMES` `0x660`, `AAF_PAIRS` `0x664`; `LTAP_TX_D0/D1` `0x87C`/`0x884` bracket the accumulate + serialize |
 | 4 | **admission** | `aaf_stream_en_w` inside the packetizer | a stream emits when the common AAF enable and MAAP term are true and its processor-owned ACMP talker and SRP bandwidth state grant admission. `AAF_CTRL[1]` is the documented debug bypass | `PP_STAT` `0x924`, `AAF_CTRL` `0x678`, and the processor class-D diagnostics |
 | 5 | **merge with the shaped lane** | `aaf_final_mux` (`adp_tx_arbiter`) | the packetizer output is the *low-rate* port of a two-input merger whose other port is the shaped CPU datapath. **This is the bypass**: no queue, no credit | — |
-| 6 | **merge with control** | `adp_tx_mux` (`adp_tx_arbiter`) | the protocol processor's packed ADP/ACMP/AECP/SRP stream merges with MAAP in `ctl_tx_mux`, passes through `ctl_ifg`, and joins the data lane here. CRF joins AAF on the data lane through `crf_dp_mux` | -- |
-| 7 | **control-lane IFG** | `ctl_ifg` (`tx_ifg_gasket`, `GAP_CYCLES = 512`) | spaces control frames so the MAC cannot eat one that arrives back-to-back behind another. **Control lane only** — audio and CPU data do not pass through it, so it costs no stream throughput | — |
-| 8 | **MAC** | `tx_axis_to_mac` → `m_axis_mac_tx_*` | out of `milan_datapath`, into the SoC's MilanMAC (LiteEth GMII), onto the wire | `STAT_TX_FIFO_GOOD_FRAME` `0x21C`; `LTAP_TX_D2` `0x88C` closes the chain |
+| 6 | **merge with control** | `adp_tx_mux` (`adp_tx_arbiter`) | the protocol processor's packed ADP/ACMP/AECP/SRP stream merges with MAAP in `ctl_tx_mux` and joins the data lane here. CRF joins AAF on the data lane through `crf_dp_mux` | -- |
+| 7 | **control-lane IFG** | `ctl_ifg` (`tx_ifg_gasket`, `GAP_CYCLES = 512`) | spaces protocol/MAAP control frames so the MAC cannot eat one that arrives back-to-back. **Control lane only** — audio and CPU data do not pass through it | — |
+| 8 | **fabric gPTP injection + timestamp return** | `gptp_ctl_mux` + `KL_gptp_txstamp` | default `KL_gptp_shadow` messages join after the IFG gasket; the sequence-matched egress timestamp is taken at the true MAC boundary and returned directly to the engine. `A_TXARB_DIAG` lane 4 supervises this merge | `A_TXARB_DIAG` `0x784` lane 4 |
+| 9 | **MAC** | `tx_axis_to_mac` → `m_axis_mac_tx_*` | out of `milan_datapath`, into the SoC's MilanMAC (LiteEth GMII), onto the wire | `STAT_TX_FIFO_GOOD_FRAME` `0x21C`; `LTAP_TX_D2` `0x88C` closes the media/control chain |
 
 > **The `LTAP_TX_D2` reading, corrected.** `D2` spans hop 3's last beat to hop
 > 8's egress, i.e. hops 5–8 — the arbiter chain and the MAC boundary. It does
@@ -98,22 +99,24 @@ flowchart LR
 > measured `D2` maximum to a shaper slot; that attribution cannot be right for
 > this lane, whatever the measurement itself shows.
 
-The PTP TX timestamp is taken independently of all of this, at the egress SFD
-inside `ptp_ts_top` — which is why queueing order does not perturb gPTP
-accuracy ([EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#why-gptp-sits-below-the-shaped-classes)).
+Default gPTP uses `KL_gptp_txstamp` after its real merge at the MAC boundary,
+so the engine receives the timestamp of the selected frame rather than a
+pre-arbitration candidate. The option-off host path retains `ptp_ts_top`
+metadata and its 0x540/0x544 correction
+([EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md#why-gptp-sits-below-the-shaped-classes)).
 
 ## 2. Egress: a frame the CPU sent (where the queue map applies)
 
 This is the lane the five queues, the classifier and the CBS actually govern:
-gPTP from `linuxptp`, a host AVDECC controller, a host MRP stack, and all bulk
-traffic.
+Option-off gPTP from `linuxptp`, any host control traffic, and all bulk traffic
+use this CPU lane. Default fabric gPTP bypasses it and joins at hop 8 above.
 
 ```mermaid
 flowchart LR
     TXDMA["TX ring DMA<br/>s_axis_tx_*"] --> CLS["traffic_classifier<br/>→ traffic_class_map"]
-    CLS --> Q["traffic_queues<br/>axis_demux → 6 × axis_fifo"]
-    Q --> CBS["traffic_shaping_core<br/>6 × credit_based_shaper"]
-    CBS --> PTP["ptp_ts_top<br/>TX stamp @ egress SFD"]
+    CLS --> Q["traffic_queues<br/>axis_demux → 5 × axis_fifo"]
+    Q --> CBS["traffic_shaping_core<br/>5 × credit_based_shaper"]
+    CBS --> PTP["ptp_ts_top<br/>option-off TX metadata @ AXIS SOP<br/>+ 0x544 correction"]
     PTP --> AMUX["aaf_final_mux → adp_tx_mux"]
     AMUX --> MAC["MilanMAC"]
 ```
@@ -126,11 +129,11 @@ All three classifier/queue/shaper blocks are children of one wrapper,
 | 1 | **classify** | `traffic_classifier` → `traffic_class_map` | picks the egress queue. Three ways in, in priority order: the gPTP fast path (`0x88F7`, optionally DMAC-checked), the **reserved-DMAC control table** (untagged control PDUs — they carry no PCP), then the PCP→regen→TC→queue tables for tagged traffic. An entry naming a queue ≥ `N` is clamped to q0 | `CLS_CTRL` `0x300` (reset `0x5`), `CLS_TC_QUEUE_MAP` `0x310` (reset `0x004898C0`) |
 | 2 | **enqueue** | `traffic_queues` | `axis_demux` fans the frame out by `tdest` into one of five `axis_fifo`s. A FIFO drains only while the shaper grants it | `CAP.num_queues` `0x008` reads 5 |
 | 3 | **shape** | `traffic_shaping_core` → five `credit_based_shaper` instances | per-queue 802.1Qav credit accounting decides which backlogged queue is *eligible*; a plain grant mux (not a second arbiter) selects among the eligible ones, highest index first. **Every queue powers up unshaped**, so at reset this is pure strict priority | `0x400 + q*0x20` for `q ∈ [0,5)` → `0x400`–`0x49F`; `CBS_CTRL[0]` at `+0x0C` per queue |
-| 4 | **timestamp** | `ptp_ts_top` | parses the frame; if it is a gPTP **event** message, captures the egress-SFD timestamp and emits a `{direction, seq_id, timestamp}` record on the separate TS AXIS stream | PTP group `0x500`; the TS records land in DRAM through the TS DMA |
+| 4 | **timestamp** | `ptp_ts_top` | in the option-off path, parses the frame; if it is a gPTP **event** message, captures the AXIS-SOP time, adds `PTP_EGRESS_LAT` (0x544), and emits a `{direction, seq_id, timestamp}` record on the separate TS AXIS stream | PTP group `0x500`; the TS records land in DRAM through the TS DMA |
 | 5–7 | **merge + MAC** | as Section 1 hops 5–8 | the shaped stream is the *data* port of `aaf_final_mux` and then of `adp_tx_mux` | `STAT_TX_FIFO_GOOD_FRAME` `0x21C` |
 
 The full queue table, the reset slopes, the reserved-DMAC rows and the argument
-for gPTP sitting at q3 are all in
+for option-off gPTP sitting at q2 are all in
 [EGRESS_QUEUE_MAP.md](../reference/EGRESS_QUEUE_MAP.md) — it is the authority
 and this page does not restate it.
 
@@ -143,7 +146,7 @@ AVTP multicast flood.
 
 ```mermaid
 flowchart TB
-    MAC["MilanMAC → s_axis_mac_rx_*"] --> PTP["ptp_ts_top<br/>RX stamp @ ingress SFD"]
+    MAC["MilanMAC → s_axis_mac_rx_*"] --> PTP["ptp_ts_top<br/>option-off RX metadata @ AXIS SOP<br/>− 0x540 correction"]
     PTP --> TEE(("rx_axis_ptp_to_filt"))
     TEE --> FILT["rx_mac_filter<br/>TCAM + station MAC"]
     FILT --> HOST["m_axis_rx_* → RX ring DMA<br/>(q0 / q1 via RxSteer)"]

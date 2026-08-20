@@ -103,6 +103,10 @@ module KL_gptp_shadow #(
     output logic [31:0] pub_offset_o,
     output logic [63:0] pub_annq_o,
     output logic        pub_commit_o,
+    //! Combinational pre-commit discontinuity.  The outward bank is
+    //! registered on pub_commit_raw_w, so a consumer sampling on that edge
+    //! otherwise still sees the old healthy GM/flags for one cycle.
+    output wire         pub_disc_o,
 
     //! diagnostics
     output logic [15:0] dbg_tap_drop_o,   //! frames lost at the tap FIFO
@@ -437,6 +441,15 @@ module KL_gptp_shadow #(
   logic [63:0] pub_gm_raw_w, pub_parent_raw_w, pub_annq_raw_w;
   logic [31:0] pub_flags_raw_w, pub_pdelay_raw_w, pub_offset_raw_w;
   logic        pub_commit_raw_w;
+
+  //! Same-edge warning for AVTP talkers.  A GM change or a healthy->unhealthy
+  //! sync transition must assert tu BEFORE the registered outward bank moves;
+  //! waiting for pub_gm_id_o/pub_flags_o would leak one certain frame on the
+  //! commit edge.  Other publication-only updates (pdelay/offset/quality) do
+  //! not create a time discontinuity and must not hold tu high continuously.
+  assign pub_disc_o = pub_commit_raw_w &&
+                      ((pub_gm_raw_w != pub_gm_id_o) ||
+                       (pub_flags_o[3] && !pub_flags_raw_w[3]));
 
   KL_gptp_engine #(
       .UCODE_HEX_P (UCODE_HEX_P),

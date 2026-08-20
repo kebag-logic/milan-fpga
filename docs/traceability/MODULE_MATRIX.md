@@ -126,11 +126,11 @@ _gPTP timestamping / pdelay / sync_
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_gptp_shadow` | `ieee8021as/gptp_plane/KL_gptp_shadow.sv` | `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | — |
-| ✅ `KL_gptp_txstamp` | `ieee8021as/gptp_plane/KL_gptp_txstamp.sv` | `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | — |
-| ✅ `KL_ptp_clock_validity` | `ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv` | `clkvalid` · `hostplane` · `milan_dp` | 1.00, 1.2, 4.3.5.2, 4.4.2.3 |
+| ✅ `KL_gptp_shadow` | `ieee8021as/gptp_plane/KL_gptp_shadow.sv` | `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | 10.2, 10.3, 11.3, 8.4.3 |
+| ✅ `KL_gptp_txstamp` | `ieee8021as/gptp_plane/KL_gptp_txstamp.sv` | `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | 11.3, 8.4.3 |
+| ✅ `KL_ptp_clock_validity` | `ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv` | `clkvalid` · `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | 1.00, 1.2, 4.3.5.2, 4.4.2.3 |
 | ✅ `ptp_csr_sync` | `ieee8021as/ptp_timestamp/ptp_csr_sync.sv` | `hostplane` · `milan_dp` · `ptp_sync` · `ptp_ts` | — |
-| ✅ `ptp_ts_core` | `ieee8021as/ptp_timestamp/ptp_ts_core.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |
+| ✅ `ptp_ts_core` | `ieee8021as/ptp_timestamp/ptp_ts_core.sv` | `hostplane` · `milan_dp` · `ptp_ts` | 11.3, 8.4.3 |
 | ✅ `ptp_ts_top` | `ieee8021as/ptp_timestamp/ptp_ts_top.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |
 | ✅ `timestamp_counter` | `ieee8021as/ptp_timestamp/timestamp_counter.sv` | `gptp_plane` · `gptp_shadow` · `hostplane` · `milan_dp` · `ptp` · `ptp_ts` · `tsn_fuzz` | — |
 

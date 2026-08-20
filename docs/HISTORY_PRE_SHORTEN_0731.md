@@ -23,9 +23,11 @@ rewrite (USER directive 2026-07-31). Recovery base: 105a97e7db4e57ff4e8aaf56f4cd
 > 2. **Every `A_TXARB_DIAG` `0x784` lane number below is the OLD numbering.**
 >    The entries here describe **eight** TX muxes — 0 `aecp_acmp`, 1 `ctl_tx`,
 >    2 `srp_ctl`, 3 `lstn_ctl`, 4 `maap_ctl`, 5 `aaf_final`, 6 `crf_dp`,
->    7 `adp_tx`. The cascade collapsed to **four** when the planes feeding four
->    of those merges were deleted: **0 `ctl_tx`, 1 `aaf_final`, 2 `crf_dp`,
->    3 `adp_tx`**, with bits 7:4 a structural zero. Decoding a modern `0x784`
+>    7 `adp_tx`. The legacy cascade collapsed to four when those planes were
+>    deleted, and VERSION `0x0002_0055` added the fabric-gPTP merge: current
+>    default lanes are **0 `ctl_tx`, 1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx`,
+>    4 `gptp_ctl`**, with bits 7:5 structural zero. Lane 4 is zero only in the
+>    option-off build. Decoding a modern `0x784`
 >    read with the numbers below gives the wrong mux.
 
 ## Contents

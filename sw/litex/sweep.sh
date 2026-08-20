@@ -8,6 +8,12 @@
 #   SWEEP_CFG=configs/endstation_arty_4x4.yaml sweep.sh arty 4x4
 set -euo pipefail
 BOARD=${1:?board}; TAG=${2:?tag}
+DRY=0
+case "${3:-}" in
+  --dry-run) DRY=1;;
+  "") ;;
+  *) echo "usage: $0 <arty|ax7101> <tag> [--dry-run]" >&2; exit 2;;
+esac
 # The CPU netlist must be the SAME netlist for every seed, or the sweep is not
 # measuring the place directive. LiteX builds the VexiiRiscv argument string
 # from a python SET (litex/soc/cores/cpu/vexiiriscv/core.py: `",".join(isa_map)`),
@@ -20,7 +26,7 @@ BOARD=${1:?board}; TAG=${2:?tag}
 # spends a build on, and it lands as unexplained WNS noise between seeds.
 export PYTHONHASHSEED=0
 export PATH="$HOME/litex-milan/venv/bin:$PATH"
-source $HOME/Xilinx/2026.1/Vivado/settings64.sh
+[ "$DRY" = 1 ] || source "$HOME/Xilinx/2026.1/Vivado/settings64.sh"
 W=$HOME/litex-milan/work
 R="$(cd "$(dirname "$(realpath "$0")")/../.." && pwd)"
 # ======================= PER-BOARD DESIGN SHAPE =========================
@@ -121,14 +127,25 @@ grep -q "$(basename "$CFG")" "$CFG_GEN/gen/adp_shape_defaults.svh" || {
 BASE="python3 $R/sw/litex/milan_soc.py $OPTS --entity-gen-dir $CFG_GEN \
  --synth-directive AreaOptimized_high --opt-directive ExploreArea \
  --vivado-max-threads 32 --build"
-cd "$W"
-rm -rf build_${BOARD}_{asl,eto,eppo}_${TAG}
 launch() {
-  setsid nohup $BASE --place-directive "$2" \
-    --output-dir "$W/build_${BOARD}_${1}_${TAG}" \
+  local cmd="$BASE --place-directive $2 --output-dir $W/build_${BOARD}_${1}_${TAG}"
+  if [ "$DRY" = 1 ]; then
+    echo "DRY [${BOARD}_${1}_${TAG}]"
+    echo "  $cmd"
+    return
+  fi
+  setsid nohup $cmd \
     > "$W/build_${BOARD}_${1}_${TAG}.launch.log" 2>&1 < /dev/null &
   echo "LAUNCHED [${BOARD}_${1}_${TAG}] pid=$!"
 }
-launch asl AltSpreadLogic_high;  sleep 90
-launch eto ExtraTimingOpt;       sleep 90
-launch eppo ExtraPostPlacementOpt
+if [ "$DRY" = 1 ]; then
+  launch asl AltSpreadLogic_high
+  launch eto ExtraTimingOpt
+  launch eppo ExtraPostPlacementOpt
+else
+  cd "$W"
+  rm -rf build_${BOARD}_{asl,eto,eppo}_${TAG}
+  launch asl AltSpreadLogic_high;  sleep 90
+  launch eto ExtraTimingOpt;       sleep 90
+  launch eppo ExtraPostPlacementOpt
+fi

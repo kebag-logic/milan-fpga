@@ -50,6 +50,14 @@ module gptp_shadow_wrap #(
     output wire [31:0] pub_offset_o,
     output wire [63:0] pub_annq_o,
     output wire        pub_commit_o,
+    output wire        pub_disc_o,
+
+    //! Same-edge consumer probes. These registers use the exact sampling
+    //! shape of the AAF and CRF launch FSMs on the real shadow-bank edge.
+    output logic        aaf_launch_tu_o,
+    output logic        crf_launch_tu_o,
+    output logic [15:0] disc_launch_count_o,
+    output wire         ts_uncertain_o,
 
     //! diagnostics
     output wire [15:0] dbg_tap_drop_o,
@@ -70,6 +78,7 @@ module gptp_shadow_wrap #(
   logic               tsv_w;
   logic [63:0]        tsn_w;
   logic [15:0]        tsq_w;
+  logic               pub_disc_w;
 
   timestamp_counter #(
       .COUNTER_WIDTH (64),
@@ -123,6 +132,7 @@ module gptp_shadow_wrap #(
       .pub_offset_o    (pub_offset_o),
       .pub_annq_o      (pub_annq_o),
       .pub_commit_o    (pub_commit_o),
+      .pub_disc_o      (pub_disc_w),
       .dbg_tap_drop_o  (dbg_tap_drop_o),
       .dbg_rx_drop_o   (dbg_rx_drop_o),
       .dbg_ev_drop_o   (),
@@ -132,6 +142,44 @@ module gptp_shadow_wrap #(
       .dbg_tspush_o    (dbg_tspush_o),
       .dbg_tspop_v_o   (dbg_tspop_v_o)
   );
+
+  assign pub_disc_o = pub_disc_w;
+
+  KL_ptp_clock_validity #(
+      .QTICK_CYC_P   (64),
+      .HOLD_QTICK_P  (2),
+      .FABRIC_GPTP_P (1)
+  ) u_validity (
+      .clk_i            (clk_i),
+      .rst_n            (rst_n),
+      .sw_wr_p_i        (1'b0),
+      .sw_sync_ok_i     (1'b0),
+      .sw_disc_p_i      (1'b0),
+      .sw_as_cap_i      (1'b0),
+      .sw_wdog_q_i      (12'd0),
+      .fabric_sync_ok_i (pub_flags_o[3]),
+      .fabric_as_cap_i  (pub_flags_o[2]),
+      .fabric_disc_p_i  (pub_disc_w),
+      .phc_load_p_i     (1'b0),
+      .phc_adj_p_i      (step_we_w),
+      .gm_id_i          (pub_gm_id_o),
+      .ts_uncertain_o   (ts_uncertain_o),
+      .as_capable_o     (),
+      .stat_o           (),
+      .tu_ivals_o       ()
+  );
+
+  always_ff @(posedge clk_i) begin : same_edge_talker_sampling
+    if (!rst_n) begin
+      aaf_launch_tu_o     <= 1'b0;
+      crf_launch_tu_o     <= 1'b0;
+      disc_launch_count_o <= 16'd0;
+    end else if (pub_disc_w) begin
+      aaf_launch_tu_o     <= ts_uncertain_o;
+      crf_launch_tu_o     <= ts_uncertain_o;
+      disc_launch_count_o <= disc_launch_count_o + 16'd1;
+    end
+  end
 
   KL_gptp_txstamp #(
       .TDATA_WIDTH_P (64)

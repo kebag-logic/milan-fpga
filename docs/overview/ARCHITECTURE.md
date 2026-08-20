@@ -183,11 +183,14 @@ milan-fpga/
    │  ┌─────────────────────── milan_datapath (hdl/, vendor-neutral) ───────────────┐  │
    │  │ milan_csr ── config/status/IRQ to every block below                         │  │
    │  │ KL_pp_shadow (ADP · AECP · ACMP · SRP) + KL_maap ── control plane           │  │
-   │  │ TX: s_axis_tx ─► classify ─► 5 queues ─► CBS ─► PTP-TX ─► arb ──► mac_tx    │  │
-   │  │     fabric engines (AAF · CRF · ctl_tx = processor+MAAP) join ─┘ (post-CBS) │  │
-   │  │ RX: mac_rx ─► PTP-RX ─┬─► TCAM dest-MAC filter ─► m_axis_rx   (host copy)   │  │
-   │  │                       └─► AVTP parse ─► monitor ─► depkt ─► PCM (media)     │  │
-   │  │ TS: {dir, seq_id, timestamp} records ─► m_axis_ts                           │  │
+   │  │ KL_gptp_shadow + gptp-processor ── BMCA/servo ─► PHC adjfine/adjtime        │  │
+   │  │       │ direct RX tap      │ GM/parent/pdelay/sync publication ─► CSR + PP  │  │
+   │  │ TX: s_axis_tx ─► classify ─► 5 queues ─► CBS ─► PTP metadata ─► arb ─► MAC  │  │
+   │  │     fabric engines (AAF · CRF · ctl_tx = PP+MAAP · gPTP) join ─┘  │         │  │
+   │  │ RX: mac_rx ─► PTP metadata ─┬─► TCAM filter ─► m_axis_rx (host copy)       │  │
+   │  │              └─► gPTP tap   └─► AVTP parse ─► monitor ─► depkt ─► PCM     │  │
+   │  │ gPTP TX after final merge ─► KL_gptp_txstamp ─► sequence timestamp return  │  │
+   │  │ option-off TS: {dir, seq_id, timestamp} records ─► m_axis_ts               │  │
    │  └──────────────────────────────────────────────────────────────────────────┬─┘  │
    │                                                     MilanMAC (LiteEth GMII) │     │
    └──────────────────────────────────────────────────────────────────────────── │ ────┘
@@ -222,8 +225,10 @@ contract is [../integration/INTEGRATION_GUIDE.md](../integration/INTEGRATION_GUI
 ## 3. Datapath
 
 **TX (CPU lane):** DMA reader → `traffic_controller_802_1q` (classify →
-**five** per-queue FIFOs → CBS arbiter) → `ptp_ts_top` (TX timestamp capture at
-the egress SFD) → a chain of `adp_tx_arbiter` mergers → MAC.
+**five** per-queue FIFOs → CBS arbiter) → `ptp_ts_top` (option-off metadata
+timestamp at AXIS SOP, corrected toward the wire by `PTP_EGRESS_LAT`) → a chain
+of `adp_tx_arbiter` mergers → MAC. Default fabric gPTP instead receives its
+sequence-matched TX timestamp from `KL_gptp_txstamp` after the final merge.
 
 **TX (fabric lane):** the AAF talkers, the CRF talker, and the control lane —
 the protocol processor's single packed byte stream (ADP, ACMP and SRP,
@@ -233,11 +238,12 @@ classifier or a queue. The AAF talkers are paced by the SRP bandwidth gate
 instead of by CBS; control frames pass a `tx_ifg_gasket` that the data lane
 bypasses.
 
-### 3.1 The TX arbiter cascade — four muxes, not eight
+### 3.1 The TX arbiter cascade — five default lanes, not the old eight
 
 The processor emits ONE byte stream for every protocol it owns, so four of the
 old control merges had no second source left once the planes that fed them were
-deleted. `A_TXARB_DIAG` (`0x784`) supervises what remains, **LSB first**:
+deleted. Default fabric gPTP adds one downstream injection merge.
+`A_TXARB_DIAG` (`0x784`) supervises the current lanes, **LSB first**:
 
 | lane | mux | merges |
 |---|---|---|
@@ -245,9 +251,10 @@ deleted. `A_TXARB_DIAG` (`0x784`) supervises what remains, **LSB first**:
 | 1 | `aaf_final` | shaped CPU traffic + the AAF talkers |
 | 2 | `crf_dp` | that + the CRF talker (data lane, gasket-free) |
 | 3 | `adp_tx` | the MAC boundary mux: data lane + the gasketed control lane |
+| 4 | `gptp_ctl` | MAC-bound trunk + fabric gPTP messages |
 
-Bits 7:4 read a structural zero — there is no fifth-to-eighth arbiter, as
-opposed to four arbiters that happen never to have locked. It **was** 0
+Lane 4 reads structural zero only when fabric gPTP is off; bits 7:5 are
+structural zero in every build. It **was** 0
 `aecp_acmp`, 1 `ctl_tx`, 2 `srp_ctl`, 3 `lstn_ctl`, 4 `maap_ctl`, 5
 `aaf_final`, 6 `crf_dp`, 7 `adp_tx`: anything still decoding `0x784` by those
 numbers now reads the wrong mux. The watchdog windows stay staggered

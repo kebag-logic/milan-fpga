@@ -225,11 +225,12 @@ MSRP Talker attribute as soon as it has valid SRP parameters".
   `0x920`-`0x930` protocol-processor window is **unconditional**: `milan_csr`'s
   `PP_PLANE_P` parameter is gone and `PP_STAT` always carries its `0x5B` tag.
 * **`A_TXARB_DIAG` (`0x784`) was RENUMBERED and anything decoding it by the old
-  numbers now reads the WRONG mux.** The cascade collapsed from eight muxes to
-  four, because four control merges had only one source left once the planes
-  feeding them were deleted. New order, LSB first: **0 = `ctl_tx` (protocol
+  numbers now reads the WRONG mux.** Four legacy control merges had only one
+  source left once their planes were deleted; default fabric gPTP later added
+  one injection merge. Current order, LSB first: **0 = `ctl_tx` (protocol
   processor + MAAP → the control lane), 1 = `aaf_final`, 2 = `crf_dp`,
-  3 = `adp_tx` (the MAC boundary mux); bits 7:4 read a structural zero.** The
+  3 = `adp_tx` (the MAC boundary mux), 4 = `gptp_ctl`; bits 7:5 read a
+  structural zero.** Lane 4 is also zero in an option-off gPTP build. The
   old order was 0 aecp_acmp, 1 ctl_tx, 2 srp_ctl, 3 lstn_ctl, 4 maap_ctl,
   5 aaf_final, 6 crf_dp, 7 adp_tx.
 * **No CSR register was removed.** The map is an ABI. Words whose source is

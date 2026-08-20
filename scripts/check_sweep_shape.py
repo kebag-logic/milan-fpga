@@ -67,8 +67,8 @@ BUILD_CFGS = {
 #
 # THIS SET IS ALSO THE BLIND SPOT IT CREATES, so it has a second consumer.
 # What a gate excludes from a comparison is exactly what separates a
-# reconstructed argv from the line that really runs, and `sweep.sh:121-123`
-# and `build.sh:290` both end in `--vivado-max-threads 32 --build`. A late
+# reconstructed argv from the line that really runs, and `sweep.sh:127-131`
+# and `build.sh:303` both carry `--vivado-max-threads 32 --build`. A late
 # `gptp_plane = args.fabric_gptp and not args.build` in milan_soc.py was
 # therefore invisible to an argv built from emit_soc_argv alone (measured
 # 2026-08-20). sw/builder/test_builder.py gate 1e now RUNS every member of
@@ -77,9 +77,10 @@ BUILD_CFGS = {
 #
 # --entity-gen-dir is NOT in here: it names a config, and which config a
 # recipe builds is exactly the fact this gate exists to pin (see
-# _entity_gen_dir_agrees). --load is not either: no recipe and no launcher
-# line carries it, and a set that gate 1e must run has no business naming the
-# flag that programs a board.
+# _entity_gen_dir_agrees). --load is not either: no recipe or build-launcher
+# line parsed by this script carries it. deploy.sh:62 deliberately has a
+# separate JTAG-load entry point, but a set that gate 1e must run has no
+# business naming a flag that programs a board.
 FLOW_FLAGS = {
     "--synth-directive", "--opt-directive", "--place-directive",
     "--vivado-max-threads", "--output-dir", "--build",

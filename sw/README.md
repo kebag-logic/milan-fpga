@@ -1,8 +1,11 @@
-# `sw/` — boot one RISC-V core with the Milan NIC + driver
+# `sw/` — retained Linux/option-off bring-up reference
 
-A **configurable** software/SoC bring-up (single- or multi-hart): a RISC-V softcore running
-Linux, with the Milan TSN NIC memory-mapped and its `kl-eth` driver bound via the
-device tree. This is the smallest bootable slice of
+A **configurable retained bring-up profile** (single- or multi-hart): a RISC-V
+softcore running Linux with fabric gPTP explicitly off, the Milan TSN NIC
+memory-mapped, and its `kl-eth` driver bound via the device tree. It is not the
+shipping profile; that is the cacheless RV32I bare-metal build documented in
+[`docs/integration/BAREMETAL_FIRMWARE.md`](../docs/integration/BAREMETAL_FIRMWARE.md).
+This page is the Linux comparison slice of
 [`docs/integration/FULLY_FPGA_RISCV_MIGRATION.md` (archived)](../historical_now_obsolete/integration/FULLY_FPGA_RISCV_MIGRATION.md).
 
 ```
@@ -18,7 +21,7 @@ device tree. This is the smallest bootable slice of
 > **The current architecture and compliance boundary live in
 > [`../docs/overview/ARCHITECTURE.md`](../docs/overview/ARCHITECTURE.md) and
 > [`../docs/testing/MILAN_V12_AUDIT_2026-08-16.md`](../docs/testing/MILAN_V12_AUDIT_2026-08-16.md).**
-> This file is the quick build/boot reference.
+> This file is the retained Linux/option-off quick build/boot reference.
 
 | File | What |
 |------|------|
@@ -74,16 +77,17 @@ milestone **M-A2**. Captured output:
 
 ```sh
 cd litex
-./milan_soc.py --no-fabric-gptp                 # Linux NIC export, no Vivado ✅
-./milan_soc.py --full --no-fabric-gptp          # Linux NIC + DMA + MAC/PHY ✅
+GEN=../../configs/generated/endstation_ax7101_8x8
+./milan_soc.py --no-fabric-gptp --entity-gen-dir "$GEN"                 # Linux NIC export, no Vivado ✅
+./milan_soc.py --full --no-fabric-gptp --entity-gen-dir "$GEN"          # Linux NIC + DMA + MAC/PHY ✅
 ./milan_soc.py --no-milan --no-fabric-gptp      # bare SoC (no Milan/gPTP fabric) ✅
-./milan_soc.py --xlen 32 --no-fabric-gptp       # Linux RV32 + sv32 MMU
-./milan_soc.py --full --no-fabric-gptp --build  # + Vivado P&R
-./milan_soc.py --no-fabric-gptp --build --load  # + program the board
+./milan_soc.py --xlen 32 --no-fabric-gptp --entity-gen-dir "$GEN"       # Linux RV32 + sv32 MMU
+./milan_soc.py --full --no-fabric-gptp --entity-gen-dir "$GEN" --build  # + Vivado P&R
+./milan_soc.py --no-fabric-gptp --entity-gen-dir "$GEN" --build --load  # + program the board
 ```
 
-Every line that elaborates the Milan datapath also needs
-`--entity-gen-dir configs/generated/<config>`: the descriptor image, the
+Every line that elaborates the Milan datapath also needs a real generated
+configuration directory through `--entity-gen-dir`: the descriptor image, the
 reserved `ppmem` window and (on a fabric gPTP build) the microcode ROM all
 come from one end-station config, and `milan_soc.py` refuses to launch
 without it. `build.sh` and `sweep.sh` pass it for every named config. The
@@ -101,7 +105,7 @@ cat <generated>/milan-nic.dtsi >> milan.dts   # kl,dma-ether + kl,milan-pcm (rea
 # build Image + OpenSBI + Buildroot (linux-on-litex-vexriscv drives naxriscv), then over serial:
 ip link set eth0 up && udhcpc -i eth0
 ethtool -T eth0        # PHC + HW timestamping     (FR-DRV-P/E)
-ptp4l  -i eth0 -m      # gPTP lock
+ptp4l  -i eth0 -m      # explicit --no-fabric-gptp Linux comparison only
 tc qdisc add dev eth0 ... cbs offload 1            # shape q0/q1 (kl,shaped-queues)
 ```
 > **CSR base is host-specific.** On the NaxRiscv SoC the Milan CSR window is at

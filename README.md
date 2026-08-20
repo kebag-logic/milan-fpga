@@ -1,12 +1,13 @@
 # milan-fpga: IEEE 1722 / 1722.1 and Milan on FPGA
 
-> A fully-FPGA **Milan-oriented AVB/TSN audio end-station**: a RISC-V/LiteX softcore SoC
-> running Linux, with the entire TSN datapath in **vendor-neutral SystemVerilog fabric**, on
-> an Alinx AX7101 (Artix-7). Evolving toward a 4-port AVB switch.
+> A fully-FPGA **Milan-oriented AVB/TSN audio end-station**: a cacheless RV32I/LiteX
+> softcore running the product's bare-metal boot/control firmware, with the TSN datapath,
+> protocol processors and gPTP servo in **vendor-neutral SystemVerilog fabric**, on an
+> Alinx AX7101 (Artix-7). Retained Linux profiles are explicit bring-up/comparison builds.
 
 ```sh
 git clone https://github.com/kebag-logic/milan-fpga && cd milan-fpga
-git submodule update --init third_party/verilog-axis protocol-processor  # required
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor  # required
 cd tb/verilator/tcam && make                           # ~5 s → RESULT: PASS
 ```
 
@@ -24,7 +25,7 @@ Four doors, three links each. Every other doc hangs off one of these.
 |---|---|---|---|---|
 | 🔌 | **Integrator** — putting this datapath in *your* SoC or on *your* board | [integration/INTEGRATION_GUIDE.md](docs/integration/INTEGRATION_GUIDE.md) — the `milan_datapath` boundary as a port-by-port contract | [reference/REGISTER_MAP.md](docs/reference/REGISTER_MAP.md) — the AXI4-Lite ABI your driver programs | [integration/PORTING_GUIDE.md](docs/integration/PORTING_GUIDE.md) — off-Xilinx, off-Vivado, per-vendor translation |
 | 🛠 | **RTL developer** -- changing or adding fabric | [Section 8 of overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md#8-where-to-change-things-maintainability) "where to change things" | [fpga/FPGA_DESIGN.md](docs/fpga/FPGA_DESIGN.md) -- every module in `hdl/` and the harness that verifies it | [CONTRIBUTING.md](CONTRIBUTING.md) -- house style; a DUT change ships its testbench in the same commit |
-| 🔧 | **Bench operator** — building, flashing, bringing a board up | [integration/BUILDING.md](docs/integration/BUILDING.md) — `build.sh` configs and the gates a build must pass | [integration/QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) — flash a **matched** image set, boot Linux | [limitations/TROUBLESHOOTING.md](docs/limitations/TROUBLESHOOTING.md) — symptom → cause → fix, from the field |
+| 🔧 | **Bench operator** — building, flashing, bringing a board up | [integration/BUILDING.md](docs/integration/BUILDING.md) — `build.sh` configs and the gates a build must pass | [integration/BAREMETAL_FIRMWARE.md](docs/integration/BAREMETAL_FIRMWARE.md) — flash and verify the product profile; [QSPI_FLASHBOOT.md](docs/integration/QSPI_FLASHBOOT.md) retains Linux bring-up | [limitations/TROUBLESHOOTING.md](docs/limitations/TROUBLESHOOTING.md) — symptom → cause → fix, from the field |
 | 📖 | **Curious reader / evaluator**, deciding if this is worth your time | [overview/ARCHITECTURE.md](docs/overview/ARCHITECTURE.md) | [the current Milan v1.2 audit](docs/testing/MILAN_V12_AUDIT_2026-08-16.md) | [reference/FR_NFR.md](docs/reference/FR_NFR.md) |
 
 More lanes (system engineer, tester, hobbyist) and the full index:
@@ -44,7 +45,7 @@ Terms → [glossary](docs/GLOSSARY.md).
 | Media-clock servo | MMCM-DRP, analog loop **−83.9 dB** (converter floor) |
 | Networking / boot | ring-DMA line-rate ingest · QSPI flash-boot (zero-upload) |
 | Audio | ALSA record over Milan · live talker↔listener E2E |
-| CPU / board | 1-hart VexiiRiscv RV64 Linux SoC · xc7a100t · DDR3 512 MB |
+| CPU / board | product: 1-hart cacheless VexiiRiscv RV32I bare metal at 50 MHz · xc7a100t · DDR3 512 MB; RV64 Linux retained for bring-up |
 | Portability | no Xilinx primitives — machine-checked by the [Yosys/ECP5 flow](syn/yosys/README.md) |
 
 > Those rows are **measurements on specific boards on specific dates**, not promises about
@@ -164,21 +165,23 @@ equivalents exist on any distro. Each tier *adds* to the one above it.
 
 ```sh
 sudo pacman -S --needed gcc make python python-yaml verilator git
-git submodule update --init third_party/verilog-axis protocol-processor
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 ```
 
 Verilator must be **≥ 5.050** — that is the CI pin, and CI builds it from source
 at that tag rather than trusting a distro package, because 5.020 (Ubuntu 24.04)
 cannot build four of the suites and 5.032 (Debian trixie) reads back zeros on six
 `aecp` checks. The measured table is in
-[Section 7 of docs/testing/TESTING.md](docs/testing/TESTING.md#7-known-gaps-kept-honest). The protocol processor is
-required by every datapath-level harness and is fetched over anonymous HTTPS.
+[Section 7 of docs/testing/TESTING.md](docs/testing/TESTING.md#7-known-gaps-kept-honest). The protocol and gPTP processors are
+required by datapath-level harnesses and are fetched over anonymous HTTPS.
 The remaining submodules are not needed for this tier and may stay
-uninitialised: `external`, `gptp-processor`, and `third_party/buildroot`.
-The processor architecture, compliance review, and SystemVerilog
+uninitialised: `external` and `third_party/buildroot`.
+The control-processor architecture, compliance review, and SystemVerilog
 implementation live at
 <https://github.com/Mister-M-alt/protocol-processor-control-plane-avb-milan>;
-this repository pins that implementation rather than duplicating it.
+the time-plane processor lives at
+<https://github.com/Mister-M-alt/FPGA-gPTP>. This repository pins both
+implementations rather than duplicating them.
 A GitHub *"Download ZIP"* has no
 submodule content, so the datapath testbenches will not build from a zip.
 
@@ -206,9 +209,9 @@ exactly: `podman build -t milan-fpga-dev -f Containerfile.dev . && podman run --
 ## Quickstart — copy/paste
 
 ```sh
-# 1. clone and initialize the two required RTL submodules
+# 1. clone and initialize the three required RTL submodules
 git clone https://github.com/kebag-logic/milan-fpga && cd milan-fpga
-git submodule update --init third_party/verilog-axis protocol-processor
+git submodule update --init third_party/verilog-axis protocol-processor gptp-processor
 
 # 2 · tier-1 toolchain, once (Arch shown — see Prerequisites for your distro)
 sudo pacman -S --needed gcc make python python-yaml verilator git
@@ -246,7 +249,7 @@ The long form, with what is verified vs what needs a bench: [QUICKSTART.md](QUIC
 | Traceability no-drift gate | `python3 docs/traceability/gen_module_matrix.py --check` | python3 |
 | End-station builder gates | `python3 sw/builder/test_builder.py` | python3 + pyyaml |
 | Device portability | `cd syn/yosys && make && make ecp5` | yosys + sv2v |
-| **BDD conformance suite** (15 features / 338 scenarios / 1,615 steps, no skips in the 2026-08-18 run) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
+| **BDD conformance suite** (15 features / 334 scenarios / 1,571 steps, no skips in the 2026-08-20 run) | `cd tests && behave -f plain` | `behave` (any venv; the `@tsn_gen` tier also wants `TSAGEN_DIR`) |
 
 `ls tb/verilator/` is the authoritative suite list. Full map: [docs/testing/TESTING.md](docs/testing/TESTING.md).
 
@@ -284,9 +287,9 @@ ride the big arrow; dates assume the current cadence.
     ROADMAP                                                                                  |
     - deterministic - AEM persistence - redundancy net  - compliance test-house  - PCB bring-up ==>
       listener        journal (mtd)     cabled +          run (Milan v1.2)   (TCXO, audio
-      latency       - rootfs: boot-     failover proof  - 802.1AS            I/O, power)
-      (setpoint law,  resilient statd/ - temp-range       conformance      - EMC / safety
-      0x002E)         ptp4l, prio 248    timing signoff - PCB layout +     - factory
+      latency       - bare-metal:       failover proof  - 802.1AS            I/O, power)
+      (setpoint law,  resilient AEM/   - temp-range       conformance      - EMC / safety
+      0x002E)         PHC-epoch boot     timing signoff - PCB layout +     - factory
     - software DLL  - dual-slot QSPI  - week-long soak    fab               provisioning
       (GM step        + golden image    + power-cycle                       (MAC/EUI-64,
       re-base)      - field update      torture as                          serials, test

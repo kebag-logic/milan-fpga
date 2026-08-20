@@ -1447,6 +1447,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   wire [31:0] cfg_gptp_pdelay_csr;
   wire [63:0] gptp_pub_gm_w, gptp_pub_parent_w, gptp_pub_annq_w;
   wire [31:0] gptp_pub_flags_w, gptp_pub_pdelay_w, gptp_pub_offset_w;
+  wire        gptp_pub_disc_w;
   wire signed [31:0] gptp_adj_w;
   wire               gptp_step_we_w;
   wire        [63:0] gptp_step_w;
@@ -1893,6 +1894,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     .gm_id_i      (cfg_adp_gptp_gm),
     .fabric_sync_ok_i(gptp_pub_flags_w[3]),
     .fabric_as_cap_i (gptp_pub_flags_w[2]),
+    .fabric_disc_p_i (gptp_pub_disc_w),
     .ts_uncertain_o (clkv_tu_w),
     .as_capable_o   (clkv_as_cap_w),
     .stat_o         (clkv_stat_w),
@@ -6006,9 +6008,9 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! and are gone with the planes that fed them.
   //!
   //! Lane order (LSB first): 0 ctl_tx (processor + MAAP -> the control lane),
-  //! 1 aaf_final, 2 crf_dp, 3 adp_tx (= the MAC boundary mux).
-  //! Bits 7:4 read a STRUCTURAL ZERO - there is no fifth..eighth arbiter to
-  //! supervise, as opposed to four arbiters that happen never to have locked.
+  //! 1 aaf_final, 2 crf_dp, 3 adp_tx (= the MAC boundary mux), 4 gptp_ctl
+  //! (the default fabric gPTP injection merge). Lane 4 is a STRUCTURAL ZERO
+  //! only when GPTP_PLANE_EN_P is off; bits 7:5 are structural zeros.
   //! Anything decoding 0x784 by the old lane numbers reads the WRONG mux.
   //!
   //! Watchdog windows stay STAGGERED shortest-upstream (control chain 2^15,
@@ -6019,8 +6021,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
   //! stagger only the true origin fires; its injected tlast propagates down as
   //! an accepted beat and clears every downstream counter normally.
   wire [7:0] txarb_locked_w, txarb_abort_w, txarb_stall_w;
-  //! lanes 0..3 as documented above; lane 4 = the gPTP plane's merge
-  //! (a structural zero while GPTP_PLANE_EN_P is off); 7:5 structural
+  //! lanes 0..4 as documented above; 7:5 structural
   assign txarb_locked_w[7:5] = 3'd0;
   assign txarb_abort_w [7:5] = 3'd0;
   assign txarb_stall_w [7:5] = 3'd0;
@@ -6175,6 +6176,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
         .pub_offset_o    (gptp_pub_offset_w),
         .pub_annq_o      (gptp_pub_annq_w),
         .pub_commit_o    (),
+        .pub_disc_o      (gptp_pub_disc_w),
         .dbg_tap_drop_o  (gptp_tap_drop_w),
         .dbg_rx_drop_o   (gptp_rx_drop_w),
         .dbg_ev_drop_o   (gptp_ev_drop_w),
@@ -6233,6 +6235,7 @@ parameter int PB_PREFILL_C = 0,    //! playback prefill release (0 = midpoint;
     assign gptp_pub_flags_w = '0;
     assign gptp_pub_pdelay_w = '0;
     assign gptp_pub_offset_w = '0;
+    assign gptp_pub_disc_w = 1'b0;
     assign gptp_tap_drop_w = '0;
     assign gptp_rx_drop_w = '0;
     assign gptp_ev_drop_w = '0;

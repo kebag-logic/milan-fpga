@@ -10,9 +10,9 @@ hand-edit. Part of the IEEE 802.1AS family; rolled up in
 
 | module | file | test | clauses |
 |---|---|---|---|
-| ✅ `KL_ptp_clock_validity` | `KL_ptp_clock_validity.sv` | `clkvalid` · `hostplane` · `milan_dp` | 1.00, 1.2, 4.3.5.2, 4.4.2.3 |
+| ✅ `KL_ptp_clock_validity` | `KL_ptp_clock_validity.sv` | `clkvalid` · `gptp_shadow` · `hostplane` · `milan_dp` · `tsn_fuzz` | 1.00, 1.2, 4.3.5.2, 4.4.2.3 |
 | ✅ `ptp_csr_sync` | `ptp_csr_sync.sv` | `hostplane` · `milan_dp` · `ptp_sync` · `ptp_ts` | — |
-| ✅ `ptp_ts_core` | `ptp_ts_core.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |
+| ✅ `ptp_ts_core` | `ptp_ts_core.sv` | `hostplane` · `milan_dp` · `ptp_ts` | 11.3, 8.4.3 |
 | ✅ `ptp_ts_top` | `ptp_ts_top.sv` | `hostplane` · `milan_dp` · `ptp_ts` | — |
 | ✅ `timestamp_counter` | `timestamp_counter.sv` | `gptp_plane` · `gptp_shadow` · `hostplane` · `milan_dp` · `ptp` · `ptp_ts` · `tsn_fuzz` | — |
 

@@ -21,7 +21,7 @@ records verified behavior and the remaining mandatory gaps:
 | Check canonical feature status | [Milan feature status ledger](reference/MILAN_FEATURE_STATUS.md) |
 | Find a CSR | [Register map](reference/REGISTER_MAP.md) |
 | Run verification | [Testing guide](testing/TESTING.md) |
-| Build and deploy | [Building](integration/BUILDING.md) and [QSPI flash boot](integration/QSPI_FLASHBOOT.md) |
+| Build and deploy | [Building](integration/BUILDING.md), [bare-metal product firmware](integration/BAREMETAL_FIRMWARE.md), and [retained Linux QSPI boot](integration/QSPI_FLASHBOOT.md) |
 | Diagnose a failure | [Troubleshooting](limitations/TROUBLESHOOTING.md) |
 
 ## Current control-plane boundary
@@ -30,6 +30,13 @@ records verified behavior and the remaining mandatory gaps:
 is the only IEEE 1722.1 and SRP control plane. MAAP remains in this repository.
 The exact served AECP command inventory, root integration seams, counter
 coverage, and mandatory gaps are recorded in the current audit.
+
+`hdl/ieee8021as/gptp_plane/KL_gptp_shadow.sv` wraps the pinned
+`gptp-processor` submodule. In the product profile it owns BMCA, Pdelay,
+Sync/Follow_Up, PHC adjfine/adjtime and the atomic GM/parent/clock-validity
+publication bank. The former `ptp4l`/daemon path is retained only in an
+explicit fabric-gPTP-off Linux comparison profile; #117 owns the still-open
+two-board wire and reference-plane acceptance.
 
 The entity model is served from main memory. An ordinary run of
 `sw/builder/endstation_builder.py` generates review artifacts under
@@ -47,9 +54,10 @@ and `aem_desc.map` files in the sibling rootfs overlay when it is present.
 | [Integration guide](integration/INTEGRATION_GUIDE.md) | `milan_datapath` boundary contract |
 | [Porting guide](integration/PORTING_GUIDE.md) | Non-Xilinx and non-Vivado integration |
 | [Building](integration/BUILDING.md) | Board builds and build gates |
-| [QSPI flash boot](integration/QSPI_FLASHBOOT.md) | Matched image deployment and recovery |
+| [Bare-metal firmware](integration/BAREMETAL_FIRMWARE.md) | Shipping RV32I profile, AEM boot, PHC epoch and fabric-gPTP ownership |
+| [QSPI flash boot](integration/QSPI_FLASHBOOT.md) | Retained Linux matched-image deployment and recovery |
 | [LiteX SoC](litex/LITEX_SOC.md) | Softcore host integration |
-| [Software index](../sw/README.md) | Driver, device tree, builder, and utility entry points |
+| [Software index](../sw/README.md) | Retained Linux/option-off driver, device tree and utility entry points |
 | [Register map](reference/REGISTER_MAP.md) | AXI4-Lite ABI shared by RTL and software |
 
 ## RTL and design
@@ -74,7 +82,7 @@ and `aem_desc.map` files in the sibling rootfs overlay when it is present.
 | [Testing guide](testing/TESTING.md) | Verification layers and exact commands |
 | [Running tests](testing/RUNNING_TESTS.md) | Layered execution runbook |
 | [Simulation](testing/SIMULATION.md) | RTL and SoC simulation boundaries |
-| [BDD suite](../tests/README.md) | 15 features, 338 scenarios, and 1,615 steps in the 2026-08-18 run |
+| [BDD suite](../tests/README.md) | 15 features, 334 scenarios, and 1,571 steps in the current 2026-08-20 rerun |
 | [Verilator suites](../tb/verilator/README.md) | RTL harness inventory |
 | [Generated module matrix](traceability/MODULE_MATRIX.md) | Module to specification to test roll-up |
 | [Current Milan v1.2 audit](testing/MILAN_V12_AUDIT_2026-08-16.md) | Exact results, limitations, and mandatory gaps |

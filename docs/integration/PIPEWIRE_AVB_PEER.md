@@ -8,6 +8,10 @@ How to stand up a plain Linux box as a **PipeWire-native AVB endpoint**
 (listener/talker) against the boards, and how to get the pilot tone flowing
 from the talker's CSRs into a bound stream. Everything here was verified on
 the bench 2026-07-25; the fault list at the end is real history, not theory.
+The `ptp4l` commands below run on that **external peer host** because PipeWire's
+AVB module consumes its management socket. They do not describe gPTP ownership
+inside the DUT: the product DUT uses the fabric engine, while DUT-side
+`ptp4l` exists only in an explicit option-off comparison profile.
 
 ## Contents
 

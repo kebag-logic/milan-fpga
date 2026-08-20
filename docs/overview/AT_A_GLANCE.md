@@ -126,9 +126,10 @@ through the classifier and the shaper** — the fabric engines inject after it �
 the **RX media path taps upstream of the TCAM filter**, so the fabric keeps
 listening while the filter shields the CPU, and **the control plane's TX is one
 lane, not five**: the processor emits a single packed byte stream for every
-protocol it owns and MAAP joins it in the `ctl_tx` mux, so the TX arbiter
-cascade is four muxes (`ctl_tx`, `aaf_final`, `crf_dp`, `adp_tx` — LSB first in
-`A_TXARB_DIAG` at `0x784`), not the eight it was. The first two are drawn
+protocol it owns and MAAP joins it in the `ctl_tx` mux. Default fabric gPTP
+then joins at `gptp_ctl`, so `A_TXARB_DIAG` at `0x784` exposes five live lanes:
+`ctl_tx`, `aaf_final`, `crf_dp`, `adp_tx`, `gptp_ctl` (LSB first), not the old
+eight. Bits 7:5 are structural zero. The first two caveats are drawn
 properly, hop by hop, in
 [`../fpga/DATAPLANE_WALKTHROUGH.md`](../fpga/DATAPLANE_WALKTHROUGH.md).
 
@@ -197,8 +198,9 @@ Verilator suite is its executable form.
 is an ABI.** What changed is what the words *mean*: a group whose source is gone
 reads a documented **structural zero**, and a few provisioning words are now
 **write-only scratch** that read back what software wrote while reaching nothing
-on the wire. `A_TXARB_DIAG` (`0x784`) additionally **renumbered** its lanes with
-the 8→4 mux collapse. [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) is the
+on the wire. `A_TXARB_DIAG` (`0x784`) additionally **renumbered** its lanes when
+the legacy cascade collapsed, then gained fabric-gPTP lane 4.
+[`REGISTER_MAP.md`](../reference/REGISTER_MAP.md) is the
 authority for every one of those,
 word by word; do not infer liveness from a plausible value.
 

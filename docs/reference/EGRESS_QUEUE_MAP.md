@@ -35,7 +35,7 @@ The CSR view is [REGISTER_MAP.md](REGISTER_MAP.md) — `CAP.num_queues`,
 - **[PCP → traffic class → queue (tagged traffic)](#pcp--traffic-class--queue-tagged-traffic)** — The four-step table chain with its reset values, and the resulting PCP→queue row. The detail that matters when reprogramming: an entry naming a queue ≥ the queue count is **clamped to q0**, not handed to the demux, which would silently drop the frame — still load-bearing because 5 is not a power of two and three codes name nothing.
 - **[Untagged control traffic is classified by destination MAC](#untagged-control-traffic-is-classified-by-destination-mac)** — The reserved-address table plus the three cases it cannot settle by itself: gPTP and MSRP share one address and are split by EtherType, AECP has no group address so its arm keys on EtherType and is documented as the weakest rather than dressed up, and a *tagged* `0x22F0` stays a stream. Also why there is no EtherType precondition at all — an RSTP BPDU has none to match.
 - **[CBS reset slopes](#cbs-reset-slopes)** — The per-queue idleSlope, hiCredit and loCredit, summing to 72.5 % under the 75 % ceiling. Two decisions worth knowing: the removed spare's 2.5 % is left unallocated on purpose, and every queue powers up **unshaped** because shaping q0 at reset once paced all best-effort TX to ~250 Mbit/s on silicon.
-- **[Why gPTP sits below the shaped classes](#why-gptp-sits-below-the-shaped-classes)** — Written because someone will read the ordering as a bug. Three arguments: CBS's latency bound assumes the shaped queues are on top, gPTP is stamped at the egress SFD *downstream* of the arbiter so queueing shifts when it leaves and not what it says, and the measured service — 9.18 % of the port, worst gap 23.55 µs — is 40× what 802.1AS consumes. Ends by retiring the misdiagnosis that started the worry.
+- **[Why gPTP sits below the shaped classes](#why-gptp-sits-below-the-shaped-classes)** — Written because someone will read the option-off queue ordering as a bug. Three arguments: CBS's latency bound assumes the shaped queues are on top, the retained CPU path records an AXIS-SOP timestamp plus the configured wire correction downstream of the arbiter, and the measured service — 9.18 % of the port, worst gap 23.55 µs — is 40× what 802.1AS consumes. Default fabric gPTP bypasses these queues and uses `KL_gptp_txstamp` at the MAC boundary.
 - **[FQTSS: what is actually measured](#fqtss-what-is-actually-measured)** — The clause-34 checks with their numbers, including the non-vacuity control that proves the split is the shaper and not the arbiter (CBS off → q4 takes 100 %). Then the honest part: the reservation is **over-delivered** — 90.8 % of the port at a 45 % slope — with the mechanism spelled out. Size a reservation against the delivered share, not the configured slope.
 - **[CBS slope ordering after the substitution](#cbs-slope-ordering-after-the-substitution)** — The one thing the protocol-processor SRP engine does differently from the deleted `KL_lwsrp_bw_gate`: it asserts admission and slope in the *same* cycle instead of sequencing them around a hold. Equal on the opening edge, conservative on the closing one — and what is genuinely lost is the hold as a named, testable behaviour.
 - **[Ingress (RX to the CPU): two queues](#ingress-rx-to-the-cpu-two-queues)** — The RX split is now gPTP versus everything else, and the section records what that *cost*: the TCP flow-hash split that broke the single-NAPI ACK ceiling is gone and bulk RX reverts to the one-hart number. Also the reflash-gated procedure for raising the AX to two queues, which moves every DMA window by `0x74`.
@@ -412,13 +412,14 @@ it is a correctness requirement:
   not account for. The shaper still runs, but the guarantee it computes is no
   longer the guarantee the network gets. In short: a CBS guarantee does not
   survive an unshaped higher-priority queue sitting above the shaped classes.
-* **gPTP does not need to be on top, because it is not timed by when it
-  leaves.** Every event message is hardware-timestamped at the **egress SFD**
-  in `ptp_ts_top`, downstream of this arbiter. A queueing delay therefore
-  changes *when* the message goes out, not the timestamp it carries — and the
-  residence time is exactly what the protocol's correction field exists to
-  absorb. What would genuinely hurt gPTP is timestamp *error*, and that is
-  unaffected by queue order.
+* **Option-off gPTP does not need to be on top, because it is not timed by when
+  it leaves.** `ptp_ts_top`, downstream of this arbiter, records the accepted
+  AXIS-SOP time and adds the configured 0x544 correction toward the wire
+  reference plane. Queueing changes *when* the message leaves, not the
+  timestamp paired with it. Default fabric gPTP bypasses the queue map entirely
+  and receives a sequence-matched timestamp from `KL_gptp_txstamp` after the
+  final merge at the MAC boundary. What would genuinely hurt either path is
+  timestamp error, and that is independent of queue priority.
 * **The load argument is not close, and it is measured, not asserted.** A Milan
   class-A domain at 48 kHz runs 8000 frames/s per stream; gPTP runs 8–16
   frames/s. [`tb/verilator/shaper_core`](../../tb/verilator/shaper_core) (FQTSS-4) drives q4 shaped at its 450 Mb/s
@@ -573,7 +574,8 @@ IFG gasket:
 
 So the q4/q3/q1 assignments bite for **CPU-originated** traffic today: a
 software AVDECC controller or a software MSRP stack lands on q1, gPTP from the
-PTP daemon lands on q2, and everything else lands on q0. Moving the fabric
+PTP daemon in an **explicit option-off build** lands on q2, and everything else
+lands on q0. Moving the fabric
 talker inside the shaper is a separate piece of work (the `is_1g` follow-up
 noted in `milan_datapath.sv`).
 

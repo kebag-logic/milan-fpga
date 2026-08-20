@@ -39,7 +39,7 @@ The name is kept because the wrapper's name is kept; the suite is a
 
 | # | Check group | What it establishes |
 |---|---|---|
-| A | presence + CSR window | `PP_STAT[31:24]` is a constant `0x5B` tag, so a structural zero can never be read as "present and idle"; `TXARB_DIAG` decodes with its `0xA7` tag and its lanes 7:4 read the documented structural zero |
+| A | presence + CSR window | `PP_STAT[31:24]` is a constant `0x5B` tag, so a structural zero can never be read as "present and idle"; `TXARB_DIAG` decodes with its `0xA7` tag; this harness's gPTP-off lane 4 and the always-reserved lanes 7:5 read structural zero |
 | P | **the saved-state verdict does not lie** | with `restore_go` driven pre-enable, `PP_STAT` must NOT read as a successful restore on a build whose NVM device face is a blank-flash responder. Graded through the decoder software already has (`done && !fail && !alarm`), so the fix had to land in an encoding existing readers understand, plus `[6] nvm_backed = 0` and `[7] nvm_blank = 1` for the three-way distinction. Before `0x0045` this read `0x5B00_0004`, byte-identical to a genuine restore of every sink |
 | B | RX classify → FIFO → serializer → validator | an ADP `ENTITY_DISCOVER` is accepted end to end; the counter only moves when the **processor** took a whole frame |
 | C | the classifier rejects non-control traffic | 8 IPv4 frames leave `rx_frames` flat. This is the check that protects the board — see the rate note below |
@@ -89,10 +89,9 @@ PROBE/ANNOUNCE PDUs. The graded facts are:
   the wire, and a *stall* is the same event one level down.
 
 The lane map is LSB-first `0 ctl_tx, 1 aaf_final, 2 crf_dp, 3 adp_tx`
-(the MAC boundary), and bits 7:4 are a documented structural zero — the cascade
-collapsed from eight muxes to four when the legacy plane's five control legs
-were deleted. Anything decoding `0x784` by the old numbering reads the wrong
-mux.
+(the MAC boundary), `4 gptp_ctl`; bits 7:5 are structural zero. This harness
+uses the gPTP-off RTL-default shape, so lane 4 is structural zero here too.
+Anything decoding `0x784` by the old numbering reads the wrong mux.
 
 ## The AECP answer, and the memory behind it
 

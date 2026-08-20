@@ -99,7 +99,7 @@ Companion: [`SIMULATION.md`](../testing/SIMULATION.md) (how the sim works) and
 - **[Section 22: arming a second talker takes the peer board off the network (and the arm that never happened)](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened)** -- With the lwSRP engine off, an armed `t > 0` context sends ~56,000 frames/s and drowns the peer, because **the bandwidth gate is the pacer** -- there is no free-running timer behind it. The companion trap is worse: with the engine off, `TCTX` word-0 writes are dropped while the bus write completes, so "disable → arm → enable" produces an unarmed context whose readback agrees with you. Take arm truth from the `0x804` snapshot instead.
 - **[Section 23: ADD_AUDIO_MAPPINGS answers BAD_ARGUMENTS - which of the four rules did the record break?](#section-23-add_audio_mappings-answers-bad_arguments---which-of-the-four-rules-did-the-record-break)** -- The live writer's validity rules, their physical reasons, the practical 8x8 cluster-offset map, and the two probe-tool caveats that cost an hour. Accepted commands commit atomically; persistence remains open under issue #70.
 - **[Section 24: "the counter reads 0" and nothing is wrong - structural zeros after the control-plane substitution](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution)** -- The first thing to check before debugging a dead-looking register: a whole class of CSR words now reads a structural zero because the RTL behind it was deleted, and another class reads back what software wrote while reaching nothing. How to tell those two from a real fault, and where the per-word verdicts live.
-- **[Section 25: A_TXARB_DIAG 0x784 decodes to the wrong mux - the lanes were renumbered](#section-25-a_txarb_diag-0x784-decodes-to-the-wrong-mux---the-lanes-were-renumbered)** -- The TX arbiter cascade collapsed from eight muxes to four, so every old decode of `0x784` now reads a different mux than it names. Old and new orders side by side.
+- **[Section 25: A_TXARB_DIAG 0x784 decodes to the wrong mux - the lanes were renumbered](#section-25-a_txarb_diag-0x784-decodes-to-the-wrong-mux---the-lanes-were-renumbered)** -- Four legacy control merges disappeared and default fabric gPTP added lane 4, so every old decode of `0x784` reads a different mux than it names. Old and current orders are side by side.
 - **[Section 26: the controller finds the entity and enumerates nothing - the descriptor image was never loaded into DRAM](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram)** -- A provisioning failure: discovery and ACMP work, but every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS` immediately because the generated image was not loaded or failed verification. The section explains the status split, derived base, `aemi-load` checks, watchdog, and late-load recovery.
 
 ## Start here: which section is your problem in?
@@ -164,7 +164,7 @@ to argue with than a bug.
 | [21](#section-21-acmp-says-success-the-listener-declares-itself-bound---and-not-one-frame-is-accepted-root-caused-and-fixed-version-0x000f-mechanism-confirmed-on-silicon-2026-07-26) | ACMP returns SUCCESS, the listener reports bound, and `AVTPRX_FRX` stays `0` | a shared staging register plus a set-on-any-write `ovr_armed_r` detached entry 0 from the ACMP bound record, with no runtime path back (fixed, `VERSION 0x000F`) |
 | [22](#section-22-arming-a-second-talker-takes-the-peer-board-off-the-network-and-the-arm-that-never-happened) | arming a `t > 0` talker takes the peer board off the network; and an arm that a readback confirms but that never happened | class-A pacing comes from the SRP **reservation gate**, not a timer; and with the engine off, `TCTX` word-0 writes are dropped while the bus write completes |
 | [24](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution) | a diagnostic counter reads `0` forever; a control register accepts a write, reads it back, and changes nothing on the wire | its source RTL was **deleted** on 2026-08-13 — the word is a **structural zero** or a **write-only scratch**, not a measurement and not a control |
-| [25](#section-25-a_txarb_diag-0x784-decodes-to-the-wrong-mux---the-lanes-were-renumbered) | `A_TXARB_DIAG 0x784` reports activity on the "wrong" lane, or bits 7:4 are always 0 | the TX arbiter cascade collapsed from **eight muxes to four** and the lanes were renumbered; an old decoder reads a different mux than it names |
+| [25](#section-25-a_txarb_diag-0x784-decodes-to-the-wrong-mux---the-lanes-were-renumbered) | `A_TXARB_DIAG 0x784` reports activity on the wrong lane, or lane 4 is unexpectedly zero | four legacy control merges disappeared, default fabric gPTP added lane 4, and an old decoder reads a different mux than it names; lane 4 is zero only option-off, while bits 7:5 are always zero |
 | [26](#section-26-the-controller-finds-the-entity-and-enumerates-nothing---the-descriptor-image-was-never-loaded-into-dram) | the controller discovers the entity, ACMP works, and **every `READ_DESCRIPTOR` answers `BAD_ARGUMENTS`** | the generated image was omitted, failed pairing or verification, or was written to the wrong derived base; an invalid image reports zero configurations and the store refuses cleanly rather than hanging |
 
 ---
@@ -1102,10 +1102,10 @@ lane that cannot possibly be active — control-lane traffic attributed to the
 CRF datapath, say — or reports the top four lanes permanently at zero and
 concludes four muxes have died.
 
-**Cause.** The TX arbiter cascade **collapsed from eight muxes to four** when
-the control plane was deleted: four of the control merges had only one source
-left once the planes feeding them were gone, so the merge itself went away. The
-diagnostic word kept its address and its shape; its **lane numbering changed**.
+**Cause.** Four of the original eight control merges disappeared when their
+sources were deleted. The default fabric-gPTP plane later added a new
+downstream injection merge. The diagnostic word kept its address and shape,
+but its **lane numbering changed**.
 
 | bit | was | is |
 |---|---|---|
@@ -1113,7 +1113,7 @@ diagnostic word kept its address and its shape; its **lane numbering changed**.
 | 1 | `ctl_tx` | **`aaf_final`** |
 | 2 | `srp_ctl` | **`crf_dp`** |
 | 3 | `lstn_ctl` | **`adp_tx`** — the MAC boundary mux |
-| 4 | `maap_ctl` | structural zero |
+| 4 | `maap_ctl` | **`gptp_ctl`** in the default build; structural zero with fabric gPTP off |
 | 5 | `aaf_final` | structural zero |
 | 6 | `crf_dp` | structural zero |
 | 7 | `adp_tx` | structural zero |
@@ -1125,8 +1125,9 @@ the old bit 1 (`ctl_tx`) now reads `aaf_final`, so a control-plane liveness
 check reports *activity* that is really the audio path. Both directions produce
 a confident wrong answer rather than an obvious break.
 
-**Fix.** Update the decoder to the four-lane order above. Bits 7:4 are a
-structural zero and are not evidence of anything — see
+**Fix.** Update the decoder to the current five-lane order above. Bits 7:5 are
+structural zero and are not evidence of anything; lane 4 is zero only in the
+explicit fabric-gPTP-off build — see
 [Section 24](#section-24-the-counter-reads-0-and-nothing-is-wrong---structural-zeros-after-the-control-plane-substitution).
 Per-word detail, as always, in [`REGISTER_MAP.md`](../reference/REGISTER_MAP.md).
 

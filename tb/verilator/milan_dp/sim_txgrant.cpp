@@ -44,10 +44,10 @@
  *       baseline, worst gap < 2^18 cycles, the control lane really did
  *       carry traffic (the drill must prove it exercised the trunk), and
  *       the A_TXARB_DIAG 0x784 stickies name any arbiter that locked up.
- *       THE LANE MAP RENUMBERED with the plane deletion: 0 ctl_tx,
- *       1 aaf_final, 2 crf_dp, 3 adp_tx (MAC boundary), and bits 7:4 are
- *       a structural zero - the old 0xE0 mask over lanes 5/6/7 now tests
- *       three lanes that do not exist, which is a check that cannot fail.
+ *       THE LANE MAP RENUMBERED with the plane substitution: 0 ctl_tx,
+ *       1 aaf_final, 2 crf_dp, 3 adp_tx (MAC boundary), 4 gptp_ctl. This
+ *       explicit gPTP-off elaboration reads lane 4 as structural zero; lanes
+ *       7:5 are reserved in every shape.
  */
 
 #include "Vmilan_datapath.h"
@@ -442,21 +442,20 @@ int main(int argc, char** argv) {
     ck("soak worst inter-accept gap < 2^18 cycles",
        soak.worst_gap < (1L << 18), 1);
 
-    // [6] arbiter verdicts. THE LANE MAP RENUMBERED (2026-08-13): the
-    //     cascade collapsed from eight muxes to four when the legacy plane's
-    //     five control legs were deleted, and the order is LSB-first
-    //     0 ctl_tx, 1 aaf_final, 2 crf_dp, 3 adp_tx (the MAC boundary).
-    //     The old 0xE0 mask named lanes 5/6/7, which are now part of the
-    //     documented structural zero in bits 7:4 - it could never have
-    //     failed again. All FOUR live lanes are graded instead, ctl_tx
-    //     included: it is the lane this whole drill loads.
+    // [6] arbiter verdicts. Four core lanes survive the legacy-plane
+    //     substitution: 0 ctl_tx, 1 aaf_final, 2 crf_dp, 3 adp_tx. The
+    //     product-default fabric-gPTP merge is lane 4, but this is the
+    //     explicit GPTP_PLANE_EN_P=0 elaboration: lane 4 must therefore be
+    //     structural zero here, while lanes 7:5 are zero in every shape.
     uint32_t d = axi_read(A_TXARB_DIAG);
     print_txarb("final");
     ck("TXARB_DIAG tag == 0xA7 (the window decodes)", d >> 24, 0xA7);
     ck("no ABORT sticky on ANY of the four live muxes", (d >> 8)  & 0x0F, 0);
     ck("no STALL sticky on ANY of the four live muxes", (d >> 16) & 0x0F, 0);
-    ck("lanes 7:4 are a STRUCTURAL ZERO (four muxes, not eight)",
-       ((d >> 4) & 0xF) | ((d >> 12) & 0xF) | ((d >> 20) & 0xF), 0);
+    ck("gPTP-off lane 4 is a STRUCTURAL ZERO in all fields",
+       d & 0x00101010u, 0);
+    ck("lanes 7:5 are STRUCTURAL ZERO in every build",
+       d & 0x00E0E0E0u, 0);
     ck("AAF never stopped (fabric health)", eg_aaf_frames > 1000, 1);
 
     printf("--------------------------------------------------------------\n");

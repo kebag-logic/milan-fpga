@@ -1,5 +1,10 @@
 # How to play music out of the Milan talker
 
+> **Retained Linux/option-off workflow.** This dated player recipe uses the
+> Linux sound-card and host ring from a bring-up build. The shipping
+> cacheless RV32I/fabric-gPTP profile omits that host sound-card surface; see
+> [integration/BAREMETAL_FIRMWARE.md](integration/BAREMETAL_FIRMWARE.md).
+
 Plays a file from the board's RAM out of the AAF talker, over AVB, to a peer
 listener. Proven on silicon 2026-08-03 (FLAC out of a DS20D's AES 3/4 while
 the pilot tone ran on its 1/2). The full software-path audit is

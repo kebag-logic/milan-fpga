@@ -15,6 +15,7 @@ VFLAGS = --cc --exe --build -j 0 \
          -CFLAGS "-std=c++17 -O2 -I$(CURDIR)"
 SRCS = gptp_shadow_wrap.sv \
        $(RTL_DIR)/ieee8021as/ptp_timestamp/timestamp_counter.sv \
+       $(RTL_DIR)/ieee8021as/ptp_timestamp/KL_ptp_clock_validity.sv \
        $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_shadow.sv \
        $(RTL_DIR)/ieee8021as/gptp_plane/KL_gptp_txstamp.sv \
        $(AXIS_DIR)/axis_fifo.v \

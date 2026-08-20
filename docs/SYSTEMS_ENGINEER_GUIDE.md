@@ -511,9 +511,9 @@ corpus, because the RTL they name is deleted:
   `KL_talker_diag_ctx` is instantiated for every declared output, and solicited
   GET_COUNTERS serves the five-counter bank. The Table 5.22 notification
   scheduler remains open. STREAM_INPUT counters remain a separate family.
-- "`A_TXARB_DIAG` lane 0 is `aecp_acmp`" or any eight-lane reading of `0x784` → the cascade
-  collapsed to **four** muxes: LSB first, 0 `ctl_tx`, 1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx`,
-  bits 7:4 a structural zero.
+- "`A_TXARB_DIAG` lane 0 is `aecp_acmp`" or any old eight-lane reading of `0x784` → current
+  default lanes are, LSB first, 0 `ctl_tx`, 1 `aaf_final`, 2 `crf_dp`, 3 `adp_tx`,
+  4 `gptp_ctl`. Lane 4 is zero only with fabric gPTP off; bits 7:5 are always structural zero.
 - "`ADP_CTRL.en` starts the advertiser" / "`PP_CTRL[0]` is required" → the two are **ORed**;
   either enables the entity, and `milan_csr`'s `PP_PLANE_P` parameter is gone so the `0x920`
   window is always decoded.

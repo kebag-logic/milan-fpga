@@ -82,7 +82,8 @@
 //      arbiters must show no abort and no stall: an abort is the watchdog
 //      injecting a close beat, which IS a corrupted frame on the wire.
 //      A_TXARB_DIAG's lane map is LSB-first 0 ctl_tx, 1 aaf_final, 2 crf_dp,
-//      3 adp_tx, and bits 7:4 are a documented structural zero.
+//      3 adp_tx, 4 gptp_ctl. This gPTP-off harness reads lane 4 as structural
+//      zero; bits 7:5 are structural zero in every shape.
 //
 //   J. The global anti-wedge invariant: accepted == answered over every cycle.
 //
@@ -804,13 +805,12 @@ int main(int argc, char** argv) {
     uint32_t stat = axi_read(A_PP_STAT);
     ck("PP_STAT tag == 0x5B (plane present)", (stat >> 24) & 0xFF, 0x5B);
     ck("PP_DIAG clean at reset", axi_read(A_PP_DIAG), 0x00000000);
-    // The TX-trunk supervisor decodes, and its four unused lanes are a
-    // STRUCTURAL ZERO by construction (the cascade collapsed from 8 muxes to
-    // 4 when the legacy plane's five control legs were deleted), not four
-    // arbiters that happen never to have locked.
+    // The TX-trunk supervisor decodes. This gPTP-off harness has a structural
+    // zero in lane 4, and the reserved lanes 7:5 are structural zero in every
+    // shape; none are arbiters that happen never to have locked.
     ck("TXARB_DIAG tag == 0xA7 (window decodes)",
        axi_read(A_TXARB_DIAG) >> 24, 0xA7);
-    ck("TXARB_DIAG lanes 7:4 are a structural zero",
+    ck("TXARB_DIAG gPTP-off lane 4 and reserved lanes 7:5 are zero",
        (axi_read(A_TXARB_DIAG) >> 4) & 0xF, 0x0);
 
     // Provision the identity BEFORE the plane is enabled: entity_id is the

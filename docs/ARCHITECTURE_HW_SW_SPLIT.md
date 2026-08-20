@@ -17,8 +17,10 @@ parameter, no fallback and no shadow arm. It owns ADP, ACMP (talker and
 listener) and SRP. MAAP stays in this fabric (`KL_maap` +
 [`hdl/milan/KL_pp_maap_shim.sv`](../hdl/milan/KL_pp_maap_shim.sv)) because the
 processor implements none by design. The rev-2 ADP advertiser, AECP/AEM engine,
-ACMP talker/listener and lwSRP applicant are **deleted**. This document is the
-normative delimitation; the rev-2 `atdecc_architecture.drawio` page
+ACMP talker/listener and lwSRP applicant are **deleted**. This document is a
+historical ownership addendum; current authority is
+[`docs/overview/ARCHITECTURE.md`](overview/ARCHITECTURE.md) plus the generated
+feature and traceability ledgers. The rev-2 `atdecc_architecture.drawio` page
 `9-hw-sw-split` that used to mirror it was deleted with the plane it drew.
 
 **The AECP row is the one to read first: this entity serves the processor's
@@ -47,7 +49,7 @@ boot sequence below.
 ## Contents
 
 - **[The dividing principle](#the-dividing-principle)** -- The test for "fabric or softcore", plus the measurement that forced rev 2: class-A AAF wants a frame every 125 us and the measured softcore wakeup is 340–560 us, so the framer cannot live in userspace.
-- **[Per-function delimitation](#per-function-delimitation)** -- The normative table names which side owns each function, the served AECP inventory and the remaining gaps.
+- **[Per-function delimitation](#per-function-delimitation)** -- The historical table records which side owned each function, the served AECP inventory and the remaining gaps at that revision.
 - **[What rev 3 costs, named](#what-rev-3-costs-named)** -- The remaining losses include unavailable media-clock selection, the pinned presentation offset and the missing Table 5.22 producer. Solicited Stream Output counters are live.
 - **[Boundary contracts (the only crossings)](#boundary-contracts-the-only-crossings)** -- The interfaces that are allowed to cross: the 0x600 identity CSRs, the DMA rings + timestamp window, the read-only descriptor-memory master into DRAM, the PHC, the DMA audio ring, and the mailbox -- now telemetry-and-override, explicitly not a liveness gate.
 - **[Rationale anchors (paid-for evidence)](#rationale-anchors-paid-for-evidence)** -- Why the split is believed rather than asserted: la_avdecc enumerated the rev-2 entity with the CPU idle (evidence that must now be re-taken against the uCPU and its DDR3 image), one hardware counter fed both ADP and AEM so wire truth could not diverge, and the TX-ceiling work showed the CPU is the scarce resource.
