@@ -575,18 +575,10 @@ def test_baremetal_profile_contract():
         docs_source = fh.read()
     with open(csr_path, encoding="utf-8") as fh:
         csr_source = fh.read()
-    # Every closure rule below reads ONE file and calls it the firmware. That
-    # is only true while the firmware IS one translation unit, so read that
-    # off the Makefile rather than assume it: a second object file is a second
-    # place a CSR store could live, and none of these rules would see it.
     with open(os.path.join(os.path.dirname(firmware_path), "Makefile"),
               encoding="utf-8") as fh:
-        objects = re.search(r"(?m)^OBJECTS\s*=\s*(.*)$", fh.read())
-    assert objects and objects.group(1).split() == \
-        [os.path.basename(firmware_path)[:-2] + ".o"], \
-        "the bare-metal firmware must stay ONE translation unit, or the CSR " \
-        "store closure this gate proves covers only part of the image; " \
-        f"Makefile builds {objects and objects.group(1).split()}"
+        makefile_source = fh.read()
+    firmware_object = os.path.basename(firmware_path)[:-2] + ".o"
 
     def braced_span(source, guard, label):
         assert guard, f"firmware boot guard missing: {label}"
@@ -683,7 +675,23 @@ def test_baremetal_profile_contract():
         contract reasons. The ONE exception is the QSPI-slot group inside
         load_aem_image(), which is not refused but CLASSIFIED: the verifier's
         return rule pins every non-zero return to the arm the CRC guard is in,
-        so neither arm can hand back a pass the CRC never earned."""
+        so neither arm can hand back a pass the CRC never earned.
+
+        COST, stated here because this docstring is what survives the merge:
+        both refusals are blanket, over the whole FILE and not over the boot
+        path, and they RED firmware that is perfectly legitimate. An `#ifdef`
+        around a debug printf in a UART command handler is refused. So is ANY
+        multi-line `#define` anywhere in the file, boot path or not, which is
+        the broader of the two since it reaches every macro the firmware may
+        ever want. Whoever needs one has to move it out of this translation
+        unit, or replace the refusal with a preprocessor this gate can
+        actually evaluate. Issue #153 is the second of those.
+
+        And classifying the tolerated group's ARMS is not the same as
+        following its DATA. The rule that ties the comparison to a real CRC
+        is an existence test over the whole function, so a constant assigned
+        to the same local in the compiled arm still passes: see the OPEN list
+        this gate prints, and #153."""
         directives, _ = cpp_arms(code)
         for directive in directives:
             assert load_span[0] <= directive.start() < load_span[1], \
@@ -729,6 +737,33 @@ def test_baremetal_profile_contract():
     sv_literal_re = re.compile(
         r"\A\s*(?:[0-9]+[ \t]*)?'[sS]?[hdboHDBO][0-9A-Fa-f_xzXZ?]+\s*\Z|"
         r"\A\s*[0-9][0-9_]*\s*\Z")
+    #: A based literal split into the parts a mutation has to keep: the width
+    #: and base prefix, and the digits it may rewrite.
+    sv_based_re = re.compile(
+        r"\A(?P<head>(?:[0-9]+)?'[sS]?(?P<base>[hdboHDBO]))"
+        r"(?P<digits>[0-9A-Fa-f_]+)\Z")
+    sv_bases = {"h": 16, "d": 10, "o": 8, "b": 2}
+    sv_formats = {16: "x", 10: "d", 8: "o", 2: "b"}
+
+    def sv_literal_value(text):
+        """`text` as an integer, or None when this gate cannot read EVERY bit
+        of it. An `x` or `z` digit lands here as None on purpose: a bit whose
+        value the RTL does not state is not a bit this gate may call clear."""
+        literal = re.sub(r"[\s_]", "", text.strip())
+        if not literal:
+            return None
+        if "'" in literal:
+            based = sv_based_re.match(literal)
+            if not based:
+                return None
+            base = sv_bases[based.group("base").lower()]
+            digits = based.group("digits").replace("_", "")
+        else:
+            base, digits = 10, literal
+        try:
+            return int(digits, base)
+        except ValueError:
+            return None
 
     def csr_write_decode(csr, signal):
         """`(labels, other)` for `signal` in the CSR RTL.
@@ -782,11 +817,23 @@ def test_baremetal_profile_contract():
         return governed, other
 
     def assert_decode_is_one_to_one(csr, model):
-        """The RTL writes each entity-enable register from exactly ONE address.
+        """Each entity-enable register is written from ONE address, and comes
+        out of reset DISABLED.
 
-        The name-to-address table alone does not say this: a SECOND decode arm
-        gives the same register a second address, and every census keyed on the
-        first address then looks straight past a write through the second."""
+        The name-to-address table alone does not say the first: a SECOND
+        decode arm gives the same register a second address, and every census
+        keyed on the first address then looks straight past a write through
+        the second.
+
+        And the whole firmware census says nothing at all about the second.
+        Every rule about who may SET bit 0 is a rule about writes; bit 0's
+        value before the first write is the reset literal, so a reset of
+        `32'h0000_0A01` advertises the entity from FPGA configuration onward
+        -- before the CPU has run an instruction, before configure_fabric(),
+        before an AEM image exists in DRAM, and forever if the firmware never
+        reaches the guard at all. The PHC reset is pinned below because the
+        contract wants it ENABLED; these two are pinned here because the
+        contract wants them CLEAR."""
         assert re.search(
             r"\bwire\s*\[\s*ADDR_WIDTH\s*-\s*1\s*:\s*0\s*\]\s*wr_addr\s*=\s*"
             r"s_axi_awaddr\s*;", csr), \
@@ -812,6 +859,14 @@ def test_baremetal_profile_contract():
                     f"the RTL writes {signal} outside the CSR write decode " \
                     f"with {rhs.strip()!r}: only a literal reset value may " \
                     "reach it there, or bus data has a second route in"
+                # ... and a literal is not enough. Bit 0 IS the safety
+                # property, so the value it resets to is part of it.
+                value = sv_literal_value(rhs)
+                assert value is not None and not value & 1, \
+                    f"the RTL must reset {signal} with bit 0 CLEAR, but it " \
+                    f"resets to {rhs.strip()!r}: {port} is then asserted " \
+                    "from FPGA configuration onward, so the entity is " \
+                    "advertised before any firmware has verified an AEM image"
             drive = list(re.finditer(
                 rf"\bassign\s+{port}\s*=\s*{re.escape(signal)}\s*"
                 rf"\[\s*0\s*\]\s*;", csr))
@@ -961,18 +1016,10 @@ def test_baremetal_profile_contract():
     def ptp_reset_assignment(csr):
         match = reset_pattern.search(csr)
         assert match, "bare-metal PHC contract requires a literal reset value"
-        literal = re.sub(r"\s|_", "", match.group("literal"))
-        if "'" in literal:
-            _width, encoded = literal.split("'", 1)
-            base = {"h": 16, "d": 10, "b": 2}[encoded[0].lower()]
-            digits = encoded[1:]
-        else:
-            base, digits = 10, literal
-        try:
-            value = int(digits, base)
-        except ValueError as exc:
-            raise AssertionError(
-                f"unsupported ptp_ctrl reset literal: {literal}") from exc
+        literal = match.group("literal")
+        value = sv_literal_value(literal)
+        assert value is not None, \
+            f"unsupported ptp_ctrl reset literal: {literal}"
         return match, value
 
     def crc_mismatch_guard(load_source):
@@ -1001,10 +1048,14 @@ def test_baremetal_profile_contract():
           and macro-body traps that gave that reading its teeth are refused
           outright by assert_preprocessor_visible(), not modelled here.
         * It reasons about SPELLING, not values. A store through a pointer
-          held in a variable, an inline-asm store, or a write from another
-          translation unit is outside what any of these regexes can see; the
-          firmware is one file with no asm stores and no such pointer today,
-          and rules 1 to 3 are what keep it that way.
+          held in a variable or an inline-asm store is outside what any of
+          these regexes can see; the firmware has neither today, and rules 1
+          to 3 are what keep it that way.
+        * A store from a SECOND translation unit is outside them entirely.
+          Nothing here reads a second file, so rules 1 to 3 cannot be what
+          keeps one out; assert_single_translation_unit() refuses one, and
+          until round five that check read `OBJECTS =` and stopped, so an
+          `OBJECTS += second.o` on the next line voided every rule above.
         * It says nothing about REACHABILITY. That a store exists in the guard
           is proved here; that control reaches it only through the guard is
           proved by the label/goto/switch refusal in assert_boot_contract()."""
@@ -1076,7 +1127,89 @@ def test_baremetal_profile_contract():
                 f"#define {name} aliases a CSR primitive: every CSR store " \
                 "must be spelled milan_write() so the census can see it"
 
-    def assert_boot_contract(firmware, docs, csr):
+    #: One assignment to OBJECTS in any of make's assignment flavours. The
+    #: cumulative ones are the point: reading `OBJECTS =` and stopping reports
+    #: a translation-unit count the build does not have.
+    objects_assign_re = re.compile(
+        r"(?m)^[ \t]*(?:override[ \t]+)?OBJECTS[ \t]*"
+        r"(=|:=|::=|\+=|\?=|!=)[ \t]*(.*)$")
+    objects_token_re = re.compile(r"[A-Za-z0-9_.+/-]+")
+
+    def makefile_objects(makefile):
+        """The Makefile's OBJECTS as a list, or None when this gate cannot
+        evaluate every token of it.
+
+        make evaluates a VARIABLE, not a line. `=`, `:=`, `?=` and `+=` each
+        build on what came before, so a second line is a second object: an
+        `OBJECTS += milan_bringup.o` links a second `.c` with its own CSR
+        base, its own address helper and its own init hook, and not one rule
+        in this gate reads that file. Anything whose value depends on make's
+        own evaluation -- a variable, a function, a wildcard, a shell
+        assignment -- returns None, and the caller refuses it."""
+        text = re.sub(r"\\\n", " ", makefile)
+        text = re.sub(r"(?m)#[^\n]*", "", text)
+        assigned = list(objects_assign_re.finditer(text))
+        spans = [(m.start(), m.end()) for m in assigned]
+        for use in re.finditer(r"\bOBJECTS\b", text):
+            if any(a <= use.start() < b for a, b in spans):
+                continue
+            if not re.search(r"[$][({][ \t]*\Z", text[:use.start()]):
+                return None      # a define block, an eval, a foreach ...
+        value = None
+        for assign in assigned:
+            operator, tokens = assign.group(1), assign.group(2).split()
+            if operator == "!=" or not all(
+                    objects_token_re.fullmatch(t) for t in tokens):
+                return None      # shell output, or a token make expands
+            if operator == "+=":
+                value = (value or []) + tokens
+            elif operator == "?=" and value is not None:
+                continue
+            else:
+                value = tokens
+        return value
+
+    def assert_single_translation_unit(makefile, expected):
+        """The firmware image is built from exactly the one `.c` this reads.
+
+        Every closure rule above reads ONE file and calls it the firmware.
+        That is only true while the firmware IS one translation unit: a
+        second object file is a second place a CSR store can live, with its
+        own base, its own helper and its own init hook, and none of the rules
+        above would ever see it. So the object list is read off the Makefile
+        cumulatively, and a list this gate cannot evaluate is refused rather
+        than half-read.
+
+        SCOPE, so no later round mistakes it for more: this reads the
+        firmware's own Makefile. The two LiteX-supplied `include` lines above
+        it are trusted, and so is the toolchain's own link line; what is
+        checked here is that this Makefile contributes one object and
+        archives exactly that."""
+        objects = makefile_objects(makefile)
+        assert objects is not None, \
+            "the bare-metal firmware must stay ONE translation unit, and " \
+            "this gate cannot evaluate the Makefile's OBJECTS list (a " \
+            "variable, a function, a wildcard or a shell assignment), so it " \
+            "refuses it rather than read one line and assume the rest"
+        assert objects == [expected], \
+            "the bare-metal firmware must stay ONE translation unit, or the " \
+            "CSR store closure this gate proves covers only part of the " \
+            f"image; Makefile builds {objects}"
+        archive = [line.strip() for line in
+                   re.findall(r"(?m)^\t[ \t]*(\$\(AR\)[^\n]*)$", makefile)]
+        assert len(archive) == 1 and re.fullmatch(
+            r"\$\(AR\)[ \t]+[A-Za-z]+[ \t]+\$@[ \t]+\$\(OBJECTS\)",
+            archive[0]), \
+            "the library recipe must archive exactly $(OBJECTS), or an " \
+            "object the OBJECTS list never named reaches the image and the " \
+            f"CSR store closure covers only part of it; found {archive}"
+
+    def assert_boot_contract(firmware, docs, csr, makefile=None):
+        # The whole closure below reads ONE file. Prove that is the whole
+        # firmware before reading a line of it.
+        assert_single_translation_unit(
+            makefile_source if makefile is None else makefile,
+            firmware_object)
         # Comments and string literals are not code: blanking their bodies
         # (offsets preserved) keeps a commented-out enable from reading as an
         # enable, and a printf() from reading as a call.
@@ -1194,6 +1327,9 @@ def test_baremetal_profile_contract():
         # ... and the guarded block holds those two enables and their printf
         # and NOTHING else, so there is nothing else inside it for control to
         # be steered at, and nothing inside it this gate has not classified.
+        # COST: this is a refusal too. Any extra statement is RED, including a
+        # legitimate one -- `cdelay(64);` between the enables, say. Issue #153
+        # (an entity_advertise() choke point) is what retires it.
         residue = list(enable_block)
 
         def blank_out(start, stop):
@@ -1253,6 +1389,19 @@ def test_baremetal_profile_contract():
         crc_body, crc_close = braced_span(
             load_source, crc_guard, "CRC mismatch refusal")
         computed = crc_guard.group("lhs") or crc_guard.group("rhs")
+        # OPEN, and honestly so: this is an EXISTENCE test over the whole
+        # function. It does not ask which preprocessor arm the assignment is
+        # in, it does not ask that the assignment DOMINATE the comparison,
+        # and it does not read the arguments. So all three of these pass:
+        # `got = crc32(...)` parked in the arm the compiler drops with a
+        # constant in the compiled one; `got = MILAN_AEM_IMAGE_CRC32;`
+        # between the crc32() call and the comparison, which gcc does not
+        # warn about; and a CRC taken over the QSPI source rather than over
+        # MILAN_AEM_DESC_BASE, the DRAM buffer the descriptor store serves.
+        # All three are DATAFLOW defects and no pattern refusal reaches them.
+        # Issue #153 carries the fix: one entity_advertise() choke point, so
+        # the property is proved by data flow into a dozen lines instead of
+        # by banning constructs across the file.
         assert re.search(rf"\b{re.escape(computed)}\s*=\s*crc32\s*\(",
                          load_source), \
             "AEM verifier must compare the CRC it computed over the image"
@@ -1312,9 +1461,9 @@ def test_baremetal_profile_contract():
         assert changed != source, f"{label} mutation did not apply"
         return changed
 
-    def assert_rejected(label, firmware, docs, csr, because):
+    def assert_rejected(label, firmware, docs, csr, because, makefile=None):
         try:
-            assert_boot_contract(firmware, docs, csr)
+            assert_boot_contract(firmware, docs, csr, makefile)
         except (AssertionError, ValueError) as exc:
             # A mutation rejected on an incidental anchor mismatch proves
             # nothing about the safety property, so pin the reason too.
@@ -1653,6 +1802,95 @@ def test_baremetal_profile_contract():
         source_enable_block[source_adp_enable["stop"] + 1:],
         "extra statement inside the AEM-success guard")
 
+    # ---- and the two axes R1 opened at 2185e810: the object list, which one
+    # continuation line grows past the file this gate reads, and the reset
+    # values of the very two bits the whole census is about. Both compile,
+    # both are ordinary edits, and both used to pass.
+    source_objects_line = re.search(
+        r"(?m)^OBJECTS[ \t]*=[ \t]*\S+[ \t]*$", makefile_source)
+    assert source_objects_line, \
+        "single-translation-unit mutation lost the Makefile's OBJECTS line"
+    second_object = "milan_bringup.o"
+
+    def objects_grown(extra, label):
+        """The Makefile with `extra` appended to its OBJECTS line: a second
+        `.c` in the image, with its own CSR base, its own address helper and
+        its own init hook, and not one rule in this gate reads it."""
+        return replace_once(makefile_source, source_objects_line.group(0),
+                            source_objects_line.group(0) + extra, label)
+
+    listed_objects = objects_grown(
+        " " + second_object, "second object listed on the OBJECTS line")
+    appended_objects = objects_grown(
+        f"\nOBJECTS += {second_object}", "second object appended with +=")
+    continued_objects = objects_grown(
+        f" \\\n\t{second_object}", "second object on a continuation line")
+    wildcard_objects = replace_once(
+        makefile_source, source_objects_line.group(0),
+        "OBJECTS = $(patsubst %.c,%.o,$(wildcard *.c))",
+        "OBJECTS computed by a wildcard")
+    archived_objects = replace_once(
+        makefile_source, "$(AR) crs $@ $(OBJECTS)",
+        f"$(AR) crs $@ $(OBJECTS) {second_object}",
+        "second object archived past OBJECTS")
+    #: Pin the reason on the LIST the parser reported, not just on the rule:
+    #: a refusal that never saw the second object proves nothing about it.
+    both_objects = f"Makefile builds {[firmware_object, second_object]}"
+
+    def raised_bit0(statement, label):
+        """`statement` with bit 0 of its literal SET, rebuilt at the literal's
+        own width and base: the RTL's own spelling of its reset value with the
+        enable bit on, rather than a second literal hard-coded here."""
+        match = re.search(r"(?:<=|=)\s*([^;]*);", statement)
+        assert match, f"{label} mutation found no literal to raise"
+        literal = re.sub(r"\s", "", match.group(1))
+        value = sv_literal_value(literal)
+        assert value is not None and not value & 1, \
+            f"{label} mutation needs a readable literal with bit 0 clear"
+        based = sv_based_re.match(literal)
+        if based:
+            width = len(based.group("digits").replace("_", ""))
+            base = sv_bases[based.group("base").lower()]
+            raised = based.group("head") + format(
+                value | 1, f"0{width}{sv_formats[base]}")
+        else:
+            raised = str(value | 1)
+        return statement[:match.start(1)] + raised + statement[match.end(1):]
+
+    def literal_reset(signal):
+        """The one LITERAL assignment to `signal` in the RTL: its reset value,
+        found by what it is rather than by the line it sits on."""
+        found = [m.group(0) for m in re.finditer(
+            rf"\b{re.escape(signal)}\s*<=\s*([^;]*);", csr_source)
+            if sv_literal_re.match(m.group(1))]
+        assert len(found) == 1 and csr_source.count(found[0]) == 1, \
+            f"{signal} reset mutation found no unique literal reset: {found}"
+        return found[0]
+
+    adp_reset_statement = literal_reset("adp_ctrl")
+    pp_reset_statement = literal_reset("pp_ctrl_r")
+    adp_reset_enabled = replace_once(
+        csr_source, adp_reset_statement,
+        raised_bit0(adp_reset_statement, "ADP_CTRL reset"),
+        "ADP_CTRL reset value advertising the entity")
+    pp_reset_enabled = replace_once(
+        csr_source, pp_reset_statement,
+        raised_bit0(pp_reset_statement, "PP_CTRL reset"),
+        "PP_CTRL reset value enabling the protocol processor")
+    #: ... and the same with the READBACK default moved to match, so the
+    #: mutant is self-consistent SV that no other rule in the file disagrees
+    #: with: nothing but the reset rule itself can catch this one.
+    adp_default_statement = re.search(
+        r"\bA_ADP_CTRL\s*\[[^\]]*\]\s*:\s*csr_default\s*=\s*[^;]*;",
+        csr_source)
+    assert adp_default_statement, \
+        "ADP_CTRL reset mutation lost the readback default it must match"
+    consistent_reset_enabled = replace_once(
+        adp_reset_enabled, adp_default_statement.group(0),
+        raised_bit0(adp_default_statement.group(0),
+                    "ADP_CTRL readback default"),
+        "ADP_CTRL readback default agreeing with the raised reset")
+
     def condensed(text):
         return re.sub(r"\s+", "", text)
 
@@ -1858,9 +2096,37 @@ def test_baremetal_profile_contract():
          docs_source, csr_source,
          "the AEM-success guard must hold the two enables and their printf "
          "and nothing else"),
+        # ---- the object list: every rule above reads ONE file, so a second
+        # object is every rule above voided at once. make builds a VARIABLE,
+        # so each of its assignment flavours is its own way to add one.
+        ("second translation unit listed on the OBJECTS line", firmware_source,
+         docs_source, csr_source, both_objects, listed_objects),
+        ("second translation unit appended with OBJECTS +=", firmware_source,
+         docs_source, csr_source, both_objects, appended_objects),
+        ("second translation unit on an OBJECTS continuation line",
+         firmware_source, docs_source, csr_source,
+         both_objects, continued_objects),
+        ("object list this gate cannot evaluate", firmware_source,
+         docs_source, csr_source,
+         "cannot evaluate the Makefile's OBJECTS list", wildcard_objects),
+        ("second object archived past the OBJECTS list", firmware_source,
+         docs_source, csr_source,
+         "the library recipe must archive exactly $(OBJECTS)",
+         archived_objects),
+        # ---- and the reset values: the census governs who may SET bit 0,
+        # and says nothing about the value bit 0 holds before the first write.
+        ("ADP_CTRL reset value advertising the entity", firmware_source,
+         docs_source, adp_reset_enabled,
+         "the RTL must reset adp_ctrl with bit 0 CLEAR"),
+        ("PP_CTRL reset value enabling the protocol processor",
+         firmware_source, docs_source, pp_reset_enabled,
+         "the RTL must reset pp_ctrl_r with bit 0 CLEAR"),
+        ("ADP_CTRL reset and readback default both advertising",
+         firmware_source, docs_source, consistent_reset_enabled,
+         "the RTL must reset adp_ctrl with bit 0 CLEAR"),
     )
-    for label, firmware, docs, csr, because in mutations:
-        assert_rejected(label, firmware, docs, csr, because)
+    for mutation in mutations:
+        assert_rejected(*mutation)
     print("  [gate 1b] boot contract: PHC/gPTP live from reset and independent "
           "of AEM; verified AEM gates "
           f"{pp_label}[0] then {adp_label}[0] across the WHOLE firmware, not "
@@ -1872,20 +2138,35 @@ def test_baremetal_profile_contract():
           f"{len(reset_spellings)}/{len(reset_spellings)} equivalent reset "
           "spellings accepted")
     print("  [gate 1b] ... and the text this reads is the code that runs: one "
-          "translation unit per the Makefile, no preprocessor conditional and "
-          "no continued #define outside the QSPI-slot group whose BOTH arms "
-          "the verifier's return rule classifies, no label/goto/switch in "
-          "milan_init() and the three boot steps unconditional at its top "
-          "level, the guarded block holding the two enables and their printf "
-          "and nothing else, no pointer to the verdict, every non-zero return "
-          "of the verifier placed after the CRC refusal, and each enable "
-          f"register written from exactly ONE decode arm ({adp_label} and "
-          f"{pp_label}) driving its enable port from bit 0")
+          "translation unit per the Makefile read cumulatively across every "
+          "OBJECTS assignment and archived as exactly that, no preprocessor "
+          "conditional and no continued #define outside the QSPI-slot group "
+          "whose BOTH arms the verifier's return rule classifies, no "
+          "label/goto/switch in milan_init() and the three boot steps "
+          "unconditional at its top level, the guarded block holding the two "
+          "enables and their printf and nothing else, no pointer to the "
+          "verdict, every non-zero return of the verifier placed after the "
+          "CRC refusal, and each enable register written from exactly ONE "
+          f"decode arm ({adp_label} and {pp_label}), driving its enable port "
+          "from bit 0, and reset with that bit CLEAR")
+    print("  [gate 1b] ONE axis is a checked fact (the write decode, against "
+          "the RTL's own case arms); the other three are closed by REFUSING "
+          "the constructs that would break them, which costs real firmware: "
+          "any multi-line #define anywhere in the file, any #ifdef outside "
+          "load_aem_image() including one in a UART handler, and any extra "
+          "statement inside the guarded block are all RED")
     print("  [gate 1b] NOT proved here: the values the build's -D set and the "
           "generated headers supply (image bytes, CRC, entity ids - gate 28 "
-          "owns those), that crc32() is a CRC, and anything about a second "
-          "translation unit or an interrupt vector, both of which the two "
-          "checks above refuse rather than model")
+          "owns those), that crc32() is a CRC, and anything about an "
+          "interrupt vector or a second translation unit, the second of "
+          "which this gate refuses rather than models")
+    print("  [gate 1b] OPEN, no refusal reaches them, tracked as issue #153: "
+          "the rule tying the comparison to a real CRC is an EXISTENCE test, "
+          "so a constant assigned to the compared local in the compiled arm, "
+          "an overwrite between the crc32() call and the comparison, and a "
+          "CRC taken over the QSPI source instead of MILAN_AEM_DESC_BASE all "
+          "pass. They are dataflow defects; the fix is one entity_advertise() "
+          "choke point, not another pattern")
 
     print("  [gate 1b] shipping AX: fabric gPTP option on with config-derived "
           "1024-word ROM; VexiiRiscv RV32I at 50 MHz through its supported "
